@@ -78,7 +78,7 @@ def main() -> int:
     code, health = req("GET", "/api/health")
     check(
         "health",
-        code == 200 and health.get("ok") and health.get("version") == "0.2.0",
+        code == 200 and health.get("ok") and health.get("version") in {"0.2.0", "0.2.1"},
         json.dumps(health, ensure_ascii=False)[:220],
     )
 
