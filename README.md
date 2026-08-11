@@ -4,21 +4,22 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 
 ## Status
 
-- **Sprint 0:** DONE (Planung)
-- **Sprint 1:** IN PROGRESS → Ziel-Version `0.1.0` (Local Smalltalk MVP)
+- **Sprint 0:** DONE
+- **Sprint 1:** `0.1.0` MVP (Review)
+- **Sprint 2:** `0.1.1` Must-Fixes (Persona, Injection-Guard, Modell-Default)
 
 ## Schnellstart (Windows / Linux)
 
 ### 1. Ollama
 
 1. [Ollama installieren](https://ollama.com/download)
-2. Modell laden (Empfehlung RTX 3060 12 GB):
+2. **Zielhardware (RTX 3060):** 
 
 ```bash
 ollama pull qwen2.5:7b
 ```
 
-Für schwächere Hardware / CPU:
+Fallback (CPU / wenig VRAM) — wird automatisch genutzt, wenn 7b fehlt:
 
 ```bash
 ollama pull qwen2.5:3b
@@ -45,6 +46,13 @@ npm run dev
 
 Browser: http://localhost:5173
 
+### Smoke-Test (0.1.1)
+
+```bash
+# Backend muss laufen
+python scripts/smoke_0_1_1.py
+```
+
 ## Planung
 
 Siehe [`docs/README.md`](./docs/README.md).
@@ -53,6 +61,6 @@ Siehe [`docs/README.md`](./docs/README.md).
 
 | Datei | Zweck |
 |-------|--------|
-| `backend/config/settings.json` | Modellname, Ollama-URL, Sampling |
-| `backend/config/persona.md` | Jarvis-Systemprompt / Stil |
+| `backend/config/settings.json` | Modell (`qwen2.5:7b`), Fallback, Sampling, Guard-Retries |
+| `backend/config/persona.md` | Jarvis-Systemprompt / Anti-Hijack |
 | `backend/data/` | SQLite-Chats (lokal, gitignored) |

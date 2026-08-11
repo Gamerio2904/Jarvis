@@ -54,9 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review Sprint 1 (`0.1.0`)  
-2. Danach **Sprint 2 / `0.1.1`** (Must-Fixes)  
-3. Dann **Sprint 3 / `0.2.0`** (Verbesserungen)
+1. PO-Review **Sprint 2 / `0.1.1`** (Smoke + Smalltalk auf 7b ideal)  
+2. Tag `v0.1.1` bei OK  
+3. Danach Sprint 3 / `0.2.0`
 
 ---
 

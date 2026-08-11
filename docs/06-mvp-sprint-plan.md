@@ -102,7 +102,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 2 — MVP Must-Fixes → **`0.1.1`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-02.md`](./sprints/sprint-02.md)
 
 **Ziel:** Charakter/Injection/Modell so fixen, dass der MVP abnahmetauglich ist.
