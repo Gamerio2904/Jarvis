@@ -12,6 +12,7 @@
 - **Persistente** Chats; Zielrichtung **mehrere Chats + Liste + Neues Gespräch** (MVP darf schlank/bedingt sein, aber ausbaufähig)
 - Web-Chat-UI: **Spotify-Farben** + **ChatGPT-artiges Layout**; Motion **light**
 - Smalltalk-**Qualität** als Abnahmekriterium
+- **Lebendige**, variable Antworten (kein Template-Bot) — Stil laut `07`
 
 ### Out of Scope (MVP)
 
@@ -29,13 +30,14 @@ Du schreibst z.B. „Hey, wie geht’s?“ und die Antwort ist:
 1. lokal erzeugt,
 2. kurz und messenger-artig,
 3. charakterfest nach `07-persona.md`,
-4. nicht generisch-ChatGPT-haft.
+4. nicht generisch-ChatGPT-haft,
+5. **nicht** immer gleich / templatehaft (Variation spürbar).
 
 **Misserfolg früh erkennen**
 
 | Symptom | Typische Reaktion |
 |---------|-------------------|
-| Steife/templatehafte Antworten | Persona/Stil schärfen; anderes Modell testen |
+| Steife/templatehafte Antworten | Persona schärfen; Sampling/Prompt; **Anti-Template** durchsetzen; ggf. Modellwechsel |
 | Zu langsam | erst Qualität halten; später quantisieren/kleineres Modell (PO: Speed nachrangig) |
 | Kontextvergesslichkeit | Kurzgedächtnis N erhöhen / Prompt-Struktur fixen |
 

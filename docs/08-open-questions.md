@@ -14,12 +14,25 @@ Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 
 ---
 
+## Übersicht
+
+| Bereich | Status |
+|---------|--------|
+| Persona inkl. Stil-Beispiele (Q5) | **entschieden** |
+| Architektur / Stack / UI / Versionen | **entschieden** |
+| Phase 2+ Detail | **zurückgestellt** (später planen) |
+| Sprint-1-Blocker | **keine offenen P0** |
+
+Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN, …).
+
+---
+
 ## A. Produkt & Persona
 
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
-| Q1–Q4, Q6–Q8, Q30–Q31 | Persona-Kern | P0/P1 | entschieden | siehe `07-persona.md` |
-| Q5 | Soll/Nicht-Soll-Beispiele | P0 | offen | PO wählt aus Agent-Optionen (A/B/C) |
+| Q1–Q4, Q6–Q8, Q30–Q31 | Persona-Kern | P0/P1 | entschieden | `07-persona.md` |
+| Q5 | Stil-Beispiele | P0 | entschieden | Optionen gewählt; **grobe Vorgabe**, Anti-Template Pflicht |
 
 ## B. Privatsphäre & Sicherheit
 
@@ -30,48 +43,18 @@ Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 | Q11 | History speichern? | P1 | entschieden | Ja |
 | Q12 | Löschen? | P2 | zurückgestellt | Nicht Sprint 1 |
 
-## C. Hardware & Betrieb
+## C–F. (Kurz)
 
-| ID | Frage | Prio | Status | Entscheidung |
-|----|-------|------|--------|--------------|
-| Q13 | Dev-Rechner | P0 | entschieden | Windows, 16 GB, RTX 3060 |
-| Q14 | NAS | P2 | zurückgestellt | Detailplanung später; **`1.0.0` = NAS 24/7** |
-| Q15 | Latenz-Priorität | P1 | entschieden | Qualität > Speed |
-| Q16 | Strom/Lautstärke | P2 | zurückgestellt | |
-| Q32 | VRAM | P0 | entschieden | Desktop ~12 GB Standard |
-
-## D. Technik-Stack / Produktumfang
-
-| ID | Frage | Prio | Status | Entscheidung |
-|----|-------|------|--------|--------------|
-| Q17–Q21 | Host/Modell/Backend/UI/Chats | P0/P1 | entschieden | Ollama; ausgewogen; Dev; Web; Mehr-Chat-Zielbild |
-| Q33 | UI-Richtung | P1 | entschieden | **Spotify dunkel** + ChatGPT-Layout; Motion light→Update |
-| Q35 | Kontext/Gedächtnis | P1 | entschieden | **MVP:** In-Chat + Wiederöffnen. **Später:** maximal gutes Gedächtnis/Kontext |
-
-## E. Agiler Prozess / Versionierung
-
-| ID | Frage | Prio | Status | Entscheidung |
-|----|-------|------|--------|--------------|
-| Q22–Q24 | Sprint/Review/Freeze | P1/P2 | entschieden | Zielbasiert; schriftlich; mittel |
-| Q34 | `0.1.0` / `1.0.0` | P1 | entschieden | **`0.1.0` = MVP**; **`1.0.0` = NAS** |
-
-## F. Spätere Phasen
-
-| ID | Frage | Prio | Status | Entscheidung |
-|----|-------|------|--------|--------------|
-| Q25–Q29 | VPN/Auth/TTS/App | P2/P3 | zurückgestellt | Phase 2+ später planen |
+- Hardware/Ollama/Web/Spotify dunkel/ChatGPT-Layout/Motion light: **entschieden**
+- Memory: MVP In-Chat+Reopen; später maximal: **entschieden**
+- `0.1.0`=MVP, `1.0.0`=NAS: **entschieden**
+- Phase 2+ (Q14, Q16, Q25–Q29): **zurückgestellt**
 
 ---
 
-## Empfohlene Klärungsreihenfolge (Rest)
+## Nächster Schritt
 
-1. **Q5** — Beispiel-Optionen abwählen (A/B/C) → in `07` eintragen  
-2. Sprint 0 abschließen → Sprint 1 (`0.1.0`)
-
-## Minimal-Set Sprint 1
-
-- Kernentscheidungen: **done**
-- **Q5** empfohlen vor finalem System-Prompt
+**Sprint 0 abschließen → Sprint 1 starten** (Ziel-Version `0.1.0`).
 
 ---
 
@@ -79,6 +62,5 @@ Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 
 | Datum | ID | Entscheidung | Von |
 |-------|-----|--------------|-----|
-| 2026-08-11 | — | Vision, lokal, Chat-first, Scrum-lite Docs | PO + Agent |
-| 2026-08-11 | Persona/Stack/UI | siehe frühere Runden | PO |
-| 2026-08-11 | Q34,Q35,Q33 | `0.1.0`=MVP; `1.0.0`=NAS; Memory gestuft max später; Spotify dunkel | PO |
+| 2026-08-11 | Workshop 1–5 | Persona, Stack, UI, Versionen, Memory-Stufen | PO |
+| 2026-08-11 | Q5 | Stil-Anker gewählt; Variation/Anti-Template Pflicht | PO |
