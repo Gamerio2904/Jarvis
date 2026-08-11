@@ -1,7 +1,10 @@
 # Sprint-Log
 
-Hier landen ab Sprint 1 kurze Sprint-Artefakte:
+Kurze Sprint-Artefakte:
 
-- `sprint-NN-goal.md` — Ziel, Scope, Review-Notizen, Retro (3 Bullets)
+| Sprint | Datei | Status |
+|--------|-------|--------|
+| 00 | [`sprint-00.md`](./sprint-00.md) | **DONE** |
+| 01 | (folgt bei Start) | NEXT → `0.1.0` |
 
-Sprint 0 ist in [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) beschrieben.
+Überblick auch in [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md).

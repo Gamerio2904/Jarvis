@@ -4,8 +4,13 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
 ## Unreleased
 
-- Planungsdokumentation (Scrum-lite) unter `docs/`
-- Persona-, Architektur- und Prozessentscheidungen aus Workshop-Runden 1–4
+- (wird mit Sprint-1-Arbeit gefüllt)
+
+## Planning complete (kein SemVer-Produkt-Tag)
+
+- Sprint 0 abgeschlossen: Planungsdokumentation unter `docs/`
+- Persona-, Architektur-, Prozess- und Versionsentscheidungen
+- Siehe `sprints/sprint-00.md`
 
 ## Geplant
 

@@ -10,7 +10,7 @@
 - Lokales LLM über **Ollama** (kein Cloud-Denken)
 - Backend mit Jarvis-Persona + Gesprächskontext (letzte N Turns)
 - **Persistente** Chats; Zielrichtung **mehrere Chats + Liste + Neues Gespräch** (MVP darf schlank/bedingt sein, aber ausbaufähig)
-- Web-Chat-UI: **Spotify-Farben** + **ChatGPT-artiges Layout**; Motion **light**
+- Web-Chat-UI: **Spotify dunkel** + **ChatGPT-artiges Layout**; Motion **light**
 - Smalltalk-**Qualität** als Abnahmekriterium
 - **Lebendige**, variable Antworten (kein Template-Bot) — Stil laut `07`
 
@@ -43,27 +43,34 @@ Du schreibst z.B. „Hey, wie geht’s?“ und die Antwort ist:
 
 ---
 
-## Sprint 0 — Planning & Spikes (aktuell)
+## Sprint 0 — Planning & Spikes — **DONE**
 
-**Sprint-Ziel:** Planung steht; Blocker für Sprint 1 sind benannt und so weit geklärt, dass Bau starten kann.
+**Status:** Abgeschlossen (2026-08-11)  
+**Sprint-Ziel:** Planung steht; Blocker für Sprint 1 sind so weit geklärt, dass Bau starten kann.  
+**Artefakt:** [`sprints/sprint-00.md`](./sprints/sprint-00.md)
 
-| Item | Typ | Done wenn |
-|------|-----|-----------|
-| Planungsdokumente | Done | `docs/` vollständig & verlinkt |
-| Offene Fragen klären | PO-Workshop | Minimal-Set in `08` (Q21, Q32) |
-| Persona-Kern | Done | `07` gesetzt |
-| Hardware-Kurzcheck | Fast done | Win/16GB/3060; VRAM-Bestätigung Q32 |
-| Stack-Richtung | Done grob | Ollama + ausgewogenes Modell + Web-UI; Backend pragmatisch |
-| UI-Anspruch | Prinzip gesetzt | Premium/smooth über Gesamtprojekt (`01`, `02`) |
+| Item | Status | Done wenn / Ist |
+|------|--------|-----------------|
+| Planungsdokumente | **Done** | `docs/01`–`09` + Changelog, Index verlinkt |
+| Offene Fragen / Workshop | **Done** | Keine offenen P0; Rest zurückgestellt (`08`) |
+| Persona-Kern + Stil-Anker | **Done** | `07` inkl. Anti-Template / Variation |
+| Hardware-Kurzcheck | **Done** | Windows, 16 GB, RTX 3060; VRAM-Standard ~12 GB |
+| Stack-Richtung | **Done** | Ollama, ausgewogenes Modell, Web-only, Backend pragmatisch |
+| UI-Anspruch | **Done** | Spotify dunkel + ChatGPT-Layout; Motion light → späteres GUI-Update |
+| Versionierung | **Done** | `0.1.0`=MVP, `1.0.0`=NAS (`09`) |
 
-**Increment Sprint 0:** Entscheidbare Planung + klaffende Lücken geschlossen oder bewusst terminiert.
+**Increment Sprint 0:** Entscheidbare Planung; Sprint 1 freigegeben.
+
+**Retro (3 Bullets)** — siehe `sprints/sprint-00.md`.
 
 ---
 
-## Sprint 1 — Vorschlag (nach Klärung der Blocker)
+## Sprint 1 — Local Smalltalk MVP — **NEXT**
 
-**Sprint-Ziel (Entwurf) → Ziel-Version `0.1.0` (Vorschlag, Q34):**  
-„Ich kann im Browser lokal mit Jarvis smalltalken — Persona an, Gesprächskontext an, Chats speicherbar, Web-UI in Spotify/ChatGPT-Richtung (Motion light).“
+**Status:** Bereit zum Start (PO-Go)  
+**Ziel-Version:** `0.1.0`  
+**Sprint-Ziel:**  
+„Ich kann im Browser lokal mit Jarvis smalltalken — Persona an, Gesprächskontext an, Chats speicherbar, Web-UI in Spotify-Dunkel/ChatGPT-Richtung (Motion light), Antworten lebendig/variabel.“
 
 ### Geplanter Scope (Must)
 
