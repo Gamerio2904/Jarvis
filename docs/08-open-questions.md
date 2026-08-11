@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-**Sprint 0 abschließen → Sprint 1 starten** (Ziel-Version `0.1.0`).
+**Sprint 0 = DONE.** → **Sprint 1 starten** (Ziel-Version `0.1.0`), sobald PO Go gibt.
 
 ---
 
