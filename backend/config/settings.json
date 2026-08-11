@@ -1,0 +1,9 @@
+{
+  "ollama_base_url": "http://127.0.0.1:11434",
+  "model": "qwen2.5:3b",
+  "recommended_model_gpu": "qwen2.5:7b",
+  "temperature": 0.9,
+  "top_p": 0.95,
+  "max_context_messages": 40,
+  "num_predict": 280
+}

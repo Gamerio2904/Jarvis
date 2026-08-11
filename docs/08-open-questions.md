@@ -54,7 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-**Sprint 0 = DONE.** → **Sprint 1 starten** (Ziel-Version `0.1.0`), sobald PO Go gibt.
+**Sprint 1 umgesetzt — PO-Review:** 10 Minuten Smalltalk in der UI.  
+Bei OK: Tag `v0.1.0`. Bei Nacharbeit: Patches `0.1.x`.
 
 ---
 

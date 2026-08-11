@@ -37,5 +37,5 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | Stack / UI | Ollama; Web; **Spotify dunkel** + ChatGPT-Layout; Motion light→GUI-Update |
 | Chat / Memory | Mehr-Chat-Zielbild; MVP In-Chat+Reopen; später **max. Gedächtnis** |
 | Versionen | `0.1.0` = MVP; `1.0.0` = NAS |
-| Sprint 0 | **DONE** (2026-08-11) — siehe `sprints/sprint-00.md` |
-| Sprint 1 Start | **Freigegeben** — wartet auf PO-Go (`0.1.0`) |
+| Sprint 0 | **DONE** |
+| Sprint 1 | **READY FOR REVIEW** → `0.1.0` (PO-Abnahme) |

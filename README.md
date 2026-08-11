@@ -1,28 +1,58 @@
-# Jarvis
+# Jarvis — Local Personal Assistant
 
 Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 
 ## Status
 
-Projekt ist in der **Planungsphase** (Scrum-lite). Umsetzung startet nach Klärung der offenen Punkte.
+- **Sprint 0:** DONE (Planung)
+- **Sprint 1:** IN PROGRESS → Ziel-Version `0.1.0` (Local Smalltalk MVP)
+
+## Schnellstart (Windows / Linux)
+
+### 1. Ollama
+
+1. [Ollama installieren](https://ollama.com/download)
+2. Modell laden (Empfehlung RTX 3060 12 GB):
+
+```bash
+ollama pull qwen2.5:7b
+```
+
+Für schwächere Hardware / CPU:
+
+```bash
+ollama pull qwen2.5:3b
+```
+
+### 2. Backend
+
+```bash
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### 3. Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Browser: http://localhost:5173
 
 ## Planung
 
-Alle Planungsdokumente liegen unter [`docs/`](./docs/README.md):
+Siehe [`docs/README.md`](./docs/README.md).
 
-1. Vision & Ziele  
-2. Architektur (lokal)  
-3. Agiler Prozess  
-4. Roadmap  
-5. Product Backlog  
-6. MVP & Sprint-Plan  
-7. Persona  
-8. Offene Fragen  
+## Konfiguration
 
-## Kurzentscheidungen
-
-- **Kein** öffentliches Produkt / Marketing  
-- **Lokale KI** (kein Cloud-LLM als Denk-Engine)  
-- **Chat-Mensch** zuerst; Stimme später als Vorlesen  
-- **MVP:** Smalltalk mit festem Charakter  
-- Später: Handy-Zugang → NAS 24/7 → TTS (auf Kommando)
+| Datei | Zweck |
+|-------|--------|
+| `backend/config/settings.json` | Modellname, Ollama-URL, Sampling |
+| `backend/config/persona.md` | Jarvis-Systemprompt / Stil |
+| `backend/data/` | SQLite-Chats (lokal, gitignored) |

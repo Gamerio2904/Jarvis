@@ -65,10 +65,11 @@ Du schreibst z.B. „Hey, wie geht’s?“ und die Antwort ist:
 
 ---
 
-## Sprint 1 — Local Smalltalk MVP — **NEXT**
+## Sprint 1 — Local Smalltalk MVP — **READY FOR REVIEW**
 
-**Status:** Bereit zum Start (PO-Go)  
+**Status:** Umsetzung fertig — wartet auf PO-Abnahme  
 **Ziel-Version:** `0.1.0`  
+**Artefakt:** [`sprints/sprint-01.md`](./sprints/sprint-01.md)  
 **Sprint-Ziel:**  
 „Ich kann im Browser lokal mit Jarvis smalltalken — Persona an, Gesprächskontext an, Chats speicherbar, Web-UI in Spotify-Dunkel/ChatGPT-Richtung (Motion light), Antworten lebendig/variabel.“
 
