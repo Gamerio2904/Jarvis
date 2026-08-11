@@ -100,14 +100,51 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 2+ (nur Richtung, nicht committed)
+## Sprint 2 — MVP Must-Fixes → **`0.1.1`**
 
-| Sprint-Idee | Zielrichtung | Version (Beispiel) |
-|-------------|--------------|---------------------|
-| Sprint 2 | Gesprächsqualität; Chat-Liste härten; UI polieren | `0.2.0` |
-| GUI-Update | Premium-Motion (nach Light-MVP) | eigenes MINOR |
-| Später | Phase 2 Handy/VPN — **erst wenn PO Phase 2 plant** | TBD |
-| Später | NAS / TTS nach explizitem PO-Go | TBD |
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-02.md`](./sprints/sprint-02.md)
+
+**Ziel:** Charakter/Injection/Modell so fixen, dass der MVP abnahmetauglich ist.
+
+| Must | Inhalt |
+|------|--------|
+| F1 | Modell-Default 7b für RTX 3060 |
+| F2 | Persona-Prompt härten |
+| F3 | Output-Guard gegen klare Injects |
+| F4 | Sampling gegen Kollaps |
+| F5 | Regression-Smoke |
+
+---
+
+## Sprint 3 — Verbesserungen → **`0.2.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-03.md`](./sprints/sprint-03.md)
+
+**Ziel:** Robustheit & Komfort (Streaming, UI-Fehler, Eval-Suite, Chat löschen, härtere Guards).
+
+| Item | Inhalt |
+|------|--------|
+| I1 | UI-Fehler + Retry |
+| I2 | Streaming |
+| I3 | Injection-Härte ausbauen |
+| I4 | Eval-Suite im Repo |
+| I5 | Chat löschen |
+| I6 | Sampling/UX-Feintuning |
+
+---
+
+## Weitere geplante Sprints (Richtung)
+
+| Sprint | Zielrichtung | Version |
+|--------|--------------|---------|
+| GUI-Update | Premium-Motion | eigenes MINOR (z. B. `0.3.0`) |
+| Gedächtnis-Ausbau | Maximal gutes Kontext/Gedächtnis | eigenes MINOR (z. B. `0.4.0`) |
+| Phase 2 | Handy privat (VPN/Auth) | `0.x` vor NAS |
+| Phase 3 | NAS 24/7 | **`1.0.0`** |
+| Phase 4 | TTS-Vorlesen | nach PO-Go |
+| Phase 5+ | Assistenten-Tools | später |
 
 ---
 

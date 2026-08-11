@@ -54,8 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-**Sprint 1 umgesetzt — PO-Review:** 10 Minuten Smalltalk in der UI.  
-Bei OK: Tag `v0.1.0`. Bei Nacharbeit: Patches `0.1.x`.
+1. PO-Review Sprint 1 (`0.1.0`)  
+2. Danach **Sprint 2 / `0.1.1`** (Must-Fixes)  
+3. Dann **Sprint 3 / `0.2.0`** (Verbesserungen)
 
 ---
 

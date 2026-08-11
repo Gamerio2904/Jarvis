@@ -52,7 +52,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S2.3 | Als Nutzer will ich, dass Jarvis die letzten Nachrichten im Gespräch kennt. | Must | idea | Kontext der letzten N Turns sichtbar im Verhalten |
 | S2.4 | Als PO will ich Persona-Text ändern können, ohne Code-Umweg zu brauchen (Config-Datei reicht). | Should | idea | Persona aus Datei/Config geladen |
 | S2.5 | Als Nutzer will ich Chatverläufe zwischen Sessions wiedersehen. | Must | idea | Persistenz laut Q11 |
-| S2.6 | Als Nutzer will ich gespeicherte Chats löschen können. | Should | idea | hängt an Q12 |
+| S2.6 | Als Nutzer will ich gespeicherte Chats löschen können. | Should | ready | Sprint 3 / `0.2.0` (I5) |
+| S2.7 | Als Nutzer will ich, dass Jarvis Gesprächskontext versteht und später stärker erinnert. | Must (gestuft) | idea | MVP: In-Chat-Kontext; Ausbau später |
+| S2.8 | Als Nutzer will ich, dass Prompt-Injection nicht durchschlägt. | Must | ready | Sprint 2 / `0.1.1` (F2/F3) |
+| S2.9 | Als Nutzer will ich jarvis-treue Antworten ohne Dauer-Duzen/Boilerplate. | Must | ready | Sprint 2 / `0.1.1` (F1/F2/F4) |
+| S2.10 | Als Dev will ich einen Smoke-/Eval-Lauf gegen Inject & Persona. | Should | ready | Smoke in `0.1.1` (F5); volle Suite `0.2.0` (I4) |
 
 ### E3 — Chat UI
 
@@ -64,7 +68,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S3.4 | Als Nutzer will ich langfristig eine extrem smoothe, moderne Premium-Web-UI. | Should (Gesamtprojekt) | idea | Spotify-Farben + ChatGPT-Layout |
 | S3.5 | Als Nutzer will ich mehrere Chats, eine Liste und „Neues Gespräch“. | Must (Zielbild) | idea | MVP darf schlank sein, Architektur ausbaufähig |
 | S3.6 | Als Nutzer will ich später ein GUI-Update mit premium Motion. | Should (später) | parked | Nach Light-MVP eigenes MINOR |
-| S2.7 | Als Nutzer will ich, dass Jarvis Gesprächskontext versteht und später stärker erinnert. | Must (gestuft) | idea | MVP: In-Chat-Kontext; Ausbau später (Q35) |
+| S3.7 | Als Nutzer will ich Antworten gestreamt sehen. | Should | ready | Sprint 3 / `0.2.0` (I2) |
+| S3.8 | Als Nutzer will ich bei Fehlern Retry/klare Meldung. | Should | ready | Sprint 3 / `0.2.0` (I1) |
 
 ### E4 — Private Access
 
@@ -100,12 +105,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. S0.1 / S0.5 (Persona — Kern done) → S0.2 (Beispiele)
-2. S1.1 → S1.2 (Runtime + ausgewogenes Modell; nach Q32-Bestätigung)
-3. S2.1 → S2.2 → S2.3 → S2.5 (Core + Persistenz)
-4. S3.1 → S3.2 (Web-UI; von Anfang an Richtung Premium denkbar, Feinschliff über Sprints)
-5. S0.3 / S0.4 (Qualitätsfeinschliff)
-6. Danach Phase-2-Stories; S2.6 Löschen später
+1. Sprint 1 Review / Tag `0.1.0`
+2. Sprint 2 (`0.1.1`): S2.8, S2.9, F1–F5 Must-Fixes
+3. Sprint 3 (`0.2.0`): S3.7, S3.8, S2.6, S2.10 (volle Eval), I3/I6
+4. Später: GUI-Motion, Gedächtnis, Phase 2+, NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

@@ -21,20 +21,21 @@ MAJOR.MINOR.PATCH
 
 ### Festgelegte Meilensteine
 
-| Version | Bedeutung |
-|---------|-----------|
-| `0.1.0` | **MVP** — Local Smalltalk abgenommen (Sprint-1-Ziel) |
-| `0.1.x` | Patches/Feinschliff nach MVP |
-| `0.2.0+` | Weitere Etappen vor NAS (UI-Update, Gedächtnis-Ausbau, Handy, …) |
-| `1.0.0` | **NAS / 24/7** erreicht |
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `0.1.0` | **MVP** Local Smalltalk | Sprint 1 |
+| `0.1.1` | **Must-Fixes** nach MVP-Test (Persona, Injection, Modell, Sampling, Smoke) | Sprint 2 |
+| `0.2.0` | **Verbesserungen** (Streaming, UI-Fehler, Eval, Löschen, härtere Guards) | Sprint 3 |
+| `0.3.0+` | Weitere Etappen (GUI-Motion, Gedächtnis, Handy, …) | später |
+| `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele
 
 | Version | Bedeutung (Beispiel) |
 |---------|----------------------|
-| `0.1.1` | Persona-/Bugfix nach MVP-Review |
-| `0.3.0` | z.B. GUI-Update Premium-Motion |
-| `0.4.0` | z.B. maximal gutes Gedächtnis (Ausbau) |
+| `0.1.2` | Hotfix-Patch nach `0.1.1`, falls nötig |
+| `0.3.0` | GUI-Update Premium-Motion |
+| `0.4.0` | maximal gutes Gedächtnis (Ausbau) |
 
 ## Was wird versioniert?
 
