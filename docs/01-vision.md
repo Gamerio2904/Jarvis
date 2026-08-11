@@ -19,7 +19,7 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 | Ziel | Bedeutung |
 |------|-----------|
 | Alltags-Smalltalk | Jarvis führt natürliche Kurzgespräche (Hallo, Wie geht’s, …). |
-| Charakterfestigkeit | Gleicher Ton über Tage; erkennbar „dein“ Jarvis. |
+| Charakterfestigkeit | Gleicher Ton über Tage; erkennbar „dein“ Jarvis (Kumpel + frech, „Master“, nur Deutsch). |
 | Lokale Kontrolle | Kein Cloud-LLM als Denk-Engine. |
 | Handy-Nutzbarkeit | Am Ende vom Handy aus nutzbar (zuerst Browser/Netz, nicht zwingend Native App). |
 | 24/7 später | Dauerbetrieb auf NAS/Mini-Server, wenn der Stack steht. |

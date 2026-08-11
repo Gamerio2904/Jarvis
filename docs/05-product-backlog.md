@@ -29,12 +29,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S0.1 | Als PO will ich Ton, Tabus und Anti-KI-Regeln schriftlich haben, damit Antworten steuerbar sind. | Must | ready* | `07-persona.md` Kernfelder gefüllt |
-| S0.2 | Als PO will ich Soll/Nicht-Soll-Beispieldialoge, damit ich Abnahme objektiv machen kann. | Must | ready* | ≥10 Beispiele dokumentiert |
+| S0.1 | Als PO will ich Ton, Tabus und Anti-KI-Regeln schriftlich haben, damit Antworten steuerbar sind. | Must | done | `07-persona.md` Kern gesetzt (Runde 1) |
+| S0.2 | Als PO will ich Soll/Nicht-Soll-Beispieldialoge, damit ich Abnahme objektiv machen kann. | Must | idea | ≥10 Beispiele dokumentiert |
 | S0.3 | Als Nutzer will ich kurze Messenger-artige Antworten, keine Essays. | Must | idea | Durchschnittlich kurz; keine Listen-Manie |
 | S0.4 | Als Nutzer will ich, dass Jarvis gelegentlich Rückfragen stellt, ohne jedes Mal zu „coachen“. | Should | idea | Rückfragen dosiert in Tests |
-
-\*ready für Sprint 0/1 sobald Workshop-Antworten da sind — Details noch offen in `08`.
+| S0.5 | Als Nutzer will ich, dass Jarvis mich „Master“ (u. Ä.) nennt — dosiert und wechselnd. | Must | idea | Anrede-Regeln Q30/Q31 + Prompt |
 
 ### E1 — Local Runtime
 

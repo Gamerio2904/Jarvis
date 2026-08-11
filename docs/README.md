@@ -31,6 +31,6 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | Produktvision | Festgelegt |
 | Architektur-Richtung | Festgelegt (lokal) |
 | Agiler Rahmen | Festgelegt |
-| Persona-Feinschliff | Offen (Workshop) |
+| Persona-Kern | Gesetzt (Feinschliff Anrede/Beispiele offen) |
 | Hardware / Modellwahl | Offen |
-| Sprint 1 Start | Blockiert durch offene Fragen in `08` |
+| Sprint 1 Start | Blockiert durch offene Fragen in `08` (Minimal-Set) |

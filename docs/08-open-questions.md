@@ -18,14 +18,16 @@ Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
-| Q1 | Grundton von Jarvis? (locker / butler / frech-direkt / …) | P0 | offen | |
-| Q2 | Wie spricht er dich an? (Du, Name, Spitzname) | P0 | offen | |
-| Q3 | Formalität 1–5 und Humor-Stil? | P0 | offen | |
-| Q4 | Tabus & Grenzen im Smalltalk? | P0 | offen | |
-| Q5 | Soll/Nicht-Soll: mindestens 10 Beispiel-Antworten liefern? | P0 | offen | |
-| Q6 | Darf Jarvis „Stimmung“ andeuten (guter/schlechter Tag) oder immer neutral-stabil? | P1 | offen | |
-| Q7 | Sprache: nur Deutsch, oder DE/EN gemischt? | P1 | offen | |
-| Q8 | Jarvis-Erwartung: eher Butler-Vibe oder Kumpel-Assistent? | P0 | offen | |
+| Q1 | Grundton von Jarvis? | P0 | entschieden | Trocken-humorig + warm/freundlich; Vibe = Kumpel + frech-direkt |
+| Q2 | Wie spricht er dich an? | P0 | entschieden | Wechselnd „Master“ u. Ä. (genaue Varianten: Q30) |
+| Q3 | Formalität und Humor? | P0 | entschieden | Formalität 3–4; Humor deftig/frech + trocken |
+| Q4 | Tabus & Grenzen im Smalltalk? | P0 | entschieden | Keine harten inhaltlichen Tabus; Anti-KI-Stilregeln bleiben |
+| Q5 | Soll/Nicht-Soll: ≥10 Beispiel-Antworten? | P0 | offen | Noch ausstehend (Abnahme-Qualität) |
+| Q6 | Tagesstimmung andeuten? | P1 | entschieden | Ja, leicht / dosiert |
+| Q7 | Sprache? | P1 | entschieden | Nur Deutsch |
+| Q8 | Jarvis-Erwartung / Vibe? | P0 | entschieden | Kumpel-Assistent + frech-direkt (mit „Master“-Anrede) |
+| Q30 | Welche Anrede-Varianten außer „Master“? Wann wechseln? | P0 | offen | Aus Runde 1 entstanden |
+| Q31 | Duzen bei „Master“ — immer „du“, oder manchmal „Ihr“/kein Du? | P1 | offen | Aus Runde 1 entstanden |
 
 ## B. Privatsphäre & Sicherheit
 
@@ -77,18 +79,20 @@ Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 
 ## Empfohlene Klärungsreihenfolge (Workshop)
 
-1. **Persona-Block:** Q8 → Q1 → Q2 → Q3 → Q4 → Q5 → Q6 → Q7  
-2. **Hardware-Block:** Q13 → Q15 → (Q14 nur grob)  
-3. **Stack-Block:** Q17 → Q18 → Q20 → Q11 → Q10 → Q19  
-4. **Prozess-Block:** Q22  
-5. Rest nach Bedarf
+1. ~~**Persona-Kern:** Q8 → Q1 → Q2 → Q3 → Q4 → Q6 → Q7~~ **done**
+2. **Persona-Feinschliff:** Q30 → Q31 → (Q5 Beispiele später/parallel)
+3. **Hardware-Block:** Q13 → Q15 → (Q14 nur grob)
+4. **Privatsphäre-Block:** Q9 → Q10 → Q11 → (Q12)
+5. **Stack-Block:** Q17 → Q18 → Q20 → Q19 → Q21
+6. **Prozess-Block:** Q22 → (Q23/Q24)
+7. Rest Phase 2+ nach Bedarf
 
 ## Minimal-Set zum Start von Sprint 1
 
 Sprint 1 darf starten, wenn **mindestens** entschieden:
 
-- Q1, Q2, Q8 (Ton/Anrede/Vibe)
-- Q4 (Tabus grob)
+- ~~Q1, Q2, Q8, Q4~~ **done**
+- Q30 (Anrede-Varianten grob)
 - Q13 (Hardware)
 - Q17, Q18 (Host + Modellklasse)
 - Q11 (History-Verhalten MVP)
@@ -105,3 +109,5 @@ Wenn etwas entschieden ist: Zeile auf `entschieden` setzen und Kurzentscheid in 
 | Datum | ID | Entscheidung | Von |
 |-------|-----|--------------|-----|
 | 2026-08-11 | — | Vision, lokal Variante 3, Chat-first, TTS später, Scrum-lite Docs angelegt | PO + Agent |
+| 2026-08-11 | Q1,Q3,Q6,Q7,Q8 | Kumpel+frech; warm+trocken; Formalität 3–4; Humor deftig+trocken; Stimmung leicht; nur DE | PO |
+| 2026-08-11 | Q2,Q4 | Anrede „Master“ u. Ä.; keine harten Tabus | PO |
