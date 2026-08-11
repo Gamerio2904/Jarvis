@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review **Sprint 3 / `0.2.0`** → bei OK Tag `v0.2.0`
-2. **Sprint 4 / `0.2.1`** umsetzen (Must-Fixes aus Deep-Test: H1–H5)
+1. PO-Review **Sprint 4 / `0.2.1`** → bei OK Tag `v0.2.1`
+2. Optional: Tags für frühere Sprints (`0.1.0`–`0.2.0`) nachziehen
 3. Danach z. B. GUI-Motion / Gedächtnis
 
 ---

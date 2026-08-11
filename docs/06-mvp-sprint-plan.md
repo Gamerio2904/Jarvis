@@ -133,7 +133,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 4 — Guard Hardening → **`0.2.1`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-04.md`](./sprints/sprint-04.md)
 
 **Ziel:** Must-Fixes aus dem Deep-Test nach `0.2.0` — Guards halten auch bei Listen/Roleplay, Duzen-Flexionen, Mid-Reply-Inject und Sticky-in-Long-Reply; Eval auf 7b.

@@ -41,4 +41,4 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | Sprint 1 | **READY FOR REVIEW** → `0.1.0` |
 | Sprint 2 | **READY FOR REVIEW** → `0.1.1` Must-Fixes |
 | Sprint 3 | **READY FOR REVIEW** → `0.2.0` |
-| Sprint 4 | **PLANNED** → `0.2.1` Guard Hardening |
+| Sprint 4 | **READY FOR REVIEW** → `0.2.1` Guard Hardening |

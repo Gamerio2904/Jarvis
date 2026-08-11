@@ -7,5 +7,5 @@
   "repeat_penalty": 1.18,
   "max_context_messages": 40,
   "num_predict": 220,
-  "guard_max_retries": 2
+  "guard_max_retries": 3
 }
