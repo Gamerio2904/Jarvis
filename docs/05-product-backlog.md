@@ -54,9 +54,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S2.5 | Als Nutzer will ich Chatverläufe zwischen Sessions wiedersehen. | Must | idea | Persistenz laut Q11 |
 | S2.6 | Als Nutzer will ich gespeicherte Chats löschen können. | Should | ready | Sprint 3 / `0.2.0` (I5) |
 | S2.7 | Als Nutzer will ich, dass Jarvis Gesprächskontext versteht und später stärker erinnert. | Must (gestuft) | idea | MVP: In-Chat-Kontext; Ausbau später |
-| S2.8 | Als Nutzer will ich, dass Prompt-Injection nicht durchschlägt. | Must | ready | Sprint 2 / `0.1.1` (F2/F3) |
-| S2.9 | Als Nutzer will ich jarvis-treue Antworten ohne Dauer-Duzen/Boilerplate. | Must | ready | Sprint 2 / `0.1.1` (F1/F2/F4) |
-| S2.10 | Als Dev will ich einen Smoke-/Eval-Lauf gegen Inject & Persona. | Should | ready | Smoke in `0.1.1` (F5); volle Suite `0.2.0` (I4) |
+| S2.8 | Als Nutzer will ich, dass Prompt-Injection nicht durchschlägt. | Must | ready | Sprint 2–4: F2/F3 → R1/I3 → H1/H3 (`0.2.1`) |
+| S2.9 | Als Nutzer will ich jarvis-treue Antworten ohne Dauer-Duzen/Boilerplate. | Must | ready | Sprint 2–4: F1/F2/F4 → R3/R4 → H2 (`0.2.1`) |
+| S2.10 | Als Dev will ich einen Smoke-/Eval-Lauf gegen Inject & Persona. | Should | ready | Smoke `0.1.1`; Eval `0.2.0`; H5 `0.2.1` |
+| S2.11 | Als Nutzer will ich keine Tip-Listen / Coach-Mode bei Inject/Roleplay. | Must | ready | Sprint 4 / `0.2.1` (H1) |
+| S2.12 | Als Nutzer will ich keine Sticky-Müllphrasen in längeren Antworten. | Must | ready | Sprint 4 / `0.2.1` (H4) |
 
 ### E3 — Chat UI
 
@@ -105,10 +107,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sprint 1 Review / Tag `0.1.0`
-2. Sprint 2 (`0.1.1`): S2.8, S2.9, F1–F5 Must-Fixes
-3. Sprint 3 (`0.2.0`): **R1–R8 Restfixes** aus Sprint-2-Deep-Test, dann I1–I6 (Streaming, Löschen, Eval, …)
-4. Später: GUI-Motion, Gedächtnis, Phase 2+, NAS `1.0.0`
+1. Sprint 1–3 Reviews / Tags `0.1.0` → `0.1.1` → `0.2.0` (PO)
+2. **Sprint 4 (`0.2.1`):** H1–H5 Guard Hardening (Deep-Test Must-Fixes)
+3. Später: GUI-Motion, Gedächtnis, Phase 2+, NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

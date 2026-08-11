@@ -2,6 +2,14 @@
 
 Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
+## Planned `0.2.1` (Sprint 4)
+
+- Anti-Listen / Anti-Roleplay-Coach (kein Tip-Listen-Output bei Inject)
+- Duzen-Guard v2 (Flexionen: du/dir/dich/dein*)
+- Whole-Reply Inject-Scan (OWNED/PWNED auch mitten/am Ende)
+- Sticky-Phrase v2 („Bin kaputt“ auch in längeren Replies)
+- Eval-Erweiterung für H1–H4; Abnahme auf `qwen2.5:7b`
+
 ## Unreleased / pending tag `0.2.0`
 
 - Härtere Guards: OWNED/PWNED, Degenerate, Sticky, Sprache, Boilerplate
@@ -23,5 +31,6 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 | `0.1.0` | 1 | MVP |
 | `0.1.1` | 2 | Must-Fixes |
 | `0.2.0` | 3 | Verbesserungen + R1–R8 (Review offen) |
+| `0.2.1` | 4 | Must-Fixes aus Deep-Test (H1–H5) |
 | `0.3.0+` | später | GUI-Motion, Gedächtnis, Handy |
 | `1.0.0` | Phase 3 | NAS / 24/7 |

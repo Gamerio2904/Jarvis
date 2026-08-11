@@ -131,6 +131,23 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
+## Sprint 4 — Guard Hardening → **`0.2.1`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-04.md`](./sprints/sprint-04.md)
+
+**Ziel:** Must-Fixes aus dem Deep-Test nach `0.2.0` — Guards halten auch bei Listen/Roleplay, Duzen-Flexionen, Mid-Reply-Inject und Sticky-in-Long-Reply; Eval auf 7b.
+
+| Must | Inhalt |
+|------|--------|
+| H1 | Anti-Listen / Anti-Roleplay-Coach |
+| H2 | Duzen-Guard v2 (Flexionen) |
+| H3 | Whole-Reply Inject-Scan |
+| H4 | Sticky-Phrase v2 |
+| H5 | Eval erweitern + Abnahme auf 7b |
+
+---
+
 ## Weitere geplante Sprints (Richtung)
 
 | Sprint | Zielrichtung | Version |

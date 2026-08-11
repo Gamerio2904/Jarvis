@@ -36,8 +36,9 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | Hardware | Windows / 16 GB / RTX 3060 — **~12 GB** VRAM Standard |
 | Stack / UI | Ollama; Web; **Spotify dunkel** + ChatGPT-Layout; Motion light→GUI-Update |
 | Chat / Memory | Mehr-Chat-Zielbild; MVP In-Chat+Reopen; später **max. Gedächtnis** |
-| Versionen | `0.1.0` = MVP; `1.0.0` = NAS |
+| Versionen | `0.1.0` = MVP; `0.2.1` = nächster Patch; `1.0.0` = NAS |
 | Sprint 0 | **DONE** |
 | Sprint 1 | **READY FOR REVIEW** → `0.1.0` |
 | Sprint 2 | **READY FOR REVIEW** → `0.1.1` Must-Fixes |
 | Sprint 3 | **READY FOR REVIEW** → `0.2.0` |
+| Sprint 4 | **PLANNED** → `0.2.1` Guard Hardening |
