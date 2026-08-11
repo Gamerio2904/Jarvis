@@ -6,7 +6,8 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 
 - **Sprint 0:** DONE
 - **Sprint 1:** `0.1.0` MVP (Review)
-- **Sprint 2:** `0.1.1` Must-Fixes (Persona, Injection-Guard, Modell-Default)
+- **Sprint 2:** `0.1.1` Must-Fixes
+- **Sprint 3:** `0.2.0` Robustheit (Streaming, Guards, Löschen, Eval)
 
 ## Schnellstart (Windows / Linux)
 
@@ -46,11 +47,11 @@ npm run dev
 
 Browser: http://localhost:5173
 
-### Smoke-Test (0.1.1)
+### Smoke / Eval
 
 ```bash
-# Backend muss laufen
 python scripts/smoke_0_1_1.py
+python scripts/eval_0_2_0.py
 ```
 
 ## Planung

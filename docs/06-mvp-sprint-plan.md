@@ -119,7 +119,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 3 — Verbesserungen → **`0.2.0`**
 
-**Status:** PLANNED (Scope um Sprint-2-Deep-Test-Restfixes **R1–R8** erweitert)  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-03.md`](./sprints/sprint-03.md)
 
 **Ziel:** Robustheit & Komfort + Restlücken aus `0.1.1` (OWNED-Inject, degenerierte Antworten, Duzen/Boilerplate, Fallback-UX, Eval).
