@@ -8,13 +8,14 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | Nr. | Dokument | Zweck |
 |-----|----------|--------|
 | 01 | [Vision & Produktziele](./01-vision.md) | Wozu Jarvis existiert, Ziele, Nicht-Ziele |
-| 02 | [Architektur](./02-architecture.md) | Lokales Design (Variante 3), Bausteine, spätere Stimme |
-| 03 | [Agiler Prozess (Scrum-lite)](./03-agile-process.md) | Rollen, Sprints, Artefakte, Regeln |
-| 04 | [Roadmap & Phasen](./04-roadmap-phases.md) | Phase 0 → 5+ in sinnvoller Reihenfolge |
-| 05 | [Product Backlog](./05-product-backlog.md) | Epics & User Stories, priorisiert |
-| 06 | [MVP & Sprint-Plan](./06-mvp-sprint-plan.md) | MVP v0.1, erster Sprint-Zuschnitt |
-| 07 | [Persona Jarvis](./07-persona.md) | Charakter, Stil, Anti-KI-Regeln (Workshop) |
-| 08 | [Offene Fragen](./08-open-questions.md) | Lücken, die vor/während Sprint 1 geschlossen werden |
+| 02 | [Architektur](./02-architecture.md) | Lokales Design, UI-Richtung, Kontext-Stufen |
+| 03 | [Agiler Prozess (Scrum-lite)](./03-agile-process.md) | Rollen, Sprints, DoR/DoD |
+| 04 | [Roadmap & Phasen](./04-roadmap-phases.md) | Phase 0 → 5+ |
+| 05 | [Product Backlog](./05-product-backlog.md) | Epics & User Stories |
+| 06 | [MVP & Sprint-Plan](./06-mvp-sprint-plan.md) | MVP v0.1, Sprint 0/1 |
+| 07 | [Persona Jarvis](./07-persona.md) | Charakter, Stil, Beispiele |
+| 08 | [Offene Fragen](./08-open-questions.md) | Restlücken |
+| 09 | [Versionierung](./09-versioning.md) | SemVer, Sprint ↔ Version |
 
 ## Kurzfassung
 

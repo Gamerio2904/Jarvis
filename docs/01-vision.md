@@ -13,7 +13,8 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 3. **Chat first** — Architektur-Gefühl Typ A (Messenger-Freund). Stimme kommt später als Vorlesen des Textes.
 4. **Charakter vor Features** — Erst Smalltalk & Persona, dann Assistenten-Fähigkeiten.
 5. **Kern vor Breite** — Lieber ein stabiler lokaler Chat als früh Kalender, Tools und App-Store.
-6. **UI-Qualität als Produktstandard** — Über das Gesamtprojekt: extrem hochwertige, smoothe GUI auf modernem Industriestandard (Web). Im MVP funktional starten, Qualität gezielt hochziehen — kein dauerhaftes „hässliches Prototyp-UI“.
+6. **UI-Qualität als Produktstandard** — Extrem hochwertige, smoothe Web-GUI. Referenz: **Spotify** (Farbe/Atmosphäre), **ChatGPT** (Chat-Layout/Buttons). Motion im MVP light, später GUI-Update.
+7. **Versionierung** — Jedes Sprint-Ziel und jeder Nachzieher ist einer Version zugeordnet (`09-versioning.md`).
 
 ## Ziele (Outcome)
 

@@ -18,12 +18,13 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Stimme | Später: TTS liest denselben Text vor |
 | Handy | Zuerst Web-UI im eigenen Netz; Native App kein MVP |
 | UI-Kanal | **Nur Web-App** (kein Telegram o.Ä.) |
-| UI-Anspruch | Gesamtprojekt: **premium / smooth / Industriestandard**; MVP darf schlank starten, aber Architektur/Stack sollen hochwertige UI tragen |
+| UI-Look | **Spotify** (Farben/Atmosphäre) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
+| UI-Motion | MVP: **Light**; später eigenes **GUI-Update** mit spürbar premium Motion |
+| Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
+| Kontext / Erinnern | Starkes Verständnis & Erinnern = **Produktziel**; im MVP nur **bedingt** (ausbaufähig), Details Q35 |
 | Backend | Dev entscheidet pragmatisch (keine PO-Vorgabe) |
-| Modellklasse MVP | **Ausgewogen** (guter Smalltalk, akzeptable Wartezeit; Qualität vor Rohspeed) |
-
-> **Offen für Modellwahl:** RTX 3060 — Laptop (oft 6 GB VRAM) vs. Desktop (oft 12 GB VRAM). Siehe Q32.
-
+| Modellklasse MVP | **Ausgewogen** |
+| VRAM-Annahme | **~12 GB** (Desktop-Standard), optional später am PC verifizieren |
 ## Logische Bausteine
 
 ```text

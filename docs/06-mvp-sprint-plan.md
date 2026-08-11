@@ -8,20 +8,19 @@
 ### In Scope
 
 - Lokales LLM über **Ollama** (kein Cloud-Denken)
-- Backend mit Jarvis-Persona + Kurzzeitgedächtnis
-- **Persistente** Chat-History zwischen Sessions
-- Einfache Web-Chat-UI (auch auf Handy-Browser im lokalen Netz testbar)
-- Smalltalk-**Qualität** als Abnahmekriterium (Speed nachrangig, aber „so schnell wie möglich“)
+- Backend mit Jarvis-Persona + Gesprächskontext (letzte N Turns)
+- **Persistente** Chats; Zielrichtung **mehrere Chats + Liste + Neues Gespräch** (MVP darf schlank/bedingt sein, aber ausbaufähig)
+- Web-Chat-UI: **Spotify-Farben** + **ChatGPT-artiges Layout**; Motion **light**
+- Smalltalk-**Qualität** als Abnahmekriterium
 
-### Out of Scope
+### Out of Scope (MVP)
 
-- Native App
-- NAS 24/7
-- TTS / Spracheingabe
-- Langzeitgedächtnis / „kennt mein Leben“ (History ≠ smartes Langzeitgedächtnis)
-- Assistenten-Tools
-- Öffentlicher Internetzugriff
-- At-rest-Encryption (zurückgestellt)
+- Native App, NAS 24/7, TTS
+- Volles Langzeitgedächtnis / „erinnert sich an alles“
+- Premium-Motion-Pack (kommt als späteres **GUI-Update**-Sprint)
+- Chat-Löschen (zurückgestellt)
+- Phase-2+-Netz/VPN/Auth-Feinschliff
+- At-rest-Encryption
 
 ### MVP-Erfolg (Abnahme)
 

@@ -68,11 +68,15 @@ Jarvis ist ein **deutscher Chat-Kumpel mit derber Frechheit und trockenem Humor*
 | Inhaltliche Tabus | **Keine harten Tabus** | PO-Entscheidung: alles erlaubt, solange lokal |
 | Stil | Anti-KI-Regeln oben bleiben | Steuert *wie* gesprochen wird, nicht *welche Themen* verboten sind |
 
-## Kurzgedächtnis (Produktregel MVP)
+## Kurzgedächtnis & Erinnern (Stufen)
 
-- Jarvis kennt die **aktuellen** letzten Nachrichten des Gesprächs.
-- Kein „Lebensarchiv“ über Wochen im MVP.
-- Neues Gespräch = frischer Kontext (Details technisch in Sprint 1 / Q11).
+| Stufe | Inhalt | Wann |
+|-------|--------|------|
+| **MVP (bedingt)** | Kontext **innerhalb** des aktuellen Gesprächs (letzte N Nachrichten); Chats speichern/wiederöffnen | Phase 1 |
+| **Ausbau** | Besseres Kontextverständnis, längerer sinnvolle Erinnerung, ggf. über Gespräche hinweg | später in der Produktentwicklung |
+| **Nicht MVP** | „Kennt mein ganzes Leben“ / smartes Langzeitgedächtnis als Assistenten-Hirn | Phase 5+ / nach PO |
+
+Neues Gespräch = frischer Gesprächskontext (gespeicherte anderen Chats bleiben erhalten).
 
 ## Soll/Nicht-Soll-Beispiele
 

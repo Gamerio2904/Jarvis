@@ -18,79 +18,70 @@ Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
-| Q1 | Grundton von Jarvis? | P0 | entschieden | Trocken-humorig + warm/freundlich; Vibe = Kumpel + frech-direkt |
-| Q2 | Wie spricht er dich an? | P0 | entschieden | „Master“ + „Sir“; selten & situativ |
-| Q3 | Formalität und Humor? | P0 | entschieden | Formalität 3–4; Humor deftig/frech + trocken; derb erlaubt |
-| Q4 | Tabus & Grenzen im Smalltalk? | P0 | entschieden | Keine harten inhaltlichen Tabus; Anti-KI-Stilregeln bleiben |
-| Q5 | Soll/Nicht-Soll: ≥10 Beispiel-Antworten? | P0 | offen | Noch ausstehend (Abnahme-Qualität) |
-| Q6 | Tagesstimmung andeuten? | P1 | entschieden | Ja, leicht / dosiert |
-| Q7 | Sprache? | P1 | entschieden | Nur Deutsch |
-| Q8 | Jarvis-Erwartung / Vibe? | P0 | entschieden | Kumpel-Assistent + frech-direkt (mit Master/Sir) |
-| Q30 | Anrede-Varianten / Frequenz? | P0 | entschieden | Nur Master + Sir; selten + situativ |
-| Q31 | Duzen / Siezen / ohne Pronomen? | P1 | entschieden | Meist ohne Du-Pronomen; wenn nötig **Sie** |
+| Q1–Q4, Q6–Q8, Q30–Q31 | Persona-Kern | P0/P1 | entschieden | siehe `07-persona.md` |
+| Q5 | Soll/Nicht-Soll-Beispiele (≥5–10 vom PO) | P0 | offen | PO liefert als Nächstes (Runde 4 Wahl A) |
 
 ## B. Privatsphäre & Sicherheit
 
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
-| Q9 | Verschlüsselung at-rest schon im MVP? | P1 | zurückgestellt | Vorerst nur-du-Zugang + kein Cloud-LLM |
-| Q10 | Modell-Download (Ollama) erlaubt? | P1 | entschieden | Ja |
-| Q11 | Chat-History zwischen Sessions? | P1 | entschieden | Ja, speichern |
-| Q12 | Löschkonzept für gespeicherte Chats? | P2 | zurückgestellt | **Nicht Sprint 1** — später nachziehen |
+| Q9 | Encryption at-rest MVP? | P1 | zurückgestellt | |
+| Q10 | Ollama-Download? | P1 | entschieden | Ja |
+| Q11 | History speichern? | P1 | entschieden | Ja |
+| Q12 | Löschen? | P2 | zurückgestellt | Nicht Sprint 1 |
 
 ## C. Hardware & Betrieb
 
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
-| Q13 | Entwicklungsrechner Specs? | P0 | entschieden | Windows, 16 GB RAM, NVIDIA RTX 3060 |
-| Q14 | NAS-/24/7-Zielgerät? | P2 | offen | |
-| Q15 | Antwortlatenz / Priorität? | P1 | entschieden | Qualität > Speed; trotzdem so schnell wie möglich |
-| Q16 | Strom-/Lautstärke-Constraints? | P2 | offen | |
-| Q32 | RTX 3060 Desktop vs Laptop / VRAM? | P0 | vorläufig | **Vermutlich Desktop (~12 GB)** — PO unsicher, Bestätigung offen |
+| Q13 | Dev-Rechner | P0 | entschieden | Windows, 16 GB, RTX 3060 |
+| Q14 | NAS | P2 | zurückgestellt | Phase 2+ später planen |
+| Q15 | Latenz-Priorität | P1 | entschieden | Qualität > Speed |
+| Q16 | Strom/Lautstärke | P2 | zurückgestellt | Phase 2+ später |
+| Q32 | VRAM | P0 | entschieden | **Standard annehmen: Desktop ~12 GB** (Bestätigung am PC optional nachholen) |
 
-## D. Technik-Stack (Sprint 1)
-
-| ID | Frage | Prio | Status | Entscheidung |
-|----|-------|------|--------|--------------|
-| Q17 | Modell-Host? | P0 | entschieden | Ollama (Default) |
-| Q18 | Modellklasse MVP? | P0 | entschieden | **Ausgewogen** |
-| Q19 | Backend-Präferenz? | P1 | entschieden | Dev entscheidet pragmatisch |
-| Q20 | UI-Kanal? | P1 | entschieden | **Nur Web-App**; Gesamtprojekt: premium/smooth UI-Standard |
-| Q21 | „Neues Gespräch“ / Chat-Organisation? | P1 | offen | PO will Vor-/Nachteile — Entscheidung Runde 4 |
-| Q33 | UI-Richtung / Look-Referenzen für Premium-Web-UI? | P1 | offen | Aus Runde 3 (hohe GUI-Ansprüche) |
-
-## E. Agiler Prozess
+## D. Technik-Stack / Produktumfang
 
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
-| Q22 | Sprint-Länge? | P1 | entschieden | Zielbasiert; **Zeit spielt keine Rolle** |
-| Q23 | Review-Ritual? | P2 | entschieden | Schriftliches Feedback reicht |
-| Q24 | Scope-Freeze? | P2 | entschieden | Mittel: kleine Extras ok; Größeres → neuer Sprint/Backlog |
+| Q17 | Host | P0 | entschieden | Ollama |
+| Q18 | Modellklasse | P0 | entschieden | Ausgewogen |
+| Q19 | Backend | P1 | entschieden | Dev pragmatisch |
+| Q20 | UI-Kanal | P1 | entschieden | Nur Web; Premium-Anspruch |
+| Q21 | Chat-Organisation | P1 | entschieden | **Zielbild A:** mehrere Chats + Liste + „Neues Gespräch“; MVP nur **bedingt**/schlank, ausbaufähig |
+| Q33 | UI-Richtung | P1 | entschieden | **Farben/Atmosphäre: Spotify**; **Layout/Buttons: ChatGPT-ähnlich**; Motion: MVP light, später GUI-Update premium |
+| Q35 | Kontext/Gedächtnis-Umfang MVP vs. später | P1 | offen | PO will starkes Kontext-/Erinnerungsziel — MVP nur bedingt; Grenze schärfen |
 
-## F. Spätere Phasen (nicht Sprint-1-Blocker)
+## E. Agiler Prozess / Versionierung
 
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
-| Q25 | Fernzugriff Phase 2: VPN-Präferenz? | P2 | offen | |
-| Q26 | Auth-Präferenz? | P2 | offen | |
-| Q27 | TTS später: lokal vs. Cloud? | P2 | offen | |
-| Q28 | Spracheingabe nach TTS? | P3 | offen | |
-| Q29 | Native App jemals Muss? | P3 | offen | |
+| Q22 | Sprint-Länge | P1 | entschieden | Zielbasiert; Zeit egal |
+| Q23 | Review | P2 | entschieden | Schriftlich |
+| Q24 | Scope-Freeze | P2 | entschieden | Klein ok; groß → neuer Sprint |
+| Q34 | Wann ist `0.1.0` / `1.0.0`? | P1 | offen | Versionierungsschema steht (`09`); Startlabel klären |
+
+## F. Spätere Phasen
+
+| ID | Frage | Prio | Status | Entscheidung |
+|----|-------|------|--------|--------------|
+| Q25–Q29 | VPN/Auth/TTS/App | P2/P3 | zurückgestellt | **Phase 2+ später planen** (PO) |
 
 ---
 
-## Empfohlene Klärungsreihenfolge (Workshop)
+## Empfohlene Klärungsreihenfolge (Rest)
 
-1. ~~Persona / Hardware grob / Ollama / Prozess~~ weitgehend **done**
-2. **Jetzt:** Q21 (nach Erklärung) → Q32 bestätigen → Q33 UI-Richtung → Q5 Beispiele
-3. Danach Phase-2+-Fragen (Q14, Q25–Q29) oder Sprint 1 starten, wenn Minimal-Set steht
+1. **Q5** — PO-Beispiele eintragen  
+2. **Q35** — MVP-Grenze Kontext/Gedächtnis  
+3. **Q34** — Versions-Startlabels  
+4. Dann Sprint-0 abschließen → Sprint 1
 
-## Minimal-Set zum Start von Sprint 1
+## Minimal-Set Sprint 1
 
-- ~~Q1–Q4, Q8, Q11, Q17, Q18, Q20, Q30~~ **done**
-- **Q21** (Chat-Organisation) — empfohlen vor Persistenz-UI
-- **Q32** bestätigen (VRAM) — Modellwahl absichern
-- Q33 kann parallel laufen (UI-Feinschliff über Sprints)
+- ~~Kern-Persona, Ollama, Web, Persistenz-Richtung, Chat-Org-Zielbild, UI-Richtung, VRAM-Standard~~ **done**
+- **Q5** stark empfohlen vor Prompt-Feinschliff  
+- **Q35** empfohlen, damit Persistenz/Kontext nicht falsch gebaut wird  
+- Q34 kann parallel zur ersten Umsetzung
 
 ---
 
@@ -98,8 +89,8 @@ Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 
 | Datum | ID | Entscheidung | Von |
 |-------|-----|--------------|-----|
-| 2026-08-11 | — | Vision, lokal Variante 3, Chat-first, TTS später, Scrum-lite Docs | PO + Agent |
-| 2026-08-11 | Q1–Q4,Q6–Q8,Q30,Q31 | Persona-Kern + Anrede Master/Sir, Sie, derb, nur DE | PO |
-| 2026-08-11 | Q9–Q11,Q13,Q15,Q17 | Security vorerst einfach; History an; Win/16GB/3060; Qualität>Speed; Ollama | PO |
-| 2026-08-11 | Q12,Q18–Q20,Q22–Q24 | Löschen später; Modell ausgewogen; nur Web + Premium-UI-Anspruch; Backend egal; zielbasierte Sprints; Review schriftlich; Freeze mittel | PO |
-| 2026-08-11 | Q32 | Vorläufig Desktop ~12 GB, Bestätigung offen | PO |
+| 2026-08-11 | — | Vision, lokal, Chat-first, Scrum-lite Docs | PO + Agent |
+| 2026-08-11 | Persona-Block | Master/Sir, Sie, derb, nur DE, keine harten Tabus | PO |
+| 2026-08-11 | Hardware/Stack | Win/16GB/3060; Ollama; History; Qualität>Speed | PO |
+| 2026-08-11 | Prozess/UI grob | Ausgewogen; Web; Premium-Anspruch; zielbasierte Sprints | PO |
+| 2026-08-11 | Q21,Q32,Q33 | Chat-Liste Zielbild A (MVP bedingt); 12 GB Standard; Spotify-Farben + ChatGPT-Layout; Motion light→Update; Versionierung; Phase 2+ später | PO |

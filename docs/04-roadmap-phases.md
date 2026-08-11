@@ -16,8 +16,10 @@ Phase 3  24/7 auf NAS
     ↓
 Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
     ↓
-Phase 5+ Echter Assistent (Gedächtnis, Tools)
+Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
+
+**Hinweis:** Phase 2+ (Handy/Netz, NAS, TTS) wird **bewusst später** im Detail geplant — Roadmap-Richtung bleibt, Feinschnitt auf PO-Kommando.
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 

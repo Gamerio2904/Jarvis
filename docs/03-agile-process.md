@@ -21,6 +21,7 @@ Es gibt kein separates Stakeholder-Gremium: **du bist der einzige Nutzer und Ent
 | Increment | laufender Code-Stand | Nutzbares Teilergebnis (z.B. lokaler Chat) |
 | Definition of Ready (DoR) | unten | Wann eine Story „sprintfähig“ ist |
 | Definition of Done (DoD) | unten | Wann etwas „fertig“ ist |
+| Versionierung | `09-versioning.md` | SemVer-artig; Sprint-Ziel ↔ Version; Patches als Zwischenversionen |
 
 ## Sprint-Rahmen (entschieden)
 
@@ -43,6 +44,7 @@ Es gibt kein separates Stakeholder-Gremium: **du bist der einzige Nutzer und Ent
 3. **Review:** Du führst den Abnahmetest (bei MVP: Smalltalk-Gefühl).
 4. **Retro:** 1 Prozess-Verbesserung für den nächsten Sprint.
 5. **Backlog pflegen:** Neue Erkenntnisse → Stories anpassen/priorisieren.
+6. **Version taggen:** Ziel-Version laut `09-versioning.md` (MINOR bei Sprint-Ziel, PATCH bei Nachziehern).
 
 ## Definition of Ready (DoR)
 
@@ -63,6 +65,7 @@ Eine Story ist done, wenn:
 - [ ] Kurz getestet (happy path + 1 typischer Fehlerfall, soweit sinnvoll)
 - [ ] Für den PO nachvollziehbar dokumentiert oder demonstrierbar
 - [ ] Commit auf dem Arbeitsbranch; relevante Planung bei Bedarf aktualisiert
+- [ ] Versionierung beachtet (Sprint-Ziel-Version bzw. Patch dokumentiert/getaggt wenn Abnahme ok)
 
 **Zusätzlich für Gesprächs-Stories:**  
 Du (PO) hast mindestens einmal live gechattet und das **Charakter-Gefühl** abgenommen.
@@ -86,8 +89,9 @@ MoSCoW im Backlog:
 
 ## Umgang mit Scope-Creep
 
-Neue Ideen → ins Product Backlog, **nicht** automatisch in den laufenden Sprint.  
-Ausnahme: Blocker-Fix, ohne den das Sprint-Ziel unmöglich ist.
+- **Kleine Ergänzungen** im laufenden Sprint: ok, wenn das Sprint-Ziel nicht leidet.
+- **Größere Ideen:** ins Product Backlog und als **neuer Sprint** planen — nicht „mal eben“ mitnehmen.
+- Ausnahme: Blocker-Fix, ohne den das Sprint-Ziel unmöglich ist.
 
 ## Dokumentationsregel
 
