@@ -12,6 +12,17 @@ SAFE_DEGENERATE = (
     "was liegt an?"
 )
 
+# Jarvis-toned fallbacks (Sprint 5) — statt Helpdesk / leerer Aussetzer.
+SAFE_NO_HELPDESK = (
+    "Kein Helpdesk hier. "
+    "Smalltalk oder Ernst — was liegt an?"
+)
+
+SAFE_CHARACTER = (
+    "Alles klar. Kurz und ohne Theater — "
+    "Kante oder Ruhe, was soll's sein?"
+)
+
 # Whole-reply inject tokens (not only first line / first token).
 _INJECT_TOKEN_RE = re.compile(
     r"(?is)(?<![\wÄÖÜäöüß])"
@@ -38,6 +49,11 @@ _BOILERPLATE_RE = re.compile(
     r"(?i)("
     r"gerne!|"
     r"wie kann ich .{0,40}helfen|"
+    r"was kann ich .{0,40}(tun|machen|helfen)|"
+    r"entschuldigung für den fehler|"
+    r"ich bin hier[, ]+um zu helfen|"
+    r"ich bin hier und bereit|"
+    r"lassen sie mich wissen,? ob|"
     r"als ki\b|"
     r"als eine ki\b|"
     r"ich bin eine ki|"
@@ -51,6 +67,9 @@ _NUMBERED_ITEM_RE = re.compile(
     r"(?m)^\s*(?:\d{1,2}[\.\)]\s+\S|[-*•]\s+\S)"
 )
 
+# Sticky only when the assistant claims the collapse phrase itself.
+# "bin etwas kaputt" as user-echo in long replies is still banned (persona),
+# but short-only / self-claim patterns stay the hard trigger.
 _STICKY_PHRASES = (
     "bin kaputt",
     "bin etwas kaputt",
@@ -58,6 +77,8 @@ _STICKY_PHRASES = (
 
 _CJK_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]")
 _CYRILLIC_RE = re.compile(r"[\u0400-\u04FF]")
+
+_KAPUTT_USER_RE = re.compile(r"(?i)\bkaputt\b")
 
 
 def looks_like_inject_obedience(text: str) -> bool:
@@ -110,19 +131,18 @@ def boilerplate_hits(text: str) -> list[str]:
 
 
 def sticky_hits(text: str, recent_assistant: list[str] | None = None) -> bool:
-    """Sticky v2: phrase anywhere in reply, not only as opener."""
+    """Sticky: assistant must not claim „Bin kaputt“ (anywhere)."""
     lower = text.strip().lower()
     for phrase in _STICKY_PHRASES:
         if phrase in lower:
-            # Interior / any occurrence of known sticky garbage is bad.
-            # Also sticky if same phrase appeared recently as opener/body.
-            if recent_assistant:
-                for prev in recent_assistant[-3:]:
-                    if phrase in prev.strip().lower():
-                        return True
-            # Even without history: phrase itself is a known collapse smell.
             return True
     return False
+
+
+def user_looks_kaputt(user_text: str | None) -> bool:
+    if not user_text:
+        return False
+    return bool(_KAPUTT_USER_RE.search(user_text))
 
 
 def needs_retry(text: str, recent_assistant: list[str] | None = None) -> bool:
@@ -148,6 +168,7 @@ def needs_retry(text: str, recent_assistant: list[str] | None = None) -> bool:
 def sanitize_or_refuse(
     text: str,
     recent_assistant: list[str] | None = None,
+    user_text: str | None = None,
 ) -> str:
     if (
         looks_like_inject_obedience(text)
@@ -155,9 +176,17 @@ def sanitize_or_refuse(
         or looks_like_coach_list(text)
     ):
         return SAFE_REFUSAL
+    if boilerplate_hits(text):
+        return SAFE_NO_HELPDESK
     if looks_like_degenerate(text) or sticky_hits(text, recent_assistant):
+        if user_looks_kaputt(user_text):
+            return SAFE_CHARACTER
         return SAFE_DEGENERATE
     if looks_like_non_german(text):
+        return SAFE_DEGENERATE
+    if duzen_hits(text):
+        if user_looks_kaputt(user_text):
+            return SAFE_CHARACTER
         return SAFE_DEGENERATE
     return text.strip()
 
@@ -165,11 +194,13 @@ def sanitize_or_refuse(
 def force_strict_refuse_if_needed(
     text: str,
     recent_assistant: list[str] | None = None,
+    user_text: str | None = None,
 ) -> str:
     """Final pass after retries.
 
-    Hard-refuse inject/collapse/coach-list/degenerate/language/sticky/duzen.
-    Boilerplate alone: keep best-effort text after retries.
+    Hard-refuse inject/collapse/coach-list.
+    Boilerplate → Jarvis-no-helpdesk (C1).
+    Sticky/degenerate/duzen → character fallback; kaputt-user → SAFE_CHARACTER (C2).
     """
     cleaned = text.strip()
     if (
@@ -178,12 +209,17 @@ def force_strict_refuse_if_needed(
         or looks_like_coach_list(cleaned)
     ):
         return SAFE_REFUSAL
+    if boilerplate_hits(cleaned):
+        return SAFE_NO_HELPDESK
     if looks_like_degenerate(cleaned) or sticky_hits(cleaned, recent_assistant):
+        if user_looks_kaputt(user_text):
+            return SAFE_CHARACTER
         return SAFE_DEGENERATE
     if looks_like_non_german(cleaned):
         return SAFE_DEGENERATE
     if duzen_hits(cleaned):
-        # After retries still duzen → refuse rather than leak Pronomen.
+        if user_looks_kaputt(user_text):
+            return SAFE_CHARACTER
         return SAFE_DEGENERATE
     return cleaned
 
@@ -193,10 +229,20 @@ def single_token_obedience(text: str) -> bool:
     cleaned = text.strip()
     if not cleaned:
         return True
-    # Entire reply is just the inject token (+ punctuation).
     return bool(
         re.fullmatch(
             r"(?is)\s*(pwned|hacked|owned|ja[_\s-]*ich[_\s-]*geh\w*)[!?.]*\s*",
             cleaned,
         )
     )
+
+
+def is_guarded_canned(text: str) -> bool:
+    """True if reply is one of the fixed guard fallbacks."""
+    t = text.strip()
+    return t in {
+        SAFE_REFUSAL,
+        SAFE_DEGENERATE,
+        SAFE_NO_HELPDESK,
+        SAFE_CHARACTER,
+    }

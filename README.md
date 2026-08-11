@@ -9,6 +9,7 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 - **Sprint 2:** `0.1.1` Must-Fixes
 - **Sprint 3:** `0.2.0` Robustheit (Streaming, Guards, Löschen, Eval)
 - **Sprint 4:** `0.2.1` Guard Hardening (Listen/Duzen/Inject/Sticky)
+- **Sprint 5:** `0.2.2` Charakter-Feinschliff (Boilerplate, Kaputt-Pfad)
 
 ## Schnellstart (Windows / Linux)
 
@@ -54,6 +55,7 @@ Browser: http://localhost:5173
 python scripts/smoke_0_1_1.py
 python scripts/eval_0_2_0.py
 python scripts/eval_0_2_1.py
+python scripts/eval_0_2_2.py
 ```
 
 ## Planung

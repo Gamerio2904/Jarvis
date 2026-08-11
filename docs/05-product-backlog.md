@@ -108,9 +108,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 5 (`0.2.2`):** C1–C2 Charakter-Fixes (Boilerplate, Kaputt-Pfad)
-2. PO-Reviews / Tags `0.1.0`–`0.2.2` nachziehen
-3. Später: GUI-Motion, Gedächtnis, Phase 2+, NAS `1.0.0`
+1. PO-Review **Sprint 5 / `0.2.2`** (+ ggf. frühere Tags)
+2. Später: GUI-Motion, Gedächtnis, Phase 2+, NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

@@ -150,7 +150,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 5 — Charakter-Feinschliff → **`0.2.2`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-05.md`](./sprints/sprint-05.md)
 
 **Ziel:** Die 2 FIX-Fälle aus dem `0.2.1`-Deep-Test — kein Helpdesk-Boilerplate, Kaputt-Smalltalk jarvis-treu statt Canned-Aussetzer.

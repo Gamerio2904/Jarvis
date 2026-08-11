@@ -219,7 +219,7 @@ function App() {
           <div className="brand-mark" />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.2.1</p>
+            <p>lokal · privat · v0.2.2</p>
           </div>
         </div>
 
