@@ -35,7 +35,7 @@ Du schreibst z.B. „Hey, wie geht’s?“ und die Antwort ist:
 | Symptom | Typische Reaktion |
 |---------|-------------------|
 | Steife/templatehafte Antworten | Persona/Stil schärfen; anderes Modell testen |
-| Zu langsam | kleineres/quantisiertes Modell; Hardware-Check |
+| Zu langsam | erst Qualität halten; später quantisieren/kleineres Modell (PO: Speed nachrangig) |
 | Kontextvergesslichkeit | Kurzgedächtnis N erhöhen / Prompt-Struktur fixen |
 
 ---

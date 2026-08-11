@@ -9,10 +9,16 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 |--------|----------------|
 | Gesprächsform | Text-Chat (Typ A: Chat-Mensch) |
 | Denk-Engine | Lokales LLM |
-| Laufzeit MVP | Entwicklungsrechner |
+| Modell-Host MVP | **Ollama** (Default, solange keine klar bessere Alternative) |
+| Laufzeit MVP | Entwicklungsrechner: **Windows, 16 GB RAM, NVIDIA RTX 3060** |
+| Qualitäts-/Speed-Priorität | **Qualität > Rohgeschwindigkeit**; so schnell wie möglich, Speed-Feintuning später |
+| Chat-Persistenz MVP | **Gespräche zwischen Sessions speichern** |
+| Sicherheit MVP (vorerst) | Kein Cloud-LLM + Zugang nur für dich; At-rest-Encryption noch nicht fest (erstmal zurückgestellt) |
 | Laufzeit später | NAS / Mini-Server (24/7) |
 | Stimme | Später: TTS liest denselben Text vor |
 | Handy | Zuerst Web-UI im eigenen Netz; Native App kein MVP |
+
+> **Offen für Modellwahl:** RTX 3060 — Laptop (oft 6 GB VRAM) vs. Desktop (oft 12 GB VRAM). Siehe Q32.
 
 ## Logische Bausteine
 

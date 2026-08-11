@@ -33,7 +33,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S0.2 | Als PO will ich Soll/Nicht-Soll-Beispieldialoge, damit ich Abnahme objektiv machen kann. | Must | idea | ≥10 Beispiele dokumentiert |
 | S0.3 | Als Nutzer will ich kurze Messenger-artige Antworten, keine Essays. | Must | idea | Durchschnittlich kurz; keine Listen-Manie |
 | S0.4 | Als Nutzer will ich, dass Jarvis gelegentlich Rückfragen stellt, ohne jedes Mal zu „coachen“. | Should | idea | Rückfragen dosiert in Tests |
-| S0.5 | Als Nutzer will ich, dass Jarvis mich „Master“ (u. Ä.) nennt — dosiert und wechselnd. | Must | idea | Anrede-Regeln Q30/Q31 + Prompt |
+| S0.5 | Als Nutzer will ich, dass Jarvis mich „Master“/„Sir“ nennt — selten, situativ, Sie/ohne Du. | Must | ready | Regeln in `07` gesetzt |
+| S2.5 | Als Nutzer will ich Chatverläufe zwischen Sessions wiedersehen. | Must | idea | Persistenz laut Q11 |
+| S2.6 | Als Nutzer will ich gespeicherte Chats löschen können. | Should | idea | hängt an Q12 |
 
 ### E1 — Local Runtime
 
