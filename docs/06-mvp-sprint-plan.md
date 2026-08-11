@@ -60,8 +60,8 @@ Du schreibst z.B. „Hey, wie geht’s?“ und die Antwort ist:
 
 ## Sprint 1 — Vorschlag (nach Klärung der Blocker)
 
-**Sprint-Ziel (Entwurf):**  
-„Ich kann im Browser lokal mit Jarvis smalltalken — Persona an, Kurzgedächtnis an, ohne Cloud-LLM.“
+**Sprint-Ziel (Entwurf) → Ziel-Version `0.1.0` (Vorschlag, Q34):**  
+„Ich kann im Browser lokal mit Jarvis smalltalken — Persona an, Gesprächskontext an, Chats speicherbar, Web-UI in Spotify/ChatGPT-Richtung (Motion light).“
 
 ### Geplanter Scope (Must)
 
@@ -92,11 +92,12 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 2+ (nur Richtung, nicht committed)
 
-| Sprint-Idee | Zielrichtung |
-|-------------|--------------|
-| Sprint 2 | Gesprächsqualität härten; UI mobil; Robustheit |
-| Sprint 3 | Phase-2-Vorbereitung: Auth-Konzept + privater Zugriff |
-| Später | NAS / TTS nach explizitem PO-Go |
+| Sprint-Idee | Zielrichtung | Version (Beispiel) |
+|-------------|--------------|---------------------|
+| Sprint 2 | Gesprächsqualität; Chat-Liste härten; UI polieren | `0.2.0` |
+| GUI-Update | Premium-Motion (nach Light-MVP) | eigenes MINOR |
+| Später | Phase 2 Handy/VPN — **erst wenn PO Phase 2 plant** | TBD |
+| Später | NAS / TTS nach explizitem PO-Go | TBD |
 
 ---
 

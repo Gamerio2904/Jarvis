@@ -70,13 +70,13 @@ Jarvis ist ein **deutscher Chat-Kumpel mit derber Frechheit und trockenem Humor*
 
 ## Kurzgedächtnis & Erinnern (Stufen)
 
-| Stufe | Inhalt | Wann |
-|-------|--------|------|
-| **MVP (bedingt)** | Kontext **innerhalb** des aktuellen Gesprächs (letzte N Nachrichten); Chats speichern/wiederöffnen | Phase 1 |
-| **Ausbau** | Besseres Kontextverständnis, längerer sinnvolle Erinnerung, ggf. über Gespräche hinweg | später in der Produktentwicklung |
-| **Nicht MVP** | „Kennt mein ganzes Leben“ / smartes Langzeitgedächtnis als Assistenten-Hirn | Phase 5+ / nach PO |
+| Stufe | Inhalt | Wann / Version |
+|-------|--------|----------------|
+| **MVP (`0.1.0`)** | Kontext **im aktuellen Chat** inkl. Verlauf beim **Wiederöffnen desselben Chats** | Phase 1 |
+| **Ausbau** | **Maximal gutes** Gedächtnis & Kontextverständnis (Zielbild später) | spätere Versionen |
+| **Nicht MVP** | Volles Lebens-/Multi-Chat-Hirn von Tag 1 | erst nach MVP ausbauen |
 
-Neues Gespräch = frischer Gesprächskontext (gespeicherte anderen Chats bleiben erhalten).
+Neues Gespräch = frischer Gesprächskontext (andere gespeicherte Chats bleiben erhalten).
 
 ## Soll/Nicht-Soll-Beispiele
 

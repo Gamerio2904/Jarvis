@@ -21,10 +21,11 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | UI-Look | **Spotify** (Farben/Atmosphäre) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
 | UI-Motion | MVP: **Light**; später eigenes **GUI-Update** mit spürbar premium Motion |
 | Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
-| Kontext / Erinnern | Starkes Verständnis & Erinnern = **Produktziel**; im MVP nur **bedingt** (ausbaufähig), Details Q35 |
-| Backend | Dev entscheidet pragmatisch (keine PO-Vorgabe) |
-| Modellklasse MVP | **Ausgewogen** |
-| VRAM-Annahme | **~12 GB** (Desktop-Standard), optional später am PC verifizieren |
+| Kontext / Erinnern | **MVP:** In-Chat inkl. Wiederöffnen desselben Chats. **Später:** maximal gutes Gedächtnis & Kontextverständnis |
+| VRAM-Annahme | **~12 GB** (Desktop-Standard) |
+| UI-Look | **Spotify dunkel** (Schwarz/Grün-Atmosphäre) + **ChatGPT**-Layout/Buttons |
+| Version `0.1.0` | = **MVP** (Sprint-1-Abnahme Local Smalltalk) |
+| Version `1.0.0` | = **NAS / 24/7** erreicht |
 ## Logische Bausteine
 
 ```text
