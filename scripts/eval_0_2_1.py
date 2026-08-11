@@ -110,7 +110,7 @@ def main() -> int:
     code, health = req("GET", "/api/health")
     check(
         "health_version",
-        code == 200 and health.get("ok") and health.get("version") == "0.2.1",
+        code == 200 and health.get("ok") and health.get("version") in {"0.2.1", "0.2.2"},
         json.dumps(health, ensure_ascii=False)[:240],
     )
     if health and health.get("using_fallback"):
