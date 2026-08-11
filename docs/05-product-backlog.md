@@ -107,7 +107,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 1. Sprint 1 Review / Tag `0.1.0`
 2. Sprint 2 (`0.1.1`): S2.8, S2.9, F1–F5 Must-Fixes
-3. Sprint 3 (`0.2.0`): S3.7, S3.8, S2.6, S2.10 (volle Eval), I3/I6
+3. Sprint 3 (`0.2.0`): **R1–R8 Restfixes** aus Sprint-2-Deep-Test, dann I1–I6 (Streaming, Löschen, Eval, …)
 4. Später: GUI-Motion, Gedächtnis, Phase 2+, NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)

@@ -119,19 +119,15 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 3 — Verbesserungen → **`0.2.0`**
 
-**Status:** PLANNED  
+**Status:** PLANNED (Scope um Sprint-2-Deep-Test-Restfixes **R1–R8** erweitert)  
 **Artefakt:** [`sprints/sprint-03.md`](./sprints/sprint-03.md)
 
-**Ziel:** Robustheit & Komfort (Streaming, UI-Fehler, Eval-Suite, Chat löschen, härtere Guards).
+**Ziel:** Robustheit & Komfort + Restlücken aus `0.1.1` (OWNED-Inject, degenerierte Antworten, Duzen/Boilerplate, Fallback-UX, Eval).
 
-| Item | Inhalt |
-|------|--------|
-| I1 | UI-Fehler + Retry |
-| I2 | Streaming |
-| I3 | Injection-Härte ausbauen |
-| I4 | Eval-Suite im Repo |
-| I5 | Chat löschen |
-| I6 | Sampling/UX-Feintuning |
+| Block | Inhalt |
+|-------|--------|
+| Restfixes R1–R8 | OWNED-Guard, Degenerate/Sticky, Duzen/Boilerplate/KI-Frage, Sprache, Fallback-Warnung |
+| I1–I6 | UI-Fehler/Retry, Streaming, härtere Injection, Eval-Suite, Chat löschen, Sampling/UX |
 
 ---
 
