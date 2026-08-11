@@ -26,7 +26,8 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 | Handy-Nutzbarkeit | Am Ende vom Handy aus nutzbar (zuerst Browser/Netz, nicht zwingend Native App). |
 | 24/7 später | Dauerbetrieb auf NAS/Mini-Server, wenn der Stack steht. |
 | Stimme später | Realistisches Vorlesen derselben Antworten, auf dein Kommando. |
-| Premium-Web-UI | Chat-Oberfläche fühlt sich modern, smooth und „fertig“ an — nicht wie ein Bastelprojekt. |
+| Premium-Web-UI | Spotify-**Dunkel** + ChatGPT-Layout; Motion light → späteres GUI-Update |
+| Versionierung | `0.1.0` = MVP; `1.0.0` = NAS; Patches als `x.y.z` Zwischenversionen |
 
 ## Nicht-Ziele (aktuell)
 

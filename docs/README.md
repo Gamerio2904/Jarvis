@@ -33,8 +33,8 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | Architektur-Richtung | Festgelegt (lokal) |
 | Agiler Rahmen | Festgelegt |
 | Persona-Kern | Gesetzt (Beispiele Q5 — PO liefert als Nächstes) |
-| Hardware | Windows / 16 GB / RTX 3060 — Standard **~12 GB** VRAM |
-| Stack / UI | Ollama; Web; Spotify-Farben + ChatGPT-Layout; Motion light→GUI-Update |
-| Chat / Memory | Mehr-Chat-Zielbild; MVP-Kontext bedingt; Ausbau später |
-| Prozess | Ziel-Sprints; Versionierung `09`; Phase 2+ später |
-| Sprint 1 Start | Nach Q5 (+ empfohlen Q35/Q34) |
+| Hardware | Windows / 16 GB / RTX 3060 — **~12 GB** VRAM Standard |
+| Stack / UI | Ollama; Web; **Spotify dunkel** + ChatGPT-Layout; Motion light→GUI-Update |
+| Chat / Memory | Mehr-Chat-Zielbild; MVP In-Chat+Reopen; später **max. Gedächtnis** |
+| Versionen | `0.1.0` = MVP; `1.0.0` = NAS |
+| Sprint 1 Start | Nach Q5-Beispielwahl |

@@ -9,4 +9,5 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
 ## Geplant
 
-- `0.1.0` — Local Smalltalk MVP (Vorschlag, final Q34)
+- `0.1.0` — **MVP** Local Smalltalk (Sprint 1)
+- `1.0.0` — **NAS / 24/7**

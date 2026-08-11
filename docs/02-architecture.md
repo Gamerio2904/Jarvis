@@ -18,14 +18,16 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Stimme | Später: TTS liest denselben Text vor |
 | Handy | Zuerst Web-UI im eigenen Netz; Native App kein MVP |
 | UI-Kanal | **Nur Web-App** (kein Telegram o.Ä.) |
-| UI-Look | **Spotify** (Farben/Atmosphäre) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
+| UI-Look | **Spotify dunkel** (Schwarz/Grün) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
 | UI-Motion | MVP: **Light**; später eigenes **GUI-Update** mit spürbar premium Motion |
 | Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
-| Kontext / Erinnern | **MVP:** In-Chat inkl. Wiederöffnen desselben Chats. **Später:** maximal gutes Gedächtnis & Kontextverständnis |
+| Kontext / Erinnern | **MVP:** In-Chat inkl. Wiederöffnen. **Später:** maximal gutes Gedächtnis & Kontextverständnis |
+| Backend | Dev entscheidet pragmatisch |
+| Modellklasse MVP | **Ausgewogen** |
 | VRAM-Annahme | **~12 GB** (Desktop-Standard) |
-| UI-Look | **Spotify dunkel** (Schwarz/Grün-Atmosphäre) + **ChatGPT**-Layout/Buttons |
-| Version `0.1.0` | = **MVP** (Sprint-1-Abnahme Local Smalltalk) |
-| Version `1.0.0` | = **NAS / 24/7** erreicht |
+| Version `0.1.0` | = **MVP** (Sprint-1-Abnahme) |
+| Version `1.0.0` | = **NAS / 24/7** |
+
 ## Logische Bausteine
 
 ```text
