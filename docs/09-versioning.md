@@ -27,6 +27,7 @@ MAJOR.MINOR.PATCH
 | `0.1.1` | **Must-Fixes** nach MVP-Test (Persona, Injection, Modell, Sampling, Smoke) | Sprint 2 |
 | `0.2.0` | **Verbesserungen** (Streaming, UI-Fehler, Eval, Löschen, härtere Guards) | Sprint 3 |
 | `0.2.1` | **Must-Fixes** nach `0.2.0`-Deep-Test (Listen/Roleplay, Duzen v2, Whole-Reply-Inject, Sticky v2, Eval) | Sprint 4 |
+| `0.2.2` | **Charakter-Fixes** nach `0.2.1`-Deep-Test (Boilerplate hard-refuse, Kaputt-Pfad jarvis-treu) | Sprint 5 |
 | `0.3.0+` | Weitere Etappen (GUI-Motion, Gedächtnis, Handy, …) | später |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
@@ -35,7 +36,7 @@ MAJOR.MINOR.PATCH
 | Version | Bedeutung (Beispiel) |
 |---------|----------------------|
 | `0.1.2` | Hotfix-Patch nach `0.1.1`, falls nötig |
-| `0.2.2` | Hotfix-Patch nach `0.2.1`, falls nötig |
+| `0.2.3` | Hotfix-Patch nach `0.2.2`, falls nötig |
 | `0.3.0` | GUI-Update Premium-Motion |
 | `0.4.0` | maximal gutes Gedächtnis (Ausbau) |
 

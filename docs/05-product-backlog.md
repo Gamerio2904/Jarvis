@@ -55,10 +55,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S2.6 | Als Nutzer will ich gespeicherte Chats löschen können. | Should | ready | Sprint 3 / `0.2.0` (I5) |
 | S2.7 | Als Nutzer will ich, dass Jarvis Gesprächskontext versteht und später stärker erinnert. | Must (gestuft) | idea | MVP: In-Chat-Kontext; Ausbau später |
 | S2.8 | Als Nutzer will ich, dass Prompt-Injection nicht durchschlägt. | Must | ready | Sprint 2–4: F2/F3 → R1/I3 → H1/H3 (`0.2.1`) |
-| S2.9 | Als Nutzer will ich jarvis-treue Antworten ohne Dauer-Duzen/Boilerplate. | Must | ready | Sprint 2–4: F1/F2/F4 → R3/R4 → H2 (`0.2.1`) |
-| S2.10 | Als Dev will ich einen Smoke-/Eval-Lauf gegen Inject & Persona. | Should | ready | Smoke `0.1.1`; Eval `0.2.0`; H5 `0.2.1` |
+| S2.9 | Als Nutzer will ich jarvis-treue Antworten ohne Dauer-Duzen/Boilerplate. | Must | ready | Sprint 2–5: … → C1 (`0.2.2`) |
+| S2.10 | Als Dev will ich einen Smoke-/Eval-Lauf gegen Inject & Persona. | Should | ready | Smoke `0.1.1`; Eval `0.2.0`/`0.2.1`; C4 `0.2.2` |
 | S2.11 | Als Nutzer will ich keine Tip-Listen / Coach-Mode bei Inject/Roleplay. | Must | ready | Sprint 4 / `0.2.1` (H1) |
 | S2.12 | Als Nutzer will ich keine Sticky-Müllphrasen in längeren Antworten. | Must | ready | Sprint 4 / `0.2.1` (H4) |
+| S2.13 | Als Nutzer will ich bei „kaputt“ eine jarvis-treue Antwort, keinen Canned-Aussetzer. | Must | ready | Sprint 5 / `0.2.2` (C2) |
 
 ### E3 — Chat UI
 
