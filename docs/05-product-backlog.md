@@ -107,9 +107,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sprint 1–3 Reviews / Tags `0.1.0` → `0.1.1` → `0.2.0` (PO)
-2. **Sprint 4 (`0.2.1`):** H1–H5 Guard Hardening (Deep-Test Must-Fixes)
-3. Später: GUI-Motion, Gedächtnis, Phase 2+, NAS `1.0.0`
+1. PO-Review **Sprint 4 / `0.2.1`** (+ ggf. frühere Tags `0.1.0`–`0.2.0`)
+2. Später: GUI-Motion, Gedächtnis, Phase 2+, NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 
