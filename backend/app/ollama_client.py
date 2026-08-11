@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+from collections.abc import AsyncIterator
 from typing import Any
 
 import httpx
@@ -32,7 +34,6 @@ def model_is_available(model: str, model_names: list[str]) -> bool:
 
 
 def resolve_model(settings: dict[str, Any], model_names: list[str]) -> tuple[str, bool]:
-    """Return (model_name, using_fallback)."""
     preferred = settings.get("model", "")
     fallback = settings.get("fallback_model", "")
     if preferred and model_is_available(preferred, model_names):
@@ -40,6 +41,20 @@ def resolve_model(settings: dict[str, Any], model_names: list[str]) -> tuple[str
     if fallback and model_is_available(fallback, model_names):
         return fallback, True
     return preferred or fallback or "unknown", False
+
+
+def _options(
+    temperature: float,
+    top_p: float,
+    num_predict: int,
+    repeat_penalty: float,
+) -> dict[str, Any]:
+    return {
+        "temperature": temperature,
+        "top_p": top_p,
+        "num_predict": num_predict,
+        "repeat_penalty": repeat_penalty,
+    }
 
 
 async def chat_completion(
@@ -56,12 +71,7 @@ async def chat_completion(
     payload = {
         "model": model,
         "stream": False,
-        "options": {
-            "temperature": temperature,
-            "top_p": top_p,
-            "num_predict": num_predict,
-            "repeat_penalty": repeat_penalty,
-        },
+        "options": _options(temperature, top_p, num_predict, repeat_penalty),
         "messages": [{"role": "system", "content": system}, *messages],
     }
     url = f"{base_url.rstrip('/')}/api/chat"
@@ -84,6 +94,59 @@ async def chat_completion(
             if not content:
                 raise OllamaError("Leere Antwort vom Modell.")
             return content
+    except OllamaError:
+        raise
+    except httpx.HTTPError as exc:
+        raise OllamaError(
+            "Ollama ist nicht erreichbar oder die Anfrage ist fehlgeschlagen."
+        ) from exc
+
+
+async def chat_completion_stream(
+    *,
+    base_url: str,
+    model: str,
+    system: str,
+    messages: list[dict[str, str]],
+    temperature: float,
+    top_p: float,
+    num_predict: int,
+    repeat_penalty: float = 1.1,
+) -> AsyncIterator[str]:
+    payload = {
+        "model": model,
+        "stream": True,
+        "options": _options(temperature, top_p, num_predict, repeat_penalty),
+        "messages": [{"role": "system", "content": system}, *messages],
+    }
+    url = f"{base_url.rstrip('/')}/api/chat"
+    try:
+        async with httpx.AsyncClient(timeout=300.0) as client:
+            async with client.stream("POST", url, json=payload) as resp:
+                if resp.status_code == 404:
+                    raise OllamaError(
+                        f"Modell „{model}“ nicht gefunden. "
+                        f"Bitte ausführen: ollama pull {model}",
+                        status_code=404,
+                    )
+                if resp.status_code >= 400:
+                    body = (await resp.aread()).decode()[:300]
+                    raise OllamaError(
+                        f"Ollama-Fehler ({resp.status_code}): {body}",
+                        status_code=resp.status_code,
+                    )
+                async for line in resp.aiter_lines():
+                    if not line:
+                        continue
+                    try:
+                        data = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    piece = (data.get("message") or {}).get("content") or ""
+                    if piece:
+                        yield piece
+                    if data.get("done"):
+                        break
     except OllamaError:
         raise
     except httpx.HTTPError as exc:

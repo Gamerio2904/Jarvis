@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import {
   createConversation,
+  deleteConversation,
   getConversation,
   getHealth,
   listConversations,
-  sendChat,
+  streamChat,
   type Conversation,
   type Health,
   type Message,
@@ -17,9 +18,12 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
+  const [streamingText, setStreamingText] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [lastFailed, setLastFailed] = useState<string | null>(null)
   const [health, setHealth] = useState<Health | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [statusNote, setStatusNote] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 
@@ -33,7 +37,7 @@ function App() {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages, busy])
+  }, [messages, busy, streamingText])
 
   useEffect(() => {
     const el = textareaRef.current
@@ -67,6 +71,7 @@ function App() {
 
   async function openConversation(id: string) {
     setError(null)
+    setLastFailed(null)
     setActiveId(id)
     setSidebarOpen(false)
     const data = await getConversation(id)
@@ -75,6 +80,7 @@ function App() {
 
   async function onNewChat() {
     setError(null)
+    setLastFailed(null)
     const created = await createConversation()
     setConversations((prev) => [created, ...prev])
     setActiveId(created.id)
@@ -82,16 +88,34 @@ function App() {
     setSidebarOpen(false)
   }
 
-  async function onSend() {
-    const content = draft.trim()
-    if (!content || busy) return
+  async function onDeleteChat() {
+    if (!activeId || busy) return
+    const ok = window.confirm('Dieses Gespräch wirklich löschen?')
+    if (!ok) return
+    try {
+      await deleteConversation(activeId)
+      const remaining = conversations.filter((c) => c.id !== activeId)
+      setConversations(remaining)
+      setMessages([])
+      setActiveId(remaining[0]?.id ?? null)
+      if (remaining[0]) {
+        await openConversation(remaining[0].id)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Löschen fehlgeschlagen')
+    }
+  }
 
+  async function sendMessage(content: string) {
+    if (!content || busy) return
     setBusy(true)
     setError(null)
-    setDraft('')
+    setLastFailed(null)
+    setStatusNote(null)
+    setStreamingText('')
 
+    let conversationId = activeId
     try {
-      let conversationId = activeId
       if (!conversationId) {
         const created = await createConversation()
         conversationId = created.id
@@ -108,21 +132,67 @@ function App() {
       }
       setMessages((prev) => [...prev, optimistic])
 
-      const result = await sendChat(conversationId, content)
-      setMessages((prev) => {
-        const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
-        return [...withoutTmp, result.user_message, result.assistant_message]
-      })
-      setConversations((prev) => {
-        const rest = prev.filter((c) => c.id !== result.conversation.id)
-        return [result.conversation, ...rest]
+      let acc = ''
+      await streamChat(conversationId, content, {
+        onMeta: (meta) => {
+          setMessages((prev) => {
+            const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
+            return [...withoutTmp, meta.user_message]
+          })
+          if (meta.using_fallback) {
+            setStatusNote(`Fallback-Modell aktiv: ${meta.model}`)
+          }
+        },
+        onToken: (token) => {
+          acc += token
+          setStreamingText(acc)
+        },
+        onReplace: (text) => {
+          acc = text
+          setStreamingText(text)
+        },
+        onRetry: (attempt) => {
+          setStatusNote(`Antwort wird neu generiert (Versuch ${attempt})…`)
+          acc = ''
+          setStreamingText('')
+        },
+        onDone: (payload) => {
+          setStreamingText(null)
+          setMessages((prev) => [...prev, payload.assistant_message])
+          setConversations((prev) => {
+            const rest = prev.filter((c) => c.id !== payload.conversation.id)
+            return [payload.conversation, ...rest]
+          })
+          setStatusNote(null)
+        },
+        onError: (detail) => {
+          setError(detail)
+        },
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Senden fehlgeschlagen')
+      const msg = err instanceof Error ? err.message : 'Senden fehlgeschlagen'
+      setError(msg)
+      setLastFailed(content)
+      setStreamingText(null)
+      // drop optimistic-only user bubble if stream failed before meta
+      setMessages((prev) => prev.filter((m) => !m.id.startsWith('tmp-')))
     } finally {
       setBusy(false)
       textareaRef.current?.focus()
+      void refreshHealth()
     }
+  }
+
+  async function onSend() {
+    const content = draft.trim()
+    if (!content || busy) return
+    setDraft('')
+    await sendMessage(content)
+  }
+
+  async function onRetry() {
+    if (!lastFailed || busy) return
+    await sendMessage(lastFailed)
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -136,6 +206,7 @@ function App() {
     conversations.find((c) => c.id === activeId)?.title ?? 'Jarvis'
 
   const healthOk = Boolean(health?.ok && health.model_ready)
+  const fallback = Boolean(health?.using_fallback)
 
   return (
     <div className="app">
@@ -148,7 +219,7 @@ function App() {
           <div className="brand-mark" />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.1.1</p>
+            <p>lokal · privat · v0.2.0</p>
           </div>
         </div>
 
@@ -169,12 +240,19 @@ function App() {
           ))}
         </div>
 
-        <div className={`status ${healthOk ? '' : 'error'}`}>
+        <div className={`status ${healthOk ? (fallback ? 'warn' : '') : 'error'}`}>
           {healthOk ? (
             <>
               Ollama: <strong>online</strong>
               <br />
               Modell: {health?.model}
+              {fallback ? (
+                <>
+                  <br />
+                  <strong>Fallback</strong> — besser:{' '}
+                  {health?.configured_model || 'qwen2.5:7b'}
+                </>
+              ) : null}
             </>
           ) : (
             <>
@@ -182,8 +260,8 @@ function App() {
               <br />
               {health?.error ||
                 (!health?.ollama
-                  ? 'Ollama offline'
-                  : `Modell fehlt — ollama pull ${health?.model}`)}
+                  ? 'Ollama offline — bitte starten'
+                  : `Modell fehlt — ollama pull ${health?.configured_model || health?.model}`)}
             </>
           )}
         </div>
@@ -200,14 +278,30 @@ function App() {
             ☰
           </button>
           <h2>{activeTitle}</h2>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            Smalltalk MVP
-          </span>
+          <div className="topbar-actions">
+            {activeId ? (
+              <button
+                type="button"
+                className="ghost-btn"
+                onClick={() => void onDeleteChat()}
+                disabled={busy}
+              >
+                Löschen
+              </button>
+            ) : null}
+          </div>
         </div>
+
+        {fallback && healthOk ? (
+          <div className="fallback-banner">
+            {health?.warning ||
+              `Fallback-Modell aktiv (${health?.model}). Für beste Qualität: ollama pull ${health?.configured_model}`}
+          </div>
+        ) : null}
 
         <div className="messages">
           <div className="messages-inner">
-            {messages.length === 0 && !busy ? (
+            {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
                 <h3>Jarvis</h3>
                 <p>Schreib einfach los — lokal, ohne Cloud-Hirn.</p>
@@ -223,15 +317,17 @@ function App() {
               </div>
             ))}
 
-            {busy ? (
+            {streamingText !== null ? (
               <div className="row assistant">
                 <div className="avatar jarvis">J</div>
                 <div className="bubble">
-                  <div className="typing" aria-label="Jarvis schreibt">
-                    <span />
-                    <span />
-                    <span />
-                  </div>
+                  {streamingText || (
+                    <div className="typing" aria-label="Jarvis schreibt">
+                      <span />
+                      <span />
+                      <span />
+                    </div>
+                  )}
                 </div>
               </div>
             ) : null}
@@ -240,7 +336,17 @@ function App() {
         </div>
 
         <div className="composer-wrap">
-          {error ? <div className="error-banner">{error}</div> : null}
+          {statusNote ? <div className="status-note">{statusNote}</div> : null}
+          {error ? (
+            <div className="error-banner">
+              <div>{error}</div>
+              {lastFailed ? (
+                <button type="button" className="retry-btn" onClick={() => void onRetry()}>
+                  Erneut senden
+                </button>
+              ) : null}
+            </div>
+          ) : null}
           <div className="composer">
             <textarea
               ref={textareaRef}

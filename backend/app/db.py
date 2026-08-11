@@ -193,3 +193,25 @@ def maybe_set_title_from_first_message(conversation_id: str, content: str) -> No
         title = title[:39] + "…"
     if title:
         rename_conversation(conversation_id, title)
+
+
+def delete_conversation(conversation_id: str) -> bool:
+    conn = get_conn()
+    try:
+        exists = conn.execute(
+            "SELECT 1 FROM conversations WHERE id = ?",
+            (conversation_id,),
+        ).fetchone()
+        if not exists:
+            return False
+        conn.execute("DELETE FROM messages WHERE conversation_id = ?", (conversation_id,))
+        conn.execute("DELETE FROM conversations WHERE id = ?", (conversation_id,))
+        conn.commit()
+        return True
+    finally:
+        conn.close()
+
+
+def recent_assistant_texts(conversation_id: str, limit: int = 5) -> list[str]:
+    messages = list_messages(conversation_id)
+    return [m["content"] for m in messages if m["role"] == "assistant"][-limit:]

@@ -2,9 +2,9 @@
   "ollama_base_url": "http://127.0.0.1:11434",
   "model": "qwen2.5:7b",
   "fallback_model": "qwen2.5:3b",
-  "temperature": 0.75,
-  "top_p": 0.9,
-  "repeat_penalty": 1.15,
+  "temperature": 0.72,
+  "top_p": 0.88,
+  "repeat_penalty": 1.18,
   "max_context_messages": 40,
   "num_predict": 220,
   "guard_max_retries": 2

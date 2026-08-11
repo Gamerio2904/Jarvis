@@ -311,6 +311,53 @@ textarea {
   cursor: not-allowed;
 }
 
+.status.warn strong {
+  color: #f0c14b;
+}
+
+.fallback-banner {
+  margin: 10px 16px 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(240, 193, 75, 0.12);
+  border: 1px solid rgba(240, 193, 75, 0.35);
+  color: #f6e2a4;
+  font-size: 0.9rem;
+}
+
+.status-note {
+  width: min(820px, 100%);
+  margin: 0 auto 8px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.ghost-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.ghost-btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: #444;
+}
+
+.ghost-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .error-banner {
   width: min(820px, 100%);
   margin: 0 auto 10px;
@@ -320,6 +367,21 @@ textarea {
   border-radius: 12px;
   padding: 10px 12px;
   font-size: 0.9rem;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.retry-btn {
+  appearance: none;
+  border: 1px solid rgba(241, 94, 108, 0.5);
+  background: transparent;
+  color: #ffd0d5;
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .typing {
