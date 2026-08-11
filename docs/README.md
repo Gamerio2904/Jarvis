@@ -32,7 +32,7 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | Produktvision | Festgelegt |
 | Architektur-Richtung | Festgelegt (lokal) |
 | Agiler Rahmen | Festgelegt |
-| Persona-Kern | Gesetzt (Beispiele Q5 — PO liefert als Nächstes) |
+| Persona-Kern | Gesetzt (Beispiele: PO wählt A/B/C-Optionen) |
 | Hardware | Windows / 16 GB / RTX 3060 — **~12 GB** VRAM Standard |
 | Stack / UI | Ollama; Web; **Spotify dunkel** + ChatGPT-Layout; Motion light→GUI-Update |
 | Chat / Memory | Mehr-Chat-Zielbild; MVP In-Chat+Reopen; später **max. Gedächtnis** |
