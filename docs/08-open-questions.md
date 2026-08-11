@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review **Sprint 4 / `0.2.1`** → bei OK Tag `v0.2.1`
-2. Optional: Tags für frühere Sprints (`0.1.0`–`0.2.0`) nachziehen
+1. **Sprint 5 / `0.2.2`** umsetzen (C1 Boilerplate, C2 Kaputt-Pfad)
+2. PO-Review → bei OK Tag `v0.2.2` (ggf. frühere Tags nachziehen)
 3. Danach z. B. GUI-Motion / Gedächtnis
 
 ---
