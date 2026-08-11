@@ -7,19 +7,21 @@
 
 ### In Scope
 
-- Lokales LLM (kein Cloud-Denken)
+- Lokales LLM über **Ollama** (kein Cloud-Denken)
 - Backend mit Jarvis-Persona + Kurzzeitgedächtnis
+- **Persistente** Chat-History zwischen Sessions
 - Einfache Web-Chat-UI (auch auf Handy-Browser im lokalen Netz testbar)
-- Smalltalk-Qualität als einziges Produkterfolgskriterium
+- Smalltalk-**Qualität** als Abnahmekriterium (Speed nachrangig, aber „so schnell wie möglich“)
 
 ### Out of Scope
 
 - Native App
 - NAS 24/7
 - TTS / Spracheingabe
-- Langzeitgedächtnis
+- Langzeitgedächtnis / „kennt mein Leben“ (History ≠ smartes Langzeitgedächtnis)
 - Assistenten-Tools
 - Öffentlicher Internetzugriff
+- At-rest-Encryption (zurückgestellt)
 
 ### MVP-Erfolg (Abnahme)
 
@@ -46,11 +48,12 @@ Du schreibst z.B. „Hey, wie geht’s?“ und die Antwort ist:
 
 | Item | Typ | Done wenn |
 |------|-----|-----------|
-| Planungsdokumente | Done (dieser Stand) | `docs/` vollständig & verlinkt |
-| Offene Fragen klären | PO-Workshop | Kritische Fragen in `08` beantwortet |
-| Persona-Kern | Workshop | `07` Mindestens Ton/Tabus/Beispiele |
-| Hardware-Kurzcheck | Spike | RAM/GPU/NAS-Ziel grob bekannt |
-| Stack-Vorschlag fixieren | Entscheidung | Modell-Host + grobe UI/Backend-Wahl notiert |
+| Planungsdokumente | Done | `docs/` vollständig & verlinkt |
+| Offene Fragen klären | PO-Workshop | Minimal-Set in `08` (Q21, Q32) |
+| Persona-Kern | Done | `07` gesetzt |
+| Hardware-Kurzcheck | Fast done | Win/16GB/3060; VRAM-Bestätigung Q32 |
+| Stack-Richtung | Done grob | Ollama + ausgewogenes Modell + Web-UI; Backend pragmatisch |
+| UI-Anspruch | Prinzip gesetzt | Premium/smooth über Gesamtprojekt (`01`, `02`) |
 
 **Increment Sprint 0:** Entscheidbare Planung + klaffende Lücken geschlossen oder bewusst terminiert.
 

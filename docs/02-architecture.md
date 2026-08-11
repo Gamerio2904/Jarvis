@@ -17,6 +17,10 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Laufzeit später | NAS / Mini-Server (24/7) |
 | Stimme | Später: TTS liest denselben Text vor |
 | Handy | Zuerst Web-UI im eigenen Netz; Native App kein MVP |
+| UI-Kanal | **Nur Web-App** (kein Telegram o.Ä.) |
+| UI-Anspruch | Gesamtprojekt: **premium / smooth / Industriestandard**; MVP darf schlank starten, aber Architektur/Stack sollen hochwertige UI tragen |
+| Backend | Dev entscheidet pragmatisch (keine PO-Vorgabe) |
+| Modellklasse MVP | **Ausgewogen** (guter Smalltalk, akzeptable Wartezeit; Qualität vor Rohspeed) |
 
 > **Offen für Modellwahl:** RTX 3060 — Laptop (oft 6 GB VRAM) vs. Desktop (oft 12 GB VRAM). Siehe Q32.
 
@@ -38,7 +42,11 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
         │
         ▼
 [Lokaler Modell-Host]
-   z.B. Ollama o.Ä. auf PC → später NAS
+   Ollama auf Windows-PC (RTX 3060) → später NAS
+        │
+        ▼
+[Lokale Persistenz]
+   Chat-Verläufe zwischen Sessions
 ```
 
 ### Baustein-Erklärung (für Amateure)

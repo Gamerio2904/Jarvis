@@ -22,18 +22,19 @@ Es gibt kein separates Stakeholder-Gremium: **du bist der einzige Nutzer und Ent
 | Definition of Ready (DoR) | unten | Wann eine Story „sprintfähig“ ist |
 | Definition of Done (DoD) | unten | Wann etwas „fertig“ ist |
 
-## Sprint-Rahmen (Default)
+## Sprint-Rahmen (entschieden)
 
 | Parameter | Default | Anmerkung |
 |-----------|---------|-----------|
-| Sprint-Länge | **1 Woche** | Kann auf zielbasierte Mini-Sprints verkürzt werden |
+| Sprint-Länge | **Zielbasiert** — Zeit spielt keine Rolle | Sprint endet bei Ziel-Erreichung / Review, nicht wegen Kalender |
 | Sprint-Ziel | 1 klarer Satz | z.B. „Lokaler Smalltalk mit Persona läuft im Browser“ |
 | Planning | Start jedes Sprints | Stories schneiden, Risiken benennen |
-| Daily | entfällt / asynchron | Stattdessen: kurzer Status bei jeder Arbeitssession |
-| Review | Ende Sprint | Du testest Smalltalk / Feature und gibst Feedback |
-| Retro | kurz, 5–10 Min | Was behalten / ändern — schriftlich 3 Bullets |
+| Daily | entfällt / asynchron | Kurzer Status bei jeder Arbeitssession |
+| Review | Ende Sprint | **Schriftliches Feedback** vom PO reicht |
+| Retro | kurz, schriftlich | 3 Bullets behalten / ändern |
+| Scope-Freeze | **Mittel** | Kleine Ergänzungen ok, wenn Sprint-Ziel nicht leidet; größere Ideen → **neuer Sprint** / Backlog |
 
-**Änderung der Sprint-Länge** ist erlaubt, wenn der PO das sagt — dann hier vermerken.
+**Kalender-Deadlines** sind kein Steuerungsmittel. Qualität und Zielklarheit schon.
 
 ## Ablauf eines Sprints
 

@@ -34,8 +34,6 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S0.3 | Als Nutzer will ich kurze Messenger-artige Antworten, keine Essays. | Must | idea | Durchschnittlich kurz; keine Listen-Manie |
 | S0.4 | Als Nutzer will ich, dass Jarvis gelegentlich Rückfragen stellt, ohne jedes Mal zu „coachen“. | Should | idea | Rückfragen dosiert in Tests |
 | S0.5 | Als Nutzer will ich, dass Jarvis mich „Master“/„Sir“ nennt — selten, situativ, Sie/ohne Du. | Must | ready | Regeln in `07` gesetzt |
-| S2.5 | Als Nutzer will ich Chatverläufe zwischen Sessions wiedersehen. | Must | idea | Persistenz laut Q11 |
-| S2.6 | Als Nutzer will ich gespeicherte Chats löschen können. | Should | idea | hängt an Q12 |
 
 ### E1 — Local Runtime
 
@@ -53,6 +51,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S2.2 | Als Nutzer will ich, dass jede Antwort die Jarvis-Persona nutzt. | Must | idea | System-Prompt/Regeln aktiv |
 | S2.3 | Als Nutzer will ich, dass Jarvis die letzten Nachrichten im Gespräch kennt. | Must | idea | Kontext der letzten N Turns sichtbar im Verhalten |
 | S2.4 | Als PO will ich Persona-Text ändern können, ohne Code-Umweg zu brauchen (Config-Datei reicht). | Should | idea | Persona aus Datei/Config geladen |
+| S2.5 | Als Nutzer will ich Chatverläufe zwischen Sessions wiedersehen. | Must | idea | Persistenz laut Q11 |
+| S2.6 | Als Nutzer will ich gespeicherte Chats löschen können. | Should | idea | hängt an Q12 |
 
 ### E3 — Chat UI
 
@@ -61,6 +61,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S3.1 | Als Nutzer will ich eine einfache Chat-Oberfläche im Browser. | Must | idea | Senden/Empfangen sichtbar |
 | S3.2 | Als Nutzer will ich die UI auf dem Handy-Browser bedienen können. | Must | idea | Nutzbar auf schmalem Viewport |
 | S3.3 | Als Nutzer will ich sehen, dass Jarvis „gerade schreibt“ / lädt. | Could | idea | Loading-Indikator vorhanden |
+| S3.4 | Als Nutzer will ich langfristig eine extrem smoothe, moderne Premium-Web-UI. | Should (Gesamtprojekt) | idea | Industriestandard-Feel; nicht nur Prototyp-Optik |
 
 ### E4 — Private Access
 
@@ -96,12 +97,12 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. S0.1 → S0.2 (Persona festziehen)  
-2. S1.1 → S1.2 (Runtime + Modell)  
-3. S2.1 → S2.2 → S2.3 (Core Chat)  
-4. S3.1 → S3.2 (UI)  
-5. S0.3 / S0.4 (Qualitätsfeinschliff im Betrieb)  
-6. Danach Phase-2-Stories aktivieren
+1. S0.1 / S0.5 (Persona — Kern done) → S0.2 (Beispiele)
+2. S1.1 → S1.2 (Runtime + ausgewogenes Modell; nach Q32-Bestätigung)
+3. S2.1 → S2.2 → S2.3 → S2.5 (Core + Persistenz)
+4. S3.1 → S3.2 (Web-UI; von Anfang an Richtung Premium denkbar, Feinschliff über Sprints)
+5. S0.3 / S0.4 (Qualitätsfeinschliff)
+6. Danach Phase-2-Stories; S2.6 Löschen später
 
 ## Parking Lot (Ideen, nicht geplant)
 

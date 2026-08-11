@@ -32,6 +32,8 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | Architektur-Richtung | Festgelegt (lokal) |
 | Agiler Rahmen | Festgelegt |
 | Persona-Kern | Gesetzt (Beispiele Q5 noch offen) |
-| Hardware | Windows / 16 GB / RTX 3060 — VRAM-Typ noch offen (Q32) |
-| Stack | Ollama Default; Modellklasse + UI noch offen |
-| Sprint 1 Start | Blockiert durch Minimal-Set in `08` |
+| Hardware | Windows / 16 GB / RTX 3060 — vermutlich Desktop 12 GB (Bestätigung Q32) |
+| Stack | Ollama + ausgewogenes Modell; Web only; Backend pragmatisch |
+| Prozess | Zielbasierte Sprints; Zeit egal; Review schriftlich |
+| UI-Anspruch | Premium/smooth über Gesamtprojekt |
+| Sprint 1 Start | Noch Q21 (+ Q32 bestätigen empfohlen) |

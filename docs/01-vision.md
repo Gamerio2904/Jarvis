@@ -12,7 +12,8 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 2. **Menschlich wirken, nicht Menschen imitieren** — Ziel ist ein realistisches Gefühl für dich, kein Deepfake-Mensch.
 3. **Chat first** — Architektur-Gefühl Typ A (Messenger-Freund). Stimme kommt später als Vorlesen des Textes.
 4. **Charakter vor Features** — Erst Smalltalk & Persona, dann Assistenten-Fähigkeiten.
-5. **Schritt vor Breite** — Lieber ein stabiler lokaler Chat als früh Kalender, Tools und App-Store.
+5. **Kern vor Breite** — Lieber ein stabiler lokaler Chat als früh Kalender, Tools und App-Store.
+6. **UI-Qualität als Produktstandard** — Über das Gesamtprojekt: extrem hochwertige, smoothe GUI auf modernem Industriestandard (Web). Im MVP funktional starten, Qualität gezielt hochziehen — kein dauerhaftes „hässliches Prototyp-UI“.
 
 ## Ziele (Outcome)
 
@@ -24,6 +25,7 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 | Handy-Nutzbarkeit | Am Ende vom Handy aus nutzbar (zuerst Browser/Netz, nicht zwingend Native App). |
 | 24/7 später | Dauerbetrieb auf NAS/Mini-Server, wenn der Stack steht. |
 | Stimme später | Realistisches Vorlesen derselben Antworten, auf dein Kommando. |
+| Premium-Web-UI | Chat-Oberfläche fühlt sich modern, smooth und „fertig“ an — nicht wie ein Bastelprojekt. |
 
 ## Nicht-Ziele (aktuell)
 
@@ -34,6 +36,7 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 - Langzeitgedächtnis / „kennt mein ganzes Leben“ im MVP
 - Stimme/TTS im MVP
 - Perfekte Menschen-Imitation
+- Chat-Löschen im Sprint 1 (kommt später)
 
 ## Erfolgskriterium Gesamtprodukt (langfristig)
 
