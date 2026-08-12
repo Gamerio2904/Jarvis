@@ -8,9 +8,9 @@ Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 | Version | Sprint / Doc | Inhalt |
 |---------|--------------|--------|
 | `0.4.0` | Sprint 8 | Gedächtnis (Voraussetzung für Jokes) |
-| `0.4.1`–`0.4.2` | Sprints 12–13 | Memory-Fixes/Polish (empfohlen vor Delight) |
-| `0.5.0`–`0.6.0` | Sprint 9–10 | Intelligence (Router, Research) — **vorher** |
-| **`0.7.0`** | Sprint 11 | Jarvis-Moment, Inside-Jokes, Sound, Easter Eggs + flaches Settings |
+| `0.4.1`–`0.4.2` | Sprints 9–10 | Memory-Fixes/Polish (empfohlen vor Delight) |
+| `0.5.0`–`0.6.0` | Sprints 11–12 | Intelligence (Router, Research) — **vorher** |
+| **`0.7.0`** | Sprint 13 | Jarvis-Moment, Inside-Jokes, Sound, Easter Eggs + flaches Settings |
 
 Reihenfolge bewusst: erst scharfsinnig/verlässlich, dann Delight.
 

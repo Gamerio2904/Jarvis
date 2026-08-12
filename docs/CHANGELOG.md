@@ -1,81 +1,45 @@
 # Changelog
 
-Versionen folgen [`09-versioning.md`](./09-versioning.md).
+Versionen folgen [`09-versioning.md`](./09-versioning.md).  
+Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
-## Unreleased / pending tag `0.4.1`
+## Unreleased
+
+### `0.4.1` — Sprint 9 (Memory Must-Fixes)
 
 - False-Confirm: natürliche Merk-Phrasen speichern; sonst klare Ablehnung
-- Memory-Turns: kein Helpdesk-/Aussetzer-Fallback (`SAFE_MEMORY_ACK` / Forget-Ack)
+- Memory-Turns: kein Helpdesk-/Aussetzer-Fallback (`SAFE_MEMORY_ACK`)
 - „Vergiss alles“ = Full Wipe
 - Eval `scripts/eval_0_4_1.py`, Version `0.4.1`
 
-## Unreleased / pending tag `0.4.0`
+### `0.4.0` — Sprint 8 (Gedächtnis & Kontext)
 
 - Langzeitgedächtnis v1 (`memory_items`, merk/vergiss, soft Lieblings-Harvest)
-- Gesprächszusammenfassung periodisch + Kontextpack (persona + memory + summary + last_k)
+- Gesprächszusammenfassung + Kontextpack (persona + memory + summary + last_k)
 - APIs `GET/POST/DELETE /api/memory`, Health `memory_count`
 - UI „Was Jarvis über mich weiß“
-- Eval `scripts/eval_0_4_0.py`, Version `0.4.0`
+- Eval `scripts/eval_0_4_0.py`
 
-## Planned `0.4.2` (Sprint 13) — Memory Polish
+### `0.3.1` — Sprint 7 (GUI Polish)
 
-- Natürliche Merk-Phrasen, Multi-Fakt-Split, Value-Normalisierung
-- Widerspruchs-Heuristik v1 („nicht X, sondern Y“ ersetzt)
-- Soft-Harvest: **TTL** + niedrige Confidence („unsicher“)
-- UI: **Kategorien filtern** (`pref` / `fact` / `boundary`)
-- Retrieve ohne Ambient-Leak, Summary-Timing/DE, Settings aufräumen
-- UI Should: Confirm-Chip / Edit / Summary
-- Eval `eval_0_4_2.py`
+- Ambient-Gradient, Composer-Focus, Mobile-Backdrop, Chat-Wechsel, Stream-Caret, Empty-State
 
-## Unreleased / pending tag `0.3.1`
+### `0.3.0` — Sprint 6 (GUI Premium-Motion)
 
-- Ambient-Gradient stärker sichtbar
-- Composer-Focus deutlicher (Lift + Glow)
-- Mobile-Backdrop dunkler
-- Chat-Wechsel ohne Historie-Anim-Flash
-- Streaming-Caret kräftiger
-- Empty-State zentriert; Version `0.3.1`
+- Message-Enter, Streaming-Caret, Composer-Focus, Sidebar/Drawer
+- `prefers-reduced-motion`, Ambient-Gradient, Typografie Outfit/Manrope
 
-## Planned `0.5.0` (Sprint 9) — Intelligence 2
-
-- Intent-Router: **merk / recall / forget** sauber getrennt
-- Eigene Memory-Reply-Policy (**kein Helpdesk-Fallback**)
-- **Contradiction-Handling** (`memory.clarify`): ersetzen + kurz nachfragen
-- Model-Routing, Persona-/Quality-Scores
-
-## Planned `0.6.0` (Sprint 10) — Intelligence 3
-
-- Opt-in Internet-Research mit Citations / No-source-Refuse / Audit
-
-## Planned `0.7.0` (Sprint 11) — Delight + Settings
-
-- Jarvis-Moment, Inside Jokes, Sound, Easter Eggs, flaches Settings-Panel
-
-## Unreleased / pending tag `0.3.0`
-
-- Premium-Motion: Message-Enter, Streaming-Caret, Composer-Focus, Sidebar/Drawer
-- `prefers-reduced-motion`, ruhigeres Stream-Scroll
-- Ambient-Gradient, Typografie Outfit/Manrope
-- Version `0.3.0`
-
-## Pending earlier
-
-- `0.2.2` Charakter-Fixes (Boilerplate, Kaputt-Pfad)
-- `0.2.1` Guard Hardening (Listen/Duzen/Inject/Sticky)
-- `0.2.0` Streaming, Guards R1–R8, Löschen, Eval
-- `0.1.1` Must-Fixes (Persona/Guard v1, Smoke)
-- `0.1.0` MVP Local Smalltalk
-
-## Geplant
+## Planned
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.1.0`–`0.3.0` | 1–6 | MVP → Guards → Motion (Reviews offen) |
-| `0.3.1` | 7 | GUI Polish |
-| `0.4.0` | 8 | Gedächtnis & Kontext |
-| `0.4.1` | 12 | Memory Must-Fixes |
-| `0.4.2` | 13 | Memory Polish |
-| `0.5.0` | 9 | Intent-Router (+ Memory-Intent), Routing, Scores |
-| `0.6.0` | 10 | Internet-Research (opt-in) |
-| `0.7.0` | 11 | Delight + Settings |
+| `0.4.2` | 10 | Memory Polish (Parser, Split, TTL, UI-Filter) |
+| `0.5.0` | 11 | Intent-Router (merk/recall/forget/clarify), Routing, Scores |
+| `0.6.0` | 12 | Internet-Research (opt-in, Citations) |
+| `0.7.0` | 13 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |
+
+## Earlier (pending tags)
+
+- `0.2.2` Charakter-Fixes · `0.2.1` Guard Hardening · `0.2.0` Streaming/Guards
+- `0.1.1` Must-Fixes · `0.1.0` MVP Local Smalltalk

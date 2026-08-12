@@ -1,49 +1,44 @@
-# Sprint 13 — Memory Polish (nach 0.4.1)
+# Sprint 13 — Delight & Settings
 
 | Feld | Wert |
 |------|------|
 | Status | **PLANNED** |
-| Ziel-Version | **`0.4.2`** |
-| Quelle | Deep-Test / Verbesserungsbedarf zu Sprint 8 (`0.4.0`); setzt `0.4.1` voraus |
+| Ziel-Version | **`0.7.0`** |
+| Quelle | [`11-delight-and-settings.md`](../11-delight-and-settings.md) |
 
 ## Ziel
 
-Gedächtnis **präziser und steuerbarer**: bessere Extraktion, Soft-Harvest mit TTL/Confidence, sauberer Retrieve, Summary-Timing, UI-Filter — ohne neuen Intelligence-Meilenstein.
+Jarvis bekommt **dosierte Begeisterung** (Momente, Jokes, Sound, Easter Eggs) und ein **flaches Settings-Panel** — abschaltbar, local-first, ohne Verschachtelungstiefe.
 
-## Must (Schwachstellen / Verbesserungen)
+## Must
 
-| ID | Verbesserung | Done wenn |
-|----|--------------|-----------|
-| P1 | **Natürliche Merk-Phrasen** — z.B. „Kannst du dir merken, dass …“ | Parser/Heuristik deckt häufige DE-Formen; Eval-Cases grün |
-| P2 | **Multi-Fakt-Split** — „wohne in Köln und Hund heißt Bruno“ → atomare Items | ≥2 Keys statt einem Blob; Recall einzeln möglich |
-| P3 | **Value-Normalisierung** + Widerspruchs-Heuristik v1 — „nicht X, sondern Y“ ersetzt alten Wert | Saubere `value`-Strings; Key überschrieben (Voll-Policy/Nachfrage → `0.5.0`) |
-| P4 | **Retrieve ohne Ambient-Leak** — Zero-Overlap nicht top-3 Pins erzwingen | Irrelevanter Smalltalk ohne Memory-Injection (oder sehr selten/konfigurierbar) |
-| P5 | **Summary nach Assistant-Write** + DE-only Guard | `summary_message_count` konsistent; keine CJK/Mischsprache in Summary |
-| P6 | **`max_context_messages`** anbinden oder aus Settings entfernen | Kein totes Setting |
-| P11 | **Soft-Harvest: niedrige Confidence („unsicher“) + TTL** (`expires_at`) | Soft-Pins verfallen / werden unter Schwelle nicht injiziert; explizite Merks bleiben |
-| P12 | **UI: Kategorien filtern** — `pref` / `fact` / `boundary` (+ optional `open_loop`) | Filter in „Was Jarvis über mich weiß“; unsichere Soft-Pins erkennbar |
-| P7 | Eval `scripts/eval_0_4_2.py` + Version `0.4.2` | Cases inkl. TTL, Filter-API falls nötig; Health + UI |
+| ID | Story | Done wenn |
+|----|-------|-----------|
+| D1 | **Flaches Settings-Panel** — eine Seite, ≤7 Abschnitte, 1 Ebene | PO findet Easter-Egg-Liste in &lt;10s; keine Nested-Menüs |
+| D2 | **Jarvis-Momente** — selten, Cap/Tag, Toggle | An/Aus wirkt; max. 1–2/Tag |
+| D3 | **Inside Jokes** — aus Memory-Pins, Intent-sensitiv, Toggle + Frequenz | Kein Witz bei ernstem Intent; löschbar |
+| D4 | **UI-Sounds** — Send/Receive/Error, Master-Toggle + 2–3 Lautstärken | Default dezent/aus laut PO; stummbar |
+| D5 | **Easter-Egg-Commands** — z.B. `/protokoll`, `/mission`, `/kante` — **Liste in Settings** | Eggs durch Guards; keine Shell/Netz |
+| D6 | Version `0.7.0` | Health + UI |
 
 ## Should
 
 | ID | Inhalt |
 |----|--------|
-| P8 | UI: Confirm-Chip „gerade gemerkt“ nach Speichern |
-| P9 | UI: Inline-Edit Memory-Wert (+ Kategorie ändern) |
-| P10 | UI: Chat-Summary aufklappbar (lesen) |
-| P13 | Settings: TTL-Dauer / Soft-Harvest an|aus |
+| D7 | Abschnitte: Allgemein, Modell, Gedächtnis, Delight, Sound, Easter Eggs, Forschung |
+| D8 | Danger-Zone getrennt (Memory löschen) mit Bestätigung |
 
 ## Won’t
 
-- Memory-Intent-Subklassen / volle Reply-Policy-Map (→ `0.5.0` / Sprint 9)
-- Contradiction mit verbindlicher Nachfrage-Policy über Router (→ `0.5.0` `memory.clarify`)
-- Vektordatenbank-Pflicht
-- Research / Delight
+- Neue Intelligence-Kernfeatures (liegen in Sprints 8–12)
+- Tiefe Settings-Hierarchie / Advanced-JSON-UI als Primärweg
+- Lautes Arcade-Sound
 
 ## Abhängigkeiten
 
-- `0.4.1` Must-Fixes (Sprint 12)
+- `0.4.0`+ Gedächtnis (für Jokes); ideal nach Memory-Patches (Sprints 9–10)
+- Ideal nach Router/Research (Sprints 11–12), damit Settings Research-Toggle aufnehmen kann
 
 ## Exit
 
-PO: Recall präziser, Soft-Harvest nicht spammy, UI filterbar. Tag **`v0.4.2`**.
+PO: Settings flach nutzbar; Delight spürbar aber abschaltbar; Eggs dokumentiert in UI. Tag **`v0.7.0`**.

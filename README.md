@@ -5,20 +5,15 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 ## Status
 
 - **Sprint 0:** DONE
-- **Sprint 1:** `0.1.0` MVP (Review)
-- **Sprint 2:** `0.1.1` Must-Fixes
-- **Sprint 3:** `0.2.0` Robustheit (Streaming, Guards, Löschen, Eval)
-- **Sprint 4:** `0.2.1` Guard Hardening (Listen/Duzen/Inject/Sticky)
-- **Sprint 5:** `0.2.2` Charakter-Feinschliff (Boilerplate, Kaputt-Pfad)
-- **Sprint 6:** `0.3.0` GUI Premium-Motion (Review)
-- **Sprint 7:** `0.3.1` GUI Polish (Review)
+- **Sprints 1–7:** `0.1.0`–`0.3.1` (Review)
 - **Sprint 8:** `0.4.0` Gedächtnis & Kontext (Review)
-- **Sprint 12:** `0.4.1` Memory Must-Fixes (Review)
-- **Sprint 13 (geplant):** Memory Polish `0.4.2`
-- **Sprint 9–10 (geplant):** Intelligence `0.5.0` (Router + Memory-Intent) → `0.6.0`
-- **Sprint 11 (geplant):** Delight/Settings `0.7.0`
+- **Sprint 9:** `0.4.1` Memory Must-Fixes (Review)
+- **Sprint 10 (geplant):** `0.4.2` Memory Polish
+- **Sprint 11 (geplant):** `0.5.0` Router + Memory-Intent
+- **Sprint 12 (geplant):** `0.6.0` Internet-Research
+- **Sprint 13 (geplant):** `0.7.0` Delight + Settings
 
-Planung: [`docs/10-intelligence-capabilities.md`](docs/10-intelligence-capabilities.md), [`docs/11-delight-and-settings.md`](docs/11-delight-and-settings.md)
+Planung: [`docs/sprints/README.md`](docs/sprints/README.md) · [`docs/10-intelligence-capabilities.md`](docs/10-intelligence-capabilities.md)
 
 ## Schnellstart (Windows / Linux)
 

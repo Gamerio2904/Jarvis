@@ -7,29 +7,27 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 
 | Stufe | Version | Sprint | Inhalt | Status |
 |-------|---------|--------|--------|--------|
-| 1 | **`0.4.0`** | [08](./sprints/sprint-08.md) | Langzeitgedächtnis v1, Gesprächszusammenfassung, Kontextkompression | **READY FOR REVIEW** |
-| 1a | **`0.4.1`** | [12](./sprints/sprint-12.md) | Memory Must-Fixes (False-Confirm, Aussetzer, Vergiss-alles) | **READY FOR REVIEW** |
-| 1b | **`0.4.2`** | [13](./sprints/sprint-13.md) | Memory Polish (Parser, Split, TTL, UI-Filter, Widerspruch-Heuristik) | **PLANNED** |
-| 2 | **`0.5.0`** | [09](./sprints/sprint-09.md) | Intent-Router (merk/recall/forget/clarify, kein Helpdesk-Fallback), Routing, Scores | **PLANNED** |
-| 3 | **`0.6.0`** | [10](./sprints/sprint-10.md) | Verlässliche Internet-Research (opt-in, zitiert) | **PLANNED** |
-
-Delight/Settings folgen danach als **`0.7.0`** / Sprint 11 ([`11`](./11-delight-and-settings.md), [`sprint-11`](./sprints/sprint-11.md)).
+| 1 | **`0.4.0`** | [08](./sprints/sprint-08.md) | Langzeitgedächtnis v1, Summary, Kontextkompression | **READY FOR REVIEW** |
+| 1a | **`0.4.1`** | [09](./sprints/sprint-09.md) | Memory Must-Fixes | **READY FOR REVIEW** |
+| 1b | **`0.4.2`** | [10](./sprints/sprint-10.md) | Memory Polish (Parser, Split, TTL, UI-Filter) | **PLANNED** |
+| 2 | **`0.5.0`** | [11](./sprints/sprint-11.md) | Intent-Router (merk/recall/forget/clarify), Routing, Scores | **PLANNED** |
+| 3 | **`0.6.0`** | [12](./sprints/sprint-12.md) | Internet-Research (opt-in, zitiert) | **PLANNED** |
+| 4 | **`0.7.0`** | [13](./sprints/sprint-13.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |
 
 ```text
-0.4.0 Memory → 0.4.1 Fixes → 0.4.2 Polish → 0.5.0 Router(+Memory-Intent) → 0.6.0 Research → 0.7.0 Delight
+Sprint 8  0.4.0 Memory
+Sprint 9  0.4.1 Must-Fixes
+Sprint 10 0.4.2 Polish
+Sprint 11 0.5.0 Router (+ Memory-Intent)
+Sprint 12 0.6.0 Research
+Sprint 13 0.7.0 Delight
 ```
 
 ---
 
 ## Prioritätsreihenfolge
 
-| Stufe | Version | Inhalt |
-|-------|---------|--------|
-| 1 | `0.4.0` | Langzeitgedächtnis v1, Gesprächszusammenfassung, Kontextkompression |
-| 1a | `0.4.1` | Memory Must-Fixes (Bugs) |
-| 1b | `0.4.2` | Memory Polish (Schwachstellen) |
-| 2 | `0.5.0` | Intent-Router inkl. Memory-Intent, Model-Routing, Scores |
-| 3 | `0.6.0` | Verlässliche Internet-Research (Tool, opt-in) |
+Gleiche Reihenfolge wie oben (Sprint-Nummer = Lieferreihenfolge). Details in den Sprint-Dateien.
 
 ---
 
@@ -58,8 +56,8 @@ Persistenz: SQLite-Tabelle `memory_items` (kein Cloud).
 
 ### Widerspruch / Korrektur
 - Muster „nicht X, sondern Y“ / „X war falsch, Y stimmt“: alten Wert **ersetzen** (gleicher Key) und **kurz nachfragen** zur Bestätigung
-- v1-Heuristik + saubere Values: Sprint 13 / `0.4.2`
-- Volle Policy über `memory.clarify`: Sprint 9 / `0.5.0` (Doc §4.1)
+- v1-Heuristik + saubere Values: Sprint 10 / `0.4.2`
+- Volle Policy über `memory.clarify`: Sprint 11 / `0.5.0` (Doc §4.1)
 
 ### Lesen
 - Top-N relevante Items zum User-Turn (Keyword/Overlap v1; später Embeddings optional)
@@ -68,7 +66,7 @@ Persistenz: SQLite-Tabelle `memory_items` (kein Cloud).
 
 ### UI
 - Liste „Was Jarvis über mich weiß“ (ab `0.4.0`)
-- **Filter nach Kategorie** `pref` / `fact` / `boundary` (+ optional `open_loop`) — Sprint 13 / `0.4.2`
+- **Filter nach Kategorie** `pref` / `fact` / `boundary` (+ optional `open_loop`) — Sprint 10 / `0.4.2`
 - Unsichere Soft-Harvest-Einträge visuell markieren (Confidence / „unsicher“)
 
 ### Abnahme
@@ -158,7 +156,7 @@ Vor der Antwort grob erkennen, **welche Art Turn** vorliegt — dann andere Prom
 ## 4.1) Memory-Intent (Erweiterung, geplant mit `0.5.0`)
 
 > Unabhängig von Memory-Patches `0.4.1`/`0.4.2`: der **Router** macht Memory-Turns bewusst steuerbar.  
-> Sprint: [09](./sprints/sprint-09.md) · Version **`0.5.0`**.
+> Sprint: [11](./sprints/sprint-11.md) · Version **`0.5.0`**.
 
 ### Zweck
 `memory` ist kein einzelner Eimer. **merk / recall / forget** (plus clarify) brauchen **sauber getrennte** Pfade und **eigene Reply-Policies** — sonst kollidieren Guards (Helpdesk-Boilerplate) mit ehrlichen Merk-Acks, und das Modell „notiert“ verbal ohne Persistenz.
@@ -305,7 +303,7 @@ User fragt (Intent=research, Opt-in an)
 - Mit Netz-Off → kein Research-Pfad
 
 ### Versionierung
-Sprint **10** → **`0.6.0`** ([`sprints/sprint-10.md`](./sprints/sprint-10.md)), nach Memory + Router.
+Sprint **12** → **`0.6.0`** ([`sprints/sprint-12.md`](./sprints/sprint-12.md)), nach Memory + Router.
 
 ---
 
@@ -314,14 +312,14 @@ Sprint **10** → **`0.6.0`** ([`sprints/sprint-10.md`](./sprints/sprint-10.md))
 ```text
 Gedächtnis + Summary + Compression     →  0.4.0  (Sprint 8)
         ↓
-Memory Must-Fixes                      →  0.4.1  (Sprint 12)
+Memory Must-Fixes                      →  0.4.1  (Sprint 9)
         ↓
-Memory Polish                          →  0.4.2  (Sprint 13)
+Memory Polish                          →  0.4.2  (Sprint 10)
         ↓
 Intent-Router (+ Memory-Intent) +
-  Model-Routing + Scores               →  0.5.0  (Sprint 9)
+  Model-Routing + Scores               →  0.5.0  (Sprint 11)
         ↓
-Internet-Research (opt-in)             →  0.6.0  (Sprint 10)
+Internet-Research (opt-in)             →  0.6.0  (Sprint 12)
         ↓
-Delight + flaches Settings             →  0.7.0  (Doc 11)
+Delight + flaches Settings             →  0.7.0  (Sprint 13)
 ```

@@ -1,48 +1,48 @@
-# Sprint 10 — Verlässliche Internet-Research
+# Sprint 10 — Memory Polish (nach 0.4.1)
 
 | Feld | Wert |
 |------|------|
 | Status | **PLANNED** |
-| Ziel-Version | **`0.6.0`** |
-| Quelle | [`10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) § 7 |
+| Ziel-Version | **`0.4.2`** |
+| Quelle | Deep-Test / Verbesserungsbedarf zu Sprint 8 (`0.4.0`); setzt `0.4.1` voraus |
 
 ## Ziel
 
-Opt-in **Research mit Quellen**: nachvollziehbar, zitiert, wiederholbar — **kein Raten** ohne Beleg. Local LLM synthetisiert nur aus Snippets.
-
-> „100 % verlässlich“ = Engineering-DoD (Citations, Opt-in, Allowlist, Audit, Refuse ohne Quelle) — nicht epistemische Allwissenheit.
+Gedächtnis **präziser und steuerbarer**: bessere Extraktion, Soft-Harvest mit TTL/Confidence, sauberer Retrieve, Summary-Timing, UI-Filter — ohne neuen Intelligence-Meilenstein.
 
 ## Must
 
-| ID | Story | Done wenn |
-|----|-------|-----------|
-| R1 | **Opt-in Toggle** in Settings (Default **Aus**) | Ohne Opt-in kein Netzaufruf — auch bei Research-Intent |
-| R2 | **Retrieval-Pipeline** — Query → Allowlist-Provider → Snippets+URLs+Timestamp lokal | Rohdaten persistiert pro Turn |
-| R3 | **Citation-required Synthese** — Antwort nur aus Snippets; faktische Claims stützbar | Jede harte Aussage hat Quelle |
-| R4 | **No-source refuse** — unbeantwortbar / Netz down / leer → klare Meldung, kein Fülltext | Eval-Cases grün |
-| R5 | **UI** — Badge „Mit Quellen“, flach aufklappbare Quellenliste | Keine Nested-UI |
-| R6 | **Audit-Log** — Query, Zeit, Quellen lokal einsehbar | PO kann Turn nachvollziehen |
-| R7 | Eval-Suite Research + Version `0.6.0` | `eval`-Cases + Health |
+| ID | Verbesserung | Done wenn |
+|----|--------------|-----------|
+| P1 | **Natürliche Merk-Phrasen** — z.B. „Kannst du dir merken, dass …“ | Parser/Heuristik deckt häufige DE-Formen; Eval-Cases grün |
+| P2 | **Multi-Fakt-Split** — „wohne in Köln und Hund heißt Bruno“ → atomare Items | ≥2 Keys statt einem Blob; Recall einzeln möglich |
+| P3 | **Value-Normalisierung** + Widerspruchs-Heuristik v1 — „nicht X, sondern Y“ ersetzt alten Wert | Saubere `value`-Strings; Key überschrieben (Voll-Policy → Sprint 11) |
+| P4 | **Retrieve ohne Ambient-Leak** — Zero-Overlap nicht top-3 Pins erzwingen | Irrelevanter Smalltalk ohne Memory-Injection (oder konfigurierbar) |
+| P5 | **Summary nach Assistant-Write** + DE-only Guard | `summary_message_count` konsistent; keine CJK/Mischsprache |
+| P6 | **`max_context_messages`** anbinden oder aus Settings entfernen | Kein totes Setting |
+| P7 | **Soft-Harvest: niedrige Confidence („unsicher“) + TTL** (`expires_at`) | Soft-Pins verfallen / unter Schwelle nicht injiziert |
+| P8 | **UI: Kategorien filtern** — `pref` / `fact` / `boundary` (+ optional `open_loop`) | Filter in „Was Jarvis über mich weiß“; unsichere Soft-Pins erkennbar |
+| P9 | Eval `scripts/eval_0_4_2.py` + Version `0.4.2` | Health + UI |
 
 ## Should
 
 | ID | Inhalt |
 |----|--------|
-| R8 | Widerspruchs-Hinweis wenn Quellen divergieren |
-| R9 | Privacy-Hinweis: nur minimierte Query geht raus |
+| P10 | UI: Confirm-Chip „gerade gemerkt“ nach Speichern |
+| P11 | UI: Inline-Edit Memory-Wert (+ Kategorie ändern) |
+| P12 | UI: Chat-Summary aufklappbar (lesen) |
+| P13 | Settings: TTL-Dauer / Soft-Harvest an\|aus |
 
 ## Won’t
 
-- Cloud-LLM als Denker
-- Scraping ohne Transparenz
-- Research als Default-on
-- Delight-Pack (separat `0.7.0`)
+- Memory-Intent-Subklassen / Reply-Policy-Map (→ Sprint 11 / `0.5.0`)
+- Contradiction mit verbindlicher Nachfrage über Router (→ Sprint 11 `memory.clarify`)
+- Vektordatenbank, Research, Delight
 
 ## Abhängigkeiten
 
-- Intent-Router erkennt `research` (`0.5.0`)
-- Settings-Toggle (kann minimal in diesem Sprint landen, volles Settings-UX in `0.7.0`)
+- `0.4.1` Must-Fixes (Sprint 9)
 
 ## Exit
 
-Live: Frage mit Quellen beantwortet; unbekannte Frage → Refuse; Opt-in aus → kein Netz. Tag **`v0.6.0`**.
+PO: Recall präziser, Soft-Harvest nicht spammy, UI filterbar. Tag **`v0.4.2`**.

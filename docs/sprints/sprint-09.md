@@ -1,51 +1,36 @@
-# Sprint 09 — Intent-Router, Model-Routing & Scores
+# Sprint 09 — Memory Must-Fixes (nach 0.4.0-Deep-Test)
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
-| Ziel-Version | **`0.5.0`** |
-| Quelle | [`10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) §§ 4–6 |
+| Status | **READY FOR REVIEW** |
+| Ziel-Version | **`0.4.1`** |
+| Quelle | Deep-Test / PO-Feedback zu Sprint 8 (`0.4.0`) |
 
 ## Ziel
 
-Jarvis wählt **bewusst Policy und Modell** je nach Turn und wird über **Persona-/Quality-Scores** regressionssicher.  
-**Memory-Intent:** merk / recall / forget sauber trennen, eigene Reply-Policy (**kein Helpdesk-Fallback**), Contradiction-Handling über `memory.clarify`.
+Gedächtnis **vertrauenswürdig**: keine falschen Merk-Bestätigungen, keine Guard-Aussetzer bei Memory-Turns, „Vergiss alles“ wie erwartet.
 
-## Must
+## Geliefert
 
-| ID | Story | Done wenn |
-|----|-------|-----------|
-| I1 | **Intent-Router v1** — Klassen: `smalltalk`, `memory`, `inject`, `task`, `helpdesk_trap`, `research`, `settings` | Gold-Set ~30 Prompts; Research ohne Opt-in → kein Netz |
-| I1b | **Memory-Intent getrennt** — `memory.write` (merk) / `memory.recall` / `memory.forget` | Gold-Set Memory-Subklassen; falsche Klasse = Fail |
-| I1c | **Reply-Policy Memory** — eigene Nudges; bei Boilerplate Retry/Nudge | **Kein** finales Helpdesk-Canned (`SAFE_NO_HELPDESK` / „Gerne!“-Pfad) auf `memory.*`-Turns |
-| I1d | **Contradiction-Handling** — `memory.clarify`: „nicht X, sondern Y“ | Alten Wert ersetzen + kurze Nachfrage in der Reply; Eval-Case |
-| I2 | **Policy-Map** — Intent → Nudge / Tools / Länge / Guard-Verhalten | Smalltalk kurz; Memory ohne Helpdesk-Fallback; Task klarer; Inject geblockt |
-| I3 | **Model-Routing** — `auto` \| `always_default` \| `always_heavy` | Health/Meta zeigt Modell; kein stiller Cloud-Fallback |
-| I4 | **Persona-/Quality-Scorecard** — laut `10` | Script liefert Scores; Must-Fail failen den Lauf |
-| I5 | **Baseline-Gate** — nicht unter `0.2.2` / `0.4.x` | In Eval/CI dokumentiert |
-| I6 | Version `0.5.0` | Health + UI |
-
-## Should
-
-| ID | Inhalt |
-|----|--------|
-| I7 | Router-Debug in Dev (Intent + Memory-Subklasse in Meta/Log) |
-| I8 | Sampling je Intent leicht anpassen |
-| I9 | Unsichere Soft-Harvest-Kollision → `memory.clarify` statt still upsert |
+| ID | Fix | Status |
+|----|-----|--------|
+| M1 | **False-Confirm** — natürliche Merk-Phrasen speichern; sonst klare Ablehnung, nie Behaupten ohne Write | Done |
+| M2 | **Guard/Aussetzer bei Memory-Turns** — Memory-sichere Fallbacks statt Helpdesk/Aussetzer | Done |
+| M3 | **„Vergiss alles“** → Full Wipe (`clear_all_memory`) | Done |
+| M4 | Eval `scripts/eval_0_4_1.py` | Done |
+| M5 | Version `0.4.1` | Done |
+| M6 | Ack-Nudge / kurze Bestätigung nach Write | Done |
+| M7 | Guard: Boilerplate auf Memory-Write → `SAFE_MEMORY_ACK`, nicht Helpdesk | Done |
 
 ## Won’t
 
-- Internet-Research-Ausführung (Sprint 10 / `0.6.0`)
-- Delight/Settings-Overhaul (`0.7.0`, Doc `11`)
-- Vektor-Memory-Pflicht
-- UI-Kategorie-Filter / TTL-Implementierung (liegt in `0.4.2`, wird hier konsumiert)
+- Parser-Feinschliff / Multi-Fakt-Split / UI-Filter / TTL (→ Sprint 10 / `0.4.2`)
+- Memory-Intent-Router (→ Sprint 11 / `0.5.0`)
 
 ## Abhängigkeiten
 
-- `0.4.0` Gedächtnis (Sprint 8)
-- Empfohlen: `0.4.1`/`0.4.2` vorher (12 → 13 → 9)
-- Ollama Default 7b (+ optional Heavy)
+- `0.4.0` Gedächtnis v1 (Sprint 8)
 
-## Exit
+## Exit / Abnahme
 
-PO: Memory-Turns klar getrennt, keine Helpdesk-Fallbacks dort, Widersprüche ersetzt+nachgefragt, Eval grün. Tag **`v0.5.0`**.
+PO: Merk/Vergiss fühlt sich ehrlich an; keine Aussetzer-Serie nach Memory. Nach PO-OK: Tag **`v0.4.1`**.

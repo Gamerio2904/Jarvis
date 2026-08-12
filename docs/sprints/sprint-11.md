@@ -1,44 +1,51 @@
-# Sprint 11 — Delight & Settings
+# Sprint 11 — Intent-Router, Model-Routing & Scores
 
 | Feld | Wert |
 |------|------|
 | Status | **PLANNED** |
-| Ziel-Version | **`0.7.0`** |
-| Quelle | [`11-delight-and-settings.md`](../11-delight-and-settings.md) |
+| Ziel-Version | **`0.5.0`** |
+| Quelle | [`10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) §§ 4–6 |
 
 ## Ziel
 
-Jarvis bekommt **dosierte Begeisterung** (Momente, Jokes, Sound, Easter Eggs) und ein **flaches Settings-Panel** — abschaltbar, local-first, ohne Verschachtelungstiefe.
+Jarvis wählt **bewusst Policy und Modell** je nach Turn und wird über **Persona-/Quality-Scores** regressionssicher.  
+**Memory-Intent:** merk / recall / forget sauber trennen, eigene Reply-Policy (**kein Helpdesk-Fallback**), Contradiction-Handling über `memory.clarify`.
 
 ## Must
 
 | ID | Story | Done wenn |
 |----|-------|-----------|
-| D1 | **Flaches Settings-Panel** — eine Seite, ≤7 Abschnitte, 1 Ebene | PO findet Easter-Egg-Liste in &lt;10s; keine Nested-Menüs |
-| D2 | **Jarvis-Momente** — selten, Cap/Tag, Toggle | An/Aus wirkt; max. 1–2/Tag |
-| D3 | **Inside Jokes** — aus Memory-Pins, Intent-sensitiv, Toggle + Frequenz | Kein Witz bei ernstem Intent; löschbar |
-| D4 | **UI-Sounds** — Send/Receive/Error, Master-Toggle + 2–3 Lautstärken | Default dezent/aus laut PO; stummbar |
-| D5 | **Easter-Egg-Commands** — z.B. `/protokoll`, `/mission`, `/kante` — **Liste in Settings** | Eggs durch Guards; keine Shell/Netz |
-| D6 | Version `0.7.0` | Health + UI |
+| I1 | **Intent-Router v1** — Klassen: `smalltalk`, `memory`, `inject`, `task`, `helpdesk_trap`, `research`, `settings` | Gold-Set ~30 Prompts; Research ohne Opt-in → kein Netz |
+| I1b | **Memory-Intent getrennt** — `memory.write` (merk) / `memory.recall` / `memory.forget` | Gold-Set Memory-Subklassen; falsche Klasse = Fail |
+| I1c | **Reply-Policy Memory** — eigene Nudges; bei Boilerplate Retry/Nudge | **Kein** finales Helpdesk-Canned auf `memory.*`-Turns |
+| I1d | **Contradiction-Handling** — `memory.clarify`: „nicht X, sondern Y“ | Alten Wert ersetzen + kurze Nachfrage; Eval-Case |
+| I2 | **Policy-Map** — Intent → Nudge / Tools / Länge / Guard-Verhalten | Smalltalk kurz; Memory ohne Helpdesk-Fallback; Task klarer; Inject geblockt |
+| I3 | **Model-Routing** — `auto` \| `always_default` \| `always_heavy` | Health/Meta zeigt Modell; kein stiller Cloud-Fallback |
+| I4 | **Persona-/Quality-Scorecard** — laut Doc `10` | Script liefert Scores; Must-Fail failen den Lauf |
+| I5 | **Baseline-Gate** — nicht unter `0.2.2` / `0.4.x` | In Eval/CI dokumentiert |
+| I6 | Version `0.5.0` | Health + UI |
 
 ## Should
 
 | ID | Inhalt |
 |----|--------|
-| D7 | Abschnitte: Allgemein, Modell, Gedächtnis, Delight, Sound, Easter Eggs, Forschung |
-| D8 | Danger-Zone getrennt (Memory löschen) mit Bestätigung |
+| I7 | Router-Debug in Dev (Intent + Memory-Subklasse in Meta/Log) |
+| I8 | Sampling je Intent leicht anpassen |
+| I9 | Unsichere Soft-Harvest-Kollision → `memory.clarify` statt still upsert |
 
 ## Won’t
 
-- Neue Intelligence-Kernfeatures (liegen in 8–10)
-- Tiefe Settings-Hierarchie / Advanced-JSON-UI als Primärweg
-- Lautes Arcade-Sound
+- Internet-Research-Ausführung (→ Sprint 12 / `0.6.0`)
+- Delight/Settings-Overhaul (→ Sprint 13 / `0.7.0`, Doc `11`)
+- Vektor-Memory-Pflicht
+- UI-Kategorie-Filter / TTL (liegt in Sprint 10 / `0.4.2`)
 
 ## Abhängigkeiten
 
-- `0.4.0` Gedächtnis (für Jokes)
-- Ideal nach `0.5.0`/`0.6.0` (Settings kann Research-Toggle aufnehmen)
+- `0.4.0` Gedächtnis (Sprint 8)
+- Empfohlen: `0.4.1`/`0.4.2` vorher (Sprint 9 → 10 → 11)
+- Ollama Default 7b (+ optional Heavy)
 
 ## Exit
 
-PO: Settings flach nutzbar; Delight spürbar aber abschaltbar; Eggs dokumentiert in UI. Tag **`v0.7.0`**.
+PO: Memory-Turns klar getrennt, keine Helpdesk-Fallbacks dort, Widersprüche ersetzt+nachgefragt, Eval grün. Tag **`v0.5.0`**.

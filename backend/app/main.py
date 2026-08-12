@@ -176,7 +176,7 @@ def _finalize_memory_reply(
     memory_op: str,
     memory_notes: list[str],
 ) -> str:
-    """Sprint 12: no false confirms; no Aussetzer/Helpdesk on memory turns."""
+    """Sprint 9 / 0.4.1: no false confirms; no Aussetzer/Helpdesk on memory turns."""
     if memory_op == "write":
         if is_bad_memory_canned(reply) or reply.strip() in {
             SAFE_DEGENERATE,

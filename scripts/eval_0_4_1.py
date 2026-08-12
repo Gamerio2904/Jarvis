@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sprint 12 / v0.4.1 memory must-fix eval (unit + API)."""
+"""Sprint 9 / v0.4.1 memory must-fix eval (unit + API)."""
 from __future__ import annotations
 
 import json

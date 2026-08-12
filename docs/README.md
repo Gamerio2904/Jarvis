@@ -18,20 +18,19 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
 
-Sprints: [`sprints/README.md`](./sprints/README.md)
+Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
 ## Status (Kurz)
 
 | Sprint | Version | Status |
 |--------|---------|--------|
 | 0 | — | **DONE** |
-| 1–6 | `0.1.0`–`0.3.0` | **READY FOR REVIEW** |
-| 7 | `0.3.1` | **READY FOR REVIEW** (GUI Polish) |
+| 1–7 | `0.1.0`–`0.3.1` | **READY FOR REVIEW** |
 | 8 | `0.4.0` | **READY FOR REVIEW** (Gedächtnis) |
-| 12 | `0.4.1` | **READY FOR REVIEW** (Memory Must-Fixes) |
-| 13 | `0.4.2` | **PLANNED** (Memory Polish) |
-| 9 | `0.5.0` | **PLANNED** (Router / Routing / Scores + Memory-Intent) |
-| 10 | `0.6.0` | **PLANNED** (Internet-Research) |
-| 11 | `0.7.0` | **PLANNED** (Delight + Settings) |
+| 9 | `0.4.1` | **READY FOR REVIEW** (Memory Must-Fixes) |
+| 10 | `0.4.2` | **PLANNED** (Memory Polish) |
+| 11 | `0.5.0` | **PLANNED** (Router + Memory-Intent) |
+| 12 | `0.6.0` | **PLANNED** (Internet-Research) |
+| 13 | `0.7.0` | **PLANNED** (Delight + Settings) |
 
-Intelligence-Details: `10` · Delight-Details: `11`.
+**Nächste Umsetzung:** Sprint 10 → 11 → 12 → 13.

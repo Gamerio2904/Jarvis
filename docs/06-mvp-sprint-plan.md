@@ -205,10 +205,10 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 12 — Memory Must-Fixes → **`0.4.1`**
+## Sprint 9 — Memory Must-Fixes → **`0.4.1`**
 
 **Status:** READY FOR REVIEW  
-**Artefakt:** [`sprints/sprint-12.md`](./sprints/sprint-12.md)
+**Artefakt:** [`sprints/sprint-09.md`](./sprints/sprint-09.md)
 
 | Must | Inhalt |
 |------|--------|
@@ -217,24 +217,24 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 13 — Memory Polish → **`0.4.2`**
+## Sprint 10 — Memory Polish → **`0.4.2`**
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-13.md`](./sprints/sprint-13.md)
+**Artefakt:** [`sprints/sprint-10.md`](./sprints/sprint-10.md)
 
 | Must | Inhalt |
 |------|--------|
 | P1–P3 | Natürliche Phrasen, Multi-Fakt-Split, Values + Widerspruchs-Heuristik v1 |
 | P4–P6 | Retrieve, Summary-Timing/DE, Settings |
-| P11–P12 | Soft-Harvest TTL/Confidence, UI-Kategorie-Filter |
-| P7 | Eval + Version `0.4.2` |
+| P7–P8 | Soft-Harvest TTL/Confidence, UI-Kategorie-Filter |
+| P9 | Eval + Version `0.4.2` |
 
 ---
 
-## Sprint 9 — Intent-Router, Model-Routing & Scores → **`0.5.0`**
+## Sprint 11 — Intent-Router, Model-Routing & Scores → **`0.5.0`**
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-09.md`](./sprints/sprint-09.md) · [`10`](./10-intelligence-capabilities.md)
+**Artefakt:** [`sprints/sprint-11.md`](./sprints/sprint-11.md) · [`10`](./10-intelligence-capabilities.md)
 
 | Must | Inhalt |
 |------|--------|
@@ -246,10 +246,10 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 10 — Verlässliche Internet-Research → **`0.6.0`**
+## Sprint 12 — Verlässliche Internet-Research → **`0.6.0`**
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-10.md`](./sprints/sprint-10.md) · [`10`](./10-intelligence-capabilities.md)
+**Artefakt:** [`sprints/sprint-12.md`](./sprints/sprint-12.md) · [`10`](./10-intelligence-capabilities.md)
 
 | Must | Inhalt |
 |------|--------|
@@ -258,10 +258,10 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 11 — Delight & Settings → **`0.7.0`**
+## Sprint 13 — Delight & Settings → **`0.7.0`**
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-11.md`](./sprints/sprint-11.md) · [`11`](./11-delight-and-settings.md)
+**Artefakt:** [`sprints/sprint-13.md`](./sprints/sprint-13.md) · [`11`](./11-delight-and-settings.md)
 
 | Must | Inhalt |
 |------|--------|

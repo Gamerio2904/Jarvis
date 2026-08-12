@@ -23,7 +23,7 @@ SAFE_CHARACTER = (
     "Kante oder Ruhe, was soll's sein?"
 )
 
-# Memory-turn safe canned (Sprint 12) — nie Helpdesk/Aussetzer nach Merk/Vergiss.
+# Memory-turn safe canned (Sprint 9 / 0.4.1) — nie Helpdesk/Aussetzer nach Merk/Vergiss.
 SAFE_MEMORY_ACK = "Notiert. Was sonst?"
 SAFE_MEMORY_FORGET = "Ist weg. Weiter?"
 SAFE_MEMORY_REFUSE_FALSE = (
