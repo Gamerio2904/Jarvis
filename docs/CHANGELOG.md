@@ -20,8 +20,11 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 ## Planned `0.4.2` (Sprint 13) — Memory Polish
 
 - Natürliche Merk-Phrasen, Multi-Fakt-Split, Value-Normalisierung
+- Widerspruchs-Heuristik v1 („nicht X, sondern Y“ ersetzt)
+- Soft-Harvest: **TTL** + niedrige Confidence („unsicher“)
+- UI: **Kategorien filtern** (`pref` / `fact` / `boundary`)
 - Retrieve ohne Ambient-Leak, Summary-Timing/DE, Settings aufräumen
-- UI: Confirm-Chip / Edit / Summary (Should)
+- UI Should: Confirm-Chip / Edit / Summary
 - Eval `eval_0_4_2.py`
 
 ## Unreleased / pending tag `0.3.1`
@@ -35,7 +38,9 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
 ## Planned `0.5.0` (Sprint 9) — Intelligence 2
 
-- Intent-Router inkl. **Memory-Intent-Subklassen** (`write`/`recall`/`forget`/`clarify`)
+- Intent-Router: **merk / recall / forget** sauber getrennt
+- Eigene Memory-Reply-Policy (**kein Helpdesk-Fallback**)
+- **Contradiction-Handling** (`memory.clarify`): ersetzen + kurz nachfragen
 - Model-Routing, Persona-/Quality-Scores
 
 ## Planned `0.6.0` (Sprint 10) — Intelligence 3

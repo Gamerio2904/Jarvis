@@ -224,8 +224,9 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 | Must | Inhalt |
 |------|--------|
-| P1–P3 | Natürliche Phrasen, Multi-Fakt-Split, Value-Normalisierung |
-| P4–P6 | Retrieve ohne Ambient-Leak, Summary-Timing/DE, Settings-Aufräumen |
+| P1–P3 | Natürliche Phrasen, Multi-Fakt-Split, Values + Widerspruchs-Heuristik v1 |
+| P4–P6 | Retrieve, Summary-Timing/DE, Settings |
+| P11–P12 | Soft-Harvest TTL/Confidence, UI-Kategorie-Filter |
 | P7 | Eval + Version `0.4.2` |
 
 ---
@@ -237,7 +238,8 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 | Must | Inhalt |
 |------|--------|
-| I1–I2 | Intent-Router + Policy-Map (**inkl. Memory-Intent-Subklassen**) |
+| I1–I2 | Intent-Router + Policy-Map; **merk/recall/forget** getrennt; kein Helpdesk-Fallback |
+| I1d | Contradiction-Handling (`clarify`): ersetzen + nachfragen |
 | I3 | Model-Routing (auto/default/heavy) |
 | I4–I5 | Persona-/Quality-Scores + Baseline-Gate |
 | I6 | Version `0.5.0` |

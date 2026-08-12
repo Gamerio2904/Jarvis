@@ -44,29 +44,42 @@ Fakten und Vorlieben **über Sessions und Chats hinweg** behalten — dosiert, k
 | `key` | `lieblingsessen` |
 | `value` | `Döner` |
 | `category` | `pref` \| `fact` \| `open_loop` \| `boundary` |
-| `confidence` | 0–1 |
+| `confidence` | 0–1 (`explicit` hoch, Soft-Harvest niedriger / „unsicher“) |
 | `source_conversation_id` | UUID |
 | `updated_at` | ISO |
+| `expires_at` | optional ISO — TTL vor allem für Soft-Harvest (`0.4.2`) |
 
 Persistenz: SQLite-Tabelle `memory_items` (kein Cloud).
 
 ### Schreiben
-- Explizit: „Merk dir …“ / „Vergiss …“
-- Implizit (vorsichtig): Extraktor nach Turn, nur klare Fakten, PO kann in UI löschen
+- Explizit: „Merk dir …“ / „Vergiss …“ → hohe Confidence, kein TTL (oder sehr lang)
+- Implizit / Soft-Harvest (vorsichtig): nur klare Pref-Muster; **niedrige Confidence („unsicher“)** + **TTL** (`0.4.2`); UI kann löschen/filtern
 - Nie speichern: Secrets/Passwörter, One-Off-Quatsch, Inject-Inhalte
+
+### Widerspruch / Korrektur
+- Muster „nicht X, sondern Y“ / „X war falsch, Y stimmt“: alten Wert **ersetzen** (gleicher Key) und **kurz nachfragen** zur Bestätigung
+- v1-Heuristik + saubere Values: Sprint 13 / `0.4.2`
+- Volle Policy über `memory.clarify`: Sprint 9 / `0.5.0` (Doc §4.1)
 
 ### Lesen
 - Top-N relevante Items zum User-Turn (Keyword/Overlap v1; später Embeddings optional)
+- Abgelaufene TTL-Items und sehr unsichere Soft-Pins nicht (oder nur selten) injizieren
 - In System-/Context-Block als kurze Bullet-Liste, **nicht** als Essay
+
+### UI
+- Liste „Was Jarvis über mich weiß“ (ab `0.4.0`)
+- **Filter nach Kategorie** `pref` / `fact` / `boundary` (+ optional `open_loop`) — Sprint 13 / `0.4.2`
+- Unsichere Soft-Harvest-Einträge visuell markieren (Confidence / „unsicher“)
 
 ### Abnahme
 - Chat A: „Lieblingsfarbe petrolgrün“ → Chat B (neu): Frage danach → korrekter Recall
 - „Vergiss Lieblingsfarbe“ → kein Recall mehr
+- Soft-Harvest verfällt oder fällt unter Retrieve-Schwelle nach TTL
 - Persona/Guards bleiben grün
 
 ### Risiken
 - Falsche Fakten → UI-Korrektur Pflicht
-- Memory-Spam → Limits + Confidence + Kategorien
+- Memory-Spam → Limits + Confidence + TTL + Kategorie-Filter
 
 ---
 
@@ -148,22 +161,35 @@ Vor der Antwort grob erkennen, **welche Art Turn** vorliegt — dann andere Prom
 > Sprint: [09](./sprints/sprint-09.md) · Version **`0.5.0`**.
 
 ### Zweck
-`memory` ist kein einzelner Eimer. Schreiben, Abrufen, Löschen und Nachfragen brauchen **unterschiedliche Policies** — sonst kollidieren Guards (Helpdesk-Boilerplate) mit ehrlichen Merk-Acks, und das Modell „notiert“ verbal ohne Persistenz.
+`memory` ist kein einzelner Eimer. **merk / recall / forget** (plus clarify) brauchen **sauber getrennte** Pfade und **eigene Reply-Policies** — sonst kollidieren Guards (Helpdesk-Boilerplate) mit ehrlichen Merk-Acks, und das Modell „notiert“ verbal ohne Persistenz.
 
-### Subklassen
-| Subklasse | Trigger (Beispiele) | Policy |
-|-----------|---------------------|--------|
-| `memory.write` | „Merk dir …“, „Kannst du dir merken …“, klare Pref-Aussage | Write in Store **vor** Reply; Ack-Nudge (1 Satz, kein Helpdesk); Boilerplate → Retry/Nudge, **nicht** Helpdesk-Canned |
-| `memory.recall` | „Wie heißt mein Hund?“, „Was mag ich?“ | Retrieve streng relevant; kurze faktische Antwort im Jarvis-Ton |
-| `memory.forget` | „Vergiss …“, „Vergiss alles“, „Lösch die Erinnerung an …“ | Delete/Clear ausführen; bestätigen was weg ist; kein Nachtreten mit alten Pins |
-| `memory.clarify` | Widerspruch („nicht Döner, Pizza“), unsichere Extraktion | Kurz nachfragen **oder** Überschreiben + Transparenz; nie still doppelte Wahrheiten |
+### Subklassen (Must trennen)
+| Subklasse | Trigger (Beispiele) | Reply-Policy (verbindlich) |
+|-----------|---------------------|----------------------------|
+| `memory.write` (merk) | „Merk dir …“, „Kannst du dir merken …“, klare Pref-Aussage | Write **vor** Reply; Ack 1 Satz Jarvis-Ton; bei Boilerplate → **Retry/Nudge**, **kein Helpdesk-Fallback** (`SAFE_NO_HELPDESK` / „Gerne!“-Canned verboten) |
+| `memory.recall` | „Wie heißt mein Hund?“, „Was mag ich?“ | Nur relevante Pins; kurze faktische Antwort; kein Memory-Dump; kein Helpdesk-Canned |
+| `memory.forget` | „Vergiss …“, „Vergiss alles“, „Lösch die Erinnerung an …“ | Delete/Clear ausführen; bestätigen was weg ist; alte Pins nicht erneut injizieren |
+| `memory.clarify` | „nicht X, sondern Y“, Widerspruch zu gespeichertem Wert | Alten Wert **ersetzen**; **kurz nachfragen** („Pizza statt Döner — so merken?“); nie parallel X+Y als Wahrheit |
+
+### Reply-Policy-Regel (alle `memory.*`)
+- Eigene Nudges / Sampling / Guard-Verhalten laut Policy-Map
+- **Kein Helpdesk-Fallback** als Endzustand bei Memory-Turns (Boilerplate → regenerieren oder Memory-sichere Canned-Ack, nicht Support-Sprech)
+- Claims in der Reply müssen zum Tool-Ergebnis passen (kein False-Confirm)
+
+### Contradiction-Handling (Teil von `memory.clarify`)
+```text
+„Mein Lieblingsessen ist nicht Döner, sondern Pizza.“
+  → detect contradict (key=lieblingsessen)
+  → upsert value=Pizza (Confidence hoch)
+  → Reply: kurz bestätigen + 1 Rückfrage
+```
 
 ### Pipeline (Soll)
 ```text
 User-Msg
-  → Intent-Router → memory.* (Subklasse)
-  → Policy-Map (Nudge / Guard-Verhalten / Retrieve-Schärfe)
-  → Memory-Tools (write|recall|forget|clarify)
+  → Intent-Router → memory.write | memory.recall | memory.forget | memory.clarify
+  → Policy-Map (Nudge / Guard ohne Helpdesk-Fallback / Retrieve-Schärfe)
+  → Memory-Tools
   → LLM mit dosiertem Context
   → Reply nur mit Claims, die zum Tool-Ergebnis passen
 ```
@@ -173,14 +199,16 @@ User-Msg
 |---------|-----|
 | `0.4.0` | Memory v1 (Store, Summary, Pack) |
 | `0.4.1` | Bugs: False-Confirm, Aussetzer, Vergiss-alles |
-| `0.4.2` | Polish: Parser, Split, Retrieve, Summary-Timing, UI |
-| `0.5.0` | **Router + Memory-Subklassen + Policy-Map** (dieses Kapitel) |
+| `0.4.2` | Polish: Parser, Split, Retrieve, Summary, UI-Filter, Soft-Harvest TTL/Confidence; Widerspruchs-Heuristik v1 |
+| `0.5.0` | **Router: merk/recall/forget/clarify getrennt + Reply-Policy ohne Helpdesk-Fallback** |
 
 ### Abnahme (zusätzlich zu Router-Gold-Set)
-- `write`-Turn speichert und bestätigt ehrlich (kein False-Confirm)
+- Gold-Set trennt merk vs recall vs forget zuverlässig
+- `write`-Turn speichert und bestätigt ehrlich; **nie** Helpdesk-Canned als Final
 - `forget` / `forget-all` spiegeln Store-Zustand
+- Contradiction: Wert ersetzt + kurze Nachfrage in der Reply
 - `recall` ohne Ambient-Leak bei Smalltalk-Fehlklassifikation
-- Eval: Intent-Accuracy für Memory-Subklassen + bestehende `0.4.x`-Memory-Cases grün
+- Eval: Intent-Accuracy Memory-Subklassen + `0.4.x`-Memory-Cases grün
 
 ---
 
