@@ -190,6 +190,8 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 | P4–P5 | Ruhiger Chat-Wechsel, stabiler Stream-Caret |
 | P6 | Version `0.3.1` |
 
+**Danach:** Gedächtnis `0.4.0` → Must-Fixes `0.4.1` → Polish `0.4.2`
+
 ---
 
 ## Sprint 8 — Gedächtnis & Kontext → **`0.4.0`**
@@ -219,7 +221,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 10 — Memory Polish → **`0.4.2`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-10.md`](./sprints/sprint-10.md)
 
 | Must | Inhalt |

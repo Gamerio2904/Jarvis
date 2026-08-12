@@ -35,7 +35,10 @@ export type MemoryItem = {
   confidence: number
   source_conversation_id?: string | null
   updated_at: string
+  expires_at?: string | null
 }
+
+export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary'
 
 async function parseError(res: Response): Promise<string> {
   try {
@@ -52,8 +55,14 @@ export async function getHealth(): Promise<Health> {
   return res.json()
 }
 
-export async function listMemory(): Promise<MemoryItem[]> {
-  const res = await fetch('/api/memory')
+export async function listMemory(
+  category?: MemoryCategory | null,
+): Promise<MemoryItem[]> {
+  const q =
+    category != null && category !== undefined
+      ? `?category=${encodeURIComponent(category)}`
+      : ''
+  const res = await fetch(`/api/memory${q}`)
   if (!res.ok) throw new Error(await parseError(res))
   return res.json()
 }

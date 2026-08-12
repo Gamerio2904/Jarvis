@@ -55,5 +55,6 @@ def should_refresh_summary(
 SUMMARY_PROMPT = (
     "Fasse dieses Gespräch kurz auf Deutsch zusammen (max. 8 Bullet-Zeilen). "
     "Nur Fakten/Themen/offene Punkte. Kein Jarvis-Stil, keine Floskeln, keine Listen "
-    "als Ratgeber. Nur der Summary-Text."
+    "als Ratgeber. NUR Deutsch — keine anderen Sprachen, keine chinesischen oder "
+    "kyrillischen Zeichen. Nur der Summary-Text."
 )

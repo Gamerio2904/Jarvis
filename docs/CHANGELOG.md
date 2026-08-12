@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.4.2` — Sprint 10 (Memory Polish)
+
+- Multi-Fakt-Split, Value-Normalisierung, Widerspruch „nicht X, sondern Y“
+- Soft-Harvest mit niedriger Confidence + TTL (`expires_at`)
+- Retrieve ohne Ambient-Leak; `max_context_messages` als Cap
+- Summary nach Assistant-Write + DE-only Guard
+- UI: Kategorie-Filter + „unsicher“-Badge
+- Eval `scripts/eval_0_4_2.py`, Version `0.4.2`
+
 ### `0.4.1` — Sprint 9 (Memory Must-Fixes)
 
 - False-Confirm: natürliche Merk-Phrasen speichern; sonst klare Ablehnung
@@ -33,7 +42,6 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.4.2` | 10 | Memory Polish (Parser, Split, TTL, UI-Filter) |
 | `0.5.0` | 11 | Intent-Router (merk/recall/forget/clarify), Routing, Scores |
 | `0.6.0` | 12 | Internet-Research (opt-in, Citations) |
 | `0.7.0` | 13 | Delight + Settings |

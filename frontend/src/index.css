@@ -154,9 +154,47 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 220px;
+  max-height: 280px;
   padding: 4px 2px 2px;
   animation: fadeIn var(--motion-med) var(--ease-out);
+}
+
+.memory-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.memory-filter {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: lowercase;
+  transition: background var(--motion-fast) ease, color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease;
+}
+
+.memory-filter:hover,
+.memory-filter.active {
+  color: var(--text);
+  border-color: #3a3a3a;
+  background: var(--bg-hover);
+}
+
+.memory-filter.active {
+  color: var(--accent);
+}
+
+.memory-uncertain {
+  font-size: 0.62rem;
+  color: #e0a85c;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .memory-empty {

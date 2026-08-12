@@ -28,9 +28,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 1–7 | `0.1.0`–`0.3.1` | **READY FOR REVIEW** |
 | 8 | `0.4.0` | **READY FOR REVIEW** (Gedächtnis) |
 | 9 | `0.4.1` | **READY FOR REVIEW** (Memory Must-Fixes) |
-| 10 | `0.4.2` | **PLANNED** (Memory Polish) |
+| 10 | `0.4.2` | **READY FOR REVIEW** (Memory Polish) |
 | 11 | `0.5.0` | **PLANNED** (Router + Memory-Intent) |
 | 12 | `0.6.0` | **PLANNED** (Internet-Research) |
 | 13 | `0.7.0` | **PLANNED** (Delight + Settings) |
 
-**Nächste Umsetzung:** Sprint 10 → 11 → 12 → 13.
+**Nächste Umsetzung:** Sprint 11 → 12 → 13.

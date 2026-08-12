@@ -11,6 +11,7 @@ import {
   streamChat,
   type Conversation,
   type Health,
+  type MemoryCategory,
   type MemoryItem,
   type Message,
 } from './api'
@@ -38,6 +39,7 @@ function App() {
   const [memoryOpen, setMemoryOpen] = useState(false)
   const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([])
   const [memoryBusy, setMemoryBusy] = useState(false)
+  const [memoryFilter, setMemoryFilter] = useState<MemoryCategory | 'all'>('all')
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -84,9 +86,9 @@ function App() {
     }
   }
 
-  async function refreshMemory() {
+  async function refreshMemory(filter: MemoryCategory | 'all' = memoryFilter) {
     try {
-      setMemoryItems(await listMemory())
+      setMemoryItems(await listMemory(filter === 'all' ? null : filter))
     } catch {
       /* panel shows empty / prior list */
     }
@@ -303,7 +305,7 @@ function App() {
           <div className="brand-mark" />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.4.1</p>
+            <p>lokal · privat · v0.4.2</p>
           </div>
         </div>
 
@@ -327,28 +329,52 @@ function App() {
 
         {memoryOpen ? (
           <div className="memory-panel">
+            <div className="memory-filters" role="tablist" aria-label="Memory-Kategorien">
+              {(['all', 'pref', 'fact', 'boundary', 'open_loop'] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  role="tab"
+                  aria-selected={memoryFilter === f}
+                  className={`memory-filter ${memoryFilter === f ? 'active' : ''}`}
+                  onClick={() => {
+                    setMemoryFilter(f)
+                    void refreshMemory(f)
+                  }}
+                >
+                  {f === 'all' ? 'Alle' : f}
+                </button>
+              ))}
+            </div>
             {memoryItems.length === 0 ? (
               <p className="memory-empty">Noch nichts gespeichert.</p>
             ) : (
               <ul className="memory-list">
-                {memoryItems.map((m) => (
-                  <li key={m.id} className="memory-item">
-                    <div className="memory-meta">
-                      <span className="memory-cat">{m.category}</span>
-                      <span className="memory-key">{m.key}</span>
-                    </div>
-                    <div className="memory-value">{m.value}</div>
-                    <button
-                      type="button"
-                      className="memory-del"
-                      disabled={memoryBusy}
-                      onClick={() => void onDeleteMemory(m.id)}
-                      aria-label={`Erinnerung ${m.key} löschen`}
-                    >
-                      Löschen
-                    </button>
-                  </li>
-                ))}
+                {memoryItems.map((m) => {
+                  const uncertain =
+                    m.confidence < 0.7 || Boolean(m.expires_at)
+                  return (
+                    <li key={m.id} className="memory-item">
+                      <div className="memory-meta">
+                        <span className="memory-cat">{m.category}</span>
+                        {uncertain ? (
+                          <span className="memory-uncertain">unsicher</span>
+                        ) : null}
+                        <span className="memory-key">{m.key}</span>
+                      </div>
+                      <div className="memory-value">{m.value}</div>
+                      <button
+                        type="button"
+                        className="memory-del"
+                        disabled={memoryBusy}
+                        onClick={() => void onDeleteMemory(m.id)}
+                        aria-label={`Erinnerung ${m.key} löschen`}
+                      >
+                        Löschen
+                      </button>
+                    </li>
+                  )
+                })}
               </ul>
             )}
             {memoryItems.length > 0 ? (

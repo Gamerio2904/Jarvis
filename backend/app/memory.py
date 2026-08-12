@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
 from . import db
@@ -14,19 +15,29 @@ _MERK_RE = re.compile(
 _MERK_DASS_RE = re.compile(
     r"(?is)\bmerk(?:e)?\s*dir(?:\s*,)?\s*(?:bitte\s*)?(?:dass\s+)?(.+)$"
 )
-# Natural: „Kannst du dir merken, dass …“ / „Könntest du dir merken …“
 _MERK_NATURAL_RE = re.compile(
-    r"(?is)\b(?:kannst|könntest)\s+(?:du|Sie)\s+dir\s+merken(?:\s*,)?\s*"
-    r"(?:dass\s+)?(.+)$"
+    r"(?is)\b(?:kannst|könntest|würdest)\s+(?:du|Sie)\s+(?:dir\s+)?"
+    r"(?:merken|merken\s+dass|behalten)(?:\s*,)?\s*(?:dass\s+)?(.+)$"
 )
 _NOTIER_RE = re.compile(
-    r"(?is)^\s*notier(?:e)?(?:\s*dir)?\s*[:\-]?\s*(.+)$"
+    r"(?is)^\s*(?:notier(?:e)?(?:\s*dir)?|speicher(?:e)?|behalte)\s*[:\-]?\s*(.+)$"
+)
+_BITTE_MERKEN_RE = re.compile(
+    r"(?is)\bbitte\s+(?:merk(?:e)?\s*dir|merken)(?:\s*,)?\s*(?:dass\s+)?(.+)$"
 )
 _LIEBLINGS_RE = re.compile(
     r"(?is)\bmein(?:e|en)?\s+lieblings([a-zäöüß]{3,24})\s+ist\s+(.+?)(?:[.!?]|$)"
 )
 _ICH_MAG_RE = re.compile(
     r"(?is)\bich\s+mag\s+(.+?)(?:[.!?]|$)"
+)
+_CONTRADICT_LIEBLINGS_RE = re.compile(
+    r"(?is)\bmein(?:e|en)?\s+lieblings([a-zäöüß]{3,24})\s+ist\s+"
+    r"(?:übrigens\s+)?nicht\s+.+?,\s*sondern\s+(.+?)(?:[.!?]|$)"
+)
+_CONTRADICT_GENERIC_RE = re.compile(
+    r"(?is)\b(?:nicht\s+(.+?),\s*sondern\s+(.+?)|"
+    r"(.+?)\s+war\s+falsch[,:]?\s*(.+?)\s+stimmt)\b"
 )
 _VERGISS_RE = re.compile(
     r"(?is)^\s*(?:vergiss|lösch(?:e)?\s*(?:die\s*)?erinnerung(?:\s*an)?|forget)\s*"
@@ -37,14 +48,15 @@ _FORGET_ALL_RE = re.compile(
     r"(alles(?:\s+über\s+mich)?|meine\s+erinnerungen|dein\s+gedächtnis|"
     r"alles\s+was\s+du\s+über\s+mich\s+weißt)\s*[.!]?\s*$"
 )
-# Broad remember-intent (for False-Confirm guard when nothing was stored)
 _REMEMBER_INTENT_RE = re.compile(
     r"(?is)\b("
     r"merk(?:e)?\s*dir|"
     r"erinner(?:e)?\s*dich|"
-    r"(?:kannst|könntest)\s+(?:du|Sie)\s+dir\s+merken|"
+    r"(?:kannst|könntest|würdest)\s+(?:du|Sie)\s+(?:dir\s+)?merken|"
     r"bitte\s+merken|"
-    r"notier(?:e)?(?:\s*dir)?"
+    r"notier(?:e)?(?:\s*dir)?|"
+    r"speicher(?:e)?|"
+    r"behalte"
     r")\b"
 )
 _FALSE_CONFIRM_RE = re.compile(
@@ -58,6 +70,24 @@ _FALSE_CONFIRM_RE = re.compile(
     r"hab(?:e)?\s+(?:es\s+)?drin"
     r")\b"
 )
+
+# Atomic fact extractors for multi-fact split
+_FACT_PATTERNS: list[tuple[re.Pattern[str], str, str]] = [
+    (re.compile(r"(?is)\bich\s+heiß(?:e|t)\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"), "name", "fact"),
+    (re.compile(r"(?is)\bwohne\s+in\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"), "wohnort", "fact"),
+    (
+        re.compile(r"(?is)\b(?:mein(?:e|en)?\s+)?hund\s+heiß(?:t|e)\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"),
+        "hund",
+        "fact",
+    ),
+    (
+        re.compile(r"(?is)\b(?:mein(?:e|en)?\s+)?katze\s+heiß(?:t|e)\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"),
+        "katze",
+        "fact",
+    ),
+    (re.compile(r"(?is)\barbeite\s+als\s+([^,.!?]+)"), "beruf", "fact"),
+    (re.compile(r"(?is)\bich\s+bin\s+(?:ein(?:e)?\s+)?([^,.!?]+)"), "bin", "fact"),
+]
 
 _STOP = {
     "das",
@@ -73,6 +103,7 @@ _STOP = {
     "meine",
     "bitte",
     "dass",
+    "übrigens",
 }
 
 _FORGET_ALL_TOKENS = {
@@ -83,33 +114,109 @@ _FORGET_ALL_TOKENS = {
     "alles was du über mich weißt",
 }
 
+_CJK_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]")
+_CYRILLIC_RE = re.compile(r"[\u0400-\u04FF]")
 
-def parse_explicit_remember(text: str) -> tuple[str, str, str] | None:
-    """Return (key, value, category) if user explicitly asks to remember."""
+
+def normalize_value(raw: str) -> str:
+    """Strip filler prefixes and trailing punctuation for clean memory values."""
+    v = raw.strip().rstrip(".!?")
+    filler = re.compile(
+        r"(?is)^(bitte|dass|übrigens|eigentlich|also|ja)\s*[,:]?\s*"
+    )
+    for _ in range(6):
+        nxt = filler.sub("", v).strip()
+        if nxt == v:
+            break
+        v = nxt
+    v = re.sub(r"\s+", " ", v)
+    return v[:500]
+
+
+def _key_from_payload(payload: str) -> str:
+    cleaned = re.sub(r"[^a-zA-ZäöüÄÖÜß0-9\s_]", "", payload.lower())
+    parts = [p for p in cleaned.split() if p and p not in _STOP][:4]
+    if not parts:
+        parts = ["notiz"]
+    return "_".join(parts)[:80]
+
+
+def split_atomic_facts(payload: str) -> list[tuple[str, str, str]]:
+    """Split a multi-clause remember payload into atomic (key, value, category)."""
+    found: list[tuple[str, str, str]] = []
+    seen_keys: set[str] = set()
+    for pattern, key, category in _FACT_PATTERNS:
+        m = pattern.search(payload)
+        if not m:
+            continue
+        val = normalize_value(m.group(1))
+        if len(val) < 2 or key in seen_keys:
+            continue
+        seen_keys.add(key)
+        found.append((key, val, category))
+    return found
+
+
+def parse_contradiction(text: str) -> tuple[str, str, str] | None:
+    """Detect „nicht X, sondern Y“ for prefs; returns (key, new_value, category)."""
+    m = _CONTRADICT_LIEBLINGS_RE.search(text)
+    if m:
+        kind = m.group(1).strip().lower()
+        val = normalize_value(m.group(2))
+        if val:
+            return f"lieblings{kind}", val, "pref"
+    return None
+
+
+def _facts_from_payload(payload: str) -> list[tuple[str, str, str]]:
+    """Extract atoms from a merk/speichere payload; fall back to one fact."""
+    if len(payload) < 2:
+        return []
+    # Prefer contradiction inside payload ("nicht X, sondern Y")
+    contra = parse_contradiction(payload)
+    if contra:
+        return [contra]
+    atoms = split_atomic_facts(payload)
+    if atoms:
+        return atoms
+    # Explicit "merk dir: mein Lieblingstee ist …"
+    m = _LIEBLINGS_RE.search(payload)
+    if m:
+        kind = m.group(1).strip().lower()
+        val = normalize_value(m.group(2))
+        if val:
+            return [(f"lieblings{kind}", val, "pref")]
+    return [(_key_from_payload(payload), payload, "fact")]
+
+
+def parse_explicit_remember_many(text: str) -> list[tuple[str, str, str]]:
+    """Return zero or more (key, value, category) facts to store.
+
+    Bare preference utterances (ohne Merk-Intent) gehen an Soft-Harvest,
+    nicht hier — sonst fehlt TTL/niedrige Confidence.
+    """
+    contradicted = parse_contradiction(text)
+    if contradicted:
+        return [contradicted]
+
     stripped = text.strip()
     m = (
         _MERK_RE.match(stripped)
         or _MERK_DASS_RE.search(stripped)
         or _MERK_NATURAL_RE.search(stripped)
+        or _BITTE_MERKEN_RE.search(stripped)
         or _NOTIER_RE.match(stripped)
     )
     if m:
-        payload = m.group(1).strip().rstrip(".!?")
-        if len(payload) < 2:
-            return None
-        key = _key_from_payload(payload)
-        return key, payload, "fact"
-    m2 = _LIEBLINGS_RE.search(text)
-    if m2:
-        kind = m2.group(1).strip().lower()
-        val = m2.group(2).strip().rstrip(".!")
-        return f"lieblings{kind}", val, "pref"
-    m3 = _ICH_MAG_RE.search(text)
-    if m3:
-        val = m3.group(1).strip().rstrip(".!")
-        if len(val) > 2:
-            return _key_from_payload(f"mag_{val}"), val, "pref"
-    return None
+        payload = normalize_value(m.group(1))
+        return _facts_from_payload(payload)
+
+    return []
+
+
+def parse_explicit_remember(text: str) -> tuple[str, str, str] | None:
+    many = parse_explicit_remember_many(text)
+    return many[0] if many else None
 
 
 def is_forget_all(text: str) -> bool:
@@ -140,20 +247,29 @@ def looks_like_false_memory_confirm(text: str) -> bool:
     return bool(_FALSE_CONFIRM_RE.search(text))
 
 
-def _key_from_payload(payload: str) -> str:
-    cleaned = re.sub(r"[^a-zA-ZäöüÄÖÜß0-9\s_]", "", payload.lower())
-    parts = [p for p in cleaned.split() if p and p not in _STOP][:4]
-    if not parts:
-        parts = ["notiz"]
-    return "_".join(parts)[:80]
+def summary_is_german_clean(text: str) -> bool:
+    if not text or not text.strip():
+        return False
+    if _CJK_RE.search(text) or _CYRILLIC_RE.search(text):
+        return False
+    return True
+
+
+def _expires_iso(days: float | None) -> str | None:
+    if days is None or days <= 0:
+        return None
+    return (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
 
 
 def retrieve_relevant(
     user_text: str,
     *,
     limit: int = 8,
+    ambient_fallback: bool = False,
+    min_confidence: float = 0.0,
 ) -> list[dict[str, Any]]:
-    items = db.list_memory_items(limit=80)
+    items = db.list_memory_items(limit=80, include_expired=False)
+    items = [i for i in items if float(i.get("confidence") or 0) >= min_confidence]
     if not items:
         return []
     tokens = {
@@ -162,7 +278,7 @@ def retrieve_relevant(
         if t not in _STOP
     }
     if not tokens:
-        return items[: min(3, limit)]
+        return items[: min(3, limit)] if ambient_fallback else []
 
     scored: list[tuple[float, dict[str, Any]]] = []
     for it in items:
@@ -174,8 +290,9 @@ def retrieve_relevant(
     scored.sort(key=lambda x: x[0], reverse=True)
     if scored:
         return [it for _, it in scored[:limit]]
-    # Soft fallback: newest few pins so Jarvis still has ambient memory
-    return items[: min(3, limit)]
+    if ambient_fallback:
+        return items[: min(3, limit)]
+    return []
 
 
 def format_memory_block(items: list[dict[str, Any]]) -> str:
@@ -183,10 +300,13 @@ def format_memory_block(items: list[dict[str, Any]]) -> str:
         return ""
     lines = ["## Langzeitgedächtnis (Fakten über den Nutzer — dosiert nutzen)"]
     for it in items:
-        lines.append(f"- [{it['category']}] {it['key']}: {it['value']}")
+        conf = float(it.get("confidence") or 0)
+        tag = "unsicher" if conf < 0.7 else it["category"]
+        lines.append(f"- [{tag}] {it['key']}: {it['value']}")
     lines.append(
         "Regeln: Nur einsetzen wenn relevant. Bei Widerspruch zur aktuellen "
-        "Nutzeraussage nachfragen. Nicht als Liste vorlesen."
+        "Nutzeraussage nachfragen. Nicht als Liste vorlesen. "
+        "„unsicher“-Einträge nur vorsichtig nutzen."
     )
     return "\n".join(lines)
 
@@ -210,17 +330,18 @@ def apply_explicit_memory_commands(
         notes.append(f"Memory gelöscht zu „{forget_q}“ ({n} Einträge).")
         return "forget", notes
 
-    remembered = parse_explicit_remember(user_text)
+    remembered = parse_explicit_remember_many(user_text)
     if remembered:
-        key, value, category = remembered
-        db.upsert_memory_item(
-            key=key,
-            value=value,
-            category=category,
-            confidence=0.95,
-            source_conversation_id=conversation_id,
-        )
-        notes.append(f"Gespeichert: {key} = {value}")
+        for key, value, category in remembered:
+            db.upsert_memory_item(
+                key=key,
+                value=value,
+                category=category,
+                confidence=0.95,
+                source_conversation_id=conversation_id,
+                expires_at=None,
+            )
+            notes.append(f"Gespeichert: {key} = {value}")
         return "write", notes
 
     if looks_like_remember_intent(user_text):
@@ -239,32 +360,60 @@ def harvest_soft_facts(
     *,
     conversation_id: str,
     skip: bool = False,
+    confidence: float = 0.55,
+    ttl_days: float = 14.0,
 ) -> None:
-    """Capture clear preference patterns even without 'merk dir'."""
+    """Capture clear preference patterns even without 'merk dir' (TTL + low conf)."""
     if skip:
         return
+    # Contradictions are explicit writes — never soft-harvest them.
+    if parse_contradiction(user_text):
+        return
+
     m = _LIEBLINGS_RE.search(user_text)
     if m:
         kind = m.group(1).strip().lower()
-        val = m.group(2).strip().rstrip(".!")
+        val = normalize_value(m.group(2))
+        val = re.split(r"(?i),\s*nicht\b", val)[0].strip()
+        if not val:
+            return
         db.upsert_memory_item(
             key=f"lieblings{kind}",
             value=val,
             category="pref",
-            confidence=0.85,
+            confidence=confidence,
             source_conversation_id=conversation_id,
+            expires_at=_expires_iso(ttl_days),
+        )
+        return
+
+    m3 = _ICH_MAG_RE.search(user_text)
+    if m3:
+        val = normalize_value(m3.group(1))
+        if len(val) <= 2:
+            return
+        db.upsert_memory_item(
+            key=_key_from_payload(f"mag_{val}"),
+            value=val,
+            category="pref",
+            confidence=confidence,
+            source_conversation_id=conversation_id,
+            expires_at=_expires_iso(ttl_days),
         )
 
 
 def ack_reply_for_write(notes: list[str]) -> str:
     """Short Jarvis-toned confirmation after a successful write."""
-    for n in notes:
-        if n.startswith("Gespeichert:"):
-            payload = n.split("=", 1)[-1].strip()
-            if payload:
-                short = payload if len(payload) <= 80 else payload[:77] + "…"
-                return f"Notiert: {short}. Was sonst?"
-    return "Notiert. Was sonst?"
+    saved = [n.split("=", 1)[-1].strip() for n in notes if n.startswith("Gespeichert:")]
+    if not saved:
+        return "Notiert. Was sonst?"
+    if len(saved) == 1:
+        short = saved[0] if len(saved[0]) <= 80 else saved[0][:77] + "…"
+        return f"Notiert: {short}. Was sonst?"
+    joined = "; ".join(saved[:3])
+    if len(joined) > 100:
+        joined = joined[:97] + "…"
+    return f"Notiert ({len(saved)}): {joined}. Was sonst?"
 
 
 def ack_reply_for_forget(op: MemoryOp, notes: list[str]) -> str:

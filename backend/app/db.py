@@ -78,6 +78,7 @@ def init_db() -> None:
         _ensure_column(conn, "conversations", "summary_text", "TEXT")
         _ensure_column(conn, "conversations", "summary_upto_message_id", "TEXT")
         _ensure_column(conn, "conversations", "summary_message_count", "INTEGER DEFAULT 0")
+        _ensure_column(conn, "memory_items", "expires_at", "TEXT")
         conn.commit()
     finally:
         conn.close()
@@ -280,20 +281,37 @@ def recent_assistant_texts(conversation_id: str, limit: int = 5) -> list[str]:
 # --- Long-term memory ---
 
 
-def list_memory_items(limit: int = 100) -> list[dict[str, Any]]:
+def list_memory_items(
+    limit: int = 100,
+    *,
+    category: str | None = None,
+    include_expired: bool = True,
+) -> list[dict[str, Any]]:
     conn = get_conn()
     try:
         rows = conn.execute(
             """
             SELECT id, key, value, category, confidence,
-                   source_conversation_id, updated_at
+                   source_conversation_id, updated_at, expires_at
             FROM memory_items
             ORDER BY updated_at DESC
             LIMIT ?
             """,
-            (limit,),
+            (max(limit * 3, limit),),
         ).fetchall()
-        return [dict(r) for r in rows]
+        now = utc_now()
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            item = dict(r)
+            exp = item.get("expires_at")
+            if not include_expired and exp and exp <= now:
+                continue
+            if category and item.get("category") != category:
+                continue
+            out.append(item)
+            if len(out) >= limit:
+                break
+        return out
     finally:
         conn.close()
 
@@ -305,6 +323,7 @@ def upsert_memory_item(
     category: str = "fact",
     confidence: float = 0.8,
     source_conversation_id: str | None = None,
+    expires_at: str | None = None,
 ) -> dict[str, Any]:
     key_n = key.strip().lower().replace(" ", "_")[:80]
     value_n = value.strip()[:500]
@@ -321,7 +340,7 @@ def upsert_memory_item(
                 """
                 UPDATE memory_items
                 SET value = ?, category = ?, confidence = ?,
-                    source_conversation_id = ?, updated_at = ?
+                    source_conversation_id = ?, updated_at = ?, expires_at = ?
                 WHERE key = ?
                 """,
                 (
@@ -330,6 +349,7 @@ def upsert_memory_item(
                     confidence,
                     source_conversation_id,
                     now,
+                    expires_at,
                     key_n,
                 ),
             )
@@ -339,8 +359,8 @@ def upsert_memory_item(
             conn.execute(
                 """
                 INSERT INTO memory_items
-                (id, key, value, category, confidence, source_conversation_id, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                (id, key, value, category, confidence, source_conversation_id, updated_at, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     item_id,
@@ -350,13 +370,14 @@ def upsert_memory_item(
                     confidence,
                     source_conversation_id,
                     now,
+                    expires_at,
                 ),
             )
         conn.commit()
         row = conn.execute(
             """
             SELECT id, key, value, category, confidence,
-                   source_conversation_id, updated_at
+                   source_conversation_id, updated_at, expires_at
             FROM memory_items WHERE id = ?
             """,
             (item_id,),

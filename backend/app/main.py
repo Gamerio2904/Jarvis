@@ -4,7 +4,7 @@ import json
 from collections.abc import AsyncIterator
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -31,8 +31,8 @@ from .ollama_client import (
     resolve_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.4.1")
-APP_VERSION = "0.4.1"
+app = FastAPI(title="Jarvis API", version="0.4.2")
+APP_VERSION = "0.4.2"
 
 app.add_middleware(
     CORSMiddleware,
@@ -148,10 +148,17 @@ def _prepare_chat_context(
         user_text,
         conversation_id=conversation_id,
         skip=mem_op != "none" or bool(notes),
+        confidence=float(settings.get("soft_harvest_confidence", 0.55)),
+        ttl_days=float(settings.get("soft_harvest_ttl_days", 14)),
     )
 
     mem_limit = int(settings.get("memory_retrieve_limit", 8))
-    items = memory_mod.retrieve_relevant(user_text, limit=mem_limit)
+    items = memory_mod.retrieve_relevant(
+        user_text,
+        limit=mem_limit,
+        ambient_fallback=bool(settings.get("memory_ambient_fallback", False)),
+        min_confidence=float(settings.get("memory_min_inject_confidence", 0.4)),
+    )
 
     conv = db.get_conversation(conversation_id) or {}
     summary = conv.get("summary_text")
@@ -165,7 +172,8 @@ def _prepare_chat_context(
 
     history = db.list_messages(conversation_id)
     last_k = int(settings.get("context_last_k", 16))
-    llm_messages = ctx.pack_messages(history, last_k=last_k)
+    max_ctx = int(settings.get("max_context_messages", last_k))
+    llm_messages = ctx.pack_messages(history, last_k=min(last_k, max_ctx))
     return system, llm_messages, notes, mem_op
 
 
@@ -176,7 +184,7 @@ def _finalize_memory_reply(
     memory_op: str,
     memory_notes: list[str],
 ) -> str:
-    """Sprint 9 / 0.4.1: no false confirms; no Aussetzer/Helpdesk on memory turns."""
+    """Memory-turn post-process: no false confirms; no Aussetzer/Helpdesk."""
     if memory_op == "write":
         if is_bad_memory_canned(reply) or reply.strip() in {
             SAFE_DEGENERATE,
@@ -234,7 +242,7 @@ async def _maybe_refresh_summary(
     except OllamaError:
         return
     summary = summary.strip()
-    if not summary:
+    if not summary or not memory_mod.summary_is_german_clean(summary):
         return
     db.update_conversation_summary(
         conversation_id,
@@ -316,8 +324,12 @@ async def health() -> dict[str, Any]:
 
 
 @app.get("/api/memory")
-def api_list_memory() -> list[dict[str, Any]]:
-    return db.list_memory_items(limit=200)
+def api_list_memory(
+    category: str | None = Query(default=None),
+) -> list[dict[str, Any]]:
+    if category and category not in {"pref", "fact", "open_loop", "boundary"}:
+        raise HTTPException(status_code=400, detail="Ungültige Kategorie.")
+    return db.list_memory_items(limit=200, category=category, include_expired=True)
 
 
 @app.post("/api/memory")
@@ -406,15 +418,18 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
             memory_op=mem_op,
             memory_notes=mem_notes,
         )
+    except OllamaError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    assistant_msg = db.add_message(conversation_id, "assistant", reply)
+    try:
         await _maybe_refresh_summary(
             conversation_id=conversation_id,
             settings=settings,
             model=model,
         )
-    except OllamaError as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
-
-    assistant_msg = db.add_message(conversation_id, "assistant", reply)
+    except Exception:
+        pass
     updated = db.get_conversation(conversation_id)
     return {
         "conversation": updated,
