@@ -10,6 +10,20 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 - UI „Was Jarvis über mich weiß“
 - Eval `scripts/eval_0_4_0.py`, Version `0.4.0`
 
+## Planned `0.4.1` (Sprint 12) — Memory Must-Fixes
+
+- False-Confirm verhindern (sagen ≠ speichern)
+- Guard/Aussetzer bei Memory-Turns beheben
+- „Vergiss alles“ = Full Wipe
+- Eval `eval_0_4_1.py`
+
+## Planned `0.4.2` (Sprint 13) — Memory Polish
+
+- Natürliche Merk-Phrasen, Multi-Fakt-Split, Value-Normalisierung
+- Retrieve ohne Ambient-Leak, Summary-Timing/DE, Settings aufräumen
+- UI: Confirm-Chip / Edit / Summary (Should)
+- Eval `eval_0_4_2.py`
+
 ## Unreleased / pending tag `0.3.1`
 
 - Ambient-Gradient stärker sichtbar
@@ -21,7 +35,8 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
 ## Planned `0.5.0` (Sprint 9) — Intelligence 2
 
-- Intent-Router, Model-Routing, Persona-/Quality-Scores
+- Intent-Router inkl. **Memory-Intent-Subklassen** (`write`/`recall`/`forget`/`clarify`)
+- Model-Routing, Persona-/Quality-Scores
 
 ## Planned `0.6.0` (Sprint 10) — Intelligence 3
 
@@ -53,7 +68,9 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 | `0.1.0`–`0.3.0` | 1–6 | MVP → Guards → Motion (Reviews offen) |
 | `0.3.1` | 7 | GUI Polish |
 | `0.4.0` | 8 | Gedächtnis & Kontext |
-| `0.5.0` | 9 | Intent-Router, Model-Routing, Scores |
+| `0.4.1` | 12 | Memory Must-Fixes |
+| `0.4.2` | 13 | Memory Polish |
+| `0.5.0` | 9 | Intent-Router (+ Memory-Intent), Routing, Scores |
 | `0.6.0` | 10 | Internet-Research (opt-in) |
 | `0.7.0` | 11 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |

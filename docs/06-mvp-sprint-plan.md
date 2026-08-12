@@ -205,6 +205,31 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
+## Sprint 12 — Memory Must-Fixes → **`0.4.1`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-12.md`](./sprints/sprint-12.md)
+
+| Must | Inhalt |
+|------|--------|
+| M1–M3 | False-Confirm, Guard/Aussetzer bei Memory, „Vergiss alles“ |
+| M4–M5 | Eval `eval_0_4_1.py`, Version `0.4.1` |
+
+---
+
+## Sprint 13 — Memory Polish → **`0.4.2`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-13.md`](./sprints/sprint-13.md)
+
+| Must | Inhalt |
+|------|--------|
+| P1–P3 | Natürliche Phrasen, Multi-Fakt-Split, Value-Normalisierung |
+| P4–P6 | Retrieve ohne Ambient-Leak, Summary-Timing/DE, Settings-Aufräumen |
+| P7 | Eval + Version `0.4.2` |
+
+---
+
 ## Sprint 9 — Intent-Router, Model-Routing & Scores → **`0.5.0`**
 
 **Status:** PLANNED  
@@ -212,7 +237,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 | Must | Inhalt |
 |------|--------|
-| I1–I2 | Intent-Router + Policy-Map |
+| I1–I2 | Intent-Router + Policy-Map (**inkl. Memory-Intent-Subklassen**) |
 | I3 | Model-Routing (auto/default/heavy) |
 | I4–I5 | Persona-/Quality-Scores + Baseline-Gate |
 | I6 | Version `0.5.0` |

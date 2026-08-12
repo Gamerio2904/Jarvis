@@ -8,13 +8,15 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | Stufe | Version | Sprint | Inhalt | Status |
 |-------|---------|--------|--------|--------|
 | 1 | **`0.4.0`** | [08](./sprints/sprint-08.md) | Langzeitgedächtnis v1, Gesprächszusammenfassung, Kontextkompression | **READY FOR REVIEW** |
-| 2 | **`0.5.0`** | [09](./sprints/sprint-09.md) | Intent-Router, Model-Routing, Persona-/Quality-Scores | **PLANNED** |
+| 1a | **`0.4.1`** | [12](./sprints/sprint-12.md) | Memory Must-Fixes (False-Confirm, Aussetzer, Vergiss-alles) | **PLANNED** |
+| 1b | **`0.4.2`** | [13](./sprints/sprint-13.md) | Memory Polish (Parser, Split, Retrieve, Summary, UI) | **PLANNED** |
+| 2 | **`0.5.0`** | [09](./sprints/sprint-09.md) | Intent-Router (**inkl. Memory-Intent**), Model-Routing, Scores | **PLANNED** |
 | 3 | **`0.6.0`** | [10](./sprints/sprint-10.md) | Verlässliche Internet-Research (opt-in, zitiert) | **PLANNED** |
 
 Delight/Settings folgen danach als **`0.7.0`** / Sprint 11 ([`11`](./11-delight-and-settings.md), [`sprint-11`](./sprints/sprint-11.md)).
 
 ```text
-0.3.1 Polish → 0.4.0 Memory → 0.5.0 Router/Routing/Scores → 0.6.0 Research → 0.7.0 Delight/Settings (Sprint 11)
+0.4.0 Memory → 0.4.1 Fixes → 0.4.2 Polish → 0.5.0 Router(+Memory-Intent) → 0.6.0 Research → 0.7.0 Delight
 ```
 
 ---
@@ -24,7 +26,9 @@ Delight/Settings folgen danach als **`0.7.0`** / Sprint 11 ([`11`](./11-delight-
 | Stufe | Version | Inhalt |
 |-------|---------|--------|
 | 1 | `0.4.0` | Langzeitgedächtnis v1, Gesprächszusammenfassung, Kontextkompression |
-| 2 | `0.5.0` | Intent-Router, besseres Model-Routing, Qualitäts-Eval + Persona-Scores |
+| 1a | `0.4.1` | Memory Must-Fixes (Bugs) |
+| 1b | `0.4.2` | Memory Polish (Schwachstellen) |
+| 2 | `0.5.0` | Intent-Router inkl. Memory-Intent, Model-Routing, Scores |
 | 3 | `0.6.0` | Verlässliche Internet-Research (Tool, opt-in) |
 
 ---
@@ -121,7 +125,7 @@ Vor der Antwort grob erkennen, **welche Art Turn** vorliegt — dann andere Prom
 | Intent | Beispiel | Policy |
 |--------|----------|--------|
 | `smalltalk` | „Hey, wie geht’s?“ | Persona-first, kurz |
-| `memory` | „Merk dir …“ / „Was mag ich?“ | Memory-Tools |
+| `memory` | „Merk dir …“ / „Was mag ich?“ | Memory-Tools (+ Subklassen, §4.1) |
 | `helpdesk_trap` | „Wie kann ich … helfen“-Bait | Anti-Boilerplate |
 | `inject` | Jailbreak / Zwangstoken | Guards hart |
 | `task` | „Plan mir …“ / strukturierte Hilfe | etwas längere, klare Antwort ohne Tip-Listen-Manie |
@@ -135,6 +139,48 @@ Vor der Antwort grob erkennen, **welche Art Turn** vorliegt — dann andere Prom
 ### Abnahme
 - Gold-Set ~30 Prompts → Intent-Accuracy dokumentiert
 - Falscher Research-Intent ohne Opt-in → kein Netzaufruf
+
+---
+
+## 4.1) Memory-Intent (Erweiterung, geplant mit `0.5.0`)
+
+> Unabhängig von Memory-Patches `0.4.1`/`0.4.2`: der **Router** macht Memory-Turns bewusst steuerbar.  
+> Sprint: [09](./sprints/sprint-09.md) · Version **`0.5.0`**.
+
+### Zweck
+`memory` ist kein einzelner Eimer. Schreiben, Abrufen, Löschen und Nachfragen brauchen **unterschiedliche Policies** — sonst kollidieren Guards (Helpdesk-Boilerplate) mit ehrlichen Merk-Acks, und das Modell „notiert“ verbal ohne Persistenz.
+
+### Subklassen
+| Subklasse | Trigger (Beispiele) | Policy |
+|-----------|---------------------|--------|
+| `memory.write` | „Merk dir …“, „Kannst du dir merken …“, klare Pref-Aussage | Write in Store **vor** Reply; Ack-Nudge (1 Satz, kein Helpdesk); Boilerplate → Retry/Nudge, **nicht** Helpdesk-Canned |
+| `memory.recall` | „Wie heißt mein Hund?“, „Was mag ich?“ | Retrieve streng relevant; kurze faktische Antwort im Jarvis-Ton |
+| `memory.forget` | „Vergiss …“, „Vergiss alles“, „Lösch die Erinnerung an …“ | Delete/Clear ausführen; bestätigen was weg ist; kein Nachtreten mit alten Pins |
+| `memory.clarify` | Widerspruch („nicht Döner, Pizza“), unsichere Extraktion | Kurz nachfragen **oder** Überschreiben + Transparenz; nie still doppelte Wahrheiten |
+
+### Pipeline (Soll)
+```text
+User-Msg
+  → Intent-Router → memory.* (Subklasse)
+  → Policy-Map (Nudge / Guard-Verhalten / Retrieve-Schärfe)
+  → Memory-Tools (write|recall|forget|clarify)
+  → LLM mit dosiertem Context
+  → Reply nur mit Claims, die zum Tool-Ergebnis passen
+```
+
+### Abgrenzung zu `0.4.x`
+| Version | Was |
+|---------|-----|
+| `0.4.0` | Memory v1 (Store, Summary, Pack) |
+| `0.4.1` | Bugs: False-Confirm, Aussetzer, Vergiss-alles |
+| `0.4.2` | Polish: Parser, Split, Retrieve, Summary-Timing, UI |
+| `0.5.0` | **Router + Memory-Subklassen + Policy-Map** (dieses Kapitel) |
+
+### Abnahme (zusätzlich zu Router-Gold-Set)
+- `write`-Turn speichert und bestätigt ehrlich (kein False-Confirm)
+- `forget` / `forget-all` spiegeln Store-Zustand
+- `recall` ohne Ambient-Leak bei Smalltalk-Fehlklassifikation
+- Eval: Intent-Accuracy für Memory-Subklassen + bestehende `0.4.x`-Memory-Cases grün
 
 ---
 
@@ -240,7 +286,12 @@ Sprint **10** → **`0.6.0`** ([`sprints/sprint-10.md`](./sprints/sprint-10.md))
 ```text
 Gedächtnis + Summary + Compression     →  0.4.0  (Sprint 8)
         ↓
-Intent-Router + Model-Routing + Scores →  0.5.0  (Sprint 9)
+Memory Must-Fixes                      →  0.4.1  (Sprint 12)
+        ↓
+Memory Polish                          →  0.4.2  (Sprint 13)
+        ↓
+Intent-Router (+ Memory-Intent) +
+  Model-Routing + Scores               →  0.5.0  (Sprint 9)
         ↓
 Internet-Research (opt-in)             →  0.6.0  (Sprint 10)
         ↓

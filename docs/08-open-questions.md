@@ -54,10 +54,11 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review **Sprint 8 / `0.4.0`** → Tag bei OK (plus offene frühere Tags)
-2. **Intelligence-Kette weiter:** Sprint 9 `0.5.0` → 10 `0.6.0` (Details `10`)
-3. Danach Delight/Settings **Sprint 11 / `0.7.0`** (`11`)
-4. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
+1. PO-Review **Sprint 8 / `0.4.0`** → Tag bei OK
+2. **Sprint 12 / `0.4.1`** Memory Must-Fixes → dann **13 / `0.4.2`** Polish
+3. **Sprint 9 / `0.5.0`** Intent-Router inkl. Memory-Intent → 10 `0.6.0` Research
+4. Danach Delight/Settings **Sprint 11 / `0.7.0`** (`11`)
+5. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
 
 ---
 

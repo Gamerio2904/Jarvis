@@ -28,7 +28,9 @@ Sprints: [`sprints/README.md`](./sprints/README.md)
 | 1–6 | `0.1.0`–`0.3.0` | **READY FOR REVIEW** |
 | 7 | `0.3.1` | **READY FOR REVIEW** (GUI Polish) |
 | 8 | `0.4.0` | **READY FOR REVIEW** (Gedächtnis) |
-| 9 | `0.5.0` | **PLANNED** (Router / Routing / Scores) |
+| 12 | `0.4.1` | **PLANNED** (Memory Must-Fixes) |
+| 13 | `0.4.2` | **PLANNED** (Memory Polish) |
+| 9 | `0.5.0` | **PLANNED** (Router / Routing / Scores + Memory-Intent) |
 | 10 | `0.6.0` | **PLANNED** (Internet-Research) |
 | 11 | `0.7.0` | **PLANNED** (Delight + Settings) |
 

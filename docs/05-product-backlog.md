@@ -105,7 +105,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.1 | Als Nutzer will ich Langzeitgedächtnis über Chats hinweg (edit-/löschbar). | Must | done | Sprint 8 / `0.4.0` — Details `10` |
 | S7.2 | Als Nutzer will ich, dass lange Chats zusammengefasst werden und den Faden halten. | Must | done | Sprint 8 / `0.4.0` |
 | S7.3 | Als Dev will ich Kontextkompression statt naiver Truncation. | Must | done | Sprint 8 / `0.4.0` |
-| S7.4 | Als Nutzer will ich Intent-abhängige Antwort-Policy (Smalltalk vs Task vs Research). | Must | ready | Sprint 9 / `0.5.0` — `10` |
+| S7.3a | Als Nutzer will ich keine falschen „gemerkt“-Bestätigungen und kein Aussetzer nach Memory. | Must | ready | Sprint 12 / `0.4.1` |
+| S7.3b | Als Nutzer will ich „Vergiss alles“ und präziseren Memory-Alltag (Parser/Split/UI). | Must | ready | Sprint 13 / `0.4.2` |
+| S7.4 | Als Nutzer will ich Intent-abhängige Antwort-Policy (Smalltalk vs Task vs Research vs Memory). | Must | ready | Sprint 9 / `0.5.0` — `10` §4–4.1 |
+| S7.4a | Als Nutzer will ich Memory-Turns (write/recall/forget/clarify) mit eigener Policy. | Must | ready | Sprint 9 / `0.5.0` — Memory-Intent |
 | S7.5 | Als Nutzer will ich Auto-Model-Routing (Default/Heavy/Fallback). | Must | ready | Sprint 9 / `0.5.0` — `10` |
 | S7.6 | Als PO will ich Persona-/Quality-Scores in Eval/CI. | Must | ready | Sprint 9 / `0.5.0` — `10` |
 | S7.7 | Als Nutzer will ich opt-in Internet-Research mit Quellen (kein Raten). | Must | ready | Sprint 10 / `0.6.0` — `10` |
@@ -126,11 +129,13 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO-Review **Sprint 8 / `0.4.0`** (Gedächtnis) + ggf. frühere Tags (`0.3.1` …)
-2. **Sprint 9 (`0.5.0`)** Intent-Router, Model-Routing, Scores
-3. **Sprint 10 (`0.6.0`)** Verlässliche Internet-Research
-4. **Sprint 11 (`0.7.0`)** Delight & Settings
-5. Danach: Phase 2+ / NAS `1.0.0`
+1. PO-Review **Sprint 8 / `0.4.0`** (Gedächtnis) + ggf. frühere Tags
+2. **Sprint 12 (`0.4.1`)** Memory Must-Fixes (Bugs)
+3. **Sprint 13 (`0.4.2`)** Memory Polish (Schwachstellen)
+4. **Sprint 9 (`0.5.0`)** Intent-Router inkl. Memory-Intent, Model-Routing, Scores
+5. **Sprint 10 (`0.6.0`)** Verlässliche Internet-Research
+6. **Sprint 11 (`0.7.0`)** Delight & Settings
+7. Danach: Phase 2+ / NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

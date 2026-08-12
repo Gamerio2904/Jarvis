@@ -31,7 +31,9 @@ MAJOR.MINOR.PATCH
 | `0.3.0` | **GUI Update** Premium-Motion (Spotify-Dunkel + ChatGPT-Layout, smoother UX) | Sprint 6 |
 | `0.3.1` | **GUI Polish** nach `0.3.0`-Test (Gradient/Focus/Backdrop, ruhiger Chat-Wechsel) | Sprint 7 |
 | `0.4.0` | **Gedächtnis & Kontext** (Langzeitgedächtnis v1, Summary, Kompression) | Sprint 8 |
-| `0.5.0` | **Intelligence Core** (Intent-Router, Model-Routing, Persona-/Quality-Scores) | Sprint 9 |
+| `0.4.1` | **Memory Must-Fixes** (False-Confirm, Guard/Aussetzer, Vergiss-alles) | Sprint 12 |
+| `0.4.2` | **Memory Polish** (Parser/Split/Retrieve/Summary/UI) | Sprint 13 |
+| `0.5.0` | **Intelligence Core** (Intent-Router inkl. Memory-Intent, Model-Routing, Scores) | Sprint 9 |
 | `0.6.0` | **Internet-Research** opt-in, citation-required | Sprint 10 |
 | `0.7.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | Sprint 11 |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
@@ -43,7 +45,7 @@ MAJOR.MINOR.PATCH
 | `0.1.2` | Hotfix-Patch nach `0.1.1`, falls nötig |
 | `0.2.3` | Hotfix-Patch nach `0.2.2`, falls nötig |
 | `0.3.2` | Hotfix nach `0.3.1`, falls nötig |
-| `0.4.1` | Memory-Patches nach `0.4.0` |
+| `0.4.3` | Hotfix nach `0.4.2`, falls nötig |
 | `0.5.1` | Router-/Score-Patches nach `0.5.0` |
 
 ## Was wird versioniert?

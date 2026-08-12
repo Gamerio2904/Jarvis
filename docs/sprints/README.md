@@ -11,9 +11,13 @@
 | 06 | [`sprint-06.md`](./sprint-06.md) | `0.3.0` | **READY FOR REVIEW** |
 | 07 | [`sprint-07.md`](./sprint-07.md) | `0.3.1` | **READY FOR REVIEW** |
 | 08 | [`sprint-08.md`](./sprint-08.md) | `0.4.0` | **READY FOR REVIEW** |
-| 09 | [`sprint-09.md`](./sprint-09.md) | `0.5.0` | **PLANNED** |
+| 12 | [`sprint-12.md`](./sprint-12.md) | `0.4.1` | **PLANNED** (Memory Must-Fixes) |
+| 13 | [`sprint-13.md`](./sprint-13.md) | `0.4.2` | **PLANNED** (Memory Polish) |
+| 09 | [`sprint-09.md`](./sprint-09.md) | `0.5.0` | **PLANNED** (Router + Memory-Intent) |
 | 10 | [`sprint-10.md`](./sprint-10.md) | `0.6.0` | **PLANNED** |
 | 11 | [`sprint-11.md`](./sprint-11.md) | `0.7.0` | **PLANNED** |
+
+> Pull-Reihenfolge nach `0.4.0`: **12 → 13 → 09 → 10 → 11** (Patches vor nächstem MINOR).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight/Settings: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
