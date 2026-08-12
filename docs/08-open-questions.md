@@ -54,9 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. **Sprint 7 / `0.3.1`** umsetzen (GUI Polish)
-2. **Sprint 8 / `0.4.0`** umsetzen (Gedächtnis & Kontext)
-3. Danach: Delight+Settings `0.5.0` · Router/Research laut `10`/`11`
+1. **Sprint 7 / `0.3.1`** (GUI Polish)
+2. **Intelligence-Kette:** Sprint 8 `0.4.0` → 9 `0.5.0` → 10 `0.6.0` (Details `10`)
+3. Danach Delight/Settings `0.7.0` (`11`)
 4. Parallel ok: Tags/Reviews `0.1.0`–`0.3.0`
 
 ---

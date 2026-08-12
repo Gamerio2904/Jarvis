@@ -3,14 +3,29 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first- / Privacy-Linie zu brechen.  
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
-## Prioritätsreihenfolge (Empfehlung)
+## Sprint- & Versions-Mapping (verbindlich)
 
-| Stufe | Version (Richt) | Inhalt |
-|-------|-----------------|--------|
+| Stufe | Version | Sprint | Inhalt | Status |
+|-------|---------|--------|--------|--------|
+| 1 | **`0.4.0`** | [08](./sprints/sprint-08.md) | Langzeitgedächtnis v1, Gesprächszusammenfassung, Kontextkompression | **PLANNED** |
+| 2 | **`0.5.0`** | [09](./sprints/sprint-09.md) | Intent-Router, Model-Routing, Persona-/Quality-Scores | **PLANNED** |
+| 3 | **`0.6.0`** | [10](./sprints/sprint-10.md) | Verlässliche Internet-Research (opt-in, zitiert) | **PLANNED** |
+
+Delight/Settings folgen danach als **`0.7.0`** ([`11`](./11-delight-and-settings.md)) — bewusst **nach** Intelligence-Kern.
+
+```text
+0.3.1 Polish → 0.4.0 Memory → 0.5.0 Router/Routing/Scores → 0.6.0 Research → 0.7.0 Delight/Settings
+```
+
+---
+
+## Prioritätsreihenfolge
+
+| Stufe | Version | Inhalt |
+|-------|---------|--------|
 | 1 | `0.4.0` | Langzeitgedächtnis v1, Gesprächszusammenfassung, Kontextkompression |
-| 2 | `0.5.0` | Intent-Router, besseres Model-Routing |
-| 3 | `0.5.x` / `0.6.0` | Qualitäts-Eval + Persona-Scores (hart in CI) |
-| 4 | `0.6.0+` | Verlässliche Internet-Research (Tool, opt-in) |
+| 2 | `0.5.0` | Intent-Router, besseres Model-Routing, Qualitäts-Eval + Persona-Scores |
+| 3 | `0.6.0` | Verlässliche Internet-Research (Tool, opt-in) |
 
 ---
 
@@ -216,18 +231,18 @@ User fragt (Intent=research, Opt-in an)
 - Mit Netz-Off → kein Research-Pfad
 
 ### Versionierung
-Eigene Etappe (Richtwert `0.6.0+`), nach Memory + Router.
+Sprint **10** → **`0.6.0`** ([`sprints/sprint-10.md`](./sprints/sprint-10.md)), nach Memory + Router.
 
 ---
 
 ## Abhängigkeiten untereinander
 
 ```text
-Gedächtnis + Summary + Compression  →  0.4.0
+Gedächtnis + Summary + Compression     →  0.4.0  (Sprint 8)
         ↓
-Intent-Router + Model-Routing       →  0.5.0
+Intent-Router + Model-Routing + Scores →  0.5.0  (Sprint 9)
         ↓
-Eval/Persona-Scores härten          →  parallel ab 0.4, streng ab 0.5
+Internet-Research (opt-in)             →  0.6.0  (Sprint 10)
         ↓
-Internet-Research (opt-in)          →  nach Router
+Delight + flaches Settings             →  0.7.0  (Doc 11)
 ```

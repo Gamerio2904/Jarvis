@@ -204,13 +204,37 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
+## Sprint 9 — Intent-Router, Model-Routing & Scores → **`0.5.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-09.md`](./sprints/sprint-09.md) · [`10`](./10-intelligence-capabilities.md)
+
+| Must | Inhalt |
+|------|--------|
+| I1–I2 | Intent-Router + Policy-Map |
+| I3 | Model-Routing (auto/default/heavy) |
+| I4–I5 | Persona-/Quality-Scores + Baseline-Gate |
+| I6 | Version `0.5.0` |
+
+---
+
+## Sprint 10 — Verlässliche Internet-Research → **`0.6.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-10.md`](./sprints/sprint-10.md) · [`10`](./10-intelligence-capabilities.md)
+
+| Must | Inhalt |
+|------|--------|
+| R1–R4 | Opt-in, Retrieval, Citations, No-source-Refuse |
+| R5–R7 | Quellen-UI, Audit-Log, Eval + Version |
+
+---
+
 ## Weitere geplante Sprints (Richtung)
 
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
-| Delight + Settings | Momente, Jokes, Sound, Eggs, flaches Settings | **`0.5.0`** ([`11`](./11-delight-and-settings.md)) |
-| Intelligence 2 | Intent-Router, Model-Routing, Scores | **`0.5.x` / `0.6.0`** ([`10`](./10-intelligence-capabilities.md)) |
-| Research | Verlässliche Internet-Research (opt-in) | **`0.6.0+`** |
+| Delight + Settings | Momente, Jokes, Sound, Eggs, flaches Settings | **`0.7.0`** ([`11`](./11-delight-and-settings.md)) |
 | Phase 2 | Handy privat (VPN/Auth) | `0.x` vor NAS |
 | Phase 3 | NAS 24/7 | **`1.0.0`** |
 | Phase 4 | TTS-Vorlesen | nach PO-Go |

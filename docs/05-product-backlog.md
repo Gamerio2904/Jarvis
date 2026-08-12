@@ -105,10 +105,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.1 | Als Nutzer will ich Langzeitgedächtnis über Chats hinweg (edit-/löschbar). | Must | ready | Sprint 8 / `0.4.0` — Details `10` |
 | S7.2 | Als Nutzer will ich, dass lange Chats zusammengefasst werden und den Faden halten. | Must | ready | Sprint 8 / `0.4.0` |
 | S7.3 | Als Dev will ich Kontextkompression statt naiver Truncation. | Must | ready | Sprint 8 / `0.4.0` |
-| S7.4 | Als Nutzer will ich Intent-abhängige Antwort-Policy (Smalltalk vs Task vs Research). | Should | idea | ~`0.5.0` — `10` |
-| S7.5 | Als Nutzer will ich Auto-Model-Routing (Default/Heavy/Fallback). | Should | idea | ~`0.5.0` — `10` |
-| S7.6 | Als PO will ich Persona-/Quality-Scores in Eval/CI. | Should | idea | ab `0.4`, streng `0.5+` — `10` |
-| S7.7 | Als Nutzer will ich opt-in Internet-Research mit Quellen (kein Raten). | Should | idea | `0.6.0+` — `10` |
+| S7.4 | Als Nutzer will ich Intent-abhängige Antwort-Policy (Smalltalk vs Task vs Research). | Must | ready | Sprint 9 / `0.5.0` — `10` |
+| S7.5 | Als Nutzer will ich Auto-Model-Routing (Default/Heavy/Fallback). | Must | ready | Sprint 9 / `0.5.0` — `10` |
+| S7.6 | Als PO will ich Persona-/Quality-Scores in Eval/CI. | Must | ready | Sprint 9 / `0.5.0` — `10` |
+| S7.7 | Als Nutzer will ich opt-in Internet-Research mit Quellen (kein Raten). | Must | ready | Sprint 10 / `0.6.0` — `10` |
 | S7.8 | Kalender/Mail/Smart-Home-Tools | Won’t | parked | später |
 | S7.9 | Native Store-App | Won’t | parked | |
 
@@ -116,11 +116,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S8.1 | Als Nutzer will ich seltene Jarvis-Momente (abschaltbar). | Should | idea | `0.5.0` — `11` |
-| S8.2 | Als Nutzer will ich dosierte Inside Jokes aus dem Gedächtnis. | Should | idea | `0.5.0` — `11` |
-| S8.3 | Als Nutzer will ich optionale UI-Sounds. | Could | idea | `0.5.0` — `11` |
-| S8.4 | Als Nutzer will ich Easter-Egg-Commands, gelistet in den Einstellungen. | Should | idea | `0.5.0` — `11` |
-| S8.5 | Als Nutzer will ich ein flaches Settings-Panel (wenig Verschachtelung). | Must | idea | `0.5.0` — `11` |
+| S8.1 | Als Nutzer will ich seltene Jarvis-Momente (abschaltbar). | Should | idea | `0.7.0` — `11` |
+| S8.2 | Als Nutzer will ich dosierte Inside Jokes aus dem Gedächtnis. | Should | idea | `0.7.0` — `11` |
+| S8.3 | Als Nutzer will ich optionale UI-Sounds. | Could | idea | `0.7.0` — `11` |
+| S8.4 | Als Nutzer will ich Easter-Egg-Commands, gelistet in den Einstellungen. | Should | idea | `0.7.0` — `11` |
+| S8.5 | Als Nutzer will ich ein flaches Settings-Panel (wenig Verschachtelung). | Must | idea | `0.7.0` — `11` |
 
 ---
 
@@ -128,8 +128,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 1. **Sprint 7 (`0.3.1`)** GUI Polish
 2. **Sprint 8 (`0.4.0`)** Gedächtnis & Kontext
-3. Danach: Delight/Settings `0.5.0` → Router/Scores/Research → Phase 2+ / NAS `1.0.0`
-4. Parallel ok: PO-Reviews/Tags `0.1.0`–`0.3.0`
+3. **Sprint 9 (`0.5.0`)** Intent-Router, Model-Routing, Scores
+4. **Sprint 10 (`0.6.0`)** Verlässliche Internet-Research
+5. Danach: Delight/Settings `0.7.0` → Phase 2+ / NAS `1.0.0`
+6. Parallel ok: PO-Reviews/Tags `0.1.0`–`0.3.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

@@ -3,14 +3,15 @@
 Spielerei und Begeisterung — **dosiert**, abschaltbar, local-first.  
 Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 
-## Versionierung (Richt)
+## Versionierung (verbindlich)
 
-| Version | Inhalt |
-|---------|--------|
-| `0.5.0` o. Delight-Sprint | Jarvis-Moment, Inside-Jokes, Sound, Easter Eggs |
-| parallel / kurz danach | Settings-Overhaul (flaches Panel) |
+| Version | Sprint / Doc | Inhalt |
+|---------|--------------|--------|
+| `0.4.0` | Sprint 8 | Gedächtnis (Voraussetzung für Jokes) |
+| `0.5.0`–`0.6.0` | Sprint 9–10 | Intelligence (Router, Research) — **vorher** |
+| **`0.7.0`** | Delight-Sprint | Jarvis-Moment, Inside-Jokes, Sound, Easter Eggs + flaches Settings |
 
-Kann als eigenes MINOR gebündelt werden (Empfehlung: **`0.5.0` Delight + Settings**), nachdem `0.4.0` Gedächtnis steht — Jokes brauchen Memory.
+Reihenfolge bewusst: erst scharfsinnig/verlässlich, dann Delight.
 
 ---
 
