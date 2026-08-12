@@ -10,6 +10,7 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 - **Sprint 3:** `0.2.0` Robustheit (Streaming, Guards, Löschen, Eval)
 - **Sprint 4:** `0.2.1` Guard Hardening (Listen/Duzen/Inject/Sticky)
 - **Sprint 5:** `0.2.2` Charakter-Feinschliff (Boilerplate, Kaputt-Pfad)
+- **Sprint 6 (geplant):** `0.3.0` GUI Premium-Motion
 
 ## Schnellstart (Windows / Linux)
 

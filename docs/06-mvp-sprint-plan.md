@@ -162,12 +162,28 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
+## Sprint 6 — GUI Update Premium-Motion → **`0.3.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-06.md`](./sprints/sprint-06.md)
+
+**Ziel:** Bestehende Chat-UI spürbar premium machen — gezielte Motion, smoother Composer/Sidebar/Streaming; Layout & Charakter bleiben.
+
+| Must | Inhalt |
+|------|--------|
+| M1–M4 | Message-Enter, Streaming-Präsenz, Composer-Focus, Sidebar-Motion |
+| M5 | `prefers-reduced-motion` |
+| M6 | Version `0.3.0` |
+
+**Danach:** Gedächtnis-Ausbau → `0.4.0`
+
+---
+
 ## Weitere geplante Sprints (Richtung)
 
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
-| GUI-Update | Premium-Motion | eigenes MINOR (z. B. `0.3.0`) |
-| Gedächtnis-Ausbau | Maximal gutes Kontext/Gedächtnis | eigenes MINOR (z. B. `0.4.0`) |
+| Gedächtnis-Ausbau | Maximal gutes Kontext/Gedächtnis | **`0.4.0`** |
 | Phase 2 | Handy privat (VPN/Auth) | `0.x` vor NAS |
 | Phase 3 | NAS 24/7 | **`1.0.0`** |
 | Phase 4 | TTS-Vorlesen | nach PO-Go |

@@ -2,6 +2,12 @@
 
 Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
+## Planned `0.3.0` (Sprint 6)
+
+- Premium-Motion: Message-Enter, Streaming-Präsenz, Composer-Focus, Sidebar/Drawer
+- `prefers-reduced-motion`
+- UI/API-Version `0.3.0`
+
 ## Unreleased / pending tag `0.2.2`
 
 - Boilerplate hard-refuse → `SAFE_NO_HELPDESK`
@@ -25,5 +31,6 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 | `0.2.0` | 3 | Verbesserungen + R1–R8 (Review offen) |
 | `0.2.1` | 4 | Must-Fixes aus Deep-Test (H1–H5) — Review offen |
 | `0.2.2` | 5 | Charakter-Fixes (C1–C2) — Review offen |
-| `0.3.0+` | später | GUI-Motion, Gedächtnis, Handy |
+| `0.3.0` | 6 | GUI Premium-Motion — geplant |
+| `0.4.0` | später | Gedächtnis-Ausbau |
 | `1.0.0` | Phase 3 | NAS / 24/7 |

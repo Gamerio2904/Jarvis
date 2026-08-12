@@ -70,7 +70,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S3.3 | Als Nutzer will ich sehen, dass Jarvis „gerade schreibt“ / lädt. | Could | idea | Loading-Indikator vorhanden |
 | S3.4 | Als Nutzer will ich langfristig eine extrem smoothe, moderne Premium-Web-UI. | Should (Gesamtprojekt) | idea | Spotify-Farben + ChatGPT-Layout |
 | S3.5 | Als Nutzer will ich mehrere Chats, eine Liste und „Neues Gespräch“. | Must (Zielbild) | idea | MVP darf schlank sein, Architektur ausbaufähig |
-| S3.6 | Als Nutzer will ich später ein GUI-Update mit premium Motion. | Should (später) | parked | Nach Light-MVP eigenes MINOR |
+| S3.6 | Als Nutzer will ich später ein GUI-Update mit premium Motion. | Must (jetzt) | ready | Sprint 6 / `0.3.0` (M1–M6) |
 | S3.7 | Als Nutzer will ich Antworten gestreamt sehen. | Should | ready | Sprint 3 / `0.2.0` (I2) |
 | S3.8 | Als Nutzer will ich bei Fehlern Retry/klare Meldung. | Should | ready | Sprint 3 / `0.2.0` (I1) |
 
@@ -108,8 +108,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO-Review **Sprint 5 / `0.2.2`** (+ ggf. frühere Tags)
-2. Später: GUI-Motion, Gedächtnis, Phase 2+, NAS `1.0.0`
+1. **Sprint 6 (`0.3.0`):** GUI Premium-Motion (M1–M6)
+2. PO-Reviews / Tags `0.1.0`–`0.2.2` nachziehen (parallel ok)
+3. Danach: Gedächtnis `0.4.0`, Phase 2+, NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 
