@@ -31,7 +31,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 10 | `0.4.2` | **READY FOR REVIEW** (Memory Polish) |
 | 11 | `0.4.3` | **READY FOR REVIEW** (Memory Hotfix) |
 | 12 | `0.5.0` | **READY FOR REVIEW** (Router + Memory-Intent) |
-| 13 | `0.6.0` | **PLANNED** (Internet-Research) |
-| 14 | `0.7.0` | **PLANNED** (Delight + Settings) |
+| 13 | `0.5.1` | **PLANNED** (Router Hotfix, prio) |
+| 14 | `0.5.2` | **PLANNED** (Router Polish, Should) |
+| 15 | `0.6.0` | **PLANNED** (Internet-Research) |
+| 16 | `0.7.0` | **PLANNED** (Delight + Settings) |
 
-**Nächste Umsetzung:** Sprint 13 → 14.
+**Nächste Umsetzung:** Sprint 13 (Hotfix) → 14 (Should) → 15 → 16.

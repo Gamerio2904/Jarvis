@@ -1,48 +1,38 @@
-# Sprint 13 — Verlässliche Internet-Research
+# Sprint 13 — Router Hotfix (nach 0.5.0 Deep-Test)
 
 | Feld | Wert |
 |------|------|
 | Status | **PLANNED** |
-| Ziel-Version | **`0.6.0`** |
-| Quelle | [`10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) § 7 |
+| Priorität | **HOTFIX / HIGH** — vor Should-Polish und Research |
+| Ziel-Version | **`0.5.1`** |
+| Quelle | Deep-Test Feedback zu Sprint 12 (`0.5.0`) |
 
 ## Ziel
 
-Opt-in **Research mit Quellen**: nachvollziehbar, zitiert, wiederholbar — **kein Raten** ohne Beleg. Local LLM synthetisiert nur aus Snippets.
-
-> „100 % verlässlich“ = Engineering-DoD (Citations, Opt-in, Allowlist, Audit, Refuse ohne Quelle) — nicht epistemische Allwissenheit.
+Die **blocker-level** Qualitätslücken aus dem `0.5.0`-Test schließen: Inject/Task-Guards entkoppeln, schwache Merk-Writes stoppen, Non-Memory-Intents ohne Aussetzer-Final.
 
 ## Must
 
-| ID | Story | Done wenn |
-|----|-------|-----------|
-| R1 | **Opt-in Toggle** in Settings (Default **Aus**) | Ohne Opt-in kein Netzaufruf — auch bei Research-Intent |
-| R2 | **Retrieval-Pipeline** — Query → Allowlist-Provider → Snippets+URLs+Timestamp lokal | Rohdaten persistiert pro Turn |
-| R3 | **Citation-required Synthese** — Antwort nur aus Snippets; faktische Claims stützbar | Jede harte Aussage hat Quelle |
-| R4 | **No-source refuse** — unbeantwortbar / Netz down / leer → klare Meldung, kein Fülltext | Eval-Cases grün |
-| R5 | **UI** — Badge „Mit Quellen“, flach aufklappbare Quellenliste | Keine Nested-UI |
-| R6 | **Audit-Log** — Query, Zeit, Quellen lokal einsehbar | PO kann Turn nachvollziehen |
-| R7 | Eval-Suite Research + Version `0.6.0` | `eval`-Cases + Health |
-
-## Should
-
-| ID | Inhalt |
-|----|--------|
-| R8 | Widerspruchs-Hinweis wenn Quellen divergieren |
-| R9 | Privacy-Hinweis: nur minimierte Query geht raus |
+| ID | Verbesserung | Done wenn |
+|----|--------------|-----------|
+| F1 | **Inject ≠ Task** — Legitimate Tasks (`Plan mir…`) nie mit Inject-/SAFE_REFUSAL beantworten | Live: Wochenplan-Prompt → hilfreiche Task-Reply, nicht „Netter Versuch“ |
+| F2 | **Inject-Reply Jarvis-DE** — bei `inject`: deutsches Jarvis-Canned; **kein** EN-Helpdesk (*How can I assist…*) | Live-Inject ohne EN/Boilerplate; Eval-Case |
+| F3 | **Weak-Write Guardrail** — zu kurze/inhaltsleere Payloads (`Merk dir das irgendwie`) **nicht** speichern; False-Confirm-Pfad | Kein Store; klare Ablehnung statt `Notiert: das irgendwie` |
+| F4 | **Policy-Fallbacks non-memory** — `settings` / `helpdesk_trap` / `task` (bei Guard-Fail): Jarvis-Canned statt finalem Aussetzer | Live `/protokoll` + Helpdesk-Bait ≠ „Kurzer Aussetzer“ |
+| F5 | Eval `scripts/eval_0_5_1.py` + Version `0.5.1` | Suite grün; Health/UI `v0.5.1` |
 
 ## Won’t
 
-- Cloud-LLM als Denker
-- Scraping ohne Transparenz
-- Research als Default-on
-- Delight-Pack (→ Sprint 14 / `0.7.0`)
+- Router-Feinschliff „nice to have“ (→ Sprint 14 / `0.5.2`)
+- Live-Scorecard-Ausbau (→ Sprint 14)
+- Echtes Heavy-Modell / Routing-Ehrlichkeit (→ Sprint 14)
+- Internet-Research (→ Sprint 15 / `0.6.0`)
 
 ## Abhängigkeiten
 
-- Intent-Router erkennt `research` (Sprint 12 / `0.5.0`)
-- Settings-Toggle (kann minimal hier landen; volles Settings-UX in Sprint 14)
+- Sprint 12 / `0.5.0` implementiert
+- Empfohlen vor PO-Tag `v0.5.0` oder parallel als Patch
 
-## Exit
+## Exit / Abnahme
 
-Live: Frage mit Quellen beantwortet; unbekannte Frage → Refuse; Opt-in aus → kein Netz. Tag **`v0.6.0`**.
+PO: Task geht, Inject bleibt Jarvis/DE, Weak-Write speichert nicht, Settings/Helpdesk ohne Aussetzer. Tag **`v0.5.1`**.

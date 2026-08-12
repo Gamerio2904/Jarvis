@@ -5,6 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.5.2` — Sprint 14 (Router Polish) — *geplant (Should)*
+
+- Router-Patterns erweitern; Live-Scorecard; Routing-Ehrlichkeit
+- Persona-Kleinkram (EN-Leak, Emoji, Recall-Helpdesk)
+- Eval `scripts/eval_0_5_2.py`, Version `0.5.2`
+
+### `0.5.1` — Sprint 13 (Router Hotfix) — *geplant (prio)*
+
+- Inject/Task entkoppeln; Inject nur Jarvis-DE-Canned
+- Weak-Write Guardrail; Non-Memory-Fallbacks ohne Aussetzer
+- Eval `scripts/eval_0_5_1.py`, Version `0.5.1`
+
 ### `0.5.0` — Sprint 12 (Intent-Router + Scores)
 
 - Intent-Router v1 inkl. Memory-Subklassen write/recall/forget/clarify
@@ -56,8 +68,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.6.0` | 13 | Internet-Research (opt-in, Citations) |
-| `0.7.0` | 14 | Delight + Settings |
+| `0.5.1` | 13 | Router Hotfix (Inject/Task/Weak-Write/Fallbacks) — **prio** |
+| `0.5.2` | 14 | Router Polish (Patterns, Live-Scorecard) — **Should** |
+| `0.6.0` | 15 | Internet-Research (opt-in, Citations) |
+| `0.7.0` | 16 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |
 
 ## Earlier (pending tags)

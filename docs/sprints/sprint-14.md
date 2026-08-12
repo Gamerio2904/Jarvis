@@ -1,44 +1,37 @@
-# Sprint 14 — Delight & Settings
+# Sprint 14 — Router Polish (Should, nach Hotfix)
 
 | Feld | Wert |
 |------|------|
 | Status | **PLANNED** |
-| Ziel-Version | **`0.7.0`** |
-| Quelle | [`11-delight-and-settings.md`](../11-delight-and-settings.md) |
+| Priorität | **SHOULD** — nicht blocker für Research; empfohlen vor Delight |
+| Ziel-Version | **`0.5.2`** |
+| Quelle | Deep-Test Feedback zu Sprint 12 (`0.5.0`); setzt Hotfix `0.5.1` voraus |
 
 ## Ziel
 
-Jarvis bekommt **dosierte Begeisterung** (Momente, Jokes, Sound, Easter Eggs) und ein **flaches Settings-Panel** — abschaltbar, local-first, ohne Verschachtelungstiefe.
+Nicht-zwingende Verbesserungen am Router-/Score-Stack: bessere Intent-Abdeckung, ehrliches Model-Routing, Live-Scorecard, kleine Persona-Politur.
 
-## Must
+## Should (Lieferumfang dieses Sprints)
 
-| ID | Story | Done wenn |
-|----|-------|-----------|
-| D1 | **Flaches Settings-Panel** — eine Seite, ≤7 Abschnitte, 1 Ebene | PO findet Easter-Egg-Liste in &lt;10s; keine Nested-Menüs |
-| D2 | **Jarvis-Momente** — selten, Cap/Tag, Toggle | An/Aus wirkt; max. 1–2/Tag |
-| D3 | **Inside Jokes** — aus Memory-Pins, Intent-sensitiv, Toggle + Frequenz | Kein Witz bei ernstem Intent; löschbar |
-| D4 | **UI-Sounds** — Send/Receive/Error, Master-Toggle + 2–3 Lautstärken | Default dezent/aus laut PO; stummbar |
-| D5 | **Easter-Egg-Commands** — z.B. `/protokoll`, `/mission`, `/kante` — **Liste in Settings** | Eggs durch Guards; keine Shell/Netz |
-| D6 | Version `0.7.0` | Health + UI |
-
-## Should
-
-| ID | Inhalt |
-|----|--------|
-| D7 | Abschnitte: Allgemein, Modell, Gedächtnis, Delight, Sound, Easter Eggs, Forschung |
-| D8 | Danger-Zone getrennt (Memory löschen) mit Bestätigung |
+| ID | Verbesserung | Done wenn |
+|----|--------------|-----------|
+| S1 | **Router-Patterns erweitern** — u.a. `mach mir einen Plan`, Capability-Bait (*Was kannst du alles…*) → `task` / `helpdesk_trap` | Extra-Gold ≥5 neue Cases grün |
+| S2 | **Model-Routing ehrlich** — `model_heavy` dokumentiert/optional anders; Health zeigt klar, wenn Heavy = Default (kein Fake-Routing) | Health/Meta: `heavy_equals_default` oder separates Heavy falls installiert |
+| S3 | **Live-Scorecard** — mind. Inject-EN, Task-False-Positive, Memory-Recall als Must-Fail-Dimensionen | `scorecard_0_5_2.py` (oder Erweiterung) failt bei Regression |
+| S4 | **Persona-Kleinkram** — Smalltalk ohne EN-Leak; Clarify ohne Emoji-Pflicht; Recall ohne Helpdesk-Nachsatz | Eval-Cases / Regex-Guards |
+| S5 | Eval `scripts/eval_0_5_2.py` + Version `0.5.2` | Suite grün; Health/UI `v0.5.2` |
 
 ## Won’t
 
-- Neue Intelligence-Kernfeatures (liegen in Sprints 8–13)
-- Tiefe Settings-Hierarchie / Advanced-JSON-UI als Primärweg
-- Lautes Arcade-Sound
+- Hotfix-Blocker (liegen in Sprint 13 / `0.5.1`)
+- Research-Pipeline (→ Sprint 15 / `0.6.0`)
+- Delight/Settings-Overhaul (→ Sprint 16 / `0.7.0`)
 
 ## Abhängigkeiten
 
-- `0.4.0`+ Gedächtnis (für Jokes); ideal nach Memory-Patches (Sprints 9–11)
-- Ideal nach Router/Research (Sprints 12–13), damit Settings Research-Toggle aufnehmen kann
+- Sprint 13 / `0.5.1` empfohlen (sonst doppelte Guard-Arbeit)
+- Kann entfallen/verschoben werden, wenn PO Research priorisiert — dann als `0.5.2` nachziehen
 
-## Exit
+## Exit / Abnahme
 
-PO: Settings flach nutzbar; Delight spürbar aber abschaltbar; Eggs dokumentiert in UI. Tag **`v0.7.0`**.
+PO: Router robuster außerhalb Gold-Set; Scorecard misst Live-Risiken; Routing nicht irreführend. Tag **`v0.5.2`** (optional vor Research).

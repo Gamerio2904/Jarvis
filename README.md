@@ -11,8 +11,10 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 - **Sprint 10:** `0.4.2` Memory Polish (Review)
 - **Sprint 11:** `0.4.3` Memory Hotfix (Review)
 - **Sprint 12:** `0.5.0` Router + Memory-Intent (Review)
-- **Sprint 13 (geplant):** `0.6.0` Internet-Research
-- **Sprint 14 (geplant):** `0.7.0` Delight + Settings
+- **Sprint 13 (geplant, prio):** `0.5.1` Router Hotfix
+- **Sprint 14 (geplant, Should):** `0.5.2` Router Polish
+- **Sprint 15 (geplant):** `0.6.0` Internet-Research
+- **Sprint 16 (geplant):** `0.7.0` Delight + Settings
 
 Planung: [`docs/sprints/README.md`](docs/sprints/README.md) · [`docs/10-intelligence-capabilities.md`](docs/10-intelligence-capabilities.md)
 

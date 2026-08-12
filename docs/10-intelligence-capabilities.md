@@ -12,17 +12,21 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 1b | **`0.4.2`** | [10](./sprints/sprint-10.md) | Memory Polish (Parser, Split, TTL, UI-Filter) | **READY FOR REVIEW** |
 | 1c | **`0.4.3`** | [11](./sprints/sprint-11.md) | Memory Hotfix (Clause-Split, Recall, Pref) | **READY FOR REVIEW** |
 | 2 | **`0.5.0`** | [12](./sprints/sprint-12.md) | Intent-Router (merk/recall/forget/clarify), Routing, Scores | **READY FOR REVIEW** |
-| 3 | **`0.6.0`** | [13](./sprints/sprint-13.md) | Internet-Research (opt-in, zitiert) | **PLANNED** |
-| 4 | **`0.7.0`** | [14](./sprints/sprint-14.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |
+| 2a | **`0.5.1`** | [13](./sprints/sprint-13.md) | Router Hotfix (Inject/Task/Weak-Write/Fallbacks) | **PLANNED** (prio) |
+| 2b | **`0.5.2`** | [14](./sprints/sprint-14.md) | Router Polish (Patterns, Live-Scorecard) | **PLANNED** (Should) |
+| 3 | **`0.6.0`** | [15](./sprints/sprint-15.md) | Internet-Research (opt-in, zitiert) | **PLANNED** |
+| 4 | **`0.7.0`** | [16](./sprints/sprint-16.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |
 
 ```text
 Sprint 8  0.4.0 Memory
 Sprint 9  0.4.1 Must-Fixes
 Sprint 10 0.4.2 Polish
-Sprint 11 0.4.3 Hotfix (prio)
+Sprint 11 0.4.3 Hotfix
 Sprint 12 0.5.0 Router (+ Memory-Intent)
-Sprint 13 0.6.0 Research
-Sprint 14 0.7.0 Delight
+Sprint 13 0.5.1 Router Hotfix (prio)
+Sprint 14 0.5.2 Router Polish (Should)
+Sprint 15 0.6.0 Research
+Sprint 16 0.7.0 Delight
 ```
 
 ---
@@ -202,6 +206,8 @@ User-Msg
 | `0.4.2` | Polish: Parser, Split, Retrieve, Summary, UI-Filter, Soft-Harvest TTL/Confidence; Widerspruchs-Heuristik v1 |
 | `0.4.3` | Hotfix: Clause-Split, Recall-Stabilität, Pref ohne „mein“ |
 | `0.5.0` | **Router: merk/recall/forget/clarify getrennt + Reply-Policy ohne Helpdesk-Fallback** |
+| `0.5.1` | Hotfix: Inject/Task, Weak-Write, Non-Memory-Fallbacks |
+| `0.5.2` | Polish: Router-Patterns, Live-Scorecard, Routing-Ehrlichkeit |
 
 ### Abnahme (zusätzlich zu Router-Gold-Set)
 - Gold-Set trennt merk vs recall vs forget zuverlässig
@@ -306,7 +312,7 @@ User fragt (Intent=research, Opt-in an)
 - Mit Netz-Off → kein Research-Pfad
 
 ### Versionierung
-Sprint **13** → **`0.6.0`** ([`sprints/sprint-13.md`](./sprints/sprint-13.md)), nach Memory + Router.
+Sprint **15** → **`0.6.0`** ([`sprints/sprint-15.md`](./sprints/sprint-15.md)), nach Memory + Router (+ empfohlen 0.5.1).
 
 ---
 
@@ -324,7 +330,11 @@ Memory Hotfix                         →  0.4.3  (Sprint 11)
 Intent-Router (+ Memory-Intent) +
   Model-Routing + Scores               →  0.5.0  (Sprint 12)
         ↓
-Internet-Research (opt-in)             →  0.6.0  (Sprint 13)
+Router Hotfix                          →  0.5.1  (Sprint 13)
         ↓
-Delight + flaches Settings             →  0.7.0  (Sprint 14)
+Router Polish (Should)                 →  0.5.2  (Sprint 14)
+        ↓
+Internet-Research (opt-in)             →  0.6.0  (Sprint 15)
+        ↓
+Delight + flaches Settings             →  0.7.0  (Sprint 16)
 ```

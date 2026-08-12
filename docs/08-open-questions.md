@@ -54,10 +54,11 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review **Sprint 8–12** (`0.4.0`–`0.5.0`) → Tags bei OK
-2. **Sprint 13 / `0.6.0`** Internet-Research
-3. Danach Delight/Settings **Sprint 14 / `0.7.0`** (`11`)
-4. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
+1. **Sprint 13 / `0.5.1`** Router Hotfix *(prio)*
+2. **Sprint 14 / `0.5.2`** Router Polish *(Should, optional vor Research)*
+3. PO-Review **Sprint 8–12** (`0.4.0`–`0.5.0`) → Tags bei OK
+4. **Sprint 15 / `0.6.0`** Internet-Research → **16 / `0.7.0`** Delight
+5. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
 
 ---
 

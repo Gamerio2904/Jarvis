@@ -190,7 +190,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 | P4–P5 | Ruhiger Chat-Wechsel, stabiler Stream-Caret |
 | P6 | Version `0.3.1` |
 
-**Danach:** Gedächtnis `0.4.0` → Must-Fixes `0.4.1` → Polish `0.4.2` → Hotfix `0.4.3`
+**Danach:** Gedächtnis `0.4.0` → … → Router `0.5.0` → Hotfix `0.5.1` → Polish `0.5.2`
 
 ---
 
@@ -262,10 +262,37 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 13 — Verlässliche Internet-Research → **`0.6.0`**
+## Sprint 13 — Router Hotfix → **`0.5.1`** *(prio)*
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-13.md`](./sprints/sprint-13.md) · [`10`](./10-intelligence-capabilities.md)
+**Artefakt:** [`sprints/sprint-13.md`](./sprints/sprint-13.md)
+
+| Must | Inhalt |
+|------|--------|
+| F1–F2 | Inject/Task entkoppeln; Inject nur Jarvis-DE |
+| F3 | Weak-Write Guardrail |
+| F4 | Non-Memory-Fallbacks ohne Aussetzer |
+| F5 | Eval + Version `0.5.1` |
+
+---
+
+## Sprint 14 — Router Polish → **`0.5.2`** *(Should)*
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-14.md`](./sprints/sprint-14.md)
+
+| Should | Inhalt |
+|--------|--------|
+| S1–S2 | Router-Patterns; Routing-Ehrlichkeit |
+| S3–S4 | Live-Scorecard; Persona-Kleinkram |
+| S5 | Eval + Version `0.5.2` |
+
+---
+
+## Sprint 15 — Verlässliche Internet-Research → **`0.6.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-15.md`](./sprints/sprint-15.md) · [`10`](./10-intelligence-capabilities.md)
 
 | Must | Inhalt |
 |------|--------|
@@ -274,10 +301,10 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 14 — Delight & Settings → **`0.7.0`**
+## Sprint 16 — Delight & Settings → **`0.7.0`**
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-14.md`](./sprints/sprint-14.md) · [`11`](./11-delight-and-settings.md)
+**Artefakt:** [`sprints/sprint-16.md`](./sprints/sprint-16.md) · [`11`](./11-delight-and-settings.md)
 
 | Must | Inhalt |
 |------|--------|
