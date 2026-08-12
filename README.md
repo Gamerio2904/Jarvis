@@ -11,6 +11,10 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 - **Sprint 4:** `0.2.1` Guard Hardening (Listen/Duzen/Inject/Sticky)
 - **Sprint 5:** `0.2.2` Charakter-Feinschliff (Boilerplate, Kaputt-Pfad)
 - **Sprint 6:** `0.3.0` GUI Premium-Motion (Review)
+- **Sprint 7 (geplant):** `0.3.1` GUI Polish
+- **Sprint 8 (geplant):** `0.4.0` Gedächtnis & Kontext
+
+Planung vertieft: [`docs/10-intelligence-capabilities.md`](docs/10-intelligence-capabilities.md), [`docs/11-delight-and-settings.md`](docs/11-delight-and-settings.md)
 
 ## Schnellstart (Windows / Linux)
 

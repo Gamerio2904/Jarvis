@@ -54,9 +54,10 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review **Sprint 6 / `0.3.0`** → bei OK Tag `v0.3.0`
-2. Parallel ok: Tags `0.1.0`–`0.2.2` nachziehen
-3. Danach: Gedächtnis-Ausbau → `0.4.0`
+1. **Sprint 7 / `0.3.1`** umsetzen (GUI Polish)
+2. **Sprint 8 / `0.4.0`** umsetzen (Gedächtnis & Kontext)
+3. Danach: Delight+Settings `0.5.0` · Router/Research laut `10`/`11`
+4. Parallel ok: Tags/Reviews `0.1.0`–`0.3.0`
 
 ---
 

@@ -19,7 +19,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E4 | Private Access | 2 | Handy-Zugang, Auth, Netz |
 | E5 | Always-On Ops | 3 | NAS, Autostart, Backup |
 | E6 | Voice Out | 4 | TTS-Vorlesen |
-| E7 | Assistant Capabilities | 5+ | Gedächtnis, Tools (später) |
+| E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research, Scores |
+| E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, flaches Settings |
 
 ---
 
@@ -71,6 +72,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S3.4 | Als Nutzer will ich langfristig eine extrem smoothe, moderne Premium-Web-UI. | Should (Gesamtprojekt) | idea | Spotify-Farben + ChatGPT-Layout |
 | S3.5 | Als Nutzer will ich mehrere Chats, eine Liste und „Neues Gespräch“. | Must (Zielbild) | idea | MVP darf schlank sein, Architektur ausbaufähig |
 | S3.6 | Als Nutzer will ich später ein GUI-Update mit premium Motion. | Must (jetzt) | ready | Sprint 6 / `0.3.0` (M1–M6) |
+| S3.9 | Als Nutzer will ich nach `0.3.0` ruhigere/ klarere Motion (Polish). | Must | ready | Sprint 7 / `0.3.1` (P1–P6) |
 | S3.7 | Als Nutzer will ich Antworten gestreamt sehen. | Should | ready | Sprint 3 / `0.2.0` (I2) |
 | S3.8 | Als Nutzer will ich bei Fehlern Retry/klare Meldung. | Should | ready | Sprint 3 / `0.2.0` (I1) |
 
@@ -96,23 +98,41 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S6.1 | Als Nutzer will ich Jarvis’ Textantwort vorlesen lassen. | Won’t (jetzt) | parked | TTS auf PO-Kommando; gleicher Text |
 | S6.2 | Als Nutzer will ich eine Stimme, die zum Charakter passt. | Won’t (jetzt) | parked | PO-Abnahme Stimme |
 
-### E7 — Assistant Capabilities (Won’t im aktuellen Horizont)
+### E7 — Assistant Capabilities
 
-| ID | Story | MoSCoW | Status |
-|----|-------|--------|--------|
-| S7.1 | Langzeitgedächtnis über Sessions | Won’t | parked |
-| S7.2 | Kalender/Mail/Smart-Home-Tools | Won’t | parked |
-| S7.3 | Native Store-App | Won’t | parked |
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S7.1 | Als Nutzer will ich Langzeitgedächtnis über Chats hinweg (edit-/löschbar). | Must | ready | Sprint 8 / `0.4.0` — Details `10` |
+| S7.2 | Als Nutzer will ich, dass lange Chats zusammengefasst werden und den Faden halten. | Must | ready | Sprint 8 / `0.4.0` |
+| S7.3 | Als Dev will ich Kontextkompression statt naiver Truncation. | Must | ready | Sprint 8 / `0.4.0` |
+| S7.4 | Als Nutzer will ich Intent-abhängige Antwort-Policy (Smalltalk vs Task vs Research). | Should | idea | ~`0.5.0` — `10` |
+| S7.5 | Als Nutzer will ich Auto-Model-Routing (Default/Heavy/Fallback). | Should | idea | ~`0.5.0` — `10` |
+| S7.6 | Als PO will ich Persona-/Quality-Scores in Eval/CI. | Should | idea | ab `0.4`, streng `0.5+` — `10` |
+| S7.7 | Als Nutzer will ich opt-in Internet-Research mit Quellen (kein Raten). | Should | idea | `0.6.0+` — `10` |
+| S7.8 | Kalender/Mail/Smart-Home-Tools | Won’t | parked | später |
+| S7.9 | Native Store-App | Won’t | parked | |
+
+### E8 — Delight & Settings
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S8.1 | Als Nutzer will ich seltene Jarvis-Momente (abschaltbar). | Should | idea | `0.5.0` — `11` |
+| S8.2 | Als Nutzer will ich dosierte Inside Jokes aus dem Gedächtnis. | Should | idea | `0.5.0` — `11` |
+| S8.3 | Als Nutzer will ich optionale UI-Sounds. | Could | idea | `0.5.0` — `11` |
+| S8.4 | Als Nutzer will ich Easter-Egg-Commands, gelistet in den Einstellungen. | Should | idea | `0.5.0` — `11` |
+| S8.5 | Als Nutzer will ich ein flaches Settings-Panel (wenig Verschachtelung). | Must | idea | `0.5.0` — `11` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO-Review **Sprint 6 / `0.3.0`** (+ ggf. frühere Tags)
-2. Danach: Gedächtnis `0.4.0`, Phase 2+, NAS `1.0.0`
+1. **Sprint 7 (`0.3.1`)** GUI Polish
+2. **Sprint 8 (`0.4.0`)** Gedächtnis & Kontext
+3. Danach: Delight/Settings `0.5.0` → Router/Scores/Research → Phase 2+ / NAS `1.0.0`
+4. Parallel ok: PO-Reviews/Tags `0.1.0`–`0.3.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 
-- Mehrere Jarvis-„Stimmungen“ / Modi
+- Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)

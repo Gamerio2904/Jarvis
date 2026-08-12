@@ -1,7 +1,6 @@
 # Jarvis — Planungsdokumente
 
-Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.  
-Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, dass Sprint 1 greifbar ist.
+Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 
 ## Lesereihenfolge
 
@@ -12,35 +11,22 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | 03 | [Agiler Prozess (Scrum-lite)](./03-agile-process.md) | Rollen, Sprints, DoR/DoD |
 | 04 | [Roadmap & Phasen](./04-roadmap-phases.md) | Phase 0 → 5+ |
 | 05 | [Product Backlog](./05-product-backlog.md) | Epics & User Stories |
-| 06 | [MVP & Sprint-Plan](./06-mvp-sprint-plan.md) | MVP v0.1, Sprint 0/1 |
+| 06 | [MVP & Sprint-Plan](./06-mvp-sprint-plan.md) | MVP + Sprint-Überblick |
 | 07 | [Persona Jarvis](./07-persona.md) | Charakter, Stil, Beispiele |
 | 08 | [Offene Fragen](./08-open-questions.md) | Restlücken |
 | 09 | [Versionierung](./09-versioning.md) | SemVer, Sprint ↔ Version |
+| 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
+| 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
 
-## Kurzfassung
+Sprints: [`sprints/README.md`](./sprints/README.md)
 
-- **Produkt:** Privater Personal Assistant „Jarvis“ — nur für dich, nicht öffentlich.
-- **Gefühl:** Chat-Mensch (Typ A), Text zuerst.
-- **Technik-Design:** Lokale KI (Variante 3); später NAS für 24/7; TTS später auf Kommando.
-- **Erster Nutzen:** Smalltalk-MVP.
-- **Methode:** Scrum-lite (1-Personen-Produkt + AI-Dev).
+## Status (Kurz)
 
-## Status
+| Sprint | Version | Status |
+|--------|---------|--------|
+| 0 | — | **DONE** |
+| 1–6 | `0.1.0`–`0.3.0` | **READY FOR REVIEW** |
+| 7 | `0.3.1` | **PLANNED** (GUI Polish) |
+| 8 | `0.4.0` | **PLANNED** (Gedächtnis) |
 
-| Bereich | Status |
-|---------|--------|
-| Produktvision | Festgelegt |
-| Architektur-Richtung | Festgelegt (lokal) |
-| Agiler Rahmen | Festgelegt |
-| Persona-Kern | Gesetzt inkl. Stil-Anker; **Anti-Template / Variation Pflicht** |
-| Hardware | Windows / 16 GB / RTX 3060 — **~12 GB** VRAM Standard |
-| Stack / UI | Ollama; Web; **Spotify dunkel** + ChatGPT-Layout; Motion light→GUI-Update |
-| Chat / Memory | Mehr-Chat-Zielbild; MVP In-Chat+Reopen; später **max. Gedächtnis** |
-| Versionen | `0.1.0` = MVP; `0.3.0` = nächstes MINOR (GUI); `1.0.0` = NAS |
-| Sprint 0 | **DONE** |
-| Sprint 1 | **READY FOR REVIEW** → `0.1.0` |
-| Sprint 2 | **READY FOR REVIEW** → `0.1.1` Must-Fixes |
-| Sprint 3 | **READY FOR REVIEW** → `0.2.0` |
-| Sprint 4 | **READY FOR REVIEW** → `0.2.1` Guard Hardening |
-| Sprint 5 | **READY FOR REVIEW** → `0.2.2` Charakter-Feinschliff |
-| Sprint 6 | **READY FOR REVIEW** → `0.3.0` GUI Premium-Motion |
+Nächste Delight/Intelligence-Stufen: `0.5.0` / `0.6.0+` — siehe `10` & `11`.

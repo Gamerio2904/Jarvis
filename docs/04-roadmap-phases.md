@@ -105,11 +105,14 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 
 **Ziel:** Nutzen über Smalltalk hinaus — erst wenn Betrieb + Charakter sitzen.
 
-**Kandidaten (Backlog, nicht zugesagt)**
-- bewusstes Langzeitgedächtnis
-- Tools (Kalender, Notizen, …)
-- Native App nur falls Web+VPN nicht reicht
+**Geplant (siehe Detail-Docs)**
+- Langzeitgedächtnis, Summary, Kontextkompression → **`0.4.0`** ([`10`](./10-intelligence-capabilities.md), Sprint 8)
+- Delight + flaches Settings → **`0.5.0`** ([`11`](./11-delight-and-settings.md))
+- Intent-Router, Model-Routing, Persona-Scores → **`0.5.x` / `0.6.0`**
+- Verlässliche Internet-Research (opt-in, zitiert) → **`0.6.0+`**
+- Tools (Kalender, Notizen, …) / Native App nur falls nötig
 
+**Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---
 
 ## Abhängigkeiten (wichtig)

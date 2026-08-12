@@ -29,7 +29,10 @@ MAJOR.MINOR.PATCH
 | `0.2.1` | **Must-Fixes** nach `0.2.0`-Deep-Test (Listen/Roleplay, Duzen v2, Whole-Reply-Inject, Sticky v2, Eval) | Sprint 4 |
 | `0.2.2` | **Charakter-Fixes** nach `0.2.1`-Deep-Test (Boilerplate hard-refuse, Kaputt-Pfad jarvis-treu) | Sprint 5 |
 | `0.3.0` | **GUI Update** Premium-Motion (Spotify-Dunkel + ChatGPT-Layout, smoother UX) | Sprint 6 |
-| `0.4.0+` | Weitere Etappen (Gedächtnis, Handy, …) | später |
+| `0.3.1` | **GUI Polish** nach `0.3.0`-Test (Gradient/Focus/Backdrop, ruhiger Chat-Wechsel) | Sprint 7 |
+| `0.4.0` | **Gedächtnis & Kontext** (Langzeitgedächtnis v1, Summary, Kompression) | Sprint 8 |
+| `0.5.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | später |
+| `0.5.x` / `0.6.0` | Intent-Router, Model-Routing, härtere Eval-Scores; Research opt-in | später |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele
@@ -38,8 +41,8 @@ MAJOR.MINOR.PATCH
 |---------|----------------------|
 | `0.1.2` | Hotfix-Patch nach `0.1.1`, falls nötig |
 | `0.2.3` | Hotfix-Patch nach `0.2.2`, falls nötig |
-| `0.3.1` | Hotfix-Patch nach `0.3.0`, falls nötig |
-| `0.4.0` | maximal gutes Gedächtnis (Ausbau) |
+| `0.3.2` | Hotfix nach `0.3.1`, falls nötig |
+| `0.4.1` | Memory-Patches nach `0.4.0` |
 
 ## Was wird versioniert?
 

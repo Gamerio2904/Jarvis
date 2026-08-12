@@ -175,7 +175,32 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 | M5 | `prefers-reduced-motion` |
 | M6 | Version `0.3.0` |
 
-**Danach:** Gedächtnis-Ausbau → `0.4.0`
+**Danach:** Polish `0.3.1` → Gedächtnis `0.4.0`
+
+---
+
+## Sprint 7 — GUI Polish → **`0.3.1`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-07.md`](./sprints/sprint-07.md)
+
+| Must | Inhalt |
+|------|--------|
+| P1–P3 | Gradient / Composer-Focus / Backdrop stärker |
+| P4–P5 | Ruhiger Chat-Wechsel, stabiler Stream-Caret |
+| P6 | Version `0.3.1` |
+
+---
+
+## Sprint 8 — Gedächtnis & Kontext → **`0.4.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-08.md`](./sprints/sprint-08.md) · Details: [`10-intelligence-capabilities.md`](./10-intelligence-capabilities.md)
+
+| Must | Inhalt |
+|------|--------|
+| G1–G3 | Summary, Kontextkompression, Langzeitgedächtnis v1 |
+| G4–G6 | Prompt-Pipeline, Eval, Version `0.4.0` |
 
 ---
 
@@ -183,11 +208,12 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
-| Gedächtnis-Ausbau | Maximal gutes Kontext/Gedächtnis | **`0.4.0`** |
+| Delight + Settings | Momente, Jokes, Sound, Eggs, flaches Settings | **`0.5.0`** ([`11`](./11-delight-and-settings.md)) |
+| Intelligence 2 | Intent-Router, Model-Routing, Scores | **`0.5.x` / `0.6.0`** ([`10`](./10-intelligence-capabilities.md)) |
+| Research | Verlässliche Internet-Research (opt-in) | **`0.6.0+`** |
 | Phase 2 | Handy privat (VPN/Auth) | `0.x` vor NAS |
 | Phase 3 | NAS 24/7 | **`1.0.0`** |
 | Phase 4 | TTS-Vorlesen | nach PO-Go |
-| Phase 5+ | Assistenten-Tools | später |
 
 ---
 
