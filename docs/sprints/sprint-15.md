@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Ziel-Version | **`0.6.0`** |
 | Quelle | [`10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) § 7 |
 

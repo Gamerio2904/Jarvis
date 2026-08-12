@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.6.0` — Sprint 15 (Internet-Research) — *READY FOR REVIEW*
+
+- Opt-in Toggle (`research_opt_in`, Settings API + UI), Default aus
+- Retrieval: Wikipedia + DuckDuckGo Allowlist; Mock-Provider für Eval
+- Citation-Synthese / No-source-Refuse; Quellen-Badge + Audit-Log
+- Eval `scripts/eval_0_6_0.py`, Version `0.6.0`
+
 ### `0.5.2` — Sprint 14 (Router Polish) — *READY FOR REVIEW*
 
 - Router-Patterns (`mach mir einen Plan`, Capability-Bait); Extra-Gold ≥5
@@ -70,7 +77,6 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.6.0` | 15 | Internet-Research (opt-in, Citations) |
 | `0.7.0` | 16 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |
 

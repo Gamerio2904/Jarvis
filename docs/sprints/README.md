@@ -19,10 +19,10 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 12 | [`sprint-12.md`](./sprint-12.md) | `0.5.0` | Intent-Router + Memory-Intent | **READY FOR REVIEW** |
 | 13 | [`sprint-13.md`](./sprint-13.md) | `0.5.1` | Router Hotfix | **READY FOR REVIEW** |
 | 14 | [`sprint-14.md`](./sprint-14.md) | `0.5.2` | Router Polish (Should) | **READY FOR REVIEW** |
-| 15 | [`sprint-15.md`](./sprint-15.md) | `0.6.0` | Internet-Research | **PLANNED** |
+| 15 | [`sprint-15.md`](./sprint-15.md) | `0.6.0` | Internet-Research | **READY FOR REVIEW** |
 | 16 | [`sprint-16.md`](./sprint-16.md) | `0.7.0` | Delight + Settings | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** `15 → 16` (nach PO-OK Tags `v0.5.1`/`v0.5.2`).
+**Nächste Pull-Reihenfolge:** `16` (nach PO-OK Tag `v0.6.0`).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

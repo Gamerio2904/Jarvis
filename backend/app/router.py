@@ -141,6 +141,8 @@ class RouteResult:
 
     @property
     def policy_key(self) -> str:
+        if self.intent == "research" and not self.research_blocked:
+            return "research.live"
         if self.intent == "memory" and self.memory_sub != "none":
             return self.memory_sub
         return self.intent

@@ -150,6 +150,93 @@ textarea {
   text-align: right;
 }
 
+.settings-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(29, 185, 84, 0.06), transparent);
+}
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  color: var(--text);
+}
+
+.settings-toggle input {
+  accent-color: var(--accent);
+  width: 1rem;
+  height: 1rem;
+}
+
+.settings-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.audit-toggle {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.78rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.audit-toggle.active,
+.audit-toggle:hover {
+  color: var(--accent);
+}
+
+.audit-panel {
+  max-height: 160px;
+  overflow: auto;
+}
+
+.audit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.audit-list li {
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+
+.audit-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.audit-query {
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+
+.audit-sources {
+  font-size: 0.7rem;
+  color: var(--accent);
+}
+
 .memory-panel {
   display: flex;
   flex-direction: column;
@@ -465,6 +552,77 @@ textarea {
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.bubble-text {
+  white-space: pre-wrap;
+}
+
+.sources-block {
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  white-space: normal;
+}
+
+.sources-block summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  list-style: none;
+}
+
+.sources-block summary::-webkit-details-marker {
+  display: none;
+}
+
+.sources-badge {
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: #0b1f12;
+  background: linear-gradient(120deg, #1ed760, #169c46);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.sources-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.sources-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sources-list a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.sources-list a:hover {
+  text-decoration: underline;
+}
+
+.sources-list p {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.sources-privacy {
+  margin: 8px 0 0;
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 .row.assistant .bubble {

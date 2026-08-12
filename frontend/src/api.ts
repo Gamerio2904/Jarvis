@@ -5,12 +5,36 @@ export type Conversation = {
   updated_at: string
 }
 
+export type ResearchSource = {
+  title: string
+  url: string
+  snippet: string
+  provider: string
+  retrieved_at: string
+}
+
+export type ResearchMeta = {
+  used?: boolean
+  status?: string
+  query?: string
+  sources?: ResearchSource[]
+  error?: string | null
+  diverges?: boolean
+  privacy_note?: string | null
+  badge?: string | null
+  audit_id?: string
+  network_attempted?: boolean
+}
+
 export type Message = {
   id: string
   conversation_id: string
   role: 'user' | 'assistant' | string
   content: string
   created_at: string
+  meta?: {
+    research?: ResearchMeta
+  } | null
 }
 
 export type Health = {
@@ -24,7 +48,31 @@ export type Health = {
   warning?: string | null
   version?: string
   memory_count?: number
+  research_opt_in?: boolean
   error?: string
+}
+
+export type Settings = {
+  research_opt_in: boolean
+  research_providers: string[]
+  research_allowlist: string[]
+  research_timeout_sec: number
+  research_max_sources: number
+  routing_mode: string
+  model_default?: string
+  model_heavy?: string
+  fallback_model?: string
+}
+
+export type ResearchAudit = {
+  id: string
+  conversation_id?: string | null
+  message_id?: string | null
+  query: string
+  status: string
+  sources: ResearchSource[]
+  error?: string | null
+  created_at: string
 }
 
 export type MemoryItem = {
@@ -52,6 +100,30 @@ async function parseError(res: Response): Promise<string> {
 
 export async function getHealth(): Promise<Health> {
   const res = await fetch('/api/health')
+  return res.json()
+}
+
+export async function getSettings(): Promise<Settings> {
+  const res = await fetch('/api/settings')
+  if (!res.ok) throw new Error(await parseError(res))
+  return res.json()
+}
+
+export async function patchSettings(
+  patch: Partial<Pick<Settings, 'research_opt_in'>>,
+): Promise<Settings> {
+  const res = await fetch('/api/settings', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  })
+  if (!res.ok) throw new Error(await parseError(res))
+  return res.json()
+}
+
+export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
+  const res = await fetch(`/api/research/audits?limit=${limit}`)
+  if (!res.ok) throw new Error(await parseError(res))
   return res.json()
 }
 
@@ -119,6 +191,7 @@ export async function sendChat(id: string, content: string) {
     assistant_message: Message
     using_fallback?: boolean
     model?: string
+    research?: ResearchMeta | null
   }>
 }
 
@@ -127,6 +200,7 @@ export type StreamHandlers = {
     user_message: Message
     model: string
     using_fallback: boolean
+    research?: ResearchMeta | null
   }) => void
   onToken?: (token: string) => void
   onReplace?: (content: string) => void
@@ -135,6 +209,7 @@ export type StreamHandlers = {
     assistant_message: Message
     conversation: Conversation
     guarded?: boolean
+    research?: ResearchMeta | null
   }) => void
   onError?: (detail: string) => void
 }

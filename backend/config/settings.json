@@ -6,6 +6,19 @@
   "fallback_model": "qwen2.5:3b",
   "routing_mode": "auto",
   "research_opt_in": false,
+  "research_providers": [
+    "wikipedia",
+    "duckduckgo"
+  ],
+  "research_allowlist": [
+    "wikipedia.org",
+    "de.wikipedia.org",
+    "en.wikipedia.org",
+    "duckduckgo.com",
+    "api.duckduckgo.com"
+  ],
+  "research_timeout_sec": 8,
+  "research_max_sources": 5,
   "temperature": 0.72,
   "top_p": 0.88,
   "repeat_penalty": 1.18,

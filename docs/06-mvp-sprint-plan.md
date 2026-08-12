@@ -291,7 +291,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 15 — Verlässliche Internet-Research → **`0.6.0`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-15.md`](./sprints/sprint-15.md) · [`10`](./10-intelligence-capabilities.md)
 
 | Must | Inhalt |

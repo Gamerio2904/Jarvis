@@ -79,9 +79,44 @@ def init_db() -> None:
         _ensure_column(conn, "conversations", "summary_upto_message_id", "TEXT")
         _ensure_column(conn, "conversations", "summary_message_count", "INTEGER DEFAULT 0")
         _ensure_column(conn, "memory_items", "expires_at", "TEXT")
+        _ensure_column(conn, "messages", "meta_json", "TEXT")
+        conn.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS research_audits (
+                id TEXT PRIMARY KEY,
+                conversation_id TEXT,
+                message_id TEXT,
+                query TEXT NOT NULL,
+                status TEXT NOT NULL,
+                sources_json TEXT NOT NULL,
+                error TEXT,
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_research_audits_created
+                ON research_audits(created_at DESC);
+            """
+        )
         conn.commit()
     finally:
         conn.close()
+
+
+def save_settings(patch: dict[str, Any]) -> dict[str, Any]:
+    """Merge patch into settings.json (only known top-level keys overwritten)."""
+    path = CONFIG_DIR / "settings.json"
+    current = load_settings()
+    allowed = set(current.keys()) | {
+        "research_opt_in",
+        "research_providers",
+        "research_allowlist",
+        "research_timeout_sec",
+        "research_max_sources",
+    }
+    for k, v in patch.items():
+        if k in allowed:
+            current[k] = v
+    path.write_text(json.dumps(current, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return current
 
 
 def list_conversations() -> list[dict[str, Any]]:
@@ -202,37 +237,59 @@ def update_conversation_summary(
         conn.close()
 
 
+def _parse_meta(raw: str | None) -> dict[str, Any] | None:
+    if not raw:
+        return None
+    try:
+        data = json.loads(raw)
+        return data if isinstance(data, dict) else None
+    except json.JSONDecodeError:
+        return None
+
+
 def list_messages(conversation_id: str) -> list[dict[str, Any]]:
     conn = get_conn()
     try:
         rows = conn.execute(
             """
-            SELECT id, conversation_id, role, content, created_at
+            SELECT id, conversation_id, role, content, created_at, meta_json
             FROM messages
             WHERE conversation_id = ?
             ORDER BY created_at ASC
             """,
             (conversation_id,),
         ).fetchall()
-        return [dict(r) for r in rows]
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            item = dict(r)
+            item["meta"] = _parse_meta(item.pop("meta_json", None))
+            out.append(item)
+        return out
     finally:
         conn.close()
 
 
-def add_message(conversation_id: str, role: str, content: str) -> dict[str, Any]:
+def add_message(
+    conversation_id: str,
+    role: str,
+    content: str,
+    *,
+    meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     item = {
         "id": str(uuid.uuid4()),
         "conversation_id": conversation_id,
         "role": role,
         "content": content,
         "created_at": utc_now(),
+        "meta_json": json.dumps(meta, ensure_ascii=False) if meta else None,
     }
     conn = get_conn()
     try:
         conn.execute(
             """
-            INSERT INTO messages (id, conversation_id, role, content, created_at)
-            VALUES (:id, :conversation_id, :role, :content, :created_at)
+            INSERT INTO messages (id, conversation_id, role, content, created_at, meta_json)
+            VALUES (:id, :conversation_id, :role, :content, :created_at, :meta_json)
             """,
             item,
         )
@@ -240,7 +297,9 @@ def add_message(conversation_id: str, role: str, content: str) -> dict[str, Any]
     finally:
         conn.close()
     touch_conversation(conversation_id)
-    return item
+    public = {k: v for k, v in item.items() if k != "meta_json"}
+    public["meta"] = meta
+    return public
 
 
 def maybe_set_title_from_first_message(conversation_id: str, content: str) -> None:
@@ -266,9 +325,102 @@ def delete_conversation(conversation_id: str) -> bool:
         if not exists:
             return False
         conn.execute("DELETE FROM messages WHERE conversation_id = ?", (conversation_id,))
+        conn.execute(
+            "DELETE FROM research_audits WHERE conversation_id = ?", (conversation_id,)
+        )
         conn.execute("DELETE FROM conversations WHERE id = ?", (conversation_id,))
         conn.commit()
         return True
+    finally:
+        conn.close()
+
+
+def add_research_audit(
+    *,
+    conversation_id: str | None,
+    message_id: str | None,
+    query: str,
+    status: str,
+    sources: list[dict[str, Any]],
+    error: str | None = None,
+) -> dict[str, Any]:
+    item = {
+        "id": str(uuid.uuid4()),
+        "conversation_id": conversation_id,
+        "message_id": message_id,
+        "query": query,
+        "status": status,
+        "sources_json": json.dumps(sources, ensure_ascii=False),
+        "error": error,
+        "created_at": utc_now(),
+    }
+    conn = get_conn()
+    try:
+        conn.execute(
+            """
+            INSERT INTO research_audits
+            (id, conversation_id, message_id, query, status, sources_json, error, created_at)
+            VALUES
+            (:id, :conversation_id, :message_id, :query, :status, :sources_json, :error, :created_at)
+            """,
+            item,
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    public = dict(item)
+    public["sources"] = sources
+    del public["sources_json"]
+    return public
+
+
+def list_research_audits(limit: int = 50) -> list[dict[str, Any]]:
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            """
+            SELECT id, conversation_id, message_id, query, status,
+                   sources_json, error, created_at
+            FROM research_audits
+            ORDER BY created_at DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            item = dict(r)
+            try:
+                item["sources"] = json.loads(item.pop("sources_json") or "[]")
+            except json.JSONDecodeError:
+                item["sources"] = []
+                item.pop("sources_json", None)
+            out.append(item)
+        return out
+    finally:
+        conn.close()
+
+
+def get_research_audit(audit_id: str) -> dict[str, Any] | None:
+    conn = get_conn()
+    try:
+        row = conn.execute(
+            """
+            SELECT id, conversation_id, message_id, query, status,
+                   sources_json, error, created_at
+            FROM research_audits WHERE id = ?
+            """,
+            (audit_id,),
+        ).fetchone()
+        if not row:
+            return None
+        item = dict(row)
+        try:
+            item["sources"] = json.loads(item.pop("sources_json") or "[]")
+        except json.JSONDecodeError:
+            item["sources"] = []
+            item.pop("sources_json", None)
+        return item
     finally:
         conn.close()
 

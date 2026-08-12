@@ -65,6 +65,18 @@ _POLICIES: dict[str, Policy] = {
         prefer_heavy=True,
         block_network=True,
     ),
+    "research.live": Policy(
+        key="research.live",
+        system_nudge=(
+            "Policy research.live: Opt-in aktiv. Synthese nur aus Research-Snippets im "
+            "Systemprompt. Jede harte Aussage mit [n] belegen. Keine Claims ohne Beleg. "
+            "Kein Helpdesk. Am Ende Quellenliste."
+        ),
+        num_predict=320,
+        temperature=0.4,
+        prefer_heavy=True,
+        block_network=False,
+    ),
     "settings": Policy(
         key="settings",
         system_nudge=(

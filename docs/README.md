@@ -33,7 +33,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 12 | `0.5.0` | **READY FOR REVIEW** (Router + Memory-Intent) |
 | 13 | `0.5.1` | **READY FOR REVIEW** (Router Hotfix) |
 | 14 | `0.5.2` | **READY FOR REVIEW** (Router Polish) |
-| 15 | `0.6.0` | **PLANNED** (Internet-Research) |
+| 15 | `0.6.0` | **READY FOR REVIEW** (Internet-Research) |
 | 16 | `0.7.0` | **PLANNED** (Delight + Settings) |
 
-**Nächste Umsetzung:** Sprint 15 → 16 (nach PO-Review 13/14).
+**Nächste Umsetzung:** Sprint 16 (nach PO-Review 15).

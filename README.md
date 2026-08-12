@@ -13,7 +13,7 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 - **Sprint 12:** `0.5.0` Router + Memory-Intent (Review)
 - **Sprint 13:** `0.5.1` Router Hotfix (Review; mitgeliefert in `0.5.2`)
 - **Sprint 14:** `0.5.2` Router Polish (Review)
-- **Sprint 15 (geplant):** `0.6.0` Internet-Research
+- **Sprint 15:** `0.6.0` Internet-Research (Review)
 - **Sprint 16 (geplant):** `0.7.0` Delight + Settings
 
 Planung: [`docs/sprints/README.md`](docs/sprints/README.md) · [`docs/10-intelligence-capabilities.md`](docs/10-intelligence-capabilities.md)

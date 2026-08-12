@@ -6,19 +6,53 @@ import {
   deleteMemoryItem,
   getConversation,
   getHealth,
+  getSettings,
   listConversations,
   listMemory,
+  listResearchAudits,
+  patchSettings,
   streamChat,
   type Conversation,
   type Health,
   type MemoryCategory,
   type MemoryItem,
   type Message,
+  type ResearchAudit,
+  type ResearchMeta,
+  type Settings,
 } from './api'
 import './index.css'
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+function SourcesBlock({ research }: { research: ResearchMeta }) {
+  const sources = research.sources || []
+  if (!sources.length) return null
+  return (
+    <details className="sources-block">
+      <summary>
+        <span className="sources-badge">{research.badge || 'Mit Quellen'}</span>
+        <span className="sources-count">
+          {sources.length} Quelle{sources.length === 1 ? '' : 'n'}
+        </span>
+      </summary>
+      <ul className="sources-list">
+        {sources.map((s, i) => (
+          <li key={`${s.url}-${i}`}>
+            <a href={s.url} target="_blank" rel="noreferrer">
+              [{i + 1}] {s.title}
+            </a>
+            <p>{s.snippet}</p>
+          </li>
+        ))}
+      </ul>
+      {research.privacy_note ? (
+        <p className="sources-privacy">{research.privacy_note}</p>
+      ) : null}
+    </details>
+  )
 }
 
 function App() {
@@ -40,6 +74,11 @@ function App() {
   const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([])
   const [memoryBusy, setMemoryBusy] = useState(false)
   const [memoryFilter, setMemoryFilter] = useState<MemoryCategory | 'all'>('all')
+  const [settings, setSettings] = useState<Settings | null>(null)
+  const [settingsBusy, setSettingsBusy] = useState(false)
+  const [auditOpen, setAuditOpen] = useState(false)
+  const [audits, setAudits] = useState<ResearchAudit[]>([])
+  const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -94,8 +133,39 @@ function App() {
     }
   }
 
+  async function refreshSettings() {
+    try {
+      setSettings(await getSettings())
+    } catch {
+      /* ignore */
+    }
+  }
+
+  async function refreshAudits() {
+    try {
+      setAudits(await listResearchAudits(20))
+    } catch {
+      setAudits([])
+    }
+  }
+
+  async function onToggleResearch(next: boolean) {
+    if (settingsBusy) return
+    setSettingsBusy(true)
+    try {
+      const updated = await patchSettings({ research_opt_in: next })
+      setSettings(updated)
+      void refreshHealth()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Settings speichern fehlgeschlagen')
+    } finally {
+      setSettingsBusy(false)
+    }
+  }
+
   async function bootstrap() {
     await refreshHealth()
+    await refreshSettings()
     await refreshMemory()
     const list = await listConversations()
     setConversations(list)
@@ -193,6 +263,7 @@ function App() {
     setLastFailed(null)
     setStatusNote(null)
     setStreamingText('')
+    setStreamResearch(null)
     stickToBottomRef.current = true
 
     let conversationId = activeId
@@ -222,6 +293,7 @@ function App() {
             const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
             return [...withoutTmp, meta.user_message]
           })
+          if (meta.research) setStreamResearch(meta.research)
           if (meta.using_fallback) {
             setStatusNote(`Fallback-Modell aktiv: ${meta.model}`)
           }
@@ -241,13 +313,19 @@ function App() {
         },
         onDone: (payload) => {
           setStreamingText(null)
+          setStreamResearch(null)
           markEnter(payload.assistant_message.id)
-          setMessages((prev) => [...prev, payload.assistant_message])
+          const msg = payload.assistant_message
+          if (payload.research && !msg.meta?.research) {
+            msg.meta = { ...(msg.meta || {}), research: payload.research }
+          }
+          setMessages((prev) => [...prev, msg])
           setConversations((prev) => {
             const rest = prev.filter((c) => c.id !== payload.conversation.id)
             return [payload.conversation, ...rest]
           })
           setStatusNote(null)
+          if (payload.research) void refreshAudits()
         },
         onError: (detail) => {
           setError(detail)
@@ -264,6 +342,7 @@ function App() {
       textareaRef.current?.focus()
       void refreshHealth()
       void refreshMemory()
+      void refreshSettings()
     }
   }
 
@@ -305,13 +384,58 @@ function App() {
           <div className="brand-mark" />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.5.2</p>
+            <p>lokal · privat · v0.6.0</p>
           </div>
         </div>
 
         <button className="new-chat" type="button" onClick={() => void onNewChat()}>
           + Neues Gespräch
         </button>
+
+        <div className="settings-strip">
+          <label className="settings-toggle">
+            <input
+              type="checkbox"
+              checked={Boolean(settings?.research_opt_in)}
+              disabled={settingsBusy}
+              onChange={(e) => void onToggleResearch(e.target.checked)}
+            />
+            <span>Internet-Research (Opt-in)</span>
+          </label>
+          <p className="settings-hint">
+            Default aus. Nur minimierte Query geht raus — kein Chat-Verlauf.
+          </p>
+          <button
+            type="button"
+            className={`audit-toggle ${auditOpen ? 'active' : ''}`}
+            onClick={() => {
+              setAuditOpen((o) => !o)
+              void refreshAudits()
+            }}
+          >
+            Research-Audit
+          </button>
+          {auditOpen ? (
+            <div className="audit-panel">
+              {audits.length === 0 ? (
+                <p className="memory-empty">Noch keine Research-Turns.</p>
+              ) : (
+                <ul className="audit-list">
+                  {audits.map((a) => (
+                    <li key={a.id}>
+                      <div className="audit-meta">
+                        <span>{a.status}</span>
+                        <time>{new Date(a.created_at).toLocaleString()}</time>
+                      </div>
+                      <div className="audit-query">{a.query}</div>
+                      <div className="audit-sources">{a.sources?.length || 0} Quellen</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null}
+        </div>
 
         <button
           className={`memory-toggle ${memoryOpen ? 'active' : ''}`}
@@ -480,7 +604,12 @@ function App() {
                   {m.role === 'assistant' ? (
                     <div className="avatar jarvis">J</div>
                   ) : null}
-                  <div className="bubble">{m.content}</div>
+                  <div className="bubble">
+                    <div className="bubble-text">{m.content}</div>
+                    {m.role === 'assistant' && m.meta?.research?.sources?.length ? (
+                      <SourcesBlock research={m.meta.research} />
+                    ) : null}
+                  </div>
                 </div>
               )
             })}
@@ -491,8 +620,13 @@ function App() {
                 <div className="bubble">
                   {streamingText ? (
                     <>
-                      {streamingText}
-                      <span className="stream-caret" aria-hidden />
+                      <div className="bubble-text">
+                        {streamingText}
+                        <span className="stream-caret" aria-hidden />
+                      </div>
+                      {streamResearch?.sources?.length ? (
+                        <SourcesBlock research={streamResearch} />
+                      ) : null}
                     </>
                   ) : (
                     <div className="typing" aria-label="Jarvis schreibt">

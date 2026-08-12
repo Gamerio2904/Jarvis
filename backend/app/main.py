@@ -13,6 +13,7 @@ from . import context as ctx
 from . import db
 from . import memory as memory_mod
 from . import policy as policy_mod
+from . import research as research_mod
 from . import router as router_mod
 from .guards import (
     SAFE_DEGENERATE,
@@ -40,8 +41,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.5.2")
-APP_VERSION = "0.5.2"
+app = FastAPI(title="Jarvis API", version="0.6.0")
+APP_VERSION = "0.6.0"
 
 app.add_middleware(
     CORSMiddleware,
@@ -102,6 +103,15 @@ class MemoryCreateBody(BaseModel):
     key: str = Field(min_length=1, max_length=80)
     value: str = Field(min_length=1, max_length=500)
     category: str = "fact"
+
+
+class SettingsPatchBody(BaseModel):
+    research_opt_in: bool | None = None
+    research_providers: list[str] | None = None
+    research_allowlist: list[str] | None = None
+    research_timeout_sec: float | None = None
+    research_max_sources: int | None = None
+    routing_mode: str | None = None
 
 
 @app.on_event("startup")
@@ -173,13 +183,25 @@ def _prepare_chat_context(
     user_text: str,
     settings: dict[str, Any],
     persona: str,
-) -> tuple[str, list[dict[str, str]], list[str], str, dict[str, Any], policy_mod.Policy]:
-    """Returns system, messages, notes, memory_op, route_debug, policy."""
+) -> tuple[
+    str,
+    list[dict[str, str]],
+    list[str],
+    str,
+    dict[str, Any],
+    policy_mod.Policy,
+    research_mod.ResearchPack | None,
+]:
+    """Returns system, messages, notes, memory_op, route_debug, policy, research_pack."""
     route = router_mod.classify(
         user_text,
         research_opt_in=bool(settings.get("research_opt_in", False)),
     )
     policy = policy_mod.get_policy(route.policy_key)
+
+    research_pack: research_mod.ResearchPack | None = None
+    if route.intent == "research":
+        research_pack = research_mod.retrieve(user_text, settings)
 
     mem_op, notes = memory_mod.apply_explicit_memory_commands(
         user_text, conversation_id=conversation_id
@@ -194,8 +216,13 @@ def _prepare_chat_context(
     )
 
     mem_limit = int(settings.get("memory_retrieve_limit", 8))
-    # Smalltalk / inject: no ambient leak (even if tokens overlap)
-    allow_retrieve = route.intent not in {"smalltalk", "inject", "helpdesk_trap"}
+    # Smalltalk / inject / research: no ambient memory leak
+    allow_retrieve = route.intent not in {
+        "smalltalk",
+        "inject",
+        "helpdesk_trap",
+        "research",
+    }
     if route.memory_sub == "memory.recall":
         allow_retrieve = True
     items: list[dict[str, Any]] = []
@@ -215,7 +242,7 @@ def _prepare_chat_context(
         mem_op = "recall"
         notes = [f"Recall: {it['key']} = {it['value']}" for it in items[:4]]
 
-    if route.research_blocked:
+    if research_pack and research_pack.status == "blocked":
         notes = [
             *notes,
             "Research ohne Opt-in — kein Netzaufruf. Nur lokales Wissen.",
@@ -231,12 +258,22 @@ def _prepare_chat_context(
         memory_notes=notes or None,
     )
     system = policy_mod.append_policy_to_system(system, policy)
+    if research_pack and research_pack.status == "ok" and research_pack.sources:
+        system = system.rstrip() + "\n\n" + research_mod.research_system_nudge(research_pack)
 
     history = db.list_messages(conversation_id)
     last_k = int(settings.get("context_last_k", 16))
     max_ctx = int(settings.get("max_context_messages", last_k))
     llm_messages = ctx.pack_messages(history, last_k=min(last_k, max_ctx))
-    return system, llm_messages, notes, mem_op, router_mod.route_debug_dict(route), policy
+    return (
+        system,
+        llm_messages,
+        notes,
+        mem_op,
+        router_mod.route_debug_dict(route),
+        policy,
+        research_pack,
+    )
 
 
 def _finalize_turn_reply(
@@ -282,12 +319,9 @@ def _finalize_turn_reply(
         if "?" not in cleaned:
             return memory_mod.ack_reply_for_clarify(memory_notes)
         return cleaned
-    # Research without opt-in: always refuse net claims (no research tool yet).
+    # Research without opt-in: always refuse net claims.
     if any("Research ohne Opt-in" in n for n in memory_notes):
-        return (
-            "Research-Opt-in ist aus — kein Netz. "
-            "Nur lokales Wissen geht. Opt-in später in den Settings."
-        )
+        return research_mod.SAFE_RESEARCH_OFF
     # Weak / unclear remember → never false-confirm
     if any("Nichts gespeichert" in n for n in memory_notes):
         if memory_mod.looks_like_false_memory_confirm(reply) or is_bad_memory_canned(reply):
@@ -307,6 +341,71 @@ def _finalize_turn_reply(
         if intent == "inject":
             return SAFE_INJECT
     return reply
+
+
+def _research_public(
+    pack: research_mod.ResearchPack | None,
+    *,
+    audit_id: str | None = None,
+) -> dict[str, Any] | None:
+    if pack is None:
+        return None
+    data = pack.to_public()
+    if audit_id:
+        data["audit_id"] = audit_id
+    return data
+
+
+def _persist_research_audit(
+    *,
+    pack: research_mod.ResearchPack,
+    conversation_id: str,
+    message_id: str | None,
+) -> dict[str, Any]:
+    return db.add_research_audit(
+        conversation_id=conversation_id,
+        message_id=message_id,
+        query=pack.query,
+        status=pack.status,
+        sources=[s.to_dict() for s in pack.sources],
+        error=pack.error,
+    )
+
+
+async def _resolve_research_reply(
+    *,
+    pack: research_mod.ResearchPack,
+    settings: dict[str, Any],
+    system: str,
+    model: str,
+    llm_messages: list[dict[str, str]],
+    recent_assistant: list[str],
+    user_text: str,
+) -> str:
+    """Citation-required research reply; refuse without sources; no LLM when empty."""
+    if pack.status == "blocked":
+        return research_mod.SAFE_RESEARCH_OFF
+    if pack.status != "ok" or not pack.sources:
+        return research_mod.synthesize_from_snippets(pack)
+
+    base = research_mod.synthesize_from_snippets(pack)
+    providers = [str(p).lower() for p in (settings.get("research_providers") or [])]
+    # Offline/mock providers: deterministic citations only (eval-stable, no LLM drift)
+    if providers and all(p in {"mock", "empty"} for p in providers):
+        return base
+
+    try:
+        kwargs = _completion_kwargs(settings, model, system)
+        reply = await chat_completion(**kwargs, messages=llm_messages)
+        reply = force_strict_refuse_if_needed(
+            reply,
+            recent_assistant,
+            user_text=user_text,
+            intent="research",
+        )
+        return research_mod.finalize_research_reply(reply, pack)
+    except OllamaError:
+        return base
 
 
 # Back-compat alias used in stream path historically
@@ -487,6 +586,44 @@ def api_clear_memory() -> dict[str, Any]:
     return {"ok": True, "deleted": n}
 
 
+@app.get("/api/settings")
+def api_get_settings() -> dict[str, Any]:
+    s = db.load_settings()
+    return {
+        "research_opt_in": bool(s.get("research_opt_in", False)),
+        "research_providers": list(s.get("research_providers") or []),
+        "research_allowlist": list(s.get("research_allowlist") or []),
+        "research_timeout_sec": float(s.get("research_timeout_sec", 8)),
+        "research_max_sources": int(s.get("research_max_sources", 5)),
+        "routing_mode": s.get("routing_mode", "auto"),
+        "model_default": s.get("model_default") or s.get("model"),
+        "model_heavy": s.get("model_heavy"),
+        "fallback_model": s.get("fallback_model"),
+    }
+
+
+@app.patch("/api/settings")
+def api_patch_settings(body: SettingsPatchBody) -> dict[str, Any]:
+    patch = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not patch:
+        return api_get_settings()
+    db.save_settings(patch)
+    return api_get_settings()
+
+
+@app.get("/api/research/audits")
+def api_list_research_audits(limit: int = Query(default=50, ge=1, le=200)) -> list[dict[str, Any]]:
+    return db.list_research_audits(limit=limit)
+
+
+@app.get("/api/research/audits/{audit_id}")
+def api_get_research_audit(audit_id: str) -> dict[str, Any]:
+    item = db.get_research_audit(audit_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Audit nicht gefunden.")
+    return item
+
+
 @app.get("/api/conversations")
 def api_list_conversations() -> list[dict[str, Any]]:
     return db.list_conversations()
@@ -530,7 +667,15 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
     user_msg = db.add_message(conversation_id, "user", content)
     db.maybe_set_title_from_first_message(conversation_id, content)
 
-    system, llm_messages, mem_notes, mem_op, route_dbg, policy = _prepare_chat_context(
+    (
+        system,
+        llm_messages,
+        mem_notes,
+        mem_op,
+        route_dbg,
+        policy,
+        research_pack,
+    ) = _prepare_chat_context(
         conversation_id=conversation_id,
         user_text=content,
         settings=settings,
@@ -542,21 +687,55 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
         model, used_fallback, _names, routing_mode = await _resolve_runtime_model(
             settings, prefer_heavy=policy.prefer_heavy
         )
-        reply = await _generate_reply(
-            settings=settings,
-            system=system,
-            model=model,
-            llm_messages=llm_messages,
-            recent_assistant=recent,
-            user_text=content,
-            memory_op=mem_op,
-            memory_notes=mem_notes,
-            intent=route_dbg.get("intent"),
-        )
+        if research_pack is not None and route_dbg.get("intent") == "research":
+            reply = await _resolve_research_reply(
+                pack=research_pack,
+                settings=settings,
+                system=system,
+                model=model,
+                llm_messages=llm_messages,
+                recent_assistant=recent,
+                user_text=content,
+            )
+        else:
+            reply = await _generate_reply(
+                settings=settings,
+                system=system,
+                model=model,
+                llm_messages=llm_messages,
+                recent_assistant=recent,
+                user_text=content,
+                memory_op=mem_op,
+                memory_notes=mem_notes,
+                intent=route_dbg.get("intent"),
+            )
     except OllamaError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-    assistant_msg = db.add_message(conversation_id, "assistant", reply)
+    research_meta = None
+    audit_id = None
+    if research_pack is not None:
+        research_meta = {
+            "research": research_pack.to_public(),
+        }
+    assistant_msg = db.add_message(
+        conversation_id, "assistant", reply, meta=research_meta
+    )
+    if research_pack is not None:
+        audit = _persist_research_audit(
+            pack=research_pack,
+            conversation_id=conversation_id,
+            message_id=assistant_msg["id"],
+        )
+        audit_id = audit["id"]
+        if research_meta and isinstance(research_meta.get("research"), dict):
+            research_meta["research"]["audit_id"] = audit_id
+            # refresh stored meta with audit id
+            assistant_msg = {
+                **assistant_msg,
+                "meta": research_meta,
+            }
+
     try:
         await _maybe_refresh_summary(
             conversation_id=conversation_id,
@@ -577,6 +756,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
         "memory_notes": mem_notes,
         "memory_op": mem_op,
         "route": route_dbg,
+        "research": _research_public(research_pack, audit_id=audit_id),
     }
 
 
@@ -596,7 +776,15 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
     user_msg = db.add_message(conversation_id, "user", content)
     db.maybe_set_title_from_first_message(conversation_id, content)
 
-    system, llm_messages, mem_notes, mem_op, route_dbg, policy = _prepare_chat_context(
+    (
+        system,
+        llm_messages,
+        mem_notes,
+        mem_op,
+        route_dbg,
+        policy,
+        research_pack,
+    ) = _prepare_chat_context(
         conversation_id=conversation_id,
         user_text=content,
         settings=settings,
@@ -629,6 +817,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 "memory_notes": mem_notes,
                 "memory_op": mem_op,
                 "route": route_dbg,
+                "research": _research_public(research_pack),
             }
         )
 
@@ -645,6 +834,42 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                     "guarded": True,
                     "memory_op": mem_op,
                     "route": route_dbg,
+                }
+            )
+            return
+
+        if intent == "research" and research_pack is not None:
+            final = await _resolve_research_reply(
+                pack=research_pack,
+                settings=settings,
+                system=system,
+                model=model,
+                llm_messages=llm_messages,
+                recent_assistant=recent,
+                user_text=content,
+            )
+            yield sse({"type": "replace", "content": final})
+            research_meta = {"research": research_pack.to_public()}
+            saved = db.add_message(
+                conversation_id, "assistant", final, meta=research_meta
+            )
+            audit = _persist_research_audit(
+                pack=research_pack,
+                conversation_id=conversation_id,
+                message_id=saved["id"],
+            )
+            research_meta["research"]["audit_id"] = audit["id"]
+            saved = {**saved, "meta": research_meta}
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": is_guarded_canned(final),
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                    "research": _research_public(research_pack, audit_id=audit["id"]),
                 }
             )
             return
