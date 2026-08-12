@@ -148,8 +148,11 @@ def harvest_soft_facts(
     user_text: str,
     *,
     conversation_id: str,
+    skip: bool = False,
 ) -> None:
     """Capture clear preference patterns even without 'merk dir'."""
+    if skip:
+        return
     m = _LIEBLINGS_RE.search(user_text)
     if m:
         kind = m.group(1).strip().lower()

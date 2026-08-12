@@ -125,7 +125,11 @@ def _prepare_chat_context(
     notes = memory_mod.apply_explicit_memory_commands(
         user_text, conversation_id=conversation_id
     )
-    memory_mod.harvest_soft_facts(user_text, conversation_id=conversation_id)
+    memory_mod.harvest_soft_facts(
+        user_text,
+        conversation_id=conversation_id,
+        skip=bool(notes),
+    )
 
     mem_limit = int(settings.get("memory_retrieve_limit", 8))
     items = memory_mod.retrieve_relevant(user_text, limit=mem_limit)
