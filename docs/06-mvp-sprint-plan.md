@@ -190,7 +190,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 | P4–P5 | Ruhiger Chat-Wechsel, stabiler Stream-Caret |
 | P6 | Version `0.3.1` |
 
-**Danach:** Gedächtnis `0.4.0` → … → Router `0.5.0` → Hotfix `0.5.1` → Polish `0.5.2`
+**Danach:** Gedächtnis `0.4.0` → … → Router `0.5.0` → Hotfix `0.5.1` → Polish `0.5.2` → Research `0.6.0` → Hotfix `0.6.1` → Polish `0.6.2`
 
 ---
 
@@ -301,10 +301,35 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 16 — Delight & Settings → **`0.7.0`**
+## Sprint 16 — Research Hotfix → **`0.6.1`** *(prio)*
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-16.md`](./sprints/sprint-16.md) · [`11`](./11-delight-and-settings.md)
+**Artefakt:** [`sprints/sprint-16.md`](./sprints/sprint-16.md)
+
+| Must | Inhalt |
+|------|--------|
+| H1–H3 | Query-PII-Sanitizer, Noise-Strip, Topic-Extraktion |
+| H4 | Settings-Default-Hygiene |
+| H5 | Eval + Version `0.6.1` |
+
+---
+
+## Sprint 17 — Research Polish → **`0.6.2`** *(Should)*
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-17.md`](./sprints/sprint-17.md)
+
+| Should | Inhalt |
+|--------|--------|
+| P1–P3 | Research-Persona; Dual-Provider/DDG-Qualität |
+| P4–P5 | Deep-Scorecard; Eval + Version `0.6.2` |
+
+---
+
+## Sprint 18 — Delight & Settings → **`0.7.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-18.md`](./sprints/sprint-18.md) · [`11`](./11-delight-and-settings.md)
 
 | Must | Inhalt |
 |------|--------|

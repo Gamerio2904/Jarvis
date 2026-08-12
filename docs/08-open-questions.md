@@ -55,8 +55,10 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 ## Nächster Schritt
 
 1. PO-Review Sprint 8–15 (`0.4.0`–`0.6.0`) → Tags bei OK
-2. **Sprint 16 / `0.7.0`** Delight & Settings
-3. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
+2. **Sprint 16 / `0.6.1`** Research Hotfix *(prio)*
+3. **Sprint 17 / `0.6.2`** Research Polish *(Should)*
+4. **Sprint 18 / `0.7.0`** Delight & Settings
+5. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
 
 ---
 

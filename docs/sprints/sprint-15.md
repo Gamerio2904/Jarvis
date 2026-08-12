@@ -36,13 +36,14 @@ Opt-in **Research mit Quellen**: nachvollziehbar, zitiert, wiederholbar — **ke
 - Cloud-LLM als Denker
 - Scraping ohne Transparenz
 - Research als Default-on
-- Delight-Pack (→ Sprint 16 / `0.7.0`)
+- Research Hotfix/Polish (→ Sprints 16–17 / `0.6.1`–`0.6.2`)
+- Delight-Pack (→ Sprint 18 / `0.7.0`)
 
 ## Abhängigkeiten
 
 - Intent-Router erkennt `research` (Sprint 12 / `0.5.0`)
 - Empfohlen: Router-Hotfix `0.5.1` (Sprint 13); Polish `0.5.2` optional
-- Settings-Toggle (kann minimal hier landen; volles Settings-UX in Sprint 16)
+- Settings-Toggle (kann minimal hier landen; volles Settings-UX in Sprint 18)
 
 ## Exit
 

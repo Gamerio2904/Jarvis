@@ -5,6 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.6.2` — Sprint 17 (Research Polish) — *geplant (Should)*
+
+- Research-Persona (Jarvis-Ton, citation-pflichtig)
+- Dual-Provider/DDG-Qualität; Deep-Scorecard Research
+- Eval `scripts/eval_0_6_2.py`, Version `0.6.2`
+
+### `0.6.1` — Sprint 16 (Research Hotfix) — *geplant (prio)*
+
+- Query-PII-Sanitizer; Long-Query/Noise-Strip; Topic-Extraktion
+- Settings-Default-Hygiene (`research_opt_in` Default aus)
+- Eval `scripts/eval_0_6_1.py`, Version `0.6.1`
+
 ### `0.6.0` — Sprint 15 (Internet-Research) — *READY FOR REVIEW*
 
 - Opt-in Toggle (`research_opt_in`, Settings API + UI), Default aus
@@ -77,7 +89,9 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.7.0` | 16 | Delight + Settings |
+| `0.6.1` | 16 | Research Hotfix (Query-PII/Noise, Settings) — **prio** |
+| `0.6.2` | 17 | Research Polish (Persona, Dual-Provider) — **Should** |
+| `0.7.0` | 18 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |
 
 ## Earlier (pending tags)

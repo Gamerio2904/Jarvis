@@ -1,44 +1,37 @@
-# Sprint 16 — Delight & Settings
+# Sprint 16 — Research Hotfix (nach 0.6.0 Deep-Test)
 
 | Feld | Wert |
 |------|------|
 | Status | **PLANNED** |
-| Ziel-Version | **`0.7.0`** |
-| Quelle | [`11-delight-and-settings.md`](../11-delight-and-settings.md) |
+| Priorität | **HOTFIX / HIGH** — vor Should-Polish und Delight |
+| Ziel-Version | **`0.6.1`** |
+| Quelle | Deep-Test Feedback zu Sprint 15 (`0.6.0`) |
 
 ## Ziel
 
-Jarvis bekommt **dosierte Begeisterung** (Momente, Jokes, Sound, Easter Eggs) und ein **flaches Settings-Panel** — abschaltbar, local-first, ohne Verschachtelungstiefe.
+Die **blocker-nahen Qualitätslücken** aus dem `0.6.0`-Deep-Test schließen: Query-Sanitization (Privacy + Noise), robuste Topic-Extraktion, Settings-Default-Hygiene.
 
 ## Must
 
-| ID | Story | Done wenn |
-|----|-------|-----------|
-| D1 | **Flaches Settings-Panel** — eine Seite, ≤7 Abschnitte, 1 Ebene | PO findet Easter-Egg-Liste in &lt;10s; keine Nested-Menüs |
-| D2 | **Jarvis-Momente** — selten, Cap/Tag, Toggle | An/Aus wirkt; max. 1–2/Tag |
-| D3 | **Inside Jokes** — aus Memory-Pins, Intent-sensitiv, Toggle + Frequenz | Kein Witz bei ernstem Intent; löschbar |
-| D4 | **UI-Sounds** — Send/Receive/Error, Master-Toggle + 2–3 Lautstärken | Default dezent/aus laut PO; stummbar |
-| D5 | **Easter-Egg-Commands** — z.B. `/protokoll`, `/mission`, `/kante` — **Liste in Settings** | Eggs durch Guards; keine Shell/Netz |
-| D6 | Version `0.7.0` | Health + UI |
-
-## Should
-
-| ID | Inhalt |
-|----|--------|
-| D7 | Abschnitte: Allgemein, Modell, Gedächtnis, Delight, Sound, Easter Eggs, Forschung |
-| D8 | Danger-Zone getrennt (Memory löschen) mit Bestätigung |
+| ID | Verbesserung | Done wenn |
+|----|--------------|-----------|
+| H1 | **Query-PII-Sanitizer** — Namen/Adressen/„schick dem Provider…“-Köder nicht an Suchprovider | Eval: PII-Bait fehlt in `research.query` / Provider-Call |
+| H2 | **Long-Query / Noise-Strip** — wiederholte `bitte`/`mal`/Füllwörter und Research-Prefixe entfernen; Topic bleibt | `Recherchiere bitte×N … Python 3.13` → Query enthält Topic, nicht `bitte`-Spam |
+| H3 | **Topic-Extraktion** — Query auf Kern-Thema kürzen (max sinnvoll, nicht nur `[:200]`-Schnitt mitten im Noise) | Lange Prompts → kurze, suchbare Query |
+| H4 | **Settings-Default-Hygiene** — Repo-Default `research_opt_in=false`; Eval/Tests stellen nach PATCH wieder her; Health spiegelt Default | Frischer Checkout / Eval-Ende → Opt-in aus |
+| H5 | Eval `scripts/eval_0_6_1.py` + Version `0.6.1` | Suite grün; Health/UI `v0.6.1` (oder gebündelt `v0.6.2`) |
 
 ## Won’t
 
-- Neue Intelligence-Kernfeatures (liegen in Sprints 8–15)
-- Tiefe Settings-Hierarchie / Advanced-JSON-UI als Primärweg
-- Lautes Arcade-Sound
+- Research-Persona / LLM-Stil (→ Sprint 17 / `0.6.2`)
+- DDG-/Dual-Provider-Qualität (→ Sprint 17)
+- Delight-Pack (→ Sprint 18 / `0.7.0`)
 
 ## Abhängigkeiten
 
-- `0.4.0`+ Gedächtnis (für Jokes); ideal nach Memory-/Router-Patches (Sprints 9–14)
-- Ideal nach Router/Research (Sprints 12–15), damit Settings Research-Toggle aufnehmen kann
+- Sprint 15 / `0.6.0` implementiert
+- Empfohlen vor PO-Tag `v0.6.0` oder parallel als Patch
 
-## Exit
+## Exit / Abnahme
 
-PO: Settings flach nutzbar; Delight spürbar aber abschaltbar; Eggs dokumentiert in UI. Tag **`v0.7.0`**.
+PO: Research-Query geht minimiert raus (kein PII-/Noise-Leak); Opt-in bleibt Default aus. Tag **`v0.6.1`** (optional; Code kann mit **`v0.6.2`** gebündelt werden).

@@ -38,7 +38,9 @@ MAJOR.MINOR.PATCH
 | `0.5.1` | **Router Hotfix** (Inject/Task, Weak-Write, Non-Memory-Fallbacks) | Sprint 13 |
 | `0.5.2` | **Router Polish** (Patterns, Live-Scorecard, Routing-Ehrlichkeit) | Sprint 14 |
 | `0.6.0` | **Internet-Research** opt-in, citation-required | Sprint 15 |
-| `0.7.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | Sprint 16 |
+| `0.6.1` | **Research Hotfix** (Query-PII/Noise, Topic-Extraktion, Settings-Hygiene) | Sprint 16 |
+| `0.6.2` | **Research Polish** (Persona, Dual-Provider/DDG, Scorecard) | Sprint 17 |
+| `0.7.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | Sprint 18 |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele
@@ -49,6 +51,7 @@ MAJOR.MINOR.PATCH
 | `0.2.3` | Hotfix-Patch nach `0.2.2`, falls nötig |
 | `0.3.2` | Hotfix nach `0.3.1`, falls nötig |
 | `0.5.3` | Weiterer Router-Patch nach `0.5.2`, falls nötig |
+| `0.6.3` | Weiterer Research-Patch nach `0.6.2`, falls nötig |
 
 ## Was wird versioniert?
 

@@ -34,6 +34,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 13 | `0.5.1` | **READY FOR REVIEW** (Router Hotfix) |
 | 14 | `0.5.2` | **READY FOR REVIEW** (Router Polish) |
 | 15 | `0.6.0` | **READY FOR REVIEW** (Internet-Research) |
-| 16 | `0.7.0` | **PLANNED** (Delight + Settings) |
+| 16 | `0.6.1` | **PLANNED** (Research Hotfix, prio) |
+| 17 | `0.6.2` | **PLANNED** (Research Polish, Should) |
+| 18 | `0.7.0` | **PLANNED** (Delight + Settings) |
 
-**Nächste Umsetzung:** Sprint 16 (nach PO-Review 15).
+**Nächste Umsetzung:** Sprint 16 (Hotfix) → 17 (Should) → 18.

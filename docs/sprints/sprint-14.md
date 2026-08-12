@@ -25,7 +25,7 @@ Nicht-zwingende Verbesserungen am Router-/Score-Stack: bessere Intent-Abdeckung,
 
 - Hotfix-Blocker (liegen in Sprint 13 / `0.5.1`)
 - Research-Pipeline (→ Sprint 15 / `0.6.0`)
-- Delight/Settings-Overhaul (→ Sprint 16 / `0.7.0`)
+- Delight/Settings-Overhaul (→ Sprint 18 / `0.7.0`)
 
 ## Abhängigkeiten
 

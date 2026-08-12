@@ -121,6 +121,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.6c | Als Nutzer will ich bei Settings/Helpdesk-Bait keinen finalen Aussetzer. | Must | done | Sprint 13 / `0.5.1` |
 | S7.6d | Als PO will ich robusteren Router + Live-Scorecard (nicht blocker). | Should | done | Sprint 14 / `0.5.2` — Polish |
 | S7.7 | Als Nutzer will ich opt-in Internet-Research mit Quellen (kein Raten). | Must | done | Sprint 15 / `0.6.0` — `10` |
+| S7.7a | Als Nutzer will ich, dass Research-Queries ohne PII/Noise an Provider gehen. | Must | ready | Sprint 16 / `0.6.1` — Hotfix |
+| S7.7b | Als Nutzer will ich stabile Topic-Extraktion bei langen Research-Prompts. | Must | ready | Sprint 16 / `0.6.1` |
+| S7.7c | Als PO will ich Research-Default Opt-in aus + Test-Hygiene. | Must | ready | Sprint 16 / `0.6.1` |
+| S7.7d | Als Nutzer will ich Research-Antworten im Jarvis-Ton + robustere Provider-Mix. | Should | ready | Sprint 17 / `0.6.2` — Polish |
 | S7.8 | Kalender/Mail/Smart-Home-Tools | Won’t | parked | später |
 | S7.9 | Native Store-App | Won’t | parked | |
 
@@ -128,19 +132,21 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S8.1 | Als Nutzer will ich seltene Jarvis-Momente (abschaltbar). | Should | ready | Sprint 16 / `0.7.0` — `11` |
-| S8.2 | Als Nutzer will ich dosierte Inside Jokes aus dem Gedächtnis. | Should | ready | Sprint 16 / `0.7.0` — `11` |
-| S8.3 | Als Nutzer will ich optionale UI-Sounds. | Could | ready | Sprint 16 / `0.7.0` — `11` |
-| S8.4 | Als Nutzer will ich Easter-Egg-Commands, gelistet in den Einstellungen. | Should | ready | Sprint 16 / `0.7.0` — `11` |
-| S8.5 | Als Nutzer will ich ein flaches Settings-Panel (wenig Verschachtelung). | Must | ready | Sprint 16 / `0.7.0` — `11` |
+| S8.1 | Als Nutzer will ich seltene Jarvis-Momente (abschaltbar). | Should | ready | Sprint 18 / `0.7.0` — `11` |
+| S8.2 | Als Nutzer will ich dosierte Inside Jokes aus dem Gedächtnis. | Should | ready | Sprint 18 / `0.7.0` — `11` |
+| S8.3 | Als Nutzer will ich optionale UI-Sounds. | Could | ready | Sprint 18 / `0.7.0` — `11` |
+| S8.4 | Als Nutzer will ich Easter-Egg-Commands, gelistet in den Einstellungen. | Should | ready | Sprint 18 / `0.7.0` — `11` |
+| S8.5 | Als Nutzer will ich ein flaches Settings-Panel (wenig Verschachtelung). | Must | ready | Sprint 18 / `0.7.0` — `11` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO-Review **Sprint 8–15** (`0.4.0`–`0.6.0`) → Tags bei OK
-2. **Sprint 16 (`0.7.0`)** Delight & Settings
-3. Danach: Phase 2+ / NAS `1.0.0`
+1. **Sprint 16 (`0.6.1`)** Research Hotfix — **prio vor Delight**
+2. **Sprint 17 (`0.6.2`)** Research Polish — **Should** (verschiebbar)
+3. PO-Review **Sprint 8–15** (`0.4.0`–`0.6.0`) → Tags bei OK (parallel)
+4. **Sprint 18 (`0.7.0`)** Delight & Settings
+5. Danach: Phase 2+ / NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

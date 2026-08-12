@@ -15,7 +15,9 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 2a | **`0.5.1`** | [13](./sprints/sprint-13.md) | Router Hotfix (Inject/Task/Weak-Write/Fallbacks) | **READY FOR REVIEW** |
 | 2b | **`0.5.2`** | [14](./sprints/sprint-14.md) | Router Polish (Patterns, Live-Scorecard) | **READY FOR REVIEW** |
 | 3 | **`0.6.0`** | [15](./sprints/sprint-15.md) | Internet-Research (opt-in, zitiert) | **READY FOR REVIEW** |
-| 4 | **`0.7.0`** | [16](./sprints/sprint-16.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |
+| 3a | **`0.6.1`** | [16](./sprints/sprint-16.md) | Research Hotfix (Query-PII/Noise, Settings) | **PLANNED** (prio) |
+| 3b | **`0.6.2`** | [17](./sprints/sprint-17.md) | Research Polish (Persona, Dual-Provider) | **PLANNED** (Should) |
+| 4 | **`0.7.0`** | [18](./sprints/sprint-18.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |
 
 ```text
 Sprint 8  0.4.0 Memory
@@ -26,7 +28,9 @@ Sprint 12 0.5.0 Router (+ Memory-Intent)
 Sprint 13 0.5.1 Router Hotfix (prio)
 Sprint 14 0.5.2 Router Polish (Should)
 Sprint 15 0.6.0 Research
-Sprint 16 0.7.0 Delight
+Sprint 16 0.6.1 Research Hotfix (prio)
+Sprint 17 0.6.2 Research Polish (Should)
+Sprint 18 0.7.0 Delight
 ```
 
 ---
@@ -208,6 +212,9 @@ User-Msg
 | `0.5.0` | **Router: merk/recall/forget/clarify getrennt + Reply-Policy ohne Helpdesk-Fallback** |
 | `0.5.1` | Hotfix: Inject/Task, Weak-Write, Non-Memory-Fallbacks |
 | `0.5.2` | Polish: Router-Patterns, Live-Scorecard, Routing-Ehrlichkeit |
+| `0.6.0` | Research opt-in, Citations, Audit |
+| `0.6.1` | Hotfix: Query-PII/Noise, Topic-Extraktion, Settings-Hygiene |
+| `0.6.2` | Polish: Research-Persona, Dual-Provider/DDG, Scorecard |
 
 ### Abnahme (zusätzlich zu Router-Gold-Set)
 - Gold-Set trennt merk vs recall vs forget zuverlässig
@@ -336,5 +343,9 @@ Router Polish (Should)                 →  0.5.2  (Sprint 14)
         ↓
 Internet-Research (opt-in)             →  0.6.0  (Sprint 15)
         ↓
-Delight + flaches Settings             →  0.7.0  (Sprint 16)
+Research Hotfix                       →  0.6.1  (Sprint 16)
+        ↓
+Research Polish (Should)               →  0.6.2  (Sprint 17)
+        ↓
+Delight + flaches Settings             →  0.7.0  (Sprint 18)
 ```

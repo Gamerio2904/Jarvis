@@ -20,9 +20,11 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 13 | [`sprint-13.md`](./sprint-13.md) | `0.5.1` | Router Hotfix | **READY FOR REVIEW** |
 | 14 | [`sprint-14.md`](./sprint-14.md) | `0.5.2` | Router Polish (Should) | **READY FOR REVIEW** |
 | 15 | [`sprint-15.md`](./sprint-15.md) | `0.6.0` | Internet-Research | **READY FOR REVIEW** |
-| 16 | [`sprint-16.md`](./sprint-16.md) | `0.7.0` | Delight + Settings | **PLANNED** |
+| 16 | [`sprint-16.md`](./sprint-16.md) | `0.6.1` | Research Hotfix | **PLANNED** (prio) |
+| 17 | [`sprint-17.md`](./sprint-17.md) | `0.6.2` | Research Polish (Should) | **PLANNED** |
+| 18 | [`sprint-18.md`](./sprint-18.md) | `0.7.0` | Delight + Settings | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** `16` (nach PO-OK Tag `v0.6.0`).
+**Nächste Pull-Reihenfolge:** `16 (Hotfix) → 17 (Should) → 18` (nach PO-OK Tag `v0.6.0`).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
