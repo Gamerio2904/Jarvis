@@ -105,7 +105,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.1 | Als Nutzer will ich Langzeitgedächtnis über Chats hinweg (edit-/löschbar). | Must | done | Sprint 8 / `0.4.0` — Details `10` |
 | S7.2 | Als Nutzer will ich, dass lange Chats zusammengefasst werden und den Faden halten. | Must | done | Sprint 8 / `0.4.0` |
 | S7.3 | Als Dev will ich Kontextkompression statt naiver Truncation. | Must | done | Sprint 8 / `0.4.0` |
-| S7.3a | Als Nutzer will ich keine falschen „gemerkt“-Bestätigungen und kein Aussetzer nach Memory. | Must | ready | Sprint 12 / `0.4.1` |
+| S7.3a | Als Nutzer will ich keine falschen „gemerkt“-Bestätigungen und kein Aussetzer nach Memory. | Must | done | Sprint 12 / `0.4.1` |
 | S7.3b | Als Nutzer will ich präziseren Memory-Alltag (Parser/Split, Kategorie-Filter, Soft-Harvest TTL). | Must | ready | Sprint 13 / `0.4.2` |
 | S7.3c | Als Nutzer will ich Memory-Einträge nach `pref`/`fact`/`boundary` filtern. | Must | ready | Sprint 13 / `0.4.2` |
 | S7.3d | Als Nutzer will ich, dass Soft-Harvest unsicher ist und mit TTL verfällt. | Must | ready | Sprint 13 / `0.4.2` |
@@ -132,13 +132,12 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO-Review **Sprint 8 / `0.4.0`** (Gedächtnis) + ggf. frühere Tags
-2. **Sprint 12 (`0.4.1`)** Memory Must-Fixes (Bugs)
-3. **Sprint 13 (`0.4.2`)** Memory Polish (Schwachstellen)
-4. **Sprint 9 (`0.5.0`)** Intent-Router inkl. Memory-Intent, Model-Routing, Scores
-5. **Sprint 10 (`0.6.0`)** Verlässliche Internet-Research
-6. **Sprint 11 (`0.7.0`)** Delight & Settings
-7. Danach: Phase 2+ / NAS `1.0.0`
+1. PO-Review **Sprint 12 / `0.4.1`** (Memory Must-Fixes) + ggf. `0.4.0`
+2. **Sprint 13 (`0.4.2`)** Memory Polish (Schwachstellen)
+3. **Sprint 9 (`0.5.0`)** Intent-Router inkl. Memory-Intent, Model-Routing, Scores
+4. **Sprint 10 (`0.6.0`)** Verlässliche Internet-Research
+5. **Sprint 11 (`0.7.0`)** Delight & Settings
+6. Danach: Phase 2+ / NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

@@ -2,6 +2,13 @@
 
 Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
+## Unreleased / pending tag `0.4.1`
+
+- False-Confirm: natürliche Merk-Phrasen speichern; sonst klare Ablehnung
+- Memory-Turns: kein Helpdesk-/Aussetzer-Fallback (`SAFE_MEMORY_ACK` / Forget-Ack)
+- „Vergiss alles“ = Full Wipe
+- Eval `scripts/eval_0_4_1.py`, Version `0.4.1`
+
 ## Unreleased / pending tag `0.4.0`
 
 - Langzeitgedächtnis v1 (`memory_items`, merk/vergiss, soft Lieblings-Harvest)
@@ -9,13 +16,6 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 - APIs `GET/POST/DELETE /api/memory`, Health `memory_count`
 - UI „Was Jarvis über mich weiß“
 - Eval `scripts/eval_0_4_0.py`, Version `0.4.0`
-
-## Planned `0.4.1` (Sprint 12) — Memory Must-Fixes
-
-- False-Confirm verhindern (sagen ≠ speichern)
-- Guard/Aussetzer bei Memory-Turns beheben
-- „Vergiss alles“ = Full Wipe
-- Eval `eval_0_4_1.py`
 
 ## Planned `0.4.2` (Sprint 13) — Memory Polish
 

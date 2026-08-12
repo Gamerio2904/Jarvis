@@ -207,7 +207,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 12 — Memory Must-Fixes → **`0.4.1`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-12.md`](./sprints/sprint-12.md)
 
 | Must | Inhalt |

@@ -8,7 +8,7 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | Stufe | Version | Sprint | Inhalt | Status |
 |-------|---------|--------|--------|--------|
 | 1 | **`0.4.0`** | [08](./sprints/sprint-08.md) | Langzeitgedächtnis v1, Gesprächszusammenfassung, Kontextkompression | **READY FOR REVIEW** |
-| 1a | **`0.4.1`** | [12](./sprints/sprint-12.md) | Memory Must-Fixes (False-Confirm, Aussetzer, Vergiss-alles) | **PLANNED** |
+| 1a | **`0.4.1`** | [12](./sprints/sprint-12.md) | Memory Must-Fixes (False-Confirm, Aussetzer, Vergiss-alles) | **READY FOR REVIEW** |
 | 1b | **`0.4.2`** | [13](./sprints/sprint-13.md) | Memory Polish (Parser, Split, TTL, UI-Filter, Widerspruch-Heuristik) | **PLANNED** |
 | 2 | **`0.5.0`** | [09](./sprints/sprint-09.md) | Intent-Router (merk/recall/forget/clarify, kein Helpdesk-Fallback), Routing, Scores | **PLANNED** |
 | 3 | **`0.6.0`** | [10](./sprints/sprint-10.md) | Verlässliche Internet-Research (opt-in, zitiert) | **PLANNED** |

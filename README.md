@@ -13,7 +13,8 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 - **Sprint 6:** `0.3.0` GUI Premium-Motion (Review)
 - **Sprint 7:** `0.3.1` GUI Polish (Review)
 - **Sprint 8:** `0.4.0` Gedächtnis & Kontext (Review)
-- **Sprint 12–13 (geplant):** Memory-Patches `0.4.1` → `0.4.2`
+- **Sprint 12:** `0.4.1` Memory Must-Fixes (Review)
+- **Sprint 13 (geplant):** Memory Polish `0.4.2`
 - **Sprint 9–10 (geplant):** Intelligence `0.5.0` (Router + Memory-Intent) → `0.6.0`
 - **Sprint 11 (geplant):** Delight/Settings `0.7.0`
 

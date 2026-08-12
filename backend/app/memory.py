@@ -1,15 +1,26 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, Literal
 
 from . import db
 
+MemoryOp = Literal["write", "forget", "forget_all", "none"]
+
 _MERK_RE = re.compile(
-    r"(?is)^\s*(?:merk(?:e)?\s*dir|merke\s*dir|erinner\s*dich(?:\s*an)?)\s*[:\-]?\s*(.+)$"
+    r"(?is)^\s*(?:merk(?:e)?\s*dir|merke\s*dir|erinner(?:e)?\s*dich(?:\s*an)?)\s*"
+    r"(?:bitte\s*)?[:\-]?\s*(.+)$"
 )
 _MERK_DASS_RE = re.compile(
-    r"(?is)\bmerk(?:e)?\s*dir(?:\s*,)?\s*dass\s+(.+)$"
+    r"(?is)\bmerk(?:e)?\s*dir(?:\s*,)?\s*(?:bitte\s*)?(?:dass\s+)?(.+)$"
+)
+# Natural: „Kannst du dir merken, dass …“ / „Könntest du dir merken …“
+_MERK_NATURAL_RE = re.compile(
+    r"(?is)\b(?:kannst|könntest)\s+(?:du|Sie)\s+dir\s+merken(?:\s*,)?\s*"
+    r"(?:dass\s+)?(.+)$"
+)
+_NOTIER_RE = re.compile(
+    r"(?is)^\s*notier(?:e)?(?:\s*dir)?\s*[:\-]?\s*(.+)$"
 )
 _LIEBLINGS_RE = re.compile(
     r"(?is)\bmein(?:e|en)?\s+lieblings([a-zäöüß]{3,24})\s+ist\s+(.+?)(?:[.!?]|$)"
@@ -18,7 +29,34 @@ _ICH_MAG_RE = re.compile(
     r"(?is)\bich\s+mag\s+(.+?)(?:[.!?]|$)"
 )
 _VERGISS_RE = re.compile(
-    r"(?is)^\s*(?:vergiss|lösch(?:e)?\s*(?:die\s*)?erinnerung(?:\s*an)?|forget)\s*[:\-]?\s*(.+)$"
+    r"(?is)^\s*(?:vergiss|lösch(?:e)?\s*(?:die\s*)?erinnerung(?:\s*an)?|forget)\s*"
+    r"(?:bitte\s*)?[:\-]?\s*(.+)$"
+)
+_FORGET_ALL_RE = re.compile(
+    r"(?is)^\s*(?:vergiss|lösch(?:e)?)\s+(?:bitte\s+)?"
+    r"(alles(?:\s+über\s+mich)?|meine\s+erinnerungen|dein\s+gedächtnis|"
+    r"alles\s+was\s+du\s+über\s+mich\s+weißt)\s*[.!]?\s*$"
+)
+# Broad remember-intent (for False-Confirm guard when nothing was stored)
+_REMEMBER_INTENT_RE = re.compile(
+    r"(?is)\b("
+    r"merk(?:e)?\s*dir|"
+    r"erinner(?:e)?\s*dich|"
+    r"(?:kannst|könntest)\s+(?:du|Sie)\s+dir\s+merken|"
+    r"bitte\s+merken|"
+    r"notier(?:e)?(?:\s*dir)?"
+    r")\b"
+)
+_FALSE_CONFIRM_RE = re.compile(
+    r"(?i)\b("
+    r"gemerkt|"
+    r"notiert|"
+    r"gespeichert|"
+    r"hab(?:e)?\s+(?:mir\s+)?gemerkt|"
+    r"werde\s+(?:ich\s+)?(?:mir\s+)?merken|"
+    r"ist\s+notiert|"
+    r"hab(?:e)?\s+(?:es\s+)?drin"
+    r")\b"
 )
 
 _STOP = {
@@ -34,12 +72,27 @@ _STOP = {
     "mein",
     "meine",
     "bitte",
+    "dass",
+}
+
+_FORGET_ALL_TOKENS = {
+    "alles",
+    "alles über mich",
+    "meine erinnerungen",
+    "dein gedächtnis",
+    "alles was du über mich weißt",
 }
 
 
 def parse_explicit_remember(text: str) -> tuple[str, str, str] | None:
     """Return (key, value, category) if user explicitly asks to remember."""
-    m = _MERK_RE.match(text.strip()) or _MERK_DASS_RE.search(text.strip())
+    stripped = text.strip()
+    m = (
+        _MERK_RE.match(stripped)
+        or _MERK_DASS_RE.search(stripped)
+        or _MERK_NATURAL_RE.search(stripped)
+        or _NOTIER_RE.match(stripped)
+    )
     if m:
         payload = m.group(1).strip().rstrip(".!")
         if len(payload) < 2:
@@ -59,11 +112,32 @@ def parse_explicit_remember(text: str) -> tuple[str, str, str] | None:
     return None
 
 
+def is_forget_all(text: str) -> bool:
+    stripped = text.strip()
+    if _FORGET_ALL_RE.match(stripped):
+        return True
+    m = _VERGISS_RE.match(stripped)
+    if not m:
+        return False
+    q = m.group(1).strip().rstrip(".!").lower()
+    return q in _FORGET_ALL_TOKENS
+
+
 def parse_explicit_forget(text: str) -> str | None:
+    if is_forget_all(text):
+        return None
     m = _VERGISS_RE.match(text.strip())
     if not m:
         return None
     return m.group(1).strip().rstrip(".!")
+
+
+def looks_like_remember_intent(text: str) -> bool:
+    return bool(_REMEMBER_INTENT_RE.search(text))
+
+
+def looks_like_false_memory_confirm(text: str) -> bool:
+    return bool(_FALSE_CONFIRM_RE.search(text))
 
 
 def _key_from_payload(payload: str) -> str:
@@ -121,14 +195,20 @@ def apply_explicit_memory_commands(
     user_text: str,
     *,
     conversation_id: str,
-) -> list[str]:
-    """Apply merk/vergiss commands. Returns short notes for system context."""
+) -> tuple[MemoryOp, list[str]]:
+    """Apply merk/vergiss. Returns (op, notes for system context)."""
     notes: list[str] = []
+
+    if is_forget_all(user_text):
+        n = db.clear_all_memory()
+        notes.append(f"Langzeitgedächtnis komplett geleert ({n} Einträge).")
+        return "forget_all", notes
+
     forget_q = parse_explicit_forget(user_text)
     if forget_q:
         n = db.delete_memory_by_key_substring(forget_q)
         notes.append(f"Memory gelöscht zu „{forget_q}“ ({n} Einträge).")
-        return notes
+        return "forget", notes
 
     remembered = parse_explicit_remember(user_text)
     if remembered:
@@ -141,7 +221,17 @@ def apply_explicit_memory_commands(
             source_conversation_id=conversation_id,
         )
         notes.append(f"Gespeichert: {key} = {value}")
-    return notes
+        return "write", notes
+
+    if looks_like_remember_intent(user_text):
+        notes.append(
+            "Nichts gespeichert (Formulierung unklar). "
+            "NICHT behaupten, etwas gemerkt/notiert zu haben. "
+            "Kurz sagen: bitte als „Merk dir: …“ formulieren."
+        )
+        return "none", notes
+
+    return "none", notes
 
 
 def harvest_soft_facts(
@@ -164,3 +254,23 @@ def harvest_soft_facts(
             confidence=0.85,
             source_conversation_id=conversation_id,
         )
+
+
+def ack_reply_for_write(notes: list[str]) -> str:
+    """Short Jarvis-toned confirmation after a successful write."""
+    for n in notes:
+        if n.startswith("Gespeichert:"):
+            payload = n.split("=", 1)[-1].strip()
+            if payload:
+                short = payload if len(payload) <= 80 else payload[:77] + "…"
+                return f"Notiert: {short}. Was sonst?"
+    return "Notiert. Was sonst?"
+
+
+def ack_reply_for_forget(op: MemoryOp, notes: list[str]) -> str:
+    if op == "forget_all":
+        return "Alles weg aus dem Langzeitgedächtnis. Frisch startklar — was liegt an?"
+    for n in notes:
+        if "gelöscht" in n.lower():
+            return "Ist raus. Weiter?"
+    return "Ist weg. Weiter?"

@@ -23,6 +23,13 @@ SAFE_CHARACTER = (
     "Kante oder Ruhe, was soll's sein?"
 )
 
+# Memory-turn safe canned (Sprint 12) — nie Helpdesk/Aussetzer nach Merk/Vergiss.
+SAFE_MEMORY_ACK = "Notiert. Was sonst?"
+SAFE_MEMORY_FORGET = "Ist weg. Weiter?"
+SAFE_MEMORY_REFUSE_FALSE = (
+    "Noch nicht gespeichert — formulier's als „Merk dir: …“, dann sitzt's."
+)
+
 # Whole-reply inject tokens (not only first line / first token).
 _INJECT_TOKEN_RE = re.compile(
     r"(?is)(?<![\wÄÖÜäöüß])"
@@ -165,10 +172,20 @@ def needs_retry(text: str, recent_assistant: list[str] | None = None) -> bool:
     return False
 
 
+def _memory_safe_fallback(memory_op: str | None) -> str | None:
+    if memory_op == "write":
+        return SAFE_MEMORY_ACK
+    if memory_op in {"forget", "forget_all"}:
+        return SAFE_MEMORY_FORGET
+    return None
+
+
 def sanitize_or_refuse(
     text: str,
     recent_assistant: list[str] | None = None,
     user_text: str | None = None,
+    *,
+    memory_op: str | None = None,
 ) -> str:
     if (
         looks_like_inject_obedience(text)
@@ -177,14 +194,20 @@ def sanitize_or_refuse(
     ):
         return SAFE_REFUSAL
     if boilerplate_hits(text):
-        return SAFE_NO_HELPDESK
+        return _memory_safe_fallback(memory_op) or SAFE_NO_HELPDESK
     if looks_like_degenerate(text) or sticky_hits(text, recent_assistant):
+        mem = _memory_safe_fallback(memory_op)
+        if mem:
+            return mem
         if user_looks_kaputt(user_text):
             return SAFE_CHARACTER
         return SAFE_DEGENERATE
     if looks_like_non_german(text):
-        return SAFE_DEGENERATE
+        return _memory_safe_fallback(memory_op) or SAFE_DEGENERATE
     if duzen_hits(text):
+        mem = _memory_safe_fallback(memory_op)
+        if mem:
+            return mem
         if user_looks_kaputt(user_text):
             return SAFE_CHARACTER
         return SAFE_DEGENERATE
@@ -195,11 +218,13 @@ def force_strict_refuse_if_needed(
     text: str,
     recent_assistant: list[str] | None = None,
     user_text: str | None = None,
+    *,
+    memory_op: str | None = None,
 ) -> str:
     """Final pass after retries.
 
     Hard-refuse inject/collapse/coach-list.
-    Boilerplate → Jarvis-no-helpdesk (C1).
+    Boilerplate → Jarvis-no-helpdesk (C1), except memory write/forget → memory ack.
     Sticky/degenerate/duzen → character fallback; kaputt-user → SAFE_CHARACTER (C2).
     """
     cleaned = text.strip()
@@ -210,14 +235,20 @@ def force_strict_refuse_if_needed(
     ):
         return SAFE_REFUSAL
     if boilerplate_hits(cleaned):
-        return SAFE_NO_HELPDESK
+        return _memory_safe_fallback(memory_op) or SAFE_NO_HELPDESK
     if looks_like_degenerate(cleaned) or sticky_hits(cleaned, recent_assistant):
+        mem = _memory_safe_fallback(memory_op)
+        if mem:
+            return mem
         if user_looks_kaputt(user_text):
             return SAFE_CHARACTER
         return SAFE_DEGENERATE
     if looks_like_non_german(cleaned):
-        return SAFE_DEGENERATE
+        return _memory_safe_fallback(memory_op) or SAFE_DEGENERATE
     if duzen_hits(cleaned):
+        mem = _memory_safe_fallback(memory_op)
+        if mem:
+            return mem
         if user_looks_kaputt(user_text):
             return SAFE_CHARACTER
         return SAFE_DEGENERATE
@@ -245,4 +276,13 @@ def is_guarded_canned(text: str) -> bool:
         SAFE_DEGENERATE,
         SAFE_NO_HELPDESK,
         SAFE_CHARACTER,
+        SAFE_MEMORY_ACK,
+        SAFE_MEMORY_FORGET,
+        SAFE_MEMORY_REFUSE_FALSE,
     }
+
+
+def is_bad_memory_canned(text: str) -> bool:
+    """True if reply is the Aussetzer/Helpdesk canned we must avoid on memory turns."""
+    t = text.strip()
+    return t in {SAFE_DEGENERATE, SAFE_NO_HELPDESK}

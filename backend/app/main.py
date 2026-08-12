@@ -13,7 +13,11 @@ from . import context as ctx
 from . import db
 from . import memory as memory_mod
 from .guards import (
+    SAFE_DEGENERATE,
+    SAFE_MEMORY_REFUSE_FALSE,
+    SAFE_NO_HELPDESK,
     force_strict_refuse_if_needed,
+    is_bad_memory_canned,
     is_guarded_canned,
     needs_retry,
     user_looks_kaputt,
@@ -27,8 +31,8 @@ from .ollama_client import (
     resolve_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.4.0")
-APP_VERSION = "0.4.0"
+app = FastAPI(title="Jarvis API", version="0.4.1")
+APP_VERSION = "0.4.1"
 
 app.add_middleware(
     CORSMiddleware,
@@ -52,6 +56,17 @@ KAPUTT_NUDGE = (
     "frech-warm, Modus „Kante oder Ruhe“ anbieten. "
     "Niemals selbst „Bin kaputt“ / „Bin etwas kaputt“ sagen. "
     "Kein Duzen, kein Helpdesk, keine Motivationsposter."
+)
+
+MEMORY_WRITE_NUDGE = (
+    "Systemhinweis: Der Fakt wurde bereits gespeichert. "
+    "Bestätige kurz (1 Satz) im Jarvis-Ton, z.B. sinngemäß „Notiert: …“. "
+    "Kein Helpdesk, kein „Gerne!“, kein „Wie kann ich helfen?“, kein Duzen."
+)
+
+MEMORY_FORGET_NUDGE = (
+    "Systemhinweis: Die Erinnerung wurde gelöscht. "
+    "Bestätige kurz im Jarvis-Ton. Kein Helpdesk, kein Duzen."
 )
 
 
@@ -108,7 +123,11 @@ def _completion_kwargs(
     }
 
 
-def _regen_nudge_for(user_text: str) -> str:
+def _regen_nudge_for(user_text: str, memory_op: str | None = None) -> str:
+    if memory_op == "write":
+        return MEMORY_WRITE_NUDGE
+    if memory_op in {"forget", "forget_all"}:
+        return MEMORY_FORGET_NUDGE
     if user_looks_kaputt(user_text):
         return KAPUTT_NUDGE
     return REGEN_NUDGE
@@ -120,15 +139,15 @@ def _prepare_chat_context(
     user_text: str,
     settings: dict[str, Any],
     persona: str,
-) -> tuple[str, list[dict[str, str]], list[str]]:
-    """Returns (system_prompt, llm_messages, memory_notes)."""
-    notes = memory_mod.apply_explicit_memory_commands(
+) -> tuple[str, list[dict[str, str]], list[str], str]:
+    """Returns (system_prompt, llm_messages, memory_notes, memory_op)."""
+    mem_op, notes = memory_mod.apply_explicit_memory_commands(
         user_text, conversation_id=conversation_id
     )
     memory_mod.harvest_soft_facts(
         user_text,
         conversation_id=conversation_id,
-        skip=bool(notes),
+        skip=mem_op != "none" or bool(notes),
     )
 
     mem_limit = int(settings.get("memory_retrieve_limit", 8))
@@ -147,7 +166,35 @@ def _prepare_chat_context(
     history = db.list_messages(conversation_id)
     last_k = int(settings.get("context_last_k", 16))
     llm_messages = ctx.pack_messages(history, last_k=last_k)
-    return system, llm_messages, notes
+    return system, llm_messages, notes, mem_op
+
+
+def _finalize_memory_reply(
+    reply: str,
+    *,
+    user_text: str,
+    memory_op: str,
+    memory_notes: list[str],
+) -> str:
+    """Sprint 12: no false confirms; no Aussetzer/Helpdesk on memory turns."""
+    if memory_op == "write":
+        if is_bad_memory_canned(reply) or reply.strip() in {
+            SAFE_DEGENERATE,
+            SAFE_NO_HELPDESK,
+            "Notiert. Was sonst?",
+        }:
+            return memory_mod.ack_reply_for_write(memory_notes)
+        return reply
+    if memory_op in {"forget", "forget_all"}:
+        if is_bad_memory_canned(reply) or reply.strip() == "Ist weg. Weiter?":
+            return memory_mod.ack_reply_for_forget(memory_op, memory_notes)
+        return reply
+    # Remember intent without write → never claim stored
+    if memory_mod.looks_like_remember_intent(
+        user_text
+    ) and memory_mod.looks_like_false_memory_confirm(reply):
+        return SAFE_MEMORY_REFUSE_FALSE
+    return reply
 
 
 async def _maybe_refresh_summary(
@@ -205,18 +252,29 @@ async def _generate_reply(
     llm_messages: list[dict[str, str]],
     recent_assistant: list[str],
     user_text: str,
+    memory_op: str = "none",
+    memory_notes: list[str] | None = None,
 ) -> str:
     kwargs = _completion_kwargs(settings, model, system)
     reply = await chat_completion(**kwargs, messages=llm_messages)
     retries = int(settings.get("guard_max_retries", 2))
     attempt = 0
-    nudge = _regen_nudge_for(user_text)
+    nudge = _regen_nudge_for(user_text, memory_op)
     while needs_retry(reply, recent_assistant) and attempt < retries:
         attempt += 1
         regen_messages = [*llm_messages, {"role": "user", "content": nudge}]
         reply = await chat_completion(**kwargs, messages=regen_messages)
-    return force_strict_refuse_if_needed(
-        reply, recent_assistant, user_text=user_text
+    reply = force_strict_refuse_if_needed(
+        reply,
+        recent_assistant,
+        user_text=user_text,
+        memory_op=memory_op,
+    )
+    return _finalize_memory_reply(
+        reply,
+        user_text=user_text,
+        memory_op=memory_op,
+        memory_notes=memory_notes or [],
     )
 
 
@@ -329,7 +387,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
     user_msg = db.add_message(conversation_id, "user", content)
     db.maybe_set_title_from_first_message(conversation_id, content)
 
-    system, llm_messages, mem_notes = _prepare_chat_context(
+    system, llm_messages, mem_notes, mem_op = _prepare_chat_context(
         conversation_id=conversation_id,
         user_text=content,
         settings=settings,
@@ -345,6 +403,8 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
             llm_messages=llm_messages,
             recent_assistant=recent,
             user_text=content,
+            memory_op=mem_op,
+            memory_notes=mem_notes,
         )
         await _maybe_refresh_summary(
             conversation_id=conversation_id,
@@ -364,6 +424,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
         "using_fallback": used_fallback,
         "guarded": is_guarded_canned(reply),
         "memory_notes": mem_notes,
+        "memory_op": mem_op,
     }
 
 
@@ -383,7 +444,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
     user_msg = db.add_message(conversation_id, "user", content)
     db.maybe_set_title_from_first_message(conversation_id, content)
 
-    system, llm_messages, mem_notes = _prepare_chat_context(
+    system, llm_messages, mem_notes, mem_op = _prepare_chat_context(
         conversation_id=conversation_id,
         user_text=content,
         settings=settings,
@@ -409,13 +470,14 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 "model": model,
                 "using_fallback": used_fallback,
                 "memory_notes": mem_notes,
+                "memory_op": mem_op,
             }
         )
 
         messages_for_model = llm_messages
         final = ""
         attempt = 0
-        nudge = _regen_nudge_for(content)
+        nudge = _regen_nudge_for(content, mem_op)
         while True:
             acc: list[str] = []
             try:
@@ -431,7 +493,16 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
             candidate = "".join(acc).strip()
             if not needs_retry(candidate, recent) or attempt >= retries:
                 final = force_strict_refuse_if_needed(
-                    candidate, recent, user_text=content
+                    candidate,
+                    recent,
+                    user_text=content,
+                    memory_op=mem_op,
+                )
+                final = _finalize_memory_reply(
+                    final,
+                    user_text=content,
+                    memory_op=mem_op,
+                    memory_notes=mem_notes,
                 )
                 if final != candidate:
                     yield sse({"type": "replace", "content": final})
@@ -457,6 +528,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 "assistant_message": saved,
                 "conversation": updated,
                 "guarded": is_guarded_canned(final),
+                "memory_op": mem_op,
             }
         )
 
