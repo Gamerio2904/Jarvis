@@ -10,7 +10,7 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 1 | **`0.4.0`** | [08](./sprints/sprint-08.md) | Langzeitgedächtnis v1, Summary, Kontextkompression | **READY FOR REVIEW** |
 | 1a | **`0.4.1`** | [09](./sprints/sprint-09.md) | Memory Must-Fixes | **READY FOR REVIEW** |
 | 1b | **`0.4.2`** | [10](./sprints/sprint-10.md) | Memory Polish (Parser, Split, TTL, UI-Filter) | **READY FOR REVIEW** |
-| 1c | **`0.4.3`** | [11](./sprints/sprint-11.md) | Memory Hotfix (Clause-Split, Recall, Pref) | **PLANNED** (prio) |
+| 1c | **`0.4.3`** | [11](./sprints/sprint-11.md) | Memory Hotfix (Clause-Split, Recall, Pref) | **READY FOR REVIEW** |
 | 2 | **`0.5.0`** | [12](./sprints/sprint-12.md) | Intent-Router (merk/recall/forget/clarify), Routing, Scores | **PLANNED** |
 | 3 | **`0.6.0`** | [13](./sprints/sprint-13.md) | Internet-Research (opt-in, zitiert) | **PLANNED** |
 | 4 | **`0.7.0`** | [14](./sprints/sprint-14.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |

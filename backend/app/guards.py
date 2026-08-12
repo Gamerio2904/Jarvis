@@ -26,6 +26,7 @@ SAFE_CHARACTER = (
 # Memory-turn safe canned (Sprint 9 / 0.4.1) — nie Helpdesk/Aussetzer nach Merk/Vergiss.
 SAFE_MEMORY_ACK = "Notiert. Was sonst?"
 SAFE_MEMORY_FORGET = "Ist weg. Weiter?"
+SAFE_MEMORY_RECALL = "Dazu habe ich etwas notiert — welche Detailfrage genau?"
 SAFE_MEMORY_REFUSE_FALSE = (
     "Noch nicht gespeichert — formulier's als „Merk dir: …“, dann sitzt's."
 )
@@ -177,6 +178,8 @@ def _memory_safe_fallback(memory_op: str | None) -> str | None:
         return SAFE_MEMORY_ACK
     if memory_op in {"forget", "forget_all"}:
         return SAFE_MEMORY_FORGET
+    if memory_op == "recall":
+        return SAFE_MEMORY_RECALL
     return None
 
 
@@ -278,6 +281,7 @@ def is_guarded_canned(text: str) -> bool:
         SAFE_CHARACTER,
         SAFE_MEMORY_ACK,
         SAFE_MEMORY_FORGET,
+        SAFE_MEMORY_RECALL,
         SAFE_MEMORY_REFUSE_FALSE,
     }
 

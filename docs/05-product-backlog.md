@@ -109,8 +109,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.3b | Als Nutzer will ich präziseren Memory-Alltag (Parser/Split, Kategorie-Filter, Soft-Harvest TTL). | Must | done | Sprint 10 / `0.4.2` |
 | S7.3c | Als Nutzer will ich Memory-Einträge nach `pref`/`fact`/`boundary` filtern. | Must | done | Sprint 10 / `0.4.2` |
 | S7.3d | Als Nutzer will ich, dass Soft-Harvest unsicher ist und mit TTL verfällt. | Must | done | Sprint 10 / `0.4.2` |
-| S7.3e | Als Nutzer will ich saubere Multi-Fakt-Values und stabilen Memory-Recall (kein Aussetzer). | Must | ready | Sprint 11 / `0.4.3` — Hotfix |
-| S7.3f | Als Nutzer will ich Prefs auch ohne „mein“ speichern (`Speichere: Lieblings…`). | Must | ready | Sprint 11 / `0.4.3` |
+| S7.3e | Als Nutzer will ich saubere Multi-Fakt-Values und stabilen Memory-Recall (kein Aussetzer). | Must | done | Sprint 11 / `0.4.3` — Hotfix |
+| S7.3f | Als Nutzer will ich Prefs auch ohne „mein“ speichern (`Speichere: Lieblings…`). | Must | done | Sprint 11 / `0.4.3` |
 | S7.4 | Als Nutzer will ich Intent-abhängige Antwort-Policy (Smalltalk vs Task vs Research vs Memory). | Must | ready | Sprint 12 / `0.5.0` — `10` §4–4.1 |
 | S7.4a | Als Nutzer will ich merk/recall/forget getrennt mit eigener Reply-Policy (kein Helpdesk-Fallback). | Must | ready | Sprint 12 / `0.5.0` — Memory-Intent |
 | S7.4b | Als Nutzer will ich bei „nicht X, sondern Y“ Ersetzen + kurze Nachfrage. | Must | ready | Sprint 12 / `0.5.0` — Contradiction / clarify |
@@ -134,12 +134,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 11 (`0.4.3`)** Memory Hotfix — **prio vor Router**
-2. PO-Review **Sprint 8–10** (`0.4.0`–`0.4.2`) → Tags bei OK (kann parallel)
-3. **Sprint 12 (`0.5.0`)** Intent-Router inkl. Memory-Intent, Routing, Scores
-4. **Sprint 13 (`0.6.0`)** Internet-Research
-5. **Sprint 14 (`0.7.0`)** Delight & Settings
-6. Danach: Phase 2+ / NAS `1.0.0`
+1. PO-Review **Sprint 8–11** (`0.4.0`–`0.4.3`) → Tags bei OK
+2. **Sprint 12 (`0.5.0`)** Intent-Router inkl. Memory-Intent, Routing, Scores
+3. **Sprint 13 (`0.6.0`)** Internet-Research
+4. **Sprint 14 (`0.7.0`)** Delight & Settings
+5. Danach: Phase 2+ / NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

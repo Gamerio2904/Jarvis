@@ -9,7 +9,7 @@ Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
 - **Sprint 8:** `0.4.0` Gedächtnis & Kontext (Review)
 - **Sprint 9:** `0.4.1` Memory Must-Fixes (Review)
 - **Sprint 10:** `0.4.2` Memory Polish (Review)
-- **Sprint 11 (geplant, prio):** `0.4.3` Memory Hotfix
+- **Sprint 11:** `0.4.3` Memory Hotfix (Review)
 - **Sprint 12 (geplant):** `0.5.0` Router + Memory-Intent
 - **Sprint 13 (geplant):** `0.6.0` Internet-Research
 - **Sprint 14 (geplant):** `0.7.0` Delight + Settings

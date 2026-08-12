@@ -31,8 +31,8 @@ from .ollama_client import (
     resolve_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.4.2")
-APP_VERSION = "0.4.2"
+app = FastAPI(title="Jarvis API", version="0.4.3")
+APP_VERSION = "0.4.3"
 
 app.add_middleware(
     CORSMiddleware,
@@ -67,6 +67,12 @@ MEMORY_WRITE_NUDGE = (
 MEMORY_FORGET_NUDGE = (
     "Systemhinweis: Die Erinnerung wurde gelöscht. "
     "Bestätige kurz im Jarvis-Ton. Kein Helpdesk, kein Duzen."
+)
+
+MEMORY_RECALL_NUDGE = (
+    "Systemhinweis: Relevante Fakten aus dem Langzeitgedächtnis sind im Systemprompt. "
+    "Beantworte die Recall-Frage kurz und konkret mit dem gespeicherten Fakt. "
+    "Kein Helpdesk, kein Duzen, kein „Kurzer Aussetzer“, keine Floskeln."
 )
 
 
@@ -128,6 +134,8 @@ def _regen_nudge_for(user_text: str, memory_op: str | None = None) -> str:
         return MEMORY_WRITE_NUDGE
     if memory_op in {"forget", "forget_all"}:
         return MEMORY_FORGET_NUDGE
+    if memory_op == "recall":
+        return MEMORY_RECALL_NUDGE
     if user_looks_kaputt(user_text):
         return KAPUTT_NUDGE
     return REGEN_NUDGE
@@ -159,6 +167,11 @@ def _prepare_chat_context(
         ambient_fallback=bool(settings.get("memory_ambient_fallback", False)),
         min_confidence=float(settings.get("memory_min_inject_confidence", 0.4)),
     )
+
+    # H2: Token-Hit / injected memory → recall op so guards never emit Aussetzer.
+    if mem_op == "none" and items:
+        mem_op = "recall"
+        notes = [f"Recall: {it['key']} = {it['value']}" for it in items[:4]]
 
     conv = db.get_conversation(conversation_id) or {}
     summary = conv.get("summary_text")
@@ -196,6 +209,15 @@ def _finalize_memory_reply(
     if memory_op in {"forget", "forget_all"}:
         if is_bad_memory_canned(reply) or reply.strip() == "Ist weg. Weiter?":
             return memory_mod.ack_reply_for_forget(memory_op, memory_notes)
+        return reply
+    if memory_op == "recall":
+        # Never leave the user with Aussetzer/Helpdesk when facts were injected.
+        if is_bad_memory_canned(reply) or reply.strip() in {
+            SAFE_DEGENERATE,
+            SAFE_NO_HELPDESK,
+            "Dazu habe ich etwas notiert — welche Detailfrage genau?",
+        }:
+            return memory_mod.ack_reply_for_recall(memory_notes)
         return reply
     # Remember intent without write → never claim stored
     if memory_mod.looks_like_remember_intent(

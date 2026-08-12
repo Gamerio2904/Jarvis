@@ -305,7 +305,7 @@ function App() {
           <div className="brand-mark" />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.4.2</p>
+            <p>lokal · privat · v0.4.3</p>
           </div>
         </div>
 

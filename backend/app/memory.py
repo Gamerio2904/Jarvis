@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from . import db
 
-MemoryOp = Literal["write", "forget", "forget_all", "none"]
+MemoryOp = Literal["write", "forget", "forget_all", "recall", "none"]
 
 _MERK_RE = re.compile(
     r"(?is)^\s*(?:merk(?:e)?\s*dir|merke\s*dir|erinner(?:e)?\s*dich(?:\s*an)?)\s*"
@@ -27,6 +27,9 @@ _BITTE_MERKEN_RE = re.compile(
 )
 _LIEBLINGS_RE = re.compile(
     r"(?is)\bmein(?:e|en)?\s+lieblings([a-zäöüß]{3,24})\s+ist\s+(.+?)(?:[.!?]|$)"
+)
+_LIEBLINGS_BARE_RE = re.compile(
+    r"(?is)\blieblings([a-zäöüß]{3,24})\s+ist\s+(.+?)(?:[.!?]|$)"
 )
 _ICH_MAG_RE = re.compile(
     r"(?is)\bich\s+mag\s+(.+?)(?:[.!?]|$)"
@@ -71,7 +74,8 @@ _FALSE_CONFIRM_RE = re.compile(
     r")\b"
 )
 
-# Atomic fact extractors for multi-fact split
+# Atomic fact extractors for multi-fact split.
+# Clause values stop before coordinating "und"/"oder" (H1/H5).
 _FACT_PATTERNS: list[tuple[re.Pattern[str], str, str]] = [
     (re.compile(r"(?is)\bich\s+heiß(?:e|t)\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"), "name", "fact"),
     (re.compile(r"(?is)\bwohne\s+in\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"), "wohnort", "fact"),
@@ -85,8 +89,20 @@ _FACT_PATTERNS: list[tuple[re.Pattern[str], str, str]] = [
         "katze",
         "fact",
     ),
-    (re.compile(r"(?is)\barbeite\s+als\s+([^,.!?]+)"), "beruf", "fact"),
-    (re.compile(r"(?is)\bich\s+bin\s+(?:ein(?:e)?\s+)?([^,.!?]+)"), "bin", "fact"),
+    (
+        re.compile(
+            r"(?is)\barbeite\s+als\s+(.+?)(?=\s+\bund\b|\s+\boder\b|[,.!?]|$)"
+        ),
+        "beruf",
+        "fact",
+    ),
+    (
+        re.compile(
+            r"(?is)\bich\s+bin\s+(?:ein(?:e)?\s+)?(.+?)(?=\s+\bund\b|\s+\boder\b|[,.!?]|$)"
+        ),
+        "bin",
+        "fact",
+    ),
 ]
 
 _STOP = {
@@ -133,6 +149,26 @@ def normalize_value(raw: str) -> str:
     return v[:500]
 
 
+def _trim_clause(raw: str) -> str:
+    """Cut value at coordinating und/oder so multi-fact clauses stay atomic."""
+    v = re.split(r"(?is)\s+\bund\b|\s+\boder\b", raw, maxsplit=1)[0]
+    return normalize_value(v)
+
+
+def parse_lieblings_pref(text: str) -> tuple[str, str, str] | None:
+    """Shared Lieblings-Pref parser (with or without 'mein') — H3/H6."""
+    m = _LIEBLINGS_RE.search(text) or _LIEBLINGS_BARE_RE.search(text)
+    if not m:
+        return None
+    kind = m.group(1).strip().lower()
+    val = normalize_value(m.group(2))
+    val = re.split(r"(?i),\s*nicht\b", val)[0].strip()
+    val = re.sub(r"(?is)^(?:übrigens\s+)?nicht\s+.+?,\s*sondern\s+", "", val).strip()
+    if not val:
+        return None
+    return f"lieblings{kind}", val, "pref"
+
+
 def _key_from_payload(payload: str) -> str:
     cleaned = re.sub(r"[^a-zA-ZäöüÄÖÜß0-9\s_]", "", payload.lower())
     parts = [p for p in cleaned.split() if p and p not in _STOP][:4]
@@ -149,7 +185,7 @@ def split_atomic_facts(payload: str) -> list[tuple[str, str, str]]:
         m = pattern.search(payload)
         if not m:
             continue
-        val = normalize_value(m.group(1))
+        val = _trim_clause(m.group(1))
         if len(val) < 2 or key in seen_keys:
             continue
         seen_keys.add(key)
@@ -179,13 +215,10 @@ def _facts_from_payload(payload: str) -> list[tuple[str, str, str]]:
     atoms = split_atomic_facts(payload)
     if atoms:
         return atoms
-    # Explicit "merk dir: mein Lieblingstee ist …"
-    m = _LIEBLINGS_RE.search(payload)
-    if m:
-        kind = m.group(1).strip().lower()
-        val = normalize_value(m.group(2))
-        if val:
-            return [(f"lieblings{kind}", val, "pref")]
+    # Explicit "merk dir: (mein) Lieblingstee ist …" / "Speichere: Lieblingsfarbe ist …"
+    pref = parse_lieblings_pref(payload)
+    if pref:
+        return [pref]
     return [(_key_from_payload(payload), payload, "fact")]
 
 
@@ -370,17 +403,13 @@ def harvest_soft_facts(
     if parse_contradiction(user_text):
         return
 
-    m = _LIEBLINGS_RE.search(user_text)
-    if m:
-        kind = m.group(1).strip().lower()
-        val = normalize_value(m.group(2))
-        val = re.split(r"(?i),\s*nicht\b", val)[0].strip()
-        if not val:
-            return
+    pref = parse_lieblings_pref(user_text)
+    if pref:
+        key, val, category = pref
         db.upsert_memory_item(
-            key=f"lieblings{kind}",
+            key=key,
             value=val,
-            category="pref",
+            category=category,
             confidence=confidence,
             source_conversation_id=conversation_id,
             expires_at=_expires_iso(ttl_days),
@@ -423,3 +452,30 @@ def ack_reply_for_forget(op: MemoryOp, notes: list[str]) -> str:
         if "gelöscht" in n.lower():
             return "Ist raus. Weiter?"
     return "Ist weg. Weiter?"
+
+
+def ack_reply_for_recall(notes: list[str]) -> str:
+    """Deterministic recall fallback when the model collapses to Aussetzer."""
+    facts = [n.split(":", 1)[-1].strip() for n in notes if n.startswith("Recall:")]
+    if not facts:
+        return "Dazu habe ich etwas notiert — welche Detailfrage genau?"
+    if len(facts) == 1:
+        return f"Soweit notiert: {facts[0]}. Stimmt das noch?"
+    joined = "; ".join(facts[:3])
+    return f"Soweit notiert: {joined}. Was davon brauchen Sie?"
+
+
+def looks_like_recall_question(text: str) -> bool:
+    return bool(
+        re.search(
+            r"(?is)\b("
+            r"erinnerst\s+(?:du|Sie)\s+dich|"
+            r"weißt\s+(?:du|Sie)\s+noch|"
+            r"was\s+ist\s+mein|"
+            r"welchen?\s+\w+\s+habe\s+ich|"
+            r"wie\s+heiß(?:e|t)\s+(?:mein|ich)|"
+            r"nochmal\b"
+            r")\b",
+            text,
+        )
+    )

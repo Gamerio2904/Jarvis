@@ -233,9 +233,9 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 11 — Memory Hotfix → **`0.4.3`** *(prio)*
+## Sprint 11 — Memory Hotfix → **`0.4.3`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-11.md`](./sprints/sprint-11.md)
 
 | Must | Inhalt |

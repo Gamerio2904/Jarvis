@@ -5,12 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `0.4.3` — Sprint 11 (Memory Hotfix) — *geplant*
+### `0.4.3` — Sprint 11 (Memory Hotfix)
 
-- Clause-Split: Beruf/Fakt-Values ohne Nachsatz-Pollution
-- Recall-Stabilität: kein finales Aussetzer-Canned bei Memory-Hit
-- Pref-Extraktion ohne Pflicht-„mein“ (`Speichere: Lieblings…`)
-- Eval `scripts/eval_0_4_3.py`, Version `0.4.3`
+- Clause-Split: Beruf/Fakt-Values enden vor `und`/`oder`
+- Recall-Op bei Token-Hit: Nudge + Fakt-Fallback statt Aussetzer
+- Pref ohne Pflicht-„mein“ (`Speichere: Lieblingsfarbe ist Grün`)
+- Shared `parse_lieblings_pref`; Eval `scripts/eval_0_4_3.py`, Version `0.4.3`
 
 ### `0.4.2` — Sprint 10 (Memory Polish)
 
@@ -49,7 +49,6 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.4.3` | 11 | Memory Hotfix (Split/Recall/Pref) — **prio vor Router** |
 | `0.5.0` | 12 | Intent-Router (merk/recall/forget/clarify), Routing, Scores |
 | `0.6.0` | 13 | Internet-Research (opt-in, Citations) |
 | `0.7.0` | 14 | Delight + Settings |
