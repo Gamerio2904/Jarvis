@@ -379,6 +379,36 @@ def format_memory_block(items: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def is_weak_memory_value(value: str) -> bool:
+    """True for empty/filler payloads that must not be stored (Sprint 13 F3)."""
+    v = (value or "").strip().rstrip(".!?")
+    if len(v) < 4:
+        return True
+    if re.match(
+        r"(?is)^(das|es|dies|etwas|irgendwie|was|mal|so|einfach)(\s+(das|es|irgendwie|etwas|mal|so|bitte))*$",
+        v,
+    ):
+        return True
+    tokens = re.findall(r"[a-zäöüß0-9]+", v.lower())
+    weak = {
+        "das",
+        "es",
+        "dies",
+        "etwas",
+        "irgendwie",
+        "was",
+        "mal",
+        "so",
+        "bitte",
+        "einfach",
+        "halt",
+        "auch",
+    }
+    if tokens and all(t in weak for t in tokens):
+        return True
+    return False
+
+
 def apply_explicit_memory_commands(
     user_text: str,
     *,
@@ -424,7 +454,15 @@ def apply_explicit_memory_commands(
     remembered = parse_explicit_remember_many(user_text)
     # parse_explicit_remember_many may still return contradiction-as-write; skip if clarify-shaped
     if remembered and not resolve_contradiction(user_text):
-        for key, value, category in remembered:
+        strong = [(k, v, c) for k, v, c in remembered if not is_weak_memory_value(v)]
+        if not strong:
+            notes.append(
+                "Nichts gespeichert (Inhalt zu unklar/leer). "
+                "NICHT behaupten, etwas gemerkt/notiert zu haben. "
+                "Kurz sagen: bitte als „Merk dir: …“ mit konkretem Fakt formulieren."
+            )
+            return "none", notes
+        for key, value, category in strong:
             db.upsert_memory_item(
                 key=key,
                 value=value,

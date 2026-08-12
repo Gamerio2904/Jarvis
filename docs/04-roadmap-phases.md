@@ -111,8 +111,8 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Memory Polish → **`0.4.2`** (Sprint 10)
 - Memory Hotfix → **`0.4.3`** (Sprint 11, prio)
 - Intent-Router inkl. Memory-Intent, Model-Routing, Scores → **`0.5.0`** (Sprint 12)
-- Router Hotfix → **`0.5.1`** (Sprint 13, prio)
-- Router Polish (Should) → **`0.5.2`** (Sprint 14)
+- Router Hotfix → **`0.5.1`** (Sprint 13, Review; in `0.5.2`)
+- Router Polish (Should) → **`0.5.2`** (Sprint 14, Review)
 - Verlässliche Internet-Research (opt-in, zitiert) → **`0.6.0`** (Sprint 15)
 - Delight + flaches Settings → **`0.7.0`** (Sprint 16, [`11`](./11-delight-and-settings.md))
 - Tools (Kalender, Notizen, …) / Native App nur falls nötig

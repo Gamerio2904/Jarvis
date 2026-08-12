@@ -16,12 +16,18 @@ from . import policy as policy_mod
 from . import router as router_mod
 from .guards import (
     SAFE_DEGENERATE,
+    SAFE_HELPDESK_TRAP,
+    SAFE_INJECT,
     SAFE_MEMORY_REFUSE_FALSE,
     SAFE_NO_HELPDESK,
+    SAFE_SETTINGS,
+    SAFE_TASK,
+    boilerplate_hits,
     force_strict_refuse_if_needed,
     is_bad_memory_canned,
     is_guarded_canned,
     needs_retry,
+    strip_emoji,
     user_looks_kaputt,
 )
 from .ollama_client import (
@@ -34,8 +40,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.5.0")
-APP_VERSION = "0.5.0"
+app = FastAPI(title="Jarvis API", version="0.5.2")
+APP_VERSION = "0.5.2"
 
 app.add_middleware(
     CORSMiddleware,
@@ -233,14 +239,15 @@ def _prepare_chat_context(
     return system, llm_messages, notes, mem_op, router_mod.route_debug_dict(route), policy
 
 
-def _finalize_memory_reply(
+def _finalize_turn_reply(
     reply: str,
     *,
     user_text: str,
     memory_op: str,
     memory_notes: list[str],
+    intent: str | None = None,
 ) -> str:
-    """Memory-turn post-process: no false confirms; no Aussetzer/Helpdesk."""
+    """Post-process: memory honesty + intent fallbacks + persona polish."""
     if memory_op == "write":
         if is_bad_memory_canned(reply) or reply.strip() in {
             SAFE_DEGENERATE,
@@ -260,29 +267,50 @@ def _finalize_memory_reply(
             "Dazu habe ich etwas notiert — welche Detailfrage genau?",
         }:
             return memory_mod.ack_reply_for_recall(memory_notes)
+        # S4: drop helpdesk-ish tails on recall
+        if boilerplate_hits(reply):
+            return memory_mod.ack_reply_for_recall(memory_notes)
         return reply
     if memory_op == "clarify":
-        if is_bad_memory_canned(reply) or reply.strip() in {
+        cleaned = strip_emoji(reply)
+        if is_bad_memory_canned(cleaned) or cleaned.strip() in {
             SAFE_DEGENERATE,
             SAFE_NO_HELPDESK,
             "Korrigiert. So merken?",
         }:
             return memory_mod.ack_reply_for_clarify(memory_notes)
-        # Ensure a question mark for clarify policy
-        if "?" not in reply:
+        if "?" not in cleaned:
             return memory_mod.ack_reply_for_clarify(memory_notes)
-        return reply
+        return cleaned
     # Research without opt-in: always refuse net claims (no research tool yet).
     if any("Research ohne Opt-in" in n for n in memory_notes):
         return (
             "Research-Opt-in ist aus — kein Netz. "
             "Nur lokales Wissen geht. Opt-in später in den Settings."
         )
+    # Weak / unclear remember → never false-confirm
+    if any("Nichts gespeichert" in n for n in memory_notes):
+        if memory_mod.looks_like_false_memory_confirm(reply) or is_bad_memory_canned(reply):
+            return SAFE_MEMORY_REFUSE_FALSE
     if memory_mod.looks_like_remember_intent(
         user_text
     ) and memory_mod.looks_like_false_memory_confirm(reply):
         return SAFE_MEMORY_REFUSE_FALSE
+    # F4: never leave Aussetzer on settings / helpdesk / task
+    if reply.strip() == SAFE_DEGENERATE:
+        if intent == "settings":
+            return SAFE_SETTINGS
+        if intent == "helpdesk_trap":
+            return SAFE_HELPDESK_TRAP
+        if intent == "task":
+            return SAFE_TASK
+        if intent == "inject":
+            return SAFE_INJECT
     return reply
+
+
+# Back-compat alias used in stream path historically
+_finalize_memory_reply = _finalize_turn_reply
 
 
 async def _maybe_refresh_summary(
@@ -342,7 +370,12 @@ async def _generate_reply(
     user_text: str,
     memory_op: str = "none",
     memory_notes: list[str] | None = None,
+    intent: str | None = None,
 ) -> str:
+    # F2: inject turns — deterministic DE canned, skip LLM drift/EN-helpdesk
+    if intent == "inject":
+        return SAFE_INJECT
+
     kwargs = _completion_kwargs(settings, model, system)
     reply = await chat_completion(**kwargs, messages=llm_messages)
     retries = int(settings.get("guard_max_retries", 2))
@@ -357,12 +390,14 @@ async def _generate_reply(
         recent_assistant,
         user_text=user_text,
         memory_op=memory_op,
+        intent=intent,
     )
-    return _finalize_memory_reply(
+    return _finalize_turn_reply(
         reply,
         user_text=user_text,
         memory_op=memory_op,
         memory_notes=memory_notes or [],
+        intent=intent,
     )
 
 
@@ -371,12 +406,15 @@ async def health() -> dict[str, Any]:
     settings = db.load_settings()
     try:
         model, used_fallback, names, routing_mode = await _resolve_runtime_model(settings)
+        default = settings.get("model_default") or settings.get("model")
+        heavy = settings.get("model_heavy") or default
         return {
             "ok": True,
             "ollama": True,
             "version": APP_VERSION,
-            "configured_model": settings.get("model_default") or settings.get("model"),
-            "model_heavy": settings.get("model_heavy"),
+            "configured_model": default,
+            "model_heavy": heavy,
+            "heavy_equals_default": str(heavy) == str(default),
             "fallback_model": settings.get("fallback_model"),
             "routing_mode": routing_mode,
             "research_opt_in": bool(settings.get("research_opt_in", False)),
@@ -388,15 +426,23 @@ async def health() -> dict[str, Any]:
             "warning": (
                 f"Fallback aktiv ({model}). Für beste Qualität: ollama pull {settings.get('model')}"
                 if used_fallback
-                else None
+                else (
+                    "model_heavy entspricht model_default — Auto-Routing ändert das Modell nicht."
+                    if str(heavy) == str(default)
+                    else None
+                )
             ),
         }
     except OllamaError as exc:
+        default = settings.get("model_default") or settings.get("model")
+        heavy = settings.get("model_heavy") or default
         return {
             "ok": False,
             "ollama": False,
             "version": APP_VERSION,
-            "configured_model": settings.get("model_default") or settings.get("model"),
+            "configured_model": default,
+            "model_heavy": heavy,
+            "heavy_equals_default": str(heavy) == str(default),
             "fallback_model": settings.get("fallback_model"),
             "routing_mode": settings.get("routing_mode", "auto"),
             "research_opt_in": bool(settings.get("research_opt_in", False)),
@@ -505,6 +551,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
             user_text=content,
             memory_op=mem_op,
             memory_notes=mem_notes,
+            intent=route_dbg.get("intent"),
         )
     except OllamaError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
@@ -566,6 +613,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
 
     kwargs = _completion_kwargs(settings, model, system)
     retries = int(settings.get("guard_max_retries", 2))
+    intent = route_dbg.get("intent")
 
     async def event_gen() -> AsyncIterator[str]:
         def sse(payload: dict[str, Any]) -> str:
@@ -583,6 +631,23 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 "route": route_dbg,
             }
         )
+
+        if intent == "inject":
+            final = SAFE_INJECT
+            yield sse({"type": "replace", "content": final})
+            saved = db.add_message(conversation_id, "assistant", final)
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": True,
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                }
+            )
+            return
 
         messages_for_model = llm_messages
         final = ""
@@ -607,12 +672,14 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                     recent,
                     user_text=content,
                     memory_op=mem_op,
+                    intent=intent,
                 )
-                final = _finalize_memory_reply(
+                final = _finalize_turn_reply(
                     final,
                     user_text=content,
                     memory_op=mem_op,
                     memory_notes=mem_notes,
+                    intent=intent,
                 )
                 if final != candidate:
                     yield sse({"type": "replace", "content": final})

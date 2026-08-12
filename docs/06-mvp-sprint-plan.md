@@ -264,7 +264,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 13 — Router Hotfix → **`0.5.1`** *(prio)*
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW (mitgeliefert in `0.5.2`)  
 **Artefakt:** [`sprints/sprint-13.md`](./sprints/sprint-13.md)
 
 | Must | Inhalt |
@@ -278,7 +278,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 14 — Router Polish → **`0.5.2`** *(Should)*
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-14.md`](./sprints/sprint-14.md)
 
 | Should | Inhalt |

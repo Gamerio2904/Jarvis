@@ -37,6 +37,10 @@ _HELPDESK_TRAP_RE = re.compile(
     r"(?is)\b("
     r"wie\s+kann\s+ich\s+(dir|ihnen)\s+helfen|"
     r"was\s+kann\s+ich\s+für\s+sie\s+tun|"
+    r"was\s+kannst\s+(?:du|Sie)\s+(?:alles\s+)?(?:für\s+mich\s+)?(?:tun|machen)|"
+    r"was\s+kannst\s+(?:du|Sie)\s+alles|"
+    r"wozu\s+bist\s+(?:du|Sie)\s+(?:da|gut)|"
+    r"deine\s+fähigkeiten|"
     r"customer\s+support|"
     r"als\s+ki\s+sollst\s+du"
     r")\b"
@@ -64,7 +68,9 @@ _SETTINGS_RE = re.compile(
 _TASK_RE = re.compile(
     r"(?is)\b("
     r"plan(?:e|t)?\s+mir|"
-    r"erstell(?:e)?\s+(mir\s+)?(einen\s+)?(plan|entwurf|liste)|"
+    r"mach(?:e)?\s+mir\s+(?:einen\s+)?(?:plan|wochenplan|fahrplan)|"
+    r"erstell(?:e)?\s+(mir\s+)?(einen\s+)?(plan|entwurf|liste|wochenplan)|"
+    r"organisier(?:e)?|"
     r"hilf(?:e)?\s+mir\s+bei|"
     r"strukturier|"
     r"zusammenfassen|"
@@ -224,14 +230,32 @@ GOLD_SET: list[tuple[str, Intent, MemorySub]] = [
     ("Zeig mir die Einstellungen", "settings", "none"),
     ("Notiere: Budget 80 Euro", "memory", "memory.write"),
     ("Weißt du noch, wo ich wohne?", "memory", "memory.recall"),
+    # Sprint 14 extra coverage
+    ("Mach mir einen Plan für morgen", "task", "none"),
+    ("Mach mir einen Wochenplan", "task", "none"),
+    ("Was kannst du alles für mich tun?", "helpdesk_trap", "none"),
+    ("Was kannst du alles?", "helpdesk_trap", "none"),
+    ("Organisiere mir den Nachmittag", "task", "none"),
 ]
 
 
-def gold_accuracy() -> tuple[float, list[tuple[str, str, str, str]]]:
+EXTRA_GOLD_SET = [
+    ("Mach mir einen Plan für morgen", "task", "none"),
+    ("Mach mir einen Wochenplan", "task", "none"),
+    ("Was kannst du alles für mich tun?", "helpdesk_trap", "none"),
+    ("Was kannst du alles?", "helpdesk_trap", "none"),
+    ("Organisiere mir den Nachmittag", "task", "none"),
+]
+
+
+def gold_accuracy(
+    gold: list[tuple[str, Intent, MemorySub]] | None = None,
+) -> tuple[float, list[tuple[str, str, str, str]]]:
     """Return (accuracy, misses as prompt/expected/got/reason)."""
+    suite = gold if gold is not None else GOLD_SET
     misses: list[tuple[str, str, str, str]] = []
     ok = 0
-    for prompt, exp_intent, exp_sub in GOLD_SET:
+    for prompt, exp_intent, exp_sub in suite:
         got = classify(prompt, research_opt_in=False)
         if got.intent == exp_intent and got.memory_sub == exp_sub:
             ok += 1
@@ -244,7 +268,7 @@ def gold_accuracy() -> tuple[float, list[tuple[str, str, str, str]]]:
                     got.reason,
                 )
             )
-    return ok / max(len(GOLD_SET), 1), misses
+    return ok / max(len(suite), 1), misses
 
 
 def route_debug_dict(route: RouteResult) -> dict[str, Any]:

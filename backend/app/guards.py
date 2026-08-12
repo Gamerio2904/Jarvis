@@ -7,6 +7,12 @@ SAFE_REFUSAL = (
     "Womit weitermachen — Quatsch oder Ernst?"
 )
 
+# Explicit inject-turn canned (Sprint 13) — immer Deutsch, nie EN-Helpdesk.
+SAFE_INJECT = (
+    "Netter Versuch. Regeln bleiben. "
+    "Quatsch oder Ernst — was liegt an?"
+)
+
 SAFE_DEGENERATE = (
     "Kurzer Aussetzer. Nochmal von vorn — "
     "was liegt an?"
@@ -21,6 +27,20 @@ SAFE_NO_HELPDESK = (
 SAFE_CHARACTER = (
     "Alles klar. Kurz und ohne Theater — "
     "Kante oder Ruhe, was soll's sein?"
+)
+
+# Non-memory intent fallbacks (Sprint 13 F4) — nie finaler Aussetzer.
+SAFE_TASK = (
+    "Kurz skizziert: erst Priorität klären, dann 2–3 konkrete Schritte, "
+    "danach Feinschliff. Was ist das Ziel für heute?"
+)
+SAFE_SETTINGS = (
+    "Lokaler Modus — Slash-Befehle und Settings kommen flach, ohne Nested-Menü. "
+    "Was wollen Sie einstellen?"
+)
+SAFE_HELPDESK_TRAP = (
+    "Kein Support-Skript hier. "
+    "Smalltalk oder eine konkrete Aufgabe — was liegt an?"
 )
 
 # Memory-turn safe canned (Sprint 9 / 0.4.1) — nie Helpdesk/Aussetzer nach Merk/Vergiss.
@@ -67,8 +87,29 @@ _BOILERPLATE_RE = re.compile(
     r"als eine ki\b|"
     r"ich bin eine ki|"
     r"natürlich bin ich eine ki|"
-    r"ich bin (ein |eine )?(ki|sprachmodell|ai)\b"
+    r"ich bin (ein |eine )?(ki|sprachmodell|ai)\b|"
+    r"how can i (assist|help)|"
+    r"what can i (do|help)|"
+    r"sorry,? but i (can'?t|cannot)|"
+    r"let'?s keep it professional|"
+    r"kann ich (ihnen|dir) noch etwas .{0,20}(erledigen|helfen|tun)"
     r")"
+)
+
+_EN_LEAK_RE = re.compile(
+    r"(?i)\b("
+    r"indeed|sorry|please|assist you|how can i|"
+    r"of course|basically|anyway|btw"
+    r")\b"
+)
+
+_EMOJI_RE = re.compile(
+    "["
+    "\U0001F300-\U0001F9FF"
+    "\U00002600-\U000027BF"
+    "\U0001FA00-\U0001FAFF"
+    "]+",
+    flags=re.UNICODE,
 )
 
 # Numbered / bulleted tip-coach lists (2+ items).
@@ -165,6 +206,8 @@ def needs_retry(text: str, recent_assistant: list[str] | None = None) -> bool:
         return True
     if looks_like_non_german(text):
         return True
+    if looks_like_en_leak(text):
+        return True
     if duzen_hits(text):
         return True
     if boilerplate_hits(text):
@@ -172,6 +215,26 @@ def needs_retry(text: str, recent_assistant: list[str] | None = None) -> bool:
     if sticky_hits(text, recent_assistant):
         return True
     return False
+
+
+def looks_like_en_leak(text: str) -> bool:
+    return bool(_EN_LEAK_RE.search(text or ""))
+
+
+def strip_emoji(text: str) -> str:
+    return _EMOJI_RE.sub("", text or "").strip()
+
+
+def intent_safe_fallback(intent: str | None) -> str | None:
+    if intent == "inject":
+        return SAFE_INJECT
+    if intent == "task":
+        return SAFE_TASK
+    if intent == "settings":
+        return SAFE_SETTINGS
+    if intent == "helpdesk_trap":
+        return SAFE_HELPDESK_TRAP
+    return None
 
 
 def _memory_safe_fallback(memory_op: str | None) -> str | None:
@@ -192,32 +255,15 @@ def sanitize_or_refuse(
     user_text: str | None = None,
     *,
     memory_op: str | None = None,
+    intent: str | None = None,
 ) -> str:
-    if (
-        looks_like_inject_obedience(text)
-        or looks_like_collapse(text)
-        or looks_like_coach_list(text)
-    ):
-        return SAFE_REFUSAL
-    if boilerplate_hits(text):
-        return _memory_safe_fallback(memory_op) or SAFE_NO_HELPDESK
-    if looks_like_degenerate(text) or sticky_hits(text, recent_assistant):
-        mem = _memory_safe_fallback(memory_op)
-        if mem:
-            return mem
-        if user_looks_kaputt(user_text):
-            return SAFE_CHARACTER
-        return SAFE_DEGENERATE
-    if looks_like_non_german(text):
-        return _memory_safe_fallback(memory_op) or SAFE_DEGENERATE
-    if duzen_hits(text):
-        mem = _memory_safe_fallback(memory_op)
-        if mem:
-            return mem
-        if user_looks_kaputt(user_text):
-            return SAFE_CHARACTER
-        return SAFE_DEGENERATE
-    return text.strip()
+    return force_strict_refuse_if_needed(
+        text,
+        recent_assistant,
+        user_text=user_text,
+        memory_op=memory_op,
+        intent=intent,
+    )
 
 
 def force_strict_refuse_if_needed(
@@ -226,38 +272,86 @@ def force_strict_refuse_if_needed(
     user_text: str | None = None,
     *,
     memory_op: str | None = None,
+    intent: str | None = None,
 ) -> str:
-    """Final pass after retries.
+    """Final pass after retries — intent-aware (Sprint 13).
 
-    Hard-refuse inject/collapse/coach-list.
-    Boilerplate → Jarvis-no-helpdesk (C1), except memory write/forget → memory ack.
-    Sticky/degenerate/duzen → character fallback; kaputt-user → SAFE_CHARACTER (C2).
+    - inject / inject-obedience → SAFE_INJECT (DE), nie EN-Helpdesk
+    - task + coach-list → SAFE_TASK (nicht Inject-Refuse)
+    - settings / helpdesk_trap / task bei Degenerate → Intent-Fallback (kein Aussetzer)
     """
     cleaned = text.strip()
-    if (
-        looks_like_inject_obedience(cleaned)
-        or looks_like_collapse(cleaned)
-        or looks_like_coach_list(cleaned)
-    ):
-        return SAFE_REFUSAL
+
+    # Hard inject path
+    if intent == "inject" or looks_like_inject_obedience(cleaned):
+        return SAFE_INJECT
+    if looks_like_collapse(cleaned):
+        return intent_safe_fallback(intent) or SAFE_INJECT
+
+    # Coach lists: never map to inject-refuse on task/smalltalk
+    if looks_like_coach_list(cleaned):
+        if intent == "task":
+            return SAFE_TASK
+        return intent_safe_fallback(intent) or SAFE_NO_HELPDESK
+
     if boilerplate_hits(cleaned):
-        return _memory_safe_fallback(memory_op) or SAFE_NO_HELPDESK
+        return (
+            _memory_safe_fallback(memory_op)
+            or intent_safe_fallback(intent)
+            or SAFE_NO_HELPDESK
+        )
+
+    if looks_like_en_leak(cleaned) and intent in {
+        "inject",
+        "smalltalk",
+        "helpdesk_trap",
+        "settings",
+        "task",
+        None,
+    }:
+        # EN leak on persona turns → intent fallback or no-helpdesk
+        return (
+            _memory_safe_fallback(memory_op)
+            or intent_safe_fallback(intent)
+            or SAFE_NO_HELPDESK
+        )
+
     if looks_like_degenerate(cleaned) or sticky_hits(cleaned, recent_assistant):
         mem = _memory_safe_fallback(memory_op)
         if mem:
             return mem
+        intent_fb = intent_safe_fallback(intent)
+        if intent_fb:
+            return intent_fb
         if user_looks_kaputt(user_text):
             return SAFE_CHARACTER
+        # F4: still avoid bare Aussetzer when we know a non-memory intent
+        if intent in {"settings", "helpdesk_trap", "task", "smalltalk"}:
+            return intent_safe_fallback(intent) or SAFE_NO_HELPDESK
         return SAFE_DEGENERATE
+
+    # Explicit Aussetzer phrase from prior canned / model echo
+    if cleaned == SAFE_DEGENERATE or cleaned.startswith("Kurzer Aussetzer"):
+        return intent_safe_fallback(intent) or _memory_safe_fallback(memory_op) or SAFE_NO_HELPDESK
+
     if looks_like_non_german(cleaned):
-        return _memory_safe_fallback(memory_op) or SAFE_DEGENERATE
+        return (
+            _memory_safe_fallback(memory_op)
+            or intent_safe_fallback(intent)
+            or SAFE_NO_HELPDESK
+        )
+
     if duzen_hits(cleaned):
         mem = _memory_safe_fallback(memory_op)
         if mem:
             return mem
+        intent_fb = intent_safe_fallback(intent)
+        if intent_fb:
+            return intent_fb
         if user_looks_kaputt(user_text):
             return SAFE_CHARACTER
-        return SAFE_DEGENERATE
+        return SAFE_NO_HELPDESK
+
     return cleaned
 
 
@@ -279,9 +373,13 @@ def is_guarded_canned(text: str) -> bool:
     t = text.strip()
     return t in {
         SAFE_REFUSAL,
+        SAFE_INJECT,
         SAFE_DEGENERATE,
         SAFE_NO_HELPDESK,
         SAFE_CHARACTER,
+        SAFE_TASK,
+        SAFE_SETTINGS,
+        SAFE_HELPDESK_TRAP,
         SAFE_MEMORY_ACK,
         SAFE_MEMORY_FORGET,
         SAFE_MEMORY_RECALL,

@@ -12,8 +12,8 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 1b | **`0.4.2`** | [10](./sprints/sprint-10.md) | Memory Polish (Parser, Split, TTL, UI-Filter) | **READY FOR REVIEW** |
 | 1c | **`0.4.3`** | [11](./sprints/sprint-11.md) | Memory Hotfix (Clause-Split, Recall, Pref) | **READY FOR REVIEW** |
 | 2 | **`0.5.0`** | [12](./sprints/sprint-12.md) | Intent-Router (merk/recall/forget/clarify), Routing, Scores | **READY FOR REVIEW** |
-| 2a | **`0.5.1`** | [13](./sprints/sprint-13.md) | Router Hotfix (Inject/Task/Weak-Write/Fallbacks) | **PLANNED** (prio) |
-| 2b | **`0.5.2`** | [14](./sprints/sprint-14.md) | Router Polish (Patterns, Live-Scorecard) | **PLANNED** (Should) |
+| 2a | **`0.5.1`** | [13](./sprints/sprint-13.md) | Router Hotfix (Inject/Task/Weak-Write/Fallbacks) | **READY FOR REVIEW** |
+| 2b | **`0.5.2`** | [14](./sprints/sprint-14.md) | Router Polish (Patterns, Live-Scorecard) | **READY FOR REVIEW** |
 | 3 | **`0.6.0`** | [15](./sprints/sprint-15.md) | Internet-Research (opt-in, zitiert) | **PLANNED** |
 | 4 | **`0.7.0`** | [16](./sprints/sprint-16.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |
 

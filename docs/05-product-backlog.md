@@ -116,10 +116,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.4b | Als Nutzer will ich bei „nicht X, sondern Y“ Ersetzen + kurze Nachfrage. | Must | done | Sprint 12 / `0.5.0` — Contradiction / clarify |
 | S7.5 | Als Nutzer will ich Auto-Model-Routing (Default/Heavy/Fallback). | Must | done | Sprint 12 / `0.5.0` — `10` |
 | S7.6 | Als PO will ich Persona-/Quality-Scores in Eval/CI. | Must | done | Sprint 12 / `0.5.0` — `10` |
-| S7.6a | Als Nutzer will ich, dass Tasks nicht als Inject geblockt werden und Inject Jarvis/DE bleibt. | Must | ready | Sprint 13 / `0.5.1` — Hotfix |
-| S7.6b | Als Nutzer will ich keine Speicherung von leeren „Merk dir irgendwie“-Payloads. | Must | ready | Sprint 13 / `0.5.1` |
-| S7.6c | Als Nutzer will ich bei Settings/Helpdesk-Bait keinen finalen Aussetzer. | Must | ready | Sprint 13 / `0.5.1` |
-| S7.6d | Als PO will ich robusteren Router + Live-Scorecard (nicht blocker). | Should | ready | Sprint 14 / `0.5.2` — Polish |
+| S7.6a | Als Nutzer will ich, dass Tasks nicht als Inject geblockt werden und Inject Jarvis/DE bleibt. | Must | done | Sprint 13 / `0.5.1` — Hotfix |
+| S7.6b | Als Nutzer will ich keine Speicherung von leeren „Merk dir irgendwie“-Payloads. | Must | done | Sprint 13 / `0.5.1` |
+| S7.6c | Als Nutzer will ich bei Settings/Helpdesk-Bait keinen finalen Aussetzer. | Must | done | Sprint 13 / `0.5.1` |
+| S7.6d | Als PO will ich robusteren Router + Live-Scorecard (nicht blocker). | Should | done | Sprint 14 / `0.5.2` — Polish |
 | S7.7 | Als Nutzer will ich opt-in Internet-Research mit Quellen (kein Raten). | Must | ready | Sprint 15 / `0.6.0` — `10` |
 | S7.8 | Kalender/Mail/Smart-Home-Tools | Won’t | parked | später |
 | S7.9 | Native Store-App | Won’t | parked | |
@@ -138,12 +138,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 13 (`0.5.1`)** Router Hotfix — **prio vor Research**
-2. **Sprint 14 (`0.5.2`)** Router Polish — **Should** (verschiebbar)
-3. PO-Review **Sprint 8–12** (`0.4.0`–`0.5.0`) → Tags bei OK (parallel)
-4. **Sprint 15 (`0.6.0`)** Internet-Research
-5. **Sprint 16 (`0.7.0`)** Delight & Settings
-6. Danach: Phase 2+ / NAS `1.0.0`
+1. PO-Review **Sprint 8–14** (`0.4.0`–`0.5.2`) → Tags bei OK
+2. **Sprint 15 (`0.6.0`)** Internet-Research
+3. **Sprint 16 (`0.7.0`)** Delight & Settings
+4. Danach: Phase 2+ / NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

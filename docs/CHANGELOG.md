@@ -5,17 +5,19 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `0.5.2` — Sprint 14 (Router Polish) — *geplant (Should)*
+### `0.5.2` — Sprint 14 (Router Polish) — *READY FOR REVIEW*
 
-- Router-Patterns erweitern; Live-Scorecard; Routing-Ehrlichkeit
-- Persona-Kleinkram (EN-Leak, Emoji, Recall-Helpdesk)
-- Eval `scripts/eval_0_5_2.py`, Version `0.5.2`
+- Router-Patterns (`mach mir einen Plan`, Capability-Bait); Extra-Gold ≥5
+- Health: `heavy_equals_default` + Warning bei Heavy=Default
+- Live-Scorecard `scripts/scorecard_0_5_2.py` (Inject-EN, Task-FP, Recall, Weak-Write)
+- Persona: EN-Leak-Retry, Clarify-Emoji-Strip, Recall ohne Helpdesk-Tail
+- Eval `scripts/eval_0_5_2.py`, Version `0.5.2` (inkl. Sprint-13-Hotfix)
 
-### `0.5.1` — Sprint 13 (Router Hotfix) — *geplant (prio)*
+### `0.5.1` — Sprint 13 (Router Hotfix) — *READY FOR REVIEW* (mitgeliefert in `0.5.2`)
 
-- Inject/Task entkoppeln; Inject nur Jarvis-DE-Canned
+- Inject/Task entkoppelt; Inject → `SAFE_INJECT` (kein EN-Helpdesk)
 - Weak-Write Guardrail; Non-Memory-Fallbacks ohne Aussetzer
-- Eval `scripts/eval_0_5_1.py`, Version `0.5.1`
+- Eval `scripts/eval_0_5_1.py` (akzeptiert Health `0.5.1`/`0.5.2`)
 
 ### `0.5.0` — Sprint 12 (Intent-Router + Scores)
 
@@ -68,8 +70,6 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.5.1` | 13 | Router Hotfix (Inject/Task/Weak-Write/Fallbacks) — **prio** |
-| `0.5.2` | 14 | Router Polish (Patterns, Live-Scorecard) — **Should** |
 | `0.6.0` | 15 | Internet-Research (opt-in, Citations) |
 | `0.7.0` | 16 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |
