@@ -102,9 +102,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S7.1 | Als Nutzer will ich Langzeitgedächtnis über Chats hinweg (edit-/löschbar). | Must | ready | Sprint 8 / `0.4.0` — Details `10` |
-| S7.2 | Als Nutzer will ich, dass lange Chats zusammengefasst werden und den Faden halten. | Must | ready | Sprint 8 / `0.4.0` |
-| S7.3 | Als Dev will ich Kontextkompression statt naiver Truncation. | Must | ready | Sprint 8 / `0.4.0` |
+| S7.1 | Als Nutzer will ich Langzeitgedächtnis über Chats hinweg (edit-/löschbar). | Must | done | Sprint 8 / `0.4.0` — Details `10` |
+| S7.2 | Als Nutzer will ich, dass lange Chats zusammengefasst werden und den Faden halten. | Must | done | Sprint 8 / `0.4.0` |
+| S7.3 | Als Dev will ich Kontextkompression statt naiver Truncation. | Must | done | Sprint 8 / `0.4.0` |
 | S7.4 | Als Nutzer will ich Intent-abhängige Antwort-Policy (Smalltalk vs Task vs Research). | Must | ready | Sprint 9 / `0.5.0` — `10` |
 | S7.5 | Als Nutzer will ich Auto-Model-Routing (Default/Heavy/Fallback). | Must | ready | Sprint 9 / `0.5.0` — `10` |
 | S7.6 | Als PO will ich Persona-/Quality-Scores in Eval/CI. | Must | ready | Sprint 9 / `0.5.0` — `10` |
@@ -126,12 +126,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO-Review **Sprint 7 / `0.3.1`** (+ ggf. frühere Tags)
-2. **Sprint 8 (`0.4.0`)** Gedächtnis & Kontext
-3. **Sprint 9 (`0.5.0`)** Intent-Router, Model-Routing, Scores
-4. **Sprint 10 (`0.6.0`)** Verlässliche Internet-Research
-5. **Sprint 11 (`0.7.0`)** Delight & Settings
-6. Danach: Phase 2+ / NAS `1.0.0`
+1. PO-Review **Sprint 8 / `0.4.0`** (Gedächtnis) + ggf. frühere Tags (`0.3.1` …)
+2. **Sprint 9 (`0.5.0`)** Intent-Router, Model-Routing, Scores
+3. **Sprint 10 (`0.6.0`)** Verlässliche Internet-Research
+4. **Sprint 11 (`0.7.0`)** Delight & Settings
+5. Danach: Phase 2+ / NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

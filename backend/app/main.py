@@ -9,7 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+from . import context as ctx
 from . import db
+from . import memory as memory_mod
 from .guards import (
     force_strict_refuse_if_needed,
     is_guarded_canned,
@@ -25,8 +27,8 @@ from .ollama_client import (
     resolve_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.3.1")
-APP_VERSION = "0.3.1"
+app = FastAPI(title="Jarvis API", version="0.4.0")
+APP_VERSION = "0.4.0"
 
 app.add_middleware(
     CORSMiddleware,
@@ -61,6 +63,12 @@ class ChatBody(BaseModel):
     content: str = Field(min_length=1, max_length=8000)
 
 
+class MemoryCreateBody(BaseModel):
+    key: str = Field(min_length=1, max_length=80)
+    value: str = Field(min_length=1, max_length=500)
+    category: str = "fact"
+
+
 @app.on_event("startup")
 def on_startup() -> None:
     db.init_db()
@@ -78,14 +86,24 @@ async def _resolve_runtime_model(settings: dict[str, Any]) -> tuple[str, bool, l
     return model, used_fallback, names
 
 
-def _completion_kwargs(settings: dict[str, Any], model: str, persona: str) -> dict[str, Any]:
+def _completion_kwargs(
+    settings: dict[str, Any],
+    model: str,
+    system: str,
+    *,
+    num_predict: int | None = None,
+) -> dict[str, Any]:
     return {
         "base_url": settings["ollama_base_url"],
         "model": model,
-        "system": persona,
+        "system": system,
         "temperature": float(settings.get("temperature", 0.72)),
         "top_p": float(settings.get("top_p", 0.88)),
-        "num_predict": int(settings.get("num_predict", 220)),
+        "num_predict": int(
+            num_predict
+            if num_predict is not None
+            else settings.get("num_predict", 220)
+        ),
         "repeat_penalty": float(settings.get("repeat_penalty", 1.18)),
     }
 
@@ -96,16 +114,95 @@ def _regen_nudge_for(user_text: str) -> str:
     return REGEN_NUDGE
 
 
+def _prepare_chat_context(
+    *,
+    conversation_id: str,
+    user_text: str,
+    settings: dict[str, Any],
+    persona: str,
+) -> tuple[str, list[dict[str, str]], list[str]]:
+    """Returns (system_prompt, llm_messages, memory_notes)."""
+    notes = memory_mod.apply_explicit_memory_commands(
+        user_text, conversation_id=conversation_id
+    )
+    memory_mod.harvest_soft_facts(user_text, conversation_id=conversation_id)
+
+    mem_limit = int(settings.get("memory_retrieve_limit", 8))
+    items = memory_mod.retrieve_relevant(user_text, limit=mem_limit)
+
+    conv = db.get_conversation(conversation_id) or {}
+    summary = conv.get("summary_text")
+
+    system = ctx.build_system_prompt(
+        persona=persona,
+        memory_items=items,
+        summary_text=summary,
+        memory_notes=notes or None,
+    )
+
+    history = db.list_messages(conversation_id)
+    last_k = int(settings.get("context_last_k", 16))
+    llm_messages = ctx.pack_messages(history, last_k=last_k)
+    return system, llm_messages, notes
+
+
+async def _maybe_refresh_summary(
+    *,
+    conversation_id: str,
+    settings: dict[str, Any],
+    model: str,
+) -> None:
+    every_n = int(settings.get("summary_every_n_messages", 8))
+    conv = db.get_conversation(conversation_id)
+    if not conv:
+        return
+    history = db.list_messages(conversation_id)
+    if not ctx.should_refresh_summary(
+        message_count=len(history),
+        last_summary_count=int(conv.get("summary_message_count") or 0),
+        every_n=every_n,
+    ):
+        return
+
+    # Summarize older part; keep raw last_k for the live packer.
+    last_k = int(settings.get("context_last_k", 16))
+    older = history[:-last_k] if len(history) > last_k else history
+    if len(older) < 4:
+        return
+    transcript = "\n".join(f"{m['role']}: {m['content']}" for m in older[-40:])
+    try:
+        summary = await chat_completion(
+            **_completion_kwargs(
+                settings,
+                model,
+                ctx.SUMMARY_PROMPT,
+                num_predict=int(settings.get("summary_num_predict", 180)),
+            ),
+            messages=[{"role": "user", "content": transcript}],
+        )
+    except OllamaError:
+        return
+    summary = summary.strip()
+    if not summary:
+        return
+    db.update_conversation_summary(
+        conversation_id,
+        summary_text=summary[:2000],
+        summary_upto_message_id=older[-1]["id"],
+        summary_message_count=len(history),
+    )
+
+
 async def _generate_reply(
     *,
     settings: dict[str, Any],
-    persona: str,
+    system: str,
     model: str,
     llm_messages: list[dict[str, str]],
     recent_assistant: list[str],
     user_text: str,
 ) -> str:
-    kwargs = _completion_kwargs(settings, model, persona)
+    kwargs = _completion_kwargs(settings, model, system)
     reply = await chat_completion(**kwargs, messages=llm_messages)
     retries = int(settings.get("guard_max_retries", 2))
     attempt = 0
@@ -134,6 +231,7 @@ async def health() -> dict[str, Any]:
             "using_fallback": used_fallback,
             "model_ready": True,
             "models": names,
+            "memory_count": len(db.list_memory_items(limit=500)),
             "warning": (
                 f"Fallback aktiv ({model}). Für beste Qualität: ollama pull {settings.get('model')}"
                 if used_fallback
@@ -150,8 +248,38 @@ async def health() -> dict[str, Any]:
             "model": settings.get("model"),
             "using_fallback": False,
             "model_ready": False,
+            "memory_count": len(db.list_memory_items(limit=500)),
             "error": str(exc),
         }
+
+
+@app.get("/api/memory")
+def api_list_memory() -> list[dict[str, Any]]:
+    return db.list_memory_items(limit=200)
+
+
+@app.post("/api/memory")
+def api_create_memory(body: MemoryCreateBody) -> dict[str, Any]:
+    return db.upsert_memory_item(
+        key=body.key,
+        value=body.value,
+        category=body.category,
+        confidence=1.0,
+    )
+
+
+@app.delete("/api/memory/{item_id}")
+def api_delete_memory(item_id: str) -> dict[str, Any]:
+    ok = db.delete_memory_item(item_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Memory-Eintrag nicht gefunden.")
+    return {"ok": True, "id": item_id}
+
+
+@app.delete("/api/memory")
+def api_clear_memory() -> dict[str, Any]:
+    n = db.clear_all_memory()
+    return {"ok": True, "deleted": n}
 
 
 @app.get("/api/conversations")
@@ -197,20 +325,27 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
     user_msg = db.add_message(conversation_id, "user", content)
     db.maybe_set_title_from_first_message(conversation_id, content)
 
-    history = db.list_messages(conversation_id)
-    max_n = int(settings.get("max_context_messages", 40))
-    trimmed = history[-max_n:]
-    llm_messages = [{"role": m["role"], "content": m["content"]} for m in trimmed]
+    system, llm_messages, mem_notes = _prepare_chat_context(
+        conversation_id=conversation_id,
+        user_text=content,
+        settings=settings,
+        persona=persona,
+    )
 
     try:
         model, used_fallback, _names = await _resolve_runtime_model(settings)
         reply = await _generate_reply(
             settings=settings,
-            persona=persona,
+            system=system,
             model=model,
             llm_messages=llm_messages,
             recent_assistant=recent,
             user_text=content,
+        )
+        await _maybe_refresh_summary(
+            conversation_id=conversation_id,
+            settings=settings,
+            model=model,
         )
     except OllamaError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
@@ -224,6 +359,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
         "model": model,
         "using_fallback": used_fallback,
         "guarded": is_guarded_canned(reply),
+        "memory_notes": mem_notes,
     }
 
 
@@ -243,17 +379,19 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
     user_msg = db.add_message(conversation_id, "user", content)
     db.maybe_set_title_from_first_message(conversation_id, content)
 
-    history = db.list_messages(conversation_id)
-    max_n = int(settings.get("max_context_messages", 40))
-    trimmed = history[-max_n:]
-    llm_messages = [{"role": m["role"], "content": m["content"]} for m in trimmed]
+    system, llm_messages, mem_notes = _prepare_chat_context(
+        conversation_id=conversation_id,
+        user_text=content,
+        settings=settings,
+        persona=persona,
+    )
 
     try:
         model, used_fallback, _names = await _resolve_runtime_model(settings)
     except OllamaError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-    kwargs = _completion_kwargs(settings, model, persona)
+    kwargs = _completion_kwargs(settings, model, system)
     retries = int(settings.get("guard_max_retries", 2))
 
     async def event_gen() -> AsyncIterator[str]:
@@ -266,6 +404,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 "user_message": user_msg,
                 "model": model,
                 "using_fallback": used_fallback,
+                "memory_notes": mem_notes,
             }
         )
 
@@ -299,6 +438,14 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
             messages_for_model = [*llm_messages, {"role": "user", "content": nudge}]
 
         saved = db.add_message(conversation_id, "assistant", final)
+        try:
+            await _maybe_refresh_summary(
+                conversation_id=conversation_id,
+                settings=settings,
+                model=model,
+            )
+        except Exception:
+            pass
         updated = db.get_conversation(conversation_id)
         yield sse(
             {

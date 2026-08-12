@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import {
+  clearMemory,
   createConversation,
   deleteConversation,
+  deleteMemoryItem,
   getConversation,
   getHealth,
   listConversations,
+  listMemory,
   streamChat,
   type Conversation,
   type Health,
+  type MemoryItem,
   type Message,
 } from './api'
 import './index.css'
@@ -31,6 +35,9 @@ function App() {
   const [composerFocused, setComposerFocused] = useState(false)
   const [threadKey, setThreadKey] = useState(0)
   const [enterIds, setEnterIds] = useState<Record<string, true>>({})
+  const [memoryOpen, setMemoryOpen] = useState(false)
+  const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([])
+  const [memoryBusy, setMemoryBusy] = useState(false)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -77,12 +84,51 @@ function App() {
     }
   }
 
+  async function refreshMemory() {
+    try {
+      setMemoryItems(await listMemory())
+    } catch {
+      /* panel shows empty / prior list */
+    }
+  }
+
   async function bootstrap() {
     await refreshHealth()
+    await refreshMemory()
     const list = await listConversations()
     setConversations(list)
     if (list[0]) {
       await openConversation(list[0].id)
+    }
+  }
+
+  async function onDeleteMemory(id: string) {
+    if (memoryBusy) return
+    setMemoryBusy(true)
+    try {
+      await deleteMemoryItem(id)
+      setMemoryItems((prev) => prev.filter((m) => m.id !== id))
+      void refreshHealth()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Memory löschen fehlgeschlagen')
+    } finally {
+      setMemoryBusy(false)
+    }
+  }
+
+  async function onClearMemory() {
+    if (memoryBusy) return
+    const ok = window.confirm('Alles löschen, was Jarvis über Sie weiß?')
+    if (!ok) return
+    setMemoryBusy(true)
+    try {
+      await clearMemory()
+      setMemoryItems([])
+      void refreshHealth()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Memory leeren fehlgeschlagen')
+    } finally {
+      setMemoryBusy(false)
     }
   }
 
@@ -215,6 +261,7 @@ function App() {
       setBusy(false)
       textareaRef.current?.focus()
       void refreshHealth()
+      void refreshMemory()
     }
   }
 
@@ -256,13 +303,66 @@ function App() {
           <div className="brand-mark" />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.3.1</p>
+            <p>lokal · privat · v0.4.0</p>
           </div>
         </div>
 
         <button className="new-chat" type="button" onClick={() => void onNewChat()}>
           + Neues Gespräch
         </button>
+
+        <button
+          className={`memory-toggle ${memoryOpen ? 'active' : ''}`}
+          type="button"
+          onClick={() => {
+            setMemoryOpen((o) => !o)
+            void refreshMemory()
+          }}
+        >
+          Was Jarvis über mich weiß
+          {typeof health?.memory_count === 'number' ? (
+            <span className="memory-count">{health.memory_count}</span>
+          ) : null}
+        </button>
+
+        {memoryOpen ? (
+          <div className="memory-panel">
+            {memoryItems.length === 0 ? (
+              <p className="memory-empty">Noch nichts gespeichert.</p>
+            ) : (
+              <ul className="memory-list">
+                {memoryItems.map((m) => (
+                  <li key={m.id} className="memory-item">
+                    <div className="memory-meta">
+                      <span className="memory-cat">{m.category}</span>
+                      <span className="memory-key">{m.key}</span>
+                    </div>
+                    <div className="memory-value">{m.value}</div>
+                    <button
+                      type="button"
+                      className="memory-del"
+                      disabled={memoryBusy}
+                      onClick={() => void onDeleteMemory(m.id)}
+                      aria-label={`Erinnerung ${m.key} löschen`}
+                    >
+                      Löschen
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {memoryItems.length > 0 ? (
+              <button
+                type="button"
+                className="memory-clear"
+                disabled={memoryBusy}
+                onClick={() => void onClearMemory()}
+              >
+                Alles löschen
+              </button>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="chat-list">
           {conversations.map((c) => (

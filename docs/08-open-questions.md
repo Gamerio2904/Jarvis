@@ -54,10 +54,10 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review **Sprint 7 / `0.3.1`** → Tag bei OK
-2. **Intelligence-Kette:** Sprint 8 `0.4.0` → 9 `0.5.0` → 10 `0.6.0` (Details `10`)
+1. PO-Review **Sprint 8 / `0.4.0`** → Tag bei OK (plus offene frühere Tags)
+2. **Intelligence-Kette weiter:** Sprint 9 `0.5.0` → 10 `0.6.0` (Details `10`)
 3. Danach Delight/Settings **Sprint 11 / `0.7.0`** (`11`)
-4. Parallel ok: Tags/Reviews `0.1.0`–`0.3.0`
+4. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
 
 ---
 

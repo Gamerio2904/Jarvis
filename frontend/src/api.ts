@@ -23,7 +23,18 @@ export type Health = {
   using_fallback?: boolean
   warning?: string | null
   version?: string
+  memory_count?: number
   error?: string
+}
+
+export type MemoryItem = {
+  id: string
+  key: string
+  value: string
+  category: string
+  confidence: number
+  source_conversation_id?: string | null
+  updated_at: string
 }
 
 async function parseError(res: Response): Promise<string> {
@@ -39,6 +50,22 @@ async function parseError(res: Response): Promise<string> {
 export async function getHealth(): Promise<Health> {
   const res = await fetch('/api/health')
   return res.json()
+}
+
+export async function listMemory(): Promise<MemoryItem[]> {
+  const res = await fetch('/api/memory')
+  if (!res.ok) throw new Error(await parseError(res))
+  return res.json()
+}
+
+export async function deleteMemoryItem(id: string): Promise<void> {
+  const res = await fetch(`/api/memory/${id}`, { method: 'DELETE' })
+  if (!res.ok) throw new Error(await parseError(res))
+}
+
+export async function clearMemory(): Promise<void> {
+  const res = await fetch('/api/memory', { method: 'DELETE' })
+  if (!res.ok) throw new Error(await parseError(res))
 }
 
 export async function listConversations(): Promise<Conversation[]> {

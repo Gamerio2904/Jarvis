@@ -116,6 +116,138 @@ textarea {
   transform: scale(0.98);
 }
 
+.memory-toggle {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 12px;
+  padding: 9px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+  transition:
+    background var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease;
+}
+
+.memory-toggle:hover,
+.memory-toggle.active {
+  background: var(--bg-hover);
+  color: var(--text);
+  border-color: #3a3a3a;
+}
+
+.memory-count {
+  font-size: 0.7rem;
+  color: var(--accent);
+  font-weight: 600;
+  min-width: 1.25rem;
+  text-align: right;
+}
+
+.memory-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  padding: 4px 2px 2px;
+  animation: fadeIn var(--motion-med) var(--ease-out);
+}
+
+.memory-empty {
+  margin: 0;
+  padding: 6px 8px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.memory-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.memory-item {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid transparent;
+  transition: border-color var(--motion-fast) ease, background var(--motion-fast) ease;
+}
+
+.memory-item:hover {
+  border-color: var(--border);
+  background: var(--bg-hover);
+}
+
+.memory-meta {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.memory-cat {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+
+.memory-key {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memory-value {
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.35;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+
+.memory-del,
+.memory-clear {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.memory-del:hover,
+.memory-clear:hover {
+  color: var(--danger);
+}
+
+.memory-del:disabled,
+.memory-clear:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.memory-clear {
+  align-self: flex-start;
+  padding: 2px 8px;
+}
+
 .chat-list {
   overflow: auto;
   display: flex;
@@ -123,6 +255,7 @@ textarea {
   gap: 4px;
   flex: 1;
   padding-right: 2px;
+  min-height: 80px;
 }
 
 .chat-item {

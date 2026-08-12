@@ -6,6 +6,10 @@
   "top_p": 0.88,
   "repeat_penalty": 1.18,
   "max_context_messages": 40,
+  "context_last_k": 16,
+  "memory_retrieve_limit": 8,
+  "summary_every_n_messages": 8,
+  "summary_num_predict": 180,
   "num_predict": 220,
   "guard_max_retries": 3
 }

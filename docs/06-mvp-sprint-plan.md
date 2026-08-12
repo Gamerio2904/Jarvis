@@ -194,13 +194,14 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 8 — Gedächtnis & Kontext → **`0.4.0`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-08.md`](./sprints/sprint-08.md) · Details: [`10-intelligence-capabilities.md`](./10-intelligence-capabilities.md)
 
 | Must | Inhalt |
 |------|--------|
 | G1–G3 | Summary, Kontextkompression, Langzeitgedächtnis v1 |
-| G4–G6 | Prompt-Pipeline, Eval, Version `0.4.0` |
+| G4–G6 | Prompt-Pipeline, Eval `eval_0_4_0.py`, Version `0.4.0` |
+| G7–G8 | UI „Über mich“, Summary nach N Turns |
 
 ---
 

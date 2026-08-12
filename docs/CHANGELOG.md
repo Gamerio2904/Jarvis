@@ -2,6 +2,14 @@
 
 Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
+## Unreleased / pending tag `0.4.0`
+
+- Langzeitgedächtnis v1 (`memory_items`, merk/vergiss, soft Lieblings-Harvest)
+- Gesprächszusammenfassung periodisch + Kontextpack (persona + memory + summary + last_k)
+- APIs `GET/POST/DELETE /api/memory`, Health `memory_count`
+- UI „Was Jarvis über mich weiß“
+- Eval `scripts/eval_0_4_0.py`, Version `0.4.0`
+
 ## Unreleased / pending tag `0.3.1`
 
 - Ambient-Gradient stärker sichtbar
@@ -10,10 +18,6 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 - Chat-Wechsel ohne Historie-Anim-Flash
 - Streaming-Caret kräftiger
 - Empty-State zentriert; Version `0.3.1`
-
-## Planned `0.4.0` (Sprint 8) — Intelligence 1
-
-- Langzeitgedächtnis v1, Gesprächszusammenfassung, Kontextkompression, Memory-Eval
 
 ## Planned `0.5.0` (Sprint 9) — Intelligence 2
 

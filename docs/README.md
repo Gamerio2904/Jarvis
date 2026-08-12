@@ -27,7 +27,7 @@ Sprints: [`sprints/README.md`](./sprints/README.md)
 | 0 | — | **DONE** |
 | 1–6 | `0.1.0`–`0.3.0` | **READY FOR REVIEW** |
 | 7 | `0.3.1` | **READY FOR REVIEW** (GUI Polish) |
-| 8 | `0.4.0` | **PLANNED** (Gedächtnis) |
+| 8 | `0.4.0` | **READY FOR REVIEW** (Gedächtnis) |
 | 9 | `0.5.0` | **PLANNED** (Router / Routing / Scores) |
 | 10 | `0.6.0` | **PLANNED** (Internet-Research) |
 | 11 | `0.7.0` | **PLANNED** (Delight + Settings) |

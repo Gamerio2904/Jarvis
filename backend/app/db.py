@@ -35,6 +35,12 @@ def get_conn() -> sqlite3.Connection:
     return conn
 
 
+def _ensure_column(conn: sqlite3.Connection, table: str, column: str, decl: str) -> None:
+    cols = {r[1] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in cols:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
+
+
 def init_db() -> None:
     conn = get_conn()
     try:
@@ -56,8 +62,22 @@ def init_db() -> None:
             );
             CREATE INDEX IF NOT EXISTS idx_messages_conv
                 ON messages(conversation_id, created_at);
+            CREATE TABLE IF NOT EXISTS memory_items (
+                id TEXT PRIMARY KEY,
+                key TEXT NOT NULL UNIQUE,
+                value TEXT NOT NULL,
+                category TEXT NOT NULL DEFAULT 'fact',
+                confidence REAL NOT NULL DEFAULT 0.8,
+                source_conversation_id TEXT,
+                updated_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_memory_updated
+                ON memory_items(updated_at DESC);
             """
         )
+        _ensure_column(conn, "conversations", "summary_text", "TEXT")
+        _ensure_column(conn, "conversations", "summary_upto_message_id", "TEXT")
+        _ensure_column(conn, "conversations", "summary_message_count", "INTEGER DEFAULT 0")
         conn.commit()
     finally:
         conn.close()
@@ -68,7 +88,8 @@ def list_conversations() -> list[dict[str, Any]]:
     try:
         rows = conn.execute(
             """
-            SELECT id, title, created_at, updated_at
+            SELECT id, title, created_at, updated_at,
+                   summary_text, summary_upto_message_id, summary_message_count
             FROM conversations
             ORDER BY updated_at DESC
             """
@@ -85,13 +106,18 @@ def create_conversation(title: str = "Neues Gespräch") -> dict[str, Any]:
         "title": title,
         "created_at": now,
         "updated_at": now,
+        "summary_text": None,
+        "summary_upto_message_id": None,
+        "summary_message_count": 0,
     }
     conn = get_conn()
     try:
         conn.execute(
             """
-            INSERT INTO conversations (id, title, created_at, updated_at)
-            VALUES (:id, :title, :created_at, :updated_at)
+            INSERT INTO conversations
+            (id, title, created_at, updated_at, summary_text, summary_upto_message_id, summary_message_count)
+            VALUES (:id, :title, :created_at, :updated_at, :summary_text,
+                    :summary_upto_message_id, :summary_message_count)
             """,
             item,
         )
@@ -105,7 +131,11 @@ def get_conversation(conversation_id: str) -> dict[str, Any] | None:
     conn = get_conn()
     try:
         row = conn.execute(
-            "SELECT id, title, created_at, updated_at FROM conversations WHERE id = ?",
+            """
+            SELECT id, title, created_at, updated_at,
+                   summary_text, summary_upto_message_id, summary_message_count
+            FROM conversations WHERE id = ?
+            """,
             (conversation_id,),
         ).fetchone()
         return dict(row) if row else None
@@ -135,6 +165,36 @@ def touch_conversation(conversation_id: str) -> None:
         conn.execute(
             "UPDATE conversations SET updated_at = ? WHERE id = ?",
             (utc_now(), conversation_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def update_conversation_summary(
+    conversation_id: str,
+    summary_text: str,
+    summary_upto_message_id: str | None,
+    summary_message_count: int,
+) -> None:
+    conn = get_conn()
+    try:
+        conn.execute(
+            """
+            UPDATE conversations
+            SET summary_text = ?,
+                summary_upto_message_id = ?,
+                summary_message_count = ?,
+                updated_at = ?
+            WHERE id = ?
+            """,
+            (
+                summary_text,
+                summary_upto_message_id,
+                summary_message_count,
+                utc_now(),
+                conversation_id,
+            ),
         )
         conn.commit()
     finally:
@@ -215,3 +275,131 @@ def delete_conversation(conversation_id: str) -> bool:
 def recent_assistant_texts(conversation_id: str, limit: int = 5) -> list[str]:
     messages = list_messages(conversation_id)
     return [m["content"] for m in messages if m["role"] == "assistant"][-limit:]
+
+
+# --- Long-term memory ---
+
+
+def list_memory_items(limit: int = 100) -> list[dict[str, Any]]:
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            """
+            SELECT id, key, value, category, confidence,
+                   source_conversation_id, updated_at
+            FROM memory_items
+            ORDER BY updated_at DESC
+            LIMIT ?
+            """,
+            (limit,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def upsert_memory_item(
+    *,
+    key: str,
+    value: str,
+    category: str = "fact",
+    confidence: float = 0.8,
+    source_conversation_id: str | None = None,
+) -> dict[str, Any]:
+    key_n = key.strip().lower().replace(" ", "_")[:80]
+    value_n = value.strip()[:500]
+    category_n = category if category in {"pref", "fact", "open_loop", "boundary"} else "fact"
+    now = utc_now()
+    conn = get_conn()
+    try:
+        existing = conn.execute(
+            "SELECT id FROM memory_items WHERE key = ?",
+            (key_n,),
+        ).fetchone()
+        if existing:
+            conn.execute(
+                """
+                UPDATE memory_items
+                SET value = ?, category = ?, confidence = ?,
+                    source_conversation_id = ?, updated_at = ?
+                WHERE key = ?
+                """,
+                (
+                    value_n,
+                    category_n,
+                    confidence,
+                    source_conversation_id,
+                    now,
+                    key_n,
+                ),
+            )
+            item_id = existing["id"]
+        else:
+            item_id = str(uuid.uuid4())
+            conn.execute(
+                """
+                INSERT INTO memory_items
+                (id, key, value, category, confidence, source_conversation_id, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    item_id,
+                    key_n,
+                    value_n,
+                    category_n,
+                    confidence,
+                    source_conversation_id,
+                    now,
+                ),
+            )
+        conn.commit()
+        row = conn.execute(
+            """
+            SELECT id, key, value, category, confidence,
+                   source_conversation_id, updated_at
+            FROM memory_items WHERE id = ?
+            """,
+            (item_id,),
+        ).fetchone()
+        return dict(row)
+    finally:
+        conn.close()
+
+
+def delete_memory_item(item_id: str) -> bool:
+    conn = get_conn()
+    try:
+        cur = conn.execute("DELETE FROM memory_items WHERE id = ?", (item_id,))
+        conn.commit()
+        return cur.rowcount > 0
+    finally:
+        conn.close()
+
+
+def delete_memory_by_key_substring(query: str) -> int:
+    q = query.strip().lower()
+    if not q:
+        return 0
+    conn = get_conn()
+    try:
+        rows = conn.execute("SELECT id, key, value FROM memory_items").fetchall()
+        deleted = 0
+        for r in rows:
+            blob = f"{r['key']} {r['value']}".lower()
+            if q in blob or q.replace(" ", "_") in r["key"]:
+                conn.execute("DELETE FROM memory_items WHERE id = ?", (r["id"],))
+                deleted += 1
+        conn.commit()
+        return deleted
+    finally:
+        conn.close()
+
+
+def clear_all_memory() -> int:
+    conn = get_conn()
+    try:
+        cur = conn.execute("DELETE FROM memory_items")
+        conn.commit()
+        return cur.rowcount
+    finally:
+        conn.close()
