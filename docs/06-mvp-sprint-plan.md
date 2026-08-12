@@ -164,7 +164,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 6 — GUI Update Premium-Motion → **`0.3.0`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-06.md`](./sprints/sprint-06.md)
 
 **Ziel:** Bestehende Chat-UI spürbar premium machen — gezielte Motion, smoother Composer/Sidebar/Streaming; Layout & Charakter bleiben.

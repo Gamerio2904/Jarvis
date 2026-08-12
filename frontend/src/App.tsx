@@ -12,6 +12,10 @@ import {
 } from './api'
 import './index.css'
 
+function prefersReducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
 function App() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -24,8 +28,12 @@ function App() {
   const [health, setHealth] = useState<Health | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [statusNote, setStatusNote] = useState<string | null>(null)
+  const [composerFocused, setComposerFocused] = useState(false)
+  const [threadKey, setThreadKey] = useState(0)
   const bottomRef = useRef<HTMLDivElement | null>(null)
+  const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const stickToBottomRef = useRef(true)
 
   useEffect(() => {
     void bootstrap()
@@ -36,7 +44,12 @@ function App() {
   }, [])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (!stickToBottomRef.current) return
+    const behavior: ScrollBehavior = prefersReducedMotion() ? 'auto' : 'smooth'
+    // During active streaming, avoid smooth-scroll thrash (M9)
+    const streamBehavior: ScrollBehavior =
+      streamingText !== null || prefersReducedMotion() ? 'auto' : behavior
+    bottomRef.current?.scrollIntoView({ behavior: streamBehavior })
   }, [messages, busy, streamingText])
 
   useEffect(() => {
@@ -74,6 +87,8 @@ function App() {
     setLastFailed(null)
     setActiveId(id)
     setSidebarOpen(false)
+    setThreadKey((k) => k + 1)
+    stickToBottomRef.current = true
     const data = await getConversation(id)
     setMessages(data.messages)
   }
@@ -85,7 +100,9 @@ function App() {
     setConversations((prev) => [created, ...prev])
     setActiveId(created.id)
     setMessages([])
+    setThreadKey((k) => k + 1)
     setSidebarOpen(false)
+    stickToBottomRef.current = true
   }
 
   async function onDeleteChat() {
@@ -98,12 +115,20 @@ function App() {
       setConversations(remaining)
       setMessages([])
       setActiveId(remaining[0]?.id ?? null)
+      setThreadKey((k) => k + 1)
       if (remaining[0]) {
         await openConversation(remaining[0].id)
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Löschen fehlgeschlagen')
     }
+  }
+
+  function onMessagesScroll() {
+    const el = messagesRef.current
+    if (!el) return
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight
+    stickToBottomRef.current = distance < 96
   }
 
   async function sendMessage(content: string) {
@@ -113,6 +138,7 @@ function App() {
     setLastFailed(null)
     setStatusNote(null)
     setStreamingText('')
+    stickToBottomRef.current = true
 
     let conversationId = activeId
     try {
@@ -174,7 +200,6 @@ function App() {
       setError(msg)
       setLastFailed(content)
       setStreamingText(null)
-      // drop optimistic-only user bubble if stream failed before meta
       setMessages((prev) => prev.filter((m) => !m.id.startsWith('tmp-')))
     } finally {
       setBusy(false)
@@ -210,16 +235,18 @@ function App() {
 
   return (
     <div className="app">
-      {sidebarOpen ? (
-        <div className="backdrop" onClick={() => setSidebarOpen(false)} />
-      ) : null}
+      <div
+        className={`backdrop ${sidebarOpen ? 'visible' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden={!sidebarOpen}
+      />
 
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="brand">
           <div className="brand-mark" />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.2.2</p>
+            <p>lokal · privat · v0.3.0</p>
           </div>
         </div>
 
@@ -277,7 +304,7 @@ function App() {
           >
             ☰
           </button>
-          <h2>{activeTitle}</h2>
+          <h2 key={threadKey}>{activeTitle}</h2>
           <div className="topbar-actions">
             {activeId ? (
               <button
@@ -299,8 +326,8 @@ function App() {
           </div>
         ) : null}
 
-        <div className="messages">
-          <div className="messages-inner">
+        <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
+          <div className="messages-inner" key={threadKey}>
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
                 <h3>Jarvis</h3>
@@ -309,7 +336,10 @@ function App() {
             ) : null}
 
             {messages.map((m) => (
-              <div key={m.id} className={`row ${m.role}`}>
+              <div
+                key={m.id}
+                className={`row ${m.role} ${m.role === 'user' ? 'enter-user' : 'enter-assistant'}`}
+              >
                 {m.role === 'assistant' ? (
                   <div className="avatar jarvis">J</div>
                 ) : null}
@@ -318,10 +348,15 @@ function App() {
             ))}
 
             {streamingText !== null ? (
-              <div className="row assistant">
+              <div className="row assistant streaming">
                 <div className="avatar jarvis">J</div>
                 <div className="bubble">
-                  {streamingText || (
+                  {streamingText ? (
+                    <>
+                      {streamingText}
+                      <span className="stream-caret" aria-hidden />
+                    </>
+                  ) : (
                     <div className="typing" aria-label="Jarvis schreibt">
                       <span />
                       <span />
@@ -347,12 +382,14 @@ function App() {
               ) : null}
             </div>
           ) : null}
-          <div className="composer">
+          <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
             <textarea
               ref={textareaRef}
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={onKeyDown}
+              onFocus={() => setComposerFocused(true)}
+              onBlur={() => setComposerFocused(false)}
               placeholder="Nachricht an Jarvis…"
               rows={1}
               disabled={busy}

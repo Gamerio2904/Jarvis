@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Outfit:wght@500;650;700&display=swap");
+
 :root {
   color-scheme: dark;
   --bg: #121212;
@@ -14,8 +16,14 @@
   --assistant-bubble: transparent;
   --danger: #f15e6c;
   --radius: 18px;
-  --font: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font: "Manrope", "Segoe UI", sans-serif;
+  --font-display: "Outfit", "Manrope", sans-serif;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --motion-fast: 160ms;
+  --motion-med: 280ms;
+  --motion-slow: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 * {
@@ -51,6 +59,7 @@ textarea {
   flex-direction: column;
   padding: 12px;
   gap: 12px;
+  transition: transform var(--motion-med) var(--ease-out), box-shadow var(--motion-med) ease;
 }
 
 .brand {
@@ -66,12 +75,15 @@ textarea {
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, #1ed760, #0d5c2a 70%);
   box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.25);
+  animation: brandPulse 3.6s var(--ease-soft) infinite;
 }
 
 .brand h1 {
   margin: 0;
-  font-size: 1.05rem;
-  letter-spacing: 0.02em;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
 }
 
 .brand p {
@@ -88,7 +100,11 @@ textarea {
   border-radius: 999px;
   padding: 10px 14px;
   cursor: pointer;
-  transition: background 160ms ease, border-color 160ms ease, transform 120ms ease;
+  transition:
+    background var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    transform var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) ease;
 }
 
 .new-chat:hover {
@@ -117,7 +133,11 @@ textarea {
   border-radius: 10px;
   padding: 10px 12px;
   cursor: pointer;
-  transition: background 140ms ease, color 140ms ease;
+  transition:
+    background var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    transform var(--motion-fast) var(--ease-out),
+    padding-left var(--motion-fast) ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -126,11 +146,13 @@ textarea {
 .chat-item:hover {
   background: var(--bg-hover);
   color: var(--text);
+  padding-left: 14px;
 }
 
 .chat-item.active {
   background: var(--bg-hover);
   color: var(--text);
+  box-shadow: inset 2px 0 0 var(--accent);
 }
 
 .status {
@@ -153,9 +175,21 @@ textarea {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  position: relative;
+  isolation: isolate;
+  background: var(--bg);
+}
+
+.main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
   background:
-    radial-gradient(1200px 500px at 80% -10%, rgba(29, 185, 84, 0.08), transparent 55%),
-    var(--bg);
+    radial-gradient(900px 420px at 82% -8%, rgba(29, 185, 84, 0.11), transparent 58%),
+    radial-gradient(700px 380px at 8% 110%, rgba(29, 185, 84, 0.05), transparent 50%),
+    linear-gradient(180deg, #141414 0%, var(--bg) 38%, #101010 100%);
 }
 
 .topbar {
@@ -166,19 +200,22 @@ textarea {
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
   background: rgba(18, 18, 18, 0.85);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
 }
 
 .topbar h2 {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 1rem;
   font-weight: 600;
+  animation: fadeIn var(--motion-med) var(--ease-out);
 }
 
 .messages {
   flex: 1;
   overflow: auto;
   padding: 24px 16px 12px;
+  scroll-behavior: smooth;
 }
 
 .messages-inner {
@@ -194,13 +231,14 @@ textarea {
   text-align: center;
   color: var(--text-muted);
   padding: 48px 16px;
-  animation: fadeIn 280ms ease;
+  animation: emptyAppear var(--motion-slow) var(--ease-out);
 }
 
 .empty h3 {
   margin: 0 0 8px;
   color: var(--text);
-  font-size: 1.6rem;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
   font-weight: 650;
 }
 
@@ -208,11 +246,23 @@ textarea {
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  animation: fadeIn 220ms ease;
+}
+
+.row.enter-user {
+  justify-content: flex-end;
+  animation: msgInUser var(--motion-med) var(--ease-out);
+}
+
+.row.enter-assistant {
+  animation: msgInAssistant var(--motion-med) var(--ease-out);
 }
 
 .row.user {
   justify-content: flex-end;
+}
+
+.row.streaming {
+  animation: msgInAssistant var(--motion-med) var(--ease-out);
 }
 
 .avatar {
@@ -230,6 +280,10 @@ textarea {
 
 .avatar.jarvis {
   background: linear-gradient(145deg, #1db954, #0f7a34);
+}
+
+.row.streaming .avatar.jarvis {
+  animation: avatarPulse 1.6s var(--ease-soft) infinite;
 }
 
 .bubble {
@@ -251,6 +305,17 @@ textarea {
   box-shadow: var(--shadow);
 }
 
+.stream-caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1.05em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: caretBlink 1s steps(1, end) infinite;
+}
+
 .composer-wrap {
   padding: 12px 16px 20px;
 }
@@ -266,11 +331,21 @@ textarea {
   gap: 10px;
   align-items: flex-end;
   box-shadow: var(--shadow);
-  transition: border-color 160ms ease;
+  transition:
+    border-color var(--motion-med) ease,
+    box-shadow var(--motion-med) var(--ease-out),
+    transform var(--motion-med) var(--ease-out),
+    background var(--motion-med) ease;
 }
 
-.composer:focus-within {
-  border-color: rgba(29, 185, 84, 0.55);
+.composer:focus-within,
+.composer.is-focused {
+  border-color: rgba(29, 185, 84, 0.65);
+  background: #272727;
+  box-shadow:
+    0 0 0 1px rgba(29, 185, 84, 0.18),
+    0 12px 32px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
 }
 
 .composer textarea {
@@ -284,6 +359,7 @@ textarea {
   min-height: 24px;
   line-height: 1.4;
   padding: 8px 0;
+  transition: min-height var(--motion-fast) ease;
 }
 
 .composer button {
@@ -295,7 +371,10 @@ textarea {
   font-weight: 700;
   padding: 10px 16px;
   cursor: pointer;
-  transition: background 140ms ease, transform 120ms ease, opacity 140ms ease;
+  transition:
+    background var(--motion-fast) ease,
+    transform var(--motion-fast) var(--ease-out),
+    opacity var(--motion-fast) ease;
 }
 
 .composer button:hover:not(:disabled) {
@@ -323,6 +402,7 @@ textarea {
   border: 1px solid rgba(240, 193, 75, 0.35);
   color: #f6e2a4;
   font-size: 0.9rem;
+  animation: fadeIn var(--motion-med) var(--ease-out);
 }
 
 .status-note {
@@ -330,6 +410,7 @@ textarea {
   margin: 0 auto 8px;
   color: var(--text-muted);
   font-size: 0.85rem;
+  animation: fadeIn var(--motion-fast) ease;
 }
 
 .topbar-actions {
@@ -346,11 +427,21 @@ textarea {
   border-radius: 999px;
   padding: 6px 12px;
   cursor: pointer;
+  transition:
+    color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    background var(--motion-fast) ease,
+    transform var(--motion-fast) var(--ease-out);
 }
 
 .ghost-btn:hover:not(:disabled) {
   color: var(--text);
   border-color: #444;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ghost-btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .ghost-btn:disabled {
@@ -371,6 +462,7 @@ textarea {
   gap: 10px;
   align-items: center;
   justify-content: space-between;
+  animation: fadeIn var(--motion-med) var(--ease-out);
 }
 
 .retry-btn {
@@ -382,6 +474,15 @@ textarea {
   padding: 6px 12px;
   cursor: pointer;
   white-space: nowrap;
+  transition: background var(--motion-fast) ease, transform var(--motion-fast) var(--ease-out);
+}
+
+.retry-btn:hover {
+  background: rgba(241, 94, 108, 0.12);
+}
+
+.retry-btn:active {
+  transform: scale(0.97);
 }
 
 .typing {
@@ -423,11 +524,84 @@ textarea {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes emptyAppear {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes msgInUser {
+  from {
+    opacity: 0;
+    transform: translateY(10px) translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes msgInAssistant {
+  from {
+    opacity: 0;
+    transform: translateY(10px) translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes caretBlink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes avatarPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(29, 185, 84, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(29, 185, 84, 0);
+  }
+}
+
+@keyframes brandPulse {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.12);
+  }
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -440,6 +614,26 @@ textarea {
   border-radius: 10px;
   padding: 8px 10px;
   cursor: pointer;
+  transition: background var(--motion-fast) ease, transform var(--motion-fast) var(--ease-out);
+}
+
+.menu-btn:active {
+  transform: scale(0.96);
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 15;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-med) ease;
+}
+
+.backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 @media (max-width: 860px) {
@@ -453,21 +647,36 @@ textarea {
     width: min(86vw, 300px);
     z-index: 20;
     transform: translateX(-105%);
-    transition: transform 200ms ease;
+    box-shadow: none;
   }
 
   .sidebar.open {
     transform: translateX(0);
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.45);
   }
 
   .menu-btn {
     display: inline-flex;
   }
+}
 
-  .backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.45);
-    z-index: 15;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .composer:focus-within,
+  .composer.is-focused {
+    transform: none;
+  }
+
+  .stream-caret {
+    animation: none;
+    opacity: 1;
   }
 }

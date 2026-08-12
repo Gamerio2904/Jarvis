@@ -43,4 +43,4 @@ Umsetzung (Code) startet erst, wenn die offenen Punkte soweit geklärt sind, das
 | Sprint 3 | **READY FOR REVIEW** → `0.2.0` |
 | Sprint 4 | **READY FOR REVIEW** → `0.2.1` Guard Hardening |
 | Sprint 5 | **READY FOR REVIEW** → `0.2.2` Charakter-Feinschliff |
-| Sprint 6 | **PLANNED** → `0.3.0` GUI Premium-Motion |
+| Sprint 6 | **READY FOR REVIEW** → `0.3.0` GUI Premium-Motion |

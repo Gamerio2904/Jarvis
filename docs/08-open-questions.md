@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. **Sprint 6 / `0.3.0`** umsetzen (GUI Premium-Motion)
-2. Parallel ok: PO-Review / Tags `0.1.0`–`0.2.2`
+1. PO-Review **Sprint 6 / `0.3.0`** → bei OK Tag `v0.3.0`
+2. Parallel ok: Tags `0.1.0`–`0.2.2` nachziehen
 3. Danach: Gedächtnis-Ausbau → `0.4.0`
 
 ---

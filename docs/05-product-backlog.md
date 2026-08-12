@@ -108,9 +108,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 6 (`0.3.0`):** GUI Premium-Motion (M1–M6)
-2. PO-Reviews / Tags `0.1.0`–`0.2.2` nachziehen (parallel ok)
-3. Danach: Gedächtnis `0.4.0`, Phase 2+, NAS `1.0.0`
+1. PO-Review **Sprint 6 / `0.3.0`** (+ ggf. frühere Tags)
+2. Danach: Gedächtnis `0.4.0`, Phase 2+, NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 
