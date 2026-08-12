@@ -272,13 +272,12 @@ def _finalize_memory_reply(
         if "?" not in reply:
             return memory_mod.ack_reply_for_clarify(memory_notes)
         return reply
-    # Research without opt-in: never leave Aussetzer as final
+    # Research without opt-in: always refuse net claims (no research tool yet).
     if any("Research ohne Opt-in" in n for n in memory_notes):
-        if is_bad_memory_canned(reply) or reply.strip() == SAFE_DEGENERATE:
-            return (
-                "Research-Opt-in ist aus — kein Netz. "
-                "Nur lokales Wissen geht. Opt-in später in den Settings."
-            )
+        return (
+            "Research-Opt-in ist aus — kein Netz. "
+            "Nur lokales Wissen geht. Opt-in später in den Settings."
+        )
     if memory_mod.looks_like_remember_intent(
         user_text
     ) and memory_mod.looks_like_false_memory_confirm(reply):
