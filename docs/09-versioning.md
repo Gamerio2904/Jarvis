@@ -33,9 +33,10 @@ MAJOR.MINOR.PATCH
 | `0.4.0` | **Gedächtnis & Kontext** (Langzeitgedächtnis v1, Summary, Kompression) | Sprint 8 |
 | `0.4.1` | **Memory Must-Fixes** (False-Confirm, Guard/Aussetzer, Vergiss-alles) | Sprint 9 |
 | `0.4.2` | **Memory Polish** (Parser/Split/TTL/UI-Filter, Widerspruch-Heuristik) | Sprint 10 |
-| `0.5.0` | **Intelligence Core** (Router: merk/recall/forget + clarify; Routing; Scores) | Sprint 11 |
-| `0.6.0` | **Internet-Research** opt-in, citation-required | Sprint 12 |
-| `0.7.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | Sprint 13 |
+| `0.4.3` | **Memory Hotfix** (Clause-Split, Recall-Stabilität, Pref ohne „mein“) | Sprint 11 |
+| `0.5.0` | **Intelligence Core** (Router: merk/recall/forget + clarify; Routing; Scores) | Sprint 12 |
+| `0.6.0` | **Internet-Research** opt-in, citation-required | Sprint 13 |
+| `0.7.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | Sprint 14 |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele
@@ -45,7 +46,6 @@ MAJOR.MINOR.PATCH
 | `0.1.2` | Hotfix-Patch nach `0.1.1`, falls nötig |
 | `0.2.3` | Hotfix-Patch nach `0.2.2`, falls nötig |
 | `0.3.2` | Hotfix nach `0.3.1`, falls nötig |
-| `0.4.3` | Hotfix nach `0.4.2`, falls nötig |
 | `0.5.1` | Router-/Score-Patches nach `0.5.0` |
 
 ## Was wird versioniert?

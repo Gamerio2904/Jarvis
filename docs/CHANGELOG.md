@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.4.3` — Sprint 11 (Memory Hotfix) — *geplant*
+
+- Clause-Split: Beruf/Fakt-Values ohne Nachsatz-Pollution
+- Recall-Stabilität: kein finales Aussetzer-Canned bei Memory-Hit
+- Pref-Extraktion ohne Pflicht-„mein“ (`Speichere: Lieblings…`)
+- Eval `scripts/eval_0_4_3.py`, Version `0.4.3`
+
 ### `0.4.2` — Sprint 10 (Memory Polish)
 
 - Multi-Fakt-Split, Value-Normalisierung, Widerspruch „nicht X, sondern Y“
@@ -42,9 +49,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.5.0` | 11 | Intent-Router (merk/recall/forget/clarify), Routing, Scores |
-| `0.6.0` | 12 | Internet-Research (opt-in, Citations) |
-| `0.7.0` | 13 | Delight + Settings |
+| `0.4.3` | 11 | Memory Hotfix (Split/Recall/Pref) — **prio vor Router** |
+| `0.5.0` | 12 | Intent-Router (merk/recall/forget/clarify), Routing, Scores |
+| `0.6.0` | 13 | Internet-Research (opt-in, Citations) |
+| `0.7.0` | 14 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |
 
 ## Earlier (pending tags)

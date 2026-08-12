@@ -25,7 +25,8 @@ Gedächtnis **vertrauenswürdig**: keine falschen Merk-Bestätigungen, keine Gua
 ## Won’t
 
 - Parser-Feinschliff / Multi-Fakt-Split / UI-Filter / TTL (→ Sprint 10 / `0.4.2`)
-- Memory-Intent-Router (→ Sprint 11 / `0.5.0`)
+- Memory-Intent-Router (→ Sprint 12 / `0.5.0`)
+- Memory Hotfix Split/Recall (→ Sprint 11 / `0.4.3`)
 
 ## Abhängigkeiten
 

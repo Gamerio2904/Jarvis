@@ -190,7 +190,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 | P4–P5 | Ruhiger Chat-Wechsel, stabiler Stream-Caret |
 | P6 | Version `0.3.1` |
 
-**Danach:** Gedächtnis `0.4.0` → Must-Fixes `0.4.1` → Polish `0.4.2`
+**Danach:** Gedächtnis `0.4.0` → Must-Fixes `0.4.1` → Polish `0.4.2` → Hotfix `0.4.3`
 
 ---
 
@@ -233,10 +233,24 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 11 — Intent-Router, Model-Routing & Scores → **`0.5.0`**
+## Sprint 11 — Memory Hotfix → **`0.4.3`** *(prio)*
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-11.md`](./sprints/sprint-11.md) · [`10`](./10-intelligence-capabilities.md)
+**Artefakt:** [`sprints/sprint-11.md`](./sprints/sprint-11.md)
+
+| Must | Inhalt |
+|------|--------|
+| H1 | Clause-Split: Beruf/Fakt-Values ohne Nachsatz |
+| H2 | Recall ohne finales Aussetzer-Canned |
+| H3 | Pref ohne Pflicht-„mein“ (`Speichere: Lieblings…`) |
+| H4 | Eval + Version `0.4.3` |
+
+---
+
+## Sprint 12 — Intent-Router, Model-Routing & Scores → **`0.5.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-12.md`](./sprints/sprint-12.md) · [`10`](./10-intelligence-capabilities.md)
 
 | Must | Inhalt |
 |------|--------|
@@ -248,10 +262,10 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 12 — Verlässliche Internet-Research → **`0.6.0`**
+## Sprint 13 — Verlässliche Internet-Research → **`0.6.0`**
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-12.md`](./sprints/sprint-12.md) · [`10`](./10-intelligence-capabilities.md)
+**Artefakt:** [`sprints/sprint-13.md`](./sprints/sprint-13.md) · [`10`](./10-intelligence-capabilities.md)
 
 | Must | Inhalt |
 |------|--------|
@@ -260,10 +274,10 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 13 — Delight & Settings → **`0.7.0`**
+## Sprint 14 — Delight & Settings → **`0.7.0`**
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-13.md`](./sprints/sprint-13.md) · [`11`](./11-delight-and-settings.md)
+**Artefakt:** [`sprints/sprint-14.md`](./sprints/sprint-14.md) · [`11`](./11-delight-and-settings.md)
 
 | Must | Inhalt |
 |------|--------|

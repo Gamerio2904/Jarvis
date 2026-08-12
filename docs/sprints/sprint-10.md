@@ -26,4 +26,5 @@ Gedächtnis **präziser und steuerbarer**: bessere Extraktion, Soft-Harvest mit 
 
 ## Exit / Abnahme
 
-PO: Recall präziser, Soft-Harvest nicht spammy, UI filterbar. Nach PO-OK: Tag **`v0.4.2`**.
+PO: Recall präziser, Soft-Harvest nicht spammy, UI filterbar. Nach PO-OK: Tag **`v0.4.2`**.  
+Follow-up Deep-Test → Sprint 11 / **`0.4.3`** (Hotfix).

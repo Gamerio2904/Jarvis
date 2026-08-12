@@ -10,17 +10,19 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 1 | **`0.4.0`** | [08](./sprints/sprint-08.md) | Langzeitgedächtnis v1, Summary, Kontextkompression | **READY FOR REVIEW** |
 | 1a | **`0.4.1`** | [09](./sprints/sprint-09.md) | Memory Must-Fixes | **READY FOR REVIEW** |
 | 1b | **`0.4.2`** | [10](./sprints/sprint-10.md) | Memory Polish (Parser, Split, TTL, UI-Filter) | **READY FOR REVIEW** |
-| 2 | **`0.5.0`** | [11](./sprints/sprint-11.md) | Intent-Router (merk/recall/forget/clarify), Routing, Scores | **PLANNED** |
-| 3 | **`0.6.0`** | [12](./sprints/sprint-12.md) | Internet-Research (opt-in, zitiert) | **PLANNED** |
-| 4 | **`0.7.0`** | [13](./sprints/sprint-13.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |
+| 1c | **`0.4.3`** | [11](./sprints/sprint-11.md) | Memory Hotfix (Clause-Split, Recall, Pref) | **PLANNED** (prio) |
+| 2 | **`0.5.0`** | [12](./sprints/sprint-12.md) | Intent-Router (merk/recall/forget/clarify), Routing, Scores | **PLANNED** |
+| 3 | **`0.6.0`** | [13](./sprints/sprint-13.md) | Internet-Research (opt-in, zitiert) | **PLANNED** |
+| 4 | **`0.7.0`** | [14](./sprints/sprint-14.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |
 
 ```text
 Sprint 8  0.4.0 Memory
 Sprint 9  0.4.1 Must-Fixes
 Sprint 10 0.4.2 Polish
-Sprint 11 0.5.0 Router (+ Memory-Intent)
-Sprint 12 0.6.0 Research
-Sprint 13 0.7.0 Delight
+Sprint 11 0.4.3 Hotfix (prio)
+Sprint 12 0.5.0 Router (+ Memory-Intent)
+Sprint 13 0.6.0 Research
+Sprint 14 0.7.0 Delight
 ```
 
 ---
@@ -57,7 +59,7 @@ Persistenz: SQLite-Tabelle `memory_items` (kein Cloud).
 ### Widerspruch / Korrektur
 - Muster „nicht X, sondern Y“ / „X war falsch, Y stimmt“: alten Wert **ersetzen** (gleicher Key) und **kurz nachfragen** zur Bestätigung
 - v1-Heuristik + saubere Values: Sprint 10 / `0.4.2`
-- Volle Policy über `memory.clarify`: Sprint 11 / `0.5.0` (Doc §4.1)
+- Volle Policy über `memory.clarify`: Sprint 12 / `0.5.0` (Doc §4.1)
 
 ### Lesen
 - Top-N relevante Items zum User-Turn (Keyword/Overlap v1; später Embeddings optional)
@@ -156,7 +158,7 @@ Vor der Antwort grob erkennen, **welche Art Turn** vorliegt — dann andere Prom
 ## 4.1) Memory-Intent (Erweiterung, geplant mit `0.5.0`)
 
 > Unabhängig von Memory-Patches `0.4.1`/`0.4.2`: der **Router** macht Memory-Turns bewusst steuerbar.  
-> Sprint: [11](./sprints/sprint-11.md) · Version **`0.5.0`**.
+> Sprint: [12](./sprints/sprint-12.md) · Version **`0.5.0`**.
 
 ### Zweck
 `memory` ist kein einzelner Eimer. **merk / recall / forget** (plus clarify) brauchen **sauber getrennte** Pfade und **eigene Reply-Policies** — sonst kollidieren Guards (Helpdesk-Boilerplate) mit ehrlichen Merk-Acks, und das Modell „notiert“ verbal ohne Persistenz.
@@ -198,6 +200,7 @@ User-Msg
 | `0.4.0` | Memory v1 (Store, Summary, Pack) |
 | `0.4.1` | Bugs: False-Confirm, Aussetzer, Vergiss-alles |
 | `0.4.2` | Polish: Parser, Split, Retrieve, Summary, UI-Filter, Soft-Harvest TTL/Confidence; Widerspruchs-Heuristik v1 |
+| `0.4.3` | Hotfix: Clause-Split, Recall-Stabilität, Pref ohne „mein“ |
 | `0.5.0` | **Router: merk/recall/forget/clarify getrennt + Reply-Policy ohne Helpdesk-Fallback** |
 
 ### Abnahme (zusätzlich zu Router-Gold-Set)
@@ -303,7 +306,7 @@ User fragt (Intent=research, Opt-in an)
 - Mit Netz-Off → kein Research-Pfad
 
 ### Versionierung
-Sprint **12** → **`0.6.0`** ([`sprints/sprint-12.md`](./sprints/sprint-12.md)), nach Memory + Router.
+Sprint **13** → **`0.6.0`** ([`sprints/sprint-13.md`](./sprints/sprint-13.md)), nach Memory + Router.
 
 ---
 
@@ -316,10 +319,12 @@ Memory Must-Fixes                      →  0.4.1  (Sprint 9)
         ↓
 Memory Polish                          →  0.4.2  (Sprint 10)
         ↓
+Memory Hotfix                         →  0.4.3  (Sprint 11)
+        ↓
 Intent-Router (+ Memory-Intent) +
-  Model-Routing + Scores               →  0.5.0  (Sprint 11)
+  Model-Routing + Scores               →  0.5.0  (Sprint 12)
         ↓
-Internet-Research (opt-in)             →  0.6.0  (Sprint 12)
+Internet-Research (opt-in)             →  0.6.0  (Sprint 13)
         ↓
-Delight + flaches Settings             →  0.7.0  (Sprint 13)
+Delight + flaches Settings             →  0.7.0  (Sprint 14)
 ```

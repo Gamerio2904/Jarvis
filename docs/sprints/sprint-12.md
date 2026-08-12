@@ -1,48 +1,52 @@
-# Sprint 12 — Verlässliche Internet-Research
+# Sprint 12 — Intent-Router, Model-Routing & Scores
 
 | Feld | Wert |
 |------|------|
 | Status | **PLANNED** |
-| Ziel-Version | **`0.6.0`** |
-| Quelle | [`10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) § 7 |
+| Ziel-Version | **`0.5.0`** |
+| Quelle | [`10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) §§ 4–6 |
 
 ## Ziel
 
-Opt-in **Research mit Quellen**: nachvollziehbar, zitiert, wiederholbar — **kein Raten** ohne Beleg. Local LLM synthetisiert nur aus Snippets.
-
-> „100 % verlässlich“ = Engineering-DoD (Citations, Opt-in, Allowlist, Audit, Refuse ohne Quelle) — nicht epistemische Allwissenheit.
+Jarvis wählt **bewusst Policy und Modell** je nach Turn und wird über **Persona-/Quality-Scores** regressionssicher.  
+**Memory-Intent:** merk / recall / forget sauber trennen, eigene Reply-Policy (**kein Helpdesk-Fallback**), Contradiction-Handling über `memory.clarify`.
 
 ## Must
 
 | ID | Story | Done wenn |
 |----|-------|-----------|
-| R1 | **Opt-in Toggle** in Settings (Default **Aus**) | Ohne Opt-in kein Netzaufruf — auch bei Research-Intent |
-| R2 | **Retrieval-Pipeline** — Query → Allowlist-Provider → Snippets+URLs+Timestamp lokal | Rohdaten persistiert pro Turn |
-| R3 | **Citation-required Synthese** — Antwort nur aus Snippets; faktische Claims stützbar | Jede harte Aussage hat Quelle |
-| R4 | **No-source refuse** — unbeantwortbar / Netz down / leer → klare Meldung, kein Fülltext | Eval-Cases grün |
-| R5 | **UI** — Badge „Mit Quellen“, flach aufklappbare Quellenliste | Keine Nested-UI |
-| R6 | **Audit-Log** — Query, Zeit, Quellen lokal einsehbar | PO kann Turn nachvollziehen |
-| R7 | Eval-Suite Research + Version `0.6.0` | `eval`-Cases + Health |
+| I1 | **Intent-Router v1** — Klassen: `smalltalk`, `memory`, `inject`, `task`, `helpdesk_trap`, `research`, `settings` | Gold-Set ~30 Prompts; Research ohne Opt-in → kein Netz |
+| I1b | **Memory-Intent getrennt** — `memory.write` (merk) / `memory.recall` / `memory.forget` | Gold-Set Memory-Subklassen; falsche Klasse = Fail |
+| I1c | **Reply-Policy Memory** — eigene Nudges; bei Boilerplate Retry/Nudge | **Kein** finales Helpdesk-Canned auf `memory.*`-Turns |
+| I1d | **Contradiction-Handling** — `memory.clarify`: „nicht X, sondern Y“ | Alten Wert ersetzen + kurze Nachfrage; Eval-Case |
+| I2 | **Policy-Map** — Intent → Nudge / Tools / Länge / Guard-Verhalten | Smalltalk kurz; Memory ohne Helpdesk-Fallback; Task klarer; Inject geblockt |
+| I3 | **Model-Routing** — `auto` \| `always_default` \| `always_heavy` | Health/Meta zeigt Modell; kein stiller Cloud-Fallback |
+| I4 | **Persona-/Quality-Scorecard** — laut Doc `10` | Script liefert Scores; Must-Fail failen den Lauf |
+| I5 | **Baseline-Gate** — nicht unter `0.2.2` / `0.4.x` | In Eval/CI dokumentiert |
+| I6 | Version `0.5.0` | Health + UI |
 
 ## Should
 
 | ID | Inhalt |
 |----|--------|
-| R8 | Widerspruchs-Hinweis wenn Quellen divergieren |
-| R9 | Privacy-Hinweis: nur minimierte Query geht raus |
+| I7 | Router-Debug in Dev (Intent + Memory-Subklasse in Meta/Log) |
+| I8 | Sampling je Intent leicht anpassen |
+| I9 | Unsichere Soft-Harvest-Kollision → `memory.clarify` statt still upsert |
 
 ## Won’t
 
-- Cloud-LLM als Denker
-- Scraping ohne Transparenz
-- Research als Default-on
-- Delight-Pack (→ Sprint 13 / `0.7.0`)
+- Internet-Research-Ausführung (→ Sprint 13 / `0.6.0`)
+- Delight/Settings-Overhaul (→ Sprint 14 / `0.7.0`, Doc `11`)
+- Vektor-Memory-Pflicht
+- UI-Kategorie-Filter / TTL (liegt in Sprint 10 / `0.4.2`)
+- Memory-Hotfix Split/Recall (liegt in Sprint 11 / `0.4.3`)
 
 ## Abhängigkeiten
 
-- Intent-Router erkennt `research` (Sprint 11 / `0.5.0`)
-- Settings-Toggle (kann minimal hier landen; volles Settings-UX in Sprint 13)
+- `0.4.0` Gedächtnis (Sprint 8)
+- Empfohlen: `0.4.1`–`0.4.3` vorher (Sprint 9 → 10 → 11 → 12)
+- Ollama Default 7b (+ optional Heavy)
 
 ## Exit
 
-Live: Frage mit Quellen beantwortet; unbekannte Frage → Refuse; Opt-in aus → kein Netz. Tag **`v0.6.0`**.
+PO: Memory-Turns klar getrennt, keine Helpdesk-Fallbacks dort, Widersprüche ersetzt+nachgefragt, Eval grün. Tag **`v0.5.0`**.

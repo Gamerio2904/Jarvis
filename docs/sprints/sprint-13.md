@@ -1,44 +1,48 @@
-# Sprint 13 — Delight & Settings
+# Sprint 13 — Verlässliche Internet-Research
 
 | Feld | Wert |
 |------|------|
 | Status | **PLANNED** |
-| Ziel-Version | **`0.7.0`** |
-| Quelle | [`11-delight-and-settings.md`](../11-delight-and-settings.md) |
+| Ziel-Version | **`0.6.0`** |
+| Quelle | [`10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) § 7 |
 
 ## Ziel
 
-Jarvis bekommt **dosierte Begeisterung** (Momente, Jokes, Sound, Easter Eggs) und ein **flaches Settings-Panel** — abschaltbar, local-first, ohne Verschachtelungstiefe.
+Opt-in **Research mit Quellen**: nachvollziehbar, zitiert, wiederholbar — **kein Raten** ohne Beleg. Local LLM synthetisiert nur aus Snippets.
+
+> „100 % verlässlich“ = Engineering-DoD (Citations, Opt-in, Allowlist, Audit, Refuse ohne Quelle) — nicht epistemische Allwissenheit.
 
 ## Must
 
 | ID | Story | Done wenn |
 |----|-------|-----------|
-| D1 | **Flaches Settings-Panel** — eine Seite, ≤7 Abschnitte, 1 Ebene | PO findet Easter-Egg-Liste in &lt;10s; keine Nested-Menüs |
-| D2 | **Jarvis-Momente** — selten, Cap/Tag, Toggle | An/Aus wirkt; max. 1–2/Tag |
-| D3 | **Inside Jokes** — aus Memory-Pins, Intent-sensitiv, Toggle + Frequenz | Kein Witz bei ernstem Intent; löschbar |
-| D4 | **UI-Sounds** — Send/Receive/Error, Master-Toggle + 2–3 Lautstärken | Default dezent/aus laut PO; stummbar |
-| D5 | **Easter-Egg-Commands** — z.B. `/protokoll`, `/mission`, `/kante` — **Liste in Settings** | Eggs durch Guards; keine Shell/Netz |
-| D6 | Version `0.7.0` | Health + UI |
+| R1 | **Opt-in Toggle** in Settings (Default **Aus**) | Ohne Opt-in kein Netzaufruf — auch bei Research-Intent |
+| R2 | **Retrieval-Pipeline** — Query → Allowlist-Provider → Snippets+URLs+Timestamp lokal | Rohdaten persistiert pro Turn |
+| R3 | **Citation-required Synthese** — Antwort nur aus Snippets; faktische Claims stützbar | Jede harte Aussage hat Quelle |
+| R4 | **No-source refuse** — unbeantwortbar / Netz down / leer → klare Meldung, kein Fülltext | Eval-Cases grün |
+| R5 | **UI** — Badge „Mit Quellen“, flach aufklappbare Quellenliste | Keine Nested-UI |
+| R6 | **Audit-Log** — Query, Zeit, Quellen lokal einsehbar | PO kann Turn nachvollziehen |
+| R7 | Eval-Suite Research + Version `0.6.0` | `eval`-Cases + Health |
 
 ## Should
 
 | ID | Inhalt |
 |----|--------|
-| D7 | Abschnitte: Allgemein, Modell, Gedächtnis, Delight, Sound, Easter Eggs, Forschung |
-| D8 | Danger-Zone getrennt (Memory löschen) mit Bestätigung |
+| R8 | Widerspruchs-Hinweis wenn Quellen divergieren |
+| R9 | Privacy-Hinweis: nur minimierte Query geht raus |
 
 ## Won’t
 
-- Neue Intelligence-Kernfeatures (liegen in Sprints 8–12)
-- Tiefe Settings-Hierarchie / Advanced-JSON-UI als Primärweg
-- Lautes Arcade-Sound
+- Cloud-LLM als Denker
+- Scraping ohne Transparenz
+- Research als Default-on
+- Delight-Pack (→ Sprint 14 / `0.7.0`)
 
 ## Abhängigkeiten
 
-- `0.4.0`+ Gedächtnis (für Jokes); ideal nach Memory-Patches (Sprints 9–10)
-- Ideal nach Router/Research (Sprints 11–12), damit Settings Research-Toggle aufnehmen kann
+- Intent-Router erkennt `research` (Sprint 12 / `0.5.0`)
+- Settings-Toggle (kann minimal hier landen; volles Settings-UX in Sprint 14)
 
 ## Exit
 
-PO: Settings flach nutzbar; Delight spürbar aber abschaltbar; Eggs dokumentiert in UI. Tag **`v0.7.0`**.
+Live: Frage mit Quellen beantwortet; unbekannte Frage → Refuse; Opt-in aus → kein Netz. Tag **`v0.6.0`**.
