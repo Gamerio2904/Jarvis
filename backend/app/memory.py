@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from . import db
 
-MemoryOp = Literal["write", "forget", "forget_all", "recall", "none"]
+MemoryOp = Literal["write", "forget", "forget_all", "recall", "clarify", "none"]
 
 _MERK_RE = re.compile(
     r"(?is)^\s*(?:merk(?:e)?\s*dir|merke\s*dir|erinner(?:e)?\s*dich(?:\s*an)?)\s*"
@@ -204,6 +204,41 @@ def parse_contradiction(text: str) -> tuple[str, str, str] | None:
     return None
 
 
+_GENERIC_CONTRADICT_RE = re.compile(
+    r"(?is)\bnicht\s+(.+?),\s*sondern\s+(.+?)(?:[.!?]|$)"
+)
+
+
+def resolve_contradiction(text: str) -> tuple[str, str, str] | None:
+    """Lieblings-pattern or match existing memory value being corrected."""
+    direct = parse_contradiction(text)
+    if direct:
+        return direct
+    m = _GENERIC_CONTRADICT_RE.search(text)
+    if not m:
+        return None
+    old_v = normalize_value(m.group(1))
+    new_v = normalize_value(m.group(2))
+    if len(new_v) < 2:
+        return None
+    old_l = old_v.lower()
+    for it in db.list_memory_items(limit=80, include_expired=False):
+        val_l = str(it.get("value") or "").lower()
+        if not val_l:
+            continue
+        if old_l == val_l or old_l in val_l or val_l in old_l:
+            return it["key"], new_v, it.get("category") or "fact"
+    # Weak heuristic for tea/food/color words
+    blob = f"{old_v} {new_v}".lower()
+    if "tee" in blob:
+        return "lieblingstee", new_v, "pref"
+    if any(w in blob for w in ("essen", "döner", "pizza", "pasta")):
+        return "lieblingsessen", new_v, "pref"
+    if any(w in blob for w in ("farbe", "grün", "blau", "rot")):
+        return "lieblingsfarbe", new_v, "pref"
+    return (_key_from_payload(f"korrigiert_{new_v}"), new_v, "fact")
+
+
 def _facts_from_payload(payload: str) -> list[tuple[str, str, str]]:
     """Extract atoms from a merk/speichere payload; fall back to one fact."""
     if len(payload) < 2:
@@ -349,7 +384,7 @@ def apply_explicit_memory_commands(
     *,
     conversation_id: str,
 ) -> tuple[MemoryOp, list[str]]:
-    """Apply merk/vergiss. Returns (op, notes for system context)."""
+    """Apply merk/vergiss/clarify. Returns (op, notes for system context)."""
     notes: list[str] = []
 
     if is_forget_all(user_text):
@@ -363,8 +398,32 @@ def apply_explicit_memory_commands(
         notes.append(f"Memory gelöscht zu „{forget_q}“ ({n} Einträge).")
         return "forget", notes
 
+    # Clarify before generic write (I1d)
+    contradicted = resolve_contradiction(user_text)
+    if contradicted:
+        key, value, category = contradicted
+        existing = next(
+            (i for i in db.list_memory_items(limit=80) if i["key"] == key),
+            None,
+        )
+        old_val = existing["value"] if existing else None
+        db.upsert_memory_item(
+            key=key,
+            value=value,
+            category=category,
+            confidence=0.95,
+            source_conversation_id=conversation_id,
+            expires_at=None,
+        )
+        if old_val:
+            notes.append(f"Clarify: {key}: {old_val} → {value}")
+        else:
+            notes.append(f"Clarify: {key} = {value}")
+        return "clarify", notes
+
     remembered = parse_explicit_remember_many(user_text)
-    if remembered:
+    # parse_explicit_remember_many may still return contradiction-as-write; skip if clarify-shaped
+    if remembered and not resolve_contradiction(user_text):
         for key, value, category in remembered:
             db.upsert_memory_item(
                 key=key,
@@ -465,13 +524,32 @@ def ack_reply_for_recall(notes: list[str]) -> str:
     return f"Soweit notiert: {joined}. Was davon brauchen Sie?"
 
 
+def ack_reply_for_clarify(notes: list[str]) -> str:
+    """Confirm replacement + one short follow-up question (I1d)."""
+    for n in notes:
+        if n.startswith("Clarify:") and "→" in n:
+            # Clarify: key: old → new
+            body = n.split(":", 1)[-1].strip()
+            if "→" in body:
+                left, new = body.split("→", 1)
+                new = new.strip()
+                old_part = left.split(":", 1)[-1].strip() if ":" in left else left.strip()
+                return f"{new} statt {old_part} — so merken?"
+            return f"{body} — so merken?"
+        if n.startswith("Clarify:"):
+            body = n.split(":", 1)[-1].strip()
+            return f"{body} — so notiert. Passt das?"
+    return "Korrigiert. So merken?"
+
+
 def looks_like_recall_question(text: str) -> bool:
     return bool(
         re.search(
             r"(?is)\b("
             r"erinnerst\s+(?:du|Sie)\s+dich|"
             r"weißt\s+(?:du|Sie)\s+noch|"
-            r"was\s+ist\s+mein|"
+            r"was\s+(?:ist|mag|war)\s+mein|"
+            r"was\s+mag\s+ich|"
             r"welchen?\s+\w+\s+habe\s+ich|"
             r"wie\s+heiß(?:e|t)\s+(?:mein|ich)|"
             r"nochmal\b"

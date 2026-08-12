@@ -2,51 +2,30 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Ziel-Version | **`0.5.0`** |
 | Quelle | [`10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) §§ 4–6 |
 
 ## Ziel
 
 Jarvis wählt **bewusst Policy und Modell** je nach Turn und wird über **Persona-/Quality-Scores** regressionssicher.  
-**Memory-Intent:** merk / recall / forget sauber trennen, eigene Reply-Policy (**kein Helpdesk-Fallback**), Contradiction-Handling über `memory.clarify`.
+**Memory-Intent:** merk / recall / forget / clarify sauber trennen, eigene Reply-Policy (**kein Helpdesk-Fallback**).
 
-## Must
+## Geliefert
 
-| ID | Story | Done wenn |
-|----|-------|-----------|
-| I1 | **Intent-Router v1** — Klassen: `smalltalk`, `memory`, `inject`, `task`, `helpdesk_trap`, `research`, `settings` | Gold-Set ~30 Prompts; Research ohne Opt-in → kein Netz |
-| I1b | **Memory-Intent getrennt** — `memory.write` (merk) / `memory.recall` / `memory.forget` | Gold-Set Memory-Subklassen; falsche Klasse = Fail |
-| I1c | **Reply-Policy Memory** — eigene Nudges; bei Boilerplate Retry/Nudge | **Kein** finales Helpdesk-Canned auf `memory.*`-Turns |
-| I1d | **Contradiction-Handling** — `memory.clarify`: „nicht X, sondern Y“ | Alten Wert ersetzen + kurze Nachfrage; Eval-Case |
-| I2 | **Policy-Map** — Intent → Nudge / Tools / Länge / Guard-Verhalten | Smalltalk kurz; Memory ohne Helpdesk-Fallback; Task klarer; Inject geblockt |
-| I3 | **Model-Routing** — `auto` \| `always_default` \| `always_heavy` | Health/Meta zeigt Modell; kein stiller Cloud-Fallback |
-| I4 | **Persona-/Quality-Scorecard** — laut Doc `10` | Script liefert Scores; Must-Fail failen den Lauf |
-| I5 | **Baseline-Gate** — nicht unter `0.2.2` / `0.4.x` | In Eval/CI dokumentiert |
-| I6 | Version `0.5.0` | Health + UI |
-
-## Should
-
-| ID | Inhalt |
-|----|--------|
-| I7 | Router-Debug in Dev (Intent + Memory-Subklasse in Meta/Log) |
-| I8 | Sampling je Intent leicht anpassen |
-| I9 | Unsichere Soft-Harvest-Kollision → `memory.clarify` statt still upsert |
-
-## Won’t
-
-- Internet-Research-Ausführung (→ Sprint 13 / `0.6.0`)
-- Delight/Settings-Overhaul (→ Sprint 14 / `0.7.0`, Doc `11`)
-- Vektor-Memory-Pflicht
-- UI-Kategorie-Filter / TTL (liegt in Sprint 10 / `0.4.2`)
-- Memory-Hotfix Split/Recall (liegt in Sprint 11 / `0.4.3`)
-
-## Abhängigkeiten
-
-- `0.4.0` Gedächtnis (Sprint 8)
-- Empfohlen: `0.4.1`–`0.4.3` vorher (Sprint 9 → 10 → 11 → 12)
-- Ollama Default 7b (+ optional Heavy)
+| ID | Story | Status |
+|----|-------|--------|
+| I1 | Intent-Router v1 (`smalltalk`/`memory`/`inject`/`task`/`helpdesk_trap`/`research`/`settings`) | Done |
+| I1b | Memory-Subklassen `write`/`recall`/`forget`/`clarify` | Done |
+| I1c | Reply-Policy Memory (Nudges, kein Helpdesk-Final) | Done |
+| I1d | Contradiction → `clarify` + Upsert + Rückfrage | Done |
+| I2 | Policy-Map (Nudge/Sampling/Länge) | Done |
+| I3 | Model-Routing `auto`/`always_default`/`always_heavy` | Done |
+| I4 | Scorecard `scripts/scorecard_0_5_0.py` | Done |
+| I5 | Baseline-Gate in Scorecard | Done |
+| I6 | Version `0.5.0` + Eval `scripts/eval_0_5_0.py` | Done |
+| I7 | Route-Debug in Chat-Meta (`route`) | Done |
 
 ## Exit
 
-PO: Memory-Turns klar getrennt, keine Helpdesk-Fallbacks dort, Widersprüche ersetzt+nachgefragt, Eval grün. Tag **`v0.5.0`**.
+PO: Memory-Turns klar getrennt, keine Helpdesk-Fallbacks dort, Widersprüche ersetzt+nachgefragt, Eval grün. Nach PO-OK: Tag **`v0.5.0`**.

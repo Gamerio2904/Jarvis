@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.5.0` — Sprint 12 (Intent-Router + Scores)
+
+- Intent-Router v1 inkl. Memory-Subklassen write/recall/forget/clarify
+- Policy-Map, Model-Routing (`routing_mode`), Research ohne Opt-in blockiert
+- Scorecard + Baseline-Gate (`scripts/scorecard_0_5_0.py`)
+- Eval `scripts/eval_0_5_0.py`, Version `0.5.0`
+
 ### `0.4.3` — Sprint 11 (Memory Hotfix)
 
 - Clause-Split: Beruf/Fakt-Values enden vor `und`/`oder`
@@ -49,7 +56,6 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.5.0` | 12 | Intent-Router (merk/recall/forget/clarify), Routing, Scores |
 | `0.6.0` | 13 | Internet-Research (opt-in, Citations) |
 | `0.7.0` | 14 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |

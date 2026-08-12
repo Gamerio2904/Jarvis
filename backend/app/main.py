@@ -12,6 +12,8 @@ from pydantic import BaseModel, Field
 from . import context as ctx
 from . import db
 from . import memory as memory_mod
+from . import policy as policy_mod
+from . import router as router_mod
 from .guards import (
     SAFE_DEGENERATE,
     SAFE_MEMORY_REFUSE_FALSE,
@@ -29,10 +31,11 @@ from .ollama_client import (
     check_ollama,
     model_is_available,
     resolve_model,
+    resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.4.3")
-APP_VERSION = "0.4.3"
+app = FastAPI(title="Jarvis API", version="0.5.0")
+APP_VERSION = "0.5.0"
 
 app.add_middleware(
     CORSMiddleware,
@@ -75,6 +78,11 @@ MEMORY_RECALL_NUDGE = (
     "Kein Helpdesk, kein Duzen, kein „Kurzer Aussetzer“, keine Floskeln."
 )
 
+MEMORY_CLARIFY_NUDGE = (
+    "Systemhinweis: Widerspruch wurde korrigiert. Bestätige den neuen Wert und stelle "
+    "genau eine kurze Rückfrage („so merken?“). Kein Helpdesk, kein Duzen."
+)
+
 
 class CreateConversationBody(BaseModel):
     title: str = "Neues Gespräch"
@@ -95,16 +103,26 @@ def on_startup() -> None:
     db.init_db()
 
 
-async def _resolve_runtime_model(settings: dict[str, Any]) -> tuple[str, bool, list[str]]:
+async def _resolve_runtime_model(
+    settings: dict[str, Any],
+    *,
+    prefer_heavy: bool = False,
+) -> tuple[str, bool, list[str], str]:
     ollama = await check_ollama(settings["ollama_base_url"])
     names = [m.get("name", "") for m in ollama.get("models", [])]
-    model, used_fallback = resolve_model(settings, names)
+    model, used_fallback, routing_mode = resolve_routed_model(
+        settings, names, prefer_heavy=prefer_heavy
+    )
+    if not model_is_available(model, names):
+        # Fallback to classic resolve
+        model, used_fallback = resolve_model(settings, names)
+        routing_mode = str(settings.get("routing_mode", "auto"))
     if not model_is_available(model, names):
         raise OllamaError(
             f"Kein passendes Modell geladen. Bitte: ollama pull {settings.get('model')} "
             f"(Fallback: {settings.get('fallback_model')})"
         )
-    return model, used_fallback, names
+    return model, used_fallback, names, routing_mode
 
 
 def _completion_kwargs(
@@ -136,6 +154,8 @@ def _regen_nudge_for(user_text: str, memory_op: str | None = None) -> str:
         return MEMORY_FORGET_NUDGE
     if memory_op == "recall":
         return MEMORY_RECALL_NUDGE
+    if memory_op == "clarify":
+        return MEMORY_CLARIFY_NUDGE
     if user_looks_kaputt(user_text):
         return KAPUTT_NUDGE
     return REGEN_NUDGE
@@ -147,31 +167,53 @@ def _prepare_chat_context(
     user_text: str,
     settings: dict[str, Any],
     persona: str,
-) -> tuple[str, list[dict[str, str]], list[str], str]:
-    """Returns (system_prompt, llm_messages, memory_notes, memory_op)."""
+) -> tuple[str, list[dict[str, str]], list[str], str, dict[str, Any], policy_mod.Policy]:
+    """Returns system, messages, notes, memory_op, route_debug, policy."""
+    route = router_mod.classify(
+        user_text,
+        research_opt_in=bool(settings.get("research_opt_in", False)),
+    )
+    policy = policy_mod.get_policy(route.policy_key)
+
     mem_op, notes = memory_mod.apply_explicit_memory_commands(
         user_text, conversation_id=conversation_id
     )
+    # Soft-harvest only outside explicit memory ops / non-memory smalltalk
     memory_mod.harvest_soft_facts(
         user_text,
         conversation_id=conversation_id,
-        skip=mem_op != "none" or bool(notes),
+        skip=mem_op != "none" or bool(notes) or route.intent == "inject",
         confidence=float(settings.get("soft_harvest_confidence", 0.55)),
         ttl_days=float(settings.get("soft_harvest_ttl_days", 14)),
     )
 
     mem_limit = int(settings.get("memory_retrieve_limit", 8))
-    items = memory_mod.retrieve_relevant(
-        user_text,
-        limit=mem_limit,
-        ambient_fallback=bool(settings.get("memory_ambient_fallback", False)),
-        min_confidence=float(settings.get("memory_min_inject_confidence", 0.4)),
-    )
+    # Smalltalk / inject: no ambient leak (even if tokens overlap)
+    allow_retrieve = route.intent not in {"smalltalk", "inject", "helpdesk_trap"}
+    if route.memory_sub == "memory.recall":
+        allow_retrieve = True
+    items: list[dict[str, Any]] = []
+    if allow_retrieve and mem_op not in {"forget", "forget_all"}:
+        items = memory_mod.retrieve_relevant(
+            user_text,
+            limit=mem_limit,
+            ambient_fallback=bool(settings.get("memory_ambient_fallback", False)),
+            min_confidence=float(settings.get("memory_min_inject_confidence", 0.4)),
+        )
 
-    # H2: Token-Hit / injected memory → recall op so guards never emit Aussetzer.
-    if mem_op == "none" and items:
+    # Recall only when router says so (or explicit recall question) — not every token hit
+    if mem_op == "none" and items and (
+        route.memory_sub == "memory.recall"
+        or memory_mod.looks_like_recall_question(user_text)
+    ):
         mem_op = "recall"
         notes = [f"Recall: {it['key']} = {it['value']}" for it in items[:4]]
+
+    if route.research_blocked:
+        notes = [
+            *notes,
+            "Research ohne Opt-in — kein Netzaufruf. Nur lokales Wissen.",
+        ]
 
     conv = db.get_conversation(conversation_id) or {}
     summary = conv.get("summary_text")
@@ -182,12 +224,13 @@ def _prepare_chat_context(
         summary_text=summary,
         memory_notes=notes or None,
     )
+    system = policy_mod.append_policy_to_system(system, policy)
 
     history = db.list_messages(conversation_id)
     last_k = int(settings.get("context_last_k", 16))
     max_ctx = int(settings.get("max_context_messages", last_k))
     llm_messages = ctx.pack_messages(history, last_k=min(last_k, max_ctx))
-    return system, llm_messages, notes, mem_op
+    return system, llm_messages, notes, mem_op, router_mod.route_debug_dict(route), policy
 
 
 def _finalize_memory_reply(
@@ -211,7 +254,6 @@ def _finalize_memory_reply(
             return memory_mod.ack_reply_for_forget(memory_op, memory_notes)
         return reply
     if memory_op == "recall":
-        # Never leave the user with Aussetzer/Helpdesk when facts were injected.
         if is_bad_memory_canned(reply) or reply.strip() in {
             SAFE_DEGENERATE,
             SAFE_NO_HELPDESK,
@@ -219,7 +261,17 @@ def _finalize_memory_reply(
         }:
             return memory_mod.ack_reply_for_recall(memory_notes)
         return reply
-    # Remember intent without write → never claim stored
+    if memory_op == "clarify":
+        if is_bad_memory_canned(reply) or reply.strip() in {
+            SAFE_DEGENERATE,
+            SAFE_NO_HELPDESK,
+            "Korrigiert. So merken?",
+        }:
+            return memory_mod.ack_reply_for_clarify(memory_notes)
+        # Ensure a question mark for clarify policy
+        if "?" not in reply:
+            return memory_mod.ack_reply_for_clarify(memory_notes)
+        return reply
     if memory_mod.looks_like_remember_intent(
         user_text
     ) and memory_mod.looks_like_false_memory_confirm(reply):
@@ -312,13 +364,16 @@ async def _generate_reply(
 async def health() -> dict[str, Any]:
     settings = db.load_settings()
     try:
-        model, used_fallback, names = await _resolve_runtime_model(settings)
+        model, used_fallback, names, routing_mode = await _resolve_runtime_model(settings)
         return {
             "ok": True,
             "ollama": True,
             "version": APP_VERSION,
-            "configured_model": settings.get("model"),
+            "configured_model": settings.get("model_default") or settings.get("model"),
+            "model_heavy": settings.get("model_heavy"),
             "fallback_model": settings.get("fallback_model"),
+            "routing_mode": routing_mode,
+            "research_opt_in": bool(settings.get("research_opt_in", False)),
             "model": model,
             "using_fallback": used_fallback,
             "model_ready": True,
@@ -335,8 +390,10 @@ async def health() -> dict[str, Any]:
             "ok": False,
             "ollama": False,
             "version": APP_VERSION,
-            "configured_model": settings.get("model"),
+            "configured_model": settings.get("model_default") or settings.get("model"),
             "fallback_model": settings.get("fallback_model"),
+            "routing_mode": settings.get("routing_mode", "auto"),
+            "research_opt_in": bool(settings.get("research_opt_in", False)),
             "model": settings.get("model"),
             "using_fallback": False,
             "model_ready": False,
@@ -421,15 +478,18 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
     user_msg = db.add_message(conversation_id, "user", content)
     db.maybe_set_title_from_first_message(conversation_id, content)
 
-    system, llm_messages, mem_notes, mem_op = _prepare_chat_context(
+    system, llm_messages, mem_notes, mem_op, route_dbg, policy = _prepare_chat_context(
         conversation_id=conversation_id,
         user_text=content,
         settings=settings,
         persona=persona,
     )
+    settings = policy_mod.apply_sampling_overrides(settings, policy)
 
     try:
-        model, used_fallback, _names = await _resolve_runtime_model(settings)
+        model, used_fallback, _names, routing_mode = await _resolve_runtime_model(
+            settings, prefer_heavy=policy.prefer_heavy
+        )
         reply = await _generate_reply(
             settings=settings,
             system=system,
@@ -459,9 +519,11 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
         "assistant_message": assistant_msg,
         "model": model,
         "using_fallback": used_fallback,
+        "routing_mode": routing_mode,
         "guarded": is_guarded_canned(reply),
         "memory_notes": mem_notes,
         "memory_op": mem_op,
+        "route": route_dbg,
     }
 
 
@@ -481,15 +543,18 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
     user_msg = db.add_message(conversation_id, "user", content)
     db.maybe_set_title_from_first_message(conversation_id, content)
 
-    system, llm_messages, mem_notes, mem_op = _prepare_chat_context(
+    system, llm_messages, mem_notes, mem_op, route_dbg, policy = _prepare_chat_context(
         conversation_id=conversation_id,
         user_text=content,
         settings=settings,
         persona=persona,
     )
+    settings = policy_mod.apply_sampling_overrides(settings, policy)
 
     try:
-        model, used_fallback, _names = await _resolve_runtime_model(settings)
+        model, used_fallback, _names, routing_mode = await _resolve_runtime_model(
+            settings, prefer_heavy=policy.prefer_heavy
+        )
     except OllamaError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
@@ -506,8 +571,10 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 "user_message": user_msg,
                 "model": model,
                 "using_fallback": used_fallback,
+                "routing_mode": routing_mode,
                 "memory_notes": mem_notes,
                 "memory_op": mem_op,
+                "route": route_dbg,
             }
         )
 
@@ -566,6 +633,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 "conversation": updated,
                 "guarded": is_guarded_canned(final),
                 "memory_op": mem_op,
+                "route": route_dbg,
             }
         )
 

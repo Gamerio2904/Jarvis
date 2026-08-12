@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review **Sprint 8–11** (`0.4.0`–`0.4.3`) → Tags bei OK
-2. **Sprint 12 / `0.5.0`** Intent-Router inkl. Memory-Intent → **13 / `0.6.0`** Research
+1. PO-Review **Sprint 8–12** (`0.4.0`–`0.5.0`) → Tags bei OK
+2. **Sprint 13 / `0.6.0`** Internet-Research
 3. Danach Delight/Settings **Sprint 14 / `0.7.0`** (`11`)
 4. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
 

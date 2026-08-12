@@ -249,7 +249,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 12 — Intent-Router, Model-Routing & Scores → **`0.5.0`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-12.md`](./sprints/sprint-12.md) · [`10`](./10-intelligence-capabilities.md)
 
 | Must | Inhalt |

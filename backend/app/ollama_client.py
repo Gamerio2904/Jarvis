@@ -34,13 +34,41 @@ def model_is_available(model: str, model_names: list[str]) -> bool:
 
 
 def resolve_model(settings: dict[str, Any], model_names: list[str]) -> tuple[str, bool]:
-    preferred = settings.get("model", "")
+    preferred = settings.get("model_default") or settings.get("model", "")
     fallback = settings.get("fallback_model", "")
     if preferred and model_is_available(preferred, model_names):
         return preferred, False
     if fallback and model_is_available(fallback, model_names):
         return fallback, True
     return preferred or fallback or "unknown", False
+
+
+def resolve_routed_model(
+    settings: dict[str, Any],
+    model_names: list[str],
+    *,
+    prefer_heavy: bool = False,
+) -> tuple[str, bool, str]:
+    """Resolve model with routing_mode. Returns (model, used_fallback, routing_mode)."""
+    mode = str(settings.get("routing_mode", "auto"))
+    default = settings.get("model_default") or settings.get("model", "")
+    heavy = settings.get("model_heavy") or default
+    fallback = settings.get("fallback_model", "")
+
+    if mode == "always_heavy":
+        preferred = heavy
+    elif mode == "always_default":
+        preferred = default
+    else:
+        preferred = heavy if prefer_heavy else default
+
+    if preferred and model_is_available(preferred, model_names):
+        return preferred, False, mode
+    if default and model_is_available(default, model_names):
+        return default, preferred != default, mode
+    if fallback and model_is_available(fallback, model_names):
+        return fallback, True, mode
+    return preferred or default or fallback or "unknown", False, mode
 
 
 def _options(

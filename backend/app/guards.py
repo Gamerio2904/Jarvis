@@ -27,6 +27,7 @@ SAFE_CHARACTER = (
 SAFE_MEMORY_ACK = "Notiert. Was sonst?"
 SAFE_MEMORY_FORGET = "Ist weg. Weiter?"
 SAFE_MEMORY_RECALL = "Dazu habe ich etwas notiert — welche Detailfrage genau?"
+SAFE_MEMORY_CLARIFY = "Korrigiert. So merken?"
 SAFE_MEMORY_REFUSE_FALSE = (
     "Noch nicht gespeichert — formulier's als „Merk dir: …“, dann sitzt's."
 )
@@ -180,6 +181,8 @@ def _memory_safe_fallback(memory_op: str | None) -> str | None:
         return SAFE_MEMORY_FORGET
     if memory_op == "recall":
         return SAFE_MEMORY_RECALL
+    if memory_op == "clarify":
+        return SAFE_MEMORY_CLARIFY
     return None
 
 
@@ -282,6 +285,7 @@ def is_guarded_canned(text: str) -> bool:
         SAFE_MEMORY_ACK,
         SAFE_MEMORY_FORGET,
         SAFE_MEMORY_RECALL,
+        SAFE_MEMORY_CLARIFY,
         SAFE_MEMORY_REFUSE_FALSE,
     }
 
