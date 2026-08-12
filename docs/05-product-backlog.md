@@ -116,22 +116,22 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S8.1 | Als Nutzer will ich seltene Jarvis-Momente (abschaltbar). | Should | idea | `0.7.0` — `11` |
-| S8.2 | Als Nutzer will ich dosierte Inside Jokes aus dem Gedächtnis. | Should | idea | `0.7.0` — `11` |
-| S8.3 | Als Nutzer will ich optionale UI-Sounds. | Could | idea | `0.7.0` — `11` |
-| S8.4 | Als Nutzer will ich Easter-Egg-Commands, gelistet in den Einstellungen. | Should | idea | `0.7.0` — `11` |
-| S8.5 | Als Nutzer will ich ein flaches Settings-Panel (wenig Verschachtelung). | Must | idea | `0.7.0` — `11` |
+| S8.1 | Als Nutzer will ich seltene Jarvis-Momente (abschaltbar). | Should | ready | Sprint 11 / `0.7.0` — `11` |
+| S8.2 | Als Nutzer will ich dosierte Inside Jokes aus dem Gedächtnis. | Should | ready | Sprint 11 / `0.7.0` — `11` |
+| S8.3 | Als Nutzer will ich optionale UI-Sounds. | Could | ready | Sprint 11 / `0.7.0` — `11` |
+| S8.4 | Als Nutzer will ich Easter-Egg-Commands, gelistet in den Einstellungen. | Should | ready | Sprint 11 / `0.7.0` — `11` |
+| S8.5 | Als Nutzer will ich ein flaches Settings-Panel (wenig Verschachtelung). | Must | ready | Sprint 11 / `0.7.0` — `11` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 7 (`0.3.1`)** GUI Polish
+1. PO-Review **Sprint 7 / `0.3.1`** (+ ggf. frühere Tags)
 2. **Sprint 8 (`0.4.0`)** Gedächtnis & Kontext
 3. **Sprint 9 (`0.5.0`)** Intent-Router, Model-Routing, Scores
 4. **Sprint 10 (`0.6.0`)** Verlässliche Internet-Research
-5. Danach: Delight/Settings `0.7.0` → Phase 2+ / NAS `1.0.0`
-6. Parallel ok: PO-Reviews/Tags `0.1.0`–`0.3.0`
+5. **Sprint 11 (`0.7.0`)** Delight & Settings
+6. Danach: Phase 2+ / NAS `1.0.0`
 
 ## Parking Lot (Ideen, nicht geplant)
 

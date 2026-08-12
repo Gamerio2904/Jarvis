@@ -33,7 +33,7 @@ MAJOR.MINOR.PATCH
 | `0.4.0` | **Gedächtnis & Kontext** (Langzeitgedächtnis v1, Summary, Kompression) | Sprint 8 |
 | `0.5.0` | **Intelligence Core** (Intent-Router, Model-Routing, Persona-/Quality-Scores) | Sprint 9 |
 | `0.6.0` | **Internet-Research** opt-in, citation-required | Sprint 10 |
-| `0.7.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | später |
+| `0.7.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | Sprint 11 |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele

@@ -109,7 +109,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Langzeitgedächtnis, Summary, Kontextkompression → **`0.4.0`** (Sprint 8, [`10`](./10-intelligence-capabilities.md))
 - Intent-Router, Model-Routing, Persona-Scores → **`0.5.0`** (Sprint 9)
 - Verlässliche Internet-Research (opt-in, zitiert) → **`0.6.0`** (Sprint 10)
-- Delight + flaches Settings → **`0.7.0`** ([`11`](./11-delight-and-settings.md))
+- Delight + flaches Settings → **`0.7.0`** (Sprint 11, [`11`](./11-delight-and-settings.md))
 - Tools (Kalender, Notizen, …) / Native App nur falls nötig
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.

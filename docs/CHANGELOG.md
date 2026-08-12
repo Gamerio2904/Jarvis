@@ -2,9 +2,14 @@
 
 Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
-## Planned `0.3.1` (Sprint 7)
+## Unreleased / pending tag `0.3.1`
 
-- GUI Polish: Gradient, Composer-Focus, Backdrop, ruhiger Chat-Wechsel, stabiler Stream-Caret
+- Ambient-Gradient stärker sichtbar
+- Composer-Focus deutlicher (Lift + Glow)
+- Mobile-Backdrop dunkler
+- Chat-Wechsel ohne Historie-Anim-Flash
+- Streaming-Caret kräftiger
+- Empty-State zentriert; Version `0.3.1`
 
 ## Planned `0.4.0` (Sprint 8) — Intelligence 1
 
@@ -18,7 +23,7 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 
 - Opt-in Internet-Research mit Citations / No-source-Refuse / Audit
 
-## Planned `0.7.0` — Delight + Settings
+## Planned `0.7.0` (Sprint 11) — Delight + Settings
 
 - Jarvis-Moment, Inside Jokes, Sound, Easter Eggs, flaches Settings-Panel
 
@@ -46,5 +51,5 @@ Versionen folgen [`09-versioning.md`](./09-versioning.md).
 | `0.4.0` | 8 | Gedächtnis & Kontext |
 | `0.5.0` | 9 | Intent-Router, Model-Routing, Scores |
 | `0.6.0` | 10 | Internet-Research (opt-in) |
-| `0.7.0` | später | Delight + Settings |
+| `0.7.0` | 11 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |

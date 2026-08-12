@@ -25,8 +25,8 @@ from .ollama_client import (
     resolve_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.3.0")
-APP_VERSION = "0.3.0"
+app = FastAPI(title="Jarvis API", version="0.3.1")
+APP_VERSION = "0.3.1"
 
 app.add_middleware(
     CORSMiddleware,

@@ -181,7 +181,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 7 — GUI Polish → **`0.3.1`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-07.md`](./sprints/sprint-07.md)
 
 | Must | Inhalt |
@@ -230,11 +230,23 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
+## Sprint 11 — Delight & Settings → **`0.7.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-11.md`](./sprints/sprint-11.md) · [`11`](./11-delight-and-settings.md)
+
+| Must | Inhalt |
+|------|--------|
+| D1 | Flaches Settings-Panel |
+| D2–D5 | Momente, Jokes, Sound, Easter Eggs (Liste in Settings) |
+| D6 | Version `0.7.0` |
+
+---
+
 ## Weitere geplante Sprints (Richtung)
 
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
-| Delight + Settings | Momente, Jokes, Sound, Eggs, flaches Settings | **`0.7.0`** ([`11`](./11-delight-and-settings.md)) |
 | Phase 2 | Handy privat (VPN/Auth) | `0.x` vor NAS |
 | Phase 3 | NAS 24/7 | **`1.0.0`** |
 | Phase 4 | TTS-Vorlesen | nach PO-Go |

@@ -26,9 +26,10 @@ Sprints: [`sprints/README.md`](./sprints/README.md)
 |--------|---------|--------|
 | 0 | — | **DONE** |
 | 1–6 | `0.1.0`–`0.3.0` | **READY FOR REVIEW** |
-| 7 | `0.3.1` | **PLANNED** (GUI Polish) |
+| 7 | `0.3.1` | **READY FOR REVIEW** (GUI Polish) |
 | 8 | `0.4.0` | **PLANNED** (Gedächtnis) |
 | 9 | `0.5.0` | **PLANNED** (Router / Routing / Scores) |
 | 10 | `0.6.0` | **PLANNED** (Internet-Research) |
+| 11 | `0.7.0` | **PLANNED** (Delight + Settings) |
 
-Nächste Delight-Stufe: `0.7.0` — siehe `11`. Intelligence-Details: `10`.
+Intelligence-Details: `10` · Delight-Details: `11`.

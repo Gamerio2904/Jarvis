@@ -30,6 +30,7 @@ function App() {
   const [statusNote, setStatusNote] = useState<string | null>(null)
   const [composerFocused, setComposerFocused] = useState(false)
   const [threadKey, setThreadKey] = useState(0)
+  const [enterIds, setEnterIds] = useState<Record<string, true>>({})
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -46,7 +47,6 @@ function App() {
   useEffect(() => {
     if (!stickToBottomRef.current) return
     const behavior: ScrollBehavior = prefersReducedMotion() ? 'auto' : 'smooth'
-    // During active streaming, avoid smooth-scroll thrash (M9)
     const streamBehavior: ScrollBehavior =
       streamingText !== null || prefersReducedMotion() ? 'auto' : behavior
     bottomRef.current?.scrollIntoView({ behavior: streamBehavior })
@@ -58,6 +58,10 @@ function App() {
     el.style.height = '0px'
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`
   }, [draft])
+
+  function markEnter(id: string) {
+    setEnterIds((prev) => (prev[id] ? prev : { ...prev, [id]: true }))
+  }
 
   async function refreshHealth() {
     try {
@@ -88,6 +92,7 @@ function App() {
     setActiveId(id)
     setSidebarOpen(false)
     setThreadKey((k) => k + 1)
+    setEnterIds({})
     stickToBottomRef.current = true
     const data = await getConversation(id)
     setMessages(data.messages)
@@ -100,6 +105,7 @@ function App() {
     setConversations((prev) => [created, ...prev])
     setActiveId(created.id)
     setMessages([])
+    setEnterIds({})
     setThreadKey((k) => k + 1)
     setSidebarOpen(false)
     stickToBottomRef.current = true
@@ -114,6 +120,7 @@ function App() {
       const remaining = conversations.filter((c) => c.id !== activeId)
       setConversations(remaining)
       setMessages([])
+      setEnterIds({})
       setActiveId(remaining[0]?.id ?? null)
       setThreadKey((k) => k + 1)
       if (remaining[0]) {
@@ -156,11 +163,13 @@ function App() {
         content,
         created_at: new Date().toISOString(),
       }
+      markEnter(optimistic.id)
       setMessages((prev) => [...prev, optimistic])
 
       let acc = ''
       await streamChat(conversationId, content, {
         onMeta: (meta) => {
+          markEnter(meta.user_message.id)
           setMessages((prev) => {
             const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
             return [...withoutTmp, meta.user_message]
@@ -184,6 +193,7 @@ function App() {
         },
         onDone: (payload) => {
           setStreamingText(null)
+          markEnter(payload.assistant_message.id)
           setMessages((prev) => [...prev, payload.assistant_message])
           setConversations((prev) => {
             const rest = prev.filter((c) => c.id !== payload.conversation.id)
@@ -246,7 +256,7 @@ function App() {
           <div className="brand-mark" />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.3.0</p>
+            <p>lokal · privat · v0.3.1</p>
           </div>
         </div>
 
@@ -327,7 +337,7 @@ function App() {
         ) : null}
 
         <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
-          <div className="messages-inner" key={threadKey}>
+          <div className="messages-inner">
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
                 <h3>Jarvis</h3>
@@ -335,17 +345,19 @@ function App() {
               </div>
             ) : null}
 
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className={`row ${m.role} ${m.role === 'user' ? 'enter-user' : 'enter-assistant'}`}
-              >
-                {m.role === 'assistant' ? (
-                  <div className="avatar jarvis">J</div>
-                ) : null}
-                <div className="bubble">{m.content}</div>
-              </div>
-            ))}
+            {messages.map((m) => {
+              const enter =
+                enterIds[m.id] &&
+                (m.role === 'user' ? 'enter-user' : 'enter-assistant')
+              return (
+                <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
+                  {m.role === 'assistant' ? (
+                    <div className="avatar jarvis">J</div>
+                  ) : null}
+                  <div className="bubble">{m.content}</div>
+                </div>
+              )
+            })}
 
             {streamingText !== null ? (
               <div className="row assistant streaming">

@@ -9,7 +9,7 @@ Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 |---------|--------------|--------|
 | `0.4.0` | Sprint 8 | Gedächtnis (Voraussetzung für Jokes) |
 | `0.5.0`–`0.6.0` | Sprint 9–10 | Intelligence (Router, Research) — **vorher** |
-| **`0.7.0`** | Delight-Sprint | Jarvis-Moment, Inside-Jokes, Sound, Easter Eggs + flaches Settings |
+| **`0.7.0`** | Sprint 11 | Jarvis-Moment, Inside-Jokes, Sound, Easter Eggs + flaches Settings |
 
 Reihenfolge bewusst: erst scharfsinnig/verlässlich, dann Delight.
 

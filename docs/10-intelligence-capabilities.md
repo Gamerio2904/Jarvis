@@ -11,10 +11,10 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 2 | **`0.5.0`** | [09](./sprints/sprint-09.md) | Intent-Router, Model-Routing, Persona-/Quality-Scores | **PLANNED** |
 | 3 | **`0.6.0`** | [10](./sprints/sprint-10.md) | Verlässliche Internet-Research (opt-in, zitiert) | **PLANNED** |
 
-Delight/Settings folgen danach als **`0.7.0`** ([`11`](./11-delight-and-settings.md)) — bewusst **nach** Intelligence-Kern.
+Delight/Settings folgen danach als **`0.7.0`** / Sprint 11 ([`11`](./11-delight-and-settings.md), [`sprint-11`](./sprints/sprint-11.md)).
 
 ```text
-0.3.1 Polish → 0.4.0 Memory → 0.5.0 Router/Routing/Scores → 0.6.0 Research → 0.7.0 Delight/Settings
+0.3.1 Polish → 0.4.0 Memory → 0.5.0 Router/Routing/Scores → 0.6.0 Research → 0.7.0 Delight/Settings (Sprint 11)
 ```
 
 ---
