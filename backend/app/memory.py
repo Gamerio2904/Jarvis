@@ -94,7 +94,7 @@ def parse_explicit_remember(text: str) -> tuple[str, str, str] | None:
         or _NOTIER_RE.match(stripped)
     )
     if m:
-        payload = m.group(1).strip().rstrip(".!")
+        payload = m.group(1).strip().rstrip(".!?")
         if len(payload) < 2:
             return None
         key = _key_from_payload(payload)
