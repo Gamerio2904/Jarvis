@@ -20,7 +20,7 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 4 | **`0.7.0`** | [18](./sprints/sprint-18.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **READY FOR REVIEW** |
 | 5 | **`0.9.0`** | [28](./sprints/sprint-28.md) | Local Tools Core (Notes/Todos, Confirm) | **READY FOR REVIEW** |
 | 5a | **`0.9.1`** | [29](./sprints/sprint-29.md) | Tools Hotfix | **READY FOR REVIEW** |
-| 5b | **`0.9.2`** | [30](./sprints/sprint-30.md) | Tools Polish & Continuity | **PLANNED** |
+| 5b | **`0.9.2`** | [30](./sprints/sprint-30.md) | Tools Polish & Continuity | **READY FOR REVIEW** |
 
 ```text
 Sprint 8  0.4.0 Memory

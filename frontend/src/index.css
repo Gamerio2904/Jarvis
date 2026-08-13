@@ -688,6 +688,41 @@ textarea {
   border-radius: 6px;
 }
 
+.tool-chip {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #0b1f12;
+  background: #c8e6d0;
+}
+
+.tool-chip--pending {
+  background: #f0e2b8;
+  color: #3a2e0a;
+}
+
+.tool-chip--executed {
+  background: linear-gradient(120deg, #1ed760, #169c46);
+  color: #0b1f12;
+}
+
+.tool-chip--aborted,
+.tool-chip--timeout,
+.tool-chip--error {
+  background: #e8c4c0;
+  color: #3a1210;
+}
+
+.tool-chip--duplicate,
+.tool-chip--parse_miss {
+  background: #d5dde8;
+  color: #1a2433;
+}
+
 .sources-count {
   font-size: 0.75rem;
   color: var(--text-muted);

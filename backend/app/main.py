@@ -60,8 +60,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.9.1")
-APP_VERSION = "0.9.1"
+app = FastAPI(title="Jarvis API", version="0.9.2")
+APP_VERSION = "0.9.2"
 
 app.add_middleware(
     CORSMiddleware,
@@ -521,7 +521,8 @@ def _finalize_turn_reply(
     ):
         # Allow only when reply already came from tool runtime (starts with known prefixes)
         if not re.match(
-            r"(?i)^(Notiz gespeichert:|Todo gespeichert:|Todo „|Offene Todos:|Notizen:|Todo erledigt:|Keine )",
+            r"(?i)^(Notiz gespeichert:|Todo gespeichert:|Todo „|Todo erledigt:|"
+            r"Offene Todos:|Erledigte Todos:|Alle Todos:|Todos zu|Notizen:|Keine )",
             reply.strip(),
         ):
             return SAFE_TOOL_FALSE
@@ -694,7 +695,10 @@ def _resolve_tool_turn(
                 status="aborted",
                 result={"ok": False, "aborted": True},
             )
-            return "Alles klar — nicht gespeichert.", {"tool_status": "aborted"}
+            return "Alles klar — nicht gespeichert.", {
+                "tool_status": "aborted",
+                "label": tools_mod.tool_status_label("aborted"),
+            }
         if tools_mod.looks_like_tool_confirm(user_text):
             prop = tools_mod.ToolProposal(
                 tool=pending["tool"],  # type: ignore[arg-type]
@@ -710,11 +714,13 @@ def _resolve_tool_turn(
                 "tool": prop.tool,
                 "action": prop.action,
                 "result": result,
+                "label": tools_mod.tool_status_label("executed"),
             }
         # Pending but unclear → re-ask
         return f"{pending.get('preview', 'Aktion')}. So speichern?", {
             "tool_status": "pending",
             "preview": pending.get("preview"),
+            "label": tools_mod.tool_status_label("pending"),
         }
 
     if intent != "tool":
@@ -723,9 +729,19 @@ def _resolve_tool_turn(
     prop = tools_mod.parse_tool_request(user_text)
     if not prop:
         return (
-            "Kurz: Notiz mit „Notiere: …“, Todo mit „Todo: …“ — Speichern erst nach Confirm.",
+            "Kurz: Notiz mit „Notiere: …“, Todo mit „Todo: …“ — Speichern erst nach Confirm. "
+            "Liste → „Erledige das erste“ ohne neue Confirm.",
             {"tool_status": "parse_miss"},
         )
+
+    # Sprint 30 P1: resolve ordinal/anaphora from last list
+    if prop.action == "done" and prop.args.get("continuity"):
+        cont_err = tools_mod.resolve_continuity_title(
+            prop, conversation_id=conversation_id
+        )
+        if cont_err:
+            return cont_err, {"tool_status": "error", "error": cont_err}
+
     err = tools_mod.validate(prop)
     if err:
         return f"Tool abgelehnt: {err}", {"tool_status": "error", "error": err}
@@ -736,7 +752,7 @@ def _resolve_tool_turn(
         if existing:
             return (
                 f"Todo „{existing['title']}“ ist schon offen — nichts Neues. "
-                "Liste: „Offene Todos?“ · erledigen: „Erledige: …“.",
+                "Liste: „Offene Todos?“ · erledigen: „Erledige: …“ / „Erledige das erste“.",
                 {
                     "tool_status": "duplicate",
                     "tool": "todo",
@@ -753,11 +769,12 @@ def _resolve_tool_turn(
             args=prop.args,
             preview=prop.preview,
         )
-        return tools_mod.confirm_prompt(prop), {
+        return scrub_persona_noise(tools_mod.confirm_prompt(prop)), {
             "tool_status": "pending",
             "tool": prop.tool,
             "action": prop.action,
             "preview": prop.preview,
+            "label": tools_mod.tool_status_label("pending"),
         }
 
     reply, result = tools_mod.execute(prop, conversation_id=conversation_id)
@@ -766,6 +783,7 @@ def _resolve_tool_turn(
         "tool": prop.tool,
         "action": prop.action,
         "result": result,
+        "label": tools_mod.tool_status_label("executed"),
     }
 
 
@@ -1232,6 +1250,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
     except Exception:
         pass
     updated = db.get_conversation(conversation_id)
+    tool_out = msg_meta.get("tool") if isinstance(msg_meta.get("tool"), dict) else None
     return {
         "conversation": updated,
         "user_message": user_msg,
@@ -1245,6 +1264,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
         "route": route_dbg,
         "research": _research_public(research_pack, audit_id=audit_id),
         "delight": delight_meta,
+        "tool": tool_out,
     }
 
 

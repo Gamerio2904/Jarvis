@@ -27,6 +27,16 @@ export type ResearchMeta = {
   network_attempted?: boolean
 }
 
+export type ToolMeta = {
+  tool_status?: string
+  tool?: string
+  action?: string
+  preview?: string
+  label?: string
+  result?: Record<string, unknown>
+  error?: string
+}
+
 export type Message = {
   id: string
   conversation_id: string
@@ -35,6 +45,7 @@ export type Message = {
   created_at: string
   meta?: {
     research?: ResearchMeta
+    tool?: ToolMeta
   } | null
 }
 
@@ -228,6 +239,7 @@ export type StreamHandlers = {
     conversation: Conversation
     guarded?: boolean
     research?: ResearchMeta | null
+    tool?: ToolMeta | null
   }) => void
   onError?: (detail: string) => void
 }

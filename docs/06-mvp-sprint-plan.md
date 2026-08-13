@@ -499,8 +499,8 @@ False-Confirm-Guard, Memory↔Tool, Inject+Tool, Todo-Dedup, Kurz-Acks, Eval.
 
 ## Sprint 30 — Tools Polish & Continuity → **`0.9.2`**
 
-**Status:** PLANNED · [`sprints/sprint-30.md`](./sprints/sprint-30.md)  
-Multi-Turn Tool-Flows, Listen-UX, Scorecard.
+**Status:** READY FOR REVIEW · [`sprints/sprint-30.md`](./sprints/sprint-30.md)  
+Multi-Turn Tool-Flows, Listen-UX, Scorecard, UI-Chips.
 
 ---
 

@@ -221,7 +221,7 @@ def classify_tool_sub(text: str) -> ToolSub:
         return "tool.notes_search"
     if prop.tool == "todo" and prop.action == "create":
         return "tool.todo_write"
-    if prop.tool == "todo" and prop.action == "list":
+    if prop.tool == "todo" and prop.action in {"list", "search"}:
         return "tool.todo_list"
     if prop.tool == "todo" and prop.action == "done":
         return "tool.todo_done"

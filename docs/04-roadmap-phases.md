@@ -128,7 +128,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Persona & Continuity Hotfix → **`0.8.5`** (Sprint 27, READY — in `0.9.0`)
 - Local Tools Core (Option A) → **`0.9.0`** (Sprint 28, READY FOR REVIEW)
 - Tools Hotfix → **`0.9.1`** (Sprint 29, READY FOR REVIEW)
-- Tools Polish & Continuity → **`0.9.2`** (Sprint 30, geplant)
+- Tools Polish & Continuity → **`0.9.2`** (Sprint 30, READY FOR REVIEW)
 - Tools (Kalender/Mail/Smart-Home) / Native App nur falls nötig — **nicht** in `0.9.0`
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.

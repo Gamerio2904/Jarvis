@@ -50,6 +50,7 @@ SAFE_HELPDESK_TRAP = (
 
 SAFE_CAPABILITIES = (
     "Kurz die Karte: Smalltalk · Memory merken/vergessen · "
+    "Notizen/Todos lokal (Confirm vorm Speichern; Liste → „Erledige das erste“) · "
     "Research nur mit Opt-in und Quellen · Settings/Eggs (/hilfe, /protokoll). "
     "Kein freies Netz, keine Cloud. Was liegt an?"
 )

@@ -138,6 +138,12 @@ def init_db() -> None:
             );
             CREATE INDEX IF NOT EXISTS idx_tool_audits_created
                 ON tool_audits(created_at DESC);
+            CREATE TABLE IF NOT EXISTS tool_list_context (
+                conversation_id TEXT PRIMARY KEY,
+                kind TEXT NOT NULL,
+                items_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
             """
         )
         conn.commit()
@@ -978,3 +984,120 @@ def add_tool_audit(
     finally:
         conn.close()
     return item
+
+
+def set_tool_list_context(
+    conversation_id: str,
+    *,
+    kind: str,
+    items: list[dict[str, Any]],
+) -> None:
+    """Sprint 30: remember last numbered tool list for ordinal continuity."""
+    conn = get_conn()
+    try:
+        conn.execute(
+            """
+            INSERT INTO tool_list_context (conversation_id, kind, items_json, created_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(conversation_id) DO UPDATE SET
+                kind = excluded.kind,
+                items_json = excluded.items_json,
+                created_at = excluded.created_at
+            """,
+            (
+                conversation_id,
+                kind,
+                json.dumps(items, ensure_ascii=False),
+                utc_now(),
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_tool_list_context(conversation_id: str) -> dict[str, Any] | None:
+    conn = get_conn()
+    try:
+        row = conn.execute(
+            "SELECT conversation_id, kind, items_json, created_at "
+            "FROM tool_list_context WHERE conversation_id = ?",
+            (conversation_id,),
+        ).fetchone()
+        if not row:
+            return None
+        data = dict(row)
+        try:
+            data["items"] = json.loads(data.pop("items_json") or "[]")
+        except json.JSONDecodeError:
+            data["items"] = []
+        return data
+    finally:
+        conn.close()
+
+
+def clear_tool_list_context(conversation_id: str) -> None:
+    conn = get_conn()
+    try:
+        conn.execute(
+            "DELETE FROM tool_list_context WHERE conversation_id = ?",
+            (conversation_id,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def list_tool_audits(*, limit: int = 100) -> list[dict[str, Any]]:
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            """
+            SELECT id, conversation_id, tool, action, args_json, status,
+                   result_json, created_at
+            FROM tool_audits
+            ORDER BY created_at DESC
+            LIMIT ?
+            """,
+            (max(1, min(limit, 500)),),
+        ).fetchall()
+        out: list[dict[str, Any]] = []
+        for r in rows:
+            item = dict(r)
+            try:
+                item["args"] = json.loads(item.pop("args_json") or "{}")
+            except json.JSONDecodeError:
+                item["args"] = {}
+            try:
+                item["result"] = json.loads(item.pop("result_json") or "{}")
+            except json.JSONDecodeError:
+                item["result"] = {}
+            out.append(item)
+        return out
+    finally:
+        conn.close()
+
+
+def tool_audit_stats(*, limit: int = 200) -> dict[str, Any]:
+    """Sprint 30 P3: confirm / abort / error rates from recent audits."""
+    rows = list_tool_audits(limit=limit)
+    write_actions = {"create", "done"}
+    writes = [r for r in rows if r.get("action") in write_actions]
+    ok = sum(1 for r in writes if r.get("status") == "ok")
+    aborted = sum(1 for r in rows if r.get("status") == "aborted")
+    timeout = sum(1 for r in rows if r.get("status") == "timeout")
+    errors = sum(1 for r in rows if r.get("status") == "error")
+    decided = ok + aborted + timeout
+    confirm_rate = (100.0 * ok / decided) if decided else 100.0
+    abort_rate = (100.0 * aborted / decided) if decided else 0.0
+    return {
+        "total": len(rows),
+        "writes": len(writes),
+        "ok": ok,
+        "aborted": aborted,
+        "timeout": timeout,
+        "errors": errors,
+        "confirm_rate": round(confirm_rate, 1),
+        "abort_rate": round(abort_rate, 1),
+        "false_claim_floor": 0,
+    }

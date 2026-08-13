@@ -2,21 +2,21 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **SHOULD** — Feinschliff nach Tools Hotfix |
 | Ziel-Version | **`0.9.2`** |
 | Quelle | Option A Abrundung; Continuity-Carry aus `0.8.5` im Tool-Kontext |
 
 ## Ziel
 
-Tools im Alltag **rund**: UX/Status, Listen-Filter, Multi-Turn „Todo erledigen / Notiz finden“, Scorecard — optional leichtes **Kalender-Read-only** nur wenn lokal und ohne OAuth-Komplexität (sonst Won’t).
+Tools im Alltag **rund**: UX/Status, Listen-Filter, Multi-Turn „Todo erledigen / Notiz finden“, Scorecard — Kalender-Read optional geparkt.
 
 ## Must
 
 | ID | Verbesserung | Done wenn |
 |----|--------------|-----------|
-| P1 | **Multi-Turn Tool-Continuity** — „Zeig Todos“ → „Erledige das erste“ ohne neue Confirm-Schleife wo schon bestätigt | Eval-Flow grün |
-| P2 | **Listen-UX** — Todos/Notizen filterbar (offen/erledigt; Suche) in Reply + optional UI | Nutzer findet Einträge ohne Dump |
+| P1 | **Multi-Turn Tool-Continuity** — „Zeig Todos“ → „Erledige das erste“ ohne neue Confirm-Schleife | Eval-Flow grün |
+| P2 | **Listen-UX** — Todos filterbar (offen/erledigt/alle + Suche), nummerierte Replies | Nutzer findet Einträge ohne Dump |
 | P3 | **Scorecard Tools** — Confirm-Rate, False-Claim=0, Abort-Rate | `scripts/scorecard_0_9_2.py` lesbar |
 | P4 | Eval `scripts/eval_0_9_2.py` + Version `0.9.2` | Suite grün |
 
@@ -24,9 +24,9 @@ Tools im Alltag **rund**: UX/Status, Listen-Filter, Multi-Turn „Todo erledigen
 
 | ID | Inhalt |
 |----|--------|
-| P5 | UI-Confirm/Status-Chips aus `0.9.0` T7 nachziehen falls offen |
-| P6 | Persona stabil im Tool-Ack (kein Master/Kumpel) |
-| P7 | Optional: **lokaler Kalender-Read** (ICS-Datei / System-Calendar read-only) — nur wenn trivial; sonst Parking |
+| P5 | UI Confirm/Status-Chips (`tool-chip`) aus Message-Meta |
+| P6 | Persona scrub auf Tool-Acks |
+| P7 | Lokaler Kalender-Read — **Parking** (nicht trivial ohne OAuth/ICS-Pfad) |
 
 ## Won’t
 

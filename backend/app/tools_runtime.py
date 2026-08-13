@@ -1,6 +1,7 @@
-"""Local tools runtime — Sprint 28 / 0.9.0.
+"""Local tools runtime — Sprint 28–30.
 
 Confirm-before-write for notes & todos. Read ops execute immediately.
+Sprint 30: list filters, numbered lists, multi-turn ordinal continuity.
 """
 from __future__ import annotations
 
@@ -26,13 +27,25 @@ _NOTE_WRITE_RE = re.compile(
     r"(?is)^\s*(?:notiz(?:e)?|notiere|notiz:)\s*[:\-]?\s*(.+)$"
 )
 _TODO_WRITE_RE = re.compile(
-    r"(?is)^\s*(?:todo|to-?do|aufgabe)\s*[:\-]?\s*(.+)$"
+    # Singular write only — avoid eating „Todos zu …“ / „Todos suchen“
+    r"(?is)^\s*(?:todo|to-?do|aufgabe)(?![sS])\s*[:\-]?\s*(.+)$"
+)
+_TODO_LIST_DONE_RE = re.compile(
+    r"(?is)\b(?:zeig(?:e)?\s+(?:mir\s+)?)?(?:die\s+)?erledigte[ns]?\s+todos?\b"
+    r"|\btodos?\s+erledigt\b"
+)
+_TODO_LIST_ALL_RE = re.compile(
+    r"(?is)\b(?:zeig(?:e)?\s+(?:mir\s+)?)?(?:die\s+)?alle\s+todos?\b"
+    r"|\btodos?\s+alle\b"
+)
+_TODO_SEARCH_RE = re.compile(
+    r"(?is)\b(?:todos?|aufgaben)\s+(?:suchen[:\s]+|zu|mit|über)\s*(.+?)(?:\?|$)"
 )
 _TODO_LIST_RE = re.compile(
     r"(?is)\b("
     r"offene\s+todos?|"
     r"meine\s+todos?|"
-    r"zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?todos?|"
+    r"zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?(?:offene\s+)?todos?|"
     r"todos?\s+(?:liste|auflisten)|"
     r"was\s+(?:steht|habe\s+ich)\s+(?:auf\s+)?(?:der\s+)?(?:todo|to-?do)"
     r")\b"
@@ -42,11 +55,27 @@ _NOTE_LIST_RE = re.compile(
     r"meine\s+notizen|"
     r"zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?notizen|"
     r"was\s+steht\s+in\s+meinen\s+notizen|"
-    r"notizen\s+(?:liste|auflisten|suchen)"
+    r"notizen\s+(?:liste|auflisten)"
     r")\b"
 )
 _NOTE_SEARCH_RE = re.compile(
-    r"(?is)\b(?:notiz|notizen).{0,40}?\b(?:zu|über|mit)\s+(.+?)(?:\?|$)"
+    r"(?is)\b(?:notiz|notizen).{0,40}?\b(?:zu|über|mit|suchen[:\s]+)\s*(.+?)(?:\?|$)"
+)
+# Sprint 30 P1: ordinal / anaphora before generic title-done
+_ORDINAL_DONE_RE = re.compile(
+    r"(?is)^\s*(?:erledige|done|abhak(?:e)?|hak\s+(?:das\s+)?ab|todo\s+fertig)\s+"
+    r"(?:(?:das|den|die)\s+)?"
+    r"(?:"
+    r"(?P<word>erste[ns]?|zweite[ns]?|dritte[ns]?|vierte[ns]?|fünfte[ns]?|"
+    r"sechste[ns]?|siebte[ns]?|achte[ns]?|neunte[ns]?|zehnte[ns]?|letzte[ns]?)|"
+    r"(?:nr\.?|nummer|#)\s*(?P<n>\d+)|"
+    r"(?P<n2>\d+)\."
+    r")"
+    r"\s*[!?.]*\s*$"
+)
+_ANAPHORA_DONE_RE = re.compile(
+    r"(?is)^\s*(?:erledige|done|abhak(?:e)?|hak\s+ab)\s+"
+    r"(?:das|es|den|die)\s*[!?.]*\s*$"
 )
 _TODO_DONE_RE = re.compile(
     r"(?is)^\s*(?:erledige|done|abhak(?:e)?|todo\s+fertig)\s*[:\-]?\s*(.+)$"
@@ -63,6 +92,53 @@ _CONFIRM_RE = re.compile(
     r"bestätig(?:e|en)?"
     r")\s*[.!]?\s*$"
 )
+
+_ORDINAL_WORDS: dict[str, int] = {
+    "erste": 0,
+    "erster": 0,
+    "erstes": 0,
+    "ersten": 0,
+    "zweite": 1,
+    "zweiter": 1,
+    "zweites": 1,
+    "zweiten": 1,
+    "dritte": 2,
+    "dritter": 2,
+    "drittes": 2,
+    "dritten": 2,
+    "vierte": 3,
+    "vierter": 3,
+    "viertes": 3,
+    "vierten": 3,
+    "fünfte": 4,
+    "fünfter": 4,
+    "fünftes": 4,
+    "fünften": 4,
+    "sechste": 5,
+    "sechster": 5,
+    "sechstes": 5,
+    "sechsten": 5,
+    "siebte": 6,
+    "siebter": 6,
+    "siebtes": 6,
+    "siebten": 6,
+    "achte": 7,
+    "achter": 7,
+    "achtes": 7,
+    "achten": 7,
+    "neunte": 8,
+    "neunter": 8,
+    "neuntes": 8,
+    "neunten": 8,
+    "zehnte": 9,
+    "zehnter": 9,
+    "zehntes": 9,
+    "zehnten": 9,
+    "letzte": -1,
+    "letzter": -1,
+    "letztes": -1,
+    "letzten": -1,
+}
 
 
 @dataclass
@@ -87,11 +163,43 @@ def looks_like_tool_confirm(text: str) -> bool:
     return bool(_CONFIRM_RE.match((text or "").strip()))
 
 
+def _ordinal_from_match(m: re.Match[str]) -> int:
+    word = (m.group("word") or "").lower()
+    if word:
+        return _ORDINAL_WORDS.get(word, 0)
+    for key in ("n", "n2"):
+        raw = m.groupdict().get(key)
+        if raw:
+            n = int(raw)
+            return max(0, n - 1)
+    return 0
+
+
 def parse_tool_request(text: str) -> ToolProposal | None:
     """Heuristic parse — no LLM required for v1."""
     stripped = (text or "").strip()
     if not stripped:
         return None
+
+    # P1: list continuity — ordinal / anaphora before titled done
+    m = _ORDINAL_DONE_RE.match(stripped)
+    if m:
+        idx = _ordinal_from_match(m)
+        return ToolProposal(
+            tool="todo",
+            action="done",
+            args={"ordinal": idx, "title": "", "continuity": True},
+            needs_confirm=False,
+            preview="Todo erledigen (Liste)",
+        )
+    if _ANAPHORA_DONE_RE.match(stripped):
+        return ToolProposal(
+            tool="todo",
+            action="done",
+            args={"ordinal": 0, "title": "", "continuity": True, "anaphora": True},
+            needs_confirm=False,
+            preview="Todo erledigen (Bezug)",
+        )
 
     m = _TODO_DONE_RE.match(stripped)
     if m:
@@ -128,6 +236,35 @@ def parse_tool_request(text: str) -> ToolProposal | None:
                 preview=f"Notiz anlegen: {body[:80]}",
             )
 
+    # P2: list filters before generic open list
+    if _TODO_LIST_DONE_RE.search(stripped):
+        return ToolProposal(
+            tool="todo",
+            action="list",
+            args={"status": "done"},
+            needs_confirm=False,
+            preview="Erledigte Todos listen",
+        )
+    if _TODO_LIST_ALL_RE.search(stripped):
+        return ToolProposal(
+            tool="todo",
+            action="list",
+            args={"status": "all"},
+            needs_confirm=False,
+            preview="Alle Todos listen",
+        )
+    m = _TODO_SEARCH_RE.search(stripped)
+    if m:
+        q = m.group(1).strip()[:80]
+        if q:
+            return ToolProposal(
+                tool="todo",
+                action="search",
+                args={"query": q},
+                needs_confirm=False,
+                preview=f"Todos suchen: {q}",
+            )
+
     if _TODO_LIST_RE.search(stripped):
         return ToolProposal(
             tool="todo",
@@ -160,8 +297,40 @@ def parse_tool_request(text: str) -> ToolProposal | None:
     return None
 
 
+def resolve_continuity_title(
+    proposal: ToolProposal,
+    *,
+    conversation_id: str,
+) -> str | None:
+    """Fill title from last todo list context. Returns error message or None."""
+    if not proposal.args.get("continuity"):
+        return None
+    ctx = db.get_tool_list_context(conversation_id)
+    if not ctx or ctx.get("kind") != "todo":
+        return "Keine Todo-Liste im Kontext — zuerst „Offene Todos?“."
+    items = ctx.get("items") or []
+    if not items:
+        return "Die letzte Todo-Liste war leer."
+    idx = int(proposal.args.get("ordinal", 0))
+    if idx < 0:
+        idx = len(items) - 1
+    if idx >= len(items):
+        return f"Nur {len(items)} Einträge in der letzten Liste (1–{len(items)})."
+    title = str(items[idx].get("title") or "").strip()
+    if not title:
+        return "Eintrag ohne Titel in der Liste."
+    proposal.args["title"] = title
+    proposal.preview = f"Todo erledigen: {title}"
+    return None
+
+
 def validate(proposal: ToolProposal) -> str | None:
     key = (proposal.tool, proposal.action)
+    # search on todos uses list path with filter — allow via special case
+    if proposal.tool == "todo" and proposal.action == "search":
+        if not str(proposal.args.get("query") or "").strip():
+            return "Wonach in den Todos suchen?"
+        return None
     if key not in ALLOWLIST:
         return (
             f"Aktion nicht erlaubt ({proposal.tool}.{proposal.action}). "
@@ -172,8 +341,11 @@ def validate(proposal: ToolProposal) -> str | None:
             return "Leere Notiz — bitte Text nach „Notiere:“."
         if proposal.tool == "todo" and not str(proposal.args.get("title") or "").strip():
             return "Leeres Todo — bitte Titel nach „Todo:“."
-    if proposal.action == "done" and not str(proposal.args.get("title") or "").strip():
-        return "Was erledigen? z.B. „Erledige: Milch“."
+    if proposal.action == "done":
+        if proposal.args.get("continuity") and not str(proposal.args.get("title") or "").strip():
+            return None  # resolved later
+        if not str(proposal.args.get("title") or "").strip():
+            return "Was erledigen? z.B. „Erledige: Milch“ oder „Erledige das erste“."
     if proposal.action == "search" and not str(proposal.args.get("query") or "").strip():
         return "Wonach in den Notizen suchen?"
     return None
@@ -183,12 +355,60 @@ def confirm_prompt(proposal: ToolProposal) -> str:
     return f"{proposal.preview}. So speichern?"
 
 
+def _format_todo_lines(items: list[dict[str, Any]], *, with_status: bool = False) -> list[str]:
+    lines: list[str] = []
+    for i, it in enumerate(items[:15], 1):
+        title = str(it.get("title") or "")
+        if with_status:
+            st = str(it.get("status") or "open")
+            mark = "✓" if st == "done" else "·"
+            lines.append(f"{i}. [{mark}] {title}")
+        else:
+            lines.append(f"{i}. {title}")
+    return lines
+
+
+def _remember_todo_list(
+    conversation_id: str | None,
+    items: list[dict[str, Any]],
+) -> None:
+    if not conversation_id:
+        return
+    slim = [
+        {"id": it.get("id"), "title": it.get("title"), "status": it.get("status")}
+        for it in items[:20]
+    ]
+    db.set_tool_list_context(conversation_id, kind="todo", items=slim)
+
+
 def execute(
     proposal: ToolProposal,
     *,
     conversation_id: str | None = None,
 ) -> tuple[str, dict[str, Any]]:
     """Execute allowlisted tool. Returns (reply, result_dict)."""
+    # Map todo.search → filtered list
+    if proposal.tool == "todo" and proposal.action == "search":
+        q = str(proposal.args.get("query") or "").strip().lower()
+        all_items = db.list_todos(status="all", limit=50)
+        items = [it for it in all_items if q in str(it.get("title") or "").lower()]
+        result: dict[str, Any] = {"ok": True, "items": items, "query": q}
+        _remember_todo_list(conversation_id, items)
+        if not items:
+            reply = f"Keine Todos zu „{q}“."
+        else:
+            lines = _format_todo_lines(items, with_status=True)
+            reply = f"Todos zu „{q}“:\n" + "\n".join(lines)
+        db.add_tool_audit(
+            conversation_id=conversation_id,
+            tool=proposal.tool,
+            action="search",
+            args=proposal.args,
+            status="ok",
+            result=result,
+        )
+        return reply, result
+
     err = validate(proposal)
     if err:
         db.add_tool_audit(
@@ -201,7 +421,6 @@ def execute(
         )
         return f"Tool abgelehnt: {err}.", {"ok": False, "error": err}
 
-    result: dict[str, Any]
     if proposal.tool == "notes" and proposal.action == "create":
         item = db.create_note(
             body=str(proposal.args["body"]),
@@ -215,7 +434,7 @@ def execute(
         if not items:
             reply = "Keine Notizen bisher."
         else:
-            lines = [f"• {it['body'][:100]}" for it in items[:10]]
+            lines = [f"{i}. {it['body'][:100]}" for i, it in enumerate(items[:10], 1)]
             reply = "Notizen:\n" + "\n".join(lines)
     elif proposal.tool == "notes" and proposal.action == "search":
         q = str(proposal.args.get("query") or "")
@@ -224,7 +443,7 @@ def execute(
         if not items:
             reply = f"Keine Notizen zu „{q}“."
         else:
-            lines = [f"• {it['body'][:100]}" for it in items]
+            lines = [f"{i}. {it['body'][:100]}" for i, it in enumerate(items, 1)]
             reply = f"Notizen zu „{q}“:\n" + "\n".join(lines)
     elif proposal.tool == "todo" and proposal.action == "create":
         title = str(proposal.args["title"])
@@ -238,7 +457,7 @@ def execute(
             }
             reply = (
                 f"Todo „{existing['title']}“ ist schon offen — nichts Neues angelegt. "
-                "Offene Todos? oder erledigen mit „Erledige: …“."
+                "Offene Todos? oder erledigen mit „Erledige: …“ / „Erledige das erste“."
             )
         else:
             item = db.create_todo(
@@ -248,13 +467,19 @@ def execute(
             result = {"ok": True, "id": item["id"], "title": item["title"]}
             reply = f"Todo gespeichert: {item['title']}"
     elif proposal.tool == "todo" and proposal.action == "list":
-        items = db.list_todos(status=str(proposal.args.get("status") or "open"), limit=20)
-        result = {"ok": True, "items": items}
+        status = str(proposal.args.get("status") or "open")
+        items = db.list_todos(status=status, limit=20)
+        result = {"ok": True, "items": items, "status": status}
+        _remember_todo_list(conversation_id, items)
+        labels = {"open": "Offene Todos", "done": "Erledigte Todos", "all": "Alle Todos"}
+        label = labels.get(status, "Todos")
         if not items:
-            reply = "Keine offenen Todos."
+            reply = f"Keine Einträge unter „{label}“."
         else:
-            lines = [f"• {it['title']}" for it in items[:15]]
-            reply = "Offene Todos:\n" + "\n".join(lines)
+            with_status = status == "all"
+            lines = _format_todo_lines(items, with_status=with_status)
+            reply = f"{label}:\n" + "\n".join(lines)
+            reply += "\n(Erledigen: „Erledige das erste“ / „Erledige Nr. 2“)"
     elif proposal.tool == "todo" and proposal.action == "done":
         title = str(proposal.args.get("title") or "")
         item = db.complete_todo_by_title(title)
@@ -262,8 +487,17 @@ def execute(
             result = {"ok": False, "error": "not_found"}
             reply = f"Kein offenes Todo passend zu „{title}“."
         else:
-            result = {"ok": True, "id": item["id"], "title": item["title"]}
+            result = {
+                "ok": True,
+                "id": item["id"],
+                "title": item["title"],
+                "continuity": bool(proposal.args.get("continuity")),
+            }
             reply = f"Todo erledigt: {item['title']}"
+            # Refresh open-list context after done
+            if conversation_id:
+                open_items = db.list_todos(status="open", limit=20)
+                _remember_todo_list(conversation_id, open_items)
     else:
         result = {"ok": False, "error": "unknown"}
         reply = "Unbekanntes Tool."
@@ -314,3 +548,16 @@ def looks_like_false_tool_claim(text: str) -> bool:
             text or "",
         )
     )
+
+
+def tool_status_label(status: str | None) -> str:
+    """UI chip labels (Sprint 30 P5)."""
+    return {
+        "pending": "Tool bereit — Confirm?",
+        "executed": "Tool ausgeführt",
+        "aborted": "Tool abgelehnt",
+        "duplicate": "Todo schon offen",
+        "error": "Tool-Fehler",
+        "timeout": "Confirm abgelaufen",
+        "parse_miss": "Tool unklar",
+    }.get(str(status or ""), f"Tool: {status or '—'}")

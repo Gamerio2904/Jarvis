@@ -169,7 +169,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S9.3 | Als Nutzer will ich, dass Tools nur nach Confirm schreiben. | Must | done | Sprint 28 / `0.9.0` |
 | S9.4 | Als Nutzer will ich keine Fake-„notiert“-Claims ohne Tool-Execute. | Must | done | Sprint 29 / `0.9.1` |
 | S9.5 | Als Nutzer will ich klare Trennung Memory („merk dir“) vs. Tool („notiere/todo“). | Must | done | Sprint 29 / `0.9.1` |
-| S9.6 | Als Nutzer will ich Multi-Turn Tool-Flows (listen → erledigen). | Should | ready | Sprint 30 / `0.9.2` |
+| S9.6 | Als Nutzer will ich Multi-Turn Tool-Flows (listen → erledigen). | Should | done | Sprint 30 / `0.9.2` |
 
 ### E7 — Nachzieher Quality/Research (Fortsetzung)
 
@@ -191,7 +191,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 30** (`0.9.2`) — Tools Polish
+1. Phase 2 / NAS / TTS — **PO-Kommando**
 2. PO-Review Tags `0.8.0`–`0.9.1` parallel möglich
 3. Danach: Phase 2+ / NAS `1.0.0` auf PO-Kommando
 

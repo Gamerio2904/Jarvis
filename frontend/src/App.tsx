@@ -20,12 +20,34 @@ import {
   type ResearchAudit,
   type ResearchMeta,
   type Settings,
+  type ToolMeta,
 } from './api'
 import './index.css'
 import { playUiSound } from './sounds'
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+function ToolChip({ tool }: { tool: ToolMeta }) {
+  const status = tool.tool_status || ''
+  const label =
+    tool.label ||
+    ({
+      pending: 'Tool bereit — Confirm?',
+      executed: 'Tool ausgeführt',
+      aborted: 'Tool abgelehnt',
+      duplicate: 'Todo schon offen',
+      error: 'Tool-Fehler',
+      timeout: 'Confirm abgelaufen',
+      parse_miss: 'Tool unklar',
+    } as Record<string, string>)[status] ||
+    (status ? `Tool: ${status}` : 'Tool')
+  return (
+    <span className={`tool-chip tool-chip--${status || 'unknown'}`} data-status={status}>
+      {label}
+    </span>
+  )
 }
 
 function SourcesBlock({
@@ -356,6 +378,9 @@ function App() {
           if (payload.research && !msg.meta?.research) {
             msg.meta = { ...(msg.meta || {}), research: payload.research }
           }
+          if (payload.tool && !msg.meta?.tool) {
+            msg.meta = { ...(msg.meta || {}), tool: payload.tool }
+          }
           setMessages((prev) => [...prev, msg])
           setConversations((prev) => {
             const rest = prev.filter((c) => c.id !== payload.conversation.id)
@@ -438,7 +463,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.9.1</p>
+            <p>lokal · privat · v0.9.2</p>
           </div>
         </div>
 
@@ -457,7 +482,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.9.1'} · lokal · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.9.2'} · lokal · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
@@ -781,6 +806,9 @@ function App() {
                   ) : null}
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
+                    {m.role === 'assistant' && m.meta?.tool ? (
+                      <ToolChip tool={m.meta.tool} />
+                    ) : null}
                     {m.role === 'assistant' && m.meta?.research ? (
                       <SourcesBlock
                         research={m.meta.research}

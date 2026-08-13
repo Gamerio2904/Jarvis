@@ -34,10 +34,10 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 27 | [`sprint-27.md`](./sprint-27.md) | `0.8.5` | Persona & Continuity Hotfix | **READY FOR REVIEW** (in `0.9.0`) |
 | 28 | [`sprint-28.md`](./sprint-28.md) | `0.9.0` | Local Tools Core (Option A) | **READY FOR REVIEW** |
 | 29 | [`sprint-29.md`](./sprint-29.md) | `0.9.1` | Tools Hotfix | **READY FOR REVIEW** |
-| 30 | [`sprint-30.md`](./sprint-30.md) | `0.9.2` | Tools Polish & Assist Continuity | **PLANNED** |
+| 30 | [`sprint-30.md`](./sprint-30.md) | `0.9.2` | Tools Polish & Assist Continuity | **READY FOR REVIEW** |
 
-**Nächste Pull-Reihenfolge:** Sprint **30** (`0.9.2`) Tools Polish.  
-PO-Review/Tags `v0.8.0`–`v0.9.1` parallel möglich.
+**Nächste Pull-Reihenfolge:** Phase 2 / NAS / TTS — **PO-Kommando**.  
+PO-Review/Tags `v0.8.0`–`v0.9.2` parallel möglich.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

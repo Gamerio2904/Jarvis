@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.9.2` — Sprint 30 (Tools Polish & Continuity) — *READY FOR REVIEW*
+
+- Multi-Turn: Liste → „Erledige das erste / Nr. 2“ ohne neue Confirm
+- Listen-UX: offen/erledigt/alle + Todos-Suche; nummerierte Replies
+- Scorecard `scripts/scorecard_0_9_2.py`; UI Tool-Status-Chips; Eval `eval_0_9_2`
+- Version `0.9.2` · [`sprints/sprint-30.md`](./sprints/sprint-30.md)
+
 ### `0.9.1` — Sprint 29 (Tools Hotfix) — *READY FOR REVIEW*
 
 - False-Confirm-Guard; Inject blockt Tool-Pending; Pending-Timeout; Todo-Dedup
