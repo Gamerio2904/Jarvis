@@ -399,13 +399,55 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 | A4–A5 | Research-UI-Echo; Memory Soft-Confirm |
 | A6 | Eval + Version `0.8.0` |
 
+**Deep-Test:** durch — kritische Findings → Sprint 23 / `0.8.1`.
+
+---
+
+## Sprint 23 — Assist Hotfix → **`0.8.1`** *(prio)*
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-23.md`](./sprints/sprint-23.md)  
+**Quelle:** Deep-Test nach `0.8.0`
+
+| Must | Inhalt |
+|------|--------|
+| H1–H2 | `normalize_value` Wortgrenzen; Soft-Confirm Value-Gate |
+| H3–H4 | `soften_duzen` entschärfen; Garbage-Soft-Memory stoppen |
+| H5 | Eval + Version `0.8.1` |
+
+---
+
+## Sprint 24 — Edge & Reply Polish → **`0.8.2`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-24.md`](./sprints/sprint-24.md)
+
+| Must | Inhalt |
+|------|--------|
+| E1–E2 | Capabilities-Kurzformen; Begrüßungs-Canned drosseln |
+| E3–E5 | Forget-Ack; Residual-Duzen; Soft-Reject UX |
+| E6 | Eval + Version `0.8.2` |
+
+---
+
+## Sprint 25 — Assist Ops & Carry-over → **`0.8.3`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-25.md`](./sprints/sprint-25.md)
+
+| Must | Inhalt |
+|------|--------|
+| O1–O2 | Scorecard Assist; Delight-Persist pro Conversation |
+| O3–O4 | Audit-Link UI; Latency-Hinweis Settings |
+| O5 | Eval + Version `0.8.3` |
+
 ---
 
 ## Weitere geplante Sprints (Richtung)
 
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
-| (opt.) | Assist Hotfix nach `0.8.0`-Deep-Test | `0.8.1` |
+| (opt.) | Nächstes MINOR (Tools / stärkeres Assist) | `0.9.0` |
 | Phase 2 | Handy privat (VPN/Auth) | `0.x` vor NAS |
 | Phase 3 | NAS 24/7 | **`1.0.0`** |
 | Phase 4 | TTS-Vorlesen | nach PO-Go |

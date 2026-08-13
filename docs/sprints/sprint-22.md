@@ -48,5 +48,7 @@ PO: Vage Tasks geführt; `/hilfe` klar; Streaming spürbar; Research/Memory Feed
 
 ## Danach (nicht Teil dieses Sprints)
 
-- Optional **Sprint 23 / `0.8.1`** Hotfix nach Deep-Test von `0.8.0`
+- **Sprint 23 / `0.8.1`** Hotfix (Normalize / Duzen / Soft-Gate) — aus Deep-Test
+- **Sprint 24 / `0.8.2`** Edge & Reply Polish
+- **Sprint 25 / `0.8.3`** Assist Ops & Carry-over
 - Phase 2 Privat-Handy / NAS `1.0.0` — **PO-Kommando**

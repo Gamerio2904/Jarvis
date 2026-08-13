@@ -120,8 +120,11 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Quality Hotfix (Guards/Settings/Research/Inject) → **`0.7.1`** (Sprint 19, Review)
 - Reply Quality Polish (Canned/Recall/CJK) → **`0.7.2`** (Sprint 20, READY — in `0.8.0`)
 - Delight & Session Polish (Mood/Eggs/UX/Latenz) → **`0.7.3`** (Sprint 21, READY — in `0.8.0`)
-- Assist Clarity (Clarify, `/hilfe`, Stream/UX) → **`0.8.0`** (Sprint 22, READY FOR REVIEW)
-- Optional Hotfix nach `0.8.0` → **`0.8.1`** (nur nach Deep-Test)
+- Assist Clarity (Clarify, `/hilfe`, Stream/UX) → **`0.8.0`** (Sprint 22, READY FOR REVIEW; Deep-Test durch)
+- Assist Hotfix (Normalize/Duzen/Soft-Gate) → **`0.8.1`** (Sprint 23, geplant)
+- Edge & Reply Polish → **`0.8.2`** (Sprint 24, geplant)
+- Assist Ops & Carry-over → **`0.8.3`** (Sprint 25, geplant)
+- Optional nächstes MINOR (Tools/stärkeres Assist) → **`0.9.0`** (nur nach PO)
 - Tools (Kalender, Notizen, …) / Native App nur falls nötig
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.

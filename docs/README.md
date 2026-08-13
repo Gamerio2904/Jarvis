@@ -41,5 +41,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 20 | `0.7.2` | **READY FOR REVIEW** (mitgeliefert in `0.8.0`) |
 | 21 | `0.7.3` | **READY FOR REVIEW** (mitgeliefert in `0.8.0`) |
 | 22 | `0.8.0` | **READY FOR REVIEW** (Assist Clarity) |
+| 23 | `0.8.1` | **PLANNED** (Assist Hotfix — Normalize/Duzen/Soft-Gate) |
+| 24 | `0.8.2` | **PLANNED** (Edge & Reply Polish) |
+| 25 | `0.8.3` | **PLANNED** (Assist Ops & Carry-over) |
 
-**Nächste Umsetzung:** Deep-Test `0.8.0` → optional Sprint Hotfix `0.8.1`.
+**Nächste Umsetzung:** Sprint **23** (`0.8.1`) → **24** → **25**.

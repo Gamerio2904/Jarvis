@@ -45,6 +45,9 @@ MAJOR.MINOR.PATCH
 | `0.7.2` | **Reply Quality Polish** (weniger Canned, Recall, CJK, Multi-Turn, Capabilities) | Sprint 20 |
 | `0.7.3` | **Delight & Session Polish** (Mood-Scope, Eggs-off, Research-UX, Latenz) | Sprint 21 |
 | `0.8.0` | **Assist Clarity** (Clarify-First, `/hilfe`, Streaming-UX, Research/Memory-Feedback) | Sprint 22 |
+| `0.8.1` | **Assist Hotfix** (normalize_value, soften_duzen, Soft-Confirm Value-Gate) | Sprint 23 |
+| `0.8.2` | **Edge & Reply Polish** (Capabilities-Varianten, Canned, Forget/Soft-Reject, Residual-Duzen) | Sprint 24 |
+| `0.8.3` | **Assist Ops Polish** (Scorecard, Delight-Persist, Audit-UI, Latency-Hinweis) | Sprint 25 |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele
@@ -56,8 +59,9 @@ MAJOR.MINOR.PATCH
 | `0.3.2` | Hotfix nach `0.3.1`, falls nötig |
 | `0.5.3` | Weiterer Router-Patch nach `0.5.2`, falls nötig |
 | `0.6.3` | Weiterer Research-Patch nach `0.6.2`, falls nötig |
-| `0.7.3` | Weiterer Quality-Patch nach `0.7.2`, falls nötig |
-| `0.8.1` | Hotfix nach `0.8.0`-Deep-Test, falls nötig |
+| `0.7.3` | Delight/Session-Patch (Sprint 21; mitgeliefert in `0.8.0`) |
+| `0.8.4` | Weiterer Patch nach `0.8.3`, falls nötig |
+| `0.9.0` | Nächstes MINOR (z. B. Tools) — nur nach PO |
 
 ## Was wird versioniert?
 

@@ -27,9 +27,13 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 20 | [`sprint-20.md`](./sprint-20.md) | `0.7.2` | Reply Quality Polish (Canned/Recall/CJK) | **READY FOR REVIEW** (in `0.8.0`) |
 | 21 | [`sprint-21.md`](./sprint-21.md) | `0.7.3` | Delight & Session Polish | **READY FOR REVIEW** (in `0.8.0`) |
 | 22 | [`sprint-22.md`](./sprint-22.md) | `0.8.0` | Assist Clarity (Clarify/`/hilfe`/Stream/UX) | **READY FOR REVIEW** |
+| 23 | [`sprint-23.md`](./sprint-23.md) | `0.8.1` | Assist Hotfix (Normalize/Duzen/Soft-Gate) | **PLANNED** |
+| 24 | [`sprint-24.md`](./sprint-24.md) | `0.8.2` | Edge & Reply Polish | **PLANNED** |
+| 25 | [`sprint-25.md`](./sprint-25.md) | `0.8.3` | Assist Ops & Carry-over Polish | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** Deep-Test `0.8.0` → optional Hotfix `0.8.1`.
-Optional danach: `0.8.1` nur nach Deep-Test. PO-Review/Tags `v0.7.0`/`v0.7.1` parallel möglich.
+**Nächste Pull-Reihenfolge:** Sprint **23** (`0.8.1`) → **24** (`0.8.2`) → **25** (`0.8.3`).  
+Deep-Test `0.8.0` ist durch; kritische Findings stecken in Sprint 23.
+Optional danach: `0.9.0` / Phase 2 nur nach PO. PO-Review/Tags `v0.8.0`+ parallel möglich.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

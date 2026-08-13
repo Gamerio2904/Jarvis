@@ -5,11 +5,28 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### Geplant — `0.8.1` / Sprint 23 (Assist Hotfix)
+
+- `normalize_value` Wortgrenzen-Filler; Soft-Confirm Value-Gate; `soften_duzen` entschärfen
+- Garbage-Soft-Memory nicht mehr injecten; Eval `eval_0_8_1.py`
+- [`sprints/sprint-23.md`](./sprints/sprint-23.md)
+
+### Geplant — `0.8.2` / Sprint 24 (Edge & Reply Polish)
+
+- Capabilities-Kurzformen; Begrüßungs-Canned; Forget-/Soft-Reject-Acks; Residual-Duzen
+- [`sprints/sprint-24.md`](./sprints/sprint-24.md)
+
+### Geplant — `0.8.3` / Sprint 25 (Assist Ops & Carry-over)
+
+- Scorecard Assist; Delight-Persist; Audit-Link UI; Latency-Hinweis Settings
+- [`sprints/sprint-25.md`](./sprints/sprint-25.md)
+
 ### `0.8.0` — Sprint 22 (Assist Clarity) — *READY FOR REVIEW* (liefert auch 0.7.2 + 0.7.3)
 
 - Clarify-First bei vagen Tasks; `/hilfe` Fähigkeiten-Karte; Streaming-Status „Jarvis schreibt…“
 - Research-UI-Echo (`status_label` / Query); Memory Soft-Confirm nach Soft-Harvest
 - Eval `scripts/eval_0_8_0.py`, Version `0.8.0`
+- Deep-Test durch — offene Punkte → Sprints 23–25
 
 ### `0.7.3` — Sprint 21 (Delight & Session Polish) — *READY FOR REVIEW* (mitgeliefert in `0.8.0`)
 
