@@ -278,6 +278,11 @@ textarea {
   line-height: 1.35;
 }
 
+.settings-hint.warn {
+  color: #d4a574;
+  margin-top: 0.4rem;
+}
+
 .audit-toggle {
   appearance: none;
   border: none;
@@ -719,6 +724,22 @@ textarea {
   margin: 8px 0 0;
   font-size: 0.7rem;
   color: var(--text-muted);
+}
+
+.sources-audit {
+  margin: 8px 0 0;
+}
+
+button.linkish {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 0.72rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
 }
 
 .row.assistant .bubble {

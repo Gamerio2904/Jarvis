@@ -28,7 +28,13 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-function SourcesBlock({ research }: { research: ResearchMeta }) {
+function SourcesBlock({
+  research,
+  onOpenAudit,
+}: {
+  research: ResearchMeta
+  onOpenAudit?: (auditId?: string) => void
+}) {
   const sources = research.sources || []
   const status = research.status_label || research.badge || research.status
   const query = research.query
@@ -62,6 +68,17 @@ function SourcesBlock({ research }: { research: ResearchMeta }) {
             : `${research.status || 'Status'} — keine Quellen.`}
         </p>
       )}
+      {research.audit_id ? (
+        <p className="sources-audit">
+          <button
+            type="button"
+            className="linkish"
+            onClick={() => onOpenAudit?.(research.audit_id)}
+          >
+            Audit öffnen ({research.audit_id.slice(0, 8)}…)
+          </button>
+        </p>
+      ) : null}
       {research.privacy_note ? (
         <p className="sources-privacy">{research.privacy_note}</p>
       ) : null}
@@ -421,7 +438,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.8.0</p>
+            <p>lokal · privat · v0.8.3</p>
           </div>
         </div>
 
@@ -440,13 +457,23 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.8.0'} · lokal · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.8.3'} · lokal · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
               <p className="settings-hint">
-                Default {settings?.model_default || '—'} · Fallback {settings?.fallback_model || '—'} · Routing {settings?.routing_mode || 'auto'}
+                Default {settings?.model_default || '—'} · Fallback {settings?.fallback_model || '—'} · Routing{' '}
+                {settings?.routing_mode || 'auto'}
               </p>
+              {health?.heavy_equals_default ||
+              (settings?.model_heavy &&
+                settings?.model_default &&
+                settings.model_heavy === settings.model_default) ? (
+                <p className="settings-hint warn">
+                  Hinweis: model_heavy entspricht model_default — Auto-Routing ändert das Modell nicht.
+                  Für spürbares Heavy-Routing ein anderes Heavy-Modell setzen.
+                </p>
+              ) : null}
             </section>
             <section className="settings-section">
               <h3>Delight</h3>
@@ -755,7 +782,15 @@ function App() {
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
                     {m.role === 'assistant' && m.meta?.research ? (
-                      <SourcesBlock research={m.meta.research} />
+                      <SourcesBlock
+                        research={m.meta.research}
+                        onOpenAudit={(id) => {
+                          setSettingsPanelOpen(true)
+                          setAuditOpen(true)
+                          void refreshAudits()
+                          if (id) setStatusNote(`Audit ${id.slice(0, 8)}… in Einstellungen`)
+                        }}
+                      />
                     ) : null}
                   </div>
                 </div>
@@ -773,7 +808,15 @@ function App() {
                         <span className="stream-caret" aria-hidden />
                       </div>
                       {streamResearch ? (
-                        <SourcesBlock research={streamResearch} />
+                        <SourcesBlock
+                          research={streamResearch}
+                          onOpenAudit={(id) => {
+                            setSettingsPanelOpen(true)
+                            setAuditOpen(true)
+                            void refreshAudits()
+                            if (id) setStatusNote(`Audit ${id.slice(0, 8)}… in Einstellungen`)
+                          }}
+                        />
                       ) : null}
                     </>
                   ) : (

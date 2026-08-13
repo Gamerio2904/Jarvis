@@ -405,7 +405,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 23 — Assist Hotfix → **`0.8.1`** *(prio)*
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW (mitgeliefert in `0.8.3`)  
 **Artefakt:** [`sprints/sprint-23.md`](./sprints/sprint-23.md)  
 **Quelle:** Deep-Test nach `0.8.0`
 
@@ -419,7 +419,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 24 — Edge & Reply Polish → **`0.8.2`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW (mitgeliefert in `0.8.3`)  
 **Artefakt:** [`sprints/sprint-24.md`](./sprints/sprint-24.md)
 
 | Must | Inhalt |
@@ -432,7 +432,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 25 — Assist Ops & Carry-over → **`0.8.3`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-25.md`](./sprints/sprint-25.md)
 
 | Must | Inhalt |

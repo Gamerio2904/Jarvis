@@ -59,6 +59,11 @@ SAFE_SMALLTALK = (
     "worum geht's?"
 )
 
+SAFE_GREETING = (
+    "Morgen. Jarvis hier — lokal und ohne Theater. "
+    "Smalltalk oder Ernst, was liegt an?"
+)
+
 SAFE_EGGS_OFF = (
     "Easter Eggs sind aus — in den Settings unter Easter Eggs einschalten. "
     "Sonst flach weiter: Settings oder normale Frage."
@@ -240,9 +245,65 @@ def looks_like_identity_leak(text: str) -> bool:
     return bool(_IDENTITY_LEAK_RE.search(text or ""))
 
 
+_BROKEN_SIEZEN_RE = re.compile(
+    r"(?i)\b("
+    r"möchtst|brauchst|magst|willst|kannst|hast|bist|meinst|benötigst|"
+    r"sagst|weißt|siehst|hörst|gehst|kommst|machst|nimmst|gibst"
+    r")\s+Sie\b"
+)
+
+_GREETING_RE = re.compile(
+    r"(?is)^\s*("
+    r"hallo(?:\s+jarvis)?|hi|hey|"
+    r"guten\s+(?:morgen|tag|abend)|"
+    r"moin|servus|guten\s+morgen"
+    r")\s*[!?.]*\s*$"
+)
+
+
+def looks_like_greeting(text: str) -> bool:
+    return bool(_GREETING_RE.match((text or "").strip()))
+
+
+def looks_like_broken_siezen(text: str) -> bool:
+    """Verb stays Du-conjugation while pronoun became Sie (Sprint 23/24)."""
+    if _BROKEN_SIEZEN_RE.search(text or ""):
+        return True
+    if re.search(r"(?i)\bmerk\s+ihnen\b", text or ""):
+        return True
+    if re.search(r"(?i)\bihnen\s+heiß", text or ""):
+        return True
+    return False
+
+
 def soften_duzen(text: str) -> str:
-    """Light pronoun repair — prefer content over canned (Sprint 20 R4)."""
+    """Pronoun repair without destroying German (Sprint 23 H3).
+
+    - Protect ``merk dir`` / ``merke dir``
+    - Map common Du-verbs when swapping subject ``du`` → ``Sie``
+    - Avoid bare ``dir``→``Ihnen`` inside memory idioms
+    """
     t = text or ""
+    # Protect merk dir variants
+    t = re.sub(r"(?i)\bmerk(?:e)?\s+dir\b", "⟦MERK_DIR⟧", t)
+    # Common verb+du fixes before pronoun swap
+    verb_map = [
+        (r"(?i)\bdu\s+heiß(?:e|t)\b", "Sie heißen"),
+        (r"(?i)\bheiß(?:e|t)\s+du\b", "heißen Sie"),
+        (r"(?i)\bdu\s+bist\b", "Sie sind"),
+        (r"(?i)\bdu\s+hast\b", "Sie haben"),
+        (r"(?i)\bdu\s+magst\b", "Sie mögen"),
+        (r"(?i)\bdu\s+willst\b", "Sie wollen"),
+        (r"(?i)\bdu\s+kannst\b", "Sie können"),
+        (r"(?i)\bdu\s+brauchst\b", "Sie brauchen"),
+        (r"(?i)\bdu\s+möchtest\b", "Sie möchten"),
+        (r"(?i)\bdu\s+meinst\b", "Sie meinen"),
+        (r"(?i)\bwas\s+möchtest\s+du\b", "Was möchten Sie"),
+        (r"(?i)\bwas\s+brauchst\s+du\b", "Was brauchen Sie"),
+    ]
+    for pat, repl in verb_map:
+        t = re.sub(pat, repl, t)
+    # Possessives / objects
     reps = [
         (r"(?i)\bdein(?:e[rnms]?)?\b", "Ihr"),
         (r"(?i)\bdir\b", "Ihnen"),
@@ -251,9 +312,21 @@ def soften_duzen(text: str) -> str:
     ]
     for pat, repl in reps:
         t = re.sub(pat, repl, t)
-    # Fix doubled Ihr/Ihr — crude cleanup
-    t = re.sub(r"\bIhr\b(?=\s+\w)", "Ihr", t)
-    return re.sub(r"\s+", " ", t).strip() if False else t
+    t = t.replace("⟦MERK_DIR⟧", "merk dir")
+    # Fix residual broken *st Sie after failed partial repairs
+    t = re.sub(r"(?i)\bmöchtst\s+Sie\b", "möchten Sie", t)
+    t = re.sub(r"(?i)\bbrauchst\s+Sie\b", "brauchen Sie", t)
+    t = re.sub(r"(?i)\bmagst\s+Sie\b", "mögen Sie", t)
+    t = re.sub(r"(?i)\bwillst\s+Sie\b", "wollen Sie", t)
+    t = re.sub(r"(?i)\bkannst\s+Sie\b", "können Sie", t)
+    t = re.sub(r"(?i)\bhast\s+Sie\b", "haben Sie", t)
+    t = re.sub(r"(?i)\bbist\s+Sie\b", "sind Sie", t)
+    t = re.sub(r"(?i)\bmeinst\s+Sie\b", "meinen Sie", t)
+    t = re.sub(r"(?i)\bbenötigst\s+Sie\b", "benötigen Sie", t)
+    t = re.sub(r"(?i)\bSie\s+heiß(?:e|t)\b", "Sie heißen", t)
+    t = re.sub(r"(?i)\bmerk\s+ihnen\b", "merk dir", t)
+    t = re.sub(r"(?i)\bihnen\s+heiß(?:e|t)\b", "Sie heißen", t)
+    return re.sub(r"\s+", " ", t).strip()
 
 
 def strip_en_leak_words(text: str) -> str:
@@ -281,8 +354,10 @@ def needs_retry(
         return True
     if boilerplate_hits(text):
         return True
-    # Duzen: retry once for repair; don't treat as hard-fail forever
-    if duzen_hits(text) and intent in {"task", "smalltalk", "memory", None}:
+    # Duzen / broken Siezen: retry once for repair
+    if (
+        duzen_hits(text) or looks_like_broken_siezen(text)
+    ) and intent in {"task", "smalltalk", "memory", None}:
         return True
     if looks_like_en_leak(text):
         return True
@@ -381,11 +456,21 @@ def force_strict_refuse_if_needed(
             or looks_like_non_german(cleaned)
             or looks_like_degenerate(cleaned)
             or boilerplate_hits(cleaned)
+            or looks_like_broken_siezen(cleaned)
         ):
+            if looks_like_broken_siezen(cleaned) and not (
+                is_bad_memory_canned(cleaned)
+                or looks_like_non_german(cleaned)
+                or looks_like_degenerate(cleaned)
+                or boilerplate_hits(cleaned)
+            ):
+                softened = soften_duzen(cleaned)
+                if not looks_like_broken_siezen(softened) and not duzen_hits(softened):
+                    return softened
             return _memory_safe_fallback(mem_op) or SAFE_MEMORY_RECALL
         if duzen_hits(cleaned):
             softened = soften_duzen(cleaned)
-            if not duzen_hits(softened):
+            if not duzen_hits(softened) and not looks_like_broken_siezen(softened):
                 return softened
             return _memory_safe_fallback(mem_op) or softened
         if looks_like_en_leak(cleaned):
@@ -427,13 +512,15 @@ def force_strict_refuse_if_needed(
         )
 
     # Duzen: soften first — do NOT dump to SAFE_SMALLTALK (R1/R4)
-    if duzen_hits(cleaned):
+    if duzen_hits(cleaned) or looks_like_broken_siezen(cleaned):
         softened = soften_duzen(cleaned)
-        if not duzen_hits(softened):
+        if not duzen_hits(softened) and not looks_like_broken_siezen(softened):
             return softened
         if intent == "task":
             return softened if looks_like_coach_list(softened) else SAFE_TASK
         if intent == "smalltalk":
+            if looks_like_greeting(user_text or ""):
+                return SAFE_GREETING
             return softened  # keep content over canned
         if user_looks_kaputt(user_text):
             return SAFE_CHARACTER
@@ -499,6 +586,7 @@ def is_guarded_canned(text: str) -> bool:
         SAFE_NO_HELPDESK,
         SAFE_CHARACTER,
         SAFE_SMALLTALK,
+        SAFE_GREETING,
         SAFE_TASK,
         SAFE_TASK_CLARIFY,
         SAFE_SETTINGS,

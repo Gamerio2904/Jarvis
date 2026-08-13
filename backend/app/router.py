@@ -67,16 +67,21 @@ _SETTINGS_FACT_RE = re.compile(
     r")\b"
 )
 _HELPDESK_TRAP_RE = re.compile(
-    r"(?is)\b("
+    r"(?is)(?:"
+    r"\b("
     r"wie\s+kann\s+ich\s+(dir|ihnen)\s+helfen|"
     r"was\s+kann\s+ich\s+für\s+sie\s+tun|"
     r"was\s+kannst\s+(?:du|Sie)\s+(?:alles\s+)?(?:für\s+mich\s+)?(?:tun|machen)|"
     r"was\s+kannst\s+(?:du|Sie)\s+alles|"
+    r"was\s+kannst\s+(?:du|Sie)\b|"
+    r"fähigkeiten|"
     r"wozu\s+bist\s+(?:du|Sie)\s+(?:da|gut)|"
     r"deine\s+fähigkeiten|"
     r"customer\s+support|"
     r"als\s+ki\s+sollst\s+du"
-    r")\b"
+    r")\b|"
+    r"\bwas\s+geht\b"
+    r")"
 )
 _RESEARCH_RE = re.compile(
     r"(?is)\b("

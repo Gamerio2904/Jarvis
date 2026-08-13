@@ -1,10 +1,12 @@
-"""Delight: moments, inside jokes, Easter eggs (Sprint 18+) + session mood (0.7.3)."""
+"""Delight: moments, inside jokes, Easter eggs (Sprint 18+) + session mood (0.7.3/0.8.3)."""
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
 from datetime import date
 from typing import Any
+
+from . import db
 
 EASTER_EGGS: list[dict[str, str]] = [
     {
@@ -48,10 +50,10 @@ _EGG_RE = re.compile(
     r"(?is)^\s*/?\s*(protokoll|mission|kante|ruhe|vergisswitz|quellen|hilfe)\s*$"
 )
 
-_MOMENTS_BY_DAY: dict[str, int] = {}
-_JOKES_BY_DAY: dict[str, int] = {}
-# Sprint 21: mood scoped per conversation (not process-global)
+# In-process cache; mood/caps source of truth in DB (Sprint 25 O2/O6)
 _MOOD_BY_CONV: dict[str, str] = {}
+_MOMENTS_CACHE: dict[str, int] = {}
+_JOKES_CACHE: dict[str, int] = {}
 
 
 @dataclass
@@ -94,34 +96,51 @@ def _today_key() -> str:
 
 
 def moments_used_today() -> int:
-    return int(_MOMENTS_BY_DAY.get(_today_key(), 0))
+    day = _today_key()
+    if day not in _MOMENTS_CACHE:
+        m, _j = db.get_delight_daily(day)
+        _MOMENTS_CACHE[day] = m
+    return int(_MOMENTS_CACHE.get(day, 0))
 
 
 def record_moment() -> None:
-    k = _today_key()
-    _MOMENTS_BY_DAY[k] = moments_used_today() + 1
+    day = _today_key()
+    prev = moments_used_today()
+    db.bump_delight_daily(day, moments=1)
+    _MOMENTS_CACHE[day] = prev + 1
 
 
 def jokes_used_today() -> int:
-    return int(_JOKES_BY_DAY.get(_today_key(), 0))
+    day = _today_key()
+    if day not in _JOKES_CACHE:
+        _m, j = db.get_delight_daily(day)
+        _JOKES_CACHE[day] = j
+    return int(_JOKES_CACHE.get(day, 0))
 
 
 def record_joke() -> None:
-    k = _today_key()
-    _JOKES_BY_DAY[k] = jokes_used_today() + 1
+    day = _today_key()
+    prev = jokes_used_today()
+    db.bump_delight_daily(day, jokes=1)
+    _JOKES_CACHE[day] = prev + 1
 
 
 def get_session_mood(conversation_id: str | None = None) -> str:
-    if conversation_id:
-        return _MOOD_BY_CONV.get(conversation_id, "neutral")
-    # Back-compat: no global mood leak across chats
-    return "neutral"
+    if not conversation_id:
+        return "neutral"
+    if conversation_id in _MOOD_BY_CONV:
+        return _MOOD_BY_CONV[conversation_id]
+    mood = db.get_conversation_mood(conversation_id)
+    _MOOD_BY_CONV[conversation_id] = mood
+    return mood
 
 
 def set_session_mood(mood: str, conversation_id: str | None = None) -> None:
     if not conversation_id:
         return
-    _MOOD_BY_CONV[conversation_id] = mood
+    mood_n = mood if mood in {"neutral", "kante", "ruhe"} else "neutral"
+    _MOOD_BY_CONV[conversation_id] = mood_n
+    db.set_conversation_mood(conversation_id, mood_n)
 
 
 def capabilities_card() -> str:

@@ -45,6 +45,8 @@ export type Health = {
   model_ready: boolean
   configured_model?: string
   fallback_model?: string
+  model_heavy?: string
+  heavy_equals_default?: boolean
   using_fallback?: boolean
   warning?: string | null
   version?: string

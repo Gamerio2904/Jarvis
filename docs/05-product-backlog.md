@@ -147,12 +147,12 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S8.13 | Als Nutzer will ich bei vagen Tasks eine kurze Führung (Clarify-First). | Must | done | Sprint 22 / `0.8.0` |
 | S8.14 | Als Nutzer will ich eine Fähigkeiten-Karte (`/hilfe`). | Must | done | Sprint 22 / `0.8.0` |
 | S8.15 | Als Nutzer will ich spürbares Streaming + Research-Query-Echo. | Must | done | Sprint 22 / `0.8.0` |
-| S8.16 | Als Nutzer will ich, dass Soft-Memory keine Wort-Trümmer speichert (`Jazz`≠`zz`). | Must | ready | Sprint 23 / `0.8.1` |
-| S8.17 | Als Nutzer will ich Duzen-Repair ohne kaputtes Deutsch (`Merk Ihnen`, `*st Sie`). | Must | ready | Sprint 23 / `0.8.1` |
-| S8.18 | Als Nutzer will ich Capabilities auch bei kurzen Fragen (`Was kannst du?`). | Must | ready | Sprint 24 / `0.8.2` |
-| S8.19 | Als Nutzer will ich Begrüßungen ohne reines SAFE_SMALLTALK-Canned. | Should | ready | Sprint 24 / `0.8.2` |
-| S8.20 | Als Nutzer will ich klares Forget- und Soft-Reject-Feedback. | Should | ready | Sprint 24 / `0.8.2` |
-| S8.21 | Als Nutzer will ich Assist-Scorecard + Mood-Persist + Audit-Link. | Should | ready | Sprint 25 / `0.8.3` |
+| S8.16 | Als Nutzer will ich, dass Soft-Memory keine Wort-Trümmer speichert (`Jazz`≠`zz`). | Must | done | Sprint 23 / `0.8.1` |
+| S8.17 | Als Nutzer will ich Duzen-Repair ohne kaputtes Deutsch (`Merk Ihnen`, `*st Sie`). | Must | done | Sprint 23 / `0.8.1` |
+| S8.18 | Als Nutzer will ich Capabilities auch bei kurzen Fragen (`Was kannst du?`). | Must | done | Sprint 24 / `0.8.2` |
+| S8.19 | Als Nutzer will ich Begrüßungen ohne reines SAFE_SMALLTALK-Canned. | Should | done | Sprint 24 / `0.8.2` |
+| S8.20 | Als Nutzer will ich klares Forget- und Soft-Reject-Feedback. | Should | done | Sprint 24 / `0.8.2` |
+| S8.21 | Als Nutzer will ich Assist-Scorecard + Mood-Persist + Audit-Link. | Should | done | Sprint 25 / `0.8.3` |
 
 ### E7 — Nachzieher Quality/Research (Fortsetzung)
 

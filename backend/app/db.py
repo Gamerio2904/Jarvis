@@ -79,6 +79,7 @@ def init_db() -> None:
         _ensure_column(conn, "conversations", "summary_text", "TEXT")
         _ensure_column(conn, "conversations", "summary_upto_message_id", "TEXT")
         _ensure_column(conn, "conversations", "summary_message_count", "INTEGER DEFAULT 0")
+        _ensure_column(conn, "conversations", "session_mood", "TEXT DEFAULT 'neutral'")
         _ensure_column(conn, "memory_items", "expires_at", "TEXT")
         _ensure_column(conn, "messages", "meta_json", "TEXT")
         conn.executescript(
@@ -95,6 +96,11 @@ def init_db() -> None:
             );
             CREATE INDEX IF NOT EXISTS idx_research_audits_created
                 ON research_audits(created_at DESC);
+            CREATE TABLE IF NOT EXISTS delight_daily (
+                day TEXT PRIMARY KEY,
+                moments INTEGER NOT NULL DEFAULT 0,
+                jokes INTEGER NOT NULL DEFAULT 0
+            );
             """
         )
         conn.commit()
@@ -250,6 +256,70 @@ def touch_conversation(conversation_id: str) -> None:
         conn.execute(
             "UPDATE conversations SET updated_at = ? WHERE id = ?",
             (utc_now(), conversation_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_conversation_mood(conversation_id: str) -> str:
+    conn = get_conn()
+    try:
+        row = conn.execute(
+            "SELECT session_mood FROM conversations WHERE id = ?",
+            (conversation_id,),
+        ).fetchone()
+        if not row:
+            return "neutral"
+        mood = (row["session_mood"] if isinstance(row, dict) or hasattr(row, "keys") else row[0]) or "neutral"
+        mood = str(mood).lower()
+        return mood if mood in {"neutral", "kante", "ruhe"} else "neutral"
+    finally:
+        conn.close()
+
+
+def set_conversation_mood(conversation_id: str, mood: str) -> None:
+    mood_n = str(mood or "neutral").lower()
+    if mood_n not in {"neutral", "kante", "ruhe"}:
+        mood_n = "neutral"
+    conn = get_conn()
+    try:
+        conn.execute(
+            "UPDATE conversations SET session_mood = ?, updated_at = ? WHERE id = ?",
+            (mood_n, utc_now(), conversation_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_delight_daily(day: str) -> tuple[int, int]:
+    conn = get_conn()
+    try:
+        row = conn.execute(
+            "SELECT moments, jokes FROM delight_daily WHERE day = ?",
+            (day,),
+        ).fetchone()
+        if not row:
+            return 0, 0
+        return int(row["moments"] if hasattr(row, "keys") else row[0]), int(
+            row["jokes"] if hasattr(row, "keys") else row[1]
+        )
+    finally:
+        conn.close()
+
+
+def bump_delight_daily(day: str, *, moments: int = 0, jokes: int = 0) -> None:
+    conn = get_conn()
+    try:
+        conn.execute(
+            """
+            INSERT INTO delight_daily (day, moments, jokes) VALUES (?, ?, ?)
+            ON CONFLICT(day) DO UPDATE SET
+                moments = moments + excluded.moments,
+                jokes = jokes + excluded.jokes
+            """,
+            (day, max(0, moments), max(0, jokes)),
         )
         conn.commit()
     finally:

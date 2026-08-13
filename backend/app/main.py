@@ -20,18 +20,22 @@ from . import router as router_mod
 from .guards import (
     SAFE_CAPABILITIES,
     SAFE_DEGENERATE,
+    SAFE_GREETING,
     SAFE_HELPDESK_TRAP,
     SAFE_INJECT,
     SAFE_MEMORY_REFUSE_FALSE,
     SAFE_MEMORY_SOFT_CONFIRM,
     SAFE_NO_HELPDESK,
     SAFE_SETTINGS,
+    SAFE_SMALLTALK,
     SAFE_TASK,
     SAFE_TASK_CLARIFY,
     boilerplate_hits,
     force_strict_refuse_if_needed,
     is_bad_memory_canned,
     is_guarded_canned,
+    looks_like_broken_siezen,
+    looks_like_greeting,
     looks_like_identity_leak,
     looks_like_vague_task,
     needs_retry,
@@ -48,8 +52,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.8.0")
-APP_VERSION = "0.8.0"
+app = FastAPI(title="Jarvis API", version="0.8.3")
+APP_VERSION = "0.8.3"
 
 app.add_middleware(
     CORSMiddleware,
@@ -141,6 +145,10 @@ class SettingsPatchBody(BaseModel):
 @app.on_event("startup")
 def on_startup() -> None:
     db.init_db()
+    try:
+        memory_mod.purge_garbage_soft_memory()
+    except Exception:
+        pass
 
 
 async def _resolve_runtime_model(
@@ -242,7 +250,7 @@ def _settings_fact_reply(user_text: str, settings: dict[str, Any]) -> str | None
             "Settings → Forschung → Research-Opt-in an. "
             "Dann z.B. „Recherchiere …“ — Antworten nur mit Quellen, sonst Refuse."
         )
-    if re.search(r"(?is)was\s+kannst\s+(?:du|sie)\s+alles|fähigkeiten|/hilfe", t):
+    if re.search(r"(?is)was\s+kannst\s+(?:du|sie)(?:\s+alles)?|was\s+geht\s*\??\s*$|fähigkeiten|/hilfe", t):
         return delight_mod.capabilities_card()
     if "einstellung" in low or low.startswith("/"):
         return None
@@ -278,6 +286,12 @@ def _prepare_chat_context(
     mem_op, notes = memory_mod.apply_explicit_memory_commands(
         user_text, conversation_id=conversation_id
     )
+    # Sprint 24 E5: soft-reject after soft-confirm
+    if mem_op == "none" and memory_mod.looks_like_soft_reject(user_text):
+        reject_notes = memory_mod.reject_recent_soft_facts(conversation_id=conversation_id)
+        mem_op = "soft_reject"
+        notes = reject_notes
+
     # Soft-harvest only outside explicit memory ops / non-memory smalltalk
     soft_notes = memory_mod.harvest_soft_facts(
         user_text,
@@ -375,15 +389,20 @@ def _finalize_turn_reply(
             return memory_mod.ack_reply_for_write(memory_notes)
         return reply
     if memory_op in {"forget", "forget_all"}:
-        if is_bad_memory_canned(reply) or reply.strip() == "Ist weg. Weiter?":
-            return memory_mod.ack_reply_for_forget(memory_op, memory_notes)
-        return reply
+        # Sprint 24 E3: always force clear forget wording
+        return memory_mod.ack_reply_for_forget(memory_op, memory_notes)
+    if memory_op == "soft_reject":
+        return memory_mod.ack_reply_for_soft_reject(memory_notes)
     if memory_op == "recall":
-        if is_bad_memory_canned(reply) or reply.strip() in {
-            SAFE_DEGENERATE,
-            SAFE_NO_HELPDESK,
-            "Dazu habe ich etwas notiert — welche Detailfrage genau?",
-        }:
+        if (
+            is_bad_memory_canned(reply)
+            or looks_like_broken_siezen(reply)
+            or reply.strip() in {
+                SAFE_DEGENERATE,
+                SAFE_NO_HELPDESK,
+                "Dazu habe ich etwas notiert — welche Detailfrage genau?",
+            }
+        ):
             return memory_mod.ack_reply_for_recall(memory_notes)
         # S4: drop helpdesk-ish tails on recall
         if boilerplate_hits(reply):
@@ -588,9 +607,18 @@ async def _generate_reply(
             return f"Kurz notiert (TTL): {soft[0]}. So merken?"
         return SAFE_MEMORY_SOFT_CONFIRM
 
+    if memory_op == "soft_reject":
+        return memory_mod.ack_reply_for_soft_reject(memory_notes or [])
+
+    if memory_op in {"forget", "forget_all"}:
+        return memory_mod.ack_reply_for_forget(memory_op, memory_notes or [])
+
     # Sprint 22 A1: vague tasks → clarify-first canned (or LLM with strong nudge)
     if intent == "task" and looks_like_vague_task(user_text):
         return SAFE_TASK_CLARIFY
+
+    # Sprint 24 E2: greetings — prefer greeting canned over SAFE_SMALLTALK hammer later
+    greeting_turn = looks_like_greeting(user_text)
 
     kwargs = _completion_kwargs(settings, model, system)
     # Sprint 21 D5: fewer retries on smalltalk
@@ -598,6 +626,9 @@ async def _generate_reply(
     retries = int(settings.get("guard_max_retries", default_retries))
     if intent in {"smalltalk", "helpdesk_trap"}:
         retries = min(retries, 1)
+    # Extra retry budget when residual broken Siezen likely (Sprint 24 E4)
+    if intent in {"smalltalk", "memory", "task"}:
+        retries = max(retries, 1)
 
     reply = await chat_completion(**kwargs, messages=llm_messages)
     attempt = 0
@@ -616,6 +647,16 @@ async def _generate_reply(
         memory_op=memory_op,
         intent=intent,
     )
+    if looks_like_broken_siezen(reply):
+        reply = force_strict_refuse_if_needed(
+            reply,
+            recent_assistant,
+            user_text=user_text,
+            memory_op=(memory_op or "recall") if intent == "memory" else memory_op,
+            intent=intent,
+        )
+    if greeting_turn and reply.strip() in {SAFE_SMALLTALK, SAFE_NO_HELPDESK}:
+        reply = SAFE_GREETING
     if looks_like_identity_leak(reply):
         fact = _settings_fact_reply(user_text, settings)
         if fact:
@@ -1155,6 +1196,40 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
             )
             return
 
+        if mem_op == "soft_reject":
+            final = memory_mod.ack_reply_for_soft_reject(mem_notes)
+            yield sse({"type": "replace", "content": final})
+            saved = db.add_message(conversation_id, "assistant", final)
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": True,
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                }
+            )
+            return
+
+        if mem_op in {"forget", "forget_all"}:
+            final = memory_mod.ack_reply_for_forget(mem_op, mem_notes)
+            yield sse({"type": "replace", "content": final})
+            saved = db.add_message(conversation_id, "assistant", final)
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": True,
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                }
+            )
+            return
+
         if intent == "task" and looks_like_vague_task(content):
             final = SAFE_TASK_CLARIFY
             yield sse({"type": "replace", "content": final})
@@ -1255,6 +1330,17 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
             attempt += 1
             yield sse({"type": "retry", "attempt": attempt})
             messages_for_model = [*llm_messages, {"role": "user", "content": nudge}]
+
+        if looks_like_greeting(content) and final.strip() in {SAFE_SMALLTALK, SAFE_NO_HELPDESK}:
+            final = SAFE_GREETING
+            yield sse({"type": "replace", "content": final})
+        final = _finalize_turn_reply(
+            final,
+            user_text=content,
+            memory_op=mem_op,
+            memory_notes=mem_notes,
+            intent=intent,
+        )
 
         saved = db.add_message(conversation_id, "assistant", final)
         try:

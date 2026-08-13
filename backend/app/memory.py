@@ -6,7 +6,7 @@ from typing import Any, Literal
 
 from . import db
 
-MemoryOp = Literal["write", "forget", "forget_all", "recall", "clarify", "none"]
+MemoryOp = Literal["write", "forget", "forget_all", "recall", "clarify", "soft_confirm", "soft_reject", "none"]
 
 _MERK_RE = re.compile(
     r"(?is)^\s*(?:merk(?:e)?\s*dir|merke\s*dir|erinner(?:e)?\s*dich(?:\s*an)?)\s*"
@@ -135,10 +135,13 @@ _CYRILLIC_RE = re.compile(r"[\u0400-\u04FF]")
 
 
 def normalize_value(raw: str) -> str:
-    """Strip filler prefixes and trailing punctuation for clean memory values."""
+    """Strip filler prefixes and trailing punctuation for clean memory values.
+
+    Sprint 23 H1: fillers only as whole words — never strip Jazz/Japan/Jade.
+    """
     v = raw.strip().rstrip(".!?")
     filler = re.compile(
-        r"(?is)^(bitte|dass|übrigens|eigentlich|also|ja)\s*[,:]?\s*"
+        r"(?is)^(?:bitte|dass|übrigens|eigentlich|also|ja)\b\s*[,:]?\s*"
     )
     for _ in range(6):
         nxt = filler.sub("", v).strip()
@@ -147,6 +150,83 @@ def normalize_value(raw: str) -> str:
         v = nxt
     v = re.sub(r"\s+", " ", v)
     return v[:500]
+
+
+def is_valid_soft_value(value: str) -> bool:
+    """Sprint 23 H2: reject garbage/truncated soft-memory payloads."""
+    v = (value or "").strip()
+    if len(v) < 3:
+        return False
+    # single/double letter debris after bad normalize
+    if re.fullmatch(r"[a-zäöüß]{1,2}", v.lower()):
+        return False
+    low = v.lower()
+    if low in {"pan", "zz", "de", "ja", "ok", "na", "hm", "äh"}:
+        return False
+    if re.fullmatch(r"de\s+\w+", low):
+        return False
+    if is_weak_memory_value(v) and len(v) < 8:
+        return False
+    return True
+
+
+_SOFT_REJECT_RE = re.compile(
+    r"(?is)^\s*("
+    r"nein(?:[,.]?\s+(?:bitte\s+)?(?:nicht(?:\s+merken)?|doch\s+nicht))?|"
+    r"(?:bitte\s+)?nicht\s+merken|"
+    r"lieber\s+nicht(?:\s+merken)?|"
+    r"doch\s+nicht|"
+    r"vergiss\s+(?:das|es|den\s+eintrag)"
+    r")\s*[.!]?\s*$"
+)
+
+
+def looks_like_soft_reject(text: str) -> bool:
+    return bool(_SOFT_REJECT_RE.match((text or "").strip()))
+
+
+def is_garbage_memory_item(item: dict[str, Any]) -> bool:
+    """Sprint 23 H4: known soft-trümmer keys/values."""
+    key = str(item.get("key") or "").lower()
+    val = str(item.get("value") or "").strip()
+    if key in {"mag_pan", "mag_de_tee", "mag_zz"}:
+        return True
+    if key.startswith("mag_") and not is_valid_soft_value(val):
+        return True
+    if len(val) <= 2:
+        return True
+    if val.lower() in {"pan", "zz", "de", "de tee"}:
+        return True
+    return False
+
+
+def purge_garbage_soft_memory() -> int:
+    """Best-effort delete of known garbage soft facts."""
+    items = db.list_memory_items(limit=200, include_expired=True)
+    n = 0
+    for it in items:
+        if is_garbage_memory_item(it):
+            if db.delete_memory_item(str(it["id"])):
+                n += 1
+    return n
+
+
+def reject_recent_soft_facts(*, conversation_id: str) -> list[str]:
+    """Delete recent low-confidence soft prefs for this conversation (Sprint 24 E5)."""
+    items = db.list_memory_items(limit=40, include_expired=True)
+    notes: list[str] = []
+    for it in items:
+        if it.get("source_conversation_id") != conversation_id:
+            continue
+        conf = float(it.get("confidence") or 0)
+        if conf >= 0.85:
+            continue
+        key = str(it.get("key") or "")
+        if not (key.startswith("mag_") or key.startswith("lieblings")):
+            continue
+        if db.delete_memory_item(str(it["id"])):
+            notes.append(f"Soft-Reject: {key} gelöscht")
+    return notes
 
 
 def _trim_clause(raw: str) -> str:
@@ -355,7 +435,11 @@ def retrieve_relevant(
     min_confidence: float = 0.0,
 ) -> list[dict[str, Any]]:
     items = db.list_memory_items(limit=80, include_expired=False)
-    items = [i for i in items if float(i.get("confidence") or 0) >= min_confidence]
+    items = [
+        i
+        for i in items
+        if float(i.get("confidence") or 0) >= min_confidence and not is_garbage_memory_item(i)
+    ]
     if not items:
         return []
     tokens = {
@@ -529,7 +613,7 @@ def harvest_soft_facts(
 ) -> list[str]:
     """Capture clear preference patterns even without 'merk dir' (TTL + low conf).
 
-    Returns notes for soft-confirm UX (Sprint 22 A5).
+    Returns notes for soft-confirm UX (Sprint 22 A5 + 23 H2 gate).
     """
     if skip:
         return []
@@ -540,6 +624,8 @@ def harvest_soft_facts(
     pref = parse_lieblings_pref(user_text)
     if pref:
         key, val, category = pref
+        if not is_valid_soft_value(val):
+            return []
         db.upsert_memory_item(
             key=key,
             value=val,
@@ -554,7 +640,7 @@ def harvest_soft_facts(
     m3 = _ICH_MAG_RE.search(user_text)
     if m3:
         val = normalize_value(m3.group(1))
-        if len(val) <= 2:
+        if not is_valid_soft_value(val):
             return []
         key = _key_from_payload(f"mag_{val}")
         db.upsert_memory_item(
@@ -584,12 +670,19 @@ def ack_reply_for_write(notes: list[str]) -> str:
 
 
 def ack_reply_for_forget(op: MemoryOp, notes: list[str]) -> str:
+    """Sprint 24 E3: always include weg/raus/gelöscht needle."""
     if op == "forget_all":
         return "Alles weg aus dem Langzeitgedächtnis. Frisch startklar — was liegt an?"
     for n in notes:
-        if "gelöscht" in n.lower():
-            return "Ist raus. Weiter?"
+        if "gelöscht" in n.lower() or "Soft-Reject" in n:
+            return "Ist raus — gelöscht. Weiter?"
     return "Ist weg. Weiter?"
+
+
+def ack_reply_for_soft_reject(notes: list[str]) -> str:
+    if notes:
+        return "Alles klar — nicht gemerkt, Eintrag ist weg. Weiter?"
+    return "Alles klar — nichts Unsicheres gemerkt. Weiter?"
 
 
 def ack_reply_for_recall(notes: list[str]) -> str:

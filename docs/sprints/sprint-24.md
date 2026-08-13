@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **Should** — nach kritischem Hotfix `0.8.1` |
 | Ziel-Version | **`0.8.2`** |
 | Quelle | Restpunkte Deep-Test `0.8.0` + Nachzieher Capabilities/Canned/Forget |

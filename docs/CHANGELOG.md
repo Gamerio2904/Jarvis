@@ -5,21 +5,20 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### Geplant — `0.8.1` / Sprint 23 (Assist Hotfix)
+### `0.8.3` — Sprint 25 (Assist Ops & Carry-over) — *READY FOR REVIEW* (liefert auch 0.8.1 + 0.8.2)
 
-- `normalize_value` Wortgrenzen-Filler; Soft-Confirm Value-Gate; `soften_duzen` entschärfen
-- Garbage-Soft-Memory nicht mehr injecten; Eval `eval_0_8_1.py`
-- [`sprints/sprint-23.md`](./sprints/sprint-23.md)
+- Scorecard Assist; Mood/Delight-Caps in DB; Audit-Link in Quellen-UI; Latency-Hinweis Settings
+- Eval `scripts/eval_0_8_3.py`, Scorecard `scripts/scorecard_0_8_3.py`, Version `0.8.3`
 
-### Geplant — `0.8.2` / Sprint 24 (Edge & Reply Polish)
+### `0.8.2` — Sprint 24 (Edge & Reply Polish) — *READY FOR REVIEW* (mitgeliefert in `0.8.3`)
 
-- Capabilities-Kurzformen; Begrüßungs-Canned; Forget-/Soft-Reject-Acks; Residual-Duzen
-- [`sprints/sprint-24.md`](./sprints/sprint-24.md)
+- Capabilities-Kurzformen; Begrüßungs-Canned; Forget-/Soft-Reject-Acks; Residual-Duzen-Retry
+- Eval `scripts/eval_0_8_2.py`
 
-### Geplant — `0.8.3` / Sprint 25 (Assist Ops & Carry-over)
+### `0.8.1` — Sprint 23 (Assist Hotfix) — *READY FOR REVIEW* (mitgeliefert in `0.8.3`)
 
-- Scorecard Assist; Delight-Persist; Audit-Link UI; Latency-Hinweis Settings
-- [`sprints/sprint-25.md`](./sprints/sprint-25.md)
+- `normalize_value` Wortgrenzen; Soft-Confirm Value-Gate; `soften_duzen` entschärfen; Garbage-Soft-Memory
+- Eval `scripts/eval_0_8_1.py`
 
 ### `0.8.0` — Sprint 22 (Assist Clarity) — *READY FOR REVIEW* (liefert auch 0.7.2 + 0.7.3)
 

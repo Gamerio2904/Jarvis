@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **HIGH** — Korrektheit vor weiterer Assist-Politur |
 | Ziel-Version | **`0.8.1`** |
 | Quelle | Deep-Test `/tmp/deep_080.log` nach Sprints 20–22 / `0.8.0` |

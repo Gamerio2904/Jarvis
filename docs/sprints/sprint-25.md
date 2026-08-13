@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **Should** — offene Shoulds aus Sprints 21–22 + Ops-Transparenz |
 | Ziel-Version | **`0.8.3`** |
 | Quelle | Unerledigte Shoulds Sprint 21 (D7–D10) / 22 (A7–A10) + Deep-Test-Ops-Hinweise |
