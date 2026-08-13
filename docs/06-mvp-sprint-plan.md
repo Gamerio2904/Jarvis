@@ -461,9 +461,9 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 27 — Persona & Continuity Hotfix → **`0.8.5`** *(prio)*
+## Sprint 27 — Persona & Continuity Hotfix → **`0.8.5`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW (mitgeliefert in `0.9.0`)  
 **Artefakt:** [`sprints/sprint-27.md`](./sprints/sprint-27.md)  
 **Quelle:** Deep-Test nach `0.8.4` (`/tmp/deep_084.log`)
 
@@ -477,7 +477,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 28 — Local Tools Core → **`0.9.0`** *(Option A)*
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-28.md`](./sprints/sprint-28.md)
 
 | Must | Inhalt |

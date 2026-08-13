@@ -249,7 +249,7 @@ _BROKEN_SIEZEN_RE = re.compile(
     r"(?i)\b("
     r"möchtst|möchtest|brauchst|magst|willst|kannst|hast|hab|bist|meinst|benötigst|"
     r"schaffst|bleibst|lässt|lässt|nimmst|gibst|sagst|weißt|siehst|hörst|"
-    r"gehst|kommst|machst|sollst|darfst|musst|weißt"
+    r"gehst|kommst|machst|sollst|darfst|musst|weißt|hältst|bringst"
     r")\s+Sie\b"
 )
 
@@ -264,6 +264,15 @@ _GREETING_RE = re.compile(
 _DOUBLE_SIE_RE = re.compile(r"(?i)\bSie\s+haben\s+Sie\b")
 _RUH_SIE_RE = re.compile(r"(?i)\bRuh\s+Sie\b")
 _KUMPEL_RE = re.compile(r"(?i)\bKumpel\b")
+_MASTER_RE = re.compile(r"(?i)\b(?:Master|Sir)\b")
+_RESIDUAL_DU_VERB_RE = re.compile(
+    r"(?i)\b("
+    r"bringst|willst|hältst|magst|kannst|sollst|musst|darfst|bleibst|"
+    r"gehst|kommst|machst|sagst|weißt|siehst|hörst|brauchst|schaffst"
+    r")\b"
+)
+_HABT_IHR_RE = re.compile(r"(?i)\bHabt\s+ihr\b")
+_HAST_DU_RE = re.compile(r"(?i)\bHast\s+du\b")
 
 
 def looks_like_greeting(text: str) -> bool:
@@ -271,7 +280,7 @@ def looks_like_greeting(text: str) -> bool:
 
 
 def looks_like_broken_siezen(text: str) -> bool:
-    """Verb stays Du-conjugation while pronoun became Sie (Sprint 23/26)."""
+    """Verb stays Du-conjugation while pronoun became Sie (Sprint 23/26/27)."""
     t = text or ""
     if _BROKEN_SIEZEN_RE.search(t):
         return True
@@ -285,16 +294,31 @@ def looks_like_broken_siezen(text: str) -> bool:
         return True
     if re.search(r"(?i)\bschaffst\s+Sie'?s\b", t):
         return True
+    if _HABT_IHR_RE.search(t) or _HAST_DU_RE.search(t):
+        return True
+    # Residual Du-verb lingering in Sie-context (Sprint 27 F2)
+    if re.search(r"(?i)\bSie\b", t) and _RESIDUAL_DU_VERB_RE.search(t):
+        return True
     return False
 
 
-def soften_duzen(text: str) -> str:
-    """Pronoun repair without destroying German (Sprint 23 H3 + 26 P2).
+def scrub_persona_noise(text: str) -> str:
+    """Sprint 27 F1: drop Master/Sir/Kumpel anreden."""
+    t = text or ""
+    t = _MASTER_RE.sub("", t)
+    t = _KUMPEL_RE.sub("", t)
+    t = re.sub(r"\s{2,}", " ", t)
+    t = re.sub(r"\s+([,.!?])", r"\1", t)
+    t = re.sub(r"([!?])\s*,", r"\1", t)
+    t = re.sub(r",\s*,+", ",", t)
+    t = re.sub(r"^\s*,\s*", "", t)
+    t = re.sub(r"([^\s]),!", r"\1!", t)
+    t = re.sub(r",([!?])", r"\1", t)
+    return t.strip()
 
-    - Protect ``merk dir`` / ``merke dir``
-    - Map common Du-verbs when swapping subject ``du`` → ``Sie``
-    - Fix residual ``*st/*est Sie`` and double-Sie
-    """
+
+def soften_duzen(text: str) -> str:
+    """Pronoun repair without destroying German (Sprint 23–27)."""
     t = text or ""
     # Protect merk dir variants
     t = re.sub(r"(?i)\bmerk(?:e)?\s+dir\b", "⟦MERK_DIR⟧", t)
@@ -316,6 +340,9 @@ def soften_duzen(text: str) -> str:
         (r"(?i)\bwas\s+möchtest\s+du\b", "Was möchten Sie"),
         (r"(?i)\bwas\s+brauchst\s+du\b", "Was brauchen Sie"),
         (r"(?i)\bwie\s+schaffst\s+du\b", "Wie schaffen Sie"),
+        (r"(?i)\bwas\s+hältst\s+du\b", "Was halten Sie"),
+        (r"(?i)\bHast\s+du\b", "Haben Sie"),
+        (r"(?i)\bHabt\s+ihr\b", "Haben Sie"),
     ]
     for pat, repl in verb_map:
         t = re.sub(pat, repl, t)
@@ -329,7 +356,7 @@ def soften_duzen(text: str) -> str:
     for pat, repl in reps:
         t = re.sub(pat, repl, t)
     t = t.replace("⟦MERK_DIR⟧", "merk dir")
-    # Fix residual broken *st/*est Sie
+    # Fix residual broken *st/*est Sie and bare Du-verbs
     residual = [
         (r"(?i)\bmöchtst\s+Sie\b", "möchten Sie"),
         (r"(?i)\bmöchtest\s+Sie\b", "möchten Sie"),
@@ -348,17 +375,26 @@ def soften_duzen(text: str) -> str:
         (r"(?i)\bsollst\s+Sie\b", "sollen Sie"),
         (r"(?i)\bmusst\s+Sie\b", "müssen Sie"),
         (r"(?i)\bdarfst\s+Sie\b", "dürfen Sie"),
+        (r"(?i)\bhältst\s+Sie\b", "halten Sie"),
+        (r"(?i)\bbringst\s+Sie\b", "bringen Sie"),
         (r"(?i)\bSie\s+heiß(?:e|t)\b", "Sie heißen"),
         (r"(?i)\bmerk\s+ihnen\b", "merk dir"),
         (r"(?i)\bihnen\s+heiß(?:e|t)\b", "Sie heißen"),
         (r"(?i)\bSie\s+haben\s+Sie\b", "Sie sind"),
         (r"(?i)\bRuh\s+Sie\b", "Ruhen Sie"),
         (r"(?i)\blass\s+uns\b", "lassen Sie uns"),
+        # Bare residual Du-verbs in Sie replies (Sprint 27)
+        (r"(?i)\bbringst\b", "bringen"),
+        (r"(?i)\bwillst\b", "wollen"),
+        (r"(?i)\bhältst\b", "halten"),
+        (r"(?i)\brumplauder\s+willst\b", "rumplaudern wollen"),
+        (r"(?i)\bWas\s+hältst\b", "Was halten"),
+        (r"(?i)\bIhr\s+Tag\b", "Ihrem Tag"),
     ]
     for pat, repl in residual:
         t = re.sub(pat, repl, t)
-    # Light persona scrub (Sprint 26 P7)
-    t = _KUMPEL_RE.sub("Sie", t)
+    # Persona scrub (Sprint 26 P7 + 27 F1)
+    t = scrub_persona_noise(t)
     t = re.sub(r"\bSie\s+Sie\b", "Sie", t)
     return re.sub(r"\s+", " ", t).strip()
 
@@ -596,6 +632,9 @@ def force_strict_refuse_if_needed(
             or SAFE_SMALLTALK
         )
 
+    # Always scrub Master/Sir even when other guards are quiet (Sprint 27 F1)
+    if _MASTER_RE.search(cleaned) or _KUMPEL_RE.search(cleaned):
+        return scrub_persona_noise(cleaned)
     return cleaned
 
 

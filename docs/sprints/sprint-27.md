@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** (mitgeliefert in `0.9.0`) |
 | Priorität | **HIGH** — Qualitäts-Patch vor Tools-MINOR |
 | Ziel-Version | **`0.8.5`** |
 | Quelle | Deep-Test `/tmp/deep_084.log` + Report `/tmp/deep_084_report.json` nach Sprint 26 / `0.8.4` |

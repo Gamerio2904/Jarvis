@@ -101,6 +101,43 @@ def init_db() -> None:
                 moments INTEGER NOT NULL DEFAULT 0,
                 jokes INTEGER NOT NULL DEFAULT 0
             );
+            CREATE TABLE IF NOT EXISTS notes (
+                id TEXT PRIMARY KEY,
+                body TEXT NOT NULL,
+                source_conversation_id TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_notes_updated ON notes(updated_at DESC);
+            CREATE TABLE IF NOT EXISTS todos (
+                id TEXT PRIMARY KEY,
+                title TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'open',
+                source_conversation_id TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_todos_status ON todos(status, updated_at DESC);
+            CREATE TABLE IF NOT EXISTS tool_pending (
+                conversation_id TEXT PRIMARY KEY,
+                tool TEXT NOT NULL,
+                action TEXT NOT NULL,
+                args_json TEXT NOT NULL,
+                preview TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS tool_audits (
+                id TEXT PRIMARY KEY,
+                conversation_id TEXT,
+                tool TEXT NOT NULL,
+                action TEXT NOT NULL,
+                args_json TEXT NOT NULL,
+                status TEXT NOT NULL,
+                result_json TEXT,
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_tool_audits_created
+                ON tool_audits(created_at DESC);
             """
         )
         conn.commit()
@@ -695,3 +732,238 @@ def clear_all_memory() -> int:
         return cur.rowcount
     finally:
         conn.close()
+
+
+# ── Notes / Todos / Tool pending (Sprint 28) ─────────────────
+
+
+def create_note(*, body: str, conversation_id: str | None = None) -> dict[str, Any]:
+    now = utc_now()
+    item = {
+        "id": str(uuid.uuid4()),
+        "body": body.strip()[:500],
+        "source_conversation_id": conversation_id,
+        "created_at": now,
+        "updated_at": now,
+    }
+    conn = get_conn()
+    try:
+        conn.execute(
+            """
+            INSERT INTO notes (id, body, source_conversation_id, created_at, updated_at)
+            VALUES (:id, :body, :source_conversation_id, :created_at, :updated_at)
+            """,
+            item,
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return item
+
+
+def list_notes(*, limit: int = 20) -> list[dict[str, Any]]:
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            "SELECT id, body, source_conversation_id, created_at, updated_at "
+            "FROM notes ORDER BY updated_at DESC LIMIT ?",
+            (max(1, min(limit, 50)),),
+        ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def search_notes(query: str, *, limit: int = 10) -> list[dict[str, Any]]:
+    q = (query or "").strip().lower()
+    if not q:
+        return list_notes(limit=limit)
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            "SELECT id, body, source_conversation_id, created_at, updated_at "
+            "FROM notes ORDER BY updated_at DESC LIMIT 80"
+        ).fetchall()
+        hits = [dict(r) for r in rows if q in str(r["body"]).lower()]
+        return hits[: max(1, min(limit, 30))]
+    finally:
+        conn.close()
+
+
+def create_todo(*, title: str, conversation_id: str | None = None) -> dict[str, Any]:
+    now = utc_now()
+    item = {
+        "id": str(uuid.uuid4()),
+        "title": title.strip()[:200],
+        "status": "open",
+        "source_conversation_id": conversation_id,
+        "created_at": now,
+        "updated_at": now,
+    }
+    conn = get_conn()
+    try:
+        conn.execute(
+            """
+            INSERT INTO todos (id, title, status, source_conversation_id, created_at, updated_at)
+            VALUES (:id, :title, :status, :source_conversation_id, :created_at, :updated_at)
+            """,
+            item,
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return item
+
+
+def list_todos(*, status: str = "open", limit: int = 20) -> list[dict[str, Any]]:
+    st = status if status in {"open", "done", "all"} else "open"
+    conn = get_conn()
+    try:
+        if st == "all":
+            rows = conn.execute(
+                "SELECT id, title, status, source_conversation_id, created_at, updated_at "
+                "FROM todos ORDER BY updated_at DESC LIMIT ?",
+                (max(1, min(limit, 50)),),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT id, title, status, source_conversation_id, created_at, updated_at "
+                "FROM todos WHERE status = ? ORDER BY updated_at DESC LIMIT ?",
+                (st, max(1, min(limit, 50))),
+            ).fetchall()
+        return [dict(r) for r in rows]
+    finally:
+        conn.close()
+
+
+def complete_todo_by_title(title: str) -> dict[str, Any] | None:
+    needle = (title or "").strip().lower()
+    if not needle:
+        return None
+    conn = get_conn()
+    try:
+        rows = conn.execute(
+            "SELECT id, title, status FROM todos WHERE status = 'open' ORDER BY updated_at DESC"
+        ).fetchall()
+        match = None
+        for r in rows:
+            t = str(r["title"]).lower()
+            if needle == t or needle in t or t in needle:
+                match = r
+                break
+        if not match:
+            return None
+        now = utc_now()
+        conn.execute(
+            "UPDATE todos SET status = 'done', updated_at = ? WHERE id = ?",
+            (now, match["id"]),
+        )
+        conn.commit()
+        return {
+            "id": match["id"],
+            "title": match["title"],
+            "status": "done",
+            "updated_at": now,
+        }
+    finally:
+        conn.close()
+
+
+def set_tool_pending(
+    conversation_id: str,
+    *,
+    tool: str,
+    action: str,
+    args: dict[str, Any],
+    preview: str,
+) -> None:
+    conn = get_conn()
+    try:
+        conn.execute(
+            """
+            INSERT INTO tool_pending (conversation_id, tool, action, args_json, preview, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(conversation_id) DO UPDATE SET
+                tool = excluded.tool,
+                action = excluded.action,
+                args_json = excluded.args_json,
+                preview = excluded.preview,
+                created_at = excluded.created_at
+            """,
+            (
+                conversation_id,
+                tool,
+                action,
+                json.dumps(args, ensure_ascii=False),
+                preview,
+                utc_now(),
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_tool_pending(conversation_id: str) -> dict[str, Any] | None:
+    conn = get_conn()
+    try:
+        row = conn.execute(
+            "SELECT conversation_id, tool, action, args_json, preview, created_at "
+            "FROM tool_pending WHERE conversation_id = ?",
+            (conversation_id,),
+        ).fetchone()
+        if not row:
+            return None
+        data = dict(row)
+        try:
+            data["args"] = json.loads(data.pop("args_json") or "{}")
+        except json.JSONDecodeError:
+            data["args"] = {}
+        return data
+    finally:
+        conn.close()
+
+
+def clear_tool_pending(conversation_id: str) -> None:
+    conn = get_conn()
+    try:
+        conn.execute("DELETE FROM tool_pending WHERE conversation_id = ?", (conversation_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def add_tool_audit(
+    *,
+    conversation_id: str | None,
+    tool: str,
+    action: str,
+    args: dict[str, Any],
+    status: str,
+    result: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    item = {
+        "id": str(uuid.uuid4()),
+        "conversation_id": conversation_id,
+        "tool": tool,
+        "action": action,
+        "args_json": json.dumps(args or {}, ensure_ascii=False),
+        "status": status,
+        "result_json": json.dumps(result or {}, ensure_ascii=False),
+        "created_at": utc_now(),
+    }
+    conn = get_conn()
+    try:
+        conn.execute(
+            """
+            INSERT INTO tool_audits
+            (id, conversation_id, tool, action, args_json, status, result_json, created_at)
+            VALUES
+            (:id, :conversation_id, :tool, :action, :args_json, :status, :result_json, :created_at)
+            """,
+            item,
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return item

@@ -148,6 +148,7 @@ def capabilities_card() -> str:
         "Fähigkeiten-Karte — lokal, privat:\n"
         "• Smalltalk im Jarvis-Ton\n"
         "• Memory: merken / recall / vergessen\n"
+        "• Tools: Notizen + Todos (Confirm vor Speichern)\n"
         "• Research: nur mit Opt-in, Allowlist, Quellen — sonst Refuse\n"
         "• Settings flach; Eggs z.B. /protokoll, /kante, /ruhe\n"
         "Kein freies Netz, keine Cloud. /hilfe jederzeit."

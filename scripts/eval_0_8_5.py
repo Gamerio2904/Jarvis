@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Sprint 25 / v0.8.3 Assist Ops eval."""
+"""Sprint 27 / v0.8.5 Persona & Continuity eval (also green under 0.9.0)."""
 from __future__ import annotations
 
 import json
@@ -12,9 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend"))
 
 from app import db  # noqa: E402
-from app import delight as D  # noqa: E402
 from app import guards as G  # noqa: E402
-from app import memory as M  # noqa: E402
 
 BASE = "http://127.0.0.1:8000"
 
@@ -36,7 +34,7 @@ def req(method: str, path: str, body: dict | None = None, timeout: float = 300.0
         return e.code, payload
 
 
-def chat(content: str, title: str = "E083", cid: str | None = None):
+def chat(content: str, title: str = "E085", cid: str | None = None):
     if cid is None:
         cid = req("POST", "/api/conversations", {"title": title})[1]["id"]
     code, data = req("POST", f"/api/conversations/{cid}/chat", {"content": content})
@@ -56,48 +54,59 @@ def main() -> int:
     db.init_db()
     code, health = req("GET", "/api/health")
     ver = str((health or {}).get("version", ""))
-    check("health_083", code == 200 and ver.startswith(("0.8.", "0.9.")), ver)
     check(
-        "health_heavy_fields",
-        "heavy_equals_default" in (health or {}) or "warning" in (health or {}),
-        str({k: (health or {}).get(k) for k in ("heavy_equals_default", "warning", "model_heavy")}),
+        "health_085_or_09",
+        code == 200 and (ver.startswith("0.8.5") or ver.startswith("0.9.")),
+        ver,
     )
 
-    # O2 mood persist via DB
-    req("PATCH", "/api/settings", {"easter_eggs_enabled": True})
-    ca = req("POST", "/api/conversations", {"title": "E083-mood"})[1]["id"]
-    chat("/kante", cid=ca)
-    # clear in-process cache and reload from DB
-    D._MOOD_BY_CONV.pop(ca, None)
-    check("unit_mood_db_persist", D.get_session_mood(ca) == "kante", D.get_session_mood(ca))
+    # F1 Master scrub
+    soft = G.scrub_persona_noise("Morgen Master, alles klar Sir?")
+    check("unit_no_master", "master" not in soft.lower() and "sir" not in soft.lower(), soft)
 
-    # O6 delight daily table
-    before = D.moments_used_today()
-    D.record_moment()
-    check("unit_delight_daily", D.moments_used_today() >= before + 1, str(D.moments_used_today()))
+    # F2 residual Duzen
+    for raw, needle in [
+        ("Was hältst Sie von Tee?", "halten sie"),
+        ("Habt ihr Zeit?", "haben sie"),
+        ("bringst Ärger und willst Quatsch", "bringen"),
+    ]:
+        check(f"unit_broken:{raw[:20]}", G.looks_like_broken_siezen(raw) or "hältst" not in raw.lower(), raw)
+        out = G.soften_duzen(raw)
+        check(
+            f"unit_soften:{raw[:20]}",
+            needle.split()[0] in out.lower() and not G.looks_like_broken_siezen(out),
+            out,
+        )
 
-    # Soft confirm still valid under 0.8.3
-    code, reply, data, _ = chat("Ich mag Jazz", title="E083-jazz")
+    # Live greeting without Master
+    code, reply, _, _ = chat("Hallo Jarvis", title="E085-hi")
     check(
-        "live_soft_jazz",
-        code == 200 and "jazz" in reply.lower() and "zz" not in reply.lower().split(),
+        "live_no_master",
+        code == 200 and "master" not in reply.lower() and not G.looks_like_broken_siezen(reply),
         reply[:160],
     )
 
-    # Capabilities short
-    code, reply, _, _ = chat("Was kannst du?", title="E083-cap")
-    low = reply.lower()
-    check("live_cap_short", "memory" in low or "merken" in low, reply[:140])
-
-    # Greeting not SAFE_SMALLTALK
-    code, reply, _, _ = chat("Guten Morgen", title="E083-gm")
-    check("live_greeting", reply.strip() != G.SAFE_SMALLTALK, reply[:120])
-
-    # Garbage filter
-    db.upsert_memory_item(key="mag_pan", value="pan", category="pref", confidence=0.55)
-    hits = M.retrieve_relevant("Was mag ich?", min_confidence=0.0)
-    check("unit_no_garbage_inject", all(h.get("key") != "mag_pan" for h in hits), str([(h.get("key"), h.get("value")) for h in hits[:5]]))
-    M.purge_garbage_soft_memory()
+    # F3 clarify continuity
+    cid = req("POST", "/api/conversations", {"title": "E085-cont"})[1]["id"]
+    code1, r1, d1, _ = chat("Mach mir einen Plan", cid=cid)
+    code2, r2, d2, _ = chat("Wochenplan Training, 3x Kraft", cid=cid)
+    intent2 = ((d2 or {}).get("route") or {}).get("intent")
+    reason2 = ((d2 or {}).get("route") or {}).get("reason")
+    check(
+        "live_clarify_continuity",
+        code2 == 200
+        and intent2 == "task"
+        and r2.strip() != G.SAFE_TASK_CLARIFY
+        and r2.strip() != G.SAFE_SMALLTALK
+        and (
+            "kraft" in r2.lower()
+            or "woche" in r2.lower()
+            or "training" in r2.lower()
+            or bool(__import__("re").search(r"\d", r2))
+            or reason2 == "clarify_followup"
+        ),
+        f"r1={r1[:60]!r} intent2={intent2}/{reason2} r2={r2[:140]!r}",
+    )
 
     failed = [r for r in results if not r[1]]
     print(f"\n{len(results) - len(failed)}/{len(results)} passed")

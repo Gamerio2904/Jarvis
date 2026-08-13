@@ -127,6 +127,16 @@ _POLICIES: dict[str, Policy] = {
         temperature=0.55,
         prefer_heavy=True,
     ),
+    "tool": Policy(
+        key="tool",
+        system_nudge=(
+            "Policy tool: Lokale Notizen/Todos. Schreiben nur nach Confirm. "
+            "Keine Fake-Claims („notiert“) ohne Tool-Ergebnis. Kurz und ehrlich."
+        ),
+        num_predict=120,
+        temperature=0.45,
+        prefer_heavy=True,
+    ),
 }
 
 

@@ -10,6 +10,7 @@ Intent = Literal[
     "memory",
     "inject",
     "task",
+    "tool",
     "helpdesk_trap",
     "research",
     "settings",
@@ -19,6 +20,15 @@ MemorySub = Literal[
     "memory.recall",
     "memory.forget",
     "memory.clarify",
+    "none",
+]
+ToolSub = Literal[
+    "tool.notes_write",
+    "tool.notes_list",
+    "tool.notes_search",
+    "tool.todo_write",
+    "tool.todo_list",
+    "tool.todo_done",
     "none",
 ]
 
@@ -131,7 +141,6 @@ _WRITE_RE = re.compile(
     r"erinner(?:e)?\s*dich|"
     r"(?:kannst|könntest|würdest)\s+(?:du|Sie)\s+(?:dir\s+)?merken|"
     r"bitte\s+merken|"
-    r"notier(?:e)?(?:\s*dir)?|"
     r"speicher(?:e)?|"
     r"behalte"
     r")\b"
@@ -184,6 +193,7 @@ class RouteResult:
     memory_sub: MemorySub
     reason: str
     research_blocked: bool = False
+    tool_sub: ToolSub = "none"
 
     @property
     def policy_key(self) -> str:
@@ -191,7 +201,31 @@ class RouteResult:
             return "research.live"
         if self.intent == "memory" and self.memory_sub != "none":
             return self.memory_sub
+        if self.intent == "tool":
+            return "tool"
         return self.intent
+
+
+def classify_tool_sub(text: str) -> ToolSub:
+    """Sprint 28: notes/todos before memory write collision."""
+    from . import tools_runtime as TR
+
+    prop = TR.parse_tool_request(text)
+    if not prop:
+        return "none"
+    if prop.tool == "notes" and prop.action == "create":
+        return "tool.notes_write"
+    if prop.tool == "notes" and prop.action == "list":
+        return "tool.notes_list"
+    if prop.tool == "notes" and prop.action == "search":
+        return "tool.notes_search"
+    if prop.tool == "todo" and prop.action == "create":
+        return "tool.todo_write"
+    if prop.tool == "todo" and prop.action == "list":
+        return "tool.todo_list"
+    if prop.tool == "todo" and prop.action == "done":
+        return "tool.todo_done"
+    return "none"
 
 
 def classify_memory_sub(text: str) -> MemorySub:
@@ -238,6 +272,11 @@ def classify(text: str, *, research_opt_in: bool = False) -> RouteResult:
             "research_opt_in" if research_opt_in else "research_blocked",
             research_blocked=blocked,
         )
+
+    # Sprint 28: tools before memory (Notiere/Todo ≠ Merk dir)
+    tool_sub = classify_tool_sub(stripped)
+    if tool_sub != "none":
+        return RouteResult("tool", "none", f"tool:{tool_sub}", tool_sub=tool_sub)
 
     mem_sub = classify_memory_sub(stripped)
     if mem_sub != "none":
@@ -291,7 +330,9 @@ GOLD_SET: list[tuple[str, Intent, MemorySub]] = [
     ("Was ist der aktuelle Stand zu Ollama?", "research", "none"),
     ("/protokoll", "settings", "none"),
     ("Zeig mir die Einstellungen", "settings", "none"),
-    ("Notiere: Budget 80 Euro", "memory", "memory.write"),
+    ("Notiere: Budget 80 Euro", "tool", "none"),
+    ("Todo: Milch kaufen", "tool", "none"),
+    ("Offene Todos?", "tool", "none"),
     ("Weißt du noch, wo ich wohne?", "memory", "memory.recall"),
     # Sprint 14 extra coverage
     ("Mach mir einen Plan für morgen", "task", "none"),
@@ -338,6 +379,7 @@ def route_debug_dict(route: RouteResult) -> dict[str, Any]:
     return {
         "intent": route.intent,
         "memory_sub": route.memory_sub,
+        "tool_sub": route.tool_sub,
         "policy_key": route.policy_key,
         "reason": route.reason,
         "research_blocked": route.research_blocked,

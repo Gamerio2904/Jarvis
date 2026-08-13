@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **MINOR** — neues nutzbares Fähigkeitsniveau |
 | Ziel-Version | **`0.9.0`** |
 | Quelle | PO: Option A nach `0.8.4`-Deep-Test; Roadmap Tools |

@@ -5,17 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### Geplant — `0.8.5` / Sprint 27 (Persona & Continuity Hotfix)
+### `0.9.0` — Sprint 28 (Local Tools Core) — *READY FOR REVIEW* (liefert auch 0.8.5)
 
-- Master-Scrub; Residual-Duzen v3; Clarify→Plan-Continuity; Eval-Pins
+- Tool-Runtime: Allowlist, Confirm-before-Write, Audit
+- Tools `notes` + `todo` (lokal SQLite); Router-Intent `tool`; `/hilfe` aktualisiert
+- Eval `scripts/eval_0_9_0.py`, Deep `scripts/deep_0_9_0.py`, Version `0.9.0`
+- [`sprints/sprint-28.md`](./sprints/sprint-28.md)
+
+### `0.8.5` — Sprint 27 (Persona & Continuity Hotfix) — *READY FOR REVIEW* (mitgeliefert in `0.9.0`)
+
+- Master/Sir-Scrub; Residual-Duzen v3; Clarify→Plan Continuity; Eval-Pins
+- Eval `scripts/eval_0_8_5.py`
 - [`sprints/sprint-27.md`](./sprints/sprint-27.md)
-
-### Geplant — `0.9.0`–`0.9.2` / Sprints 28–30 (Local Tools — Option A)
-
-- `0.9.0` Tool-Runtime + Notes/Todos + Confirm
-- `0.9.1` Hotfix (False-Confirm, Memory↔Tool)
-- `0.9.2` Polish (Continuity, Listen-UX, Scorecard)
-- [`sprints/sprint-28.md`](./sprints/sprint-28.md) · [`29`](./sprints/sprint-29.md) · [`30`](./sprints/sprint-30.md)
 
 ### `0.8.4` — Sprint 26 (Siezen & Recall Hotfix) — *READY FOR REVIEW*
 

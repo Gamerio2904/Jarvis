@@ -125,8 +125,8 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Edge & Reply Polish → **`0.8.2`** (Sprint 24, READY — in `0.8.3`)
 - Assist Ops & Carry-over → **`0.8.3`** (Sprint 25, READY FOR REVIEW)
 - Siezen & Recall Hotfix → **`0.8.4`** (Sprint 26, READY FOR REVIEW)
-- Persona & Continuity Hotfix → **`0.8.5`** (Sprint 27, geplant)
-- Local Tools Core (Option A) → **`0.9.0`** (Sprint 28, geplant)
+- Persona & Continuity Hotfix → **`0.8.5`** (Sprint 27, READY — in `0.9.0`)
+- Local Tools Core (Option A) → **`0.9.0`** (Sprint 28, READY FOR REVIEW)
 - Tools Hotfix → **`0.9.1`** (Sprint 29, geplant)
 - Tools Polish & Continuity → **`0.9.2`** (Sprint 30, geplant)
 - Tools (Kalender/Mail/Smart-Home) / Native App nur falls nötig — **nicht** in `0.9.0`

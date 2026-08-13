@@ -17,6 +17,7 @@ from . import policy as policy_mod
 from . import delight as delight_mod
 from . import research as research_mod
 from . import router as router_mod
+from . import tools_runtime as tools_mod
 from .guards import (
     SAFE_CAPABILITIES,
     SAFE_DEGENERATE,
@@ -41,6 +42,7 @@ from .guards import (
     looks_like_non_german,
     looks_like_vague_task,
     needs_retry,
+    scrub_persona_noise,
     soften_duzen,
     strip_emoji,
     user_looks_kaputt,
@@ -55,8 +57,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.8.4")
-APP_VERSION = "0.8.4"
+app = FastAPI(title="Jarvis API", version="0.9.0")
+APP_VERSION = "0.9.0"
 
 app.add_middleware(
     CORSMiddleware,
@@ -276,10 +278,31 @@ def _prepare_chat_context(
     research_mod.ResearchPack | None,
 ]:
     """Returns system, messages, notes, memory_op, route_debug, policy, research_pack."""
+    # Sprint 27 F3: clarify follow-up → force task
+    pending_clarify = False
+    hist = db.list_messages(conversation_id)
+    for m in reversed(hist):
+        if m.get("role") == "assistant":
+            meta = m.get("meta") or {}
+            content_a = (m.get("content") or "").strip()
+            if meta.get("pending_clarify") or content_a == SAFE_TASK_CLARIFY:
+                pending_clarify = True
+            break
+
     route = router_mod.classify(
         user_text,
         research_opt_in=bool(settings.get("research_opt_in", False)),
     )
+    if (
+        pending_clarify
+        and route.intent in {"smalltalk", "task"}
+        and route.memory_sub == "none"
+        and getattr(route, "tool_sub", "none") == "none"
+        and not looks_like_greeting(user_text)
+    ):
+        route = router_mod.RouteResult(
+            "task", "none", "clarify_followup", tool_sub="none"
+        )
     policy = policy_mod.get_policy(route.policy_key)
 
     research_pack: research_mod.ResearchPack | None = None
@@ -299,7 +322,10 @@ def _prepare_chat_context(
     soft_notes = memory_mod.harvest_soft_facts(
         user_text,
         conversation_id=conversation_id,
-        skip=mem_op != "none" or bool(notes) or route.intent == "inject",
+        skip=mem_op != "none"
+        or bool(notes)
+        or route.intent in {"inject", "tool"}
+        or bool(db.get_tool_pending(conversation_id)),
         confidence=float(settings.get("soft_harvest_confidence", 0.55)),
         ttl_days=float(settings.get("soft_harvest_ttl_days", 14)),
     )
@@ -473,7 +499,8 @@ def _finalize_turn_reply(
     # Sprint 26 P4: CJK/planish task must not stick on SAFE_SMALLTALK
     if intent == "task" and reply.strip() == SAFE_SMALLTALK and looks_like_non_german(user_text):
         return SAFE_TASK
-    return reply
+    # Sprint 27 F1: always scrub Master/Sir
+    return scrub_persona_noise(reply)
 
 
 def _research_public(
@@ -592,6 +619,94 @@ async def _maybe_refresh_summary(
     )
 
 
+def _resolve_tool_turn(
+    *,
+    conversation_id: str,
+    user_text: str,
+    intent: str | None,
+) -> tuple[str | None, dict[str, Any] | None]:
+    """Sprint 28: confirm-before-write tools. Returns (reply, tool_meta) or (None, None)."""
+    pending = db.get_tool_pending(conversation_id)
+    if pending:
+        if memory_mod.looks_like_soft_reject(user_text):
+            db.clear_tool_pending(conversation_id)
+            db.add_tool_audit(
+                conversation_id=conversation_id,
+                tool=str(pending.get("tool") or ""),
+                action=str(pending.get("action") or ""),
+                args=pending.get("args") or {},
+                status="aborted",
+                result={"ok": False, "aborted": True},
+            )
+            return "Alles klar — nicht gespeichert.", {"tool_status": "aborted"}
+        if tools_mod.looks_like_tool_confirm(user_text):
+            prop = tools_mod.ToolProposal(
+                tool=pending["tool"],  # type: ignore[arg-type]
+                action=pending["action"],  # type: ignore[arg-type]
+                args=pending.get("args") or {},
+                needs_confirm=False,
+                preview=str(pending.get("preview") or ""),
+            )
+            reply, result = tools_mod.execute(prop, conversation_id=conversation_id)
+            db.clear_tool_pending(conversation_id)
+            return scrub_persona_noise(reply), {
+                "tool_status": "executed",
+                "tool": prop.tool,
+                "action": prop.action,
+                "result": result,
+            }
+        # Pending but unclear → re-ask
+        return f"{pending.get('preview', 'Aktion')}. So speichern?", {
+            "tool_status": "pending",
+            "preview": pending.get("preview"),
+        }
+
+    if intent != "tool":
+        return None, None
+
+    prop = tools_mod.parse_tool_request(user_text)
+    if not prop:
+        return "Kurz: Notiz mit „Notiere: …“, Todo mit „Todo: …“ — Speichern erst nach Confirm.", {
+            "tool_status": "parse_miss"
+        }
+    err = tools_mod.validate(prop)
+    if err:
+        return f"Tool abgelehnt: {err}.", {"tool_status": "error", "error": err}
+
+    if prop.needs_confirm:
+        db.set_tool_pending(
+            conversation_id,
+            tool=prop.tool,
+            action=prop.action,
+            args=prop.args,
+            preview=prop.preview,
+        )
+        return tools_mod.confirm_prompt(prop), {
+            "tool_status": "pending",
+            "tool": prop.tool,
+            "action": prop.action,
+            "preview": prop.preview,
+        }
+
+    reply, result = tools_mod.execute(prop, conversation_id=conversation_id)
+    return scrub_persona_noise(reply), {
+        "tool_status": "executed",
+        "tool": prop.tool,
+        "action": prop.action,
+        "result": result,
+    }
+
+
+def _last_was_pending_clarify(conversation_id: str) -> bool:
+    hist = db.list_messages(conversation_id)
+    for m in reversed(hist):
+        if m.get("role") == "assistant":
+            meta = m.get("meta") or {}
+            content_a = (m.get("content") or "").strip()
+            return bool(meta.get("pending_clarify") or content_a == SAFE_TASK_CLARIFY)
+    return False
+
+
 async def _generate_reply(
     *,
     settings: dict[str, Any],
@@ -629,8 +744,9 @@ async def _generate_reply(
     if memory_op in {"forget", "forget_all"}:
         return memory_mod.ack_reply_for_forget(memory_op, memory_notes or [])
 
-    # Sprint 22 A1: vague tasks → clarify-first canned (or LLM with strong nudge)
+    # Sprint 22 A1: vague tasks → clarify-first (skip if follow-up after clarify)
     if intent == "task" and looks_like_vague_task(user_text):
+        # continuity handled by caller via route reason clarify_followup
         return SAFE_TASK_CLARIFY
 
     # Sprint 24 E2: greetings — prefer greeting canned over SAFE_SMALLTALK hammer later
@@ -950,6 +1066,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
     settings = policy_mod.apply_sampling_overrides(settings, policy)
 
     delight_meta: dict[str, Any] | None = None
+    msg_meta_early: dict[str, Any] = {}
     try:
         model, used_fallback, _names, routing_mode = await _resolve_runtime_model(
             settings, prefer_heavy=policy.prefer_heavy
@@ -974,18 +1091,27 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
                 user_text=content,
             )
         else:
-            reply = await _generate_reply(
-                settings=settings,
-                system=system,
-                model=model,
-                llm_messages=llm_messages,
-                recent_assistant=recent,
+            tool_reply, tool_meta = _resolve_tool_turn(
+                conversation_id=conversation_id,
                 user_text=content,
-                memory_op=mem_op,
-                memory_notes=mem_notes,
                 intent=route_dbg.get("intent"),
             )
-            if egg_reply is None:
+            if tool_reply is not None:
+                reply = tool_reply
+                if tool_meta:
+                    msg_meta_early = {"tool": tool_meta}
+            else:
+                reply = await _generate_reply(
+                    settings=settings,
+                    system=system,
+                    model=model,
+                    llm_messages=llm_messages,
+                    recent_assistant=recent,
+                    user_text=content,
+                    memory_op=mem_op,
+                    memory_notes=mem_notes,
+                    intent=route_dbg.get("intent"),
+                )
                 reply, delight_meta = _append_delight_flavor(
                     reply,
                     settings=settings,
@@ -998,12 +1124,15 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
 
     research_meta = None
     audit_id = None
-    msg_meta: dict[str, Any] = {}
+    msg_meta: dict[str, Any] = dict(msg_meta_early)
     if research_pack is not None:
         research_meta = research_pack.to_public()
         msg_meta["research"] = research_meta
     if delight_meta:
         msg_meta["delight"] = delight_meta
+    if reply.strip() == SAFE_TASK_CLARIFY:
+        msg_meta["pending_clarify"] = True
+    reply = scrub_persona_noise(reply)
     assistant_msg = db.add_message(
         conversation_id, "assistant", reply, meta=msg_meta or None
     )
@@ -1246,10 +1375,43 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
             )
             return
 
-        if intent == "task" and looks_like_vague_task(content):
+        tool_reply, tool_meta = _resolve_tool_turn(
+            conversation_id=conversation_id,
+            user_text=content,
+            intent=intent,
+        )
+        if tool_reply is not None:
+            final = scrub_persona_noise(tool_reply)
+            yield sse({"type": "replace", "content": final})
+            saved = db.add_message(
+                conversation_id,
+                "assistant",
+                final,
+                meta={"tool": tool_meta} if tool_meta else None,
+            )
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": True,
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                    "tool": tool_meta,
+                }
+            )
+            return
+
+        if intent == "task" and looks_like_vague_task(content) and route_dbg.get("reason") != "clarify_followup":
             final = SAFE_TASK_CLARIFY
             yield sse({"type": "replace", "content": final})
-            saved = db.add_message(conversation_id, "assistant", final)
+            saved = db.add_message(
+                conversation_id,
+                "assistant",
+                final,
+                meta={"pending_clarify": True},
+            )
             updated = db.get_conversation(conversation_id)
             yield sse(
                 {
@@ -1357,8 +1519,14 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
             memory_notes=mem_notes,
             intent=intent,
         )
+        final = scrub_persona_noise(final)
+        stream_meta: dict[str, Any] = {}
+        if final.strip() == SAFE_TASK_CLARIFY:
+            stream_meta["pending_clarify"] = True
 
-        saved = db.add_message(conversation_id, "assistant", final)
+        saved = db.add_message(
+            conversation_id, "assistant", final, meta=stream_meta or None
+        )
         try:
             await _maybe_refresh_summary(
                 conversation_id=conversation_id,

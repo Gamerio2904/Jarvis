@@ -20,7 +20,7 @@ _MERK_NATURAL_RE = re.compile(
     r"(?:merken|merken\s+dass|behalten)(?:\s*,)?\s*(?:dass\s+)?(.+)$"
 )
 _NOTIER_RE = re.compile(
-    r"(?is)^\s*(?:notier(?:e)?(?:\s*dir)?|speicher(?:e)?|behalte)\s*[:\-]?\s*(.+)$"
+    r"(?is)^\s*(?:notier(?:e)?\s+dir|speicher(?:e)?|behalte)\s*[:\-]?\s*(.+)$"
 )
 _BITTE_MERKEN_RE = re.compile(
     r"(?is)\bbitte\s+(?:merk(?:e)?\s*dir|merken)(?:\s*,)?\s*(?:dass\s+)?(.+)$"
@@ -57,7 +57,7 @@ _REMEMBER_INTENT_RE = re.compile(
     r"erinner(?:e)?\s*dich|"
     r"(?:kannst|könntest|würdest)\s+(?:du|Sie)\s+(?:dir\s+)?merken|"
     r"bitte\s+merken|"
-    r"notier(?:e)?(?:\s*dir)?|"
+    r"notier(?:e)?\s+dir|"
     r"speicher(?:e)?|"
     r"behalte"
     r")\b"
