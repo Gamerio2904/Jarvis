@@ -247,7 +247,7 @@ def looks_like_identity_leak(text: str) -> bool:
 
 _BROKEN_SIEZEN_RE = re.compile(
     r"(?i)\b("
-    r"möchtst|möchtest|brauchst|magst|willst|kannst|hast|bist|meinst|benötigst|"
+    r"möchtst|möchtest|brauchst|magst|willst|kannst|hast|hab|bist|meinst|benötigst|"
     r"schaffst|bleibst|lässt|lässt|nimmst|gibst|sagst|weißt|siehst|hörst|"
     r"gehst|kommst|machst|sollst|darfst|musst|weißt"
     r")\s+Sie\b"
@@ -304,6 +304,7 @@ def soften_duzen(text: str) -> str:
         (r"(?i)\bheiß(?:e|t)\s+du\b", "heißen Sie"),
         (r"(?i)\bdu\s+bist\b", "Sie sind"),
         (r"(?i)\bdu\s+hast\b", "Sie haben"),
+        (r"(?i)\bdu\s+hab(?:e)?\b", "Sie haben"),
         (r"(?i)\bdu\s+magst\b", "Sie mögen"),
         (r"(?i)\bdu\s+willst\b", "Sie wollen"),
         (r"(?i)\bdu\s+kannst\b", "Sie können"),
@@ -337,6 +338,7 @@ def soften_duzen(text: str) -> str:
         (r"(?i)\bwillst\s+Sie\b", "wollen Sie"),
         (r"(?i)\bkannst\s+Sie\b", "können Sie"),
         (r"(?i)\bhast\s+Sie\b", "haben Sie"),
+        (r"(?i)\bhab\s+Sie\b", "haben Sie"),
         (r"(?i)\bbist\s+Sie\b", "sind Sie"),
         (r"(?i)\bmeinst\s+Sie\b", "meinen Sie"),
         (r"(?i)\bbenötigst\s+Sie\b", "benötigen Sie"),

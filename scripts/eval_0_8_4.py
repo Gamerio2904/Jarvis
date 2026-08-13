@@ -65,6 +65,7 @@ def main() -> int:
         ("Bleibst Sie ruhig.", "bleiben sie"),
         ("Sie haben Sie Nora", "sie sind"),
         ("Ruh Sie sich aus.", "ruhen sie"),
+        ("Hab Sie lange nicht gesehen.", "haben sie"),
     ]
     for raw, needle in samples:
         check(f"unit_broken_{needle[:12]}", G.looks_like_broken_siezen(raw), raw)
