@@ -119,17 +119,18 @@ def main() -> int:
         {"easter_eggs_enabled": bool(prev.get("easter_eggs_enabled", True))},
     )
 
-    # Live D1 mood isolation via eggs
+    # Live D1 mood isolation via eggs (check API delight — server process state)
     req("PATCH", "/api/settings", {"easter_eggs_enabled": True})
     ca = req("POST", "/api/conversations", {"title": "E073-mood-a"})[1]["id"]
     cb = req("POST", "/api/conversations", {"title": "E073-mood-b"})[1]["id"]
-    chat("/kante", cid=ca)
-    chat("/ruhe", cid=cb)
+    _, _, data_a, _ = chat("/kante", cid=ca)
+    _, _, data_b, _ = chat("/ruhe", cid=cb)
+    mood_a = ((data_a or {}).get("delight") or {}).get("mood")
+    mood_b = ((data_b or {}).get("delight") or {}).get("mood")
     check(
         "live_mood_isolated",
-        delight_mod.get_session_mood(ca) == "kante"
-        and delight_mod.get_session_mood(cb) == "ruhe",
-        f"a={delight_mod.get_session_mood(ca)} b={delight_mod.get_session_mood(cb)}",
+        mood_a == "kante" and mood_b == "ruhe",
+        f"a={mood_a} b={mood_b}",
     )
 
     # Live D4 junk research UX

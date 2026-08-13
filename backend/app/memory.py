@@ -329,6 +329,24 @@ def _expires_iso(days: float | None) -> str | None:
     return (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
 
 
+_IDENTITY_Q_RE = re.compile(
+    r"(?is)\b("
+    r"wie\s+heiß(?:e|t)\s+(?:ich|sie|du)|"
+    r"mein(?:e[rn]?)?\s+name|"
+    r"wie\s+ist\s+mein\s+name|"
+    r"wer\s+bin\s+ich"
+    r")\b"
+)
+_IDENTITY_KEYS = {
+    "name",
+    "vorname",
+    "nachname",
+    "rufname",
+    "username",
+    "full_name",
+}
+
+
 def retrieve_relevant(
     user_text: str,
     *,
@@ -345,11 +363,27 @@ def retrieve_relevant(
         for t in re.findall(r"[a-zäöüß0-9]{3,}", user_text.lower())
         if t not in _STOP
     }
-    if not tokens:
-        return items[: min(3, limit)] if ambient_fallback else []
+    identity_q = bool(_IDENTITY_Q_RE.search(user_text or ""))
+    if identity_q:
+        tokens |= {"name", "vorname", "nachname"}
 
     scored: list[tuple[float, dict[str, Any]]] = []
+    seen: set[str] = set()
+    if identity_q:
+        for it in items:
+            key = str(it.get("key") or "").lower()
+            if key in _IDENTITY_KEYS or key.endswith("_name") or key == "name":
+                score = 10.0 + float(it.get("confidence") or 0)
+                scored.append((score, it))
+                seen.add(str(it.get("id") or key))
+
+    if not tokens and not scored:
+        return items[: min(3, limit)] if ambient_fallback else []
+
     for it in items:
+        iid = str(it.get("id") or it.get("key") or "")
+        if iid in seen:
+            continue
         blob = f"{it['key']} {it['value']}".lower()
         hit = sum(1 for t in tokens if t in blob)
         score = hit + float(it.get("confidence") or 0) * 0.1
