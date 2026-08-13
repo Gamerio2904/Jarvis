@@ -5,6 +5,22 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### Geplant — `0.7.1` / Sprint 19 (Quality Hotfix)
+
+- Settings-Clamp; Guard-Entschärfung; echte Task-Inhalte
+- Settings-Fakten; Research Junk/Negation; Inject + Anti-Claude
+- Eval `scripts/eval_0_7_1.py` — Details [`sprints/sprint-19.md`](./sprints/sprint-19.md)
+
+### Geplant — `0.7.2` / Sprint 20 (Quality Polish)
+
+- Mood pro Conversation; Eggs-off Fallback; Persona-Konsistenz
+- Research-Fehler-UX; Chaos-Suite — [`sprints/sprint-20.md`](./sprints/sprint-20.md)
+
+### Geplant — `0.8.0` / Sprint 21 (Assist Clarity)
+
+- Clarify-First; `/hilfe`; Streaming-UX; Research-Echo; Memory Soft-Confirm
+- [`sprints/sprint-21.md`](./sprints/sprint-21.md)
+
 ### `0.7.0` — Sprint 18 (Delight + Settings) — *READY FOR REVIEW*
 
 - Flaches Settings-Panel (Allgemein, Modell, Delight, Sound, Easter Eggs, Forschung, Danger)

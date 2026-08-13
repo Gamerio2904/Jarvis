@@ -41,6 +41,9 @@ MAJOR.MINOR.PATCH
 | `0.6.1` | **Research Hotfix** (Query-PII/Noise, Topic-Extraktion, Settings-Hygiene) | Sprint 16 |
 | `0.6.2` | **Research Polish** (Persona, Dual-Provider/DDG, Scorecard) | Sprint 17 |
 | `0.7.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | Sprint 18 |
+| `0.7.1` | **Quality Hotfix** (Guards, Settings-Clamp, Research-Junk, Inject, Identität) | Sprint 19 |
+| `0.7.2` | **Quality Polish** (Mood-Scope, Eggs-off, Persona, Chaos-Suite) | Sprint 20 |
+| `0.8.0` | **Assist Clarity** (Clarify-First, `/hilfe`, Streaming-UX, Research/Memory-Feedback) | Sprint 21 |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele
@@ -52,6 +55,8 @@ MAJOR.MINOR.PATCH
 | `0.3.2` | Hotfix nach `0.3.1`, falls nötig |
 | `0.5.3` | Weiterer Router-Patch nach `0.5.2`, falls nötig |
 | `0.6.3` | Weiterer Research-Patch nach `0.6.2`, falls nötig |
+| `0.7.3` | Weiterer Quality-Patch nach `0.7.2`, falls nötig |
+| `0.8.1` | Hotfix nach `0.8.0`-Deep-Test, falls nötig |
 
 ## Was wird versioniert?
 

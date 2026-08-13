@@ -137,16 +137,35 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S8.3 | Als Nutzer will ich optionale UI-Sounds. | Could | done | Sprint 18 / `0.7.0` — `11` |
 | S8.4 | Als Nutzer will ich Easter-Egg-Commands, gelistet in den Einstellungen. | Should | done | Sprint 18 / `0.7.0` — `11` |
 | S8.5 | Als Nutzer will ich ein flaches Settings-Panel (wenig Verschachtelung). | Must | done | Sprint 18 / `0.7.0` — `11` |
+| S8.6 | Als Nutzer will ich, dass Guards harmlosen Smalltalk/Tasks nicht mit Canned erschlagen. | Must | ready | Sprint 19 / `0.7.1` |
+| S8.7 | Als Nutzer will ich valide Research-Timeouts (kein Negativwert). | Must | ready | Sprint 19 / `0.7.1` |
+| S8.8 | Als Nutzer will ich korrekte Meta-Antworten (Modell/Version/Research), keine Marken-Halluzination. | Must | ready | Sprint 19 / `0.7.1` |
+| S8.9 | Als Nutzer will ich Mood/Eggs conversation-sicher und Eggs-off klar. | Should | ready | Sprint 20 / `0.7.2` |
+| S8.10 | Als Nutzer will ich bei vagen Tasks eine kurze Führung (Clarify-First). | Must | ready | Sprint 21 / `0.8.0` |
+| S8.11 | Als Nutzer will ich eine Fähigkeiten-Karte (`/hilfe`). | Must | ready | Sprint 21 / `0.8.0` |
+| S8.12 | Als Nutzer will ich spürbares Streaming + Research-Query-Echo. | Must | ready | Sprint 21 / `0.8.0` |
+
+### E7 — Nachzieher Quality/Research (Fortsetzung)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S7.10 | Als Nutzer will ich Junk-Research-Queries abgelehnt / nachgefragt. | Must | ready | Sprint 19 / `0.7.1` |
+| S7.11 | Als Nutzer will ich „recherchiere nichts“ nicht als Research. | Must | ready | Sprint 19 / `0.7.1` |
+| S7.12 | Als Nutzer will ich härtere Inject-Abwehr (Roleplay/System-Prompt). | Must | ready | Sprint 19 / `0.7.1` |
+| S7.13 | Als PO will ich Chaos-Regression aus dem Deep-Test. | Should | ready | Sprint 20 / `0.7.2` |
+| S7.14 | Als Nutzer will ich Memory Soft-Confirm bei unsicherem Harvest. | Should | ready | Sprint 21 / `0.8.0` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO-Review **Sprint 8–18** (`0.4.0`–`0.7.0`) → Tags bei OK
-2. Danach: Phase 2+ / NAS `1.0.0`
+1. **Sprint 19** (`0.7.1` Quality Hotfix) → dann **20** (`0.7.2`) → **21** (`0.8.0`)
+2. PO-Review offener Tags `0.4.0`–`0.7.0` parallel möglich
+3. Danach: optional `0.8.1` nach Deep-Test; Phase 2+ / NAS `1.0.0` auf PO-Kommando
 
 ## Parking Lot (Ideen, nicht geplant)
 
 - Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
+- Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate (nach `0.8.0` erneut bewerten)

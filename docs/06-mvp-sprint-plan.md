@@ -339,10 +339,56 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
+## Sprint 19 — Quality Hotfix → **`0.7.1`** *(prio)*
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-19.md`](./sprints/sprint-19.md)  
+**Quelle:** Deep-Test nach `0.7.0`
+
+| Must | Inhalt |
+|------|--------|
+| Q1 | Settings-Clamp (`research_timeout_sec` u. a.) |
+| Q2–Q3 | Guard-Entschärfung; Tasks liefern Inhalt statt nur SAFE_TASK |
+| Q4 | Settings-Fakten (Modell/Version/Research/Fähigkeiten) |
+| Q5–Q6 | Research Junk-Refuse + Negation („recherchiere nichts“) |
+| Q7–Q8 | Inject-Härte; Anti-Identitäts-Halluzination |
+| Q9 | Eval + Version `0.7.1` |
+
+---
+
+## Sprint 20 — Quality Polish → **`0.7.2`** *(Should)*
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-20.md`](./sprints/sprint-20.md)
+
+| Must | Inhalt |
+|------|--------|
+| P1–P2 | Mood pro Conversation; Eggs-off Fallback |
+| P3–P5 | Persona-Konsistenz; Research-Fehler-UX; Query-Hygiene |
+| P6–P7 | Chaos-Regression-Suite; Version `0.7.2` |
+
+---
+
+## Sprint 21 — Assist Clarity → **`0.8.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-21.md`](./sprints/sprint-21.md)
+
+| Must | Inhalt |
+|------|--------|
+| A1 | Clarify-First bei vagen Tasks |
+| A2 | Fähigkeiten-Karte `/hilfe` |
+| A3 | Streaming-Wahrnehmung |
+| A4–A5 | Research-UI-Echo; Memory Soft-Confirm |
+| A6 | Eval + Version `0.8.0` |
+
+---
+
 ## Weitere geplante Sprints (Richtung)
 
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
+| (opt.) | Assist Hotfix nach `0.8.0`-Deep-Test | `0.8.1` |
 | Phase 2 | Handy privat (VPN/Auth) | `0.x` vor NAS |
 | Phase 3 | NAS 24/7 | **`1.0.0`** |
 | Phase 4 | TTS-Vorlesen | nach PO-Go |
