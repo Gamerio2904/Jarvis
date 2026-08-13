@@ -47,5 +47,6 @@ PO: Scorecard lesbar; Mood überlebt Restart; Audit in UI auffindbar; Settings-H
 
 ## Danach
 
+- **Sprint 26 / `0.8.4`** Siezen & Recall Hotfix — aus `0.8.3`-Deep-Test
 - Optional **`0.9.0`** nur bei neuem Fähigkeitsniveau (Tools / stärkeres Assist) — **PO-Kommando**
 - Phase 2 Privat-Handy / NAS `1.0.0` — **PO-Kommando**

@@ -441,6 +441,22 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 | O3–O4 | Audit-Link UI; Latency-Hinweis Settings |
 | O5 | Eval + Version `0.8.3` |
 
+**Deep-Test:** durch — Restpunkte (Siezen/Recall/CJK) → Sprint 26 / `0.8.4`.
+
+---
+
+## Sprint 26 — Siezen & Recall Hotfix → **`0.8.4`** *(prio)*
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-26.md`](./sprints/sprint-26.md)  
+**Quelle:** Deep-Test nach `0.8.3`
+
+| Must | Inhalt |
+|------|--------|
+| P1–P2 | Broken-Siezen Heuristik + `soften_duzen` Verb-Nachzug |
+| P3–P4 | Identitäts-Recall ein Name; CJK-Task ≠ Smalltalk-Canned |
+| P5 | Eval + Version `0.8.4` |
+
 ---
 
 ## Weitere geplante Sprints (Richtung)
