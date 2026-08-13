@@ -23,12 +23,13 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 16 | [`sprint-16.md`](./sprint-16.md) | `0.6.1` | Research Hotfix | **READY FOR REVIEW** |
 | 17 | [`sprint-17.md`](./sprint-17.md) | `0.6.2` | Research Polish (Should) | **READY FOR REVIEW** |
 | 18 | [`sprint-18.md`](./sprint-18.md) | `0.7.0` | Delight + Settings | **READY FOR REVIEW** |
-| 19 | [`sprint-19.md`](./sprint-19.md) | `0.7.1` | Quality Hotfix (Guards/Settings/Research/Inject) | **READY FOR REVIEW** |
-| 20 | [`sprint-20.md`](./sprint-20.md) | `0.7.2` | Quality Polish (Mood/Eggs/Persona/Chaos) | **PLANNED** |
-| 21 | [`sprint-21.md`](./sprint-21.md) | `0.8.0` | Assist Clarity (Clarify/`/hilfe`/Stream/UX) | **PLANNED** |
+| 19 | [`sprint-19.md`](./sprint-19.md) | `0.7.1` | Quality Hotfix | **READY FOR REVIEW** |
+| 20 | [`sprint-20.md`](./sprint-20.md) | `0.7.2` | Reply Quality Polish (Canned/Recall/CJK) | **PLANNED** |
+| 21 | [`sprint-21.md`](./sprint-21.md) | `0.7.3` | Delight & Session Polish | **PLANNED** |
+| 22 | [`sprint-22.md`](./sprint-22.md) | `0.8.0` | Assist Clarity (Clarify/`/hilfe`/Stream/UX) | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** Sprint **19** (`0.7.1`) → **20** (`0.7.2`) → **21** (`0.8.0`).  
-PO-Review/Tags `v0.6.1`–`v0.7.0` können parallel laufen.
+**Nächste Pull-Reihenfolge:** Sprint **20** (`0.7.2`) → **21** (`0.7.3`) → **22** (`0.8.0`).  
+Optional danach: `0.8.1` nur nach Deep-Test. PO-Review/Tags `v0.7.0`/`v0.7.1` parallel möglich.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

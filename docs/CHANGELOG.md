@@ -12,15 +12,21 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 - Inject-Härte (Pirate/System-Prompt); Anti-Identitäts-Halluzination
 - Eval `scripts/eval_0_7_1.py`, Version `0.7.1`
 
-### Geplant — `0.7.2` / Sprint 20 (Quality Polish)
+### Geplant — `0.7.2` / Sprint 20 (Reply Quality Polish)
 
-- Mood pro Conversation; Eggs-off Fallback; Persona-Konsistenz
-- Research-Fehler-UX; Chaos-Suite — [`sprints/sprint-20.md`](./sprints/sprint-20.md)
+- SAFE_SMALLTALK drosseln; Memory-Recall ohne Helpdesk; CJK/Task-Leak
+- Multi-Turn nicht canned-killen; Capabilities-Fakt
+- [`sprints/sprint-20.md`](./sprints/sprint-20.md)
 
-### Geplant — `0.8.0` / Sprint 21 (Assist Clarity)
+### Geplant — `0.7.3` / Sprint 21 (Delight & Session Polish)
+
+- Mood pro Conversation; Eggs-off; Research-Fehler-UX; Soft-Latenz
+- [`sprints/sprint-21.md`](./sprints/sprint-21.md)
+
+### Geplant — `0.8.0` / Sprint 22 (Assist Clarity)
 
 - Clarify-First; `/hilfe`; Streaming-UX; Research-Echo; Memory Soft-Confirm
-- [`sprints/sprint-21.md`](./sprints/sprint-21.md)
+- [`sprints/sprint-22.md`](./sprints/sprint-22.md)
 
 ### `0.7.0` — Sprint 18 (Delight + Settings) — *READY FOR REVIEW*
 

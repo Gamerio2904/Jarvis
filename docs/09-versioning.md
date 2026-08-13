@@ -42,8 +42,9 @@ MAJOR.MINOR.PATCH
 | `0.6.2` | **Research Polish** (Persona, Dual-Provider/DDG, Scorecard) | Sprint 17 |
 | `0.7.0` | **Delight + Settings** (Momente, Jokes, Sound, Eggs, flaches Settings) | Sprint 18 |
 | `0.7.1` | **Quality Hotfix** (Guards, Settings-Clamp, Research-Junk, Inject, Identität) | Sprint 19 |
-| `0.7.2` | **Quality Polish** (Mood-Scope, Eggs-off, Persona, Chaos-Suite) | Sprint 20 |
-| `0.8.0` | **Assist Clarity** (Clarify-First, `/hilfe`, Streaming-UX, Research/Memory-Feedback) | Sprint 21 |
+| `0.7.2` | **Reply Quality Polish** (weniger Canned, Recall, CJK, Multi-Turn, Capabilities) | Sprint 20 |
+| `0.7.3` | **Delight & Session Polish** (Mood-Scope, Eggs-off, Research-UX, Latenz) | Sprint 21 |
+| `0.8.0` | **Assist Clarity** (Clarify-First, `/hilfe`, Streaming-UX, Research/Memory-Feedback) | Sprint 22 |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele

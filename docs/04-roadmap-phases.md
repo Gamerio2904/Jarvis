@@ -118,8 +118,9 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Research Polish (Should) → **`0.6.2`** (Sprint 17, Review; in `0.7.0`)
 - Delight + flaches Settings → **`0.7.0`** (Sprint 18, Review)
 - Quality Hotfix (Guards/Settings/Research/Inject) → **`0.7.1`** (Sprint 19, Review)
-- Quality Polish (Mood/Eggs/Persona/Chaos) → **`0.7.2`** (Sprint 20, geplant)
-- Assist Clarity (Clarify, `/hilfe`, Stream/UX) → **`0.8.0`** (Sprint 21, geplant)
+- Reply Quality Polish (Canned/Recall/CJK) → **`0.7.2`** (Sprint 20, geplant)
+- Delight & Session Polish (Mood/Eggs/UX/Latenz) → **`0.7.3`** (Sprint 21, geplant)
+- Assist Clarity (Clarify, `/hilfe`, Stream/UX) → **`0.8.0`** (Sprint 22, geplant)
 - Optional Hotfix nach `0.8.0` → **`0.8.1`** (nur nach Deep-Test)
 - Tools (Kalender, Notizen, …) / Native App nur falls nötig
 
