@@ -445,9 +445,9 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 26 — Siezen & Recall Hotfix → **`0.8.4`** *(prio)*
+## Sprint 26 — Siezen & Recall Hotfix → **`0.8.4`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-26.md`](./sprints/sprint-26.md)  
 **Quelle:** Deep-Test nach `0.8.3`
 

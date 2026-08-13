@@ -30,10 +30,10 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 23 | [`sprint-23.md`](./sprint-23.md) | `0.8.1` | Assist Hotfix (Normalize/Duzen/Soft-Gate) | **READY FOR REVIEW** (in `0.8.3`) |
 | 24 | [`sprint-24.md`](./sprint-24.md) | `0.8.2` | Edge & Reply Polish | **READY FOR REVIEW** (in `0.8.3`) |
 | 25 | [`sprint-25.md`](./sprint-25.md) | `0.8.3` | Assist Ops & Carry-over Polish | **READY FOR REVIEW** |
-| 26 | [`sprint-26.md`](./sprint-26.md) | `0.8.4` | Siezen & Recall Hotfix | **PLANNED** |
+| 26 | [`sprint-26.md`](./sprint-26.md) | `0.8.4` | Siezen & Recall Hotfix | **READY FOR REVIEW** |
 
-**Nächste Pull-Reihenfolge:** Sprint **26** (`0.8.4`) — Siezen/Recall/CJK aus `0.8.3`-Deep-Test.  
-Danach: optional `0.9.0` / Phase 2 nur nach PO. PO-Review/Tags `v0.8.0`–`v0.8.3` parallel möglich.
+**Nächste Pull-Reihenfolge:** optional `0.9.0` / Phase 2 nur nach PO.  
+PO-Review/Tags `v0.8.0`–`v0.8.4` parallel möglich.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

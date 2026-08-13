@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **HIGH** — Qualitäts-Patch, kein neues Fähigkeitsniveau |
 | Ziel-Version | **`0.8.4`** |
 | Quelle | Deep-Test `/tmp/deep_083.log` nach Sprints 23–25 / `0.8.3` |

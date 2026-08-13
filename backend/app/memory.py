@@ -427,6 +427,38 @@ _IDENTITY_KEYS = {
 }
 
 
+def looks_like_identity_question(text: str) -> bool:
+    return bool(_IDENTITY_Q_RE.search(text or ""))
+
+
+def _is_identity_item(it: dict[str, Any]) -> bool:
+    key = str(it.get("key") or "").lower()
+    return key in _IDENTITY_KEYS or key.endswith("_name") or key == "name"
+
+
+def _pick_best_identity(items: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Sprint 26 P3: exactly one name fact — prefer key=name, then conf, then updated_at."""
+    cands = [i for i in items if _is_identity_item(i)]
+    if not cands:
+        return None
+
+    def sort_key(it: dict[str, Any]) -> tuple:
+        key = str(it.get("key") or "").lower()
+        exact = 0 if key == "name" else 1
+        conf = -float(it.get("confidence") or 0)
+        updated = str(it.get("updated_at") or "")
+        return (exact, conf, updated)
+
+    cands.sort(key=sort_key)
+    # Prefer newest among exact 'name' if multiple
+    exact = [i for i in cands if str(i.get("key") or "").lower() == "name"]
+    if exact:
+        exact.sort(key=lambda i: str(i.get("updated_at") or ""), reverse=True)
+        return exact[0]
+    cands.sort(key=lambda i: (float(i.get("confidence") or 0), str(i.get("updated_at") or "")), reverse=True)
+    return cands[0]
+
+
 def retrieve_relevant(
     user_text: str,
     *,
@@ -447,19 +479,15 @@ def retrieve_relevant(
         for t in re.findall(r"[a-zäöüß0-9]{3,}", user_text.lower())
         if t not in _STOP
     }
-    identity_q = bool(_IDENTITY_Q_RE.search(user_text or ""))
+    identity_q = looks_like_identity_question(user_text)
     if identity_q:
         tokens |= {"name", "vorname", "nachname"}
+        best = _pick_best_identity(items)
+        if best:
+            return [best]
 
     scored: list[tuple[float, dict[str, Any]]] = []
     seen: set[str] = set()
-    if identity_q:
-        for it in items:
-            key = str(it.get("key") or "").lower()
-            if key in _IDENTITY_KEYS or key.endswith("_name") or key == "name":
-                score = 10.0 + float(it.get("confidence") or 0)
-                scored.append((score, it))
-                seen.add(str(it.get("id") or key))
 
     if not tokens and not scored:
         return items[: min(3, limit)] if ambient_fallback else []

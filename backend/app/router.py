@@ -106,7 +106,7 @@ _SETTINGS_RE = re.compile(
 _TASK_RE = re.compile(
     r"(?is)\b("
     r"plan(?:e|t)?\s+mir|"
-    r"mach(?:e)?\s+mir\s+(?:einen\s+)?(?:plan|wochenplan|fahrplan)|"
+    r"mach(?:e)?\s+(?:mir\s+)?(?:einen\s+)?(?:plan|wochenplan|fahrplan)|"
     r"erstell(?:e)?\s+(mir\s+)?(einen\s+)?(plan|entwurf|liste|wochenplan)|"
     r"organisier(?:e)?|"
     r"hilf(?:e)?\s+mir\s+bei|"
@@ -116,6 +116,14 @@ _TASK_RE = re.compile(
     r"checkliste|"
     r"to-?do"
     r")\b"
+)
+_CJK_OR_CYR_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\u0400-\u04FF\uac00-\ud7af]")
+# Latin word-boundary + CJK/Cyrillic planish tokens (\b does not work on CJK)
+_PLANISH_RE = re.compile(
+    r"(?is)(?:"
+    r"\b(?:plan|todo|checkliste|schritt|wochenplan|packen|umzug)\b|"
+    r"计划|計畫|プラン|план|이사|搬家"
+    r")"
 )
 _WRITE_RE = re.compile(
     r"(?is)\b("
@@ -237,6 +245,12 @@ def classify(text: str, *, research_opt_in: bool = False) -> RouteResult:
 
     if _TASK_RE.search(stripped):
         return RouteResult("task", "none", "task_pattern")
+
+    # Sprint 26 P4: CJK/Cyrillic + plan-ish → task (not smalltalk canned later)
+    if _CJK_OR_CYR_RE.search(stripped) and (
+        _PLANISH_RE.search(stripped) or _TASK_RE.search(stripped) or bool(re.search(r"(?m)^\s*\d+[\).]", stripped))
+    ):
+        return RouteResult("task", "none", "cjk_planish")
 
     if _SMALLTALK_RE.search(stripped):
         return RouteResult("smalltalk", "none", "smalltalk_pattern")

@@ -56,7 +56,7 @@ def main() -> int:
     code, health = req("GET", "/api/health")
     check(
         "health_071",
-        code == 200 and str(health.get("version", "")).startswith("0.7.1"),
+        code == 200 and str(health.get("version", "")).startswith(("0.7.", "0.8.")),
         str(health.get("version")),
     )
 

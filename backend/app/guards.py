@@ -247,8 +247,9 @@ def looks_like_identity_leak(text: str) -> bool:
 
 _BROKEN_SIEZEN_RE = re.compile(
     r"(?i)\b("
-    r"möchtst|brauchst|magst|willst|kannst|hast|bist|meinst|benötigst|"
-    r"sagst|weißt|siehst|hörst|gehst|kommst|machst|nimmst|gibst"
+    r"möchtst|möchtest|brauchst|magst|willst|kannst|hast|bist|meinst|benötigst|"
+    r"schaffst|bleibst|lässt|lässt|nimmst|gibst|sagst|weißt|siehst|hörst|"
+    r"gehst|kommst|machst|sollst|darfst|musst|weißt"
     r")\s+Sie\b"
 )
 
@@ -260,28 +261,39 @@ _GREETING_RE = re.compile(
     r")\s*[!?.]*\s*$"
 )
 
+_DOUBLE_SIE_RE = re.compile(r"(?i)\bSie\s+haben\s+Sie\b")
+_RUH_SIE_RE = re.compile(r"(?i)\bRuh\s+Sie\b")
+_KUMPEL_RE = re.compile(r"(?i)\bKumpel\b")
+
 
 def looks_like_greeting(text: str) -> bool:
     return bool(_GREETING_RE.match((text or "").strip()))
 
 
 def looks_like_broken_siezen(text: str) -> bool:
-    """Verb stays Du-conjugation while pronoun became Sie (Sprint 23/24)."""
-    if _BROKEN_SIEZEN_RE.search(text or ""):
+    """Verb stays Du-conjugation while pronoun became Sie (Sprint 23/26)."""
+    t = text or ""
+    if _BROKEN_SIEZEN_RE.search(t):
         return True
-    if re.search(r"(?i)\bmerk\s+ihnen\b", text or ""):
+    if _DOUBLE_SIE_RE.search(t):
         return True
-    if re.search(r"(?i)\bihnen\s+heiß", text or ""):
+    if _RUH_SIE_RE.search(t):
+        return True
+    if re.search(r"(?i)\bmerk\s+ihnen\b", t):
+        return True
+    if re.search(r"(?i)\bihnen\s+heiß", t):
+        return True
+    if re.search(r"(?i)\bschaffst\s+Sie'?s\b", t):
         return True
     return False
 
 
 def soften_duzen(text: str) -> str:
-    """Pronoun repair without destroying German (Sprint 23 H3).
+    """Pronoun repair without destroying German (Sprint 23 H3 + 26 P2).
 
     - Protect ``merk dir`` / ``merke dir``
     - Map common Du-verbs when swapping subject ``du`` → ``Sie``
-    - Avoid bare ``dir``→``Ihnen`` inside memory idioms
+    - Fix residual ``*st/*est Sie`` and double-Sie
     """
     t = text or ""
     # Protect merk dir variants
@@ -298,8 +310,11 @@ def soften_duzen(text: str) -> str:
         (r"(?i)\bdu\s+brauchst\b", "Sie brauchen"),
         (r"(?i)\bdu\s+möchtest\b", "Sie möchten"),
         (r"(?i)\bdu\s+meinst\b", "Sie meinen"),
+        (r"(?i)\bdu\s+schaffst\b", "Sie schaffen"),
+        (r"(?i)\bdu\s+bleibst\b", "Sie bleiben"),
         (r"(?i)\bwas\s+möchtest\s+du\b", "Was möchten Sie"),
         (r"(?i)\bwas\s+brauchst\s+du\b", "Was brauchen Sie"),
+        (r"(?i)\bwie\s+schaffst\s+du\b", "Wie schaffen Sie"),
     ]
     for pat, repl in verb_map:
         t = re.sub(pat, repl, t)
@@ -313,19 +328,36 @@ def soften_duzen(text: str) -> str:
     for pat, repl in reps:
         t = re.sub(pat, repl, t)
     t = t.replace("⟦MERK_DIR⟧", "merk dir")
-    # Fix residual broken *st Sie after failed partial repairs
-    t = re.sub(r"(?i)\bmöchtst\s+Sie\b", "möchten Sie", t)
-    t = re.sub(r"(?i)\bbrauchst\s+Sie\b", "brauchen Sie", t)
-    t = re.sub(r"(?i)\bmagst\s+Sie\b", "mögen Sie", t)
-    t = re.sub(r"(?i)\bwillst\s+Sie\b", "wollen Sie", t)
-    t = re.sub(r"(?i)\bkannst\s+Sie\b", "können Sie", t)
-    t = re.sub(r"(?i)\bhast\s+Sie\b", "haben Sie", t)
-    t = re.sub(r"(?i)\bbist\s+Sie\b", "sind Sie", t)
-    t = re.sub(r"(?i)\bmeinst\s+Sie\b", "meinen Sie", t)
-    t = re.sub(r"(?i)\bbenötigst\s+Sie\b", "benötigen Sie", t)
-    t = re.sub(r"(?i)\bSie\s+heiß(?:e|t)\b", "Sie heißen", t)
-    t = re.sub(r"(?i)\bmerk\s+ihnen\b", "merk dir", t)
-    t = re.sub(r"(?i)\bihnen\s+heiß(?:e|t)\b", "Sie heißen", t)
+    # Fix residual broken *st/*est Sie
+    residual = [
+        (r"(?i)\bmöchtst\s+Sie\b", "möchten Sie"),
+        (r"(?i)\bmöchtest\s+Sie\b", "möchten Sie"),
+        (r"(?i)\bbrauchst\s+Sie\b", "brauchen Sie"),
+        (r"(?i)\bmagst\s+Sie\b", "mögen Sie"),
+        (r"(?i)\bwillst\s+Sie\b", "wollen Sie"),
+        (r"(?i)\bkannst\s+Sie\b", "können Sie"),
+        (r"(?i)\bhast\s+Sie\b", "haben Sie"),
+        (r"(?i)\bbist\s+Sie\b", "sind Sie"),
+        (r"(?i)\bmeinst\s+Sie\b", "meinen Sie"),
+        (r"(?i)\bbenötigst\s+Sie\b", "benötigen Sie"),
+        (r"(?i)\bschaffst\s+Sie(?:'?s)?\b", "schaffen Sie"),
+        (r"(?i)\bbleibst\s+Sie\b", "bleiben Sie"),
+        (r"(?i)\bbleibst\s+lieber\b", "bleiben lieber"),
+        (r"(?i)\bsollst\s+Sie\b", "sollen Sie"),
+        (r"(?i)\bmusst\s+Sie\b", "müssen Sie"),
+        (r"(?i)\bdarfst\s+Sie\b", "dürfen Sie"),
+        (r"(?i)\bSie\s+heiß(?:e|t)\b", "Sie heißen"),
+        (r"(?i)\bmerk\s+ihnen\b", "merk dir"),
+        (r"(?i)\bihnen\s+heiß(?:e|t)\b", "Sie heißen"),
+        (r"(?i)\bSie\s+haben\s+Sie\b", "Sie sind"),
+        (r"(?i)\bRuh\s+Sie\b", "Ruhen Sie"),
+        (r"(?i)\blass\s+uns\b", "lassen Sie uns"),
+    ]
+    for pat, repl in residual:
+        t = re.sub(pat, repl, t)
+    # Light persona scrub (Sprint 26 P7)
+    t = _KUMPEL_RE.sub("Sie", t)
+    t = re.sub(r"\bSie\s+Sie\b", "Sie", t)
     return re.sub(r"\s+", " ", t).strip()
 
 

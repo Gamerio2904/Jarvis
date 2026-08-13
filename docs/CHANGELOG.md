@@ -5,10 +5,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### Geplant — `0.8.4` / Sprint 26 (Siezen & Recall Hotfix)
+### `0.8.4` — Sprint 26 (Siezen & Recall Hotfix) — *READY FOR REVIEW*
 
-- Broken-Siezen Heuristik + `soften_duzen` Nachzug; Identitäts-Recall ein Name; CJK-Task nicht Smalltalk-Canned
-- Eval-Pins `0.8.x`; Eval `eval_0_8_4.py`
+- Broken-Siezen Heuristik + `soften_duzen` Verb-Nachzug; Identitäts-Recall ein Name; CJK-Task ≠ Smalltalk-Canned
+- Recall-Ack wenn Soften scheitert; Kumpel-Scrub; Eval-Pins `0.8.x`
+- Eval `scripts/eval_0_8_4.py`, Deep `scripts/deep_0_8_4.py`, Version `0.8.4`
 - [`sprints/sprint-26.md`](./sprints/sprint-26.md)
 
 ### `0.8.3` — Sprint 25 (Assist Ops & Carry-over) — *READY FOR REVIEW* (liefert auch 0.8.1 + 0.8.2)

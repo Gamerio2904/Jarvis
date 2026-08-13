@@ -31,14 +31,17 @@ from .guards import (
     SAFE_TASK,
     SAFE_TASK_CLARIFY,
     boilerplate_hits,
+    duzen_hits,
     force_strict_refuse_if_needed,
     is_bad_memory_canned,
     is_guarded_canned,
     looks_like_broken_siezen,
     looks_like_greeting,
     looks_like_identity_leak,
+    looks_like_non_german,
     looks_like_vague_task,
     needs_retry,
+    soften_duzen,
     strip_emoji,
     user_looks_kaputt,
 )
@@ -52,8 +55,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.8.3")
-APP_VERSION = "0.8.3"
+app = FastAPI(title="Jarvis API", version="0.8.4")
+APP_VERSION = "0.8.4"
 
 app.add_middleware(
     CORSMiddleware,
@@ -330,12 +333,15 @@ def _prepare_chat_context(
     ):
         mem_op = "recall"
         if items:
-            notes = [f"Recall: {it['key']} = {it['value']}" for it in items[:4]]
+            # Sprint 26 P3: identity questions → at most one Recall note
+            cap = 1 if memory_mod.looks_like_identity_question(user_text) else 4
+            notes = [f"Recall: {it['key']} = {it['value']}" for it in items[:cap]]
         else:
             notes = ["Recall: (nichts Passendes gefunden)"]
     elif mem_op == "none" and items and route.memory_sub == "memory.recall":
         mem_op = "recall"
-        notes = [f"Recall: {it['key']} = {it['value']}" for it in items[:4]]
+        cap = 1 if memory_mod.looks_like_identity_question(user_text) else 4
+        notes = [f"Recall: {it['key']} = {it['value']}" for it in items[:cap]]
 
     if research_pack and research_pack.status == "blocked":
         notes = [
@@ -394,6 +400,13 @@ def _finalize_turn_reply(
     if memory_op == "soft_reject":
         return memory_mod.ack_reply_for_soft_reject(memory_notes)
     if memory_op == "recall":
+        # Sprint 26 P9: try soften first; if still broken → deterministic ack
+        if duzen_hits(reply) or looks_like_broken_siezen(reply):
+            softened = soften_duzen(reply)
+            if not duzen_hits(softened) and not looks_like_broken_siezen(softened):
+                reply = softened
+            else:
+                return memory_mod.ack_reply_for_recall(memory_notes)
         if (
             is_bad_memory_canned(reply)
             or looks_like_broken_siezen(reply)
@@ -457,6 +470,9 @@ def _finalize_turn_reply(
             return SAFE_TASK
         if intent == "inject":
             return SAFE_INJECT
+    # Sprint 26 P4: CJK/planish task must not stick on SAFE_SMALLTALK
+    if intent == "task" and reply.strip() == SAFE_SMALLTALK and looks_like_non_german(user_text):
+        return SAFE_TASK
     return reply
 
 
