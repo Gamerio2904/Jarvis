@@ -167,8 +167,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S9.1 | Als Nutzer will ich lokale Notizen mit Confirm anlegen/finden. | Must | done | Sprint 28 / `0.9.0` |
 | S9.2 | Als Nutzer will ich lokale Todos anlegen/listen/erledigen. | Must | done | Sprint 28 / `0.9.0` |
 | S9.3 | Als Nutzer will ich, dass Tools nur nach Confirm schreiben. | Must | done | Sprint 28 / `0.9.0` |
-| S9.4 | Als Nutzer will ich keine Fake-„notiert“-Claims ohne Tool-Execute. | Must | ready | Sprint 29 / `0.9.1` |
-| S9.5 | Als Nutzer will ich klare Trennung Memory („merk dir“) vs. Tool („notiere/todo“). | Must | ready | Sprint 29 / `0.9.1` |
+| S9.4 | Als Nutzer will ich keine Fake-„notiert“-Claims ohne Tool-Execute. | Must | done | Sprint 29 / `0.9.1` |
+| S9.5 | Als Nutzer will ich klare Trennung Memory („merk dir“) vs. Tool („notiere/todo“). | Must | done | Sprint 29 / `0.9.1` |
 | S9.6 | Als Nutzer will ich Multi-Turn Tool-Flows (listen → erledigen). | Should | ready | Sprint 30 / `0.9.2` |
 
 ### E7 — Nachzieher Quality/Research (Fortsetzung)
@@ -191,10 +191,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 29** (`0.9.1`) — Tools Hotfix nach `0.9.0`-Deep-Test
-2. **Sprint 30** (`0.9.2`) — Tools Polish
-3. PO-Review Tags `0.8.0`–`0.9.0` parallel möglich
-4. Danach: Phase 2+ / NAS `1.0.0` auf PO-Kommando
+1. **Sprint 30** (`0.9.2`) — Tools Polish
+2. PO-Review Tags `0.8.0`–`0.9.1` parallel möglich
+3. Danach: Phase 2+ / NAS `1.0.0` auf PO-Kommando
 
 ## Parking Lot (Ideen, nicht geplant)
 

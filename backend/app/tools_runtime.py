@@ -163,12 +163,19 @@ def parse_tool_request(text: str) -> ToolProposal | None:
 def validate(proposal: ToolProposal) -> str | None:
     key = (proposal.tool, proposal.action)
     if key not in ALLOWLIST:
-        return f"Tool nicht erlaubt: {proposal.tool}.{proposal.action}"
+        return (
+            f"Aktion nicht erlaubt ({proposal.tool}.{proposal.action}). "
+            "Erlaubt: Notiere:/Todo: anlegen, listen, Todo erledigen."
+        )
     if proposal.action == "create":
         if proposal.tool == "notes" and not str(proposal.args.get("body") or "").strip():
-            return "Leere Notiz"
+            return "Leere Notiz — bitte Text nach „Notiere:“."
         if proposal.tool == "todo" and not str(proposal.args.get("title") or "").strip():
-            return "Leeres Todo"
+            return "Leeres Todo — bitte Titel nach „Todo:“."
+    if proposal.action == "done" and not str(proposal.args.get("title") or "").strip():
+        return "Was erledigen? z.B. „Erledige: Milch“."
+    if proposal.action == "search" and not str(proposal.args.get("query") or "").strip():
+        return "Wonach in den Notizen suchen?"
     return None
 
 
@@ -220,12 +227,26 @@ def execute(
             lines = [f"• {it['body'][:100]}" for it in items]
             reply = f"Notizen zu „{q}“:\n" + "\n".join(lines)
     elif proposal.tool == "todo" and proposal.action == "create":
-        item = db.create_todo(
-            title=str(proposal.args["title"]),
-            conversation_id=conversation_id,
-        )
-        result = {"ok": True, "id": item["id"], "title": item["title"]}
-        reply = f"Todo gespeichert: {item['title']}"
+        title = str(proposal.args["title"])
+        existing = db.find_open_todo_by_title(title)
+        if existing:
+            result = {
+                "ok": True,
+                "id": existing["id"],
+                "title": existing["title"],
+                "duplicate": True,
+            }
+            reply = (
+                f"Todo „{existing['title']}“ ist schon offen — nichts Neues angelegt. "
+                "Offene Todos? oder erledigen mit „Erledige: …“."
+            )
+        else:
+            item = db.create_todo(
+                title=title,
+                conversation_id=conversation_id,
+            )
+            result = {"ok": True, "id": item["id"], "title": item["title"]}
+            reply = f"Todo gespeichert: {item['title']}"
     elif proposal.tool == "todo" and proposal.action == "list":
         items = db.list_todos(status=str(proposal.args.get("status") or "open"), limit=20)
         result = {"ok": True, "items": items}
@@ -258,6 +279,27 @@ def execute(
     return reply, result
 
 
+PENDING_TTL_SEC = 600  # Sprint 29 H3: 10 min
+
+
+def pending_is_expired(pending: dict[str, Any] | None) -> bool:
+    if not pending:
+        return True
+    created = str(pending.get("created_at") or "")
+    if not created:
+        return False
+    try:
+        from datetime import datetime, timezone
+
+        ts = datetime.fromisoformat(created.replace("Z", "+00:00"))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        age = (datetime.now(timezone.utc) - ts).total_seconds()
+        return age > PENDING_TTL_SEC
+    except ValueError:
+        return False
+
+
 def looks_like_false_tool_claim(text: str) -> bool:
     return bool(
         re.search(
@@ -266,7 +308,8 @@ def looks_like_false_tool_claim(text: str) -> bool:
             r"todo\s+(?:gespeichert|angelegt|erledigt)|"
             r"hab(?:e)?\s+(?:es\s+)?notiert|"
             r"ist\s+notiert|"
-            r"auf\s+die\s+todo[\-\s]?liste"
+            r"auf\s+die\s+todo[\-\s]?liste|"
+            r"hab(?:e)?\s+(?:mir\s+)?(?:das\s+)?(?:todo|notiz)"
             r")\b",
             text or "",
         )

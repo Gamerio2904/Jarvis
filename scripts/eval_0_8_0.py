@@ -56,7 +56,7 @@ def main() -> int:
     db.init_db()
     code, health = req("GET", "/api/health")
     ver = str((health or {}).get("version", ""))
-    check("health_080", code == 200 and ver.startswith("0.8."), ver)
+    check("health_080", code == 200 and ver.startswith(("0.8.", "0.9.")), ver)
 
     # A1 vague task
     check(
@@ -150,7 +150,7 @@ def main() -> int:
     code, health = req("GET", "/api/health")
     check(
         "live_version_ui_contract",
-        code == 200 and str(health.get("version", "")).startswith("0.8."),
+        code == 200 and str(health.get("version", "")).startswith(("0.8.", "0.9.")),
         str(health.get("version")),
     )
 

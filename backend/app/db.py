@@ -790,6 +790,17 @@ def search_notes(query: str, *, limit: int = 10) -> list[dict[str, Any]]:
         conn.close()
 
 
+def find_open_todo_by_title(title: str) -> dict[str, Any] | None:
+    needle = (title or "").strip().lower()
+    if not needle:
+        return None
+    for it in list_todos(status="open", limit=50):
+        t = str(it.get("title") or "").lower()
+        if needle == t:
+            return it
+    return None
+
+
 def create_todo(*, title: str, conversation_id: str | None = None) -> dict[str, Any]:
     now = utc_now()
     item = {

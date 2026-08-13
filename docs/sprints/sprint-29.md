@@ -2,14 +2,14 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **HIGH** — Must-Fixes nach Tools-MINOR |
 | Ziel-Version | **`0.9.1`** |
-| Quelle | Erwartete Deep-Test-Schwächen nach Sprint 28 / `0.9.0` (+ Carry-over) |
+| Quelle | Deep-Test nach Sprint 28 / `0.9.0` (`/tmp/deep_090.log`) + Carry-over |
 
 ## Ziel
 
-Tool-Pfad **ehrlich und robust**: keine False-Confirms, keine stillen Writes, klare Ablehnung, Routing-Kanten (Notiz vs. Memory „merk dir“).
+Tool-Pfad **ehrlich und robust**: keine False-Confirms, keine stillen Writes, klare Ablehnung, Routing-Kanten (Notiz vs. Memory „merk dir“) — plus Deep-Findings (Canned-Chaos, Platzhalter, Imperativ-Duzen, Todo-Dedup).
 
 ## Must
 
@@ -28,6 +28,8 @@ Tool-Pfad **ehrlich und robust**: keine False-Confirms, keine stillen Writes, kl
 | H6 | Bessere Fehlermeldungen (Schema/Allowlist/DB) |
 | H7 | Idempotenz: doppeltes „Todo: Milch“ nicht spammt ohne Nachfrage |
 | H8 | Deep `scripts/deep_0_9_1.py` |
+| H9 | Kurz-Acks (`OK`/`Danke`) → `SAFE_ACK` statt Chaos-Canned |
+| H10 | Platzhalter `[Name]` scrub; Imperativ-Duzen (`Füge`→`Fügen Sie`) |
 
 ## Won’t
 
@@ -41,7 +43,7 @@ Tool-Pfad **ehrlich und robust**: keine False-Confirms, keine stillen Writes, kl
 
 ## Exit / Abnahme
 
-PO: Keine Fake-Tool-Erfolge; Memory/Tool-Trennung klar; Inject sicher. Tag **`v0.9.1`**.
+PO: Keine Fake-Tool-Erfolge; Memory/Tool-Trennung klar; Inject sicher; Dedup/Acks. Tag **`v0.9.1`**.
 
 ## Danach
 

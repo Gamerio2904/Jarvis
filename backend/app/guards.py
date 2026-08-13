@@ -59,9 +59,39 @@ SAFE_SMALLTALK = (
     "worum geht's?"
 )
 
+SAFE_ACK = "Alles klar. Weiter?"
+
 SAFE_GREETING = (
     "Morgen. Jarvis hier — lokal und ohne Theater. "
     "Smalltalk oder Ernst, was liegt an?"
+)
+
+SAFE_TOOL_FALSE = (
+    "Noch nicht gespeichert — erst Confirm („Ja“) nach Todo:/Notiere:, dann sitzt's."
+)
+
+_PLACEHOLDER_RE = re.compile(
+    r"(?i)("
+    r"frau/herr\s*\[name\]|"
+    r"\[name\]|"
+    r"\{name\}|"
+    r"<name>|"
+    r"ihr\s+name\s+hier"
+    r")"
+)
+
+_SHORT_ACK_RE = re.compile(
+    r"(?is)^\s*("
+    r"ok(?:ay)?|danke|thanks|thx|hmm+|mhm+|ja|nein|"
+    r"alles\s+klar|verstehe|cool|super|nice"
+    r")\s*[!?.]*\s*$"
+)
+
+_IMPERATIVE_DU_RE = re.compile(
+    r"(?i)\b("
+    r"füge|plane|planiere|bestimme|entscheide|erstelle|erstelle|"
+    r"wähle|notiere|speichere|überprüfe|blockiere"
+    r")\b"
 )
 
 SAFE_EGGS_OFF = (
@@ -299,14 +329,17 @@ def looks_like_broken_siezen(text: str) -> bool:
     # Residual Du-verb lingering in Sie-context (Sprint 27 F2)
     if re.search(r"(?i)\bSie\b", t) and _RESIDUAL_DU_VERB_RE.search(t):
         return True
+    if looks_like_imperative_du(t):
+        return True
     return False
 
 
 def scrub_persona_noise(text: str) -> str:
-    """Sprint 27 F1: drop Master/Sir/Kumpel anreden."""
+    """Sprint 27 F1 + 29: drop Master/Sir/Kumpel and placeholder leaks."""
     t = text or ""
     t = _MASTER_RE.sub("", t)
     t = _KUMPEL_RE.sub("", t)
+    t = _PLACEHOLDER_RE.sub("", t)
     t = re.sub(r"\s{2,}", " ", t)
     t = re.sub(r"\s+([,.!?])", r"\1", t)
     t = re.sub(r"([!?])\s*,", r"\1", t)
@@ -315,6 +348,24 @@ def scrub_persona_noise(text: str) -> str:
     t = re.sub(r"([^\s]),!", r"\1!", t)
     t = re.sub(r",([!?])", r"\1", t)
     return t.strip()
+
+
+def looks_like_short_ack(text: str) -> bool:
+    return bool(_SHORT_ACK_RE.match((text or "").strip()))
+
+
+def looks_like_imperative_du(text: str) -> bool:
+    """Bare Du-imperatives in Sie replies (Sprint 29)."""
+    t = text or ""
+    if not _IMPERATIVE_DU_RE.search(t):
+        return False
+    # If already polite "Fügen Sie" style, residual map handles; bare stem is the issue
+    return bool(
+        re.search(
+            r"(?i)\b(füge|planiere|bestimme|entscheide|erstelle|wähle|überprüfe|blockiere)\b(?!\s+Sie)",
+            t,
+        )
+    )
 
 
 def soften_duzen(text: str) -> str:
@@ -390,6 +441,18 @@ def soften_duzen(text: str) -> str:
         (r"(?i)\brumplauder\s+willst\b", "rumplaudern wollen"),
         (r"(?i)\bWas\s+hältst\b", "Was halten"),
         (r"(?i)\bIhr\s+Tag\b", "Ihrem Tag"),
+        # Sprint 29: bare Du-imperatives → Sie
+        (r"(?i)\bFüge\b", "Fügen Sie"),
+        (r"(?i)\bPlaniere\b", "Planen Sie"),
+        (r"(?i)\bPlane\b", "Planen Sie"),
+        (r"(?i)\bBestimme\b", "Bestimmen Sie"),
+        (r"(?i)\bEntscheide\b", "Entscheiden Sie"),
+        (r"(?i)\bErstelle\b", "Erstellen Sie"),
+        (r"(?i)\bWähle\b", "Wählen Sie"),
+        (r"(?i)\bÜberprüfe\b", "Überprüfen Sie"),
+        (r"(?i)\bBlockiere\b", "Blockieren Sie"),
+        (r"(?i)\bFügen Sie\s+Sie\b", "Fügen Sie"),
+        (r"(?i)\bPlanen Sie\s+Sie\b", "Planen Sie"),
     ]
     for pat, repl in residual:
         t = re.sub(pat, repl, t)
@@ -618,6 +681,8 @@ def force_strict_refuse_if_needed(
         mem = _memory_safe_fallback(mem_op)
         if mem:
             return mem
+        if looks_like_short_ack(user_text or ""):
+            return SAFE_ACK
         intent_fb = intent_safe_fallback(intent)
         if intent_fb:
             return intent_fb
@@ -626,15 +691,24 @@ def force_strict_refuse_if_needed(
         return SAFE_DEGENERATE
 
     if cleaned == SAFE_DEGENERATE or cleaned.startswith("Kurzer Aussetzer"):
+        if looks_like_short_ack(user_text or ""):
+            return SAFE_ACK
         return (
             intent_safe_fallback(intent)
             or _memory_safe_fallback(mem_op)
             or SAFE_SMALLTALK
         )
 
-    # Always scrub Master/Sir even when other guards are quiet (Sprint 27 F1)
-    if _MASTER_RE.search(cleaned) or _KUMPEL_RE.search(cleaned):
+    # Always scrub Master/Sir / placeholders (Sprint 27/29)
+    if (
+        _MASTER_RE.search(cleaned)
+        or _KUMPEL_RE.search(cleaned)
+        or _PLACEHOLDER_RE.search(cleaned)
+    ):
         return scrub_persona_noise(cleaned)
+    # Short-ack user + vague canned → softer ack
+    if looks_like_short_ack(user_text or "") and cleaned.strip() == SAFE_SMALLTALK:
+        return SAFE_ACK
     return cleaned
 
 
@@ -659,9 +733,11 @@ def is_guarded_canned(text: str) -> bool:
         SAFE_NO_HELPDESK,
         SAFE_CHARACTER,
         SAFE_SMALLTALK,
+        SAFE_ACK,
         SAFE_GREETING,
         SAFE_TASK,
         SAFE_TASK_CLARIFY,
+        SAFE_TOOL_FALSE,
         SAFE_SETTINGS,
         SAFE_HELPDESK_TRAP,
         SAFE_CAPABILITIES,

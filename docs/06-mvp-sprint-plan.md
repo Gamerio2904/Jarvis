@@ -490,8 +490,10 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 29 — Tools Hotfix → **`0.9.1`**
 
-**Status:** PLANNED · [`sprints/sprint-29.md`](./sprints/sprint-29.md)  
-False-Confirm-Guard, Memory↔Tool, Inject+Tool, Eval.
+**Status:** READY FOR REVIEW  
+**Artefakt:** [`sprints/sprint-29.md`](./sprints/sprint-29.md)
+
+False-Confirm-Guard, Memory↔Tool, Inject+Tool, Todo-Dedup, Kurz-Acks, Eval.
 
 ---
 

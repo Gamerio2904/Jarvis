@@ -19,6 +19,7 @@ from . import research as research_mod
 from . import router as router_mod
 from . import tools_runtime as tools_mod
 from .guards import (
+    SAFE_ACK,
     SAFE_CAPABILITIES,
     SAFE_DEGENERATE,
     SAFE_GREETING,
@@ -31,6 +32,7 @@ from .guards import (
     SAFE_SMALLTALK,
     SAFE_TASK,
     SAFE_TASK_CLARIFY,
+    SAFE_TOOL_FALSE,
     boilerplate_hits,
     duzen_hits,
     force_strict_refuse_if_needed,
@@ -40,6 +42,7 @@ from .guards import (
     looks_like_greeting,
     looks_like_identity_leak,
     looks_like_non_german,
+    looks_like_short_ack,
     looks_like_vague_task,
     needs_retry,
     scrub_persona_noise,
@@ -57,8 +60,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.9.0")
-APP_VERSION = "0.9.0"
+app = FastAPI(title="Jarvis API", version="0.9.1")
+APP_VERSION = "0.9.1"
 
 app.add_middleware(
     CORSMiddleware,
@@ -499,6 +502,32 @@ def _finalize_turn_reply(
     # Sprint 26 P4: CJK/planish task must not stick on SAFE_SMALLTALK
     if intent == "task" and reply.strip() == SAFE_SMALLTALK and looks_like_non_german(user_text):
         return SAFE_TASK
+    # Sprint 29 H1: no fake tool success claims without execute
+    # Skip memory ops — "notiert" there is intentional (SAFE_MEMORY_ACK etc.)
+    if (
+        tools_mod.looks_like_false_tool_claim(reply)
+        and memory_op
+        not in {
+            "tool_executed",
+            "write",
+            "soft_confirm",
+            "recall",
+            "clarify",
+            "forget",
+            "forget_all",
+            "soft_reject",
+        }
+        and (intent or "") != "memory"
+    ):
+        # Allow only when reply already came from tool runtime (starts with known prefixes)
+        if not re.match(
+            r"(?i)^(Notiz gespeichert:|Todo gespeichert:|Todo „|Offene Todos:|Notizen:|Todo erledigt:|Keine )",
+            reply.strip(),
+        ):
+            return SAFE_TOOL_FALSE
+    # Sprint 29: short user acks should not become vague SAFE_SMALLTALK hammer
+    if intent == "smalltalk" and looks_like_short_ack(user_text) and reply.strip() == SAFE_SMALLTALK:
+        return SAFE_ACK
     # Sprint 27 F1: always scrub Master/Sir
     return scrub_persona_noise(reply)
 
@@ -625,8 +654,35 @@ def _resolve_tool_turn(
     user_text: str,
     intent: str | None,
 ) -> tuple[str | None, dict[str, Any] | None]:
-    """Sprint 28: confirm-before-write tools. Returns (reply, tool_meta) or (None, None)."""
+    """Sprint 28/29: confirm-before-write tools. Returns (reply, tool_meta) or (None, None)."""
+    # H4: inject never runs tools / never confirms pending
+    if intent == "inject":
+        pending = db.get_tool_pending(conversation_id)
+        if pending:
+            db.clear_tool_pending(conversation_id)
+            db.add_tool_audit(
+                conversation_id=conversation_id,
+                tool=str(pending.get("tool") or ""),
+                action=str(pending.get("action") or ""),
+                args=pending.get("args") or {},
+                status="aborted",
+                result={"ok": False, "aborted": True, "reason": "inject"},
+            )
+        return None, None
+
     pending = db.get_tool_pending(conversation_id)
+    if pending and tools_mod.pending_is_expired(pending):
+        db.clear_tool_pending(conversation_id)
+        db.add_tool_audit(
+            conversation_id=conversation_id,
+            tool=str(pending.get("tool") or ""),
+            action=str(pending.get("action") or ""),
+            args=pending.get("args") or {},
+            status="timeout",
+            result={"ok": False, "timeout": True},
+        )
+        pending = None
+
     if pending:
         if memory_mod.looks_like_soft_reject(user_text):
             db.clear_tool_pending(conversation_id)
@@ -666,12 +722,28 @@ def _resolve_tool_turn(
 
     prop = tools_mod.parse_tool_request(user_text)
     if not prop:
-        return "Kurz: Notiz mit „Notiere: …“, Todo mit „Todo: …“ — Speichern erst nach Confirm.", {
-            "tool_status": "parse_miss"
-        }
+        return (
+            "Kurz: Notiz mit „Notiere: …“, Todo mit „Todo: …“ — Speichern erst nach Confirm.",
+            {"tool_status": "parse_miss"},
+        )
     err = tools_mod.validate(prop)
     if err:
-        return f"Tool abgelehnt: {err}.", {"tool_status": "error", "error": err}
+        return f"Tool abgelehnt: {err}", {"tool_status": "error", "error": err}
+
+    # H7: duplicate open todo → no pending spam
+    if prop.tool == "todo" and prop.action == "create":
+        existing = db.find_open_todo_by_title(str(prop.args.get("title") or ""))
+        if existing:
+            return (
+                f"Todo „{existing['title']}“ ist schon offen — nichts Neues. "
+                "Liste: „Offene Todos?“ · erledigen: „Erledige: …“.",
+                {
+                    "tool_status": "duplicate",
+                    "tool": "todo",
+                    "action": "create",
+                    "result": {"ok": True, "duplicate": True, "id": existing["id"]},
+                },
+            )
 
     if prop.needs_confirm:
         db.set_tool_pending(
@@ -743,6 +815,10 @@ async def _generate_reply(
 
     if memory_op in {"forget", "forget_all"}:
         return memory_mod.ack_reply_for_forget(memory_op, memory_notes or [])
+
+    # Sprint 29: short acks → deterministic, avoid SAFE_SMALLTALK chaos
+    if intent == "smalltalk" and looks_like_short_ack(user_text) and not looks_like_greeting(user_text):
+        return SAFE_ACK
 
     # Sprint 22 A1: vague tasks → clarify-first (skip if follow-up after clarify)
     if intent == "task" and looks_like_vague_task(user_text):
@@ -1360,6 +1436,23 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
 
         if mem_op in {"forget", "forget_all"}:
             final = memory_mod.ack_reply_for_forget(mem_op, mem_notes)
+            yield sse({"type": "replace", "content": final})
+            saved = db.add_message(conversation_id, "assistant", final)
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": True,
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                }
+            )
+            return
+
+        if intent == "smalltalk" and looks_like_short_ack(content) and not looks_like_greeting(content):
+            final = SAFE_ACK
             yield sse({"type": "replace", "content": final})
             saved = db.add_message(conversation_id, "assistant", final)
             updated = db.get_conversation(conversation_id)

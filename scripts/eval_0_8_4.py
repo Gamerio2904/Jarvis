@@ -56,7 +56,7 @@ def main() -> int:
     db.init_db()
     code, health = req("GET", "/api/health")
     ver = str((health or {}).get("version", ""))
-    check("health_084", code == 200 and ver.startswith("0.8.4"), ver)
+    check("health_084", code == 200 and ver.startswith(("0.8.", "0.9.")), ver)
 
     # P1/P2 unit: broken Siezen detection + soften
     samples = [

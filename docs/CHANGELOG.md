@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.9.1` — Sprint 29 (Tools Hotfix) — *READY FOR REVIEW*
+
+- False-Confirm-Guard; Inject blockt Tool-Pending; Pending-Timeout; Todo-Dedup
+- Kurz-Acks (`SAFE_ACK`); Platzhalter-Scrub; Imperativ-Duzen; klarere Tool-Fehler
+- Eval `scripts/eval_0_9_1.py`, Deep `scripts/deep_0_9_1.py`, Version `0.9.1`
+- [`sprints/sprint-29.md`](./sprints/sprint-29.md)
+
 ### `0.9.0` — Sprint 28 (Local Tools Core) — *READY FOR REVIEW* (liefert auch 0.8.5)
 
 - Tool-Runtime: Allowlist, Confirm-before-Write, Audit
