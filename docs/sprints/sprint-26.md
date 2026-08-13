@@ -47,5 +47,6 @@ PO: Keine typischen `*st Sie`-Mischformen in Stichprobe; Identitäts-Recall eind
 
 ## Danach
 
-- Optional **`0.9.0`** (Tools / stärkeres Assist) — **PO-Kommando**
+- **Sprint 27 / `0.8.5`** Persona & Continuity Hotfix — aus `0.8.4`-Deep-Test
+- **Sprint 28 / `0.9.0`** Local Tools Core (Option A)
 - Phase 2 / NAS `1.0.0` — **PO-Kommando**

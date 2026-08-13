@@ -457,13 +457,55 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 | P3–P4 | Identitäts-Recall ein Name; CJK-Task ≠ Smalltalk-Canned |
 | P5 | Eval + Version `0.8.4` |
 
+**Deep-Test:** durch — Restpunkte → Sprint 27 / `0.8.5`; Option A Tools → `0.9.0+`.
+
+---
+
+## Sprint 27 — Persona & Continuity Hotfix → **`0.8.5`** *(prio)*
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-27.md`](./sprints/sprint-27.md)  
+**Quelle:** Deep-Test nach `0.8.4` (`/tmp/deep_084.log`)
+
+| Must | Inhalt |
+|------|--------|
+| F1–F2 | Master-Scrub + Residual-Duzen v3 |
+| F3 | Clarify→Plan Continuity |
+| F5 | Eval + Version `0.8.5` |
+
+---
+
+## Sprint 28 — Local Tools Core → **`0.9.0`** *(Option A)*
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-28.md`](./sprints/sprint-28.md)
+
+| Must | Inhalt |
+|------|--------|
+| T1–T3 | Tool-Runtime + Notes + Todos (lokal, Confirm) |
+| T4–T5 | Router/`/hilfe` |
+| T6 | Eval + Version `0.9.0` |
+
+---
+
+## Sprint 29 — Tools Hotfix → **`0.9.1`**
+
+**Status:** PLANNED · [`sprints/sprint-29.md`](./sprints/sprint-29.md)  
+False-Confirm-Guard, Memory↔Tool, Inject+Tool, Eval.
+
+---
+
+## Sprint 30 — Tools Polish & Continuity → **`0.9.2`**
+
+**Status:** PLANNED · [`sprints/sprint-30.md`](./sprints/sprint-30.md)  
+Multi-Turn Tool-Flows, Listen-UX, Scorecard.
+
 ---
 
 ## Weitere geplante Sprints (Richtung)
 
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
-| (opt.) | Nächstes MINOR (Tools / stärkeres Assist) | `0.9.0` |
 | Phase 2 | Handy privat (VPN/Auth) | `0.x` vor NAS |
 | Phase 3 | NAS 24/7 | **`1.0.0`** |
 | Phase 4 | TTS-Vorlesen | nach PO-Go |

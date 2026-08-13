@@ -125,7 +125,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.7b | Als Nutzer will ich stabile Topic-Extraktion bei langen Research-Prompts. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7c | Als PO will ich Research-Default Opt-in aus + Test-Hygiene. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7d | Als Nutzer will ich Research-Antworten im Jarvis-Ton + robustere Provider-Mix. | Should | done | Sprint 17 / `0.6.2` — Polish |
-| S7.8 | Kalender/Mail/Smart-Home-Tools | Won’t | parked | später |
+| S7.8 | Kalender/Mail/Smart-Home-Tools | Won’t | parked | nicht in `0.9.0`; lokal Notes/Todos = E9 |
 | S7.9 | Native Store-App | Won’t | parked | |
 
 ### E8 — Delight & Settings
@@ -156,6 +156,20 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S8.22 | Als Nutzer will ich Antworten ohne `*st Sie` / Doppel-Sie-Mischformen. | Must | done | Sprint 26 / `0.8.4` |
 | S8.23 | Als Nutzer will ich bei „Wie heiße ich?“ genau einen aktuellen Namen. | Must | done | Sprint 26 / `0.8.4` |
 | S8.24 | Als Nutzer will ich bei CJK in Task-Prompts einen Plan/Fallback, kein Smalltalk-Canned. | Should | done | Sprint 26 / `0.8.4` |
+| S8.25 | Als Nutzer will ich keine „Master“-/Sklaven-Anrede. | Must | ready | Sprint 27 / `0.8.5` |
+| S8.26 | Als Nutzer will ich Rest-Duzen ohne `*st Sie`-Muster weg (`bringst`/`willst`/`hältst Sie`). | Must | ready | Sprint 27 / `0.8.5` |
+| S8.27 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt neuer Meta-Frage. | Must | ready | Sprint 27 / `0.8.5` |
+
+### E9 — Local Tools (Option A)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S9.1 | Als Nutzer will ich lokale Notizen mit Confirm anlegen/finden. | Must | ready | Sprint 28 / `0.9.0` |
+| S9.2 | Als Nutzer will ich lokale Todos anlegen/listen/erledigen. | Must | ready | Sprint 28 / `0.9.0` |
+| S9.3 | Als Nutzer will ich, dass Tools nur nach Confirm schreiben. | Must | ready | Sprint 28 / `0.9.0` |
+| S9.4 | Als Nutzer will ich keine Fake-„notiert“-Claims ohne Tool-Execute. | Must | ready | Sprint 29 / `0.9.1` |
+| S9.5 | Als Nutzer will ich klare Trennung Memory („merk dir“) vs. Tool („notiere/todo“). | Must | ready | Sprint 29 / `0.9.1` |
+| S9.6 | Als Nutzer will ich Multi-Turn Tool-Flows (listen → erledigen). | Should | ready | Sprint 30 / `0.9.2` |
 
 ### E7 — Nachzieher Quality/Research (Fortsetzung)
 
@@ -171,18 +185,23 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.17 | Als Nutzer will ich Soft-Confirm nur mit validen Werten (Value-Gate). | Must | done | Sprint 23 / `0.8.1` |
 | S7.18 | Als Nutzer will ich restliches Live-Duzen nach Retry weg. | Should | done | Sprint 24 / `0.8.2` |
 | S7.19 | Als Nutzer will ich erweiterte Broken-Siezen-Reparatur (`möchtest Sie` …). | Must | done | Sprint 26 / `0.8.4` |
+| S7.20 | Als Nutzer will ich Eval-Pins älterer Suites unter neuer `0.8.x` grün. | Should | ready | Sprint 27 / `0.8.5` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO-Review Tags `0.8.0`–`0.8.4` parallel möglich
-2. Danach: optional `0.9.0` / Phase 2+ / NAS `1.0.0` auf PO-Kommando
+1. **Sprint 27** (`0.8.5`) — Persona / Rest-Duzen / Clarify-Continuity aus `0.8.4`-Deep-Test
+2. **Sprint 28** (`0.9.0`) — Local Tools Core (Option A)
+3. **Sprint 29–30** (`0.9.1`–`0.9.2`) — Tools Hotfix + Polish
+4. PO-Review Tags `0.8.0`–`0.8.5` parallel möglich
+5. Danach: Phase 2+ / NAS `1.0.0` auf PO-Kommando
 
 ## Parking Lot (Ideen, nicht geplant)
 
 - Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
-- Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate (nach `0.8.3` erneut bewerten)
-- Tools (Kalender/Mail) als Kandidat für `0.9.0`
+- Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate
+- Mail / Smart-Home / Cloud-Kalender-OAuth
+- Optional lokaler Kalender-Read (ICS) — Kandidat Sprint 30 P7, sonst hier

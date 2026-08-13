@@ -49,6 +49,10 @@ MAJOR.MINOR.PATCH
 | `0.8.2` | **Edge & Reply Polish** (Capabilities-Varianten, Canned, Forget/Soft-Reject, Residual-Duzen) | Sprint 24 |
 | `0.8.3` | **Assist Ops Polish** (Scorecard, Delight-Persist, Audit-UI, Latency-Hinweis) | Sprint 25 |
 | `0.8.4` | **Siezen & Recall Hotfix** (Broken-Siezen, Identity-Recall, CJK-Task) | Sprint 26 |
+| `0.8.5` | **Persona & Continuity Hotfix** (Master-Scrub, Rest-Duzen, Clarify-Follow-up) | Sprint 27 |
+| `0.9.0` | **Local Tools Core** (Runtime, Notes, Todos, Confirm) | Sprint 28 |
+| `0.9.1` | **Tools Hotfix** (False-Confirm, Memory↔Tool, Inject) | Sprint 29 |
+| `0.9.2` | **Tools Polish** (Continuity, Listen-UX, Scorecard) | Sprint 30 |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele
@@ -61,8 +65,10 @@ MAJOR.MINOR.PATCH
 | `0.5.3` | Weiterer Router-Patch nach `0.5.2`, falls nötig |
 | `0.6.3` | Weiterer Research-Patch nach `0.6.2`, falls nötig |
 | `0.7.3` | Delight/Session-Patch (Sprint 21; mitgeliefert in `0.8.0`) |
-| `0.8.5` | Weiterer Patch nach `0.8.4`, falls nötig |
-| `0.9.0` | Nächstes MINOR (z. B. Tools) — nur nach PO |
+| `0.8.5` | Persona/Continuity-Patch nach `0.8.4` (Sprint 27) |
+| `0.9.0` | Local Tools Core — Option A (Sprint 28) |
+| `0.9.1` | Tools Hotfix (Sprint 29) |
+| `0.9.2` | Tools Polish (Sprint 30) |
 
 ## Was wird versioniert?
 

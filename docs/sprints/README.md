@@ -31,8 +31,12 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 24 | [`sprint-24.md`](./sprint-24.md) | `0.8.2` | Edge & Reply Polish | **READY FOR REVIEW** (in `0.8.3`) |
 | 25 | [`sprint-25.md`](./sprint-25.md) | `0.8.3` | Assist Ops & Carry-over Polish | **READY FOR REVIEW** |
 | 26 | [`sprint-26.md`](./sprint-26.md) | `0.8.4` | Siezen & Recall Hotfix | **READY FOR REVIEW** |
+| 27 | [`sprint-27.md`](./sprint-27.md) | `0.8.5` | Persona & Continuity Hotfix | **PLANNED** |
+| 28 | [`sprint-28.md`](./sprint-28.md) | `0.9.0` | Local Tools Core (Option A) | **PLANNED** |
+| 29 | [`sprint-29.md`](./sprint-29.md) | `0.9.1` | Tools Hotfix | **PLANNED** |
+| 30 | [`sprint-30.md`](./sprint-30.md) | `0.9.2` | Tools Polish & Assist Continuity | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** optional `0.9.0` / Phase 2 nur nach PO.  
+**Nächste Pull-Reihenfolge:** Sprint **27** (`0.8.5`) Findings → dann **28** (`0.9.0`) Tools.  
 PO-Review/Tags `v0.8.0`–`v0.8.4` parallel möglich.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  

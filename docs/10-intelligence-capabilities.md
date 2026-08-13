@@ -18,6 +18,9 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 3a | **`0.6.1`** | [16](./sprints/sprint-16.md) | Research Hotfix (Query-PII/Noise, Settings) | **READY FOR REVIEW** |
 | 3b | **`0.6.2`** | [17](./sprints/sprint-17.md) | Research Polish (Persona, Dual-Provider) | **READY FOR REVIEW** |
 | 4 | **`0.7.0`** | [18](./sprints/sprint-18.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **READY FOR REVIEW** |
+| 5 | **`0.9.0`** | [28](./sprints/sprint-28.md) | Local Tools Core (Notes/Todos, Confirm) | **PLANNED** |
+| 5a | **`0.9.1`** | [29](./sprints/sprint-29.md) | Tools Hotfix | **PLANNED** |
+| 5b | **`0.9.2`** | [30](./sprints/sprint-30.md) | Tools Polish & Continuity | **PLANNED** |
 
 ```text
 Sprint 8  0.4.0 Memory
@@ -323,29 +326,44 @@ Sprint **15** → **`0.6.0`** ([`sprints/sprint-15.md`](./sprints/sprint-15.md))
 
 ---
 
+## 5) Local Tools (Option A)
+
+### Zweck
+Neben Memory/Research **handlungsfähige**, lokale Persistenz: Notizen und Todos — mit **Confirm vor Write**, ohne Cloud-APIs.
+
+### Abgrenzung
+| Geht in `0.9.x` | Geht **nicht** |
+|-----------------|----------------|
+| Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Smart-Home |
+| `notes` + `todo` (SQLite) | Cloud-Kalender-OAuth |
+| Router/`/hilfe` Integration | Autonome Multi-Tool-Ketten ohne Confirm |
+| False-Confirm-Guards | Secrets speichern |
+
+Memory („Merk dir …“) bleibt Fakten-Gedächtnis; Tools sind **explizite Arbeitslisten**.
+
+### Versionierung
+| Version | Sprint | Inhalt |
+|---------|--------|--------|
+| **`0.9.0`** | [28](./sprints/sprint-28.md) | Runtime + Notes + Todos |
+| **`0.9.1`** | [29](./sprints/sprint-29.md) | Hotfix |
+| **`0.9.2`** | [30](./sprints/sprint-30.md) | Polish / Continuity |
+
+Vorher empfohlen: **`0.8.5`** Persona/Continuity ([27](./sprints/sprint-27.md)).
+
+---
+
 ## Abhängigkeiten untereinander
 
 ```text
 Gedächtnis + Summary + Compression     →  0.4.0  (Sprint 8)
         ↓
-Memory Must-Fixes                      →  0.4.1  (Sprint 9)
+… (Router / Research / Delight / Assist 0.5–0.8) …
         ↓
-Memory Polish                          →  0.4.2  (Sprint 10)
+Persona & Continuity Hotfix           →  0.8.5  (Sprint 27)
         ↓
-Memory Hotfix                         →  0.4.3  (Sprint 11)
+Local Tools Core                       →  0.9.0  (Sprint 28)
         ↓
-Intent-Router (+ Memory-Intent) +
-  Model-Routing + Scores               →  0.5.0  (Sprint 12)
+Tools Hotfix                           →  0.9.1  (Sprint 29)
         ↓
-Router Hotfix                          →  0.5.1  (Sprint 13)
-        ↓
-Router Polish (Should)                 →  0.5.2  (Sprint 14)
-        ↓
-Internet-Research (opt-in)             →  0.6.0  (Sprint 15)
-        ↓
-Research Hotfix                       →  0.6.1  (Sprint 16)
-        ↓
-Research Polish (Should)               →  0.6.2  (Sprint 17)
-        ↓
-Delight + flaches Settings             →  0.7.0  (Sprint 18)
+Tools Polish                           →  0.9.2  (Sprint 30)
 ```
