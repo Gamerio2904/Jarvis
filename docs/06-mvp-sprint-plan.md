@@ -356,23 +356,40 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ---
 
-## Sprint 20 — Quality Polish → **`0.7.2`** *(Should)*
+## Sprint 20 — Reply Quality Polish → **`0.7.2`** *(prio)*
 
 **Status:** PLANNED  
-**Artefakt:** [`sprints/sprint-20.md`](./sprints/sprint-20.md)
+**Artefakt:** [`sprints/sprint-20.md`](./sprints/sprint-20.md)  
+**Quelle:** Deep-Test nach `0.7.1`
 
 | Must | Inhalt |
 |------|--------|
-| P1–P2 | Mood pro Conversation; Eggs-off Fallback |
-| P3–P5 | Persona-Konsistenz; Research-Fehler-UX; Query-Hygiene |
-| P6–P7 | Chaos-Regression-Suite; Version `0.7.2` |
+| R1 | SAFE_SMALLTALK drosseln — harmlose Prompts wirklich beantworten |
+| R2 | Memory-Recall ohne Helpdesk/Smalltalk-Canned |
+| R3–R4 | CJK/Non-DE auf Task; Duzen weicher |
+| R5 | Multi-Turn nicht durch Canned zerstören |
+| R6 | Capabilities-Fakt deterministisch |
+| R7 | Eval + Version `0.7.2` |
 
 ---
 
-## Sprint 21 — Assist Clarity → **`0.8.0`**
+## Sprint 21 — Delight & Session Polish → **`0.7.3`**
 
 **Status:** PLANNED  
 **Artefakt:** [`sprints/sprint-21.md`](./sprints/sprint-21.md)
+
+| Must | Inhalt |
+|------|--------|
+| D1–D2 | Mood pro Conversation; Eggs-off Fallback |
+| D3–D5 | Persona; Research-Fehler-UX; Soft-Latenz |
+| D6 | Eval + Version `0.7.3` |
+
+---
+
+## Sprint 22 — Assist Clarity → **`0.8.0`**
+
+**Status:** PLANNED  
+**Artefakt:** [`sprints/sprint-22.md`](./sprints/sprint-22.md)
 
 | Must | Inhalt |
 |------|--------|

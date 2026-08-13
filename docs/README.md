@@ -38,7 +38,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 17 | `0.6.2` | **READY FOR REVIEW** (Research Polish) |
 | 18 | `0.7.0` | **READY FOR REVIEW** (Delight + Settings) |
 | 19 | `0.7.1` | **READY FOR REVIEW** (Quality Hotfix) |
-| 20 | `0.7.2` | **PLANNED** (Quality Polish) |
-| 21 | `0.8.0` | **PLANNED** (Assist Clarity) |
+| 20 | `0.7.2` | **PLANNED** (Reply Quality Polish) |
+| 21 | `0.7.3` | **PLANNED** (Delight & Session Polish) |
+| 22 | `0.8.0` | **PLANNED** (Assist Clarity) |
 
-**Nächste Umsetzung:** Sprint **19** (`0.7.1`) → **20** → **21**; PO-Review 16–18 parallel möglich.
+**Nächste Umsetzung:** Sprint **20** (`0.7.2`) → **21** → **22**.

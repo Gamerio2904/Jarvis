@@ -140,10 +140,13 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S8.6 | Als Nutzer will ich, dass Guards harmlosen Smalltalk/Tasks nicht mit Canned erschlagen. | Must | done | Sprint 19 / `0.7.1` |
 | S8.7 | Als Nutzer will ich valide Research-Timeouts (kein Negativwert). | Must | done | Sprint 19 / `0.7.1` |
 | S8.8 | Als Nutzer will ich korrekte Meta-Antworten (Modell/Version/Research), keine Marken-Halluzination. | Must | done | Sprint 19 / `0.7.1` |
-| S8.9 | Als Nutzer will ich Mood/Eggs conversation-sicher und Eggs-off klar. | Should | ready | Sprint 20 / `0.7.2` |
-| S8.10 | Als Nutzer will ich bei vagen Tasks eine kurze Führung (Clarify-First). | Must | ready | Sprint 21 / `0.8.0` |
-| S8.11 | Als Nutzer will ich eine Fähigkeiten-Karte (`/hilfe`). | Must | ready | Sprint 21 / `0.8.0` |
-| S8.12 | Als Nutzer will ich spürbares Streaming + Research-Query-Echo. | Must | ready | Sprint 21 / `0.8.0` |
+| S8.9 | Als Nutzer will ich, dass SAFE_SMALLTALK nicht jedes harmlose Chat ersetzt. | Must | ready | Sprint 20 / `0.7.2` |
+| S8.10 | Als Nutzer will ich stabilen Memory-Recall ohne Helpdesk-Canned. | Must | ready | Sprint 20 / `0.7.2` |
+| S8.11 | Als Nutzer will ich Task-Antworten ohne CJK/Sprach-Leak und mit weicherem Duzen-Handling. | Must | ready | Sprint 20 / `0.7.2` |
+| S8.12 | Als Nutzer will ich Mood/Eggs conversation-sicher und Eggs-off klar. | Should | ready | Sprint 21 / `0.7.3` |
+| S8.13 | Als Nutzer will ich bei vagen Tasks eine kurze Führung (Clarify-First). | Must | ready | Sprint 22 / `0.8.0` |
+| S8.14 | Als Nutzer will ich eine Fähigkeiten-Karte (`/hilfe`). | Must | ready | Sprint 22 / `0.8.0` |
+| S8.15 | Als Nutzer will ich spürbares Streaming + Research-Query-Echo. | Must | ready | Sprint 22 / `0.8.0` |
 
 ### E7 — Nachzieher Quality/Research (Fortsetzung)
 
@@ -152,14 +155,16 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.10 | Als Nutzer will ich Junk-Research-Queries abgelehnt / nachgefragt. | Must | done | Sprint 19 / `0.7.1` |
 | S7.11 | Als Nutzer will ich „recherchiere nichts“ nicht als Research. | Must | done | Sprint 19 / `0.7.1` |
 | S7.12 | Als Nutzer will ich härtere Inject-Abwehr (Roleplay/System-Prompt). | Must | done | Sprint 19 / `0.7.1` |
-| S7.13 | Als PO will ich Chaos-Regression aus dem Deep-Test. | Should | ready | Sprint 20 / `0.7.2` |
-| S7.14 | Als Nutzer will ich Memory Soft-Confirm bei unsicherem Harvest. | Should | ready | Sprint 21 / `0.8.0` |
+| S7.13 | Als Nutzer will ich Multi-Turn-Kontext nicht durch Canned verlieren. | Must | ready | Sprint 20 / `0.7.2` |
+| S7.14 | Als Nutzer will ich eine knappe Capabilities-Antwort ohne LLM-Waffle. | Must | ready | Sprint 20 / `0.7.2` |
+| S7.15 | Als Nutzer will ich verständliche Research-Fehler (Timeout vs. leer). | Should | ready | Sprint 21 / `0.7.3` |
+| S7.16 | Als Nutzer will ich Memory Soft-Confirm bei unsicherem Harvest. | Should | ready | Sprint 22 / `0.8.0` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 20** (`0.7.2` Quality Polish) → dann **21** (`0.8.0`)
+1. **Sprint 20** (`0.7.2`) → **21** (`0.7.3`) → **22** (`0.8.0`)
 2. PO-Review offener Tags `0.4.0`–`0.7.1` parallel möglich
 3. Danach: optional `0.8.1` nach Deep-Test; Phase 2+ / NAS `1.0.0` auf PO-Kommando
 
