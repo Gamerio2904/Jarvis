@@ -114,9 +114,9 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Router Hotfix → **`0.5.1`** (Sprint 13, Review; in `0.5.2`)
 - Router Polish (Should) → **`0.5.2`** (Sprint 14, Review)
 - Verlässliche Internet-Research (opt-in, zitiert) → **`0.6.0`** (Sprint 15, Review)
-- Research Hotfix → **`0.6.1`** (Sprint 16, prio)
-- Research Polish (Should) → **`0.6.2`** (Sprint 17)
-- Delight + flaches Settings → **`0.7.0`** (Sprint 18, [`11`](./11-delight-and-settings.md))
+- Research Hotfix → **`0.6.1`** (Sprint 16, Review; in `0.7.0`)
+- Research Polish (Should) → **`0.6.2`** (Sprint 17, Review; in `0.7.0`)
+- Delight + flaches Settings → **`0.7.0`** (Sprint 18, Review)
 - Tools (Kalender, Notizen, …) / Native App nur falls nötig
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
