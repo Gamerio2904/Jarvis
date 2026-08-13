@@ -44,7 +44,7 @@ def main() -> int:
     code, health = req("GET", "/api/health")
     check(
         "health_hotfix_line",
-        code == 200 and health.get("version") in {"0.6.1", "0.6.2", "0.7.0"} and health.get("ok"),
+        code == 200 and health.get("version") in {"0.6.1", "0.6.2", "0.7.0", "0.7.1"} and health.get("ok"),
         json.dumps({k: health.get(k) for k in ("version", "research_opt_in")}),
     )
 

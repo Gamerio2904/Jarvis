@@ -75,10 +75,11 @@ def main() -> int:
     try:
         # R7 health / version
         code, health = req("GET", "/api/health")
+        ver = str(health.get("version", ""))
         check(
             "health_060",
             code == 200
-            and health.get("version") == "0.6.0"
+            and (ver == "0.6.0" or ver.startswith("0.7."))
             and health.get("ok")
             and "research_opt_in" in health,
             json.dumps(

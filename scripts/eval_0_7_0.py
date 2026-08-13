@@ -41,7 +41,11 @@ def main() -> int:
         print(f"[{'PASS' if ok else 'FAIL'}] {name}: {detail[:220]}")
 
     code, health = req("GET", "/api/health")
-    check("health_070", code == 200 and health.get("version") == "0.7.0", str(health.get("version")))
+    check(
+        "health_070",
+        code == 200 and str(health.get("version", "")).startswith("0.7."),
+        str(health.get("version")),
+    )
 
     code, settings = req("GET", "/api/settings")
     eggs = settings.get("easter_eggs") or []
@@ -68,7 +72,7 @@ def main() -> int:
     reply = ((data or {}).get("assistant_message") or {}).get("content") or ""
     check(
         "live_egg_protokoll",
-        code == 200 and "protokoll" in reply.lower() and "0.7.0" in reply,
+        code == 200 and "protokoll" in reply.lower() and ("0.7.0" in reply or "0.7.1" in reply),
         reply[:180],
     )
 

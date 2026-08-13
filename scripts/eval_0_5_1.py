@@ -87,7 +87,10 @@ def main() -> int:
     check("unit_settings_no_aussetzer", out4 != SAFE_DEGENERATE and "Aussetzer" not in out4, out4[:100])
 
     code, health = req("GET", "/api/health")
-    ver_ok = code == 200 and health.get("version") in {"0.5.1", "0.5.2"} and health.get("ok")
+    ver = str(health.get("version", ""))
+    ver_ok = code == 200 and bool(health.get("ok")) and (
+        ver in {"0.5.1", "0.5.2"} or ver.startswith("0.7.")
+    )
     check("health_version_hotfix_line", ver_ok, json.dumps(health, ensure_ascii=False)[:220])
 
     # Live F1 task

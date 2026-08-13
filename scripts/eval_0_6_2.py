@@ -43,7 +43,7 @@ def main() -> int:
     code, health = req("GET", "/api/health")
     check(
         "health_062_line",
-        code == 200 and health.get("version") in {"0.6.2", "0.7.0"},
+        code == 200 and health.get("version") in {"0.6.2", "0.7.0", "0.7.1"},
         str(health.get("version")),
     )
 

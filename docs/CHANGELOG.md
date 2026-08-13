@@ -5,11 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### Geplant — `0.7.1` / Sprint 19 (Quality Hotfix)
+### `0.7.1` — Sprint 19 (Quality Hotfix) — *READY FOR REVIEW*
 
-- Settings-Clamp; Guard-Entschärfung; echte Task-Inhalte
-- Settings-Fakten; Research Junk/Negation; Inject + Anti-Claude
-- Eval `scripts/eval_0_7_1.py` — Details [`sprints/sprint-19.md`](./sprints/sprint-19.md)
+- Settings-Clamp (`research_timeout_sec` u. a.); Guard-Entschärfung; Task-Listen bleiben Inhalt
+- Settings-Fakten (Modell/Version/Research); Research Junk-Refuse + Negation
+- Inject-Härte (Pirate/System-Prompt); Anti-Identitäts-Halluzination
+- Eval `scripts/eval_0_7_1.py`, Version `0.7.1`
 
 ### Geplant — `0.7.2` / Sprint 20 (Quality Polish)
 

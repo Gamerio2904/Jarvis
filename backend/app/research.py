@@ -26,6 +26,10 @@ SAFE_RESEARCH_NET_DOWN = (
     "Netz/Provider nicht erreichbar — kein Beleg, also kein Raten. "
     "Später nochmal versuchen."
 )
+SAFE_RESEARCH_JUNK = (
+    "Kein brauchbares Suchthema — ich rate nicht und rufe kein Netz. "
+    "Formuliere z.B. „Recherchiere …“ mit klarem Thema."
+)
 PRIVACY_NOTE = (
     "Privacy: Nur die minimierte Such-Query geht an Allowlist-Provider — "
     "kein Chat-Verlauf."
@@ -71,6 +75,37 @@ _PII_PHRASE_RE = re.compile(
     r")"
 )
 _FILLER_RUN_RE = re.compile(r"(?is)(?:\b(?:bitte|mal|doch|einfach)\b[\s,]*){2,}")
+_SQLISH_RE = re.compile(
+    r"(?is)\b(drop\s+table|union\s+select|or\s+1\s*=\s*1|;\s*--)\b"
+)
+_CHAR_SPAM_RE = re.compile(r"(.)\1{7,}")
+
+
+def is_junk_query(query: str) -> bool:
+    """True when sanitized query is empty, noise-only, spam, or SQL-ish."""
+    q = (query or "").strip()
+    if not q or q in {"?", ".", "-", "—", "info"}:
+        return True
+    low = q.lower()
+    if _SQLISH_RE.search(q):
+        return True
+    # Noise-only leftovers after failed topic extract
+    if re.fullmatch(
+        r"(?is)(?:recherchier\w*|bitte|mal|doch|einfach|news|stand|aktuell\w*|zu|\s)+",
+        q,
+    ):
+        return True
+    if low in {"recherchiere", "bitte", "news", "stand"}:
+        return True
+    # Char spam / collapsed spam still too thin
+    collapsed = _CHAR_SPAM_RE.sub(r"\1\1", q)
+    if len(re.sub(r"\s+", "", collapsed)) < 3:
+        return True
+    # Mostly punctuation / digits only without alnum words ≥3
+    tokens = re.findall(r"[A-Za-zÄÖÜäöüß0-9]{3,}", q)
+    if not tokens and len(q) < 12:
+        return True
+    return False
 
 
 def strip_pii(text: str) -> str:
@@ -173,11 +208,18 @@ def normalize_query(text: str) -> str:
         q = nxt
     q = strip_pii(q)
     q = strip_noise(q)
+    # Drop leading "Wikipedia" meta when topic follows
+    q = re.sub(r"(?is)^\s*wikipedia\s+(?:zu\s+|über\s+)?", "", q).strip()
     topic = extract_topic(q, max_len=120)
     if topic:
-        return topic
+        topic = _CHAR_SPAM_RE.sub(r"\1\1", topic)
+        topic = re.sub(r"\s+", " ", topic).strip(" \t\n\r:?,.!-")
+        return topic[:120]
     q = re.sub(r"\s+", " ", q).strip()
-    return (q[:120] if q else text.strip()[:80]) or "info"
+    q = _CHAR_SPAM_RE.sub(r"\1\1", q)
+    if not q or is_junk_query(q):
+        return ""
+    return q[:120]
 
 
 @dataclass
@@ -476,12 +518,34 @@ def retrieve(
     enabled = bool(settings.get("research_opt_in", False) if opt_in is None else opt_in)
     query = normalize_query(user_text)
     if not enabled:
-        return ResearchPack(query=query, status="blocked", network_attempted=False)
+        return ResearchPack(
+            query=query or "info",
+            status="blocked",
+            network_attempted=False,
+        )
+
+    if is_junk_query(query):
+        return ResearchPack(
+            query=query or "(leer)",
+            status="empty",
+            sources=[],
+            error="junk_query",
+            network_attempted=False,
+            reply=SAFE_RESEARCH_JUNK,
+        )
 
     providers = list(settings.get("research_providers") or DEFAULT_PROVIDERS)
     allowlist = list(settings.get("research_allowlist") or DEFAULT_ALLOWLIST)
-    timeout = float(settings.get("research_timeout_sec", 8))
-    max_sources = int(settings.get("research_max_sources", 5))
+    try:
+        timeout = float(settings.get("research_timeout_sec", 8))
+    except (TypeError, ValueError):
+        timeout = 8.0
+    timeout = max(1.0, min(60.0, timeout))
+    try:
+        max_sources = int(settings.get("research_max_sources", 5) or 5)
+    except (TypeError, ValueError):
+        max_sources = 5
+    max_sources = max(1, min(10, max_sources))
 
     sources: list[Source] = []
     errors: list[str] = []
@@ -579,9 +643,13 @@ def synthesize_from_snippets(pack: ResearchPack) -> str:
     """Citation-safe reply with light Jarvis persona (not bare template-only)."""
     if pack.status == "blocked":
         return SAFE_RESEARCH_OFF
+    if pack.reply and pack.error == "junk_query":
+        return pack.reply
     if pack.status == "error" and not pack.sources:
         return SAFE_RESEARCH_NET_DOWN
     if pack.status != "ok" or not pack.sources:
+        if pack.error == "junk_query":
+            return SAFE_RESEARCH_JUNK
         return SAFE_RESEARCH_NO_SOURCE
 
     parts: list[str] = []

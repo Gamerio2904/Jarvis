@@ -63,10 +63,11 @@ def main() -> int:
     check("unit_full_gold", full_acc >= 0.95, f"{full_acc} misses={full_miss[:2]}")
 
     code, health = req("GET", "/api/health")
+    ver = str(health.get("version", ""))
     check(
         "health_052_routing_honest",
         code == 200
-        and health.get("version") == "0.5.2"
+        and (ver == "0.5.2" or ver.startswith("0.7."))
         and "heavy_equals_default" in health
         and health.get("ok"),
         json.dumps(

@@ -20,7 +20,8 @@ def utc_now() -> str:
 def load_settings() -> dict[str, Any]:
     path = CONFIG_DIR / "settings.json"
     with path.open(encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    return _clamp_settings(data)
 
 
 def load_persona() -> str:
@@ -101,6 +102,42 @@ def init_db() -> None:
         conn.close()
 
 
+def _clamp_settings(current: dict[str, Any]) -> dict[str, Any]:
+    """Normalize numeric / enum settings to safe ranges (Sprint 19 / 0.7.1)."""
+    try:
+        timeout = float(current.get("research_timeout_sec", 8))
+    except (TypeError, ValueError):
+        timeout = 8.0
+    current["research_timeout_sec"] = max(1.0, min(60.0, timeout))
+
+    try:
+        max_src = int(current.get("research_max_sources", 5))
+    except (TypeError, ValueError):
+        max_src = 5
+    current["research_max_sources"] = max(1, min(10, max_src))
+
+    try:
+        moments = int(current.get("delight_moments_per_day", 2))
+    except (TypeError, ValueError):
+        moments = 2
+    current["delight_moments_per_day"] = max(0, min(20, moments))
+
+    vol = str(current.get("ui_sound_volume", "low")).lower()
+    if vol not in {"low", "medium", "high", "off"}:
+        current["ui_sound_volume"] = "low"
+
+    freq = str(current.get("delight_joke_frequency", "selten")).lower()
+    if freq not in {"selten", "normal", "oft"}:
+        current["delight_joke_frequency"] = "selten"
+
+    mode = str(current.get("routing_mode", "auto")).lower()
+    if mode not in {"auto", "default", "heavy"}:
+        current["routing_mode"] = "auto"
+
+    current["research_opt_in"] = bool(current.get("research_opt_in", False))
+    return current
+
+
 def save_settings(patch: dict[str, Any]) -> dict[str, Any]:
     """Merge patch into settings.json (only known top-level keys overwritten)."""
     path = CONFIG_DIR / "settings.json"
@@ -126,6 +163,7 @@ def save_settings(patch: dict[str, Any]) -> dict[str, Any]:
     for k, v in patch.items():
         if k in allowed:
             current[k] = v
+    current = _clamp_settings(current)
     path.write_text(json.dumps(current, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return current
 

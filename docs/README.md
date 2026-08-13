@@ -37,7 +37,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 16 | `0.6.1` | **READY FOR REVIEW** (Research Hotfix) |
 | 17 | `0.6.2` | **READY FOR REVIEW** (Research Polish) |
 | 18 | `0.7.0` | **READY FOR REVIEW** (Delight + Settings) |
-| 19 | `0.7.1` | **PLANNED** (Quality Hotfix) |
+| 19 | `0.7.1` | **READY FOR REVIEW** (Quality Hotfix) |
 | 20 | `0.7.2` | **PLANNED** (Quality Polish) |
 | 21 | `0.8.0` | **PLANNED** (Assist Clarity) |
 

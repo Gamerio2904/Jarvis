@@ -25,12 +25,44 @@ MemorySub = Literal[
 _INJECT_RE = re.compile(
     r"(?is)\b("
     r"ignore\s+(all\s+)?(previous|prior|above)\s+instructions|"
-    r"system\s*prompt|"
+    r"system[\s\-]*prompt|"
     r"jailbreak|"
     r"pwned|hacked|owned|"
-    r"reveal\s+(your\s+)?(system|hidden)\s+prompt|"
-    r"du\s+bist\s+jetzt\s+DAN|"
-    r"override\s+safety"
+    r"reveal\s+(your\s+)?(system|hidden)[\s\-]*prompt|"
+    r"(?:gib|zeig|zeige|zeige\s+mir)\s+(?:mir\s+)?(?:das\s+)?system[\s\-]*prompt|"
+    r"du\s+bist\s+jetzt\s+(?:DAN|ein\s+pirat|pirate)|"
+    r"antworte\s+ohne\s+filter|"
+    r"override\s+(?:safety|persona)|"
+    r"persona\s+to\s+pirate|"
+    r"pirate\s+speak|"
+    r"vergiss\s+deine\s+regeln|"
+    r"roleplay\s+as\b"
+    r")\b"
+)
+_RESEARCH_NEGATION_RE = re.compile(
+    r"(?is)\b("
+    r"recherchier\w*\s+nichts|"
+    r"nicht\s+recherchier\w*|"
+    r"keine\s+recherche|"
+    r"ohne\s+(?:zu\s+)?recherchier\w*|"
+    r"skip\s+research|"
+    r"don'?t\s+search"
+    r")\b"
+)
+_SETTINGS_FACT_RE = re.compile(
+    r"(?is)\b("
+    r"welches\s+modell|"
+    r"welche[sn]?\s+model|"
+    r"was\s+für\s+(?:ein\s+)?modell|"
+    r"welche\s+version|"
+    r"version\s+bist|"
+    r"hast\s+(?:du|Sie)\s+internet|"
+    r"internetzugang|"
+    r"online\s+(?:zugriff|zugang)|"
+    r"wie\s+schalte\s+ich\s+research|"
+    r"research\s+ein|"
+    r"forschung\s+ein|"
+    r"opt[\-\s]?in\s+(?:für\s+)?research"
     r")\b"
 )
 _HELPDESK_TRAP_RE = re.compile(
@@ -169,11 +201,20 @@ def classify(text: str, *, research_opt_in: bool = False) -> RouteResult:
     if _INJECT_RE.search(stripped):
         return RouteResult("inject", "none", "inject_pattern")
 
+    if _SETTINGS_FACT_RE.search(stripped):
+        return RouteResult("settings", "none", "settings_fact")
+
     if _HELPDESK_TRAP_RE.search(stripped):
         return RouteResult("helpdesk_trap", "none", "helpdesk_bait")
 
     if _SETTINGS_RE.search(stripped):
         return RouteResult("settings", "none", "settings_or_slash")
+
+    # Explicit "don't research" → not research intent (Sprint 19)
+    if _RESEARCH_NEGATION_RE.search(stripped):
+        if _TASK_RE.search(stripped):
+            return RouteResult("task", "none", "research_negation_task")
+        return RouteResult("smalltalk", "none", "research_negation")
 
     if _RESEARCH_RE.search(stripped):
         blocked = not research_opt_in

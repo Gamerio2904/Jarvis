@@ -341,7 +341,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 19 — Quality Hotfix → **`0.7.1`** *(prio)*
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-19.md`](./sprints/sprint-19.md)  
 **Quelle:** Deep-Test nach `0.7.0`
 

@@ -23,7 +23,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 16 | [`sprint-16.md`](./sprint-16.md) | `0.6.1` | Research Hotfix | **READY FOR REVIEW** |
 | 17 | [`sprint-17.md`](./sprint-17.md) | `0.6.2` | Research Polish (Should) | **READY FOR REVIEW** |
 | 18 | [`sprint-18.md`](./sprint-18.md) | `0.7.0` | Delight + Settings | **READY FOR REVIEW** |
-| 19 | [`sprint-19.md`](./sprint-19.md) | `0.7.1` | Quality Hotfix (Guards/Settings/Research/Inject) | **PLANNED** |
+| 19 | [`sprint-19.md`](./sprint-19.md) | `0.7.1` | Quality Hotfix (Guards/Settings/Research/Inject) | **READY FOR REVIEW** |
 | 20 | [`sprint-20.md`](./sprint-20.md) | `0.7.2` | Quality Polish (Mood/Eggs/Persona/Chaos) | **PLANNED** |
 | 21 | [`sprint-21.md`](./sprint-21.md) | `0.8.0` | Assist Clarity (Clarify/`/hilfe`/Stream/UX) | **PLANNED** |
 

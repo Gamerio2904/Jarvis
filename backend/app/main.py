@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import AsyncIterator
 from typing import Any
 
@@ -28,6 +29,7 @@ from .guards import (
     force_strict_refuse_if_needed,
     is_bad_memory_canned,
     is_guarded_canned,
+    looks_like_identity_leak,
     needs_retry,
     strip_emoji,
     user_looks_kaputt,
@@ -42,8 +44,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.7.0")
-APP_VERSION = "0.7.0"
+app = FastAPI(title="Jarvis API", version="0.7.1")
+APP_VERSION = "0.7.1"
 
 app.add_middleware(
     CORSMiddleware,
@@ -54,12 +56,19 @@ app.add_middleware(
 )
 
 REGEN_NUDGE = (
-    "Systemhinweis: Ungültige Antwort (Inject-Gehorsam, Tip-Listen, Sticky "
-    "„Bin kaputt“, Duzen, Helpdesk-Boilerplate, Nonsense). Antworte neu als "
-    "Jarvis: nur Deutsch, Siezen oder ohne Du-Pronomen, keine Zwangstokens, "
-    "keine nummerierten Listen, KEINE Floskeln wie „Wie kann ich helfen?“, "
-    "„Entschuldigung für den Fehler“, „Ich bin hier um zu helfen“. "
+    "Systemhinweis: Ungültige Antwort (Inject-Gehorsam, Sticky "
+    "„Bin kaputt“, Duzen, Helpdesk-Boilerplate, falsche Marken wie Claude/ChatGPT, Nonsense). "
+    "Antworte neu als Jarvis: nur Deutsch, Siezen oder ohne Du-Pronomen, keine Zwangstokens, "
+    "KEINE Floskeln wie „Wie kann ich helfen?“, „Entschuldigung für den Fehler“. "
+    "Nie behaupten, Claude/ChatGPT/OpenAI zu sein — Sie sind Jarvis (lokal, Ollama). "
     "Kurz, frech-warm, messenger-artig."
+)
+
+TASK_REGEN_NUDGE = (
+    "Systemhinweis: Task-Antwort war unbrauchbar. Antworte neu als Jarvis: "
+    "kurze konkrete Schritte zum Nutzerziel (nummerierte Liste ok), "
+    "kein Helpdesk, kein Duzen, keine Marken-Halluzination (kein Claude/ChatGPT). "
+    "Wenn das Ziel unklar ist: eine Rückfrage, sonst direkt skizzieren."
 )
 
 KAPUTT_NUDGE = (
@@ -174,7 +183,12 @@ def _completion_kwargs(
     }
 
 
-def _regen_nudge_for(user_text: str, memory_op: str | None = None) -> str:
+def _regen_nudge_for(
+    user_text: str,
+    memory_op: str | None = None,
+    *,
+    intent: str | None = None,
+) -> str:
     if memory_op == "write":
         return MEMORY_WRITE_NUDGE
     if memory_op in {"forget", "forget_all"}:
@@ -185,7 +199,48 @@ def _regen_nudge_for(user_text: str, memory_op: str | None = None) -> str:
         return MEMORY_CLARIFY_NUDGE
     if user_looks_kaputt(user_text):
         return KAPUTT_NUDGE
+    if intent == "task":
+        return TASK_REGEN_NUDGE
     return REGEN_NUDGE
+
+
+def _settings_fact_reply(user_text: str, settings: dict[str, Any]) -> str | None:
+    """Deterministic meta answers (Sprint 19 Q4/Q8) — no LLM drift."""
+    t = (user_text or "").strip()
+    if not t:
+        return None
+    low = t.lower()
+    model = settings.get("model_default") or settings.get("model") or "unbekannt"
+    opt_in = bool(settings.get("research_opt_in", False))
+
+    if re.search(r"(?is)welches\s+modell|welche[sn]?\s+model|was\s+für\s+(?:ein\s+)?modell", t):
+        return (
+            f"Jarvis, lokal über Ollama — konfiguriertes Modell: {model}. "
+            "Kein Cloud-Chatbot, kein Claude/ChatGPT."
+        )
+    if re.search(r"(?is)welche\s+version|version\s+bist|welche\s+build", t):
+        return f"Version {APP_VERSION} — lokal, privat. Weiter?"
+    if re.search(r"(?is)hast\s+(?:du|sie)\s+internet|internetzugang|online\s+(?:zugriff|zugang)", t):
+        if opt_in:
+            return (
+                "Research-Opt-in ist an — Allowlist-Suche mit Quellen möglich. "
+                "Sonst nur lokales Wissen."
+            )
+        return (
+            "Standard: kein freies Netz. Research-Opt-in in den Settings einschalten, "
+            "dann Allowlist-Suche mit Quellen — sonst nur lokal."
+        )
+    if re.search(
+        r"(?is)wie\s+schalte\s+ich\s+research|research\s+ein|forschung\s+ein|opt[\-\s]?in",
+        t,
+    ):
+        return (
+            "Settings → Forschung → Research-Opt-in an. "
+            "Dann z.B. „Recherchiere …“ — Antworten nur mit Quellen, sonst Refuse."
+        )
+    if "einstellung" in low or low.startswith("/"):
+        return None
+    return None
 
 
 def _prepare_chat_context(
@@ -333,9 +388,18 @@ def _finalize_turn_reply(
     # Research without opt-in: always refuse net claims.
     if any("Research ohne Opt-in" in n for n in memory_notes):
         return research_mod.SAFE_RESEARCH_OFF
-    # Weak / unclear remember → never false-confirm
+    # Weak / unclear remember → never false-confirm; keep wording contract (0.7.1)
     if any("Nichts gespeichert" in n for n in memory_notes):
-        if memory_mod.looks_like_false_memory_confirm(reply) or is_bad_memory_canned(reply):
+        low = reply.lower()
+        if (
+            memory_mod.looks_like_false_memory_confirm(reply)
+            or is_bad_memory_canned(reply)
+            or (
+                "nicht gespeichert" not in low
+                and "merk dir" not in low
+                and "nichts gespeichert" not in low
+            )
+        ):
             return SAFE_MEMORY_REFUSE_FALSE
     if memory_mod.looks_like_remember_intent(
         user_text
@@ -486,12 +550,18 @@ async def _generate_reply(
     if intent == "inject":
         return SAFE_INJECT
 
+    # Q4/Q8: settings facts without LLM drift
+    if intent == "settings":
+        fact = _settings_fact_reply(user_text, settings)
+        if fact:
+            return fact
+
     kwargs = _completion_kwargs(settings, model, system)
     reply = await chat_completion(**kwargs, messages=llm_messages)
     retries = int(settings.get("guard_max_retries", 2))
     attempt = 0
-    nudge = _regen_nudge_for(user_text, memory_op)
-    while needs_retry(reply, recent_assistant) and attempt < retries:
+    nudge = _regen_nudge_for(user_text, memory_op, intent=intent)
+    while needs_retry(reply, recent_assistant, intent=intent) and attempt < retries:
         attempt += 1
         regen_messages = [*llm_messages, {"role": "user", "content": nudge}]
         reply = await chat_completion(**kwargs, messages=regen_messages)
@@ -502,6 +572,11 @@ async def _generate_reply(
         memory_op=memory_op,
         intent=intent,
     )
+    if looks_like_identity_leak(reply):
+        fact = _settings_fact_reply(user_text, settings)
+        if fact:
+            return fact
+        return SAFE_SETTINGS
     return _finalize_turn_reply(
         reply,
         user_text=user_text,
@@ -721,8 +796,8 @@ def _append_delight_flavor(
     )
     if moment:
         delight["moment"] = moment
-        # Attach moment beat for light intents + inject victory
-        if intent in {"smalltalk", "memory", "helpdesk_trap", "inject", None}:
+        # Attach moment beat for light intents (inject stays pure SAFE_INJECT)
+        if intent in {"smalltalk", "memory", "helpdesk_trap", None}:
             reply = f"{reply.rstrip()}\n\n{moment}"
     jokes = db.list_memory_items(limit=5, category="joke", include_expired=False)
     joke = delight_mod.maybe_inside_joke(
@@ -944,18 +1019,12 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
 
         if intent == "inject":
             final = SAFE_INJECT
-            # Inject victory moment (capped)
-            moment = delight_mod.maybe_moment(
-                settings=settings, intent="inject", memory_op=None
-            )
-            if moment:
-                final = f"{final}\n\n{moment}"
             yield sse({"type": "replace", "content": final})
             saved = db.add_message(
                 conversation_id,
                 "assistant",
                 final,
-                meta={"delight": {"moment": moment}} if moment else None,
+                meta={"delight": {"inject": True}},
             )
             updated = db.get_conversation(conversation_id)
             yield sse(
@@ -966,10 +1035,28 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                     "guarded": True,
                     "memory_op": mem_op,
                     "route": route_dbg,
-                    "delight": {"moment": moment} if moment else None,
+                    "delight": {"inject": True},
                 }
             )
             return
+
+        if intent == "settings":
+            fact = _settings_fact_reply(content, settings)
+            if fact:
+                yield sse({"type": "replace", "content": fact})
+                saved = db.add_message(conversation_id, "assistant", fact)
+                updated = db.get_conversation(conversation_id)
+                yield sse(
+                    {
+                        "type": "done",
+                        "assistant_message": saved,
+                        "conversation": updated,
+                        "guarded": True,
+                        "memory_op": mem_op,
+                        "route": route_dbg,
+                    }
+                )
+                return
 
         if intent == "research" and research_pack is not None:
             final = await _resolve_research_reply(
@@ -1010,7 +1097,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
         messages_for_model = llm_messages
         final = ""
         attempt = 0
-        nudge = _regen_nudge_for(content, mem_op)
+        nudge = _regen_nudge_for(content, mem_op, intent=intent)
         while True:
             acc: list[str] = []
             try:
@@ -1024,7 +1111,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 return
 
             candidate = "".join(acc).strip()
-            if not needs_retry(candidate, recent) or attempt >= retries:
+            if not needs_retry(candidate, recent, intent=intent) or attempt >= retries:
                 final = force_strict_refuse_if_needed(
                     candidate,
                     recent,
@@ -1032,13 +1119,17 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                     memory_op=mem_op,
                     intent=intent,
                 )
-                final = _finalize_turn_reply(
-                    final,
-                    user_text=content,
-                    memory_op=mem_op,
-                    memory_notes=mem_notes,
-                    intent=intent,
-                )
+                if looks_like_identity_leak(final):
+                    fact = _settings_fact_reply(content, settings)
+                    final = fact or SAFE_SETTINGS
+                else:
+                    final = _finalize_turn_reply(
+                        final,
+                        user_text=content,
+                        memory_op=mem_op,
+                        memory_notes=mem_notes,
+                        intent=intent,
+                    )
                 if final != candidate:
                     yield sse({"type": "replace", "content": final})
                 break

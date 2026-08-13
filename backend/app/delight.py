@@ -182,9 +182,9 @@ def maybe_moment(
     # Serious intents: no gimmick spam
     if intent in {"research", "task", "inject"}:
         if intent == "inject":
-            # dry victory after inject block
+            # Victory stays in meta only — reply must remain exact SAFE_INJECT (evals / DE canned)
             record_moment()
-            return "Regeln stehen. Weiter ohne Theater."
+            return None
         return None
     if memory_op == "recall":
         record_moment()

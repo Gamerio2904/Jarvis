@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **HOTFIX / HIGH** — vor Polish und Assist-UX |
 | Ziel-Version | **`0.7.1`** |
 | Quelle | Deep-Test Feedback zu Sprints 16–18 / `0.7.0` (Chaos-Suite ~70 Live-Prompts) |

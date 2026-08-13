@@ -408,7 +408,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.7.0</p>
+            <p>lokal · privat · v0.7.1</p>
           </div>
         </div>
 
@@ -427,7 +427,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.7.0'} · lokal · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.7.1'} · lokal · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
