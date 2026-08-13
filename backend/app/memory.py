@@ -492,14 +492,17 @@ def harvest_soft_facts(
     skip: bool = False,
     confidence: float = 0.55,
     ttl_days: float = 14.0,
-) -> None:
-    """Capture clear preference patterns even without 'merk dir' (TTL + low conf)."""
-    if skip:
-        return
-    # Contradictions are explicit writes — never soft-harvest them.
-    if parse_contradiction(user_text):
-        return
+) -> list[str]:
+    """Capture clear preference patterns even without 'merk dir' (TTL + low conf).
 
+    Returns notes for soft-confirm UX (Sprint 22 A5).
+    """
+    if skip:
+        return []
+    if parse_contradiction(user_text):
+        return []
+
+    notes: list[str] = []
     pref = parse_lieblings_pref(user_text)
     if pref:
         key, val, category = pref
@@ -511,21 +514,25 @@ def harvest_soft_facts(
             source_conversation_id=conversation_id,
             expires_at=_expires_iso(ttl_days),
         )
-        return
+        notes.append(f"Soft: {key} = {val}")
+        return notes
 
     m3 = _ICH_MAG_RE.search(user_text)
     if m3:
         val = normalize_value(m3.group(1))
         if len(val) <= 2:
-            return
+            return []
+        key = _key_from_payload(f"mag_{val}")
         db.upsert_memory_item(
-            key=_key_from_payload(f"mag_{val}"),
+            key=key,
             value=val,
             category="pref",
             confidence=confidence,
             source_conversation_id=conversation_id,
             expires_at=_expires_iso(ttl_days),
         )
+        notes.append(f"Soft: {key} = {val}")
+    return notes
 
 
 def ack_reply_for_write(notes: list[str]) -> str:
@@ -554,8 +561,9 @@ def ack_reply_for_forget(op: MemoryOp, notes: list[str]) -> str:
 def ack_reply_for_recall(notes: list[str]) -> str:
     """Deterministic recall fallback when the model collapses to Aussetzer."""
     facts = [n.split(":", 1)[-1].strip() for n in notes if n.startswith("Recall:")]
+    facts = [f for f in facts if f and "nichts passendes" not in f.lower()]
     if not facts:
-        return "Dazu habe ich etwas notiert — welche Detailfrage genau?"
+        return "Dazu habe ich nichts Passendes — formulieren Sie die Frage enger?"
     if len(facts) == 1:
         return f"Soweit notiert: {facts[0]}. Stimmt das noch?"
     joined = "; ".join(facts[:3])

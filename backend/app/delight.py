@@ -1,4 +1,4 @@
-"""Delight: moments, inside jokes, Easter eggs (Sprint 18 / 0.7.0)."""
+"""Delight: moments, inside jokes, Easter eggs (Sprint 18+) + session mood (0.7.3)."""
 from __future__ import annotations
 
 import re
@@ -19,12 +19,12 @@ EASTER_EGGS: list[dict[str, str]] = [
     },
     {
         "command": "/kante",
-        "description": "Session-Modus: etwas schärfer",
+        "description": "Session-Modus: etwas schärfer (pro Gespräch)",
         "example": "/kante",
     },
     {
         "command": "/ruhe",
-        "description": "Session-Modus: ruhiger",
+        "description": "Session-Modus: ruhiger (pro Gespräch)",
         "example": "/ruhe",
     },
     {
@@ -37,16 +37,21 @@ EASTER_EGGS: list[dict[str, str]] = [
         "description": "Hinweis zu Research/Quellen (wenn Opt-in)",
         "example": "/quellen",
     },
+    {
+        "command": "/hilfe",
+        "description": "Kurz: was Jarvis kann (Fähigkeiten-Karte)",
+        "example": "/hilfe",
+    },
 ]
 
 _EGG_RE = re.compile(
-    r"(?is)^\s*/?\s*(protokoll|mission|kante|ruhe|vergisswitz|quellen)\s*$"
+    r"(?is)^\s*/?\s*(protokoll|mission|kante|ruhe|vergisswitz|quellen|hilfe)\s*$"
 )
 
-# In-process caps (reset on restart — acceptable for local MVP)
 _MOMENTS_BY_DAY: dict[str, int] = {}
 _JOKES_BY_DAY: dict[str, int] = {}
-_SESSION_MOOD: str = "neutral"
+# Sprint 21: mood scoped per conversation (not process-global)
+_MOOD_BY_CONV: dict[str, str] = {}
 
 
 @dataclass
@@ -106,13 +111,28 @@ def record_joke() -> None:
     _JOKES_BY_DAY[k] = jokes_used_today() + 1
 
 
-def get_session_mood() -> str:
-    return _SESSION_MOOD
+def get_session_mood(conversation_id: str | None = None) -> str:
+    if conversation_id:
+        return _MOOD_BY_CONV.get(conversation_id, "neutral")
+    # Back-compat: no global mood leak across chats
+    return "neutral"
 
 
-def set_session_mood(mood: str) -> None:
-    global _SESSION_MOOD
-    _SESSION_MOOD = mood
+def set_session_mood(mood: str, conversation_id: str | None = None) -> None:
+    if not conversation_id:
+        return
+    _MOOD_BY_CONV[conversation_id] = mood
+
+
+def capabilities_card() -> str:
+    return (
+        "Fähigkeiten-Karte — lokal, privat:\n"
+        "• Smalltalk im Jarvis-Ton\n"
+        "• Memory: merken / recall / vergessen\n"
+        "• Research: nur mit Opt-in, Allowlist, Quellen — sonst Refuse\n"
+        "• Settings flach; Eggs z.B. /protokoll, /kante, /ruhe\n"
+        "Kein freies Netz, keine Cloud. /hilfe jederzeit."
+    )
 
 
 def handle_easter_egg(
@@ -120,14 +140,25 @@ def handle_easter_egg(
     *,
     settings: dict[str, Any],
     health_bits: dict[str, Any] | None = None,
+    conversation_id: str | None = None,
 ) -> EggResult:
-    if not eggs_enabled(settings):
-        return EggResult(handled=False)
     cmd = parse_egg_command(text)
     if not cmd:
         return EggResult(handled=False)
 
+    # Sprint 21 D2: eggs off → deterministic short refuse (no LLM waffle)
+    if not eggs_enabled(settings):
+        return EggResult(
+            handled=True,
+            reply=(
+                "Easter Eggs sind aus — in den Settings unter Easter Eggs einschalten. "
+                "Sonst flach weiter: Settings oder normale Frage."
+            ),
+        )
+
     bits = health_bits or {}
+    if cmd == "hilfe":
+        return EggResult(handled=True, reply=capabilities_card())
     if cmd == "protokoll":
         reply = (
             f"Protokoll — lokal, nüchtern.\n"
@@ -146,11 +177,19 @@ def handle_easter_egg(
             ),
         )
     if cmd == "kante":
-        set_session_mood("kante")
-        return EggResult(handled=True, reply="Modus Kante — etwas schärfer. Weiter?", mood="kante")
+        set_session_mood("kante", conversation_id)
+        return EggResult(
+            handled=True,
+            reply="Modus Kante — etwas schärfer. Weiter?",
+            mood="kante",
+        )
     if cmd == "ruhe":
-        set_session_mood("ruhe")
-        return EggResult(handled=True, reply="Modus Ruhe — leiser Tritt. Weiter?", mood="ruhe")
+        set_session_mood("ruhe", conversation_id)
+        return EggResult(
+            handled=True,
+            reply="Modus Ruhe — leiser Tritt. Weiter?",
+            mood="ruhe",
+        )
     if cmd == "vergisswitz":
         return EggResult(handled=True, reply="__FORGET_JOKE__")
     if cmd == "quellen":
@@ -179,10 +218,8 @@ def maybe_moment(
         return None
     if moments_used_today() >= moment_cap(settings):
         return None
-    # Serious intents: no gimmick spam
     if intent in {"research", "task", "inject"}:
         if intent == "inject":
-            # Victory stays in meta only — reply must remain exact SAFE_INJECT (evals / DE canned)
             record_moment()
             return None
         return None

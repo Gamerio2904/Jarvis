@@ -23,6 +23,7 @@ export type ResearchMeta = {
   privacy_note?: string | null
   badge?: string | null
   audit_id?: string
+  status_label?: string | null
   network_attempted?: boolean
 }
 

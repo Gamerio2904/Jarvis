@@ -21,18 +21,20 @@ _POLICIES: dict[str, Policy] = {
         key="smalltalk",
         system_nudge=(
             "Policy smalltalk: Kurz, messenger-artig, frech-warm. "
-            "Kein Helpdesk, keine Tip-Listen, kein Memory-Dump."
+            "Kein Helpdesk, keine Tip-Listen, kein Memory-Dump. "
+            "Antworten Sie wirklich auf den Inhalt — keine leere Rückfrage-Schleife."
         ),
-        num_predict=120,
-        temperature=0.75,
+        num_predict=90,
+        temperature=0.72,
     ),
     "task": Policy(
         key="task",
         system_nudge=(
-            "Policy task: Klar und hilfreich, strukturiert in Prosa (keine nummerierten "
-            "Coach-Listen). Etwas länger ok, aber ohne Boilerplate."
+            "Policy task: Klar und hilfreich. Bei vagen Aufträgen EINE kurze Rückfrage "
+            "ODER Annahmen nennen und dann 2–4 konkrete Schritte. "
+            "Nummerierte Kurzlisten ok. Kein Helpdesk, kein Duzen."
         ),
-        num_predict=280,
+        num_predict=260,
         temperature=0.65,
         prefer_heavy=True,
     ),
@@ -49,10 +51,10 @@ _POLICIES: dict[str, Policy] = {
         key="helpdesk_trap",
         system_nudge=(
             "Policy helpdesk_trap: Nutzer baitet Support-Sprech. "
-            "Antworte als Jarvis, nie mit „Wie kann ich helfen?“."
+            "Antworte als Jarvis mit knapper Fähigkeiten-Karte, nie mit „Wie kann ich helfen?“."
         ),
-        num_predict=100,
-        temperature=0.6,
+        num_predict=80,
+        temperature=0.5,
     ),
     "research": Policy(
         key="research",

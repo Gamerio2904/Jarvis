@@ -30,6 +30,10 @@ SAFE_RESEARCH_JUNK = (
     "Kein brauchbares Suchthema — ich rate nicht und rufe kein Netz. "
     "Formuliere z.B. „Recherchiere …“ mit klarem Thema."
 )
+SAFE_RESEARCH_TIMEOUT = (
+    "Zeitüberschreitung beim Provider — kein Beleg, also kein Raten. "
+    "Später erneut versuchen oder Frage enger fassen."
+)
 PRIVACY_NOTE = (
     "Privacy: Nur die minimierte Such-Query geht an Allowlist-Provider — "
     "kein Chat-Verlauf."
@@ -246,6 +250,16 @@ class ResearchPack:
     reply: str | None = None
 
     def to_public(self) -> dict[str, Any]:
+        status_label = {
+            "blocked": "Research aus",
+            "ok": "Mit Quellen",
+            "empty": "Keine Quelle",
+            "error": "Provider-Fehler",
+        }.get(self.status)
+        if self.error == "junk_query":
+            status_label = "Thema unklar"
+        elif self.error and "timeout" in str(self.error).lower():
+            status_label = "Timeout"
         return {
             "used": self.status != "blocked",
             "status": self.status,
@@ -254,8 +268,9 @@ class ResearchPack:
             "error": self.error,
             "diverges": self.diverges,
             "privacy_note": self.privacy_note if self.status != "blocked" else None,
-            "badge": "Mit Quellen" if self.status == "ok" and self.sources else None,
+            "badge": "Mit Quellen" if self.status == "ok" and self.sources else status_label,
             "network_attempted": self.network_attempted,
+            "status_label": status_label,
         }
 
 
@@ -645,11 +660,16 @@ def synthesize_from_snippets(pack: ResearchPack) -> str:
         return SAFE_RESEARCH_OFF
     if pack.reply and pack.error == "junk_query":
         return pack.reply
+    err = (pack.error or "").lower()
     if pack.status == "error" and not pack.sources:
+        if "timeout" in err or "timed out" in err:
+            return SAFE_RESEARCH_TIMEOUT
         return SAFE_RESEARCH_NET_DOWN
     if pack.status != "ok" or not pack.sources:
         if pack.error == "junk_query":
             return SAFE_RESEARCH_JUNK
+        if "timeout" in err or "timed out" in err or "out of range" in err:
+            return SAFE_RESEARCH_TIMEOUT
         return SAFE_RESEARCH_NO_SOURCE
 
     parts: list[str] = []

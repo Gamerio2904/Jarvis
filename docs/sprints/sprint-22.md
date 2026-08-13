@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **MINOR** — neues nutzbares Fähigkeitsniveau nach Quality-Patches |
 | Ziel-Version | **`0.8.0`** |
 | Quelle | Deep-Test „Ergänzungen“ + Product-Richtung Assist (früher Sprint 21) |

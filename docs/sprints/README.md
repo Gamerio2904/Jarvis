@@ -24,11 +24,11 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 17 | [`sprint-17.md`](./sprint-17.md) | `0.6.2` | Research Polish (Should) | **READY FOR REVIEW** |
 | 18 | [`sprint-18.md`](./sprint-18.md) | `0.7.0` | Delight + Settings | **READY FOR REVIEW** |
 | 19 | [`sprint-19.md`](./sprint-19.md) | `0.7.1` | Quality Hotfix | **READY FOR REVIEW** |
-| 20 | [`sprint-20.md`](./sprint-20.md) | `0.7.2` | Reply Quality Polish (Canned/Recall/CJK) | **PLANNED** |
-| 21 | [`sprint-21.md`](./sprint-21.md) | `0.7.3` | Delight & Session Polish | **PLANNED** |
-| 22 | [`sprint-22.md`](./sprint-22.md) | `0.8.0` | Assist Clarity (Clarify/`/hilfe`/Stream/UX) | **PLANNED** |
+| 20 | [`sprint-20.md`](./sprint-20.md) | `0.7.2` | Reply Quality Polish (Canned/Recall/CJK) | **READY FOR REVIEW** (in `0.8.0`) |
+| 21 | [`sprint-21.md`](./sprint-21.md) | `0.7.3` | Delight & Session Polish | **READY FOR REVIEW** (in `0.8.0`) |
+| 22 | [`sprint-22.md`](./sprint-22.md) | `0.8.0` | Assist Clarity (Clarify/`/hilfe`/Stream/UX) | **READY FOR REVIEW** |
 
-**Nächste Pull-Reihenfolge:** Sprint **20** (`0.7.2`) → **21** (`0.7.3`) → **22** (`0.8.0`).  
+**Nächste Pull-Reihenfolge:** Deep-Test `0.8.0` → optional Hotfix `0.8.1`.
 Optional danach: `0.8.1` nur nach Deep-Test. PO-Review/Tags `v0.7.0`/`v0.7.1` parallel möglich.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  

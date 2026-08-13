@@ -30,25 +30,38 @@ function prefersReducedMotion(): boolean {
 
 function SourcesBlock({ research }: { research: ResearchMeta }) {
   const sources = research.sources || []
-  if (!sources.length) return null
+  const status = research.status_label || research.badge || research.status
+  const query = research.query
+  if (!sources.length && !status && !query) return null
   return (
-    <details className="sources-block">
+    <details className="sources-block" open={Boolean(sources.length)}>
       <summary>
-        <span className="sources-badge">{research.badge || 'Mit Quellen'}</span>
-        <span className="sources-count">
-          {sources.length} Quelle{sources.length === 1 ? '' : 'n'}
-        </span>
+        <span className="sources-badge">{status || 'Research'}</span>
+        {sources.length ? (
+          <span className="sources-count">
+            {sources.length} Quelle{sources.length === 1 ? '' : 'n'}
+          </span>
+        ) : null}
+        {query ? <span className="sources-query"> · {query}</span> : null}
       </summary>
-      <ul className="sources-list">
-        {sources.map((s, i) => (
-          <li key={`${s.url}-${i}`}>
-            <a href={s.url} target="_blank" rel="noreferrer">
-              [{i + 1}] {s.title}
-            </a>
-            <p>{s.snippet}</p>
-          </li>
-        ))}
-      </ul>
+      {sources.length ? (
+        <ul className="sources-list">
+          {sources.map((s, i) => (
+            <li key={`${s.url}-${i}`}>
+              <a href={s.url} target="_blank" rel="noreferrer">
+                [{i + 1}] {s.title}
+              </a>
+              <p>{s.snippet}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="sources-empty">
+          {research.error
+            ? `${research.status || 'Status'} · ${research.error}`
+            : `${research.status || 'Status'} — keine Quellen.`}
+        </p>
+      )}
       {research.privacy_note ? (
         <p className="sources-privacy">{research.privacy_note}</p>
       ) : null}
@@ -264,7 +277,7 @@ function App() {
     setBusy(true)
     setError(null)
     setLastFailed(null)
-    setStatusNote(null)
+    setStatusNote('Jarvis schreibt…')
     setStreamingText('')
     setStreamResearch(null)
     stickToBottomRef.current = true
@@ -408,7 +421,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.7.1</p>
+            <p>lokal · privat · v0.8.0</p>
           </div>
         </div>
 
@@ -427,7 +440,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.7.1'} · lokal · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.8.0'} · lokal · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
@@ -741,7 +754,7 @@ function App() {
                   ) : null}
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
-                    {m.role === 'assistant' && m.meta?.research?.sources?.length ? (
+                    {m.role === 'assistant' && m.meta?.research ? (
                       <SourcesBlock research={m.meta.research} />
                     ) : null}
                   </div>
@@ -759,7 +772,7 @@ function App() {
                         {streamingText}
                         <span className="stream-caret" aria-hidden />
                       </div>
-                      {streamResearch?.sources?.length ? (
+                      {streamResearch ? (
                         <SourcesBlock research={streamResearch} />
                       ) : null}
                     </>

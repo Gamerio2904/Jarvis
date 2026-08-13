@@ -18,18 +18,22 @@ from . import delight as delight_mod
 from . import research as research_mod
 from . import router as router_mod
 from .guards import (
+    SAFE_CAPABILITIES,
     SAFE_DEGENERATE,
     SAFE_HELPDESK_TRAP,
     SAFE_INJECT,
     SAFE_MEMORY_REFUSE_FALSE,
+    SAFE_MEMORY_SOFT_CONFIRM,
     SAFE_NO_HELPDESK,
     SAFE_SETTINGS,
     SAFE_TASK,
+    SAFE_TASK_CLARIFY,
     boilerplate_hits,
     force_strict_refuse_if_needed,
     is_bad_memory_canned,
     is_guarded_canned,
     looks_like_identity_leak,
+    looks_like_vague_task,
     needs_retry,
     strip_emoji,
     user_looks_kaputt,
@@ -44,8 +48,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.7.1")
-APP_VERSION = "0.7.1"
+app = FastAPI(title="Jarvis API", version="0.8.0")
+APP_VERSION = "0.8.0"
 
 app.add_middleware(
     CORSMiddleware,
@@ -238,6 +242,8 @@ def _settings_fact_reply(user_text: str, settings: dict[str, Any]) -> str | None
             "Settings → Forschung → Research-Opt-in an. "
             "Dann z.B. „Recherchiere …“ — Antworten nur mit Quellen, sonst Refuse."
         )
+    if re.search(r"(?is)was\s+kannst\s+(?:du|sie)\s+alles|fähigkeiten|/hilfe", t):
+        return delight_mod.capabilities_card()
     if "einstellung" in low or low.startswith("/"):
         return None
     return None
@@ -273,13 +279,16 @@ def _prepare_chat_context(
         user_text, conversation_id=conversation_id
     )
     # Soft-harvest only outside explicit memory ops / non-memory smalltalk
-    memory_mod.harvest_soft_facts(
+    soft_notes = memory_mod.harvest_soft_facts(
         user_text,
         conversation_id=conversation_id,
         skip=mem_op != "none" or bool(notes) or route.intent == "inject",
         confidence=float(settings.get("soft_harvest_confidence", 0.55)),
         ttl_days=float(settings.get("soft_harvest_ttl_days", 14)),
     )
+    if soft_notes and mem_op == "none":
+        mem_op = "soft_confirm"
+        notes = [*notes, *soft_notes]
 
     mem_limit = int(settings.get("memory_retrieve_limit", 8))
     # Smalltalk / inject / research: no ambient memory leak
@@ -300,11 +309,17 @@ def _prepare_chat_context(
             min_confidence=float(settings.get("memory_min_inject_confidence", 0.4)),
         )
 
-    # Recall only when router says so (or explicit recall question) — not every token hit
-    if mem_op == "none" and items and (
+    # Recall when router says so — even if retrieve empty (Sprint 20 R2)
+    if mem_op == "none" and (
         route.memory_sub == "memory.recall"
         or memory_mod.looks_like_recall_question(user_text)
     ):
+        mem_op = "recall"
+        if items:
+            notes = [f"Recall: {it['key']} = {it['value']}" for it in items[:4]]
+        else:
+            notes = ["Recall: (nichts Passendes gefunden)"]
+    elif mem_op == "none" and items and route.memory_sub == "memory.recall":
         mem_op = "recall"
         notes = [f"Recall: {it['key']} = {it['value']}" for it in items[:4]]
 
@@ -374,6 +389,14 @@ def _finalize_turn_reply(
         if boilerplate_hits(reply):
             return memory_mod.ack_reply_for_recall(memory_notes)
         return reply
+    if memory_op == "soft_confirm":
+        if is_bad_memory_canned(reply) or "merken" not in reply.lower():
+            # Build confirm from soft notes
+            soft = [n.split("=", 1)[-1].strip() for n in memory_notes if n.startswith("Soft:")]
+            if soft:
+                return f"Kurz notiert (TTL): {soft[0]}. So merken?"
+            return SAFE_MEMORY_SOFT_CONFIRM
+        return strip_emoji(reply)
     if memory_op == "clarify":
         cleaned = strip_emoji(reply)
         if is_bad_memory_canned(cleaned) or cleaned.strip() in {
@@ -550,18 +573,39 @@ async def _generate_reply(
     if intent == "inject":
         return SAFE_INJECT
 
-    # Q4/Q8: settings facts without LLM drift
-    if intent == "settings":
+    # Q4/Q8 + R6: settings / capabilities facts without LLM drift
+    if intent in {"settings", "helpdesk_trap"}:
         fact = _settings_fact_reply(user_text, settings)
         if fact:
             return fact
+        if intent == "helpdesk_trap":
+            return SAFE_CAPABILITIES
+
+    # Soft-confirm after soft harvest — skip LLM waffle
+    if memory_op == "soft_confirm":
+        soft = [n.split("=", 1)[-1].strip() for n in (memory_notes or []) if n.startswith("Soft:")]
+        if soft:
+            return f"Kurz notiert (TTL): {soft[0]}. So merken?"
+        return SAFE_MEMORY_SOFT_CONFIRM
+
+    # Sprint 22 A1: vague tasks → clarify-first canned (or LLM with strong nudge)
+    if intent == "task" and looks_like_vague_task(user_text):
+        return SAFE_TASK_CLARIFY
 
     kwargs = _completion_kwargs(settings, model, system)
+    # Sprint 21 D5: fewer retries on smalltalk
+    default_retries = 1 if intent in {"smalltalk", "helpdesk_trap"} else 2
+    retries = int(settings.get("guard_max_retries", default_retries))
+    if intent in {"smalltalk", "helpdesk_trap"}:
+        retries = min(retries, 1)
+
     reply = await chat_completion(**kwargs, messages=llm_messages)
-    retries = int(settings.get("guard_max_retries", 2))
     attempt = 0
     nudge = _regen_nudge_for(user_text, memory_op, intent=intent)
-    while needs_retry(reply, recent_assistant, intent=intent) and attempt < retries:
+    while (
+        needs_retry(reply, recent_assistant, intent=intent, memory_op=memory_op)
+        and attempt < retries
+    ):
         attempt += 1
         regen_messages = [*llm_messages, {"role": "user", "content": nudge}]
         reply = await chat_completion(**kwargs, messages=regen_messages)
@@ -761,22 +805,28 @@ def _resolve_easter_egg_reply(
     *,
     settings: dict[str, Any],
     model: str | None = None,
+    conversation_id: str | None = None,
 ) -> tuple[str | None, dict[str, Any] | None]:
     """Return (reply, delight_meta) if an easter egg handled the turn."""
     egg = delight_mod.handle_easter_egg(
         content,
         settings=settings,
         health_bits=_health_bits_for_eggs(settings, model),
+        conversation_id=conversation_id,
     )
     if not egg.handled:
         return None, None
     if egg.reply == "__FORGET_JOKE__":
         jokes = db.list_memory_items(limit=20, category="joke", include_expired=True)
+        mood = delight_mod.get_session_mood(conversation_id)
         if jokes:
             db.delete_memory_item(jokes[0]["id"])
-            return "Witz-Pin ist weg.", {"egg": "vergissWitz", "mood": delight_mod.get_session_mood()}
-        return "Kein Joke-Pin vorhanden.", {"egg": "vergissWitz", "mood": delight_mod.get_session_mood()}
-    meta = {"egg": delight_mod.parse_egg_command(content), "mood": egg.mood or delight_mod.get_session_mood()}
+            return "Witz-Pin ist weg.", {"egg": "vergissWitz", "mood": mood}
+        return "Kein Joke-Pin vorhanden.", {"egg": "vergissWitz", "mood": mood}
+    meta = {
+        "egg": delight_mod.parse_egg_command(content),
+        "mood": egg.mood or delight_mod.get_session_mood(conversation_id),
+    }
     return egg.reply, meta
 
 
@@ -786,8 +836,9 @@ def _append_delight_flavor(
     settings: dict[str, Any],
     intent: str | None,
     memory_op: str | None,
+    conversation_id: str | None = None,
 ) -> tuple[str, dict[str, Any]]:
-    delight: dict[str, Any] = {"mood": delight_mod.get_session_mood()}
+    delight: dict[str, Any] = {"mood": delight_mod.get_session_mood(conversation_id)}
     moment = delight_mod.maybe_moment(
         settings=settings,
         intent=intent,
@@ -847,7 +898,10 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
             settings, prefer_heavy=policy.prefer_heavy
         )
         egg_reply, egg_meta = _resolve_easter_egg_reply(
-            content, settings=settings, model=model
+            content,
+            settings=settings,
+            model=model,
+            conversation_id=conversation_id,
         )
         if egg_reply is not None:
             reply = egg_reply
@@ -880,6 +934,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
                     settings=settings,
                     intent=route_dbg.get("intent"),
                     memory_op=mem_op,
+                    conversation_id=conversation_id,
                 )
     except OllamaError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
@@ -993,7 +1048,10 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
         )
 
         egg_reply, egg_meta = _resolve_easter_egg_reply(
-            content, settings=settings, model=model
+            content,
+            settings=settings,
+            model=model,
+            conversation_id=conversation_id,
         )
         if egg_reply is not None:
             yield sse({"type": "replace", "content": egg_reply})
@@ -1058,6 +1116,62 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 )
                 return
 
+        if intent == "helpdesk_trap":
+            final = _settings_fact_reply(content, settings) or SAFE_CAPABILITIES
+            yield sse({"type": "replace", "content": final})
+            saved = db.add_message(conversation_id, "assistant", final)
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": True,
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                }
+            )
+            return
+
+        if mem_op == "soft_confirm":
+            soft = [n.split("=", 1)[-1].strip() for n in mem_notes if n.startswith("Soft:")]
+            final = (
+                f"Kurz notiert (TTL): {soft[0]}. So merken?"
+                if soft
+                else SAFE_MEMORY_SOFT_CONFIRM
+            )
+            yield sse({"type": "replace", "content": final})
+            saved = db.add_message(conversation_id, "assistant", final)
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": True,
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                }
+            )
+            return
+
+        if intent == "task" and looks_like_vague_task(content):
+            final = SAFE_TASK_CLARIFY
+            yield sse({"type": "replace", "content": final})
+            saved = db.add_message(conversation_id, "assistant", final)
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": True,
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                }
+            )
+            return
+
         if intent == "research" and research_pack is not None:
             final = await _resolve_research_reply(
                 pack=research_pack,
@@ -1098,6 +1212,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
         final = ""
         attempt = 0
         nudge = _regen_nudge_for(content, mem_op, intent=intent)
+        max_retries = min(retries, 1) if intent in {"smalltalk", "helpdesk_trap"} else retries
         while True:
             acc: list[str] = []
             try:
@@ -1111,7 +1226,10 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                 return
 
             candidate = "".join(acc).strip()
-            if not needs_retry(candidate, recent, intent=intent) or attempt >= retries:
+            if (
+                not needs_retry(candidate, recent, intent=intent, memory_op=mem_op)
+                or attempt >= max_retries
+            ):
                 final = force_strict_refuse_if_needed(
                     candidate,
                     recent,

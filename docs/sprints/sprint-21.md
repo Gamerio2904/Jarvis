@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **Should** — nach Reply-Quality `0.7.2` |
 | Ziel-Version | **`0.7.3`** |
 | Quelle | Rest aus altem Sprint-20-Plan + `0.7.0`/`0.7.1` Shoulds (Mood, Eggs, Research-UX, Latenz) |

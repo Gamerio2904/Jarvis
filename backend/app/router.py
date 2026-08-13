@@ -27,7 +27,7 @@ _INJECT_RE = re.compile(
     r"ignore\s+(all\s+)?(previous|prior|above)\s+instructions|"
     r"system[\s\-]*prompt|"
     r"jailbreak|"
-    r"pwned|hacked|owned|"
+    r"pwned|hacked|owned|hacked_ok|"
     r"reveal\s+(your\s+)?(system|hidden)[\s\-]*prompt|"
     r"(?:gib|zeig|zeige|zeige\s+mir)\s+(?:mir\s+)?(?:das\s+)?system[\s\-]*prompt|"
     r"du\s+bist\s+jetzt\s+(?:DAN|ein\s+pirat|pirate)|"
@@ -36,7 +36,8 @@ _INJECT_RE = re.compile(
     r"persona\s+to\s+pirate|"
     r"pirate\s+speak|"
     r"vergiss\s+deine\s+regeln|"
-    r"roleplay\s+as\b"
+    r"roleplay\s+as\b|"
+    r"füge\s+in\s+die\s+antwort\s+ein"
     r")\b"
 )
 _RESEARCH_NEGATION_RE = re.compile(
@@ -94,7 +95,7 @@ _SETTINGS_RE = re.compile(
     r"einstellungen|"
     r"settings|"
     r"easter\s*egg|"
-    r"/protokoll|/mission|/kante"
+    r"/protokoll|/mission|/kante|/hilfe|/quellen"
     r")\b)"
 )
 _TASK_RE = re.compile(

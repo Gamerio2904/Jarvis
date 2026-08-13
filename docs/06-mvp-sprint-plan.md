@@ -358,7 +358,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 20 — Reply Quality Polish → **`0.7.2`** *(prio)*
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW (mitgeliefert in `0.8.0`)  
 **Artefakt:** [`sprints/sprint-20.md`](./sprints/sprint-20.md)  
 **Quelle:** Deep-Test nach `0.7.1`
 
@@ -375,7 +375,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 21 — Delight & Session Polish → **`0.7.3`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW (mitgeliefert in `0.8.0`)  
 **Artefakt:** [`sprints/sprint-21.md`](./sprints/sprint-21.md)
 
 | Must | Inhalt |
@@ -388,7 +388,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 22 — Assist Clarity → **`0.8.0`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-22.md`](./sprints/sprint-22.md)
 
 | Must | Inhalt |

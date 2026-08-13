@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **HIGH** — vor Delight-Polish und Assist |
 | Ziel-Version | **`0.7.2`** |
 | Quelle | Deep-Test Feedback zu Sprint 19 / `0.7.1` |

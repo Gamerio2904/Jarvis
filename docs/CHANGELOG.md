@@ -5,28 +5,29 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.8.0` — Sprint 22 (Assist Clarity) — *READY FOR REVIEW* (liefert auch 0.7.2 + 0.7.3)
+
+- Clarify-First bei vagen Tasks; `/hilfe` Fähigkeiten-Karte; Streaming-Status „Jarvis schreibt…“
+- Research-UI-Echo (`status_label` / Query); Memory Soft-Confirm nach Soft-Harvest
+- Eval `scripts/eval_0_8_0.py`, Version `0.8.0`
+
+### `0.7.3` — Sprint 21 (Delight & Session Polish) — *READY FOR REVIEW* (mitgeliefert in `0.8.0`)
+
+- Mood pro Conversation; Eggs-off deterministisch; Research-Fehler-UX; Soft-Latenz Smalltalk
+- Eval `scripts/eval_0_7_3.py`
+
+### `0.7.2` — Sprint 20 (Reply Quality Polish) — *READY FOR REVIEW* (mitgeliefert in `0.8.0`)
+
+- SAFE_SMALLTALK drosseln / Duzen weicher; Memory-Recall ohne Helpdesk-Canned; CJK→Task-Fallback
+- Capabilities-Fakt; Soft-Inject-Härte
+- Eval `scripts/eval_0_7_2.py`
+
 ### `0.7.1` — Sprint 19 (Quality Hotfix) — *READY FOR REVIEW*
 
 - Settings-Clamp (`research_timeout_sec` u. a.); Guard-Entschärfung; Task-Listen bleiben Inhalt
 - Settings-Fakten (Modell/Version/Research); Research Junk-Refuse + Negation
 - Inject-Härte (Pirate/System-Prompt); Anti-Identitäts-Halluzination
 - Eval `scripts/eval_0_7_1.py`, Version `0.7.1`
-
-### Geplant — `0.7.2` / Sprint 20 (Reply Quality Polish)
-
-- SAFE_SMALLTALK drosseln; Memory-Recall ohne Helpdesk; CJK/Task-Leak
-- Multi-Turn nicht canned-killen; Capabilities-Fakt
-- [`sprints/sprint-20.md`](./sprints/sprint-20.md)
-
-### Geplant — `0.7.3` / Sprint 21 (Delight & Session Polish)
-
-- Mood pro Conversation; Eggs-off; Research-Fehler-UX; Soft-Latenz
-- [`sprints/sprint-21.md`](./sprints/sprint-21.md)
-
-### Geplant — `0.8.0` / Sprint 22 (Assist Clarity)
-
-- Clarify-First; `/hilfe`; Streaming-UX; Research-Echo; Memory Soft-Confirm
-- [`sprints/sprint-22.md`](./sprints/sprint-22.md)
 
 ### `0.7.0` — Sprint 18 (Delight + Settings) — *READY FOR REVIEW*
 

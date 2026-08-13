@@ -7,7 +7,6 @@ SAFE_REFUSAL = (
     "Womit weitermachen — Quatsch oder Ernst?"
 )
 
-# Explicit inject-turn canned (Sprint 13) — immer Deutsch, nie EN-Helpdesk.
 SAFE_INJECT = (
     "Netter Versuch. Regeln bleiben. "
     "Quatsch oder Ernst — was liegt an?"
@@ -18,7 +17,6 @@ SAFE_DEGENERATE = (
     "was liegt an?"
 )
 
-# Jarvis-toned fallbacks (Sprint 5) — statt Helpdesk / leerer Aussetzer.
 SAFE_NO_HELPDESK = (
     "Kein Helpdesk hier. "
     "Smalltalk oder Ernst — was liegt an?"
@@ -29,28 +27,43 @@ SAFE_CHARACTER = (
     "Kante oder Ruhe, was soll's sein?"
 )
 
-# Non-memory intent fallbacks (Sprint 13 F4) — nie finaler Aussetzer.
 SAFE_TASK = (
     "Kurzer Entwurf: 1) Ziel in einem Satz, 2) zwei bis drei Schritte, "
     "3) ein Check am Ende. Welches Ziel genau?"
 )
+
+SAFE_TASK_CLARIFY = (
+    "Kurz nachgefragt — Annahmen sonst: überschaubarer Block. "
+    "Welches Ziel, wie viel Zeit, eine Priorität?"
+)
+
 SAFE_SETTINGS = (
     "Lokaler Modus — Slash-Befehle und Settings kommen flach, ohne Nested-Menü. "
     "Was wollen Sie einstellen?"
 )
+
 SAFE_HELPDESK_TRAP = (
-    "Kein Support-Skript hier. "
-    "Lokal: Smalltalk, Memory, optional Research mit Quellen, Settings/Eggs. "
-    "Konkrete Aufgabe oder Quatsch — was liegt an?"
+    "Lokal, ohne Cloud-Hirn: Smalltalk, Memory (merken/recall), "
+    "optional Research mit Quellen (Opt-in), Settings und Eggs. "
+    "Kein Support-Skript — konkrete Aufgabe oder Quatsch?"
 )
 
-# Soft smalltalk fallback — never the Helpdesk canned on light chat (Sprint 19).
+SAFE_CAPABILITIES = (
+    "Kurz die Karte: Smalltalk · Memory merken/vergessen · "
+    "Research nur mit Opt-in und Quellen · Settings/Eggs (/hilfe, /protokoll). "
+    "Kein freies Netz, keine Cloud. Was liegt an?"
+)
+
 SAFE_SMALLTALK = (
     "Alles klar. Kurz und ohne Theater — "
     "worum geht's?"
 )
 
-# Identity brands Jarvis must never claim (Sprint 19 Q8).
+SAFE_EGGS_OFF = (
+    "Easter Eggs sind aus — in den Settings unter Easter Eggs einschalten. "
+    "Sonst flach weiter: Settings oder normale Frage."
+)
+
 _IDENTITY_LEAK_RE = re.compile(
     r"(?i)\b("
     r"claude|chatgpt|gpt[\-\s]?[0-9]|openai|"
@@ -59,7 +72,6 @@ _IDENTITY_LEAK_RE = re.compile(
     r")\b"
 )
 
-# Memory-turn safe canned (Sprint 9 / 0.4.1) — nie Helpdesk/Aussetzer nach Merk/Vergiss.
 SAFE_MEMORY_ACK = "Notiert. Was sonst?"
 SAFE_MEMORY_FORGET = "Ist weg. Weiter?"
 SAFE_MEMORY_RECALL = "Dazu habe ich etwas notiert — welche Detailfrage genau?"
@@ -67,11 +79,11 @@ SAFE_MEMORY_CLARIFY = "Korrigiert. So merken?"
 SAFE_MEMORY_REFUSE_FALSE = (
     "Noch nicht gespeichert — formulier's als „Merk dir: …“, dann sitzt's."
 )
+SAFE_MEMORY_SOFT_CONFIRM = "Kurz unsicher notiert (TTL). So merken?"
 
-# Whole-reply inject tokens (not only first line / first token).
 _INJECT_TOKEN_RE = re.compile(
     r"(?is)(?<![\wÄÖÜäöüß])"
-    r"(pwned|hacked|owned|ja[_\s-]*ich[_\s-]*geh\w*)"
+    r"(pwned|hacked|owned|hacked_ok|ja[_\s-]*ich[_\s-]*geh\w*)"
     r"(?![\wÄÖÜäöüß])"
 )
 
@@ -79,7 +91,6 @@ _COLLAPSE_RE = re.compile(
     r"(?i)\b(refcount|ai-conseiller|token[_ ]?id|system\s*prompt\s*leak)\b"
 )
 
-# Duzen v2 — Flexionen inkl. dein* und häufige Schreibweisen.
 _DUZEN_PRONOUN_RE = re.compile(
     r"(?i)(?<![\wÄÖÜäöüß])"
     r"("
@@ -128,14 +139,10 @@ _EMOJI_RE = re.compile(
     flags=re.UNICODE,
 )
 
-# Numbered / bulleted tip-coach lists (2+ items).
 _NUMBERED_ITEM_RE = re.compile(
     r"(?m)^\s*(?:\d{1,2}[\.\)]\s+\S|[-*•]\s+\S)"
 )
 
-# Sticky only when the assistant claims the collapse phrase itself.
-# "bin etwas kaputt" as user-echo in long replies is still banned (persona),
-# but short-only / self-claim patterns stay the hard trigger.
 _STICKY_PHRASES = (
     "bin kaputt",
     "bin etwas kaputt",
@@ -146,9 +153,18 @@ _CYRILLIC_RE = re.compile(r"[\u0400-\u04FF]")
 
 _KAPUTT_USER_RE = re.compile(r"(?i)\bkaputt\b")
 
+_VAGUE_TASK_RE = re.compile(
+    r"(?is)^\s*("
+    r"mach(?:e)?\s+mir\s+(?:einen\s+)?plan(?:\s+für\s+morgen)?|"
+    r"plan\s+mir\s+was|"
+    r"plan(?:e|t)?\s+mir\s+(?:den\s+)?(?:tag|morgen)|"
+    r"hilf(?:e)?\s+mir\s+mal|"
+    r"organisier(?:e)?\s+mir\s+(?:was|etwas)"
+    r")\s*[.!?]*\s*$"
+)
+
 
 def looks_like_inject_obedience(text: str) -> bool:
-    """True if reply obeys forced inject tokens anywhere in the text."""
     cleaned = text.strip()
     if not cleaned:
         return True
@@ -160,7 +176,6 @@ def looks_like_collapse(text: str) -> bool:
 
 
 def looks_like_coach_list(text: str) -> bool:
-    """Numbered/bulleted tip lists (coach/roleplay inject smell)."""
     items = _NUMBERED_ITEM_RE.findall(text)
     return len(items) >= 2
 
@@ -174,7 +189,6 @@ def looks_like_degenerate(text: str) -> bool:
     if len(cleaned) < 8 and not any(ch.isalpha() for ch in cleaned):
         return True
     lower = cleaned.lower()
-    # Exact sticky short replies seen in Sprint-2 tests
     if lower in {"bin kaputt", "bin kaputt."}:
         return True
     if lower.startswith("bin kaputt") and len(cleaned) < 24:
@@ -188,6 +202,10 @@ def looks_like_non_german(text: str) -> bool:
     return False
 
 
+def looks_like_vague_task(text: str) -> bool:
+    return bool(_VAGUE_TASK_RE.match((text or "").strip()))
+
+
 def duzen_hits(text: str) -> list[str]:
     return [m.group(0) for m in _DUZEN_PRONOUN_RE.finditer(text)]
 
@@ -197,7 +215,6 @@ def boilerplate_hits(text: str) -> list[str]:
 
 
 def sticky_hits(text: str, recent_assistant: list[str] | None = None) -> bool:
-    """Sticky: assistant must not claim „Bin kaputt“ (anywhere)."""
     lower = text.strip().lower()
     for phrase in _STICKY_PHRASES:
         if phrase in lower:
@@ -209,36 +226,6 @@ def user_looks_kaputt(user_text: str | None) -> bool:
     if not user_text:
         return False
     return bool(_KAPUTT_USER_RE.search(user_text))
-
-
-def needs_retry(
-    text: str,
-    recent_assistant: list[str] | None = None,
-    *,
-    intent: str | None = None,
-) -> bool:
-    if looks_like_inject_obedience(text):
-        return True
-    if looks_like_collapse(text):
-        return True
-    if looks_like_degenerate(text):
-        return True
-    if looks_like_identity_leak(text):
-        return True
-    # Numbered plans are valid task output — don't burn retries on them
-    if looks_like_coach_list(text) and intent != "task":
-        return True
-    if looks_like_non_german(text):
-        return True
-    if looks_like_en_leak(text):
-        return True
-    if duzen_hits(text):
-        return True
-    if boilerplate_hits(text):
-        return True
-    if sticky_hits(text, recent_assistant):
-        return True
-    return False
 
 
 def looks_like_en_leak(text: str) -> bool:
@@ -253,6 +240,57 @@ def looks_like_identity_leak(text: str) -> bool:
     return bool(_IDENTITY_LEAK_RE.search(text or ""))
 
 
+def soften_duzen(text: str) -> str:
+    """Light pronoun repair — prefer content over canned (Sprint 20 R4)."""
+    t = text or ""
+    reps = [
+        (r"(?i)\bdein(?:e[rnms]?)?\b", "Ihr"),
+        (r"(?i)\bdir\b", "Ihnen"),
+        (r"(?i)\bdich\b", "Sie"),
+        (r"(?i)\bdu\b", "Sie"),
+    ]
+    for pat, repl in reps:
+        t = re.sub(pat, repl, t)
+    # Fix doubled Ihr/Ihr — crude cleanup
+    t = re.sub(r"\bIhr\b(?=\s+\w)", "Ihr", t)
+    return re.sub(r"\s+", " ", t).strip() if False else t
+
+
+def strip_en_leak_words(text: str) -> str:
+    return _EN_LEAK_RE.sub("", text or "").strip()
+
+
+def needs_retry(
+    text: str,
+    recent_assistant: list[str] | None = None,
+    *,
+    intent: str | None = None,
+    memory_op: str | None = None,
+) -> bool:
+    if looks_like_inject_obedience(text):
+        return True
+    if looks_like_collapse(text):
+        return True
+    if looks_like_degenerate(text):
+        return True
+    if looks_like_identity_leak(text):
+        return True
+    if looks_like_non_german(text):
+        return True
+    if looks_like_coach_list(text) and intent != "task":
+        return True
+    if boilerplate_hits(text):
+        return True
+    # Duzen: retry once for repair; don't treat as hard-fail forever
+    if duzen_hits(text) and intent in {"task", "smalltalk", "memory", None}:
+        return True
+    if looks_like_en_leak(text):
+        return True
+    if sticky_hits(text, recent_assistant):
+        return True
+    return False
+
+
 def intent_safe_fallback(intent: str | None) -> str | None:
     if intent == "inject":
         return SAFE_INJECT
@@ -261,9 +299,11 @@ def intent_safe_fallback(intent: str | None) -> str | None:
     if intent == "settings":
         return SAFE_SETTINGS
     if intent == "helpdesk_trap":
-        return SAFE_HELPDESK_TRAP
+        return SAFE_CAPABILITIES
     if intent == "smalltalk":
         return SAFE_SMALLTALK
+    if intent == "memory":
+        return SAFE_MEMORY_RECALL
     return None
 
 
@@ -276,6 +316,16 @@ def _memory_safe_fallback(memory_op: str | None) -> str | None:
         return SAFE_MEMORY_RECALL
     if memory_op == "clarify":
         return SAFE_MEMORY_CLARIFY
+    if memory_op == "soft_confirm":
+        return SAFE_MEMORY_SOFT_CONFIRM
+    return None
+
+
+def _effective_memory_op(memory_op: str | None, intent: str | None) -> str | None:
+    if memory_op and memory_op not in {"none", ""}:
+        return memory_op
+    if intent == "memory":
+        return "recall"
     return None
 
 
@@ -304,50 +354,92 @@ def force_strict_refuse_if_needed(
     memory_op: str | None = None,
     intent: str | None = None,
 ) -> str:
-    """Final pass after retries — intent-aware (Sprint 13 + 19).
-
-    - inject / inject-obedience → SAFE_INJECT (DE), nie EN-Helpdesk
-    - task + numbered plan lists → durchlassen (Inhalt), nicht SAFE_TASK
-    - smalltalk: Duzen/Boilerplate → SAFE_SMALLTALK, nicht Helpdesk
-    - identity leak (Claude/…) → Intent-Fallback / Settings-Fakten
-    """
+    """Final pass — Sprint 20: prefer repair over SAFE_SMALLTALK hammer."""
     cleaned = strip_emoji(text.strip())
+    mem_op = _effective_memory_op(memory_op, intent)
 
-    # Hard inject path
     if intent == "inject" or looks_like_inject_obedience(cleaned):
         return SAFE_INJECT
     if looks_like_collapse(cleaned):
-        return intent_safe_fallback(intent) or SAFE_INJECT
+        return (
+            _memory_safe_fallback(mem_op)
+            or intent_safe_fallback(intent)
+            or SAFE_INJECT
+        )
 
     if looks_like_identity_leak(cleaned):
         return (
-            _memory_safe_fallback(memory_op)
+            _memory_safe_fallback(mem_op)
             or intent_safe_fallback(intent)
             or SAFE_SETTINGS
         )
 
-    # Coach lists: on task these ARE the answer — keep them (Sprint 19 Q3)
+    # Memory turns: never Helpdesk/Smalltalk/Capabilities canned (Sprint 20 R2)
+    if mem_op:
+        if (
+            is_bad_memory_canned(cleaned)
+            or looks_like_non_german(cleaned)
+            or looks_like_degenerate(cleaned)
+            or boilerplate_hits(cleaned)
+        ):
+            return _memory_safe_fallback(mem_op) or SAFE_MEMORY_RECALL
+        if duzen_hits(cleaned):
+            softened = soften_duzen(cleaned)
+            if not duzen_hits(softened):
+                return softened
+            return _memory_safe_fallback(mem_op) or softened
+        if looks_like_en_leak(cleaned):
+            stripped = strip_en_leak_words(cleaned)
+            if stripped and not looks_like_en_leak(stripped):
+                return stripped
+            return _memory_safe_fallback(mem_op) or SAFE_MEMORY_RECALL
+        return cleaned
+
+    # Coach lists: keep for task; strip CJK first
     if looks_like_coach_list(cleaned):
         if intent == "task":
+            if looks_like_non_german(cleaned):
+                return SAFE_TASK
+            if duzen_hits(cleaned):
+                softened = soften_duzen(cleaned)
+                return softened
             return cleaned
         if intent in {"smalltalk", "helpdesk_trap", "settings", None}:
             return intent_safe_fallback(intent) or SAFE_SMALLTALK
         return intent_safe_fallback(intent) or SAFE_NO_HELPDESK
 
+    # Hard boilerplate → intent/memory fallback
     if boilerplate_hits(cleaned):
-        # Smalltalk/task: soft fallback, not the Helpdesk hammer
-        if intent in {"smalltalk", "task"}:
-            return (
-                _memory_safe_fallback(memory_op)
-                or intent_safe_fallback(intent)
-                or SAFE_SMALLTALK
-            )
         return (
-            _memory_safe_fallback(memory_op)
+            _memory_safe_fallback(mem_op)
             or intent_safe_fallback(intent)
             or SAFE_NO_HELPDESK
         )
 
+    # CJK / non-DE (Sprint 20 R3)
+    if looks_like_non_german(cleaned):
+        if intent == "task":
+            return SAFE_TASK
+        return (
+            _memory_safe_fallback(mem_op)
+            or intent_safe_fallback(intent)
+            or SAFE_TASK
+        )
+
+    # Duzen: soften first — do NOT dump to SAFE_SMALLTALK (R1/R4)
+    if duzen_hits(cleaned):
+        softened = soften_duzen(cleaned)
+        if not duzen_hits(softened):
+            return softened
+        if intent == "task":
+            return softened if looks_like_coach_list(softened) else SAFE_TASK
+        if intent == "smalltalk":
+            return softened  # keep content over canned
+        if user_looks_kaputt(user_text):
+            return SAFE_CHARACTER
+        return softened
+
+    # Light EN leak: strip words before canned
     if looks_like_en_leak(cleaned) and intent in {
         "inject",
         "smalltalk",
@@ -356,14 +448,17 @@ def force_strict_refuse_if_needed(
         "task",
         None,
     }:
+        stripped = strip_en_leak_words(cleaned)
+        if len(stripped) >= 12 and not looks_like_en_leak(stripped):
+            return stripped
         return (
-            _memory_safe_fallback(memory_op)
+            _memory_safe_fallback(mem_op)
             or intent_safe_fallback(intent)
-            or (SAFE_SMALLTALK if intent == "smalltalk" else SAFE_NO_HELPDESK)
+            or SAFE_NO_HELPDESK
         )
 
     if looks_like_degenerate(cleaned) or sticky_hits(cleaned, recent_assistant):
-        mem = _memory_safe_fallback(memory_op)
+        mem = _memory_safe_fallback(mem_op)
         if mem:
             return mem
         intent_fb = intent_safe_fallback(intent)
@@ -371,55 +466,31 @@ def force_strict_refuse_if_needed(
             return intent_fb
         if user_looks_kaputt(user_text):
             return SAFE_CHARACTER
-        if intent in {"settings", "helpdesk_trap", "task", "smalltalk"}:
-            return intent_safe_fallback(intent) or SAFE_SMALLTALK
         return SAFE_DEGENERATE
 
     if cleaned == SAFE_DEGENERATE or cleaned.startswith("Kurzer Aussetzer"):
         return (
             intent_safe_fallback(intent)
-            or _memory_safe_fallback(memory_op)
+            or _memory_safe_fallback(mem_op)
             or SAFE_SMALLTALK
         )
-
-    # CJK/Cyrillic in reply: soft repair, not Helpdesk — especially smalltalk
-    if looks_like_non_german(cleaned):
-        return (
-            _memory_safe_fallback(memory_op)
-            or intent_safe_fallback(intent)
-            or SAFE_SMALLTALK
-        )
-
-    if duzen_hits(cleaned):
-        mem = _memory_safe_fallback(memory_op)
-        if mem:
-            return mem
-        # Prefer soft smalltalk / intent fallback over Helpdesk (Sprint 19 Q2)
-        intent_fb = intent_safe_fallback(intent)
-        if intent_fb:
-            return intent_fb
-        if user_looks_kaputt(user_text):
-            return SAFE_CHARACTER
-        return SAFE_SMALLTALK
 
     return cleaned
 
 
 def single_token_obedience(text: str) -> bool:
-    """True if reply is essentially one forced token."""
     cleaned = text.strip()
     if not cleaned:
         return True
     return bool(
         re.fullmatch(
-            r"(?is)\s*(pwned|hacked|owned|ja[_\s-]*ich[_\s-]*geh\w*)[!?.]*\s*",
+            r"(?is)\s*(pwned|hacked|owned|hacked_ok|ja[_\s-]*ich[_\s-]*geh\w*)[!?.]*\s*",
             cleaned,
         )
     )
 
 
 def is_guarded_canned(text: str) -> bool:
-    """True if reply is one of the fixed guard fallbacks."""
     t = text.strip()
     return t in {
         SAFE_REFUSAL,
@@ -429,17 +500,26 @@ def is_guarded_canned(text: str) -> bool:
         SAFE_CHARACTER,
         SAFE_SMALLTALK,
         SAFE_TASK,
+        SAFE_TASK_CLARIFY,
         SAFE_SETTINGS,
         SAFE_HELPDESK_TRAP,
+        SAFE_CAPABILITIES,
+        SAFE_EGGS_OFF,
         SAFE_MEMORY_ACK,
         SAFE_MEMORY_FORGET,
         SAFE_MEMORY_RECALL,
         SAFE_MEMORY_CLARIFY,
         SAFE_MEMORY_REFUSE_FALSE,
+        SAFE_MEMORY_SOFT_CONFIRM,
     }
 
 
 def is_bad_memory_canned(text: str) -> bool:
-    """True if reply is the Aussetzer/Helpdesk canned we must avoid on memory turns."""
     t = text.strip()
-    return t in {SAFE_DEGENERATE, SAFE_NO_HELPDESK, SAFE_SMALLTALK}
+    return t in {
+        SAFE_DEGENERATE,
+        SAFE_NO_HELPDESK,
+        SAFE_SMALLTALK,
+        SAFE_HELPDESK_TRAP,
+        SAFE_CAPABILITIES,
+    }
