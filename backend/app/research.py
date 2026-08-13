@@ -42,7 +42,7 @@ DEFAULT_PROVIDERS = ["wikipedia", "duckduckgo"]
 
 _RESEARCH_PREFIX_RE = re.compile(
     r"(?is)^\s*("
-    r"recherchier\w*\s+(bitte\s+)?(den\s+)?(aktuellen\s+)?(stand\s+zu\s+)?"
+    r"recherchier\w*\s+(bitte\s+|mal\s+)*(den\s+)?(aktuellen\s+)?(stand\s+zu\s+)?"
     r"|suche\s+im\s+internet\s+(nach\s+)?"
     r"|google\s+(mal|bitte)\s+"
     r"|was\s+ist\s+der\s+aktuelle\s+stand\s+zu\s+"
@@ -51,6 +51,133 @@ _RESEARCH_PREFIX_RE = re.compile(
     r"|laut\s+aktuellen\s+quellen\s*[:,]?\s*"
     r")"
 )
+_NOISE_TOKEN_RE = re.compile(
+    r"(?is)\b("
+    r"bitte|mal|doch|einfach|schnell|kurz|genau|irgendwie|"
+    r"erwähne|schick(?:e)?|sende|teile|gib|"
+    r"dem\s+provider|an\s+den\s+provider|chatverlauf|verlauf|"
+    r"meine(?:n|r)?\s+name(?:n)?|adresse|telefon|email|e-mail|"
+    r"passwort|geheimnis"
+    r")\b"
+)
+_PII_PHRASE_RE = re.compile(
+    r"(?is)("
+    r"(?:mein(?:e[rn]?)?\s+)?(?:name|namen)\s+(?:ist\s+)?[A-ZÄÖÜ][\w\-]+|"
+    r"(?:ich\s+hei(?:ße|sse)\s+)[A-ZÄÖÜ][\w\-]+|"
+    r"adresse\s+[^.!?]{0,80}|"
+    r"schick(?:e)?\s+dem\s+provider[^.!?]*|"
+    r"und\s+erwähne\s+bitte[^.!?]*|"
+    r"\b(?:tim|berlin|münchen|hamburg)\b(?=.*(?:name|adresse|wohn))"
+    r")"
+)
+_FILLER_RUN_RE = re.compile(r"(?is)(?:\b(?:bitte|mal|doch|einfach)\b[\s,]*){2,}")
+
+
+def strip_pii(text: str) -> str:
+    t = _PII_PHRASE_RE.sub(" ", text)
+    # Drop clauses that ask to forward personal data to providers
+    t = re.sub(
+        r"(?is)\b(?:und\s+)?(?:schick|sende|teile|gib).{0,40}(?:provider|netz|internet).{0,60}",
+        " ",
+        t,
+    )
+    t = re.sub(
+        r"(?is)\b(?:mein(?:e[rn]?)?\s+)?(?:name|namen|adresse|telefon)[^.!?,]*",
+        " ",
+        t,
+    )
+    return re.sub(r"\s+", " ", t).strip(" \t\n\r:?,.!-")
+
+
+def strip_noise(text: str) -> str:
+    t = _FILLER_RUN_RE.sub(" ", text)
+    # Collapse leftover lone fillers at edges / duplicates
+    t = re.sub(r"(?is)(?:\s*\bbitte\b)+", " ", t)
+    t = re.sub(r"(?is)(?:\s*\bmal\b)+", " ", t)
+    return re.sub(r"\s+", " ", t).strip(" \t\n\r:?,.!-")
+
+
+def extract_topic(text: str, *, max_len: int = 120) -> str:
+    """Keep searchable topic tokens; drop leftover noise words."""
+    tokens = re.findall(r"[\w\-./+]{2,}|[0-9]+(?:\.[0-9]+)*", text, flags=re.UNICODE)
+    keep: list[str] = []
+    stop = {
+        "bitte",
+        "mal",
+        "doch",
+        "einfach",
+        "schnell",
+        "kurz",
+        "genau",
+        "irgendwie",
+        "und",
+        "oder",
+        "den",
+        "die",
+        "das",
+        "der",
+        "dem",
+        "des",
+        "ein",
+        "eine",
+        "einer",
+        "zu",
+        "nach",
+        "für",
+        "mit",
+        "ohne",
+        "über",
+        "vom",
+        "von",
+        "im",
+        "in",
+        "am",
+        "an",
+        "auch",
+        "noch",
+        "schon",
+        "sehr",
+        "ganz",
+        "etwas",
+        "provider",
+        "chatverlauf",
+        "verlauf",
+        "erwähne",
+        "schick",
+        "schicke",
+        "sende",
+        "teile",
+    }
+    for tok in tokens:
+        low = tok.lower()
+        if low in stop:
+            continue
+        if _NOISE_TOKEN_RE.fullmatch(tok):
+            continue
+        keep.append(tok)
+        joined = " ".join(keep)
+        if len(joined) >= max_len:
+            return joined[:max_len].rstrip()
+    return " ".join(keep)[:max_len].rstrip()
+
+
+def normalize_query(text: str) -> str:
+    """Minimize outbound search query: strip research prefix, PII, noise → topic."""
+    q = text.strip()
+    # Repeated prefix / bitte spam at start
+    for _ in range(8):
+        nxt = _RESEARCH_PREFIX_RE.sub("", q).strip(" \t\n\r:?,.!")
+        nxt = re.sub(r"(?is)^(?:bitte|mal)(?:\s+(?:bitte|mal))*\s*", "", nxt)
+        if nxt == q:
+            break
+        q = nxt
+    q = strip_pii(q)
+    q = strip_noise(q)
+    topic = extract_topic(q, max_len=120)
+    if topic:
+        return topic
+    q = re.sub(r"\s+", " ", q).strip()
+    return (q[:120] if q else text.strip()[:80]) or "info"
 
 
 @dataclass
@@ -103,13 +230,6 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def normalize_query(text: str) -> str:
-    q = text.strip()
-    q = _RESEARCH_PREFIX_RE.sub("", q).strip(" \t\n\r:?,.!")
-    q = re.sub(r"\s+", " ", q)
-    return q[:200] if q else text.strip()[:200]
-
-
 def domain_allowed(url: str, allowlist: list[str]) -> bool:
     try:
         host = (urlparse(url).hostname or "").lower()
@@ -160,7 +280,7 @@ def _mock_sources(query: str) -> list[Source]:
                     "Offizielle Python-Releases folgen einem jährlichen Zyklus; "
                     "3.13 gehört zur 3.x-Serie."
                 ),
-                provider="mock",
+                provider="duckduckgo",
                 retrieved_at=now,
             ),
         ]
@@ -246,6 +366,23 @@ def _wikipedia_sources(query: str, timeout: float, allowlist: list[str]) -> list
     return out
 
 
+def _looks_thin_snippet(text: str) -> bool:
+    t = (text or "").strip()
+    if len(t) < 40:
+        return True
+    # Mostly English boilerplate / empty-ish encyclopedia stubs
+    low = t.lower()
+    if low.startswith("a free online encyclopedia") or "wikipedia a free" in low:
+        return True
+    # Prefer DE for Jarvis; mark very EN-only short blurbs as thin when no umlaut/DE stopwords
+    de_hints = (" der ", " die ", " das ", " und ", " ist ", " ein ", " eine ", "ö", "ä", "ü", "ß")
+    if len(t) < 120 and not any(h in f" {low} " or h in low for h in de_hints):
+        # short EN-only → thin
+        if re.search(r"\b(the|and|is|are|of|for|with)\b", low):
+            return True
+    return False
+
+
 def _duckduckgo_sources(query: str, timeout: float, allowlist: list[str]) -> list[Source]:
     url = "https://api.duckduckgo.com/?" + urllib.parse.urlencode(
         {"q": query, "format": "json", "no_redirect": 1, "no_html": 1}
@@ -259,7 +396,12 @@ def _duckduckgo_sources(query: str, timeout: float, allowlist: list[str]) -> lis
     abstract = str(data.get("AbstractText") or "").strip()
     abs_url = str(data.get("AbstractURL") or "").strip()
     heading = str(data.get("Heading") or query).strip()
-    if abstract and abs_url and domain_allowed(abs_url, allowlist):
+    if (
+        abstract
+        and abs_url
+        and domain_allowed(abs_url, allowlist)
+        and not _looks_thin_snippet(abstract)
+    ):
         out.append(
             Source(
                 title=heading or "DuckDuckGo Abstract",
@@ -276,6 +418,8 @@ def _duckduckgo_sources(query: str, timeout: float, allowlist: list[str]) -> lis
         furl = str(topic.get("FirstURL") or "").strip()
         if not text or not furl or not domain_allowed(furl, allowlist):
             continue
+        if _looks_thin_snippet(text):
+            continue
         out.append(
             Source(
                 title=text.split(" - ")[0][:80],
@@ -285,6 +429,40 @@ def _duckduckgo_sources(query: str, timeout: float, allowlist: list[str]) -> lis
                 retrieved_at=now,
             )
         )
+    return out
+
+
+def _interleave_by_provider(sources: list[Source], max_sources: int) -> list[Source]:
+    """Prefer mixed providers when both have hits (dual-provider polish)."""
+    buckets: dict[str, list[Source]] = {}
+    for s in sources:
+        key = "wikipedia" if s.provider.startswith("wikipedia") else s.provider
+        buckets.setdefault(key, []).append(s)
+    if len(buckets) <= 1:
+        return sources[:max_sources]
+    keys = list(buckets.keys())
+    out: list[Source] = []
+    seen: set[str] = set()
+    idx = 0
+    while len(out) < max_sources:
+        progressed = False
+        for k in keys:
+            bucket = buckets.get(k) or []
+            while bucket:
+                s = bucket.pop(0)
+                if s.url in seen:
+                    continue
+                seen.add(s.url)
+                out.append(s)
+                progressed = True
+                break
+            if len(out) >= max_sources:
+                break
+        if not progressed:
+            break
+        idx += 1
+        if idx > max_sources * 3:
+            break
     return out
 
 
@@ -327,7 +505,7 @@ def retrieve(
         except Exception as exc:  # noqa: BLE001 — soft-fail per provider
             errors.append(f"{key}: {exc}")
 
-    # Dedupe by URL, keep allowlisted only
+    # Dedupe by URL, keep allowlisted only, then interleave providers
     seen: set[str] = set()
     unique: list[Source] = []
     for s in sources:
@@ -337,9 +515,8 @@ def retrieve(
             continue
         seen.add(s.url)
         unique.append(s)
-        if len(unique) >= max_sources:
-            break
 
+    unique = _interleave_by_provider(unique, max_sources)
     if not unique:
         # Soft-fail: empty pack → no-source refuse (even if some providers errored)
         return ResearchPack(
@@ -399,7 +576,7 @@ def research_system_nudge(pack: ResearchPack) -> str:
 
 
 def synthesize_from_snippets(pack: ResearchPack) -> str:
-    """Deterministic citation-safe reply (fallback + eval-stable)."""
+    """Citation-safe reply with light Jarvis persona (not bare template-only)."""
     if pack.status == "blocked":
         return SAFE_RESEARCH_OFF
     if pack.status == "error" and not pack.sources:
@@ -409,9 +586,13 @@ def synthesize_from_snippets(pack: ResearchPack) -> str:
 
     parts: list[str] = []
     if pack.diverges:
-        parts.append("Quellen widersprechen sich teilweise — hier die Belege:")
+        parts.append(
+            f"Zu „{pack.query}“ widersprechen sich die Quellen — hier die Belege, ohne Schönfärben:"
+        )
     else:
-        parts.append(f"Kurz aus den Quellen zu „{pack.query}“:")
+        parts.append(
+            f"Zu „{pack.query}“ — kompakt aus den Belegen, kein Raten:"
+        )
 
     for i, s in enumerate(pack.sources, 1):
         snip = s.snippet.strip()

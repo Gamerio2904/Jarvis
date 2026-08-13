@@ -52,6 +52,12 @@ export type Health = {
   error?: string
 }
 
+export type EasterEgg = {
+  command: string
+  description: string
+  example: string
+}
+
 export type Settings = {
   research_opt_in: boolean
   research_providers: string[]
@@ -62,6 +68,15 @@ export type Settings = {
   model_default?: string
   model_heavy?: string
   fallback_model?: string
+  delight_moments?: boolean
+  delight_moments_per_day?: number
+  delight_jokes?: boolean
+  delight_joke_frequency?: string
+  easter_eggs_enabled?: boolean
+  ui_sounds?: boolean
+  ui_sound_volume?: 'low' | 'medium' | 'high' | string
+  easter_eggs?: EasterEgg[]
+  version?: string
 }
 
 export type ResearchAudit = {
@@ -86,7 +101,7 @@ export type MemoryItem = {
   expires_at?: string | null
 }
 
-export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary'
+export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
 
 async function parseError(res: Response): Promise<string> {
   try {
@@ -110,7 +125,7 @@ export async function getSettings(): Promise<Settings> {
 }
 
 export async function patchSettings(
-  patch: Partial<Pick<Settings, 'research_opt_in'>>,
+  patch: Partial<Settings>,
 ): Promise<Settings> {
   const res = await fetch('/api/settings', {
     method: 'PATCH',

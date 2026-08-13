@@ -22,6 +22,7 @@ import {
   type Settings,
 } from './api'
 import './index.css'
+import { playUiSound } from './sounds'
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -76,6 +77,8 @@ function App() {
   const [memoryFilter, setMemoryFilter] = useState<MemoryCategory | 'all'>('all')
   const [settings, setSettings] = useState<Settings | null>(null)
   const [settingsBusy, setSettingsBusy] = useState(false)
+  const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
+  const [momentGlint, setMomentGlint] = useState(false)
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
@@ -149,11 +152,11 @@ function App() {
     }
   }
 
-  async function onToggleResearch(next: boolean) {
+  async function patchSetting(patch: Partial<Settings>) {
     if (settingsBusy) return
     setSettingsBusy(true)
     try {
-      const updated = await patchSettings({ research_opt_in: next })
+      const updated = await patchSettings(patch)
       setSettings(updated)
       void refreshHealth()
     } catch (err) {
@@ -265,6 +268,10 @@ function App() {
     setStreamingText('')
     setStreamResearch(null)
     stickToBottomRef.current = true
+    playUiSound('send', {
+      enabled: Boolean(settings?.ui_sounds),
+      volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
+    })
 
     let conversationId = activeId
     try {
@@ -325,6 +332,19 @@ function App() {
             return [payload.conversation, ...rest]
           })
           setStatusNote(null)
+          playUiSound('receive', {
+            enabled: Boolean(settings?.ui_sounds),
+            volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
+          })
+          const delight = (payload as { delight?: { moment?: string } }).delight
+          if (delight?.moment) {
+            setMomentGlint(true)
+            window.setTimeout(() => setMomentGlint(false), 1200)
+            playUiSound('moment', {
+              enabled: Boolean(settings?.ui_sounds),
+              volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
+            })
+          }
           if (payload.research) void refreshAudits()
         },
         onError: (detail) => {
@@ -334,6 +354,10 @@ function App() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Senden fehlgeschlagen'
       setError(msg)
+      playUiSound('error', {
+        enabled: Boolean(settings?.ui_sounds),
+        volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
+      })
       setLastFailed(content)
       setStreamingText(null)
       setMessages((prev) => prev.filter((m) => !m.id.startsWith('tmp-')))
@@ -381,10 +405,10 @@ function App() {
 
       <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="brand">
-          <div className="brand-mark" />
+          <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.6.0</p>
+            <p>lokal · privat · v0.7.0</p>
           </div>
         </div>
 
@@ -392,50 +416,161 @@ function App() {
           + Neues Gespräch
         </button>
 
-        <div className="settings-strip">
-          <label className="settings-toggle">
-            <input
-              type="checkbox"
-              checked={Boolean(settings?.research_opt_in)}
-              disabled={settingsBusy}
-              onChange={(e) => void onToggleResearch(e.target.checked)}
-            />
-            <span>Internet-Research (Opt-in)</span>
-          </label>
-          <p className="settings-hint">
-            Default aus. Nur minimierte Query geht raus — kein Chat-Verlauf.
-          </p>
-          <button
-            type="button"
-            className={`audit-toggle ${auditOpen ? 'active' : ''}`}
-            onClick={() => {
-              setAuditOpen((o) => !o)
-              void refreshAudits()
-            }}
-          >
-            Research-Audit
-          </button>
-          {auditOpen ? (
-            <div className="audit-panel">
-              {audits.length === 0 ? (
-                <p className="memory-empty">Noch keine Research-Turns.</p>
-              ) : (
-                <ul className="audit-list">
-                  {audits.map((a) => (
-                    <li key={a.id}>
-                      <div className="audit-meta">
-                        <span>{a.status}</span>
-                        <time>{new Date(a.created_at).toLocaleString()}</time>
-                      </div>
-                      <div className="audit-query">{a.query}</div>
-                      <div className="audit-sources">{a.sources?.length || 0} Quellen</div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ) : null}
-        </div>
+        <button
+          type="button"
+          className={`memory-toggle ${settingsPanelOpen ? 'active' : ''}`}
+          onClick={() => setSettingsPanelOpen((o) => !o)}
+        >
+          Einstellungen
+        </button>
+        {settingsPanelOpen ? (
+          <div className="settings-panel" id="settings">
+            <section className="settings-section">
+              <h3>Allgemein</h3>
+              <p className="settings-hint">Version {settings?.version || '0.7.0'} · lokal · privat</p>
+            </section>
+            <section className="settings-section">
+              <h3>Modell</h3>
+              <p className="settings-hint">
+                Default {settings?.model_default || '—'} · Fallback {settings?.fallback_model || '—'} · Routing {settings?.routing_mode || 'auto'}
+              </p>
+            </section>
+            <section className="settings-section">
+              <h3>Delight</h3>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.delight_moments)}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ delight_moments: e.target.checked })}
+                />
+                <span>Jarvis-Momente</span>
+              </label>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.delight_jokes)}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ delight_jokes: e.target.checked })}
+                />
+                <span>Inside Jokes</span>
+              </label>
+              <label className="settings-inline">
+                <span>Witz-Frequenz</span>
+                <select
+                  value={settings?.delight_joke_frequency || 'selten'}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ delight_joke_frequency: e.target.value })}
+                >
+                  <option value="selten">Selten</option>
+                  <option value="normal">Normal</option>
+                </select>
+              </label>
+            </section>
+            <section className="settings-section">
+              <h3>Sound</h3>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.ui_sounds)}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ ui_sounds: e.target.checked })}
+                />
+                <span>UI-Sounds</span>
+              </label>
+              <p className="settings-hint">Default aus. Dezent, kein Arcade.</p>
+              <label className="settings-inline">
+                <span>Lautstärke</span>
+                <select
+                  value={settings?.ui_sound_volume || 'low'}
+                  disabled={settingsBusy || !settings?.ui_sounds}
+                  onChange={(e) => void patchSetting({ ui_sound_volume: e.target.value })}
+                >
+                  <option value="low">Niedrig</option>
+                  <option value="medium">Mittel</option>
+                  <option value="high">Hoch</option>
+                </select>
+              </label>
+            </section>
+            <section className="settings-section">
+              <h3>Easter Eggs</h3>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={settings?.easter_eggs_enabled !== false}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ easter_eggs_enabled: e.target.checked })}
+                />
+                <span>Easter Eggs aktiv</span>
+              </label>
+              <ul className="egg-list">
+                {(settings?.easter_eggs || []).map((egg) => (
+                  <li key={egg.command}>
+                    <code>{egg.command}</code>
+                    <span>{egg.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <section className="settings-section">
+              <h3>Forschung (Netz)</h3>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.research_opt_in)}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ research_opt_in: e.target.checked })}
+                />
+                <span>Internet-Research (Opt-in)</span>
+              </label>
+              <p className="settings-hint">
+                Default aus. Nur minimierte Query geht raus — kein Chat-Verlauf.
+              </p>
+              <button
+                type="button"
+                className={`audit-toggle ${auditOpen ? 'active' : ''}`}
+                onClick={() => {
+                  setAuditOpen((o) => !o)
+                  void refreshAudits()
+                }}
+              >
+                Research-Audit
+              </button>
+              {auditOpen ? (
+                <div className="audit-panel">
+                  {audits.length === 0 ? (
+                    <p className="memory-empty">Noch keine Research-Turns.</p>
+                  ) : (
+                    <ul className="audit-list">
+                      {audits.map((a) => (
+                        <li key={a.id}>
+                          <div className="audit-meta">
+                            <span>{a.status}</span>
+                            <time>{new Date(a.created_at).toLocaleString()}</time>
+                          </div>
+                          <div className="audit-query">{a.query}</div>
+                          <div className="audit-sources">{a.sources?.length || 0} Quellen</div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ) : null}
+            </section>
+            <section className="settings-section danger-zone">
+              <h3>Danger Zone</h3>
+              <p className="settings-hint">Memory löschen braucht Bestätigung.</p>
+              <button
+                type="button"
+                className="memory-clear"
+                disabled={memoryBusy}
+                onClick={() => void onClearMemory()}
+              >
+                Alles über mich löschen
+              </button>
+            </section>
+          </div>
+        ) : null}
 
         <button
           className={`memory-toggle ${memoryOpen ? 'active' : ''}`}
@@ -454,7 +589,7 @@ function App() {
         {memoryOpen ? (
           <div className="memory-panel">
             <div className="memory-filters" role="tablist" aria-label="Memory-Kategorien">
-              {(['all', 'pref', 'fact', 'boundary', 'open_loop'] as const).map((f) => (
+              {(['all', 'pref', 'fact', 'joke', 'boundary', 'open_loop'] as const).map((f) => (
                 <button
                   key={f}
                   type="button"

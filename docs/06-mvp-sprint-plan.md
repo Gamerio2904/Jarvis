@@ -303,7 +303,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 16 — Research Hotfix → **`0.6.1`** *(prio)*
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW (mitgeliefert in `0.7.0`)  
 **Artefakt:** [`sprints/sprint-16.md`](./sprints/sprint-16.md)
 
 | Must | Inhalt |
@@ -316,7 +316,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 17 — Research Polish → **`0.6.2`** *(Should)*
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW (mitgeliefert in `0.7.0`)  
 **Artefakt:** [`sprints/sprint-17.md`](./sprints/sprint-17.md)
 
 | Should | Inhalt |
@@ -328,7 +328,7 @@ PO-Review: 10-Minuten-Smalltalk-Abnahme bestanden oder konkrete Nachbesserungs-S
 
 ## Sprint 18 — Delight & Settings → **`0.7.0`**
 
-**Status:** PLANNED  
+**Status:** READY FOR REVIEW  
 **Artefakt:** [`sprints/sprint-18.md`](./sprints/sprint-18.md) · [`11`](./11-delight-and-settings.md)
 
 | Must | Inhalt |

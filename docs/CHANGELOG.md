@@ -5,17 +5,22 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `0.6.2` — Sprint 17 (Research Polish) — *geplant (Should)*
+### `0.7.0` — Sprint 18 (Delight + Settings) — *READY FOR REVIEW*
 
-- Research-Persona (Jarvis-Ton, citation-pflichtig)
-- Dual-Provider/DDG-Qualität; Deep-Scorecard Research
-- Eval `scripts/eval_0_6_2.py`, Version `0.6.2`
+- Flaches Settings-Panel (Allgemein, Modell, Delight, Sound, Easter Eggs, Forschung, Danger)
+- Jarvis-Momente (Cap/Tag), Inside Jokes (Toggle/Frequenz, Kategorie `joke`)
+- UI-Sounds (Default aus), Easter-Egg-Commands gelistet (`/protokoll`, `/mission`, …)
+- Eval `scripts/eval_0_7_0.py`, Version `0.7.0` (inkl. 0.6.1/0.6.2)
 
-### `0.6.1` — Sprint 16 (Research Hotfix) — *geplant (prio)*
+### `0.6.2` — Sprint 17 (Research Polish) — *READY FOR REVIEW* (mitgeliefert in `0.7.0`)
 
-- Query-PII-Sanitizer; Long-Query/Noise-Strip; Topic-Extraktion
-- Settings-Default-Hygiene (`research_opt_in` Default aus)
-- Eval `scripts/eval_0_6_1.py`, Version `0.6.1`
+- Research-Persona-Synthese; Dual-Provider-Interleave; DDG-Thin-Filter
+- Scorecard `scripts/scorecard_0_6_2.py`; Eval `scripts/eval_0_6_2.py`
+
+### `0.6.1` — Sprint 16 (Research Hotfix) — *READY FOR REVIEW* (mitgeliefert in `0.7.0`)
+
+- Query-PII-Sanitizer; Noise-Strip; Topic-Extraktion; Settings-Default-Hygiene
+- Eval `scripts/eval_0_6_1.py`
 
 ### `0.6.0` — Sprint 15 (Internet-Research) — *READY FOR REVIEW*
 
@@ -89,9 +94,6 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `0.6.1` | 16 | Research Hotfix (Query-PII/Noise, Settings) — **prio** |
-| `0.6.2` | 17 | Research Polish (Persona, Dual-Provider) — **Should** |
-| `0.7.0` | 18 | Delight + Settings |
 | `1.0.0` | Phase 3 | NAS / 24/7 |
 
 ## Earlier (pending tags)

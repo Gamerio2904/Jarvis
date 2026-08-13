@@ -15,9 +15,9 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 2a | **`0.5.1`** | [13](./sprints/sprint-13.md) | Router Hotfix (Inject/Task/Weak-Write/Fallbacks) | **READY FOR REVIEW** |
 | 2b | **`0.5.2`** | [14](./sprints/sprint-14.md) | Router Polish (Patterns, Live-Scorecard) | **READY FOR REVIEW** |
 | 3 | **`0.6.0`** | [15](./sprints/sprint-15.md) | Internet-Research (opt-in, zitiert) | **READY FOR REVIEW** |
-| 3a | **`0.6.1`** | [16](./sprints/sprint-16.md) | Research Hotfix (Query-PII/Noise, Settings) | **PLANNED** (prio) |
-| 3b | **`0.6.2`** | [17](./sprints/sprint-17.md) | Research Polish (Persona, Dual-Provider) | **PLANNED** (Should) |
-| 4 | **`0.7.0`** | [18](./sprints/sprint-18.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **PLANNED** |
+| 3a | **`0.6.1`** | [16](./sprints/sprint-16.md) | Research Hotfix (Query-PII/Noise, Settings) | **READY FOR REVIEW** |
+| 3b | **`0.6.2`** | [17](./sprints/sprint-17.md) | Research Polish (Persona, Dual-Provider) | **READY FOR REVIEW** |
+| 4 | **`0.7.0`** | [18](./sprints/sprint-18.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **READY FOR REVIEW** |
 
 ```text
 Sprint 8  0.4.0 Memory

@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **SHOULD** — nicht blocker für Delight; empfohlen vor Delight |
 | Ziel-Version | **`0.6.2`** |
 | Quelle | Deep-Test Feedback zu Sprint 15 (`0.6.0`); setzt Hotfix `0.6.1` voraus |

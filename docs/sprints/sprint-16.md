@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **HOTFIX / HIGH** — vor Should-Polish und Delight |
 | Ziel-Version | **`0.6.1`** |
 | Quelle | Deep-Test Feedback zu Sprint 15 (`0.6.0`) |

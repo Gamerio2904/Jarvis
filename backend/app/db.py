@@ -111,6 +111,17 @@ def save_settings(patch: dict[str, Any]) -> dict[str, Any]:
         "research_allowlist",
         "research_timeout_sec",
         "research_max_sources",
+        "delight_moments",
+        "delight_moments_per_day",
+        "delight_jokes",
+        "delight_joke_frequency",
+        "easter_eggs_enabled",
+        "ui_sounds",
+        "ui_sound_volume",
+        "routing_mode",
+        "model_default",
+        "model_heavy",
+        "fallback_model",
     }
     for k, v in patch.items():
         if k in allowed:
@@ -479,7 +490,7 @@ def upsert_memory_item(
 ) -> dict[str, Any]:
     key_n = key.strip().lower().replace(" ", "_")[:80]
     value_n = value.strip()[:500]
-    category_n = category if category in {"pref", "fact", "open_loop", "boundary"} else "fact"
+    category_n = category if category in {"pref", "fact", "open_loop", "boundary", "joke"} else "fact"
     now = utc_now()
     conn = get_conn()
     try:

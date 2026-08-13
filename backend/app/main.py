@@ -13,6 +13,7 @@ from . import context as ctx
 from . import db
 from . import memory as memory_mod
 from . import policy as policy_mod
+from . import delight as delight_mod
 from . import research as research_mod
 from . import router as router_mod
 from .guards import (
@@ -41,8 +42,8 @@ from .ollama_client import (
     resolve_routed_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.6.0")
-APP_VERSION = "0.6.0"
+app = FastAPI(title="Jarvis API", version="0.7.0")
+APP_VERSION = "0.7.0"
 
 app.add_middleware(
     CORSMiddleware,
@@ -112,6 +113,16 @@ class SettingsPatchBody(BaseModel):
     research_timeout_sec: float | None = None
     research_max_sources: int | None = None
     routing_mode: str | None = None
+    model_default: str | None = None
+    model_heavy: str | None = None
+    fallback_model: str | None = None
+    delight_moments: bool | None = None
+    delight_moments_per_day: int | None = None
+    delight_jokes: bool | None = None
+    delight_joke_frequency: str | None = None
+    easter_eggs_enabled: bool | None = None
+    ui_sounds: bool | None = None
+    ui_sound_volume: str | None = None
 
 
 @app.on_event("startup")
@@ -557,7 +568,7 @@ async def health() -> dict[str, Any]:
 def api_list_memory(
     category: str | None = Query(default=None),
 ) -> list[dict[str, Any]]:
-    if category and category not in {"pref", "fact", "open_loop", "boundary"}:
+    if category and category not in {"pref", "fact", "open_loop", "boundary", "joke"}:
         raise HTTPException(status_code=400, detail="Ungültige Kategorie.")
     return db.list_memory_items(limit=200, category=category, include_expired=True)
 
@@ -599,6 +610,15 @@ def api_get_settings() -> dict[str, Any]:
         "model_default": s.get("model_default") or s.get("model"),
         "model_heavy": s.get("model_heavy"),
         "fallback_model": s.get("fallback_model"),
+        "delight_moments": bool(s.get("delight_moments", True)),
+        "delight_moments_per_day": int(s.get("delight_moments_per_day", 2)),
+        "delight_jokes": bool(s.get("delight_jokes", True)),
+        "delight_joke_frequency": s.get("delight_joke_frequency", "selten"),
+        "easter_eggs_enabled": bool(s.get("easter_eggs_enabled", True)),
+        "ui_sounds": bool(s.get("ui_sounds", False)),
+        "ui_sound_volume": s.get("ui_sound_volume", "low"),
+        "easter_eggs": delight_mod.public_egg_list(),
+        "version": APP_VERSION,
     }
 
 
@@ -651,6 +671,69 @@ def api_delete_conversation(conversation_id: str) -> dict[str, Any]:
     return {"ok": True, "id": conversation_id}
 
 
+
+def _health_bits_for_eggs(settings: dict[str, Any], model: str | None = None) -> dict[str, Any]:
+    return {
+        "version": APP_VERSION,
+        "model": model or settings.get("model"),
+        "memory_count": len(db.list_memory_items(limit=500)),
+        "research_opt_in": bool(settings.get("research_opt_in", False)),
+    }
+
+
+def _resolve_easter_egg_reply(
+    content: str,
+    *,
+    settings: dict[str, Any],
+    model: str | None = None,
+) -> tuple[str | None, dict[str, Any] | None]:
+    """Return (reply, delight_meta) if an easter egg handled the turn."""
+    egg = delight_mod.handle_easter_egg(
+        content,
+        settings=settings,
+        health_bits=_health_bits_for_eggs(settings, model),
+    )
+    if not egg.handled:
+        return None, None
+    if egg.reply == "__FORGET_JOKE__":
+        jokes = db.list_memory_items(limit=20, category="joke", include_expired=True)
+        if jokes:
+            db.delete_memory_item(jokes[0]["id"])
+            return "Witz-Pin ist weg.", {"egg": "vergissWitz", "mood": delight_mod.get_session_mood()}
+        return "Kein Joke-Pin vorhanden.", {"egg": "vergissWitz", "mood": delight_mod.get_session_mood()}
+    meta = {"egg": delight_mod.parse_egg_command(content), "mood": egg.mood or delight_mod.get_session_mood()}
+    return egg.reply, meta
+
+
+def _append_delight_flavor(
+    reply: str,
+    *,
+    settings: dict[str, Any],
+    intent: str | None,
+    memory_op: str | None,
+) -> tuple[str, dict[str, Any]]:
+    delight: dict[str, Any] = {"mood": delight_mod.get_session_mood()}
+    moment = delight_mod.maybe_moment(
+        settings=settings,
+        intent=intent,
+        memory_op=memory_op,
+        is_first_today=delight_mod.moments_used_today() == 0,
+    )
+    if moment:
+        delight["moment"] = moment
+        # Attach moment beat for light intents + inject victory
+        if intent in {"smalltalk", "memory", "helpdesk_trap", "inject", None}:
+            reply = f"{reply.rstrip()}\n\n{moment}"
+    jokes = db.list_memory_items(limit=5, category="joke", include_expired=False)
+    joke = delight_mod.maybe_inside_joke(
+        settings=settings, intent=intent, joke_pins=jokes
+    )
+    if joke:
+        delight["joke"] = joke
+        if "moment" not in delight:
+            reply = f"{reply.rstrip()}\n\n{joke}"
+    return reply, delight
+
 @app.post("/api/conversations/{conversation_id}/chat")
 async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
     conv = db.get_conversation(conversation_id)
@@ -683,11 +766,18 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
     )
     settings = policy_mod.apply_sampling_overrides(settings, policy)
 
+    delight_meta: dict[str, Any] | None = None
     try:
         model, used_fallback, _names, routing_mode = await _resolve_runtime_model(
             settings, prefer_heavy=policy.prefer_heavy
         )
-        if research_pack is not None and route_dbg.get("intent") == "research":
+        egg_reply, egg_meta = _resolve_easter_egg_reply(
+            content, settings=settings, model=model
+        )
+        if egg_reply is not None:
+            reply = egg_reply
+            delight_meta = egg_meta
+        elif research_pack is not None and route_dbg.get("intent") == "research":
             reply = await _resolve_research_reply(
                 pack=research_pack,
                 settings=settings,
@@ -709,17 +799,26 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
                 memory_notes=mem_notes,
                 intent=route_dbg.get("intent"),
             )
+            if egg_reply is None:
+                reply, delight_meta = _append_delight_flavor(
+                    reply,
+                    settings=settings,
+                    intent=route_dbg.get("intent"),
+                    memory_op=mem_op,
+                )
     except OllamaError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
     research_meta = None
     audit_id = None
+    msg_meta: dict[str, Any] = {}
     if research_pack is not None:
-        research_meta = {
-            "research": research_pack.to_public(),
-        }
+        research_meta = research_pack.to_public()
+        msg_meta["research"] = research_meta
+    if delight_meta:
+        msg_meta["delight"] = delight_meta
     assistant_msg = db.add_message(
-        conversation_id, "assistant", reply, meta=research_meta
+        conversation_id, "assistant", reply, meta=msg_meta or None
     )
     if research_pack is not None:
         audit = _persist_research_audit(
@@ -728,13 +827,9 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
             message_id=assistant_msg["id"],
         )
         audit_id = audit["id"]
-        if research_meta and isinstance(research_meta.get("research"), dict):
-            research_meta["research"]["audit_id"] = audit_id
-            # refresh stored meta with audit id
-            assistant_msg = {
-                **assistant_msg,
-                "meta": research_meta,
-            }
+        if isinstance(msg_meta.get("research"), dict):
+            msg_meta["research"]["audit_id"] = audit_id
+            assistant_msg = {**assistant_msg, "meta": msg_meta}
 
     try:
         await _maybe_refresh_summary(
@@ -757,6 +852,7 @@ async def api_chat(conversation_id: str, body: ChatBody) -> dict[str, Any]:
         "memory_op": mem_op,
         "route": route_dbg,
         "research": _research_public(research_pack, audit_id=audit_id),
+        "delight": delight_meta,
     }
 
 
@@ -821,10 +917,17 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
             }
         )
 
-        if intent == "inject":
-            final = SAFE_INJECT
-            yield sse({"type": "replace", "content": final})
-            saved = db.add_message(conversation_id, "assistant", final)
+        egg_reply, egg_meta = _resolve_easter_egg_reply(
+            content, settings=settings, model=model
+        )
+        if egg_reply is not None:
+            yield sse({"type": "replace", "content": egg_reply})
+            saved = db.add_message(
+                conversation_id,
+                "assistant",
+                egg_reply,
+                meta={"delight": egg_meta} if egg_meta else None,
+            )
             updated = db.get_conversation(conversation_id)
             yield sse(
                 {
@@ -834,6 +937,36 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
                     "guarded": True,
                     "memory_op": mem_op,
                     "route": route_dbg,
+                    "delight": egg_meta,
+                }
+            )
+            return
+
+        if intent == "inject":
+            final = SAFE_INJECT
+            # Inject victory moment (capped)
+            moment = delight_mod.maybe_moment(
+                settings=settings, intent="inject", memory_op=None
+            )
+            if moment:
+                final = f"{final}\n\n{moment}"
+            yield sse({"type": "replace", "content": final})
+            saved = db.add_message(
+                conversation_id,
+                "assistant",
+                final,
+                meta={"delight": {"moment": moment}} if moment else None,
+            )
+            updated = db.get_conversation(conversation_id)
+            yield sse(
+                {
+                    "type": "done",
+                    "assistant_message": saved,
+                    "conversation": updated,
+                    "guarded": True,
+                    "memory_op": mem_op,
+                    "route": route_dbg,
+                    "delight": {"moment": moment} if moment else None,
                 }
             )
             return

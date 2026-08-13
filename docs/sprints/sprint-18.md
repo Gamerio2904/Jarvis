@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Ziel-Version | **`0.7.0`** |
 | Quelle | [`11-delight-and-settings.md`](../11-delight-and-settings.md) |
 | Hinweis | Früher Sprint **16** — umnummeriert nach Research-Hotfix/Polish (`0.6.1`/`0.6.2`) |
