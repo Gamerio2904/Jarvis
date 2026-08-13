@@ -153,6 +153,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S8.19 | Als Nutzer will ich Begrüßungen ohne reines SAFE_SMALLTALK-Canned. | Should | done | Sprint 24 / `0.8.2` |
 | S8.20 | Als Nutzer will ich klares Forget- und Soft-Reject-Feedback. | Should | done | Sprint 24 / `0.8.2` |
 | S8.21 | Als Nutzer will ich Assist-Scorecard + Mood-Persist + Audit-Link. | Should | done | Sprint 25 / `0.8.3` |
+| S8.22 | Als Nutzer will ich Antworten ohne `*st Sie` / Doppel-Sie-Mischformen. | Must | ready | Sprint 26 / `0.8.4` |
+| S8.23 | Als Nutzer will ich bei „Wie heiße ich?“ genau einen aktuellen Namen. | Must | ready | Sprint 26 / `0.8.4` |
+| S8.24 | Als Nutzer will ich bei CJK in Task-Prompts einen Plan/Fallback, kein Smalltalk-Canned. | Should | ready | Sprint 26 / `0.8.4` |
 
 ### E7 — Nachzieher Quality/Research (Fortsetzung)
 
@@ -165,18 +168,17 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.14 | Als Nutzer will ich eine knappe Capabilities-Antwort ohne LLM-Waffle. | Must | done | Sprint 20 / `0.7.2` |
 | S7.15 | Als Nutzer will ich verständliche Research-Fehler (Timeout vs. leer). | Should | done | Sprint 21 / `0.7.3` |
 | S7.16 | Als Nutzer will ich Memory Soft-Confirm bei unsicherem Harvest. | Should | done | Sprint 22 / `0.8.0` |
-| S7.17 | Als Nutzer will ich Soft-Confirm nur mit validen Werten (Value-Gate). | Must | ready | Sprint 23 / `0.8.1` |
-| S7.18 | Als Nutzer will ich restliches Live-Duzen nach Retry weg. | Should | ready | Sprint 24 / `0.8.2` |
+| S7.17 | Als Nutzer will ich Soft-Confirm nur mit validen Werten (Value-Gate). | Must | done | Sprint 23 / `0.8.1` |
+| S7.18 | Als Nutzer will ich restliches Live-Duzen nach Retry weg. | Should | done | Sprint 24 / `0.8.2` |
+| S7.19 | Als Nutzer will ich erweiterte Broken-Siezen-Reparatur (`möchtest Sie` …). | Must | ready | Sprint 26 / `0.8.4` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 23** (`0.8.1`) — kritische Deep-Test-Bugs (Normalize / Duzen / Soft-Gate)
-2. **Sprint 24** (`0.8.2`) — Edge-/Reply-Polish
-3. **Sprint 25** (`0.8.3`) — Ops-/Carry-over Shoulds
-4. PO-Review offener Tags `0.8.0`+ parallel möglich
-5. Danach: optional `0.9.0` / Phase 2+ / NAS `1.0.0` auf PO-Kommando
+1. **Sprint 26** (`0.8.4`) — Siezen / Identity-Recall / CJK-Task aus `0.8.3`-Deep-Test
+2. PO-Review Tags `0.8.0`–`0.8.3` parallel möglich
+3. Danach: optional `0.9.0` / Phase 2+ / NAS `1.0.0` auf PO-Kommando
 
 ## Parking Lot (Ideen, nicht geplant)
 

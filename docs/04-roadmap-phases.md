@@ -123,7 +123,8 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Assist Clarity (Clarify, `/hilfe`, Stream/UX) → **`0.8.0`** (Sprint 22, READY FOR REVIEW; Deep-Test durch)
 - Assist Hotfix (Normalize/Duzen/Soft-Gate) → **`0.8.1`** (Sprint 23, READY — in `0.8.3`)
 - Edge & Reply Polish → **`0.8.2`** (Sprint 24, READY — in `0.8.3`)
-- Assist Ops & Carry-over → **`0.8.3`** (Sprint 25, READY FOR REVIEW)
+- Assist Ops & Carry-over → **`0.8.3`** (Sprint 25, READY FOR REVIEW; Deep-Test durch)
+- Siezen & Recall Hotfix → **`0.8.4`** (Sprint 26, geplant)
 - Optional nächstes MINOR (Tools/stärkeres Assist) → **`0.9.0`** (nur nach PO)
 - Tools (Kalender, Notizen, …) / Native App nur falls nötig
 
