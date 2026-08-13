@@ -504,6 +504,7 @@ def _finalize_turn_reply(
         return SAFE_TASK
     # Sprint 29 H1: no fake tool success claims without execute
     # Skip memory ops — "notiert" there is intentional (SAFE_MEMORY_ACK etc.)
+    # Real tool replies skip finalize entirely; do not allowlist prefixes here.
     if (
         tools_mod.looks_like_false_tool_claim(reply)
         and memory_op
@@ -519,13 +520,7 @@ def _finalize_turn_reply(
         }
         and (intent or "") != "memory"
     ):
-        # Allow only when reply already came from tool runtime (starts with known prefixes)
-        if not re.match(
-            r"(?i)^(Notiz gespeichert:|Todo gespeichert:|Todo „|Todo erledigt:|"
-            r"Offene Todos:|Erledigte Todos:|Alle Todos:|Todos zu|Notizen:|Keine )",
-            reply.strip(),
-        ):
-            return SAFE_TOOL_FALSE
+        return SAFE_TOOL_FALSE
     # Sprint 29: short user acks should not become vague SAFE_SMALLTALK hammer
     if intent == "smalltalk" and looks_like_short_ack(user_text) and reply.strip() == SAFE_SMALLTALK:
         return SAFE_ACK
