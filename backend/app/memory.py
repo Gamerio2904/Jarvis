@@ -78,6 +78,7 @@ _FALSE_CONFIRM_RE = re.compile(
 # Clause values stop before coordinating "und"/"oder" (H1/H5).
 _FACT_PATTERNS: list[tuple[re.Pattern[str], str, str]] = [
     (re.compile(r"(?is)\bich\s+heiß(?:e|t)\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"), "name", "fact"),
+    (re.compile(r"(?is)\bmein\s+name\s+ist\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"), "name", "fact"),
     (re.compile(r"(?is)\bwohne\s+in\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"), "wohnort", "fact"),
     (
         re.compile(r"(?is)\b(?:mein(?:e|en)?\s+)?hund\s+heiß(?:t|e)\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"),
@@ -103,7 +104,33 @@ _FACT_PATTERNS: list[tuple[re.Pattern[str], str, str]] = [
         "bin",
         "fact",
     ),
+    (
+        re.compile(
+            r"(?is)\b(?:ich\s+)?trink(?:e|t)?\s+(?:gern(?:e)?\s+)?(.+?)(?=\s+\bund\b|[,.!?]|$)"
+        ),
+        "lieblingstrank",
+        "pref",
+    ),
 ]
+
+_ICH_HEISSE_SOFT_RE = re.compile(
+    r"(?is)\bich\s+heiß(?:e|t)\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"
+)
+_NAME_IST_SOFT_RE = re.compile(
+    r"(?is)\bmein\s+name\s+ist\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)"
+)
+_TRINKE_SOFT_RE = re.compile(
+    r"(?is)\b(?:ich\s+)?trink(?:e|t)?\s+gern(?:e)?\s+(.+?)(?:[.!?]|$)"
+)
+
+_FORGET_PREFIX_RE = re.compile(
+    r"(?is)^\s*(?:"
+    r"(?:die\s+)?erinnerung(?:en)?\s+an\s+|"
+    r"(?:den\s+|die\s+|das\s+)?eintrag\s+(?:zu\s+|über\s+|an\s+)?|"
+    r"(?:das\s+)?fakt(?:um)?\s+(?:zu\s+|über\s+|an\s+)?|"
+    r"(?:meine\s+)?notiz\s+(?:zu\s+|über\s+|an\s+)?"
+    r")"
+)
 
 _STOP = {
     "das",
@@ -222,11 +249,60 @@ def reject_recent_soft_facts(*, conversation_id: str) -> list[str]:
         if conf >= 0.85:
             continue
         key = str(it.get("key") or "")
-        if not (key.startswith("mag_") or key.startswith("lieblings")):
+        # Soft facts: prefs + soft identity
+        if not (
+            key.startswith("mag_")
+            or key.startswith("lieblings")
+            or key in {"name", "wohnort", "lieblingstrank"}
+        ):
             continue
         if db.delete_memory_item(str(it["id"])):
             notes.append(f"Soft-Reject: {key} gelöscht")
     return notes
+
+
+def accept_recent_soft_facts(*, conversation_id: str) -> list[str]:
+    """Promote recent soft facts to durable memory after user confirms."""
+    items = db.list_memory_items(limit=40, include_expired=True)
+    notes: list[str] = []
+    for it in items:
+        if it.get("source_conversation_id") != conversation_id:
+            continue
+        conf = float(it.get("confidence") or 0)
+        if conf >= 0.9 and not it.get("expires_at"):
+            continue
+        key = str(it.get("key") or "")
+        val = str(it.get("value") or "")
+        if not key or not val:
+            continue
+        db.upsert_memory_item(
+            key=key,
+            value=val,
+            category=str(it.get("category") or "fact"),
+            confidence=0.95,
+            source_conversation_id=conversation_id,
+            expires_at=None,
+        )
+        notes.append(f"Gespeichert: {key} = {val}")
+    return notes
+
+
+def looks_like_soft_accept(text: str) -> bool:
+    return bool(
+        re.match(
+            r"(?is)^\s*("
+            r"ja(?:\s+bitte)?|"
+            r"ok(?:ay)?|"
+            r"stimmt|"
+            r"genau|"
+            r"so\s+merken|"
+            r"merken|"
+            r"passt|"
+            r"richtig"
+            r")\s*[.!]?\s*$",
+            (text or "").strip(),
+        )
+    )
 
 
 def _trim_clause(raw: str) -> str:
@@ -251,10 +327,50 @@ def parse_lieblings_pref(text: str) -> tuple[str, str, str] | None:
 
 def _key_from_payload(payload: str) -> str:
     cleaned = re.sub(r"[^a-zA-ZäöüÄÖÜß0-9\s_]", "", payload.lower())
-    parts = [p for p in cleaned.split() if p and p not in _STOP][:4]
+    parts = [p for p in cleaned.split() if p and p not in _STOP][:6]
     if not parts:
-        parts = ["notiz"]
-    return "_".join(parts)[:80]
+        # Stable-ish fallback from content — avoid colliding bare "notiz"
+        import hashlib
+
+        digest = hashlib.sha1(payload.encode("utf-8")).hexdigest()[:8]
+        return f"notiz_{digest}"
+    key = "_".join(parts)[:80]
+    if key == "notiz":
+        import hashlib
+
+        digest = hashlib.sha1(payload.encode("utf-8")).hexdigest()[:8]
+        return f"notiz_{digest}"
+    return key
+
+
+def allocate_memory_key(base: str, value: str) -> str:
+    """Avoid silent overwrite when freeform notes collapse to the same key."""
+    base_n = (base or "notiz").strip().lower().replace(" ", "_")[:80]
+    value_n = (value or "").strip()
+    items = {str(i.get("key") or "").lower(): i for i in db.list_memory_items(limit=200)}
+    existing = items.get(base_n)
+    if not existing:
+        return base_n
+    if str(existing.get("value") or "").strip().lower() == value_n.lower():
+        return base_n
+    # Collision with different value → unique key
+    import hashlib
+
+    digest = hashlib.sha1(value_n.encode("utf-8")).hexdigest()[:8]
+    candidate = f"{base_n}_{digest}"[:80]
+    n = 2
+    while candidate in items and str(items[candidate].get("value") or "").strip().lower() != value_n.lower():
+        candidate = f"{base_n}_{digest}_{n}"[:80]
+        n += 1
+    return candidate
+
+
+def normalize_forget_query(raw: str) -> str:
+    """Strip 'Erinnerung an …' wrappers so value match works."""
+    q = (raw or "").strip().rstrip(".!")
+    q = _FORGET_PREFIX_RE.sub("", q).strip()
+    q = re.sub(r"(?is)^(die|den|das|meine|mein|deine|dein)\s+", "", q).strip()
+    return q
 
 
 def split_atomic_facts(payload: str) -> list[tuple[str, str, str]]:
@@ -384,7 +500,7 @@ def parse_explicit_forget(text: str) -> str | None:
     m = _VERGISS_RE.match(text.strip())
     if not m:
         return None
-    return m.group(1).strip().rstrip(".!")
+    return normalize_forget_query(m.group(1))
 
 
 def looks_like_remember_intent(text: str) -> bool:
@@ -571,7 +687,13 @@ def apply_explicit_memory_commands(
     forget_q = parse_explicit_forget(user_text)
     if forget_q:
         n = db.delete_memory_by_key_substring(forget_q)
-        notes.append(f"Memory gelöscht zu „{forget_q}“ ({n} Einträge).")
+        if n <= 0:
+            notes.append(
+                f"Nichts gefunden zu „{forget_q}“. "
+                "Kein Eintrag gelöscht — bitte Schlüssel oder Stichwort enger nennen."
+            )
+        else:
+            notes.append(f"Memory gelöscht zu „{forget_q}“ ({n} Einträge).")
         return "forget", notes
 
     # Clarify before generic write (I1d)
@@ -609,15 +731,16 @@ def apply_explicit_memory_commands(
             )
             return "none", notes
         for key, value, category in strong:
+            key_u = allocate_memory_key(key, value)
             db.upsert_memory_item(
-                key=key,
+                key=key_u,
                 value=value,
                 category=category,
                 confidence=0.95,
                 source_conversation_id=conversation_id,
                 expires_at=None,
             )
-            notes.append(f"Gespeichert: {key} = {value}")
+            notes.append(f"Gespeichert: {key_u} = {value}")
         return "write", notes
 
     if looks_like_remember_intent(user_text):
@@ -649,11 +772,41 @@ def harvest_soft_facts(
         return []
 
     notes: list[str] = []
+
+    # Soft identity / drink without "merk dir" (Sprint 31)
+    m_name = _ICH_HEISSE_SOFT_RE.search(user_text) or _NAME_IST_SOFT_RE.search(user_text)
+    if m_name:
+        val = normalize_value(m_name.group(1))
+        if is_valid_soft_value(val) or (val and len(val) >= 2 and val[0].isupper()):
+            db.upsert_memory_item(
+                key="name",
+                value=val,
+                category="fact",
+                confidence=max(confidence, 0.7),
+                source_conversation_id=conversation_id,
+                expires_at=_expires_iso(ttl_days),
+            )
+            notes.append(f"Soft: name = {val}")
+
+    m_drink = _TRINKE_SOFT_RE.search(user_text)
+    if m_drink:
+        val = normalize_value(m_drink.group(1))
+        if is_valid_soft_value(val):
+            db.upsert_memory_item(
+                key="lieblingstrank",
+                value=val,
+                category="pref",
+                confidence=confidence,
+                source_conversation_id=conversation_id,
+                expires_at=_expires_iso(ttl_days),
+            )
+            notes.append(f"Soft: lieblingstrank = {val}")
+
     pref = parse_lieblings_pref(user_text)
     if pref:
         key, val, category = pref
         if not is_valid_soft_value(val):
-            return []
+            return notes
         db.upsert_memory_item(
             key=key,
             value=val,
@@ -669,8 +822,8 @@ def harvest_soft_facts(
     if m3:
         val = normalize_value(m3.group(1))
         if not is_valid_soft_value(val):
-            return []
-        key = _key_from_payload(f"mag_{val}")
+            return notes
+        key = allocate_memory_key(_key_from_payload(f"mag_{val}"), val)
         db.upsert_memory_item(
             key=key,
             value=val,
@@ -701,6 +854,9 @@ def ack_reply_for_forget(op: MemoryOp, notes: list[str]) -> str:
     """Sprint 24 E3: always include weg/raus/gelöscht needle."""
     if op == "forget_all":
         return "Alles weg aus dem Langzeitgedächtnis. Frisch startklar — was liegt an?"
+    joined = " ".join(notes).lower()
+    if "nichts gefunden" in joined:
+        return "Dazu habe ich nichts Passendes zum Löschen gefunden. Welcher Eintrag genau?"
     for n in notes:
         if "gelöscht" in n.lower() or "Soft-Reject" in n:
             return "Ist raus — gelöscht. Weiter?"

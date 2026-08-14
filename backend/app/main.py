@@ -58,10 +58,11 @@ from .ollama_client import (
     model_is_available,
     resolve_model,
     resolve_routed_model,
+    warm_model,
 )
 
-app = FastAPI(title="Jarvis API", version="0.9.2")
-APP_VERSION = "0.9.2"
+app = FastAPI(title="Jarvis API", version="0.9.3")
+APP_VERSION = "0.9.3"
 
 app.add_middleware(
     CORSMiddleware,
@@ -151,10 +152,21 @@ class SettingsPatchBody(BaseModel):
 
 
 @app.on_event("startup")
-def on_startup() -> None:
+async def on_startup() -> None:
     db.init_db()
     try:
         memory_mod.purge_garbage_soft_memory()
+    except Exception:
+        pass
+    # Warm default model so first chat is faster
+    try:
+        settings = db.load_settings()
+        model = settings.get("model_default") or settings.get("model")
+        if model:
+            await warm_model(
+                base_url=str(settings.get("ollama_base_url") or "http://127.0.0.1:11434"),
+                model=str(model),
+            )
     except Exception:
         pass
 
@@ -175,7 +187,8 @@ async def _resolve_runtime_model(
         routing_mode = str(settings.get("routing_mode", "auto"))
     if not model_is_available(model, names):
         raise OllamaError(
-            f"Kein passendes Modell geladen. Bitte: ollama pull {settings.get('model')} "
+            f"Modell nicht geladen. Unter Einstellungen / Terminal einmal herunterladen: "
+            f"ollama pull {settings.get('model')} "
             f"(Fallback: {settings.get('fallback_model')})"
         )
     return model, used_fallback, names, routing_mode
@@ -200,6 +213,7 @@ def _completion_kwargs(
             else settings.get("num_predict", 220)
         ),
         "repeat_penalty": float(settings.get("repeat_penalty", 1.18)),
+        "keep_alive": str(settings.get("ollama_keep_alive", "10m")),
     }
 
 
@@ -315,11 +329,38 @@ def _prepare_chat_context(
     mem_op, notes = memory_mod.apply_explicit_memory_commands(
         user_text, conversation_id=conversation_id
     )
-    # Sprint 24 E5: soft-reject after soft-confirm
-    if mem_op == "none" and memory_mod.looks_like_soft_reject(user_text):
-        reject_notes = memory_mod.reject_recent_soft_facts(conversation_id=conversation_id)
-        mem_op = "soft_reject"
-        notes = reject_notes
+    # Soft-accept / soft-reject after soft-confirm turn
+    if mem_op == "none" and not db.get_tool_pending(conversation_id):
+        last_soft = False
+        hist = db.list_messages(conversation_id)
+        for m in reversed(hist):
+            if m.get("role") == "assistant":
+                content_a = (m.get("content") or "").strip()
+                last_soft = (
+                    "so merken" in content_a.lower()
+                    or content_a.startswith("Kurz notiert (TTL)")
+                    or content_a.startswith("Kurz unsicher notiert")
+                )
+                break
+        if last_soft and memory_mod.looks_like_soft_accept(user_text):
+            accept_notes = memory_mod.accept_recent_soft_facts(
+                conversation_id=conversation_id
+            )
+            if accept_notes:
+                mem_op = "write"
+                notes = accept_notes
+        elif last_soft and memory_mod.looks_like_soft_reject(user_text):
+            reject_notes = memory_mod.reject_recent_soft_facts(
+                conversation_id=conversation_id
+            )
+            mem_op = "soft_reject"
+            notes = reject_notes
+        elif memory_mod.looks_like_soft_reject(user_text):
+            reject_notes = memory_mod.reject_recent_soft_facts(
+                conversation_id=conversation_id
+            )
+            mem_op = "soft_reject"
+            notes = reject_notes
 
     # Soft-harvest only outside explicit memory ops / non-memory smalltalk
     soft_notes = memory_mod.harvest_soft_facts(
@@ -829,8 +870,17 @@ async def _generate_reply(
     if memory_op in {"forget", "forget_all"}:
         return memory_mod.ack_reply_for_forget(memory_op, memory_notes or [])
 
+    if memory_op == "write":
+        return memory_mod.ack_reply_for_write(memory_notes or [])
+
     # Sprint 29: short acks → deterministic, avoid SAFE_SMALLTALK chaos
-    if intent == "smalltalk" and looks_like_short_ack(user_text) and not looks_like_greeting(user_text):
+    # Do not swallow memory write/forget confirmations
+    if (
+        intent == "smalltalk"
+        and looks_like_short_ack(user_text)
+        and not looks_like_greeting(user_text)
+        and memory_op in {None, "none", ""}
+    ):
         return SAFE_ACK
 
     # Sprint 22 A1: vague tasks → clarify-first (skip if follow-up after clarify)
@@ -841,7 +891,11 @@ async def _generate_reply(
     # Sprint 24 E2: greetings — prefer greeting canned over SAFE_SMALLTALK hammer later
     greeting_turn = looks_like_greeting(user_text)
 
-    kwargs = _completion_kwargs(settings, model, system)
+    # Latency: shorter caps for smalltalk / helpdesk
+    predict_cap = None
+    if intent in {"smalltalk", "helpdesk_trap"}:
+        predict_cap = min(int(settings.get("num_predict", 220)), 120)
+    kwargs = _completion_kwargs(settings, model, system, num_predict=predict_cap)
     # Sprint 21 D5: fewer retries on smalltalk
     default_retries = 1 if intent in {"smalltalk", "helpdesk_trap"} else 2
     retries = int(settings.get("guard_max_retries", default_retries))
@@ -1466,7 +1520,7 @@ async def api_chat_stream(conversation_id: str, body: ChatBody) -> StreamingResp
             )
             return
 
-        if intent == "smalltalk" and looks_like_short_ack(content) and not looks_like_greeting(content):
+        if intent == "smalltalk" and looks_like_short_ack(content) and not looks_like_greeting(content) and mem_op in {None, "none", ""}:
             final = SAFE_ACK
             yield sse({"type": "replace", "content": final})
             saved = db.add_message(conversation_id, "assistant", final)

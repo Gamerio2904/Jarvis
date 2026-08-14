@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.9.3` — Sprint 31 (Memory Quality Hotfix) — *READY FOR REVIEW*
+
+- Soft-Name ohne „Merk dir“; Forget „Erinnerung an …“ findet Werte
+- Unique Notiz-Keys (kein gegenseitiges Überschreiben); Multi-Fact Trink/Name
+- UI: „Jarvis schreibt…“ hängt nicht mehr; Modell-Banner statt Chat-Blockade
+- Ollama keep_alive + Warm-Start; klarere Modell-Fehler
+- Eval `scripts/eval_0_9_3.py` · Version `0.9.3`
+- [`sprints/sprint-31.md`](./sprints/sprint-31.md)
+
 ### `0.9.5` — Sprint 33 (Tools Hygiene & Confirm-UX) — *PLANNED*
 
 - Listen-Scope, UI Ja/Nein-Confirm, Aufräumen

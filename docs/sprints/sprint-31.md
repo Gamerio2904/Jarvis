@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** |
 | Priorität | **HIGH** — Live-Probe nach `0.9.2` |
 | Ziel-Version | **`0.9.3`** |
 | Quelle | Feedback-Probe (Multi-Fact verloren, Recall→Smalltalk-Halluzination) |

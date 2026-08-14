@@ -404,6 +404,10 @@ function App() {
         },
         onError: (detail) => {
           setError(detail)
+          setStreamingText(null)
+          setStreamResearch(null)
+          setStatusNote(null)
+          setBusy(false)
         },
       })
     } catch (err) {
@@ -415,9 +419,14 @@ function App() {
       })
       setLastFailed(content)
       setStreamingText(null)
+      setStreamResearch(null)
+      setStatusNote(null)
       setMessages((prev) => prev.filter((m) => !m.id.startsWith('tmp-')))
     } finally {
       setBusy(false)
+      setStreamingText((cur) => (cur === '' ? null : cur))
+      // Never leave "Jarvis schreibt…" hanging after a finished/failed turn
+      setStatusNote((cur) => (cur === 'Jarvis schreibt…' ? null : cur))
       textareaRef.current?.focus()
       void refreshHealth()
       void refreshMemory()
@@ -463,7 +472,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.9.2</p>
+            <p>lokal · privat · v0.9.3</p>
           </div>
         </div>
 
@@ -482,7 +491,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.9.2'} · lokal · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.9.3'} · lokal · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
@@ -783,6 +792,27 @@ function App() {
           <div className="fallback-banner">
             {health?.warning ||
               `Fallback-Modell aktiv (${health?.model}). Für beste Qualität: ollama pull ${health?.configured_model}`}
+          </div>
+        ) : null}
+
+        {!healthOk ? (
+          <div className="model-banner" role="status">
+            {health?.error ||
+              (!health?.ollama
+                ? 'Ollama offline — bitte starten, Chat geht danach weiter.'
+                : `Modell nicht bereit — einmal laden: ollama pull ${
+                    health?.configured_model || health?.model || 'qwen2.5:7b'
+                  }`)}
+            <button
+              type="button"
+              className="linkish"
+              onClick={() => {
+                setSidebarOpen(true)
+                setSettingsPanelOpen(true)
+              }}
+            >
+              Einstellungen
+            </button>
           </div>
         ) : null}
 

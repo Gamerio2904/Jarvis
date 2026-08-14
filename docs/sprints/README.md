@@ -35,11 +35,11 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 28 | [`sprint-28.md`](./sprint-28.md) | `0.9.0` | Local Tools Core (Option A) | **READY FOR REVIEW** |
 | 29 | [`sprint-29.md`](./sprint-29.md) | `0.9.1` | Tools Hotfix | **READY FOR REVIEW** |
 | 30 | [`sprint-30.md`](./sprint-30.md) | `0.9.2` | Tools Polish & Assist Continuity | **READY FOR REVIEW** |
-| 31 | [`sprint-31.md`](./sprint-31.md) | `0.9.3` | Memory Quality Hotfix | **PLANNED** |
+| 31 | [`sprint-31.md`](./sprint-31.md) | `0.9.3` | Memory Quality Hotfix | **READY FOR REVIEW** |
 | 32 | [`sprint-32.md`](./sprint-32.md) | `0.9.4` | Assist Continuity & Siezen | **PLANNED** |
 | 33 | [`sprint-33.md`](./sprint-33.md) | `0.9.5` | Tools Hygiene & Confirm-UX | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** Sprint **31** (`0.9.3`) Memory Quality.  
+**Nächste Pull-Reihenfolge:** Sprint **32** (`0.9.4`) Assist Continuity.  
 PO-Review/Tags `v0.8.0`–`v0.9.2` parallel möglich.  
 Phase 2 Handy / NAS / TTS / Smart-Home — **PO-Kommando** (nicht in `0.9.3`–`0.9.5`).
 

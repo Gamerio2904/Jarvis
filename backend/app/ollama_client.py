@@ -76,13 +76,16 @@ def _options(
     top_p: float,
     num_predict: int,
     repeat_penalty: float,
+    *,
+    keep_alive: str | None = "10m",
 ) -> dict[str, Any]:
-    return {
+    opts: dict[str, Any] = {
         "temperature": temperature,
         "top_p": top_p,
         "num_predict": num_predict,
         "repeat_penalty": repeat_penalty,
     }
+    return opts
 
 
 async def chat_completion(
@@ -95,21 +98,24 @@ async def chat_completion(
     top_p: float,
     num_predict: int,
     repeat_penalty: float = 1.1,
+    keep_alive: str | None = "10m",
 ) -> str:
-    payload = {
+    payload: dict[str, Any] = {
         "model": model,
         "stream": False,
         "options": _options(temperature, top_p, num_predict, repeat_penalty),
         "messages": [{"role": "system", "content": system}, *messages],
     }
+    if keep_alive:
+        payload["keep_alive"] = keep_alive
     url = f"{base_url.rstrip('/')}/api/chat"
     try:
         async with httpx.AsyncClient(timeout=300.0) as client:
             resp = await client.post(url, json=payload)
             if resp.status_code == 404:
                 raise OllamaError(
-                    f"Modell „{model}“ nicht gefunden. "
-                    f"Bitte ausführen: ollama pull {model}",
+                    f"Modell „{model}“ ist nicht geladen. "
+                    f"Bitte einmal herunterladen: ollama pull {model}",
                     status_code=404,
                 )
             if resp.status_code >= 400:
@@ -126,7 +132,8 @@ async def chat_completion(
         raise
     except httpx.HTTPError as exc:
         raise OllamaError(
-            "Ollama ist nicht erreichbar oder die Anfrage ist fehlgeschlagen."
+            "Ollama ist nicht erreichbar oder die Anfrage ist fehlgeschlagen. "
+            "WLAN/Dienst prüfen — oder Modell neu laden."
         ) from exc
 
 
@@ -140,21 +147,24 @@ async def chat_completion_stream(
     top_p: float,
     num_predict: int,
     repeat_penalty: float = 1.1,
+    keep_alive: str | None = "10m",
 ) -> AsyncIterator[str]:
-    payload = {
+    payload: dict[str, Any] = {
         "model": model,
         "stream": True,
         "options": _options(temperature, top_p, num_predict, repeat_penalty),
         "messages": [{"role": "system", "content": system}, *messages],
     }
+    if keep_alive:
+        payload["keep_alive"] = keep_alive
     url = f"{base_url.rstrip('/')}/api/chat"
     try:
         async with httpx.AsyncClient(timeout=300.0) as client:
             async with client.stream("POST", url, json=payload) as resp:
                 if resp.status_code == 404:
                     raise OllamaError(
-                        f"Modell „{model}“ nicht gefunden. "
-                        f"Bitte ausführen: ollama pull {model}",
+                        f"Modell „{model}“ ist nicht geladen. "
+                        f"Bitte einmal herunterladen: ollama pull {model}",
                         status_code=404,
                     )
                 if resp.status_code >= 400:
@@ -179,5 +189,25 @@ async def chat_completion_stream(
         raise
     except httpx.HTTPError as exc:
         raise OllamaError(
-            "Ollama ist nicht erreichbar oder die Anfrage ist fehlgeschlagen."
+            "Ollama ist nicht erreichbar oder die Anfrage ist fehlgeschlagen. "
+            "WLAN/Dienst prüfen — oder Modell neu laden."
         ) from exc
+
+
+async def warm_model(*, base_url: str, model: str) -> None:
+    """Best-effort keep model resident to cut first-token latency."""
+    url = f"{base_url.rstrip('/')}/api/generate"
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            await client.post(
+                url,
+                json={
+                    "model": model,
+                    "prompt": "",
+                    "keep_alive": "10m",
+                    "stream": False,
+                    "options": {"num_predict": 1},
+                },
+            )
+    except httpx.HTTPError:
+        return

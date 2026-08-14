@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import uuid
 from datetime import datetime, timezone
@@ -715,13 +716,47 @@ def delete_memory_by_key_substring(query: str) -> int:
     q = query.strip().lower()
     if not q:
         return 0
+    # Tokenize so "erinnerung an pizza" / "pizza" both hit value/key
+    tokens = [t for t in re.split(r"[^\wäöüÄÖÜß]+", q) if len(t) >= 3]
+    if not tokens:
+        tokens = [q]
+    stop = {
+        "die",
+        "der",
+        "das",
+        "den",
+        "dem",
+        "ein",
+        "eine",
+        "einer",
+        "mein",
+        "meine",
+        "an",
+        "zu",
+        "über",
+        "und",
+        "oder",
+        "bitte",
+        "erinnerung",
+        "erinnerungen",
+        "eintrag",
+        "notiz",
+        "fakt",
+    }
+    needles = [t for t in tokens if t not in stop] or tokens
     conn = get_conn()
     try:
         rows = conn.execute("SELECT id, key, value FROM memory_items").fetchall()
         deleted = 0
         for r in rows:
             blob = f"{r['key']} {r['value']}".lower()
-            if q in blob or q.replace(" ", "_") in r["key"]:
+            key_l = str(r["key"]).lower()
+            hit = False
+            for n in needles:
+                if n in blob or n.replace(" ", "_") in key_l:
+                    hit = True
+                    break
+            if hit:
                 conn.execute("DELETE FROM memory_items WHERE id = ?", (r["id"],))
                 deleted += 1
         conn.commit()
