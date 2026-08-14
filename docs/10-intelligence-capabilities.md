@@ -337,8 +337,8 @@ Neben Memory/Research **handlungsfähige**, lokale Persistenz: Notizen und Todos
 ### Abgrenzung
 | Geht in `0.9.x` | Geht **nicht** |
 |-----------------|----------------|
-| Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Smart-Home / Fire TV |
-| `notes` + `todo` (SQLite) | Cloud-Kalender-OAuth |
+| Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Fire TV / Alexa in `0.9.x` |
+| `notes` + `todo` (SQLite) | Cloud-Kalender-OAuth; TV erst `0.11` |
 | Router/`/hilfe` Integration | Autonome Multi-Tool-Ketten ohne Confirm |
 | False-Confirm-Guards | Secrets speichern |
 
@@ -353,6 +353,8 @@ Memory („Merk dir …“) bleibt Fakten-Gedächtnis; Tools sind **explizite Ar
 | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality |
 | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity |
 | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene |
+
+NAS/APK: **`0.10.x`** ([`12-nas-apk.md`](./12-nas-apk.md)). Samsung-TV: **`0.11.x`** (Sprints 40–42).
 
 Vorher empfohlen: **`0.8.5`** Persona/Continuity ([27](./sprints/sprint-27.md)).
 
@@ -378,4 +380,8 @@ Memory Quality Hotfix                 →  0.9.3  (Sprint 31)
 Assist Continuity & Siezen             →  0.9.4  (Sprint 32)
         ↓
 Tools Hygiene & Confirm-UX             →  0.9.5  (Sprint 33)
+        ↓
+NAS Core + APK                         →  0.10.0–0.10.5  (Sprints 34–39)
+        ↓
+Samsung TV                             →  0.11.0–0.11.2  (Sprints 40–42)
 ```

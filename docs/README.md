@@ -17,6 +17,9 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 09 | [Versionierung](./09-versioning.md) | SemVer, Sprint ↔ Version |
 | 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
+| 12 | [NAS & APK](./12-nas-apk.md) | historisch / superseded |
+| 13 | [On-Device](./13-on-device.md) | `0.13.0` Handy-LLM |
+| — | [APK](./apk.md) | Sideload |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -44,6 +47,13 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 23 | `0.8.1` | **READY FOR REVIEW** (mitgeliefert in `0.8.3`) |
 | 24 | `0.8.2` | **READY FOR REVIEW** (mitgeliefert in `0.8.3`) |
 | 25 | `0.8.3` | **READY FOR REVIEW** (Assist Ops) |
-| 26 | `0.8.4` | **PLANNED** (Siezen & Recall Hotfix) |
+| 26 | `0.8.4` | **READY FOR REVIEW** (Siezen & Recall Hotfix) |
+| 27 | `0.8.5` | **READY FOR REVIEW** (in `0.9.0`) |
+| 28–30 | `0.9.0`–`0.9.2` | **READY FOR REVIEW** (Local Tools) |
+| 31–33 | `0.9.3`–`0.9.5` | **PLANNED** |
+| 34–39 | `0.10.0`–`0.10.5` | **PLANNED** (NAS + APK) |
+| 40–42 | `0.11.0`–`0.11.2` | **CODE** (Samsung-TV, Pairing offen) |
+| 43 | `0.12.0` | **SUPERSEDED** (NAS-Proxy) |
+| 44 | `0.13.0` | **CODE** (On-Device Handy) |
 
-**Nächste Umsetzung:** Sprint **26** (`0.8.4`).
+**Aktuell:** Sideload `0.13.0` — Modell auf dem Handy.

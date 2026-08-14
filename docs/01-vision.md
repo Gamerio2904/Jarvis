@@ -24,16 +24,17 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 | Alltags-Smalltalk | Jarvis führt natürliche Kurzgespräche (Hallo, Wie geht’s, …). |
 | Charakterfestigkeit | Gleicher Ton über Tage; erkennbar „dein“ Jarvis (Kumpel + frech, „Master“, nur Deutsch). |
 | Lokale Kontrolle | Kein Cloud-LLM als Denk-Engine. |
-| Handy-Nutzbarkeit | Am Ende vom Handy aus nutzbar (zuerst Browser/Netz, nicht zwingend Native App). |
-| 24/7 später | Dauerbetrieb auf NAS/Mini-Server, wenn der Stack steht. |
+| Handy-Nutzbarkeit | Sideload-APK, Modell on-device (`0.13.0`). |
+| 24/7 | Handy selbst; kein NAS-LLM. |
+| Versionierung | `0.1.0` = MVP; `0.13.0` = On-Device; `1.0.0` = späterer MAJOR |
 | Stimme später | Realistisches Vorlesen derselben Antworten, auf dein Kommando. |
 | Premium-Web-UI | Spotify-**Dunkel** + ChatGPT-Layout; Motion light → späteres GUI-Update |
-| Versionierung | `0.1.0` = MVP; `1.0.0` = NAS; Patches als `x.y.z` Zwischenversionen |
+| Versionierung | `0.1.0` = MVP; `0.10.x` = NAS+APK; `0.11.x` = Samsung-TV; `1.0.0` = späterer MAJOR |
 
 ## Nicht-Ziele (aktuell)
 
 - Öffentliche Nutzer, Marketing, Multi-User-Accounts
-- Native App als MVP
+- Native Store-App / Play Store (Sideload-APK kommt in `0.10.3`)
 - Cloud-LLM als primäre Intelligenz
 - Tools (Mail, Kalender, Smart Home, Web-Agent) im MVP
 - Langzeitgedächtnis / „kennt mein ganzes Leben“ im MVP

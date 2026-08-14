@@ -5,6 +5,63 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+App-Version im Code: **`0.13.0`** (On-Device Handy, kein Server).
+
+### `0.13.0` — Sprint 44 (On-Device) — *CODE*
+
+- TypeScript-Engine + IndexedDB + wllama (Qwen2.5 0.5B Q4)
+- First-Run: Modell-Download aufs Gerät
+- Entfernt: Python-Backend, Ollama, NAS/Docker/Autostart
+- TV geparkt
+- [`sprints/sprint-44.md`](./sprints/sprint-44.md) · [`13-on-device.md`](./13-on-device.md)
+
+### `0.12.0` — Sprint 43 (NAS-Proxy) — *SUPERSEDED*
+
+### `0.11.2` — Sprint 42 (Samsung TV Settings-UI) — *CODE*
+
+- Suchen, koppeln, testen, umbenennen
+- [`sprints/sprint-42.md`](./sprints/sprint-42.md)
+
+### `0.11.1` — Sprint 41 (Samsung TV Hotfix) — *PLANNED*
+
+- WOL-Timing, False-Claims, Follow-up-Phrasen
+- [`sprints/sprint-41.md`](./sprints/sprint-41.md)
+
+### `0.11.0` — Sprint 40 (Samsung TV Core) — *PLANNED*
+
+- Tizen lokal: Ein/Aus (WOL), Vol, Mute, HDMI; kein Confirm; ein Gerät
+- [`sprints/sprint-40.md`](./sprints/sprint-40.md)
+
+### `0.10.5` — Sprint 39 (APK Polish) — *PLANNED*
+
+- First-Run, Icon, Sideload-README; Abschluss `0.10`
+- [`sprints/sprint-39.md`](./sprints/sprint-39.md)
+
+### `0.10.4` — Sprint 38 (APK Hotfix) — *PLANNED*
+
+- Tastatur, Reconnect, ehrliche URL/401-Fehler
+- [`sprints/sprint-38.md`](./sprints/sprint-38.md)
+
+### `0.10.3` — Sprint 37 (APK Core) — *PLANNED*
+
+- Capacitor-Android Sideload gegen NAS (URL + Token)
+- [`sprints/sprint-37.md`](./sprints/sprint-37.md)
+
+### `0.10.2` — Sprint 36 (NAS Auth & LAN) — *PLANNED*
+
+- Owner-Token, 401 ohne Header, LAN-Default
+- [`sprints/sprint-36.md`](./sprints/sprint-36.md)
+
+### `0.10.1` — Sprint 35 (NAS Hotfix) — *PLANNED*
+
+- Backup/Restore, Volume-Rechte, ehrliche Startfehler
+- [`sprints/sprint-35.md`](./sprints/sprint-35.md)
+
+### `0.10.0` — Sprint 34 (NAS Core) — *PLANNED*
+
+- Docker Compose: backend + frontend + ollama, Autostart, Volumes
+- [`sprints/sprint-34.md`](./sprints/sprint-34.md) · [`12-nas-apk.md`](./12-nas-apk.md)
+
 ### `0.9.5` — Sprint 33 (Tools Hygiene & Confirm-UX) — *PLANNED*
 
 - Listen-Scope, UI Ja/Nein-Confirm, Aufräumen
@@ -185,7 +242,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `1.0.0` | Phase 3 | NAS / 24/7 |
+| `0.10.0`–`0.10.5` | 34–39 | NAS-Compose — **Parking** (Docker geht nicht) |
+| `0.11.0`–`0.11.2` | 40–42 | Samsung-TV lokal |
+| `0.12.0` | 43 | NAS native + Reverse-Proxy :8080 + Sideload-APK |
+| `1.0.0` | PO | nächster MAJOR (nicht NAS) |
 
 ## Earlier (pending tags)
 

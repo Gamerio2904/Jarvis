@@ -1,9 +1,32 @@
-export type Conversation = {
-  id: string
-  title: string
-  created_at: string
-  updated_at: string
-}
+import {
+  conversations,
+  ensureModel,
+  getDownloadProgress,
+  getHealth as engineHealth,
+  getSettings as engineSettings,
+  isModelReady,
+  patchSettings as enginePatch,
+  streamChat as engineStream,
+  type StreamHandlers,
+} from './engine/chat'
+import {
+  APP_VERSION,
+  addMessage,
+  clearMemory as storeClearMemory,
+  deleteMemory,
+  listMemory as storeListMemory,
+  listMessages,
+  loadSettings,
+  type Conversation,
+  type MemoryItem,
+  type Message,
+  type Settings as EngineSettings,
+} from './engine/store'
+
+export type { Conversation, MemoryItem, Message, StreamHandlers }
+export { APP_VERSION, ensureModel, getDownloadProgress, isModelReady }
+
+export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
 
 export type ResearchSource = {
   title: string
@@ -37,18 +60,6 @@ export type ToolMeta = {
   error?: string
 }
 
-export type Message = {
-  id: string
-  conversation_id: string
-  role: 'user' | 'assistant' | string
-  content: string
-  created_at: string
-  meta?: {
-    research?: ResearchMeta
-    tool?: ToolMeta
-  } | null
-}
-
 export type Health = {
   ok: boolean
   ollama: boolean
@@ -64,184 +75,118 @@ export type Health = {
   memory_count?: number
   research_opt_in?: boolean
   error?: string
+  download_pct?: number
 }
 
-export type EasterEgg = {
-  command: string
-  description: string
-  example: string
-}
+export type EasterEgg = { command: string; description: string; example: string }
 
-export type Settings = {
-  research_opt_in: boolean
-  research_providers: string[]
-  research_allowlist: string[]
-  research_timeout_sec: number
-  research_max_sources: number
-  routing_mode: string
-  model_default?: string
-  model_heavy?: string
-  fallback_model?: string
-  delight_moments?: boolean
-  delight_moments_per_day?: number
-  delight_jokes?: boolean
-  delight_joke_frequency?: string
-  easter_eggs_enabled?: boolean
-  ui_sounds?: boolean
-  ui_sound_volume?: 'low' | 'medium' | 'high' | string
+export type Settings = EngineSettings & {
+  research_providers?: string[]
+  research_allowlist?: string[]
+  research_timeout_sec?: number
+  research_max_sources?: number
+  owner_token_set?: boolean
   easter_eggs?: EasterEgg[]
-  version?: string
+  tv_port?: number
+  tv_status?: { enabled?: boolean; name?: string; host?: string; mac?: string; paired?: boolean; reachable?: boolean }
 }
 
 export type ResearchAudit = {
   id: string
-  conversation_id?: string | null
-  message_id?: string | null
   query: string
   status: string
   sources: ResearchSource[]
-  error?: string | null
   created_at: string
 }
 
-export type MemoryItem = {
-  id: string
-  key: string
-  value: string
-  category: string
-  confidence: number
-  source_conversation_id?: string | null
-  updated_at: string
-  expires_at?: string | null
+export function getApiBase(): string {
+  return ''
 }
-
-export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
-
-async function parseError(res: Response): Promise<string> {
-  try {
-    const data = await res.json()
-    if (typeof data?.detail === 'string') return data.detail
-    return JSON.stringify(data)
-  } catch {
-    return res.statusText || 'Unbekannter Fehler'
-  }
+export function setApiBase(_value: string): void {}
+export function getOwnerToken(): string {
+  return ''
+}
+export function setOwnerToken(_value: string): void {}
+export function isNativeApp(): boolean {
+  return false
+}
+export function needsLanProxySetup(): boolean {
+  return false
 }
 
 export async function getHealth(): Promise<Health> {
-  const res = await fetch('/api/health')
-  return res.json()
+  return engineHealth()
 }
 
 export async function getSettings(): Promise<Settings> {
-  const res = await fetch('/api/settings')
-  if (!res.ok) throw new Error(await parseError(res))
-  return res.json()
+  const s = engineSettings()
+  return {
+    ...s,
+    owner_token_set: false,
+    easter_eggs: [
+      { command: '/hilfe', description: 'Kurz was Jarvis kann', example: '/hilfe' },
+    ],
+    tv_status: { enabled: false, paired: false, reachable: false },
+  }
 }
 
-export async function patchSettings(
-  patch: Partial<Settings>,
-): Promise<Settings> {
-  const res = await fetch('/api/settings', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(patch),
-  })
-  if (!res.ok) throw new Error(await parseError(res))
-  return res.json()
+export async function patchSettings(patch: Partial<Settings>): Promise<Settings> {
+  enginePatch(patch as Partial<EngineSettings>)
+  return getSettings()
 }
 
-export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
-  const res = await fetch(`/api/research/audits?limit=${limit}`)
-  if (!res.ok) throw new Error(await parseError(res))
-  return res.json()
+export async function listResearchAudits(_limit = 30): Promise<ResearchAudit[]> {
+  return []
 }
 
-export async function listMemory(
-  category?: MemoryCategory | null,
-): Promise<MemoryItem[]> {
-  const q =
-    category != null && category !== undefined
-      ? `?category=${encodeURIComponent(category)}`
-      : ''
-  const res = await fetch(`/api/memory${q}`)
-  if (!res.ok) throw new Error(await parseError(res))
-  return res.json()
+export async function listMemory(category?: MemoryCategory | null): Promise<MemoryItem[]> {
+  return storeListMemory(category || null)
 }
 
 export async function deleteMemoryItem(id: string): Promise<void> {
-  const res = await fetch(`/api/memory/${id}`, { method: 'DELETE' })
-  if (!res.ok) throw new Error(await parseError(res))
+  await deleteMemory(id)
 }
 
 export async function clearMemory(): Promise<void> {
-  const res = await fetch('/api/memory', { method: 'DELETE' })
-  if (!res.ok) throw new Error(await parseError(res))
+  await storeClearMemory()
 }
 
 export async function listConversations(): Promise<Conversation[]> {
-  const res = await fetch('/api/conversations')
-  if (!res.ok) throw new Error(await parseError(res))
-  return res.json()
+  return conversations.list()
 }
 
 export async function createConversation(): Promise<Conversation> {
-  const res = await fetch('/api/conversations', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title: 'Neues Gespräch' }),
-  })
-  if (!res.ok) throw new Error(await parseError(res))
-  return res.json()
+  return conversations.create()
 }
 
 export async function getConversation(
   id: string,
 ): Promise<Conversation & { messages: Message[] }> {
-  const res = await fetch(`/api/conversations/${id}`)
-  if (!res.ok) throw new Error(await parseError(res))
-  return res.json()
+  const list = await conversations.list()
+  const conv = list.find((c) => c.id === id)
+  if (!conv) throw new Error('Gespräch nicht gefunden')
+  return { ...conv, messages: await listMessages(id) }
 }
 
 export async function deleteConversation(id: string): Promise<void> {
-  const res = await fetch(`/api/conversations/${id}`, { method: 'DELETE' })
-  if (!res.ok) throw new Error(await parseError(res))
+  await conversations.delete(id)
 }
 
 export async function sendChat(id: string, content: string) {
-  const res = await fetch(`/api/conversations/${id}/chat`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content }),
+  let assistant: Message | null = null
+  let conv: Conversation | null = null
+  await streamChat(id, content, {
+    onDone: (p) => {
+      assistant = p.assistant_message
+      conv = p.conversation
+    },
   })
-  if (!res.ok) throw new Error(await parseError(res))
-  return res.json() as Promise<{
-    conversation: Conversation
-    user_message: Message
-    assistant_message: Message
-    using_fallback?: boolean
-    model?: string
-    research?: ResearchMeta | null
-  }>
-}
-
-export type StreamHandlers = {
-  onMeta?: (meta: {
-    user_message: Message
-    model: string
-    using_fallback: boolean
-    research?: ResearchMeta | null
-  }) => void
-  onToken?: (token: string) => void
-  onReplace?: (content: string) => void
-  onRetry?: (attempt: number) => void
-  onDone?: (payload: {
-    assistant_message: Message
-    conversation: Conversation
-    guarded?: boolean
-    research?: ResearchMeta | null
-    tool?: ToolMeta | null
-  }) => void
-  onError?: (detail: string) => void
+  return {
+    conversation: conv,
+    user_message: await addMessage(id, 'user', content),
+    assistant_message: assistant,
+    model: loadSettings().model_default,
+  }
 }
 
 export async function streamChat(
@@ -249,51 +194,28 @@ export async function streamChat(
   content: string,
   handlers: StreamHandlers,
 ): Promise<void> {
-  const res = await fetch(`/api/conversations/${id}/chat/stream`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ content }),
-  })
-  if (!res.ok) throw new Error(await parseError(res))
-  if (!res.body) throw new Error('Keine Stream-Antwort vom Server.')
+  return engineStream(id, content, handlers)
+}
 
-  const reader = res.body.getReader()
-  const decoder = new TextDecoder()
-  let buffer = ''
+export async function tvDiscover(): Promise<{ items: Array<Record<string, unknown>> }> {
+  return { items: [] }
+}
 
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-    buffer += decoder.decode(value, { stream: true })
-    const chunks = buffer.split('\n\n')
-    buffer = chunks.pop() || ''
-    for (const chunk of chunks) {
-      const line = chunk
-        .split('\n')
-        .map((l) => l.trim())
-        .find((l) => l.startsWith('data:'))
-      if (!line) continue
-      const raw = line.slice(5).trim()
-      let ev: Record<string, unknown>
-      try {
-        ev = JSON.parse(raw)
-      } catch {
-        continue
-      }
-      const type = ev.type
-      if (type === 'meta') handlers.onMeta?.(ev as never)
-      if (type === 'token') handlers.onToken?.(String(ev.content || ''))
-      if (type === 'replace') {
-        handlers.onReplace?.(String(ev.content || ''))
-      }
-      if (type === 'retry') {
-        handlers.onRetry?.(Number(ev.attempt || 0))
-      }
-      if (type === 'done') handlers.onDone?.(ev as never)
-      if (type === 'error') {
-        handlers.onError?.(String(ev.detail || 'Stream-Fehler'))
-        throw new Error(String(ev.detail || 'Stream-Fehler'))
-      }
-    }
+export async function tvPair(_body: {
+  host?: string
+  mac?: string
+  name?: string
+  port?: number
+}): Promise<{ ok: boolean; message: string }> {
+  return {
+    ok: false,
+    message: 'TV ist in 0.13 geparkt. Jarvis denkt auf dem Handy; Tizen-Keys kommen später.',
+  }
+}
+
+export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
+  return {
+    ok: false,
+    reply: 'TV-Steuerung nicht im On-Device-Build. Chat läuft lokal.',
   }
 }

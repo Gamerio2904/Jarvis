@@ -14,10 +14,10 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Qualitäts-/Speed-Priorität | **Qualität > Rohgeschwindigkeit**; so schnell wie möglich, Speed-Feintuning später |
 | Chat-Persistenz MVP | **Gespräche zwischen Sessions speichern** |
 | Sicherheit MVP (vorerst) | Kein Cloud-LLM + Zugang nur für dich; At-rest-Encryption noch nicht fest (erstmal zurückgestellt) |
-| Laufzeit später | NAS / Mini-Server (24/7) |
+| Laufzeit `0.13.x` | Android-APK, llama.cpp WASM on-device |
 | Stimme | Später: TTS liest denselben Text vor |
-| Handy | Zuerst Web-UI im eigenen Netz; Native App kein MVP |
-| UI-Kanal | **Nur Web-App** (kein Telegram o.Ä.) |
+| Handy | Die App **ist** Jarvis; Sideload, kein Store |
+| UI-Kanal | Web-UI in Capacitor; kein Telegram |
 | UI-Look | **Spotify dunkel** (Schwarz/Grün) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
 | UI-Motion | MVP: **Light**; später eigenes **GUI-Update** mit spürbar premium Motion |
 | Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
@@ -26,31 +26,27 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Modellklasse MVP | **Ausgewogen** |
 | VRAM-Annahme | **~12 GB** (Desktop-Standard) |
 | Version `0.1.0` | = **MVP** (Sprint-1-Abnahme) |
-| Version `1.0.0` | = **NAS / 24/7** |
+| Version `0.10.0` | = NAS Core (Compose) — **Parking** |
+| Version `0.11.0` | = Samsung-TV |
+| Version `0.13.0` | = **On-Device Handy** |
+| Version `1.0.0` | = nächster MAJOR (PO) |
 
 ## Logische Bausteine
 
 ```text
-[Du — Handy/Browser]
+[Du — Handy]
         │
-        │  später: eigenes Netz / VPN + Auth
+        │  `0.13.x`: on-device, kein Server
         ▼
-[Chat-UI]  ← mobilfreundliche Web-Oberfläche
-        │
-        ▼
-[Jarvis-Backend (bei dir)]
-   • Persona / System-Prompt
-   • Stil-Regeln (Anti-KI-Sprech)
-   • Kurzzeitgedächtnis (letzte N Nachrichten)
-   • (später) TTS-Anbindung
+[Chat-UI in der APK]
         │
         ▼
-[Lokaler Modell-Host]
-   Ollama auf Windows-PC (RTX 3060) → später NAS
+[Jarvis-Engine auf dem Handy]
+   • Persona / Memory / Tools / Guards
+   • wllama (llama.cpp WASM)
         │
         ▼
-[Lokale Persistenz]
-   Chat-Verläufe zwischen Sessions
+[IndexedDB auf dem Gerät]
 ```
 
 ### Baustein-Erklärung (für Amateure)
@@ -69,7 +65,7 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 2. **Persona sitzt im Backend** — Nicht „hoffentlich antwortet das Modell nett“, sondern feste Regeln.
 3. **Ausgabe ≠ Intelligenz** — TTS ist nur Stimme für vorhandenen Text.
 4. **Netzwerk hart machen** — Fernzugriff erst mit Auth; kein ungeschützt offener Port als Default.
-5. **Migration einkalkulieren** — Was auf dem PC läuft, soll später auf NAS umziehbar sein (Container/Compose anstreben).
+5. **Migration einkalkulieren** — PC-Dev und NAS-Alltag teilen dasselbe Backend; Proxy statt Compose.
 
 ## Datenschutz & Sicherheit (Architektur-Regeln)
 
@@ -95,7 +91,7 @@ Diese Details werden vor/im Sprint 1 entschieden, ohne die Gesamtarchitektur zu 
 
 | Erweiterung | Phase |
 |-------------|-------|
-| Handy im eigenen Netz + VPN | Phase 2 |
-| NAS 24/7 | Phase 3 |
+| Handy APK + Owner-Token | Phase 2 → `0.10.2`–`0.10.5` |
+| NAS 24/7 Compose | Phase 3 → `0.10.0`–`0.10.1` |
 | TTS-Vorlesen | Phase 4 |
 | Langzeitgedächtnis, Tools | Phase 5+ |

@@ -12,6 +12,8 @@ import {
   listResearchAudits,
   patchSettings,
   streamChat,
+  ensureModel,
+  isModelReady,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -29,7 +31,13 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-function ToolChip({ tool }: { tool: ToolMeta }) {
+function ToolChip({
+  tool,
+  onConfirm,
+}: {
+  tool: ToolMeta
+  onConfirm?: (text: string) => void
+}) {
   const status = tool.tool_status || ''
   const label =
     tool.label ||
@@ -44,8 +52,20 @@ function ToolChip({ tool }: { tool: ToolMeta }) {
     } as Record<string, string>)[status] ||
     (status ? `Tool: ${status}` : 'Tool')
   return (
-    <span className={`tool-chip tool-chip--${status || 'unknown'}`} data-status={status}>
-      {label}
+    <span className="tool-chip-wrap">
+      <span className={`tool-chip tool-chip--${status || 'unknown'}`} data-status={status}>
+        {label}
+      </span>
+      {status === 'pending' && onConfirm ? (
+        <span className="confirm-row">
+          <button type="button" className="confirm-btn yes" onClick={() => onConfirm('Ja')}>
+            Ja
+          </button>
+          <button type="button" className="confirm-btn no" onClick={() => onConfirm('Nein')}>
+            Nein
+          </button>
+        </span>
+      ) : null}
     </span>
   )
 }
@@ -134,6 +154,9 @@ function App() {
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
+  const [setupOpen, setSetupOpen] = useState(() => !isModelReady())
+  const [downloadPct, setDownloadPct] = useState(0)
+  const [downloadBusy, setDownloadBusy] = useState(false)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -175,7 +198,7 @@ function App() {
         ollama: false,
         model: '?',
         model_ready: false,
-        error: 'Backend nicht erreichbar',
+        error: 'Modell nicht geladen',
       })
     }
   }
@@ -222,10 +245,29 @@ function App() {
     await refreshHealth()
     await refreshSettings()
     await refreshMemory()
-    const list = await listConversations()
-    setConversations(list)
-    if (list[0]) {
-      await openConversation(list[0].id)
+    setSetupOpen(!isModelReady())
+    try {
+      const list = await listConversations()
+      setConversations(list)
+      if (list[0]) {
+        await openConversation(list[0].id)
+      }
+    } catch {
+      /* empty start is fine */
+    }
+  }
+
+  async function downloadModel() {
+    setDownloadBusy(true)
+    setError(null)
+    try {
+      await ensureModel((p) => setDownloadPct(p.pct))
+      setSetupOpen(false)
+      await bootstrap()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Modell-Download fehlgeschlagen')
+    } finally {
+      setDownloadBusy(false)
     }
   }
 
@@ -452,6 +494,30 @@ function App() {
 
   return (
     <div className="app">
+      {setupOpen ? (
+        <div className="setup-overlay" role="dialog" aria-labelledby="setup-title">
+          <div className="setup-card">
+            <h2 id="setup-title">Modell aufs Handy</h2>
+            <p>
+              Jarvis denkt lokal auf diesem Gerät. Einmalig das Sprachmodell laden
+              (~470 MB). Danach kein PC und keine NAS.
+            </p>
+            {downloadBusy ? (
+              <p className="settings-hint">Download {downloadPct}% … Gerät nicht sperren.</p>
+            ) : (
+              <p className="settings-hint">WLAN empfohlen. Das Modell bleibt auf dem Handy.</p>
+            )}
+            <button
+              type="button"
+              className="retry-btn"
+              disabled={downloadBusy}
+              onClick={() => void downloadModel()}
+            >
+              {downloadBusy ? `Laden ${downloadPct}%` : 'Modell herunterladen'}
+            </button>
+          </div>
+        </div>
+      ) : null}
       <div
         className={`backdrop ${sidebarOpen ? 'visible' : ''}`}
         onClick={() => setSidebarOpen(false)}
@@ -463,7 +529,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · privat · v0.9.2</p>
+            <p>lokal · Handy · v0.13.0</p>
           </div>
         </div>
 
@@ -482,23 +548,26 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.9.2'} · lokal · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.13.0'} · on-device · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
               <p className="settings-hint">
-                Default {settings?.model_default || '—'} · Fallback {settings?.fallback_model || '—'} · Routing{' '}
-                {settings?.routing_mode || 'auto'}
+                {settings?.model_default || 'Qwen2.5 0.5B'} läuft auf diesem Handy (llama.cpp / WASM).
+                Kleiner als der alte PC-7b — dafür ohne Server.
               </p>
-              {health?.heavy_equals_default ||
-              (settings?.model_heavy &&
-                settings?.model_default &&
-                settings.model_heavy === settings.model_default) ? (
-                <p className="settings-hint warn">
-                  Hinweis: model_heavy entspricht model_default — Auto-Routing ändert das Modell nicht.
-                  Für spürbares Heavy-Routing ein anderes Heavy-Modell setzen.
-                </p>
-              ) : null}
+              {!health?.model_ready ? (
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={downloadBusy}
+                  onClick={() => void downloadModel()}
+                >
+                  {downloadBusy ? `Laden ${downloadPct}%` : 'Modell laden'}
+                </button>
+              ) : (
+                <p className="settings-hint">Modell bereit.</p>
+              )}
             </section>
             <section className="settings-section">
               <h3>Delight</h3>
@@ -556,6 +625,18 @@ function App() {
                   <option value="high">Hoch</option>
                 </select>
               </label>
+            </section>
+            <section className="settings-section">
+              <h3>Gerät</h3>
+              <p className="settings-hint">
+                Alles läuft auf diesem Handy. Kein Server, kein Token, keine NAS.
+              </p>
+            </section>
+            <section className="settings-section">
+              <h3>Fernseher</h3>
+              <p className="settings-hint">
+                Geparkt in 0.13 — Tizen-Steuerung braucht Native-Keys, nicht WASM.
+              </p>
             </section>
             <section className="settings-section">
               <h3>Easter Eggs</h3>
@@ -807,7 +888,10 @@ function App() {
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
                     {m.role === 'assistant' && m.meta?.tool ? (
-                      <ToolChip tool={m.meta.tool} />
+                      <ToolChip
+                        tool={m.meta.tool}
+                        onConfirm={(text) => void sendMessage(text)}
+                      />
                     ) : null}
                     {m.role === 'assistant' && m.meta?.research ? (
                       <SourcesBlock

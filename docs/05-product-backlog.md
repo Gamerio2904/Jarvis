@@ -16,11 +16,13 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E1 | Local Runtime | 1 | Modell-Host + Modell lokal betreiben |
 | E2 | Jarvis Core Chat | 1 | Backend, Persona-Injection, Kurzgedächtnis, API |
 | E3 | Chat UI | 1–2 | Einfache Web-UI, mobil nutzbar |
-| E4 | Private Access | 2 | Handy-Zugang, Auth, Netz |
-| E5 | Always-On Ops | 3 | NAS, Autostart, Backup |
+| E4 | Private Access | 2 | Handy, Owner-Token, APK (`0.10.2`–`0.10.5`) |
+| E5 | Always-On Ops | 3 | NAS Compose, Autostart, Backup (`0.10.0`–`0.10.1`) |
 | E6 | Voice Out | 4 | TTS-Vorlesen |
 | E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research, Scores |
 | E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, flaches Settings |
+| E11 | NAS & APK | 2–3 | Compose 24/7 + Sideload-APK — `0.10.x` |
+| E12 | Samsung TV | 5+ | Tizen lokal — `0.11.x` |
 
 ---
 
@@ -80,16 +82,17 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S4.1 | Als Nutzer will ich vom Handy im privaten Setup auf Jarvis zugreifen. | Must (Phase 2) | parked | Erreichbar laut gewähltem Netz-Setup |
-| S4.2 | Als Nutzer will ich, dass Fremde ohne Zugang nicht chatten können. | Must (Phase 2) | parked | Auth greift |
-| S4.3 | Als Nutzer will ich keine ungeschützt öffentlichen Ports als Default. | Must (Phase 2) | parked | Doku/Setup folgt Härte-Regel |
+| S4.1 | Als Nutzer will ich vom Handy im privaten Setup auf Jarvis zugreifen. | Must | ready | Sprint 36–39 / `0.10.2`–`0.10.5` |
+| S4.2 | Als Nutzer will ich, dass Fremde ohne Zugang nicht chatten können. | Must | ready | Sprint 36 / `0.10.2` Owner-Token |
+| S4.3 | Als Nutzer will ich keine ungeschützt öffentlichen Ports als Default. | Must | ready | Sprint 36 / `0.10.2` LAN-Default |
+| S4.4 | Als Nutzer will ich eine sideloadbare Android-APK gegen die NAS. | Must | ready | Sprint 37–39 / `0.10.3`–`0.10.5` |
 
 ### E5 — Always-On Ops
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S5.1 | Als Nutzer will ich Jarvis 24/7 auf NAS/Mini-Server. | Must (Phase 3) | parked | Dienst überlebt Reboot |
-| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Should (Phase 3) | parked | Backup-Pfad dokumentiert/automatisiert |
+| S5.1 | Als Nutzer will ich Jarvis 24/7 auf NAS/Mini-Server. | Must | ready | Sprint 34 / `0.10.0` Compose |
+| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Should | ready | Sprint 35 / `0.10.1` |
 
 ### E6 — Voice Out
 
@@ -125,8 +128,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.7b | Als Nutzer will ich stabile Topic-Extraktion bei langen Research-Prompts. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7c | Als PO will ich Research-Default Opt-in aus + Test-Hygiene. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7d | Als Nutzer will ich Research-Antworten im Jarvis-Ton + robustere Provider-Mix. | Should | done | Sprint 17 / `0.6.2` — Polish |
-| S7.8 | Kalender/Mail/Smart-Home-Tools | Won’t | parked | nicht in `0.9.0`; lokal Notes/Todos = E9 |
-| S7.9 | Native Store-App | Won’t | parked | |
+| S7.8 | Kalender/Mail/Fire-TV/Alexa-Tools | Won’t | parked | Samsung-TV = E12 / `0.11.x` |
+| S7.9 | Native Store-App (Play Store) | Won’t | parked | Sideload-APK = S4.4 / `0.10.3` |
 
 ### E8 — Delight & Settings
 
@@ -182,6 +185,31 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S10.3 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt Smalltalk. | Must | ready | Sprint 32 / `0.9.4` |
 | S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Must | ready | Sprint 32 / `0.9.4` |
 
+### E11 — NAS & APK (`0.10.x`)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S11.1 | Als Nutzer will ich den Stack per Compose auf NAS mit Autostart. | Must | ready | Sprint 34 / `0.10.0` |
+| S11.2 | Als Nutzer will ich Backup/Restore der Chat-Daten. | Should | ready | Sprint 35 / `0.10.1` |
+| S11.3 | Als Nutzer will ich Owner-Token, sonst 401. | Must | ready | Sprint 36 / `0.10.2` |
+| S11.4 | Als Nutzer will ich die APK sideloaden und gegen NAS chatten. | Must | ready | Sprint 37 / `0.10.3` |
+| S11.5 | Als Nutzer will ich First-Run (URL+Token) und bedienbare Tastatur. | Must | ready | Sprint 38–39 / `0.10.4`–`0.10.5` |
+
+### E12 — Samsung TV (`0.11.x`)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S12.1 | Als Nutzer will ich den Tizen-TV ein/aus, Lautstärke, Mute, HDMI lokal steuern. | Must | ready | Sprint 40 / `0.11.0` |
+| S12.2 | Als Nutzer will ich ehrliche Fehler wenn WOL/TV tot ist. | Must | ready | Sprint 41 / `0.11.1` |
+| S12.3 | Als Nutzer will ich TV in Settings suchen, koppeln, testen, umbenennen. | Must | ready | Sprint 42 / `0.11.2` |
+
+### E13 — LAN-Proxy & APK (`0.12.x`)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S13.1 | Als Nutzer will ich Jarvis ohne Docker 24/7 auf der NAS (Proxy :8080). | Must | ready | Sprint 43 / `0.12.0` |
+| S13.2 | Als Nutzer will ich die APK sideloaden und First-Run gegen die NAS-IP. | Must | ready | Sprint 43 / `0.12.0` |
+
 ### E7 — Nachzieher Quality/Research (Fortsetzung)
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
@@ -205,8 +233,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 1. **Sprint 31** (`0.9.3`) — Memory Quality Hotfix
 2. **Sprint 32** (`0.9.4`) — Assist Continuity & Siezen
 3. **Sprint 33** (`0.9.5`) — Tools Hygiene & Confirm-UX
-4. Phase 2 Handy / NAS `1.0.0` / TTS — **PO-Kommando**
-5. Smart-Home / Fire TV — **Parking** (nur nach neuem Scope)
+4. **Sprints 34–39** (`0.10.0`–`0.10.5`) — NAS-Compose **Parking**
+5. **Sprints 40–42** (`0.11.0`–`0.11.2`) — Samsung-TV lokal
+6. **Sprint 43** (`0.12.0`) — NAS native + Reverse-Proxy & APK
+7. TTS / `1.0.0` — **PO-Kommando**
+8. Mail / Fire TV / Alexa / Play Store / Docker-NAS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 
@@ -214,5 +245,6 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
 - Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate
-- Mail / Smart-Home / Cloud-Kalender-OAuth / **Amazon Fire TV Steuern**
+- Mail / Cloud-Kalender-OAuth / **Amazon Fire TV** / Alexa
+- Play Store Listing / iOS
 - Optional lokaler Kalender-Read (ICS) — Parking (Sprint 30 P7)

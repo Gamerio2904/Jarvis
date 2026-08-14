@@ -15,7 +15,7 @@ MAJOR.MINOR.PATCH
 
 | Teil | Wann erhöhen | Bedeutung |
 |------|----------------|-----------|
-| **MAJOR** | Grober Produktsprung / Meilenstein | z.B. `1.0.0` = NAS 24/7 |
+| **MAJOR** | Grober Produktsprung / Meilenstein | z.B. `1.0.0` = nächster Sprung nach `0.11` (PO) |
 | **MINOR** | Geplantes Sprint-/Etappenziel erreicht | Neues nutzbares Fähigkeitsniveau |
 | **PATCH** | Nachzieher / Fixes / kleine Ergänzungen **nach** einem MINOR-Ziel | Zwischenversionen: `0.1.1`, `0.1.2`, … |
 
@@ -56,7 +56,18 @@ MAJOR.MINOR.PATCH
 | `0.9.3` | **Memory Quality Hotfix** (Multi-Fact, Pref-Recall) | Sprint 31 |
 | `0.9.4` | **Assist Continuity & Siezen** (Clarify-Plan, Residual-Siezen, EN) | Sprint 32 |
 | `0.9.5` | **Tools Hygiene & Confirm-UX** (Scope, UI-Confirm, Aufräumen) | Sprint 33 |
-| `1.0.0` | **NAS / 24/7** | Phase 3 |
+| `0.10.0` | **NAS Core** (Compose, Volumes, Autostart) | Sprint 34 |
+| `0.10.1` | **NAS Hotfix** (Backup, Rechte, Startfehler) | Sprint 35 |
+| `0.10.2` | **NAS Auth & LAN** (Owner-Token) | Sprint 36 |
+| `0.10.3` | **APK Core** (Capacitor Sideload) | Sprint 37 |
+| `0.10.4` | **APK Hotfix** (Tastatur, Reconnect, Fehler) | Sprint 38 |
+| `0.10.5` | **APK Polish** (First-Run, Icon) — `0.10` zu | Sprint 39 |
+| `0.11.0` | **Samsung TV Core** (Tizen lokal, WOL, Vol, HDMI) | Sprint 40 |
+| `0.11.1` | **Samsung TV Hotfix** | Sprint 41 |
+| `0.11.2` | **Samsung TV Settings-UI** (suchen/koppeln/testen) | Sprint 42 |
+| `0.12.0` | **NAS-Proxy & APK** — **superseded** durch On-Device | Sprint 43 |
+| `0.13.0` | **On-Device Handy** (WASM-LLM, kein Server) | Sprint 44 |
+| `1.0.0` | **nächster MAJOR** — Inhalt PO | nach `0.13` |
 
 ### Weitere Beispiele
 
@@ -75,6 +86,9 @@ MAJOR.MINOR.PATCH
 | `0.9.3` | Memory Quality Hotfix (Sprint 31) |
 | `0.9.4` | Assist Continuity & Siezen (Sprint 32) |
 | `0.9.5` | Tools Hygiene & Confirm-UX (Sprint 33) |
+| `0.10.0` | NAS Core — Compose 24/7 (Sprint 34) |
+| `0.10.5` | APK Polish — Abschluss NAS+APK (Sprint 39) |
+| `0.11.0` | Samsung TV Core (Sprint 40) |
 
 ## Was wird versioniert?
 

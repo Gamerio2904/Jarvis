@@ -35,13 +35,25 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 28 | [`sprint-28.md`](./sprint-28.md) | `0.9.0` | Local Tools Core (Option A) | **READY FOR REVIEW** |
 | 29 | [`sprint-29.md`](./sprint-29.md) | `0.9.1` | Tools Hotfix | **READY FOR REVIEW** |
 | 30 | [`sprint-30.md`](./sprint-30.md) | `0.9.2` | Tools Polish & Assist Continuity | **READY FOR REVIEW** |
-| 31 | [`sprint-31.md`](./sprint-31.md) | `0.9.3` | Memory Quality Hotfix | **PLANNED** |
-| 32 | [`sprint-32.md`](./sprint-32.md) | `0.9.4` | Assist Continuity & Siezen | **PLANNED** |
-| 33 | [`sprint-33.md`](./sprint-33.md) | `0.9.5` | Tools Hygiene & Confirm-UX | **PLANNED** |
+| 31 | [`sprint-31.md`](./sprint-31.md) | `0.9.3` | Memory Quality Hotfix | **READY FOR REVIEW** |
+| 32 | [`sprint-32.md`](./sprint-32.md) | `0.9.4` | Assist Continuity & Siezen | **READY FOR REVIEW** |
+| 33 | [`sprint-33.md`](./sprint-33.md) | `0.9.5` | Tools Hygiene & Confirm-UX | **READY FOR REVIEW** |
+| 34 | [`sprint-34.md`](./sprint-34.md) | `0.10.0` | NAS Core (Compose 24/7) | **CODE** (Hardware-Abnahme) |
+| 35 | [`sprint-35.md`](./sprint-35.md) | `0.10.1` | NAS Hotfix | **CODE** (Hardware-Abnahme) |
+| 36 | [`sprint-36.md`](./sprint-36.md) | `0.10.2` | NAS Auth & LAN | **CODE** (Hardware-Abnahme) |
+| 37 | [`sprint-37.md`](./sprint-37.md) | `0.10.3` | APK Core (Sideload) | **CODE** (Hardware-Abnahme) |
+| 38 | [`sprint-38.md`](./sprint-38.md) | `0.10.4` | APK Hotfix | **CODE** (Hardware-Abnahme) |
+| 39 | [`sprint-39.md`](./sprint-39.md) | `0.10.5` | APK Polish (`0.10` Abschluss) | **CODE** (Hardware-Abnahme) |
+| 40 | [`sprint-40.md`](./sprint-40.md) | `0.11.0` | Samsung TV Core | **CODE** (TV-Pairing) |
+| 41 | [`sprint-41.md`](./sprint-41.md) | `0.11.1` | Samsung TV Hotfix | **CODE** (TV-Pairing) |
+| 42 | [`sprint-42.md`](./sprint-42.md) | `0.11.2` | Samsung TV Settings-UI | **CODE** (TV-Pairing) |
+| 43 | [`sprint-43.md`](./sprint-43.md) | `0.12.0` | NAS-Proxy (superseded) | **SUPERSEDED** |
+| 44 | [`sprint-44.md`](./sprint-44.md) | `0.13.0` | On-Device Handy | **CODE** |
 
 **Nächste Pull-Reihenfolge:** Sprint **31** (`0.9.3`) Memory Quality.  
-PO-Review/Tags `v0.8.0`–`v0.9.2` parallel möglich.  
-Phase 2 Handy / NAS / TTS / Smart-Home — **PO-Kommando** (nicht in `0.9.3`–`0.9.5`).
+Danach 32–33 (`0.9.4`–`0.9.5`), dann **`0.10.x`** Compose **Parking**, **`0.11.x` Samsung-TV** (40–42), **`0.12.0` NAS-Proxy** (43).  
+TTS / `1.0.0` — **PO-Kommando**.  
+Überblick Proxy/APK: [`../13-lan-proxy.md`](../13-lan-proxy.md)
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

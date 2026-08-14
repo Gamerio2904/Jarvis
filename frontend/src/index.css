@@ -206,12 +206,15 @@ textarea {
   color: var(--text-muted);
 }
 
-.settings-inline select {
+.settings-inline select,
+.settings-inline input {
   background: var(--bg-input);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 4px 8px;
+  min-width: 0;
+  flex: 1;
 }
 
 .egg-list {
@@ -281,6 +284,45 @@ textarea {
 .settings-hint.warn {
   color: #d4a574;
   margin-top: 0.4rem;
+}
+
+.setup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.setup-card {
+  width: min(420px, 100%);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow);
+}
+
+.setup-card h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.setup-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.setup-card code {
+  font-size: 0.8rem;
 }
 
 .audit-toggle {
@@ -686,6 +728,38 @@ textarea {
   background: linear-gradient(120deg, #1ed760, #169c46);
   padding: 3px 8px;
   border-radius: 6px;
+}
+
+.tool-chip-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.confirm-row {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.confirm-btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.confirm-btn.yes {
+  background: #1ed760;
+  color: #0b1f12;
+}
+
+.confirm-btn.no {
+  background: #3a1210;
+  color: #f3d0cc;
 }
 
 .tool-chip {

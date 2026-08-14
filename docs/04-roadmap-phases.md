@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Phase 2+ (Handy/Netz, NAS, TTS) wird **bewusst später** im Detail geplant — Roadmap-Richtung bleibt, Feinschnitt auf PO-Kommando.
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. TV geparkt. TTS bleibt PO-Kommando.
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -57,31 +57,36 @@ Du kannst sagen: „Jarvis klingt so: …“ und Beispiele in `07-persona.md` si
 
 ---
 
-## Phase 2 — Privat vom Handy
+## Phase 2 — Privat vom Handy (in `0.10.x` mit Phase 3)
 
-**Ziel:** Zuverlässig vom Handy im eigenen Setup chatten — ohne Native App.
+**Ziel:** Vom Handy im eigenen WLAN chatten — **Sideload-APK** gegen NAS, plus Browser.
 
-**Inhalt**
-- Erreichbarkeit im eigenen Netz / VPN (z.B. Tailscale o.Ä.)
-- Auth (nur du)
-- Stabilerer Start der Dienste
+**Inhalt** (geliefert in `0.10.2`–`0.10.5`)
+- Owner-Token (kein Multi-User)
+- Capacitor-APK um die bestehende Web-UI
+- NAS-URL + Token in der App (First-Run)
+- Optional später: Tailscale/VPN (Should, nicht Must)
 
 **Exit-Kriterium**  
-Handy-Chat mit lokalem Jarvis ist Alltagstauglich-genug.
+APK-Chat gegen NAS ist Alltag; ohne Token kein Zugriff.
+
+**Nicht:** Play Store, iOS.
 
 ---
 
-## Phase 3 — 24/7 auf NAS
+## Phase 3 — 24/7 auf NAS (in `0.10.x` mit Phase 2)
 
 **Ziel:** Dauerbetrieb ohne dass der Laptop an sein muss.
 
-**Inhalt**
-- Stack-Umzug (idealerweise containerisiert)
-- Autostart, Backup von Config/Chats
-- Modellgröße an NAS-Ressourcen anpassen
+**Inhalt** (geliefert in `0.10.0`–`0.10.1`)
+- Docker Compose: Backend, Frontend-Static, Ollama
+- Autostart, Volumes, Backup
+- Modell an NAS-Ressourcen (`3b` ohne GPU, `7b` mit GPU)
 
 **Exit-Kriterium**  
-Jarvis ist dauerhaft erreichbar; Ausfall/Neustart ist handhabbar.
+Reboot → Stack wieder da; Chat im Browser gegen NAS-IP.
+
+**Version:** früher `1.0.0` — jetzt **`0.10.0`–`0.10.5`**. `1.0.0` ist frei für einen späteren MAJOR.
 
 ---
 
@@ -132,7 +137,12 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Memory Quality Hotfix → **`0.9.3`** (Sprint 31, geplant)
 - Assist Continuity & Siezen → **`0.9.4`** (Sprint 32, geplant)
 - Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33, geplant)
-- Tools (Kalender/Mail/Smart-Home/Fire TV) / Native App nur falls nötig — **nicht** in `0.9.x`
+- NAS Compose 24/7 → **`0.10.0`** (Sprint 34)
+- NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** (Sprints 36–39) — [`12`](./12-nas-apk.md)
+- Samsung-TV lokal → **`0.11.0`–`0.11.2`** (Sprints 40–42)
+- Mail / Fire TV / Alexa / Play Store — **Parking**
+- Tools (Kalender/Mail) — **nicht** in `0.9.x`/`0.10.x`
+
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---
 
@@ -142,11 +152,11 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 |-------------|----------------------|
 | TTS | Stabilen Text-Charakter (Phase 1+) |
 | NAS 24/7 | Laufenden Stack auf dem PC (Phase 1) |
-| Handy-Alltag | Auth + Netz-Härte (Phase 2) |
+| Handy-Alltag | NAS-Stack + Owner-Token + APK (`0.10.2`+) |
 | Tools | Klare Persona + zuverlässigen Betrieb |
 
 ## Sparring-Korrekturen in der Roadmap
 
-- Handy-App und NAS sind **nicht** Phase-1-Arbeit.
+- Handy-App und NAS sind **nicht** Phase-1-Arbeit (kommen als `0.10.x` nach `0.9.5`).
 - Lokales Modell kann Smalltalk schwächen → Persona/Stil und ggf. Modellwechsel sind Teil von Phase 1, keine „spätere Politur“.
 - Stimme ersetzt keine gute Text-Persona.
