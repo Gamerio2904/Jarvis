@@ -504,6 +504,27 @@ Multi-Turn Tool-Flows, Listen-UX, Scorecard, UI-Chips.
 
 ---
 
+## Sprint 31 — Memory Quality Hotfix → **`0.9.3`**
+
+**Status:** PLANNED · [`sprints/sprint-31.md`](./sprints/sprint-31.md)  
+Multi-Fact Write, Pref-Recall-Routing, Honesty.
+
+---
+
+## Sprint 32 — Assist Continuity & Siezen → **`0.9.4`**
+
+**Status:** PLANNED · [`sprints/sprint-32.md`](./sprints/sprint-32.md)  
+Clarify→Plan, Residual-Siezen, EN-Leak.
+
+---
+
+## Sprint 33 — Tools Hygiene & Confirm-UX → **`0.9.5`**
+
+**Status:** PLANNED · [`sprints/sprint-33.md`](./sprints/sprint-33.md)  
+Listen-Scope, UI-Confirm, Aufräumen.
+
+---
+
 ## Weitere geplante Sprints (Richtung)
 
 | Sprint | Zielrichtung | Version |

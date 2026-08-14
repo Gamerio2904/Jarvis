@@ -129,8 +129,10 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Local Tools Core (Option A) → **`0.9.0`** (Sprint 28, READY FOR REVIEW)
 - Tools Hotfix → **`0.9.1`** (Sprint 29, READY FOR REVIEW)
 - Tools Polish & Continuity → **`0.9.2`** (Sprint 30, READY FOR REVIEW)
-- Tools (Kalender/Mail/Smart-Home) / Native App nur falls nötig — **nicht** in `0.9.0`
-
+- Memory Quality Hotfix → **`0.9.3`** (Sprint 31, geplant)
+- Assist Continuity & Siezen → **`0.9.4`** (Sprint 32, geplant)
+- Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33, geplant)
+- Tools (Kalender/Mail/Smart-Home/Fire TV) / Native App nur falls nötig — **nicht** in `0.9.x`
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---
 

@@ -45,5 +45,6 @@ PO: Tool-Alltag ohne False-Claims; Continuity spürbar; Scorecard ok. Tag **`v0.
 
 ## Danach
 
+- Sprints **31–33** (`0.9.3`–`0.9.5`) Memory/Assist/Tools-Hygiene
 - Phase 2 Privat-Handy / NAS `1.0.0` / TTS — **PO-Kommando**
-- Weitere Tools nur nach neuem Sprint
+- Weitere Tools (inkl. Smart-Home) nur nach neuem Sprint

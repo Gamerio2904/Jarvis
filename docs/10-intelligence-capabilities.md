@@ -21,6 +21,9 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 5 | **`0.9.0`** | [28](./sprints/sprint-28.md) | Local Tools Core (Notes/Todos, Confirm) | **READY FOR REVIEW** |
 | 5a | **`0.9.1`** | [29](./sprints/sprint-29.md) | Tools Hotfix | **READY FOR REVIEW** |
 | 5b | **`0.9.2`** | [30](./sprints/sprint-30.md) | Tools Polish & Continuity | **READY FOR REVIEW** |
+| 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **PLANNED** |
+| 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PLANNED** |
+| 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **PLANNED** |
 
 ```text
 Sprint 8  0.4.0 Memory
@@ -334,7 +337,7 @@ Neben Memory/Research **handlungsfähige**, lokale Persistenz: Notizen und Todos
 ### Abgrenzung
 | Geht in `0.9.x` | Geht **nicht** |
 |-----------------|----------------|
-| Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Smart-Home |
+| Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Smart-Home / Fire TV |
 | `notes` + `todo` (SQLite) | Cloud-Kalender-OAuth |
 | Router/`/hilfe` Integration | Autonome Multi-Tool-Ketten ohne Confirm |
 | False-Confirm-Guards | Secrets speichern |
@@ -347,6 +350,9 @@ Memory („Merk dir …“) bleibt Fakten-Gedächtnis; Tools sind **explizite Ar
 | **`0.9.0`** | [28](./sprints/sprint-28.md) | Runtime + Notes + Todos |
 | **`0.9.1`** | [29](./sprints/sprint-29.md) | Hotfix |
 | **`0.9.2`** | [30](./sprints/sprint-30.md) | Polish / Continuity |
+| **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality |
+| **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity |
+| **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene |
 
 Vorher empfohlen: **`0.8.5`** Persona/Continuity ([27](./sprints/sprint-27.md)).
 
@@ -366,4 +372,10 @@ Local Tools Core                       →  0.9.0  (Sprint 28)
 Tools Hotfix                           →  0.9.1  (Sprint 29)
         ↓
 Tools Polish                           →  0.9.2  (Sprint 30)
+        ↓
+Memory Quality Hotfix                 →  0.9.3  (Sprint 31)
+        ↓
+Assist Continuity & Siezen             →  0.9.4  (Sprint 32)
+        ↓
+Tools Hygiene & Confirm-UX             →  0.9.5  (Sprint 33)
 ```

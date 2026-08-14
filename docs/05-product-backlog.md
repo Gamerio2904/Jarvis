@@ -170,6 +170,17 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S9.4 | Als Nutzer will ich keine Fake-„notiert“-Claims ohne Tool-Execute. | Must | done | Sprint 29 / `0.9.1` |
 | S9.5 | Als Nutzer will ich klare Trennung Memory („merk dir“) vs. Tool („notiere/todo“). | Must | done | Sprint 29 / `0.9.1` |
 | S9.6 | Als Nutzer will ich Multi-Turn Tool-Flows (listen → erledigen). | Should | done | Sprint 30 / `0.9.2` |
+| S9.7 | Als Nutzer will ich Todos/Notizen ohne Eval-Müll-Dump sehen (Scope/Filter). | Should | ready | Sprint 33 / `0.9.5` |
+| S9.8 | Als Nutzer will ich Confirm per UI-Chip (Ja/Nein). | Should | ready | Sprint 33 / `0.9.5` |
+
+### E10 — Memory & Assist Quality (nach 0.9.2-Probe)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S10.1 | Als Nutzer will ich in einem „Merk dir“-Satz mehrere Fakten speichern. | Must | ready | Sprint 31 / `0.9.3` |
+| S10.2 | Als Nutzer will ich Pref-Fragen („Was trinke ich?“) als Recall, nicht Smalltalk. | Must | ready | Sprint 31 / `0.9.3` |
+| S10.3 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt Smalltalk. | Must | ready | Sprint 32 / `0.9.4` |
+| S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Must | ready | Sprint 32 / `0.9.4` |
 
 ### E7 — Nachzieher Quality/Research (Fortsetzung)
 
@@ -191,9 +202,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Phase 2 / NAS / TTS — **PO-Kommando**
-2. PO-Review Tags `0.8.0`–`0.9.1` parallel möglich
-3. Danach: Phase 2+ / NAS `1.0.0` auf PO-Kommando
+1. **Sprint 31** (`0.9.3`) — Memory Quality Hotfix
+2. **Sprint 32** (`0.9.4`) — Assist Continuity & Siezen
+3. **Sprint 33** (`0.9.5`) — Tools Hygiene & Confirm-UX
+4. Phase 2 Handy / NAS `1.0.0` / TTS — **PO-Kommando**
+5. Smart-Home / Fire TV — **Parking** (nur nach neuem Scope)
 
 ## Parking Lot (Ideen, nicht geplant)
 
@@ -201,5 +214,5 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
 - Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate
-- Mail / Smart-Home / Cloud-Kalender-OAuth
-- Optional lokaler Kalender-Read (ICS) — Kandidat Sprint 30 P7, sonst hier
+- Mail / Smart-Home / Cloud-Kalender-OAuth / **Amazon Fire TV Steuern**
+- Optional lokaler Kalender-Read (ICS) — Parking (Sprint 30 P7)

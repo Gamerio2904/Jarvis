@@ -5,6 +5,21 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `0.9.5` — Sprint 33 (Tools Hygiene & Confirm-UX) — *PLANNED*
+
+- Listen-Scope, UI Ja/Nein-Confirm, Aufräumen
+- [`sprints/sprint-33.md`](./sprints/sprint-33.md)
+
+### `0.9.4` — Sprint 32 (Assist Continuity & Siezen) — *PLANNED*
+
+- Clarify→Plan hart; Residual-Siezen; EN-Leak Guard
+- [`sprints/sprint-32.md`](./sprints/sprint-32.md)
+
+### `0.9.3` — Sprint 31 (Memory Quality Hotfix) — *PLANNED*
+
+- Multi-Fact Write; Pref-Recall-Routing; Honesty statt Halluzination
+- [`sprints/sprint-31.md`](./sprints/sprint-31.md)
+
 ### `0.9.2` — Sprint 30 (Tools Polish & Continuity) — *READY FOR REVIEW*
 
 - Multi-Turn: Liste → „Erledige das erste / Nr. 2“ ohne neue Confirm

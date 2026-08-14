@@ -53,6 +53,9 @@ MAJOR.MINOR.PATCH
 | `0.9.0` | **Local Tools Core** (Runtime, Notes, Todos, Confirm) | Sprint 28 |
 | `0.9.1` | **Tools Hotfix** (False-Confirm, Memory↔Tool, Inject) | Sprint 29 |
 | `0.9.2` | **Tools Polish** (Continuity, Listen-UX, Scorecard) | Sprint 30 |
+| `0.9.3` | **Memory Quality Hotfix** (Multi-Fact, Pref-Recall) | Sprint 31 |
+| `0.9.4` | **Assist Continuity & Siezen** (Clarify-Plan, Residual-Siezen, EN) | Sprint 32 |
+| `0.9.5` | **Tools Hygiene & Confirm-UX** (Scope, UI-Confirm, Aufräumen) | Sprint 33 |
 | `1.0.0` | **NAS / 24/7** | Phase 3 |
 
 ### Weitere Beispiele
@@ -69,6 +72,9 @@ MAJOR.MINOR.PATCH
 | `0.9.0` | Local Tools Core — Option A (Sprint 28) |
 | `0.9.1` | Tools Hotfix (Sprint 29) |
 | `0.9.2` | Tools Polish (Sprint 30) |
+| `0.9.3` | Memory Quality Hotfix (Sprint 31) |
+| `0.9.4` | Assist Continuity & Siezen (Sprint 32) |
+| `0.9.5` | Tools Hygiene & Confirm-UX (Sprint 33) |
 
 ## Was wird versioniert?
 
