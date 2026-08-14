@@ -13,6 +13,7 @@ import {
   patchSettings,
   streamChat,
   ensureModel,
+  hasCachedModel,
   isModelReady,
   type Conversation,
   type Health,
@@ -157,6 +158,8 @@ function App() {
   const [setupOpen, setSetupOpen] = useState(() => !isModelReady())
   const [downloadPct, setDownloadPct] = useState(0)
   const [downloadBusy, setDownloadBusy] = useState(false)
+  const [downloadPhase, setDownloadPhase] = useState<'download' | 'load'>('download')
+  const [hasLocalModel, setHasLocalModel] = useState(false)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -245,7 +248,29 @@ function App() {
     await refreshHealth()
     await refreshSettings()
     await refreshMemory()
-    setSetupOpen(!isModelReady())
+    if (isModelReady()) {
+      setSetupOpen(false)
+    } else if (await hasCachedModel()) {
+      setHasLocalModel(true)
+      setSetupOpen(true)
+      setDownloadBusy(true)
+      setDownloadPhase('load')
+      try {
+        await ensureModel((p) => {
+          setDownloadPct(p.pct)
+          setDownloadPhase(p.phase)
+        })
+        setSetupOpen(false)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Modell konnte nicht geladen werden')
+        setSetupOpen(true)
+      } finally {
+        setDownloadBusy(false)
+      }
+    } else {
+      setHasLocalModel(false)
+      setSetupOpen(true)
+    }
     try {
       const list = await listConversations()
       setConversations(list)
@@ -261,7 +286,11 @@ function App() {
     setDownloadBusy(true)
     setError(null)
     try {
-      await ensureModel((p) => setDownloadPct(p.pct))
+      await ensureModel((p) => {
+        setDownloadPct(p.pct)
+        setDownloadPhase(p.phase)
+      })
+      setHasLocalModel(true)
       setSetupOpen(false)
       await bootstrap()
     } catch (err) {
@@ -503,17 +532,34 @@ function App() {
               (~470 MB). Danach kein PC und keine NAS.
             </p>
             {downloadBusy ? (
-              <p className="settings-hint">Download {downloadPct}% … Gerät nicht sperren.</p>
+              <p className="settings-hint">
+                {downloadPhase === 'load' || hasLocalModel
+                  ? 'Modell wird geladen — kein erneuter Download.'
+                  : downloadPct > 0
+                    ? `Download ${downloadPct}% … Gerät nicht sperren.`
+                    : 'Download läuft … Gerät nicht sperren.'}
+              </p>
             ) : (
-              <p className="settings-hint">WLAN empfohlen. Das Modell bleibt auf dem Handy.</p>
+              <p className="settings-hint">
+                {hasLocalModel
+                  ? 'Modell liegt auf dem Gerät. Einmal starten, dann chatten.'
+                  : 'WLAN empfohlen. Das Modell bleibt auf dem Handy.'}
+              </p>
             )}
+            {error ? <p className="settings-hint setup-error">{error}</p> : null}
             <button
               type="button"
               className="retry-btn"
               disabled={downloadBusy}
               onClick={() => void downloadModel()}
             >
-              {downloadBusy ? `Laden ${downloadPct}%` : 'Modell herunterladen'}
+              {downloadBusy
+                ? downloadPhase === 'load' || hasLocalModel
+                  ? 'Modell starten…'
+                  : `Laden ${downloadPct}%`
+                : hasLocalModel
+                  ? 'Modell starten'
+                  : 'Modell herunterladen'}
             </button>
           </div>
         </div>
@@ -529,7 +575,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · Handy · v0.13.0</p>
+            <p>lokal · Handy · v0.13.1</p>
           </div>
         </div>
 
@@ -548,7 +594,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.13.0'} · on-device · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.13.1'} · on-device · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
@@ -563,7 +609,13 @@ function App() {
                   disabled={downloadBusy}
                   onClick={() => void downloadModel()}
                 >
-                  {downloadBusy ? `Laden ${downloadPct}%` : 'Modell laden'}
+                  {downloadBusy
+                    ? downloadPhase === 'load' || hasLocalModel
+                      ? 'Modell starten…'
+                      : `Laden ${downloadPct}%`
+                    : hasLocalModel
+                      ? 'Modell starten'
+                      : 'Modell laden'}
                 </button>
               ) : (
                 <p className="settings-hint">Modell bereit.</p>

@@ -3,6 +3,8 @@ frontend/dist/
 frontend/android/
 frontend/ios/
 frontend/dist-apk/
+frontend/public/wllama/
+.android-avd/
 .gradle/
 __pycache__/
 *.pyc

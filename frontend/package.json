@@ -1,19 +1,23 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "0.13.0",
+  "version": "0.13.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "smoke": "node --experimental-strip-types scripts/smoke-prompt.mts",
+    "smoke:browser": "node scripts/browser-smoke.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
+    "@capacitor/filesystem": "^8.1.2",
     "@wllama/wllama": "^3.5.1",
+    "@wllama/wllama-compat": "^3.5.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
@@ -23,6 +27,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
     "oxlint": "^1.75.0",
+    "puppeteer-core": "^25.7.0",
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
   }

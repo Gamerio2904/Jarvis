@@ -321,6 +321,10 @@ textarea {
   line-height: 1.4;
 }
 
+.setup-card .setup-error {
+  color: var(--danger);
+}
+
 .setup-card code {
   font-size: 0.8rem;
 }

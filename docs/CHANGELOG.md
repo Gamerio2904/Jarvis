@@ -5,7 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.13.0`** (On-Device Handy, kein Server).
+App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
+
+### `0.13.1` — Modell-Download Hotfix — *CODE*
+
+- First-Run lädt die GGUF direkt (OPFS/IndexedDB), nicht über wllama-OPFS-Metadaten
+- App-Neustart startet das gespeicherte Modell, ohne erneut ~470 MB zu laden
+- Chat: Qwen-Template, Timeout, kein endloses „schreibt…“
+- CapacitorHttp umgeht WebView-CORS; lokales wllama-compat-WASM (kein jsDelivr)
+- Fehlertext auf Deutsch im First-Run-Overlay
+- [`sprints/sprint-45.md`](./sprints/sprint-45.md)
 
 ### `0.13.0` — Sprint 44 (On-Device) — *CODE*
 

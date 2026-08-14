@@ -8,8 +8,8 @@ PO 2026-08-14: Jarvis läuft **vollständig auf dem Handy**. DS218 kann kein LLM
 Android-APK
   UI          React (Capacitor)
   Engine      TypeScript (Memory, Tools, Guards, Chat)
-  Speicher    IndexedDB
-  Modell      wllama / llama.cpp WASM
+  Speicher    IndexedDB + OPFS + nativer Dateidownload (GGUF bleibt nach App-Neustart)
+  Modell      wllama / llama.cpp WASM (+ compat für Android-WebView)
               Qwen2.5-0.5B-Instruct Q4 (~470 MB, First-Run-Download)
 ```
 

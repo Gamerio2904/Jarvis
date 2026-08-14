@@ -4,6 +4,7 @@ import {
   getDownloadProgress,
   getHealth as engineHealth,
   getSettings as engineSettings,
+  hasCachedModel,
   isModelReady,
   patchSettings as enginePatch,
   streamChat as engineStream,
@@ -24,7 +25,7 @@ import {
 } from './engine/store'
 
 export type { Conversation, MemoryItem, Message, StreamHandlers }
-export { APP_VERSION, ensureModel, getDownloadProgress, isModelReady }
+export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady }
 
 export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
 
@@ -209,7 +210,7 @@ export async function tvPair(_body: {
 }): Promise<{ ok: boolean; message: string }> {
   return {
     ok: false,
-    message: 'TV ist in 0.13 geparkt. Jarvis denkt auf dem Handy; Tizen-Keys kommen später.',
+    message: 'TV ist in 0.13.1 geparkt. Jarvis denkt auf dem Handy; Tizen-Keys kommen später.',
   }
 }
 

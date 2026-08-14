@@ -1,4 +1,4 @@
-import { completeChat, ensureModel, getDownloadProgress, getLlmError, isModelReady } from './llm'
+import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady } from './llm'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { PERSONA } from './persona'
@@ -75,7 +75,7 @@ export function patchSettings(patch: Partial<Settings>): Settings {
   return saveSettings(patch)
 }
 
-export { ensureModel, getDownloadProgress, isModelReady }
+export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady }
 
 export async function streamChat(
   conversationId: string,
@@ -132,7 +132,11 @@ export async function streamChat(
     }
 
     if (!isModelReady()) {
-      throw new Error('Modell nicht geladen. Unter Einstellungen einmal herunterladen.')
+      if (await hasCachedModel()) {
+        await ensureModel()
+      } else {
+        throw new Error('Modell nicht geladen. Unter Einstellungen einmal herunterladen.')
+      }
     }
 
     const history = await listMessages(conversationId)
@@ -140,7 +144,7 @@ export async function streamChat(
     const system = [PERSONA, memoryBlock(mem)].filter(Boolean).join('\n\n')
     const llmMessages = [
       { role: 'system', content: system },
-      ...history.slice(-12).map((m) => ({
+      ...history.slice(-8).map((m) => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content,
       })),
