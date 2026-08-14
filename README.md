@@ -58,6 +58,17 @@ npm run dev
 
 Browser: http://localhost:5173
 
+### 4. Android-APK (optional)
+
+Debug-APK fürs Handy (WebView → Backend im LAN):
+
+- Download: [`releases/jarvis-0.9.3-debug.apk`](./releases/jarvis-0.9.3-debug.apk)
+- Anleitung: [`docs/android.md`](./docs/android.md)
+
+Nach dem Installieren in der App **Einstellungen → Server-URL** auf `http://<LAN-IP>:8000` setzen.
+
+Neu bauen: `./scripts/build_android_apk.sh` (braucht `ANDROID_HOME`).
+
 ### Smoke / Eval
 
 ```bash

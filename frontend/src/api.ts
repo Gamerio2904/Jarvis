@@ -127,13 +127,44 @@ async function parseError(res: Response): Promise<string> {
   }
 }
 
+const API_BASE_KEY = 'jarvis_api_base'
+
+/** Backend origin for Capacitor/APK; empty = same-origin (Vite proxy / reverse-proxy). */
+export function getApiBase(): string {
+  try {
+    const fromLs = localStorage.getItem(API_BASE_KEY)
+    if (fromLs != null && fromLs.trim()) return fromLs.trim().replace(/\/$/, '')
+  } catch {
+    /* ignore */
+  }
+  const fromEnv = (import.meta as { env?: { VITE_API_BASE?: string } }).env?.VITE_API_BASE
+  if (fromEnv && fromEnv.trim()) return fromEnv.trim().replace(/\/$/, '')
+  return ''
+}
+
+export function setApiBase(url: string): void {
+  const cleaned = (url || '').trim().replace(/\/$/, '')
+  try {
+    if (!cleaned) localStorage.removeItem(API_BASE_KEY)
+    else localStorage.setItem(API_BASE_KEY, cleaned)
+  } catch {
+    /* ignore */
+  }
+}
+
+export function apiUrl(path: string): string {
+  const base = getApiBase()
+  if (!path.startsWith('/')) return `${base}/${path}`
+  return `${base}${path}`
+}
+
 export async function getHealth(): Promise<Health> {
-  const res = await fetch('/api/health')
+  const res = await fetch(apiUrl('/api/health'))
   return res.json()
 }
 
 export async function getSettings(): Promise<Settings> {
-  const res = await fetch('/api/settings')
+  const res = await fetch(apiUrl('/api/settings'))
   if (!res.ok) throw new Error(await parseError(res))
   return res.json()
 }
@@ -141,7 +172,7 @@ export async function getSettings(): Promise<Settings> {
 export async function patchSettings(
   patch: Partial<Settings>,
 ): Promise<Settings> {
-  const res = await fetch('/api/settings', {
+  const res = await fetch(apiUrl('/api/settings'), {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(patch),
@@ -151,7 +182,7 @@ export async function patchSettings(
 }
 
 export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
-  const res = await fetch(`/api/research/audits?limit=${limit}`)
+  const res = await fetch(apiUrl(`/api/research/audits?limit=${limit}`))
   if (!res.ok) throw new Error(await parseError(res))
   return res.json()
 }
@@ -163,29 +194,29 @@ export async function listMemory(
     category != null && category !== undefined
       ? `?category=${encodeURIComponent(category)}`
       : ''
-  const res = await fetch(`/api/memory${q}`)
+  const res = await fetch(apiUrl(`/api/memory${q}`))
   if (!res.ok) throw new Error(await parseError(res))
   return res.json()
 }
 
 export async function deleteMemoryItem(id: string): Promise<void> {
-  const res = await fetch(`/api/memory/${id}`, { method: 'DELETE' })
+  const res = await fetch(apiUrl(`/api/memory/${id}`), { method: 'DELETE' })
   if (!res.ok) throw new Error(await parseError(res))
 }
 
 export async function clearMemory(): Promise<void> {
-  const res = await fetch('/api/memory', { method: 'DELETE' })
+  const res = await fetch(apiUrl('/api/memory'), { method: 'DELETE' })
   if (!res.ok) throw new Error(await parseError(res))
 }
 
 export async function listConversations(): Promise<Conversation[]> {
-  const res = await fetch('/api/conversations')
+  const res = await fetch(apiUrl('/api/conversations'))
   if (!res.ok) throw new Error(await parseError(res))
   return res.json()
 }
 
 export async function createConversation(): Promise<Conversation> {
-  const res = await fetch('/api/conversations', {
+  const res = await fetch(apiUrl('/api/conversations'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title: 'Neues Gespräch' }),
@@ -197,18 +228,18 @@ export async function createConversation(): Promise<Conversation> {
 export async function getConversation(
   id: string,
 ): Promise<Conversation & { messages: Message[] }> {
-  const res = await fetch(`/api/conversations/${id}`)
+  const res = await fetch(apiUrl(`/api/conversations/${id}`))
   if (!res.ok) throw new Error(await parseError(res))
   return res.json()
 }
 
 export async function deleteConversation(id: string): Promise<void> {
-  const res = await fetch(`/api/conversations/${id}`, { method: 'DELETE' })
+  const res = await fetch(apiUrl(`/api/conversations/${id}`), { method: 'DELETE' })
   if (!res.ok) throw new Error(await parseError(res))
 }
 
 export async function sendChat(id: string, content: string) {
-  const res = await fetch(`/api/conversations/${id}/chat`, {
+  const res = await fetch(apiUrl(`/api/conversations/${id}/chat`), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content }),
@@ -249,7 +280,7 @@ export async function streamChat(
   content: string,
   handlers: StreamHandlers,
 ): Promise<void> {
-  const res = await fetch(`/api/conversations/${id}/chat/stream`, {
+  const res = await fetch(apiUrl(`/api/conversations/${id}/chat/stream`), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ content }),

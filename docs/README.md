@@ -20,6 +20,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
+Android-APK (Capacitor): [`android.md`](./android.md) · [`releases/jarvis-0.9.3-debug.apk`](../releases/jarvis-0.9.3-debug.apk)
+
 ## Status (Kurz)
 
 | Sprint | Version | Status |

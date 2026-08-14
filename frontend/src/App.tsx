@@ -4,6 +4,7 @@ import {
   createConversation,
   deleteConversation,
   deleteMemoryItem,
+  getApiBase,
   getConversation,
   getHealth,
   getSettings,
@@ -11,6 +12,7 @@ import {
   listMemory,
   listResearchAudits,
   patchSettings,
+  setApiBase,
   streamChat,
   type Conversation,
   type Health,
@@ -134,6 +136,7 @@ function App() {
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
+  const [apiBaseDraft, setApiBaseDraft] = useState(() => getApiBase())
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -492,6 +495,35 @@ function App() {
             <section className="settings-section">
               <h3>Allgemein</h3>
               <p className="settings-hint">Version {settings?.version || '0.9.3'} · lokal · privat</p>
+              <label className="settings-hint" htmlFor="api-base">
+                Server-URL (für APK / externes Handy)
+              </label>
+              <input
+                id="api-base"
+                className="settings-input"
+                type="url"
+                placeholder="http://192.168.x.x:8000"
+                value={apiBaseDraft}
+                onChange={(e) => setApiBaseDraft(e.target.value)}
+              />
+              <button
+                type="button"
+                className="ghost-btn"
+                onClick={() => {
+                  setApiBase(apiBaseDraft.trim())
+                  setStatusNote(
+                    apiBaseDraft.trim()
+                      ? `Server: ${apiBaseDraft.trim()}`
+                      : 'Server: gleiche Origin',
+                  )
+                  void refreshHealth()
+                }}
+              >
+                Server speichern
+              </button>
+              <p className="settings-hint">
+                Leer = Vite-Proxy / Reverse-Proxy. APK braucht die LAN-IP Ihres PCs/NAS.
+              </p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
