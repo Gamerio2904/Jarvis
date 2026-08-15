@@ -53,8 +53,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 46 | [`sprint-46.md`](./sprint-46.md) | `0.13.2` | Chat-Hang Hotfix | **CODE** |
 | 47 | [`sprint-47.md`](./sprint-47.md) | `0.14.0` | Qualität & Latenz (bestehendes) | **CODE** (in `0.14.1`) |
 | 48 | [`sprint-48.md`](./sprint-48.md) | `0.14.1` | TV verbinden & steuern | **CODE** |
+| 49 | [`sprint-49.md`](./sprint-49.md) | `0.15.0` | Start schneller + Chat antwortet | **PLANNED** |
 
-**Aktuell:** Sideload `0.14.1`. TTS / `1.0.0` — **PO-Kommando**.
+**Aktuell:** Sideload `0.14.1`. Als Nächstes: [`../15-startup-chat.md`](../15-startup-chat.md). TTS / `1.0.0` — **PO-Kommando**.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

@@ -20,6 +20,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 12 | [NAS & APK](./12-nas-apk.md) | historisch / superseded |
 | 13 | [On-Device](./13-on-device.md) | Handy-LLM `0.13.2` |
 | 14 | [Qualität & TV](./14-quality-tv.md) | **`0.14.1`** — härten + Tizen live |
+| 15 | [Start & Chat](./15-startup-chat.md) | **`0.15`** — Öffnen schneller, Antworten wieder |
 | — | [APK](./apk.md) | Sideload |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -60,5 +61,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 46 | `0.13.2` | **CODE** (Chat-Hang Hotfix) |
 | 47 | `0.14.0` | **CODE** (in `0.14.1`) |
 | 48 | `0.14.1` | **CODE** (TV verbinden & steuern) |
+| 49 | `0.15.0` | **PLANNED** (Start + Chat-Zuverlässigkeit) |
 
-**Aktuell:** Sideload `0.14.1`. TTS / `1.0.0` — PO-Kommando.
+**Aktuell:** Sideload `0.14.1`. Als Nächstes: [`15-startup-chat.md`](./15-startup-chat.md).
