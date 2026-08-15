@@ -10,7 +10,7 @@ App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
 ### Docs / Guard — Alexa-Kauf (Q32) + Echo Show (Q33)
 
 - Q32: Jarvis kauft **nicht** über Alexa/Echo/Fire TV (Amazon-Cloud, keine lokale API).
-- Q33: Jarvis läuft **nicht** auf Echo Show 5 (3. Gen.); kein Anzeigen auf dem Amazon-Bildschirm (kein Sideload, kein APL-Skill).
+- Q33: Jarvis läuft **nicht** auf Echo Show 5 (3. Gen.); kein Anzeigen auf dem Amazon-Bildschirm (kein Sideload, kein APL-Skill). Werksreset/Knacken/Aufschrauben sind kein Weg.
 - Chat: ehrliche Ablehnung bei Kauf- und Echo-Show-/Bildschirm-Fragen; `/hilfe` nennt kein Echo Show.
 - Parking bleibt: `S7.8`, `08` Q32/Q33.
 

@@ -35,7 +35,7 @@ const ALEXA_DEVICE = /\b(alexa|amazon\s*echo|echo\s*dot|echo\s*show|show\s*5|fir
 const ECHO_SHOW = /\b(echo\s*show|show\s*5)\b/i
 const PURCHASE = /\b(kauf(?:en|t)?|bestell(?:en|t|ung)?|einkauf(?:en)?|order|shop(?:ping)?)\b/i
 const RUNTIME_OR_DISPLAY =
-  /\b(laufen|lauf(?:en)?|install(?:ieren)?|apk|anzeig(?:en|e)?|bildschirm|display|sideload)\b/i
+  /\b(laufen|lauf(?:en)?|install(?:ieren)?|apk|anzeig(?:en|e)?|bildschirm|display|sideload|hochladen|code|knack(?:en)?|aufschraub(?:en)?|werks(?:einstellung(?:en)?)?)\b/i
 
 /** „Kauf über Alexa“ — nicht jede Alexa-Erwähnung. */
 export function isAlexaPurchaseAsk(text: string): boolean {
@@ -56,4 +56,4 @@ export const HELP_TEXT =
   'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Kein PC, keine NAS, kein Echo Show, kein Alexa-Kauf. Fernseher später.'
 
 export const ALEXA_PARKED_TEXT =
-  'Nein. Jarvis läuft auf dem Handy, nicht auf Echo Show. Der Amazon-Bildschirm ist Alexa — keine APK, kein lokales Modell, kein Anzeigen von Jarvis, kein Kauf. Alexa bleibt geparkt. Einkaufsliste geht als Todo.'
+  'Nein. Jarvis läuft auf dem Handy, nicht auf Echo Show. Werksreset ändert das nicht — danach ist wieder nur Alexa da. Kein Code-Upload, kein Aufschrauben, kein Knacken. Alexa bleibt geparkt. Einkaufsliste geht als Todo.'

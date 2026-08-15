@@ -28,6 +28,7 @@ assert(!isAlexaPurchaseAsk('Was ist Alexa?'), 'alexa ohne kauf')
 assert(!isAlexaPurchaseAsk('Todo: Milch kaufen'), 'todo ohne alexa')
 assert(isAlexaParkedAsk('Kann ich Jarvis auf dem Echo Show 5 laufen lassen?'), 'echo show runtime')
 assert(isAlexaParkedAsk('Dinge auf dem Amazon Bildschirm anzeigen'), 'amazon bildschirm')
+assert(isAlexaParkedAsk('Code auf Alexa hochladen nach Werkseinstellungen'), 'werksreset upload')
 assert(!isAlexaParkedAsk('Was ist Alexa?'), 'alexa smalltalk')
 assert(!isAlexaParkedAsk('Todo: Milch kaufen'), 'todo ohne alexa parked')
 
