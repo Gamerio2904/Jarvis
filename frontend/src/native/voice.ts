@@ -9,7 +9,11 @@ type NativeVoice = {
   stopSpeak(): Promise<{ ok: boolean }>
   consumeLaunch(): Promise<{ voice: boolean }>
   pinShortcut(): Promise<{ ok: boolean; message?: string }>
-  addListener(event: 'partial', cb: (ev: { text: string }) => void): Promise<{ remove: () => void }>
+  streamSse(opts: { url: string; body: string; apiKey: string }): Promise<{ ok: boolean; status?: number; message?: string }>
+  addListener(
+    event: 'partial' | 'sse',
+    cb: (ev: { text?: string; data?: string }) => void,
+  ): Promise<{ remove: () => void }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeVoice>('JarvisVoice') : null
@@ -97,6 +101,153 @@ function playBlob(blob: Blob): Promise<void> {
       resolve()
     })
   })
+}
+
+export async function streamSseLines(
+  opts: { url: string; body: unknown; apiKey: string },
+  onData: (json: Record<string, unknown>) => void,
+): Promise<{ ok: boolean; message?: string }> {
+  if (native) {
+    const handle = await native.addListener('sse', (ev) => {
+      if (!ev.data) return
+      try {
+        onData(JSON.parse(ev.data) as Record<string, unknown>)
+      } catch {
+        /* ignore partial json */
+      }
+    })
+    try {
+      const res = await native.streamSse({
+        url: opts.url,
+        body: JSON.stringify(opts.body),
+        apiKey: opts.apiKey,
+      })
+      return { ok: Boolean(res.ok), message: res.message }
+    } finally {
+      handle.remove()
+    }
+  }
+  try {
+    const res = await fetch(opts.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+        'x-goog-api-key': opts.apiKey,
+      },
+      body: JSON.stringify(opts.body),
+    })
+    if (!res.ok || !res.body) {
+      return { ok: false, message: `HTTP ${res.status}` }
+    }
+    const reader = res.body.getReader()
+    const dec = new TextDecoder()
+    let buf = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buf += dec.decode(value, { stream: true })
+      const blocks = buf.split('\n')
+      buf = blocks.pop() || ''
+      for (const line of blocks) {
+        if (!line.startsWith('data:')) continue
+        const data = line.slice(5).trim()
+        if (!data || data === '[DONE]') continue
+        try {
+          onData(JSON.parse(data) as Record<string, unknown>)
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+    return { ok: true }
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'Stream fehlgeschlagen' }
+  }
+}
+
+export function createSentenceTap() {
+  let emitted = 0
+  let hold = ''
+  let first = true
+  return {
+    feed(full: string): string[] {
+      const add = full.slice(emitted)
+      emitted = full.length
+      hold += add
+      const { parts, rest } = pullReady(hold, first)
+      if (parts.length) first = false
+      hold = rest
+      return parts
+    },
+    flush(): string[] {
+      const t = hold.replace(/\s+/g, ' ').trim()
+      hold = ''
+      return t ? [t] : []
+    },
+  }
+}
+
+function pullReady(hold: string, first: boolean): { parts: string[]; rest: string } {
+  const parts: string[] = []
+  let rest = hold
+  const re = /([\s\S]+?[.!?…])(\s+|$)/
+  while (true) {
+    const m = re.exec(rest)
+    if (!m) break
+    const s = m[1].replace(/\s+/g, ' ').trim()
+    if (s) parts.push(s)
+    rest = rest.slice(m[0].length)
+  }
+  if (!parts.length && first) {
+    const words = rest.trim().split(/\s+/).filter(Boolean)
+    if (words.length >= 5) {
+      const comma = rest.indexOf(', ')
+      if (comma >= 8) {
+        parts.push(rest.slice(0, comma + 1).replace(/\s+/g, ' ').trim())
+        rest = rest.slice(comma + 1)
+      } else {
+        parts.push(words.slice(0, 7).join(' '))
+        rest = words.slice(7).join(' ')
+      }
+    }
+  }
+  return { parts, rest }
+}
+
+export function createSpeakPipeline() {
+  const q: string[] = []
+  let running = false
+  let stopped = false
+
+  async function pump() {
+    if (running) return
+    running = true
+    while (!stopped && q.length) {
+      const text = q.shift()
+      if (text) await speakText(text)
+    }
+    running = false
+  }
+
+  return {
+    push(text: string) {
+      const clean = text.replace(/\s+/g, ' ').trim()
+      if (stopped || !clean) return
+      q.push(clean)
+      void pump()
+    },
+    async flush() {
+      while (!stopped && (running || q.length)) {
+        await new Promise((r) => setTimeout(r, 30))
+      }
+    },
+    stop() {
+      stopped = true
+      q.length = 0
+      void stopSpeak()
+    },
+  }
 }
 
 export async function speakText(text: string): Promise<void> {

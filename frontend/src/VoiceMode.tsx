@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { wantGeminiVoice } from './engine/tts'
 import {
+  createSentenceTap,
+  createSpeakPipeline,
   listenOnce,
   requestMicPermission,
-  speakText,
   stopListen,
   stopSpeak,
 } from './native/voice'
@@ -15,7 +16,7 @@ export function VoiceMode({
   onTurn,
 }: {
   onClose: () => void
-  onTurn: (text: string) => Promise<string>
+  onTurn: (text: string, onToken?: (piece: string, full: string) => void) => Promise<string>
 }) {
   const [phase, setPhase] = useState<Phase>('idle')
   const [heard, setHeard] = useState('')
@@ -23,6 +24,7 @@ export function VoiceMode({
   const [err, setErr] = useState<string | null>(null)
   const live = useRef(true)
   const phaseRef = useRef<Phase>('idle')
+  const pipelineRef = useRef<ReturnType<typeof createSpeakPipeline> | null>(null)
   const neural = wantGeminiVoice()
 
   useEffect(() => {
@@ -34,6 +36,7 @@ export function VoiceMode({
     void startLoop()
     return () => {
       live.current = false
+      pipelineRef.current?.stop()
       void stopListen()
       void stopSpeak()
     }
@@ -65,28 +68,54 @@ export function VoiceMode({
       setHeard(text)
       setErr(null)
       setPhase('thinking')
+      const tap = createSentenceTap()
+      const pipe = createSpeakPipeline()
+      pipelineRef.current = pipe
+      let started = false
       let answer = ''
       try {
-        answer = await onTurn(text)
+        answer = await onTurn(text, (_piece, full) => {
+          if (!live.current) return
+          setReply(full)
+          const ready = tap.feed(full)
+          if (ready.length) {
+            if (!started) {
+              started = true
+              setPhase('speaking')
+            }
+            for (const s of ready) pipe.push(s)
+          }
+        })
       } catch (e) {
+        pipe.stop()
         setErr(e instanceof Error ? e.message : 'Antwort fehlgeschlagen')
         continue
       }
       if (!live.current) return
       setReply(answer)
-      setPhase('speaking')
-      await speakText(answer)
+      for (const s of tap.flush()) {
+        if (!started) {
+          started = true
+          setPhase('speaking')
+        }
+        pipe.push(s)
+      }
+      if (!started && answer.trim()) {
+        setPhase('speaking')
+        pipe.push(answer)
+      }
+      await pipe.flush()
     }
   }
 
   async function onOrb() {
-    if (phaseRef.current === 'speaking') {
+    if (phaseRef.current === 'speaking' || phaseRef.current === 'thinking') {
+      pipelineRef.current?.stop()
       await stopSpeak()
       return
     }
     if (phaseRef.current === 'listening') {
       await stopListen()
-      return
     }
   }
 
@@ -94,7 +123,7 @@ export function VoiceMode({
     phase === 'listening'
       ? 'Ich höre…'
       : phase === 'thinking'
-        ? 'Einen Moment.'
+        ? 'Antwort kommt…'
         : phase === 'speaking'
           ? 'Jarvis spricht — antippen unterbricht.'
           : 'Bereit.'
@@ -107,8 +136,8 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Natürliche Gemini-Stimme. Kein Mitschnitt — nur Text im Chat.'
-                : 'System-Stimme (oft hart). Gemini an = natürlicher. Kein Mitschnitt.'}
+                ? 'Erste Wörter sofort. Gemini-Stimme, kein Mitschnitt.'
+                : 'Erste Wörter sofort. Gemini an = natürlicher.'}
             </p>
           </div>
           <button type="button" className="ghost-btn voice-close" onClick={onClose}>

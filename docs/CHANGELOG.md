@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.5.1`**.
+App-Version im Code: **`1.5.2`**.
+
+### `1.5.2` — Sprachmodus sofort — *CODE*
+
+- Gemini streamt Tokens; der erste Satz wird gesprochen, während der Rest noch kommt
+- Kürzere Antworten (max. ~2 Sätze), schnelleres Ende vom Zuhören
+- TTS-Modell wird gemerkt, kein Dreifach-Versuch bei jedem Satz
 
 ### `1.5.1` — Stimme + schwarzer Screen — *CODE*
 

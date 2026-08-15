@@ -1,5 +1,5 @@
 import { postJson } from './http-json'
-import { isGeminiConfigured, loadSettings } from './store'
+import { isGeminiConfigured, loadSettings, saveSettings } from './store'
 
 const TTS_MODELS = [
   'gemini-3.1-flash-tts-preview',
@@ -20,7 +20,9 @@ export async function synthesizeGemini(text: string): Promise<Blob | null> {
   const spoken = text.replace(/[#*_`]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 800)
   if (!spoken) return null
   let last = ''
-  for (const model of TTS_MODELS) {
+  const cached = loadSettings().gemini_tts_model
+  const models = cached ? [cached, ...TTS_MODELS.filter((m) => m !== cached)] : TTS_MODELS
+  for (const model of models) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
       const { status, json } = await postJson(
@@ -49,7 +51,10 @@ export async function synthesizeGemini(text: string): Promise<Blob | null> {
         break
       }
       const blob = audioFrom(json)
-      if (blob) return blob
+      if (blob) {
+        saveSettings({ gemini_tts_model: model })
+        return blob
+      }
       last = 'Keine Audiodaten'
     } catch (err) {
       last = err instanceof Error ? err.message : 'TTS fehlgeschlagen'

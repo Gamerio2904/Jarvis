@@ -1,16 +1,15 @@
-# Android-APK — `1.5.1`
+# Android-APK — `1.5.2`
 
-**1.5.1:** Natürlichere Stimme (Gemini-TTS) und Fix für den schwarzen Sprachmodus-Screen.
+**1.5.2:** Sprachmodus antwortet sofort — erster Satz, während der Rest noch entsteht.
 
 ## Download
 
-**APK `1.5.1`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/hotfix-voice-1-5-1-0bf8/releases/Jarvis.apk
+**APK `1.5.2`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/hotfix-voice-latency-1-5-2-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.5.1` · versionCode `10501`
+- versionName `1.5.2` · versionCode `10502`
 - App-ID `local.jarvis.app`
 
-1. Über 1.5.0 installieren.
-2. Gemini an + Key → Sprachmodus nutzt die natürliche Stimme.
-3. Ohne Gemini: Android → Text-in-Sprache → Google-Stimme Deutsch.
+1. Über 1.5.1 installieren.
+2. Gemini an → **Hören** → nach dem Satzende sollte die Stimme fast direkt kommen.
