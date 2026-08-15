@@ -1,29 +1,17 @@
 # 10 — Intelligence Capabilities (Ausarbeitung)
 
-Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first- / Privacy-Linie zu brechen.  
-Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
+Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first- / Privacy-Linie zu brechen.
+
+**Aktuell (`0.13.1`):** Memory und Tools laufen **on-device** (IndexedDB). Internet-Research ist **geparkt** (App ist offline). Der Text darunter ist die Ausarbeitung der historischen `0.4`–`0.9`-Reihe auf dem entfernten PC-Stack.
 
 ## Sprint- & Versions-Mapping (verbindlich)
 
 | Stufe | Version | Sprint | Inhalt | Status |
 |-------|---------|--------|--------|--------|
-| 1 | **`0.4.0`** | [08](./sprints/sprint-08.md) | Langzeitgedächtnis v1, Summary, Kontextkompression | **READY FOR REVIEW** |
-| 1a | **`0.4.1`** | [09](./sprints/sprint-09.md) | Memory Must-Fixes | **READY FOR REVIEW** |
-| 1b | **`0.4.2`** | [10](./sprints/sprint-10.md) | Memory Polish (Parser, Split, TTL, UI-Filter) | **READY FOR REVIEW** |
-| 1c | **`0.4.3`** | [11](./sprints/sprint-11.md) | Memory Hotfix (Clause-Split, Recall, Pref) | **READY FOR REVIEW** |
-| 2 | **`0.5.0`** | [12](./sprints/sprint-12.md) | Intent-Router (merk/recall/forget/clarify), Routing, Scores | **READY FOR REVIEW** |
-| 2a | **`0.5.1`** | [13](./sprints/sprint-13.md) | Router Hotfix (Inject/Task/Weak-Write/Fallbacks) | **READY FOR REVIEW** |
-| 2b | **`0.5.2`** | [14](./sprints/sprint-14.md) | Router Polish (Patterns, Live-Scorecard) | **READY FOR REVIEW** |
-| 3 | **`0.6.0`** | [15](./sprints/sprint-15.md) | Internet-Research (opt-in, zitiert) | **READY FOR REVIEW** |
-| 3a | **`0.6.1`** | [16](./sprints/sprint-16.md) | Research Hotfix (Query-PII/Noise, Settings) | **READY FOR REVIEW** |
-| 3b | **`0.6.2`** | [17](./sprints/sprint-17.md) | Research Polish (Persona, Dual-Provider) | **READY FOR REVIEW** |
-| 4 | **`0.7.0`** | [18](./sprints/sprint-18.md) | Delight + Settings ([`11`](./11-delight-and-settings.md)) | **READY FOR REVIEW** |
-| 5 | **`0.9.0`** | [28](./sprints/sprint-28.md) | Local Tools Core (Notes/Todos, Confirm) | **READY FOR REVIEW** |
-| 5a | **`0.9.1`** | [29](./sprints/sprint-29.md) | Tools Hotfix | **READY FOR REVIEW** |
-| 5b | **`0.9.2`** | [30](./sprints/sprint-30.md) | Tools Polish & Continuity | **READY FOR REVIEW** |
-| 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **PLANNED** |
-| 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PLANNED** |
-| 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **PLANNED** |
+| 1–2 | **`0.4.x`–`0.5.x`** | 08–14 | Memory + Router | **HISTORISCH** — Memory-Kern in `0.13.x` |
+| 3 | **`0.6.x`** | 15–17 | Internet-Research | **PARKED** (offline) |
+| 4 | **`0.7.0`** | 18 | Delight + Settings | **HISTORISCH** — Settings in `0.13.x` |
+| 5 | **`0.9.0`–`0.9.5`** | 28–33 | Local Tools + Quality | **HISTORISCH** — Notes/Todos in `0.13.x` |
 
 ```text
 Sprint 8  0.4.0 Memory
@@ -43,7 +31,7 @@ Sprint 18 0.7.0 Delight
 
 ## Prioritätsreihenfolge
 
-Gleiche Reihenfolge wie oben (Sprint-Nummer = Lieferreihenfolge). Details in den Sprint-Dateien.
+Historische Lieferreihenfolge = Sprint-Nummer. **Jetzt nicht pullen:** Research-Netz, NAS, TV. Alltag ist `0.13.1`.
 
 ---
 
@@ -63,7 +51,7 @@ Fakten und Vorlieben **über Sessions und Chats hinweg** behalten — dosiert, k
 | `updated_at` | ISO |
 | `expires_at` | optional ISO — TTL vor allem für Soft-Harvest (`0.4.2`) |
 
-Persistenz: SQLite-Tabelle `memory_items` (kein Cloud).
+Persistenz: **IndexedDB** auf dem Handy (`0.13.x`). Historisch: SQLite `memory_items` auf dem PC-Backend.
 
 ### Schreiben
 - Explizit: „Merk dir …“ / „Vergiss …“ → hohe Confidence, kein TTL (oder sehr lang)
@@ -281,7 +269,11 @@ Regressionen an Charakter & Intelligenz **messbar** machen — nicht nur Bauchge
 
 ---
 
-## 7) Verlässliche Internet-Research („100 % verlässlich“ = Engineering-Ziel)
+## 7) Verlässliche Internet-Research — **PARKED**
+
+> On-Device `0.13.x` ist **offline**. Es gibt keinen Research-Netzpfad. Der Rest dieses Abschnitts ist Historie (`0.6.x` auf dem PC-Stack).
+
+### Historisches Engineering-Ziel
 
 > Ehrlich: Kein System ist epistemisch 100 % wahr.  
 > **Produktziel:** Research ist **nachvollziehbar, zitiert, wiederholbar, opt-in, lokal orchestriert** — Fehler werden sichtbar, nicht vertuscht.
@@ -338,7 +330,7 @@ Neben Memory/Research **handlungsfähige**, lokale Persistenz: Notizen und Todos
 | Geht in `0.9.x` | Geht **nicht** |
 |-----------------|----------------|
 | Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Fire TV / Alexa in `0.9.x` |
-| `notes` + `todo` (SQLite) | Cloud-Kalender-OAuth; TV erst `0.11` |
+| `notes` + `todo` (IndexedDB in `0.13.x`) | Cloud-Kalender-OAuth; TV geparkt |
 | Router/`/hilfe` Integration | Autonome Multi-Tool-Ketten ohne Confirm |
 | False-Confirm-Guards | Secrets speichern |
 
@@ -354,9 +346,7 @@ Memory („Merk dir …“) bleibt Fakten-Gedächtnis; Tools sind **explizite Ar
 | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity |
 | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene |
 
-NAS/APK: **`0.10.x`** ([`12-nas-apk.md`](./12-nas-apk.md)). Samsung-TV: **`0.11.x`** (Sprints 40–42).
-
-Vorher empfohlen: **`0.8.5`** Persona/Continuity ([27](./sprints/sprint-27.md)).
+NAS/APK-gegen-Server: **superseded** ([`12-nas-apk.md`](./12-nas-apk.md)). Samsung-TV: **geparkt**. Aktuell: [`13-on-device.md`](./13-on-device.md).
 
 ---
 
@@ -381,7 +371,6 @@ Assist Continuity & Siezen             →  0.9.4  (Sprint 32)
         ↓
 Tools Hygiene & Confirm-UX             →  0.9.5  (Sprint 33)
         ↓
-NAS Core + APK                         →  0.10.0–0.10.5  (Sprints 34–39)
-        ↓
-Samsung TV                             →  0.11.0–0.11.2  (Sprints 40–42)
+On-Device Handy                        →  0.13.0–0.13.1  (Sprints 44–45)  ← aktuell
+NAS / TV                               →  superseded / parked
 ```

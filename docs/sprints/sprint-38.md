@@ -1,8 +1,10 @@
 # Sprint 38 — APK Hotfix
 
+> **SUPERSEDED (2026-08-15).** NAS-URL/Token-Hotfixes entfallen. Aktuell: [`13-on-device.md`](../13-on-device.md).
+
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **SUPERSEDED** |
 | Priorität | **MUST** — nach erstem Sideload |
 | Ziel-Version | **`0.10.4`** |
 | Quelle | Mobile-Kanten nach `0.10.3` |

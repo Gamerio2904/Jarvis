@@ -1,6 +1,6 @@
 # Jarvis — On-Device
 
-Privater Assistant. Läuft **auf dem Handy**. Kein PC, keine NAS, kein Docker.
+Privater Assistant. Läuft **auf dem Handy**, danach **offline**. Kein PC, keine NAS, kein Docker.
 
 ## Start (Dev-PC, nur zum Bauen)
 

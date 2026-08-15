@@ -75,10 +75,10 @@ Du (PO) hast mindestens einmal live gechattet und das **Charakter-Gefühl** abge
 Wir priorisieren nach:
 
 1. **Lernen über Charakter** (fühlt sich Jarvis richtig an?)
-2. **Lokale Lauffähigkeit**
-3. **Privater Zugang vom Alltag (Handy)**
-4. **Betrieb 24/7**
-5. **Komfort (TTS, Tools, Gedächtnis)**
+2. **On-Device / offline Lauffähigkeit**
+3. **Privater Alltag auf dem Handy** (kein Server, keine NAS)
+4. **Lokale Hilfe** (Memory, Tools — bereits in `0.13.x`)
+5. **Komfort später** (TTS nur auf PO-Kommando)
 
 MoSCoW im Backlog:
 

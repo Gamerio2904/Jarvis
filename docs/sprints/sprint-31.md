@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **READY FOR REVIEW** (Code im Repo; Live-PO) |
+| Status | **HISTORISCH** — Multi-Fact/Pref-Recall in `0.13.x` |
 | Priorität | **HIGH** — Live-Probe nach `0.9.2` |
 | Ziel-Version | **`0.9.3`** |
 | Quelle | Feedback-Probe (Multi-Fact verloren, Recall→Smalltalk-Halluzination) |

@@ -1,6 +1,6 @@
 # Android-APK — On-Device (`0.13.1`)
 
-Jarvis denkt **auf dem Handy**. Einmal Modell laden (~470 MB), danach offline.
+Jarvis denkt **auf dem Handy**. Einmal Modell laden (~470 MB, WLAN), danach **offline**. Kein PC, keine NAS, kein Token.
 
 ```bat
 build-apk.bat

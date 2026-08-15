@@ -1,8 +1,10 @@
 # Sprint 40 — Samsung TV Core
 
+> **PARKED (2026-08-15).** Kein UDP/WOL aus der WebView. On-Device `0.13.1` bleibt offline ohne TV.
+
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **PARKED** |
 | Priorität | **MINOR** — Smart-Home-TV nach NAS/APK |
 | Ziel-Version | **`0.11.0`** |
 | Quelle | PO: Tizen, gleiches WLAN, ein TV, lokal, kein Confirm, Ein inkl. WOL; **nach** `0.10.5` |
