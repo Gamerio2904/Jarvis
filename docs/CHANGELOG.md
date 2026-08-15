@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.16.3`**.
+App-Version im Code: **`1.0.0`**.
+
+### `1.0.0` — Jarvis 1.0 — *CODE*
+
+- Sideload-APK heißt **`Jarvis.apk`**, Homescreen-Name Jarvis
+- On-Device + optional Gemini-Kaskade + Groq-Fallback
+- versionName `1.0.0` · versionCode `10000`
 
 ### `0.16.3` — Gemini-Kaskade + Groq-Fallback — *CODE*
 

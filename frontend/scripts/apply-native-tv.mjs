@@ -61,13 +61,24 @@ if (!manifest.includes('android:usesCleartextTraffic')) {
 writeFileSync(manifestPath, manifest)
 
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
-const versionName = String(pkg.version || '0.16.0')
-const versionCode = Number(String(versionName).replace(/\D/g, '')) || 160
+const versionName = String(pkg.version || '1.0.0')
+const parts = versionName.split('.').map((p) => Number.parseInt(String(p).replace(/\D/g, ''), 10) || 0)
+const versionCode = Math.max((parts[0] || 0) * 10000 + (parts[1] || 0) * 100 + (parts[2] || 0), 10000)
 
 const gradlePath = join(android, 'app/build.gradle')
 let gradle = readFileSync(gradlePath, 'utf8')
 gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${versionCode}`)
 gradle = gradle.replace(/versionName\s+"[^"]+"/, `versionName "${versionName}"`)
+if (!gradle.includes('archivesBaseName')) {
+  gradle = gradle.replace(
+    /android\s*\{\s*\n\s*namespace/,
+    'android {\n    namespace',
+  )
+  gradle = gradle.replace(
+    'namespace = "local.jarvis.app"',
+    'namespace = "local.jarvis.app"\n    archivesBaseName = "Jarvis"',
+  )
+}
 if (!gradle.includes('okhttp')) {
   gradle = gradle.replace(
     /dependencies\s*\{/,
