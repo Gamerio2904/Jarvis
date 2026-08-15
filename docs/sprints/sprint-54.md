@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **CODE** |
 | Priorität | **MUST** |
 | Ziel-Version | **`1.4.0`** |
 | Quelle | PO 2026-08-15 |
@@ -15,6 +15,12 @@
 | C2 | Termin anlegen im Chat **und** in der GUI | Beide Wege |
 | C3 | Kein Google-Kalender-Login | Daten bleiben auf dem Handy |
 | C4 | Version `1.4.0` + APK | Sideload |
+
+## Probe
+
+1. Sidebar → Kalender → Tag antippen → Termin anlegen.
+2. Chat: „Termin morgen 15 Uhr Zahnarzt“ → Punkt im Monat.
+3. „Kalender“ öffnet die Ansicht.
 
 ## Won’t
 

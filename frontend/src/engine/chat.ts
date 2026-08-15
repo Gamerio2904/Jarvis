@@ -24,6 +24,7 @@ import {
   type Message,
   type Settings,
 } from './store'
+import { handleCalendar } from './calendar'
 import { handleReminders } from './reminders'
 import { handleTools, type ToolMeta } from './tools'
 import { handleTv, tvStatusFromSettings } from './tv'
@@ -149,6 +150,20 @@ export async function streamChat(
         assistant_message: assistant,
         conversation: updated,
         tool: null,
+      })
+      return
+    }
+
+    const calHit = await handleCalendar(conversationId, content)
+    if (calHit.handled && calHit.reply) {
+      const assistant = await addMessage(conversationId, 'assistant', calHit.reply, {
+        tool: calHit.tool,
+      })
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({
+        assistant_message: assistant,
+        conversation: updated,
+        tool: calHit.tool || null,
       })
       return
     }

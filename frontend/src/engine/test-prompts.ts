@@ -18,4 +18,6 @@ export const TEST_PROMPTS = [
   'morgen 8 Uhr Steuer',
   'Wetter heute',
   'Temperatur hier',
+  'Termin morgen 15 Uhr Zahnarzt',
+  'Kalender',
 ] as const

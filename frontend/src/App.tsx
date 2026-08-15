@@ -39,6 +39,7 @@ import {
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
 import { TEST_PROMPTS } from './engine/test-prompts'
+import { CalendarView } from './Calendar'
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -177,6 +178,7 @@ function App() {
   const [audits, setAudits] = useState<ResearchAudit[]>([])
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [remindBusy, setRemindBusy] = useState(false)
+  const [calendarOpen, setCalendarOpen] = useState(false)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
   const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
   const [downloadPct, setDownloadPct] = useState(0)
@@ -669,6 +671,12 @@ function App() {
           }
           if (payload.research) void refreshAudits()
           if (payload.tool?.tool === 'reminder') void refreshReminders()
+          if (payload.tool?.tool === 'calendar') {
+            if (payload.tool.action === 'open') {
+              setCalendarOpen(true)
+              setSidebarOpen(false)
+            }
+          }
         },
         onError: (detail) => {
           setError(detail)
@@ -785,12 +793,22 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.3.0</p>
+            <p>Handy · v1.4.0</p>
           </div>
         </div>
 
         <button className="new-chat" type="button" onClick={() => void onNewChat()}>
           + Neues Gespräch
+        </button>
+        <button
+          type="button"
+          className={`memory-toggle ${calendarOpen ? 'active' : ''}`}
+          onClick={() => {
+            setCalendarOpen(true)
+            setSidebarOpen(false)
+          }}
+        >
+          Kalender
         </button>
 
         <button
@@ -807,7 +825,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.3.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.4.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1336,6 +1354,7 @@ function App() {
       </aside>
 
       <main className="main">
+        {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}
         <div className="topbar">
           <button
             className="menu-btn"
