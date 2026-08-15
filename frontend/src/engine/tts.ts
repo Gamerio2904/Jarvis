@@ -14,10 +14,24 @@ export function wantGeminiVoice(): boolean {
   return isGeminiConfigured()
 }
 
+function spokenForGemini(text: string): string {
+  const body = text
+    .replace(/[`#]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 800)
+  if (!body) return ''
+  return (
+    'Say in warm, conversational German, slightly brisk, with natural emphasis on key words. ' +
+    'Not monotone, not theatrical. Read only the following text, add nothing: ' +
+    body
+  )
+}
+
 export async function synthesizeGemini(text: string): Promise<Blob | null> {
   const key = loadSettings().gemini_api_key.trim()
   if (!key) return null
-  const spoken = text.replace(/[#*_`]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 800)
+  const spoken = spokenForGemini(text)
   if (!spoken) return null
   let last = ''
   const cached = loadSettings().gemini_tts_model
@@ -35,7 +49,7 @@ export async function synthesizeGemini(text: string): Promise<Blob | null> {
             speechConfig: {
               languageCode: 'de-DE',
               voiceConfig: {
-                prebuiltVoiceConfig: { voiceName: 'Charon' },
+                prebuiltVoiceConfig: { voiceName: 'Kore' },
               },
             },
           },

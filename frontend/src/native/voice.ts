@@ -1,6 +1,8 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { synthesizeGemini, wantGeminiVoice } from '../engine/tts'
 
+export { createSentenceTap } from '../engine/speak-tap'
+
 type NativeVoice = {
   requestPermission(): Promise<{ granted: boolean }>
   listen(): Promise<{ ok: boolean; text?: string; message?: string }>
@@ -88,6 +90,7 @@ function playBlob(blob: Blob): Promise<void> {
     currentUrl = url
     const audio = new Audio(url)
     currentAudio = audio
+    audio.playbackRate = 1.06
     audio.onended = () => {
       stopHtmlAudio()
       resolve()
@@ -166,66 +169,33 @@ export async function streamSseLines(
   }
 }
 
-export function createSentenceTap() {
-  let emitted = 0
-  let hold = ''
-  let first = true
-  return {
-    feed(full: string): string[] {
-      const add = full.slice(emitted)
-      emitted = full.length
-      hold += add
-      const { parts, rest } = pullReady(hold, first)
-      if (parts.length) first = false
-      hold = rest
-      return parts
-    },
-    flush(): string[] {
-      const t = hold.replace(/\s+/g, ' ').trim()
-      hold = ''
-      return t ? [t] : []
-    },
-  }
-}
-
-function pullReady(hold: string, first: boolean): { parts: string[]; rest: string } {
-  const parts: string[] = []
-  let rest = hold
-  const re = /([\s\S]+?[.!?…])(\s+|$)/
-  while (true) {
-    const m = re.exec(rest)
-    if (!m) break
-    const s = m[1].replace(/\s+/g, ' ').trim()
-    if (s) parts.push(s)
-    rest = rest.slice(m[0].length)
-  }
-  if (!parts.length && first) {
-    const words = rest.trim().split(/\s+/).filter(Boolean)
-    if (words.length >= 5) {
-      const comma = rest.indexOf(', ')
-      if (comma >= 8) {
-        parts.push(rest.slice(0, comma + 1).replace(/\s+/g, ' ').trim())
-        rest = rest.slice(comma + 1)
-      } else {
-        parts.push(words.slice(0, 7).join(' '))
-        rest = words.slice(7).join(' ')
-      }
-    }
-  }
-  return { parts, rest }
-}
+type SpeakJob = { text: string; ready: Promise<Blob | 'native'> }
 
 export function createSpeakPipeline() {
-  const q: string[] = []
+  const q: SpeakJob[] = []
   let running = false
   let stopped = false
+
+  function prepare(text: string): Promise<Blob | 'native'> {
+    return (async () => {
+      if (wantGeminiVoice()) {
+        const blob = await synthesizeGemini(text)
+        if (blob) return blob
+      }
+      return 'native'
+    })()
+  }
 
   async function pump() {
     if (running) return
     running = true
     while (!stopped && q.length) {
-      const text = q.shift()
-      if (text) await speakText(text)
+      const job = q.shift()
+      if (!job) continue
+      const audio = await job.ready
+      if (stopped) break
+      if (audio instanceof Blob) await playBlob(audio)
+      else await speakNative(job.text)
     }
     running = false
   }
@@ -234,7 +204,7 @@ export function createSpeakPipeline() {
     push(text: string) {
       const clean = text.replace(/\s+/g, ' ').trim()
       if (stopped || !clean) return
-      q.push(clean)
+      q.push({ text: clean, ready: prepare(clean) })
       void pump()
     },
     async flush() {
@@ -248,6 +218,13 @@ export function createSpeakPipeline() {
       void stopSpeak()
     },
   }
+}
+
+function speakNative(text: string): Promise<void> {
+  const clean = text.replace(/[#*_`]+/g, ' ').replace(/\s+/g, ' ').trim()
+  if (!clean) return Promise.resolve()
+  if (native) return native.speak({ text: clean }).then(() => undefined)
+  return webSpeak(clean)
 }
 
 export async function speakText(text: string): Promise<void> {
@@ -365,8 +342,8 @@ function webSpeak(text: string): Promise<void> {
   return new Promise((resolve) => {
     const u = new SpeechSynthesisUtterance(text)
     u.lang = 'de-DE'
-    u.rate = 1.06
-    u.pitch = 0.98
+    u.rate = 1.12
+    u.pitch = 1.0
     u.onend = () => resolve()
     u.onerror = () => resolve()
     window.speechSynthesis.cancel()
