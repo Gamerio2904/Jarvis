@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.3.0'
+export const APP_VERSION = '1.4.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -48,6 +48,15 @@ export type Todo = {
   id: string
   title: string
   status: 'open' | 'done' | string
+  source_conversation_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type CalendarEvent = {
+  id: string
+  title: string
+  start_at: string
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -172,7 +181,7 @@ export type ResearchAudit = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 3)
+    const req = indexedDB.open('jarvis-ondevice', 4)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -184,6 +193,7 @@ function openDb(): Promise<IDBDatabase> {
         'pending',
         'research_audits',
         'reminders',
+        'events',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -440,6 +450,32 @@ export async function setReminderStatus(id: string, status: string): Promise<voi
 
 export async function deleteReminder(id: string): Promise<void> {
   await del('reminders', id)
+}
+
+export async function listEvents(): Promise<CalendarEvent[]> {
+  const rows = await getAll<CalendarEvent>('events')
+  return rows.sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
+}
+
+export async function addEvent(opts: {
+  title: string
+  start_at: string
+  conversationId?: string
+}): Promise<CalendarEvent> {
+  const row: CalendarEvent = {
+    id: newId(),
+    title: opts.title,
+    start_at: opts.start_at,
+    source_conversation_id: opts.conversationId || null,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  await put('events', row)
+  return row
+}
+
+export async function deleteEvent(id: string): Promise<void> {
+  await del('events', id)
 }
 
 export async function addResearchAudit(row: ResearchAudit): Promise<ResearchAudit> {

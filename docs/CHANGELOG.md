@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.3.0`**.
+App-Version im Code: **`1.4.0`**.
+
+### `1.4.0` — Kalender-GUI — *CODE*
+
+- Eigene Monatsansicht, lokal, kein Google-Login
+- Termin im Chat („Termin morgen 15 Uhr Zahnarzt“) und in der GUI
+- Erinnerungen erscheinen als Punkte im Monat
+- [`sprints/sprint-54.md`](./sprints/sprint-54.md)
 
 ### `1.3.0` — Ort & Wetter — *CODE*
 

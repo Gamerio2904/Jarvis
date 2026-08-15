@@ -7,6 +7,7 @@ import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import { isLiveLookup } from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherIntent } from '../src/engine/weather-parse.ts'
+import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -80,5 +81,15 @@ const munich = parseWeatherIntent('Wetter in München')
 assert.equal(munich?.kind, 'place')
 if (munich?.kind === 'place') assert.equal(munich.place, 'München')
 assert.equal(parseWeatherIntent('Hallo Jarvis'), null)
+
+const termin = parseCalendarIntent('Termin morgen 15 Uhr Zahnarzt', frozen)
+assert.equal(termin?.kind, 'create')
+if (termin?.kind === 'create') {
+  assert.equal(termin.title, 'Zahnarzt')
+  assert.equal(termin.start.getHours(), 15)
+}
+assert.equal(parseCalendarIntent('Kalender')?.kind, 'open')
+assert.equal(parseCalendarIntent('was habe ich am Freitag', frozen)?.kind, 'list')
+assert.equal(parseCalendarIntent('lösche Termin Zahnarzt')?.kind, 'delete')
 
 console.log('ok 0.14 parsers')

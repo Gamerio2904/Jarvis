@@ -1,17 +1,16 @@
-# Android-APK — `1.3.0`
+# Android-APK — `1.4.0`
 
-**1.3:** Wetter hier (Standort einmal) oder „Wetter in …“. Zahlen von Open-Meteo, Quelle sichtbar.
+**1.4:** Lokaler Kalender mit Monats-GUI. Kein Google-Login.
 
 ## Download
 
-**APK `1.3.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-3-0bf8/releases/Jarvis.apk
+**APK `1.4.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-4-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.3.0` · versionCode `10300`
+- versionName `1.4.0` · versionCode `10400`
 - App-ID `local.jarvis.app`
 
-1. Installieren (über 1.2.x).
-2. „Wetter heute“ — Standort erlauben.
-3. Quellen unter der Antwort antippen.
-4. Optional: „Wetter in München“.
+1. Installieren (über 1.3.x).
+2. Sidebar → Kalender → Tag → Termin anlegen.
+3. Oder Chat: „Termin morgen 15 Uhr Zahnarzt“.

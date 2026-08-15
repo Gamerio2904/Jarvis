@@ -3,6 +3,7 @@ import { formatDue, parseReminderIntent } from './remind-parse'
 import {
   addReminder,
   deleteReminder,
+  listEvents,
   listReminders,
   listTodos,
   setReminderStatus,
@@ -118,7 +119,19 @@ export async function formatAgenda(): Promise<string> {
           .join('\n'),
     )
   }
-  return parts.length ? parts.join('\n\n') : 'Nichts Offen. Weder Erinnerung noch Todo.'
+  const events = (await listEvents()).filter(
+    (e) => new Date(e.start_at).getTime() >= Date.now() - 60_000,
+  )
+  if (events.length) {
+    parts.push(
+      'Termine:\n' +
+        events
+          .slice(0, 8)
+          .map((e, i) => `${i + 1}. ${e.title} — ${formatDue(new Date(e.start_at))}`)
+          .join('\n'),
+    )
+  }
+  return parts.length ? parts.join('\n\n') : 'Nichts offen. Weder Erinnerung, Todo noch Termin.'
 }
 
 export async function removeReminder(id: string): Promise<void> {
