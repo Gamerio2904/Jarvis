@@ -54,9 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sprint 51 / `1.1.0` — Sound + Research-Quellen
-2. Dann `1.2`–`1.4` (Erinnerung, Wetter, Kalender)
-3. `1.5.0` Sprachmodus — **kein** Wake-Word bei ausgeschaltetem Handy
+1. Sideload `1.6.0` (Wetter-Lage).
+2. Als Nächstes `1.7`–`1.11` — [`18-next.md`](./18-next.md): Timer-Klingeln, Serie, Wetter-Nachfragen, Widget, Wake-Word.
+3. Wake-Word nie bei Gerät komplett aus; Timer-Klingeln ja bei Bildschirm aus.
 
 ---
 
