@@ -6,6 +6,7 @@ import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import { isLiveLookup } from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
+import { parseWeatherIntent } from '../src/engine/weather-parse.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -72,5 +73,12 @@ assert.equal(parseReminderIntent('was steht an')?.kind, 'agenda')
 assert.equal(parseReminderIntent('zeige Erinnerungen')?.kind, 'list')
 assert.equal(parseReminderIntent('lösche Erinnerung Milch')?.kind, 'delete')
 assert.match(formatDue(new Date('2026-08-15T17:42:00'), frozen), /heute/)
+
+assert.equal(parseWeatherIntent('Wetter heute')?.kind, 'here')
+assert.equal(parseWeatherIntent('Temperatur hier')?.kind, 'here')
+const munich = parseWeatherIntent('Wetter in München')
+assert.equal(munich?.kind, 'place')
+if (munich?.kind === 'place') assert.equal(munich.place, 'München')
+assert.equal(parseWeatherIntent('Hallo Jarvis'), null)
 
 console.log('ok 0.14 parsers')

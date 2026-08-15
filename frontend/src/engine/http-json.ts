@@ -32,3 +32,30 @@ export async function postJson(
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
   return { status: res.status, json }
 }
+
+export async function getJson(
+  url: string,
+  headers: Record<string, string> = {},
+): Promise<{ status: number; json: Record<string, unknown> }> {
+  if (Capacitor.isNativePlatform()) {
+    const res = await CapacitorHttp.get({
+      url,
+      headers,
+      connectTimeout: 12_000,
+      readTimeout: 20_000,
+    })
+    let json: Record<string, unknown> = {}
+    try {
+      json = (typeof res.data === 'string' ? JSON.parse(res.data || '{}') : res.data || {}) as Record<
+        string,
+        unknown
+      >
+    } catch {
+      json = { error: { message: String(res.data || 'Ungültige Antwort') } }
+    }
+    return { status: res.status, json }
+  }
+  const res = await fetch(url, { headers })
+  const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
+  return { status: res.status, json }
+}

@@ -16,4 +16,6 @@ export const TEST_PROMPTS = [
   'Suche im Internet nach Kuchenrezepten',
   'in 20 Minuten Milch',
   'morgen 8 Uhr Steuer',
+  'Wetter heute',
+  'Temperatur hier',
 ] as const

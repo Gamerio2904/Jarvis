@@ -66,4 +66,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Todos (mit Ja/Nein), Notiz: speichert direkt. Erinnerung mit Zeit: „in 20 Minuten Milch“, „morgen 8 Uhr Steuer“. Fernseher nach dem Koppeln. Optional Gemini; Internet-Research extra in den Einstellungen — sonst keine Live-Suche.'
+  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Todos (mit Ja/Nein), Notiz: speichert direkt. Erinnerung mit Zeit: „in 20 Minuten Milch“. Wetter hier (Standort einmal) oder „Wetter in …“ — Quelle Open-Meteo, kein Raten. Fernseher nach dem Koppeln. Optional Gemini; Internet-Research extra in den Einstellungen — sonst keine Live-Suche.'

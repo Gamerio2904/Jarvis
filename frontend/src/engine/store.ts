@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.2.0'
+export const APP_VERSION = '1.3.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -92,6 +92,10 @@ export type Settings = {
   gemini_model: string
   gemini_skip_until: string
   groq_api_key: string
+  last_lat: string
+  last_lon: string
+  last_place: string
+  last_fix_at: string
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -120,6 +124,10 @@ export const DEFAULT_SETTINGS: Settings = {
   gemini_model: '',
   gemini_skip_until: '',
   groq_api_key: '',
+  last_lat: '',
+  last_lon: '',
+  last_place: '',
+  last_fix_at: '',
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',

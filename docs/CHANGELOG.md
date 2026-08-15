@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.2.0`**.
+App-Version im Code: **`1.3.0`**.
+
+### `1.3.0` — Ort & Wetter — *CODE*
+
+- „Wetter heute“ / „Temperatur hier“: Standort einmal, dann Open-Meteo
+- „Wetter in …“ ohne Standort; Quelle unter der Antwort
+- Kein geratenes Wetter, wenn der Dienst fehlt
+- [`sprints/sprint-53.md`](./sprints/sprint-53.md)
 
 ### `1.2.0` — Erinnerungen mit Zeit — *CODE*
 
