@@ -1,19 +1,16 @@
-# Android-APK — `1.5.0`
+# Android-APK — `1.5.1`
 
-**1.5 Riesenupdate:** Sprachmodus wie ein Gespräch, kein Mitschnitt. Shortcut „Jarvis hören“.
+**1.5.1:** Natürlichere Stimme (Gemini-TTS) und Fix für den schwarzen Sprachmodus-Screen.
 
 ## Download
 
-**APK `1.5.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-5-0bf8/releases/Jarvis.apk
+**APK `1.5.1`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/hotfix-voice-1-5-1-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.5.0` · versionCode `10500`
+- versionName `1.5.1` · versionCode `10501`
 - App-ID `local.jarvis.app`
 
-1. Installieren (über 1.4.x).
-2. Mikrofon erlauben → **Hören** oder Sidebar → Jarvis hören.
-3. Sprechen, zuhören, weiterreden. Kugel antippen unterbricht.
-4. Einstellungen → Shortcut auf Homescreen, oder App-Icon lange drücken.
-
-Gerät komplett aus: Jarvis ist tot. Screen aus bei angeschaltetem Handy: kein Wake-Word in 1.5.
+1. Über 1.5.0 installieren.
+2. Gemini an + Key → Sprachmodus nutzt die natürliche Stimme.
+3. Ohne Gemini: Android → Text-in-Sprache → Google-Stimme Deutsch.

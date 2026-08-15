@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { wantGeminiVoice } from './engine/tts'
 import {
   listenOnce,
   requestMicPermission,
@@ -22,6 +23,7 @@ export function VoiceMode({
   const [err, setErr] = useState<string | null>(null)
   const live = useRef(true)
   const phaseRef = useRef<Phase>('idle')
+  const neural = wantGeminiVoice()
 
   useEffect(() => {
     phaseRef.current = phase
@@ -99,27 +101,33 @@ export function VoiceMode({
 
   return (
     <div className="voice-mode" role="dialog" aria-label="Sprachmodus">
-      <header className="voice-head">
-        <div>
-          <h2>Jarvis hören</h2>
-          <p>Gespräch, kein Mitschnitt. Nur der Text bleibt im Chat.</p>
-        </div>
-        <button type="button" className="ghost-btn" onClick={onClose}>
-          Schließen
+      <div className="voice-sheet">
+        <header className="voice-head">
+          <div>
+            <h2>Jarvis hören</h2>
+            <p>
+              {neural
+                ? 'Natürliche Gemini-Stimme. Kein Mitschnitt — nur Text im Chat.'
+                : 'System-Stimme (oft hart). Gemini an = natürlicher. Kein Mitschnitt.'}
+            </p>
+          </div>
+          <button type="button" className="ghost-btn voice-close" onClick={onClose}>
+            Schließen
+          </button>
+        </header>
+        <button
+          type="button"
+          className={`voice-orb ${phase}`}
+          onClick={() => void onOrb()}
+          aria-label={label}
+        >
+          <span />
         </button>
-      </header>
-      <button
-        type="button"
-        className={`voice-orb ${phase}`}
-        onClick={() => void onOrb()}
-        aria-label={label}
-      >
-        <span />
-      </button>
-      <p className="voice-status">{label}</p>
-      {heard ? <p className="voice-line you">{heard}</p> : null}
-      {reply && phase !== 'listening' ? <p className="voice-line jarvis">{reply}</p> : null}
-      {err ? <p className="voice-err">{err}</p> : null}
+        <p className="voice-status">{label}</p>
+        {heard ? <p className="voice-line you">{heard}</p> : null}
+        {reply && phase !== 'listening' ? <p className="voice-line jarvis">{reply}</p> : null}
+        {err ? <p className="voice-err">{err}</p> : null}
+      </div>
     </div>
   )
 }

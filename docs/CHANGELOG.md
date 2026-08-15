@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.5.0`**.
+App-Version im Code: **`1.5.1`**.
+
+### `1.5.1` — Stimme + schwarzer Screen — *CODE*
+
+- Sprachmodus: Karte über dem Chat statt schwarzer Vollfläche (WebView blieb schwarz, Audio lief)
+- Gemini-TTS (Charon, Deutsch), wenn Gemini an ist — nicht mehr die Pico-Roboterstimme
+- Fallback: System-TTS, bevorzugt Google-Deutsch statt Pico
+- Einstellungen: Auto / Gemini / System
 
 ### `1.5.0` — Sprachmodus — *CODE*
 

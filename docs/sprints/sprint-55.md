@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **CODE** |
+| Status | **CODE** (`1.5.1` Stimme + Screen-Fix) |
 | Priorität | **MUST** — Riesenupdate nach `1.1`–`1.4` |
 | Ziel-Version | **`1.5.0`** |
 | Quelle | PO 2026-08-15: wie ChatGPT, Gespräch nicht aufnehmen; Shortcut Homescreen |

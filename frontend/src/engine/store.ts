@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.5.0'
+export const APP_VERSION = '1.5.1'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -105,6 +105,7 @@ export type Settings = {
   last_lon: string
   last_place: string
   last_fix_at: string
+  voice_tts: string
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -137,6 +138,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_lon: '',
   last_place: '',
   last_fix_at: '',
+  voice_tts: 'auto',
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',

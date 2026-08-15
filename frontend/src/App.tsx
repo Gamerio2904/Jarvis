@@ -853,7 +853,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.5.0</p>
+            <p>Handy · v1.5.1</p>
           </div>
         </div>
 
@@ -896,7 +896,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.5.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.5.1'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1105,9 +1105,25 @@ function App() {
             <section className="settings-section">
               <h3>Sprachmodus</h3>
               <p className="settings-hint">
-                Wie ein Gespräch: Sie sprechen, Jarvis antwortet mit Stimme. Kein Mitschnitt — nur
-                der Text bleibt im Chat. Gerät aus = unmöglich. Screen aus, Handy an = nicht in
-                dieser Version (Wake-Word extra).
+                Gespräch, kein Mitschnitt. Die Android-Standardstimme klingt oft nach Roboter
+                (Pico). Mit Gemini-Key nimmt Jarvis die natürliche Gemini-Stimme (Charon, Deutsch).
+              </p>
+              <label className="settings-inline">
+                <span>Stimme</span>
+                <select
+                  value={settings?.voice_tts || 'auto'}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ voice_tts: e.target.value })}
+                >
+                  <option value="auto">Auto (Gemini wenn an, sonst System)</option>
+                  <option value="gemini">Gemini — natürlich, geht ins Netz</option>
+                  <option value="system">System — offline, oft hart</option>
+                </select>
+              </label>
+              <p className="settings-hint">
+                Ohne Gemini: unter Android „Text-in-Sprache-Ausgabe“ die Google-Stimme Deutsch
+                installieren. Extra-Dienste wie ElevenLabs brauchen einen eigenen Key — nicht in
+                dieser Version.
               </p>
               <div className="settings-actions">
                 <button
