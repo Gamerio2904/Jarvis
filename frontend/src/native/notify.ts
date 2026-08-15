@@ -9,9 +9,12 @@ type NativeNotify = {
     atMs: number
     alarm?: boolean
     recur?: string
+    tone?: string
   }): Promise<{ ok: boolean; message?: string }>
   cancel(opts: { id: number }): Promise<{ ok: boolean }>
   publishGlance(opts: { next: string; weather: string }): Promise<{ ok: boolean }>
+  pickTone(): Promise<{ ok: boolean; uri?: string; name?: string; message?: string }>
+  listTones(): Promise<{ ok: boolean; tones?: Array<{ uri: string; name: string }> }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeNotify>('JarvisNotify') : null
@@ -51,6 +54,7 @@ export async function scheduleNotify(opts: {
   at: Date
   alarm?: boolean
   recur?: string
+  tone?: string
 }): Promise<{ ok: boolean; message?: string }> {
   const atMs = opts.at.getTime()
   if (atMs <= Date.now() + 5_000) {
@@ -65,6 +69,7 @@ export async function scheduleNotify(opts: {
         atMs,
         alarm: opts.alarm !== false,
         recur: opts.recur || '',
+        tone: opts.tone || '',
       })
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Notification fehlgeschlagen' }
@@ -93,6 +98,25 @@ export async function cancelNotify(id: number): Promise<void> {
   if (handle) {
     window.clearTimeout(handle)
     browserTimers.delete(id)
+  }
+}
+
+export async function pickAlarmTone(): Promise<{ ok: boolean; uri?: string; name?: string; message?: string }> {
+  if (!native) return { ok: false, message: 'Tonwahl nur in der Android-App.' }
+  try {
+    return await native.pickTone()
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'Tonwahl fehlgeschlagen' }
+  }
+}
+
+export async function listAlarmTones(): Promise<Array<{ uri: string; name: string }>> {
+  if (!native) return []
+  try {
+    const res = await native.listTones()
+    return res.tones || []
+  } catch {
+    return []
   }
 }
 

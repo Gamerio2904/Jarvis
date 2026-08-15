@@ -22,6 +22,8 @@ export const TEST_PROMPTS = [
   'Brauche ich einen Schirm?',
   'Was soll ich anziehen?',
   'Timer 8 Minuten Nudeln',
+  'Wecker 7 Uhr',
+  'Wecker 7 Uhr jeden Tag',
   'jeden Tag 8 Uhr Tabletten',
   'Temperatur hier',
   'Termin morgen 15 Uhr Zahnarzt',

@@ -26,6 +26,7 @@ Erinnerungen aus `1.2` zeigen heute nur eine stille/hohe Notification. Das reich
 | **`1.9.0`** | **Wetter-Nachfragen** — **CODE** | „und morgen?“ |
 | **`1.10.0`** | **Homescreen-Widget** — **CODE** | Timer + Wetterzeile |
 | **`1.11.0`** | **Wake-Word** — **CODE** | Opt-in, Handy an |
+| **`1.12.0`** | **Wecker + eigener Ton** — **CODE** | Einmal oder täglich, Tonwahl |
 
 Sprints: [`sprint-57`](./sprints/sprint-57.md) … [`sprint-61`](./sprints/sprint-61.md).
 
