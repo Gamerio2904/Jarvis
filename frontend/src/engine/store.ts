@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.14.1'
+export const APP_VERSION = '1.0.3'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -22,6 +22,8 @@ export type Message = {
   created_at: string
   meta?: Record<string, unknown> | null
 }
+
+export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
 
 export type MemoryItem = {
   id: string
@@ -75,6 +77,11 @@ export type Settings = {
   tv_port: number
   tv_token: string
   tv_paired: boolean
+  gemini_enabled: boolean
+  gemini_api_key: string
+  gemini_model: string
+  gemini_skip_until: string
+  groq_api_key: string
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -98,6 +105,11 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_port: 8002,
   tv_token: '',
   tv_paired: false,
+  gemini_enabled: false,
+  gemini_api_key: '',
+  gemini_model: '',
+  gemini_skip_until: '',
+  groq_api_key: '',
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',
@@ -120,6 +132,10 @@ export function loadSettings(): Settings {
   } catch {
     return { ...DEFAULT_SETTINGS }
   }
+}
+
+export function isGeminiConfigured(s = loadSettings()): boolean {
+  return Boolean(s.gemini_enabled && s.gemini_api_key.trim())
 }
 
 export function saveSettings(patch: Partial<Settings>): Settings {

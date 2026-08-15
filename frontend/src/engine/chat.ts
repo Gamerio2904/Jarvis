@@ -1,7 +1,11 @@
-import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady } from './llm'
+import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
+import { completeGemini, geminiReady, GEMINI_LABEL, testGemini } from './gemini'
+import { groqReady, testGroq } from './groq'
+import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
-import { PERSONA } from './persona'
+import { GEMINI_PERSONA, PERSONA } from './persona'
+import { isLiveLookup, RESEARCH_NEEDS_GEMINI, RESEARCH_OFF_REPLY, type ResearchMeta } from './research-parse'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
@@ -27,7 +31,7 @@ export type StreamHandlers = {
     user_message: Message
     model: string
     using_fallback: boolean
-    research?: null
+    research?: ResearchMeta | null
   }) => void
   onToken?: (token: string) => void
   onReplace?: (content: string) => void
@@ -36,7 +40,7 @@ export type StreamHandlers = {
     assistant_message: Message
     conversation: Conversation
     guarded?: boolean
-    research?: null
+    research?: ResearchMeta | null
     tool?: ToolMeta | null
   }) => void
   onError?: (detail: string) => void
@@ -44,28 +48,41 @@ export type StreamHandlers = {
 
 export async function getHealth() {
   const mem = await listMemory()
-  const ready = isModelReady()
+  const localReady = isModelReady()
+  const cloud = geminiReady()
+  const ready = cloud || localReady
   const err = getLlmError()
   const prog = getDownloadProgress()
+  const s = loadSettings()
   return {
     ok: ready,
     ollama: false,
-    engine: 'on-device',
-    model: DEFAULT_MODEL.label,
-    model_ready: ready,
-    configured_model: DEFAULT_MODEL.label,
+    engine: cloud ? 'gemini' : 'on-device',
+    model: cloud ? GEMINI_LABEL : DEFAULT_MODEL.label,
+    model_ready: localReady,
+    gemini_ready: cloud,
+    gemini_enabled: s.gemini_enabled,
+    configured_model: cloud ? GEMINI_LABEL : DEFAULT_MODEL.label,
     fallback_model: DEFAULT_MODEL.label,
     model_heavy: DEFAULT_MODEL.label,
-    heavy_equals_default: true,
+    heavy_equals_default: !cloud,
     using_fallback: false,
     version: APP_VERSION,
     memory_count: mem.length,
-    research_opt_in: loadSettings().research_opt_in,
+    research_opt_in: s.research_opt_in,
     tv: tvStatusFromSettings(),
-    warning: ready
-      ? 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
-      : err || 'Modell noch nicht geladen.',
-    error: ready ? undefined : err || 'Modell nicht geladen. Unter Einstellungen einmal herunterladen.',
+    warning: cloud
+      ? groqReady()
+        ? 'Gemini — bei Limit nächstes Modell, dann Groq. Chat geht ins Netz.'
+        : 'Gemini (Google) — bei Limit nächstes Modell. Chat geht ins Netz.'
+      : localReady
+        ? 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
+        : err || 'Modell noch nicht geladen.',
+    error: ready
+      ? undefined
+      : s.gemini_enabled && !s.gemini_api_key.trim()
+        ? 'Gemini an, aber kein API-Key.'
+        : err || 'Modell nicht geladen. Unter Einstellungen herunterladen oder Gemini nutzen.',
     download_pct: prog.pct,
   }
 }
@@ -78,7 +95,7 @@ export function patchSettings(patch: Partial<Settings>): Settings {
   return saveSettings(patch)
 }
 
-export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady }
+export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, releaseModel, testGemini, testGroq, geminiReady }
 
 export async function streamChat(
   conversationId: string,
@@ -89,9 +106,10 @@ export async function streamChat(
   if (!conv) throw new Error('Gespräch nicht gefunden.')
 
   const userMessage = await addMessage(conversationId, 'user', content)
+  const usingGemini = geminiReady()
   handlers.onMeta?.({
     user_message: userMessage,
-    model: DEFAULT_MODEL.label,
+    model: usingGemini ? GEMINI_LABEL : DEFAULT_MODEL.label,
     using_fallback: false,
     research: null,
   })
@@ -146,44 +164,77 @@ export async function streamChat(
       return
     }
 
-    if (!isModelReady()) {
-      if (await hasCachedModel()) {
-        await ensureModel()
-      } else {
-        throw new Error('Modell nicht geladen. Unter Einstellungen einmal herunterladen.')
+    if (!geminiReady()) {
+      if (!isModelReady()) {
+        throw new Error(
+          'Lokales Modell ist aus. Unter Einstellungen starten — oder Gemini einschalten.',
+        )
+      }
+    }
+
+    const s = loadSettings()
+    if (isLiveLookup(content)) {
+      if (!s.research_opt_in) {
+        const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
+        const updated = (await touchConversation(conversationId)) || conv
+        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+        return
+      }
+      if (!geminiReady()) {
+        const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
+        const updated = (await touchConversation(conversationId)) || conv
+        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+        return
       }
     }
 
     const history = await listMessages(conversationId)
     const mem = await listMemory()
-    const system = [PERSONA, memoryBlock(mem)].filter(Boolean).join('\n\n')
+    const system = geminiReady()
+      ? [GEMINI_PERSONA, memoryBlock(mem)].filter(Boolean).join('\n\n')
+      : [PERSONA, memoryBlock(mem)].filter(Boolean).join('\n\n')
     const llmMessages = [
       { role: 'system', content: system },
-      ...history.slice(-4).map((m) => ({
+      ...history.slice(geminiReady() ? -12 : -4).map((m) => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content,
       })),
     ]
 
     let acc = ''
-    const raw = await completeChat(llmMessages, (_piece, full) => {
-      acc = full
-      handlers.onToken?.(_piece)
-    })
-    const final = scrubReply(raw || acc)
+    let research: ResearchMeta | undefined
+    const raw = geminiReady()
+      ? await completeGemini(
+          llmMessages,
+          (_piece, full) => {
+            acc = full
+            handlers.onToken?.(_piece)
+          },
+          { search: Boolean(s.research_opt_in && isLiveLookup(content)) },
+        ).then((r) => {
+          research = r.research
+          return r.text
+        })
+      : await completeChat(llmMessages, (_piece, full) => {
+          acc = full
+          handlers.onToken?.(_piece)
+        })
+    const final = scrubReply(raw || acc, { searched: Boolean(research?.used) })
     if (final !== (raw || acc)) handlers.onReplace?.(final)
-    const assistant = await addMessage(conversationId, 'assistant', final)
+    const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({
       assistant_message: assistant,
       conversation: updated,
       guarded: final !== (raw || acc),
+      research: research || null,
       tool: null,
     })
   } catch (err) {
-    const detail = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
+    const raw = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
+    const detail = geminiReady() ? userFacingCloudError(raw, groqReady()) : raw
     handlers.onError?.(detail)
-    throw err
+    throw new Error(detail)
   }
 }
 

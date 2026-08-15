@@ -1,6 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { spawnSync } from 'node:child_process'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const android = join(root, 'android')
@@ -60,10 +61,25 @@ if (!manifest.includes('android:usesCleartextTraffic')) {
 }
 writeFileSync(manifestPath, manifest)
 
+const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+const versionName = String(pkg.version || '1.0.0')
+const parts = versionName.split('.').map((p) => Number.parseInt(String(p).replace(/\D/g, ''), 10) || 0)
+const versionCode = Math.max((parts[0] || 0) * 10000 + (parts[1] || 0) * 100 + (parts[2] || 0), 10000)
+
 const gradlePath = join(android, 'app/build.gradle')
 let gradle = readFileSync(gradlePath, 'utf8')
-gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 141')
-gradle = gradle.replace(/versionName\s+"[^"]+"/, 'versionName "0.14.1"')
+gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${versionCode}`)
+gradle = gradle.replace(/versionName\s+"[^"]+"/, `versionName "${versionName}"`)
+if (!gradle.includes('archivesBaseName')) {
+  gradle = gradle.replace(
+    /android\s*\{\s*\n\s*namespace/,
+    'android {\n    namespace',
+  )
+  gradle = gradle.replace(
+    'namespace = "local.jarvis.app"',
+    'namespace = "local.jarvis.app"\n    archivesBaseName = "Jarvis"',
+  )
+}
 if (!gradle.includes('okhttp')) {
   gradle = gradle.replace(
     /dependencies\s*\{/,
@@ -72,4 +88,10 @@ if (!gradle.includes('okhttp')) {
 }
 writeFileSync(gradlePath, gradle)
 
-console.log('[apply-native-tv] Plugin, Manifest, versionCode 141, OkHttp.')
+const brand = spawnSync('python3', [join(root, 'scripts/apply-brand.py')], { stdio: 'inherit' })
+if (brand.status !== 0) {
+  console.error('[apply-native-tv] apply-brand fehlgeschlagen')
+  process.exit(brand.status || 1)
+}
+
+console.log(`[apply-native-tv] Plugin, Manifest, versionCode ${versionCode}, OkHttp, Brand.`)

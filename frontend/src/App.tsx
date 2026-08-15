@@ -15,9 +15,13 @@ import {
   ensureModel,
   hasCachedModel,
   isModelReady,
+  isGeminiConfigured,
+  releaseModel,
   tvDiscover,
   tvPair,
   tvTest,
+  testGemini,
+  testGroq,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -30,6 +34,7 @@ import {
 } from './api'
 import './index.css'
 import { playUiSound } from './sounds'
+import { TEST_PROMPTS } from './engine/test-prompts'
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -158,7 +163,7 @@ function App() {
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
-  const [setupOpen, setSetupOpen] = useState(() => !isModelReady())
+  const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
   const [downloadPct, setDownloadPct] = useState(0)
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadPhase, setDownloadPhase] = useState<'download' | 'load'>('download')
@@ -168,6 +173,10 @@ function App() {
   const [tvFound, setTvFound] = useState<
     Array<{ host?: string; name?: string; mac?: string; port?: number }>
   >([])
+  const [geminiBusy, setGeminiBusy] = useState(false)
+  const [geminiMsg, setGeminiMsg] = useState<string | null>(null)
+  const [groqBusy, setGroqBusy] = useState(false)
+  const [groqMsg, setGroqMsg] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -188,13 +197,18 @@ function App() {
       return
     }
     const started = Date.now()
+    const cloud = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
     const id = window.setInterval(() => {
       if (sawTokenRef.current) return
       const s = Math.max(1, Math.round((Date.now() - started) / 1000))
-      setStatusNote(`Jarvis denkt… ${s}s — erstes Wort kann auf dem Handy dauern.`)
+      setStatusNote(
+        cloud
+          ? `Jarvis denkt… ${s}s`
+          : `Jarvis denkt… ${s}s — erstes Wort kann auf dem Handy dauern.`,
+      )
     }, 1000)
     return () => window.clearInterval(id)
-  }, [busy])
+  }, [busy, settings?.gemini_enabled, settings?.gemini_api_key])
 
   useEffect(() => {
     if (!stickToBottomRef.current) return
@@ -259,6 +273,10 @@ function App() {
     try {
       const updated = await patchSettings(patch)
       setSettings(updated)
+      if (updated.gemini_enabled && updated.gemini_api_key?.trim()) {
+        setSetupOpen(false)
+        void releaseModel()
+      }
       void refreshHealth()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Settings speichern fehlgeschlagen')
@@ -323,6 +341,35 @@ function App() {
     }
   }
 
+  async function onGeminiTest() {
+    if (geminiBusy) return
+    setGeminiBusy(true)
+    setGeminiMsg('Teste Gemini…')
+    try {
+      const res = await testGemini()
+      setGeminiMsg(res.reply)
+      await refreshHealth()
+    } catch (err) {
+      setGeminiMsg(err instanceof Error ? err.message : 'Test fehlgeschlagen')
+    } finally {
+      setGeminiBusy(false)
+    }
+  }
+
+  async function onGroqTest() {
+    if (groqBusy) return
+    setGroqBusy(true)
+    setGroqMsg('Teste Groq…')
+    try {
+      const res = await testGroq()
+      setGroqMsg(res.reply)
+    } catch (err) {
+      setGroqMsg(err instanceof Error ? err.message : 'Test fehlgeschlagen')
+    } finally {
+      setGroqBusy(false)
+    }
+  }
+
   async function onTvTest() {
     if (tvBusy) return
     setTvBusy(true)
@@ -341,27 +388,19 @@ function App() {
     await refreshHealth()
     await refreshSettings()
     await refreshMemory()
-    if (isModelReady()) {
-      setSetupOpen(false)
-    } else if (await hasCachedModel()) {
-      setHasLocalModel(true)
-      setSetupOpen(true)
-      setDownloadBusy(true)
-      setDownloadPhase('load')
-      try {
-        await ensureModel((p) => {
-          setDownloadPct(p.pct)
-          setDownloadPhase(p.phase)
-        })
-        setSetupOpen(false)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Modell konnte nicht geladen werden')
-        setSetupOpen(true)
-      } finally {
-        setDownloadBusy(false)
-      }
-    } else {
+    const s = await getSettings()
+    const gemini = Boolean(s.gemini_enabled && s.gemini_api_key?.trim())
+    try {
+      setHasLocalModel(await hasCachedModel())
+    } catch {
       setHasLocalModel(false)
+    }
+    if (gemini) {
+      setSetupOpen(false)
+      void releaseModel()
+    } else if (isModelReady()) {
+      setSetupOpen(false)
+    } else {
       setSetupOpen(true)
     }
     try {
@@ -613,8 +652,8 @@ function App() {
   const activeTitle =
     conversations.find((c) => c.id === activeId)?.title ?? 'Jarvis'
 
-  const healthOk = Boolean(health?.ok && health.model_ready)
-  const fallback = Boolean(health?.using_fallback)
+  const healthOk = Boolean(health?.ok)
+  const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
 
   return (
     <div className="app">
@@ -623,8 +662,8 @@ function App() {
           <div className="setup-card">
             <h2 id="setup-title">Modell aufs Handy</h2>
             <p>
-              Jarvis denkt lokal auf diesem Gerät. Einmalig das Sprachmodell laden
-              (~470 MB). Danach kein PC und keine NAS.
+              Jarvis kann lokal auf dem Handy denken (einmal ~470 MB) oder über Gemini
+              (Google). Das lokale Modell startet nur, wenn Gemini aus ist.
             </p>
             {downloadBusy ? (
               <p className="settings-hint">
@@ -656,6 +695,19 @@ function App() {
                   ? 'Modell starten'
                   : 'Modell herunterladen'}
             </button>
+            <button
+              type="button"
+              className="ghost-btn"
+              disabled={downloadBusy}
+              onClick={() => {
+                setSetupOpen(false)
+                setSidebarOpen(true)
+                setSettingsPanelOpen(true)
+              }}
+            >
+              Stattdessen Gemini (Google)
+            </button>
+            <p className="settings-hint">Gemini: Chat geht zu Google. Key von aistudio.google.com</p>
           </div>
         </div>
       ) : null}
@@ -670,7 +722,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · Handy · v0.14.1</p>
+            <p>Handy · v1.0.3</p>
           </div>
         </div>
 
@@ -689,7 +741,88 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.14.1'} · on-device · privat</p>
+              <p className="settings-hint">Version {settings?.version || '1.0.3'} · Handy</p>
+            </section>
+            <section className="settings-section">
+              <h3>Gemini (Google)</h3>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.gemini_enabled)}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ gemini_enabled: e.target.checked })}
+                />
+                <span>Gemini statt lokalem 0.5B</span>
+              </label>
+              <p className="settings-hint warn">
+                An = Chat geht zu Google. Nicht privat. Bestes Free-Modell zuerst; bei Limit oder
+                Überlastung sofort das nächste.
+              </p>
+              <label className="settings-inline">
+                <span>API-Key</span>
+                <input
+                  type="text"
+                  inputMode="text"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  key={`gemini-key-${settings?.gemini_api_key ? 'set' : 'empty'}`}
+                  defaultValue={settings?.gemini_api_key || ''}
+                  disabled={settingsBusy}
+                  placeholder="AIza… hier einfügen"
+                  onBlur={(e) => void patchSetting({ gemini_api_key: e.target.value.trim() })}
+                />
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={geminiBusy || settingsBusy}
+                  onClick={() => void onGeminiTest()}
+                >
+                  Testen
+                </button>
+              </div>
+              {geminiMsg ? <p className="settings-hint">{geminiMsg}</p> : null}
+              <p className="settings-hint">
+                Key: aistudio.google.com/apikey — auf dem Handy speichern, nicht teilen.
+              </p>
+            </section>
+            <section className="settings-section">
+              <h3>Fallback Groq (optional)</h3>
+              <p className="settings-hint">
+                Kein dauerhaft kostenloses Modell ohne eigenen Key. Groq hat einen großen Free-Tier
+                (Llama, ohne Kreditkarte). Nur wenn Gemini leer oder überlastet ist.
+              </p>
+              <label className="settings-inline">
+                <span>API-Key</span>
+                <input
+                  type="text"
+                  inputMode="text"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  key={`groq-key-${settings?.groq_api_key ? 'set' : 'empty'}`}
+                  defaultValue={settings?.groq_api_key || ''}
+                  disabled={settingsBusy}
+                  placeholder="gsk_… hier einfügen"
+                  onBlur={(e) => void patchSetting({ groq_api_key: e.target.value.trim() })}
+                />
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={groqBusy || settingsBusy}
+                  onClick={() => void onGroqTest()}
+                >
+                  Testen
+                </button>
+              </div>
+              {groqMsg ? <p className="settings-hint">{groqMsg}</p> : null}
+              <p className="settings-hint">Key: console.groq.com/keys — nicht teilen.</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
@@ -697,7 +830,7 @@ function App() {
                 {settings?.model_default || 'Qwen2.5 0.5B'} läuft auf diesem Handy (llama.cpp / WASM).
                 Kleiner als der alte PC-7b — dafür ohne Server.
               </p>
-              {!health?.model_ready ? (
+              {!health?.model_ready && !geminiOn ? (
                 <button
                   type="button"
                   className="retry-btn"
@@ -712,6 +845,8 @@ function App() {
                       ? 'Modell starten'
                       : 'Modell laden'}
                 </button>
+              ) : geminiOn ? (
+                <p className="settings-hint">Lokal aus — Gemini übernimmt den Chat. Modell wird nicht geladen.</p>
               ) : (
                 <p className="settings-hint">Modell bereit.</p>
               )}
@@ -896,7 +1031,8 @@ function App() {
                 <span>Internet-Research (Opt-in)</span>
               </label>
               <p className="settings-hint">
-                Default aus. Nur minimierte Query geht raus — kein Chat-Verlauf.
+                An = Wetter und Websuche über Google (braucht Gemini). Aus = Jarvis erfindet keine
+                Suche und kein Wetter von heute.
               </p>
               <button
                 type="button"
@@ -1034,28 +1170,36 @@ function App() {
           ))}
         </div>
 
-        <div className={`status ${healthOk ? (fallback ? 'warn' : '') : 'error'}`}>
+        <div className={`status ${healthOk ? (geminiOn ? 'warn' : '') : 'error'}`}>
           {healthOk ? (
-            <>
-              Gerät: <strong>bereit</strong>
-              <br />
-              Modell: {health?.model}
-              <br />
-              on-device · kein Server
-              {settings?.tv_enabled ? (
-                <>
-                  <br />
-                  TV: {settings.tv_paired ? settings.tv_name || 'gekoppelt' : 'nicht gekoppelt'}
-                </>
-              ) : null}
-            </>
+            geminiOn ? (
+              <>
+                Gemini: <strong>an</strong>
+                <br />
+                Chat geht zu Google
+              </>
+            ) : (
+              <>
+                Gerät: <strong>bereit</strong>
+                <br />
+                Modell: {health?.model}
+                <br />
+                on-device · kein Server
+              </>
+            )
           ) : (
             <>
-              Gerät: <strong>Modell fehlt</strong>
+              Gerät: <strong>nicht bereit</strong>
               <br />
-              {health?.error || 'Modell nicht geladen. Unter Einstellungen herunterladen.'}
+              {health?.error || 'Modell laden oder Gemini einschalten.'}
             </>
           )}
+          {settings?.tv_enabled ? (
+            <>
+              <br />
+              TV: {settings.tv_paired ? settings.tv_name || 'gekoppelt' : 'nicht gekoppelt'}
+            </>
+          ) : null}
         </div>
       </aside>
 
@@ -1084,9 +1228,9 @@ function App() {
           </div>
         </div>
 
-        {fallback && healthOk ? (
+        {geminiOn && healthOk ? (
           <div className="fallback-banner">
-            {health?.warning || 'On-Device-Modell aktiv.'}
+            Gemini (Google) — Nachrichten gehen ins Netz.
           </div>
         ) : null}
 
@@ -1095,7 +1239,7 @@ function App() {
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
                 <h3>Jarvis</h3>
-                <p>Schreib einfach los — lokal, ohne Cloud-Hirn.</p>
+                <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}
 
@@ -1180,6 +1324,20 @@ function App() {
               ) : null}
             </div>
           ) : null}
+          <div className="prompt-chips" role="list" aria-label="Test-Prompts">
+            {TEST_PROMPTS.map((text) => (
+              <button
+                key={text}
+                type="button"
+                className="prompt-chip"
+                role="listitem"
+                disabled={busy}
+                onClick={() => void sendMessage(text)}
+              >
+                {text}
+              </button>
+            ))}
+          </div>
           <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
             <textarea
               ref={textareaRef}

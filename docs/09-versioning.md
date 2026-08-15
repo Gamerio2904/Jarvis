@@ -71,7 +71,8 @@ MAJOR.MINOR.PATCH
 | `0.13.2` | **Chat-Hang Hotfix** (Streaming, Threads, Timeout) | Sprint 46 |
 | `0.14.0` | **Qualität & Latenz** — bestehendes härten, nichts Neues | Sprint 47 |
 | `0.14.1` | **TV verbinden & steuern** — Tizen on-device (ex-`0.11`) | Sprint 48 |
-| `1.0.0` | **nächster MAJOR** — Inhalt PO | nach `0.14` |
+| `0.16.0` | **Gemini Opt-in** — Google-API, Default aus | Sprint 50 |
+| `1.0.0` | **Jarvis 1.0** — On-Device, TV, Gemini-Kaskade, APK `Jarvis.apk` | nach `0.16` |
 
 ### Weitere Beispiele
 

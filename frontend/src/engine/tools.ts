@@ -100,24 +100,16 @@ export async function handleTools(
 
   if (intent.kind === 'note_create') {
     const body = intent.body
-    const row: ToolPending = {
-      conversation_id: conversationId,
-      tool: 'notes',
-      action: 'create',
-      args: { body },
-      preview: `Notiz: ${body}`,
-      created_at: new Date().toISOString(),
-    }
-    await setPending(row)
+    await addNote(body, conversationId)
     return {
       handled: true,
-      reply: `Notiz speichern: „${body}“?`,
+      reply: `Notiz liegt: ${body}`,
       tool: {
-        tool_status: 'pending',
+        tool_status: 'executed',
         tool: 'notes',
         action: 'create',
-        preview: row.preview,
-        label: 'Tool bereit — Confirm?',
+        label: 'Tool ausgeführt',
+        preview: body,
       },
     }
   }

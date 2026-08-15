@@ -3,6 +3,8 @@ import { parseTvIntent } from '../src/engine/tv-parse.ts'
 import { parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
+import { isIdentityAsk } from '../src/engine/memory-parse.ts'
+import { isLiveLookup } from '../src/engine/research-parse.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -35,5 +37,16 @@ assert.equal(parseToolIntent('Was soll ich kaufen?'), null)
 assert.ok(isHelpCommand('/hilfe'))
 assert.match(scrubReply('Du bist toll und dein Hund auch'), /Sie/)
 assert.match(scrubReply('Ich habe den Fernseher ausgeschaltet'), /nicht ausgeführt/)
+assert.match(scrubReply('Sie leiden an akuter Amnesie.'), /Jarvis/)
+assert.equal(
+  scrubReply('Ich habe das Internet nach Kuchenrezepten durchsucht. Zucker und Mehl reichen.').includes(
+    'durchsucht',
+  ),
+  false,
+)
+assert.ok(isIdentityAsk('Wer bist du und wer bin ich?'))
+assert.ok(isLiveLookup('Suche im Internet nach Kuchenrezepten'))
+assert.ok(isLiveLookup('Wie ist die Temperatur in Ingesheim heute?'))
+assert.ok(!isLiveLookup('Hallo Jarvis.'))
 
 console.log('ok 0.14 parsers')

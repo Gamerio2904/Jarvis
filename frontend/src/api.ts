@@ -8,6 +8,9 @@ import {
   isModelReady,
   patchSettings as enginePatch,
   streamChat as engineStream,
+  testGemini as engineTestGemini,
+  testGroq as engineTestGroq,
+  releaseModel as engineReleaseModel,
   type StreamHandlers,
 } from './engine/chat'
 import {
@@ -15,41 +18,24 @@ import {
   addMessage,
   clearMemory as storeClearMemory,
   deleteMemory,
+  isGeminiConfigured,
   listMemory as storeListMemory,
   listMessages,
   loadSettings,
   type Conversation,
+  type MemoryCategory,
   type MemoryItem,
   type Message,
   type Settings as EngineSettings,
 } from './engine/store'
 import { discoverTvs, pairTv, testTv, tvStatusFromSettings } from './engine/tv'
+import type { ResearchMeta, ResearchSource } from './engine/research-parse'
 
-export type { Conversation, MemoryItem, Message, StreamHandlers }
-export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady }
+export type { Conversation, MemoryCategory, MemoryItem, Message, StreamHandlers, ResearchMeta, ResearchSource }
+export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady, isGeminiConfigured }
 
-export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
-
-export type ResearchSource = {
-  title: string
-  url: string
-  snippet: string
-  provider: string
-  retrieved_at: string
-}
-
-export type ResearchMeta = {
-  used?: boolean
-  status?: string
-  query?: string
-  sources?: ResearchSource[]
-  error?: string | null
-  diverges?: boolean
-  privacy_note?: string | null
-  badge?: string | null
-  audit_id?: string
-  status_label?: string | null
-  network_attempted?: boolean
+export async function releaseModel(): Promise<void> {
+  return engineReleaseModel()
 }
 
 export type ToolMeta = {
@@ -68,6 +54,8 @@ export type Health = {
   engine?: string
   model: string
   model_ready: boolean
+  gemini_ready?: boolean
+  gemini_enabled?: boolean
   configured_model?: string
   fallback_model?: string
   model_heavy?: string
@@ -234,4 +222,12 @@ export async function tvPair(body: {
 
 export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
   return testTv()
+}
+
+export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
+  return engineTestGemini()
+}
+
+export async function testGroq(): Promise<{ ok: boolean; reply: string }> {
+  return engineTestGroq()
 }

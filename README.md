@@ -1,5 +1,9 @@
 # Jarvis — On-Device
 
+<p align="center">
+  <img src="frontend/native/brand/cover.png" alt="Jarvis" width="920" />
+</p>
+
 Privater Assistant. Läuft **auf dem Handy**. Kein PC, keine NAS, kein Docker.
 
 ## Start (Dev-PC, nur zum Bauen)
@@ -14,14 +18,14 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 ## Android-APK
 
-Fertige Debug-APK `0.13.2`:  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/hotfix-0-13-2-0bf8/releases/jarvis-0.13.2-debug.apk
+**`Jarvis.apk` `1.0.3`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/gemini-opt-in-0bf8/releases/Jarvis.apk
 
 ```bat
 build-apk.bat
 ```
 
-APK: `frontend\dist-apk\jarvis-debug.apk`
+APK: `releases/Jarvis.apk`
 
 1. Installieren (unbekannte Quellen).
 2. App öffnen → Modell laden (WLAN).

@@ -5,7 +5,52 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.14.1`** (On-Device + Tizen).
+App-Version im Code: **`1.0.3`**.
+
+### `1.0.3` — Persona, Research, Notizen — *CODE*
+
+- Jarvis beleidigt nicht mehr; keine erfundenen Internetsuchen
+- Internet-Research (Opt-in) nutzt Google-Suche über Gemini; aus = ehrliche Absage
+- „Notiz:“ speichert sofort; Memory-Ack ohne `name=Max`
+- Chat-Avatar nutzt das Cover-Icon
+
+### `1.0.2` — Test-Prompts zum Antippen — *CODE*
+
+- Unter dem Chat: einzelne One-Click-Felder, jedes sendet einen Test-Prompt
+
+### `1.0.1` — Cover & App-Icon — *CODE*
+
+- Eigenes Jarvis-Cover (J-Monogramm, dunkel, grüne LED)
+- Homescreen-Icon, rundes Icon, Splash statt Capacitor-Default
+- APK weiter `Jarvis.apk`
+
+### `1.0.0` — Jarvis 1.0 — *CODE*
+
+- Sideload-APK heißt **`Jarvis.apk`**, Homescreen-Name Jarvis
+- On-Device + optional Gemini-Kaskade + Groq-Fallback
+- versionName `1.0.0` · versionCode `10000`
+
+### `0.16.3` — Gemini-Kaskade + Groq-Fallback — *CODE*
+
+- Bestes Free-Gemini zuerst; bei Limit/Überlastung sofort Flash-Lite, dann ältere Flash
+- Optional Groq-Key: letzter Fallback mit hohem Free-Tier (kein dauerhaft keyloses LLM)
+- Keine englische „high demand“-Meldung; überlastete Modelle kurz pausiert
+
+### `0.16.2` — Gemini-Key einfügen — *CODE*
+
+- API-Key-Feld: normale Tastatur, Einfügen möglich (kein Passwort-Feld)
+
+### `0.16.1` — Lokalmodell nur auf Wunsch — *CODE*
+
+- App-Start lädt die GGUF **nicht**, wenn Gemini an ist (auch nach Schließen/Öffnen)
+- Lokales Modell nur über „Modell starten“, solange Gemini aus ist
+
+### `0.16.0` — Gemini Opt-in — *CODE*
+
+- Settings: Gemini (Google) Default aus; API-Key; Test
+- Smalltalk über Gemini Flash, Memory/TV/Tools weiter lokal
+- Banner: Chat geht ins Netz
+- [`sprints/sprint-50.md`](./sprints/sprint-50.md) · [`16-gemini.md`](./16-gemini.md)
 
 ### `0.14.1` — TV verbinden & steuern — *CODE*
 
