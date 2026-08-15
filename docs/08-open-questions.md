@@ -32,6 +32,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
 | Q1–Q4, Q6–Q8, Q30–Q31 | Persona-Kern | P0/P1 | entschieden | `07-persona.md` |
+| Q32 | Jarvis über Alexa einkaufen lassen? | P3 | entschieden | **Nein.** Amazon-Cloud, keine lokale Kauf-API. Parking. Siehe Entscheidungsprotokoll. |
 | Q5 | Stil-Beispiele | P0 | entschieden | Optionen gewählt; **grobe Vorgabe**, Anti-Template Pflicht |
 
 ## B. Privatsphäre & Sicherheit
@@ -67,3 +68,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-11 | Workshop 1–5 | Persona, Stack, UI, Versionen, Memory-Stufen | PO |
 | 2026-08-11 | Q5 | Stil-Anker gewählt; Variation/Anti-Template Pflicht | PO |
 | 2026-08-14 | `0.13` | Jarvis komplett on-device auf dem Handy; NAS/PC-Backend entfernt | PO |
+| 2026-08-15 | Q32 | **Kein Alexa-Kauf.** Jarvis löst keine Bestellungen über Echo/Alexa/Fire TV aus. Amazon gibt Dritten keine lokale „kauf X“-API; Shopping Actions nur in zertifizierten Cloud-Skills mit Amazon-Account. Das bricht Privat-by-design und riskiert Fehlkäufe. Alexa/Fire-TV-Tools bleiben Parking (`S7.8`). Lokaler Ersatz: Einkaufsliste als Todo. Chat lehnt Alexa-Kauf ehrlich ab. | PO-Frage + Agent |

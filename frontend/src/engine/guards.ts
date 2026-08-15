@@ -31,5 +31,17 @@ export function isHelpCommand(text: string): boolean {
   return /^\s*\/?(hilfe|help)\s*$/i.test(text)
 }
 
+const ALEXA_DEVICE = /\b(alexa|amazon\s*echo|echo\s*dot|fire\s*tv|firetv)\b/i
+const PURCHASE = /\b(kauf(?:en|t)?|bestell(?:en|t|ung)?|einkauf(?:en)?|order|shop(?:ping)?)\b/i
+
+/** „Kauf über Alexa / Echo / Fire TV“ — nicht jede Alexa-Erwähnung. */
+export function isAlexaPurchaseAsk(text: string): boolean {
+  const t = text.trim()
+  return ALEXA_DEVICE.test(t) && PURCHASE.test(t)
+}
+
 export const HELP_TEXT =
-  'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Kein PC, keine NAS. Fernseher später.'
+  'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Kein PC, keine NAS, kein Alexa-Kauf. Fernseher später.'
+
+export const ALEXA_PURCHASE_TEXT =
+  'Nein. Über Alexa kaufe ich nichts — das wäre Amazons Cloud, nicht lokal. Einkaufsliste geht als Todo. Alexa bleibt geparkt.'

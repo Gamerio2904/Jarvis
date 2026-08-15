@@ -128,7 +128,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.7b | Als Nutzer will ich stabile Topic-Extraktion bei langen Research-Prompts. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7c | Als PO will ich Research-Default Opt-in aus + Test-Hygiene. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7d | Als Nutzer will ich Research-Antworten im Jarvis-Ton + robustere Provider-Mix. | Should | done | Sprint 17 / `0.6.2` — Polish |
-| S7.8 | Kalender/Mail/Fire-TV/Alexa-Tools | Won’t | parked | Samsung-TV = E12 / `0.11.x` |
+| S7.8 | Kalender/Mail/Fire-TV/Alexa-Tools | Won’t | parked | Samsung-TV = E12 / `0.11.x`. **Alexa-Kauf (Q32): nein** — keine Bestellungen über Echo. |
 | S7.9 | Native Store-App (Play Store) | Won’t | parked | Sideload-APK = S4.4 / `0.10.3` |
 
 ### E8 — Delight & Settings
@@ -245,6 +245,6 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
 - Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate
-- Mail / Cloud-Kalender-OAuth / **Amazon Fire TV** / Alexa
+- Mail / Cloud-Kalender-OAuth / **Amazon Fire TV** / Alexa (inkl. **Kauf über Alexa** — Q32 nein)
 - Play Store Listing / iOS
 - Optional lokaler Kalender-Read (ICS) — Parking (Sprint 30 P7)

@@ -1,5 +1,5 @@
 import { formatQwenChat, toChatRole } from '../src/engine/prompt.ts'
-import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
+import { scrubReply, isAlexaPurchaseAsk, isHelpCommand } from '../src/engine/guards.ts'
 
 function assert(cond: unknown, msg: string): void {
   if (!cond) throw new Error(msg)
@@ -21,5 +21,10 @@ assert(!isHelpCommand('hilfe mal'), 'not help')
 
 const scrubbed = scrubReply('Hallo du, dein Name?')
 assert(/Sie/.test(scrubbed) || /Ihr/.test(scrubbed), `siezen scrub: ${scrubbed}`)
+
+assert(isAlexaPurchaseAsk('Kann Jarvis über Alexa kaufen?'), 'alexa kauf')
+assert(isAlexaPurchaseAsk('Bestell das über den Echo Dot'), 'echo bestell')
+assert(!isAlexaPurchaseAsk('Was ist Alexa?'), 'alexa ohne kauf')
+assert(!isAlexaPurchaseAsk('Todo: Milch kaufen'), 'todo ohne alexa')
 
 console.log('engine smoke ok')

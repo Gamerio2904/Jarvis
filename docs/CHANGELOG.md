@@ -7,6 +7,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
 
+### Docs / Guard — Alexa-Kauf (Q32)
+
+- Entscheidung: Jarvis kauft **nicht** über Alexa/Echo/Fire TV (Amazon-Cloud, keine lokale API).
+- Chat: ehrliche Ablehnung bei „kauf … über Alexa“; `/hilfe` nennt kein Alexa-Kauf.
+- Parking bleibt: `S7.8`, `08` Q32.
+
 ### `0.13.1` — Modell-Download Hotfix — *CODE*
 
 - First-Run lädt die GGUF direkt (OPFS/IndexedDB), nicht über wllama-OPFS-Metadaten

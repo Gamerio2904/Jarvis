@@ -21,4 +21,4 @@ Kleineres Modell als RTX-3060-7b. Ton und Tools bleiben lokal; Antworten sind sc
 
 ## Parking
 
-Samsung-TV, NAS, Docker, Play Store, TTS.
+Samsung-TV, NAS, Docker, Play Store, TTS, Mail, Fire TV, **Alexa inkl. Kauf** (Q32: Jarvis bestellt nicht über Echo).
