@@ -28,6 +28,14 @@ const geoDest = join(android, 'app/src/main/java/app/jarvis/geo')
 mkdirSync(geoDest, { recursive: true })
 copyFileSync(join(geoSrc, 'JarvisGeoPlugin.java'), join(geoDest, 'JarvisGeoPlugin.java'))
 
+const voiceSrc = join(root, 'native', 'voice')
+const voiceDest = join(android, 'app/src/main/java/app/jarvis/voice')
+mkdirSync(voiceDest, { recursive: true })
+copyFileSync(join(voiceSrc, 'JarvisVoicePlugin.java'), join(voiceDest, 'JarvisVoicePlugin.java'))
+mkdirSync(join(android, 'app/src/main/res/xml'), { recursive: true })
+copyFileSync(join(voiceSrc, 'shortcuts.xml'), join(android, 'app/src/main/res/xml/shortcuts.xml'))
+copyFileSync(join(voiceSrc, 'jarvis_strings.xml'), join(android, 'app/src/main/res/values/jarvis_strings.xml'))
+
 const mainCandidates = [
   join(android, 'app/src/main/java/local/jarvis/app/MainActivity.java'),
   join(android, 'app/src/main/java/app/jarvis/MainActivity.java'),
@@ -64,6 +72,7 @@ const perms = [
   'android.permission.WAKE_LOCK',
   'android.permission.ACCESS_COARSE_LOCATION',
   'android.permission.ACCESS_FINE_LOCATION',
+  'android.permission.RECORD_AUDIO',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -98,6 +107,21 @@ if (!manifest.includes('app.jarvis.notify.JarvisNotifyReceiver')) {
             </intent-filter>
         </receiver>
 </application>`,
+  )
+}
+if (!manifest.includes('android.app.shortcuts')) {
+  manifest = manifest.replace(
+    '</activity>',
+    `        <meta-data
+            android:name="android.app.shortcuts"
+            android:resource="@xml/shortcuts" />
+        <intent-filter>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="jarvis" android:host="voice" />
+        </intent-filter>
+    </activity>`,
   )
 }
 writeFileSync(manifestPath, manifest)

@@ -4,7 +4,7 @@ import { groqReady, testGroq } from './groq'
 import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
-import { GEMINI_PERSONA, PERSONA } from './persona'
+import { GEMINI_PERSONA, PERSONA, VOICE_HINT } from './persona'
 import { isLiveLookup, RESEARCH_NEEDS_GEMINI, RESEARCH_OFF_REPLY, type ResearchMeta } from './research-parse'
 import {
   APP_VERSION,
@@ -105,6 +105,7 @@ export async function streamChat(
   conversationId: string,
   content: string,
   handlers: StreamHandlers,
+  opts?: { voice?: boolean },
 ): Promise<void> {
   const conv = await storeGet<Conversation>('conversations', conversationId)
   if (!conv) throw new Error('Gespräch nicht gefunden.')
@@ -255,8 +256,8 @@ export async function streamChat(
     const history = await listMessages(conversationId)
     const mem = await listMemory()
     const system = geminiReady()
-      ? [GEMINI_PERSONA, memoryBlock(mem)].filter(Boolean).join('\n\n')
-      : [PERSONA, memoryBlock(mem)].filter(Boolean).join('\n\n')
+      ? [GEMINI_PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem)].filter(Boolean).join('\n\n')
+      : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem)].filter(Boolean).join('\n\n')
     const llmMessages = [
       { role: 'system', content: system },
       ...history.slice(geminiReady() ? -12 : -4).map((m) => ({

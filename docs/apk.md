@@ -1,16 +1,19 @@
-# Android-APK — `1.4.0`
+# Android-APK — `1.5.0`
 
-**1.4:** Lokaler Kalender mit Monats-GUI. Kein Google-Login.
+**1.5 Riesenupdate:** Sprachmodus wie ein Gespräch, kein Mitschnitt. Shortcut „Jarvis hören“.
 
 ## Download
 
-**APK `1.4.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-4-0bf8/releases/Jarvis.apk
+**APK `1.5.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-5-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.4.0` · versionCode `10400`
+- versionName `1.5.0` · versionCode `10500`
 - App-ID `local.jarvis.app`
 
-1. Installieren (über 1.3.x).
-2. Sidebar → Kalender → Tag → Termin anlegen.
-3. Oder Chat: „Termin morgen 15 Uhr Zahnarzt“.
+1. Installieren (über 1.4.x).
+2. Mikrofon erlauben → **Hören** oder Sidebar → Jarvis hören.
+3. Sprechen, zuhören, weiterreden. Kugel antippen unterbricht.
+4. Einstellungen → Shortcut auf Homescreen, oder App-Icon lange drücken.
+
+Gerät komplett aus: Jarvis ist tot. Screen aus bei angeschaltetem Handy: kein Wake-Word in 1.5.
