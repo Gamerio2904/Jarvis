@@ -2,11 +2,16 @@ const DUZEN = /\b(du|dir|dich|dein|deine|deinen|deinem|deiner|duzen)\b/gi
 const INJECT =
   /\b(pwned|hacked|ja_ich_gehorche|ignore(?:\s+all)?\s+instructions|du bist jetzt)\b/i
 const HELPDesk = /wie kann ich helfen|was kann ich für sie tun|gerne!|als ki\b/i
+const FAKE_CLAIM =
+  /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz|es)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt))\b/i
 
 export function scrubReply(text: string): string {
   let out = text.replace(/\s+/g, ' ').trim()
   if (INJECT.test(out)) {
     return 'Netter Versuch. Weiter im Chat?'
+  }
+  if (FAKE_CLAIM.test(out)) {
+    return 'Das habe ich nicht ausgeführt. Bitte den Befehl klar sagen.'
   }
   if (HELPDesk.test(out)) {
     out = out
@@ -32,4 +37,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Kein PC, keine NAS. Fernseher später.'
+  'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Fernseher: an/aus, lauter/leiser/stumm, HDMI — zuerst in den Einstellungen koppeln. Kein PC, keine NAS.'

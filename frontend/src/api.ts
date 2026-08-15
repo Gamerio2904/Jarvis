@@ -23,6 +23,7 @@ import {
   type Message,
   type Settings as EngineSettings,
 } from './engine/store'
+import { discoverTvs, pairTv, testTv, tvStatusFromSettings } from './engine/tv'
 
 export type { Conversation, MemoryItem, Message, StreamHandlers }
 export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady }
@@ -64,6 +65,7 @@ export type ToolMeta = {
 export type Health = {
   ok: boolean
   ollama: boolean
+  engine?: string
   model: string
   model_ready: boolean
   configured_model?: string
@@ -77,6 +79,15 @@ export type Health = {
   research_opt_in?: boolean
   error?: string
   download_pct?: number
+  tv?: {
+    enabled?: boolean
+    name?: string
+    host?: string
+    mac?: string
+    port?: number
+    paired?: boolean
+    reachable?: boolean
+  }
 }
 
 export type EasterEgg = { command: string; description: string; example: string }
@@ -89,7 +100,17 @@ export type Settings = EngineSettings & {
   owner_token_set?: boolean
   easter_eggs?: EasterEgg[]
   tv_port?: number
-  tv_status?: { enabled?: boolean; name?: string; host?: string; mac?: string; paired?: boolean; reachable?: boolean }
+  tv_token?: string
+  tv_paired?: boolean
+  tv_status?: {
+    enabled?: boolean
+    name?: string
+    host?: string
+    mac?: string
+    port?: number
+    paired?: boolean
+    reachable?: boolean
+  }
 }
 
 export type ResearchAudit = {
@@ -127,7 +148,7 @@ export async function getSettings(): Promise<Settings> {
     easter_eggs: [
       { command: '/hilfe', description: 'Kurz was Jarvis kann', example: '/hilfe' },
     ],
-    tv_status: { enabled: false, paired: false, reachable: false },
+    tv_status: tvStatusFromSettings(),
   }
 }
 
@@ -198,25 +219,19 @@ export async function streamChat(
   return engineStream(id, content, handlers)
 }
 
-export async function tvDiscover(): Promise<{ items: Array<Record<string, unknown>> }> {
-  return { items: [] }
+export async function tvDiscover(): Promise<{ items: Array<Record<string, unknown>>; message?: string }> {
+  return discoverTvs()
 }
 
-export async function tvPair(_body: {
+export async function tvPair(body: {
   host?: string
   mac?: string
   name?: string
   port?: number
 }): Promise<{ ok: boolean; message: string }> {
-  return {
-    ok: false,
-    message: 'TV ist in 0.13.1 geparkt. Jarvis denkt auf dem Handy; Tizen-Keys kommen später.',
-  }
+  return pairTv(body)
 }
 
 export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
-  return {
-    ok: false,
-    reply: 'TV-Steuerung nicht im On-Device-Build. Chat läuft lokal.',
-  }
+  return testTv()
 }

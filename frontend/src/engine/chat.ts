@@ -20,6 +20,7 @@ import {
   type Settings,
 } from './store'
 import { handleTools, type ToolMeta } from './tools'
+import { handleTv, tvStatusFromSettings } from './tv'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -48,7 +49,8 @@ export async function getHealth() {
   const prog = getDownloadProgress()
   return {
     ok: ready,
-    ollama: ready,
+    ollama: false,
+    engine: 'on-device',
     model: DEFAULT_MODEL.label,
     model_ready: ready,
     configured_model: DEFAULT_MODEL.label,
@@ -59,10 +61,11 @@ export async function getHealth() {
     version: APP_VERSION,
     memory_count: mem.length,
     research_opt_in: loadSettings().research_opt_in,
+    tv: tvStatusFromSettings(),
     warning: ready
-      ? 'On-Device 0.5B — kleiner als der PC-7b, dafür ohne Server.'
+      ? 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
       : err || 'Modell noch nicht geladen.',
-    error: ready ? undefined : err || 'Modell nicht geladen',
+    error: ready ? undefined : err || 'Modell nicht geladen. Unter Einstellungen einmal herunterladen.',
     download_pct: prog.pct,
   }
 }
@@ -101,6 +104,18 @@ export async function streamChat(
         assistant_message: assistant,
         conversation: updated,
         tool: null,
+      })
+      return
+    }
+
+    const tvHit = await handleTv(content)
+    if (tvHit.handled && tvHit.reply) {
+      const assistant = await addMessage(conversationId, 'assistant', tvHit.reply)
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({
+        assistant_message: assistant,
+        conversation: updated,
+        tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
       })
       return
     }

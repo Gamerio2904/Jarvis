@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.13.2'
+export const APP_VERSION = '0.14.1'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -72,6 +72,9 @@ export type Settings = {
   tv_name: string
   tv_host: string
   tv_mac: string
+  tv_port: number
+  tv_token: string
+  tv_paired: boolean
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -92,6 +95,9 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_name: 'Wohnzimmer',
   tv_host: '',
   tv_mac: '',
+  tv_port: 8002,
+  tv_token: '',
+  tv_paired: false,
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',

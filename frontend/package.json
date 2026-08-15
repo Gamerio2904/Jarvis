@@ -1,13 +1,14 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "0.13.2",
+  "version": "0.14.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "test:014": "node --experimental-strip-types scripts/test-014.mjs",
     "smoke": "node --experimental-strip-types scripts/smoke-prompt.mts",
     "smoke:browser": "node scripts/browser-smoke.mjs"
   },

@@ -54,9 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sprint 47 / `0.14.0` — Qualität & Latenz ([`14-quality-tv.md`](./14-quality-tv.md))
-2. Sprint 48 / `0.14.1` — TV suchen, koppeln, steuern
-3. TTS / `1.0.0` — PO-Kommando
+1. PO-Abnahme `0.14.1` am eigenen Tizen (suchen → koppeln → Chat-Keys)
+2. TTS / `1.0.0` — PO-Kommando
 
 ---
 

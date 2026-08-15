@@ -1,27 +1,18 @@
 import { listMemory, upsertMemory, clearMemory, deleteMemory, type MemoryItem } from './store'
+import {
+  RECALL_DRINK,
+  RECALL_FOOD,
+  RECALL_NAME,
+  RECALL_VAGUE,
+  VERGISS,
+  VERGISS_ALL,
+  isMemoryRecall,
+  isMemoryWrite,
+  parseMemoryFacts,
+} from './memory-parse'
 
-const MERK = /^\s*(?:merk(?:e)?\s*dir|erinner(?:e)?\s*dich(?:\s*an)?)\s*(?:bitte\s*)?[:\-]?\s*(.+)$/is
-const VERGISS_ALL =
-  /^\s*(?:vergiss|lösch(?:e)?)\s+(?:bitte\s+)?(alles(?:\s+über\s+mich)?|meine\s+erinnerungen)\s*[.!]?\s*$/is
-const VERGISS = /^\s*(?:vergiss|lösch(?:e)?\s*(?:die\s*)?erinnerung(?:\s*an)?)\s*[:\-]?\s*(.+)$/is
-const RECALL =
-  /^\s*(?:wie\s+heiß(?:e|t)\s+ich|wer\s+bin\s+ich|was\s+trinke\s+ich|was\s+esse\s+ich|was\s+weißt\s+du\s+über\s+mich)\s*[?]?\s*$/is
-
-function factsFrom(text: string): Array<{ key: string; value: string; category: string }> {
-  const out: Array<{ key: string; value: string; category: string }> = []
-  const name = /\bich\s+heiß(?:e|t)\s+([A-ZÄÖÜ][\wÄÖÜäöüß\-]+)/i.exec(text)
-  if (name) out.push({ key: 'name', value: name[1], category: 'fact' })
-  const drink = /\b(?:trinke|trink)\s+(.+?)(?=\s+\bund\b|[,.!?]|$)/i.exec(text)
-  if (drink) out.push({ key: 'getränk', value: drink[1].trim(), category: 'pref' })
-  const food = /\b(?:esse|iss)\s+(.+?)(?=\s+\bund\b|[,.!?]|$)/i.exec(text)
-  if (food) out.push({ key: 'essen', value: food[1].trim(), category: 'pref' })
-  const rest = MERK.exec(text)
-  if (rest && !out.length) {
-    const value = rest[1].trim()
-    if (value.length >= 2) out.push({ key: 'notiz', value, category: 'fact' })
-  }
-  return out
-}
+export { isMemoryRecall, isMemoryWrite, parseMemoryFacts } from './memory-parse'
+export type { MemoryFact } from './memory-parse'
 
 export async function handleMemory(
   conversationId: string,
@@ -44,8 +35,8 @@ export async function handleMemory(
     }
     return { handled: true, reply: 'Dazu lag nichts.' }
   }
-  if (MERK.test(text) || /\bich\s+heiß/i.test(text) && /\btrinke|\besse\b/i.test(text)) {
-    const facts = factsFrom(text)
+  if (isMemoryWrite(text)) {
+    const facts = parseMemoryFacts(text)
     if (facts.length) {
       const saved = []
       for (const f of facts) {
@@ -55,28 +46,39 @@ export async function handleMemory(
       return { handled: true, reply: `Notiert: ${bits}.`, items: saved }
     }
   }
-  if (RECALL.test(text) || /\bwas\s+trinke\s+ich\b/i.test(text) || /\bwas\s+esse\s+ich\b/i.test(text)) {
+  if (isMemoryRecall(text)) {
     const items = await listMemory()
-    if (/\btrinke\b/i.test(text)) {
+    if (RECALL_DRINK.test(text)) {
       const d = items.find((m) => m.key === 'getränk')
       return {
         handled: true,
         reply: d ? `Sie trinken ${d.value}.` : 'Kein Getränk gespeichert.',
       }
     }
-    if (/\besse\b/i.test(text)) {
+    if (RECALL_FOOD.test(text)) {
       const d = items.find((m) => m.key === 'essen')
       return {
         handled: true,
         reply: d ? `Sie essen ${d.value}.` : 'Kein Essen gespeichert.',
       }
     }
-    if (/\bheiß\b|\bwer\s+bin\b/i.test(text)) {
+    if (RECALL_NAME.test(text)) {
       const d = items.find((m) => m.key === 'name')
       return {
         handled: true,
         reply: d ? `Sie heißen ${d.value}.` : 'Kein Name gespeichert.',
       }
+    }
+    if (RECALL_VAGUE.test(text)) {
+      const drink = items.find((m) => m.key === 'getränk')
+      const food = items.find((m) => m.key === 'essen')
+      if (!drink && !food) {
+        return { handled: true, reply: 'Dazu liegt nichts — Getränk oder Essen?' }
+      }
+      const bits = [drink && `Getränk: ${drink.value}`, food && `Essen: ${food.value}`]
+        .filter(Boolean)
+        .join('; ')
+      return { handled: true, reply: bits }
     }
     if (!items.length) return { handled: true, reply: 'Noch nichts gespeichert.' }
     return {
@@ -91,6 +93,6 @@ export function memoryBlock(items: MemoryItem[]): string {
   if (!items.length) return ''
   return (
     'Langzeitgedächtnis:\n' +
-    items.slice(0, 12).map((m) => `- ${m.key}: ${m.value}`).join('\n')
+    items.slice(0, 8).map((m) => `- ${m.key}: ${m.value}`).join('\n')
   )
 }

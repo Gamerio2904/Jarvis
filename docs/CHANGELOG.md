@@ -5,9 +5,22 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.13.2`** (On-Device Handy, kein Server).
+App-Version im Code: **`0.14.1`** (On-Device + Tizen).
 
-Geplant: **`0.14.0`** Qualität/Latenz ([`sprints/sprint-47.md`](./sprints/sprint-47.md)), **`0.14.1`** TV ([`sprints/sprint-48.md`](./sprints/sprint-48.md)) — [`14-quality-tv.md`](./14-quality-tv.md).
+### `0.14.1` — TV verbinden & steuern — *CODE*
+
+- Native Capacitor-Brücke: SSDP/Portscan, WOL, Tizen-WS 8001/8002, Token auf dem Gerät
+- Settings: suchen, koppeln (Haken am TV), testen, Name/Host/MAC/Port, Kill-Switch
+- Chat: „Fernseher an/aus“, lauter/leiser/stumm, HDMI; Follow-up nur nach TV-Turn
+- Kein Fake-Erfolg ohne Plugin-Ergebnis; Gastnetz-Hinweis
+- [`sprints/sprint-48.md`](./sprints/sprint-48.md)
+
+### `0.14.0` — Qualität & Latenz — *CODE* (in `0.14.1`)
+
+- Erstes Token: Warmstart, `cache_prompt`, kürzeres Sampling
+- Memory/Tools/TV vor dem LLM; Alltagssprache; ehrliches Nichtwissen
+- Kein „Ollama: online“; Status on-device; Siezen/Fake-Claims härter
+- [`sprints/sprint-47.md`](./sprints/sprint-47.md) · [`14-quality-tv.md`](./14-quality-tv.md)
 
 ### `0.13.2` — Chat-Hang Hotfix — *CODE*
 

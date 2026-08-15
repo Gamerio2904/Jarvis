@@ -15,6 +15,9 @@ import {
   ensureModel,
   hasCachedModel,
   isModelReady,
+  tvDiscover,
+  tvPair,
+  tvTest,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -160,6 +163,11 @@ function App() {
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadPhase, setDownloadPhase] = useState<'download' | 'load'>('download')
   const [hasLocalModel, setHasLocalModel] = useState(false)
+  const [tvBusy, setTvBusy] = useState(false)
+  const [tvMsg, setTvMsg] = useState<string | null>(null)
+  const [tvFound, setTvFound] = useState<
+    Array<{ host?: string; name?: string; mac?: string; port?: number }>
+  >([])
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -256,6 +264,76 @@ function App() {
       setError(err instanceof Error ? err.message : 'Settings speichern fehlgeschlagen')
     } finally {
       setSettingsBusy(false)
+    }
+  }
+
+  async function onTvDiscover() {
+    if (tvBusy) return
+    setTvBusy(true)
+    setTvMsg('Suche im WLAN…')
+    try {
+      const res = await tvDiscover()
+      const items = (res.items || []) as Array<{
+        host?: string
+        name?: string
+        mac?: string
+        port?: number
+      }>
+      setTvFound(items)
+      setTvMsg(
+        items.length
+          ? `${items.length} Gerät${items.length === 1 ? '' : 'e'} gefunden.`
+          : res.message || 'Nichts gefunden.',
+      )
+    } catch (err) {
+      setTvMsg(err instanceof Error ? err.message : 'Suchen fehlgeschlagen')
+    } finally {
+      setTvBusy(false)
+    }
+  }
+
+  async function onTvPick(item: { host?: string; name?: string; mac?: string; port?: number }) {
+    if (!item.host) return
+    await patchSetting({
+      tv_host: item.host,
+      tv_name: item.name || settings?.tv_name || 'Wohnzimmer',
+      tv_mac: item.mac || settings?.tv_mac || '',
+      tv_port: item.port || settings?.tv_port || 8002,
+    })
+    setTvMsg(`Gewählt: ${item.name || item.host}`)
+  }
+
+  async function onTvPair() {
+    if (tvBusy) return
+    setTvBusy(true)
+    setTvMsg('Koppeln — am Fernseher erlauben…')
+    try {
+      const res = await tvPair({
+        host: settings?.tv_host,
+        mac: settings?.tv_mac,
+        name: settings?.tv_name,
+        port: settings?.tv_port,
+      })
+      setTvMsg(res.message)
+      await refreshSettings()
+    } catch (err) {
+      setTvMsg(err instanceof Error ? err.message : 'Koppeln fehlgeschlagen')
+    } finally {
+      setTvBusy(false)
+    }
+  }
+
+  async function onTvTest() {
+    if (tvBusy) return
+    setTvBusy(true)
+    setTvMsg('Teste Verbindung…')
+    try {
+      const res = await tvTest()
+      setTvMsg(res.reply || (res.ok ? 'Erreichbar.' : 'Nicht erreichbar.'))
+    } catch (err) {
+      setTvMsg(err instanceof Error ? err.message : 'Test fehlgeschlagen')
+    } finally {
+      setTvBusy(false)
     }
   }
 
@@ -402,7 +480,7 @@ function App() {
     setBusy(true)
     setError(null)
     setLastFailed(null)
-    setStatusNote('Jarvis schreibt…')
+    setStatusNote('Jarvis denkt…')
     setStreamingText('')
     setStreamResearch(null)
     stickToBottomRef.current = true
@@ -447,7 +525,7 @@ function App() {
           sawTokenRef.current = true
           acc += token
           setStreamingText(acc)
-          setStatusNote('Jarvis schreibt…')
+          setStatusNote(null)
         },
         onReplace: (text) => {
           acc = text
@@ -592,7 +670,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · Handy · v0.13.1</p>
+            <p>lokal · Handy · v0.14.1</p>
           </div>
         </div>
 
@@ -611,7 +689,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.13.1'} · on-device · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.14.1'} · on-device · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
@@ -703,8 +781,87 @@ function App() {
             </section>
             <section className="settings-section">
               <h3>Fernseher</h3>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.tv_enabled)}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ tv_enabled: e.target.checked })}
+                />
+                <span>TV-Steuerung an</span>
+              </label>
               <p className="settings-hint">
-                Geparkt in 0.13 — Tizen-Steuerung braucht Native-Keys, nicht WASM.
+                {settings?.tv_paired
+                  ? `Gekoppelt: ${settings.tv_name || settings.tv_host || 'TV'}`
+                  : 'Nicht gekoppelt. Suchen, am TV erlauben, dann testen.'}
+              </p>
+              <label className="settings-inline">
+                <span>Name</span>
+                <input
+                  key={`tv-name-${settings?.tv_name || ''}`}
+                  defaultValue={settings?.tv_name || ''}
+                  disabled={settingsBusy}
+                  onBlur={(e) => void patchSetting({ tv_name: e.target.value })}
+                />
+              </label>
+              <label className="settings-inline">
+                <span>Host</span>
+                <input
+                  key={`tv-host-${settings?.tv_host || ''}`}
+                  defaultValue={settings?.tv_host || ''}
+                  disabled={settingsBusy}
+                  placeholder="192.168.1.20"
+                  onBlur={(e) => void patchSetting({ tv_host: e.target.value })}
+                />
+              </label>
+              <label className="settings-inline">
+                <span>MAC</span>
+                <input
+                  key={`tv-mac-${settings?.tv_mac || ''}`}
+                  defaultValue={settings?.tv_mac || ''}
+                  disabled={settingsBusy}
+                  placeholder="aa:bb:cc:dd:ee:ff"
+                  onBlur={(e) => void patchSetting({ tv_mac: e.target.value })}
+                />
+              </label>
+              <label className="settings-inline">
+                <span>Port</span>
+                <input
+                  key={`tv-port-${settings?.tv_port || 8002}`}
+                  defaultValue={String(settings?.tv_port || 8002)}
+                  disabled={settingsBusy}
+                  onBlur={(e) => {
+                    const n = Number(e.target.value)
+                    if (Number.isFinite(n)) void patchSetting({ tv_port: n })
+                  }}
+                />
+              </label>
+              <div className="settings-actions">
+                <button type="button" className="retry-btn" disabled={tvBusy} onClick={() => void onTvDiscover()}>
+                  Suchen
+                </button>
+                <button type="button" className="retry-btn" disabled={tvBusy} onClick={() => void onTvPair()}>
+                  Koppeln
+                </button>
+                <button type="button" className="retry-btn" disabled={tvBusy} onClick={() => void onTvTest()}>
+                  Testen
+                </button>
+              </div>
+              {tvFound.length ? (
+                <ul className="tv-found">
+                  {tvFound.map((item) => (
+                    <li key={`${item.host}-${item.mac || ''}`}>
+                      <button type="button" disabled={tvBusy} onClick={() => void onTvPick(item)}>
+                        {item.name || 'Samsung TV'} · {item.host}
+                        {item.mac ? ` · ${item.mac}` : ''}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {tvMsg ? <p className="settings-hint">{tvMsg}</p> : null}
+              <p className="settings-hint">
+                Chat: „Fernseher an/aus“, „lauter“, „HDMI 2“. Gleiches WLAN, kein Gastnetz.
               </p>
             </section>
             <section className="settings-section">
@@ -880,25 +1037,23 @@ function App() {
         <div className={`status ${healthOk ? (fallback ? 'warn' : '') : 'error'}`}>
           {healthOk ? (
             <>
-              Ollama: <strong>online</strong>
+              Gerät: <strong>bereit</strong>
               <br />
               Modell: {health?.model}
-              {fallback ? (
+              <br />
+              on-device · kein Server
+              {settings?.tv_enabled ? (
                 <>
                   <br />
-                  <strong>Fallback</strong> — besser:{' '}
-                  {health?.configured_model || 'qwen2.5:7b'}
+                  TV: {settings.tv_paired ? settings.tv_name || 'gekoppelt' : 'nicht gekoppelt'}
                 </>
               ) : null}
             </>
           ) : (
             <>
-              Status: <strong>Problem</strong>
+              Gerät: <strong>Modell fehlt</strong>
               <br />
-              {health?.error ||
-                (!health?.ollama
-                  ? 'Ollama offline — bitte starten'
-                  : `Modell fehlt — ollama pull ${health?.configured_model || health?.model}`)}
+              {health?.error || 'Modell nicht geladen. Unter Einstellungen herunterladen.'}
             </>
           )}
         </div>
@@ -931,8 +1086,7 @@ function App() {
 
         {fallback && healthOk ? (
           <div className="fallback-banner">
-            {health?.warning ||
-              `Fallback-Modell aktiv (${health?.model}). Für beste Qualität: ollama pull ${health?.configured_model}`}
+            {health?.warning || 'On-Device-Modell aktiv.'}
           </div>
         ) : null}
 

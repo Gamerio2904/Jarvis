@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **CODE** |
 | Priorität | **MUST** — geparktes `0.11` in der APK live |
 | Ziel-Version | **`0.14.1`** |
 | Quelle | PO 2026-08-15: Fernseher-Steuerung und Connecten sollen funktionieren |

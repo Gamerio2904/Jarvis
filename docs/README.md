@@ -19,7 +19,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
 | 12 | [NAS & APK](./12-nas-apk.md) | historisch / superseded |
 | 13 | [On-Device](./13-on-device.md) | Handy-LLM `0.13.2` |
-| 14 | [Qualität & TV](./14-quality-tv.md) | **`0.14`** — bestehendes härten + Tizen |
+| 14 | [Qualität & TV](./14-quality-tv.md) | **`0.14.1`** — härten + Tizen live |
 | — | [APK](./apk.md) | Sideload |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -58,7 +58,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 44 | `0.13.0` | **CODE** (On-Device Handy) |
 | 45 | `0.13.1` | **CODE** (Modell-Download Hotfix) |
 | 46 | `0.13.2` | **CODE** (Chat-Hang Hotfix) |
-| 47 | `0.14.0` | **PLANNED** (Qualität & Latenz) |
-| 48 | `0.14.1` | **PLANNED** (TV verbinden & steuern) |
+| 47 | `0.14.0` | **CODE** (in `0.14.1`) |
+| 48 | `0.14.1` | **CODE** (TV verbinden & steuern) |
 
-**Aktuell:** Sideload `0.13.2`. Als Nächstes: [`14-quality-tv.md`](./14-quality-tv.md).
+**Aktuell:** Sideload `0.14.1`. TTS / `1.0.0` — PO-Kommando.

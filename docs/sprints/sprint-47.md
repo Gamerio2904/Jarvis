@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **CODE** |
 | Priorität | **MUST** — bestehendes härten, nichts Neues |
 | Ziel-Version | **`0.14.0`** |
 | Quelle | PO 2026-08-15: weniger Latenz, bessere Antworten, intelligenter; TV folgt in 48 |

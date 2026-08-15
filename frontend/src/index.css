@@ -286,6 +286,37 @@ textarea {
   margin-top: 0.4rem;
 }
 
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.settings-actions .retry-btn {
+  flex: 1;
+  min-width: 28%;
+}
+
+.tv-found {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tv-found button {
+  width: 100%;
+  text-align: left;
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+}
+
 .setup-overlay {
   position: fixed;
   inset: 0;

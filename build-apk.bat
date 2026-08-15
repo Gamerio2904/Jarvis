@@ -35,6 +35,8 @@ if not exist "android\gradlew.bat" (
 )
 call npx cap sync android
 if errorlevel 1 goto fail
+call node scripts\apply-native-tv.mjs
+if errorlevel 1 goto fail
 popd
 
 pushd "%FRONT%\android"

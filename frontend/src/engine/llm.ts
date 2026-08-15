@@ -23,7 +23,7 @@ const MODEL_URLS = [
 const FIRST_TOKEN_MS = 45_000
 const INFER_TIMEOUT_MS = 90_000
 const LOAD_TIMEOUT_MS = 180_000
-const MAX_NEW_TOKENS = 48
+const MAX_NEW_TOKENS = 40
 
 let instance: Wllama | null = null
 let loaded = false
@@ -224,6 +224,21 @@ export async function ensureModel(
     )
     instance = wllama
     loaded = true
+    try {
+      await withTimeout(
+        wllama.createCompletion({
+          prompt:
+            '<|im_start|>system\nDu bist Jarvis.<|im_end|>\n<|im_start|>user\nping<|im_end|>\n<|im_start|>assistant\n',
+          max_tokens: 1,
+          temperature: 0,
+          cache_prompt: true,
+        } as never),
+        20_000,
+        'Warmstart übersprungen',
+      )
+    } catch {
+      /* Warmstart ist optional — Modell bleibt geladen. */
+    }
     reportProgress(blob.size, blob.size, 'load', onProgress)
   })()
   try {
@@ -258,7 +273,7 @@ async function completeStreaming(
     await instance.createCompletion({
       prompt,
       stream: true,
-      onData: (chunk) => {
+      onData: (chunk: { choices?: Array<{ text?: string }> }) => {
         const piece = chunk.choices?.[0]?.text || ''
         if (!piece) return
         gotToken = true
@@ -266,11 +281,12 @@ async function completeStreaming(
         onToken?.(piece, cleanPiece(acc).trim())
       },
       max_tokens: MAX_NEW_TOKENS,
-      temperature: 0.7,
-      top_p: 0.88,
+      temperature: 0.55,
+      top_p: 0.85,
+      cache_prompt: true,
       stop: QWEN_STOP,
       abortSignal: ac.signal,
-    })
+    } as never)
   } catch (err) {
     if (cleanPiece(acc).trim()) return cleanPiece(acc).trim()
     if (ac.signal.aborted) {

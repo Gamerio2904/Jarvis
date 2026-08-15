@@ -51,11 +51,10 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 44 | [`sprint-44.md`](./sprint-44.md) | `0.13.0` | On-Device Handy | **CODE** |
 | 45 | [`sprint-45.md`](./sprint-45.md) | `0.13.1` | Modell-Download Hotfix | **CODE** |
 | 46 | [`sprint-46.md`](./sprint-46.md) | `0.13.2` | Chat-Hang Hotfix | **CODE** |
-| 47 | [`sprint-47.md`](./sprint-47.md) | `0.14.0` | Qualität & Latenz (bestehendes) | **PLANNED** |
-| 48 | [`sprint-48.md`](./sprint-48.md) | `0.14.1` | TV verbinden & steuern | **PLANNED** |
+| 47 | [`sprint-47.md`](./sprint-47.md) | `0.14.0` | Qualität & Latenz (bestehendes) | **CODE** (in `0.14.1`) |
+| 48 | [`sprint-48.md`](./sprint-48.md) | `0.14.1` | TV verbinden & steuern | **CODE** |
 
-**Nächste Pull-Reihenfolge:** Sprint **47** (`0.14.0`) Qualität/Latenz, dann **48** (`0.14.1`) TV.  
-Plan: [`../14-quality-tv.md`](../14-quality-tv.md). TTS / `1.0.0` — **PO-Kommando**.
+**Aktuell:** Sideload `0.14.1`. TTS / `1.0.0` — **PO-Kommando**.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

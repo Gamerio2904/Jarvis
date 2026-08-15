@@ -3,6 +3,8 @@
 PO 2026-08-15: **Nichts Neues.** Kein größeres Modell, kein Research, kein TTS, keine neuen Tool-Typen.  
 Ziel: was schon da ist, **schneller, klüger, zuverlässiger** — und die **geparkte Fernseher-Steuerung** wirklich verbinden und bedienen.
 
+Status: **CODE** in Sideload `0.14.1` (Sprint 47+48 zusammen).
+
 Basis: On-Device `0.13.2` ([`13-on-device.md`](./13-on-device.md)).
 
 ## Leitentscheidung

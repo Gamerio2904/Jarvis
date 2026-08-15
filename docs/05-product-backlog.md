@@ -200,18 +200,18 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S12.1 | Als Nutzer will ich den Tizen-TV ein/aus, Lautstärke, Mute, HDMI lokal steuern. | Must | ready | Sprint 48 / `0.14.1` |
-| S12.2 | Als Nutzer will ich ehrliche Fehler wenn WOL/TV tot ist. | Must | ready | Sprint 48 / `0.14.1` |
-| S12.3 | Als Nutzer will ich TV in Settings suchen, koppeln, testen, umbenennen. | Must | ready | Sprint 48 / `0.14.1` |
+| S12.1 | Als Nutzer will ich den Tizen-TV ein/aus, Lautstärke, Mute, HDMI lokal steuern. | Must | done | Sprint 48 / `0.14.1` |
+| S12.2 | Als Nutzer will ich ehrliche Fehler wenn WOL/TV tot ist. | Must | done | Sprint 48 / `0.14.1` |
+| S12.3 | Als Nutzer will ich TV in Settings suchen, koppeln, testen, umbenennen. | Must | done | Sprint 48 / `0.14.1` |
 
 ### E14 — Qualität `0.14.0`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S14.1 | Als Nutzer will ich das erste Wort schneller als in `0.13.2`. | Must | ready | Sprint 47 / `0.14.0` |
-| S14.2 | Als Nutzer will ich Memory/Tools ohne LLM-Umweg, wenn der Befehl klar ist. | Must | ready | Sprint 47 |
-| S14.3 | Als Nutzer will ich ehrliches Recall statt Halluzination. | Must | ready | Sprint 47 |
-| S14.4 | Als Nutzer will ich Todos/Notizen in Alltagssprache. | Should | ready | Sprint 47 |
+| S14.1 | Als Nutzer will ich das erste Wort schneller als in `0.13.2`. | Must | done | Sprint 47 / `0.14.0` |
+| S14.2 | Als Nutzer will ich Memory/Tools ohne LLM-Umweg, wenn der Befehl klar ist. | Must | done | Sprint 47 |
+| S14.3 | Als Nutzer will ich ehrliches Recall statt Halluzination. | Must | done | Sprint 47 |
+| S14.4 | Als Nutzer will ich Todos/Notizen in Alltagssprache. | Should | done | Sprint 47 |
 
 ### E13 — LAN-Proxy & APK (`0.12.x`)
 
@@ -240,9 +240,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 47** (`0.14.0`) — Qualität & Latenz, nichts Neues — [`14`](./14-quality-tv.md)
-2. **Sprint 48** (`0.14.1`) — TV suchen/koppeln/steuern (on-device)
-3. TTS / `1.0.0` — **PO-Kommando**
+1. PO-Abnahme `0.14.1` (Chat + eigener Tizen)
+2. TTS / `1.0.0` — **PO-Kommando**
 4. Research-Netz / NAS / Mail / Fire TV / Alexa / Play Store — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
