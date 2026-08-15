@@ -144,7 +144,7 @@ export async function streamChat(
     const system = [PERSONA, memoryBlock(mem)].filter(Boolean).join('\n\n')
     const llmMessages = [
       { role: 'system', content: system },
-      ...history.slice(-8).map((m) => ({
+      ...history.slice(-4).map((m) => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content,
       })),

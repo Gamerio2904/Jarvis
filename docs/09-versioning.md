@@ -68,6 +68,7 @@ MAJOR.MINOR.PATCH
 | `0.12.0` | **NAS-Proxy & APK** — **superseded** durch On-Device | Sprint 43 |
 | `0.13.0` | **On-Device Handy** (WASM-LLM, kein Server) | Sprint 44 |
 | `0.13.1` | **Modell-Download Hotfix** (Cache API, kein OPFS-„file not found“) | Sprint 45 |
+| `0.13.2` | **Chat-Hang Hotfix** (Streaming, Threads, Timeout) | Sprint 46 |
 | `1.0.0` | **nächster MAJOR** — Inhalt PO | nach `0.13` |
 
 ### Weitere Beispiele

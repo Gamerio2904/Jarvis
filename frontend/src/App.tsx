@@ -164,6 +164,7 @@ function App() {
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const stickToBottomRef = useRef(true)
+  const sawTokenRef = useRef(false)
 
   useEffect(() => {
     void bootstrap()
@@ -172,6 +173,20 @@ function App() {
     }, 8000)
     return () => window.clearInterval(t)
   }, [])
+
+  useEffect(() => {
+    if (!busy) {
+      sawTokenRef.current = false
+      return
+    }
+    const started = Date.now()
+    const id = window.setInterval(() => {
+      if (sawTokenRef.current) return
+      const s = Math.max(1, Math.round((Date.now() - started) / 1000))
+      setStatusNote(`Jarvis denkt… ${s}s — erstes Wort kann auf dem Handy dauern.`)
+    }, 1000)
+    return () => window.clearInterval(id)
+  }, [busy])
 
   useEffect(() => {
     if (!stickToBottomRef.current) return
@@ -429,8 +444,10 @@ function App() {
           }
         },
         onToken: (token) => {
+          sawTokenRef.current = true
           acc += token
           setStreamingText(acc)
+          setStatusNote('Jarvis schreibt…')
         },
         onReplace: (text) => {
           acc = text

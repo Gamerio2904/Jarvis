@@ -50,6 +50,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 43 | [`sprint-43.md`](./sprint-43.md) | `0.12.0` | NAS-Proxy (superseded) | **SUPERSEDED** |
 | 44 | [`sprint-44.md`](./sprint-44.md) | `0.13.0` | On-Device Handy | **CODE** |
 | 45 | [`sprint-45.md`](./sprint-45.md) | `0.13.1` | Modell-Download Hotfix | **CODE** |
+| 46 | [`sprint-46.md`](./sprint-46.md) | `0.13.2` | Chat-Hang Hotfix | **CODE** |
 
 **Nächste Pull-Reihenfolge:** Sprint **31** (`0.9.3`) Memory Quality.  
 Danach 32–33 (`0.9.4`–`0.9.5`), dann **`0.10.x`** Compose **Parking**, **`0.11.x` Samsung-TV** (40–42), **`0.12.0` NAS-Proxy** (43).  

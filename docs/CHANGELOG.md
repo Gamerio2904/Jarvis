@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
+App-Version im Code: **`0.13.2`** (On-Device Handy, kein Server).
+
+### `0.13.2` — Chat-Hang Hotfix — *CODE*
+
+- Streaming statt Non-Stream: Tokens sichtbar, kein endloses „schreibt…“
+- Mehr CPU-Threads, kleineres `n_ctx`, kürzeres Persona (0.5B auf dem Handy)
+- Abbruch nach 45s ohne erstes Token; Status zeigt Wartezeit
+- [`sprints/sprint-46.md`](./sprints/sprint-46.md)
 
 ### `0.13.1` — Modell-Download Hotfix — *CODE*
 
