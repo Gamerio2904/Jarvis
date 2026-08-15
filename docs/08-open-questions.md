@@ -54,8 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sprint 50 / `0.16.0` — Gemini Opt-in (PO)
-2. TTS / `1.0.0` — PO-Kommando
+1. Sprint 51 / `1.1.0` — Sound + Research-Quellen
+2. Dann `1.2`–`1.4` (Erinnerung, Wetter, Kalender)
+3. `1.5.0` Sprachmodus — **kein** Wake-Word bei ausgeschaltetem Handy
 
 ---
 

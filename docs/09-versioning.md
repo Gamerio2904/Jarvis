@@ -73,6 +73,11 @@ MAJOR.MINOR.PATCH
 | `0.14.1` | **TV verbinden & steuern** — Tizen on-device (ex-`0.11`) | Sprint 48 |
 | `0.16.0` | **Gemini Opt-in** — Google-API, Default aus | Sprint 50 |
 | `1.0.0` | **Jarvis 1.0** — On-Device, TV, Gemini-Kaskade, APK `Jarvis.apk` | nach `0.16` |
+| `1.1.0` | Sound + Research-Quellen | Sprint 51 |
+| `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
+| `1.3.0` | Ort & Wetter | Sprint 53 |
+| `1.4.0` | Kalender-GUI (lokal) | Sprint 54 |
+| `1.5.0` | Sprachmodus + Homescreen-Shortcut | Sprint 55 |
 
 ### Weitere Beispiele
 

@@ -5,7 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.0.3`**.
+App-Version im Code: **`1.0.3`**. Als Nächstes geplant: **`1.1.0`–`1.5.0`** ([`17-next.md`](./17-next.md)).
+
+### Geplant — `1.1`–`1.5`
+
+- `1.1` Sound + Research-Quellen · `1.2` Erinnerungen · `1.3` Ort/Wetter · `1.4` Kalender-GUI
+- `1.5` Sprachmodus (Gespräch, Homescreen-Shortcut). Wake-Word bei ausgeschaltetem Handy: **nein**.
 
 ### `1.0.3` — Persona, Research, Notizen — *CODE*
 
