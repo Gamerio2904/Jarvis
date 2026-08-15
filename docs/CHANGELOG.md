@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.6.0`**.
+App-Version im Code: **`1.6.0`**. Geplant: [`18-next.md`](./18-next.md).
+
+### Geplant — `1.7`–`1.11` — *PLANNED*
+
+- `1.7` Timer mit Ton, auch bei Bildschirm aus (Akku an)
+- `1.8` Wiederkehrende Erinnerungen
+- `1.9` Wetter-Nachfragen
+- `1.10` Homescreen-Widget
+- `1.11` Wake-Word nur bei angeschaltetem Handy
 
 ### `1.6.0` — Wetter als Lage — *CODE*
 
