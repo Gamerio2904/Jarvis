@@ -2,41 +2,34 @@
 
 ## Leitentscheidung
 
-**Design = Variante 3 (lokal).**  
-Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorgesehen.
+**Design = on-device.**  
+Jarvis denkt **auf dem Handy**. Cloud-LLMs sind für das Denken **nicht** vorgesehen. PC-Ollama und NAS sind entfallen.
 
 | Aspekt | Entscheidung |
 |--------|----------------|
 | Gesprächsform | Text-Chat (Typ A: Chat-Mensch) |
-| Denk-Engine | Lokales LLM |
-| Modell-Host MVP | **Ollama** (Default, solange keine klar bessere Alternative) |
-| Laufzeit MVP | Entwicklungsrechner: **Windows, 16 GB RAM, NVIDIA RTX 3060** |
-| Qualitäts-/Speed-Priorität | **Qualität > Rohgeschwindigkeit**; so schnell wie möglich, Speed-Feintuning später |
-| Chat-Persistenz MVP | **Gespräche zwischen Sessions speichern** |
-| Sicherheit MVP (vorerst) | Kein Cloud-LLM + Zugang nur für dich; At-rest-Encryption noch nicht fest (erstmal zurückgestellt) |
-| Laufzeit `0.13.x` | Android-APK, llama.cpp WASM on-device |
-| Stimme | Später: TTS liest denselben Text vor |
+| Denk-Engine | Lokales LLM in der APK |
+| Laufzeit | Android-APK, llama.cpp WASM (wllama) |
+| Modell | Qwen2.5 0.5B Instruct Q4 (~470 MB, First-Run) |
+| Chat-Persistenz | IndexedDB auf dem Gerät |
+| Modell-Cache | OPFS, Fallback IndexedDB — überlebt App-Neustart |
+| Sicherheit | Kein Cloud-LLM; kein Server; kein Token |
+| Stimme | Später: TTS liest denselben Text vor (PO) |
 | Handy | Die App **ist** Jarvis; Sideload, kein Store |
-| UI-Kanal | Web-UI in Capacitor; kein Telegram |
-| UI-Look | **Spotify dunkel** (Schwarz/Grün) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
-| UI-Motion | MVP: **Light**; später eigenes **GUI-Update** mit spürbar premium Motion |
-| Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
-| Kontext / Erinnern | **MVP:** In-Chat inkl. Wiederöffnen. **Später:** maximal gutes Gedächtnis & Kontextverständnis |
-| Backend | Dev entscheidet pragmatisch |
-| Modellklasse MVP | **Ausgewogen** |
-| VRAM-Annahme | **~12 GB** (Desktop-Standard) |
-| Version `0.1.0` | = **MVP** (Sprint-1-Abnahme) |
-| Version `0.10.0` | = NAS Core (Compose) — **Parking** |
-| Version `0.11.0` | = Samsung-TV |
-| Version `0.13.0` | = **On-Device Handy** |
-| Version `1.0.0` | = nächster MAJOR (PO) |
+| UI-Kanal | Web-UI in Capacitor |
+| UI-Look | **Spotify dunkel** + **ChatGPT** (Layout/Buttons) |
+| Chat-Organisation | Mehrere Chats + Liste + „Neues Gespräch“ |
+| Version `0.13.1` | **aktuell** — On-Device Hotfix |
+| Version `1.0.0` | nächster MAJOR (PO) |
+
+Historisch (nicht mehr im Repo-Alltag): Ollama auf Windows/RTX 3060, FastAPI, NAS-Compose, NAS-Proxy. Siehe [`12-nas-apk.md`](./12-nas-apk.md).
 
 ## Logische Bausteine
 
 ```text
 [Du — Handy]
         │
-        │  `0.13.x`: on-device, kein Server
+        │  on-device, kein Server
         ▼
 [Chat-UI in der APK]
         │
@@ -46,52 +39,41 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
    • wllama (llama.cpp WASM)
         │
         ▼
-[IndexedDB auf dem Gerät]
+[IndexedDB + OPFS auf dem Gerät]
 ```
 
-### Baustein-Erklärung (für Amateure)
+### Baustein-Erklärung
 
 | Baustein | Einfach gesagt |
 |----------|----------------|
 | **Chat-UI** | Das Fenster, in dem du tippst und Antworten liest. |
-| **Backend** | Kleines Programm, das Nachrichten annimmt, Persona anwendet und ans Modell schickt. |
-| **Modell-Host** | Dienst, der das KI-Modell lokal ausführt. |
-| **Kurzzeitgedächtnis** | Die letzten Nachrichten werden mitgeschickt, damit Jarvis dem Gespräch folgen kann. |
+| **Engine** | TypeScript auf dem Gerät: Persona, Memory, Tools, Guards, Prompt. |
+| **Modell-Runtime** | wllama führt das GGUF lokal in der WebView aus. |
+| **Kurzzeitgedächtnis** | Die letzten Nachrichten werden mitgeschickt. |
+| **Langzeitgedächtnis** | Fakten in IndexedDB, über Chats hinweg. |
 | **TTS (später)** | Wandelt Jarvis’ Text in gesprochene Sprache um — ohne das Denkmodell zu ersetzen. |
 
 ## Prinzipien
 
-1. **Eine Denk-Quelle** — Lokal. Keine heimliche Cloud-Fallback-KI ohne bewusste Entscheidung.
-2. **Persona sitzt im Backend** — Nicht „hoffentlich antwortet das Modell nett“, sondern feste Regeln.
+1. **Eine Denk-Quelle** — Lokal auf dem Handy. Keine heimliche Cloud-Fallback-KI.
+2. **Persona sitzt in der Engine** — Nicht „hoffentlich antwortet das Modell nett“, sondern feste Regeln.
 3. **Ausgabe ≠ Intelligenz** — TTS ist nur Stimme für vorhandenen Text.
-4. **Netzwerk hart machen** — Fernzugriff erst mit Auth; kein ungeschützt offener Port als Default.
-5. **Migration einkalkulieren** — PC-Dev und NAS-Alltag teilen dasselbe Backend; Proxy statt Compose.
+4. **Kein Netz im Alltag** — Nur der einmalige Modell-Download braucht WLAN.
+5. **Kein Server-Migrationspfad** — NAS/PC-Backend kommen nicht zurück, außer der PO entscheidet neu.
 
-## Datenschutz & Sicherheit (Architektur-Regeln)
+## Datenschutz & Sicherheit
 
-- Chats und Persona-Dateien bleiben lokal.
+- Chats, Memory, Todos, Notizen bleiben auf dem Gerät (IndexedDB).
 - Kein Cloud-LLM fürs Denken.
 - Keine unnötigen Drittanbieter-Telemetrie-Abhängigkeiten in der UI.
-- Fernzugriff: Authentifizierung Pflicht.
-- MVP speichert nur, was für Smalltalk nötig ist.
+- Research-Netzpfad ist aus / geparkt.
+- First-Run lädt nur die GGUF (Hugging Face), danach offline.
 
-## Bewusst offene Technikdetails
+## Spätere Erweiterungen
 
-Noch **nicht** final festgelegt (siehe `08-open-questions.md`):
-
-- konkretes lokales Modell
-- exakter Modell-Host
-- Hardware-Grenzen (RAM/GPU/NAS)
-- Persistenzformat (SQLite, Dateien, …)
-- Auth-Verfahren für Fernzugriff
-
-Diese Details werden vor/im Sprint 1 entschieden, ohne die Gesamtarchitektur zu ändern.
-
-## Spätere Erweiterungen (nicht MVP)
-
-| Erweiterung | Phase |
-|-------------|-------|
-| Handy APK + Owner-Token | Phase 2 → `0.10.2`–`0.10.5` |
-| NAS 24/7 Compose | Phase 3 → `0.10.0`–`0.10.1` |
-| TTS-Vorlesen | Phase 4 |
-| Langzeitgedächtnis, Tools | Phase 5+ |
+| Erweiterung | Status |
+|-------------|--------|
+| TTS-Vorlesen | Phase Stimme — nur PO-Go |
+| Samsung-TV | **geparkt** |
+| Internet-Research | **geparkt** (widerspricht Offline) |
+| Play Store / iOS | **Parking** |

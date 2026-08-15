@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **READY FOR REVIEW** (Code im Repo; Live-PO) |
+| Status | **HISTORISCH** — Confirm + Aufräumen in `0.13.x` |
 | Priorität | **SHOULD** — Alltag nach Tools-Polish |
 | Ziel-Version | **`0.9.5`** |
 | Quelle | Feedback (Eval-Müll in Listen; Confirm nur per Text) |
@@ -40,5 +40,4 @@ PO: Listen nutzbar; Confirm per UI. Tag **`v0.9.5`**.
 
 ## Danach
 
-- Sprint 34 / `0.10.0` NAS Core — siehe [`12-nas-apk.md`](../12-nas-apk.md)
-- Samsung-TV erst `0.11.x` (Sprint 40)
+Historisch: NAS `0.10` / TV `0.11`. **Stand 2026-08-15:** beides superseded/geparkt. Aktuell `0.13.1` — [`13-on-device.md`](../13-on-device.md).

@@ -17,7 +17,7 @@ Planung steht; Sprint-1-Blocker sind geklärt bzw. bewusst zurückgestellt, soda
 - [x] Vision, Architektur (lokal/Ollama), Scrum-lite, Roadmap, Backlog
 - [x] Persona inkl. Stil-Anker und Anti-Template-Regel
 - [x] Workshop offene Fragen (P0 geschlossen)
-- [x] Versionierung: `0.1.0` = MVP, `1.0.0` = NAS
+- [x] Versionierung: `0.1.0` = MVP; später korrigiert: `0.13.1` = On-Device, `1.0.0` ≠ NAS
 - [x] UI-Richtung: Spotify dunkel + ChatGPT-Layout; Motion light → GUI-Update später
 - [x] Memory-Stufen: MVP In-Chat+Reopen; später maximal
 

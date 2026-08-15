@@ -1,8 +1,10 @@
 # Sprint 37 — APK Core
 
+> **SUPERSEDED (2026-08-15).** Die APK denkt selbst (`0.13.x`), nicht gegen die NAS. Siehe [`apk.md`](../apk.md).
+
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **SUPERSEDED** |
 | Priorität | **MUST** — Handy-Alltag gegen NAS |
 | Ziel-Version | **`0.10.3`** |
 | Quelle | PO: `0.10`-Reihe inkl. APK-Anwendung (Sideload, kein Store) |

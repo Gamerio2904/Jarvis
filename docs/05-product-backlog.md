@@ -2,6 +2,8 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
+**Aktuell:** On-Device `0.13.1`, offline nach dem Modell-Download. NAS/TV/Research-Netz sind nicht im Pull. Siehe [`13-on-device.md`](./13-on-device.md).
+
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
 **MoSCoW:** Must / Should / Could / Won’t (für aktuellen Horizont)
@@ -13,16 +15,16 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | ID | Epic | Phase | Kurzbeschreibung |
 |----|------|-------|------------------|
 | E0 | Persona & Gesprächsqualität | 0–1 | Charakter, Stil, Abnahmekriterien Smalltalk |
-| E1 | Local Runtime | 1 | Modell-Host + Modell lokal betreiben |
-| E2 | Jarvis Core Chat | 1 | Backend, Persona-Injection, Kurzgedächtnis, API |
-| E3 | Chat UI | 1–2 | Einfache Web-UI, mobil nutzbar |
-| E4 | Private Access | 2 | Handy, Owner-Token, APK (`0.10.2`–`0.10.5`) |
-| E5 | Always-On Ops | 3 | NAS Compose, Autostart, Backup (`0.10.0`–`0.10.1`) |
-| E6 | Voice Out | 4 | TTS-Vorlesen |
-| E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research, Scores |
-| E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, flaches Settings |
-| E11 | NAS & APK | 2–3 | Compose 24/7 + Sideload-APK — `0.10.x` |
-| E12 | Samsung TV | 5+ | Tizen lokal — `0.11.x` |
+| E1 | Local Runtime | 2 | On-Device wllama + GGUF-Cache (`0.13.x`) |
+| E2 | Jarvis Core Chat | 1–2 | Engine, Persona, Kurzgedächtnis — in der APK |
+| E3 | Chat UI | 1–2 | Capacitor-UI, mobil |
+| E4 | Private Access | 2 | Sideload-APK **ist** Jarvis — kein Token, keine NAS |
+| E5 | Always-On Ops | — | **superseded** — 24/7 = Handy, nicht NAS |
+| E6 | Voice Out | 4 | TTS-Vorlesen (PO) |
+| E7 | Assistant Capabilities | 2 | Memory/Tools in `0.13.x`; Research-Netz geparkt |
+| E8 | Delight & Settings | 2 | Momente, Jokes, Sound, Eggs, Settings |
+| E11 | NAS & APK gegen Server | — | **superseded** (`0.10.x` / `0.12.0`) |
+| E12 | Samsung TV | — | **parked** (`0.11.x`) |
 
 ---
 
@@ -36,63 +38,63 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S0.2 | Als PO will ich Soll/Nicht-Soll-Stilanker (nicht feste Strings), damit Abnahme und Variation klappen. | Must | done | `07` Beispiele als grobe Vorgabe + Anti-Template |
 | S0.3 | Als Nutzer will ich kurze Messenger-artige Antworten, keine Essays. | Must | idea | Durchschnittlich kurz; keine Listen-Manie |
 | S0.4 | Als Nutzer will ich, dass Jarvis gelegentlich Rückfragen stellt, ohne jedes Mal zu „coachen“. | Should | idea | Rückfragen dosiert in Tests |
-| S0.5 | Als Nutzer will ich, dass Jarvis mich „Master“/„Sir“ nennt — selten, situativ, Sie/ohne Du. | Must | ready | Regeln in `07` gesetzt |
+| S0.5 | Als Nutzer will ich, dass Jarvis mich nicht „Master“/„Sir“ nennt. | Must | done | Scrub ab `0.8.5`, gilt in `0.13.x` |
 
 ### E1 — Local Runtime
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S1.1 | Als Dev will ich einen lokalen Modell-Host installiert haben, damit Inference ohne Cloud läuft. | Must | idea | Host antwortet auf Testprompt lokal |
-| S1.2 | Als Dev will ich ein für Smalltalk geeignetes Modell wählen, das auf der Hardware läuft. | Must | idea | Latenz & Qualität vom PO ok für MVP |
-| S1.3 | Als Nutzer will ich erkennen, wenn das Modell nicht erreichbar ist (klare Fehlermeldung). | Should | idea | UI/Backend zeigt verständlichen Fehler |
+| S1.1 | Als Nutzer will ich das Modell einmal aufs Handy laden, danach offline. | Must | done | First-Run `0.13.0`/`0.13.1` |
+| S1.2 | Als Nutzer will ich ein Modell, das auf dem Handy läuft. | Must | done | Qwen2.5 0.5B Q4 (~470 MB) |
+| S1.3 | Als Nutzer will ich erkennen, wenn das Modell fehlt oder der Download scheitert. | Should | done | Overlay + deutscher Fehlertext |
 
 ### E2 — Jarvis Core Chat
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S2.1 | Als Nutzer will ich Nachrichten senden und Jarvis-Antworten erhalten. | Must | idea | Request/Response-Pfad funktioniert |
-| S2.2 | Als Nutzer will ich, dass jede Antwort die Jarvis-Persona nutzt. | Must | idea | System-Prompt/Regeln aktiv |
-| S2.3 | Als Nutzer will ich, dass Jarvis die letzten Nachrichten im Gespräch kennt. | Must | idea | Kontext der letzten N Turns sichtbar im Verhalten |
-| S2.4 | Als PO will ich Persona-Text ändern können, ohne Code-Umweg zu brauchen (Config-Datei reicht). | Should | idea | Persona aus Datei/Config geladen |
-| S2.5 | Als Nutzer will ich Chatverläufe zwischen Sessions wiedersehen. | Must | idea | Persistenz laut Q11 |
-| S2.6 | Als Nutzer will ich gespeicherte Chats löschen können. | Should | ready | Sprint 3 / `0.2.0` (I5) |
-| S2.7 | Als Nutzer will ich, dass Jarvis Gesprächskontext versteht und später stärker erinnert. | Must (gestuft) | idea | MVP: In-Chat-Kontext; Ausbau später |
-| S2.8 | Als Nutzer will ich, dass Prompt-Injection nicht durchschlägt. | Must | ready | Sprint 2–4: F2/F3 → R1/I3 → H1/H3 (`0.2.1`) |
-| S2.9 | Als Nutzer will ich jarvis-treue Antworten ohne Dauer-Duzen/Boilerplate. | Must | ready | Sprint 2–5: … → C1 (`0.2.2`) |
-| S2.10 | Als Dev will ich einen Smoke-/Eval-Lauf gegen Inject & Persona. | Should | ready | Smoke `0.1.1`; Eval `0.2.0`/`0.2.1`; C4 `0.2.2` |
-| S2.11 | Als Nutzer will ich keine Tip-Listen / Coach-Mode bei Inject/Roleplay. | Must | ready | Sprint 4 / `0.2.1` (H1) |
-| S2.12 | Als Nutzer will ich keine Sticky-Müllphrasen in längeren Antworten. | Must | ready | Sprint 4 / `0.2.1` (H4) |
-| S2.13 | Als Nutzer will ich bei „kaputt“ eine jarvis-treue Antwort, keinen Canned-Aussetzer. | Must | ready | Sprint 5 / `0.2.2` (C2) |
+| S2.1 | Als Nutzer will ich Nachrichten senden und Jarvis-Antworten erhalten. | Must | done | On-Device Chat `0.13.x` |
+| S2.2 | Als Nutzer will ich, dass jede Antwort die Jarvis-Persona nutzt. | Must | done | Persona in der Engine |
+| S2.3 | Als Nutzer will ich, dass Jarvis die letzten Nachrichten im Gespräch kennt. | Must | done | Kontext + IndexedDB |
+| S2.4 | Als PO will ich Persona-Text ändern können, ohne Code-Umweg zu brauchen (Config-Datei reicht). | Should | done | `frontend/src/engine/persona.ts` |
+| S2.5 | Als Nutzer will ich Chatverläufe zwischen Sessions wiedersehen. | Must | done | IndexedDB |
+| S2.6 | Als Nutzer will ich gespeicherte Chats löschen können. | Should | done | UI in `0.13.x` |
+| S2.7 | Als Nutzer will ich, dass Jarvis Gesprächskontext versteht und später stärker erinnert. | Must (gestuft) | done | In-Chat + Memory IndexedDB |
+| S2.8 | Als Nutzer will ich, dass Prompt-Injection nicht durchschlägt. | Must | done | Guards in `0.13.x` |
+| S2.9 | Als Nutzer will ich jarvis-treue Antworten ohne Dauer-Duzen/Boilerplate. | Must | done | Persona + Guards |
+| S2.10 | Als Dev will ich einen Smoke-/Eval-Lauf gegen Inject & Persona. | Should | parked | Alte Python-Evals; on-device: `npm run smoke` |
+| S2.11 | Als Nutzer will ich keine Tip-Listen / Coach-Mode bei Inject/Roleplay. | Must | done | Guards |
+| S2.12 | Als Nutzer will ich keine Sticky-Müllphrasen in längeren Antworten. | Must | done | Guards |
+| S2.13 | Als Nutzer will ich bei „kaputt“ eine jarvis-treue Antwort, keinen Canned-Aussetzer. | Must | done | Engine |
 
 ### E3 — Chat UI
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S3.1 | Als Nutzer will ich eine einfache Chat-Oberfläche im Browser. | Must | idea | Senden/Empfangen sichtbar |
-| S3.2 | Als Nutzer will ich die UI auf dem Handy-Browser bedienen können. | Must | idea | Nutzbar auf schmalem Viewport |
-| S3.3 | Als Nutzer will ich sehen, dass Jarvis „gerade schreibt“ / lädt. | Could | idea | Loading-Indikator vorhanden |
-| S3.4 | Als Nutzer will ich langfristig eine extrem smoothe, moderne Premium-Web-UI. | Should (Gesamtprojekt) | idea | Spotify-Farben + ChatGPT-Layout |
-| S3.5 | Als Nutzer will ich mehrere Chats, eine Liste und „Neues Gespräch“. | Must (Zielbild) | idea | MVP darf schlank sein, Architektur ausbaufähig |
-| S3.6 | Als Nutzer will ich später ein GUI-Update mit premium Motion. | Must (jetzt) | ready | Sprint 6 / `0.3.0` (M1–M6) |
-| S3.9 | Als Nutzer will ich nach `0.3.0` ruhigere/ klarere Motion (Polish). | Must | ready | Sprint 7 / `0.3.1` (P1–P6) |
-| S3.7 | Als Nutzer will ich Antworten gestreamt sehen. | Should | ready | Sprint 3 / `0.2.0` (I2) |
-| S3.8 | Als Nutzer will ich bei Fehlern Retry/klare Meldung. | Should | ready | Sprint 3 / `0.2.0` (I1) |
+| S3.1 | Als Nutzer will ich eine Chat-Oberfläche in der APK. | Must | done | Capacitor-UI |
+| S3.2 | Als Nutzer will ich die UI auf dem Handy bedienen können. | Must | done | Schmaler Viewport |
+| S3.3 | Als Nutzer will ich sehen, dass Jarvis „gerade schreibt“ / lädt. | Could | done | Streaming + Timeout `0.13.1` |
+| S3.4 | Als Nutzer will ich eine smoothe, moderne Premium-UI. | Should | done | Spotify-Dunkel + ChatGPT-Layout |
+| S3.5 | Als Nutzer will ich mehrere Chats, eine Liste und „Neues Gespräch“. | Must | done | In `0.13.x` |
+| S3.6 | Als Nutzer will ich ein GUI-Update mit premium Motion. | Must | done | In der APK-UI |
+| S3.9 | Als Nutzer will ich ruhigere/klarere Motion (Polish). | Must | done | In der APK-UI |
+| S3.7 | Als Nutzer will ich Antworten gestreamt sehen. | Should | done | `0.13.1` + Timeout |
+| S3.8 | Als Nutzer will ich bei Fehlern Retry/klare Meldung. | Should | done | Overlay + Chat-Fehler |
 
 ### E4 — Private Access
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S4.1 | Als Nutzer will ich vom Handy im privaten Setup auf Jarvis zugreifen. | Must | ready | Sprint 36–39 / `0.10.2`–`0.10.5` |
-| S4.2 | Als Nutzer will ich, dass Fremde ohne Zugang nicht chatten können. | Must | ready | Sprint 36 / `0.10.2` Owner-Token |
-| S4.3 | Als Nutzer will ich keine ungeschützt öffentlichen Ports als Default. | Must | ready | Sprint 36 / `0.10.2` LAN-Default |
-| S4.4 | Als Nutzer will ich eine sideloadbare Android-APK gegen die NAS. | Must | ready | Sprint 37–39 / `0.10.3`–`0.10.5` |
+| S4.1 | Als Nutzer will ich Jarvis nur auf meinem Handy nutzen. | Must | done | On-Device `0.13.x` |
+| S4.2 | Als Nutzer will ich, dass kein Server im Netz offen ist. | Must | done | Kein Backend, kein Port |
+| S4.3 | Als Nutzer will ich keine NAS-URL und kein Token. | Must | done | First-Run = nur Modell |
+| S4.4 | Als Nutzer will ich eine sideloadbare Android-APK, die selbst denkt. | Must | done | `docs/apk.md` |
 
 ### E5 — Always-On Ops
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S5.1 | Als Nutzer will ich Jarvis 24/7 auf NAS/Mini-Server. | Must | ready | Sprint 34 / `0.10.0` Compose |
-| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Should | ready | Sprint 35 / `0.10.1` |
+| S5.1 | Als Nutzer will ich Jarvis 24/7 auf NAS/Mini-Server. | Won’t | parked | **superseded** — 24/7 = Handy |
+| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Should | parked | NAS-Backup entfällt; Daten = IndexedDB auf dem Gerät |
 
 ### E6 — Voice Out
 
@@ -117,19 +119,19 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.4 | Als Nutzer will ich Intent-abhängige Antwort-Policy (Smalltalk vs Task vs Research vs Memory). | Must | done | Sprint 12 / `0.5.0` — `10` §4–4.1 |
 | S7.4a | Als Nutzer will ich merk/recall/forget getrennt mit eigener Reply-Policy (kein Helpdesk-Fallback). | Must | done | Sprint 12 / `0.5.0` — Memory-Intent |
 | S7.4b | Als Nutzer will ich bei „nicht X, sondern Y“ Ersetzen + kurze Nachfrage. | Must | done | Sprint 12 / `0.5.0` — Contradiction / clarify |
-| S7.5 | Als Nutzer will ich Auto-Model-Routing (Default/Heavy/Fallback). | Must | done | Sprint 12 / `0.5.0` — `10` |
+| S7.5 | Als Nutzer will ich Auto-Model-Routing (Default/Heavy/Fallback). | Won’t | parked | Ein On-Device-Modell (0.5B) |
 | S7.6 | Als PO will ich Persona-/Quality-Scores in Eval/CI. | Must | done | Sprint 12 / `0.5.0` — `10` |
 | S7.6a | Als Nutzer will ich, dass Tasks nicht als Inject geblockt werden und Inject Jarvis/DE bleibt. | Must | done | Sprint 13 / `0.5.1` — Hotfix |
 | S7.6b | Als Nutzer will ich keine Speicherung von leeren „Merk dir irgendwie“-Payloads. | Must | done | Sprint 13 / `0.5.1` |
 | S7.6c | Als Nutzer will ich bei Settings/Helpdesk-Bait keinen finalen Aussetzer. | Must | done | Sprint 13 / `0.5.1` |
 | S7.6d | Als PO will ich robusteren Router + Live-Scorecard (nicht blocker). | Should | done | Sprint 14 / `0.5.2` — Polish |
-| S7.7 | Als Nutzer will ich opt-in Internet-Research mit Quellen (kein Raten). | Must | done | Sprint 15 / `0.6.0` — `10` |
+| S7.7 | Als Nutzer will ich opt-in Internet-Research mit Quellen (kein Raten). | Won’t | parked | Historisch `0.6.x`; on-device **offline**, kein Netzpfad |
 | S7.7a | Als Nutzer will ich, dass Research-Queries ohne PII/Noise an Provider gehen. | Must | done | Sprint 16 / `0.6.1` — Hotfix |
 | S7.7b | Als Nutzer will ich stabile Topic-Extraktion bei langen Research-Prompts. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7c | Als PO will ich Research-Default Opt-in aus + Test-Hygiene. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7d | Als Nutzer will ich Research-Antworten im Jarvis-Ton + robustere Provider-Mix. | Should | done | Sprint 17 / `0.6.2` — Polish |
-| S7.8 | Kalender/Mail/Fire-TV/Alexa-Tools | Won’t | parked | Samsung-TV = E12 / `0.11.x` |
-| S7.9 | Native Store-App (Play Store) | Won’t | parked | Sideload-APK = S4.4 / `0.10.3` |
+| S7.8 | Kalender/Mail/Fire-TV/Alexa-Tools | Won’t | parked | Samsung-TV = E12, ebenfalls parked |
+| S7.9 | Native Store-App (Play Store) | Won’t | parked | Sideload-APK = S4.4 / `0.13.x` |
 
 ### E8 — Delight & Settings
 
@@ -173,42 +175,42 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S9.4 | Als Nutzer will ich keine Fake-„notiert“-Claims ohne Tool-Execute. | Must | done | Sprint 29 / `0.9.1` |
 | S9.5 | Als Nutzer will ich klare Trennung Memory („merk dir“) vs. Tool („notiere/todo“). | Must | done | Sprint 29 / `0.9.1` |
 | S9.6 | Als Nutzer will ich Multi-Turn Tool-Flows (listen → erledigen). | Should | done | Sprint 30 / `0.9.2` |
-| S9.7 | Als Nutzer will ich Todos/Notizen ohne Eval-Müll-Dump sehen (Scope/Filter). | Should | ready | Sprint 33 / `0.9.5` |
-| S9.8 | Als Nutzer will ich Confirm per UI-Chip (Ja/Nein). | Should | ready | Sprint 33 / `0.9.5` |
+| S9.7 | Als Nutzer will ich Todos/Notizen ohne Eval-Müll-Dump sehen (Scope/Filter). | Should | done | Teil in `0.13.x` (Aufräumen-Befehl) |
+| S9.8 | Als Nutzer will ich Confirm per Ja/Nein. | Should | done | Text-Confirm in `0.13.x` |
 
 ### E10 — Memory & Assist Quality (nach 0.9.2-Probe)
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S10.1 | Als Nutzer will ich in einem „Merk dir“-Satz mehrere Fakten speichern. | Must | ready | Sprint 31 / `0.9.3` |
-| S10.2 | Als Nutzer will ich Pref-Fragen („Was trinke ich?“) als Recall, nicht Smalltalk. | Must | ready | Sprint 31 / `0.9.3` |
-| S10.3 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt Smalltalk. | Must | ready | Sprint 32 / `0.9.4` |
-| S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Must | ready | Sprint 32 / `0.9.4` |
+| S10.1 | Als Nutzer will ich in einem „Merk dir“-Satz mehrere Fakten speichern. | Must | done | On-Device Memory (Name/Trinken/Essen) |
+| S10.2 | Als Nutzer will ich Pref-Fragen („Was trinke ich?“) als Recall, nicht Smalltalk. | Must | done | Recall-Pfad in `memory.ts` |
+| S10.3 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt Smalltalk. | Should | parked | Alter Assist-Router; 0.5B-Engine ist schlanker |
+| S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Should | done | Guards + Persona in `0.13.x` |
 
-### E11 — NAS & APK (`0.10.x`)
-
-| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
-|----|-------|--------|--------|------------------|
-| S11.1 | Als Nutzer will ich den Stack per Compose auf NAS mit Autostart. | Must | ready | Sprint 34 / `0.10.0` |
-| S11.2 | Als Nutzer will ich Backup/Restore der Chat-Daten. | Should | ready | Sprint 35 / `0.10.1` |
-| S11.3 | Als Nutzer will ich Owner-Token, sonst 401. | Must | ready | Sprint 36 / `0.10.2` |
-| S11.4 | Als Nutzer will ich die APK sideloaden und gegen NAS chatten. | Must | ready | Sprint 37 / `0.10.3` |
-| S11.5 | Als Nutzer will ich First-Run (URL+Token) und bedienbare Tastatur. | Must | ready | Sprint 38–39 / `0.10.4`–`0.10.5` |
-
-### E12 — Samsung TV (`0.11.x`)
+### E11 — NAS & APK gegen Server (`0.10.x`) — **SUPERSEDED**
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S12.1 | Als Nutzer will ich den Tizen-TV ein/aus, Lautstärke, Mute, HDMI lokal steuern. | Must | ready | Sprint 40 / `0.11.0` |
-| S12.2 | Als Nutzer will ich ehrliche Fehler wenn WOL/TV tot ist. | Must | ready | Sprint 41 / `0.11.1` |
-| S12.3 | Als Nutzer will ich TV in Settings suchen, koppeln, testen, umbenennen. | Must | ready | Sprint 42 / `0.11.2` |
+| S11.1 | Als Nutzer will ich den Stack per Compose auf NAS mit Autostart. | Won’t | parked | entfällt — [`12`](./12-nas-apk.md) |
+| S11.2 | Als Nutzer will ich Backup/Restore der Chat-Daten. | Won’t | parked | NAS-Backup entfällt |
+| S11.3 | Als Nutzer will ich Owner-Token, sonst 401. | Won’t | parked | kein Server |
+| S11.4 | Als Nutzer will ich die APK sideloaden und gegen NAS chatten. | Won’t | parked | APK denkt selbst (`0.13.x`) |
+| S11.5 | Als Nutzer will ich First-Run (URL+Token) und bedienbare Tastatur. | Won’t | parked | First-Run = Modell-Download |
 
-### E13 — LAN-Proxy & APK (`0.12.x`)
+### E12 — Samsung TV (`0.11.x`) — **PARKED**
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S13.1 | Als Nutzer will ich Jarvis ohne Docker 24/7 auf der NAS (Proxy :8080). | Must | ready | Sprint 43 / `0.12.0` |
-| S13.2 | Als Nutzer will ich die APK sideloaden und First-Run gegen die NAS-IP. | Must | ready | Sprint 43 / `0.12.0` |
+| S12.1 | Als Nutzer will ich den Tizen-TV ein/aus, Lautstärke, Mute, HDMI lokal steuern. | Won’t | parked | kein UDP/WOL aus der WebView |
+| S12.2 | Als Nutzer will ich ehrliche Fehler wenn WOL/TV tot ist. | Won’t | parked | |
+| S12.3 | Als Nutzer will ich TV in Settings suchen, koppeln, testen, umbenennen. | Won’t | parked | Settings-Felder existieren, steuern nichts |
+
+### E13 — LAN-Proxy & APK (`0.12.x`) — **SUPERSEDED**
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S13.1 | Als Nutzer will ich Jarvis ohne Docker 24/7 auf der NAS (Proxy :8080). | Won’t | parked | Sprint 43 superseded |
+| S13.2 | Als Nutzer will ich die APK sideloaden und First-Run gegen die NAS-IP. | Won’t | parked | First-Run = GGUF, nicht NAS-IP |
 
 ### E7 — Nachzieher Quality/Research (Fortsetzung)
 
@@ -228,23 +230,20 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ---
 
-## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
+## Aktuelle Prioritätsreihenfolge
 
-1. **Sprint 31** (`0.9.3`) — Memory Quality Hotfix
-2. **Sprint 32** (`0.9.4`) — Assist Continuity & Siezen
-3. **Sprint 33** (`0.9.5`) — Tools Hygiene & Confirm-UX
-4. **Sprints 34–39** (`0.10.0`–`0.10.5`) — NAS-Compose **Parking**
-5. **Sprints 40–42** (`0.11.0`–`0.11.2`) — Samsung-TV lokal
-6. **Sprint 43** (`0.12.0`) — NAS native + Reverse-Proxy & APK
-7. TTS / `1.0.0` — **PO-Kommando**
-8. Mail / Fire TV / Alexa / Play Store / Docker-NAS — **Parking**
+1. **Alltag `0.13.1`** — Sideload, Modell einmal laden, offline chatten ([`13`](./13-on-device.md))
+2. TTS / `1.0.0` — **PO-Kommando**
+3. NAS / Docker / Proxy (`0.10`–`0.12`) — **superseded**, nicht pullen
+4. Samsung-TV / Research-Netz / Mail / Fire TV / Alexa / Play Store — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 
 - Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus
 - Export der Chat-History
-- Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
-- Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate
+- Encryption at-rest
+- Research-Netz (widerspricht Offline)
 - Mail / Cloud-Kalender-OAuth / **Amazon Fire TV** / Alexa
 - Play Store Listing / iOS
-- Optional lokaler Kalender-Read (ICS) — Parking (Sprint 30 P7)
+- Optional lokaler Kalender-Read (ICS)
+- NAS-Comeback — nur nach neuer PO-Entscheidung
