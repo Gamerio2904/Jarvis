@@ -23,6 +23,11 @@ for (const name of ['JarvisNotifyPlugin.java', 'JarvisNotifyReceiver.java', 'Jar
   copyFileSync(join(notifySrc, name), join(notifyDest, name))
 }
 
+const geoSrc = join(root, 'native', 'geo')
+const geoDest = join(android, 'app/src/main/java/app/jarvis/geo')
+mkdirSync(geoDest, { recursive: true })
+copyFileSync(join(geoSrc, 'JarvisGeoPlugin.java'), join(geoDest, 'JarvisGeoPlugin.java'))
+
 const mainCandidates = [
   join(android, 'app/src/main/java/local/jarvis/app/MainActivity.java'),
   join(android, 'app/src/main/java/app/jarvis/MainActivity.java'),
@@ -57,6 +62,8 @@ const perms = [
   'android.permission.RECEIVE_BOOT_COMPLETED',
   'android.permission.VIBRATE',
   'android.permission.WAKE_LOCK',
+  'android.permission.ACCESS_COARSE_LOCATION',
+  'android.permission.ACCESS_FINE_LOCATION',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {

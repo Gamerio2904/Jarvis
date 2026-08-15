@@ -27,6 +27,7 @@ import {
 import { handleReminders } from './reminders'
 import { handleTools, type ToolMeta } from './tools'
 import { handleTv, tvStatusFromSettings } from './tv'
+import { handleWeather } from './weather'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -176,6 +177,38 @@ export async function streamChat(
         assistant_message: assistant,
         conversation: updated,
         tool: toolHit.tool || null,
+      })
+      return
+    }
+
+    const weatherHit = await handleWeather(content)
+    if (weatherHit.handled && weatherHit.reply) {
+      let research = weatherHit.research
+      if (research) {
+        const audit = await addResearchAudit({
+          id: crypto.randomUUID(),
+          query: research.query || content.slice(0, 120),
+          status: research.status || (research.used ? 'ok' : 'empty'),
+          sources: (research.sources || []).map((s) => ({
+            title: s.title,
+            url: s.url,
+            snippet: s.snippet,
+            provider: s.provider,
+          })),
+          created_at: new Date().toISOString(),
+        })
+        research = { ...research, audit_id: audit.id }
+      }
+      const assistant = await addMessage(conversationId, 'assistant', weatherHit.reply, {
+        tool: weatherHit.tool,
+        research,
+      })
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({
+        assistant_message: assistant,
+        conversation: updated,
+        research: research || null,
+        tool: weatherHit.tool || null,
       })
       return
     }

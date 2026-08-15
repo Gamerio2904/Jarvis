@@ -10,7 +10,7 @@ Kein Alles-in-einem-Wurf. Jede Stufe ist sideloadbar.
 |---------|--------|----------------|
 | **`1.1.0`** | UI-Sound wirklich hörbar · Research-Quellen unter der Antwort + Audit | Zwei Bugs aus dem Handtest; kein neues Feature-Risiko |
 | **`1.2.0`** | Erinnerungen mit Uhrzeit (Chat + Notification) — **CODE** | Braucht Android-Rechte, eigenen Speicher |
-| **`1.3.0`** | Ort + Wetter („heute hier“) | Braucht Standort-Recht + Research |
+| **`1.3.0`** | Ort + Wetter („heute hier“) — **CODE** | Standort einmal, Open-Meteo, kein Raten |
 | **`1.4.0`** | Kalender mit eigener GUI (lokal, kein Google-Login) | Eigene Screens, ICS/manuell |
 | **`1.5.0`** | **Riesenupdate:** Sprachmodus (Gespräch, kein Diktat-File) + Homescreen-Shortcut | Mikrofon, TTS, Deep-Link |
 

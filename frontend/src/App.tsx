@@ -785,7 +785,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.2.0</p>
+            <p>Handy · v1.3.0</p>
           </div>
         </div>
 
@@ -807,7 +807,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.2.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.3.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -948,6 +948,35 @@ function App() {
                   <option value="normal">Normal</option>
                 </select>
               </label>
+            </section>
+            <section className="settings-section">
+              <h3>Ort & Wetter</h3>
+              <p className="settings-hint">
+                „Wetter heute“ / „Temperatur hier“ nutzt den Standort einmal. Zahlen kommen von
+                Open-Meteo — Jarvis rät nicht. Oder „Wetter in München“.
+              </p>
+              <p className="settings-hint">
+                {settings?.last_place
+                  ? `Letzter Ort: ${settings.last_place}`
+                  : 'Noch kein Standort. Einmal im Chat nach dem Wetter fragen.'}
+              </p>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={settingsBusy}
+                  onClick={() =>
+                    void patchSetting({
+                      last_lat: '',
+                      last_lon: '',
+                      last_place: '',
+                      last_fix_at: '',
+                    })
+                  }
+                >
+                  Ort vergessen
+                </button>
+              </div>
             </section>
             <section className="settings-section">
               <h3>Erinnerungen</h3>
@@ -1134,8 +1163,8 @@ function App() {
                 <span>Internet-Research (Opt-in)</span>
               </label>
               <p className="settings-hint">
-                An = Wetter und Websuche über Google (braucht Gemini). Aus = Jarvis erfindet keine
-                Suche und kein Wetter von heute.
+                An = Websuche über Google (braucht Gemini). Wetter selbst kommt von Open-Meteo
+                (Quelle sichtbar). Aus = keine erfundene Suche.
               </p>
               <button
                 type="button"

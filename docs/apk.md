@@ -1,17 +1,17 @@
-# Android-APK — `1.2.0`
+# Android-APK — `1.3.0`
 
-**1.2:** Erinnerungen mit Uhrzeit. Jarvis bestätigt die Zeit und piept per Android-Notification.
+**1.3:** Wetter hier (Standort einmal) oder „Wetter in …“. Zahlen von Open-Meteo, Quelle sichtbar.
 
 ## Download
 
-**APK `1.2.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-2-0bf8/releases/Jarvis.apk
+**APK `1.3.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-3-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.2.0` · versionCode `10200`
+- versionName `1.3.0` · versionCode `10300`
 - App-ID `local.jarvis.app`
 
-1. Installieren (über 1.1.x).
-2. „in 20 Minuten Milch“ — Bestätigung mit Uhrzeit.
-3. Benachrichtigungen erlauben, App in den Hintergrund, warten.
-4. Einstellungen → Erinnerungen, oder „was steht an“.
+1. Installieren (über 1.2.x).
+2. „Wetter heute“ — Standort erlauben.
+3. Quellen unter der Antwort antippen.
+4. Optional: „Wetter in München“.
