@@ -63,7 +63,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 47 | `0.14.0` | **CODE** (in `0.14.1`) |
 | 48 | `0.14.1` | **CODE** (TV verbinden & steuern) |
 | 50 | `0.16.0` | **CODE** (Gemini Opt-in) |
-| 51–54 | `1.1`–`1.4` | **PLANNED** (Sound/Quellen, Erinnerung, Wetter, Kalender) |
-| 55 | `1.5.0` | **PLANNED** (Sprachmodus) |
+| 51–54 | `1.1`–`1.4` | **CODE** (Sound/Quellen, Erinnerung, Wetter, Kalender) |
+| 55 | `1.5.0` | **CODE** (Sprachmodus) |
+| 56 | `1.6.0` | **CODE** (Wetter als Lage) |
 
-**Aktuell:** Sideload `1.0.3` — [`Jarvis.apk`](./apk.md). Plan: [`17-next.md`](./17-next.md).
+**Aktuell:** Sideload `1.6.0` — [`Jarvis.apk`](./apk.md). Plan: [`17-next.md`](./17-next.md).

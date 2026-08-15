@@ -59,8 +59,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 53 | [`sprint-53.md`](./sprint-53.md) | `1.3.0` | Ort & Wetter | **CODE** |
 | 54 | [`sprint-54.md`](./sprint-54.md) | `1.4.0` | Kalender-GUI | **CODE** |
 | 55 | [`sprint-55.md`](./sprint-55.md) | `1.5.0` | Sprachmodus | **CODE** |
+| 56 | [`sprint-56.md`](./sprint-56.md) | `1.6.0` | Wetter als Lage + Tipp | **CODE** |
 
-**Aktuell:** Sideload `1.5.0` (Sprachmodus). Reihe: [`17-next.md`](../17-next.md).
+**Aktuell:** Sideload `1.6.0` (Wetter-Lage). Reihe: [`17-next.md`](../17-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

@@ -4,37 +4,11 @@ import { getJson } from './http-json'
 import type { ResearchMeta, ResearchSource } from './research-parse'
 import { loadSettings, saveSettings } from './store'
 import type { ToolMeta } from './tools'
+import { formatWeatherBrief, wmoLabel, type WeatherDay, type WeatherSnapshot } from './weather-brief'
 import { parseWeatherIntent } from './weather-parse'
 
 export { parseWeatherIntent } from './weather-parse'
-
-const WMO: Record<number, string> = {
-  0: 'klar',
-  1: 'überwiegend klar',
-  2: 'wolkig',
-  3: 'bedeckt',
-  45: 'Nebel',
-  48: 'Nebel',
-  51: 'Niesel',
-  53: 'Niesel',
-  55: 'Niesel',
-  61: 'leichter Regen',
-  63: 'Regen',
-  65: 'starker Regen',
-  71: 'leichter Schnee',
-  73: 'Schnee',
-  75: 'starker Schnee',
-  80: 'Schauer',
-  81: 'Schauer',
-  82: 'starke Schauer',
-  95: 'Gewitter',
-  96: 'Gewitter',
-  99: 'Gewitter',
-}
-
-function wmoLabel(code: number): string {
-  return WMO[code] || 'wechselhaft'
-}
+export { formatWeatherBrief } from './weather-brief'
 
 type Fix = { lat: number; lon: number; place: string }
 
@@ -74,7 +48,7 @@ export async function handleWeather(
     provider: 'open-meteo',
     retrieved_at: new Date().toISOString(),
   }
-  let research: ResearchMeta = {
+  const research: ResearchMeta = {
     used: true,
     status: 'ok',
     status_label: 'Wetter · Quelle',
@@ -83,36 +57,11 @@ export async function handleWeather(
     privacy_note: 'Lage über Open-Meteo, kein Raten.',
   }
 
-  const s = loadSettings()
-  if (s.research_opt_in && geminiReady()) {
-    try {
-      const extra = await completeGemini(
-        [
-          {
-            role: 'user',
-            content: `Kurzer Wetterlage-Satz für ${fix.fix.place}. Zahlen nur wenn sicher. Eine Zeile.`,
-          },
-        ],
-        undefined,
-        { search: true },
-      )
-      if (extra.research?.sources?.length) {
-        research = {
-          ...research,
-          sources: [...(research.sources || []), ...extra.research.sources],
-          query: extra.research.query || research.query,
-        }
-      }
-    } catch {
-      /* Open-Meteo reicht */
-    }
-  }
-
   return {
     handled: true,
-    reply: `${fix.fix.place}: ${snapshot.temp} °C, ${snapshot.label}. Quelle: Open-Meteo.`,
+    reply: formatWeatherBrief(snapshot, intent.when, intent.focus),
     research,
-    tool: { tool_status: 'executed', tool: 'weather', action: 'now', label: 'Wetter' },
+    tool: { tool_status: 'executed', tool: 'weather', action: intent.when, label: 'Wetter' },
   }
 }
 
@@ -193,24 +142,111 @@ async function reversePlace(lat: number, lon: number): Promise<string | null> {
   }
 }
 
-async function fetchOpenMeteo(fix: Fix): Promise<{ temp: number; label: string } | null> {
+async function fetchOpenMeteo(fix: Fix): Promise<WeatherSnapshot | null> {
   try {
     const q = new URLSearchParams({
       latitude: String(fix.lat),
       longitude: String(fix.lon),
-      current: 'temperature_2m,weather_code',
+      current: 'temperature_2m,apparent_temperature,weather_code,precipitation,wind_speed_10m',
+      hourly: 'precipitation_probability',
+      daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
+      forecast_days: '7',
       timezone: 'auto',
     })
     const { status, json } = await getJson(`https://api.open-meteo.com/v1/forecast?${q}`)
     if (status < 200 || status >= 300) return null
-    const current = json.current as Record<string, unknown> | undefined
-    const temp = Number(current?.temperature_2m)
-    const code = Number(current?.weather_code)
-    if (!Number.isFinite(temp)) return null
-    return { temp: Math.round(temp), label: wmoLabel(Number.isFinite(code) ? code : -1) }
+    return snapshotFrom(json, fix.place)
   } catch {
     return null
   }
+}
+
+export function snapshotFrom(json: Record<string, unknown>, place: string): WeatherSnapshot | null {
+  const current = json.current as Record<string, unknown> | undefined
+  const temp = Number(current?.temperature_2m)
+  const code = Number(current?.weather_code)
+  if (!Number.isFinite(temp)) return null
+  const feelsRaw = Number(current?.apparent_temperature)
+  const windRaw = Number(current?.wind_speed_10m)
+  const precipRaw = Number(current?.precipitation)
+  const days = readDays(json)
+  const soon = readSoon(json, String(current?.time || ''))
+  return {
+    place,
+    temp: Math.round(temp),
+    feels: Number.isFinite(feelsRaw) ? Math.round(feelsRaw) : null,
+    label: wmoLabel(Number.isFinite(code) ? code : -1),
+    code: Number.isFinite(code) ? code : -1,
+    wind: Number.isFinite(windRaw) ? Math.round(windRaw) : null,
+    precipNow: Number.isFinite(precipRaw) ? precipRaw : null,
+    today: days.today,
+    tomorrow: days.tomorrow,
+    saturday: days.saturday,
+    sunday: days.sunday,
+    rainSoon: soon.rainSoon,
+    maxPrecipSoon: soon.maxPrecipSoon,
+  }
+}
+
+function readDays(json: Record<string, unknown>): {
+  today: WeatherDay | null
+  tomorrow: WeatherDay | null
+  saturday: WeatherDay | null
+  sunday: WeatherDay | null
+} {
+  const daily = json.daily as Record<string, unknown> | undefined
+  const times = (daily?.time as string[] | undefined) || []
+  const maxs = (daily?.temperature_2m_max as number[] | undefined) || []
+  const mins = (daily?.temperature_2m_min as number[] | undefined) || []
+  const probs = (daily?.precipitation_probability_max as number[] | undefined) || []
+  const codes = (daily?.weather_code as number[] | undefined) || []
+  let today: WeatherDay | null = null
+  let tomorrow: WeatherDay | null = null
+  let saturday: WeatherDay | null = null
+  let sunday: WeatherDay | null = null
+  for (let i = 0; i < times.length; i += 1) {
+    const date = times[i]
+    const max = Number(maxs[i])
+    const min = Number(mins[i])
+    if (!date || !Number.isFinite(max) || !Number.isFinite(min)) continue
+    const prob = Number(probs[i])
+    const day: WeatherDay = {
+      date,
+      min: Math.round(min),
+      max: Math.round(max),
+      precipProb: Number.isFinite(prob) ? Math.round(prob) : null,
+      label: wmoLabel(Number(codes[i])),
+    }
+    const wd = weekdayUtc(date)
+    if (i === 0) today = day
+    if (i === 1) tomorrow = day
+    if (wd === 6 && !saturday) saturday = day
+    if (wd === 0 && !sunday) sunday = day
+  }
+  return { today, tomorrow, saturday, sunday }
+}
+
+function weekdayUtc(isoDate: string): number {
+  const [y, m, d] = isoDate.split('-').map((n) => Number(n))
+  return new Date(Date.UTC(y, (m || 1) - 1, d || 1)).getUTCDay()
+}
+
+function readSoon(
+  json: Record<string, unknown>,
+  currentTime: string,
+): { rainSoon: boolean; maxPrecipSoon: number | null } {
+  const hourly = json.hourly as Record<string, unknown> | undefined
+  const times = (hourly?.time as string[] | undefined) || []
+  const probs = (hourly?.precipitation_probability as number[] | undefined) || []
+  let start = times.findIndex((t) => t === currentTime)
+  if (start < 0) start = 0
+  let max = -1
+  for (let i = start; i < times.length && i < start + 7; i += 1) {
+    const p = Number(probs[i])
+    if (Number.isFinite(p) && p > max) max = p
+  }
+  if (max < 0) return { rainSoon: false, maxPrecipSoon: null }
+  return { rainSoon: max >= 45, maxPrecipSoon: Math.round(max) }
 }
 
 async function geminiWeather(

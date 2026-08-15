@@ -78,6 +78,7 @@ MAJOR.MINOR.PATCH
 | `1.3.0` | Ort & Wetter | Sprint 53 |
 | `1.4.0` | Kalender-GUI (lokal) | Sprint 54 |
 | `1.5.0` | Sprachmodus + Homescreen-Shortcut | Sprint 55 |
+| `1.6.0` | Wetter als Lage + Tipp | Sprint 56 |
 
 ### Weitere Beispiele
 
