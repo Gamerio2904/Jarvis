@@ -5,7 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.0.3`**.
+App-Version im Code: **`1.1.0`**.
+
+### `1.1.0` — Sound + Research-Quellen — *CODE*
+
+- UI-Sounds: gemeinsamer AudioContext, entsperren nach Tipp; Testpiep beim Anschalten
+- Quellen unter der Antwort, Links öffenbar; Audit speichert Suchen
+- Reihe `1.2`–`1.5` geplant in [`17-next.md`](./17-next.md)
+
+### Geplant — `1.2`–`1.5`
+
+- `1.1` Sound + Research-Quellen · `1.2` Erinnerungen · `1.3` Ort/Wetter · `1.4` Kalender-GUI
+- `1.5` Sprachmodus (Gespräch, Homescreen-Shortcut). Wake-Word bei ausgeschaltetem Handy: **nein**.
 
 ### `1.0.3` — Persona, Research, Notizen — *CODE*
 

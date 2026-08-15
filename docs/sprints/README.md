@@ -54,8 +54,13 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 47 | [`sprint-47.md`](./sprint-47.md) | `0.14.0` | Qualität & Latenz (bestehendes) | **CODE** (in `0.14.1`) |
 | 48 | [`sprint-48.md`](./sprint-48.md) | `0.14.1` | TV verbinden & steuern | **CODE** |
 | 50 | [`sprint-50.md`](./sprint-50.md) | `0.16.0` | Gemini Opt-in | **CODE** |
+| 51 | [`sprint-51.md`](./sprint-51.md) | `1.1.0` | Sound + Research-Quellen | **CODE** |
+| 52 | [`sprint-52.md`](./sprint-52.md) | `1.2.0` | Erinnerungen mit Zeit | **PLANNED** |
+| 53 | [`sprint-53.md`](./sprint-53.md) | `1.3.0` | Ort & Wetter | **PLANNED** |
+| 54 | [`sprint-54.md`](./sprint-54.md) | `1.4.0` | Kalender-GUI | **PLANNED** |
+| 55 | [`sprint-55.md`](./sprint-55.md) | `1.5.0` | Sprachmodus | **PLANNED** |
 
-**Aktuell:** Sideload `1.0.3` (`Jarvis.apk`).
+**Aktuell:** Sideload `1.0.3`. Als Nächstes `1.1.0`. Reihe: [`17-next.md`](../17-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

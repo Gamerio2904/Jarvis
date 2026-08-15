@@ -33,7 +33,7 @@ import {
   type ToolMeta,
 } from './api'
 import './index.css'
-import { playUiSound } from './sounds'
+import { playUiSound, unlockUiAudio } from './sounds'
 import { TEST_PROMPTS } from './engine/test-prompts'
 
 function prefersReducedMotion(): boolean {
@@ -91,12 +91,12 @@ function SourcesBlock({
   const query = research.query
   if (!sources.length && !status && !query) return null
   return (
-    <details className="sources-block" open={Boolean(sources.length)}>
+    <details className="sources-block" open>
       <summary>
-        <span className="sources-badge">{status || 'Research'}</span>
+        <span className="sources-badge">{status || 'Quellen'}</span>
         {sources.length ? (
           <span className="sources-count">
-            {sources.length} Quelle{sources.length === 1 ? '' : 'n'}
+            {sources.length} prüfbar
           </span>
         ) : null}
         {query ? <span className="sources-query"> · {query}</span> : null}
@@ -105,10 +105,19 @@ function SourcesBlock({
         <ul className="sources-list">
           {sources.map((s, i) => (
             <li key={`${s.url}-${i}`}>
-              <a href={s.url} target="_blank" rel="noreferrer">
+              <a
+                href={s.url}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => {
+                  e.preventDefault()
+                  window.open(s.url, '_blank', 'noopener,noreferrer')
+                }}
+              >
                 [{i + 1}] {s.title}
               </a>
-              <p>{s.snippet}</p>
+              {s.url ? <p className="sources-url">{s.url}</p> : null}
+              {s.snippet ? <p>{s.snippet}</p> : null}
             </li>
           ))}
         </ul>
@@ -116,7 +125,7 @@ function SourcesBlock({
         <p className="sources-empty">
           {research.error
             ? `${research.status || 'Status'} · ${research.error}`
-            : `${research.status || 'Status'} — keine Quellen.`}
+            : 'Suche gelaufen, aber keine Links geliefert.'}
         </p>
       )}
       {research.audit_id ? (
@@ -126,7 +135,7 @@ function SourcesBlock({
             className="linkish"
             onClick={() => onOpenAudit?.(research.audit_id)}
           >
-            Audit öffnen ({research.audit_id.slice(0, 8)}…)
+            Im Audit merken ({research.audit_id.slice(0, 8)}…)
           </button>
         </p>
       ) : null}
@@ -182,6 +191,18 @@ function App() {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
+
+  useEffect(() => {
+    const unlock = () => {
+      void unlockUiAudio()
+    }
+    window.addEventListener('pointerdown', unlock, { once: true })
+    window.addEventListener('touchstart', unlock, { once: true })
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('touchstart', unlock)
+    }
+  }, [])
 
   useEffect(() => {
     void bootstrap()
@@ -273,6 +294,13 @@ function App() {
     try {
       const updated = await patchSettings(patch)
       setSettings(updated)
+      if (patch.ui_sounds) {
+        await unlockUiAudio()
+        playUiSound('send', {
+          enabled: true,
+          volume: (updated.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
+        })
+      }
       if (updated.gemini_enabled && updated.gemini_api_key?.trim()) {
         setSetupOpen(false)
         void releaseModel()
@@ -722,7 +750,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.0.3</p>
+            <p>Handy · v1.1.0</p>
           </div>
         </div>
 
@@ -741,7 +769,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.0.3'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.1.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -894,7 +922,9 @@ function App() {
                 />
                 <span>UI-Sounds</span>
               </label>
-              <p className="settings-hint">Default aus. Dezent, kein Arcade.</p>
+              <p className="settings-hint">
+                An = kurzer Ton beim Senden. Beim Einschalten sollte es einmal piepen.
+              </p>
               <label className="settings-inline">
                 <span>Lautstärke</span>
                 <select

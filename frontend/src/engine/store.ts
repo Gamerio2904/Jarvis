@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.0.3'
+export const APP_VERSION = '1.1.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -144,9 +144,17 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   return next
 }
 
+export type ResearchAudit = {
+  id: string
+  query: string
+  status: string
+  sources: Array<{ title: string; url: string; snippet?: string; provider?: string }>
+  created_at: string
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 1)
+    const req = indexedDB.open('jarvis-ondevice', 2)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -156,6 +164,7 @@ function openDb(): Promise<IDBDatabase> {
         'notes',
         'todos',
         'pending',
+        'research_audits',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -379,4 +388,14 @@ export async function setPending(row: ToolPending): Promise<void> {
 
 export async function clearPending(conversationId: string): Promise<void> {
   await del('pending', conversationId)
+}
+
+export async function addResearchAudit(row: ResearchAudit): Promise<ResearchAudit> {
+  await put('research_audits', row)
+  return row
+}
+
+export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
+  const rows = await getAll<ResearchAudit>('research_audits')
+  return rows.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)).slice(0, limit)
 }
