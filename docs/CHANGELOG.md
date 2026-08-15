@@ -12,6 +12,7 @@ App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
 - Q32: Jarvis kauft **nicht** über Alexa/Echo/Fire TV (Amazon-Cloud, keine lokale API).
 - Q33: Jarvis läuft **nicht** auf Echo Show 5 (3. Gen.); kein Anzeigen auf dem Amazon-Bildschirm (kein Sideload, kein APL-Skill). Werksreset/Knacken/Aufschrauben sind kein Weg.
 - Alternativen: Handy / Android-Tablet (gleiche APK), Todo, später Samsung-TV lokal — kein Fire-Tablet.
+- Q34: Alexa-artig = festes Android-Display + später TTS/STT, nicht Echo/Nest.
 - Chat: ehrliche Ablehnung bei Kauf- und Echo-Show-/Bildschirm-Fragen; `/hilfe` nennt kein Echo Show.
 - Parking bleibt: `S7.8`, `08` Q32/Q33.
 

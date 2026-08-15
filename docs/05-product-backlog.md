@@ -100,6 +100,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 |----|-------|--------|--------|------------------|
 | S6.1 | Als Nutzer will ich Jarvis’ Textantwort vorlesen lassen. | Won’t (jetzt) | parked | TTS auf PO-Kommando; gleicher Text |
 | S6.2 | Als Nutzer will ich eine Stimme, die zum Charakter passt. | Won’t (jetzt) | parked | PO-Abnahme Stimme |
+| S6.3 | Als Nutzer will ich Alexa-artig sprechen (STT + Weckwort) auf einem festen Android-Display. | Won’t (jetzt) | parked | Q34: nach TTS; nicht Echo/Nest |
 
 ### E7 — Assistant Capabilities
 
@@ -246,5 +247,6 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
 - Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate
 - Mail / Cloud-Kalender-OAuth / **Amazon Fire TV** / Alexa (Q32 Kauf / Q33 Echo Show: nein)
+- **Alexa-artige Station** (Q34): festes Android-Display + TTS/STT — nicht Amazon; Stimme nur nach PO-Go
 - Play Store Listing / iOS
 - Optional lokaler Kalender-Read (ICS) — Parking (Sprint 30 P7)

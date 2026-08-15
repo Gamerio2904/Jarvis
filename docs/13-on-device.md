@@ -21,15 +21,18 @@ Kleineres Modell als RTX-3060-7b. Ton und Tools bleiben lokal; Antworten sind sc
 
 ## Parking
 
-Samsung-TV, NAS, Docker, Play Store, TTS, Mail, Fire TV, **Alexa** (Q32 kein Kauf, Q33 kein Echo Show / kein Amazon-Bildschirm).
+Samsung-TV, NAS, Docker, Play Store, TTS, Mail, Fire TV, **Alexa** (Q32 kein Kauf, Q33 kein Echo Show). Alexa-artig lokal = Q34.
 
-## Statt Echo Show (Q33)
+## Statt Echo Show (Q33 / Q34)
 
-| Statt … | Alternative |
-|---------|-------------|
-| Jarvis auf dem Echo-Bildschirm | Dieselbe APK auf dem **Handy** oder einem **Android-Tablet** / alten Android-Handy (Sideload, ~470 MB frei) |
-| Einkaufen über Alexa | **Todo** (`Todo: Milch`) |
-| Gerät in der Wohnung steuern | Später **Samsung-TV** lokal (`0.11.x`) — Ein/Aus/Lautstärke, kein Chat auf dem TV |
-| Vorlesen | TTS später, **PO-Kommando** |
+PO will **Alexa-artig** (Station, Bildschirm, später Stimme) — ohne Amazon.
 
-Kein Fire-Tablet, kein Echo, kein Knacken.
+| Stufe | Was | Status |
+|-------|-----|--------|
+| 1 | Android-Tablet / altes Android-Handy, immer an, gleiche APK | **Jetzt** möglich (Sideload, ~470 MB frei) |
+| 2 | TTS: Jarvis liest dieselbe Antwort vor | E6, **PO-Kommando** |
+| 3 | STT + Weckwort („Jarvis“) | Nach TTS, eigener Schnitt, noch nicht geplant |
+| — | Einkaufsliste | Todo (`Todo: Milch`) |
+| — | Fernseher | Samsung lokal später (`0.11.x`), kein Chat auf dem TV |
+
+Kein Echo, kein Nest, kein Fire-Tablet, kein Knacken.

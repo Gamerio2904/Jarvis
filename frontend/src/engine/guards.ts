@@ -56,4 +56,4 @@ export const HELP_TEXT =
   'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Kein PC, keine NAS, kein Echo Show, kein Alexa-Kauf. Fernseher später.'
 
 export const ALEXA_PARKED_TEXT =
-  'Nein. Jarvis läuft auf dem Handy, nicht auf Echo Show. Werksreset ändert das nicht. Alternative: dieselbe APK auf einem Android-Tablet oder alten Android-Handy. Einkaufsliste als Todo. Fernseher später lokal (Samsung), nicht Alexa.'
+  'Nein. Nicht über Amazon. Alexa-artig geht lokal: Android-Tablet immer an, dieselbe APK. Stimme vorlesen und Weckwort kommen später — nicht Echo, nicht Nest. Einkaufsliste als Todo.'
