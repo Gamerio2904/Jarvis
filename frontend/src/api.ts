@@ -220,3 +220,6 @@ export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
     reply: 'TV-Steuerung nicht im On-Device-Build. Chat läuft lokal.',
   }
 }
+
+export { testPlug } from './engine/plugs'
+export type { PlugId } from './engine/plugs'

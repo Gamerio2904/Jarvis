@@ -32,4 +32,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Kein PC, keine NAS. Fernseher später.'
+  'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. WLAN-Steckdosen: PC, Bildschirm, LEDs an/aus (Ja/Nein). Fernseher später.'

@@ -23,6 +23,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, flaches Settings |
 | E11 | NAS & APK | 2–3 | Compose 24/7 + Sideload-APK — `0.10.x` |
 | E12 | Samsung TV | 5+ | Tizen lokal — `0.11.x` |
+| E14 | WLAN-Steckdosen | 5 | PC, Bildschirm, LEDs lokal — `0.14.0` |
 
 ---
 
@@ -203,6 +204,14 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S12.2 | Als Nutzer will ich ehrliche Fehler wenn WOL/TV tot ist. | Must | ready | Sprint 41 / `0.11.1` |
 | S12.3 | Als Nutzer will ich TV in Settings suchen, koppeln, testen, umbenennen. | Must | ready | Sprint 42 / `0.11.2` |
 
+### E14 — WLAN-Steckdosen (`0.14.0`)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S14.1 | Als Nutzer will ich PC, Bildschirm und LEDs lokal an/aus schalten. | Must | done | Sprint 46 / `0.14.0` |
+| S14.2 | Als Nutzer will ich IPs und Tasmota/Shelly in Settings setzen und testen. | Must | done | Sprint 46 / `0.14.0` |
+| S14.3 | Als Nutzer will ich vor dem Schalten Ja/Nein. | Must | done | Sprint 46 / `0.14.0` |
+
 ### E13 — LAN-Proxy & APK (`0.12.x`)
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
@@ -236,8 +245,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 4. **Sprints 34–39** (`0.10.0`–`0.10.5`) — NAS-Compose **Parking**
 5. **Sprints 40–42** (`0.11.0`–`0.11.2`) — Samsung-TV lokal
 6. **Sprint 43** (`0.12.0`) — NAS native + Reverse-Proxy & APK
-7. TTS / `1.0.0` — **PO-Kommando**
-8. Mail / Fire TV / Alexa / Play Store / Docker-NAS — **Parking**
+7. **Sprint 46** (`0.14.0`) — WLAN-Steckdosen lokal
+8. TTS / `1.0.0` — **PO-Kommando**
+9. Mail / Fire TV / Alexa / Play Store / Docker-NAS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

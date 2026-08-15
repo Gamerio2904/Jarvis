@@ -19,6 +19,10 @@ Kein FastAPI, kein Ollama, kein Reverse-Proxy.
 
 Kleineres Modell als RTX-3060-7b. Ton und Tools bleiben lokal; Antworten sind schwächer.
 
+## WLAN-Steckdosen (`0.14.0`)
+
+Drei lokale Dosen: **PC**, **Bildschirm**, **LEDs**. Tasmota oder Shelly, IP in Settings. Chat mit Confirm. Handy im gleichen WLAN. Tuya-Cloud-Dosen gehen nicht.
+
 ## Parking
 
-Samsung-TV, NAS, Docker, Play Store, TTS.
+Samsung-TV, NAS, Docker, Play Store, TTS, Mail, Fire TV, Alexa.

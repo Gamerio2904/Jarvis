@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
+App-Version im Code: **`0.14.0`** (On-Device + lokale WLAN-Steckdosen).
+
+### `0.14.0` — WLAN-Steckdosen lokal — *CODE*
+
+- Drei Dosen: PC, Bildschirm, LEDs — Tasmota / Shelly / Shelly-RPC im LAN
+- Chat: „PC an“, „LEDs aus“, „alles aus“, „Steckdosen“ — Confirm Ja/Nein
+- Settings: IP, Protokoll, Test; Handy muss im gleichen WLAN sein
+- Keine Tuya-/Alexa-Cloud
+- [`sprints/sprint-46.md`](./sprints/sprint-46.md)
 
 ### `0.13.1` — Modell-Download Hotfix — *CODE*
 

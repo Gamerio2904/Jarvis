@@ -140,6 +140,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - NAS Compose 24/7 → **`0.10.0`** (Sprint 34)
 - NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** (Sprints 36–39) — [`12`](./12-nas-apk.md)
 - Samsung-TV lokal → **`0.11.0`–`0.11.2`** (Sprints 40–42)
+- WLAN-Steckdosen lokal → **`0.14.0`** (Sprint 46)
 - Mail / Fire TV / Alexa / Play Store — **Parking**
 - Tools (Kalender/Mail) — **nicht** in `0.9.x`/`0.10.x`
 
