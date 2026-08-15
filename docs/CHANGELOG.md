@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.16.0`**.
+App-Version im Code: **`0.16.2`**.
+
+### `0.16.2` — Gemini-Key einfügen — *CODE*
+
+- API-Key-Feld: normale Tastatur, Einfügen möglich (kein Passwort-Feld)
+
+### `0.16.1` — Lokalmodell nur auf Wunsch — *CODE*
 
 ### `0.16.1` — Lokalmodell nur auf Wunsch — *CODE*
 
