@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.6.0'
+export const APP_VERSION = '1.11.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -70,6 +70,9 @@ export type Reminder = {
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
+  kind?: 'once' | 'timer' | 'recur'
+  recur?: 'daily' | 'weekly' | null
+  weekday?: number | null
 }
 
 export type ToolPending = {
@@ -105,6 +108,12 @@ export type Settings = {
   last_lon: string
   last_place: string
   last_fix_at: string
+  last_weather_place: string
+  last_weather_when: string
+  last_weather_focus: string
+  last_weather_kind: string
+  last_weather_line: string
+  wake_word: boolean
   voice_tts: string
   gemini_tts_model: string
   model_default: string
@@ -139,6 +148,12 @@ export const DEFAULT_SETTINGS: Settings = {
   last_lon: '',
   last_place: '',
   last_fix_at: '',
+  last_weather_place: '',
+  last_weather_when: 'now',
+  last_weather_focus: 'general',
+  last_weather_kind: '',
+  last_weather_line: '',
+  wake_word: false,
   voice_tts: 'auto',
   gemini_tts_model: '',
   model_default: DEFAULT_MODEL.label,
@@ -432,6 +447,9 @@ export async function addReminder(opts: {
   title: string
   due_at: string
   conversationId?: string
+  kind?: Reminder['kind']
+  recur?: Reminder['recur']
+  weekday?: number | null
 }): Promise<Reminder> {
   const row: Reminder = {
     id: newId(),
@@ -441,9 +459,16 @@ export async function addReminder(opts: {
     source_conversation_id: opts.conversationId || null,
     created_at: nowIso(),
     updated_at: nowIso(),
+    kind: opts.kind || (opts.recur ? 'recur' : 'once'),
+    recur: opts.recur || null,
+    weekday: opts.weekday ?? null,
   }
   await put('reminders', row)
   return row
+}
+
+export async function putReminder(row: Reminder): Promise<void> {
+  await put('reminders', { ...row, updated_at: nowIso() })
 }
 
 export async function setReminderStatus(id: string, status: string): Promise<void> {

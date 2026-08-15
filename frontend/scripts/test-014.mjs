@@ -6,7 +6,8 @@ import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import { isLiveLookup } from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
-import { parseWeatherIntent } from '../src/engine/weather-parse.ts'
+import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
+import { parseTimerIntent } from '../src/engine/timer-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
@@ -75,6 +76,27 @@ assert.equal(parseReminderIntent('erinner mich an Steuer', frozen), null)
 assert.equal(parseReminderIntent('was steht an')?.kind, 'agenda')
 assert.equal(parseReminderIntent('zeige Erinnerungen')?.kind, 'list')
 assert.equal(parseReminderIntent('lösche Erinnerung Milch')?.kind, 'delete')
+const daily = parseReminderIntent('jeden Tag 8 Uhr Tabletten', frozen)
+assert.equal(daily?.kind, 'create')
+if (daily?.kind === 'create') {
+  assert.equal(daily.recur, 'daily')
+  assert.equal(daily.title, 'Tabletten')
+}
+const weekly = parseReminderIntent('jeden Montag 18 Uhr Steuer', frozen)
+assert.equal(weekly?.kind, 'create')
+if (weekly?.kind === 'create') {
+  assert.equal(weekly.recur, 'weekly')
+  assert.equal(weekly.title, 'Steuer')
+}
+
+const timer = parseTimerIntent('Timer 8 Minuten Nudeln', frozen)
+assert.equal(timer?.kind, 'create')
+if (timer?.kind === 'create') {
+  assert.equal(timer.title, 'Nudeln')
+  assert.ok(timer.ms >= 7 * 60_000)
+}
+assert.equal(parseTimerIntent('Timer aus')?.kind, 'stop')
+assert.equal(parseTimerIntent('in 20 Minuten Milch'), null)
 assert.match(formatDue(new Date('2026-08-15T17:42:00'), frozen), /heute/)
 
 assert.equal(parseWeatherIntent('Wetter heute')?.kind, 'here')
@@ -88,6 +110,13 @@ assert.equal(parseWeatherIntent('Brauche ich einen Schirm')?.focus, 'rain')
 assert.equal(parseWeatherIntent('Was soll ich anziehen')?.focus, 'wear')
 assert.equal(parseWeatherIntent('Wetter am Wochenende')?.when, 'weekend')
 assert.equal(parseWeatherIntent('Hallo Jarvis'), null)
+const last = { kind: 'place', place: 'München', when: 'today', focus: 'general' }
+const follow = parseWeatherFollowup('und morgen?', last)
+assert.equal(follow?.when, 'tomorrow')
+if (follow?.kind === 'place') assert.equal(follow.place, 'München')
+const followCity = parseWeatherFollowup('und in Berlin', last)
+if (followCity?.kind === 'place') assert.equal(followCity.place, 'Berlin')
+assert.equal(parseWeatherFollowup('und morgen?', null), null)
 
 const snap = {
   place: 'München, Bayern',

@@ -2,8 +2,16 @@ import { Capacitor, registerPlugin } from '@capacitor/core'
 
 type NativeNotify = {
   requestPermission(): Promise<{ granted: boolean }>
-  schedule(opts: { id: number; title: string; body: string; atMs: number }): Promise<{ ok: boolean; message?: string }>
+  schedule(opts: {
+    id: number
+    title: string
+    body: string
+    atMs: number
+    alarm?: boolean
+    recur?: string
+  }): Promise<{ ok: boolean; message?: string }>
   cancel(opts: { id: number }): Promise<{ ok: boolean }>
+  publishGlance(opts: { next: string; weather: string }): Promise<{ ok: boolean }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeNotify>('JarvisNotify') : null
@@ -41,6 +49,8 @@ export async function scheduleNotify(opts: {
   title: string
   body: string
   at: Date
+  alarm?: boolean
+  recur?: string
 }): Promise<{ ok: boolean; message?: string }> {
   const atMs = opts.at.getTime()
   if (atMs <= Date.now() + 5_000) {
@@ -53,6 +63,8 @@ export async function scheduleNotify(opts: {
         title: opts.title,
         body: opts.body,
         atMs,
+        alarm: opts.alarm !== false,
+        recur: opts.recur || '',
       })
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Notification fehlgeschlagen' }
@@ -81,6 +93,15 @@ export async function cancelNotify(id: number): Promise<void> {
   if (handle) {
     window.clearTimeout(handle)
     browserTimers.delete(id)
+  }
+}
+
+export async function publishGlance(opts: { next: string; weather: string }): Promise<void> {
+  if (!native) return
+  try {
+    await native.publishGlance(opts)
+  } catch {
+    /* ignore */
   }
 }
 

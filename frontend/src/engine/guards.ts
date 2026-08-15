@@ -66,4 +66,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Todos, Notizen, Erinnerungen, lokaler Kalender, Wetter als Lage plus Tipp (Open-Meteo). Sprachmodus: sprechen, Jarvis antwortet mit Stimme — kein Mitschnitt. Shortcut „Jarvis hören“ auf dem Homescreen. Fernseher nach dem Koppeln. Optional Gemini.'
+  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Todos, Notizen, Erinnerungen, Timer mit Klingeln, wiederkehrend, lokaler Kalender, Wetter als Lage plus Tipp und Nachfragen. Sprachmodus, optional Wake-Word „Jarvis“ (Handy an). Widget und Shortcut auf dem Homescreen. Fernseher nach dem Koppeln. Optional Gemini.'
