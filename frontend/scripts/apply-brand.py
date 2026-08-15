@@ -93,6 +93,16 @@ def write_background_color() -> None:
     )
 
 
+def make_splash(icon: Image.Image, size: tuple[int, int]) -> Image.Image:
+    canvas = Image.new("RGBA", size, BG)
+    mark = max(64, int(min(size) * 0.28))
+    emblem = contain_on_bg(icon, mark, pad=0.06)
+    x = (size[0] - mark) // 2
+    y = (size[1] - mark) // 2
+    canvas.alpha_composite(emblem, (x, y))
+    return canvas
+
+
 def apply_android(icon: Image.Image, splash: Image.Image, cover: Image.Image) -> None:
     if not ANDROID_RES.exists():
         print("[apply-brand] android/res fehlt — überspringe native Icons")
@@ -107,8 +117,7 @@ def apply_android(icon: Image.Image, splash: Image.Image, cover: Image.Image) ->
         folder = ANDROID_RES / f"mipmap-{density}"
         save_png(contain_on_bg(icon, size, pad=0.22), folder / "ic_launcher_foreground.png")
     for folder, size in SPLASH.items():
-        src = cover if size[0] >= size[1] else splash
-        save_png(cover_fit(src, size), ANDROID_RES / folder / "splash.png")
+        save_png(make_splash(icon, size), ANDROID_RES / folder / "splash.png")
 
 
 def apply_web(icon: Image.Image) -> None:
