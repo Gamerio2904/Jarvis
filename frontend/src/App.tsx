@@ -10,8 +10,11 @@ import {
   listConversations,
   listMemory,
   listResearchAudits,
+  listReminders,
   patchSettings,
+  removeReminder,
   streamChat,
+  syncReminderAlarms,
   ensureModel,
   hasCachedModel,
   isModelReady,
@@ -27,6 +30,7 @@ import {
   type MemoryCategory,
   type MemoryItem,
   type Message,
+  type Reminder,
   type ResearchAudit,
   type ResearchMeta,
   type Settings,
@@ -171,6 +175,8 @@ function App() {
   const [momentGlint, setMomentGlint] = useState(false)
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
+  const [reminders, setReminders] = useState<Reminder[]>([])
+  const [remindBusy, setRemindBusy] = useState(false)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
   const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
   const [downloadPct, setDownloadPct] = useState(0)
@@ -277,6 +283,28 @@ function App() {
       setSettings(await getSettings())
     } catch {
       /* ignore */
+    }
+  }
+
+  async function refreshReminders() {
+    try {
+      const rows = await listReminders()
+      setReminders(rows.filter((r) => r.status === 'open'))
+    } catch {
+      setReminders([])
+    }
+  }
+
+  async function onDeleteReminder(id: string) {
+    if (remindBusy) return
+    setRemindBusy(true)
+    try {
+      await removeReminder(id)
+      setReminders((prev) => prev.filter((r) => r.id !== id))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erinnerung löschen fehlgeschlagen')
+    } finally {
+      setRemindBusy(false)
     }
   }
 
@@ -416,6 +444,12 @@ function App() {
     await refreshHealth()
     await refreshSettings()
     await refreshMemory()
+    try {
+      await syncReminderAlarms()
+    } catch {
+      /* browser ohne Notification ist ok */
+    }
+    await refreshReminders()
     const s = await getSettings()
     const gemini = Boolean(s.gemini_enabled && s.gemini_api_key?.trim())
     try {
@@ -634,6 +668,7 @@ function App() {
             })
           }
           if (payload.research) void refreshAudits()
+          if (payload.tool?.tool === 'reminder') void refreshReminders()
         },
         onError: (detail) => {
           setError(detail)
@@ -750,7 +785,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.1.0</p>
+            <p>Handy · v1.2.0</p>
           </div>
         </div>
 
@@ -761,7 +796,10 @@ function App() {
         <button
           type="button"
           className={`memory-toggle ${settingsPanelOpen ? 'active' : ''}`}
-          onClick={() => setSettingsPanelOpen((o) => !o)}
+          onClick={() => {
+            setSettingsPanelOpen((o) => !o)
+            void refreshReminders()
+          }}
         >
           Einstellungen
         </button>
@@ -769,7 +807,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.1.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.2.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -910,6 +948,41 @@ function App() {
                   <option value="normal">Normal</option>
                 </select>
               </label>
+            </section>
+            <section className="settings-section">
+              <h3>Erinnerungen</h3>
+              <p className="settings-hint">
+                Chat: „in 20 Minuten Milch“, „morgen 8 Uhr Steuer“. Ping auch wenn die App im
+                Hintergrund ist.
+              </p>
+              {reminders.length === 0 ? (
+                <p className="memory-empty">Keine offenen Erinnerungen.</p>
+              ) : (
+                <ul className="memory-list">
+                  {reminders.map((r) => (
+                    <li key={r.id} className="memory-item">
+                      <div className="memory-value">{r.title}</div>
+                      <div className="memory-key">
+                        {new Date(r.due_at).toLocaleString('de-DE', {
+                          weekday: 'short',
+                          day: 'numeric',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </div>
+                      <button
+                        type="button"
+                        className="memory-del"
+                        disabled={remindBusy}
+                        onClick={() => void onDeleteReminder(r.id)}
+                      >
+                        Löschen
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
             <section className="settings-section">
               <h3>Sound</h3>

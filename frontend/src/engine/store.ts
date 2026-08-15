@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.1.0'
+export const APP_VERSION = '1.2.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -48,6 +48,16 @@ export type Todo = {
   id: string
   title: string
   status: 'open' | 'done' | string
+  source_conversation_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type Reminder = {
+  id: string
+  title: string
+  due_at: string
+  status: 'open' | 'fired' | 'missed' | string
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -154,7 +164,7 @@ export type ResearchAudit = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 2)
+    const req = indexedDB.open('jarvis-ondevice', 3)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -165,6 +175,7 @@ function openDb(): Promise<IDBDatabase> {
         'todos',
         'pending',
         'research_audits',
+        'reminders',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -388,6 +399,39 @@ export async function setPending(row: ToolPending): Promise<void> {
 
 export async function clearPending(conversationId: string): Promise<void> {
   await del('pending', conversationId)
+}
+
+export async function listReminders(): Promise<Reminder[]> {
+  const rows = await getAll<Reminder>('reminders')
+  return rows.sort((a, b) => (a.due_at < b.due_at ? -1 : 1))
+}
+
+export async function addReminder(opts: {
+  title: string
+  due_at: string
+  conversationId?: string
+}): Promise<Reminder> {
+  const row: Reminder = {
+    id: newId(),
+    title: opts.title,
+    due_at: opts.due_at,
+    status: 'open',
+    source_conversation_id: opts.conversationId || null,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  await put('reminders', row)
+  return row
+}
+
+export async function setReminderStatus(id: string, status: string): Promise<void> {
+  const row = await get<Reminder>('reminders', id)
+  if (!row) return
+  await put('reminders', { ...row, status, updated_at: nowIso() })
+}
+
+export async function deleteReminder(id: string): Promise<void> {
+  await del('reminders', id)
 }
 
 export async function addResearchAudit(row: ResearchAudit): Promise<ResearchAudit> {

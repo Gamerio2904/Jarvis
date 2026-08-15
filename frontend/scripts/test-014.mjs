@@ -5,6 +5,7 @@ import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import { isLiveLookup } from '../src/engine/research-parse.ts'
+import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -48,5 +49,28 @@ assert.ok(isIdentityAsk('Wer bist du und wer bin ich?'))
 assert.ok(isLiveLookup('Suche im Internet nach Kuchenrezepten'))
 assert.ok(isLiveLookup('Wie ist die Temperatur in Ingesheim heute?'))
 assert.ok(!isLiveLookup('Hallo Jarvis.'))
+
+const frozen = new Date('2026-08-15T14:00:00')
+const in20 = parseReminderIntent('in 20 Minuten Milch', frozen)
+assert.equal(in20?.kind, 'create')
+if (in20?.kind === 'create') {
+  assert.equal(in20.title, 'Milch')
+  assert.equal(in20.due.getTime(), frozen.getTime() + 20 * 60_000)
+}
+const morgen = parseReminderIntent('morgen 8 Uhr Steuer', frozen)
+assert.equal(morgen?.kind, 'create')
+if (morgen?.kind === 'create') {
+  assert.equal(morgen.title, 'Steuer')
+  assert.equal(morgen.due.getHours(), 8)
+  assert.equal(morgen.due.getDate(), 16)
+}
+const um = parseReminderIntent('erinner mich um 18:30 an Ofen', frozen)
+assert.equal(um?.kind, 'create')
+if (um?.kind === 'create') assert.equal(um.title, 'Ofen')
+assert.equal(parseReminderIntent('erinner mich an Steuer', frozen), null)
+assert.equal(parseReminderIntent('was steht an')?.kind, 'agenda')
+assert.equal(parseReminderIntent('zeige Erinnerungen')?.kind, 'list')
+assert.equal(parseReminderIntent('lösche Erinnerung Milch')?.kind, 'delete')
+assert.match(formatDue(new Date('2026-08-15T17:42:00'), frozen), /heute/)
 
 console.log('ok 0.14 parsers')

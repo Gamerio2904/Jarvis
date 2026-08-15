@@ -16,6 +16,13 @@ const pluginDest = join(android, 'app/src/main/java/app/jarvis/tv')
 mkdirSync(pluginDest, { recursive: true })
 copyFileSync(join(srcDir, 'JarvisTvPlugin.java'), join(pluginDest, 'JarvisTvPlugin.java'))
 
+const notifySrc = join(root, 'native', 'notify')
+const notifyDest = join(android, 'app/src/main/java/app/jarvis/notify')
+mkdirSync(notifyDest, { recursive: true })
+for (const name of ['JarvisNotifyPlugin.java', 'JarvisNotifyReceiver.java', 'JarvisNotifyBoot.java']) {
+  copyFileSync(join(notifySrc, name), join(notifyDest, name))
+}
+
 const mainCandidates = [
   join(android, 'app/src/main/java/local/jarvis/app/MainActivity.java'),
   join(android, 'app/src/main/java/app/jarvis/MainActivity.java'),
@@ -44,6 +51,12 @@ const perms = [
   'android.permission.ACCESS_WIFI_STATE',
   'android.permission.CHANGE_WIFI_MULTICAST_STATE',
   'android.permission.CHANGE_WIFI_STATE',
+  'android.permission.POST_NOTIFICATIONS',
+  'android.permission.SCHEDULE_EXACT_ALARM',
+  'android.permission.USE_EXACT_ALARM',
+  'android.permission.RECEIVE_BOOT_COMPLETED',
+  'android.permission.VIBRATE',
+  'android.permission.WAKE_LOCK',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -57,6 +70,27 @@ if (!manifest.includes('android:usesCleartextTraffic')) {
   manifest = manifest.replace(
     '<application',
     '<application\n        android:usesCleartextTraffic="true"',
+  )
+}
+if (!manifest.includes('app.jarvis.notify.JarvisNotifyReceiver')) {
+  manifest = manifest.replace(
+    '</application>',
+    `        <receiver
+            android:name="app.jarvis.notify.JarvisNotifyReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="app.jarvis.notify.FIRE" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="app.jarvis.notify.JarvisNotifyBoot"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+</application>`,
   )
 }
 writeFileSync(manifestPath, manifest)

@@ -24,6 +24,7 @@ import {
   type Message,
   type Settings,
 } from './store'
+import { handleReminders } from './reminders'
 import { handleTools, type ToolMeta } from './tools'
 import { handleTv, tvStatusFromSettings } from './tv'
 
@@ -147,6 +148,20 @@ export async function streamChat(
         assistant_message: assistant,
         conversation: updated,
         tool: null,
+      })
+      return
+    }
+
+    const remindHit = await handleReminders(conversationId, content)
+    if (remindHit.handled && remindHit.reply) {
+      const assistant = await addMessage(conversationId, 'assistant', remindHit.reply, {
+        tool: remindHit.tool,
+      })
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({
+        assistant_message: assistant,
+        conversation: updated,
+        tool: remindHit.tool || null,
       })
       return
     }
