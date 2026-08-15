@@ -41,6 +41,7 @@ public class JarvisAlarmActivity extends Activity {
 
         String title = getIntent() != null ? getIntent().getStringExtra("title") : null;
         String body = getIntent() != null ? getIntent().getStringExtra("body") : null;
+        String tone = getIntent() != null ? getIntent().getStringExtra("tone") : null;
         if (title == null || title.isEmpty()) title = "Jarvis";
         if (body == null) body = "";
 
@@ -71,12 +72,18 @@ public class JarvisAlarmActivity extends Activity {
         stop.setOnClickListener((View v) -> finish());
         root.addView(stop);
         setContentView(root);
-        startSound();
+        startSound(tone);
     }
 
-    private void startSound() {
+    private void startSound(String tone) {
         try {
-            Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+            Uri uri = null;
+            if (tone != null && !tone.isEmpty()) uri = Uri.parse(tone);
+            if (uri == null) {
+                String saved = getSharedPreferences("jarvis_notify", MODE_PRIVATE).getString("alarm_tone", "");
+                if (saved != null && !saved.isEmpty()) uri = Uri.parse(saved);
+            }
+            if (uri == null) uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
             if (uri == null) uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             ringtone = RingtoneManager.getRingtone(this, uri);
             if (ringtone != null) {

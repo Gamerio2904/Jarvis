@@ -84,6 +84,7 @@ MAJOR.MINOR.PATCH
 | `1.9.0` | Wetter-Nachfragen | Sprint 59 |
 | `1.10.0` | Homescreen-Widget | Sprint 60 |
 | `1.11.0` | Wake-Word (Handy an) | Sprint 61 |
+| `1.12.0` | Wecker + eigener Ton | Sprint 62 |
 
 ### Weitere Beispiele
 
