@@ -69,7 +69,9 @@ MAJOR.MINOR.PATCH
 | `0.13.0` | **On-Device Handy** (WASM-LLM, kein Server) | Sprint 44 |
 | `0.13.1` | **Modell-Download Hotfix** (Cache API, kein OPFS-„file not found“) | Sprint 45 |
 | `0.13.2` | **Chat-Hang Hotfix** (Streaming, Threads, Timeout) | Sprint 46 |
-| `1.0.0` | **nächster MAJOR** — Inhalt PO | nach `0.13` |
+| `0.14.0` | **Qualität & Latenz** — bestehendes härten, nichts Neues | Sprint 47 |
+| `0.14.1` | **TV verbinden & steuern** — Tizen on-device (ex-`0.11`) | Sprint 48 |
+| `1.0.0` | **nächster MAJOR** — Inhalt PO | nach `0.14` |
 
 ### Weitere Beispiele
 

@@ -7,6 +7,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`0.13.2`** (On-Device Handy, kein Server).
 
+Geplant: **`0.14.0`** Qualität/Latenz ([`sprints/sprint-47.md`](./sprints/sprint-47.md)), **`0.14.1`** TV ([`sprints/sprint-48.md`](./sprints/sprint-48.md)) — [`14-quality-tv.md`](./14-quality-tv.md).
+
 ### `0.13.2` — Chat-Hang Hotfix — *CODE*
 
 - Streaming statt Non-Stream: Tokens sichtbar, kein endloses „schreibt…“

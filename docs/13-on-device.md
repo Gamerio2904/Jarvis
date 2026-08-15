@@ -21,4 +21,6 @@ Kleineres Modell als RTX-3060-7b. Ton und Tools bleiben lokal; Antworten sind sc
 
 ## Parking
 
-Samsung-TV, NAS, Docker, Play Store, TTS.
+NAS, Docker, Play Store, TTS, Research-Netz.
+
+Samsung-TV: **geplant in `0.14.1`** ([`14-quality-tv.md`](./14-quality-tv.md)) — nativ in der APK, nicht WASM.
