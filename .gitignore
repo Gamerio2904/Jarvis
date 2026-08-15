@@ -13,3 +13,4 @@ __pycache__/
 *.db
 *.apk
 *.aab
+!releases/*.apk

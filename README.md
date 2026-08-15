@@ -14,6 +14,9 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 ## Android-APK
 
+Fertige Debug-APK `0.13.1`:  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/apk-0-13-1-0bf8/releases/jarvis-0.13.1-debug.apk
+
 ```bat
 build-apk.bat
 ```
