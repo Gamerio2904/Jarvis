@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **CODE** |
 | Priorität | **MUST** — Sound tot, Quellen unsichtbar |
 | Ziel-Version | **`1.1.0`** |
 | Quelle | PO 2026-08-15 |

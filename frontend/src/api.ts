@@ -22,6 +22,7 @@ import {
   listMemory as storeListMemory,
   listMessages,
   loadSettings,
+  listResearchAudits as storeListAudits,
   type Conversation,
   type MemoryCategory,
   type MemoryItem,
@@ -145,8 +146,21 @@ export async function patchSettings(patch: Partial<Settings>): Promise<Settings>
   return getSettings()
 }
 
-export async function listResearchAudits(_limit = 30): Promise<ResearchAudit[]> {
-  return []
+export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
+  const rows = await storeListAudits(limit)
+  return rows.map((r) => ({
+    id: r.id,
+    query: r.query,
+    status: r.status,
+    created_at: r.created_at,
+    sources: (r.sources || []).map((s) => ({
+      title: s.title,
+      url: s.url,
+      snippet: s.snippet || '',
+      provider: s.provider || 'google_search',
+      retrieved_at: r.created_at,
+    })),
+  }))
 }
 
 export async function listMemory(category?: MemoryCategory | null): Promise<MemoryItem[]> {

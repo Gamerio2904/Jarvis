@@ -77,29 +77,45 @@ function textFrom(json: GeminiResponse): string {
 }
 
 function researchFrom(json: GeminiResponse): ResearchMeta | undefined {
-  const g = json.candidates?.[0]?.groundingMetadata
+  const cand = json.candidates?.[0] as Record<string, unknown> | undefined
+  const g = (cand?.groundingMetadata || cand?.grounding_metadata) as
+    | (GroundingMetadata & {
+        grounding_chunks?: GroundingChunk[]
+        web_search_queries?: string[]
+        searchEntryPoint?: { renderedContent?: string }
+      })
+    | undefined
   if (!g) return undefined
   const now = new Date().toISOString()
-  const sources: ResearchSource[] = (g.groundingChunks || [])
+  const chunks = g.groundingChunks || g.grounding_chunks || []
+  const sources: ResearchSource[] = chunks
     .map((c) => ({
-      title: c.web?.title || 'Quelle',
+      title: c.web?.title || hostOf(c.web?.uri || '') || 'Quelle',
       url: c.web?.uri || '',
       snippet: '',
       provider: 'google_search',
       retrieved_at: now,
     }))
     .filter((s) => s.url)
-  const query = (g.webSearchQueries || []).filter(Boolean)[0]
+  const query = (g.webSearchQueries || g.web_search_queries || []).filter(Boolean)[0]
   if (!sources.length && !query) return undefined
   return {
     used: sources.length > 0,
     status: sources.length ? 'ok' : 'empty',
-    status_label: sources.length ? 'Research' : 'Keine Quellen',
-    badge: sources.length ? 'Research' : undefined,
+    status_label: sources.length ? `${sources.length} Quellen` : 'Suche ohne Quellen',
+    badge: sources.length ? 'Quellen' : 'Research',
     query,
     sources,
     network_attempted: true,
-    privacy_note: 'Nur die Suchanfrage ging zu Google, nicht der ganze Chatverlauf extra.',
+    privacy_note: 'Nur die Suchanfrage ging zu Google. Tippen öffnet die Seite.',
+  }
+}
+
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return ''
   }
 }
 

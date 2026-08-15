@@ -866,6 +866,11 @@ textarea {
   line-height: 1.4;
 }
 
+.sources-url {
+  word-break: break-all;
+  opacity: 0.85;
+}
+
 .sources-privacy {
   margin: 8px 0 0;
   font-size: 0.7rem;

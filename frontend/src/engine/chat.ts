@@ -10,6 +10,7 @@ import {
   APP_VERSION,
   DEFAULT_MODEL,
   addMessage,
+  addResearchAudit,
   createConversation as storeCreate,
   deleteConversation as storeDelete,
   get as storeGet,
@@ -221,6 +222,21 @@ export async function streamChat(
         })
     const final = scrubReply(raw || acc, { searched: Boolean(research?.used) })
     if (final !== (raw || acc)) handlers.onReplace?.(final)
+    if (research) {
+      const audit = await addResearchAudit({
+        id: crypto.randomUUID(),
+        query: research.query || content.slice(0, 120),
+        status: research.status || (research.used ? 'ok' : 'empty'),
+        sources: (research.sources || []).map((s) => ({
+          title: s.title,
+          url: s.url,
+          snippet: s.snippet,
+          provider: s.provider,
+        })),
+        created_at: new Date().toISOString(),
+      })
+      research = { ...research, audit_id: audit.id }
+    }
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({
