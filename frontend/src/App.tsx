@@ -44,10 +44,7 @@ import { VoiceMode } from './VoiceMode'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, pinVoiceShortcut, startWakeWord, stopWakeWord } from './native/voice'
-
-function prefersReducedMotion(): boolean {
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
+import { bindChromeFx, prefersReducedMotion } from './fx'
 
 function ToolChip({
   tool,
@@ -203,6 +200,7 @@ function App() {
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const appRef = useRef<HTMLDivElement | null>(null)
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
 
@@ -216,6 +214,12 @@ function App() {
       window.removeEventListener('pointerdown', unlock)
       window.removeEventListener('touchstart', unlock)
     }
+  }, [])
+
+  useEffect(() => {
+    const el = appRef.current
+    if (!el) return
+    return bindChromeFx(el)
   }, [])
 
   useEffect(() => {
@@ -805,7 +809,19 @@ function App() {
   const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
 
   return (
-    <div className="app">
+    <div className="app" ref={appRef}>
+      <div className="ambient" aria-hidden>
+        <i className="orb orb-a" />
+        <i className="orb orb-b" />
+        <i className="orb orb-c" />
+        <i className="orb orb-d" />
+        <i className="spark s1" />
+        <i className="spark s2" />
+        <i className="spark s3" />
+        <i className="spark s4" />
+        <i className="spark s5" />
+        <span className="grain" />
+      </div>
       {setupOpen ? (
         <div className="setup-overlay" role="dialog" aria-labelledby="setup-title">
           <div className="setup-card">
@@ -871,7 +887,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.12.0</p>
+            <p>Handy · v1.13.0</p>
           </div>
         </div>
 
@@ -914,7 +930,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.12.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.13.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1506,11 +1522,12 @@ function App() {
         ) : null}
 
         <div className="chat-list">
-          {conversations.map((c) => (
+          {conversations.map((c, i) => (
             <button
               key={c.id}
               type="button"
               className={`chat-item ${c.id === activeId ? 'active' : ''}`}
+              style={{ ['--i' as string]: i }}
               onClick={() => void openConversation(c.id)}
             >
               {c.title}
@@ -1593,6 +1610,11 @@ function App() {
           <div className="messages-inner">
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
+                <div className="empty-halo" aria-hidden>
+                  <i />
+                  <i />
+                  <i />
+                </div>
                 <h3>Jarvis</h3>
                 <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>

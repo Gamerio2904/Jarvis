@@ -83,7 +83,7 @@ export function CalendarView({ onClose }: { onClose: () => void }) {
   const label = cursor.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
 
   return (
-    <div className="cal-view">
+    <div className="cal-view fx-in">
       <header className="cal-head">
         <div>
           <h2>Kalender</h2>

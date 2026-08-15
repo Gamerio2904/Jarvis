@@ -85,6 +85,7 @@ MAJOR.MINOR.PATCH
 | `1.10.0` | Homescreen-Widget | Sprint 60 |
 | `1.11.0` | Wake-Word (Handy an) | Sprint 61 |
 | `1.12.0` | Wecker + eigener Ton | Sprint 62 |
+| `1.13.0` | GUI fest, Chat scrollt, Motion | Sprint 63 |
 
 ### Weitere Beispiele
 

@@ -66,8 +66,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 60 | [`sprint-60.md`](./sprint-60.md) | `1.10.0` | Homescreen-Widget | **CODE** |
 | 61 | [`sprint-61.md`](./sprint-61.md) | `1.11.0` | Wake-Word | **CODE** |
 | 62 | [`sprint-62.md`](./sprint-62.md) | `1.12.0` | Wecker + eigener Ton | **CODE** |
+| 63 | [`sprint-63.md`](./sprint-63.md) | `1.13.0` | GUI fest, Chat scrollt, Motion | **CODE** |
 
-**Aktuell:** Sideload `1.12.0`. Reihe: [`18-next.md`](../18-next.md).
+**Aktuell:** Sideload `1.13.0`. Reihe: [`18-next.md`](../18-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
