@@ -60,9 +60,9 @@ if (!manifest.includes('android:usesCleartextTraffic')) {
 }
 writeFileSync(manifestPath, manifest)
 
-const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as { version?: string }
+const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 const versionName = String(pkg.version || '0.16.0')
-const versionCode = Number(versionName.replace(/\D/g, '')) || 160
+const versionCode = Number(String(versionName).replace(/\D/g, '')) || 160
 
 const gradlePath = join(android, 'app/build.gradle')
 let gradle = readFileSync(gradlePath, 'utf8')
