@@ -337,7 +337,7 @@ Neben Memory/Research **handlungsfähige**, lokale Persistenz: Notizen und Todos
 ### Abgrenzung
 | Geht in `0.9.x` | Geht **nicht** |
 |-----------------|----------------|
-| Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Fire TV / Alexa / **Alexa-Kauf** in `0.9.x` (Q32: nein) |
+| Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Fire TV / Alexa / Echo Show in `0.9.x` (Q32/Q33: nein) |
 | `notes` + `todo` (SQLite) | Cloud-Kalender-OAuth; TV erst `0.11` |
 | Router/`/hilfe` Integration | Autonome Multi-Tool-Ketten ohne Confirm |
 | False-Confirm-Guards | Secrets speichern |

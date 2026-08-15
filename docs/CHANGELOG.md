@@ -7,11 +7,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
 
-### Docs / Guard — Alexa-Kauf (Q32)
+### Docs / Guard — Alexa-Kauf (Q32) + Echo Show (Q33)
 
-- Entscheidung: Jarvis kauft **nicht** über Alexa/Echo/Fire TV (Amazon-Cloud, keine lokale API).
-- Chat: ehrliche Ablehnung bei „kauf … über Alexa“; `/hilfe` nennt kein Alexa-Kauf.
-- Parking bleibt: `S7.8`, `08` Q32.
+- Q32: Jarvis kauft **nicht** über Alexa/Echo/Fire TV (Amazon-Cloud, keine lokale API).
+- Q33: Jarvis läuft **nicht** auf Echo Show 5 (3. Gen.); kein Anzeigen auf dem Amazon-Bildschirm (kein Sideload, kein APL-Skill).
+- Chat: ehrliche Ablehnung bei Kauf- und Echo-Show-/Bildschirm-Fragen; `/hilfe` nennt kein Echo Show.
+- Parking bleibt: `S7.8`, `08` Q32/Q33.
 
 ### `0.13.1` — Modell-Download Hotfix — *CODE*
 
