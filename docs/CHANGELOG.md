@@ -5,15 +5,31 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.6.0`**. Geplant: [`18-next.md`](./18-next.md).
+App-Version im Code: **`1.11.0`**.
 
-### Geplant — `1.7`–`1.11` — *PLANNED*
+### `1.11.0` — Wake-Word — *CODE*
 
-- `1.7` Timer mit Ton, auch bei Bildschirm aus (Akku an)
-- `1.8` Wiederkehrende Erinnerungen
-- `1.9` Wetter-Nachfragen
-- `1.10` Homescreen-Widget
-- `1.11` Wake-Word nur bei angeschaltetem Handy
+- Opt-in „Auf Jarvis hören“, sichtbare Leiste, Mikro an
+- Bildschirm darf aus sein; Gerät komplett aus: nein
+
+### `1.10.0` — Homescreen-Widget — *CODE*
+
+- Nächster Timer/Erinnerung + letzte Wetterzeile
+- Antippen öffnet die App
+
+### `1.9.0` — Wetter-Nachfragen — *CODE*
+
+- „und morgen?“, „und in Berlin?“, „und der Schirm?“
+
+### `1.8.0` — Wiederkehrend — *CODE*
+
+- „jeden Tag 8 Uhr Tabletten“, „jeden Montag 18 Uhr Steuer“
+- Nach dem Klingeln neu gesetzt
+
+### `1.7.0` — Timer + Klingeln — *CODE*
+
+- „Timer 8 Minuten Nudeln“, Ton/Vibration, Vollbild bei Bildschirm aus
+- Erinnerungen nutzen denselben Wecker
 
 ### `1.6.0` — Wetter als Lage — *CODE*
 

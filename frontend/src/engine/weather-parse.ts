@@ -10,6 +10,45 @@ const WEATHER =
 const PLACE = /(?:in|für|aus|bei)\s+([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-\s]{1,40})/i
 const TRAIL = /(?:\s+(heute|jetzt|hier|draußen|morgen|übermorgen|wochenende|samstag|sonntag))+$/i
 
+export type WeatherLast = {
+  kind: 'here' | 'place'
+  place?: string
+  when: WeatherWhen
+  focus: WeatherFocus
+}
+
+export function parseWeatherFollowup(text: string, last: WeatherLast | null): WeatherIntent | null {
+  if (!last) return null
+  const t = text.trim().replace(/[?.!]+$/, '')
+  if (!t || t.length > 80) return null
+  const und = /^und\s+/i.test(t)
+  const rest = t.replace(/^und\s+/i, '').trim()
+  if (!und && !/^(morgen|übermorgen|heute|wochenende|das\s+wochenende|schirm|anziehen)$/i.test(rest)) {
+    return null
+  }
+  if (!rest) return last.kind === 'place' && last.place
+    ? { kind: 'place', place: last.place, when: last.when, focus: last.focus }
+    : { kind: 'here', when: last.when, focus: last.focus }
+
+  let when = last.when
+  let focus = last.focus
+  if (/\b(wochenende|samstag|sonntag)\b/i.test(rest)) when = 'weekend'
+  else if (/\b(morgen|übermorgen)\b/i.test(rest)) when = 'tomorrow'
+  else if (/\bheute\b/i.test(rest)) when = 'today'
+  if (/\b(anzug|anziehen|tragen|jacke|pulli)\b/i.test(rest)) focus = 'wear'
+  else if (/\b(regen|regnet|schneit|schirm|trocken)\b/i.test(rest)) focus = 'rain'
+
+  const placeHit = /(?:in|für|aus|bei)\s+([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-\s]{1,40})$/i.exec(rest)
+  if (placeHit) {
+    const name = placeHit[1].replace(/[?.!]+$/, '').trim()
+    if (name && !/^(hier|heute|jetzt|draußen|morgen|übermorgen|wochenende)$/i.test(name)) {
+      return { kind: 'place', place: name, when, focus }
+    }
+  }
+  if (last.kind === 'place' && last.place) return { kind: 'place', place: last.place, when, focus }
+  return { kind: 'here', when, focus }
+}
+
 export function parseWeatherIntent(text: string): WeatherIntent | null {
   const t = text.trim()
   if (!t || t.length > 160) return null

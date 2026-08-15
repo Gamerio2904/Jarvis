@@ -2,10 +2,11 @@ import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { completeGemini, geminiReady } from './gemini'
 import { getJson } from './http-json'
 import type { ResearchMeta, ResearchSource } from './research-parse'
+import { syncGlance } from './glance'
 import { loadSettings, saveSettings } from './store'
 import type { ToolMeta } from './tools'
 import { formatWeatherBrief, wmoLabel, type WeatherDay, type WeatherSnapshot } from './weather-brief'
-import { parseWeatherIntent } from './weather-parse'
+import { parseWeatherFollowup, parseWeatherIntent, type WeatherLast } from './weather-parse'
 
 export { parseWeatherIntent } from './weather-parse'
 export { formatWeatherBrief } from './weather-brief'
@@ -15,7 +16,8 @@ type Fix = { lat: number; lon: number; place: string }
 export async function handleWeather(
   content: string,
 ): Promise<{ handled: boolean; reply?: string; research?: ResearchMeta; tool?: ToolMeta }> {
-  const intent = parseWeatherIntent(content)
+  const last = readLastWeather()
+  const intent = parseWeatherFollowup(content, last) || parseWeatherIntent(content)
   if (!intent) return { handled: false }
 
   const fix =
@@ -57,12 +59,47 @@ export async function handleWeather(
     privacy_note: 'Lage über Open-Meteo, kein Raten.',
   }
 
+  const reply = formatWeatherBrief(snapshot, intent.when, intent.focus)
+  rememberWeather(intent, reply, fix.fix.place)
+  await syncGlance()
   return {
     handled: true,
-    reply: formatWeatherBrief(snapshot, intent.when, intent.focus),
+    reply,
     research,
     tool: { tool_status: 'executed', tool: 'weather', action: intent.when, label: 'Wetter' },
   }
+}
+
+function readLastWeather(): WeatherLast | null {
+  const s = loadSettings()
+  if (!s.last_weather_kind) return null
+  if (s.last_weather_kind === 'place' && s.last_weather_place) {
+    return {
+      kind: 'place',
+      place: s.last_weather_place,
+      when: (s.last_weather_when as WeatherLast['when']) || 'now',
+      focus: (s.last_weather_focus as WeatherLast['focus']) || 'general',
+    }
+  }
+  return {
+    kind: 'here',
+    when: (s.last_weather_when as WeatherLast['when']) || 'now',
+    focus: (s.last_weather_focus as WeatherLast['focus']) || 'general',
+  }
+}
+
+function rememberWeather(
+  intent: { kind: 'here' | 'place'; place?: string; when: string; focus: string },
+  line: string,
+  place: string,
+) {
+  saveSettings({
+    last_weather_kind: intent.kind,
+    last_weather_place: intent.kind === 'place' ? intent.place || place : place,
+    last_weather_when: intent.when,
+    last_weather_focus: intent.focus,
+    last_weather_line: line.slice(0, 80),
+  })
 }
 
 async function resolveHere(): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {

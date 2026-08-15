@@ -19,9 +19,19 @@ copyFileSync(join(srcDir, 'JarvisTvPlugin.java'), join(pluginDest, 'JarvisTvPlug
 const notifySrc = join(root, 'native', 'notify')
 const notifyDest = join(android, 'app/src/main/java/app/jarvis/notify')
 mkdirSync(notifyDest, { recursive: true })
-for (const name of ['JarvisNotifyPlugin.java', 'JarvisNotifyReceiver.java', 'JarvisNotifyBoot.java']) {
+for (const name of [
+  'JarvisNotifyPlugin.java',
+  'JarvisNotifyReceiver.java',
+  'JarvisNotifyBoot.java',
+  'JarvisAlarmActivity.java',
+  'JarvisGlanceWidget.java',
+]) {
   copyFileSync(join(notifySrc, name), join(notifyDest, name))
 }
+mkdirSync(join(android, 'app/src/main/res/layout'), { recursive: true })
+mkdirSync(join(android, 'app/src/main/res/xml'), { recursive: true })
+copyFileSync(join(notifySrc, 'jarvis_widget.xml'), join(android, 'app/src/main/res/layout/jarvis_widget.xml'))
+copyFileSync(join(notifySrc, 'jarvis_widget_info.xml'), join(android, 'app/src/main/res/xml/jarvis_widget_info.xml'))
 
 const geoSrc = join(root, 'native', 'geo')
 const geoDest = join(android, 'app/src/main/java/app/jarvis/geo')
@@ -32,6 +42,7 @@ const voiceSrc = join(root, 'native', 'voice')
 const voiceDest = join(android, 'app/src/main/java/app/jarvis/voice')
 mkdirSync(voiceDest, { recursive: true })
 copyFileSync(join(voiceSrc, 'JarvisVoicePlugin.java'), join(voiceDest, 'JarvisVoicePlugin.java'))
+copyFileSync(join(voiceSrc, 'JarvisWakeService.java'), join(voiceDest, 'JarvisWakeService.java'))
 mkdirSync(join(android, 'app/src/main/res/xml'), { recursive: true })
 copyFileSync(join(voiceSrc, 'shortcuts.xml'), join(android, 'app/src/main/res/xml/shortcuts.xml'))
 copyFileSync(join(voiceSrc, 'jarvis_strings.xml'), join(android, 'app/src/main/res/values/jarvis_strings.xml'))
@@ -73,6 +84,9 @@ const perms = [
   'android.permission.ACCESS_COARSE_LOCATION',
   'android.permission.ACCESS_FINE_LOCATION',
   'android.permission.RECORD_AUDIO',
+  'android.permission.USE_FULL_SCREEN_INTENT',
+  'android.permission.FOREGROUND_SERVICE',
+  'android.permission.FOREGROUND_SERVICE_MICROPHONE',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -106,6 +120,36 @@ if (!manifest.includes('app.jarvis.notify.JarvisNotifyReceiver')) {
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+</application>`,
+  )
+}
+if (!manifest.includes('app.jarvis.notify.JarvisAlarmActivity')) {
+  manifest = manifest.replace(
+    '</application>',
+    `        <activity
+            android:name="app.jarvis.notify.JarvisAlarmActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            android:showWhenLocked="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+            android:turnScreenOn="true" />
+        <receiver
+            android:name="app.jarvis.notify.JarvisGlanceWidget"
+            android:exported="true"
+            android:label="Jarvis">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/jarvis_widget_info" />
+        </receiver>
+        <service
+            android:name="app.jarvis.voice.JarvisWakeService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
 </application>`,
   )
 }

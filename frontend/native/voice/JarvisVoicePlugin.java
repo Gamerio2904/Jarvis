@@ -401,4 +401,45 @@ public class JarvisVoicePlugin extends Plugin {
         r.put("ok", ok);
         call.resolve(r);
     }
+
+    @PluginMethod
+    public void startWake(PluginCall call) {
+        if (getPermissionState("mic") != PermissionState.GRANTED) {
+            requestPermissionForAlias("mic", call, "onWakeMic");
+            return;
+        }
+        JarvisWakeService.start(getContext());
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PermissionCallback
+    private void onWakeMic(PluginCall call) {
+        JSObject r = new JSObject();
+        if (getPermissionState("mic") != PermissionState.GRANTED) {
+            r.put("ok", false);
+            r.put("message", "Mikrofon für Wake-Word erlauben.");
+            call.resolve(r);
+            return;
+        }
+        JarvisWakeService.start(getContext());
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void stopWake(PluginCall call) {
+        JarvisWakeService.stop(getContext());
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void wakeStatus(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("running", JarvisWakeService.isRunning());
+        call.resolve(r);
+    }
 }

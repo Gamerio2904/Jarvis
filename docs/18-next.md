@@ -21,11 +21,11 @@ Erinnerungen aus `1.2` zeigen heute nur eine stille/hohe Notification. Das reich
 
 | Version | Inhalt | Warum getrennt |
 |---------|--------|----------------|
-| **`1.7.0`** | **Timer + Klingeln** — „Timer 8 Minuten Nudeln“, Ton/Vibration, auch bei Bildschirm aus | Braucht eigenen Alarm-Kanal, Vollbild auf dem Sperrschirm, Exact-Alarm-Recht. Grundlage für 1.8. |
-| **`1.8.0`** | **Wiederkehrend** — jeden Morgen, jeden Montag | Nutzt denselben Wecker; nach dem Klingeln neu setzen. |
-| **`1.9.0`** | **Wetter-Nachfragen** — „und morgen?“, „und in Berlin?“ | Klein, unabhängig, braucht den letzten Ort aus `1.6`. |
-| **`1.10.0`** | **Homescreen-Widget** — nächster Timer/Erinnerung + kurze Wetterlage | Sichtbar ohne App; eigener Android-Teil. |
-| **`1.11.0`** | **Wake-Word** — „Jarvis“ bei angeschaltetem Handy (Screen darf aus sein) | Vordergrund-Dienst, Mikro immer an, ehrlich über OEM/Akku. Zuletzt, weil am riskantesten. |
+| **`1.7.0`** | **Timer + Klingeln** — **CODE** | Wecker, Bildschirm aus |
+| **`1.8.0`** | **Wiederkehrend** — **CODE** | Serie nach dem Klingeln |
+| **`1.9.0`** | **Wetter-Nachfragen** — **CODE** | „und morgen?“ |
+| **`1.10.0`** | **Homescreen-Widget** — **CODE** | Timer + Wetterzeile |
+| **`1.11.0`** | **Wake-Word** — **CODE** | Opt-in, Handy an |
 
 Sprints: [`sprint-57`](./sprints/sprint-57.md) … [`sprint-61`](./sprints/sprint-61.md).
 

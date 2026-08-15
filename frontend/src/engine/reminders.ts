@@ -1,4 +1,5 @@
 import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify'
+import { syncGlance } from './glance'
 import { formatDue, parseReminderIntent } from './remind-parse'
 import {
   addReminder,
@@ -6,6 +7,7 @@ import {
   listEvents,
   listReminders,
   listTodos,
+  putReminder,
   setReminderStatus,
   type Reminder,
 } from './store'
@@ -33,17 +35,23 @@ export async function handleReminders(
       title: intent.title,
       due_at: intent.due.toISOString(),
       conversationId,
+      kind: intent.recur ? 'recur' : 'once',
+      recur: intent.recur || null,
+      weekday: intent.weekday ?? null,
     })
     const perm = await requestNotifyPermission()
     const scheduled = await scheduleNotify({
       id: notifyIdFromKey(row.id),
-      title: 'Jarvis',
+      title: intent.recur ? 'Erinnerung' : 'Jarvis',
       body: row.title,
       at: intent.due,
+      alarm: true,
+      recur: intent.recur,
     })
+    await syncGlance()
     const ping = perm && scheduled.ok
-      ? 'Ich piepe dann.'
-      : 'Gespeichert. Benachrichtigung unter Android erlauben, sonst kein Ping.'
+      ? 'Klingelt auch bei Bildschirm aus.'
+      : 'Gespeichert. Benachrichtigung unter Android erlauben, sonst kein Klingeln.'
     return {
       handled: true,
       reply: `${row.title}, ${intent.whenLabel}. ${ping}`,
@@ -79,6 +87,7 @@ export async function handleReminders(
   }
   await cancelNotify(notifyIdFromKey(hit.id))
   await deleteReminder(hit.id)
+  await syncGlance()
   return {
     handled: true,
     reply: `Weg: ${hit.title}.`,
@@ -89,14 +98,14 @@ export async function handleReminders(
 export async function upcomingReminders(): Promise<Reminder[]> {
   const rows = await listReminders()
   return rows
-    .filter((r) => r.status === 'open')
+    .filter((r) => r.status === 'open' && r.kind !== 'timer')
     .sort((a, b) => (a.due_at < b.due_at ? -1 : 1))
 }
 
 export async function formatReminderList(): Promise<string> {
   const rows = await upcomingReminders()
   if (!rows.length) return 'Keine offenen Erinnerungen.'
-  const lines = rows.map((r, i) => `${i + 1}. ${r.title} — ${formatDue(new Date(r.due_at))}`)
+    const lines = rows.map((r, i) => `${i + 1}. ${recurTag(r)}${r.title} — ${formatDue(new Date(r.due_at))}`)
   return `Erinnerungen:\n${lines.join('\n')}`
 }
 
@@ -107,7 +116,7 @@ export async function formatAgenda(): Promise<string> {
   if (reminders.length) {
     parts.push(
       'Erinnerungen:\n' +
-        reminders.map((r, i) => `${i + 1}. ${r.title} — ${formatDue(new Date(r.due_at))}`).join('\n'),
+        reminders.map((r, i) => `${i + 1}. ${recurTag(r)}${r.title} — ${formatDue(new Date(r.due_at))}`).join('\n'),
     )
   }
   if (todos.length) {
@@ -134,9 +143,16 @@ export async function formatAgenda(): Promise<string> {
   return parts.length ? parts.join('\n\n') : 'Nichts offen. Weder Erinnerung, Todo noch Termin.'
 }
 
+function recurTag(r: Reminder): string {
+  if (r.recur === 'daily') return 'täglich · '
+  if (r.recur === 'weekly') return 'wöchentlich · '
+  return ''
+}
+
 export async function removeReminder(id: string): Promise<void> {
   await cancelNotify(notifyIdFromKey(id))
   await deleteReminder(id)
+  await syncGlance()
 }
 
 export async function syncReminderAlarms(): Promise<void> {
@@ -151,20 +167,45 @@ export async function syncReminderAlarms(): Promise<void> {
       continue
     }
     if (due <= now) {
+      if (r.recur === 'daily' || r.recur === 'weekly') {
+        const next = nextRecurDue(new Date(r.due_at), r.recur)
+        await putReminder({ ...r, due_at: next.toISOString(), status: 'open' })
+        await scheduleNotify({
+          id: notifyIdFromKey(r.id),
+          title: 'Erinnerung',
+          body: r.title,
+          at: next,
+          alarm: true,
+          recur: r.recur,
+        })
+        continue
+      }
       await scheduleNotify({
         id: notifyIdFromKey(r.id),
-        title: 'Jarvis',
+        title: r.kind === 'timer' ? 'Timer' : 'Jarvis',
         body: r.title,
         at: new Date(now + 1_500),
+        alarm: true,
       })
       await setReminderStatus(r.id, 'fired')
       continue
     }
     await scheduleNotify({
       id: notifyIdFromKey(r.id),
-      title: 'Jarvis',
+      title: r.kind === 'timer' ? 'Timer' : 'Jarvis',
       body: r.title,
       at: new Date(r.due_at),
+      alarm: true,
+      recur: r.recur || undefined,
     })
   }
+  await syncGlance()
+}
+
+export function nextRecurDue(from: Date, recur: 'daily' | 'weekly'): Date {
+  const step = recur === 'weekly' ? 7 : 1
+  const next = new Date(from)
+  next.setDate(next.getDate() + step)
+  while (next.getTime() <= Date.now()) next.setDate(next.getDate() + step)
+  return next
 }
