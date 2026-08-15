@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.5.1'
+export const APP_VERSION = '1.5.2'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -106,6 +106,7 @@ export type Settings = {
   last_place: string
   last_fix_at: string
   voice_tts: string
+  gemini_tts_model: string
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -139,6 +140,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_place: '',
   last_fix_at: '',
   voice_tts: 'auto',
+  gemini_tts_model: '',
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',

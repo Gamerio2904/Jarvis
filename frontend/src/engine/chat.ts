@@ -1,5 +1,5 @@
 import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
-import { completeGemini, geminiReady, GEMINI_LABEL, testGemini } from './gemini'
+import { completeGemini, geminiReady, GEMINI_LABEL, streamGemini, testGemini } from './gemini'
 import { groqReady, testGroq } from './groq'
 import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
@@ -269,13 +269,16 @@ export async function streamChat(
     let acc = ''
     let research: ResearchMeta | undefined
     const raw = geminiReady()
-      ? await completeGemini(
+      ? await (opts?.voice ? streamGemini : completeGemini)(
           llmMessages,
           (_piece, full) => {
             acc = full
             handlers.onToken?.(_piece)
           },
-          { search: Boolean(s.research_opt_in && isLiveLookup(content)) },
+          {
+            search: Boolean(s.research_opt_in && isLiveLookup(content)),
+            maxOutputTokens: opts?.voice ? 96 : undefined,
+          },
         ).then((r) => {
           research = r.research
           return r.text

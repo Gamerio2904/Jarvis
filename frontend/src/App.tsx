@@ -720,7 +720,10 @@ function App() {
     await sendMessage(content)
   }
 
-  async function sendVoiceTurn(content: string): Promise<string> {
+  async function sendVoiceTurn(
+    content: string,
+    onToken?: (piece: string, full: string) => void,
+  ): Promise<string> {
     let conversationId = activeId
     if (!conversationId) {
       const created = await createConversation()
@@ -738,6 +741,7 @@ function App() {
     markEnter(optimistic.id)
     setMessages((prev) => [...prev, optimistic])
     let answer = ''
+    let acc = ''
     await streamChat(
       conversationId,
       content,
@@ -748,6 +752,10 @@ function App() {
             const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
             return [...withoutTmp, meta.user_message]
           })
+        },
+        onToken: (piece) => {
+          acc += piece
+          onToken?.(piece, acc)
         },
         onDone: (payload) => {
           markEnter(payload.assistant_message.id)
@@ -853,7 +861,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.5.1</p>
+            <p>Handy · v1.5.2</p>
           </div>
         </div>
 
@@ -896,7 +904,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.5.1'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.5.2'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1476,7 +1484,7 @@ function App() {
         {voiceOpen ? (
           <VoiceMode
             onClose={() => setVoiceOpen(false)}
-            onTurn={(text) => sendVoiceTurn(text)}
+            onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
           />
         ) : null}
         {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}

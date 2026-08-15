@@ -12,6 +12,7 @@ import {
 } from './cloud-errors'
 import { completeGroq, groqReady } from './groq'
 import { postJson } from './http-json'
+import { streamSseLines } from '../native/voice'
 import { GEMINI_PERSONA } from './persona'
 import { isGeminiConfigured, loadSettings, saveSettings } from './store'
 
@@ -122,7 +123,7 @@ function hostOf(url: string): string {
 function buildBody(
   model: string,
   messages: Array<{ role: string; content: string }>,
-  opts: { search?: boolean; thinking?: boolean } = {},
+  opts: { search?: boolean; thinking?: boolean; maxOutputTokens?: number } = {},
 ) {
   const system = messages.find((m) => m.role === 'system')?.content || GEMINI_PERSONA
   const turns = messages.filter((m) => m.role !== 'system')
@@ -142,8 +143,8 @@ function buildBody(
     contents.unshift({ role: 'user', parts: [{ text: 'Hallo.' }] })
   }
   const generationConfig: Record<string, unknown> = {
-    temperature: 0.55,
-    maxOutputTokens: 640,
+    temperature: opts.maxOutputTokens && opts.maxOutputTokens < 200 ? 0.4 : 0.55,
+    maxOutputTokens: opts.maxOutputTokens || 640,
   }
   const thinking = opts.thinking !== false && /2\.5|3\./.test(model) && !opts.search
   if (thinking) {
@@ -165,10 +166,52 @@ function rememberSkip(model: string) {
   saveSettings({ gemini_skip_until: markSkip(s.gemini_skip_until, model) })
 }
 
+export async function streamGemini(
+  messages: Array<{ role: string; content: string }>,
+  onToken?: (piece: string, full: string) => void,
+  opts?: { search?: boolean; maxOutputTokens?: number },
+): Promise<CloudComplete> {
+  if (opts?.search) return completeGemini(messages, onToken, opts)
+  if (!geminiReady()) {
+    throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
+  }
+  const key = loadSettings().gemini_api_key.trim()
+  const models = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
+  for (const model of models) {
+    const body = buildBody(model, messages, {
+      search: false,
+      thinking: false,
+      maxOutputTokens: opts?.maxOutputTokens || 96,
+    })
+    let full = ''
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`
+    const res = await streamSseLines({ url, body, apiKey: key }, (json) => {
+      const incoming = textFrom(json as GeminiResponse)
+      if (!incoming) return
+      let piece = incoming
+      if (incoming.startsWith(full) && incoming.length >= full.length) {
+        piece = incoming.slice(full.length)
+        full = incoming
+      } else {
+        full += incoming
+      }
+      if (piece) onToken?.(piece, full)
+    })
+    if (res.ok && full.trim()) {
+      saveSettings({ gemini_model: model })
+      return { text: full.trim() }
+    }
+    if (res.message?.includes('403') || res.message?.toLowerCase().includes('unauth')) {
+      throw new Error(germanAuthError())
+    }
+  }
+  return completeGemini(messages, onToken, { ...opts, maxOutputTokens: opts?.maxOutputTokens || 96 })
+}
+
 export async function completeGemini(
   messages: Array<{ role: string; content: string }>,
   onToken?: (piece: string, full: string) => void,
-  opts?: { search?: boolean },
+  opts?: { search?: boolean; maxOutputTokens?: number },
 ): Promise<CloudComplete> {
   if (!geminiReady()) {
     throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
@@ -179,10 +222,10 @@ export async function completeGemini(
   for (const model of geminiModelOrder(loadSettings().gemini_skip_until, missingModels)) {
     const attempts = wantSearch
       ? [
-          buildBody(model, messages, { search: true, thinking: false }),
-          buildBody(model, messages, { search: false, thinking: true }),
+          buildBody(model, messages, { search: true, thinking: false, maxOutputTokens: opts?.maxOutputTokens }),
+          buildBody(model, messages, { search: false, thinking: true, maxOutputTokens: opts?.maxOutputTokens }),
         ]
-      : [buildBody(model, messages, { search: false, thinking: true })]
+      : [buildBody(model, messages, { search: false, thinking: true, maxOutputTokens: opts?.maxOutputTokens })]
     let modelRetryable = false
     try {
       for (let i = 0; i < attempts.length; i += 1) {
