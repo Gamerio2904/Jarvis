@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.16.0'
+export const APP_VERSION = '0.16.1'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',

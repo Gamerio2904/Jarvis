@@ -2,7 +2,7 @@ import { Wllama } from '@wllama/wllama/esm/index.js'
 import wasmUrl from '@wllama/wllama/esm/wasm/wllama.wasm?url'
 import compatWasmUrl from '@wllama/wllama-compat/wasm/wllama.wasm?url'
 import compatWorkerCode from '@wllama/wllama-compat/wasm/wllama.js?raw'
-import { DEFAULT_MODEL } from './store'
+import { DEFAULT_MODEL, isGeminiConfigured } from './store'
 import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel } from './model-cache'
 import { formatQwenChat, QWEN_STOP, toChatRole } from './prompt'
 
@@ -188,9 +188,27 @@ async function createRuntime(): Promise<Wllama> {
   return wllama
 }
 
+export async function releaseModel(): Promise<void> {
+  const w = instance
+  instance = null
+  loaded = false
+  loading = null
+  lastError = null
+  if (w) {
+    try {
+      await w.exit()
+    } catch {
+      /* optional */
+    }
+  }
+}
+
 export async function ensureModel(
   onProgress?: (p: DownloadProgress) => void,
 ): Promise<void> {
+  if (isGeminiConfigured()) {
+    throw new Error('Lokales Modell bleibt aus, solange Gemini an ist.')
+  }
   if (loaded && instance) return
   if (loading) return loading
   loading = (async () => {

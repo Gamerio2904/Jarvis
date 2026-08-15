@@ -15,6 +15,8 @@ import {
   ensureModel,
   hasCachedModel,
   isModelReady,
+  isGeminiConfigured,
+  releaseModel,
   tvDiscover,
   tvPair,
   tvTest,
@@ -159,7 +161,7 @@ function App() {
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
-  const [setupOpen, setSetupOpen] = useState(() => !isModelReady())
+  const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
   const [downloadPct, setDownloadPct] = useState(0)
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadPhase, setDownloadPhase] = useState<'download' | 'load'>('download')
@@ -262,6 +264,10 @@ function App() {
     try {
       const updated = await patchSettings(patch)
       setSettings(updated)
+      if (updated.gemini_enabled && updated.gemini_api_key?.trim()) {
+        setSetupOpen(false)
+        void releaseModel()
+      }
       void refreshHealth()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Settings speichern fehlgeschlagen')
@@ -360,29 +366,18 @@ function App() {
     await refreshSettings()
     await refreshMemory()
     const s = await getSettings()
-    if (s.gemini_enabled && s.gemini_api_key?.trim()) {
+    const gemini = Boolean(s.gemini_enabled && s.gemini_api_key?.trim())
+    try {
+      setHasLocalModel(await hasCachedModel())
+    } catch {
+      setHasLocalModel(false)
+    }
+    if (gemini) {
       setSetupOpen(false)
+      void releaseModel()
     } else if (isModelReady()) {
       setSetupOpen(false)
-    } else if (await hasCachedModel()) {
-      setHasLocalModel(true)
-      setSetupOpen(true)
-      setDownloadBusy(true)
-      setDownloadPhase('load')
-      try {
-        await ensureModel((p) => {
-          setDownloadPct(p.pct)
-          setDownloadPhase(p.phase)
-        })
-        setSetupOpen(false)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Modell konnte nicht geladen werden')
-        setSetupOpen(true)
-      } finally {
-        setDownloadBusy(false)
-      }
     } else {
-      setHasLocalModel(false)
       setSetupOpen(true)
     }
     try {
@@ -644,8 +639,8 @@ function App() {
           <div className="setup-card">
             <h2 id="setup-title">Modell aufs Handy</h2>
             <p>
-              Jarvis denkt lokal auf diesem Gerät. Einmalig das Sprachmodell laden
-              (~470 MB). Danach kein PC und keine NAS.
+              Jarvis kann lokal auf dem Handy denken (einmal ~470 MB) oder über Gemini
+              (Google). Das lokale Modell startet nur, wenn Gemini aus ist.
             </p>
             {downloadBusy ? (
               <p className="settings-hint">
@@ -704,7 +699,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v0.16.0</p>
+            <p>Handy · v0.16.1</p>
           </div>
         </div>
 
@@ -723,7 +718,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.16.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '0.16.1'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -772,7 +767,7 @@ function App() {
                 {settings?.model_default || 'Qwen2.5 0.5B'} läuft auf diesem Handy (llama.cpp / WASM).
                 Kleiner als der alte PC-7b — dafür ohne Server.
               </p>
-              {!health?.model_ready ? (
+              {!health?.model_ready && !geminiOn ? (
                 <button
                   type="button"
                   className="retry-btn"
@@ -787,6 +782,8 @@ function App() {
                       ? 'Modell starten'
                       : 'Modell laden'}
                 </button>
+              ) : geminiOn ? (
+                <p className="settings-hint">Lokal aus — Gemini übernimmt den Chat. Modell wird nicht geladen.</p>
               ) : (
                 <p className="settings-hint">Modell bereit.</p>
               )}

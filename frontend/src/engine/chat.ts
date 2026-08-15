@@ -1,4 +1,4 @@
-import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady } from './llm'
+import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
 import { completeGemini, geminiReady, GEMINI_LABEL, testGemini } from './gemini'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
@@ -90,7 +90,7 @@ export function patchSettings(patch: Partial<Settings>): Settings {
   return saveSettings(patch)
 }
 
-export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, testGemini, geminiReady }
+export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, releaseModel, testGemini, geminiReady }
 
 export async function streamChat(
   conversationId: string,
@@ -161,15 +161,9 @@ export async function streamChat(
 
     if (!geminiReady()) {
       if (!isModelReady()) {
-        if (await hasCachedModel()) {
-          await ensureModel()
-        } else {
-          throw new Error(
-            loadSettings().gemini_enabled
-              ? 'Gemini-Key fehlt. Unter Einstellungen eintragen oder das lokale Modell laden.'
-              : 'Modell nicht geladen. Unter Einstellungen herunterladen oder Gemini (Google) einschalten.',
-          )
-        }
+        throw new Error(
+          'Lokales Modell ist aus. Unter Einstellungen starten — oder Gemini einschalten.',
+        )
       }
     }
 

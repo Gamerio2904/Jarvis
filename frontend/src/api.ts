@@ -9,6 +9,7 @@ import {
   patchSettings as enginePatch,
   streamChat as engineStream,
   testGemini as engineTestGemini,
+  releaseModel as engineReleaseModel,
   type StreamHandlers,
 } from './engine/chat'
 import {
@@ -16,6 +17,7 @@ import {
   addMessage,
   clearMemory as storeClearMemory,
   deleteMemory,
+  isGeminiConfigured,
   listMemory as storeListMemory,
   listMessages,
   loadSettings,
@@ -27,7 +29,11 @@ import {
 import { discoverTvs, pairTv, testTv, tvStatusFromSettings } from './engine/tv'
 
 export type { Conversation, MemoryItem, Message, StreamHandlers }
-export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady }
+export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady, isGeminiConfigured }
+
+export async function releaseModel(): Promise<void> {
+  return engineReleaseModel()
+}
 
 export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
 

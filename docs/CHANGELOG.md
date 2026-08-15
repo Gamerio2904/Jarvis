@@ -7,6 +7,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`0.16.0`**.
 
+### `0.16.1` — Lokalmodell nur auf Wunsch — *CODE*
+
+- App-Start lädt die GGUF **nicht**, wenn Gemini an ist (auch nach Schließen/Öffnen)
+- Lokales Modell nur über „Modell starten“, solange Gemini aus ist
+
 ### `0.16.0` — Gemini Opt-in — *CODE*
 
 - Settings: Gemini (Google) Default aus; API-Key; Test
