@@ -7,6 +7,7 @@ import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import { isLiveLookup } from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherIntent } from '../src/engine/weather-parse.ts'
+import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
 
@@ -77,11 +78,42 @@ assert.equal(parseReminderIntent('lösche Erinnerung Milch')?.kind, 'delete')
 assert.match(formatDue(new Date('2026-08-15T17:42:00'), frozen), /heute/)
 
 assert.equal(parseWeatherIntent('Wetter heute')?.kind, 'here')
+assert.equal(parseWeatherIntent('Wetter heute')?.when, 'today')
 assert.equal(parseWeatherIntent('Temperatur hier')?.kind, 'here')
 const munich = parseWeatherIntent('Wetter in München')
 assert.equal(munich?.kind, 'place')
 if (munich?.kind === 'place') assert.equal(munich.place, 'München')
+assert.equal(parseWeatherIntent('Wetter morgen in Köln')?.when, 'tomorrow')
+assert.equal(parseWeatherIntent('Brauche ich einen Schirm')?.focus, 'rain')
+assert.equal(parseWeatherIntent('Was soll ich anziehen')?.focus, 'wear')
+assert.equal(parseWeatherIntent('Wetter am Wochenende')?.when, 'weekend')
 assert.equal(parseWeatherIntent('Hallo Jarvis'), null)
+
+const snap = {
+  place: 'München, Bayern',
+  temp: 18,
+  feels: 16,
+  label: 'wolkig',
+  code: 2,
+  wind: 12,
+  precipNow: 0,
+  today: { date: '2026-08-15', min: 14, max: 21, precipProb: 20, label: 'wolkig' },
+  tomorrow: { date: '2026-08-16', min: 12, max: 19, precipProb: 70, label: 'Schauer' },
+  saturday: { date: '2026-08-15', min: 16, max: 22, precipProb: 10, label: 'klar' },
+  sunday: { date: '2026-08-16', min: 13, max: 17, precipProb: 80, label: 'Regen' },
+  rainSoon: false,
+  maxPrecipSoon: 20,
+}
+const nowBrief = formatWeatherBrief(snap, 'now', 'general')
+assert.match(nowBrief, /München/)
+assert.match(nowBrief, /18 Grad/)
+assert.doesNotMatch(nowBrief, /Open-Meteo|°C/)
+assert.match(formatWeatherBrief(snap, 'tomorrow', 'general'), /morgen/)
+assert.match(formatWeatherBrief(snap, 'tomorrow', 'rain'), /Schirm/)
+assert.match(formatWeatherBrief(snap, 'weekend', 'general'), /Wochenende/)
+assert.match(formatWeatherBrief(snap, 'now', 'wear'), /Pulli|Jacke|anziehen/)
+assert.match(clothingTip({ feels: 16, wet: false, code: 2, wind: 12 }), /Pulli/)
+assert.match(clothingTip({ feels: 16, wet: true, code: 63, wind: 12 }), /Schirm/)
 
 const termin = parseCalendarIntent('Termin morgen 15 Uhr Zahnarzt', frozen)
 assert.equal(termin?.kind, 'create')

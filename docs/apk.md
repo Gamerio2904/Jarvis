@@ -1,15 +1,15 @@
-# Android-APK — `1.5.3`
+# Android-APK — `1.6.0`
 
-**1.5.3:** Sprachmodus liest flüssig vor — ganze Sätze, bessere Betonung. Der Text bleibt sofort sichtbar.
+**1.6.0:** Wetter als kurze Lage plus Tipp — nicht nur Grad und Code vorlesen.
 
 ## Download
 
-**APK `1.5.3`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/hotfix-voice-prosody-1-5-3-0bf8/releases/Jarvis.apk
+**APK `1.6.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/weather-brief-1-6-0-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.5.3` · versionCode `10503`
+- versionName `1.6.0` · versionCode `10600`
 - App-ID `local.jarvis.app`
 
-1. Über 1.5.2 installieren.
-2. Gemini an → **Hören** → Text kommt sofort, die Stimme spricht den ganzen Satz am Stück.
+1. Über 1.5.3 installieren.
+2. „Wetter heute“ / „Schirm?“ / „Was anziehen?“ / „Wetter morgen in München“.

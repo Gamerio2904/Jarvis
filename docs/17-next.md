@@ -1,4 +1,4 @@
-# 17 — Nächste Versionen (`1.1`–`1.5`)
+# 17 — Nächste Versionen (`1.1`–`1.6`)
 
 PO 2026-08-15: Erinnerungen, Ort/Wetter, Kalender-GUI, Sound-Fix, Research-Quellen, danach **Sprachmodus** wie ChatGPT. Wake-Word extra klären.
 
@@ -14,8 +14,22 @@ Kein Alles-in-einem-Wurf. Jede Stufe ist sideloadbar.
 | **`1.4.0`** | Kalender mit eigener GUI (lokal, kein Google-Login) — **CODE** | Monat + Chat, Daten auf dem Handy |
 | **`1.5.0`** | **Riesenupdate:** Sprachmodus + Homescreen-Shortcut — **CODE** | Gespräch, kein Mitschnitt |
 | **`1.5.3`** | Stimme flüssig (ganze Sätze, Betonung) — **CODE** | 1.5.2 war abgehakt, weil Mini-Schnipsel |
+| **`1.6.0`** | Wetter als Lage + Tipp — **CODE** | 1.3 hat nur „18 °C, wolkig“ vorgelesen |
 
-Optional danach: Wake-Word nur bei **eingeschaltetem** Handy (Screen darf aus sein). Nicht in `1.5` zwingend.
+## Danach — Vorschlag
+
+Eine Stufe nach der anderen, sideloadbar. Nicht alles auf einmal.
+
+| Version | Inhalt | Warum |
+|---------|--------|--------|
+| **`1.7`** | **Morgenlage:** Wetter + nächste Termine + fällige Erinnerungen in einer Antwort | Das nutzt man morgens wirklich |
+| **`1.8`** | **Timer:** „in 8 Minuten Nudeln“ als Kurz-Alarm, nicht nur Kalender-Erinnerung | Küche, Wäsche, Pause |
+| **`1.9`** | **Wiederkehrend:** jeden Montag Steuer, jeden Morgen Tabletten | 1.2 kann nur einmalig |
+| **`1.10`** | Wetter-Nachfragen: „und morgen?“, „und in Berlin?“ ohne die Frage neu zu stellen | Gespräch, nicht Kommandos |
+| Optional | Homescreen-Widget (nächster Termin + kurzes Wetter) | Sichtbar ohne die App zu öffnen |
+| Optional | Pollen / Luftqualität (Open-Meteo, kein Raten) | Passt zu Wetter, Allergiker |
+| Optional | Größeres Offline-Modell (1.5B) | Klüger ohne Gemini, langsamer, mehr Speicher |
+| Optional | Wake-Word nur bei **angeschaltetem** Handy | Nie bei Akku aus |
 
 ## Wake-Word bei „Handy aus“
 

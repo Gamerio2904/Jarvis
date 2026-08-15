@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.5.3`**.
+App-Version im Code: **`1.6.0`**.
+
+### `1.6.0` — Wetter als Lage — *CODE*
+
+- Keine Zahlentabelle mehr: Ort, Gefühl, was als Nächstes, ein Tipp (Jacke, Schirm)
+- „Wetter morgen“, Wochenende, „Brauch ich einen Schirm?“, „Was anziehen?“
+- Quelle bleibt Open-Meteo unter der Antwort, nicht vorgelesen
 
 ### `1.5.3` — Sprache flüssig — *CODE*
 

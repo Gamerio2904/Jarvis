@@ -861,7 +861,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.5.3</p>
+            <p>Handy · v1.6.0</p>
           </div>
         </div>
 
@@ -904,7 +904,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.5.3'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.6.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1049,8 +1049,8 @@ function App() {
             <section className="settings-section">
               <h3>Ort & Wetter</h3>
               <p className="settings-hint">
-                „Wetter heute“ / „Temperatur hier“ nutzt den Standort einmal. Zahlen kommen von
-                Open-Meteo — Jarvis rät nicht. Oder „Wetter in München“.
+                „Wetter heute“, „Wetter morgen“, „Schirm?“, „Was anziehen“ — Lage plus Tipp, keine
+                Zahlentabelle. Open-Meteo, kein Raten. Oder „Wetter in München“.
               </p>
               <p className="settings-hint">
                 {settings?.last_place
