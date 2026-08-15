@@ -13,7 +13,7 @@ Default bleibt **aus**. Ohne Schalter und Key ändert sich nichts (`0.14.1` on-d
 - Key nur auf dem Gerät (localStorage), nicht in Health-Logs
 - Lokales Modell optional, wenn Gemini konfiguriert ist
 
-## Kaskade (`0.16.3`)
+## Kaskade (`1.0.0`)
 
 Kein dauerhaft kostenloses Chat-Modell ohne eigenen Key. Ablauf:
 
