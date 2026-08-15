@@ -60,10 +60,14 @@ if (!manifest.includes('android:usesCleartextTraffic')) {
 }
 writeFileSync(manifestPath, manifest)
 
+const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as { version?: string }
+const versionName = String(pkg.version || '0.16.0')
+const versionCode = Number(versionName.replace(/\D/g, '')) || 160
+
 const gradlePath = join(android, 'app/build.gradle')
 let gradle = readFileSync(gradlePath, 'utf8')
-gradle = gradle.replace(/versionCode\s+\d+/, 'versionCode 141')
-gradle = gradle.replace(/versionName\s+"[^"]+"/, 'versionName "0.14.1"')
+gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${versionCode}`)
+gradle = gradle.replace(/versionName\s+"[^"]+"/, `versionName "${versionName}"`)
 if (!gradle.includes('okhttp')) {
   gradle = gradle.replace(
     /dependencies\s*\{/,
@@ -72,4 +76,4 @@ if (!gradle.includes('okhttp')) {
 }
 writeFileSync(gradlePath, gradle)
 
-console.log('[apply-native-tv] Plugin, Manifest, versionCode 141, OkHttp.')
+console.log(`[apply-native-tv] Plugin, Manifest, versionCode ${versionCode}, OkHttp.`)

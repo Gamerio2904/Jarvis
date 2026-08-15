@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.14.1`** (On-Device + Tizen).
+App-Version im Code: **`0.16.0`**.
+
+### `0.16.0` — Gemini Opt-in — *CODE*
+
+- Settings: Gemini (Google) Default aus; API-Key; Test
+- Smalltalk über Gemini Flash, Memory/TV/Tools weiter lokal
+- Banner: Chat geht ins Netz
+- [`sprints/sprint-50.md`](./sprints/sprint-50.md) · [`16-gemini.md`](./16-gemini.md)
 
 ### `0.14.1` — TV verbinden & steuern — *CODE*
 

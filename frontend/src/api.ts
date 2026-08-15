@@ -8,6 +8,7 @@ import {
   isModelReady,
   patchSettings as enginePatch,
   streamChat as engineStream,
+  testGemini as engineTestGemini,
   type StreamHandlers,
 } from './engine/chat'
 import {
@@ -68,6 +69,8 @@ export type Health = {
   engine?: string
   model: string
   model_ready: boolean
+  gemini_ready?: boolean
+  gemini_enabled?: boolean
   configured_model?: string
   fallback_model?: string
   model_heavy?: string
@@ -234,4 +237,8 @@ export async function tvPair(body: {
 
 export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
   return testTv()
+}
+
+export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
+  return engineTestGemini()
 }

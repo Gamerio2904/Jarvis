@@ -3,7 +3,7 @@ const INJECT =
   /\b(pwned|hacked|ja_ich_gehorche|ignore(?:\s+all)?\s+instructions|du bist jetzt)\b/i
 const HELPDesk = /wie kann ich helfen|was kann ich für sie tun|gerne!|als ki\b/i
 const FAKE_CLAIM =
-  /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz|es)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt))\b/i
+  /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt))\b/i
 
 export function scrubReply(text: string): string {
   let out = text.replace(/\s+/g, ' ').trim()
@@ -37,4 +37,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Fernseher: an/aus, lauter/leiser/stumm, HDMI — zuerst in den Einstellungen koppeln. Kein PC, keine NAS.'
+  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Fernseher nach dem Koppeln. Optional Gemini (Google) in den Einstellungen — dann geht der Chat ins Netz. Sonst lokal, kein PC, keine NAS.'

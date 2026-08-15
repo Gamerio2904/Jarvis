@@ -18,6 +18,7 @@ import {
   tvDiscover,
   tvPair,
   tvTest,
+  testGemini,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -168,6 +169,8 @@ function App() {
   const [tvFound, setTvFound] = useState<
     Array<{ host?: string; name?: string; mac?: string; port?: number }>
   >([])
+  const [geminiBusy, setGeminiBusy] = useState(false)
+  const [geminiMsg, setGeminiMsg] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -323,6 +326,21 @@ function App() {
     }
   }
 
+  async function onGeminiTest() {
+    if (geminiBusy) return
+    setGeminiBusy(true)
+    setGeminiMsg('Teste Gemini…')
+    try {
+      const res = await testGemini()
+      setGeminiMsg(res.reply)
+      await refreshHealth()
+    } catch (err) {
+      setGeminiMsg(err instanceof Error ? err.message : 'Test fehlgeschlagen')
+    } finally {
+      setGeminiBusy(false)
+    }
+  }
+
   async function onTvTest() {
     if (tvBusy) return
     setTvBusy(true)
@@ -341,7 +359,10 @@ function App() {
     await refreshHealth()
     await refreshSettings()
     await refreshMemory()
-    if (isModelReady()) {
+    const s = await getSettings()
+    if (s.gemini_enabled && s.gemini_api_key?.trim()) {
+      setSetupOpen(false)
+    } else if (isModelReady()) {
       setSetupOpen(false)
     } else if (await hasCachedModel()) {
       setHasLocalModel(true)
@@ -613,8 +634,8 @@ function App() {
   const activeTitle =
     conversations.find((c) => c.id === activeId)?.title ?? 'Jarvis'
 
-  const healthOk = Boolean(health?.ok && health.model_ready)
-  const fallback = Boolean(health?.using_fallback)
+  const healthOk = Boolean(health?.ok)
+  const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
 
   return (
     <div className="app">
@@ -656,6 +677,19 @@ function App() {
                   ? 'Modell starten'
                   : 'Modell herunterladen'}
             </button>
+            <button
+              type="button"
+              className="ghost-btn"
+              disabled={downloadBusy}
+              onClick={() => {
+                setSetupOpen(false)
+                setSidebarOpen(true)
+                setSettingsPanelOpen(true)
+              }}
+            >
+              Stattdessen Gemini (Google)
+            </button>
+            <p className="settings-hint">Gemini: Chat geht zu Google. Key von aistudio.google.com</p>
           </div>
         </div>
       ) : null}
@@ -670,7 +704,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · Handy · v0.14.1</p>
+            <p>Handy · v0.16.0</p>
           </div>
         </div>
 
@@ -689,7 +723,48 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.14.1'} · on-device · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.16.0'} · Handy</p>
+            </section>
+            <section className="settings-section">
+              <h3>Gemini (Google)</h3>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.gemini_enabled)}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ gemini_enabled: e.target.checked })}
+                />
+                <span>Gemini statt lokalem 0.5B</span>
+              </label>
+              <p className="settings-hint warn">
+                An = Chat geht zu Google. Nicht privat. Kostenloses Kontingent, Limits möglich.
+              </p>
+              <label className="settings-inline">
+                <span>API-Key</span>
+                <input
+                  type="password"
+                  autoComplete="off"
+                  key={`gemini-key-${settings?.gemini_api_key ? 'set' : 'empty'}`}
+                  defaultValue={settings?.gemini_api_key || ''}
+                  disabled={settingsBusy}
+                  placeholder="AIza…"
+                  onBlur={(e) => void patchSetting({ gemini_api_key: e.target.value.trim() })}
+                />
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={geminiBusy || settingsBusy}
+                  onClick={() => void onGeminiTest()}
+                >
+                  Testen
+                </button>
+              </div>
+              {geminiMsg ? <p className="settings-hint">{geminiMsg}</p> : null}
+              <p className="settings-hint">
+                Key: aistudio.google.com/apikey — auf dem Handy speichern, nicht teilen.
+              </p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
@@ -1034,28 +1109,36 @@ function App() {
           ))}
         </div>
 
-        <div className={`status ${healthOk ? (fallback ? 'warn' : '') : 'error'}`}>
+        <div className={`status ${healthOk ? (geminiOn ? 'warn' : '') : 'error'}`}>
           {healthOk ? (
-            <>
-              Gerät: <strong>bereit</strong>
-              <br />
-              Modell: {health?.model}
-              <br />
-              on-device · kein Server
-              {settings?.tv_enabled ? (
-                <>
-                  <br />
-                  TV: {settings.tv_paired ? settings.tv_name || 'gekoppelt' : 'nicht gekoppelt'}
-                </>
-              ) : null}
-            </>
+            geminiOn ? (
+              <>
+                Gemini: <strong>an</strong>
+                <br />
+                Chat geht zu Google
+              </>
+            ) : (
+              <>
+                Gerät: <strong>bereit</strong>
+                <br />
+                Modell: {health?.model}
+                <br />
+                on-device · kein Server
+              </>
+            )
           ) : (
             <>
-              Gerät: <strong>Modell fehlt</strong>
+              Gerät: <strong>nicht bereit</strong>
               <br />
-              {health?.error || 'Modell nicht geladen. Unter Einstellungen herunterladen.'}
+              {health?.error || 'Modell laden oder Gemini einschalten.'}
             </>
           )}
+          {settings?.tv_enabled ? (
+            <>
+              <br />
+              TV: {settings.tv_paired ? settings.tv_name || 'gekoppelt' : 'nicht gekoppelt'}
+            </>
+          ) : null}
         </div>
       </aside>
 
@@ -1084,9 +1167,9 @@ function App() {
           </div>
         </div>
 
-        {fallback && healthOk ? (
+        {geminiOn && healthOk ? (
           <div className="fallback-banner">
-            {health?.warning || 'On-Device-Modell aktiv.'}
+            Gemini (Google) — Nachrichten gehen ins Netz.
           </div>
         ) : null}
 
@@ -1095,7 +1178,7 @@ function App() {
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
                 <h3>Jarvis</h3>
-                <p>Schreib einfach los — lokal, ohne Cloud-Hirn.</p>
+                <p>Schreib einfach los — {geminiOn ? 'Gemini (Google), nicht privat.' : 'lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}
 
