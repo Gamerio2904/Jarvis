@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.5.2`**.
+App-Version im Code: **`1.5.3`**.
+
+### `1.5.3` — Sprache flüssig — *CODE*
+
+- Text weiter sofort; vorlesen erst ganze Sätze, nicht 5-Wort-Schnipsel
+- Nächster Satz wird schon erzeugt, während der aktuelle läuft (keine Lücken)
+- Gemini-Stimme Kore, klare Betonung; System-TTS etwas zügiger
 
 ### `1.5.2` — Sprachmodus sofort — *CODE*
 

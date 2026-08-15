@@ -8,6 +8,7 @@ import { isLiveLookup } from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
+import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -91,5 +92,31 @@ if (termin?.kind === 'create') {
 assert.equal(parseCalendarIntent('Kalender')?.kind, 'open')
 assert.equal(parseCalendarIntent('was habe ich am Freitag', frozen)?.kind, 'list')
 assert.equal(parseCalendarIntent('lösche Termin Zahnarzt')?.kind, 'delete')
+
+assert.deepEqual(pullReady('Hallo wie geht').parts, [])
+assert.deepEqual(pullReady('Ja. ').parts, [])
+const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
+assert.equal(two.parts.length, 1)
+assert.match(two.parts[0], /Ja\./)
+assert.match(two.parts[0], /15 Uhr/)
+const short = pullReady('Das Wetter ist gut.')
+assert.deepEqual(short.parts, [])
+assert.match(short.rest, /Das Wetter ist gut/)
+const long = pullReady(
+  'Das Wetter bleibt heute freundlich, weitgehend trocken und angenehm warm im ganzen Land.',
+)
+assert.equal(long.parts.length, 1)
+assert.equal(long.rest, '')
+
+const tap = createSentenceTap()
+assert.deepEqual(tap.feed('Hallo, der Himmel'), [])
+assert.deepEqual(tap.feed('Hallo, der Himmel ist blau.'), [])
+assert.deepEqual(tap.flush(), ['Hallo, der Himmel ist blau.'])
+const tap2 = createSentenceTap()
+assert.deepEqual(tap2.feed('Eins. '), [])
+const got = tap2.feed('Eins. Zwei kommt jetzt wirklich.')
+assert.equal(got.length, 1)
+assert.match(got[0], /Eins/)
+assert.match(got[0], /Zwei/)
 
 console.log('ok 0.14 parsers')

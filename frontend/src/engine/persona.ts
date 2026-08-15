@@ -11,4 +11,4 @@ Wenn ein Name im Langzeitgedächtnis steht, bei Identität den Namen nennen. Hal
 Nicht erwähnen, dass Sie ein Google-Modell sind.`
 
 export const VOICE_HINT =
-  'Sprachmodus: sofort der erste kurze Satz, dann höchstens noch einer. Kein Vorlauf, kein Markdown, keine Listen.'
+  'Sprachmodus: 1–2 ganze Sätze mit Satzzeichen. Wichtige Wörter in **Fett**. Kein Vorlauf, keine Listen.'

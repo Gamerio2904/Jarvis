@@ -861,7 +861,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.5.2</p>
+            <p>Handy · v1.5.3</p>
           </div>
         </div>
 
@@ -904,7 +904,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.5.2'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.5.3'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1114,7 +1114,7 @@ function App() {
               <h3>Sprachmodus</h3>
               <p className="settings-hint">
                 Gespräch, kein Mitschnitt. Die Android-Standardstimme klingt oft nach Roboter
-                (Pico). Mit Gemini-Key nimmt Jarvis die natürliche Gemini-Stimme (Charon, Deutsch).
+                (Pico). Mit Gemini-Key nimmt Jarvis die natürliche Gemini-Stimme (Kore, Deutsch).
               </p>
               <label className="settings-inline">
                 <span>Stimme</span>

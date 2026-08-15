@@ -70,8 +70,8 @@ public class JarvisVoicePlugin extends Plugin {
                 ttsReady = status == TextToSpeech.SUCCESS;
                 if (ttsReady) {
                     tts.setLanguage(Locale.GERMANY);
-                    tts.setSpeechRate(0.94f);
-                    tts.setPitch(0.96f);
+                    tts.setSpeechRate(1.08f);
+                    tts.setPitch(1.0f);
                     pickGermanVoice();
                 }
             });
