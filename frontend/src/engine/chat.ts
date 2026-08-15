@@ -1,5 +1,7 @@
 import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
 import { completeGemini, geminiReady, GEMINI_LABEL, testGemini } from './gemini'
+import { groqReady, testGroq } from './groq'
+import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { GEMINI_PERSONA, PERSONA } from './persona'
@@ -69,7 +71,9 @@ export async function getHealth() {
     research_opt_in: s.research_opt_in,
     tv: tvStatusFromSettings(),
     warning: cloud
-      ? 'Gemini (Google) — Chat geht ins Netz. Nicht privat.'
+      ? groqReady()
+        ? 'Gemini — bei Limit nächstes Modell, dann Groq. Chat geht ins Netz.'
+        : 'Gemini (Google) — bei Limit nächstes Modell. Chat geht ins Netz.'
       : localReady
         ? 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
         : err || 'Modell noch nicht geladen.',
@@ -90,7 +94,7 @@ export function patchSettings(patch: Partial<Settings>): Settings {
   return saveSettings(patch)
 }
 
-export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, releaseModel, testGemini, geminiReady }
+export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, releaseModel, testGemini, testGroq, geminiReady }
 
 export async function streamChat(
   conversationId: string,
@@ -201,9 +205,10 @@ export async function streamChat(
       tool: null,
     })
   } catch (err) {
-    const detail = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
+    const raw = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
+    const detail = geminiReady() ? userFacingCloudError(raw, groqReady()) : raw
     handlers.onError?.(detail)
-    throw err
+    throw new Error(detail)
   }
 }
 

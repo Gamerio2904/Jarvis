@@ -9,6 +9,7 @@ import {
   patchSettings as enginePatch,
   streamChat as engineStream,
   testGemini as engineTestGemini,
+  testGroq as engineTestGroq,
   releaseModel as engineReleaseModel,
   type StreamHandlers,
 } from './engine/chat'
@@ -247,4 +248,8 @@ export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
   return engineTestGemini()
+}
+
+export async function testGroq(): Promise<{ ok: boolean; reply: string }> {
+  return engineTestGroq()
 }

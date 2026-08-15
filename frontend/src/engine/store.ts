@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.16.2'
+export const APP_VERSION = '0.16.3'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -78,6 +78,8 @@ export type Settings = {
   gemini_enabled: boolean
   gemini_api_key: string
   gemini_model: string
+  gemini_skip_until: string
+  groq_api_key: string
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -104,6 +106,8 @@ export const DEFAULT_SETTINGS: Settings = {
   gemini_enabled: false,
   gemini_api_key: '',
   gemini_model: '',
+  gemini_skip_until: '',
+  groq_api_key: '',
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',

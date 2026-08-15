@@ -21,6 +21,7 @@ import {
   tvPair,
   tvTest,
   testGemini,
+  testGroq,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -173,6 +174,8 @@ function App() {
   >([])
   const [geminiBusy, setGeminiBusy] = useState(false)
   const [geminiMsg, setGeminiMsg] = useState<string | null>(null)
+  const [groqBusy, setGroqBusy] = useState(false)
+  const [groqMsg, setGroqMsg] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -193,13 +196,18 @@ function App() {
       return
     }
     const started = Date.now()
+    const cloud = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
     const id = window.setInterval(() => {
       if (sawTokenRef.current) return
       const s = Math.max(1, Math.round((Date.now() - started) / 1000))
-      setStatusNote(`Jarvis denkt… ${s}s — erstes Wort kann auf dem Handy dauern.`)
+      setStatusNote(
+        cloud
+          ? `Jarvis denkt… ${s}s`
+          : `Jarvis denkt… ${s}s — erstes Wort kann auf dem Handy dauern.`,
+      )
     }, 1000)
     return () => window.clearInterval(id)
-  }, [busy])
+  }, [busy, settings?.gemini_enabled, settings?.gemini_api_key])
 
   useEffect(() => {
     if (!stickToBottomRef.current) return
@@ -344,6 +352,20 @@ function App() {
       setGeminiMsg(err instanceof Error ? err.message : 'Test fehlgeschlagen')
     } finally {
       setGeminiBusy(false)
+    }
+  }
+
+  async function onGroqTest() {
+    if (groqBusy) return
+    setGroqBusy(true)
+    setGroqMsg('Teste Groq…')
+    try {
+      const res = await testGroq()
+      setGroqMsg(res.reply)
+    } catch (err) {
+      setGroqMsg(err instanceof Error ? err.message : 'Test fehlgeschlagen')
+    } finally {
+      setGroqBusy(false)
     }
   }
 
@@ -699,7 +721,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v0.16.2</p>
+            <p>Handy · v0.16.3</p>
           </div>
         </div>
 
@@ -718,7 +740,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.16.2'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '0.16.3'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -732,7 +754,8 @@ function App() {
                 <span>Gemini statt lokalem 0.5B</span>
               </label>
               <p className="settings-hint warn">
-                An = Chat geht zu Google. Nicht privat. Kostenloses Kontingent, Limits möglich.
+                An = Chat geht zu Google. Nicht privat. Bestes Free-Modell zuerst; bei Limit oder
+                Überlastung sofort das nächste.
               </p>
               <label className="settings-inline">
                 <span>API-Key</span>
@@ -764,6 +787,41 @@ function App() {
               <p className="settings-hint">
                 Key: aistudio.google.com/apikey — auf dem Handy speichern, nicht teilen.
               </p>
+            </section>
+            <section className="settings-section">
+              <h3>Fallback Groq (optional)</h3>
+              <p className="settings-hint">
+                Kein dauerhaft kostenloses Modell ohne eigenen Key. Groq hat einen großen Free-Tier
+                (Llama, ohne Kreditkarte). Nur wenn Gemini leer oder überlastet ist.
+              </p>
+              <label className="settings-inline">
+                <span>API-Key</span>
+                <input
+                  type="text"
+                  inputMode="text"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  key={`groq-key-${settings?.groq_api_key ? 'set' : 'empty'}`}
+                  defaultValue={settings?.groq_api_key || ''}
+                  disabled={settingsBusy}
+                  placeholder="gsk_… hier einfügen"
+                  onBlur={(e) => void patchSetting({ groq_api_key: e.target.value.trim() })}
+                />
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={groqBusy || settingsBusy}
+                  onClick={() => void onGroqTest()}
+                >
+                  Testen
+                </button>
+              </div>
+              {groqMsg ? <p className="settings-hint">{groqMsg}</p> : null}
+              <p className="settings-hint">Key: console.groq.com/keys — nicht teilen.</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>

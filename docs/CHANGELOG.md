@@ -5,13 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.16.2`**.
+App-Version im Code: **`0.16.3`**.
+
+### `0.16.3` — Gemini-Kaskade + Groq-Fallback — *CODE*
+
+- Bestes Free-Gemini zuerst; bei Limit/Überlastung sofort Flash-Lite, dann ältere Flash
+- Optional Groq-Key: letzter Fallback mit hohem Free-Tier (kein dauerhaft keyloses LLM)
+- Keine englische „high demand“-Meldung; überlastete Modelle kurz pausiert
 
 ### `0.16.2` — Gemini-Key einfügen — *CODE*
 
 - API-Key-Feld: normale Tastatur, Einfügen möglich (kein Passwort-Feld)
-
-### `0.16.1` — Lokalmodell nur auf Wunsch — *CODE*
 
 ### `0.16.1` — Lokalmodell nur auf Wunsch — *CODE*
 

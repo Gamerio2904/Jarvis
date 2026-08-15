@@ -1,15 +1,20 @@
-import { Capacitor, CapacitorHttp } from '@capacitor/core'
+import {
+  germanAuthError,
+  germanNetworkError,
+  germanQuotaHint,
+  geminiModelOrder,
+  isFatalAuth,
+  isRetryableCloud,
+  isUnknownModel,
+  markSkip,
+  userFacingCloudError,
+} from './cloud-errors'
+import { completeGroq, groqReady } from './groq'
+import { postJson } from './http-json'
 import { GEMINI_PERSONA } from './persona'
 import { isGeminiConfigured, loadSettings, saveSettings } from './store'
 
 export const GEMINI_LABEL = 'Gemini Flash (Google)'
-
-const MODELS = [
-  'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-flash-latest',
-  'gemini-1.5-flash',
-]
 
 type GeminiPart = { text?: string }
 type GeminiResponse = {
@@ -21,6 +26,8 @@ type GeminiResponse = {
   error?: { code?: number; message?: string; status?: string }
 }
 
+const missingModels = new Set<string>()
+
 function apiKey(): string {
   return loadSettings().gemini_api_key.trim()
 }
@@ -29,55 +36,24 @@ export function geminiReady(): boolean {
   return isGeminiConfigured()
 }
 
-function explainHttp(status: number, message: string): string {
-  const m = message.toLowerCase()
-  if (status === 401 || status === 403 || m.includes('api key') || m.includes('invalid')) {
-    return 'Gemini-Key ungültig. In Google AI Studio einen neuen Key holen.'
+function errorFields(json: GeminiResponse): { message: string; status: string } {
+  return {
+    message: json.error?.message || '',
+    status: json.error?.status || '',
   }
-  if (status === 429 || m.includes('quota') || m.includes('resource_exhausted')) {
-    return 'Gemini-Kontingent leer. Später erneut oder in AI Studio prüfen.'
-  }
-  if (status === 404 || m.includes('not found')) {
-    return 'Gemini-Modell nicht gefunden. App-Update oder anderes Modell.'
-  }
-  if (m.includes('failed to fetch') || m.includes('network') || m.includes('timeout')) {
-    return 'Keine Verbindung zu Google. WLAN prüfen.'
-  }
-  return message || `Gemini-Fehler (${status || '?'}).`
 }
 
 async function postGemini(model: string, body: unknown): Promise<{ status: number; json: GeminiResponse }> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
-  const key = apiKey()
-  if (Capacitor.isNativePlatform()) {
-    const res = await CapacitorHttp.post({
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': key,
-      },
-      data: body,
-      connectTimeout: 15_000,
-      readTimeout: 60_000,
-    })
-    let json: GeminiResponse = {}
-    try {
-      json = (typeof res.data === 'string' ? JSON.parse(res.data || '{}') : res.data || {}) as GeminiResponse
-    } catch {
-      json = { error: { message: String(res.data || 'Ungültige Antwort') } }
-    }
-    return { status: res.status, json }
-  }
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
+  const { status, json } = await postJson(
+    url,
+    {
       'Content-Type': 'application/json',
-      'x-goog-api-key': key,
+      'x-goog-api-key': apiKey(),
     },
-    body: JSON.stringify(body),
-  })
-  const json = (await res.json().catch(() => ({}))) as GeminiResponse
-  return { status: res.status, json }
+    body,
+  )
+  return { status, json: json as GeminiResponse }
 }
 
 function textFrom(json: GeminiResponse): string {
@@ -86,12 +62,6 @@ function textFrom(json: GeminiResponse): string {
     .map((p) => p.text || '')
     .join('')
     .trim()
-}
-
-function modelList(): string[] {
-  const preferred = loadSettings().gemini_model.trim()
-  const rest = MODELS.filter((m) => m !== preferred)
-  return preferred ? [preferred, ...rest] : [...MODELS]
 }
 
 function buildBody(model: string, messages: Array<{ role: string; content: string }>) {
@@ -116,7 +86,7 @@ function buildBody(model: string, messages: Array<{ role: string; content: strin
     temperature: 0.7,
     maxOutputTokens: 512,
   }
-  if (model.includes('2.5')) {
+  if (/2\.5|3\./.test(model)) {
     generationConfig.thinkingConfig = { thinkingBudget: 0 }
   }
   return {
@@ -126,6 +96,11 @@ function buildBody(model: string, messages: Array<{ role: string; content: strin
   }
 }
 
+function rememberSkip(model: string) {
+  const s = loadSettings()
+  saveSettings({ gemini_skip_until: markSkip(s.gemini_skip_until, model) })
+}
+
 export async function completeGemini(
   messages: Array<{ role: string; content: string }>,
   onToken?: (piece: string, full: string) => void,
@@ -133,16 +108,24 @@ export async function completeGemini(
   if (!geminiReady()) {
     throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
   }
-  let last = 'Gemini antwortet nicht.'
-  for (const model of modelList()) {
+  const groqOn = groqReady()
+  let last = germanQuotaHint(groqOn)
+  for (const model of geminiModelOrder(loadSettings().gemini_skip_until, missingModels)) {
     try {
       const { status, json } = await postGemini(model, buildBody(model, messages))
-      if (status === 404 || status === 400) {
-        last = explainHttp(status, json.error?.message || '')
+      const { message, status: errStatus } = errorFields(json)
+      if (isFatalAuth(status, message, errStatus)) {
+        throw new Error(germanAuthError())
+      }
+      if (isUnknownModel(status, message, errStatus) || status === 400) {
+        missingModels.add(model)
+        last = 'Gemini-Modell nicht verfügbar, nächstes wird versucht.'
         continue
       }
-      if (status < 200 || status >= 300 || json.error) {
-        throw new Error(explainHttp(status, json.error?.message || ''))
+      if (isRetryableCloud(status, message, errStatus) || status < 200 || status >= 300 || json.error) {
+        rememberSkip(model)
+        last = germanQuotaHint(groqOn)
+        continue
       }
       if (json.promptFeedback?.blockReason) {
         throw new Error('Google hat die Antwort blockiert.')
@@ -157,11 +140,23 @@ export async function completeGemini(
       return text
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
-      if (msg.includes('nicht gefunden') || msg.toLowerCase().includes('not found')) {
-        last = msg
+      if (msg === germanAuthError() || msg.includes('blockiert')) {
+        throw err instanceof Error ? err : new Error(msg)
+      }
+      if (msg.toLowerCase().includes('failed to fetch') || msg.toLowerCase().includes('network')) {
+        last = germanNetworkError()
         continue
       }
-      throw err instanceof Error ? err : new Error(explainHttp(0, msg))
+      last = userFacingCloudError(msg, groqOn)
+    }
+  }
+  if (groqOn) {
+    try {
+      return await completeGroq(messages, onToken)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      if (msg.includes('ungültig')) throw new Error(msg)
+      throw new Error(germanQuotaHint(true))
     }
   }
   throw new Error(last)
@@ -179,8 +174,19 @@ export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
       { role: 'system', content: GEMINI_PERSONA },
       { role: 'user', content: 'Antworten Sie mit genau einem Wort: Bereit.' },
     ])
-    return { ok: true, reply: text || 'Verbunden.' }
+    const via = loadSettings().gemini_model.startsWith('gemini')
+      ? loadSettings().gemini_model
+      : groqReady()
+        ? 'Groq-Fallback'
+        : 'Cloud'
+    return { ok: true, reply: `${text || 'Verbunden.'} (${via})` }
   } catch (err) {
-    return { ok: false, reply: err instanceof Error ? err.message : 'Test fehlgeschlagen' }
+    return {
+      ok: false,
+      reply: userFacingCloudError(
+        err instanceof Error ? err.message : 'Test fehlgeschlagen',
+        groqReady(),
+      ),
+    }
   }
 }
