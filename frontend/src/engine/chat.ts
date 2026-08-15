@@ -1,5 +1,5 @@
 import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady } from './llm'
-import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
+import { ALEXA_PARKED_TEXT, HELP_TEXT, isAlexaParkedAsk, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { PERSONA } from './persona'
 import {
@@ -96,6 +96,17 @@ export async function streamChat(
   try {
     if (isHelpCommand(content)) {
       const assistant = await addMessage(conversationId, 'assistant', HELP_TEXT)
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({
+        assistant_message: assistant,
+        conversation: updated,
+        tool: null,
+      })
+      return
+    }
+
+    if (isAlexaParkedAsk(content)) {
+      const assistant = await addMessage(conversationId, 'assistant', ALEXA_PARKED_TEXT)
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({
         assistant_message: assistant,

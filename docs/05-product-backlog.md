@@ -100,6 +100,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 |----|-------|--------|--------|------------------|
 | S6.1 | Als Nutzer will ich Jarvis’ Textantwort vorlesen lassen. | Won’t (jetzt) | parked | TTS auf PO-Kommando; gleicher Text |
 | S6.2 | Als Nutzer will ich eine Stimme, die zum Charakter passt. | Won’t (jetzt) | parked | PO-Abnahme Stimme |
+| S6.3 | Als Nutzer will ich Alexa-artig sprechen (STT + Weckwort) auf einem festen Android-Display. | Won’t (jetzt) | parked | Q34: nach TTS; nicht Echo/Nest |
 
 ### E7 — Assistant Capabilities
 
@@ -128,7 +129,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.7b | Als Nutzer will ich stabile Topic-Extraktion bei langen Research-Prompts. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7c | Als PO will ich Research-Default Opt-in aus + Test-Hygiene. | Must | done | Sprint 16 / `0.6.1` |
 | S7.7d | Als Nutzer will ich Research-Antworten im Jarvis-Ton + robustere Provider-Mix. | Should | done | Sprint 17 / `0.6.2` — Polish |
-| S7.8 | Kalender/Mail/Fire-TV/Alexa-Tools | Won’t | parked | Samsung-TV = E12 / `0.11.x` |
+| S7.8 | Kalender/Mail/Fire-TV/Alexa-Tools | Won’t | parked | Samsung-TV = E12 / `0.11.x`. **Q32 Kauf / Q33 Echo Show: nein** — kein Bestellen, keine APK, kein Amazon-Bildschirm. |
 | S7.9 | Native Store-App (Play Store) | Won’t | parked | Sideload-APK = S4.4 / `0.10.3` |
 
 ### E8 — Delight & Settings
@@ -245,6 +246,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
 - Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate
-- Mail / Cloud-Kalender-OAuth / **Amazon Fire TV** / Alexa
+- Mail / Cloud-Kalender-OAuth / **Amazon Fire TV** / Alexa (Q32 Kauf / Q33 Echo Show: nein)
+- **Alexa-artige Station** (Q34): festes Android-Display + TTS/STT — nicht Amazon; Stimme nur nach PO-Go
 - Play Store Listing / iOS
 - Optional lokaler Kalender-Read (ICS) — Parking (Sprint 30 P7)

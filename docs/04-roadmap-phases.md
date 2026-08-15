@@ -100,6 +100,7 @@ Reboot → Stack wieder da; Chat im Browser gegen NAS-IP.
 - TTS-Anbindung an bestehende Antworten
 - Stimmwahl / Natürlichkeit
 - Optional später: Spracheingabe (eigener Schnitt, nicht automatisch inkl.)
+- Q34: Alexa-artige Station (Tablet + Stimme) erst nach diesem PO-Go; nicht Amazon
 
 **Exit-Kriterium**  
 Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
@@ -140,7 +141,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - NAS Compose 24/7 → **`0.10.0`** (Sprint 34)
 - NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** (Sprints 36–39) — [`12`](./12-nas-apk.md)
 - Samsung-TV lokal → **`0.11.0`–`0.11.2`** (Sprints 40–42)
-- Mail / Fire TV / Alexa / Play Store — **Parking**
+- Mail / Fire TV / Alexa / **Q32 Kauf + Q33 Echo Show: nein** / Play Store — **Parking**
 - Tools (Kalender/Mail) — **nicht** in `0.9.x`/`0.10.x`
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.

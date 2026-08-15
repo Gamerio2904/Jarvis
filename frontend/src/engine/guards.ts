@@ -31,5 +31,29 @@ export function isHelpCommand(text: string): boolean {
   return /^\s*\/?(hilfe|help)\s*$/i.test(text)
 }
 
+const ALEXA_DEVICE = /\b(alexa|amazon\s*echo|echo\s*dot|echo\s*show|show\s*5|fire\s*tv|firetv)\b/i
+const ECHO_SHOW = /\b(echo\s*show|show\s*5)\b/i
+const PURCHASE = /\b(kauf(?:en|t)?|bestell(?:en|t|ung)?|einkauf(?:en)?|order|shop(?:ping)?)\b/i
+const RUNTIME_OR_DISPLAY =
+  /\b(laufen|lauf(?:en)?|install(?:ieren)?|apk|anzeig(?:en|e)?|bildschirm|display|sideload|hochladen|code|knack(?:en)?|aufschraub(?:en)?|werks(?:einstellung(?:en)?)?)\b/i
+
+/** „Kauf über Alexa“ — nicht jede Alexa-Erwähnung. */
+export function isAlexaPurchaseAsk(text: string): boolean {
+  const t = text.trim()
+  return ALEXA_DEVICE.test(t) && PURCHASE.test(t)
+}
+
+/** Echo Show als Laufzeit/Anzeige, oder Kauf — alles Parking. */
+export function isAlexaParkedAsk(text: string): boolean {
+  const t = text.trim()
+  if (ECHO_SHOW.test(t)) return true
+  if (/\bamazon\b/i.test(t) && /\bbildschirm\b/i.test(t)) return true
+  if (!ALEXA_DEVICE.test(t)) return false
+  return PURCHASE.test(t) || RUNTIME_OR_DISPLAY.test(t)
+}
+
 export const HELP_TEXT =
-  'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Kein PC, keine NAS. Fernseher später.'
+  'Jarvis, lokal auf diesem Handy. Smalltalk, merken/vergessen, Todos/Notizen mit Ja/Nein. Kein PC, keine NAS, kein Echo Show, kein Alexa-Kauf. Fernseher später.'
+
+export const ALEXA_PARKED_TEXT =
+  'Nein. Nicht über Amazon. Alexa-artig geht lokal: Android-Tablet immer an, dieselbe APK. Stimme vorlesen und Weckwort kommen später — nicht Echo, nicht Nest. Einkaufsliste als Todo.'
