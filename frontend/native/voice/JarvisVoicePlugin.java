@@ -26,8 +26,11 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
+import android.speech.tts.Voice;
+
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Set;
 
 @CapacitorPlugin(
         name = "JarvisVoice",
@@ -50,8 +53,9 @@ public class JarvisVoicePlugin extends Plugin {
                 ttsReady = status == TextToSpeech.SUCCESS;
                 if (ttsReady) {
                     tts.setLanguage(Locale.GERMANY);
-                    tts.setSpeechRate(1.06f);
-                    tts.setPitch(0.98f);
+                    tts.setSpeechRate(0.94f);
+                    tts.setPitch(0.96f);
+                    pickGermanVoice();
                 }
             });
         });
@@ -69,6 +73,32 @@ public class JarvisVoicePlugin extends Plugin {
                 tts = null;
             }
         });
+    }
+
+    private void pickGermanVoice() {
+        if (tts == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return;
+        try {
+            Set<Voice> voices = tts.getVoices();
+            if (voices == null) return;
+            Voice best = null;
+            int score = -100;
+            for (Voice v : voices) {
+                if (v == null || v.getLocale() == null) continue;
+                if (!"de".equalsIgnoreCase(v.getLocale().getLanguage())) continue;
+                String name = v.getName() == null ? "" : v.getName().toLowerCase(Locale.ROOT);
+                int s = 0;
+                if (name.contains("pico")) s -= 8;
+                if (name.contains("google")) s += 4;
+                if (name.contains("neural") || name.contains("wavenet") || name.contains("network")) s += 3;
+                if (v.getQuality() >= Voice.QUALITY_HIGH) s += 2;
+                if (s > score) {
+                    score = s;
+                    best = v;
+                }
+            }
+            if (best != null) tts.setVoice(best);
+        } catch (Exception ignored) {
+        }
     }
 
     @PluginMethod

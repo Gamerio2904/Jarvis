@@ -1,4 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
+import { synthesizeGemini, wantGeminiVoice } from '../engine/tts'
 
 type NativeVoice = {
   requestPermission(): Promise<{ granted: boolean }>
@@ -57,9 +58,57 @@ export async function stopListen(): Promise<void> {
   webStopListen()
 }
 
+let currentAudio: HTMLAudioElement | null = null
+let currentUrl: string | null = null
+
+function stopHtmlAudio() {
+  if (currentAudio) {
+    try {
+      currentAudio.pause()
+      currentAudio.src = ''
+    } catch {
+      /* ignore */
+    }
+    currentAudio = null
+  }
+  if (currentUrl) {
+    URL.revokeObjectURL(currentUrl)
+    currentUrl = null
+  }
+}
+
+function playBlob(blob: Blob): Promise<void> {
+  stopHtmlAudio()
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(blob)
+    currentUrl = url
+    const audio = new Audio(url)
+    currentAudio = audio
+    audio.onended = () => {
+      stopHtmlAudio()
+      resolve()
+    }
+    audio.onerror = () => {
+      stopHtmlAudio()
+      resolve()
+    }
+    void audio.play().catch(() => {
+      stopHtmlAudio()
+      resolve()
+    })
+  })
+}
+
 export async function speakText(text: string): Promise<void> {
   const clean = text.replace(/[#*_`]+/g, '').replace(/\s+/g, ' ').trim()
   if (!clean) return
+  if (wantGeminiVoice()) {
+    const blob = await synthesizeGemini(clean)
+    if (blob) {
+      await playBlob(blob)
+      return
+    }
+  }
   if (native) {
     await native.speak({ text: clean })
     return
@@ -68,6 +117,7 @@ export async function speakText(text: string): Promise<void> {
 }
 
 export async function stopSpeak(): Promise<void> {
+  stopHtmlAudio()
   if (native) {
     try {
       await native.stopSpeak()
