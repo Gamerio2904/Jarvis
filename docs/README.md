@@ -63,4 +63,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 48 | `0.14.1` | **CODE** (TV verbinden & steuern) |
 | 50 | `0.16.0` | **CODE** (Gemini Opt-in) |
 
-**Aktuell:** Sideload `1.0.0` — [`Jarvis.apk`](./apk.md).
+**Aktuell:** Sideload `1.0.1` — [`Jarvis.apk`](./apk.md).

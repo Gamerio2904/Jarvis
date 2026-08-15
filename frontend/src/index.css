@@ -73,7 +73,7 @@ textarea {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #1ed760, #0d5c2a 70%);
+  background: #0a0c0b url("/icon-192.png") center / cover no-repeat;
   box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.25);
   animation: brandPulse 3.6s var(--ease-soft) infinite;
 }

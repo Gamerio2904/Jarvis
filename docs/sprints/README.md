@@ -55,7 +55,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 48 | [`sprint-48.md`](./sprint-48.md) | `0.14.1` | TV verbinden & steuern | **CODE** |
 | 50 | [`sprint-50.md`](./sprint-50.md) | `0.16.0` | Gemini Opt-in | **CODE** |
 
-**Aktuell:** Sideload `1.0.0` (`Jarvis.apk`).
+**Aktuell:** Sideload `1.0.1` (`Jarvis.apk`).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

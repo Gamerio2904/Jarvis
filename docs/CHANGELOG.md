@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.0.0`**.
+App-Version im Code: **`1.0.1`**.
+
+### `1.0.1` — Cover & App-Icon — *CODE*
+
+- Eigenes Jarvis-Cover (J-Monogramm, dunkel, grüne LED)
+- Homescreen-Icon, rundes Icon, Splash statt Capacitor-Default
+- APK weiter `Jarvis.apk`
 
 ### `1.0.0` — Jarvis 1.0 — *CODE*
 

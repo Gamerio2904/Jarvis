@@ -1,6 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { spawnSync } from 'node:child_process'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const android = join(root, 'android')
@@ -87,4 +88,10 @@ if (!gradle.includes('okhttp')) {
 }
 writeFileSync(gradlePath, gradle)
 
-console.log(`[apply-native-tv] Plugin, Manifest, versionCode ${versionCode}, OkHttp.`)
+const brand = spawnSync('python3', [join(root, 'scripts/apply-brand.py')], { stdio: 'inherit' })
+if (brand.status !== 0) {
+  console.error('[apply-native-tv] apply-brand fehlgeschlagen')
+  process.exit(brand.status || 1)
+}
+
+console.log(`[apply-native-tv] Plugin, Manifest, versionCode ${versionCode}, OkHttp, Brand.`)
