@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.0.2`**.
+App-Version im Code: **`1.0.3`**.
+
+### `1.0.3` — Persona, Research, Notizen — *CODE*
+
+- Jarvis beleidigt nicht mehr; keine erfundenen Internetsuchen
+- Internet-Research (Opt-in) nutzt Google-Suche über Gemini; aus = ehrliche Absage
+- „Notiz:“ speichert sofort; Memory-Ack ohne `name=Max`
+- Chat-Avatar nutzt das Cover-Icon
 
 ### `1.0.2` — Test-Prompts zum Antippen — *CODE*
 

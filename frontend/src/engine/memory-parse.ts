@@ -15,6 +15,12 @@ export const RECALL_FOOD =
   /^\s*(?:was\s+esse\s+ich(?:\s+gerne)?|was\s+mag\s+ich\s+(?:zu\s+)?essen|mein\s+essen\??)\s*[?]?\s*$/is
 export const RECALL_VAGUE = /^\s*(?:was\s+mag\s+ich)\s*[?]?\s*$/is
 
+export function isIdentityAsk(text: string): boolean {
+  const t = text.trim()
+  if (!t || t.length > 120) return false
+  return /wer\s+bist\s+du|was\s+bist\s+du|wer\s+sind\s+sie|wer\s+bin\s+ich/i.test(t)
+}
+
 export function parseMemoryFacts(text: string): MemoryFact[] {
   const out: MemoryFact[] = []
   const seen = new Set<string>()

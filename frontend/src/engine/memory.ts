@@ -6,6 +6,7 @@ import {
   RECALL_VAGUE,
   VERGISS,
   VERGISS_ALL,
+  isIdentityAsk,
   isMemoryRecall,
   isMemoryWrite,
   parseMemoryFacts,
@@ -42,8 +43,8 @@ export async function handleMemory(
       for (const f of facts) {
         saved.push(await upsertMemory(f.key, f.value, f.category, conversationId))
       }
-      const bits = saved.map((s) => `${s.key}=${s.value}`).join(', ')
-      return { handled: true, reply: `Notiert: ${bits}.`, items: saved }
+      const bits = saved.map((s) => s.value).join(', ')
+      return { handled: true, reply: `${bits} — liegt.`, items: saved }
     }
   }
   if (isMemoryRecall(text)) {
@@ -84,6 +85,17 @@ export async function handleMemory(
     return {
       handled: true,
       reply: items.map((m) => `${m.key}: ${m.value}`).join('\n'),
+    }
+  }
+  if (isIdentityAsk(text)) {
+    const items = await listMemory()
+    const name = items.find((m) => m.key === 'name')
+    if (name) {
+      return { handled: true, reply: `Ich bin Jarvis. Sie heißen ${name.value}.` }
+    }
+    return {
+      handled: true,
+      reply: 'Ich bin Jarvis, privater Assistent. Einen Namen von Ihnen habe ich noch nicht.',
     }
   }
   return { handled: false }

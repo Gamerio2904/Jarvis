@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.0.2'
+export const APP_VERSION = '1.0.3'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -22,6 +22,8 @@ export type Message = {
   created_at: string
   meta?: Record<string, unknown> | null
 }
+
+export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
 
 export type MemoryItem = {
   id: string

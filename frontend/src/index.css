@@ -716,7 +716,9 @@ textarea {
 }
 
 .avatar.jarvis {
-  background: linear-gradient(145deg, #1db954, #0f7a34);
+  background: #0a0c0b url("/icon-192.png") center / cover no-repeat;
+  color: transparent;
+  font-size: 0;
 }
 
 .row.streaming .avatar.jarvis {

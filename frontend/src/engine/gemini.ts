@@ -1,3 +1,4 @@
+import type { ResearchMeta, ResearchSource } from './research-parse'
 import {
   germanAuthError,
   germanNetworkError,
@@ -16,11 +17,22 @@ import { isGeminiConfigured, loadSettings, saveSettings } from './store'
 
 export const GEMINI_LABEL = 'Gemini Flash (Google)'
 
+export type CloudComplete = {
+  text: string
+  research?: ResearchMeta
+}
+
 type GeminiPart = { text?: string }
+type GroundingChunk = { web?: { uri?: string; title?: string } }
+type GroundingMetadata = {
+  webSearchQueries?: string[]
+  groundingChunks?: GroundingChunk[]
+}
 type GeminiResponse = {
   candidates?: Array<{
     content?: { parts?: GeminiPart[] }
     finishReason?: string
+    groundingMetadata?: GroundingMetadata
   }>
   promptFeedback?: { blockReason?: string }
   error?: { code?: number; message?: string; status?: string }
@@ -64,7 +76,38 @@ function textFrom(json: GeminiResponse): string {
     .trim()
 }
 
-function buildBody(model: string, messages: Array<{ role: string; content: string }>) {
+function researchFrom(json: GeminiResponse): ResearchMeta | undefined {
+  const g = json.candidates?.[0]?.groundingMetadata
+  if (!g) return undefined
+  const now = new Date().toISOString()
+  const sources: ResearchSource[] = (g.groundingChunks || [])
+    .map((c) => ({
+      title: c.web?.title || 'Quelle',
+      url: c.web?.uri || '',
+      snippet: '',
+      provider: 'google_search',
+      retrieved_at: now,
+    }))
+    .filter((s) => s.url)
+  const query = (g.webSearchQueries || []).filter(Boolean)[0]
+  if (!sources.length && !query) return undefined
+  return {
+    used: sources.length > 0,
+    status: sources.length ? 'ok' : 'empty',
+    status_label: sources.length ? 'Research' : 'Keine Quellen',
+    badge: sources.length ? 'Research' : undefined,
+    query,
+    sources,
+    network_attempted: true,
+    privacy_note: 'Nur die Suchanfrage ging zu Google, nicht der ganze Chatverlauf extra.',
+  }
+}
+
+function buildBody(
+  model: string,
+  messages: Array<{ role: string; content: string }>,
+  opts: { search?: boolean; thinking?: boolean } = {},
+) {
   const system = messages.find((m) => m.role === 'system')?.content || GEMINI_PERSONA
   const turns = messages.filter((m) => m.role !== 'system')
   const contents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = []
@@ -83,17 +126,22 @@ function buildBody(model: string, messages: Array<{ role: string; content: strin
     contents.unshift({ role: 'user', parts: [{ text: 'Hallo.' }] })
   }
   const generationConfig: Record<string, unknown> = {
-    temperature: 0.7,
-    maxOutputTokens: 512,
+    temperature: 0.55,
+    maxOutputTokens: 640,
   }
-  if (/2\.5|3\./.test(model)) {
+  const thinking = opts.thinking !== false && /2\.5|3\./.test(model) && !opts.search
+  if (thinking) {
     generationConfig.thinkingConfig = { thinkingBudget: 0 }
   }
-  return {
+  const body: Record<string, unknown> = {
     system_instruction: { parts: [{ text: system }] },
     contents,
     generationConfig,
   }
+  if (opts.search) {
+    body.tools = [{ google_search: {} }]
+  }
+  return body
 }
 
 function rememberSkip(model: string) {
@@ -104,40 +152,61 @@ function rememberSkip(model: string) {
 export async function completeGemini(
   messages: Array<{ role: string; content: string }>,
   onToken?: (piece: string, full: string) => void,
-): Promise<string> {
+  opts?: { search?: boolean },
+): Promise<CloudComplete> {
   if (!geminiReady()) {
     throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
   }
   const groqOn = groqReady()
   let last = germanQuotaHint(groqOn)
+  const wantSearch = Boolean(opts?.search)
   for (const model of geminiModelOrder(loadSettings().gemini_skip_until, missingModels)) {
+    const attempts = wantSearch
+      ? [
+          buildBody(model, messages, { search: true, thinking: false }),
+          buildBody(model, messages, { search: false, thinking: true }),
+        ]
+      : [buildBody(model, messages, { search: false, thinking: true })]
+    let modelRetryable = false
     try {
-      const { status, json } = await postGemini(model, buildBody(model, messages))
-      const { message, status: errStatus } = errorFields(json)
-      if (isFatalAuth(status, message, errStatus)) {
-        throw new Error(germanAuthError())
+      for (let i = 0; i < attempts.length; i += 1) {
+        const { status, json } = await postGemini(model, attempts[i])
+        const { message, status: errStatus } = errorFields(json)
+        if (isFatalAuth(status, message, errStatus)) {
+          throw new Error(germanAuthError())
+        }
+        if (isUnknownModel(status, message, errStatus)) {
+          missingModels.add(model)
+          last = 'Gemini-Modell nicht verfügbar, nächstes wird versucht.'
+          break
+        }
+        if (status === 400 && i < attempts.length - 1) {
+          last = 'Suche an diesem Modell nicht verfügbar, ohne Tool nochmal.'
+          continue
+        }
+        if (isRetryableCloud(status, message, errStatus)) {
+          rememberSkip(model)
+          last = germanQuotaHint(groqOn)
+          modelRetryable = true
+          break
+        }
+        if (status < 200 || status >= 300 || json.error) {
+          last = userFacingCloudError(message || '', groqOn)
+          break
+        }
+        if (json.promptFeedback?.blockReason) {
+          throw new Error('Google hat die Antwort blockiert.')
+        }
+        const text = textFrom(json)
+        if (!text) {
+          last = 'Gemini lieferte keinen Text.'
+          continue
+        }
+        saveSettings({ gemini_model: model })
+        onToken?.(text, text)
+        return { text, research: researchFrom(json) }
       }
-      if (isUnknownModel(status, message, errStatus) || status === 400) {
-        missingModels.add(model)
-        last = 'Gemini-Modell nicht verfügbar, nächstes wird versucht.'
-        continue
-      }
-      if (isRetryableCloud(status, message, errStatus) || status < 200 || status >= 300 || json.error) {
-        rememberSkip(model)
-        last = germanQuotaHint(groqOn)
-        continue
-      }
-      if (json.promptFeedback?.blockReason) {
-        throw new Error('Google hat die Antwort blockiert.')
-      }
-      const text = textFrom(json)
-      if (!text) {
-        last = 'Gemini lieferte keinen Text.'
-        continue
-      }
-      saveSettings({ gemini_model: model })
-      onToken?.(text, text)
-      return text
+      if (modelRetryable) continue
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       if (msg === germanAuthError() || msg.includes('blockiert')) {
@@ -152,7 +221,8 @@ export async function completeGemini(
   }
   if (groqOn) {
     try {
-      return await completeGroq(messages, onToken)
+      const text = await completeGroq(messages, onToken)
+      return { text }
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
       if (msg.includes('ungültig')) throw new Error(msg)
@@ -170,7 +240,7 @@ export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
     return { ok: false, reply: 'Gemini ist aus. Zuerst den Schalter an.' }
   }
   try {
-    const text = await completeGemini([
+    const { text } = await completeGemini([
       { role: 'system', content: GEMINI_PERSONA },
       { role: 'user', content: 'Antworten Sie mit genau einem Wort: Bereit.' },
     ])

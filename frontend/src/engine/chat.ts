@@ -5,6 +5,7 @@ import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { GEMINI_PERSONA, PERSONA } from './persona'
+import { isLiveLookup, RESEARCH_NEEDS_GEMINI, RESEARCH_OFF_REPLY, type ResearchMeta } from './research-parse'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
@@ -30,7 +31,7 @@ export type StreamHandlers = {
     user_message: Message
     model: string
     using_fallback: boolean
-    research?: null
+    research?: ResearchMeta | null
   }) => void
   onToken?: (token: string) => void
   onReplace?: (content: string) => void
@@ -39,7 +40,7 @@ export type StreamHandlers = {
     assistant_message: Message
     conversation: Conversation
     guarded?: boolean
-    research?: null
+    research?: ResearchMeta | null
     tool?: ToolMeta | null
   }) => void
   onError?: (detail: string) => void
@@ -171,6 +172,22 @@ export async function streamChat(
       }
     }
 
+    const s = loadSettings()
+    if (isLiveLookup(content)) {
+      if (!s.research_opt_in) {
+        const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
+        const updated = (await touchConversation(conversationId)) || conv
+        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+        return
+      }
+      if (!geminiReady()) {
+        const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
+        const updated = (await touchConversation(conversationId)) || conv
+        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+        return
+      }
+    }
+
     const history = await listMessages(conversationId)
     const mem = await listMemory()
     const system = geminiReady()
@@ -185,23 +202,32 @@ export async function streamChat(
     ]
 
     let acc = ''
+    let research: ResearchMeta | undefined
     const raw = geminiReady()
-      ? await completeGemini(llmMessages, (_piece, full) => {
-          acc = full
-          handlers.onToken?.(_piece)
+      ? await completeGemini(
+          llmMessages,
+          (_piece, full) => {
+            acc = full
+            handlers.onToken?.(_piece)
+          },
+          { search: Boolean(s.research_opt_in && isLiveLookup(content)) },
+        ).then((r) => {
+          research = r.research
+          return r.text
         })
       : await completeChat(llmMessages, (_piece, full) => {
           acc = full
           handlers.onToken?.(_piece)
         })
-    const final = scrubReply(raw || acc)
+    const final = scrubReply(raw || acc, { searched: Boolean(research?.used) })
     if (final !== (raw || acc)) handlers.onReplace?.(final)
-    const assistant = await addMessage(conversationId, 'assistant', final)
+    const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({
       assistant_message: assistant,
       conversation: updated,
       guarded: final !== (raw || acc),
+      research: research || null,
       tool: null,
     })
   } catch (err) {

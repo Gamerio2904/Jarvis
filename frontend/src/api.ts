@@ -23,41 +23,19 @@ import {
   listMessages,
   loadSettings,
   type Conversation,
+  type MemoryCategory,
   type MemoryItem,
   type Message,
   type Settings as EngineSettings,
 } from './engine/store'
 import { discoverTvs, pairTv, testTv, tvStatusFromSettings } from './engine/tv'
+import type { ResearchMeta, ResearchSource } from './engine/research-parse'
 
-export type { Conversation, MemoryItem, Message, StreamHandlers }
+export type { Conversation, MemoryCategory, MemoryItem, Message, StreamHandlers, ResearchMeta, ResearchSource }
 export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady, isGeminiConfigured }
 
 export async function releaseModel(): Promise<void> {
   return engineReleaseModel()
-}
-
-export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
-
-export type ResearchSource = {
-  title: string
-  url: string
-  snippet: string
-  provider: string
-  retrieved_at: string
-}
-
-export type ResearchMeta = {
-  used?: boolean
-  status?: string
-  query?: string
-  sources?: ResearchSource[]
-  error?: string | null
-  diverges?: boolean
-  privacy_note?: string | null
-  badge?: string | null
-  audit_id?: string
-  status_label?: string | null
-  network_attempted?: boolean
 }
 
 export type ToolMeta = {
