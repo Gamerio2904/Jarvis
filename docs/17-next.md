@@ -16,20 +16,19 @@ Kein Alles-in-einem-Wurf. Jede Stufe ist sideloadbar.
 | **`1.5.3`** | Stimme flüssig (ganze Sätze, Betonung) — **CODE** | 1.5.2 war abgehakt, weil Mini-Schnipsel |
 | **`1.6.0`** | Wetter als Lage + Tipp — **CODE** | 1.3 hat nur „18 °C, wolkig“ vorgelesen |
 
-## Danach — Vorschlag
+## Danach — fest `1.7`–`1.11`
 
-Eine Stufe nach der anderen, sideloadbar. Nicht alles auf einmal.
+Festgelegt in [`18-next.md`](./18-next.md). Kurz:
 
-| Version | Inhalt | Warum |
+| Version | Inhalt | Status |
 |---------|--------|--------|
-| **`1.7`** | **Morgenlage:** Wetter + nächste Termine + fällige Erinnerungen in einer Antwort | Das nutzt man morgens wirklich |
-| **`1.8`** | **Timer:** „in 8 Minuten Nudeln“ als Kurz-Alarm, nicht nur Kalender-Erinnerung | Küche, Wäsche, Pause |
-| **`1.9`** | **Wiederkehrend:** jeden Montag Steuer, jeden Morgen Tabletten | 1.2 kann nur einmalig |
-| **`1.10`** | Wetter-Nachfragen: „und morgen?“, „und in Berlin?“ ohne die Frage neu zu stellen | Gespräch, nicht Kommandos |
-| Optional | Homescreen-Widget (nächster Termin + kurzes Wetter) | Sichtbar ohne die App zu öffnen |
-| Optional | Pollen / Luftqualität (Open-Meteo, kein Raten) | Passt zu Wetter, Allergiker |
-| Optional | Größeres Offline-Modell (1.5B) | Klüger ohne Gemini, langsamer, mehr Speicher |
-| Optional | Wake-Word nur bei **angeschaltetem** Handy | Nie bei Akku aus |
+| **`1.7.0`** | Timer + Klingeln (Bildschirm aus, Akku an) | **PLANNED** |
+| **`1.8.0`** | Wiederkehrende Erinnerungen | **PLANNED** |
+| **`1.9.0`** | Wetter-Nachfragen („und morgen?“) | **PLANNED** |
+| **`1.10.0`** | Homescreen-Widget | **PLANNED** |
+| **`1.11.0`** | Wake-Word (Handy an, Screen darf aus) | **PLANNED** |
+
+Morgenlage, Pollen, größeres Offline-Modell: später, nicht in dieser Reihe.
 
 ## Wake-Word bei „Handy aus“
 

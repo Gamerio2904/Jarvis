@@ -79,6 +79,11 @@ MAJOR.MINOR.PATCH
 | `1.4.0` | Kalender-GUI (lokal) | Sprint 54 |
 | `1.5.0` | Sprachmodus + Homescreen-Shortcut | Sprint 55 |
 | `1.6.0` | Wetter als Lage + Tipp | Sprint 56 |
+| `1.7.0` | Timer + Klingeln (Screen aus) | Sprint 57 |
+| `1.8.0` | Wiederkehrende Erinnerungen | Sprint 58 |
+| `1.9.0` | Wetter-Nachfragen | Sprint 59 |
+| `1.10.0` | Homescreen-Widget | Sprint 60 |
+| `1.11.0` | Wake-Word (Handy an) | Sprint 61 |
 
 ### Weitere Beispiele
 
