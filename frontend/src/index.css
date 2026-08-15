@@ -286,6 +286,18 @@ textarea {
   margin-top: 0.4rem;
 }
 
+.plug-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0 4px;
+  border-top: 1px solid var(--border);
+}
+
+.plug-row strong {
+  font-size: 0.8rem;
+}
+
 .setup-overlay {
   position: fixed;
   inset: 0;

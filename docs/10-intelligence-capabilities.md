@@ -339,6 +339,7 @@ Neben Memory/Research **handlungsfähige**, lokale Persistenz: Notizen und Todos
 |-----------------|----------------|
 | Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Fire TV / Alexa in `0.9.x` |
 | `notes` + `todo` (SQLite) | Cloud-Kalender-OAuth; TV erst `0.11` |
+| `plug` PC/Bildschirm/LEDs (`0.14.0`, LAN HTTP) | Tuya-Cloud, Alexa |
 | Router/`/hilfe` Integration | Autonome Multi-Tool-Ketten ohne Confirm |
 | False-Confirm-Guards | Secrets speichern |
 

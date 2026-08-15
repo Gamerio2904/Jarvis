@@ -1,4 +1,4 @@
-export const APP_VERSION = '0.13.1'
+export const APP_VERSION = '0.14.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -72,6 +72,13 @@ export type Settings = {
   tv_name: string
   tv_host: string
   tv_mac: string
+  plugs_enabled: boolean
+  plug_pc_host: string
+  plug_pc_protocol: string
+  plug_screen_host: string
+  plug_screen_protocol: string
+  plug_leds_host: string
+  plug_leds_protocol: string
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -92,6 +99,13 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_name: 'Wohnzimmer',
   tv_host: '',
   tv_mac: '',
+  plugs_enabled: false,
+  plug_pc_host: '',
+  plug_pc_protocol: 'tasmota',
+  plug_screen_host: '',
+  plug_screen_protocol: 'tasmota',
+  plug_leds_host: '',
+  plug_leds_protocol: 'tasmota',
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',

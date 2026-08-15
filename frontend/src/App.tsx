@@ -15,6 +15,7 @@ import {
   ensureModel,
   hasCachedModel,
   isModelReady,
+  testPlug,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -22,6 +23,7 @@ import {
   type Message,
   type ResearchAudit,
   type ResearchMeta,
+  type PlugId,
   type Settings,
   type ToolMeta,
 } from './api'
@@ -157,6 +159,7 @@ function App() {
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
   const [setupOpen, setSetupOpen] = useState(() => !isModelReady())
   const [downloadPct, setDownloadPct] = useState(0)
+  const [plugTest, setPlugTest] = useState<Partial<Record<PlugId, string>>>({})
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadPhase, setDownloadPhase] = useState<'download' | 'load'>('download')
   const [hasLocalModel, setHasLocalModel] = useState(false)
@@ -575,7 +578,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · Handy · v0.13.1</p>
+            <p>lokal · Handy · v0.14.0</p>
           </div>
         </div>
 
@@ -594,7 +597,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.13.1'} · on-device · privat</p>
+              <p className="settings-hint">Version {settings?.version || '0.14.0'} · on-device · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>
@@ -689,6 +692,72 @@ function App() {
               <p className="settings-hint">
                 Geparkt in 0.13 — Tizen-Steuerung braucht Native-Keys, nicht WASM.
               </p>
+            </section>
+            <section className="settings-section">
+              <h3>WLAN-Steckdosen</h3>
+              <p className="settings-hint">
+                Lokal im gleichen WLAN. Tasmota oder Shelly. Tuya/Smart Life nur nach Tasmota/ESPHome — keine Amazon-Cloud.
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(settings?.plugs_enabled)}
+                  disabled={settingsBusy}
+                  onChange={(e) => void patchSetting({ plugs_enabled: e.target.checked })}
+                />
+                <span>Steckdosen aktiv</span>
+              </label>
+              {(
+                [
+                  ['pc', 'PC', 'plug_pc_host', 'plug_pc_protocol'],
+                  ['screen', 'Bildschirm', 'plug_screen_host', 'plug_screen_protocol'],
+                  ['leds', 'LEDs', 'plug_leds_host', 'plug_leds_protocol'],
+                ] as const
+              ).map(([id, label, hostKey, protoKey]) => (
+                <div key={id} className="plug-row">
+                  <strong>{label}</strong>
+                  <label className="settings-inline">
+                    <span>IP</span>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      placeholder="192.168.1.50"
+                      value={String(settings?.[hostKey] || '')}
+                      disabled={settingsBusy}
+                      onChange={(e) => void patchSetting({ [hostKey]: e.target.value })}
+                    />
+                  </label>
+                  <label className="settings-inline">
+                    <span>Protokoll</span>
+                    <select
+                      value={String(settings?.[protoKey] || 'tasmota')}
+                      disabled={settingsBusy}
+                      onChange={(e) => void patchSetting({ [protoKey]: e.target.value })}
+                    >
+                      <option value="tasmota">Tasmota</option>
+                      <option value="shelly">Shelly</option>
+                      <option value="shelly_rpc">Shelly Plus/RPC</option>
+                    </select>
+                  </label>
+                  <button
+                    type="button"
+                    className="retry-btn"
+                    disabled={settingsBusy}
+                    onClick={() => {
+                      void testPlug(id).then((r) => {
+                        setPlugTest((prev) => ({
+                          ...prev,
+                          [id]: r.ok ? `Test: ${r.detail}` : `Test fehl: ${r.detail}`,
+                        }))
+                      })
+                    }}
+                  >
+                    Test {label}
+                  </button>
+                  {plugTest[id] ? <p className="settings-hint">{plugTest[id]}</p> : null}
+                </div>
+              ))}
+              <p className="settings-hint">Chat: „PC an“, „Bildschirm aus“, „LEDs an“, „Steckdosen“ — dann Ja/Nein.</p>
             </section>
             <section className="settings-section">
               <h3>Easter Eggs</h3>
