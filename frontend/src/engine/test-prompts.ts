@@ -14,4 +14,6 @@ export const TEST_PROMPTS = [
   'Notiz: WLAN steht am Router',
   'Zeige Notizen',
   'Suche im Internet nach Kuchenrezepten',
+  'in 20 Minuten Milch',
+  'morgen 8 Uhr Steuer',
 ] as const

@@ -1,16 +1,17 @@
-# Android-APK — `1.1.0`
+# Android-APK — `1.2.0`
 
-**1.1:** UI-Sound piept nach dem Anschalten. Research-Quellen stehen unter der Antwort und im Audit.
+**1.2:** Erinnerungen mit Uhrzeit. Jarvis bestätigt die Zeit und piept per Android-Notification.
 
 ## Download
 
-**APK `1.1.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-1-0bf8/releases/Jarvis.apk
+**APK `1.2.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-2-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.1.0` · versionCode `10100`
+- versionName `1.2.0` · versionCode `10200`
 - App-ID `local.jarvis.app`
 
-1. Installieren (über 1.0.x).
-2. Einstellungen → UI-Sounds an — einmal piepen.
-3. Gemini + Research an → „Suche im Internet nach …“ → Quellen antippen.
+1. Installieren (über 1.1.x).
+2. „in 20 Minuten Milch“ — Bestätigung mit Uhrzeit.
+3. Benachrichtigungen erlauben, App in den Hintergrund, warten.
+4. Einstellungen → Erinnerungen, oder „was steht an“.

@@ -1,0 +1,97 @@
+import { Capacitor, registerPlugin } from '@capacitor/core'
+
+type NativeNotify = {
+  requestPermission(): Promise<{ granted: boolean }>
+  schedule(opts: { id: number; title: string; body: string; atMs: number }): Promise<{ ok: boolean; message?: string }>
+  cancel(opts: { id: number }): Promise<{ ok: boolean }>
+}
+
+const native = Capacitor.isNativePlatform() ? registerPlugin<NativeNotify>('JarvisNotify') : null
+
+const browserTimers = new Map<number, number>()
+
+export function notifyIdFromKey(key: string): number {
+  let h = 0
+  for (let i = 0; i < key.length; i += 1) h = (Math.imul(31, h) + key.charCodeAt(i)) | 0
+  return (Math.abs(h) % 1_999_999_999) + 1
+}
+
+export async function requestNotifyPermission(): Promise<boolean> {
+  if (native) {
+    try {
+      const res = await native.requestPermission()
+      return Boolean(res.granted)
+    } catch {
+      return false
+    }
+  }
+  if (typeof Notification === 'undefined') return false
+  if (Notification.permission === 'granted') return true
+  if (Notification.permission === 'denied') return false
+  try {
+    const perm = await Notification.requestPermission()
+    return perm === 'granted'
+  } catch {
+    return false
+  }
+}
+
+export async function scheduleNotify(opts: {
+  id: number
+  title: string
+  body: string
+  at: Date
+}): Promise<{ ok: boolean; message?: string }> {
+  const atMs = opts.at.getTime()
+  if (atMs <= Date.now() + 5_000) {
+    return fireNow(opts.title, opts.body)
+  }
+  if (native) {
+    try {
+      return await native.schedule({
+        id: opts.id,
+        title: opts.title,
+        body: opts.body,
+        atMs,
+      })
+    } catch (err) {
+      return { ok: false, message: err instanceof Error ? err.message : 'Notification fehlgeschlagen' }
+    }
+  }
+  if (browserTimers.has(opts.id)) window.clearTimeout(browserTimers.get(opts.id))
+  const wait = Math.min(atMs - Date.now(), 2_147_000_000)
+  const handle = window.setTimeout(() => {
+    browserTimers.delete(opts.id)
+    void fireNow(opts.title, opts.body)
+  }, wait)
+  browserTimers.set(opts.id, handle)
+  return { ok: true }
+}
+
+export async function cancelNotify(id: number): Promise<void> {
+  if (native) {
+    try {
+      await native.cancel({ id })
+    } catch {
+      /* ignore */
+    }
+    return
+  }
+  const handle = browserTimers.get(id)
+  if (handle) {
+    window.clearTimeout(handle)
+    browserTimers.delete(id)
+  }
+}
+
+async function fireNow(title: string, body: string): Promise<{ ok: boolean; message?: string }> {
+  try {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      new Notification(title, { body })
+      return { ok: true }
+    }
+  } catch {
+    /* ignore */
+  }
+  return { ok: true, message: 'Zeit erreicht, Anzeige nur mit Notification-Recht.' }
+}

@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.1.0`**.
+App-Version im Code: **`1.2.0`**.
+
+### `1.2.0` — Erinnerungen mit Zeit — *CODE*
+
+- Chat: „in 20 Minuten Milch“, „morgen 8 Uhr Steuer“, „um 18:30 Ofen“
+- Android-Notification zur Zeit (Hintergrund + nach Neustart)
+- Liste/Löschen in den Einstellungen; „was steht an“ zeigt Erinnerungen und Todos
+- [`sprints/sprint-52.md`](./sprints/sprint-52.md)
 
 ### `1.1.0` — Sound + Research-Quellen — *CODE*
 

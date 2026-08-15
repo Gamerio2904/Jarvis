@@ -23,7 +23,9 @@ import {
   listMessages,
   loadSettings,
   listResearchAudits as storeListAudits,
+  listReminders as storeListReminders,
   type Conversation,
+  type Reminder,
   type MemoryCategory,
   type MemoryItem,
   type Message,
@@ -32,7 +34,7 @@ import {
 import { discoverTvs, pairTv, testTv, tvStatusFromSettings } from './engine/tv'
 import type { ResearchMeta, ResearchSource } from './engine/research-parse'
 
-export type { Conversation, MemoryCategory, MemoryItem, Message, StreamHandlers, ResearchMeta, ResearchSource }
+export type { Conversation, MemoryCategory, MemoryItem, Message, Reminder, StreamHandlers, ResearchMeta, ResearchSource }
 export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady, isGeminiConfigured }
 
 export async function releaseModel(): Promise<void> {
@@ -145,6 +147,12 @@ export async function patchSettings(patch: Partial<Settings>): Promise<Settings>
   enginePatch(patch as Partial<EngineSettings>)
   return getSettings()
 }
+
+export async function listReminders() {
+  return storeListReminders()
+}
+
+export { removeReminder, syncReminderAlarms } from './engine/reminders'
 
 export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
   const rows = await storeListAudits(limit)
