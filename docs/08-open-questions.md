@@ -54,9 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review Sprint 8–18 (`0.4.0`–`0.7.0`) → Tags bei OK
-2. Danach: Sprint 31–33 (`0.9.3`–`0.9.5`), dann `0.10.x` NAS+APK, dann `0.11.x` TV
-3. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
+1. Sprint 47 / `0.14.0` — Qualität & Latenz ([`14-quality-tv.md`](./14-quality-tv.md))
+2. Sprint 48 / `0.14.1` — TV suchen, koppeln, steuern
+3. TTS / `1.0.0` — PO-Kommando
 
 ---
 
@@ -67,3 +67,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-11 | Workshop 1–5 | Persona, Stack, UI, Versionen, Memory-Stufen | PO |
 | 2026-08-11 | Q5 | Stil-Anker gewählt; Variation/Anti-Template Pflicht | PO |
 | 2026-08-14 | `0.13` | Jarvis komplett on-device auf dem Handy; NAS/PC-Backend entfernt | PO |
+| 2026-08-15 | `0.14` | Nichts Neues: bestehendes härten; TV on-device live (`0.14.0`/`0.14.1`) | PO |
