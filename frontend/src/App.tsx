@@ -34,6 +34,7 @@ import {
 } from './api'
 import './index.css'
 import { playUiSound } from './sounds'
+import { TEST_PROMPTS } from './engine/test-prompts'
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -721,7 +722,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.0.1</p>
+            <p>Handy · v1.0.2</p>
           </div>
         </div>
 
@@ -740,7 +741,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.0.1'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.0.2'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1237,7 +1238,7 @@ function App() {
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
                 <h3>Jarvis</h3>
-                <p>Schreib einfach los — {geminiOn ? 'Gemini (Google), nicht privat.' : 'lokal, ohne Cloud-Hirn.'}</p>
+                <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}
 
@@ -1322,6 +1323,20 @@ function App() {
               ) : null}
             </div>
           ) : null}
+          <div className="prompt-chips" role="list" aria-label="Test-Prompts">
+            {TEST_PROMPTS.map((text) => (
+              <button
+                key={text}
+                type="button"
+                className="prompt-chip"
+                role="listitem"
+                disabled={busy}
+                onClick={() => void sendMessage(text)}
+              >
+                {text}
+              </button>
+            ))}
+          </div>
           <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
             <textarea
               ref={textareaRef}

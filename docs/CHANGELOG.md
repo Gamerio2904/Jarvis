@@ -5,7 +5,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.0.1`**.
+App-Version im Code: **`1.0.2`**.
+
+### `1.0.2` — Test-Prompts zum Antippen — *CODE*
+
+- Unter dem Chat: einzelne One-Click-Felder, jedes sendet einen Test-Prompt
 
 ### `1.0.1` — Cover & App-Icon — *CODE*
 

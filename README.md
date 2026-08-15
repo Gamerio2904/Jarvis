@@ -18,7 +18,7 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 ## Android-APK
 
-**`Jarvis.apk` `1.0.1`:**  
+**`Jarvis.apk` `1.0.2`:**  
 https://github.com/Gamerio2904/Jarvis/raw/cursor/gemini-opt-in-0bf8/releases/Jarvis.apk
 
 ```bat
