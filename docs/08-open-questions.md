@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Abnahme `0.14.1` am eigenen Tizen (suchen → koppeln → Chat-Keys)
+1. Sprint 49 / `0.15.0` — Start schneller, Chat antwortet ([`15-startup-chat.md`](./15-startup-chat.md))
 2. TTS / `1.0.0` — PO-Kommando
 
 ---
@@ -67,3 +67,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-11 | Q5 | Stil-Anker gewählt; Variation/Anti-Template Pflicht | PO |
 | 2026-08-14 | `0.13` | Jarvis komplett on-device auf dem Handy; NAS/PC-Backend entfernt | PO |
 | 2026-08-15 | `0.14` | Nichts Neues: bestehendes härten; TV on-device live (`0.14.0`/`0.14.1`) | PO |
+| 2026-08-15 | `0.15` | Öffnen/Modellstart schneller; Chat-Stille beheben; kein ChatGPT-Sprung | PO |

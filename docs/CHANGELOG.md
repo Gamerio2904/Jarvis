@@ -7,6 +7,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`0.14.1`** (On-Device + Tizen).
 
+Geplant: **`0.15.0`** Start & Chat-Zuverlässigkeit ([`sprints/sprint-49.md`](./sprints/sprint-49.md)) — [`15-startup-chat.md`](./15-startup-chat.md).
+
 ### `0.14.1` — TV verbinden & steuern — *CODE*
 
 - Native Capacitor-Brücke: SSDP/Portscan, WOL, Tizen-WS 8001/8002, Token auf dem Gerät
