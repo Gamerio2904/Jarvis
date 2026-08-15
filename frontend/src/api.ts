@@ -225,8 +225,9 @@ export async function streamChat(
   id: string,
   content: string,
   handlers: StreamHandlers,
+  opts?: { voice?: boolean },
 ): Promise<void> {
-  return engineStream(id, content, handlers)
+  return engineStream(id, content, handlers, opts)
 }
 
 export async function tvDiscover(): Promise<{ items: Array<Record<string, unknown>>; message?: string }> {

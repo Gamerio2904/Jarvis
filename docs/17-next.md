@@ -12,7 +12,7 @@ Kein Alles-in-einem-Wurf. Jede Stufe ist sideloadbar.
 | **`1.2.0`** | Erinnerungen mit Uhrzeit (Chat + Notification) — **CODE** | Braucht Android-Rechte, eigenen Speicher |
 | **`1.3.0`** | Ort + Wetter („heute hier“) — **CODE** | Standort einmal, Open-Meteo, kein Raten |
 | **`1.4.0`** | Kalender mit eigener GUI (lokal, kein Google-Login) — **CODE** | Monat + Chat, Daten auf dem Handy |
-| **`1.5.0`** | **Riesenupdate:** Sprachmodus (Gespräch, kein Diktat-File) + Homescreen-Shortcut | Mikrofon, TTS, Deep-Link |
+| **`1.5.0`** | **Riesenupdate:** Sprachmodus + Homescreen-Shortcut — **CODE** | Gespräch, kein Mitschnitt |
 
 Optional danach: Wake-Word nur bei **eingeschaltetem** Handy (Screen darf aus sein). Nicht in `1.5` zwingend.
 

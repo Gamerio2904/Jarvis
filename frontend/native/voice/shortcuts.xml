@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="jarvis_voice"
+        android:shortcutLongLabel="@string/jarvis_voice_long"
+        android:shortcutShortLabel="@string/jarvis_voice_short">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="jarvis://voice"
+            android:targetClass="local.jarvis.app.MainActivity"
+            android:targetPackage="local.jarvis.app" />
+    </shortcut>
+</shortcuts>

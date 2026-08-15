@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **CODE** |
 | Priorität | **MUST** — Riesenupdate nach `1.1`–`1.4` |
 | Ziel-Version | **`1.5.0`** |
 | Quelle | PO 2026-08-15: wie ChatGPT, Gespräch nicht aufnehmen; Shortcut Homescreen |
@@ -19,6 +19,13 @@
 ## Wake-Word (nicht Must in `1.5`)
 
 Gerät **aus** → unmöglich. Screen aus, Handy an → nur mit nativem Dienst, Akku, OEM-Risiko. Eigene Stufe nach `1.5`, wenn PO das trotzdem will.
+
+## Probe
+
+1. Chat → **Hören** oder Sidebar → Jarvis hören.
+2. Sprechen, Antwort hören, weiterreden. Antippen unterbricht.
+3. Einstellungen → Shortcut auf Homescreen, oder App-Icon lange drücken → Jarvis hören.
+4. Keine Audiodatei im Chat — nur Text.
 
 ## Won’t
 

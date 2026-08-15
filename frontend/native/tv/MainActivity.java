@@ -1,5 +1,6 @@
 package local.jarvis.app;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.getcapacitor.BridgeActivity;
@@ -7,6 +8,7 @@ import com.getcapacitor.BridgeActivity;
 import app.jarvis.geo.JarvisGeoPlugin;
 import app.jarvis.notify.JarvisNotifyPlugin;
 import app.jarvis.tv.JarvisTvPlugin;
+import app.jarvis.voice.JarvisVoicePlugin;
 
 public class MainActivity extends BridgeActivity {
     @Override
@@ -14,6 +16,13 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(JarvisTvPlugin.class);
         registerPlugin(JarvisNotifyPlugin.class);
         registerPlugin(JarvisGeoPlugin.class);
+        registerPlugin(JarvisVoicePlugin.class);
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
     }
 }

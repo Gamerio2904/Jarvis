@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.4.0`**.
+App-Version im Code: **`1.5.0`**.
+
+### `1.5.0` — Sprachmodus — *CODE*
+
+- Gespräch: sprechen → Jarvis antwortet mit Stimme → weiterreden. Kein Mitschnitt.
+- Kurze Turns, antippen unterbricht. Nur Text bleibt im Chat.
+- Homescreen-Shortcut „Jarvis hören“ (lange aufs Icon oder Einstellungen)
+- Wake-Word bei ausgeschaltetem Handy: **nein**
+- [`sprints/sprint-55.md`](./sprints/sprint-55.md)
 
 ### `1.4.0` — Kalender-GUI — *CODE*
 

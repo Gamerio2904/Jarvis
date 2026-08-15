@@ -66,4 +66,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Todos (mit Ja/Nein), Notiz: speichert direkt. Erinnerung mit Zeit. Kalender lokal: „Termin morgen 15 Uhr Zahnarzt“ oder die Kalender-Ansicht — kein Google-Login. Wetter hier (Open-Meteo). Fernseher nach dem Koppeln. Optional Gemini; Internet-Research extra in den Einstellungen.'
+  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Todos, Notizen, Erinnerungen, lokaler Kalender, Wetter (Open-Meteo). Sprachmodus: sprechen, Jarvis antwortet mit Stimme — kein Mitschnitt. Shortcut „Jarvis hören“ auf dem Homescreen. Fernseher nach dem Koppeln. Optional Gemini.'

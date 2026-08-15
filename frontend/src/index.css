@@ -1033,6 +1033,107 @@ button.linkish {
   cursor: not-allowed;
 }
 
+.composer .mic-btn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.voice-mode {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background: #070807;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 18px 32px;
+  gap: 16px;
+}
+
+.voice-head {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.voice-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+}
+
+.voice-head p {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.voice-orb {
+  margin-top: 8vh;
+  width: 168px;
+  height: 168px;
+  border: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #3ae07a, #0d3a1c 70%);
+  box-shadow: 0 0 0 10px rgba(29, 185, 84, 0.12), 0 20px 50px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  position: relative;
+}
+
+.voice-orb span {
+  position: absolute;
+  inset: 18%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.voice-orb.listening {
+  animation: voicePulse 1.2s var(--ease-soft) infinite;
+}
+
+.voice-orb.thinking {
+  filter: saturate(0.7);
+}
+
+.voice-orb.speaking {
+  animation: voiceSpeak 0.7s var(--ease-soft) infinite;
+}
+
+@keyframes voicePulse {
+  0%,
+  100% { transform: scale(1); box-shadow: 0 0 0 10px rgba(29, 185, 84, 0.12); }
+  50% { transform: scale(1.06); box-shadow: 0 0 0 22px rgba(29, 185, 84, 0.18); }
+}
+
+@keyframes voiceSpeak {
+  0%,
+  100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.voice-status {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.voice-line {
+  max-width: 28rem;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.voice-line.you {
+  color: var(--text-muted);
+}
+
+.voice-err {
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
 .status.warn strong {
   color: #f0c14b;
 }

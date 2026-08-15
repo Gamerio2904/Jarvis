@@ -40,6 +40,8 @@ import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
 import { TEST_PROMPTS } from './engine/test-prompts'
 import { CalendarView } from './Calendar'
+import { VoiceMode } from './VoiceMode'
+import { consumeVoiceLaunch, pinVoiceShortcut } from './native/voice'
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -179,6 +181,8 @@ function App() {
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [remindBusy, setRemindBusy] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
+  const [voiceOpen, setVoiceOpen] = useState(false)
+  const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
   const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
   const [downloadPct, setDownloadPct] = useState(0)
@@ -452,6 +456,14 @@ function App() {
       /* browser ohne Notification ist ok */
     }
     await refreshReminders()
+    try {
+      if (await consumeVoiceLaunch()) {
+        setVoiceOpen(true)
+        setCalendarOpen(false)
+      }
+    } catch {
+      /* browser ohne Deep-Link */
+    }
     const s = await getSettings()
     const gemini = Boolean(s.gemini_enabled && s.gemini_api_key?.trim())
     try {
@@ -708,6 +720,54 @@ function App() {
     await sendMessage(content)
   }
 
+  async function sendVoiceTurn(content: string): Promise<string> {
+    let conversationId = activeId
+    if (!conversationId) {
+      const created = await createConversation()
+      conversationId = created.id
+      setConversations((prev) => [created, ...prev])
+      setActiveId(created.id)
+    }
+    const optimistic: Message = {
+      id: `tmp-voice-${Date.now()}`,
+      conversation_id: conversationId,
+      role: 'user',
+      content,
+      created_at: new Date().toISOString(),
+    }
+    markEnter(optimistic.id)
+    setMessages((prev) => [...prev, optimistic])
+    let answer = ''
+    await streamChat(
+      conversationId,
+      content,
+      {
+        onMeta: (meta) => {
+          markEnter(meta.user_message.id)
+          setMessages((prev) => {
+            const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
+            return [...withoutTmp, meta.user_message]
+          })
+        },
+        onDone: (payload) => {
+          markEnter(payload.assistant_message.id)
+          answer = payload.assistant_message.content
+          setMessages((prev) => [...prev, payload.assistant_message])
+          setConversations((prev) => {
+            const rest = prev.filter((c) => c.id !== payload.conversation.id)
+            return [payload.conversation, ...rest]
+          })
+          if (payload.tool?.tool === 'reminder') void refreshReminders()
+        },
+        onError: (detail) => {
+          setError(detail)
+        },
+      },
+      { voice: true },
+    )
+    return answer
+  }
+
   async function onRetry() {
     if (!lastFailed || busy) return
     await sendMessage(lastFailed)
@@ -793,7 +853,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.4.0</p>
+            <p>Handy · v1.5.0</p>
           </div>
         </div>
 
@@ -810,6 +870,17 @@ function App() {
         >
           Kalender
         </button>
+        <button
+          type="button"
+          className={`memory-toggle ${voiceOpen ? 'active' : ''}`}
+          onClick={() => {
+            setVoiceOpen(true)
+            setCalendarOpen(false)
+            setSidebarOpen(false)
+          }}
+        >
+          Jarvis hören
+        </button>
 
         <button
           type="button"
@@ -825,7 +896,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.4.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.5.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1030,6 +1101,38 @@ function App() {
                   ))}
                 </ul>
               )}
+            </section>
+            <section className="settings-section">
+              <h3>Sprachmodus</h3>
+              <p className="settings-hint">
+                Wie ein Gespräch: Sie sprechen, Jarvis antwortet mit Stimme. Kein Mitschnitt — nur
+                der Text bleibt im Chat. Gerät aus = unmöglich. Screen aus, Handy an = nicht in
+                dieser Version (Wake-Word extra).
+              </p>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  onClick={() => {
+                    setVoiceOpen(true)
+                    setSidebarOpen(false)
+                  }}
+                >
+                  Jetzt hören
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  onClick={() => {
+                    void pinVoiceShortcut().then((r) =>
+                      setShortcutMsg(r.ok ? 'Shortcut-Dialog ist offen.' : r.message || 'Nicht gesetzt.'),
+                    )
+                  }}
+                >
+                  Shortcut auf Homescreen
+                </button>
+              </div>
+              {shortcutMsg ? <p className="settings-hint">{shortcutMsg}</p> : null}
             </section>
             <section className="settings-section">
               <h3>Sound</h3>
@@ -1354,6 +1457,12 @@ function App() {
       </aside>
 
       <main className="main">
+        {voiceOpen ? (
+          <VoiceMode
+            onClose={() => setVoiceOpen(false)}
+            onTurn={(text) => sendVoiceTurn(text)}
+          />
+        ) : null}
         {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}
         <div className="topbar">
           <button
@@ -1501,6 +1610,17 @@ function App() {
               rows={1}
               disabled={busy}
             />
+            <button
+              type="button"
+              className="mic-btn"
+              onClick={() => {
+                setVoiceOpen(true)
+                setCalendarOpen(false)
+              }}
+              aria-label="Sprachmodus"
+            >
+              Hören
+            </button>
             <button type="button" onClick={() => void onSend()} disabled={busy || !draft.trim()}>
               Senden
             </button>
