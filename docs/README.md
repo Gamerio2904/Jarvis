@@ -23,8 +23,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 16 | [Gemini](./16-gemini.md) | **`0.16`** — Google-API, Opt-in |
 | 17 | [Nächste Versionen](./17-next.md) | **`1.1`–`1.6`** — Erinnerung, Wetter, Kalender, Sprache — **CODE** |
 | 18 | [Timer bis GUI](./18-next.md) | **`1.7`–`1.13.2`** — Wecker, Widget, Wake-Word, Motion, Ton — **CODE** |
-| 19 | [Alltag & Kontext](./19-next.md) | **`1.14` CODE**; `1.15`–`1.20` Personen, Einkauf, Losgehen, Ort, Auge — **PLANNED** |
-| — | [APK](./apk.md) | Sideload `1.14.0` |
+| 19 | [Alltag & Kontext](./19-next.md) | **`1.14`–`1.15` CODE**; `1.16`–`1.20` Einkauf, Losgehen, Ort, Auge — **PLANNED** |
+| — | [APK](./apk.md) | Sideload `1.15.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -71,6 +71,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 57–61 | `1.7`–`1.11` | **CODE** (Timer, Serie, Wetter-Follow-up, Widget, Wake-Word) |
 | 62–65 | `1.12`–`1.13.2` | **CODE** (Wecker-Ton, GUI, Datum, Timer-Ton) |
 | 66 | `1.14.0` | **CODE** (Kontext, ein Name, ehrliche Suche, Titel) |
-| 67–72 | `1.15`–`1.20` | **PLANNED** ([`19-next.md`](./19-next.md)) |
+| 67 | `1.15.0` | **CODE** (Personen/Orte, Maps-Route) |
+| 68–72 | `1.16`–`1.20` | **PLANNED** ([`19-next.md`](./19-next.md)) |
 
-**Aktuell:** Sideload `1.14.0` — [`Jarvis.apk`](./apk.md). Weiter: [`19-next.md`](./19-next.md).
+**Aktuell:** Sideload `1.15.0` — [`Jarvis.apk`](./apk.md). Weiter: [`19-next.md`](./19-next.md).

@@ -242,7 +242,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
 | S15.1 | Als Nutzer will ich ein Gedächtnis, das lokal und mit Gemini denselben Namen kennt. | Must | done | Sprint 66 / `1.14.0` |
-| S15.2 | Als Nutzer will ich Personen an Orte (Freundin, Praxis, Zuhause). | Must | ready | Sprint 67 / `1.15.0` |
+| S15.2 | Als Nutzer will ich Personen an Orte (Freundin, Praxis, Zuhause). | Must | done | Sprint 67 / `1.15.0` |
 | S15.3 | Als Nutzer will ich „lösch das“ / „und um 16“ auf das letzte Tool, nicht nur Wetter. | Must | done | Sprint 66 / `1.14.0` |
 | S15.4 | Als Nutzer will ich zwei Befehle in einem Satz. | Must | done | Sprint 66 / `1.14.0` |
 | S15.5 | Als Nutzer will ich eine Einkaufsliste ohne Ja/Nein pro Artikel. | Must | ready | Sprint 68 / `1.16.0` |
@@ -256,8 +256,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.14.0`
-2. Reihe `1.15`–`1.20` — [`19-next.md`](./19-next.md)
+1. Sideload `1.15.0`
+2. Reihe `1.16`–`1.20` — [`19-next.md`](./19-next.md)
 3. Mail / Cloud-Kalender / Fire TV / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)

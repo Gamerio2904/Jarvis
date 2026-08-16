@@ -89,7 +89,7 @@ MAJOR.MINOR.PATCH
 | `1.13.1` | Kalender-Datum + Wecker-Titel | Sprint 64 |
 | `1.13.2` | Timer-Ton (nicht nur Vibration) | Sprint 65 |
 | `1.14.0` | Kontext überall + Gedächtnis gleich | Sprint 66 |
-| `1.15.0` | Personen/Orte | Sprint 67 |
+| `1.15.0` | Personen/Orte + Google-Maps-Route | Sprint 67 |
 | `1.16.0` | Einkauf als Liste | Sprint 68 |
 | `1.17.0` | Losgehen (fragen + Route) | Sprint 69 |
 | `1.18.0` | Wenn ich zuhause bin | Sprint 70 |

@@ -4,17 +4,17 @@ PO 2026-08-16: Einkauf als Liste, Losgehen mit Nachfrage + Route, Erinnerung „
 
 Kein Alles-in-einem-Wurf. Jede Stufe ist sideloadbar. **Nichts davon ist im Code, bis die Version `CODE` heißt.**
 
-Reihe davor (fertig): [`18-next.md`](./18-next.md) · App jetzt: **`1.14.0`**.
+Reihe davor (fertig): [`18-next.md`](./18-next.md) · App jetzt: **`1.15.0`**.
 
-## Stand im Code (`1.14.0`) — nicht schönreden
+## Stand im Code (`1.15.0`) — nicht schönreden
 
 | Thema | Was der Code tut | Was er nicht tut |
 |-------|------------------|------------------|
 | Chat-Route | help → TV → Memory → Kalender → Wecker → Timer → Erinnerung → Tools → Wetter → Research → LLM; **zwei Befehle** an „und“ | Memory-Sätze mit „und“ werden nicht gesplittet |
 | Letzter Schritt | „lösch das“, „und um 16?“, „und morgen?“ für Termin/Wecker/Timer/Erinnerung/Todo; Wetter wie bisher | „das zweite“ |
-| Memory | Gleicher Block lokal und Gemini; gespeicherter Name, sonst keinen erfinden | Personen, Orte, Zuhause als eigene Entitäten |
+| Memory | Gleicher Block lokal und Gemini; Name; **Personen/Orte** (`place`) | Keine Koordinate, kein Geofence |
 | Todos | „Milch kaufen“ → Confirm; „lösch das“ löscht das letzte Todo | Einkaufsliste ohne Theater |
-| Ort | Einmal GPS für Wetter (`JarvisGeo`, `last_lat`/`last_lon`) | Geofence, Zuhause, Route |
+| Ort | GPS für Wetter; gespeicherte Personenorte; **Maps-Link** „fahr mich zu …“ | Geofence, Fahrzeit, Losgehen-Uhr |
 | Kalender | Chat + Monat-GUI, `21.08.` seit `1.13.1` | Adresse am Termin, Fahrzeit |
 | Suche | Opt-in + Gemini; ohne Quellen: **Netz hat nicht geantwortet** | Raten von Rezepten/Fakten |
 | Titel | Folgt jeder neuen User-Sache, nicht Follow-ups | — |
@@ -28,7 +28,7 @@ Lokal 0,5B wird durch diese Reihe **nicht** schlauer im Denken. Schärfe kommt a
 | Version | Inhalt | Warum getrennt | Status |
 |---------|--------|----------------|--------|
 | **`1.14.0`** | **Kontext** + Gedächtnis gleich + Titel + ehrliche Suche | PO: letzter Schritt, zwei Dinge, ein Name, kein Raten | **CODE** |
-| **`1.15.0`** | **Personen/Orte** | Eigenes Modell, Settings | **PLANNED** |
+| **`1.15.0`** | **Personen/Orte** + Maps-Route | Eigenes Modell, Settings, Tipp in Maps | **CODE** |
 | **`1.16.0`** | **Einkauf als Liste** | Confirm-Todo ist kein Einkauf | **PLANNED** |
 | **`1.17.0`** | **Losgehen** (fragen + Route) | Braucht Ort am Termin/an der Person | **PLANNED** |
 | **`1.18.0`** | **Wenn ich zuhause bin** | Braucht gespeichertes Zuhause | **PLANNED** |
@@ -49,11 +49,17 @@ Suche: Quellen oder eine ehrliche Zeile. Chat-Titel folgt dem neuen Thema.
 
 **Probe:** Name setzen → „Wer bin ich?“ lokal und mit Gemini gleich. Termin → „lösch das“. „Wecker 7 und Timer 1 Minute Test“ legt beides an. Suche ohne Netz: Absage, kein Rezept.
 
-## `1.15` — Personen/Orte
+## `1.15` — Personen/Orte + Maps — **CODE**
 
-„Freundin wohnt in Heilbronn“, „Jane — Praxis Bahnhofstraße“. Felder lokal: Name, Beziehung, Ort (Text und optional Koordinate). Löschbar in den Einstellungen.
+„Freundin wohnt in Heilbronn“, „Jane — Praxis Bahnhofstraße“, „Ich wohne in …“. Kategorie `place`, löschbar unter Memory → Orte.
 
-**Probe:** „Freundin wohnt in …“ → später „Wo wohnt die Freundin?“ Ohne Ort: nicht raten.
+„Fahr mich zur Freundin“ / „fahr mich nach Heilbronn“: Antwort plus Knopf **Route in Google Maps** (`maps/dir`, Autofahrt). Öffnet die Maps-App, wenn sie da ist.
+
+Ohne Ort: nachfragen („Wo ist …?“), die nächste Ortszeile merken, dann den Link. Kein Raten.
+
+„Fahr mich zu Personen“ listet alle gespeicherten Orte mit je einem Knopf.
+
+**Probe:** Ort setzen → „Wo wohnt die Freundin?“. Dann „Fahr mich zur Freundin“ → Maps. Unbekannte Person: Frage, kein Link.
 
 ## `1.16` — Einkauf als Liste
 
@@ -105,7 +111,8 @@ Foto/Zettel/Packung, **nur wenn Gemini an**. Sonst: „Dafür Gemini an.“ Kein
 | Memory in Gemini und lokal gleich | `1.14` **CODE** |
 | Suche: Quellen oder ehrlich | `1.14` **CODE** |
 | Chat-Titel nicht festgefressen | `1.14` **CODE** |
-| Personen/Orte | `1.15` |
+| Personen/Orte | `1.15` **CODE** |
+| Route in Google Maps | `1.15` **CODE** |
 | Nicht raten, nachfragen (Ort, Person, Zuhause) | `1.15`, `1.17`, `1.18` |
 
 ## Won’t in dieser Reihe

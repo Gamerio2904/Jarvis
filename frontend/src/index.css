@@ -913,6 +913,20 @@ textarea {
   margin-top: 8px;
 }
 
+.maps-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: #1a73e8;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
 .confirm-row {
   display: inline-flex;
   gap: 6px;

@@ -1,6 +1,6 @@
 /**
  * Routes every TEST_PROMPT the same way chat.ts does (no LLM, no phone).
- * Order: help → tv → memory → calendar → alarm → timer → reminder → tools → weather → research → llm
+ * Order: help → tv → maps/places → memory → calendar → alarm → timer → reminder → tools → weather → research → llm
  */
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
@@ -14,15 +14,17 @@ import { parseReminderIntent } from '../src/engine/remind-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { isLiveLookup } from '../src/engine/research-parse.ts'
+import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from '../src/engine/places-parse.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'tv'|'memory'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'weather'|'research'|'llm'} Route */
+/** @typedef {'help'|'tv'|'maps'|'memory'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'weather'|'research'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
   if (isHelpCommand(text)) return 'help'
   if (parseTvIntent(text)) return 'tv'
+  if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
   if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
   if (parseCalendarIntent(text, NOW)) return 'calendar'
   if (parseAlarmIntent(text, NOW)) return 'alarm'
@@ -65,6 +67,8 @@ const EXPECT = {
   'Temperatur hier': 'weather',
   'Termin morgen 15 Uhr Zahnarzt': 'calendar',
   Kalender: 'calendar',
+  'Freundin wohnt in Heilbronn': 'maps',
+  'Fahr mich zur Freundin': 'maps',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
