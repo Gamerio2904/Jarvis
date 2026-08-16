@@ -27,6 +27,8 @@ Ohne Premium: ehrliche 30s-Vorschau. Wenn der WebView-Player nicht startet: ande
 
 Bereits angemeldete Nutzer: einmal **nochmal anmelden** (Scope `streaming` / `user-read-private`).
 
+Weiter: Ventilator [`23-next.md`](./23-next.md) (`1.29.0` geplant).
+
 ## Won’t
 
 Gebackene Spotify-Keys, iOS, Play Store, Google Maps im Fahrmodus.

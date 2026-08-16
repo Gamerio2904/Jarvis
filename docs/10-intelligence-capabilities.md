@@ -20,6 +20,10 @@ Zwei Befehle an „und“. Letzter Schritt inkl. „das zweite“. Memory-Block 
 
 Lokal 0,5B denkt nicht plötzlich besser. Schärfe = Router + Speicher + ehrliche Tools.
 
+### Geplant `1.29.0` — [`23-next.md`](./23-next.md)
+
+Router: Ventilator-Anker **vor** dem LLM (neben TV). Kein Modell rät „habe den Lüfter angemacht“. Ohne gelernte Codes: Absage.
+
 ## Sprint- & Versions-Mapping (verbindlich)
 
 | Stufe | Version | Sprint | Inhalt | Status |

@@ -27,6 +27,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 20 | [Extra-Alltag](./20-next.md) | **`1.21`–`1.24` CODE** |
 | 21 | [Fahrmodus & Spotify](./21-next.md) | **`1.26` CODE** |
 | 22 | [Internes Spotify](./22-next.md) | **`1.27` CODE** |
+| 23 | [Deckenventilator](./23-next.md) | **`1.29` PLANNED** |
 | — | [APK](./apk.md) | Sideload `1.28.2` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -77,5 +78,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 67 | `1.15.0` | **CODE** (Personen/Orte, Maps-Route) |
 | 68–72 | `1.16`–`1.20` | **CODE** (in `1.24.0`) |
 | 73–76 | `1.21`–`1.24` | **CODE** |
+| 81 | `1.29.0` | **PLANNED** (Deckenventilator) |
 
-**Aktuell:** Sideload `1.28.2` — [`Jarvis.apk`](./apk.md).
+**Aktuell:** Sideload `1.28.2` — [`Jarvis.apk`](./apk.md). Nächste Stufe: Ventilator [`23-next.md`](./23-next.md) (`1.29.0` geplant).

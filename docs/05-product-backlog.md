@@ -26,6 +26,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E14 | Qualität `0.14` | 2 | Bestehendes härten: Latenz, Ton, Memory/Tools — kein neues Feature |
 | E15 | Alltag `1.14`–`1.20` | 5+ | Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Auge — [`19-next.md`](./19-next.md) |
 | E16 | Extra `1.21`–`1.24` | 4 | Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — [`20-next.md`](./20-next.md) |
+| E17 | Deckenventilator `1.29` | 5+ | Ein Ventilator über LAN-Brücke — [`23-next.md`](./23-next.md) |
 
 ---
 
@@ -266,12 +267,21 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S16.6 | Als Nutzer will ich „das zweite“ nach einer Liste. | Should | done | Sprint 75 / `1.24.0` |
 | S16.7 | Als Nutzer will ich alte Gespräche lokal suchen. | Should | done | Sprint 76 / `1.24.0` |
 
+### E17 — Deckenventilator `1.29`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S17.1 | Als Nutzer will ich den Deckenventilator an- und ausschalten. | Should | ready | Sprint 81 / `1.29.0` — LAN-Brücke, Chat + Sprache |
+| S17.2 | Als Nutzer will ich Stufe 1–3 und das Licht am Ventilator. | Should | ready | Gelernt aus der Original-Fernbedienung |
+| S17.3 | Als Nutzer will ich lernen/testen in Settings → Haus, ohne Cloud. | Must | ready | Kill-Switch; ungepaart ehrlich |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.24.0`
-2. Mail / Cloud-Kalender / Fire TV / Alexa / Play Store / iOS — **Parking**
+1. Sideload `1.28.2`
+2. Deckenventilator `1.29.0` — [`23-next.md`](./23-next.md) (Q40: welche Brücke)
+3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 
