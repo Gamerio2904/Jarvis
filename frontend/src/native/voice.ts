@@ -1,11 +1,12 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { synthesizeGemini, wantGeminiVoice } from '../engine/tts'
+import { pickHeard } from '../engine/heard.ts'
 
 export { createSentenceTap } from '../engine/speak-tap'
 
 type NativeVoice = {
   requestPermission(): Promise<{ granted: boolean }>
-  listen(): Promise<{ ok: boolean; text?: string; message?: string }>
+  listen(): Promise<{ ok: boolean; text?: string; alts?: string[]; message?: string }>
   stopListen(): Promise<{ ok: boolean }>
   speak(opts: { text: string }): Promise<{ ok: boolean; message?: string }>
   stopSpeak(): Promise<{ ok: boolean }>
@@ -14,10 +15,12 @@ type NativeVoice = {
   startWake(): Promise<{ ok: boolean; message?: string }>
   stopWake(): Promise<{ ok: boolean }>
   wakeStatus(): Promise<{ running: boolean }>
+  requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }>
+  setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
   streamSse(opts: { url: string; body: string; apiKey: string }): Promise<{ ok: boolean; status?: number; message?: string }>
   addListener(
-    event: 'partial' | 'sse',
-    cb: (ev: { text?: string; data?: string }) => void,
+    event: 'partial' | 'sse' | 'wake',
+    cb: (ev: { text?: string; data?: string; hit?: boolean }) => void,
   ): Promise<{ remove: () => void }>
 }
 
@@ -47,7 +50,9 @@ export async function listenOnce(onPartial?: (text: string) => void): Promise<{ 
     }
     try {
       const res = await native.listen()
-      return { ok: Boolean(res.ok), text: (res.text || '').trim(), message: res.message }
+      const alts = Array.isArray(res.alts) ? res.alts.map(String) : []
+      const text = pickHeard(res.text || '', alts)
+      return { ok: Boolean(res.ok), text, message: res.message }
     } finally {
       handle?.remove()
     }
@@ -269,6 +274,35 @@ export async function consumeVoiceLaunch(): Promise<boolean> {
   }
 }
 
+export function onWakeHit(cb: () => void): () => void {
+  if (!native) return () => undefined
+  let handle: { remove: () => void } | undefined
+  void native.addListener('wake', () => cb()).then((h) => {
+    handle = h
+  })
+  return () => {
+    handle?.remove()
+  }
+}
+
+export async function requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }> {
+  if (!native) return { ok: false, message: 'Nur in der Android-App.' }
+  try {
+    return await native.requestBatteryUnrestricted()
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'Akku-Ausnahme fehlgeschlagen' }
+  }
+}
+
+export async function setKeepScreenOn(on: boolean): Promise<void> {
+  if (!native) return
+  try {
+    await native.setKeepScreenOn({ on })
+  } catch {
+    /* ignore */
+  }
+}
+
 export async function startWakeWord(): Promise<{ ok: boolean; message?: string }> {
   if (!native) return { ok: false, message: 'Wake-Word nur in der Android-App.' }
   try {
@@ -284,6 +318,15 @@ export async function stopWakeWord(): Promise<void> {
     await native.stopWake()
   } catch {
     /* ignore */
+  }
+}
+
+export async function wakeWordRunning(): Promise<boolean> {
+  if (!native) return false
+  try {
+    return Boolean((await native.wakeStatus()).running)
+  } catch {
+    return false
   }
 }
 
@@ -305,7 +348,10 @@ type Rec = {
   lang: string
   interimResults: boolean
   continuous: boolean
-  onresult: ((ev: { results: ArrayLike<{ 0: { transcript: string }; isFinal?: boolean }> }) => void) | null
+  maxAlternatives: number
+  onresult: ((ev: {
+    results: ArrayLike<{ length: number; isFinal?: boolean; [i: number]: { transcript: string } }>
+  }) => void) | null
   onerror: ((ev: { error?: string }) => void) | null
   onend: (() => void) | null
 }
@@ -326,13 +372,21 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
     rec.lang = 'de-DE'
     rec.interimResults = true
     rec.continuous = false
+    rec.maxAlternatives = 5
     rec.onresult = (ev) => {
       const last = ev.results[ev.results.length - 1]
-      const text = last?.[0]?.transcript || ''
+      const alts: string[] = []
+      if (last) {
+        for (let i = 0; i < last.length; i += 1) {
+          const t = last[i]?.transcript || ''
+          if (t) alts.push(t)
+        }
+      }
+      const text = pickHeard(alts[0] || '', alts.slice(1))
       if (last && !last.isFinal) onPartial?.(text)
       if (last?.isFinal) {
         webRec = null
-        resolve({ ok: true, text: text.trim() })
+        resolve({ ok: true, text })
       }
     }
     rec.onerror = () => {

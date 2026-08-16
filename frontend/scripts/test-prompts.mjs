@@ -1,6 +1,7 @@
 /**
  * Routes every TEST_PROMPT the same way chat.ts does (no LLM, no phone).
- * Order: help → tv → maps/places → memory → calendar → alarm → timer → reminder → tools → weather → research → llm
+ * Order: help → ordinal → tv → drive → maps → memory → shopping → birthday → home → leave →
+ * brief → calendar → alarm → timer → reminder → tools → eye → weather → search → llm
  */
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
@@ -15,24 +16,44 @@ import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { isLiveLookup } from '../src/engine/research-parse.ts'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from '../src/engine/places-parse.ts'
+import { parseShopIntent } from '../src/engine/shopping-parse.ts'
+import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
+import { parseHomeIntent } from '../src/engine/home-parse.ts'
+import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
+import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { normalizeUtterance } from '../src/engine/utterance.ts'
+import { isBriefAsk } from '../src/engine/brief-parse.ts'
+import { parseEyeIntent } from '../src/engine/eye-parse.ts'
+import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
+import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'tv'|'maps'|'memory'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'weather'|'research'|'llm'} Route */
+/** @typedef {'help'|'ordinal'|'tv'|'drive'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
+  text = normalizeUtterance(text)
   if (isHelpCommand(text)) return 'help'
+  if (parseOrdinalFollowUp(text)) return 'ordinal'
   if (parseTvIntent(text)) return 'tv'
+  if (parseDriveIntent(text)) return 'drive'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
   if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
+  if (parseShopIntent(text)) return 'shopping'
+  if (parseBirthdayIntent(text)) return 'birthday'
+  if (parseHomeIntent(text)) return 'home'
+  if (parseLeaveIntent(text)) return 'leave'
+  if (isBriefAsk(text)) return 'brief'
   if (parseCalendarIntent(text, NOW)) return 'calendar'
   if (parseAlarmIntent(text, NOW)) return 'alarm'
   if (parseTimerIntent(text, NOW)) return 'timer'
   if (parseReminderIntent(text, NOW)) return 'reminder'
   if (parseToolIntent(text)) return 'tools'
+  if (parseEyeIntent(text)) return 'eye'
   if (parseWeatherIntent(text)) return 'weather'
   if (parseWeatherFollowup(text, ctx.weatherLast ?? null)) return 'weather'
+  if (parseChatSearch(text)) return 'search'
   if (isLiveLookup(text)) return 'research'
   return 'llm'
 }
@@ -44,10 +65,16 @@ const EXPECT = {
   'Ich heiße Max und trinke gerne Kaffee.': 'memory',
   'Was trinke ich?': 'memory',
   'Wie ist mein Name?': 'memory',
-  'Milch kaufen': 'tools',
-  'Was steht an?': 'reminder',
+  'Milch auf die Einkaufsliste': 'shopping',
+  'auch Brot': 'shopping',
+  'was fehlt?': 'shopping',
+  'Milch hab ich': 'shopping',
+  'Milch kaufen': 'shopping',
+  'Was steht an?': 'brief',
+  'Guten Morgen': 'brief',
   '/hilfe': 'help',
   'Fernseher an': 'tv',
+  'Fire TV': 'tv',
   'Sag Hallo und duze mich.': 'llm',
   'Erklären Sie in einem Satz, was Sie tun.': 'llm',
   'Notiz: WLAN steht am Router': 'tools',
@@ -66,9 +93,27 @@ const EXPECT = {
   'jeden Tag 8 Uhr Tabletten': 'reminder',
   'Temperatur hier': 'weather',
   'Termin morgen 15 Uhr Zahnarzt': 'calendar',
+  'Termin morgen 15 Uhr Zahnarzt Bahnhofstraße': 'calendar',
+  'Wann muss ich zum Zahnarzt los?': 'leave',
   Kalender: 'calendar',
   'Freundin wohnt in Heilbronn': 'maps',
-  'Fahr mich zur Freundin': 'maps',
+  'Nach Heilbronn': 'drive',
+  'Fahr mich zur Freundin': 'drive',
+  'Freundin, Tel 01711234567': 'maps',
+  'Ruf die Freundin an': 'maps',
+  'Lauf zur Freundin': 'maps',
+  'Wenn ich zuhause bin Müll raus': 'home',
+  'Ich bin zuhause': 'home',
+  'Lies das Foto': 'eye',
+  'Aktiviere Fahrmodus': 'drive',
+  'Lautstärke 50': 'tv',
+  'lauter um 10': 'tv',
+  'Fahrmodus aus': 'drive',
+  'Mama hat am 3. März Geburtstag': 'birthday',
+  'Jeden Dienstag Müll': 'reminder',
+  'was kommt diese Woche raus?': 'reminder',
+  'das zweite': 'ordinal',
+  'Wann hatte ich das mit der Steuer?': 'search',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

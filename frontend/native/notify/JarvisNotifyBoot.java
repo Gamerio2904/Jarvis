@@ -11,6 +11,9 @@ public class JarvisNotifyBoot extends BroadcastReceiver {
         String a = intent.getAction();
         if (Intent.ACTION_BOOT_COMPLETED.equals(a) || Intent.ACTION_LOCKED_BOOT_COMPLETED.equals(a)) {
             JarvisNotifyPlugin.restoreAll(context);
+            if (app.jarvis.voice.JarvisWakeService.wantEnabled(context)) {
+                app.jarvis.voice.JarvisWakeService.start(context);
+            }
         }
     }
 }

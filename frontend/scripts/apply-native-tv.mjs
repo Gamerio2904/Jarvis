@@ -15,6 +15,7 @@ if (!existsSync(join(android, 'app'))) {
 const pluginDest = join(android, 'app/src/main/java/app/jarvis/tv')
 mkdirSync(pluginDest, { recursive: true })
 copyFileSync(join(srcDir, 'JarvisTvPlugin.java'), join(pluginDest, 'JarvisTvPlugin.java'))
+copyFileSync(join(srcDir, 'AdbShell.java'), join(pluginDest, 'AdbShell.java'))
 
 const notifySrc = join(root, 'native', 'notify')
 const notifyDest = join(android, 'app/src/main/java/app/jarvis/notify')
@@ -93,8 +94,10 @@ const perms = [
   'android.permission.USE_FULL_SCREEN_INTENT',
   'android.permission.FOREGROUND_SERVICE',
   'android.permission.FOREGROUND_SERVICE_MICROPHONE',
+  'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
   'android.permission.READ_MEDIA_AUDIO',
   'android.permission.MODIFY_AUDIO_SETTINGS',
+  'android.permission.CAMERA',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -197,10 +200,27 @@ if (!gradle.includes('archivesBaseName')) {
     'namespace = "local.jarvis.app"\n    archivesBaseName = "Jarvis"',
   )
 }
-if (!gradle.includes('okhttp')) {
+if (!gradle.includes("okhttp")) {
   gradle = gradle.replace(
     /dependencies\s*\{/,
     "dependencies {\n    implementation 'com.squareup.okhttp3:okhttp:4.12.0'",
+  )
+}
+if (!gradle.includes('dadb')) {
+  gradle = gradle.replace(
+    /dependencies\s*\{/,
+    "dependencies {\n    implementation 'dev.mobile:dadb:1.2.9'",
+  )
+}
+if (!gradle.includes('META-INF/LICENSE.md')) {
+  gradle = gradle.replace(
+    /buildTypes\s*\{/,
+    `packagingOptions {
+        resources {
+            excludes += ['META-INF/LICENSE.md', 'META-INF/LICENSE-notice.md']
+        }
+    }
+    buildTypes {`,
   )
 }
 writeFileSync(gradlePath, gradle)

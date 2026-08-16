@@ -69,12 +69,10 @@ async function postGemini(model: string, body: unknown): Promise<{ status: numbe
   return { status, json: json as GeminiResponse }
 }
 
-function textFrom(json: GeminiResponse): string {
+function textFrom(json: GeminiResponse, trim = true): string {
   const parts = json.candidates?.[0]?.content?.parts || []
-  return parts
-    .map((p) => p.text || '')
-    .join('')
-    .trim()
+  const raw = parts.map((p) => p.text || '').join('')
+  return trim ? raw.trim() : raw
 }
 
 function researchFrom(json: GeminiResponse): ResearchMeta | undefined {
@@ -186,12 +184,15 @@ export async function streamGemini(
     let full = ''
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`
     const res = await streamSseLines({ url, body, apiKey: key }, (json) => {
-      const incoming = textFrom(json as GeminiResponse)
+      const incoming = textFrom(json as GeminiResponse, false)
       if (!incoming) return
       let piece = incoming
       if (incoming.startsWith(full) && incoming.length >= full.length) {
         piece = incoming.slice(full.length)
         full = incoming
+      } else if (full && incoming && !/\s$/.test(full) && !/^\s/.test(incoming) && /[a-zäöüß.]$/i.test(full) && /^[A-ZÄÖÜ]/.test(incoming)) {
+        full += ` ${incoming}`
+        piece = ` ${incoming}`
       } else {
         full += incoming
       }
@@ -289,6 +290,48 @@ export async function completeGemini(
     }
   }
   throw new Error(last)
+}
+
+export async function completeGeminiVision(
+  prompt: string,
+  base64: string,
+  mime: string,
+): Promise<string> {
+  if (!geminiReady()) throw new Error('Gemini ist aus oder ohne Key.')
+  const models = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
+  let last = 'Gemini lieferte keinen Text zum Bild.'
+  const run = async () => {
+    for (const model of models) {
+      const body = {
+        system_instruction: { parts: [{ text: GEMINI_PERSONA }] },
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: prompt },
+              { inlineData: { mimeType: mime || 'image/jpeg', data: base64 } },
+            ],
+          },
+        ],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 320 },
+      }
+      const { status, json } = await postGemini(model, body)
+      const text = textFrom(json)
+      if (status >= 200 && status < 300 && text) {
+        saveSettings({ gemini_model: model })
+        return text
+      }
+      last = json.error?.message || last
+      if (status === 400 || status === 404) continue
+    }
+    throw new Error(last)
+  }
+  return Promise.race([
+    run(),
+    new Promise<string>((_, reject) => {
+      globalThis.setTimeout(() => reject(new Error('Bild dauert zu lange. Nochmal, kleineres Foto.')), 40_000)
+    }),
+  ])
 }
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {

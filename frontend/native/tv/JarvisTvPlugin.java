@@ -82,18 +82,74 @@ public class JarvisTvPlugin extends Plugin {
             Integer port = call.getInt("port");
             String token = call.getString("token", "");
             String key = call.getString("key", "");
-            resolve(call, doSendKey(host, port, token, key));
+            Integer count = call.getInt("count");
+            int n = count == null ? 1 : Math.max(1, Math.min(100, count));
+            resolve(call, doSendKey(host, port, token, key, n));
         });
     }
 
     @PluginMethod
-    public void test(PluginCall call) {
+    public void fireKey(PluginCall call) {
         runBg(call, () -> {
             String host = call.getString("host", "");
             Integer port = call.getInt("port");
-            String token = call.getString("token", "");
-            resolve(call, doPair(host, port, "Jarvis", token, 12));
+            Integer code = call.getInt("code");
+            JSObject ret = new JSObject();
+            if (host == null || host.isEmpty() || code == null) {
+                ret.put("ok", false);
+                ret.put("message", "Fire-TV-Adresse oder Taste fehlt.");
+                resolve(call, ret);
+                return;
+            }
+            try {
+                AdbShell.keyevent(getContext(), host, port == null ? 5555 : port, code);
+                ret.put("ok", true);
+                ret.put("message", "Fire TV: Taste gesendet.");
+            } catch (Exception e) {
+                ret.put("ok", false);
+                ret.put("message", fireHint(e));
+            }
+            resolve(call, ret);
         });
+    }
+
+    @PluginMethod
+    public void fireTest(PluginCall call) {
+        runBg(call, () -> {
+            String host = call.getString("host", "");
+            Integer port = call.getInt("port");
+            JSObject ret = new JSObject();
+            if (host == null || host.isEmpty()) {
+                ret.put("ok", false);
+                ret.put("message", "Keine Fire-TV-Adresse.");
+                resolve(call, ret);
+                return;
+            }
+            try {
+                AdbShell.shell(getContext(), host, port == null ? 5555 : port, "echo jarvis");
+                ret.put("ok", true);
+                ret.put("message", "Fire TV per ADB erreichbar.");
+            } catch (Exception e) {
+                ret.put("ok", false);
+                ret.put("message", fireHint(e));
+            }
+            resolve(call, ret);
+        });
+    }
+
+    private static String fireHint(Exception e) {
+        String raw = safeMsg(e);
+        String m = raw.toLowerCase();
+        if (raw.startsWith("Kein ADB") || raw.startsWith("ADB-Schlüssel")) {
+            return raw;
+        }
+        if (m.contains("refused") || m.contains("connect") || m.contains("timeout") || m.contains("failed to connect") || m.contains("kein adb")) {
+            return "Kein ADB per WLAN. Fire TV 2. Gen (Ihre Box) hat oft nur USB hinten. Dialog kommt erst, wenn Port 5555 offen ist. IP unter Info → Netzwerk, gleiches WLAN, Entwickleroptionen: ADB-Debugging und falls da „ADB über Netzwerk“.";
+        }
+        if (m.contains("auth") || m.contains("unauthorized") || m.contains("offline")) {
+            return "ADB noch nicht erlaubt. Am Fire TV den Dialog „USB-Debugging zulassen“ bestätigen, dann testen.";
+        }
+        return "Fire TV: " + raw;
     }
 
     private void runBg(PluginCall call, Runnable task) {
@@ -220,6 +276,10 @@ public class JarvisTvPlugin extends Plugin {
                     synchronized (hits) {
                         hits.add(host);
                     }
+                } else if (portOpen(host, 5555, 180)) {
+                    synchronized (hits) {
+                        hits.add("fire:" + host);
+                    }
                 }
             });
         }
@@ -229,7 +289,10 @@ public class JarvisTvPlugin extends Plugin {
         } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
         }
-        for (String host : hits) addDevice(found, host);
+        for (String host : hits) {
+            if (host.startsWith("fire:")) addFire(found, host.substring(5));
+            else addDevice(found, host);
+        }
     }
 
     private static void addDevice(Map<String, JSObject> found, String host) {
@@ -250,6 +313,17 @@ public class JarvisTvPlugin extends Plugin {
         }
         if (!row.has("name")) row.put("name", "Samsung TV");
         found.put(host, row);
+    }
+
+    private static void addFire(Map<String, JSObject> found, String host) {
+        if (host == null || host.isEmpty() || found.containsKey("fire:" + host)) return;
+        if (found.containsKey(host)) return;
+        JSObject row = new JSObject();
+        row.put("host", host);
+        row.put("port", 5555);
+        row.put("name", "Fire TV");
+        row.put("kind", "fire");
+        found.put("fire:" + host, row);
     }
 
     private static JSONObject fetchInfo(String host) {
@@ -409,13 +483,14 @@ public class JarvisTvPlugin extends Plugin {
         return ret;
     }
 
-    private JSObject doSendKey(String host, Integer port, String token, String key) {
+    private JSObject doSendKey(String host, Integer port, String token, String key, int count) {
         JSObject ret = new JSObject();
         if (key == null || key.isEmpty()) {
             ret.put("ok", false);
             ret.put("message", "Keine Taste.");
             return ret;
         }
+        int n = Math.max(1, Math.min(100, count));
         List<Integer> ports = new ArrayList<>();
         if (port != null && port > 0) ports.add(port);
         if (!ports.contains(8002)) ports.add(8002);
@@ -432,11 +507,14 @@ public class JarvisTvPlugin extends Plugin {
                     session.close();
                     continue;
                 }
-                session.sendKey(key);
-                Thread.sleep(200);
+                for (int i = 0; i < n; i++) {
+                    session.sendKey(key);
+                    Thread.sleep(n > 1 ? 90 : 200);
+                }
                 ret.put("ok", true);
                 ret.put("port", p);
-                ret.put("message", "Taste gesendet.");
+                ret.put("count", n);
+                ret.put("message", n > 1 ? n + " Tasten gesendet." : "Taste gesendet.");
                 session.close();
                 return ret;
             } catch (Exception e) {

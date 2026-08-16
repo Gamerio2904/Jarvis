@@ -3,22 +3,22 @@
 PO 2026-08-16: Nummer an Person, Maps-Modus, Geburtstag, Serie ohne Geofence, Widget, „das zweite“, Gespräch suchen.  
 Ort am Termin im selben Satz hängt an **`1.17`** (Losgehen), nicht hier.
 
-Kein Alles-in-einem-Wurf. Jede Stufe sideloadbar. **Nichts davon ist im Code, bis die Version `CODE` heißt.**
+Mitgeliefert in **`1.24.0`**.
 
-Reihe davor: [`19-next.md`](./19-next.md) (`1.14`–`1.20`). App jetzt: **`1.15.0`**.
+Reihe davor: [`19-next.md`](./19-next.md) (`1.14`–`1.20`). App jetzt: **`1.24.0`**.
 
 ## Reihenfolge
 
 | Version | Inhalt | Warum getrennt | Status |
 |---------|--------|----------------|--------|
-| **`1.21.0`** | **Nummer** + **Maps-Modus** | Personen/Maps schärfen, ohne Losgehen | **PLANNED** |
-| **`1.22.0`** | **Geburtstag** + **Serie** (kein Geofence) | Kalender/Erinnerung, kein Standort | **PLANNED** |
-| **`1.23.0`** | **Widget** + **„das zweite“** | Homescreen und Listen-Kontext | **PLANNED** |
-| **`1.24.0`** | **Gespräch suchen** | Lokal in den Chats, kein Netz | **PLANNED** |
+| **`1.21.0`** | **Nummer** + **Maps-Modus** | Personen/Maps schärfen, ohne Losgehen | **CODE** (in `1.24.0`) |
+| **`1.22.0`** | **Geburtstag** + **Serie** (kein Geofence) | Kalender/Erinnerung, kein Standort | **CODE** (in `1.24.0`) |
+| **`1.23.0`** | **Widget** + **„das zweite“** | Homescreen und Listen-Kontext | **CODE** (in `1.24.0`) |
+| **`1.24.0`** | **Gespräch suchen** | Lokal in den Chats, kein Netz | **CODE** |
 
 Sprints: [`sprint-73`](./sprints/sprint-73.md) … [`sprint-76`](./sprints/sprint-76.md).
 
-## `1.21` — Nummer + Maps-Modus
+## `1.21` — Nummer + Maps-Modus — **CODE**
 
 An der Person: Ort **und** Telefon. `Freundin, Tel 0171 …` / `Merk dir Nummer von Jane: …`.
 
@@ -28,7 +28,7 @@ Maps: `Lauf zur Freundin`, `mit der Bahn nach Heilbronn` setzt `travelmode=walki
 
 **Probe:** Nummer setzen → Anruf-Knopf. `Lauf nach Hause` öffnet Maps zu Fuß.
 
-## `1.22` — Geburtstag + Serie ohne Geofence
+## `1.22` — Geburtstag + Serie ohne Geofence — **CODE**
 
 `Mama hat am 3. März Geburtstag` → Datum lokal, am Vorabend/am Tag eine Erinnerung, eine Zeile in der Tageslage wenn `1.19` da ist.
 
@@ -38,7 +38,7 @@ Schon da (`1.8`): `jeden Tag 8 Uhr Tabletten`. Diese Stufe macht die Wochenserie
 
 **Probe:** Geburtstag anlegen → Erinnerung liegt. `Jeden Dienstag Müll` → Dienstag in der Serie. Gerät aus: kein Klingeln.
 
-## `1.23` — Widget + „das zweite“
+## `1.23` — Widget + „das zweite“ — **CODE**
 
 Widget (heute: nächster Timer + letzte Wetterzeile) um nächster Termin und eine Einkaufszeile (wenn `1.16` da) und „Route nach Hause“ wenn Zuhause liegt.
 
@@ -46,7 +46,7 @@ Widget (heute: nächster Timer + letzte Wetterzeile) um nächster Termin und ein
 
 **Probe:** Zwei Termine zeigen → `lösch das zweite`. Widget nach Sideload neu legen.
 
-## `1.24` — Gespräch suchen
+## `1.24` — Gespräch suchen — **CODE**
 
 `Wann hatte ich das mit der Steuer?` durchsucht **lokale** Chats (Titel + Nachrichten). Treffer: Gespräch öffnen oder die Zeile zitieren. Kein Netz, kein Gemini-Pflicht.
 

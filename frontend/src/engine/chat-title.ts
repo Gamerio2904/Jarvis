@@ -1,3 +1,5 @@
+import { normalizeUtterance } from './utterance.ts'
+
 const SKIP = /^(ja|nein|ok|okay|danke|bitte|gut|jo|passt|mach)\s*[.!]?\s*$/i
 const FOLLOW_UP =
   /^(und\s+)?(lösch(e|en)?(\s+das)?|das\s+löschen|vergiss?\s+das|und\s+um\s+\d{1,2}([:.]\d{2})?(\s+uhr)?|und\s+morgen\??|morgen\s+auch)\s*[.?!]?$/i
@@ -12,5 +14,5 @@ export function shouldRefreshTitle(text: string): boolean {
 }
 
 export function titleFromUser(text: string): string {
-  return text.trim().replace(/\s+/g, ' ').slice(0, 42)
+  return normalizeUtterance(text).replace(/\s+/g, ' ').slice(0, 42)
 }

@@ -1,10 +1,12 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
+import { withTimeout } from './with-timeout'
 
 export type TvDevice = {
   host: string
   name?: string
   mac?: string
   port?: number
+  kind?: string
 }
 
 export type TvResult = {
@@ -19,8 +21,10 @@ type NativeTv = {
   discover(): Promise<TvResult>
   wake(opts: { mac: string }): Promise<TvResult>
   pair(opts: { host: string; port?: number; name?: string; token?: string }): Promise<TvResult>
-  sendKey(opts: { host: string; port?: number; token?: string; key: string }): Promise<TvResult>
+  sendKey(opts: { host: string; port?: number; token?: string; key: string; count?: number }): Promise<TvResult>
   test(opts: { host: string; port?: number; token?: string }): Promise<TvResult>
+  fireKey(opts: { host: string; port?: number; code: number }): Promise<TvResult>
+  fireTest(opts: { host: string; port?: number }): Promise<TvResult>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeTv>('JarvisTv') : null
@@ -55,6 +59,13 @@ function webUnavailable(action: string): TvResult {
   return {
     ok: false,
     message: `${action} nur in der Android-App (UDP/WSS). Browser reicht nicht.`,
+  }
+}
+
+function nativeFail(action: string): TvResult {
+  return {
+    ok: false,
+    message: `${action}: TV antwortet nicht. Gleiches WLAN? Am Fernseher erlauben?`,
   }
 }
 
@@ -129,7 +140,11 @@ function webSocketCall(
 export async function tvDiscoverNative(): Promise<TvResult> {
   if (!native) return { ok: false, items: [], message: webUnavailable('Suchen').message }
   try {
-    return await native.discover()
+    return await withTimeout(native.discover(), 18_000, {
+      ok: false,
+      items: [],
+      message: 'Suche abgebrochen. Gleiches WLAN, kein Gastnetz, dann nochmal.',
+    })
   } catch (err) {
     return {
       ok: false,
@@ -142,7 +157,7 @@ export async function tvDiscoverNative(): Promise<TvResult> {
 export async function tvWakeNative(mac: string): Promise<TvResult> {
   if (!native) return webUnavailable('Wake-on-LAN')
   try {
-    return await native.wake({ mac })
+    return await withTimeout(native.wake({ mac }), 8_000, nativeFail('WOL'))
   } catch (err) {
     return { ok: false, message: err instanceof Error ? err.message : 'WOL fehlgeschlagen' }
   }
@@ -156,7 +171,7 @@ export async function tvPairNative(opts: {
 }): Promise<TvResult> {
   if (native) {
     try {
-      return await native.pair(opts)
+      return await withTimeout(native.pair(opts), 50_000, nativeFail('Koppeln'))
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Koppeln fehlgeschlagen' }
     }
@@ -176,10 +191,13 @@ export async function tvSendKeyNative(opts: {
   port?: number
   token?: string
   key: string
+  count?: number
 }): Promise<TvResult> {
+  const count = Math.max(1, Math.min(100, opts.count || 1))
+  const wait = count > 8 ? 28_000 : 16_000
   if (native) {
     try {
-      return await native.sendKey(opts)
+      return await withTimeout(native.sendKey({ ...opts, count }), wait, nativeFail('Taste'))
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Taste fehlgeschlagen' }
     }
@@ -188,9 +206,44 @@ export async function tvSendKeyNative(opts: {
   if (port === 8002) {
     return { ok: false, message: 'Tizen-WSS nur in der Android-App.' }
   }
-  return webSocketCall(tizenUrl(opts.host, port, 'Jarvis', opts.token), 12_000, (send) => {
+  return webSocketCall(tizenUrl(opts.host, port, 'Jarvis', opts.token), Math.min(wait, 20_000), (send) => {
     send(keyPayload(opts.key))
+    for (let i = 1; i < count; i += 1) send(keyPayload(opts.key))
   })
+}
+
+export async function tvFireKeyNative(opts: {
+  host: string
+  port?: number
+  code: number
+}): Promise<TvResult> {
+  if (!native || !('fireKey' in native)) {
+    return { ok: false, message: 'Fire TV nur in der Android-App (ADB).' }
+  }
+  try {
+    return await withTimeout(native.fireKey(opts), 12_000, {
+      ok: false,
+      message:
+        'Fire TV antwortet nicht. Dialog kommt nur bei ADB per WLAN. 2. Gen oft nur USB. Samsung HDMI geht trotzdem.',
+    })
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'Fire TV fehlgeschlagen' }
+  }
+}
+
+export async function tvFireTestNative(opts: { host: string; port?: number }): Promise<TvResult> {
+  if (!native || !('fireTest' in native)) {
+    return { ok: false, message: 'Fire-TV-Test nur in der Android-App.' }
+  }
+  try {
+    return await withTimeout(native.fireTest(opts), 12_000, {
+      ok: false,
+      message:
+        'Kein ADB auf dieser IP. Dialog am Fire TV erscheint nur, wenn Port 5555 offen ist. 2. Gen oft nur USB hinten. Samsung HDMI bleibt nutzbar.',
+    })
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'Fire-TV-Test fehlgeschlagen' }
+  }
 }
 
 export async function tvTestNative(opts: {
@@ -200,7 +253,7 @@ export async function tvTestNative(opts: {
 }): Promise<TvResult> {
   if (native) {
     try {
-      return await native.test(opts)
+      return await withTimeout(native.test(opts), 20_000, nativeFail('Test'))
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Test fehlgeschlagen' }
     }

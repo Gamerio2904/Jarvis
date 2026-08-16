@@ -6,6 +6,7 @@ import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
 import { splitIntents } from './split-intents'
+import { normalizeUtterance } from './utterance.ts'
 import { GEMINI_PERSONA, PERSONA, VOICE_HINT } from './persona'
 import {
   isLiveLookup,
@@ -30,6 +31,7 @@ import {
   listReminders,
   listTodos,
   loadSettings,
+  readLastList,
   saveSettings,
   touchConversation,
   type Conversation,
@@ -44,6 +46,17 @@ import { handleTools, type ToolMeta } from './tools'
 import { handleTv, tvStatusFromSettings } from './tv'
 import { handleWeather } from './weather'
 import { handlePlaces } from './places'
+import { handleShopping } from './shopping'
+import { handleBirthday } from './birthday'
+import { handleHome } from './home'
+import { handleLeave } from './leave'
+import { handleBrief } from './brief'
+import { isBriefAsk } from './brief-parse'
+import { handleDrive } from './drive'
+import { handleEyeAsk } from './eye'
+import { parseEyeIntent } from './eye-parse'
+import { handleChatSearch } from './search-chat'
+import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -128,12 +141,40 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: HELP_TEXT, lastTool: 'help' }
   }
 
+  const ord = parseOrdinalFollowUp(content)
+  if (ord) {
+    const titles = readLastList()
+    if (!titles.length) {
+      return {
+        reply: 'Welche Liste? Sagen Sie zum Beispiel was fehlt oder was kommt diese Woche raus.',
+        lastTool: 'ordinal',
+      }
+    }
+    const title = titles[ord.index]
+    if (!title) {
+      return { reply: `Es gibt nur ${titles.length} Einträge.`, lastTool: 'ordinal' }
+    }
+    const rewritten = rewriteOrdinal(content, loadSettings().last_step_tool, titles)
+    if (rewritten) return routeDeterministic(conversationId, rewritten)
+    const label = ord.index === 1 ? 'zweite' : `${ord.index + 1}.`
+    return { reply: `Das ${label}: ${title}.`, lastTool: loadSettings().last_step_tool || 'ordinal' }
+  }
+
   const tvHit = await handleTv(content)
   if (tvHit.handled && tvHit.reply) {
     return {
       reply: tvHit.reply,
       tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
       lastTool: 'tv',
+    }
+  }
+
+  const driveHit = await handleDrive(conversationId, content)
+  if (driveHit.handled && driveHit.reply) {
+    return {
+      reply: driveHit.reply,
+      tool: driveHit.tool,
+      lastTool: driveHit.lastTool || 'drive',
     }
   }
 
@@ -149,6 +190,33 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   const memHit = await handleMemory(conversationId, content)
   if (memHit.handled && memHit.reply) {
     return { reply: memHit.reply, lastTool: 'memory' }
+  }
+
+  const shopHit = await handleShopping(conversationId, content)
+  if (shopHit.handled && shopHit.reply) {
+    return { reply: shopHit.reply, tool: shopHit.tool, lastTool: shopHit.lastTool || 'shopping' }
+  }
+
+  const bdayHit = await handleBirthday(conversationId, content)
+  if (bdayHit.handled && bdayHit.reply) {
+    return { reply: bdayHit.reply, tool: bdayHit.tool, lastTool: bdayHit.lastTool || 'birthday' }
+  }
+
+  const homeHit = await handleHome(conversationId, content)
+  if (homeHit.handled && homeHit.reply) {
+    return { reply: homeHit.reply, tool: homeHit.tool, lastTool: homeHit.lastTool || 'home' }
+  }
+
+  const leaveHit = await handleLeave(conversationId, content)
+  if (leaveHit.handled && leaveHit.reply) {
+    return { reply: leaveHit.reply, tool: leaveHit.tool, lastTool: leaveHit.lastTool || 'leave' }
+  }
+
+  if (isBriefAsk(content)) {
+    const briefHit = await handleBrief()
+    if (briefHit.handled && briefHit.reply) {
+      return { reply: briefHit.reply, tool: briefHit.tool, lastTool: briefHit.lastTool || 'brief' }
+    }
   }
 
   const calHit = await handleCalendar(conversationId, content)
@@ -176,6 +244,13 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: toolHit.reply, tool: toolHit.tool, lastTool: toolHit.tool?.tool || 'todo' }
   }
 
+  if (parseEyeIntent(content)) {
+    const eyeHit = await handleEyeAsk()
+    if (eyeHit.handled && eyeHit.reply) {
+      return { reply: eyeHit.reply, tool: eyeHit.tool, lastTool: eyeHit.lastTool || 'eye' }
+    }
+  }
+
   const weatherHit = await handleWeather(content)
   if (weatherHit.handled && weatherHit.reply) {
     return {
@@ -184,6 +259,11 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       research: weatherHit.research,
       lastTool: 'weather',
     }
+  }
+
+  const searchHit = await handleChatSearch(content)
+  if (searchHit.handled && searchHit.reply) {
+    return { reply: searchHit.reply, tool: searchHit.tool, lastTool: searchHit.lastTool || 'search' }
   }
 
   return null
@@ -232,6 +312,10 @@ async function rememberToolFromStore(tool: string): Promise<void> {
   if (tool === 'todo') {
     const td = newest(await listTodos())
     persistLastStep('todo', td?.title ?? '', '')
+    return
+  }
+  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave') {
+    persistLastStep(tool)
     return
   }
   persistLastStep(tool)
@@ -285,7 +369,7 @@ export async function streamChat(
   })
 
   try {
-    const parts = splitIntents(content)
+    const parts = splitIntents(normalizeUtterance(content))
     const texts = parts.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
     const routed: Array<RouteHit | null> = []
     for (const text of texts) {

@@ -90,15 +90,17 @@ MAJOR.MINOR.PATCH
 | `1.13.2` | Timer-Ton (nicht nur Vibration) | Sprint 65 |
 | `1.14.0` | Kontext überall + Gedächtnis gleich | Sprint 66 |
 | `1.15.0` | Personen/Orte + Google-Maps-Route | Sprint 67 |
-| `1.16.0` | Einkauf als Liste | Sprint 68 |
-| `1.17.0` | Losgehen + Ort am Termin im Satz | Sprint 69 |
-| `1.18.0` | Wenn ich zuhause bin | Sprint 70 |
-| `1.19.0` | Menschlicher + Tageslage | Sprint 71 |
-| `1.20.0` | Auge (Gemini-Foto) | Sprint 72 |
-| `1.21.0` | Nummer an Person + Maps-Modus | Sprint 73 |
-| `1.22.0` | Geburtstag + Serie ohne Geofence | Sprint 74 |
-| `1.23.0` | Widget + „das zweite“ | Sprint 75 |
-| `1.24.0` | Gespräch suchen | Sprint 76 |
+| `1.16.0`–`1.23.0` | Einkauf … Widget (geplant gestuft) | Sprints 68–75, **mitgeliefert in `1.24.0`** |
+| `1.24.0` | Alltag 1.16–1.24 inkl. Gespräch suchen | Sprint 76 |
+| `1.24.1` | Chat-Hang TV/Standort | Sprint 76 Patch |
+| `1.25.0` | Einstellungen Vollbild + Themen-Leiste | Sprint 77 |
+| `1.26.0` | Fahrmodus, Spotify, Auge, TV-Lautstärke | Sprint 78 |
+| `1.27.0` | Internes Spotify im Fahrmodus | Sprint 79 |
+| `1.27.1` | Anruf-Hotfix (Service-Prefix, Nummer) | Sprint 79 Patch |
+| `1.27.2` | Fahrmodus „Nach Heilbronn“ + Sprache | Sprint 79 Patch |
+| `1.28.0` | Wake-Word Hintergrund + Fire TV HDMI | Sprint 80 |
+| `1.28.1` | Wake-Word öffnet Sprachmodus | Sprint 80 Patch |
+| `1.28.2` | Fire-TV-Test sichtbar, Gen-2-Hinweis | Sprint 80 Patch |
 
 ### Weitere Beispiele
 

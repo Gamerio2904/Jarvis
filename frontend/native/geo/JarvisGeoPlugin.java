@@ -30,6 +30,13 @@ import com.getcapacitor.annotation.PermissionCallback;
 public class JarvisGeoPlugin extends Plugin {
 
     @PluginMethod
+    public void hasPermission(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("granted", getPermissionState("location") == PermissionState.GRANTED);
+        call.resolve(r);
+    }
+
+    @PluginMethod
     public void requestPermission(PluginCall call) {
         if (getPermissionState("location") == PermissionState.GRANTED) {
             JSObject r = new JSObject();

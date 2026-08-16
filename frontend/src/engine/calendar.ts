@@ -6,6 +6,7 @@ import {
   deleteEvent,
   listEvents,
   listReminders,
+  persistLastList,
   type CalendarEvent,
 } from './store'
 import type { ToolMeta } from './tools'
@@ -24,8 +25,9 @@ export async function handleCalendar(
       .filter((e) => new Date(e.start_at).getTime() >= startOfDay(new Date()).getTime())
       .slice(0, 8)
     const lines = upcoming.length
-      ? upcoming.map((e, i) => `${i + 1}. ${e.title} — ${formatDue(new Date(e.start_at))}`).join('\n')
+      ? upcoming.map((e, i) => `${i + 1}. ${e.title}${e.place ? ` · ${e.place}` : ''} — ${formatDue(new Date(e.start_at))}`).join('\n')
       : 'Keine kommenden Termine. In der Kalender-Ansicht oder per „Termin morgen 15 Uhr …“ anlegen.'
+    persistLastList('calendar', upcoming.map((e) => e.title))
     return {
       handled: true,
       open: true,
@@ -38,24 +40,27 @@ export async function handleCalendar(
     const row = await addEvent({
       title: intent.title,
       start_at: intent.start.toISOString(),
+      place: intent.place,
       conversationId,
     })
     await requestNotifyPermission()
     await scheduleNotify({
       id: notifyIdFromKey(`evt-${row.id}`),
       title: 'Jarvis · Termin',
-      body: row.title,
+      body: row.place ? `${row.title} · ${row.place}` : row.title,
       at: intent.start,
     })
+    persistLastList('calendar', [row.title])
+    const where = row.place ? ` · ${row.place}` : ''
     return {
       handled: true,
-      reply: `Termin: ${row.title}, ${intent.whenLabel}. Steht im Kalender.`,
+      reply: `Termin: ${row.title}${where}, ${intent.whenLabel}. Steht im Kalender.`,
       tool: {
         tool_status: 'executed',
         tool: 'calendar',
         action: 'create',
         label: 'Termin liegt',
-        preview: `${row.title} · ${intent.whenLabel}`,
+        preview: `${row.title}${where} · ${intent.whenLabel}`,
       },
     }
   }
@@ -70,7 +75,8 @@ export async function handleCalendar(
           : 'Keine Termine.',
       }
     }
-    const lines = rows.map((e, i) => `${i + 1}. ${e.title} — ${formatDue(new Date(e.start_at))}`)
+    const lines = rows.map((e, i) => `${i + 1}. ${e.title}${e.place ? ` · ${e.place}` : ''} — ${formatDue(new Date(e.start_at))}`)
+    persistLastList('calendar', rows.map((e) => e.title))
     return { handled: true, reply: `Termine:\n${lines.join('\n')}` }
   }
 
