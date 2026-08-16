@@ -5,7 +5,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.13.2`**.
+App-Version im Code: **`1.13.2`**.  
+Geplant `1.14`–`1.20` (noch kein Code): [`19-next.md`](./19-next.md).
 
 ### `1.13.2` — Timer-Ton — *CODE*
 

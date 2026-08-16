@@ -16,9 +16,12 @@ Kein Alles-in-einem-Wurf. Jede Stufe ist sideloadbar.
 | **`1.5.3`** | Stimme flüssig (ganze Sätze, Betonung) — **CODE** | 1.5.2 war abgehakt, weil Mini-Schnipsel |
 | **`1.6.0`** | Wetter als Lage + Tipp — **CODE** | 1.3 hat nur „18 °C, wolkig“ vorgelesen |
 
-## Danach — fest `1.7`–`1.11`
+## Danach
 
-Festgelegt in [`18-next.md`](./18-next.md). Kurz:
+`1.7`–`1.13.2` sind **CODE** — [`18-next.md`](./18-next.md).  
+Als Nächstes `1.14`–`1.20` — [`19-next.md`](./19-next.md).
+
+Kurz `1.7`–`1.11` (historisch):
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
