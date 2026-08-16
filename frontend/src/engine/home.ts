@@ -1,6 +1,6 @@
 import { parseHomeIntent } from './home-parse'
 import { geocodePlace, haversineM } from './geo-lookup'
-import { readDeviceLocation, requestLocationPermission } from '../native/geo'
+import { readDeviceLocation, hasLocationPermission } from '../native/geo'
 import { scheduleNotify, notifyIdFromKey, requestNotifyPermission } from '../native/notify'
 import {
   addReminder,
@@ -46,9 +46,9 @@ export async function fireHomeTasks(): Promise<string[]> {
 export async function checkHomeFence(): Promise<string[]> {
   const ready = await ensureHomeFix()
   if (!ready.ok) return []
-  const s = loadSettings()
-  const granted = await requestLocationPermission()
+  const granted = await hasLocationPermission()
   if (!granted) return []
+  const s = loadSettings()
   const here = await readDeviceLocation()
   if (!here.ok || here.lat == null || here.lon == null) return []
   const dist = haversineM(

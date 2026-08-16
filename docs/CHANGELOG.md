@@ -5,8 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.24.0`**.  
-`1.16`–`1.24` sind in diesem Wurf mitgeliefert.
+App-Version im Code: **`1.24.1`**.
+
+### `1.24.1` — Chat hängt nicht mehr an TV/Standort — *CODE*
+
+- TV-Suchen/Koppeln/Tasten haben ein hartes Zeitlimit — Jarvis bleibt nicht auf „denkt…“ stehen
+- Zuhause-Zaun fragt beim Start nicht mehr nach Standort, wenn das Recht fehlt
+- Standort-Plugin bricht nach wenigen Sekunden ab
 
 ### `1.24.0` — Alltag 1.16–1.24 — *CODE*
 

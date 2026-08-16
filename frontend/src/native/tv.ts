@@ -1,4 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
+import { withTimeout } from './with-timeout'
 
 export type TvDevice = {
   host: string
@@ -55,6 +56,13 @@ function webUnavailable(action: string): TvResult {
   return {
     ok: false,
     message: `${action} nur in der Android-App (UDP/WSS). Browser reicht nicht.`,
+  }
+}
+
+function nativeFail(action: string): TvResult {
+  return {
+    ok: false,
+    message: `${action}: TV antwortet nicht. Gleiches WLAN? Am Fernseher erlauben?`,
   }
 }
 
@@ -129,7 +137,11 @@ function webSocketCall(
 export async function tvDiscoverNative(): Promise<TvResult> {
   if (!native) return { ok: false, items: [], message: webUnavailable('Suchen').message }
   try {
-    return await native.discover()
+    return await withTimeout(native.discover(), 18_000, {
+      ok: false,
+      items: [],
+      message: 'Suche abgebrochen. Gleiches WLAN, kein Gastnetz, dann nochmal.',
+    })
   } catch (err) {
     return {
       ok: false,
@@ -142,7 +154,7 @@ export async function tvDiscoverNative(): Promise<TvResult> {
 export async function tvWakeNative(mac: string): Promise<TvResult> {
   if (!native) return webUnavailable('Wake-on-LAN')
   try {
-    return await native.wake({ mac })
+    return await withTimeout(native.wake({ mac }), 8_000, nativeFail('WOL'))
   } catch (err) {
     return { ok: false, message: err instanceof Error ? err.message : 'WOL fehlgeschlagen' }
   }
@@ -156,7 +168,7 @@ export async function tvPairNative(opts: {
 }): Promise<TvResult> {
   if (native) {
     try {
-      return await native.pair(opts)
+      return await withTimeout(native.pair(opts), 50_000, nativeFail('Koppeln'))
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Koppeln fehlgeschlagen' }
     }
@@ -179,7 +191,7 @@ export async function tvSendKeyNative(opts: {
 }): Promise<TvResult> {
   if (native) {
     try {
-      return await native.sendKey(opts)
+    return await withTimeout(native.sendKey(opts), 16_000, nativeFail('Taste'))
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Taste fehlgeschlagen' }
     }
@@ -200,7 +212,7 @@ export async function tvTestNative(opts: {
 }): Promise<TvResult> {
   if (native) {
     try {
-      return await native.test(opts)
+    return await withTimeout(native.test(opts), 20_000, nativeFail('Test'))
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Test fehlgeschlagen' }
     }

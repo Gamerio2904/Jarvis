@@ -1,16 +1,35 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
+import { withTimeout } from './with-timeout'
 
 type NativeGeo = {
+  hasPermission(): Promise<{ granted: boolean }>
   requestPermission(): Promise<{ granted: boolean }>
   getLocation(): Promise<{ ok: boolean; lat?: number; lon?: number; message?: string }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeGeo>('JarvisGeo') : null
 
+const FAIL = {
+  ok: false as const,
+  message: 'Standort dauert zu lange. Unter Android erlauben oder einen Ort nennen.',
+}
+
+export async function hasLocationPermission(): Promise<boolean> {
+  if (native) {
+    try {
+      const res = await withTimeout(native.hasPermission(), 3_000, { granted: false })
+      return Boolean(res.granted)
+    } catch {
+      return false
+    }
+  }
+  return true
+}
+
 export async function requestLocationPermission(): Promise<boolean> {
   if (native) {
     try {
-      const res = await native.requestPermission()
+      const res = await withTimeout(native.requestPermission(), 25_000, { granted: false })
       return Boolean(res.granted)
     } catch {
       return false
@@ -27,7 +46,7 @@ export async function readDeviceLocation(): Promise<{
 }> {
   if (native) {
     try {
-      return await native.getLocation()
+      return await withTimeout(native.getLocation(), 8_000, FAIL)
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Standort fehlgeschlagen' }
     }
