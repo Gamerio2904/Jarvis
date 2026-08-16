@@ -101,6 +101,7 @@ MAJOR.MINOR.PATCH
 | `1.28.0` | Wake-Word Hintergrund + Fire TV HDMI | Sprint 80 |
 | `1.28.1` | Wake-Word öffnet Sprachmodus | Sprint 80 Patch |
 | `1.28.2` | Fire-TV-Test sichtbar, Gen-2-Hinweis | Sprint 80 Patch |
+| `1.29.0` | Deckenventilator (LAN-Brücke) | Sprint 81 |
 
 ### Weitere Beispiele
 
