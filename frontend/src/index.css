@@ -249,6 +249,227 @@ textarea {
   animation: panelIn 0.45s var(--ease-out);
 }
 
+.settings-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: minmax(148px, 220px) 1fr;
+  background:
+    linear-gradient(180deg, rgba(8, 12, 10, 0.92), rgba(5, 6, 5, 0.98)),
+    var(--bg);
+  animation: settingsIn 0.32s var(--ease-out);
+}
+
+.settings-rail {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--border);
+  background: linear-gradient(180deg, #080a09 0%, var(--bg-sidebar) 50%, #030403 100%);
+  animation: railIn 0.38s var(--ease-out);
+}
+
+.settings-rail-head {
+  flex-shrink: 0;
+  padding: 18px 16px 10px;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.settings-rail-nav {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 10px 18px;
+}
+
+.settings-rail-item {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  text-align: left;
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition:
+    background var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+
+.settings-rail-item strong {
+  font-size: 0.92rem;
+  font-weight: 650;
+  color: inherit;
+}
+
+.settings-rail-item span {
+  font-size: 0.7rem;
+  opacity: 0.78;
+}
+
+.settings-rail-item:hover,
+.settings-rail-item.active {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.settings-rail-item.active {
+  box-shadow: inset 2px 0 0 var(--accent);
+  background: linear-gradient(90deg, rgba(30, 215, 96, 0.16), var(--bg-hover));
+}
+
+.settings-pane {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.settings-pane-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-kicker {
+  margin: 0 0 2px;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.settings-pane-bar h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.settings-close {
+  appearance: none;
+  border: 1px solid rgba(228, 195, 106, 0.4);
+  background: linear-gradient(180deg, rgba(30, 215, 96, 0.16), transparent 80%);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.settings-close:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 18px rgba(30, 215, 96, 0.2);
+}
+
+.settings-pane-body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 18px 22px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(720px, 100%);
+}
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(30, 215, 96, 0.07), rgba(16, 20, 18, 0.4));
+}
+
+.settings-card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 650;
+}
+
+.settings-card.danger-zone h3 {
+  color: var(--danger);
+}
+
+.settings-lead {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.settings-field input,
+.settings-field select {
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.settings-field input:focus,
+.settings-field select:focus {
+  outline: none;
+  border-color: rgba(30, 215, 96, 0.7);
+}
+
+.settings-card .memory-filter {
+  text-transform: none;
+}
+
+.settings-card .memory-list {
+  max-height: none;
+}
+
+@keyframes settingsIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes railIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
 .settings-section {
   display: flex;
   flex-direction: column;
@@ -1088,10 +1309,14 @@ button.linkish {
   width: min(820px, 100%);
   margin: 0 auto 10px;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 8px;
-  max-height: 4.8rem;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-height: none;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 .prompt-chip {
@@ -1106,7 +1331,9 @@ button.linkish {
   line-height: 1.25;
   text-align: left;
   cursor: pointer;
-  max-width: 100%;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  max-width: none;
   position: relative;
   overflow: hidden;
   transform: translate(var(--mx, 0px), var(--my, 0px));
@@ -2041,6 +2268,24 @@ button.linkish {
     box-shadow: 12px 0 40px rgba(0, 0, 0, 0.45);
   }
 
+  .settings-screen {
+    grid-template-columns: minmax(118px, 38vw) 1fr;
+  }
+
+  .settings-pane-bar,
+  .settings-pane-body {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .settings-pane-bar h2 {
+    font-size: 1.35rem;
+  }
+
+  .settings-rail-item {
+    padding: 9px 10px;
+  }
+
   .menu-btn {
     display: inline-flex;
   }
@@ -2067,6 +2312,11 @@ button.linkish {
   .row.user:hover .bubble,
   .row.assistant:hover .bubble {
     transform: none;
+  }
+
+  .settings-screen,
+  .settings-rail {
+    animation: none;
   }
 
   .stream-caret {

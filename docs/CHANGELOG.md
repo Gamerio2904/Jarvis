@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.24.1`**.
+App-Version im Code: **`1.25.0`**.
+
+### `1.25.0` — Einstellungen Vollbild — *CODE*
+
+- Einstellungen öffnen über den ganzen Bildschirm, nicht mehr in der engen Sidebar
+- Linke Leiste mit Hauptthemen (Allgemein, Modell, Cloud, Sprache, Wecker, Ort, Fernseher, Ton, Netz, Gedächtnis, Gefahr)
+- Gedächtnis sitzt unter Einstellungen, Sidebar bleibt bei Chats
+- Test-Chips eine Zeile, seitlich scrollbar
 
 ### `1.24.1` — Chat hängt nicht mehr an TV/Standort — *CODE*
 

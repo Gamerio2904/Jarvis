@@ -92,6 +92,8 @@ MAJOR.MINOR.PATCH
 | `1.15.0` | Personen/Orte + Google-Maps-Route | Sprint 67 |
 | `1.16.0`–`1.23.0` | Einkauf … Widget (geplant gestuft) | Sprints 68–75, **mitgeliefert in `1.24.0`** |
 | `1.24.0` | Alltag 1.16–1.24 inkl. Gespräch suchen | Sprint 76 |
+| `1.24.1` | Chat-Hang TV/Standort | Sprint 76 Patch |
+| `1.25.0` | Einstellungen Vollbild + Themen-Leiste | Sprint 77 |
 
 ### Weitere Beispiele
 

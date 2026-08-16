@@ -25,7 +25,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 18 | [Timer bis GUI](./18-next.md) | **`1.7`–`1.13.2`** — Wecker, Widget, Wake-Word, Motion, Ton — **CODE** |
 | 19 | [Alltag & Kontext](./19-next.md) | **`1.14`–`1.20` CODE** (in `1.24.0`) |
 | 20 | [Extra-Alltag](./20-next.md) | **`1.21`–`1.24` CODE** |
-| — | [APK](./apk.md) | Sideload `1.24.0` |
+| — | [APK](./apk.md) | Sideload `1.25.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -76,4 +76,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 68–72 | `1.16`–`1.20` | **CODE** (in `1.24.0`) |
 | 73–76 | `1.21`–`1.24` | **CODE** |
 
-**Aktuell:** Sideload `1.24.0` — [`Jarvis.apk`](./apk.md).
+**Aktuell:** Sideload `1.25.0` — [`Jarvis.apk`](./apk.md).
