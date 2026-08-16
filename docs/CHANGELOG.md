@@ -6,7 +6,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 ## Unreleased
 
 App-Version im Code: **`1.15.0`**.  
-Weiter geplant `1.16`–`1.20`: [`19-next.md`](./19-next.md).
+Geplant `1.16`–`1.20`: [`19-next.md`](./19-next.md). Extra `1.21`–`1.24`: [`20-next.md`](./20-next.md).
 
 ### `1.15.0` — Personen/Orte + Maps-Route — *CODE*
 

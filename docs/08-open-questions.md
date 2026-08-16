@@ -54,8 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.15.0` (Personen/Orte + Maps).
-2. Als Nächstes `1.16`–`1.20` — [`19-next.md`](./19-next.md): Einkauf, Losgehen, Zuhause, Ton, Auge.
+1. Sideload `1.15.0` (Personen/Orte + Maps). Wake-Word: Settings „Auf Jarvis hören“, Handy an (`1.11`).
+2. Als Nächstes `1.16`–`1.20` — [`19-next.md`](./19-next.md): Einkauf, Losgehen (inkl. Ort am Termin), Zuhause, Ton, Auge.
+3. Extra `1.21`–`1.24` — [`20-next.md`](./20-next.md): Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---

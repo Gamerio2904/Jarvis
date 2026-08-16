@@ -24,6 +24,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 17 | [Nächste Versionen](./17-next.md) | **`1.1`–`1.6`** — Erinnerung, Wetter, Kalender, Sprache — **CODE** |
 | 18 | [Timer bis GUI](./18-next.md) | **`1.7`–`1.13.2`** — Wecker, Widget, Wake-Word, Motion, Ton — **CODE** |
 | 19 | [Alltag & Kontext](./19-next.md) | **`1.14`–`1.15` CODE**; `1.16`–`1.20` Einkauf, Losgehen, Ort, Auge — **PLANNED** |
+| 20 | [Extra-Alltag](./20-next.md) | **`1.21`–`1.24`** — Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — **PLANNED** |
 | — | [APK](./apk.md) | Sideload `1.15.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -73,5 +74,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 66 | `1.14.0` | **CODE** (Kontext, ein Name, ehrliche Suche, Titel) |
 | 67 | `1.15.0` | **CODE** (Personen/Orte, Maps-Route) |
 | 68–72 | `1.16`–`1.20` | **PLANNED** ([`19-next.md`](./19-next.md)) |
+| 73–76 | `1.21`–`1.24` | **PLANNED** ([`20-next.md`](./20-next.md)) |
 
-**Aktuell:** Sideload `1.15.0` — [`Jarvis.apk`](./apk.md). Weiter: [`19-next.md`](./19-next.md).
+**Aktuell:** Sideload `1.15.0` — [`Jarvis.apk`](./apk.md). Weiter: [`19-next.md`](./19-next.md), Extra: [`20-next.md`](./20-next.md).
