@@ -1033,7 +1033,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.27.1</p>
+            <p>Handy · v1.27.2</p>
           </div>
         </div>
 
@@ -1116,6 +1116,9 @@ function App() {
             onClose={() => {
               closeDrive()
               setDriveOpen(false)
+            }}
+            onCommand={(text) => {
+              void sendMessage(text)
             }}
           />
         ) : null}

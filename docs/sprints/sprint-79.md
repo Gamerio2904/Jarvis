@@ -22,6 +22,7 @@
 2. `Aktiviere Fahrmodus` — unten Spotify-Dock.
 3. `Spiel Hotel California` — Ton aus Jarvis, Anzeige „in Jarvis“.
 4. Pause / weiter in der Leiste.
+5. `Nach Heilbronn` — Overlay, Route auf der Karte, **Hören** im Balken.
 
 ## Won’t
 

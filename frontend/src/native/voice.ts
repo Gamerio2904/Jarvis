@@ -1,11 +1,12 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { synthesizeGemini, wantGeminiVoice } from '../engine/tts'
+import { pickHeard } from '../engine/heard.ts'
 
 export { createSentenceTap } from '../engine/speak-tap'
 
 type NativeVoice = {
   requestPermission(): Promise<{ granted: boolean }>
-  listen(): Promise<{ ok: boolean; text?: string; message?: string }>
+  listen(): Promise<{ ok: boolean; text?: string; alts?: string[]; message?: string }>
   stopListen(): Promise<{ ok: boolean }>
   speak(opts: { text: string }): Promise<{ ok: boolean; message?: string }>
   stopSpeak(): Promise<{ ok: boolean }>
@@ -47,7 +48,9 @@ export async function listenOnce(onPartial?: (text: string) => void): Promise<{ 
     }
     try {
       const res = await native.listen()
-      return { ok: Boolean(res.ok), text: (res.text || '').trim(), message: res.message }
+      const alts = Array.isArray(res.alts) ? res.alts.map(String) : []
+      const text = pickHeard(res.text || '', alts)
+      return { ok: Boolean(res.ok), text, message: res.message }
     } finally {
       handle?.remove()
     }
@@ -314,7 +317,10 @@ type Rec = {
   lang: string
   interimResults: boolean
   continuous: boolean
-  onresult: ((ev: { results: ArrayLike<{ 0: { transcript: string }; isFinal?: boolean }> }) => void) | null
+  maxAlternatives: number
+  onresult: ((ev: {
+    results: ArrayLike<{ length: number; isFinal?: boolean; [i: number]: { transcript: string } }>
+  }) => void) | null
   onerror: ((ev: { error?: string }) => void) | null
   onend: (() => void) | null
 }
@@ -335,13 +341,21 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
     rec.lang = 'de-DE'
     rec.interimResults = true
     rec.continuous = false
+    rec.maxAlternatives = 5
     rec.onresult = (ev) => {
       const last = ev.results[ev.results.length - 1]
-      const text = last?.[0]?.transcript || ''
+      const alts: string[] = []
+      if (last) {
+        for (let i = 0; i < last.length; i += 1) {
+          const t = last[i]?.transcript || ''
+          if (t) alts.push(t)
+        }
+      }
+      const text = pickHeard(alts[0] || '', alts.slice(1))
       if (last && !last.isFinal) onPartial?.(text)
       if (last?.isFinal) {
         webRec = null
-        resolve({ ok: true, text: text.trim() })
+        resolve({ ok: true, text })
       }
     }
     rec.onerror = () => {

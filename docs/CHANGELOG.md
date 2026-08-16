@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.27.1`**.
+App-Version im Code: **`1.27.2`**.
+
+### `1.27.2` — Fahrmodus / Sprache — *CODE*
+
+- „Nach Heilbronn“, „nach Heilbronn fahren“, „Fahr nach …“ startet Fahrmodus mit Route
+- Karte zoomt auf die ganze Strecke; Ziel-Feld und **Hören** im Overlay
+- Sprache: längere Pause, mehrere STT-Treffer, Füllwörter und Tippfehler (heilbron → Heilbronn)
 
 ### `1.27.1` — Anruf-Hotfix — *CODE*
 

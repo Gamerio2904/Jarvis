@@ -36,6 +36,7 @@ export const TEST_PROMPTS = [
   'Wann muss ich zum Zahnarzt los?',
   'Kalender',
   'Freundin wohnt in Heilbronn',
+  'Nach Heilbronn',
   'Fahr mich zur Freundin',
   'Freundin, Tel 01711234567',
   'Ruf die Freundin an',

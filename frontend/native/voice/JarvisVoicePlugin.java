@@ -162,11 +162,11 @@ public class JarvisVoicePlugin extends Plugin {
         call.setKeepAlive(true);
         main.post(() -> {
             if (listenCall != null) {
-                finishListen("", false, "schon am Zuhören");
+                finishListen("", false, "schon am Zuhören", null);
             }
             listenCall = call;
             if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
-                finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.");
+                finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.", null);
                 return;
             }
             if (recognizer == null) {
@@ -180,16 +180,16 @@ public class JarvisVoicePlugin extends Plugin {
                     @Override public void onError(int error) {
                         if (error == SpeechRecognizer.ERROR_NO_MATCH
                                 || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                            finishListen("", true, "");
+                            finishListen("", true, "", null);
                             return;
                         }
-                        finishListen("", false, "Zuhören unterbrochen.");
+                        finishListen("", false, "Zuhören unterbrochen.", null);
                     }
                     @Override
                     public void onResults(Bundle results) {
                         ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                         String text = list != null && !list.isEmpty() ? list.get(0) : "";
-                        finishListen(text, true, "");
+                        finishListen(text, true, "", list);
                     }
                     @Override
                     public void onPartialResults(Bundle partialResults) {
@@ -205,26 +205,35 @@ public class JarvisVoicePlugin extends Plugin {
             Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
             intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "de-DE");
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "de-DE");
+            intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 380L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 380L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 350L);
+            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1400L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1100L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 600L);
             try {
                 recognizer.startListening(intent);
             } catch (Exception e) {
-                finishListen("", false, "Zuhören fehlgeschlagen.");
+                finishListen("", false, "Zuhören fehlgeschlagen.", null);
             }
         });
     }
 
-    private void finishListen(String text, boolean ok, String message) {
+    private void finishListen(String text, boolean ok, String message, ArrayList<String> alts) {
         PluginCall c = listenCall;
         listenCall = null;
         if (c == null) return;
         JSObject r = new JSObject();
         r.put("ok", ok);
         r.put("text", text == null ? "" : text);
+        if (alts != null && !alts.isEmpty()) {
+            com.getcapacitor.JSArray arr = new com.getcapacitor.JSArray();
+            for (String a : alts) {
+                if (a != null && !a.isEmpty()) arr.put(a);
+            }
+            r.put("alts", arr);
+        }
         if (message != null && !message.isEmpty()) r.put("message", message);
         c.resolve(r);
     }
@@ -235,7 +244,7 @@ public class JarvisVoicePlugin extends Plugin {
             if (recognizer != null) {
                 try { recognizer.cancel(); } catch (Exception ignored) {}
             }
-            finishListen("", true, "");
+            finishListen("", true, "", null);
         });
         JSObject r = new JSObject();
         r.put("ok", true);

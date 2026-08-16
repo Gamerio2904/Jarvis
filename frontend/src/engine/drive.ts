@@ -1,6 +1,6 @@
 import { parseDriveIntent } from './drive-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
-import { geocodePlace, routeDrive } from './geo-lookup'
+import { geocodePlace, haversineM, routeDrive } from './geo-lookup'
 import { displayPlaceName, normalizePlaceName, parsePlaceNav } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { listMemory, loadSettings, saveSettings } from './store'
@@ -39,6 +39,41 @@ export function subscribeDrive(cb: () => void): () => void {
 export function closeDrive() {
   saveSettings({ drive_mode: false })
   active = null
+  emit()
+}
+
+/** GPS später da oder Standort hat sich bewegt: Route nachziehen. */
+export async function refreshDriveRoute(here: { lat: number; lon: number }): Promise<void> {
+  if (!active) return
+  const weak = active.coords.length < 2 || active.minutes <= 0
+  const moved = haversineM({ lat: active.fromLat, lon: active.fromLon, place: '' }, here)
+  if (!weak && moved < 280) return
+  const ride = await routeDrive(here, { lat: active.destLat, lon: active.destLon })
+  if (!ride.ok) {
+    if (weak) {
+      active = {
+        ...active,
+        fromLat: here.lat,
+        fromLon: here.lon,
+        coords: [
+          [here.lon, here.lat],
+          [active.destLon, active.destLat],
+        ],
+        hint: ride.message,
+      }
+      emit()
+    }
+    return
+  }
+  active = {
+    ...active,
+    fromLat: here.lat,
+    fromLon: here.lon,
+    coords: ride.coords,
+    minutes: ride.minutes,
+    meters: ride.meters,
+    hint: ride.hint,
+  }
   emit()
 }
 

@@ -3,6 +3,16 @@ import { getJson } from './http-json'
 export type Fix = { lat: number; lon: number; place: string }
 
 export async function geocodePlace(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+  const q = name.trim()
+  if (!q) return { ok: false, message: 'Welcher Ort?' }
+  const primary = await geocodeOpenMeteo(q)
+  if (primary.ok) return primary
+  const fallback = await geocodeNominatim(q)
+  if (fallback.ok) return fallback
+  return primary
+}
+
+async function geocodeOpenMeteo(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   try {
     const q = new URLSearchParams({ name, count: '1', language: 'de', format: 'json' })
     const { status, json } = await getJson(`https://geocoding-api.open-meteo.com/v1/search?${q}`)
@@ -11,9 +21,35 @@ export async function geocodePlace(name: string): Promise<{ ok: true; fix: Fix }
     if (!first) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
     const lat = Number(first.latitude)
     const lon = Number(first.longitude)
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
     const place = String(first.name || name)
     const admin = first.admin1 ? `, ${first.admin1}` : ''
     return { ok: true, fix: { lat, lon, place: `${place}${admin}` } }
+  } catch {
+    return { ok: false, message: `Ort „${name}“ nicht erreichbar.` }
+  }
+}
+
+async function geocodeNominatim(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+  try {
+    const q = new URLSearchParams({ q: name, format: 'json', limit: '1', addressdetails: '0' })
+    const { status, json } = await getJson(`https://nominatim.openstreetmap.org/search?${q}`, {
+      'Accept-Language': 'de',
+      'User-Agent': 'Jarvis/1.27.2 (local.jarvis.app)',
+    })
+    const raw: unknown = json
+    let rows: Array<Record<string, unknown>> = []
+    if (Array.isArray(raw)) rows = raw as Array<Record<string, unknown>>
+    else if (raw && typeof raw === 'object') {
+      const extra = (raw as { results?: unknown }).results
+      if (Array.isArray(extra)) rows = extra as Array<Record<string, unknown>>
+    }
+    const first = rows[0]
+    if (status < 200 || status >= 300 || !first) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
+    const lat = Number(first.lat)
+    const lon = Number(first.lon)
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
+    return { ok: true, fix: { lat, lon, place: String(first.display_name || name).split(',')[0] || name } }
   } catch {
     return { ok: false, message: `Ort „${name}“ nicht erreichbar.` }
   }

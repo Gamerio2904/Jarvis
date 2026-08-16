@@ -11,6 +11,7 @@ Reihe davor: [`21-next.md`](./21-next.md) (`1.26.0`).
 | Version | Inhalt | Warum getrennt | Status |
 |---------|--------|----------------|--------|
 | **`1.27.0`** | **Web Playback** im Fahrmodus: Gerät „Jarvis“ | Sideload nach 1.26 | **CODE** |
+| **`1.27.2`** | „Nach Heilbronn“, Overlay-Hören, STT | Sideload nach 1.27.1 | **CODE** |
 
 Sprint: [`sprint-79`](./sprints/sprint-79.md).
 

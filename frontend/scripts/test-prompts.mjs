@@ -21,6 +21,7 @@ import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -32,6 +33,7 @@ const NOW = new Date('2026-08-15T14:00:00')
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
+  text = normalizeUtterance(text)
   if (isHelpCommand(text)) return 'help'
   if (parseOrdinalFollowUp(text)) return 'ordinal'
   if (parseTvIntent(text)) return 'tv'
@@ -94,7 +96,8 @@ const EXPECT = {
   'Wann muss ich zum Zahnarzt los?': 'leave',
   Kalender: 'calendar',
   'Freundin wohnt in Heilbronn': 'maps',
-  'Fahr mich zur Freundin': 'maps',
+  'Nach Heilbronn': 'drive',
+  'Fahr mich zur Freundin': 'drive',
   'Freundin, Tel 01711234567': 'maps',
   'Ruf die Freundin an': 'maps',
   'Lauf zur Freundin': 'maps',

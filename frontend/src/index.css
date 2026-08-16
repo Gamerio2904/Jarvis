@@ -1474,7 +1474,7 @@ button.linkish {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 8;
+  z-index: 12;
   background: rgba(18, 18, 18, 0.42);
   display: flex;
   align-items: flex-end;
@@ -1910,6 +1910,11 @@ button.linkish {
   gap: 12px;
   padding: 14px 16px 10px;
   border-bottom: 1px solid var(--border);
+}
+
+.drive-bar-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .drive-bar h2 {

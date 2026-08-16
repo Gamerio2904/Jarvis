@@ -25,6 +25,7 @@ import {
   parsePlaceWrite,
 } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
+import { pickHeard } from '../src/engine/heard.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
 import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
@@ -55,6 +56,20 @@ assert.equal(parseTvIntent('leiser um 5')?.action, 'volume_down')
 assert.equal(parseDriveIntent('Aktiviere Fahrmodus')?.kind, 'on')
 assert.equal(parseDriveIntent('Fahrmodus aus')?.kind, 'off')
 assert.equal(parseDriveIntent('zur Freundin', true)?.kind, 'dest')
+assert.equal(parseDriveIntent('Nach Heilbronn')?.kind, 'on')
+assert.equal(parseDriveIntent('Nach Heilbronn')?.kind === 'on' && parseDriveIntent('Nach Heilbronn')?.dest, 'Heilbronn')
+assert.equal(parseDriveIntent('nach Heilbronn fahren')?.kind, 'on')
+assert.equal(parseDriveIntent('Fahr nach Heilbronn')?.kind, 'on')
+assert.equal(parseDriveIntent('Fahr mich zur Freundin')?.kind, 'on')
+assert.equal(parseDriveIntent('Nach Heilbronn', true)?.kind, 'dest')
+assert.equal(parseDriveIntent('Kannst du nach Heilbronn fahren')?.kind, 'on')
+assert.equal(parseDriveIntent('Ich will nach Heilbronn')?.dest, 'Heilbronn')
+assert.equal(parseDriveIntent('Nach dem Wetter'), null)
+assert.equal(normalizeUtterance('Kannst du nach Heilbronn fahren'), 'nach Heilbronn fahren')
+assert.equal(normalizeUtterance('nach heilbron'), 'nach Heilbronn')
+assert.equal(pickHeard('nach heilbron', ['nach Heilbronn']), 'nach Heilbronn')
+assert.equal(pickHeard('ähm fahr nach heilbron', ['Fahr nach Heilbronn']), 'fahr nach Heilbronn')
+assert.equal(parseDriveIntent(pickHeard('ähm fahr nach heilbron', ['xyz']))?.dest, 'Heilbronn')
 assert.equal(parseSpotifyIntent('Spiel Hotel California')?.kind, 'play')
 assert.deepEqual(parseSpotifyIntent('Spiel mal Hotel California'), { kind: 'play', query: 'Hotel California' })
 assert.equal(parseSpotifyIntent('Pause')?.kind, 'pause')
