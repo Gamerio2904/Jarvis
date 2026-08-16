@@ -21,9 +21,10 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 13 | [On-Device](./13-on-device.md) | Handy-LLM `0.13.2` |
 | 14 | [Qualität & TV](./14-quality-tv.md) | **`0.14.1`** — härten + Tizen live |
 | 16 | [Gemini](./16-gemini.md) | **`0.16`** — Google-API, Opt-in |
-| 17 | [Nächste Versionen](./17-next.md) | **`1.1`–`1.6`** — Erinnerung, Wetter, Kalender, Sprache |
-| 18 | [Timer bis Wake-Word](./18-next.md) | **`1.7`–`1.11`** — Wecker, Serie, Wetter-Follow-up, Widget, Hotword |
-| — | [APK](./apk.md) | Sideload |
+| 17 | [Nächste Versionen](./17-next.md) | **`1.1`–`1.6`** — Erinnerung, Wetter, Kalender, Sprache — **CODE** |
+| 18 | [Timer bis GUI](./18-next.md) | **`1.7`–`1.13.2`** — Wecker, Widget, Wake-Word, Motion, Ton — **CODE** |
+| 19 | [Alltag & Kontext](./19-next.md) | **`1.14`–`1.20`** — Gedächtnis, Einkauf, Losgehen, Ort, Auge — **PLANNED** |
+| — | [APK](./apk.md) | Sideload `1.13.2` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -68,5 +69,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 55 | `1.5.0` | **CODE** (Sprachmodus) |
 | 56 | `1.6.0` | **CODE** (Wetter als Lage) |
 | 57–61 | `1.7`–`1.11` | **CODE** (Timer, Serie, Wetter-Follow-up, Widget, Wake-Word) |
+| 62–65 | `1.12`–`1.13.2` | **CODE** (Wecker-Ton, GUI, Datum, Timer-Ton) |
+| 66–72 | `1.14`–`1.20` | **PLANNED** ([`19-next.md`](./19-next.md)) |
 
-**Aktuell:** Sideload `1.11.0` — [`Jarvis.apk`](./apk.md). Plan: [`18-next.md`](./18-next.md).
+**Aktuell:** Sideload `1.13.2` — [`Jarvis.apk`](./apk.md). Plan: [`19-next.md`](./19-next.md).

@@ -16,6 +16,14 @@ Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 
 Reihenfolge bewusst: erst scharfsinnig/verlässlich, dann Delight.
 
+### Live `1.13.2`
+
+Momente/Jokes/Eggs/Sounds existieren in Settings. GUI-Motion in `1.13.0`. Persona siezt. Confirm bei jedem Todo ist **nicht** menschlich — Änderung in `1.16`/`1.19`.
+
+### Geplant `1.19` — menschlicher ([`19-next.md`](./19-next.md))
+
+Eine Morgen-Lage, kurze Sätze, Siezen, kein Pflicht-Disclaimer nach jedem Timer, Folgesatz nach Küchentimer erlaubt. Witze bleiben selten und abschaltbar.
+
 ---
 
 ## 1) Jarvis-Moment

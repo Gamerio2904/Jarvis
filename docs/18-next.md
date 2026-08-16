@@ -31,7 +31,9 @@ Erinnerungen aus `1.2` zeigen heute nur eine stille/hohe Notification. Das reich
 | **`1.13.1`** | **Datum + Wecker-Titel** — **CODE** | 21.08. und kein „Wecker Wecker“ |
 | **`1.13.2`** | **Timer-Ton** — **CODE** | Ton, nicht nur Vibration |
 
-Sprints: [`sprint-57`](./sprints/sprint-57.md) … [`sprint-61`](./sprints/sprint-61.md).
+Diese Reihe ist **fertig**. Weiter: [`19-next.md`](./19-next.md) (`1.14`–`1.20`).
+
+Sprints: [`sprint-57`](./sprints/sprint-57.md) … [`sprint-65`](./sprints/sprint-65.md).
 
 ## Abnahme je Stufe
 
