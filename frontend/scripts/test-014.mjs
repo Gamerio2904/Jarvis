@@ -28,7 +28,7 @@ import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
-import { parseSpotifyIntent } from '../src/engine/spotify-parse.ts'
+import { parseSpotifyIntent, spotifySourceLabel } from '../src/engine/spotify-parse.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -54,8 +54,13 @@ assert.equal(parseDriveIntent('Aktiviere Fahrmodus')?.kind, 'on')
 assert.equal(parseDriveIntent('Fahrmodus aus')?.kind, 'off')
 assert.equal(parseDriveIntent('zur Freundin', true)?.kind, 'dest')
 assert.equal(parseSpotifyIntent('Spiel Hotel California')?.kind, 'play')
+assert.deepEqual(parseSpotifyIntent('Spiel mal Hotel California'), { kind: 'play', query: 'Hotel California' })
 assert.equal(parseSpotifyIntent('Pause')?.kind, 'pause')
+assert.equal(parseSpotifyIntent('Spotify Pause')?.kind, 'pause')
 assert.equal(parseSpotifyIntent('weiter')?.kind, 'next')
+assert.equal(parseSpotifyIntent('nächster Song')?.kind, 'next')
+assert.equal(spotifySourceLabel('internal'), 'in Jarvis')
+assert.equal(spotifySourceLabel('preview'), '30s-Vorschau')
 
 assert.ok(isMemoryWrite('Ich heiße Max und trinke gerne Kaffee'))
 const facts = parseMemoryFacts('Ich heiße Max und trinke gerne Kaffee und esse Pizza')

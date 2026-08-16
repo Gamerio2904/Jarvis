@@ -199,7 +199,7 @@ export async function handleDrive(
     }
     return {
       handled: true,
-      reply: 'Fahrmodus an. Wohin? Zum Beispiel „zur Freundin“ oder „nach Heilbronn“.',
+      reply: 'Fahrmodus an. Wohin? Zum Beispiel „zur Freundin“. Musik: „Spiel …“ — intern in Jarvis, wenn Spotify angemeldet ist.',
       tool: driveTool('open', 'Fahrmodus'),
       lastTool: 'drive',
     }

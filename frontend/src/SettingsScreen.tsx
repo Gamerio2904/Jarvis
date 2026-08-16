@@ -501,11 +501,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Spotify im Fahrmodus</h3>
               <p className="settings-lead">
-                Eigene Steuerung in Jarvis, kein Google. Client-ID von Ihnen — kein Key in der App.
+                Interner Player in Jarvis (Web Playback). Jarvis erscheint als Gerät „Jarvis“. Kein Key in der App.
               </p>
               <p className="settings-hint">
-                developer.spotify.com → App → Redirect URI exakt:{' '}
+                developer.spotify.com → App anlegen → Redirect URI exakt:{' '}
                 <code>{typeof window !== 'undefined' ? spotifyRedirect() : 'https://localhost/'}</code>
+                . In der APK ist das <code>https://localhost/</code>.
               </p>
               <label className="settings-field">
                 <span>Client-ID</span>
@@ -523,8 +524,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </label>
               <p className="settings-hint">
                 {spotifyLoggedIn(s || undefined)
-                  ? 'Angemeldet. Im Fahrmodus: „Spiel …“, Pause, weiter.'
-                  : 'Noch nicht angemeldet. Premium für volle Titel auf dem Handy.'}
+                  ? 'Angemeldet. Im Fahrmodus spielt Jarvis selbst (Premium). „Spiel …“, Pause, weiter.'
+                  : 'Anmelden. Premium = volle Titel in Jarvis. Ohne Premium nur 30s-Vorschau.'}
               </p>
               <div className="settings-actions">
                 <button

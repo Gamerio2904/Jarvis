@@ -32,7 +32,9 @@ Einstellungen → Musik: **Ihre** Spotify-Client-ID, Redirect-URI exakt die der 
 
 Im Overlay: Suchen, Spiel, Pause, weiter. Im Chat bei offenem Fahrmodus: `Spiel Hotel California`, `Pause`, `weiter`.
 
-Volle Titel: Spotify Premium + aktives Gerät (Spotify-App darf offen sein). Sonst 30s-Vorschau, ehrlich gesagt.
+Volle Titel: Spotify Premium + **Web Playback in Jarvis** (ab `1.27.0`). Sonst 30s-Vorschau, ehrlich gesagt.
+
+Weiter: [`22-next.md`](./22-next.md).
 
 ## Wake-Bubble
 

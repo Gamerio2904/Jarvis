@@ -2,17 +2,25 @@ import { useEffect, useMemo, useState } from 'react'
 import { getDriveRoute, subscribeDrive, type DriveRoute } from './engine/drive'
 import { readDeviceLocation } from './native/geo'
 import {
+  activateSpotifyElement,
+  ensureInternalPlayer,
   getSpotifyNow,
+  getSpotifyPlayerStatus,
   pauseSpotify,
   playQuery,
   playTrack,
   nextSpotify,
   prevSpotify,
+  refreshNow,
   resumeSpotify,
   searchTracks,
+  spotifyConfigured,
   spotifyLoggedIn,
+  spotifySourceLabel,
+  startSpotifyLogin,
   subscribeSpotify,
   type SpotifyNow,
+  type SpotifyPlayerStatus,
   type SpotifyTrack,
 } from './engine/spotify'
 
@@ -85,18 +93,43 @@ function TileMap({
   )
 }
 
+function sourceHint(now: SpotifyNow | null, status: SpotifyPlayerStatus): string {
+  const fromTrack = spotifySourceLabel(now?.source)
+  if (fromTrack) return fromTrack
+  if (status === 'loading') return 'Player startet…'
+  if (status === 'ready') return 'bereit in Jarvis'
+  if (status === 'unavailable') return 'Vorschau oder anderes Gerät'
+  return 'Spotify in Jarvis'
+}
+
 export function DriveMode({ onClose }: { onClose: () => void }) {
   const [route, setRoute] = useState<DriveRoute | null>(() => getDriveRoute())
   const [here, setHere] = useState<{ lat: number; lon: number } | null>(null)
   const [now, setNow] = useState<SpotifyNow | null>(() => getSpotifyNow())
+  const [player, setPlayer] = useState<SpotifyPlayerStatus>(() => getSpotifyPlayerStatus())
   const [q, setQ] = useState('')
   const [hits, setHits] = useState<SpotifyTrack[]>([])
   const [musicMsg, setMusicMsg] = useState<string | null>(null)
   const [musicBusy, setMusicBusy] = useState(false)
   const loggedIn = spotifyLoggedIn()
+  const configured = spotifyConfigured()
 
   useEffect(() => subscribeDrive(() => setRoute(getDriveRoute())), [])
-  useEffect(() => subscribeSpotify(() => setNow(getSpotifyNow())), [])
+  useEffect(
+    () =>
+      subscribeSpotify(() => {
+        setNow(getSpotifyNow())
+        setPlayer(getSpotifyPlayerStatus())
+      }),
+    [],
+  )
+
+  useEffect(() => {
+    if (!loggedIn) return
+    void ensureInternalPlayer()
+    const id = window.setInterval(() => void refreshNow(), 8000)
+    return () => window.clearInterval(id)
+  }, [loggedIn])
 
   useEffect(() => {
     let live = true
@@ -140,11 +173,19 @@ export function DriveMode({ onClose }: { onClose: () => void }) {
           <strong>{route ? `${route.minutes || '—'} Min` : 'Kein Ziel'}</strong>
           <span>{km}{route?.hint ? ` · ${route.hint}` : ' · intern, nicht Google Maps'}</span>
         </div>
-        <div className="drive-music">
-          <p className="drive-now">
-            {now ? `${now.playing ? '▶' : '❚❚'} ${now.name}${now.artist ? ` — ${now.artist}` : ''}` : 'Spotify'}
-            {now?.source === 'preview' ? ' · 30s-Vorschau' : ''}
-          </p>
+        <div className="drive-music" onPointerDown={() => void activateSpotifyElement()}>
+          <div className="drive-now-row">
+            {now?.art ? <img className="drive-art" src={now.art} alt="" /> : <div className="drive-art drive-art-empty" />}
+            <div>
+              <p className="drive-now">
+                {now ? `${now.playing ? '▶' : '❚❚'} ${now.name}` : 'Spotify in Jarvis'}
+              </p>
+              <p className="drive-now-sub">
+                {now?.artist ? `${now.artist} · ` : ''}
+                {sourceHint(now, player)}
+              </p>
+            </div>
+          </div>
           {loggedIn ? (
             <>
               <form
@@ -154,12 +195,14 @@ export function DriveMode({ onClose }: { onClose: () => void }) {
                   const query = q.trim()
                   if (!query || musicBusy) return
                   setMusicBusy(true)
-                  void playQuery(query).then((msg) => {
-                    setMusicMsg(msg)
-                    setNow(getSpotifyNow())
-                    setMusicBusy(false)
-                    setHits([])
-                  })
+                  void activateSpotifyElement()
+                    .then(() => playQuery(query))
+                    .then((msg) => {
+                      setMusicMsg(msg)
+                      setNow(getSpotifyNow())
+                      setMusicBusy(false)
+                      setHits([])
+                    })
                 }}
               >
                 <input
@@ -178,8 +221,17 @@ export function DriveMode({ onClose }: { onClose: () => void }) {
                 </button>
                 <button
                   type="button"
+                  className="drive-play"
                   disabled={musicBusy}
-                  onClick={() => void (now?.playing ? pauseSpotify() : resumeSpotify()).then(() => setNow(getSpotifyNow()))}
+                  onClick={() => {
+                    setMusicBusy(true)
+                    void activateSpotifyElement()
+                      .then(() => (now?.playing ? pauseSpotify() : resumeSpotify()))
+                      .then(() => {
+                        setNow(getSpotifyNow())
+                        setMusicBusy(false)
+                      })
+                  }}
                 >
                   {now?.playing ? 'Pause' : 'Play'}
                 </button>
@@ -209,12 +261,14 @@ export function DriveMode({ onClose }: { onClose: () => void }) {
                         type="button"
                         onClick={() => {
                           setMusicBusy(true)
-                          void playTrack(t).then((msg) => {
-                            setMusicMsg(msg)
-                            setNow(getSpotifyNow())
-                            setMusicBusy(false)
-                            setHits([])
-                          })
+                          void activateSpotifyElement()
+                            .then(() => playTrack(t))
+                            .then((msg) => {
+                              setMusicMsg(msg)
+                              setNow(getSpotifyNow())
+                              setMusicBusy(false)
+                              setHits([])
+                            })
                         }}
                       >
                         {t.name} — {t.artist}
@@ -224,8 +278,20 @@ export function DriveMode({ onClose }: { onClose: () => void }) {
                 </ul>
               ) : null}
             </>
+          ) : configured ? (
+            <button
+              type="button"
+              className="drive-login"
+              onClick={() => {
+                void startSpotifyLogin().then((r) => {
+                  if (!r.ok) setMusicMsg(r.message)
+                })
+              }}
+            >
+              Spotify anmelden
+            </button>
           ) : (
-            <p className="settings-hint">Einstellungen → Musik: Spotify anmelden.</p>
+            <p className="settings-hint">Einstellungen → Musik: Spotify-Client-ID, dann anmelden.</p>
           )}
           {musicMsg ? <p className="settings-hint">{musicMsg}</p> : null}
         </div>

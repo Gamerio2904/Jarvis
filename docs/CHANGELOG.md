@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.26.0`**.
+App-Version im Code: **`1.27.0`**.
+
+### `1.27.0` — Internes Spotify im Fahrmodus — *CODE*
+
+- Fahrmodus startet den Spotify-Web-Player: Gerät **Jarvis**, volle Titel in der App (Premium)
+- Ohne Premium oder ohne DRM: 30s-Vorschau, ehrlich gesagt
+- Dock mit Cover, Play/Pause/Skip, Suche; Chat: `Spiel …`, `Pause`, `weiter`
 
 ### `1.26.0` — Fahrmodus, Spotify, Auge, TV-Lautstärke — *CODE*
 

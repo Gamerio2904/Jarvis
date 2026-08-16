@@ -1,8 +1,8 @@
 import { loadSettings, saveSettings } from './store'
-import type { SpotifyIntent } from './spotify-parse'
+import type { SpotifyIntent, SpotifySource } from './spotify-parse'
 
-export { parseSpotifyIntent } from './spotify-parse'
-export type { SpotifyIntent }
+export { parseSpotifyIntent, spotifySourceLabel } from './spotify-parse'
+export type { SpotifyIntent, SpotifySource }
 
 const SCOPES = [
   'user-read-playback-state',
@@ -10,26 +10,60 @@ const SCOPES = [
   'user-read-currently-playing',
   'streaming',
   'user-read-email',
+  'user-read-private',
 ].join(' ')
 
 const VERIFIER_KEY = 'jarvis_spotify_verifier'
+const SDK_SRC = 'https://sdk.scdn.co/spotify-player.js'
+const PLAYER_NAME = 'Jarvis'
 
 export type SpotifyTrack = {
   uri: string
   name: string
   artist: string
   preview?: string
+  art?: string
 }
 
 export type SpotifyNow = {
   name: string
   artist: string
   playing: boolean
-  source: 'connect' | 'preview'
+  source: SpotifySource
+  art?: string
+}
+
+export type SpotifyPlayerStatus = 'idle' | 'loading' | 'ready' | 'unavailable'
+
+type SdkPlayer = {
+  connect: () => Promise<boolean>
+  disconnect: () => void
+  addListener: (event: string, cb: (arg: unknown) => void) => boolean
+  pause: () => Promise<void>
+  resume: () => Promise<void>
+  nextTrack: () => Promise<void>
+  previousTrack: () => Promise<void>
+  activateElement: () => Promise<void>
+}
+
+type SpotifySdk = {
+  Player: new (opts: {
+    name: string
+    getOAuthToken: (cb: (token: string) => void) => void
+    volume?: number
+  }) => SdkPlayer
+}
+
+function spotifyGlobal(): SpotifySdk | undefined {
+  return (window as unknown as { Spotify?: SpotifySdk }).Spotify
 }
 
 let preview: HTMLAudioElement | null = null
 let lastNow: SpotifyNow | null = null
+let playerStatus: SpotifyPlayerStatus = 'idle'
+let sdkPlayer: SdkPlayer | null = null
+let deviceId: string | null = null
+let bootPromise: Promise<string | null> | null = null
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -43,6 +77,14 @@ export function subscribeSpotify(cb: () => void): () => void {
 
 export function getSpotifyNow(): SpotifyNow | null {
   return lastNow
+}
+
+export function getSpotifyPlayerStatus(): SpotifyPlayerStatus {
+  return playerStatus
+}
+
+export function internalSpotifyReady(): boolean {
+  return Boolean(deviceId)
 }
 
 export function spotifyRedirect(): string {
@@ -75,6 +117,14 @@ async function challenge(verifier: string): Promise<string> {
   return b64url(new Uint8Array(hash))
 }
 
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms))
+}
+
+function asRecord(v: unknown): Record<string, unknown> {
+  return v && typeof v === 'object' ? (v as Record<string, unknown>) : {}
+}
+
 export async function startSpotifyLogin(): Promise<{ ok: boolean; message: string }> {
   const id = loadSettings().spotify_client_id.trim()
   if (!id) {
@@ -96,9 +146,22 @@ export async function startSpotifyLogin(): Promise<{ ok: boolean; message: strin
   return { ok: true, message: 'Spotify-Login…' }
 }
 
+function resetPlayer() {
+  try {
+    sdkPlayer?.disconnect()
+  } catch {
+    /* ignore */
+  }
+  sdkPlayer = null
+  deviceId = null
+  bootPromise = null
+  playerStatus = 'idle'
+}
+
 export function spotifyLogout(): void {
   stopPreview()
   lastNow = null
+  resetPlayer()
   saveSettings({ spotify_access: '', spotify_refresh: '', spotify_expires_at: '' })
   emit()
 }
@@ -197,13 +260,178 @@ function stopPreview() {
   preview = null
 }
 
-function playPreview(url: string, name: string, artist: string): string {
+function playPreview(url: string, name: string, artist: string, art?: string): string {
   stopPreview()
   preview = new Audio(url)
   preview.play().catch(() => undefined)
-  lastNow = { name, artist, playing: true, source: 'preview' }
+  lastNow = { name, artist, playing: true, source: 'preview', art }
   emit()
-  return `Vorschau: ${name} — ${artist}. Volle Titel brauchen Spotify Premium und ein aktives Gerät.`
+  return `Vorschau: ${name} — ${artist}. Volle Titel in Jarvis brauchen Spotify Premium.`
+}
+
+function loadSdk(): Promise<boolean> {
+  if (typeof window === 'undefined') return Promise.resolve(false)
+  if (spotifyGlobal()?.Player) return Promise.resolve(true)
+  return new Promise((resolve) => {
+    let done = false
+    const finish = (ok: boolean) => {
+      if (done) return
+      done = true
+      resolve(ok)
+    }
+    const w = window as unknown as { onSpotifyWebPlaybackSDKReady?: () => void }
+    const prev = w.onSpotifyWebPlaybackSDKReady
+    w.onSpotifyWebPlaybackSDKReady = () => {
+      try {
+        prev?.()
+      } catch {
+        /* ignore */
+      }
+      finish(Boolean(spotifyGlobal()?.Player))
+    }
+    if (!document.querySelector(`script[src="${SDK_SRC}"]`)) {
+      const s = document.createElement('script')
+      s.src = SDK_SRC
+      s.async = true
+      s.onerror = () => finish(false)
+      document.head.appendChild(s)
+    }
+    window.setTimeout(() => finish(Boolean(spotifyGlobal()?.Player)), 12_000)
+  })
+}
+
+function applySdkState(state: unknown) {
+  const rec = asRecord(state)
+  if (!rec.track_window) return
+  const windowRec = asRecord(rec.track_window)
+  const track = asRecord(windowRec.current_track)
+  const name = String(track.name || '')
+  if (!name) return
+  const artists = Array.isArray(track.artists) ? track.artists : []
+  const artist = artists
+    .map((a) => asRecord(a).name)
+    .filter(Boolean)
+    .join(', ')
+  const album = asRecord(track.album)
+  const images = Array.isArray(album.images) ? album.images : []
+  const art = String(asRecord(images[0]).url || '') || undefined
+  lastNow = {
+    name,
+    artist,
+    playing: !rec.paused,
+    source: 'internal',
+    art,
+  }
+  emit()
+}
+
+async function transferTo(id: string): Promise<boolean> {
+  for (let i = 0; i < 6; i += 1) {
+    const { status } = await api('PUT', '/me/player', { device_ids: [id], play: false })
+    if (status === 204 || status === 202 || status === 200) return true
+    await wait(400)
+  }
+  return false
+}
+
+async function bootPlayer(): Promise<string | null> {
+  playerStatus = 'loading'
+  emit()
+  const loaded = await loadSdk()
+  const Sdk = spotifyGlobal()
+  if (!loaded || !Sdk) {
+    playerStatus = 'unavailable'
+    emit()
+    return null
+  }
+  const token = await accessToken()
+  if (!token) {
+    playerStatus = 'unavailable'
+    emit()
+    return null
+  }
+  return new Promise((resolve) => {
+    let settled = false
+    const finish = (id: string | null) => {
+      if (settled) return
+      settled = true
+      if (!id) {
+        playerStatus = 'unavailable'
+        emit()
+      }
+      resolve(id)
+    }
+    const player = new Sdk.Player({
+      name: PLAYER_NAME,
+      getOAuthToken: (cb) => {
+        void accessToken().then((t) => cb(t || ''))
+      },
+      volume: 0.85,
+    })
+    sdkPlayer = player
+    player.addListener('ready', (arg) => {
+      const id = String(asRecord(arg).device_id || '')
+      if (!id) {
+        finish(null)
+        return
+      }
+      deviceId = id
+      playerStatus = 'ready'
+      emit()
+      void transferTo(id)
+      finish(id)
+    })
+    player.addListener('not_ready', () => {
+      deviceId = null
+      playerStatus = 'unavailable'
+      emit()
+    })
+    player.addListener('initialization_error', () => finish(null))
+    player.addListener('authentication_error', () => finish(null))
+    player.addListener('account_error', () => finish(null))
+    player.addListener('player_state_changed', applySdkState)
+    window.setTimeout(() => finish(deviceId), 10_000)
+    void player.connect().then((ok) => {
+      if (!ok) finish(null)
+    })
+  })
+}
+
+export async function ensureInternalPlayer(): Promise<string | null> {
+  if (deviceId) return deviceId
+  if (!spotifyLoggedIn()) return null
+  if (!bootPromise) {
+    bootPromise = bootPlayer().then((id) => {
+      if (!id) bootPromise = null
+      return id
+    })
+  }
+  return bootPromise
+}
+
+export async function activateSpotifyElement(): Promise<void> {
+  await ensureInternalPlayer()
+  try {
+    await sdkPlayer?.activateElement()
+  } catch {
+    /* autoplay lock */
+  }
+}
+
+async function connectPlay(uri: string, onDevice?: string): Promise<boolean> {
+  const qs = onDevice ? `?device_id=${encodeURIComponent(onDevice)}` : ''
+  const { status } = await api('PUT', `/me/player/play${qs}`, { uris: [uri] })
+  if (status === 204 || status === 202 || status === 200) return true
+  if (status === 404) {
+    const devices = await api('GET', '/me/player/devices')
+    const list = ((devices.json.devices as Array<{ id?: string }> | undefined) || []).filter((d) => d.id)
+    const pick = onDevice || list[0]?.id
+    if (!pick) return false
+    await api('PUT', '/me/player', { device_ids: [pick], play: true })
+    const again = await api('PUT', `/me/player/play?device_id=${encodeURIComponent(pick)}`, { uris: [uri] })
+    return again.status === 204 || again.status === 202 || again.status === 200
+  }
+  return false
 }
 
 export async function searchTracks(query: string): Promise<{ ok: true; tracks: SpotifyTrack[] } | { ok: false; message: string }> {
@@ -219,6 +447,7 @@ export async function searchTracks(query: string): Promise<{ ok: true; tracks: S
     uri?: string
     preview_url?: string
     artists?: Array<{ name?: string }>
+    album?: { images?: Array<{ url?: string }> }
   }>
   const tracks = items
     .filter((t) => t.uri)
@@ -227,35 +456,32 @@ export async function searchTracks(query: string): Promise<{ ok: true; tracks: S
       name: String(t.name || 'Titel'),
       artist: (t.artists || []).map((a) => a.name).filter(Boolean).join(', ') || 'Unbekannt',
       preview: t.preview_url || undefined,
+      art: t.album?.images?.[0]?.url,
     }))
   if (!tracks.length) return { ok: false, message: `Nichts zu „${q}“.` }
   return { ok: true, tracks }
 }
 
-async function connectPlay(uri: string): Promise<boolean> {
-  const { status } = await api('PUT', '/me/player/play', { uris: [uri] })
-  if (status === 204 || status === 202 || status === 200) return true
-  if (status === 404) {
-    const devices = await api('GET', '/me/player/devices')
-    const list = ((devices.json.devices as Array<{ id?: string }> | undefined) || []).filter((d) => d.id)
-    if (!list[0]?.id) return false
-    await api('PUT', '/me/player', { device_ids: [list[0].id], play: true })
-    const again = await api('PUT', `/me/player/play?device_id=${encodeURIComponent(list[0].id)}`, { uris: [uri] })
-    return again.status === 204 || again.status === 202 || again.status === 200
-  }
-  return false
-}
-
 export async function playTrack(track: SpotifyTrack): Promise<string> {
-  const ok = await connectPlay(track.uri)
-  if (ok) {
-    stopPreview()
-    lastNow = { name: track.name, artist: track.artist, playing: true, source: 'connect' }
-    emit()
-    return `${track.name} — ${track.artist}.`
+  stopPreview()
+  await activateSpotifyElement()
+  const internal = deviceId || (await ensureInternalPlayer())
+  if (internal) {
+    const ok = await connectPlay(track.uri, internal)
+    if (ok) {
+      lastNow = { name: track.name, artist: track.artist, playing: true, source: 'internal', art: track.art }
+      emit()
+      return `${track.name} — ${track.artist}.`
+    }
   }
-  if (track.preview) return playPreview(track.preview, track.name, track.artist)
-  return `${track.name} gefunden, aber kein Gerät. Spotify-App auf dem Handy öffnen (Premium) oder Vorschau fehlt.`
+  const other = await connectPlay(track.uri)
+  if (other) {
+    lastNow = { name: track.name, artist: track.artist, playing: true, source: 'connect', art: track.art }
+    emit()
+    return `${track.name} — ${track.artist} (anderes Gerät).`
+  }
+  if (track.preview) return playPreview(track.preview, track.name, track.artist, track.art)
+  return `${track.name} gefunden. Volle Titel: Premium, dann nochmal anmelden. Sonst fehlt die Vorschau.`
 }
 
 export async function playQuery(query: string): Promise<string> {
@@ -269,45 +495,85 @@ export async function playQuery(query: string): Promise<string> {
 
 export async function pauseSpotify(): Promise<string> {
   stopPreview()
-  await api('PUT', '/me/player/pause')
+  if (sdkPlayer && deviceId) {
+    try {
+      await sdkPlayer.pause()
+    } catch {
+      await api('PUT', '/me/player/pause')
+    }
+  } else {
+    await api('PUT', '/me/player/pause')
+  }
   if (lastNow) lastNow = { ...lastNow, playing: false }
   emit()
   return 'Pause.'
 }
 
 export async function resumeSpotify(): Promise<string> {
-  const { status } = await api('PUT', '/me/player/play')
+  await activateSpotifyElement()
+  if (sdkPlayer && deviceId) {
+    try {
+      await sdkPlayer.resume()
+      if (lastNow) lastNow = { ...lastNow, playing: true, source: 'internal' }
+      emit()
+      return 'Weiter.'
+    } catch {
+      /* Connect-API */
+    }
+  }
+  const qs = deviceId ? `?device_id=${encodeURIComponent(deviceId)}` : ''
+  const { status } = await api('PUT', `/me/player/play${qs}`)
   if (status === 204 || status === 202 || status === 200) {
-    if (lastNow) lastNow = { ...lastNow, playing: true, source: 'connect' }
+    if (lastNow) lastNow = { ...lastNow, playing: true, source: deviceId ? 'internal' : 'connect' }
     emit()
     return 'Weiter.'
   }
-  return 'Kein aktives Spotify-Gerät. App öffnen oder einen Titel sagen.'
+  return 'Nichts zum Fortsetzen. Sagen Sie einen Titel, z. B. „Spiel Hotel California“.'
 }
 
 export async function nextSpotify(): Promise<string> {
   stopPreview()
+  if (sdkPlayer && deviceId) {
+    try {
+      await sdkPlayer.nextTrack()
+      return 'Nächster.'
+    } catch {
+      /* Connect-API */
+    }
+  }
   await api('POST', '/me/player/next')
   return 'Nächster.'
 }
 
 export async function prevSpotify(): Promise<string> {
   stopPreview()
+  if (sdkPlayer && deviceId) {
+    try {
+      await sdkPlayer.previousTrack()
+      return 'Zurück.'
+    } catch {
+      /* Connect-API */
+    }
+  }
   await api('POST', '/me/player/previous')
   return 'Zurück.'
 }
 
 export async function refreshNow(): Promise<SpotifyNow | null> {
   if (lastNow?.source === 'preview' && preview && !preview.paused) return lastNow
+  if (lastNow?.source === 'internal' && lastNow.playing) return lastNow
   const { status, json } = await api('GET', '/me/player/currently-playing')
   if (status < 200 || status >= 300) return lastNow
-  const item = json.item as { name?: string; artists?: Array<{ name?: string }> } | undefined
+  const item = json.item as
+    | { name?: string; artists?: Array<{ name?: string }>; album?: { images?: Array<{ url?: string }> } }
+    | undefined
   if (!item?.name) return lastNow
   lastNow = {
     name: item.name,
     artist: (item.artists || []).map((a) => a.name).filter(Boolean).join(', ') || '',
     playing: Boolean(json.is_playing),
-    source: 'connect',
+    source: deviceId ? 'internal' : 'connect',
+    art: item.album?.images?.[0]?.url,
   }
   emit()
   return lastNow

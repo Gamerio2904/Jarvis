@@ -95,6 +95,7 @@ MAJOR.MINOR.PATCH
 | `1.24.1` | Chat-Hang TV/Standort | Sprint 76 Patch |
 | `1.25.0` | Einstellungen Vollbild + Themen-Leiste | Sprint 77 |
 | `1.26.0` | Fahrmodus, Spotify, Auge, TV-Lautstärke | Sprint 78 |
+| `1.27.0` | Internes Spotify im Fahrmodus | Sprint 79 |
 
 ### Weitere Beispiele
 
