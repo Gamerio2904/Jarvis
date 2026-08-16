@@ -51,7 +51,7 @@ import { WakeBubble } from './WakeBubble'
 import { closeDrive } from './engine/drive'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
-import { consumeVoiceLaunch, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning } from './native/voice'
+import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 
@@ -305,10 +305,8 @@ function App() {
     async function tick() {
       const on = await wakeWordRunning()
       if (!live) return
-      setWakeListening((was) => {
-        if (!on && settings?.wake_word && was) void patchSetting({ wake_word: false })
-        return on
-      })
+      setWakeListening(on)
+      if (settings?.wake_word && !on) void startWakeWord()
     }
     void tick()
     const id = window.setInterval(() => void tick(), 4000)
@@ -319,11 +317,22 @@ function App() {
   }, [settings?.wake_word])
 
   useEffect(() => {
-    const hide = () => {
-      if (document.hidden) setVoiceOpen(false)
+    const openVoice = () => {
+      setVoiceOpen(true)
+      setCalendarOpen(false)
     }
-    document.addEventListener('visibilitychange', hide)
-    return () => document.removeEventListener('visibilitychange', hide)
+    const off = onWakeHit(openVoice)
+    const vis = () => {
+      if (document.hidden) setVoiceOpen(false)
+      else void consumeVoiceLaunch().then((v) => {
+        if (v) openVoice()
+      })
+    }
+    document.addEventListener('visibilitychange', vis)
+    return () => {
+      off()
+      document.removeEventListener('visibilitychange', vis)
+    }
   }, [])
 
   useEffect(() => {
@@ -1076,7 +1085,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.28.0</p>
+            <p>Handy · v1.28.1</p>
           </div>
         </div>
 
@@ -1357,7 +1366,7 @@ function App() {
           </div>
           {!voiceOpen ? (
             <WakeBubble
-              listening={wakeListening || Boolean(settings?.wake_word)}
+              listening={wakeListening}
               onTap={() => {
                 setVoiceOpen(true)
                 setCalendarOpen(false)

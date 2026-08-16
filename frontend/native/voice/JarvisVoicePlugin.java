@@ -64,8 +64,12 @@ public class JarvisVoicePlugin extends Plugin {
             .build();
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
+    private static JarvisVoicePlugin self;
+    private static volatile boolean pendingWake = false;
+
     @Override
     public void load() {
+        self = this;
         main.post(() -> {
             tts = new TextToSpeech(getContext(), status -> {
                 ttsReady = status == TextToSpeech.SUCCESS;
@@ -81,6 +85,7 @@ public class JarvisVoicePlugin extends Plugin {
 
     @Override
     protected void handleOnDestroy() {
+        self = null;
         main.post(() -> {
             if (recognizer != null) {
                 recognizer.destroy();
@@ -357,16 +362,27 @@ public class JarvisVoicePlugin extends Plugin {
         });
     }
 
+    public static void emitWake() {
+        pendingWake = true;
+        JarvisVoicePlugin p = self;
+        if (p == null) return;
+        JSObject ev = new JSObject();
+        ev.put("hit", true);
+        p.notifyListeners("wake", ev);
+    }
+
     @PluginMethod
     public void consumeLaunch(PluginCall call) {
         Activity a = getActivity();
-        boolean voice = false;
+        boolean voice = pendingWake;
+        pendingWake = false;
         if (a != null) {
             Intent i = a.getIntent();
             if (i != null) {
                 Uri data = i.getData();
                 String extra = i.getStringExtra("jarvis_mode");
-                voice = (data != null && "voice".equals(data.getHost()))
+                voice = voice
+                        || (data != null && "voice".equals(data.getHost()))
                         || "voice".equals(extra)
                         || (data != null && String.valueOf(data).contains("voice"));
                 if (voice) {

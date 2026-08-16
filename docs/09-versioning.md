@@ -99,6 +99,7 @@ MAJOR.MINOR.PATCH
 | `1.27.1` | Anruf-Hotfix (Service-Prefix, Nummer) | Sprint 79 Patch |
 | `1.27.2` | Fahrmodus „Nach Heilbronn“ + Sprache | Sprint 79 Patch |
 | `1.28.0` | Wake-Word Hintergrund + Fire TV HDMI | Sprint 80 |
+| `1.28.1` | Wake-Word öffnet Sprachmodus | Sprint 80 Patch |
 
 ### Weitere Beispiele
 

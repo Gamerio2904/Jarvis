@@ -19,8 +19,8 @@ type NativeVoice = {
   setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
   streamSse(opts: { url: string; body: string; apiKey: string }): Promise<{ ok: boolean; status?: number; message?: string }>
   addListener(
-    event: 'partial' | 'sse',
-    cb: (ev: { text?: string; data?: string }) => void,
+    event: 'partial' | 'sse' | 'wake',
+    cb: (ev: { text?: string; data?: string; hit?: boolean }) => void,
   ): Promise<{ remove: () => void }>
 }
 
@@ -271,6 +271,17 @@ export async function consumeVoiceLaunch(): Promise<boolean> {
     return Boolean((await native.consumeLaunch()).voice)
   } catch {
     return false
+  }
+}
+
+export function onWakeHit(cb: () => void): () => void {
+  if (!native) return () => undefined
+  let handle: { remove: () => void } | undefined
+  void native.addListener('wake', () => cb()).then((h) => {
+    handle = h
+  })
+  return () => {
+    handle?.remove()
   }
 }
 

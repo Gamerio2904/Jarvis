@@ -309,8 +309,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <span>Auf „Jarvis“ hören</span>
               </label>
               <p className="settings-hint">
-                Bildschirm aus und andere Apps: nur der Name. Gespräch nur in Jarvis. Beenden:
-                Schalter hier, oder „Beenden“ in der Benachrichtigung. Akku: nicht optimieren.
+                Sagen Sie laut „Jarvis“. Es muss eine Meldung „Jarvis hört auf den Namen“ oben
+                stehen. Bildschirm aus und andere Apps: nur der Name. Beenden: Schalter oder die
+                Meldung. Akku: nicht optimieren.
               </p>
               {p.shortcutMsg ? <p className="settings-hint">{p.shortcutMsg}</p> : null}
             </section>

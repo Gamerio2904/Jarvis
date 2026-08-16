@@ -142,7 +142,10 @@ public class JarvisWakeService extends Service {
 
     private void listen() {
         if (!armed || paused) return;
-        if (!SpeechRecognizer.isRecognitionAvailable(this)) return;
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            restart(2000);
+            return;
+        }
         stopRec();
         rec = makeRecognizer();
         rec.setRecognitionListener(new RecognitionListener() {
@@ -152,12 +155,21 @@ public class JarvisWakeService extends Service {
             @Override public void onBufferReceived(byte[] buffer) {}
             @Override public void onEndOfSpeech() {}
             @Override public void onError(int error) {
-                if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY
-                        || error == SpeechRecognizer.ERROR_CLIENT) {
-                    restart(900);
+                if (error == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
+                    restart(2500);
                     return;
                 }
-                restart(error == SpeechRecognizer.ERROR_NO_MATCH ? 250 : 500);
+                if (error == SpeechRecognizer.ERROR_CLIENT
+                        || error == SpeechRecognizer.ERROR_SERVER) {
+                    restart(700);
+                    return;
+                }
+                if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY) {
+                    restart(1100);
+                    return;
+                }
+                restart(error == SpeechRecognizer.ERROR_NO_MATCH
+                        || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT ? 180 : 450);
             }
             @Override public void onResults(Bundle results) { hit(results); restart(350); }
             @Override public void onPartialResults(Bundle results) { hit(results); }
@@ -169,9 +181,6 @@ public class JarvisWakeService extends Service {
         i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-        i.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
-        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
-        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 700L);
         try {
             rec.startListening(i);
         } catch (Exception e) {
@@ -180,14 +189,23 @@ public class JarvisWakeService extends Service {
     }
 
     private SpeechRecognizer makeRecognizer() {
-        if (Build.VERSION.SDK_INT >= 31) {
-            try {
-                SpeechRecognizer onDev = SpeechRecognizer.createOnDeviceSpeechRecognizer(this);
-                if (onDev != null) return onDev;
-            } catch (Exception ignored) {
-            }
-        }
         return SpeechRecognizer.createSpeechRecognizer(this);
+    }
+
+    static boolean isWakeName(String raw) {
+        if (raw == null) return false;
+        String n = raw.toLowerCase(Locale.GERMAN)
+                .replace('ä', 'a')
+                .replace('ö', 'o')
+                .replace('ü', 'u')
+                .replaceAll("[^a-z]", "");
+        if (n.contains("jarvis") || n.contains("jarwis") || n.contains("javis")
+                || n.contains("yarvis") || n.contains("charvis") || n.contains("gervis")
+                || n.contains("djarvis") || n.contains("scharvis") || n.contains("jaervis")
+                || n.contains("service")) {
+            return true;
+        }
+        return n.contains("jar") && (n.contains("vis") || n.contains("wis") || n.contains("bis"));
     }
 
     private void hit(Bundle results) {
@@ -195,9 +213,7 @@ public class JarvisWakeService extends Service {
         ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         if (list == null) return;
         for (String s : list) {
-            if (s == null) continue;
-            String n = s.toLowerCase(Locale.GERMAN).replace(" ", "");
-            if (n.contains("jarvis") || n.contains("service")) {
+            if (isWakeName(s)) {
                 openVoice();
                 return;
             }
@@ -207,14 +223,25 @@ public class JarvisWakeService extends Service {
     private void openVoice() {
         armed = false;
         stopRec();
+        JarvisVoicePlugin.emitWake();
         try {
-            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("jarvis://voice"));
+            Intent i = new Intent(this, local.jarvis.app.MainActivity.class);
+            i.setAction(Intent.ACTION_VIEW);
+            i.setData(Uri.parse("jarvis://voice"));
+            i.putExtra("jarvis_mode", "voice");
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                    | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            i.putExtra("jarvis_mode", "voice");
+                    | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
             startActivity(i);
         } catch (Exception ignored) {
+            try {
+                Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("jarvis://voice"));
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                i.putExtra("jarvis_mode", "voice");
+                startActivity(i);
+            } catch (Exception ignored2) {
+            }
         }
         main.postDelayed(() -> {
             if (running && !paused) {
