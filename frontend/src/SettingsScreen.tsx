@@ -1,5 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
+import {
+  spotifyLoggedIn,
+  spotifyLogout,
+  spotifyRedirect,
+  startSpotifyLogin,
+} from './engine/spotify'
 
 export type SettingsTopic =
   | 'allgemein'
@@ -9,6 +15,7 @@ export type SettingsTopic =
   | 'wecker'
   | 'ort'
   | 'tv'
+  | 'musik'
   | 'ton'
   | 'forschung'
   | 'gedaechtnis'
@@ -22,6 +29,7 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'wecker', label: 'Wecker', hint: 'Timer' },
   { id: 'ort', label: 'Ort', hint: 'Wetter' },
   { id: 'tv', label: 'Fernseher', hint: 'Tizen' },
+  { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
@@ -103,6 +111,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const s = p.settings
   const busy = p.settingsBusy
   const topic = TOPICS.find((t) => t.id === p.topic) || TOPICS[0]
+  const [spotifyMsg, setSpotifyMsg] = useState<string | null>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -485,6 +494,64 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </ul>
               ) : null}
               {p.tvMsg ? <p className="settings-hint">{p.tvMsg}</p> : null}
+            </section>
+          ) : null}
+
+          {p.topic === 'musik' ? (
+            <section className="settings-card">
+              <h3>Spotify im Fahrmodus</h3>
+              <p className="settings-lead">
+                Eigene Steuerung in Jarvis, kein Google. Client-ID von Ihnen — kein Key in der App.
+              </p>
+              <p className="settings-hint">
+                developer.spotify.com → App → Redirect URI exakt:{' '}
+                <code>{typeof window !== 'undefined' ? spotifyRedirect() : 'https://localhost/'}</code>
+              </p>
+              <label className="settings-field">
+                <span>Client-ID</span>
+                <input
+                  type="text"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  key={`sp-id-${s?.spotify_client_id ? 'set' : 'empty'}`}
+                  defaultValue={s?.spotify_client_id || ''}
+                  disabled={busy}
+                  placeholder="Spotify Client ID"
+                  onBlur={(e) => void p.patchSetting({ spotify_client_id: e.target.value.trim() })}
+                />
+              </label>
+              <p className="settings-hint">
+                {spotifyLoggedIn(s || undefined)
+                  ? 'Angemeldet. Im Fahrmodus: „Spiel …“, Pause, weiter.'
+                  : 'Noch nicht angemeldet. Premium für volle Titel auf dem Handy.'}
+              </p>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || !s?.spotify_client_id?.trim()}
+                  onClick={() => {
+                    void startSpotifyLogin().then((r) => {
+                      if (!r.ok) setSpotifyMsg(r.message)
+                    })
+                  }}
+                >
+                  Anmelden
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={!spotifyLoggedIn(s || undefined)}
+                  onClick={() => {
+                    spotifyLogout()
+                    setSpotifyMsg('Abgemeldet.')
+                  }}
+                >
+                  Abmelden
+                </button>
+              </div>
+              {spotifyMsg ? <p className="settings-hint">{spotifyMsg}</p> : null}
             </section>
           ) : null}
 

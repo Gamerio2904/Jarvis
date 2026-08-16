@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.25.0`**.
+App-Version im Code: **`1.26.0`**.
+
+### `1.26.0` — Fahrmodus, Spotify, Auge, TV-Lautstärke — *CODE*
+
+- Foto liefert eine Chat-Antwort (JPEG, Timeout, ohne Gemini ehrlich)
+- TV: `Lautstärke 50`, `lauter um 10` (Tasten, etwa 1–100)
+- Fahrmodus-Overlay mit eigener Karte (OSM/OSRM, nicht Google Maps)
+- Spotify intern im Fahrmodus: eigene Client-ID, PKCE-Login, Play/Pause/Skip
+- Wake-Word-Kugel unten am Composer
 
 ### `1.25.0` — Einstellungen Vollbild — *CODE*
 

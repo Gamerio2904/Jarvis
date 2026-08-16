@@ -26,6 +26,7 @@ import {
   testGemini,
   testGroq,
   readEyeImage,
+  fileToJpegDataUrl,
   checkHomeFence,
   type Conversation,
   type Health,
@@ -44,10 +45,14 @@ import { TEST_PROMPTS } from './engine/test-prompts'
 import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
+import { DriveMode } from './DriveMode'
+import { WakeBubble } from './WakeBubble'
+import { closeDrive } from './engine/drive'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
-import { consumeVoiceLaunch, pinVoiceShortcut, startWakeWord, stopWakeWord } from './native/voice'
+import { consumeVoiceLaunch, pinVoiceShortcut, startWakeWord, stopWakeWord, wakeWordRunning } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
+import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 
 function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
   const raw = tool.result
@@ -231,6 +236,8 @@ function App() {
   const [remindBusy, setRemindBusy] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
+  const [driveOpen, setDriveOpen] = useState(false)
+  const [wakeListening, setWakeListening] = useState(false)
   const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
   const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
@@ -274,12 +281,37 @@ function App() {
   }, [])
 
   useEffect(() => {
+    const pending = pendingSpotifyCode()
+    if (!pending) return
+    void completeSpotifyLogin(pending).then(() => {
+      const u = new URL(window.location.href)
+      u.search = ''
+      u.hash = ''
+      window.history.replaceState({}, '', u.pathname || '/')
+    })
+  }, [])
+
+  useEffect(() => {
     void bootstrap()
     const t = window.setInterval(() => {
       void refreshHealth()
     }, 8000)
     return () => window.clearInterval(t)
   }, [])
+
+  useEffect(() => {
+    let live = true
+    async function tick() {
+      const on = await wakeWordRunning()
+      if (live) setWakeListening(on)
+    }
+    void tick()
+    const id = window.setInterval(() => void tick(), 4000)
+    return () => {
+      live = false
+      window.clearInterval(id)
+    }
+  }, [settings?.wake_word])
 
   useEffect(() => {
     if (!busy) {
@@ -532,6 +564,7 @@ function App() {
       /* browser ohne Deep-Link */
     }
     const s = await getSettings()
+    if (s.drive_mode) setDriveOpen(true)
     if (s.wake_word) {
       try {
         await startWakeWord()
@@ -763,6 +796,14 @@ function App() {
               setSidebarOpen(false)
             }
           }
+          if (payload.tool?.tool === 'drive') {
+            if (payload.tool.action === 'close') setDriveOpen(false)
+            else {
+              setDriveOpen(true)
+              setCalendarOpen(false)
+              setSidebarOpen(false)
+            }
+          }
         },
         onError: (detail) => {
           setError(detail)
@@ -791,7 +832,7 @@ function App() {
     if (!file || busy) return
     setBusy(true)
     setError(null)
-    setStatusNote('Foto geht zu Google…')
+    setStatusNote('Foto…')
     try {
       let conversationId = activeId
       if (!conversationId) {
@@ -800,13 +841,9 @@ function App() {
         setConversations((prev) => [created, ...prev])
         setActiveId(created.id)
       }
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(String(reader.result || ''))
-        reader.onerror = () => reject(new Error('Foto nicht lesbar.'))
-        reader.readAsDataURL(file)
-      })
-      const { reply } = await readEyeImage(conversationId, dataUrl)
+      const prepared = await fileToJpegDataUrl(file)
+      const payload = 'error' in prepared ? `error:${prepared.error}` : prepared.dataUrl
+      const { reply } = await readEyeImage(conversationId, payload)
       const conv = await getConversation(conversationId)
       setMessages(conv.messages)
       setConversations((prev) => {
@@ -817,6 +854,7 @@ function App() {
       if (!reply) setStatusNote('Nichts Lesbares auf dem Bild.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Foto fehlgeschlagen')
+      setStatusNote(null)
     } finally {
       setBusy(false)
       if (eyeFileRef.current) eyeFileRef.current.value = ''
@@ -876,6 +914,10 @@ function App() {
             return [payload.conversation, ...rest]
           })
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
+          if (payload.tool?.tool === 'drive') {
+            if (payload.tool.action === 'close') setDriveOpen(false)
+            else setDriveOpen(true)
+          }
         },
         onError: (detail) => {
           setError(detail)
@@ -991,7 +1033,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.25.0</p>
+            <p>Handy · v1.26.0</p>
           </div>
         </div>
 
@@ -1069,6 +1111,14 @@ function App() {
           />
         ) : null}
         {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}
+        {driveOpen ? (
+          <DriveMode
+            onClose={() => {
+              closeDrive()
+              setDriveOpen(false)
+            }}
+          />
+        ) : null}
         <div className="topbar">
           <button
             className="menu-btn"
@@ -1218,7 +1268,6 @@ function App() {
               ref={eyeFileRef}
               type="file"
               accept="image/*"
-              capture="environment"
               hidden
               onChange={(e) => {
                 const file = e.target.files?.[0]
@@ -1260,6 +1309,15 @@ function App() {
               Senden
             </button>
           </div>
+          {!voiceOpen ? (
+            <WakeBubble
+              listening={wakeListening || Boolean(settings?.wake_word)}
+              onTap={() => {
+                setVoiceOpen(true)
+                setCalendarOpen(false)
+              }}
+            />
+          ) : null}
         </div>
       </main>
 

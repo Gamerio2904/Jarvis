@@ -82,7 +82,9 @@ public class JarvisTvPlugin extends Plugin {
             Integer port = call.getInt("port");
             String token = call.getString("token", "");
             String key = call.getString("key", "");
-            resolve(call, doSendKey(host, port, token, key));
+            Integer count = call.getInt("count");
+            int n = count == null ? 1 : Math.max(1, Math.min(100, count));
+            resolve(call, doSendKey(host, port, token, key, n));
         });
     }
 
@@ -409,13 +411,14 @@ public class JarvisTvPlugin extends Plugin {
         return ret;
     }
 
-    private JSObject doSendKey(String host, Integer port, String token, String key) {
+    private JSObject doSendKey(String host, Integer port, String token, String key, int count) {
         JSObject ret = new JSObject();
         if (key == null || key.isEmpty()) {
             ret.put("ok", false);
             ret.put("message", "Keine Taste.");
             return ret;
         }
+        int n = Math.max(1, Math.min(100, count));
         List<Integer> ports = new ArrayList<>();
         if (port != null && port > 0) ports.add(port);
         if (!ports.contains(8002)) ports.add(8002);
@@ -432,11 +435,14 @@ public class JarvisTvPlugin extends Plugin {
                     session.close();
                     continue;
                 }
-                session.sendKey(key);
-                Thread.sleep(200);
+                for (int i = 0; i < n; i++) {
+                    session.sendKey(key);
+                    Thread.sleep(n > 1 ? 90 : 200);
+                }
                 ret.put("ok", true);
                 ret.put("port", p);
-                ret.put("message", "Taste gesendet.");
+                ret.put("count", n);
+                ret.put("message", n > 1 ? n + " Tasten gesendet." : "Taste gesendet.");
                 session.close();
                 return ret;
             } catch (Exception e) {

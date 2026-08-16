@@ -1892,6 +1892,185 @@ button.linkish {
   animation: panelIn 0.4s var(--ease-out);
 }
 
+.drive-view {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  background: #050605;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.drive-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.drive-bar h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+}
+
+.drive-map-wrap {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #0b100e;
+}
+
+.drive-map {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.drive-map img {
+  position: absolute;
+  width: 256px;
+  height: 256px;
+  pointer-events: none;
+}
+
+.drive-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.drive-dock {
+  flex-shrink: 0;
+  padding: 10px 14px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: linear-gradient(180deg, #101412, #070908);
+}
+
+.drive-dock > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.drive-dock strong {
+  font-size: 1.1rem;
+}
+
+.drive-dock span,
+.drive-dock > p {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.drive-music {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.drive-now {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.drive-search {
+  display: flex;
+  gap: 8px;
+}
+
+.drive-search input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-input);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.drive-transport {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.drive-transport button,
+.drive-search button,
+.drive-hits button {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.drive-hits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 7rem;
+  overflow: auto;
+}
+
+.drive-hits button {
+  width: 100%;
+  text-align: left;
+  border-radius: 10px;
+}
+
+.wake-bubble {
+  position: relative;
+  z-index: 8;
+  margin: 10px auto 0;
+  width: min(820px, 100%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  appearance: none;
+  border: 1px solid rgba(228, 195, 106, 0.35);
+  background: linear-gradient(180deg, rgba(30, 215, 96, 0.14), #101412);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.wake-orb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(30, 215, 96, 0.6);
+}
+
+.wake-bubble.listening .wake-orb {
+  animation: brandPulse 1.6s ease infinite;
+}
+
+.wake-label {
+  font-weight: 650;
+  font-size: 0.88rem;
+}
+
 .cal-head {
   display: flex;
   justify-content: space-between;

@@ -20,7 +20,7 @@ type NativeTv = {
   discover(): Promise<TvResult>
   wake(opts: { mac: string }): Promise<TvResult>
   pair(opts: { host: string; port?: number; name?: string; token?: string }): Promise<TvResult>
-  sendKey(opts: { host: string; port?: number; token?: string; key: string }): Promise<TvResult>
+  sendKey(opts: { host: string; port?: number; token?: string; key: string; count?: number }): Promise<TvResult>
   test(opts: { host: string; port?: number; token?: string }): Promise<TvResult>
 }
 
@@ -188,10 +188,13 @@ export async function tvSendKeyNative(opts: {
   port?: number
   token?: string
   key: string
+  count?: number
 }): Promise<TvResult> {
+  const count = Math.max(1, Math.min(100, opts.count || 1))
+  const wait = count > 8 ? 28_000 : 16_000
   if (native) {
     try {
-    return await withTimeout(native.sendKey(opts), 16_000, nativeFail('Taste'))
+      return await withTimeout(native.sendKey({ ...opts, count }), wait, nativeFail('Taste'))
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Taste fehlgeschlagen' }
     }
@@ -200,8 +203,9 @@ export async function tvSendKeyNative(opts: {
   if (port === 8002) {
     return { ok: false, message: 'Tizen-WSS nur in der Android-App.' }
   }
-  return webSocketCall(tizenUrl(opts.host, port, 'Jarvis', opts.token), 12_000, (send) => {
+  return webSocketCall(tizenUrl(opts.host, port, 'Jarvis', opts.token), Math.min(wait, 20_000), (send) => {
     send(keyPayload(opts.key))
+    for (let i = 1; i < count; i += 1) send(keyPayload(opts.key))
   })
 }
 

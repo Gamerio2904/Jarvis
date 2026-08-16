@@ -33,15 +33,63 @@ export async function routeMinutes(
   from: { lat: number; lon: number },
   to: { lat: number; lon: number },
 ): Promise<{ ok: true; minutes: number } | { ok: false; message: string }> {
+  const full = await routeDrive(from, to)
+  if (!full.ok) return full
+  return { ok: true, minutes: full.minutes }
+}
+
+export type DriveLeg = {
+  minutes: number
+  meters: number
+  coords: Array<[number, number]>
+  hint: string
+}
+
+function maneuverHint(step: {
+  name?: string
+  maneuver?: { type?: string; modifier?: string }
+}): string {
+  const name = (step.name || '').trim()
+  const type = step.maneuver?.type || ''
+  const mod = step.maneuver?.modifier || ''
+  if (type === 'arrive' || type === 'notification') return name ? `Ziel: ${name}` : 'Ziel.'
+  if (mod.includes('left')) return name ? `Links — ${name}` : 'Links abbiegen.'
+  if (mod.includes('right')) return name ? `Rechts — ${name}` : 'Rechts abbiegen.'
+  if (mod.includes('uturn')) return 'Wenden.'
+  if (type === 'depart') return name ? `Los über ${name}` : 'Los.'
+  return name ? `Weiter auf ${name}` : 'Geradeaus.'
+}
+
+export async function routeDrive(
+  from: { lat: number; lon: number },
+  to: { lat: number; lon: number },
+): Promise<({ ok: true } & DriveLeg) | { ok: false; message: string }> {
   try {
-    const url = `https://router.project-osrm.org/route/v1/driving/${from.lon},${from.lat};${to.lon},${to.lat}?overview=false`
+    const url =
+      `https://router.project-osrm.org/route/v1/driving/${from.lon},${from.lat};${to.lon},${to.lat}` +
+      `?overview=full&geometries=geojson&steps=true`
     const { status, json } = await getJson(url)
-    const sec = Number((json.routes as Array<{ duration?: number }> | undefined)?.[0]?.duration)
-    if (status < 200 || status >= 300 || !Number.isFinite(sec)) {
-      return { ok: false, message: 'Netz hat die Fahrzeit nicht geliefert.' }
+    const route = (json.routes as Array<{
+      duration?: number
+      distance?: number
+      geometry?: { coordinates?: Array<[number, number]> }
+      legs?: Array<{ steps?: Array<{ name?: string; maneuver?: { type?: string; modifier?: string } }> }>
+    }> | undefined)?.[0]
+    const sec = Number(route?.duration)
+    const coords = route?.geometry?.coordinates || []
+    if (status < 200 || status >= 300 || !Number.isFinite(sec) || coords.length < 2) {
+      return { ok: false, message: 'Netz hat die Route nicht geliefert.' }
     }
-    return { ok: true, minutes: Math.max(1, Math.round(sec / 60)) }
+    const steps = route?.legs?.[0]?.steps || []
+    const next = steps.find((s) => s.maneuver?.type && s.maneuver.type !== 'depart') || steps[0]
+    return {
+      ok: true,
+      minutes: Math.max(1, Math.round(sec / 60)),
+      meters: Math.max(1, Math.round(Number(route?.distance) || 0)),
+      coords,
+      hint: next ? maneuverHint(next) : 'Route liegt.',
+    }
   } catch {
-    return { ok: false, message: 'Netz hat die Fahrzeit nicht geliefert.' }
+    return { ok: false, message: 'Netz hat die Route nicht geliefert.' }
   }
 }

@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title'
 
-export const APP_VERSION = '1.25.0'
+export const APP_VERSION = '1.26.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -111,6 +111,7 @@ export type Settings = {
   tv_port: number
   tv_token: string
   tv_paired: boolean
+  tv_volume: string
   gemini_enabled: boolean
   gemini_api_key: string
   gemini_model: string
@@ -133,6 +134,11 @@ export type Settings = {
   home_lon: string
   home_radius_m: string
   wake_word: boolean
+  drive_mode: boolean
+  spotify_client_id: string
+  spotify_access: string
+  spotify_refresh: string
+  spotify_expires_at: string
   alarm_tone_uri: string
   alarm_tone_name: string
   voice_tts: string
@@ -160,6 +166,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_port: 8002,
   tv_token: '',
   tv_paired: false,
+  tv_volume: '',
   gemini_enabled: false,
   gemini_api_key: '',
   gemini_model: '',
@@ -182,6 +189,11 @@ export const DEFAULT_SETTINGS: Settings = {
   home_lon: '',
   home_radius_m: '250',
   wake_word: false,
+  drive_mode: false,
+  spotify_client_id: '',
+  spotify_access: '',
+  spotify_refresh: '',
+  spotify_expires_at: '',
   alarm_tone_uri: '',
   alarm_tone_name: '',
   voice_tts: 'auto',

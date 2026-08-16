@@ -94,6 +94,7 @@ MAJOR.MINOR.PATCH
 | `1.24.0` | Alltag 1.16–1.24 inkl. Gespräch suchen | Sprint 76 |
 | `1.24.1` | Chat-Hang TV/Standort | Sprint 76 Patch |
 | `1.25.0` | Einstellungen Vollbild + Themen-Leiste | Sprint 77 |
+| `1.26.0` | Fahrmodus, Spotify, Auge, TV-Lautstärke | Sprint 78 |
 
 ### Weitere Beispiele
 

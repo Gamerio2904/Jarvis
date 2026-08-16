@@ -1,6 +1,6 @@
 /**
  * Routes every TEST_PROMPT the same way chat.ts does (no LLM, no phone).
- * Order: help → ordinal → tv → maps → memory → shopping → birthday → home → leave →
+ * Order: help → ordinal → tv → drive → maps → memory → shopping → birthday → home → leave →
  * brief → calendar → alarm → timer → reminder → tools → eye → weather → search → llm
  */
 import assert from 'node:assert/strict'
@@ -20,6 +20,7 @@ import { parseShopIntent } from '../src/engine/shopping-parse.ts'
 import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
+import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -27,13 +28,14 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'ordinal'|'tv'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'ordinal'|'tv'|'drive'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
   if (isHelpCommand(text)) return 'help'
   if (parseOrdinalFollowUp(text)) return 'ordinal'
   if (parseTvIntent(text)) return 'tv'
+  if (parseDriveIntent(text)) return 'drive'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
   if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
   if (parseShopIntent(text)) return 'shopping'
@@ -99,6 +101,10 @@ const EXPECT = {
   'Wenn ich zuhause bin Müll raus': 'home',
   'Ich bin zuhause': 'home',
   'Lies das Foto': 'eye',
+  'Aktiviere Fahrmodus': 'drive',
+  'Lautstärke 50': 'tv',
+  'lauter um 10': 'tv',
+  'Fahrmodus aus': 'drive',
   'Mama hat am 3. März Geburtstag': 'birthday',
   'Jeden Dienstag Müll': 'reminder',
   'was kommt diese Woche raus?': 'reminder',

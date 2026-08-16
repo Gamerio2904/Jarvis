@@ -287,6 +287,15 @@ export async function stopWakeWord(): Promise<void> {
   }
 }
 
+export async function wakeWordRunning(): Promise<boolean> {
+  if (!native) return false
+  try {
+    return Boolean((await native.wakeStatus()).running)
+  } catch {
+    return false
+  }
+}
+
 export async function pinVoiceShortcut(): Promise<{ ok: boolean; message?: string }> {
   if (!native) {
     return { ok: false, message: 'Shortcut nur in der Android-App.' }

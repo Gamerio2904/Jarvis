@@ -25,6 +25,7 @@ const KEYS: Record<TvAction, string | null> = {
   off: 'KEY_POWER',
   volume_up: 'KEY_VOLUP',
   volume_down: 'KEY_VOLDOWN',
+  volume_set: null,
   mute: 'KEY_MUTE',
   hdmi1: 'KEY_HDMI1',
   hdmi2: 'KEY_HDMI2',
@@ -37,6 +38,7 @@ const REPLIES: Record<TvAction, string> = {
   off: 'Fernseher aus.',
   volume_up: 'Lauter.',
   volume_down: 'Leiser.',
+  volume_set: 'Lautstärke gesetzt.',
   mute: 'Stumm umgeschaltet.',
   hdmi1: 'HDMI 1.',
   hdmi2: 'HDMI 2.',
@@ -140,20 +142,61 @@ export async function testTv(): Promise<{ ok: boolean; reply: string }> {
   return { ok: true, reply: res.message || `Erreichbar: ${s.tv_name || s.tv_host}` }
 }
 
-async function sendOrExplain(action: TvAction): Promise<string> {
+async function sendOrExplain(action: TvAction, count = 1): Promise<string> {
   const s = loadSettings()
   const key = KEYS[action]
   if (!key) return REPLIES[action]
+  const n = Math.max(1, Math.min(100, count))
   const res = await tvSendKeyNative({
     host: s.tv_host,
     port: s.tv_port || 8002,
     token: s.tv_token || undefined,
     key,
+    count: n,
   })
   if (!res.ok) {
     return res.message || 'Taste nicht angekommen. TV an, gekoppelt, gleiches WLAN?'
   }
   return REPLIES[action]
+}
+
+function rememberedVolume(): number | null {
+  const n = Number(loadSettings().tv_volume)
+  return Number.isFinite(n) && n >= 1 && n <= 100 ? n : null
+}
+
+async function applyVolume(intent: { action: TvAction; steps?: number; level?: number }): Promise<string> {
+  const steps = intent.steps || 1
+  if (intent.action === 'volume_set') {
+    const target = Math.max(1, Math.min(100, intent.level || 1))
+    const from = rememberedVolume() ?? 30
+    const delta = target - from
+    if (delta === 0) {
+      saveSettings({ tv_volume: String(target) })
+      return `Lautstärke bleibt bei etwa ${target}.`
+    }
+    const reply = await sendOrExplain(delta > 0 ? 'volume_up' : 'volume_down', Math.abs(delta))
+    if (reply.includes('nicht')) return reply
+    saveSettings({ tv_volume: String(target) })
+    return `Lautstärke etwa ${target}. Tasten, keine exakte Skala vom TV.`
+  }
+  if (intent.action === 'volume_up') {
+    const reply = await sendOrExplain('volume_up', steps)
+    if (reply.includes('nicht')) return reply
+    const from = rememberedVolume() ?? 0
+    const next = Math.min(100, from + steps)
+    saveSettings({ tv_volume: String(next || steps) })
+    return steps > 1 ? `Lauter um ${steps} — etwa ${next || steps}.` : 'Lauter.'
+  }
+  if (intent.action === 'volume_down') {
+    const reply = await sendOrExplain('volume_down', steps)
+    if (reply.includes('nicht')) return reply
+    const from = rememberedVolume() ?? 0
+    const next = Math.max(1, from - steps)
+    saveSettings({ tv_volume: String(next) })
+    return steps > 1 ? `Leiser um ${steps} — etwa ${next}.` : 'Leiser.'
+  }
+  return sendOrExplain(intent.action)
 }
 
 export async function handleTv(text: string): Promise<{ handled: boolean; reply?: string }> {
@@ -200,7 +243,10 @@ export async function handleTv(text: string): Promise<{ handled: boolean; reply?
     }
   }
 
-  const reply = await sendOrExplain(intent.action)
+  const reply =
+    intent.action === 'volume_up' || intent.action === 'volume_down' || intent.action === 'volume_set'
+      ? await applyVolume(intent)
+      : await sendOrExplain(intent.action)
   markTvTurn()
   return { handled: true, reply }
 }

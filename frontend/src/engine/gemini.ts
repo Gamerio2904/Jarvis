@@ -298,30 +298,39 @@ export async function completeGeminiVision(
 ): Promise<string> {
   if (!geminiReady()) throw new Error('Gemini ist aus oder ohne Key.')
   const models = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
-  let last = 'Gemini lieferte keinen Text.'
-  for (const model of models) {
-    const body = {
-      system_instruction: { parts: [{ text: GEMINI_PERSONA }] },
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { text: prompt },
-            { inlineData: { mimeType: mime || 'image/jpeg', data: base64 } },
-          ],
-        },
-      ],
-      generationConfig: { temperature: 0.2, maxOutputTokens: 320 },
+  let last = 'Gemini lieferte keinen Text zum Bild.'
+  const run = async () => {
+    for (const model of models) {
+      const body = {
+        system_instruction: { parts: [{ text: GEMINI_PERSONA }] },
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: prompt },
+              { inlineData: { mimeType: mime || 'image/jpeg', data: base64 } },
+            ],
+          },
+        ],
+        generationConfig: { temperature: 0.2, maxOutputTokens: 320 },
+      }
+      const { status, json } = await postGemini(model, body)
+      const text = textFrom(json)
+      if (status >= 200 && status < 300 && text) {
+        saveSettings({ gemini_model: model })
+        return text
+      }
+      last = json.error?.message || last
+      if (status === 400 || status === 404) continue
     }
-    const { status, json } = await postGemini(model, body)
-    const text = textFrom(json)
-    if (status >= 200 && status < 300 && text) {
-      saveSettings({ gemini_model: model })
-      return text
-    }
-    last = json.error?.message || last
+    throw new Error(last)
   }
-  throw new Error(last)
+  return Promise.race([
+    run(),
+    new Promise<string>((_, reject) => {
+      globalThis.setTimeout(() => reject(new Error('Bild dauert zu lange. Nochmal, kleineres Foto.')), 40_000)
+    }),
+  ])
 }
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {

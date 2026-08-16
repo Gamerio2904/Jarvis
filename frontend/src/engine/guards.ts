@@ -66,4 +66,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Einkaufsliste, Todos, Notizen, Erinnerungen, Wecker, Timer, lokaler Kalender mit Ort, Losgehen, „wenn ich zuhause bin“, Geburtstage, Nummer anrufen, Route zu Fuß oder Bahn. Wetter, Tageslage, Gespräch suchen. Orte zu Personen, Maps. Foto lesen nur mit Gemini (Bild geht zu Google). Wake-Word „Jarvis“ (Handy an). Widget. Optional Gemini.'
+  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Einkaufsliste, Todos, Notizen, Erinnerungen, Wecker, Timer, lokaler Kalender mit Ort, Losgehen, Fahrmodus (eigene Karte, Spotify), „wenn ich zuhause bin“, Geburtstage, Nummer anrufen, Route zu Fuß oder Bahn. Wetter, Tageslage, Gespräch suchen. Orte zu Personen. Foto lesen nur mit Gemini (Bild geht zu Google). Wake-Word „Jarvis“ (Handy an). Widget. Optional Gemini.'

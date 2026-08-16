@@ -27,6 +27,8 @@ import { parseShopIntent } from '../src/engine/shopping-parse.ts'
 import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
+import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { parseSpotifyIntent } from '../src/engine/spotify-parse.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -43,6 +45,17 @@ assert.equal(parseTvIntent('Fernseher auf HDMI 2')?.action, 'hdmi2')
 assert.equal(parseTvIntent('TV Quelle 1')?.action, 'hdmi1')
 assert.equal(parseTvIntent('lauter'), null)
 assert.equal(parseTvIntent('lauter', true)?.action, 'volume_up')
+assert.equal(parseTvIntent('Lautstärke 50')?.action, 'volume_set')
+assert.equal(parseTvIntent('Lautstärke 50')?.level, 50)
+assert.equal(parseTvIntent('lauter um 10')?.action, 'volume_up')
+assert.equal(parseTvIntent('lauter um 10')?.steps, 10)
+assert.equal(parseTvIntent('leiser um 5')?.action, 'volume_down')
+assert.equal(parseDriveIntent('Aktiviere Fahrmodus')?.kind, 'on')
+assert.equal(parseDriveIntent('Fahrmodus aus')?.kind, 'off')
+assert.equal(parseDriveIntent('zur Freundin', true)?.kind, 'dest')
+assert.equal(parseSpotifyIntent('Spiel Hotel California')?.kind, 'play')
+assert.equal(parseSpotifyIntent('Pause')?.kind, 'pause')
+assert.equal(parseSpotifyIntent('weiter')?.kind, 'next')
 
 assert.ok(isMemoryWrite('Ich heiße Max und trinke gerne Kaffee'))
 const facts = parseMemoryFacts('Ich heiße Max und trinke gerne Kaffee und esse Pizza')

@@ -51,6 +51,7 @@ import { handleHome } from './home'
 import { handleLeave } from './leave'
 import { handleBrief } from './brief'
 import { isBriefAsk } from './brief-parse'
+import { handleDrive } from './drive'
 import { handleEyeAsk } from './eye'
 import { parseEyeIntent } from './eye-parse'
 import { handleChatSearch } from './search-chat'
@@ -164,6 +165,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: tvHit.reply,
       tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
       lastTool: 'tv',
+    }
+  }
+
+  const driveHit = await handleDrive(conversationId, content)
+  if (driveHit.handled && driveHit.reply) {
+    return {
+      reply: driveHit.reply,
+      tool: driveHit.tool,
+      lastTool: driveHit.lastTool || 'drive',
     }
   }
 

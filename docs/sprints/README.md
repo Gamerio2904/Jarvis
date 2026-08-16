@@ -81,8 +81,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 75 | [`sprint-75.md`](./sprint-75.md) | `1.23.0` | Widget + das zweite | **CODE** (in `1.24.0`) |
 | 76 | [`sprint-76.md`](./sprint-76.md) | `1.24.0` | Gespräch suchen | **CODE** |
 | 77 | [`sprint-77.md`](./sprint-77.md) | `1.25.0` | Einstellungen Vollbild | **CODE** |
+| 78 | [`sprint-78.md`](./sprint-78.md) | `1.26.0` | Fahrmodus + Spotify + Auge + TV-Lautstärke | **CODE** |
 
-**Aktuell:** Sideload `1.25.0`. Reihe `1.16`–`1.24` — [`19-next.md`](../19-next.md) · [`20-next.md`](../20-next.md). GUI: [`sprint-77.md`](./sprint-77.md).
+**Aktuell:** Sideload `1.26.0`. Fahrmodus: [`21-next.md`](../21-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
