@@ -4,8 +4,17 @@ import { groqReady, testGroq } from './groq'
 import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
+import { rewriteFollowUp } from './last-step'
+import { splitIntents } from './split-intents'
 import { GEMINI_PERSONA, PERSONA, VOICE_HINT } from './persona'
-import { isLiveLookup, RESEARCH_NEEDS_GEMINI, RESEARCH_OFF_REPLY, type ResearchMeta } from './research-parse'
+import {
+  isLiveLookup,
+  RESEARCH_EMPTY,
+  RESEARCH_NEEDS_GEMINI,
+  RESEARCH_OFF_REPLY,
+  researchHasSources,
+  type ResearchMeta,
+} from './research-parse'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
@@ -17,6 +26,9 @@ import {
   listConversations as storeListConv,
   listMemory,
   listMessages,
+  listEvents,
+  listReminders,
+  listTodos,
   loadSettings,
   saveSettings,
   touchConversation,
@@ -50,6 +62,13 @@ export type StreamHandlers = {
     tool?: ToolMeta | null
   }) => void
   onError?: (detail: string) => void
+}
+
+type RouteHit = {
+  reply: string
+  tool?: ToolMeta | null
+  research?: ResearchMeta
+  lastTool?: string
 }
 
 export async function getHealth() {
@@ -103,6 +122,140 @@ export function patchSettings(patch: Partial<Settings>): Settings {
 
 export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, releaseModel, testGemini, testGroq, geminiReady }
 
+async function routeDeterministic(conversationId: string, content: string): Promise<RouteHit | null> {
+  if (isHelpCommand(content)) {
+    return { reply: HELP_TEXT, lastTool: 'help' }
+  }
+
+  const tvHit = await handleTv(content)
+  if (tvHit.handled && tvHit.reply) {
+    return {
+      reply: tvHit.reply,
+      tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
+      lastTool: 'tv',
+    }
+  }
+
+  const memHit = await handleMemory(conversationId, content)
+  if (memHit.handled && memHit.reply) {
+    return { reply: memHit.reply, lastTool: 'memory' }
+  }
+
+  const calHit = await handleCalendar(conversationId, content)
+  if (calHit.handled && calHit.reply) {
+    return { reply: calHit.reply, tool: calHit.tool, lastTool: 'calendar' }
+  }
+
+  const alarmHit = await handleAlarms(conversationId, content)
+  if (alarmHit.handled && alarmHit.reply) {
+    return { reply: alarmHit.reply, tool: alarmHit.tool, lastTool: 'alarm' }
+  }
+
+  const timerHit = await handleTimers(conversationId, content)
+  if (timerHit.handled && timerHit.reply) {
+    return { reply: timerHit.reply, tool: timerHit.tool, lastTool: 'timer' }
+  }
+
+  const remindHit = await handleReminders(conversationId, content)
+  if (remindHit.handled && remindHit.reply) {
+    return { reply: remindHit.reply, tool: remindHit.tool, lastTool: 'reminder' }
+  }
+
+  const toolHit = await handleTools(conversationId, content)
+  if (toolHit.handled && toolHit.reply) {
+    return { reply: toolHit.reply, tool: toolHit.tool, lastTool: toolHit.tool?.tool || 'todo' }
+  }
+
+  const weatherHit = await handleWeather(content)
+  if (weatherHit.handled && weatherHit.reply) {
+    return {
+      reply: weatherHit.reply,
+      tool: weatherHit.tool,
+      research: weatherHit.research,
+      lastTool: 'weather',
+    }
+  }
+
+  return null
+}
+
+function persistLastStep(tool: string, title = '', when = ''): void {
+  saveSettings({
+    last_step_tool: tool,
+    last_step_title: title,
+    last_step_when: when,
+  })
+}
+
+function newest<T extends { created_at: string }>(rows: T[]): T | undefined {
+  return [...rows].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0]
+}
+
+function clockOf(iso?: string): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return iso
+  return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+}
+
+async function rememberToolFromStore(tool: string): Promise<void> {
+  if (tool === 'calendar') {
+    const ev = newest(await listEvents())
+    persistLastStep('calendar', ev?.title ?? '', ev?.start_at ?? '')
+    return
+  }
+  if (tool === 'alarm') {
+    const a = newest((await listReminders()).filter((r) => r.kind === 'alarm'))
+    persistLastStep('alarm', a?.title ?? 'Wecker', clockOf(a?.due_at))
+    return
+  }
+  if (tool === 'timer') {
+    const t = newest((await listReminders()).filter((r) => r.kind === 'timer'))
+    persistLastStep('timer', t?.title ?? 'Timer', t?.due_at ?? '')
+    return
+  }
+  if (tool === 'reminder') {
+    const r = newest((await listReminders()).filter((x) => x.kind !== 'timer' && x.kind !== 'alarm'))
+    persistLastStep('reminder', r?.title ?? '', r?.due_at ?? '')
+    return
+  }
+  if (tool === 'todo') {
+    const td = newest(await listTodos())
+    persistLastStep('todo', td?.title ?? '', '')
+    return
+  }
+  persistLastStep(tool)
+}
+
+async function rememberHit(hit: RouteHit): Promise<void> {
+  const tool = hit.lastTool
+  if (!tool || tool === 'help' || tool === 'memory') return
+  const preview = (hit.tool?.preview || '').trim()
+  if (preview) {
+    const title = preview.split('·')[0].replace(/^Todo anlegen:\s*/i, '').trim()
+    persistLastStep(tool, title)
+    return
+  }
+  await rememberToolFromStore(tool)
+}
+
+async function attachResearchAudit(research: ResearchMeta | undefined, query: string): Promise<ResearchMeta | undefined> {
+  if (!research) return undefined
+  const audit = await addResearchAudit({
+    id: crypto.randomUUID(),
+    query: research.query || query.slice(0, 120),
+    status: research.status || (research.used ? 'ok' : 'empty'),
+    sources: (research.sources || []).map((s) => ({
+      title: s.title,
+      url: s.url,
+      snippet: s.snippet,
+      provider: s.provider,
+    })),
+    created_at: new Date().toISOString(),
+  })
+  return { ...research, audit_id: audit.id }
+}
+
 export async function streamChat(
   conversationId: string,
   content: string,
@@ -122,131 +275,23 @@ export async function streamChat(
   })
 
   try {
-    if (isHelpCommand(content)) {
-      const assistant = await addMessage(conversationId, 'assistant', HELP_TEXT)
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        tool: null,
-      })
-      return
+    const parts = splitIntents(content)
+    const texts = parts.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
+    const routed: Array<RouteHit | null> = []
+    for (const text of texts) {
+      routed.push(await routeDeterministic(conversationId, text))
     }
-
-    const tvHit = await handleTv(content)
-    if (tvHit.handled && tvHit.reply) {
-      const assistant = await addMessage(conversationId, 'assistant', tvHit.reply)
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
-      })
-      return
-    }
-
-    const memHit = await handleMemory(conversationId, content)
-    if (memHit.handled && memHit.reply) {
-      const assistant = await addMessage(conversationId, 'assistant', memHit.reply)
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        tool: null,
-      })
-      return
-    }
-
-    const calHit = await handleCalendar(conversationId, content)
-    if (calHit.handled && calHit.reply) {
-      const assistant = await addMessage(conversationId, 'assistant', calHit.reply, {
-        tool: calHit.tool,
-      })
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        tool: calHit.tool || null,
-      })
-      return
-    }
-
-    const alarmHit = await handleAlarms(conversationId, content)
-    if (alarmHit.handled && alarmHit.reply) {
-      const assistant = await addMessage(conversationId, 'assistant', alarmHit.reply, {
-        tool: alarmHit.tool,
-      })
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        tool: alarmHit.tool || null,
-      })
-      return
-    }
-
-    const timerHit = await handleTimers(conversationId, content)
-    if (timerHit.handled && timerHit.reply) {
-      const assistant = await addMessage(conversationId, 'assistant', timerHit.reply, {
-        tool: timerHit.tool,
-      })
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        tool: timerHit.tool || null,
-      })
-      return
-    }
-
-    const remindHit = await handleReminders(conversationId, content)
-    if (remindHit.handled && remindHit.reply) {
-      const assistant = await addMessage(conversationId, 'assistant', remindHit.reply, {
-        tool: remindHit.tool,
-      })
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        tool: remindHit.tool || null,
-      })
-      return
-    }
-
-    const toolHit = await handleTools(conversationId, content)
-    if (toolHit.handled && toolHit.reply) {
-      const assistant = await addMessage(conversationId, 'assistant', toolHit.reply, {
-        tool: toolHit.tool,
-      })
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        tool: toolHit.tool || null,
-      })
-      return
-    }
-
-    const weatherHit = await handleWeather(content)
-    if (weatherHit.handled && weatherHit.reply) {
-      let research = weatherHit.research
-      if (research) {
-        const audit = await addResearchAudit({
-          id: crypto.randomUUID(),
-          query: research.query || content.slice(0, 120),
-          status: research.status || (research.used ? 'ok' : 'empty'),
-          sources: (research.sources || []).map((s) => ({
-            title: s.title,
-            url: s.url,
-            snippet: s.snippet,
-            provider: s.provider,
-          })),
-          created_at: new Date().toISOString(),
-        })
-        research = { ...research, audit_id: audit.id }
-      }
-      const assistant = await addMessage(conversationId, 'assistant', weatherHit.reply, {
-        tool: weatherHit.tool,
+    const found = routed.filter((h): h is RouteHit => Boolean(h))
+    if (found.length && (found.length === routed.length || routed.length > 1)) {
+      const replies = routed.map((h, i) =>
+        h ? h.reply : `„${parts[i]}“ habe ich nicht als Befehl erkannt.`,
+      )
+      for (const hit of found) await rememberHit(hit)
+      const last = found[found.length - 1]
+      let research = last.research
+      if (research) research = await attachResearchAudit(research, content)
+      const assistant = await addMessage(conversationId, 'assistant', replies.join('\n\n'), {
+        tool: last.tool,
         research,
       })
       const updated = (await touchConversation(conversationId)) || conv
@@ -254,7 +299,7 @@ export async function streamChat(
         assistant_message: assistant,
         conversation: updated,
         research: research || null,
-        tool: weatherHit.tool || null,
+        tool: last.tool || null,
       })
       return
     }
@@ -317,23 +362,36 @@ export async function streamChat(
           acc = full
           handlers.onToken?.(_piece)
         })
+
+    if (isLiveLookup(content) && !researchHasSources(research)) {
+      const empty = RESEARCH_EMPTY
+      handlers.onReplace?.(empty)
+      research = await attachResearchAudit(
+        research || {
+          used: false,
+          status: 'empty',
+          query: content.slice(0, 120),
+          sources: [],
+          network_attempted: true,
+        },
+        content,
+      )
+      persistLastStep('research')
+      const assistant = await addMessage(conversationId, 'assistant', empty, research ? { research } : undefined)
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({
+        assistant_message: assistant,
+        conversation: updated,
+        research: research || null,
+        tool: null,
+      })
+      return
+    }
+
     const final = scrubReply(raw || acc, { searched: Boolean(research?.used) })
     if (final !== (raw || acc)) handlers.onReplace?.(final)
-    if (research) {
-      const audit = await addResearchAudit({
-        id: crypto.randomUUID(),
-        query: research.query || content.slice(0, 120),
-        status: research.status || (research.used ? 'ok' : 'empty'),
-        sources: (research.sources || []).map((s) => ({
-          title: s.title,
-          url: s.url,
-          snippet: s.snippet,
-          provider: s.provider,
-        })),
-        created_at: new Date().toISOString(),
-      })
-      research = { ...research, audit_id: audit.id }
-    }
+    if (research) research = await attachResearchAudit(research, content)
+    if (isLiveLookup(content)) persistLastStep('research')
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({

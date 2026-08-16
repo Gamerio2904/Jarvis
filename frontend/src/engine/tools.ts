@@ -3,6 +3,7 @@ import {
   addTodo,
   clearPending,
   deleteDoneTodos,
+  deleteTodo,
   getPending,
   listNotes,
   listTodos,
@@ -134,6 +135,33 @@ export async function handleTools(
         preview: row.preview,
         label: 'Tool bereit — Confirm?',
       },
+    }
+  }
+
+  if (intent.kind === 'todo_delete_last' || intent.kind === 'todo_delete') {
+    const open = (await listTodos()).filter((t) => t.status === 'open')
+    const hit =
+      intent.kind === 'todo_delete_last'
+        ? [...open].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0]
+        : open.find(
+            (t) =>
+              t.title.toLowerCase().includes(intent.query.toLowerCase()) ||
+              intent.query.toLowerCase().includes(t.title.toLowerCase()),
+          )
+    if (!hit) {
+      return {
+        handled: true,
+        reply:
+          intent.kind === 'todo_delete_last'
+            ? 'Kein offenes Todo zum Löschen.'
+            : `Kein Todo zu „${intent.query}“.`,
+      }
+    }
+    await deleteTodo(hit.id)
+    return {
+      handled: true,
+      reply: `Todo weg: ${hit.title}.`,
+      tool: { tool_status: 'executed', tool: 'todo', action: 'delete', label: 'Todo weg', preview: hit.title },
     }
   }
 

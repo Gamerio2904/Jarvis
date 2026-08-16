@@ -5,6 +5,8 @@ export type ToolIntent =
   | { kind: 'note_list' }
   | { kind: 'todo_cleanup' }
   | { kind: 'todo_done_first' }
+  | { kind: 'todo_delete'; query: string }
+  | { kind: 'todo_delete_last' }
 
 const TODO_WRITE = /^\s*(?:todo|to-?do|aufgabe)(?![sS])\s*[:-]?\s*(.+)$/is
 const NOTE_WRITE =
@@ -20,6 +22,10 @@ const TODO_LIST =
 const TODO_CLEANUP = /\btodos?\s+aufräumen\b|\berledigte\s+todos?\s+löschen\b/i
 const DONE_FIRST =
   /^\s*(?:erledige\s+(?:das\s+)?(?:erste|1\.?)(?:\s+todo)?|erstes\s+(?:todo\s+)?(?:erledigen|abhaken)|haken\s+beim\s+ersten)\s*[.!]?\s*$/i
+const TODO_DELETE =
+  /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:das\s+)?(?:todo|aufgabe)\s+(.+)$/is
+const TODO_DELETE_LAST =
+  /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:das\s+)?letzte\s+(?:todo|aufgabe)\s*$/i
 
 export function parseToolIntent(text: string): ToolIntent | null {
   const todoWrite = TODO_WRITE.exec(text)
@@ -42,6 +48,9 @@ export function parseToolIntent(text: string): ToolIntent | null {
   const noteWrite = NOTE_WRITE.exec(text)
   if (noteWrite) return { kind: 'note_create', body: noteWrite[1].trim() }
 
+  if (TODO_DELETE_LAST.test(text)) return { kind: 'todo_delete_last' }
+  const todoDel = TODO_DELETE.exec(text)
+  if (todoDel) return { kind: 'todo_delete', query: todoDel[1].replace(/[.!?]+$/, '').trim() }
   if (DONE_FIRST.test(text)) return { kind: 'todo_done_first' }
   if (TODO_CLEANUP.test(text)) return { kind: 'todo_cleanup' }
   if (TODO_LIST.test(text) || /^(?:offene\s+)?todos?\??$/i.test(text.trim())) return { kind: 'todo_list' }

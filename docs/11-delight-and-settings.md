@@ -16,7 +16,7 @@ Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 
 Reihenfolge bewusst: erst scharfsinnig/verlässlich, dann Delight.
 
-### Live `1.13.2`
+### Live `1.14.0`
 
 Momente/Jokes/Eggs/Sounds existieren in Settings. GUI-Motion in `1.13.0`. Persona siezt. Confirm bei jedem Todo ist **nicht** menschlich — Änderung in `1.16`/`1.19`.
 

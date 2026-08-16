@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Live `1.13.2`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Stimme, Timer, Wetter, Kalender sind Code. Nächste Fähigkeiten: [`19-next.md`](./19-next.md).
+> **Live `1.14.0`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Stimme, Timer, Wetter, Kalender, letzter Schritt, zwei Befehle sind Code. Weiter: [`19-next.md`](./19-next.md).
 
 ## Leitentscheidung
 

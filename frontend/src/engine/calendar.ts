@@ -74,6 +74,19 @@ export async function handleCalendar(
     return { handled: true, reply: `Termine:\n${lines.join('\n')}` }
   }
 
+  if (intent.kind === 'delete_last') {
+    const rows = await listEvents()
+    const hit = [...rows].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0]
+    if (!hit) return { handled: true, reply: 'Kein Termin zum Löschen.' }
+    await cancelNotify(notifyIdFromKey(`evt-${hit.id}`))
+    await deleteEvent(hit.id)
+    return {
+      handled: true,
+      reply: `Termin weg: ${hit.title}.`,
+      tool: { tool_status: 'executed', tool: 'calendar', action: 'delete', label: 'Termin weg' },
+    }
+  }
+
   const rows = await listEvents()
   const q = intent.query.toLowerCase()
   const hit = rows.find((e) => e.title.toLowerCase().includes(q) || q.includes(e.title.toLowerCase()))

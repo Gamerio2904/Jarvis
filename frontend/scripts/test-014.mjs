@@ -12,6 +12,11 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
+import { splitIntents } from '../src/engine/split-intents.ts'
+import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
+import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
+import { memoryBlock } from '../src/engine/memory-block.ts'
+import { RESEARCH_EMPTY, researchHasSources } from '../src/engine/research-parse.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -187,6 +192,54 @@ assert.equal(parseAlarmIntent('Wecker 5 Uhr', frozen)?.title, 'Wecker')
 assert.equal(parseCalendarIntent('Kalender')?.kind, 'open')
 assert.equal(parseCalendarIntent('was habe ich am Freitag', frozen)?.kind, 'list')
 assert.equal(parseCalendarIntent('lösche Termin Zahnarzt')?.kind, 'delete')
+assert.equal(parseCalendarIntent('lösche den letzten Termin')?.kind, 'delete_last')
+assert.equal(parseToolIntent('lösche Todo Milch')?.kind, 'todo_delete')
+assert.equal(parseReminderIntent('Erinnerung aus')?.kind, 'delete_last')
+
+assert.deepEqual(splitIntents('Wecker 7 und Timer 8 Minuten Nudeln'), [
+  'Wecker 7',
+  'Timer 8 Minuten Nudeln',
+])
+assert.deepEqual(splitIntents('Ich heiße Max und trinke gerne Kaffee'), [
+  'Ich heiße Max und trinke gerne Kaffee',
+])
+assert.deepEqual(splitIntents('Hallo Jarvis'), ['Hallo Jarvis'])
+
+assert.ok(isFollowUpPhrase('lösch das'))
+assert.ok(isFollowUpPhrase('und morgen?'))
+assert.ok(isFollowUpPhrase('und um 16?'))
+assert.equal(
+  rewriteFollowUp('lösch das', { last_step_tool: 'calendar', last_step_title: 'Zahnarzt' }),
+  'lösche Termin Zahnarzt',
+)
+assert.equal(rewriteFollowUp('lösch das', { last_step_tool: 'alarm', last_step_title: 'Wecker' }), 'Wecker aus')
+assert.equal(rewriteFollowUp('lösch das', { last_step_tool: 'timer' }), 'Timer aus')
+assert.equal(
+  rewriteFollowUp('und um 16?', { last_step_tool: 'calendar', last_step_title: 'Jane' }),
+  'Termin um 16:00 Jane',
+)
+assert.equal(rewriteFollowUp('und morgen?', { last_step_tool: 'weather' }), null)
+
+assert.equal(shouldRefreshTitle('Kuchenrezepte suchen bitte'), true)
+assert.equal(shouldRefreshTitle('und morgen?'), false)
+assert.equal(shouldRefreshTitle('ja'), false)
+assert.equal(titleFromUser('Kuchenrezepte suchen bitte'), 'Kuchenrezepte suchen bitte')
+assert.ok(shouldRefreshTitle('Timer 8 Minuten Nudeln'))
+
+const named = memoryBlock([{ key: 'name', value: 'Max' }])
+assert.match(named, /Max/)
+assert.match(named, /keinen anderen Vornamen/)
+assert.match(named, /lokal und Cloud gleich/)
+const anon = memoryBlock([])
+assert.match(anon, /keinen Vornamen/)
+assert.equal(named.includes('Timon'), false)
+
+assert.match(RESEARCH_EMPTY, /Netz hat nicht geantwortet/)
+assert.equal(researchHasSources({ used: true, sources: [] }), false)
+assert.equal(researchHasSources({ used: true, sources: [{ url: 'https://example.com' }] }), true)
+assert.equal(parseCalendarIntent('Termin um 16:00 Jane', frozen)?.kind, 'create')
+assert.equal(parseAlarmIntent('Wecker 7', frozen)?.kind, 'create')
+assert.equal(parseTimerIntent('Timer 8 Minuten Nudeln', frozen)?.kind, 'create')
 
 assert.deepEqual(pullReady('Hallo wie geht').parts, [])
 assert.deepEqual(pullReady('Ja. ').parts, [])

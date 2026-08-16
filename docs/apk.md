@@ -1,16 +1,18 @@
-# Android-APK — `1.13.2`
+# Android-APK — `1.14.0`
 
-**1.13.2:** Timer und Wecker spielen wieder Ton, nicht nur Vibration.
+**1.14.0:** Letzter Schritt für alle Tools, zwei Befehle in einem Satz, ein Name in Gemini und lokal, ehrliche Suche, Titel folgt dem Thema.
 
 ## Download
 
-**APK `1.13.2`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/hotfix-timer-sound-1-13-2-0bf8/releases/Jarvis.apk
+**APK `1.14.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-context-1-14-0-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.13.2` · versionCode `11302`
+- versionName `1.14.0` · versionCode `11400`
 - App-ID `local.jarvis.app`
 
-1. Über 1.13.1 installieren.
-2. `Timer 1 Minute Test` — beim Ablauf Ton + Vibration.
-3. OnePlus: Alarm-Lautstärke darf nicht dauerhaft auf 0 bleiben; Jarvis hebt sie an, wenn sie 0 ist.
+1. Über 1.13.2 installieren.
+2. `Wecker 7 und Timer 1 Minute Test` — beides liegt.
+3. Termin anlegen, dann `lösch das`.
+4. Name merken, mit Gemini an und aus „Wer bin ich?“ — derselbe Name.
+5. Suche ohne Netz: eine Absage, kein Rezept.

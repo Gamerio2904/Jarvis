@@ -1,4 +1,6 @@
-export const APP_VERSION = '1.13.2'
+import { shouldRefreshTitle, titleFromUser } from './chat-title'
+
+export const APP_VERSION = '1.14.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -113,6 +115,9 @@ export type Settings = {
   last_weather_focus: string
   last_weather_kind: string
   last_weather_line: string
+  last_step_tool: string
+  last_step_title: string
+  last_step_when: string
   wake_word: boolean
   alarm_tone_uri: string
   alarm_tone_name: string
@@ -155,6 +160,9 @@ export const DEFAULT_SETTINGS: Settings = {
   last_weather_focus: 'general',
   last_weather_kind: '',
   last_weather_line: '',
+  last_step_tool: '',
+  last_step_title: '',
+  last_step_when: '',
   wake_word: false,
   alarm_tone_uri: '',
   alarm_tone_name: '',
@@ -328,9 +336,7 @@ export async function addMessage(
   const conv = await get<Conversation>('conversations', conversationId)
   if (conv) {
     const title =
-      conv.title === 'Neues Gespräch' && role === 'user'
-        ? content.slice(0, 42)
-        : conv.title
+      role === 'user' && shouldRefreshTitle(content) ? titleFromUser(content) : conv.title
     await touchConversation(conversationId, title)
   }
   return row
@@ -402,6 +408,10 @@ export async function setTodoStatus(id: string, status: string): Promise<void> {
   const row = await get<Todo>('todos', id)
   if (!row) return
   await put('todos', { ...row, status, updated_at: nowIso() })
+}
+
+export async function deleteTodo(id: string): Promise<void> {
+  await del('todos', id)
 }
 
 export async function deleteDoneTodos(): Promise<number> {

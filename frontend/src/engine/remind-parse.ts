@@ -10,6 +10,7 @@ export type ReminderIntent =
   | { kind: 'list' }
   | { kind: 'agenda' }
   | { kind: 'delete'; query: string }
+  | { kind: 'delete_last' }
 
 const WEEKDAYS: Record<string, number> = {
   sonntag: 0,
@@ -219,6 +220,9 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   if (!t || t.length > 200) return null
   if (LIST.test(t)) return { kind: 'list' }
   if (AGENDA.test(t)) return { kind: 'agenda' }
+  if (/^(?:lösch(?:e)?\s+(?:die\s+)?letzte\s+erinnerung|erinnerung\s+aus)$/i.test(t)) {
+    return { kind: 'delete_last' }
+  }
   const del = DELETE.exec(t)
   if (del) return { kind: 'delete', query: cleanTitle(del[1]) }
 

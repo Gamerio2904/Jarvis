@@ -241,23 +241,23 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S15.1 | Als Nutzer will ich ein Gedächtnis, das lokal und mit Gemini denselben Namen kennt. | Must | ready | Sprint 66 / `1.14.0` |
-| S15.2 | Als Nutzer will ich Personen an Orte (Freundin, Praxis, Zuhause). | Must | ready | Sprint 66 / `1.14.0` |
-| S15.3 | Als Nutzer will ich „lösch das“ / „und um 16“ auf das letzte Tool, nicht nur Wetter. | Must | ready | Sprint 67 / `1.15.0` |
-| S15.4 | Als Nutzer will ich zwei Befehle in einem Satz. | Must | ready | Sprint 67 / `1.15.0` |
+| S15.1 | Als Nutzer will ich ein Gedächtnis, das lokal und mit Gemini denselben Namen kennt. | Must | done | Sprint 66 / `1.14.0` |
+| S15.2 | Als Nutzer will ich Personen an Orte (Freundin, Praxis, Zuhause). | Must | ready | Sprint 67 / `1.15.0` |
+| S15.3 | Als Nutzer will ich „lösch das“ / „und um 16“ auf das letzte Tool, nicht nur Wetter. | Must | done | Sprint 66 / `1.14.0` |
+| S15.4 | Als Nutzer will ich zwei Befehle in einem Satz. | Must | done | Sprint 66 / `1.14.0` |
 | S15.5 | Als Nutzer will ich eine Einkaufsliste ohne Ja/Nein pro Artikel. | Must | ready | Sprint 68 / `1.16.0` |
 | S15.6 | Als Nutzer will ich Losgehen: fehlt der Zahnarzt-Ort, nachfragen, dann Route. | Must | ready | Sprint 69 / `1.17.0` |
 | S15.7 | Als Nutzer will ich „wenn ich zuhause bin …“. | Must | ready | Sprint 70 / `1.18.0` |
 | S15.8 | Als Nutzer will ich eine kurze Tageslage und einen menschlicheren Ton (Siezen). | Must | ready | Sprint 71 / `1.19.0` |
 | S15.9 | Als Nutzer will ich ein Foto vorlesen lassen, nur mit Gemini. | Must | ready | Sprint 72 / `1.20.0` |
-| S15.10 | Als Nutzer will ich Suche mit Quellen oder ehrlicher Absage, kein Raten. | Must | ready | Sprint 67 / `1.15.0` |
+| S15.10 | Als Nutzer will ich Suche mit Quellen oder ehrlicher Absage, kein Raten. | Must | done | Sprint 66 / `1.14.0` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.13.2`
-2. Reihe `1.14`–`1.20` — [`19-next.md`](./19-next.md)
+1. Sideload `1.14.0`
+2. Reihe `1.15`–`1.20` — [`19-next.md`](./19-next.md)
 3. Mail / Cloud-Kalender / Fire TV / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)

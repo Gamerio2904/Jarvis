@@ -1,4 +1,4 @@
-# Sprint 67 — Kontext überall (`1.15.0`)
+# Sprint 67 — Personen/Orte (`1.15.0`)
 
 | Feld | Wert |
 |------|------|
@@ -11,18 +11,16 @@
 
 | ID | Inhalt | Done wenn |
 |----|--------|-----------|
-| C1 | „und …“, „lösch das“, „das zweite“ auf letztes Tool | Nicht nur Wetter |
-| C2 | Zwei Befehle in einem Satz | Wecker + Timer beide an |
-| C3 | Chat-Titel folgt dem Thema | Nicht ewig „Kuchenrezepte“ |
-| C4 | Suche: Quellen oder ehrlich | Kein Rezept-Raten ohne Netz |
-| C5 | Version `1.15.0` + APK | Sideload |
+| P1 | Personen + Orte (Freundin, Praxis, Zuhause) | Recall und Settings zeigen sie |
+| P2 | Widerspruch ersetzt den alten Ort | „Freundin wohnt in X“ überschreibt Y |
+| P3 | Ohne Ort nicht raten | Nachfrage statt Erfindung |
+| P4 | Version `1.15.0` + APK | Sideload |
 
 ## Probe
 
-1. Termin → „lösch das“.
-2. „Wecker 7 und Timer 1 Minute Test“.
-3. Suche ohne Netz: eine Absage, keine Erfindung.
+1. „Freundin wohnt in Heilbronn“ → „Wo wohnt die Freundin?“
+2. Ohne Ort: nicht raten.
 
 ## Won’t
 
-Neue Listen-Typen, Foto.
+Route, Geofence, Einkaufsliste. Kontext-Router liegt in `1.14.0`.
