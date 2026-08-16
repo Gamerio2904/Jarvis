@@ -1,17 +1,18 @@
-# Android-APK — `1.28.1`
+# Android-APK — `1.28.2`
 
-**1.28.1:** Wake-Word öffnet den Sprachmodus wirklich (auch wenn Jarvis schon offen ist).
+**1.28.2:** Fire-TV-Test zeigt das Ergebnis. Kein Dialog am Fire TV, wenn ADB nicht per WLAN läuft.
 
 ## Download
 
-**APK `1.28.1`:**  
+**APK `1.28.2`:**  
 https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-16-1-24-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.28.1` · versionCode `12801`
+- versionName `1.28.2` · versionCode `12802`
 - App-ID `local.jarvis.app`
 
-1. Über 1.28.0 installieren.
-2. Sprache → **Auf „Jarvis“ hören**. Meldung „Jarvis hört auf den Namen“ muss oben stehen. Laut „Jarvis“ sagen — Sprachmodus auf.
-3. Akku: nicht optimieren.
-4. Fire TV: HDMI 3, IP, ADB, testen.
+1. Über 1.28.1 installieren.
+2. Einstellungen → Fernseher → Fire-TV-IP (Info → Netzwerk am Gerät), **Fire TV testen**.
+3. Ergebnis steht unter dem Knopf. Ohne Port 5555: kein Erlauben-Dialog am Fire TV (2. Gen oft nur USB).
+4. HDMI 3 am Samsung und Lautstärke funktionieren unabhängig davon.
+5. Sprache → **Auf „Jarvis“ hören**.

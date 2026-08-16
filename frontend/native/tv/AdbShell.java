@@ -3,6 +3,8 @@ package app.jarvis.tv;
 import android.content.Context;
 
 import java.io.File;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 import dadb.AdbKeyPair;
 import dadb.AdbShellResponse;
@@ -16,6 +18,8 @@ final class AdbShell {
     }
 
     static String shell(Context ctx, String host, int port, String cmd) throws Exception {
+        int p = port <= 0 ? 5555 : port;
+        ping(host, p);
         File dir = new File(ctx.getFilesDir(), "adb");
         if (!dir.exists() && !dir.mkdirs()) {
             throw new Exception("ADB-Schlüsselordner fehlt.");
@@ -26,7 +30,7 @@ final class AdbShell {
             AdbKeyPair.generate(priv, pub);
         }
         AdbKeyPair keys = AdbKeyPair.read(priv, pub);
-        Dadb dadb = Dadb.create(host, port <= 0 ? 5555 : port, keys);
+        Dadb dadb = Dadb.create(host, p, keys, 4000, 8000);
         try {
             AdbShellResponse res = dadb.shell(cmd);
             int code = res.getExitCode();
@@ -42,6 +46,16 @@ final class AdbShell {
                 dadb.close();
             } catch (Exception ignored) {
             }
+        }
+    }
+
+    static void ping(String host, int port) throws Exception {
+        try (Socket s = new Socket()) {
+            s.connect(new InetSocketAddress(host, port), 2500);
+        } catch (Exception e) {
+            throw new Exception(
+                "Kein ADB auf " + host + ":" + port
+                    + ". Fire TV 2. Gen oft nur USB hinten, nicht WLAN. IP unter Info → Netzwerk, gleiches WLAN, in Entwickleroptionen nach „ADB über Netzwerk“ sehen.");
         }
     }
 }

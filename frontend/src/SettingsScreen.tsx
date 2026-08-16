@@ -91,11 +91,12 @@ export type SettingsScreenProps = {
   onWakeWord: (on: boolean) => void
   tvBusy: boolean
   tvMsg: string | null
+  tvMsgOk: boolean | null
   tvFound: Array<{ host?: string; name?: string; mac?: string; port?: number; kind?: string }>
   onTvDiscover: () => void
   onTvPair: () => void
   onTvTest: () => void
-  onTvFireTest: () => void
+  onTvFireTest: (host?: string, port?: number) => void
   onTvPick: (item: { host?: string; name?: string; mac?: string; port?: number; kind?: string }) => void
   auditOpen: boolean
   onToggleAudit: () => void
@@ -113,6 +114,16 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const busy = p.settingsBusy
   const topic = TOPICS.find((t) => t.id === p.topic) || TOPICS[0]
   const [spotifyMsg, setSpotifyMsg] = useState<string | null>(null)
+  const [fireHost, setFireHost] = useState(s?.tv_fire_host || '')
+  const [firePort, setFirePort] = useState(String(s?.tv_fire_port || 5555))
+
+  useEffect(() => {
+    setFireHost(s?.tv_fire_host || '')
+  }, [s?.tv_fire_host])
+
+  useEffect(() => {
+    setFirePort(String(s?.tv_fire_port || 5555))
+  }, [s?.tv_fire_port])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -499,13 +510,17 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   ))}
                 </ul>
               ) : null}
-              {p.tvMsg ? <p className="settings-hint">{p.tvMsg}</p> : null}
+              {p.tvMsg ? (
+                <p className={`tv-test-msg${p.tvMsgOk === false ? ' warn' : ''}`}>{p.tvMsg}</p>
+              ) : null}
             </section>
             <section className="settings-card">
               <h3>Fire TV auf HDMI</h3>
               <p className="settings-hint">
-                Quelle am Samsung umschalten, Stick per ADB: Entwickleroptionen → ADB-Debugging, gleiches
-                WLAN, einmal den Dialog am Stick erlauben. Kein Amazon-Konto in Jarvis.
+                Der Erlauben-Dialog am Fire TV kommt nur, wenn ADB per WLAN (Port 5555) wirklich offen ist.
+                2. Generation (Box, nicht Stick): oft nur USB hinten — dann erscheint nichts. IP unter Info →
+                Netzwerk. Entwickleroptionen: ADB-Debugging, falls vorhanden „ADB über Netzwerk“. Ohne WLAN-ADB
+                schaltet Jarvis weiter HDMI am Samsung (Standard 3) und Lautstärke.
               </p>
               <label className="settings-field">
                 <span>HDMI des Sticks</span>
@@ -523,30 +538,51 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>Fire-TV-IP</span>
                 <input
-                  key={`tv-fire-${s?.tv_fire_host || ''}`}
-                  defaultValue={s?.tv_fire_host || ''}
+                  value={fireHost}
                   disabled={busy}
                   placeholder="192.168.1.30"
-                  onBlur={(e) => void p.patchSetting({ tv_fire_host: e.target.value.trim() })}
+                  id="tv-fire-ip"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  onChange={(e) => setFireHost(e.target.value)}
+                  onBlur={() => {
+                    const v = fireHost.trim()
+                    setFireHost(v)
+                    void p.patchSetting({ tv_fire_host: v })
+                  }}
                 />
               </label>
               <label className="settings-field">
                 <span>ADB-Port</span>
                 <input
-                  key={`tv-fire-port-${s?.tv_fire_port || 5555}`}
-                  defaultValue={String(s?.tv_fire_port || 5555)}
+                  value={firePort}
                   disabled={busy}
-                  onBlur={(e) => {
-                    const n = Number(e.target.value)
-                    if (Number.isFinite(n)) void p.patchSetting({ tv_fire_port: n })
+                  id="tv-fire-port"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  onChange={(e) => setFirePort(e.target.value)}
+                  onBlur={() => {
+                    const n = Number(firePort)
+                    if (Number.isFinite(n) && n > 0) void p.patchSetting({ tv_fire_port: n })
                   }}
                 />
               </label>
               <div className="settings-actions">
-                <button type="button" className="retry-btn" disabled={p.tvBusy} onClick={p.onTvFireTest}>
-                  Fire TV testen
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={p.tvBusy}
+                  onClick={() => {
+                    const n = Number(firePort)
+                    p.onTvFireTest(fireHost.trim(), Number.isFinite(n) && n > 0 ? n : 5555)
+                  }}
+                >
+                  {p.tvBusy ? 'Prüfe…' : 'Fire TV testen'}
                 </button>
               </div>
+              {p.tvMsg ? (
+                <p className={`tv-test-msg${p.tvMsgOk === false ? ' warn' : ''}`}>{p.tvMsg}</p>
+              ) : null}
             </section>
             </>
           ) : null}

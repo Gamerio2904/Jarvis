@@ -223,7 +223,8 @@ export async function tvFireKeyNative(opts: {
   try {
     return await withTimeout(native.fireKey(opts), 12_000, {
       ok: false,
-      message: 'Fire TV antwortet nicht. ADB an, gleiches WLAN, Dialog am Stick erlauben.',
+      message:
+        'Fire TV antwortet nicht. Dialog kommt nur bei ADB per WLAN. 2. Gen oft nur USB. Samsung HDMI geht trotzdem.',
     })
   } catch (err) {
     return { ok: false, message: err instanceof Error ? err.message : 'Fire TV fehlgeschlagen' }
@@ -237,7 +238,8 @@ export async function tvFireTestNative(opts: { host: string; port?: number }): P
   try {
     return await withTimeout(native.fireTest(opts), 12_000, {
       ok: false,
-      message: 'Fire TV nicht erreichbar. Entwickleroptionen → ADB-Debugging.',
+      message:
+        'Kein ADB auf dieser IP. Dialog am Fire TV erscheint nur, wenn Port 5555 offen ist. 2. Gen oft nur USB hinten. Samsung HDMI bleibt nutzbar.',
     })
   } catch (err) {
     return { ok: false, message: err instanceof Error ? err.message : 'Fire-TV-Test fehlgeschlagen' }

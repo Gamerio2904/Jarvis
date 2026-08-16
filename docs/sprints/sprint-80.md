@@ -21,7 +21,7 @@
 1. Sprache → Auf „Jarvis“ hören, Akku-Dialog erlauben.
 2. Bildschirm aus, „Jarvis“ — App kommt, Gespräch.
 3. Andere App: nur Wake-Word. Meldung **Beenden** stoppt alles.
-4. Fire TV: HDMI 3, IP, ADB, `Fire TV`, `Fire TV Pause`.
+4. Fire TV: HDMI 3, IP aus Info → Netzwerk, **Fire TV testen** (Ergebnis unter dem Knopf). 2. Gen oft kein WLAN-ADB — dann kein Dialog, Samsung-HDMI trotzdem.
 
 ## Won’t
 

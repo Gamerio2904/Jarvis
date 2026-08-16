@@ -248,6 +248,7 @@ function App() {
   const [hasLocalModel, setHasLocalModel] = useState(false)
   const [tvBusy, setTvBusy] = useState(false)
   const [tvMsg, setTvMsg] = useState<string | null>(null)
+  const [tvMsgOk, setTvMsgOk] = useState<boolean | null>(null)
   const [tvFound, setTvFound] = useState<
     Array<{ host?: string; name?: string; mac?: string; port?: number; kind?: string }>
   >([])
@@ -462,6 +463,7 @@ function App() {
     if (tvBusy) return
     setTvBusy(true)
     setTvMsg('Suche im WLAN…')
+    setTvMsgOk(null)
     try {
       const res = await tvDiscover()
       const items = (res.items || []) as Array<{
@@ -477,8 +479,10 @@ function App() {
           ? `${items.length} Gerät${items.length === 1 ? '' : 'e'} gefunden.`
           : res.message || 'Nichts gefunden.',
       )
+      setTvMsgOk(items.length > 0)
     } catch (err) {
       setTvMsg(err instanceof Error ? err.message : 'Suchen fehlgeschlagen')
+      setTvMsgOk(false)
     } finally {
       setTvBusy(false)
     }
@@ -498,7 +502,8 @@ function App() {
         tv_fire_host: item.host,
         tv_fire_port: item.port || 5555,
       })
-      setTvMsg(`Fire TV: ${item.host}. ADB am Stick erlauben, dann testen.`)
+      setTvMsg(`Fire TV: ${item.host}. ADB-Dialog nur bei WLAN-ADB, dann testen.`)
+      setTvMsgOk(true)
       return
     }
     await patchSetting({
@@ -508,12 +513,14 @@ function App() {
       tv_port: item.port || settings?.tv_port || 8002,
     })
     setTvMsg(`Gewählt: ${item.name || item.host}`)
+    setTvMsgOk(true)
   }
 
   async function onTvPair() {
     if (tvBusy) return
     setTvBusy(true)
     setTvMsg('Koppeln — am Fernseher erlauben…')
+    setTvMsgOk(null)
     try {
       const res = await tvPair({
         host: settings?.tv_host,
@@ -522,9 +529,11 @@ function App() {
         port: settings?.tv_port,
       })
       setTvMsg(res.message)
+      setTvMsgOk(true)
       await refreshSettings()
     } catch (err) {
       setTvMsg(err instanceof Error ? err.message : 'Koppeln fehlgeschlagen')
+      setTvMsgOk(false)
     } finally {
       setTvBusy(false)
     }
@@ -559,15 +568,27 @@ function App() {
     }
   }
 
-  async function onTvFireTest() {
+  async function onTvFireTest(host?: string, port?: number) {
     if (tvBusy) return
+    const ip = (host || settings?.tv_fire_host || '').trim()
+    const p =
+      typeof port === 'number' && Number.isFinite(port) && port > 0
+        ? port
+        : settings?.tv_fire_port || 5555
     setTvBusy(true)
+    setTvMsgOk(null)
     setTvMsg('Teste Fire TV…')
     try {
-      const res = await tvFireTest()
+      if (ip) {
+        const updated = await patchSettings({ tv_fire_host: ip, tv_fire_port: p, tv_enabled: true })
+        setSettings(updated)
+      }
+      const res = await tvFireTest({ host: ip, port: p })
       setTvMsg(res.reply || (res.ok ? 'Fire TV da.' : 'Fire TV nicht erreichbar.'))
+      setTvMsgOk(Boolean(res.ok))
     } catch (err) {
       setTvMsg(err instanceof Error ? err.message : 'Fire-TV-Test fehlgeschlagen')
+      setTvMsgOk(false)
     } finally {
       setTvBusy(false)
     }
@@ -577,11 +598,14 @@ function App() {
     if (tvBusy) return
     setTvBusy(true)
     setTvMsg('Teste Verbindung…')
+    setTvMsgOk(null)
     try {
       const res = await tvTest()
       setTvMsg(res.reply || (res.ok ? 'Erreichbar.' : 'Nicht erreichbar.'))
+      setTvMsgOk(Boolean(res.ok))
     } catch (err) {
       setTvMsg(err instanceof Error ? err.message : 'Test fehlgeschlagen')
+      setTvMsgOk(false)
     } finally {
       setTvBusy(false)
     }
@@ -1085,7 +1109,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.28.1</p>
+            <p>Handy · v1.28.2</p>
           </div>
         </div>
 
@@ -1436,11 +1460,12 @@ function App() {
           }}
           tvBusy={tvBusy}
           tvMsg={tvMsg}
+          tvMsgOk={tvMsgOk}
           tvFound={tvFound}
           onTvDiscover={() => void onTvDiscover()}
           onTvPair={() => void onTvPair()}
           onTvTest={() => void onTvTest()}
-          onTvFireTest={() => void onTvFireTest()}
+          onTvFireTest={(host, port) => void onTvFireTest(host, port)}
           onTvPick={(item) => void onTvPick(item)}
           auditOpen={auditOpen}
           onToggleAudit={() => {

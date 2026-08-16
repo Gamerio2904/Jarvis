@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.28.1`**.
+App-Version im Code: **`1.28.2`**.
+
+### `1.28.2` — Fire-TV-Test sichtbar — *CODE*
+
+- **Fire TV testen** zeigt das Ergebnis direkt unter dem Knopf (nicht nur oben beim Samsung)
+- IP wird beim Tippen gehalten und beim Test gespeichert (vorher oft leer → keine Meldung)
+- Kurzer TCP-Check vor ADB: klare Meldung, wenn Port 5555 zu ist
+- Fire TV 2. Gen: kein Dialog ohne WLAN-ADB; Samsung HDMI 3 geht trotzdem
 
 ### `1.28.1` — Wake-Word reagiert — *CODE*
 

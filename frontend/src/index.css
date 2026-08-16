@@ -584,6 +584,21 @@ textarea {
   margin-top: 0.4rem;
 }
 
+.tv-test-msg {
+  margin: 0.55rem 0 0;
+  padding: 0.7rem 0.8rem;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
+.tv-test-msg.warn {
+  color: #f0d0a8;
+  background: rgba(212, 165, 116, 0.16);
+}
+
 .settings-actions {
   display: flex;
   flex-wrap: wrap;

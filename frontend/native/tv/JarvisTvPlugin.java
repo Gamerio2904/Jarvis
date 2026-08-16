@@ -138,14 +138,18 @@ public class JarvisTvPlugin extends Plugin {
     }
 
     private static String fireHint(Exception e) {
-        String m = safeMsg(e).toLowerCase();
-        if (m.contains("refused") || m.contains("connect") || m.contains("timeout") || m.contains("failed to connect")) {
-            return "Fire TV nicht erreichbar. Gleiches WLAN, ADB-Debugging an (Einstellungen → Mein Fire TV → Entwickleroptionen), Port 5555.";
+        String raw = safeMsg(e);
+        String m = raw.toLowerCase();
+        if (raw.startsWith("Kein ADB") || raw.startsWith("ADB-Schlüssel")) {
+            return raw;
+        }
+        if (m.contains("refused") || m.contains("connect") || m.contains("timeout") || m.contains("failed to connect") || m.contains("kein adb")) {
+            return "Kein ADB per WLAN. Fire TV 2. Gen (Ihre Box) hat oft nur USB hinten. Dialog kommt erst, wenn Port 5555 offen ist. IP unter Info → Netzwerk, gleiches WLAN, Entwickleroptionen: ADB-Debugging und falls da „ADB über Netzwerk“.";
         }
         if (m.contains("auth") || m.contains("unauthorized") || m.contains("offline")) {
             return "ADB noch nicht erlaubt. Am Fire TV den Dialog „USB-Debugging zulassen“ bestätigen, dann testen.";
         }
-        return "Fire TV: " + safeMsg(e);
+        return "Fire TV: " + raw;
     }
 
     private void runBg(PluginCall call, Runnable task) {

@@ -249,8 +249,8 @@ export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
   return testTv()
 }
 
-export async function tvFireTest(): Promise<{ ok?: boolean; reply?: string }> {
-  return testFireTv()
+export async function tvFireTest(opts?: { host?: string; port?: number }): Promise<{ ok?: boolean; reply?: string }> {
+  return testFireTv(opts)
 }
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {

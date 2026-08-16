@@ -13,6 +13,7 @@ Reihe davor: [`21-next.md`](./21-next.md) (`1.26.0`).
 | **`1.27.0`** | **Web Playback** im Fahrmodus: Gerät „Jarvis“ | Sideload nach 1.26 | **CODE** |
 | **`1.27.2`** | „Nach Heilbronn“, Overlay-Hören, STT | Sideload nach 1.27.1 | **CODE** |
 | **`1.28.0`** | Wake-Word Hintergrund, Fire TV HDMI | Sideload nach 1.27.2 | **CODE** |
+| **`1.28.2`** | Fire-TV-Test sichtbar, Gen-2-Hinweis | Sideload nach 1.28.1 | **CODE** |
 
 Sprint: [`sprint-79`](./sprints/sprint-79.md).
 

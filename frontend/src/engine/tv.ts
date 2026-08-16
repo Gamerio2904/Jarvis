@@ -168,16 +168,18 @@ export async function pairTv(body: {
   return { ok: true, message: res.message || 'Gekoppelt. Token liegt auf dem Handy.' }
 }
 
-export async function testFireTv(): Promise<{ ok: boolean; reply: string }> {
+export async function testFireTv(opts?: { host?: string; port?: number }): Promise<{ ok: boolean; reply: string }> {
   const s = loadSettings()
-  const host = s.tv_fire_host.trim()
+  const host = (opts?.host || s.tv_fire_host || '').trim()
+  const port = opts?.port || s.tv_fire_port || 5555
   if (!host) {
     return {
       ok: false,
-      reply: 'Keine Fire-TV-Adresse. Unter Einstellungen die IP des Sticks eintragen.',
+      reply:
+        'Keine Fire-TV-Adresse. IP unter Info → Netzwerk am Fire TV, dann hier eintragen und testen.',
     }
   }
-  const res = await tvFireTestNative({ host, port: s.tv_fire_port || 5555 })
+  const res = await tvFireTestNative({ host, port })
   if (!res.ok) return { ok: false, reply: res.message || 'Fire TV nicht erreichbar.' }
   return { ok: true, reply: res.message || 'Fire TV per ADB da.' }
 }
@@ -192,7 +194,7 @@ async function sendFire(action: TvAction): Promise<string> {
   const host = s.tv_fire_host.trim()
   const code = FIRE_CODE[action]
   if (!host) {
-    return 'Fire Stick: IP unter Einstellungen → Fernseher eintragen. ADB-Debugging am Stick an.'
+    return 'Fire TV: IP unter Einstellungen → Fernseher eintragen. ADB über Netzwerk, sonst nur HDMI am Samsung.'
   }
   if (code == null) return REPLIES[action]
   const res = await tvFireKeyNative({ host, port: s.tv_fire_port || 5555, code })
