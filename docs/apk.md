@@ -1,18 +1,17 @@
-# Android-APK — `1.27.0`
+# Android-APK — `1.27.1`
 
-**1.27.0:** Spotify spielt **in Jarvis** im Fahrmodus (Web Playback). Darunter: eigene Karte, Foto antwortet, TV-Lautstärke, Wake-Bubble.
+**1.27.1:** Anruf-Hotfix (Service/Jarvis-Prefix, Nummer, geklebte Wörter). Darunter Spotify in Jarvis, eigene Karte, Foto, TV, Wake-Bubble.
 
 ## Download
 
-**APK `1.27.0`:**  
+**APK `1.27.1`:**  
 https://github.com/Gamerio2904/Jarvis/raw/cursor/impl-1-16-1-24-0bf8/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.27.0` · versionCode `12700`
+- versionName `1.27.1` · versionCode `12701`
 - App-ID `local.jarvis.app`
 
-1. Über 1.26.0 installieren.
-2. Einstellungen → Musik: eigene Spotify-Client-ID, Redirect-URI **exakt** `https://localhost/`, anmelden.
-3. `Aktiviere Fahrmodus`, dann `Spiel Hotel California` — Ton aus Jarvis (Premium).
+1. Über 1.27.0 installieren.
+2. `Freundin, Tel 0171…` merken, dann `Ruf die Freundin an` — Knopf **Anrufen**.
+3. `Aktiviere Fahrmodus`, Spotify unter Einstellungen → Musik.
 4. Foto-Knopf: es muss eine Bubble kommen.
-5. TV: `Lautstärke 50` nach Koppeln.

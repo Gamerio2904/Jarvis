@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title'
 
-export const APP_VERSION = '1.27.0'
+export const APP_VERSION = '1.27.1'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -413,7 +413,9 @@ export async function upsertMemory(
   category: string,
   conversationId?: string,
 ): Promise<MemoryItem> {
-  const existing = (await getAll<MemoryItem>('memory')).find((m) => m.key === key)
+  const existing = (await getAll<MemoryItem>('memory')).find(
+    (m) => m.key === key && m.category === category,
+  )
   const row: MemoryItem = {
     id: existing?.id || newId(),
     key,

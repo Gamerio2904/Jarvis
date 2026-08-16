@@ -1,3 +1,5 @@
+import { normalizeUtterance } from './utterance.ts'
+
 export type PlaceWrite = { name: string; place: string }
 export type PlaceRecall = { name: string }
 export type TravelMode = 'driving' | 'walking' | 'transit'
@@ -7,6 +9,7 @@ export type PlaceNav =
   | { kind: 'list' }
   | { kind: 'call'; query: string }
   | { kind: 'phone'; name: string; number: string }
+  | { kind: 'alias'; name: string; alias: string }
 
 const HOME = /^(zuhause|zu\s*hause|hause|heim|wohnung)$/i
 const REL =
@@ -69,10 +72,13 @@ export function isBarePlaceAnswer(text: string): boolean {
   if (/[?]/.test(t)) return false
   if (/^(ja|nein|ok|okay|danke|bitte|gut|jo|passt|mach)\s*[.!]?\s*$/i.test(t)) return false
   if (
-    /\b(wecker|timer|termin|todo|wetter|fernseh|notiz|suche|erinner|fahr|navigier|route)\b/i.test(t)
+    /\b(wecker|timer|termin|todo|wetter|fernseh|notiz|suche|erinner|fahr|navigier|route|ruf|anruf|tel)\b/i.test(
+      t,
+    )
   ) {
     return false
   }
+  if (extractPhone(t)) return false
   return true
 }
 
@@ -118,9 +124,9 @@ export function parsePlaceRecall(text: string): PlaceRecall | null {
 }
 
 export function parsePlaceNav(text: string): PlaceNav | null {
-  const t = text.trim()
+  const t = normalizeUtterance(text.trim())
   if (!t || t.length > 180) return null
-  const extra = parseCallOrPhone(t) || parseTravelNav(t)
+  const extra = parseCallOrPhone(t) || parseAlias(t) || parseTravelNav(t)
   if (extra) return extra
   if (LIST.test(t) || (NAV.test(t) && PEOPLE_LIST.test(normalizePlaceName(NAV.exec(t)?.[3] || '')))) {
     return { kind: 'list' }
@@ -144,19 +150,88 @@ const WALK =
   /^\s*(?:lauf(?:e)?|geh(?:e)?\s+zu\s+fuß|zu\s+fuß)\s+(?:zu(?:r|m)?|nach)\s+(.+?)\s*$/i
 const TRANSIT =
   /^\s*(?:mit\s+der\s+bahn|öpnv|mit\s+bus\s+und\s+bahn)\s+(?:zu(?:r|m)?|nach)\s+(.+?)\s*$/i
-const CALL = /^\s*(?:ruf(?:e)?\s+(?:die|den|das)?\s*(.+?)\s+an|anrufen\s+(.+))\s*$/i
+const CALL =
+  /^\s*(?:(?:kannst\s+du|könnten\s+sie)\s+)?(?:bitte\s+)?(?:ruf(?:e)?\s+(?:die|den|das|meine[nrs]?|mein|unsere[n]?|ihr[en]?)?\s*(.+?)\s+an|(?:den\s+kontakt\s+)?(.+?)\s+anrufen|anrufen\s+(.+))\s*$/i
 const PHONE =
   /^\s*(?:(?:nummer\s+von|tel(?:efon)?\s+von)\s+(.+?)\s*[:-]\s*(.+)|(.+?)\s*[,:]\s*tel(?:efon)?\s+(.+))\s*$/i
+const PHONE_NAME =
+  /^\s*(.+?)\s*[,:–-]\s*((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
+const PHONE_SPACE =
+  /^\s*([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,28})\s+(?:tel(?:efon)?\s+)?((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
+const ALIAS =
+  /^\s*(?:meine[nrs]?\s+)?(.+?)\s+heißt\s+(.+?)\s*$/i
+
+export function looksLikePhone(value: string): boolean {
+  const d = value.replace(/\D/g, '')
+  return d.length >= 6 && d.length <= 16
+}
+
+export function extractPhone(text: string): string | null {
+  const m = text.match(/(?:\+|00)?\d[\d\s/-]{5,}\d/)
+  if (!m) return null
+  const compact = m[0].replace(/[^\d+]/g, '')
+  return looksLikePhone(compact) ? compact : null
+}
+
+export function findContactRow(
+  rows: Array<{ key: string; value: string; category: string }>,
+  query: string,
+): { key: string; value: string } | undefined {
+  const q = normalizePlaceName(query)
+  if (!q) return undefined
+  const phones = rows.filter((r) => r.category === 'contact' && looksLikePhone(r.value))
+  const direct = phones.find((r) => r.key === q || r.key.includes(q) || q.includes(r.key))
+  if (direct) return { key: direct.key, value: direct.value }
+  const forward = rows.find((r) => r.key === `alias:${q}` && r.value.trim())
+  if (forward) {
+    const other = normalizePlaceName(forward.value)
+    const hit = phones.find((r) => r.key === other)
+    if (hit) return { key: hit.key, value: hit.value }
+  }
+  const reverse = rows.find((r) => r.key.startsWith('alias:') && normalizePlaceName(r.value) === q)
+  if (reverse) {
+    const rel = reverse.key.slice('alias:'.length)
+    const hit = phones.find((r) => r.key === rel)
+    if (hit) return { key: hit.key, value: hit.value }
+  }
+  return undefined
+}
+
+function isNameLike(raw: string): boolean {
+  const n = normalizePlaceName(raw)
+  if (!n || n.length < 2 || n.length > 28) return false
+  if (/^(was|wer|wie|das|es|ich|wir|der|die|wo|wann)$/i.test(n)) return false
+  return !/\s/.test(n) || isRelationName(n)
+}
+
+export function parseAlias(text: string): PlaceNav | null {
+  const m = ALIAS.exec(text.trim())
+  if (!m) return null
+  const name = normalizePlaceName(m[1])
+  const alias = normalizePlaceName(m[2])
+  if (!isNameLike(name) || !isNameLike(alias) || name === alias) return null
+  if (name === 'ich') return null
+  return { kind: 'alias', name, alias }
+}
 
 export function parseCallOrPhone(text: string): PlaceNav | null {
   const t = text.trim()
   const call = CALL.exec(t)
-  if (call) return { kind: 'call', query: normalizePlaceName(call[1] || call[2] || '') }
+  if (call) {
+    const query = normalizePlaceName(call[1] || call[2] || call[3] || '')
+    if (query) return { kind: 'call', query }
+  }
   const phone = PHONE.exec(t)
   if (phone) {
     const name = normalizePlaceName(phone[1] || phone[3] || '')
     const number = (phone[2] || phone[4] || '').replace(/[^\d+]/g, '')
-    if (name && number.length >= 6) return { kind: 'phone', name, number }
+    if (name && looksLikePhone(number)) return { kind: 'phone', name, number }
+  }
+  const named = PHONE_NAME.exec(t) || PHONE_SPACE.exec(t)
+  if (named) {
+    const name = normalizePlaceName(named[1].replace(/\bte[l]?e?f[o]?n\b/i, ''))
+    const number = named[2].replace(/[^\d+]/g, '')
+    if (name && isNameLike(name) && looksLikePhone(number)) return { kind: 'phone', name, number }
   }
   return null
 }

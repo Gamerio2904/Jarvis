@@ -96,6 +96,7 @@ MAJOR.MINOR.PATCH
 | `1.25.0` | Einstellungen Vollbild + Themen-Leiste | Sprint 77 |
 | `1.26.0` | Fahrmodus, Spotify, Auge, TV-Lautstärke | Sprint 78 |
 | `1.27.0` | Internes Spotify im Fahrmodus | Sprint 79 |
+| `1.27.1` | Anruf-Hotfix (Service-Prefix, Nummer) | Sprint 79 Patch |
 
 ### Weitere Beispiele
 

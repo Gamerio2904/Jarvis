@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.27.0`**.
+App-Version im Code: **`1.27.1`**.
+
+### `1.27.1` — Anruf-Hotfix — *CODE*
+
+- „Service/Jarvis ruf … an“ landet als Anruf, nicht im LLM
+- Geklebte Wörter („dieWen“) werden getrennt
+- Nummer und Alias: „Odett, Tel …“, „Odett 0171…“, „Meine Freundin heißt Odett“
+- „Odett anrufen“ ist kein Todo mehr
+- Ort und Telefonnummer zur selben Person überschreiben sich nicht
 
 ### `1.27.0` — Internes Spotify im Fahrmodus — *CODE*
 

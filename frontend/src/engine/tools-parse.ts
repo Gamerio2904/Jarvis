@@ -41,7 +41,7 @@ export function parseToolIntent(text: string): ToolIntent | null {
   if (remind) return { kind: 'todo_create', title: remind[1].trim().replace(/[.!?]+$/, '') }
 
   const tail = TASK_TAIL.exec(text)
-  if (tail && !/[?]/.test(text) && text.trim().length <= 60) {
+  if (tail && !/[?]/.test(text) && text.trim().length <= 60 && !/anrufen/i.test(tail[2])) {
     return { kind: 'todo_create', title: `${tail[1].trim()} ${tail[2].toLowerCase()}` }
   }
 

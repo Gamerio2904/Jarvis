@@ -21,7 +21,11 @@ function splitSentences(text: string): string[] {
 
 export function scrubReply(text: string, opts?: { searched?: boolean }): string {
   DUZEN.lastIndex = 0
-  let out = text.replace(/\s+/g, ' ').trim()
+  let out = text
+    .replace(/([a-zäöüß])([A-ZÄÖÜ])/g, '$1 $2')
+    .replace(/([.!?…,;:])(\S)/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim()
   if (INJECT.test(out)) {
     return 'Netter Versuch. Weiter im Chat?'
   }

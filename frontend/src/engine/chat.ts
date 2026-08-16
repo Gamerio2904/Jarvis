@@ -6,6 +6,7 @@ import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
 import { splitIntents } from './split-intents'
+import { normalizeUtterance } from './utterance.ts'
 import { GEMINI_PERSONA, PERSONA, VOICE_HINT } from './persona'
 import {
   isLiveLookup,
@@ -368,7 +369,7 @@ export async function streamChat(
   })
 
   try {
-    const parts = splitIntents(content)
+    const parts = splitIntents(normalizeUtterance(content))
     const texts = parts.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
     const routed: Array<RouteHit | null> = []
     for (const text of texts) {

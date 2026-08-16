@@ -1,9 +1,12 @@
 import {
   displayPlaceName,
+  extractPhone,
+  findContactRow,
   isBarePlaceAnswer,
   isHomeName,
   isRelationName,
   looksLikeAddress,
+  looksLikePhone,
   mapsDirUrl,
   parsePlaceNav,
   parsePlaceRecall,
@@ -68,6 +71,42 @@ export async function handlePlaces(
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const s = loadSettings()
+
+  if (s.last_step_tool === 'phone_ask' && s.last_step_title) {
+    const who = s.last_step_title
+    const num = extractPhone(text)
+    if (num) {
+      await upsertMemory(who, num, 'contact', conversationId)
+      return {
+        handled: true,
+        reply: `Anruf ${displayPlaceName(who)} — ${num}.`,
+        tool: {
+          tool_status: 'executed',
+          tool: 'maps',
+          action: 'call',
+          label: 'Anrufen',
+          preview: who,
+          result: { tel: `tel:${num}`, name: who },
+        },
+        lastTool: 'maps',
+      }
+    }
+    const aliasName = text.trim().replace(/[.!?]+$/g, '')
+    if (/^[A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß-]{1,24}$/.test(aliasName) && !looksLikePhone(aliasName)) {
+      const alias = aliasName.toLowerCase()
+      if (alias !== who) {
+        await upsertMemory(`alias:${who}`, alias, 'fact', conversationId)
+        await upsertMemory(`alias:${alias}`, who, 'fact', conversationId)
+        return {
+          handled: true,
+          reply: `Also ${displayPlaceName(alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(alias)}, Tel …“.`,
+          tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: alias },
+          lastTool: 'phone_ask',
+        }
+      }
+    }
+  }
+
   if (s.last_step_tool === 'maps_ask' && s.last_step_title && isBarePlaceAnswer(text)) {
     const place = text.trim().replace(/^[iI]n\s+/, '').replace(/[.!?]+$/, '')
     const name = s.last_step_title
@@ -128,6 +167,34 @@ export async function handlePlaces(
   const nav = parsePlaceNav(text)
   if (!nav) return { handled: false }
 
+  if (nav.kind === 'alias') {
+    await upsertMemory(`alias:${nav.name}`, nav.alias, 'fact', conversationId)
+    await upsertMemory(`alias:${nav.alias}`, nav.name, 'fact', conversationId)
+    const rows = await listMemory()
+    const hit = findContactRow(rows, nav.alias) || findContactRow(rows, nav.name)
+    if (hit) {
+      return {
+        handled: true,
+        reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Anruf ${displayPlaceName(hit.key)} — ${hit.value}.`,
+        tool: {
+          tool_status: 'executed',
+          tool: 'maps',
+          action: 'call',
+          label: 'Anrufen',
+          preview: hit.key,
+          result: { tel: `tel:${hit.value}`, name: hit.key },
+        },
+        lastTool: 'maps',
+      }
+    }
+    return {
+      handled: true,
+      reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(nav.alias)}, Tel …“.`,
+      tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: nav.alias },
+      lastTool: 'phone_ask',
+    }
+  }
+
   if (nav.kind === 'phone') {
     await upsertMemory(nav.name, nav.number, 'contact', conversationId)
     return {
@@ -146,15 +213,15 @@ export async function handlePlaces(
   }
 
   if (nav.kind === 'call') {
-    const rows = await listMemory('contact')
-    const hit = rows.find(
-      (r) => r.key === nav.query || r.key.includes(nav.query) || nav.query.includes(r.key),
-    )
+    const rows = await listMemory()
+    const hit = findContactRow(rows, nav.query)
     if (!hit) {
+      const who = displayPlaceName(nav.query)
       return {
         handled: true,
-        reply: `Keine Nummer für ${displayPlaceName(nav.query)}. Sage z. B. „${displayPlaceName(nav.query)}, Tel …“.`,
-        lastTool: 'maps_ask',
+        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“.`,
+        tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: nav.query },
+        lastTool: 'phone_ask',
       }
     }
     return {

@@ -18,11 +18,13 @@ import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { RESEARCH_EMPTY, researchHasSources } from '../src/engine/research-parse.ts'
 import {
+  findContactRow,
   mapsDirUrl,
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
 } from '../src/engine/places-parse.ts'
+import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
 import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
@@ -316,6 +318,34 @@ assert.equal(walk?.kind, 'navigate')
 if (walk?.kind === 'navigate') assert.equal(walk.mode, 'walking')
 assert.equal(parsePlaceNav('Ruf die Freundin an')?.kind, 'call')
 assert.equal(parsePlaceNav('Freundin, Tel 01711234567')?.kind, 'phone')
+assert.equal(normalizeUtterance('Service Ruf meine Freundin an'), 'Ruf meine Freundin an')
+assert.equal(parsePlaceNav('Service Ruf meine Freundin an')?.kind, 'call')
+const callFreundin = parsePlaceNav('Ruf meine Freundin an')
+assert.equal(callFreundin?.kind, 'call')
+if (callFreundin?.kind === 'call') assert.equal(callFreundin.query, 'freundin')
+const callOdett = parsePlaceNav('Ruf Odett an')
+assert.equal(callOdett?.kind, 'call')
+if (callOdett?.kind === 'call') assert.equal(callOdett.query, 'odett')
+assert.equal(parsePlaceNav('Odett anrufen')?.kind, 'call')
+assert.equal(parseToolIntent('Odett anrufen'), null)
+const phoneOdett = parsePlaceNav('Odett 01711234567')
+assert.equal(phoneOdett?.kind, 'phone')
+if (phoneOdett?.kind === 'phone') assert.equal(phoneOdett.number.replace(/\D/g, '').length >= 6, true)
+const alias = parsePlaceNav('Meine Freundin heißt Odett')
+assert.equal(alias?.kind, 'alias')
+assert.equal(
+  findContactRow(
+    [
+      { key: 'freundin', value: '01711234567', category: 'contact' },
+      { key: 'alias:freundin', value: 'odett', category: 'fact' },
+      { key: 'alias:odett', value: 'freundin', category: 'fact' },
+    ],
+    'odett',
+  )?.value,
+  '01711234567',
+)
+assert.equal(scrubReply('Wähle dieWen genau soll ich anrufen?'), 'Wähle die Wen genau soll ich anrufen?')
+assert.equal(titleFromUser('Service Ruf meine Freundin an'), 'Ruf meine Freundin an')
 assert.equal(parseLeaveIntent('Wann muss ich zum Zahnarzt los?')?.query, 'Zahnarzt')
 assert.equal(parseHomeIntent('Wenn ich zuhause bin Müll raus')?.kind, 'when_home')
 assert.equal(parseHomeIntent('Ich bin zuhause')?.kind, 'im_home')

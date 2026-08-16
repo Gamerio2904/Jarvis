@@ -69,12 +69,10 @@ async function postGemini(model: string, body: unknown): Promise<{ status: numbe
   return { status, json: json as GeminiResponse }
 }
 
-function textFrom(json: GeminiResponse): string {
+function textFrom(json: GeminiResponse, trim = true): string {
   const parts = json.candidates?.[0]?.content?.parts || []
-  return parts
-    .map((p) => p.text || '')
-    .join('')
-    .trim()
+  const raw = parts.map((p) => p.text || '').join('')
+  return trim ? raw.trim() : raw
 }
 
 function researchFrom(json: GeminiResponse): ResearchMeta | undefined {
@@ -186,12 +184,15 @@ export async function streamGemini(
     let full = ''
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`
     const res = await streamSseLines({ url, body, apiKey: key }, (json) => {
-      const incoming = textFrom(json as GeminiResponse)
+      const incoming = textFrom(json as GeminiResponse, false)
       if (!incoming) return
       let piece = incoming
       if (incoming.startsWith(full) && incoming.length >= full.length) {
         piece = incoming.slice(full.length)
         full = incoming
+      } else if (full && incoming && !/\s$/.test(full) && !/^\s/.test(incoming) && /[a-zäöüß.]$/i.test(full) && /^[A-ZÄÖÜ]/.test(incoming)) {
+        full += ` ${incoming}`
+        piece = ` ${incoming}`
       } else {
         full += incoming
       }

@@ -27,7 +27,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 20 | [Extra-Alltag](./20-next.md) | **`1.21`–`1.24` CODE** |
 | 21 | [Fahrmodus & Spotify](./21-next.md) | **`1.26` CODE** |
 | 22 | [Internes Spotify](./22-next.md) | **`1.27` CODE** |
-| — | [APK](./apk.md) | Sideload `1.27.0` |
+| — | [APK](./apk.md) | Sideload `1.27.1` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -78,4 +78,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 68–72 | `1.16`–`1.20` | **CODE** (in `1.24.0`) |
 | 73–76 | `1.21`–`1.24` | **CODE** |
 
-**Aktuell:** Sideload `1.27.0` — [`Jarvis.apk`](./apk.md).
+**Aktuell:** Sideload `1.27.1` — [`Jarvis.apk`](./apk.md).
