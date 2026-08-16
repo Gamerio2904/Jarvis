@@ -17,6 +17,12 @@ import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { RESEARCH_EMPTY, researchHasSources } from '../src/engine/research-parse.ts'
+import {
+  mapsDirUrl,
+  parsePlaceNav,
+  parsePlaceRecall,
+  parsePlaceWrite,
+} from '../src/engine/places-parse.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -240,6 +246,31 @@ assert.equal(researchHasSources({ used: true, sources: [{ url: 'https://example.
 assert.equal(parseCalendarIntent('Termin um 16:00 Jane', frozen)?.kind, 'create')
 assert.equal(parseAlarmIntent('Wecker 7', frozen)?.kind, 'create')
 assert.equal(parseTimerIntent('Timer 8 Minuten Nudeln', frozen)?.kind, 'create')
+
+assert.deepEqual(parsePlaceWrite('Freundin wohnt in Heilbronn'), {
+  name: 'freundin',
+  place: 'Heilbronn',
+})
+assert.deepEqual(parsePlaceWrite('Ich wohne in Bad Wimpfen'), {
+  name: 'zuhause',
+  place: 'Bad Wimpfen',
+})
+assert.deepEqual(parsePlaceWrite('Jane — Praxis Bahnhofstraße'), {
+  name: 'jane',
+  place: 'Praxis Bahnhofstraße',
+})
+assert.equal(parsePlaceWrite('Der Termin ist in einer Stunde'), null)
+assert.equal(parsePlaceRecall('Wo wohnt die Freundin?')?.name, 'freundin')
+assert.equal(parsePlaceNav('Fahr mich zur Freundin')?.kind, 'navigate')
+assert.equal(parsePlaceNav('fahr mich zu Personen')?.kind, 'list')
+assert.equal(parsePlaceNav('fahr mich nach Heilbronn')?.kind, 'navigate')
+if (parsePlaceNav('fahr mich nach Heilbronn')?.kind === 'navigate') {
+  assert.equal(parsePlaceNav('fahr mich nach Heilbronn').query, 'heilbronn')
+  assert.equal(parsePlaceNav('fahr mich nach Heilbronn').via, 'nach')
+}
+assert.match(mapsDirUrl('Heilbronn'), /google\.com\/maps\/dir/)
+assert.match(mapsDirUrl('Heilbronn'), /destination=Heilbronn/)
+assert.match(mapsDirUrl('Heilbronn'), /travelmode=driving/)
 
 assert.deepEqual(pullReady('Hallo wie geht').parts, [])
 assert.deepEqual(pullReady('Ja. ').parts, [])

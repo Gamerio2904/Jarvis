@@ -5,8 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.14.0`**.  
-Weiter geplant `1.15`–`1.20`: [`19-next.md`](./19-next.md).
+App-Version im Code: **`1.15.0`**.  
+Weiter geplant `1.16`–`1.20`: [`19-next.md`](./19-next.md).
+
+### `1.15.0` — Personen/Orte + Maps-Route — *CODE*
+
+- „Freundin wohnt in Heilbronn“, „Jane — Praxis Bahnhofstraße“, „Ich wohne in …“
+- „Fahr mich zur Freundin“ / „fahr mich nach Heilbronn“: Tipp öffnet die Route in Google Maps
+- Ohne Ort: nachfragen, nicht raten. Antwort „Heilbronn“ merkt den Ort und liefert den Link
+- „Fahr mich zu Personen“ listet gespeicherte Orte mit je einem Maps-Knopf
 
 ### `1.14.0` — Kontext + ein Gedächtnis — *CODE*
 

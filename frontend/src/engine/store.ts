@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title'
 
-export const APP_VERSION = '1.14.0'
+export const APP_VERSION = '1.15.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -25,7 +25,7 @@ export type Message = {
   meta?: Record<string, unknown> | null
 }
 
-export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
+export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke' | 'place'
 
 export type MemoryItem = {
   id: string

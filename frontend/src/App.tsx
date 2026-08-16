@@ -46,6 +46,24 @@ import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, pinVoiceShortcut, startWakeWord, stopWakeWord } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
 
+function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
+  const raw = tool.result
+  if (!raw) return []
+  const listed = raw.routes
+  if (Array.isArray(listed)) {
+    return listed
+      .map((row) => {
+        const r = row as { title?: string; url?: string }
+        return r.url ? { title: r.title || 'Route', url: r.url } : null
+      })
+      .filter((r): r is { title: string; url: string } => Boolean(r))
+  }
+  if (typeof raw.url === 'string' && raw.url) {
+    return [{ title: String(raw.destination || tool.preview || 'Route'), url: raw.url }]
+  }
+  return []
+}
+
 function ToolChip({
   tool,
   onConfirm,
@@ -81,6 +99,23 @@ function ToolChip({
           </button>
         </span>
       ) : null}
+      {tool.tool === 'maps'
+        ? mapsRoutes(tool).map((r) => (
+            <a
+              key={r.url}
+              className="maps-btn"
+              href={r.url}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => {
+                e.preventDefault()
+                window.open(r.url, '_blank', 'noopener,noreferrer')
+              }}
+            >
+              Route in Google Maps{r.title ? ` · ${r.title}` : ''}
+            </a>
+          ))
+        : null}
     </span>
   )
 }
@@ -887,7 +922,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.14.0</p>
+            <p>Handy · v1.15.0</p>
           </div>
         </div>
 
@@ -930,7 +965,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.14.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.15.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -1461,7 +1496,7 @@ function App() {
         {memoryOpen ? (
           <div className="memory-panel">
             <div className="memory-filters" role="tablist" aria-label="Memory-Kategorien">
-              {(['all', 'pref', 'fact', 'joke', 'boundary', 'open_loop'] as const).map((f) => (
+              {(['all', 'place', 'pref', 'fact', 'joke', 'boundary', 'open_loop'] as const).map((f) => (
                 <button
                   key={f}
                   type="button"
@@ -1473,7 +1508,7 @@ function App() {
                     void refreshMemory(f)
                   }}
                 >
-                  {f === 'all' ? 'Alle' : f}
+                  {f === 'all' ? 'Alle' : f === 'place' ? 'Orte' : f}
                 </button>
               ))}
             </div>

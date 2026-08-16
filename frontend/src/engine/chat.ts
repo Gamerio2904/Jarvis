@@ -43,6 +43,7 @@ import { handleTimers } from './timers'
 import { handleTools, type ToolMeta } from './tools'
 import { handleTv, tvStatusFromSettings } from './tv'
 import { handleWeather } from './weather'
+import { handlePlaces } from './places'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -133,6 +134,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: tvHit.reply,
       tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
       lastTool: 'tv',
+    }
+  }
+
+  const placeHit = await handlePlaces(conversationId, content)
+  if (placeHit.handled && placeHit.reply) {
+    return {
+      reply: placeHit.reply,
+      tool: placeHit.tool,
+      lastTool: placeHit.lastTool || 'maps',
     }
   }
 

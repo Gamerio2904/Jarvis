@@ -28,4 +28,6 @@ export const TEST_PROMPTS = [
   'Temperatur hier',
   'Termin morgen 15 Uhr Zahnarzt',
   'Kalender',
+  'Freundin wohnt in Heilbronn',
+  'Fahr mich zur Freundin',
 ] as const

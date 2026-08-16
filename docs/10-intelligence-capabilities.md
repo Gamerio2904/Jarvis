@@ -3,19 +3,19 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first- / Privacy-Linie zu brechen.  
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
-### Live `1.14.0` (Code)
+### Live `1.15.0` (Code)
 
-Router-Reihenfolge in `chat.ts`: help → TV → Memory → Kalender → Wecker → Timer → Erinnerung → Tools → Wetter → Research → LLM.  
-Zwei Befehle an „und“. Letzter Schritt für alle Tools. Memory-Block lokal = Gemini. Suche ohne Quellen: ehrlich. Titel folgt dem Thema.
+Router-Reihenfolge in `chat.ts`: help → TV → Orte/Maps → Memory → Kalender → Wecker → Timer → Erinnerung → Tools → Wetter → Research → LLM.  
+Zwei Befehle an „und“. Letzter Schritt für alle Tools. Memory-Block lokal = Gemini. Personenorte + Google-Maps-Link. Suche ohne Quellen: ehrlich. Titel folgt dem Thema.
 
-**Nicht** im Code: Personen/Orte, Einkaufsliste, Route, Geofence, Foto.
+**Nicht** im Code: Einkaufsliste, Fahrzeit/Losgehen, Geofence, Foto.
 
-### Als Nächstes (`1.15`–`1.20`) — [`19-next.md`](./19-next.md)
+### Als Nächstes (`1.16`–`1.20`) — [`19-next.md`](./19-next.md)
 
 | Version | Intelligenz | Status |
 |---------|-------------|--------|
 | `1.14` | Letztes Tool; zwei Dinge; ein Name; Titel; Suche ehrlich | **CODE** |
-| `1.15` | Personen↔Orte | **PLANNED** |
+| `1.15` | Personen↔Orte; Route in Google Maps | **CODE** |
 | `1.16`–`1.18` | Liste, Losgehen (nachfragen + Route), Zuhause | **PLANNED** |
 | `1.19`–`1.20` | Eine Tageslage; Auge nur Gemini | **PLANNED** |
 
