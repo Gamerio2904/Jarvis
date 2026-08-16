@@ -76,8 +76,12 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 70 | [`sprint-70.md`](./sprint-70.md) | `1.18.0` | Wenn ich zuhause bin | **PLANNED** |
 | 71 | [`sprint-71.md`](./sprint-71.md) | `1.19.0` | Menschlicher + Tageslage | **PLANNED** |
 | 72 | [`sprint-72.md`](./sprint-72.md) | `1.20.0` | Auge | **PLANNED** |
+| 73 | [`sprint-73.md`](./sprint-73.md) | `1.21.0` | Nummer + Maps-Modus | **PLANNED** |
+| 74 | [`sprint-74.md`](./sprint-74.md) | `1.22.0` | Geburtstag + Serie | **PLANNED** |
+| 75 | [`sprint-75.md`](./sprint-75.md) | `1.23.0` | Widget + das zweite | **PLANNED** |
+| 76 | [`sprint-76.md`](./sprint-76.md) | `1.24.0` | Gespräch suchen | **PLANNED** |
 
-**Aktuell:** Sideload `1.15.0`. Nächste Stufe: Einkauf `1.16` — [`19-next.md`](../19-next.md).
+**Aktuell:** Sideload `1.15.0`. Als Nächstes `1.16`–`1.20` — [`19-next.md`](../19-next.md). Extra `1.21`–`1.24` — [`20-next.md`](../20-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

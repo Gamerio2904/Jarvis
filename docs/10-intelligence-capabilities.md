@@ -8,16 +8,17 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 Router-Reihenfolge in `chat.ts`: help → TV → Orte/Maps → Memory → Kalender → Wecker → Timer → Erinnerung → Tools → Wetter → Research → LLM.  
 Zwei Befehle an „und“. Letzter Schritt für alle Tools. Memory-Block lokal = Gemini. Personenorte + Google-Maps-Link. Suche ohne Quellen: ehrlich. Titel folgt dem Thema.
 
-**Nicht** im Code: Einkaufsliste, Fahrzeit/Losgehen, Geofence, Foto.
+**Nicht** im Code: Einkaufsliste, Fahrzeit/Losgehen, Geofence, Foto, Nummer, Chatsuche.
 
-### Als Nächstes (`1.16`–`1.20`) — [`19-next.md`](./19-next.md)
+### Als Nächstes (`1.16`–`1.24`) — [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md)
 
 | Version | Intelligenz | Status |
 |---------|-------------|--------|
 | `1.14` | Letztes Tool; zwei Dinge; ein Name; Titel; Suche ehrlich | **CODE** |
 | `1.15` | Personen↔Orte; Route in Google Maps | **CODE** |
-| `1.16`–`1.18` | Liste, Losgehen (nachfragen + Route), Zuhause | **PLANNED** |
+| `1.16`–`1.18` | Liste, Losgehen (Ort am Termin + Route), Zuhause | **PLANNED** |
 | `1.19`–`1.20` | Eine Tageslage; Auge nur Gemini | **PLANNED** |
+| `1.21`–`1.24` | Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche | **PLANNED** |
 
 Lokal 0,5B denkt nicht plötzlich besser. Schärfe = Router + Speicher + ehrliche Tools.
 

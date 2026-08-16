@@ -91,10 +91,14 @@ MAJOR.MINOR.PATCH
 | `1.14.0` | Kontext überall + Gedächtnis gleich | Sprint 66 |
 | `1.15.0` | Personen/Orte + Google-Maps-Route | Sprint 67 |
 | `1.16.0` | Einkauf als Liste | Sprint 68 |
-| `1.17.0` | Losgehen (fragen + Route) | Sprint 69 |
+| `1.17.0` | Losgehen + Ort am Termin im Satz | Sprint 69 |
 | `1.18.0` | Wenn ich zuhause bin | Sprint 70 |
 | `1.19.0` | Menschlicher + Tageslage | Sprint 71 |
 | `1.20.0` | Auge (Gemini-Foto) | Sprint 72 |
+| `1.21.0` | Nummer an Person + Maps-Modus | Sprint 73 |
+| `1.22.0` | Geburtstag + Serie ohne Geofence | Sprint 74 |
+| `1.23.0` | Widget + „das zweite“ | Sprint 75 |
+| `1.24.0` | Gespräch suchen | Sprint 76 |
 
 ### Weitere Beispiele
 

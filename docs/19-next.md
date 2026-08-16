@@ -74,11 +74,11 @@ Eigene Liste, nicht Todo-Confirm.
 „Wann muss ich zum Zahnarzt los?“
 
 1. Termin finden.
-2. **Kein Ort** am Termin und keine Person/Praxis im Gedächtnis → **nachfragen** („Wo ist der Zahnarzt?“), merken, nicht raten.
+2. **Ort am Termin im selben Satz:** `Termin morgen 15 Uhr Zahnarzt Bahnhofstraße` speichert Titel + Ort. Fehlt der Ort und keine Person/Praxis im Gedächtnis → **nachfragen**, merken, nicht raten.
 3. Standort jetzt (GPS, Recht). Fehlt das Recht oder der Fix → nachfragen, keine erfundene Fahrzeit.
-4. Route/Dauer über Netz (kein Google-Login). Ankunft = Termin minus Fahrzeit plus Puffer. Netz tot → ehrlich sagen.
+4. Route/Dauer über Netz (kein Google-Login). Ankunft = Termin minus Fahrzeit plus Puffer. Netz tot → ehrlich sagen. Maps-Knopf wie in `1.15`.
 
-**Probe:** Termin ohne Adresse → Frage nach Ort. Ort nennen → Uhrzeit zum Losgehen.
+**Probe:** `Termin morgen 15 Uhr Zahnarzt Bahnhofstraße` → Ort liegt. Termin ohne Adresse → Frage. Ort nennen → Uhrzeit zum Losgehen.
 
 ## `1.18` — Wenn ich zuhause bin
 
@@ -114,6 +114,8 @@ Foto/Zettel/Packung, **nur wenn Gemini an**. Sonst: „Dafür Gemini an.“ Kein
 | Personen/Orte | `1.15` **CODE** |
 | Route in Google Maps | `1.15` **CODE** |
 | Nicht raten, nachfragen (Ort, Person, Zuhause) | `1.15`, `1.17`, `1.18` |
+| Ort am Termin im selben Satz | `1.17` |
+| Extra-Alltag (Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche) | `1.21`–`1.24` — [`20-next.md`](./20-next.md) |
 
 ## Won’t in dieser Reihe
 
