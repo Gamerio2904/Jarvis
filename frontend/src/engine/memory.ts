@@ -101,10 +101,4 @@ export async function handleMemory(
   return { handled: false }
 }
 
-export function memoryBlock(items: MemoryItem[]): string {
-  if (!items.length) return ''
-  return (
-    'Langzeitgedächtnis:\n' +
-    items.slice(0, 8).map((m) => `- ${m.key}: ${m.value}`).join('\n')
-  )
-}
+export { memoryBlock } from './memory-block'

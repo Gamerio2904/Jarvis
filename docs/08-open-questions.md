@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.13.2` (Timer-Ton).
-2. Als Nächstes `1.14`–`1.20` — [`19-next.md`](./19-next.md): Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Ton, Auge.
+1. Sideload `1.14.0` (Kontext + ein Gedächtnis).
+2. Als Nächstes `1.15`–`1.20` — [`19-next.md`](./19-next.md): Personen/Orte, Einkauf, Losgehen, Zuhause, Ton, Auge.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---

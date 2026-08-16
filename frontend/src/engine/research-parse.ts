@@ -36,3 +36,10 @@ export const RESEARCH_OFF_REPLY =
 
 export const RESEARCH_NEEDS_GEMINI =
   'Research braucht Gemini. Unter Einstellungen Gemini an, dann die Suche nochmal.'
+
+export const RESEARCH_EMPTY =
+  'Netz hat nicht geantwortet. Ich rate keine Rezepte und keine Fakten aus dem Kopf.'
+
+export function researchHasSources(r?: ResearchMeta | null): boolean {
+  return Boolean(r?.used && r.sources?.some((s) => Boolean(s.url)))
+}

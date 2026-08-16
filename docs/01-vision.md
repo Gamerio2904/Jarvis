@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Stand Code `1.13.2`:** On-Device-APK, lokales 0,5B **oder** Gemini (aus bis Opt-in), Timer/Wecker mit Ton, Wetter, Kalender, Memory (Name/Getränk), Todos mit Confirm. Live-Ton: **Siezen**, kurz (`frontend/src/engine/persona.ts`). Nächste Reihe: [`19-next.md`](./19-next.md).
+> **Stand Code `1.14.0`:** On-Device-APK, lokales 0,5B **oder** Gemini (aus bis Opt-in), Timer/Wecker mit Ton, Wetter, Kalender, Memory (gleicher Block lokal/Gemini), zwei Befehle, letzter Schritt, ehrliche Suche. Live-Ton: **Siezen**, kurz (`frontend/src/engine/persona.ts`). Weiter: [`19-next.md`](./19-next.md).
 
 ## Vision
 

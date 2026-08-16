@@ -75,6 +75,22 @@ export async function handleReminders(
     return { handled: true, reply: await formatAgenda() }
   }
 
+  if (intent.kind === 'delete_last') {
+    const rows = (await listReminders()).filter(
+      (r) => r.status === 'open' && r.kind !== 'timer' && r.kind !== 'alarm',
+    )
+    const hit = [...rows].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0]
+    if (!hit) return { handled: true, reply: 'Keine offene Erinnerung zum Löschen.' }
+    await cancelNotify(notifyIdFromKey(hit.id))
+    await deleteReminder(hit.id)
+    await syncGlance()
+    return {
+      handled: true,
+      reply: `Weg: ${hit.title}.`,
+      tool: { tool_status: 'executed', tool: 'reminder', action: 'delete', label: 'Erinnerung weg' },
+    }
+  }
+
   const rows = await upcomingReminders()
   if (!rows.length) {
     return { handled: true, reply: 'Keine offene Erinnerung zum Löschen.' }

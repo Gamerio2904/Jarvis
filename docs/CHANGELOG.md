@@ -5,8 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.13.2`**.  
-Geplant `1.14`–`1.20` (noch kein Code): [`19-next.md`](./19-next.md).
+App-Version im Code: **`1.14.0`**.  
+Weiter geplant `1.15`–`1.20`: [`19-next.md`](./19-next.md).
+
+### `1.14.0` — Kontext + ein Gedächtnis — *CODE*
+
+- Letzter Schritt für alle Tools: „lösch das“, „und um 16?“, „und morgen?“ (Wetter bleibt wie bisher)
+- Zwei Befehle in einem Satz: „Wecker 7 und Timer 8 Minuten Nudeln“
+- Memory-Block lokal und Gemini gleich; keinen anderen Vornamen erfinden
+- Suche: Quellen oder „Netz hat nicht geantwortet“ — kein Rezept-Raten
+- Chat-Titel folgt dem neuen Thema, bleibt nicht auf der ersten Zeile
 
 ### `1.13.2` — Timer-Ton — *CODE*
 

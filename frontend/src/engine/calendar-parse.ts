@@ -4,6 +4,7 @@ export type CalendarIntent =
   | { kind: 'create'; title: string; start: Date; whenLabel: string }
   | { kind: 'list'; day?: Date }
   | { kind: 'delete'; query: string }
+  | { kind: 'delete_last' }
   | { kind: 'open' }
 
 const WEEKDAYS = 'montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonnabend|sonntag'
@@ -15,6 +16,8 @@ const LIST_DAY = new RegExp(
   'i',
 )
 const DELETE = /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?termin\s+(.+)$/is
+const DELETE_LAST =
+  /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?letzten\s+termin\s*$/i
 
 const DAY_SHIFT: Record<string, number> = {
   heute: 0,
@@ -54,6 +57,7 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
   if (LIST_ALL.test(t)) return { kind: 'list' }
   const day = LIST_DAY.exec(t)
   if (day) return { kind: 'list', day: dayFromWord(day[1], now) }
+  if (DELETE_LAST.test(t)) return { kind: 'delete_last' }
   const del = DELETE.exec(t)
   if (del) return { kind: 'delete', query: del[1].replace(/[.!?]+$/, '').trim() }
 
