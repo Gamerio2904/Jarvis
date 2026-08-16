@@ -22,7 +22,10 @@ final class AdbShell {
         }
         File priv = new File(dir, "adbkey");
         File pub = new File(dir, "adbkey.pub");
-        AdbKeyPair keys = AdbKeyPair.readOrGenerate(priv, pub);
+        if (!priv.exists() || !pub.exists()) {
+            AdbKeyPair.generate(priv, pub);
+        }
+        AdbKeyPair keys = AdbKeyPair.read(priv, pub);
         Dadb dadb = Dadb.create(host, port <= 0 ? 5555 : port, keys);
         try {
             AdbShellResponse res = dadb.shell(cmd);

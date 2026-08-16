@@ -212,6 +212,17 @@ if (!gradle.includes('dadb')) {
     "dependencies {\n    implementation 'dev.mobile:dadb:1.2.9'",
   )
 }
+if (!gradle.includes('META-INF/LICENSE.md')) {
+  gradle = gradle.replace(
+    /buildTypes\s*\{/,
+    `packagingOptions {
+        resources {
+            excludes += ['META-INF/LICENSE.md', 'META-INF/LICENSE-notice.md']
+        }
+    }
+    buildTypes {`,
+  )
+}
 writeFileSync(gradlePath, gradle)
 
 const brand = spawnSync('python3', [join(root, 'scripts/apply-brand.py')], { stdio: 'inherit' })
