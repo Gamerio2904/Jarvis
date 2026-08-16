@@ -44,9 +44,10 @@ export async function handleAlarms(
       ? 'Klingelt bei Bildschirm aus.'
       : 'Gespeichert. Benachrichtigung erlauben, sonst kein Klingeln.'
     const again = intent.recur ? ' Mit Wiederholung.' : ' Einmalig.'
+    const name = row.title && row.title !== 'Wecker' ? ` ${row.title}` : ''
     return {
       handled: true,
-      reply: `Wecker ${row.title}, ${intent.whenLabel}.${again} ${ping}`,
+      reply: `Wecker${name}, ${intent.whenLabel}.${again} ${ping}`,
       tool: {
         tool_status: 'executed',
         tool: 'alarm',

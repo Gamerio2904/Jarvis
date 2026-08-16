@@ -168,6 +168,22 @@ if (termin?.kind === 'create') {
   assert.equal(termin.title, 'Zahnarzt')
   assert.equal(termin.start.getHours(), 15)
 }
+const dated = parseCalendarIntent('Termin 21.08. mit jane treffen', frozen)
+assert.equal(dated?.kind, 'create')
+if (dated?.kind === 'create') {
+  assert.equal(dated.title, 'mit jane treffen')
+  assert.equal(dated.start.getDate(), 21)
+  assert.equal(dated.start.getMonth(), 7)
+  assert.equal(dated.start.getHours(), 10)
+  assert.equal(dated.start.getFullYear(), 2026)
+}
+const datedTime = parseReminderIntent('21.08. 15 Uhr Zahnarzt', frozen)
+assert.equal(datedTime?.kind, 'create')
+if (datedTime?.kind === 'create') {
+  assert.equal(datedTime.title, 'Zahnarzt')
+  assert.equal(datedTime.due.getHours(), 15)
+}
+assert.equal(parseAlarmIntent('Wecker 5 Uhr', frozen)?.title, 'Wecker')
 assert.equal(parseCalendarIntent('Kalender')?.kind, 'open')
 assert.equal(parseCalendarIntent('was habe ich am Freitag', frozen)?.kind, 'list')
 assert.equal(parseCalendarIntent('lösche Termin Zahnarzt')?.kind, 'delete')
