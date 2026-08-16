@@ -5,7 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.13.1`**.
+App-Version im Code: **`1.13.2`**.
+
+### `1.13.2` — Timer-Ton — *CODE*
+
+- Timer/Wecker spielen Ton über Alarm-Lautstärke, nicht nur Vibration
+- Eigener Jarvis-Ton als Fallback, wenn der Systemwecker stumm ist
 
 ### `1.13.1` — Datum + Wecker-Titel — *CODE*
 
