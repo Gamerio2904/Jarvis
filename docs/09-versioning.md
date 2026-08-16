@@ -87,6 +87,7 @@ MAJOR.MINOR.PATCH
 | `1.12.0` | Wecker + eigener Ton | Sprint 62 |
 | `1.13.0` | GUI fest, Chat scrollt, Motion | Sprint 63 |
 | `1.13.1` | Kalender-Datum + Wecker-Titel | Sprint 64 |
+| `1.13.2` | Timer-Ton (nicht nur Vibration) | Sprint 65 |
 
 ### Weitere Beispiele
 

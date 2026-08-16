@@ -32,6 +32,12 @@ mkdirSync(join(android, 'app/src/main/res/layout'), { recursive: true })
 mkdirSync(join(android, 'app/src/main/res/xml'), { recursive: true })
 copyFileSync(join(notifySrc, 'jarvis_widget.xml'), join(android, 'app/src/main/res/layout/jarvis_widget.xml'))
 copyFileSync(join(notifySrc, 'jarvis_widget_info.xml'), join(android, 'app/src/main/res/xml/jarvis_widget_info.xml'))
+const rawDest = join(android, 'app/src/main/res/raw')
+mkdirSync(rawDest, { recursive: true })
+const alarmWav = join(notifySrc, 'jarvis_alarm.wav')
+if (existsSync(alarmWav)) {
+  copyFileSync(alarmWav, join(rawDest, 'jarvis_alarm.wav'))
+}
 
 const geoSrc = join(root, 'native', 'geo')
 const geoDest = join(android, 'app/src/main/java/app/jarvis/geo')
@@ -88,6 +94,7 @@ const perms = [
   'android.permission.FOREGROUND_SERVICE',
   'android.permission.FOREGROUND_SERVICE_MICROPHONE',
   'android.permission.READ_MEDIA_AUDIO',
+  'android.permission.MODIFY_AUDIO_SETTINGS',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
