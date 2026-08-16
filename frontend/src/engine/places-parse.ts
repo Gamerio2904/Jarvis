@@ -1,8 +1,12 @@
 export type PlaceWrite = { name: string; place: string }
 export type PlaceRecall = { name: string }
+export type TravelMode = 'driving' | 'walking' | 'transit'
+
 export type PlaceNav =
-  | { kind: 'navigate'; query: string; via: 'zu' | 'nach' }
+  | { kind: 'navigate'; query: string; via: 'zu' | 'nach'; mode?: TravelMode }
   | { kind: 'list' }
+  | { kind: 'call'; query: string }
+  | { kind: 'phone'; name: string; number: string }
 
 const HOME = /^(zuhause|zu\s*hause|hause|heim|wohnung)$/i
 const REL =
@@ -116,7 +120,9 @@ export function parsePlaceRecall(text: string): PlaceRecall | null {
 export function parsePlaceNav(text: string): PlaceNav | null {
   const t = text.trim()
   if (!t || t.length > 180) return null
-  if (LIST.test(t) || NAV.test(t) && PEOPLE_LIST.test(normalizePlaceName(NAV.exec(t)?.[3] || ''))) {
+  const extra = parseCallOrPhone(t) || parseTravelNav(t)
+  if (extra) return extra
+  if (LIST.test(t) || (NAV.test(t) && PEOPLE_LIST.test(normalizePlaceName(NAV.exec(t)?.[3] || '')))) {
     return { kind: 'list' }
   }
   if (NAV_HOME.test(t)) return { kind: 'navigate', query: 'zuhause', via: 'nach' }
@@ -129,9 +135,38 @@ export function parsePlaceNav(text: string): PlaceNav | null {
   return { kind: 'navigate', query, via }
 }
 
-export function mapsDirUrl(destination: string): string {
+export function mapsDirUrl(destination: string, mode: TravelMode = 'driving'): string {
   const q = encodeURIComponent(destination.trim())
-  return `https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=driving`
+  return `https://www.google.com/maps/dir/?api=1&destination=${q}&travelmode=${mode}`
+}
+
+const WALK =
+  /^\s*(?:lauf(?:e)?|geh(?:e)?\s+zu\s+fuß|zu\s+fuß)\s+(?:zu(?:r|m)?|nach)\s+(.+?)\s*$/i
+const TRANSIT =
+  /^\s*(?:mit\s+der\s+bahn|öpnv|mit\s+bus\s+und\s+bahn)\s+(?:zu(?:r|m)?|nach)\s+(.+?)\s*$/i
+const CALL = /^\s*(?:ruf(?:e)?\s+(?:die|den|das)?\s*(.+?)\s+an|anrufen\s+(.+))\s*$/i
+const PHONE =
+  /^\s*(?:(?:nummer\s+von|tel(?:efon)?\s+von)\s+(.+?)\s*[:-]\s*(.+)|(.+?)\s*[,:]\s*tel(?:efon)?\s+(.+))\s*$/i
+
+export function parseCallOrPhone(text: string): PlaceNav | null {
+  const t = text.trim()
+  const call = CALL.exec(t)
+  if (call) return { kind: 'call', query: normalizePlaceName(call[1] || call[2] || '') }
+  const phone = PHONE.exec(t)
+  if (phone) {
+    const name = normalizePlaceName(phone[1] || phone[3] || '')
+    const number = (phone[2] || phone[4] || '').replace(/[^\d+]/g, '')
+    if (name && number.length >= 6) return { kind: 'phone', name, number }
+  }
+  return null
+}
+
+export function parseTravelNav(text: string): PlaceNav | null {
+  const walk = WALK.exec(text.trim())
+  if (walk) return { kind: 'navigate', query: normalizePlaceName(walk[1]), via: 'zu', mode: 'walking' }
+  const tr = TRANSIT.exec(text.trim())
+  if (tr) return { kind: 'navigate', query: normalizePlaceName(tr[1]), via: 'nach', mode: 'transit' }
+  return null
 }
 
 function cleanPlace(raw: string): string {

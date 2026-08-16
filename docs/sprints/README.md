@@ -71,17 +71,17 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 65 | [`sprint-65.md`](./sprint-65.md) | `1.13.2` | Timer-Ton | **CODE** |
 | 66 | [`sprint-66.md`](./sprint-66.md) | `1.14.0` | Kontext + Gedächtnis gleich | **CODE** |
 | 67 | [`sprint-67.md`](./sprint-67.md) | `1.15.0` | Personen/Orte + Maps | **CODE** |
-| 68 | [`sprint-68.md`](./sprint-68.md) | `1.16.0` | Einkauf als Liste | **PLANNED** |
-| 69 | [`sprint-69.md`](./sprint-69.md) | `1.17.0` | Losgehen | **PLANNED** |
-| 70 | [`sprint-70.md`](./sprint-70.md) | `1.18.0` | Wenn ich zuhause bin | **PLANNED** |
-| 71 | [`sprint-71.md`](./sprint-71.md) | `1.19.0` | Menschlicher + Tageslage | **PLANNED** |
-| 72 | [`sprint-72.md`](./sprint-72.md) | `1.20.0` | Auge | **PLANNED** |
-| 73 | [`sprint-73.md`](./sprint-73.md) | `1.21.0` | Nummer + Maps-Modus | **PLANNED** |
-| 74 | [`sprint-74.md`](./sprint-74.md) | `1.22.0` | Geburtstag + Serie | **PLANNED** |
-| 75 | [`sprint-75.md`](./sprint-75.md) | `1.23.0` | Widget + das zweite | **PLANNED** |
-| 76 | [`sprint-76.md`](./sprint-76.md) | `1.24.0` | Gespräch suchen | **PLANNED** |
+| 68 | [`sprint-68.md`](./sprint-68.md) | `1.16.0` | Einkauf als Liste | **CODE** (in `1.24.0`) |
+| 69 | [`sprint-69.md`](./sprint-69.md) | `1.17.0` | Losgehen | **CODE** (in `1.24.0`) |
+| 70 | [`sprint-70.md`](./sprint-70.md) | `1.18.0` | Wenn ich zuhause bin | **CODE** (in `1.24.0`) |
+| 71 | [`sprint-71.md`](./sprint-71.md) | `1.19.0` | Menschlicher + Tageslage | **CODE** (in `1.24.0`) |
+| 72 | [`sprint-72.md`](./sprint-72.md) | `1.20.0` | Auge | **CODE** (in `1.24.0`) |
+| 73 | [`sprint-73.md`](./sprint-73.md) | `1.21.0` | Nummer + Maps-Modus | **CODE** (in `1.24.0`) |
+| 74 | [`sprint-74.md`](./sprint-74.md) | `1.22.0` | Geburtstag + Serie | **CODE** (in `1.24.0`) |
+| 75 | [`sprint-75.md`](./sprint-75.md) | `1.23.0` | Widget + das zweite | **CODE** (in `1.24.0`) |
+| 76 | [`sprint-76.md`](./sprint-76.md) | `1.24.0` | Gespräch suchen | **CODE** |
 
-**Aktuell:** Sideload `1.15.0`. Als Nächstes `1.16`–`1.20` — [`19-next.md`](../19-next.md). Extra `1.21`–`1.24` — [`20-next.md`](../20-next.md).
+**Aktuell:** Sideload `1.24.0`. Reihe `1.16`–`1.24` — [`19-next.md`](../19-next.md) · [`20-next.md`](../20-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

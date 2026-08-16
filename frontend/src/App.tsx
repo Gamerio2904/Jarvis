@@ -25,6 +25,8 @@ import {
   tvTest,
   testGemini,
   testGroq,
+  readEyeImage,
+  checkHomeFence,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -116,6 +118,18 @@ function ToolChip({
             </a>
           ))
         : null}
+      {typeof tool.result?.tel === 'string' && tool.result.tel ? (
+        <a
+          className="maps-btn"
+          href={String(tool.result.tel)}
+          onClick={(e) => {
+            e.preventDefault()
+            window.open(String(tool.result?.tel), '_self')
+          }}
+        >
+          Anrufen{tool.result.name ? ` · ${String(tool.result.name)}` : ''}
+        </a>
+      ) : null}
     </span>
   )
 }
@@ -235,6 +249,7 @@ function App() {
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+  const eyeFileRef = useRef<HTMLInputElement | null>(null)
   const appRef = useRef<HTMLDivElement | null>(null)
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
@@ -496,6 +511,12 @@ function App() {
       await syncGlance()
     } catch {
       /* browser ohne Notification ist ok */
+    }
+    try {
+      const homeHits = await checkHomeFence()
+      if (homeHits.length) setStatusNote(`Zuhause: ${homeHits.join('; ')}`)
+    } catch {
+      /* Standort nur auf dem Handy */
     }
     await refreshReminders()
     try {
@@ -762,6 +783,42 @@ function App() {
     }
   }
 
+  async function onEyeFile(file: File) {
+    if (!file || busy) return
+    setBusy(true)
+    setError(null)
+    setStatusNote('Foto geht zu Google…')
+    try {
+      let conversationId = activeId
+      if (!conversationId) {
+        const created = await createConversation()
+        conversationId = created.id
+        setConversations((prev) => [created, ...prev])
+        setActiveId(created.id)
+      }
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(String(reader.result || ''))
+        reader.onerror = () => reject(new Error('Foto nicht lesbar.'))
+        reader.readAsDataURL(file)
+      })
+      const { reply } = await readEyeImage(conversationId, dataUrl)
+      const conv = await getConversation(conversationId)
+      setMessages(conv.messages)
+      setConversations((prev) => {
+        const rest = prev.filter((c) => c.id !== conv.id)
+        return [conv, ...rest]
+      })
+      setStatusNote(null)
+      if (!reply) setStatusNote('Nichts Lesbares auf dem Bild.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Foto fehlgeschlagen')
+    } finally {
+      setBusy(false)
+      if (eyeFileRef.current) eyeFileRef.current.value = ''
+    }
+  }
+
   async function onSend() {
     const content = draft.trim()
     if (!content || busy) return
@@ -922,7 +979,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.15.0</p>
+            <p>Handy · v1.24.0</p>
           </div>
         </div>
 
@@ -965,7 +1022,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '1.15.0'} · Handy</p>
+              <p className="settings-hint">Version {settings?.version || '1.24.0'} · Handy</p>
             </section>
             <section className="settings-section">
               <h3>Gemini (Google)</h3>
@@ -979,8 +1036,8 @@ function App() {
                 <span>Gemini statt lokalem 0.5B</span>
               </label>
               <p className="settings-hint warn">
-                An = Chat geht zu Google. Nicht privat. Bestes Free-Modell zuerst; bei Limit oder
-                Überlastung sofort das nächste.
+                An = Chat geht zu Google. Nicht privat. Fotos für „Lies das Foto“ gehen ebenfalls
+                zu Google. Bestes Free-Modell zuerst; bei Limit oder Überlastung sofort das nächste.
               </p>
               <label className="settings-inline">
                 <span>API-Key</span>
@@ -1496,7 +1553,7 @@ function App() {
         {memoryOpen ? (
           <div className="memory-panel">
             <div className="memory-filters" role="tablist" aria-label="Memory-Kategorien">
-              {(['all', 'place', 'pref', 'fact', 'joke', 'boundary', 'open_loop'] as const).map((f) => (
+              {(['all', 'place', 'contact', 'birthday', 'pref', 'fact', 'joke', 'boundary', 'open_loop'] as const).map((f) => (
                 <button
                   key={f}
                   type="button"
@@ -1508,7 +1565,15 @@ function App() {
                     void refreshMemory(f)
                   }}
                 >
-                  {f === 'all' ? 'Alle' : f === 'place' ? 'Orte' : f}
+                  {f === 'all'
+                    ? 'Alle'
+                    : f === 'place'
+                      ? 'Orte'
+                      : f === 'contact'
+                        ? 'Nummern'
+                        : f === 'birthday'
+                          ? 'Geburtstage'
+                          : f}
                 </button>
               ))}
             </div>
@@ -1751,6 +1816,17 @@ function App() {
             ))}
           </div>
           <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
+            <input
+              ref={eyeFileRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) void onEyeFile(file)
+              }}
+            />
             <textarea
               ref={textareaRef}
               value={draft}
@@ -1762,6 +1838,15 @@ function App() {
               rows={1}
               disabled={busy}
             />
+            <button
+              type="button"
+              className="mic-btn"
+              disabled={busy}
+              onClick={() => eyeFileRef.current?.click()}
+              aria-label="Foto lesen"
+            >
+              Foto
+            </button>
             <button
               type="button"
               className="mic-btn"

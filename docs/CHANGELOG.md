@@ -5,8 +5,22 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.15.0`**.  
-Geplant `1.16`–`1.20`: [`19-next.md`](./19-next.md). Extra `1.21`–`1.24`: [`20-next.md`](./20-next.md).
+App-Version im Code: **`1.24.0`**.  
+`1.16`–`1.24` sind in diesem Wurf mitgeliefert.
+
+### `1.24.0` — Alltag 1.16–1.24 — *CODE*
+
+Eine Sideload-Stufe, Inhalt aus [`19-next.md`](./19-next.md) und [`20-next.md`](./20-next.md):
+
+- **Einkauf** als Liste, kein Ja/Nein: „Milch auf die Einkaufsliste“, „auch Brot“, „was fehlt?“, „Milch hab ich“. „Milch kaufen“ landet hier, nicht beim Todo-Confirm
+- **Losgehen:** „Wann muss ich zum Zahnarzt los?“ — Ort am Termin im selben Satz (`Termin morgen 15 Uhr Zahnarzt Bahnhofstraße`), sonst nachfragen. Fahrzeit über Netz + GPS, Maps-Knopf. Ohne Fix: ehrlich
+- **Zuhause:** „Wenn ich zuhause bin Müll raus“ — JS-Zaun beim App-Start oder „Ich bin zuhause“. Handy an; Gerät aus löst nicht aus
+- **Tageslage:** „Guten Morgen“ / „Was steht an?“ eine Bubble
+- **Auge:** „Lies das Foto“ nur mit Gemini; Bild geht zu Google. Sonst: „Dafür Gemini an.“
+- **Nummer + Maps-Modus:** „Freundin, Tel …“, „Ruf die Freundin an“ (`tel:`), „Lauf zur Freundin“ / Bahn
+- **Geburtstag** + **Wochenserie:** „Mama hat am 3. März Geburtstag“, „Jeden Dienstag Müll“, „was kommt diese Woche raus?“
+- **Widget** zeigt nächsten Termin oder Einkauf; „das zweite“ nach einer Liste
+- **Gespräch suchen** lokal: „Wann hatte ich das mit der Steuer?“
 
 ### `1.15.0` — Personen/Orte + Maps-Route — *CODE*
 

@@ -291,6 +291,39 @@ export async function completeGemini(
   throw new Error(last)
 }
 
+export async function completeGeminiVision(
+  prompt: string,
+  base64: string,
+  mime: string,
+): Promise<string> {
+  if (!geminiReady()) throw new Error('Gemini ist aus oder ohne Key.')
+  const models = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
+  let last = 'Gemini lieferte keinen Text.'
+  for (const model of models) {
+    const body = {
+      system_instruction: { parts: [{ text: GEMINI_PERSONA }] },
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            { text: prompt },
+            { inlineData: { mimeType: mime || 'image/jpeg', data: base64 } },
+          ],
+        },
+      ],
+      generationConfig: { temperature: 0.2, maxOutputTokens: 320 },
+    }
+    const { status, json } = await postGemini(model, body)
+    const text = textFrom(json)
+    if (status >= 200 && status < 300 && text) {
+      saveSettings({ gemini_model: model })
+      return text
+    }
+    last = json.error?.message || last
+  }
+  throw new Error(last)
+}
+
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
   if (!loadSettings().gemini_api_key.trim()) {
     return { ok: false, reply: 'Kein API-Key. In Google AI Studio erzeugen und hier eintragen.' }

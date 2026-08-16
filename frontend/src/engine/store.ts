@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title'
 
-export const APP_VERSION = '1.15.0'
+export const APP_VERSION = '1.24.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -25,7 +25,7 @@ export type Message = {
   meta?: Record<string, unknown> | null
 }
 
-export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke' | 'place'
+export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke' | 'place' | 'contact' | 'birthday'
 
 export type MemoryItem = {
   id: string
@@ -59,6 +59,16 @@ export type CalendarEvent = {
   id: string
   title: string
   start_at: string
+  place?: string
+  source_conversation_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type ShoppingItem = {
+  id: string
+  title: string
+  status: 'open' | 'got' | string
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -72,7 +82,7 @@ export type Reminder = {
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
-  kind?: 'once' | 'timer' | 'recur' | 'alarm'
+  kind?: 'once' | 'timer' | 'recur' | 'alarm' | 'home' | 'birthday'
   recur?: 'daily' | 'weekly' | null
   weekday?: number | null
 }
@@ -118,6 +128,10 @@ export type Settings = {
   last_step_tool: string
   last_step_title: string
   last_step_when: string
+  last_list_json: string
+  home_lat: string
+  home_lon: string
+  home_radius_m: string
   wake_word: boolean
   alarm_tone_uri: string
   alarm_tone_name: string
@@ -163,6 +177,10 @@ export const DEFAULT_SETTINGS: Settings = {
   last_step_tool: '',
   last_step_title: '',
   last_step_when: '',
+  last_list_json: '',
+  home_lat: '',
+  home_lon: '',
+  home_radius_m: '250',
   wake_word: false,
   alarm_tone_uri: '',
   alarm_tone_name: '',
@@ -202,6 +220,27 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   return next
 }
 
+export function persistLastList(tool: string, titles: string[]): void {
+  saveSettings({
+    last_step_tool: tool,
+    last_step_title: titles[0] || loadSettings().last_step_title,
+    last_list_json: JSON.stringify(titles.slice(0, 12)),
+  })
+}
+
+export function readLastList(): string[] {
+  try {
+    const raw = loadSettings().last_list_json
+    if (!raw) return []
+    const arr = JSON.parse(raw) as unknown
+    return Array.isArray(arr)
+      ? arr.filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+      : []
+  } catch {
+    return []
+  }
+}
+
 export type ResearchAudit = {
   id: string
   query: string
@@ -212,7 +251,7 @@ export type ResearchAudit = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 4)
+    const req = indexedDB.open('jarvis-ondevice', 5)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -225,6 +264,7 @@ function openDb(): Promise<IDBDatabase> {
         'research_audits',
         'reminders',
         'events',
+        'shopping',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -503,18 +543,58 @@ export async function listEvents(): Promise<CalendarEvent[]> {
 export async function addEvent(opts: {
   title: string
   start_at: string
+  place?: string
   conversationId?: string
 }): Promise<CalendarEvent> {
   const row: CalendarEvent = {
     id: newId(),
     title: opts.title,
     start_at: opts.start_at,
+    place: opts.place || '',
     source_conversation_id: opts.conversationId || null,
     created_at: nowIso(),
     updated_at: nowIso(),
   }
   await put('events', row)
   return row
+}
+
+export async function listShopping(): Promise<ShoppingItem[]> {
+  const rows = await getAll<ShoppingItem>('shopping')
+  return rows.sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
+}
+
+export async function addShopping(title: string, conversationId?: string): Promise<ShoppingItem> {
+  const open = (await listShopping()).filter((s) => s.status === 'open')
+  const dup = open.find((s) => s.title.toLowerCase() === title.toLowerCase())
+  if (dup) return dup
+  const row: ShoppingItem = {
+    id: newId(),
+    title,
+    status: 'open',
+    source_conversation_id: conversationId || null,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  await put('shopping', row)
+  return row
+}
+
+export async function markShoppingGot(query: string): Promise<ShoppingItem | undefined> {
+  const q = query.toLowerCase()
+  const rows = (await listShopping()).filter((s) => s.status === 'open')
+  const hit = rows.find((s) => s.title.toLowerCase().includes(q) || q.includes(s.title.toLowerCase()))
+  if (!hit) return undefined
+  const next = { ...hit, status: 'got', updated_at: nowIso() }
+  await put('shopping', next)
+  return next
+}
+
+export async function clearGotShopping(): Promise<number> {
+  const rows = await listShopping()
+  const got = rows.filter((s) => s.status === 'got')
+  for (const s of got) await del('shopping', s.id)
+  return got.length
 }
 
 export async function deleteEvent(id: string): Promise<void> {

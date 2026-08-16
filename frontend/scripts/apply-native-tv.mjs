@@ -95,6 +95,7 @@ const perms = [
   'android.permission.FOREGROUND_SERVICE_MICROPHONE',
   'android.permission.READ_MEDIA_AUDIO',
   'android.permission.MODIFY_AUDIO_SETTINGS',
+  'android.permission.CAMERA',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {

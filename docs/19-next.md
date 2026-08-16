@@ -2,21 +2,22 @@
 
 PO 2026-08-16: Einkauf als Liste, Losgehen mit Nachfrage + Route, Erinnerung „wenn ich zuhause bin“, Personen an Orte, Kontext, Gedächtnis das stimmt, Auge, menschlicher Ton, schärferer Router.
 
-Kein Alles-in-einem-Wurf. Jede Stufe ist sideloadbar. **Nichts davon ist im Code, bis die Version `CODE` heißt.**
+Mitgeliefert in **`1.24.0`**. Jede Stufe bleibt sideloadbar dokumentiert.
 
-Reihe davor (fertig): [`18-next.md`](./18-next.md) · App jetzt: **`1.15.0`**.
+Reihe davor (fertig): [`18-next.md`](./18-next.md) · App jetzt: **`1.24.0`** (1.16–1.24 in einem Wurf).
 
-## Stand im Code (`1.15.0`) — nicht schönreden
+## Stand im Code (`1.24.0`) — nicht schönreden
 
 | Thema | Was der Code tut | Was er nicht tut |
 |-------|------------------|------------------|
-| Chat-Route | help → TV → Memory → Kalender → Wecker → Timer → Erinnerung → Tools → Wetter → Research → LLM; **zwei Befehle** an „und“ | Memory-Sätze mit „und“ werden nicht gesplittet |
-| Letzter Schritt | „lösch das“, „und um 16?“, „und morgen?“ für Termin/Wecker/Timer/Erinnerung/Todo; Wetter wie bisher | „das zweite“ |
-| Memory | Gleicher Block lokal und Gemini; Name; **Personen/Orte** (`place`) | Keine Koordinate, kein Geofence |
-| Todos | „Milch kaufen“ → Confirm; „lösch das“ löscht das letzte Todo | Einkaufsliste ohne Theater |
-| Ort | GPS für Wetter; gespeicherte Personenorte; **Maps-Link** „fahr mich zu …“ | Geofence, Fahrzeit, Losgehen-Uhr |
-| Kalender | Chat + Monat-GUI, `21.08.` seit `1.13.1` | Adresse am Termin, Fahrzeit |
-| Suche | Opt-in + Gemini; ohne Quellen: **Netz hat nicht geantwortet** | Raten von Rezepten/Fakten |
+| Chat-Route | help → ordinal → TV → Maps → Memory → Einkauf → Geburtstag → Zuhause → Los → Tageslage → Kalender → Wecker → Timer → Erinnerung → Tools → Auge → Wetter → Chatsuche → LLM | Memory-Sätze mit „und“ werden nicht gesplittet |
+| Letzter Schritt | „lösch das“, „und um 16?“, „und morgen?“, „das zweite“ nach einer Liste | Ohne Liste davor: Nachfrage |
+| Memory | Gleicher Block lokal und Gemini; Name; Orte, Nummern, Geburtstage | Kein Play-Geofence |
+| Einkauf | Eigene Liste, kein Confirm. „Milch kaufen“ ist Einkauf | Geteilte Familienliste |
+| Ort | GPS, Personenorte, Maps (Auto/Fuß/Bahn), Losgehen-Fahrzeit, JS-Zaun Zuhause | Gerät aus löst nicht aus |
+| Kalender | Chat + Monat-GUI, Ort im selben Satz | Google-Kalender-Sync |
+| Suche | Opt-in + Gemini; lokal in Chats; ohne Quellen ehrlich | Raten von Rezepten/Fakten |
+| Auge | Foto nur mit Gemini, Bild zu Google | On-Device-Sehen mit 0,5B |
 | Titel | Folgt jeder neuen User-Sache, nicht Follow-ups | — |
 | Ton | Persona + Guards: **Siezen**, kurz, trocken (`persona.ts`) | Master/Sir in jeder Bubble |
 | Modell | Lokal 0,5B **oder** Gemini (aus, bis Sie es anmachen) | ChatGPT-Qualität lokal |
@@ -29,11 +30,11 @@ Lokal 0,5B wird durch diese Reihe **nicht** schlauer im Denken. Schärfe kommt a
 |---------|--------|----------------|--------|
 | **`1.14.0`** | **Kontext** + Gedächtnis gleich + Titel + ehrliche Suche | PO: letzter Schritt, zwei Dinge, ein Name, kein Raten | **CODE** |
 | **`1.15.0`** | **Personen/Orte** + Maps-Route | Eigenes Modell, Settings, Tipp in Maps | **CODE** |
-| **`1.16.0`** | **Einkauf als Liste** | Confirm-Todo ist kein Einkauf | **PLANNED** |
-| **`1.17.0`** | **Losgehen** (fragen + Route) | Braucht Ort am Termin/an der Person | **PLANNED** |
-| **`1.18.0`** | **Wenn ich zuhause bin** | Braucht gespeichertes Zuhause | **PLANNED** |
-| **`1.19.0`** | **Menschlicher** + eine Tageslage | Ton und eine Antwort, keine fünf Blöcke | **PLANNED** |
-| **`1.20.0`** | **Auge** (Foto, nur Gemini) | Eigenes Recht, eigenes Netz | **PLANNED** |
+| **`1.16.0`** | **Einkauf als Liste** | Confirm-Todo ist kein Einkauf | **CODE** (in `1.24.0`) |
+| **`1.17.0`** | **Losgehen** (fragen + Route) | Braucht Ort am Termin/an der Person | **CODE** (in `1.24.0`) |
+| **`1.18.0`** | **Wenn ich zuhause bin** | Braucht gespeichertes Zuhause | **CODE** (in `1.24.0`) |
+| **`1.19.0`** | **Menschlicher** + eine Tageslage | Ton und eine Antwort, keine fünf Blöcke | **CODE** (in `1.24.0`) |
+| **`1.20.0`** | **Auge** (Foto, nur Gemini) | Eigenes Recht, eigenes Netz | **CODE** (in `1.24.0`) |
 
 Sprints: [`sprint-66`](./sprints/sprint-66.md) … [`sprint-72`](./sprints/sprint-72.md).
 
@@ -61,7 +62,7 @@ Ohne Ort: nachfragen („Wo ist …?“), die nächste Ortszeile merken, dann de
 
 **Probe:** Ort setzen → „Wo wohnt die Freundin?“. Dann „Fahr mich zur Freundin“ → Maps. Unbekannte Person: Frage, kein Link.
 
-## `1.16` — Einkauf als Liste
+## `1.16` — Einkauf als Liste — **CODE**
 
 Eigene Liste, nicht Todo-Confirm.
 
@@ -69,7 +70,7 @@ Eigene Liste, nicht Todo-Confirm.
 
 **Probe:** drei Dinge nennen, Liste zeigen, eines abhaken.
 
-## `1.17` — Losgehen (fragen + Route)
+## `1.17` — Losgehen (fragen + Route) — **CODE**
 
 „Wann muss ich zum Zahnarzt los?“
 
@@ -80,7 +81,7 @@ Eigene Liste, nicht Todo-Confirm.
 
 **Probe:** `Termin morgen 15 Uhr Zahnarzt Bahnhofstraße` → Ort liegt. Termin ohne Adresse → Frage. Ort nennen → Uhrzeit zum Losgehen.
 
-## `1.18` — Wenn ich zuhause bin
+## `1.18` — Wenn ich zuhause bin — **CODE**
 
 „Wenn ich zuhause bin, Müll raus.“
 
@@ -88,7 +89,7 @@ Braucht gespeichertes **Zuhause** (aus `1.15` oder Nachfrage). Handy **an**, Sta
 
 **Probe:** Zuhause setzen, Erinnerung anlegen, zuhause ankommen → Hinweis. Ohne Zuhause-Ort: nachfragen.
 
-## `1.19` — Menschlicher + Tageslage
+## `1.19` — Menschlicher + Tageslage — **CODE**
 
 Eine Antwort auf „Guten Morgen“ / „Was steht an?“: Wetter (wenn Ort da) + nächster Termin + offene Wecker/Timer + Einkauf/Todos. Kurz.
 
@@ -96,7 +97,7 @@ Ton: Siezen halten. Kein Confirm für risikolose Liste. Nicht jedes Mal „kling
 
 **Probe:** morgens ein Prompt, eine Bubble. Kein Aufsatz.
 
-## `1.20` — Auge
+## `1.20` — Auge — **CODE**
 
 Foto/Zettel/Packung, **nur wenn Gemini an**. Sonst: „Dafür Gemini an.“ Kein On-Device-Sehen mit 0,5B. Bild geht zu Google — Settings sagen das.
 
@@ -114,8 +115,8 @@ Foto/Zettel/Packung, **nur wenn Gemini an**. Sonst: „Dafür Gemini an.“ Kein
 | Personen/Orte | `1.15` **CODE** |
 | Route in Google Maps | `1.15` **CODE** |
 | Nicht raten, nachfragen (Ort, Person, Zuhause) | `1.15`, `1.17`, `1.18` |
-| Ort am Termin im selben Satz | `1.17` |
-| Extra-Alltag (Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche) | `1.21`–`1.24` — [`20-next.md`](./20-next.md) |
+| Ort am Termin im selben Satz | `1.17` **CODE** |
+| Extra-Alltag (Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche) | `1.21`–`1.24` **CODE** — [`20-next.md`](./20-next.md) |
 
 ## Won’t in dieser Reihe
 

@@ -23,6 +23,15 @@ import {
   parsePlaceRecall,
   parsePlaceWrite,
 } from '../src/engine/places-parse.ts'
+import { parseShopIntent } from '../src/engine/shopping-parse.ts'
+import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
+import { parseHomeIntent } from '../src/engine/home-parse.ts'
+import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
+import { isBriefAsk } from '../src/engine/brief-parse.ts'
+import { parseEyeIntent } from '../src/engine/eye-parse.ts'
+import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
+import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
+import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -45,7 +54,12 @@ assert.ok(isMemoryRecall('Wie ist mein Name?'))
 assert.ok(!isMemoryWrite('Hallo Jarvis'))
 
 assert.equal(parseToolIntent('todo: Milch')?.kind, 'todo_create')
-assert.equal(parseToolIntent('Milch kaufen')?.kind, 'todo_create')
+assert.equal(parseToolIntent('Milch kaufen'), null)
+assert.equal(parseShopIntent('Milch kaufen')?.kind, 'add')
+assert.equal(parseShopIntent('Milch auf die Einkaufsliste')?.kind, 'add')
+assert.equal(parseShopIntent('auch Brot')?.kind, 'add')
+assert.equal(parseShopIntent('was fehlt?')?.kind, 'list')
+assert.equal(parseShopIntent('Milch hab ich')?.kind, 'got')
 assert.equal(parseToolIntent('ich muss noch Brot holen')?.kind, 'todo_create')
 assert.equal(parseToolIntent('erinner mich an Steuer')?.kind, 'todo_create')
 assert.equal(parseToolIntent('erledige das erste')?.kind, 'todo_done_first')
@@ -179,6 +193,13 @@ if (termin?.kind === 'create') {
   assert.equal(termin.title, 'Zahnarzt')
   assert.equal(termin.start.getHours(), 15)
 }
+const terminPlace = parseCalendarIntent('Termin morgen 15 Uhr Zahnarzt Bahnhofstraße', frozen)
+assert.equal(terminPlace?.kind, 'create')
+if (terminPlace?.kind === 'create') {
+  assert.equal(terminPlace.title, 'Zahnarzt')
+  assert.equal(terminPlace.place, 'Bahnhofstraße')
+}
+assert.deepEqual(splitTitlePlace('Zahnarzt Bahnhofstraße'), { title: 'Zahnarzt', place: 'Bahnhofstraße' })
 const dated = parseCalendarIntent('Termin 21.08. mit jane treffen', frozen)
 assert.equal(dated?.kind, 'create')
 if (dated?.kind === 'create') {
@@ -271,6 +292,35 @@ if (parsePlaceNav('fahr mich nach Heilbronn')?.kind === 'navigate') {
 assert.match(mapsDirUrl('Heilbronn'), /google\.com\/maps\/dir/)
 assert.match(mapsDirUrl('Heilbronn'), /destination=Heilbronn/)
 assert.match(mapsDirUrl('Heilbronn'), /travelmode=driving/)
+assert.match(mapsDirUrl('Heilbronn', 'walking'), /travelmode=walking/)
+const walk = parsePlaceNav('Lauf zur Freundin')
+assert.equal(walk?.kind, 'navigate')
+if (walk?.kind === 'navigate') assert.equal(walk.mode, 'walking')
+assert.equal(parsePlaceNav('Ruf die Freundin an')?.kind, 'call')
+assert.equal(parsePlaceNav('Freundin, Tel 01711234567')?.kind, 'phone')
+assert.equal(parseLeaveIntent('Wann muss ich zum Zahnarzt los?')?.query, 'Zahnarzt')
+assert.equal(parseHomeIntent('Wenn ich zuhause bin Müll raus')?.kind, 'when_home')
+assert.equal(parseHomeIntent('Ich bin zuhause')?.kind, 'im_home')
+assert.ok(isBriefAsk('Guten Morgen'))
+assert.ok(isBriefAsk('Was steht an?'))
+assert.ok(parseEyeIntent('Lies das Foto'))
+const bday = parseBirthdayIntent('Mama hat am 3. März Geburtstag')
+assert.equal(bday?.kind, 'create')
+if (bday?.kind === 'create') {
+  assert.equal(bday.name, 'Mama')
+  assert.equal(bday.month, 3)
+  assert.equal(bday.day, 3)
+}
+const weeklyBare = parseReminderIntent('Jeden Dienstag Müll', frozen)
+assert.equal(weeklyBare?.kind, 'create')
+if (weeklyBare?.kind === 'create') {
+  assert.equal(weeklyBare.recur, 'weekly')
+  assert.equal(weeklyBare.title, 'Müll')
+}
+assert.equal(parseReminderIntent('was kommt diese Woche raus?')?.kind, 'week')
+assert.equal(parseOrdinalFollowUp('das zweite')?.index, 1)
+assert.equal(parseOrdinalFollowUp('lösch das zweite')?.del, true)
+assert.equal(parseChatSearch('Wann hatte ich das mit der Steuer?'), 'Steuer')
 
 assert.deepEqual(pullReady('Hallo wie geht').parts, [])
 assert.deepEqual(pullReady('Ja. ').parts, [])

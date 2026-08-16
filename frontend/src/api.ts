@@ -153,6 +153,8 @@ export async function listReminders() {
 }
 
 export { removeReminder, syncReminderAlarms } from './engine/reminders'
+export { readEyeImage } from './engine/eye'
+export { checkHomeFence } from './engine/home'
 
 export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
   const rows = await storeListAudits(limit)

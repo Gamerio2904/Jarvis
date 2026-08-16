@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **CODE** (in `1.24.0`) |
 | Priorität | **SHOULD** |
 | Ziel-Version | **`1.22.0`** |
 | Quelle | PO 2026-08-16 · [`20-next.md`](../20-next.md) |

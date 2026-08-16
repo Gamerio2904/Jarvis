@@ -9,7 +9,7 @@ import {
   parsePlaceRecall,
   parsePlaceWrite,
 } from './places-parse'
-import { listMemory, loadSettings, upsertMemory } from './store'
+import { addReminder, listMemory, loadSettings, persistLastList, saveSettings, upsertMemory } from './store'
 import type { ToolMeta } from './tools'
 
 export {
@@ -50,9 +50,9 @@ async function findPlace(name: string): Promise<{ name: string; place: string } 
   return rows.find((r) => r.name === key || r.name.includes(key) || key.includes(r.name))
 }
 
-function routeOf(name: string, place: string): MapsRoute {
+function routeOf(name: string, place: string, mode: 'driving' | 'walking' | 'transit' = 'driving'): MapsRoute {
   const title = displayPlaceName(name)
-  return { title, destination: place, url: mapsDirUrl(place) }
+  return { title, destination: place, url: mapsDirUrl(place, mode) }
 }
 
 function routeReply(name: string, place: string): string {
@@ -85,9 +85,21 @@ export async function handlePlaces(
   if (written) {
     await upsertMemory(written.name, written.place, 'place', conversationId)
     const who = displayPlaceName(written.name)
+    let extra = ''
+    const pending = loadSettings()
+    if (written.name === 'zuhause' && pending.last_step_tool === 'home_ask' && pending.last_step_title) {
+      await addReminder({
+        title: pending.last_step_title,
+        due_at: new Date(Date.now() + 365 * 86_400_000).toISOString(),
+        conversationId,
+        kind: 'home',
+      })
+      extra = ` Wenn Sie zuhause sind: ${pending.last_step_title}. Handy muss an sein.`
+      saveSettings({ last_step_tool: 'home', last_step_title: pending.last_step_title })
+    }
     return {
       handled: true,
-      reply: `${who}: ${written.place} — liegt.`,
+      reply: `${who}: ${written.place} — liegt.${extra}`,
       tool: {
         tool_status: 'executed',
         tool: 'maps',
@@ -116,6 +128,50 @@ export async function handlePlaces(
   const nav = parsePlaceNav(text)
   if (!nav) return { handled: false }
 
+  if (nav.kind === 'phone') {
+    await upsertMemory(nav.name, nav.number, 'contact', conversationId)
+    return {
+      handled: true,
+      reply: `${displayPlaceName(nav.name)}: ${nav.number} — liegt.`,
+      tool: {
+        tool_status: 'executed',
+        tool: 'maps',
+        action: 'phone',
+        label: 'Nummer',
+        preview: nav.name,
+        result: { tel: `tel:${nav.number}`, name: nav.name },
+      },
+      lastTool: 'maps',
+    }
+  }
+
+  if (nav.kind === 'call') {
+    const rows = await listMemory('contact')
+    const hit = rows.find(
+      (r) => r.key === nav.query || r.key.includes(nav.query) || nav.query.includes(r.key),
+    )
+    if (!hit) {
+      return {
+        handled: true,
+        reply: `Keine Nummer für ${displayPlaceName(nav.query)}. Sage z. B. „${displayPlaceName(nav.query)}, Tel …“.`,
+        lastTool: 'maps_ask',
+      }
+    }
+    return {
+      handled: true,
+      reply: `Anruf ${displayPlaceName(hit.key)} — ${hit.value}.`,
+      tool: {
+        tool_status: 'executed',
+        tool: 'maps',
+        action: 'call',
+        label: 'Anrufen',
+        preview: hit.key,
+        result: { tel: `tel:${hit.value}`, name: hit.key },
+      },
+      lastTool: 'maps',
+    }
+  }
+
   if (nav.kind === 'list') {
     const rows = await places()
     if (!rows.length) {
@@ -125,6 +181,7 @@ export async function handlePlaces(
       }
     }
     const routes = rows.map((r) => routeOf(r.name, r.place))
+    persistLastList('maps', routes.map((r) => r.title))
     const lines = routes.map((r, i) => `${i + 1}. ${r.title} — ${r.destination}`).join('\n')
     return {
       handled: true,
@@ -135,9 +192,10 @@ export async function handlePlaces(
   }
 
   const q = nav.query
+  const mode = nav.mode || 'driving'
   const hit = await findPlace(q)
   if (hit) {
-    const route = routeOf(hit.name, hit.place)
+    const route = routeOf(hit.name, hit.place, mode)
     return {
       handled: true,
       reply: routeReply(hit.name, hit.place),
@@ -148,7 +206,7 @@ export async function handlePlaces(
 
   if ((nav.via === 'nach' && !isRelationName(q) && !isHomeName(q)) || looksLikeAddress(q)) {
     const dest = q.replace(/^\w/, (c) => c.toUpperCase())
-    const route = routeOf(dest, dest)
+    const route = routeOf(dest, dest, mode)
     return {
       handled: true,
       reply: routeReply(dest, dest),
