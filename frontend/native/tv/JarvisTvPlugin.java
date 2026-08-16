@@ -89,13 +89,63 @@ public class JarvisTvPlugin extends Plugin {
     }
 
     @PluginMethod
-    public void test(PluginCall call) {
+    public void fireKey(PluginCall call) {
         runBg(call, () -> {
             String host = call.getString("host", "");
             Integer port = call.getInt("port");
-            String token = call.getString("token", "");
-            resolve(call, doPair(host, port, "Jarvis", token, 12));
+            Integer code = call.getInt("code");
+            JSObject ret = new JSObject();
+            if (host == null || host.isEmpty() || code == null) {
+                ret.put("ok", false);
+                ret.put("message", "Fire-TV-Adresse oder Taste fehlt.");
+                resolve(call, ret);
+                return;
+            }
+            try {
+                AdbShell.keyevent(getContext(), host, port == null ? 5555 : port, code);
+                ret.put("ok", true);
+                ret.put("message", "Fire TV: Taste gesendet.");
+            } catch (Exception e) {
+                ret.put("ok", false);
+                ret.put("message", fireHint(e));
+            }
+            resolve(call, ret);
         });
+    }
+
+    @PluginMethod
+    public void fireTest(PluginCall call) {
+        runBg(call, () -> {
+            String host = call.getString("host", "");
+            Integer port = call.getInt("port");
+            JSObject ret = new JSObject();
+            if (host == null || host.isEmpty()) {
+                ret.put("ok", false);
+                ret.put("message", "Keine Fire-TV-Adresse.");
+                resolve(call, ret);
+                return;
+            }
+            try {
+                AdbShell.shell(getContext(), host, port == null ? 5555 : port, "echo jarvis");
+                ret.put("ok", true);
+                ret.put("message", "Fire TV per ADB erreichbar.");
+            } catch (Exception e) {
+                ret.put("ok", false);
+                ret.put("message", fireHint(e));
+            }
+            resolve(call, ret);
+        });
+    }
+
+    private static String fireHint(Exception e) {
+        String m = safeMsg(e).toLowerCase();
+        if (m.contains("refused") || m.contains("connect") || m.contains("timeout") || m.contains("failed to connect")) {
+            return "Fire TV nicht erreichbar. Gleiches WLAN, ADB-Debugging an (Einstellungen → Mein Fire TV → Entwickleroptionen), Port 5555.";
+        }
+        if (m.contains("auth") || m.contains("unauthorized") || m.contains("offline")) {
+            return "ADB noch nicht erlaubt. Am Fire TV den Dialog „USB-Debugging zulassen“ bestätigen, dann testen.";
+        }
+        return "Fire TV: " + safeMsg(e);
     }
 
     private void runBg(PluginCall call, Runnable task) {
@@ -222,6 +272,10 @@ public class JarvisTvPlugin extends Plugin {
                     synchronized (hits) {
                         hits.add(host);
                     }
+                } else if (portOpen(host, 5555, 180)) {
+                    synchronized (hits) {
+                        hits.add("fire:" + host);
+                    }
                 }
             });
         }
@@ -231,7 +285,10 @@ public class JarvisTvPlugin extends Plugin {
         } catch (InterruptedException ignored) {
             Thread.currentThread().interrupt();
         }
-        for (String host : hits) addDevice(found, host);
+        for (String host : hits) {
+            if (host.startsWith("fire:")) addFire(found, host.substring(5));
+            else addDevice(found, host);
+        }
     }
 
     private static void addDevice(Map<String, JSObject> found, String host) {
@@ -252,6 +309,17 @@ public class JarvisTvPlugin extends Plugin {
         }
         if (!row.has("name")) row.put("name", "Samsung TV");
         found.put(host, row);
+    }
+
+    private static void addFire(Map<String, JSObject> found, String host) {
+        if (host == null || host.isEmpty() || found.containsKey("fire:" + host)) return;
+        if (found.containsKey(host)) return;
+        JSObject row = new JSObject();
+        row.put("host", host);
+        row.put("port", 5555);
+        row.put("name", "Fire TV");
+        row.put("kind", "fire");
+        found.put("fire:" + host, row);
     }
 
     private static JSONObject fetchInfo(String host) {

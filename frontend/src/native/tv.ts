@@ -6,6 +6,7 @@ export type TvDevice = {
   name?: string
   mac?: string
   port?: number
+  kind?: string
 }
 
 export type TvResult = {
@@ -22,6 +23,8 @@ type NativeTv = {
   pair(opts: { host: string; port?: number; name?: string; token?: string }): Promise<TvResult>
   sendKey(opts: { host: string; port?: number; token?: string; key: string; count?: number }): Promise<TvResult>
   test(opts: { host: string; port?: number; token?: string }): Promise<TvResult>
+  fireKey(opts: { host: string; port?: number; code: number }): Promise<TvResult>
+  fireTest(opts: { host: string; port?: number }): Promise<TvResult>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeTv>('JarvisTv') : null
@@ -209,6 +212,38 @@ export async function tvSendKeyNative(opts: {
   })
 }
 
+export async function tvFireKeyNative(opts: {
+  host: string
+  port?: number
+  code: number
+}): Promise<TvResult> {
+  if (!native || !('fireKey' in native)) {
+    return { ok: false, message: 'Fire TV nur in der Android-App (ADB).' }
+  }
+  try {
+    return await withTimeout(native.fireKey(opts), 12_000, {
+      ok: false,
+      message: 'Fire TV antwortet nicht. ADB an, gleiches WLAN, Dialog am Stick erlauben.',
+    })
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'Fire TV fehlgeschlagen' }
+  }
+}
+
+export async function tvFireTestNative(opts: { host: string; port?: number }): Promise<TvResult> {
+  if (!native || !('fireTest' in native)) {
+    return { ok: false, message: 'Fire-TV-Test nur in der Android-App.' }
+  }
+  try {
+    return await withTimeout(native.fireTest(opts), 12_000, {
+      ok: false,
+      message: 'Fire TV nicht erreichbar. Entwickleroptionen → ADB-Debugging.',
+    })
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'Fire-TV-Test fehlgeschlagen' }
+  }
+}
+
 export async function tvTestNative(opts: {
   host: string
   port?: number
@@ -216,7 +251,7 @@ export async function tvTestNative(opts: {
 }): Promise<TvResult> {
   if (native) {
     try {
-    return await withTimeout(native.test(opts), 20_000, nativeFail('Test'))
+      return await withTimeout(native.test(opts), 20_000, nativeFail('Test'))
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Test fehlgeschlagen' }
     }

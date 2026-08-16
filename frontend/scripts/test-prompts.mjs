@@ -74,6 +74,7 @@ const EXPECT = {
   'Guten Morgen': 'brief',
   '/hilfe': 'help',
   'Fernseher an': 'tv',
+  'Fire TV': 'tv',
   'Sag Hallo und duze mich.': 'llm',
   'Erklären Sie in einem Satz, was Sie tun.': 'llm',
   'Notiz: WLAN steht am Router': 'tools',

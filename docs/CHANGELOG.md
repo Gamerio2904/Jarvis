@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.27.2`**.
+App-Version im Code: **`1.28.0`**.
+
+### `1.28.0` — Wake-Word im Hintergrund + Fire TV — *CODE*
+
+- Wake-Word läuft bei Bildschirm aus und in anderen Apps (nur „Jarvis“)
+- Gespräch endet, wenn Jarvis in den Hintergrund geht; Beenden in der Meldung oder unter Sprache
+- Fire TV auf HDMI (Standard 3): Quelle am Samsung, Stick per ADB (Play/Pause/Home)
 
 ### `1.27.2` — Fahrmodus / Sprache — *CODE*
 

@@ -15,6 +15,8 @@ type NativeVoice = {
   startWake(): Promise<{ ok: boolean; message?: string }>
   stopWake(): Promise<{ ok: boolean }>
   wakeStatus(): Promise<{ running: boolean }>
+  requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }>
+  setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
   streamSse(opts: { url: string; body: string; apiKey: string }): Promise<{ ok: boolean; status?: number; message?: string }>
   addListener(
     event: 'partial' | 'sse',
@@ -269,6 +271,24 @@ export async function consumeVoiceLaunch(): Promise<boolean> {
     return Boolean((await native.consumeLaunch()).voice)
   } catch {
     return false
+  }
+}
+
+export async function requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }> {
+  if (!native) return { ok: false, message: 'Nur in der Android-App.' }
+  try {
+    return await native.requestBatteryUnrestricted()
+  } catch (err) {
+    return { ok: false, message: err instanceof Error ? err.message : 'Akku-Ausnahme fehlgeschlagen' }
+  }
+}
+
+export async function setKeepScreenOn(on: boolean): Promise<void> {
+  if (!native) return
+  try {
+    await native.setKeepScreenOn({ on })
+  } catch {
+    /* ignore */
   }
 }
 

@@ -5,6 +5,7 @@ import {
   createSpeakPipeline,
   listenOnce,
   requestMicPermission,
+  setKeepScreenOn,
   stopListen,
   stopSpeak,
 } from './native/voice'
@@ -33,12 +34,14 @@ export function VoiceMode({
 
   useEffect(() => {
     live.current = true
+    void setKeepScreenOn(true)
     void startLoop()
     return () => {
       live.current = false
       pipelineRef.current?.stop()
       void stopListen()
       void stopSpeak()
+      void setKeepScreenOn(false)
     }
   }, [])
 
@@ -141,7 +144,7 @@ export function VoiceMode({
             </p>
           </div>
           <button type="button" className="ghost-btn voice-close" onClick={onClose}>
-            Schließen
+            Beenden
           </button>
         </header>
         <button

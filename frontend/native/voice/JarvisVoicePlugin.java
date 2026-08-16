@@ -9,6 +9,7 @@ import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognitionListener;
@@ -164,6 +165,7 @@ public class JarvisVoicePlugin extends Plugin {
             if (listenCall != null) {
                 finishListen("", false, "schon am Zuhören", null);
             }
+            JarvisWakeService.pauseListen();
             listenCall = call;
             if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
                 finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.", null);
@@ -236,6 +238,7 @@ public class JarvisVoicePlugin extends Plugin {
         }
         if (message != null && !message.isEmpty()) r.put("message", message);
         c.resolve(r);
+        main.postDelayed(() -> JarvisWakeService.resumeListen(getContext()), 400);
     }
 
     @PluginMethod
@@ -418,6 +421,45 @@ public class JarvisVoicePlugin extends Plugin {
             return;
         }
         JarvisWakeService.start(getContext());
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void requestBatteryUnrestricted(PluginCall call) {
+        try {
+            Activity a = getActivity();
+            if (a == null) {
+                JSObject r = new JSObject();
+                r.put("ok", false);
+                r.put("message", "Keine Activity.");
+                call.resolve(r);
+                return;
+            }
+            Intent i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            i.setData(Uri.parse("package:" + getContext().getPackageName()));
+            a.startActivity(i);
+            JSObject r = new JSObject();
+            r.put("ok", true);
+            call.resolve(r);
+        } catch (Exception e) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "Akku-Ausnahme nicht geöffnet.");
+            call.resolve(r);
+        }
+    }
+
+    @PluginMethod
+    public void setKeepScreenOn(PluginCall call) {
+        boolean on = Boolean.TRUE.equals(call.getBoolean("on", false));
+        main.post(() -> {
+            Activity a = getActivity();
+            if (a != null && getBridge() != null && getBridge().getWebView() != null) {
+                getBridge().getWebView().setKeepScreenOn(on);
+            }
+        });
         JSObject r = new JSObject();
         r.put("ok", true);
         call.resolve(r);

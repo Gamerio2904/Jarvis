@@ -23,6 +23,7 @@ import {
   tvDiscover,
   tvPair,
   tvTest,
+  tvFireTest,
   testGemini,
   testGroq,
   readEyeImage,
@@ -50,7 +51,7 @@ import { WakeBubble } from './WakeBubble'
 import { closeDrive } from './engine/drive'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
-import { consumeVoiceLaunch, pinVoiceShortcut, startWakeWord, stopWakeWord, wakeWordRunning } from './native/voice'
+import { consumeVoiceLaunch, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 
@@ -248,7 +249,7 @@ function App() {
   const [tvBusy, setTvBusy] = useState(false)
   const [tvMsg, setTvMsg] = useState<string | null>(null)
   const [tvFound, setTvFound] = useState<
-    Array<{ host?: string; name?: string; mac?: string; port?: number }>
+    Array<{ host?: string; name?: string; mac?: string; port?: number; kind?: string }>
   >([])
   const [geminiBusy, setGeminiBusy] = useState(false)
   const [geminiMsg, setGeminiMsg] = useState<string | null>(null)
@@ -303,7 +304,11 @@ function App() {
     let live = true
     async function tick() {
       const on = await wakeWordRunning()
-      if (live) setWakeListening(on)
+      if (!live) return
+      setWakeListening((was) => {
+        if (!on && settings?.wake_word && was) void patchSetting({ wake_word: false })
+        return on
+      })
     }
     void tick()
     const id = window.setInterval(() => void tick(), 4000)
@@ -312,6 +317,14 @@ function App() {
       window.clearInterval(id)
     }
   }, [settings?.wake_word])
+
+  useEffect(() => {
+    const hide = () => {
+      if (document.hidden) setVoiceOpen(false)
+    }
+    document.addEventListener('visibilitychange', hide)
+    return () => document.removeEventListener('visibilitychange', hide)
+  }, [])
 
   useEffect(() => {
     if (!busy) {
@@ -447,6 +460,7 @@ function App() {
         name?: string
         mac?: string
         port?: number
+        kind?: string
       }>
       setTvFound(items)
       setTvMsg(
@@ -461,8 +475,23 @@ function App() {
     }
   }
 
-  async function onTvPick(item: { host?: string; name?: string; mac?: string; port?: number }) {
+  async function onTvPick(item: {
+    host?: string
+    name?: string
+    mac?: string
+    port?: number
+    kind?: string
+  }) {
     if (!item.host) return
+    if (item.kind === 'fire') {
+      await patchSetting({
+        tv_enabled: true,
+        tv_fire_host: item.host,
+        tv_fire_port: item.port || 5555,
+      })
+      setTvMsg(`Fire TV: ${item.host}. ADB am Stick erlauben, dann testen.`)
+      return
+    }
     await patchSetting({
       tv_host: item.host,
       tv_name: item.name || settings?.tv_name || 'Wohnzimmer',
@@ -518,6 +547,20 @@ function App() {
       setGroqMsg(err instanceof Error ? err.message : 'Test fehlgeschlagen')
     } finally {
       setGroqBusy(false)
+    }
+  }
+
+  async function onTvFireTest() {
+    if (tvBusy) return
+    setTvBusy(true)
+    setTvMsg('Teste Fire TV…')
+    try {
+      const res = await tvFireTest()
+      setTvMsg(res.reply || (res.ok ? 'Fire TV da.' : 'Fire TV nicht erreichbar.'))
+    } catch (err) {
+      setTvMsg(err instanceof Error ? err.message : 'Fire-TV-Test fehlgeschlagen')
+    } finally {
+      setTvBusy(false)
     }
   }
 
@@ -1033,7 +1076,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.27.2</p>
+            <p>Handy · v1.28.0</p>
           </div>
         </div>
 
@@ -1377,8 +1420,9 @@ function App() {
           shortcutMsg={shortcutMsg}
           onWakeWord={(on) => {
             void patchSetting({ wake_word: on }).then(() => {
-              if (on) void startWakeWord()
-              else void stopWakeWord()
+              if (on) {
+                void startWakeWord().then(() => void requestBatteryUnrestricted())
+              } else void stopWakeWord()
             })
           }}
           tvBusy={tvBusy}
@@ -1387,6 +1431,7 @@ function App() {
           onTvDiscover={() => void onTvDiscover()}
           onTvPair={() => void onTvPair()}
           onTvTest={() => void onTvTest()}
+          onTvFireTest={() => void onTvFireTest()}
           onTvPick={(item) => void onTvPick(item)}
           auditOpen={auditOpen}
           onToggleAudit={() => {

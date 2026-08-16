@@ -28,7 +28,7 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'sprache', label: 'Sprache', hint: 'Hören' },
   { id: 'wecker', label: 'Wecker', hint: 'Timer' },
   { id: 'ort', label: 'Ort', hint: 'Wetter' },
-  { id: 'tv', label: 'Fernseher', hint: 'Tizen' },
+  { id: 'tv', label: 'Fernseher', hint: 'Tizen + Fire' },
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
@@ -91,11 +91,12 @@ export type SettingsScreenProps = {
   onWakeWord: (on: boolean) => void
   tvBusy: boolean
   tvMsg: string | null
-  tvFound: Array<{ host?: string; name?: string; mac?: string; port?: number }>
+  tvFound: Array<{ host?: string; name?: string; mac?: string; port?: number; kind?: string }>
   onTvDiscover: () => void
   onTvPair: () => void
   onTvTest: () => void
-  onTvPick: (item: { host?: string; name?: string; mac?: string; port?: number }) => void
+  onTvFireTest: () => void
+  onTvPick: (item: { host?: string; name?: string; mac?: string; port?: number; kind?: string }) => void
   auditOpen: boolean
   onToggleAudit: () => void
   audits: ResearchAudit[]
@@ -307,7 +308,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 />
                 <span>Auf „Jarvis“ hören</span>
               </label>
-              <p className="settings-hint">Handy an, Screen darf aus. Gerät komplett aus: nein.</p>
+              <p className="settings-hint">
+                Bildschirm aus und andere Apps: nur der Name. Gespräch nur in Jarvis. Beenden:
+                Schalter hier, oder „Beenden“ in der Benachrichtigung. Akku: nicht optimieren.
+              </p>
               {p.shortcutMsg ? <p className="settings-hint">{p.shortcutMsg}</p> : null}
             </section>
           ) : null}
@@ -413,6 +417,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
           ) : null}
 
           {p.topic === 'tv' ? (
+            <>
             <section className="settings-card">
               <h3>Samsung Tizen</h3>
               <label className="settings-toggle">
@@ -486,8 +491,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   {p.tvFound.map((item) => (
                     <li key={`${item.host}-${item.mac || ''}`}>
                       <button type="button" disabled={p.tvBusy} onClick={() => p.onTvPick(item)}>
-                        {item.name || 'Samsung TV'} · {item.host}
-                        {item.mac ? ` · ${item.mac}` : ''}
+                        {item.kind === 'fire' ? 'Fire TV' : item.name || 'Samsung TV'} · {item.host}
+                        {item.mac ? ` · ${item.mac}` : item.kind === 'fire' ? ' · ADB' : ''}
                       </button>
                     </li>
                   ))}
@@ -495,6 +500,54 @@ export function SettingsScreen(p: SettingsScreenProps) {
               ) : null}
               {p.tvMsg ? <p className="settings-hint">{p.tvMsg}</p> : null}
             </section>
+            <section className="settings-card">
+              <h3>Fire TV auf HDMI</h3>
+              <p className="settings-hint">
+                Quelle am Samsung umschalten, Stick per ADB: Entwickleroptionen → ADB-Debugging, gleiches
+                WLAN, einmal den Dialog am Stick erlauben. Kein Amazon-Konto in Jarvis.
+              </p>
+              <label className="settings-field">
+                <span>HDMI des Sticks</span>
+                <select
+                  value={String(s?.tv_fire_hdmi || 3)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ tv_fire_hdmi: Number(e.target.value) })}
+                >
+                  <option value="1">HDMI 1</option>
+                  <option value="2">HDMI 2</option>
+                  <option value="3">HDMI 3</option>
+                  <option value="4">HDMI 4</option>
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Fire-TV-IP</span>
+                <input
+                  key={`tv-fire-${s?.tv_fire_host || ''}`}
+                  defaultValue={s?.tv_fire_host || ''}
+                  disabled={busy}
+                  placeholder="192.168.1.30"
+                  onBlur={(e) => void p.patchSetting({ tv_fire_host: e.target.value.trim() })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>ADB-Port</span>
+                <input
+                  key={`tv-fire-port-${s?.tv_fire_port || 5555}`}
+                  defaultValue={String(s?.tv_fire_port || 5555)}
+                  disabled={busy}
+                  onBlur={(e) => {
+                    const n = Number(e.target.value)
+                    if (Number.isFinite(n)) void p.patchSetting({ tv_fire_port: n })
+                  }}
+                />
+              </label>
+              <div className="settings-actions">
+                <button type="button" className="retry-btn" disabled={p.tvBusy} onClick={p.onTvFireTest}>
+                  Fire TV testen
+                </button>
+              </div>
+            </section>
+            </>
           ) : null}
 
           {p.topic === 'musik' ? (

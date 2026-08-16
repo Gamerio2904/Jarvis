@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title'
 
-export const APP_VERSION = '1.27.2'
+export const APP_VERSION = '1.28.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -112,6 +112,9 @@ export type Settings = {
   tv_token: string
   tv_paired: boolean
   tv_volume: string
+  tv_fire_host: string
+  tv_fire_port: number
+  tv_fire_hdmi: number
   gemini_enabled: boolean
   gemini_api_key: string
   gemini_model: string
@@ -167,6 +170,9 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_token: '',
   tv_paired: false,
   tv_volume: '',
+  tv_fire_host: '',
+  tv_fire_port: 5555,
+  tv_fire_hdmi: 3,
   gemini_enabled: false,
   gemini_api_key: '',
   gemini_model: '',

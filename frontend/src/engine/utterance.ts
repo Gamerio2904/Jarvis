@@ -10,6 +10,7 @@ const COMMAND_START =
 const REPAIRS: Array<[RegExp, string]> = [
   [/\bheil\s*bron(?:n|e)?\b/gi, 'Heilbronn'],
   [/\bhailbronn?\b/gi, 'Heilbronn'],
+  [/\bfire\s*t[ve]\b/gi, 'Fire TV'],
   [/\bcar\s*play\b/gi, 'CarPlay'],
   [/\bkarplay\b/gi, 'CarPlay'],
   [/\bfahr(?:er)?\s*modus\b/gi, 'Fahrmodus'],

@@ -14,6 +14,7 @@ export const TEST_PROMPTS = [
   'Guten Morgen',
   '/hilfe',
   'Fernseher an',
+  'Fire TV',
   'Sag Hallo und duze mich.',
   'Erklären Sie in einem Satz, was Sie tun.',
   'Notiz: WLAN steht am Router',
