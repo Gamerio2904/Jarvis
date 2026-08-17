@@ -314,6 +314,13 @@ function App() {
   const appRef = useRef<HTMLDivElement | null>(null)
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
+  const voiceHoldUntilRef = useRef(0)
+
+  function openVoiceMode() {
+    voiceHoldUntilRef.current = Date.now() + 2500
+    setVoiceOpen(true)
+    setCalendarOpen(false)
+  }
 
   useEffect(() => {
     const unlock = () => {
@@ -373,20 +380,27 @@ function App() {
   }, [settings?.wake_word])
 
   useEffect(() => {
-    const openVoice = () => {
-      setVoiceOpen(true)
-      setCalendarOpen(false)
-    }
-    const off = onWakeHit(openVoice)
+    const off = onWakeHit(openVoiceMode)
+    let hideTimer = 0
     const vis = () => {
-      if (document.hidden) setVoiceOpen(false)
-      else void consumeVoiceLaunch().then((v) => {
-        if (v) openVoice()
+      window.clearTimeout(hideTimer)
+      if (document.hidden) {
+        // WebView flickers hidden during widget/shortcut resume; don't kill VoiceMode.
+        hideTimer = window.setTimeout(() => {
+          if (document.hidden && Date.now() >= voiceHoldUntilRef.current) {
+            setVoiceOpen(false)
+          }
+        }, 400)
+        return
+      }
+      void consumeVoiceLaunch().then((v) => {
+        if (v) openVoiceMode()
       })
     }
     document.addEventListener('visibilitychange', vis)
     return () => {
       off()
+      window.clearTimeout(hideTimer)
       document.removeEventListener('visibilitychange', vis)
     }
   }, [])
@@ -688,8 +702,7 @@ function App() {
     await refreshReminders()
     try {
       if (await consumeVoiceLaunch()) {
-        setVoiceOpen(true)
-        setCalendarOpen(false)
+        openVoiceMode()
       }
     } catch {
       /* browser ohne Deep-Link */
@@ -1185,8 +1198,7 @@ function App() {
           type="button"
           className={`memory-toggle ${voiceOpen ? 'active' : ''}`}
           onClick={() => {
-            setVoiceOpen(true)
-            setCalendarOpen(false)
+            openVoiceMode()
             setSidebarOpen(false)
           }}
         >
@@ -1437,10 +1449,7 @@ function App() {
               <button
                 type="button"
                 className="icon-btn mic-round"
-                onClick={() => {
-                  setVoiceOpen(true)
-                  setCalendarOpen(false)
-                }}
+                onClick={() => openVoiceMode()}
                 aria-label="Spracheingabe"
                 title="Hören"
               >
@@ -1462,8 +1471,7 @@ function App() {
             <WakeBubble
               listening={wakeListening}
               onTap={() => {
-                setVoiceOpen(true)
-                setCalendarOpen(false)
+                openVoiceMode()
               }}
             />
           ) : null}
@@ -1512,7 +1520,7 @@ function App() {
             })
           }}
           onOpenVoice={() => {
-            setVoiceOpen(true)
+            openVoiceMode()
             setSettingsPanelOpen(false)
           }}
           onPinShortcut={() => {

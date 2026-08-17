@@ -109,6 +109,7 @@ MAJOR.MINOR.PATCH
 | `1.32.1` | Sprachmodus Tempo (kein Hänger, sofort Ton) | Sprint 85 |
 | `1.33.0` | Suche & Antworten (Preise, keine Absage, CarPlay öffnen) | Sprint 86 |
 | `1.33.1` | Fernseher: YouTube-Video vs Film, Follow-up `… ab` | Sprint 86 Patch |
+| `1.33.2` | Widget öffnet Sprachmodus (hören + antworten) | Sprint 86 Patch |
 | `1.34.0` | Bessere Antworten (History, Memory, Persona, Groq) | Sprint 87 |
 | `1.35.0` | CarPlay besser (Replan, Cue, HUD, Zoom, Ankunft) | Sprint 88 |
 | `1.36.0` | Alltag-Phrasen (bestehende Tools, Smalltalk-Schutz) | Sprint 89 |

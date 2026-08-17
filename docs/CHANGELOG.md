@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.33.1`**.
+App-Version im Code: **`1.33.2`**.
+
+### `1.33.2` — Widget hört und antwortet — *CODE*
+
+- Homescreen-Widget öffnet den Sprachmodus (`jarvis://voice`), nicht nur die App und nicht nur Wake-Word an/aus
+- Mikro und Widget-Körper: Jarvis hört und spricht, wie Shortcut und Wake-Word
+- Sprachmodus bleibt beim Öffnen aus dem Widget (kein sofortiges Schließen durch WebView-Flicker)
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13302)
+- [`sprints/sprint-86.md`](./sprints/sprint-86.md) · [`28-next.md`](./28-next.md)
 
 ### `1.33.1` — Fernseher-Befehle — *CODE*
 

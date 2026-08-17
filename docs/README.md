@@ -33,7 +33,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 26 | [Samsung-Apps](./26-next.md) | **`1.32` CODE** — YouTube/Amazon/Disney/Netflix, Film-Lookup |
 | 27 | [Sprachmodus Tempo](./27-next.md) | **`1.32.1` CODE** — sofort sprechen, keine Stille |
 | 28 | [Qualität statt Breite](./28-next.md) | **`1.33` CODE** — Suche/Preise/Antworten; `1.34`–`1.40` PLANNED |
-| — | [APK](./apk.md) | Sideload `1.33.1` |
+| — | [APK](./apk.md) | Sideload `1.33.2` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -87,4 +87,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 86 | `1.33.0` | **CODE** (Suche, Preise, Antworten, CarPlay öffnen) |
 | 87–93 | `1.34`–`1.40` | **PLANNED** (Qualität — [`28-next.md`](./28-next.md)) |
 
-**Aktuell:** Sideload `1.33.1` — [`Jarvis.apk`](./apk.md). Qualität `1.34`–`1.40` — [`28-next.md`](./28-next.md).
+**Aktuell:** Sideload `1.33.2` — [`Jarvis.apk`](./apk.md). Qualität `1.34`–`1.40` — [`28-next.md`](./28-next.md).

@@ -7,10 +7,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Build;
 import android.widget.RemoteViews;
 
 import app.jarvis.voice.JarvisWakeService;
+import local.jarvis.app.MainActivity;
 import local.jarvis.app.R;
 
 public class JarvisGlanceWidget extends AppWidgetProvider {
@@ -37,26 +39,35 @@ public class JarvisGlanceWidget extends AppWidgetProvider {
         SharedPreferences p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String next = p.getString("next", "Nichts geplant");
         String weather = p.getString("weather", "Wetter im Chat fragen");
-        boolean voice = JarvisWakeService.wantEnabled(ctx);
         AppWidgetManager mgr = AppWidgetManager.getInstance(ctx);
         ComponentName name = new ComponentName(ctx, JarvisGlanceWidget.class);
         int[] ids = mgr.getAppWidgetIds(name);
-        Intent open = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) flags |= PendingIntent.FLAG_IMMUTABLE;
-        PendingIntent pi = open == null ? null : PendingIntent.getActivity(ctx, 42, open, flags);
-        Intent toggle = new Intent(ctx, JarvisGlanceWidget.class);
-        toggle.setAction(ACTION_TOGGLE_VOICE);
-        PendingIntent voicePi = PendingIntent.getBroadcast(ctx, 43, toggle, flags);
+        PendingIntent voicePi = PendingIntent.getActivity(ctx, 42, voiceIntent(ctx), flags);
+        PendingIntent micPi = PendingIntent.getActivity(ctx, 43, voiceIntent(ctx), flags);
         for (int id : ids) {
             RemoteViews views = new RemoteViews(ctx.getPackageName(), R.layout.jarvis_widget);
             views.setTextViewText(R.id.jarvis_widget_next, next);
             views.setTextViewText(R.id.jarvis_widget_weather, weather);
-            views.setTextViewText(R.id.jarvis_widget_voice, voice ? "🎙" : "🔇");
-            views.setContentDescription(R.id.jarvis_widget_voice, voice ? "Sprache aus" : "Sprache an");
-            if (pi != null) views.setOnClickPendingIntent(R.id.jarvis_widget_root, pi);
-            views.setOnClickPendingIntent(R.id.jarvis_widget_voice, voicePi);
+            views.setTextViewText(R.id.jarvis_widget_voice, "🎙");
+            views.setContentDescription(R.id.jarvis_widget_voice, "Jarvis hören");
+            views.setOnClickPendingIntent(R.id.jarvis_widget_root, voicePi);
+            views.setOnClickPendingIntent(R.id.jarvis_widget_voice, micPi);
             mgr.updateAppWidget(id, views);
         }
+    }
+
+    /** Körper und Mikro: derselbe Deep-Link wie Shortcut und Wake-Word — zuhören und antworten. */
+    static Intent voiceIntent(Context ctx) {
+        Intent i = new Intent(ctx, MainActivity.class);
+        i.setAction(Intent.ACTION_VIEW);
+        i.setData(Uri.parse("jarvis://voice"));
+        i.putExtra("jarvis_mode", "voice");
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return i;
     }
 }

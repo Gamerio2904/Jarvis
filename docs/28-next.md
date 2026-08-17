@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.33.1`**.
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.33.2`**.
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -21,6 +21,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | Version | Schwerpunkt | Status |
 |---------|-------------|--------|
 | **`1.33.0`** | Suche & Antworten: Preise, keine Absage über Quellen, CarPlay öffnen | **CODE** |
+| **`1.33.2`** | Widget: Tippen öffnet Hören + Antwort | **CODE** |
 | **`1.34.0`** | Antworten: Kontext, Persona, weniger Canned | **PLANNED** |
 | **`1.35.0`** | CarPlay: Route, HUD, Stimme am Steuer | **PLANNED** |
 | **`1.36.0`** | Alltag-Phrasen: mehr Wege zu denselben Tools | **PLANNED** |
@@ -50,6 +51,20 @@ PO-Screenshots: Gemini sagt „keine Live-Suche“ während 6 Quellen (MediaMark
 **Probe:** `Suche nach Küchengeräte`, `Beste Preise Staubsauger`, `Ich heiße Timon`, `Öffnen CarPlay`.
 
 Parser-Rest (Zahlenworte, drei `und`, Follow-up TV/Drive) bleibt in `1.36`.
+
+---
+
+## `1.33.2` — Widget antwortet — **CODE**
+
+PO: Jarvis antwortet nicht über das Homescreen-Widget. Ursache: Antippen startete nur die App bzw. schaltete das Wake-Word um, öffnete aber nicht den Sprachmodus. Zusätzlich schloss `visibilitychange` den Modus beim Resume-Flicker sofort wieder.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Widget-Tap | `jarvis://voice` wie Shortcut und Wake-Word |
+| Mikro 🎙 | Hören + antworten, nicht Mute-Toggle |
+| Voice-Hold | Kein sofortiges Schließen beim WebView-Flicker |
+
+**Probe:** Widget oder 🎙 antippen — „Ich höre…“, sprechen, Antwort.
 
 ---
 
@@ -187,4 +202,4 @@ Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default
 
 ## Nächster Schritt
 
-Sideload `1.33.1`. Nächste Umsetzung: Sprint 87 / **`1.34.0`** (Antwort-Kontext) — auf PO-Kommando.
+Sideload `1.33.2`. Nächste Umsetzung: Sprint 87 / **`1.34.0`** (Antwort-Kontext) — auf PO-Kommando.

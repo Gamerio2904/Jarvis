@@ -35,7 +35,7 @@ Weniger Text, mehr Icons. Mic **rund**. Foto / Senden als Icon-Knöpfe. Topbar: 
 
 ## Widget
 
-2 Zellen hoch, 4 breit. Nächster Termin, Wetterzeile, **Mikro an/aus** (Wake-Word), Tippen öffnet Jarvis.
+2×4. Nächster Termin, Wetterzeile. **Mikro und Antippen öffnen „Jarvis hören“** (`1.33.2`; in `1.29` war das Mikro ein Wake-Word-Toggle). Wake-Word bleibt in den Einstellungen.
 
 ## Ventilator
 
@@ -48,7 +48,7 @@ Ohne Brücke bewegt sich der Motor nicht. Eine Steckdose ersetzt keine Stufen.
 1. Research an, Gemini an: `Suche nach Kuchenrezepten` → Antwort **und** klickbare Links, kein Badge „empty“.
 2. Composer: Platzhalter eine Zeile, Mic rund.
 3. Fire TV testen in der APK: Ergebnis unter dem Knopf, nicht „nur in der Android-App“.
-4. Widget neu legen (2×4), Mikro umschalten.
+4. Widget neu legen (2×4), antippen oder Mikro → Jarvis hört (nicht nur Wake-Word).
 5. Haus: Brücke IP, lernen, `Ventilator an`.
 
 ## Won’t
