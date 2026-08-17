@@ -27,8 +27,8 @@ function destOf(raw?: string): string | undefined {
   return t
 }
 
-const ON = /^\s*(?:aktivier(?:e)?|start(?:e)?)\s+(?:den\s+)?(?:fahr(?:er)?modus|fahrmodus|carplay)(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?\s*$/i
-const ON2 = /^\s*(?:fahr(?:er)?modus|fahrmodus|carplay)\s+(?:an|aktivieren|starten)(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?\s*$/i
+const ON = /^\s*(?:aktivier(?:e)?|start(?:e)?|öffne[n]?|zeig(?:e)?)\s+(?:den\s+)?(?:fahr(?:er)?modus|fahrmodus|carplay)(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?\s*$/i
+const ON2 = /^\s*(?:fahr(?:er)?modus|fahrmodus|carplay)\s+(?:an|aktivieren|starten|öffnen)(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?\s*$/i
 const OFF =
   /^\s*(?:deaktivier(?:e)?|beend(?:e)?)\s+(?:den\s+)?(?:fahr(?:er)?modus|fahrmodus|carplay)|(?:fahr(?:er)?modus|fahrmodus|carplay)\s+aus\s*[.!?]*$/i
 const GO =

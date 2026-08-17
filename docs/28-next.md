@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.32.1`**.
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.33.0`**.
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -20,7 +20,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 
 | Version | Schwerpunkt | Status |
 |---------|-------------|--------|
-| **`1.33.0`** | Befehle erkennen: STT, Anker, Router-Kanten | **PLANNED** |
+| **`1.33.0`** | Suche & Antworten: Preise, keine Absage über Quellen, CarPlay öffnen | **CODE** |
 | **`1.34.0`** | Antworten: Kontext, Persona, weniger Canned | **PLANNED** |
 | **`1.35.0`** | CarPlay: Route, HUD, Stimme am Steuer | **PLANNED** |
 | **`1.36.0`** | Alltag-Phrasen: mehr Wege zu denselben Tools | **PLANNED** |
@@ -33,21 +33,23 @@ Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-93.md`](./sprints
 
 ---
 
-## `1.33.0` — Befehle erkennen
+## `1.33.0` — Suche & Antworten — **CODE**
 
-Was heute schiefgeht: STT liefert „Net Flicks“, „Karplay“, Füllwörter bleiben am Satz. `pickHeard` nimmt den **ersten** Parser-Treffer und ruft Drive mit `inMode=true` — auch außerhalb des Fahrmodus. TV / Spotify / Fahrmodus stehlen sich gegenseitig. `splitIntents` lässt nur **genau zwei** Tool-Teile zu. Follow-up kennt vor allem Kalender/Wecker (`last-step.ts`), nicht TV/Drive/Spotify.
+PO-Screenshots: Gemini sagt „keine Live-Suche“ während 6 Quellen (MediaMarkt, OTTO) da sind. Keine Preise. `Ich heiße Timon` → `Timon — liegt.` `Öffnen Carplay` wird als Apple abgelehnt. Fahrmodus: „Netz hat die Route nicht geliefert.“
 
 | Hebel | Wirkung |
 |-------|---------|
-| Mehr `REPAIRS` | Netflix, Disney+, YouTube, Prime, Heilbronn-Klasse, Satzzeichen am Ende |
-| Zahlenworte | `sieben Uhr`, `Viertelstunde`, `halb acht` → dieselben Timer/Wecker |
-| `COMMAND_START` + Filler | „Kannst du mal Netflix öffnen“, „Jarvis bitte lauter“ |
-| `pickHeard` | Score: mehrere Parser; **nicht** Drive-`inMode` raten; längerer sinnvoller Treffer |
-| Kanten | `Spiel …` nur TV mit Film/App/TV-Cue; sonst Spotify nur im Fahrmodus oder mit „Spotify“ |
-| Follow-up | `nochmal`, `lauter`, `pause`, `ja`/`mach`/`ok` nach Rückfrage; `das zweite` auch Einkauf |
-| Drei Teile | `Wecker 7 und Timer 8 und Wetter` nicht verschlucken (`splitIntents` > 2) |
+| Persona + `Suche ist AN` | Nie Absage, wenn Research läuft |
+| Absage ersetzen | Wenn Quellen da sind, Treffer-Text statt Browser-Verweis |
+| Produkte | Idealo/Geizhals zuerst; € nur aus Snippets, sonst ehrlich |
+| Snippets | DDG-Text unter dem Link, nicht nur Titel |
+| Memory | `Name gemerkt: Timon.` |
+| `Öffnen CarPlay` | Eigener Fahrmodus |
+| Route | OSRM, sonst OpenStreetMap-Router |
 
-**Probe:** Gesprochen „Öffne Netfliks“, „Fahr nach hailbronn“, „Spiel Hotel California“ (kein TV), „Spiel Dune Film“ (TV), „Kannst du mal den Fernseher leiser“, „Wecker sieben und Timer fünf und Wetter“.
+**Probe:** `Suche nach Küchengeräte`, `Beste Preise Staubsauger`, `Ich heiße Timon`, `Öffnen CarPlay`.
+
+Parser-Rest (Zahlenworte, drei `und`, Follow-up TV/Drive) bleibt in `1.36`.
 
 ---
 
@@ -185,4 +187,4 @@ Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default
 
 ## Nächster Schritt
 
-Sideload `1.32.1`. Umsetzung startet mit Sprint 86 / **`1.33.0`** (Parser, STT, `pickHeard`) — erst auf PO-Kommando.
+Sideload `1.33.0`. Nächste Umsetzung: Sprint 87 / **`1.34.0`** (Antwort-Kontext) — auf PO-Kommando.

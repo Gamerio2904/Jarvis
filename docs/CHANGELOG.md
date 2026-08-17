@@ -5,13 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.32.1`**. Nächste Reihe **geplant** (kein Code): `1.33`–`1.40` Qualität — [`28-next.md`](./28-next.md).
+App-Version im Code: **`1.33.0`**.
 
-### `1.33.0`–`1.40.0` — Qualität statt Breite — *PLANNED*
+### `1.33.0` — Suche & Antworten — *CODE*
 
-- Nichts Neues: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit, Gedächtnis, Stimme, Härten
-- Sprints 86–93
-- [`sprints/sprint-86.md`](./sprints/sprint-86.md) … [`sprint-93.md`](./sprints/sprint-93.md) · [`28-next.md`](./28-next.md)
+- Suche: keine Absage über vorhandenen Quellen; Produkte mit Idealo/Geizhals; € nur aus Snippets
+- Memory: `Name gemerkt: Timon.` statt `Timon — liegt.`
+- `Öffnen CarPlay` öffnet den Fahrmodus; Route mit zweitem Router
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13300)
+- [`sprints/sprint-86.md`](./sprints/sprint-86.md) · [`28-next.md`](./28-next.md)
 
 ### `1.32.1` — Sprachmodus Tempo — *CODE*
 

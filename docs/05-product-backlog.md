@@ -271,7 +271,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S17.1 | Als Nutzer will ich gesprochene Befehle im richtigen Tool, auch mit STT-Tippfehlern. | Must | ready | Sprint 86 / `1.33.0` |
+| S17.1 | Als Nutzer will ich bei der Suche eine Antwort plus Links, bei Produkten Preise oder ehrlichen Vergleich. | Must | done | Sprint 86 / `1.33.0` |
 | S17.2 | Als Nutzer will ich Jarvis-Antworten mit Kontext und Variation, ohne erfundenen Namen. | Must | ready | Sprint 87 / `1.34.0` |
 | S17.3 | Als Nutzer will ich den Fahrmodus zuverlässig: Replan, eine Cue, lesbares HUD. | Must | ready | Sprint 88 / `1.35.0` |
 | S17.4 | Als Nutzer will ich mehr Phrasen zu denselben Tools, ohne Smalltalk-Diebstahl. | Must | ready | Sprint 89 / `1.36.0` |
@@ -284,8 +284,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.32.1`
-2. Qualitäts-Serie `1.33`–`1.40` — [`28-next.md`](./28-next.md) — erstes Bau-Ziel `1.33.0` auf PO-Kommando
+1. Sideload `1.33.0`
+2. Qualitäts-Serie `1.34`–`1.40` — [`28-next.md`](./28-next.md)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)

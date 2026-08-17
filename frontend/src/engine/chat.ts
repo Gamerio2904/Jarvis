@@ -7,14 +7,19 @@ import { handleMemory, memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
 import { splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
-import { GEMINI_PERSONA, PERSONA, VOICE_HINT } from './persona'
+import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from './persona'
 import {
+  formatResearchReply,
   isLiveLookup,
+  isProductLookup,
+  isSearchRefusal,
+  parseEuroPrices,
   RESEARCH_EMPTY,
   RESEARCH_NEEDS_GEMINI,
   RESEARCH_OFF_REPLY,
   researchHasSources,
   researchQuery,
+  sourceDigest,
   type ResearchMeta,
 } from './research-parse'
 import { fillResearchLinks } from './web-search'
@@ -466,11 +471,11 @@ export async function streamChat(
         const research = (await attachResearchAudit(filled, researchQuery(content))) || filled
         persistLastStep('research')
         if (researchHasSources(research)) {
-          const lines = (research.sources || [])
-            .filter((x) => x.url)
-            .slice(0, 5)
-            .map((x, i) => `${i + 1}. ${x.title} — ${x.url}`)
-          const reply = `Ohne Gemini fasse ich nicht zusammen. Links:\n${lines.join('\n')}`
+          const reply = formatResearchReply(
+            researchQuery(content),
+            research.sources || [],
+            isProductLookup(content),
+          )
           handlers.onReplace?.(reply)
           const assistant = await addMessage(conversationId, 'assistant', reply, { research })
           const updated = (await touchConversation(conversationId)) || conv
@@ -486,8 +491,16 @@ export async function streamChat(
 
     const history = await listMessages(conversationId)
     const mem = await listMemory()
+    const wantSearch = Boolean(s.research_opt_in && isLiveLookup(content))
+    let research: ResearchMeta | undefined
+    if (wantSearch) {
+      research = await fillResearchLinks(content, '', undefined)
+    }
+    const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
     const system = geminiReady()
-      ? [GEMINI_PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem)].filter(Boolean).join('\n\n')
+      ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem)]
+          .filter(Boolean)
+          .join('\n\n')
       : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem)].filter(Boolean).join('\n\n')
     const llmMessages = [
       { role: 'system', content: system },
@@ -496,10 +509,14 @@ export async function streamChat(
         content: m.content,
       })),
     ]
+    if (digest) {
+      const last = llmMessages[llmMessages.length - 1]
+      if (last && last.role === 'user') {
+        last.content = `${last.content}\n\nTreffer (für die Antwort, nicht vorlesen):\n${digest}`
+      }
+    }
 
     let acc = ''
-    let research: ResearchMeta | undefined
-    const wantSearch = Boolean(s.research_opt_in && isLiveLookup(content))
     const raw = geminiReady()
       ? await (opts?.voice ? streamGemini : completeGemini)(
           llmMessages,
@@ -509,10 +526,16 @@ export async function streamChat(
           },
           {
             search: wantSearch,
-            maxOutputTokens: opts?.voice ? 160 : undefined,
+            maxOutputTokens: opts?.voice ? 220 : wantSearch ? 900 : undefined,
           },
         ).then((r) => {
-          research = r.research
+          if (r.research?.sources?.length) {
+            research = {
+              ...(research || r.research),
+              ...r.research,
+              sources: [...(research?.sources || []), ...r.research.sources],
+            }
+          }
           return r.text
         })
       : await completeChat(llmMessages, (_piece, full) => {
@@ -520,12 +543,18 @@ export async function streamChat(
           handlers.onToken?.(_piece)
         })
 
-    const text = (raw || acc).trim()
+    let text = (raw || acc).trim()
     if (wantSearch) {
-      research = await fillResearchLinks(content, text, research)
-      research = await attachResearchAudit(research, researchQuery(content))
+      const filled = await fillResearchLinks(content, text, research)
+      research = (await attachResearchAudit(filled, researchQuery(content))) || filled
       persistLastStep('research')
-      if (!text && !researchHasSources(research)) {
+      const product = isProductLookup(content)
+      const sources = research.sources || []
+      const weak = !text || isSearchRefusal(text)
+      if (weak && researchHasSources(research)) {
+        text = formatResearchReply(researchQuery(content), sources, product)
+        handlers.onReplace?.(text)
+      } else if (!text && !researchHasSources(research)) {
         const empty = RESEARCH_EMPTY
         handlers.onReplace?.(empty)
         const assistant = await addMessage(conversationId, 'assistant', empty, { research })
@@ -537,6 +566,12 @@ export async function streamChat(
           tool: null,
         })
         return
+      } else if (product && researchHasSources(research) && text && !parseEuroPrices(text).length) {
+        const extra = formatResearchReply(researchQuery(content), sources, true)
+        if (/€/.test(extra) && extra !== text) {
+          text = `${text.replace(/\s+$/, '')} ${extra}`
+          handlers.onReplace?.(text)
+        }
       }
     }
 

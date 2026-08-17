@@ -4,7 +4,19 @@ import { parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/m
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
-import { isLiveLookup } from '../src/engine/research-parse.ts'
+import {
+  formatResearchReply,
+  isLiveLookup,
+  isProductLookup,
+  isSearchRefusal,
+  parseEuroPrices,
+  RESEARCH_EMPTY,
+  researchHasSources,
+  researchQuery,
+  researchStatusLabel,
+  sourcesFromHtml,
+  sourcesFromText,
+} from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseTimerIntent } from '../src/engine/timer-parse.ts'
@@ -19,7 +31,6 @@ import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
-import { RESEARCH_EMPTY, researchHasSources, researchQuery, researchStatusLabel, sourcesFromHtml, sourcesFromText } from '../src/engine/research-parse.ts'
 import {
   findContactRow,
   mapsDirUrl,
@@ -387,6 +398,45 @@ assert.equal(researchStatusLabel({ status: 'empty', sources: [], network_attempt
 assert.equal(researchStatusLabel({ status: 'empty' }), 'Quellen')
 assert.equal(sourcesFromText('Rezept: https://example.com/kuchen').some((s) => s.url.includes('example.com')), true)
 assert.equal(sourcesFromHtml('<a class="result__a" href="https://chefkoch.de/kuchen">Kuchen</a>')[0]?.url, 'https://chefkoch.de/kuchen')
+assert.equal(
+  sourcesFromHtml(
+    '<a class="result__a" href="https://otto.de/mixer">Mixer</a><a class="result__snippet">Mixer 49,99 € lieferbar</a>',
+  )[0]?.snippet.includes('49,99'),
+  true,
+)
+assert.ok(isProductLookup('Suche nach Küchengeräte'))
+assert.ok(isProductLookup('beste Preise für Staubsauger'))
+assert.ok(!isProductLookup('Hallo Jarvis.'))
+assert.ok(isSearchRefusal('Leider kann ich keine Live-Suche durchführen. Bitte nutzen Sie einen Browser oder eine App.'))
+assert.ok(!isSearchRefusal('MediaMarkt hat Mixer ab 49,99 €.'))
+assert.equal(parseEuroPrices('Mixer 49,99 € bei Otto')[0], '49,99 €')
+assert.match(
+  formatResearchReply('Küchengeräte', [
+    {
+      title: 'Mixer',
+      url: 'https://otto.de/mixer',
+      snippet: '49,99 €',
+      provider: 'web',
+      retrieved_at: '',
+    },
+  ], true),
+  /49,99 €/,
+)
+assert.match(
+  formatResearchReply('Küchengeräte', [
+    { title: 'MediaMarkt', url: 'https://mediamarkt.de/x', snippet: '', provider: 'web', retrieved_at: '' },
+  ], true),
+  /Idealo/,
+)
+assert.doesNotMatch(
+  formatResearchReply('Küchengeräte', [
+    { title: 'MediaMarkt', url: 'https://mediamarkt.de/x', snippet: '', provider: 'web', retrieved_at: '' },
+  ], true),
+  /\d+,\d{2} €/,
+)
+assert.equal(parseDriveIntent('Öffnen Carplay')?.kind, 'on')
+assert.equal(parseDriveIntent('Öffne CarPlay')?.kind, 'on')
+assert.equal(normalizeUtterance('Öffnen Netfliks').includes('Netflix'), true)
 assert.equal(parseFanIntent('Ventilator an')?.action, 'on')
 assert.equal(parseFanIntent('Lüfter aus')?.action, 'off')
 assert.equal(parseFanIntent('Ventilator Stufe 3')?.speed, 3)

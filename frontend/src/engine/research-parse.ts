@@ -28,7 +28,47 @@ export function isLiveLookup(text: string): boolean {
   }
   if (/\b(wetter|temperatur|nachrichten|news)\b/i.test(t)) return true
   if (/\baktuell(?:e[rs]?)?\b/i.test(t) && /\b(preis|kurs|spielstand|wetter)\b/i.test(t)) return true
+  if (isProductLookup(t)) return true
   return false
+}
+
+/** Produkt, Preis, Shop — bestehende Suche, nicht ein neues Tool. */
+export function isProductLookup(text: string): boolean {
+  const t = text.trim()
+  if (!t || t.length > 240) return false
+  if (/\b(preis(?:e|vergleich)?|günstig(?:er|ste[rn]?)?|was kostet|angebot(?:e)?|rabatt|idealo|geizhals)\b/i.test(t)) {
+    return true
+  }
+  if (/\b(kaufen|shop)\b/i.test(t) && /\b(amazon|mediamarkt|otto|idealo|geizhals)\b/i.test(t)) {
+    return true
+  }
+  if (/\b(küchengerät(?:e)?|elektronik|smartphone|laptop|waschmaschine|staubsauger|kaffeemaschine)\b/i.test(t)) {
+    return true
+  }
+  return false
+}
+
+export function isSearchRefusal(text: string): boolean {
+  return /keine live-suche|kann ich keine (?:live-)?suche|nutzen sie einen browser|i cannot (?:perform )?(?:a )?(?:live )?search|keinen zugriff aufs? internet|kann (?:das )?internet nicht|bitte nutzen sie (?:einen browser|eine app)/i.test(
+    text,
+  )
+}
+
+const EURO =
+  /(?:€\s*)(\d{1,5}(?:[.,]\d{1,2})?)|(\d{1,5}(?:[.,]\d{1,2})?)\s*(?:€|eur(?:o)?)/gi
+
+export function parseEuroPrices(text: string): string[] {
+  const out: string[] = []
+  const seen = new Set<string>()
+  let m: RegExpExecArray | null
+  EURO.lastIndex = 0
+  while ((m = EURO.exec(text))) {
+    const raw = (m[1] || m[2] || '').replace('.', ',')
+    if (!raw || seen.has(raw)) continue
+    seen.add(raw)
+    out.push(`${raw} €`)
+  }
+  return out
 }
 
 export function researchQuery(text: string): string {
@@ -135,15 +175,19 @@ export function sourcesFromHtml(html: string, provider = 'duckduckgo'): Research
   const now = new Date().toISOString()
   const out: ResearchSource[] = []
   const seen = new Set<string>()
-  const re = /<a[^>]+class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi
+  const re =
+    /<a[^>]+class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>([\s\S]{0,700})/gi
   let m: RegExpExecArray | null
   while ((m = re.exec(html))) {
     const url = unwrapDdg(m[1])
     if (!url || seen.has(url)) continue
     seen.add(url)
     const title = stripTags(m[2]).trim() || hostOf(url)
-    out.push({ title, url, snippet: '', provider, retrieved_at: now })
-    if (out.length >= 6) break
+    const tail = m[3] || ''
+    const snipM = /class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\//i.exec(tail)
+    const snippet = stripTags(snipM?.[1] || '').trim().slice(0, 220)
+    out.push({ title, url, snippet, provider, retrieved_at: now })
+    if (out.length >= 8) break
   }
   if (!out.length) {
     const hrefs = /href="(https?:\/\/[^"]+)"/gi
@@ -192,4 +236,92 @@ export function hostOf(url: string): string {
   } catch {
     return ''
   }
+}
+
+const SHOP_HOST =
+  /idealo\.|geizhals\.|mediamarkt\.|saturn\.|otto\.de|amazon\.de|billiger\.de|lidl\.de|kaufland\.de/i
+
+export function shopRank(url: string): number {
+  const h = hostOf(url)
+  if (/idealo\./i.test(h)) return 0
+  if (/geizhals\./i.test(h)) return 1
+  if (/billiger\./i.test(h)) return 2
+  if (/amazon\.de/i.test(h)) return 3
+  if (/mediamarkt\.|saturn\./i.test(h)) return 4
+  if (/otto\.de/i.test(h)) return 5
+  if (SHOP_HOST.test(h)) return 6
+  return 8
+}
+
+export function compareShopSources(query: string): ResearchSource[] {
+  const q = encodeURIComponent(query.slice(0, 80))
+  const now = new Date().toISOString()
+  return [
+    {
+      title: `Idealo — ${query}`,
+      url: `https://www.idealo.de/preisvergleich/MainSearchProductCategory.html?q=${q}`,
+      snippet: 'Preisvergleich DE, günstigste Angebote zuerst.',
+      provider: 'idealo',
+      retrieved_at: now,
+    },
+    {
+      title: `Geizhals — ${query}`,
+      url: `https://geizhals.de/?fs=${q}`,
+      snippet: 'Preisvergleich, Filter nach Shop und Versand.',
+      provider: 'geizhals',
+      retrieved_at: now,
+    },
+  ]
+}
+
+export function formatResearchReply(
+  query: string,
+  sources: ResearchSource[],
+  product: boolean,
+): string {
+  const live = sources.filter((s) => s.url)
+  const priced = live
+    .map((s) => {
+      const euros = parseEuroPrices(`${s.title} ${s.snippet}`)
+      return euros.length ? { s, euros } : null
+    })
+    .filter(Boolean) as Array<{ s: ResearchSource; euros: string[] }>
+  if (product && priced.length) {
+    const bits = priced
+      .slice(0, 4)
+      .map((p) => `${p.euros[0]} · ${p.s.title.replace(/\s+/g, ' ').slice(0, 42)}`)
+    return `${query}: ${bits.join('; ')}. Vergleich unten (Idealo/Geizhals) — Ladenpreis kann abweichen, ich erfinde keine Beträge.`
+  }
+  if (product) {
+    const shops = live
+      .slice()
+      .sort((a, b) => shopRank(a.url) - shopRank(b.url))
+      .slice(0, 4)
+      .map((s) => s.title.replace(/\s+/g, ' ').split(/[|–—-]/)[0].trim())
+      .filter(Boolean)
+    const names = shops.slice(0, 3).join(', ')
+    return `${query}: konkrete Euro-Beträge stehen auf den Vergleichsseiten, ich setze keine Preise ins Blaue. Unten Idealo, Geizhals${names ? ` und ${names}` : ''}.`
+  }
+  const abstract = live.find((s) => s.provider === 'duckduckgo_ia' && s.snippet)
+  if (abstract?.snippet) {
+    return `${abstract.snippet.replace(/\s+/g, ' ').slice(0, 280)} Links unten.`
+  }
+  const titles = live
+    .slice(0, 3)
+    .map((s) => s.title.replace(/\s+/g, ' ').slice(0, 48))
+    .join('; ')
+  if (!titles) return 'Suche gelaufen, aber ohne brauchbare Links. Nochmal anders formulieren?'
+  return `${query}: ${titles}. Links unten, tippen prüft.`
+}
+
+export function sourceDigest(sources: ResearchSource[], limit = 6): string {
+  return sources
+    .filter((s) => s.url)
+    .slice(0, limit)
+    .map((s, i) => {
+      const price = parseEuroPrices(`${s.title} ${s.snippet}`)[0] || ''
+      const snip = (s.snippet || '').replace(/\s+/g, ' ').slice(0, 120)
+      return `${i + 1}. ${s.title} — ${s.url}${price ? ` (${price})` : ''}${snip ? `\n   ${snip}` : ''}`
+    })
+    .join('\n')
 }

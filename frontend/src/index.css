@@ -1259,6 +1259,12 @@ textarea {
   opacity: 0.85;
 }
 
+.sources-snippet {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 .sources-privacy {
   margin: 8px 0 0;
   font-size: 0.7rem;

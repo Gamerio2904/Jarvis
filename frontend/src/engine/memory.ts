@@ -44,7 +44,10 @@ export async function handleMemory(
         saved.push(await upsertMemory(f.key, f.value, f.category, conversationId))
       }
       const bits = saved.map((s) => s.value).join(', ')
-      return { handled: true, reply: `${bits} — liegt.`, items: saved }
+      if (saved.length === 1 && saved[0].key === 'name') {
+        return { handled: true, reply: `Name gemerkt: ${saved[0].value}.`, items: saved }
+      }
+      return { handled: true, reply: `Gemerkt: ${bits}.`, items: saved }
     }
   }
   if (isMemoryRecall(text)) {

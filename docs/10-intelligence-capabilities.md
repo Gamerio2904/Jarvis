@@ -3,6 +3,12 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first- / Privacy-Linie zu brechen.  
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
+### Live `1.33.0` (Code)
+
+Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/Geizhals, € nur aus Snippets. Router wie `1.32.1` plus `Öffnen CarPlay` → Fahrmodus. `pickHeard` scored ohne Drive-`inMode`-Raten.
+
+Nächste Schärfe: [`28-next.md`](./28-next.md) `1.34`–`1.40`.
+
 ### Live `1.32.1` (Code)
 
 Router-Reihenfolge in `chat.ts`: help → ordinal → TV → Fan → Drive → Maps → Memory → Einkauf → … → LLM.  
@@ -24,7 +30,7 @@ Zwei Befehle an „und“. Letzter Schritt inkl. „das zweite“. Memory-Block 
 | `1.16`–`1.18` | Liste, Losgehen (Ort am Termin + Route), Zuhause | **CODE** |
 | `1.19`–`1.20` | Eine Tageslage; Auge nur Gemini | **CODE** |
 | `1.21`–`1.24` | Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche | **CODE** |
-| `1.33`–`1.40` | Qualität: Erkennen, Antworten, Fahrmodus, Phrasen, Flüssigkeit, Gedächtnis, Stimme | **PLANNED** [`28-next.md`](./28-next.md) |
+| `1.33`–`1.40` | Qualität: Suche/Preise (`1.33` CODE), Antworten, Fahrmodus, Phrasen, Flüssigkeit, Gedächtnis, Stimme | **`1.33` CODE**, Rest **PLANNED** [`28-next.md`](./28-next.md) |
 
 Lokal 0,5B denkt nicht plötzlich besser. Schärfe = Router + Speicher + ehrliche Tools.
 

@@ -181,7 +181,7 @@ function SourcesBlock({
                 [{i + 1}] {s.title}
               </a>
               {s.url ? <p className="sources-url">{s.url}</p> : null}
-              {s.snippet ? <p>{s.snippet}</p> : null}
+              {s.snippet ? <p className="sources-snippet">{s.snippet}</p> : null}
             </li>
           ))}
         </ul>

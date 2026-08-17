@@ -32,8 +32,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 25 | [Stimme & Ton](./25-next.md) | **`1.31` CODE** — TTS, Smalltalk, Jarvis-Formulierung |
 | 26 | [Samsung-Apps](./26-next.md) | **`1.32` CODE** — YouTube/Amazon/Disney/Netflix, Film-Lookup |
 | 27 | [Sprachmodus Tempo](./27-next.md) | **`1.32.1` CODE** — sofort sprechen, keine Stille |
-| 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`1.40` PLANNED** — Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit |
-| — | [APK](./apk.md) | Sideload `1.32.1` |
+| 28 | [Qualität statt Breite](./28-next.md) | **`1.33` CODE** — Suche/Preise/Antworten; `1.34`–`1.40` PLANNED |
+| — | [APK](./apk.md) | Sideload `1.33.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -84,6 +84,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 68–72 | `1.16`–`1.20` | **CODE** (in `1.24.0`) |
 | 73–76 | `1.21`–`1.24` | **CODE** |
 | 77–85 | `1.25`–`1.32.1` | **CODE** (Settings, Fahrmodus, Spotify, Wake-Word, TV-Apps, Voice-Tempo) |
-| 86–93 | `1.33`–`1.40` | **PLANNED** (Qualität statt Breite — [`28-next.md`](./28-next.md)) |
+| 86 | `1.33.0` | **CODE** (Suche, Preise, Antworten, CarPlay öffnen) |
+| 87–93 | `1.34`–`1.40` | **PLANNED** (Qualität — [`28-next.md`](./28-next.md)) |
 
-**Aktuell:** Sideload `1.32.1` — [`Jarvis.apk`](./apk.md). Danach Qualitäts-Serie `1.33`–`1.40` — [`28-next.md`](./28-next.md). Kein neues Produkt.
+**Aktuell:** Sideload `1.33.0` — [`Jarvis.apk`](./apk.md). Qualität `1.34`–`1.40` — [`28-next.md`](./28-next.md).

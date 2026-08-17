@@ -110,10 +110,23 @@ export async function routeDrive(
   from: { lat: number; lon: number },
   to: { lat: number; lon: number },
 ): Promise<({ ok: true } & DriveLeg) | { ok: false; message: string }> {
+  const urls = [
+    `https://router.project-osrm.org/route/v1/driving/${from.lon},${from.lat};${to.lon},${to.lat}?overview=full&geometries=geojson&steps=true`,
+    `https://routing.openstreetmap.de/routed-car/route/v1/driving/${from.lon},${from.lat};${to.lon},${to.lat}?overview=full&geometries=geojson&steps=true`,
+  ]
+  let last = 'Netz hat die Route nicht geliefert.'
+  for (const url of urls) {
+    const once = await fetchRoute(url)
+    if (once.ok) return once
+    last = once.message
+  }
+  return { ok: false, message: last }
+}
+
+async function fetchRoute(
+  url: string,
+): Promise<({ ok: true } & DriveLeg) | { ok: false; message: string }> {
   try {
-    const url =
-      `https://router.project-osrm.org/route/v1/driving/${from.lon},${from.lat};${to.lon},${to.lat}` +
-      `?overview=full&geometries=geojson&steps=true`
     const { status, json } = await getJson(url)
     const route = (json.routes as Array<{
       duration?: number
