@@ -25,3 +25,5 @@ Antwort kommt über Android-Stimme, sobald der erste Satz da ist. Charon nur wen
 1. Sprachmodus: nach dem Satz fast sofort Ton, nicht erst nach vielen Sekunden.
 2. Smalltalk und `Öffne Netflix` sprechen.
 3. Wenn Gemini hängt: Meldung, nächste Runde hört wieder.
+
+Nächste Reihe: Qualität statt Breite `1.33`–`1.40` — [`28-next.md`](./28-next.md).

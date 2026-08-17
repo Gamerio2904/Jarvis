@@ -35,6 +35,8 @@ Kein Google Maps. Kein Apple CarPlay (Android-App).
 3. Auf der Route: große Abbiege-Zeile, Stimme „in 300 Metern …“.
 4. `Fahrmodus aus`.
 
+Nächste Fahrmodus-Härte: [`28-next.md`](./28-next.md) `1.35.0` (Replan, Cue-once, HUD, Zoom).
+
 ## Won’t
 
 Apple CarPlay-Entitlement, iOS, Google Maps, Gemini-TTS für Abbieger, mehrere Overlays gleichzeitig.

@@ -26,6 +26,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E14 | Qualität `0.14` | 2 | Bestehendes härten: Latenz, Ton, Memory/Tools — kein neues Feature |
 | E15 | Alltag `1.14`–`1.20` | 5+ | Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Auge — [`19-next.md`](./19-next.md) |
 | E16 | Extra `1.21`–`1.24` | 4 | Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — [`20-next.md`](./20-next.md) |
+| E17 | Qualität `1.33`–`1.40` | 5+ | Bestehendes härten: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit — kein neues Produkt — [`28-next.md`](./28-next.md) |
 
 ---
 
@@ -266,12 +267,26 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S16.6 | Als Nutzer will ich „das zweite“ nach einer Liste. | Should | done | Sprint 75 / `1.24.0` |
 | S16.7 | Als Nutzer will ich alte Gespräche lokal suchen. | Should | done | Sprint 76 / `1.24.0` |
 
+### E17 — Qualität `1.33`–`1.40`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S17.1 | Als Nutzer will ich gesprochene Befehle im richtigen Tool, auch mit STT-Tippfehlern. | Must | ready | Sprint 86 / `1.33.0` |
+| S17.2 | Als Nutzer will ich Jarvis-Antworten mit Kontext und Variation, ohne erfundenen Namen. | Must | ready | Sprint 87 / `1.34.0` |
+| S17.3 | Als Nutzer will ich den Fahrmodus zuverlässig: Replan, eine Cue, lesbares HUD. | Must | ready | Sprint 88 / `1.35.0` |
+| S17.4 | Als Nutzer will ich mehr Phrasen zu denselben Tools, ohne Smalltalk-Diebstahl. | Must | ready | Sprint 89 / `1.36.0` |
+| S17.5 | Als Nutzer will ich Chat, Wake-Word, Voice und TV ohne Ruckler. | Must | ready | Sprint 90 / `1.37.0` |
+| S17.6 | Als Nutzer will ich den vorhandenen Speicher natürlich abfragen und korrigieren. | Must | ready | Sprint 91 / `1.38.0` |
+| S17.7 | Als Nutzer will ich Zuhören/Sprechen ohne verschluckte Treffer und Doppel-Stimme. | Must | ready | Sprint 92 / `1.39.0` |
+| S17.8 | Als Nutzer will ich keine Fake-Erfolge und stabile Regressionen. | Must | ready | Sprint 93 / `1.40.0` |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.24.0`
-2. Mail / Cloud-Kalender / Fire TV / Alexa / Play Store / iOS — **Parking**
+1. Sideload `1.32.1`
+2. Qualitäts-Serie `1.33`–`1.40` — [`28-next.md`](./28-next.md) — erstes Bau-Ziel `1.33.0` auf PO-Kommando
+3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

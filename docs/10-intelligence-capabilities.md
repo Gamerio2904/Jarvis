@@ -3,6 +3,13 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first- / Privacy-Linie zu brechen.  
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
+### Live `1.32.1` (Code)
+
+Router-Reihenfolge in `chat.ts`: help → ordinal → TV → Fan → Drive → Maps → Memory → Einkauf → … → LLM.  
+Zwei Befehle an „und“ (genau zwei Teile). `pickHeard` nimmt den ersten Parser (Drive mit `inMode=true`). Voice-History Gemini `-16`, lokal `-4`. Fahrmodus: OSRM, Cue-Phasen, Replan setzt Cue-Gedächtnis zurück.
+
+Nächste Schärfe: [`28-next.md`](./28-next.md) `1.33`–`1.40` — Parser/STT, Antworten, Fahrmodus, Phrasen. Lokal 0,5B denkt nicht plötzlich besser.
+
 ### Live `1.24.0` (Code)
 
 Router-Reihenfolge in `chat.ts`: help → ordinal → TV → Maps → Memory → Einkauf → Geburtstag → Zuhause → Los → Tageslage → Kalender → Wecker → Timer → Erinnerung → Tools → Auge → Wetter → Chatsuche → LLM.  
@@ -17,6 +24,7 @@ Zwei Befehle an „und“. Letzter Schritt inkl. „das zweite“. Memory-Block 
 | `1.16`–`1.18` | Liste, Losgehen (Ort am Termin + Route), Zuhause | **CODE** |
 | `1.19`–`1.20` | Eine Tageslage; Auge nur Gemini | **CODE** |
 | `1.21`–`1.24` | Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche | **CODE** |
+| `1.33`–`1.40` | Qualität: Erkennen, Antworten, Fahrmodus, Phrasen, Flüssigkeit, Gedächtnis, Stimme | **PLANNED** [`28-next.md`](./28-next.md) |
 
 Lokal 0,5B denkt nicht plötzlich besser. Schärfe = Router + Speicher + ehrliche Tools.
 

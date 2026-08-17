@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.32.1`**.
+App-Version im Code: **`1.32.1`**. Nächste Reihe **geplant** (kein Code): `1.33`–`1.40` Qualität — [`28-next.md`](./28-next.md).
+
+### `1.33.0`–`1.40.0` — Qualität statt Breite — *PLANNED*
+
+- Nichts Neues: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit, Gedächtnis, Stimme, Härten
+- Sprints 86–93
+- [`sprints/sprint-86.md`](./sprints/sprint-86.md) … [`sprint-93.md`](./sprints/sprint-93.md) · [`28-next.md`](./28-next.md)
 
 ### `1.32.1` — Sprachmodus Tempo — *CODE*
 

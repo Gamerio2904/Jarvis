@@ -15,3 +15,5 @@ https://github.com/Gamerio2904/Jarvis/raw/cursor/updates-1-29-1-33-3638/releases
 2. Sprachmodus: nach dem Satz fast sofort Ton.
 3. Gemini an bleibt sinnvoll für den Text; ohne Gemini sagt er das klar, statt minutenlang zu rechnen.
 4. `Öffne Netflix` / `Spiel Dune Film` wie in 1.32.
+
+Nächste Reihe (Plan, noch kein Code): Qualität `1.33`–`1.40` — [`28-next.md`](./28-next.md).

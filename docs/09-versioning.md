@@ -107,6 +107,14 @@ MAJOR.MINOR.PATCH
 | `1.31.0` | Stimme Charon + Latenz; Jarvis-Smalltalk | Sprint 83 |
 | `1.32.0` | Samsung-Apps YouTube/Amazon/Disney/Netflix | Sprint 84 |
 | `1.32.1` | Sprachmodus Tempo (kein Hänger, sofort Ton) | Sprint 85 |
+| `1.33.0` | Befehle erkennen (STT, `pickHeard`, Follow-up, `und`) | Sprint 86 |
+| `1.34.0` | Bessere Antworten (History, Memory, Persona, Groq) | Sprint 87 |
+| `1.35.0` | CarPlay besser (Replan, Cue, HUD, Zoom, Ankunft) | Sprint 88 |
+| `1.36.0` | Alltag-Phrasen (bestehende Tools, Smalltalk-Schutz) | Sprint 89 |
+| `1.37.0` | Flüssig (Chat, Overlay, Wake-Word, Voice, TV, Widget) | Sprint 90 |
+| `1.38.0` | Gedächtnis im Dialog (Recall, Widerspruch, Anapher) | Sprint 91 |
+| `1.39.0` | Stimme bleiben (NO_MATCH, Barge-in, Navi vs Jarvis) | Sprint 92 |
+| `1.40.0` | Härten (Eval, False-Positives, keine Fake-Erfolge) | Sprint 93 |
 
 ### Weitere Beispiele
 

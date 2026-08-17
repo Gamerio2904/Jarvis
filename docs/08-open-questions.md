@@ -55,8 +55,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 ## Nächster Schritt
 
 1. Sideload `1.32.1`. Sprachmodus muss sofort antworten — [`27-next.md`](./27-next.md).
-2. One-Click-Chips im Chat: Einkauf, Losgehen, Zuhause, Tageslage, Auge, Nummer, Serie, das zweite, Chatsuche.
-3. Extra `1.21`–`1.24` — [`20-next.md`](./20-next.md): Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche.
+2. Danach **Qualität statt Breite** `1.33`–`1.40` — [`28-next.md`](./28-next.md). Erstes Bau-Ziel: `1.33.0` Befehle erkennen (Sprint 86), auf PO-Kommando.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---
@@ -70,3 +69,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-14 | `0.13` | Jarvis komplett on-device auf dem Handy; NAS/PC-Backend entfernt | PO |
 | 2026-08-15 | `0.14` | Nichts Neues: bestehendes härten; TV on-device live (`0.14.0`/`0.14.1`) | PO |
 | 2026-08-17 | Q40 | Deckenventilator Amazon `B0CGQSNR76`: Default Broadlink RM4 Pro, Codes lokal lernen | PO |
+| 2026-08-17 | Q41 | Nach `1.32.1`: **Qualität statt Breite** (`1.33`–`1.40`). Nichts Neues — bestehendes verbessern, erweitern, flüssiger. Intelligenter, besseres Verständnis, besseres CarPlay, besseres Befehlserkennen. | PO |
