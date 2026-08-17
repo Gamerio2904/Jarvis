@@ -148,8 +148,8 @@ function buildBody(
     contents.unshift({ role: 'user', parts: [{ text: 'Hallo.' }] })
   }
   const generationConfig: Record<string, unknown> = {
-    temperature: opts.maxOutputTokens && opts.maxOutputTokens < 200 ? 0.4 : 0.55,
-    maxOutputTokens: opts.maxOutputTokens || 640,
+    temperature: opts.search ? 0.35 : opts.maxOutputTokens && opts.maxOutputTokens < 200 ? 0.62 : 0.72,
+    maxOutputTokens: opts.maxOutputTokens || 720,
   }
   const thinking = opts.thinking !== false && /2\.5|3\./.test(model) && !opts.search
   if (thinking) {
@@ -186,7 +186,7 @@ export async function streamGemini(
     const body = buildBody(model, messages, {
       search: false,
       thinking: false,
-      maxOutputTokens: opts?.maxOutputTokens || 96,
+      maxOutputTokens: opts?.maxOutputTokens || 160,
     })
     let full = ''
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`
@@ -213,7 +213,7 @@ export async function streamGemini(
       throw new Error(germanAuthError())
     }
   }
-  return completeGemini(messages, onToken, { ...opts, maxOutputTokens: opts?.maxOutputTokens || 96 })
+  return completeGemini(messages, onToken, { ...opts, maxOutputTokens: opts?.maxOutputTokens || 160 })
 }
 
 export async function completeGemini(

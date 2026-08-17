@@ -75,8 +75,8 @@ public class JarvisVoicePlugin extends Plugin {
                 ttsReady = status == TextToSpeech.SUCCESS;
                 if (ttsReady) {
                     tts.setLanguage(Locale.GERMANY);
-                    tts.setSpeechRate(1.08f);
-                    tts.setPitch(1.0f);
+                    tts.setSpeechRate(1.03f);
+                    tts.setPitch(0.94f);
                     pickGermanVoice();
                 }
             });
@@ -110,10 +110,13 @@ public class JarvisVoicePlugin extends Plugin {
                 if (!"de".equalsIgnoreCase(v.getLocale().getLanguage())) continue;
                 String name = v.getName() == null ? "" : v.getName().toLowerCase(Locale.ROOT);
                 int s = 0;
-                if (name.contains("pico")) s -= 8;
-                if (name.contains("google")) s += 4;
-                if (name.contains("neural") || name.contains("wavenet") || name.contains("network")) s += 3;
+                if (name.contains("pico") || name.contains("svox")) s -= 12;
+                if (name.contains("google")) s += 5;
+                if (name.contains("neural") || name.contains("wavenet") || name.contains("network")) s += 4;
+                if (name.contains("de-de-x-deb") || name.contains("male") || name.contains("männlich")) s += 6;
+                if (name.contains("de-de-x-dea") || name.contains("female") || name.contains("frau")) s -= 5;
                 if (v.getQuality() >= Voice.QUALITY_HIGH) s += 2;
+                if (v.isNetworkConnectionRequired()) s += 1;
                 if (s > score) {
                     score = s;
                     best = v;
@@ -216,9 +219,9 @@ public class JarvisVoicePlugin extends Plugin {
             intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1400L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1100L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 600L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1150L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 450L);
             try {
                 recognizer.startListening(intent);
             } catch (Exception e) {

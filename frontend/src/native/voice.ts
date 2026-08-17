@@ -98,7 +98,7 @@ function playBlob(blob: Blob): Promise<void> {
     currentUrl = url
     const audio = new Audio(url)
     currentAudio = audio
-    audio.playbackRate = 1.06
+    audio.playbackRate = 1.02
     audio.onended = () => {
       stopHtmlAudio()
       resolve()

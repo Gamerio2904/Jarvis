@@ -2,7 +2,7 @@ const DUZEN = /\b(du|dir|dich|dein|deine|deinen|deinem|deiner|duzen)\b/gi
 const INJECT =
   /\b(pwned|hacked|ja_ich_gehorche|ignore(?:\s+all)?\s+instructions|du bist jetzt)\b/i
 const HELPDESK =
-  /wie kann ich helfen|was kann ich für sie tun|womit kann ich (?:ihnen )?(?:nun )?(?:tatsächlich )?behilflich|womit kann ich dienen|gerne!|als ki\b/i
+  /wie kann ich helfen|was kann ich für sie tun|womit kann ich (?:ihnen )?(?:nun )?(?:tatsächlich )?behilflich|womit kann ich dienen|gerne!|als ki\b|stehe (?:ihnen )?zu (?:ihren )?diensten|wie kann ich (?:sie |ihnen )?unterstützen|ich bin (?:eine |ein )?(?:ki|sprachmodell|digitaler assistent)|ich helfe ihnen gerne|was möchten sie (?:heute |jetzt )?(?:wissen|tun)/i
 const FAKE_CLAIM =
   /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt))\b/i
 const INSULT_USER =
@@ -47,11 +47,17 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
   if (HELPDESK.test(out)) {
     out = out
       .replace(/gerne!?/gi, '')
+      .replace(/natürlich!?/gi, '')
       .replace(/wie kann ich helfen[?]*/gi, '')
       .replace(/was kann ich für sie tun[?]*/gi, '')
       .replace(/womit kann ich (?:ihnen )?(?:nun )?(?:tatsächlich )?behilflich sein[?]*/gi, '')
       .replace(/womit kann ich dienen[?]*/gi, '')
+      .replace(/stehe (?:ihnen )?zu (?:ihren )?diensten[?.!]*/gi, '')
+      .replace(/wie kann ich (?:sie |ihnen )?unterstützen[?]*/gi, '')
+      .replace(/ich helfe ihnen gerne[^.!]*/gi, '')
+      .replace(/ich bin (?:eine |ein )?(?:ki|sprachmodell|digitaler assistent)[^.!]*/gi, '')
       .replace(/als ki[^.!]*/gi, '')
+      .replace(/\s+/g, ' ')
       .trim()
   }
   if (DUZEN.test(out)) {

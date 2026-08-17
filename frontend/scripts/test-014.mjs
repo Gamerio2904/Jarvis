@@ -12,6 +12,7 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
+import { GEMINI_PERSONA, PERSONA } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
@@ -147,6 +148,12 @@ assert.ok(isHelpCommand('/hilfe'))
 assert.match(scrubReply('Du bist toll und dein Hund auch'), /Sie/)
 assert.match(scrubReply('Ich habe den Fernseher ausgeschaltet'), /nicht ausgeführt/)
 assert.match(scrubReply('Sie leiden an akuter Amnesie.'), /Jarvis/)
+assert.doesNotMatch(scrubReply('Gerne! Wie kann ich helfen?'), /Gerne|helfen/i)
+assert.doesNotMatch(scrubReply('Als KI stehe ich zu Diensten.'), /Als KI|Diensten/i)
+assert.match(PERSONA, /Siezen/)
+assert.match(GEMINI_PERSONA, /Smalltalk/)
+assert.match(GEMINI_PERSONA, /Master/)
+assert.match(GEMINI_PERSONA, /nicht abschreiben/)
 assert.equal(
   scrubReply('Ich habe das Internet nach Kuchenrezepten durchsucht. Zucker und Mehl reichen.').includes(
     'durchsucht',
@@ -447,8 +454,7 @@ assert.equal(two.parts.length, 1)
 assert.match(two.parts[0], /Ja\./)
 assert.match(two.parts[0], /15 Uhr/)
 const short = pullReady('Das Wetter ist gut.')
-assert.deepEqual(short.parts, [])
-assert.match(short.rest, /Das Wetter ist gut/)
+assert.deepEqual(short.parts, ['Das Wetter ist gut.'])
 const long = pullReady(
   'Das Wetter bleibt heute freundlich, weitgehend trocken und angenehm warm im ganzen Land.',
 )
@@ -457,8 +463,8 @@ assert.equal(long.rest, '')
 
 const tap = createSentenceTap()
 assert.deepEqual(tap.feed('Hallo, der Himmel'), [])
-assert.deepEqual(tap.feed('Hallo, der Himmel ist blau.'), [])
-assert.deepEqual(tap.flush(), ['Hallo, der Himmel ist blau.'])
+assert.deepEqual(tap.feed('Hallo, der Himmel ist blau.'), ['Hallo, der Himmel ist blau.'])
+assert.deepEqual(tap.flush(), [])
 const tap2 = createSentenceTap()
 assert.deepEqual(tap2.feed('Eins. '), [])
 const got = tap2.feed('Eins. Zwei kommt jetzt wirklich.')

@@ -2,10 +2,15 @@ import { postJson } from './http-json'
 import { isGeminiConfigured, loadSettings, saveSettings } from './store'
 
 const TTS_MODELS = [
-  'gemini-3.1-flash-tts-preview',
   'gemini-2.5-flash-preview-tts',
+  'gemini-3.1-flash-tts-preview',
   'gemini-2.5-pro-preview-tts',
 ]
+
+/** Male, informative first — Jarvis, not a bright assistant. */
+export const TTS_VOICES = ['Charon', 'Fenrir', 'Puck', 'Kore'] as const
+
+const TTS_BUDGET_MS = 2800
 
 export function wantGeminiVoice(): boolean {
   const s = loadSettings()
@@ -16,16 +21,12 @@ export function wantGeminiVoice(): boolean {
 
 function spokenForGemini(text: string): string {
   const body = text
-    .replace(/[`#]+/g, ' ')
+    .replace(/[`#*]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 800)
+    .slice(0, 520)
   if (!body) return ''
-  return (
-    'Say in warm, conversational German, slightly brisk, with natural emphasis on key words. ' +
-    'Not monotone, not theatrical. Read only the following text, add nothing: ' +
-    body
-  )
+  return `Calm, low German, precise, slightly dry. Not theatrical. Read only: ${body}`
 }
 
 export async function synthesizeGemini(text: string): Promise<Blob | null> {
@@ -33,60 +34,56 @@ export async function synthesizeGemini(text: string): Promise<Blob | null> {
   if (!key) return null
   const spoken = spokenForGemini(text)
   if (!spoken) return null
-  let last = ''
-  const cached = loadSettings().gemini_tts_model
-  const models = cached ? [cached, ...TTS_MODELS.filter((m) => m !== cached)] : TTS_MODELS
+  const cachedModel = loadSettings().gemini_tts_model
+  const models = cachedModel ? [cachedModel, ...TTS_MODELS.filter((m) => m !== cachedModel)] : [...TTS_MODELS]
+  const started = Date.now()
+  const leftover = () => Math.max(400, TTS_BUDGET_MS - (Date.now() - started))
   for (const model of models) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
-      const { status, json } = await postJson(
-        url,
-        { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-        {
-          contents: [{ parts: [{ text: spoken }] }],
-          generationConfig: {
-            responseModalities: ['AUDIO'],
-            speechConfig: {
-              languageCode: 'de-DE',
-              voiceConfig: {
-                prebuiltVoiceConfig: { voiceName: 'Kore' },
-              },
-            },
-          },
-        },
-      )
-      if (status === 404 || isUnknownModel(json)) {
-        last = 'Modell fehlt'
-        continue
-      }
-      if (status < 200 || status >= 300) {
-        last = errorMessage(json) || `HTTP ${status}`
-        if (status === 429 || status >= 500) continue
-        break
-      }
-      const blob = audioFrom(json)
+    if (Date.now() - started >= TTS_BUDGET_MS) break
+    for (const voice of TTS_VOICES) {
+      if (Date.now() - started >= TTS_BUDGET_MS) break
+      const blob = await tryTts(model, voice, spoken, leftover())
       if (blob) {
         saveSettings({ gemini_tts_model: model })
         return blob
       }
-      last = 'Keine Audiodaten'
-    } catch (err) {
-      last = err instanceof Error ? err.message : 'TTS fehlgeschlagen'
     }
   }
-  if (last) console.warn('[tts]', last)
   return null
+}
+
+async function tryTts(model: string, voice: string, spoken: string, timeoutMs: number): Promise<Blob | null> {
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
+    const { status, json } = await postJson(
+      url,
+      { 'Content-Type': 'application/json', 'x-goog-api-key': loadSettings().gemini_api_key.trim() },
+      {
+        contents: [{ parts: [{ text: spoken }] }],
+        generationConfig: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            languageCode: 'de-DE',
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: voice },
+            },
+          },
+        },
+      },
+      timeoutMs,
+    )
+    if (status === 404 || isUnknownModel(json)) return null
+    if (status < 200 || status >= 300) return null
+    return audioFrom(json)
+  } catch {
+    return null
+  }
 }
 
 function isUnknownModel(json: Record<string, unknown>): boolean {
   const err = json.error as { message?: string; status?: string } | undefined
   const msg = `${err?.message || ''} ${err?.status || ''}`.toLowerCase()
   return msg.includes('not found') || msg.includes('unknown') || msg.includes('not supported')
-}
-
-function errorMessage(json: Record<string, unknown>): string {
-  const err = json.error as { message?: string } | undefined
-  return err?.message || ''
 }
 
 function audioFrom(json: Record<string, unknown>): Blob | null {

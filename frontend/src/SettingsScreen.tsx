@@ -300,7 +300,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Mit Gemini-Key: natürliche Stimme (geht ins Netz). Sonst Android-Stimme, oft hart.
+                Mit Gemini-Key: ruhige Stimme (Charon, Netz). Erster Satz wird sofort gesprochen. Sonst Android-Neural, eher männlich.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>

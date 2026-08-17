@@ -456,7 +456,7 @@ export async function streamChat(
       : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem)].filter(Boolean).join('\n\n')
     const llmMessages = [
       { role: 'system', content: system },
-      ...history.slice(geminiReady() ? -12 : -4).map((m) => ({
+      ...history.slice(geminiReady() ? -16 : -4).map((m) => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content,
       })),
@@ -474,7 +474,7 @@ export async function streamChat(
           },
           {
             search: wantSearch,
-            maxOutputTokens: opts?.voice ? 96 : undefined,
+            maxOutputTokens: opts?.voice ? 160 : undefined,
           },
         ).then((r) => {
           research = r.research

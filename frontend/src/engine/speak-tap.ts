@@ -31,7 +31,7 @@ export function pullReady(hold: string): { parts: string[]; rest: string } {
     bundle.push(s)
     const text = textOf()
     const words = text.split(/\s+/).filter(Boolean).length
-    if (bundle.length >= 2 || words >= 10 || text.length >= 72) emit()
+    if (bundle.length >= 2 || words >= 4 || text.length >= 28) emit()
   }
 
   const leftover = textOf()

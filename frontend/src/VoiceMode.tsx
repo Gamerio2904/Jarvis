@@ -139,8 +139,8 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Text sofort. Ganze Sätze, natürliche Betonung.'
-                : 'Text sofort. Gemini an = flüssiger und klarer.'}
+                ? 'Erster Satz sofort. Ruhige Stimme (Charon).'
+                : 'Text sofort. Gemini an = natürliche Stimme.'}
             </p>
           </div>
           <button type="button" className="ghost-btn voice-close" onClick={onClose}>

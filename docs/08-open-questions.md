@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.30.0`. CarPlay flüssig, Voice-Tabs, Navi-Ansagen — [`24-next.md`](./24-next.md).
+1. Sideload `1.31.0`. Stimme und Jarvis-Smalltalk — [`25-next.md`](./25-next.md).
 2. One-Click-Chips im Chat: Einkauf, Losgehen, Zuhause, Tageslage, Auge, Nummer, Serie, das zweite, Chatsuche.
 3. Extra `1.21`–`1.24` — [`20-next.md`](./20-next.md): Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.

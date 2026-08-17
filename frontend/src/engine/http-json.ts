@@ -1,17 +1,26 @@
 import { Capacitor, CapacitorHttp } from '@capacitor/core'
 
+function abortAfter(ms: number): AbortSignal {
+  const ac = new AbortController()
+  globalThis.setTimeout(() => ac.abort(), ms)
+  return ac.signal
+}
+
 export async function postJson(
   url: string,
   headers: Record<string, string>,
   body: unknown,
+  timeoutMs?: number,
 ): Promise<{ status: number; json: Record<string, unknown> }> {
+  const read = timeoutMs && timeoutMs > 0 ? timeoutMs : 60_000
+  const connect = Math.min(15_000, Math.max(3_000, Math.floor(read * 0.4)))
   if (Capacitor.isNativePlatform()) {
     const res = await CapacitorHttp.post({
       url,
       headers,
       data: body,
-      connectTimeout: 15_000,
-      readTimeout: 60_000,
+      connectTimeout: connect,
+      readTimeout: read,
     })
     let json: Record<string, unknown> = {}
     try {
@@ -28,6 +37,7 @@ export async function postJson(
     method: 'POST',
     headers,
     body: JSON.stringify(body),
+    signal: timeoutMs && timeoutMs > 0 ? abortAfter(timeoutMs) : undefined,
   })
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
   return { status: res.status, json }

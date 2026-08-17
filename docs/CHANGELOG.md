@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.30.0`**.
+App-Version im Code: **`1.31.0`**.
+
+### `1.31.0` — Stimme & Jarvis-Ton — *CODE*
+
+- Gemini-TTS: Charon, erster Satz sofort, Timeout auf System-Stimme
+- Android-TTS: deutsche Neural-Stimme, eher männlich
+- Chat: Smalltalk näher an Jarvis (Siezen, trocken, sparsam Master/Sir), weniger Helpdesk
+- [`sprints/sprint-83.md`](./sprints/sprint-83.md) · [`25-next.md`](./25-next.md)
 
 ### `1.30.0` — CarPlay flüssig — *CODE*
 
