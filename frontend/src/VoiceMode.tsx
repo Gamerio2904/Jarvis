@@ -66,12 +66,14 @@ export function VoiceMode({
       const text = heardRes.text.trim()
       if (!text) {
         if (heardRes.message) setErr(heardRes.message)
+        else setErr('Nichts gehört. Nochmal?')
+        await new Promise((r) => setTimeout(r, 280))
         continue
       }
       setHeard(text)
       setErr(null)
       setPhase('thinking')
-      const tap = createSentenceTap()
+      const tap = createSentenceTap(true)
       const pipe = createSpeakPipeline()
       pipelineRef.current = pipe
       let started = false
@@ -139,7 +141,7 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Erster Satz sofort. Ruhige Stimme (Charon).'
+                ? 'Antwort sofort. Charon nur wenn er schnell da ist, sonst Android.'
                 : 'Text sofort. Gemini an = natürliche Stimme.'}
             </p>
           </div>

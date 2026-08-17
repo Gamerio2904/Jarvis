@@ -1,5 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { synthesizeGemini, wantGeminiVoice } from '../engine/tts'
+import { synthesizeGemini, TTS_NATIVE_RACE_MS, wantGeminiVoice } from '../engine/tts'
 import { pickHeard } from '../engine/heard.ts'
 
 export { createSentenceTap } from '../engine/speak-tap'
@@ -17,7 +17,12 @@ type NativeVoice = {
   wakeStatus(): Promise<{ running: boolean; wanted?: boolean }>
   requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }>
   setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
-  streamSse(opts: { url: string; body: string; apiKey: string }): Promise<{ ok: boolean; status?: number; message?: string }>
+  streamSse(opts: {
+    url: string
+    body: string
+    apiKey: string
+    timeoutMs?: number
+  }): Promise<{ ok: boolean; status?: number; message?: string }>
   addListener(
     event: 'partial' | 'sse' | 'wake',
     cb: (ev: { text?: string; data?: string; hit?: boolean }) => void,
@@ -115,9 +120,10 @@ function playBlob(blob: Blob): Promise<void> {
 }
 
 export async function streamSseLines(
-  opts: { url: string; body: unknown; apiKey: string },
+  opts: { url: string; body: unknown; apiKey: string; timeoutMs?: number },
   onData: (json: Record<string, unknown>) => void,
 ): Promise<{ ok: boolean; message?: string }> {
+  const timeoutMs = opts.timeoutMs && opts.timeoutMs > 0 ? opts.timeoutMs : 8_000
   if (native) {
     const handle = await native.addListener('sse', (ev) => {
       if (!ev.data) return
@@ -132,6 +138,7 @@ export async function streamSseLines(
         url: opts.url,
         body: JSON.stringify(opts.body),
         apiKey: opts.apiKey,
+        timeoutMs,
       })
       return { ok: Boolean(res.ok), message: res.message }
     } finally {
@@ -147,6 +154,7 @@ export async function streamSseLines(
         'x-goog-api-key': opts.apiKey,
       },
       body: JSON.stringify(opts.body),
+      signal: AbortSignal.timeout(timeoutMs),
     })
     if (!res.ok || !res.body) {
       return { ok: false, message: `HTTP ${res.status}` }
@@ -186,10 +194,15 @@ export function createSpeakPipeline() {
 
   function prepare(text: string): Promise<Blob | 'native'> {
     return (async () => {
-      if (wantGeminiVoice()) {
-        const blob = await synthesizeGemini(text)
-        if (blob) return blob
-      }
+      if (!wantGeminiVoice()) return 'native'
+      const gemini = synthesizeGemini(text)
+      const raced = await Promise.race([
+        gemini,
+        new Promise<null>((resolve) => {
+          globalThis.setTimeout(() => resolve(null), TTS_NATIVE_RACE_MS)
+        }),
+      ])
+      if (raced) return raced
       return 'native'
     })()
   }

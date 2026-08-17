@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -56,6 +57,8 @@ public class JarvisVoicePlugin extends Plugin {
     private boolean ttsReady = false;
     private PluginCall listenCall;
     private PluginCall speakCall;
+    private int listenGen = 0;
+    private int speakGen = 0;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newCachedThreadPool();
     private final OkHttpClient http = new OkHttpClient.Builder()
@@ -169,6 +172,7 @@ public class JarvisVoicePlugin extends Plugin {
 
     private void startListen(PluginCall call) {
         call.setKeepAlive(true);
+        final int gen = ++listenGen;
         main.post(() -> {
             if (listenCall != null) {
                 finishListen("", false, "schon am Zuhören", null);
@@ -188,6 +192,15 @@ public class JarvisVoicePlugin extends Plugin {
                     @Override public void onBufferReceived(byte[] buffer) {}
                     @Override public void onEndOfSpeech() {}
                     @Override public void onError(int error) {
+                        if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY
+                                || error == SpeechRecognizer.ERROR_CLIENT) {
+                            try {
+                                if (recognizer != null) {
+                                    recognizer.destroy();
+                                    recognizer = null;
+                                }
+                            } catch (Exception ignored) {}
+                        }
                         if (error == SpeechRecognizer.ERROR_NO_MATCH
                                 || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
                             finishListen("", true, "", null);
@@ -219,14 +232,24 @@ public class JarvisVoicePlugin extends Plugin {
             intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1150L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 900L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 450L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 800L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 650L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 350L);
             try {
                 recognizer.startListening(intent);
             } catch (Exception e) {
                 finishListen("", false, "Zuhören fehlgeschlagen.", null);
+                return;
             }
+            main.postDelayed(() -> {
+                if (listenGen != gen) return;
+                if (listenCall == call) {
+                    try {
+                        if (recognizer != null) recognizer.cancel();
+                    } catch (Exception ignored) {}
+                    finishListen("", true, "", null);
+                }
+            }, 10_000);
         });
     }
 
@@ -273,8 +296,18 @@ public class JarvisVoicePlugin extends Plugin {
         }
         call.setKeepAlive(true);
         speakCall = call;
+        final int gen = ++speakGen;
+        trySpeak(call, text, gen, 0);
+    }
+
+    private void trySpeak(PluginCall call, String text, int gen, int attempt) {
         main.post(() -> {
+            if (speakGen != gen || speakCall != call) return;
             if (tts == null || !ttsReady) {
+                if (attempt < 15) {
+                    main.postDelayed(() -> trySpeak(call, text, gen, attempt + 1), 100);
+                    return;
+                }
                 JSObject r = new JSObject();
                 r.put("ok", false);
                 r.put("message", "Stimme noch nicht bereit.");
@@ -289,7 +322,15 @@ public class JarvisVoicePlugin extends Plugin {
                 @Override public void onError(String utteranceId) { finishSpeak(false); }
             });
             Bundle params = new Bundle();
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, "jarvis-voice");
+            int queued = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, "jarvis-voice");
+            if (queued == TextToSpeech.ERROR) {
+                finishSpeak(false);
+                return;
+            }
+            main.postDelayed(() -> {
+                if (speakGen != gen) return;
+                finishSpeak(true);
+            }, 20_000);
         });
     }
 
@@ -323,7 +364,14 @@ public class JarvisVoicePlugin extends Plugin {
             return;
         }
         call.setKeepAlive(true);
+        Integer timeout = call.getInt("timeoutMs");
+        int readMs = timeout == null ? 8_000 : Math.max(3_000, Math.min(20_000, timeout));
         io.execute(() -> {
+            OkHttpClient client = http.newBuilder()
+                    .connectTimeout(4, TimeUnit.SECONDS)
+                    .readTimeout(readMs, TimeUnit.MILLISECONDS)
+                    .callTimeout(readMs + 2_000L, TimeUnit.MILLISECONDS)
+                    .build();
             Request.Builder b = new Request.Builder()
                     .url(url)
                     .post(RequestBody.create(body == null ? "{}" : body, JSON))
@@ -332,7 +380,8 @@ public class JarvisVoicePlugin extends Plugin {
             if (apiKey != null && !apiKey.isEmpty()) {
                 b.addHeader("x-goog-api-key", apiKey);
             }
-            try (Response res = http.newCall(b.build()).execute()) {
+            Call httpCall = client.newCall(b.build());
+            try (Response res = httpCall.execute()) {
                 int code = res.code();
                 if (res.body() == null) {
                     JSObject r = new JSObject();

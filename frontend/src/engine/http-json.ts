@@ -13,7 +13,7 @@ export async function postJson(
   timeoutMs?: number,
 ): Promise<{ status: number; json: Record<string, unknown> }> {
   const read = timeoutMs && timeoutMs > 0 ? timeoutMs : 60_000
-  const connect = Math.min(15_000, Math.max(3_000, Math.floor(read * 0.4)))
+  const connect = Math.min(8_000, Math.max(400, Math.min(read, Math.floor(read * 0.5))))
   if (Capacitor.isNativePlatform()) {
     const res = await CapacitorHttp.post({
       url,

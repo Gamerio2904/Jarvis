@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.32.0`**.
+App-Version im Code: **`1.32.1`**.
+
+### `1.32.1` — Sprachmodus Tempo — *CODE*
+
+- Charon nur wenn schnell da, sonst sofort Android-Stimme
+- Gemini-Stream kurz, Teiltext zählt; Android listen/speak hängen nicht mehr
+- Sprachmodus ohne Gemini: Groq oder ehrlicher Hinweis, kein 0.5B
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13201)
+- [`sprints/sprint-85.md`](./sprints/sprint-85.md) · [`27-next.md`](./27-next.md)
 
 ### `1.32.0` — Samsung-Apps YouTube/Amazon/Disney/Netflix — *CODE*
 

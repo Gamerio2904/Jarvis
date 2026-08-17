@@ -1,6 +1,6 @@
 import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
 import { completeGemini, geminiReady, GEMINI_LABEL, streamGemini, testGemini } from './gemini'
-import { groqReady, testGroq } from './groq'
+import { completeGroq, groqReady, testGroq } from './groq'
 import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
@@ -396,7 +396,9 @@ export async function streamChat(
       const last = found[found.length - 1]
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
-      const assistant = await addMessage(conversationId, 'assistant', replies.join('\n\n'), {
+      const joined = replies.join('\n\n')
+      handlers.onToken?.(joined)
+      const assistant = await addMessage(conversationId, 'assistant', joined, {
         tool: last.tool,
         research,
       })
@@ -407,6 +409,39 @@ export async function streamChat(
         research: research || null,
         tool: last.tool || null,
       })
+      return
+    }
+
+    if (opts?.voice && !geminiReady()) {
+      if (groqReady()) {
+        const history = await listMessages(conversationId)
+        const mem = await listMemory()
+        const system = [GEMINI_PERSONA, VOICE_HINT, memoryBlock(mem)].filter(Boolean).join('\n\n')
+        const llmMessages = [
+          { role: 'system', content: system },
+          ...history.slice(-12).map((m) => ({
+            role: m.role === 'assistant' ? 'assistant' : 'user',
+            content: m.content,
+          })),
+        ]
+        let acc = ''
+        const raw = await completeGroq(llmMessages, (_piece, full) => {
+          acc = full
+          handlers.onToken?.(_piece)
+        })
+        const final = scrubReply((raw || acc).trim())
+        if (final !== (raw || acc)) handlers.onReplace?.(final)
+        const assistant = await addMessage(conversationId, 'assistant', final)
+        const updated = (await touchConversation(conversationId)) || conv
+        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+        return
+      }
+      const reply =
+        'Sprachmodus braucht Gemini. Unter Einstellungen an — das Handy-Modell ist dafür zu langsam.'
+      handlers.onToken?.(reply)
+      const assistant = await addMessage(conversationId, 'assistant', reply)
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
     }
 

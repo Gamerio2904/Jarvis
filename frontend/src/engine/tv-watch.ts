@@ -177,7 +177,7 @@ async function justWatchSearch(title: string): Promise<WatchHit[]> {
           filter: { bestOnly: false },
         },
       },
-      12_000,
+      5_000,
     )
     if (status < 200 || status >= 400) return []
     const data = asRecord(json.data)

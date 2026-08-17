@@ -56,7 +56,11 @@ function errorFields(json: GeminiResponse): { message: string; status: string } 
   }
 }
 
-async function postGemini(model: string, body: unknown): Promise<{ status: number; json: GeminiResponse }> {
+async function postGemini(
+  model: string,
+  body: unknown,
+  timeoutMs?: number,
+): Promise<{ status: number; json: GeminiResponse }> {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
   const { status, json } = await postJson(
     url,
@@ -65,6 +69,7 @@ async function postGemini(model: string, body: unknown): Promise<{ status: numbe
       'x-goog-api-key': apiKey(),
     },
     body,
+    timeoutMs,
   )
   return { status, json: json as GeminiResponse }
 }
@@ -176,13 +181,26 @@ export async function streamGemini(
   onToken?: (piece: string, full: string) => void,
   opts?: { search?: boolean; maxOutputTokens?: number },
 ): Promise<CloudComplete> {
-  if (opts?.search) return completeGemini(messages, onToken, opts)
+  if (opts?.search) {
+    return completeGemini(messages, onToken, {
+      ...opts,
+      timeoutMs: 10_000,
+      maxModels: 2,
+      thinking: false,
+    })
+  }
   if (!geminiReady()) {
     throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
   }
   const key = loadSettings().gemini_api_key.trim()
-  const models = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
+  const order = geminiModelOrder(loadSettings().gemini_skip_until, missingModels)
+  const preferred = loadSettings().gemini_model
+  const models = [...new Set([preferred, ...order].filter(Boolean))].slice(0, 2)
+  const budgetMs = 9_000
+  const started = Date.now()
   for (const model of models) {
+    const left = budgetMs - (Date.now() - started)
+    if (left < 1_200) break
     const body = buildBody(model, messages, {
       search: false,
       thinking: false,
@@ -190,7 +208,7 @@ export async function streamGemini(
     })
     let full = ''
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`
-    const res = await streamSseLines({ url, body, apiKey: key }, (json) => {
+    const res = await streamSseLines({ url, body, apiKey: key, timeoutMs: Math.min(7_000, left) }, (json) => {
       const incoming = textFrom(json as GeminiResponse, false)
       if (!incoming) return
       let piece = incoming
@@ -205,7 +223,7 @@ export async function streamGemini(
       }
       if (piece) onToken?.(piece, full)
     })
-    if (res.ok && full.trim()) {
+    if (full.trim()) {
       saveSettings({ gemini_model: model })
       return { text: full.trim() }
     }
@@ -213,13 +231,23 @@ export async function streamGemini(
       throw new Error(germanAuthError())
     }
   }
-  return completeGemini(messages, onToken, { ...opts, maxOutputTokens: opts?.maxOutputTokens || 160 })
+  const left = budgetMs - (Date.now() - started)
+  if (left < 1_500) {
+    throw new Error('Antwort dauert zu lange. Nochmal?')
+  }
+  return completeGemini(messages, onToken, {
+    ...opts,
+    maxOutputTokens: opts?.maxOutputTokens || 160,
+    timeoutMs: Math.min(8_000, left),
+    maxModels: 1,
+    thinking: false,
+  })
 }
 
 export async function completeGemini(
   messages: Array<{ role: string; content: string }>,
   onToken?: (piece: string, full: string) => void,
-  opts?: { search?: boolean; maxOutputTokens?: number },
+  opts?: { search?: boolean; maxOutputTokens?: number; timeoutMs?: number; maxModels?: number; thinking?: boolean },
 ): Promise<CloudComplete> {
   if (!geminiReady()) {
     throw new Error('Gemini ist aus oder ohne Key. Unter Einstellungen eintragen.')
@@ -227,17 +255,21 @@ export async function completeGemini(
   const groqOn = groqReady()
   let last = germanQuotaHint(groqOn)
   const wantSearch = Boolean(opts?.search)
-  for (const model of geminiModelOrder(loadSettings().gemini_skip_until, missingModels)) {
+  const models = geminiModelOrder(loadSettings().gemini_skip_until, missingModels).slice(
+    0,
+    opts?.maxModels || 99,
+  )
+  for (const model of models) {
     const attempts = wantSearch
       ? [
           buildBody(model, messages, { search: true, thinking: false, maxOutputTokens: opts?.maxOutputTokens }),
-          buildBody(model, messages, { search: false, thinking: true, maxOutputTokens: opts?.maxOutputTokens }),
+          buildBody(model, messages, { search: false, thinking: opts?.thinking !== false, maxOutputTokens: opts?.maxOutputTokens }),
         ]
-      : [buildBody(model, messages, { search: false, thinking: true, maxOutputTokens: opts?.maxOutputTokens })]
+      : [buildBody(model, messages, { search: false, thinking: opts?.thinking !== false, maxOutputTokens: opts?.maxOutputTokens })]
     let modelRetryable = false
     try {
       for (let i = 0; i < attempts.length; i += 1) {
-        const { status, json } = await postGemini(model, attempts[i])
+        const { status, json } = await postGemini(model, attempts[i], opts?.timeoutMs)
         const { message, status: errStatus } = errorFields(json)
         if (isFatalAuth(status, message, errStatus)) {
           throw new Error(germanAuthError())

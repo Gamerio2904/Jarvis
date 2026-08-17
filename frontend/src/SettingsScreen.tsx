@@ -300,7 +300,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Mit Gemini-Key: ruhige Stimme (Charon, Netz). Erster Satz wird sofort gesprochen. Sonst Android-Neural, eher männlich.
+                Mit Gemini-Key: Antwort sofort (Android). Charon nur wenn er in unter einer halben Sekunde da ist — sonst keine Stille.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>

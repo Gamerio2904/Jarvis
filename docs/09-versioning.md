@@ -106,6 +106,7 @@ MAJOR.MINOR.PATCH
 | `1.30.0` | CarPlay flüssig: HUD, Voice-Tabs, Navi-Ansagen | Sprint 82 |
 | `1.31.0` | Stimme Charon + Latenz; Jarvis-Smalltalk | Sprint 83 |
 | `1.32.0` | Samsung-Apps YouTube/Amazon/Disney/Netflix | Sprint 84 |
+| `1.32.1` | Sprachmodus Tempo (kein Hänger, sofort Ton) | Sprint 85 |
 
 ### Weitere Beispiele
 

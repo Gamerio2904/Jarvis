@@ -1,5 +1,5 @@
-import { postJson } from './http-json'
-import { isGeminiConfigured, loadSettings, saveSettings } from './store'
+import { postJson } from './http-json.ts'
+import { isGeminiConfigured, loadSettings, saveSettings } from './store.ts'
 
 const TTS_MODELS = [
   'gemini-2.5-flash-preview-tts',
@@ -7,10 +7,12 @@ const TTS_MODELS = [
   'gemini-2.5-pro-preview-tts',
 ]
 
-/** Male, informative first — Jarvis, not a bright assistant. */
-export const TTS_VOICES = ['Charon', 'Fenrir', 'Puck', 'Kore'] as const
+/** Male, informative — one voice, no retry carousel. */
+export const TTS_VOICES = ['Charon'] as const
 
-const TTS_BUDGET_MS = 2800
+/** Hard cap. Pipeline races native even sooner. */
+export const TTS_BUDGET_MS = 900
+export const TTS_NATIVE_RACE_MS = 500
 
 export function wantGeminiVoice(): boolean {
   const s = loadSettings()
@@ -24,9 +26,15 @@ function spokenForGemini(text: string): string {
     .replace(/[`#*]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 520)
+    .slice(0, 420)
   if (!body) return ''
   return `Calm, low German, precise, slightly dry. Not theatrical. Read only: ${body}`
+}
+
+export function ttsModelsToTry(cached?: string): string[] {
+  const first = cached && TTS_MODELS.includes(cached) ? cached : TTS_MODELS[0]
+  const rest = TTS_MODELS.filter((m) => m !== first)
+  return [first, ...rest].slice(0, 2)
 }
 
 export async function synthesizeGemini(text: string): Promise<Blob | null> {
@@ -34,19 +42,14 @@ export async function synthesizeGemini(text: string): Promise<Blob | null> {
   if (!key) return null
   const spoken = spokenForGemini(text)
   if (!spoken) return null
-  const cachedModel = loadSettings().gemini_tts_model
-  const models = cachedModel ? [cachedModel, ...TTS_MODELS.filter((m) => m !== cachedModel)] : [...TTS_MODELS]
   const started = Date.now()
-  const leftover = () => Math.max(400, TTS_BUDGET_MS - (Date.now() - started))
-  for (const model of models) {
-    if (Date.now() - started >= TTS_BUDGET_MS) break
-    for (const voice of TTS_VOICES) {
-      if (Date.now() - started >= TTS_BUDGET_MS) break
-      const blob = await tryTts(model, voice, spoken, leftover())
-      if (blob) {
-        saveSettings({ gemini_tts_model: model })
-        return blob
-      }
+  for (const model of ttsModelsToTry(loadSettings().gemini_tts_model)) {
+    const left = TTS_BUDGET_MS - (Date.now() - started)
+    if (left < 200) break
+    const blob = await tryTts(model, 'Charon', spoken, left)
+    if (blob) {
+      saveSettings({ gemini_tts_model: model })
+      return blob
     }
   }
   return null

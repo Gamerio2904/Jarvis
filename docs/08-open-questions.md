@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.32.0`. Samsung-Apps und „Spiel … Film“ — [`26-next.md`](./26-next.md).
+1. Sideload `1.32.1`. Sprachmodus muss sofort antworten — [`27-next.md`](./27-next.md).
 2. One-Click-Chips im Chat: Einkauf, Losgehen, Zuhause, Tageslage, Auge, Nummer, Serie, das zweite, Chatsuche.
 3. Extra `1.21`–`1.24` — [`20-next.md`](./20-next.md): Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.

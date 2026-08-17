@@ -12,6 +12,7 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
+import { ttsModelsToTry } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
@@ -480,6 +481,9 @@ assert.equal(parseChatSearch('Wann hatte ich das mit der Steuer?'), 'Steuer')
 
 assert.deepEqual(pullReady('Hallo wie geht').parts, [])
 assert.deepEqual(pullReady('Ja. ').parts, [])
+assert.ok(pullReady('Guten Morgen.', true).parts.length >= 1)
+assert.equal(ttsModelsToTry()[0], 'gemini-2.5-flash-preview-tts')
+assert.equal(ttsModelsToTry('gemini-2.5-flash-preview-tts').length, 2)
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
 assert.equal(two.parts.length, 1)
 assert.match(two.parts[0], /Ja\./)
