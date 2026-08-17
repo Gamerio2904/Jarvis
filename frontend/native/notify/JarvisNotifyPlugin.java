@@ -9,16 +9,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 import androidx.activity.result.ActivityResult;
 
@@ -47,7 +41,7 @@ import org.json.JSONObject;
 )
 public class JarvisNotifyPlugin extends Plugin {
     static final String CHANNEL_ID = "jarvis_reminders";
-    static final String ALARM_CHANNEL = "jarvis_alarms_v2";
+    static final String ALARM_CHANNEL = "jarvis_alarms_v3";
     static final String PREFS = "jarvis_notify";
     static final String KEY_ITEMS = "items";
     static final String KEY_TONE = "alarm_tone";
@@ -218,23 +212,20 @@ public class JarvisNotifyPlugin extends Plugin {
             nm.deleteNotificationChannel("jarvis_alarms");
         } catch (Exception ignored) {
         }
+        try {
+            nm.deleteNotificationChannel("jarvis_alarms_v2");
+        } catch (Exception ignored) {
+        }
         NotificationChannel alarm = new NotificationChannel(
                 ALARM_CHANNEL,
                 "Wecker",
                 NotificationManager.IMPORTANCE_HIGH
         );
-        alarm.setDescription("Timer und Erinnerungen mit Ton, auch bei Bildschirm aus");
+        alarm.setDescription("Timer und Wecker mit Ton, auch bei Bildschirm aus");
         alarm.setBypassDnd(true);
         alarm.enableVibration(true);
         alarm.enableLights(true);
-        alarm.setSound(
-                android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI,
-                new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_ALARM)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
-                        .build()
-        );
+        alarm.setSound(null, null);
         nm.createNotificationChannel(alarm);
     }
 
@@ -352,42 +343,13 @@ public class JarvisNotifyPlugin extends Plugin {
 
     static void show(Context ctx, int id, String title, String body, boolean alarm, String recur, String tone) {
         ensureChannel(ctx);
-        if (Build.VERSION.SDK_INT >= 33
-                && ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        Intent open = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            flags |= PendingIntent.FLAG_IMMUTABLE;
-        }
-        PendingIntent content = open == null
-                ? null
-                : PendingIntent.getActivity(ctx, id + 10_000, open, flags);
         String play = tone != null && !tone.isEmpty() ? tone : prefs(ctx).getString(KEY_TONE, "");
+        JarvisAlarmService.start(ctx, title, body, play);
         Intent full = new Intent(ctx, JarvisAlarmActivity.class);
         full.putExtra("title", title);
         full.putExtra("body", body);
         full.putExtra("tone", play);
         full.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent fullPi = PendingIntent.getActivity(ctx, id + 20_000, full, flags);
-        Uri soundUri = play != null && !play.isEmpty()
-                ? Uri.parse(play)
-                : android.provider.Settings.System.DEFAULT_ALARM_ALERT_URI;
-        NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, alarm ? ALARM_CHANNEL : CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-                .setContentTitle(title == null || title.isEmpty() ? "Jarvis" : title)
-                .setContentText(body)
-                .setAutoCancel(true)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setSound(soundUri, AudioManager.STREAM_ALARM)
-                .setFullScreenIntent(fullPi, true);
-        if (content != null) b.setContentIntent(content);
-        NotificationManager nm = ctx.getSystemService(NotificationManager.class);
-        if (nm != null) nm.notify(id, b.build());
         try {
             ctx.startActivity(full);
         } catch (Exception ignored) {

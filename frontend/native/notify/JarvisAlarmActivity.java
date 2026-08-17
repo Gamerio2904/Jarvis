@@ -3,15 +3,8 @@ package app.jarvis.notify;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
@@ -20,9 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class JarvisAlarmActivity extends Activity {
-    private MediaPlayer player;
-    private Vibrator vibrator;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,137 +61,19 @@ public class JarvisAlarmActivity extends Activity {
 
         Button stop = new Button(this);
         stop.setText("Aus");
-        stop.setOnClickListener((View v) -> finish());
+        stop.setOnClickListener((View v) -> halt());
         root.addView(stop);
         setContentView(root);
-        startSound(tone);
+        JarvisAlarmService.start(this, title, body, tone);
     }
 
-    private void startSound(String tone) {
-        ensureAlarmVolume();
-        Uri custom = null;
-        if (tone != null && !tone.isEmpty()) custom = Uri.parse(tone);
-        if (custom == null) {
-            String saved = getSharedPreferences("jarvis_notify", MODE_PRIVATE).getString("alarm_tone", "");
-            if (saved != null && !saved.isEmpty()) custom = Uri.parse(saved);
-        }
-        boolean ok = playUri(custom)
-                || playUri(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
-                || playUri(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE))
-                || playUri(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                || playRaw();
-        if (!ok) {
-            try {
-                android.media.Ringtone ring = RingtoneManager.getRingtone(
-                        this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM));
-                if (ring != null) {
-                    if (Build.VERSION.SDK_INT >= 28) ring.setLooping(true);
-                    ring.play();
-                }
-            } catch (Exception ignored) {
-            }
-        }
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibrator != null && vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= 26) {
-                vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 400, 400}, 0));
-            } else {
-                vibrator.vibrate(new long[]{0, 400, 400}, 0);
-            }
-        }
-    }
-
-    private void ensureAlarmVolume() {
-        try {
-            AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-            if (am == null) return;
-            int max = am.getStreamMaxVolume(AudioManager.STREAM_ALARM);
-            if (max <= 0) return;
-            if (am.getStreamVolume(AudioManager.STREAM_ALARM) == 0) {
-                am.setStreamVolume(AudioManager.STREAM_ALARM, Math.max(1, (max * 3) / 4), 0);
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private AudioAttributes alarmAttrs() {
-        AudioAttributes.Builder b = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ALARM)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
-        if (Build.VERSION.SDK_INT >= 21) {
-            b.setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED);
-        }
-        return b.build();
-    }
-
-    private boolean playUri(Uri uri) {
-        if (uri == null) return false;
-        MediaPlayer mp = new MediaPlayer();
-        try {
-            mp.setAudioAttributes(alarmAttrs());
-            mp.setDataSource(this, uri);
-            mp.setLooping(true);
-            mp.setVolume(1f, 1f);
-            mp.prepare();
-            mp.start();
-            if (mp.isPlaying()) {
-                player = mp;
-                return true;
-            }
-        } catch (Exception ignored) {
-        }
-        try {
-            mp.release();
-        } catch (Exception ignored) {
-        }
-        return false;
-    }
-
-    private boolean playRaw() {
-        int resId = getResources().getIdentifier("jarvis_alarm", "raw", getPackageName());
-        if (resId == 0) return false;
-        MediaPlayer mp = new MediaPlayer();
-        try {
-            mp.setAudioAttributes(alarmAttrs());
-            android.content.res.AssetFileDescriptor afd = getResources().openRawResourceFd(resId);
-            mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            afd.close();
-            mp.setLooping(true);
-            mp.setVolume(1f, 1f);
-            mp.prepare();
-            mp.start();
-            if (mp.isPlaying()) {
-                player = mp;
-                return true;
-            }
-        } catch (Exception ignored) {
-        }
-        try {
-            mp.release();
-        } catch (Exception ignored) {
-        }
-        return false;
+    private void halt() {
+        JarvisAlarmService.stop(this);
+        finish();
     }
 
     @Override
-    protected void onDestroy() {
-        if (player != null) {
-            try {
-                player.stop();
-            } catch (Exception ignored) {
-            }
-            try {
-                player.release();
-            } catch (Exception ignored) {
-            }
-            player = null;
-        }
-        if (vibrator != null) {
-            try {
-                vibrator.cancel();
-            } catch (Exception ignored) {
-            }
-        }
-        super.onDestroy();
+    public void onBackPressed() {
+        halt();
     }
 }

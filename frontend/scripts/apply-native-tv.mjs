@@ -25,6 +25,7 @@ for (const name of [
   'JarvisNotifyReceiver.java',
   'JarvisNotifyBoot.java',
   'JarvisAlarmActivity.java',
+  'JarvisAlarmService.java',
   'JarvisGlanceWidget.java',
 ]) {
   copyFileSync(join(notifySrc, name), join(notifyDest, name))
@@ -94,6 +95,7 @@ const perms = [
   'android.permission.USE_FULL_SCREEN_INTENT',
   'android.permission.FOREGROUND_SERVICE',
   'android.permission.FOREGROUND_SERVICE_MICROPHONE',
+  'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK',
   'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
   'android.permission.READ_MEDIA_AUDIO',
   'android.permission.MODIFY_AUDIO_SETTINGS',
@@ -146,6 +148,10 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmActivity')) {
             android:taskAffinity=""
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
             android:turnScreenOn="true" />
+        <service
+            android:name="app.jarvis.notify.JarvisAlarmService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
         <receiver
             android:name="app.jarvis.notify.JarvisGlanceWidget"
             android:exported="true"
@@ -161,6 +167,16 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmActivity')) {
             android:name="app.jarvis.voice.JarvisWakeService"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+</application>`,
+  )
+}
+if (!manifest.includes('app.jarvis.notify.JarvisAlarmService')) {
+  manifest = manifest.replace(
+    '</application>',
+    `        <service
+            android:name="app.jarvis.notify.JarvisAlarmService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
 </application>`,
   )
 }

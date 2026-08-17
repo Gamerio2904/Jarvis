@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.28.2`**.
+App-Version im Code: **`1.28.3`**.
+
+### `1.28.3` — Wecker klingelt — *CODE*
+
+- Ton läuft in einem Vordergrunddienst (nicht nur auf dem Wecker-Bildschirm)
+- Alarm-Lautstärke, Audio-Fokus, eingebauter Ton, Piep-Fallback
+- Wake-Word hält währenddessen die Klappe
 
 ### `1.28.2` — Fire-TV-Test sichtbar — *CODE*
 
