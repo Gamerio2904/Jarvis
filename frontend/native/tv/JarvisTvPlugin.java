@@ -15,6 +15,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
@@ -85,6 +86,18 @@ public class JarvisTvPlugin extends Plugin {
             Integer count = call.getInt("count");
             int n = count == null ? 1 : Math.max(1, Math.min(100, count));
             resolve(call, doSendKey(host, port, token, key, n));
+        });
+    }
+
+    @PluginMethod
+    public void launchApp(PluginCall call) {
+        runBg(call, () -> {
+            String host = call.getString("host", "");
+            Integer port = call.getInt("port");
+            String token = call.getString("token", "");
+            String appId = call.getString("appId", "");
+            String meta = call.getString("meta", "");
+            resolve(call, doLaunchApp(host, port, token, appId, meta));
         });
     }
 
@@ -483,6 +496,87 @@ public class JarvisTvPlugin extends Plugin {
         return ret;
     }
 
+    private JSObject doLaunchApp(String host, Integer port, String token, String appId, String meta) {
+        JSObject ret = new JSObject();
+        if (host == null || host.isEmpty() || appId == null || appId.isEmpty()) {
+            ret.put("ok", false);
+            ret.put("message", "TV-Adresse oder App fehlt.");
+            return ret;
+        }
+        JSObject rest = restLaunch(host, appId, meta);
+        if (rest.optBoolean("ok", false)) return rest;
+        String last = rest.optString("message", "App nicht gestartet.");
+        List<Integer> ports = new ArrayList<>();
+        if (port != null && port > 0) ports.add(port);
+        if (!ports.contains(8002)) ports.add(8002);
+        if (!ports.contains(8001)) ports.add(8001);
+        for (int p : ports) {
+            TizenSession session = new TizenSession();
+            try {
+                session.open(host, p, "Jarvis", token);
+                if (!session.await(10) || session.unauthorized) {
+                    last = session.unauthorized
+                        ? "TV hat abgelehnt. Neu koppeln."
+                        : "TV nicht erreichbar auf Port " + p + ".";
+                    session.close();
+                    continue;
+                }
+                session.sendLaunch(appId, meta);
+                Thread.sleep(300);
+                ret.put("ok", true);
+                ret.put("port", p);
+                ret.put("message", "App gestartet.");
+                session.close();
+                return ret;
+            } catch (Exception e) {
+                last = safeMsg(e);
+                session.close();
+            }
+        }
+        ret.put("ok", false);
+        ret.put("message", last);
+        return ret;
+    }
+
+    private static JSObject restLaunch(String host, String appId, String meta) {
+        JSObject ret = new JSObject();
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL("http://" + host + ":8001/api/v2/applications/" + appId);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setConnectTimeout(4000);
+            conn.setReadTimeout(8000);
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/json");
+            JSONObject body = new JSONObject();
+            if (meta != null && !meta.isEmpty()) {
+                body.put("id", appId);
+                body.put("action_type", "DEEP_LINK");
+                body.put("metaTag", meta);
+            }
+            byte[] raw = body.toString().getBytes(StandardCharsets.UTF_8);
+            conn.setFixedLengthStreamingMode(raw.length);
+            try (OutputStream os = conn.getOutputStream()) {
+                os.write(raw);
+            }
+            int code = conn.getResponseCode();
+            if (code >= 200 && code < 300) {
+                ret.put("ok", true);
+                ret.put("message", "App gestartet.");
+                return ret;
+            }
+            ret.put("ok", false);
+            ret.put("message", "REST " + code);
+        } catch (Exception e) {
+            ret.put("ok", false);
+            ret.put("message", safeMsg(e));
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
+        return ret;
+    }
+
     private JSObject doSendKey(String host, Integer port, String token, String key, int count) {
         JSObject ret = new JSObject();
         if (key == null || key.isEmpty()) {
@@ -595,6 +689,26 @@ public class JarvisTvPlugin extends Plugin {
                 "\"Cmd\":\"Click\",\"DataOfCmd\":\"" + key + "\"," +
                 "\"Option\":\"false\",\"TypeOfRemote\":\"SendRemoteKey\"}}";
             ws.send(payload);
+        }
+
+        void sendLaunch(String appId, String meta) throws Exception {
+            if (ws == null) return;
+            JSONObject data = new JSONObject();
+            data.put("appId", appId);
+            if (meta != null && !meta.isEmpty()) {
+                data.put("action_type", "DEEP_LINK");
+                data.put("metaTag", meta);
+            } else {
+                data.put("action_type", "NATIVE_LAUNCH");
+            }
+            JSONObject params = new JSONObject();
+            params.put("event", "ed.apps.launch");
+            params.put("to", "host");
+            params.put("data", data);
+            JSONObject payload = new JSONObject();
+            payload.put("method", "ms.channel.emit");
+            payload.put("params", params);
+            ws.send(payload.toString());
         }
 
         void close() {

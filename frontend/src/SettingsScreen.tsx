@@ -459,7 +459,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <p className="settings-hint">
                 {s?.tv_paired
                   ? `Gekoppelt: ${s.tv_name || s.tv_host || 'TV'}`
-                  : 'Suchen, am TV erlauben, dann testen. Gleiches WLAN, kein Gastnetz.'}
+                  : 'Suchen, am TV erlauben, dann testen. Gleiches WLAN, kein Gastnetz.'}{' '}
+                Apps: „Öffne Netflix“, „Spiel YouTube“, „Spiel Dune Film“ (kostenlos zuerst).
               </p>
               <label className="settings-field">
                 <span>Name</span>

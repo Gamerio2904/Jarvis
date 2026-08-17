@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.31.0`**.
+App-Version im Code: **`1.32.0`**.
+
+### `1.32.0` — Samsung-Apps YouTube/Amazon/Disney/Netflix — *CODE*
+
+- Tizen: YouTube, Prime Video, Disney+, Netflix per Stimme öffnen
+- `Spiel … Film`: Lookup DE (gratis/Werbung vor Abo), dann App auf dem Samsung
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13200)
+- [`sprints/sprint-84.md`](./sprints/sprint-84.md) · [`26-next.md`](./26-next.md)
 
 ### `1.31.0` — Stimme & Jarvis-Ton — *CODE*
 

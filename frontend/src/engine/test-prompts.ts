@@ -15,6 +15,8 @@ export const TEST_PROMPTS = [
   '/hilfe',
   'Fernseher an',
   'Fire TV',
+  'Öffne Netflix',
+  'Spiel Dune Film',
   'Ventilator an',
   'Sag Hallo und duze mich.',
   'Erklären Sie in einem Satz, was Sie tun.',

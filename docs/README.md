@@ -30,7 +30,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 23 | [Alltag 1.29](./23-next.md) | **`1.29` CODE** — Suche, Fire TV, GUI, Widget, Ventilator |
 | 24 | [CarPlay flüssig](./24-next.md) | **`1.30` CODE** — HUD, Voice-Tabs, Navi-Ansagen |
 | 25 | [Stimme & Ton](./25-next.md) | **`1.31` CODE** — TTS, Smalltalk, Jarvis-Formulierung |
-| — | [APK](./apk.md) | Sideload `1.31.0` |
+| 26 | [Samsung-Apps](./26-next.md) | **`1.32` CODE** — YouTube/Amazon/Disney/Netflix, Film-Lookup |
+| — | [APK](./apk.md) | Sideload `1.32.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -81,4 +82,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 68–72 | `1.16`–`1.20` | **CODE** (in `1.24.0`) |
 | 73–76 | `1.21`–`1.24` | **CODE** |
 
-**Aktuell:** Sideload `1.31.0` — [`Jarvis.apk`](./apk.md).
+**Aktuell:** Sideload `1.32.0` — [`Jarvis.apk`](./apk.md).

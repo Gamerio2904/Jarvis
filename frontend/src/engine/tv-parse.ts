@@ -1,3 +1,5 @@
+import { type TvAppId } from './tv-apps.ts'
+
 export type TvAction =
   | 'on'
   | 'off'
@@ -22,6 +24,12 @@ export type TvAction =
   | 'right'
 
 export type TvIntent = { action: TvAction; steps?: number; level?: number; via?: 'tv' | 'fire' }
+
+export type { TvAppId }
+
+export type TvWatchIntent =
+  | { kind: 'open'; app: TvAppId }
+  | { kind: 'play'; title: string; app?: TvAppId; content?: 'movie' | 'show' }
 
 export const TV_ANCHOR = /\b(fernseher|fernseh|\btv\b|tizen|samsung)\b/i
 export const FIRE_ANCHOR =
@@ -55,6 +63,69 @@ function fireAction(t: string): TvAction | null {
   if (/\brechts\b/i.test(t)) return 'right'
   if (/\b(aus(?:schalten)?|ausmachen|standby|schlaf)\b/i.test(t)) return 'off'
   if (/\b(an(?:schalten)?|anmachen|ein(?:schalten)?|wecken)\b/i.test(t)) return 'on'
+  return null
+}
+
+const APP_PAT: Array<[TvAppId, RegExp]> = [
+  ['youtube', /\b(?:you\s*tube|youtube|\byt\b)\b/i],
+  ['netflix', /\bnetflix\b/i],
+  ['disney', /\bdisney(?:\s*(?:\+|plus))?\b/i],
+  ['prime', /\b(?:amazon(?:\s*prime(?:\s*video)?)?|prime(?:\s*video)?)\b/i],
+]
+
+const VERB =
+  /^(?:öffne|starte?|zeig(?:e)?|spiel(?:e)?|schau(?:e)?n?|mach(?:e)?)\s+(?:mal\s+)?(?:bitte\s+)?(?:die\s+|den\s+|das\s+)?/i
+
+export function parseTvApp(text: string): TvAppId | null {
+  if (FIRE_ANCHOR.test(text)) return null
+  for (const [id, re] of APP_PAT) {
+    if (re.test(text)) return id
+  }
+  return null
+}
+
+function stripWatchTitle(raw: string): string {
+  return raw
+    .replace(/\b(?:am|auf\s+dem)\s+(?:fernseher|tv|samsung|tizen)\b/gi, ' ')
+    .replace(/\b(?:auf\s+)?(?:you\s*tube|youtube|\byt\b|netflix|disney(?:\s*(?:\+|plus))?|amazon(?:\s*prime(?:\s*video)?)?|prime(?:\s*video)?)\b/gi, ' ')
+    .replace(/\b(?:filme?|movies?|serien?|folge|apps?|ganzer?|stream(?:en)?)\b/gi, ' ')
+    .replace(/\b(?:an|aus|anmachen|ausmachen|starten|öffnen)\b/gi, ' ')
+    .replace(/^(?:den|die|das|mal|bitte|den\s+film|die\s+serie)\s+/i, '')
+    .replace(/[.!?]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+export function parseTvWatch(text: string): TvWatchIntent | null {
+  const t = text.trim().replace(/[.!?]+$/g, '')
+  if (!t || /\bspotify\b/i.test(t)) return null
+  if (FIRE_ANCHOR.test(t)) return null
+
+  const app = parseTvApp(t)
+  const tvCue = TV_ANCHOR.test(t) || /\bam\s+fernseher\b|\bauf\s+dem\s+(?:tv|fernseher)\b/i.test(t)
+  const filmCue = /\b(?:filme?|movies?)\b/i.test(t)
+  const showCue = /\b(?:serien?|folge)\b/i.test(t)
+  const appCue = /\bapps?\b/i.test(t)
+  const openVerb = /^(?:öffne|starte?|zeig(?:e)?|mach(?:e)?)\b/i.test(t)
+  const playVerb = /^(?:spiel(?:e)?|schau(?:e)?n?)\b/i.test(t)
+  const rest = stripWatchTitle(t.replace(VERB, ''))
+
+  if (app && (openVerb || (playVerb && !rest) || (tvCue && !playVerb && !rest) || (/\ban\b/i.test(t) && !rest && !/\baus\b/i.test(t)))) {
+    return { kind: 'open', app }
+  }
+  if (app && playVerb && rest.length >= 2) {
+    return { kind: 'play', title: rest, app, content: showCue ? 'show' : filmCue ? 'movie' : undefined }
+  }
+  if (playVerb && (filmCue || showCue || appCue || tvCue)) {
+    if (rest.length >= 2) {
+      return {
+        kind: 'play',
+        title: rest,
+        app: app || undefined,
+        content: showCue ? 'show' : filmCue ? 'movie' : undefined,
+      }
+    }
+  }
   return null
 }
 

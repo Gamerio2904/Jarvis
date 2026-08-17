@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { isHelpCommand } from '../src/engine/guards.ts'
-import { parseTvIntent } from '../src/engine/tv-parse.ts'
+import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { isIdentityAsk, isMemoryRecall, isMemoryWrite } from '../src/engine/memory-parse.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
@@ -37,7 +37,7 @@ function route(text, ctx = {}) {
   text = normalizeUtterance(text)
   if (isHelpCommand(text)) return 'help'
   if (parseOrdinalFollowUp(text)) return 'ordinal'
-  if (parseTvIntent(text)) return 'tv'
+  if (parseTvWatch(text) || parseTvIntent(text)) return 'tv'
   if (parseFanIntent(text)) return 'fan'
   if (parseDriveIntent(text)) return 'drive'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
@@ -77,6 +77,8 @@ const EXPECT = {
   '/hilfe': 'help',
   'Fernseher an': 'tv',
   'Fire TV': 'tv',
+  'Öffne Netflix': 'tv',
+  'Spiel Dune Film': 'tv',
   'Ventilator an': 'fan',
   'Sag Hallo und duze mich.': 'llm',
   'Erklären Sie in einem Satz, was Sie tun.': 'llm',

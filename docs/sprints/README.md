@@ -87,8 +87,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 81 | [`sprint-81.md`](./sprint-81.md) | `1.29.0` | Suche, Fire TV, GUI, Widget, Ventilator | **CODE** |
 | 82 | [`sprint-82.md`](./sprint-82.md) | `1.30.0` | CarPlay flüssig: HUD, Voice-Tabs, Navi-Ansagen | **CODE** |
 | 83 | [`sprint-83.md`](./sprint-83.md) | `1.31.0` | Stimme Charon + Latenz; Jarvis-Smalltalk | **CODE** |
+| 84 | [`sprint-84.md`](./sprint-84.md) | `1.32.0` | Samsung-Apps YouTube/Amazon/Disney/Netflix | **CODE** |
 
-**Aktuell:** Sideload `1.31.0`. Alltag: [`25-next.md`](../25-next.md).
+**Aktuell:** Sideload `1.32.0`. Alltag: [`26-next.md`](../26-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

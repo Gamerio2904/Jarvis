@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { parseTvIntent } from '../src/engine/tv-parse.ts'
+import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
@@ -34,6 +34,8 @@ import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseSpotifyIntent, spotifySourceLabel } from '../src/engine/spotify-parse.ts'
+import { pickWatchTarget, parseWatchOffers, youtubeVideoId } from '../src/engine/tv-watch.ts'
+import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
@@ -60,6 +62,35 @@ assert.equal(parseTvIntent('Lautstärke 50')?.level, 50)
 assert.equal(parseTvIntent('lauter um 10')?.action, 'volume_up')
 assert.equal(parseTvIntent('lauter um 10')?.steps, 10)
 assert.equal(parseTvIntent('leiser um 5')?.action, 'volume_down')
+assert.equal(parseTvWatch('Öffne Netflix')?.kind, 'open')
+assert.equal(parseTvWatch('Öffne Netflix')?.kind === 'open' && parseTvWatch('Öffne Netflix').app, 'netflix')
+assert.equal(parseTvWatch('Starte YouTube am Fernseher')?.kind === 'open' && parseTvWatch('Starte YouTube am Fernseher').app, 'youtube')
+assert.equal(parseTvWatch('Spiel YouTube')?.kind === 'open' && parseTvWatch('Spiel YouTube').app, 'youtube')
+assert.equal(parseTvWatch('Öffne Amazon')?.kind === 'open' && parseTvWatch('Öffne Amazon').app, 'prime')
+assert.equal(parseTvWatch('Disney Plus am Fernseher')?.kind === 'open' && parseTvWatch('Disney Plus am Fernseher').app, 'disney')
+assert.equal(parseTvWatch('Spiel Dune Film')?.kind, 'play')
+assert.equal(parseTvWatch('Spiel Dune Film')?.kind === 'play' && parseTvWatch('Spiel Dune Film').title, 'Dune')
+assert.equal(parseTvWatch('Spiele den Film Inception')?.kind === 'play' && parseTvWatch('Spiele den Film Inception').title, 'Inception')
+assert.equal(parseTvWatch('Spiel Dune Film App')?.kind === 'play' && parseTvWatch('Spiel Dune Film App').title, 'Dune')
+assert.equal(parseTvWatch('Spiel Dune auf Netflix')?.kind === 'play' && parseTvWatch('Spiel Dune auf Netflix').app, 'netflix')
+assert.equal(parseTvWatch('Spiel Dune auf Netflix')?.kind === 'play' && parseTvWatch('Spiel Dune auf Netflix').title, 'Dune')
+assert.equal(parseTvWatch('Spiel Hotel California'), null)
+assert.equal(parseTvWatch('Spiel das auf Spotify'), null)
+assert.equal(parseTvWatch('Fire TV Pause'), null)
+assert.equal(parseTvWatch('Fernseher an'), null)
+assert.equal(youtubeVideoId('https://www.youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ')
+assert.equal(tvAppFromPackage({ packageId: 8 }), 'netflix')
+assert.equal(tvAppFromPackage({ packageId: 337 }), 'disney')
+assert.equal(pickWatchTarget(parseWatchOffers([
+  { monetizationType: 'FLATRATE', standardWebURL: 'https://www.netflix.com/title/1', package: { packageId: 8, clearName: 'Netflix' } },
+  { monetizationType: 'FREE', standardWebURL: 'https://www.youtube.com/watch?v=abc123xyz', package: { packageId: 192, clearName: 'YouTube' } },
+]))?.app, 'youtube')
+assert.equal(pickWatchTarget(parseWatchOffers([
+  { monetizationType: 'RENT', package: { packageId: 10, clearName: 'Amazon Video' } },
+]), 'prime')?.monetization, 'rent')
+assert.equal(pickWatchTarget(parseWatchOffers([
+  { monetizationType: 'RENT', package: { packageId: 10, clearName: 'Amazon Video' } },
+])), null)
 assert.equal(parseDriveIntent('Aktiviere Fahrmodus')?.kind, 'on')
 assert.equal(parseDriveIntent('Fahrmodus aus')?.kind, 'off')
 assert.equal(parseDriveIntent('zur Freundin', true)?.kind, 'dest')
