@@ -98,7 +98,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 92 | [`sprint-92.md`](./sprint-92.md) | `1.39.0` | Stimme bleiben | **PLANNED** |
 | 93 | [`sprint-93.md`](./sprint-93.md) | `1.40.0` | Härten | **PLANNED** |
 
-**Aktuell:** Sideload `1.33.0`. Nächste: Sprint 87 = `1.34.0` Antworten. [`28-next.md`](../28-next.md).
+**Aktuell:** Sideload `1.33.1`. Nächste: Sprint 87 = `1.34.0` Antworten. [`28-next.md`](../28-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

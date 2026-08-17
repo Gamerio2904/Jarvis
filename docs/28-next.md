@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.33.0`**.
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.33.1`**.
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -187,4 +187,4 @@ Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default
 
 ## Nächster Schritt
 
-Sideload `1.33.0`. Nächste Umsetzung: Sprint 87 / **`1.34.0`** (Antwort-Kontext) — auf PO-Kommando.
+Sideload `1.33.1`. Nächste Umsetzung: Sprint 87 / **`1.34.0`** (Antwort-Kontext) — auf PO-Kommando.

@@ -79,6 +79,7 @@ const EXPECT = {
   'Fire TV': 'tv',
   'Öffne Netflix': 'tv',
   'Spiel Dune Film': 'tv',
+  'Spiele ein YouTube Video auf dem Fernseher': 'tv',
   'Ventilator an': 'fan',
   'Sag Hallo und duze mich.': 'llm',
   'Erklären Sie in einem Satz, was Sie tun.': 'llm',

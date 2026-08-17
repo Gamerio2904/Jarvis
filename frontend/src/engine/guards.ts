@@ -5,6 +5,8 @@ const HELPDESK =
   /wie kann ich helfen|was kann ich für sie tun|womit kann ich (?:ihnen )?(?:nun )?(?:tatsächlich )?behilflich|womit kann ich dienen|gerne!|als ki\b|stehe (?:ihnen )?zu (?:ihren )?diensten|wie kann ich (?:sie |ihnen )?unterstützen|ich bin (?:eine |ein )?(?:ki|sprachmodell|digitaler assistent)|ich helfe ihnen gerne|was möchten sie (?:heute |jetzt )?(?:wissen|tun)/i
 const FAKE_CLAIM =
   /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt))\b/i
+const FAKE_NO_DEVICE =
+  /kein(?:en)?\s+direkten?\s+zugriff\s+auf|apple lässt mich hier nicht|müssen sie auf dem fernseher/i
 const INSULT_USER =
   /akute(?:r)?\s+amnesie|neurolog|kognitive(?:n)?\s+fähigkeiten|sinnlose fragen|blutbild|arterien|fürchte ich um ihre|offensichtlich an |ihr(?:em)?\s+letzten blut/i
 const FAKE_SEARCH =
@@ -31,6 +33,9 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
   }
   if (FAKE_CLAIM.test(out)) {
     return 'Das habe ich nicht ausgeführt. Bitte den Befehl klar sagen.'
+  }
+  if (FAKE_NO_DEVICE.test(out)) {
+    return 'Den Fernseher steuere ich. Sagen Sie zum Beispiel „Öffne YouTube“ oder „Spiel Dune Film“.'
   }
   if (INSULT_USER.test(out)) {
     return 'Ich bin Jarvis. Worum geht es — sachlich, ohne Anfälle.'

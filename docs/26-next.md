@@ -23,6 +23,8 @@ Sprint: [`sprint-84.md`](./sprints/sprint-84.md).
 
 Musik bleibt unangetastet: `Spiel Hotel California` und `Spiel das auf Spotify` gehen nicht an den Fernseher.
 
+YouTube-Video (`Spiel … YouTube Video auf dem Fernseher`, `Spiele Sonic 3 ab` direkt danach) sucht **YouTube**, nicht JustWatch. Filmfreund/Joyn starte ich nicht und erfinde ich nicht als Treffer.
+
 ## Lookup
 
 Keine Extra-Keys. JustWatch GraphQL (DE), sonst DuckDuckGo nach YouTube-`watch?v=`. Leihen/Kaufen nur, wenn die App genannt wurde. Kein Fake-„läuft jetzt“, wenn die App nicht startet.

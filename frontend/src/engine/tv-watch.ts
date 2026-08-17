@@ -215,8 +215,10 @@ function pickHit(hits: WatchHit[], preferType?: 'MOVIE' | 'SHOW'): WatchHit | nu
   return hits[0] || null
 }
 
-export async function youtubeSearch(title: string): Promise<string | undefined> {
-  const q = encodeURIComponent(`${title} ganzer Film site:youtube.com`.slice(0, 120))
+export async function youtubeSearch(title: string, mode: 'film' | 'video' = 'film'): Promise<string | undefined> {
+  const q = encodeURIComponent(
+    (mode === 'video' ? `${title} site:youtube.com` : `${title} ganzer Film site:youtube.com`).slice(0, 120),
+  )
   try {
     const { status, text } = await getText(`https://html.duckduckgo.com/html/?q=${q}`, {
       Accept: 'text/html',
@@ -224,11 +226,14 @@ export async function youtubeSearch(title: string): Promise<string | undefined> 
     })
     if (status < 200 || status >= 400 || !text) return undefined
     const sources = sourcesFromHtml(text)
-    const ranked = sources.slice().sort((a, b) => {
-      const ta = /trailer|teaser|clip|recap/i.test(`${a.title} ${a.url}`) ? 1 : 0
-      const tb = /trailer|teaser|clip|recap/i.test(`${b.title} ${b.url}`) ? 1 : 0
-      return ta - tb
-    })
+    const ranked =
+      mode === 'video'
+        ? sources
+        : sources.slice().sort((a, b) => {
+            const ta = /trailer|teaser|clip|recap/i.test(`${a.title} ${a.url}`) ? 1 : 0
+            const tb = /trailer|teaser|clip|recap/i.test(`${b.title} ${b.url}`) ? 1 : 0
+            return ta - tb
+          })
     for (const s of ranked) {
       const deep = youtubeDeepLink(s.url)
       if (deep) return deep
@@ -239,9 +244,13 @@ export async function youtubeSearch(title: string): Promise<string | undefined> 
   return undefined
 }
 
+export function youtubeSearchLink(title: string): string {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(title.slice(0, 80))}`
+}
+
 export async function lookupWatch(
   title: string,
-  opts?: { app?: TvAppId; kind?: 'movie' | 'show' },
+  opts?: { app?: TvAppId; kind?: 'movie' | 'show' | 'video' },
 ): Promise<WatchHit> {
   const preferType = opts?.kind === 'show' ? 'SHOW' : opts?.kind === 'movie' ? 'MOVIE' : undefined
   const hits = await justWatchSearch(title)
@@ -265,7 +274,7 @@ export async function lookupWatch(
     return { ...hit, target: null }
   }
   if (opts?.app) {
-    const url = opts.app === 'youtube' ? await youtubeSearch(title) : undefined
+    const url = opts.app === 'youtube' ? await youtubeSearch(title, opts.kind === 'video' ? 'video' : 'film') : undefined
     return {
       title,
       offers: [],

@@ -20,13 +20,14 @@ import {
   type TvAction,
   type TvWatchIntent,
 } from './tv-parse.ts'
-import { lookupWatch, youtubeDeepLink, type WatchHit, type WatchOffer } from './tv-watch.ts'
+import { lookupWatch, youtubeDeepLink, youtubeSearch, youtubeSearchLink, youtubeVideoId, type WatchHit, type WatchOffer } from './tv-watch.ts'
 
 export { parseTvIntent, parseTvWatch } from './tv-parse.ts'
 export type { TvAction, TvIntent, TvWatchIntent } from './tv-parse.ts'
 
 let lastTvAt = 0
 let lastVia: 'tv' | 'fire' = 'tv'
+let lastWatchApp: TvAppId | undefined
 
 const KEYS: Record<TvAction, string | null> = {
   on: null,
@@ -93,13 +94,18 @@ const REPLIES: Record<TvAction, string> = {
   right: 'Rechts.',
 }
 
-export function isTvFollowUp(text: string): boolean {
-  return Date.now() - lastTvAt <= TV_FOLLOWUP_MS && isFollowUpPhrase(text)
+function recentTv(): boolean {
+  return Date.now() - lastTvAt <= TV_FOLLOWUP_MS
 }
 
-function markTvTurn(via: 'tv' | 'fire' = 'tv') {
+export function isTvFollowUp(text: string): boolean {
+  return recentTv() && isFollowUpPhrase(text)
+}
+
+function markTvTurn(via: 'tv' | 'fire' = 'tv', app?: TvAppId) {
   lastTvAt = Date.now()
   lastVia = via
+  if (app) lastWatchApp = app
 }
 
 export function tvStatusFromSettings() {
@@ -282,7 +288,9 @@ async function applyVolume(intent: { action: TvAction; steps?: number; level?: n
 }
 
 export async function handleTv(text: string): Promise<{ handled: boolean; reply?: string }> {
-  const watch = parseTvWatch(text)
+  const watch =
+    parseTvWatch(text) ||
+    (recentTv() ? parseTvWatch(text, { followUp: true, lastApp: lastWatchApp }) : null)
   if (watch) return handleTvWatch(watch)
 
   const follow = isTvFollowUp(text)
@@ -455,19 +463,34 @@ async function handleTvWatch(intent: TvWatchIntent): Promise<{ handled: boolean;
 
   if (intent.kind === 'open') {
     const res = await launchSamsungApp(intent.app)
-    markTvTurn()
+    markTvTurn('tv', intent.app)
     if (!res.ok) return { handled: true, reply: res.message }
     return { handled: true, reply: `${TV_APP_LABEL[intent.app]} ist offen.` }
   }
 
-  const hit = await lookupWatch(intent.title, { app: intent.app, kind: intent.content })
+  if (intent.content === 'video' || (intent.app === 'youtube' && intent.content !== 'movie' && intent.content !== 'show')) {
+    const found = await youtubeSearch(intent.title, 'video')
+    const url = found || youtubeSearchLink(intent.title)
+    const res = await launchSamsungApp('youtube', youtubeDeepLink(url) || url)
+    markTvTurn('tv', 'youtube')
+    if (!res.ok) return { handled: true, reply: res.message }
+    if (found && youtubeVideoId(found)) {
+      return { handled: true, reply: `YouTube: ${intent.title}.` }
+    }
+    return { handled: true, reply: `YouTube sucht nach ${intent.title}.` }
+  }
+
+  const hit = await lookupWatch(intent.title, {
+    app: intent.app,
+    kind: intent.content === 'movie' || intent.content === 'show' ? intent.content : undefined,
+  })
   const app = hit.target?.app || intent.app
   if (!app) {
     markTvTurn()
     return { handled: true, reply: watchReply(hit, false) }
   }
   const res = await launchSamsungApp(app, deepLinkFor(hit.target))
-  markTvTurn()
+  markTvTurn('tv', app)
   const spoken = watchReply(hit, res.ok, app)
   return { handled: true, reply: res.ok ? spoken : `${spoken} ${res.message}` }
 }

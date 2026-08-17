@@ -90,6 +90,30 @@ assert.equal(parseTvWatch('Spiel Hotel California'), null)
 assert.equal(parseTvWatch('Spiel das auf Spotify'), null)
 assert.equal(parseTvWatch('Fire TV Pause'), null)
 assert.equal(parseTvWatch('Fernseher an'), null)
+assert.equal(parseTvWatch('Netflix an')?.kind, 'open')
+{
+  const yt = parseTvWatch('Spiele ein der hansus YouTube Video auf dem Fernseher ab')
+  assert.equal(yt?.kind, 'play')
+  if (yt?.kind === 'play') {
+    assert.equal(yt.app, 'youtube')
+    assert.equal(yt.content, 'video')
+    assert.equal(yt.title.toLowerCase().includes('hansus'), true)
+  }
+}
+assert.equal(parseTvWatch('Spiele Sonic 3 ab'), null)
+{
+  const sonic = parseTvWatch('Spiele Sonic 3 ab', { followUp: true, lastApp: 'youtube' })
+  assert.equal(sonic?.kind, 'play')
+  if (sonic?.kind === 'play') {
+    assert.equal(sonic.title, 'Sonic 3')
+    assert.equal(sonic.app, 'youtube')
+    assert.equal(sonic.content, 'video')
+  }
+}
+assert.match(
+  scrubReply('Kein direkter Zugriff auf Ihre Geräte, Timon. Den Film müssen Sie auf dem Fernseher.'),
+  /Fernseher steuere ich/,
+)
 assert.equal(youtubeVideoId('https://www.youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ')
 assert.equal(tvAppFromPackage({ packageId: 8 }), 'netflix')
 assert.equal(tvAppFromPackage({ packageId: 337 }), 'disney')

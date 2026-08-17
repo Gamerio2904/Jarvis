@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.33.0`**.
+App-Version im Code: **`1.33.1`**.
+
+### `1.33.1` — Fernseher-Befehle — *CODE*
+
+- YouTube-Video auf dem TV sucht YouTube, nicht JustWatch/filmfriend
+- Nach TV: `Spiele Sonic 3 ab` bleibt am Fernseher, kein „kein Zugriff auf Geräte“
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13301)
+- [`sprints/sprint-86.md`](./sprints/sprint-86.md) · [`26-next.md`](./26-next.md)
 
 ### `1.33.0` — Suche & Antworten — *CODE*
 
