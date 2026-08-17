@@ -65,9 +65,11 @@ public class JarvisAlarmActivity extends Activity {
         root.addView(stop);
         setContentView(root);
         JarvisAlarmService.start(this, title, body, tone);
+        JarvisAlarmPlayer.start(this, tone);
     }
 
     private void halt() {
+        JarvisAlarmPlayer.stop();
         JarvisAlarmService.stop(this);
         finish();
     }
@@ -75,5 +77,11 @@ public class JarvisAlarmActivity extends Activity {
     @Override
     public void onBackPressed() {
         halt();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (isFinishing()) JarvisAlarmPlayer.stop();
+        super.onDestroy();
     }
 }

@@ -31,6 +31,7 @@ for (const name of [
   'JarvisNotifyBoot.java',
   'JarvisAlarmActivity.java',
   'JarvisAlarmService.java',
+  'JarvisAlarmPlayer.java',
   'JarvisGlanceWidget.java',
 ]) {
   copyFileSync(join(notifySrc, name), join(notifyDest, name))
@@ -104,6 +105,7 @@ const perms = [
   'android.permission.FOREGROUND_SERVICE',
   'android.permission.FOREGROUND_SERVICE_MICROPHONE',
   'android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK',
+  'android.permission.FOREGROUND_SERVICE_SPECIAL_USE',
   'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
   'android.permission.READ_MEDIA_AUDIO',
   'android.permission.MODIFY_AUDIO_SETTINGS',
@@ -159,7 +161,11 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmActivity')) {
         <service
             android:name="app.jarvis.notify.JarvisAlarmService"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
+            android:foregroundServiceType="mediaPlayback|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Wecker-Klingeln" />
+        </service>
         <receiver
             android:name="app.jarvis.notify.JarvisGlanceWidget"
             android:exported="true"
@@ -185,8 +191,28 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmService')) {
     `        <service
             android:name="app.jarvis.notify.JarvisAlarmService"
             android:exported="false"
-            android:foregroundServiceType="mediaPlayback" />
+            android:foregroundServiceType="mediaPlayback|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Wecker-Klingeln" />
+        </service>
 </application>`,
+  )
+}
+if (
+  manifest.includes('app.jarvis.notify.JarvisAlarmService') &&
+  !manifest.includes('android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE')
+) {
+  manifest = manifest.replace(
+    /<service\s+android:name="app\.jarvis\.notify\.JarvisAlarmService"\s+android:exported="false"\s+android:foregroundServiceType="mediaPlayback"\s*\/>/,
+    `<service
+            android:name="app.jarvis.notify.JarvisAlarmService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Wecker-Klingeln" />
+        </service>`,
   )
 }
 if (!manifest.includes('android.app.shortcuts')) {

@@ -41,7 +41,7 @@ import org.json.JSONObject;
 )
 public class JarvisNotifyPlugin extends Plugin {
     static final String CHANNEL_ID = "jarvis_reminders";
-    static final String ALARM_CHANNEL = "jarvis_alarms_v3";
+    static final String ALARM_CHANNEL = "jarvis_alarms_v4";
     static final String PREFS = "jarvis_notify";
     static final String KEY_ITEMS = "items";
     static final String KEY_TONE = "alarm_tone";
@@ -208,13 +208,11 @@ public class JarvisNotifyPlugin extends Plugin {
         );
         ch.setDescription("Jarvis-Erinnerungen zur vereinbarten Zeit");
         nm.createNotificationChannel(ch);
-        try {
-            nm.deleteNotificationChannel("jarvis_alarms");
-        } catch (Exception ignored) {
-        }
-        try {
-            nm.deleteNotificationChannel("jarvis_alarms_v2");
-        } catch (Exception ignored) {
+        for (String old : new String[]{"jarvis_alarms", "jarvis_alarms_v2", "jarvis_alarms_v3"}) {
+            try {
+                nm.deleteNotificationChannel(old);
+            } catch (Exception ignored) {
+            }
         }
         NotificationChannel alarm = new NotificationChannel(
                 ALARM_CHANNEL,
@@ -225,7 +223,8 @@ public class JarvisNotifyPlugin extends Plugin {
         alarm.setBypassDnd(true);
         alarm.enableVibration(true);
         alarm.enableLights(true);
-        alarm.setSound(null, null);
+        Uri ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        if (ring != null) alarm.setSound(ring, JarvisAlarmPlayer.alarmAttrs());
         nm.createNotificationChannel(alarm);
     }
 
@@ -234,22 +233,37 @@ public class JarvisNotifyPlugin extends Plugin {
         if (am == null) return false;
         PendingIntent pi = pending(ctx, id, title, body, alarm, recur, tone);
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (am.canScheduleExactAlarms()) {
-                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
-                } else {
-                    am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
-                }
-            } else {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+            Intent show = new Intent(ctx, JarvisAlarmActivity.class);
+            show.putExtra("title", title);
+            show.putExtra("body", body);
+            show.putExtra("tone", tone == null ? "" : tone);
+            show.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                flags |= PendingIntent.FLAG_IMMUTABLE;
             }
+            PendingIntent showPi = PendingIntent.getActivity(ctx, 80_000 + id, show, flags);
+            am.setAlarmClock(new AlarmManager.AlarmClockInfo(atMs, showPi), pi);
             return true;
         } catch (Exception e) {
             try {
-                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (am.canScheduleExactAlarms()) {
+                        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+                    } else {
+                        am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+                    }
+                } else {
+                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+                }
                 return true;
             } catch (Exception ignored) {
-                return false;
+                try {
+                    am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+                    return true;
+                } catch (Exception ignored2) {
+                    return false;
+                }
             }
         }
     }
@@ -345,6 +359,7 @@ public class JarvisNotifyPlugin extends Plugin {
         ensureChannel(ctx);
         String play = tone != null && !tone.isEmpty() ? tone : prefs(ctx).getString(KEY_TONE, "");
         JarvisAlarmService.start(ctx, title, body, play);
+        JarvisAlarmPlayer.start(ctx, play);
         Intent full = new Intent(ctx, JarvisAlarmActivity.class);
         full.putExtra("title", title);
         full.putExtra("body", body);

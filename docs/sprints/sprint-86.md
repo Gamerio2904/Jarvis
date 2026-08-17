@@ -4,7 +4,7 @@
 |------|------|
 | Status | **CODE** |
 | Priorität | **MUST** |
-| Ziel-Version | **`1.33.2`** |
+| Ziel-Version | **`1.33.3`** |
 | Quelle | PO 2026-08-17 Screenshots: Suche sagt Absage plus Quellen; Preise fehlen; „Timon — liegt.“; „Öffnen Carplay“; Route ohne Netz |
 | Voraussetzung | Sideload `1.32.1` |
 | Plan | [`28-next.md`](../28-next.md) |
@@ -26,6 +26,7 @@ Internet-Suche liefert eine echte Antwort (Preise wo in den Treffern), keine Abs
 | R7 | Version `1.33.0` | Sideload |
 | R8 | YouTube-Video ≠ Film-Lookup; Follow-up `Spiele … ab` | `1.33.1` |
 | R9 | Widget-Tap öffnet Sprachmodus (hören + antworten) | `1.33.2` |
+| R10 | Wecker klingelt, nicht nur Anzeige | `1.33.3` |
 
 ## Probe
 
@@ -35,6 +36,7 @@ Internet-Suche liefert eine echte Antwort (Preise wo in den Treffern), keine Abs
 4. `Öffnen CarPlay` → Fahrmodus, nicht Apple-Entitlement.
 5. `Spiele … YouTube Video auf dem Fernseher` → YouTube, kein fremder Film. Danach `Spiele Sonic 3 ab` bleibt am TV.
 6. Widget antippen oder 🎙 — Sprachmodus, Jarvis hört und antwortet.
+7. `Timer 1 Minute Test` — Ton, nicht nur der Wecker-Bildschirm.
 
 ## Won’t
 

@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.33.2`**.
+App-Version im Code: **`1.33.3`**.
+
+### `1.33.3` — Wecker klingelt wieder — *CODE*
+
+- Ton hängt nicht mehr nur am Vordergrunddienst (Anzeige ohne Klingel)
+- Bundled WAV + Piep-Watchdog; Ton bleibt auf dem Wecker-Bildschirm
+- `setAlarmClock`, Alarm-Lautstärke erzwungen
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13303)
+- [`sprints/sprint-86.md`](./sprints/sprint-86.md) · [`28-next.md`](./28-next.md)
 
 ### `1.33.2` — Widget hört und antwortet — *CODE*
 

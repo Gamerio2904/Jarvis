@@ -55,7 +55,8 @@ public class JarvisWakeService extends Service {
         JarvisWakeService s = inst;
         if (s == null) return;
         s.armed = false;
-        s.main.post(s::stopRec);
+        if (Looper.myLooper() == Looper.getMainLooper()) s.stopRec();
+        else s.main.post(s::stopRec);
     }
 
     public static void resumeListen(Context ctx) {
