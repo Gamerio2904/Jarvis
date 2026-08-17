@@ -109,6 +109,8 @@ const EXPECT = {
   'Ich bin zuhause': 'home',
   'Lies das Foto': 'eye',
   'Aktiviere Fahrmodus': 'drive',
+  'Zeig Spotify': 'drive',
+  'Spiel das auf Spotify': 'drive',
   'Lautstärke 50': 'tv',
   'lauter um 10': 'tv',
   'Fahrmodus aus': 'drive',

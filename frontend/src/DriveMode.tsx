@@ -1,7 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
-import { getDriveRoute, refreshDriveRoute, subscribeDrive, type DriveRoute } from './engine/drive'
-import { readDeviceLocation } from './native/geo'
-import { listenOnce, requestMicPermission } from './native/voice'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import {
+  getDriveRoute,
+  getDriveTab,
+  refreshDriveRoute,
+  setDriveTab,
+  subscribeDrive,
+  type DriveRoute,
+  type DriveTab,
+} from './engine/drive'
+import { formatNavBanner, nextManeuver } from './engine/nav-speak'
+import { watchDeviceLocation } from './native/geo'
+import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, stopSpeak } from './native/voice'
 import {
   activateSpotifyElement,
   ensureInternalPlayer,
@@ -9,12 +18,10 @@ import {
   getSpotifyPlayerStatus,
   pauseSpotify,
   playQuery,
-  playTrack,
   nextSpotify,
   prevSpotify,
   refreshNow,
   resumeSpotify,
-  searchTracks,
   spotifyConfigured,
   spotifyLoggedIn,
   spotifySourceLabel,
@@ -22,7 +29,6 @@ import {
   subscribeSpotify,
   type SpotifyNow,
   type SpotifyPlayerStatus,
-  type SpotifyTrack,
 } from './engine/spotify'
 
 function world(lat: number, lon: number, z: number) {
@@ -33,34 +39,70 @@ function world(lat: number, lon: number, z: number) {
   return { x, y }
 }
 
-function TileMap({
-  lat,
-  lon,
+function FollowMap({
   destLat,
   destLon,
   z,
   coords,
   you,
+  bearing,
 }: {
-  lat: number
-  lon: number
   destLat: number
   destLon: number
   z: number
   coords: Array<[number, number]>
   you?: { lat: number; lon: number }
+  bearing?: number
 }) {
   const size = 256
-  const cols = 5
-  const rows = 5
-  const center = world(lat, lon, z)
-  const originX = Math.floor(center.x) - Math.floor(cols / 2)
-  const originY = Math.floor(center.y) - Math.floor(rows / 2)
+  const cols = 7
+  const rows = 7
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const layerRef = useRef<HTMLDivElement>(null)
+  const target = useRef({ lat: you?.lat ?? destLat, lon: you?.lon ?? destLon })
+  target.current = { lat: you?.lat ?? destLat, lon: you?.lon ?? destLon }
+  const display = useRef({ ...target.current })
+  const [origin, setOrigin] = useState(() => {
+    const c = world(target.current.lat, target.current.lon, z)
+    return { x: Math.floor(c.x) - 3, y: Math.floor(c.y) - 3 }
+  })
+
+  useEffect(() => {
+    let live = true
+    const tick = () => {
+      if (!live) return
+      const t = target.current
+      const d = display.current
+      const jump = Math.abs(t.lat - d.lat) + Math.abs(t.lon - d.lon) > 0.08
+      d.lat = jump ? t.lat : d.lat + (t.lat - d.lat) * 0.16
+      d.lon = jump ? t.lon : d.lon + (t.lon - d.lon) * 0.16
+      const c = world(d.lat, d.lon, z)
+      const ox = Math.floor(c.x) - 3
+      const oy = Math.floor(c.y) - 3
+      setOrigin((prev) => (prev.x === ox && prev.y === oy ? prev : { x: ox, y: oy }))
+      const wrap = wrapRef.current
+      const layer = layerRef.current
+      if (wrap && layer) {
+        const fracX = (c.x - ox) * size
+        const fracY = (c.y - oy) * size
+        const tx = wrap.clientWidth * 0.5 - fracX
+        const ty = wrap.clientHeight * 0.62 - fracY
+        layer.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0)`
+      }
+      requestAnimationFrame(tick)
+    }
+    const id = requestAnimationFrame(tick)
+    return () => {
+      live = false
+      cancelAnimationFrame(id)
+    }
+  }, [z])
+
   const w = cols * size
   const h = rows * size
   const toPx = (la: number, lo: number) => {
     const p = world(la, lo, z)
-    return { x: (p.x - originX) * size, y: (p.y - originY) * size }
+    return { x: (p.x - origin.x) * size, y: (p.y - origin.y) * size }
   }
   const path = coords
     .map(([lo, la]) => {
@@ -68,72 +110,51 @@ function TileMap({
       return `${p.x},${p.y}`
     })
     .join(' ')
-  const tiles: Array<{ key: string; src: string; left: number; top: number }> = []
-  for (let y = 0; y < rows; y += 1) {
-    for (let x = 0; x < cols; x += 1) {
-      const tx = originX + x
-      const ty = originY + y
-      tiles.push({
-        key: `${z}-${tx}-${ty}`,
-        src: `https://basemaps.cartocdn.com/dark_all/${z}/${tx}/${ty}@2x.png`,
-        left: x * size,
-        top: y * size,
-      })
+  const tiles = useMemo(() => {
+    const list: Array<{ key: string; src: string; left: number; top: number }> = []
+    for (let y = 0; y < rows; y += 1) {
+      for (let x = 0; x < cols; x += 1) {
+        const tx = origin.x + x
+        const ty = origin.y + y
+        list.push({
+          key: `${z}-${tx}-${ty}`,
+          src: `https://basemaps.cartocdn.com/dark_all/${z}/${tx}/${ty}@2x.png`,
+          left: x * size,
+          top: y * size,
+        })
+      }
     }
-  }
+    return list
+  }, [origin.x, origin.y, z])
   const pin = toPx(destLat, destLon)
-  const me = you ? toPx(you.lat, you.lon) : pin
+  const rot = bearing != null && Number.isFinite(bearing) ? bearing : 0
+
   return (
-    <div className="drive-map" style={{ width: w, height: h }}>
-      {tiles.map((t) => (
-        <img key={t.key} alt="" src={t.src} style={{ left: t.left, top: t.top }} />
-      ))}
-      <svg className="drive-svg" viewBox={`0 0 ${w} ${h}`}>
-        {path ? (
-          <polyline points={path} fill="none" stroke="#1ed760" strokeWidth="5" strokeLinejoin="round" />
-        ) : null}
-        <circle cx={me.x} cy={me.y} r="8" fill="#e4c36a" stroke="#070908" strokeWidth="3" />
-        <circle cx={pin.x} cy={pin.y} r="7" fill="#f15e6c" stroke="#070908" strokeWidth="3" />
-      </svg>
+    <div className="drive-map-wrap" ref={wrapRef}>
+      <div className="drive-map-layer" ref={layerRef} style={{ width: w, height: h }}>
+        {tiles.map((t) => (
+          <img key={t.key} alt="" src={t.src} style={{ left: t.left, top: t.top }} />
+        ))}
+        <svg className="drive-svg" viewBox={`0 0 ${w} ${h}`}>
+          {path ? (
+            <polyline points={path} fill="none" stroke="#1ed760" strokeWidth="6" strokeLinejoin="round" />
+          ) : null}
+          <circle cx={pin.x} cy={pin.y} r="7" fill="#f15e6c" stroke="#070908" strokeWidth="3" />
+        </svg>
+      </div>
+      <div className="drive-you" aria-hidden>
+        <svg viewBox="-12 -14 24 28">
+          <polygon
+            points="0,-12 8,12 -8,12"
+            fill="#e4c36a"
+            stroke="#070908"
+            strokeWidth="2"
+            transform={`rotate(${rot})`}
+          />
+        </svg>
+      </div>
     </div>
   )
-}
-
-function fitView(route: DriveRoute | null, you?: { lat: number; lon: number }) {
-  const pts: Array<[number, number]> = []
-  if (you) pts.push([you.lat, you.lon])
-  if (route) {
-    pts.push([route.fromLat, route.fromLon])
-    pts.push([route.destLat, route.destLon])
-    const step = Math.max(1, Math.floor(route.coords.length / 40))
-    for (let i = 0; i < route.coords.length; i += step) {
-      const [lo, la] = route.coords[i]
-      pts.push([la, lo])
-    }
-  }
-  if (!pts.length) return { lat: 48.78, lon: 9.18, z: 14 }
-  let minLa = 90
-  let maxLa = -90
-  let minLo = 180
-  let maxLo = -180
-  for (const [la, lo] of pts) {
-    minLa = Math.min(minLa, la)
-    maxLa = Math.max(maxLa, la)
-    minLo = Math.min(minLo, lo)
-    maxLo = Math.max(maxLo, lo)
-  }
-  const lat = (minLa + maxLa) / 2
-  const lon = (minLo + maxLo) / 2
-  const latSpan = Math.max(0.008, (maxLa - minLa) * 1.4)
-  const lonSpan = Math.max(0.008, (maxLo - minLo) * 1.4)
-  let z = 8
-  for (let cand = 16; cand >= 7; cand -= 1) {
-    const lonPer = (360 / 2 ** cand) * 5 * 0.88
-    const latPer = lonPer * Math.max(0.35, Math.cos((lat * Math.PI) / 180))
-    z = cand
-    if (lonSpan <= lonPer && latSpan <= latPer) break
-  }
-  return { lat, lon, z }
 }
 
 function sourceHint(now: SpotifyNow | null, status: SpotifyPlayerStatus): string {
@@ -153,19 +174,24 @@ export function DriveMode({
   onCommand?: (text: string) => void
 }) {
   const [route, setRoute] = useState<DriveRoute | null>(() => getDriveRoute())
+  const [tab, setTab] = useState<DriveTab>(() => getDriveTab())
   const [here, setHere] = useState<{ lat: number; lon: number } | null>(null)
+  const [bearing, setBearing] = useState<number | undefined>(undefined)
   const [now, setNow] = useState<SpotifyNow | null>(() => getSpotifyNow())
   const [player, setPlayer] = useState<SpotifyPlayerStatus>(() => getSpotifyPlayerStatus())
   const [q, setQ] = useState('')
   const [destQ, setDestQ] = useState('')
-  const [hits, setHits] = useState<SpotifyTrack[]>([])
   const [musicMsg, setMusicMsg] = useState<string | null>(null)
   const [musicBusy, setMusicBusy] = useState(false)
   const [hearMsg, setHearMsg] = useState<string | null>(null)
+  const navBusy = useRef(false)
   const loggedIn = spotifyLoggedIn()
   const configured = spotifyConfigured()
 
-  useEffect(() => subscribeDrive(() => setRoute(getDriveRoute())), [])
+  useEffect(() => subscribeDrive(() => {
+    setRoute(getDriveRoute())
+    setTab(getDriveTab())
+  }), [])
   useEffect(
     () =>
       subscribeSpotify(() => {
@@ -176,6 +202,13 @@ export function DriveMode({
   )
 
   useEffect(() => {
+    void setKeepScreenOn(true)
+    return () => {
+      void setKeepScreenOn(false)
+    }
+  }, [])
+
+  useEffect(() => {
     if (!loggedIn) return
     void ensureInternalPlayer()
     const id = window.setInterval(() => void refreshNow(), 8000)
@@ -183,25 +216,44 @@ export function DriveMode({
   }, [loggedIn])
 
   useEffect(() => {
-    let live = true
-    async function tick() {
-      const fix = await readDeviceLocation()
-      if (!live) return
-      if (fix.ok && fix.lat != null && fix.lon != null) {
-        const pos = { lat: fix.lat, lon: fix.lon }
-        setHere(pos)
-        void refreshDriveRoute(pos)
-      }
-    }
-    void tick()
-    const id = window.setInterval(() => void tick(), 8000)
-    return () => {
-      live = false
-      window.clearInterval(id)
-    }
+    return watchDeviceLocation((fix) => {
+      if (!fix.ok || fix.lat == null || fix.lon == null) return
+      const pos = { lat: fix.lat, lon: fix.lon }
+      setHere(pos)
+      if (fix.bearing != null) setBearing(fix.bearing)
+      void refreshDriveRoute({ ...pos, bearing: fix.bearing, speed: fix.speed }).then((guide) => {
+        if (!guide?.cue) return
+        const nowCue = guide.cue.startsWith('Jetzt') || guide.cue.startsWith('Ziel')
+        if (nowCue) {
+          void stopSpeak().then(() => speakCueFast(guide.cue as string))
+          return
+        }
+        if (navBusy.current) return
+        navBusy.current = true
+        void speakCueFast(guide.cue).finally(() => {
+          navBusy.current = false
+        })
+      })
+    })
   }, [])
 
-  const view = useMemo(() => fitView(route, here || undefined), [here, route])
+  const hud = useMemo(() => {
+    if (!route) return null
+    const pos = here || { lat: route.fromLat, lon: route.fromLon }
+    const nxt = nextManeuver(
+      (route.steps || []).map((s) => ({
+        lat: s.lat,
+        lon: s.lon,
+        type: s.type,
+        modifier: s.modifier,
+        name: s.name,
+      })),
+      route.coords,
+      pos,
+    )
+    if (!nxt) return { arrow: '↑', line: route.dest || 'Wohin?', sub: route.hint || '' }
+    return formatNavBanner(nxt.dir, nxt.meters, nxt.name)
+  }, [here, route])
 
   const km = route && route.meters ? (route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`) : ''
 
@@ -212,80 +264,64 @@ export function DriveMode({
     onCommand(line)
   }
 
+  function hear() {
+    setHearMsg('Ich höre…')
+    void requestMicPermission().then((ok) => {
+      if (!ok) {
+        setHearMsg('Mikrofon erlauben.')
+        return
+      }
+      return listenOnce((partial) => setHearMsg(partial || 'Ich höre…')).then((res) => {
+        if (res.text) {
+          setHearMsg(null)
+          onCommand?.(res.text)
+        } else setHearMsg(res.message || 'Nichts gehört.')
+      })
+    })
+  }
+
+  const follow = here || (route ? { lat: route.fromLat, lon: route.fromLon } : { lat: 48.78, lon: 9.18 })
+
   return (
     <div className="drive-view" role="dialog" aria-labelledby="drive-title">
+      <FollowMap
+        destLat={route?.destLat ?? follow.lat}
+        destLon={route?.destLon ?? follow.lon}
+        z={15}
+        coords={route?.coords || []}
+        you={follow}
+        bearing={bearing}
+      />
       <header className="drive-bar">
         <div>
-          <p className="settings-kicker">Fahrmodus</p>
+          <p className="settings-kicker">CarPlay</p>
           <h2 id="drive-title">{route?.dest || 'Wohin?'}</h2>
         </div>
         <div className="drive-bar-actions">
-          <button
-            type="button"
-            className="settings-close"
-            onClick={() => {
-              setHearMsg('Ich höre…')
-              void requestMicPermission().then((ok) => {
-                if (!ok) {
-                  setHearMsg('Mikrofon erlauben.')
-                  return
-                }
-                return listenOnce((partial) => setHearMsg(partial || 'Ich höre…')).then((res) => {
-                  if (res.text) {
-                    setHearMsg(null)
-                    onCommand?.(res.text)
-                  } else setHearMsg(res.message || 'Nichts gehört.')
-                })
-              })
-            }}
-          >
-            Hören
-          </button>
           <button type="button" className="settings-close" onClick={onClose}>
             Fertig
           </button>
         </div>
       </header>
-      <div className="drive-map-wrap">
-        <TileMap
-          lat={view.lat}
-          lon={view.lon}
-          destLat={route?.destLat ?? view.lat}
-          destLon={route?.destLon ?? view.lon}
-          z={view.z}
-          coords={route?.coords || []}
-          you={here || undefined}
-        />
-      </div>
-      <footer className="drive-dock">
-        <form
-          className="drive-search"
-          onSubmit={(e) => {
-            e.preventDefault()
-            goDest(destQ)
-            setDestQ('')
-          }}
-        >
-          <input
-            value={destQ}
-            onChange={(e) => setDestQ(e.target.value)}
-            placeholder="Wohin? z. B. Heilbronn"
-            aria-label="Ziel"
-          />
-          <button type="submit">Los</button>
-        </form>
-        {hearMsg ? <p className="settings-hint">{hearMsg}</p> : null}
-        <div>
-          <strong>{route ? `${route.minutes || '—'} Min` : 'Kein Ziel'}</strong>
-          <span>{km}{route?.hint ? ` · ${route.hint}` : ' · intern, nicht Google Maps'}</span>
+      {hud ? (
+        <div className="drive-hud" aria-live="polite">
+          <span className="drive-hud-arrow">{hud.arrow}</span>
+          <div>
+            <strong>{hud.line}</strong>
+            <span>{hud.sub}</span>
+          </div>
+          <div className="drive-hud-eta">
+            <strong>{route ? `${route.minutes || '—'} Min` : '—'}</strong>
+            <span>{km}</span>
+          </div>
         </div>
-        <div className="drive-music" onPointerDown={() => void activateSpotifyElement()}>
+      ) : null}
+      {tab === 'spotify' ? (
+        <div className="drive-spotify-overlay" onPointerDown={() => void activateSpotifyElement()}>
           <div className="drive-now-row">
             {now?.art ? <img className="drive-art" src={now.art} alt="" /> : <div className="drive-art drive-art-empty" />}
             <div>
-              <p className="drive-now">
-                {now ? `${now.playing ? '▶' : '❚❚'} ${now.name}` : 'Spotify in Jarvis'}
-              </p>
+              <p className="drive-now">{now ? `${now.playing ? '▶' : '❚❚'} ${now.name}` : 'Spotify in Jarvis'}</p>
               <p className="drive-now-sub">
                 {now?.artist ? `${now.artist} · ` : ''}
                 {sourceHint(now, player)}
@@ -307,7 +343,6 @@ export function DriveMode({
                       setMusicMsg(msg)
                       setNow(getSpotifyNow())
                       setMusicBusy(false)
-                      setHits([])
                     })
                 }}
               >
@@ -344,45 +379,7 @@ export function DriveMode({
                 <button type="button" disabled={musicBusy} onClick={() => void nextSpotify()}>
                   ⏭
                 </button>
-                <button
-                  type="button"
-                  disabled={musicBusy || !q.trim()}
-                  onClick={() => {
-                    setMusicBusy(true)
-                    void searchTracks(q).then((res) => {
-                      setMusicBusy(false)
-                      if (!res.ok) setMusicMsg(res.message)
-                      else setHits(res.tracks)
-                    })
-                  }}
-                >
-                  Suchen
-                </button>
               </div>
-              {hits.length ? (
-                <ul className="drive-hits">
-                  {hits.map((t) => (
-                    <li key={t.uri}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMusicBusy(true)
-                          void activateSpotifyElement()
-                            .then(() => playTrack(t))
-                            .then((msg) => {
-                              setMusicMsg(msg)
-                              setNow(getSpotifyNow())
-                              setMusicBusy(false)
-                              setHits([])
-                            })
-                        }}
-                      >
-                        {t.name} — {t.artist}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
             </>
           ) : configured ? (
             <button
@@ -401,8 +398,36 @@ export function DriveMode({
           )}
           {musicMsg ? <p className="settings-hint">{musicMsg}</p> : null}
         </div>
-        <p>© OpenStreetMap · CARTO · Spotify</p>
-      </footer>
+      ) : (
+        <form
+          className="drive-dest-sheet"
+          onSubmit={(e) => {
+            e.preventDefault()
+            goDest(destQ)
+            setDestQ('')
+          }}
+        >
+          <input
+            value={destQ}
+            onChange={(e) => setDestQ(e.target.value)}
+            placeholder="Wohin? z. B. Heilbronn"
+            aria-label="Ziel"
+          />
+          <button type="submit">Los</button>
+        </form>
+      )}
+      {hearMsg ? <p className="drive-hear">{hearMsg}</p> : null}
+      <nav className="drive-tabs" aria-label="CarPlay">
+        <button type="button" className={tab === 'map' ? 'is-on' : ''} onClick={() => setDriveTab('map')}>
+          Karte
+        </button>
+        <button type="button" className={tab === 'spotify' ? 'is-on' : ''} onClick={() => setDriveTab('spotify')}>
+          Spotify
+        </button>
+        <button type="button" className="drive-mic" onClick={hear} aria-label="Hören">
+          Mic
+        </button>
+      </nav>
     </div>
   )
 }

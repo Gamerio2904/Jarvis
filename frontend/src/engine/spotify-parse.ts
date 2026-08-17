@@ -15,7 +15,11 @@ export function spotifySourceLabel(source?: SpotifySource | null): string {
 }
 
 function stripSpotifyPrefix(text: string): string {
-  return text.trim().replace(/^\s*spotify\s*[:\-–]?\s+/i, '').trim()
+  return text
+    .trim()
+    .replace(/^\s*spotify\s*[:\-–]?\s+/i, '')
+    .replace(/\s+auf\s+spotify\s*[.!?]*$/i, '')
+    .trim()
 }
 
 export function parseSpotifyIntent(text: string): SpotifyIntent | null {
@@ -33,6 +37,10 @@ export function parseSpotifyIntent(text: string): SpotifyIntent | null {
     return { kind: 'prev' }
   }
   const play = /^\s*(?:spiel(?:e)?(?:\s+mal)?|play)\s+(?:musik\s+)?(?:von\s+)?(.+?)\s*$/i.exec(t)
-  if (play?.[1]) return { kind: 'play', query: play[1].replace(/[.!?]+$/, '').trim() }
+  if (play?.[1]) {
+    const query = play[1].replace(/[.!?]+$/, '').trim()
+    if (/^(das|es|musik|was|das\s+hier)$/i.test(query)) return { kind: 'resume' }
+    return { kind: 'play', query }
+  }
   return null
 }

@@ -74,11 +74,21 @@ export async function routeMinutes(
   return { ok: true, minutes: full.minutes }
 }
 
+export type DriveStep = {
+  lat: number
+  lon: number
+  type: string
+  modifier: string
+  name: string
+  distance: number
+}
+
 export type DriveLeg = {
   minutes: number
   meters: number
   coords: Array<[number, number]>
   hint: string
+  steps: DriveStep[]
 }
 
 function maneuverHint(step: {
@@ -109,20 +119,43 @@ export async function routeDrive(
       duration?: number
       distance?: number
       geometry?: { coordinates?: Array<[number, number]> }
-      legs?: Array<{ steps?: Array<{ name?: string; maneuver?: { type?: string; modifier?: string } }> }>
+      legs?: Array<{
+        steps?: Array<{
+          name?: string
+          distance?: number
+          maneuver?: { type?: string; modifier?: string; location?: [number, number] }
+        }>
+      }>
     }> | undefined)?.[0]
     const sec = Number(route?.duration)
     const coords = route?.geometry?.coordinates || []
     if (status < 200 || status >= 300 || !Number.isFinite(sec) || coords.length < 2) {
       return { ok: false, message: 'Netz hat die Route nicht geliefert.' }
     }
-    const steps = route?.legs?.[0]?.steps || []
-    const next = steps.find((s) => s.maneuver?.type && s.maneuver.type !== 'depart') || steps[0]
+    const rawSteps = route?.legs?.[0]?.steps || []
+    const steps: DriveStep[] = rawSteps
+      .map((s) => {
+        const loc = s.maneuver?.location
+        const lon = Number(loc?.[0])
+        const lat = Number(loc?.[1])
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+        return {
+          lat,
+          lon,
+          type: String(s.maneuver?.type || ''),
+          modifier: String(s.maneuver?.modifier || ''),
+          name: String(s.name || '').trim(),
+          distance: Math.max(0, Math.round(Number(s.distance) || 0)),
+        }
+      })
+      .filter((s): s is DriveStep => Boolean(s))
+    const next = rawSteps.find((s) => s.maneuver?.type && s.maneuver.type !== 'depart') || rawSteps[0]
     return {
       ok: true,
       minutes: Math.max(1, Math.round(sec / 60)),
       meters: Math.max(1, Math.round(Number(route?.distance) || 0)),
       coords,
+      steps,
       hint: next ? maneuverHint(next) : 'Route liegt.',
     }
   } catch {

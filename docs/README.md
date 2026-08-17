@@ -28,7 +28,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 21 | [Fahrmodus & Spotify](./21-next.md) | **`1.26` CODE** |
 | 22 | [Internes Spotify](./22-next.md) | **`1.27` CODE** |
 | 23 | [Alltag 1.29](./23-next.md) | **`1.29` CODE** — Suche, Fire TV, GUI, Widget, Ventilator |
-| — | [APK](./apk.md) | Sideload `1.29.0` |
+| 24 | [CarPlay flüssig](./24-next.md) | **`1.30` CODE** — HUD, Voice-Tabs, Navi-Ansagen |
+| — | [APK](./apk.md) | Sideload `1.30.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -79,4 +80,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 68–72 | `1.16`–`1.20` | **CODE** (in `1.24.0`) |
 | 73–76 | `1.21`–`1.24` | **CODE** |
 
-**Aktuell:** Sideload `1.29.0` — [`Jarvis.apk`](./apk.md).
+**Aktuell:** Sideload `1.30.0` — [`Jarvis.apk`](./apk.md).

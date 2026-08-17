@@ -1,12 +1,20 @@
-import { parseDriveIntent } from './drive-parse'
+import { parseDriveIntent, type DriveTab } from './drive-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
-import { geocodePlace, haversineM, routeDrive } from './geo-lookup'
+import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
 import { displayPlaceName, normalizePlaceName, parsePlaceNav } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { listMemory, loadSettings, saveSettings } from './store'
 import type { ToolMeta } from './tools'
+import {
+  formatNavBanner,
+  formatNavCue,
+  navPhase,
+  nextManeuver,
+  type NavStep,
+} from './nav-speak'
 
 export { parseDriveIntent } from './drive-parse'
+export type { DriveTab } from './drive-parse'
 
 export type DriveRoute = {
   dest: string
@@ -18,9 +26,28 @@ export type DriveRoute = {
   minutes: number
   meters: number
   hint: string
+  steps: DriveStep[]
+}
+
+export type DriveFix = {
+  lat: number
+  lon: number
+  bearing?: number
+  speed?: number
+}
+
+export type DriveGuidance = {
+  arrow: string
+  line: string
+  sub: string
+  cue?: string
+  offRoute: boolean
 }
 
 let active: DriveRoute | null = null
+let tab: DriveTab = 'map'
+let lastFix: DriveFix | null = null
+let announced = new Map<number, Set<string>>()
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -31,6 +58,20 @@ export function getDriveRoute(): DriveRoute | null {
   return active
 }
 
+export function getDriveTab(): DriveTab {
+  return tab
+}
+
+export function getDriveFix(): DriveFix | null {
+  return lastFix
+}
+
+export function setDriveTab(next: DriveTab) {
+  if (tab === next) return
+  tab = next
+  emit()
+}
+
 export function subscribeDrive(cb: () => void): () => void {
   listeners.add(cb)
   return () => listeners.delete(cb)
@@ -39,42 +80,97 @@ export function subscribeDrive(cb: () => void): () => void {
 export function closeDrive() {
   saveSettings({ drive_mode: false })
   active = null
+  lastFix = null
+  tab = 'map'
+  announced = new Map()
   emit()
 }
 
+function asNavSteps(steps: DriveStep[] | undefined): NavStep[] {
+  return (steps || []).map((s) => ({
+    lat: s.lat,
+    lon: s.lon,
+    type: s.type,
+    modifier: s.modifier,
+    name: s.name,
+  }))
+}
+
+function resetAnnounced() {
+  announced = new Map()
+}
+
 /** GPS später da oder Standort hat sich bewegt: Route nachziehen. */
-export async function refreshDriveRoute(here: { lat: number; lon: number }): Promise<void> {
-  if (!active) return
+export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance | null> {
+  lastFix = here
+  if (!active) {
+    emit()
+    return null
+  }
+  const off = nextManeuver(asNavSteps(active.steps), active.coords, here)
   const weak = active.coords.length < 2 || active.minutes <= 0
   const moved = haversineM({ lat: active.fromLat, lon: active.fromLon, place: '' }, here)
-  if (!weak && moved < 280) return
-  const ride = await routeDrive(here, { lat: active.destLat, lon: active.destLon })
-  if (!ride.ok) {
-    if (weak) {
-      active = {
-        ...active,
-        fromLat: here.lat,
-        fromLon: here.lon,
-        coords: [
-          [here.lon, here.lat],
-          [active.destLon, active.destLat],
-        ],
-        hint: ride.message,
+  const needReroute = weak || Boolean(off?.offRoute) || moved > 900
+  if (needReroute) {
+    const ride = await routeDrive(here, { lat: active.destLat, lon: active.destLon })
+    if (!ride.ok) {
+      if (weak) {
+        active = {
+          ...active,
+          fromLat: here.lat,
+          fromLon: here.lon,
+          coords: [
+            [here.lon, here.lat],
+            [active.destLon, active.destLat],
+          ],
+          hint: ride.message,
+          steps: active.steps || [],
+        }
+        emit()
       }
-      emit()
+      return guidanceFor(here)
     }
-    return
+    const sameDest =
+      Math.abs(active.fromLat - here.lat) < 1e-5 && Math.abs(active.fromLon - here.lon) < 1e-5
+    if (!sameDest) resetAnnounced()
+    active = {
+      ...active,
+      fromLat: here.lat,
+      fromLon: here.lon,
+      coords: ride.coords,
+      minutes: ride.minutes,
+      meters: ride.meters,
+      hint: ride.hint,
+      steps: ride.steps || [],
+    }
+    emit()
   }
-  active = {
-    ...active,
-    fromLat: here.lat,
-    fromLon: here.lon,
-    coords: ride.coords,
-    minutes: ride.minutes,
-    meters: ride.meters,
-    hint: ride.hint,
+  return guidanceFor(here)
+}
+
+function guidanceFor(here: DriveFix): DriveGuidance | null {
+  if (!active) return null
+  const nxt = nextManeuver(asNavSteps(active.steps), active.coords, here)
+  if (!nxt) {
+    return {
+      arrow: '↑',
+      line: active.hint || 'Route',
+      sub: active.dest,
+      offRoute: false,
+    }
   }
-  emit()
+  const banner = formatNavBanner(nxt.dir, nxt.meters, nxt.name)
+  const phase = navPhase(nxt.meters)
+  let cue: string | undefined
+  if (phase) {
+    const seen = announced.get(nxt.index) || new Set<string>()
+    if (!seen.has(phase)) {
+      seen.add(phase)
+      announced.set(nxt.index, seen)
+      cue = formatNavCue(nxt.dir, nxt.meters, phase)
+    }
+  }
+  return { ...banner, cue, offRoute: nxt.offRoute }
 }
 
 function driveTool(action: string, label: string, route?: DriveRoute): ToolMeta {
@@ -83,7 +179,7 @@ function driveTool(action: string, label: string, route?: DriveRoute): ToolMeta 
     tool: 'drive',
     action,
     label,
-    preview: route?.dest || '',
+    preview: route?.dest || tab,
     result: route
       ? {
           dest: route.dest,
@@ -96,8 +192,9 @@ function driveTool(action: string, label: string, route?: DriveRoute): ToolMeta 
           hint: route.hint,
           coords: route.coords,
           internal: true,
+          tab,
         }
-      : { internal: true },
+      : { internal: true, tab },
   }
 }
 
@@ -114,12 +211,31 @@ async function resolveDest(query: string): Promise<string | null> {
   return query.trim() || null
 }
 
+function emptyRoute(dest: string, destLat: number, destLon: number, fromLat: number, fromLon: number, hint: string): DriveRoute {
+  return {
+    dest,
+    destLat,
+    destLon,
+    fromLat,
+    fromLon,
+    coords: [
+      [fromLon, fromLat],
+      [destLon, destLat],
+    ],
+    minutes: 0,
+    meters: 0,
+    hint,
+    steps: [],
+  }
+}
+
 async function startRoute(_label: string, place: string): Promise<{
   handled: true
   reply: string
   tool: ToolMeta
   lastTool: string
 }> {
+  tab = 'map'
   const granted = await requestLocationPermission()
   const here = granted ? await readDeviceLocation() : { ok: false as const, lat: undefined, lon: undefined }
   const dest = await geocodePlace(place)
@@ -142,7 +258,9 @@ async function startRoute(_label: string, place: string): Promise<{
       minutes: 0,
       meters: 0,
       hint: 'Kein GPS. Ziel liegt, Route folgt wenn Standort da ist.',
+      steps: [],
     }
+    resetAnnounced()
     emit()
     return {
       handled: true,
@@ -153,20 +271,8 @@ async function startRoute(_label: string, place: string): Promise<{
   }
   const ride = await routeDrive({ lat: here.lat, lon: here.lon }, dest.fix)
   if (!ride.ok) {
-    active = {
-      dest: dest.fix.place,
-      destLat: dest.fix.lat,
-      destLon: dest.fix.lon,
-      fromLat: here.lat,
-      fromLon: here.lon,
-      coords: [
-        [here.lon, here.lat],
-        [dest.fix.lon, dest.fix.lat],
-      ],
-      minutes: 0,
-      meters: 0,
-      hint: ride.message,
-    }
+    active = emptyRoute(dest.fix.place, dest.fix.lat, dest.fix.lon, here.lat, here.lon, ride.message)
+    resetAnnounced()
     emit()
     return {
       handled: true,
@@ -185,7 +291,10 @@ async function startRoute(_label: string, place: string): Promise<{
     minutes: ride.minutes,
     meters: ride.meters,
     hint: ride.hint,
+    steps: ride.steps || [],
   }
+  lastFix = { lat: here.lat, lon: here.lon }
+  resetAnnounced()
   emit()
   const km = ride.meters >= 1000 ? `${(ride.meters / 1000).toFixed(1)} km` : `${ride.meters} m`
   return {
@@ -196,28 +305,33 @@ async function startRoute(_label: string, place: string): Promise<{
   }
 }
 
+function openDrive() {
+  saveSettings({ drive_mode: true })
+  emit()
+}
+
 export async function handleDrive(
   _conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const s = loadSettings()
-  if (s.drive_mode) {
-    const music = parseSpotifyIntent(text)
-    if (music) {
-      const hit = await handleSpotifyCommand(music)
-      return {
-        handled: true,
-        reply: hit.reply,
-        tool: driveTool('music', 'Spotify'),
-        lastTool: 'drive',
-      }
+  const music = parseSpotifyIntent(text)
+  const namesSpotify = /\bspotify\b/i.test(text)
+  if (music && (s.drive_mode || namesSpotify)) {
+    openDrive()
+    tab = 'spotify'
+    const hit = await handleSpotifyCommand(music)
+    emit()
+    return {
+      handled: true,
+      reply: hit.reply,
+      tool: driveTool('music', 'Spotify'),
+      lastTool: 'drive',
     }
   }
   const intent = parseDriveIntent(text, Boolean(s.drive_mode))
   if (intent?.kind === 'off') {
-    saveSettings({ drive_mode: false })
-    active = null
-    emit()
+    closeDrive()
     return {
       handled: true,
       reply: 'Fahrmodus aus.',
@@ -225,28 +339,40 @@ export async function handleDrive(
       lastTool: 'drive',
     }
   }
-  if (intent?.kind === 'on') {
-    saveSettings({ drive_mode: true })
+  if (intent?.kind === 'tab') {
+    openDrive()
+    tab = intent.tab
     emit()
+    return {
+      handled: true,
+      reply: intent.tab === 'spotify' ? 'Spotify.' : 'Karte.',
+      tool: driveTool(intent.tab === 'spotify' ? 'music' : 'open', intent.tab === 'spotify' ? 'Spotify' : 'Karte'),
+      lastTool: 'drive',
+    }
+  }
+  if (intent?.kind === 'on') {
+    openDrive()
+    tab = 'map'
     if (intent.dest) {
       const place = (await resolveDest(intent.dest)) || intent.dest
       return startRoute(intent.dest, place)
     }
     return {
       handled: true,
-      reply: 'Fahrmodus an. Wohin? Zum Beispiel „zur Freundin“. Musik: „Spiel …“ — intern in Jarvis, wenn Spotify angemeldet ist.',
+      reply: 'Fahrmodus an. Wohin? Zum Beispiel „zur Freundin“. Musik: „Spiel … auf Spotify“.',
       tool: driveTool('open', 'Fahrmodus'),
       lastTool: 'drive',
     }
   }
-  if (!s.drive_mode) return { handled: false }
+  if (!s.drive_mode && intent?.kind !== 'dest') return { handled: false }
 
   if (intent?.kind === 'dest' && intent.query) {
+    openDrive()
     const place = (await resolveDest(intent.query)) || intent.query
     return startRoute(intent.query, place)
   }
   const nav = parsePlaceNav(text)
-  if (nav && nav.kind === 'navigate') {
+  if (nav && nav.kind === 'navigate' && (s.drive_mode || loadSettings().drive_mode)) {
     const place = (await resolveDest(nav.query)) || nav.query
     return startRoute(nav.query, place)
   }

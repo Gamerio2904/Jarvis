@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.29.0`**.
+App-Version im Code: **`1.30.0`**.
+
+### `1.30.0` — CarPlay flüssig — *CODE*
+
+- Fahrmodus: Karte folgt dem Standort, GPS-Watch, Bildschirm an
+- Tabs per Stimme: `Zeig Spotify`, `Karte`; Spotify als Overlay
+- Navi-Ansagen: „Vorne links in 300 Metern abbiegen“
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13000)
+- [`sprints/sprint-82.md`](./sprints/sprint-82.md) · [`24-next.md`](./24-next.md)
 
 ### `1.29.0` — Suche, Fire TV, GUI, Widget, Ventilator — *CODE*
 

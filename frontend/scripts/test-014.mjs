@@ -33,6 +33,7 @@ import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseSpotifyIntent, spotifySourceLabel } from '../src/engine/spotify-parse.ts'
+import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -83,6 +84,42 @@ assert.equal(parseSpotifyIntent('weiter')?.kind, 'next')
 assert.equal(parseSpotifyIntent('nächster Song')?.kind, 'next')
 assert.equal(spotifySourceLabel('internal'), 'in Jarvis')
 assert.equal(spotifySourceLabel('preview'), '30s-Vorschau')
+assert.equal(parseSpotifyIntent('Spiel Hotel California auf Spotify')?.kind, 'play')
+assert.deepEqual(parseSpotifyIntent('Spiel Hotel California auf Spotify'), {
+  kind: 'play',
+  query: 'Hotel California',
+})
+assert.equal(parseSpotifyIntent('Spiel das auf Spotify')?.kind, 'resume')
+assert.equal(parseDriveIntent('Zeig Spotify')?.kind, 'tab')
+assert.equal(parseDriveIntent('Zeig Spotify')?.kind === 'tab' && parseDriveIntent('Zeig Spotify')?.tab, 'spotify')
+assert.equal(parseDriveIntent('öffne Karte')?.kind === 'tab' && parseDriveIntent('öffne Karte')?.tab, 'map')
+assert.equal(parseDriveIntent('Karte'), null)
+assert.equal(parseDriveIntent('Karte', true)?.tab, 'map')
+assert.equal(parseDriveIntent('Spotify', true)?.tab, 'spotify')
+assert.equal(parseDriveIntent('Spiel das auf Spotify')?.tab, 'spotify')
+assert.equal(formatNavCue('left', 300, 'mid'), 'Vorne links in 300 Metern abbiegen.')
+assert.equal(formatNavCue('slight_left', 300, 'mid'), 'Vorne links in 300 Metern abbiegen.')
+assert.equal(formatNavCue('right', 80, 'near'), 'In 100 Metern rechts abbiegen.')
+assert.equal(formatNavCue('left', 20, 'now'), 'Jetzt links abbiegen.')
+assert.equal(navPhase(300), 'mid')
+assert.equal(dirFromManeuver('turn', 'left'), 'left')
+assert.equal(dirFromManeuver('turn', 'slight left'), 'slight_left')
+{
+  const nxt = nextManeuver(
+    [{ lat: 48.7827, lon: 9.18, type: 'turn', modifier: 'left', name: 'Testweg' }],
+    [
+      [9.18, 48.78],
+      [9.18, 48.781],
+      [9.18, 48.782],
+      [9.18, 48.7827],
+    ],
+    { lat: 48.78, lon: 9.18 },
+  )
+  assert.ok(nxt)
+  assert.equal(nxt.dir, 'left')
+  assert.ok(nxt.meters > 200)
+  assert.equal(formatNavCue(nxt.dir, 300, 'mid'), 'Vorne links in 300 Metern abbiegen.')
+}
 
 assert.ok(isMemoryWrite('Ich heiße Max und trinke gerne Kaffee'))
 const facts = parseMemoryFacts('Ich heiße Max und trinke gerne Kaffee und esse Pizza')

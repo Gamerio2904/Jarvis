@@ -235,6 +235,11 @@ function speakNative(text: string): Promise<void> {
   return webSpeak(clean)
 }
 
+/** Fast system TTS — for turn-by-turn, never wait on Gemini. */
+export function speakCueFast(text: string): Promise<void> {
+  return speakNative(text)
+}
+
 export async function speakText(text: string): Promise<void> {
   const clean = text.replace(/[#*_`]+/g, '').replace(/\s+/g, ' ').trim()
   if (!clean) return

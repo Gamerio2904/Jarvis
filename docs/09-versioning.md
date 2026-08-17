@@ -103,6 +103,7 @@ MAJOR.MINOR.PATCH
 | `1.28.2` | Fire-TV-Test sichtbar, Gen-2-Hinweis | Sprint 80 Patch |
 | `1.28.3` | Wecker klingelt (Dienst + Alarm-Lautstärke) | Sprint 80 Patch |
 | `1.29.0` | Suche, Fire TV in der APK, GUI-Icons, Widget 2×4, Ventilator | Sprint 81 |
+| `1.30.0` | CarPlay flüssig: HUD, Voice-Tabs, Navi-Ansagen | Sprint 82 |
 
 ### Weitere Beispiele
 

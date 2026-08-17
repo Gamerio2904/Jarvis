@@ -47,6 +47,8 @@ export const TEST_PROMPTS = [
   'Ich bin zuhause',
   'Lies das Foto',
   'Aktiviere Fahrmodus',
+  'Zeig Spotify',
+  'Spiel das auf Spotify',
   'Lautstärke 50',
   'lauter um 10',
   'Fahrmodus aus',
