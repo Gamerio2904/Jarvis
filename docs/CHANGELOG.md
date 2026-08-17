@@ -12,6 +12,7 @@ App-Version im Code: **`1.31.0`**.
 - Gemini-TTS: Charon, erster Satz sofort, Timeout auf System-Stimme
 - Android-TTS: deutsche Neural-Stimme, eher männlich
 - Chat: Smalltalk näher an Jarvis (Siezen, trocken, sparsam Master/Sir), weniger Helpdesk
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13100)
 - [`sprints/sprint-83.md`](./sprints/sprint-83.md) · [`25-next.md`](./25-next.md)
 
 ### `1.30.0` — CarPlay flüssig — *CODE*
