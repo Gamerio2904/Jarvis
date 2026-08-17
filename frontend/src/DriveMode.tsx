@@ -11,6 +11,7 @@ import {
 import { formatNavBanner, nextManeuver } from './engine/nav-speak'
 import { watchDeviceLocation } from './native/geo'
 import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, stopSpeak } from './native/voice'
+import { isChatSpeaking } from './engine/speak-lock'
 import {
   activateSpotifyElement,
   ensureInternalPlayer,
@@ -30,6 +31,19 @@ import {
   type SpotifyNow,
   type SpotifyPlayerStatus,
 } from './engine/spotify'
+
+function zoomForSpeed(mps?: number): number {
+  const kmh = (mps || 0) * 3.6
+  if (kmh < 20) return 17
+  if (kmh < 50) return 16
+  if (kmh < 90) return 15
+  return 14
+}
+
+function dayTiles(): boolean {
+  const h = new Date().getHours()
+  return h >= 6 && h < 20
+}
 
 function world(lat: number, lon: number, z: number) {
   const n = 2 ** z
@@ -111,14 +125,15 @@ function FollowMap({
     })
     .join(' ')
   const tiles = useMemo(() => {
+    const style = dayTiles() ? 'rastertiles/voyager' : 'dark_all'
     const list: Array<{ key: string; src: string; left: number; top: number }> = []
     for (let y = 0; y < rows; y += 1) {
       for (let x = 0; x < cols; x += 1) {
         const tx = origin.x + x
         const ty = origin.y + y
         list.push({
-          key: `${z}-${tx}-${ty}`,
-          src: `https://basemaps.cartocdn.com/dark_all/${z}/${tx}/${ty}@2x.png`,
+          key: `${style}-${z}-${tx}-${ty}`,
+          src: `https://basemaps.cartocdn.com/${style}/${z}/${tx}/${ty}@2x.png`,
           left: x * size,
           top: y * size,
         })
@@ -127,10 +142,17 @@ function FollowMap({
     return list
   }, [origin.x, origin.y, z])
   const pin = toPx(destLat, destLon)
-  const rot = bearing != null && Number.isFinite(bearing) ? bearing : 0
+  const heading = bearing != null && Number.isFinite(bearing) ? bearing : 0
 
   return (
-    <div className="drive-map-wrap" ref={wrapRef}>
+    <div
+      className="drive-map-wrap"
+      ref={wrapRef}
+      style={{ transform: `rotate(${-heading}deg)` }}
+      onClick={() => {
+        display.current = { ...target.current }
+      }}
+    >
       <div className="drive-map-layer" ref={layerRef} style={{ width: w, height: h }}>
         {tiles.map((t) => (
           <img key={t.key} alt="" src={t.src} style={{ left: t.left, top: t.top }} />
@@ -142,14 +164,13 @@ function FollowMap({
           <circle cx={pin.x} cy={pin.y} r="7" fill="#f15e6c" stroke="#070908" strokeWidth="3" />
         </svg>
       </div>
-      <div className="drive-you" aria-hidden>
+      <div className="drive-you" aria-hidden style={{ transform: `rotate(${heading}deg)` }}>
         <svg viewBox="-12 -14 24 28">
           <polygon
             points="0,-12 8,12 -8,12"
             fill="#e4c36a"
             stroke="#070908"
             strokeWidth="2"
-            transform={`rotate(${rot})`}
           />
         </svg>
       </div>
@@ -177,6 +198,7 @@ export function DriveMode({
   const [tab, setTab] = useState<DriveTab>(() => getDriveTab())
   const [here, setHere] = useState<{ lat: number; lon: number } | null>(null)
   const [bearing, setBearing] = useState<number | undefined>(undefined)
+  const [speed, setSpeed] = useState<number | undefined>(undefined)
   const [now, setNow] = useState<SpotifyNow | null>(() => getSpotifyNow())
   const [player, setPlayer] = useState<SpotifyPlayerStatus>(() => getSpotifyPlayerStatus())
   const [q, setQ] = useState('')
@@ -221,9 +243,14 @@ export function DriveMode({
       const pos = { lat: fix.lat, lon: fix.lon }
       setHere(pos)
       if (fix.bearing != null) setBearing(fix.bearing)
+      if (fix.speed != null) setSpeed(fix.speed)
       void refreshDriveRoute({ ...pos, bearing: fix.bearing, speed: fix.speed }).then((guide) => {
         if (!guide?.cue) return
+        if (guide.cue.startsWith('Ziel')) {
+          setDriveTab('map')
+        }
         const nowCue = guide.cue.startsWith('Jetzt') || guide.cue.startsWith('Ziel')
+        if (!nowCue && isChatSpeaking()) return
         if (nowCue) {
           void stopSpeak().then(() => speakCueFast(guide.cue as string))
           return
@@ -287,7 +314,7 @@ export function DriveMode({
       <FollowMap
         destLat={route?.destLat ?? follow.lat}
         destLon={route?.destLon ?? follow.lon}
-        z={15}
+        z={zoomForSpeed(speed)}
         coords={route?.coords || []}
         you={follow}
         bearing={bearing}
@@ -304,7 +331,7 @@ export function DriveMode({
         </div>
       </header>
       {hud ? (
-        <div className="drive-hud" aria-live="polite">
+        <div className={`drive-hud ${dayTiles() ? 'is-day' : ''}`} aria-live="polite">
           <span className="drive-hud-arrow">{hud.arrow}</span>
           <div>
             <strong>{hud.line}</strong>

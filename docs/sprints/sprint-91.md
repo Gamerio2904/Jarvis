@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **CODE** |
 | Priorität | **MUST** |
 | Ziel-Version | **`1.38.0`** |
 | Quelle | PO 2026-08-17 besseres Verständnis |

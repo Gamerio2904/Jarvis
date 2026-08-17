@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
-import { parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
+import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
@@ -20,6 +20,8 @@ import {
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseTimerIntent } from '../src/engine/timer-parse.ts'
+import { timerDoneLine, cleanTimerTitle } from '../src/engine/timer-announce.ts'
+import { expandZahlenworte } from '../src/engine/zahlenworte.ts'
 import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
@@ -375,6 +377,11 @@ assert.equal(parseCalendarIntent('lösche den letzten Termin')?.kind, 'delete_la
 assert.equal(parseToolIntent('lösche Todo Milch')?.kind, 'todo_delete')
 assert.equal(parseReminderIntent('Erinnerung aus')?.kind, 'delete_last')
 
+assert.deepEqual(splitIntents('Wecker 7 und Timer 8 Minuten Nudeln und Wetter heute'), [
+  'Wecker 7',
+  'Timer 8 Minuten Nudeln',
+  'Wetter heute',
+])
 assert.deepEqual(splitIntents('Wecker 7 und Timer 8 Minuten Nudeln'), [
   'Wecker 7',
   'Timer 8 Minuten Nudeln',
@@ -398,6 +405,14 @@ assert.equal(
   'Termin um 16:00 Jane',
 )
 assert.equal(rewriteFollowUp('und morgen?', { last_step_tool: 'weather' }), null)
+assert.equal(rewriteFollowUp('das lauter', { last_step_tool: 'tv', last_medium: 'tv' }), 'Fernseher lauter')
+assert.equal(rewriteFollowUp('stopp das', { last_medium: 'spotify' }), 'Spotify Pause')
+assert.equal(rewriteFollowUp('pause', { last_medium: 'tv' }), 'Fernseher pause')
+assert.equal(
+  rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
+  'Öffne Netflix',
+)
+assert.equal(rewriteFollowUp('ja', { last_step_tool: 'todo' }), null)
 
 assert.equal(shouldRefreshTitle('Kuchenrezepte suchen bitte'), true)
 assert.equal(shouldRefreshTitle('und morgen?'), false)
@@ -569,6 +584,29 @@ const long = pullReady(
 )
 assert.equal(long.parts.length, 1)
 assert.equal(long.rest, '')
+
+assert.equal(expandZahlenworte('Timer acht Minuten Nudeln'), 'Timer 8 Minuten Nudeln')
+assert.equal(expandZahlenworte('Ventilator Stufe zwei'), 'Ventilator Stufe 2')
+assert.match(expandZahlenworte('in einer Viertelstunde Ofen'), /15 Minuten/)
+assert.equal(parseTimerIntent('Timer acht Minuten Nudeln', frozen)?.kind, 'create')
+assert.equal(parseTimerIntent('Timer für Nudeln 8 Minuten', frozen)?.kind, 'create')
+assert.equal(parseFanIntent('Ventilator Stufe zwei')?.speed, 2)
+assert.equal(parseShopIntent('Milch fehlt')?.kind, 'add')
+assert.ok(isBriefAsk('Was kommt heute?'))
+assert.equal(parseSpotifyIntent('Spiel mal was Nettes'), null)
+assert.equal(parseDriveIntent('Ich fahre gerne Auto'), null)
+assert.equal(timerDoneLine('Nudeln'), 'Der Timer für Ihre Nudeln ist abgelaufen, Sie.')
+assert.equal(timerDoneLine('Timer'), 'Timer abgelaufen, Sie.')
+assert.equal(cleanTimerTitle('für Nudeln'), 'Nudeln')
+assert.ok(CONTRADICTION.test('kein Kaffee mehr'))
+assert.equal(isMemoryWrite('kein Kaffee mehr'), true)
+assert.equal(isMemoryWrite('kein Problem'), false)
+assert.match(
+  scrubReply('Wikipedia nennt den Fluss. Ich habe das Internet durchsucht.'),
+  /Wikipedia/,
+)
+assert.equal(parseDriveIntent('Nachher'), null)
+assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', value: 'Kaffee' }]), /Smalltalk/)
 
 const tap = createSentenceTap()
 assert.deepEqual(tap.feed('Hallo, der Himmel'), [])

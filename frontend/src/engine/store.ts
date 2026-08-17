@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '1.33.3'
+export const APP_VERSION = '1.40.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -132,6 +132,8 @@ export type Settings = {
   last_step_tool: string
   last_step_title: string
   last_step_when: string
+  last_step_utterance: string
+  last_medium: string
   last_list_json: string
   home_lat: string
   home_lon: string
@@ -195,6 +197,8 @@ export const DEFAULT_SETTINGS: Settings = {
   last_step_tool: '',
   last_step_title: '',
   last_step_when: '',
+  last_step_utterance: '',
+  last_medium: '',
   last_list_json: '',
   home_lat: '',
   home_lon: '',

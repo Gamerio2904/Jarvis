@@ -216,21 +216,39 @@ public class JarvisWakeService extends Service {
         if (list == null) return;
         for (String s : list) {
             if (isWakeName(s)) {
-                openVoice();
+                openVoice(remainderAfterWake(s));
                 return;
             }
         }
     }
 
+    static String remainderAfterWake(String raw) {
+        if (raw == null) return "";
+        String t = raw.trim();
+        java.util.regex.Matcher m = java.util.regex.Pattern
+                .compile("(?i)^(?:(?:hey|hallo|hi|ok(?:ay)?)\\s+)?(?:jarvis|jarwis|javis|yarvis|charvis|gervis|djarvis|scharvis|jaervis|service)\\s*[,:\\-–]?\\s*(.*)$")
+                .matcher(t);
+        if (m.find()) {
+            String rest = m.group(1) == null ? "" : m.group(1).trim();
+            return rest.length() >= 2 ? rest : "";
+        }
+        return "";
+    }
+
     private void openVoice() {
+        openVoice("");
+    }
+
+    private void openVoice(String utterance) {
         armed = false;
         stopRec();
-        JarvisVoicePlugin.emitWake();
+        JarvisVoicePlugin.emitWake(utterance);
         try {
             Intent i = new Intent(this, local.jarvis.app.MainActivity.class);
             i.setAction(Intent.ACTION_VIEW);
             i.setData(Uri.parse("jarvis://voice"));
             i.putExtra("jarvis_mode", "voice");
+            if (utterance != null && !utterance.isEmpty()) i.putExtra("jarvis_utterance", utterance);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                     | Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -241,6 +259,7 @@ public class JarvisWakeService extends Service {
                 Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse("jarvis://voice"));
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 i.putExtra("jarvis_mode", "voice");
+                if (utterance != null && !utterance.isEmpty()) i.putExtra("jarvis_utterance", utterance);
                 startActivity(i);
             } catch (Exception ignored2) {
             }

@@ -63,4 +63,12 @@ export const TEST_PROMPTS = [
   'was kommt diese Woche raus?',
   'das zweite',
   'Wann hatte ich das mit der Steuer?',
+  'Was kommt heute?',
+  'Milch fehlt',
+  'Ventilator Stufe zwei',
+  'Timer acht Minuten Nudeln',
+  'Spiel mal was Nettes',
+  'Ich fahre gerne Auto',
+  'kein Kaffee mehr',
+  'Netflix an',
 ] as const

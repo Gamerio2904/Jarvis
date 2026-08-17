@@ -59,6 +59,7 @@ public class JarvisVoicePlugin extends Plugin {
     private PluginCall speakCall;
     private int listenGen = 0;
     private int speakGen = 0;
+    private String lastPartial = "";
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newCachedThreadPool();
     private final OkHttpClient http = new OkHttpClient.Builder()
@@ -69,6 +70,7 @@ public class JarvisVoicePlugin extends Plugin {
 
     private static JarvisVoicePlugin self;
     private static volatile boolean pendingWake = false;
+    private static volatile String pendingUtterance = "";
 
     @Override
     public void load() {
@@ -179,6 +181,7 @@ public class JarvisVoicePlugin extends Plugin {
             }
             JarvisWakeService.pauseListen();
             listenCall = call;
+            lastPartial = "";
             if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
                 finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.", null);
                 return;
@@ -203,7 +206,8 @@ public class JarvisVoicePlugin extends Plugin {
                         }
                         if (error == SpeechRecognizer.ERROR_NO_MATCH
                                 || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                            finishListen("", true, "", null);
+                            String keep = lastPartial == null ? "" : lastPartial.trim();
+                            finishListen(keep, true, keep.isEmpty() ? "" : "", null);
                             return;
                         }
                         finishListen("", false, "Zuhören unterbrochen.", null);
@@ -218,8 +222,9 @@ public class JarvisVoicePlugin extends Plugin {
                     public void onPartialResults(Bundle partialResults) {
                         ArrayList<String> list = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                         if (list == null || list.isEmpty()) return;
+                        lastPartial = list.get(0) == null ? "" : list.get(0);
                         JSObject ev = new JSObject();
-                        ev.put("text", list.get(0));
+                        ev.put("text", lastPartial);
                         notifyListeners("partial", ev);
                     }
                     @Override public void onEvent(int eventType, Bundle params) {}
@@ -247,7 +252,7 @@ public class JarvisVoicePlugin extends Plugin {
                     try {
                         if (recognizer != null) recognizer.cancel();
                     } catch (Exception ignored) {}
-                    finishListen("", true, "", null);
+                    finishListen(lastPartial == null ? "" : lastPartial, true, "", null);
                 }
             }, 10_000);
         });
@@ -415,11 +420,17 @@ public class JarvisVoicePlugin extends Plugin {
     }
 
     public static void emitWake() {
+        emitWake("");
+    }
+
+    public static void emitWake(String utterance) {
         pendingWake = true;
+        pendingUtterance = utterance == null ? "" : utterance.trim();
         JarvisVoicePlugin p = self;
         if (p == null) return;
         JSObject ev = new JSObject();
         ev.put("hit", true);
+        if (!pendingUtterance.isEmpty()) ev.put("utterance", pendingUtterance);
         p.notifyListeners("wake", ev);
     }
 
@@ -428,24 +439,32 @@ public class JarvisVoicePlugin extends Plugin {
         Activity a = getActivity();
         boolean voice = pendingWake;
         pendingWake = false;
+        String utterance = pendingUtterance;
+        pendingUtterance = "";
         if (a != null) {
             Intent i = a.getIntent();
             if (i != null) {
                 Uri data = i.getData();
                 String extra = i.getStringExtra("jarvis_mode");
+                String fromIntent = i.getStringExtra("jarvis_utterance");
                 voice = voice
                         || (data != null && "voice".equals(data.getHost()))
                         || "voice".equals(extra)
                         || (data != null && String.valueOf(data).contains("voice"));
+                if (fromIntent != null && !fromIntent.trim().isEmpty()) {
+                    utterance = fromIntent.trim();
+                }
                 if (voice) {
                     i.setData(null);
                     i.removeExtra("jarvis_mode");
+                    i.removeExtra("jarvis_utterance");
                     a.setIntent(i);
                 }
             }
         }
         JSObject r = new JSObject();
         r.put("voice", voice);
+        r.put("utterance", utterance == null ? "" : utterance);
         call.resolve(r);
     }
 

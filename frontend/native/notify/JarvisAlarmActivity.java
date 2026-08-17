@@ -34,8 +34,14 @@ public class JarvisAlarmActivity extends Activity {
         String title = getIntent() != null ? getIntent().getStringExtra("title") : null;
         String body = getIntent() != null ? getIntent().getStringExtra("body") : null;
         String tone = getIntent() != null ? getIntent().getStringExtra("tone") : null;
+        String mode = getIntent() != null ? getIntent().getStringExtra("mode") : null;
+        String say = getIntent() != null ? getIntent().getStringExtra("say") : null;
         if (title == null || title.isEmpty()) title = "Jarvis";
         if (body == null) body = "";
+        boolean speak = "speak".equals(mode);
+        if (speak && (say == null || say.isEmpty())) {
+            say = JarvisNotifyPlugin.timerSpokenLine(body);
+        }
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -52,7 +58,7 @@ public class JarvisAlarmActivity extends Activity {
         root.addView(h);
 
         TextView p = new TextView(this);
-        p.setText(body);
+        p.setText(speak && say != null && !say.isEmpty() ? say : body);
         p.setTextColor(0xFFB0B0B0);
         p.setTextSize(18);
         p.setGravity(Gravity.CENTER);
@@ -64,8 +70,8 @@ public class JarvisAlarmActivity extends Activity {
         stop.setOnClickListener((View v) -> halt());
         root.addView(stop);
         setContentView(root);
-        JarvisAlarmService.start(this, title, body, tone);
-        JarvisAlarmPlayer.start(this, tone);
+        JarvisAlarmService.start(this, title, body, speak ? "" : tone, mode, say);
+        if (!speak) JarvisAlarmPlayer.start(this, tone);
     }
 
     private void halt() {

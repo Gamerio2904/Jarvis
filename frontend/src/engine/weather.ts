@@ -1,4 +1,4 @@
-import { readDeviceLocation, requestLocationPermission } from '../native/geo'
+import { readDeviceLocation, requestLocationPermission, hasLocationPermission } from '../native/geo'
 import { completeGemini, geminiReady } from './gemini'
 import { getJson } from './http-json'
 import type { ResearchMeta, ResearchSource } from './research-parse'
@@ -104,10 +104,13 @@ function rememberWeather(
 
 async function resolveHere(): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   const s = loadSettings()
-  const cached = readCachedFix(s)
+  const granted = await hasLocationPermission()
+  const cached = granted ? readCachedFix(s) : null
   if (cached) return { ok: true, fix: cached }
 
-  await requestLocationPermission()
+  if (!granted) {
+    await requestLocationPermission()
+  }
   const loc = await readDeviceLocation()
   if (!loc.ok || loc.lat == null || loc.lon == null) {
     return {

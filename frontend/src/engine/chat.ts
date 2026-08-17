@@ -286,11 +286,23 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   return null
 }
 
-function persistLastStep(tool: string, title = '', when = ''): void {
+function lastStepHint(): string {
+  const s = loadSettings()
+  const tool = (s.last_step_tool || '').trim()
+  if (!tool) return ''
+  const title = (s.last_step_title || '').trim()
+  return `Letzter Tool-Schritt: ${tool}${title ? ` (${title})` : ''}. Wenn der Nutzer „das“, „lauter“, „stopp“ oder „nochmal“ sagt, bezieht sich das darauf. Keine Ausführung erfinden.`
+}
+
+function persistLastStep(tool: string, title = '', when = '', utterance = ''): void {
+  const medium =
+    tool === 'tv' ? 'tv' : tool === 'drive' && /spotify/i.test(title) ? 'spotify' : tool === 'drive' ? 'drive' : loadSettings().last_medium
   saveSettings({
     last_step_tool: tool,
     last_step_title: title,
     last_step_when: when,
+    last_step_utterance: utterance || loadSettings().last_step_utterance,
+    last_medium: medium || '',
   })
 }
 
@@ -338,16 +350,27 @@ async function rememberToolFromStore(tool: string): Promise<void> {
   persistLastStep(tool)
 }
 
-async function rememberHit(hit: RouteHit): Promise<void> {
+async function rememberHit(hit: RouteHit, utterance = ''): Promise<void> {
   const tool = hit.lastTool
   if (!tool || tool === 'help' || tool === 'memory') return
   const preview = (hit.tool?.preview || '').trim()
+  const medium =
+    tool === 'tv'
+      ? 'tv'
+      : hit.tool?.action === 'music' || /spotify/i.test(preview)
+        ? 'spotify'
+        : tool === 'drive'
+          ? 'drive'
+          : ''
   if (preview) {
     const title = preview.split('·')[0].replace(/^Todo anlegen:\s*/i, '').trim()
-    persistLastStep(tool, title)
+    persistLastStep(tool, title, '', utterance)
+    if (medium) saveSettings({ last_medium: medium })
     return
   }
   await rememberToolFromStore(tool)
+  if (utterance) saveSettings({ last_step_utterance: utterance.slice(0, 160) })
+  if (medium) saveSettings({ last_medium: medium })
 }
 
 async function attachResearchAudit(research: ResearchMeta | undefined, query: string): Promise<ResearchMeta | undefined> {
@@ -397,7 +420,7 @@ export async function streamChat(
       const replies = routed.map((h, i) =>
         h ? h.reply : `„${parts[i]}“ habe ich nicht als Befehl erkannt.`,
       )
-      for (const hit of found) await rememberHit(hit)
+      for (const hit of found) await rememberHit(hit, content)
       const last = found[found.length - 1]
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
@@ -421,10 +444,10 @@ export async function streamChat(
       if (groqReady()) {
         const history = await listMessages(conversationId)
         const mem = await listMemory()
-        const system = [GEMINI_PERSONA, VOICE_HINT, memoryBlock(mem)].filter(Boolean).join('\n\n')
+        const system = [GEMINI_PERSONA, VOICE_HINT, memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
         const llmMessages = [
           { role: 'system', content: system },
-          ...history.slice(-12).map((m) => ({
+          ...history.slice(-16).map((m) => ({
             role: m.role === 'assistant' ? 'assistant' : 'user',
             content: m.content,
           })),
@@ -498,13 +521,13 @@ export async function streamChat(
     }
     const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
     const system = geminiReady()
-      ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem)]
+      ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
           .filter(Boolean)
           .join('\n\n')
-      : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem)].filter(Boolean).join('\n\n')
+      : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
     const llmMessages = [
       { role: 'system', content: system },
-      ...history.slice(geminiReady() ? -16 : -4).map((m) => ({
+      ...history.slice(geminiReady() || opts?.voice ? -24 : -12).map((m) => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content,
       })),

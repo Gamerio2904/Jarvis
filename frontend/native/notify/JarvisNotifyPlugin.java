@@ -80,7 +80,13 @@ public class JarvisNotifyPlugin extends Plugin {
         boolean alarm = Boolean.TRUE.equals(call.getBoolean("alarm", true));
         String recur = call.getString("recur", "");
         String tone = call.getString("tone", "");
-        if (tone == null || tone.isEmpty()) {
+        String mode = call.getString("mode", "");
+        String say = call.getString("say", "");
+        if (mode == null) mode = "";
+        if (say == null) say = "";
+        if ("speak".equals(mode)) {
+            tone = "";
+        } else if (tone == null || tone.isEmpty()) {
             tone = prefs(getContext()).getString(KEY_TONE, "");
         } else {
             prefs(getContext()).edit().putString(KEY_TONE, tone).apply();
@@ -90,8 +96,8 @@ public class JarvisNotifyPlugin extends Plugin {
             return;
         }
         ensureChannel(getContext());
-        persist(getContext(), id, title, body, atMs, alarm, recur, tone);
-        boolean ok = arm(getContext(), id, title, body, atMs, alarm, recur, tone);
+        persist(getContext(), id, title, body, atMs, alarm, recur, tone, mode, say);
+        boolean ok = arm(getContext(), id, title, body, atMs, alarm, recur, tone, mode, say);
         JSObject r = new JSObject();
         r.put("ok", ok);
         if (!ok) r.put("message", "Wecker nicht gesetzt.");
@@ -228,15 +234,17 @@ public class JarvisNotifyPlugin extends Plugin {
         nm.createNotificationChannel(alarm);
     }
 
-    static boolean arm(Context ctx, int id, String title, String body, long atMs, boolean alarm, String recur, String tone) {
+    static boolean arm(Context ctx, int id, String title, String body, long atMs, boolean alarm, String recur, String tone, String mode, String say) {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return false;
-        PendingIntent pi = pending(ctx, id, title, body, alarm, recur, tone);
+        PendingIntent pi = pending(ctx, id, title, body, alarm, recur, tone, mode, say);
         try {
             Intent show = new Intent(ctx, JarvisAlarmActivity.class);
             show.putExtra("title", title);
             show.putExtra("body", body);
             show.putExtra("tone", tone == null ? "" : tone);
+            show.putExtra("mode", mode == null ? "" : mode);
+            show.putExtra("say", say == null ? "" : say);
             show.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             int flags = PendingIntent.FLAG_UPDATE_CURRENT;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -271,10 +279,10 @@ public class JarvisNotifyPlugin extends Plugin {
     static void cancelAlarm(Context ctx, int id) {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return;
-        am.cancel(pending(ctx, id, "", "", true, "", ""));
+        am.cancel(pending(ctx, id, "", "", true, "", "", "", ""));
     }
 
-    static PendingIntent pending(Context ctx, int id, String title, String body, boolean alarm, String recur, String tone) {
+    static PendingIntent pending(Context ctx, int id, String title, String body, boolean alarm, String recur, String tone, String mode, String say) {
         Intent i = new Intent(ctx, JarvisNotifyReceiver.class);
         i.setAction("app.jarvis.notify.FIRE");
         i.putExtra("id", id);
@@ -283,6 +291,8 @@ public class JarvisNotifyPlugin extends Plugin {
         i.putExtra("alarm", alarm);
         i.putExtra("recur", recur == null ? "" : recur);
         i.putExtra("tone", tone == null ? "" : tone);
+        i.putExtra("mode", mode == null ? "" : mode);
+        i.putExtra("say", say == null ? "" : say);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             flags |= PendingIntent.FLAG_IMMUTABLE;
@@ -290,7 +300,7 @@ public class JarvisNotifyPlugin extends Plugin {
         return PendingIntent.getBroadcast(ctx, id, i, flags);
     }
 
-    static void persist(Context ctx, int id, String title, String body, long atMs, boolean alarm, String recur, String tone) {
+    static void persist(Context ctx, int id, String title, String body, long atMs, boolean alarm, String recur, String tone, String mode, String say) {
         try {
             JSONArray arr = load(ctx);
             JSONArray next = new JSONArray();
@@ -306,6 +316,8 @@ public class JarvisNotifyPlugin extends Plugin {
             row.put("alarm", alarm);
             row.put("recur", recur == null ? "" : recur);
             row.put("tone", tone == null ? "" : tone);
+            row.put("mode", mode == null ? "" : mode);
+            row.put("say", say == null ? "" : say);
             next.put(row);
             prefs(ctx).edit().putString(KEY_ITEMS, next.toString()).apply();
         } catch (Exception ignored) {
@@ -339,31 +351,44 @@ public class JarvisNotifyPlugin extends Plugin {
             boolean alarm = o.optBoolean("alarm", true);
             String recur = o.optString("recur", "");
             String tone = o.optString("tone", "");
+            String mode = o.optString("mode", "");
+            String say = o.optString("say", "");
             if (at <= now) {
-                show(ctx, id, title, body, alarm, recur, tone);
+                show(ctx, id, title, body, alarm, recur, tone, mode, say);
             } else {
-                arm(ctx, id, title, body, at, alarm, recur, tone);
+                arm(ctx, id, title, body, at, alarm, recur, tone, mode, say);
             }
         }
     }
 
     static void show(Context ctx, int id, String title, String body) {
-        show(ctx, id, title, body, true, "", "");
+        show(ctx, id, title, body, true, "", "", "", "");
     }
 
     static void show(Context ctx, int id, String title, String body, boolean alarm, String recur) {
-        show(ctx, id, title, body, alarm, recur, "");
+        show(ctx, id, title, body, alarm, recur, "", "", "");
     }
 
     static void show(Context ctx, int id, String title, String body, boolean alarm, String recur, String tone) {
+        show(ctx, id, title, body, alarm, recur, tone, "", "");
+    }
+
+    static void show(Context ctx, int id, String title, String body, boolean alarm, String recur, String tone, String mode, String say) {
         ensureChannel(ctx);
-        String play = tone != null && !tone.isEmpty() ? tone : prefs(ctx).getString(KEY_TONE, "");
-        JarvisAlarmService.start(ctx, title, body, play);
-        JarvisAlarmPlayer.start(ctx, play);
+        if ((mode == null || mode.isEmpty()) && "Timer".equals(title)) mode = "speak";
+        if ("speak".equals(mode) && (say == null || say.isEmpty())) {
+            say = timerSpokenLine(body);
+        }
+        boolean speak = "speak".equals(mode);
+        String play = speak ? "" : (tone != null && !tone.isEmpty() ? tone : prefs(ctx).getString(KEY_TONE, ""));
+        JarvisAlarmService.start(ctx, title, body, play, mode, say);
+        if (!speak) JarvisAlarmPlayer.start(ctx, play);
         Intent full = new Intent(ctx, JarvisAlarmActivity.class);
         full.putExtra("title", title);
         full.putExtra("body", body);
         full.putExtra("tone", play);
+        full.putExtra("mode", mode == null ? "" : mode);
+        full.putExtra("say", say == null ? "" : say);
         full.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         try {
             ctx.startActivity(full);
@@ -372,11 +397,17 @@ public class JarvisNotifyPlugin extends Plugin {
         if ("daily".equals(recur) || "weekly".equals(recur)) {
             long step = "weekly".equals(recur) ? 7L * 86_400_000L : 86_400_000L;
             long next = System.currentTimeMillis() + step;
-            persist(ctx, id, title, body, next, true, recur, play);
-            arm(ctx, id, title, body, next, true, recur, play);
+            persist(ctx, id, title, body, next, true, recur, play, mode, say);
+            arm(ctx, id, title, body, next, true, recur, play, mode, say);
         } else {
             removeStored(ctx, id);
         }
+    }
+
+    static String timerSpokenLine(String body) {
+        String t = body == null ? "" : body.trim();
+        if (t.isEmpty() || "Timer".equalsIgnoreCase(t)) return "Timer abgelaufen, Sie.";
+        return "Der Timer für Ihre " + t + " ist abgelaufen, Sie.";
     }
 
     private static JSONArray load(Context ctx) {

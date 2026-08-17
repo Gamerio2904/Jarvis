@@ -44,6 +44,11 @@ const BARE_MAP = /^\s*(?:karte|navi|navigation)\s*[.!?]*$/i
 
 export function parseDriveIntent(text: string, inMode = false): DriveIntent | null {
   const t = normalizeUtterance(text.trim())
+  if (/\bich\s+fahr(?:e)?\s+gerne\b/i.test(t)) return null
+  if (/\bgern(?:e)?\s+(?:auto|fahren|autofahren)\b/i.test(t) && !/\b(zu(?:r|m)?|nach)\s+\S/i.test(t)) {
+    return null
+  }
+  if (/^nachher\b/i.test(t)) return null
   if (OFF.test(t)) return { kind: 'off' }
   if (TAB_MUSIC.test(t) || (inMode && BARE_MUSIC.test(t))) return { kind: 'tab', tab: 'spotify' }
   if (TAB_MAP.test(t) || (inMode && BARE_MAP.test(t))) return { kind: 'tab', tab: 'map' }

@@ -1,3 +1,5 @@
+import { expandZahlenworte } from './zahlenworte.ts'
+
 export type FanAction = 'on' | 'off' | 'speed' | 'light_on' | 'light_off' | 'faster' | 'slower'
 
 export type FanIntent = { action: FanAction; speed?: number }
@@ -8,7 +10,7 @@ export const FAN_FOLLOWUP_ONLY =
   /^\s*(an|aus|licht(?:\s+(?:an|aus))?|stufe\s*[1-6]|schneller|langsamer|lauter|leiser)\s*[.!?]*$/i
 
 export function parseFanIntent(text: string, followUp = false): FanIntent | null {
-  const t = text.trim()
+  const t = expandZahlenworte(text.trim())
   if (!t || t.length > 160) return null
   const has = FAN_ANCHOR.test(t)
   if (!has && !followUp) return null

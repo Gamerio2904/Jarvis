@@ -32,6 +32,7 @@ for (const name of [
   'JarvisAlarmActivity.java',
   'JarvisAlarmService.java',
   'JarvisAlarmPlayer.java',
+  'JarvisTimerVoice.java',
   'JarvisGlanceWidget.java',
 ]) {
   copyFileSync(join(notifySrc, name), join(notifyDest, name))

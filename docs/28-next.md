@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.33.3`**.
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.40.0`** (Serie `1.34`–`1.40` in einer Stufe).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -23,13 +23,13 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.33.0`** | Suche & Antworten: Preise, keine Absage über Quellen, CarPlay öffnen | **CODE** |
 | **`1.33.2`** | Widget: Tippen öffnet Hören + Antwort | **CODE** |
 | **`1.33.3`** | Wecker klingelt wieder (nicht nur Anzeige) | **CODE** |
-| **`1.34.0`** | Antworten: Kontext, Persona, weniger Canned | **PLANNED** |
-| **`1.35.0`** | CarPlay: Route, HUD, Stimme am Steuer | **PLANNED** |
-| **`1.36.0`** | Alltag-Phrasen: mehr Wege zu denselben Tools | **PLANNED** |
-| **`1.37.0`** | Flüssig: UI, Wake-Word, Voice-Loop, TV-Start | **PLANNED** |
-| **`1.38.0`** | Gedächtnis & Nachfragen im bestehenden Speicher | **PLANNED** |
-| **`1.39.0`** | Stimme bleiben: STT, Barge-in, Navi+Jarvis | **PLANNED** |
-| **`1.40.0`** | Härten: Eval, False-Positives, ehrliche Fehler | **PLANNED** |
+| **`1.34.0`** | Antworten: Kontext, Persona, weniger Canned | **CODE** |
+| **`1.35.0`** | CarPlay: Route, HUD, Stimme am Steuer | **CODE** |
+| **`1.36.0`** | Alltag-Phrasen: mehr Wege zu denselben Tools | **CODE** |
+| **`1.37.0`** | Flüssig: UI, Wake-Word, Voice-Loop, TV-Start | **CODE** |
+| **`1.38.0`** | Gedächtnis & Nachfragen im bestehenden Speicher | **CODE** |
+| **`1.39.0`** | Stimme bleiben: STT, Barge-in, Navi+Jarvis | **CODE** |
+| **`1.40.0`** | Härten: Eval, False-Positives, ehrliche Fehler | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-93.md`](./sprints/sprint-93.md).
 
@@ -83,7 +83,7 @@ PO: Wecker geht auf, Klingel nur angezeigt. Der Ton hing am Vordergrunddienst; A
 
 ---
 
-## `1.34.0` — Bessere Antworten
+## `1.34.0` — Bessere Antworten — **CODE**
 
 Lokal 0,5B bleibt knapp. Qualität sitzt bei Gemini (Opt-in). Heute: Voice kürzt History hart (`-16` Gemini vs. `-4` lokal); nach einem Tool-Turn ist Smalltalk oft kontextlos; Guards schneiden manchmal Substanz weg; gleiche Frage → gleiche Phrase.
 
@@ -101,7 +101,7 @@ Lokal 0,5B bleibt knapp. Qualität sitzt bei Gemini (Opt-in). Heute: Voice kürz
 
 ---
 
-## `1.35.0` — CarPlay besser
+## `1.35.0` — CarPlay besser — **CODE**
 
 `1.30` hat Follow-me, Tabs, 300-m-Ansagen. Code hat schon Off-Route-Replan — aber Replan **löscht Cue-Gedächtnis** (`resetAnnounced`), deshalb dieselben Abbiegungen nochmal. GPS-Zucken plant zu oft neu. HUD bei Sonne/Nacht. Zoom unabhängig vom Tempo. Spotify-Overlay vs. Karte. Ankunft ohne Abschluss.
 
@@ -122,7 +122,7 @@ Lokal 0,5B bleibt knapp. Qualität sitzt bei Gemini (Opt-in). Heute: Voice kürz
 
 ---
 
-## `1.36.0` — Mehr Phrasen, dieselben Tools
+## `1.36.0` — Mehr Phrasen, dieselben Tools — **CODE**
 
 Erweitern, nicht neue Tools. Wetter, Kalender, Einkauf, Timer, Wecker, Losgehen, Zuhause, Ventilator, TV-Apps, Spotify-Pause.
 
@@ -134,7 +134,7 @@ Parser dürfen Smalltalk nicht fressen: `Ich fahre gerne Auto` ≠ Fahrmodus. `S
 
 ---
 
-## `1.37.0` — Flüssig
+## `1.37.0` — Flüssig — **CODE**
 
 Chat-Liste, Einstellungen, Widget, Wake-Word, Voice-Loop, Tizen-Launch.
 
@@ -151,7 +151,7 @@ Chat-Liste, Einstellungen, Widget, Wake-Word, Voice-Loop, Tizen-Launch.
 
 ---
 
-## `1.38.0` — Gedächtnis & Verständnis im Dialog
+## `1.38.0` — Gedächtnis & Verständnis im Dialog — **CODE**
 
 Bestehender Speicher, besser genutzt: „Was trinke ich?“ und natürliche Varianten. Widerspruch („kein Kaffee mehr“) überschreibt. Orte + Termin in einem Satz, wenn der Parser es schon fast kann. Chatsuche trifft den alten Turn. Kein zweites Gedächtnis-Produkt.
 
@@ -167,7 +167,7 @@ Bestehender Speicher, besser genutzt: „Was trinke ich?“ und natürliche Vari
 
 ---
 
-## `1.39.0` — Stimme bleiben
+## `1.39.0` — Stimme bleiben — **CODE**
 
 Nach `1.32.1` (Tempo): STT `NO_MATCH` nicht als Ignorieren. Barge-in (Antippen bricht wirklich). Navi-Cue und Jarvis-Satz nicht gleichzeitig. Deutsche Zwischenstände. „Nichts gehört“ nur wenn wirklich leer.
 
@@ -182,7 +182,7 @@ Nach `1.32.1` (Tempo): STT `NO_MATCH` nicht als Ignorieren. Barge-in (Antippen b
 
 ---
 
-## `1.40.0` — Härten
+## `1.40.0` — Härten — **CODE**
 
 Mehr Chips = mehr Router-Tests. False-Positives: Musik vs. Film vs. Fahrt. Ehrliche Fehler (kein Fake-„läuft“). Akku/Bildschirm im Fahrmodus prüfen. Sideload-Probe der ganzen Kette: Sprache → Befehl → Tool → Antwort.
 
@@ -217,4 +217,4 @@ Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default
 
 ## Nächster Schritt
 
-Sideload `1.33.3`. Nächste Umsetzung: Sprint 87 / **`1.34.0`** (Antwort-Kontext) — auf PO-Kommando.
+Sideload `1.40.0`. Serie `1.34`–`1.40` ist im Code. Nächste Stufe nur auf PO-Kommando — kein neues Produkt.

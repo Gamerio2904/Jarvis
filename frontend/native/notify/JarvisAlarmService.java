@@ -31,11 +31,17 @@ public class JarvisAlarmService extends Service {
     private MediaSession session;
 
     public static void start(Context ctx, String title, String body, String tone) {
+        start(ctx, title, body, tone, "", "");
+    }
+
+    public static void start(Context ctx, String title, String body, String tone, String mode, String say) {
         Intent i = new Intent(ctx, JarvisAlarmService.class);
         i.setAction(ACTION_START);
         i.putExtra("title", title);
         i.putExtra("body", body);
         i.putExtra("tone", tone == null ? "" : tone);
+        i.putExtra("mode", mode == null ? "" : mode);
+        i.putExtra("say", say == null ? "" : say);
         try {
             if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i);
             else ctx.startService(i);
@@ -76,13 +82,20 @@ public class JarvisAlarmService extends Service {
         String title = intent != null ? intent.getStringExtra("title") : null;
         String body = intent != null ? intent.getStringExtra("body") : null;
         String tone = intent != null ? intent.getStringExtra("tone") : null;
+        String mode = intent != null ? intent.getStringExtra("mode") : null;
+        String say = intent != null ? intent.getStringExtra("say") : null;
         if (title == null || title.isEmpty()) title = "Jarvis";
         if (body == null) body = "";
-        startFg(title, body);
+        boolean speak = "speak".equals(mode);
+        startFg(title, speak && say != null && !say.isEmpty() ? say : body);
         holdCpu();
         holdSession();
         JarvisWakeService.pauseListen();
-        JarvisAlarmPlayer.start(this, tone);
+        if (speak) {
+            JarvisTimerVoice.speak(this, say);
+        } else {
+            JarvisAlarmPlayer.start(this, tone);
+        }
         return START_STICKY;
     }
 

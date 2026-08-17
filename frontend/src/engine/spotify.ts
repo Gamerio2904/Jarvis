@@ -96,7 +96,12 @@ export function spotifyConfigured(s = loadSettings()): boolean {
 }
 
 export function spotifyLoggedIn(s = loadSettings()): boolean {
-  return Boolean(s.spotify_refresh?.trim() || s.spotify_access?.trim())
+  const refresh = Boolean(s.spotify_refresh?.trim())
+  const access = Boolean(s.spotify_access?.trim())
+  if (!refresh && !access) return false
+  if (refresh) return true
+  const exp = Number(s.spotify_expires_at) || 0
+  return exp > Date.now() + 5_000
 }
 
 function b64url(bytes: Uint8Array): string {

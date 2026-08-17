@@ -1,3 +1,6 @@
+import { cleanTimerTitle } from './timer-announce.ts'
+import { expandZahlenworte } from './zahlenworte.ts'
+
 export type TimerIntent =
   | { kind: 'create'; title: string; due: Date; whenLabel: string; ms: number }
   | { kind: 'stop' }
@@ -19,12 +22,11 @@ function label(ms: number): string {
 }
 
 function titleOf(raw: string | undefined): string {
-  const t = (raw || '').replace(/^[,\s.:;-]+/, '').replace(/[.!?]+$/, '').trim()
-  return t || 'Timer'
+  return cleanTimerTitle(raw || '') || 'Timer'
 }
 
 export function parseTimerIntent(text: string, now = new Date()): TimerIntent | null {
-  const t = text.trim()
+  const t = expandZahlenworte(text.trim())
   if (!t || t.length > 160) return null
   if (/^(?:timer\s+(?:aus|stopp|stop|abbrechen)|stopp(?:e)?\s+(?:den\s+)?timer|timer\s+löschen)$/i.test(t)) {
     return { kind: 'stop' }
@@ -33,11 +35,23 @@ export function parseTimerIntent(text: string, now = new Date()): TimerIntent | 
     return { kind: 'list' }
   }
   const a = new RegExp(
-    `^(?:stell(?:e)?\\s+(?:einen\\s+|den\\s+)?timer\\s+(?:auf\\s+|für\\s+)?|timer\\s+(?:auf\\s+|für\\s+)?)(\\d+)\\s+(${UNIT})(?:\\s+(.+))?$`,
+    `^(?:stell(?:e)?\\s+(?:einen\\s+|den\\s+)?timer\\s+(?:auf\\s+|für\\s+)?|timer\\s+(?:auf\\s+|für\\s+)?)(\\d+)\\s+(${UNIT})(?:\\s+(?:für\\s+)?(.+))?$`,
     'i',
   ).exec(t)
-  const b = new RegExp(`^(\\d+)\\s+(${UNIT})\\s+timer(?:\\s+(.+))?$`, 'i').exec(t)
+  const b = new RegExp(`^(\\d+)\\s+(${UNIT})\\s+timer(?:\\s+(?:für\\s+)?(.+))?$`, 'i').exec(t)
+  const c = new RegExp(
+    `^(?:stell(?:e)?\\s+(?:einen\\s+|den\\s+)?)?timer\\s+für\\s+(.+?)\\s+(\\d+)\\s+(${UNIT})$`,
+    'i',
+  ).exec(t)
   const m = a || b
+  if (c && !m) {
+    const n = Number(c[2])
+    if (!Number.isFinite(n) || n <= 0) return null
+    const ms = relMs(n, c[3])
+    if (ms < 5_000 || ms > 12 * 3_600_000) return null
+    const due = new Date(now.getTime() + ms)
+    return { kind: 'create', title: titleOf(c[1]), due, whenLabel: label(ms), ms }
+  }
   if (!m) return null
   const n = Number(m[1])
   if (!Number.isFinite(n) || n <= 0) return null

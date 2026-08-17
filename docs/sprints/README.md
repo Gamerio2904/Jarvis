@@ -90,15 +90,15 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 84 | [`sprint-84.md`](./sprint-84.md) | `1.32.0` | Samsung-Apps YouTube/Amazon/Disney/Netflix | **CODE** |
 | 85 | [`sprint-85.md`](./sprint-85.md) | `1.32.1` | Sprachmodus Tempo | **CODE** |
 | 86 | [`sprint-86.md`](./sprint-86.md) | `1.33.0` | Suche & Antworten | **CODE** |
-| 87 | [`sprint-87.md`](./sprint-87.md) | `1.34.0` | Bessere Antworten | **PLANNED** |
-| 88 | [`sprint-88.md`](./sprint-88.md) | `1.35.0` | CarPlay besser | **PLANNED** |
-| 89 | [`sprint-89.md`](./sprint-89.md) | `1.36.0` | Alltag-Phrasen | **PLANNED** |
-| 90 | [`sprint-90.md`](./sprint-90.md) | `1.37.0` | Flüssig | **PLANNED** |
-| 91 | [`sprint-91.md`](./sprint-91.md) | `1.38.0` | Gedächtnis im Dialog | **PLANNED** |
-| 92 | [`sprint-92.md`](./sprint-92.md) | `1.39.0` | Stimme bleiben | **PLANNED** |
-| 93 | [`sprint-93.md`](./sprint-93.md) | `1.40.0` | Härten | **PLANNED** |
+| 87 | [`sprint-87.md`](./sprint-87.md) | `1.34.0` | Bessere Antworten | **CODE** |
+| 88 | [`sprint-88.md`](./sprint-88.md) | `1.35.0` | CarPlay besser | **CODE** |
+| 89 | [`sprint-89.md`](./sprint-89.md) | `1.36.0` | Alltag-Phrasen | **CODE** |
+| 90 | [`sprint-90.md`](./sprint-90.md) | `1.37.0` | Flüssig | **CODE** |
+| 91 | [`sprint-91.md`](./sprint-91.md) | `1.38.0` | Gedächtnis im Dialog | **CODE** |
+| 92 | [`sprint-92.md`](./sprint-92.md) | `1.39.0` | Stimme bleiben | **CODE** |
+| 93 | [`sprint-93.md`](./sprint-93.md) | `1.40.0` | Härten | **CODE** |
 
-**Aktuell:** Sideload `1.33.3`. Nächste: Sprint 87 = `1.34.0` Antworten. [`28-next.md`](../28-next.md).
+**Aktuell:** Sideload `1.40.0`. Serie `1.34`–`1.40` CODE. [`28-next.md`](../28-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

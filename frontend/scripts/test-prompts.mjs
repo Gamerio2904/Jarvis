@@ -125,6 +125,14 @@ const EXPECT = {
   'was kommt diese Woche raus?': 'reminder',
   'das zweite': 'ordinal',
   'Wann hatte ich das mit der Steuer?': 'search',
+  'Was kommt heute?': 'brief',
+  'Milch fehlt': 'shopping',
+  'Ventilator Stufe zwei': 'fan',
+  'Timer acht Minuten Nudeln': 'timer',
+  'Spiel mal was Nettes': 'llm',
+  'Ich fahre gerne Auto': 'llm',
+  'kein Kaffee mehr': 'memory',
+  'Netflix an': 'tv',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

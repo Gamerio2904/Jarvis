@@ -315,9 +315,11 @@ function App() {
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
   const voiceHoldUntilRef = useRef(0)
+  const [voiceSeed, setVoiceSeed] = useState('')
 
-  function openVoiceMode() {
+  function openVoiceMode(seed = '') {
     voiceHoldUntilRef.current = Date.now() + 2500
+    if (seed) setVoiceSeed(seed)
     setVoiceOpen(true)
     setCalendarOpen(false)
   }
@@ -356,7 +358,13 @@ function App() {
     const t = window.setInterval(() => {
       void refreshHealth()
     }, 8000)
-    return () => window.clearInterval(t)
+    const glance = window.setInterval(() => {
+      void syncGlance()
+    }, 5 * 60_000)
+    return () => {
+      window.clearInterval(t)
+      window.clearInterval(glance)
+    }
   }, [])
 
   useEffect(() => {
@@ -380,7 +388,7 @@ function App() {
   }, [settings?.wake_word])
 
   useEffect(() => {
-    const off = onWakeHit(openVoiceMode)
+    const off = onWakeHit((utt) => openVoiceMode(utt || ''))
     let hideTimer = 0
     const vis = () => {
       window.clearTimeout(hideTimer)
@@ -394,7 +402,7 @@ function App() {
         return
       }
       void consumeVoiceLaunch().then((v) => {
-        if (v) openVoiceMode()
+        if (v.voice) openVoiceMode(v.utterance)
       })
     }
     document.addEventListener('visibilitychange', vis)
@@ -701,8 +709,9 @@ function App() {
     }
     await refreshReminders()
     try {
-      if (await consumeVoiceLaunch()) {
-        openVoiceMode()
+      const launch = await consumeVoiceLaunch()
+      if (launch.voice) {
+        openVoiceMode(launch.utterance)
       }
     } catch {
       /* browser ohne Deep-Link */
@@ -948,6 +957,7 @@ function App() {
               setSidebarOpen(false)
             }
           }
+          maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
           setError(detail)
@@ -1062,6 +1072,7 @@ function App() {
             if (payload.tool.action === 'close') setDriveOpen(false)
             else setDriveOpen(true)
           }
+          maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
           setError(detail)
@@ -1084,6 +1095,14 @@ function App() {
     void refreshReminders()
     void refreshMemory(memoryFilter)
     if (topic === 'forschung') void refreshAudits()
+  }
+
+  function maybeOpenSettingsFromReply(reply: string) {
+    const t = reply || ''
+    if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
+    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
+    else if (/Einstellungen.*Gemini|API-Key|Gemini an, aber kein/i.test(t)) openSettings('cloud')
+    else if (/Einstellungen\s*→\s*Musik|Spotify-Client-ID|Spotify anmelden/i.test(t)) openSettings('musik')
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -1249,8 +1268,12 @@ function App() {
       <main className="main">
         {voiceOpen ? (
           <VoiceMode
-            onClose={() => setVoiceOpen(false)}
+            onClose={() => {
+              setVoiceOpen(false)
+              setVoiceSeed('')
+            }}
             onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
+            initialUtterance={voiceSeed}
           />
         ) : null}
         {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}

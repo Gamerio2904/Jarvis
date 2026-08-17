@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **CODE** |
 | Priorität | **MUST** |
 | Ziel-Version | **`1.37.0`** |
 | Quelle | PO 2026-08-17 flüssiger laufen |

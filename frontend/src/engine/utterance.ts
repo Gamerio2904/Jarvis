@@ -1,3 +1,5 @@
+import { expandZahlenworte } from './zahlenworte.ts'
+
 /** Spoken German → written command. Vocative, fillers, STT-Tippfehler. */
 
 const VOCATIVE =
@@ -31,7 +33,7 @@ export function repairSpeech(text: string): string {
 }
 
 export function normalizeUtterance(text: string): string {
-  let raw = repairSpeech(text)
+  let raw = expandZahlenworte(repairSpeech(text))
   if (!raw) return raw
   const voc = VOCATIVE.exec(raw)
   if (voc) {

@@ -10,7 +10,7 @@ type NativeVoice = {
   stopListen(): Promise<{ ok: boolean }>
   speak(opts: { text: string }): Promise<{ ok: boolean; message?: string }>
   stopSpeak(): Promise<{ ok: boolean }>
-  consumeLaunch(): Promise<{ voice: boolean }>
+  consumeLaunch(): Promise<{ voice: boolean; utterance?: string }>
   pinShortcut(): Promise<{ ok: boolean; message?: string }>
   startWake(): Promise<{ ok: boolean; message?: string }>
   stopWake(): Promise<{ ok: boolean }>
@@ -25,7 +25,7 @@ type NativeVoice = {
   }): Promise<{ ok: boolean; status?: number; message?: string }>
   addListener(
     event: 'partial' | 'sse' | 'wake',
-    cb: (ev: { text?: string; data?: string; hit?: boolean }) => void,
+    cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string }) => void,
   ): Promise<{ remove: () => void }>
 }
 
@@ -283,19 +283,22 @@ export async function stopSpeak(): Promise<void> {
   window.speechSynthesis?.cancel()
 }
 
-export async function consumeVoiceLaunch(): Promise<boolean> {
-  if (!native) return window.location.hash === '#voice'
+export async function consumeVoiceLaunch(): Promise<{ voice: boolean; utterance: string }> {
+  if (!native) {
+    return { voice: window.location.hash === '#voice', utterance: '' }
+  }
   try {
-    return Boolean((await native.consumeLaunch()).voice)
+    const res = await native.consumeLaunch()
+    return { voice: Boolean(res.voice), utterance: (res.utterance || '').trim() }
   } catch {
-    return false
+    return { voice: false, utterance: '' }
   }
 }
 
-export function onWakeHit(cb: () => void): () => void {
+export function onWakeHit(cb: (utterance?: string) => void): () => void {
   if (!native) return () => undefined
   let handle: { remove: () => void } | undefined
-  void native.addListener('wake', () => cb()).then((h) => {
+  void native.addListener('wake', (ev) => cb((ev as { utterance?: string }).utterance || '')).then((h) => {
     handle = h
   })
   return () => {

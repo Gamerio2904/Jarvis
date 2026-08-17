@@ -6,6 +6,7 @@ import {
   RECALL_VAGUE,
   VERGISS,
   VERGISS_ALL,
+  CONTRADICTION,
   isIdentityAsk,
   isMemoryRecall,
   isMemoryWrite,
@@ -35,6 +36,33 @@ export async function handleMemory(
       return { handled: true, reply: `Vergessen: ${hit.key}.` }
     }
     return { handled: true, reply: 'Dazu lag nichts.' }
+  }
+  const contra = CONTRADICTION.exec(text)
+  if (contra) {
+    const needle = contra[1].replace(/[.!?,;:]+$/g, '').trim().toLowerCase()
+    if (needle.length >= 3 && !/\b(termin|wecker|timer|todo|mehr)\b/i.test(needle)) {
+      const items = await listMemory()
+      const hit = items.find(
+        (m) =>
+          m.value.toLowerCase().includes(needle) ||
+          m.key.toLowerCase().includes(needle) ||
+          (m.key === 'getränk' && /kaffee|tee|wasser|cola|bier|wein|saft/.test(needle)) ||
+          (m.key === 'essen' && needle.length >= 4),
+      )
+      if (hit && (hit.value.toLowerCase().includes(needle) || hit.key.toLowerCase() === needle)) {
+        await deleteMemory(hit.id)
+        return { handled: true, reply: `${hit.value} ist raus.` }
+      }
+      const pref = items.find(
+        (m) =>
+          (m.key === 'getränk' || m.key === 'essen') && m.value.toLowerCase().includes(needle),
+      )
+      if (pref) {
+        await deleteMemory(pref.id)
+        return { handled: true, reply: `${pref.value} ist raus.` }
+      }
+      return { handled: true, reply: `„${contra[1].trim()}“ lag nicht im Gedächtnis.` }
+    }
   }
   if (isMemoryWrite(text)) {
     const facts = parseMemoryFacts(text)

@@ -17,6 +17,8 @@ public class JarvisNotifyReceiver extends BroadcastReceiver {
         boolean alarm = intent.getBooleanExtra("alarm", true);
         String recur = intent.getStringExtra("recur");
         String tone = intent.getStringExtra("tone");
+        String mode = intent.getStringExtra("mode");
+        String say = intent.getStringExtra("say");
         try {
             JarvisNotifyPlugin.show(
                     context,
@@ -25,7 +27,9 @@ public class JarvisNotifyReceiver extends BroadcastReceiver {
                     body,
                     alarm,
                     recur == null ? "" : recur,
-                    tone == null ? "" : tone);
+                    tone == null ? "" : tone,
+                    mode == null ? "" : mode,
+                    say == null ? "" : say);
         } finally {
             new Handler(Looper.getMainLooper()).postDelayed(async::finish, 2500);
         }

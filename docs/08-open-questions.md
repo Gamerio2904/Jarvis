@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.33.3`. Wecker klingelt — [`28-next.md`](./28-next.md).
-2. Danach **Qualität statt Breite** `1.33`–`1.40` — [`28-next.md`](./28-next.md). Erstes Bau-Ziel: `1.33.0` Befehle erkennen (Sprint 86), auf PO-Kommando.
+1. Sideload `1.40.0`. Wecker klingelt, Timer sagt an — [`28-next.md`](./28-next.md).
+2. Qualität `1.34`–`1.40` ist CODE. Weiteres nur auf PO-Kommando.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---

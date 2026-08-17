@@ -2078,6 +2078,19 @@ button.linkish {
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
 }
 
+.drive-hud.is-day {
+  background: rgba(250, 248, 240, 0.92);
+  border-color: rgba(20, 24, 18, 0.35);
+  color: #121410;
+}
+.drive-hud.is-day .drive-hud-arrow,
+.drive-hud.is-day strong {
+  color: #121410;
+}
+.drive-hud.is-day span {
+  color: #3a4038;
+}
+
 .drive-hud-arrow {
   font-size: 2rem;
   line-height: 1;

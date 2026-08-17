@@ -174,7 +174,7 @@ export type NextManeuver = {
   offRoute: boolean
 }
 
-const OFF_ROUTE_M = 55
+const OFF_ROUTE_M = 90
 
 export function nextManeuver(
   steps: NavStep[],

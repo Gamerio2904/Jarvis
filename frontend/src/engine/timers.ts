@@ -4,10 +4,10 @@ import {
   addReminder,
   deleteReminder,
   listReminders,
-  loadSettings,
   type Reminder,
 } from './store'
 import { parseTimerIntent } from './timer-parse'
+import { timerDoneLine } from './timer-announce'
 import type { ToolMeta } from './tools'
 
 export { parseTimerIntent } from './timer-parse'
@@ -33,12 +33,13 @@ export async function handleTimers(
       body: row.title,
       at: intent.due,
       alarm: true,
-      tone: loadSettings().alarm_tone_uri,
+      mode: 'speak',
+      say: timerDoneLine(row.title),
     })
     await syncGlance()
     const ping = perm && scheduled.ok
-      ? 'Klingelt auch bei Bildschirm aus.'
-      : 'Gespeichert. Benachrichtigung erlauben, sonst kein Klingeln.'
+      ? 'Ich sage Bescheid, auch bei Bildschirm aus. Kein Klingeln.'
+      : 'Gespeichert. Benachrichtigung erlauben, sonst kein Hinweis.'
     return {
       handled: true,
       reply: `Timer ${row.title}, ${intent.whenLabel}. ${ping}`,

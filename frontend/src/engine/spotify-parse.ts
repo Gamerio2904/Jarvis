@@ -40,6 +40,9 @@ export function parseSpotifyIntent(text: string): SpotifyIntent | null {
   if (play?.[1]) {
     const query = play[1].replace(/[.!?]+$/, '').trim()
     if (/^(das|es|musik|was|das\s+hier)$/i.test(query)) return { kind: 'resume' }
+    if (/^(?:was|etwas|irgendwas|irgendetwas)\s+(?:nettes|schönes|gutes|liebes)\b/i.test(query)) {
+      return null
+    }
     return { kind: 'play', query }
   }
   return null

@@ -43,8 +43,10 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
   const searched = Boolean(opts?.searched)
   out = splitSentences(out)
     .filter((s) => {
+      if (/\b(wikipedia|tagesschau|idealo|geizhals|open-meteo|heise|spiegel)\b/i.test(s)) return true
       if (FAKE_SEARCH.test(s) && !searched) return false
-      if (NO_NET_LIE.test(s)) return false
+      if (NO_NET_LIE.test(s) && searched) return false
+      if (NO_NET_LIE.test(s) && !searched) return false
       return true
     })
     .join(' ')

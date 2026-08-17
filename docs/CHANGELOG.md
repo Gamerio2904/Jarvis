@@ -5,7 +5,21 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.33.3`**.
+App-Version im Code: **`1.40.0`**.
+
+### `1.40.0` — Qualität `1.34`–`1.40` — *CODE*
+
+Eine Sideload-Stufe mit der ganzen Qualitäts-Serie. Wecker klingelt weiter; Timer sagt an, ohne Klingeln.
+
+- **1.34** Antworten: mehr History, Memory im Smalltalk, Persona-Variation, Tool-Kontext, `ja`/`mach` auf den letzten Befehl
+- **1.35** CarPlay: Off-Route entprellt, Cue-Gedächtnis überlebt Replan, HUD Tag/Nacht, Zoom nach Tempo, Karte in Fahrtrichtung, Ankunft schließt Spotify-Overlay, Ort ehrlich nachfragen, Spotify-Token
+- **1.36** Phrasen: Zahlenworte, `Milch fehlt`, `Was kommt heute?`, Fan Stufe zwei, `Spiel mal was Nettes` ≠ Spotify, `stopp` letztes Medium, drei `und`, Timer spricht
+- **1.37** Wake+Befehl in einer Äußerung, Widget-Glance-Intervall, Standort ohne Permission nicht aus Cache, Settings-Deep-Link
+- **1.38** `kein Kaffee mehr`, `das lauter` / `stopp das`
+- **1.39** STT behält Partials bei `NO_MATCH`, Barge-in bricht den Turn, Navi duckt nicht über Jarvis
+- **1.40** Mehr Chips, False-Positives, ehrliche Fehler
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14000)
+- [`sprints/sprint-87.md`](./sprints/sprint-87.md) … [`sprint-93.md`](./sprints/sprint-93.md) · [`28-next.md`](./28-next.md)
 
 ### `1.33.3` — Wecker klingelt wieder — *CODE*
 
