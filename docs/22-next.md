@@ -15,6 +15,7 @@ Reihe davor: [`21-next.md`](./21-next.md) (`1.26.0`).
 | **`1.28.0`** | Wake-Word Hintergrund, Fire TV HDMI | Sideload nach 1.27.2 | **CODE** |
 | **`1.28.2`** | Fire-TV-Test sichtbar, Gen-2-Hinweis | Sideload nach 1.28.1 | **CODE** |
 | **`1.28.3`** | Wecker klingelt | Sideload nach 1.28.2 | **CODE** |
+| **`1.29.0`** | Suche, Fire TV, GUI, Widget, Ventilator | Sideload nach 1.28.3 | **CODE** |
 
 Sprint: [`sprint-79`](./sprints/sprint-79.md).
 

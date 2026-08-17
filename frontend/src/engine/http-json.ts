@@ -63,3 +63,22 @@ export async function getJson(
   ) as Record<string, unknown>
   return { status: res.status, json }
 }
+
+export async function getText(
+  url: string,
+  headers: Record<string, string> = {},
+): Promise<{ status: number; text: string }> {
+  if (Capacitor.isNativePlatform()) {
+    const res = await CapacitorHttp.get({
+      url,
+      headers,
+      connectTimeout: 12_000,
+      readTimeout: 20_000,
+      responseType: 'text',
+    })
+    const text = typeof res.data === 'string' ? res.data : res.data == null ? '' : JSON.stringify(res.data)
+    return { status: res.status, text }
+  }
+  const res = await fetch(url, { headers })
+  return { status: res.status, text: await res.text() }
+}

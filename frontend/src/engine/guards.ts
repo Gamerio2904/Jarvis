@@ -70,4 +70,4 @@ export function isHelpCommand(text: string): boolean {
 }
 
 export const HELP_TEXT =
-  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Einkaufsliste, Todos, Notizen, Erinnerungen, Wecker, Timer, lokaler Kalender mit Ort, Losgehen, Fahrmodus (eigene Karte, Spotify in Jarvis), „wenn ich zuhause bin“, Geburtstage, Nummer anrufen, Route zu Fuß oder Bahn. Wetter, Tageslage, Gespräch suchen. Orte zu Personen. Foto lesen nur mit Gemini (Bild geht zu Google). Wake-Word „Jarvis“ (Bildschirm aus, andere Apps: nur der Name). Fernseher Tizen plus Fire TV auf HDMI. Widget. Optional Gemini.'
+  'Jarvis auf diesem Handy. Smalltalk, merken/vergessen, Einkaufsliste, Todos, Notizen, Erinnerungen, Wecker, Timer, lokaler Kalender mit Ort, Losgehen, Fahrmodus (eigene Karte, Spotify in Jarvis), „wenn ich zuhause bin“, Geburtstage, Nummer anrufen, Route zu Fuß oder Bahn. Wetter, Tageslage, Gespräch suchen. Orte zu Personen. Foto lesen nur mit Gemini (Bild geht zu Google). Wake-Word „Jarvis“ (Bildschirm aus, andere Apps: nur der Name). Fernseher Tizen plus Fire TV auf HDMI. Deckenventilator über Brücke. Widget 2×4 mit Sprache an/aus. Optional Gemini.'

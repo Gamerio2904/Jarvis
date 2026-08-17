@@ -507,6 +507,7 @@ public class JarvisVoicePlugin extends Plugin {
     public void wakeStatus(PluginCall call) {
         JSObject r = new JSObject();
         r.put("running", JarvisWakeService.isRunning());
+        r.put("wanted", JarvisWakeService.wantEnabled(getContext()));
         call.resolve(r);
     }
 }

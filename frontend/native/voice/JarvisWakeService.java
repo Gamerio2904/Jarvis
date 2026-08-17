@@ -19,6 +19,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 
+import app.jarvis.notify.JarvisGlanceWidget;
 import androidx.core.app.NotificationCompat;
 
 import java.util.ArrayList;
@@ -290,6 +291,7 @@ public class JarvisWakeService extends Service {
         i.setAction(ACTION_START);
         if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i);
         else ctx.startService(i);
+        JarvisGlanceWidget.paint(ctx);
     }
 
     public static void stop(Context ctx) {
@@ -297,6 +299,6 @@ public class JarvisWakeService extends Service {
         Intent i = new Intent(ctx, JarvisWakeService.class);
         i.setAction(ACTION_STOP);
         ctx.startService(i);
-        ctx.stopService(new Intent(ctx, JarvisWakeService.class));
+        JarvisGlanceWidget.paint(ctx);
     }
 }

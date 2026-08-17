@@ -8,6 +8,7 @@ import android.view.WindowManager;
 import com.getcapacitor.BridgeActivity;
 
 import app.jarvis.geo.JarvisGeoPlugin;
+import app.jarvis.home.JarvisHomePlugin;
 import app.jarvis.notify.JarvisNotifyPlugin;
 import app.jarvis.tv.JarvisTvPlugin;
 import app.jarvis.voice.JarvisVoicePlugin;
@@ -19,6 +20,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(JarvisNotifyPlugin.class);
         registerPlugin(JarvisGeoPlugin.class);
         registerPlugin(JarvisVoicePlugin.class);
+        registerPlugin(JarvisHomePlugin.class);
         super.onCreate(savedInstanceState);
         if (getBridge() != null && getBridge().getWebView() != null) {
             getBridge().getWebView().setBackgroundColor(android.graphics.Color.parseColor("#121212"));

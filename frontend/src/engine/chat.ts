@@ -14,8 +14,10 @@ import {
   RESEARCH_NEEDS_GEMINI,
   RESEARCH_OFF_REPLY,
   researchHasSources,
+  researchQuery,
   type ResearchMeta,
 } from './research-parse'
+import { fillResearchLinks } from './web-search'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
@@ -44,6 +46,7 @@ import { handleAlarms } from './alarms'
 import { handleTimers } from './timers'
 import { handleTools, type ToolMeta } from './tools'
 import { handleTv, tvStatusFromSettings } from './tv'
+import { handleFan } from './fan'
 import { handleWeather } from './weather'
 import { handlePlaces } from './places'
 import { handleShopping } from './shopping'
@@ -166,6 +169,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: tvHit.reply,
       tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
       lastTool: 'tv',
+    }
+  }
+
+  const fanHit = await handleFan(content)
+  if (fanHit.handled && fanHit.reply) {
+    return {
+      reply: fanHit.reply,
+      tool: { tool_status: 'executed', tool: 'fan', action: 'command', label: 'Ventilator' },
+      lastTool: 'fan',
     }
   }
 
@@ -314,7 +326,7 @@ async function rememberToolFromStore(tool: string): Promise<void> {
     persistLastStep('todo', td?.title ?? '', '')
     return
   }
-  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave') {
+  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave' || tool === 'fan') {
     persistLastStep(tool)
     return
   }
@@ -415,6 +427,21 @@ export async function streamChat(
         return
       }
       if (!geminiReady()) {
+        const filled = await fillResearchLinks(content, '', undefined)
+        const research = (await attachResearchAudit(filled, researchQuery(content))) || filled
+        persistLastStep('research')
+        if (researchHasSources(research)) {
+          const lines = (research.sources || [])
+            .filter((x) => x.url)
+            .slice(0, 5)
+            .map((x, i) => `${i + 1}. ${x.title} — ${x.url}`)
+          const reply = `Ohne Gemini fasse ich nicht zusammen. Links:\n${lines.join('\n')}`
+          handlers.onReplace?.(reply)
+          const assistant = await addMessage(conversationId, 'assistant', reply, { research })
+          const updated = (await touchConversation(conversationId)) || conv
+          handlers.onDone?.({ assistant_message: assistant, conversation: updated, research, tool: null })
+          return
+        }
         const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
@@ -437,6 +464,7 @@ export async function streamChat(
 
     let acc = ''
     let research: ResearchMeta | undefined
+    const wantSearch = Boolean(s.research_opt_in && isLiveLookup(content))
     const raw = geminiReady()
       ? await (opts?.voice ? streamGemini : completeGemini)(
           llmMessages,
@@ -445,7 +473,7 @@ export async function streamChat(
             handlers.onToken?.(_piece)
           },
           {
-            search: Boolean(s.research_opt_in && isLiveLookup(content)),
+            search: wantSearch,
             maxOutputTokens: opts?.voice ? 96 : undefined,
           },
         ).then((r) => {
@@ -457,35 +485,30 @@ export async function streamChat(
           handlers.onToken?.(_piece)
         })
 
-    if (isLiveLookup(content) && !researchHasSources(research)) {
-      const empty = RESEARCH_EMPTY
-      handlers.onReplace?.(empty)
-      research = await attachResearchAudit(
-        research || {
-          used: false,
-          status: 'empty',
-          query: content.slice(0, 120),
-          sources: [],
-          network_attempted: true,
-        },
-        content,
-      )
+    const text = (raw || acc).trim()
+    if (wantSearch) {
+      research = await fillResearchLinks(content, text, research)
+      research = await attachResearchAudit(research, researchQuery(content))
       persistLastStep('research')
-      const assistant = await addMessage(conversationId, 'assistant', empty, research ? { research } : undefined)
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        research: research || null,
-        tool: null,
-      })
-      return
+      if (!text && !researchHasSources(research)) {
+        const empty = RESEARCH_EMPTY
+        handlers.onReplace?.(empty)
+        const assistant = await addMessage(conversationId, 'assistant', empty, { research })
+        const updated = (await touchConversation(conversationId)) || conv
+        handlers.onDone?.({
+          assistant_message: assistant,
+          conversation: updated,
+          research,
+          tool: null,
+        })
+        return
+      }
     }
 
-    const final = scrubReply(raw || acc, { searched: Boolean(research?.used) })
-    if (final !== (raw || acc)) handlers.onReplace?.(final)
-    if (research) research = await attachResearchAudit(research, content)
-    if (isLiveLookup(content)) persistLastStep('research')
+    const final = scrubReply(text, { searched: Boolean(researchHasSources(research) || wantSearch) })
+    if (final !== text) handlers.onReplace?.(final)
+    if (research && !research.audit_id) research = await attachResearchAudit(research, content)
+    if (isLiveLookup(content) && !wantSearch) persistLastStep('research')
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({

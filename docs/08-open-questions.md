@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.24.0`. Wake-Word: Settings „Auf Jarvis hören“, Handy an (`1.11`).
+1. Sideload `1.29.0`. Suche, Fire TV in der APK, Widget 2×4, Ventilator über Brücke — [`23-next.md`](./23-next.md).
 2. One-Click-Chips im Chat: Einkauf, Losgehen, Zuhause, Tageslage, Auge, Nummer, Serie, das zweite, Chatsuche.
 3. Extra `1.21`–`1.24` — [`20-next.md`](./20-next.md): Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
@@ -69,3 +69,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-11 | Q5 | Stil-Anker gewählt; Variation/Anti-Template Pflicht | PO |
 | 2026-08-14 | `0.13` | Jarvis komplett on-device auf dem Handy; NAS/PC-Backend entfernt | PO |
 | 2026-08-15 | `0.14` | Nichts Neues: bestehendes härten; TV on-device live (`0.14.0`/`0.14.1`) | PO |
+| 2026-08-17 | Q40 | Deckenventilator Amazon `B0CGQSNR76`: Default Broadlink RM4 Pro, Codes lokal lernen | PO |

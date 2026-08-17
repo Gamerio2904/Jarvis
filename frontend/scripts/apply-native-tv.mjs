@@ -17,6 +17,11 @@ mkdirSync(pluginDest, { recursive: true })
 copyFileSync(join(srcDir, 'JarvisTvPlugin.java'), join(pluginDest, 'JarvisTvPlugin.java'))
 copyFileSync(join(srcDir, 'AdbShell.java'), join(pluginDest, 'AdbShell.java'))
 
+const homeSrc = join(root, 'native', 'home')
+const homeDest = join(android, 'app/src/main/java/app/jarvis/home')
+mkdirSync(homeDest, { recursive: true })
+copyFileSync(join(homeSrc, 'JarvisHomePlugin.java'), join(homeDest, 'JarvisHomePlugin.java'))
+
 const notifySrc = join(root, 'native', 'notify')
 const notifyDest = join(android, 'app/src/main/java/app/jarvis/notify')
 mkdirSync(notifyDest, { recursive: true })
@@ -34,6 +39,9 @@ mkdirSync(join(android, 'app/src/main/res/layout'), { recursive: true })
 mkdirSync(join(android, 'app/src/main/res/xml'), { recursive: true })
 copyFileSync(join(notifySrc, 'jarvis_widget.xml'), join(android, 'app/src/main/res/layout/jarvis_widget.xml'))
 copyFileSync(join(notifySrc, 'jarvis_widget_info.xml'), join(android, 'app/src/main/res/xml/jarvis_widget_info.xml'))
+mkdirSync(join(android, 'app/src/main/res/drawable'), { recursive: true })
+copyFileSync(join(notifySrc, 'jarvis_widget_bg.xml'), join(android, 'app/src/main/res/drawable/jarvis_widget_bg.xml'))
+copyFileSync(join(notifySrc, 'jarvis_widget_mic.xml'), join(android, 'app/src/main/res/drawable/jarvis_widget_mic.xml'))
 const rawDest = join(android, 'app/src/main/res/raw')
 mkdirSync(rawDest, { recursive: true })
 const alarmWav = join(notifySrc, 'jarvis_alarm.wav')
@@ -158,6 +166,7 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmActivity')) {
             android:label="Jarvis">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="app.jarvis.notify.TOGGLE_VOICE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"

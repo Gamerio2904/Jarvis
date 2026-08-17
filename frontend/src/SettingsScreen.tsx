@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
+import { fanDiscover, fanLearn, fanPick, fanTest } from './api'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -15,6 +16,7 @@ export type SettingsTopic =
   | 'wecker'
   | 'ort'
   | 'tv'
+  | 'haus'
   | 'musik'
   | 'ton'
   | 'forschung'
@@ -29,6 +31,7 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'wecker', label: 'Wecker', hint: 'Timer' },
   { id: 'ort', label: 'Ort', hint: 'Wetter' },
   { id: 'tv', label: 'Fernseher', hint: 'Tizen + Fire' },
+  { id: 'haus', label: 'Haus', hint: 'Ventilator' },
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
@@ -116,6 +119,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [spotifyMsg, setSpotifyMsg] = useState<string | null>(null)
   const [fireHost, setFireHost] = useState(s?.tv_fire_host || '')
   const [firePort, setFirePort] = useState(String(s?.tv_fire_port || 5555))
+  const [fanHost, setFanHost] = useState(s?.fan_host || '')
+  const [fanBusy, setFanBusy] = useState(false)
+  const [fanMsg, setFanMsg] = useState<string | null>(null)
+  const [fanMsgOk, setFanMsgOk] = useState<boolean | null>(null)
+  const [fanFound, setFanFound] = useState<Array<{ host?: string; mac?: string; name?: string }>>([])
 
   useEffect(() => {
     setFireHost(s?.tv_fire_host || '')
@@ -124,6 +132,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
   useEffect(() => {
     setFirePort(String(s?.tv_fire_port || 5555))
   }, [s?.tv_fire_port])
+
+  useEffect(() => {
+    setFanHost(s?.fan_host || '')
+  }, [s?.fan_host])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -588,6 +600,136 @@ export function SettingsScreen(p: SettingsScreenProps) {
               ) : null}
             </section>
             </>
+          ) : null}
+
+          {p.topic === 'haus' ? (
+            <section className="settings-card">
+              <h3>Deckenventilator</h3>
+              <p className="settings-lead">
+                Über eine Broadlink-Brücke (RM4 Pro) im WLAN. Original-Fernbedienung lernen. Kein Amazon-Konto.
+              </p>
+              <p className="settings-hint">
+                Der Ventilator selbst spricht oft nur Funk. Jarvis sendet die gelernten Tasten lokal. Ohne Brücke
+                keine Stufen.
+              </p>
+              <label className="settings-toggle">
+                <span>Ventilator an</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.fan_enabled)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ fan_enabled: e.target.checked })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Brücken-IP</span>
+                <input
+                  value={fanHost}
+                  disabled={busy || fanBusy}
+                  placeholder="192.168.1.40"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  onChange={(e) => setFanHost(e.target.value)}
+                  onBlur={() => {
+                    const v = fanHost.trim()
+                    setFanHost(v)
+                    void p.patchSetting({ fan_host: v })
+                  }}
+                />
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || fanBusy}
+                  onClick={() => {
+                    setFanBusy(true)
+                    setFanMsg('Suche Brücke…')
+                    void fanDiscover()
+                      .then((r) => {
+                        setFanFound(r.items || [])
+                        setFanMsgOk((r.items || []).length > 0)
+                        setFanMsg(r.message || ((r.items || []).length ? 'Gefunden.' : 'Nichts gefunden.'))
+                      })
+                      .finally(() => setFanBusy(false))
+                  }}
+                >
+                  Suchen
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || fanBusy}
+                  onClick={() => {
+                    setFanBusy(true)
+                    setFanMsg('Teste Brücke…')
+                    void p.patchSetting({ fan_host: fanHost.trim() }).then(() =>
+                      fanTest({ host: fanHost.trim() }).then((r) => {
+                        setFanMsgOk(r.ok)
+                        setFanMsg(r.reply)
+                        setFanBusy(false)
+                      }),
+                    )
+                  }}
+                >
+                  {fanBusy ? 'Prüfe…' : 'Testen'}
+                </button>
+              </div>
+              {fanFound.length ? (
+                <ul className="tv-found">
+                  {fanFound.map((item) => (
+                    <li key={item.host || 'x'}>
+                      <button
+                        type="button"
+                        disabled={fanBusy}
+                        onClick={() => {
+                          void fanPick(item).then((msg) => {
+                            setFanHost(item.host || '')
+                            setFanMsg(msg)
+                            setFanMsgOk(true)
+                            void p.patchSetting({ fan_host: item.host || '', fan_mac: item.mac || '' })
+                          })
+                        }}
+                      >
+                        {item.name || 'Broadlink'} · {item.host}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <p className="settings-hint">Lernen: Taste an der Fernbedienung, wenn die Brücke blinkt.</p>
+              <div className="settings-actions">
+                {(
+                  [
+                    ['on', 'An'],
+                    ['off', 'Aus'],
+                    ['speed1', 'Stufe 1'],
+                    ['speed2', 'Stufe 2'],
+                    ['speed3', 'Stufe 3'],
+                    ['light', 'Licht'],
+                  ] as const
+                ).map(([slot, label]) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    className="retry-btn"
+                    disabled={busy || fanBusy}
+                    onClick={() => {
+                      setFanBusy(true)
+                      setFanMsg(`Lerne ${label}… Fernbedienung drücken.`)
+                      void fanLearn(slot).then((r) => {
+                        setFanMsgOk(r.ok)
+                        setFanMsg(r.reply)
+                        setFanBusy(false)
+                      })
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {fanMsg ? <p className={`tv-test-msg${fanMsgOk === false ? ' warn' : ''}`}>{fanMsg}</p> : null}
+            </section>
           ) : null}
 
           {p.topic === 'musik' ? (

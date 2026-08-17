@@ -5,7 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.28.3`**.
+App-Version im Code: **`1.29.0`**.
+
+### `1.29.0` — Suche, Fire TV, GUI, Widget, Ventilator — *CODE*
+
+- Internet-Suche: Gemini-Text bleibt; Links aus Grounding, DuckDuckGo und Wikipedia; Badge nie `empty`
+- Composer: Textfeld volle Breite, Icon-Knöpfe, **runder** Mic — kein senkrechter Platzhalter
+- Fire TV ruft in der APK das Native-Plugin (nicht mehr „nur in der Android-App“ trotz App)
+- Widget 2×4: Termin, Wetter, Spracheingabe an/aus
+- Deckenventilator über Broadlink-Brücke (lernen, an/aus, Stufe, Licht)
+- [`sprints/sprint-81.md`](./sprints/sprint-81.md) · [`23-next.md`](./23-next.md)
 
 ### `1.28.3` — Wecker klingelt — *CODE*
 

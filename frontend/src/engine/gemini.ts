@@ -1,4 +1,4 @@
-import type { ResearchMeta, ResearchSource } from './research-parse'
+import { hostOf, sourcesFromText, type ResearchMeta, type ResearchSource } from './research-parse'
 import {
   germanAuthError,
   germanNetworkError,
@@ -75,46 +75,53 @@ function textFrom(json: GeminiResponse, trim = true): string {
   return trim ? raw.trim() : raw
 }
 
-function researchFrom(json: GeminiResponse): ResearchMeta | undefined {
+function researchFrom(json: GeminiResponse, answer = ''): ResearchMeta | undefined {
   const cand = json.candidates?.[0] as Record<string, unknown> | undefined
   const g = (cand?.groundingMetadata || cand?.grounding_metadata) as
     | (GroundingMetadata & {
         grounding_chunks?: GroundingChunk[]
         web_search_queries?: string[]
         searchEntryPoint?: { renderedContent?: string }
+        search_entry_point?: { renderedContent?: string; rendered_content?: string }
       })
     | undefined
-  if (!g) return undefined
   const now = new Date().toISOString()
-  const chunks = g.groundingChunks || g.grounding_chunks || []
-  const sources: ResearchSource[] = chunks
-    .map((c) => ({
-      title: c.web?.title || hostOf(c.web?.uri || '') || 'Quelle',
-      url: c.web?.uri || '',
-      snippet: '',
-      provider: 'google_search',
-      retrieved_at: now,
-    }))
-    .filter((s) => s.url)
-  const query = (g.webSearchQueries || g.web_search_queries || []).filter(Boolean)[0]
-  if (!sources.length && !query) return undefined
+  const chunks = g?.groundingChunks || g?.grounding_chunks || []
+  const fromChunks: ResearchSource[] = chunks.flatMap((c) => {
+    const web = c.web || (c as { retrievedContext?: { uri?: string; title?: string } }).retrievedContext
+    const url = web?.uri || ''
+    if (!url) return []
+    return [
+      {
+        title: web?.title || hostOf(url) || 'Quelle',
+        url,
+        snippet: '',
+        provider: 'google_search',
+        retrieved_at: now,
+      },
+    ]
+  })
+  const html = g?.searchEntryPoint?.renderedContent || g?.search_entry_point?.renderedContent || g?.search_entry_point?.rendered_content || ''
+  const fromHtml = html ? sourcesFromText(html.replace(/href=["']([^"']+)["']/gi, ' $1 '), 'google_search') : []
+  const fromAnswer = sourcesFromText(answer)
+  const seen = new Set<string>()
+  const sources: ResearchSource[] = []
+  for (const s of [...fromChunks, ...fromHtml, ...fromAnswer]) {
+    if (!s.url || seen.has(s.url)) continue
+    seen.add(s.url)
+    sources.push(s)
+  }
+  const query = (g?.webSearchQueries || g?.web_search_queries || []).filter(Boolean)[0]
+  if (!sources.length && !query && !g) return undefined
   return {
     used: sources.length > 0,
     status: sources.length ? 'ok' : 'empty',
-    status_label: sources.length ? `${sources.length} Quellen` : 'Suche ohne Quellen',
-    badge: sources.length ? 'Quellen' : 'Research',
+    status_label: sources.length ? `${sources.length} Quellen` : 'Suche ohne Links',
+    badge: sources.length ? 'Quellen' : 'Suche',
     query,
     sources,
     network_attempted: true,
     privacy_note: 'Nur die Suchanfrage ging zu Google. Tippen öffnet die Seite.',
-  }
-}
-
-function hostOf(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '')
-  } catch {
-    return ''
   }
 }
 
@@ -264,7 +271,7 @@ export async function completeGemini(
         }
         saveSettings({ gemini_model: model })
         onToken?.(text, text)
-        return { text, research: researchFrom(json) }
+        return { text, research: researchFrom(json, text) }
       }
       if (modelRetryable) continue
     } catch (err) {

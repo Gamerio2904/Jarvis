@@ -84,8 +84,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 78 | [`sprint-78.md`](./sprint-78.md) | `1.26.0` | Fahrmodus + Spotify + Auge + TV-Lautstärke | **CODE** |
 | 79 | [`sprint-79.md`](./sprint-79.md) | `1.27.0` | Internes Spotify (Web Playback) | **CODE** |
 | 80 | [`sprint-80.md`](./sprint-80.md) | `1.28.0` | Wake-Word Hintergrund + Fire TV | **CODE** |
+| 81 | [`sprint-81.md`](./sprint-81.md) | `1.29.0` | Suche, Fire TV, GUI, Widget, Ventilator | **CODE** |
 
-**Aktuell:** Sideload `1.28.3`. Spotify intern: [`22-next.md`](../22-next.md).
+**Aktuell:** Sideload `1.29.0`. Alltag: [`23-next.md`](../23-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

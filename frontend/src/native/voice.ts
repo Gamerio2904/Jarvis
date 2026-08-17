@@ -14,7 +14,7 @@ type NativeVoice = {
   pinShortcut(): Promise<{ ok: boolean; message?: string }>
   startWake(): Promise<{ ok: boolean; message?: string }>
   stopWake(): Promise<{ ok: boolean }>
-  wakeStatus(): Promise<{ running: boolean }>
+  wakeStatus(): Promise<{ running: boolean; wanted?: boolean }>
   requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }>
   setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
   streamSse(opts: { url: string; body: string; apiKey: string }): Promise<{ ok: boolean; status?: number; message?: string }>
@@ -318,6 +318,16 @@ export async function stopWakeWord(): Promise<void> {
     await native.stopWake()
   } catch {
     /* ignore */
+  }
+}
+
+export async function wakeWordWanted(): Promise<boolean> {
+  if (!native) return false
+  try {
+    const st = await native.wakeStatus()
+    return Boolean(st.wanted ?? st.running)
+  } catch {
+    return false
   }
 }
 

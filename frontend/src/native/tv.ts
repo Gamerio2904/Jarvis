@@ -217,8 +217,8 @@ export async function tvFireKeyNative(opts: {
   port?: number
   code: number
 }): Promise<TvResult> {
-  if (!native || !('fireKey' in native)) {
-    return { ok: false, message: 'Fire TV nur in der Android-App (ADB).' }
+  if (!native) {
+    return { ok: false, message: 'Fire TV nur im Browser nicht — die Android-App kann ADB. Sie sind hier im Browser.' }
   }
   try {
     return await withTimeout(native.fireKey(opts), 12_000, {
@@ -232,8 +232,8 @@ export async function tvFireKeyNative(opts: {
 }
 
 export async function tvFireTestNative(opts: { host: string; port?: number }): Promise<TvResult> {
-  if (!native || !('fireTest' in native)) {
-    return { ok: false, message: 'Fire-TV-Test nur in der Android-App.' }
+  if (!native) {
+    return { ok: false, message: 'Fire-TV-Test braucht die Android-App, nicht den Browser.' }
   }
   try {
     return await withTimeout(native.fireTest(opts), 12_000, {

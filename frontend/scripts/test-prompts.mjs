@@ -14,6 +14,7 @@ import { parseTimerIntent } from '../src/engine/timer-parse.ts'
 import { parseReminderIntent } from '../src/engine/remind-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
+import { parseFanIntent } from '../src/engine/fan-parse.ts'
 import { isLiveLookup } from '../src/engine/research-parse.ts'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from '../src/engine/places-parse.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
@@ -29,7 +30,7 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'ordinal'|'tv'|'drive'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'ordinal'|'tv'|'fan'|'drive'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -37,6 +38,7 @@ function route(text, ctx = {}) {
   if (isHelpCommand(text)) return 'help'
   if (parseOrdinalFollowUp(text)) return 'ordinal'
   if (parseTvIntent(text)) return 'tv'
+  if (parseFanIntent(text)) return 'fan'
   if (parseDriveIntent(text)) return 'drive'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
   if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
@@ -75,6 +77,7 @@ const EXPECT = {
   '/hilfe': 'help',
   'Fernseher an': 'tv',
   'Fire TV': 'tv',
+  'Ventilator an': 'fan',
   'Sag Hallo und duze mich.': 'llm',
   'Erklären Sie in einem Satz, was Sie tun.': 'llm',
   'Notiz: WLAN steht am Router': 'tools',

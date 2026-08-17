@@ -16,7 +16,8 @@ import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
-import { RESEARCH_EMPTY, researchHasSources } from '../src/engine/research-parse.ts'
+import { parseFanIntent } from '../src/engine/fan-parse.ts'
+import { RESEARCH_EMPTY, researchHasSources, researchQuery, researchStatusLabel, sourcesFromHtml, sourcesFromText } from '../src/engine/research-parse.ts'
 import {
   findContactRow,
   mapsDirUrl,
@@ -117,6 +118,7 @@ assert.equal(
 )
 assert.ok(isIdentityAsk('Wer bist du und wer bin ich?'))
 assert.ok(isLiveLookup('Suche im Internet nach Kuchenrezepten'))
+assert.ok(isLiveLookup('Suche nach Kuchenrezepten'))
 assert.ok(isLiveLookup('Wie ist die Temperatur in Ingesheim heute?'))
 assert.ok(!isLiveLookup('Hallo Jarvis.'))
 
@@ -303,6 +305,18 @@ assert.equal(named.includes('Timon'), false)
 assert.match(RESEARCH_EMPTY, /Netz hat nicht geantwortet/)
 assert.equal(researchHasSources({ used: true, sources: [] }), false)
 assert.equal(researchHasSources({ used: true, sources: [{ url: 'https://example.com' }] }), true)
+assert.equal(researchQuery('Suche nach Kuchenrezepten'), 'Kuchenrezepten')
+assert.equal(researchQuery('Suche im Internet nach Kuchenrezepten'), 'Kuchenrezepten')
+assert.equal(researchStatusLabel({ status: 'empty', sources: [], network_attempted: true }), 'Suche ohne Links')
+assert.equal(researchStatusLabel({ status: 'empty' }), 'Quellen')
+assert.equal(sourcesFromText('Rezept: https://example.com/kuchen').some((s) => s.url.includes('example.com')), true)
+assert.equal(sourcesFromHtml('<a class="result__a" href="https://chefkoch.de/kuchen">Kuchen</a>')[0]?.url, 'https://chefkoch.de/kuchen')
+assert.equal(parseFanIntent('Ventilator an')?.action, 'on')
+assert.equal(parseFanIntent('Lüfter aus')?.action, 'off')
+assert.equal(parseFanIntent('Ventilator Stufe 3')?.speed, 3)
+assert.equal(parseFanIntent('Licht an'), null)
+assert.equal(parseFanIntent('Ventilator Licht an')?.action, 'light_on')
+assert.equal(parseFanIntent('aus', true)?.action, 'off')
 assert.equal(parseCalendarIntent('Termin um 16:00 Jane', frozen)?.kind, 'create')
 assert.equal(parseAlarmIntent('Wecker 7', frozen)?.kind, 'create')
 assert.equal(parseTimerIntent('Timer 8 Minuten Nudeln', frozen)?.kind, 'create')
