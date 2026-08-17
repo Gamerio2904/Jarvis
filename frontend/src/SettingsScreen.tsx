@@ -331,7 +331,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
           {p.topic === 'wecker' ? (
             <section className="settings-card">
               <h3>Wecker, Timer, Erinnerungen</h3>
-              <p className="settings-hint">Klingelt bei Bildschirm aus. OnePlus: Akku nicht optimieren.</p>
+              <p className="settings-hint">
+                Klingelt bei Bildschirm aus. Ton über die Wecker-Lautstärke des Handys, nicht über Medien.
+                OnePlus: Akku nicht optimieren.
+              </p>
               {p.reminders.length === 0 ? (
                 <p className="memory-empty">Nichts offen.</p>
               ) : (

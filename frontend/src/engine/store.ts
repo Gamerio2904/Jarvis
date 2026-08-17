@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title'
 
-export const APP_VERSION = '1.28.2'
+export const APP_VERSION = '1.28.3'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',

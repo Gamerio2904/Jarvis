@@ -1109,7 +1109,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>Handy · v1.28.2</p>
+            <p>Handy · v1.28.3</p>
           </div>
         </div>
 
