@@ -12,7 +12,7 @@ type HereHit = {
   reply?: string
   tool?: ToolMeta
   lastTool?: string
-  retry?: 'fuel' | 'weather' | 'poi'
+  retry?: 'fuel' | 'weather' | 'poi' | 'transit'
 }
 
 export async function handleHere(text: string): Promise<HereHit> {
@@ -30,13 +30,17 @@ async function activate(lastTool: string): Promise<HereHit> {
     if (lastTool === 'fuel') return { handled: true, retry: 'fuel' }
     if (lastTool === 'weather') return { handled: true, retry: 'weather' }
     if (lastTool === 'poi') return { handled: true, retry: 'poi' }
+    if (lastTool === 'transit') return { handled: true, retry: 'transit' }
     return speakPlace(loc.lat, loc.lon)
   }
   return {
     handled: true,
     reply: loc.message || 'Standort weiter aus. Ich rate nicht.',
     tool: hereTool(loc.openedSettings ? 'settings' : 'ask'),
-    lastTool: lastTool === 'fuel' || lastTool === 'weather' || lastTool === 'poi' ? lastTool : 'here',
+    lastTool:
+      lastTool === 'fuel' || lastTool === 'weather' || lastTool === 'poi' || lastTool === 'transit'
+        ? lastTool
+        : 'here',
   }
 }
 

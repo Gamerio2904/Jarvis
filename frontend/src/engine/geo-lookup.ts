@@ -35,7 +35,7 @@ async function geocodeNominatim(name: string): Promise<{ ok: true; fix: Fix } | 
     const q = new URLSearchParams({ q: name, format: 'json', limit: '1', addressdetails: '0' })
     const { status, json } = await getJson(`https://nominatim.openstreetmap.org/search?${q}`, {
       'Accept-Language': 'de',
-      'User-Agent': 'Jarvis/1.27.2 (local.jarvis.app)',
+      'User-Agent': 'Jarvis/1.48.0 (local.jarvis.app)',
     })
     const raw: unknown = json
     let rows: Array<Record<string, unknown>> = []
@@ -72,7 +72,7 @@ async function reverseNominatim(lat: number, lon: number): Promise<string | null
     })
     const { status, json } = await getJson(`https://nominatim.openstreetmap.org/reverse?${q}`, {
       'Accept-Language': 'de',
-      'User-Agent': 'Jarvis/1.47.1 (local.jarvis.app)',
+      'User-Agent': 'Jarvis/1.48.0 (local.jarvis.app)',
     })
     if (status < 200 || status >= 300) return null
     const addr = (json.address && typeof json.address === 'object' ? json.address : {}) as Record<string, unknown>

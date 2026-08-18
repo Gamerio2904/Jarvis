@@ -1,5 +1,5 @@
 export type WeatherWhen = 'now' | 'today' | 'tomorrow' | 'weekend'
-export type WeatherFocus = 'general' | 'rain' | 'wear'
+export type WeatherFocus = 'general' | 'rain' | 'wear' | 'air' | 'sun'
 
 export type WeatherIntent =
   | { kind: 'here'; when: WeatherWhen; focus: WeatherFocus }
@@ -7,6 +7,10 @@ export type WeatherIntent =
 
 const WEATHER =
   /\b(wetter|temperatur|wie\s+warm|wie\s+kalt|regnet\s+es|schneit\s+es|wie\s+ist\s+das\s+wetter|wird\s+es\s+regnen|schirm|anziehen|was\s+tragen)\b/i
+const AIR =
+  /\b(luftqualität|luftqualitaet|feinstaub|pollen(?:flug|werte)?|luftverschmutzung|aqi|wie\s+ist\s+die\s+luft|luft\s+hier)\b/i
+const SUN =
+  /\b(sonnenaufgang|sonnenuntergang|wann\s+geht\s+die\s+sonne|sonne\s+(?:auf|unter)(?:geht)?)\b/i
 const PLACE = /(?:in|für|aus|bei)\s+([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-\s]{1,40})/i
 const TRAIL = /(?:\s+(heute|jetzt|hier|draußen|morgen|übermorgen|wochenende|samstag|sonntag))+$/i
 
@@ -23,7 +27,12 @@ export function parseWeatherFollowup(text: string, last: WeatherLast | null): We
   if (!t || t.length > 80) return null
   const und = /^und\s+/i.test(t)
   const rest = t.replace(/^und\s+/i, '').trim()
-  if (!und && !/^(morgen|übermorgen|heute|wochenende|das\s+wochenende|schirm|anziehen)$/i.test(rest)) {
+  if (
+    !und &&
+    !/^(morgen|übermorgen|heute|wochenende|das\s+wochenende|schirm|anziehen|luft|pollen|sonnenaufgang|sonnenuntergang)$/i.test(
+      rest,
+    )
+  ) {
     return null
   }
   if (!rest) return last.kind === 'place' && last.place
@@ -35,7 +44,9 @@ export function parseWeatherFollowup(text: string, last: WeatherLast | null): We
   if (/\b(wochenende|samstag|sonntag)\b/i.test(rest)) when = 'weekend'
   else if (/\b(morgen|übermorgen)\b/i.test(rest)) when = 'tomorrow'
   else if (/\bheute\b/i.test(rest)) when = 'today'
-  if (/\b(anzug|anziehen|tragen|jacke|pulli)\b/i.test(rest)) focus = 'wear'
+  if (/\b(luft|pollen|feinstaub|aqi)\b/i.test(rest)) focus = 'air'
+  else if (/\b(sonnenaufgang|sonnenuntergang|sonne)\b/i.test(rest)) focus = 'sun'
+  else if (/\b(anzug|anziehen|tragen|jacke|pulli)\b/i.test(rest)) focus = 'wear'
   else if (/\b(regen|regnet|schneit|schirm|trocken)\b/i.test(rest)) focus = 'rain'
 
   const placeHit = /(?:in|für|aus|bei)\s+([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-\s]{1,40})$/i.exec(rest)
@@ -52,11 +63,18 @@ export function parseWeatherFollowup(text: string, last: WeatherLast | null): We
 export function parseWeatherIntent(text: string): WeatherIntent | null {
   const t = text.trim()
   if (!t || t.length > 160) return null
-  if (!WEATHER.test(t) && !/\b(was\s+(soll|ziehe)\s+ich\s+an|jacke\s+mitnehmen)\b/i.test(t)) {
+  const air = AIR.test(t)
+  const sun = SUN.test(t)
+  if (
+    !air &&
+    !sun &&
+    !WEATHER.test(t) &&
+    !/\b(was\s+(soll|ziehe)\s+ich\s+an|jacke\s+mitnehmen)\b/i.test(t)
+  ) {
     return null
   }
   const when = parseWhen(t)
-  const focus = parseFocus(t)
+  const focus = air ? 'air' : sun ? 'sun' : parseFocus(t)
   const place = PLACE.exec(t)
   if (place) {
     const name = place[1].replace(/[?.!]+$/, '').replace(TRAIL, '').trim()

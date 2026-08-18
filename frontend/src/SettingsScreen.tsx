@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
 import { fanDiscover, fanLearn, fanPick, fanTest, testPc } from './api'
 import { copyText } from './copy-text'
-import { PC_COPY_PROMPTS } from './engine/pc-parse'
 import { ensureDeviceLocation } from './native/geo'
 import {
   spotifyLoggedIn,
@@ -825,13 +824,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </div>
               {pcMsg ? <p className={`tv-test-msg${pcMsgOk === false ? ' warn' : ''}`}>{pcMsg}</p> : null}
               <h3 className="copy-block-title">Ein Klick kopieren</h3>
-              <p className="settings-hint">Feld antippen oder Kopieren — dann im Chat einfügen.</p>
               <CopyField label="PC-IP" value={pcHost.trim()} />
               <CopyField label="Port" value={pcPort.trim() || '18790'} />
               <CopyField label="Token" value={pcToken.trim()} />
-              {PC_COPY_PROMPTS.map((prompt) => (
-                <CopyField key={prompt} label="Prompt" value={prompt} />
-              ))}
             </section>
           ) : null}
 

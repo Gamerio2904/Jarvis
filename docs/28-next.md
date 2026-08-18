@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.47.1`** (PC live + Kopierfelder).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.0`** (Luft/Sonne/Bahn/Nachrichten/Feiertage).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -41,8 +41,9 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.46.0`** | Anruf und SMS direkt, mit Nachfrage | **CODE** |
 | **`1.47.0`** | PC live: Bildschirm, Maus, FIFA, Ordner | **CODE** |
 | **`1.47.1`** | Ein-Klick-Kopieren: IP, Token, Prompts | **CODE** |
+| **`1.48.0`** | Luft/Sonne auf Nachfrage, Bahn, Tagesschau, Feiertage | **CODE** |
 
-Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-100.md`](./sprints/sprint-100.md).
+Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-101.md`](./sprints/sprint-101.md).
 
 ---
 
@@ -378,10 +379,25 @@ PO: One-click kopieren, Felder mit Prompts.
 
 **Probe:** Kopieren im PC-Fenster, ins Handy einfügen. Prompt kopieren, im Chat einfügen.
 
+## `1.48.0` — Live-Lage auf Nachfrage — **CODE**
+
+PO: Open-Meteo Air und Sonnenaufgang nur gezielt. transport.rest. Tagesschau und Nager. Ort-News: Tagesschau, sonst Internet.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Luft / Pollen | Nur bei `Luft`, `Pollen`, `AQI` — nicht bei `Wetter heute` |
+| Sonne | Nur bei Sonnenaufgang / -untergang |
+| Bahn | transport.rest, Fallback Transitous; sonst Maps ÖPNV, keine Fake-Zeit |
+| Nachrichten | `Nachrichten` / Tagesschau national. `Was ist heute in Ingesheim passiert` → Tagesschau-Suche, leer → Netz, nichts erfinden |
+| Feiertag | Nager.Date DE, Land grob aus letztem Ort |
+| APK-UI | Prompt-Chips und PC-Prompt-Felder im Chat/Settings weg; Windows-App behält Kopieren |
+
+**Probe:** `Wie ist die Luft?` · `Wann Sonnenaufgang?` · `Wetter heute` · `Mit der Bahn nach Heilbronn` · `Nachrichten` · `Was ist heute in Ingesheim passiert` · `Ist heute Feiertag?`
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.47.1`. Kopieren-Felder für IP/Token/Prompts. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.48.0`. Luft/Sonne nur auf Nachfrage, Bahn, Tagesschau, Feiertage. Nächste Stufe nur auf PO-Kommando.

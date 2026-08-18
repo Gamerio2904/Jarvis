@@ -68,6 +68,9 @@ import { handlePc } from './pc'
 import { handleDrive } from './drive'
 import { handleFuel, handleFuelOrdinal } from './fuel'
 import { handleHere } from './here'
+import { handleTransit } from './transit'
+import { handleHoliday } from './holiday'
+import { handleNews } from './news'
 import { handleEyeAsk } from './eye'
 import { parseEyeIntent } from './eye-parse'
 import { handleChatSearch } from './search-chat'
@@ -300,6 +303,20 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       }
     }
   }
+  if (hereHit.retry === 'transit') {
+    const retryTransit = await handleTransit(
+      conversationId,
+      loadSettings().last_step_utterance || 'nächste Bahn nach Heilbronn',
+    )
+    if (retryTransit.handled && retryTransit.reply) {
+      return {
+        reply: retryTransit.reply,
+        tool: retryTransit.tool,
+        lastTool: retryTransit.lastTool || 'transit',
+        research: retryTransit.research,
+      }
+    }
+  }
   if (hereHit.handled && hereHit.reply) {
     return {
       reply: hereHit.reply,
@@ -324,6 +341,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: poiHit.reply,
       tool: poiHit.tool,
       lastTool: poiHit.lastTool || 'poi',
+    }
+  }
+
+  const transitHit = await handleTransit(conversationId, content)
+  if (transitHit.handled && transitHit.reply) {
+    return {
+      reply: transitHit.reply,
+      tool: transitHit.tool,
+      lastTool: transitHit.lastTool || 'transit',
+      research: transitHit.research,
     }
   }
 
@@ -395,6 +422,11 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  const holidayHit = await handleHoliday(content)
+  if (holidayHit.handled && holidayHit.reply) {
+    return { reply: holidayHit.reply, tool: holidayHit.tool, lastTool: holidayHit.lastTool || 'holiday' }
+  }
+
   const calHit = await handleCalendar(conversationId, content)
   if (calHit.handled && calHit.reply) {
     return { reply: calHit.reply, tool: calHit.tool, lastTool: 'calendar' }
@@ -434,6 +466,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       tool: weatherHit.tool,
       research: weatherHit.research,
       lastTool: 'weather',
+    }
+  }
+
+  const newsHit = await handleNews(content)
+  if (newsHit.handled && newsHit.reply) {
+    return {
+      reply: newsHit.reply,
+      tool: newsHit.tool,
+      research: newsHit.research,
+      lastTool: newsHit.lastTool || 'news',
     }
   }
 

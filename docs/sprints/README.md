@@ -104,8 +104,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 98 | [`sprint-98.md`](./sprint-98.md) | `1.45.0` | Öffnungszeiten Läden | **CODE** |
 | 99 | [`sprint-99.md`](./sprint-99.md) | `1.46.0` | Anruf/SMS mit Nachfrage | **CODE** |
 | 100 | [`sprint-100.md`](./sprint-100.md) | `1.47.0` | PC live (Bildschirm, Maus, FIFA) | **CODE** |
+| 101 | [`sprint-101.md`](./sprint-101.md) | `1.48.0` | Luft/Sonne auf Nachfrage, Bahn, Tagesschau, Feiertage | **CODE** |
 
-**Aktuell:** Sideload `1.47.1`. Kopieren-Felder + PC-App. [`28-next.md`](../28-next.md).
+**Aktuell:** Sideload `1.48.0`. Live-Lage auf Nachfrage. [`28-next.md`](../28-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

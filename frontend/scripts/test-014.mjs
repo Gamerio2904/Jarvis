@@ -20,6 +20,9 @@ import {
 } from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
+import { parseTransitIntent } from '../src/engine/transit-parse.ts'
+import { parseHolidayIntent } from '../src/engine/holiday-parse.ts'
+import { parseNewsIntent } from '../src/engine/news-parse.ts'
 import { parseTimerIntent } from '../src/engine/timer-parse.ts'
 import { timerDoneLine, cleanTimerTitle, timerSetLine, timerStopLine } from '../src/engine/timer-announce.ts'
 import { expandZahlenworte } from '../src/engine/zahlenworte.ts'
@@ -355,6 +358,48 @@ assert.match(formatWeatherBrief(snap, 'weekend', 'general'), /Wochenende/)
 assert.match(formatWeatherBrief(snap, 'now', 'wear'), /Pulli|Jacke|anziehen/)
 assert.match(clothingTip({ feels: 16, wet: false, code: 2, wind: 12 }), /Pulli/)
 assert.match(clothingTip({ feels: 16, wet: true, code: 63, wind: 12 }), /Schirm/)
+
+assert.equal(parseWeatherIntent('Wetter heute')?.focus, 'general')
+assert.equal(parseWeatherIntent('Wie ist die Luft?')?.focus, 'air')
+assert.equal(parseWeatherIntent('Wann Sonnenaufgang?')?.focus, 'sun')
+assert.equal(parseWeatherIntent('Pollen in Stuttgart')?.focus, 'air')
+const airFollow = parseWeatherFollowup('und die Luft', { kind: 'here', when: 'today', focus: 'general' })
+assert.equal(airFollow?.focus, 'air')
+assert.match(
+  formatWeatherBrief({ ...snap, aqi: 18, pm25: 6, pollen: 'Gräser wenig' }, 'now', 'air'),
+  /Luftqualität 18/,
+)
+assert.doesNotMatch(formatWeatherBrief(snap, 'now', 'general'), /Luftqualität|Sonnenaufgang/)
+assert.match(
+  formatWeatherBrief(
+    { ...snap, sunrise: '2026-08-18T06:12:00', sunset: '2026-08-18T20:41:00' },
+    'now',
+    'sun',
+  ),
+  /06:12/,
+)
+
+const bahn = parseTransitIntent('Mit der Bahn nach Heilbronn')
+assert.equal(bahn?.kind, 'to')
+if (bahn?.kind === 'to') assert.equal(bahn.to, 'Heilbronn')
+const bahn2 = parseTransitIntent('nächste Bahn nach Stuttgart')
+assert.equal(bahn2?.kind, 'to')
+if (bahn2?.kind === 'to') assert.equal(bahn2.to, 'Stuttgart')
+assert.equal(parseTransitIntent('Nach Heilbronn')?.kind, undefined)
+assert.equal(parseTransitIntent('Züge anklicken'), null)
+assert.equal(parseTransitIntent('nächste Bahn')?.kind, 'ask')
+
+assert.equal(parseNewsIntent('Nachrichten')?.kind, 'national')
+assert.equal(parseNewsIntent('Tagesschau')?.kind, 'national')
+const localNews = parseNewsIntent('Was ist heute in Ingesheim passiert')
+assert.equal(localNews?.kind, 'place')
+if (localNews?.kind === 'place') assert.equal(localNews.place, 'Ingesheim')
+assert.equal(parseNewsIntent('Nachricht an Bro ich bin da'), null)
+
+assert.equal(parseHolidayIntent('Ist heute Feiertag?')?.kind, 'today')
+assert.equal(parseHolidayIntent('nächster Feiertag')?.kind, 'next')
+assert.equal(parseHolidayIntent('Ist morgen Feiertag?')?.kind, 'tomorrow')
+assert.equal(parseHolidayIntent('Termin morgen 15 Uhr Zahnarzt'), null)
 
 const termin = parseCalendarIntent('Termin morgen 15 Uhr Zahnarzt', frozen)
 assert.equal(termin?.kind, 'create')

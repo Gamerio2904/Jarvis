@@ -22,6 +22,11 @@ export type WeatherSnapshot = {
   sunday: WeatherDay | null
   rainSoon: boolean
   maxPrecipSoon: number | null
+  sunrise?: string | null
+  sunset?: string | null
+  aqi?: number | null
+  pm25?: number | null
+  pollen?: string | null
 }
 
 const WMO: Record<number, string> = {
@@ -114,11 +119,40 @@ function rainBit(day: WeatherDay): string {
   return `, ${day.label}`
 }
 
+function clock(iso?: string | null): string {
+  if (!iso) return ''
+  const m = /T(\d{2}):(\d{2})/.exec(iso)
+  if (!m) return ''
+  return `${m[1]}:${m[2]}`
+}
+
+function aqiLabel(n: number): string {
+  if (n <= 20) return 'gut'
+  if (n <= 40) return 'mäßig'
+  if (n <= 60) return 'unbefriedigend'
+  if (n <= 80) return 'schlecht'
+  if (n <= 100) return 'sehr schlecht'
+  return 'extrem'
+}
+
 export function formatWeatherBrief(
   snap: WeatherSnapshot,
   when: WeatherWhen,
   focus: WeatherFocus,
 ): string {
+  if (focus === 'air') {
+    if (snap.aqi == null) return `${at(snap.place)}: Luftwerte fehlen. Ich rate nicht.`
+    const pm = snap.pm25 != null ? `, Feinstaub ${Math.round(snap.pm25)}` : ''
+    const pol = snap.pollen ? ` Pollen: ${snap.pollen}.` : ''
+    return `${at(snap.place)} Luftqualität ${snap.aqi}, ${aqiLabel(snap.aqi)}${pm}.${pol} Open-Meteo, kein Raten.`
+  }
+  if (focus === 'sun') {
+    const up = clock(snap.sunrise)
+    const down = clock(snap.sunset)
+    if (!up && !down) return `${at(snap.place)}: Sonnenzeiten fehlen. Ich rate nicht.`
+    const day = when === 'tomorrow' ? ' morgen' : ''
+    return `${at(snap.place)}${day} Sonnenaufgang ${up || '—'}, Untergang ${down || '—'}.`
+  }
   const feels = snap.feels ?? snap.temp
   const isWet = wet(snap.code, snap.precipNow, snap.rainSoon)
   const tip = clothingTip({ feels, wet: isWet, code: snap.code, wind: snap.wind })

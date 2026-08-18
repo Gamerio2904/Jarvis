@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.47.1`**.
+App-Version im Code: **`1.48.0`**.
+
+### `1.48.0` — Luft, Sonne, Bahn, Nachrichten, Feiertage — *CODE*
+
+Auf Nachfrage: Luftqualität/Pollen und Sonnenaufgang (Open-Meteo, nicht bei jedem Wetter). Bahn/ÖPNV über transport.rest, sonst Transitous — keine erfundenen Abfahrten. Nachrichten: Tagesschau; Ort zuerst Tagesschau-Suche, sonst Netz, nichts erfinden. Feiertage DE über Nager.Date. Prompt-Chips und PC-Prompt-Kopieren aus der APK (Windows-App behält Kopieren).
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14800)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-101.md`](./sprints/sprint-101.md)
 
 ### `1.47.1` — PC: Ein-Klick-Kopieren — *CODE*
 

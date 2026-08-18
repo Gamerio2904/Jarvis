@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.47.1`. Kopieren: IP/Token/Prompts. `FIFA starten` — [`../desktop/README.md`](../desktop/README.md).
-2. Qualität `1.34`–`1.46` plus PC ist CODE. Weiteres nur auf PO-Kommando.
+1. Sideload `1.48.0`. Luft/Sonne/Bahn/Nachrichten/Feiertage. `FIFA starten` — [`../desktop/README.md`](../desktop/README.md).
+2. Qualität `1.34`–`1.48` plus PC ist CODE. Weiteres nur auf PO-Kommando.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---

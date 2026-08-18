@@ -1,6 +1,6 @@
 /**
  * Routes every TEST_PROMPT the same way chat.ts does (no LLM, no phone).
- * Order: help → discount → ordinal → tv → film → fan → here → fuel → poi → drive → device → maps → ...
+ * Order: help → discount → ordinal → tv → film → fan → here → fuel → poi → transit → drive → device → maps → ...
  */
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
@@ -32,10 +32,13 @@ import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
+import { parseTransitIntent } from '../src/engine/transit-parse.ts'
+import { parseHolidayIntent } from '../src/engine/holiday-parse.ts'
+import { parseNewsIntent } from '../src/engine/news-parse.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'here'|'fuel'|'poi'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -49,6 +52,7 @@ function route(text, ctx = {}) {
   if (parseHereIntent(text)) return 'here'
   if (parseFuelIntent(text)) return 'fuel'
   if (parsePoiIntent(text)) return 'poi'
+  if (parseTransitIntent(text)) return 'transit'
   if (parseDriveIntent(text)) return 'drive'
   if (parseDeviceIntent(text)) return 'device'
   if (parsePcIntent(text)) return 'pc'
@@ -59,6 +63,7 @@ function route(text, ctx = {}) {
   if (parseHomeIntent(text)) return 'home'
   if (parseLeaveIntent(text)) return 'leave'
   if (isBriefAsk(text)) return 'brief'
+  if (parseHolidayIntent(text)) return 'holiday'
   if (parseCalendarIntent(text, NOW)) return 'calendar'
   if (parseAlarmIntent(text, NOW)) return 'alarm'
   if (parseTimerIntent(text, NOW)) return 'timer'
@@ -67,6 +72,7 @@ function route(text, ctx = {}) {
   if (parseEyeIntent(text)) return 'eye'
   if (parseWeatherIntent(text)) return 'weather'
   if (parseWeatherFollowup(text, ctx.weatherLast ?? null)) return 'weather'
+  if (parseNewsIntent(text)) return 'news'
   if (parseChatSearch(text)) return 'search'
   if (isLiveLookup(text)) return 'research'
   return 'llm'
@@ -168,6 +174,12 @@ const EXPECT = {
   'FIFA starten': 'pc',
   'Was siehst du auf dem PC': 'pc',
   'Züge anklicken': 'pc',
+  'Wie ist die Luft?': 'weather',
+  'Wann Sonnenaufgang?': 'weather',
+  'Mit der Bahn nach Heilbronn': 'transit',
+  Nachrichten: 'news',
+  'Was ist heute in Ingesheim passiert': 'news',
+  'Ist heute Feiertag?': 'holiday',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -190,6 +202,13 @@ const follow = route('und morgen?', {
   weatherLast: { kind: 'place', place: 'München', when: 'today', focus: 'general' },
 })
 assert.equal(follow, 'weather', 'und morgen? nach Wetter-Kontext')
+assert.equal(route('und die Luft', { weatherLast: { kind: 'here', when: 'today', focus: 'general' } }), 'weather')
+assert.equal(route('nächste Bahn nach Heilbronn'), 'transit')
+assert.equal(route('Tagesschau'), 'news')
+assert.equal(route('nächster Feiertag'), 'holiday')
+assert.equal(route('Wetter heute'), 'weather')
+assert.equal(route('Nachricht an Bro ich bin da'), 'maps')
+assert.equal(route('Nach Heilbronn'), 'drive')
 
 for (const r of rows) {
   const mark = r.got === r.want ? 'ok' : 'FAIL'

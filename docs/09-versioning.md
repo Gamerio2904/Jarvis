@@ -129,6 +129,7 @@ MAJOR.MINOR.PATCH
 | `1.46.0` | Anruf/SMS direkt, erst nach Nachfrage | Sprint 99 |
 | `1.47.0` | PC live: Bildschirm, Maus, FIFA, Ordner | Sprint 100 |
 | `1.47.1` | Ein-Klick-Kopieren IP/Token/Prompts | Sprint 100 Patch |
+| `1.48.0` | Luft/Sonne auf Nachfrage, Bahn, Tagesschau, Feiertage | Sprint 101 |
 
 ### Weitere Beispiele
 

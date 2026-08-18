@@ -94,4 +94,10 @@ export const TEST_PROMPTS = [
   'FIFA starten',
   'Was siehst du auf dem PC',
   'Züge anklicken',
+  'Wie ist die Luft?',
+  'Wann Sonnenaufgang?',
+  'Mit der Bahn nach Heilbronn',
+  'Nachrichten',
+  'Was ist heute in Ingesheim passiert',
+  'Ist heute Feiertag?',
 ] as const

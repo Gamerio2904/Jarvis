@@ -319,11 +319,20 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 |----|-------|--------|--------|------------------|
 | S23.1 | Als Nutzer will ich vom Handy aus den Windows-PC sehen und steuern (FIFA, Maus, Ordner). | Must | done | Sprint 100 / `1.47.0` |
 
+### E24 — Live-Lage auf Nachfrage `1.48`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S24.1 | Als Nutzer will ich Luftqualität und Sonnenaufgang nur wenn ich danach frage. | Must | done | Sprint 101 / `1.48.0` |
+| S24.2 | Als Nutzer will ich Bahn/ÖPNV-Zeiten, ohne dass Jarvis sie erfindet. | Must | done | transport.rest / Transitous |
+| S24.3 | Als Nutzer will ich Nachrichten: national Tagesschau, Ort zuerst Tagesschau sonst Netz. | Must | done | nichts erfinden |
+| S24.4 | Als Nutzer will ich wissen, ob heute in DE Feiertag ist. | Must | done | Nager.Date |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.47.1`
+1. Sideload `1.48.0`
 2. Weitere Arbeit nur auf PO-Kommando — [`28-next.md`](./28-next.md)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
