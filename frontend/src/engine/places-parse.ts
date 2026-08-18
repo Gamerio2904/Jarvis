@@ -14,7 +14,7 @@ export type PlaceNav =
 
 const HOME = /^(zuhause|zu\s*hause|hause|heim|wohnung)$/i
 const REL =
-  /^(freundin|freund|mama|papa|mutter|vater|oma|opa|eltern|zahnarzt|arzt|ärztin|praxis|chef|chefin|schwester|bruder|kollege|kollegin|arbeit|arbeitsplatz|büro|buero)$/i
+  /^(freundin|freund|bro|mama|papa|mutter|vater|oma|opa|eltern|zahnarzt|arzt|ärztin|praxis|chef|chefin|schwester|bruder|kollege|kollegin|arbeit|arbeitsplatz|büro|buero)$/i
 const PEOPLE_LIST = /^(personen|leute|alle|orte|kontakte)$/i
 const ART = /^(der|die|das|dem|den|des|ein|eine|einem|einen|meine|mein|meiner|meinen|unsere|unser)\s+/i
 
@@ -53,6 +53,7 @@ export function displayPlaceName(key: string): string {
   if (key === 'büro' || key === 'buero') return 'Büro'
   if (key === 'eltern') return 'Eltern'
   if (key === 'freundin') return 'Freundin'
+  if (key === 'bro') return 'Bro'
   return key.replace(/^\w/, (c) => c.toUpperCase())
 }
 
@@ -240,7 +241,7 @@ export function parseSms(text: string): PlaceNav | null {
   const rest = (m[1] || '').trim()
   if (!rest) return null
   const rel = rest.match(
-    /^(freundin|freund|mama|papa|mutter|vater|oma|opa|eltern|chef|chefin|schwester|bruder|kollege|kollegin|arbeit)\s+(?:dass\s+)?(.+)$/i,
+    /^(freundin|freund|bro|mama|papa|mutter|vater|oma|opa|eltern|chef|chefin|schwester|bruder|kollege|kollegin|arbeit)\s+(?:dass\s+)?(.+)$/i,
   )
   if (rel) {
     const query = normalizePlaceName(rel[1])
@@ -253,6 +254,8 @@ export function parseSms(text: string): PlaceNav | null {
     const body = named[2].trim()
     if (query && isNameLike(query) && body.length >= 2) return { kind: 'sms', query, body }
   }
+  const only = normalizePlaceName(rest)
+  if (only && isNameLike(only)) return { kind: 'sms', query: only, body: '' }
   return null
 }
 
@@ -303,4 +306,18 @@ export function parseTravelNav(text: string): PlaceNav | null {
 
 function cleanPlace(raw: string): string {
   return raw.replace(/[.!?,;:]+$/g, '').replace(/\s+/g, ' ').trim()
+}
+
+export function isCommYes(text: string, kind?: 'call' | 'sms'): boolean {
+  const t = text.trim()
+  if (/^\s*(ja|jo|yes|ok|okay|mach(?:\s+(?:es|mal))?|bitte|passt|los|tu\s+es)\s*[.!?]*$/i.test(t)) {
+    return true
+  }
+  if (kind === 'sms') return /^\s*(senden|schick(?:en)?)\s*[.!?]*$/i.test(t)
+  if (kind === 'call') return /^\s*anrufen\s*[.!?]*$/i.test(t)
+  return /^\s*(anrufen|senden|schick(?:en)?)\s*[.!?]*$/i.test(t)
+}
+
+export function isCommNo(text: string): boolean {
+  return /^\s*(nein|no|abbrechen|stopp(?:e)?|halt|lass(?:\s+es)?|nicht)\s*[.!?]*$/i.test(text.trim())
 }

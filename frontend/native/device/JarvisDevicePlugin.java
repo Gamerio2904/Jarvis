@@ -1,5 +1,6 @@
 package app.jarvis.device;
 
+import android.telephony.SmsManager;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -22,11 +23,14 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+import java.util.ArrayList;
 
 @CapacitorPlugin(
         name = "JarvisDevice",
         permissions = {
-                @Permission(alias = "camera", strings = {Manifest.permission.CAMERA})
+                @Permission(alias = "camera", strings = {Manifest.permission.CAMERA}),
+                @Permission(alias = "phone", strings = {Manifest.permission.CALL_PHONE}),
+                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS})
         }
 )
 public class JarvisDevicePlugin extends Plugin {
@@ -207,6 +211,116 @@ public class JarvisDevicePlugin extends Plugin {
         } catch (Exception e) {
             r.put("ok", false);
             r.put("message", "SMS-App nicht geöffnet.");
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void callNow(PluginCall call) {
+        if (getPermissionState("phone") != PermissionState.GRANTED) {
+            call.setKeepAlive(true);
+            requestPermissionForAlias("phone", call, "onPhonePerm");
+            return;
+        }
+        placeCall(call);
+    }
+
+    @PermissionCallback
+    private void onPhonePerm(PluginCall call) {
+        if (getPermissionState("phone") != PermissionState.GRANTED) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("needPerm", true);
+            r.put("message", "Anruf-Recht fehlt. Unter Einstellungen erlauben, dann nochmal.");
+            call.resolve(r);
+            return;
+        }
+        placeCall(call);
+    }
+
+    private void placeCall(PluginCall call) {
+        String number = digits(call.getString("number", ""));
+        JSObject r = new JSObject();
+        if (number.length() < 3) {
+            r.put("ok", false);
+            r.put("message", "Keine Nummer.");
+            call.resolve(r);
+            return;
+        }
+        try {
+            Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + number));
+            startExt(i);
+            r.put("ok", true);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Anruf nicht gestartet.");
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void sendSms(PluginCall call) {
+        if (getPermissionState("sms") != PermissionState.GRANTED) {
+            call.setKeepAlive(true);
+            requestPermissionForAlias("sms", call, "onSmsPerm");
+            return;
+        }
+        deliverSms(call);
+    }
+
+    @PermissionCallback
+    private void onSmsPerm(PluginCall call) {
+        if (getPermissionState("sms") != PermissionState.GRANTED) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("needPerm", true);
+            r.put("message", "SMS-Recht fehlt. Unter Einstellungen erlauben, dann nochmal.");
+            call.resolve(r);
+            return;
+        }
+        deliverSms(call);
+    }
+
+    private void deliverSms(PluginCall call) {
+        String number = digits(call.getString("number", ""));
+        String body = call.getString("body", "");
+        JSObject r = new JSObject();
+        if (number.length() < 3) {
+            r.put("ok", false);
+            r.put("message", "Keine Nummer.");
+            call.resolve(r);
+            return;
+        }
+        if (body == null || body.trim().isEmpty()) {
+            r.put("ok", false);
+            r.put("message", "Kein Text.");
+            call.resolve(r);
+            return;
+        }
+        try {
+            SmsManager sm;
+            if (android.os.Build.VERSION.SDK_INT >= 31) {
+                sm = getContext().getSystemService(SmsManager.class);
+            } else {
+                sm = SmsManager.getDefault();
+            }
+            if (sm == null) {
+                r.put("ok", false);
+                r.put("message", "SMS nicht gesendet.");
+                call.resolve(r);
+                return;
+            }
+            String text = body.trim();
+            ArrayList<String> parts = sm.divideMessage(text);
+            if (parts != null && parts.size() > 1) {
+                sm.sendMultipartTextMessage(number, null, parts, null, null);
+            } else {
+                sm.sendTextMessage(number, null, text, null, null);
+            }
+            r.put("ok", true);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "SMS nicht gesendet.");
         }
         call.resolve(r);
     }

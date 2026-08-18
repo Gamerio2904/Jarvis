@@ -89,4 +89,6 @@ export const TEST_PROMPTS = [
   'Rabatt-Suche an',
   'Hat die Apotheke auf',
   'nächster Laden',
+  'Bro anrufen',
+  'Nachricht an Bro ich bin da',
 ] as const

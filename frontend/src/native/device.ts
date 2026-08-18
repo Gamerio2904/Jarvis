@@ -14,6 +14,8 @@ type NativeDevice = {
   openPage(opts: { page: string }): Promise<{ ok: boolean; message?: string }>
   dial(opts: { number: string }): Promise<{ ok: boolean; message?: string }>
   sms(opts: { number: string; body?: string }): Promise<{ ok: boolean; message?: string }>
+  callNow(opts: { number: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
+  sendSms(opts: { number: string; body: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeDevice>('JarvisDevice') : null
@@ -144,4 +146,45 @@ export async function openSms(
   } catch {
     return { ok: false, message: 'SMS-App nicht geöffnet.' }
   }
+}
+
+export async function placeCall(number: string): Promise<{
+  ok: boolean
+  needPerm?: boolean
+  message?: string
+}> {
+  const n = number.replace(/[^\d+]/g, '')
+  if (n.length < 3) return { ok: false, message: 'Keine Nummer.' }
+  if (native) {
+    try {
+      return await withTimeout(native.callNow({ number: n }), 20_000, {
+        ok: false,
+        message: 'Anruf nicht gestartet.',
+      })
+    } catch {
+      return { ok: false, message: 'Anruf nicht gestartet.' }
+    }
+  }
+  return { ok: false, message: 'Direkt anrufen nur auf dem Handy.' }
+}
+
+export async function sendSmsNow(
+  number: string,
+  body: string,
+): Promise<{ ok: boolean; needPerm?: boolean; message?: string }> {
+  const n = number.replace(/[^\d+]/g, '')
+  const text = body.trim()
+  if (n.length < 3) return { ok: false, message: 'Keine Nummer.' }
+  if (text.length < 1) return { ok: false, message: 'Kein Text.' }
+  if (native) {
+    try {
+      return await withTimeout(native.sendSms({ number: n, body: text }), 20_000, {
+        ok: false,
+        message: 'SMS nicht gesendet.',
+      })
+    } catch {
+      return { ok: false, message: 'SMS nicht gesendet.' }
+    }
+  }
+  return { ok: false, message: 'Direkt senden nur auf dem Handy. Ich habe nichts verschickt.' }
 }

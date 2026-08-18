@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.45.0`** (Öffnungszeiten Läden).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.46.0`** (Anruf/SMS mit Nachfrage).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -38,8 +38,9 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.43.0`** | CarPlay ehrlich + Alltag am Steuer | **CODE** |
 | **`1.44.0`** | Filme IMDb/RT + wo gratis; Rabatt-Suche | **CODE** |
 | **`1.45.0`** | Öffnungszeiten für Läden (OSM) | **CODE** |
+| **`1.46.0`** | Anruf und SMS direkt, mit Nachfrage | **CODE** |
 
-Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-98.md`](./sprints/sprint-98.md).
+Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-99.md`](./sprints/sprint-99.md).
 
 ---
 
@@ -334,10 +335,24 @@ PO: Öffnungszeiten bei Laden usw. ergänzen. Bisher hat Jarvis bewusst keine St
 
 **Probe:** `nächste Apotheke`, `Hat die Apotheke auf`, `nächster Laden`, `nächste Drogerie`.
 
+## `1.46.0` — Anruf und SMS mit Nachfrage — **CODE**
+
+PO: Bro direkt anrufen, Nachricht senden, aber nachfragen.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Nachfrage | `Bro anrufen` → „Soll ich anrufen?“ Erst `Ja` wählt |
+| SMS | Text vorlesen, `Senden?` Erst `Ja` schickt |
+| Ohne Text | „Was soll ich schreiben?“ |
+| Ohne Nummer | Tel merken, danach trotzdem Nachfrage |
+| Ehrlichkeit | Kein Abheben, keine Zustellung behaupten |
+
+**Probe:** `Bro, Tel …`, `Bro anrufen`, `Nachricht an Bro ich bin da`, `Nein`.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.45.0`. Öffnungszeiten aus der Karte. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.46.0`. Anruf/SMS erst nach Ja. Nächste Stufe nur auf PO-Kommando.

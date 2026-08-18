@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.45.0`**.
+App-Version im Code: **`1.46.0`**.
+
+### `1.46.0` — Direkt anrufen und SMS, mit Nachfrage — *CODE*
+
+`Bro anrufen` startet den Anruf erst nach „ja“. Nachricht/SMS erst nach Rückfrage senden. Ohne Nummer nachfragen. Kein Abheben und keine Zustellung behaupten.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14600)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-99.md`](./sprints/sprint-99.md)
 
 ### `1.45.0` — Öffnungszeiten für Läden — *CODE*
 

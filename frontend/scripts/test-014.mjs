@@ -35,7 +35,10 @@ import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
 import {
+  displayPlaceName,
   findContactRow,
+  isCommNo,
+  isCommYes,
   mapsDirUrl,
   parsePlaceNav,
   parsePlaceRecall,
@@ -819,6 +822,35 @@ if (sms?.kind === 'sms') {
   assert.equal(sms.query, 'freundin')
   assert.match(sms.body, /10 Minuten/)
 }
+assert.equal(parsePlaceNav('Bro anrufen')?.kind, 'call')
+if (parsePlaceNav('Bro anrufen')?.kind === 'call') {
+  assert.equal(parsePlaceNav('Bro anrufen').query, 'bro')
+}
+const smsBro = parsePlaceNav('Schreib Bro ich bin in 10 Minuten')
+assert.equal(smsBro?.kind, 'sms')
+if (smsBro?.kind === 'sms') {
+  assert.equal(smsBro.query, 'bro')
+  assert.match(smsBro.body, /10 Minuten/)
+}
+const smsBroEmpty = parsePlaceNav('Nachricht an Bro')
+assert.equal(smsBroEmpty?.kind, 'sms')
+if (smsBroEmpty?.kind === 'sms') {
+  assert.equal(smsBroEmpty.query, 'bro')
+  assert.equal(smsBroEmpty.body, '')
+}
+const smsBroBody = parsePlaceNav('Nachricht an Bro ich bin da')
+assert.equal(smsBroBody?.kind, 'sms')
+if (smsBroBody?.kind === 'sms') {
+  assert.equal(smsBroBody.query, 'bro')
+  assert.equal(smsBroBody.body, 'ich bin da')
+}
+assert.equal(displayPlaceName('bro'), 'Bro')
+assert.equal(isCommYes('ja', 'call'), true)
+assert.equal(isCommYes('senden', 'sms'), true)
+assert.equal(isCommYes('senden', 'call'), false)
+assert.equal(isCommNo('nein'), true)
+assert.equal(rewriteFollowUp('ja', { last_step_tool: 'call_confirm', last_step_utterance: 'Bro anrufen' }), null)
+assert.match(GEMINI_PERSONA, /nach Nachfrage/)
 assert.match(
   scrubReply('Car Play ist verbunden. Musik läuft, Navigation nach Bietigheim-Bissingen steht.'),
   /intern/,

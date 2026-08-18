@@ -1,9 +1,11 @@
-import { openDialer, openSms } from '../native/device'
+import { openDevicePage, placeCall, sendSmsNow } from '../native/device'
 import {
   displayPlaceName,
   extractPhone,
   findContactRow,
   isBarePlaceAnswer,
+  isCommNo,
+  isCommYes,
   isHomeName,
   isRelationName,
   looksLikeAddress,
@@ -67,74 +69,63 @@ function routeReply(name: string, place: string): string {
     : `Route zu ${who} (${place}). In Google Maps öffnen.`
 }
 
+type PendingComm = {
+  kind: 'call_confirm' | 'sms_confirm' | 'sms_body_ask' | 'phone_ask' | 'sms_ask'
+  name: string
+  number?: string
+  body?: string
+}
+
+const OTHER_CMD =
+  /\b(wecker|timer|termin|wetter|tanke|fernseh|\btv\b|todo|notiz|suche|fahr|navigier|carplay|fahrmodus|akku|spotify|ventilator|apotheke|bäcker)\b/i
+
+function readComm(): PendingComm | null {
+  try {
+    const raw = loadSettings().last_comm_json
+    if (!raw) return null
+    const p = JSON.parse(raw) as PendingComm
+    if (!p?.kind || !p.name) return null
+    return p
+  } catch {
+    return null
+  }
+}
+
+function writeComm(p: PendingComm | null, lastTool: string) {
+  if (!p) {
+    saveSettings({ last_comm_json: '', last_step_tool: lastTool })
+    return
+  }
+  saveSettings({
+    last_comm_json: JSON.stringify(p),
+    last_step_tool: p.kind,
+    last_step_title: p.name,
+    last_step_when: p.number || p.body || '',
+  })
+}
+
+function commTool(action: string, label: string, preview: string, extra?: Record<string, unknown>): ToolMeta {
+  return {
+    tool_status: 'executed',
+    tool: 'maps',
+    action,
+    label,
+    preview,
+    result: extra,
+  }
+}
+
 export async function handlePlaces(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
+  const pending = readComm()
+  if (pending) {
+    const fromPending = await handlePendingComm(conversationId, text, pending)
+    if (fromPending) return fromPending
+  }
+
   const s = loadSettings()
-
-  if (s.last_step_tool === 'sms_ask' && s.last_step_title) {
-    const who = s.last_step_title
-    const body = s.last_step_when || ''
-    const num = extractPhone(text)
-    if (num) {
-      await upsertMemory(who, num, 'contact', conversationId)
-      const opened = await openSms(num, body)
-      return {
-        handled: true,
-        reply: opened.ok
-          ? `SMS an ${displayPlaceName(who)} vorbereitet. Senden Sie selbst.`
-          : `Nummer liegt. SMS-App nicht geöffnet. Ich habe nichts versendet.`,
-        tool: {
-          tool_status: 'executed',
-          tool: 'maps',
-          action: 'sms',
-          label: 'SMS',
-          preview: who,
-          result: { sms: `sms:${num}`, name: who, body },
-        },
-        lastTool: 'maps',
-      }
-    }
-  }
-
-  if (s.last_step_tool === 'phone_ask' && s.last_step_title) {
-    const who = s.last_step_title
-    const num = extractPhone(text)
-    if (num) {
-      await upsertMemory(who, num, 'contact', conversationId)
-      const opened = await openDialer(num)
-      return {
-        handled: true,
-        reply: opened.ok
-          ? `Wählhilfe für ${displayPlaceName(who)} — ${num}. Verbunden erst, wenn Sie abheben.`
-          : `Nummer ${displayPlaceName(who)} — ${num}. Wählhilfe nicht geöffnet.`,
-        tool: {
-          tool_status: 'executed',
-          tool: 'maps',
-          action: 'call',
-          label: 'Anrufen',
-          preview: who,
-          result: { tel: `tel:${num}`, name: who },
-        },
-        lastTool: 'maps',
-      }
-    }
-    const aliasName = text.trim().replace(/[.!?]+$/g, '')
-    if (/^[A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß-]{1,24}$/.test(aliasName) && !looksLikePhone(aliasName)) {
-      const alias = aliasName.toLowerCase()
-      if (alias !== who) {
-        await upsertMemory(`alias:${who}`, alias, 'fact', conversationId)
-        await upsertMemory(`alias:${alias}`, who, 'fact', conversationId)
-        return {
-          handled: true,
-          reply: `Also ${displayPlaceName(alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(alias)}, Tel …“.`,
-          tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: alias },
-          lastTool: 'phone_ask',
-        }
-      }
-    }
-  }
 
   if (s.last_step_tool === 'maps_ask' && s.last_step_title && isBarePlaceAnswer(text)) {
     const place = text.trim().replace(/^[iI]n\s+/, '').replace(/[.!?]+$/, '')
@@ -202,27 +193,13 @@ export async function handlePlaces(
     const rows = await listMemory()
     const hit = findContactRow(rows, nav.alias) || findContactRow(rows, nav.name)
     if (hit) {
-      const opened = await openDialer(hit.value)
-      return {
-        handled: true,
-        reply: opened.ok
-          ? `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Wählhilfe ${displayPlaceName(hit.key)} — ${hit.value}. Verbunden erst, wenn Sie abheben.`
-          : `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Nummer ${hit.value}.`,
-        tool: {
-          tool_status: 'executed',
-          tool: 'maps',
-          action: 'call',
-          label: 'Anrufen',
-          preview: hit.key,
-          result: { tel: `tel:${hit.value}`, name: hit.key },
-        },
-        lastTool: 'maps',
-      }
+      return askCall(hit.key, hit.value)
     }
+    writeComm({ kind: 'phone_ask', name: nav.alias }, 'phone_ask')
     return {
       handled: true,
-      reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(nav.alias)}, Tel …“.`,
-      tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: nav.alias },
+      reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(nav.alias)}, Tel …“. Dann frage ich nach, bevor ich anrufe.`,
+      tool: commTool('ask', 'Nummer fehlt', nav.alias),
       lastTool: 'phone_ask',
     }
   }
@@ -249,30 +226,24 @@ export async function handlePlaces(
     const hit = findContactRow(rows, nav.query)
     if (!hit) {
       const who = displayPlaceName(nav.query)
-      saveSettings({ last_step_tool: 'sms_ask', last_step_title: nav.query, last_step_when: nav.body })
+      writeComm({ kind: 'sms_ask', name: nav.query, body: nav.body }, 'sms_ask')
       return {
         handled: true,
-        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“. Dann öffne ich die SMS — senden Sie selbst.`,
-        tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: nav.query },
+        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“. Danach frage ich nach, bevor ich sende.`,
+        tool: commTool('ask', 'Nummer fehlt', nav.query),
         lastTool: 'sms_ask',
       }
     }
-    const opened = await openSms(hit.value, nav.body)
-    return {
-      handled: true,
-      reply: opened.ok
-        ? `SMS an ${displayPlaceName(hit.key)} vorbereitet. Senden Sie selbst.`
-        : `SMS nicht geöffnet. Nummer ${hit.value}. Ich habe nichts versendet.`,
-      tool: {
-        tool_status: 'executed',
-        tool: 'maps',
-        action: 'sms',
-        label: 'SMS',
-        preview: hit.key,
-        result: { sms: `sms:${hit.value}`, name: hit.key, body: nav.body },
-      },
-      lastTool: 'maps',
+    if (!nav.body.trim()) {
+      writeComm({ kind: 'sms_body_ask', name: hit.key, number: hit.value }, 'sms_body_ask')
+      return {
+        handled: true,
+        reply: `Was soll ich ${displayPlaceName(hit.key)} schreiben?`,
+        tool: commTool('ask', 'SMS', hit.key, { name: hit.key }),
+        lastTool: 'sms_body_ask',
+      }
     }
+    return askSms(hit.key, hit.value, nav.body)
   }
 
   if (nav.kind === 'call') {
@@ -280,29 +251,15 @@ export async function handlePlaces(
     const hit = findContactRow(rows, nav.query)
     if (!hit) {
       const who = displayPlaceName(nav.query)
+      writeComm({ kind: 'phone_ask', name: nav.query }, 'phone_ask')
       return {
         handled: true,
-        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“.`,
-        tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: nav.query },
+        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“. Danach frage ich nach, bevor ich anrufe.`,
+        tool: commTool('ask', 'Nummer fehlt', nav.query),
         lastTool: 'phone_ask',
       }
     }
-    const opened = await openDialer(hit.value)
-    return {
-      handled: true,
-      reply: opened.ok
-        ? `Wählhilfe für ${displayPlaceName(hit.key)} — ${hit.value}. Verbunden erst, wenn Sie abheben.`
-        : `Nummer ${displayPlaceName(hit.key)} — ${hit.value}. Wählhilfe nicht geöffnet.`,
-      tool: {
-        tool_status: 'executed',
-        tool: 'maps',
-        action: 'call',
-        label: 'Anrufen',
-        preview: hit.key,
-        result: { tel: `tel:${hit.value}`, name: hit.key },
-      },
-      lastTool: 'maps',
-    }
+    return askCall(hit.key, hit.value)
   }
 
   if (nav.kind === 'list') {
@@ -354,5 +311,202 @@ export async function handlePlaces(
     reply: `Wo ist ${who}? Dann öffne ich die Route in Google Maps.`,
     tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Ort fehlt', preview: q },
     lastTool: 'maps_ask',
+  }
+}
+
+type PlaceHit = { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }
+
+async function handlePendingComm(conversationId: string, text: string, pending: PendingComm): Promise<PlaceHit | null> {
+  if (isCommNo(text)) {
+    writeComm(null, 'maps')
+    return {
+      handled: true,
+      reply: 'Alles klar. Nicht angerufen, nichts gesendet.',
+      tool: commTool('ask', 'Abbruch', pending.name),
+      lastTool: 'maps',
+    }
+  }
+
+  const num = extractPhone(text)
+  const nav = parsePlaceNav(text)
+  const written = parsePlaceWrite(text)
+  const other = OTHER_CMD.test(text) || Boolean(nav) || Boolean(written)
+
+  if (pending.kind === 'phone_ask') {
+    if (num) {
+      await upsertMemory(pending.name, num, 'contact', conversationId)
+      return askCall(pending.name, num)
+    }
+    const aliasName = text.trim().replace(/[.!?]+$/g, '')
+    if (/^[A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß-]{1,24}$/.test(aliasName) && !looksLikePhone(aliasName)) {
+      const alias = aliasName.toLowerCase()
+      if (alias !== pending.name) {
+        await upsertMemory(`alias:${pending.name}`, alias, 'fact', conversationId)
+        await upsertMemory(`alias:${alias}`, pending.name, 'fact', conversationId)
+        writeComm({ kind: 'phone_ask', name: alias }, 'phone_ask')
+        return {
+          handled: true,
+          reply: `Also ${displayPlaceName(alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(alias)}, Tel …“.`,
+          tool: commTool('ask', 'Nummer fehlt', alias),
+          lastTool: 'phone_ask',
+        }
+      }
+    }
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    return {
+      handled: true,
+      reply: `Welche Nummer für ${displayPlaceName(pending.name)}?`,
+      tool: commTool('ask', 'Nummer fehlt', pending.name),
+      lastTool: 'phone_ask',
+    }
+  }
+
+  if (pending.kind === 'sms_ask') {
+    if (num) {
+      await upsertMemory(pending.name, num, 'contact', conversationId)
+      if (pending.body?.trim()) return askSms(pending.name, num, pending.body)
+      writeComm({ kind: 'sms_body_ask', name: pending.name, number: num }, 'sms_body_ask')
+      return {
+        handled: true,
+        reply: `Was soll ich ${displayPlaceName(pending.name)} schreiben?`,
+        tool: commTool('ask', 'SMS', pending.name),
+        lastTool: 'sms_body_ask',
+      }
+    }
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    return {
+      handled: true,
+      reply: `Welche Nummer für ${displayPlaceName(pending.name)}?`,
+      tool: commTool('ask', 'Nummer fehlt', pending.name),
+      lastTool: 'sms_ask',
+    }
+  }
+
+  if (pending.kind === 'call_confirm') {
+    if (isCommYes(text, 'call') && pending.number) return doCall(pending.name, pending.number)
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    return {
+      handled: true,
+      reply: `${displayPlaceName(pending.name)} — ${pending.number}. Soll ich anrufen? Ja oder nein.`,
+      tool: commTool('ask', 'Anrufen', pending.name, { tel: `tel:${pending.number || ''}` }),
+      lastTool: 'call_confirm',
+    }
+  }
+
+  if (pending.kind === 'sms_confirm') {
+    if (isCommYes(text, 'sms') && pending.number && pending.body?.trim()) {
+      return doSms(pending.name, pending.number, pending.body)
+    }
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    if (text.trim().length >= 2) return askSms(pending.name, pending.number || '', text.trim())
+    return {
+      handled: true,
+      reply: `SMS an ${displayPlaceName(pending.name)}: „${pending.body}“. Senden?`,
+      tool: commTool('ask', 'SMS', pending.name),
+      lastTool: 'sms_confirm',
+    }
+  }
+
+  if (pending.kind === 'sms_body_ask') {
+    if (isCommYes(text)) {
+      return {
+        handled: true,
+        reply: `Was soll ich ${displayPlaceName(pending.name)} schreiben?`,
+        tool: commTool('ask', 'SMS', pending.name),
+        lastTool: 'sms_body_ask',
+      }
+    }
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    const body = text.trim().replace(/^[\"„]|[\"”]$/g, '')
+    if (body.length >= 2 && pending.number) return askSms(pending.name, pending.number, body)
+    return {
+      handled: true,
+      reply: `Was soll ich ${displayPlaceName(pending.name)} schreiben?`,
+      tool: commTool('ask', 'SMS', pending.name),
+      lastTool: 'sms_body_ask',
+    }
+  }
+
+  return null
+}
+
+function askCall(name: string, number: string): PlaceHit {
+  writeComm({ kind: 'call_confirm', name, number }, 'call_confirm')
+  return {
+    handled: true,
+    reply: `${displayPlaceName(name)} — ${number}. Soll ich anrufen?`,
+    tool: commTool('ask', 'Anrufen', name, { tel: `tel:${number}`, name }),
+    lastTool: 'call_confirm',
+  }
+}
+
+function askSms(name: string, number: string, body: string): PlaceHit {
+  writeComm({ kind: 'sms_confirm', name, number, body }, 'sms_confirm')
+  return {
+    handled: true,
+    reply: `SMS an ${displayPlaceName(name)}: „${body}“. Senden?`,
+    tool: commTool('ask', 'SMS', name, { sms: `sms:${number}`, name, body }),
+    lastTool: 'sms_confirm',
+  }
+}
+
+async function doCall(name: string, number: string): Promise<PlaceHit> {
+  writeComm(null, 'maps')
+  const res = await placeCall(number)
+  if (res.needPerm) {
+    await openDevicePage('app')
+    writeComm({ kind: 'call_confirm', name, number }, 'call_confirm')
+    return {
+      handled: true,
+      reply: `${res.message || 'Anruf-Recht fehlt.'} Danach „ja“.`,
+      tool: commTool('ask', 'Anrufen', name, { tel: `tel:${number}` }),
+      lastTool: 'call_confirm',
+    }
+  }
+  return {
+    handled: true,
+    reply: res.ok
+      ? `Ich rufe ${displayPlaceName(name)} an. Ob jemand abhebt, weiß ich nicht.`
+      : res.message || `Anruf zu ${displayPlaceName(name)} nicht gestartet.`,
+    tool: commTool('call', 'Anrufen', name, { tel: `tel:${number}`, name }),
+    lastTool: 'maps',
+  }
+}
+
+async function doSms(name: string, number: string, body: string): Promise<PlaceHit> {
+  writeComm(null, 'maps')
+  const res = await sendSmsNow(number, body)
+  if (res.needPerm) {
+    await openDevicePage('app')
+    writeComm({ kind: 'sms_confirm', name, number, body }, 'sms_confirm')
+    return {
+      handled: true,
+      reply: `${res.message || 'SMS-Recht fehlt.'} Danach „ja“.`,
+      tool: commTool('ask', 'SMS', name, { sms: `sms:${number}`, body }),
+      lastTool: 'sms_confirm',
+    }
+  }
+  return {
+    handled: true,
+    reply: res.ok
+      ? `SMS an ${displayPlaceName(name)} ist raus. Zustellung prüfe ich nicht.`
+      : res.message || `SMS an ${displayPlaceName(name)} nicht gesendet.`,
+    tool: commTool('sms', 'SMS', name, { sms: `sms:${number}`, name, body }),
+    lastTool: 'maps',
   }
 }

@@ -36,7 +36,7 @@ export async function lookupOmdb(
   try {
     const { status, json } = await getJson(`https://www.omdbapi.com/?${q}`, {
       Accept: 'application/json',
-      'User-Agent': 'Jarvis/1.45.0 (local.jarvis.app)',
+      'User-Agent': 'Jarvis/1.46.0 (local.jarvis.app)',
     })
     if (status === 401 || status === 403) {
       return { ok: false, needKey: true, message: 'OMDb-Schlüssel ungültig. In den Einstellungen prüfen.' }

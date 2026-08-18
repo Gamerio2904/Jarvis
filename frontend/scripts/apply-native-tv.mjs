@@ -117,6 +117,8 @@ const perms = [
   'android.permission.MODIFY_AUDIO_SETTINGS',
   'android.permission.CAMERA',
   'android.permission.FLASHLIGHT',
+  'android.permission.CALL_PHONE',
+  'android.permission.SEND_SMS',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -249,6 +251,10 @@ if (!manifest.includes('<queries>')) {
     `    <queries>
         <intent>
             <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.CALL" />
+            <data android:scheme="tel" />
         </intent>
         <intent>
             <action android:name="android.intent.action.SENDTO" />

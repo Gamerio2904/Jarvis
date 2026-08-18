@@ -161,6 +161,8 @@ const EXPECT = {
   'Rabatt-Suche an': 'discount',
   'Hat die Apotheke auf': 'poi',
   'nächster Laden': 'poi',
+  'Bro anrufen': 'maps',
+  'Nachricht an Bro ich bin da': 'maps',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

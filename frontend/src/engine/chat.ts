@@ -155,6 +155,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: HELP_TEXT, lastTool: 'help' }
   }
 
+  if (loadSettings().last_comm_json) {
+    const pendingHit = await handlePlaces(conversationId, content)
+    if (pendingHit.handled && pendingHit.reply) {
+      return {
+        reply: pendingHit.reply,
+        tool: pendingHit.tool,
+        lastTool: pendingHit.lastTool || 'maps',
+      }
+    }
+  }
+
   const discountToggle = parseShopDiscountIntent(content)
   if (discountToggle) {
     saveSettings({ shop_discount: discountToggle.on })
