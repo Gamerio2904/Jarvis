@@ -133,6 +133,7 @@ MAJOR.MINOR.PATCH
 | `1.48.1` | Satzbildung näher am Film-Jarvis | Sprint 101 Patch |
 | `1.48.2` | Live-Test-Bugs: Parser, Overlay, Straße | Sprint 101 Patch |
 | `1.48.3` | Fahrmodus: Karte und Route | Sprint 101 Patch |
+| `1.48.4` | Fahrmodus-Karte: vollflächig, Norden oben | Sprint 101 Patch |
 
 ### Weitere Beispiele
 

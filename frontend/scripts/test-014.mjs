@@ -69,7 +69,7 @@ import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { formatFilmReply } from '../src/engine/film.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
-import { compactCoords, lonLatPath, webMercator } from '../src/engine/drive-map.ts'
+import { compactCoords, lonLatPath, projectToView, settleZoom, tilesForView, tileUrl, webMercator, wrapTile, zoomForSpeedMps } from '../src/engine/drive-map.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -228,6 +228,22 @@ assert.equal(dirFromManeuver('turn', 'slight left'), 'slight_left')
   assert.equal(xs.length, 2)
   assert.ok(xs[1] > xs[0])
   assert.equal(compactCoords(Array.from({ length: 20 }, (_, i) => [i, i]), 5).length, 5)
+  const east = projectToView(48.78, 9.28, 48.78, 9.18, 16, 200, 400)
+  const north = projectToView(48.79, 9.18, 48.78, 9.18, 16, 200, 400)
+  assert.ok(east.x > 200)
+  assert.ok(north.y < 400)
+  const cover = tilesForView(390, 844)
+  assert.ok(cover.cols * 256 >= 390)
+  assert.ok(cover.rows * 256 >= 844)
+  assert.equal(zoomForSpeedMps(0), 16)
+  assert.equal(zoomForSpeedMps(8), 15)
+  assert.equal(zoomForSpeedMps(40), 13)
+  const t0 = 10_000
+  assert.equal(settleZoom(16, 15, t0, t0 + 400), 16)
+  assert.equal(settleZoom(16, 15, t0, t0 + 2000), 15)
+  assert.equal(wrapTile(3, -1), 7)
+  assert.ok(tileUrl(16, 1, 2, true).includes('cartocdn.com'))
+  assert.ok(!tileUrl(16, 1, 2, true).includes('rotate'))
 }
 
 assert.ok(isMemoryWrite('Ich heiße Max und trinke gerne Kaffee'))

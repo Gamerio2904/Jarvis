@@ -2065,48 +2065,31 @@ button.linkish {
 }
 
 .drive-map-wrap {
-  flex: 1 1 0;
-  min-height: 0;
-  overflow: hidden;
-  position: relative;
-  background: #0b100e;
-  touch-action: none;
-  transform-origin: 50% 62%;
-}
-
-.drive-map-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  will-change: transform;
-  contain: layout paint;
-}
-
-.drive-map-layer img {
-  position: absolute;
-  width: 256px;
-  height: 256px;
-  pointer-events: none;
-}
-
-.drive-svg {
   position: absolute;
   inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #0b100e;
+  touch-action: none;
+}
+
+.drive-map-canvas {
+  display: block;
   width: 100%;
   height: 100%;
-  pointer-events: none;
 }
 
 .drive-you {
   position: absolute;
   left: 50%;
-  top: 62%;
+  top: 58%;
   width: 28px;
   height: 32px;
   margin: -16px 0 0 -14px;
   z-index: 1;
   pointer-events: none;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
+  will-change: transform;
 }
 
 .drive-you svg {

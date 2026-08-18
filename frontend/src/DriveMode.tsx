@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
 import {
   getDriveRoute,
   getDriveTab,
@@ -8,7 +8,19 @@ import {
   type DriveRoute,
   type DriveTab,
 } from './engine/drive'
-import { lonLatPath, readLastMapFix, webMercator } from './engine/drive-map'
+import {
+  TILE_SIZE,
+  dayTiles,
+  prefetchTile,
+  projectToView,
+  readLastMapFix,
+  settleZoom,
+  tilesPending,
+  tileUrl,
+  webMercator,
+  zoomForSpeedMps,
+  type MapFix,
+} from './engine/drive-map'
 import { formatNavBanner, nextManeuver } from './engine/nav-speak'
 import { watchDeviceLocation } from './native/geo'
 import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, stopSpeak } from './native/voice'
@@ -35,143 +47,188 @@ import {
   type SpotifyPlayerStatus,
 } from './engine/spotify'
 
-function zoomForSpeed(mps?: number): number {
-  const kmh = (mps || 0) * 3.6
-  if (kmh < 20) return 17
-  if (kmh < 50) return 16
-  if (kmh < 90) return 15
-  return 14
-}
-
-function dayTiles(): boolean {
-  const h = new Date().getHours()
-  return h >= 6 && h < 20
-}
-
-function world(lat: number, lon: number, z: number) {
-  return webMercator(lat, lon, z)
-}
-
 function FollowMap({
   destLat,
   destLon,
-  z,
   coords,
-  you,
-  bearing,
+  live,
 }: {
   destLat: number
   destLon: number
-  z: number
   coords: Array<[number, number]>
-  you?: { lat: number; lon: number }
-  bearing?: number
+  live: MutableRefObject<MapFix>
 }) {
-  const size = 256
-  const cols = 9
-  const rows = 9
   const wrapRef = useRef<HTMLDivElement>(null)
-  const layerRef = useRef<HTMLDivElement>(null)
-  const target = useRef({ lat: you?.lat ?? destLat, lon: you?.lon ?? destLon })
-  target.current = { lat: you?.lat ?? destLat, lon: you?.lon ?? destLon }
-  const display = useRef({ ...target.current })
-  const [origin, setOrigin] = useState(() => {
-    const c = world(target.current.lat, target.current.lon, z)
-    return { x: Math.floor(c.x) - 4, y: Math.floor(c.y) - 4 }
-  })
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const youRef = useRef<HTMLDivElement>(null)
+  const destRef = useRef({ lat: destLat, lon: destLon, coords })
+  destRef.current = { lat: destLat, lon: destLon, coords }
+  const cam = useRef({ lat: live.current.lat, lon: live.current.lon })
+  const zoomRef = useRef(zoomForSpeedMps(live.current.speed))
+  const zoomWantedAt = useRef(0)
+  const headingRef = useRef(live.current.bearing || 0)
 
   useEffect(() => {
-    let live = true
-    const tick = () => {
-      if (!live) return
-      const t = target.current
-      const d = display.current
-      const jump = Math.abs(t.lat - d.lat) + Math.abs(t.lon - d.lon) > 0.08
-      d.lat = jump ? t.lat : d.lat + (t.lat - d.lat) * 0.16
-      d.lon = jump ? t.lon : d.lon + (t.lon - d.lon) * 0.16
-      const c = world(d.lat, d.lon, z)
-      const ox = Math.floor(c.x) - 4
-      const oy = Math.floor(c.y) - 4
-      setOrigin((prev) => (prev.x === ox && prev.y === oy ? prev : { x: ox, y: oy }))
-      const wrap = wrapRef.current
-      const layer = layerRef.current
-      if (wrap && layer) {
-        const fracX = (c.x - ox) * size
-        const fracY = (c.y - oy) * size
-        const tx = wrap.clientWidth * 0.5 - fracX
-        const ty = wrap.clientHeight * 0.62 - fracY
-        layer.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0)`
-      }
-      requestAnimationFrame(tick)
-    }
-    const id = requestAnimationFrame(tick)
-    return () => {
-      live = false
-      cancelAnimationFrame(id)
-    }
-  }, [z])
+    let liveLoop = true
+    let lastDraw = 0
+    let frame = 0
 
-  const w = cols * size
-  const h = rows * size
-  const path = lonLatPath(coords, origin, z, size)
-  const tiles = useMemo(() => {
-    const style = dayTiles() ? 'rastertiles/voyager' : 'dark_all'
-    const list: Array<{ key: string; src: string; left: number; top: number }> = []
-    for (let y = 0; y < rows; y += 1) {
-      for (let x = 0; x < cols; x += 1) {
-        const tx = origin.x + x
-        const ty = origin.y + y
-        list.push({
-          key: `${style}-${z}-${tx}-${ty}`,
-          src: `https://basemaps.cartocdn.com/${style}/${z}/${tx}/${ty}@2x.png`,
-          left: x * size,
-          top: y * size,
-        })
+    const paint = (now: number) => {
+      const box = wrapRef.current
+      const canvas = canvasRef.current
+      const pin = youRef.current
+      if (!box || !canvas) return
+      const cssW = box.clientWidth
+      const cssH = box.clientHeight
+      if (cssW < 8 || cssH < 8) return
+
+      const here = live.current
+      const jump = Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) > 0.05
+      if (jump) {
+        cam.current = { lat: here.lat, lon: here.lon }
+      } else {
+        cam.current.lat += (here.lat - cam.current.lat) * 0.18
+        cam.current.lon += (here.lon - cam.current.lon) * 0.18
       }
+
+      const wanted = zoomForSpeedMps(here.speed)
+      if (wanted !== zoomRef.current) {
+        if (!zoomWantedAt.current) zoomWantedAt.current = now
+        zoomRef.current = settleZoom(zoomRef.current, wanted, zoomWantedAt.current, now)
+        if (zoomRef.current === wanted) zoomWantedAt.current = 0
+      } else {
+        zoomWantedAt.current = 0
+      }
+
+      const still =
+        Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) < 4e-7 &&
+        tilesPending() === 0
+      if (still && now - lastDraw < 200) return
+      lastDraw = now
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5)
+      const pw = Math.round(cssW * dpr)
+      const ph = Math.round(cssH * dpr)
+      if (canvas.width !== pw || canvas.height !== ph) {
+        canvas.width = pw
+        canvas.height = ph
+      }
+      const ctx = canvas.getContext('2d', { alpha: false })
+      if (!ctx) return
+
+      const z = zoomRef.current
+      const day = dayTiles()
+      const cx = cssW * 0.5
+      const cy = cssH * 0.58
+      const camM = webMercator(cam.current.lat, cam.current.lon, z)
+      const x0 = Math.floor(camM.x - cx / TILE_SIZE) - 1
+      const y0 = Math.floor(camM.y - cy / TILE_SIZE) - 1
+      const x1 = Math.ceil(camM.x + (cssW - cx) / TILE_SIZE) + 1
+      const y1 = Math.ceil(camM.y + (cssH - cy) / TILE_SIZE) + 1
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.imageSmoothingEnabled = true
+      ctx.fillStyle = day ? '#e4e0d4' : '#0b100e'
+      ctx.fillRect(0, 0, cssW, cssH)
+
+      const ready = () => {
+        lastDraw = 0
+      }
+      for (let ty = y0; ty <= y1; ty += 1) {
+        for (let tx = x0; tx <= x1; tx += 1) {
+          const img = prefetchTile(tileUrl(z, tx, ty, day), ready)
+          const sx = (tx - camM.x) * TILE_SIZE + cx
+          const sy = (ty - camM.y) * TILE_SIZE + cy
+          if (img) ctx.drawImage(img, sx, sy, TILE_SIZE, TILE_SIZE)
+        }
+      }
+
+      const dest = destRef.current
+      if (dest.coords.length >= 2) {
+        ctx.beginPath()
+        let started = false
+        let lastX = Infinity
+        let lastY = Infinity
+        for (const pair of dest.coords) {
+          const lon = Number(pair?.[0])
+          const lat = Number(pair?.[1])
+          if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
+          const p = projectToView(lat, lon, cam.current.lat, cam.current.lon, z, cx, cy)
+          if (Math.abs(p.x - lastX) < 1.2 && Math.abs(p.y - lastY) < 1.2) continue
+          lastX = p.x
+          lastY = p.y
+          if (!started) {
+            ctx.moveTo(p.x, p.y)
+            started = true
+          } else {
+            ctx.lineTo(p.x, p.y)
+          }
+        }
+        if (started) {
+          ctx.lineJoin = 'round'
+          ctx.lineCap = 'round'
+          ctx.strokeStyle = '#070908'
+          ctx.lineWidth = 8
+          ctx.stroke()
+          ctx.strokeStyle = '#1ed760'
+          ctx.lineWidth = 4
+          ctx.stroke()
+        }
+      }
+
+      const pinPt = projectToView(dest.lat, dest.lon, cam.current.lat, cam.current.lon, z, cx, cy)
+      if (Number.isFinite(pinPt.x) && Number.isFinite(pinPt.y)) {
+        ctx.beginPath()
+        ctx.arc(pinPt.x, pinPt.y, 7, 0, Math.PI * 2)
+        ctx.fillStyle = '#f15e6c'
+        ctx.fill()
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#070908'
+        ctx.stroke()
+      }
+
+      const heading = here.bearing != null && Number.isFinite(here.bearing) ? here.bearing : headingRef.current
+      const delta = ((heading - headingRef.current + 540) % 360) - 180
+      headingRef.current += delta * 0.22
+      if (pin) pin.style.transform = `rotate(${headingRef.current}deg)`
     }
-    return list
-  }, [origin.x, origin.y, z])
-  const pinMerc = webMercator(destLat, destLon, z)
-  const pin = { x: (pinMerc.x - origin.x) * size, y: (pinMerc.y - origin.y) * size }
-  const heading = bearing != null && Number.isFinite(bearing) ? bearing : 0
+
+    const tick = (now: number) => {
+      if (!liveLoop) return
+      paint(now)
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => {
+      liveLoop = false
+      cancelAnimationFrame(frame)
+    }
+  }, [live])
 
   return (
     <div
       className="drive-map-wrap"
       ref={wrapRef}
-      style={{ transform: heading ? `rotate(${-heading}deg)` : undefined }}
       onClick={() => {
-        display.current = { ...target.current }
+        cam.current = { lat: live.current.lat, lon: live.current.lon }
       }}
     >
-      <div className="drive-map-layer" ref={layerRef} style={{ width: w, height: h }}>
-        {tiles.map((t) => (
-          <img key={t.key} alt="" src={t.src} style={{ left: t.left, top: t.top }} />
-        ))}
-        <svg className="drive-svg" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
-          {path ? (
-            <>
-              <polyline points={path} fill="none" stroke="#070908" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" />
-              <polyline points={path} fill="none" stroke="#1ed760" strokeWidth="5" strokeLinejoin="round" strokeLinecap="round" />
-            </>
-          ) : null}
-          {Number.isFinite(pin.x) && Number.isFinite(pin.y) ? (
-            <circle cx={pin.x} cy={pin.y} r="7" fill="#f15e6c" stroke="#070908" strokeWidth="3" />
-          ) : null}
-        </svg>
-      </div>
-      <div className="drive-you" aria-hidden style={{ transform: heading ? `rotate(${heading}deg)` : undefined }}>
+      <canvas className="drive-map-canvas" ref={canvasRef} />
+      <div className="drive-you" ref={youRef} aria-hidden>
         <svg viewBox="-12 -14 24 28">
-          <polygon
-            points="0,-12 8,12 -8,12"
-            fill="#e4c36a"
-            stroke="#070908"
-            strokeWidth="2"
-          />
+          <polygon points="0,-12 8,12 -8,12" fill="#e4c36a" stroke="#070908" strokeWidth="2" />
         </svg>
       </div>
     </div>
   )
+}
+
+function seedLiveFix(): MapFix {
+  const route = getDriveRoute()
+  if (route && Number.isFinite(route.fromLat) && Number.isFinite(route.fromLon)) {
+    return { lat: route.fromLat, lon: route.fromLon }
+  }
+  return readLastMapFix() || { lat: 48.78, lon: 9.18 }
 }
 
 function sourceHint(now: SpotifyNow | null, status: SpotifyPlayerStatus): string {
@@ -193,8 +250,8 @@ export function DriveMode({
   const [route, setRoute] = useState<DriveRoute | null>(() => getDriveRoute())
   const [tab, setTab] = useState<DriveTab>(() => getDriveTab())
   const [here, setHere] = useState<{ lat: number; lon: number } | null>(null)
-  const [bearing, setBearing] = useState<number | undefined>(undefined)
-  const [speed, setSpeed] = useState<number | undefined>(undefined)
+  const liveRef = useRef<MapFix>(seedLiveFix())
+  const hudAt = useRef(0)
   const [now, setNow] = useState<SpotifyNow | null>(() => getSpotifyNow())
   const [player, setPlayer] = useState<SpotifyPlayerStatus>(() => getSpotifyPlayerStatus())
   const [q, setQ] = useState('')
@@ -210,6 +267,11 @@ export function DriveMode({
     setRoute(getDriveRoute())
     setTab(getDriveTab())
   }), [])
+  useEffect(() => {
+    if (here) return
+    if (!route) return
+    liveRef.current = { ...liveRef.current, lat: route.fromLat, lon: route.fromLon }
+  }, [route, here])
   useEffect(
     () =>
       subscribeSpotify(() => {
@@ -237,9 +299,17 @@ export function DriveMode({
     return watchDeviceLocation((fix) => {
       if (!fix.ok || fix.lat == null || fix.lon == null) return
       const pos = { lat: fix.lat, lon: fix.lon }
-      setHere(pos)
-      if (fix.bearing != null) setBearing(fix.bearing)
-      if (fix.speed != null) setSpeed(fix.speed)
+      liveRef.current = {
+        lat: pos.lat,
+        lon: pos.lon,
+        bearing: fix.bearing ?? liveRef.current.bearing,
+        speed: fix.speed ?? liveRef.current.speed,
+      }
+      const t = Date.now()
+      if (t - hudAt.current > 280) {
+        hudAt.current = t
+        setHere(pos)
+      }
       void refreshDriveRoute({ ...pos, bearing: fix.bearing, speed: fix.speed }).then((guide) => {
         if (!guide?.cue) return
         if (guide.cue.startsWith('Ziel')) {
@@ -310,18 +380,13 @@ export function DriveMode({
     })
   }
 
-  const fallback = readLastMapFix() || { lat: 48.78, lon: 9.18 }
-  const follow = here || (route ? { lat: route.fromLat, lon: route.fromLon } : fallback)
-
   return (
     <div className="drive-view" role="dialog" aria-labelledby="drive-title">
       <FollowMap
-        destLat={route?.destLat ?? follow.lat}
-        destLon={route?.destLon ?? follow.lon}
-        z={zoomForSpeed(speed)}
+        destLat={route?.destLat ?? liveRef.current.lat}
+        destLon={route?.destLon ?? liveRef.current.lon}
         coords={route?.coords || []}
-        you={follow}
-        bearing={bearing}
+        live={liveRef}
       />
       <header className="drive-bar">
         <div>

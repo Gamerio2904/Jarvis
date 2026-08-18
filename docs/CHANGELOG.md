@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.48.3`**.
+App-Version im Code: **`1.48.4`**.
+
+### `1.48.4` — Fahrmodus-Karte neu — *CODE*
+
+Karte füllt den Bildschirm, Norden oben. Nur der Standort-Pfeil dreht mit. Canvas statt gedrehter Kachel-Wand — weniger Ruckeln.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14804)
+- [`28-next.md`](./28-next.md)
 
 ### `1.48.3` — Fahrmodus Karte und Route — *CODE*
 

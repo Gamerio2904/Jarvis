@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.3`** (Fahrmodus Karte/Route).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.4`** (Fahrmodus-Karte vollflächig, Norden oben).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -45,6 +45,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.48.1`** | Satzbildung näher am Film-Jarvis | **CODE** |
 | **`1.48.2`** | Live-Test-Bugs (Parser, Overlay, Straße) | **CODE** |
 | **`1.48.3`** | Fahrmodus: Karte und Route | **CODE** |
+| **`1.48.4`** | Fahrmodus-Karte: vollflächig, Norden oben | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-101.md`](./sprints/sprint-101.md).
 
@@ -437,10 +438,22 @@ PO: Karte und Route im Fahrmodus kaputt.
 
 **Probe:** `Nach Heilbronn` · `Fahr mich zu einer Tanke` · `Fahrmodus aus`
 
+## `1.48.4` — Fahrmodus-Karte neu — **CODE**
+
+PO: Karte nur smartphone-groß, gedreht, laggy.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Norden oben | Keine Drehung der ganzen Karte — der Pfeil zeigt die Richtung |
+| Vollbild | Canvas über den ganzen Fahrmodus, Kacheln bis zum Rand |
+| Flüssig | Kein 81-Bilder-Grid, GPS ohne Dauer-Render der UI |
+
+**Probe:** `Nach Heilbronn` — Karte füllt den Schirm, Straße nicht auf der Seite, Route sichtbar.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.48.3`. Fahrmodus Karte und Route. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.48.4`. Fahrmodus-Karte vollflächig, Norden oben. Nächste Stufe nur auf PO-Kommando.

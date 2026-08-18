@@ -139,10 +139,7 @@ function resetAnnounced() {
 /** GPS später da oder Standort hat sich bewegt: Route nachziehen. */
 export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance | null> {
   lastFix = here
-  if (!active) {
-    emit()
-    return null
-  }
+  if (!active) return null
   const off = nextManeuver(asNavSteps(active.steps), active.coords, here)
   const weak = active.coords.length < 2 || active.minutes <= 0
   const moved = haversineM({ lat: active.fromLat, lon: active.fromLon, place: '' }, here)
