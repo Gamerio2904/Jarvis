@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.44.0`**.
+App-Version im Code: **`1.45.0`**.
+
+### `1.45.0` — Öffnungszeiten für Läden — *CODE*
+
+Apotheke, Bäcker, Parkplatz, Supermarkt, Drogerie und Laden: Öffnungszeiten aus OSM, wenn getaggt. Keine erfundenen Stunden. `Hat die Apotheke auf` ohne sofortige Route. Nächste offene, wenn die nächste zu ist.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14500)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-98.md`](./sprints/sprint-98.md)
 
 ### `1.44.0` — Filme (IMDb/RT) + Rabatt-Suche — *CODE*
 

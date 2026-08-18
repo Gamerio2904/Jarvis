@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.44.0`** (Filme IMDb/RT, wo gratis, Rabatt-Suche).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.45.0`** (Öffnungszeiten Läden).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -37,8 +37,9 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.42.0`** | Wo bin ich: GPS, Freigabe anstoßen | **CODE** |
 | **`1.43.0`** | CarPlay ehrlich + Alltag am Steuer | **CODE** |
 | **`1.44.0`** | Filme IMDb/RT + wo gratis; Rabatt-Suche | **CODE** |
+| **`1.45.0`** | Öffnungszeiten für Läden (OSM) | **CODE** |
 
-Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-97.md`](./sprints/sprint-97.md).
+Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-98.md`](./sprints/sprint-98.md).
 
 ---
 
@@ -319,10 +320,24 @@ PO: Rotten Tomatoes und IMDb, alle Filme, wo sie gratis laufen; Rabatt-Suche bei
 
 **Probe:** `Wo läuft Dune kostenlos`, `Wie gut ist Dune`, `IMDb Dune`, `Spiel Dune Film`, `Rabatt-Suche an`.
 
+## `1.45.0` — Öffnungszeiten Läden — **CODE**
+
+PO: Öffnungszeiten bei Laden usw. ergänzen. Bisher hat Jarvis bewusst keine Stunden erfunden.
+
+| Hebel | Wirkung |
+|-------|---------|
+| OSM `opening_hours` | Auf/zu und heutige Zeiten, wenn getaggt |
+| Ohne Tag | „Keine Öffnungszeiten in der Karte.“ |
+| `Hat die Apotheke auf` | Status ohne sofortige Route |
+| Nächste offene | Nur wenn die nächste nachweislich zu ist |
+| Drogerie / Laden | Dieselbe POI-Familie |
+
+**Probe:** `nächste Apotheke`, `Hat die Apotheke auf`, `nächster Laden`, `nächste Drogerie`.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.44.0`. Filme über OMDb/JustWatch, Rabatt-Suche zuschaltbar. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.45.0`. Öffnungszeiten aus der Karte. Nächste Stufe nur auf PO-Kommando.

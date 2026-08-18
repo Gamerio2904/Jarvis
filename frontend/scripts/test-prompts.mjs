@@ -159,6 +159,8 @@ const EXPECT = {
   'Wie gut ist Dune': 'film',
   'IMDb Dune': 'film',
   'Rabatt-Suche an': 'discount',
+  'Hat die Apotheke auf': 'poi',
+  'nächster Laden': 'poi',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

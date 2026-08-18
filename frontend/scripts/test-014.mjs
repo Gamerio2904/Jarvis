@@ -50,6 +50,7 @@ import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { parsePoiIntent, poiLabel } from '../src/engine/poi-parse.ts'
+import { formatHoursSpeech, hoursOpenNow, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
 import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
 import { formatHereReply, parseHereIntent } from '../src/engine/here-parse.ts'
@@ -742,6 +743,7 @@ assert.match(GEMINI_PERSONA, /kein Apple CarPlay/)
 assert.match(PERSONA, /nicht Apple CarPlay/)
 
 assert.equal(parsePoiIntent('nächste Apotheke')?.kind, 'pharmacy')
+assert.equal(parsePoiIntent('nächste Apotheke')?.hours, false)
 assert.equal(parsePoiIntent('nächster Bäcker')?.kind, 'bakery')
 assert.equal(parsePoiIntent('nächster Parkplatz')?.kind, 'parking')
 assert.equal(parsePoiIntent('nächster Supermarkt')?.kind, 'supermarket')
@@ -750,6 +752,40 @@ assert.equal(parsePoiIntent('nächster POI')?.kind, 'ask')
 assert.equal(parsePoiIntent('nächste Tanke'), null)
 assert.equal(parsePoiIntent('nächster Song'), null)
 assert.equal(poiLabel('pharmacy'), 'Apotheke')
+assert.equal(parsePoiIntent('Hat die Apotheke auf')?.kind, 'pharmacy')
+assert.equal(parsePoiIntent('Hat die Apotheke auf')?.hours, true)
+assert.equal(parsePoiIntent('Öffnungszeiten Bäcker')?.kind, 'bakery')
+assert.equal(parsePoiIntent('Öffnungszeiten Bäcker')?.hours, true)
+assert.equal(parsePoiIntent('nächster Laden')?.kind, 'shop')
+assert.equal(parsePoiIntent('nächste Drogerie')?.kind, 'chemist')
+assert.equal(parsePoiIntent('hat die auf', 'pharmacy')?.kind, 'pharmacy')
+assert.equal(parsePoiIntent('hat die auf', 'pharmacy')?.hours, true)
+assert.equal(parsePoiIntent('Öffne das overlay'), null)
+assert.match(GEMINI_PERSONA, /Öffnungszeiten/)
+
+{
+  const tue = new Date(2026, 7, 18, 10, 0, 0)
+  const hours = 'Mo-Fr 08:00-18:00; Sa 08:00-13:00; PH off'
+  const parsed = parseOpeningHours(hours)
+  assert.ok(parsed)
+  assert.equal(isOpenAt(parsed, tue), true)
+  assert.match(formatHoursSpeech(hours, tue), /jetzt auf/)
+  assert.match(formatHoursSpeech(hours, tue), /8 bis 18/)
+  assert.equal(hoursOpenNow(hours, new Date(2026, 7, 18, 20, 0, 0)), false)
+  assert.equal(hoursOpenNow(hours, new Date(2026, 7, 22, 10, 0, 0)), true)
+  assert.equal(hoursOpenNow(hours, new Date(2026, 7, 23, 10, 0, 0)), false)
+  assert.match(formatHoursSpeech(hours, new Date(2026, 7, 23, 10, 0, 0)), /geschlossen/)
+  assert.equal(hoursOpenNow(hours, new Date(2026, 4, 1, 10, 0, 0)), false)
+  assert.match(formatHoursSpeech(hours, new Date(2026, 4, 1, 10, 0, 0)), /Feiertag/)
+  assert.match(formatHoursSpeech('24/7', tue), /rund um die Uhr/)
+  assert.match(formatHoursSpeech('', tue), /Keine Öffnungszeiten/)
+  assert.match(formatHoursSpeech('Jan-Mar Mo-Fr 08:00-18:00', tue), /Saison/)
+  const night = parseOpeningHours('Fr 20:00-02:00')
+  assert.ok(night)
+  assert.equal(isOpenAt(night, new Date(2026, 7, 21, 21, 0, 0)), true)
+  assert.equal(isOpenAt(night, new Date(2026, 7, 22, 1, 0, 0)), true)
+  assert.equal(isOpenAt(night, new Date(2026, 7, 22, 3, 0, 0)), false)
+}
 
 assert.equal(parseDeviceIntent('Wie voll ist der Akku')?.kind, 'battery')
 assert.equal(parseDeviceIntent('Taschenlampe an')?.kind, 'torch')

@@ -32,8 +32,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 25 | [Stimme & Ton](./25-next.md) | **`1.31` CODE** — TTS, Smalltalk, Jarvis-Formulierung |
 | 26 | [Samsung-Apps](./26-next.md) | **`1.32` CODE** — YouTube/Amazon/Disney/Netflix, Film-Lookup |
 | 27 | [Sprachmodus Tempo](./27-next.md) | **`1.32.1` CODE** — sofort sprechen, keine Stille |
-| 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`1.44` CODE** — Suche bis Filme/Rabatt |
-| — | [APK](./apk.md) | Sideload `1.44.0` |
+| 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`1.45` CODE** — Suche bis Öffnungszeiten |
+| — | [APK](./apk.md) | Sideload `1.45.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -90,5 +90,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 95 | `1.42.0` | **CODE** (Live-Ort) |
 | 96 | `1.43.0` | **CODE** (CarPlay ehrlich + Alltag am Steuer) |
 | 97 | `1.44.0` | **CODE** (Filme IMDb/RT + Rabatt-Suche) |
+| 98 | `1.45.0` | **CODE** (Öffnungszeiten Läden) |
 
-**Aktuell:** Sideload `1.44.0` — [`Jarvis.apk`](./apk.md). OMDb/JustWatch, Rabatt-Suche — [`28-next.md`](./28-next.md).
+**Aktuell:** Sideload `1.45.0` — [`Jarvis.apk`](./apk.md). Öffnungszeiten aus OSM — [`28-next.md`](./28-next.md).

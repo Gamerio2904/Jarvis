@@ -2,6 +2,7 @@ import { ensureDeviceLocation } from '../native/geo'
 import { beginDriveTo } from './drive'
 import { haversineM } from './geo-lookup'
 import { getJson } from './http-json'
+import { formatHoursSpeech, hoursOpenNow } from './opening-hours'
 import { parsePoiIntent, poiLabel, type PoiKind } from './poi-parse'
 import { loadSettings, persistLastList, saveSettings } from './store'
 import type { ToolMeta } from './tools'
@@ -23,6 +24,7 @@ type PoiPlace = {
   lat: number
   lon: number
   distKm: number
+  hours?: string
 }
 
 type LastPoi = {
@@ -38,17 +40,20 @@ const OVERPASS = [
 const NO_GPS =
   'Ohne Standort kein Ort in der Nähe. Sagen Sie „aktivieren“ — Android-Abfrage, notfalls App-Einstellungen. Ich rate den Ort nicht.'
 const ASK =
-  'Welcher Ort — Apotheke, Bäcker, Parkplatz oder Supermarkt? Tanke extra sagen. Keine erfundenen Öffnungszeiten.'
+  'Welcher Ort — Apotheke, Bäcker, Parkplatz, Supermarkt, Drogerie oder Laden? Tanke extra sagen. Öffnungszeiten nur aus der Karte.'
 
 const FILTER: Record<PoiKind, string> = {
   pharmacy: '["amenity"="pharmacy"]',
   bakery: '["shop"="bakery"]',
   parking: '["amenity"="parking"]',
   supermarket: '["shop"="supermarket"]',
+  chemist: '["shop"~"^(chemist|drugstore)$"]',
+  shop: '["shop"~"^(supermarket|convenience|bakery|chemist|kiosk|greengrocer|butcher)$"]',
 }
 
 export async function handlePoi(_conversationId: string, text: string): Promise<PoiHit> {
-  const intent = parsePoiIntent(text)
+  const last = readLastPoi()
+  const intent = parsePoiIntent(text, last?.kind ?? null)
   if (!intent) return { handled: false }
   if (intent.kind === 'ask') {
     return {
@@ -58,7 +63,7 @@ export async function handlePoi(_conversationId: string, text: string): Promise<
       lastTool: 'poi',
     }
   }
-  return searchAndDrive(intent.kind)
+  return searchAndReply(intent.kind, intent.hours)
 }
 
 export async function handlePoiOrdinal(index: number): Promise<PoiHit> {
@@ -83,7 +88,7 @@ export async function handlePoiOrdinal(index: number): Promise<PoiHit> {
   return driveTo(last.kind, hit, last.hits)
 }
 
-async function searchAndDrive(kind: PoiKind): Promise<PoiHit> {
+async function searchAndReply(kind: PoiKind, hoursOnly: boolean): Promise<PoiHit> {
   const here = await resolveHere()
   if (!here.ok) {
     return {
@@ -103,13 +108,13 @@ async function searchAndDrive(kind: PoiKind): Promise<PoiHit> {
     }
   }
   remember(kind, found.hits)
+  if (hoursOnly) return hoursReply(kind, found.hits[0], found.hits)
   return driveTo(kind, found.hits[0], found.hits)
 }
 
 async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): Promise<PoiHit> {
   const label = placeLabel(chosen, kind)
   const { route, tool } = await beginDriveTo(label, chosen.lat, chosen.lon)
-  const km = chosen.distKm >= 1 ? `${chosen.distKm.toFixed(1)} km` : `${Math.round(chosen.distKm * 1000)} m`
   const extra = all.length > 1 ? ` Zweites: ${placeLabel(all[1], kind)}.` : ''
   const eta =
     route.minutes > 0
@@ -119,7 +124,9 @@ async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): Promis
         : ''
   return {
     handled: true,
-    reply: `Nächste ${poiLabel(kind)}: ${label}, ${km}.${extra}${eta} Keine Öffnungszeiten aus der Karte.`,
+    reply: `Nächste ${poiLabel(kind)}: ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}${extra}${eta}`
+      .replace(/\s+/g, ' ')
+      .trim(),
     tool: {
       ...tool,
       tool: 'poi',
@@ -129,6 +136,30 @@ async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): Promis
     },
     lastTool: 'poi',
   }
+}
+
+function hoursReply(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): PoiHit {
+  const label = placeLabel(chosen, kind)
+  return {
+    handled: true,
+    reply: `${poiLabel(kind)} ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}`.replace(/\s+/g, ' ').trim(),
+    tool: poiTool('hours', poiLabel(kind)),
+    lastTool: 'poi',
+  }
+}
+
+function hoursLine(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): string {
+  const now = new Date()
+  const main = formatHoursSpeech(chosen.hours, now)
+  const openNow = hoursOpenNow(chosen.hours, now)
+  if (openNow !== false) return main
+  const other = all.find((h) => h !== chosen && hoursOpenNow(h.hours, now) === true)
+  if (!other) return main
+  return `${main} Nächste offene: ${placeLabel(other, kind)}, ${distSpeech(other)}.`
+}
+
+function distSpeech(p: PoiPlace): string {
+  return p.distKm >= 1 ? `${p.distKm.toFixed(1).replace('.', ',')} km` : `${Math.round(p.distKm * 1000)} m`
 }
 
 function poiTool(action: string, label: string): ToolMeta {
@@ -205,12 +236,12 @@ async function osmOnce(
   radKm: number,
 ): Promise<{ ok: true; hits: PoiPlace[] } | { ok: false; message: string }> {
   const filter = FILTER[kind]
-  const query = `[out:json][timeout:12];nwr${filter}(around:${Math.round(radKm * 1000)},${lat},${lon});out center;`
+  const query = `[out:json][timeout:12];nwr${filter}(around:${Math.round(radKm * 1000)},${lat},${lon});out center tags;`
   for (const base of OVERPASS) {
     try {
       const { status, json } = await getJson(`${base}?data=${encodeURIComponent(query)}`, {
         Accept: 'application/json',
-        'User-Agent': 'Jarvis/1.44.0 (local.jarvis.app)',
+        'User-Agent': 'Jarvis/1.45.0 (local.jarvis.app)',
       })
       if (status < 200 || status >= 300) continue
       const elements = Array.isArray(json.elements) ? (json.elements as Array<Record<string, unknown>>) : []
@@ -232,6 +263,7 @@ async function osmOnce(
           lat: slat,
           lon: slon,
           distKm: distM / 1000,
+          hours: String(tags.opening_hours || '').trim() || undefined,
         })
       }
       hits.sort((a, b) => a.distKm - b.distKm)

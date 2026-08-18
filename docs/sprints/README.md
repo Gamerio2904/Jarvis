@@ -101,8 +101,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 95 | [`sprint-95.md`](./sprint-95.md) | `1.42.0` | Standort: Wo bin ich + Freigabe | **CODE** |
 | 96 | [`sprint-96.md`](./sprint-96.md) | `1.43.0` | CarPlay ehrlich + Alltag am Steuer | **CODE** |
 | 97 | [`sprint-97.md`](./sprint-97.md) | `1.44.0` | Filme IMDb/RT + Rabatt-Suche | **CODE** |
+| 98 | [`sprint-98.md`](./sprint-98.md) | `1.45.0` | Öffnungszeiten Läden | **CODE** |
 
-**Aktuell:** Sideload `1.44.0`. OMDb/JustWatch, Rabatt-Suche. [`28-next.md`](../28-next.md).
+**Aktuell:** Sideload `1.45.0`. Öffnungszeiten aus OSM. [`28-next.md`](../28-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
