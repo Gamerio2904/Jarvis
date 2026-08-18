@@ -1,4 +1,5 @@
 import { parseDriveIntent, type DriveTab } from './drive-parse'
+import { isFuelPlace } from './fuel-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
 import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
 import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse'
@@ -245,32 +246,23 @@ function emptyRoute(dest: string, destLat: number, destLon: number, fromLat: num
   }
 }
 
-async function startRoute(_label: string, place: string): Promise<{
-  handled: true
-  reply: string
-  tool: ToolMeta
-  lastTool: string
-}> {
+export async function beginDriveTo(
+  destName: string,
+  destLat: number,
+  destLon: number,
+): Promise<{ route: DriveRoute; tool: ToolMeta; hereOk: boolean; rideOk: boolean }> {
+  openDrive()
   tab = 'map'
   const granted = await requestLocationPermission()
   const here = granted ? await readDeviceLocation() : { ok: false as const, lat: undefined, lon: undefined }
-  const dest = await geocodePlace(place)
-  if (!dest.ok) {
-    return {
-      handled: true,
-      reply: dest.message,
-      tool: driveTool('ask', 'Ort fehlt'),
-      lastTool: 'drive',
-    }
-  }
   if (!here.ok || here.lat == null || here.lon == null) {
     active = {
-      dest: dest.fix.place,
-      destLat: dest.fix.lat,
-      destLon: dest.fix.lon,
-      fromLat: dest.fix.lat,
-      fromLon: dest.fix.lon,
-      coords: [[dest.fix.lon, dest.fix.lat]],
+      dest: destName,
+      destLat,
+      destLon,
+      fromLat: destLat,
+      fromLon: destLon,
+      coords: [[destLon, destLat]],
       minutes: 0,
       meters: 0,
       hint: 'Kein GPS. Ziel liegt, Route folgt wenn Standort da ist.',
@@ -278,29 +270,20 @@ async function startRoute(_label: string, place: string): Promise<{
     }
     resetAnnounced()
     emit()
-    return {
-      handled: true,
-      reply: `Fahrmodus: Ziel ${dest.fix.place}. Standort erlauben für die Route — intern, nicht Google Maps.`,
-      tool: driveTool('nav', 'Fahrmodus', active),
-      lastTool: 'drive',
-    }
+    return { route: active, tool: driveTool('nav', 'Fahrmodus', active), hereOk: false, rideOk: false }
   }
-  const ride = await routeDrive({ lat: here.lat, lon: here.lon }, dest.fix)
+  const ride = await routeDrive({ lat: here.lat, lon: here.lon }, { lat: destLat, lon: destLon })
   if (!ride.ok) {
-    active = emptyRoute(dest.fix.place, dest.fix.lat, dest.fix.lon, here.lat, here.lon, ride.message)
+    active = emptyRoute(destName, destLat, destLon, here.lat, here.lon, ride.message)
+    lastFix = { lat: here.lat, lon: here.lon }
     resetAnnounced()
     emit()
-    return {
-      handled: true,
-      reply: `${ride.message} Ziel ${dest.fix.place} liegt trotzdem im Fahrmodus.`,
-      tool: driveTool('nav', 'Fahrmodus', active),
-      lastTool: 'drive',
-    }
+    return { route: active, tool: driveTool('nav', 'Fahrmodus', active), hereOk: true, rideOk: false }
   }
   active = {
-    dest: dest.fix.place,
-    destLat: dest.fix.lat,
-    destLon: dest.fix.lon,
+    dest: destName,
+    destLat,
+    destLon,
     fromLat: here.lat,
     fromLon: here.lon,
     coords: ride.coords,
@@ -312,11 +295,46 @@ async function startRoute(_label: string, place: string): Promise<{
   lastFix = { lat: here.lat, lon: here.lon }
   resetAnnounced()
   emit()
-  const km = ride.meters >= 1000 ? `${(ride.meters / 1000).toFixed(1)} km` : `${ride.meters} m`
+  return { route: active, tool: driveTool('nav', 'Fahrmodus', active), hereOk: true, rideOk: true }
+}
+
+async function startRoute(_label: string, place: string): Promise<{
+  handled: true
+  reply: string
+  tool: ToolMeta
+  lastTool: string
+}> {
+  const dest = await geocodePlace(place)
+  if (!dest.ok) {
+    return {
+      handled: true,
+      reply: dest.message,
+      tool: driveTool('ask', 'Ort fehlt'),
+      lastTool: 'drive',
+    }
+  }
+  const { route, tool, hereOk, rideOk } = await beginDriveTo(dest.fix.place, dest.fix.lat, dest.fix.lon)
+  if (!hereOk) {
+    return {
+      handled: true,
+      reply: `Fahrmodus: Ziel ${dest.fix.place}. Standort erlauben für die Route — intern, nicht Google Maps.`,
+      tool,
+      lastTool: 'drive',
+    }
+  }
+  if (!rideOk) {
+    return {
+      handled: true,
+      reply: `${route.hint || 'Netz hat die Route nicht geliefert.'} Ziel ${dest.fix.place} liegt trotzdem im Fahrmodus.`,
+      tool,
+      lastTool: 'drive',
+    }
+  }
+  const km = route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`
   return {
     handled: true,
-    reply: `Fahrmodus nach ${dest.fix.place}: etwa ${ride.minutes} Min, ${km}. ${ride.hint} Karte intern, nicht Google.`,
-    tool: driveTool('nav', 'Fahrmodus', active),
+    reply: `Fahrmodus nach ${dest.fix.place}: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`,
+    tool,
     lastTool: 'drive',
   }
 }
@@ -387,6 +405,7 @@ export async function handleDrive(
     openDrive()
     tab = 'map'
     if (intent.dest) {
+      if (isFuelPlace(intent.dest)) return { handled: false }
       const got = await destOrAsk(intent.dest)
       if ('handled' in got) return got
       return startRoute(intent.dest, got.place)
@@ -401,6 +420,7 @@ export async function handleDrive(
   if (!s.drive_mode && intent?.kind !== 'dest') return { handled: false }
 
   if (intent?.kind === 'dest' && intent.query) {
+    if (isFuelPlace(intent.query)) return { handled: false }
     openDrive()
     const got = await destOrAsk(intent.query)
     if ('handled' in got) return got

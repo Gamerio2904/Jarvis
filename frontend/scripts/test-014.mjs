@@ -47,6 +47,8 @@ import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
+import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
 import { parseSpotifyIntent, spotifySourceLabel } from '../src/engine/spotify-parse.ts'
 import { pickWatchTarget, parseWatchOffers, youtubeVideoId } from '../src/engine/tv-watch.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
@@ -649,7 +651,66 @@ assert.match(
   /Wikipedia/,
 )
 assert.equal(parseDriveIntent('Nachher'), null)
+assert.equal(rewriteFollowUp('stopp', { last_step_tool: 'fuel' }), 'Fahrmodus aus')
 assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', value: 'Kaffee' }]), /Smalltalk/)
+
+assert.equal(parseFuelIntent('Fahr mich zu einer Tanke')?.prefer, 'nearest')
+assert.equal(parseFuelIntent('fahr mich zur Tankstelle')?.prefer, 'nearest')
+assert.equal(parseFuelIntent('nächste Tanke')?.prefer, 'nearest')
+assert.equal(parseFuelIntent('billigste Tankstelle')?.prefer, 'cheapest')
+assert.equal(parseFuelIntent('wo kann ich tanken')?.prefer, 'nearest')
+assert.equal(parseFuelIntent('Danke'), null)
+assert.equal(parseFuelIntent('Fahr mich nach Heilbronn'), null)
+assert.equal(parseFuelIntent('Ich fahre gerne Auto'), null)
+assert.equal(parseDriveIntent('Fahr mich zu einer Tanke'), null)
+assert.equal(parseDriveIntent('zur Tankstelle', true), null)
+assert.equal(isFuelPlace('einer Tanke'), true)
+assert.equal(parseFuelFollowUp('günstigste'), 'cheapest')
+assert.equal(parseFuelFollowUp('fahr zur nächsten'), 'nearest')
+assert.equal(parseFuelFollowUp('das zweite'), null)
+assert.equal(formatE10Price(1.759), '1,759 €')
+
+const aral = {
+  id: 'a',
+  name: 'Aral Ingersheim',
+  brand: 'ARAL',
+  street: 'Hauptstraße',
+  place: 'Ingersheim',
+  lat: 48.96,
+  lng: 9.18,
+  distKm: 1.2,
+  priceE10: 1.759,
+  isOpen: true,
+}
+const jet = {
+  id: 'b',
+  name: 'JET',
+  brand: 'JET',
+  street: 'Weinsberger Straße',
+  place: 'Heilbronn',
+  lat: 49.14,
+  lng: 9.22,
+  distKm: 4.1,
+  priceE10: 1.649,
+  isOpen: true,
+}
+const pair = pickFuelPair([aral, jet])
+assert.equal(pair?.nearest.id, 'a')
+assert.equal(pair?.cheapest.id, 'b')
+assert.match(formatFuelSpeech(pair, 'nearest', 4), /1,759 €/)
+assert.match(formatFuelSpeech(pair, 'nearest', 4), /1,649 €/)
+assert.match(formatFuelSpeech(pair, 'nearest', 4), /günstigste/)
+assert.match(formatFuelSpeech(pair, 'cheapest', 8), /Route zur günstigsten/)
+const same = pickFuelPair([aral])
+assert.equal(same?.nearest.id, same?.cheapest.id)
+assert.match(formatFuelSpeech(same, 'nearest'), /Nächste und günstigste/)
+const closedCheap = pickFuelPair([
+  aral,
+  { ...jet, isOpen: false },
+  { ...jet, id: 'c', name: 'Shell', brand: 'Shell', distKm: 5, priceE10: 1.669, isOpen: true },
+])
+assert.match(formatFuelSpeech(closedCheap, 'nearest'), /geschlossen/)
+assert.match(formatFuelSpeech(closedCheap, 'nearest'), /Günstigste offene/)
 
 const tap = createSentenceTap()
 assert.deepEqual(tap.feed('Hallo, der Himmel'), [])

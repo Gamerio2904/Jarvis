@@ -280,11 +280,17 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S17.7 | Als Nutzer will ich Zuhören/Sprechen ohne verschluckte Treffer und Doppel-Stimme. | Must | ready | Sprint 92 / `1.39.0` |
 | S17.8 | Als Nutzer will ich keine Fake-Erfolge und stabile Regressionen. | Must | ready | Sprint 93 / `1.40.0` |
 
+### E18 — Tanke E10 `1.41`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S18.1 | Als Fahrer will ich im Chat oder Fahrmodus die nächste und die günstigste Tanke mit E10-Preis sehen und dorthin navigieren. | Must | done | Sprint 94 / `1.41.0` |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.40.3`
+1. Sideload `1.41.0`
 2. Weitere Arbeit nur auf PO-Kommando — [`28-next.md`](./28-next.md)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 

@@ -121,6 +121,7 @@ MAJOR.MINOR.PATCH
 | `1.40.1` | Sätze zu Ende; TV-Tasten/Ordinal, YouTube-Suche, kein Live-Bild | Sprint 93 Patch |
 | `1.40.2` | Timer spricht ohne Klingeln; natürliche Timer-Sätze | Sprint 93 Patch |
 | `1.40.3` | Chat/Stimme näher am Film-Jarvis (Understatement) | Sprint 93 Patch |
+| `1.41.0` | Tanke: nächste + günstigste, immer E10, Preise | Sprint 94 |
 
 ### Weitere Beispiele
 

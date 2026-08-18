@@ -5,7 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.40.3`**.
+App-Version im Code: **`1.41.0`**.
+
+### `1.41.0` — Tanke E10 — *CODE*
+
+Chat und Fahrmodus: „fahr mich zu einer Tanke“ zeigt die **nächste** und die **günstigste** Station, immer **E10**, mit Preis. Route startet zur nächsten (oder zur günstigsten, wenn so gesagt). Nachfassen: „günstigste“ / „nächste“ / „das zweite“.
+
+- Tankerkönig MTS-K (`type=e10`); Key unter Einstellungen → Cloud
+- Ohne Key: nächste Station von der Karte, **keine erfundenen Preise**
+- Ohne GPS: nachfragen, nicht raten
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14100)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-94.md`](./sprints/sprint-94.md)
 
 ### `1.40.3` — Jarvis-Ton näher am Film — *CODE*
 

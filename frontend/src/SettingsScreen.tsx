@@ -293,6 +293,30 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
                 <p className="settings-hint">Key: console.groq.com/keys</p>
               </section>
+              <section className="settings-card">
+                <h3>Tankerkönig (E10)</h3>
+                <p className="settings-hint">
+                  Für „fahr mich zu einer Tanke“: nächste und günstigste Station, immer E10. Key kostenlos.
+                  Standort geht an Tankerkönig, nicht an uns. Ohne Key keine Preise — Jarvis erfindet keine.
+                </p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`tanker-key-${s?.tankerkoenig_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.tankerkoenig_api_key || ''}
+                    disabled={busy}
+                    placeholder="UUID von tankerkoenig.de"
+                    onBlur={(e) => void p.patchSetting({ tankerkoenig_api_key: e.target.value.trim() })}
+                  />
+                </label>
+                <p className="settings-hint">creativecommons.tankerkoenig.de — nicht teilen.</p>
+              </section>
             </>
           ) : null}
 

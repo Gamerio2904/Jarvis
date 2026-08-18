@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.40.3`** (Serie `1.34`–`1.40` plus Patch).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.41.0`** (Serie `1.34`–`1.40` plus Tanke E10).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -33,8 +33,9 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.40.1`** | Sätze zu Ende; TV OK/D-Pad/`das zweite`; YouTube mit Titel | **CODE** |
 | **`1.40.2`** | Timer spricht (kein Klingeln); natürliche Namen | **CODE** |
 | **`1.40.3`** | Chat/Stimme: Film-Jarvis-Ton (Understatement) | **CODE** |
+| **`1.41.0`** | Tanke: nächste + günstigste, immer E10, Preise | **CODE** |
 
-Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-93.md`](./sprints/sprint-93.md).
+Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-94.md`](./sprints/sprint-94.md).
 
 ---
 
@@ -258,10 +259,24 @@ Muster aus den Filmen (Paul Bettany): ruhig, fertige Sätze, totes Understatemen
 
 **Probe:** `Hallo Jarvis.`, `Was machst du so?`, Sprachmodus. Kein „Wie kann ich helfen?“
 
+## `1.41.0` — Tanke E10 — **CODE**
+
+PO: Im CarPlay oder Chat „fahr mich zu einer Tanke“ — nächste **und** günstigste anzeigen, inkl. Preise, immer E10.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Parser vor Navigation | „Tanke“ wird nicht als Ortsname geocodet |
+| Tankerkönig `type=e10` | Nächste (km) und günstigste (€/l), keine erfundenen Preise |
+| Fahrmodus | Default-Route zur nächsten; „günstigste“ / „das zweite“ wechselt |
+| Key in Cloud-Settings | Kostenloser Key; ohne Key: Karte ohne Preis, ehrlich sagen |
+| GPS | Ohne Standort nachfragen, nicht raten |
+
+**Probe:** Standort an. Key unter Einstellungen → Cloud. `Fahr mich zu einer Tanke`. Danach `günstigste`.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.40.3`. Serie `1.34`–`1.40` plus Patch. Nächste Stufe nur auf PO-Kommando — kein neues Produkt, kein TV-Framebuffer.
+Sideload `1.41.0`. Tanke E10 in Chat/CarPlay. Nächste Stufe nur auf PO-Kommando — kein neues Produkt, kein TV-Framebuffer.

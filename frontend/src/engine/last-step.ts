@@ -68,7 +68,7 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   if (HALT.test(raw)) {
     if (medium === 'tv' || tool === 'tv') return 'Fernseher pause'
     if (medium === 'spotify') return 'Spotify Pause'
-    if (medium === 'drive' || tool === 'drive') return 'Fahrmodus aus'
+    if (medium === 'drive' || tool === 'drive' || tool === 'fuel') return 'Fahrmodus aus'
     if (tool === 'timer') return 'Timer aus'
     if (tool === 'alarm') return 'Wecker aus'
     return null

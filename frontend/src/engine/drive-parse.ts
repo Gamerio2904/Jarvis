@@ -1,3 +1,4 @@
+import { isFuelPlace } from './fuel-parse.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export type DriveTab = 'map' | 'spotify'
@@ -24,6 +25,7 @@ function destOf(raw?: string): string | undefined {
   if (/^\d+$/.test(t)) return undefined
   if (t.split(/\s+/).length > 8) return undefined
   if (NOT_PLACE.test(t)) return undefined
+  if (isFuelPlace(t)) return undefined
   return t
 }
 

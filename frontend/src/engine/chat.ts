@@ -61,6 +61,7 @@ import { handleLeave } from './leave'
 import { handleBrief } from './brief'
 import { isBriefAsk } from './brief-parse'
 import { handleDrive } from './drive'
+import { handleFuel, handleFuelOrdinal } from './fuel'
 import { handleEyeAsk } from './eye'
 import { parseEyeIntent } from './eye-parse'
 import { handleChatSearch } from './search-chat'
@@ -162,6 +163,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         }
       }
     }
+    if (s.last_step_tool === 'fuel') {
+      const fuelPick = await handleFuelOrdinal(ord.index)
+      if (fuelPick.handled && fuelPick.reply) {
+        return {
+          reply: fuelPick.reply,
+          tool: fuelPick.tool,
+          lastTool: 'fuel',
+          research: fuelPick.research,
+        }
+      }
+    }
     const titles = readLastList()
     if (!titles.length) {
       return {
@@ -194,6 +206,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: fanHit.reply,
       tool: { tool_status: 'executed', tool: 'fan', action: 'command', label: 'Ventilator' },
       lastTool: 'fan',
+    }
+  }
+
+  const fuelHit = await handleFuel(conversationId, content)
+  if (fuelHit.handled && fuelHit.reply) {
+    return {
+      reply: fuelHit.reply,
+      tool: fuelHit.tool,
+      lastTool: fuelHit.lastTool || 'fuel',
+      research: fuelHit.research,
     }
   }
 
@@ -370,7 +392,7 @@ async function rememberHit(hit: RouteHit, utterance = ''): Promise<void> {
       ? 'tv'
       : hit.tool?.action === 'music' || /spotify/i.test(preview)
         ? 'spotify'
-        : tool === 'drive'
+        : tool === 'drive' || tool === 'fuel'
           ? 'drive'
           : ''
   if (preview) {
