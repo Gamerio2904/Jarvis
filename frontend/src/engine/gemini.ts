@@ -154,11 +154,11 @@ function buildBody(
   }
   const generationConfig: Record<string, unknown> = {
     temperature: opts.search ? 0.35 : opts.maxOutputTokens && opts.maxOutputTokens < 200 ? 0.62 : 0.72,
-    maxOutputTokens: opts.maxOutputTokens || 720,
+    maxOutputTokens: opts.maxOutputTokens || 1400,
   }
   const thinking = opts.thinking !== false && /2\.5|3\./.test(model) && !opts.search
-  if (thinking) {
-    generationConfig.thinkingConfig = { thinkingBudget: 0 }
+  if (thinking || /2\.5|3\./.test(model)) {
+    generationConfig.thinkingConfig = { thinkingBudget: 0, includeThoughts: false }
   }
   const body: Record<string, unknown> = {
     system_instruction: { parts: [{ text: system }] },
@@ -204,7 +204,7 @@ export async function streamGemini(
     const body = buildBody(model, messages, {
       search: false,
       thinking: false,
-      maxOutputTokens: opts?.maxOutputTokens || 160,
+      maxOutputTokens: opts?.maxOutputTokens || 480,
     })
     let full = ''
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`
@@ -237,7 +237,7 @@ export async function streamGemini(
   }
   return completeGemini(messages, onToken, {
     ...opts,
-    maxOutputTokens: opts?.maxOutputTokens || 160,
+    maxOutputTokens: opts?.maxOutputTokens || 480,
     timeoutMs: Math.min(8_000, left),
     maxModels: 1,
     thinking: false,
@@ -296,9 +296,23 @@ export async function completeGemini(
         if (json.promptFeedback?.blockReason) {
           throw new Error('Google hat die Antwort blockiert.')
         }
+        const cand = json.candidates?.[0]
         const text = textFrom(json)
         if (!text) {
           last = 'Gemini lieferte keinen Text.'
+          continue
+        }
+        const cut = cand?.finishReason === 'MAX_TOKENS' || cand?.finishReason === 'max_tokens'
+        const incomplete = !/[.!?…]$/.test(text.trim())
+        if (cut && i === 0 && (incomplete || text.split(/\s+/).length < 8)) {
+          last = 'Antwort war abgeschnitten, nochmal mit mehr Platz.'
+          attempts.push(
+            buildBody(model, messages, {
+              search: false,
+              thinking: false,
+              maxOutputTokens: Math.max(opts?.maxOutputTokens || 0, 1800),
+            }),
+          )
           continue
         }
         saveSettings({ gemini_model: model })

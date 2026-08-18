@@ -40,17 +40,17 @@ const KEYS: Record<TvAction, string | null> = {
   hdmi2: 'KEY_HDMI2',
   hdmi3: 'KEY_HDMI3',
   hdmi4: 'KEY_HDMI4',
-  play: null,
-  pause: null,
-  next: null,
-  prev: null,
-  home: null,
-  back: null,
-  ok: null,
-  up: null,
-  down: null,
-  left: null,
-  right: null,
+  play: 'KEY_PLAY',
+  pause: 'KEY_PAUSE',
+  next: 'KEY_FF',
+  prev: 'KEY_REWIND',
+  home: 'KEY_HOME',
+  back: 'KEY_RETURN',
+  ok: 'KEY_ENTER',
+  up: 'KEY_UP',
+  down: 'KEY_DOWN',
+  left: 'KEY_LEFT',
+  right: 'KEY_RIGHT',
 }
 
 const FIRE_CODE: Partial<Record<TvAction, number>> = {
@@ -81,13 +81,13 @@ const REPLIES: Record<TvAction, string> = {
   hdmi2: 'HDMI 2.',
   hdmi3: 'HDMI 3.',
   hdmi4: 'HDMI 4.',
-  play: 'Play auf Fire TV.',
-  pause: 'Pause auf Fire TV.',
-  next: 'Weiter auf Fire TV.',
-  prev: 'Zurück auf Fire TV.',
-  home: 'Fire TV Home.',
-  back: 'Zurück auf Fire TV.',
-  ok: 'OK auf Fire TV.',
+  play: 'Play.',
+  pause: 'Pause.',
+  next: 'Weiter.',
+  prev: 'Zurück.',
+  home: 'Home.',
+  back: 'Zurück.',
+  ok: 'OK.',
   up: 'Hoch.',
   down: 'Runter.',
   left: 'Links.',
@@ -246,6 +246,34 @@ async function sendOrExplain(action: TvAction, count = 1): Promise<string> {
     return res.message || 'Taste nicht angekommen. TV an, gekoppelt, gleiches WLAN?'
   }
   return REPLIES[action]
+}
+
+/** Liste auf dem TV: erstes = OK, zweites = einmal runter + OK. Kein Live-Bild. */
+export async function handleTvOrdinal(index: number): Promise<{ handled: boolean; reply?: string }> {
+  if (!recentTv() && loadSettings().last_step_tool !== 'tv') {
+    return { handled: false }
+  }
+  const n = Math.max(0, Math.min(8, Math.floor(index)))
+  const fire = lastVia === 'fire'
+  if (n > 0) {
+    if (fire) {
+      for (let i = 0; i < n; i += 1) {
+        const step = await sendFire('down')
+        if (step.includes('nicht') && i === 0) return { handled: true, reply: step }
+      }
+    } else {
+      const step = await sendOrExplain('down', n)
+      if (step.includes('nicht')) return { handled: true, reply: step }
+    }
+  }
+  const ok = fire ? await sendFire('ok') : await sendOrExplain('ok')
+  markTvTurn(lastVia)
+  if (ok.includes('nicht') || ok.includes('Fire TV: IP')) return { handled: true, reply: ok }
+  const which = n === 0 ? 'erste' : n === 1 ? 'zweite' : `${n + 1}.`
+  return {
+    handled: true,
+    reply: `Das ${which}: Runter/OK. Ich sehe den Schirm nicht — Falsches: „zurück“.`,
+  }
 }
 
 function rememberedVolume(): number | null {
@@ -465,7 +493,11 @@ async function handleTvWatch(intent: TvWatchIntent): Promise<{ handled: boolean;
     const res = await launchSamsungApp(intent.app)
     markTvTurn('tv', intent.app)
     if (!res.ok) return { handled: true, reply: res.message }
-    return { handled: true, reply: `${TV_APP_LABEL[intent.app]} ist offen.` }
+    const hint =
+      intent.app === 'youtube'
+        ? ' Ich sehe den Bildschirm nicht. Anmelden: „OK“. Video: „Spiel … auf YouTube“. Treffer: „das zweite“.'
+        : ' Ich sehe den Bildschirm nicht. „OK“ bestätigt, „das zweite“ wählt den zweiten Eintrag.'
+    return { handled: true, reply: `${TV_APP_LABEL[intent.app]} ist offen.${hint}` }
   }
 
   if (intent.content === 'video' || (intent.app === 'youtube' && intent.content !== 'movie' && intent.content !== 'show')) {
@@ -475,9 +507,9 @@ async function handleTvWatch(intent: TvWatchIntent): Promise<{ handled: boolean;
     markTvTurn('tv', 'youtube')
     if (!res.ok) return { handled: true, reply: res.message }
     if (found && youtubeVideoId(found)) {
-      return { handled: true, reply: `YouTube: ${intent.title}.` }
+      return { handled: true, reply: `YouTube: ${intent.title}. Ich sehe den Schirm nicht. Anmelden: „OK“. Andere Treffer: „das zweite“.` }
     }
-    return { handled: true, reply: `YouTube sucht nach ${intent.title}.` }
+    return { handled: true, reply: `YouTube sucht nach ${intent.title}. Ich sehe den Schirm nicht. „OK“ oder „das zweite“.` }
   }
 
   const hit = await lookupWatch(intent.title, {

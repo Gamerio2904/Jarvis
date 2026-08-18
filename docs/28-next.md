@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.40.0`** (Serie `1.34`–`1.40` in einer Stufe).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.40.1`** (Serie `1.34`–`1.40` plus Patch).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -30,6 +30,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.38.0`** | Gedächtnis & Nachfragen im bestehenden Speicher | **CODE** |
 | **`1.39.0`** | Stimme bleiben: STT, Barge-in, Navi+Jarvis | **CODE** |
 | **`1.40.0`** | Härten: Eval, False-Positives, ehrliche Fehler | **CODE** |
+| **`1.40.1`** | Sätze zu Ende; TV OK/D-Pad/`das zweite`; YouTube mit Titel | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-93.md`](./sprints/sprint-93.md).
 
@@ -211,10 +212,26 @@ Diese Punkte sind Absicht der Reihe, nicht eigene MINORs:
 - **Standort-Permission** ehrlich
 - Wecker/Timer-Regression, Research-Ehrlichkeit, Fan ohne Brücke
 
+## `1.40.1` — Sätze und TV-Tasten — **CODE**
+
+PO: Gemini bricht mitten im Satz ab (`**Entweder Sie`, `Ich halte im **H`). Frage, ob Jarvis den Fernseher sieht (YouTube-Login OK, Suche, „das 2.“ anklicken).
+
+| Hebel | Wirkung |
+|-------|---------|
+| Guards + Persona | Kein Markdown, hängende Sterne weg, Satzende setzen |
+| Gemini | Thinking aus (Budget fraß Tokens), mehr Output, Retry wenn `MAX_TOKENS` ohne Satzende |
+| Samsung-Tasten | `KEY_ENTER` / D-Pad / Home — vorher oft `null`, deshalb tat OK nichts |
+| `OK` nach TV | Taste, nicht Replay von „Öffne YouTube“ |
+| Ordinal | `das zweite` / `das 2.` = n× runter + OK. **Kein Live-Bild.** |
+| YouTube-Titel | `öffne der Handels auf YouTube` sucht, öffnet nicht nur die App |
+| Foto | Kamera: Foto vom Schirm an Gemini. Jarvis sieht den TV nicht live. |
+
+**Probe:** Smalltalk ohne Abbruch. `Öffne YouTube`, `OK`, `suche Handels auf YouTube`, `das zweite`. Foto vom Login-Dialog.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.40.0`. Serie `1.34`–`1.40` ist im Code. Nächste Stufe nur auf PO-Kommando — kein neues Produkt.
+Sideload `1.40.1`. Serie `1.34`–`1.40` plus Patch. Nächste Stufe nur auf PO-Kommando — kein neues Produkt, kein TV-Framebuffer.

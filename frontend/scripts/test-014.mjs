@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
-import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
+import { scrubReply, isHelpCommand, finishReply } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import {
   formatResearchReply,
@@ -412,6 +412,15 @@ assert.equal(
   rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
   'Öffne Netflix',
 )
+assert.equal(
+  rewriteFollowUp('ok', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
+  'Fernseher ok',
+)
+assert.equal(rewriteFollowUp('runter', { last_step_tool: 'tv' }), 'Fernseher runter')
+assert.equal(
+  rewriteFollowUp('ok', { last_step_tool: 'calendar', last_step_utterance: 'Termin morgen Zahnarzt' }),
+  'Termin morgen Zahnarzt',
+)
 assert.equal(rewriteFollowUp('ja', { last_step_tool: 'todo' }), null)
 
 assert.equal(shouldRefreshTitle('Kuchenrezepte suchen bitte'), true)
@@ -566,6 +575,33 @@ if (weeklyBare?.kind === 'create') {
 assert.equal(parseReminderIntent('was kommt diese Woche raus?')?.kind, 'week')
 assert.equal(parseOrdinalFollowUp('das zweite')?.index, 1)
 assert.equal(parseOrdinalFollowUp('lösch das zweite')?.del, true)
+assert.equal(parseOrdinalFollowUp('das 2.')?.index, 1)
+assert.equal(parseOrdinalFollowUp('die zweite')?.index, 1)
+assert.equal(parseOrdinalFollowUp('nummer 2')?.index, 1)
+assert.equal(parseTvIntent('runter', true)?.action, 'down')
+assert.equal(parseTvIntent('ok', true)?.action, 'ok')
+assert.equal(parseTvIntent('bestätigen', true)?.action, 'ok')
+assert.equal(parseTvIntent('hoch', true)?.action, 'up')
+{
+  const handels = parseTvWatch('öffne der Handels auf YouTube')
+  assert.equal(handels?.kind, 'play')
+  if (handels?.kind === 'play') {
+    assert.equal(handels.app, 'youtube')
+    assert.match(handels.title, /Handels/i)
+  }
+}
+{
+  const such = parseTvWatch('suche Handels auf YouTube')
+  assert.equal(such?.kind, 'play')
+  if (such?.kind === 'play') {
+    assert.equal(such.app, 'youtube')
+    assert.match(such.title, /Handels/i)
+  }
+}
+assert.equal(finishReply('Entweder Sie **'), 'Entweder Sie.')
+assert.equal(finishReply('Die Pflicht fragt selten nach Motivation, **'), 'Die Pflicht fragt selten nach Motivation.')
+assert.match(finishReply('Ich halte im **Hintergrund** die'), /Hintergrund/)
+assert.doesNotMatch(finishReply('Ich halte im **H'), /\*\*/)
 assert.equal(parseChatSearch('Wann hatte ich das mit der Steuer?'), 'Steuer')
 
 assert.deepEqual(pullReady('Hallo wie geht').parts, [])

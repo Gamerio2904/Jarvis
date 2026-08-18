@@ -118,6 +118,7 @@ MAJOR.MINOR.PATCH
 | `1.38.0` | Gedächtnis im Dialog (Recall, Widerspruch, Anapher) | Sprint 91 |
 | `1.39.0` | Stimme bleiben (NO_MATCH, Barge-in, Navi vs Jarvis) | Sprint 92 |
 | `1.40.0` | Härten (Eval, False-Positives, keine Fake-Erfolge) | Sprint 93 |
+| `1.40.1` | Sätze zu Ende; TV-Tasten/Ordinal, YouTube-Suche, kein Live-Bild | Sprint 93 Patch |
 
 ### Weitere Beispiele
 

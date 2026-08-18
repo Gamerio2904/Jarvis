@@ -23,7 +23,7 @@ const MODEL_URLS = [
 const FIRST_TOKEN_MS = 45_000
 const INFER_TIMEOUT_MS = 90_000
 const LOAD_TIMEOUT_MS = 180_000
-const MAX_NEW_TOKENS = 64
+const MAX_NEW_TOKENS = 128
 
 let instance: Wllama | null = null
 let loaded = false

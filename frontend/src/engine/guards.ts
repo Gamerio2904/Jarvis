@@ -75,6 +75,19 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
       .replace(/\bdein(e|en|em|er)?\b/gi, 'Ihr')
   }
   if (!out) return 'Kurz ausgesetzt. Nochmal?'
+  return finishReply(out)
+}
+
+/** Abgeschnittenes Markdown und hängende Satzenden schließen — kein halbes „Entweder Sie“. */
+export function finishReply(text: string): string {
+  let out = (text || '').replace(/\r/g, '').trim()
+  out = out.replace(/\*\*/g, '').replace(/__/g, '').replace(/(^|\s)\*+\s*/g, '$1').replace(/\s+\*+$/g, '')
+  out = out.replace(/\s+/g, ' ').trim()
+  if (!out) return out
+  out = out.replace(/[,;:\-–—]+$/g, '').trim()
+  out = out.replace(/\s+[A-Za-zÄÖÜäöüß]{1,2}$/g, '').trim()
+  if (!out) return 'Kurz ausgesetzt. Nochmal?'
+  if (!/[.!?…]$/.test(out) && (out.split(/\s+/).length >= 2 || out.length >= 12)) out = `${out}.`
   return out
 }
 

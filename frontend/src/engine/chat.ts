@@ -50,7 +50,7 @@ import { handleReminders } from './reminders'
 import { handleAlarms } from './alarms'
 import { handleTimers } from './timers'
 import { handleTools, type ToolMeta } from './tools'
-import { handleTv, tvStatusFromSettings } from './tv'
+import { handleTv, handleTvOrdinal, tvStatusFromSettings } from './tv'
 import { handleFan } from './fan'
 import { handleWeather } from './weather'
 import { handlePlaces } from './places'
@@ -151,6 +151,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
 
   const ord = parseOrdinalFollowUp(content)
   if (ord) {
+    const s = loadSettings()
+    if (s.last_step_tool === 'tv') {
+      const tvPick = await handleTvOrdinal(ord.index)
+      if (tvPick.handled && tvPick.reply) {
+        return {
+          reply: tvPick.reply,
+          tool: { tool_status: 'executed', tool: 'tv', action: 'ok', label: 'TV' },
+          lastTool: 'tv',
+        }
+      }
+    }
     const titles = readLastList()
     if (!titles.length) {
       return {
@@ -549,7 +560,7 @@ export async function streamChat(
           },
           {
             search: wantSearch,
-            maxOutputTokens: opts?.voice ? 220 : wantSearch ? 900 : undefined,
+            maxOutputTokens: opts?.voice ? 480 : wantSearch ? 1400 : 1400,
           },
         ).then((r) => {
           if (r.research?.sources?.length) {

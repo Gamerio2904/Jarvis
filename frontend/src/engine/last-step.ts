@@ -15,6 +15,25 @@ const HALT = /^(?:stopp(?:e)?(?:\s+das)?|halt|pause)\s*[.!?]?$/i
 
 const VOL = /^(?:und\s+)?(?:das\s+)?(lauter|leiser)\s*[.!?]?$/i
 
+/** Nach TV: OK/D-Pad, nicht „ok“ als Wiederholung des letzten App-Starts. */
+const TV_PAD =
+  /^(ok|okay|enter|bestätigen|runter|hoch|oben|unten|links|rechts|home|zurück)\s*[.!?]?$/i
+
+const TV_PAD_MAP: Record<string, string> = {
+  ok: 'ok',
+  okay: 'ok',
+  enter: 'ok',
+  bestätigen: 'ok',
+  runter: 'runter',
+  hoch: 'hoch',
+  oben: 'hoch',
+  unten: 'runter',
+  links: 'links',
+  rechts: 'rechts',
+  home: 'home',
+  zurück: 'zurück',
+}
+
 export function isFollowUpPhrase(text: string): boolean {
   const raw = text.trim()
   return FOLLOW_UP.test(raw) || CONFIRM.test(raw) || HALT.test(raw) || VOL.test(raw)
@@ -38,6 +57,12 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     const up = vol[1].toLowerCase() === 'lauter'
     if (tool === 'tv' || medium === 'tv') return up ? 'Fernseher lauter' : 'Fernseher leiser'
     return null
+  }
+
+  const pad = TV_PAD.exec(raw)
+  if (pad && tool === 'tv') {
+    const key = TV_PAD_MAP[pad[1].toLowerCase()]
+    return key ? `Fernseher ${key}` : null
   }
 
   if (HALT.test(raw)) {

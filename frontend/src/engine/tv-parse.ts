@@ -36,7 +36,7 @@ export const FIRE_ANCHOR =
   /\b(?:fire[\s-]*tv|fire[\s-]*stick|amazon[\s-]*fire(?:[\s-]*tv|[\s-]*stick)?|amazon[\s-]*stick)\b/i
 export const TV_FOLLOWUP_MS = 120_000
 export const TV_FOLLOWUP_ONLY =
-  /^\s*(lauter|leiser|stumm|aus|an|hdmi\s*\d|quelle\s*\d|nochmal|noch\s*mal|lautstärke\s*(?:auf\s*)?\d{1,3}|lauter\s+um\s+\d{1,3}|leiser\s+um\s+\d{1,3}|\d{1,3}|pause|play|weiter|zurück|home|ok)\s*[.!?]*$/i
+  /^\s*(lauter|leiser|stumm|aus|an|hdmi\s*\d|quelle\s*\d|nochmal|noch\s*mal|lautstärke\s*(?:auf\s*)?\d{1,3}|lauter\s+um\s+\d{1,3}|leiser\s+um\s+\d{1,3}|\d{1,3}|pause|play|weiter|zurück|home|ok|enter|bestätigen|runter|hoch|oben|unten|links|rechts)\s*[.!?]*$/i
 
 const VOL_WORD = /\b(lautstärke|volume)\b/i
 const RELATIVE = /\b(?:lauter|leiser)\s+um\s+\d{1,3}\b/i
@@ -56,7 +56,7 @@ function fireAction(t: string): TvAction | null {
   if (/\b(vorherige[rs]?|zurückspulen)\b/i.test(t)) return 'prev'
   if (/\b(home|startseite|start)\b/i.test(t)) return 'home'
   if (/\b(zurück|back)\b/i.test(t)) return 'back'
-  if (/\b(ok|enter|auswählen|select)\b/i.test(t)) return 'ok'
+  if (/\b(ok|okay|enter|auswählen|select|bestätigen)\b/i.test(t)) return 'ok'
   if (/\b(hoch|rauf|oben)\b/i.test(t)) return 'up'
   if (/\b(runter|unten)\b/i.test(t)) return 'down'
   if (/\blinks\b/i.test(t)) return 'left'
@@ -74,7 +74,7 @@ const APP_PAT: Array<[TvAppId, RegExp]> = [
 ]
 
 const VERB =
-  /^(?:öffne|starte?|zeig(?:e)?|spiel(?:e)?|schau(?:e)?n?|mach(?:e)?)\s+(?:mal\s+)?(?:bitte\s+)?(?:die\s+|den\s+|das\s+)?/i
+  /^(?:öffne|starte?|zeig(?:e)?|spiel(?:e)?|schau(?:e)?n?|mach(?:e)?|such(?:e)?|find(?:e)?)\s+(?:mal\s+)?(?:bitte\s+)?(?:die\s+|den\s+|das\s+)?/i
 
 export function parseTvApp(text: string): TvAppId | null {
   if (FIRE_ANCHOR.test(text)) return null
@@ -91,8 +91,8 @@ function stripWatchTitle(raw: string): string {
     .replace(/\b(?:filme?|movies?|serien?|folge|apps?|ganzer?|stream(?:en)?|videos?|clips?|shorts?|kanal|channel)\b/gi, ' ')
     .replace(/\s+\bab\s*$/i, '')
     .replace(/\b(?:an|aus|anmachen|ausmachen|starten|öffnen)\s*$/i, '')
-    .replace(/^(?:den|die|das|mal|bitte|ein(?:e[sn]?)?|eines|einer)\s+(?:der\s+|von\s+(?:den\s+)?)?/i, '')
-    .replace(/^(?:den|die|das|mal|bitte)\s+/i, '')
+    .replace(/^(?:den|die|das|der|mal|bitte|ein(?:e[sn]?)?|eines|einer)\s+(?:der\s+|von\s+(?:den\s+)?)?/i, '')
+    .replace(/^(?:den|die|das|der|mal|bitte)\s+/i, '')
     .replace(/[.!?]+$/g, '')
     .replace(/\s+/g, ' ')
     .trim()
@@ -117,10 +117,14 @@ export function parseTvWatch(text: string, ctx?: TvWatchCtx | boolean): TvWatchI
   const playAb = /\bab\s*$/i.test(t)
   const openVerb = /^(?:öffne|starte?|zeig(?:e)?|mach(?:e)?)\b/i.test(t)
   const playVerb = /^(?:spiel(?:e)?|schau(?:e)?n?)\b/i.test(t)
+  const searchVerb = /^(?:such(?:e)?|find(?:e)?)\b/i.test(t)
   const rest = stripWatchTitle(t.replace(VERB, ''))
   const content =
     showCue ? 'show' as const : filmCue ? 'movie' as const : videoCue || app === 'youtube' ? 'video' as const : undefined
 
+  if (app && rest.length >= 2 && (openVerb || playVerb || searchVerb)) {
+    return { kind: 'play', title: rest, app, content: content || (app === 'youtube' ? 'video' : undefined) }
+  }
   if (
     app &&
     (openVerb ||
@@ -129,9 +133,6 @@ export function parseTvWatch(text: string, ctx?: TvWatchCtx | boolean): TvWatchI
       (/\ban\b/i.test(t) && !rest && !/\baus\b/i.test(t)))
   ) {
     return { kind: 'open', app }
-  }
-  if (app && playVerb && rest.length >= 2) {
-    return { kind: 'play', title: rest, app, content }
   }
   if (
     playVerb &&
@@ -179,6 +180,11 @@ export function parseTvIntent(text: string, followUp = false): TvIntent | null {
   if (/\b(lauter|lautstärke\s*(?:hoch|rauf|plus)|\+)\b/i.test(t)) return { action: 'volume_up', steps: 1, via }
   if (/\b(leiser|lautstärke\s*(?:runter|runterdrehen|minus))\b/i.test(t)) {
     return { action: 'volume_down', steps: 1, via }
+  }
+
+  const pad = fireAction(t)
+  if (pad && pad !== 'on' && pad !== 'off' && (followUp || hasAnchor || fire)) {
+    return { action: pad, via: fire ? 'fire' : via }
   }
 
   if (fire) {

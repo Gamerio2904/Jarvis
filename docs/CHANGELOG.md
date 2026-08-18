@@ -5,7 +5,19 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.40.0`**.
+App-Version im Code: **`1.40.1`**.
+
+### `1.40.1` — Sätze zu Ende, TV-Tasten ohne Live-Bild — *CODE*
+
+Gemini schnitt Antworten mitten im Satz ab (`**Entweder Sie`). Jarvis sieht den Fernseher nicht live — Tasten und Ordinal reichen für YouTube-Login/Suche.
+
+- Abgeschnittenes Markdown schließen; Gemini ohne Thinking-Budget, mehr Output-Platz, Retry bei `MAX_TOKENS`
+- Samsung: OK / D-Pad / Home wirklich senden (`KEY_ENTER`, `KEY_DOWN`, …)
+- Nach TV: `OK` ist die Taste, nicht nochmal „Öffne YouTube“. `das 2.` / `das zweite` = runter + OK
+- `öffne der Handels auf YouTube` sucht den Titel, öffnet nicht nur die App
+- Foto-Knopf: Foto des Schirms lesen (Gemini), kein Live-Framebuffer
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14001)
+- [`28-next.md`](./28-next.md)
 
 ### `1.40.0` — Qualität `1.34`–`1.40` — *CODE*
 

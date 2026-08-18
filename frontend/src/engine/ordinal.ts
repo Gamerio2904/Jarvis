@@ -1,26 +1,37 @@
 const ORD: Record<string, number> = {
   erste: 0,
   erstes: 0,
+  ersten: 0,
   '1.': 0,
+  '1': 0,
   zweite: 1,
   zweites: 1,
+  zweiten: 1,
   '2.': 1,
+  '2': 1,
   dritte: 2,
   drittes: 2,
+  dritten: 2,
   '3.': 2,
+  '3': 2,
   vierte: 3,
+  vierten: 3,
   '4.': 3,
+  '4': 3,
 }
 
 export function parseOrdinalFollowUp(text: string): { index: number; del: boolean } | null {
+  const raw = text.trim()
   const m =
-    /^\s*(?:lösch(?:e)?\s+)?das\s+(erste|erstes|zweite|zweites|dritte|drittes|vierte|1\.|2\.|3\.|4\.)\s*$/i.exec(
-      text.trim(),
+    /^\s*(?:lösch(?:e)?\s+)?(?:das|die|der|den)\s+(erste[ns]?|zweite[ns]?|dritte[ns]?|vierte[ns]?|1\.?|2\.?|3\.?|4\.?)(?:\s+(?:davon|da|bitte))?\s*$/i.exec(
+      raw,
     )
-  if (!m) return null
-  const index = ORD[m[1].toLowerCase()]
+  const n = /^\s*(?:nummer|nr\.?)\s*([1-4])\s*$/i.exec(raw)
+  const token = m?.[1] || n?.[1]
+  if (!token) return null
+  const index = ORD[token.toLowerCase()]
   if (index === undefined) return null
-  return { index, del: /^lösch/i.test(text.trim()) }
+  return { index, del: /^lösch/i.test(raw) }
 }
 
 export function rewriteOrdinal(
