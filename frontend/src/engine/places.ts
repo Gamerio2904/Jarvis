@@ -1,3 +1,4 @@
+import { openDialer, openSms } from '../native/device'
 import {
   displayPlaceName,
   extractPhone,
@@ -72,14 +73,42 @@ export async function handlePlaces(
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const s = loadSettings()
 
+  if (s.last_step_tool === 'sms_ask' && s.last_step_title) {
+    const who = s.last_step_title
+    const body = s.last_step_when || ''
+    const num = extractPhone(text)
+    if (num) {
+      await upsertMemory(who, num, 'contact', conversationId)
+      const opened = await openSms(num, body)
+      return {
+        handled: true,
+        reply: opened.ok
+          ? `SMS an ${displayPlaceName(who)} vorbereitet. Senden Sie selbst.`
+          : `Nummer liegt. SMS-App nicht geöffnet. Ich habe nichts versendet.`,
+        tool: {
+          tool_status: 'executed',
+          tool: 'maps',
+          action: 'sms',
+          label: 'SMS',
+          preview: who,
+          result: { sms: `sms:${num}`, name: who, body },
+        },
+        lastTool: 'maps',
+      }
+    }
+  }
+
   if (s.last_step_tool === 'phone_ask' && s.last_step_title) {
     const who = s.last_step_title
     const num = extractPhone(text)
     if (num) {
       await upsertMemory(who, num, 'contact', conversationId)
+      const opened = await openDialer(num)
       return {
         handled: true,
-        reply: `Anruf ${displayPlaceName(who)} — ${num}.`,
+        reply: opened.ok
+          ? `Wählhilfe für ${displayPlaceName(who)} — ${num}. Verbunden erst, wenn Sie abheben.`
+          : `Nummer ${displayPlaceName(who)} — ${num}. Wählhilfe nicht geöffnet.`,
         tool: {
           tool_status: 'executed',
           tool: 'maps',
@@ -173,9 +202,12 @@ export async function handlePlaces(
     const rows = await listMemory()
     const hit = findContactRow(rows, nav.alias) || findContactRow(rows, nav.name)
     if (hit) {
+      const opened = await openDialer(hit.value)
       return {
         handled: true,
-        reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Anruf ${displayPlaceName(hit.key)} — ${hit.value}.`,
+        reply: opened.ok
+          ? `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Wählhilfe ${displayPlaceName(hit.key)} — ${hit.value}. Verbunden erst, wenn Sie abheben.`
+          : `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Nummer ${hit.value}.`,
         tool: {
           tool_status: 'executed',
           tool: 'maps',
@@ -212,6 +244,37 @@ export async function handlePlaces(
     }
   }
 
+  if (nav.kind === 'sms') {
+    const rows = await listMemory()
+    const hit = findContactRow(rows, nav.query)
+    if (!hit) {
+      const who = displayPlaceName(nav.query)
+      saveSettings({ last_step_tool: 'sms_ask', last_step_title: nav.query, last_step_when: nav.body })
+      return {
+        handled: true,
+        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“. Dann öffne ich die SMS — senden Sie selbst.`,
+        tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Nummer fehlt', preview: nav.query },
+        lastTool: 'sms_ask',
+      }
+    }
+    const opened = await openSms(hit.value, nav.body)
+    return {
+      handled: true,
+      reply: opened.ok
+        ? `SMS an ${displayPlaceName(hit.key)} vorbereitet. Senden Sie selbst.`
+        : `SMS nicht geöffnet. Nummer ${hit.value}. Ich habe nichts versendet.`,
+      tool: {
+        tool_status: 'executed',
+        tool: 'maps',
+        action: 'sms',
+        label: 'SMS',
+        preview: hit.key,
+        result: { sms: `sms:${hit.value}`, name: hit.key, body: nav.body },
+      },
+      lastTool: 'maps',
+    }
+  }
+
   if (nav.kind === 'call') {
     const rows = await listMemory()
     const hit = findContactRow(rows, nav.query)
@@ -224,9 +287,12 @@ export async function handlePlaces(
         lastTool: 'phone_ask',
       }
     }
+    const opened = await openDialer(hit.value)
     return {
       handled: true,
-      reply: `Anruf ${displayPlaceName(hit.key)} — ${hit.value}.`,
+      reply: opened.ok
+        ? `Wählhilfe für ${displayPlaceName(hit.key)} — ${hit.value}. Verbunden erst, wenn Sie abheben.`
+        : `Nummer ${displayPlaceName(hit.key)} — ${hit.value}. Wählhilfe nicht geöffnet.`,
       tool: {
         tool_status: 'executed',
         tool: 'maps',

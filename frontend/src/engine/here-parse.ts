@@ -14,7 +14,7 @@ const ACTIVATE_EXPLICIT =
 const ACTIVATE_PRONOUN =
   /^\s*(?:kannst du\s+|können sie\s+)?(?:bitte\s+)?(?:sie|ihn|das|die\s+freigabe|den\s+standort)?\s*(?:bitte\s+)?(?:aktivier(?:e|en)?|freigeben|erlauben)\s*[.!?]*$/i
 
-const LOCATION_TOOLS = new Set(['here', 'here_ask', 'fuel', 'weather', 'leave', 'drive'])
+const LOCATION_TOOLS = new Set(['here', 'here_ask', 'fuel', 'weather', 'leave', 'drive', 'poi'])
 
 export function parseHereIntent(text: string, lastTool = ''): HereIntent | null {
   const t = normalizeUtterance(text.trim())

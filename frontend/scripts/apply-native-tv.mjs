@@ -56,6 +56,11 @@ const geoDest = join(android, 'app/src/main/java/app/jarvis/geo')
 mkdirSync(geoDest, { recursive: true })
 copyFileSync(join(geoSrc, 'JarvisGeoPlugin.java'), join(geoDest, 'JarvisGeoPlugin.java'))
 
+const deviceSrc = join(root, 'native', 'device')
+const deviceDest = join(android, 'app/src/main/java/app/jarvis/device')
+mkdirSync(deviceDest, { recursive: true })
+copyFileSync(join(deviceSrc, 'JarvisDevicePlugin.java'), join(deviceDest, 'JarvisDevicePlugin.java'))
+
 const voiceSrc = join(root, 'native', 'voice')
 const voiceDest = join(android, 'app/src/main/java/app/jarvis/voice')
 mkdirSync(voiceDest, { recursive: true })
@@ -111,6 +116,7 @@ const perms = [
   'android.permission.READ_MEDIA_AUDIO',
   'android.permission.MODIFY_AUDIO_SETTINGS',
   'android.permission.CAMERA',
+  'android.permission.FLASHLIGHT',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -229,6 +235,27 @@ if (!manifest.includes('android.app.shortcuts')) {
             <data android:scheme="jarvis" android:host="voice" />
         </intent-filter>
     </activity>`,
+  )
+}
+if (!manifest.includes('android.hardware.camera.flash')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    `    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />\n</manifest>`,
+  )
+}
+if (!manifest.includes('<queries>')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    `    <queries>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+    </queries>
+</manifest>`,
   )
 }
 writeFileSync(manifestPath, manifest)

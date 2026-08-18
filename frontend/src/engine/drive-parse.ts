@@ -8,6 +8,7 @@ export type DriveIntent =
   | { kind: 'off' }
   | { kind: 'dest'; query: string }
   | { kind: 'tab'; tab: DriveTab }
+  | { kind: 'eta' }
 
 const SKIP_DEST =
   /^(fuß|fuss|spät|her|mittag|dem|den|der|das|mir|dir|uns|euch|jetzt|mal|bitte|los)$/i
@@ -31,6 +32,7 @@ function destOf(raw?: string): string | undefined {
 
 const ON = /^\s*(?:aktivier(?:e)?|start(?:e)?|öffne[n]?|zeig(?:e)?)\s+(?:den\s+)?(?:fahr(?:er)?modus|fahrmodus|carplay)(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?\s*$/i
 const ON2 = /^\s*(?:fahr(?:er)?modus|fahrmodus|carplay)\s+(?:an|aktivieren|starten|öffnen)(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?\s*$/i
+const BARE_ON = /^\s*(?:den\s+)?(?:fahr(?:er)?modus|fahrmodus|carplay)\s*[.!?]*$/i
 const OFF =
   /^\s*(?:deaktivier(?:e)?|beend(?:e)?)\s+(?:den\s+)?(?:fahr(?:er)?modus|fahrmodus|carplay)|(?:fahr(?:er)?modus|fahrmodus|carplay)\s+aus\s*[.!?]*$/i
 const GO =
@@ -43,6 +45,20 @@ const TAB_MAP =
   /^\s*(?:(?:öffne|zeig(?:e)?|mach(?:e)?(?:\s+mal)?|tab)\s+(?:die\s+)?(?:karte|navigation|navi)|(?:karte|navigation|navi)\s+tab)\s*[.!?]*$/i
 const BARE_MUSIC = /^\s*(?:spotify|musik)\s*[.!?]*$/i
 const BARE_MAP = /^\s*(?:karte|navi|navigation)\s*[.!?]*$/i
+const ETA =
+  /^\s*(?:wie\s+weit\s+noch|wie\s+lange\s+noch|wann\s+(?:sind\s+wir|bin\s+ich)\s+da|restweg|ankunft|eta|wie\s+weit\s+ist\s+es\s+noch)\s*[.!?]*$/i
+
+function isOverlay(t: string): boolean {
+  if (!/\boverlay\b/i.test(t)) return false
+  if (/\b(?:aus|zu|schließ|beend)\b/i.test(t)) return false
+  return true
+}
+
+function isEta(t: string): boolean {
+  if (ETA.test(t)) return true
+  if (/\b(?:restweg|ankunftszeit)\b/i.test(t) && !/\b(wecker|timer|termin)\b/i.test(t)) return true
+  return false
+}
 
 export function parseDriveIntent(text: string, inMode = false): DriveIntent | null {
   const t = normalizeUtterance(text.trim())
@@ -52,9 +68,13 @@ export function parseDriveIntent(text: string, inMode = false): DriveIntent | nu
   }
   if (/^nachher\b/i.test(t)) return null
   if (OFF.test(t)) return { kind: 'off' }
-  if (TAB_MUSIC.test(t) || (inMode && BARE_MUSIC.test(t))) return { kind: 'tab', tab: 'spotify' }
+  if (isOverlay(t) || TAB_MUSIC.test(t) || (inMode && BARE_MUSIC.test(t))) {
+    return { kind: 'tab', tab: 'spotify' }
+  }
   if (TAB_MAP.test(t) || (inMode && BARE_MAP.test(t))) return { kind: 'tab', tab: 'map' }
   if (/\bspotify\b/i.test(t) && /^\s*(?:spiel(?:e)?|play)\b/i.test(t)) return { kind: 'tab', tab: 'spotify' }
+  if (isEta(t)) return { kind: 'eta' }
+  if (BARE_ON.test(t)) return { kind: 'on' }
   const on = ON.exec(t) || ON2.exec(t)
   if (on) return { kind: 'on', dest: destOf(on[1]) }
   const go = GO.exec(t)

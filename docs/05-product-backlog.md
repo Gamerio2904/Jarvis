@@ -287,11 +287,18 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S18.1 | Als Fahrer will ich im Chat oder Fahrmodus die nächste und die günstigste Tanke mit E10-Preis sehen und dorthin navigieren. | Must | done | Sprint 94 / `1.41.0` |
 | S18.2 | Als Nutzer will ich wissen, wo ich bin, und die Standortfreigabe anstoßen können — unabhängig von Tanke und für Tanke. | Must | done | Sprint 95 / `1.42.0` |
 
+### E19 — CarPlay Alltag `1.43`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S19.1 | Als Fahrer will ich nacktes „Carplay“ und „öffne das overlay“ ohne Gemini-Lügen. | Must | done | Sprint 96 / `1.43.0` |
+| S19.2 | Als Fahrer will ich Restweg, nächsten POI, Arbeit/Freundin, Akku und Anruf/SMS ehrlich. | Must | done | Sprint 96 / `1.43.0` |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.42.0`
+1. Sideload `1.43.0`
 2. Weitere Arbeit nur auf PO-Kommando — [`28-next.md`](./28-next.md)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 

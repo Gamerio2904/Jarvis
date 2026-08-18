@@ -139,6 +139,18 @@ function ToolChip({
           Anrufen{tool.result.name ? ` · ${String(tool.result.name)}` : ''}
         </a>
       ) : null}
+      {typeof tool.result?.sms === 'string' && tool.result.sms ? (
+        <a
+          className="maps-btn"
+          href={String(tool.result.sms)}
+          onClick={(e) => {
+            e.preventDefault()
+            window.open(String(tool.result?.sms), '_self')
+          }}
+        >
+          SMS{tool.result.name ? ` · ${String(tool.result.name)}` : ''}
+        </a>
+      ) : null}
     </span>
   )
 }

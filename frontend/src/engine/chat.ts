@@ -60,6 +60,8 @@ import { handleHome } from './home'
 import { handleLeave } from './leave'
 import { handleBrief } from './brief'
 import { isBriefAsk } from './brief-parse'
+import { handlePoi, handlePoiOrdinal } from './poi'
+import { handleDevice } from './device'
 import { handleDrive } from './drive'
 import { handleFuel, handleFuelOrdinal } from './fuel'
 import { handleHere } from './here'
@@ -175,6 +177,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         }
       }
     }
+    if (s.last_step_tool === 'poi') {
+      const poiPick = await handlePoiOrdinal(ord.index)
+      if (poiPick.handled && poiPick.reply) {
+        return {
+          reply: poiPick.reply,
+          tool: poiPick.tool,
+          lastTool: 'poi',
+        }
+      }
+    }
     const titles = readLastList()
     if (!titles.length) {
       return {
@@ -233,6 +245,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       }
     }
   }
+  if (hereHit.retry === 'poi') {
+    const retryPoi = await handlePoi(conversationId, loadSettings().last_step_utterance || 'nächste Apotheke')
+    if (retryPoi.handled && retryPoi.reply) {
+      return {
+        reply: retryPoi.reply,
+        tool: retryPoi.tool,
+        lastTool: retryPoi.lastTool || 'poi',
+      }
+    }
+  }
   if (hereHit.handled && hereHit.reply) {
     return {
       reply: hereHit.reply,
@@ -251,12 +273,30 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  const poiHit = await handlePoi(conversationId, content)
+  if (poiHit.handled && poiHit.reply) {
+    return {
+      reply: poiHit.reply,
+      tool: poiHit.tool,
+      lastTool: poiHit.lastTool || 'poi',
+    }
+  }
+
   const driveHit = await handleDrive(conversationId, content)
   if (driveHit.handled && driveHit.reply) {
     return {
       reply: driveHit.reply,
       tool: driveHit.tool,
       lastTool: driveHit.lastTool || 'drive',
+    }
+  }
+
+  const deviceHit = await handleDevice(conversationId, content)
+  if (deviceHit.handled && deviceHit.reply) {
+    return {
+      reply: deviceHit.reply,
+      tool: deviceHit.tool,
+      lastTool: deviceHit.lastTool || 'device',
     }
   }
 
@@ -424,7 +464,7 @@ async function rememberHit(hit: RouteHit, utterance = ''): Promise<void> {
       ? 'tv'
       : hit.tool?.action === 'music' || /spotify/i.test(preview)
         ? 'spotify'
-        : tool === 'drive' || tool === 'fuel'
+        : tool === 'drive' || tool === 'fuel' || tool === 'poi'
           ? 'drive'
           : ''
   if (preview) {

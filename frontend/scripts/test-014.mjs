@@ -47,6 +47,8 @@ import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { parseDeviceIntent } from '../src/engine/device-parse.ts'
+import { parsePoiIntent, poiLabel } from '../src/engine/poi-parse.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
 import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
 import { formatHereReply, parseHereIntent } from '../src/engine/here-parse.ts'
@@ -489,6 +491,14 @@ assert.doesNotMatch(
 )
 assert.equal(parseDriveIntent('Öffnen Carplay')?.kind, 'on')
 assert.equal(parseDriveIntent('Öffne CarPlay')?.kind, 'on')
+assert.equal(parseDriveIntent('Carplay')?.kind, 'on')
+assert.equal(parseDriveIntent('CarPlay')?.kind, 'on')
+assert.equal(parseDriveIntent('Öffne das overlay')?.kind, 'tab')
+assert.equal(parseDriveIntent('Öffne das overlay')?.kind === 'tab' && parseDriveIntent('Öffne das overlay')?.tab, 'spotify')
+assert.equal(parseDriveIntent('Wie weit noch')?.kind, 'eta')
+assert.equal(parseDriveIntent('Restweg')?.kind, 'eta')
+assert.equal(parseDriveIntent('Fahr zur Arbeit')?.kind, 'on')
+assert.equal(parseDriveIntent('Fahr zur Arbeit')?.kind === 'on' && parseDriveIntent('Fahr zur Arbeit')?.dest, 'Arbeit')
 assert.equal(normalizeUtterance('Öffnen Netfliks').includes('Netflix'), true)
 assert.equal(parseFanIntent('Ventilator an')?.action, 'on')
 assert.equal(parseFanIntent('Lüfter aus')?.action, 'off')
@@ -725,6 +735,55 @@ assert.equal(parseHereIntent('wo kann ich tanken'), null)
 assert.equal(formatHereReply('Ingersheim, Kirchstraße'), 'Ingersheim, Kirchstraße.')
 assert.match(PERSONA, /Live-Ortung/)
 assert.match(GEMINI_PERSONA, /Live-Ort/)
+assert.match(GEMINI_PERSONA, /kein Apple CarPlay/)
+assert.match(PERSONA, /nicht Apple CarPlay/)
+
+assert.equal(parsePoiIntent('nächste Apotheke')?.kind, 'pharmacy')
+assert.equal(parsePoiIntent('nächster Bäcker')?.kind, 'bakery')
+assert.equal(parsePoiIntent('nächster Parkplatz')?.kind, 'parking')
+assert.equal(parsePoiIntent('nächster Supermarkt')?.kind, 'supermarket')
+assert.equal(parsePoiIntent('nächster pol')?.kind, 'ask')
+assert.equal(parsePoiIntent('nächster POI')?.kind, 'ask')
+assert.equal(parsePoiIntent('nächste Tanke'), null)
+assert.equal(parsePoiIntent('nächster Song'), null)
+assert.equal(poiLabel('pharmacy'), 'Apotheke')
+
+assert.equal(parseDeviceIntent('Wie voll ist der Akku')?.kind, 'battery')
+assert.equal(parseDeviceIntent('Taschenlampe an')?.kind, 'torch')
+assert.equal(
+  parseDeviceIntent('Taschenlampe aus')?.kind === 'torch' && parseDeviceIntent('Taschenlampe aus')?.on,
+  false,
+)
+assert.equal(parseDeviceIntent('Öffne WLAN')?.kind === 'page' && parseDeviceIntent('Öffne WLAN')?.page, 'wifi')
+assert.equal(
+  parseDeviceIntent('Bluetooth Einstellungen')?.kind === 'page' &&
+    parseDeviceIntent('Bluetooth Einstellungen')?.page,
+  'bluetooth',
+)
+assert.equal(parseDeviceIntent('Nicht stören')?.kind === 'page' && parseDeviceIntent('Nicht stören')?.page, 'dnd')
+assert.equal(parseDeviceIntent('Notiz: WLAN steht am Router'), null)
+assert.equal(parseDeviceIntent('Stoß das System an')?.kind, 'ask')
+
+assert.deepEqual(parsePlaceWrite('Ich arbeite in Stuttgart'), {
+  name: 'arbeit',
+  place: 'Stuttgart',
+})
+assert.equal(parsePlaceNav('Fahr mich zur Arbeit')?.kind, 'navigate')
+if (parsePlaceNav('Fahr mich zur Arbeit')?.kind === 'navigate') {
+  assert.equal(parsePlaceNav('Fahr mich zur Arbeit').query, 'arbeit')
+}
+assert.equal(parsePlaceNav('Ruf mal die Freundin')?.kind, 'call')
+assert.equal(parsePlaceNav('Anruf Mama')?.kind, 'call')
+const sms = parsePlaceNav('Schreib der Freundin ich bin in 10 Minuten')
+assert.equal(sms?.kind, 'sms')
+if (sms?.kind === 'sms') {
+  assert.equal(sms.query, 'freundin')
+  assert.match(sms.body, /10 Minuten/)
+}
+assert.match(
+  scrubReply('Car Play ist verbunden. Musik läuft, Navigation nach Bietigheim-Bissingen steht.'),
+  /intern/,
+)
 
 const tap = createSentenceTap()
 assert.deepEqual(tap.feed('Hallo, der Himmel'), [])

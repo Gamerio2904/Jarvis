@@ -123,6 +123,7 @@ MAJOR.MINOR.PATCH
 | `1.40.3` | Chat/Stimme näher am Film-Jarvis (Understatement) | Sprint 93 Patch |
 | `1.41.0` | Tanke: nächste + günstigste, immer E10, Preise | Sprint 94 |
 | `1.42.0` | Wo bin ich: GPS + Freigabe anstoßen | Sprint 95 |
+| `1.43.0` | CarPlay ehrlich: Overlay, Restweg, POI, Anruf/SMS | Sprint 96 |
 
 ### Weitere Beispiele
 

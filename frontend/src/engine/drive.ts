@@ -184,6 +184,14 @@ function guidanceFor(here: DriveFix): DriveGuidance | null {
   return { ...banner, cue, offRoute: nxt.offRoute }
 }
 
+export function formatRestweg(route: DriveRoute): string {
+  const km = route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`
+  if (route.minutes <= 0 && route.meters <= 0) {
+    return `Ziel ${route.dest} liegt. Restweg fehlt — Standort oder Netz.`
+  }
+  return `Noch etwa ${route.minutes} Min, ${km} bis ${route.dest}.`
+}
+
 function driveTool(action: string, label: string, route?: DriveRoute): ToolMeta {
   return {
     tool_status: 'executed',
@@ -396,7 +404,10 @@ export async function handleDrive(
     emit()
     return {
       handled: true,
-      reply: intent.tab === 'spotify' ? 'Spotify.' : 'Karte.',
+      reply:
+        intent.tab === 'spotify'
+          ? 'Spotify-Overlay. Interner Tab, nicht Apple CarPlay.'
+          : 'Karte.',
       tool: driveTool(intent.tab === 'spotify' ? 'music' : 'open', intent.tab === 'spotify' ? 'Spotify' : 'Karte'),
       lastTool: 'drive',
     }
@@ -412,8 +423,27 @@ export async function handleDrive(
     }
     return {
       handled: true,
-      reply: 'Fahrmodus an. Wohin? Zum Beispiel „zur Freundin“. Musik: „Spiel … auf Spotify“.',
+      reply: 'Fahrmodus an. Intern, nicht Apple CarPlay. Wohin?',
       tool: driveTool('open', 'Fahrmodus'),
+      lastTool: 'drive',
+    }
+  }
+  if (intent?.kind === 'eta') {
+    openDrive()
+    emit()
+    const route = getDriveRoute()
+    if (!route) {
+      return {
+        handled: true,
+        reply: 'Keine Route im Fahrmodus. Wohin?',
+        tool: driveTool('ask', 'Restweg'),
+        lastTool: 'drive',
+      }
+    }
+    return {
+      handled: true,
+      reply: formatRestweg(route),
+      tool: driveTool('eta', 'Restweg', route),
       lastTool: 'drive',
     }
   }

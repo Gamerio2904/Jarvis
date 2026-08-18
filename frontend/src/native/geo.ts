@@ -1,4 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
+import { forgetStoredFix, rememberStoredFix } from '../engine/location-keep'
 import { withTimeout } from './with-timeout'
 
 type NativeGeo = {
@@ -84,6 +85,7 @@ export async function ensureDeviceLocation(opts?: { openSettingsIfDenied?: boole
   const open = Boolean(opts?.openSettingsIfDenied)
   let granted = await hasLocationPermission()
   if (!granted) granted = await requestLocationPermission()
+  if (!granted) forgetStoredFix()
   if (granted) {
     const services = await isLocationEnabled()
     if (!services) {
@@ -99,6 +101,7 @@ export async function ensureDeviceLocation(opts?: { openSettingsIfDenied?: boole
     }
     const loc = await readDeviceLocation()
     if (loc.ok && loc.lat != null && loc.lon != null) {
+      rememberStoredFix(loc.lat, loc.lon)
       return { ok: true, lat: loc.lat, lon: loc.lon, granted: true, openedSettings: false }
     }
     return {
@@ -115,7 +118,7 @@ export async function ensureDeviceLocation(opts?: { openSettingsIfDenied?: boole
       granted: false,
       openedSettings: true,
       message:
-        'App-Einstellungen für Jarvis sind offen. Dort Standort erlauben, zurückkommen, nochmal sagen. Den Schalter lege ich nicht selbst um.',
+        'App-Einstellungen für Jarvis sind offen. Dort Standort erlauben — nur dieses Mal oder bei Nutzung der App, kein Dauerzugriff. Zurückkommen, nochmal sagen.',
     }
   }
   return {
@@ -124,7 +127,7 @@ export async function ensureDeviceLocation(opts?: { openSettingsIfDenied?: boole
     openedSettings: false,
     message:
       Capacitor.isNativePlatform()
-        ? 'Standort ist aus. Sagen Sie „aktivieren“ — dann kommt die Android-Abfrage, notfalls die App-Einstellungen. Ich rate den Ort nicht.'
+        ? 'Standort ist aus. Sagen Sie „aktivieren“. Android fragt, wie lange: nur jetzt oder bei Nutzung. Jarvis merkt den Fix höchstens 10 Minuten. Ich rate nicht.'
         : 'Im Browser keine Systemfreigabe. Auf dem Handy: Standort für Jarvis erlauben.',
   }
 }
@@ -159,7 +162,7 @@ export async function readDeviceLocation(): Promise<{
               : 'Standort nicht gefunden.',
         })
       },
-      { enableHighAccuracy: false, timeout: 12_000, maximumAge: 15 * 60_000 },
+      { enableHighAccuracy: false, timeout: 12_000, maximumAge: 15_000 },
     )
   })
 }
@@ -234,7 +237,7 @@ export function watchDeviceLocation(cb: (fix: GeoWatchFix) => void): () => void 
             : 'Standort nicht gefunden.',
       })
     },
-    { enableHighAccuracy: true, timeout: 8_000, maximumAge: 1_000 },
+      { enableHighAccuracy: true, timeout: 8_000, maximumAge: 5_000 },
   )
   return () => navigator.geolocation.clearWatch(id)
 }

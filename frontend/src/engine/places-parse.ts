@@ -8,12 +8,13 @@ export type PlaceNav =
   | { kind: 'navigate'; query: string; via: 'zu' | 'nach'; mode?: TravelMode }
   | { kind: 'list' }
   | { kind: 'call'; query: string }
+  | { kind: 'sms'; query: string; body: string }
   | { kind: 'phone'; name: string; number: string }
   | { kind: 'alias'; name: string; alias: string }
 
 const HOME = /^(zuhause|zu\s*hause|hause|heim|wohnung)$/i
 const REL =
-  /^(freundin|freund|mama|papa|mutter|vater|oma|opa|zahnarzt|arzt|ärztin|praxis|chef|chefin|schwester|bruder|kollege|kollegin)$/i
+  /^(freundin|freund|mama|papa|mutter|vater|oma|opa|eltern|zahnarzt|arzt|ärztin|praxis|chef|chefin|schwester|bruder|kollege|kollegin|arbeit|arbeitsplatz|büro|buero)$/i
 const PEOPLE_LIST = /^(personen|leute|alle|orte|kontakte)$/i
 const ART = /^(der|die|das|dem|den|des|ein|eine|einem|einen|meine|mein|meiner|meinen|unsere|unser)\s+/i
 
@@ -29,6 +30,8 @@ const WRITE_WOHNT =
   /^\s*(?:merk(?:e)?\s*dir\s*[:-]?\s*)?(.+?)\s+wohnt\s+(?:in|auf|an)\s+(.+?)\s*$/i
 const WRITE_ICH =
   /^\s*ich\s+wohne\s+(?:in|auf|an)\s+(.+?)\s*$/i
+const WRITE_ICH_ARBEITE =
+  /^\s*ich\s+arbeite\s+(?:in|auf|an)\s+(.+?)\s*$/i
 const WRITE_IST =
   /^\s*(?:merk(?:e)?\s*dir\s*[:-]?\s*)?(?:mein(?:e[rn]?)?\s+)?(.+?)\s+(?:ist|liegt)\s+in\s+(.+?)\s*$/i
 const WRITE_DASH =
@@ -39,11 +42,17 @@ export function normalizePlaceName(raw: string): string {
   t = t.replace(ART, '').trim()
   t = t.replace(/^(zu(?:r|m)?|nach)\s+/i, '').trim()
   if (HOME.test(t)) return 'zuhause'
-  return t.toLowerCase()
+  const low = t.toLowerCase()
+  if (/^(arbeitsplatz|büro|buero)$/i.test(low)) return low === 'arbeitsplatz' ? 'arbeit' : 'büro'
+  return low
 }
 
 export function displayPlaceName(key: string): string {
   if (key === 'zuhause') return 'Zuhause'
+  if (key === 'arbeit' || key === 'arbeitsplatz') return 'Arbeit'
+  if (key === 'büro' || key === 'buero') return 'Büro'
+  if (key === 'eltern') return 'Eltern'
+  if (key === 'freundin') return 'Freundin'
   return key.replace(/^\w/, (c) => c.toUpperCase())
 }
 
@@ -87,6 +96,8 @@ export function parsePlaceWrite(text: string): PlaceWrite | null {
   if (!t || t.length > 200) return null
   const ich = WRITE_ICH.exec(t)
   if (ich) return { name: 'zuhause', place: cleanPlace(ich[1]) }
+  const arbeite = WRITE_ICH_ARBEITE.exec(t)
+  if (arbeite) return { name: 'arbeit', place: cleanPlace(arbeite[1]) }
   const wohnt = WRITE_WOHNT.exec(t)
   if (wohnt) {
     const name = normalizePlaceName(wohnt[1])
@@ -126,7 +137,7 @@ export function parsePlaceRecall(text: string): PlaceRecall | null {
 export function parsePlaceNav(text: string): PlaceNav | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 180) return null
-  const extra = parseCallOrPhone(t) || parseAlias(t) || parseTravelNav(t)
+  const extra = parseCallOrPhone(t) || parseSms(t) || parseAlias(t) || parseTravelNav(t)
   if (extra) return extra
   if (LIST.test(t) || (NAV.test(t) && PEOPLE_LIST.test(normalizePlaceName(NAV.exec(t)?.[3] || '')))) {
     return { kind: 'list' }
@@ -152,6 +163,14 @@ const TRANSIT =
   /^\s*(?:mit\s+der\s+bahn|öpnv|mit\s+bus\s+und\s+bahn)\s+(?:zu(?:r|m)?|nach)\s+(.+?)\s*$/i
 const CALL =
   /^\s*(?:(?:kannst\s+du|könnten\s+sie)\s+)?(?:bitte\s+)?(?:ruf(?:e)?\s+(?:die|den|das|meine[nrs]?|mein|unsere[n]?|ihr[en]?)?\s*(.+?)\s+an|(?:den\s+kontakt\s+)?(.+?)\s+anrufen|anrufen\s+(.+))\s*$/i
+const CALL_BARE =
+  /^\s*(?:anruf(?:e)?|anrufen)\s+(?:mal\s+)?(?:die|den|das|meine[nrs]?|mein|unsere[n]?)?\s*(.+?)\s*$/i
+const CALL_MAL =
+  /^\s*ruf(?:e)?\s+mal\s+(?:die|den|das|meine[nrs]?)?\s*(.+?)(?:\s+an)?\s*$/i
+const CALL_TEL =
+  /^\s*telefon(?:at|ier(?:e)?)?\s+(?:mit\s+)?(?:der|dem|die|den|das|meine[nrs]?)?\s*(.+?)\s*$/i
+const SMS =
+  /^\s*(?:schreib(?:e)?(?:\s+mal)?|(?:sende?\s+)?(?:eine?\s+)?(?:sms|kurze?\s*nachricht|nachricht))\s+(?:der|dem|an\s+(?:die|den|das)?\s*)?(.+)$/i
 const PHONE =
   /^\s*(?:(?:nummer\s+von|tel(?:efon)?\s+von)\s+(.+?)\s*[:-]\s*(.+)|(.+?)\s*[,:]\s*tel(?:efon)?\s+(.+))\s*$/i
 const PHONE_NAME =
@@ -214,8 +233,46 @@ export function parseAlias(text: string): PlaceNav | null {
   return { kind: 'alias', name, alias }
 }
 
+export function parseSms(text: string): PlaceNav | null {
+  const t = text.trim()
+  const m = SMS.exec(t)
+  if (!m) return null
+  const rest = (m[1] || '').trim()
+  if (!rest) return null
+  const rel = rest.match(
+    /^(freundin|freund|mama|papa|mutter|vater|oma|opa|eltern|chef|chefin|schwester|bruder|kollege|kollegin|arbeit)\s+(?:dass\s+)?(.+)$/i,
+  )
+  if (rel) {
+    const query = normalizePlaceName(rel[1])
+    const body = rel[2].trim()
+    if (query && body.length >= 2) return { kind: 'sms', query, body }
+  }
+  const named = rest.match(/^([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,24})\s+(?:dass\s+)?(.+)$/)
+  if (named) {
+    const query = normalizePlaceName(named[1])
+    const body = named[2].trim()
+    if (query && isNameLike(query) && body.length >= 2) return { kind: 'sms', query, body }
+  }
+  return null
+}
+
 export function parseCallOrPhone(text: string): PlaceNav | null {
   const t = text.trim()
+  const mal = CALL_MAL.exec(t)
+  if (mal) {
+    const query = normalizePlaceName(mal[1] || '')
+    if (query) return { kind: 'call', query }
+  }
+  const bare = CALL_BARE.exec(t)
+  if (bare) {
+    const query = normalizePlaceName(bare[1] || '')
+    if (query) return { kind: 'call', query }
+  }
+  const tel = CALL_TEL.exec(t)
+  if (tel) {
+    const query = normalizePlaceName(tel[1] || '')
+    if (query) return { kind: 'call', query }
+  }
   const call = CALL.exec(t)
   if (call) {
     const query = normalizePlaceName(call[1] || call[2] || call[3] || '')

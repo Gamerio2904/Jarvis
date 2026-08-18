@@ -32,8 +32,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 25 | [Stimme & Ton](./25-next.md) | **`1.31` CODE** — TTS, Smalltalk, Jarvis-Formulierung |
 | 26 | [Samsung-Apps](./26-next.md) | **`1.32` CODE** — YouTube/Amazon/Disney/Netflix, Film-Lookup |
 | 27 | [Sprachmodus Tempo](./27-next.md) | **`1.32.1` CODE** — sofort sprechen, keine Stille |
-| 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`1.42` CODE** — Suche bis Live-Ort |
-| — | [APK](./apk.md) | Sideload `1.42.0` |
+| 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`1.43` CODE** — Suche bis CarPlay-Alltag |
+| — | [APK](./apk.md) | Sideload `1.43.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -88,5 +88,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 87–93 | `1.34`–`1.40` | **CODE** (Qualität — [`28-next.md`](./28-next.md)) |
 | 94 | `1.41.0` | **CODE** (Tanke E10) |
 | 95 | `1.42.0` | **CODE** (Live-Ort) |
+| 96 | `1.43.0` | **CODE** (CarPlay ehrlich + Alltag am Steuer) |
 
-**Aktuell:** Sideload `1.42.0` — [`Jarvis.apk`](./apk.md). Live-Ort + Tanke E10 — [`28-next.md`](./28-next.md).
+**Aktuell:** Sideload `1.43.0` — [`Jarvis.apk`](./apk.md). Overlay, Restweg, POI, Anruf/SMS — [`28-next.md`](./28-next.md).

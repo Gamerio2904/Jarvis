@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.42.0`**.
+App-Version im Code: **`1.43.0`**.
+
+### `1.43.0` — CarPlay ehrlich + Alltag am Steuer — *CODE*
+
+Nacktes `Carplay` fällt nicht mehr an Gemini (kein erfundenes Apple-CarPlay, keine erfundene Navigation/Musik). `Öffne das overlay` wechselt den Spotify-Tab. Restweg aus der echten Route. Nächster POI (Apotheke, Bäcker, Parkplatz, Supermarkt) über die Karte. Arbeit/Freundin/Zuhause. Akku/Verbindung. Taschenlampe. WLAN/Bluetooth/Nicht stören nur als Android-Seite. Anruf öffnet die Wählhilfe, SMS den Entwurf — nichts wird behauptet als erledigt.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14300)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-96.md`](./sprints/sprint-96.md)
 
 ### `1.42.0` — Wo bin ich, Standort anstoßen — *CODE*
 

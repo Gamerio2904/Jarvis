@@ -1,6 +1,6 @@
 /**
  * Routes every TEST_PROMPT the same way chat.ts does (no LLM, no phone).
- * Order: help → ordinal → tv → fan → here → fuel → drive → maps → ...
+ * Order: help → ordinal → tv → fan → here → fuel → poi → drive → device → maps → ...
  */
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
@@ -15,14 +15,16 @@ import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
 import { isLiveLookup } from '../src/engine/research-parse.ts'
+import { parseDeviceIntent } from '../src/engine/device-parse.ts'
+import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { parseFuelIntent } from '../src/engine/fuel-parse.ts'
+import { parseHereIntent } from '../src/engine/here-parse.ts'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from '../src/engine/places-parse.ts'
+import { parsePoiIntent } from '../src/engine/poi-parse.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
 import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
-import { parseDriveIntent } from '../src/engine/drive-parse.ts'
-import { parseFuelIntent } from '../src/engine/fuel-parse.ts'
-import { parseHereIntent } from '../src/engine/here-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
@@ -31,7 +33,7 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'ordinal'|'tv'|'fan'|'here'|'fuel'|'drive'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'ordinal'|'tv'|'fan'|'here'|'fuel'|'poi'|'drive'|'device'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -42,7 +44,9 @@ function route(text, ctx = {}) {
   if (parseFanIntent(text)) return 'fan'
   if (parseHereIntent(text)) return 'here'
   if (parseFuelIntent(text)) return 'fuel'
+  if (parsePoiIntent(text)) return 'poi'
   if (parseDriveIntent(text)) return 'drive'
+  if (parseDeviceIntent(text)) return 'device'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
   if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
   if (parseShopIntent(text)) return 'shopping'
@@ -138,6 +142,16 @@ const EXPECT = {
   'Netflix an': 'tv',
   'Fahr mich zu einer Tanke': 'fuel',
   'Wo bin ich gerade?': 'here',
+  Carplay: 'drive',
+  'Öffne das overlay': 'drive',
+  'Wie weit noch': 'drive',
+  'nächste Apotheke': 'poi',
+  'nächster pol': 'poi',
+  'Fahr zur Arbeit': 'drive',
+  'Ich arbeite in Stuttgart': 'maps',
+  'Wie voll ist der Akku': 'device',
+  'Ruf mal die Freundin': 'maps',
+  'Schreib der Freundin ich bin in 10 Minuten': 'maps',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

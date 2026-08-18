@@ -1,0 +1,147 @@
+import { Capacitor, registerPlugin } from '@capacitor/core'
+import { withTimeout } from './with-timeout'
+
+type NativeDevice = {
+  battery(): Promise<{ ok: boolean; percent?: number; charging?: boolean; message?: string }>
+  network(): Promise<{
+    ok: boolean
+    online?: boolean
+    wifi?: boolean
+    cellular?: boolean
+    message?: string
+  }>
+  torch(opts: { on: boolean }): Promise<{ ok: boolean; on?: boolean; message?: string }>
+  openPage(opts: { page: string }): Promise<{ ok: boolean; message?: string }>
+  dial(opts: { number: string }): Promise<{ ok: boolean; message?: string }>
+  sms(opts: { number: string; body?: string }): Promise<{ ok: boolean; message?: string }>
+}
+
+const native = Capacitor.isNativePlatform() ? registerPlugin<NativeDevice>('JarvisDevice') : null
+
+export async function readBattery(): Promise<{
+  ok: boolean
+  percent?: number
+  charging?: boolean
+  message?: string
+}> {
+  if (native) {
+    try {
+      return await withTimeout(native.battery(), 4_000, {
+        ok: false,
+        message: 'Akku-Stand nicht lesbar.',
+      })
+    } catch {
+      return { ok: false, message: 'Akku-Stand nicht lesbar.' }
+    }
+  }
+  try {
+    const nav = navigator as Navigator & {
+      getBattery?: () => Promise<{ level: number; charging: boolean }>
+    }
+    if (!nav.getBattery) return { ok: false, message: 'Akku nur auf dem Handy.' }
+    const b = await withTimeout(nav.getBattery(), 3_000, null)
+    if (!b) return { ok: false, message: 'Akku-Stand nicht lesbar.' }
+    return { ok: true, percent: Math.round(b.level * 100), charging: Boolean(b.charging) }
+  } catch {
+    return { ok: false, message: 'Akku-Stand nicht lesbar.' }
+  }
+}
+
+export async function readNetwork(): Promise<{
+  ok: boolean
+  online?: boolean
+  wifi?: boolean
+  cellular?: boolean
+  message?: string
+}> {
+  if (native) {
+    try {
+      return await withTimeout(native.network(), 4_000, {
+        ok: false,
+        message: 'Verbindung nicht lesbar.',
+      })
+    } catch {
+      return { ok: false, message: 'Verbindung nicht lesbar.' }
+    }
+  }
+  return {
+    ok: true,
+    online: navigator.onLine,
+    wifi: false,
+    cellular: false,
+  }
+}
+
+export async function setTorch(on: boolean): Promise<{ ok: boolean; message?: string }> {
+  if (native) {
+    try {
+      return await withTimeout(native.torch({ on }), 12_000, {
+        ok: false,
+        message: 'Taschenlampe nicht geschaltet.',
+      })
+    } catch {
+      return { ok: false, message: 'Taschenlampe nicht geschaltet.' }
+    }
+  }
+  return { ok: false, message: 'Taschenlampe nur auf dem Handy.' }
+}
+
+export async function openDevicePage(
+  page: 'wifi' | 'bluetooth' | 'dnd' | 'app',
+): Promise<{ ok: boolean; message?: string }> {
+  if (native) {
+    try {
+      return await withTimeout(native.openPage({ page }), 8_000, {
+        ok: false,
+        message: 'Einstellungen nicht geöffnet.',
+      })
+    } catch {
+      return { ok: false, message: 'Einstellungen nicht geöffnet.' }
+    }
+  }
+  return { ok: false, message: 'Einstellungen nur auf dem Handy.' }
+}
+
+export async function openDialer(number: string): Promise<{ ok: boolean; message?: string }> {
+  const n = number.replace(/[^\d+]/g, '')
+  if (native) {
+    try {
+      return await withTimeout(native.dial({ number: n }), 8_000, {
+        ok: false,
+        message: 'Wählhilfe nicht geöffnet.',
+      })
+    } catch {
+      return { ok: false, message: 'Wählhilfe nicht geöffnet.' }
+    }
+  }
+  try {
+    window.open(`tel:${n}`, '_self')
+    return { ok: true }
+  } catch {
+    return { ok: false, message: 'Wählhilfe nicht geöffnet.' }
+  }
+}
+
+export async function openSms(
+  number: string,
+  body = '',
+): Promise<{ ok: boolean; message?: string }> {
+  const n = number.replace(/[^\d+]/g, '')
+  if (native) {
+    try {
+      return await withTimeout(native.sms({ number: n, body }), 8_000, {
+        ok: false,
+        message: 'SMS-App nicht geöffnet.',
+      })
+    } catch {
+      return { ok: false, message: 'SMS-App nicht geöffnet.' }
+    }
+  }
+  try {
+    const q = body ? `?body=${encodeURIComponent(body)}` : ''
+    window.open(`sms:${n}${q}`, '_self')
+    return { ok: true }
+  } catch {
+    return { ok: false, message: 'SMS-App nicht geöffnet.' }
+  }
+}

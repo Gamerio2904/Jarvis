@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.42.0`** (Tanke E10 plus Live-Ort).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.43.0`** (CarPlay ehrlich, Restweg, POI, Anruf/SMS).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -35,8 +35,9 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.40.3`** | Chat/Stimme: Film-Jarvis-Ton (Understatement) | **CODE** |
 | **`1.41.0`** | Tanke: nächste + günstigste, immer E10, Preise | **CODE** |
 | **`1.42.0`** | Wo bin ich: GPS, Freigabe anstoßen | **CODE** |
+| **`1.43.0`** | CarPlay ehrlich + Alltag am Steuer | **CODE** |
 
-Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-95.md`](./sprints/sprint-95.md).
+Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-96.md`](./sprints/sprint-96.md).
 
 ---
 
@@ -287,10 +288,26 @@ PO-Screenshot: `Wo bin ich gerade?` → Gemini rät den Arbeitsweg. `Kannst du s
 
 **Probe:** Standort aus → `Wo bin ich gerade?` → `aktivieren` → Ort. Dann Tanke.
 
+## `1.43.0` — CarPlay ehrlich + Alltag am Steuer — **CODE**
+
+PO-Screenshot: `Carplay` → Gemini erfindet Apple-Verbindung, Musik und Ziel. `Öffne das overlay` → Ablehnung statt Spotify-Tab.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Nacktes `Carplay` / Overlay | Parser vor LLM; Overlay wechselt den Tab, nie „läuft schon“ |
+| Restweg | Aus der echten Route sprechen, sonst nachfragen |
+| Nächster POI | Apotheke, Bäcker, Parkplatz, Supermarkt über OSM; keine Öffnungszeiten erfinden |
+| Arbeit / Freundin / Zuhause | `Ich arbeite in …`; unbekannter Ort wird erfragt, nicht geraten |
+| System anstoßen | Taschenlampe ja; WLAN/Bluetooth/Nicht stören nur Android-Seite |
+| Akku / Verbindung | Gelesene Werte, kein 5G-Raten |
+| Anruf / SMS | Wählhilfe bzw. Entwurf; nie „verbunden“ / „gesendet“ |
+
+**Probe:** `Carplay`, `Öffne das overlay`, `Wie weit noch`, `nächste Apotheke`, `Fahr zur Arbeit`, `Wie voll ist der Akku`, `Ruf mal die Freundin`, `Schreib der Freundin ich bin in 10 Minuten`.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.42.0`. `Wo bin ich gerade?` plus Tanke E10. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.43.0`. Fahrmodus intern, Overlay, Restweg, POI, Anruf/SMS. Nächste Stufe nur auf PO-Kommando.
