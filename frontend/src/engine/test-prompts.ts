@@ -91,4 +91,7 @@ export const TEST_PROMPTS = [
   'nächster Laden',
   'Bro anrufen',
   'Nachricht an Bro ich bin da',
+  'FIFA starten',
+  'Was siehst du auf dem PC',
+  'Züge anklicken',
 ] as const

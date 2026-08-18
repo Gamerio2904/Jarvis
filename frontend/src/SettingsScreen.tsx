@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
-import { fanDiscover, fanLearn, fanPick, fanTest } from './api'
+import { fanDiscover, fanLearn, fanPick, fanTest, testPc } from './api'
 import { ensureDeviceLocation } from './native/geo'
 import {
   spotifyLoggedIn,
@@ -17,6 +17,7 @@ export type SettingsTopic =
   | 'wecker'
   | 'ort'
   | 'tv'
+  | 'pc'
   | 'haus'
   | 'musik'
   | 'ton'
@@ -32,6 +33,7 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'wecker', label: 'Wecker', hint: 'Timer' },
   { id: 'ort', label: 'Ort', hint: 'Wetter' },
   { id: 'tv', label: 'Fernseher', hint: 'Tizen + Fire' },
+  { id: 'pc', label: 'PC', hint: 'Bildschirm' },
   { id: 'haus', label: 'Haus', hint: 'Ventilator' },
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
@@ -121,6 +123,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [fireHost, setFireHost] = useState(s?.tv_fire_host || '')
   const [firePort, setFirePort] = useState(String(s?.tv_fire_port || 5555))
   const [fanHost, setFanHost] = useState(s?.fan_host || '')
+  const [pcHost, setPcHost] = useState(s?.pc_host || '')
+  const [pcPort, setPcPort] = useState(String(s?.pc_port || 18790))
+  const [pcToken, setPcToken] = useState(s?.pc_token || '')
+  const [pcBusy, setPcBusy] = useState(false)
+  const [pcMsg, setPcMsg] = useState<string | null>(null)
+  const [pcMsgOk, setPcMsgOk] = useState<boolean | null>(null)
   const [fanBusy, setFanBusy] = useState(false)
   const [fanMsg, setFanMsg] = useState<string | null>(null)
   const [fanMsgOk, setFanMsgOk] = useState<boolean | null>(null)
@@ -139,6 +147,16 @@ export function SettingsScreen(p: SettingsScreenProps) {
   useEffect(() => {
     setFanHost(s?.fan_host || '')
   }, [s?.fan_host])
+
+  useEffect(() => {
+    setPcHost(s?.pc_host || '')
+  }, [s?.pc_host])
+  useEffect(() => {
+    setPcPort(String(s?.pc_port || 18790))
+  }, [s?.pc_port])
+  useEffect(() => {
+    setPcToken(s?.pc_token || '')
+  }, [s?.pc_token])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -685,6 +703,100 @@ export function SettingsScreen(p: SettingsScreenProps) {
               ) : null}
             </section>
             </>
+          ) : null}
+
+          {p.topic === 'pc' ? (
+            <section className="settings-card">
+              <h3>PC im WLAN</h3>
+              <p className="settings-lead">
+                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> starten. Jarvis sieht den echten Bildschirm,
+                bewegt die Maus, startet FIFA, bearbeitet Ordner — nur wenn die App läuft.
+              </p>
+              <p className="settings-hint">
+                Gleiches WLAN. IP und Token stehen im PC-Fenster. Ohne App: nichts behaupten. Löschen nur nach Ja.
+              </p>
+              <label className="settings-toggle">
+                <span>PC-Steuerung an</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.pc_enabled)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ pc_enabled: e.target.checked })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>PC-IP</span>
+                <input
+                  value={pcHost}
+                  disabled={busy || pcBusy}
+                  placeholder="192.168.1.20"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  onChange={(e) => setPcHost(e.target.value)}
+                  onBlur={() => {
+                    const v = pcHost.trim()
+                    setPcHost(v)
+                    void p.patchSetting({ pc_host: v })
+                  }}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Port</span>
+                <input
+                  value={pcPort}
+                  disabled={busy || pcBusy}
+                  inputMode="numeric"
+                  onChange={(e) => setPcPort(e.target.value)}
+                  onBlur={() => {
+                    const n = Number.parseInt(pcPort, 10)
+                    const port = Number.isFinite(n) && n > 0 ? n : 18790
+                    setPcPort(String(port))
+                    void p.patchSetting({ pc_port: port })
+                  }}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Token</span>
+                <input
+                  value={pcToken}
+                  disabled={busy || pcBusy}
+                  placeholder="aus dem PC-Fenster"
+                  autoComplete="off"
+                  onChange={(e) => setPcToken(e.target.value)}
+                  onBlur={() => {
+                    const v = pcToken.trim()
+                    setPcToken(v)
+                    void p.patchSetting({ pc_token: v })
+                  }}
+                />
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || pcBusy}
+                  onClick={() => {
+                    setPcBusy(true)
+                    setPcMsg('Prüfe PC…')
+                    void p.patchSetting({
+                      pc_host: pcHost.trim(),
+                      pc_token: pcToken.trim(),
+                      pc_port: Number.parseInt(pcPort, 10) || 18790,
+                      pc_enabled: true,
+                    }).then(() =>
+                      testPc().then((r) => {
+                        setPcMsgOk(r.ok)
+                        setPcMsg(r.reply)
+                        setPcBusy(false)
+                      }),
+                    )
+                  }}
+                >
+                  {pcBusy ? 'Prüfe…' : 'PC testen'}
+                </button>
+              </div>
+              {pcMsg ? <p className={`tv-test-msg${pcMsgOk === false ? ' warn' : ''}`}>{pcMsg}</p> : null}
+            </section>
           ) : null}
 
           {p.topic === 'haus' ? (

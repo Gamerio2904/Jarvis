@@ -151,6 +151,9 @@ function ToolChip({
           SMS{tool.result.name ? ` · ${String(tool.result.name)}` : ''}
         </a>
       ) : null}
+      {typeof tool.result?.image === 'string' && String(tool.result.image).startsWith('data:image/') ? (
+        <img className="pc-shot" alt="PC-Bildschirm" src={String(tool.result.image)} />
+      ) : null}
     </span>
   )
 }

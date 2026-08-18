@@ -64,6 +64,7 @@ import { handleBrief } from './brief'
 import { isBriefAsk } from './brief-parse'
 import { handlePoi, handlePoiOrdinal } from './poi'
 import { handleDevice } from './device'
+import { handlePc } from './pc'
 import { handleDrive } from './drive'
 import { handleFuel, handleFuelOrdinal } from './fuel'
 import { handleHere } from './here'
@@ -162,6 +163,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         reply: pendingHit.reply,
         tool: pendingHit.tool,
         lastTool: pendingHit.lastTool || 'maps',
+      }
+    }
+  }
+
+  if (loadSettings().last_pc_json) {
+    const pcPending = await handlePc(conversationId, content)
+    if (pcPending.handled && pcPending.reply) {
+      return {
+        reply: pcPending.reply,
+        tool: pcPending.tool,
+        lastTool: pcPending.lastTool || 'pc',
       }
     }
   }
@@ -330,6 +342,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: deviceHit.reply,
       tool: deviceHit.tool,
       lastTool: deviceHit.lastTool || 'device',
+    }
+  }
+
+  const pcHit = await handlePc(conversationId, content)
+  if (pcHit.handled && pcHit.reply) {
+    return {
+      reply: pcHit.reply,
+      tool: pcHit.tool,
+      lastTool: pcHit.lastTool || 'pc',
     }
   }
 

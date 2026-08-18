@@ -127,6 +127,7 @@ MAJOR.MINOR.PATCH
 | `1.44.0` | Filme: IMDb/RT über OMDb, wo gratis; Rabatt-Suche | Sprint 97 |
 | `1.45.0` | Öffnungszeiten für Läden aus OSM | Sprint 98 |
 | `1.46.0` | Anruf/SMS direkt, erst nach Nachfrage | Sprint 99 |
+| `1.47.0` | PC live: Bildschirm, Maus, FIFA, Ordner | Sprint 100 |
 
 ### Weitere Beispiele
 

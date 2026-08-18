@@ -1,4 +1,5 @@
 import { parseDeviceIntent } from './device-parse.ts'
+import { parsePcIntent } from './pc-parse.ts'
 import { parseDriveIntent } from './drive-parse.ts'
 import { parseFilmIntent } from './film-parse.ts'
 import { parseFuelIntent } from './fuel-parse.ts'
@@ -21,6 +22,7 @@ function commandScore(text: string): number {
   if (parsePoiIntent(t)) n += 6
   if (parseDriveIntent(t, false)) n += 5
   if (parseDeviceIntent(t)) n += 5
+  if (parsePcIntent(t)) n += 6
   if (parsePlaceNav(t)) n += 3
   return n + Math.min(t.length, 48) / 48
 }

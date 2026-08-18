@@ -52,6 +52,7 @@ import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
+import { parsePcIntent } from '../src/engine/pc-parse.ts'
 import { parsePoiIntent, poiLabel } from '../src/engine/poi-parse.ts'
 import { formatHoursSpeech, hoursOpenNow, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
@@ -850,6 +851,24 @@ assert.equal(isCommYes('senden', 'sms'), true)
 assert.equal(isCommYes('senden', 'call'), false)
 assert.equal(isCommNo('nein'), true)
 assert.equal(rewriteFollowUp('ja', { last_step_tool: 'call_confirm', last_step_utterance: 'Bro anrufen' }), null)
+assert.equal(rewriteFollowUp('ja', { last_step_tool: 'pc_confirm', last_step_utterance: 'Lösche den Ordner Test' }), null)
+assert.equal(parsePcIntent('FIFA starten')?.kind, 'launch')
+if (parsePcIntent('FIFA starten')?.kind === 'launch') {
+  assert.equal(parsePcIntent('FIFA starten').query, 'fifa')
+}
+assert.equal(parsePcIntent('Was siehst du auf dem PC')?.kind, 'screen')
+assert.equal(parsePcIntent('klick Mitte')?.kind, 'click')
+assert.equal(parsePcIntent('Züge anklicken')?.kind, 'click')
+if (parsePcIntent('Züge anklicken')?.kind === 'click') {
+  assert.ok(parsePcIntent('Züge anklicken').target)
+}
+assert.equal(parsePcIntent('Maus nach rechts')?.kind, 'move')
+assert.equal(parsePcIntent('Zeig Ordner Downloads')?.kind, 'files')
+assert.equal(parsePcIntent('Lösche den Ordner Test auf dem Desktop')?.kind, 'files')
+assert.equal(parsePcIntent('PC testen')?.kind, 'status')
+assert.equal(parsePcIntent('Öffne Netflix'), null)
+assert.equal(parsePcIntent('Bro anrufen'), null)
+assert.match(GEMINI_PERSONA, /PC/)
 assert.match(GEMINI_PERSONA, /nach Nachfrage/)
 assert.match(
   scrubReply('Car Play ist verbunden. Musik läuft, Navigation nach Bietigheim-Bissingen steht.'),

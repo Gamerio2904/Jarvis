@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.46.0`**.
+App-Version im Code: **`1.47.0`**.
+
+### `1.47.0` — PC live (Bildschirm, Maus, FIFA, Ordner) — *CODE*
+
+Windows-App `desktop/JarvisPC.bat`. Jarvis sieht den echten Screenshot, bewegt die Maus, startet FIFA wenn gefunden, bearbeitet Ordner im Benutzerprofil. Löschen nach Ja. Ohne laufende App kein Fake-Erfolg.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14700)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-100.md`](./sprints/sprint-100.md) · [`../desktop/README.md`](../desktop/README.md)
 
 ### `1.46.0` — Direkt anrufen und SMS, mit Nachfrage — *CODE*
 

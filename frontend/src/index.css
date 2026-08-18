@@ -1163,6 +1163,15 @@ textarea {
   text-decoration: none;
 }
 
+.pc-shot {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 10px;
+  margin-top: 8px;
+  background: #111;
+}
+
 .confirm-row {
   display: inline-flex;
   gap: 6px;

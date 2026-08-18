@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.46.0`** (Anruf/SMS mit Nachfrage).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.47.0`** (PC live: Bildschirm, Maus, FIFA, Ordner).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -39,8 +39,9 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.44.0`** | Filme IMDb/RT + wo gratis; Rabatt-Suche | **CODE** |
 | **`1.45.0`** | Öffnungszeiten für Läden (OSM) | **CODE** |
 | **`1.46.0`** | Anruf und SMS direkt, mit Nachfrage | **CODE** |
+| **`1.47.0`** | PC live: Bildschirm, Maus, FIFA, Ordner | **CODE** |
 
-Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-99.md`](./sprints/sprint-99.md).
+Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-100.md`](./sprints/sprint-100.md).
 
 ---
 
@@ -349,10 +350,25 @@ PO: Bro direkt anrufen, Nachricht senden, aber nachfragen.
 
 **Probe:** `Bro, Tel …`, `Bro anrufen`, `Nachricht an Bro ich bin da`, `Nein`.
 
+## `1.47.0` — PC live — **CODE**
+
+PO: Desktop-Anwendung, mit der Jarvis live am PC ist — FIFA starten, Bildschirm sehen, Maus, Züge klicken, Ordner.
+
+| Hebel | Wirkung |
+|-------|---------|
+| `desktop/JarvisPC.bat` | Windows-Fenster, LAN-Token, echter Screenshot |
+| `FIFA starten` | Startmenü/EA/Steam suchen — sonst ehrlich „nicht gefunden“ |
+| Bildschirm | JPEG vom PC, unten im Chat. Vorlesen nur mit Gemini |
+| Maus / Klick | Mitte, Richtung, oder Element per Gemini-Koordinaten |
+| Ordner | List/anlegen/öffnen unter Benutzerordner. Löschen nach Ja |
+| Ohne App | Kein Fake-Erfolg |
+
+**Probe:** Bat starten, Einstellungen → PC, `PC testen`, `FIFA starten`, `Was siehst du auf dem PC`, `klick Mitte`.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.46.0`. Anruf/SMS erst nach Ja. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.47.0`. PC-App auf Windows, dann FIFA/Bildschirm. Nächste Stufe nur auf PO-Kommando.

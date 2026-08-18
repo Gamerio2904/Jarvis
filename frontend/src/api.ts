@@ -38,6 +38,7 @@ import {
   pickFan,
   testFan,
 } from './engine/fan'
+import { testPc as engineTestPc } from './engine/pc'
 import type { ResearchMeta, ResearchSource } from './engine/research-parse'
 
 export type { Conversation, MemoryCategory, MemoryItem, Message, Reminder, StreamHandlers, ResearchMeta, ResearchSource }
@@ -273,6 +274,13 @@ export async function fanLearn(slot: 'on' | 'off' | 'speed1' | 'speed2' | 'speed
 
 export async function fanPick(item: { host?: string; mac?: string; name?: string }): Promise<string> {
   return pickFan(item)
+}
+
+export async function testPc(opts?: { host?: string; token?: string; port?: number }): Promise<{
+  ok: boolean
+  reply: string
+}> {
+  return engineTestPc(opts)
 }
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {

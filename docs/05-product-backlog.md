@@ -313,11 +313,17 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 |----|-------|--------|--------|------------------|
 | S22.1 | Als Nutzer will ich Bro/Freundin direkt anrufen und SMS senden — erst nach Nachfrage. | Must | done | Sprint 99 / `1.46.0` |
 
+### E23 — PC live `1.47`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S23.1 | Als Nutzer will ich vom Handy aus den Windows-PC sehen und steuern (FIFA, Maus, Ordner). | Must | done | Sprint 100 / `1.47.0` |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.46.0`
+1. Sideload `1.47.0` plus `desktop/JarvisPC.bat`
 2. Weitere Arbeit nur auf PO-Kommando — [`28-next.md`](./28-next.md)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 

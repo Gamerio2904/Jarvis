@@ -13,7 +13,7 @@ import {
 } from './research-parse'
 import { loadSettings } from './store'
 
-const UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/1.46'
+const UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/1.47'
 
 export async function fillResearchLinks(
   queryText: string,

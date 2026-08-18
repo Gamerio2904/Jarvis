@@ -17,6 +17,7 @@ import { parseFanIntent } from '../src/engine/fan-parse.ts'
 import { isLiveLookup, parseShopDiscountIntent } from '../src/engine/research-parse.ts'
 import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
+import { parsePcIntent } from '../src/engine/pc-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseFuelIntent } from '../src/engine/fuel-parse.ts'
 import { parseHereIntent } from '../src/engine/here-parse.ts'
@@ -34,7 +35,7 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'here'|'fuel'|'poi'|'drive'|'device'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'here'|'fuel'|'poi'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -50,6 +51,7 @@ function route(text, ctx = {}) {
   if (parsePoiIntent(text)) return 'poi'
   if (parseDriveIntent(text)) return 'drive'
   if (parseDeviceIntent(text)) return 'device'
+  if (parsePcIntent(text)) return 'pc'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
   if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
   if (parseShopIntent(text)) return 'shopping'
@@ -163,6 +165,9 @@ const EXPECT = {
   'nächster Laden': 'poi',
   'Bro anrufen': 'maps',
   'Nachricht an Bro ich bin da': 'maps',
+  'FIFA starten': 'pc',
+  'Was siehst du auf dem PC': 'pc',
+  'Züge anklicken': 'pc',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
