@@ -283,35 +283,84 @@ try { $script:Tcp.Start() } catch {
   exit 1
 }
 
+function Add-CopyRow($parent, [int]$y, [string]$caption, [string]$value) {
+  $lab = New-Object Windows.Forms.Label
+  $lab.SetBounds(8, $y, 460, 18)
+  $lab.Text = $caption
+  $parent.Controls.Add($lab)
+  $box = New-Object Windows.Forms.TextBox
+  $box.SetBounds(8, $y + 18, 330, 26)
+  $box.ReadOnly = $true
+  $box.Text = $value
+  $parent.Controls.Add($box)
+  $btn = New-Object Windows.Forms.Button
+  $btn.SetBounds(346, $y + 16, 110, 30)
+  $btn.Text = 'Kopieren'
+  $btn.Tag = $value
+  $btn.Add_Click({
+    $v = [string]$this.Tag
+    if ($v) {
+      Set-Clipboard -Value $v
+      $script:LastAction = 'Kopiert.'
+    }
+  })
+  $parent.Controls.Add($btn)
+  return $y + 50
+}
+
 $form = New-Object Windows.Forms.Form
 $form.Text = 'Jarvis PC'
-$form.Width = 480; $form.Height = 360
+$form.Width = 510
+$form.Height = 640
 $form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = 'FixedSingle'
 $form.MaximizeBox = $false
 
 $ips = Get-LanIps
-$ipText = if ($ips.Count) { $ips -join ', ' } else { 'keine LAN-IP — WLAN prüfen' }
+$copyIp = if ($ips.Count) { $ips[0] } else { '' }
 
-$lbl = New-Object Windows.Forms.Label
-$lbl.SetBounds(18, 16, 430, 230)
-$lbl.Font = New-Object Drawing.Font 'Segoe UI', 10
-$lbl.Text = @"
-Bereit auf Port $Port
+$panel = New-Object Windows.Forms.Panel
+$panel.SetBounds(8, 8, 478, 540)
+$panel.AutoScroll = $true
+$form.Controls.Add($panel)
 
-IP (ins Handy): $ipText
-Token: $Token
-
-Gleiches WLAN. Jarvis → Einstellungen → PC
-IP, Port $Port, Token, Schalter an.
-
-Dann: FIFA starten · Was siehst du auf dem PC
-klick Mitte · Ordner Desktop
-"@
-$form.Controls.Add($lbl)
+$y = 4
+$head = New-Object Windows.Forms.Label
+$head.SetBounds(8, $y, 440, 36)
+$head.Text = "Bereit auf Port $Port. Gleiches WLAN. Ein Klick kopiert ins Clipboard."
+$panel.Controls.Add($head)
+$y = 44
+$y = Add-CopyRow $panel $y 'IP (ins Handy)' $copyIp
+$y = Add-CopyRow $panel $y 'Port' "$Port"
+$y = Add-CopyRow $panel $y 'Token' $Token
+$y += 8
+$sub = New-Object Windows.Forms.Label
+$sub.SetBounds(8, $y, 440, 20)
+$sub.Text = 'Prompts — kopieren, im Handy-Chat einfügen'
+$panel.Controls.Add($sub)
+$y += 24
+$prompts = @(
+  'FIFA starten',
+  'Was siehst du auf dem PC',
+  'klick Mitte',
+  'Züge anklicken',
+  'Maus nach rechts',
+  'Zeig Ordner Downloads',
+  'PC testen'
+)
+foreach ($p in $prompts) { $y = Add-CopyRow $panel $y 'Prompt' $p }
+$allBtn = New-Object Windows.Forms.Button
+$allBtn.SetBounds(8, $y, 448, 32)
+$allBtn.Text = 'Alle Prompts kopieren'
+$allBtn.Tag = ($prompts -join "`r`n")
+$allBtn.Add_Click({
+  Set-Clipboard -Value $this.Tag
+  $script:LastAction = 'Alle Prompts kopiert.'
+})
+$panel.Controls.Add($allBtn)
 
 $status = New-Object Windows.Forms.Label
-$status.SetBounds(18, 255, 430, 50)
+$status.SetBounds(16, 552, 460, 40)
 $status.Text = $script:LastAction
 $form.Controls.Add($status)
 

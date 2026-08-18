@@ -52,7 +52,7 @@ import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
-import { parsePcIntent } from '../src/engine/pc-parse.ts'
+import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
 import { parsePoiIntent, poiLabel } from '../src/engine/poi-parse.ts'
 import { formatHoursSpeech, hoursOpenNow, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
@@ -869,6 +869,9 @@ assert.equal(parsePcIntent('PC testen')?.kind, 'status')
 assert.equal(parsePcIntent('Öffne Netflix'), null)
 assert.equal(parsePcIntent('Bro anrufen'), null)
 assert.match(GEMINI_PERSONA, /PC/)
+for (const p of PC_COPY_PROMPTS) {
+  assert.ok(parsePcIntent(p), `Prompt ohne Parser: ${p}`)
+}
 assert.match(GEMINI_PERSONA, /nach Nachfrage/)
 assert.match(
   scrubReply('Car Play ist verbunden. Musik läuft, Navigation nach Bietigheim-Bissingen steht.'),

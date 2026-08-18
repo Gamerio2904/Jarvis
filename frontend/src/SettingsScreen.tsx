@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
 import { fanDiscover, fanLearn, fanPick, fanTest, testPc } from './api'
+import { copyText } from './copy-text'
+import { PC_COPY_PROMPTS } from './engine/pc-parse'
 import { ensureDeviceLocation } from './native/geo'
 import {
   spotifyLoggedIn,
@@ -65,6 +67,32 @@ function memLabel(f: (typeof MEM_FILTERS)[number]): string {
   if (f === 'boundary') return 'Grenzen'
   if (f === 'open_loop') return 'Offen'
   return f
+}
+
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [done, setDone] = useState(false)
+  return (
+    <label className="settings-field copy-field">
+      <span>{label}</span>
+      <div className="copy-field-row">
+        <input readOnly value={value} onFocus={(e) => e.currentTarget.select()} />
+        <button
+          type="button"
+          className="copy-btn"
+          disabled={!value.trim()}
+          onClick={() => {
+            void copyText(value).then((ok) => {
+              if (!ok) return
+              setDone(true)
+              window.setTimeout(() => setDone(false), 1400)
+            })
+          }}
+        >
+          {done ? 'Kopiert' : 'Kopieren'}
+        </button>
+      </div>
+    </label>
+  )
 }
 
 export type SettingsScreenProps = {
@@ -796,6 +824,14 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </button>
               </div>
               {pcMsg ? <p className={`tv-test-msg${pcMsgOk === false ? ' warn' : ''}`}>{pcMsg}</p> : null}
+              <h3 className="copy-block-title">Ein Klick kopieren</h3>
+              <p className="settings-hint">Feld antippen oder Kopieren — dann im Chat einfügen.</p>
+              <CopyField label="PC-IP" value={pcHost.trim()} />
+              <CopyField label="Port" value={pcPort.trim() || '18790'} />
+              <CopyField label="Token" value={pcToken.trim()} />
+              {PC_COPY_PROMPTS.map((prompt) => (
+                <CopyField key={prompt} label="Prompt" value={prompt} />
+              ))}
             </section>
           ) : null}
 

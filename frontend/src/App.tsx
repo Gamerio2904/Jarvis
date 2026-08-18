@@ -45,6 +45,8 @@ import { researchStatusLabel } from './engine/research-parse'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
 import { TEST_PROMPTS } from './engine/test-prompts'
+import { PC_COPY_PROMPTS } from './engine/pc-parse'
+import { copyText } from './copy-text'
 import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
@@ -287,6 +289,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [statusNote, setStatusNote] = useState<string | null>(null)
   const [composerFocused, setComposerFocused] = useState(false)
+  const [copiedPrompt, setCopiedPrompt] = useState('')
   const [threadKey, setThreadKey] = useState(0)
   const [enterIds, setEnterIds] = useState<Record<string, true>>({})
   const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([])
@@ -1437,6 +1440,27 @@ function App() {
               ) : null}
             </div>
           ) : null}
+          <div className="copy-prompt-fields" aria-label="Prompts kopieren">
+            <p className="copy-prompt-label">PC — einmal tippen kopiert</p>
+            {PC_COPY_PROMPTS.map((text) => (
+              <label key={text} className="copy-field-row copy-prompt-row">
+                <input readOnly value={text} onFocus={(e) => e.currentTarget.select()} />
+                <button
+                  type="button"
+                  className="copy-btn"
+                  onClick={() => {
+                    void copyText(text).then((ok) => {
+                      if (!ok) return
+                      setCopiedPrompt(text)
+                      window.setTimeout(() => setCopiedPrompt((cur) => (cur === text ? '' : cur)), 1400)
+                    })
+                  }}
+                >
+                  {copiedPrompt === text ? 'Kopiert' : 'Kopieren'}
+                </button>
+              </label>
+            ))}
+          </div>
           <div className="prompt-chips" role="list" aria-label="Test-Prompts">
             {TEST_PROMPTS.map((text) => (
               <button

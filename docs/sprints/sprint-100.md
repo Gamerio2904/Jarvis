@@ -22,6 +22,7 @@ Jarvis steuert den Windows-PC über eine lokale App. Echter Screenshot, echte Ma
 | P3 | Bildschirm im Chat, Klick/Maus | Screenshot echt |
 | P4 | Ordner unter Benutzerprofil, Löschen nach Ja | Kein stilles Löschen |
 | P5 | Sideload `1.47.0` | versionCode 14700 |
+| P6 | Kopierfelder IP/Token/Prompts (`1.47.1`) | Ein Klick |
 
 ## Probe
 

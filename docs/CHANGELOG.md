@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.47.0`**.
+App-Version im Code: **`1.47.1`**.
+
+### `1.47.1` — PC: Ein-Klick-Kopieren — *CODE*
+
+IP, Token und Prompts als Felder mit **Kopieren** — im Windows-Fenster, unter Einstellungen → PC und im Chat.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14701)
+- [`28-next.md`](./28-next.md)
 
 ### `1.47.0` — PC live (Bildschirm, Maus, FIFA, Ordner) — *CODE*
 

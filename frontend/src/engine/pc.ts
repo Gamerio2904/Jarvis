@@ -6,7 +6,7 @@ import { loadSettings, saveSettings } from './store'
 import { scrubReply } from './guards'
 import type { ToolMeta } from './tools'
 
-export { parsePcIntent } from './pc-parse'
+export { parsePcIntent, PC_COPY_PROMPTS } from './pc-parse'
 export type { PcIntent } from './pc-parse'
 
 type PcHit = { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }

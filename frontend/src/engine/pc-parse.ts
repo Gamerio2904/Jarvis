@@ -1,5 +1,15 @@
 import { normalizeUtterance } from './utterance.ts'
 
+export const PC_COPY_PROMPTS = [
+  'FIFA starten',
+  'Was siehst du auf dem PC',
+  'klick Mitte',
+  'Züge anklicken',
+  'Maus nach rechts',
+  'Zeig Ordner Downloads',
+  'PC testen',
+] as const
+
 export type PcIntent =
   | { kind: 'status' }
   | { kind: 'screen' }

@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.47.0`** (PC live: Bildschirm, Maus, FIFA, Ordner).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.47.1`** (PC live + Kopierfelder).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -40,6 +40,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.45.0`** | Öffnungszeiten für Läden (OSM) | **CODE** |
 | **`1.46.0`** | Anruf und SMS direkt, mit Nachfrage | **CODE** |
 | **`1.47.0`** | PC live: Bildschirm, Maus, FIFA, Ordner | **CODE** |
+| **`1.47.1`** | Ein-Klick-Kopieren: IP, Token, Prompts | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-100.md`](./sprints/sprint-100.md).
 
@@ -365,10 +366,22 @@ PO: Desktop-Anwendung, mit der Jarvis live am PC ist — FIFA starten, Bildschir
 
 **Probe:** Bat starten, Einstellungen → PC, `PC testen`, `FIFA starten`, `Was siehst du auf dem PC`, `klick Mitte`.
 
+## `1.47.1` — Kopierfelder — **CODE**
+
+PO: One-click kopieren, Felder mit Prompts.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Windows | IP, Token, jeder Prompt, alle Prompts — Button Kopieren |
+| Handy Einstellungen → PC | dieselben Felder |
+| Chat | Zeile „PC — einmal tippen kopiert“ |
+
+**Probe:** Kopieren im PC-Fenster, ins Handy einfügen. Prompt kopieren, im Chat einfügen.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.47.0`. PC-App auf Windows, dann FIFA/Bildschirm. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.47.1`. Kopieren-Felder für IP/Token/Prompts. Nächste Stufe nur auf PO-Kommando.

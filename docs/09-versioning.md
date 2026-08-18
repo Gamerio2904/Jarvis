@@ -128,6 +128,7 @@ MAJOR.MINOR.PATCH
 | `1.45.0` | Öffnungszeiten für Läden aus OSM | Sprint 98 |
 | `1.46.0` | Anruf/SMS direkt, erst nach Nachfrage | Sprint 99 |
 | `1.47.0` | PC live: Bildschirm, Maus, FIFA, Ordner | Sprint 100 |
+| `1.47.1` | Ein-Klick-Kopieren IP/Token/Prompts | Sprint 100 Patch |
 
 ### Weitere Beispiele
 

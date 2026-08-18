@@ -5,9 +5,9 @@ Windows-Fenster, mit dem das Handy den Rechner live steuert. Kein altes Python-B
 ## Start
 
 1. Auf dem **Windows-PC** `desktop/JarvisPC.bat` doppelklicken (Fenster bleibt offen).
-2. IP und Token aus dem Fenster notieren.
-3. Handy: Jarvis → Einstellungen → **PC** → IP, Port `18790`, Token, Schalter an → **PC testen**.
-4. Gleiches WLAN. Windows-Firewall darf Port 18790 nicht blocken.
+2. **Kopieren** neben IP, Token und den Prompts — ein Klick.
+3. Handy: Jarvis → Einstellungen → **PC** → einfügen, Schalter an → **PC testen**.
+4. Im Chat: Zeile „PC — einmal tippen kopiert“, dann **Kopieren**.
 
 ## Stimme
 
