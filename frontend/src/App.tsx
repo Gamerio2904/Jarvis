@@ -1279,7 +1279,7 @@ function App() {
         </div>
       </aside>
 
-      <main className="main">
+      <main className={`main${driveOpen ? ' is-drive' : ''}`}>
         {voiceOpen ? (
           <VoiceMode
             onClose={() => {

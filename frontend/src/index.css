@@ -1371,7 +1371,11 @@ button.linkish {
   z-index: 11;
   padding: 12px 16px 20px;
   flex-shrink: 0;
-  background: linear-gradient(180deg, transparent, rgba(5, 7, 6, 0.92) 28%, #050706);
+}
+
+.main.is-drive .composer-wrap {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .prompt-chips {
@@ -1600,7 +1604,7 @@ button.linkish {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 12;
+  z-index: 16;
   background: rgba(18, 18, 18, 0.42);
   display: flex;
   align-items: flex-end;
@@ -2021,7 +2025,7 @@ button.linkish {
 .drive-view {
   position: absolute;
   inset: 0;
-  z-index: 9;
+  z-index: 14;
   background: #050605;
   display: flex;
   flex-direction: column;
@@ -2067,6 +2071,7 @@ button.linkish {
   position: relative;
   background: #0b100e;
   touch-action: none;
+  transform-origin: 50% 62%;
 }
 
 .drive-map-layer {

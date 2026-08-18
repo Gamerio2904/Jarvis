@@ -2,6 +2,7 @@ import { parseDriveIntent, type DriveTab } from './drive-parse'
 import { isFuelPlace } from './fuel-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
 import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
+import { compactCoords } from './drive-map'
 import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { listMemory, loadSettings, saveSettings } from './store'
@@ -50,7 +51,36 @@ let tab: DriveTab = 'map'
 let lastFix: DriveFix | null = null
 let announced = new Map<string, Set<string>>()
 let offSince = 0
+let lastRerouteAt = 0
 const listeners = new Set<() => void>()
+
+function persistActive() {
+  if (!active) {
+    saveSettings({ last_drive_json: '' })
+    return
+  }
+  const slim: DriveRoute = {
+    ...active,
+    coords: compactCoords(active.coords),
+    steps: (active.steps || []).slice(0, 48),
+  }
+  saveSettings({ last_drive_json: JSON.stringify(slim) })
+}
+
+function restoreActive() {
+  try {
+    const s = loadSettings()
+    if (!s.drive_mode || !s.last_drive_json) return
+    const parsed = JSON.parse(s.last_drive_json) as DriveRoute
+    if (!parsed?.dest || !Number.isFinite(parsed.destLat) || !Number.isFinite(parsed.destLon)) return
+    if (!Array.isArray(parsed.coords)) parsed.coords = []
+    active = parsed
+  } catch {
+    /* kaputte letzte Route ignorieren */
+  }
+}
+
+restoreActive()
 
 function emit() {
   for (const cb of listeners) cb()
@@ -80,7 +110,7 @@ export function subscribeDrive(cb: () => void): () => void {
 }
 
 export function closeDrive() {
-  saveSettings({ drive_mode: false })
+  saveSettings({ drive_mode: false, last_drive_json: '' })
   active = null
   lastFix = null
   tab = 'map'
@@ -125,6 +155,9 @@ export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance |
   }
   const needReroute = weak || clearlyOff || moved > 900
   if (needReroute) {
+    const now = Date.now()
+    if (weak && !clearlyOff && now - lastRerouteAt < 8_000) return guidanceFor(here)
+    lastRerouteAt = now
     const ride = await routeDrive(here, { lat: active.destLat, lon: active.destLon })
     if (!ride.ok) {
       if (weak) {
@@ -139,6 +172,7 @@ export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance |
           hint: ride.message,
           steps: active.steps || [],
         }
+        persistActive()
         emit()
       }
       return guidanceFor(here)
@@ -153,6 +187,7 @@ export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance |
       hint: ride.hint,
       steps: ride.steps || [],
     }
+    persistActive()
     emit()
   }
   return guidanceFor(here)
@@ -264,19 +299,30 @@ export async function beginDriveTo(
   const granted = await requestLocationPermission()
   const here = granted ? await readDeviceLocation() : { ok: false as const, lat: undefined, lon: undefined }
   if (!here.ok || here.lat == null || here.lon == null) {
+    const kept = lastFix || {
+      lat: Number(loadSettings().last_lat),
+      lon: Number(loadSettings().last_lon),
+    }
+    const fromOk = Number.isFinite(kept.lat) && Number.isFinite(kept.lon) && Math.abs(kept.lat) > 0.2
     active = {
       dest: destName,
       destLat,
       destLon,
-      fromLat: destLat,
-      fromLon: destLon,
-      coords: [[destLon, destLat]],
+      fromLat: fromOk ? kept.lat : destLat,
+      fromLon: fromOk ? kept.lon : destLon,
+      coords: fromOk
+        ? [
+            [kept.lon, kept.lat],
+            [destLon, destLat],
+          ]
+        : [[destLon, destLat]],
       minutes: 0,
       meters: 0,
       hint: 'Kein GPS. Ziel liegt, Route folgt wenn Standort da ist.',
       steps: [],
     }
     resetAnnounced()
+    persistActive()
     emit()
     return { route: active, tool: driveTool('nav', 'Fahrmodus', active), hereOk: false, rideOk: false }
   }
@@ -285,6 +331,7 @@ export async function beginDriveTo(
     active = emptyRoute(destName, destLat, destLon, here.lat, here.lon, ride.message)
     lastFix = { lat: here.lat, lon: here.lon }
     resetAnnounced()
+    persistActive()
     emit()
     return { route: active, tool: driveTool('nav', 'Fahrmodus', active), hereOk: true, rideOk: false }
   }
@@ -302,6 +349,7 @@ export async function beginDriveTo(
   }
   lastFix = { lat: here.lat, lon: here.lon }
   resetAnnounced()
+  persistActive()
   emit()
   return { route: active, tool: driveTool('nav', 'Fahrmodus', active), hereOk: true, rideOk: true }
 }

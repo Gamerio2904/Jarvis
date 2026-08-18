@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.48.2`**.
+App-Version im Code: **`1.48.3`**.
+
+### `1.48.3` — Fahrmodus Karte und Route — *CODE*
+
+Karte liegt wieder über dem Chat-Feld. Route als Linie auf den Kacheln, Drehung um den Standort, letztes GPS statt Stuttgart. Route bleibt nach App-Neustart.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14803)
+- [`28-next.md`](./28-next.md)
 
 ### `1.48.2` — Test-Bugs — *CODE*
 

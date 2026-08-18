@@ -8,6 +8,7 @@ import {
   type DriveRoute,
   type DriveTab,
 } from './engine/drive'
+import { lonLatPath, readLastMapFix, webMercator } from './engine/drive-map'
 import { formatNavBanner, nextManeuver } from './engine/nav-speak'
 import { watchDeviceLocation } from './native/geo'
 import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, stopSpeak } from './native/voice'
@@ -48,11 +49,7 @@ function dayTiles(): boolean {
 }
 
 function world(lat: number, lon: number, z: number) {
-  const n = 2 ** z
-  const x = ((lon + 180) / 360) * n
-  const rad = (lat * Math.PI) / 180
-  const y = ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * n
-  return { x, y }
+  return webMercator(lat, lon, z)
 }
 
 function FollowMap({
@@ -71,8 +68,8 @@ function FollowMap({
   bearing?: number
 }) {
   const size = 256
-  const cols = 7
-  const rows = 7
+  const cols = 9
+  const rows = 9
   const wrapRef = useRef<HTMLDivElement>(null)
   const layerRef = useRef<HTMLDivElement>(null)
   const target = useRef({ lat: you?.lat ?? destLat, lon: you?.lon ?? destLon })
@@ -80,7 +77,7 @@ function FollowMap({
   const display = useRef({ ...target.current })
   const [origin, setOrigin] = useState(() => {
     const c = world(target.current.lat, target.current.lon, z)
-    return { x: Math.floor(c.x) - 3, y: Math.floor(c.y) - 3 }
+    return { x: Math.floor(c.x) - 4, y: Math.floor(c.y) - 4 }
   })
 
   useEffect(() => {
@@ -93,8 +90,8 @@ function FollowMap({
       d.lat = jump ? t.lat : d.lat + (t.lat - d.lat) * 0.16
       d.lon = jump ? t.lon : d.lon + (t.lon - d.lon) * 0.16
       const c = world(d.lat, d.lon, z)
-      const ox = Math.floor(c.x) - 3
-      const oy = Math.floor(c.y) - 3
+      const ox = Math.floor(c.x) - 4
+      const oy = Math.floor(c.y) - 4
       setOrigin((prev) => (prev.x === ox && prev.y === oy ? prev : { x: ox, y: oy }))
       const wrap = wrapRef.current
       const layer = layerRef.current
@@ -116,16 +113,7 @@ function FollowMap({
 
   const w = cols * size
   const h = rows * size
-  const toPx = (la: number, lo: number) => {
-    const p = world(la, lo, z)
-    return { x: (p.x - origin.x) * size, y: (p.y - origin.y) * size }
-  }
-  const path = coords
-    .map(([lo, la]) => {
-      const p = toPx(la, lo)
-      return `${p.x},${p.y}`
-    })
-    .join(' ')
+  const path = lonLatPath(coords, origin, z, size)
   const tiles = useMemo(() => {
     const style = dayTiles() ? 'rastertiles/voyager' : 'dark_all'
     const list: Array<{ key: string; src: string; left: number; top: number }> = []
@@ -143,14 +131,15 @@ function FollowMap({
     }
     return list
   }, [origin.x, origin.y, z])
-  const pin = toPx(destLat, destLon)
+  const pinMerc = webMercator(destLat, destLon, z)
+  const pin = { x: (pinMerc.x - origin.x) * size, y: (pinMerc.y - origin.y) * size }
   const heading = bearing != null && Number.isFinite(bearing) ? bearing : 0
 
   return (
     <div
       className="drive-map-wrap"
       ref={wrapRef}
-      style={{ transform: `rotate(${-heading}deg)` }}
+      style={{ transform: heading ? `rotate(${-heading}deg)` : undefined }}
       onClick={() => {
         display.current = { ...target.current }
       }}
@@ -159,14 +148,19 @@ function FollowMap({
         {tiles.map((t) => (
           <img key={t.key} alt="" src={t.src} style={{ left: t.left, top: t.top }} />
         ))}
-        <svg className="drive-svg" viewBox={`0 0 ${w} ${h}`}>
+        <svg className="drive-svg" viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none">
           {path ? (
-            <polyline points={path} fill="none" stroke="#1ed760" strokeWidth="6" strokeLinejoin="round" />
+            <>
+              <polyline points={path} fill="none" stroke="#070908" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" />
+              <polyline points={path} fill="none" stroke="#1ed760" strokeWidth="5" strokeLinejoin="round" strokeLinecap="round" />
+            </>
           ) : null}
-          <circle cx={pin.x} cy={pin.y} r="7" fill="#f15e6c" stroke="#070908" strokeWidth="3" />
+          {Number.isFinite(pin.x) && Number.isFinite(pin.y) ? (
+            <circle cx={pin.x} cy={pin.y} r="7" fill="#f15e6c" stroke="#070908" strokeWidth="3" />
+          ) : null}
         </svg>
       </div>
-      <div className="drive-you" aria-hidden style={{ transform: `rotate(${heading}deg)` }}>
+      <div className="drive-you" aria-hidden style={{ transform: heading ? `rotate(${heading}deg)` : undefined }}>
         <svg viewBox="-12 -14 24 28">
           <polygon
             points="0,-12 8,12 -8,12"
@@ -316,7 +310,8 @@ export function DriveMode({
     })
   }
 
-  const follow = here || (route ? { lat: route.fromLat, lon: route.fromLon } : { lat: 48.78, lon: 9.18 })
+  const fallback = readLastMapFix() || { lat: 48.78, lon: 9.18 }
+  const follow = here || (route ? { lat: route.fromLat, lon: route.fromLon } : fallback)
 
   return (
     <div className="drive-view" role="dialog" aria-labelledby="drive-title">

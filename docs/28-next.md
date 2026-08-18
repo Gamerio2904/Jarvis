@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.2`** (Test-Bugs).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.3`** (Fahrmodus Karte/Route).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -44,6 +44,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.48.0`** | Luft/Sonne auf Nachfrage, Bahn, Tagesschau, Feiertage | **CODE** |
 | **`1.48.1`** | Satzbildung näher am Film-Jarvis | **CODE** |
 | **`1.48.2`** | Live-Test-Bugs (Parser, Overlay, Straße) | **CODE** |
+| **`1.48.3`** | Fahrmodus: Karte und Route | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-101.md`](./sprints/sprint-101.md).
 
@@ -424,10 +425,22 @@ PO: Bugs aus dem Emulator-/Chrome-Test.
 
 **Probe:** `Was trinke ich gerne?` · `in 20 Minuten Milch holen` · `Fahr mich zu einer Tanke` · `nächster Laden`
 
+## `1.48.3` — Fahrmodus Karte und Route — **CODE**
+
+PO: Karte und Route im Fahrmodus kaputt.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Overlay | HUD über dem Chat-Feld, Composer erst wieder nach „Fertig“ |
+| Karte | Drehung um den Standort, mehr Kacheln, letztes GPS |
+| Route | Linie auf der Karte, OSRM mit User-Agent, letzte Route bleibt |
+
+**Probe:** `Nach Heilbronn` · `Fahr mich zu einer Tanke` · `Fahrmodus aus`
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.48.2`. Live-Test-Bugs. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.48.3`. Fahrmodus Karte und Route. Nächste Stufe nur auf PO-Kommando.

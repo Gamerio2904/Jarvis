@@ -69,6 +69,7 @@ import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { formatFilmReply } from '../src/engine/film.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
+import { compactCoords, lonLatPath, webMercator } from '../src/engine/drive-map.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -207,6 +208,26 @@ assert.equal(dirFromManeuver('turn', 'slight left'), 'slight_left')
   assert.equal(nxt.dir, 'left')
   assert.ok(nxt.meters > 200)
   assert.equal(formatNavCue(nxt.dir, 300, 'mid'), 'Vorne links in 300 Metern abbiegen.')
+}
+
+{
+  const a = webMercator(48.78, 9.18, 16)
+  const b = webMercator(48.78, 9.28, 16)
+  assert.ok(b.x > a.x)
+  const origin = { x: Math.floor(a.x), y: Math.floor(a.y) }
+  const path = lonLatPath(
+    [
+      [9.18, 48.78],
+      [9.28, 48.78],
+    ],
+    origin,
+    16,
+    256,
+  )
+  const xs = path.split(' ').map((p) => Number(p.split(',')[0]))
+  assert.equal(xs.length, 2)
+  assert.ok(xs[1] > xs[0])
+  assert.equal(compactCoords(Array.from({ length: 20 }, (_, i) => [i, i]), 5).length, 5)
 }
 
 assert.ok(isMemoryWrite('Ich heiße Max und trinke gerne Kaffee'))

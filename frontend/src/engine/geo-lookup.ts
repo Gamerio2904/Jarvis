@@ -1,10 +1,11 @@
 import { getJson } from './http-json'
 import { looksLikeBareStreet } from './places-parse'
+import { compactCoords } from './drive-map'
 
 export type Fix = { lat: number; lon: number; place: string }
 
 const STREET_FAR_M = 80_000
-const UA = 'Jarvis/1.48.2 (local.jarvis.app)'
+const UA = 'Jarvis/1.48.3 (local.jarvis.app)'
 
 function cityAsk(street: string): string {
   return `In welcher Stadt liegt ${street}? Eine Straße ohne Ort rate ich nicht.`
@@ -245,7 +246,10 @@ async function fetchRoute(
   url: string,
 ): Promise<({ ok: true } & DriveLeg) | { ok: false; message: string }> {
   try {
-    const { status, json } = await getJson(url)
+    const { status, json } = await getJson(url, {
+      Accept: 'application/json',
+      'User-Agent': UA,
+    })
     const route = (json.routes as Array<{
       duration?: number
       distance?: number
@@ -259,7 +263,13 @@ async function fetchRoute(
       }>
     }> | undefined)?.[0]
     const sec = Number(route?.duration)
-    const coords = route?.geometry?.coordinates || []
+    const rawCoords = Array.isArray(route?.geometry?.coordinates) ? route.geometry.coordinates : []
+    const coords = compactCoords(
+      rawCoords.filter(
+        (p): p is [number, number] =>
+          Array.isArray(p) && Number.isFinite(Number(p[0])) && Number.isFinite(Number(p[1])),
+      ),
+    )
     if (status < 200 || status >= 300 || !Number.isFinite(sec) || coords.length < 2) {
       return { ok: false, message: 'Netz hat die Route nicht geliefert.' }
     }

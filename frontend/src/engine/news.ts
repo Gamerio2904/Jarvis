@@ -6,7 +6,7 @@ import type { ToolMeta } from './tools'
 
 export { parseNewsIntent } from './news-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/1.48.2 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/1.48.3 (local.jarvis.app)' }
 const TS = 'https://www.tagesschau.de/api2u'
 
 export async function handleNews(
