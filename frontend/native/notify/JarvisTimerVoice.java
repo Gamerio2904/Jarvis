@@ -28,9 +28,10 @@ public final class JarvisTimerVoice {
         if (ctx == null) return;
         String line = text == null ? "" : text.trim();
         if (line.isEmpty()) line = "Die Zeit ist um.";
-        pending = line;
+        final String spoken = line;
+        pending = spoken;
         Context app = ctx.getApplicationContext();
-        MAIN.post(() -> startOnMain(app, line));
+        MAIN.post(() -> startOnMain(app, spoken));
     }
 
     public static void stop() {
