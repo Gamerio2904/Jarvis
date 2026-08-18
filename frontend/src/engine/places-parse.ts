@@ -1,3 +1,4 @@
+import { isFuelPlace } from './fuel-parse.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export type PlaceWrite = { name: string; place: string }
@@ -16,7 +17,8 @@ const HOME = /^(zuhause|zu\s*hause|hause|heim|wohnung)$/i
 const REL =
   /^(freundin|freund|bro|mama|papa|mutter|vater|oma|opa|eltern|zahnarzt|arzt|ärztin|praxis|chef|chefin|schwester|bruder|kollege|kollegin|arbeit|arbeitsplatz|büro|buero)$/i
 const PEOPLE_LIST = /^(personen|leute|alle|orte|kontakte)$/i
-const ART = /^(der|die|das|dem|den|des|ein|eine|einem|einen|meine|mein|meiner|meinen|unsere|unser)\s+/i
+const ART =
+  /^(der|die|das|dem|den|des|ein|eine|einer|einem|einen|meine|mein|meiner|meinen|unsere|unser)\s+/i
 
 const NAV =
   /^\s*(?:fahr(?:e)?\s+mich|bring(?:e)?\s+mich|navigier(?:e)?|route|zeig(?:e)?\s+(?:mir\s+)?den\s+weg)\s+(?:(zu(?:r|m)?)|(nach))\s+(.+?)\s*$/i
@@ -69,10 +71,24 @@ export function isPeopleListQuery(name: string): boolean {
   return PEOPLE_LIST.test(normalizePlaceName(name))
 }
 
+const STREET_BIT =
+  /(?:straße|strasse|str\.|platz|allee|gasse)(?:\s|$|\d)|(?:^|[\s,])(?:weg|ring|damm|ufer)\b/i
+
 export function looksLikeAddress(text: string): boolean {
   const t = text.trim()
   if (/\d/.test(t)) return true
-  if (/\b(straße|strasse|str\.|platz|weg|allee|gasse|ring|damm|ufer)\b/i.test(t)) return true
+  if (STREET_BIT.test(t)) return true
+  return false
+}
+
+/** Straße ohne Stadt — nicht als fernen Ortsnamen geocoden. */
+export function looksLikeBareStreet(text: string): boolean {
+  const t = text.trim().replace(/\s+/g, ' ')
+  if (!t || /,/.test(t)) return false
+  if (!STREET_BIT.test(t)) return false
+  const parts = t.split(' ')
+  if (parts.length === 1) return true
+  if (parts.length === 2 && /^\d+[a-z]?$/i.test(parts[1] || '')) return true
   return false
 }
 
@@ -80,6 +96,7 @@ export function isBarePlaceAnswer(text: string): boolean {
   const t = text.trim().replace(/^[iI]n\s+/, '')
   if (!t || t.length < 2 || t.length > 80) return false
   if (/[?]/.test(t)) return false
+  if (isFuelPlace(t)) return false
   if (/^(ja|nein|ok|okay|danke|bitte|gut|jo|passt|mach)\s*[.!]?\s*$/i.test(t)) return false
   if (
     /\b(wecker|timer|termin|todo|wetter|fernseh|notiz|suche|erinner|fahr|navigier|route|ruf|anruf|tel)\b/i.test(
@@ -130,14 +147,16 @@ export function parsePlaceWrite(text: string): PlaceWrite | null {
 export function parsePlaceRecall(text: string): PlaceRecall | null {
   const m = RECALL.exec(text.trim())
   if (!m) return null
+  if (isFuelPlace(text) || isFuelPlace(m[1])) return null
   const name = normalizePlaceName(m[1])
-  if (!name || PEOPLE_LIST.test(name)) return null
+  if (!name || PEOPLE_LIST.test(name) || isFuelPlace(name)) return null
   return { name }
 }
 
 export function parsePlaceNav(text: string): PlaceNav | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 180) return null
+  if (isFuelPlace(t)) return null
   const extra = parseCallOrPhone(t) || parseSms(t) || parseAlias(t) || parseTravelNav(t)
   if (extra) return extra
   if (LIST.test(t) || (NAV.test(t) && PEOPLE_LIST.test(normalizePlaceName(NAV.exec(t)?.[3] || '')))) {
@@ -150,6 +169,7 @@ export function parsePlaceNav(text: string): PlaceNav | null {
   const query = normalizePlaceName(nav[3])
   if (!query) return null
   if (PEOPLE_LIST.test(query)) return { kind: 'list' }
+  if (isFuelPlace(query) || isFuelPlace(nav[3])) return null
   return { kind: 'navigate', query, via }
 }
 

@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.48.1`**.
+App-Version im Code: **`1.48.2`**.
+
+### `1.48.2` — Test-Bugs — *CODE*
+
+Parser und Overlay aus dem Live-Test: Erinnerung statt Einkauf bei `in 20 Minuten Milch holen`. `Was trinke ich gerne?` liest, schreibt nicht. Tanke bleibt Tanke, nicht „Einer tanke“. `nächster Laden` sucht neu. Nackte Straße fragt nach der Stadt. Composer bleibt über dem Fahrmodus tippbar.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14802)
+- [`28-next.md`](./28-next.md)
 
 ### `1.48.1` — Satzbildung Film-Jarvis — *CODE*
 

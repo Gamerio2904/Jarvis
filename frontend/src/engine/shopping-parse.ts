@@ -31,7 +31,13 @@ export function parseShopIntent(text: string): ShopIntent | null {
   const tail = ADD_TAIL.exec(t)
   if (tail) return { kind: 'add', item: clean(tail[1]) }
   const buy = ADD_BUY.exec(t)
-  if (buy && !/[?]/.test(t)) return { kind: 'add', item: clean(buy[1]) }
+  if (
+    buy &&
+    !/[?]/.test(t) &&
+    !/\bin\s+(?:\d+\s+(?:minuten?|stunden?|tage(?:n)?|tag)|einer?\s+(?:minute|stunde|tag))\b/i.test(t)
+  ) {
+    return { kind: 'add', item: clean(buy[1]) }
+  }
   const got = GOT.exec(t)
   if (got) {
     const item = clean(got[1])

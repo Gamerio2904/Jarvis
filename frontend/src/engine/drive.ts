@@ -312,7 +312,11 @@ async function startRoute(_label: string, place: string): Promise<{
   tool: ToolMeta
   lastTool: string
 }> {
-  const dest = await geocodePlace(place)
+  const s = loadSettings()
+  const lat = Number(s.last_lat)
+  const lon = Number(s.last_lon)
+  const near = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null
+  const dest = await geocodePlace(place, near)
   if (!dest.ok) {
     return {
       handled: true,

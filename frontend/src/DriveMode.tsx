@@ -12,6 +12,8 @@ import { formatNavBanner, nextManeuver } from './engine/nav-speak'
 import { watchDeviceLocation } from './native/geo'
 import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, stopSpeak } from './native/voice'
 import { isChatSpeaking } from './engine/speak-lock'
+import { parseFuelIntent } from './engine/fuel-parse'
+import { parsePoiIntent } from './engine/poi-parse'
 import {
   activateSpotifyElement,
   ensureInternalPlayer,
@@ -287,8 +289,15 @@ export function DriveMode({
   function goDest(raw: string) {
     const dest = raw.trim()
     if (!dest || !onCommand) return
-    const line = /^(nach|zu(?:r|m)?)\s+/i.test(dest) ? dest : `nach ${dest}`
-    onCommand(line)
+    if (
+      parsePoiIntent(dest) ||
+      parseFuelIntent(dest) ||
+      /^(nach|zu(?:r|m)?|fahr|bring|navigier)\b/i.test(dest)
+    ) {
+      onCommand(dest)
+      return
+    }
+    onCommand(`nach ${dest}`)
   }
 
   function hear() {

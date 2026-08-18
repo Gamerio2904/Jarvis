@@ -41,7 +41,9 @@ export function parsePoiIntent(text: string, lastKind?: PoiKind | null): PoiInte
     }
     if (hours) return { kind: typed, hours: true }
   }
-  if (hours && lastKind && HOURS_FOLLOW.test(t)) return { kind: lastKind, hours: true }
+  if (hours && lastKind && HOURS_FOLLOW.test(t) && !typed && !NEAREST.test(t)) {
+    return { kind: lastKind, hours: true }
+  }
   if (/^\s*öffnungszeiten\s*[.!?]*$/i.test(t)) return { kind: lastKind || 'ask', hours: true }
   return null
 }

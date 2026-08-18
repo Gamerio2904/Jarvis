@@ -84,6 +84,7 @@ const EXPECT = {
   'Wer bist du und wer bin ich?': 'memory',
   'Ich heiße Max und trinke gerne Kaffee.': 'memory',
   'Was trinke ich?': 'memory',
+  'Was trinke ich gerne?': 'memory',
   'Wie ist mein Name?': 'memory',
   'Milch auf die Einkaufsliste': 'shopping',
   'auch Brot': 'shopping',
@@ -108,6 +109,7 @@ const EXPECT = {
   'Beste Preise Staubsauger': 'research',
   'Öffnen CarPlay': 'drive',
   'in 20 Minuten Milch': 'reminder',
+  'in 20 Minuten Milch holen': 'reminder',
   'morgen 8 Uhr Steuer': 'reminder',
   'Wetter heute': 'weather',
   'Wetter morgen in München': 'weather',
@@ -209,6 +211,10 @@ assert.equal(route('nächster Feiertag'), 'holiday')
 assert.equal(route('Wetter heute'), 'weather')
 assert.equal(route('Nachricht an Bro ich bin da'), 'maps')
 assert.equal(route('Nach Heilbronn'), 'drive')
+assert.equal(route('Was trinke ich gerne?'), 'memory')
+assert.equal(route('in 20 Minuten Milch holen'), 'reminder')
+assert.equal(route('Fahr mich zu einer Tanke'), 'fuel')
+assert.equal(route('nächster Laden'), 'poi')
 
 for (const r of rows) {
   const mark = r.got === r.want ? 'ok' : 'FAIL'

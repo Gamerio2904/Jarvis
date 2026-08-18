@@ -63,6 +63,9 @@ export async function handlePoi(_conversationId: string, text: string): Promise<
       lastTool: 'poi',
     }
   }
+  if (last && last.kind !== intent.kind) {
+    saveSettings({ last_poi_json: '' })
+  }
   return searchAndReply(intent.kind, intent.hours)
 }
 

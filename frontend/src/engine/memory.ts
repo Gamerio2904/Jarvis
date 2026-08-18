@@ -64,20 +64,6 @@ export async function handleMemory(
       return { handled: true, reply: `„${contra[1].trim()}“ lag nicht im Gedächtnis.` }
     }
   }
-  if (isMemoryWrite(text)) {
-    const facts = parseMemoryFacts(text)
-    if (facts.length) {
-      const saved = []
-      for (const f of facts) {
-        saved.push(await upsertMemory(f.key, f.value, f.category, conversationId))
-      }
-      const bits = saved.map((s) => s.value).join(', ')
-      if (saved.length === 1 && saved[0].key === 'name') {
-        return { handled: true, reply: `Name gemerkt: ${saved[0].value}.`, items: saved }
-      }
-      return { handled: true, reply: `Gemerkt: ${bits}.`, items: saved }
-    }
-  }
   if (isMemoryRecall(text)) {
     const items = await listMemory()
     if (RECALL_DRINK.test(text)) {
@@ -116,6 +102,20 @@ export async function handleMemory(
     return {
       handled: true,
       reply: items.map((m) => `${m.key}: ${m.value}`).join('\n'),
+    }
+  }
+  if (isMemoryWrite(text)) {
+    const facts = parseMemoryFacts(text)
+    if (facts.length) {
+      const saved = []
+      for (const f of facts) {
+        saved.push(await upsertMemory(f.key, f.value, f.category, conversationId))
+      }
+      const bits = saved.map((s) => s.value).join(', ')
+      if (saved.length === 1 && saved[0].key === 'name') {
+        return { handled: true, reply: `Name gemerkt: ${saved[0].value}.`, items: saved }
+      }
+      return { handled: true, reply: `Gemerkt: ${bits}.`, items: saved }
     }
   }
   if (isIdentityAsk(text)) {

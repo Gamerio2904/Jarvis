@@ -1,13 +1,35 @@
 import { getJson } from './http-json'
+import { looksLikeBareStreet } from './places-parse'
 
 export type Fix = { lat: number; lon: number; place: string }
 
-export async function geocodePlace(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+const STREET_FAR_M = 80_000
+const UA = 'Jarvis/1.48.2 (local.jarvis.app)'
+
+function cityAsk(street: string): string {
+  return `In welcher Stadt liegt ${street}? Eine Straße ohne Ort rate ich nicht.`
+}
+
+export async function geocodePlace(
+  name: string,
+  near?: { lat: number; lon: number } | null,
+): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   const q = name.trim()
   if (!q) return { ok: false, message: 'Welcher Ort?' }
+  if (looksLikeBareStreet(q)) {
+    if (!near) return { ok: false, message: cityAsk(q) }
+    const street = await geocodeNominatim(q, near)
+    if (street.ok) {
+      if (haversineM({ lat: near.lat, lon: near.lon, place: '' }, street.fix) > STREET_FAR_M) {
+        return { ok: false, message: cityAsk(q) }
+      }
+      return street
+    }
+    return { ok: false, message: cityAsk(q) }
+  }
   const primary = await geocodeOpenMeteo(q)
   if (primary.ok) return primary
-  const fallback = await geocodeNominatim(q)
+  const fallback = await geocodeNominatim(q, near || undefined)
   if (fallback.ok) return fallback
   return primary
 }
@@ -30,12 +52,31 @@ async function geocodeOpenMeteo(name: string): Promise<{ ok: true; fix: Fix } | 
   }
 }
 
-async function geocodeNominatim(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+async function geocodeNominatim(
+  name: string,
+  near?: { lat: number; lon: number },
+): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+  const local = await nominatimOnce(name, near, Boolean(near))
+  if (local.ok) return local
+  if (near) return nominatimOnce(name, near, false)
+  return local
+}
+
+async function nominatimOnce(
+  name: string,
+  near?: { lat: number; lon: number },
+  bounded?: boolean,
+): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   try {
-    const q = new URLSearchParams({ q: name, format: 'json', limit: '1', addressdetails: '0' })
+    const q = new URLSearchParams({ q: name, format: 'json', limit: '5', addressdetails: '1' })
+    if (near && bounded) {
+      const d = 0.35
+      q.set('viewbox', `${near.lon - d},${near.lat + d},${near.lon + d},${near.lat - d}`)
+      q.set('bounded', '1')
+    }
     const { status, json } = await getJson(`https://nominatim.openstreetmap.org/search?${q}`, {
       'Accept-Language': 'de',
-      'User-Agent': 'Jarvis/1.48.0 (local.jarvis.app)',
+      'User-Agent': UA,
     })
     const raw: unknown = json
     let rows: Array<Record<string, unknown>> = []
@@ -44,15 +85,40 @@ async function geocodeNominatim(name: string): Promise<{ ok: true; fix: Fix } | 
       const extra = (raw as { results?: unknown }).results
       if (Array.isArray(extra)) rows = extra as Array<Record<string, unknown>>
     }
-    const first = rows[0]
-    if (status < 200 || status >= 300 || !first) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    const lat = Number(first.lat)
-    const lon = Number(first.lon)
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    return { ok: true, fix: { lat, lon, place: String(first.display_name || name).split(',')[0] || name } }
+    if (status < 200 || status >= 300 || !rows.length) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
+    const picked = pickNominatim(rows, name, near)
+    if (!picked) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
+    return { ok: true, fix: picked }
   } catch {
     return { ok: false, message: `Ort „${name}“ nicht erreichbar.` }
   }
+}
+
+function pickNominatim(
+  rows: Array<Record<string, unknown>>,
+  query: string,
+  near?: { lat: number; lon: number },
+): Fix | null {
+  const fixes: Fix[] = []
+  for (const row of rows) {
+    const lat = Number(row.lat)
+    const lon = Number(row.lon)
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
+    const place = String(row.display_name || query).split(',')[0]?.trim() || query
+    fixes.push({ lat, lon, place })
+  }
+  if (!fixes.length) return null
+  if (!near) return fixes[0]
+  let best = fixes[0]
+  let bestM = haversineM({ lat: near.lat, lon: near.lon, place: '' }, best)
+  for (const f of fixes.slice(1)) {
+    const d = haversineM({ lat: near.lat, lon: near.lon, place: '' }, f)
+    if (d < bestM) {
+      best = f
+      bestM = d
+    }
+  }
+  return best
 }
 
 export async function reversePlace(lat: number, lon: number): Promise<string | null> {
@@ -72,7 +138,7 @@ async function reverseNominatim(lat: number, lon: number): Promise<string | null
     })
     const { status, json } = await getJson(`https://nominatim.openstreetmap.org/reverse?${q}`, {
       'Accept-Language': 'de',
-      'User-Agent': 'Jarvis/1.48.0 (local.jarvis.app)',
+      'User-Agent': UA,
     })
     if (status < 200 || status >= 300) return null
     const addr = (json.address && typeof json.address === 'object' ? json.address : {}) as Record<string, unknown>

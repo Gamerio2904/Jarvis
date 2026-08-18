@@ -43,9 +43,11 @@ import {
   isCommNo,
   isCommYes,
   mapsDirUrl,
+  normalizePlaceName,
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
+  looksLikeBareStreet,
 } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { pickHeard } from '../src/engine/heard.ts'
@@ -213,12 +215,16 @@ assert.equal(facts.find((f) => f.key === 'name')?.value, 'Max')
 assert.equal(facts.find((f) => f.key === 'getränk')?.value, 'Kaffee')
 assert.equal(facts.find((f) => f.key === 'essen')?.value, 'Pizza')
 assert.ok(isMemoryRecall('Was trinke ich?'))
+assert.ok(isMemoryRecall('Was trinke ich gerne?'))
+assert.ok(!isMemoryWrite('Was trinke ich gerne?'))
+assert.equal(parseMemoryFacts('Was trinke ich gerne?').find((f) => f.key === 'getränk'), undefined)
 assert.ok(isMemoryRecall('Wie ist mein Name?'))
 assert.ok(!isMemoryWrite('Hallo Jarvis'))
 
 assert.equal(parseToolIntent('todo: Milch')?.kind, 'todo_create')
 assert.equal(parseToolIntent('Milch kaufen'), null)
 assert.equal(parseShopIntent('Milch kaufen')?.kind, 'add')
+assert.equal(parseShopIntent('in 20 Minuten Milch holen'), null)
 assert.equal(parseShopIntent('Milch auf die Einkaufsliste')?.kind, 'add')
 assert.equal(parseShopIntent('auch Brot')?.kind, 'add')
 assert.equal(parseShopIntent('was fehlt?')?.kind, 'list')
@@ -261,6 +267,12 @@ assert.equal(in20?.kind, 'create')
 if (in20?.kind === 'create') {
   assert.equal(in20.title, 'Milch')
   assert.equal(in20.due.getTime(), frozen.getTime() + 20 * 60_000)
+}
+const in20holen = parseReminderIntent('in 20 Minuten Milch holen', frozen)
+assert.equal(in20holen?.kind, 'create')
+if (in20holen?.kind === 'create') {
+  assert.equal(in20holen.title, 'Milch holen')
+  assert.equal(in20holen.due.getTime(), frozen.getTime() + 20 * 60_000)
 }
 const morgen = parseReminderIntent('morgen 8 Uhr Steuer', frozen)
 assert.equal(morgen?.kind, 'create')
@@ -581,6 +593,10 @@ assert.deepEqual(parsePlaceWrite('Freundin wohnt in Heilbronn'), {
   name: 'freundin',
   place: 'Heilbronn',
 })
+assert.equal(looksLikeBareStreet('Bahnhofstraße'), true)
+assert.equal(looksLikeBareStreet('Bahnhofstraße 12'), true)
+assert.equal(looksLikeBareStreet('Bahnhofstraße, Heilbronn'), false)
+assert.equal(looksLikeBareStreet('Heilbronn'), false)
 assert.deepEqual(parsePlaceWrite('Ich wohne in Bad Wimpfen'), {
   name: 'zuhause',
   place: 'Bad Wimpfen',
@@ -741,6 +757,8 @@ assert.equal(parseFuelIntent('Danke'), null)
 assert.equal(parseFuelIntent('Fahr mich nach Heilbronn'), null)
 assert.equal(parseFuelIntent('Ich fahre gerne Auto'), null)
 assert.equal(parseDriveIntent('Fahr mich zu einer Tanke'), null)
+assert.equal(parsePlaceNav('Fahr mich zu einer Tanke'), null)
+assert.equal(normalizePlaceName('einer Tanke'), 'tanke')
 assert.equal(parseDriveIntent('zur Tankstelle', true), null)
 assert.equal(isFuelPlace('einer Tanke'), true)
 assert.equal(parseFuelFollowUp('günstigste'), 'cheapest')
@@ -820,6 +838,7 @@ assert.equal(parsePoiIntent('Hat die Apotheke auf')?.hours, true)
 assert.equal(parsePoiIntent('Öffnungszeiten Bäcker')?.kind, 'bakery')
 assert.equal(parsePoiIntent('Öffnungszeiten Bäcker')?.hours, true)
 assert.equal(parsePoiIntent('nächster Laden')?.kind, 'shop')
+assert.equal(parsePoiIntent('nächster Laden', 'pharmacy')?.kind, 'shop')
 assert.equal(parsePoiIntent('nächste Drogerie')?.kind, 'chemist')
 assert.equal(parsePoiIntent('hat die auf', 'pharmacy')?.kind, 'pharmacy')
 assert.equal(parsePoiIntent('hat die auf', 'pharmacy')?.hours, true)

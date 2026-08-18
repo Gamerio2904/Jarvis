@@ -25,6 +25,7 @@ Bestehende Wetter-/Ort-/Alltag-Tools erweitern. Keine erfundenen Werte. Luft und
 | L6 | Prompt-Chips und PC-Prompt-Kopieren raus aus der APK | Tests behalten `TEST_PROMPTS`; Windows-App behält Kopieren |
 | L7 | Sideload `1.48.0` | versionCode 14800 |
 | L8 | Satzbildung Film-Jarvis (`1.48.1`) | Ganze Sätze, kein Telegramm |
+| L9 | Live-Test-Bugs (`1.48.2`) | Erinnerung, Tanke, Laden, Straße, Overlay |
 
 ## Probe
 

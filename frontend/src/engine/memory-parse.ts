@@ -42,13 +42,13 @@ export function parseMemoryFacts(text: string): MemoryFact[] {
     /(?:trinke?\s+(?:gerne\s+)?|lieblingsgetränk\s+ist\s+|getränk\s+ist\s+)(.+?)(?=\s+\bund\b|[,.!?]|$)/i.exec(
       text,
     )
-  if (drink) push('getränk', drink[1], 'pref')
+  if (drink && isPrefValue(drink[1])) push('getränk', drink[1], 'pref')
 
   const food =
     /(?:esse\s+(?:gerne\s+)?|lieblingsessen\s+ist\s+|essen\s+ist\s+)(.+?)(?=\s+\bund\b|[,.!?]|$)/i.exec(
       text,
     )
-  if (food) push('essen', food[1], 'pref')
+  if (food && isPrefValue(food[1])) push('essen', food[1], 'pref')
 
   const rest = MERK.exec(text)
   if (rest && !out.length) {
@@ -58,7 +58,15 @@ export function parseMemoryFacts(text: string): MemoryFact[] {
   return out
 }
 
+function isPrefValue(raw: string): boolean {
+  const v = raw.replace(/[.!?,;:]+$/g, '').trim()
+  if (v.length < 2) return false
+  return !/^(ich|du|er|sie|es|wir|ihr|man|mich|mir|dir|uns)(?:\s+gerne)?$/i.test(v)
+}
+
 export function isMemoryWrite(text: string): boolean {
+  if (isMemoryRecall(text)) return false
+  if (/^\s*was\b/i.test(text) && /[?]/.test(text)) return false
   if (CONTRADICTION.test(text) && !/\b(termin|wecker|timer|todo)\b/i.test(text)) return true
   if (MERK.test(text)) return true
   if (/(?:ich\s+heiß(?:e|t)|mein\s+name\s+ist|nenn(?:e)?\s+mich)\b/i.test(text)) return true
