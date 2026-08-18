@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.40.2`** (Serie `1.34`–`1.40` plus Patch).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.40.3`** (Serie `1.34`–`1.40` plus Patch).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -32,6 +32,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.40.0`** | Härten: Eval, False-Positives, ehrliche Fehler | **CODE** |
 | **`1.40.1`** | Sätze zu Ende; TV OK/D-Pad/`das zweite`; YouTube mit Titel | **CODE** |
 | **`1.40.2`** | Timer spricht (kein Klingeln); natürliche Namen | **CODE** |
+| **`1.40.3`** | Chat/Stimme: Film-Jarvis-Ton (Understatement) | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-93.md`](./sprints/sprint-93.md).
 
@@ -243,10 +244,24 @@ PO: Timer klingelt wie ein Wecker, Jarvis sagt nichts. Namen klingen unecht (`Ti
 
 **Probe:** `Timer 1 Minute Nudeln` — kein Klingeln, Jarvis sagt „Die Nudeln sind fertig.“ Wecker klingelt weiter.
 
+## `1.40.3` — Film-Ton — **CODE**
+
+PO: Suche nach Jarvis aus Iron Man; Chat und Sprachmodus stärker daran anpassen.
+
+Muster aus den Filmen (Paul Bettany): ruhig, fertige Sätze, totes Understatement, Straight Man, „Sir“ sparsam, loyal — nie Helpdesk. **Umsetzung auf Deutsch, ohne Zitate, ohne Marvel-Rolle.**
+
+| Hebel | Wirkung |
+|-------|---------|
+| `GEMINI_PERSONA` + `VOICE_HINT` | Haus-AI, Understatement, keine Filmzeilen |
+| Identität | `Für Sie, jederzeit` statt Steckbrief |
+| `07-persona.md` | Vibe von Kumpel auf gelassenen Straight Man |
+
+**Probe:** `Hallo Jarvis.`, `Was machst du so?`, Sprachmodus. Kein „Wie kann ich helfen?“
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.40.2`. Serie `1.34`–`1.40` plus Patch. Nächste Stufe nur auf PO-Kommando — kein neues Produkt, kein TV-Framebuffer.
+Sideload `1.40.3`. Serie `1.34`–`1.40` plus Patch. Nächste Stufe nur auf PO-Kommando — kein neues Produkt, kein TV-Framebuffer.

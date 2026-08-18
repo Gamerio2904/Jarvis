@@ -27,7 +27,7 @@ import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
 import { ttsModelsToTry } from '../src/engine/tts.ts'
-import { GEMINI_PERSONA, PERSONA } from '../src/engine/persona.ts'
+import { GEMINI_PERSONA, PERSONA, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
@@ -223,6 +223,8 @@ assert.match(PERSONA, /Siezen/)
 assert.match(GEMINI_PERSONA, /Smalltalk/)
 assert.match(GEMINI_PERSONA, /Master/)
 assert.match(GEMINI_PERSONA, /nicht abschreiben/)
+assert.match(GEMINI_PERSONA, /Understatement/)
+assert.match(VOICE_HINT, /Understatement/)
 assert.equal(
   scrubReply('Ich habe das Internet nach Kuchenrezepten durchsucht. Zucker und Mehl reichen.').includes(
     'durchsucht',

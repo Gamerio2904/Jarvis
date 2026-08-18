@@ -5,7 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.40.2`**.
+App-Version im Code: **`1.40.3`**.
+
+### `1.40.3` — Jarvis-Ton näher am Film — *CODE*
+
+Chat und Sprachmodus: ruhiger Haus-AI (Understatement, Straight Man), nicht derber Kumpel. Deutsch, Siezen. Keine Filmzitate, keine Marvel-Rolle.
+
+- Persona + Voice-Hint: fertige Sätze, totes Ernst, Sir selten
+- Identität: `Jarvis. Sie heißen … Für Sie, jederzeit.`
+- [`07-persona.md`](./07-persona.md)
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14003)
+- [`28-next.md`](./28-next.md)
 
 ### `1.40.2` — Timer spricht, natürliche Namen — *CODE*
 

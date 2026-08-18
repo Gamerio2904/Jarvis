@@ -38,7 +38,7 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
     return 'Den Fernseher steuere ich. Sagen Sie zum Beispiel „Öffne YouTube“ oder „Spiel Dune Film“.'
   }
   if (INSULT_USER.test(out)) {
-    return 'Ich bin Jarvis. Worum geht es — sachlich, ohne Anfälle.'
+    return 'Jarvis. Zur Sache — ohne Diagnosen.'
   }
   const searched = Boolean(opts?.searched)
   out = splitSentences(out)

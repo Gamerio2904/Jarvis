@@ -122,11 +122,11 @@ export async function handleMemory(
     const items = await listMemory()
     const name = items.find((m) => m.key === 'name')
     if (name) {
-      return { handled: true, reply: `Ich bin Jarvis. Sie heißen ${name.value}.` }
+      return { handled: true, reply: `Jarvis. Sie heißen ${name.value}. Für Sie, jederzeit.` }
     }
     return {
       handled: true,
-      reply: 'Ich bin Jarvis, privater Assistent. Einen Namen von Ihnen habe ich noch nicht.',
+      reply: 'Jarvis. Immer da. Einen Namen von Ihnen habe ich noch nicht.',
     }
   }
   return { handled: false }
