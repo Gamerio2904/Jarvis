@@ -6,7 +6,7 @@ import type { ToolMeta } from './tools'
 
 export { parseNewsIntent } from './news-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/1.48.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/1.48.1 (local.jarvis.app)' }
 const TS = 'https://www.tagesschau.de/api2u'
 
 export async function handleNews(
@@ -18,7 +18,7 @@ export async function handleNews(
   if (intent.kind === 'place') {
     const local = await tagesschauSearch(intent.place)
     if (local.hits.length) {
-      return pack(`In ${intent.place}: ${local.hits.join(' ')} Tagesschau, nichts erfinden.`, local.sources, intent.place)
+      return pack(`Zur Lage in ${intent.place}: ${local.hits.join(' ')}`, local.sources, intent.place)
     }
     const web = await fillResearchLinks(`${intent.place} heute Nachrichten`, '', {
       query: `${intent.place} heute`,
@@ -30,7 +30,7 @@ export async function handleNews(
       const body = formatResearchReply(`${intent.place} heute`, web.sources || [], false)
       return {
         handled: true,
-        reply: `Tagesschau hat nichts zu ${intent.place}. Netz: ${body}`,
+        reply: `Die Tagesschau erwähnt ${intent.place} nicht. Aus dem Netz: ${body}`,
         research: { ...web, status_label: 'Ort · Netz' },
         tool: { tool_status: 'executed', tool: 'news', action: 'web', label: 'Nachrichten' },
         lastTool: 'news',
@@ -38,7 +38,7 @@ export async function handleNews(
     }
     return {
       handled: true,
-      reply: `Tagesschau hat nichts zu ${intent.place}, im Netz auch kein klarer Treffer. Ich erfinde keine Lokalnachricht.`,
+      reply: `Zur Lage in ${intent.place} sagt die Tagesschau nichts, im Netz ebenfalls kein klarer Treffer. Eine Lokalnachricht würde ich nicht erfinden.`,
       tool: { tool_status: 'executed', tool: 'news', action: 'empty', label: 'Nichts gefunden' },
       lastTool: 'news',
     }
@@ -48,12 +48,12 @@ export async function handleNews(
   if (!national.hits.length) {
     return {
       handled: true,
-      reply: 'Tagesschau gerade nicht erreichbar. Ich erfinde keine Meldungen.',
+      reply: 'Die Tagesschau ist gerade nicht da. Meldungen würde ich nicht erfinden.',
       tool: { tool_status: 'error', tool: 'news', action: 'fetch', label: 'Nachrichten fehlen' },
       lastTool: 'news',
     }
   }
-  return pack(`Tagesschau: ${national.hits.join(' ')}`, national.sources, 'Tagesschau')
+  return pack(`Die Lage laut Tagesschau: ${national.hits.join(' ')}`, national.sources, 'Tagesschau')
 }
 
 function pack(

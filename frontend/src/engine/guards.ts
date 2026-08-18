@@ -34,7 +34,7 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
     return 'Netter Versuch. Weiter im Chat?'
   }
   if (FAKE_CLAIM.test(out)) {
-    return 'Das habe ich nicht ausgeführt. Bitte den Befehl klar sagen.'
+    return 'Das habe ich nicht ausgeführt. Den Befehl bitte klar sagen.'
   }
   if (FAKE_CARPLAY.test(out)) {
     return 'Fahrmodus ist intern in Jarvis, nicht Apple CarPlay. Keine erfundene Verbindung, keine erfundene Navigation. Wohin?'
@@ -79,7 +79,7 @@ export function scrubReply(text: string, opts?: { searched?: boolean }): string 
       .replace(/\bdich\b/gi, 'Sie')
       .replace(/\bdein(e|en|em|er)?\b/gi, 'Ihr')
   }
-  if (!out) return 'Kurz ausgesetzt. Nochmal?'
+  if (!out) return 'Einen Moment. Noch einmal?'
   return finishReply(out)
 }
 
@@ -91,7 +91,7 @@ export function finishReply(text: string): string {
   if (!out) return out
   out = out.replace(/[,;:\-–—]+$/g, '').trim()
   out = out.replace(/\s+[A-Za-zÄÖÜäöüß]{1,2}$/g, '').trim()
-  if (!out) return 'Kurz ausgesetzt. Nochmal?'
+  if (!out) return 'Einen Moment. Noch einmal?'
   if (!/[.!?…]$/.test(out) && (out.split(/\s+/).length >= 2 || out.length >= 12)) out = `${out}.`
   return out
 }

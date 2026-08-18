@@ -28,6 +28,6 @@ export function parseHereIntent(text: string, lastTool = ''): HereIntent | null 
 
 export function formatHereReply(place: string): string {
   const p = place.trim()
-  if (!p || /^hier$/i.test(p)) return 'Ortname fehlt. Koordinaten liegen, das Netz nennt den Platz nicht.'
+  if (!p || /^hier$/i.test(p)) return 'Die Koordinaten liegen. Den Ortsnamen liefert das Netz gerade nicht.'
   return `${p}.`
 }

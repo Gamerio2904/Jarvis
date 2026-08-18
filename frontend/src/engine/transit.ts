@@ -8,7 +8,7 @@ import type { ToolMeta } from './tools'
 
 export { parseTransitIntent } from './transit-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/1.48.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/1.48.1 (local.jarvis.app)' }
 const REST = 'https://v6.db.transport.rest'
 
 type Stop = { id: string; name: string; lat: number; lon: number }
@@ -22,7 +22,7 @@ export async function handleTransit(
   if (intent.kind === 'ask') {
     return {
       handled: true,
-      reply: 'Wohin mit Bahn oder Bus? Zum Beispiel „nächste Bahn nach Heilbronn“.',
+      reply: 'Wohin darf es gehen — Bahn oder Bus? Zum Beispiel nach Heilbronn.',
       tool: { tool_status: 'executed', tool: 'transit', action: 'ask', label: 'Wohin' },
       lastTool: 'transit',
     }
@@ -34,7 +34,7 @@ export async function handleTransit(
   if (!fromFix.ok) {
     return {
       handled: true,
-      reply: fromFix.message || 'Startort fehlt. Standort erlauben oder „von Stuttgart nach …“.',
+      reply: fromFix.message || 'Der Startort fehlt. Standort erlauben, oder von einem Ort nach …',
       tool: { tool_status: 'error', tool: 'transit', action: 'locate', label: 'Start fehlt' },
       lastTool: 'transit',
     }
@@ -61,7 +61,7 @@ export async function handleTransit(
   if (!lines?.lines.length) {
     return {
       handled: true,
-      reply: `Fahrplan gerade nicht erreichbar. Ich erfinde keine Abfahrt. Route mit ÖPNV in Google Maps: ${toFix.fix.place}.`,
+      reply: `Einen Fahrplan habe ich gerade nicht. Eine Abfahrt würde ich nicht erfinden. Die ÖPNV-Route nach ${toFix.fix.place} liegt in Maps.`,
       tool: {
         tool_status: 'error',
         tool: 'transit',
@@ -75,7 +75,7 @@ export async function handleTransit(
   }
   return {
     handled: true,
-    reply: `Mit Bahn/Bus nach ${toFix.fix.place}: ${lines.lines.join(' ')} Quelle: ${lines.provider}. Keine Garantie, bitte am Gleis prüfen.`,
+    reply: `Nach ${toFix.fix.place}: ${lines.lines.join(' ')} Angaben ohne Gewähr — am Gleis prüfen.`,
     research: {
       used: true,
       status: 'ok',

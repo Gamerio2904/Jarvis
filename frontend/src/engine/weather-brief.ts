@@ -141,17 +141,17 @@ export function formatWeatherBrief(
   focus: WeatherFocus,
 ): string {
   if (focus === 'air') {
-    if (snap.aqi == null) return `${at(snap.place)}: Luftwerte fehlen. Ich rate nicht.`
-    const pm = snap.pm25 != null ? `, Feinstaub ${Math.round(snap.pm25)}` : ''
+    if (snap.aqi == null) return `${at(snap.place)} liegen keine Luftwerte vor. Raten wäre unseriös.`
+    const pm = snap.pm25 != null ? ` Feinstaub bei ${Math.round(snap.pm25)}.` : ''
     const pol = snap.pollen ? ` Pollen: ${snap.pollen}.` : ''
-    return `${at(snap.place)} Luftqualität ${snap.aqi}, ${aqiLabel(snap.aqi)}${pm}.${pol} Open-Meteo, kein Raten.`
+    return `${at(snap.place)} ist die Luft ${aqiLabel(snap.aqi)}, Luftqualität ${snap.aqi}.${pm}${pol}`
   }
   if (focus === 'sun') {
     const up = clock(snap.sunrise)
     const down = clock(snap.sunset)
-    if (!up && !down) return `${at(snap.place)}: Sonnenzeiten fehlen. Ich rate nicht.`
+    if (!up && !down) return `${at(snap.place)} liegen keine Sonnenzeiten vor. Raten wäre unseriös.`
     const day = when === 'tomorrow' ? ' morgen' : ''
-    return `${at(snap.place)}${day} Sonnenaufgang ${up || '—'}, Untergang ${down || '—'}.`
+    return `${at(snap.place)}${day} geht die Sonne um ${up || '—'} auf und um ${down || '—'} unter.`
   }
   const feels = snap.feels ?? snap.temp
   const isWet = wet(snap.code, snap.precipNow, snap.rainSoon)
@@ -170,8 +170,8 @@ export function formatWeatherBrief(
           ? 'Samstag eher drinnen oder mit Schirm.'
           : sunWet
             ? 'Sonntag Schirm mitnehmen, Samstag eher trocken.'
-            : 'Gutes Wochenende zum Rausgehen.'
-    return `${at(snap.place)} am Wochenende: ${bits.join(', ')}. ${weekendTip}`
+            : 'Ein brauchbares Wochenende zum Rausgehen.'
+    return `${at(snap.place)} am Wochenende ${bits.join(', ')}. ${weekendTip}`
   }
 
   if ((when === 'tomorrow' || when === 'weekend') && snap.tomorrow) {
@@ -190,7 +190,7 @@ export function formatWeatherBrief(
     return `${at(snap.place)} morgen ${span(d)}${rainBit(d)}. ${dayTip}`
   }
 
-  const now = `${at(snap.place)} sind es ${deg(snap.temp)}${feelsBit(snap.temp, snap.feels)}, ${snap.label}`
+  const now = `${at(snap.place)} liegen ${deg(snap.temp)}${feelsBit(snap.temp, snap.feels)}, ${snap.label}`
   const today = snap.today ? ` Heute ${span(snap.today)}` : ''
 
   if (focus === 'rain') {

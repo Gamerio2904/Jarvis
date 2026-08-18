@@ -34,7 +34,7 @@ export async function handleBrief(): Promise<{
 
   const s = loadSettings()
   if (!parts.length) {
-    return { handled: true, reply: s.last_weather_line ? `${s.last_weather_line}. Sonst nichts Offen.` : 'Nichts Offen. Kein Termin, keine Liste.' }
+    return { handled: true, reply: s.last_weather_line ? `${s.last_weather_line} Sonst liegt nichts an.` : 'Im Kalender liegt nichts, die Listen sind leer.' }
   }
   return {
     handled: true,

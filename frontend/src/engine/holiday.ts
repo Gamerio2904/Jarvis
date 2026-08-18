@@ -5,7 +5,7 @@ import type { ToolMeta } from './tools'
 
 export { parseHolidayIntent } from './holiday-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/1.48.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/1.48.1 (local.jarvis.app)' }
 
 type Holiday = {
   date: string
@@ -24,7 +24,7 @@ export async function handleHoliday(
   if (!rows.length) {
     return {
       handled: true,
-      reply: 'Feiertagsliste nicht erreichbar (Nager.Date). Ich rate nicht, ob frei ist.',
+      reply: 'Die Feiertagsliste ist gerade nicht da. Ob frei ist, würde ich nicht raten.',
       tool: { tool_status: 'error', tool: 'holiday', action: 'fetch', label: 'Feiertag fehlt' },
       lastTool: 'holiday',
     }
@@ -39,8 +39,8 @@ export async function handleHoliday(
       reply: hit
         ? `Heute ist ${hit.localName}${where(hit)}.`
         : land
-          ? `Heute kein gesetzlicher Feiertag${landLabel(land)}.`
-          : 'Heute kein bundesweiter Feiertag. In einzelnen Ländern kann es anders sein.',
+          ? `Heute ist${landLabel(land)} kein gesetzlicher Feiertag.`
+          : 'Heute ist kein bundesweiter Feiertag. In einzelnen Ländern kann es anders sein.',
       tool: { tool_status: 'executed', tool: 'holiday', action: 'today', label: 'Feiertag' },
       lastTool: 'holiday',
     }
@@ -51,7 +51,7 @@ export async function handleHoliday(
       handled: true,
       reply: hit
         ? `Morgen ist ${hit.localName}${where(hit)}.`
-        : 'Morgen kein gesetzlicher Feiertag, soweit die Liste reicht.',
+        : 'Morgen ist kein gesetzlicher Feiertag, soweit die Liste reicht.',
       tool: { tool_status: 'executed', tool: 'holiday', action: 'tomorrow', label: 'Feiertag' },
       lastTool: 'holiday',
     }
@@ -62,14 +62,14 @@ export async function handleHoliday(
     const n = more.find((h) => relevant(h, land))
     return {
       handled: true,
-      reply: n ? `Nächster Feiertag: ${n.localName}, ${fmt(n.date)}${where(n)}.` : 'Keinen nächsten Feiertag gefunden.',
+      reply: n ? `Der nächste Feiertag ist ${n.localName}, ${fmt(n.date)}${where(n)}.` : 'Einen nächsten Feiertag habe ich nicht gefunden.',
       tool: { tool_status: 'executed', tool: 'holiday', action: 'next', label: 'Feiertag' },
       lastTool: 'holiday',
     }
   }
   return {
     handled: true,
-    reply: `Nächster Feiertag: ${next.localName}, ${fmt(next.date)}${where(next)}.`,
+    reply: `Der nächste Feiertag ist ${next.localName}, ${fmt(next.date)}${where(next)}.`,
     tool: { tool_status: 'executed', tool: 'holiday', action: 'next', label: 'Feiertag' },
     lastTool: 'holiday',
   }

@@ -33,7 +33,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 26 | [Samsung-Apps](./26-next.md) | **`1.32` CODE** — YouTube/Amazon/Disney/Netflix, Film-Lookup |
 | 27 | [Sprachmodus Tempo](./27-next.md) | **`1.32.1` CODE** — sofort sprechen, keine Stille |
 | 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`1.48` CODE** — Suche bis Live-Lage |
-| — | [APK](./apk.md) | Sideload `1.48.0` |
+| — | [APK](./apk.md) | Sideload `1.48.1` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -95,4 +95,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 100 | `1.47.0` | **CODE** (PC live) |
 | 101 | `1.48.0` | **CODE** (Luft/Sonne/Bahn/Nachrichten/Feiertage) |
 
-**Aktuell:** Sideload `1.48.0` — [`Jarvis.apk`](./apk.md). Live-Lage auf Nachfrage. PC-App: [`../desktop/README.md`](../desktop/README.md). [`28-next.md`](./28-next.md).
+**Aktuell:** Sideload `1.48.1` — [`Jarvis.apk`](./apk.md). Satzbildung Film-Jarvis. PC-App: [`../desktop/README.md`](../desktop/README.md). [`28-next.md`](./28-next.md).

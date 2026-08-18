@@ -336,7 +336,7 @@ export async function completeChat(
   const prompt = formatQwenChat(mapped)
   const text = await completeStreaming(prompt, onToken)
   if (!text) {
-    return 'Kurz ausgesetzt. Nochmal senden?'
+    return 'Einen Moment. Noch einmal senden?'
   }
   return text
 }

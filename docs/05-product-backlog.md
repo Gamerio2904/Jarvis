@@ -332,7 +332,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.48.0`
+1. Sideload `1.48.1`
 2. Weitere Arbeit nur auf PO-Kommando — [`28-next.md`](./28-next.md)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 

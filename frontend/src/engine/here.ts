@@ -35,7 +35,7 @@ async function activate(lastTool: string): Promise<HereHit> {
   }
   return {
     handled: true,
-    reply: loc.message || 'Standort weiter aus. Ich rate nicht.',
+    reply: loc.message || 'Standort weiter aus. Die Lage rate ich nicht.',
     tool: hereTool(loc.openedSettings ? 'settings' : 'ask'),
     lastTool:
       lastTool === 'fuel' || lastTool === 'weather' || lastTool === 'poi' || lastTool === 'transit'
@@ -49,7 +49,7 @@ async function locate(openSettings: boolean): Promise<HereHit> {
   if (!loc.ok || loc.lat == null || loc.lon == null) {
     return {
       handled: true,
-      reply: loc.message || 'Kein Standort. Ich rate nicht.',
+      reply: loc.message || 'Kein Standort. Die Lage rate ich nicht.',
       tool: hereTool(loc.openedSettings ? 'settings' : 'ask'),
       lastTool: 'here',
     }

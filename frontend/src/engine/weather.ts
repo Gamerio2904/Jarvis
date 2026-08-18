@@ -47,7 +47,7 @@ export async function handleWeather(
     const which = intent.focus === 'air' ? 'Luftwerte' : intent.focus === 'sun' ? 'Sonnenzeiten' : 'Wetterdienst'
     return {
       handled: true,
-      reply: `${which} nicht erreichbar. Ich rate nicht.`,
+      reply: `${which} gerade nicht da. Raten wäre unseriös.`,
       tool: { tool_status: 'error', tool: 'weather', action: 'fetch', label: 'Wetter fehlt' },
     }
   }
@@ -143,7 +143,7 @@ export async function resolveWeatherHere(): Promise<{ ok: true; fix: Fix } | { o
       ok: false,
       message:
         loc.message ||
-        'Standort einmal erlauben. Sagen Sie „aktivieren“, dann kommt die Android-Abfrage. Oder „Wetter in …“. Ich rate nicht.',
+        'Standort einmal erlauben — „aktivieren“ genügt, dann kommt die Android-Abfrage. Oder Wetter in einem Ort. Die Lage rate ich nicht.',
     }
   }
   const place = (await reversePlace(loc.lat, loc.lon)) || 'hier'

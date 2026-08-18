@@ -241,6 +241,8 @@ assert.match(GEMINI_PERSONA, /Master/)
 assert.match(GEMINI_PERSONA, /nicht abschreiben/)
 assert.match(GEMINI_PERSONA, /Understatement/)
 assert.match(VOICE_HINT, /Understatement/)
+assert.match(PERSONA, /Telegramm/)
+assert.match(GEMINI_PERSONA, /Satzbildung/)
 assert.equal(
   scrubReply('Ich habe das Internet nach Kuchenrezepten durchsucht. Zucker und Mehl reichen.').includes(
     'durchsucht',
@@ -351,7 +353,7 @@ const snap = {
 const nowBrief = formatWeatherBrief(snap, 'now', 'general')
 assert.match(nowBrief, /München/)
 assert.match(nowBrief, /18 Grad/)
-assert.doesNotMatch(nowBrief, /Open-Meteo|°C/)
+assert.doesNotMatch(nowBrief, /Open-Meteo|°C|kein Raten/)
 assert.match(formatWeatherBrief(snap, 'tomorrow', 'general'), /morgen/)
 assert.match(formatWeatherBrief(snap, 'tomorrow', 'rain'), /Schirm/)
 assert.match(formatWeatherBrief(snap, 'weekend', 'general'), /Wochenende/)
@@ -369,6 +371,10 @@ assert.match(
   formatWeatherBrief({ ...snap, aqi: 18, pm25: 6, pollen: 'Gräser wenig' }, 'now', 'air'),
   /Luftqualität 18/,
 )
+assert.doesNotMatch(
+  formatWeatherBrief({ ...snap, aqi: 18, pm25: 6, pollen: 'Gräser wenig' }, 'now', 'air'),
+  /Open-Meteo|kein Raten/,
+)
 assert.doesNotMatch(formatWeatherBrief(snap, 'now', 'general'), /Luftqualität|Sonnenaufgang/)
 assert.match(
   formatWeatherBrief(
@@ -377,6 +383,14 @@ assert.match(
     'sun',
   ),
   /06:12/,
+)
+assert.match(
+  formatWeatherBrief(
+    { ...snap, sunrise: '2026-08-18T06:12:00', sunset: '2026-08-18T20:41:00' },
+    'now',
+    'sun',
+  ),
+  /geht die Sonne/,
 )
 
 const bahn = parseTransitIntent('Mit der Bahn nach Heilbronn')

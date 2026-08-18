@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.0`** (Luft/Sonne/Bahn/Nachrichten/Feiertage).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.1`** (Satzbildung Film-Jarvis).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -42,6 +42,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.47.0`** | PC live: Bildschirm, Maus, FIFA, Ordner | **CODE** |
 | **`1.47.1`** | Ein-Klick-Kopieren: IP, Token, Prompts | **CODE** |
 | **`1.48.0`** | Luft/Sonne auf Nachfrage, Bahn, Tagesschau, Feiertage | **CODE** |
+| **`1.48.1`** | Satzbildung näher am Film-Jarvis | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-101.md`](./sprints/sprint-101.md).
 
@@ -394,10 +395,23 @@ PO: Open-Meteo Air und Sonnenaufgang nur gezielt. transport.rest. Tagesschau und
 
 **Probe:** `Wie ist die Luft?` · `Wann Sonnenaufgang?` · `Wetter heute` · `Mit der Bahn nach Heilbronn` · `Nachrichten` · `Was ist heute in Ingesheim passiert` · `Ist heute Feiertag?`
 
+## `1.48.1` — Satzbildung — **CODE**
+
+PO: Sätze mehr Jarvis wie aus den Filmen.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Persona / Stimme | Ganze Sätze mit Verb, kein Telegramm, kein Nachsatz „kein Raten“ |
+| Wetter, Luft, Sonne | Feststellung statt Stichwortkette |
+| Bahn, Nachrichten, Feiertag | Dieselbe Kadenz |
+| `07-persona.md` | Ganze Sätze als Soll |
+
+**Probe:** `Hallo Jarvis.` · `Wetter heute` · `Nachrichten` · `Ist heute Feiertag?`
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.48.0`. Luft/Sonne nur auf Nachfrage, Bahn, Tagesschau, Feiertage. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.48.1`. Satzbildung Film-Jarvis. Nächste Stufe nur auf PO-Kommando.

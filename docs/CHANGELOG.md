@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.48.0`**.
+App-Version im Code: **`1.48.1`**.
+
+### `1.48.1` — Satzbildung Film-Jarvis — *CODE*
+
+Ganze Sätze, kein Telegramm. Wetter, Bahn, Nachrichten und Feiertage sprechen wie ein Haus-AI — Fakten als Feststellung, ohne Nachsatz „kein Raten“. Persona und Sprachmodus gleich.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14801)
+- [`28-next.md`](./28-next.md) · [`07-persona.md`](./07-persona.md)
 
 ### `1.48.0` — Luft, Sonne, Bahn, Nachrichten, Feiertage — *CODE*
 
