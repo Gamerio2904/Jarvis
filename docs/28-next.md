@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.4`** (Fahrmodus-Karte vollflächig, Norden oben).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.5`** (Karte schieben, Sprache im Fahrmodus).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -46,6 +46,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.48.2`** | Live-Test-Bugs (Parser, Overlay, Straße) | **CODE** |
 | **`1.48.3`** | Fahrmodus: Karte und Route | **CODE** |
 | **`1.48.4`** | Fahrmodus-Karte: vollflächig, Norden oben | **CODE** |
+| **`1.48.5`** | Karte schieben/zoomen, Sprache im Fahrmodus | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-101.md`](./sprints/sprint-101.md).
 
@@ -450,10 +451,21 @@ PO: Karte nur smartphone-groß, gedreht, laggy.
 
 **Probe:** `Nach Heilbronn` — Karte füllt den Schirm, Straße nicht auf der Seite, Route sichtbar.
 
+## `1.48.5` — Karte schieben + Sprache — **CODE**
+
+PO: Karte nicht verschiebbar, Mic geht an und macht nichts.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Gesten | Ziehen, Pinch, Doppeltipp; GPS-Follow erst nach Standort-Knopf wieder |
+| Mic | Navi-Stimme aus, zuhören, Befehl ausführen, Antwort sprechen |
+
+**Probe:** Karte schieben, pinch, ⌖. Mic: `nächste Tanke`.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.48.4`. Fahrmodus-Karte vollflächig, Norden oben. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.48.5`. Karte schieben, Mic spricht. Nächste Stufe nur auf PO-Kommando.

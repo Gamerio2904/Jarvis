@@ -69,7 +69,7 @@ import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { formatFilmReply } from '../src/engine/film.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
-import { compactCoords, lonLatPath, projectToView, settleZoom, tilesForView, tileUrl, webMercator, wrapTile, zoomForSpeedMps } from '../src/engine/drive-map.ts'
+import { compactCoords, latLonFromWorld, lonLatPath, panCam, projectToView, settleZoom, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps } from '../src/engine/drive-map.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -244,6 +244,16 @@ assert.equal(dirFromManeuver('turn', 'slight left'), 'slight_left')
   assert.equal(wrapTile(3, -1), 7)
   assert.ok(tileUrl(16, 1, 2, true).includes('cartocdn.com'))
   assert.ok(!tileUrl(16, 1, 2, true).includes('rotate'))
+  const home = { lat: 48.78, lon: 9.18, zoom: 16 }
+  const west = panCam(home, 256, 0)
+  assert.ok(west.lon < home.lon)
+  const back = latLonFromWorld(worldPixels(home.lat, home.lon, 16).x, worldPixels(home.lat, home.lon, 16).y, 16)
+  assert.ok(Math.abs(back.lat - home.lat) < 1e-6)
+  assert.ok(Math.abs(back.lon - home.lon) < 1e-6)
+  const zc = zoomAround(home, 17, 200, 400, 200, 400)
+  assert.ok(Math.abs(zc.lat - home.lat) < 1e-5)
+  assert.ok(Math.abs(zc.lon - home.lon) < 1e-5)
+  assert.equal(zc.zoom, 17)
 }
 
 assert.ok(isMemoryWrite('Ich heiße Max und trinke gerne Kaffee'))

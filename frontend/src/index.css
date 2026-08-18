@@ -2071,6 +2071,7 @@ button.linkish {
   overflow: hidden;
   background: #0b100e;
   touch-action: none;
+  user-select: none;
 }
 
 .drive-map-canvas {
@@ -2081,13 +2082,13 @@ button.linkish {
 
 .drive-you {
   position: absolute;
-  left: 50%;
-  top: 58%;
+  left: 0;
+  top: 0;
   width: 28px;
   height: 32px;
-  margin: -16px 0 0 -14px;
   z-index: 1;
   pointer-events: none;
+  transform-origin: 14px 16px;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
   will-change: transform;
 }
@@ -2244,6 +2245,28 @@ button.linkish {
   background: #e4c36a !important;
   color: #070908 !important;
   border: none !important;
+}
+
+.drive-mic.is-hot {
+  box-shadow: 0 0 0 6px rgba(228, 195, 106, 0.28);
+}
+
+.drive-recenter {
+  position: absolute;
+  right: 14px;
+  bottom: 132px;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(228, 195, 106, 0.4);
+  background: rgba(12, 16, 14, 0.92);
+  color: #e4c36a;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .drive-now-row {

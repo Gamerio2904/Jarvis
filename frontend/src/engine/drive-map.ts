@@ -54,6 +54,55 @@ export function tilesForView(width: number, height: number, tile = TILE_SIZE): {
   }
 }
 
+export type MapCam = { lat: number; lon: number; zoom: number }
+
+export function clampMapZoom(z: number): number {
+  if (!Number.isFinite(z)) return 16
+  return Math.min(18.4, Math.max(12, z))
+}
+
+export function worldPixels(lat: number, lon: number, zoom: number, tile = TILE_SIZE): { x: number; y: number } {
+  const n = tile * 2 ** zoom
+  const x = ((lon + 180) / 360) * n
+  const rad = (lat * Math.PI) / 180
+  const y = ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * n
+  return { x, y }
+}
+
+export function latLonFromWorld(x: number, y: number, zoom: number, tile = TILE_SIZE): { lat: number; lon: number } {
+  const n = tile * 2 ** zoom
+  const lon = (x / n) * 360 - 180
+  const lat = (Math.atan(Math.sinh(Math.PI * (1 - (2 * y) / n))) * 180) / Math.PI
+  return { lat: Math.max(-85, Math.min(85, lat)), lon }
+}
+
+/** Finger nach rechts → Karte nach rechts, Kamera nach Westen. */
+export function panCam(cam: MapCam, dxPx: number, dyPx: number): MapCam {
+  const p = worldPixels(cam.lat, cam.lon, cam.zoom)
+  const next = latLonFromWorld(p.x - dxPx, p.y - dyPx, cam.zoom)
+  return { lat: next.lat, lon: next.lon, zoom: cam.zoom }
+}
+
+/** Pinch/Doppeltipp: Punkt unter dem Finger bleibt liegen. */
+export function zoomAround(
+  cam: MapCam,
+  nextZoom: number,
+  screenX: number,
+  screenY: number,
+  cx: number,
+  cy: number,
+): MapCam {
+  const z = clampMapZoom(nextZoom)
+  const before = worldPixels(cam.lat, cam.lon, cam.zoom)
+  const fx = before.x + (screenX - cx)
+  const fy = before.y + (screenY - cy)
+  const scale = 2 ** (z - cam.zoom)
+  const camX = fx * scale - (screenX - cx)
+  const camY = fy * scale - (screenY - cy)
+  const ll = latLonFromWorld(camX, camY, z)
+  return { lat: ll.lat, lon: ll.lon, zoom: z }
+}
+
 export function projectToView(
   lat: number,
   lon: number,
@@ -64,9 +113,9 @@ export function projectToView(
   cy: number,
   tile = TILE_SIZE,
 ): { x: number; y: number } {
-  const c = webMercator(camLat, camLon, z)
-  const p = webMercator(lat, lon, z)
-  return { x: (p.x - c.x) * tile + cx, y: (p.y - c.y) * tile + cy }
+  const c = worldPixels(camLat, camLon, z, tile)
+  const p = worldPixels(lat, lon, z, tile)
+  return { x: p.x - c.x + cx, y: p.y - c.y + cy }
 }
 
 export function lonLatPath(

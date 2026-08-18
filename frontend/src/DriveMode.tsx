@@ -10,7 +10,9 @@ import {
 } from './engine/drive'
 import {
   TILE_SIZE,
+  clampMapZoom,
   dayTiles,
+  panCam,
   prefetchTile,
   projectToView,
   readLastMapFix,
@@ -18,12 +20,14 @@ import {
   tilesPending,
   tileUrl,
   webMercator,
+  zoomAround,
   zoomForSpeedMps,
+  type MapCam,
   type MapFix,
 } from './engine/drive-map'
 import { formatNavBanner, nextManeuver } from './engine/nav-speak'
 import { watchDeviceLocation } from './native/geo'
-import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, stopSpeak } from './native/voice'
+import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, speakText, stopListen, stopSpeak } from './native/voice'
 import { isChatSpeaking } from './engine/speak-lock'
 import { parseFuelIntent } from './engine/fuel-parse'
 import { parsePoiIntent } from './engine/poi-parse'
@@ -63,15 +67,122 @@ function FollowMap({
   const youRef = useRef<HTMLDivElement>(null)
   const destRef = useRef({ lat: destLat, lon: destLon, coords })
   destRef.current = { lat: destLat, lon: destLon, coords }
-  const cam = useRef({ lat: live.current.lat, lon: live.current.lon })
-  const zoomRef = useRef(zoomForSpeedMps(live.current.speed))
+  const cam = useRef<MapCam>({
+    lat: live.current.lat,
+    lon: live.current.lon,
+    zoom: zoomForSpeedMps(live.current.speed),
+  })
+  const followRef = useRef(true)
+  const userZoomRef = useRef(false)
   const zoomWantedAt = useRef(0)
   const headingRef = useRef(live.current.bearing || 0)
+  const [browsing, setBrowsing] = useState(false)
 
   useEffect(() => {
     let liveLoop = true
     let lastDraw = 0
     let frame = 0
+    const wrap = wrapRef.current
+    if (!wrap) return
+
+    const pts = new Map<number, { x: number; y: number }>()
+    let lastPan: { x: number; y: number } | null = null
+    let pinch: { dist: number; zoom: number } | null = null
+    let moved = false
+    let lastTap = 0
+    let lastTapAt = { x: 0, y: 0 }
+
+    const boxPos = (e: PointerEvent) => {
+      const r = wrap.getBoundingClientRect()
+      return { x: e.clientX - r.left, y: e.clientY - r.top }
+    }
+    const pair = () => [...pts.values()]
+    const dist = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+      Math.hypot(a.x - b.x, a.y - b.y)
+
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return
+      wrap.setPointerCapture(e.pointerId)
+      const p = boxPos(e)
+      pts.set(e.pointerId, p)
+      moved = false
+      if (pts.size === 1) {
+        lastPan = p
+        pinch = null
+      } else if (pts.size >= 2) {
+        const [a, b] = pair()
+        pinch = { dist: Math.max(24, dist(a, b)), zoom: cam.current.zoom }
+        lastPan = null
+      }
+      e.preventDefault()
+    }
+    const onMove = (e: PointerEvent) => {
+      if (!pts.has(e.pointerId)) return
+      const p = boxPos(e)
+      pts.set(e.pointerId, p)
+      const w = wrap.clientWidth
+      const h = wrap.clientHeight
+      const cx = w * 0.5
+      const cy = h * 0.58
+      if (pts.size >= 2 && pinch) {
+        const [a, b] = pair()
+        const d = Math.max(24, dist(a, b))
+        const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+        userZoomRef.current = true
+        if (followRef.current) {
+          cam.current = {
+            ...cam.current,
+            zoom: clampMapZoom(pinch.zoom + Math.log2(d / pinch.dist)),
+          }
+        } else {
+          cam.current = zoomAround(cam.current, pinch.zoom + Math.log2(d / pinch.dist), mid.x, mid.y, cx, cy)
+        }
+        lastDraw = 0
+        e.preventDefault()
+        return
+      }
+      if (pts.size === 1 && lastPan) {
+        const dx = p.x - lastPan.x
+        const dy = p.y - lastPan.y
+        if (Math.abs(dx) + Math.abs(dy) > 7) moved = true
+        if (moved) {
+          if (followRef.current) {
+            followRef.current = false
+            setBrowsing(true)
+          }
+          cam.current = panCam(cam.current, dx, dy)
+          lastDraw = 0
+        }
+        lastPan = p
+        e.preventDefault()
+      }
+    }
+    const onUp = (e: PointerEvent) => {
+      const p = pts.get(e.pointerId) || boxPos(e)
+      pts.delete(e.pointerId)
+      if (pts.size < 2) pinch = null
+      if (pts.size === 1) lastPan = pair()[0] || null
+      else lastPan = null
+      if (pts.size === 0 && !moved) {
+        const now = Date.now()
+        if (now - lastTap < 280 && dist(p, lastTapAt) < 28) {
+          const w = wrap.clientWidth
+          const h = wrap.clientHeight
+          userZoomRef.current = true
+          cam.current = zoomAround(cam.current, cam.current.zoom + 1, p.x, p.y, w * 0.5, h * 0.58)
+          lastDraw = 0
+          lastTap = 0
+        } else {
+          lastTap = now
+          lastTapAt = p
+        }
+      }
+    }
+
+    wrap.addEventListener('pointerdown', onDown)
+    wrap.addEventListener('pointermove', onMove)
+    wrap.addEventListener('pointerup', onUp)
+    wrap.addEventListener('pointercancel', onUp)
 
     const paint = (now: number) => {
       const box = wrapRef.current
@@ -81,29 +192,38 @@ function FollowMap({
       const cssW = box.clientWidth
       const cssH = box.clientHeight
       if (cssW < 8 || cssH < 8) return
-
+      const cx = cssW * 0.5
+      const cy = cssH * 0.58
       const here = live.current
-      const jump = Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) > 0.05
-      if (jump) {
-        cam.current = { lat: here.lat, lon: here.lon }
-      } else {
-        cam.current.lat += (here.lat - cam.current.lat) * 0.18
-        cam.current.lon += (here.lon - cam.current.lon) * 0.18
-      }
 
-      const wanted = zoomForSpeedMps(here.speed)
-      if (wanted !== zoomRef.current) {
-        if (!zoomWantedAt.current) zoomWantedAt.current = now
-        zoomRef.current = settleZoom(zoomRef.current, wanted, zoomWantedAt.current, now)
-        if (zoomRef.current === wanted) zoomWantedAt.current = 0
-      } else {
-        zoomWantedAt.current = 0
+      if (followRef.current && pts.size === 0) {
+        const jump = Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) > 0.05
+        if (jump) {
+          cam.current.lat = here.lat
+          cam.current.lon = here.lon
+        } else {
+          cam.current.lat += (here.lat - cam.current.lat) * 0.18
+          cam.current.lon += (here.lon - cam.current.lon) * 0.18
+        }
+        if (!userZoomRef.current) {
+          const wanted = zoomForSpeedMps(here.speed)
+          if (wanted !== Math.round(cam.current.zoom)) {
+            if (!zoomWantedAt.current) zoomWantedAt.current = now
+            cam.current.zoom = settleZoom(Math.round(cam.current.zoom), wanted, zoomWantedAt.current, now)
+            if (Math.round(cam.current.zoom) === wanted) zoomWantedAt.current = 0
+          } else {
+            zoomWantedAt.current = 0
+          }
+        }
       }
 
       const still =
-        Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) < 4e-7 &&
-        tilesPending() === 0
-      if (still && now - lastDraw < 200) return
+        pts.size === 0 &&
+        tilesPending() === 0 &&
+        (followRef.current
+          ? Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) < 4e-7
+          : true)
+      if (still && now - lastDraw < 180) return
       lastDraw = now
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2.5)
@@ -116,15 +236,15 @@ function FollowMap({
       const ctx = canvas.getContext('2d', { alpha: false })
       if (!ctx) return
 
-      const z = zoomRef.current
+      const z = cam.current.zoom
+      const zInt = Math.max(1, Math.floor(z + 1e-6))
+      const size = TILE_SIZE * 2 ** (z - zInt)
       const day = dayTiles()
-      const cx = cssW * 0.5
-      const cy = cssH * 0.58
-      const camM = webMercator(cam.current.lat, cam.current.lon, z)
-      const x0 = Math.floor(camM.x - cx / TILE_SIZE) - 1
-      const y0 = Math.floor(camM.y - cy / TILE_SIZE) - 1
-      const x1 = Math.ceil(camM.x + (cssW - cx) / TILE_SIZE) + 1
-      const y1 = Math.ceil(camM.y + (cssH - cy) / TILE_SIZE) + 1
+      const camM = webMercator(cam.current.lat, cam.current.lon, zInt)
+      const x0 = Math.floor(camM.x - cx / size) - 1
+      const y0 = Math.floor(camM.y - cy / size) - 1
+      const x1 = Math.ceil(camM.x + (cssW - cx) / size) + 1
+      const y1 = Math.ceil(camM.y + (cssH - cy) / size) + 1
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.imageSmoothingEnabled = true
@@ -136,10 +256,10 @@ function FollowMap({
       }
       for (let ty = y0; ty <= y1; ty += 1) {
         for (let tx = x0; tx <= x1; tx += 1) {
-          const img = prefetchTile(tileUrl(z, tx, ty, day), ready)
-          const sx = (tx - camM.x) * TILE_SIZE + cx
-          const sy = (ty - camM.y) * TILE_SIZE + cy
-          if (img) ctx.drawImage(img, sx, sy, TILE_SIZE, TILE_SIZE)
+          const img = prefetchTile(tileUrl(zInt, tx, ty, day), ready)
+          const sx = (tx - camM.x) * size + cx
+          const sy = (ty - camM.y) * size + cy
+          if (img) ctx.drawImage(img, sx, sy, size, size)
         }
       }
 
@@ -149,19 +269,19 @@ function FollowMap({
         let started = false
         let lastX = Infinity
         let lastY = Infinity
-        for (const pair of dest.coords) {
-          const lon = Number(pair?.[0])
-          const lat = Number(pair?.[1])
+        for (const row of dest.coords) {
+          const lon = Number(row?.[0])
+          const lat = Number(row?.[1])
           if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
-          const p = projectToView(lat, lon, cam.current.lat, cam.current.lon, z, cx, cy)
-          if (Math.abs(p.x - lastX) < 1.2 && Math.abs(p.y - lastY) < 1.2) continue
-          lastX = p.x
-          lastY = p.y
+          const pt = projectToView(lat, lon, cam.current.lat, cam.current.lon, z, cx, cy)
+          if (Math.abs(pt.x - lastX) < 1.2 && Math.abs(pt.y - lastY) < 1.2) continue
+          lastX = pt.x
+          lastY = pt.y
           if (!started) {
-            ctx.moveTo(p.x, p.y)
+            ctx.moveTo(pt.x, pt.y)
             started = true
           } else {
-            ctx.lineTo(p.x, p.y)
+            ctx.lineTo(pt.x, pt.y)
           }
         }
         if (started) {
@@ -187,10 +307,15 @@ function FollowMap({
         ctx.stroke()
       }
 
+      const you = projectToView(here.lat, here.lon, cam.current.lat, cam.current.lon, z, cx, cy)
       const heading = here.bearing != null && Number.isFinite(here.bearing) ? here.bearing : headingRef.current
       const delta = ((heading - headingRef.current + 540) % 360) - 180
       headingRef.current += delta * 0.22
-      if (pin) pin.style.transform = `rotate(${headingRef.current}deg)`
+      if (pin) {
+        const on = you.x > -40 && you.x < cssW + 40 && you.y > -40 && you.y < cssH + 40
+        pin.style.opacity = on ? '1' : '0'
+        pin.style.transform = `translate(${you.x - 14}px, ${you.y - 16}px) rotate(${headingRef.current}deg)`
+      }
     }
 
     const tick = (now: number) => {
@@ -202,23 +327,40 @@ function FollowMap({
     return () => {
       liveLoop = false
       cancelAnimationFrame(frame)
+      wrap.removeEventListener('pointerdown', onDown)
+      wrap.removeEventListener('pointermove', onMove)
+      wrap.removeEventListener('pointerup', onUp)
+      wrap.removeEventListener('pointercancel', onUp)
     }
   }, [live])
 
   return (
-    <div
-      className="drive-map-wrap"
-      ref={wrapRef}
-      onClick={() => {
-        cam.current = { lat: live.current.lat, lon: live.current.lon }
-      }}
-    >
+    <div className="drive-map-wrap" ref={wrapRef}>
       <canvas className="drive-map-canvas" ref={canvasRef} />
       <div className="drive-you" ref={youRef} aria-hidden>
         <svg viewBox="-12 -14 24 28">
           <polygon points="0,-12 8,12 -8,12" fill="#e4c36a" stroke="#070908" strokeWidth="2" />
         </svg>
       </div>
+      {browsing ? (
+        <button
+          type="button"
+          className="drive-recenter"
+          aria-label="Standort folgen"
+          onClick={() => {
+            followRef.current = true
+            userZoomRef.current = false
+            cam.current = {
+              lat: live.current.lat,
+              lon: live.current.lon,
+              zoom: zoomForSpeedMps(live.current.speed),
+            }
+            setBrowsing(false)
+          }}
+        >
+          ⌖
+        </button>
+      ) : null}
     </div>
   )
 }
@@ -245,7 +387,7 @@ export function DriveMode({
   onCommand,
 }: {
   onClose: () => void
-  onCommand?: (text: string) => void
+  onCommand?: (text: string) => Promise<string> | void
 }) {
   const [route, setRoute] = useState<DriveRoute | null>(() => getDriveRoute())
   const [tab, setTab] = useState<DriveTab>(() => getDriveTab())
@@ -259,7 +401,9 @@ export function DriveMode({
   const [musicMsg, setMusicMsg] = useState<string | null>(null)
   const [musicBusy, setMusicBusy] = useState(false)
   const [hearMsg, setHearMsg] = useState<string | null>(null)
+  const [hearing, setHearing] = useState(false)
   const navBusy = useRef(false)
+  const listenLock = useRef(false)
   const loggedIn = spotifyLoggedIn()
   const configured = spotifyConfigured()
 
@@ -284,6 +428,8 @@ export function DriveMode({
   useEffect(() => {
     void setKeepScreenOn(true)
     return () => {
+      listenLock.current = false
+      void stopListen()
       void setKeepScreenOn(false)
     }
   }, [])
@@ -312,6 +458,7 @@ export function DriveMode({
       }
       void refreshDriveRoute({ ...pos, bearing: fix.bearing, speed: fix.speed }).then((guide) => {
         if (!guide?.cue) return
+        if (listenLock.current) return
         if (guide.cue.startsWith('Ziel')) {
           setDriveTab('map')
         }
@@ -365,19 +512,43 @@ export function DriveMode({
   }
 
   function hear() {
+    if (hearing || listenLock.current) return
+    listenLock.current = true
+    setHearing(true)
     setHearMsg('Ich höre…')
-    void requestMicPermission().then((ok) => {
-      if (!ok) {
-        setHearMsg('Mikrofon erlauben.')
-        return
+    void (async () => {
+      try {
+        await stopSpeak()
+        await stopListen()
+        await new Promise((r) => window.setTimeout(r, 180))
+        const ok = await requestMicPermission()
+        if (!ok) {
+          setHearMsg('Mikrofon erlauben — sonst höre ich hier nichts.')
+          return
+        }
+        const res = await listenOnce((partial) => setHearMsg(partial || 'Ich höre…'))
+        const text = (res.text || '').trim()
+        if (!text) {
+          setHearMsg(res.message || 'Nichts gehört. Nochmal Mic.')
+          return
+        }
+        setHearMsg(text)
+        const reply = (await onCommand?.(text)) || ''
+        const line = reply.trim()
+        if (line) {
+          setHearMsg(line)
+          await speakText(line)
+        } else {
+          setHearMsg('Verstanden.')
+        }
+      } catch (err) {
+        setHearMsg(err instanceof Error ? err.message : 'Zuhören fehlgeschlagen.')
+      } finally {
+        listenLock.current = false
+        setHearing(false)
+        window.setTimeout(() => setHearMsg(null), 5_200)
       }
-      return listenOnce((partial) => setHearMsg(partial || 'Ich höre…')).then((res) => {
-        if (res.text) {
-          setHearMsg(null)
-          onCommand?.(res.text)
-        } else setHearMsg(res.message || 'Nichts gehört.')
-      })
-    })
+    })()
   }
 
   return (
@@ -520,7 +691,13 @@ export function DriveMode({
         <button type="button" className={tab === 'spotify' ? 'is-on' : ''} onClick={() => setDriveTab('spotify')}>
           Spotify
         </button>
-        <button type="button" className="drive-mic" onClick={hear} aria-label="Hören">
+        <button
+          type="button"
+          className={`drive-mic${hearing ? ' is-hot' : ''}`}
+          onClick={hear}
+          aria-label="Hören"
+          disabled={hearing}
+        >
           Mic
         </button>
       </nav>

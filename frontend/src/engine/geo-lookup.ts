@@ -5,7 +5,7 @@ import { compactCoords } from './drive-map'
 export type Fix = { lat: number; lon: number; place: string }
 
 const STREET_FAR_M = 80_000
-const UA = 'Jarvis/1.48.4 (local.jarvis.app)'
+const UA = 'Jarvis/1.48.5 (local.jarvis.app)'
 
 function cityAsk(street: string): string {
   return `In welcher Stadt liegt ${street}? Eine Straße ohne Ort rate ich nicht.`

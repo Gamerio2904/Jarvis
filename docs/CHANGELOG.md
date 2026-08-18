@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.48.4`**.
+App-Version im Code: **`1.48.5`**.
+
+### `1.48.5` — Karte schieben + Sprache im Fahrmodus — *CODE*
+
+Karte wie Google Maps: ziehen, pinch-zoom, Doppeltipp, danach Standort-Knopf. Mic stoppt Navi-Ansagen, hört, führt aus und spricht die Antwort.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14805)
+- [`28-next.md`](./28-next.md)
 
 ### `1.48.4` — Fahrmodus-Karte neu — *CODE*
 

@@ -1297,9 +1297,7 @@ function App() {
               closeDrive()
               setDriveOpen(false)
             }}
-            onCommand={(text) => {
-              void sendMessage(text)
-            }}
+            onCommand={(text) => sendVoiceTurn(text)}
           />
         ) : null}
         <div className="topbar">

@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.48.4`. Fahrmodus-Karte vollflächig, Norden oben. `FIFA starten` — [`../desktop/README.md`](../desktop/README.md).
+1. Sideload `1.48.5`. Karte schieben, Mic spricht. `FIFA starten` — [`../desktop/README.md`](../desktop/README.md).
 2. Qualität `1.34`–`1.48` plus PC ist CODE. Weiteres nur auf PO-Kommando.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 

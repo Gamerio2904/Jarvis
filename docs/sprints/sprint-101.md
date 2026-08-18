@@ -28,6 +28,7 @@ Bestehende Wetter-/Ort-/Alltag-Tools erweitern. Keine erfundenen Werte. Luft und
 | L9 | Live-Test-Bugs (`1.48.2`) | Erinnerung, Tanke, Laden, Straße, Overlay |
 | L10 | Fahrmodus Karte/Route (`1.48.3`) | HUD vollflächig, Route sichtbar |
 | L11 | Fahrmodus-Karte neu (`1.48.4`) | Vollbild, Norden oben, nicht gedreht |
+| L12 | Karte Gesten + Mic (`1.48.5`) | Schieben/Zoom, Sprache führt aus |
 
 ## Probe
 
