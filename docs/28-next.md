@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.43.0`** (CarPlay ehrlich, Restweg, POI, Anruf/SMS).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.44.0`** (Filme IMDb/RT, wo gratis, Rabatt-Suche).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -36,8 +36,9 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.41.0`** | Tanke: nächste + günstigste, immer E10, Preise | **CODE** |
 | **`1.42.0`** | Wo bin ich: GPS, Freigabe anstoßen | **CODE** |
 | **`1.43.0`** | CarPlay ehrlich + Alltag am Steuer | **CODE** |
+| **`1.44.0`** | Filme IMDb/RT + wo gratis; Rabatt-Suche | **CODE** |
 
-Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-96.md`](./sprints/sprint-96.md).
+Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-97.md`](./sprints/sprint-97.md).
 
 ---
 
@@ -304,10 +305,24 @@ PO-Screenshot: `Carplay` → Gemini erfindet Apple-Verbindung, Musik und Ziel. `
 
 **Probe:** `Carplay`, `Öffne das overlay`, `Wie weit noch`, `nächste Apotheke`, `Fahr zur Arbeit`, `Wie voll ist der Akku`, `Ruf mal die Freundin`, `Schreib der Freundin ich bin in 10 Minuten`.
 
+## `1.44.0` — Filme IMDb/RT + Rabatt-Suche — **CODE**
+
+PO: Rotten Tomatoes und IMDb, alle Filme, wo sie gratis laufen; Rabatt-Suche beim Online-Shopping aktivierbar.
+
+| Hebel | Wirkung |
+|-------|---------|
+| OMDb-Key | IMDb + RT-Noten (`tomatoes=true`). RT hat keine eigene öffentliche API. Ohne Key keine erfundenen % |
+| JustWatch DE | `Wo läuft … kostenlos` listet Free/Ads (nicht nur YouTube/Netflix/Disney+/Prime) |
+| Joyn / ARD | Nur nennen mit Link, **nicht** als TV-App starten |
+| `Spiel … Film` | Unverändert: Lookup + App auf dem Samsung |
+| Rabatt-Suche | Settings Netz + `Rabatt-Suche an`. Extra mydealz/Sparwelt. Default aus. Keine erfundenen Codes |
+
+**Probe:** `Wo läuft Dune kostenlos`, `Wie gut ist Dune`, `IMDb Dune`, `Spiel Dune Film`, `Rabatt-Suche an`.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.43.0`. Fahrmodus intern, Overlay, Restweg, POI, Anruf/SMS. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.44.0`. Filme über OMDb/JustWatch, Rabatt-Suche zuschaltbar. Nächste Stufe nur auf PO-Kommando.

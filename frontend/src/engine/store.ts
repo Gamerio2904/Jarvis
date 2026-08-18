@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '1.43.0'
+export const APP_VERSION = '1.44.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -118,6 +118,8 @@ export type Settings = {
   gemini_enabled: boolean
   gemini_api_key: string
   tankerkoenig_api_key: string
+  omdb_api_key: string
+  shop_discount: boolean
   last_fuel_json: string
   last_poi_json: string
   gemini_model: string
@@ -186,6 +188,8 @@ export const DEFAULT_SETTINGS: Settings = {
   gemini_enabled: false,
   gemini_api_key: '',
   tankerkoenig_api_key: '',
+  omdb_api_key: '',
+  shop_discount: false,
   last_fuel_json: '',
   last_poi_json: '',
   gemini_model: '',

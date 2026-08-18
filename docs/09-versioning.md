@@ -124,6 +124,7 @@ MAJOR.MINOR.PATCH
 | `1.41.0` | Tanke: nächste + günstigste, immer E10, Preise | Sprint 94 |
 | `1.42.0` | Wo bin ich: GPS + Freigabe anstoßen | Sprint 95 |
 | `1.43.0` | CarPlay ehrlich: Overlay, Restweg, POI, Anruf/SMS | Sprint 96 |
+| `1.44.0` | Filme: IMDb/RT über OMDb, wo gratis; Rabatt-Suche | Sprint 97 |
 
 ### Weitere Beispiele
 

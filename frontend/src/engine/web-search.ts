@@ -1,5 +1,6 @@
 import { getJson, getText } from './http-json'
 import {
+  compareDiscountSources,
   compareShopSources,
   isProductLookup,
   mergeResearchSources,
@@ -10,8 +11,9 @@ import {
   type ResearchMeta,
   type ResearchSource,
 } from './research-parse'
+import { loadSettings } from './store'
 
-const UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/1.33'
+const UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/1.44'
 
 export async function fillResearchLinks(
   queryText: string,
@@ -19,14 +21,19 @@ export async function fillResearchLinks(
   research?: ResearchMeta,
 ): Promise<ResearchMeta> {
   const query = researchQuery(research?.query || queryText)
-  const product = isProductLookup(queryText) || isProductLookup(query)
+  const discount = Boolean(loadSettings().shop_discount)
+  const product = isProductLookup(queryText, discount) || isProductLookup(query, discount)
   const extra: ResearchSource[] = [
     ...sourcesFromText(answer),
     ...(research?.sources || []),
   ]
   const need = product ? 3 : 2
   if (extra.filter((s) => s.url).length < need) {
-    const searches = product ? [query, `${query} Preis Vergleich`] : [query]
+    const searches = product
+      ? discount
+        ? [query, `${query} Preis Vergleich`, `${query} Gutschein Rabatt`]
+        : [query, `${query} Preis Vergleich`]
+      : [query]
     const found = await Promise.all(searches.map((q) => duckDuckGo(q)))
     extra.push(...found.flat())
   }
@@ -37,6 +44,7 @@ export async function fillResearchLinks(
     extra.push(...(await wikipedia(query)))
   }
   if (product) extra.push(...compareShopSources(query))
+  if (product && discount) extra.push(...compareDiscountSources(query))
   extra.sort((a, b) => shopRank(a.url) - shopRank(b.url))
   return mergeResearchSources(research, extra, query)
 }

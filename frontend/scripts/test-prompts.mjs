@@ -1,6 +1,6 @@
 /**
  * Routes every TEST_PROMPT the same way chat.ts does (no LLM, no phone).
- * Order: help → ordinal → tv → fan → here → fuel → poi → drive → device → maps → ...
+ * Order: help → discount → ordinal → tv → film → fan → here → fuel → poi → drive → device → maps → ...
  */
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
@@ -14,7 +14,8 @@ import { parseReminderIntent } from '../src/engine/remind-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
-import { isLiveLookup } from '../src/engine/research-parse.ts'
+import { isLiveLookup, parseShopDiscountIntent } from '../src/engine/research-parse.ts'
+import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseFuelIntent } from '../src/engine/fuel-parse.ts'
@@ -33,14 +34,16 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'ordinal'|'tv'|'fan'|'here'|'fuel'|'poi'|'drive'|'device'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'here'|'fuel'|'poi'|'drive'|'device'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
   text = normalizeUtterance(text)
   if (isHelpCommand(text)) return 'help'
+  if (parseShopDiscountIntent(text)) return 'discount'
   if (parseOrdinalFollowUp(text)) return 'ordinal'
   if (parseTvWatch(text) || parseTvIntent(text)) return 'tv'
+  if (parseFilmIntent(text)) return 'film'
   if (parseFanIntent(text)) return 'fan'
   if (parseHereIntent(text)) return 'here'
   if (parseFuelIntent(text)) return 'fuel'
@@ -152,6 +155,10 @@ const EXPECT = {
   'Wie voll ist der Akku': 'device',
   'Ruf mal die Freundin': 'maps',
   'Schreib der Freundin ich bin in 10 Minuten': 'maps',
+  'Wo läuft Dune kostenlos': 'film',
+  'Wie gut ist Dune': 'film',
+  'IMDb Dune': 'film',
+  'Rabatt-Suche an': 'discount',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

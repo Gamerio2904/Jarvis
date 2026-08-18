@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.43.0`**.
+App-Version im Code: **`1.44.0`**.
+
+### `1.44.0` — Filme (IMDb/RT) + Rabatt-Suche — *CODE*
+
+IMDb- und Rotten-Tomatoes-Noten über OMDb (RT hat keine öffentliche API). Wo ein Film in DE gratis läuft, aus JustWatch — Joyn/ARD nur nennen, nicht am Fernseher starten. Rabatt-Suche beim Online-Shopping zuschaltbar (Default aus); keine erfundenen Gutscheincodes.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14400)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-97.md`](./sprints/sprint-97.md)
 
 ### `1.43.0` — CarPlay ehrlich + Alltag am Steuer — *CODE*
 

@@ -72,7 +72,7 @@ async function reverseNominatim(lat: number, lon: number): Promise<string | null
     })
     const { status, json } = await getJson(`https://nominatim.openstreetmap.org/reverse?${q}`, {
       'Accept-Language': 'de',
-      'User-Agent': 'Jarvis/1.43.0 (local.jarvis.app)',
+      'User-Agent': 'Jarvis/1.44.0 (local.jarvis.app)',
     })
     if (status < 200 || status >= 300) return null
     const addr = (json.address && typeof json.address === 'object' ? json.address : {}) as Record<string, unknown>

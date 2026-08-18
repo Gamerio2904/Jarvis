@@ -320,6 +320,31 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </label>
                 <p className="settings-hint">creativecommons.tankerkoenig.de — nicht teilen.</p>
               </section>
+              <section className="settings-card">
+                <h3>OMDb (IMDb + Rotten Tomatoes)</h3>
+                <p className="settings-hint">
+                  Für Filmnoten. Rotten Tomatoes hat keine öffentliche API — die Prozentzahl kommt nur,
+                  wenn OMDb sie mitliefert. Ohne Key keine erfundenen Bewertungen. Wo ein Film gratis
+                  läuft, geht auch ohne Key (JustWatch DE).
+                </p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`omdb-key-${s?.omdb_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.omdb_api_key || ''}
+                    disabled={busy}
+                    placeholder="Key von omdbapi.com"
+                    onBlur={(e) => void p.patchSetting({ omdb_api_key: e.target.value.trim() })}
+                  />
+                </label>
+                <p className="settings-hint">omdbapi.com/apikey.aspx — kostenloser Key, nicht teilen.</p>
+              </section>
             </>
           ) : null}
 
@@ -942,6 +967,19 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <span>Websuche (braucht Gemini)</span>
               </label>
               <p className="settings-hint">Aus = keine erfundene Suche. Wetter kommt von Open-Meteo.</p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.shop_discount)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ shop_discount: e.target.checked })}
+                />
+                <span>Rabatt-Suche beim Online-Shopping</span>
+              </label>
+              <p className="settings-hint">
+                An = extra Gutscheine (mydealz, Sparwelt) bei Produktsuche. Research muss an sein.
+                Keine erfundenen Codes. Stimme: „Rabatt-Suche an“.
+              </p>
               <button type="button" className={`audit-toggle ${p.auditOpen ? 'active' : ''}`} onClick={p.onToggleAudit}>
                 Research-Audit
               </button>

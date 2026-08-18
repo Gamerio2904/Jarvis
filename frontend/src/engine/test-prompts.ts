@@ -83,4 +83,8 @@ export const TEST_PROMPTS = [
   'Wie voll ist der Akku',
   'Ruf mal die Freundin',
   'Schreib der Freundin ich bin in 10 Minuten',
+  'Wo läuft Dune kostenlos',
+  'Wie gut ist Dune',
+  'IMDb Dune',
+  'Rabatt-Suche an',
 ] as const

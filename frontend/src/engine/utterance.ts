@@ -25,6 +25,8 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\bnach\s*hause\b/gi, 'nach Hause'],
   [/\bover\s*lay\b/gi, 'overlay'],
   [/\bnächster\s+pol\b/gi, 'nächster POI'],
+  [/\brotren\s+tomato(?:es|s)?\b/gi, 'Rotten Tomatoes'],
+  [/\brotten\s+tomato(?:es|s)?\b/gi, 'Rotten Tomatoes'],
   [/\bnaviga(?:tion|iere?n?)\b/gi, 'navigiere'],
 ]
 

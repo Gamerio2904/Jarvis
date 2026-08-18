@@ -14,6 +14,7 @@ import {
   isProductLookup,
   isSearchRefusal,
   parseEuroPrices,
+  parseShopDiscountIntent,
   RESEARCH_EMPTY,
   RESEARCH_NEEDS_GEMINI,
   RESEARCH_OFF_REPLY,
@@ -51,6 +52,7 @@ import { handleAlarms } from './alarms'
 import { handleTimers } from './timers'
 import { handleTools, type ToolMeta } from './tools'
 import { handleTv, handleTvOrdinal, tvStatusFromSettings } from './tv'
+import { handleFilm } from './film'
 import { handleFan } from './fan'
 import { handleWeather } from './weather'
 import { handlePlaces } from './places'
@@ -153,6 +155,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: HELP_TEXT, lastTool: 'help' }
   }
 
+  const discountToggle = parseShopDiscountIntent(content)
+  if (discountToggle) {
+    saveSettings({ shop_discount: discountToggle.on })
+    return {
+      reply: discountToggle.on
+        ? 'Rabatt-Suche an. Bei Produktsuche extra Gutscheine (mydealz/Sparwelt). Internet-Research muss an sein. Keine erfundenen Codes.'
+        : 'Rabatt-Suche aus. Produktsuche bleibt Preisvergleich ohne extra Gutschein-Jagd.',
+      lastTool: 'research',
+    }
+  }
+
   const ord = parseOrdinalFollowUp(content)
   if (ord) {
     const s = loadSettings()
@@ -210,6 +223,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: tvHit.reply,
       tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
       lastTool: 'tv',
+    }
+  }
+
+  const filmHit = await handleFilm(conversationId, content)
+  if (filmHit.handled && filmHit.reply) {
+    return {
+      reply: filmHit.reply,
+      tool: filmHit.tool,
+      lastTool: filmHit.lastTool || 'film',
     }
   }
 
@@ -587,7 +609,8 @@ export async function streamChat(
     }
 
     const s = loadSettings()
-    if (isLiveLookup(content)) {
+    const discount = Boolean(s.shop_discount)
+    if (isLiveLookup(content, discount)) {
       if (!s.research_opt_in) {
         const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
         const updated = (await touchConversation(conversationId)) || conv
@@ -602,7 +625,8 @@ export async function streamChat(
           const reply = formatResearchReply(
             researchQuery(content),
             research.sources || [],
-            isProductLookup(content),
+            isProductLookup(content, discount),
+            discount,
           )
           handlers.onReplace?.(reply)
           const assistant = await addMessage(conversationId, 'assistant', reply, { research })
@@ -619,7 +643,7 @@ export async function streamChat(
 
     const history = await listMessages(conversationId)
     const mem = await listMemory()
-    const wantSearch = Boolean(s.research_opt_in && isLiveLookup(content))
+    const wantSearch = Boolean(s.research_opt_in && isLiveLookup(content, discount))
     let research: ResearchMeta | undefined
     if (wantSearch) {
       research = await fillResearchLinks(content, '', undefined)
@@ -676,11 +700,11 @@ export async function streamChat(
       const filled = await fillResearchLinks(content, text, research)
       research = (await attachResearchAudit(filled, researchQuery(content))) || filled
       persistLastStep('research')
-      const product = isProductLookup(content)
+      const product = isProductLookup(content, discount)
       const sources = research.sources || []
       const weak = !text || isSearchRefusal(text)
       if (weak && researchHasSources(research)) {
-        text = formatResearchReply(researchQuery(content), sources, product)
+        text = formatResearchReply(researchQuery(content), sources, product, discount)
         handlers.onReplace?.(text)
       } else if (!text && !researchHasSources(research)) {
         const empty = RESEARCH_EMPTY
@@ -695,7 +719,7 @@ export async function streamChat(
         })
         return
       } else if (product && researchHasSources(research) && text && !parseEuroPrices(text).length) {
-        const extra = formatResearchReply(researchQuery(content), sources, true)
+        const extra = formatResearchReply(researchQuery(content), sources, true, discount)
         if (/€/.test(extra) && extra !== text) {
           text = `${text.replace(/\s+$/, '')} ${extra}`
           handlers.onReplace?.(text)
@@ -706,7 +730,7 @@ export async function streamChat(
     const final = scrubReply(text, { searched: Boolean(researchHasSources(research) || wantSearch) })
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, content)
-    if (isLiveLookup(content) && !wantSearch) persistLastStep('research')
+    if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({

@@ -294,11 +294,18 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S19.1 | Als Fahrer will ich nacktes „Carplay“ und „öffne das overlay“ ohne Gemini-Lügen. | Must | done | Sprint 96 / `1.43.0` |
 | S19.2 | Als Fahrer will ich Restweg, nächsten POI, Arbeit/Freundin, Akku und Anruf/SMS ehrlich. | Must | done | Sprint 96 / `1.43.0` |
 
+### E20 — Filme + Rabatt `1.44`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S20.1 | Als Nutzer will ich IMDb/Rotten-Tomatoes-Noten und wo ein Film in DE gratis läuft — ohne erfundene Streams. | Must | done | Sprint 97 / `1.44.0` |
+| S20.2 | Als Nutzer will ich die Rabatt-Suche beim Online-Shopping an- und ausschalten können. | Must | done | Sprint 97 / `1.44.0` |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.43.0`
+1. Sideload `1.44.0`
 2. Weitere Arbeit nur auf PO-Kommando — [`28-next.md`](./28-next.md)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 

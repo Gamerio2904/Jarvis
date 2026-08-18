@@ -454,8 +454,12 @@ async function launchSamsungApp(app: TvAppId, meta?: string): Promise<{ ok: bool
 function watchReply(hit: WatchHit, launched: boolean, namedApp?: TvAppId): string {
   const label = (app: TvAppId) => TV_APP_LABEL[app]
   const title = hit.title
-  const extra = hit.alsoFree.length
-    ? ` Kostenlos außerdem bei ${hit.alsoFree.slice(0, 2).join(', ')} — die starte ich nicht.`
+  const elsewhere = (hit.freeWhere || [])
+    .map((f) => f.name)
+    .filter((n) => !namedApp || n.toLowerCase() !== (TV_APP_LABEL[namedApp] || '').toLowerCase())
+  const extraNames = (elsewhere.length ? elsewhere : hit.alsoFree).slice(0, 3)
+  const extra = extraNames.length
+    ? ` Kostenlos außerdem: ${extraNames.join(', ')} — die starte ich nicht, außer YouTube/Netflix/Disney+/Prime.`
     : ''
   if (!launched) {
     return hit.target

@@ -29,12 +29,15 @@ export type WatchOffer = {
   provider: string
 }
 
+export type FreeWhere = { name: string; url?: string; ads: boolean }
+
 export type WatchHit = {
   title: string
   year?: number
   objectType?: string
   offers: WatchOffer[]
   alsoFree: string[]
+  freeWhere: FreeWhere[]
   target: WatchOffer | null
 }
 
@@ -82,8 +85,8 @@ export function parseWatchOffers(raw: unknown[]): WatchOffer[] {
   return out
 }
 
-export function freeElsewhere(raw: unknown[]): string[] {
-  const out: string[] = []
+export function collectFreeWhere(raw: unknown[]): FreeWhere[] {
+  const out: FreeWhere[] = []
   const seen = new Set<string>()
   for (const row of raw) {
     if (!row || typeof row !== 'object') continue
@@ -91,20 +94,24 @@ export function freeElsewhere(raw: unknown[]): string[] {
     const m = normalizeMonetization(String(o.monetizationType || ''))
     if (m !== 'free' && m !== 'ads') continue
     const pkg = (o.package && typeof o.package === 'object' ? o.package : {}) as Record<string, unknown>
-    const label = String(pkg.clearName || '').trim()
-    if (!label || seen.has(label)) continue
-    if (
-      tvAppFromPackage({
-        packageId: typeof pkg.packageId === 'number' ? pkg.packageId : undefined,
-        technicalName: String(pkg.technicalName || ''),
-        clearName: label,
-        shortName: String(pkg.shortName || ''),
-      })
-    ) {
-      continue
-    }
-    seen.add(label)
-    out.push(label)
+    const name = String(pkg.clearName || pkg.shortName || '').trim()
+    if (!name || seen.has(name.toLowerCase())) continue
+    seen.add(name.toLowerCase())
+    const url = String(o.standardWebURL || '').trim() || undefined
+    out.push({ name, url, ads: m === 'ads' })
+  }
+  return out
+}
+
+export function freeElsewhere(raw: unknown[]): string[] {
+  const out: string[] = []
+  const seen = new Set<string>()
+  for (const row of collectFreeWhere(raw)) {
+    const app = tvAppFromPackage({ clearName: row.name, technicalName: '', shortName: row.name })
+    if (app) continue
+    if (seen.has(row.name)) continue
+    seen.add(row.name)
+    out.push(row.name)
   }
   return out
 }
@@ -197,6 +204,7 @@ async function justWatchSearch(title: string): Promise<WatchHit[]> {
         objectType: String(node.objectType || ''),
         offers,
         alsoFree: freeElsewhere(rawOffers),
+        freeWhere: collectFreeWhere(rawOffers),
         target: pickWatchTarget(offers),
       })
     }
@@ -268,6 +276,9 @@ export async function lookupWatch(
     if (yt) {
       return {
         ...hit,
+        freeWhere: hit.freeWhere.length
+          ? hit.freeWhere
+          : [{ name: 'YouTube', url: yt, ads: false }],
         target: { app: 'youtube', monetization: 'free', url: yt, provider: 'YouTube' },
       }
     }
@@ -279,6 +290,7 @@ export async function lookupWatch(
       title,
       offers: [],
       alsoFree: [],
+      freeWhere: [],
       target: {
         app: opts.app,
         monetization: url ? 'free' : 'other',
@@ -293,8 +305,9 @@ export async function lookupWatch(
       title,
       offers: [],
       alsoFree: [],
+      freeWhere: [{ name: 'YouTube', url: yt, ads: false }],
       target: { app: 'youtube', monetization: 'free', url: yt, provider: 'YouTube' },
     }
   }
-  return { title, offers: [], alsoFree: [], target: null }
+  return { title, offers: [], alsoFree: [], freeWhere: [], target: null }
 }

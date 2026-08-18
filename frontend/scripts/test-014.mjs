@@ -10,6 +10,7 @@ import {
   isProductLookup,
   isSearchRefusal,
   parseEuroPrices,
+  parseShopDiscountIntent,
   RESEARCH_EMPTY,
   researchHasSources,
   researchQuery,
@@ -53,7 +54,9 @@ import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fu
 import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
 import { formatHereReply, parseHereIntent } from '../src/engine/here-parse.ts'
 import { parseSpotifyIntent, spotifySourceLabel } from '../src/engine/spotify-parse.ts'
-import { pickWatchTarget, parseWatchOffers, youtubeVideoId } from '../src/engine/tv-watch.ts'
+import { collectFreeWhere, pickWatchTarget, parseWatchOffers, youtubeVideoId } from '../src/engine/tv-watch.ts'
+import { parseFilmIntent } from '../src/engine/film-parse.ts'
+import { formatFilmReply } from '../src/engine/film.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
@@ -784,6 +787,85 @@ assert.match(
   scrubReply('Car Play ist verbunden. Musik läuft, Navigation nach Bietigheim-Bissingen steht.'),
   /intern/,
 )
+
+assert.equal(parseTvWatch('Spiel Dune Film')?.kind, 'play')
+assert.equal(parseFilmIntent('Spiel Dune Film'), null)
+assert.equal(parseFilmIntent('Wo läuft Dune kostenlos')?.kind, 'where')
+assert.equal(parseFilmIntent('Wo läuft Dune kostenlos')?.title, 'Dune')
+assert.equal(parseFilmIntent('Wie gut ist Dune')?.kind, 'rate')
+assert.equal(parseFilmIntent('Wie ist mein Name?'), null)
+assert.equal(parseFilmIntent('IMDb Dune')?.kind, 'rate')
+assert.equal(parseFilmIntent('Rotten Tomatoes Dune')?.kind, 'rate')
+assert.equal(parseFilmIntent(normalizeUtterance('rotren tomato Dune'))?.kind, 'rate')
+assert.equal(parseFilmIntent('Was ist Dune für ein Film')?.kind, 'about')
+assert.equal(parseFilmIntent('Was ist Dune für ein Film')?.title, 'Dune')
+assert.equal(parseFilmIntent('Tanke E10'), null)
+
+{
+  const film = formatFilmReply({
+    kind: 'where',
+    asked: 'Dune',
+    watch: {
+      title: 'Dune',
+      year: 2021,
+      offers: [{ app: 'netflix', monetization: 'flatrate', provider: 'Netflix' }],
+      alsoFree: [],
+      freeWhere: [
+        { name: 'ARD Mediathek', ads: true, url: 'https://www.ardmediathek.de/' },
+        { name: 'Joyn', ads: false, url: 'https://www.joyn.de/' },
+      ],
+      target: null,
+    },
+    omdb: { title: 'Dune', year: '2021', imdb: '8.0', tomatoes: '83%' },
+  })
+  assert.match(film, /IMDb 8,0/)
+  assert.match(film, /Rotten Tomatoes 83%/)
+  assert.match(film, /ARD Mediathek \(Werbung\)/)
+  assert.match(film, /Joyn/)
+  assert.match(film, /starte ich nicht/)
+  assert.match(film, /Abo: Netflix/)
+}
+
+{
+  const noKey = formatFilmReply({
+    kind: 'rate',
+    asked: 'Dune',
+    watch: { title: 'Dune', offers: [], alsoFree: [], freeWhere: [], target: null },
+    omdb: null,
+    keyMissing: true,
+  })
+  assert.match(noKey, /OMDb-Schlüssel/)
+  assert.match(noKey, /erfinde keine/)
+}
+
+assert.equal(parseShopDiscountIntent('Rabatt-Suche an')?.on, true)
+assert.equal(parseShopDiscountIntent('Rabatt-Suche aus')?.on, false)
+assert.equal(parseShopDiscountIntent('Tanke E10'), null)
+assert.equal(isProductLookup('Gutscheincode Mixer'), false)
+assert.equal(isProductLookup('Gutscheincode Mixer', true), true)
+assert.match(
+  formatResearchReply(
+    'Mixer',
+    [{ title: 'MediaMarkt', url: 'https://mediamarkt.de/x', snippet: '', provider: 'web', retrieved_at: '' }],
+    true,
+    true,
+  ),
+  /keine erfundenen Codes/,
+)
+
+{
+  const free = collectFreeWhere([
+    { monetizationType: 'flatrate', package: { packageId: 8, clearName: 'Netflix' } },
+    {
+      monetizationType: 'ads',
+      standardWebURL: 'https://www.ardmediathek.de/video/1',
+      package: { clearName: 'ARD Mediathek' },
+    },
+  ])
+  assert.equal(free.length, 1)
+  assert.match(free[0].name, /ARD/)
+  assert.equal(free[0].ads, true)
+}
 
 const tap = createSentenceTap()
 assert.deepEqual(tap.feed('Hallo, der Himmel'), [])

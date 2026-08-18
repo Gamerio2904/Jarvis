@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.43.0`. `Carplay`, Overlay, Restweg, POI, Anruf/SMS — [`28-next.md`](./28-next.md).
-2. Qualität `1.34`–`1.40` plus Tanke ist CODE. Weiteres nur auf PO-Kommando.
+1. Sideload `1.44.0`. `Wo läuft Dune kostenlos`, `IMDb Dune`, `Rabatt-Suche an` — [`28-next.md`](./28-next.md).
+2. Qualität `1.34`–`1.43` plus Filme/Rabatt ist CODE. Weiteres nur auf PO-Kommando.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---
@@ -70,3 +70,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-15 | `0.14` | Nichts Neues: bestehendes härten; TV on-device live (`0.14.0`/`0.14.1`) | PO |
 | 2026-08-17 | Q40 | Deckenventilator Amazon `B0CGQSNR76`: Default Broadlink RM4 Pro, Codes lokal lernen | PO |
 | 2026-08-17 | Q41 | Nach `1.32.1`: **Qualität statt Breite** (`1.33`–`1.40`). Nichts Neues — bestehendes verbessern, erweitern, flüssiger. Intelligenter, besseres Verständnis, besseres CarPlay, besseres Befehlserkennen. | PO |
+| 2026-08-18 | Q42 | Filme: IMDb/RT nur über OMDb (RT ohne öffentliche API). Gratis-Streams JustWatch DE; Joyn/ARD nennen, nicht starten. Rabatt-Suche Default aus, keine erfundenen Codes. | PO |

@@ -1,5 +1,6 @@
 import { parseDeviceIntent } from './device-parse.ts'
 import { parseDriveIntent } from './drive-parse.ts'
+import { parseFilmIntent } from './film-parse.ts'
 import { parseFuelIntent } from './fuel-parse.ts'
 import { parseHereIntent } from './here-parse.ts'
 import { parsePlaceNav } from './places-parse.ts'
@@ -12,6 +13,7 @@ function commandScore(text: string): number {
   const t = normalizeUtterance(text) || text
   let n = 0
   if (parseTvWatch(t)) n += 6
+  if (parseFilmIntent(t)) n += 6
   if (parseTvIntent(t)) n += 5
   if (parseSpotifyIntent(t)) n += 5
   if (parseHereIntent(t)) n += 6

@@ -1,3 +1,5 @@
+import { normalizeUtterance } from './utterance.ts'
+
 export type ResearchSource = {
   title: string
   url: string
@@ -20,7 +22,7 @@ export type ResearchMeta = {
   network_attempted?: boolean
 }
 
-export function isLiveLookup(text: string): boolean {
+export function isLiveLookup(text: string, discount = false): boolean {
   const t = text.trim()
   if (!t || t.length > 240) return false
   if (/\b(suche|recherchier(?:e|en)?|google(?:n)?|im internet|im netz|schau(?:e)? nach)\b/i.test(t)) {
@@ -28,15 +30,18 @@ export function isLiveLookup(text: string): boolean {
   }
   if (/\b(wetter|temperatur|nachrichten|news)\b/i.test(t)) return true
   if (/\baktuell(?:e[rs]?)?\b/i.test(t) && /\b(preis|kurs|spielstand|wetter)\b/i.test(t)) return true
-  if (isProductLookup(t)) return true
+  if (isProductLookup(t, discount)) return true
   return false
 }
 
 /** Produkt, Preis, Shop — bestehende Suche, nicht ein neues Tool. */
-export function isProductLookup(text: string): boolean {
+export function isProductLookup(text: string, discount = false): boolean {
   const t = text.trim()
   if (!t || t.length > 240) return false
   if (/\b(preis(?:e|vergleich)?|günstig(?:er|ste[rn]?)?|was kostet|angebot(?:e)?|rabatt|idealo|geizhals)\b/i.test(t)) {
+    return true
+  }
+  if (discount && /\b(gutschein(?:code)?|rabattcode|coupon|promo(?:code)?)\b/i.test(t)) {
     return true
   }
   if (/\b(kaufen|shop)\b/i.test(t) && /\b(amazon|mediamarkt|otto|idealo|geizhals)\b/i.test(t)) {
@@ -46,6 +51,15 @@ export function isProductLookup(text: string): boolean {
     return true
   }
   return false
+}
+
+export function parseShopDiscountIntent(text: string): { on: boolean } | null {
+  const t = normalizeUtterance(text.trim())
+  const m =
+    /^\s*rabatt(?:-|\s*)suche\s+(an|aus|aktivieren|deaktivieren|ein|aktiviert|ausgeschaltet)\s*[.!?]*$/i.exec(t)
+  if (!m) return null
+  const w = m[1].toLowerCase()
+  return { on: w === 'an' || w === 'aktivieren' || w === 'ein' || w === 'aktiviert' }
 }
 
 export function isSearchRefusal(text: string): boolean {
@@ -239,18 +253,20 @@ export function hostOf(url: string): string {
 }
 
 const SHOP_HOST =
-  /idealo\.|geizhals\.|mediamarkt\.|saturn\.|otto\.de|amazon\.de|billiger\.de|lidl\.de|kaufland\.de/i
+  /idealo\.|geizhals\.|mediamarkt\.|saturn\.|otto\.de|amazon\.de|billiger\.de|lidl\.de|kaufland\.de|mydealz\.|sparwelt\./i
 
 export function shopRank(url: string): number {
   const h = hostOf(url)
   if (/idealo\./i.test(h)) return 0
   if (/geizhals\./i.test(h)) return 1
   if (/billiger\./i.test(h)) return 2
-  if (/amazon\.de/i.test(h)) return 3
-  if (/mediamarkt\.|saturn\./i.test(h)) return 4
-  if (/otto\.de/i.test(h)) return 5
-  if (SHOP_HOST.test(h)) return 6
-  return 8
+  if (/mydealz\./i.test(h)) return 3
+  if (/sparwelt\./i.test(h)) return 4
+  if (/amazon\.de/i.test(h)) return 5
+  if (/mediamarkt\.|saturn\./i.test(h)) return 6
+  if (/otto\.de/i.test(h)) return 7
+  if (SHOP_HOST.test(h)) return 8
+  return 9
 }
 
 export function compareShopSources(query: string): ResearchSource[] {
@@ -274,10 +290,32 @@ export function compareShopSources(query: string): ResearchSource[] {
   ]
 }
 
+export function compareDiscountSources(query: string): ResearchSource[] {
+  const q = encodeURIComponent(query.slice(0, 80))
+  const now = new Date().toISOString()
+  return [
+    {
+      title: `mydealz — ${query}`,
+      url: `https://www.mydealz.de/search?q=${q}`,
+      snippet: 'Deals und Gutscheine. Codes nur wenn sie auf der Seite stehen.',
+      provider: 'mydealz',
+      retrieved_at: now,
+    },
+    {
+      title: `Sparwelt — ${query}`,
+      url: `https://www.sparwelt.de/suche?search=${q}`,
+      snippet: 'Gutscheine DE. Keine erfundenen Codes.',
+      provider: 'sparwelt',
+      retrieved_at: now,
+    },
+  ]
+}
+
 export function formatResearchReply(
   query: string,
   sources: ResearchSource[],
   product: boolean,
+  discount = false,
 ): string {
   const live = sources.filter((s) => s.url)
   const priced = live
@@ -290,7 +328,7 @@ export function formatResearchReply(
     const bits = priced
       .slice(0, 4)
       .map((p) => `${p.euros[0]} · ${p.s.title.replace(/\s+/g, ' ').slice(0, 42)}`)
-    return `${query}: ${bits.join('; ')}. Vergleich unten (Idealo/Geizhals) — Ladenpreis kann abweichen, ich erfinde keine Beträge.`
+    return `${query}: ${bits.join('; ')}. Vergleich unten (Idealo/Geizhals) — Ladenpreis kann abweichen, ich erfinde keine Beträge.${discountNote(discount)}`
   }
   if (product) {
     const shops = live
@@ -300,7 +338,7 @@ export function formatResearchReply(
       .map((s) => s.title.replace(/\s+/g, ' ').split(/[|–—-]/)[0].trim())
       .filter(Boolean)
     const names = shops.slice(0, 3).join(', ')
-    return `${query}: konkrete Euro-Beträge stehen auf den Vergleichsseiten, ich setze keine Preise ins Blaue. Unten Idealo, Geizhals${names ? ` und ${names}` : ''}.`
+    return `${query}: konkrete Euro-Beträge stehen auf den Vergleichsseiten, ich setze keine Preise ins Blaue. Unten Idealo, Geizhals${names ? ` und ${names}` : ''}.${discountNote(discount)}`
   }
   const abstract = live.find((s) => s.provider === 'duckduckgo_ia' && s.snippet)
   if (abstract?.snippet) {
@@ -312,6 +350,11 @@ export function formatResearchReply(
     .join('; ')
   if (!titles) return 'Suche gelaufen, aber ohne brauchbare Links. Nochmal anders formulieren?'
   return `${query}: ${titles}. Links unten, tippen prüft.`
+}
+
+function discountNote(on: boolean): string {
+  if (!on) return ''
+  return ' Rabatt und Gutscheine nur aus den Treffern (mydealz/Sparwelt) — keine erfundenen Codes.'
 }
 
 export function sourceDigest(sources: ResearchSource[], limit = 6): string {
