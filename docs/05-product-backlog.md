@@ -285,12 +285,13 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
 | S18.1 | Als Fahrer will ich im Chat oder Fahrmodus die nächste und die günstigste Tanke mit E10-Preis sehen und dorthin navigieren. | Must | done | Sprint 94 / `1.41.0` |
+| S18.2 | Als Nutzer will ich wissen, wo ich bin, und die Standortfreigabe anstoßen können — unabhängig von Tanke und für Tanke. | Must | done | Sprint 95 / `1.42.0` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.41.0`
+1. Sideload `1.42.0`
 2. Weitere Arbeit nur auf PO-Kommando — [`28-next.md`](./28-next.md)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 

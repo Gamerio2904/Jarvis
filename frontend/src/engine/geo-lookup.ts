@@ -55,6 +55,58 @@ async function geocodeNominatim(name: string): Promise<{ ok: true; fix: Fix } | 
   }
 }
 
+export async function reversePlace(lat: number, lon: number): Promise<string | null> {
+  const nom = await reverseNominatim(lat, lon)
+  if (nom) return nom
+  return reverseBigData(lat, lon)
+}
+
+async function reverseNominatim(lat: number, lon: number): Promise<string | null> {
+  try {
+    const q = new URLSearchParams({
+      lat: String(lat),
+      lon: String(lon),
+      format: 'json',
+      addressdetails: '1',
+      zoom: '18',
+    })
+    const { status, json } = await getJson(`https://nominatim.openstreetmap.org/reverse?${q}`, {
+      'Accept-Language': 'de',
+      'User-Agent': 'Jarvis/1.42.0 (local.jarvis.app)',
+    })
+    if (status < 200 || status >= 300) return null
+    const addr = (json.address && typeof json.address === 'object' ? json.address : {}) as Record<string, unknown>
+    const road = String(addr.road || addr.pedestrian || addr.footway || addr.residential || '').trim()
+    const nr = String(addr.house_number || '').trim()
+    const street = [road, nr].filter(Boolean).join(' ')
+    const city = String(
+      addr.city || addr.town || addr.village || addr.municipality || addr.suburb || addr.city_district || '',
+    ).trim()
+    const bits = [street, city].filter(Boolean)
+    if (bits.length) return bits.join(', ')
+    const display = String(json.display_name || '').split(',').slice(0, 2).join(',').trim()
+    return display || null
+  } catch {
+    return null
+  }
+}
+
+async function reverseBigData(lat: number, lon: number): Promise<string | null> {
+  try {
+    const q = new URLSearchParams({
+      latitude: String(lat),
+      longitude: String(lon),
+      localityLanguage: 'de',
+    })
+    const { status, json } = await getJson(`https://api.bigdatacloud.net/data/reverse-geocode-client?${q}`)
+    if (status < 200 || status >= 300) return null
+    const city = String(json.city || json.locality || json.principalSubdivision || '').trim()
+    return city || null
+  } catch {
+    return null
+  }
+}
+
 export function haversineM(a: Fix, b: { lat: number; lon: number }): number {
   const R = 6371000
   const dLat = ((b.lat - a.lat) * Math.PI) / 180

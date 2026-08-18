@@ -62,6 +62,7 @@ import { handleBrief } from './brief'
 import { isBriefAsk } from './brief-parse'
 import { handleDrive } from './drive'
 import { handleFuel, handleFuelOrdinal } from './fuel'
+import { handleHere } from './here'
 import { handleEyeAsk } from './eye'
 import { parseEyeIntent } from './eye-parse'
 import { handleChatSearch } from './search-chat'
@@ -206,6 +207,37 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: fanHit.reply,
       tool: { tool_status: 'executed', tool: 'fan', action: 'command', label: 'Ventilator' },
       lastTool: 'fan',
+    }
+  }
+
+  const hereHit = await handleHere(content)
+  if (hereHit.retry === 'fuel') {
+    const retryFuel = await handleFuel(conversationId, loadSettings().last_step_utterance || 'fahr mich zu einer Tanke')
+    if (retryFuel.handled && retryFuel.reply) {
+      return {
+        reply: retryFuel.reply,
+        tool: retryFuel.tool,
+        lastTool: retryFuel.lastTool || 'fuel',
+        research: retryFuel.research,
+      }
+    }
+  }
+  if (hereHit.retry === 'weather') {
+    const retryWeather = await handleWeather(loadSettings().last_step_utterance || 'Wetter hier')
+    if (retryWeather.handled && retryWeather.reply) {
+      return {
+        reply: retryWeather.reply,
+        tool: retryWeather.tool,
+        research: retryWeather.research,
+        lastTool: 'weather',
+      }
+    }
+  }
+  if (hereHit.handled && hereHit.reply) {
+    return {
+      reply: hereHit.reply,
+      tool: hereHit.tool,
+      lastTool: hereHit.lastTool || 'here',
     }
   }
 

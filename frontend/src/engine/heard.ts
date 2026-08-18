@@ -1,5 +1,6 @@
 import { parseDriveIntent } from './drive-parse.ts'
 import { parseFuelIntent } from './fuel-parse.ts'
+import { parseHereIntent } from './here-parse.ts'
 import { parsePlaceNav } from './places-parse.ts'
 import { parseSpotifyIntent } from './spotify-parse.ts'
 import { parseTvIntent, parseTvWatch } from './tv-parse.ts'
@@ -11,6 +12,7 @@ function commandScore(text: string): number {
   if (parseTvWatch(t)) n += 6
   if (parseTvIntent(t)) n += 5
   if (parseSpotifyIntent(t)) n += 5
+  if (parseHereIntent(t)) n += 6
   if (parseFuelIntent(t)) n += 6
   if (parseDriveIntent(t, false)) n += 5
   if (parsePlaceNav(t)) n += 3

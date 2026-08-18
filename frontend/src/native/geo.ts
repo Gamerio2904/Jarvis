@@ -5,6 +5,8 @@ type NativeGeo = {
   hasPermission(): Promise<{ granted: boolean }>
   requestPermission(): Promise<{ granted: boolean }>
   getLocation(): Promise<{ ok: boolean; lat?: number; lon?: number; message?: string }>
+  locationEnabled(): Promise<{ ok: boolean; enabled?: boolean }>
+  openSettings(opts: { kind?: string }): Promise<{ ok: boolean; message?: string }>
   startWatch(): Promise<{ ok: boolean; message?: string }>
   stopWatch(): Promise<{ ok: boolean }>
   addListener(
@@ -42,6 +44,89 @@ export async function requestLocationPermission(): Promise<boolean> {
     }
   }
   return true
+}
+
+export async function isLocationEnabled(): Promise<boolean> {
+  if (native) {
+    try {
+      const res = await withTimeout(native.locationEnabled(), 3_000, { ok: false, enabled: false })
+      return Boolean(res.enabled)
+    } catch {
+      return true
+    }
+  }
+  return true
+}
+
+export async function openAppLocationSettings(kind: 'app' | 'location' = 'app'): Promise<boolean> {
+  if (native) {
+    try {
+      const res = await withTimeout(native.openSettings({ kind }), 8_000, { ok: false })
+      return Boolean(res.ok)
+    } catch {
+      return false
+    }
+  }
+  return false
+}
+
+export type EnsureLocation = {
+  ok: boolean
+  lat?: number
+  lon?: number
+  granted: boolean
+  openedSettings: boolean
+  message?: string
+}
+
+/** Systemdialog, bei Bedarf App- oder Standort-Einstellungen. Den Schalter legt Jarvis nicht selbst um. */
+export async function ensureDeviceLocation(opts?: { openSettingsIfDenied?: boolean }): Promise<EnsureLocation> {
+  const open = Boolean(opts?.openSettingsIfDenied)
+  let granted = await hasLocationPermission()
+  if (!granted) granted = await requestLocationPermission()
+  if (granted) {
+    const services = await isLocationEnabled()
+    if (!services) {
+      const openedSettings = open ? await openAppLocationSettings('location') : false
+      return {
+        ok: false,
+        granted: true,
+        openedSettings,
+        message: openedSettings
+          ? 'Standort-Dienst am Gerät ist aus. Die Android-Seite ist offen — GPS an, dann nochmal sagen. Den Schalter lege ich nicht selbst um.'
+          : 'Standort-Dienst am Gerät ist aus. Sagen Sie „aktivieren“, dann öffne ich die Android-Seite.',
+      }
+    }
+    const loc = await readDeviceLocation()
+    if (loc.ok && loc.lat != null && loc.lon != null) {
+      return { ok: true, lat: loc.lat, lon: loc.lon, granted: true, openedSettings: false }
+    }
+    return {
+      ok: false,
+      granted: true,
+      openedSettings: false,
+      message: loc.message || 'Noch kein Fix. Kurz draußen oder WLAN an, dann nochmal.',
+    }
+  }
+  const openedSettings = open ? await openAppLocationSettings('app') : false
+  if (openedSettings) {
+    return {
+      ok: false,
+      granted: false,
+      openedSettings: true,
+      message:
+        'App-Einstellungen für Jarvis sind offen. Dort Standort erlauben, zurückkommen, nochmal sagen. Den Schalter lege ich nicht selbst um.',
+    }
+  }
+  return {
+    ok: false,
+    granted: false,
+    openedSettings: false,
+    message:
+      Capacitor.isNativePlatform()
+        ? 'Standort ist aus. Sagen Sie „aktivieren“ — dann kommt die Android-Abfrage, notfalls die App-Einstellungen. Ich rate den Ort nicht.'
+        : 'Im Browser keine Systemfreigabe. Auf dem Handy: Standort für Jarvis erlauben.',
+  }
 }
 
 export async function readDeviceLocation(): Promise<{

@@ -1,5 +1,6 @@
 import { readDeviceLocation, requestLocationPermission, hasLocationPermission } from '../native/geo'
 import { completeGemini, geminiReady } from './gemini'
+import { geocodePlace, reversePlace } from './geo-lookup'
 import { getJson } from './http-json'
 import type { ResearchMeta, ResearchSource } from './research-parse'
 import { syncGlance } from './glance'
@@ -117,7 +118,7 @@ async function resolveHere(): Promise<{ ok: true; fix: Fix } | { ok: false; mess
       ok: false,
       message:
         loc.message ||
-        'Standort einmal erlauben — dann sage ich das Wetter hier, ohne Ortsname. Oder „Wetter in …“.',
+        'Standort einmal erlauben. Sagen Sie „aktivieren“, dann kommt die Android-Abfrage. Oder „Wetter in …“. Ich rate nicht.',
     }
   }
   const place = (await reversePlace(loc.lat, loc.lon)) || 'hier'
@@ -138,48 +139,6 @@ function readCachedFix(s: ReturnType<typeof loadSettings>): Fix | null {
   const at = Date.parse(s.last_fix_at || '')
   if (!Number.isFinite(at) || Date.now() - at > 2 * 3_600_000) return null
   return { lat, lon, place: s.last_place || 'hier' }
-}
-
-async function geocodePlace(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
-  try {
-    const q = new URLSearchParams({
-      name,
-      count: '1',
-      language: 'de',
-      format: 'json',
-    })
-    const { status, json } = await getJson(`https://geocoding-api.open-meteo.com/v1/search?${q}`)
-    if (status < 200 || status >= 300) {
-      return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    }
-    const first = (json.results as Array<Record<string, unknown>> | undefined)?.[0]
-    if (!first) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    const lat = Number(first.latitude)
-    const lon = Number(first.longitude)
-    const place = String(first.name || name)
-    const admin = first.admin1 ? `, ${first.admin1}` : ''
-    return { ok: true, fix: { lat, lon, place: `${place}${admin}` } }
-  } catch {
-    return { ok: false, message: `Ort „${name}“ nicht erreichbar.` }
-  }
-}
-
-async function reversePlace(lat: number, lon: number): Promise<string | null> {
-  try {
-    const q = new URLSearchParams({
-      latitude: String(lat),
-      longitude: String(lon),
-      localityLanguage: 'de',
-    })
-    const { status, json } = await getJson(
-      `https://api.bigdatacloud.net/data/reverse-geocode-client?${q}`,
-    )
-    if (status < 200 || status >= 300) return null
-    const city = String(json.city || json.locality || json.principalSubdivision || '').trim()
-    return city || null
-  } catch {
-    return null
-  }
 }
 
 async function fetchOpenMeteo(fix: Fix): Promise<WeatherSnapshot | null> {

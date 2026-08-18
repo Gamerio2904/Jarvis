@@ -1,7 +1,6 @@
 /**
  * Routes every TEST_PROMPT the same way chat.ts does (no LLM, no phone).
- * Order: help → ordinal → tv → fan → fuel → drive → maps → memory → shopping → birthday → home → leave →
- * brief → calendar → alarm → timer → reminder → tools → eye → weather → search → llm
+ * Order: help → ordinal → tv → fan → here → fuel → drive → maps → ...
  */
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
@@ -23,6 +22,7 @@ import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseFuelIntent } from '../src/engine/fuel-parse.ts'
+import { parseHereIntent } from '../src/engine/here-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
@@ -31,7 +31,7 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'ordinal'|'tv'|'fan'|'fuel'|'drive'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'ordinal'|'tv'|'fan'|'here'|'fuel'|'drive'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -40,6 +40,7 @@ function route(text, ctx = {}) {
   if (parseOrdinalFollowUp(text)) return 'ordinal'
   if (parseTvWatch(text) || parseTvIntent(text)) return 'tv'
   if (parseFanIntent(text)) return 'fan'
+  if (parseHereIntent(text)) return 'here'
   if (parseFuelIntent(text)) return 'fuel'
   if (parseDriveIntent(text)) return 'drive'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
@@ -136,6 +137,7 @@ const EXPECT = {
   'kein Kaffee mehr': 'memory',
   'Netflix an': 'tv',
   'Fahr mich zu einer Tanke': 'fuel',
+  'Wo bin ich gerade?': 'here',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

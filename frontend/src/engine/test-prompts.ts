@@ -72,4 +72,5 @@ export const TEST_PROMPTS = [
   'kein Kaffee mehr',
   'Netflix an',
   'Fahr mich zu einer Tanke',
+  'Wo bin ich gerade?',
 ] as const

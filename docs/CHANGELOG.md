@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.41.0`**.
+App-Version im Code: **`1.42.0`**.
+
+### `1.42.0` — Wo bin ich, Standort anstoßen — *CODE*
+
+„Wo bin ich gerade?“ geht nicht mehr an Gemini (kein geratener Arbeitsweg). GPS + Reverse-Geocode. „Aktivieren“ öffnet den Android-Dialog, notfalls die App-Einstellungen — den Schalter legt Jarvis nicht selbst um. Dieselbe Freigabe gilt für Tanke und Wetter.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14200)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-95.md`](./sprints/sprint-95.md)
 
 ### `1.41.0` — Tanke E10 — *CODE*
 

@@ -1,4 +1,4 @@
-import { hasLocationPermission, readDeviceLocation, requestLocationPermission } from '../native/geo'
+import { ensureDeviceLocation } from '../native/geo'
 import { beginDriveTo } from './drive'
 import {
   formatE10Price,
@@ -48,7 +48,7 @@ const OVERPASS = [
 const KEY_HINT =
   'Tankerkönig-Schlüssel unter Einstellungen → Cloud. Kostenlos auf tankerkoenig.de. Ohne Schlüssel erfinde ich keine Preise.'
 const NO_GPS =
-  'Ohne Standort keine Tankstelle in der Nähe. Unter Android für Jarvis erlauben — ich rate den Ort nicht.'
+  'Ohne Standort keine Tankstelle. Sagen Sie „aktivieren“ — Android-Abfrage, notfalls App-Einstellungen. Ich rate den Ort nicht.'
 
 export async function handleFuel(_conversationId: string, text: string): Promise<FuelHit> {
   const intent = parseFuelIntent(text)
@@ -196,19 +196,18 @@ function readLastFuel(): LastFuel | null {
 }
 
 async function resolveHere(): Promise<{ ok: true; lat: number; lon: number } | { ok: false; message: string }> {
-  const granted = (await hasLocationPermission()) || (await requestLocationPermission())
-  const live = granted ? await readDeviceLocation() : { ok: false as const, lat: undefined, lon: undefined }
-  if (live.ok && live.lat != null && live.lon != null) {
+  const loc = await ensureDeviceLocation({ openSettingsIfDenied: false })
+  if (loc.ok && loc.lat != null && loc.lon != null) {
     saveSettings({
-      last_lat: String(live.lat),
-      last_lon: String(live.lon),
+      last_lat: String(loc.lat),
+      last_lon: String(loc.lon),
       last_fix_at: new Date().toISOString(),
     })
-    return { ok: true, lat: live.lat, lon: live.lon }
+    return { ok: true, lat: loc.lat, lon: loc.lon }
   }
   const cached = readFreshFix()
   if (cached) return cached
-  return { ok: false, message: live.message || NO_GPS }
+  return { ok: false, message: loc.message || NO_GPS }
 }
 
 function readFreshFix(): { ok: true; lat: number; lon: number } | null {

@@ -49,6 +49,7 @@ import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
 import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
+import { formatHereReply, parseHereIntent } from '../src/engine/here-parse.ts'
 import { parseSpotifyIntent, spotifySourceLabel } from '../src/engine/spotify-parse.ts'
 import { pickWatchTarget, parseWatchOffers, youtubeVideoId } from '../src/engine/tv-watch.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
@@ -711,6 +712,19 @@ const closedCheap = pickFuelPair([
 ])
 assert.match(formatFuelSpeech(closedCheap, 'nearest'), /geschlossen/)
 assert.match(formatFuelSpeech(closedCheap, 'nearest'), /Günstigste offene/)
+
+assert.equal(parseHereIntent('Wo bin ich gerade?')?.kind, 'locate')
+assert.equal(parseHereIntent('wo stehe ich')?.kind, 'locate')
+assert.equal(parseHereIntent('mein Standort')?.kind, 'locate')
+assert.equal(parseHereIntent('Standort aktivieren')?.kind, 'activate')
+assert.equal(parseHereIntent('Kannst du sie aktivieren?', 'fuel')?.kind, 'activate')
+assert.equal(parseHereIntent('Kannst du sie aktivieren?', 'here')?.kind, 'activate')
+assert.equal(parseHereIntent('Kannst du sie aktivieren?', 'tv'), null)
+assert.equal(parseHereIntent('Aktiviere Fahrmodus'), null)
+assert.equal(parseHereIntent('wo kann ich tanken'), null)
+assert.equal(formatHereReply('Ingersheim, Kirchstraße'), 'Ingersheim, Kirchstraße.')
+assert.match(PERSONA, /Live-Ortung/)
+assert.match(GEMINI_PERSONA, /Live-Ort/)
 
 const tap = createSentenceTap()
 assert.deepEqual(tap.feed('Hallo, der Himmel'), [])

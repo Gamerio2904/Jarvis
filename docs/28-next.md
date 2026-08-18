@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.41.0`** (Serie `1.34`–`1.40` plus Tanke E10).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.42.0`** (Tanke E10 plus Live-Ort).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -34,8 +34,9 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.40.2`** | Timer spricht (kein Klingeln); natürliche Namen | **CODE** |
 | **`1.40.3`** | Chat/Stimme: Film-Jarvis-Ton (Understatement) | **CODE** |
 | **`1.41.0`** | Tanke: nächste + günstigste, immer E10, Preise | **CODE** |
+| **`1.42.0`** | Wo bin ich: GPS, Freigabe anstoßen | **CODE** |
 
-Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-94.md`](./sprints/sprint-94.md).
+Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-95.md`](./sprints/sprint-95.md).
 
 ---
 
@@ -273,10 +274,23 @@ PO: Im CarPlay oder Chat „fahr mich zu einer Tanke“ — nächste **und** gü
 
 **Probe:** Standort an. Key unter Einstellungen → Cloud. `Fahr mich zu einer Tanke`. Danach `günstigste`.
 
+## `1.42.0` — Wo bin ich — **CODE**
+
+PO-Screenshot: `Wo bin ich gerade?` → Gemini rät den Arbeitsweg. `Kannst du sie aktivieren?` → Jarvis behauptet, Systemeinstellungen nicht öffnen zu können.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Parser vor LLM | Live-Ort nur mit GPS, kein Raten |
+| Android-Dialog + App-Einstellungen | „aktivieren“ stößt die Freigabe an; Schalter nicht selbst |
+| Kombi Tanke/Wetter | Dieselbe Pipeline; nach Freigabe Tanke nochmal |
+| Unabhängig | `Wo bin ich gerade?` ohne Tanke |
+
+**Probe:** Standort aus → `Wo bin ich gerade?` → `aktivieren` → Ort. Dann Tanke.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.41.0`. Tanke E10 in Chat/CarPlay. Nächste Stufe nur auf PO-Kommando — kein neues Produkt, kein TV-Framebuffer.
+Sideload `1.42.0`. `Wo bin ich gerade?` plus Tanke E10. Nächste Stufe nur auf PO-Kommando.

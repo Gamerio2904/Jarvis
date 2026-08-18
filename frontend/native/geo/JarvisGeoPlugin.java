@@ -1,12 +1,16 @@
 package app.jarvis.geo;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationListener;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
+import android.provider.Settings;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
@@ -55,6 +59,51 @@ public class JarvisGeoPlugin extends Plugin {
     private void onLocPerm(PluginCall call) {
         JSObject r = new JSObject();
         r.put("granted", getPermissionState("location") == PermissionState.GRANTED);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void locationEnabled(PluginCall call) {
+        JSObject r = new JSObject();
+        try {
+            LocationManager lm = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+            boolean on =
+                    lm != null
+                            && (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                                    || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER));
+            r.put("ok", true);
+            r.put("enabled", on);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("enabled", false);
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void openSettings(PluginCall call) {
+        String kind = call.getString("kind", "app");
+        JSObject r = new JSObject();
+        try {
+            Intent i;
+            if ("location".equals(kind)) {
+                i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            } else {
+                i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                i.setData(Uri.fromParts("package", getContext().getPackageName(), null));
+            }
+            Activity a = getActivity();
+            if (a != null) {
+                a.startActivity(i);
+            } else {
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getContext().startActivity(i);
+            }
+            r.put("ok", true);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Einstellungen nicht geöffnet.");
+        }
         call.resolve(r);
     }
 

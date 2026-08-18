@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
 import { fanDiscover, fanLearn, fanPick, fanTest } from './api'
+import { ensureDeviceLocation } from './native/geo'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -124,6 +125,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [fanMsg, setFanMsg] = useState<string | null>(null)
   const [fanMsgOk, setFanMsgOk] = useState<boolean | null>(null)
   const [fanFound, setFanFound] = useState<Array<{ host?: string; mac?: string; name?: string }>>([])
+  const [locBusy, setLocBusy] = useState(false)
+  const [locMsg, setLocMsg] = useState<string | null>(null)
 
   useEffect(() => {
     setFireHost(s?.tv_fire_host || '')
@@ -430,7 +433,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <p className="settings-hint">
                 {s?.last_place
                   ? `Letzter Ort: ${s.last_place}`
-                  : 'Noch kein Standort. Im Chat „Wetter heute“ sagen.'}
+                  : 'Noch kein Standort. Im Chat „Wo bin ich gerade?“ oder „Wetter heute“ sagen.'}
               </p>
               <p className="settings-hint">
                 {s?.home_lat && s?.home_lon
@@ -459,6 +462,31 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <button
                   type="button"
                   className="retry-btn"
+                  disabled={busy || locBusy}
+                  onClick={() => {
+                    setLocBusy(true)
+                    setLocMsg(null)
+                    void ensureDeviceLocation({ openSettingsIfDenied: true })
+                      .then((res) => {
+                        if (res.ok) {
+                          void p.patchSetting({
+                            last_lat: String(res.lat),
+                            last_lon: String(res.lon),
+                            last_fix_at: new Date().toISOString(),
+                          })
+                          setLocMsg('Standort liegt.')
+                          return
+                        }
+                        setLocMsg(res.message || 'Standort weiter aus.')
+                      })
+                      .finally(() => setLocBusy(false))
+                  }}
+                >
+                  Standort erlauben
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
                   disabled={busy}
                   onClick={() =>
                     void p.patchSetting({ last_lat: '', last_lon: '', last_place: '', last_fix_at: '' })
@@ -467,6 +495,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   Ort vergessen
                 </button>
               </div>
+              {locMsg ? <p className="settings-hint">{locMsg}</p> : null}
+              <p className="settings-hint">
+                Jarvis öffnet die Android-Abfrage oder die App-Einstellungen. Den Schalter legt er nicht selbst um.
+              </p>
             </section>
           ) : null}
 
