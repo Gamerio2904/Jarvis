@@ -119,6 +119,7 @@ MAJOR.MINOR.PATCH
 | `1.39.0` | Stimme bleiben (NO_MATCH, Barge-in, Navi vs Jarvis) | Sprint 92 |
 | `1.40.0` | Härten (Eval, False-Positives, keine Fake-Erfolge) | Sprint 93 |
 | `1.40.1` | Sätze zu Ende; TV-Tasten/Ordinal, YouTube-Suche, kein Live-Bild | Sprint 93 Patch |
+| `1.40.2` | Timer spricht ohne Klingeln; natürliche Timer-Sätze | Sprint 93 Patch |
 
 ### Weitere Beispiele
 

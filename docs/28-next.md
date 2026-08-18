@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.40.1`** (Serie `1.34`–`1.40` plus Patch).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.40.2`** (Serie `1.34`–`1.40` plus Patch).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -31,6 +31,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.39.0`** | Stimme bleiben: STT, Barge-in, Navi+Jarvis | **CODE** |
 | **`1.40.0`** | Härten: Eval, False-Positives, ehrliche Fehler | **CODE** |
 | **`1.40.1`** | Sätze zu Ende; TV OK/D-Pad/`das zweite`; YouTube mit Titel | **CODE** |
+| **`1.40.2`** | Timer spricht (kein Klingeln); natürliche Namen | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-93.md`](./sprints/sprint-93.md).
 
@@ -228,10 +229,24 @@ PO: Gemini bricht mitten im Satz ab (`**Entweder Sie`, `Ich halte im **H`). Frag
 
 **Probe:** Smalltalk ohne Abbruch. `Öffne YouTube`, `OK`, `suche Handels auf YouTube`, `das zweite`. Foto vom Login-Dialog.
 
+## `1.40.2` — Timer spricht — **CODE**
+
+PO: Timer klingelt wie ein Wecker, Jarvis sagt nichts. Namen klingen unecht (`Timer Nudeln`, `Der Timer für Ihre Nudeln ist abgelaufen, Sie.`).
+
+| Hebel | Wirkung |
+|-------|---------|
+| Eigenes Timer-Kanal ohne Ton | Kein Alarm-Klingeln über die Benachrichtigung |
+| Nachplanung | `syncReminderAlarms` setzt Timer nicht mehr auf Wecker-Ton |
+| TTS auf Alarm-Lautstärke | Jarvis ist hörbar, auch wenn Medien lautlos sind |
+| Titel „Timer“ | Immer sprechen, nie `JarvisAlarmPlayer` |
+| Sätze | `Nudeln, 8 Minuten. Ich sage Bescheid.` / `Die Nudeln sind fertig.` |
+
+**Probe:** `Timer 1 Minute Nudeln` — kein Klingeln, Jarvis sagt „Die Nudeln sind fertig.“ Wecker klingelt weiter.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.40.1`. Serie `1.34`–`1.40` plus Patch. Nächste Stufe nur auf PO-Kommando — kein neues Produkt, kein TV-Framebuffer.
+Sideload `1.40.2`. Serie `1.34`–`1.40` plus Patch. Nächste Stufe nur auf PO-Kommando — kein neues Produkt, kein TV-Framebuffer.

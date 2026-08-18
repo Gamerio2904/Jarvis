@@ -6,13 +6,45 @@ export function cleanTimerTitle(raw: string): string {
     .replace(/^[,\s.:;-]+/, '')
     .replace(/[.!?]+$/, '')
     .trim()
-  if (!t || /^timer$/i.test(t)) return ''
+  if (!t || /^(timer|test|probe|alarm|wecker)$/i.test(t)) return ''
   return t
 }
 
-/** Jarvis sagt das beim Ablauf — kein Klingeln. Siezen. */
+const PLURAL =
+  /^(nudeln|kartoffeln|bohnen|linsen|eier|pommes|spätzle|spaghetti|klöße|semmeln)$/i
+
+/** Jarvis sagt das beim Ablauf — kein Klingeln. */
 export function timerDoneLine(title: string): string {
   const t = cleanTimerTitle(title)
-  if (!t) return 'Timer abgelaufen, Sie.'
-  return `Der Timer für Ihre ${t} ist abgelaufen, Sie.`
+  if (!t) return 'Die Zeit ist um.'
+  if (PLURAL.test(t)) return `Die ${t} sind fertig.`
+  return `${t} ist soweit.`
+}
+
+/** Bestätigung beim Stellen. */
+export function timerSetLine(title: string, whenLabel: string): string {
+  const t = cleanTimerTitle(title)
+  const when = (whenLabel || '').replace(/^\s*in\s+/i, '').trim() || whenLabel
+  if (t) return `${t}, ${when}. Ich sage Bescheid.`
+  const lead = whenLabel.replace(/^\s*in\s+/i, 'In ').trim()
+  return `${lead || 'Timer läuft'}. Ich sage Bescheid.`
+}
+
+export function timerStopLine(title: string): string {
+  const t = cleanTimerTitle(title)
+  return t ? `${t} gestoppt.` : 'Timer aus.'
+}
+
+export function timerListLabel(title: string): string {
+  return cleanTimerTitle(title) || 'Timer'
+}
+
+/** Native Alarm: immer sprechen, nie Wecker-Ton. */
+export function timerAlarmFields(title: string): {
+  title: string
+  body: string
+  mode: 'speak'
+  say: string
+} {
+  return { title: 'Timer', body: title || 'Timer', mode: 'speak', say: timerDoneLine(title) }
 }

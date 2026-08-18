@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `1.40.1`. Wecker klingelt, Timer sagt an — [`28-next.md`](./28-next.md).
+1. Sideload `1.40.2`. Wecker klingelt, Timer sagt an — [`28-next.md`](./28-next.md).
 2. Qualität `1.34`–`1.40` ist CODE. Weiteres nur auf PO-Kommando.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 

@@ -1,18 +1,18 @@
-# Android-APK — `1.40.1`
+# Android-APK — `1.40.2`
 
-**1.40.1:** Sätze zu Ende. TV: OK/D-Pad/`das zweite`, YouTube mit Titel sucht. Kein Live-Bild vom Fernseher. Wecker klingelt. Timer sagt an, ohne Klingeln.
+**1.40.2:** Timer spricht, klingelt nicht. Namen und Sätze wie im Alltag. Wecker klingelt weiter.
 
 ## Download
 
-**APK `1.40.1`:**  
+**APK `1.40.2`:**  
 https://github.com/Gamerio2904/Jarvis/raw/cursor/updates-1-29-1-33-3638/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.40.1` · versionCode `14001`
+- versionName `1.40.2` · versionCode `14002`
 - App-ID `local.jarvis.app`
 
-1. Über 1.40.0 installieren (unbekannte Quellen).
-2. Chat: Smalltalk darf nicht mit `**` oder halbem Satz enden.
-3. `Öffne YouTube` → `OK` (Anmelden) → `öffne der Handels auf YouTube` oder `suche Handels auf YouTube` → `das zweite`.
-4. Foto-Knopf: Foto vom TV-Schirm, wenn Jarvis sagen soll, was drauf steht.
-5. `Wecker 1 Minute Test` klingelt. `Timer 1 Minute Nudeln` spricht, ohne Klingeln.
+1. Über 1.40.1 installieren (unbekannte Quellen).
+2. `Timer 1 Minute Nudeln` — Jarvis sagt „Die Nudeln sind fertig.“ Kein Klingeln.
+3. `Timer 1 Minute` — „Die Zeit ist um.“ Kein Klingeln.
+4. `Wecker 1 Minute Test` klingelt weiter.
+5. Chat: `Nudeln, 1 Minute. Ich sage Bescheid.`

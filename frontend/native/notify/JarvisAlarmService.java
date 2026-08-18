@@ -26,6 +26,7 @@ public class JarvisAlarmService extends Service {
     public static final String ACTION_STOP = "app.jarvis.notify.ALARM_STOP";
     static final int NOTE_ID = 72;
     private static final String CHANNEL = "jarvis_alarms_v4";
+    private static final String TIMER_CHANNEL = "jarvis_timer_speak_v1";
 
     private PowerManager.WakeLock cpuLock;
     private MediaSession session;
@@ -65,6 +66,7 @@ public class JarvisAlarmService extends Service {
         } catch (Exception ignored) {
         }
         JarvisAlarmPlayer.stop();
+        JarvisTimerVoice.stop();
     }
 
     @Override
@@ -76,6 +78,7 @@ public class JarvisAlarmService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && ACTION_STOP.equals(intent.getAction())) {
             JarvisAlarmPlayer.stop();
+            JarvisTimerVoice.stop();
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -86,8 +89,13 @@ public class JarvisAlarmService extends Service {
         String say = intent != null ? intent.getStringExtra("say") : null;
         if (title == null || title.isEmpty()) title = "Jarvis";
         if (body == null) body = "";
-        boolean speak = "speak".equals(mode);
-        startFg(title, speak && say != null && !say.isEmpty() ? say : body);
+        boolean speak = JarvisNotifyPlugin.isTimerSpeak(mode, title);
+        if (speak) {
+            mode = "speak";
+            tone = "";
+            if (say == null || say.isEmpty()) say = JarvisNotifyPlugin.timerSpokenLine(body);
+        }
+        startFg(title, body, tone, mode, say, speak);
         holdCpu();
         holdSession();
         JarvisWakeService.pauseListen();
@@ -99,11 +107,14 @@ public class JarvisAlarmService extends Service {
         return START_STICKY;
     }
 
-    private void startFg(String title, String body) {
+    private void startFg(String title, String body, String tone, String mode, String say, boolean speak) {
         ensureChannel();
         Intent open = new Intent(this, JarvisAlarmActivity.class);
         open.putExtra("title", title);
         open.putExtra("body", body);
+        open.putExtra("tone", speak ? "" : (tone == null ? "" : tone));
+        open.putExtra("mode", speak ? "speak" : (mode == null ? "" : mode));
+        open.putExtra("say", say == null ? "" : say);
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -113,10 +124,10 @@ public class JarvisAlarmService extends Service {
         Intent halt = new Intent(this, JarvisAlarmService.class);
         halt.setAction(ACTION_STOP);
         PendingIntent stopPi = PendingIntent.getService(this, 72_002, halt, flags);
-        Notification n = new NotificationCompat.Builder(this, CHANNEL)
+        Notification n = new NotificationCompat.Builder(this, speak ? TIMER_CHANNEL : CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-                .setContentTitle(title)
-                .setContentText(body)
+                .setContentTitle(speak && body != null && !body.isEmpty() && !"Timer".equalsIgnoreCase(body) ? body : title)
+                .setContentText(speak && say != null && !say.isEmpty() ? say : body)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -179,6 +190,17 @@ public class JarvisAlarmService extends Service {
         AudioAttributes attrs = JarvisAlarmPlayer.alarmAttrs();
         if (sound != null) alarm.setSound(sound, attrs);
         nm.createNotificationChannel(alarm);
+        NotificationChannel timer = new NotificationChannel(
+                TIMER_CHANNEL,
+                "Timer",
+                NotificationManager.IMPORTANCE_HIGH
+        );
+        timer.setDescription("Jarvis sagt die Zeit an, ohne Klingeln");
+        timer.setBypassDnd(true);
+        timer.enableVibration(false);
+        timer.enableLights(true);
+        timer.setSound(null, null);
+        nm.createNotificationChannel(timer);
     }
 
     private void holdCpu() {

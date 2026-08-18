@@ -20,7 +20,7 @@ import {
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseTimerIntent } from '../src/engine/timer-parse.ts'
-import { timerDoneLine, cleanTimerTitle } from '../src/engine/timer-announce.ts'
+import { timerDoneLine, cleanTimerTitle, timerSetLine, timerStopLine } from '../src/engine/timer-announce.ts'
 import { expandZahlenworte } from '../src/engine/zahlenworte.ts'
 import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
@@ -631,9 +631,14 @@ assert.equal(parseShopIntent('Milch fehlt')?.kind, 'add')
 assert.ok(isBriefAsk('Was kommt heute?'))
 assert.equal(parseSpotifyIntent('Spiel mal was Nettes'), null)
 assert.equal(parseDriveIntent('Ich fahre gerne Auto'), null)
-assert.equal(timerDoneLine('Nudeln'), 'Der Timer für Ihre Nudeln ist abgelaufen, Sie.')
-assert.equal(timerDoneLine('Timer'), 'Timer abgelaufen, Sie.')
+assert.equal(timerDoneLine('Nudeln'), 'Die Nudeln sind fertig.')
+assert.equal(timerDoneLine('Timer'), 'Die Zeit ist um.')
+assert.equal(timerDoneLine('Pizza'), 'Pizza ist soweit.')
+assert.equal(timerDoneLine('Test'), 'Die Zeit ist um.')
 assert.equal(cleanTimerTitle('für Nudeln'), 'Nudeln')
+assert.equal(timerSetLine('Nudeln', 'in 8 Minuten'), 'Nudeln, 8 Minuten. Ich sage Bescheid.')
+assert.equal(timerSetLine('Timer', 'in 8 Minuten'), 'In 8 Minuten. Ich sage Bescheid.')
+assert.equal(timerStopLine('Nudeln'), 'Nudeln gestoppt.')
 assert.ok(CONTRADICTION.test('kein Kaffee mehr'))
 assert.equal(isMemoryWrite('kein Kaffee mehr'), true)
 assert.equal(isMemoryWrite('kein Problem'), false)

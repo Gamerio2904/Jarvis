@@ -31,7 +31,7 @@ public class JarvisNotifyReceiver extends BroadcastReceiver {
                     mode == null ? "" : mode,
                     say == null ? "" : say);
         } finally {
-            new Handler(Looper.getMainLooper()).postDelayed(async::finish, 2500);
+            new Handler(Looper.getMainLooper()).postDelayed(async::finish, 8000);
         }
     }
 }

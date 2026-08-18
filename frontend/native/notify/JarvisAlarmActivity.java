@@ -38,7 +38,11 @@ public class JarvisAlarmActivity extends Activity {
         String say = getIntent() != null ? getIntent().getStringExtra("say") : null;
         if (title == null || title.isEmpty()) title = "Jarvis";
         if (body == null) body = "";
-        boolean speak = "speak".equals(mode);
+        boolean speak = JarvisNotifyPlugin.isTimerSpeak(mode, title);
+        if (speak) {
+            mode = "speak";
+            tone = "";
+        }
         if (speak && (say == null || say.isEmpty())) {
             say = JarvisNotifyPlugin.timerSpokenLine(body);
         }
@@ -51,7 +55,10 @@ public class JarvisAlarmActivity extends Activity {
         root.setBackgroundColor(0xFF121212);
 
         TextView h = new TextView(this);
-        h.setText(title);
+        String heading = speak
+                ? (body != null && !body.isEmpty() && !"Timer".equalsIgnoreCase(body) ? body : "Jarvis")
+                : title;
+        h.setText(heading);
         h.setTextColor(0xFFE8F5E9);
         h.setTextSize(28);
         h.setGravity(Gravity.CENTER);
@@ -75,6 +82,7 @@ public class JarvisAlarmActivity extends Activity {
     }
 
     private void halt() {
+        JarvisTimerVoice.stop();
         JarvisAlarmPlayer.stop();
         JarvisAlarmService.stop(this);
         finish();

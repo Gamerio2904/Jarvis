@@ -7,7 +7,7 @@ import {
   type Reminder,
 } from './store'
 import { parseTimerIntent } from './timer-parse'
-import { timerDoneLine } from './timer-announce'
+import { timerAlarmFields, timerListLabel, timerSetLine, timerStopLine } from './timer-announce'
 import type { ToolMeta } from './tools'
 
 export { parseTimerIntent } from './timer-parse'
@@ -29,20 +29,17 @@ export async function handleTimers(
     const perm = await requestNotifyPermission()
     const scheduled = await scheduleNotify({
       id: notifyIdFromKey(row.id),
-      title: 'Timer',
-      body: row.title,
+      ...timerAlarmFields(row.title),
       at: intent.due,
       alarm: true,
-      mode: 'speak',
-      say: timerDoneLine(row.title),
     })
     await syncGlance()
     const ping = perm && scheduled.ok
-      ? 'Ich sage Bescheid, auch bei Bildschirm aus. Kein Klingeln.'
-      : 'Gespeichert. Benachrichtigung erlauben, sonst kein Hinweis.'
+      ? ''
+      : ' Benachrichtigung erlauben, sonst kein Hinweis.'
     return {
       handled: true,
-      reply: `Timer ${row.title}, ${intent.whenLabel}. ${ping}`,
+      reply: `${timerSetLine(row.title, intent.whenLabel)}${ping}`,
       tool: {
         tool_status: 'executed',
         tool: 'timer',
@@ -56,7 +53,7 @@ export async function handleTimers(
   if (intent.kind === 'list') {
     const rows = await openTimers()
     if (!rows.length) return { handled: true, reply: 'Kein laufender Timer.' }
-    const lines = rows.map((r, i) => `${i + 1}. ${r.title} — ${leftLabel(r.due_at)}`)
+    const lines = rows.map((r, i) => `${i + 1}. ${timerListLabel(r.title)} — ${leftLabel(r.due_at)}`)
     return { handled: true, reply: `Timer:\n${lines.join('\n')}` }
   }
 
@@ -69,7 +66,7 @@ export async function handleTimers(
   await syncGlance()
   return {
     handled: true,
-    reply: rows.length === 1 ? `Timer ${rows[0].title} aus.` : `${rows.length} Timer aus.`,
+    reply: rows.length === 1 ? timerStopLine(rows[0].title) : `${rows.length} Timer aus.`,
     tool: { tool_status: 'executed', tool: 'timer', action: 'stop', label: 'Timer aus' },
   }
 }

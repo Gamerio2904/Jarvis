@@ -355,17 +355,20 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     <li key={r.id} className="memory-item">
                       <div className="memory-value">
                         {r.kind === 'timer'
-                          ? 'Timer · '
-                          : r.kind === 'alarm'
-                            ? r.recur
-                              ? 'Wecker täglich · '
-                              : 'Wecker · '
-                            : r.recur === 'daily'
-                              ? 'täglich · '
-                              : r.recur === 'weekly'
-                                ? 'wöchentlich · '
-                                : ''}
-                        {r.title}
+                          ? !r.title || /^timer$/i.test(r.title)
+                            ? 'Timer'
+                            : r.title
+                          : `${
+                              r.kind === 'alarm'
+                                ? r.recur
+                                  ? 'Wecker täglich · '
+                                  : 'Wecker · '
+                                : r.recur === 'daily'
+                                  ? 'täglich · '
+                                  : r.recur === 'weekly'
+                                    ? 'wöchentlich · '
+                                    : ''
+                            }${r.title}`}
                       </div>
                       <div className="memory-key">
                         {new Date(r.due_at).toLocaleString('de-DE', {

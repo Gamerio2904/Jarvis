@@ -42,6 +42,7 @@ import org.json.JSONObject;
 public class JarvisNotifyPlugin extends Plugin {
     static final String CHANNEL_ID = "jarvis_reminders";
     static final String ALARM_CHANNEL = "jarvis_alarms_v4";
+    static final String TIMER_CHANNEL = "jarvis_timer_speak_v1";
     static final String PREFS = "jarvis_notify";
     static final String KEY_ITEMS = "items";
     static final String KEY_TONE = "alarm_tone";
@@ -232,6 +233,17 @@ public class JarvisNotifyPlugin extends Plugin {
         Uri ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         if (ring != null) alarm.setSound(ring, JarvisAlarmPlayer.alarmAttrs());
         nm.createNotificationChannel(alarm);
+        NotificationChannel timer = new NotificationChannel(
+                TIMER_CHANNEL,
+                "Timer",
+                NotificationManager.IMPORTANCE_HIGH
+        );
+        timer.setDescription("Jarvis sagt die Zeit an, ohne Klingeln");
+        timer.setBypassDnd(true);
+        timer.enableVibration(false);
+        timer.enableLights(true);
+        timer.setSound(null, null);
+        nm.createNotificationChannel(timer);
     }
 
     static boolean arm(Context ctx, int id, String title, String body, long atMs, boolean alarm, String recur, String tone, String mode, String say) {
@@ -373,9 +385,17 @@ public class JarvisNotifyPlugin extends Plugin {
         show(ctx, id, title, body, alarm, recur, tone, "", "");
     }
 
+    static boolean isTimerSpeak(String mode, String title) {
+        if (mode != null && "speak".equals(mode.trim())) return true;
+        return title != null && "Timer".equalsIgnoreCase(title.trim());
+    }
+
     static void show(Context ctx, int id, String title, String body, boolean alarm, String recur, String tone, String mode, String say) {
         ensureChannel(ctx);
-        if ((mode == null || mode.isEmpty()) && "Timer".equals(title)) mode = "speak";
+        if (isTimerSpeak(mode, title)) {
+            mode = "speak";
+            tone = "";
+        }
         if ("speak".equals(mode) && (say == null || say.isEmpty())) {
             say = timerSpokenLine(body);
         }
@@ -406,8 +426,15 @@ public class JarvisNotifyPlugin extends Plugin {
 
     static String timerSpokenLine(String body) {
         String t = body == null ? "" : body.trim();
-        if (t.isEmpty() || "Timer".equalsIgnoreCase(t)) return "Timer abgelaufen, Sie.";
-        return "Der Timer für Ihre " + t + " ist abgelaufen, Sie.";
+        if (t.isEmpty() || t.equalsIgnoreCase("Timer") || t.equalsIgnoreCase("Test") || t.equalsIgnoreCase("Probe")) {
+            return "Die Zeit ist um.";
+        }
+        String low = t.toLowerCase();
+        if (low.equals("nudeln") || low.equals("kartoffeln") || low.equals("bohnen") || low.equals("linsen")
+                || low.equals("eier") || low.equals("pommes") || low.equals("spätzle") || low.equals("spaghetti")) {
+            return "Die " + t + " sind fertig.";
+        }
+        return t + " ist soweit.";
     }
 
     private static JSONArray load(Context ctx) {

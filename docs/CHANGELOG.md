@@ -5,7 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.40.1`**.
+App-Version im Code: **`1.40.2`**.
+
+### `1.40.2` — Timer spricht, natürliche Namen — *CODE*
+
+Timer klingelte (Wecker-Kanal + Nachplanung mit Alarm-Ton), Jarvis war stumm (TTS auf Medien-Stream).
+
+- Eigenes stilles Timer-Kanal; TTS auf Alarm-Lautstärke
+- Nachplanung überschreibt Timer nicht mehr mit Wecker-Ton
+- `Nudeln, 8 Minuten. Ich sage Bescheid.` / `Die Nudeln sind fertig.` — kein „Timer für Ihre …, Sie.“
+- Wecker klingelt unverändert
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14002)
+- [`28-next.md`](./28-next.md)
 
 ### `1.40.1` — Sätze zu Ende, TV-Tasten ohne Live-Bild — *CODE*
 

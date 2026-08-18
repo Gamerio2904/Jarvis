@@ -22,7 +22,7 @@ export async function handleBrief(): Promise<{
   if (shop.length) parts.push(`Einkauf: ${shop.map((s) => s.title).join(', ')}.`)
 
   const timers = (await listReminders()).filter((r) => r.kind === 'timer' && r.status === 'open')
-  if (timers.length) parts.push(`Timer: ${timers.map((t) => t.title).join(', ')}.`)
+  if (timers.length) parts.push(`${timers.map((t) => (t.title && !/^timer$/i.test(t.title) ? t.title : 'Timer')).join(', ')}.`)
 
   const soon = (await listEvents()).filter((e) => new Date(e.start_at).getTime() >= Date.now() - 60_000)
   if (soon[0] && !parts.some((p) => p.includes(soon[0].title))) {
