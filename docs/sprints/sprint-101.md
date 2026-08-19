@@ -29,6 +29,7 @@ Bestehende Wetter-/Ort-/Alltag-Tools erweitern. Keine erfundenen Werte. Luft und
 | L10 | Fahrmodus Karte/Route (`1.48.3`) | HUD vollflächig, Route sichtbar |
 | L11 | Fahrmodus-Karte neu (`1.48.4`) | Vollbild, Norden oben, nicht gedreht |
 | L12 | Karte Gesten + Mic (`1.48.5`) | Schieben/Zoom, Sprache führt aus |
+| L13 | Overlay/Cafés/Route (`1.48.6`) | Overlay=Karte, OSM-Cafés, echte Route |
 
 ## Probe
 

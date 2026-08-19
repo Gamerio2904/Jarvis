@@ -413,6 +413,24 @@ async function destOrAsk(raw: string): Promise<
   return { place: resolved.place }
 }
 
+function lastPoiHit(): { name: string; lat: number; lon: number } | null {
+  try {
+    const raw = loadSettings().last_poi_json
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as {
+      hits?: Array<{ name?: string; street?: string; place?: string; lat?: number; lon?: number }>
+    }
+    const h = parsed?.hits?.[0]
+    const lat = Number(h?.lat)
+    const lon = Number(h?.lon)
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+    const name = [h?.name, h?.street, h?.place].filter(Boolean).join(', ') || 'Ziel'
+    return { name, lat, lon }
+  } catch {
+    return null
+  }
+}
+
 function openDrive() {
   saveSettings({ drive_mode: true })
   emit()
@@ -456,7 +474,7 @@ export async function handleDrive(
       reply:
         intent.tab === 'spotify'
           ? 'Spotify-Overlay. Interner Tab, nicht Apple CarPlay.'
-          : 'Karte.',
+          : 'Fahrmodus. Karte intern, nicht Apple CarPlay.',
       tool: driveTool(intent.tab === 'spotify' ? 'music' : 'open', intent.tab === 'spotify' ? 'Spotify' : 'Karte'),
       lastTool: 'drive',
     }
@@ -493,6 +511,52 @@ export async function handleDrive(
       handled: true,
       reply: formatRestweg(route),
       tool: driveTool('eta', 'Restweg', route),
+      lastTool: 'drive',
+    }
+  }
+  if (intent?.kind === 'route') {
+    openDrive()
+    tab = 'map'
+    emit()
+    if (active && active.minutes > 0) {
+      return {
+        handled: true,
+        reply: formatRestweg(active),
+        tool: driveTool('open', 'Karte', active),
+        lastTool: 'drive',
+      }
+    }
+    const poi = lastPoiHit()
+    if (poi) {
+      const { route, tool, hereOk, rideOk } = await beginDriveTo(poi.name, poi.lat, poi.lon)
+      if (!hereOk) {
+        return {
+          handled: true,
+          reply: `Fahrmodus: Ziel ${poi.name}. Standort erlauben für die Route — intern, nicht Google Maps.`,
+          tool,
+          lastTool: 'drive',
+        }
+      }
+      if (!rideOk) {
+        return {
+          handled: true,
+          reply: `${route.hint || 'Netz hat die Route nicht geliefert.'} Ziel ${poi.name} liegt trotzdem im Fahrmodus.`,
+          tool,
+          lastTool: 'drive',
+        }
+      }
+      const km = route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`
+      return {
+        handled: true,
+        reply: `Fahrmodus nach ${poi.name}: etwa ${route.minutes} Min, ${km}. Karte intern, nicht Google.`,
+        tool,
+        lastTool: 'drive',
+      }
+    }
+    return {
+      handled: true,
+      reply: 'Wohin? Ein Ort in der Nähe, oder „nächstes Café“.',
+      tool: driveTool('ask', 'Route'),
       lastTool: 'drive',
     }
   }

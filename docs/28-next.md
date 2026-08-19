@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.5`** (Karte schieben, Sprache im Fahrmodus).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.6`** (Overlay-Karte, Cafés am Standort, echte Route).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -47,6 +47,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.48.3`** | Fahrmodus: Karte und Route | **CODE** |
 | **`1.48.4`** | Fahrmodus-Karte: vollflächig, Norden oben | **CODE** |
 | **`1.48.5`** | Karte schieben/zoomen, Sprache im Fahrmodus | **CODE** |
+| **`1.48.6`** | Overlay=Karte, Cafés am GPS, echte Route | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-101.md`](./sprints/sprint-101.md).
 
@@ -462,10 +463,22 @@ PO: Karte nicht verschiebbar, Mic geht an und macht nichts.
 
 **Probe:** Karte schieben, pinch, ⌖. Mic: `nächste Tanke`.
 
+## `1.48.6` — Overlay, Cafés, echte Route — **CODE**
+
+Live am Valeo in Bietigheim: Overlay blieb zu, „Aktiviere das overlay“ wurde Spotify, Frühstück riet Stuttgart, „Gib mir ne Route“ log ohne OSRM.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Overlay | Ohne Spotify/Musik = Karte, nicht interner Musik-Tab |
+| Cafés | Frühstück/Café aus OSM am GPS, keine erfundenen Läden |
+| Route | Overlay auf, OSRM zum letzten Treffer — oder ehrlich „Wohin?“ / Standort |
+
+**Probe:** `wo könnte ich jetzt frühstücken` (Bietigheim, nicht Stuttgart) · `Gib mir ne Route` (Karte + echte Min) · `Aktiviere das overlay` (Karte) · `Öffne das Spotify overlay` (Musik).
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.48.5`. Karte schieben, Mic spricht. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.48.6`. Overlay = Karte, Cafés am GPS, echte Route. Nächste Stufe nur auf PO-Kommando.

@@ -74,6 +74,12 @@ function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
   return []
 }
 
+function opensDriveOverlay(tool?: ToolMeta | null): boolean {
+  if (!tool) return false
+  if (tool.tool === 'drive') return true
+  return tool.action === 'nav' && (tool.tool === 'poi' || tool.tool === 'fuel')
+}
+
 function ToolChip({
   tool,
   onConfirm,
@@ -963,8 +969,8 @@ function App() {
               setSidebarOpen(false)
             }
           }
-          if (payload.tool?.tool === 'drive') {
-            if (payload.tool.action === 'close') setDriveOpen(false)
+          if (opensDriveOverlay(payload.tool)) {
+            if (payload.tool?.action === 'close') setDriveOpen(false)
             else {
               setDriveOpen(true)
               setCalendarOpen(false)
@@ -1082,8 +1088,8 @@ function App() {
             return [payload.conversation, ...rest]
           })
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
-          if (payload.tool?.tool === 'drive') {
-            if (payload.tool.action === 'close') setDriveOpen(false)
+          if (opensDriveOverlay(payload.tool)) {
+            if (payload.tool?.action === 'close') setDriveOpen(false)
             else setDriveOpen(true)
           }
           maybeOpenSettingsFromReply(payload.assistant_message.content)

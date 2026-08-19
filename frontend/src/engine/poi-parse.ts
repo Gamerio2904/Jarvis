@@ -1,11 +1,14 @@
 import { isFuelPlace } from './fuel-parse.ts'
 import { normalizeUtterance } from './utterance.ts'
 
-export type PoiKind = 'pharmacy' | 'bakery' | 'parking' | 'supermarket' | 'chemist' | 'shop'
+export type PoiKind = 'pharmacy' | 'bakery' | 'parking' | 'supermarket' | 'chemist' | 'shop' | 'cafe'
 
-export type PoiIntent = { kind: PoiKind | 'ask'; hours: boolean }
+export type PoiIntent = { kind: PoiKind | 'ask'; hours: boolean; nav?: boolean }
 
 const NEAREST = /\b(?:nächste[nrs]?|nächster|zum\s+nächsten|zur\s+nächsten)\b/i
+const NEARBY = /\bin\s+der\s+nähe\b/i
+const BREAKFAST =
+  /(?<!\p{L})(?:frühstück(?:en)?|fruehstueck(?:en)?|breakfast)(?!\p{L})/iu
 const POI_WORD = /\b(?:poi|pol)\b/i
 const GO =
   /\b(?:fahr(?:e)?(?:\s+mich)?|bring(?:e)?(?:\s+mich)?|navigier(?:e)?|zeig(?:e)?|wo\s+ist|öffne)\b/i
@@ -21,6 +24,7 @@ const KINDS: Array<{ kind: PoiKind; re: RegExp }> = [
   { kind: 'supermarket', re: /\b(?:supermarkt|discounter|aldi|lidl|rewe|edeka)\b/i },
   { kind: 'chemist', re: /\b(?:drogerie|dm|rossmann)\b/i },
   { kind: 'shop', re: /\b(?:laden|geschäft|kiosk|spät[ie]|späti)\b/i },
+  { kind: 'cafe', re: /(?<!\p{L})(?:cafés?|cafes?|kaffeehaus|kaffeehäuser)(?!\p{L})/iu },
 ]
 
 export function parsePoiIntent(text: string, lastKind?: PoiKind | null): PoiIntent | null {
@@ -28,23 +32,29 @@ export function parsePoiIntent(text: string, lastKind?: PoiKind | null): PoiInte
   if (!t) return null
   if (isFuelPlace(t)) return null
   if (/\b(?:song|titel|track|lied)\b/i.test(t)) return null
+  if (namedCafe(t)) return null
   const typed = detectKind(t)
   const hours = HOURS.test(t)
+  const near = NEAREST.test(t) || NEARBY.test(t)
+  if (BREAKFAST.test(t) && !typed) {
+    return { kind: 'cafe', hours, nav: near || GO.test(t) }
+  }
   if (POI_WORD.test(t)) {
-    if (NEAREST.test(t) || GO.test(t) || hours || /^\s*(?:nächste[nrs]?\s+)?(?:poi|pol)\s*[.!?]*$/i.test(t)) {
-      return { kind: typed || 'ask', hours: hours && !NEAREST.test(t) && !GO.test(t) }
+    if (near || GO.test(t) || hours || /^\s*(?:nächste[nrs]?\s+)?(?:poi|pol)\s*[.!?]*$/i.test(t)) {
+      return { kind: typed || 'ask', hours: hours && !near && !GO.test(t), nav: !hours }
     }
   }
   if (typed) {
-    if (NEAREST.test(t) || GO.test(t) || /^\s*(?:zur|zum)\s+\S+/i.test(t)) {
-      return { kind: typed, hours: false }
+    if (near || GO.test(t) || /^\s*(?:zur|zum)\s+\S+/i.test(t)) {
+      return { kind: typed, hours: false, nav: true }
     }
-    if (hours) return { kind: typed, hours: true }
+    if (hours) return { kind: typed, hours: true, nav: false }
+    if (typed === 'cafe') return { kind: 'cafe', hours: false, nav: false }
   }
-  if (hours && lastKind && HOURS_FOLLOW.test(t) && !typed && !NEAREST.test(t)) {
-    return { kind: lastKind, hours: true }
+  if (hours && lastKind && HOURS_FOLLOW.test(t) && !typed && !near) {
+    return { kind: lastKind, hours: true, nav: false }
   }
-  if (/^\s*öffnungszeiten\s*[.!?]*$/i.test(t)) return { kind: lastKind || 'ask', hours: true }
+  if (/^\s*öffnungszeiten\s*[.!?]*$/i.test(t)) return { kind: lastKind || 'ask', hours: true, nav: false }
   return null
 }
 
@@ -55,7 +65,12 @@ export function poiLabel(kind: PoiKind | 'ask'): string {
   if (kind === 'supermarket') return 'Supermarkt'
   if (kind === 'chemist') return 'Drogerie'
   if (kind === 'shop') return 'Laden'
+  if (kind === 'cafe') return 'Café'
   return 'Ort'
+}
+
+function namedCafe(t: string): boolean {
+  return /(?<!\p{L})caf[eé]s?\s+(?!in\s+der\s+nähe|hier|jetzt|bitte|auf|offen|in\s+der)\S{2,}/iu.test(t)
 }
 
 function detectKind(t: string): PoiKind | null {

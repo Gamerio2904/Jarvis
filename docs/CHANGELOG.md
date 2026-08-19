@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.48.5`**.
+App-Version im Code: **`1.48.6`**.
+
+### `1.48.6` — Overlay, Cafés, Route — *CODE*
+
+„Overlay“ öffnet die Karte, nicht Spotify. Frühstück/Café aus OSM am GPS (Bietigheim), keine erfundenen Stuttgarter Läden. „Gib mir ne Route“ startet die echte Navigation und das Overlay.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14806)
+- [`28-next.md`](./28-next.md)
 
 ### `1.48.5` — Karte schieben + Sprache im Fahrmodus — *CODE*
 

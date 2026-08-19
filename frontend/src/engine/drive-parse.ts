@@ -9,6 +9,7 @@ export type DriveIntent =
   | { kind: 'dest'; query: string }
   | { kind: 'tab'; tab: DriveTab }
   | { kind: 'eta' }
+  | { kind: 'route' }
 
 const SKIP_DEST =
   /^(fuß|fuss|spät|her|mittag|dem|den|der|das|mir|dir|uns|euch|jetzt|mal|bitte|los)$/i
@@ -47,11 +48,14 @@ const BARE_MUSIC = /^\s*(?:spotify|musik)\s*[.!?]*$/i
 const BARE_MAP = /^\s*(?:karte|navi|navigation)\s*[.!?]*$/i
 const ETA =
   /^\s*(?:wie\s+weit\s+noch|wie\s+lange\s+noch|wann\s+(?:sind\s+wir|bin\s+ich)\s+da|restweg|ankunft|eta|wie\s+weit\s+ist\s+es\s+noch)\s*[.!?]*$/i
+const WANT_ROUTE =
+  /^\s*(?:gib\s+(?:mir\s+)?(?:mal\s+)?(?:n|ne|nen|eine|die)\s+route(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?|zeig(?:e)?(?:\s+mir)?\s+(?:mal\s+)?(?:die\s+|ne\s+|eine\s+)?route(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?|route(?:\s+bitte|\s+jetzt)?)\s*[.!?]*$/i
 
-function isOverlay(t: string): boolean {
-  if (!/\boverlay\b/i.test(t)) return false
-  if (/\b(?:aus|zu|schließ|beend)\b/i.test(t)) return false
-  return true
+function overlayTab(t: string): DriveTab | null {
+  if (!/\boverlay\b/i.test(t)) return null
+  if (/\b(?:aus|zu|schließ|beend)\b/i.test(t)) return null
+  if (/\b(?:spotify|musik)\b/i.test(t)) return 'spotify'
+  return 'map'
 }
 
 function isEta(t: string): boolean {
@@ -68,12 +72,20 @@ export function parseDriveIntent(text: string, inMode = false): DriveIntent | nu
   }
   if (/^nachher\b/i.test(t)) return null
   if (OFF.test(t)) return { kind: 'off' }
-  if (isOverlay(t) || TAB_MUSIC.test(t) || (inMode && BARE_MUSIC.test(t))) {
+  const overlay = overlayTab(t)
+  if (overlay === 'spotify' || TAB_MUSIC.test(t) || (inMode && BARE_MUSIC.test(t))) {
     return { kind: 'tab', tab: 'spotify' }
   }
+  if (overlay === 'map') return inMode ? { kind: 'tab', tab: 'map' } : { kind: 'on' }
   if (TAB_MAP.test(t) || (inMode && BARE_MAP.test(t))) return { kind: 'tab', tab: 'map' }
   if (/\bspotify\b/i.test(t) && /^\s*(?:spiel(?:e)?|play)\b/i.test(t)) return { kind: 'tab', tab: 'spotify' }
   if (isEta(t)) return { kind: 'eta' }
+  const wantRoute = WANT_ROUTE.exec(t)
+  if (wantRoute) {
+    const dest = destOf(wantRoute[1] || wantRoute[2] || '')
+    if (dest) return inMode ? { kind: 'dest', query: dest } : { kind: 'on', dest }
+    return { kind: 'route' }
+  }
   if (BARE_ON.test(t)) return { kind: 'on' }
   const on = ON.exec(t) || ON2.exec(t)
   if (on) return { kind: 'on', dest: destOf(on[1]) }

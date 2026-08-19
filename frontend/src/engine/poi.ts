@@ -40,7 +40,7 @@ const OVERPASS = [
 const NO_GPS =
   'Ohne Standort kein Ort in der Nähe. Sagen Sie „aktivieren“ — Android-Abfrage, notfalls App-Einstellungen. Ich rate den Ort nicht.'
 const ASK =
-  'Welcher Ort — Apotheke, Bäcker, Parkplatz, Supermarkt, Drogerie oder Laden? Tanke extra sagen. Öffnungszeiten nur aus der Karte.'
+  'Welcher Ort — Apotheke, Bäcker, Café, Parkplatz, Supermarkt, Drogerie oder Laden? Tanke extra sagen. Öffnungszeiten nur aus der Karte.'
 
 const FILTER: Record<PoiKind, string> = {
   pharmacy: '["amenity"="pharmacy"]',
@@ -49,6 +49,7 @@ const FILTER: Record<PoiKind, string> = {
   supermarket: '["shop"="supermarket"]',
   chemist: '["shop"~"^(chemist|drugstore)$"]',
   shop: '["shop"~"^(supermarket|convenience|bakery|chemist|kiosk|greengrocer|butcher)$"]',
+  cafe: '["amenity"="cafe"]',
 }
 
 export async function handlePoi(_conversationId: string, text: string): Promise<PoiHit> {
@@ -66,7 +67,7 @@ export async function handlePoi(_conversationId: string, text: string): Promise<
   if (last && last.kind !== intent.kind) {
     saveSettings({ last_poi_json: '' })
   }
-  return searchAndReply(intent.kind, intent.hours)
+  return searchAndReply(intent.kind, intent.hours, intent.nav !== false)
 }
 
 export async function handlePoiOrdinal(index: number): Promise<PoiHit> {
@@ -91,7 +92,7 @@ export async function handlePoiOrdinal(index: number): Promise<PoiHit> {
   return driveTo(last.kind, hit, last.hits)
 }
 
-async function searchAndReply(kind: PoiKind, hoursOnly: boolean): Promise<PoiHit> {
+async function searchAndReply(kind: PoiKind, hoursOnly: boolean, nav: boolean): Promise<PoiHit> {
   const here = await resolveHere()
   if (!here.ok) {
     return {
@@ -112,6 +113,7 @@ async function searchAndReply(kind: PoiKind, hoursOnly: boolean): Promise<PoiHit
   }
   remember(kind, found.hits)
   if (hoursOnly) return hoursReply(kind, found.hits[0], found.hits)
+  if (!nav) return listReply(kind, found.hits)
   return driveTo(kind, found.hits[0], found.hits)
 }
 
@@ -137,6 +139,17 @@ async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): Promis
       label: poiLabel(kind),
       preview: label,
     },
+    lastTool: 'poi',
+  }
+}
+
+function listReply(kind: PoiKind, hits: PoiPlace[]): PoiHit {
+  const top = hits.slice(0, 3)
+  const lines = top.map((h, i) => `${i + 1}. ${placeLabel(h, kind)}, ${distSpeech(h)}`).join(' ')
+  return {
+    handled: true,
+    reply: `${poiLabel(kind)} in der Nähe: ${lines} Nummer oder „Gib mir eine Route“.`.replace(/\s+/g, ' ').trim(),
+    tool: poiTool('list', poiLabel(kind)),
     lastTool: 'poi',
   }
 }
@@ -238,13 +251,15 @@ async function osmOnce(
   lon: number,
   radKm: number,
 ): Promise<{ ok: true; hits: PoiPlace[] } | { ok: false; message: string }> {
-  const filter = FILTER[kind]
-  const query = `[out:json][timeout:12];nwr${filter}(around:${Math.round(radKm * 1000)},${lat},${lon});out center tags;`
+  const filter = filtersFor(kind)
+  const around = `(around:${Math.round(radKm * 1000)},${lat},${lon})`
+  const body = filter.map((f) => `nwr${f}${around};`).join('')
+  const query = `[out:json][timeout:12];(${body});out center tags;`
   for (const base of OVERPASS) {
     try {
       const { status, json } = await getJson(`${base}?data=${encodeURIComponent(query)}`, {
         Accept: 'application/json',
-        'User-Agent': 'Jarvis/1.48.0 (local.jarvis.app)',
+        'User-Agent': 'Jarvis/1.48.6 (local.jarvis.app)',
       })
       if (status < 200 || status >= 300) continue
       const elements = Array.isArray(json.elements) ? (json.elements as Array<Record<string, unknown>>) : []
@@ -276,6 +291,11 @@ async function osmOnce(
     }
   }
   return { ok: false, message: 'Karte nicht erreichbar.' }
+}
+
+function filtersFor(kind: PoiKind): string[] {
+  if (kind === 'cafe') return ['["amenity"="cafe"]', '["shop"="bakery"]']
+  return [FILTER[kind]]
 }
 
 function num(v: unknown): number | null {
