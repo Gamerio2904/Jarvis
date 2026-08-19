@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.1.0`**.
+App-Version im Code: **`2.1.1`**.
+
+### `2.1.1` — Stecker-IP im Hausnetz — *CODE*
+
+`89.246.103.118` ist die Internet-Adresse des Routers, nicht die Steckdose. Prüfen sagt das klar. Richtig ist `192.168.…` aus Heimnetz/Geräte.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 20101)
+- [`29-next.md`](./29-next.md)
 
 ### `2.1.0` — WLAN-Steckdosen — *CODE*
 

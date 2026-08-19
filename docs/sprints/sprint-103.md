@@ -22,6 +22,7 @@ Bestehende WLAN-Steckdosen lokal schalten. Jarvis redet nicht mit Alexa und nich
 | P3 | Tuya/Smart Life LAN | Device-ID + Local Key, TCP 6668, kein Cloud-Call |
 | P4 | Chat `Steckdose an/aus`, Name, alle | Parser vor dem LLM; unklar → nachfragen |
 | P5 | Sideload `2.1.0` | versionCode 20100 |
+| P6 | Öffentliche IP ehrlich (`2.1.1`) | `89.…` ist nicht Hausnetz |
 
 ## Probe
 

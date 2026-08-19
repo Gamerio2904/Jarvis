@@ -1,17 +1,17 @@
-# Android-APK — `2.1.0`
+# Android-APK — `2.1.1`
 
-**2.1.0:** WLAN-Steckdosen lokal schalten. Shelly/Tasmota per IP, Smart Life/Tuya per Local Key im LAN. Keine Tuya-Cloud.
+**2.1.1:** Steckdosen-IP muss im Hausnetz liegen (`192.168.…`). Eine Internet-Adresse wie `89.…` wird ehrlich abgelehnt.
 
 ## Download
 
-**APK `2.1.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/wlan-steckdosen-3638/releases/Jarvis.apk
+**APK `2.1.1`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/plug-lan-ip-3638/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `2.1.0` · versionCode `20100`
+- versionName `2.1.1` · versionCode `20101`
 - App-ID `local.jarvis.app`
 
-1. Über 2.0.1 installieren.
-2. Einstellungen → Haus: Steckdose anlegen, Test An.
-3. Chat: `Steckdose an` — Relais, kein Fake.
-4. `/hilfe` sagt 2.1.0.
+1. Über 2.1.0 installieren.
+2. Haus: IP aus dem Router (Heimnetz), nicht „meine IP“ aus dem Browser.
+3. Prüfen → Test An → Speichern.
+4. Chat: `Steckdose an`.
