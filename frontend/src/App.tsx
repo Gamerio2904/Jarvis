@@ -1132,7 +1132,7 @@ function App() {
   function maybeOpenSettingsFromReply(reply: string) {
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
-    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
+    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
     else if (/Einstellungen.*Gemini|API-Key|Gemini an, aber kein/i.test(t)) openSettings('cloud')
     else if (/Einstellungen\s*→\s*Musik|Spotify-Client-ID|Spotify anmelden/i.test(t)) openSettings('musik')
   }

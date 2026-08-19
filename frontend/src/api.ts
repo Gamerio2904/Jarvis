@@ -38,6 +38,16 @@ import {
   pickFan,
   testFan,
 } from './engine/fan'
+import {
+  discoverPlugs,
+  probePlug,
+  testPlug,
+  loadPlugs,
+  upsertPlug,
+  removePlug,
+  emptyPlug,
+  type Plug,
+} from './engine/plug'
 import { testPc as engineTestPc } from './engine/pc'
 import type { ResearchMeta, ResearchSource } from './engine/research-parse'
 
@@ -275,6 +285,21 @@ export async function fanLearn(slot: 'on' | 'off' | 'speed1' | 'speed2' | 'speed
 export async function fanPick(item: { host?: string; mac?: string; name?: string }): Promise<string> {
   return pickFan(item)
 }
+
+export async function plugDiscover(): Promise<{ items: Array<{ host?: string; mac?: string; name?: string; kind?: string; deviceId?: string }>; message?: string }> {
+  return discoverPlugs()
+}
+
+export async function plugProbe(plug: Partial<Plug>): Promise<{ ok: boolean; reply: string; kind?: string }> {
+  return probePlug(plug)
+}
+
+export async function plugTest(plug: Partial<Plug>, on: boolean): Promise<{ ok: boolean; reply: string }> {
+  return testPlug(plug, on)
+}
+
+export { loadPlugs, upsertPlug, removePlug, emptyPlug }
+export type { Plug }
 
 export async function testPc(opts?: { host?: string; token?: string; port?: number }): Promise<{
   ok: boolean

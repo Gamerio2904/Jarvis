@@ -5,7 +5,7 @@ import { asLonLat, compactCoords, decodePolyline, isRoadTrack, simplifyTrack } f
 export type Fix = { lat: number; lon: number; place: string }
 
 const STREET_FAR_M = 80_000
-const UA = 'Jarvis/2.0.1 (local.jarvis.app)'
+const UA = 'Jarvis/2.1.0 (local.jarvis.app)'
 const DACH = { latMin: 47.2, latMax: 55.2, lonMin: 5.7, lonMax: 15.2 }
 
 function cityAsk(street: string): string {

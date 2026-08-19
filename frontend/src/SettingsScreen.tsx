@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
-import { fanDiscover, fanLearn, fanPick, fanTest, testPc } from './api'
+import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
+import type { Plug } from './api'
 import { copyText } from './copy-text'
 import { ensureDeviceLocation } from './native/geo'
 import {
@@ -35,7 +36,7 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'ort', label: 'Ort', hint: 'Wetter' },
   { id: 'tv', label: 'Fernseher', hint: 'Tizen + Fire' },
   { id: 'pc', label: 'PC', hint: 'Bildschirm' },
-  { id: 'haus', label: 'Haus', hint: 'Ventilator' },
+  { id: 'haus', label: 'Haus', hint: 'Steckdose' },
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
@@ -160,6 +161,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [fanMsg, setFanMsg] = useState<string | null>(null)
   const [fanMsgOk, setFanMsgOk] = useState<boolean | null>(null)
   const [fanFound, setFanFound] = useState<Array<{ host?: string; mac?: string; name?: string }>>([])
+  const [plugBusy, setPlugBusy] = useState(false)
+  const [plugMsg, setPlugMsg] = useState<string | null>(null)
+  const [plugMsgOk, setPlugMsgOk] = useState<boolean | null>(null)
+  const [plugFound, setPlugFound] = useState<
+    Array<{ host?: string; mac?: string; name?: string; kind?: string; deviceId?: string }>
+  >([])
+  const [plugDraft, setPlugDraft] = useState<Plug>(() => emptyPlug())
   const [locBusy, setLocBusy] = useState(false)
   const [locMsg, setLocMsg] = useState<string | null>(null)
 
@@ -827,6 +835,253 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <CopyField label="PC-IP" value={pcHost.trim()} />
               <CopyField label="Port" value={pcPort.trim() || '18790'} />
               <CopyField label="Token" value={pcToken.trim()} />
+            </section>
+          ) : null}
+
+          {p.topic === 'haus' ? (
+            <section className="settings-card">
+              <h3>WLAN-Steckdosen</h3>
+              <p className="settings-lead">
+                Lokal im Hausnetz. Shelly und Tasmota brauchen nur die IP. Smart Life / Tuya: Device-ID und Local
+                Key, dann LAN — keine Tuya-Cloud in Jarvis. Tapo (TP-Link) noch nicht.
+              </p>
+              <label className="settings-toggle">
+                <span>Steckdosen an</span>
+                <input
+                  type="checkbox"
+                  checked={s?.plugs_enabled !== false}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ plugs_enabled: e.target.checked })}
+                />
+              </label>
+              {(loadPlugs().length ? loadPlugs() : []).map((plug) => (
+                <div key={plug.id} className="settings-hint" style={{ marginTop: 8 }}>
+                  <strong>{plug.name}</strong> · {plug.kind} · {plug.host || 'ohne IP'}
+                  <div className="settings-actions">
+                    <button
+                      type="button"
+                      className="retry-btn"
+                      disabled={busy || plugBusy}
+                      onClick={() => setPlugDraft({ ...plug })}
+                    >
+                      Bearbeiten
+                    </button>
+                    <button
+                      type="button"
+                      className="retry-btn"
+                      disabled={busy || plugBusy}
+                      onClick={() => {
+                        const list = removePlug(plug.id)
+                        void p.patchSetting({ plugs_json: JSON.stringify(list) })
+                        setPlugMsg('Entfernt.')
+                        setPlugMsgOk(true)
+                      }}
+                    >
+                      Weg
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <label className="settings-field">
+                <span>Name (z. B. Schreibtisch)</span>
+                <input
+                  value={plugDraft.name}
+                  disabled={busy || plugBusy}
+                  placeholder="Schreibtisch"
+                  autoComplete="off"
+                  onChange={(e) => setPlugDraft({ ...plugDraft, name: e.target.value })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Typ</span>
+                <select
+                  value={plugDraft.kind}
+                  disabled={busy || plugBusy}
+                  onChange={(e) => setPlugDraft({ ...plugDraft, kind: e.target.value as Plug['kind'] })}
+                >
+                  <option value="auto">Auto (Shelly/Tasmota/Tuya)</option>
+                  <option value="shelly">Shelly</option>
+                  <option value="tasmota">Tasmota</option>
+                  <option value="tuya">Tuya / Smart Life (LAN)</option>
+                  <option value="broadlink">Broadlink-Steckdose</option>
+                  <option value="http">HTTP (eigene URL)</option>
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>IP im WLAN</span>
+                <input
+                  value={plugDraft.host}
+                  disabled={busy || plugBusy}
+                  placeholder="192.168.1.50"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  onChange={(e) => setPlugDraft({ ...plugDraft, host: e.target.value })}
+                />
+              </label>
+              {plugDraft.kind === 'tuya' || plugDraft.kind === 'auto' ? (
+                <>
+                  <label className="settings-field">
+                    <span>Tuya Device-ID</span>
+                    <input
+                      value={plugDraft.deviceId || ''}
+                      disabled={busy || plugBusy}
+                      autoComplete="off"
+                      autoCapitalize="none"
+                      onChange={(e) => setPlugDraft({ ...plugDraft, deviceId: e.target.value.trim() })}
+                    />
+                  </label>
+                  <label className="settings-field">
+                    <span>Tuya Local Key (16 Zeichen)</span>
+                    <input
+                      value={plugDraft.localKey || ''}
+                      disabled={busy || plugBusy}
+                      autoComplete="off"
+                      autoCapitalize="none"
+                      onChange={(e) => setPlugDraft({ ...plugDraft, localKey: e.target.value.trim() })}
+                    />
+                  </label>
+                </>
+              ) : null}
+              {plugDraft.kind === 'http' ? (
+                <>
+                  <label className="settings-field">
+                    <span>URL An</span>
+                    <input
+                      value={plugDraft.onUrl || ''}
+                      disabled={busy || plugBusy}
+                      placeholder="http://192.168.1.50/on"
+                      autoComplete="off"
+                      onChange={(e) => setPlugDraft({ ...plugDraft, onUrl: e.target.value.trim() })}
+                    />
+                  </label>
+                  <label className="settings-field">
+                    <span>URL Aus</span>
+                    <input
+                      value={plugDraft.offUrl || ''}
+                      disabled={busy || plugBusy}
+                      placeholder="http://192.168.1.50/off"
+                      autoComplete="off"
+                      onChange={(e) => setPlugDraft({ ...plugDraft, offUrl: e.target.value.trim() })}
+                    />
+                  </label>
+                </>
+              ) : null}
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || plugBusy}
+                  onClick={() => {
+                    setPlugBusy(true)
+                    setPlugMsg('Suche Steckdosen…')
+                    void plugDiscover()
+                      .then((r) => {
+                        setPlugFound(r.items || [])
+                        setPlugMsgOk((r.items || []).length > 0)
+                        setPlugMsg(r.message || ((r.items || []).length ? 'Gefunden.' : 'Nichts gefunden.'))
+                      })
+                      .finally(() => setPlugBusy(false))
+                  }}
+                >
+                  Suchen
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || plugBusy}
+                  onClick={() => {
+                    setPlugBusy(true)
+                    setPlugMsg('Prüfe…')
+                    void plugProbe(plugDraft).then((r) => {
+                      setPlugMsgOk(r.ok)
+                      setPlugMsg(r.reply)
+                      if (r.ok && r.kind) setPlugDraft({ ...plugDraft, kind: r.kind as Plug['kind'] })
+                      setPlugBusy(false)
+                    })
+                  }}
+                >
+                  {plugBusy ? 'Prüfe…' : 'Prüfen'}
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || plugBusy}
+                  onClick={() => {
+                    setPlugBusy(true)
+                    void plugTest(plugDraft, true).then((r) => {
+                      setPlugMsgOk(r.ok)
+                      setPlugMsg(r.reply)
+                      setPlugBusy(false)
+                    })
+                  }}
+                >
+                  Test An
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || plugBusy}
+                  onClick={() => {
+                    setPlugBusy(true)
+                    void plugTest(plugDraft, false).then((r) => {
+                      setPlugMsgOk(r.ok)
+                      setPlugMsg(r.reply)
+                      setPlugBusy(false)
+                    })
+                  }}
+                >
+                  Test Aus
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || plugBusy || !plugDraft.name.trim()}
+                  onClick={() => {
+                    const saved = upsertPlug({
+                      ...plugDraft,
+                      name: plugDraft.name.trim() || 'Steckdose',
+                      host: plugDraft.host.trim(),
+                    })
+                    void p.patchSetting({ plugs_json: JSON.stringify(saved), plugs_enabled: true })
+                    setPlugMsg(`Gespeichert: ${plugDraft.name.trim()}.`)
+                    setPlugMsgOk(true)
+                    setPlugDraft(emptyPlug())
+                  }}
+                >
+                  Speichern
+                </button>
+              </div>
+              {plugFound.length ? (
+                <ul className="tv-found">
+                  {plugFound.map((item) => (
+                    <li key={`${item.kind || 'x'}-${item.host || 'h'}-${item.deviceId || ''}`}>
+                      <button
+                        type="button"
+                        disabled={plugBusy}
+                        onClick={() => {
+                          setPlugDraft({
+                            ...plugDraft,
+                            host: item.host || '',
+                            mac: item.mac || plugDraft.mac,
+                            name: plugDraft.name || item.name || 'Steckdose',
+                            kind: (item.kind as Plug['kind']) || plugDraft.kind,
+                            deviceId: item.deviceId || plugDraft.deviceId,
+                          })
+                          setPlugMsg(`Übernommen: ${item.host}. Name vergeben und speichern.`)
+                          setPlugMsgOk(true)
+                        }}
+                      >
+                        {item.name || item.kind || 'Gerät'} · {item.host}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {plugMsg ? <p className={`tv-test-msg${plugMsgOk === false ? ' warn' : ''}`}>{plugMsg}</p> : null}
+              <p className="settings-hint">
+                Chat: „Steckdose an“, „Schreibtisch aus“, „alle Steckdosen aus“. Handy und Stecker im selben WLAN,
+                nicht Gastnetz. Feste IP am Router ist sinnvoll.
+              </p>
             </section>
           ) : null}
 

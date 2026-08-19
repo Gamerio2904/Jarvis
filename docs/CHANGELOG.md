@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.0.1`**.
+App-Version im Code: **`2.1.0`**.
+
+### `2.1.0` — WLAN-Steckdosen — *CODE*
+
+Steckdosen im selben WLAN. Shelly und Tasmota über die IP. Smart Life / Tuya nur LAN (Device-ID + Local Key), keine Tuya-Cloud. Chat: `Steckdose an`, Name, `alle Steckdosen aus`. Ungepaart ehrlich.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 20100)
+- [`29-next.md`](./29-next.md) · [`sprints/sprint-103.md`](./sprints/sprint-103.md)
 
 ### `2.0.1` — Latenz, Ingersheim DE, Kurven — *CODE*
 

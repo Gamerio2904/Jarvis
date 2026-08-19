@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`2.0.1`** (schnellere Antworten, Ingersheim DE, Kurven/Kreisverkehr).
+Reihe davor: [`27-next.md`](./27-next.md). App vorher: Sideload **`2.0.1`**. Steckdosen: [`29-next.md`](./29-next.md) **`2.1.0`**.
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -542,8 +542,8 @@ Live: `nach Ingersheim` landete in Grand Est (Frankreich). `Nach Witzen erzähl 
 
 ## Won’t (Reihe)
 
-Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth, WhatsApp, Keystore-Halbverschlüsselung.
+Neue Smart-Home-Marken (Alexa, Tuya-Cloud, Home Assistant), Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth, WhatsApp, Keystore-Halbverschlüsselung.
 
 ## Nächster Schritt
 
-Sideload `2.0.1`. Schnellere Antworten, Ingersheim in DE, Kurven/Kreisverkehr. Nächste Stufe nur auf PO-Kommando.
+Sideload `2.1.0` für WLAN-Steckdosen — [`29-next.md`](./29-next.md).
