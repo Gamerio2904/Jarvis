@@ -6,6 +6,8 @@ import { scrubReply, isHelpCommand, finishReply } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import {
   formatResearchReply,
+  guardResearchReply,
+  isFactLookup,
   isLiveLookup,
   isProductLookup,
   isSearchRefusal,
@@ -306,6 +308,10 @@ assert.ok(isIdentityAsk('Wer bist du und wer bin ich?'))
 assert.ok(isLiveLookup('Suche im Internet nach Kuchenrezepten'))
 assert.ok(isLiveLookup('Suche nach Kuchenrezepten'))
 assert.ok(isLiveLookup('Wie ist die Temperatur in Ingesheim heute?'))
+assert.ok(isLiveLookup('Wie viele Scheibenwischer verkauft Valeo am tag'))
+assert.ok(isFactLookup('Wie viele Scheibenwischer verkauft Valeo am tag'))
+assert.ok(!isFactLookup('wie viele Kaffee trinke ich am Tag'))
+assert.ok(!isFactLookup('Hallo Jarvis.'))
 assert.ok(!isLiveLookup('Hallo Jarvis.'))
 
 const frozen = new Date('2026-08-15T14:00:00')
@@ -615,6 +621,25 @@ assert.doesNotMatch(
   ], true),
   /\d+,\d{2} €/,
 )
+{
+  const guarded = guardResearchReply(
+    'Wie viele Scheibenwischer verkauft Valeo am tag',
+    'Weltweit liefert Valeo jährlich über 100 Millionen Scheibenwischer aus, Timon. Umgerechnet entspricht das etwa 300.000 bis 400.000 Exemplaren an einem einzigen Tag.',
+    [
+      {
+        title: 'Valeo',
+        url: 'https://www.valeo.com/en/wiper-systems/',
+        snippet: 'Valeo produces more than 100 million wiper systems per year worldwide.',
+        provider: 'web',
+        retrieved_at: '',
+      },
+    ],
+  )
+  assert.match(guarded, /100 Millionen|100 million/i)
+  assert.doesNotMatch(guarded, /300\.000|400\.000/)
+  assert.match(guarded, /Tag steht in den Treffern nicht/)
+}
+assert.match(GEMINI_PERSONA, /Umrechnung/)
 assert.equal(parseDriveIntent('Öffnen Carplay')?.kind, 'on')
 assert.equal(parseDriveIntent('Öffne CarPlay')?.kind, 'on')
 assert.equal(parseDriveIntent('Carplay')?.kind, 'on')

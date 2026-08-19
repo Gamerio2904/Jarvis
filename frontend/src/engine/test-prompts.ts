@@ -105,4 +105,5 @@ export const TEST_PROMPTS = [
   'Nachrichten',
   'Was ist heute in Ingesheim passiert',
   'Ist heute Feiertag?',
+  'Wie viele Scheibenwischer verkauft Valeo am tag',
 ] as const

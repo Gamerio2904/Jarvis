@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.48.6`**.
+App-Version im Code: **`1.48.7`**.
+
+### `1.48.7` — Research ehrlich — *CODE*
+
+Faktfragen wie „wie viele … verkauft Valeo am Tag“ gehen ins Netz. Zahlen nur aus Treffern; keine Umrechnung Jahr→Tag, keine 300–400k aus dem Hut.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14807)
+- [`28-next.md`](./28-next.md)
 
 ### `1.48.6` — Overlay, Cafés, Route — *CODE*
 

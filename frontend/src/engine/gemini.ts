@@ -153,7 +153,7 @@ function buildBody(
     contents.unshift({ role: 'user', parts: [{ text: 'Hallo.' }] })
   }
   const generationConfig: Record<string, unknown> = {
-    temperature: opts.search ? 0.35 : opts.maxOutputTokens && opts.maxOutputTokens < 200 ? 0.62 : 0.72,
+    temperature: opts.search ? 0.15 : opts.maxOutputTokens && opts.maxOutputTokens < 200 ? 0.62 : 0.72,
     maxOutputTokens: opts.maxOutputTokens || 1400,
   }
   const thinking = opts.thinking !== false && /2\.5|3\./.test(model) && !opts.search
@@ -261,10 +261,7 @@ export async function completeGemini(
   )
   for (const model of models) {
     const attempts = wantSearch
-      ? [
-          buildBody(model, messages, { search: true, thinking: false, maxOutputTokens: opts?.maxOutputTokens }),
-          buildBody(model, messages, { search: false, thinking: opts?.thinking !== false, maxOutputTokens: opts?.maxOutputTokens }),
-        ]
+      ? [buildBody(model, messages, { search: true, thinking: false, maxOutputTokens: opts?.maxOutputTokens })]
       : [buildBody(model, messages, { search: false, thinking: opts?.thinking !== false, maxOutputTokens: opts?.maxOutputTokens })]
     let modelRetryable = false
     try {
@@ -308,7 +305,7 @@ export async function completeGemini(
           last = 'Antwort war abgeschnitten, nochmal mit mehr Platz.'
           attempts.push(
             buildBody(model, messages, {
-              search: false,
+              search: wantSearch,
               thinking: false,
               maxOutputTokens: Math.max(opts?.maxOutputTokens || 0, 1800),
             }),

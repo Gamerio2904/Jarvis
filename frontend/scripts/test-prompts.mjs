@@ -185,6 +185,7 @@ const EXPECT = {
   Nachrichten: 'news',
   'Was ist heute in Ingesheim passiert': 'news',
   'Ist heute Feiertag?': 'holiday',
+  'Wie viele Scheibenwischer verkauft Valeo am tag': 'research',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

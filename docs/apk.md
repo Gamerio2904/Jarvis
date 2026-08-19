@@ -1,17 +1,16 @@
-# Android-APK — `1.48.6`
+# Android-APK — `1.48.7`
 
-**1.48.6:** Overlay öffnet die Karte (nicht Spotify). Cafés/Frühstück aus OSM am GPS. „Gib mir ne Route“ berechnet wirklich.
+**1.48.7:** Internet-Research ohne erfundene Zahlen. Faktfragen suchen wirklich; Jahr wird nicht zu Tag umgerechnet.
 
 ## Download
 
-**APK `1.48.6`:**  
+**APK `1.48.7`:**  
 https://github.com/Gamerio2904/Jarvis/raw/cursor/updates-1-29-1-33-3638/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.48.6` · versionCode `14806`
+- versionName `1.48.7` · versionCode `14807`
 - App-ID `local.jarvis.app`
 
-1. Über 1.48.5 installieren.
-2. `wo könnte ich jetzt frühstücken` — Cafés am Standort, nicht Stuttgart.
-3. `Gib mir ne Route` — Overlay + echte Route, oder ehrlich ohne Standort.
-4. `Aktiviere das overlay` — Karte. `Öffne das Spotify overlay` bleibt Musik.
+1. Über 1.48.6 installieren.
+2. `Wie viele Scheibenwischer verkauft Valeo am tag` — keine 300–400k aus dem Hut; Jahreszahl nur mit Quelle oder ehrlich „steht nicht da“.
+3. Overlay/Cafés/Route aus 1.48.6 bleiben.

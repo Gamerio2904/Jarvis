@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.6`** (Overlay-Karte, Cafés am Standort, echte Route).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.7`** (Research: Zahlen nur aus Treffern).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -48,6 +48,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.48.4`** | Fahrmodus-Karte: vollflächig, Norden oben | **CODE** |
 | **`1.48.5`** | Karte schieben/zoomen, Sprache im Fahrmodus | **CODE** |
 | **`1.48.6`** | Overlay=Karte, Cafés am GPS, echte Route | **CODE** |
+| **`1.48.7`** | Research: keine erfundenen Zahlen | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-101.md`](./sprints/sprint-101.md).
 
@@ -475,10 +476,22 @@ Live am Valeo in Bietigheim: Overlay blieb zu, „Aktiviere das overlay“ wurde
 
 **Probe:** `wo könnte ich jetzt frühstücken` (Bietigheim, nicht Stuttgart) · `Gib mir ne Route` (Karte + echte Min) · `Aktiviere das overlay` (Karte) · `Öffne das Spotify overlay` (Musik).
 
+## `1.48.7` — Research ehrlich — **CODE**
+
+PO: „Wie viele Scheibenwischer verkauft Valeo am Tag“ → 100 Mio. im Jahr und 300–400k am Tag. Falsch gerechnet, nicht belegt.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Fakt-Fragen | `wie viele … verkauft` geht in die Suche, nicht ins Kopf-Gemini |
+| Kein Blindflug | Google-Suche nicht durch ungestütztes Modell ersetzen |
+| Zahlen | Nur aus Treffern; Jahr→Tag nicht umrechnen, wenn die Quelle den Tag nicht nennt |
+
+**Probe:** `Wie viele Scheibenwischer verkauft Valeo am tag` — Jahreszahl nur mit Quelle, keine erfundene Tagesstückzahl.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.48.6`. Overlay = Karte, Cafés am GPS, echte Route. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.48.7`. Research ohne erfundene Zahlen. Nächste Stufe nur auf PO-Kommando.

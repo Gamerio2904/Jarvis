@@ -10,6 +10,7 @@ import { normalizeUtterance } from './utterance.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from './persona'
 import {
   formatResearchReply,
+  guardResearchReply,
   isLiveLookup,
   isProductLookup,
   isSearchRefusal,
@@ -743,31 +744,37 @@ export async function streamChat(
     }
 
     let acc = ''
-    const raw = geminiReady()
-      ? await (opts?.voice ? streamGemini : completeGemini)(
-          llmMessages,
-          (_piece, full) => {
+    let raw = ''
+    try {
+      raw = geminiReady()
+        ? await (opts?.voice ? streamGemini : completeGemini)(
+            llmMessages,
+            (_piece, full) => {
+              acc = full
+              handlers.onToken?.(_piece)
+            },
+            {
+              search: wantSearch,
+              maxOutputTokens: opts?.voice ? 480 : wantSearch ? 1400 : 1400,
+            },
+          ).then((r) => {
+            if (r.research?.sources?.length) {
+              research = {
+                ...(research || r.research),
+                ...r.research,
+                sources: [...(research?.sources || []), ...r.research.sources],
+              }
+            }
+            return r.text
+          })
+        : await completeChat(llmMessages, (_piece, full) => {
             acc = full
             handlers.onToken?.(_piece)
-          },
-          {
-            search: wantSearch,
-            maxOutputTokens: opts?.voice ? 480 : wantSearch ? 1400 : 1400,
-          },
-        ).then((r) => {
-          if (r.research?.sources?.length) {
-            research = {
-              ...(research || r.research),
-              ...r.research,
-              sources: [...(research?.sources || []), ...r.research.sources],
-            }
-          }
-          return r.text
-        })
-      : await completeChat(llmMessages, (_piece, full) => {
-          acc = full
-          handlers.onToken?.(_piece)
-        })
+          })
+    } catch (err) {
+      if (!wantSearch || !researchHasSources(research)) throw err
+      raw = ''
+    }
 
     let text = (raw || acc).trim()
     if (wantSearch) {
@@ -796,6 +803,12 @@ export async function streamChat(
         const extra = formatResearchReply(researchQuery(content), sources, true, discount)
         if (/€/.test(extra) && extra !== text) {
           text = `${text.replace(/\s+$/, '')} ${extra}`
+          handlers.onReplace?.(text)
+        }
+      } else if (!product && text) {
+        const guarded = guardResearchReply(researchQuery(content), text, sources)
+        if (guarded !== text) {
+          text = guarded
           handlers.onReplace?.(text)
         }
       }

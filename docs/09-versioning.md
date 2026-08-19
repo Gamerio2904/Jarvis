@@ -136,6 +136,7 @@ MAJOR.MINOR.PATCH
 | `1.48.4` | Fahrmodus-Karte: vollflächig, Norden oben | Sprint 101 Patch |
 | `1.48.5` | Karte schieben/zoomen, Sprache im Fahrmodus | Sprint 101 Patch |
 | `1.48.6` | Overlay=Karte, Cafés am GPS, echte Route | Sprint 101 Patch |
+| `1.48.7` | Research: Zahlen nur aus Treffern | Sprint 101 Patch |
 
 ### Weitere Beispiele
 

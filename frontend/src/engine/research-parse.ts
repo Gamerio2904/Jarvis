@@ -31,6 +31,25 @@ export function isLiveLookup(text: string, discount = false): boolean {
   if (/\b(wetter|temperatur|nachrichten|news)\b/i.test(t)) return true
   if (/\baktuell(?:e[rs]?)?\b/i.test(t) && /\b(preis|kurs|spielstand|wetter)\b/i.test(t)) return true
   if (isProductLookup(t, discount)) return true
+  if (isFactLookup(t)) return true
+  return false
+}
+
+/** Firmen-/Stückzahlen, nicht Einkaufsliste und nicht „wie viele Timer habe ich“. */
+export function isFactLookup(text: string): boolean {
+  const t = text.trim()
+  if (!t || t.length > 240) return false
+  if (/\b(?:ich|wir|mich|uns|meine?|meiner|meinen|unser)\b/i.test(t)) return false
+  if (/\b(?:einkauf(?:sliste)?|wecker|timer|todo|notiz(?:en)?|erinnerung)\b/i.test(t)) return false
+  const qty = /\bwie\s+viele?n?\b|\bwie\s+viel\b/i.test(t)
+  const verb =
+    /\b(?:verkauf(?:t|en)?|produziert|liefert|herstellt|umsatz|mitarbeiter(?:zahl)?|stück(?:zahl)?|exemplare)\b/i.test(
+      t,
+    )
+  const period = /\b(?:am|pro)\s+tag\b|\btäglich\b|\bpro\s+jahr\b|\bjährlich\b|\bweltweit\b/i.test(t)
+  if (qty && verb) return true
+  if (verb && period) return true
+  if (/\b(?:umsatz|geschäftsbericht|marktanteil|stückzahl)\b/i.test(t)) return true
   return false
 }
 
@@ -340,16 +359,108 @@ export function formatResearchReply(
     const names = shops.slice(0, 3).join(', ')
     return `${query}: konkrete Euro-Beträge stehen auf den Vergleichsseiten, ich setze keine Preise ins Blaue. Unten Idealo, Geizhals${names ? ` und ${names}` : ''}.${discountNote(discount)}`
   }
-  const abstract = live.find((s) => s.provider === 'duckduckgo_ia' && s.snippet)
-  if (abstract?.snippet) {
-    return `${abstract.snippet.replace(/\s+/g, ' ').slice(0, 280)} Links unten.`
+  const snip =
+    live.find((s) => s.provider === 'duckduckgo_ia' && s.snippet)?.snippet ||
+    live.find((s) => (s.snippet || '').trim().length > 40)?.snippet
+  if (snip) {
+    const body = snip.replace(/\s+/g, ' ').slice(0, 280)
+    if (asksDailyFigure(query) && !hasDailyUnit(live.map((s) => `${s.title} ${s.snippet}`).join('\n'))) {
+      return `${body} Eine Stückzahl am Tag steht in den Treffern nicht. Links unten.`
+    }
+    return `${body} Links unten.`
   }
   const titles = live
     .slice(0, 3)
     .map((s) => s.title.replace(/\s+/g, ' ').slice(0, 48))
     .join('; ')
   if (!titles) return 'Suche gelaufen, aber ohne brauchbare Links. Nochmal anders formulieren?'
+  if (asksDailyFigure(query)) {
+    return `${query}: in den Treffern keine belegte Tageszahl. ${titles}. Links unten prüfen, ich rechne nichts um.`
+  }
   return `${query}: ${titles}. Links unten, tippen prüft.`
+}
+
+export function asksDailyFigure(text: string): boolean {
+  return /\b(?:am|pro)\s+tag\b|\btäglich\b/i.test(text)
+}
+
+export function guardResearchReply(query: string, answer: string, sources: ResearchSource[]): string {
+  const live = sources.filter((s) => s.url)
+  const corpus = live.map((s) => `${s.title} ${s.snippet}`).join('\n')
+  const corpusText = corpus.replace(/\s+/g, ' ').trim()
+  const dailyAsked = asksDailyFigure(query)
+  const dailyInCorpus = hasDailyUnit(corpus)
+  const raw = (answer || '').replace(/\s+/g, ' ').trim()
+  if (!raw) return formatResearchReply(query, live, false)
+  const kept: string[] = []
+  for (const s of splitSentences(raw)) {
+    if (isConversionSentence(s) && dailyAsked && !dailyInCorpus) continue
+    if (corpusText.length >= 40 && hasUnsupportedFigure(s, corpus)) continue
+    kept.push(s)
+  }
+  let out = kept.join(' ').trim()
+  if (dailyAsked && !dailyInCorpus) {
+    const note = 'Eine Stückzahl am Tag steht in den Treffern nicht.'
+    if (!out) return formatResearchReply(query, live, false)
+    if (!/tag(?:es)?zahl|steht in den treffern nicht|nicht ausgewiesen|rechne nichts um/i.test(out)) {
+      out = `${out.replace(/[.!?]+$/, '')}. ${note}`
+    }
+  }
+  if (!out) return formatResearchReply(query, live, false)
+  return out
+}
+
+function splitSentences(text: string): string[] {
+  return text
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
+function isConversionSentence(s: string): boolean {
+  return /\bumgerechnet\b|\bentspricht das etwa\b|\bentspräche\b|\bgeteilt durch\b|\b365\b/i.test(s)
+}
+
+function hasDailyUnit(text: string): boolean {
+  return /\b(?:am|pro)\s+tag\b|\btäglich\b|\bper\s+day\b|\beach\s+day\b|\bper\s+diem\b/i.test(text)
+}
+
+function hasUnsupportedFigure(sentence: string, corpus: string): boolean {
+  const allowed = new Set(figureKeys(corpus))
+  if (!allowed.size) return false
+  for (const key of figureKeys(sentence)) {
+    if (key < 1000) continue
+    if (!allowed.has(key) && !approxIn(key, allowed)) return true
+  }
+  return false
+}
+
+function approxIn(n: number, allowed: Set<number>): boolean {
+  for (const a of allowed) {
+    if (a > 0 && Math.abs(n - a) / a < 0.08) return true
+  }
+  return false
+}
+
+function figureKeys(text: string): number[] {
+  const out: number[] = []
+  const mil = /(\d{1,3}(?:[.,]\d+)?)\s*(?:million(?:en)?|mio\.?)/gi
+  let m: RegExpExecArray | null
+  while ((m = mil.exec(text))) {
+    const n = Number(String(m[1]).replace(',', '.'))
+    if (Number.isFinite(n) && n >= 1) out.push(Math.round(n * 1_000_000))
+  }
+  const mrd = /(\d{1,3}(?:[.,]\d+)?)\s*(?:milliarde(?:n)?|billion(?:en)?)/gi
+  while ((m = mrd.exec(text))) {
+    const n = Number(String(m[1]).replace(',', '.'))
+    if (Number.isFinite(n) && n >= 1) out.push(Math.round(n * 1_000_000_000))
+  }
+  const grouped = /\b\d{1,3}(?:[.\s]\d{3})+\b/g
+  while ((m = grouped.exec(text))) {
+    const n = Number(m[0].replace(/[.\s]/g, ''))
+    if (Number.isFinite(n)) out.push(n)
+  }
+  return out
 }
 
 function discountNote(on: boolean): string {
@@ -363,7 +474,7 @@ export function sourceDigest(sources: ResearchSource[], limit = 6): string {
     .slice(0, limit)
     .map((s, i) => {
       const price = parseEuroPrices(`${s.title} ${s.snippet}`)[0] || ''
-      const snip = (s.snippet || '').replace(/\s+/g, ' ').slice(0, 120)
+      const snip = (s.snippet || '').replace(/\s+/g, ' ').slice(0, 180)
       return `${i + 1}. ${s.title} — ${s.url}${price ? ` (${price})` : ''}${snip ? `\n   ${snip}` : ''}`
     })
     .join('\n')

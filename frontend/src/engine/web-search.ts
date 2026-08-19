@@ -2,6 +2,7 @@ import { getJson, getText } from './http-json'
 import {
   compareDiscountSources,
   compareShopSources,
+  isFactLookup,
   isProductLookup,
   mergeResearchSources,
   researchQuery,
@@ -13,7 +14,8 @@ import {
 } from './research-parse'
 import { loadSettings } from './store'
 
-const UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/1.47'
+const UA = 'Jarvis/1.48.7 (local.jarvis.app)'
+const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/1.48.7'
 
 export async function fillResearchLinks(
   queryText: string,
@@ -27,21 +29,24 @@ export async function fillResearchLinks(
     ...sourcesFromText(answer),
     ...(research?.sources || []),
   ]
-  const need = product ? 3 : 2
-  if (extra.filter((s) => s.url).length < need) {
+  const fact = isFactLookup(queryText) || isFactLookup(query)
+  const need = product ? 3 : fact ? 3 : 2
+  if (extra.filter((s) => s.url).length < need || (fact && extra.filter((s) => (s.snippet || '').length > 40).length < 1)) {
     const searches = product
       ? discount
         ? [query, `${query} Preis Vergleich`, `${query} Gutschein Rabatt`]
         : [query, `${query} Preis Vergleich`]
-      : [query]
+      : fact
+        ? [query, `${query} Statistik`, `${query} Geschäftsbericht`]
+        : [query]
     const found = await Promise.all(searches.map((q) => duckDuckGo(q)))
     extra.push(...found.flat())
   }
   if (extra.filter((s) => s.url && s.snippet).length < 1) {
     extra.push(...(await duckInstant(query)))
   }
-  if (extra.filter((s) => s.url).length < 2) {
-    extra.push(...(await wikipedia(query)))
+  if (extra.filter((s) => s.url).length < 2 || (fact && extra.filter((s) => (s.snippet || '').length > 40).length < 1)) {
+    extra.push(...(await wikipedia(fact ? companyHint(query) : query)))
   }
   if (product) extra.push(...compareShopSources(query))
   if (product && discount) extra.push(...compareDiscountSources(query))
@@ -54,7 +59,7 @@ async function duckDuckGo(query: string): Promise<ResearchSource[]> {
   try {
     const { status, text } = await getText(`https://html.duckduckgo.com/html/?q=${q}&kl=de-de`, {
       Accept: 'text/html',
-      'User-Agent': UA,
+      'User-Agent': DDG_UA,
     })
     if (status < 200 || status >= 400 || !text) return []
     return sourcesFromHtml(text)
@@ -116,13 +121,15 @@ async function wikipedia(query: string): Promise<ResearchSource[]> {
     const urls = data[3] as unknown[]
     const now = new Date().toISOString()
     const out: ResearchSource[] = []
-    for (let i = 0; i < urls.length; i += 1) {
+    for (let i = 0; i < Math.min(urls.length, 2); i += 1) {
       const href = String(urls[i] || '')
       if (!href) continue
+      const title = String(titles[i] || 'Wikipedia')
+      const snippet = await wikiExtract(title)
       out.push({
-        title: String(titles[i] || 'Wikipedia'),
+        title,
         url: href,
-        snippet: '',
+        snippet,
         provider: 'wikipedia',
         retrieved_at: now,
       })
@@ -131,4 +138,37 @@ async function wikipedia(query: string): Promise<ResearchSource[]> {
   } catch {
     return []
   }
+}
+
+function companyHint(q: string): string {
+  const skip = /^(wie|was|wer|wo|wann|wieso|weshalb|viele|viel|am|tag|pro|der|die|das|ein|eine)$/i
+  const words = q.split(/\s+/)
+  for (let i = words.length - 1; i >= 0; i -= 1) {
+    const w = words[i].replace(/[?.!,]/g, '')
+    if (w.length >= 3 && !skip.test(w) && /^[A-ZÄÖÜ]/.test(w)) return w
+  }
+  return q
+}
+
+async function wikiExtract(title: string): Promise<string> {
+  const q = encodeURIComponent(title.slice(0, 80))
+  const url = `https://de.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=${q}&format=json`
+  try {
+    const { status, json } = await getJson(url, { Accept: 'application/json', 'User-Agent': UA })
+    if (status < 200 || status >= 400) return ''
+    const pages =
+      json?.query && typeof json.query === 'object'
+        ? (json.query as { pages?: Record<string, { extract?: string }> }).pages
+        : undefined
+    if (!pages) return ''
+    for (const page of Object.values(pages)) {
+      const extract = String(page?.extract || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+      if (extract) return extract.slice(0, 400)
+    }
+  } catch {
+    /* Extract ist optional */
+  }
+  return ''
 }
