@@ -266,7 +266,7 @@ async function osmOnce(
     try {
       const { status, json } = await getJson(`${base}?data=${encodeURIComponent(query)}`, {
         Accept: 'application/json',
-        'User-Agent': 'Jarvis/1.48.8 (local.jarvis.app)',
+        'User-Agent': 'Jarvis/2.0.0 (local.jarvis.app)',
       })
       if (status < 200 || status >= 300) continue
       const elements = Array.isArray(json.elements) ? (json.elements as Array<Record<string, unknown>>) : []

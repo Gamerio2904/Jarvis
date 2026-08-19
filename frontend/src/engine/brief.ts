@@ -18,6 +18,14 @@ export async function handleBrief(): Promise<{
   const agenda = await formatAgenda()
   if (agenda && !/^Nichts offen/.test(agenda)) parts.push(agenda)
 
+  const soonRemind = (await listReminders()).filter(
+    (r) => r.status === 'open' && r.kind !== 'timer' && r.kind !== 'alarm' && new Date(r.due_at).getTime() >= Date.now() - 60_000,
+  )
+  if (soonRemind[0]) {
+    const top = soonRemind.slice(0, 3).map((r) => r.title).join(', ')
+    if (!parts.some((p) => p.includes(soonRemind[0].title))) parts.push(`Erinnerung: ${top}.`)
+  }
+
   const shop = (await listShopping()).filter((s) => s.status === 'open')
   if (shop.length) parts.push(`Einkauf: ${shop.map((s) => s.title).join(', ')}.`)
 

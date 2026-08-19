@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.8`** (CarPlay-Route auf den Straßen, Cafés nur am GPS).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`2.0.0`** (letztes Medium, ehrliches Wetter, CarPlay auf Straßen).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -50,8 +50,9 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.48.6`** | Overlay=Karte, Cafés am GPS, echte Route | **CODE** |
 | **`1.48.7`** | Research: keine erfundenen Zahlen | **CODE** |
 | **`1.48.8`** | CarPlay-Route auf Straßen + Cafés am Valeo | **CODE** |
+| **`2.0.0`** | Letztes Medium, ehrliches Wetter, Navi ohne Fake-Ankunft | **CODE** |
 
-Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-101.md`](./sprints/sprint-101.md).
+Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-102.md`](./sprints/sprint-102.md).
 
 ---
 
@@ -503,10 +504,31 @@ Screenshots Valeo Bietigheim: Route nur im Chat („Café Le Théâtre, zehn Min
 
 **Probe:** Am Valeo `wo könnte ich jetzt frühstücken` — Katz/Florio in Bietigheim, Karte auf, **grüne Linie auf den Straßen bis zum Pin**. `Aktiviere das overlay` = Karte.
 
+## `2.0.0` — Haus-AI, ein Kontext — **CODE**
+
+MAJOR: dieselben Fähigkeiten, aber sie gehören zusammen. Letztes Medium statt „TV gewinnt immer“. CarPlay bleibt intern (nicht Apple). Kein Keystore, kein iOS, kein Store.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Lautstärke | Im Fahrmodus / nach Spotify → Spotify. `Fernseher lauter` bleibt TV. `Zeig Spotify` öffnet nicht die Karte. |
+| Stopp | Pause auf dem letzten Medium, nicht Fahrmodus aus. |
+| GPS | Ohne Standort: Pin am Ziel, kein „Sie sind da“-Pfeil auf dem Pin. |
+| Wetter | Nur Open-Meteo. Ausfall: „Raten wäre unseriös.“ GPS-Cache 90 s. |
+| Erinnerung | `erinner mich an X` fragt wann; `in 20 Minuten` legt an. |
+| Widget | Fläche = hören. Mikrofon = Wake an/aus. |
+| Research / Guards | Zahlen auch ungruppiert; ehrliches „kein Netz“ nach Suche bleibt. |
+| TV | Erstes Listenelement nur OK. Unbekannte Fire-TV-Taste ehrlich. |
+| Memory | Widerspruch („kein … mehr“) nicht wieder einstreuen. |
+| Stimme | Antippen unterbricht. Ohne Gemini nach Tools: ehrlich, kein Hard-Stop. |
+| Feiertage BW | Ostern gerechnet, nicht 2026–27 fest verdrahtet. |
+| Hilfe | `/hilfe` beschreibt 2.0, nicht Wunschdenken. |
+
+**Probe:** CarPlay offen: `Lautstärke 50` / `lauter um 10` → Spotify, `Fernseher lauter` → TV. `Zeig Spotify` ohne Overlay-Wort → Musik, keine Karte. `Öffne das Spotify overlay` → Overlay Musik. `Aktiviere das overlay` → Karte. Ohne GPS: Pin am Ziel, Pfeil nicht als angekommen. Wetter-Ausfall ehrlich. `erinner mich an Steuer` fragt wann. Widget: Fläche hören, Mikro Wake. `stopp` nach Spotify pausiert, schließt CarPlay nicht. `kein Kaffee mehr` Memory. `Wetter heute` ohne AQI.
+
 ## Won’t (Reihe)
 
-Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
+Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth, WhatsApp, Keystore-Halbverschlüsselung.
 
 ## Nächster Schritt
 
-Sideload `1.48.8`. CarPlay-Route auf den Straßen, Cafés am GPS. Nächste Stufe nur auf PO-Kommando.
+Sideload `2.0.0`. Letztes Medium, ehrliches Wetter, CarPlay auf den Straßen. Nächste Stufe nur auf PO-Kommando.
