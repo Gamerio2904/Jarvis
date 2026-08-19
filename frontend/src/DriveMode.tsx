@@ -4,6 +4,7 @@ import {
   getDriveTab,
   refreshDriveRoute,
   setDriveTab,
+  snapDriveFix,
   subscribeDrive,
   type DriveRoute,
   type DriveTab,
@@ -320,7 +321,7 @@ function FollowMap({
       const you = projectOnTiles(here.lat, here.lon, camM, zInt, size, cx, cy)
       const heading = here.bearing != null && Number.isFinite(here.bearing) ? here.bearing : headingRef.current
       const delta = ((heading - headingRef.current + 540) % 360) - 180
-      headingRef.current += delta * 0.22
+      headingRef.current += delta * 0.42
       if (pin) {
         const on = you.x > -40 && you.x < cssW + 40 && you.y > -40 && you.y < cssH + 40
         pin.style.opacity = on ? '1' : '0'
@@ -461,19 +462,20 @@ export function DriveMode({
   useEffect(() => {
     return watchDeviceLocation((fix) => {
       if (!fix.ok || fix.lat == null || fix.lon == null) return
-      const pos = { lat: fix.lat, lon: fix.lon }
+      const raw = { lat: fix.lat, lon: fix.lon, bearing: fix.bearing, speed: fix.speed }
+      const pos = snapDriveFix(raw)
       liveRef.current = {
         lat: pos.lat,
         lon: pos.lon,
-        bearing: fix.bearing ?? liveRef.current.bearing,
-        speed: fix.speed ?? liveRef.current.speed,
+        bearing: pos.bearing ?? liveRef.current.bearing,
+        speed: pos.speed ?? liveRef.current.speed,
       }
       const t = Date.now()
-      if (t - hudAt.current > 280) {
+      if (t - hudAt.current > 220) {
         hudAt.current = t
-        setHere(pos)
+        setHere({ lat: pos.lat, lon: pos.lon })
       }
-      void refreshDriveRoute({ ...pos, bearing: fix.bearing, speed: fix.speed }).then((guide) => {
+      void refreshDriveRoute(raw).then((guide) => {
         if (!guide?.cue) return
         if (listenLock.current) return
         if (guide.cue.startsWith('Ziel')) {
@@ -504,12 +506,13 @@ export function DriveMode({
         type: s.type,
         modifier: s.modifier,
         name: s.name,
+        exit: s.exit,
       })),
       route.coords,
       pos,
     )
     if (!nxt) return { arrow: '↑', line: route.dest || 'Wohin?', sub: route.hint || '' }
-    return formatNavBanner(nxt.dir, nxt.meters, nxt.name)
+    return formatNavBanner(nxt.dir, nxt.meters, nxt.name, nxt.exit)
   }, [here, route])
 
   const km = route && route.meters ? (route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`) : ''

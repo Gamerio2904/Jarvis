@@ -25,16 +25,12 @@ export function parseWeatherFollowup(text: string, last: WeatherLast | null): We
   if (!last) return null
   const t = text.trim().replace(/[?.!]+$/, '')
   if (!t || t.length > 80) return null
-  const und = /^und\s+/i.test(t)
   const rest = t.replace(/^und\s+/i, '').trim()
-  if (
-    !und &&
-    !/^(morgen|übermorgen|heute|wochenende|das\s+wochenende|schirm|anziehen|luft|pollen|sonnenaufgang|sonnenuntergang)$/i.test(
+  const weatherish =
+    /\b(morgen|übermorgen|heute|wochenende|schirm|anziehen|luft|pollen|sonnenaufgang|sonnenuntergang|regen|jacke|pulli|feinstaub|aqi)\b/i.test(
       rest,
-    )
-  ) {
-    return null
-  }
+    ) || /^(in|für|aus|bei)\s+\S/i.test(rest)
+  if (!weatherish) return null
   if (!rest) return last.kind === 'place' && last.place
     ? { kind: 'place', place: last.place, when: last.when, focus: last.focus }
     : { kind: 'here', when: last.when, focus: last.focus }

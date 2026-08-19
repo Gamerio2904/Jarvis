@@ -71,7 +71,8 @@ import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { formatFilmReply } from '../src/engine/film.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
-import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, panCam, projectOnTiles, projectToView, settleZoom, simplifyTrack, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
+import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, panCam, projectOnTiles, projectToView, settleZoom, simplifyTrack, snapToTrack, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
+import { pickGeoHits } from '../src/engine/geo-lookup.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -508,6 +509,53 @@ assert.equal(parseTransitIntent('Nach Heilbronn')?.kind, undefined)
 assert.equal(parseTransitIntent('Züge anklicken'), null)
 assert.equal(parseTransitIntent('nächste Bahn')?.kind, 'ask')
 
+assert.equal(parseNewsIntent('Was sind die heutigen Schlagzeilen')?.kind, 'national')
+assert.equal(parseNewsIntent(normalizeUtterance('Was sind. Die heutigen Schlagzeilen'))?.kind, 'national')
+assert.equal(parseDriveIntent('Nach Witzen erzähl mir ein'), null)
+assert.equal(parseDriveIntent(normalizeUtterance('Fähre mich nach Hause'))?.dest, 'zuhause')
+assert.equal(parsePlaceNav(normalizeUtterance('Fähre mich nach Hause'))?.kind, 'navigate')
+assert.equal(parseWeatherFollowup('Und Backanleitung', { kind: 'here', when: 'today', focus: 'general' }), null)
+assert.equal(parseWeatherFollowup('und morgen?', { kind: 'here', when: 'today', focus: 'general' })?.when, 'tomorrow')
+{
+  const homeGeo = parseHomeIntent(
+    'Wenn du 5 Meter im Umkreis von meinem Haus kehrsbachstraße 23 bin erinnere mich an FIFA 26',
+  )
+  assert.equal(homeGeo?.kind, 'when_home')
+  if (homeGeo?.kind === 'when_home') {
+    assert.match(homeGeo.address || '', /kehrsbach/i)
+    assert.equal(homeGeo.task, 'FIFA 26')
+    assert.equal(homeGeo.radiusM, 5)
+  }
+}
+{
+  const valeo = { lat: 48.952, lon: 9.145 }
+  const picked = pickGeoHits(
+    [
+      { lat: 48.096, lon: 7.427, place: 'Ingersheim, Grand Est', country: 'FR' },
+      { lat: 48.961, lon: 9.178, place: 'Ingersheim, Baden-Württemberg', country: 'DE' },
+    ],
+    valeo,
+  )
+  assert.match(picked?.place || '', /Baden-Württemberg/)
+  const noGps = pickGeoHits([
+    { lat: 48.096, lon: 7.427, place: 'Ingersheim, Grand Est', country: 'FR' },
+    { lat: 48.961, lon: 9.178, place: 'Ingersheim, Baden-Württemberg', country: 'DE' },
+  ])
+  assert.match(noGps?.place || '', /Baden-Württemberg/)
+}
+{
+  const ring = [
+    [9.14, 48.95],
+    [9.141, 48.9502],
+    [9.142, 48.95],
+    [9.141, 48.9498],
+    [9.14, 48.95],
+  ]
+  const snap = snapToTrack(ring, { lat: 48.95005, lon: 9.1404 }, 0)
+  assert.ok(snap)
+  assert.ok(snap.distM < 40)
+  assert.match(formatNavCue('roundabout', 80, 'near', 2), /zweite Ausfahrt/)
+}
 assert.equal(parseNewsIntent('Nachrichten')?.kind, 'national')
 assert.equal(parseNewsIntent('Tagesschau')?.kind, 'national')
 const localNews = parseNewsIntent('Was ist heute in Ingesheim passiert')

@@ -5,7 +5,7 @@ import type { ToolMeta } from './tools'
 
 export { parseHolidayIntent } from './holiday-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.0.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.0.1 (local.jarvis.app)' }
 
 type Holiday = {
   date: string

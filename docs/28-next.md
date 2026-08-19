@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`2.0.0`** (letztes Medium, ehrliches Wetter, CarPlay auf Straßen).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`2.0.1`** (schnellere Antworten, Ingersheim DE, Kurven/Kreisverkehr).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -51,6 +51,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.48.7`** | Research: keine erfundenen Zahlen | **CODE** |
 | **`1.48.8`** | CarPlay-Route auf Straßen + Cafés am Valeo | **CODE** |
 | **`2.0.0`** | Letztes Medium, ehrliches Wetter, Navi ohne Fake-Ankunft | **CODE** |
+| **`2.0.1`** | Latenz, Ingersheim DE, Kurven/Kreisverkehr, Follow-ups | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-102.md`](./sprints/sprint-102.md).
 
@@ -525,10 +526,24 @@ MAJOR: dieselben Fähigkeiten, aber sie gehören zusammen. Letztes Medium statt 
 
 **Probe:** CarPlay offen: `Lautstärke 50` / `lauter um 10` → Spotify, `Fernseher lauter` → TV. `Zeig Spotify` ohne Overlay-Wort → Musik, keine Karte. `Öffne das Spotify overlay` → Overlay Musik. `Aktiviere das overlay` → Karte. Ohne GPS: Pin am Ziel, Pfeil nicht als angekommen. Wetter-Ausfall ehrlich. `erinner mich an Steuer` fragt wann. Widget: Fläche hören, Mikro Wake. `stopp` nach Spotify pausiert, schließt CarPlay nicht. `kein Kaffee mehr` Memory. `Wetter heute` ohne AQI.
 
+## `2.0.1` — Schneller, richtiger Ort, Kurven — **CODE**
+
+Live: `nach Ingersheim` landete in Grand Est (Frankreich). `Nach Witzen erzähl mir ein` wurde als Ziel gelesen. `Und Backanleitung` nach einem Rezept wurde Wetter. Schlagzeilen gingen nicht zur Tagesschau. Gemini wartete die volle Antwort ab.
+
+| Hebel | Wirkung |
+|-------|---------|
+| Geocoding | Mehr Treffer, GPS/DE zuerst — Ingersheim BW, nicht Grand Est |
+| Zuhause | `Fähre mich nach Hause` = Zuhause. Geofence mit Adresse speichert wirklich |
+| Parser | `nach` + Verb ist kein Ort. `und …` nur Wetter wenn es nach Wetter klingt. Schlagzeilen = Tagesschau |
+| Navi | GPS auf die Linie, Kreisverkehr mit Ausfahrt, engere Kurven |
+| Latenz | Smalltalk streamt, kürzere Antworten, OSRM parallel, Gemini-Timeout 8 s |
+
+**Probe:** `nach Ingersheim` von Valeo → BW, nicht Frankreich. `Nach Witzen erzähl mir ein` → Witz, kein Ort. `Und Backanleitung` nach Rezept bleibt Rezept. `Was sind die heutigen Schlagzeilen` → Tagesschau. Overlay: Kurven und Kreisverkehr folgen der Straße.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth, WhatsApp, Keystore-Halbverschlüsselung.
 
 ## Nächster Schritt
 
-Sideload `2.0.0`. Letztes Medium, ehrliches Wetter, CarPlay auf den Straßen. Nächste Stufe nur auf PO-Kommando.
+Sideload `2.0.1`. Schnellere Antworten, Ingersheim in DE, Kurven/Kreisverkehr. Nächste Stufe nur auf PO-Kommando.

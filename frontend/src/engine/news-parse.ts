@@ -22,14 +22,19 @@ export function parseNewsIntent(text: string): NewsIntent | null {
   }
 
   if (
-    /^\s*(?:die\s+)?(?:nachrichten|tagesschau|news)\s*[.!?]*$/i.test(t) ||
-    /^\s*was\s+(?:gibt\s+es\s+)?(?:in\s+den\s+)?nachrichten\s*[.!?]*$/i.test(t) ||
+    /^\s*(?:die\s+)?(?:nachrichten|tagesschau|news|schlagzeilen)\s*[.!?]*$/i.test(t) ||
+    /^\s*was\s+(?:gibt\s+es\s+)?(?:in\s+den\s+)?(?:nachrichten|schlagzeilen)\s*[.!?]*$/i.test(t) ||
+    /^\s*was\s+sind\s+(?:die\s+)?(?:heutigen\s+)?(?:schlagzeilen|nachrichten)\s*[.!?]*$/i.test(t) ||
     /^\s*was\s+ist\s+(?:heute\s+)?(?:in\s+den\s+nachrichten\s+)?passiert\s*[.!?]*$/i.test(t) ||
     /^\s*tagesschau\s*[.!?]*$/i.test(t)
   ) {
     return { kind: 'national' }
   }
-  if (/\b(nachrichten|tagesschau)\b/i.test(t) && t.length < 60 && !/\b(suche|im\s+internet)\b/i.test(t)) {
+  if (
+    /\b(nachrichten|tagesschau|schlagzeilen)\b/i.test(t) &&
+    t.length < 80 &&
+    !/\b(suche|im\s+internet)\b/i.test(t)
+  ) {
     const inPlace = /(?:in|aus|für)\s+([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-\s]{1,40})$/i.exec(t)
     if (inPlace) {
       const place = cleanPlace(inPlace[1])

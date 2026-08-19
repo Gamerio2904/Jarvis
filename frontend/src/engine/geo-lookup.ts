@@ -1,11 +1,12 @@
-import { getJson } from './http-json'
-import { looksLikeBareStreet } from './places-parse'
-import { asLonLat, compactCoords, decodePolyline, isRoadTrack, simplifyTrack } from './drive-map'
+import { getJson } from './http-json.ts'
+import { looksLikeBareStreet } from './places-parse.ts'
+import { asLonLat, compactCoords, decodePolyline, isRoadTrack, simplifyTrack } from './drive-map.ts'
 
 export type Fix = { lat: number; lon: number; place: string }
 
 const STREET_FAR_M = 80_000
-const UA = 'Jarvis/2.0.0 (local.jarvis.app)'
+const UA = 'Jarvis/2.0.1 (local.jarvis.app)'
+const DACH = { latMin: 47.2, latMax: 55.2, lonMin: 5.7, lonMax: 15.2 }
 
 function cityAsk(street: string): string {
   return `In welcher Stadt liegt ${street}? Eine Straße ohne Ort rate ich nicht.`
@@ -28,26 +29,70 @@ export async function geocodePlace(
     }
     return { ok: false, message: cityAsk(q) }
   }
-  const primary = await geocodeOpenMeteo(q)
+  const primary = await geocodeOpenMeteo(q, near || undefined)
   if (primary.ok) return primary
   const fallback = await geocodeNominatim(q, near || undefined)
   if (fallback.ok) return fallback
   return primary
 }
 
-async function geocodeOpenMeteo(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+function inDach(lat: number, lon: number): boolean {
+  return lat >= DACH.latMin && lat <= DACH.latMax && lon >= DACH.lonMin && lon <= DACH.lonMax
+}
+
+function placeLabel(name: string, admin?: string, country?: string): string {
+  const bits = [name.trim()]
+  if (admin && !name.toLowerCase().includes(admin.toLowerCase())) bits.push(admin.trim())
+  if (country && country !== 'Deutschland' && country !== 'DE') bits.push(country)
+  return bits.filter(Boolean).join(', ')
+}
+
+/** Nächster Treffer zum GPS, sonst DE vor FR — Ingersheim BW statt Grand Est. */
+export function pickGeoHits(
+  rows: Array<{ lat: number; lon: number; place: string; country?: string }>,
+  near?: { lat: number; lon: number },
+): Fix | null {
+  const fixes = rows.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lon))
+  if (!fixes.length) return null
+  if (near && Number.isFinite(near.lat) && Number.isFinite(near.lon)) {
+    let best = fixes[0]
+    let bestM = haversineM({ lat: near.lat, lon: near.lon, place: '' }, best)
+    for (const f of fixes.slice(1)) {
+      const d = haversineM({ lat: near.lat, lon: near.lon, place: '' }, f)
+      if (d < bestM) {
+        best = f
+        bestM = d
+      }
+    }
+    return { lat: best.lat, lon: best.lon, place: best.place }
+  }
+  const de = fixes.find((f) => {
+    const c = (f.country || '').toUpperCase()
+    return c === 'DE' || c === 'DEU' || c === 'GERMANY' || /deutschland/i.test(f.place)
+  })
+  const dach = fixes.find((f) => inDach(f.lat, f.lon))
+  const hit = de || dach || fixes[0]
+  return { lat: hit.lat, lon: hit.lon, place: hit.place }
+}
+
+async function geocodeOpenMeteo(
+  name: string,
+  near?: { lat: number; lon: number },
+): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   try {
-    const q = new URLSearchParams({ name, count: '1', language: 'de', format: 'json' })
+    const q = new URLSearchParams({ name, count: '8', language: 'de', format: 'json' })
     const { status, json } = await getJson(`https://geocoding-api.open-meteo.com/v1/search?${q}`)
     if (status < 200 || status >= 300) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    const first = (json.results as Array<Record<string, unknown>> | undefined)?.[0]
-    if (!first) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    const lat = Number(first.latitude)
-    const lon = Number(first.longitude)
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    const place = String(first.name || name)
-    const admin = first.admin1 ? `, ${first.admin1}` : ''
-    return { ok: true, fix: { lat, lon, place: `${place}${admin}` } }
+    const raw = (json.results as Array<Record<string, unknown>> | undefined) || []
+    const rows = raw.map((row) => {
+      const lat = Number(row.latitude)
+      const lon = Number(row.longitude)
+      const place = placeLabel(String(row.name || name), String(row.admin1 || ''), String(row.country || ''))
+      return { lat, lon, place, country: String(row.country_code || row.country || '') }
+    })
+    const picked = pickGeoHits(rows, near)
+    if (!picked) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
+    return { ok: true, fix: picked }
   } catch {
     return { ok: false, message: `Ort „${name}“ nicht erreichbar.` }
   }
@@ -69,7 +114,8 @@ async function nominatimOnce(
   bounded?: boolean,
 ): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   try {
-    const q = new URLSearchParams({ q: name, format: 'json', limit: '5', addressdetails: '1' })
+    const q = new URLSearchParams({ q: name, format: 'json', limit: '8', addressdetails: '1' })
+    if (near && inDach(near.lat, near.lon)) q.set('countrycodes', 'de')
     if (near && bounded) {
       const d = 0.35
       q.set('viewbox', `${near.lon - d},${near.lat + d},${near.lon + d},${near.lat - d}`)
@@ -87,7 +133,18 @@ async function nominatimOnce(
       if (Array.isArray(extra)) rows = extra as Array<Record<string, unknown>>
     }
     if (status < 200 || status >= 300 || !rows.length) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    const picked = pickNominatim(rows, name, near)
+    const mapped = rows.flatMap((row) => {
+      const lat = Number(row.lat)
+      const lon = Number(row.lon)
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return []
+      const addr = (row.address && typeof row.address === 'object' ? row.address : {}) as Record<string, unknown>
+      const city = String(addr.city || addr.town || addr.village || addr.municipality || row.display_name || name)
+        .split(',')[0]
+        .trim()
+      const country = String(addr.country_code || addr.country || '')
+      return [{ lat, lon, place: city || name, country }]
+    })
+    const picked = pickGeoHits(mapped, near) || pickNominatim(rows, name, near)
     if (!picked) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
     return { ok: true, fix: picked }
   } catch {
@@ -200,6 +257,7 @@ export type DriveStep = {
   modifier: string
   name: string
   distance: number
+  exit?: number
 }
 
 export type DriveLeg = {
@@ -244,13 +302,26 @@ export async function routeDrive(
     osrmUrl(host, from, to, 'polyline'),
     osrmUrl(host, from, to, 'geojson'),
   ])
-  let last = 'Netz hat die Route nicht geliefert.'
-  for (const url of urls) {
-    const once = await fetchRoute(url, to)
-    if (once.ok) return once
-    last = once.message
-  }
-  return { ok: false, message: last }
+  return await new Promise((resolve) => {
+    let left = urls.length
+    let last = 'Netz hat die Route nicht geliefert.'
+    let done = false
+    for (const url of urls) {
+      void fetchRoute(url, to)
+        .catch(() => ({ ok: false as const, message: last }))
+        .then((once) => {
+          if (done) return
+          if (once.ok) {
+            done = true
+            resolve(once)
+            return
+          }
+          last = once.message
+          left -= 1
+          if (left <= 0) resolve({ ok: false, message: last })
+        })
+    }
+  })
 }
 
 function readGeometry(geometry: unknown): Array<[number, number]> {
@@ -295,7 +366,7 @@ async function fetchRoute(
           steps?: Array<{
             name?: string
             distance?: number
-            maneuver?: { type?: string; modifier?: string; location?: [number, number] }
+            maneuver?: { type?: string; modifier?: string; location?: [number, number]; exit?: number }
           }>
         }>
       }> | undefined
@@ -311,7 +382,7 @@ async function fetchRoute(
       .map((s) => {
         const loc = asLonLat(s.maneuver?.location)
         if (!loc) return null
-        return {
+        const step: DriveStep = {
           lon: loc[0],
           lat: loc[1],
           type: String(s.maneuver?.type || ''),
@@ -319,6 +390,9 @@ async function fetchRoute(
           name: String(s.name || '').trim(),
           distance: Math.max(0, Math.round(Number(s.distance) || 0)),
         }
+        const exitN = Number(s.maneuver?.exit)
+        if (Number.isFinite(exitN) && exitN >= 1) step.exit = Math.round(exitN)
+        return step
       })
       .filter((s): s is DriveStep => Boolean(s))
     const next = rawSteps.find((s) => s.maneuver?.type && s.maneuver.type !== 'depart') || rawSteps[0]

@@ -22,6 +22,8 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\bcar\s*play\b/gi, 'CarPlay'],
   [/\bkarplay\b/gi, 'CarPlay'],
   [/\bfahr(?:er)?\s*modus\b/gi, 'Fahrmodus'],
+  [/\bfähre\s+mich\b/gi, 'fahr mich'],
+  [/\bfähr\s+mich\b/gi, 'fahr mich'],
   [/\bnach\s*hause\b/gi, 'nach Hause'],
   [/\bover\s*lay\b/gi, 'overlay'],
   [/\bnächster\s+pol\b/gi, 'nächster POI'],
@@ -32,6 +34,7 @@ const REPAIRS: Array<[RegExp, string]> = [
 
 export function repairSpeech(text: string): string {
   let t = text.replace(/\s+/g, ' ').trim()
+  t = t.replace(/([A-Za-zÄÖÜäöüß]{2,})\.\s+([A-Za-zÄÖÜäöüß])/g, '$1 $2')
   for (const [re, to] of REPAIRS) t = t.replace(re, to)
   return t.replace(/\s+/g, ' ').trim()
 }

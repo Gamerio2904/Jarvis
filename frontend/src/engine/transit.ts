@@ -8,7 +8,7 @@ import type { ToolMeta } from './tools'
 
 export { parseTransitIntent } from './transit-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.0.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.0.1 (local.jarvis.app)' }
 const REST = 'https://v6.db.transport.rest'
 
 type Stop = { id: string; name: string; lat: number; lon: number }
