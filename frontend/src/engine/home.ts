@@ -9,6 +9,7 @@ import {
   loadSettings,
   saveSettings,
   setReminderStatus,
+  upsertMemory,
 } from './store'
 import type { ToolMeta } from './tools'
 
@@ -77,7 +78,18 @@ export async function handleHome(
   }
 
   const home = (await listMemory('place')).find((m) => m.key === 'zuhause')
-  if (!home?.value) {
+  if (intent.kind === 'when_home' && intent.address) {
+    const geo = await geocodePlace(intent.address)
+    if (!geo.ok) {
+      return { handled: true, reply: geo.message, lastTool: 'home' }
+    }
+    await upsertMemory('zuhause', intent.address, 'place', conversationId)
+    saveSettings({
+      home_lat: String(geo.fix.lat),
+      home_lon: String(geo.fix.lon),
+      home_radius_m: String(intent.radiusM || 250),
+    })
+  } else if (!home?.value) {
     saveSettings({ last_step_tool: 'home_ask', last_step_title: intent.task })
     return {
       handled: true,
@@ -94,9 +106,11 @@ export async function handleHome(
     conversationId,
     kind: 'home',
   })
+  const meters = intent.kind === 'when_home' && intent.radiusM ? ` Radius ${intent.radiusM} Meter.` : ''
+  const where = intent.kind === 'when_home' && intent.address ? ` ${intent.address}.` : ''
   return {
     handled: true,
-    reply: `Wenn Sie zuhause sind: ${intent.task}. Handy muss an sein — Gerät aus löst nicht aus.`,
+    reply: `Wenn Sie zuhause sind:${where} ${intent.task}.${meters} Handy muss an sein — Gerät aus löst nicht aus.`,
     tool: { tool_status: 'executed', tool: 'home', action: 'save', label: 'Zuhause', preview: intent.task },
     lastTool: 'home',
   }

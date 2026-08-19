@@ -21,9 +21,9 @@ const ART =
   /^(der|die|das|dem|den|des|ein|eine|einer|einem|einen|meine|mein|meiner|meinen|unsere|unser)\s+/i
 
 const NAV =
-  /^\s*(?:fahr(?:e)?\s+mich|bring(?:e)?\s+mich|navigier(?:e)?|route|zeig(?:e)?\s+(?:mir\s+)?den\s+weg)\s+(?:(zu(?:r|m)?)|(nach))\s+(.+?)\s*$/i
+  /^\s*(?:fahr(?:e)?\s+mich|fähr(?:e)?\s+mich|bring(?:e)?\s+mich|navigier(?:e)?|route|zeig(?:e)?\s+(?:mir\s+)?den\s+weg)\s+(?:(zu(?:r|m)?)|(nach))\s+(.+?)\s*$/i
 const NAV_HOME =
-  /^\s*(?:fahr(?:e)?\s+mich|bring(?:e)?\s+mich|navigier(?:e)?|route)\s+(?:nach\s+)?(?:hause|heim|zuhause)\s*$/i
+  /^\s*(?:fahr(?:e)?\s+mich|fähr(?:e)?\s+mich|bring(?:e)?\s+mich|navigier(?:e)?|route)\s+(?:nach\s+)?(?:hause|heim|zuhause)\s*$/i
 const LIST =
   /^\s*(?:(?:fahr(?:e)?\s+mich\s+zu|route\s+zu)\s+(?:den\s+)?personen|wen\s+kennst\s+du|wo\s+wohnen\s+(?:die|sie)|zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?orte|personen\s+mit\s+ort)\s*[.?!]?\s*$/i
 const RECALL =

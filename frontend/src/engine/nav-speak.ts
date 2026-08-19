@@ -1,3 +1,5 @@
+import { snapToTrack } from './drive-map.ts'
+
 function haversineM(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {
   const R = 6371000
   const dLat = ((b.lat - a.lat) * Math.PI) / 180
@@ -28,6 +30,7 @@ export type NavStep = {
   type: string
   modifier: string
   name: string
+  exit?: number
 }
 
 export function dirFromManeuver(type: string, modifier: string): NavDir {
@@ -88,41 +91,66 @@ export function navPhase(meters: number): NavPhase | null {
   return null
 }
 
-export function formatNavCue(dir: NavDir, meters: number, phase: NavPhase): string {
+function exitWord(n?: number): string {
+  if (!n || n < 1) return ''
+  const words = ['', 'erste', 'zweite', 'dritte', 'vierte', 'fünfte', 'sechste']
+  return words[n] || `${n}.`
+}
+
+export function formatNavCue(dir: NavDir, meters: number, phase: NavPhase, exit?: number): string {
   if (dir === 'arrive') {
     return phase === 'now' ? 'Ziel erreicht.' : 'Sie erreichen gleich das Ziel.'
   }
+  const ausfahrt = exitWord(exit)
   if (phase === 'now') {
     if (dir === 'uturn') return 'Jetzt wenden.'
     if (dir === 'straight') return 'Jetzt geradeaus weiter.'
-    if (dir === 'roundabout') return 'Jetzt in den Kreisverkehr.'
+    if (dir === 'roundabout') {
+      return ausfahrt ? `Jetzt ${ausfahrt} Ausfahrt.` : 'Jetzt in den Kreisverkehr.'
+    }
     return `Jetzt ${dirShort(dir)} abbiegen.`
   }
   if (phase === 'km') {
+    if (dir === 'roundabout') {
+      return ausfahrt ? `In einem Kilometer Kreisverkehr, ${ausfahrt} Ausfahrt.` : 'In einem Kilometer in den Kreisverkehr.'
+    }
     return `In einem Kilometer ${dirVorne(dir)} abbiegen.`
   }
   if (phase === 'mid') {
     const m = roundNavMeters(meters) || 300
+    if (dir === 'roundabout') {
+      return ausfahrt ? `Kreisverkehr in ${m} Metern, ${ausfahrt} Ausfahrt.` : `In ${m} Metern in den Kreisverkehr.`
+    }
     return `${dirVorne(dir).replace(/^v/, 'V')} in ${m} Metern abbiegen.`
   }
   const m = roundNavMeters(meters) || 100
   if (dir === 'uturn') return `In ${m} Metern wenden.`
   if (dir === 'straight') return `In ${m} Metern geradeaus weiter.`
-  if (dir === 'roundabout') return `In ${m} Metern in den Kreisverkehr.`
+  if (dir === 'roundabout') {
+    return ausfahrt ? `In ${m} Metern Kreisverkehr, ${ausfahrt} Ausfahrt.` : `In ${m} Metern in den Kreisverkehr.`
+  }
   return `In ${m} Metern ${dirShort(dir)} abbiegen.`
 }
 
-export function formatNavBanner(dir: NavDir, meters: number, name?: string): { arrow: string; line: string; sub: string } {
+export function formatNavBanner(
+  dir: NavDir,
+  meters: number,
+  name?: string,
+  exit?: number,
+): { arrow: string; line: string; sub: string } {
   const arrow = dirArrow(dir)
   if (dir === 'arrive') return { arrow, line: 'Ziel', sub: name || '' }
   const m = meters >= 1000 ? `${(meters / 1000).toFixed(1).replace('.', ',')} km` : `${roundNavMeters(meters)} m`
+  const ausfahrt = exit && exit >= 1 ? `${exit}. Ausfahrt` : ''
   const turn =
     dir === 'uturn'
       ? 'Wenden'
       : dir === 'straight'
         ? 'Geradeaus'
         : dir === 'roundabout'
-          ? 'Kreisverkehr'
+          ? ausfahrt
+            ? `Kreisverkehr · ${ausfahrt}`
+            : 'Kreisverkehr'
           : `${dirShort(dir).replace(/^./, (c) => c.toUpperCase())} abbiegen`
   return { arrow, line: m, sub: name ? `${turn} · ${name}` : turn }
 }
@@ -172,17 +200,22 @@ export type NextManeuver = {
   meters: number
   name: string
   offRoute: boolean
+  exit?: number
 }
 
-const OFF_ROUTE_M = 90
+const OFF_ROUTE_M = 55
 
 export function nextManeuver(
   steps: NavStep[],
   coords: Array<[number, number]>,
   pos: { lat: number; lon: number },
+  hintI = 0,
 ): NextManeuver | null {
   if (!steps.length) return null
-  const here = closestCoordIndex(coords, pos.lat, pos.lon)
+  const snap = snapToTrack(coords, pos, hintI)
+  const here = snap
+    ? { i: snap.index, dist: snap.distM }
+    : closestCoordIndex(coords, pos.lat, pos.lon)
   const offRoute = coords.length > 1 && here.dist > OFF_ROUTE_M
   let pick = -1
   let pickMeters = Infinity
@@ -194,7 +227,8 @@ export function nextManeuver(
       { lat: pos.lat, lon: pos.lon },
       { lat: step.lat, lon: step.lon },
     )
-    if (along < 12) continue
+    const minAlong = dir === 'roundabout' ? 8 : 16
+    if (along < minAlong) continue
     if (along < pickMeters) {
       pickMeters = along
       pick = i
@@ -218,5 +252,6 @@ export function nextManeuver(
     meters: Math.max(0, Math.round(pickMeters)),
     name: step.name || '',
     offRoute,
+    exit: step.exit,
   }
 }

@@ -179,12 +179,12 @@ function rememberSkip(model: string) {
 export async function streamGemini(
   messages: Array<{ role: string; content: string }>,
   onToken?: (piece: string, full: string) => void,
-  opts?: { search?: boolean; maxOutputTokens?: number },
+  opts?: { search?: boolean; maxOutputTokens?: number; timeoutMs?: number },
 ): Promise<CloudComplete> {
   if (opts?.search) {
     return completeGemini(messages, onToken, {
       ...opts,
-      timeoutMs: 10_000,
+      timeoutMs: opts.timeoutMs || 10_000,
       maxModels: 2,
       thinking: false,
     })
@@ -266,7 +266,7 @@ export async function completeGemini(
     let modelRetryable = false
     try {
       for (let i = 0; i < attempts.length; i += 1) {
-        const { status, json } = await postGemini(model, attempts[i], opts?.timeoutMs)
+        const { status, json } = await postGemini(model, attempts[i], opts?.timeoutMs || 12_000)
         const { message, status: errStatus } = errorFields(json)
         if (isFatalAuth(status, message, errStatus)) {
           throw new Error(germanAuthError())
