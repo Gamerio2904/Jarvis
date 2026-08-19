@@ -18,8 +18,8 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 ## Android-APK
 
-**`Jarvis.apk` `2.1.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/wlan-steckdosen-3638/releases/Jarvis.apk
+**`Jarvis.apk` `2.1.1`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/plug-lan-ip-3638/releases/Jarvis.apk
 
 ```bat
 build-apk.bat

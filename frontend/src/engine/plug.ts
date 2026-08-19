@@ -1,5 +1,6 @@
 import { loadSettings, saveSettings, newId } from './store'
 import { plugDiscoverNative, plugProbeNative, plugSetNative, type HomeDevice } from '../native/home'
+import { lanIpHint } from './plug-net'
 import {
   PLUG_FOLLOWUP_MS,
   isPlugFollowUpPhrase,
@@ -94,12 +95,16 @@ export async function discoverPlugs(): Promise<{ items: HomeDevice[]; message?: 
 export async function probePlug(plug: Partial<Plug>): Promise<{ ok: boolean; reply: string; kind?: string }> {
   const host = (plug.host || '').trim()
   if (!host && plug.kind !== 'http') return { ok: false, reply: 'Keine IP. Unter Haus eintragen oder suchen.' }
+  const wan = lanIpHint(host)
+  if (wan) return { ok: false, reply: wan }
   const res = await plugProbeNative(nativeOpts(plug, true, false))
   if (!res.ok) return { ok: false, reply: res.message || 'Steckdose nicht erreichbar.' }
   return { ok: true, reply: res.message || `Da: ${host}`, kind: res.kind }
 }
 
 export async function testPlug(plug: Partial<Plug>, on: boolean): Promise<{ ok: boolean; reply: string }> {
+  const wan = lanIpHint((plug.host || '').trim())
+  if (wan) return { ok: false, reply: wan }
   const res = await plugSetNative(nativeOpts(plug, on, false))
   if (!res.ok) return { ok: false, reply: res.message || 'Nicht geschaltet.' }
   const name = (plug.name || 'Steckdose').trim()

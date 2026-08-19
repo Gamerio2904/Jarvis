@@ -34,7 +34,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 27 | [Sprachmodus Tempo](./27-next.md) | **`1.32.1` CODE** — sofort sprechen, keine Stille |
 | 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`2.0` CODE** — Suche bis Haus-AI 2.0 |
 | 29 | [WLAN-Steckdosen](./29-next.md) | **`2.1.0` CODE** — Shelly/Tasmota/Tuya-LAN |
-| — | [APK](./apk.md) | Sideload `2.1.0` |
+| — | [APK](./apk.md) | Sideload `2.1.1` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -98,4 +98,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 102 | `2.0.0` | **CODE** (Haus-AI, ein Kontext) |
 | 103 | `2.1.0` | **CODE** (WLAN-Steckdosen) |
 
-**Aktuell:** Sideload `2.1.0` — [`Jarvis.apk`](./apk.md). Steckdosen lokal. PC-App: [`../desktop/README.md`](../desktop/README.md). [`29-next.md`](./29-next.md).
+**Aktuell:** Sideload `2.1.1` — [`Jarvis.apk`](./apk.md). Steckdosen: Hausnetz-IP. PC-App: [`../desktop/README.md`](../desktop/README.md). [`29-next.md`](./29-next.md).
