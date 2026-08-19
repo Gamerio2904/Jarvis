@@ -1,6 +1,6 @@
 /**
  * Routes every TEST_PROMPT the same way chat.ts does (no LLM, no phone).
- * Order: help → discount → ordinal → tv → film → fan → here → fuel → poi → transit → drive → device → maps → ...
+ * Order: help → discount → ordinal → tv → film → fan → plug → here → fuel → poi → transit → drive → device → maps → ...
  */
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
@@ -14,6 +14,7 @@ import { parseReminderIntent } from '../src/engine/remind-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
+import { parsePlugIntent } from '../src/engine/plug-parse.ts'
 import { isLiveLookup, parseShopDiscountIntent } from '../src/engine/research-parse.ts'
 import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
@@ -39,7 +40,7 @@ import { parseNewsIntent } from '../src/engine/news-parse.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -50,6 +51,7 @@ function route(text, ctx = {}) {
   if (parseTvWatch(text) || parseTvIntent(text)) return 'tv'
   if (parseFilmIntent(text)) return 'film'
   if (parseFanIntent(text)) return 'fan'
+  if (parsePlugIntent(text)) return 'plug'
   if (parseHereIntent(text)) return 'here'
   if (parseFuelIntent(text)) return 'fuel'
   if (parsePoiIntent(text)) return 'poi'
@@ -187,6 +189,8 @@ const EXPECT = {
   'Was ist heute in Ingesheim passiert': 'news',
   'Ist heute Feiertag?': 'holiday',
   'Wie viele Scheibenwischer verkauft Valeo am tag': 'research',
+  'Steckdose an': 'plug',
+  'alle Steckdosen aus': 'plug',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -219,7 +223,8 @@ assert.equal(route('Nach Heilbronn'), 'drive')
 assert.equal(route('Was trinke ich gerne?'), 'memory')
 assert.equal(route('in 20 Minuten Milch holen'), 'reminder')
 assert.equal(route('Fahr mich zu einer Tanke'), 'fuel')
-assert.equal(route('nächster Laden'), 'poi')
+assert.equal(route('Steckdose an'), 'plug')
+assert.equal(route('Ventilator an'), 'fan')
 
 for (const r of rows) {
   const mark = r.got === r.want ? 'ok' : 'FAIL'

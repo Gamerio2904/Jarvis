@@ -106,8 +106,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 100 | [`sprint-100.md`](./sprint-100.md) | `1.47.0` | PC live (Bildschirm, Maus, FIFA) | **CODE** |
 | 101 | [`sprint-101.md`](./sprint-101.md) | `1.48.0` | Luft/Sonne auf Nachfrage, Bahn, Tagesschau, Feiertage | **CODE** |
 | 102 | [`sprint-102.md`](./sprint-102.md) | `2.0.0` | Haus-AI, ein Kontext (letztes Medium, ehrlich) | **CODE** |
+| 103 | [`sprint-103.md`](./sprint-103.md) | `2.1.0` | WLAN-Steckdosen lokal | **CODE** |
 
-**Aktuell:** Sideload `2.0.1`. Schnellere Antworten, Ingersheim DE, Kurven. [`28-next.md`](../28-next.md).
+**Aktuell:** Sideload `2.1.0`. Steckdosen im Hausnetz. [`29-next.md`](../29-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '2.0.1'
+export const APP_VERSION = '2.1.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -156,6 +156,8 @@ export type Settings = {
   fan_host: string
   fan_mac: string
   fan_codes_json: string
+  plugs_enabled: boolean
+  plugs_json: string
   drive_mode: boolean
   spotify_client_id: string
   spotify_access: string
@@ -233,6 +235,8 @@ export const DEFAULT_SETTINGS: Settings = {
   fan_host: '',
   fan_mac: '',
   fan_codes_json: '',
+  plugs_enabled: true,
+  plugs_json: '',
   drive_mode: false,
   spotify_client_id: '',
   spotify_access: '',

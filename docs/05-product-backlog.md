@@ -332,8 +332,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `2.0.1`
-2. Weitere Arbeit nur auf PO-Kommando — [`28-next.md`](./28-next.md)
+1. Sideload `2.1.0` — WLAN-Steckdosen [`29-next.md`](./29-next.md)
+2. Weitere Arbeit nur auf PO-Kommando
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)

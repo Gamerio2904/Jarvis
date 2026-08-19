@@ -18,8 +18,8 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 ## Android-APK
 
-**`Jarvis.apk` `2.0.1`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/hotfix-latency-nav-3638/releases/Jarvis.apk
+**`Jarvis.apk` `2.1.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/wlan-steckdosen-3638/releases/Jarvis.apk
 
 ```bat
 build-apk.bat
@@ -35,6 +35,6 @@ Modell: Qwen2.5 0.5B Instruct Q4 (kleiner als der alte PC-7b, dafür offline).
 
 ## Was weg ist
 
-Python-Backend, Ollama, NAS-Proxy, Docker. Fernseher, Fire TV und Ventilator laufen in der Android-App.
+Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen in der Android-App.
 
 Planung: [`docs/README.md`](docs/README.md)

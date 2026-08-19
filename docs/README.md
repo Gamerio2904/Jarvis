@@ -33,7 +33,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 26 | [Samsung-Apps](./26-next.md) | **`1.32` CODE** — YouTube/Amazon/Disney/Netflix, Film-Lookup |
 | 27 | [Sprachmodus Tempo](./27-next.md) | **`1.32.1` CODE** — sofort sprechen, keine Stille |
 | 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`2.0` CODE** — Suche bis Haus-AI 2.0 |
-| — | [APK](./apk.md) | Sideload `2.0.1` |
+| 29 | [WLAN-Steckdosen](./29-next.md) | **`2.1.0` CODE** — Shelly/Tasmota/Tuya-LAN |
+| — | [APK](./apk.md) | Sideload `2.1.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -95,5 +96,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 100 | `1.47.0` | **CODE** (PC live) |
 | 101 | `1.48.0` | **CODE** (Luft/Sonne/Bahn/Nachrichten/Feiertage) |
 | 102 | `2.0.0` | **CODE** (Haus-AI, ein Kontext) |
+| 103 | `2.1.0` | **CODE** (WLAN-Steckdosen) |
 
-**Aktuell:** Sideload `2.0.1` — [`Jarvis.apk`](./apk.md). Schnellere Antworten, Ingersheim DE, Kurven. PC-App: [`../desktop/README.md`](../desktop/README.md). [`28-next.md`](./28-next.md).
+**Aktuell:** Sideload `2.1.0` — [`Jarvis.apk`](./apk.md). Steckdosen lokal. PC-App: [`../desktop/README.md`](../desktop/README.md). [`29-next.md`](./29-next.md).
