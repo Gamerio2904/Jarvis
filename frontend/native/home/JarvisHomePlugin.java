@@ -124,29 +124,7 @@ public class JarvisHomePlugin extends Plugin {
 
     @PluginMethod
     public void plugDiscover(PluginCall call) {
-        runBg(call, () -> {
-            JSObject ret = JarvisPlug.discover();
-            try {
-                Map<String, JSObject> extra = new LinkedHashMap<>();
-                Broadlink.discover(extra);
-                JSArray items = ret.getJSArray("items");
-                if (items == null) items = new JSArray();
-                for (JSObject row : extra.values()) {
-                    Integer typeObj = row.getInteger("type");
-                    int type = typeObj == null ? 0 : typeObj;
-                    if (Broadlink.isPlugType(type)) {
-                        row.put("kind", "broadlink");
-                        row.put("name", row.getString("name", "Broadlink-Steckdose"));
-                        items.put(row);
-                    }
-                }
-                ret.put("items", items);
-                ret.put("ok", items.length() > 0);
-                if (items.length() > 0) ret.put("message", "Gefunden.");
-            } catch (Exception ignored) {
-            }
-            resolve(call, ret);
-        });
+        runBg(call, () -> resolve(call, JarvisPlug.discover()));
     }
 
     @PluginMethod

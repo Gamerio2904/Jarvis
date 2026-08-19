@@ -44,6 +44,21 @@ final class JarvisPlug {
             listenTuya(found, 6667, true);
         } catch (Exception ignored) {
         }
+        try {
+            Map<String, JSObject> extra = new LinkedHashMap<>();
+            JarvisHomePlugin.Broadlink.discover(extra);
+            for (JSObject row : extra.values()) {
+                Integer typeObj = row.getInteger("type");
+                int type = typeObj == null ? 0 : typeObj;
+                if (JarvisHomePlugin.Broadlink.isPlugType(type)) {
+                    row.put("kind", "broadlink");
+                    String n = row.getString("name", "Broadlink-Steckdose");
+                    row.put("name", n == null || n.isEmpty() ? "Broadlink-Steckdose" : n);
+                    found.put("broadlink:" + row.getString("host", ""), row);
+                }
+            }
+        } catch (Exception ignored) {
+        }
         JSArray items = new JSArray();
         for (JSObject row : found.values()) items.put(row);
         ret.put("ok", items.length() > 0);
