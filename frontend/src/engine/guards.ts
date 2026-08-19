@@ -6,7 +6,7 @@ const HELPDESK =
 const FAKE_CLAIM =
   /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt))\b/i
 const FAKE_CARPLAY =
-  /(?:apple\s+)?car\s*play\s+ist\s+verbunden|musik\s+läuft(?:,|\s+und)\s+navigation|navigation\s+nach\s+\S.+\s+steht/i
+  /(?:apple\s+)?car\s*play\s+ist\s+verbunden|musik\s+läuft(?:,|\s+und)\s+navigation|navigation\s+nach\s+\S.+\s+steht|im internen fahrmodus aktiv|navigation zum\b.+\bist\b|sie erreichen das ziel|rund\s+(?:zehn|\d+)\s+minuten/i
 const FAKE_NO_DEVICE =
   /kein(?:en)?\s+direkten?\s+zugriff\s+auf|apple lässt mich hier nicht|müssen sie auf dem fernseher/i
 const INSULT_USER =

@@ -142,6 +142,109 @@ export function lonLatPath(
   return out.join(' ')
 }
 
+/** GeoJSON `[lon,lat]`. Vertauschte DE-Paare `[lat,lon]` werden gedreht. */
+export function asLonLat(pair: unknown): [number, number] | null {
+  if (!Array.isArray(pair) || pair.length < 2) return null
+  let lon = Number(pair[0])
+  let lat = Number(pair[1])
+  if (!Number.isFinite(lon) || !Number.isFinite(lat)) return null
+  if (Math.abs(lon) > 20 && Math.abs(lat) < 20) {
+    const swap = lon
+    lon = lat
+    lat = swap
+  }
+  if (Math.abs(lat) > 85 || Math.abs(lon) > 180) return null
+  return [lon, lat]
+}
+
+/** Google/OSRM Encoded Polyline, precision 5 → `[lon,lat]`. */
+export function decodePolyline(encoded: string, precision = 5): Array<[number, number]> {
+  if (!encoded || typeof encoded !== 'string') return []
+  const factor = 10 ** precision
+  let index = 0
+  let lat = 0
+  let lon = 0
+  const out: Array<[number, number]> = []
+  while (index < encoded.length) {
+    let result = 0
+    let shift = 0
+    let b = 0
+    do {
+      b = encoded.charCodeAt(index++) - 63
+      result |= (b & 31) << shift
+      shift += 5
+    } while (b >= 32 && index < encoded.length)
+    lat += result & 1 ? ~(result >> 1) : result >> 1
+    result = 0
+    shift = 0
+    do {
+      b = encoded.charCodeAt(index++) - 63
+      result |= (b & 31) << shift
+      shift += 5
+    } while (b >= 32 && index < encoded.length)
+    lon += result & 1 ? ~(result >> 1) : result >> 1
+    const pair = asLonLat([lon / factor, lat / factor])
+    if (pair) out.push(pair)
+  }
+  return out
+}
+
+function localMeters(lat: number, lon: number, lat0: number): { x: number; y: number } {
+  const cos = Math.cos((lat0 * Math.PI) / 180)
+  return { x: lon * 111_320 * cos, y: lat * 110_540 }
+}
+
+function distToSegM(
+  px: number,
+  py: number,
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+): number {
+  const dx = bx - ax
+  const dy = by - ay
+  const len2 = dx * dx + dy * dy
+  if (len2 < 1e-9) return Math.hypot(px - ax, py - ay)
+  let t = ((px - ax) * dx + (py - ay) * dy) / len2
+  t = Math.max(0, Math.min(1, t))
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+}
+
+/** Douglas-Peucker in Metern — Ecken bleiben, gerade Stücke werden kürzer. */
+export function simplifyTrack(coords: Array<[number, number]>, epsilonM = 7): Array<[number, number]> {
+  if (!Array.isArray(coords) || coords.length <= 2) return Array.isArray(coords) ? coords.slice() : []
+  const lat0 = coords.reduce((s, p) => s + Number(p[1] || 0), 0) / coords.length
+  const xy = coords.map(([lon, lat]) => localMeters(lat, lon, lat0))
+  const rdp = (start: number, end: number): number[] => {
+    let maxD = 0
+    let idx = -1
+    const a = xy[start]
+    const b = xy[end]
+    for (let i = start + 1; i < end; i += 1) {
+      const d = distToSegM(xy[i].x, xy[i].y, a.x, a.y, b.x, b.y)
+      if (d > maxD) {
+        maxD = d
+        idx = i
+      }
+    }
+    if (maxD > epsilonM && idx > start) {
+      const left = rdp(start, idx)
+      const right = rdp(idx, end)
+      return left.concat(right.slice(1))
+    }
+    return [start, end]
+  }
+  return rdp(0, coords.length - 1).map((i) => coords[i])
+}
+
+/** Luftlinie aus zwei Punkten ist keine Straßenroute. */
+export function isRoadTrack(coords: Array<[number, number]>, meters = 0): boolean {
+  if (!Array.isArray(coords) || coords.length < 3) return false
+  if (meters > 400 && coords.length < 6) return false
+  return true
+}
+
 export function compactCoords(coords: Array<[number, number]>, max = 480): Array<[number, number]> {
   if (!Array.isArray(coords) || coords.length <= max) return Array.isArray(coords) ? coords : []
   const out: Array<[number, number]> = []
@@ -151,6 +254,42 @@ export function compactCoords(coords: Array<[number, number]>, max = 480): Array
     if (row && Number.isFinite(Number(row[0])) && Number.isFinite(Number(row[1]))) out.push(row)
   }
   return out
+}
+
+/** Zoom so that dest stays on screen while the camera sits on `here`. */
+export function zoomToInclude(
+  here: { lat: number; lon: number },
+  dest: { lat: number; lon: number },
+  width: number,
+  height: number,
+): number {
+  const w = Math.max(80, width)
+  const h = Math.max(80, height)
+  const cx = w * 0.5
+  const cy = h * 0.58
+  const padX = Math.max(36, w * 0.14)
+  const padY = Math.max(56, h * 0.16)
+  const fits = (z: number) => {
+    const pt = projectToView(dest.lat, dest.lon, here.lat, here.lon, z, cx, cy)
+    return pt.x >= padX && pt.x <= w - padX && pt.y >= padY && pt.y <= h - padY
+  }
+  let z = 16
+  while (z > 12 && !fits(z)) z -= 0.25
+  return clampMapZoom(z)
+}
+
+/** Same space as Carto tiles (integer zoom + fractional tile size). */
+export function projectOnTiles(
+  lat: number,
+  lon: number,
+  cam: { x: number; y: number },
+  zInt: number,
+  size: number,
+  cx: number,
+  cy: number,
+): { x: number; y: number } {
+  const p = webMercator(lat, lon, zInt)
+  return { x: (p.x - cam.x) * size + cx, y: (p.y - cam.y) * size + cy }
 }
 
 export function readLastMapFix(): { lat: number; lon: number } | null {

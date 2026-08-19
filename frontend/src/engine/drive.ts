@@ -2,7 +2,7 @@ import { parseDriveIntent, type DriveTab } from './drive-parse'
 import { isFuelPlace } from './fuel-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
 import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
-import { compactCoords } from './drive-map'
+import { compactCoords, isRoadTrack, simplifyTrack } from './drive-map'
 import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { listMemory, loadSettings, saveSettings } from './store'
@@ -61,7 +61,7 @@ function persistActive() {
   }
   const slim: DriveRoute = {
     ...active,
-    coords: compactCoords(active.coords),
+    coords: compactCoords(simplifyTrack(active.coords)),
     steps: (active.steps || []).slice(0, 48),
   }
   saveSettings({ last_drive_json: JSON.stringify(slim) })
@@ -73,7 +73,7 @@ function restoreActive() {
     if (!s.drive_mode || !s.last_drive_json) return
     const parsed = JSON.parse(s.last_drive_json) as DriveRoute
     if (!parsed?.dest || !Number.isFinite(parsed.destLat) || !Number.isFinite(parsed.destLon)) return
-    if (!Array.isArray(parsed.coords)) parsed.coords = []
+    if (!Array.isArray(parsed.coords) || !isRoadTrack(parsed.coords, parsed.meters)) parsed.coords = []
     active = parsed
   } catch {
     /* kaputte letzte Route ignorieren */
@@ -141,7 +141,7 @@ export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance |
   lastFix = here
   if (!active) return null
   const off = nextManeuver(asNavSteps(active.steps), active.coords, here)
-  const weak = active.coords.length < 2 || active.minutes <= 0
+  const weak = !isRoadTrack(active.coords, active.meters) || active.minutes <= 0
   const moved = haversineM({ lat: active.fromLat, lon: active.fromLon, place: '' }, here)
   let clearlyOff = Boolean(off?.offRoute)
   if (clearlyOff) {
@@ -162,10 +162,7 @@ export async function refreshDriveRoute(here: DriveFix): Promise<DriveGuidance |
           ...active,
           fromLat: here.lat,
           fromLon: here.lon,
-          coords: [
-            [here.lon, here.lat],
-            [active.destLon, active.destLat],
-          ],
+          coords: [],
           hint: ride.message,
           steps: active.steps || [],
         }
@@ -275,15 +272,17 @@ function emptyRoute(dest: string, destLat: number, destLon: number, fromLat: num
     destLon,
     fromLat,
     fromLon,
-    coords: [
-      [fromLon, fromLat],
-      [destLon, destLat],
-    ],
+    coords: [],
     minutes: 0,
     meters: 0,
     hint,
     steps: [],
   }
+}
+
+function cacheNearDest(lat: number, lon: number, destLat: number, destLon: number): boolean {
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) < 0.2) return false
+  return haversineM({ lat, lon, place: '' }, { lat: destLat, lon: destLon }) < 8_000
 }
 
 export async function beginDriveTo(
@@ -300,19 +299,14 @@ export async function beginDriveTo(
       lat: Number(loadSettings().last_lat),
       lon: Number(loadSettings().last_lon),
     }
-    const fromOk = Number.isFinite(kept.lat) && Number.isFinite(kept.lon) && Math.abs(kept.lat) > 0.2
+    const fromOk = cacheNearDest(kept.lat, kept.lon, destLat, destLon)
     active = {
       dest: destName,
       destLat,
       destLon,
       fromLat: fromOk ? kept.lat : destLat,
       fromLon: fromOk ? kept.lon : destLon,
-      coords: fromOk
-        ? [
-            [kept.lon, kept.lat],
-            [destLon, destLat],
-          ]
-        : [[destLon, destLat]],
+      coords: [],
       minutes: 0,
       meters: 0,
       hint: 'Kein GPS. Ziel liegt, Route folgt wenn Standort da ist.',

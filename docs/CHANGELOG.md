@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.48.7`**.
+App-Version im Code: **`1.48.8`**.
+
+### `1.48.8` — CarPlay-Route + Cafés am Valeo — *CODE*
+
+Frühstück öffnet die Karte mit OSM-Café am GPS (Bietigheim, nicht Stuttgart). Overlay nicht erst nach dem Wort „overlay“. Keine Fake-„zehn Minuten“. Grüne Linie liegt auf den Straßen (OSRM-Polyline), nicht als Luftlinie; Ziel bleibt im Bild.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14808)
+- [`28-next.md`](./28-next.md)
 
 ### `1.48.7` — Research ehrlich — *CODE*
 

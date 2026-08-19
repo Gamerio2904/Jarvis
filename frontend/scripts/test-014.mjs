@@ -71,7 +71,7 @@ import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { formatFilmReply } from '../src/engine/film.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
-import { compactCoords, latLonFromWorld, lonLatPath, panCam, projectToView, settleZoom, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps } from '../src/engine/drive-map.ts'
+import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, panCam, projectOnTiles, projectToView, settleZoom, simplifyTrack, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -256,6 +256,39 @@ assert.equal(dirFromManeuver('turn', 'slight left'), 'slight_left')
   assert.ok(Math.abs(zc.lat - home.lat) < 1e-5)
   assert.ok(Math.abs(zc.lon - home.lon) < 1e-5)
   assert.equal(zc.zoom, 17)
+  assert.deepEqual(asLonLat([9.14, 48.95]), [9.14, 48.95])
+  assert.deepEqual(asLonLat([48.95, 9.14]), [9.14, 48.95])
+  const poly =
+    'w_xiHgbyv@?`@Ap@?Z?n@~@l@|@l@xB`B`@\\dB~Ar@v@v@bAp@|@l@|@bAbBZj@\\t@NXHRP`@BF@@NVABGJGJEDoBzBMTGLCJCPGf@CLEh@If@G`@Kb@Kh@E`@ELAJAP?H@J?HBJ@J'
+  const decoded = decodePolyline(poly)
+  assert.ok(decoded.length >= 40)
+  assert.ok(Math.abs(decoded[0][0] - 9.14484) < 1e-4)
+  assert.ok(Math.abs(decoded[0][1] - 48.95244) < 1e-4)
+  const last = decoded[decoded.length - 1]
+  assert.ok(Math.abs(last[0] - 9.13663) < 1e-4)
+  assert.ok(Math.abs(last[1] - 48.94972) < 1e-4)
+  assert.equal(isRoadTrack(decoded, 878), true)
+  assert.equal(isRoadTrack([[9.14, 48.95], [9.13, 48.94]], 800), false)
+  const elbow = simplifyTrack([
+    [9.144, 48.952],
+    [9.144, 48.95],
+    [9.14, 48.95],
+  ])
+  assert.equal(elbow.length, 3)
+  const straight = simplifyTrack(
+    Array.from({ length: 12 }, (_, i) => [9.14, 48.95 + i * 0.00005]),
+  )
+  assert.equal(straight.length, 2)
+  const valeo = { lat: 48.95246, lon: 9.14493 }
+  const katz = { lat: 48.94972, lon: 9.13663 }
+  const fit = zoomToInclude(valeo, katz, 390, 844)
+  assert.ok(fit <= 16)
+  const destPt = projectToView(katz.lat, katz.lon, valeo.lat, valeo.lon, fit, 195, 489.52)
+  assert.ok(destPt.x > 36 && destPt.x < 354)
+  assert.ok(destPt.y > 56 && destPt.y < 788)
+  const tilePt = projectOnTiles(valeo.lat, valeo.lon, webMercator(valeo.lat, valeo.lon, 16), 16, 256, 195, 490)
+  assert.ok(Math.abs(tilePt.x - 195) < 0.6)
+  assert.ok(Math.abs(tilePt.y - 490) < 0.6)
 }
 
 assert.ok(isMemoryWrite('Ich heiße Max und trinke gerne Kaffee'))
@@ -925,7 +958,8 @@ assert.equal(parsePoiIntent('nächstes Café')?.kind, 'cafe')
 assert.equal(parsePoiIntent('nächstes Café')?.nav, true)
 assert.equal(parsePoiIntent('wo könnte ich jetzt frühstücken')?.kind, 'cafe')
 assert.equal(parsePoiIntent('Boar wo könnte ich jetzt geil frühstücken')?.kind, 'cafe')
-assert.equal(parsePoiIntent('wo könnte ich jetzt frühstücken')?.nav, false)
+assert.equal(parsePoiIntent('wo könnte ich jetzt frühstücken')?.nav, true)
+assert.equal(parsePoiIntent('Boar wo könnte ich jetzt geil frühstücken')?.nav, true)
 assert.equal(parsePoiIntent('kein Kaffee mehr'), null)
 assert.equal(parsePoiIntent('Fahr zum Café Le Théâtre'), null)
 assert.equal(poiLabel('cafe'), 'Café')
@@ -1045,6 +1079,12 @@ assert.match(GEMINI_PERSONA, /nach Nachfrage/)
 assert.match(
   scrubReply('Car Play ist verbunden. Musik läuft, Navigation nach Bietigheim-Bissingen steht.'),
   /intern/,
+)
+assert.match(
+  scrubReply(
+    'Die Navigation zum Café Le Théâtre ist im internen Fahrmodus aktiv, Timon. Sie erreichen das Ziel in rund zehn Minuten.',
+  ),
+  /keine erfundene Navigation/i,
 )
 
 assert.equal(parseTvWatch('Spiel Dune Film')?.kind, 'play')

@@ -1,11 +1,11 @@
 import { getJson } from './http-json'
 import { looksLikeBareStreet } from './places-parse'
-import { compactCoords } from './drive-map'
+import { asLonLat, compactCoords, decodePolyline, isRoadTrack, simplifyTrack } from './drive-map'
 
 export type Fix = { lat: number; lon: number; place: string }
 
 const STREET_FAR_M = 80_000
-const UA = 'Jarvis/1.48.7 (local.jarvis.app)'
+const UA = 'Jarvis/1.48.8 (local.jarvis.app)'
 
 function cityAsk(street: string): string {
   return `In welcher Stadt liegt ${street}? Eine Straße ohne Ort rate ich nicht.`
@@ -225,64 +225,95 @@ function maneuverHint(step: {
   return name ? `Weiter auf ${name}` : 'Geradeaus.'
 }
 
+function osrmUrl(
+  host: string,
+  from: { lat: number; lon: number },
+  to: { lat: number; lon: number },
+  geometry: 'polyline' | 'geojson',
+): string {
+  const path = `${from.lon},${from.lat};${to.lon},${to.lat}`
+  return `${host}/route/v1/driving/${path}?overview=full&geometries=${geometry}&steps=true&radiuses=80;80`
+}
+
 export async function routeDrive(
   from: { lat: number; lon: number },
   to: { lat: number; lon: number },
 ): Promise<({ ok: true } & DriveLeg) | { ok: false; message: string }> {
-  const urls = [
-    `https://router.project-osrm.org/route/v1/driving/${from.lon},${from.lat};${to.lon},${to.lat}?overview=full&geometries=geojson&steps=true`,
-    `https://routing.openstreetmap.de/routed-car/route/v1/driving/${from.lon},${from.lat};${to.lon},${to.lat}?overview=full&geometries=geojson&steps=true`,
-  ]
+  const hosts = ['https://router.project-osrm.org', 'https://routing.openstreetmap.de/routed-car']
+  const urls = hosts.flatMap((host) => [
+    osrmUrl(host, from, to, 'polyline'),
+    osrmUrl(host, from, to, 'geojson'),
+  ])
   let last = 'Netz hat die Route nicht geliefert.'
   for (const url of urls) {
-    const once = await fetchRoute(url)
+    const once = await fetchRoute(url, to)
     if (once.ok) return once
     last = once.message
   }
   return { ok: false, message: last }
 }
 
+function readGeometry(geometry: unknown): Array<[number, number]> {
+  if (typeof geometry === 'string' && geometry.length > 4) return decodePolyline(geometry)
+  if (geometry && typeof geometry === 'object') {
+    const coords = (geometry as { coordinates?: unknown }).coordinates
+    if (Array.isArray(coords)) {
+      const out: Array<[number, number]> = []
+      for (const row of coords) {
+        const pair = asLonLat(row)
+        if (pair) out.push(pair)
+      }
+      return out
+    }
+  }
+  return []
+}
+
+function pinTail(coords: Array<[number, number]>, dest: { lat: number; lon: number }): Array<[number, number]> {
+  if (!coords.length) return coords
+  const last = coords[coords.length - 1]
+  const d = haversineM({ lat: last[1], lon: last[0], place: '' }, dest)
+  if (d > 25 && d < 120) return [...coords, [dest.lon, dest.lat]]
+  return coords
+}
+
 async function fetchRoute(
   url: string,
+  dest: { lat: number; lon: number },
 ): Promise<({ ok: true } & DriveLeg) | { ok: false; message: string }> {
   try {
     const { status, json } = await getJson(url, {
       Accept: 'application/json',
       'User-Agent': UA,
     })
-    const route = (json.routes as Array<{
-      duration?: number
-      distance?: number
-      geometry?: { coordinates?: Array<[number, number]> }
-      legs?: Array<{
-        steps?: Array<{
-          name?: string
-          distance?: number
-          maneuver?: { type?: string; modifier?: string; location?: [number, number] }
+    const route = (
+      json.routes as Array<{
+        duration?: number
+        distance?: number
+        geometry?: unknown
+        legs?: Array<{
+          steps?: Array<{
+            name?: string
+            distance?: number
+            maneuver?: { type?: string; modifier?: string; location?: [number, number] }
+          }>
         }>
-      }>
-    }> | undefined)?.[0]
+      }> | undefined
+    )?.[0]
     const sec = Number(route?.duration)
-    const rawCoords = Array.isArray(route?.geometry?.coordinates) ? route.geometry.coordinates : []
-    const coords = compactCoords(
-      rawCoords.filter(
-        (p): p is [number, number] =>
-          Array.isArray(p) && Number.isFinite(Number(p[0])) && Number.isFinite(Number(p[1])),
-      ),
-    )
-    if (status < 200 || status >= 300 || !Number.isFinite(sec) || coords.length < 2) {
+    const meters = Math.max(0, Math.round(Number(route?.distance) || 0))
+    const coords = compactCoords(simplifyTrack(pinTail(readGeometry(route?.geometry), dest)))
+    if (status < 200 || status >= 300 || !Number.isFinite(sec) || !isRoadTrack(coords, meters)) {
       return { ok: false, message: 'Netz hat die Route nicht geliefert.' }
     }
     const rawSteps = route?.legs?.[0]?.steps || []
     const steps: DriveStep[] = rawSteps
       .map((s) => {
-        const loc = s.maneuver?.location
-        const lon = Number(loc?.[0])
-        const lat = Number(loc?.[1])
-        if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+        const loc = asLonLat(s.maneuver?.location)
+        if (!loc) return null
         return {
-          lat,
-          lon,
+          lon: loc[0],
+          lat: loc[1],
           type: String(s.maneuver?.type || ''),
           modifier: String(s.maneuver?.modifier || ''),
           name: String(s.name || '').trim(),
@@ -294,7 +325,7 @@ async function fetchRoute(
     return {
       ok: true,
       minutes: Math.max(1, Math.round(sec / 60)),
-      meters: Math.max(1, Math.round(Number(route?.distance) || 0)),
+      meters: Math.max(1, meters),
       coords,
       steps,
       hint: next ? maneuverHint(next) : 'Route liegt.',

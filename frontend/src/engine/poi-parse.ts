@@ -37,7 +37,7 @@ export function parsePoiIntent(text: string, lastKind?: PoiKind | null): PoiInte
   const hours = HOURS.test(t)
   const near = NEAREST.test(t) || NEARBY.test(t)
   if (BREAKFAST.test(t) && !typed) {
-    return { kind: 'cafe', hours, nav: near || GO.test(t) }
+    return { kind: 'cafe', hours, nav: !hours }
   }
   if (POI_WORD.test(t)) {
     if (near || GO.test(t) || hours || /^\s*(?:nächste[nrs]?\s+)?(?:poi|pol)\s*[.!?]*$/i.test(t)) {

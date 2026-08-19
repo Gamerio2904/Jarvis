@@ -49,7 +49,8 @@ import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
 import { DriveMode } from './DriveMode'
 import { WakeBubble } from './WakeBubble'
-import { closeDrive } from './engine/drive'
+import { closeDrive, subscribeDrive } from './engine/drive'
+import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
@@ -354,6 +355,17 @@ function App() {
       window.removeEventListener('pointerdown', unlock)
       window.removeEventListener('touchstart', unlock)
     }
+  }, [])
+
+  useEffect(() => {
+    return subscribeDrive(() => {
+      const on = Boolean(loadSettings().drive_mode)
+      setDriveOpen(on)
+      if (on) {
+        setCalendarOpen(false)
+        setSidebarOpen(false)
+      }
+    })
   }, [])
 
   useEffect(() => {
@@ -969,7 +981,7 @@ function App() {
               setSidebarOpen(false)
             }
           }
-          if (opensDriveOverlay(payload.tool)) {
+          if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
             if (payload.tool?.action === 'close') setDriveOpen(false)
             else {
               setDriveOpen(true)
@@ -1088,7 +1100,7 @@ function App() {
             return [payload.conversation, ...rest]
           })
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
-          if (opensDriveOverlay(payload.tool)) {
+          if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
             if (payload.tool?.action === 'close') setDriveOpen(false)
             else setDriveOpen(true)
           }

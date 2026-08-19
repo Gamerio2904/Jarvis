@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.7`** (Research: Zahlen nur aus Treffern).
+Reihe davor: [`27-next.md`](./27-next.md). App jetzt: Sideload **`1.48.8`** (CarPlay-Route auf den Straßen, Cafés nur am GPS).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 
@@ -49,6 +49,7 @@ Eine Sideload-Stufe pro Version. Kein Kalender.
 | **`1.48.5`** | Karte schieben/zoomen, Sprache im Fahrmodus | **CODE** |
 | **`1.48.6`** | Overlay=Karte, Cafés am GPS, echte Route | **CODE** |
 | **`1.48.7`** | Research: keine erfundenen Zahlen | **CODE** |
+| **`1.48.8`** | CarPlay-Route auf Straßen + Cafés am Valeo | **CODE** |
 
 Sprints: [`sprint-86.md`](./sprints/sprint-86.md) … [`sprint-101.md`](./sprints/sprint-101.md).
 
@@ -488,10 +489,24 @@ PO: „Wie viele Scheibenwischer verkauft Valeo am Tag“ → 100 Mio. im Jahr u
 
 **Probe:** `Wie viele Scheibenwischer verkauft Valeo am tag` — Jahreszahl nur mit Quelle, keine erfundene Tagesstückzahl.
 
+## `1.48.8` — CarPlay-Route auf Straßen + Cafés am Valeo — **CODE**
+
+Screenshots Valeo Bietigheim: Route nur im Chat („Café Le Théâtre, zehn Minuten“), Overlay erst nach „Aktiviere das overlay“ und dann Spotify. Frühstück war Stuttgart (Eckensee/Weissenhof), nicht Bietigheim. Danach: Overlay lädt, die Linie geht nicht zum Ziel und ignoriert die Straßen (Luftlinie / Zoom 16 schneidet den Pin ab).
+
+| Hebel | Wirkung |
+|-------|---------|
+| Frühstück | OSM-Café am GPS, Overlay + echte Route — ohne das Wort Overlay |
+| Radius | Café max. 8 km, nicht 20 km bis Stuttgart |
+| Route | OSRM-Polyline, nicht GeoJSON-Riesenarray; keine 2-Punkt-Luftlinie |
+| Kamera | Zoom so, dass Ziel im Bild bleibt |
+| Fake-Navi | „internen Fahrmodus aktiv / rund zehn Minuten“ wird nicht als Erfolg durchgelassen |
+
+**Probe:** Am Valeo `wo könnte ich jetzt frühstücken` — Katz/Florio in Bietigheim, Karte auf, **grüne Linie auf den Straßen bis zum Pin**. `Aktiviere das overlay` = Karte.
+
 ## Won’t (Reihe)
 
 Neue Smart-Home-Marken, Joyn/ARD als TV-Apps, iOS, Play Store, Cloud als Default, größeres On-Device-GGUF, Apple CarPlay-Entitlement, Google-Kalender-OAuth.
 
 ## Nächster Schritt
 
-Sideload `1.48.7`. Research ohne erfundene Zahlen. Nächste Stufe nur auf PO-Kommando.
+Sideload `1.48.8`. CarPlay-Route auf den Straßen, Cafés am GPS. Nächste Stufe nur auf PO-Kommando.

@@ -1,6 +1,6 @@
 import { ensureDeviceLocation } from '../native/geo'
 import { beginDriveTo } from './drive'
-import { haversineM } from './geo-lookup'
+import { haversineM, reversePlace } from './geo-lookup'
 import { getJson } from './http-json'
 import { formatHoursSpeech, hoursOpenNow } from './opening-hours'
 import { parsePoiIntent, poiLabel, type PoiKind } from './poi-parse'
@@ -89,7 +89,7 @@ export async function handlePoiOrdinal(index: number): Promise<PoiHit> {
       lastTool: 'poi',
     }
   }
-  return driveTo(last.kind, hit, last.hits)
+  return driveTo(last.kind, hit, last.hits, last.hits[0]?.place || '')
 }
 
 async function searchAndReply(kind: PoiKind, hoursOnly: boolean, nav: boolean): Promise<PoiHit> {
@@ -112,12 +112,13 @@ async function searchAndReply(kind: PoiKind, hoursOnly: boolean, nav: boolean): 
     }
   }
   remember(kind, found.hits)
-  if (hoursOnly) return hoursReply(kind, found.hits[0], found.hits)
-  if (!nav) return listReply(kind, found.hits)
-  return driveTo(kind, found.hits[0], found.hits)
+  const city = cityOf(await reversePlace(here.lat, here.lon), found.hits)
+  if (hoursOnly) return hoursReply(kind, found.hits[0], found.hits, city)
+  if (!nav) return listReply(kind, found.hits, city)
+  return driveTo(kind, found.hits[0], found.hits, city)
 }
 
-async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): Promise<PoiHit> {
+async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[], city = ''): Promise<PoiHit> {
   const label = placeLabel(chosen, kind)
   const { route, tool } = await beginDriveTo(label, chosen.lat, chosen.lon)
   const extra = all.length > 1 ? ` Zweites: ${placeLabel(all[1], kind)}.` : ''
@@ -127,9 +128,10 @@ async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): Promis
       : route.hint
         ? ` ${route.hint}`
         : ''
+  const where = city ? ` in ${city}` : ''
   return {
     handled: true,
-    reply: `Nächste ${poiLabel(kind)}: ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}${extra}${eta}`
+    reply: `Nächste ${poiLabel(kind)}${where}: ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}${extra}${eta}`
       .replace(/\s+/g, ' ')
       .trim(),
     tool: {
@@ -143,22 +145,24 @@ async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): Promis
   }
 }
 
-function listReply(kind: PoiKind, hits: PoiPlace[]): PoiHit {
+function listReply(kind: PoiKind, hits: PoiPlace[], city = ''): PoiHit {
   const top = hits.slice(0, 3)
   const lines = top.map((h, i) => `${i + 1}. ${placeLabel(h, kind)}, ${distSpeech(h)}`).join(' ')
+  const where = city ? ` in ${city}` : ' in der Nähe'
   return {
     handled: true,
-    reply: `${poiLabel(kind)} in der Nähe: ${lines} Nummer oder „Gib mir eine Route“.`.replace(/\s+/g, ' ').trim(),
+    reply: `${poiLabel(kind)}${where}: ${lines} Nummer oder „Gib mir eine Route“.`.replace(/\s+/g, ' ').trim(),
     tool: poiTool('list', poiLabel(kind)),
     lastTool: 'poi',
   }
 }
 
-function hoursReply(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[]): PoiHit {
+function hoursReply(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[], city = ''): PoiHit {
   const label = placeLabel(chosen, kind)
+  const where = city ? ` in ${city}` : ''
   return {
     handled: true,
-    reply: `${poiLabel(kind)} ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}`.replace(/\s+/g, ' ').trim(),
+    reply: `${poiLabel(kind)}${where} ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}`.replace(/\s+/g, ' ').trim(),
     tool: poiTool('hours', poiLabel(kind)),
     lastTool: 'poi',
   }
@@ -223,7 +227,7 @@ async function resolveHere(): Promise<{ ok: true; lat: number; lon: number } | {
   const lat = Number(s.last_lat)
   const lon = Number(s.last_lon)
   const at = Date.parse(s.last_fix_at || '')
-  if (Number.isFinite(lat) && Number.isFinite(lon) && Number.isFinite(at) && Date.now() - at <= 10 * 60_000) {
+  if (Number.isFinite(lat) && Number.isFinite(lon) && Number.isFinite(at) && Date.now() - at <= 90_000) {
     return { ok: true, lat, lon }
   }
   return { ok: false, message: loc.message || NO_GPS }
@@ -234,13 +238,16 @@ async function lookupPoi(
   lat: number,
   lon: number,
 ): Promise<{ ok: true; hits: PoiPlace[] } | { ok: false; message: string }> {
-  for (const radKm of [8, 20]) {
+  const radii = kind === 'cafe' ? [3, 8] : [8, 20]
+  const capKm = kind === 'cafe' ? 8 : 20
+  for (const radKm of radii) {
     const once = await osmOnce(kind, lat, lon, radKm)
     if (!once.ok) {
-      if (radKm === 20) return once
+      if (radKm === radii[radii.length - 1]) return once
       continue
     }
-    if (once.hits.length) return once
+    const hits = once.hits.filter((h) => h.distKm <= capKm)
+    if (hits.length) return { ok: true, hits }
   }
   return { ok: false, message: `Keine ${poiLabel(kind)} in der Nähe. Ich erfinde keine.` }
 }
@@ -259,7 +266,7 @@ async function osmOnce(
     try {
       const { status, json } = await getJson(`${base}?data=${encodeURIComponent(query)}`, {
         Accept: 'application/json',
-        'User-Agent': 'Jarvis/1.48.7 (local.jarvis.app)',
+        'User-Agent': 'Jarvis/1.48.8 (local.jarvis.app)',
       })
       if (status < 200 || status >= 300) continue
       const elements = Array.isArray(json.elements) ? (json.elements as Array<Record<string, unknown>>) : []
@@ -296,6 +303,16 @@ async function osmOnce(
 function filtersFor(kind: PoiKind): string[] {
   if (kind === 'cafe') return ['["amenity"="cafe"]', '["shop"="bakery"]']
   return [FILTER[kind]]
+}
+
+function cityOf(hereLabel: string | null, hits: PoiPlace[]): string {
+  const tagged = hits.find((h) => h.place.trim())?.place.trim() || ''
+  if (tagged) return tagged
+  const parts = (hereLabel || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  return parts[parts.length - 1] || ''
 }
 
 function num(v: unknown): number | null {

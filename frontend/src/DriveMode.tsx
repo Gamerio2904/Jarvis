@@ -14,7 +14,7 @@ import {
   dayTiles,
   panCam,
   prefetchTile,
-  projectToView,
+  projectOnTiles,
   readLastMapFix,
   settleZoom,
   tilesPending,
@@ -22,6 +22,7 @@ import {
   webMercator,
   zoomAround,
   zoomForSpeedMps,
+  zoomToInclude,
   type MapCam,
   type MapFix,
 } from './engine/drive-map'
@@ -206,11 +207,20 @@ function FollowMap({
           cam.current.lon += (here.lon - cam.current.lon) * 0.18
         }
         if (!userZoomRef.current) {
-          const wanted = zoomForSpeedMps(here.speed)
-          if (wanted !== Math.round(cam.current.zoom)) {
+          const dest = destRef.current
+          const speedZ = zoomForSpeedMps(here.speed)
+          const fitZ =
+            Number.isFinite(dest.lat) && Number.isFinite(dest.lon)
+              ? zoomToInclude(here, dest, cssW, cssH)
+              : speedZ
+          const wanted = Math.min(speedZ, fitZ)
+          if (wanted < cam.current.zoom - 0.12) {
+            cam.current.zoom = wanted
+            zoomWantedAt.current = 0
+          } else if (Math.abs(wanted - cam.current.zoom) > 0.12) {
             if (!zoomWantedAt.current) zoomWantedAt.current = now
-            cam.current.zoom = settleZoom(Math.round(cam.current.zoom), wanted, zoomWantedAt.current, now)
-            if (Math.round(cam.current.zoom) === wanted) zoomWantedAt.current = 0
+            cam.current.zoom = settleZoom(cam.current.zoom, wanted, zoomWantedAt.current, now)
+            if (Math.abs(cam.current.zoom - wanted) < 0.12) zoomWantedAt.current = 0
           } else {
             zoomWantedAt.current = 0
           }
@@ -264,7 +274,7 @@ function FollowMap({
       }
 
       const dest = destRef.current
-      if (dest.coords.length >= 2) {
+      if (dest.coords.length >= 3) {
         ctx.beginPath()
         let started = false
         let lastX = Infinity
@@ -273,7 +283,7 @@ function FollowMap({
           const lon = Number(row?.[0])
           const lat = Number(row?.[1])
           if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
-          const pt = projectToView(lat, lon, cam.current.lat, cam.current.lon, z, cx, cy)
+          const pt = projectOnTiles(lat, lon, camM, zInt, size, cx, cy)
           if (Math.abs(pt.x - lastX) < 1.2 && Math.abs(pt.y - lastY) < 1.2) continue
           lastX = pt.x
           lastY = pt.y
@@ -296,7 +306,7 @@ function FollowMap({
         }
       }
 
-      const pinPt = projectToView(dest.lat, dest.lon, cam.current.lat, cam.current.lon, z, cx, cy)
+      const pinPt = projectOnTiles(dest.lat, dest.lon, camM, zInt, size, cx, cy)
       if (Number.isFinite(pinPt.x) && Number.isFinite(pinPt.y)) {
         ctx.beginPath()
         ctx.arc(pinPt.x, pinPt.y, 7, 0, Math.PI * 2)
@@ -307,7 +317,7 @@ function FollowMap({
         ctx.stroke()
       }
 
-      const you = projectToView(here.lat, here.lon, cam.current.lat, cam.current.lon, z, cx, cy)
+      const you = projectOnTiles(here.lat, here.lon, camM, zInt, size, cx, cy)
       const heading = here.bearing != null && Number.isFinite(here.bearing) ? here.bearing : headingRef.current
       const delta = ((heading - headingRef.current + 540) % 360) - 180
       headingRef.current += delta * 0.22

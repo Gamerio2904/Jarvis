@@ -31,6 +31,7 @@ Bestehende Wetter-/Ort-/Alltag-Tools erweitern. Keine erfundenen Werte. Luft und
 | L12 | Karte Gesten + Mic (`1.48.5`) | Schieben/Zoom, Sprache führt aus |
 | L13 | Overlay/Cafés/Route (`1.48.6`) | Overlay=Karte, OSM-Cafés, echte Route |
 | L14 | Research ehrlich (`1.48.7`) | Faktfragen suchen, keine erfundenen Zahlen |
+| L15 | CarPlay/Cafés Valeo (`1.48.8`) | Route auf Straßen, OSM 8 km, Overlay ohne Overlay-Wort |
 
 ## Probe
 
