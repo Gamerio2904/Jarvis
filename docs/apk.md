@@ -1,17 +1,17 @@
-# Android-APK — `1.48.8`
+# Android-APK — `2.0.0`
 
-**1.48.8:** CarPlay öffnet die Route ohne das Wort Overlay. Cafés nur am GPS (Bietigheim). Die Linie folgt den Straßen, nicht der Luftlinie.
+**2.0.0:** Letztes Medium (Lautstärke/Stopp). Wetter nur Open-Meteo. Erinnerung ohne Zeit fragt wann. Widget: Fläche hören, Mikro Wake. CarPlay weiter auf den Straßen.
 
 ## Download
 
-**APK `1.48.8`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/updates-1-29-1-33-3638/releases/Jarvis.apk
+**APK `2.0.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/jarvis-2-0-3638/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.48.8` · versionCode `14808`
+- versionName `2.0.0` · versionCode `20000`
 - App-ID `local.jarvis.app`
 
-1. Über 1.48.7 installieren.
-2. Am Valeo: `wo könnte ich jetzt frühstücken` — Cafés in Bietigheim, Overlay, grüne Linie auf den Straßen bis zum Pin.
-3. `Aktiviere das overlay` bleibt Karte, nicht Spotify.
-4. `Wie viele Scheibenwischer verkauft Valeo am tag` — keine 300–400k aus dem Hut.
+1. Über 1.48.8 installieren.
+2. Fahrmodus: `Lautstärke 50` trifft Spotify, `Fernseher lauter` den TV.
+3. `Zeig Spotify` ohne Overlay-Wort öffnet nicht die Karte.
+4. `erinner mich an Steuer` fragt wann. Widget-Mikro = Wake an/aus.

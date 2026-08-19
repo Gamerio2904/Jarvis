@@ -1,5 +1,4 @@
 import { readDeviceLocation, requestLocationPermission, hasLocationPermission } from '../native/geo'
-import { completeGemini, geminiReady } from './gemini'
 import { geocodePlace, reversePlace } from './geo-lookup'
 import { getJson } from './http-json'
 import type { ResearchMeta, ResearchSource } from './research-parse'
@@ -38,12 +37,6 @@ export async function handleWeather(
         ? await fetchSun(fix.fix, intent.when)
         : await fetchOpenMeteo(fix.fix)
   if (!snapshot) {
-    if (intent.focus !== 'air' && intent.focus !== 'sun') {
-      const s = loadSettings()
-      if (s.research_opt_in && geminiReady()) {
-        return geminiWeather(content, fix.fix)
-      }
-    }
     const which = intent.focus === 'air' ? 'Luftwerte' : intent.focus === 'sun' ? 'Sonnenzeiten' : 'Wetterdienst'
     return {
       handled: true,
@@ -162,7 +155,7 @@ function readCachedFix(s: ReturnType<typeof loadSettings>): Fix | null {
   const lon = Number(s.last_lon)
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
   const at = Date.parse(s.last_fix_at || '')
-  if (!Number.isFinite(at) || Date.now() - at > 2 * 3_600_000) return null
+  if (!Number.isFinite(at) || Date.now() - at > 90_000) return null
   return { lat, lon, place: s.last_place || 'hier' }
 }
 
@@ -368,26 +361,4 @@ function readSoon(
   }
   if (max < 0) return { rainSoon: false, maxPrecipSoon: null }
   return { rainSoon: max >= 45, maxPrecipSoon: Math.round(max) }
-}
-
-async function geminiWeather(
-  content: string,
-  fix: Fix,
-): Promise<{ handled: boolean; reply?: string; research?: ResearchMeta; tool?: ToolMeta }> {
-  const { text, research } = await completeGemini(
-    [
-      {
-        role: 'user',
-        content: `${content}\nOrt: ${fix.place} (${fix.lat.toFixed(2)}, ${fix.lon.toFixed(2)}). Nur belegte Lage, Quellen.`,
-      },
-    ],
-    undefined,
-    { search: true },
-  )
-  return {
-    handled: true,
-    reply: text,
-    research,
-    tool: { tool_status: 'executed', tool: 'weather', action: 'search', label: 'Wetter' },
-  }
 }

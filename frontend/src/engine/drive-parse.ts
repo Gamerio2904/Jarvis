@@ -73,7 +73,7 @@ export function parseDriveIntent(text: string, inMode = false): DriveIntent | nu
   if (/^nachher\b/i.test(t)) return null
   if (OFF.test(t)) return { kind: 'off' }
   const overlay = overlayTab(t)
-  if (overlay === 'spotify' || TAB_MUSIC.test(t) || (inMode && BARE_MUSIC.test(t))) {
+  if (overlay === 'spotify' || (inMode && (TAB_MUSIC.test(t) || BARE_MUSIC.test(t)))) {
     return { kind: 'tab', tab: 'spotify' }
   }
   if (overlay === 'map') return inMode ? { kind: 'tab', tab: 'map' } : { kind: 'on' }

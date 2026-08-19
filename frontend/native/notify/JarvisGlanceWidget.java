@@ -45,15 +45,18 @@ public class JarvisGlanceWidget extends AppWidgetProvider {
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) flags |= PendingIntent.FLAG_IMMUTABLE;
         PendingIntent voicePi = PendingIntent.getActivity(ctx, 42, voiceIntent(ctx), flags);
-        PendingIntent micPi = PendingIntent.getActivity(ctx, 43, voiceIntent(ctx), flags);
+        Intent toggle = new Intent(ctx, JarvisGlanceWidget.class);
+        toggle.setAction(ACTION_TOGGLE_VOICE);
+        PendingIntent togglePi = PendingIntent.getBroadcast(ctx, 44, toggle, flags);
+        boolean wakeOn = JarvisWakeService.wantEnabled(ctx);
         for (int id : ids) {
             RemoteViews views = new RemoteViews(ctx.getPackageName(), R.layout.jarvis_widget);
             views.setTextViewText(R.id.jarvis_widget_next, next);
             views.setTextViewText(R.id.jarvis_widget_weather, weather);
-            views.setTextViewText(R.id.jarvis_widget_voice, "🎙");
-            views.setContentDescription(R.id.jarvis_widget_voice, "Jarvis hören");
+            views.setTextViewText(R.id.jarvis_widget_voice, wakeOn ? "🎙" : "🔇");
+            views.setContentDescription(R.id.jarvis_widget_voice, wakeOn ? "Wake-Word aus" : "Wake-Word an");
             views.setOnClickPendingIntent(R.id.jarvis_widget_root, voicePi);
-            views.setOnClickPendingIntent(R.id.jarvis_widget_voice, micPi);
+            views.setOnClickPendingIntent(R.id.jarvis_widget_voice, togglePi);
             mgr.updateAppWidget(id, views);
         }
     }

@@ -44,6 +44,7 @@ type SdkPlayer = {
   nextTrack: () => Promise<void>
   previousTrack: () => Promise<void>
   activateElement: () => Promise<void>
+  setVolume?: (volume: number) => Promise<void>
 }
 
 type SpotifySdk = {
@@ -64,6 +65,7 @@ let playerStatus: SpotifyPlayerStatus = 'idle'
 let sdkPlayer: SdkPlayer | null = null
 let deviceId: string | null = null
 let bootPromise: Promise<string | null> | null = null
+let spotifyVol = 0.85
 const listeners = new Set<() => void>()
 
 function emit() {
@@ -536,6 +538,26 @@ export async function resumeSpotify(): Promise<string> {
   return 'Nichts zum Fortsetzen. Sagen Sie einen Titel, z. B. „Spiel Hotel California“.'
 }
 
+export async function setSpotifyVolume(level: number): Promise<string> {
+  const pct = Math.max(1, Math.min(100, Math.round(level)))
+  spotifyVol = pct / 100
+  if (preview) preview.volume = spotifyVol
+  if (sdkPlayer?.setVolume) {
+    try {
+      await sdkPlayer.setVolume(spotifyVol)
+    } catch {
+      /* Connect */
+    }
+  }
+  await api('PUT', `/me/player/volume?volume_percent=${pct}`)
+  return `Lautstärke ${pct}.`
+}
+
+export async function nudgeSpotifyVolume(delta: number): Promise<string> {
+  const next = Math.max(1, Math.min(100, Math.round(spotifyVol * 100 + delta * 8)))
+  return setSpotifyVolume(next)
+}
+
 export async function nextSpotify(): Promise<string> {
   stopPreview()
   if (sdkPlayer && deviceId) {
@@ -592,6 +614,9 @@ export async function handleSpotifyCommand(intent: SpotifyIntent): Promise<{
   if (intent.kind === 'resume') return { handled: true, reply: await resumeSpotify() }
   if (intent.kind === 'next') return { handled: true, reply: await nextSpotify() }
   if (intent.kind === 'prev') return { handled: true, reply: await prevSpotify() }
+  if (intent.kind === 'volume_set') return { handled: true, reply: await setSpotifyVolume(intent.level) }
+  if (intent.kind === 'volume_up') return { handled: true, reply: await nudgeSpotifyVolume(intent.steps) }
+  if (intent.kind === 'volume_down') return { handled: true, reply: await nudgeSpotifyVolume(-intent.steps) }
   return { handled: true, reply: await playQuery(intent.query) }
 }
 

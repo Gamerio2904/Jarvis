@@ -437,9 +437,19 @@ export async function handleDrive(
   const s = loadSettings()
   const music = parseSpotifyIntent(text)
   const namesSpotify = /\bspotify\b/i.test(text)
-  if (music && (s.drive_mode || namesSpotify)) {
-    openDrive()
-    tab = 'spotify'
+  const volish =
+    music?.kind === 'volume_set' || music?.kind === 'volume_up' || music?.kind === 'volume_down'
+  const lastMusic = s.last_medium === 'spotify' || s.last_medium === 'drive'
+  if (music && (s.drive_mode || namesSpotify || (volish && lastMusic))) {
+    const showTab =
+      /\boverlay\b/i.test(text) ||
+      music.kind === 'play' ||
+      music.kind === 'resume' ||
+      (s.drive_mode && (music.kind === 'next' || music.kind === 'prev'))
+    if (showTab && (s.drive_mode || /\boverlay\b/i.test(text))) {
+      openDrive()
+      tab = 'spotify'
+    }
     const hit = await handleSpotifyCommand(music)
     emit()
     return {
