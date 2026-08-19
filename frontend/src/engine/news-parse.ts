@@ -1,0 +1,51 @@
+import { normalizeUtterance } from './utterance.ts'
+
+export type NewsIntent = { kind: 'national' } | { kind: 'place'; place: string }
+
+const SKIP =
+  /^(heute|jetzt|hier|los|news|nachrichten|tagesschau|passiert)$/i
+
+export function parseNewsIntent(text: string): NewsIntent | null {
+  const t = normalizeUtterance(text.trim())
+  if (!t || t.length > 180) return null
+
+  const local =
+    /^\s*was\s+(?:ist|war|gab\s+es|passierte)\s+(?:denn\s+)?(?:heute\s+)?in\s+(.+?)\s+(?:passiert|los|gewesen)\s*[.!?]*$/i.exec(
+      t,
+    ) ||
+    /^\s*was\s+ist\s+(?:heute\s+)?in\s+(.+?)\s+passiert\s*[.!?]*$/i.exec(t) ||
+    /^\s*(?:lokale\s+)?nachrichten\s+(?:aus|für|in)\s+(.+?)\s*$/i.exec(t) ||
+    /^\s*was\s+gibt\s+es\s+(?:heute\s+)?(?:neues\s+)?(?:in|aus)\s+(.+?)\s*$/i.exec(t)
+  if (local) {
+    const place = cleanPlace(local[1])
+    if (place) return { kind: 'place', place }
+  }
+
+  if (
+    /^\s*(?:die\s+)?(?:nachrichten|tagesschau|news)\s*[.!?]*$/i.test(t) ||
+    /^\s*was\s+(?:gibt\s+es\s+)?(?:in\s+den\s+)?nachrichten\s*[.!?]*$/i.test(t) ||
+    /^\s*was\s+ist\s+(?:heute\s+)?(?:in\s+den\s+nachrichten\s+)?passiert\s*[.!?]*$/i.test(t) ||
+    /^\s*tagesschau\s*[.!?]*$/i.test(t)
+  ) {
+    return { kind: 'national' }
+  }
+  if (/\b(nachrichten|tagesschau)\b/i.test(t) && t.length < 60 && !/\b(suche|im\s+internet)\b/i.test(t)) {
+    const inPlace = /(?:in|aus|für)\s+([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-\s]{1,40})$/i.exec(t)
+    if (inPlace) {
+      const place = cleanPlace(inPlace[1])
+      if (place) return { kind: 'place', place }
+    }
+    return { kind: 'national' }
+  }
+  return null
+}
+
+function cleanPlace(raw: string): string {
+  const t = raw
+    .trim()
+    .replace(/[?.!]+$/g, '')
+    .replace(/^(dem|der|den|die|das)\s+/i, '')
+    .trim()
+  if (!t || t.length < 2 || SKIP.test(t)) return ''
+  return t
+}

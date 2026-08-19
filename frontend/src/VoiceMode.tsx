@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { wantGeminiVoice } from './engine/tts'
+import { setChatSpeaking } from './engine/speak-lock'
 import {
   createSentenceTap,
   createSpeakPipeline,
@@ -15,9 +16,11 @@ type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
 export function VoiceMode({
   onClose,
   onTurn,
+  initialUtterance = '',
 }: {
   onClose: () => void
   onTurn: (text: string, onToken?: (piece: string, full: string) => void) => Promise<string>
+  initialUtterance?: string
 }) {
   const [phase, setPhase] = useState<Phase>('idle')
   const [heard, setHeard] = useState('')
@@ -26,6 +29,8 @@ export function VoiceMode({
   const live = useRef(true)
   const phaseRef = useRef<Phase>('idle')
   const pipelineRef = useRef<ReturnType<typeof createSpeakPipeline> | null>(null)
+  const turnGen = useRef(0)
+  const abortTurn = useRef<(() => void) | null>(null)
   const neural = wantGeminiVoice()
 
   useEffect(() => {
@@ -38,7 +43,10 @@ export function VoiceMode({
     void startLoop()
     return () => {
       live.current = false
+      turnGen.current += 1
+      abortTurn.current?.()
       pipelineRef.current?.stop()
+      setChatSpeaking(false)
       void stopListen()
       void stopSpeak()
       void setKeepScreenOn(false)
@@ -52,6 +60,11 @@ export function VoiceMode({
       setPhase('idle')
       return
     }
+    const seed = initialUtterance.trim()
+    if (seed) {
+      await runTurn(seed)
+      if (!live.current) return
+    }
     await loop()
   }
 
@@ -59,6 +72,7 @@ export function VoiceMode({
     while (live.current) {
       setPhase('listening')
       setHeard('')
+      setChatSpeaking(false)
       const heardRes = await listenOnce((partial) => {
         if (live.current) setHeard(partial)
       })
@@ -66,55 +80,83 @@ export function VoiceMode({
       const text = heardRes.text.trim()
       if (!text) {
         if (heardRes.message) setErr(heardRes.message)
+        else setErr('Nichts gehört. Nochmal?')
+        await new Promise((r) => setTimeout(r, 280))
         continue
       }
-      setHeard(text)
-      setErr(null)
-      setPhase('thinking')
-      const tap = createSentenceTap()
-      const pipe = createSpeakPipeline()
-      pipelineRef.current = pipe
-      let started = false
-      let answer = ''
-      try {
-        answer = await onTurn(text, (_piece, full) => {
-          if (!live.current) return
+      await runTurn(text)
+    }
+  }
+
+  async function runTurn(text: string) {
+    const gen = ++turnGen.current
+    setHeard(text)
+    setErr(null)
+    setPhase('thinking')
+    const tap = createSentenceTap(true)
+    const pipe = createSpeakPipeline()
+    pipelineRef.current = pipe
+    let started = false
+    let answer = ''
+    try {
+      answer = await Promise.race([
+        onTurn(text, (_piece, full) => {
+          if (!live.current || turnGen.current !== gen) return
           setReply(full)
           const ready = tap.feed(full)
           if (ready.length) {
             if (!started) {
               started = true
               setPhase('speaking')
+              setChatSpeaking(true)
             }
             for (const s of ready) pipe.push(s)
           }
-        })
-      } catch (e) {
-        pipe.stop()
-        setErr(e instanceof Error ? e.message : 'Antwort fehlgeschlagen')
-        continue
-      }
-      if (!live.current) return
-      setReply(answer)
-      for (const s of tap.flush()) {
-        if (!started) {
-          started = true
-          setPhase('speaking')
-        }
-        pipe.push(s)
-      }
-      if (!started && answer.trim()) {
-        setPhase('speaking')
-        pipe.push(answer)
-      }
-      await pipe.flush()
+        }),
+        new Promise<string>((_, reject) => {
+          abortTurn.current = () => reject(new Error('__barge_in__'))
+        }),
+      ])
+    } catch (e) {
+      pipe.stop()
+      setChatSpeaking(false)
+      if (e instanceof Error && e.message === '__barge_in__') return
+      setErr(e instanceof Error ? e.message : 'Antwort fehlgeschlagen')
+      return
+    } finally {
+      if (abortTurn.current) abortTurn.current = null
     }
+    if (!live.current || turnGen.current !== gen) {
+      pipe.stop()
+      setChatSpeaking(false)
+      return
+    }
+    setReply(answer)
+    for (const s of tap.flush()) {
+      if (!started) {
+        started = true
+        setPhase('speaking')
+        setChatSpeaking(true)
+      }
+      pipe.push(s)
+    }
+    if (!started && answer.trim()) {
+      setPhase('speaking')
+      setChatSpeaking(true)
+      pipe.push(answer)
+    }
+    await pipe.flush()
+    setChatSpeaking(false)
   }
 
   async function onOrb() {
     if (phaseRef.current === 'speaking' || phaseRef.current === 'thinking') {
+      turnGen.current += 1
+      abortTurn.current?.()
       pipelineRef.current?.stop()
+      setChatSpeaking(false)
       await stopSpeak()
+      setPhase('listening')
       return
     }
     if (phaseRef.current === 'listening') {
@@ -139,8 +181,8 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Text sofort. Ganze Sätze, natürliche Betonung.'
-                : 'Text sofort. Gemini an = flüssiger und klarer.'}
+                ? 'Antwort sofort. Charon nur wenn er schnell da ist, sonst Android.'
+                : 'Text sofort. Gemini an = natürliche Stimme.'}
             </p>
           </div>
           <button type="button" className="ghost-btn voice-close" onClick={onClose}>

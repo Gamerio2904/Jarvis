@@ -10,6 +10,8 @@ type NativeNotify = {
     alarm?: boolean
     recur?: string
     tone?: string
+    mode?: string
+    say?: string
   }): Promise<{ ok: boolean; message?: string }>
   cancel(opts: { id: number }): Promise<{ ok: boolean }>
   publishGlance(opts: { next: string; weather: string }): Promise<{ ok: boolean }>
@@ -55,11 +57,10 @@ export async function scheduleNotify(opts: {
   alarm?: boolean
   recur?: string
   tone?: string
+  mode?: 'ring' | 'speak'
+  say?: string
 }): Promise<{ ok: boolean; message?: string }> {
   const atMs = opts.at.getTime()
-  if (atMs <= Date.now() + 5_000) {
-    return fireNow(opts.title, opts.body)
-  }
   if (native) {
     try {
       return await native.schedule({
@@ -70,10 +71,15 @@ export async function scheduleNotify(opts: {
         alarm: opts.alarm !== false,
         recur: opts.recur || '',
         tone: opts.tone || '',
+        mode: opts.mode || '',
+        say: opts.say || '',
       })
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Notification fehlgeschlagen' }
     }
+  }
+  if (atMs <= Date.now() + 5_000) {
+    return fireNow(opts.title, opts.body)
   }
   if (browserTimers.has(opts.id)) window.clearTimeout(browserTimers.get(opts.id))
   const wait = Math.min(atMs - Date.now(), 2_147_000_000)

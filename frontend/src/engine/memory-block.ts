@@ -7,8 +7,8 @@ export function memoryBlock(items: Array<{ key: string; value: string }>): strin
     return `Langzeitgedächtnis (lokal und Cloud gleich):\n${nameRule}`
   }
   const lines = items
-    .slice(0, 8)
+    .slice(0, 16)
     .map((m) => `- ${m.key}: ${m.value}`)
     .join('\n')
-  return `Langzeitgedächtnis (lokal und Cloud gleich):\n${lines}\n${nameRule}`
+  return `Langzeitgedächtnis (lokal und Cloud gleich):\n${lines}\n${nameRule}\nNutzen Sie diese Fakten im Smalltalk, wenn sie passen. Keinen Extra-Befehl abwarten. Nichts erfinden, das nicht in der Liste steht. Ton bleibt Jarvis: ruhig, Understatement.`
 }

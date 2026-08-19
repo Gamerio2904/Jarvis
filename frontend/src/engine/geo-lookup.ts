@@ -1,13 +1,36 @@
 import { getJson } from './http-json'
+import { looksLikeBareStreet } from './places-parse'
+import { asLonLat, compactCoords, decodePolyline, isRoadTrack, simplifyTrack } from './drive-map'
 
 export type Fix = { lat: number; lon: number; place: string }
 
-export async function geocodePlace(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+const STREET_FAR_M = 80_000
+const UA = 'Jarvis/1.48.8 (local.jarvis.app)'
+
+function cityAsk(street: string): string {
+  return `In welcher Stadt liegt ${street}? Eine Straße ohne Ort rate ich nicht.`
+}
+
+export async function geocodePlace(
+  name: string,
+  near?: { lat: number; lon: number } | null,
+): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   const q = name.trim()
   if (!q) return { ok: false, message: 'Welcher Ort?' }
+  if (looksLikeBareStreet(q)) {
+    if (!near) return { ok: false, message: cityAsk(q) }
+    const street = await geocodeNominatim(q, near)
+    if (street.ok) {
+      if (haversineM({ lat: near.lat, lon: near.lon, place: '' }, street.fix) > STREET_FAR_M) {
+        return { ok: false, message: cityAsk(q) }
+      }
+      return street
+    }
+    return { ok: false, message: cityAsk(q) }
+  }
   const primary = await geocodeOpenMeteo(q)
   if (primary.ok) return primary
-  const fallback = await geocodeNominatim(q)
+  const fallback = await geocodeNominatim(q, near || undefined)
   if (fallback.ok) return fallback
   return primary
 }
@@ -30,12 +53,31 @@ async function geocodeOpenMeteo(name: string): Promise<{ ok: true; fix: Fix } | 
   }
 }
 
-async function geocodeNominatim(name: string): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+async function geocodeNominatim(
+  name: string,
+  near?: { lat: number; lon: number },
+): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
+  const local = await nominatimOnce(name, near, Boolean(near))
+  if (local.ok) return local
+  if (near) return nominatimOnce(name, near, false)
+  return local
+}
+
+async function nominatimOnce(
+  name: string,
+  near?: { lat: number; lon: number },
+  bounded?: boolean,
+): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   try {
-    const q = new URLSearchParams({ q: name, format: 'json', limit: '1', addressdetails: '0' })
+    const q = new URLSearchParams({ q: name, format: 'json', limit: '5', addressdetails: '1' })
+    if (near && bounded) {
+      const d = 0.35
+      q.set('viewbox', `${near.lon - d},${near.lat + d},${near.lon + d},${near.lat - d}`)
+      q.set('bounded', '1')
+    }
     const { status, json } = await getJson(`https://nominatim.openstreetmap.org/search?${q}`, {
       'Accept-Language': 'de',
-      'User-Agent': 'Jarvis/1.27.2 (local.jarvis.app)',
+      'User-Agent': UA,
     })
     const raw: unknown = json
     let rows: Array<Record<string, unknown>> = []
@@ -44,14 +86,91 @@ async function geocodeNominatim(name: string): Promise<{ ok: true; fix: Fix } | 
       const extra = (raw as { results?: unknown }).results
       if (Array.isArray(extra)) rows = extra as Array<Record<string, unknown>>
     }
-    const first = rows[0]
-    if (status < 200 || status >= 300 || !first) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    const lat = Number(first.lat)
-    const lon = Number(first.lon)
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
-    return { ok: true, fix: { lat, lon, place: String(first.display_name || name).split(',')[0] || name } }
+    if (status < 200 || status >= 300 || !rows.length) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
+    const picked = pickNominatim(rows, name, near)
+    if (!picked) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
+    return { ok: true, fix: picked }
   } catch {
     return { ok: false, message: `Ort „${name}“ nicht erreichbar.` }
+  }
+}
+
+function pickNominatim(
+  rows: Array<Record<string, unknown>>,
+  query: string,
+  near?: { lat: number; lon: number },
+): Fix | null {
+  const fixes: Fix[] = []
+  for (const row of rows) {
+    const lat = Number(row.lat)
+    const lon = Number(row.lon)
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
+    const place = String(row.display_name || query).split(',')[0]?.trim() || query
+    fixes.push({ lat, lon, place })
+  }
+  if (!fixes.length) return null
+  if (!near) return fixes[0]
+  let best = fixes[0]
+  let bestM = haversineM({ lat: near.lat, lon: near.lon, place: '' }, best)
+  for (const f of fixes.slice(1)) {
+    const d = haversineM({ lat: near.lat, lon: near.lon, place: '' }, f)
+    if (d < bestM) {
+      best = f
+      bestM = d
+    }
+  }
+  return best
+}
+
+export async function reversePlace(lat: number, lon: number): Promise<string | null> {
+  const nom = await reverseNominatim(lat, lon)
+  if (nom) return nom
+  return reverseBigData(lat, lon)
+}
+
+async function reverseNominatim(lat: number, lon: number): Promise<string | null> {
+  try {
+    const q = new URLSearchParams({
+      lat: String(lat),
+      lon: String(lon),
+      format: 'json',
+      addressdetails: '1',
+      zoom: '18',
+    })
+    const { status, json } = await getJson(`https://nominatim.openstreetmap.org/reverse?${q}`, {
+      'Accept-Language': 'de',
+      'User-Agent': UA,
+    })
+    if (status < 200 || status >= 300) return null
+    const addr = (json.address && typeof json.address === 'object' ? json.address : {}) as Record<string, unknown>
+    const road = String(addr.road || addr.pedestrian || addr.footway || addr.residential || '').trim()
+    const nr = String(addr.house_number || '').trim()
+    const street = [road, nr].filter(Boolean).join(' ')
+    const city = String(
+      addr.city || addr.town || addr.village || addr.municipality || addr.suburb || addr.city_district || '',
+    ).trim()
+    const bits = [street, city].filter(Boolean)
+    if (bits.length) return bits.join(', ')
+    const display = String(json.display_name || '').split(',').slice(0, 2).join(',').trim()
+    return display || null
+  } catch {
+    return null
+  }
+}
+
+async function reverseBigData(lat: number, lon: number): Promise<string | null> {
+  try {
+    const q = new URLSearchParams({
+      latitude: String(lat),
+      longitude: String(lon),
+      localityLanguage: 'de',
+    })
+    const { status, json } = await getJson(`https://api.bigdatacloud.net/data/reverse-geocode-client?${q}`)
+    if (status < 200 || status >= 300) return null
+    const city = String(json.city || json.locality || json.principalSubdivision || '').trim()
+    return city || null
+  } catch {
+    return null
   }
 }
 
@@ -74,11 +193,21 @@ export async function routeMinutes(
   return { ok: true, minutes: full.minutes }
 }
 
+export type DriveStep = {
+  lat: number
+  lon: number
+  type: string
+  modifier: string
+  name: string
+  distance: number
+}
+
 export type DriveLeg = {
   minutes: number
   meters: number
   coords: Array<[number, number]>
   hint: string
+  steps: DriveStep[]
 }
 
 function maneuverHint(step: {
@@ -96,33 +225,109 @@ function maneuverHint(step: {
   return name ? `Weiter auf ${name}` : 'Geradeaus.'
 }
 
+function osrmUrl(
+  host: string,
+  from: { lat: number; lon: number },
+  to: { lat: number; lon: number },
+  geometry: 'polyline' | 'geojson',
+): string {
+  const path = `${from.lon},${from.lat};${to.lon},${to.lat}`
+  return `${host}/route/v1/driving/${path}?overview=full&geometries=${geometry}&steps=true&radiuses=80;80`
+}
+
 export async function routeDrive(
   from: { lat: number; lon: number },
   to: { lat: number; lon: number },
 ): Promise<({ ok: true } & DriveLeg) | { ok: false; message: string }> {
+  const hosts = ['https://router.project-osrm.org', 'https://routing.openstreetmap.de/routed-car']
+  const urls = hosts.flatMap((host) => [
+    osrmUrl(host, from, to, 'polyline'),
+    osrmUrl(host, from, to, 'geojson'),
+  ])
+  let last = 'Netz hat die Route nicht geliefert.'
+  for (const url of urls) {
+    const once = await fetchRoute(url, to)
+    if (once.ok) return once
+    last = once.message
+  }
+  return { ok: false, message: last }
+}
+
+function readGeometry(geometry: unknown): Array<[number, number]> {
+  if (typeof geometry === 'string' && geometry.length > 4) return decodePolyline(geometry)
+  if (geometry && typeof geometry === 'object') {
+    const coords = (geometry as { coordinates?: unknown }).coordinates
+    if (Array.isArray(coords)) {
+      const out: Array<[number, number]> = []
+      for (const row of coords) {
+        const pair = asLonLat(row)
+        if (pair) out.push(pair)
+      }
+      return out
+    }
+  }
+  return []
+}
+
+function pinTail(coords: Array<[number, number]>, dest: { lat: number; lon: number }): Array<[number, number]> {
+  if (!coords.length) return coords
+  const last = coords[coords.length - 1]
+  const d = haversineM({ lat: last[1], lon: last[0], place: '' }, dest)
+  if (d > 25 && d < 120) return [...coords, [dest.lon, dest.lat]]
+  return coords
+}
+
+async function fetchRoute(
+  url: string,
+  dest: { lat: number; lon: number },
+): Promise<({ ok: true } & DriveLeg) | { ok: false; message: string }> {
   try {
-    const url =
-      `https://router.project-osrm.org/route/v1/driving/${from.lon},${from.lat};${to.lon},${to.lat}` +
-      `?overview=full&geometries=geojson&steps=true`
-    const { status, json } = await getJson(url)
-    const route = (json.routes as Array<{
-      duration?: number
-      distance?: number
-      geometry?: { coordinates?: Array<[number, number]> }
-      legs?: Array<{ steps?: Array<{ name?: string; maneuver?: { type?: string; modifier?: string } }> }>
-    }> | undefined)?.[0]
+    const { status, json } = await getJson(url, {
+      Accept: 'application/json',
+      'User-Agent': UA,
+    })
+    const route = (
+      json.routes as Array<{
+        duration?: number
+        distance?: number
+        geometry?: unknown
+        legs?: Array<{
+          steps?: Array<{
+            name?: string
+            distance?: number
+            maneuver?: { type?: string; modifier?: string; location?: [number, number] }
+          }>
+        }>
+      }> | undefined
+    )?.[0]
     const sec = Number(route?.duration)
-    const coords = route?.geometry?.coordinates || []
-    if (status < 200 || status >= 300 || !Number.isFinite(sec) || coords.length < 2) {
+    const meters = Math.max(0, Math.round(Number(route?.distance) || 0))
+    const coords = compactCoords(simplifyTrack(pinTail(readGeometry(route?.geometry), dest)))
+    if (status < 200 || status >= 300 || !Number.isFinite(sec) || !isRoadTrack(coords, meters)) {
       return { ok: false, message: 'Netz hat die Route nicht geliefert.' }
     }
-    const steps = route?.legs?.[0]?.steps || []
-    const next = steps.find((s) => s.maneuver?.type && s.maneuver.type !== 'depart') || steps[0]
+    const rawSteps = route?.legs?.[0]?.steps || []
+    const steps: DriveStep[] = rawSteps
+      .map((s) => {
+        const loc = asLonLat(s.maneuver?.location)
+        if (!loc) return null
+        return {
+          lon: loc[0],
+          lat: loc[1],
+          type: String(s.maneuver?.type || ''),
+          modifier: String(s.maneuver?.modifier || ''),
+          name: String(s.name || '').trim(),
+          distance: Math.max(0, Math.round(Number(s.distance) || 0)),
+        }
+      })
+      .filter((s): s is DriveStep => Boolean(s))
+    const next = rawSteps.find((s) => s.maneuver?.type && s.maneuver.type !== 'depart') || rawSteps[0]
     return {
       ok: true,
       minutes: Math.max(1, Math.round(sec / 60)),
-      meters: Math.max(1, Math.round(Number(route?.distance) || 0)),
+      meters: Math.max(1, meters),
       coords,
+      steps,
       hint: next ? maneuverHint(next) : 'Route liegt.',
     }
   } catch {

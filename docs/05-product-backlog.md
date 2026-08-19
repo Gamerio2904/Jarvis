@@ -26,6 +26,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E14 | Qualität `0.14` | 2 | Bestehendes härten: Latenz, Ton, Memory/Tools — kein neues Feature |
 | E15 | Alltag `1.14`–`1.20` | 5+ | Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Auge — [`19-next.md`](./19-next.md) |
 | E16 | Extra `1.21`–`1.24` | 4 | Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — [`20-next.md`](./20-next.md) |
+| E17 | Qualität `1.33`–`1.40` | 5+ | Bestehendes härten: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit — kein neues Produkt — [`28-next.md`](./28-next.md) |
 
 ---
 
@@ -266,12 +267,74 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S16.6 | Als Nutzer will ich „das zweite“ nach einer Liste. | Should | done | Sprint 75 / `1.24.0` |
 | S16.7 | Als Nutzer will ich alte Gespräche lokal suchen. | Should | done | Sprint 76 / `1.24.0` |
 
+### E17 — Qualität `1.33`–`1.40`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S17.1 | Als Nutzer will ich bei der Suche eine Antwort plus Links, bei Produkten Preise oder ehrlichen Vergleich. | Must | done | Sprint 86 / `1.33.0` |
+| S17.2 | Als Nutzer will ich Jarvis-Antworten mit Kontext und Variation, ohne erfundenen Namen. | Must | ready | Sprint 87 / `1.34.0` |
+| S17.3 | Als Nutzer will ich den Fahrmodus zuverlässig: Replan, eine Cue, lesbares HUD. | Must | ready | Sprint 88 / `1.35.0` |
+| S17.4 | Als Nutzer will ich mehr Phrasen zu denselben Tools, ohne Smalltalk-Diebstahl. | Must | ready | Sprint 89 / `1.36.0` |
+| S17.5 | Als Nutzer will ich Chat, Wake-Word, Voice und TV ohne Ruckler. | Must | ready | Sprint 90 / `1.37.0` |
+| S17.6 | Als Nutzer will ich den vorhandenen Speicher natürlich abfragen und korrigieren. | Must | ready | Sprint 91 / `1.38.0` |
+| S17.7 | Als Nutzer will ich Zuhören/Sprechen ohne verschluckte Treffer und Doppel-Stimme. | Must | ready | Sprint 92 / `1.39.0` |
+| S17.8 | Als Nutzer will ich keine Fake-Erfolge und stabile Regressionen. | Must | ready | Sprint 93 / `1.40.0` |
+
+### E18 — Tanke E10 `1.41`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S18.1 | Als Fahrer will ich im Chat oder Fahrmodus die nächste und die günstigste Tanke mit E10-Preis sehen und dorthin navigieren. | Must | done | Sprint 94 / `1.41.0` |
+| S18.2 | Als Nutzer will ich wissen, wo ich bin, und die Standortfreigabe anstoßen können — unabhängig von Tanke und für Tanke. | Must | done | Sprint 95 / `1.42.0` |
+
+### E19 — CarPlay Alltag `1.43`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S19.1 | Als Fahrer will ich nacktes „Carplay“ und „öffne das overlay“ ohne Gemini-Lügen. | Must | done | Sprint 96 / `1.43.0` |
+| S19.2 | Als Fahrer will ich Restweg, nächsten POI, Arbeit/Freundin, Akku und Anruf/SMS ehrlich. | Must | done | Sprint 96 / `1.43.0` |
+
+### E20 — Filme + Rabatt `1.44`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S20.1 | Als Nutzer will ich IMDb/Rotten-Tomatoes-Noten und wo ein Film in DE gratis läuft — ohne erfundene Streams. | Must | done | Sprint 97 / `1.44.0` |
+| S20.2 | Als Nutzer will ich die Rabatt-Suche beim Online-Shopping an- und ausschalten können. | Must | done | Sprint 97 / `1.44.0` |
+
+### E21 — Öffnungszeiten `1.45`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S21.1 | Als Nutzer will ich wissen, ob Apotheke, Bäcker oder Laden jetzt auf hat — nur aus der Karte. | Must | done | Sprint 98 / `1.45.0` |
+
+### E22 — Anruf/SMS `1.46`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S22.1 | Als Nutzer will ich Bro/Freundin direkt anrufen und SMS senden — erst nach Nachfrage. | Must | done | Sprint 99 / `1.46.0` |
+
+### E23 — PC live `1.47`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S23.1 | Als Nutzer will ich vom Handy aus den Windows-PC sehen und steuern (FIFA, Maus, Ordner). | Must | done | Sprint 100 / `1.47.0` |
+
+### E24 — Live-Lage auf Nachfrage `1.48`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S24.1 | Als Nutzer will ich Luftqualität und Sonnenaufgang nur wenn ich danach frage. | Must | done | Sprint 101 / `1.48.0` |
+| S24.2 | Als Nutzer will ich Bahn/ÖPNV-Zeiten, ohne dass Jarvis sie erfindet. | Must | done | transport.rest / Transitous |
+| S24.3 | Als Nutzer will ich Nachrichten: national Tagesschau, Ort zuerst Tagesschau sonst Netz. | Must | done | nichts erfinden |
+| S24.4 | Als Nutzer will ich wissen, ob heute in DE Feiertag ist. | Must | done | Nager.Date |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `1.24.0`
-2. Mail / Cloud-Kalender / Fire TV / Alexa / Play Store / iOS — **Parking**
+1. Sideload `1.48.8`
+2. Weitere Arbeit nur auf PO-Kommando — [`28-next.md`](./28-next.md)
+3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

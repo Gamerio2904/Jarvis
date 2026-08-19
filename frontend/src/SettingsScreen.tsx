@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
+import { fanDiscover, fanLearn, fanPick, fanTest, testPc } from './api'
+import { copyText } from './copy-text'
+import { ensureDeviceLocation } from './native/geo'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -15,6 +18,8 @@ export type SettingsTopic =
   | 'wecker'
   | 'ort'
   | 'tv'
+  | 'pc'
+  | 'haus'
   | 'musik'
   | 'ton'
   | 'forschung'
@@ -29,6 +34,8 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'wecker', label: 'Wecker', hint: 'Timer' },
   { id: 'ort', label: 'Ort', hint: 'Wetter' },
   { id: 'tv', label: 'Fernseher', hint: 'Tizen + Fire' },
+  { id: 'pc', label: 'PC', hint: 'Bildschirm' },
+  { id: 'haus', label: 'Haus', hint: 'Ventilator' },
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
@@ -59,6 +66,32 @@ function memLabel(f: (typeof MEM_FILTERS)[number]): string {
   if (f === 'boundary') return 'Grenzen'
   if (f === 'open_loop') return 'Offen'
   return f
+}
+
+function CopyField({ label, value }: { label: string; value: string }) {
+  const [done, setDone] = useState(false)
+  return (
+    <label className="settings-field copy-field">
+      <span>{label}</span>
+      <div className="copy-field-row">
+        <input readOnly value={value} onFocus={(e) => e.currentTarget.select()} />
+        <button
+          type="button"
+          className="copy-btn"
+          disabled={!value.trim()}
+          onClick={() => {
+            void copyText(value).then((ok) => {
+              if (!ok) return
+              setDone(true)
+              window.setTimeout(() => setDone(false), 1400)
+            })
+          }}
+        >
+          {done ? 'Kopiert' : 'Kopieren'}
+        </button>
+      </div>
+    </label>
+  )
 }
 
 export type SettingsScreenProps = {
@@ -116,6 +149,19 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [spotifyMsg, setSpotifyMsg] = useState<string | null>(null)
   const [fireHost, setFireHost] = useState(s?.tv_fire_host || '')
   const [firePort, setFirePort] = useState(String(s?.tv_fire_port || 5555))
+  const [fanHost, setFanHost] = useState(s?.fan_host || '')
+  const [pcHost, setPcHost] = useState(s?.pc_host || '')
+  const [pcPort, setPcPort] = useState(String(s?.pc_port || 18790))
+  const [pcToken, setPcToken] = useState(s?.pc_token || '')
+  const [pcBusy, setPcBusy] = useState(false)
+  const [pcMsg, setPcMsg] = useState<string | null>(null)
+  const [pcMsgOk, setPcMsgOk] = useState<boolean | null>(null)
+  const [fanBusy, setFanBusy] = useState(false)
+  const [fanMsg, setFanMsg] = useState<string | null>(null)
+  const [fanMsgOk, setFanMsgOk] = useState<boolean | null>(null)
+  const [fanFound, setFanFound] = useState<Array<{ host?: string; mac?: string; name?: string }>>([])
+  const [locBusy, setLocBusy] = useState(false)
+  const [locMsg, setLocMsg] = useState<string | null>(null)
 
   useEffect(() => {
     setFireHost(s?.tv_fire_host || '')
@@ -124,6 +170,20 @@ export function SettingsScreen(p: SettingsScreenProps) {
   useEffect(() => {
     setFirePort(String(s?.tv_fire_port || 5555))
   }, [s?.tv_fire_port])
+
+  useEffect(() => {
+    setFanHost(s?.fan_host || '')
+  }, [s?.fan_host])
+
+  useEffect(() => {
+    setPcHost(s?.pc_host || '')
+  }, [s?.pc_host])
+  useEffect(() => {
+    setPcPort(String(s?.pc_port || 18790))
+  }, [s?.pc_port])
+  useEffect(() => {
+    setPcToken(s?.pc_token || '')
+  }, [s?.pc_token])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -281,6 +341,55 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
                 <p className="settings-hint">Key: console.groq.com/keys</p>
               </section>
+              <section className="settings-card">
+                <h3>Tankerkönig (E10)</h3>
+                <p className="settings-hint">
+                  Für „fahr mich zu einer Tanke“: nächste und günstigste Station, immer E10. Key kostenlos.
+                  Standort geht an Tankerkönig, nicht an uns. Ohne Key keine Preise — Jarvis erfindet keine.
+                </p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`tanker-key-${s?.tankerkoenig_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.tankerkoenig_api_key || ''}
+                    disabled={busy}
+                    placeholder="UUID von tankerkoenig.de"
+                    onBlur={(e) => void p.patchSetting({ tankerkoenig_api_key: e.target.value.trim() })}
+                  />
+                </label>
+                <p className="settings-hint">creativecommons.tankerkoenig.de — nicht teilen.</p>
+              </section>
+              <section className="settings-card">
+                <h3>OMDb (IMDb + Rotten Tomatoes)</h3>
+                <p className="settings-hint">
+                  Für Filmnoten. Rotten Tomatoes hat keine öffentliche API — die Prozentzahl kommt nur,
+                  wenn OMDb sie mitliefert. Ohne Key keine erfundenen Bewertungen. Wo ein Film gratis
+                  läuft, geht auch ohne Key (JustWatch DE).
+                </p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`omdb-key-${s?.omdb_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.omdb_api_key || ''}
+                    disabled={busy}
+                    placeholder="Key von omdbapi.com"
+                    onBlur={(e) => void p.patchSetting({ omdb_api_key: e.target.value.trim() })}
+                  />
+                </label>
+                <p className="settings-hint">omdbapi.com/apikey.aspx — kostenloser Key, nicht teilen.</p>
+              </section>
             </>
           ) : null}
 
@@ -288,7 +397,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Mit Gemini-Key: natürliche Stimme (geht ins Netz). Sonst Android-Stimme, oft hart.
+                Mit Gemini-Key: Antwort sofort (Android). Charon nur wenn er in unter einer halben Sekunde da ist — sonst keine Stille.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>
@@ -343,17 +452,20 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     <li key={r.id} className="memory-item">
                       <div className="memory-value">
                         {r.kind === 'timer'
-                          ? 'Timer · '
-                          : r.kind === 'alarm'
-                            ? r.recur
-                              ? 'Wecker täglich · '
-                              : 'Wecker · '
-                            : r.recur === 'daily'
-                              ? 'täglich · '
-                              : r.recur === 'weekly'
-                                ? 'wöchentlich · '
-                                : ''}
-                        {r.title}
+                          ? !r.title || /^timer$/i.test(r.title)
+                            ? 'Timer'
+                            : r.title
+                          : `${
+                              r.kind === 'alarm'
+                                ? r.recur
+                                  ? 'Wecker täglich · '
+                                  : 'Wecker · '
+                                : r.recur === 'daily'
+                                  ? 'täglich · '
+                                  : r.recur === 'weekly'
+                                    ? 'wöchentlich · '
+                                    : ''
+                            }${r.title}`}
                       </div>
                       <div className="memory-key">
                         {new Date(r.due_at).toLocaleString('de-DE', {
@@ -391,7 +503,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <p className="settings-hint">
                 {s?.last_place
                   ? `Letzter Ort: ${s.last_place}`
-                  : 'Noch kein Standort. Im Chat „Wetter heute“ sagen.'}
+                  : 'Noch kein Standort. Im Chat „Wo bin ich gerade?“ oder „Wetter heute“ sagen.'}
               </p>
               <p className="settings-hint">
                 {s?.home_lat && s?.home_lon
@@ -420,6 +532,31 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <button
                   type="button"
                   className="retry-btn"
+                  disabled={busy || locBusy}
+                  onClick={() => {
+                    setLocBusy(true)
+                    setLocMsg(null)
+                    void ensureDeviceLocation({ openSettingsIfDenied: true })
+                      .then((res) => {
+                        if (res.ok) {
+                          void p.patchSetting({
+                            last_lat: String(res.lat),
+                            last_lon: String(res.lon),
+                            last_fix_at: new Date().toISOString(),
+                          })
+                          setLocMsg('Standort liegt.')
+                          return
+                        }
+                        setLocMsg(res.message || 'Standort weiter aus.')
+                      })
+                      .finally(() => setLocBusy(false))
+                  }}
+                >
+                  Standort erlauben
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
                   disabled={busy}
                   onClick={() =>
                     void p.patchSetting({ last_lat: '', last_lon: '', last_place: '', last_fix_at: '' })
@@ -428,6 +565,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   Ort vergessen
                 </button>
               </div>
+              {locMsg ? <p className="settings-hint">{locMsg}</p> : null}
+              <p className="settings-hint">
+                Jarvis öffnet die Android-Abfrage oder die App-Einstellungen. Den Schalter legt er nicht selbst um.
+              </p>
             </section>
           ) : null}
 
@@ -447,7 +588,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <p className="settings-hint">
                 {s?.tv_paired
                   ? `Gekoppelt: ${s.tv_name || s.tv_host || 'TV'}`
-                  : 'Suchen, am TV erlauben, dann testen. Gleiches WLAN, kein Gastnetz.'}
+                  : 'Suchen, am TV erlauben, dann testen. Gleiches WLAN, kein Gastnetz.'}{' '}
+                Apps: „Öffne Netflix“, „Spiel YouTube“, „Spiel Dune Film“ (kostenlos zuerst).
               </p>
               <label className="settings-field">
                 <span>Name</span>
@@ -588,6 +730,234 @@ export function SettingsScreen(p: SettingsScreenProps) {
               ) : null}
             </section>
             </>
+          ) : null}
+
+          {p.topic === 'pc' ? (
+            <section className="settings-card">
+              <h3>PC im WLAN</h3>
+              <p className="settings-lead">
+                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> starten. Jarvis sieht den echten Bildschirm,
+                bewegt die Maus, startet FIFA, bearbeitet Ordner — nur wenn die App läuft.
+              </p>
+              <p className="settings-hint">
+                Gleiches WLAN. IP und Token stehen im PC-Fenster. Ohne App: nichts behaupten. Löschen nur nach Ja.
+              </p>
+              <label className="settings-toggle">
+                <span>PC-Steuerung an</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.pc_enabled)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ pc_enabled: e.target.checked })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>PC-IP</span>
+                <input
+                  value={pcHost}
+                  disabled={busy || pcBusy}
+                  placeholder="192.168.1.20"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  onChange={(e) => setPcHost(e.target.value)}
+                  onBlur={() => {
+                    const v = pcHost.trim()
+                    setPcHost(v)
+                    void p.patchSetting({ pc_host: v })
+                  }}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Port</span>
+                <input
+                  value={pcPort}
+                  disabled={busy || pcBusy}
+                  inputMode="numeric"
+                  onChange={(e) => setPcPort(e.target.value)}
+                  onBlur={() => {
+                    const n = Number.parseInt(pcPort, 10)
+                    const port = Number.isFinite(n) && n > 0 ? n : 18790
+                    setPcPort(String(port))
+                    void p.patchSetting({ pc_port: port })
+                  }}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Token</span>
+                <input
+                  value={pcToken}
+                  disabled={busy || pcBusy}
+                  placeholder="aus dem PC-Fenster"
+                  autoComplete="off"
+                  onChange={(e) => setPcToken(e.target.value)}
+                  onBlur={() => {
+                    const v = pcToken.trim()
+                    setPcToken(v)
+                    void p.patchSetting({ pc_token: v })
+                  }}
+                />
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || pcBusy}
+                  onClick={() => {
+                    setPcBusy(true)
+                    setPcMsg('Prüfe PC…')
+                    void p.patchSetting({
+                      pc_host: pcHost.trim(),
+                      pc_token: pcToken.trim(),
+                      pc_port: Number.parseInt(pcPort, 10) || 18790,
+                      pc_enabled: true,
+                    }).then(() =>
+                      testPc().then((r) => {
+                        setPcMsgOk(r.ok)
+                        setPcMsg(r.reply)
+                        setPcBusy(false)
+                      }),
+                    )
+                  }}
+                >
+                  {pcBusy ? 'Prüfe…' : 'PC testen'}
+                </button>
+              </div>
+              {pcMsg ? <p className={`tv-test-msg${pcMsgOk === false ? ' warn' : ''}`}>{pcMsg}</p> : null}
+              <h3 className="copy-block-title">Ein Klick kopieren</h3>
+              <CopyField label="PC-IP" value={pcHost.trim()} />
+              <CopyField label="Port" value={pcPort.trim() || '18790'} />
+              <CopyField label="Token" value={pcToken.trim()} />
+            </section>
+          ) : null}
+
+          {p.topic === 'haus' ? (
+            <section className="settings-card">
+              <h3>Deckenventilator</h3>
+              <p className="settings-lead">
+                Über eine Broadlink-Brücke (RM4 Pro) im WLAN. Original-Fernbedienung lernen. Kein Amazon-Konto.
+              </p>
+              <p className="settings-hint">
+                Der Ventilator selbst spricht oft nur Funk. Jarvis sendet die gelernten Tasten lokal. Ohne Brücke
+                keine Stufen.
+              </p>
+              <label className="settings-toggle">
+                <span>Ventilator an</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.fan_enabled)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ fan_enabled: e.target.checked })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Brücken-IP</span>
+                <input
+                  value={fanHost}
+                  disabled={busy || fanBusy}
+                  placeholder="192.168.1.40"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  onChange={(e) => setFanHost(e.target.value)}
+                  onBlur={() => {
+                    const v = fanHost.trim()
+                    setFanHost(v)
+                    void p.patchSetting({ fan_host: v })
+                  }}
+                />
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || fanBusy}
+                  onClick={() => {
+                    setFanBusy(true)
+                    setFanMsg('Suche Brücke…')
+                    void fanDiscover()
+                      .then((r) => {
+                        setFanFound(r.items || [])
+                        setFanMsgOk((r.items || []).length > 0)
+                        setFanMsg(r.message || ((r.items || []).length ? 'Gefunden.' : 'Nichts gefunden.'))
+                      })
+                      .finally(() => setFanBusy(false))
+                  }}
+                >
+                  Suchen
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || fanBusy}
+                  onClick={() => {
+                    setFanBusy(true)
+                    setFanMsg('Teste Brücke…')
+                    void p.patchSetting({ fan_host: fanHost.trim() }).then(() =>
+                      fanTest({ host: fanHost.trim() }).then((r) => {
+                        setFanMsgOk(r.ok)
+                        setFanMsg(r.reply)
+                        setFanBusy(false)
+                      }),
+                    )
+                  }}
+                >
+                  {fanBusy ? 'Prüfe…' : 'Testen'}
+                </button>
+              </div>
+              {fanFound.length ? (
+                <ul className="tv-found">
+                  {fanFound.map((item) => (
+                    <li key={item.host || 'x'}>
+                      <button
+                        type="button"
+                        disabled={fanBusy}
+                        onClick={() => {
+                          void fanPick(item).then((msg) => {
+                            setFanHost(item.host || '')
+                            setFanMsg(msg)
+                            setFanMsgOk(true)
+                            void p.patchSetting({ fan_host: item.host || '', fan_mac: item.mac || '' })
+                          })
+                        }}
+                      >
+                        {item.name || 'Broadlink'} · {item.host}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              <p className="settings-hint">Lernen: Taste an der Fernbedienung, wenn die Brücke blinkt.</p>
+              <div className="settings-actions">
+                {(
+                  [
+                    ['on', 'An'],
+                    ['off', 'Aus'],
+                    ['speed1', 'Stufe 1'],
+                    ['speed2', 'Stufe 2'],
+                    ['speed3', 'Stufe 3'],
+                    ['light', 'Licht'],
+                  ] as const
+                ).map(([slot, label]) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    className="retry-btn"
+                    disabled={busy || fanBusy}
+                    onClick={() => {
+                      setFanBusy(true)
+                      setFanMsg(`Lerne ${label}… Fernbedienung drücken.`)
+                      void fanLearn(slot).then((r) => {
+                        setFanMsgOk(r.ok)
+                        setFanMsg(r.reply)
+                        setFanBusy(false)
+                      })
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {fanMsg ? <p className={`tv-test-msg${fanMsgOk === false ? ' warn' : ''}`}>{fanMsg}</p> : null}
+            </section>
           ) : null}
 
           {p.topic === 'musik' ? (
@@ -740,6 +1110,19 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <span>Websuche (braucht Gemini)</span>
               </label>
               <p className="settings-hint">Aus = keine erfundene Suche. Wetter kommt von Open-Meteo.</p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.shop_discount)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ shop_discount: e.target.checked })}
+                />
+                <span>Rabatt-Suche beim Online-Shopping</span>
+              </label>
+              <p className="settings-hint">
+                An = extra Gutscheine (mydealz, Sparwelt) bei Produktsuche. Research muss an sein.
+                Keine erfundenen Codes. Stimme: „Rabatt-Suche an“.
+              </p>
               <button type="button" className={`audit-toggle ${p.auditOpen ? 'active' : ''}`} onClick={p.onToggleAudit}>
                 Research-Audit
               </button>

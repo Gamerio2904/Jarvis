@@ -1,17 +1,17 @@
-# Android-APK — `1.28.3`
+# Android-APK — `1.48.8`
 
-**1.28.3:** Wecker und Timer klingeln wirklich — nicht nur die Anzeige.
+**1.48.8:** CarPlay öffnet die Route ohne das Wort Overlay. Cafés nur am GPS (Bietigheim). Die Linie folgt den Straßen, nicht der Luftlinie.
 
 ## Download
 
-**APK `1.28.3`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/hotfix-alarm-sound-1-28-3-0bf8/releases/Jarvis.apk
+**APK `1.48.8`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/updates-1-29-1-33-3638/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `1.28.3` · versionCode `12803`
+- versionName `1.48.8` · versionCode `14808`
 - App-ID `local.jarvis.app`
 
-1. Über 1.28.2 installieren.
-2. `Timer 1 Minute Test` — beim Ablauf Ton über die **Wecker-Lautstärke** (nicht Medien).
-3. Bildschirm darf aus sein. **Aus** auf dem Schirm oder in der Meldung stoppt den Ton.
-4. OnePlus: Akku nicht optimieren.
+1. Über 1.48.7 installieren.
+2. Am Valeo: `wo könnte ich jetzt frühstücken` — Cafés in Bietigheim, Overlay, grüne Linie auf den Straßen bis zum Pin.
+3. `Aktiviere das overlay` bleibt Karte, nicht Spotify.
+4. `Wie viele Scheibenwischer verkauft Valeo am tag` — keine 300–400k aus dem Hut.

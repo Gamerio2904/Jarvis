@@ -9,20 +9,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.media.AudioAttributes;
-import android.media.AudioFocusRequest;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
-import android.media.ToneGenerator;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.PowerManager;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 
 import androidx.core.app.NotificationCompat;
 
@@ -32,40 +25,48 @@ public class JarvisAlarmService extends Service {
     public static final String ACTION_START = "app.jarvis.notify.ALARM_START";
     public static final String ACTION_STOP = "app.jarvis.notify.ALARM_STOP";
     static final int NOTE_ID = 72;
-    private static final String CHANNEL = "jarvis_alarms_v3";
+    private static final String CHANNEL = "jarvis_alarms_v4";
+    private static final String TIMER_CHANNEL = "jarvis_timer_speak_v1";
 
-    private MediaPlayer player;
-    private Ringtone ringtone;
-    private ToneGenerator tones;
-    private Vibrator vibrator;
     private PowerManager.WakeLock cpuLock;
-    private AudioManager audio;
-    private AudioFocusRequest focusReq;
-    private final Handler main = new Handler(Looper.getMainLooper());
-    private final Runnable beep = new Runnable() {
-        @Override
-        public void run() {
-            if (tones == null) return;
-            try {
-                tones.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 700);
-            } catch (Exception ignored) {
-            }
-            main.postDelayed(this, 1200);
-        }
-    };
+    private MediaSession session;
 
     public static void start(Context ctx, String title, String body, String tone) {
+        start(ctx, title, body, tone, "", "");
+    }
+
+    public static void start(Context ctx, String title, String body, String tone, String mode, String say) {
         Intent i = new Intent(ctx, JarvisAlarmService.class);
         i.setAction(ACTION_START);
         i.putExtra("title", title);
         i.putExtra("body", body);
         i.putExtra("tone", tone == null ? "" : tone);
-        if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i);
-        else ctx.startService(i);
+        i.putExtra("mode", mode == null ? "" : mode);
+        i.putExtra("say", say == null ? "" : say);
+        try {
+            if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i);
+            else ctx.startService(i);
+        } catch (Exception ignored) {
+            try {
+                ctx.startService(i);
+            } catch (Exception ignored2) {
+            }
+        }
     }
 
     public static void stop(Context ctx) {
-        ctx.stopService(new Intent(ctx, JarvisAlarmService.class));
+        Intent i = new Intent(ctx, JarvisAlarmService.class);
+        i.setAction(ACTION_STOP);
+        try {
+            ctx.startService(i);
+        } catch (Exception ignored) {
+        }
+        try {
+            ctx.stopService(new Intent(ctx, JarvisAlarmService.class));
+        } catch (Exception ignored) {
+        }
+        JarvisAlarmPlayer.stop();
+        JarvisTimerVoice.stop();
     }
 
     @Override
@@ -76,29 +77,44 @@ public class JarvisAlarmService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && ACTION_STOP.equals(intent.getAction())) {
+            JarvisAlarmPlayer.stop();
+            JarvisTimerVoice.stop();
             stopSelf();
             return START_NOT_STICKY;
         }
         String title = intent != null ? intent.getStringExtra("title") : null;
         String body = intent != null ? intent.getStringExtra("body") : null;
         String tone = intent != null ? intent.getStringExtra("tone") : null;
+        String mode = intent != null ? intent.getStringExtra("mode") : null;
+        String say = intent != null ? intent.getStringExtra("say") : null;
         if (title == null || title.isEmpty()) title = "Jarvis";
         if (body == null) body = "";
-        try {
-            startFg(title, body);
-        } catch (Exception ignored) {
+        boolean speak = JarvisNotifyPlugin.isTimerSpeak(mode, title);
+        if (speak) {
+            mode = "speak";
+            tone = "";
+            if (say == null || say.isEmpty()) say = JarvisNotifyPlugin.timerSpokenLine(body);
         }
+        startFg(title, body, tone, mode, say, speak);
         holdCpu();
+        holdSession();
         JarvisWakeService.pauseListen();
-        startSound(tone);
+        if (speak) {
+            JarvisTimerVoice.speak(this, say);
+        } else {
+            JarvisAlarmPlayer.start(this, tone);
+        }
         return START_STICKY;
     }
 
-    private void startFg(String title, String body) {
+    private void startFg(String title, String body, String tone, String mode, String say, boolean speak) {
         ensureChannel();
         Intent open = new Intent(this, JarvisAlarmActivity.class);
         open.putExtra("title", title);
         open.putExtra("body", body);
+        open.putExtra("tone", speak ? "" : (tone == null ? "" : tone));
+        open.putExtra("mode", speak ? "speak" : (mode == null ? "" : mode));
+        open.putExtra("say", say == null ? "" : say);
         open.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -108,10 +124,10 @@ public class JarvisAlarmService extends Service {
         Intent halt = new Intent(this, JarvisAlarmService.class);
         halt.setAction(ACTION_STOP);
         PendingIntent stopPi = PendingIntent.getService(this, 72_002, halt, flags);
-        Notification n = new NotificationCompat.Builder(this, CHANNEL)
+        Notification n = new NotificationCompat.Builder(this, speak ? TIMER_CHANNEL : CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
-                .setContentTitle(title)
-                .setContentText(body)
+                .setContentTitle(speak && body != null && !body.isEmpty() && !"Timer".equalsIgnoreCase(body) ? body : title)
+                .setContentText(speak && say != null && !say.isEmpty() ? say : body)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -122,10 +138,31 @@ public class JarvisAlarmService extends Service {
                 .setContentIntent(fullPi)
                 .addAction(0, "Aus", stopPi)
                 .build();
-        if (Build.VERSION.SDK_INT >= 29) {
-            startForeground(NOTE_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-        } else {
-            startForeground(NOTE_ID, n);
+        try {
+            if (Build.VERSION.SDK_INT >= 34) {
+                startForeground(
+                        NOTE_ID,
+                        n,
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                                | ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
+            } else if (Build.VERSION.SDK_INT >= 29) {
+                startForeground(NOTE_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+            } else {
+                startForeground(NOTE_ID, n);
+            }
+        } catch (Exception first) {
+            try {
+                if (Build.VERSION.SDK_INT >= 29) {
+                    startForeground(NOTE_ID, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+                } else {
+                    startForeground(NOTE_ID, n);
+                }
+            } catch (Exception ignored) {
+                try {
+                    startForeground(NOTE_ID, n);
+                } catch (Exception ignored2) {
+                }
+            }
         }
     }
 
@@ -133,13 +170,11 @@ public class JarvisAlarmService extends Service {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
         NotificationManager nm = getSystemService(NotificationManager.class);
         if (nm == null) return;
-        try {
-            nm.deleteNotificationChannel("jarvis_alarms");
-        } catch (Exception ignored) {
-        }
-        try {
-            nm.deleteNotificationChannel("jarvis_alarms_v2");
-        } catch (Exception ignored) {
+        for (String old : new String[]{"jarvis_alarms", "jarvis_alarms_v2", "jarvis_alarms_v3"}) {
+            try {
+                nm.deleteNotificationChannel(old);
+            } catch (Exception ignored) {
+            }
         }
         if (nm.getNotificationChannel(CHANNEL) != null) return;
         NotificationChannel alarm = new NotificationChannel(
@@ -150,8 +185,22 @@ public class JarvisAlarmService extends Service {
         alarm.setDescription("Timer und Wecker mit Ton, auch bei Bildschirm aus");
         alarm.setBypassDnd(true);
         alarm.enableVibration(true);
-        alarm.setSound(null, null);
+        alarm.enableLights(true);
+        Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        AudioAttributes attrs = JarvisAlarmPlayer.alarmAttrs();
+        if (sound != null) alarm.setSound(sound, attrs);
         nm.createNotificationChannel(alarm);
+        NotificationChannel timer = new NotificationChannel(
+                TIMER_CHANNEL,
+                "Timer",
+                NotificationManager.IMPORTANCE_HIGH
+        );
+        timer.setDescription("Jarvis sagt die Zeit an, ohne Klingeln");
+        timer.setBypassDnd(true);
+        timer.enableVibration(false);
+        timer.enableLights(true);
+        timer.setSound(null, null);
+        nm.createNotificationChannel(timer);
     }
 
     private void holdCpu() {
@@ -163,199 +212,28 @@ public class JarvisAlarmService extends Service {
         cpuLock.acquire(30 * 60 * 1000L);
     }
 
-    private void startSound(String tone) {
-        releasePlayer();
-        if (ringtone != null) {
-            try {
-                ringtone.stop();
-            } catch (Exception ignored) {
-            }
-            ringtone = null;
-        }
-        main.removeCallbacks(beep);
-        if (tones != null) {
-            try {
-                tones.release();
-            } catch (Exception ignored) {
-            }
-            tones = null;
-        }
-        ensureAlarmVolume();
-        requestFocus();
-        Uri custom = null;
-        if (tone != null && !tone.isEmpty()) custom = Uri.parse(tone);
-        if (custom == null) {
-            String saved = getSharedPreferences("jarvis_notify", MODE_PRIVATE).getString("alarm_tone", "");
-            if (saved != null && !saved.isEmpty()) custom = Uri.parse(saved);
-        }
-        boolean ok = playUri(custom) || playRaw()
-                || playUri(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
-                || playRingtone();
-        if (!ok) startBeepLoop();
-        vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        if (vibrator != null && vibrator.hasVibrator()) {
-            if (Build.VERSION.SDK_INT >= 26) {
-                vibrator.vibrate(VibrationEffect.createWaveform(new long[]{0, 500, 400}, 0));
-            } else {
-                vibrator.vibrate(new long[]{0, 500, 400}, 0);
-            }
-        }
-    }
-
-    private void ensureAlarmVolume() {
+    private void holdSession() {
+        if (session != null) return;
         try {
-            audio = (AudioManager) getSystemService(AUDIO_SERVICE);
-            if (audio == null) return;
-            int max = audio.getStreamMaxVolume(AudioManager.STREAM_ALARM);
-            if (max <= 0) return;
-            int cur = audio.getStreamVolume(AudioManager.STREAM_ALARM);
-            if (cur < Math.max(1, max / 2)) {
-                audio.setStreamVolume(AudioManager.STREAM_ALARM, Math.max(1, (max * 3) / 4), 0);
-            }
+            session = new MediaSession(this, "jarvis-alarm");
+            session.setActive(true);
+            session.setPlaybackState(new PlaybackState.Builder()
+                    .setState(PlaybackState.STATE_PLAYING, 0, 1f)
+                    .build());
         } catch (Exception ignored) {
-        }
-    }
-
-    private void requestFocus() {
-        try {
-            if (audio == null) audio = (AudioManager) getSystemService(AUDIO_SERVICE);
-            if (audio == null) return;
-            if (Build.VERSION.SDK_INT >= 26) {
-                focusReq = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
-                        .setAudioAttributes(alarmAttrs())
-                        .build();
-                audio.requestAudioFocus(focusReq);
-            } else {
-                audio.requestAudioFocus(null, AudioManager.STREAM_ALARM, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-            }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private static AudioAttributes alarmAttrs() {
-        return new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ALARM)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build();
-    }
-
-    private boolean playUri(Uri uri) {
-        if (uri == null) return false;
-        MediaPlayer mp = new MediaPlayer();
-        try {
-            mp.setAudioAttributes(alarmAttrs());
-            mp.setDataSource(this, uri);
-            mp.setLooping(true);
-            mp.setVolume(1f, 1f);
-            mp.setOnErrorListener((p, w, extra) -> {
-                releasePlayer();
-                if (!playRaw()) startBeepLoop();
-                return true;
-            });
-            mp.prepare();
-            mp.start();
-            player = mp;
-            return true;
-        } catch (Exception ignored) {
-        }
-        try {
-            mp.release();
-        } catch (Exception ignored) {
-        }
-        return false;
-    }
-
-    private boolean playRaw() {
-        int resId = getResources().getIdentifier("jarvis_alarm", "raw", getPackageName());
-        if (resId == 0) return false;
-        MediaPlayer mp = new MediaPlayer();
-        try {
-            mp.setAudioAttributes(alarmAttrs());
-            android.content.res.AssetFileDescriptor afd = getResources().openRawResourceFd(resId);
-            mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            afd.close();
-            mp.setLooping(true);
-            mp.setVolume(1f, 1f);
-            mp.prepare();
-            mp.start();
-            player = mp;
-            return true;
-        } catch (Exception ignored) {
-        }
-        try {
-            mp.release();
-        } catch (Exception ignored) {
-        }
-        return false;
-    }
-
-    private boolean playRingtone() {
-        try {
-            ringtone = RingtoneManager.getRingtone(
-                    this, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM));
-            if (ringtone == null) return false;
-            if (Build.VERSION.SDK_INT >= 21) ringtone.setAudioAttributes(alarmAttrs());
-            if (Build.VERSION.SDK_INT >= 28) ringtone.setLooping(true);
-            ringtone.play();
-            return true;
-        } catch (Exception ignored) {
-            ringtone = null;
-            return false;
-        }
-    }
-
-    private void startBeepLoop() {
-        try {
-            tones = new ToneGenerator(AudioManager.STREAM_ALARM, 100);
-            main.post(beep);
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void releasePlayer() {
-        if (player != null) {
-            try {
-                player.stop();
-            } catch (Exception ignored) {
-            }
-            try {
-                player.release();
-            } catch (Exception ignored) {
-            }
-            player = null;
+            session = null;
         }
     }
 
     @Override
     public void onDestroy() {
-        main.removeCallbacks(beep);
-        releasePlayer();
-        if (ringtone != null) {
+        if (session != null) {
             try {
-                ringtone.stop();
+                session.setActive(false);
+                session.release();
             } catch (Exception ignored) {
             }
-            ringtone = null;
-        }
-        if (tones != null) {
-            try {
-                tones.release();
-            } catch (Exception ignored) {
-            }
-            tones = null;
-        }
-        if (vibrator != null) {
-            try {
-                vibrator.cancel();
-            } catch (Exception ignored) {
-            }
-        }
-        try {
-            if (audio != null) {
-                if (Build.VERSION.SDK_INT >= 26 && focusReq != null) audio.abandonAudioFocusRequest(focusReq);
-                else audio.abandonAudioFocus(null);
-            }
-        } catch (Exception ignored) {
+            session = null;
         }
         if (cpuLock != null && cpuLock.isHeld()) {
             try {
@@ -363,7 +241,10 @@ public class JarvisAlarmService extends Service {
             } catch (Exception ignored) {
             }
         }
-        JarvisWakeService.resumeListen(this);
+        cpuLock = null;
+        if (!JarvisAlarmPlayer.isPlaying()) {
+            JarvisWakeService.resumeListen(this);
+        }
         super.onDestroy();
     }
 }

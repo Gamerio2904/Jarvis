@@ -1,7 +1,37 @@
-import { useEffect, useMemo, useState } from 'react'
-import { getDriveRoute, refreshDriveRoute, subscribeDrive, type DriveRoute } from './engine/drive'
-import { readDeviceLocation } from './native/geo'
-import { listenOnce, requestMicPermission } from './native/voice'
+import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
+import {
+  getDriveRoute,
+  getDriveTab,
+  refreshDriveRoute,
+  setDriveTab,
+  subscribeDrive,
+  type DriveRoute,
+  type DriveTab,
+} from './engine/drive'
+import {
+  TILE_SIZE,
+  clampMapZoom,
+  dayTiles,
+  panCam,
+  prefetchTile,
+  projectOnTiles,
+  readLastMapFix,
+  settleZoom,
+  tilesPending,
+  tileUrl,
+  webMercator,
+  zoomAround,
+  zoomForSpeedMps,
+  zoomToInclude,
+  type MapCam,
+  type MapFix,
+} from './engine/drive-map'
+import { formatNavBanner, nextManeuver } from './engine/nav-speak'
+import { watchDeviceLocation } from './native/geo'
+import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, speakText, stopListen, stopSpeak } from './native/voice'
+import { isChatSpeaking } from './engine/speak-lock'
+import { parseFuelIntent } from './engine/fuel-parse'
+import { parsePoiIntent } from './engine/poi-parse'
 import {
   activateSpotifyElement,
   ensureInternalPlayer,
@@ -9,12 +39,10 @@ import {
   getSpotifyPlayerStatus,
   pauseSpotify,
   playQuery,
-  playTrack,
   nextSpotify,
   prevSpotify,
   refreshNow,
   resumeSpotify,
-  searchTracks,
   spotifyConfigured,
   spotifyLoggedIn,
   spotifySourceLabel,
@@ -22,118 +50,337 @@ import {
   subscribeSpotify,
   type SpotifyNow,
   type SpotifyPlayerStatus,
-  type SpotifyTrack,
 } from './engine/spotify'
 
-function world(lat: number, lon: number, z: number) {
-  const n = 2 ** z
-  const x = ((lon + 180) / 360) * n
-  const rad = (lat * Math.PI) / 180
-  const y = ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * n
-  return { x, y }
-}
-
-function TileMap({
-  lat,
-  lon,
+function FollowMap({
   destLat,
   destLon,
-  z,
   coords,
-  you,
+  live,
 }: {
-  lat: number
-  lon: number
   destLat: number
   destLon: number
-  z: number
   coords: Array<[number, number]>
-  you?: { lat: number; lon: number }
+  live: MutableRefObject<MapFix>
 }) {
-  const size = 256
-  const cols = 5
-  const rows = 5
-  const center = world(lat, lon, z)
-  const originX = Math.floor(center.x) - Math.floor(cols / 2)
-  const originY = Math.floor(center.y) - Math.floor(rows / 2)
-  const w = cols * size
-  const h = rows * size
-  const toPx = (la: number, lo: number) => {
-    const p = world(la, lo, z)
-    return { x: (p.x - originX) * size, y: (p.y - originY) * size }
-  }
-  const path = coords
-    .map(([lo, la]) => {
-      const p = toPx(la, lo)
-      return `${p.x},${p.y}`
-    })
-    .join(' ')
-  const tiles: Array<{ key: string; src: string; left: number; top: number }> = []
-  for (let y = 0; y < rows; y += 1) {
-    for (let x = 0; x < cols; x += 1) {
-      const tx = originX + x
-      const ty = originY + y
-      tiles.push({
-        key: `${z}-${tx}-${ty}`,
-        src: `https://basemaps.cartocdn.com/dark_all/${z}/${tx}/${ty}@2x.png`,
-        left: x * size,
-        top: y * size,
-      })
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const youRef = useRef<HTMLDivElement>(null)
+  const destRef = useRef({ lat: destLat, lon: destLon, coords })
+  destRef.current = { lat: destLat, lon: destLon, coords }
+  const cam = useRef<MapCam>({
+    lat: live.current.lat,
+    lon: live.current.lon,
+    zoom: zoomForSpeedMps(live.current.speed),
+  })
+  const followRef = useRef(true)
+  const userZoomRef = useRef(false)
+  const zoomWantedAt = useRef(0)
+  const headingRef = useRef(live.current.bearing || 0)
+  const [browsing, setBrowsing] = useState(false)
+
+  useEffect(() => {
+    let liveLoop = true
+    let lastDraw = 0
+    let frame = 0
+    const wrap = wrapRef.current
+    if (!wrap) return
+
+    const pts = new Map<number, { x: number; y: number }>()
+    let lastPan: { x: number; y: number } | null = null
+    let pinch: { dist: number; zoom: number } | null = null
+    let moved = false
+    let lastTap = 0
+    let lastTapAt = { x: 0, y: 0 }
+
+    const boxPos = (e: PointerEvent) => {
+      const r = wrap.getBoundingClientRect()
+      return { x: e.clientX - r.left, y: e.clientY - r.top }
     }
-  }
-  const pin = toPx(destLat, destLon)
-  const me = you ? toPx(you.lat, you.lon) : pin
+    const pair = () => [...pts.values()]
+    const dist = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+      Math.hypot(a.x - b.x, a.y - b.y)
+
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return
+      wrap.setPointerCapture(e.pointerId)
+      const p = boxPos(e)
+      pts.set(e.pointerId, p)
+      moved = false
+      if (pts.size === 1) {
+        lastPan = p
+        pinch = null
+      } else if (pts.size >= 2) {
+        const [a, b] = pair()
+        pinch = { dist: Math.max(24, dist(a, b)), zoom: cam.current.zoom }
+        lastPan = null
+      }
+      e.preventDefault()
+    }
+    const onMove = (e: PointerEvent) => {
+      if (!pts.has(e.pointerId)) return
+      const p = boxPos(e)
+      pts.set(e.pointerId, p)
+      const w = wrap.clientWidth
+      const h = wrap.clientHeight
+      const cx = w * 0.5
+      const cy = h * 0.58
+      if (pts.size >= 2 && pinch) {
+        const [a, b] = pair()
+        const d = Math.max(24, dist(a, b))
+        const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
+        userZoomRef.current = true
+        if (followRef.current) {
+          cam.current = {
+            ...cam.current,
+            zoom: clampMapZoom(pinch.zoom + Math.log2(d / pinch.dist)),
+          }
+        } else {
+          cam.current = zoomAround(cam.current, pinch.zoom + Math.log2(d / pinch.dist), mid.x, mid.y, cx, cy)
+        }
+        lastDraw = 0
+        e.preventDefault()
+        return
+      }
+      if (pts.size === 1 && lastPan) {
+        const dx = p.x - lastPan.x
+        const dy = p.y - lastPan.y
+        if (Math.abs(dx) + Math.abs(dy) > 7) moved = true
+        if (moved) {
+          if (followRef.current) {
+            followRef.current = false
+            setBrowsing(true)
+          }
+          cam.current = panCam(cam.current, dx, dy)
+          lastDraw = 0
+        }
+        lastPan = p
+        e.preventDefault()
+      }
+    }
+    const onUp = (e: PointerEvent) => {
+      const p = pts.get(e.pointerId) || boxPos(e)
+      pts.delete(e.pointerId)
+      if (pts.size < 2) pinch = null
+      if (pts.size === 1) lastPan = pair()[0] || null
+      else lastPan = null
+      if (pts.size === 0 && !moved) {
+        const now = Date.now()
+        if (now - lastTap < 280 && dist(p, lastTapAt) < 28) {
+          const w = wrap.clientWidth
+          const h = wrap.clientHeight
+          userZoomRef.current = true
+          cam.current = zoomAround(cam.current, cam.current.zoom + 1, p.x, p.y, w * 0.5, h * 0.58)
+          lastDraw = 0
+          lastTap = 0
+        } else {
+          lastTap = now
+          lastTapAt = p
+        }
+      }
+    }
+
+    wrap.addEventListener('pointerdown', onDown)
+    wrap.addEventListener('pointermove', onMove)
+    wrap.addEventListener('pointerup', onUp)
+    wrap.addEventListener('pointercancel', onUp)
+
+    const paint = (now: number) => {
+      const box = wrapRef.current
+      const canvas = canvasRef.current
+      const pin = youRef.current
+      if (!box || !canvas) return
+      const cssW = box.clientWidth
+      const cssH = box.clientHeight
+      if (cssW < 8 || cssH < 8) return
+      const cx = cssW * 0.5
+      const cy = cssH * 0.58
+      const here = live.current
+
+      if (followRef.current && pts.size === 0) {
+        const jump = Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) > 0.05
+        if (jump) {
+          cam.current.lat = here.lat
+          cam.current.lon = here.lon
+        } else {
+          cam.current.lat += (here.lat - cam.current.lat) * 0.18
+          cam.current.lon += (here.lon - cam.current.lon) * 0.18
+        }
+        if (!userZoomRef.current) {
+          const dest = destRef.current
+          const speedZ = zoomForSpeedMps(here.speed)
+          const fitZ =
+            Number.isFinite(dest.lat) && Number.isFinite(dest.lon)
+              ? zoomToInclude(here, dest, cssW, cssH)
+              : speedZ
+          const wanted = Math.min(speedZ, fitZ)
+          if (wanted < cam.current.zoom - 0.12) {
+            cam.current.zoom = wanted
+            zoomWantedAt.current = 0
+          } else if (Math.abs(wanted - cam.current.zoom) > 0.12) {
+            if (!zoomWantedAt.current) zoomWantedAt.current = now
+            cam.current.zoom = settleZoom(cam.current.zoom, wanted, zoomWantedAt.current, now)
+            if (Math.abs(cam.current.zoom - wanted) < 0.12) zoomWantedAt.current = 0
+          } else {
+            zoomWantedAt.current = 0
+          }
+        }
+      }
+
+      const still =
+        pts.size === 0 &&
+        tilesPending() === 0 &&
+        (followRef.current
+          ? Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) < 4e-7
+          : true)
+      if (still && now - lastDraw < 180) return
+      lastDraw = now
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5)
+      const pw = Math.round(cssW * dpr)
+      const ph = Math.round(cssH * dpr)
+      if (canvas.width !== pw || canvas.height !== ph) {
+        canvas.width = pw
+        canvas.height = ph
+      }
+      const ctx = canvas.getContext('2d', { alpha: false })
+      if (!ctx) return
+
+      const z = cam.current.zoom
+      const zInt = Math.max(1, Math.floor(z + 1e-6))
+      const size = TILE_SIZE * 2 ** (z - zInt)
+      const day = dayTiles()
+      const camM = webMercator(cam.current.lat, cam.current.lon, zInt)
+      const x0 = Math.floor(camM.x - cx / size) - 1
+      const y0 = Math.floor(camM.y - cy / size) - 1
+      const x1 = Math.ceil(camM.x + (cssW - cx) / size) + 1
+      const y1 = Math.ceil(camM.y + (cssH - cy) / size) + 1
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.imageSmoothingEnabled = true
+      ctx.fillStyle = day ? '#e4e0d4' : '#0b100e'
+      ctx.fillRect(0, 0, cssW, cssH)
+
+      const ready = () => {
+        lastDraw = 0
+      }
+      for (let ty = y0; ty <= y1; ty += 1) {
+        for (let tx = x0; tx <= x1; tx += 1) {
+          const img = prefetchTile(tileUrl(zInt, tx, ty, day), ready)
+          const sx = (tx - camM.x) * size + cx
+          const sy = (ty - camM.y) * size + cy
+          if (img) ctx.drawImage(img, sx, sy, size, size)
+        }
+      }
+
+      const dest = destRef.current
+      if (dest.coords.length >= 3) {
+        ctx.beginPath()
+        let started = false
+        let lastX = Infinity
+        let lastY = Infinity
+        for (const row of dest.coords) {
+          const lon = Number(row?.[0])
+          const lat = Number(row?.[1])
+          if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
+          const pt = projectOnTiles(lat, lon, camM, zInt, size, cx, cy)
+          if (Math.abs(pt.x - lastX) < 1.2 && Math.abs(pt.y - lastY) < 1.2) continue
+          lastX = pt.x
+          lastY = pt.y
+          if (!started) {
+            ctx.moveTo(pt.x, pt.y)
+            started = true
+          } else {
+            ctx.lineTo(pt.x, pt.y)
+          }
+        }
+        if (started) {
+          ctx.lineJoin = 'round'
+          ctx.lineCap = 'round'
+          ctx.strokeStyle = '#070908'
+          ctx.lineWidth = 8
+          ctx.stroke()
+          ctx.strokeStyle = '#1ed760'
+          ctx.lineWidth = 4
+          ctx.stroke()
+        }
+      }
+
+      const pinPt = projectOnTiles(dest.lat, dest.lon, camM, zInt, size, cx, cy)
+      if (Number.isFinite(pinPt.x) && Number.isFinite(pinPt.y)) {
+        ctx.beginPath()
+        ctx.arc(pinPt.x, pinPt.y, 7, 0, Math.PI * 2)
+        ctx.fillStyle = '#f15e6c'
+        ctx.fill()
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#070908'
+        ctx.stroke()
+      }
+
+      const you = projectOnTiles(here.lat, here.lon, camM, zInt, size, cx, cy)
+      const heading = here.bearing != null && Number.isFinite(here.bearing) ? here.bearing : headingRef.current
+      const delta = ((heading - headingRef.current + 540) % 360) - 180
+      headingRef.current += delta * 0.22
+      if (pin) {
+        const on = you.x > -40 && you.x < cssW + 40 && you.y > -40 && you.y < cssH + 40
+        pin.style.opacity = on ? '1' : '0'
+        pin.style.transform = `translate(${you.x - 14}px, ${you.y - 16}px) rotate(${headingRef.current}deg)`
+      }
+    }
+
+    const tick = (now: number) => {
+      if (!liveLoop) return
+      paint(now)
+      frame = requestAnimationFrame(tick)
+    }
+    frame = requestAnimationFrame(tick)
+    return () => {
+      liveLoop = false
+      cancelAnimationFrame(frame)
+      wrap.removeEventListener('pointerdown', onDown)
+      wrap.removeEventListener('pointermove', onMove)
+      wrap.removeEventListener('pointerup', onUp)
+      wrap.removeEventListener('pointercancel', onUp)
+    }
+  }, [live])
+
   return (
-    <div className="drive-map" style={{ width: w, height: h }}>
-      {tiles.map((t) => (
-        <img key={t.key} alt="" src={t.src} style={{ left: t.left, top: t.top }} />
-      ))}
-      <svg className="drive-svg" viewBox={`0 0 ${w} ${h}`}>
-        {path ? (
-          <polyline points={path} fill="none" stroke="#1ed760" strokeWidth="5" strokeLinejoin="round" />
-        ) : null}
-        <circle cx={me.x} cy={me.y} r="8" fill="#e4c36a" stroke="#070908" strokeWidth="3" />
-        <circle cx={pin.x} cy={pin.y} r="7" fill="#f15e6c" stroke="#070908" strokeWidth="3" />
-      </svg>
+    <div className="drive-map-wrap" ref={wrapRef}>
+      <canvas className="drive-map-canvas" ref={canvasRef} />
+      <div className="drive-you" ref={youRef} aria-hidden>
+        <svg viewBox="-12 -14 24 28">
+          <polygon points="0,-12 8,12 -8,12" fill="#e4c36a" stroke="#070908" strokeWidth="2" />
+        </svg>
+      </div>
+      {browsing ? (
+        <button
+          type="button"
+          className="drive-recenter"
+          aria-label="Standort folgen"
+          onClick={() => {
+            followRef.current = true
+            userZoomRef.current = false
+            cam.current = {
+              lat: live.current.lat,
+              lon: live.current.lon,
+              zoom: zoomForSpeedMps(live.current.speed),
+            }
+            setBrowsing(false)
+          }}
+        >
+          ⌖
+        </button>
+      ) : null}
     </div>
   )
 }
 
-function fitView(route: DriveRoute | null, you?: { lat: number; lon: number }) {
-  const pts: Array<[number, number]> = []
-  if (you) pts.push([you.lat, you.lon])
-  if (route) {
-    pts.push([route.fromLat, route.fromLon])
-    pts.push([route.destLat, route.destLon])
-    const step = Math.max(1, Math.floor(route.coords.length / 40))
-    for (let i = 0; i < route.coords.length; i += step) {
-      const [lo, la] = route.coords[i]
-      pts.push([la, lo])
-    }
+function seedLiveFix(): MapFix {
+  const route = getDriveRoute()
+  if (route && Number.isFinite(route.fromLat) && Number.isFinite(route.fromLon)) {
+    return { lat: route.fromLat, lon: route.fromLon }
   }
-  if (!pts.length) return { lat: 48.78, lon: 9.18, z: 14 }
-  let minLa = 90
-  let maxLa = -90
-  let minLo = 180
-  let maxLo = -180
-  for (const [la, lo] of pts) {
-    minLa = Math.min(minLa, la)
-    maxLa = Math.max(maxLa, la)
-    minLo = Math.min(minLo, lo)
-    maxLo = Math.max(maxLo, lo)
-  }
-  const lat = (minLa + maxLa) / 2
-  const lon = (minLo + maxLo) / 2
-  const latSpan = Math.max(0.008, (maxLa - minLa) * 1.4)
-  const lonSpan = Math.max(0.008, (maxLo - minLo) * 1.4)
-  let z = 8
-  for (let cand = 16; cand >= 7; cand -= 1) {
-    const lonPer = (360 / 2 ** cand) * 5 * 0.88
-    const latPer = lonPer * Math.max(0.35, Math.cos((lat * Math.PI) / 180))
-    z = cand
-    if (lonSpan <= lonPer && latSpan <= latPer) break
-  }
-  return { lat, lon, z }
+  return readLastMapFix() || { lat: 48.78, lon: 9.18 }
 }
 
 function sourceHint(now: SpotifyNow | null, status: SpotifyPlayerStatus): string {
@@ -150,22 +397,35 @@ export function DriveMode({
   onCommand,
 }: {
   onClose: () => void
-  onCommand?: (text: string) => void
+  onCommand?: (text: string) => Promise<string> | void
 }) {
   const [route, setRoute] = useState<DriveRoute | null>(() => getDriveRoute())
+  const [tab, setTab] = useState<DriveTab>(() => getDriveTab())
   const [here, setHere] = useState<{ lat: number; lon: number } | null>(null)
+  const liveRef = useRef<MapFix>(seedLiveFix())
+  const hudAt = useRef(0)
   const [now, setNow] = useState<SpotifyNow | null>(() => getSpotifyNow())
   const [player, setPlayer] = useState<SpotifyPlayerStatus>(() => getSpotifyPlayerStatus())
   const [q, setQ] = useState('')
   const [destQ, setDestQ] = useState('')
-  const [hits, setHits] = useState<SpotifyTrack[]>([])
   const [musicMsg, setMusicMsg] = useState<string | null>(null)
   const [musicBusy, setMusicBusy] = useState(false)
   const [hearMsg, setHearMsg] = useState<string | null>(null)
+  const [hearing, setHearing] = useState(false)
+  const navBusy = useRef(false)
+  const listenLock = useRef(false)
   const loggedIn = spotifyLoggedIn()
   const configured = spotifyConfigured()
 
-  useEffect(() => subscribeDrive(() => setRoute(getDriveRoute())), [])
+  useEffect(() => subscribeDrive(() => {
+    setRoute(getDriveRoute())
+    setTab(getDriveTab())
+  }), [])
+  useEffect(() => {
+    if (here) return
+    if (!route) return
+    liveRef.current = { ...liveRef.current, lat: route.fromLat, lon: route.fromLon }
+  }, [route, here])
   useEffect(
     () =>
       subscribeSpotify(() => {
@@ -176,6 +436,15 @@ export function DriveMode({
   )
 
   useEffect(() => {
+    void setKeepScreenOn(true)
+    return () => {
+      listenLock.current = false
+      void stopListen()
+      void setKeepScreenOn(false)
+    }
+  }, [])
+
+  useEffect(() => {
     if (!loggedIn) return
     void ensureInternalPlayer()
     const id = window.setInterval(() => void refreshNow(), 8000)
@@ -183,109 +452,153 @@ export function DriveMode({
   }, [loggedIn])
 
   useEffect(() => {
-    let live = true
-    async function tick() {
-      const fix = await readDeviceLocation()
-      if (!live) return
-      if (fix.ok && fix.lat != null && fix.lon != null) {
-        const pos = { lat: fix.lat, lon: fix.lon }
-        setHere(pos)
-        void refreshDriveRoute(pos)
+    return watchDeviceLocation((fix) => {
+      if (!fix.ok || fix.lat == null || fix.lon == null) return
+      const pos = { lat: fix.lat, lon: fix.lon }
+      liveRef.current = {
+        lat: pos.lat,
+        lon: pos.lon,
+        bearing: fix.bearing ?? liveRef.current.bearing,
+        speed: fix.speed ?? liveRef.current.speed,
       }
-    }
-    void tick()
-    const id = window.setInterval(() => void tick(), 8000)
-    return () => {
-      live = false
-      window.clearInterval(id)
-    }
+      const t = Date.now()
+      if (t - hudAt.current > 280) {
+        hudAt.current = t
+        setHere(pos)
+      }
+      void refreshDriveRoute({ ...pos, bearing: fix.bearing, speed: fix.speed }).then((guide) => {
+        if (!guide?.cue) return
+        if (listenLock.current) return
+        if (guide.cue.startsWith('Ziel')) {
+          setDriveTab('map')
+        }
+        const nowCue = guide.cue.startsWith('Jetzt') || guide.cue.startsWith('Ziel')
+        if (!nowCue && isChatSpeaking()) return
+        if (nowCue) {
+          void stopSpeak().then(() => speakCueFast(guide.cue as string))
+          return
+        }
+        if (navBusy.current) return
+        navBusy.current = true
+        void speakCueFast(guide.cue).finally(() => {
+          navBusy.current = false
+        })
+      })
+    })
   }, [])
 
-  const view = useMemo(() => fitView(route, here || undefined), [here, route])
+  const hud = useMemo(() => {
+    if (!route) return null
+    const pos = here || { lat: route.fromLat, lon: route.fromLon }
+    const nxt = nextManeuver(
+      (route.steps || []).map((s) => ({
+        lat: s.lat,
+        lon: s.lon,
+        type: s.type,
+        modifier: s.modifier,
+        name: s.name,
+      })),
+      route.coords,
+      pos,
+    )
+    if (!nxt) return { arrow: '↑', line: route.dest || 'Wohin?', sub: route.hint || '' }
+    return formatNavBanner(nxt.dir, nxt.meters, nxt.name)
+  }, [here, route])
 
   const km = route && route.meters ? (route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`) : ''
 
   function goDest(raw: string) {
     const dest = raw.trim()
     if (!dest || !onCommand) return
-    const line = /^(nach|zu(?:r|m)?)\s+/i.test(dest) ? dest : `nach ${dest}`
-    onCommand(line)
+    if (
+      parsePoiIntent(dest) ||
+      parseFuelIntent(dest) ||
+      /^(nach|zu(?:r|m)?|fahr|bring|navigier)\b/i.test(dest)
+    ) {
+      onCommand(dest)
+      return
+    }
+    onCommand(`nach ${dest}`)
+  }
+
+  function hear() {
+    if (hearing || listenLock.current) return
+    listenLock.current = true
+    setHearing(true)
+    setHearMsg('Ich höre…')
+    void (async () => {
+      try {
+        await stopSpeak()
+        await stopListen()
+        await new Promise((r) => window.setTimeout(r, 180))
+        const ok = await requestMicPermission()
+        if (!ok) {
+          setHearMsg('Mikrofon erlauben — sonst höre ich hier nichts.')
+          return
+        }
+        const res = await listenOnce((partial) => setHearMsg(partial || 'Ich höre…'))
+        const text = (res.text || '').trim()
+        if (!text) {
+          setHearMsg(res.message || 'Nichts gehört. Nochmal Mic.')
+          return
+        }
+        setHearMsg(text)
+        const reply = (await onCommand?.(text)) || ''
+        const line = reply.trim()
+        if (line) {
+          setHearMsg(line)
+          await speakText(line)
+        } else {
+          setHearMsg('Verstanden.')
+        }
+      } catch (err) {
+        setHearMsg(err instanceof Error ? err.message : 'Zuhören fehlgeschlagen.')
+      } finally {
+        listenLock.current = false
+        setHearing(false)
+        window.setTimeout(() => setHearMsg(null), 5_200)
+      }
+    })()
   }
 
   return (
     <div className="drive-view" role="dialog" aria-labelledby="drive-title">
+      <FollowMap
+        destLat={route?.destLat ?? liveRef.current.lat}
+        destLon={route?.destLon ?? liveRef.current.lon}
+        coords={route?.coords || []}
+        live={liveRef}
+      />
       <header className="drive-bar">
         <div>
-          <p className="settings-kicker">Fahrmodus</p>
+          <p className="settings-kicker">CarPlay</p>
           <h2 id="drive-title">{route?.dest || 'Wohin?'}</h2>
         </div>
         <div className="drive-bar-actions">
-          <button
-            type="button"
-            className="settings-close"
-            onClick={() => {
-              setHearMsg('Ich höre…')
-              void requestMicPermission().then((ok) => {
-                if (!ok) {
-                  setHearMsg('Mikrofon erlauben.')
-                  return
-                }
-                return listenOnce((partial) => setHearMsg(partial || 'Ich höre…')).then((res) => {
-                  if (res.text) {
-                    setHearMsg(null)
-                    onCommand?.(res.text)
-                  } else setHearMsg(res.message || 'Nichts gehört.')
-                })
-              })
-            }}
-          >
-            Hören
-          </button>
           <button type="button" className="settings-close" onClick={onClose}>
             Fertig
           </button>
         </div>
       </header>
-      <div className="drive-map-wrap">
-        <TileMap
-          lat={view.lat}
-          lon={view.lon}
-          destLat={route?.destLat ?? view.lat}
-          destLon={route?.destLon ?? view.lon}
-          z={view.z}
-          coords={route?.coords || []}
-          you={here || undefined}
-        />
-      </div>
-      <footer className="drive-dock">
-        <form
-          className="drive-search"
-          onSubmit={(e) => {
-            e.preventDefault()
-            goDest(destQ)
-            setDestQ('')
-          }}
-        >
-          <input
-            value={destQ}
-            onChange={(e) => setDestQ(e.target.value)}
-            placeholder="Wohin? z. B. Heilbronn"
-            aria-label="Ziel"
-          />
-          <button type="submit">Los</button>
-        </form>
-        {hearMsg ? <p className="settings-hint">{hearMsg}</p> : null}
-        <div>
-          <strong>{route ? `${route.minutes || '—'} Min` : 'Kein Ziel'}</strong>
-          <span>{km}{route?.hint ? ` · ${route.hint}` : ' · intern, nicht Google Maps'}</span>
+      {hud ? (
+        <div className={`drive-hud ${dayTiles() ? 'is-day' : ''}`} aria-live="polite">
+          <span className="drive-hud-arrow">{hud.arrow}</span>
+          <div>
+            <strong>{hud.line}</strong>
+            <span>{hud.sub}</span>
+          </div>
+          <div className="drive-hud-eta">
+            <strong>{route ? `${route.minutes || '—'} Min` : '—'}</strong>
+            <span>{km}</span>
+          </div>
         </div>
-        <div className="drive-music" onPointerDown={() => void activateSpotifyElement()}>
+      ) : null}
+      {tab === 'spotify' ? (
+        <div className="drive-spotify-overlay" onPointerDown={() => void activateSpotifyElement()}>
           <div className="drive-now-row">
             {now?.art ? <img className="drive-art" src={now.art} alt="" /> : <div className="drive-art drive-art-empty" />}
             <div>
-              <p className="drive-now">
-                {now ? `${now.playing ? '▶' : '❚❚'} ${now.name}` : 'Spotify in Jarvis'}
-              </p>
+              <p className="drive-now">{now ? `${now.playing ? '▶' : '❚❚'} ${now.name}` : 'Spotify in Jarvis'}</p>
               <p className="drive-now-sub">
                 {now?.artist ? `${now.artist} · ` : ''}
                 {sourceHint(now, player)}
@@ -307,7 +620,6 @@ export function DriveMode({
                       setMusicMsg(msg)
                       setNow(getSpotifyNow())
                       setMusicBusy(false)
-                      setHits([])
                     })
                 }}
               >
@@ -344,45 +656,7 @@ export function DriveMode({
                 <button type="button" disabled={musicBusy} onClick={() => void nextSpotify()}>
                   ⏭
                 </button>
-                <button
-                  type="button"
-                  disabled={musicBusy || !q.trim()}
-                  onClick={() => {
-                    setMusicBusy(true)
-                    void searchTracks(q).then((res) => {
-                      setMusicBusy(false)
-                      if (!res.ok) setMusicMsg(res.message)
-                      else setHits(res.tracks)
-                    })
-                  }}
-                >
-                  Suchen
-                </button>
               </div>
-              {hits.length ? (
-                <ul className="drive-hits">
-                  {hits.map((t) => (
-                    <li key={t.uri}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMusicBusy(true)
-                          void activateSpotifyElement()
-                            .then(() => playTrack(t))
-                            .then((msg) => {
-                              setMusicMsg(msg)
-                              setNow(getSpotifyNow())
-                              setMusicBusy(false)
-                              setHits([])
-                            })
-                        }}
-                      >
-                        {t.name} — {t.artist}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
             </>
           ) : configured ? (
             <button
@@ -401,8 +675,42 @@ export function DriveMode({
           )}
           {musicMsg ? <p className="settings-hint">{musicMsg}</p> : null}
         </div>
-        <p>© OpenStreetMap · CARTO · Spotify</p>
-      </footer>
+      ) : (
+        <form
+          className="drive-dest-sheet"
+          onSubmit={(e) => {
+            e.preventDefault()
+            goDest(destQ)
+            setDestQ('')
+          }}
+        >
+          <input
+            value={destQ}
+            onChange={(e) => setDestQ(e.target.value)}
+            placeholder="Wohin? z. B. Heilbronn"
+            aria-label="Ziel"
+          />
+          <button type="submit">Los</button>
+        </form>
+      )}
+      {hearMsg ? <p className="drive-hear">{hearMsg}</p> : null}
+      <nav className="drive-tabs" aria-label="CarPlay">
+        <button type="button" className={tab === 'map' ? 'is-on' : ''} onClick={() => setDriveTab('map')}>
+          Karte
+        </button>
+        <button type="button" className={tab === 'spotify' ? 'is-on' : ''} onClick={() => setDriveTab('spotify')}>
+          Spotify
+        </button>
+        <button
+          type="button"
+          className={`drive-mic${hearing ? ' is-hot' : ''}`}
+          onClick={hear}
+          aria-label="Hören"
+          disabled={hearing}
+        >
+          Mic
+        </button>
+      </nav>
     </div>
   )
 }

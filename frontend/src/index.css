@@ -444,6 +444,42 @@ textarea {
   border-color: rgba(30, 215, 96, 0.7);
 }
 
+.copy-field-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.copy-field-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.copy-btn {
+  appearance: none;
+  flex: 0 0 auto;
+  min-width: 92px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.copy-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.copy-block-title {
+  margin: 18px 0 0;
+  font-size: 0.95rem;
+}
+
 .settings-card .memory-filter {
   text-transform: none;
 }
@@ -1163,6 +1199,15 @@ textarea {
   text-decoration: none;
 }
 
+.pc-shot {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 10px;
+  margin-top: 8px;
+  background: #111;
+}
+
 .confirm-row {
   display: inline-flex;
   gap: 6px;
@@ -1259,6 +1304,12 @@ textarea {
   opacity: 0.85;
 }
 
+.sources-snippet {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 .sources-privacy {
   margin: 8px 0 0;
   font-size: 0.7rem;
@@ -1316,8 +1367,15 @@ button.linkish {
 }
 
 .composer-wrap {
+  position: relative;
+  z-index: 11;
   padding: 12px 16px 20px;
   flex-shrink: 0;
+}
+
+.main.is-drive .composer-wrap {
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .prompt-chips {
@@ -1384,8 +1442,9 @@ button.linkish {
   border-radius: 24px;
   padding: 10px 12px 10px 16px;
   display: flex;
-  gap: 10px;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
@@ -1424,21 +1483,77 @@ button.linkish {
 }
 
 .composer textarea {
-  flex: 1;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
   resize: none;
   border: 0;
   outline: none;
   background: transparent;
   color: var(--text);
   max-height: 120px;
-  min-height: 24px;
+  min-height: 28px;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   line-height: 1.4;
-  padding: 8px 0;
+  padding: 8px 0 4px;
   position: relative;
   z-index: 1;
+  white-space: pre-wrap;
+  word-break: break-word;
+  writing-mode: horizontal-tb;
   transition: min-height var(--motion-fast) ease;
+}
+
+.composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.composer .icon-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.composer .icon-btn.mic-round {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 50%;
+  border-color: rgba(30, 215, 96, 0.55);
+  color: var(--accent);
+  background: rgba(30, 215, 96, 0.08);
+}
+
+.composer .icon-btn.send-round {
+  background: linear-gradient(180deg, #3bea72 0%, var(--accent) 48%, var(--accent-dim));
+  color: #04140a;
+  border: 0;
+}
+
+.ghost-btn.icon-only {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
 }
 
 .composer button {
@@ -1489,7 +1604,7 @@ button.linkish {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 12;
+  z-index: 16;
   background: rgba(18, 18, 18, 0.42);
   display: flex;
   align-items: flex-end;
@@ -1910,21 +2025,32 @@ button.linkish {
 .drive-view {
   position: absolute;
   inset: 0;
-  z-index: 9;
+  z-index: 14;
   background: #050605;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  contain: layout paint;
 }
 
 .drive-bar {
-  flex-shrink: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px 10px;
-  border-bottom: 1px solid var(--border);
+  padding: 12px 16px 8px;
+  background: linear-gradient(180deg, rgba(5, 6, 5, 0.88), transparent);
+  pointer-events: none;
+}
+
+.drive-bar-actions,
+.drive-bar button {
+  pointer-events: auto;
 }
 
 .drive-bar-actions {
@@ -1935,71 +2061,212 @@ button.linkish {
 .drive-bar h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.45rem;
+  font-size: 1.2rem;
 }
 
 .drive-map-wrap {
-  flex: 1 1 0;
-  min-height: 0;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-  background: #0b100e;
-}
-
-.drive-map {
-  position: relative;
-  max-width: 100%;
-  max-height: 100%;
-}
-
-.drive-map img {
-  position: absolute;
-  width: 256px;
-  height: 256px;
-  pointer-events: none;
-}
-
-.drive-svg {
   position: absolute;
   inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #0b100e;
+  touch-action: none;
+  user-select: none;
+}
+
+.drive-map-canvas {
+  display: block;
   width: 100%;
   height: 100%;
 }
 
-.drive-dock {
-  flex-shrink: 0;
-  padding: 10px 14px 16px;
-  border-top: 1px solid var(--border);
+.drive-you {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 32px;
+  z-index: 1;
+  pointer-events: none;
+  transform-origin: 14px 16px;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
+  will-change: transform;
+}
+
+.drive-you svg {
+  width: 100%;
+  height: 100%;
+}
+
+.drive-hud {
+  position: absolute;
+  top: 64px;
+  left: 12px;
+  right: 12px;
+  z-index: 2;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: linear-gradient(180deg, #101412, #070908);
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(10, 14, 12, 0.82);
+  border: 1px solid rgba(228, 195, 106, 0.28);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
 }
 
-.drive-dock > div:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.drive-hud.is-day {
+  background: rgba(250, 248, 240, 0.92);
+  border-color: rgba(20, 24, 18, 0.35);
+  color: #121410;
+}
+.drive-hud.is-day .drive-hud-arrow,
+.drive-hud.is-day strong {
+  color: #121410;
+}
+.drive-hud.is-day span {
+  color: #3a4038;
 }
 
-.drive-dock strong {
-  font-size: 1.1rem;
+.drive-hud-arrow {
+  font-size: 2rem;
+  line-height: 1;
+  width: 2.2rem;
+  text-align: center;
+  color: #e4c36a;
 }
 
-.drive-dock span,
-.drive-dock > p {
-  font-size: 0.72rem;
+.drive-hud strong {
+  display: block;
+  font-size: 1.55rem;
+  letter-spacing: 0.02em;
+}
+
+.drive-hud span {
+  display: block;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  margin: 0;
 }
 
-.drive-music {
+.drive-hud-eta {
+  margin-left: auto;
+  text-align: right;
+}
+
+.drive-hud-eta strong {
+  font-size: 1.05rem;
+}
+
+.drive-spotify-overlay,
+.drive-dest-sheet {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 72px;
+  z-index: 2;
+  animation: driveSheet 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.drive-spotify-overlay {
   display: flex;
   flex-direction: column;
+  gap: 10px;
+  max-height: 48%;
+  overflow: auto;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(12, 16, 14, 0.92);
+  border: 1px solid #1db95455;
+  backdrop-filter: blur(16px);
+}
+
+.drive-dest-sheet {
+  display: flex;
   gap: 8px;
-  padding-top: 6px;
-  border-top: 1px solid var(--border);
+}
+
+@keyframes driveSheet {
+  from {
+    transform: translate3d(0, 18px, 0);
+    opacity: 0.55;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.drive-hear {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 128px;
+  z-index: 3;
+  margin: 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #e4c36a;
+}
+
+.drive-tabs {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+}
+
+.drive-tabs button {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: rgba(16, 20, 18, 0.92);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.drive-tabs button.is-on {
+  background: #1db95422;
+  border-color: #1db95488;
+  color: #f4f1ea;
+}
+
+.drive-mic {
+  width: 52px;
+  height: 52px;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  font-weight: 700;
+  background: #e4c36a !important;
+  color: #070908 !important;
+  border: none !important;
+}
+
+.drive-mic.is-hot {
+  box-shadow: 0 0 0 6px rgba(228, 195, 106, 0.28);
+}
+
+.drive-recenter {
+  position: absolute;
+  right: 14px;
+  bottom: 132px;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(228, 195, 106, 0.4);
+  background: rgba(12, 16, 14, 0.92);
+  color: #e4c36a;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 .drive-now-row {
@@ -2009,9 +2276,9 @@ button.linkish {
 }
 
 .drive-art {
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
+  width: 56px;
+  height: 56px;
+  border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
   background: #1db95422;
@@ -2023,7 +2290,7 @@ button.linkish {
 
 .drive-now {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
 }
 
 .drive-now-sub {
@@ -2037,32 +2304,35 @@ button.linkish {
   gap: 8px;
 }
 
-.drive-search input {
+.drive-search input,
+.drive-dest-sheet input {
   flex: 1;
   min-width: 0;
   background: var(--bg-input);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 1rem;
 }
 
 .drive-transport {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr auto;
+  grid-template-columns: 1fr 1.5fr 1fr;
   gap: 8px;
 }
 
 .drive-transport button,
 .drive-search button,
 .drive-hits button,
-.drive-login {
+.drive-login,
+.drive-dest-sheet button {
   appearance: none;
   border: 1px solid var(--border);
   background: var(--bg-elevated);
   color: var(--text);
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 10px 12px;
   cursor: pointer;
 }
 

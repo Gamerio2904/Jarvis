@@ -1,28 +1,55 @@
 import assert from 'node:assert/strict'
-import { parseTvIntent } from '../src/engine/tv-parse.ts'
-import { parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
+import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
+import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
-import { scrubReply, isHelpCommand } from '../src/engine/guards.ts'
+import { scrubReply, isHelpCommand, finishReply } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
-import { isLiveLookup } from '../src/engine/research-parse.ts'
+import {
+  formatResearchReply,
+  guardResearchReply,
+  isFactLookup,
+  isLiveLookup,
+  isProductLookup,
+  isSearchRefusal,
+  parseEuroPrices,
+  parseShopDiscountIntent,
+  RESEARCH_EMPTY,
+  researchHasSources,
+  researchQuery,
+  researchStatusLabel,
+  sourcesFromHtml,
+  sourcesFromText,
+} from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
+import { parseTransitIntent } from '../src/engine/transit-parse.ts'
+import { parseHolidayIntent } from '../src/engine/holiday-parse.ts'
+import { parseNewsIntent } from '../src/engine/news-parse.ts'
 import { parseTimerIntent } from '../src/engine/timer-parse.ts'
+import { timerDoneLine, cleanTimerTitle, timerSetLine, timerStopLine } from '../src/engine/timer-announce.ts'
+import { expandZahlenworte } from '../src/engine/zahlenworte.ts'
 import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
+import { ttsModelsToTry } from '../src/engine/tts.ts'
+import { GEMINI_PERSONA, PERSONA, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
-import { RESEARCH_EMPTY, researchHasSources } from '../src/engine/research-parse.ts'
+import { parseFanIntent } from '../src/engine/fan-parse.ts'
 import {
+  displayPlaceName,
   findContactRow,
+  isCommNo,
+  isCommYes,
   mapsDirUrl,
+  normalizePlaceName,
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
+  looksLikeBareStreet,
 } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { pickHeard } from '../src/engine/heard.ts'
@@ -31,7 +58,20 @@ import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { parseDeviceIntent } from '../src/engine/device-parse.ts'
+import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
+import { parsePoiIntent, poiLabel } from '../src/engine/poi-parse.ts'
+import { formatHoursSpeech, hoursOpenNow, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
+import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
+import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
+import { formatHereReply, parseHereIntent } from '../src/engine/here-parse.ts'
 import { parseSpotifyIntent, spotifySourceLabel } from '../src/engine/spotify-parse.ts'
+import { collectFreeWhere, pickWatchTarget, parseWatchOffers, youtubeVideoId } from '../src/engine/tv-watch.ts'
+import { parseFilmIntent } from '../src/engine/film-parse.ts'
+import { formatFilmReply } from '../src/engine/film.ts'
+import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
+import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
+import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, panCam, projectOnTiles, projectToView, settleZoom, simplifyTrack, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
@@ -57,6 +97,59 @@ assert.equal(parseTvIntent('Lautstärke 50')?.level, 50)
 assert.equal(parseTvIntent('lauter um 10')?.action, 'volume_up')
 assert.equal(parseTvIntent('lauter um 10')?.steps, 10)
 assert.equal(parseTvIntent('leiser um 5')?.action, 'volume_down')
+assert.equal(parseTvWatch('Öffne Netflix')?.kind, 'open')
+assert.equal(parseTvWatch('Öffne Netflix')?.kind === 'open' && parseTvWatch('Öffne Netflix').app, 'netflix')
+assert.equal(parseTvWatch('Starte YouTube am Fernseher')?.kind === 'open' && parseTvWatch('Starte YouTube am Fernseher').app, 'youtube')
+assert.equal(parseTvWatch('Spiel YouTube')?.kind === 'open' && parseTvWatch('Spiel YouTube').app, 'youtube')
+assert.equal(parseTvWatch('Öffne Amazon')?.kind === 'open' && parseTvWatch('Öffne Amazon').app, 'prime')
+assert.equal(parseTvWatch('Disney Plus am Fernseher')?.kind === 'open' && parseTvWatch('Disney Plus am Fernseher').app, 'disney')
+assert.equal(parseTvWatch('Spiel Dune Film')?.kind, 'play')
+assert.equal(parseTvWatch('Spiel Dune Film')?.kind === 'play' && parseTvWatch('Spiel Dune Film').title, 'Dune')
+assert.equal(parseTvWatch('Spiele den Film Inception')?.kind === 'play' && parseTvWatch('Spiele den Film Inception').title, 'Inception')
+assert.equal(parseTvWatch('Spiel Dune Film App')?.kind === 'play' && parseTvWatch('Spiel Dune Film App').title, 'Dune')
+assert.equal(parseTvWatch('Spiel Dune auf Netflix')?.kind === 'play' && parseTvWatch('Spiel Dune auf Netflix').app, 'netflix')
+assert.equal(parseTvWatch('Spiel Dune auf Netflix')?.kind === 'play' && parseTvWatch('Spiel Dune auf Netflix').title, 'Dune')
+assert.equal(parseTvWatch('Spiel Hotel California'), null)
+assert.equal(parseTvWatch('Spiel das auf Spotify'), null)
+assert.equal(parseTvWatch('Fire TV Pause'), null)
+assert.equal(parseTvWatch('Fernseher an'), null)
+assert.equal(parseTvWatch('Netflix an')?.kind, 'open')
+{
+  const yt = parseTvWatch('Spiele ein der hansus YouTube Video auf dem Fernseher ab')
+  assert.equal(yt?.kind, 'play')
+  if (yt?.kind === 'play') {
+    assert.equal(yt.app, 'youtube')
+    assert.equal(yt.content, 'video')
+    assert.equal(yt.title.toLowerCase().includes('hansus'), true)
+  }
+}
+assert.equal(parseTvWatch('Spiele Sonic 3 ab'), null)
+{
+  const sonic = parseTvWatch('Spiele Sonic 3 ab', { followUp: true, lastApp: 'youtube' })
+  assert.equal(sonic?.kind, 'play')
+  if (sonic?.kind === 'play') {
+    assert.equal(sonic.title, 'Sonic 3')
+    assert.equal(sonic.app, 'youtube')
+    assert.equal(sonic.content, 'video')
+  }
+}
+assert.match(
+  scrubReply('Kein direkter Zugriff auf Ihre Geräte, Timon. Den Film müssen Sie auf dem Fernseher.'),
+  /Fernseher steuere ich/,
+)
+assert.equal(youtubeVideoId('https://www.youtube.com/watch?v=dQw4w9WgXcQ'), 'dQw4w9WgXcQ')
+assert.equal(tvAppFromPackage({ packageId: 8 }), 'netflix')
+assert.equal(tvAppFromPackage({ packageId: 337 }), 'disney')
+assert.equal(pickWatchTarget(parseWatchOffers([
+  { monetizationType: 'FLATRATE', standardWebURL: 'https://www.netflix.com/title/1', package: { packageId: 8, clearName: 'Netflix' } },
+  { monetizationType: 'FREE', standardWebURL: 'https://www.youtube.com/watch?v=abc123xyz', package: { packageId: 192, clearName: 'YouTube' } },
+]))?.app, 'youtube')
+assert.equal(pickWatchTarget(parseWatchOffers([
+  { monetizationType: 'RENT', package: { packageId: 10, clearName: 'Amazon Video' } },
+]), 'prime')?.monetization, 'rent')
+assert.equal(pickWatchTarget(parseWatchOffers([
+  { monetizationType: 'RENT', package: { packageId: 10, clearName: 'Amazon Video' } },
+])), null)
 assert.equal(parseDriveIntent('Aktiviere Fahrmodus')?.kind, 'on')
 assert.equal(parseDriveIntent('Fahrmodus aus')?.kind, 'off')
 assert.equal(parseDriveIntent('zur Freundin', true)?.kind, 'dest')
@@ -82,6 +175,121 @@ assert.equal(parseSpotifyIntent('weiter')?.kind, 'next')
 assert.equal(parseSpotifyIntent('nächster Song')?.kind, 'next')
 assert.equal(spotifySourceLabel('internal'), 'in Jarvis')
 assert.equal(spotifySourceLabel('preview'), '30s-Vorschau')
+assert.equal(parseSpotifyIntent('Spiel Hotel California auf Spotify')?.kind, 'play')
+assert.deepEqual(parseSpotifyIntent('Spiel Hotel California auf Spotify'), {
+  kind: 'play',
+  query: 'Hotel California',
+})
+assert.equal(parseSpotifyIntent('Spiel das auf Spotify')?.kind, 'resume')
+assert.equal(parseDriveIntent('Zeig Spotify')?.kind, 'tab')
+assert.equal(parseDriveIntent('Zeig Spotify')?.kind === 'tab' && parseDriveIntent('Zeig Spotify')?.tab, 'spotify')
+assert.equal(parseDriveIntent('öffne Karte')?.kind === 'tab' && parseDriveIntent('öffne Karte')?.tab, 'map')
+assert.equal(parseDriveIntent('Karte'), null)
+assert.equal(parseDriveIntent('Karte', true)?.tab, 'map')
+assert.equal(parseDriveIntent('Spotify', true)?.tab, 'spotify')
+assert.equal(parseDriveIntent('Spiel das auf Spotify')?.tab, 'spotify')
+assert.equal(formatNavCue('left', 300, 'mid'), 'Vorne links in 300 Metern abbiegen.')
+assert.equal(formatNavCue('slight_left', 300, 'mid'), 'Vorne links in 300 Metern abbiegen.')
+assert.equal(formatNavCue('right', 80, 'near'), 'In 100 Metern rechts abbiegen.')
+assert.equal(formatNavCue('left', 20, 'now'), 'Jetzt links abbiegen.')
+assert.equal(navPhase(300), 'mid')
+assert.equal(dirFromManeuver('turn', 'left'), 'left')
+assert.equal(dirFromManeuver('turn', 'slight left'), 'slight_left')
+{
+  const nxt = nextManeuver(
+    [{ lat: 48.7827, lon: 9.18, type: 'turn', modifier: 'left', name: 'Testweg' }],
+    [
+      [9.18, 48.78],
+      [9.18, 48.781],
+      [9.18, 48.782],
+      [9.18, 48.7827],
+    ],
+    { lat: 48.78, lon: 9.18 },
+  )
+  assert.ok(nxt)
+  assert.equal(nxt.dir, 'left')
+  assert.ok(nxt.meters > 200)
+  assert.equal(formatNavCue(nxt.dir, 300, 'mid'), 'Vorne links in 300 Metern abbiegen.')
+}
+
+{
+  const a = webMercator(48.78, 9.18, 16)
+  const b = webMercator(48.78, 9.28, 16)
+  assert.ok(b.x > a.x)
+  const origin = { x: Math.floor(a.x), y: Math.floor(a.y) }
+  const path = lonLatPath(
+    [
+      [9.18, 48.78],
+      [9.28, 48.78],
+    ],
+    origin,
+    16,
+    256,
+  )
+  const xs = path.split(' ').map((p) => Number(p.split(',')[0]))
+  assert.equal(xs.length, 2)
+  assert.ok(xs[1] > xs[0])
+  assert.equal(compactCoords(Array.from({ length: 20 }, (_, i) => [i, i]), 5).length, 5)
+  const east = projectToView(48.78, 9.28, 48.78, 9.18, 16, 200, 400)
+  const north = projectToView(48.79, 9.18, 48.78, 9.18, 16, 200, 400)
+  assert.ok(east.x > 200)
+  assert.ok(north.y < 400)
+  const cover = tilesForView(390, 844)
+  assert.ok(cover.cols * 256 >= 390)
+  assert.ok(cover.rows * 256 >= 844)
+  assert.equal(zoomForSpeedMps(0), 16)
+  assert.equal(zoomForSpeedMps(8), 15)
+  assert.equal(zoomForSpeedMps(40), 13)
+  const t0 = 10_000
+  assert.equal(settleZoom(16, 15, t0, t0 + 400), 16)
+  assert.equal(settleZoom(16, 15, t0, t0 + 2000), 15)
+  assert.equal(wrapTile(3, -1), 7)
+  assert.ok(tileUrl(16, 1, 2, true).includes('cartocdn.com'))
+  assert.ok(!tileUrl(16, 1, 2, true).includes('rotate'))
+  const home = { lat: 48.78, lon: 9.18, zoom: 16 }
+  const west = panCam(home, 256, 0)
+  assert.ok(west.lon < home.lon)
+  const back = latLonFromWorld(worldPixels(home.lat, home.lon, 16).x, worldPixels(home.lat, home.lon, 16).y, 16)
+  assert.ok(Math.abs(back.lat - home.lat) < 1e-6)
+  assert.ok(Math.abs(back.lon - home.lon) < 1e-6)
+  const zc = zoomAround(home, 17, 200, 400, 200, 400)
+  assert.ok(Math.abs(zc.lat - home.lat) < 1e-5)
+  assert.ok(Math.abs(zc.lon - home.lon) < 1e-5)
+  assert.equal(zc.zoom, 17)
+  assert.deepEqual(asLonLat([9.14, 48.95]), [9.14, 48.95])
+  assert.deepEqual(asLonLat([48.95, 9.14]), [9.14, 48.95])
+  const poly =
+    'w_xiHgbyv@?`@Ap@?Z?n@~@l@|@l@xB`B`@\\dB~Ar@v@v@bAp@|@l@|@bAbBZj@\\t@NXHRP`@BF@@NVABGJGJEDoBzBMTGLCJCPGf@CLEh@If@G`@Kb@Kh@E`@ELAJAP?H@J?HBJ@J'
+  const decoded = decodePolyline(poly)
+  assert.ok(decoded.length >= 40)
+  assert.ok(Math.abs(decoded[0][0] - 9.14484) < 1e-4)
+  assert.ok(Math.abs(decoded[0][1] - 48.95244) < 1e-4)
+  const last = decoded[decoded.length - 1]
+  assert.ok(Math.abs(last[0] - 9.13663) < 1e-4)
+  assert.ok(Math.abs(last[1] - 48.94972) < 1e-4)
+  assert.equal(isRoadTrack(decoded, 878), true)
+  assert.equal(isRoadTrack([[9.14, 48.95], [9.13, 48.94]], 800), false)
+  const elbow = simplifyTrack([
+    [9.144, 48.952],
+    [9.144, 48.95],
+    [9.14, 48.95],
+  ])
+  assert.equal(elbow.length, 3)
+  const straight = simplifyTrack(
+    Array.from({ length: 12 }, (_, i) => [9.14, 48.95 + i * 0.00005]),
+  )
+  assert.equal(straight.length, 2)
+  const valeo = { lat: 48.95246, lon: 9.14493 }
+  const katz = { lat: 48.94972, lon: 9.13663 }
+  const fit = zoomToInclude(valeo, katz, 390, 844)
+  assert.ok(fit <= 16)
+  const destPt = projectToView(katz.lat, katz.lon, valeo.lat, valeo.lon, fit, 195, 489.52)
+  assert.ok(destPt.x > 36 && destPt.x < 354)
+  assert.ok(destPt.y > 56 && destPt.y < 788)
+  const tilePt = projectOnTiles(valeo.lat, valeo.lon, webMercator(valeo.lat, valeo.lon, 16), 16, 256, 195, 490)
+  assert.ok(Math.abs(tilePt.x - 195) < 0.6)
+  assert.ok(Math.abs(tilePt.y - 490) < 0.6)
+}
 
 assert.ok(isMemoryWrite('Ich heiße Max und trinke gerne Kaffee'))
 const facts = parseMemoryFacts('Ich heiße Max und trinke gerne Kaffee und esse Pizza')
@@ -89,12 +297,16 @@ assert.equal(facts.find((f) => f.key === 'name')?.value, 'Max')
 assert.equal(facts.find((f) => f.key === 'getränk')?.value, 'Kaffee')
 assert.equal(facts.find((f) => f.key === 'essen')?.value, 'Pizza')
 assert.ok(isMemoryRecall('Was trinke ich?'))
+assert.ok(isMemoryRecall('Was trinke ich gerne?'))
+assert.ok(!isMemoryWrite('Was trinke ich gerne?'))
+assert.equal(parseMemoryFacts('Was trinke ich gerne?').find((f) => f.key === 'getränk'), undefined)
 assert.ok(isMemoryRecall('Wie ist mein Name?'))
 assert.ok(!isMemoryWrite('Hallo Jarvis'))
 
 assert.equal(parseToolIntent('todo: Milch')?.kind, 'todo_create')
 assert.equal(parseToolIntent('Milch kaufen'), null)
 assert.equal(parseShopIntent('Milch kaufen')?.kind, 'add')
+assert.equal(parseShopIntent('in 20 Minuten Milch holen'), null)
 assert.equal(parseShopIntent('Milch auf die Einkaufsliste')?.kind, 'add')
 assert.equal(parseShopIntent('auch Brot')?.kind, 'add')
 assert.equal(parseShopIntent('was fehlt?')?.kind, 'list')
@@ -109,6 +321,16 @@ assert.ok(isHelpCommand('/hilfe'))
 assert.match(scrubReply('Du bist toll und dein Hund auch'), /Sie/)
 assert.match(scrubReply('Ich habe den Fernseher ausgeschaltet'), /nicht ausgeführt/)
 assert.match(scrubReply('Sie leiden an akuter Amnesie.'), /Jarvis/)
+assert.doesNotMatch(scrubReply('Gerne! Wie kann ich helfen?'), /Gerne|helfen/i)
+assert.doesNotMatch(scrubReply('Als KI stehe ich zu Diensten.'), /Als KI|Diensten/i)
+assert.match(PERSONA, /Siezen/)
+assert.match(GEMINI_PERSONA, /Smalltalk/)
+assert.match(GEMINI_PERSONA, /Master/)
+assert.match(GEMINI_PERSONA, /nicht abschreiben/)
+assert.match(GEMINI_PERSONA, /Understatement/)
+assert.match(VOICE_HINT, /Understatement/)
+assert.match(PERSONA, /Telegramm/)
+assert.match(GEMINI_PERSONA, /Satzbildung/)
 assert.equal(
   scrubReply('Ich habe das Internet nach Kuchenrezepten durchsucht. Zucker und Mehl reichen.').includes(
     'durchsucht',
@@ -117,7 +339,12 @@ assert.equal(
 )
 assert.ok(isIdentityAsk('Wer bist du und wer bin ich?'))
 assert.ok(isLiveLookup('Suche im Internet nach Kuchenrezepten'))
+assert.ok(isLiveLookup('Suche nach Kuchenrezepten'))
 assert.ok(isLiveLookup('Wie ist die Temperatur in Ingesheim heute?'))
+assert.ok(isLiveLookup('Wie viele Scheibenwischer verkauft Valeo am tag'))
+assert.ok(isFactLookup('Wie viele Scheibenwischer verkauft Valeo am tag'))
+assert.ok(!isFactLookup('wie viele Kaffee trinke ich am Tag'))
+assert.ok(!isFactLookup('Hallo Jarvis.'))
 assert.ok(!isLiveLookup('Hallo Jarvis.'))
 
 const frozen = new Date('2026-08-15T14:00:00')
@@ -126,6 +353,12 @@ assert.equal(in20?.kind, 'create')
 if (in20?.kind === 'create') {
   assert.equal(in20.title, 'Milch')
   assert.equal(in20.due.getTime(), frozen.getTime() + 20 * 60_000)
+}
+const in20holen = parseReminderIntent('in 20 Minuten Milch holen', frozen)
+assert.equal(in20holen?.kind, 'create')
+if (in20holen?.kind === 'create') {
+  assert.equal(in20holen.title, 'Milch holen')
+  assert.equal(in20holen.due.getTime(), frozen.getTime() + 20 * 60_000)
 }
 const morgen = parseReminderIntent('morgen 8 Uhr Steuer', frozen)
 assert.equal(morgen?.kind, 'create')
@@ -218,13 +451,67 @@ const snap = {
 const nowBrief = formatWeatherBrief(snap, 'now', 'general')
 assert.match(nowBrief, /München/)
 assert.match(nowBrief, /18 Grad/)
-assert.doesNotMatch(nowBrief, /Open-Meteo|°C/)
+assert.doesNotMatch(nowBrief, /Open-Meteo|°C|kein Raten/)
 assert.match(formatWeatherBrief(snap, 'tomorrow', 'general'), /morgen/)
 assert.match(formatWeatherBrief(snap, 'tomorrow', 'rain'), /Schirm/)
 assert.match(formatWeatherBrief(snap, 'weekend', 'general'), /Wochenende/)
 assert.match(formatWeatherBrief(snap, 'now', 'wear'), /Pulli|Jacke|anziehen/)
 assert.match(clothingTip({ feels: 16, wet: false, code: 2, wind: 12 }), /Pulli/)
 assert.match(clothingTip({ feels: 16, wet: true, code: 63, wind: 12 }), /Schirm/)
+
+assert.equal(parseWeatherIntent('Wetter heute')?.focus, 'general')
+assert.equal(parseWeatherIntent('Wie ist die Luft?')?.focus, 'air')
+assert.equal(parseWeatherIntent('Wann Sonnenaufgang?')?.focus, 'sun')
+assert.equal(parseWeatherIntent('Pollen in Stuttgart')?.focus, 'air')
+const airFollow = parseWeatherFollowup('und die Luft', { kind: 'here', when: 'today', focus: 'general' })
+assert.equal(airFollow?.focus, 'air')
+assert.match(
+  formatWeatherBrief({ ...snap, aqi: 18, pm25: 6, pollen: 'Gräser wenig' }, 'now', 'air'),
+  /Luftqualität 18/,
+)
+assert.doesNotMatch(
+  formatWeatherBrief({ ...snap, aqi: 18, pm25: 6, pollen: 'Gräser wenig' }, 'now', 'air'),
+  /Open-Meteo|kein Raten/,
+)
+assert.doesNotMatch(formatWeatherBrief(snap, 'now', 'general'), /Luftqualität|Sonnenaufgang/)
+assert.match(
+  formatWeatherBrief(
+    { ...snap, sunrise: '2026-08-18T06:12:00', sunset: '2026-08-18T20:41:00' },
+    'now',
+    'sun',
+  ),
+  /06:12/,
+)
+assert.match(
+  formatWeatherBrief(
+    { ...snap, sunrise: '2026-08-18T06:12:00', sunset: '2026-08-18T20:41:00' },
+    'now',
+    'sun',
+  ),
+  /geht die Sonne/,
+)
+
+const bahn = parseTransitIntent('Mit der Bahn nach Heilbronn')
+assert.equal(bahn?.kind, 'to')
+if (bahn?.kind === 'to') assert.equal(bahn.to, 'Heilbronn')
+const bahn2 = parseTransitIntent('nächste Bahn nach Stuttgart')
+assert.equal(bahn2?.kind, 'to')
+if (bahn2?.kind === 'to') assert.equal(bahn2.to, 'Stuttgart')
+assert.equal(parseTransitIntent('Nach Heilbronn')?.kind, undefined)
+assert.equal(parseTransitIntent('Züge anklicken'), null)
+assert.equal(parseTransitIntent('nächste Bahn')?.kind, 'ask')
+
+assert.equal(parseNewsIntent('Nachrichten')?.kind, 'national')
+assert.equal(parseNewsIntent('Tagesschau')?.kind, 'national')
+const localNews = parseNewsIntent('Was ist heute in Ingesheim passiert')
+assert.equal(localNews?.kind, 'place')
+if (localNews?.kind === 'place') assert.equal(localNews.place, 'Ingesheim')
+assert.equal(parseNewsIntent('Nachricht an Bro ich bin da'), null)
+
+assert.equal(parseHolidayIntent('Ist heute Feiertag?')?.kind, 'today')
+assert.equal(parseHolidayIntent('nächster Feiertag')?.kind, 'next')
+assert.equal(parseHolidayIntent('Ist morgen Feiertag?')?.kind, 'tomorrow')
+assert.equal(parseHolidayIntent('Termin morgen 15 Uhr Zahnarzt'), null)
 
 const termin = parseCalendarIntent('Termin morgen 15 Uhr Zahnarzt', frozen)
 assert.equal(termin?.kind, 'create')
@@ -262,6 +549,11 @@ assert.equal(parseCalendarIntent('lösche den letzten Termin')?.kind, 'delete_la
 assert.equal(parseToolIntent('lösche Todo Milch')?.kind, 'todo_delete')
 assert.equal(parseReminderIntent('Erinnerung aus')?.kind, 'delete_last')
 
+assert.deepEqual(splitIntents('Wecker 7 und Timer 8 Minuten Nudeln und Wetter heute'), [
+  'Wecker 7',
+  'Timer 8 Minuten Nudeln',
+  'Wetter heute',
+])
 assert.deepEqual(splitIntents('Wecker 7 und Timer 8 Minuten Nudeln'), [
   'Wecker 7',
   'Timer 8 Minuten Nudeln',
@@ -285,6 +577,23 @@ assert.equal(
   'Termin um 16:00 Jane',
 )
 assert.equal(rewriteFollowUp('und morgen?', { last_step_tool: 'weather' }), null)
+assert.equal(rewriteFollowUp('das lauter', { last_step_tool: 'tv', last_medium: 'tv' }), 'Fernseher lauter')
+assert.equal(rewriteFollowUp('stopp das', { last_medium: 'spotify' }), 'Spotify Pause')
+assert.equal(rewriteFollowUp('pause', { last_medium: 'tv' }), 'Fernseher pause')
+assert.equal(
+  rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
+  'Öffne Netflix',
+)
+assert.equal(
+  rewriteFollowUp('ok', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
+  'Fernseher ok',
+)
+assert.equal(rewriteFollowUp('runter', { last_step_tool: 'tv' }), 'Fernseher runter')
+assert.equal(
+  rewriteFollowUp('ok', { last_step_tool: 'calendar', last_step_utterance: 'Termin morgen Zahnarzt' }),
+  'Termin morgen Zahnarzt',
+)
+assert.equal(rewriteFollowUp('ja', { last_step_tool: 'todo' }), null)
 
 assert.equal(shouldRefreshTitle('Kuchenrezepte suchen bitte'), true)
 assert.equal(shouldRefreshTitle('und morgen?'), false)
@@ -303,6 +612,93 @@ assert.equal(named.includes('Timon'), false)
 assert.match(RESEARCH_EMPTY, /Netz hat nicht geantwortet/)
 assert.equal(researchHasSources({ used: true, sources: [] }), false)
 assert.equal(researchHasSources({ used: true, sources: [{ url: 'https://example.com' }] }), true)
+assert.equal(researchQuery('Suche nach Kuchenrezepten'), 'Kuchenrezepten')
+assert.equal(researchQuery('Suche im Internet nach Kuchenrezepten'), 'Kuchenrezepten')
+assert.equal(researchStatusLabel({ status: 'empty', sources: [], network_attempted: true }), 'Suche ohne Links')
+assert.equal(researchStatusLabel({ status: 'empty' }), 'Quellen')
+assert.equal(sourcesFromText('Rezept: https://example.com/kuchen').some((s) => s.url.includes('example.com')), true)
+assert.equal(sourcesFromHtml('<a class="result__a" href="https://chefkoch.de/kuchen">Kuchen</a>')[0]?.url, 'https://chefkoch.de/kuchen')
+assert.equal(
+  sourcesFromHtml(
+    '<a class="result__a" href="https://otto.de/mixer">Mixer</a><a class="result__snippet">Mixer 49,99 € lieferbar</a>',
+  )[0]?.snippet.includes('49,99'),
+  true,
+)
+assert.ok(isProductLookup('Suche nach Küchengeräte'))
+assert.ok(isProductLookup('beste Preise für Staubsauger'))
+assert.ok(!isProductLookup('Hallo Jarvis.'))
+assert.ok(isSearchRefusal('Leider kann ich keine Live-Suche durchführen. Bitte nutzen Sie einen Browser oder eine App.'))
+assert.ok(!isSearchRefusal('MediaMarkt hat Mixer ab 49,99 €.'))
+assert.equal(parseEuroPrices('Mixer 49,99 € bei Otto')[0], '49,99 €')
+assert.match(
+  formatResearchReply('Küchengeräte', [
+    {
+      title: 'Mixer',
+      url: 'https://otto.de/mixer',
+      snippet: '49,99 €',
+      provider: 'web',
+      retrieved_at: '',
+    },
+  ], true),
+  /49,99 €/,
+)
+assert.match(
+  formatResearchReply('Küchengeräte', [
+    { title: 'MediaMarkt', url: 'https://mediamarkt.de/x', snippet: '', provider: 'web', retrieved_at: '' },
+  ], true),
+  /Idealo/,
+)
+assert.doesNotMatch(
+  formatResearchReply('Küchengeräte', [
+    { title: 'MediaMarkt', url: 'https://mediamarkt.de/x', snippet: '', provider: 'web', retrieved_at: '' },
+  ], true),
+  /\d+,\d{2} €/,
+)
+{
+  const guarded = guardResearchReply(
+    'Wie viele Scheibenwischer verkauft Valeo am tag',
+    'Weltweit liefert Valeo jährlich über 100 Millionen Scheibenwischer aus, Timon. Umgerechnet entspricht das etwa 300.000 bis 400.000 Exemplaren an einem einzigen Tag.',
+    [
+      {
+        title: 'Valeo',
+        url: 'https://www.valeo.com/en/wiper-systems/',
+        snippet: 'Valeo produces more than 100 million wiper systems per year worldwide.',
+        provider: 'web',
+        retrieved_at: '',
+      },
+    ],
+  )
+  assert.match(guarded, /100 Millionen|100 million/i)
+  assert.doesNotMatch(guarded, /300\.000|400\.000/)
+  assert.match(guarded, /Tag steht in den Treffern nicht/)
+}
+assert.match(GEMINI_PERSONA, /Umrechnung/)
+assert.equal(parseDriveIntent('Öffnen Carplay')?.kind, 'on')
+assert.equal(parseDriveIntent('Öffne CarPlay')?.kind, 'on')
+assert.equal(parseDriveIntent('Carplay')?.kind, 'on')
+assert.equal(parseDriveIntent('CarPlay')?.kind, 'on')
+assert.equal(parseDriveIntent('Öffne das overlay')?.kind, 'on')
+assert.equal(parseDriveIntent('Aktiviere das overlay')?.kind, 'on')
+assert.equal(parseDriveIntent('Öffne das overlay', true)?.kind, 'tab')
+assert.equal(parseDriveIntent('Öffne das overlay', true)?.kind === 'tab' && parseDriveIntent('Öffne das overlay', true)?.tab, 'map')
+assert.equal(parseDriveIntent('Öffne das Spotify overlay')?.kind === 'tab' && parseDriveIntent('Öffne das Spotify overlay')?.tab, 'spotify')
+assert.equal(parseDriveIntent('Gib mir ne Route')?.kind, 'route')
+assert.equal(parseDriveIntent('Gib mir eine Route')?.kind, 'route')
+assert.equal(parseDriveIntent('Gib mir ne Route nach Heilbronn')?.kind, 'on')
+assert.equal(parseDriveIntent('Gib mir ne Route nach Heilbronn')?.dest, 'Heilbronn')
+assert.equal(parseSpotifyIntent('Aktiviere das overlay'), null)
+assert.equal(parseSpotifyIntent('Öffne das overlay'), null)
+assert.equal(parseDriveIntent('Wie weit noch')?.kind, 'eta')
+assert.equal(parseDriveIntent('Restweg')?.kind, 'eta')
+assert.equal(parseDriveIntent('Fahr zur Arbeit')?.kind, 'on')
+assert.equal(parseDriveIntent('Fahr zur Arbeit')?.kind === 'on' && parseDriveIntent('Fahr zur Arbeit')?.dest, 'Arbeit')
+assert.equal(normalizeUtterance('Öffnen Netfliks').includes('Netflix'), true)
+assert.equal(parseFanIntent('Ventilator an')?.action, 'on')
+assert.equal(parseFanIntent('Lüfter aus')?.action, 'off')
+assert.equal(parseFanIntent('Ventilator Stufe 3')?.speed, 3)
+assert.equal(parseFanIntent('Licht an'), null)
+assert.equal(parseFanIntent('Ventilator Licht an')?.action, 'light_on')
+assert.equal(parseFanIntent('aus', true)?.action, 'off')
 assert.equal(parseCalendarIntent('Termin um 16:00 Jane', frozen)?.kind, 'create')
 assert.equal(parseAlarmIntent('Wecker 7', frozen)?.kind, 'create')
 assert.equal(parseTimerIntent('Timer 8 Minuten Nudeln', frozen)?.kind, 'create')
@@ -311,6 +707,10 @@ assert.deepEqual(parsePlaceWrite('Freundin wohnt in Heilbronn'), {
   name: 'freundin',
   place: 'Heilbronn',
 })
+assert.equal(looksLikeBareStreet('Bahnhofstraße'), true)
+assert.equal(looksLikeBareStreet('Bahnhofstraße 12'), true)
+assert.equal(looksLikeBareStreet('Bahnhofstraße, Heilbronn'), false)
+assert.equal(looksLikeBareStreet('Heilbronn'), false)
 assert.deepEqual(parsePlaceWrite('Ich wohne in Bad Wimpfen'), {
   name: 'zuhause',
   place: 'Bad Wimpfen',
@@ -387,27 +787,389 @@ if (weeklyBare?.kind === 'create') {
 assert.equal(parseReminderIntent('was kommt diese Woche raus?')?.kind, 'week')
 assert.equal(parseOrdinalFollowUp('das zweite')?.index, 1)
 assert.equal(parseOrdinalFollowUp('lösch das zweite')?.del, true)
+assert.equal(parseOrdinalFollowUp('das 2.')?.index, 1)
+assert.equal(parseOrdinalFollowUp('die zweite')?.index, 1)
+assert.equal(parseOrdinalFollowUp('nummer 2')?.index, 1)
+assert.equal(parseTvIntent('runter', true)?.action, 'down')
+assert.equal(parseTvIntent('ok', true)?.action, 'ok')
+assert.equal(parseTvIntent('bestätigen', true)?.action, 'ok')
+assert.equal(parseTvIntent('hoch', true)?.action, 'up')
+{
+  const handels = parseTvWatch('öffne der Handels auf YouTube')
+  assert.equal(handels?.kind, 'play')
+  if (handels?.kind === 'play') {
+    assert.equal(handels.app, 'youtube')
+    assert.match(handels.title, /Handels/i)
+  }
+}
+{
+  const such = parseTvWatch('suche Handels auf YouTube')
+  assert.equal(such?.kind, 'play')
+  if (such?.kind === 'play') {
+    assert.equal(such.app, 'youtube')
+    assert.match(such.title, /Handels/i)
+  }
+}
+assert.equal(finishReply('Entweder Sie **'), 'Entweder Sie.')
+assert.equal(finishReply('Die Pflicht fragt selten nach Motivation, **'), 'Die Pflicht fragt selten nach Motivation.')
+assert.match(finishReply('Ich halte im **Hintergrund** die'), /Hintergrund/)
+assert.doesNotMatch(finishReply('Ich halte im **H'), /\*\*/)
 assert.equal(parseChatSearch('Wann hatte ich das mit der Steuer?'), 'Steuer')
 
 assert.deepEqual(pullReady('Hallo wie geht').parts, [])
 assert.deepEqual(pullReady('Ja. ').parts, [])
+assert.ok(pullReady('Guten Morgen.', true).parts.length >= 1)
+assert.equal(ttsModelsToTry()[0], 'gemini-2.5-flash-preview-tts')
+assert.equal(ttsModelsToTry('gemini-2.5-flash-preview-tts').length, 2)
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
 assert.equal(two.parts.length, 1)
 assert.match(two.parts[0], /Ja\./)
 assert.match(two.parts[0], /15 Uhr/)
 const short = pullReady('Das Wetter ist gut.')
-assert.deepEqual(short.parts, [])
-assert.match(short.rest, /Das Wetter ist gut/)
+assert.deepEqual(short.parts, ['Das Wetter ist gut.'])
 const long = pullReady(
   'Das Wetter bleibt heute freundlich, weitgehend trocken und angenehm warm im ganzen Land.',
 )
 assert.equal(long.parts.length, 1)
 assert.equal(long.rest, '')
 
+assert.equal(expandZahlenworte('Timer acht Minuten Nudeln'), 'Timer 8 Minuten Nudeln')
+assert.equal(expandZahlenworte('Ventilator Stufe zwei'), 'Ventilator Stufe 2')
+assert.match(expandZahlenworte('in einer Viertelstunde Ofen'), /15 Minuten/)
+assert.equal(parseTimerIntent('Timer acht Minuten Nudeln', frozen)?.kind, 'create')
+assert.equal(parseTimerIntent('Timer für Nudeln 8 Minuten', frozen)?.kind, 'create')
+assert.equal(parseFanIntent('Ventilator Stufe zwei')?.speed, 2)
+assert.equal(parseShopIntent('Milch fehlt')?.kind, 'add')
+assert.ok(isBriefAsk('Was kommt heute?'))
+assert.equal(parseSpotifyIntent('Spiel mal was Nettes'), null)
+assert.equal(parseDriveIntent('Ich fahre gerne Auto'), null)
+assert.equal(timerDoneLine('Nudeln'), 'Die Nudeln sind fertig.')
+assert.equal(timerDoneLine('Timer'), 'Die Zeit ist um.')
+assert.equal(timerDoneLine('Pizza'), 'Pizza ist soweit.')
+assert.equal(timerDoneLine('Test'), 'Die Zeit ist um.')
+assert.equal(cleanTimerTitle('für Nudeln'), 'Nudeln')
+assert.equal(timerSetLine('Nudeln', 'in 8 Minuten'), 'Nudeln, 8 Minuten. Ich sage Bescheid.')
+assert.equal(timerSetLine('Timer', 'in 8 Minuten'), 'In 8 Minuten. Ich sage Bescheid.')
+assert.equal(timerStopLine('Nudeln'), 'Nudeln gestoppt.')
+assert.ok(CONTRADICTION.test('kein Kaffee mehr'))
+assert.equal(isMemoryWrite('kein Kaffee mehr'), true)
+assert.equal(isMemoryWrite('kein Problem'), false)
+assert.match(
+  scrubReply('Wikipedia nennt den Fluss. Ich habe das Internet durchsucht.'),
+  /Wikipedia/,
+)
+assert.equal(parseDriveIntent('Nachher'), null)
+assert.equal(rewriteFollowUp('stopp', { last_step_tool: 'fuel' }), 'Fahrmodus aus')
+assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', value: 'Kaffee' }]), /Smalltalk/)
+
+assert.equal(parseFuelIntent('Fahr mich zu einer Tanke')?.prefer, 'nearest')
+assert.equal(parseFuelIntent('fahr mich zur Tankstelle')?.prefer, 'nearest')
+assert.equal(parseFuelIntent('nächste Tanke')?.prefer, 'nearest')
+assert.equal(parseFuelIntent('billigste Tankstelle')?.prefer, 'cheapest')
+assert.equal(parseFuelIntent('wo kann ich tanken')?.prefer, 'nearest')
+assert.equal(parseFuelIntent('Danke'), null)
+assert.equal(parseFuelIntent('Fahr mich nach Heilbronn'), null)
+assert.equal(parseFuelIntent('Ich fahre gerne Auto'), null)
+assert.equal(parseDriveIntent('Fahr mich zu einer Tanke'), null)
+assert.equal(parsePlaceNav('Fahr mich zu einer Tanke'), null)
+assert.equal(normalizePlaceName('einer Tanke'), 'tanke')
+assert.equal(parseDriveIntent('zur Tankstelle', true), null)
+assert.equal(isFuelPlace('einer Tanke'), true)
+assert.equal(parseFuelFollowUp('günstigste'), 'cheapest')
+assert.equal(parseFuelFollowUp('fahr zur nächsten'), 'nearest')
+assert.equal(parseFuelFollowUp('das zweite'), null)
+assert.equal(formatE10Price(1.759), '1,759 €')
+
+const aral = {
+  id: 'a',
+  name: 'Aral Ingersheim',
+  brand: 'ARAL',
+  street: 'Hauptstraße',
+  place: 'Ingersheim',
+  lat: 48.96,
+  lng: 9.18,
+  distKm: 1.2,
+  priceE10: 1.759,
+  isOpen: true,
+}
+const jet = {
+  id: 'b',
+  name: 'JET',
+  brand: 'JET',
+  street: 'Weinsberger Straße',
+  place: 'Heilbronn',
+  lat: 49.14,
+  lng: 9.22,
+  distKm: 4.1,
+  priceE10: 1.649,
+  isOpen: true,
+}
+const pair = pickFuelPair([aral, jet])
+assert.equal(pair?.nearest.id, 'a')
+assert.equal(pair?.cheapest.id, 'b')
+assert.match(formatFuelSpeech(pair, 'nearest', 4), /1,759 €/)
+assert.match(formatFuelSpeech(pair, 'nearest', 4), /1,649 €/)
+assert.match(formatFuelSpeech(pair, 'nearest', 4), /günstigste/)
+assert.match(formatFuelSpeech(pair, 'cheapest', 8), /Route zur günstigsten/)
+const same = pickFuelPair([aral])
+assert.equal(same?.nearest.id, same?.cheapest.id)
+assert.match(formatFuelSpeech(same, 'nearest'), /Nächste und günstigste/)
+const closedCheap = pickFuelPair([
+  aral,
+  { ...jet, isOpen: false },
+  { ...jet, id: 'c', name: 'Shell', brand: 'Shell', distKm: 5, priceE10: 1.669, isOpen: true },
+])
+assert.match(formatFuelSpeech(closedCheap, 'nearest'), /geschlossen/)
+assert.match(formatFuelSpeech(closedCheap, 'nearest'), /Günstigste offene/)
+
+assert.equal(parseHereIntent('Wo bin ich gerade?')?.kind, 'locate')
+assert.equal(parseHereIntent('wo stehe ich')?.kind, 'locate')
+assert.equal(parseHereIntent('mein Standort')?.kind, 'locate')
+assert.equal(parseHereIntent('Standort aktivieren')?.kind, 'activate')
+assert.equal(parseHereIntent('Kannst du sie aktivieren?', 'fuel')?.kind, 'activate')
+assert.equal(parseHereIntent('Kannst du sie aktivieren?', 'here')?.kind, 'activate')
+assert.equal(parseHereIntent('Kannst du sie aktivieren?', 'tv'), null)
+assert.equal(parseHereIntent('Aktiviere Fahrmodus'), null)
+assert.equal(parseHereIntent('wo kann ich tanken'), null)
+assert.equal(formatHereReply('Ingersheim, Kirchstraße'), 'Ingersheim, Kirchstraße.')
+assert.match(PERSONA, /Live-Ortung/)
+assert.match(GEMINI_PERSONA, /Live-Ort/)
+assert.match(GEMINI_PERSONA, /kein Apple CarPlay/)
+assert.match(PERSONA, /nicht Apple CarPlay/)
+
+assert.equal(parsePoiIntent('nächste Apotheke')?.kind, 'pharmacy')
+assert.equal(parsePoiIntent('nächste Apotheke')?.hours, false)
+assert.equal(parsePoiIntent('nächster Bäcker')?.kind, 'bakery')
+assert.equal(parsePoiIntent('nächster Parkplatz')?.kind, 'parking')
+assert.equal(parsePoiIntent('nächster Supermarkt')?.kind, 'supermarket')
+assert.equal(parsePoiIntent('nächster pol')?.kind, 'ask')
+assert.equal(parsePoiIntent('nächster POI')?.kind, 'ask')
+assert.equal(parsePoiIntent('nächste Tanke'), null)
+assert.equal(parsePoiIntent('nächster Song'), null)
+assert.equal(poiLabel('pharmacy'), 'Apotheke')
+assert.equal(parsePoiIntent('Hat die Apotheke auf')?.kind, 'pharmacy')
+assert.equal(parsePoiIntent('Hat die Apotheke auf')?.hours, true)
+assert.equal(parsePoiIntent('Öffnungszeiten Bäcker')?.kind, 'bakery')
+assert.equal(parsePoiIntent('Öffnungszeiten Bäcker')?.hours, true)
+assert.equal(parsePoiIntent('nächster Laden')?.kind, 'shop')
+assert.equal(parsePoiIntent('nächster Laden', 'pharmacy')?.kind, 'shop')
+assert.equal(parsePoiIntent('nächste Drogerie')?.kind, 'chemist')
+assert.equal(parsePoiIntent('nächstes Café')?.kind, 'cafe')
+assert.equal(parsePoiIntent('nächstes Café')?.nav, true)
+assert.equal(parsePoiIntent('wo könnte ich jetzt frühstücken')?.kind, 'cafe')
+assert.equal(parsePoiIntent('Boar wo könnte ich jetzt geil frühstücken')?.kind, 'cafe')
+assert.equal(parsePoiIntent('wo könnte ich jetzt frühstücken')?.nav, true)
+assert.equal(parsePoiIntent('Boar wo könnte ich jetzt geil frühstücken')?.nav, true)
+assert.equal(parsePoiIntent('kein Kaffee mehr'), null)
+assert.equal(parsePoiIntent('Fahr zum Café Le Théâtre'), null)
+assert.equal(poiLabel('cafe'), 'Café')
+assert.match(GEMINI_PERSONA, /Overlay/)
+assert.match(GEMINI_PERSONA, /Cafés/)
+assert.equal(parsePoiIntent('hat die auf', 'pharmacy')?.kind, 'pharmacy')
+assert.equal(parsePoiIntent('hat die auf', 'pharmacy')?.hours, true)
+assert.equal(parsePoiIntent('Öffne das overlay'), null)
+assert.match(GEMINI_PERSONA, /Öffnungszeiten/)
+
+{
+  const tue = new Date(2026, 7, 18, 10, 0, 0)
+  const hours = 'Mo-Fr 08:00-18:00; Sa 08:00-13:00; PH off'
+  const parsed = parseOpeningHours(hours)
+  assert.ok(parsed)
+  assert.equal(isOpenAt(parsed, tue), true)
+  assert.match(formatHoursSpeech(hours, tue), /jetzt auf/)
+  assert.match(formatHoursSpeech(hours, tue), /8 bis 18/)
+  assert.equal(hoursOpenNow(hours, new Date(2026, 7, 18, 20, 0, 0)), false)
+  assert.equal(hoursOpenNow(hours, new Date(2026, 7, 22, 10, 0, 0)), true)
+  assert.equal(hoursOpenNow(hours, new Date(2026, 7, 23, 10, 0, 0)), false)
+  assert.match(formatHoursSpeech(hours, new Date(2026, 7, 23, 10, 0, 0)), /geschlossen/)
+  assert.equal(hoursOpenNow(hours, new Date(2026, 4, 1, 10, 0, 0)), false)
+  assert.match(formatHoursSpeech(hours, new Date(2026, 4, 1, 10, 0, 0)), /Feiertag/)
+  assert.match(formatHoursSpeech('24/7', tue), /rund um die Uhr/)
+  assert.match(formatHoursSpeech('', tue), /Keine Öffnungszeiten/)
+  assert.match(formatHoursSpeech('Jan-Mar Mo-Fr 08:00-18:00', tue), /Saison/)
+  const night = parseOpeningHours('Fr 20:00-02:00')
+  assert.ok(night)
+  assert.equal(isOpenAt(night, new Date(2026, 7, 21, 21, 0, 0)), true)
+  assert.equal(isOpenAt(night, new Date(2026, 7, 22, 1, 0, 0)), true)
+  assert.equal(isOpenAt(night, new Date(2026, 7, 22, 3, 0, 0)), false)
+}
+
+assert.equal(parseDeviceIntent('Wie voll ist der Akku')?.kind, 'battery')
+assert.equal(parseDeviceIntent('Taschenlampe an')?.kind, 'torch')
+assert.equal(
+  parseDeviceIntent('Taschenlampe aus')?.kind === 'torch' && parseDeviceIntent('Taschenlampe aus')?.on,
+  false,
+)
+assert.equal(parseDeviceIntent('Öffne WLAN')?.kind === 'page' && parseDeviceIntent('Öffne WLAN')?.page, 'wifi')
+assert.equal(
+  parseDeviceIntent('Bluetooth Einstellungen')?.kind === 'page' &&
+    parseDeviceIntent('Bluetooth Einstellungen')?.page,
+  'bluetooth',
+)
+assert.equal(parseDeviceIntent('Nicht stören')?.kind === 'page' && parseDeviceIntent('Nicht stören')?.page, 'dnd')
+assert.equal(parseDeviceIntent('Notiz: WLAN steht am Router'), null)
+assert.equal(parseDeviceIntent('Stoß das System an')?.kind, 'ask')
+
+assert.deepEqual(parsePlaceWrite('Ich arbeite in Stuttgart'), {
+  name: 'arbeit',
+  place: 'Stuttgart',
+})
+assert.equal(parsePlaceNav('Fahr mich zur Arbeit')?.kind, 'navigate')
+if (parsePlaceNav('Fahr mich zur Arbeit')?.kind === 'navigate') {
+  assert.equal(parsePlaceNav('Fahr mich zur Arbeit').query, 'arbeit')
+}
+assert.equal(parsePlaceNav('Ruf mal die Freundin')?.kind, 'call')
+assert.equal(parsePlaceNav('Anruf Mama')?.kind, 'call')
+const sms = parsePlaceNav('Schreib der Freundin ich bin in 10 Minuten')
+assert.equal(sms?.kind, 'sms')
+if (sms?.kind === 'sms') {
+  assert.equal(sms.query, 'freundin')
+  assert.match(sms.body, /10 Minuten/)
+}
+assert.equal(parsePlaceNav('Bro anrufen')?.kind, 'call')
+if (parsePlaceNav('Bro anrufen')?.kind === 'call') {
+  assert.equal(parsePlaceNav('Bro anrufen').query, 'bro')
+}
+const smsBro = parsePlaceNav('Schreib Bro ich bin in 10 Minuten')
+assert.equal(smsBro?.kind, 'sms')
+if (smsBro?.kind === 'sms') {
+  assert.equal(smsBro.query, 'bro')
+  assert.match(smsBro.body, /10 Minuten/)
+}
+const smsBroEmpty = parsePlaceNav('Nachricht an Bro')
+assert.equal(smsBroEmpty?.kind, 'sms')
+if (smsBroEmpty?.kind === 'sms') {
+  assert.equal(smsBroEmpty.query, 'bro')
+  assert.equal(smsBroEmpty.body, '')
+}
+const smsBroBody = parsePlaceNav('Nachricht an Bro ich bin da')
+assert.equal(smsBroBody?.kind, 'sms')
+if (smsBroBody?.kind === 'sms') {
+  assert.equal(smsBroBody.query, 'bro')
+  assert.equal(smsBroBody.body, 'ich bin da')
+}
+assert.equal(displayPlaceName('bro'), 'Bro')
+assert.equal(isCommYes('ja', 'call'), true)
+assert.equal(isCommYes('senden', 'sms'), true)
+assert.equal(isCommYes('senden', 'call'), false)
+assert.equal(isCommNo('nein'), true)
+assert.equal(rewriteFollowUp('ja', { last_step_tool: 'call_confirm', last_step_utterance: 'Bro anrufen' }), null)
+assert.equal(rewriteFollowUp('ja', { last_step_tool: 'pc_confirm', last_step_utterance: 'Lösche den Ordner Test' }), null)
+assert.equal(parsePcIntent('FIFA starten')?.kind, 'launch')
+if (parsePcIntent('FIFA starten')?.kind === 'launch') {
+  assert.equal(parsePcIntent('FIFA starten').query, 'fifa')
+}
+assert.equal(parsePcIntent('Was siehst du auf dem PC')?.kind, 'screen')
+assert.equal(parsePcIntent('klick Mitte')?.kind, 'click')
+assert.equal(parsePcIntent('Züge anklicken')?.kind, 'click')
+if (parsePcIntent('Züge anklicken')?.kind === 'click') {
+  assert.ok(parsePcIntent('Züge anklicken').target)
+}
+assert.equal(parsePcIntent('Maus nach rechts')?.kind, 'move')
+assert.equal(parsePcIntent('Zeig Ordner Downloads')?.kind, 'files')
+assert.equal(parsePcIntent('Lösche den Ordner Test auf dem Desktop')?.kind, 'files')
+assert.equal(parsePcIntent('PC testen')?.kind, 'status')
+assert.equal(parsePcIntent('Öffne Netflix'), null)
+assert.equal(parsePcIntent('Bro anrufen'), null)
+assert.match(GEMINI_PERSONA, /PC/)
+for (const p of PC_COPY_PROMPTS) {
+  assert.ok(parsePcIntent(p), `Prompt ohne Parser: ${p}`)
+}
+assert.match(GEMINI_PERSONA, /nach Nachfrage/)
+assert.match(
+  scrubReply('Car Play ist verbunden. Musik läuft, Navigation nach Bietigheim-Bissingen steht.'),
+  /intern/,
+)
+assert.match(
+  scrubReply(
+    'Die Navigation zum Café Le Théâtre ist im internen Fahrmodus aktiv, Timon. Sie erreichen das Ziel in rund zehn Minuten.',
+  ),
+  /keine erfundene Navigation/i,
+)
+
+assert.equal(parseTvWatch('Spiel Dune Film')?.kind, 'play')
+assert.equal(parseFilmIntent('Spiel Dune Film'), null)
+assert.equal(parseFilmIntent('Wo läuft Dune kostenlos')?.kind, 'where')
+assert.equal(parseFilmIntent('Wo läuft Dune kostenlos')?.title, 'Dune')
+assert.equal(parseFilmIntent('Wie gut ist Dune')?.kind, 'rate')
+assert.equal(parseFilmIntent('Wie ist mein Name?'), null)
+assert.equal(parseFilmIntent('IMDb Dune')?.kind, 'rate')
+assert.equal(parseFilmIntent('Rotten Tomatoes Dune')?.kind, 'rate')
+assert.equal(parseFilmIntent(normalizeUtterance('rotren tomato Dune'))?.kind, 'rate')
+assert.equal(parseFilmIntent('Was ist Dune für ein Film')?.kind, 'about')
+assert.equal(parseFilmIntent('Was ist Dune für ein Film')?.title, 'Dune')
+assert.equal(parseFilmIntent('Tanke E10'), null)
+
+{
+  const film = formatFilmReply({
+    kind: 'where',
+    asked: 'Dune',
+    watch: {
+      title: 'Dune',
+      year: 2021,
+      offers: [{ app: 'netflix', monetization: 'flatrate', provider: 'Netflix' }],
+      alsoFree: [],
+      freeWhere: [
+        { name: 'ARD Mediathek', ads: true, url: 'https://www.ardmediathek.de/' },
+        { name: 'Joyn', ads: false, url: 'https://www.joyn.de/' },
+      ],
+      target: null,
+    },
+    omdb: { title: 'Dune', year: '2021', imdb: '8.0', tomatoes: '83%' },
+  })
+  assert.match(film, /IMDb 8,0/)
+  assert.match(film, /Rotten Tomatoes 83%/)
+  assert.match(film, /ARD Mediathek \(Werbung\)/)
+  assert.match(film, /Joyn/)
+  assert.match(film, /starte ich nicht/)
+  assert.match(film, /Abo: Netflix/)
+}
+
+{
+  const noKey = formatFilmReply({
+    kind: 'rate',
+    asked: 'Dune',
+    watch: { title: 'Dune', offers: [], alsoFree: [], freeWhere: [], target: null },
+    omdb: null,
+    keyMissing: true,
+  })
+  assert.match(noKey, /OMDb-Schlüssel/)
+  assert.match(noKey, /erfinde keine/)
+}
+
+assert.equal(parseShopDiscountIntent('Rabatt-Suche an')?.on, true)
+assert.equal(parseShopDiscountIntent('Rabatt-Suche aus')?.on, false)
+assert.equal(parseShopDiscountIntent('Tanke E10'), null)
+assert.equal(isProductLookup('Gutscheincode Mixer'), false)
+assert.equal(isProductLookup('Gutscheincode Mixer', true), true)
+assert.match(
+  formatResearchReply(
+    'Mixer',
+    [{ title: 'MediaMarkt', url: 'https://mediamarkt.de/x', snippet: '', provider: 'web', retrieved_at: '' }],
+    true,
+    true,
+  ),
+  /keine erfundenen Codes/,
+)
+
+{
+  const free = collectFreeWhere([
+    { monetizationType: 'flatrate', package: { packageId: 8, clearName: 'Netflix' } },
+    {
+      monetizationType: 'ads',
+      standardWebURL: 'https://www.ardmediathek.de/video/1',
+      package: { clearName: 'ARD Mediathek' },
+    },
+  ])
+  assert.equal(free.length, 1)
+  assert.match(free[0].name, /ARD/)
+  assert.equal(free[0].ads, true)
+}
+
 const tap = createSentenceTap()
 assert.deepEqual(tap.feed('Hallo, der Himmel'), [])
-assert.deepEqual(tap.feed('Hallo, der Himmel ist blau.'), [])
-assert.deepEqual(tap.flush(), ['Hallo, der Himmel ist blau.'])
+assert.deepEqual(tap.feed('Hallo, der Himmel ist blau.'), ['Hallo, der Himmel ist blau.'])
+assert.deepEqual(tap.flush(), [])
 const tap2 = createSentenceTap()
 assert.deepEqual(tap2.feed('Eins. '), [])
 const got = tap2.feed('Eins. Zwei kommt jetzt wirklich.')

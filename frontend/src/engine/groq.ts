@@ -32,8 +32,8 @@ export async function completeGroq(
       role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
       content: m.content,
     })),
-    temperature: 0.5,
-    max_tokens: 320,
+    temperature: 0.68,
+    max_tokens: 420,
     stream: false,
   }
   let last = 'Groq antwortet nicht.'
@@ -46,6 +46,7 @@ export async function completeGroq(
           Authorization: `Bearer ${key}`,
         },
         { ...body, model },
+        10_000,
       )
       const parsed = json as GroqResponse
       const errMsg = parsed.error?.message || ''

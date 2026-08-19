@@ -1,5 +1,5 @@
 import { completeGeminiVision, geminiReady } from './gemini'
-import { addMessage } from './store'
+import { addMessage, loadSettings } from './store'
 import { scrubReply } from './guards'
 import type { ToolMeta } from './tools'
 
@@ -82,11 +82,11 @@ export async function readEyeImage(
     return { reply }
   }
   try {
-    const text = await completeGeminiVision(
-      'Lesen Sie nur, was auf dem Bild steht. Deutsch, Siezen, 1–3 Sätze. Nichts erfinden, was nicht zu sehen ist.',
-      m[2],
-      m[1],
-    )
+    const tv = loadSettings().last_step_tool === 'tv'
+    const prompt = tv
+      ? 'Fernseher-Foto: Sagen Sie nur, was auf dem Schirm steht (Login, Suche, Liste). Keine erfundenen Tasten. 1–3 Sätze, Siezen. Jarvis sieht den TV nicht live — nur dieses Foto.'
+      : 'Lesen Sie nur, was auf dem Bild steht. Deutsch, Siezen, 1–3 Sätze. Nichts erfinden, was nicht zu sehen ist.'
+    const text = await completeGeminiVision(prompt, m[2], m[1])
     const reply = scrubReply(text || 'Nichts Lesbares auf dem Bild.')
     await addMessage(conversationId, 'assistant', reply, {
       tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'Auge' },

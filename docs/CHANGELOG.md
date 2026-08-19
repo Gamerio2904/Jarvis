@@ -5,7 +5,248 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`1.28.3`**.
+App-Version im Code: **`1.48.8`**.
+
+### `1.48.8` — CarPlay-Route + Cafés am Valeo — *CODE*
+
+Frühstück öffnet die Karte mit OSM-Café am GPS (Bietigheim, nicht Stuttgart). Overlay nicht erst nach dem Wort „overlay“. Keine Fake-„zehn Minuten“. Grüne Linie liegt auf den Straßen (OSRM-Polyline), nicht als Luftlinie; Ziel bleibt im Bild.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14808)
+- [`28-next.md`](./28-next.md)
+
+### `1.48.7` — Research ehrlich — *CODE*
+
+Faktfragen wie „wie viele … verkauft Valeo am Tag“ gehen ins Netz. Zahlen nur aus Treffern; keine Umrechnung Jahr→Tag, keine 300–400k aus dem Hut.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14807)
+- [`28-next.md`](./28-next.md)
+
+### `1.48.6` — Overlay, Cafés, Route — *CODE*
+
+„Overlay“ öffnet die Karte, nicht Spotify. Frühstück/Café aus OSM am GPS (Bietigheim), keine erfundenen Stuttgarter Läden. „Gib mir ne Route“ startet die echte Navigation und das Overlay.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14806)
+- [`28-next.md`](./28-next.md)
+
+### `1.48.5` — Karte schieben + Sprache im Fahrmodus — *CODE*
+
+Karte wie Google Maps: ziehen, pinch-zoom, Doppeltipp, danach Standort-Knopf. Mic stoppt Navi-Ansagen, hört, führt aus und spricht die Antwort.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14805)
+- [`28-next.md`](./28-next.md)
+
+### `1.48.4` — Fahrmodus-Karte neu — *CODE*
+
+Karte füllt den Bildschirm, Norden oben. Nur der Standort-Pfeil dreht mit. Canvas statt gedrehter Kachel-Wand — weniger Ruckeln.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14804)
+- [`28-next.md`](./28-next.md)
+
+### `1.48.3` — Fahrmodus Karte und Route — *CODE*
+
+Karte liegt wieder über dem Chat-Feld. Route als Linie auf den Kacheln, Drehung um den Standort, letztes GPS statt Stuttgart. Route bleibt nach App-Neustart.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14803)
+- [`28-next.md`](./28-next.md)
+
+### `1.48.2` — Test-Bugs — *CODE*
+
+Parser und Overlay aus dem Live-Test: Erinnerung statt Einkauf bei `in 20 Minuten Milch holen`. `Was trinke ich gerne?` liest, schreibt nicht. Tanke bleibt Tanke, nicht „Einer tanke“. `nächster Laden` sucht neu. Nackte Straße fragt nach der Stadt. Composer bleibt über dem Fahrmodus tippbar.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14802)
+- [`28-next.md`](./28-next.md)
+
+### `1.48.1` — Satzbildung Film-Jarvis — *CODE*
+
+Ganze Sätze, kein Telegramm. Wetter, Bahn, Nachrichten und Feiertage sprechen wie ein Haus-AI — Fakten als Feststellung, ohne Nachsatz „kein Raten“. Persona und Sprachmodus gleich.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14801)
+- [`28-next.md`](./28-next.md) · [`07-persona.md`](./07-persona.md)
+
+### `1.48.0` — Luft, Sonne, Bahn, Nachrichten, Feiertage — *CODE*
+
+Auf Nachfrage: Luftqualität/Pollen und Sonnenaufgang (Open-Meteo, nicht bei jedem Wetter). Bahn/ÖPNV über transport.rest, sonst Transitous — keine erfundenen Abfahrten. Nachrichten: Tagesschau; Ort zuerst Tagesschau-Suche, sonst Netz, nichts erfinden. Feiertage DE über Nager.Date. Prompt-Chips und PC-Prompt-Kopieren aus der APK (Windows-App behält Kopieren).
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14800)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-101.md`](./sprints/sprint-101.md)
+
+### `1.47.1` — PC: Ein-Klick-Kopieren — *CODE*
+
+IP, Token und Prompts als Felder mit **Kopieren** — im Windows-Fenster, unter Einstellungen → PC und im Chat.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14701)
+- [`28-next.md`](./28-next.md)
+
+### `1.47.0` — PC live (Bildschirm, Maus, FIFA, Ordner) — *CODE*
+
+Windows-App `desktop/JarvisPC.bat`. Jarvis sieht den echten Screenshot, bewegt die Maus, startet FIFA wenn gefunden, bearbeitet Ordner im Benutzerprofil. Löschen nach Ja. Ohne laufende App kein Fake-Erfolg.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14700)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-100.md`](./sprints/sprint-100.md) · [`../desktop/README.md`](../desktop/README.md)
+
+### `1.46.0` — Direkt anrufen und SMS, mit Nachfrage — *CODE*
+
+`Bro anrufen` startet den Anruf erst nach „ja“. Nachricht/SMS erst nach Rückfrage senden. Ohne Nummer nachfragen. Kein Abheben und keine Zustellung behaupten.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14600)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-99.md`](./sprints/sprint-99.md)
+
+### `1.45.0` — Öffnungszeiten für Läden — *CODE*
+
+Apotheke, Bäcker, Parkplatz, Supermarkt, Drogerie und Laden: Öffnungszeiten aus OSM, wenn getaggt. Keine erfundenen Stunden. `Hat die Apotheke auf` ohne sofortige Route. Nächste offene, wenn die nächste zu ist.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14500)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-98.md`](./sprints/sprint-98.md)
+
+### `1.44.0` — Filme (IMDb/RT) + Rabatt-Suche — *CODE*
+
+IMDb- und Rotten-Tomatoes-Noten über OMDb (RT hat keine öffentliche API). Wo ein Film in DE gratis läuft, aus JustWatch — Joyn/ARD nur nennen, nicht am Fernseher starten. Rabatt-Suche beim Online-Shopping zuschaltbar (Default aus); keine erfundenen Gutscheincodes.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14400)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-97.md`](./sprints/sprint-97.md)
+
+### `1.43.0` — CarPlay ehrlich + Alltag am Steuer — *CODE*
+
+Nacktes `Carplay` fällt nicht mehr an Gemini (kein erfundenes Apple-CarPlay, keine erfundene Navigation/Musik). `Öffne das overlay` wechselt den Spotify-Tab. Restweg aus der echten Route. Nächster POI (Apotheke, Bäcker, Parkplatz, Supermarkt) über die Karte. Arbeit/Freundin/Zuhause. Akku/Verbindung. Taschenlampe. WLAN/Bluetooth/Nicht stören nur als Android-Seite. Anruf öffnet die Wählhilfe, SMS den Entwurf — nichts wird behauptet als erledigt.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14300)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-96.md`](./sprints/sprint-96.md)
+
+### `1.42.0` — Wo bin ich, Standort anstoßen — *CODE*
+
+„Wo bin ich gerade?“ geht nicht mehr an Gemini (kein geratener Arbeitsweg). GPS + Reverse-Geocode. „Aktivieren“ öffnet den Android-Dialog, notfalls die App-Einstellungen — den Schalter legt Jarvis nicht selbst um. Dieselbe Freigabe gilt für Tanke und Wetter.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14200)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-95.md`](./sprints/sprint-95.md)
+
+### `1.41.0` — Tanke E10 — *CODE*
+
+Chat und Fahrmodus: „fahr mich zu einer Tanke“ zeigt die **nächste** und die **günstigste** Station, immer **E10**, mit Preis. Route startet zur nächsten (oder zur günstigsten, wenn so gesagt). Nachfassen: „günstigste“ / „nächste“ / „das zweite“.
+
+- Tankerkönig MTS-K (`type=e10`); Key unter Einstellungen → Cloud
+- Ohne Key: nächste Station von der Karte, **keine erfundenen Preise**
+- Ohne GPS: nachfragen, nicht raten
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14100)
+- [`28-next.md`](./28-next.md) · [`sprints/sprint-94.md`](./sprints/sprint-94.md)
+
+### `1.40.3` — Jarvis-Ton näher am Film — *CODE*
+
+Chat und Sprachmodus: ruhiger Haus-AI (Understatement, Straight Man), nicht derber Kumpel. Deutsch, Siezen. Keine Filmzitate, keine Marvel-Rolle.
+
+- Persona + Voice-Hint: fertige Sätze, totes Ernst, Sir selten
+- Identität: `Jarvis. Sie heißen … Für Sie, jederzeit.`
+- [`07-persona.md`](./07-persona.md)
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14003)
+- [`28-next.md`](./28-next.md)
+
+### `1.40.2` — Timer spricht, natürliche Namen — *CODE*
+
+Timer klingelte (Wecker-Kanal + Nachplanung mit Alarm-Ton), Jarvis war stumm (TTS auf Medien-Stream).
+
+- Eigenes stilles Timer-Kanal; TTS auf Alarm-Lautstärke
+- Nachplanung überschreibt Timer nicht mehr mit Wecker-Ton
+- `Nudeln, 8 Minuten. Ich sage Bescheid.` / `Die Nudeln sind fertig.` — kein „Timer für Ihre …, Sie.“
+- Wecker klingelt unverändert
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14002)
+- [`28-next.md`](./28-next.md)
+
+### `1.40.1` — Sätze zu Ende, TV-Tasten ohne Live-Bild — *CODE*
+
+Gemini schnitt Antworten mitten im Satz ab (`**Entweder Sie`). Jarvis sieht den Fernseher nicht live — Tasten und Ordinal reichen für YouTube-Login/Suche.
+
+- Abgeschnittenes Markdown schließen; Gemini ohne Thinking-Budget, mehr Output-Platz, Retry bei `MAX_TOKENS`
+- Samsung: OK / D-Pad / Home wirklich senden (`KEY_ENTER`, `KEY_DOWN`, …)
+- Nach TV: `OK` ist die Taste, nicht nochmal „Öffne YouTube“. `das 2.` / `das zweite` = runter + OK
+- `öffne der Handels auf YouTube` sucht den Titel, öffnet nicht nur die App
+- Foto-Knopf: Foto des Schirms lesen (Gemini), kein Live-Framebuffer
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14001)
+- [`28-next.md`](./28-next.md)
+
+### `1.40.0` — Qualität `1.34`–`1.40` — *CODE*
+
+Eine Sideload-Stufe mit der ganzen Qualitäts-Serie. Wecker klingelt weiter; Timer sagt an, ohne Klingeln.
+
+- **1.34** Antworten: mehr History, Memory im Smalltalk, Persona-Variation, Tool-Kontext, `ja`/`mach` auf den letzten Befehl
+- **1.35** CarPlay: Off-Route entprellt, Cue-Gedächtnis überlebt Replan, HUD Tag/Nacht, Zoom nach Tempo, Karte in Fahrtrichtung, Ankunft schließt Spotify-Overlay, Ort ehrlich nachfragen, Spotify-Token
+- **1.36** Phrasen: Zahlenworte, `Milch fehlt`, `Was kommt heute?`, Fan Stufe zwei, `Spiel mal was Nettes` ≠ Spotify, `stopp` letztes Medium, drei `und`, Timer spricht
+- **1.37** Wake+Befehl in einer Äußerung, Widget-Glance-Intervall, Standort ohne Permission nicht aus Cache, Settings-Deep-Link
+- **1.38** `kein Kaffee mehr`, `das lauter` / `stopp das`
+- **1.39** STT behält Partials bei `NO_MATCH`, Barge-in bricht den Turn, Navi duckt nicht über Jarvis
+- **1.40** Mehr Chips, False-Positives, ehrliche Fehler
+- Sideload-APK `releases/Jarvis.apk` (versionCode 14000)
+- [`sprints/sprint-87.md`](./sprints/sprint-87.md) … [`sprint-93.md`](./sprints/sprint-93.md) · [`28-next.md`](./28-next.md)
+
+### `1.33.3` — Wecker klingelt wieder — *CODE*
+
+- Ton hängt nicht mehr nur am Vordergrunddienst (Anzeige ohne Klingel)
+- Bundled WAV + Piep-Watchdog; Ton bleibt auf dem Wecker-Bildschirm
+- `setAlarmClock`, Alarm-Lautstärke erzwungen
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13303)
+- [`sprints/sprint-86.md`](./sprints/sprint-86.md) · [`28-next.md`](./28-next.md)
+
+### `1.33.2` — Widget hört und antwortet — *CODE*
+
+- Homescreen-Widget öffnet den Sprachmodus (`jarvis://voice`), nicht nur die App und nicht nur Wake-Word an/aus
+- Mikro und Widget-Körper: Jarvis hört und spricht, wie Shortcut und Wake-Word
+- Sprachmodus bleibt beim Öffnen aus dem Widget (kein sofortiges Schließen durch WebView-Flicker)
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13302)
+- [`sprints/sprint-86.md`](./sprints/sprint-86.md) · [`28-next.md`](./28-next.md)
+
+### `1.33.1` — Fernseher-Befehle — *CODE*
+
+- YouTube-Video auf dem TV sucht YouTube, nicht JustWatch/filmfriend
+- Nach TV: `Spiele Sonic 3 ab` bleibt am Fernseher, kein „kein Zugriff auf Geräte“
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13301)
+- [`sprints/sprint-86.md`](./sprints/sprint-86.md) · [`26-next.md`](./26-next.md)
+
+### `1.33.0` — Suche & Antworten — *CODE*
+
+- Suche: keine Absage über vorhandenen Quellen; Produkte mit Idealo/Geizhals; € nur aus Snippets
+- Memory: `Name gemerkt: Timon.` statt `Timon — liegt.`
+- `Öffnen CarPlay` öffnet den Fahrmodus; Route mit zweitem Router
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13300)
+- [`sprints/sprint-86.md`](./sprints/sprint-86.md) · [`28-next.md`](./28-next.md)
+
+### `1.32.1` — Sprachmodus Tempo — *CODE*
+
+- Charon nur wenn schnell da, sonst sofort Android-Stimme
+- Gemini-Stream kurz, Teiltext zählt; Android listen/speak hängen nicht mehr
+- Sprachmodus ohne Gemini: Groq oder ehrlicher Hinweis, kein 0.5B
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13201)
+- [`sprints/sprint-85.md`](./sprints/sprint-85.md) · [`27-next.md`](./27-next.md)
+
+### `1.32.0` — Samsung-Apps YouTube/Amazon/Disney/Netflix — *CODE*
+
+- Tizen: YouTube, Prime Video, Disney+, Netflix per Stimme öffnen
+- `Spiel … Film`: Lookup DE (gratis/Werbung vor Abo), dann App auf dem Samsung
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13200)
+- [`sprints/sprint-84.md`](./sprints/sprint-84.md) · [`26-next.md`](./26-next.md)
+
+### `1.31.0` — Stimme & Jarvis-Ton — *CODE*
+
+- Gemini-TTS: Charon, erster Satz sofort, Timeout auf System-Stimme
+- Android-TTS: deutsche Neural-Stimme, eher männlich
+- Chat: Smalltalk näher an Jarvis (Siezen, trocken, sparsam Master/Sir), weniger Helpdesk
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13100)
+- [`sprints/sprint-83.md`](./sprints/sprint-83.md) · [`25-next.md`](./25-next.md)
+
+### `1.30.0` — CarPlay flüssig — *CODE*
+
+- Fahrmodus: Karte folgt dem Standort, GPS-Watch, Bildschirm an
+- Tabs per Stimme: `Zeig Spotify`, `Karte`; Spotify als Overlay
+- Navi-Ansagen: „Vorne links in 300 Metern abbiegen“
+- Sideload-APK `releases/Jarvis.apk` (versionCode 13000)
+- [`sprints/sprint-82.md`](./sprints/sprint-82.md) · [`24-next.md`](./24-next.md)
+
+### `1.29.0` — Suche, Fire TV, GUI, Widget, Ventilator — *CODE*
+
+- Internet-Suche: Gemini-Text bleibt; Links aus Grounding, DuckDuckGo und Wikipedia; Badge nie `empty`
+- Composer: Textfeld volle Breite, Icon-Knöpfe, **runder** Mic — kein senkrechter Platzhalter
+- Fire TV ruft in der APK das Native-Plugin (nicht mehr „nur in der Android-App“ trotz App)
+- Widget 2×4: Termin, Wetter, Spracheingabe an/aus
+- Deckenventilator über Broadlink-Brücke (lernen, an/aus, Stufe, Licht)
+- Sideload-APK `releases/Jarvis.apk` (versionCode 12900)
+- [`sprints/sprint-81.md`](./sprints/sprint-81.md) · [`23-next.md`](./23-next.md)
 
 ### `1.28.3` — Wecker klingelt — *CODE*
 

@@ -1,6 +1,6 @@
 import { parseLeaveIntent } from './leave-parse'
 import { geocodePlace, routeMinutes } from './geo-lookup'
-import { mapsDirUrl, normalizePlaceName } from './places-parse'
+import { looksLikeBareStreet, mapsDirUrl, normalizePlaceName } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { listEvents, listMemory, loadSettings, saveSettings } from './store'
 import type { ToolMeta } from './tools'
@@ -48,6 +48,13 @@ export async function handleLeave(
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const s = loadSettings()
+  if (s.last_step_tool === 'leave_ask_city' && s.last_step_title && s.last_step_when) {
+    const city = text.trim().replace(/^[iI]n\s+/, '').replace(/[.!?]+$/, '')
+    if (city.length >= 2 && city.length <= 80 && !/[?]/.test(city) && !looksLikeBareStreet(city)) {
+      saveSettings({ last_step_tool: 'leave', last_step_title: s.last_step_title, last_step_when: '' })
+      return leaveTo(s.last_step_title, `${s.last_step_when}, ${city}`)
+    }
+  }
   if (s.last_step_tool === 'leave_ask' && s.last_step_title) {
     const place = text.trim().replace(/^[iI]n\s+/, '').replace(/[.!?]+$/, '')
     if (place.length >= 2 && place.length <= 80 && !/[?]/.test(place)) {
@@ -78,6 +85,15 @@ async function leaveTo(
   const granted = await requestLocationPermission()
   const here = granted ? await readDeviceLocation() : { ok: false as const, message: 'Standort erlauben.' }
   if (!here.ok || here.lat == null || here.lon == null) {
+    if (looksLikeBareStreet(place)) {
+      saveSettings({ last_step_tool: 'leave_ask_city', last_step_title: label, last_step_when: place })
+      return {
+        handled: true,
+        reply: `In welcher Stadt liegt ${place}? Ohne Standort rate ich die Straße nicht.`,
+        tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Stadt fehlt', preview: place },
+        lastTool: 'leave_ask_city',
+      }
+    }
     const url = mapsDirUrl(place, 'driving')
     return {
       handled: true,
@@ -86,8 +102,17 @@ async function leaveTo(
       lastTool: 'leave',
     }
   }
-  const dest = await geocodePlace(place)
+  const dest = await geocodePlace(place, { lat: here.lat, lon: here.lon })
   if (!dest.ok) {
+    if (looksLikeBareStreet(place)) {
+      saveSettings({ last_step_tool: 'leave_ask_city', last_step_title: label, last_step_when: place })
+      return {
+        handled: true,
+        reply: dest.message,
+        tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Stadt fehlt', preview: place },
+        lastTool: 'leave_ask_city',
+      }
+    }
     return {
       handled: true,
       reply: dest.message,

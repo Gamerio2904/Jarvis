@@ -13,6 +13,7 @@ import {
   setReminderStatus,
   type Reminder,
 } from './store'
+import { timerAlarmFields } from './timer-announce'
 import type { ToolMeta } from './tools'
 
 export { parseReminderIntent } from './remind-parse'
@@ -237,9 +238,19 @@ export async function syncReminderAlarms(): Promise<void> {
         })
         continue
       }
+      if (r.kind === 'timer') {
+        await scheduleNotify({
+          id: notifyIdFromKey(r.id),
+          ...timerAlarmFields(r.title),
+          at: new Date(now + 1_500),
+          alarm: true,
+        })
+        await setReminderStatus(r.id, 'fired')
+        continue
+      }
       await scheduleNotify({
         id: notifyIdFromKey(r.id),
-        title: r.kind === 'timer' ? 'Timer' : r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
+        title: r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
         body: r.title,
         at: new Date(now + 1_500),
         alarm: true,
@@ -248,9 +259,18 @@ export async function syncReminderAlarms(): Promise<void> {
       await setReminderStatus(r.id, 'fired')
       continue
     }
+    if (r.kind === 'timer') {
+      await scheduleNotify({
+        id: notifyIdFromKey(r.id),
+        ...timerAlarmFields(r.title),
+        at: new Date(r.due_at),
+        alarm: true,
+      })
+      continue
+    }
     await scheduleNotify({
       id: notifyIdFromKey(r.id),
-      title: r.kind === 'timer' ? 'Timer' : r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
+      title: r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
       body: r.title,
       at: new Date(r.due_at),
       alarm: true,

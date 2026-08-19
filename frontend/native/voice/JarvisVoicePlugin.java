@@ -38,6 +38,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -56,6 +57,9 @@ public class JarvisVoicePlugin extends Plugin {
     private boolean ttsReady = false;
     private PluginCall listenCall;
     private PluginCall speakCall;
+    private int listenGen = 0;
+    private int speakGen = 0;
+    private String lastPartial = "";
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newCachedThreadPool();
     private final OkHttpClient http = new OkHttpClient.Builder()
@@ -66,6 +70,7 @@ public class JarvisVoicePlugin extends Plugin {
 
     private static JarvisVoicePlugin self;
     private static volatile boolean pendingWake = false;
+    private static volatile String pendingUtterance = "";
 
     @Override
     public void load() {
@@ -75,8 +80,8 @@ public class JarvisVoicePlugin extends Plugin {
                 ttsReady = status == TextToSpeech.SUCCESS;
                 if (ttsReady) {
                     tts.setLanguage(Locale.GERMANY);
-                    tts.setSpeechRate(1.08f);
-                    tts.setPitch(1.0f);
+                    tts.setSpeechRate(1.03f);
+                    tts.setPitch(0.94f);
                     pickGermanVoice();
                 }
             });
@@ -110,10 +115,13 @@ public class JarvisVoicePlugin extends Plugin {
                 if (!"de".equalsIgnoreCase(v.getLocale().getLanguage())) continue;
                 String name = v.getName() == null ? "" : v.getName().toLowerCase(Locale.ROOT);
                 int s = 0;
-                if (name.contains("pico")) s -= 8;
-                if (name.contains("google")) s += 4;
-                if (name.contains("neural") || name.contains("wavenet") || name.contains("network")) s += 3;
+                if (name.contains("pico") || name.contains("svox")) s -= 12;
+                if (name.contains("google")) s += 5;
+                if (name.contains("neural") || name.contains("wavenet") || name.contains("network")) s += 4;
+                if (name.contains("de-de-x-deb") || name.contains("male") || name.contains("männlich")) s += 6;
+                if (name.contains("de-de-x-dea") || name.contains("female") || name.contains("frau")) s -= 5;
                 if (v.getQuality() >= Voice.QUALITY_HIGH) s += 2;
+                if (v.isNetworkConnectionRequired()) s += 1;
                 if (s > score) {
                     score = s;
                     best = v;
@@ -166,12 +174,14 @@ public class JarvisVoicePlugin extends Plugin {
 
     private void startListen(PluginCall call) {
         call.setKeepAlive(true);
+        final int gen = ++listenGen;
         main.post(() -> {
             if (listenCall != null) {
                 finishListen("", false, "schon am Zuhören", null);
             }
             JarvisWakeService.pauseListen();
             listenCall = call;
+            lastPartial = "";
             if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
                 finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.", null);
                 return;
@@ -185,9 +195,19 @@ public class JarvisVoicePlugin extends Plugin {
                     @Override public void onBufferReceived(byte[] buffer) {}
                     @Override public void onEndOfSpeech() {}
                     @Override public void onError(int error) {
+                        if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY
+                                || error == SpeechRecognizer.ERROR_CLIENT) {
+                            try {
+                                if (recognizer != null) {
+                                    recognizer.destroy();
+                                    recognizer = null;
+                                }
+                            } catch (Exception ignored) {}
+                        }
                         if (error == SpeechRecognizer.ERROR_NO_MATCH
                                 || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                            finishListen("", true, "", null);
+                            String keep = lastPartial == null ? "" : lastPartial.trim();
+                            finishListen(keep, true, keep.isEmpty() ? "" : "", null);
                             return;
                         }
                         finishListen("", false, "Zuhören unterbrochen.", null);
@@ -202,8 +222,9 @@ public class JarvisVoicePlugin extends Plugin {
                     public void onPartialResults(Bundle partialResults) {
                         ArrayList<String> list = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                         if (list == null || list.isEmpty()) return;
+                        lastPartial = list.get(0) == null ? "" : list.get(0);
                         JSObject ev = new JSObject();
-                        ev.put("text", list.get(0));
+                        ev.put("text", lastPartial);
                         notifyListeners("partial", ev);
                     }
                     @Override public void onEvent(int eventType, Bundle params) {}
@@ -216,14 +237,24 @@ public class JarvisVoicePlugin extends Plugin {
             intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1400L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1100L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 600L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 800L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 650L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 350L);
             try {
                 recognizer.startListening(intent);
             } catch (Exception e) {
                 finishListen("", false, "Zuhören fehlgeschlagen.", null);
+                return;
             }
+            main.postDelayed(() -> {
+                if (listenGen != gen) return;
+                if (listenCall == call) {
+                    try {
+                        if (recognizer != null) recognizer.cancel();
+                    } catch (Exception ignored) {}
+                    finishListen(lastPartial == null ? "" : lastPartial, true, "", null);
+                }
+            }, 10_000);
         });
     }
 
@@ -270,8 +301,18 @@ public class JarvisVoicePlugin extends Plugin {
         }
         call.setKeepAlive(true);
         speakCall = call;
+        final int gen = ++speakGen;
+        trySpeak(call, text, gen, 0);
+    }
+
+    private void trySpeak(PluginCall call, String text, int gen, int attempt) {
         main.post(() -> {
+            if (speakGen != gen || speakCall != call) return;
             if (tts == null || !ttsReady) {
+                if (attempt < 15) {
+                    main.postDelayed(() -> trySpeak(call, text, gen, attempt + 1), 100);
+                    return;
+                }
                 JSObject r = new JSObject();
                 r.put("ok", false);
                 r.put("message", "Stimme noch nicht bereit.");
@@ -286,7 +327,15 @@ public class JarvisVoicePlugin extends Plugin {
                 @Override public void onError(String utteranceId) { finishSpeak(false); }
             });
             Bundle params = new Bundle();
-            tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, "jarvis-voice");
+            int queued = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, "jarvis-voice");
+            if (queued == TextToSpeech.ERROR) {
+                finishSpeak(false);
+                return;
+            }
+            main.postDelayed(() -> {
+                if (speakGen != gen) return;
+                finishSpeak(true);
+            }, 20_000);
         });
     }
 
@@ -320,7 +369,14 @@ public class JarvisVoicePlugin extends Plugin {
             return;
         }
         call.setKeepAlive(true);
+        Integer timeout = call.getInt("timeoutMs");
+        int readMs = timeout == null ? 8_000 : Math.max(3_000, Math.min(20_000, timeout));
         io.execute(() -> {
+            OkHttpClient client = http.newBuilder()
+                    .connectTimeout(4, TimeUnit.SECONDS)
+                    .readTimeout(readMs, TimeUnit.MILLISECONDS)
+                    .callTimeout(readMs + 2_000L, TimeUnit.MILLISECONDS)
+                    .build();
             Request.Builder b = new Request.Builder()
                     .url(url)
                     .post(RequestBody.create(body == null ? "{}" : body, JSON))
@@ -329,7 +385,8 @@ public class JarvisVoicePlugin extends Plugin {
             if (apiKey != null && !apiKey.isEmpty()) {
                 b.addHeader("x-goog-api-key", apiKey);
             }
-            try (Response res = http.newCall(b.build()).execute()) {
+            Call httpCall = client.newCall(b.build());
+            try (Response res = httpCall.execute()) {
                 int code = res.code();
                 if (res.body() == null) {
                     JSObject r = new JSObject();
@@ -363,11 +420,17 @@ public class JarvisVoicePlugin extends Plugin {
     }
 
     public static void emitWake() {
+        emitWake("");
+    }
+
+    public static void emitWake(String utterance) {
         pendingWake = true;
+        pendingUtterance = utterance == null ? "" : utterance.trim();
         JarvisVoicePlugin p = self;
         if (p == null) return;
         JSObject ev = new JSObject();
         ev.put("hit", true);
+        if (!pendingUtterance.isEmpty()) ev.put("utterance", pendingUtterance);
         p.notifyListeners("wake", ev);
     }
 
@@ -376,24 +439,32 @@ public class JarvisVoicePlugin extends Plugin {
         Activity a = getActivity();
         boolean voice = pendingWake;
         pendingWake = false;
+        String utterance = pendingUtterance;
+        pendingUtterance = "";
         if (a != null) {
             Intent i = a.getIntent();
             if (i != null) {
                 Uri data = i.getData();
                 String extra = i.getStringExtra("jarvis_mode");
+                String fromIntent = i.getStringExtra("jarvis_utterance");
                 voice = voice
                         || (data != null && "voice".equals(data.getHost()))
                         || "voice".equals(extra)
                         || (data != null && String.valueOf(data).contains("voice"));
+                if (fromIntent != null && !fromIntent.trim().isEmpty()) {
+                    utterance = fromIntent.trim();
+                }
                 if (voice) {
                     i.setData(null);
                     i.removeExtra("jarvis_mode");
+                    i.removeExtra("jarvis_utterance");
                     a.setIntent(i);
                 }
             }
         }
         JSObject r = new JSObject();
         r.put("voice", voice);
+        r.put("utterance", utterance == null ? "" : utterance);
         call.resolve(r);
     }
 
@@ -507,6 +578,7 @@ public class JarvisVoicePlugin extends Plugin {
     public void wakeStatus(PluginCall call) {
         JSObject r = new JSObject();
         r.put("running", JarvisWakeService.isRunning());
+        r.put("wanted", JarvisWakeService.wantEnabled(getContext()));
         call.resolve(r);
     }
 }

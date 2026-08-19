@@ -1,21 +1,30 @@
 import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
 import { completeGemini, geminiReady, GEMINI_LABEL, streamGemini, testGemini } from './gemini'
-import { groqReady, testGroq } from './groq'
+import { completeGroq, groqReady, testGroq } from './groq'
 import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
 import { splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
-import { GEMINI_PERSONA, PERSONA, VOICE_HINT } from './persona'
+import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from './persona'
 import {
+  formatResearchReply,
+  guardResearchReply,
   isLiveLookup,
+  isProductLookup,
+  isSearchRefusal,
+  parseEuroPrices,
+  parseShopDiscountIntent,
   RESEARCH_EMPTY,
   RESEARCH_NEEDS_GEMINI,
   RESEARCH_OFF_REPLY,
   researchHasSources,
+  researchQuery,
+  sourceDigest,
   type ResearchMeta,
 } from './research-parse'
+import { fillResearchLinks } from './web-search'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
@@ -43,7 +52,9 @@ import { handleReminders } from './reminders'
 import { handleAlarms } from './alarms'
 import { handleTimers } from './timers'
 import { handleTools, type ToolMeta } from './tools'
-import { handleTv, tvStatusFromSettings } from './tv'
+import { handleTv, handleTvOrdinal, tvStatusFromSettings } from './tv'
+import { handleFilm } from './film'
+import { handleFan } from './fan'
 import { handleWeather } from './weather'
 import { handlePlaces } from './places'
 import { handleShopping } from './shopping'
@@ -52,7 +63,15 @@ import { handleHome } from './home'
 import { handleLeave } from './leave'
 import { handleBrief } from './brief'
 import { isBriefAsk } from './brief-parse'
+import { handlePoi, handlePoiOrdinal } from './poi'
+import { handleDevice } from './device'
+import { handlePc } from './pc'
 import { handleDrive } from './drive'
+import { handleFuel, handleFuelOrdinal } from './fuel'
+import { handleHere } from './here'
+import { handleTransit } from './transit'
+import { handleHoliday } from './holiday'
+import { handleNews } from './news'
 import { handleEyeAsk } from './eye'
 import { parseEyeIntent } from './eye-parse'
 import { handleChatSearch } from './search-chat'
@@ -141,8 +160,73 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: HELP_TEXT, lastTool: 'help' }
   }
 
+  if (loadSettings().last_comm_json) {
+    const pendingHit = await handlePlaces(conversationId, content)
+    if (pendingHit.handled && pendingHit.reply) {
+      return {
+        reply: pendingHit.reply,
+        tool: pendingHit.tool,
+        lastTool: pendingHit.lastTool || 'maps',
+      }
+    }
+  }
+
+  if (loadSettings().last_pc_json) {
+    const pcPending = await handlePc(conversationId, content)
+    if (pcPending.handled && pcPending.reply) {
+      return {
+        reply: pcPending.reply,
+        tool: pcPending.tool,
+        lastTool: pcPending.lastTool || 'pc',
+      }
+    }
+  }
+
+  const discountToggle = parseShopDiscountIntent(content)
+  if (discountToggle) {
+    saveSettings({ shop_discount: discountToggle.on })
+    return {
+      reply: discountToggle.on
+        ? 'Rabatt-Suche an. Bei Produktsuche extra Gutscheine (mydealz/Sparwelt). Internet-Research muss an sein. Keine erfundenen Codes.'
+        : 'Rabatt-Suche aus. Produktsuche bleibt Preisvergleich ohne extra Gutschein-Jagd.',
+      lastTool: 'research',
+    }
+  }
+
   const ord = parseOrdinalFollowUp(content)
   if (ord) {
+    const s = loadSettings()
+    if (s.last_step_tool === 'tv') {
+      const tvPick = await handleTvOrdinal(ord.index)
+      if (tvPick.handled && tvPick.reply) {
+        return {
+          reply: tvPick.reply,
+          tool: { tool_status: 'executed', tool: 'tv', action: 'ok', label: 'TV' },
+          lastTool: 'tv',
+        }
+      }
+    }
+    if (s.last_step_tool === 'fuel') {
+      const fuelPick = await handleFuelOrdinal(ord.index)
+      if (fuelPick.handled && fuelPick.reply) {
+        return {
+          reply: fuelPick.reply,
+          tool: fuelPick.tool,
+          lastTool: 'fuel',
+          research: fuelPick.research,
+        }
+      }
+    }
+    if (s.last_step_tool === 'poi') {
+      const poiPick = await handlePoiOrdinal(ord.index)
+      if (poiPick.handled && poiPick.reply) {
+        return {
+          reply: poiPick.reply,
+          tool: poiPick.tool,
+          lastTool: 'poi',
+        }
+      }
+    }
     const titles = readLastList()
     if (!titles.length) {
       return {
@@ -169,12 +253,132 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  const filmHit = await handleFilm(conversationId, content)
+  if (filmHit.handled && filmHit.reply) {
+    return {
+      reply: filmHit.reply,
+      tool: filmHit.tool,
+      lastTool: filmHit.lastTool || 'film',
+    }
+  }
+
+  const fanHit = await handleFan(content)
+  if (fanHit.handled && fanHit.reply) {
+    return {
+      reply: fanHit.reply,
+      tool: { tool_status: 'executed', tool: 'fan', action: 'command', label: 'Ventilator' },
+      lastTool: 'fan',
+    }
+  }
+
+  const hereHit = await handleHere(content)
+  if (hereHit.retry === 'fuel') {
+    const retryFuel = await handleFuel(conversationId, loadSettings().last_step_utterance || 'fahr mich zu einer Tanke')
+    if (retryFuel.handled && retryFuel.reply) {
+      return {
+        reply: retryFuel.reply,
+        tool: retryFuel.tool,
+        lastTool: retryFuel.lastTool || 'fuel',
+        research: retryFuel.research,
+      }
+    }
+  }
+  if (hereHit.retry === 'weather') {
+    const retryWeather = await handleWeather(loadSettings().last_step_utterance || 'Wetter hier')
+    if (retryWeather.handled && retryWeather.reply) {
+      return {
+        reply: retryWeather.reply,
+        tool: retryWeather.tool,
+        research: retryWeather.research,
+        lastTool: 'weather',
+      }
+    }
+  }
+  if (hereHit.retry === 'poi') {
+    const retryPoi = await handlePoi(conversationId, loadSettings().last_step_utterance || 'nächste Apotheke')
+    if (retryPoi.handled && retryPoi.reply) {
+      return {
+        reply: retryPoi.reply,
+        tool: retryPoi.tool,
+        lastTool: retryPoi.lastTool || 'poi',
+      }
+    }
+  }
+  if (hereHit.retry === 'transit') {
+    const retryTransit = await handleTransit(
+      conversationId,
+      loadSettings().last_step_utterance || 'nächste Bahn nach Heilbronn',
+    )
+    if (retryTransit.handled && retryTransit.reply) {
+      return {
+        reply: retryTransit.reply,
+        tool: retryTransit.tool,
+        lastTool: retryTransit.lastTool || 'transit',
+        research: retryTransit.research,
+      }
+    }
+  }
+  if (hereHit.handled && hereHit.reply) {
+    return {
+      reply: hereHit.reply,
+      tool: hereHit.tool,
+      lastTool: hereHit.lastTool || 'here',
+    }
+  }
+
+  const fuelHit = await handleFuel(conversationId, content)
+  if (fuelHit.handled && fuelHit.reply) {
+    return {
+      reply: fuelHit.reply,
+      tool: fuelHit.tool,
+      lastTool: fuelHit.lastTool || 'fuel',
+      research: fuelHit.research,
+    }
+  }
+
+  const poiHit = await handlePoi(conversationId, content)
+  if (poiHit.handled && poiHit.reply) {
+    return {
+      reply: poiHit.reply,
+      tool: poiHit.tool,
+      lastTool: poiHit.lastTool || 'poi',
+    }
+  }
+
+  const transitHit = await handleTransit(conversationId, content)
+  if (transitHit.handled && transitHit.reply) {
+    return {
+      reply: transitHit.reply,
+      tool: transitHit.tool,
+      lastTool: transitHit.lastTool || 'transit',
+      research: transitHit.research,
+    }
+  }
+
   const driveHit = await handleDrive(conversationId, content)
   if (driveHit.handled && driveHit.reply) {
     return {
       reply: driveHit.reply,
       tool: driveHit.tool,
       lastTool: driveHit.lastTool || 'drive',
+    }
+  }
+
+  const deviceHit = await handleDevice(conversationId, content)
+  if (deviceHit.handled && deviceHit.reply) {
+    return {
+      reply: deviceHit.reply,
+      tool: deviceHit.tool,
+      lastTool: deviceHit.lastTool || 'device',
+    }
+  }
+
+  const pcHit = await handlePc(conversationId, content)
+  if (pcHit.handled && pcHit.reply) {
+    return {
+      reply: pcHit.reply,
+      tool: pcHit.tool,
+      lastTool: pcHit.lastTool || 'pc',
     }
   }
 
@@ -219,6 +423,11 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  const holidayHit = await handleHoliday(content)
+  if (holidayHit.handled && holidayHit.reply) {
+    return { reply: holidayHit.reply, tool: holidayHit.tool, lastTool: holidayHit.lastTool || 'holiday' }
+  }
+
   const calHit = await handleCalendar(conversationId, content)
   if (calHit.handled && calHit.reply) {
     return { reply: calHit.reply, tool: calHit.tool, lastTool: 'calendar' }
@@ -261,6 +470,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  const newsHit = await handleNews(content)
+  if (newsHit.handled && newsHit.reply) {
+    return {
+      reply: newsHit.reply,
+      tool: newsHit.tool,
+      research: newsHit.research,
+      lastTool: newsHit.lastTool || 'news',
+    }
+  }
+
   const searchHit = await handleChatSearch(content)
   if (searchHit.handled && searchHit.reply) {
     return { reply: searchHit.reply, tool: searchHit.tool, lastTool: searchHit.lastTool || 'search' }
@@ -269,11 +488,23 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   return null
 }
 
-function persistLastStep(tool: string, title = '', when = ''): void {
+function lastStepHint(): string {
+  const s = loadSettings()
+  const tool = (s.last_step_tool || '').trim()
+  if (!tool) return ''
+  const title = (s.last_step_title || '').trim()
+  return `Letzter Tool-Schritt: ${tool}${title ? ` (${title})` : ''}. Wenn der Nutzer „das“, „lauter“, „stopp“ oder „nochmal“ sagt, bezieht sich das darauf. Keine Ausführung erfinden.`
+}
+
+function persistLastStep(tool: string, title = '', when = '', utterance = ''): void {
+  const medium =
+    tool === 'tv' ? 'tv' : tool === 'drive' && /spotify/i.test(title) ? 'spotify' : tool === 'drive' ? 'drive' : loadSettings().last_medium
   saveSettings({
     last_step_tool: tool,
     last_step_title: title,
     last_step_when: when,
+    last_step_utterance: utterance || loadSettings().last_step_utterance,
+    last_medium: medium || '',
   })
 }
 
@@ -314,23 +545,34 @@ async function rememberToolFromStore(tool: string): Promise<void> {
     persistLastStep('todo', td?.title ?? '', '')
     return
   }
-  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave') {
+  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave' || tool === 'fan') {
     persistLastStep(tool)
     return
   }
   persistLastStep(tool)
 }
 
-async function rememberHit(hit: RouteHit): Promise<void> {
+async function rememberHit(hit: RouteHit, utterance = ''): Promise<void> {
   const tool = hit.lastTool
   if (!tool || tool === 'help' || tool === 'memory') return
   const preview = (hit.tool?.preview || '').trim()
+  const medium =
+    tool === 'tv'
+      ? 'tv'
+      : hit.tool?.action === 'music' || /spotify/i.test(preview)
+        ? 'spotify'
+        : tool === 'drive' || tool === 'fuel' || tool === 'poi'
+          ? 'drive'
+          : ''
   if (preview) {
     const title = preview.split('·')[0].replace(/^Todo anlegen:\s*/i, '').trim()
-    persistLastStep(tool, title)
+    persistLastStep(tool, title, '', utterance)
+    if (medium) saveSettings({ last_medium: medium })
     return
   }
   await rememberToolFromStore(tool)
+  if (utterance) saveSettings({ last_step_utterance: utterance.slice(0, 160) })
+  if (medium) saveSettings({ last_medium: medium })
 }
 
 async function attachResearchAudit(research: ResearchMeta | undefined, query: string): Promise<ResearchMeta | undefined> {
@@ -380,11 +622,13 @@ export async function streamChat(
       const replies = routed.map((h, i) =>
         h ? h.reply : `„${parts[i]}“ habe ich nicht als Befehl erkannt.`,
       )
-      for (const hit of found) await rememberHit(hit)
+      for (const hit of found) await rememberHit(hit, content)
       const last = found[found.length - 1]
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
-      const assistant = await addMessage(conversationId, 'assistant', replies.join('\n\n'), {
+      const joined = replies.join('\n\n')
+      handlers.onToken?.(joined)
+      const assistant = await addMessage(conversationId, 'assistant', joined, {
         tool: last.tool,
         research,
       })
@@ -398,6 +642,39 @@ export async function streamChat(
       return
     }
 
+    if (opts?.voice && !geminiReady()) {
+      if (groqReady()) {
+        const history = await listMessages(conversationId)
+        const mem = await listMemory()
+        const system = [GEMINI_PERSONA, VOICE_HINT, memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
+        const llmMessages = [
+          { role: 'system', content: system },
+          ...history.slice(-16).map((m) => ({
+            role: m.role === 'assistant' ? 'assistant' : 'user',
+            content: m.content,
+          })),
+        ]
+        let acc = ''
+        const raw = await completeGroq(llmMessages, (_piece, full) => {
+          acc = full
+          handlers.onToken?.(_piece)
+        })
+        const final = scrubReply((raw || acc).trim())
+        if (final !== (raw || acc)) handlers.onReplace?.(final)
+        const assistant = await addMessage(conversationId, 'assistant', final)
+        const updated = (await touchConversation(conversationId)) || conv
+        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+        return
+      }
+      const reply =
+        'Sprachmodus braucht Gemini. Unter Einstellungen an — das Handy-Modell ist dafür zu langsam.'
+      handlers.onToken?.(reply)
+      const assistant = await addMessage(conversationId, 'assistant', reply)
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+      return
+    }
+
     if (!geminiReady()) {
       if (!isModelReady()) {
         throw new Error(
@@ -407,7 +684,8 @@ export async function streamChat(
     }
 
     const s = loadSettings()
-    if (isLiveLookup(content)) {
+    const discount = Boolean(s.shop_discount)
+    if (isLiveLookup(content, discount)) {
       if (!s.research_opt_in) {
         const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
         const updated = (await touchConversation(conversationId)) || conv
@@ -415,6 +693,22 @@ export async function streamChat(
         return
       }
       if (!geminiReady()) {
+        const filled = await fillResearchLinks(content, '', undefined)
+        const research = (await attachResearchAudit(filled, researchQuery(content))) || filled
+        persistLastStep('research')
+        if (researchHasSources(research)) {
+          const reply = formatResearchReply(
+            researchQuery(content),
+            research.sources || [],
+            isProductLookup(content, discount),
+            discount,
+          )
+          handlers.onReplace?.(reply)
+          const assistant = await addMessage(conversationId, 'assistant', reply, { research })
+          const updated = (await touchConversation(conversationId)) || conv
+          handlers.onDone?.({ assistant_message: assistant, conversation: updated, research, tool: null })
+          return
+        }
         const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
@@ -424,68 +718,106 @@ export async function streamChat(
 
     const history = await listMessages(conversationId)
     const mem = await listMemory()
+    const wantSearch = Boolean(s.research_opt_in && isLiveLookup(content, discount))
+    let research: ResearchMeta | undefined
+    if (wantSearch) {
+      research = await fillResearchLinks(content, '', undefined)
+    }
+    const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
     const system = geminiReady()
-      ? [GEMINI_PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem)].filter(Boolean).join('\n\n')
-      : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem)].filter(Boolean).join('\n\n')
+      ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
+          .filter(Boolean)
+          .join('\n\n')
+      : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
     const llmMessages = [
       { role: 'system', content: system },
-      ...history.slice(geminiReady() ? -12 : -4).map((m) => ({
+      ...history.slice(geminiReady() || opts?.voice ? -24 : -12).map((m) => ({
         role: m.role === 'assistant' ? 'assistant' : 'user',
         content: m.content,
       })),
     ]
-
-    let acc = ''
-    let research: ResearchMeta | undefined
-    const raw = geminiReady()
-      ? await (opts?.voice ? streamGemini : completeGemini)(
-          llmMessages,
-          (_piece, full) => {
-            acc = full
-            handlers.onToken?.(_piece)
-          },
-          {
-            search: Boolean(s.research_opt_in && isLiveLookup(content)),
-            maxOutputTokens: opts?.voice ? 96 : undefined,
-          },
-        ).then((r) => {
-          research = r.research
-          return r.text
-        })
-      : await completeChat(llmMessages, (_piece, full) => {
-          acc = full
-          handlers.onToken?.(_piece)
-        })
-
-    if (isLiveLookup(content) && !researchHasSources(research)) {
-      const empty = RESEARCH_EMPTY
-      handlers.onReplace?.(empty)
-      research = await attachResearchAudit(
-        research || {
-          used: false,
-          status: 'empty',
-          query: content.slice(0, 120),
-          sources: [],
-          network_attempted: true,
-        },
-        content,
-      )
-      persistLastStep('research')
-      const assistant = await addMessage(conversationId, 'assistant', empty, research ? { research } : undefined)
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({
-        assistant_message: assistant,
-        conversation: updated,
-        research: research || null,
-        tool: null,
-      })
-      return
+    if (digest) {
+      const last = llmMessages[llmMessages.length - 1]
+      if (last && last.role === 'user') {
+        last.content = `${last.content}\n\nTreffer (für die Antwort, nicht vorlesen):\n${digest}`
+      }
     }
 
-    const final = scrubReply(raw || acc, { searched: Boolean(research?.used) })
-    if (final !== (raw || acc)) handlers.onReplace?.(final)
-    if (research) research = await attachResearchAudit(research, content)
-    if (isLiveLookup(content)) persistLastStep('research')
+    let acc = ''
+    let raw = ''
+    try {
+      raw = geminiReady()
+        ? await (opts?.voice ? streamGemini : completeGemini)(
+            llmMessages,
+            (_piece, full) => {
+              acc = full
+              handlers.onToken?.(_piece)
+            },
+            {
+              search: wantSearch,
+              maxOutputTokens: opts?.voice ? 480 : wantSearch ? 1400 : 1400,
+            },
+          ).then((r) => {
+            if (r.research?.sources?.length) {
+              research = {
+                ...(research || r.research),
+                ...r.research,
+                sources: [...(research?.sources || []), ...r.research.sources],
+              }
+            }
+            return r.text
+          })
+        : await completeChat(llmMessages, (_piece, full) => {
+            acc = full
+            handlers.onToken?.(_piece)
+          })
+    } catch (err) {
+      if (!wantSearch || !researchHasSources(research)) throw err
+      raw = ''
+    }
+
+    let text = (raw || acc).trim()
+    if (wantSearch) {
+      const filled = await fillResearchLinks(content, text, research)
+      research = (await attachResearchAudit(filled, researchQuery(content))) || filled
+      persistLastStep('research')
+      const product = isProductLookup(content, discount)
+      const sources = research.sources || []
+      const weak = !text || isSearchRefusal(text)
+      if (weak && researchHasSources(research)) {
+        text = formatResearchReply(researchQuery(content), sources, product, discount)
+        handlers.onReplace?.(text)
+      } else if (!text && !researchHasSources(research)) {
+        const empty = RESEARCH_EMPTY
+        handlers.onReplace?.(empty)
+        const assistant = await addMessage(conversationId, 'assistant', empty, { research })
+        const updated = (await touchConversation(conversationId)) || conv
+        handlers.onDone?.({
+          assistant_message: assistant,
+          conversation: updated,
+          research,
+          tool: null,
+        })
+        return
+      } else if (product && researchHasSources(research) && text && !parseEuroPrices(text).length) {
+        const extra = formatResearchReply(researchQuery(content), sources, true, discount)
+        if (/€/.test(extra) && extra !== text) {
+          text = `${text.replace(/\s+$/, '')} ${extra}`
+          handlers.onReplace?.(text)
+        }
+      } else if (!product && text) {
+        const guarded = guardResearchReply(researchQuery(content), text, sources)
+        if (guarded !== text) {
+          text = guarded
+          handlers.onReplace?.(text)
+        }
+      }
+    }
+
+    const final = scrubReply(text, { searched: Boolean(researchHasSources(research) || wantSearch) })
+    if (final !== text) handlers.onReplace?.(final)
+    if (research && !research.audit_id) research = await attachResearchAudit(research, content)
+    if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({

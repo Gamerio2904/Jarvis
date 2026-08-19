@@ -6,6 +6,7 @@ import {
   RECALL_VAGUE,
   VERGISS,
   VERGISS_ALL,
+  CONTRADICTION,
   isIdentityAsk,
   isMemoryRecall,
   isMemoryWrite,
@@ -36,15 +37,31 @@ export async function handleMemory(
     }
     return { handled: true, reply: 'Dazu lag nichts.' }
   }
-  if (isMemoryWrite(text)) {
-    const facts = parseMemoryFacts(text)
-    if (facts.length) {
-      const saved = []
-      for (const f of facts) {
-        saved.push(await upsertMemory(f.key, f.value, f.category, conversationId))
+  const contra = CONTRADICTION.exec(text)
+  if (contra) {
+    const needle = contra[1].replace(/[.!?,;:]+$/g, '').trim().toLowerCase()
+    if (needle.length >= 3 && !/\b(termin|wecker|timer|todo|mehr)\b/i.test(needle)) {
+      const items = await listMemory()
+      const hit = items.find(
+        (m) =>
+          m.value.toLowerCase().includes(needle) ||
+          m.key.toLowerCase().includes(needle) ||
+          (m.key === 'getränk' && /kaffee|tee|wasser|cola|bier|wein|saft/.test(needle)) ||
+          (m.key === 'essen' && needle.length >= 4),
+      )
+      if (hit && (hit.value.toLowerCase().includes(needle) || hit.key.toLowerCase() === needle)) {
+        await deleteMemory(hit.id)
+        return { handled: true, reply: `${hit.value} ist raus.` }
       }
-      const bits = saved.map((s) => s.value).join(', ')
-      return { handled: true, reply: `${bits} — liegt.`, items: saved }
+      const pref = items.find(
+        (m) =>
+          (m.key === 'getränk' || m.key === 'essen') && m.value.toLowerCase().includes(needle),
+      )
+      if (pref) {
+        await deleteMemory(pref.id)
+        return { handled: true, reply: `${pref.value} ist raus.` }
+      }
+      return { handled: true, reply: `„${contra[1].trim()}“ lag nicht im Gedächtnis.` }
     }
   }
   if (isMemoryRecall(text)) {
@@ -87,15 +104,29 @@ export async function handleMemory(
       reply: items.map((m) => `${m.key}: ${m.value}`).join('\n'),
     }
   }
+  if (isMemoryWrite(text)) {
+    const facts = parseMemoryFacts(text)
+    if (facts.length) {
+      const saved = []
+      for (const f of facts) {
+        saved.push(await upsertMemory(f.key, f.value, f.category, conversationId))
+      }
+      const bits = saved.map((s) => s.value).join(', ')
+      if (saved.length === 1 && saved[0].key === 'name') {
+        return { handled: true, reply: `Name gemerkt: ${saved[0].value}.`, items: saved }
+      }
+      return { handled: true, reply: `Gemerkt: ${bits}.`, items: saved }
+    }
+  }
   if (isIdentityAsk(text)) {
     const items = await listMemory()
     const name = items.find((m) => m.key === 'name')
     if (name) {
-      return { handled: true, reply: `Ich bin Jarvis. Sie heißen ${name.value}.` }
+      return { handled: true, reply: `Jarvis. Sie heißen ${name.value}. Für Sie, jederzeit.` }
     }
     return {
       handled: true,
-      reply: 'Ich bin Jarvis, privater Assistent. Einen Namen von Ihnen habe ich noch nicht.',
+      reply: 'Jarvis. Immer da. Einen Namen von Ihnen habe ich noch nicht.',
     }
   }
   return { handled: false }
