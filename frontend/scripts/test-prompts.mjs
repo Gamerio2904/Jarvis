@@ -191,6 +191,12 @@ const EXPECT = {
   'Wie viele Scheibenwischer verkauft Valeo am tag': 'research',
   'Steckdose an': 'plug',
   'alle Steckdosen aus': 'plug',
+  'Wie spät ist es?': 'device',
+  'weißt du wie viel Uhr es ist': 'device',
+  'weißt du wo ich bin': 'here',
+  'wo könnte ich denn sein': 'here',
+  'Was ist der bip in Deutschland': 'research',
+  'Kannst du den bip von Deutschland in einer Tabelle darstellen?': 'research',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -225,6 +231,12 @@ assert.equal(route('in 20 Minuten Milch holen'), 'reminder')
 assert.equal(route('Fahr mich zu einer Tanke'), 'fuel')
 assert.equal(route('Steckdose an'), 'plug')
 assert.equal(route('Ventilator an'), 'fan')
+assert.equal(route('Wie spät ist es?'), 'device')
+assert.equal(route('weißt du wo ich bin'), 'here')
+assert.equal(route('wo könnte ich jetzt frühstücken'), 'poi')
+assert.equal(route('Was ist der bip in Deutschland'), 'research')
+assert.equal(parseHereIntent('wo könnte ich jetzt frühstücken'), null)
+assert.equal(parseDeviceIntent('wie spät ist es')?.kind, 'clock')
 
 for (const r of rows) {
   const mark = r.got === r.want ? 'ok' : 'FAIL'

@@ -29,7 +29,10 @@ export function isLiveLookup(text: string, discount = false): boolean {
     return true
   }
   if (/\b(wetter|temperatur|nachrichten|news)\b/i.test(t)) return true
-  if (/\baktuell(?:e[rs]?)?\b/i.test(t) && /\b(preis|kurs|spielstand|wetter)\b/i.test(t)) return true
+  if (/\baktuell(?:e[nrs]?)?\b/i.test(t) && /\b(preis|kurs|spielstand|wetter|zahlen|daten|wert|statistik|wirtschaft)\b/i.test(t)) {
+    return true
+  }
+  if (isTableAsk(t) && /\b(?:bip|gdp|deutschland|zahlen|statistik|daten|wirtschaft)\b/i.test(t)) return true
   if (isProductLookup(t, discount)) return true
   if (isFactLookup(t)) return true
   return false
@@ -50,7 +53,26 @@ export function isFactLookup(text: string): boolean {
   if (qty && verb) return true
   if (verb && period) return true
   if (/\b(?:umsatz|geschäftsbericht|marktanteil|stückzahl)\b/i.test(t)) return true
+  if (
+    /\b(?:bip|b\.i\.p\.|gdp|bruttoinlandsprodukt|wirtschaftsdaten|wirtschaftszahlen|staatsverschuldung|inflationsrate|arbeitslosenquote)\b/i.test(
+      t,
+    )
+  ) {
+    return true
+  }
+  if (
+    /\bwas\s+ist\s+(?:der|die|das)\s+\S.{0,40}\b(?:in|von)\s+(?:deutschland|europa|der\s+welt|österreich|der\s+schweiz)\b/i.test(
+      t,
+    )
+  ) {
+    return true
+  }
   return false
+}
+
+/** Reihen oder Vergleich als Texttabelle, kein Markdown. */
+export function isTableAsk(text: string): boolean {
+  return /\b(?:tabelle|tabellarisch|als\s+tabelle|in\s+einer\s+tabelle)\b/i.test(text)
 }
 
 /** Produkt, Preis, Shop — bestehende Suche, nicht ein neues Tool. */
@@ -82,9 +104,41 @@ export function parseShopDiscountIntent(text: string): { on: boolean } | null {
 }
 
 export function isSearchRefusal(text: string): boolean {
-  return /keine live-suche|kann ich keine (?:live-)?suche|nutzen sie einen browser|i cannot (?:perform )?(?:a )?(?:live )?search|keinen zugriff aufs? internet|kann (?:das )?internet nicht|bitte nutzen sie (?:einen browser|eine app)/i.test(
+  return /keine live-suche|kann ich keine (?:live-)?suche|nutzen sie einen browser|i cannot (?:perform )?(?:a )?(?:live )?search|keinen zugriff aufs? internet|kann (?:das )?internet nicht|bitte nutzen sie (?:einen browser|eine app)|keine verifizierten zahlen|keine gesicherten (?:zahlen|daten)|tabellen kann ich.{0,48}nicht|kann ich in diesem format.{0,24}nicht/i.test(
     text,
   )
+}
+
+/** Modell sagt, es wisse Live-Fakten nicht — dann selbst suchen. */
+export function isKnowledgeGap(text: string): boolean {
+  if (isSearchRefusal(text)) return true
+  return /liegen mir im moment keine|liegt mir im moment nicht vor|kein entsprechender systemzugriff|zu den aktuellen .{0,48}liegen mir|dazu (?:liegen|gibt es) (?:mir )?keine|weiß ich (?:leider )?nicht|keine aktuellen (?:zahlen|daten|werte)|keine belegten zahlen/i.test(
+    text,
+  )
+}
+
+/** Frage, bei der eine Websuche sinnvoll ist, wenn die erste Antwort leer bleibt. */
+export function isAutoResearchAsk(text: string, discount = false): boolean {
+  if (isLiveLookup(text, discount)) return true
+  const t = text.trim()
+  if (!t || t.length < 8 || t.length > 240) return false
+  if (/^\s*(?:hallo|hi|hey|guten\s+(?:morgen|abend|tag)|wie\s+geht)/i.test(t)) return false
+  if (/\b(?:wer\s+bist\s+du|was\s+machst\s+du|was\s+sie\s+tun)\b/i.test(t)) return false
+  if (
+    /\b(?:ich|wir|mich|uns|meine?|meiner|meinen|unser)\b/i.test(t) &&
+    !/\b(?:deutschland|europa|bip|gdp|welt)\b/i.test(t)
+  ) {
+    return false
+  }
+  return /\b(?:was\s+ist|wie\s+viel|wie\s+hoch|wie\s+groß|wer\s+ist|wann\s+(?:war|ist)|erklär|tabelle|statistik|zahlen|quote|kurs)\b/i.test(
+    t,
+  )
+}
+
+export function shouldRetrySearch(userText: string, reply: string, discount = false): boolean {
+  if (!reply.trim()) return false
+  if (!isKnowledgeGap(reply)) return false
+  return isAutoResearchAsk(userText, discount)
 }
 
 const EURO =

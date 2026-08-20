@@ -332,7 +332,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `2.1.1` — Hausnetz-IP für Steckdosen [`29-next.md`](./29-next.md)
+1. Sideload `2.2.0` — Uhrzeit, GPS, Auto-Research [`30-next.md`](./30-next.md)
 2. Weitere Arbeit nur auf PO-Kommando
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 

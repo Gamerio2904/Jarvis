@@ -1,8 +1,8 @@
-import { parseDeviceIntent } from './device-parse'
+import { formatClockReply, parseDeviceIntent } from './device-parse'
 import { openDevicePage, readBattery, readNetwork, setTorch } from '../native/device'
 import type { ToolMeta } from './tools'
 
-export { parseDeviceIntent } from './device-parse'
+export { formatClockReply, parseDeviceIntent } from './device-parse'
 export type { DeviceIntent } from './device-parse'
 
 type DeviceHit = {
@@ -26,6 +26,15 @@ export async function handleDevice(_conversationId: string, text: string): Promi
       reply:
         'Was anstoßen — Taschenlampe, WLAN, Bluetooth oder Nicht stören? Schalter lege ich nicht selbst um, ich öffne die Android-Seite.',
       tool: deviceTool('ask', 'System'),
+      lastTool: 'device',
+    }
+  }
+
+  if (intent.kind === 'clock') {
+    return {
+      handled: true,
+      reply: formatClockReply(),
+      tool: deviceTool('status', 'Uhrzeit'),
       lastTool: 'device',
     }
   }
@@ -88,6 +97,8 @@ export async function handleDevice(_conversationId: string, text: string): Promi
       lastTool: 'device',
     }
   }
+
+  if (intent.kind !== 'page') return { handled: false }
 
   const labels: Record<typeof intent.page, string> = {
     wifi: 'WLAN',

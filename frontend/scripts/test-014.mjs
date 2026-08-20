@@ -8,9 +8,12 @@ import {
   formatResearchReply,
   guardResearchReply,
   isFactLookup,
+  isKnowledgeGap,
   isLiveLookup,
   isProductLookup,
   isSearchRefusal,
+  isTableAsk,
+  shouldRetrySearch,
   parseEuroPrices,
   parseShopDiscountIntent,
   RESEARCH_EMPTY,
@@ -33,7 +36,7 @@ import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
 import { ttsModelsToTry } from '../src/engine/tts.ts'
-import { GEMINI_PERSONA, PERSONA, VOICE_HINT } from '../src/engine/persona.ts'
+import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
@@ -60,7 +63,7 @@ import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
-import { parseDeviceIntent } from '../src/engine/device-parse.ts'
+import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
 import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
 import { parsePoiIntent, poiLabel } from '../src/engine/poi-parse.ts'
 import { formatHoursSpeech, hoursOpenNow, isBwHoliday, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
@@ -341,6 +344,8 @@ assert.match(GEMINI_PERSONA, /Understatement/)
 assert.match(VOICE_HINT, /Understatement/)
 assert.match(PERSONA, /Telegramm/)
 assert.match(GEMINI_PERSONA, /Satzbildung/)
+assert.match(GEMINI_PERSONA, /Uhrzeit/)
+assert.match(SEARCH_ON_HINT, /Tabellen kann ich nicht/)
 assert.equal(
   scrubReply('Ich habe das Internet nach Kuchenrezepten durchsucht. Zucker und Mehl reichen.').includes(
     'durchsucht',
@@ -356,6 +361,21 @@ assert.ok(isFactLookup('Wie viele Scheibenwischer verkauft Valeo am tag'))
 assert.ok(!isFactLookup('wie viele Kaffee trinke ich am Tag'))
 assert.ok(!isFactLookup('Hallo Jarvis.'))
 assert.ok(!isLiveLookup('Hallo Jarvis.'))
+assert.ok(isFactLookup('Was ist der bip in Deutschland'))
+assert.ok(isLiveLookup('Was ist der bip in Deutschland'))
+assert.ok(isLiveLookup('Kannst du den bip von Deutschland in einer Tabelle darstellen?'))
+assert.ok(isTableAsk('Kannst du den bip von Deutschland in einer Tabelle darstellen?'))
+assert.ok(!isLiveLookup('Kannst du ihn erklären'))
+assert.ok(isSearchRefusal('Zu den aktuellen Wirtschaftsdaten liegen mir im Moment keine verifizierten Zahlen vor, Timon.'))
+assert.ok(isSearchRefusal('Tabellen kann ich in diesem Format leider nicht ausgeben, Timon.'))
+assert.ok(isKnowledgeGap('Die exakte Uhrzeit liegt mir im Moment nicht vor, Timon, da mir kein entsprechender Systemzugriff auf die Uhrzeit vorliegt.'))
+assert.ok(
+  shouldRetrySearch(
+    'Wie hoch ist die Staatsverschuldung in Frankreich',
+    'Dazu liegen mir im Moment keine gesicherten Daten vor.',
+  ),
+)
+assert.ok(!shouldRetrySearch('Hallo Jarvis.', 'Dazu liegen mir im Moment keine Daten vor.'))
 
 const frozen = new Date('2026-08-15T14:00:00')
 const in20 = parseReminderIntent('in 20 Minuten Milch', frozen)
@@ -944,8 +964,9 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.1\.1/)
+assert.match(HELP_TEXT, /2\.2\.0/)
 assert.match(HELP_TEXT, /Steckdosen/)
+assert.match(HELP_TEXT, /Uhrzeit/)
 
 assert.equal(parseFuelIntent('Fahr mich zu einer Tanke')?.prefer, 'nearest')
 assert.equal(parseFuelIntent('fahr mich zur Tankstelle')?.prefer, 'nearest')
@@ -1010,6 +1031,10 @@ assert.match(formatFuelSpeech(closedCheap, 'nearest'), /Günstigste offene/)
 assert.equal(parseHereIntent('Wo bin ich gerade?')?.kind, 'locate')
 assert.equal(parseHereIntent('wo stehe ich')?.kind, 'locate')
 assert.equal(parseHereIntent('mein Standort')?.kind, 'locate')
+assert.equal(parseHereIntent('weißt du wo ich bin')?.kind, 'locate')
+assert.equal(parseHereIntent('ohne meine Adresse nachzugucken weißt du wo ich bin')?.kind, 'locate')
+assert.equal(parseHereIntent('es ist 06:30 Uhr wo könnte ich denn sein')?.kind, 'locate')
+assert.equal(parseHereIntent('wo könnte ich jetzt frühstücken'), null)
 assert.equal(parseHereIntent('Standort aktivieren')?.kind, 'activate')
 assert.equal(parseHereIntent('Kannst du sie aktivieren?', 'fuel')?.kind, 'activate')
 assert.equal(parseHereIntent('Kannst du sie aktivieren?', 'here')?.kind, 'activate')
@@ -1094,6 +1119,12 @@ assert.equal(
 assert.equal(parseDeviceIntent('Nicht stören')?.kind === 'page' && parseDeviceIntent('Nicht stören')?.page, 'dnd')
 assert.equal(parseDeviceIntent('Notiz: WLAN steht am Router'), null)
 assert.equal(parseDeviceIntent('Stoß das System an')?.kind, 'ask')
+assert.equal(parseDeviceIntent('Wie spät ist es')?.kind, 'clock')
+assert.equal(parseDeviceIntent('weißt du wie viel Uhr es ist')?.kind, 'clock')
+assert.equal(parseDeviceIntent('wie viel Uhr ist es')?.kind, 'clock')
+assert.match(formatClockReply(new Date('2026-08-19T06:36:00')), /Uhr\.$/)
+assert.equal(parseDeviceIntent('Wecker 7 Uhr'), null)
+assert.equal(parseDeviceIntent('Wie viele Scheibenwischer verkauft Valeo am tag'), null)
 
 assert.deepEqual(parsePlaceWrite('Ich arbeite in Stuttgart'), {
   name: 'arbeit',
