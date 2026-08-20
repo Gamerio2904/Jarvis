@@ -8,15 +8,15 @@ Kein Kalenderversprechen — Fortschritt hängt von Hardware, Modellwahl und Per
 ```text
 Phase 0  Persona & Regeln
     ↓
-Phase 1  Local Smalltalk-MVP   ← erster Bau-Schwerpunkt
+Phase 1  Local Smalltalk-MVP   (historisch PC)
     ↓
-Phase 2  Privat vom Handy nutzbar
+Phase 2  On-Device Handy       ← Alltag ab `0.13.0`
     ↓
-Phase 3  24/7 auf NAS
+Phase 3  24/7 NAS              ← Parking
     ↓
 Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
     ↓
-Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
+Phase 5+ Echter Assistent (Gedächtnis, Tools — teils schon in 0.4–0.9)
 ```
 
 **Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. TV geparkt. TTS bleibt PO-Kommando.
@@ -59,7 +59,9 @@ Du kannst sagen: „Jarvis klingt so: …“ und Beispiele in `07-persona.md` si
 
 ## Phase 2 — Privat vom Handy (in `0.10.x` mit Phase 3)
 
-**Ziel:** Vom Handy im eigenen WLAN chatten — **Sideload-APK** gegen NAS, plus Browser.
+**Ziel:** Vom Handy chatten — **Sideload-APK**, Modell on-device (`0.13.0`).
+
+NAS-URL + Token (`0.10.x`) ist **superseded**.
 
 **Inhalt** (geliefert in `0.10.2`–`0.10.5`)
 - Owner-Token (kein Multi-User)
@@ -134,16 +136,15 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Local Tools Core (Option A) → **`0.9.0`** (Sprint 28, READY FOR REVIEW)
 - Tools Hotfix → **`0.9.1`** (Sprint 29, READY FOR REVIEW)
 - Tools Polish & Continuity → **`0.9.2`** (Sprint 30, READY FOR REVIEW)
-- Memory Quality Hotfix → **`0.9.3`** (Sprint 31, geplant)
-- Assist Continuity & Siezen → **`0.9.4`** (Sprint 32, geplant)
-- Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33, geplant)
-- NAS Compose 24/7 → **`0.10.0`** (Sprint 34)
-- NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** (Sprints 36–39) — [`12`](./12-nas-apk.md)
-- Samsung-TV lokal → **`0.11.0`–`0.11.2`** (Sprints 40–42)
-- Mail / Fire TV / Alexa / Play Store — **Parking**
-- Tools (Kalender/Mail) — **nicht** in `0.9.x`/`0.10.x`
-- On-Device Latenz / Qualität / Intelligenz → **`0.13.2`–`0.13.4`** (Sprints 46–48, [`14`](./14-on-device-iq.md))
+- Memory Quality Hotfix → **`0.9.3`** (Sprint 31) — **Parking**; Honesty on-device in `0.13.3`
+- Assist Continuity & Siezen → **`0.9.4`** (Sprint 32) — **Parking**; Siezen-Scrub in `0.13.3`
+- Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33) — **Parking**
+- NAS Compose / APK-gegen-NAS → **`0.10.x`** — **Parking**
+- Samsung-TV lokal → **`0.11.x`** — **Parking**
+- On-Device Handy → **`0.13.0`–`0.13.1`** (Sprints 44–45, CODE)
+- On-Device Latenz / Qualität / Intelligenz → **`0.13.2`–`0.13.4`** (Sprints 46–48, [`14`](./14-on-device-iq.md)) — **als Nächstes**
 - Native llama.cpp → **`0.14.0`** (PO)
+- Mail / Fire TV / Alexa / Play Store — **Parking**
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---
@@ -154,11 +155,12 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 |-------------|----------------------|
 | TTS | Stabilen Text-Charakter (Phase 1+) |
 | NAS 24/7 | Laufenden Stack auf dem PC (Phase 1) |
-| Handy-Alltag | NAS-Stack + Owner-Token + APK (`0.10.2`+) |
-| Tools | Klare Persona + zuverlässigen Betrieb |
+| Handy-Alltag | On-Device APK (`0.13.x`) |
+| Tools | Klare Persona + lokale Engine |
 
 ## Sparring-Korrekturen in der Roadmap
 
-- Handy-App und NAS sind **nicht** Phase-1-Arbeit (kommen als `0.10.x` nach `0.9.5`).
-- Lokales Modell kann Smalltalk schwächen → Persona/Stil und ggf. Modellwechsel sind Teil von Phase 1, keine „spätere Politur“.
+- Alltag ist die APK (`0.13.x`), nicht NAS.
+- Lokales 0.5B kann Smalltalk schwächen → Qualität `0.13.3`, optionales 1.5B `0.13.4`.
+- Tempo `0.13.2` ohne Prompt-/Sampling-Schnitt.
 - Stimme ersetzt keine gute Text-Persona.

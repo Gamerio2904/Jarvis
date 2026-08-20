@@ -1,4 +1,4 @@
-import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady } from './llm'
+import { completeChat, ensureModel, getDownloadProgress, getLlmError, getThreadCount, hasCachedModel, isModelReady } from './llm'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { PERSONA } from './persona'
@@ -60,10 +60,11 @@ export async function getHealth() {
     memory_count: mem.length,
     research_opt_in: loadSettings().research_opt_in,
     warning: ready
-      ? 'On-Device 0.5B — kleiner als der PC-7b, dafür ohne Server.'
+      ? `On-Device 0.5B · ${getThreadCount()} Threads · Stream`
       : err || 'Modell noch nicht geladen.',
     error: ready ? undefined : err || 'Modell nicht geladen',
     download_pct: prog.pct,
+    n_threads: getThreadCount(),
   }
 }
 

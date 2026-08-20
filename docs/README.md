@@ -51,14 +51,14 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 26 | `0.8.4` | **READY FOR REVIEW** (Siezen & Recall Hotfix) |
 | 27 | `0.8.5` | **READY FOR REVIEW** (in `0.9.0`) |
 | 28–30 | `0.9.0`–`0.9.2` | **READY FOR REVIEW** (Local Tools) |
-| 31–33 | `0.9.3`–`0.9.5` | **PLANNED** |
-| 34–39 | `0.10.0`–`0.10.5` | **PLANNED** (NAS + APK) |
+| 31–33 | `0.9.3`–`0.9.5` | **PARKED** (Carry Qualität in `0.13.3`) |
+| 34–39 | `0.10.0`–`0.10.5` | **PARKED** (NAS + APK-gegen-NAS) |
 | 40–42 | `0.11.0`–`0.11.2` | **CODE** (Samsung-TV, Pairing offen) |
 | 43 | `0.12.0` | **SUPERSEDED** (NAS-Proxy) |
 | 44 | `0.13.0` | **CODE** (On-Device Handy) |
 | 45 | `0.13.1` | **CODE** (Modell-Download Hotfix) |
-| 46 | `0.13.2` | **PLANNED** (Latenz) |
+| 46 | `0.13.2` | **CODE** (Latenz) |
 | 47 | `0.13.3` | **PLANNED** (Qualität) |
 | 48 | `0.13.4` | **PLANNED** (Intelligenz, optional 1.5B) |
 
-**Aktuell:** Sideload `0.13.1`. **Als Nächstes:** Sprint 46 Latenz ([`14`](./14-on-device-iq.md)).
+**Aktuell:** `0.13.2` Latenz (CODE). **Als Nächstes:** Sprint 47 Qualität, dann 48 optionales 1.5B ([`14`](./14-on-device-iq.md)).

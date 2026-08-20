@@ -77,6 +77,7 @@ export type Health = {
   research_opt_in?: boolean
   error?: string
   download_pct?: number
+  n_threads?: number
 }
 
 export type EasterEgg = { command: string; description: string; example: string }
@@ -210,7 +211,7 @@ export async function tvPair(_body: {
 }): Promise<{ ok: boolean; message: string }> {
   return {
     ok: false,
-    message: 'TV ist in 0.13.1 geparkt. Jarvis denkt auf dem Handy; Tizen-Keys kommen später.',
+    message: 'TV ist in 0.13 geparkt. Jarvis denkt auf dem Handy; Tizen-Keys kommen später.',
   }
 }
 

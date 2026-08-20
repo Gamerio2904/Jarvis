@@ -506,36 +506,67 @@ Multi-Turn Tool-Flows, Listen-UX, Scorecard, UI-Chips.
 
 ## Sprint 31 — Memory Quality Hotfix → **`0.9.3`**
 
-**Status:** PLANNED · [`sprints/sprint-31.md`](./sprints/sprint-31.md)  
-Multi-Fact Write, Pref-Recall-Routing, Honesty.
+**Status:** PARKED · Carry Honesty/Recall in [`sprint-47.md`](./sprints/sprint-47.md) / `0.13.3`  
+[`sprints/sprint-31.md`](./sprints/sprint-31.md)
 
 ---
 
 ## Sprint 32 — Assist Continuity & Siezen → **`0.9.4`**
 
-**Status:** PLANNED · [`sprints/sprint-32.md`](./sprints/sprint-32.md)  
-Clarify→Plan, Residual-Siezen, EN-Leak.
+**Status:** PARKED · Carry Siezen in `0.13.3`  
+[`sprints/sprint-32.md`](./sprints/sprint-32.md)
 
 ---
 
 ## Sprint 33 — Tools Hygiene & Confirm-UX → **`0.9.5`**
 
-**Status:** PLANNED · [`sprints/sprint-33.md`](./sprints/sprint-33.md)  
-Listen-Scope, UI-Confirm, Aufräumen.
+**Status:** PARKED · [`sprints/sprint-33.md`](./sprints/sprint-33.md)
 
 ---
 
-## Weitere geplante Sprints (Richtung)
+## Sprint 44 — On-Device Handy → **`0.13.0`**
+
+**Status:** CODE · [`sprints/sprint-44.md`](./sprints/sprint-44.md)
+
+---
+
+## Sprint 45 — Modell-Download Hotfix → **`0.13.1`**
+
+**Status:** CODE · [`sprints/sprint-45.md`](./sprints/sprint-45.md)
+
+---
+
+## Sprint 46 — On-Device Latenz → **`0.13.2`**
+
+**Status:** CODE · [`sprints/sprint-46.md`](./sprints/sprint-46.md)  
+Threads + Stream; gleicher Prompt/Sampling. Siehe [`14-on-device-iq.md`](./14-on-device-iq.md).
+
+---
+
+## Sprint 47 — On-Device Qualität → **`0.13.3`**
+
+**Status:** PLANNED · [`sprints/sprint-47.md`](./sprints/sprint-47.md)
+
+---
+
+## Sprint 48 — On-Device Intelligenz → **`0.13.4`**
+
+**Status:** PLANNED · [`sprints/sprint-48.md`](./sprints/sprint-48.md)
+
+---
+
+## Weitere Sprints (Parking)
 
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
 | 34–39 | NAS 24/7 Compose | **`0.10.0`–`0.10.5`** — **Parking** |
-| 40–42 | Samsung-TV lokal (Tizen) | **`0.11.0`–`0.11.2`** |
-| 43 | NAS native + Reverse-Proxy + Sideload-APK | **`0.12.0`** |
+| 40–42 | Samsung-TV lokal (Tizen) | **`0.11.0`–`0.11.2`** — **Parking** |
+| 43 | NAS-Proxy | **`0.12.0` SUPERSEDED** |
+| — | Native llama.cpp | **`0.14.0`** (PO) |
 | — | TTS-Vorlesen | nach PO-Go |
-| — | `1.0.0` MAJOR | nach `0.12`, Inhalt PO |
+| — | `1.0.0` MAJOR | Inhalt PO |
 
-Detail Proxy/APK: [`13-lan-proxy.md`](./13-lan-proxy.md) · Sprints: [`sprints/README.md`](./sprints/README.md)
+Sprints: [`sprints/README.md`](./sprints/README.md)
 
 ---
 

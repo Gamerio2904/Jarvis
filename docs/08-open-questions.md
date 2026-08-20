@@ -54,9 +54,10 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sprint **46** (`0.13.2`) On-Device Latenz — [`14-on-device-iq.md`](./14-on-device-iq.md)
-2. Dann 47 Qualität (`0.13.3`), 48 optionales 1.5B (`0.13.4`)
-3. NAS/TV bleiben Parking; native llama.cpp = `0.14.0` (PO)
+1. Sprint **47** (`0.13.3`) On-Device Qualität — [`14-on-device-iq.md`](./14-on-device-iq.md)
+2. Dann 48 optionales 1.5B (`0.13.4`)
+3. `0.13.2` Latenz ist CODE
+4. NAS/TV Parking; native llama.cpp = `0.14.0` (PO)
 
 ---
 

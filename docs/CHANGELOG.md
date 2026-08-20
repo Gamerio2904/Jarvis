@@ -5,14 +5,20 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
+App-Version im Code: **`0.13.2`** (On-Device Handy, kein Server).
 
-### Geplant — `0.13.2`–`0.13.4` (Sprints 46–48)
+### Geplant — `0.13.3`–`0.13.4` (Sprints 47–48)
 
-- **`0.13.2` Latenz (neutral):** Threads > 1, Stream; gleicher Prompt/Sampling
-- **`0.13.3` Qualität (ohne tot/langsam):** kompakte Persona, repeat_penalty, Memory-Honesty, Siezen, Pack nur bei Overflow
-- **`0.13.4` Intelligenz (Default unverändert):** optional 1.5B; kein Auto-Switch, kein Canned-Router
-- [`14-on-device-iq.md`](./14-on-device-iq.md) · [`sprints/sprint-46.md`](./sprints/sprint-46.md)
+- **`0.13.3` Qualität:** kompakte Persona, repeat_penalty, Memory-Honesty, Siezen, Pack nur bei Overflow
+- **`0.13.4` Intelligenz:** optional 1.5B; Default 0.5B
+- [`14-on-device-iq.md`](./14-on-device-iq.md)
+
+### `0.13.2` — Sprint 46 (On-Device Latenz) — *CODE*
+
+- `n_threads` = `min(4, cores−1)` statt 1; Token-Stream bis EOS
+- Sampling und Prompt unverändert (`temp 0.7`, `max_tokens 96`, 8 Turns)
+- Non-Stream-Fallback nur wenn Stream fehlschlägt (kein Timeout-Doppelwait)
+- [`sprints/sprint-46.md`](./sprints/sprint-46.md)
 
 ### `0.13.1` — Modell-Download Hotfix — *CODE*
 
@@ -78,19 +84,21 @@ App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
 - Docker Compose: backend + frontend + ollama, Autostart, Volumes
 - [`sprints/sprint-34.md`](./sprints/sprint-34.md) · [`12-nas-apk.md`](./12-nas-apk.md)
 
-### `0.9.5` — Sprint 33 (Tools Hygiene & Confirm-UX) — *PLANNED*
+### `0.9.5` — Sprint 33 (Tools Hygiene & Confirm-UX) — *PARKED*
 
 - Listen-Scope, UI Ja/Nein-Confirm, Aufräumen
 - [`sprints/sprint-33.md`](./sprints/sprint-33.md)
 
-### `0.9.4` — Sprint 32 (Assist Continuity & Siezen) — *PLANNED*
+### `0.9.4` — Sprint 32 (Assist Continuity & Siezen) — *PARKED*
 
 - Clarify→Plan hart; Residual-Siezen; EN-Leak Guard
+- Carry Siezen: Sprint 47 / `0.13.3`
 - [`sprints/sprint-32.md`](./sprints/sprint-32.md)
 
-### `0.9.3` — Sprint 31 (Memory Quality Hotfix) — *PLANNED*
+### `0.9.3` — Sprint 31 (Memory Quality Hotfix) — *PARKED*
 
 - Multi-Fact Write; Pref-Recall-Routing; Honesty statt Halluzination
+- Carry Honesty: Sprint 47 / `0.13.3`
 - [`sprints/sprint-31.md`](./sprints/sprint-31.md)
 
 ### `0.9.2` — Sprint 30 (Tools Polish & Continuity) — *READY FOR REVIEW*

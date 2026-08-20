@@ -15,6 +15,7 @@ import {
   ensureModel,
   hasCachedModel,
   isModelReady,
+  APP_VERSION,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -575,7 +576,7 @@ function App() {
           <div className={`brand-mark${momentGlint ? ' glint' : ''}`} />
           <div>
             <h1>Jarvis</h1>
-            <p>lokal · Handy · v0.13.1</p>
+            <p>lokal · Handy · v{APP_VERSION}</p>
           </div>
         </div>
 
@@ -594,7 +595,7 @@ function App() {
           <div className="settings-panel" id="settings">
             <section className="settings-section">
               <h3>Allgemein</h3>
-              <p className="settings-hint">Version {settings?.version || '0.13.1'} · on-device · privat</p>
+              <p className="settings-hint">Version {settings?.version || APP_VERSION} · on-device · privat</p>
             </section>
             <section className="settings-section">
               <h3>Modell</h3>

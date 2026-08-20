@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **CODE** |
 | Priorität | **MUST** — `n_threads: 1` + kein Stream ist der Alltagskiller |
 | Ziel-Version | **`0.13.2`** |
 | Quelle | [`14-on-device-iq.md`](../14-on-device-iq.md) |

@@ -9,26 +9,27 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 |--------|----------------|
 | Gesprächsform | Text-Chat (Typ A: Chat-Mensch) |
 | Denk-Engine | Lokales LLM |
-| Modell-Host MVP | **Ollama** (Default, solange keine klar bessere Alternative) |
-| Laufzeit MVP | Entwicklungsrechner: **Windows, 16 GB RAM, NVIDIA RTX 3060** |
-| Qualitäts-/Speed-Priorität | **Qualität > Rohgeschwindigkeit**; so schnell wie möglich, Speed-Feintuning später |
+| Modell-Host MVP | **historisch Ollama** (PC). Ab `0.13.0`: **wllama / llama.cpp WASM** on-device |
+| Laufzeit MVP | historisch Windows + RTX 3060. Alltag: **Android-APK** |
+| Qualitäts-/Speed-Priorität | **Qualität zuerst**; Tempo ohne Prompt-/Sampling-Schnitt (`0.13.2`) |
+| Laufzeit `0.13.x` | Android-APK, llama.cpp WASM; Default Qwen2.5-0.5B Q4; optional 1.5B in `0.13.4` |
 | Chat-Persistenz MVP | **Gespräche zwischen Sessions speichern** |
 | Sicherheit MVP (vorerst) | Kein Cloud-LLM + Zugang nur für dich; At-rest-Encryption noch nicht fest (erstmal zurückgestellt) |
-| Laufzeit `0.13.x` | Android-APK, llama.cpp WASM on-device |
 | Stimme | Später: TTS liest denselben Text vor |
 | Handy | Die App **ist** Jarvis; Sideload, kein Store |
 | UI-Kanal | Web-UI in Capacitor; kein Telegram |
 | UI-Look | **Spotify dunkel** (Schwarz/Grün) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
 | UI-Motion | MVP: **Light**; später eigenes **GUI-Update** mit spürbar premium Motion |
 | Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
-| Kontext / Erinnern | **MVP:** In-Chat inkl. Wiederöffnen. **Später:** maximal gutes Gedächtnis & Kontextverständnis |
-| Backend | Dev entscheidet pragmatisch |
-| Modellklasse MVP | **Ausgewogen** |
-| VRAM-Annahme | **~12 GB** (Desktop-Standard) |
+| Kontext / Erinnern | In-Chat + Langzeitgedächtnis (`0.4.x`); Honesty-Nachzug `0.13.3` |
+| Engine | TypeScript in der APK (kein FastAPI) |
+| Modellklasse Alltag | Qwen2.5-0.5B Q4; optional 1.5B (`0.13.4`) |
 | Version `0.1.0` | = **MVP** (Sprint-1-Abnahme) |
-| Version `0.10.0` | = NAS Core (Compose) — **Parking** |
-| Version `0.11.0` | = Samsung-TV |
+| Version `0.10.0` | = NAS Core — **Parking** |
+| Version `0.11.0` | = Samsung-TV — **Parking** |
 | Version `0.13.0` | = **On-Device Handy** |
+| Version `0.13.2`–`0.13.4` | Latenz → Qualität → optionale Intelligenz ([`14`](./14-on-device-iq.md)) |
+| Version `0.14.0` | native llama.cpp (PO) |
 | Version `1.0.0` | = nächster MAJOR (PO) |
 
 ## Logische Bausteine
@@ -54,44 +55,37 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Baustein | Einfach gesagt |
 |----------|----------------|
 | **Chat-UI** | Das Fenster, in dem du tippst und Antworten liest. |
-| **Backend** | Kleines Programm, das Nachrichten annimmt, Persona anwendet und ans Modell schickt. |
-| **Modell-Host** | Dienst, der das KI-Modell lokal ausführt. |
+| **Engine** | Persona, Memory, Tools, Guards — läuft in der App. |
+| **Modell** | llama.cpp WASM (wllama) auf dem Handy. |
 | **Kurzzeitgedächtnis** | Die letzten Nachrichten werden mitgeschickt, damit Jarvis dem Gespräch folgen kann. |
 | **TTS (später)** | Wandelt Jarvis’ Text in gesprochene Sprache um — ohne das Denkmodell zu ersetzen. |
 
 ## Prinzipien
 
 1. **Eine Denk-Quelle** — Lokal. Keine heimliche Cloud-Fallback-KI ohne bewusste Entscheidung.
-2. **Persona sitzt im Backend** — Nicht „hoffentlich antwortet das Modell nett“, sondern feste Regeln.
+2. **Persona sitzt in der Engine** — Nicht „hoffentlich antwortet das Modell nett“, sondern feste Regeln.
 3. **Ausgabe ≠ Intelligenz** — TTS ist nur Stimme für vorhandenen Text.
-4. **Netzwerk hart machen** — Fernzugriff erst mit Auth; kein ungeschützt offener Port als Default.
-5. **Migration einkalkulieren** — PC-Dev und NAS-Alltag teilen dasselbe Backend; Proxy statt Compose.
+4. **Kein Server im Alltag** — `0.13.x` braucht kein LAN, kein Token, kein NAS-Port.
+5. **On-device Alltag** — Denken in der APK. NAS/PC-Ollama sind Parking.
 
 ## Datenschutz & Sicherheit (Architektur-Regeln)
 
-- Chats und Persona-Dateien bleiben lokal.
+- Chats und Persona bleiben auf dem Gerät (IndexedDB).
 - Kein Cloud-LLM fürs Denken.
 - Keine unnötigen Drittanbieter-Telemetrie-Abhängigkeiten in der UI.
-- Fernzugriff: Authentifizierung Pflicht.
-- MVP speichert nur, was für Smalltalk nötig ist.
+- Fernzugriff entfällt in `0.13.x` (kein Server).
+- Speichern nur, was für Chat/Memory/Tools nötig ist.
 
 ## Bewusst offene Technikdetails
 
-Noch **nicht** final festgelegt (siehe `08-open-questions.md`):
+Fest in `0.13.x`: Modell Qwen2.5-0.5B Q4, Host wllama, Persistenz IndexedDB/OPFS.  
+Offen (PO): natives llama.cpp `0.14.0`, TTS, optional 1.5B-Abnahme.
 
-- konkretes lokales Modell
-- exakter Modell-Host
-- Hardware-Grenzen (RAM/GPU/NAS)
-- Persistenzformat (SQLite, Dateien, …)
-- Auth-Verfahren für Fernzugriff
+## Spätere Erweiterungen (nicht Alltag jetzt)
 
-Diese Details werden vor/im Sprint 1 entschieden, ohne die Gesamtarchitektur zu ändern.
-
-## Spätere Erweiterungen (nicht MVP)
-
-| Erweiterung | Phase |
-|-------------|-------|
-| Handy APK + Owner-Token | Phase 2 → `0.10.2`–`0.10.5` |
-| NAS 24/7 Compose | Phase 3 → `0.10.0`–`0.10.1` |
-| TTS-Vorlesen | Phase 4 |
-| Langzeitgedächtnis, Tools | Phase 5+ |
+| Erweiterung | Phase / Version |
+|-------------|-----------------|
+| On-Device Latenz / Qualität / 1.5B | `0.13.2`–`0.13.4` |
+| Native llama.cpp | `0.14.0` (PO) |
+| TTS-Vorlesen | Phase 4 (PO) |
+| NAS / Samsung-TV | Parking |

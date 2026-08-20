@@ -19,7 +19,7 @@ Memory/Tools umgehen das LLM schon.
 
 | Sprint | Version | Thema | Nebenwirkung |
 |--------|---------|-------|--------------|
-| [46](./sprints/sprint-46.md) | **`0.13.2`** | Latenz | **keine** (gleicher Prompt, gleiches Sampling) |
+| [46](./sprints/sprint-46.md) | **`0.13.2`** | Latenz | **CODE** — keine (gleicher Prompt, gleiches Sampling) |
 | [47](./sprints/sprint-47.md) | **`0.13.3`** | Qualität | **keine Latenz-Strafe**; Ton bleibt lebendig (kein Temp-Schnitt, kein Hart-Kappen, kein Canned) |
 | [48](./sprints/sprint-48.md) | **`0.13.4`** | Intelligenz | Default **unverändert**; nur Toggle „scharf“ = langsamer + klüger |
 

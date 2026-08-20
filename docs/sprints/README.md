@@ -35,9 +35,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 28 | [`sprint-28.md`](./sprint-28.md) | `0.9.0` | Local Tools Core (Option A) | **READY FOR REVIEW** |
 | 29 | [`sprint-29.md`](./sprint-29.md) | `0.9.1` | Tools Hotfix | **READY FOR REVIEW** |
 | 30 | [`sprint-30.md`](./sprint-30.md) | `0.9.2` | Tools Polish & Assist Continuity | **READY FOR REVIEW** |
-| 31 | [`sprint-31.md`](./sprint-31.md) | `0.9.3` | Memory Quality Hotfix | **READY FOR REVIEW** |
-| 32 | [`sprint-32.md`](./sprint-32.md) | `0.9.4` | Assist Continuity & Siezen | **READY FOR REVIEW** |
-| 33 | [`sprint-33.md`](./sprint-33.md) | `0.9.5` | Tools Hygiene & Confirm-UX | **READY FOR REVIEW** |
+| 31 | [`sprint-31.md`](./sprint-31.md) | `0.9.3` | Memory Quality Hotfix | **PARKED** (Carry `0.13.3`) |
+| 32 | [`sprint-32.md`](./sprint-32.md) | `0.9.4` | Assist Continuity & Siezen | **PARKED** (Carry `0.13.3`) |
+| 33 | [`sprint-33.md`](./sprint-33.md) | `0.9.5` | Tools Hygiene & Confirm-UX | **PARKED** |
 | 34 | [`sprint-34.md`](./sprint-34.md) | `0.10.0` | NAS Core (Compose 24/7) | **CODE** (Hardware-Abnahme) |
 | 35 | [`sprint-35.md`](./sprint-35.md) | `0.10.1` | NAS Hotfix | **CODE** (Hardware-Abnahme) |
 | 36 | [`sprint-36.md`](./sprint-36.md) | `0.10.2` | NAS Auth & LAN | **CODE** (Hardware-Abnahme) |
@@ -50,11 +50,12 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 43 | [`sprint-43.md`](./sprint-43.md) | `0.12.0` | NAS-Proxy (superseded) | **SUPERSEDED** |
 | 44 | [`sprint-44.md`](./sprint-44.md) | `0.13.0` | On-Device Handy | **CODE** |
 | 45 | [`sprint-45.md`](./sprint-45.md) | `0.13.1` | Modell-Download Hotfix | **CODE** |
-| 46 | [`sprint-46.md`](./sprint-46.md) | `0.13.2` | On-Device Latenz | **PLANNED** |
+| 46 | [`sprint-46.md`](./sprint-46.md) | `0.13.2` | On-Device Latenz | **CODE** |
 | 47 | [`sprint-47.md`](./sprint-47.md) | `0.13.3` | On-Device Qualität | **PLANNED** |
 | 48 | [`sprint-48.md`](./sprint-48.md) | `0.13.4` | On-Device Intelligenz (1.5B optional) | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** Sprint **46** (`0.13.2`) Latenz **ohne Qualitätsverlust** (Threads+Stream), dann 47 Qualität, dann 48 optionales 1.5B.  
+**Nächste Pull-Reihenfolge:** Sprint **47** (`0.13.3`) Qualität, dann 48 optionales 1.5B.  
+Sprint 46 / `0.13.2` Latenz ist **CODE**.  
 `0.9.3`–`0.9.5` Memory/Siezen on-device in 47. NAS/TV **Parking**. Native llama.cpp = `0.14.0` (PO).  
 On-Device IQ: [`../14-on-device-iq.md`](../14-on-device-iq.md)
 

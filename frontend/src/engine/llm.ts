@@ -5,6 +5,7 @@ import compatWorkerCode from '@wllama/wllama-compat/wasm/wllama.js?raw'
 import { DEFAULT_MODEL } from './store'
 import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel } from './model-cache'
 import { formatQwenChat, QWEN_STOP, toChatRole } from './prompt'
+import { inferThreadCount } from './threads'
 
 export type DownloadProgress = {
   loaded: number
@@ -22,12 +23,22 @@ const MODEL_URLS = [
 ]
 const INFER_TIMEOUT_MS = 75_000
 const LOAD_TIMEOUT_MS = 180_000
+const MAX_GEN_TOKENS = 96
+const SAMPLE_TEMP = 0.7
+const SAMPLE_TOP_P = 0.88
 
 let instance: Wllama | null = null
 let loaded = false
 let loading: Promise<void> | null = null
 let progress: DownloadProgress = { loaded: 0, total: 0, pct: 0, phase: 'download' }
 let lastError: string | null = null
+let threadCount = 2
+
+export { inferThreadCount }
+
+export function getThreadCount(): number {
+  return threadCount
+}
 
 export function isModelReady(): boolean {
   return loaded
@@ -208,10 +219,11 @@ export async function ensureModel(
       await persistModel(blob)
     }
     const wllama = await createRuntime()
+    threadCount = inferThreadCount()
     await withTimeout(
       wllama.loadModel([blob], {
         n_ctx: 1024,
-        n_threads: 1,
+        n_threads: threadCount,
         n_gpu_layers: 0,
       }),
       LOAD_TIMEOUT_MS,
@@ -233,21 +245,62 @@ export async function ensureModel(
   }
 }
 
+function samplingOptions() {
+  return {
+    max_tokens: MAX_GEN_TOKENS,
+    temperature: SAMPLE_TEMP,
+    top_p: SAMPLE_TOP_P,
+    stop: QWEN_STOP,
+  }
+}
+
+function cleanCompletion(text: string): string {
+  return text.replace(/<\|im_end\|>/g, '').trim()
+}
+
 async function completeNonStream(prompt: string): Promise<string> {
   if (!instance) throw new Error('Modell nicht geladen. Erst Download starten.')
   const res = await withTimeout(
     instance.createCompletion({
       prompt,
       stream: false,
-      max_tokens: 96,
-      temperature: 0.7,
-      top_p: 0.88,
-      stop: QWEN_STOP,
+      ...samplingOptions(),
     }),
     INFER_TIMEOUT_MS,
     'timeout',
   )
-  return (res.choices?.[0]?.text || '').replace(/<\|im_end\|>/g, '').trim()
+  return cleanCompletion(res.choices?.[0]?.text || '')
+}
+
+async function completeStream(
+  prompt: string,
+  onToken?: (piece: string, full: string) => void,
+): Promise<string> {
+  if (!instance) throw new Error('Modell nicht geladen. Erst Download starten.')
+  const ac = new AbortController()
+  const stream = await instance.createCompletion({
+    prompt,
+    stream: true,
+    abortSignal: ac.signal,
+    ...samplingOptions(),
+  })
+  let full = ''
+  const consume = (async () => {
+    for await (const chunk of stream) {
+      const delta = chunk.choices?.[0]?.text || ''
+      if (!delta) continue
+      full += delta
+      const cleaned = cleanCompletion(full)
+      onToken?.(delta.replace(/<\|im_end\|>/g, ''), cleaned)
+    }
+  })()
+  try {
+    await withTimeout(consume, INFER_TIMEOUT_MS, 'timeout')
+  } catch (err) {
+    ac.abort()
+    throw err
+  }
+  return cleanCompletion(full)
 }
 
 export async function completeChat(
@@ -262,10 +315,22 @@ export async function completeChat(
     content: m.content,
   }))
   const prompt = formatQwenChat(mapped)
-  const text = await completeNonStream(prompt)
-  if (!text) {
-    throw new Error('Keine Antwort vom Modell. Erneut senden.')
+  try {
+    const text = await completeStream(prompt, onToken)
+    if (!text) {
+      throw new Error('Keine Antwort vom Modell. Erneut senden.')
+    }
+    return text
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg === 'timeout' || /zu lange/i.test(msg)) {
+      throw err
+    }
+    const text = await completeNonStream(prompt)
+    if (!text) {
+      throw new Error('Keine Antwort vom Modell. Erneut senden.')
+    }
+    onToken?.(text, text)
+    return text
   }
-  onToken?.(text, text)
-  return text
 }

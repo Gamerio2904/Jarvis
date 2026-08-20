@@ -21,10 +21,10 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 5 | **`0.9.0`** | [28](./sprints/sprint-28.md) | Local Tools Core (Notes/Todos, Confirm) | **READY FOR REVIEW** |
 | 5a | **`0.9.1`** | [29](./sprints/sprint-29.md) | Tools Hotfix | **READY FOR REVIEW** |
 | 5b | **`0.9.2`** | [30](./sprints/sprint-30.md) | Tools Polish & Continuity | **READY FOR REVIEW** |
-| 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **PLANNED** |
-| 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PLANNED** |
-| 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **PLANNED** |
-| 6 | **`0.13.2`** | [46](./sprints/sprint-46.md) | On-Device Latenz | **PLANNED** |
+| 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **PARKED** (Carry `0.13.3`) |
+| 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PARKED** (Carry `0.13.3`) |
+| 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **PARKED** |
+| 6 | **`0.13.2`** | [46](./sprints/sprint-46.md) | On-Device Latenz | **CODE** |
 | 6a | **`0.13.3`** | [47](./sprints/sprint-47.md) | On-Device Qualität | **PLANNED** |
 | 6b | **`0.13.4`** | [48](./sprints/sprint-48.md) | On-Device Intelligenz (1.5B optional) | **PLANNED** |
 
@@ -235,25 +235,27 @@ User-Msg
 
 ---
 
-## 5) Besseres Model-Routing
+## 5) Model-Routing on-device (`0.13.4`)
 
 ### Zweck
-Qualität wo nötig, Tempo wo möglich — auf der RTX-3060-Klasse.
+Qualität wo nötig, Tempo wo möglich — **auf dem Handy**, ohne Cloud.
 
-### Policy (Vorschlag)
+### Policy
 | Situation | Modell |
 |-----------|--------|
-| Smalltalk / kurz | Default `qwen2.5:7b` (oder schnelleres Fallback) |
-| Memory-Extrakt / Summary | 7b, niedriger Sampling |
-| Schwere Task / Research-Synthese | optional größeres Modell falls installiert |
-| Fallback | `3b` + UI-Warnung (schon vorhanden) |
+| Default / Smalltalk | Qwen2.5-0.5B Q4 |
+| Tasks, wenn Toggle **scharf** | Qwen2.5-1.5B-Instruct Q4 (~1,1 GB) |
+| Memory / Tools / `/hilfe` | kein LLM |
+| 1.5B fehlt / OOM | Fallback 0.5B + Meldung |
+
+Kein Auto-Switch, kein Canned-Smalltalk-Router. Latenz `0.13.2` ändert das Routing nicht.
 
 ### Settings
-- `model_default`, `model_fallback`, `model_heavy` (optional)
-- `routing_mode`: `auto` \| `always_default` \| `always_heavy`
+- Toggle schnell / scharf (`0.13.4`)
+- Default immer 0.5B nach First-Run
 
 ### Abnahme
-- Auto-Routing wählbar; Health zeigt aktives Modell
+- Health zeigt aktives Modell
 - Kein stiller Cloud-Fallback
 
 ---

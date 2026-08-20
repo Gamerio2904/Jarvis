@@ -180,10 +180,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S10.1 | Als Nutzer will ich in einem „Merk dir“-Satz mehrere Fakten speichern. | Must | ready | Sprint 31 / `0.9.3` |
-| S10.2 | Als Nutzer will ich Pref-Fragen („Was trinke ich?“) als Recall, nicht Smalltalk. | Must | ready | Sprint 31 / `0.9.3` |
-| S10.3 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt Smalltalk. | Must | ready | Sprint 32 / `0.9.4` |
-| S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Must | ready | Sprint 32 / `0.9.4` |
+| S10.1 | Als Nutzer will ich in einem „Merk dir“-Satz mehrere Fakten speichern. | Must | ready | Sprint 47 / `0.13.3` (Carry aus 31) |
+| S10.2 | Als Nutzer will ich Pref-Fragen („Was trinke ich?“) als Recall, nicht Smalltalk. | Must | ready | Sprint 47 / `0.13.3` |
+| S10.3 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt Smalltalk. | Should | parked | Sprint 32 / `0.9.4` Parking |
+| S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Must | ready | Sprint 47 / `0.13.3` |
 
 ### E11 — NAS & APK (`0.10.x`)
 
@@ -232,20 +232,19 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S14.1 | Als Nutzer will ich Antworten ohne 1-Thread-WASM-Bremse. | Must | ready | Sprint 46 / `0.13.2` |
-| S14.2 | Als Nutzer will ich Tokens gestreamt sehen, nicht 75 s warten. | Must | ready | Sprint 46 / `0.13.2` |
+| S14.1 | Als Nutzer will ich Antworten ohne 1-Thread-WASM-Bremse. | Must | done | Sprint 46 / `0.13.2` |
+| S14.2 | Als Nutzer will ich Tokens gestreamt sehen, nicht 75 s warten. | Must | done | Sprint 46 / `0.13.2` |
 | S14.3 | Als Nutzer will ich Pref-Fragen ehrlich, ohne Raten. | Must | ready | Sprint 47 / `0.13.3` |
 | S14.4 | Als Nutzer will ich Jarvis-Ton und ehrliches Memory auf 0.5B. | Must | ready | Sprint 47 / `0.13.3` |
 | S14.5 | Als Nutzer will ich optional ein schärferes 1.5B on-device. | Should | ready | Sprint 48 / `0.13.4` |
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 46** (`0.13.2`) — On-Device Latenz
-2. **Sprint 47** (`0.13.3`) — On-Device Qualität
-3. **Sprint 48** (`0.13.4`) — optionales 1.5B
-4. Native llama.cpp / `0.14.0` — **PO-Kommando**
-5. TTS / `1.0.0` — **PO-Kommando**
-6. NAS / Samsung-TV / Mail / Fire TV / Alexa / Play Store — **Parking**
+1. **Sprint 47** (`0.13.3`) — On-Device Qualität
+2. **Sprint 48** (`0.13.4`) — optionales 1.5B
+3. Native llama.cpp / `0.14.0` — **PO-Kommando**
+4. TTS / `1.0.0` — **PO-Kommando**
+5. NAS / Samsung-TV / Mail / Fire TV / Alexa / Play Store — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 
