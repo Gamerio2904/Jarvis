@@ -1,6 +1,7 @@
 import { getJson } from './http-json.ts'
-import { looksLikeBareStreet } from './places-parse.ts'
+import { looksLikeAddress, looksLikeBareStreet } from './places-parse.ts'
 import { asLonLat, compactCoords, decodePolyline, isRoadTrack, simplifyTrack } from './drive-map.ts'
+import { loadSettings } from './store.ts'
 
 export type Fix = { lat: number; lon: number; place: string }
 
@@ -12,26 +13,49 @@ function cityAsk(street: string): string {
   return `In welcher Stadt liegt ${street}? Eine Straße ohne Ort rate ich nicht.`
 }
 
+function lastNear(near?: { lat: number; lon: number } | null): { lat: number; lon: number } | undefined {
+  if (near && Number.isFinite(near.lat) && Number.isFinite(near.lon) && Math.abs(near.lat) > 0.2) return near
+  const s = loadSettings()
+  const lat = Number(s.last_lat)
+  const lon = Number(s.last_lon)
+  if (Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) > 0.2) return { lat, lon }
+  return undefined
+}
+
+function rewriteGeoQuery(q: string): string {
+  const s = loadSettings()
+  const homeish = `${s.last_place || ''} ${s.home_lat ? 'home' : ''}`
+  if (/\bingersheim\b/i.test(homeish) || /\bkehrsbach/i.test(q)) {
+    return q.replace(/\bingelheim\b/gi, 'Ingersheim')
+  }
+  return q
+}
+
 export async function geocodePlace(
   name: string,
   near?: { lat: number; lon: number } | null,
 ): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
-  const q = name.trim()
+  const q = rewriteGeoQuery(name.trim())
+  const around = lastNear(near)
   if (!q) return { ok: false, message: 'Welcher Ort?' }
   if (looksLikeBareStreet(q)) {
-    if (!near) return { ok: false, message: cityAsk(q) }
-    const street = await geocodeNominatim(q, near)
+    if (!around) return { ok: false, message: cityAsk(q) }
+    const street = await geocodeNominatim(q, around)
     if (street.ok) {
-      if (haversineM({ lat: near.lat, lon: near.lon, place: '' }, street.fix) > STREET_FAR_M) {
+      if (haversineM({ lat: around.lat, lon: around.lon, place: '' }, street.fix) > STREET_FAR_M) {
         return { ok: false, message: cityAsk(q) }
       }
       return street
     }
     return { ok: false, message: cityAsk(q) }
   }
-  const primary = await geocodeOpenMeteo(q, near || undefined)
+  if (looksLikeAddress(q)) {
+    const addr = await geocodeNominatim(q, around)
+    if (addr.ok) return addr
+  }
+  const primary = await geocodeOpenMeteo(q, around)
   if (primary.ok) return primary
-  const fallback = await geocodeNominatim(q, near || undefined)
+  const fallback = await geocodeNominatim(q, around)
   if (fallback.ok) return fallback
   return primary
 }

@@ -18,7 +18,7 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Handler;
-import android.os.Looper;
+import android.view.Surface;
 import android.provider.Settings;
 
 import com.getcapacitor.JSObject;
@@ -41,6 +41,9 @@ import java.util.ArrayList;
         }
 )
 public class JarvisDevicePlugin extends Plugin {
+
+    private SensorManager compassSm;
+    private SensorEventListener compassListener;
 
     @PluginMethod
     public void battery(PluginCall call) {
@@ -176,6 +179,97 @@ public class JarvisDevicePlugin extends Plugin {
                     r.put("label", names[i]);
                     call.resolve(r);
                 });
+    }
+
+    @PluginMethod
+    public void startCompass(PluginCall call) {
+        SensorManager sm = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+        if (sm == null) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "Kompass nicht lesbar. Kein Magnetometer oder Störung.");
+            call.resolve(r);
+            return;
+        }
+        Sensor sensor = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+        if (sensor == null) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "Kompass nicht lesbar. Kein Magnetometer oder Störung.");
+            call.resolve(r);
+            return;
+        }
+        stopCompassListener();
+        compassSm = sm;
+        compassListener =
+                new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+                        if (event.values == null || event.values.length < 3) return;
+                        JSObject r = headingFromVector(event.values);
+                        notifyListeners("compassHeading", r);
+                    }
+
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+                };
+        sm.registerListener(compassListener, sensor, SensorManager.SENSOR_DELAY_GAME);
+        JSObject ok = new JSObject();
+        ok.put("ok", true);
+        call.resolve(ok);
+    }
+
+    @PluginMethod
+    public void stopCompass(PluginCall call) {
+        stopCompassListener();
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    private void stopCompassListener() {
+        if (compassSm != null && compassListener != null) {
+            compassSm.unregisterListener(compassListener);
+        }
+        compassListener = null;
+        compassSm = null;
+    }
+
+    private JSObject headingFromVector(float[] values) {
+        float[] rot = new float[9];
+        float[] remapped = new float[9];
+        float[] orient = new float[3];
+        SensorManager.getRotationMatrixFromVector(rot, values);
+        int axisX = SensorManager.AXIS_X;
+        int axisY = SensorManager.AXIS_Z;
+        try {
+            Activity act = getActivity();
+            if (act != null) {
+                int rotation = act.getWindowManager().getDefaultDisplay().getRotation();
+                if (rotation == Surface.ROTATION_90) {
+                    axisX = SensorManager.AXIS_Y;
+                    axisY = SensorManager.AXIS_MINUS_X;
+                } else if (rotation == Surface.ROTATION_270) {
+                    axisX = SensorManager.AXIS_MINUS_Y;
+                    axisY = SensorManager.AXIS_X;
+                } else if (rotation == Surface.ROTATION_180) {
+                    axisX = SensorManager.AXIS_MINUS_X;
+                    axisY = SensorManager.AXIS_MINUS_Z;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        SensorManager.remapCoordinateSystem(rot, axisX, axisY, remapped);
+        SensorManager.getOrientation(remapped, orient);
+        float deg = (float) Math.toDegrees(orient[0]);
+        if (deg < 0) deg += 360f;
+        String[] names = {"N", "NO", "O", "SO", "S", "SW", "W", "NW"};
+        int i = Math.round(deg / 45f) % 8;
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        r.put("heading", deg);
+        r.put("label", names[i]);
+        return r;
     }
 
     private interface SensorDone {

@@ -176,6 +176,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  if (loadSettings().last_cal_json) {
+    const calPending = await handleCalendar(conversationId, content)
+    if (calPending.handled && calPending.reply) {
+      return {
+        reply: calPending.reply,
+        tool: calPending.tool,
+        lastTool: 'calendar',
+      }
+    }
+  }
+
   if (loadSettings().last_pc_json) {
     const pcPending = await handlePc(conversationId, content)
     if (pcPending.handled && pcPending.reply) {

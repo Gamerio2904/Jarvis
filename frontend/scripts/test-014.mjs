@@ -35,7 +35,7 @@ import { timerDoneLine, cleanTimerTitle, timerSetLine, timerStopLine } from '../
 import { expandZahlenworte } from '../src/engine/zahlenworte.ts'
 import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
-import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
+import { parseCalendarIntent, parseCalDecision, splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
 import { ttsModelsToTry } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
@@ -49,6 +49,7 @@ import { lanIpHint } from '../src/engine/plug-net.ts'
 import {
   displayPlaceName,
   findContactRow,
+  findPlaceRow,
   isCommNo,
   isCommYes,
   mapsDirUrl,
@@ -84,7 +85,6 @@ import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
-import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -867,6 +867,24 @@ assert.equal(parseToolIntent('Odett anrufen'), null)
 const phoneOdett = parsePlaceNav('Odett 01711234567')
 assert.equal(phoneOdett?.kind, 'phone')
 if (phoneOdett?.kind === 'phone') assert.equal(phoneOdett.number.replace(/\D/g, '').length >= 6, true)
+const phoneOdettNum = parsePlaceNav('Odett Nummer 01711234567')
+assert.equal(phoneOdettNum?.kind, 'phone')
+if (phoneOdettNum?.kind === 'phone') assert.equal(phoneOdettNum.name, 'odett')
+const homeNum = parsePlaceNav('Meine Heimnummer ist 07142 788326. Das ist die Nummer von Meinem Haus')
+assert.equal(homeNum?.kind, 'phone')
+if (homeNum?.kind === 'phone') {
+  assert.equal(homeNum.name, 'zuhause')
+  assert.match(homeNum.number, /07142/)
+}
+assert.equal(isCommYes('Rufe zu Hause an', 'call'), true)
+assert.equal(isCommYes('Anrufen', 'call'), true)
+assert.equal(parseCalDecision('Überschreiben'), 'overwrite')
+assert.equal(parseCalDecision('belassen'), 'keep')
+assert.equal(parseCalDecision('trotzdem'), 'add')
+assert.equal(findPlaceRow(
+  [{ key: 'freundin', value: 'Heilbronn', category: 'place' }, { key: 'alias:odett', value: 'freundin', category: 'fact' }],
+  'odett',
+)?.value, 'Heilbronn')
 const alias = parsePlaceNav('Meine Freundin heißt Odett')
 assert.equal(alias?.kind, 'alias')
 assert.equal(
@@ -981,7 +999,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.19\.3/)
+assert.match(HELP_TEXT, /2\.20\.0/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.match(HELP_TEXT, /Musik ist nicht angebunden/)

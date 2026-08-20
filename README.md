@@ -18,7 +18,7 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 ## Android-APK
 
-**`Jarvis.apk` `2.19.3`:** [Download](https://github.com/Gamerio2904/Jarvis/raw/cursor/on-device-iq-sprints-5517/releases/Jarvis.apk) (versionCode 21903).
+**`Jarvis.apk` `2.20.0`:** [Download](https://github.com/Gamerio2904/Jarvis/raw/cursor/on-device-iq-sprints-5517/releases/Jarvis.apk) (versionCode 22000).
 
 Testprompts nicht in der App — nur außerhalb (Chat). Chat ohne Chips. API-Keys unter Einstellungen → APIs (eigener Bereich). Rabatt-Suche unter Einstellungen → Rabatt.
 

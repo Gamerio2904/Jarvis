@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '2.19.3'
+export const APP_VERSION = '2.20.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -123,6 +123,7 @@ export type Settings = {
   last_fuel_json: string
   last_poi_json: string
   last_comm_json: string
+  last_cal_json: string
   last_pc_json: string
   last_drive_json: string
   pc_enabled: boolean
@@ -203,6 +204,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_fuel_json: '',
   last_poi_json: '',
   last_comm_json: '',
+  last_cal_json: '',
   last_pc_json: '',
   last_drive_json: '',
   pc_enabled: false,

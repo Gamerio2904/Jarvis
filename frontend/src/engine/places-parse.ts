@@ -197,7 +197,7 @@ const PHONE =
 const PHONE_NAME =
   /^\s*(.+?)\s*[,:–-]\s*((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const PHONE_SPACE =
-  /^\s*([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,28})\s+(?:tel(?:efon)?\s+)?((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
+  /^\s*([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,28})\s+(?:(?:tel(?:efon)?|nummer)\s+)?((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const ALIAS =
   /^\s*(?:meine[nrs]?\s+)?(.+?)\s+heißt\s+(.+?)\s*$/i
 
@@ -220,8 +220,10 @@ export function findContactRow(
   const q = normalizePlaceName(query)
   if (!q) return undefined
   const phones = rows.filter((r) => r.category === 'contact' && looksLikePhone(r.value))
-  const direct = phones.find((r) => r.key === q || r.key.includes(q) || q.includes(r.key))
+  const direct = phones.find((r) => r.key === q)
   if (direct) return { key: direct.key, value: direct.value }
+  const fuzzy = phones.find((r) => r.key.includes(q) || q.includes(r.key))
+  if (fuzzy) return { key: fuzzy.key, value: fuzzy.value }
   const forward = rows.find((r) => r.key === `alias:${q}` && r.value.trim())
   if (forward) {
     const other = normalizePlaceName(forward.value)
@@ -234,6 +236,32 @@ export function findContactRow(
     const hit = phones.find((r) => r.key === rel)
     if (hit) return { key: hit.key, value: hit.value }
   }
+  return undefined
+}
+
+export function findPlaceRow(
+  rows: Array<{ key: string; value: string; category: string }>,
+  query: string,
+): { key: string; value: string } | undefined {
+  const q = normalizePlaceName(query)
+  if (!q) return undefined
+  const places = rows.filter((r) => r.category === 'place' && r.value.trim())
+  const direct = places.find((r) => r.key === q)
+  if (direct) return { key: direct.key, value: direct.value }
+  const forward = rows.find((r) => r.key === `alias:${q}` && r.value.trim())
+  if (forward) {
+    const other = normalizePlaceName(forward.value)
+    const hit = places.find((r) => r.key === other)
+    if (hit) return { key: hit.key, value: hit.value }
+  }
+  const reverse = rows.find((r) => r.key.startsWith('alias:') && normalizePlaceName(r.value) === q)
+  if (reverse) {
+    const rel = reverse.key.slice('alias:'.length)
+    const hit = places.find((r) => r.key === rel)
+    if (hit) return { key: hit.key, value: hit.value }
+  }
+  const fuzzy = places.find((r) => r.key.includes(q) || q.includes(r.key))
+  if (fuzzy) return { key: fuzzy.key, value: fuzzy.value }
   return undefined
 }
 
@@ -281,6 +309,8 @@ export function parseSms(text: string): PlaceNav | null {
 
 export function parseCallOrPhone(text: string): PlaceNav | null {
   const t = text.trim()
+  const homePhone = parseHomePhone(t)
+  if (homePhone) return homePhone
   const mal = CALL_MAL.exec(t)
   if (mal) {
     const query = normalizePlaceName(mal[1] || '')
@@ -316,6 +346,22 @@ export function parseCallOrPhone(text: string): PlaceNav | null {
   return null
 }
 
+function parseHomePhone(text: string): PlaceNav | null {
+  if (
+    !/\b(heimnummer|hausnummer|zuhause|zu\s*hause|\bheim\b|meinem\s+haus|vom\s+haus|nummer\s+von\s+(?:zu\s*)?hause)\b/i.test(
+      text,
+    )
+  ) {
+    return null
+  }
+  if (/\b(freundin|freund|bro|mama|papa|odett)\b/i.test(text) && !/\b(haus|heim|zuhause)\b/i.test(text)) {
+    return null
+  }
+  const num = extractPhone(text)
+  if (!num) return null
+  return { kind: 'phone', name: 'zuhause', number: num }
+}
+
 export function parseTravelNav(text: string): PlaceNav | null {
   const walk = WALK.exec(text.trim())
   if (walk) return { kind: 'navigate', query: normalizePlaceName(walk[1]), via: 'zu', mode: 'walking' }
@@ -334,7 +380,12 @@ export function isCommYes(text: string, kind?: 'call' | 'sms'): boolean {
     return true
   }
   if (kind === 'sms') return /^\s*(senden|schick(?:en)?)\s*[.!?]*$/i.test(t)
-  if (kind === 'call') return /^\s*anrufen\s*[.!?]*$/i.test(t)
+  if (kind === 'call') {
+    if (/^\s*anrufen\s*[.!?]*$/i.test(t)) return true
+    if (/^\s*ruf(?:e)?\s+.+\s+an\s*[.!?]*$/i.test(t)) return true
+    if (/^\s*(?:den\s+kontakt\s+)?.+\s+anrufen\s*[.!?]*$/i.test(t)) return true
+    return false
+  }
   return /^\s*(anrufen|senden|schick(?:en)?)\s*[.!?]*$/i.test(t)
 }
 

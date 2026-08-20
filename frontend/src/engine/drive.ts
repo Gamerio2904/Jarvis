@@ -3,7 +3,7 @@ import { isFuelPlace } from './fuel-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
 import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
 import { compactCoords, isRoadTrack, simplifyTrack, snapToTrack } from './drive-map'
-import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse'
+import { displayPlaceName, findPlaceRow, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { listMemory, loadSettings, saveSettings } from './store'
 import type { ToolMeta } from './tools'
@@ -266,12 +266,8 @@ function driveTool(action: string, label: string, route?: DriveRoute): ToolMeta 
 async function resolveDest(query: string): Promise<{ place: string } | { ask: string }> {
   const q = normalizePlaceName(query)
   const mem = await listMemory()
-  const hit = mem.find(
-    (m) =>
-      (m.category === 'place' || m.category === 'contact') &&
-      (m.key === q || m.key.includes(q) || q.includes(m.key)),
-  )
-  if (hit?.category === 'place' && hit.value) return { place: hit.value }
+  const hit = findPlaceRow(mem, q)
+  if (hit?.value) return { place: hit.value }
   if (isHomeName(q) || isRelationName(q)) {
     const who = displayPlaceName(q)
     return {
@@ -297,11 +293,6 @@ function emptyRoute(dest: string, destLat: number, destLon: number, fromLat: num
   }
 }
 
-function cacheNearDest(lat: number, lon: number, destLat: number, destLon: number): boolean {
-  if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) < 0.2) return false
-  return haversineM({ lat, lon, place: '' }, { lat: destLat, lon: destLon }) < 8_000
-}
-
 export async function beginDriveTo(
   destName: string,
   destLat: number,
@@ -316,7 +307,7 @@ export async function beginDriveTo(
       lat: Number(loadSettings().last_lat),
       lon: Number(loadSettings().last_lon),
     }
-    const fromOk = cacheNearDest(kept.lat, kept.lon, destLat, destLon)
+    const fromOk = Number.isFinite(kept.lat) && Math.abs(kept.lat) > 0.2
     active = {
       dest: destName,
       destLat,
@@ -381,11 +372,19 @@ async function startRoute(_label: string, place: string): Promise<{
       lastTool: 'drive',
     }
   }
+  if (near && haversineM({ lat: near.lat, lon: near.lon, place: '' }, dest.fix) > 150_000) {
+    return {
+      handled: true,
+      reply: `Das Ziel „${dest.fix.place}“ liegt weit weg von Ihrem Standort. Meinten Sie wirklich diesen Ort? Sagen Sie die Stadt nochmal.`,
+      tool: driveTool('ask', 'Ort fehlt'),
+      lastTool: 'drive',
+    }
+  }
   const { route, tool, hereOk, rideOk } = await beginDriveTo(dest.fix.place, dest.fix.lat, dest.fix.lon)
   if (!hereOk) {
     return {
       handled: true,
-      reply: `Fahrmodus: Ziel ${dest.fix.place}. Standort erlauben für die Route — intern, nicht Google Maps.`,
+      reply: `Fahrmodus: Ziel ist ${dest.fix.place}. Für die Route braucht es den Standort — intern, nicht Google Maps.`,
       tool,
       lastTool: 'drive',
     }
@@ -393,7 +392,7 @@ async function startRoute(_label: string, place: string): Promise<{
   if (!rideOk) {
     return {
       handled: true,
-      reply: `${route.hint || 'Netz hat die Route nicht geliefert.'} Ziel ${dest.fix.place} liegt trotzdem im Fahrmodus.`,
+      reply: `${route.hint || 'Das Netz hat die Route nicht geliefert.'} Das Ziel ${dest.fix.place} liegt trotzdem im Fahrmodus.`,
       tool,
       lastTool: 'drive',
     }
@@ -401,7 +400,7 @@ async function startRoute(_label: string, place: string): Promise<{
   const km = route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`
   return {
     handled: true,
-    reply: `Fahrmodus nach ${dest.fix.place}: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`,
+    reply: `Ich fahre intern nach ${dest.fix.place}: etwa ${route.minutes} Minuten, ${km}. ${route.hint} Die Karte ist nicht Google.`,
     tool,
     lastTool: 'drive',
   }

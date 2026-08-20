@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { Capacitor } from '@capacitor/core'
+import { App as CapApp } from '@capacitor/app'
 import {
   clearMemory,
   createConversation,
@@ -45,6 +47,7 @@ import { researchStatusLabel } from './engine/research-parse'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
 import { CalendarView } from './Calendar'
+import { CompassView } from './CompassView'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
 import { DriveMode } from './DriveMode'
@@ -116,6 +119,16 @@ function ToolChip({
           </button>
         </span>
       ) : null}
+      {tool.result?.confirmCall && onConfirm ? (
+        <span className="confirm-row">
+          <button type="button" className="confirm-btn yes" onClick={() => onConfirm('Ja')}>
+            Anrufen
+          </button>
+          <button type="button" className="confirm-btn no" onClick={() => onConfirm('Nein')}>
+            Nicht
+          </button>
+        </span>
+      ) : null}
       {tool.tool === 'maps'
         ? mapsRoutes(tool).map((r) => (
             <a
@@ -133,7 +146,7 @@ function ToolChip({
             </a>
           ))
         : null}
-      {typeof tool.result?.tel === 'string' && tool.result.tel ? (
+      {typeof tool.result?.tel === 'string' && tool.result.tel && !tool.result.confirmCall ? (
         <a
           className="maps-btn"
           href={String(tool.result.tel)}
@@ -308,6 +321,7 @@ function App() {
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [remindBusy, setRemindBusy] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
+  const [compassOpen, setCompassOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
   const [wakeListening, setWakeListening] = useState(false)
@@ -343,7 +357,82 @@ function App() {
     if (seed) setVoiceSeed(seed)
     setVoiceOpen(true)
     setCalendarOpen(false)
+    setCompassOpen(false)
   }
+
+  const overlayRef = useRef({
+    settingsPanelOpen: false,
+    settingsTopic: 'hub' as SettingsTopic,
+    calendarOpen: false,
+    compassOpen: false,
+    driveOpen: false,
+    voiceOpen: false,
+    sidebarOpen: false,
+  })
+  overlayRef.current = {
+    settingsPanelOpen,
+    settingsTopic,
+    calendarOpen,
+    compassOpen,
+    driveOpen,
+    voiceOpen,
+    sidebarOpen,
+  }
+
+  function navigateBack(): boolean {
+    const o = overlayRef.current
+    if (o.settingsPanelOpen && o.settingsTopic !== 'hub') {
+      setSettingsTopic('hub')
+      return true
+    }
+    if (o.settingsPanelOpen) {
+      setSettingsPanelOpen(false)
+      return true
+    }
+    if (o.compassOpen) {
+      setCompassOpen(false)
+      return true
+    }
+    if (o.calendarOpen) {
+      setCalendarOpen(false)
+      return true
+    }
+    if (o.voiceOpen) {
+      setVoiceOpen(false)
+      return true
+    }
+    if (o.driveOpen) {
+      closeDrive()
+      setDriveOpen(false)
+      return true
+    }
+    if (o.sidebarOpen) {
+      setSidebarOpen(false)
+      return true
+    }
+    return false
+  }
+
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape' && navigateBack()) e.preventDefault()
+    }
+    window.addEventListener('keydown', onKey)
+    let sub: { remove: () => Promise<void> } | null = null
+    if (Capacitor.isNativePlatform()) {
+      void CapApp.addListener('backButton', ({ canGoBack }) => {
+        if (navigateBack()) return
+        if (canGoBack) window.history.back()
+        else void CapApp.minimizeApp()
+      }).then((h) => {
+        sub = h
+      })
+    }
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      void sub?.remove()
+    }
+  }, [])
 
   useEffect(() => {
     const unlock = () => {
@@ -978,14 +1067,21 @@ function App() {
           if (payload.tool?.tool === 'calendar') {
             if (payload.tool.action === 'open') {
               setCalendarOpen(true)
+              setCompassOpen(false)
               setSidebarOpen(false)
             }
+          }
+          if (payload.tool?.tool === 'device' && payload.tool.action === 'compass') {
+            setCompassOpen(true)
+            setCalendarOpen(false)
+            setSidebarOpen(false)
           }
           if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
             if (payload.tool?.action === 'close') setDriveOpen(false)
             else {
               setDriveOpen(true)
               setCalendarOpen(false)
+              setCompassOpen(false)
               setSidebarOpen(false)
             }
           }
@@ -1307,7 +1403,7 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}`}>
+      <main className={`main${driveOpen ? ' is-drive' : ''}${calendarOpen ? ' is-calendar' : ''}${compassOpen ? ' is-compass' : ''}`}>
         {voiceOpen ? (
           <VoiceMode
             onClose={() => {
@@ -1319,6 +1415,7 @@ function App() {
           />
         ) : null}
         {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}
+        {compassOpen ? <CompassView onClose={() => setCompassOpen(false)} /> : null}
         {driveOpen ? (
           <DriveMode
             onClose={() => {

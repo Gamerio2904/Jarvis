@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-    "version": "2.19.3",
+  "version": "2.20.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",
+    "@capacitor/app": "^8.1.1",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
     "@capacitor/filesystem": "^8.1.2",

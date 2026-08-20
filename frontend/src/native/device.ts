@@ -1,6 +1,8 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { withTimeout } from './with-timeout'
 
+type CompassHit = { ok: boolean; heading?: number; label?: string; message?: string }
+
 type NativeDevice = {
   battery(): Promise<{ ok: boolean; percent?: number; charging?: boolean; message?: string }>
   network(): Promise<{
@@ -12,7 +14,10 @@ type NativeDevice = {
   }>
   steps(): Promise<{ ok: boolean; count?: number; sinceBoot?: boolean; message?: string }>
   pressure(): Promise<{ ok: boolean; hpa?: number; message?: string }>
-  compass(): Promise<{ ok: boolean; heading?: number; label?: string; message?: string }>
+  compass(): Promise<CompassHit>
+  startCompass(): Promise<{ ok: boolean; message?: string }>
+  stopCompass(): Promise<{ ok: boolean }>
+  addListener(event: 'compassHeading', cb: (hit: CompassHit) => void): Promise<{ remove: () => Promise<void> }>
   torch(opts: { on: boolean }): Promise<{ ok: boolean; on?: boolean; message?: string }>
   openPage(opts: { page: string }): Promise<{ ok: boolean; message?: string }>
   dial(opts: { number: string }): Promise<{ ok: boolean; message?: string }>
@@ -116,6 +121,12 @@ function compassLabel(deg: number): string {
   return names[i]
 }
 
+export function compassWord(deg: number): string {
+  const names = ['Norden', 'Nordosten', 'Osten', 'Südosten', 'Süden', 'Südwesten', 'Westen', 'Nordwesten']
+  const i = Math.round((((deg % 360) + 360) % 360) / 45) % 8
+  return names[i]
+}
+
 export async function readCompass(): Promise<{
   ok: boolean
   heading?: number
@@ -137,6 +148,53 @@ export async function readCompass(): Promise<{
     }
   }
   return { ok: false, message: 'Kompass nur auf dem Handy.' }
+}
+
+export function watchCompass(onHit: (hit: CompassHit) => void): () => void {
+  let dead = false
+  const emit = (hit: CompassHit) => {
+    if (dead) return
+    if (hit.ok && hit.heading != null) {
+      onHit({ ...hit, label: compassWord(hit.heading) })
+      return
+    }
+    onHit(hit)
+  }
+  if (native) {
+    let handle: { remove: () => Promise<void> } | null = null
+    void native
+      .addListener('compassHeading', emit)
+      .then((h) => {
+        if (dead) {
+          void h.remove()
+          return
+        }
+        handle = h
+      })
+    void native.startCompass().then((r) => {
+      if (!r.ok && r.message) emit({ ok: false, message: r.message })
+    })
+    return () => {
+      dead = true
+      void handle?.remove()
+      void native.stopCompass()
+    }
+  }
+  const onOri = (e: DeviceOrientationEvent) => {
+    const web = e as DeviceOrientationEvent & { webkitCompassHeading?: number }
+    const raw = web.webkitCompassHeading ?? (typeof e.alpha === 'number' ? 360 - e.alpha : null)
+    if (raw == null || !Number.isFinite(raw)) {
+      emit({ ok: false, message: 'Kompass nur auf dem Handy.' })
+      return
+    }
+    const heading = ((raw % 360) + 360) % 360
+    emit({ ok: true, heading, label: compassWord(heading) })
+  }
+  window.addEventListener('deviceorientation', onOri)
+  return () => {
+    dead = true
+    window.removeEventListener('deviceorientation', onOri)
+  }
 }
 
 export async function setTorch(on: boolean): Promise<{ ok: boolean; message?: string }> {

@@ -216,11 +216,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') p.onClose()
+      if (e.key !== 'Escape') return
+      if (p.topic !== 'hub') p.onTopic('hub')
+      else p.onClose()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [p.onClose])
+  }, [p.onClose, p.onTopic, p.topic])
 
   return (
     <div
@@ -261,7 +263,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
           <div>
             {p.topic !== 'hub' ? (
               <button type="button" className="settings-back" onClick={() => p.onTopic('hub')}>
-                Übersicht
+                Zurück
               </button>
             ) : (
               <p className="settings-kicker">Einstellungen</p>

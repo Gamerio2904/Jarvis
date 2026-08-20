@@ -105,3 +105,14 @@ export function splitTitlePlace(raw: string): { title: string; place?: string } 
   }
   return { title: t }
 }
+
+export type CalDecision = 'overwrite' | 'keep' | 'add' | 'yes'
+
+export function parseCalDecision(text: string): CalDecision | null {
+  const t = text.trim()
+  if (/^\s*(belassen|behalten|lassen|nein|nicht|abbrechen)\s*[.!?]*$/i.test(t)) return 'keep'
+  if (/^\s*(überschreiben|ueberschreiben|ersetzen)\s*[.!?]*$/i.test(t)) return 'overwrite'
+  if (/^\s*(trotzdem|beides|auch|eintragen)\s*[.!?]*$/i.test(t)) return 'add'
+  if (/^\s*(ja|jo|yes|ok|okay|mach(?:\s+(?:es|mal))?|bitte|passt)\s*[.!?]*$/i.test(t)) return 'yes'
+  return null
+}
