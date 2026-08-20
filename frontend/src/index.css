@@ -2374,7 +2374,7 @@ button.linkish {
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background: #0b100e;
+  background: #e8e4d6;
   touch-action: none;
   user-select: none;
 }
@@ -2389,11 +2389,11 @@ button.linkish {
   position: absolute;
   left: 0;
   top: 0;
-  width: 28px;
-  height: 32px;
+  width: 32px;
+  height: 44px;
   z-index: 1;
   pointer-events: none;
-  transform-origin: 14px 16px;
+  transform-origin: 16px 22px;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.55));
   will-change: transform;
 }

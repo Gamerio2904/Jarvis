@@ -1,6 +1,6 @@
-# Android-APK — `2.37.0`
+# Android-APK — `2.37.1`
 
-**2.37.0:** Kamera, Sprecher-Namen, optionales 1.5B, Memory mergen, Losgehen-Erinnerung, Fahrt-Nachfragen, Wetter/DWD, Research, Voice/Offline/Settings, Debug-Test hält wach.
+**2.37.1:** Fahrmodus-Karte: Straßen hell, Flüsse blau, Auto dunkel, Route navi-blau.
 
 ## Download
 
@@ -9,9 +9,8 @@ https://github.com/Gamerio2904/Jarvis/raw/cursor/on-device-iq-sprints-5517/relea
 APK nach Build: `releases/Jarvis.apk`
 
 - Dateiname: `Jarvis.apk`
-- versionName `2.37.0` · versionCode `23700`
+- versionName `2.37.1` · versionCode `23701`
 - App-ID `local.jarvis.app`
 
-1. Über 2.22.0 installieren.
-2. Kamera-Knopf öffnet die Handy-Kamera. Galerie daneben. Foto braucht Gemini (geht zu Google).
-3. Einstellungen → Modell: optional 1.5B. Default bleibt 0.5B.
+1. Über 2.37.0 installieren.
+2. Fahrmodus / Overlay: Neckar und Straßen getrennt erkennbar, Auto auf der Straße, Route blau.

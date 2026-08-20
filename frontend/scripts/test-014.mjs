@@ -79,7 +79,7 @@ import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { formatFilmReply } from '../src/engine/film.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
-import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, panCam, projectOnTiles, projectToView, settleZoom, simplifyTrack, snapToTrack, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
+import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, MAP_PAINT, panCam, projectOnTiles, projectToView, settleZoom, simplifyTrack, snapToTrack, tileFilter, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
 import { pickGeoHits } from '../src/engine/geo-lookup.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
@@ -259,7 +259,13 @@ assert.equal(dirFromManeuver('turn', 'slight left'), 'slight_left')
   assert.equal(settleZoom(16, 15, t0, t0 + 2000), 15)
   assert.equal(wrapTile(3, -1), 7)
   assert.ok(tileUrl(16, 1, 2, true).includes('cartocdn.com'))
+  assert.ok(tileUrl(16, 1, 2, true).includes('voyager'))
+  assert.ok(tileUrl(16, 1, 2, false).includes('voyager'))
+  assert.ok(!tileUrl(16, 1, 2, false).includes('dark_all'))
   assert.ok(!tileUrl(16, 1, 2, true).includes('rotate'))
+  assert.match(tileFilter(true), /saturate/)
+  assert.equal(MAP_PAINT.route, '#1a73e8')
+  assert.notEqual(MAP_PAINT.route, '#1ed760')
   const home = { lat: 48.78, lon: 9.18, zoom: 16 }
   const west = panCam(home, 256, 0)
   assert.ok(west.lon < home.lon)
@@ -999,7 +1005,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.37\.0/)
+assert.match(HELP_TEXT, /2\.37\.1/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.match(HELP_TEXT, /Musik ist nicht angebunden/)

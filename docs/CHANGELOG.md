@@ -5,11 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.37.0`**.
+App-Version im Code: **`2.37.1`**.
 
 ### Geplant
 
 Native llama.cpp NDK bleibt PO. Rest der 20er-Liste: [`32-next.md`](./32-next.md).
+
+### `2.37.1` — Karte: Straße, Auto, Fluss — *CODE*
+
+Fahrmodus-Karte: Voyager auch nachts (Flüsse blau, Straßen hell). Route Navi-Blau statt Grün. Standort ist ein Auto, nicht Gold-Dreieck.
+
+- versionCode `23701`
 
 ### `2.37.0` — Kamera, Sprecher, 1.5B, Alltag härten — *CODE*
 

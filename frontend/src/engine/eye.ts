@@ -134,7 +134,7 @@ async function enrichFromVision(text: string): Promise<string> {
   try {
     const { status, json } = await getJson(
       `https://world.openfoodfacts.org/api/v2/product/${code}.json`,
-      { Accept: 'application/json', 'User-Agent': 'Jarvis/2.37.0 (local.jarvis.app)' },
+      { Accept: 'application/json', 'User-Agent': 'Jarvis/2.37.1 (local.jarvis.app)' },
     )
     if (status < 200 || status >= 300) return ''
     const product = json.product as { product_name?: string; brands?: string } | undefined
