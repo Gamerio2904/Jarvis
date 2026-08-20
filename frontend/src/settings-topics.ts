@@ -40,8 +40,8 @@ export const SETTINGS_TOPICS: SettingsTopicMeta[] = [
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
-  { id: 'tests', label: 'Tests', hint: 'Kategorien' },
-  { id: 'debug', label: 'Debug', hint: 'Chat-Dump' },
+  { id: 'tests', label: 'Tests', hint: 'Auswahl' },
+  { id: 'debug', label: 'Debug', hint: 'Auto-Test' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
 ]
 
@@ -97,8 +97,8 @@ export function settingsTopicStatus(
   if (id === 'ton') return s?.ui_sounds ? 'an' : 'aus'
   if (id === 'forschung') return s?.research_opt_in ? 'Suche an' : 'Suche aus'
   if (id === 'gedaechtnis') return 'Memory'
-  if (id === 'tests') return 'Kategorien'
-  if (id === 'debug') return 'Dump'
+  if (id === 'tests') return 'Auswahl'
+  if (id === 'debug') return 'Auto-Test'
   if (id === 'gefahr') return 'löschen'
   return ''
 }

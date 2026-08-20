@@ -557,6 +557,56 @@ public class JarvisDevicePlugin extends Plugin {
         call.resolve(r);
     }
 
+    @PluginMethod
+    public void saveDownload(PluginCall call) {
+        JSObject r = new JSObject();
+        String name = call.getString("name", "");
+        String text = call.getString("text", "");
+        if (name == null) name = "";
+        if (text == null) text = "";
+        name = name.replaceAll("[/\\\\]", "-").trim();
+        if (name.isEmpty() || text.isEmpty()) {
+            r.put("ok", false);
+            r.put("message", "Keine Datei.");
+            call.resolve(r);
+            return;
+        }
+        try {
+            Context ctx = getContext();
+            byte[] bytes = text.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                android.content.ContentValues values = new android.content.ContentValues();
+                values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, name);
+                values.put(android.provider.MediaStore.Downloads.MIME_TYPE, "application/json");
+                values.put(android.provider.MediaStore.Downloads.IS_PENDING, 1);
+                android.net.Uri uri =
+                        ctx.getContentResolver().insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (uri == null) throw new Exception("insert");
+                java.io.OutputStream out = ctx.getContentResolver().openOutputStream(uri);
+                if (out == null) throw new Exception("stream");
+                out.write(bytes);
+                out.close();
+                values.clear();
+                values.put(android.provider.MediaStore.Downloads.IS_PENDING, 0);
+                ctx.getContentResolver().update(uri, values, null, null);
+            } else {
+                java.io.File dir =
+                        android.os.Environment.getExternalStoragePublicDirectory(android.os.Environment.DIRECTORY_DOWNLOADS);
+                if (dir != null && !dir.exists()) dir.mkdirs();
+                java.io.File file = new java.io.File(dir, name);
+                java.io.FileOutputStream out = new java.io.FileOutputStream(file);
+                out.write(bytes);
+                out.close();
+            }
+            r.put("ok", true);
+            r.put("message", "Gespeichert unter Downloads/" + name);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Download nicht geschrieben.");
+        }
+        call.resolve(r);
+    }
+
     private void startExt(Intent i) {
         Activity a = getActivity();
         if (a != null) {

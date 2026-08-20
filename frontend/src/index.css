@@ -493,6 +493,66 @@ textarea {
   color: var(--accent);
 }
 
+.settings-check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+}
+
+.settings-check-row.is-prompt {
+  min-height: 52px;
+  align-items: flex-start;
+}
+
+.settings-check-row input[type='checkbox'] {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  margin-top: 4px;
+  accent-color: var(--accent);
+}
+
+.settings-check-row .settings-hub-copy {
+  flex: 1 1 auto;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+}
+
+.settings-check-row .settings-hub-copy span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tests-start-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  bottom: 0;
+  margin-top: 8px;
+  padding: 12px 4px 4px;
+  background: linear-gradient(180deg, transparent, var(--bg) 28%);
+}
+
+.tests-start-bar span {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
 .settings-field {
   display: flex;
   flex-direction: column;
@@ -1463,6 +1523,53 @@ button.linkish {
   z-index: 11;
   padding: 12px 16px 20px;
   flex-shrink: 0;
+}
+
+.debug-bar {
+  width: min(820px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.debug-bar-status {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.35;
+}
+
+.debug-bar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.debug-bar-actions button {
+  appearance: none;
+  flex: 1 1 0;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+  color: var(--text);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.debug-bar-actions button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.row.is-pick {
+  cursor: pointer;
+}
+
+.row.is-picked .bubble {
+  border-color: rgba(30, 215, 96, 0.7);
+  box-shadow: 0 0 0 1px rgba(30, 215, 96, 0.35);
 }
 
 .main.is-drive .composer-wrap {

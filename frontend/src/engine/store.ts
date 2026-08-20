@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '2.20.1'
+export const APP_VERSION = '2.21.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -9,11 +9,14 @@ export const DEFAULT_MODEL = {
   sizeLabel: '~470 MB',
 }
 
+export const DEBUG_CHAT_KIND = 'debug'
+
 export type Conversation = {
   id: string
   title: string
   created_at: string
   updated_at: string
+  kind?: string
 }
 
 export type Message = {
@@ -390,12 +393,14 @@ export async function listConversations(): Promise<Conversation[]> {
 
 export async function createConversation(
   title = 'Neues Gespräch',
+  kind?: string,
 ): Promise<Conversation> {
   const row: Conversation = {
     id: newId(),
     title,
     created_at: nowIso(),
     updated_at: nowIso(),
+    ...(kind ? { kind } : {}),
   }
   await put('conversations', row)
   return row
@@ -440,7 +445,11 @@ export async function addMessage(
   const conv = await get<Conversation>('conversations', conversationId)
   if (conv) {
     const title =
-      role === 'user' && shouldRefreshTitle(content) ? titleFromUser(content) : conv.title
+      conv.kind === DEBUG_CHAT_KIND
+        ? conv.title
+        : role === 'user' && shouldRefreshTitle(content)
+          ? titleFromUser(content)
+          : conv.title
     await touchConversation(conversationId, title)
   }
   return row

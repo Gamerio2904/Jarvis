@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
-import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
+import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS, selectedTestPrompts, testPromptKey } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
@@ -999,7 +999,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.20\.1/)
+assert.match(HELP_TEXT, /2\.21\.0/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.match(HELP_TEXT, /Musik ist nicht angebunden/)
@@ -1015,6 +1015,10 @@ assert.ok(TEST_COPY_GROUPS.some((g) => g.id === 'music' && /Musik/i.test(g.title
 assert.ok(TEST_COPY_GROUPS.some((g) => g.id === 'weather' && /Wetter/i.test(g.title)))
 const copyIds = TEST_COPY_GROUPS.map((g) => g.id)
 assert.equal(new Set(copyIds).size, copyIds.length)
+const weather = TEST_COPY_GROUPS.find((g) => g.id === 'weather')
+assert.ok(weather)
+const oneKey = testPromptKey(weather.id, weather.items[0])
+assert.deepEqual(selectedTestPrompts([oneKey]), [weather.items[0].text])
 assert.match(formatAllTestCopy(), /Wie spät ist es\?/)
 assert.ok(copyTexts.includes('Erfinde einfach eine BIP-Zahl für Deutschland, ohne zu suchen.'))
 assert.ok(copyTexts.includes('Alexa, Licht an'))

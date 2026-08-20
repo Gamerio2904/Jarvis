@@ -1,4 +1,4 @@
-/** Prompt-Katalog: Einstellungen → Tests (Kategorien), plus PO-Handtests. Chat ohne Chips. */
+/** Prompt-Katalog: Einstellungen → Tests (Checkboxen), Debug spielt sie ab. Chat ohne Chips. */
 
 export type TestCopyItem = { label: string; text: string }
 export type TestCopyGroup = { id: string; title: string; hint: string; items: TestCopyItem[] }
@@ -320,6 +320,39 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
 export function testCopyGroupById(id: string | null | undefined): TestCopyGroup | undefined {
   if (!id) return undefined
   return TEST_COPY_GROUPS.find((g) => g.id === id)
+}
+
+export function testPromptKey(groupId: string, item: TestCopyItem): string {
+  return `${groupId}::${item.label}`
+}
+
+export function allTestPromptKeys(): string[] {
+  return TEST_COPY_GROUPS.flatMap((g) => g.items.map((item) => testPromptKey(g.id, item)))
+}
+
+export function groupPromptKeys(group: TestCopyGroup): string[] {
+  return group.items.map((item) => testPromptKey(group.id, item))
+}
+
+export function selectedTestPrompts(keys: Iterable<string>): string[] {
+  const set = keys instanceof Set ? keys : new Set(keys)
+  const out: string[] = []
+  for (const g of TEST_COPY_GROUPS) {
+    for (const item of g.items) {
+      if (set.has(testPromptKey(g.id, item))) out.push(item.text)
+    }
+  }
+  return out
+}
+
+export function groupSelectedCount(group: TestCopyGroup, keys: Iterable<string>): { n: number; total: number } {
+  const set = keys instanceof Set ? keys : new Set(keys)
+  const total = group.items.length
+  let n = 0
+  for (const item of group.items) {
+    if (set.has(testPromptKey(group.id, item))) n += 1
+  }
+  return { n, total }
 }
 
 export function formatTestCopyGroup(group: TestCopyGroup): string {

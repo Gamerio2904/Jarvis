@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core'
 import { Directory, Encoding, Filesystem } from '@capacitor/filesystem'
-import { APP_VERSION, isGeminiConfigured, listConversations, listMemory, listMessages, listResearchAudits, loadSettings, type Conversation } from './store.ts'
+import { APP_VERSION, isGeminiConfigured, listConversations, listMemory, listMessages, listResearchAudits, loadSettings, type Conversation, type Message } from './store.ts'
 import type { ResearchMeta } from './research-parse.ts'
 import type { ToolMeta } from './tools.ts'
 
@@ -231,19 +231,87 @@ export function debugFileName(conv: Conversation, at = new Date()): string {
   return `jarvis-debug-${fileSlug(conv.title)}-${day}.json`
 }
 
-export async function downloadChatDebug(conversationId: string): Promise<{ ok: boolean; name: string; message: string }> {
-  const dump = await buildChatDebugDump(conversationId)
+/** User/assistant as a pair: picking either side keeps the other. */
+export function expandPickedMessageIds(messages: Array<Pick<Message, 'id' | 'role'>>, picked: Iterable<string>): string[] {
+  const want = new Set(picked)
+  const keep = new Set<string>()
+  for (let i = 0; i < messages.length; i++) {
+    const m = messages[i]
+    if (!want.has(m.id)) continue
+    keep.add(m.id)
+    if (m.role === 'user') {
+      const next = messages[i + 1]
+      if (next?.role === 'assistant') keep.add(next.id)
+    } else if (m.role === 'assistant') {
+      const prev = messages[i - 1]
+      if (prev?.role === 'user') keep.add(prev.id)
+    }
+  }
+  return messages.filter((m) => keep.has(m.id)).map((m) => m.id)
+}
+
+export function applyTurnFilter(dump: ChatDebugDump, ids?: string[] | null): ChatDebugDump {
+  if (!ids?.length) return dump
+  const set = new Set(ids)
+  const turns = dump.turns.filter((t) => set.has(t.id))
+  const tools: string[] = []
+  const allFlags = new Set<string>()
+  for (const t of turns) {
+    const tool = t.tool as { tool?: string; action?: string; tool_status?: string } | undefined
+    if (tool?.tool && tool.tool_status === 'executed') tools.push(`${tool.tool}:${tool.action || ''}`)
+    for (const f of t.flags) allFlags.add(f)
+  }
+  const transcript = turns
+    .map((t) => {
+      const head = t.role === 'user' ? 'USER' : 'JARVIS'
+      const extra = t.role === 'assistant' ? ` [${t.route || '—'}]${t.flags.length ? ` flags=${t.flags.join(',')}` : ''}` : ''
+      return `${head}${extra}\n${t.content}`
+    })
+    .join('\n\n')
+  return {
+    ...dump,
+    transcript,
+    turns,
+    summary: {
+      user_turns: turns.filter((t) => t.role === 'user').length,
+      assistant_turns: turns.filter((t) => t.role === 'assistant').length,
+      tools_executed: [...new Set(tools)],
+      llm_turns: turns.filter((t) => t.flags.includes('llm') || t.route === 'llm').length,
+      flags: [...allFlags],
+    },
+  }
+}
+
+export async function downloadChatDebug(
+  conversationId: string,
+  pickedIds?: string[] | null,
+): Promise<{ ok: boolean; name: string; message: string }> {
+  const full = await buildChatDebugDump(conversationId)
+  const ids = pickedIds?.length
+    ? expandPickedMessageIds(
+        full.turns.map((t) => ({ id: t.id, role: t.role })),
+        pickedIds,
+      )
+    : null
+  const dump = applyTurnFilter(full, ids)
   const name = debugFileName(dump.conversation)
   const json = `${JSON.stringify(dump, null, 2)}\n`
   const native = await writeNative(name, json)
   if (native.ok) return { ok: true, name, message: native.message }
   const web = triggerBrowserDownload(name, json)
-  if (web) return { ok: true, name, message: 'JSON-Download gestartet.' }
+  if (web) return { ok: true, name, message: 'JSON in Downloads.' }
   return { ok: false, name, message: 'Download blockiert. Kopieren nutzen.' }
 }
 
 async function writeNative(name: string, json: string): Promise<{ ok: boolean; message: string }> {
   if (!Capacitor.isNativePlatform()) return { ok: false, message: '' }
+  try {
+    const { saveDownloadFile } = await import('../native/device.ts')
+    const dl = await saveDownloadFile(name, json)
+    if (dl.ok) return { ok: true, message: dl.message || `Gespeichert unter Downloads/${name}` }
+  } catch {
+    /* Documents-Fallback */
+  }
   try {
     await Filesystem.writeFile({
       path: name,

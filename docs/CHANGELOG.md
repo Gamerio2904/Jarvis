@@ -5,12 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.20.1`**.
+App-Version im Code: **`2.21.0`**.
 
 ### Geplant
 
 1. **`2.2.4` SHOULD** — optionales 1.5B, Default bleibt 0.5B (früher intern `0.13.4`)
 2. Native llama.cpp (früher intern `0.14.0`): PO
+
+### `2.21.0` — Debug auto-testet — *CODE*
+
+Einstellungen → Tests: Themen und Prompts per Checkbox. Test starten öffnet einen Debug-Chat ohne Tastatur. Prompts nacheinander, warten auf Antwort. Unten **Alles runterladen** oder **Auswählen** (Frage plus Antwort) nach Downloads.
+
+- versionCode `22100`
 
 ### `2.20.1` — Tests-Menü vor Debug — *CODE*
 

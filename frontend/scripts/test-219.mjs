@@ -13,7 +13,7 @@ import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { applyMove, parseFen, START_FEN, fenOf } from '../src/engine/chess.ts'
 import { packChat } from '../src/engine/prompt.ts'
 import { HELP_TEXT } from '../src/engine/guards.ts'
-import { debugFileName, debugPayload, flagReply } from '../src/engine/chat-debug.ts'
+import { debugFileName, debugPayload, flagReply, expandPickedMessageIds, applyTurnFilter } from '../src/engine/chat-debug.ts'
 import { readFileSync } from 'node:fs'
 
 assert.equal(isMusicHonesty('Spiel mal was Nettes'), true)
@@ -55,7 +55,7 @@ assert.equal(parseShopIntent('Switch 2 kaufen')?.kind, 'add')
 assert.equal(parseWeatherIntent('Brauche ich in Bietigheim einen Schirm?')?.kind, 'place')
 assert.equal(parseWeatherIntent('Brauche ich in Bietigheim einen Schirm?')?.place, 'Bietigheim')
 assert.match(researchQuery('Kannst du den bip von Deutschland in einer Tabelle darstellen?'), /Bruttoinlandsprodukt Deutschland Destatis/)
-assert.match(HELP_TEXT, /2\.20\.1/)
+assert.match(HELP_TEXT, /2\.21\.0/)
 const topicsSrc = readFileSync(new URL('../src/settings-topics.ts', import.meta.url), 'utf8')
 assert.match(topicsSrc, /title: 'APIs', ids: \['apis'\]/)
 assert.match(topicsSrc, /title: 'Einkauf', ids: \['rabatt'\]/)
@@ -65,6 +65,13 @@ assert.doesNotMatch(topicsSrc, /ids: \['ton', 'gedaechtnis', 'debug'/)
 const settingsSrc = readFileSync(new URL('../src/SettingsScreen.tsx', import.meta.url), 'utf8')
 assert.match(settingsSrc, /p\.topic === 'tests'/)
 assert.match(settingsSrc, /Was testen\?/)
+assert.match(settingsSrc, /Test starten/)
+assert.match(settingsSrc, /type="checkbox"/)
+const appSrc = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
+assert.match(appSrc, /Alles runterladen/)
+assert.match(appSrc, /Auswählen/)
+assert.match(appSrc, /startDebugTest/)
+assert.match(appSrc, /DEBUG_CHAT_KIND/)
 assert.deepEqual(splitTitlePlace('Termin 15 Uhr'), { title: 'Termin 15 Uhr' })
 assert.equal(parseDeviceIntent('Wie viele Schritte heute?')?.kind, 'steps')
 assert.equal(parseDeviceIntent('Luftdruck')?.kind, 'pressure')
@@ -96,7 +103,7 @@ const keep = packChat([
 ])
 assert.equal(keep.length, 2)
 
-assert.match(HELP_TEXT, /2\.20\.1/)
+assert.match(HELP_TEXT, /2\.21\.0/)
 assert.match(HELP_TEXT, /Musik ist nicht angebunden/)
 assert.match(HELP_TEXT, /DWD/)
 assert.match(HELP_TEXT, /Schach/)
@@ -118,5 +125,38 @@ const payload = debugPayload({
 })
 assert.equal(payload.debug.route, 'weather')
 assert.match(debugFileName({ id: '1', title: 'Was steht an?', created_at: '', updated_at: '' }), /jarvis-debug-was-steht-an-/)
+
+const picked = expandPickedMessageIds(
+  [
+    { id: 'u1', role: 'user' },
+    { id: 'a1', role: 'assistant' },
+    { id: 'u2', role: 'user' },
+    { id: 'a2', role: 'assistant' },
+  ],
+  ['a1', 'u2'],
+)
+assert.deepEqual(picked, ['u1', 'a1', 'u2', 'a2'])
+const filtered = applyTurnFilter(
+  {
+    kind: 'jarvis-chat-debug',
+    app_version: 'x',
+    exported_at: '',
+    conversation: { id: '1', title: 'Debug-Test', created_at: '', updated_at: '' },
+    transcript: 'ALL',
+    runtime: {},
+    turns: [
+      { id: 'u1', role: 'user', created_at: '', content: 'Hallo', flags: [] },
+      { id: 'a1', role: 'assistant', created_at: '', content: 'Hi', flags: ['llm'], route: 'llm' },
+      { id: 'u2', role: 'user', created_at: '', content: 'Wetter', flags: [] },
+    ],
+    summary: { user_turns: 2, assistant_turns: 1, tools_executed: [], llm_turns: 1, flags: ['llm'] },
+    memory_from_this_chat: [],
+  },
+  ['u1', 'a1'],
+)
+assert.equal(filtered.turns.length, 2)
+assert.equal(filtered.summary.user_turns, 1)
+assert.match(filtered.transcript, /Hallo/)
+assert.doesNotMatch(filtered.transcript, /Wetter/)
 
 console.log('ok test-219')

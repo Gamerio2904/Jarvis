@@ -14,8 +14,8 @@ import {
 } from './research-parse'
 import { loadSettings } from './store'
 
-const UA = 'Jarvis/2.20.1 (local.jarvis.app)'
-const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.20.1'
+const UA = 'Jarvis/2.21.0 (local.jarvis.app)'
+const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.21.0'
 
 export async function fillResearchLinks(
   queryText: string,

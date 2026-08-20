@@ -130,6 +130,12 @@ for (const perm of perms) {
     )
   }
 }
+if (!manifest.includes('WRITE_EXTERNAL_STORAGE')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    `    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />\n</manifest>`,
+  )
+}
 if (!manifest.includes('android:usesCleartextTraffic')) {
   manifest = manifest.replace(
     '<application',
