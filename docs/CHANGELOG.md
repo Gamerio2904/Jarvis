@@ -9,7 +9,7 @@ App-Version im Code: **`0.13.2`** (On-Device Handy, kein Server).
 
 ### Geplant — `0.13.3`–`0.13.4` (Sprints 47–48)
 
-- **`0.13.3` Qualität:** kompakte Persona, repeat_penalty, Memory-Honesty, Siezen, Pack nur bei Overflow
+- **`0.13.3` Qualität:** kein Spotify-Dialog; „Was steht an“ ohne Wetter; Wetter nur bei Standort-Frage; Intent/Recall; dann 0.5B-Ton
 - **`0.13.4` Intelligenz:** optional 1.5B; Default 0.5B
 - [`14-on-device-iq.md`](./14-on-device-iq.md)
 

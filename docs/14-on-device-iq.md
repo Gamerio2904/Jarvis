@@ -59,18 +59,20 @@ Gleiches GGUF, gleiches Sampling (`temp 0.7`, `top_p 0.88`, `max_tokens 96`), gl
 
 ---
 
-## 2) Qualität (`0.13.3`) — ohne Latenz- und Lebendigkeitsverlust
+## 2) Qualität (`0.13.3`) — Live zuerst, dann 0.5B
+
+Live-Probe: [`15-live-probe.md`](./15-live-probe.md)
 
 | ID | Update |
 |----|--------|
-| Q1 | Persona kompakt, **Charakter bleibt** (frech, Humor, DE, Siezen, kurz, kein Helpdesk) |
-| Q2 | nur `repeat_penalty 1.12` — temp/top_p unverändert |
-| Q3 | Recall breiter; unbekannte Prefs = ehrlich, kein Raten |
-| Q4 | Siezen-Scrub ohne `willst Sie` / `*st Sie` |
-| Q5 | Pack **nur** wenn Prompt > `n_ctx` (sonst 8 Turns / alle Pins) |
+| L1 | Kein Spotify-Fehler / keine Spotify-API |
+| L2 | „Was steht an“ ohne Wetter |
+| L3 | Wetter nur bei Wetterfrage + Standort |
+| L4–L7 | Ort-Parse, kein München-Default, Kauf≠Film, Termin≠Ort, Recall ohne Müll |
+| Q1–Q5 | Persona kompakt, repeat_penalty, Honesty, Siezen, Pack-bei-Overflow |
 | Q6 | Version `0.13.3` |
 
-Raus: temp-Schnitt, Hart-Kappen, Canned.
+Raus: Spotify bauen, Wetter an Briefings, temp-Schnitt, Hart-Kappen, Canned.
 
 ---
 

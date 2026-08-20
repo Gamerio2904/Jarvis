@@ -142,7 +142,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - NAS Compose / APK-gegen-NAS → **`0.10.x`** — **Parking**
 - Samsung-TV lokal → **`0.11.x`** — **Parking**
 - On-Device Handy → **`0.13.0`–`0.13.1`** (Sprints 44–45, CODE)
-- On-Device Latenz / Qualität / Intelligenz → **`0.13.2`–`0.13.4`** (Sprints 46–48, [`14`](./14-on-device-iq.md)) — **als Nächstes**
+- On-Device Latenz / Live-Qualität / Intelligenz → **`0.13.2`–`0.13.4`** (Sprints 46–48, [`14`](./14-on-device-iq.md) · [`15`](./15-live-probe.md)) — **als Nächstes: 47**
 - Native llama.cpp → **`0.14.0`** (PO)
 - Mail / Fire TV / Alexa / Play Store — **Parking**
 
