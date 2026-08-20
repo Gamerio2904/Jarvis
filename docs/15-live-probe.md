@@ -1,52 +1,66 @@
 # 15 — Live-Probe (Screenshots 2026-08-20)
 
-PO-Alltag auf dem Handy. Banner: **Gemini (Google) — Nachrichten gehen ins Netz.**  
-Dieses Git-Repo ist on-device WASM (`0.13.2`); die Probe gilt trotzdem als nächste Qualitäts-Musts.
+PO-Alltag: Jarvis **2.2.1**, Banner **Gemini (Google) — Nachrichten gehen ins Netz.**  
+Dieses Git-Repo ist on-device WASM (`0.13.2`); die Probe ist trotzdem Sprint **47** / `0.13.3`.
 
 ## PO-Vorgabe (verbindlich)
 
-1. **Musik öffnet nicht** — und es gibt **keine Spotify-API**. Die Fehlermeldung („keine gültigen Spotify API-Zugangsdaten“, Button Einstellungen) ist falsch.
-2. **„Was steht an“** — **kein Wetter**. Nur Termin/Agenda.
+1. **Musik** — öffnet nicht, **keine Spotify-API**. Weder Fehler-Modal noch „ich öffne die Musik“.
+2. **„Was steht an“ / „Was kommt heute?“** — **kein Wetter**. Kein Einkauf aus Smalltalk.
 3. **Wetter** — nur wenn gefragt wird, **wie das Wetter an einem Standort wird**.
 
-## Befund
+## Befund (neu + alt)
 
 | # | Screenshot | Soll | Ist | Klasse |
 |---|------------|------|-----|--------|
-| M1 | Musik-Dialog | kein Spotify, kein Settings-Zwang | Modal: Spotify-Zugangsdaten fehlen | **Must** — Fake-API |
-| W1 | „Was steht an“ (PO) | Agenda ohne Wetter | Wetter würde mitlaufen | **Must** |
-| W2 | „Was soll ich anziehen?“ / „und morgen?“ | kein Wetter-Dump ohne Standort-Wetterfrage | Open-Meteo München, Chip Wetter | **Must** |
-| W3 | „Wetter heute“ / „Temperatur hier“ / „Wetter in Bietigheim“ | Wetter für den genannten/„hier“-Ort | Valeostraße bzw. Bietigheim via Open-Meteo | **ok** (das ist die erlaubte Form) |
-| W4 | „Und in Bietigheim brauche ich da heute Schirm?“ | Ort = Bietigheim, Wetter ja | ganzer Satz als Ortsname, Chip „Kein Ort“ | **Must** — Parse |
-| W5 | „Wie ist die Luft?“ | nicht München raten; nur bei klarem Ort | Default München | **Must** |
-| I1 | „Wo kann ich Switch 2 kaufen“ | Shopping/Preise | erst Film *Zoomania 2*, Chip Film | **Must** — Intent |
-| I2 | „Steuer planen als Termin morgen 15 uhr“ | Termin morgen 15:00 | „Ort morgen 15 uhr nicht gefunden“ | **Must** — Zeit ≠ Ort |
-| I3 | „Wann hatte ich das mit der Steuer?“ | ehrliche Erinnerung oder „nichts gefunden“ | Valeo-Wischer + Persona-Müll | **Must** — Recall |
-| I4 | „Wo bin ich gerade?“ | Standort | Valeostraße 1 — ok wenn GPS/Home bewusst | Policy: nur auf Standort-Frage |
+| D1 | „Wie spät ist es?“ (Statusleiste 07:59) | aktuelle Gerätezeit | **07:47**, zweimal gleich, Chip Uhrzeit | **Must** — Cache |
+| D2 | „Wie voll ist der Akku?“ (Leiste 94–95 %) | OS-Akku jetzt | **97 %, lädt nicht** | **Must** — Cache |
+| M1 | Musik-Modal | kein Spotify | „keine gültigen Spotify API-Zugangsdaten“ | **Must** |
+| M2 | „Spiel mal was Nettes“ | ehrlich: nicht angebunden | **„Ich öffne die Musik“** ohne Playback | **Must** — False-Confirm |
+| W1 | „Was steht an?“ / „Was kommt heute?“ | Termine, kein Wetter | Valeostraße 20°, Einkauf Brot/Milch/**Guten Morgen** | **Must** |
+| W2 | „Was soll ich anziehen?“ | kein Wetter ohne Standortfrage | Open-Meteo München | **Must** |
+| W3 | „Wetter heute“ / „Temperatur hier“ | Wetter am Ort | Valeostraße via Open-Meteo | **ok** |
+| W4 | „… in Bietigheim … Schirm?“ | Ort Bietigheim | ganzer Satz als Ort, „Kein Ort“ | **Must** |
+| W5 | „Wie ist die Luft?“ ohne Ort | nachfragen | Default München | **Must** |
+| E1 | „Guten Morgen“ | Begrüßung | **auf die Einkaufsliste** | **Must** |
+| E2 | „Milch kaufen“ / „auch Brot“ / „Milch hab ich“ | Liste stimmt | ok | — |
+| I1 | Switch-2-Kauf | Shopping | Film Zoomania 2 | **Must** |
+| I2 | „Termin morgen 15 uhr“ | Uhrzeit | als Ort geparst | **Must** |
+| I3 | „Wann … Steuer?“ | ehrlicher Recall | Valeo-Wischer / Persona | **Must** |
+| F1 | „BIP Deutschland“ bei Netz an | Zahl oder klar „keine Quelle“ | erst keine Zahl, dann Definition | **Should** |
+| F2 | „BIP in einer Tabelle“ | einfache Tabelle im Chat | „Tabellen kann ich nicht“ | **Should** |
+| U1 | Kopfzeile | Icons frei | Ticker „Switch 2 mit Rabatt“ überlappt | **Should** |
 
-Luft/Sonne/Taschenlampe/WLAN in den Screenshots sind **nicht** der Sprint-Kern. Wetter hängt nicht an „anziehen“, „steht an“, Follow-up ohne Ort.
+`/hilfe` 2.2.1 nennt Spotify/Karte/TV/Smart-Home — **nicht** als gebaute Pflicht in `0.13.3`. Spotify-Claim in der Hilfe streichen, solange keine API da ist.
 
 ## Regeln (DoD)
 
 ```text
-Wetter-Ausgabe
-  NUR wenn: Nutzer fragt Wetter/Temperatur/Regen/Schirm
-            UND ein Standort steckt (genannt ODER „hier“ mit bekanntem Home)
-  SONST: kein Wetter-Chip, kein Open-Meteo, kein München-Default
+Gerät
+  Uhr / Akku IMMER live vom OS, kein alter Snapshot
 
-„Was steht an“
-  NUR Termine / offene Loops
-  KEIN Wetter, keine Luft, keine Sonne
+Wetter
+  NUR Wetterfrage + Standort (genannt oder „hier“/Home)
+  NICHT in „Was steht an“, „Was kommt heute“, „anziehen“, ohne Ort
+
+Briefing
+  Termine / echte offene Loops
+  KEIN Wetter, KEINE Luft, KEINE Sonne
+  KEINE Einkaufsposten aus Smalltalk
+
+Einkauf
+  NUR klare Kauf-/Listen-Befehle (Milch kaufen, auch Brot, Milch hab ich)
+  NICHT „Guten Morgen“, „Hallo“, Prefs
 
 Musik
-  KEINE Spotify-Fehlermeldung
-  KEINE Settings→Spotify
-  Wenn Musik-Intent: ehrlich „Musik ist nicht angebunden.“ — oder still ignorieren
-  Spotify-API wird nicht gebaut
+  KEIN Spotify-Modal, KEIN „ich öffne…“ ohne Player
+  Satz: „Musik ist nicht angebunden.“
+  KEINE Spotify-API bauen
 ```
 
 ## Won’t
 
 - Spotify-OAuth / Playback
-- Wetter in Briefings „nett dazu“
-- Stadt raten (München), wenn kein Ort in der Frage ist
+- Wetter „nett dazu“ im Briefing
+- Stadt raten
+- Hilfe als Feature-Wunschliste (Karte, Bahn, Shelly) in diesem Sprint

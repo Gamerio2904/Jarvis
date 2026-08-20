@@ -54,7 +54,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 47 | [`sprint-47.md`](./sprint-47.md) | `0.13.3` | Live-Qualität (Musik/Wetter/Intent) | **PLANNED** |
 | 48 | [`sprint-48.md`](./sprint-48.md) | `0.13.4` | On-Device Intelligenz (1.5B optional) | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** Sprint **47** (`0.13.3`) Live-Qualität (kein Spotify, Briefing ohne Wetter, Wetter nur mit Standort), dann 48 optionales 1.5B.  
+**Nächste Pull-Reihenfolge:** Sprint **47** (`0.13.3`) Live-Qualität (Uhr/Akku, kein Spotify, Briefing ohne Wetter, Einkauf-Intent), dann 48 optionales 1.5B.  
 Sprint 46 / `0.13.2` Latenz ist **CODE**.  
 `0.9.3`–`0.9.5` Memory/Siezen on-device in 47. NAS/TV **Parking**. Native llama.cpp = `0.14.0` (PO).  
 On-Device IQ: [`../14-on-device-iq.md`](../14-on-device-iq.md)

@@ -69,7 +69,7 @@ MAJOR.MINOR.PATCH
 | `0.13.0` | **On-Device Handy** (WASM-LLM, kein Server) | Sprint 44 |
 | `0.13.1` | **Modell-Download Hotfix** (Cache API, kein OPFS-„file not found“) | Sprint 45 |
 | `0.13.2` | **On-Device Latenz** (Threads, Stream — gleicher Prompt) | Sprint 46 |
-| `0.13.3` | **Live-Qualität** (kein Spotify, Wetter-Gate, Intent; plus 0.5B Honesty/Siezen) | Sprint 47 |
+| `0.13.3` | **Live-Qualität** (Gerät live, kein Spotify, Wetter-Gate, Einkauf-Intent, 0.5B Honesty) | Sprint 47 |
 | `0.13.4` | **On-Device Intelligenz** (optional 1.5B, Default 0.5B) | Sprint 48 |
 | `0.14.0` | **Native llama.cpp** (optional, PO) | nach 48 |
 | `1.0.0` | **nächster MAJOR** — Inhalt PO | nach `0.13`/`0.14` |

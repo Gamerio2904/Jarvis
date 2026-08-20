@@ -65,10 +65,13 @@ Live-Probe: [`15-live-probe.md`](./15-live-probe.md)
 
 | ID | Update |
 |----|--------|
-| L1 | Kein Spotify-Fehler / keine Spotify-API |
-| L2 | „Was steht an“ ohne Wetter |
+| L1 | Kein Spotify-Modal, kein False-Confirm „ich öffne die Musik“ |
+| L2 | „Was steht an“ / „Was kommt heute?“ ohne Wetter |
 | L3 | Wetter nur bei Wetterfrage + Standort |
 | L4–L7 | Ort-Parse, kein München-Default, Kauf≠Film, Termin≠Ort, Recall ohne Müll |
+| L8–L9 | Uhr und Akku **live** vom Gerät |
+| L10 | „Guten Morgen“ nicht auf die Einkaufsliste |
+| L11–L14 | Should: Tabelle, BIP-Zahl, Ticker, Hilfe ohne Spotify-Claim |
 | Q1–Q5 | Persona kompakt, repeat_penalty, Honesty, Siezen, Pack-bei-Overflow |
 | Q6 | Version `0.13.3` |
 
