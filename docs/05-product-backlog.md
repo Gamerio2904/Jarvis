@@ -28,6 +28,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E16 | Extra `1.21`–`1.24` | 4 | Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — [`20-next.md`](./20-next.md) |
 | E17 | Qualität `1.33`–`1.40` | 5+ | Bestehendes härten: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit — kein neues Produkt — [`28-next.md`](./28-next.md) |
 | E25 | Alltag & Welt `2.3`–`2.19` | 5+ | DWD, Ferien, Kurs, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach — [`31-next.md`](./31-next.md) **PLAN** |
+| E26 | Live-Qualität `2.2.3`–`2.2.4` | 5+ | Uhr/Akku, Musik ehrlich, Wetter-Gate, Einkauf-Intent; optional 1.5B — früher intern `0.13.3`–`0.13.4` — [`30-next.md`](./30-next.md) |
 
 ---
 
@@ -185,10 +186,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S10.1 | Als Nutzer will ich in einem „Merk dir“-Satz mehrere Fakten speichern. | Must | ready | Sprint 47 / `0.13.3` (Carry aus 31) |
-| S10.2 | Als Nutzer will ich Pref-Fragen („Was trinke ich?“) als Recall, nicht Smalltalk. | Must | ready | Sprint 47 / `0.13.3` |
+| S10.1 | Als Nutzer will ich in einem „Merk dir“-Satz mehrere Fakten speichern. | Must | in_sprint | Sprint 105 / `2.2.3` (Carry aus 31) |
+| S10.2 | Als Nutzer will ich Pref-Fragen („Was trinke ich?“) als Recall, nicht Smalltalk. | Must | in_sprint | Sprint 105 / `2.2.3` |
 | S10.3 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt Smalltalk. | Should | parked | Sprint 32 / `0.9.4` Parking |
-| S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Must | ready | Sprint 47 / `0.13.3` |
+| S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Must | in_sprint | Sprint 105 / `2.2.3` |
 
 ### E11 — NAS & APK (`0.10.x`)
 
@@ -353,25 +354,30 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ---
 
-### E14 — On-Device IQ (`0.13.2`–`0.13.4`)
+### E26 — Live-Qualität (`2.2.3`–`2.2.4`)
+
+IDs `S14.*` aus dem falsch nummerierten `0.13.x`-Entwurf, Lieferung jetzt `2.2.3` / `2.2.4`.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S14.1 | Als Nutzer will ich Antworten ohne 1-Thread-WASM-Bremse. | Must | done | Sprint 46 / `0.13.2` |
-| S14.2 | Als Nutzer will ich Tokens gestreamt sehen, nicht 75 s warten. | Must | done | Sprint 46 / `0.13.2` |
-| S14.3 | Als Nutzer will ich Pref-Fragen ehrlich, ohne Raten. | Must | in_sprint | Sprint 47 / `0.13.3` |
-| S14.4 | Als Nutzer will ich Jarvis-Ton und ehrliches Memory auf 0.5B. | Must | in_sprint | Sprint 47 / `0.13.3` |
-| S14.5 | Als Nutzer will ich optional ein schärferes 1.5B on-device. | Should | ready | Sprint 48 / `0.13.4` |
-| S14.6 | Als Nutzer will ich keine Spotify-Fehlermeldung, weil es keine Spotify-API gibt. | Must | in_sprint | Sprint 47 / `0.13.3` |
-| S14.7 | Als Nutzer will ich bei „Was steht an“ kein Wetter. | Must | in_sprint | Sprint 47 / `0.13.3` |
-| S14.8 | Als Nutzer will ich Wetter nur, wenn ich nach dem Wetter an einem Standort frage. | Must | in_sprint | Sprint 47 / `0.13.3` |
-| S14.9 | Als Nutzer will ich die echte Uhr- und Akku-Anzeige, nicht einen alten Cache. | Must | in_sprint | Sprint 47 / `0.13.3` |
-| S14.10 | Als Nutzer will ich, dass „Guten Morgen“ nicht auf die Einkaufsliste kommt. | Must | in_sprint | Sprint 47 / `0.13.3` |
+| S14.1 | Als Nutzer will ich Antworten ohne 1-Thread-WASM-Bremse. | Must | done | historisch Sprint 46 / `0.13.2` — in `2.2.2` drin |
+| S14.2 | Als Nutzer will ich Tokens gestreamt sehen, nicht 75 s warten. | Must | done | historisch Sprint 46 / `0.13.2` — in `2.2.2` drin |
+| S14.3 | Als Nutzer will ich Pref-Fragen ehrlich, ohne Raten. | Must | in_sprint | Sprint 105 / `2.2.3` |
+| S14.4 | Als Nutzer will ich Jarvis-Ton und ehrliches Memory auf 0.5B. | Must | in_sprint | Sprint 105 / `2.2.3` |
+| S14.5 | Als Nutzer will ich optional ein schärferes 1.5B on-device. | Should | ready | Sprint 106 / `2.2.4` — blockiert DWD nicht |
+| S14.6 | Als Nutzer will ich keine Spotify-Fehlermeldung, weil es keine Spotify-API gibt. | Must | in_sprint | Sprint 105 / `2.2.3` |
+| S14.7 | Als Nutzer will ich bei „Was steht an“ kein Wetter. | Must | in_sprint | Sprint 105 / `2.2.3` |
+| S14.8 | Als Nutzer will ich Wetter nur, wenn ich nach dem Wetter an einem Standort frage. | Must | in_sprint | Sprint 105 / `2.2.3` |
+| S14.9 | Als Nutzer will ich die echte Uhr- und Akku-Anzeige, nicht einen alten Cache. | Must | in_sprint | Sprint 105 / `2.2.3` |
+| S14.10 | Als Nutzer will ich, dass „Guten Morgen“ nicht auf die Einkaufsliste kommt. | Must | in_sprint | Sprint 105 / `2.2.3` |
+| S14.11 | Als Nutzer will ich einen Switch-Kauf nicht als Film. | Must | in_sprint | Sprint 105 / `2.2.3` |
+| S14.12 | Als Nutzer will ich „Termin 15 Uhr“ als Zeit, nicht als Ort. | Must | in_sprint | Sprint 105 / `2.2.3` |
+| S14.13 | Als Nutzer will ich Recall ohne Müll aus anderen Pins. | Must | in_sprint | Sprint 105 / `2.2.3` |
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `2.2.2` — [`apk.md`](./apk.md)
-2. Reihe Alltag & Welt **PLAN** [`31-next.md`](./31-next.md) — erste Code-Lieferung `2.3.0` DWD, wenn PO „bauen“ sagt
+1. **Sprint 105** (`2.2.3`) **IN SPRINT** — Live-Qualität [`30-next.md`](./30-next.md)
+2. Reihe Alltag & Welt **PLAN** [`31-next.md`](./31-next.md) — Code `2.3.0` DWD, wenn PO „bauen“ sagt (`2.2.4` 1.5B ist SHOULD, kein Tor)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)

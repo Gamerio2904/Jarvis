@@ -1,9 +1,7 @@
 # 15 — Live-Probe (Screenshots 2026-08-20)
 
 PO-Alltag: Jarvis **2.2.1**, Banner **Gemini (Google) — Nachrichten gehen ins Netz.**  
-Live auf `main` ist **`2.2.2`**. Die Musts unten sind Bugs/Soll der Gemini-App, nicht Sprint 47 auf `main` (`0.14.0`). Einordnung in `2.3+` ist offen.
-
-## PO-Vorgabe (verbindlich)
+Live auf `main`: **`2.2.2`**. Musts → Sprint **105** / **`2.2.3`** ([`30-next.md`](./30-next.md)). Früher intern falsch `0.13.3`.
 
 ## PO-Vorgabe (verbindlich)
 
@@ -33,7 +31,7 @@ Live auf `main` ist **`2.2.2`**. Die Musts unten sind Bugs/Soll der Gemini-App, 
 | F2 | „BIP in einer Tabelle“ | einfache Tabelle im Chat | „Tabellen kann ich nicht“ | **Should** |
 | U1 | Kopfzeile | Icons frei | Ticker „Switch 2 mit Rabatt“ überlappt | **Should** |
 
-`/hilfe` 2.2.1 nennt Spotify/Karte/TV/Smart-Home — **nicht** als gebaute Pflicht in `0.13.3`. Spotify-Claim in der Hilfe streichen, solange keine API da ist.
+`/hilfe` nennt Spotify nicht, solange keine API da ist (`2.2.3` Should).
 
 ## Regeln (DoD)
 
@@ -65,4 +63,4 @@ Musik
 - Spotify-OAuth / Playback
 - Wetter „nett dazu“ im Briefing
 - Stadt raten
-- Hilfe als Feature-Wunschliste (Karte, Bahn, Shelly) in diesem Sprint
+- Hilfe als Feature-Wunschliste (Karte, Bahn, Shelly) in `2.2.3`

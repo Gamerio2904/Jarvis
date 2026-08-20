@@ -1,6 +1,6 @@
 # 04 — Roadmap & Phasen
 
-> **Aktuell:** Sideload `2.2.2`. Geplant: [`31-next.md`](./31-next.md) `2.3`–`2.19`. Die Zeile „als Nächstes: Sprint 47 / `0.13.3`“ unten ist ein Parallel-Entwurf; auf `main` sind Sprints 46–48 bereits CODE (`0.13.2` Hang-Fix, `0.14.0`, `0.14.1` TV).
+> **Aktuell:** Sideload `2.2.2`. Als Nächstes Code: **`2.2.3` Live-Qualität** ([`30-next.md`](./30-next.md), Sprint 105). Danach [`31-next.md`](./31-next.md) `2.3`–`2.19` auf PO-Kommando. Sprints 46–48 auf `main` bleiben historisch (`0.13.2` Hang-Fix, `0.14.0`, `0.14.1` TV).
 
 Die Phasen sind **sequentiell im Schwerpunkt**, dürfen aber Lernschleifen haben.  
 Kein Kalenderversprechen — Fortschritt hängt von Hardware, Modellwahl und Persona-Abnahme ab.
@@ -21,7 +21,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (Gedächtnis, Tools — teils schon in 0.4–0.9)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.33.0`:** Alltag auf dem Handy inkl. Suche mit Preisen. **`2.2.2`:** Sideload. Nächste Reihe **PLAN** `2.3`–`2.19`: [`31-next.md`](./31-next.md). TTS ist geliefert (`1.5`+).
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.33.0`:** Alltag auf dem Handy inkl. Suche mit Preisen. **`2.2.2`:** Sideload. **Als Nächstes Code `2.2.3`.** Welt-Reihe **PLAN** `2.3`–`2.19`: [`31-next.md`](./31-next.md). TTS ist geliefert (`1.5`+).
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -138,14 +138,16 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Local Tools Core (Option A) → **`0.9.0`** (Sprint 28, READY FOR REVIEW)
 - Tools Hotfix → **`0.9.1`** (Sprint 29, READY FOR REVIEW)
 - Tools Polish & Continuity → **`0.9.2`** (Sprint 30, READY FOR REVIEW)
-- Memory Quality Hotfix → **`0.9.3`** (Sprint 31) — **Parking**; Honesty on-device in `0.13.3`
-- Assist Continuity & Siezen → **`0.9.4`** (Sprint 32) — **Parking**; Siezen-Scrub in `0.13.3`
+- Memory Quality Hotfix → **`0.9.3`** (Sprint 31) — **Parking**; Honesty in `2.2.3`
+- Assist Continuity & Siezen → **`0.9.4`** (Sprint 32) — **Parking**; Siezen-Scrub in `2.2.3`
 - Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33) — **Parking**
 - NAS Compose / APK-gegen-NAS → **`0.10.x`** — **Parking**
-- Samsung-TV lokal → **`0.11.x`** — **Parking**
+- Samsung-TV lokal → **`0.11.x`** historisch; **live in `0.14.1`**
 - On-Device Handy → **`0.13.0`–`0.13.1`** (Sprints 44–45, CODE)
-- On-Device Latenz / Live-Qualität / Intelligenz → **`0.13.2`–`0.13.4`** (Sprints 46–48, [`14`](./14-on-device-iq.md) · [`15`](./15-live-probe.md)) — **als Nächstes: 47**
-- Native llama.cpp → **`0.14.0`** (PO)
+- Chat-Hang / Stream → **`0.13.2`** (Sprint 46, CODE) — in `2.2.2`
+- Live-Qualität → **`2.2.3`** (Sprint 105, **IN SPRINT**) — früher intern `0.13.3`
+- Optional 1.5B → **`2.2.4`** (Sprint 106, SHOULD)
+- Native llama.cpp → PO
 - Mail / Fire TV / Alexa / Play Store — **Parking**
 - Tools (Kalender/Mail) — Kalender **ist** in `1.4`+; Mail bleibt Parking
 - Alltag `1.14`–`1.15` — **CODE**; `1.16`–`1.20` — **PLANNED** [`19-next.md`](./19-next.md); Extra `1.21`–`1.24` — **PLANNED** [`20-next.md`](./20-next.md)
@@ -164,7 +166,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 
 ## Sparring-Korrekturen in der Roadmap
 
-- Alltag ist die APK (`0.13.x`), nicht NAS.
-- Lokales 0.5B kann Smalltalk schwächen → Qualität `0.13.3`, optionales 1.5B `0.13.4`.
-- Tempo `0.13.2` ohne Prompt-/Sampling-Schnitt.
+- Alltag ist die APK (`2.2.x`), nicht NAS.
+- Live-Qualität `2.2.3`; optionales 1.5B `2.2.4`.
+- Tempo `0.13.2` Stream/Threads ist in `2.2.2` drin.
 - Stimme ersetzt keine gute Text-Persona.

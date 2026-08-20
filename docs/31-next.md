@@ -2,7 +2,7 @@
 
 PO 2026-08-20: Nächste Updates planen — Unwetter/DWD, Schulferien, Wechselkurse, Open Food Facts, Open Library, Bundesliga, Research, Stimme, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sport, Handy-Sensoren, Schach. Freie APIs, nichts erfinden.
 
-Reihe davor: [`30-next.md`](./30-next.md). App jetzt: Sideload **`2.2.2`**. Bau erst auf PO-Kommando, erste Lieferung **`2.3.0`**.
+Reihe davor: [`30-next.md`](./30-next.md) — zuerst **`2.2.3` Live-Qualität IN SPRINT**. App jetzt: Sideload **`2.2.2`**. Welt-Reihe: Bau erst auf PO-Kommando, erste Lieferung **`2.3.0`**. `2.2.4` (1.5B) ist SHOULD und kein Tor.
 
 Eine Sideload-Stufe pro Version.
 
@@ -28,7 +28,7 @@ Eine Sideload-Stufe pro Version.
 | **`2.18.0`** | Handy-Sensoren | Schritte, Barometer, Kompass — lokal | **PLAN** |
 | **`2.19.0`** | Schach | Chat-Notation, Züge legal; optional Lichess-lesen | **PLAN** |
 
-Sprint-Kickoff: [`sprint-105.md`](./sprints/sprint-105.md).
+Sprint-Kickoff: [`sprint-107.md`](./sprints/sprint-107.md). Vorher Code: [`sprint-105.md`](./sprints/sprint-105.md) / `2.2.3`.
 
 ## Leitentscheidung
 
@@ -69,7 +69,7 @@ Sprint-Kickoff: [`sprint-105.md`](./sprints/sprint-105.md).
 ## Probe (wenn die jeweilige Version CODE ist)
 
 1. Frage wie in der Tabelle — Antwort aus der Quelle oder ehrlich leer.
-2. Regression: `Wetter heute`, `Steckdose an`, `Wie spät ist es?`, `kein Kaffee mehr`, `Guten Morgen`, Fahrmodus-Lautstärke = Spotify.
+2. Regression nach `2.2.3`: `Wetter heute` (nur Wetter+Ort), `Was steht an` ohne Wetter, `Steckdose an`, `Wie spät ist es?` live, `kein Kaffee mehr`, `Guten Morgen` ≠ Einkauf, Fahrmodus-Lautstärke = Spotify (ehrlich, keine Fake-API).
 3. `/hilfe` nennt die neue Fähigkeit erst nach dem Sideload.
 
 ## Won’t

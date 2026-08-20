@@ -1,101 +1,37 @@
-# 14 — On-Device: Latenz, Qualität, Intelligenz (Entwurf)
+# 14 — On-Device: Latenz, Qualität, Intelligenz (Hebel)
 
-> **Konflikt:** Auf `main` ist [`14-quality-tv.md`](./14-quality-tv.md) die Doc-Nr. 14 (`0.14.1` TV). Sprints 46–48 dort = Chat-Hang / Qualität / Tizen, nicht diese `0.13.2`–`0.13.4`-Reihe. Live: **`2.2.2`**. Plan ab hier: [`31-next.md`](./31-next.md).
+> Doc-Nr. 14 in der Leseliste ist [`14-quality-tv.md`](./14-quality-tv.md) (TV `0.14.1`). Diese Datei sind die Hebel der Live-Qualität. Lieferung: **`2.2.3`** / **`2.2.4`** ([`30-next.md`](./30-next.md)).
 
-Quelle (dieser Entwurf): Threads + Stream. Nicht mit Sprint 47/48 auf `main` verwechseln.
-
-## Diagnose
-
-| Hebel | Ist (`0.13.2`) | Wirkung |
-|-------|----------------|---------|
-| Threads | `min(4, cores−1)` | Decode schneller |
-| Stream | Tokens bis EOS | früher sichtbar |
-| Kontext | Persona + alle Pins + 8 Turns in `n_ctx: 1024` | Overflow → Pack erst in 47 |
-| Modell | 0.5B Q4 | Intelligenz-Decke; 1.5B optional in 48 |
-
-Memory/Tools umgehen das LLM schon.
+Latenz (Threads + Stream) ist in **`2.2.2`** schon **CODE** (historisch `0.13.2`). Nicht neu planen.
 
 ## Lieferreihenfolge
 
-| Sprint | Version | Thema | Nebenwirkung |
-|--------|---------|-------|--------------|
-| [46](./sprints/sprint-46.md) | **`0.13.2`** | Latenz | **CODE** — keine (gleicher Prompt, gleiches Sampling) |
-| [47](./sprints/sprint-47.md) | **`0.13.3`** | Live-Qualität | **IN SPRINT** — kein Tempo-Schnitt; Live-Musts zuerst |
-| [48](./sprints/sprint-48.md) | **`0.13.4`** | Intelligenz | Default **unverändert**; nur Toggle „scharf“ = langsamer + klüger |
+| Sprint | Version | Thema | Status |
+|--------|---------|-------|--------|
+| 46 | `0.13.2` | Stream/Threads (Hang-Fix) | **CODE** — in `2.2.2` |
+| [105](./sprints/sprint-105.md) | **`2.2.3`** | Live-Qualität | **IN SPRINT** (früher intern `0.13.3`) |
+| [106](./sprints/sprint-106.md) | **`2.2.4`** | Optional 1.5B | **PLANNED** SHOULD (früher intern `0.13.4`) |
 
-Native llama.cpp = **`0.14.0`** (PO).
+Native llama.cpp = **PO**.
 
 ---
 
 ## Prüfung je Hebel
 
-| Hebel | Sprint | Latenz | Qualität | Intelligenz | Urteil |
-|-------|--------|--------|----------|-------------|--------|
-| Mehr Threads | 46 | + | 0 | 0 | **Must** |
-| Stream bis EOS | 46 | + (gefühlt) | 0 | 0 | **Must** |
-| Persona kürzen, Charakter behalten | 47 | + (Prefill) | + (0.5B folgt kurzen Regeln) | 0 | **Must** |
-| `repeat_penalty 1.12` | 47 | 0 | + (weniger Loops) | 0 | **Must** |
-| temp 0.55 / top_p 0.85 | — | 0 | − (toter, templatehafter) | 0 | **raus** |
-| Memory-Recall + Honesty | 47 | + wenn LLM entfällt | + (kein Raten) | 0 | **Must** |
-| Siezen-Scrub (Verben) | 47 | 0 | + (kein `willst Sie`) | 0 | **Must** |
-| Hart nach 3 Sätzen kappen | — | + | − (mittendrin abschneiden) | − | **raus** |
-| Pack nur bei Overflow | 47 | + nur dann | 0 / + (Persona bleibt im Fenster) | 0 | **Must** |
-| Begrüßungs-Canned | — | + | − (Template-Bot) | − | **raus** |
-| Optional 1.5B | 48 | − nur wenn an | + Tasks | + | **Must, Default aus** |
+| Hebel | Version | Latenz | Qualität | Intelligenz | Urteil |
+|-------|---------|--------|----------|-------------|--------|
+| Mehr Threads | `0.13.2` | + | 0 | 0 | **done** |
+| Stream bis EOS | `0.13.2` | + (gefühlt) | 0 | 0 | **done** |
+| Persona kürzen, Charakter behalten | `2.2.3` | + (Prefill) | + | 0 | **Must** |
+| `repeat_penalty 1.12` | `2.2.3` | 0 | + (weniger Loops) | 0 | **Must** |
+| temp 0.55 / top_p 0.85 | — | 0 | − | 0 | **raus** |
+| Memory-Recall + Honesty | `2.2.3` | + wenn LLM entfällt | + | 0 | **Must** |
+| Siezen-Scrub (Verben) | `2.2.3` | 0 | + | 0 | **Must** |
+| Hart nach 3 Sätzen kappen | — | + | − | − | **raus** |
+| Pack nur bei Overflow | `2.2.3` | + nur dann | 0 / + | 0 | **Must** |
+| Begrüßungs-Canned | — | + | − | − | **raus** |
+| Optional 1.5B | `2.2.4` | − nur wenn an | + Tasks | + | **Should, Default aus** |
 | Smalltalk-Canned-Router | — | + | − | − | **raus** |
-| Task-Nudge nur bei Task | 48 | 0 | + Struktur | + | **Must, nicht Smalltalk** |
+| Task-Nudge nur bei Task | `2.2.4` | 0 | + | + | **Must, nicht Smalltalk** |
 
----
-
-## 1) Latenz (`0.13.2`) — ohne Qualitätsverlust
-
-Gleiches GGUF, gleiches Sampling (`temp 0.7`, `top_p 0.88`, `max_tokens 96`), gleicher Prompt (Persona, 8 Turns, alle Pins).
-
-| ID | Update |
-|----|--------|
-| L1 | `n_threads` = `min(4, hardwareConcurrency − 1)` (Floor 2) |
-| L2 | Token-Stream bis EOS |
-| L3 | Version `0.13.2` |
-
----
-
-## 2) Qualität (`0.13.3`) — Live zuerst, dann 0.5B
-
-Live-Probe: [`15-live-probe.md`](./15-live-probe.md)
-
-| ID | Update |
-|----|--------|
-| L1 | Kein Spotify-Modal, kein False-Confirm „ich öffne die Musik“ |
-| L2 | „Was steht an“ / „Was kommt heute?“ ohne Wetter |
-| L3 | Wetter nur bei Wetterfrage + Standort |
-| L4–L7 | Ort-Parse, kein München-Default, Kauf≠Film, Termin≠Ort, Recall ohne Müll |
-| L8–L9 | Uhr und Akku **live** vom Gerät |
-| L10 | „Guten Morgen“ nicht auf die Einkaufsliste |
-| L11–L14 | Should: Tabelle, BIP-Zahl, Ticker, Hilfe ohne Spotify-Claim |
-| Q1–Q5 | Persona kompakt, repeat_penalty, Honesty, Siezen, Pack-bei-Overflow |
-| Q6 | Version `0.13.3` |
-
-Raus: Spotify bauen, Wetter an Briefings, temp-Schnitt, Hart-Kappen, Canned.
-
----
-
-## 3) Intelligenz (`0.13.4`) — Default ohne Latenzverlust
-
-| ID | Update |
-|----|--------|
-| I1 | Toggle **scharf** = Qwen2.5-1.5B-Instruct Q4 (~1,1 GB). Default bleibt 0.5B |
-| I2 | Task-Nudge nur bei Task-Intent (1 Ziel, max 3 Schritte) |
-| I3 | OOM/fehlendes 1.5B → Fallback 0.5B |
-| I4 | Version `0.13.4` |
-
-Raus: automatischer Modellwechsel, Smalltalk über Canned routen.
-
----
-
-## Nicht in 46–48
-
-| Thema | Wohin |
-|-------|--------|
-| Native llama.cpp / GPU | `0.14.0` |
-| TTS | PO |
-| Samsung-TV, NAS, Play Store | Parking |
+Live-Musts (Musik, Wetter-Gate, Uhr/Akku, Einkauf): [`15-live-probe.md`](./15-live-probe.md) / `2.2.3`.

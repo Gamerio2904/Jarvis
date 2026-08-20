@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Sideload `2.2.2`, geplant [`31-next.md`](./31-next.md), Sprints [`sprints/README.md`](./sprints/README.md).
+> Historisch (MVP `0.1`). **Jetzt:** Sideload `2.2.2`, als Nächstes [`30-next.md`](./30-next.md) `2.2.3`, Welt [`31-next.md`](./31-next.md), Sprints [`sprints/README.md`](./sprints/README.md).
 
 ## MVP v0.1 — Definition
 
@@ -508,14 +508,14 @@ Multi-Turn Tool-Flows, Listen-UX, Scorecard, UI-Chips.
 
 ## Sprint 31 — Memory Quality Hotfix → **`0.9.3`**
 
-**Status:** PARKED · Carry Honesty/Recall in [`sprint-47.md`](./sprints/sprint-47.md) / `0.13.3`  
+**Status:** PARKED · Carry Honesty/Recall in [`sprint-105.md`](./sprints/sprint-105.md) / `2.2.3`  
 [`sprints/sprint-31.md`](./sprints/sprint-31.md)
 
 ---
 
 ## Sprint 32 — Assist Continuity & Siezen → **`0.9.4`**
 
-**Status:** PARKED · Carry Siezen in `0.13.3`  
+**Status:** PARKED · Carry Siezen in `2.2.3`  
 [`sprints/sprint-32.md`](./sprints/sprint-32.md)
 
 ---
@@ -538,23 +538,24 @@ Multi-Turn Tool-Flows, Listen-UX, Scorecard, UI-Chips.
 
 ---
 
-## Sprint 46 — On-Device Latenz → **`0.13.2`**
+## Sprint 46 — Chat-Hang → **`0.13.2`** (historisch)
 
 **Status:** CODE · [`sprints/sprint-46.md`](./sprints/sprint-46.md)  
-Threads + Stream; gleicher Prompt/Sampling. Siehe [`14-on-device-iq.md`](./14-on-device-iq.md).
+Stream + Threads. In `2.2.2` enthalten. Nicht mit Live-Qualität `2.2.3` verwechseln.
 
 ---
 
-## Sprint 47 — Live-Qualität → **`0.13.3`**
+## Sprint 47 — Qualität & Latenz → **`0.14.0`** (historisch)
 
-**Status:** IN SPRINT · [`sprints/sprint-47.md`](./sprints/sprint-47.md) · Fahrplan [`16-fahrplan.md`](./16-fahrplan.md)  
-Kein Spotify-Dialog; „Was steht an“ ohne Wetter; Wetter nur mit Standort. Details [`15-live-probe.md`](./15-live-probe.md).
+**Status:** CODE · [`sprints/sprint-47.md`](./sprints/sprint-47.md)  
+Die Live-Musts aus den 2.2.1-Screens (intern falsch auch „Sprint 47 / 0.13.3“) liegen in **Sprint 105 / `2.2.3`**.
 
 ---
 
-## Sprint 48 — On-Device Intelligenz → **`0.13.4`**
+## Sprint 48 — TV → **`0.14.1`** (historisch)
 
-**Status:** PLANNED · [`sprints/sprint-48.md`](./sprints/sprint-48.md)
+**Status:** CODE · [`sprints/sprint-48.md`](./sprints/sprint-48.md)  
+Optionales 1.5B (intern falsch „Sprint 48 / 0.13.4“) liegt in **Sprint 106 / `2.2.4`**.
 
 ---
 

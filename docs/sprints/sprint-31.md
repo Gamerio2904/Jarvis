@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PARKED** — Python-Backend weg; Honesty/Recall on-device in Sprint 47 / `0.13.3` |
+| Status | **PARKED** — Python-Backend weg; Honesty/Recall in Sprint 105 / `2.2.3` |
 | Priorität | **HIGH** — Live-Probe nach `0.9.2` |
 | Ziel-Version | **`0.9.3`** |
 | Quelle | Feedback-Probe (Multi-Fact verloren, Recall→Smalltalk-Halluzination) |

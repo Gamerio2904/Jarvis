@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PARKED** — Siezen-Scrub on-device in Sprint 47 / `0.13.3` |
+| Status | **PARKED** — Siezen-Scrub in Sprint 105 / `2.2.3` |
 | Priorität | **HIGH** — Live-Probe (Clarify-Follow-up, Broken-Siezen, EN-Leak) |
 | Ziel-Version | **`0.9.4`** |
 | Quelle | Feedback nach `0.9.2`; Carry aus Sprint 27 Continuity |

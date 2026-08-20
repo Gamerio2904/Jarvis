@@ -7,8 +7,8 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 
 Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/Geizhals, € nur aus Snippets. Router wie `1.32.1` plus `Öffnen CarPlay` → Fahrmodus. `pickHeard` scored ohne Drive-`inMode`-Raten.
 
-Nächste Schärfe (CODE bis `2.2`): [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  
-Nächste Reihe **PLAN:** [`31-next.md`](./31-next.md) inkl. Research härten (`2.6.0`).
+Nächste Schärfe: **`2.2.3` IN SPRINT** [`30-next.md`](./30-next.md).  
+Welt-Reihe **PLAN:** [`31-next.md`](./31-next.md) inkl. Research härten (`2.6.0`).
 
 ### Live `1.32.1` (Code)
 
@@ -53,12 +53,12 @@ Lokal 0,5B denkt nicht plötzlich besser. Schärfe = Router + Speicher + ehrlich
 | 5 | **`0.9.0`** | [28](./sprints/sprint-28.md) | Local Tools Core (Notes/Todos, Confirm) | **READY FOR REVIEW** |
 | 5a | **`0.9.1`** | [29](./sprints/sprint-29.md) | Tools Hotfix | **READY FOR REVIEW** |
 | 5b | **`0.9.2`** | [30](./sprints/sprint-30.md) | Tools Polish & Continuity | **READY FOR REVIEW** |
-| 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **PARKED** (Carry `0.13.3`) |
-| 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PARKED** (Carry `0.13.3`) |
+| 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **PARKED** (Carry `2.2.3`) |
+| 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PARKED** (Carry `2.2.3`) |
 | 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **PARKED** |
-| 6 | **`0.13.2`** | [46](./sprints/sprint-46.md) | On-Device Latenz | **CODE** |
-| 6a | **`0.13.3`** | [47](./sprints/sprint-47.md) | Live-Qualität (Musik/Wetter/Intent) | **IN SPRINT** |
-| 6b | **`0.13.4`** | [48](./sprints/sprint-48.md) | On-Device Intelligenz (1.5B optional) | **PLANNED** |
+| 6 | **`0.13.2`** | [46](./sprints/sprint-46.md) | Chat-Hang / Stream | **CODE** (in `2.2.2`) |
+| 6a | **`2.2.3`** | [105](./sprints/sprint-105.md) | Live-Qualität (Musik/Wetter/Intent) | **IN SPRINT** |
+| 6b | **`2.2.4`** | [106](./sprints/sprint-106.md) | Optional 1.5B | **PLANNED** SHOULD |
 
 ```text
 Sprint 8  0.4.0 Memory
@@ -393,7 +393,7 @@ Memory („Merk dir …“) bleibt Fakten-Gedächtnis; Tools sind **explizite Ar
 
 NAS/APK: **`0.10.x`** ([`12-nas-apk.md`](./12-nas-apk.md)). Samsung-TV: **`0.11.x`** (Sprints 40–42).
 
-On-Device nach `0.13.2`: Live-Qualität **`0.13.3` IN SPRINT**, dann 1.5B **`0.13.4`**. Fahrplan [`16-fahrplan.md`](./16-fahrplan.md).
+On-Device nach `0.13.2`: Live-Qualität **`2.2.3` IN SPRINT**, dann 1.5B **`2.2.4` SHOULD**. Mapping [`16-fahrplan.md`](./16-fahrplan.md).
 
 Vorher empfohlen: **`0.8.5`** Persona/Continuity ([27](./sprints/sprint-27.md)).
 
@@ -426,9 +426,11 @@ Samsung TV                             →  0.11.0–0.11.2  (Sprints 40–42)
         ↓
 On-Device Handy                        →  0.13.0–0.13.1  (Sprints 44–45)
         ↓
-On-Device Latenz                       →  0.13.2  (Sprint 46)
+On-Device Latenz                       →  0.13.2  (Sprint 46, in 2.2.2)
         ↓
-On-Device Qualität                     →  0.13.3  (Sprint 47)
+Live-Qualität                          →  2.2.3  (Sprint 105)
         ↓
-On-Device Intelligenz (1.5B optional)  →  0.13.4  (Sprint 48)
+Optional 1.5B                          →  2.2.4  (Sprint 106, SHOULD)
+        ↓
+Alltag & Welt                          →  2.3–2.19  (ab Sprint 107, PO)
 ```

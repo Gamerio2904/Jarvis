@@ -1,44 +1,25 @@
-# 16 — Fahrplan (Entwurf, nicht die Live-Reihenfolge)
+# 16 — Mapping: früher `0.13.2`–`0.14` → jetzt `2.2.x`
 
-> **Konflikt:** Auf `main` ist [`16-gemini.md`](./16-gemini.md) die Doc-Nr. 16, und Sprints 46–48 sind bereits `0.13.2` Chat-Hang / `0.14.0` / `0.14.1` TV. Live-Stand: **`2.2.2`**. Nächste Lieferung: [`31-next.md`](./31-next.md) (`2.3`–`2.19`). Dieser Text bleibt als Entwurf der On-Device-IQ-Reihe, nicht als Sprint-Plan.
-
-Aus den Docs: [`14-on-device-iq.md`](./14-on-device-iq.md) · [`15-live-probe.md`](./15-live-probe.md).
+Die interne Nummerierung `0.13.2`–`0.14` war falsch (Sprints 46–48 auf `main` sind schon Hang-Fix / `0.14.0` / TV). Korrekt:
 
 ```text
-0.13.2 Latenz     CODE
-     ↓
-0.13.3 Live-Qualität   IN SPRINT   ← jetzt
-     ↓
-0.13.4 Intelligenz     PLANNED     optional 1.5B
-     ↓
-0.14.0 native llama    PO
+0.13.2 Latenz          → schon in 2.2.2 (Stream/Threads)     CODE
+0.13.3 Live-Qualität   → 2.2.3   Sprint 105                  IN SPRINT  ← jetzt
+0.13.4 optionales 1.5B → 2.2.4   Sprint 106                  PLANNED SHOULD
+0.14.0 native llama    → PO, nicht 2.3–2.19
 ```
 
-NAS, TV, Spotify-API, Play Store: **Parking**.
+Kanonisch: [`30-next.md`](./30-next.md) · [`sprint-105.md`](./sprints/sprint-105.md).  
+Probe: [`15-live-probe.md`](./15-live-probe.md).  
+Hebel: [`14-on-device-iq.md`](./14-on-device-iq.md).  
+Danach Welt: [`31-next.md`](./31-next.md) `2.3`–`2.19`.
 
----
+Doc-Nr. 16 in der Leseliste ist [`16-gemini.md`](./16-gemini.md).
 
-## Sprint 46 / `0.13.2` — Latenz — **CODE**
+## `2.2.3` Must (Reihenfolge)
 
-Gleiches Modell, gleicher Prompt, gleiches Sampling.
-
-| Must | Inhalt |
-|------|--------|
-| L1 | Threads `min(4, cores−1)` statt 1 |
-| L2 | Token-Stream bis EOS |
-| L3 | Version `0.13.2` |
-
----
-
-## Sprint 47 / `0.13.3` — Live-Qualität — **IN SPRINT**
-
-Quelle: Live-Screens Jarvis **2.2.1** (Gemini) + On-Device 0.5B.  
-Detail: [`15-live-probe.md`](./15-live-probe.md) · [`sprints/sprint-47.md`](./sprints/sprint-47.md)
-
-### Must (Reihenfolge)
-
-1. Uhr und Akku **live** vom Gerät (nicht 07:47 / 97 %)
-2. Musik: kein Spotify-Modal, kein „ich öffne die Musik“ — **keine Spotify-API bauen**
+1. Uhr und Akku **live** vom Gerät
+2. Musik: kein Spotify-Modal, kein „ich öffne die Musik“ — **keine Spotify-API**
 3. „Was steht an“ / „Was kommt heute?“ **ohne Wetter**
 4. Wetter **nur** bei Wetterfrage + Standort
 5. Ort aus dem Satz; kein München ohne Ort
@@ -46,46 +27,12 @@ Detail: [`15-live-probe.md`](./15-live-probe.md) · [`sprints/sprint-47.md`](./s
 7. Switch-Kauf ≠ Film; Termin 15 Uhr ≠ Ort
 8. Recall ohne Müll
 9. 0.5B: Persona kompakt, repeat_penalty, Honesty, Siezen, Pack nur bei Overflow
-10. Version `0.13.3`
+10. Version `2.2.3`
 
-### Should
+Should: Tabelle, BIP-Zahl, Ticker, `/hilfe` ohne Spotify.
 
-- Tabelle im Chat (BIP)
-- Fakten: Zahl oder „keine Quelle“
-- Ticker überlappt nicht die Icons
-- `/hilfe` ohne Spotify-Claim
+Won’t: Spotify bauen · Wetter ins Briefing · temp-Schnitt · Canned · 1.5B in dieser Version
 
-### Won’t
+## `2.2.4` SHOULD
 
-Spotify bauen · Wetter ins Briefing · Karte/Bahn/Shelly · temp-Schnitt · Canned · 1.5B
-
----
-
-## Sprint 48 / `0.13.4` — Intelligenz — **PLANNED**
-
-| Must | Inhalt |
-|------|--------|
-| I1 | Toggle **scharf** = 1.5B Q4 (~1,1 GB); Default bleibt 0.5B |
-| I2 | Task-Nudge nur bei Task |
-| I3 | OOM → Fallback 0.5B |
-| I4 | Version `0.13.4` |
-
-Kein Auto-Switch, kein Cloud.
-
----
-
-## Danach (PO)
-
-| Version | Thema |
-|---------|--------|
-| `0.14.0` | Native llama.cpp |
-| `1.0.0` | MAJOR, Inhalt offen |
-| — | TTS |
-
----
-
-## Was dieses Git-Repo liefern kann
-
-Dieses Repo ist **on-device WASM** (`0.13.2`), nicht Gemini 2.2.1. In Sprint 47 hier umsetzbar: Intent/Memory/Tools (L6, L7, L10, Q1–Q5), ehrliche `/hilfe`, kein Fake-Musik-Pfad.
-
-Uhr, Akku, Open-Meteo, Briefing-Wetter, Spotify-Modal sitzen in der **Live-App 2.2.1** — bleiben Must in der Planung, bis derselbe Alltag in diesem Stack steckt.
+Toggle scharf = 1.5B Q4. Default 0.5B. **Blockiert `2.3.0` nicht.**

@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Live `2.2.2`:** Gemini-Opt-in, TV, Alltag. Nächste Reihe [`31-next.md`](./31-next.md) (`2.3`–`2.19`). Zeilen zu `0.13.3`/`0.13.4` und „TV Parking“ unten sind ein Parallel-Entwurf ([`14-on-device-iq.md`](./14-on-device-iq.md)), nicht die aktuelle Lieferung. `14` in der Tabelle von [`README.md`](./README.md) ist TV.
+> **Live `2.2.2`:** Gemini-Opt-in, TV, Alltag. Als Nächstes Code: **`2.2.3` Live-Qualität** ([`30-next.md`](./30-next.md)). Welt-Reihe [`31-next.md`](./31-next.md) (`2.3`–`2.19`) auf PO-Kommando. `14` in [`README.md`](./README.md) ist TV.
 
 ## Leitentscheidung
 
@@ -14,7 +14,7 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Modell-Host MVP | **historisch Ollama** (PC). Ab `0.13.0`: **wllama / llama.cpp WASM** on-device |
 | Laufzeit MVP | historisch Windows + RTX 3060. Alltag: **Android-APK** |
 | Qualitäts-/Speed-Priorität | **Qualität zuerst**; Tempo ohne Prompt-/Sampling-Schnitt (`0.13.2`) |
-| Laufzeit `0.13.x` | Android-APK, llama.cpp WASM; Default Qwen2.5-0.5B Q4; optional 1.5B in `0.13.4` |
+| Laufzeit `0.13.x` | Android-APK, llama.cpp WASM; Default Qwen2.5-0.5B Q4; optional 1.5B in `2.2.4` |
 | Chat-Persistenz MVP | **Gespräche zwischen Sessions speichern** |
 | Sicherheit MVP (vorerst) | Kein Cloud-LLM + Zugang nur für dich; At-rest-Encryption noch nicht fest (erstmal zurückgestellt) |
 | Stimme | **Code `1.5`+:** TTS liest denselben Text (Gemini-Stimme opt-in) |
@@ -23,16 +23,18 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | UI-Look | **Spotify dunkel** (Schwarz/Grün) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
 | UI-Motion | **Code `1.13.0`:** Chrome fest, Chat scrollt, Motion; `prefers-reduced-motion` |
 | Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
-| Kontext / Erinnern | In-Chat + Langzeitgedächtnis (`0.4.x`); Honesty-Nachzug `0.13.3` |
+| Kontext / Erinnern | In-Chat + Langzeitgedächtnis (`0.4.x`); Honesty-Nachzug `2.2.3` |
 | Engine | TypeScript in der APK (kein FastAPI) |
-| Modellklasse Alltag | Qwen2.5-0.5B Q4; optional 1.5B (`0.13.4`) |
+| Modellklasse Alltag | Qwen2.5-0.5B Q4; optional 1.5B (`2.2.4`) |
 | Version `0.1.0` | = **MVP** (Sprint-1-Abnahme) |
 | Version `0.10.0` | = NAS Core — **Parking** |
 | Version `0.11.0` | = Samsung-TV — **Parking** |
 | Version `0.13.0` | = **On-Device Handy** |
-| Version `0.13.2`–`0.13.4` | Latenz → Qualität → optionale Intelligenz ([`14`](./14-on-device-iq.md)) |
-| Version `0.14.0` | native llama.cpp (PO) |
-| Version `1.0.0` | = nächster MAJOR (PO) |
+| Version `0.13.2` | Chat-Hang: Stream + Threads — **CODE**, in `2.2.2` |
+| Version `2.2.3` | Live-Qualität ([`30-next.md`](./30-next.md)) |
+| Version `2.2.4` | optional 1.5B (SHOULD) |
+| Version `0.14.1` | Samsung-TV live |
+| Version `1.0.0` | Jarvis 1.0 (historisch geliefert, Stand jetzt `2.2.2`) |
 
 ## Logische Bausteine
 
