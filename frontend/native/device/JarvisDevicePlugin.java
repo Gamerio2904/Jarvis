@@ -3,9 +3,12 @@ package app.jarvis.device;
 import android.telephony.SmsManager;
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -686,6 +689,9 @@ public class JarvisDevicePlugin extends Plugin {
             File dir = new File(getContext().getCacheDir(), "jarvis-eye");
             if (!dir.exists()) dir.mkdirs();
             photoFile = new File(dir, "shot.jpg");
+            if (photoFile.exists() && !photoFile.delete()) {
+                photoFile = new File(dir, "shot-" + System.currentTimeMillis() + ".jpg");
+            }
             if (!photoFile.exists()) photoFile.createNewFile();
             android.net.Uri uri = FileProvider.getUriForFile(
                     getContext(),
@@ -693,7 +699,16 @@ public class JarvisDevicePlugin extends Plugin {
                     photoFile);
             Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             i.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            i.setClipData(ClipData.newRawUri("", uri));
             i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            for (ResolveInfo info : getContext().getPackageManager().queryIntentActivities(
+                    i, PackageManager.MATCH_DEFAULT_ONLY)) {
+                if (info.activityInfo == null) continue;
+                getContext().grantUriPermission(
+                        info.activityInfo.packageName,
+                        uri,
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
             startActivityForResult(call, i, "onPhotoDone");
         } catch (Exception e) {
             JSObject r = new JSObject();
@@ -705,9 +720,17 @@ public class JarvisDevicePlugin extends Plugin {
 
     @ActivityCallback
     private void onPhotoDone(PluginCall call, ActivityResult result) {
+        if (call == null) return;
         JSObject r = new JSObject();
         try {
-            if (photoFile == null || !photoFile.exists() || photoFile.length() < 32) {
+            boolean wrote = photoFile != null && photoFile.exists() && photoFile.length() >= 32;
+            if (result.getResultCode() != Activity.RESULT_OK && !wrote) {
+                r.put("ok", false);
+                r.put("message", "Kein Foto. Nochmal mit Kamera oder Galerie.");
+                call.resolve(r);
+                return;
+            }
+            if (!wrote) {
                 r.put("ok", false);
                 r.put("message", "Kein Foto. Nochmal mit Kamera oder Galerie.");
                 call.resolve(r);

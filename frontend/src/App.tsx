@@ -1296,6 +1296,10 @@ function App() {
       }
       return
     }
+    if (shot.message) {
+      setStatusNote(shot.message)
+      return
+    }
     eyeCamRef.current?.click()
   }
 

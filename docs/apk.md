@@ -13,5 +13,5 @@ APK nach Build: `releases/Jarvis.apk`
 - App-ID `local.jarvis.app`
 
 1. Über 2.22.0 installieren.
-2. Kamera-Knopf = Foto, Galerie daneben. Foto braucht Gemini.
+2. Kamera-Knopf öffnet die Handy-Kamera. Galerie daneben. Foto braucht Gemini (geht zu Google).
 3. Einstellungen → Modell: optional 1.5B. Default bleibt 0.5B.
