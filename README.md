@@ -20,7 +20,7 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 **`Jarvis.apk` `2.19.0`:** [Download](https://github.com/Gamerio2904/Jarvis/raw/cursor/on-device-iq-sprints-5517/releases/Jarvis.apk) (versionCode 21900).
 
-Einstellungen → Tests: ein Kopierfeld pro Prompt. Chat ohne Chips.
+Testprompts nicht in der App — nur außerhalb (Chat). Chat ohne Chips.
 
 ```bat
 build-apk.bat

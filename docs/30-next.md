@@ -14,7 +14,7 @@ Eine Sideload-Stufe pro Version — `2.3`–`2.19` sind in **`2.19.0`** zusammen
 |---------|--------|--------|
 | **`2.2.0`** | Uhrzeit vom Gerät, GPS statt Wohnort-Raten, Suche von selbst bei Live-Fakten | **CODE** |
 | **`2.2.1`** | Testprompts zum Kopieren (Einstellungen → Tests) | **CODE** |
-| **`2.2.2`** | Testprompts wieder raus aus der APK | **CODE** (in `2.19.0` wieder drin, PO-Handtest) |
+| **`2.2.2`** | Testprompts wieder raus aus der APK | **CODE** |
 | **`2.2.3`** | Live-Qualität: Uhr/Akku frisch, Musik ehrlich, Wetter-Gate, Einkauf-Intent | **CODE** (in `2.19.0`) |
 | **`2.2.4`** | Optional 1.5B Q4 on-device (Default 0.5B) | **PLANNED** SHOULD |
 
@@ -55,7 +55,7 @@ Einstellungen → Tests: jedes Prompt-Feld hat **Kopieren**, plus Alle je Gruppe
 
 ## `2.2.2` — Tests nicht in der App — **CODE**
 
-Kopierfelder waren in `2.2.2` weg. Ab Sideload **`2.19.0`** wieder unter Einstellungen → Tests (PO-Handtest). Chat ohne Chips.
+Kopierfelder wieder weg aus Einstellungen. Prompts nur außerhalb der APK (dieser Chat). Chat ohne Chips.
 
 ## `2.2.3` — Live-Qualität — **CODE** (in `2.19.0`)
 

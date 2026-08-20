@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import type { Conversation, Health, MemoryCategory, MemoryItem, Plug, Reminder, ResearchAudit, Settings } from './api'
 import { fanDiscover, fanLearn, fanPick, fanTest, listConversations, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
 import { copyText } from './copy-text'
-import { formatAllTestCopy, formatTestCopyGroup, TEST_COPY_GROUPS } from './engine/test-copy'
 import { ensureDeviceLocation } from './native/geo'
 import { buildChatDebugDump, downloadChatDebug } from './engine/chat-debug'
 import {
@@ -26,7 +25,6 @@ export type SettingsTopic =
   | 'ton'
   | 'forschung'
   | 'gedaechtnis'
-  | 'tests'
   | 'debug'
   | 'gefahr'
 
@@ -44,7 +42,6 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
-  { id: 'tests', label: 'Tests', hint: 'Prompts' },
   { id: 'debug', label: 'Debug', hint: 'Chat-Dump' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
 ]
@@ -1476,28 +1473,6 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   Alles löschen
                 </button>
               ) : null}
-            </section>
-          ) : null}
-
-          {p.topic === 'tests' ? (
-            <section className="settings-card">
-              <h3>Testprompts</h3>
-              <p className="settings-lead">
-                Ein Klick kopiert. Im Chat einfügen und senden. Keine Chips — Jarvis schickt nichts von allein.
-              </p>
-              <p className="settings-hint">
-                Happy Path zuerst, unten Welt und Randfälle. Gemini an für BIP und Suche.
-              </p>
-              <CopyField label="Alles kopieren" value={formatAllTestCopy()} />
-              {TEST_COPY_GROUPS.map((group) => (
-                <div key={group.title} className="test-copy-group">
-                  <h3 className="copy-block-title">{group.title}</h3>
-                  <CopyField label={`Alle · ${group.title}`} value={formatTestCopyGroup(group)} />
-                  {group.items.map((item) => (
-                    <CopyField key={`${group.title}:${item.label}`} label={item.label} value={item.text} />
-                  ))}
-                </div>
-              ))}
             </section>
           ) : null}
 

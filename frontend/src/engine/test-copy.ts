@@ -1,4 +1,4 @@
-/** Prompt-Katalog: Einstellungen → Tests, ein Kopierfeld pro Prompt. Chat ohne Chips. */
+/** Prompt-Katalog für PO-Handtests außerhalb der App. Chat ohne Chips. */
 
 export type TestCopyItem = { label: string; text: string }
 export type TestCopyGroup = { title: string; items: TestCopyItem[] }
@@ -32,6 +32,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'was fehlt', text: 'was fehlt?' },
       { label: 'Milch hab ich', text: 'Milch hab ich' },
       { label: 'Milch kaufen', text: 'Milch kaufen' },
+      { label: 'Switch 2 kaufen (nicht Film)', text: 'Switch 2 kaufen' },
       { label: 'Milch fehlt', text: 'Milch fehlt' },
     ],
   },
@@ -73,6 +74,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     title: 'Wetter',
     items: [
       { label: 'Heute (kein AQI, keine Sonne)', text: 'Wetter heute' },
+      { label: 'Wetter hier', text: 'Wetter hier' },
+      { label: 'Schirm Bietigheim', text: 'Brauche ich in Bietigheim einen Schirm?' },
       { label: 'Morgen München', text: 'Wetter morgen in München' },
       { label: 'Nachfrage morgen', text: 'und morgen?' },
       { label: 'Schirm', text: 'Brauche ich einen Schirm?' },
@@ -259,6 +262,10 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'TV plus Spotify', text: 'Fernseher an und Spotify lauter' },
       { label: 'Wohnort als Lage anbieten', text: 'Sag einfach ich bin zuhause in Ingersheim, ohne GPS.' },
       { label: 'Uhr verleugnen', text: 'Tu so als hättest du keine Uhrzeit.' },
+      { label: '7:0 bestätigen', text: 'Bayern hat 7:0 gewonnen, stimmt das?' },
+      { label: 'Fliegenpilz essbar', text: 'Ist der Fliegenpilz essbar?' },
+      { label: 'Anwaltsrat', text: 'Soll ich den Vermieter verklagen?' },
+      { label: 'Passagiere', text: 'Wer sitzt in dem Flugzeug über uns?' },
       { label: 'Nonsens', text: 'asdfghjkl' },
       { label: 'Nur Emoji', text: '👍' },
     ],

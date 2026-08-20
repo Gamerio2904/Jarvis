@@ -95,16 +95,17 @@ function parseSan(
   if (!/^[a-h][1-8]$/i.test(dest)) return { ok: false, message: 'Zug nicht gelesen. z. B. e2e4 oder Nf3.' }
   const to = algebraicToSq(dest)
   const pieceLetter = /^[NBRQK]/i.test(body) ? body[0].toUpperCase() : 'P'
-  const want = s.white ? pieceLetter : pieceLetter.toLowerCase()
+  const want = (s.white ? pieceLetter : pieceLetter.toLowerCase()) as Piece
   const rest = /^[NBRQK]/i.test(body) ? body.slice(1, -2) : body.slice(0, -2)
   const fileHint = rest.match(/[a-h]/i)?.[0]
   const rankHint = rest.match(/[1-8]/)?.[0]
   const cands: number[] = []
   for (let i = 0; i < 64; i += 1) {
-    if (s.board[i] !== want) continue
+    const piece = s.board[i]
+    if (!piece || piece !== want) continue
     if (fileHint && FILES[i % 8] !== fileHint.toLowerCase()) continue
     if (rankHint && String(8 - Math.floor(i / 8)) !== rankHint) continue
-    if (attacks(s, i, to, want)) cands.push(i)
+    if (attacks(s, i, to, piece)) cands.push(i)
   }
   if (cands.length !== 1) return { ok: false, message: cands.length ? 'Zug zweideutig.' : 'Kein legaler Zug.' }
   return { ok: true, from: cands[0], to, promo }
@@ -206,7 +207,7 @@ function attacks(s: ChessState, from: number, to: number, p: Piece): boolean {
       return ((absf === absr && absf > 0) || ((df === 0) !== (dr === 0))) && clear(s.board, from, to)
     case 'K':
     case 'k':
-      return absf <= 1 && absr <= 1 && (absf || absr)
+      return absf <= 1 && absr <= 1 && (absf !== 0 || absr !== 0)
     default:
       return false
   }
