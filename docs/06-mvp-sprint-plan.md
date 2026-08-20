@@ -545,7 +545,7 @@ Threads + Stream; gleicher Prompt/Sampling. Siehe [`14-on-device-iq.md`](./14-on
 
 ## Sprint 47 — Live-Qualität → **`0.13.3`**
 
-**Status:** PLANNED · [`sprints/sprint-47.md`](./sprints/sprint-47.md)  
+**Status:** IN SPRINT · [`sprints/sprint-47.md`](./sprints/sprint-47.md) · Fahrplan [`16-fahrplan.md`](./16-fahrplan.md)  
 Kein Spotify-Dialog; „Was steht an“ ohne Wetter; Wetter nur mit Standort. Details [`15-live-probe.md`](./15-live-probe.md).
 
 ---

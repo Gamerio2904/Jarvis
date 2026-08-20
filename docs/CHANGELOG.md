@@ -9,9 +9,9 @@ App-Version im Code: **`0.13.2`** (On-Device Handy, kein Server).
 
 ### Geplant — `0.13.3`–`0.13.4` (Sprints 47–48)
 
-- **`0.13.3` Qualität:** Uhr/Akku live; kein Spotify/False-Confirm; Briefing ohne Wetter; Wetter nur mit Standort; Begrüßung ≠ Einkauf; Intent/Recall; 0.5B-Ton
+- **`0.13.3` Qualität — IN SPRINT:** Uhr/Akku live; kein Spotify/False-Confirm; Briefing ohne Wetter; Wetter nur mit Standort; Begrüßung ≠ Einkauf; Intent/Recall; 0.5B-Ton
 - **`0.13.4` Intelligenz:** optional 1.5B; Default 0.5B
-- [`14-on-device-iq.md`](./14-on-device-iq.md)
+- [`16-fahrplan.md`](./16-fahrplan.md) · [`15-live-probe.md`](./15-live-probe.md) · [`14-on-device-iq.md`](./14-on-device-iq.md)
 
 ### `0.13.2` — Sprint 46 (On-Device Latenz) — *CODE*
 

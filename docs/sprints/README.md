@@ -51,13 +51,11 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 44 | [`sprint-44.md`](./sprint-44.md) | `0.13.0` | On-Device Handy | **CODE** |
 | 45 | [`sprint-45.md`](./sprint-45.md) | `0.13.1` | Modell-Download Hotfix | **CODE** |
 | 46 | [`sprint-46.md`](./sprint-46.md) | `0.13.2` | On-Device Latenz | **CODE** |
-| 47 | [`sprint-47.md`](./sprint-47.md) | `0.13.3` | Live-Qualität (Musik/Wetter/Intent) | **PLANNED** |
+| 47 | [`sprint-47.md`](./sprint-47.md) | `0.13.3` | Live-Qualität (Uhr/Akku, Musik, Wetter, Einkauf) | **IN SPRINT** |
 | 48 | [`sprint-48.md`](./sprint-48.md) | `0.13.4` | On-Device Intelligenz (1.5B optional) | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** Sprint **47** (`0.13.3`) Live-Qualität (Uhr/Akku, kein Spotify, Briefing ohne Wetter, Einkauf-Intent), dann 48 optionales 1.5B.  
-Sprint 46 / `0.13.2` Latenz ist **CODE**.  
-`0.9.3`–`0.9.5` Memory/Siezen on-device in 47. NAS/TV **Parking**. Native llama.cpp = `0.14.0` (PO).  
-On-Device IQ: [`../14-on-device-iq.md`](../14-on-device-iq.md)
+**Nächste Pull-Reihenfolge:** Sprint **47** (`0.13.3`) **IN SPRINT** — [`16-fahrplan.md`](../16-fahrplan.md).  
+Danach 48 (`0.13.4`) 1.5B. `0.13.2` ist **CODE**. NAS/TV **Parking**.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

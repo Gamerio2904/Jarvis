@@ -39,4 +39,4 @@ Sideload `0.13.2`: gleiche Art Antwort wie `0.13.1`, nur schneller + Stream. Mod
 
 ## Danach
 
-Sprint 47 / `0.13.3` Qualität.
+Sprint 47 / `0.13.3` Live-Qualität.

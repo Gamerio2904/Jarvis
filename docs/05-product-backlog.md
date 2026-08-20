@@ -234,14 +234,14 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 |----|-------|--------|--------|------------------|
 | S14.1 | Als Nutzer will ich Antworten ohne 1-Thread-WASM-Bremse. | Must | done | Sprint 46 / `0.13.2` |
 | S14.2 | Als Nutzer will ich Tokens gestreamt sehen, nicht 75 s warten. | Must | done | Sprint 46 / `0.13.2` |
-| S14.3 | Als Nutzer will ich Pref-Fragen ehrlich, ohne Raten. | Must | ready | Sprint 47 / `0.13.3` |
-| S14.4 | Als Nutzer will ich Jarvis-Ton und ehrliches Memory auf 0.5B. | Must | ready | Sprint 47 / `0.13.3` |
+| S14.3 | Als Nutzer will ich Pref-Fragen ehrlich, ohne Raten. | Must | in_sprint | Sprint 47 / `0.13.3` |
+| S14.4 | Als Nutzer will ich Jarvis-Ton und ehrliches Memory auf 0.5B. | Must | in_sprint | Sprint 47 / `0.13.3` |
 | S14.5 | Als Nutzer will ich optional ein schärferes 1.5B on-device. | Should | ready | Sprint 48 / `0.13.4` |
-| S14.6 | Als Nutzer will ich keine Spotify-Fehlermeldung, weil es keine Spotify-API gibt. | Must | ready | Sprint 47 / `0.13.3` |
-| S14.7 | Als Nutzer will ich bei „Was steht an“ kein Wetter. | Must | ready | Sprint 47 / `0.13.3` |
-| S14.8 | Als Nutzer will ich Wetter nur, wenn ich nach dem Wetter an einem Standort frage. | Must | ready | Sprint 47 / `0.13.3` |
-| S14.9 | Als Nutzer will ich die echte Uhr- und Akku-Anzeige, nicht einen alten Cache. | Must | ready | Sprint 47 / `0.13.3` |
-| S14.10 | Als Nutzer will ich, dass „Guten Morgen“ nicht auf die Einkaufsliste kommt. | Must | ready | Sprint 47 / `0.13.3` |
+| S14.6 | Als Nutzer will ich keine Spotify-Fehlermeldung, weil es keine Spotify-API gibt. | Must | in_sprint | Sprint 47 / `0.13.3` |
+| S14.7 | Als Nutzer will ich bei „Was steht an“ kein Wetter. | Must | in_sprint | Sprint 47 / `0.13.3` |
+| S14.8 | Als Nutzer will ich Wetter nur, wenn ich nach dem Wetter an einem Standort frage. | Must | in_sprint | Sprint 47 / `0.13.3` |
+| S14.9 | Als Nutzer will ich die echte Uhr- und Akku-Anzeige, nicht einen alten Cache. | Must | in_sprint | Sprint 47 / `0.13.3` |
+| S14.10 | Als Nutzer will ich, dass „Guten Morgen“ nicht auf die Einkaufsliste kommt. | Must | in_sprint | Sprint 47 / `0.13.3` |
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 

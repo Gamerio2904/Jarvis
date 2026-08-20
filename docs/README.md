@@ -18,9 +18,10 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
 | 12 | [NAS & APK](./12-nas-apk.md) | historisch / superseded |
-| 13 | [On-Device](./13-on-device.md) | `0.13.1` Handy-LLM |
+| 13 | [On-Device](./13-on-device.md) | `0.13.2` Handy-LLM |
 | 14 | [On-Device IQ](./14-on-device-iq.md) | Latenz / Qualität / Intelligenz `0.13.2`–`0.13.4` |
-| 15 | [Live-Probe](./15-live-probe.md) | Screenshots: Musik, Wetter-Gate, Intent |
+| 15 | [Live-Probe](./15-live-probe.md) | Screenshots 2.2.1 |
+| 16 | [Fahrplan](./16-fahrplan.md) | Verbindliche Lieferreihenfolge |
 | — | [APK](./apk.md) | Sideload |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -59,7 +60,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 44 | `0.13.0` | **CODE** (On-Device Handy) |
 | 45 | `0.13.1` | **CODE** (Modell-Download Hotfix) |
 | 46 | `0.13.2` | **CODE** (Latenz) |
-| 47 | `0.13.3` | **PLANNED** (Live-Qualität: kein Spotify, Wetter-Gate) |
+| 47 | `0.13.3` | **IN SPRINT** (Live-Qualität) |
 | 48 | `0.13.4` | **PLANNED** (Intelligenz, optional 1.5B) |
 
-**Aktuell:** `0.13.2` Latenz (CODE). **Als Nächstes:** Sprint 47 Live-Qualität (Musik/Wetter), dann 48 optionales 1.5B ([`15`](./15-live-probe.md)).
+**Aktuell:** Sprint **47** / `0.13.3` IN SPRINT. Fahrplan: [`16`](./16-fahrplan.md).

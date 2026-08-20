@@ -1,8 +1,6 @@
 # 14 — On-Device: Latenz, Qualität, Intelligenz
 
-Quelle: Ist-Stand `0.13.1` (wllama WASM, **Qwen2.5-0.5B Q4**, `n_threads: 1`, kein Stream).  
-Kein Cloud-LLM. Reihenfolge: **Latenz → Qualität → Intelligenz**.  
-Filter: kein Hebel, der ein anderes Ziel unnötig verschlechtert.
+Quelle: Ist-Stand **`0.13.2` CODE** (Threads + Stream). Nächster Sprint: **47 Live-Qualität**.
 
 ## Diagnose
 
@@ -20,7 +18,7 @@ Memory/Tools umgehen das LLM schon.
 | Sprint | Version | Thema | Nebenwirkung |
 |--------|---------|-------|--------------|
 | [46](./sprints/sprint-46.md) | **`0.13.2`** | Latenz | **CODE** — keine (gleicher Prompt, gleiches Sampling) |
-| [47](./sprints/sprint-47.md) | **`0.13.3`** | Qualität | **keine Latenz-Strafe**; Ton bleibt lebendig (kein Temp-Schnitt, kein Hart-Kappen, kein Canned) |
+| [47](./sprints/sprint-47.md) | **`0.13.3`** | Live-Qualität | **IN SPRINT** — kein Tempo-Schnitt; Live-Musts zuerst |
 | [48](./sprints/sprint-48.md) | **`0.13.4`** | Intelligenz | Default **unverändert**; nur Toggle „scharf“ = langsamer + klüger |
 
 Native llama.cpp = **`0.14.0`** (PO).

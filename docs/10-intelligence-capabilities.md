@@ -25,7 +25,7 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PARKED** (Carry `0.13.3`) |
 | 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **PARKED** |
 | 6 | **`0.13.2`** | [46](./sprints/sprint-46.md) | On-Device Latenz | **CODE** |
-| 6a | **`0.13.3`** | [47](./sprints/sprint-47.md) | Live-Qualität (Musik/Wetter/Intent) | **PLANNED** |
+| 6a | **`0.13.3`** | [47](./sprints/sprint-47.md) | Live-Qualität (Musik/Wetter/Intent) | **IN SPRINT** |
 | 6b | **`0.13.4`** | [48](./sprints/sprint-48.md) | On-Device Intelligenz (1.5B optional) | **PLANNED** |
 
 ```text

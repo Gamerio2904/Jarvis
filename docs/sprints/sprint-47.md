@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **IN SPRINT** |
 | Priorität | **MUST** — PO-Screenshots 2026-08-20 (2.2.1 / Gemini) |
 | Ziel-Version | **`0.13.3`** |
 | Quelle | [`15-live-probe.md`](../15-live-probe.md), [`14-on-device-iq.md`](../14-on-device-iq.md) |

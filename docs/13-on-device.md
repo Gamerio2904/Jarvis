@@ -19,7 +19,7 @@ Kein FastAPI, kein Ollama, kein Reverse-Proxy.
 
 Kleineres Modell als RTX-3060-7b. Ton und Tools bleiben lokal; Antworten sind schwächer.
 
-Ausbau ohne Cloud: [`14-on-device-iq.md`](./14-on-device-iq.md)
+Ausbau: [`16-fahrplan.md`](./16-fahrplan.md) · [`14-on-device-iq.md`](./14-on-device-iq.md)
 
 | Version | Hebel |
 |---------|-------|

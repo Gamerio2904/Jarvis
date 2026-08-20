@@ -26,7 +26,7 @@ APK: `frontend\dist-apk\jarvis-debug.apk`
 
 Modell: Qwen2.5 0.5B Instruct Q4 (kleiner als der alte PC-7b, dafür offline).
 
-Als Nächstes (geplant): Live-Qualität `0.13.3` (kein Spotify, Wetter-Gate) → optional 1.5B `0.13.4` — [`docs/15-live-probe.md`](docs/15-live-probe.md)
+Als Nächstes: Sprint 47 Live-Qualität `0.13.3` — [`docs/16-fahrplan.md`](docs/16-fahrplan.md)
 
 ## Was weg ist
 
