@@ -239,12 +239,13 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S14.5 | Als Nutzer will ich optional ein schärferes 1.5B on-device. | Should | ready | Sprint 48 / `0.13.4` |
 | S14.6 | Als Nutzer will ich keine Spotify-Fehlermeldung, weil es keine Spotify-API gibt. | Must | ready | Sprint 47 / `0.13.3` |
 | S14.7 | Als Nutzer will ich bei „Was steht an“ kein Wetter. | Must | ready | Sprint 47 / `0.13.3` |
+| S14.8 | Als Nutzer will ich Wetter nur, wenn ich nach dem Wetter an einem Standort frage. | Must | ready | Sprint 47 / `0.13.3` |
 | S14.9 | Als Nutzer will ich die echte Uhr- und Akku-Anzeige, nicht einen alten Cache. | Must | ready | Sprint 47 / `0.13.3` |
 | S14.10 | Als Nutzer will ich, dass „Guten Morgen“ nicht auf die Einkaufsliste kommt. | Must | ready | Sprint 47 / `0.13.3` |
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 47** (`0.13.3`) — Live-Qualität (Musik, Wetter-Gate, Intent)
+1. **Sprint 47** (`0.13.3`) — Live-Qualität (Uhr/Akku, Musik, Wetter-Gate, Einkauf)
 2. **Sprint 48** (`0.13.4`) — optionales 1.5B
 3. Native llama.cpp / `0.14.0` — **PO-Kommando**
 4. TTS / `1.0.0` — **PO-Kommando**
