@@ -7,7 +7,8 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 
 Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/Geizhals, € nur aus Snippets. Router wie `1.32.1` plus `Öffnen CarPlay` → Fahrmodus. `pickHeard` scored ohne Drive-`inMode`-Raten.
 
-Nächste Schärfe: [`28-next.md`](./28-next.md) `1.34`–`1.40`.
+Nächste Schärfe (CODE bis `2.2`): [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  
+Nächste Reihe **PLAN:** [`31-next.md`](./31-next.md) inkl. Research härten (`2.6.0`).
 
 ### Live `1.32.1` (Code)
 
