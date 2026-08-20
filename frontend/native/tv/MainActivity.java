@@ -57,4 +57,13 @@ public class MainActivity extends BridgeActivity {
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (JarvisDevicePlugin.debugHold() && getBridge() != null && getBridge().getWebView() != null) {
+            getBridge().getWebView().onResume();
+            getBridge().getWebView().resumeTimers();
+        }
+    }
 }

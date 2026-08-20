@@ -14,6 +14,8 @@ import { applyMove, parseFen, START_FEN, fenOf } from '../src/engine/chess.ts'
 import { packChat } from '../src/engine/prompt.ts'
 import { HELP_TEXT } from '../src/engine/guards.ts'
 import { debugFileName, debugPayload, flagReply, expandPickedMessageIds, applyTurnFilter } from '../src/engine/chat-debug.ts'
+import { parseSpeakerIntent } from '../src/engine/speaker-parse.ts'
+import { parsePlaceForget } from '../src/engine/places-parse.ts'
 import { readFileSync } from 'node:fs'
 
 assert.equal(isMusicHonesty('Spiel mal was Nettes'), true)
@@ -55,7 +57,7 @@ assert.equal(parseShopIntent('Switch 2 kaufen')?.kind, 'add')
 assert.equal(parseWeatherIntent('Brauche ich in Bietigheim einen Schirm?')?.kind, 'place')
 assert.equal(parseWeatherIntent('Brauche ich in Bietigheim einen Schirm?')?.place, 'Bietigheim')
 assert.match(researchQuery('Kannst du den bip von Deutschland in einer Tabelle darstellen?'), /Bruttoinlandsprodukt Deutschland Destatis/)
-assert.match(HELP_TEXT, /2\.22\.0/)
+assert.match(HELP_TEXT, /2\.37\.0/)
 const topicsSrc = readFileSync(new URL('../src/settings-topics.ts', import.meta.url), 'utf8')
 assert.match(topicsSrc, /title: 'APIs', ids: \['apis'\]/)
 assert.match(topicsSrc, /title: 'Einkauf', ids: \['rabatt'\]/)
@@ -89,7 +91,19 @@ assert.match(voiceModeSrc, /setVoiceUi\(true\)/)
 assert.match(voiceModeSrc, /setVoiceUi\(false\)/)
 const cssSrc = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8')
 assert.match(cssSrc, /\.voice-mode \{[\s\S]*?z-index: 50/)
-assert.ok(!appSrc.includes('if (debugChatIdRef.current) return'))
+assert.match(topicsSrc, /title: 'Denken', ids: \['modell', 'cloud'\]/)
+assert.match(appSrc, /onEyeCamera/)
+assert.match(appSrc, /setDebugHold/)
+assert.match(appSrc, /capture="environment"/)
+const devicePlugin = readFileSync(new URL('../native/device/JarvisDevicePlugin.java', import.meta.url), 'utf8')
+assert.match(devicePlugin, /takePhoto/)
+assert.match(devicePlugin, /setDebugHold/)
+assert.equal(parseSpeakerIntent('Wer spricht?')?.kind, 'who')
+assert.equal(parseSpeakerIntent('Ich bin Max')?.kind, 'iam')
+assert.equal(parseWeatherIntent('Brauche ich in Bad Wimpfen einen Schirm?')?.place, 'Bad Wimpfen')
+assert.equal(parsePlaceForget('Freundin wohnt nicht mehr'), 'freundin')
+assert.match(readFileSync(new URL('../src/engine/store.ts', import.meta.url), 'utf8'), /SHARP_MODEL/)
+assert.match(readFileSync(new URL('../src/engine/store.ts', import.meta.url), 'utf8'), /model_variant/)
 assert.deepEqual(splitTitlePlace('Termin 15 Uhr'), { title: 'Termin 15 Uhr' })
 assert.equal(parseDeviceIntent('Wie viele Schritte heute?')?.kind, 'steps')
 assert.equal(parseDeviceIntent('Luftdruck')?.kind, 'pressure')
@@ -121,7 +135,7 @@ const keep = packChat([
 ])
 assert.equal(keep.length, 2)
 
-assert.match(HELP_TEXT, /2\.22\.0/)
+assert.match(HELP_TEXT, /2\.37\.0/)
 assert.match(HELP_TEXT, /Musik ist nicht angebunden/)
 assert.match(HELP_TEXT, /DWD/)
 assert.match(HELP_TEXT, /Schach/)

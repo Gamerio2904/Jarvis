@@ -1,13 +1,26 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '2.22.0'
+export const APP_VERSION = '2.37.0'
 
-export const DEFAULT_MODEL = {
+export const FAST_MODEL = {
+  id: 'fast' as const,
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
   file: 'qwen2.5-0.5b-instruct-q4_k_m.gguf',
   label: 'Qwen2.5 0.5B Instruct Q4',
   sizeLabel: '~470 MB',
+  minBytes: 480_000_000,
 }
+
+export const SHARP_MODEL = {
+  id: 'sharp' as const,
+  repo: 'Qwen/Qwen2.5-1.5B-Instruct-GGUF',
+  file: 'qwen2.5-1.5b-instruct-q4_k_m.gguf',
+  label: 'Qwen2.5 1.5B Instruct Q4',
+  sizeLabel: '~1,1 GB',
+  minBytes: 900_000_000,
+}
+
+export const DEFAULT_MODEL = FAST_MODEL
 
 export const DEBUG_CHAT_KIND = 'debug'
 
@@ -174,6 +187,9 @@ export type Settings = {
   chess_fen: string
   model_default: string
   fallback_model: string
+  model_variant: string
+  last_speaker: string
+  last_eye_json: string
   routing_mode: string
   version: string
 }
@@ -255,6 +271,9 @@ export const DEFAULT_SETTINGS: Settings = {
   chess_fen: '',
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
+  model_variant: 'fast',
+  last_speaker: '',
+  last_eye_json: '',
   routing_mode: 'on-device',
   version: APP_VERSION,
 }
@@ -468,18 +487,54 @@ export async function listMemory(category?: string | null): Promise<MemoryItem[]
   return filtered.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
 }
 
+export function activeModel() {
+  return loadSettings().model_variant === 'sharp' ? SHARP_MODEL : FAST_MODEL
+}
+
 export async function upsertMemory(
   key: string,
   value: string,
   category: string,
   conversationId?: string,
 ): Promise<MemoryItem> {
-  const existing = (await getAll<MemoryItem>('memory')).find(
-    (m) => m.key === key && m.category === category,
-  )
+  const keyN = key.trim().toLowerCase()
+  const rows = await getAll<MemoryItem>('memory')
+  if (category === 'contact') {
+    const dig = value.replace(/[^\d+]/g, '')
+    const other = rows.find(
+      (m) =>
+        m.category === 'contact' &&
+        m.key !== keyN &&
+        m.value.replace(/[^\d+]/g, '') === dig &&
+        dig.length >= 6,
+    )
+    if (other) {
+      await put('memory', {
+        id: newId(),
+        key: `alias:${keyN}`,
+        value: other.key,
+        category: 'fact',
+        confidence: 0.9,
+        source_conversation_id: conversationId || null,
+        updated_at: nowIso(),
+      })
+      await put('memory', {
+        id: newId(),
+        key: `alias:${other.key}`,
+        value: keyN,
+        category: 'fact',
+        confidence: 0.9,
+        source_conversation_id: conversationId || null,
+        updated_at: nowIso(),
+      })
+      return other
+    }
+  }
+  const existing = rows.find((m) => m.key === keyN && m.category === category)
+    || rows.find((m) => m.key.toLowerCase() === keyN && m.category === category)
   const row: MemoryItem = {
     id: existing?.id || newId(),
-    key,
+    key: existing?.key || keyN,
     value,
     category,
     confidence: 0.9,

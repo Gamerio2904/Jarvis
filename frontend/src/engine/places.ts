@@ -16,8 +16,9 @@ import {
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
+  parsePlaceForget,
 } from './places-parse'
-import { addReminder, listMemory, loadSettings, persistLastList, saveSettings, upsertMemory } from './store'
+import { addReminder, deleteMemory, listMemory, loadSettings, persistLastList, saveSettings, upsertMemory } from './store'
 import type { ToolMeta } from './tools'
 
 export {
@@ -181,6 +182,30 @@ export async function handlePlaces(
   }
 
   const written = parsePlaceWrite(text)
+  const forgotten = parsePlaceForget(text)
+  if (forgotten) {
+    const rows = await listMemory()
+    const named = findPlaceRow(rows, forgotten)
+    const hit = rows.find(
+      (r) =>
+        r.category === 'place' &&
+        (r.key === forgotten || (named && r.key === named.key)),
+    )
+    if (hit) {
+      await deleteMemory(hit.id)
+      return {
+        handled: true,
+        reply: `Ort von ${displayPlaceName(forgotten)} ist weg.`,
+        tool: mapsTool('forget', 'Ort weg', [], forgotten),
+        lastTool: 'maps',
+      }
+    }
+    return {
+      handled: true,
+      reply: `Kein Ort für ${displayPlaceName(forgotten)} gespeichert.`,
+      lastTool: 'maps',
+    }
+  }
   if (written) {
     await upsertMemory(written.name, written.place, 'place', conversationId)
     const linked = await maybeAliasPerson(conversationId, written.name, 'place')

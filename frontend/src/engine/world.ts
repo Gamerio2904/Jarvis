@@ -7,7 +7,7 @@ import { resolveWeatherHere } from './weather'
 
 export { parseWorldIntent, isMusicHonesty } from './world-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.22.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.37.0 (local.jarvis.app)' }
 
 type Hit = { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }
 
@@ -81,11 +81,27 @@ function summarizeWarn(json: Record<string, unknown>): string | null {
     } else if (row && typeof row === 'object') flat.push(row as Record<string, unknown>)
   }
   if (!flat.length) return 'Keine aktuelle DWD-Unwetterwarnung in der Liste.'
-  const first = flat[0]
+  const s = loadSettings()
+  const place = (s.last_place || '').toLowerCase()
+  const land = landFromPlace(s.last_place || '')
+  const landLabel = land ? landName(land).toLowerCase() : ''
+  const local = place
+    ? flat.filter((row) => {
+        const blob = JSON.stringify(row).toLowerCase()
+        return (place.length >= 3 && blob.includes(place)) || (landLabel && blob.includes(landLabel))
+      })
+    : []
+  const use = local.length ? local : flat
+  const first = use[0]
   const head = String(first.headline || first.event || first.description || '').replace(/\s+/g, ' ').trim()
   if (!head) return 'Keine aktuelle DWD-Unwetterwarnung in der Liste.'
-  const more = flat.length > 1 ? ` ${flat.length} Einträge bei DWD.` : ''
-  return `${head.slice(0, 220)}. Quelle DWD.${more}`
+  const more = use.length > 1 ? ` ${use.length} Einträge bei DWD.` : ''
+  const scope = local.length
+    ? ` Für ${s.last_place}.`
+    : place
+      ? ` Keine treffgenaue Warnung für ${s.last_place} — bundesweit.`
+      : ' Quelle DWD, bundesweit (Ort in der Wetterfrage hilft).'
+  return `${head.slice(0, 220)}.${scope}${more}`
 }
 
 async function ferien(land?: string): Promise<Hit> {

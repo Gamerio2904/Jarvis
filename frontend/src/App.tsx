@@ -63,6 +63,7 @@ import {
 } from './engine/test-copy'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
+import { takeNativePhoto, setDebugHold } from './native/device'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
@@ -368,6 +369,7 @@ function App() {
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const eyeFileRef = useRef<HTMLInputElement | null>(null)
+  const eyeCamRef = useRef<HTMLInputElement | null>(null)
   const appRef = useRef<HTMLDivElement | null>(null)
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
@@ -666,7 +668,9 @@ function App() {
 
   async function refreshMemory(filter: MemoryCategory | 'all' = memoryFilter) {
     try {
-      setMemoryItems(await listMemory(filter === 'all' ? null : filter))
+      setMemoryItems(
+        (await listMemory(filter === 'all' ? null : filter)).filter((m) => !m.key.startsWith('alias:')),
+      )
     } catch {
       /* panel shows empty / prior list */
     }
@@ -1256,7 +1260,43 @@ function App() {
     } finally {
       setBusy(false)
       if (eyeFileRef.current) eyeFileRef.current.value = ''
+      if (eyeCamRef.current) eyeCamRef.current.value = ''
     }
+  }
+
+  async function onEyeCamera() {
+    if (busy) return
+    const shot = await takeNativePhoto()
+    if (shot.ok && shot.dataUrl) {
+      setBusy(true)
+      setError(null)
+      setStatusNote('Foto…')
+      try {
+        let conversationId = activeId
+        if (!conversationId) {
+          const created = await createConversation()
+          conversationId = created.id
+          setConversations((prev) => [created, ...prev])
+          setActiveId(created.id)
+        }
+        const { reply } = await readEyeImage(conversationId, shot.dataUrl)
+        const conv = await getConversation(conversationId)
+        setMessages(conv.messages)
+        setConversations((prev) => {
+          const rest = prev.filter((c) => c.id !== conv.id)
+          return [conv, ...rest]
+        })
+        setStatusNote(null)
+        if (!reply) setStatusNote('Nichts Lesbares auf dem Bild.')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Foto fehlgeschlagen')
+        setStatusNote(null)
+      } finally {
+        setBusy(false)
+      }
+      return
+    }
+    eyeCamRef.current?.click()
   }
 
   async function onSend() {
@@ -1366,9 +1406,11 @@ function App() {
     setDebugPicked({})
     setDebugDlMsg(null)
     debugRunningRef.current = true
+    void setDebugHold(true)
     setDebugProgress({ i: 0, n: prompts.length, text: prompts[0] || '', done: false })
 
     let finished = 0
+    try {
     for (let i = 0; i < prompts.length; i++) {
       if (debugCancelRef.current) break
       setDebugProgress({ i, n: prompts.length, text: prompts[i], done: false, stopping: debugCancelRef.current })
@@ -1376,7 +1418,10 @@ function App() {
       finished = i + 1
       if (debugCancelRef.current) break
     }
+    } finally {
     debugRunningRef.current = false
+    void setDebugHold(false)
+    }
     if (debugCancelRef.current) {
       setDebugProgress({ i: finished, n: prompts.length, text: '', done: true, cancelled: true })
     } else {
@@ -1639,9 +1684,17 @@ function App() {
                 Lokal <strong>bereit</strong>
               </>
             )
+          ) : health?.blocked_reason === 'offline' ? (
+            <>
+              Gerät <strong>offline</strong>
+            </>
+          ) : health?.blocked_reason === 'no_key' ? (
+            <>
+              Gerät <strong>ohne Key</strong>
+            </>
           ) : (
             <>
-              Gerät <strong>nicht bereit</strong>
+              Gerät <strong>ohne Modell</strong>
             </>
           )}
         </div>
@@ -1656,6 +1709,7 @@ function App() {
               setVoiceSeed('')
             }}
             onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
+            onPhoto={() => void onEyeCamera()}
             initialUtterance={voiceSeed}
           />
         ) : null}
@@ -1908,9 +1962,20 @@ function App() {
             <>
           <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
             <input
+              ref={eyeCamRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              capture="environment"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) void onEyeFile(file)
+              }}
+            />
+            <input
               ref={eyeFileRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               hidden
               onChange={(e) => {
                 const file = e.target.files?.[0]
@@ -1933,11 +1998,21 @@ function App() {
                 type="button"
                 className="icon-btn"
                 disabled={busy}
-                onClick={() => eyeFileRef.current?.click()}
-                aria-label="Foto"
-                title="Foto"
+                onClick={() => void onEyeCamera()}
+                aria-label="Kamera"
+                title="Kamera"
               >
                 <IconCamera />
+              </button>
+              <button
+                type="button"
+                className="icon-btn"
+                disabled={busy}
+                onClick={() => eyeFileRef.current?.click()}
+                aria-label="Galerie"
+                title="Galerie"
+              >
+                <span aria-hidden>🖼</span>
               </button>
               <button
                 type="button"

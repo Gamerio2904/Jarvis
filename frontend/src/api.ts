@@ -85,9 +85,10 @@ export type Health = {
   version?: string
   memory_count?: number
   research_opt_in?: boolean
-  error?: string
-  download_pct?: number
-  n_threads?: number
+    error?: string
+    download_pct?: number
+    n_threads?: number
+    blocked_reason?: string
   tv?: {
     enabled?: boolean
     name?: string

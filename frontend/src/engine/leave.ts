@@ -2,7 +2,8 @@ import { parseLeaveIntent } from './leave-parse'
 import { geocodePlace, routeMinutes } from './geo-lookup'
 import { looksLikeBareStreet, mapsDirUrl, normalizePlaceName } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
-import { listEvents, listMemory, loadSettings, saveSettings } from './store'
+import { listEvents, listMemory, loadSettings, saveSettings, addReminder } from './store'
+import { requestNotifyPermission, scheduleNotify, notifyIdFromKey } from '../native/notify'
 import type { ToolMeta } from './tools'
 
 export { parseLeaveIntent } from './leave-parse'
@@ -139,6 +140,25 @@ async function leaveTo(
   if (ev) {
     const leaveAt = new Date(new Date(ev.start_at).getTime() - (ride.minutes + buffer) * 60_000)
     extra = ` Für ${ev.title} um ${new Date(ev.start_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}: ${leaveAt.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} los (inkl. ${buffer} Min Puffer).`
+    if (leaveAt.getTime() > Date.now() + 30_000) {
+      try {
+        await requestNotifyPermission()
+        const row = await addReminder({
+          title: `Los: ${ev.title}`,
+          due_at: leaveAt.toISOString(),
+          kind: 'once',
+        })
+        await scheduleNotify({
+          id: notifyIdFromKey(row.id),
+          title: 'Jarvis — losfahren',
+          body: extra.trim(),
+          at: leaveAt,
+        })
+        extra += ' Erinnerung liegt.'
+      } catch {
+        /* ohne Notify trotzdem die Uhrzeit */
+      }
+    }
   }
   return {
     handled: true,

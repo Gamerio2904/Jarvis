@@ -420,11 +420,15 @@ export function formatResearchReply(
     const names = shops.slice(0, 3).join(', ')
     return `${query}: konkrete Euro-Beträge stehen auf den Vergleichsseiten, ich setze keine Preise ins Blaue. Unten Idealo, Geizhals${names ? ` und ${names}` : ''}.${discountNote(discount)}`
   }
+  const wiki =
+    live.find((s) => s.provider === 'wikipedia' && (s.snippet || '').trim().length > 40)?.snippet
+  const destatisOnly = live.some((s) => s.provider === 'destatis') && !wiki
   const snip =
+    wiki ||
     live.find((s) => s.provider === 'duckduckgo_ia' && s.snippet)?.snippet ||
     live.find((s) => (s.snippet || '').trim().length > 40)?.snippet
   if (snip) {
-    const body = snip.replace(/\s+/g, ' ').slice(0, 280)
+    const body = snip.replace(/\s+/g, ' ').slice(0, 320)
     if (asksDailyFigure(query) && !hasDailyUnit(live.map((s) => `${s.title} ${s.snippet}`).join('\n'))) {
       return `${body} Eine Stückzahl am Tag steht in den Treffern nicht. Links unten.`
     }
@@ -435,6 +439,9 @@ export function formatResearchReply(
     .map((s) => s.title.replace(/\s+/g, ' ').slice(0, 48))
     .join('; ')
   if (!titles) return 'Suche gelaufen, aber ohne brauchbare Links. Nochmal anders formulieren?'
+  if (destatisOnly) {
+    return `${query}: keine Zahl in den Treffern — Destatis-Link unten, ich erfinde nichts.`
+  }
   if (asksDailyFigure(query)) {
     return `${query}: in den Treffern keine belegte Tageszahl. ${titles}. Links unten prüfen, ich rechne nichts um.`
   }

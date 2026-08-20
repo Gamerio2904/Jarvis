@@ -16,9 +16,17 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
-import android.os.BatteryManager;
-import android.os.Handler;
-import android.os.Looper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.PowerManager;
+import android.provider.MediaStore;
+import android.util.Base64;
+import androidx.activity.result.ActivityResult;
+import androidx.core.content.FileProvider;
+import com.getcapacitor.annotation.ActivityCallback;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import android.view.Surface;
 import android.provider.Settings;
 
@@ -45,6 +53,12 @@ public class JarvisDevicePlugin extends Plugin {
 
     private SensorManager compassSm;
     private SensorEventListener compassListener;
+    private static volatile boolean debugHold = false;
+    private PowerManager.WakeLock debugLock;
+
+    public static boolean debugHold() {
+        return debugHold;
+    }
 
     @PluginMethod
     public void battery(PluginCall call) {
@@ -603,6 +617,126 @@ public class JarvisDevicePlugin extends Plugin {
         } catch (Exception e) {
             r.put("ok", false);
             r.put("message", "Download nicht geschrieben.");
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void setDebugHold(PluginCall call) {
+        boolean on = Boolean.TRUE.equals(call.getBoolean("on", false));
+        debugHold = on;
+        try {
+            if (on) {
+                if (debugLock == null) {
+                    PowerManager pm = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
+                    if (pm != null) {
+                        debugLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "jarvis:debug");
+                        debugLock.setReferenceCounted(false);
+                    }
+                }
+                if (debugLock != null && !debugLock.isHeld()) debugLock.acquire();
+            } else if (debugLock != null && debugLock.isHeld()) {
+                debugLock.release();
+            }
+        } catch (Exception ignored) {
+        }
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        r.put("on", debugHold);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void takePhoto(PluginCall call) {
+        if (getPermissionState("camera") != PermissionState.GRANTED) {
+            requestPermissionForAlias("camera", call, "onCamThenPhoto");
+            return;
+        }
+        launchPhoto(call);
+    }
+
+    @PermissionCallback
+    private void onCamThenPhoto(PluginCall call) {
+        if (getPermissionState("camera") != PermissionState.GRANTED) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "Kamera erlauben — sonst kein Foto.");
+            call.resolve(r);
+            return;
+        }
+        launchPhoto(call);
+    }
+
+    private File photoFile;
+
+    private void launchPhoto(PluginCall call) {
+        call.setKeepAlive(true);
+        Activity a = getActivity();
+        if (a == null) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "Keine Activity für die Kamera.");
+            call.resolve(r);
+            return;
+        }
+        try {
+            File dir = new File(getContext().getCacheDir(), "jarvis-eye");
+            if (!dir.exists()) dir.mkdirs();
+            photoFile = new File(dir, "shot.jpg");
+            if (!photoFile.exists()) photoFile.createNewFile();
+            android.net.Uri uri = FileProvider.getUriForFile(
+                    getContext(),
+                    getContext().getPackageName() + ".fileprovider",
+                    photoFile);
+            Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            i.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            i.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivityForResult(call, i, "onPhotoDone");
+        } catch (Exception e) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "Kamera nicht geöffnet.");
+            call.resolve(r);
+        }
+    }
+
+    @ActivityCallback
+    private void onPhotoDone(PluginCall call, ActivityResult result) {
+        JSObject r = new JSObject();
+        try {
+            if (photoFile == null || !photoFile.exists() || photoFile.length() < 32) {
+                r.put("ok", false);
+                r.put("message", "Kein Foto. Nochmal mit Kamera oder Galerie.");
+                call.resolve(r);
+                return;
+            }
+            Bitmap bmp = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+            if (bmp == null) {
+                FileInputStream in = new FileInputStream(photoFile);
+                ByteArrayOutputStream rawOut = new ByteArrayOutputStream();
+                byte[] buf = new byte[4096];
+                int n;
+                while ((n = in.read(buf)) > 0) rawOut.write(buf, 0, n);
+                in.close();
+                r.put("ok", true);
+                r.put("dataUrl", "data:image/jpeg;base64," + Base64.encodeToString(rawOut.toByteArray(), Base64.NO_WRAP));
+                call.resolve(r);
+                return;
+            }
+            int max = 1600;
+            int w = bmp.getWidth();
+            int h = bmp.getHeight();
+            if (Math.max(w, h) > max) {
+                float scale = max / (float) Math.max(w, h);
+                bmp = Bitmap.createScaledBitmap(bmp, Math.max(1, Math.round(w * scale)), Math.max(1, Math.round(h * scale)), true);
+            }
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.JPEG, 84, bos);
+            r.put("ok", true);
+            r.put("dataUrl", "data:image/jpeg;base64," + Base64.encodeToString(bos.toByteArray(), Base64.NO_WRAP));
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Foto nicht lesbar.");
         }
         call.resolve(r);
     }

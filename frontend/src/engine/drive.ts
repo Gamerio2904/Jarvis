@@ -3,7 +3,7 @@ import { isFuelPlace } from './fuel-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
 import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
 import { compactCoords, isRoadTrack, simplifyTrack, snapToTrack } from './drive-map'
-import { displayPlaceName, findPlaceRow, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse'
+import { displayPlaceName, findPlaceRow, isHomeName, isRelationName, looksLikeBareStreet, normalizePlaceName, parsePlaceNav } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { listMemory, loadSettings, saveSettings } from './store'
 import type { ToolMeta } from './tools'
@@ -365,6 +365,9 @@ async function startRoute(_label: string, place: string): Promise<{
   const near = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null
   const dest = await geocodePlace(place, near)
   if (!dest.ok) {
+    if (/stadt liegt|ohne Ort rate/i.test(dest.message) || looksLikeBareStreet(place)) {
+      saveSettings({ last_step_tool: 'drive_ask_city', last_step_title: place, last_step_when: '' })
+    }
     return {
       handled: true,
       reply: dest.message,
@@ -373,9 +376,14 @@ async function startRoute(_label: string, place: string): Promise<{
     }
   }
   if (near && haversineM({ lat: near.lat, lon: near.lon, place: '' }, dest.fix) > 150_000) {
+    saveSettings({
+      last_step_tool: 'drive_ask_far',
+      last_step_title: dest.fix.place,
+      last_step_when: `${dest.fix.lat},${dest.fix.lon}`,
+    })
     return {
       handled: true,
-      reply: `Das Ziel „${dest.fix.place}“ liegt weit weg von Ihrem Standort. Meinten Sie wirklich diesen Ort? Sagen Sie die Stadt nochmal.`,
+      reply: `Das Ziel „${dest.fix.place}“ liegt weit weg von Ihrem Standort. Meinten Sie wirklich diesen Ort? Sagen Sie ja oder die Stadt nochmal.`,
       tool: driveTool('ask', 'Ort fehlt'),
       lastTool: 'drive',
     }
@@ -451,6 +459,44 @@ export async function handleDrive(
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const s = loadSettings()
+  if (s.last_step_tool === 'drive_ask_city' && s.last_step_title) {
+    const city = text.trim().replace(/^[iI]n\s+/, '').replace(/[.!?]+$/, '')
+    if (city.length >= 2 && city.length <= 80 && !/[?]/.test(city) && !looksLikeBareStreet(city)) {
+      saveSettings({ last_step_tool: 'drive', last_step_title: '' })
+      return startRoute(s.last_step_title, `${s.last_step_title}, ${city}`)
+    }
+  }
+  if (s.last_step_tool === 'drive_ask_far' && s.last_step_title) {
+    const t = text.trim()
+    if (/^(ja|genau|wirklich|doch|stimmt|ok|okay)\b/i.test(t) || t.toLowerCase().includes(s.last_step_title.toLowerCase().slice(0, 12))) {
+      const coords = s.last_step_when.split(',').map(Number)
+      saveSettings({ last_step_tool: 'drive', last_step_title: '', last_step_when: '' })
+      if (coords.length === 2 && Number.isFinite(coords[0]) && Number.isFinite(coords[1])) {
+        const { route, tool, hereOk, rideOk } = await beginDriveTo(s.last_step_title, coords[0], coords[1])
+        if (!hereOk) {
+          return {
+            handled: true,
+            reply: `Fahrmodus: Ziel ist ${s.last_step_title}. Für die Route braucht es den Standort.`,
+            tool,
+            lastTool: 'drive',
+          }
+        }
+        return {
+          handled: true,
+          reply: rideOk
+            ? `Route nach ${route.dest}, etwa ${route.minutes} Minuten.`
+            : `${route.hint || 'Route unvollständig.'} Ziel ${s.last_step_title} liegt im Fahrmodus.`,
+          tool,
+          lastTool: 'drive',
+        }
+      }
+      return startRoute(s.last_step_title, s.last_step_title)
+    }
+    if (t.length >= 2 && t.length <= 80 && !/[?]/.test(t) && !looksLikeBareStreet(t)) {
+      saveSettings({ last_step_tool: 'drive', last_step_title: '' })
+      return startRoute(s.last_step_title, t)
+    }
+  }
   const music = parseSpotifyIntent(text)
   const namesSpotify = /\bspotify\b/i.test(text)
   const volish =

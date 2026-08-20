@@ -381,8 +381,25 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Lokales Modell</h3>
               <p className="settings-lead">
-                {s?.model_default || 'Qwen2.5 0.5B'} auf diesem Handy (~470 MB). Kleiner als ChatGPT —
-                dafür ohne Cloud.
+                Default 0.5B (~470 MB) auf diesem Handy. Optional scharf 1.5B (~1,1 GB). Lokal ist llama.cpp als WASM
+                (wllama) — natives NDK ist nicht in dieser APK.
+              </p>
+              <label className="settings-toggle">
+                <span>Scharf (1.5B, extra Download)</span>
+                <input
+                  type="checkbox"
+                  checked={s?.model_variant === 'sharp'}
+                  disabled={busy || p.geminiOn || p.downloadBusy}
+                  onChange={(e) => {
+                    const sharp = e.target.checked
+                    void p.patchSetting({ model_variant: sharp ? 'sharp' : 'fast' }).then(() => {
+                      p.downloadModel()
+                    })
+                  }}
+                />
+              </label>
+              <p className="settings-hint">
+                First-Run bleibt 0.5B. 1.5B extra, persistiert. Passt es nicht in den Speicher, fällt Jarvis auf 0.5B zurück.
               </p>
               {!p.health?.model_ready && !p.geminiOn ? (
                 <div className="settings-actions">
@@ -1678,8 +1695,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Automatischer Debug-Chat</h3>
               <p className="settings-lead">
-                Unter Tests Themen ankreuzen und starten. Jarvis öffnet einen Debug-Chat, schreibt die Prompts nacheinander
-                und wartet jeweils auf die Antwort. Unten nur Download — nicht schreiben.
+                Test läuft unter Tests. Hier nur Export früherer Chats. Ein laufender Test hält das Handy wach, auch wenn die App im Hintergrund ist — solange Android die WebView nicht tötet.
               </p>
               <button type="button" className="retry-btn" onClick={() => p.onTopic('tests')}>
                 Zu Tests

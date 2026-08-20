@@ -16,7 +16,7 @@ Eine Sideload-Stufe pro Version — `2.3`–`2.19` sind in **`2.19.0`** zusammen
 | **`2.2.1`** | Testprompts zum Kopieren (Einstellungen → Tests) | **CODE** |
 | **`2.2.2`** | Testprompts wieder raus aus der APK | **CODE** |
 | **`2.2.3`** | Live-Qualität: Uhr/Akku frisch, Musik ehrlich, Wetter-Gate, Einkauf-Intent | **CODE** (in `2.19.0`) |
-| **`2.2.4`** | Optional 1.5B Q4 on-device (Default 0.5B) | **PLANNED** SHOULD |
+| **`2.2.4`** | Optional 1.5B Q4 on-device (Default 0.5B) | **CODE** (in `2.37.0`) |
 
 Sprints: [`sprint-104.md`](./sprints/sprint-104.md) (`2.2.0`–`2.2.2`) · [`sprint-105.md`](./sprints/sprint-105.md) (`2.2.3`) · [`sprint-106.md`](./sprints/sprint-106.md) (`2.2.4`).
 

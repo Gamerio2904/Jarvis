@@ -14,8 +14,8 @@ import {
 } from './research-parse'
 import { loadSettings } from './store'
 
-const UA = 'Jarvis/2.22.0 (local.jarvis.app)'
-const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.22.0'
+const UA = 'Jarvis/2.37.0 (local.jarvis.app)'
+const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.37.0'
 
 export async function fillResearchLinks(
   queryText: string,
@@ -186,7 +186,7 @@ async function wikiExtract(title: string): Promise<string> {
       const extract = String(page?.extract || '')
         .replace(/\s+/g, ' ')
         .trim()
-      if (extract) return extract.slice(0, 400)
+      if (extract) return extract.slice(0, 800)
     }
   } catch {
     /* Extract ist optional */

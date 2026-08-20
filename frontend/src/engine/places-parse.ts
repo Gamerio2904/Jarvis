@@ -30,6 +30,8 @@ const RECALL =
   /^\s*wo\s+(?:wohnt|ist|liegt)\s+(?:denn\s+)?(.+?)\s*[.?!]?\s*$/i
 const WRITE_WOHNT =
   /^\s*(?:merk(?:e)?\s*dir\s*[:-]?\s*)?(.+?)\s+wohnt\s+(?:in|auf|an)\s+(.+?)\s*$/i
+const FORGET_PLACE =
+  /^\s*(?:die\s+|der\s+)?([\wÄÖÜäöüß.-]{2,40})\s+(?:wohnt|lebt)\s+nicht\s+mehr(?:\s+in\s+.+)?\s*[.!]?\s*$/i
 const WRITE_ICH =
   /^\s*ich\s+wohne\s+(?:in|auf|an)\s+(.+?)\s*$/i
 const WRITE_ICH_ARBEITE =
@@ -107,6 +109,13 @@ export function isBarePlaceAnswer(text: string): boolean {
   }
   if (extractPhone(t)) return false
   return true
+}
+
+export function parsePlaceForget(text: string): string | null {
+  const m = FORGET_PLACE.exec(text.trim())
+  if (!m?.[1]) return null
+  const name = normalizePlaceName(m[1])
+  return name || null
 }
 
 export function parsePlaceWrite(text: string): PlaceWrite | null {

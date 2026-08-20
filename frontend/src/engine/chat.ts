@@ -30,6 +30,8 @@ import { debugPayload } from './chat-debug'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
+  SHARP_MODEL,
+  activeModel,
   addMessage,
   addResearchAudit,
   createConversation as storeCreate,
@@ -75,8 +77,10 @@ import { handleHere } from './here'
 import { handleTransit } from './transit'
 import { handleHoliday } from './holiday'
 import { handleNews } from './news'
+import { handleSpeaker } from './speaker'
 import { handleEyeAsk } from './eye'
 import { parseEyeIntent } from './eye-parse'
+import { blockedCopy, blockedReason, isOnline, NO_GEMINI_VOICE } from './offline'
 import { handleChatSearch } from './search-chat'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
 import { handleWorld, isMusicHonesty } from './world'
@@ -116,35 +120,40 @@ export async function getHealth() {
   const err = getLlmError()
   const prog = getDownloadProgress()
   const s = loadSettings()
+  const active = activeModel()
+  const reason = blockedReason(localReady)
+  const online = isOnline()
+  const block = blockedCopy(reason, online)
   return {
     ok: ready,
     ollama: false,
     engine: cloud ? 'gemini' : 'on-device',
-    model: cloud ? GEMINI_LABEL : DEFAULT_MODEL.label,
+    model: cloud ? GEMINI_LABEL : active.label,
     model_ready: localReady,
     gemini_ready: cloud,
     gemini_enabled: s.gemini_enabled,
-    configured_model: cloud ? GEMINI_LABEL : DEFAULT_MODEL.label,
+    configured_model: cloud ? GEMINI_LABEL : active.label,
     fallback_model: DEFAULT_MODEL.label,
-    model_heavy: DEFAULT_MODEL.label,
-    heavy_equals_default: !cloud,
+    model_heavy: SHARP_MODEL.label,
+    heavy_equals_default: active.id !== 'sharp',
     using_fallback: false,
     version: APP_VERSION,
     memory_count: mem.length,
     research_opt_in: s.research_opt_in,
+    blocked_reason: !online ? 'offline' : reason,
     tv: tvStatusFromSettings(),
     warning: cloud
       ? groqReady()
         ? 'Gemini — bei Limit nächstes Modell, dann Groq. Chat geht ins Netz.'
         : 'Gemini (Google) — bei Limit nächstes Modell. Chat geht ins Netz.'
       : localReady
-        ? 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
-        : err || 'Modell noch nicht geladen.',
+        ? active.id === 'sharp'
+          ? 'On-Device 1.5B — denkt auf diesem Handy, kein Server.'
+          : 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
+        : err || block || 'Modell noch nicht geladen.',
     error: ready
       ? undefined
-      : s.gemini_enabled && !s.gemini_api_key.trim()
-        ? 'Gemini an, aber kein API-Key.'
-        : err || 'Modell nicht geladen. Unter Einstellungen herunterladen oder Gemini nutzen.',
+      : block || err || 'Modell nicht geladen. Unter Einstellungen herunterladen oder Gemini nutzen.',
     download_pct: prog.pct,
     n_threads: getThreadCount(),
   }
@@ -163,6 +172,25 @@ export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, release
 async function routeDeterministic(conversationId: string, content: string): Promise<RouteHit | null> {
   if (isHelpCommand(content)) {
     return { reply: HELP_TEXT, lastTool: 'help' }
+  }
+
+  const speakerHit = await handleSpeaker(conversationId, content)
+  if (speakerHit.handled && speakerHit.reply) {
+    return { reply: speakerHit.reply, tool: speakerHit.tool, lastTool: 'speaker' }
+  }
+
+  const step = loadSettings().last_step_tool
+  if (step === 'leave_ask' || step === 'leave_ask_city') {
+    const leavePending = await handleLeave(conversationId, content)
+    if (leavePending.handled && leavePending.reply) {
+      return { reply: leavePending.reply, tool: leavePending.tool, lastTool: leavePending.lastTool || 'leave' }
+    }
+  }
+  if (step === 'drive_ask_city' || step === 'drive_ask_far') {
+    const drivePending = await handleDrive(conversationId, content)
+    if (drivePending.handled && drivePending.reply) {
+      return { reply: drivePending.reply, tool: drivePending.tool, lastTool: drivePending.lastTool || 'drive' }
+    }
   }
 
   if (loadSettings().last_comm_json) {
@@ -731,7 +759,7 @@ export async function streamChat(
         return
       }
       const reply =
-        'Befehl nicht erkannt. Smalltalk im Sprachmodus braucht Gemini. Wetter, Timer, Route, Einkauf gehen ohne.'
+        NO_GEMINI_VOICE
       handlers.onToken?.(reply)
       const assistant = await addMessage(
         conversationId,

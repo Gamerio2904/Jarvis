@@ -17,10 +17,12 @@ type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
 export function VoiceMode({
   onClose,
   onTurn,
+  onPhoto,
   initialUtterance = '',
 }: {
   onClose: () => void
   onTurn: (text: string, onToken?: (piece: string, full: string) => void) => Promise<string>
+  onPhoto?: () => void
   initialUtterance?: string
 }) {
   const [phase, setPhase] = useState<Phase>('idle')
@@ -200,6 +202,11 @@ export function VoiceMode({
             Beenden
           </button>
         </header>
+        {onPhoto ? (
+          <button type="button" className="ghost-btn" onClick={() => onPhoto()}>
+            Kamera
+          </button>
+        ) : null}
         <button
           type="button"
           className={`voice-orb ${phase}`}

@@ -5,11 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.22.0`**.
+App-Version im Code: **`2.37.0`**.
 
 ### Geplant
 
-Nächste 20 Stufen: [`32-next.md`](./32-next.md). Darin u. a. optionales 1.5B (`2.2.4` SHOULD) und native llama.cpp (PO).
+Native llama.cpp NDK bleibt PO. Rest der 20er-Liste: [`32-next.md`](./32-next.md).
+
+### `2.37.0` — Kamera, Sprecher, 1.5B, Alltag härten — *CODE*
+
+Sideload-Stufe für die gewählten 2.23–2.37-Punkte plus Kamera: echte Handy-Kamera, Foto-OCR mit Gemini, Open Food Facts bei EAN. Sprecher nur per Name, ehrlich ohne Stimme. Optionales 1.5B (Default 0.5B). Personen mergen bei gleicher Nummer, Ort vergessen. Losgehen legt Erinnerung. Fahrt fragt Stadt/Fernziel nach. Wetter-Orte mit zwei Wörtern, DWD mit Lage. Research Wikipedia zuerst. VoiceMode hält Wake, Offline-Texte klar, Settings Denken, Debug-Test Wake-Lock.
+
+- versionCode `23700`
+- Natives NDK-llama.cpp **nicht** in dieser APK (WASM/wllama)
 
 ### `2.22.0` — Widget hört und antwortet — *CODE*
 

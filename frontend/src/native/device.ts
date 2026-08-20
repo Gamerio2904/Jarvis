@@ -25,6 +25,8 @@ type NativeDevice = {
   callNow(opts: { number: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
   sendSms(opts: { number: string; body: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
   saveDownload(opts: { name: string; text: string }): Promise<{ ok: boolean; message?: string }>
+  takePhoto(): Promise<{ ok: boolean; dataUrl?: string; message?: string }>
+  setDebugHold(opts: { on: boolean }): Promise<{ ok: boolean; on?: boolean }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeDevice>('JarvisDevice') : null
@@ -330,4 +332,25 @@ export async function saveDownloadFile(
     }
   }
   return { ok: false, message: '' }
+}
+
+export async function takeNativePhoto(): Promise<{ ok: boolean; dataUrl?: string; message?: string }> {
+  if (!native) return { ok: false, message: '' }
+  try {
+    return await withTimeout(native.takePhoto(), 120_000, {
+      ok: false,
+      message: 'Kamera zu langsam oder abgebrochen.',
+    })
+  } catch {
+    return { ok: false, message: 'Kamera nicht geöffnet.' }
+  }
+}
+
+export async function setDebugHold(on: boolean): Promise<void> {
+  if (!native) return
+  try {
+    await native.setDebugHold({ on })
+  } catch {
+    /* ignore */
+  }
 }

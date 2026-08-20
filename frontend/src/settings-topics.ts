@@ -47,8 +47,9 @@ export const SETTINGS_TOPICS: SettingsTopicMeta[] = [
 
 export const SETTINGS_GROUPS: Array<{ title: string; ids: Array<Exclude<SettingsTopic, 'hub'>> }> = [
   { title: 'APIs', ids: ['apis'] },
-  { title: 'Gerät', ids: ['allgemein', 'modell', 'sprache', 'wecker', 'ort'] },
-  { title: 'Netz', ids: ['cloud', 'forschung'] },
+  { title: 'Denken', ids: ['modell', 'cloud'] },
+  { title: 'Gerät', ids: ['allgemein', 'sprache', 'wecker', 'ort'] },
+  { title: 'Netz', ids: ['forschung'] },
   { title: 'Einkauf', ids: ['rabatt'] },
   { title: 'Haus', ids: ['tv', 'pc', 'haus', 'musik'] },
   { title: 'Mehr', ids: ['ton', 'gedaechtnis', 'tests', 'debug', 'gefahr'] },
@@ -78,7 +79,8 @@ export function settingsTopicStatus(
   if (id === 'allgemein') return s?.version || ''
   if (id === 'modell') {
     if (geminiOn) return 'Gemini'
-    if (health?.model_ready) return 'bereit'
+    if (s?.model_variant === 'sharp') return '1.5B'
+    if (health?.model_ready) return '0.5B'
     return 'laden'
   }
   if (id === 'apis') {

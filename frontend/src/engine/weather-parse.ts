@@ -12,7 +12,7 @@ const AIR =
   /\b(luftqualität|luftqualitaet|feinstaub|pollen(?:flug|werte)?|luftverschmutzung|aqi|wie\s+ist\s+die\s+luft|luft\s+hier)\b/i
 const SUN =
   /\b(sonnenaufgang|sonnenuntergang|wann\s+geht\s+die\s+sonne|sonne\s+(?:auf|unter)(?:geht)?)\b/i
-const PLACE = /(?:in|für|aus|bei)\s+([A-ZÄÖÜ][\wÄÖÜäöüß.-]{1,40})/i
+const PLACE = /(?:in|für|aus|bei)\s+([A-ZÄÖÜ][\wÄÖÜäöüß.-]{1,40}(?:\s+[A-ZÄÖÜ][\wÄÖÜäöüß.-]{1,40}){0,2})/i
 const PLACE_JUNK =
   /\s+(heute|jetzt|hier|draußen|morgen|übermorgen|wochenende|samstag|sonntag|schirm|anziehen|tragen|jacke|brauch(?:e)?|ich|einen?|das|wetter|temperatur|regen|regnet).*$/i
 
@@ -96,8 +96,9 @@ function cleanPlace(raw: string): string | null {
     .replace(/\s+/g, ' ')
     .trim()
   if (!name || /^(hier|heute|jetzt|draußen|morgen|übermorgen|wochenende)$/i.test(name)) return null
-  const token = name.split(/\s+/)[0] || ''
-  if (!token || token.length < 2 || token.length > 40) return null
+  const bits = name.split(/\s+/).filter(Boolean).slice(0, 3)
+  const token = bits.join(' ')
+  if (!token || token.length < 2 || token.length > 48) return null
   return token
 }
 
