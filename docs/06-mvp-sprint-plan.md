@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Sideload `2.2.2`, als Nächstes [`30-next.md`](./30-next.md) `2.2.3`, Welt [`31-next.md`](./31-next.md), Sprints [`sprints/README.md`](./sprints/README.md).
+> Historisch (MVP `0.1`). **Jetzt:** Code `2.19.0` ([`30-next.md`](./30-next.md) / [`31-next.md`](./31-next.md)), Sprints [`sprints/README.md`](./sprints/README.md). `2.2.4` 1.5B bleibt SHOULD.
 
 ## MVP v0.1 — Definition
 

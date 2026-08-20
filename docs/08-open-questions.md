@@ -54,8 +54,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sprint **105** (`2.2.3`) **IN SPRINT** — Live-Qualität. [`30-next.md`](./30-next.md) · [`apk.md`](./apk.md) Sideload `2.2.2`.
-2. Geplant danach: Alltag & Welt [`31-next.md`](./31-next.md) — Bau ab `2.3.0` DWD auf PO-Kommando. `2.2.4` (1.5B) ist SHOULD und kein Tor.
+1. Sprint **106** (`2.2.4`) **SHOULD** — optionales 1.5B. [`30-next.md`](./30-next.md)
+2. `2.3`–`2.19` sind in **`2.19.0` CODE**. [`31-next.md`](./31-next.md)
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---

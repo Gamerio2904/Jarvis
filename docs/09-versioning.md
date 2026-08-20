@@ -146,30 +146,15 @@ MAJOR.MINOR.PATCH
 | `2.2.0` | Uhrzeit vom Gerät, GPS statt Raten, Auto-Research | Sprint 104 |
 | `2.2.1` | Testprompts: Kopierfelder unter Einstellungen → Tests | Sprint 104 Patch |
 | `2.2.2` | Testprompts wieder raus aus der APK | Sprint 104 Patch |
+| `2.2.3` | Live-Qualität (Uhr/Akku, Musik ehrlich, Wetter-Gate, Einkauf) — früher intern `0.13.3` | 105 **CODE** (in `2.19.0`) |
+| `2.3.0`–`2.18.0` | Alltag & Welt (DWD bis Sensoren) | 107 **CODE** (in `2.19.0`) |
+| `2.19.0` | Schach + Sideload der Welt-Reihe | 107 **CODE** |
 
-### Geplant — Live-Qualität zuerst, dann Welt
+### Geplant
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `2.2.3` | Live-Qualität (Uhr/Akku, Musik ehrlich, Wetter-Gate, Einkauf) — früher intern `0.13.3` | 105 **IN SPRINT** |
 | `2.2.4` | Optional 1.5B on-device (Default 0.5B) — früher intern `0.13.4` | 106 **PLANNED** SHOULD |
-| `2.3.0` | DWD-Unwetterwarnung | 107 |
-| `2.4.0` | Schulferien DE | 108 |
-| `2.5.0` | Wechselkurse EZB | 109 |
-| `2.6.0` | Research: Wikipedia/Destatis zuerst | 110 |
-| `2.7.0` | Stimme: Uhr, Warnung, Ferien | 111 |
-| `2.8.0` | Open Food Facts | 112 |
-| `2.9.0` | Open Library | 113 |
-| `2.10.0` | Bundesliga | 114 |
-| `2.11.0` | Sport-Ergebnisse | 115 |
-| `2.12.0` | Garten & Pflanzen | 116 |
-| `2.13.0` | Himmel (ISS, Mond) | 117 |
-| `2.14.0` | Tiere draußen | 118 |
-| `2.15.0` | Flüge überm Haus | 119 |
-| `2.16.0` | Recht Alltag | 120 |
-| `2.17.0` | Haushalt | 121 |
-| `2.18.0` | Handy-Sensoren (Schritte, Barometer) | 122 |
-| `2.19.0` | Schach | 123 |
 
 Native llama.cpp (früher intern `0.14.0`): **PO**, nicht in dieser Reihe. [`30-next.md`](./30-next.md) · [`31-next.md`](./31-next.md).
 

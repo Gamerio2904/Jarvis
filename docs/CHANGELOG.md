@@ -5,15 +5,19 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.2.2`**.
+App-Version im Code: **`2.19.0`**.
 
 ### Geplant
 
-1. **`2.2.3` IN SPRINT** — Live-Qualität [`30-next.md`](./30-next.md) · [`sprint-105.md`](./sprints/sprint-105.md) (früher intern `0.13.3`)
-2. **`2.2.4` SHOULD** — optionales 1.5B, blockiert DWD nicht (früher intern `0.13.4`)
-3. **`2.3.0`–`2.19.0` PLAN** — [`31-next.md`](./31-next.md), Bau ab DWD auf PO-Kommando
+1. **`2.2.4` SHOULD** — optionales 1.5B, Default bleibt 0.5B (früher intern `0.13.4`)
+2. Native llama.cpp (früher intern `0.14.0`): PO
 
-Native llama.cpp (früher intern `0.14.0`): PO.
+### `2.19.0` — Live-Qualität + Alltag & Welt — *CODE*
+
+Eine Sideload-Stufe: `2.2.3`–`2.19.0` im Code. Uhr/Akku live, Musik ehrlich ohne Spotify-API, Briefing ohne Wetter, Wetter-Gate. DWD, Schulferien, EZB-Kurs, Research Wikipedia/Destatis zuerst, Open Food Facts, Open Library, OpenLigaDB, iNaturalist, ISS/Mond, OpenSky, BGB-Link, Waschsymbole, Schritte/Luftdruck/Kompass, Schach `e2e4`.
+
+- versionCode `21900`
+- [`30-next.md`](./30-next.md) · [`31-next.md`](./31-next.md)
 
 ### `2.2.2` — Testprompts raus aus der App — *CODE*
 

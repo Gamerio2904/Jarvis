@@ -2,11 +2,11 @@
 
 PO 2026-08-20 (Screenshots): Jarvis wusste die Uhrzeit nicht, hat den Wohnort geraten und bei BIP „keine Zahlen“ gesagt statt zu suchen. Weitere Screens: Uhr/Akku alt, Fake-Spotify, Wetter im Briefing, „Guten Morgen“ auf der Einkaufsliste.
 
-Reihe davor: [`29-next.md`](./29-next.md). App jetzt: Sideload **`2.2.2`**. Als Nächstes Code: **`2.2.3`**. Welt-Reihe danach: [`31-next.md`](./31-next.md) **PLAN** (`2.3`–`2.19`).
+Reihe davor: [`29-next.md`](./29-next.md). App jetzt: Code **`2.19.0`** (Live-Qualität + Welt). `2.2.4` (1.5B) bleibt SHOULD.
 
-Früher intern falsch `0.13.2`–`0.14`: Latenz ist in `0.13.2`/`2.2.2` schon da; Live-Qualität = **`2.2.3`**; optionales 1.5B = **`2.2.4`**; native llama.cpp bleibt PO.
+Früher intern falsch `0.13.2`–`0.14`: Latenz ist in `0.13.2`/`2.2.2` schon da; Live-Qualität = **`2.2.3`** (in `2.19.0`); optionales 1.5B = **`2.2.4`**; native llama.cpp bleibt PO.
 
-Eine Sideload-Stufe pro Version.
+Eine Sideload-Stufe pro Version — `2.3`–`2.19` sind in **`2.19.0`** zusammengefasst.
 
 ## Reihenfolge
 
@@ -15,7 +15,7 @@ Eine Sideload-Stufe pro Version.
 | **`2.2.0`** | Uhrzeit vom Gerät, GPS statt Wohnort-Raten, Suche von selbst bei Live-Fakten | **CODE** |
 | **`2.2.1`** | Testprompts zum Kopieren (Einstellungen → Tests) | **CODE** |
 | **`2.2.2`** | Testprompts wieder raus aus der APK | **CODE** |
-| **`2.2.3`** | Live-Qualität: Uhr/Akku frisch, Musik ehrlich, Wetter-Gate, Einkauf-Intent | **IN SPRINT** |
+| **`2.2.3`** | Live-Qualität: Uhr/Akku frisch, Musik ehrlich, Wetter-Gate, Einkauf-Intent | **CODE** (in `2.19.0`) |
 | **`2.2.4`** | Optional 1.5B Q4 on-device (Default 0.5B) | **PLANNED** SHOULD |
 
 Sprints: [`sprint-104.md`](./sprints/sprint-104.md) (`2.2.0`–`2.2.2`) · [`sprint-105.md`](./sprints/sprint-105.md) (`2.2.3`) · [`sprint-106.md`](./sprints/sprint-106.md) (`2.2.4`).
@@ -57,7 +57,7 @@ Einstellungen → Tests: jedes Prompt-Feld hat **Kopieren**, plus Alle je Gruppe
 
 Kopierfelder wieder weg aus Einstellungen. Prompts nur außerhalb der APK (dieser Chat). Chat ohne Chips.
 
-## `2.2.3` — Live-Qualität — **IN SPRINT**
+## `2.2.3` — Live-Qualität — **CODE** (in `2.19.0`)
 
 Quelle: [`15-live-probe.md`](./15-live-probe.md) · Sprint [`sprint-105.md`](./sprints/sprint-105.md).  
 (Intern früher `0.13.3`.)

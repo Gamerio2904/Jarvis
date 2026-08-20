@@ -4,7 +4,7 @@ import compatWasmUrl from '@wllama/wllama-compat/wasm/wllama.wasm?url'
 import compatWorkerCode from '@wllama/wllama-compat/wasm/wllama.js?raw'
 import { DEFAULT_MODEL, isGeminiConfigured } from './store'
 import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel } from './model-cache'
-import { formatQwenChat, QWEN_STOP, toChatRole } from './prompt'
+import { formatQwenChat, packChat, QWEN_STOP, toChatRole } from './prompt'
 
 export type DownloadProgress = {
   loaded: number
@@ -305,6 +305,7 @@ async function completeStreaming(
       },
       max_tokens: MAX_NEW_TOKENS,
       temperature: 0.7,
+      repeat_penalty: 1.12,
       top_p: 0.85,
       cache_prompt: true,
       stop: QWEN_STOP,
@@ -338,7 +339,7 @@ export async function completeChat(
     role: toChatRole(m.role),
     content: m.content,
   }))
-  const prompt = formatQwenChat(mapped)
+  const prompt = formatQwenChat(packChat(mapped))
   const text = await completeStreaming(prompt, onToken)
   if (!text) {
     return 'Einen Moment. Noch einmal senden?'

@@ -1,11 +1,11 @@
-# Sprint 105 — Live-Qualität (`2.2.3`) **IN SPRINT**
+# Sprint 105 — Live-Qualität (`2.2.3`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **IN SPRINT** |
-| Priorität | **MUST** — vor DWD / `2.3.0` |
-| Ziel-Version | **`2.2.3`** |
-| Quelle | PO-Screenshots 2026-08-20 (Live **2.2.1**, Sideload jetzt **2.2.2**) |
+| Status | **CODE** (in Sideload `2.19.0`) |
+| Priorität | **MUST** |
+| Ziel-Version | **`2.2.3`** — geliefert in **`2.19.0`** |
+| Quelle | PO-Screenshots 2026-08-20 (Live **2.2.1**, Sideload damals **2.2.2**) |
 | Voraussetzung | `2.2.2` |
 | Plan | [`30-next.md`](../30-next.md) · Probe [`15-live-probe.md`](../15-live-probe.md) |
 | Früher falsch | intern `0.13.3` / Sprint 47 — **nicht** [`sprint-47.md`](./sprint-47.md) (`0.14.0`) |
@@ -28,7 +28,7 @@ Alltag **wahr**: Uhr/Akku frisch, kein Fake-Spotify, Briefing ohne Wetter, Wette
 | L8 | Kauf ≠ Film; Terminzeit ≠ Ort | Switch-2-Kauf; Steuer 15 Uhr |
 | L9 | Recall ohne Müll | Steuer-Frage nicht Valeo-Wischer |
 | L10 | Smalltalk/Begrüßung **nicht** auf die Einkaufsliste | „Guten Morgen“ ≠ Posten |
-| L11 | Version `2.2.3` | UI / Changelog / versionCode `20203` |
+| L11 | Version `2.2.3` | in Sideload `2.19.0` / versionCode `21900` |
 
 ## Should
 
@@ -55,7 +55,7 @@ Alltag **wahr**: Uhr/Akku frisch, kein Fake-Spotify, Briefing ohne Wetter, Wette
 
 ## Exit / Abnahme
 
-PO: Uhr/Akku stimmen; Musik ohne Lüge; Briefing ohne Wetter; „Guten Morgen“ nicht im Einkauf; Wetter nur mit Standort. Tag **`v2.2.3`**.
+PO: Uhr/Akku stimmen; Musik ohne Lüge; Briefing ohne Wetter; „Guten Morgen“ nicht im Einkauf; Wetter nur mit Standort. Geliefert in **`2.19.0`**.
 
 ## Danach
 

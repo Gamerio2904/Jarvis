@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Live `2.2.2`:** Gemini-Opt-in, TV, Alltag. Als Nächstes Code: **`2.2.3` Live-Qualität** ([`30-next.md`](./30-next.md)). Welt-Reihe [`31-next.md`](./31-next.md) (`2.3`–`2.19`) auf PO-Kommando. `14` in [`README.md`](./README.md) ist TV.
+> **Live `2.19.0`:** Gemini-Opt-in, TV, Alltag, Welt (DWD bis Schach). `2.2.4` 1.5B SHOULD ([`30-next.md`](./30-next.md)). `14` in [`README.md`](./README.md) ist TV.
 
 ## Leitentscheidung
 

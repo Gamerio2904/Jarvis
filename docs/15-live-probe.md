@@ -1,7 +1,7 @@
 # 15 — Live-Probe (Screenshots 2026-08-20)
 
 PO-Alltag: Jarvis **2.2.1**, Banner **Gemini (Google) — Nachrichten gehen ins Netz.**  
-Live auf `main`: **`2.2.2`**. Musts → Sprint **105** / **`2.2.3`** ([`30-next.md`](./30-next.md)). Früher intern falsch `0.13.3`.
+Live auf `main` war **`2.2.2`**. Musts von Sprint **105** / **`2.2.3`** sind in **`2.19.0` CODE**. [`30-next.md`](./30-next.md). Früher intern falsch `0.13.3`.
 
 ## PO-Vorgabe (verbindlich)
 

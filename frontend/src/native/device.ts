@@ -10,6 +10,9 @@ type NativeDevice = {
     cellular?: boolean
     message?: string
   }>
+  steps(): Promise<{ ok: boolean; count?: number; sinceBoot?: boolean; message?: string }>
+  pressure(): Promise<{ ok: boolean; hpa?: number; message?: string }>
+  compass(): Promise<{ ok: boolean; heading?: number; label?: string; message?: string }>
   torch(opts: { on: boolean }): Promise<{ ok: boolean; on?: boolean; message?: string }>
   openPage(opts: { page: string }): Promise<{ ok: boolean; message?: string }>
   dial(opts: { number: string }): Promise<{ ok: boolean; message?: string }>
@@ -72,6 +75,68 @@ export async function readNetwork(): Promise<{
     wifi: false,
     cellular: false,
   }
+}
+
+export async function readSteps(): Promise<{
+  ok: boolean
+  count?: number
+  sinceBoot?: boolean
+  message?: string
+}> {
+  if (native) {
+    try {
+      return await withTimeout(native.steps(), 6_000, {
+        ok: false,
+        message: 'Schrittzähler nicht lesbar. Recht fehlt oder kein Sensor. Keine Diagnose.',
+      })
+    } catch {
+      return { ok: false, message: 'Schrittzähler nicht lesbar. Recht fehlt oder kein Sensor. Keine Diagnose.' }
+    }
+  }
+  return { ok: false, message: 'Schrittzähler nur auf dem Handy. Keine Diagnose.' }
+}
+
+export async function readPressure(): Promise<{ ok: boolean; hpa?: number; message?: string }> {
+  if (native) {
+    try {
+      return await withTimeout(native.pressure(), 5_000, {
+        ok: false,
+        message: 'Luftdruck nicht lesbar. Kein Barometer oder kein Zugriff.',
+      })
+    } catch {
+      return { ok: false, message: 'Luftdruck nicht lesbar. Kein Barometer oder kein Zugriff.' }
+    }
+  }
+  return { ok: false, message: 'Luftdruck nur auf dem Handy.' }
+}
+
+function compassLabel(deg: number): string {
+  const names = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW']
+  const i = Math.round((((deg % 360) + 360) % 360) / 45) % 8
+  return names[i]
+}
+
+export async function readCompass(): Promise<{
+  ok: boolean
+  heading?: number
+  label?: string
+  message?: string
+}> {
+  if (native) {
+    try {
+      const hit = await withTimeout(native.compass(), 5_000, {
+        ok: false,
+        message: 'Kompass nicht lesbar. Kein Magnetometer oder Störung.',
+      })
+      if (hit.ok && hit.heading != null && !hit.label) {
+        return { ...hit, label: compassLabel(hit.heading) }
+      }
+      return hit
+    } catch {
+      return { ok: false, message: 'Kompass nicht lesbar. Kein Magnetometer oder Störung.' }
+    }
+  }
+  return { ok: false, message: 'Kompass nur auf dem Handy.' }
 }
 
 export async function setTorch(on: boolean): Promise<{ ok: boolean; message?: string }> {

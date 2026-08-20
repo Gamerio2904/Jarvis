@@ -4,7 +4,7 @@ Die interne Nummerierung `0.13.2`–`0.14` war falsch (Sprints 46–48 auf `main
 
 ```text
 0.13.2 Latenz          → schon in 2.2.2 (Stream/Threads)     CODE
-0.13.3 Live-Qualität   → 2.2.3   Sprint 105                  IN SPRINT  ← jetzt
+0.13.3 Live-Qualität   → 2.2.3   Sprint 105                  CODE (in 2.19.0)
 0.13.4 optionales 1.5B → 2.2.4   Sprint 106                  PLANNED SHOULD
 0.14.0 native llama    → PO, nicht 2.3–2.19
 ```

@@ -4,6 +4,7 @@ export type WeatherFocus = 'general' | 'rain' | 'wear' | 'air' | 'sun'
 export type WeatherIntent =
   | { kind: 'here'; when: WeatherWhen; focus: WeatherFocus }
   | { kind: 'place'; place: string; when: WeatherWhen; focus: WeatherFocus }
+  | { kind: 'ask'; when: WeatherWhen; focus: WeatherFocus }
 
 const WEATHER =
   /\b(wetter|temperatur|wie\s+warm|wie\s+kalt|regnet\s+es|schneit\s+es|wie\s+ist\s+das\s+wetter|wird\s+es\s+regnen|schirm|anziehen|was\s+tragen)\b/i
@@ -11,8 +12,9 @@ const AIR =
   /\b(luftqualität|luftqualitaet|feinstaub|pollen(?:flug|werte)?|luftverschmutzung|aqi|wie\s+ist\s+die\s+luft|luft\s+hier)\b/i
 const SUN =
   /\b(sonnenaufgang|sonnenuntergang|wann\s+geht\s+die\s+sonne|sonne\s+(?:auf|unter)(?:geht)?)\b/i
-const PLACE = /(?:in|für|aus|bei)\s+([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-\s]{1,40})/i
-const TRAIL = /(?:\s+(heute|jetzt|hier|draußen|morgen|übermorgen|wochenende|samstag|sonntag))+$/i
+const PLACE = /(?:in|für|aus|bei)\s+([A-ZÄÖÜ][\wÄÖÜäöüß.-]{1,40})/i
+const PLACE_JUNK =
+  /\s+(heute|jetzt|hier|draußen|morgen|übermorgen|wochenende|samstag|sonntag|schirm|anziehen|tragen|jacke|brauch(?:e)?|ich|einen?|das|wetter|temperatur|regen|regnet).*$/i
 
 export type WeatherLast = {
   kind: 'here' | 'place'
@@ -71,14 +73,24 @@ export function parseWeatherIntent(text: string): WeatherIntent | null {
   }
   const when = parseWhen(t)
   const focus = air ? 'air' : sun ? 'sun' : parseFocus(t)
-  const place = PLACE.exec(t)
-  if (place) {
-    const name = place[1].replace(/[?.!]+$/, '').replace(TRAIL, '').trim()
-    if (name && !/^(hier|heute|jetzt|draußen|morgen|übermorgen|wochenende)$/i.test(name)) {
-      return { kind: 'place', place: name, when, focus }
-    }
+  const place = extractPlace(t)
+  if (place) return { kind: 'place', place, when, focus }
+  const hereWord = /\bhier\b/i.test(t)
+  if ((focus === 'wear' || (focus === 'air' && !hereWord)) && !/\b(wetter|temperatur|regnet|schneit)\b/i.test(t)) {
+    return { kind: 'ask', when, focus }
   }
   return { kind: 'here', when, focus }
+}
+
+function extractPlace(text: string): string | null {
+  const place = PLACE.exec(text)
+  if (!place) return null
+  const name = place[1].replace(/[?.!]+$/, '').replace(PLACE_JUNK, '').trim()
+  if (!name || /^(hier|heute|jetzt|draußen|morgen|übermorgen|wochenende)$/i.test(name)) return null
+  if (name.length > 40 || /\s/.test(name) && name.split(/\s+/).length > 3) {
+    return name.split(/\s+/)[0] || null
+  }
+  return name
 }
 
 function parseWhen(text: string): WeatherWhen {

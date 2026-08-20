@@ -78,6 +78,7 @@ import { handleEyeAsk } from './eye'
 import { parseEyeIntent } from './eye-parse'
 import { handleChatSearch } from './search-chat'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
+import { handleWorld, isMusicHonesty } from './world'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -367,6 +368,13 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  if (isMusicHonesty(content)) {
+    return {
+      reply: 'Musik ist nicht angebunden.',
+      lastTool: 'music',
+    }
+  }
+
   const driveHit = await handleDrive(conversationId, content)
   if (driveHit.handled && driveHit.reply) {
     return {
@@ -408,6 +416,13 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: memHit.reply, lastTool: 'memory' }
   }
 
+  if (isBriefAsk(content)) {
+    const briefHit = await handleBrief()
+    if (briefHit.handled && briefHit.reply) {
+      return { reply: briefHit.reply, tool: briefHit.tool, lastTool: briefHit.lastTool || 'brief' }
+    }
+  }
+
   const shopHit = await handleShopping(conversationId, content)
   if (shopHit.handled && shopHit.reply) {
     return { reply: shopHit.reply, tool: shopHit.tool, lastTool: shopHit.lastTool || 'shopping' }
@@ -426,13 +441,6 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   const leaveHit = await handleLeave(conversationId, content)
   if (leaveHit.handled && leaveHit.reply) {
     return { reply: leaveHit.reply, tool: leaveHit.tool, lastTool: leaveHit.lastTool || 'leave' }
-  }
-
-  if (isBriefAsk(content)) {
-    const briefHit = await handleBrief()
-    if (briefHit.handled && briefHit.reply) {
-      return { reply: briefHit.reply, tool: briefHit.tool, lastTool: briefHit.lastTool || 'brief' }
-    }
   }
 
   const holidayHit = await handleHoliday(content)
@@ -469,6 +477,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     const eyeHit = await handleEyeAsk()
     if (eyeHit.handled && eyeHit.reply) {
       return { reply: eyeHit.reply, tool: eyeHit.tool, lastTool: eyeHit.lastTool || 'eye' }
+    }
+  }
+
+  const worldHit = await handleWorld(content)
+  if (worldHit.handled && worldHit.reply) {
+    return {
+      reply: worldHit.reply,
+      tool: worldHit.tool,
+      lastTool: worldHit.lastTool || 'world',
     }
   }
 

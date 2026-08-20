@@ -6,6 +6,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.net.ConnectivityManager;
@@ -13,6 +17,8 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 
 import com.getcapacitor.JSObject;
@@ -30,7 +36,8 @@ import java.util.ArrayList;
         permissions = {
                 @Permission(alias = "camera", strings = {Manifest.permission.CAMERA}),
                 @Permission(alias = "phone", strings = {Manifest.permission.CALL_PHONE}),
-                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS})
+                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS}),
+                @Permission(alias = "activity", strings = {Manifest.permission.ACTIVITY_RECOGNITION})
         }
 )
 public class JarvisDevicePlugin extends Plugin {
@@ -82,6 +89,136 @@ public class JarvisDevicePlugin extends Plugin {
             r.put("message", "Verbindung nicht lesbar.");
         }
         call.resolve(r);
+    }
+
+    @PluginMethod
+    public void steps(PluginCall call) {
+        if (android.os.Build.VERSION.SDK_INT >= 29
+                && getPermissionState("activity") != PermissionState.GRANTED) {
+            call.setKeepAlive(true);
+            requestPermissionForAlias("activity", call, "onActivityPerm");
+            return;
+        }
+        readSteps(call);
+    }
+
+    @PermissionCallback
+    private void onActivityPerm(PluginCall call) {
+        if (getPermissionState("activity") != PermissionState.GRANTED) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "Schrittzähler nicht lesbar. Recht fehlt oder kein Sensor. Keine Diagnose.");
+            call.resolve(r);
+            return;
+        }
+        readSteps(call);
+    }
+
+    private void readSteps(PluginCall call) {
+        readSensorOnce(
+                Sensor.TYPE_STEP_COUNTER,
+                2500,
+                values -> {
+                    JSObject r = new JSObject();
+                    if (values == null || values.length < 1) {
+                        r.put("ok", false);
+                        r.put("message", "Schrittzähler nicht lesbar. Recht fehlt oder kein Sensor. Keine Diagnose.");
+                    } else {
+                        r.put("ok", true);
+                        r.put("count", Math.round(values[0]));
+                        r.put("sinceBoot", true);
+                    }
+                    call.resolve(r);
+                });
+    }
+
+    @PluginMethod
+    public void pressure(PluginCall call) {
+        readSensorOnce(
+                Sensor.TYPE_PRESSURE,
+                2500,
+                values -> {
+                    JSObject r = new JSObject();
+                    if (values == null || values.length < 1) {
+                        r.put("ok", false);
+                        r.put("message", "Luftdruck nicht lesbar. Kein Barometer oder kein Zugriff.");
+                    } else {
+                        r.put("ok", true);
+                        r.put("hpa", Math.round(values[0] * 10) / 10.0);
+                    }
+                    call.resolve(r);
+                });
+    }
+
+    @PluginMethod
+    public void compass(PluginCall call) {
+        readSensorOnce(
+                Sensor.TYPE_ROTATION_VECTOR,
+                2500,
+                values -> {
+                    JSObject r = new JSObject();
+                    if (values == null || values.length < 3) {
+                        r.put("ok", false);
+                        r.put("message", "Kompass nicht lesbar. Kein Magnetometer oder Störung.");
+                        call.resolve(r);
+                        return;
+                    }
+                    float[] rot = new float[9];
+                    float[] orient = new float[3];
+                    SensorManager.getRotationMatrixFromVector(rot, values);
+                    SensorManager.getOrientation(rot, orient);
+                    float deg = (float) Math.toDegrees(orient[0]);
+                    if (deg < 0) deg += 360f;
+                    String[] names = {"N", "NO", "O", "SO", "S", "SW", "W", "NW"};
+                    int i = Math.round(deg / 45f) % 8;
+                    r.put("ok", true);
+                    r.put("heading", deg);
+                    r.put("label", names[i]);
+                    call.resolve(r);
+                });
+    }
+
+    private interface SensorDone {
+        void on(float[] values);
+    }
+
+    private void readSensorOnce(int type, int timeoutMs, SensorDone done) {
+        SensorManager sm = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+        if (sm == null) {
+            done.on(null);
+            return;
+        }
+        Sensor sensor = sm.getDefaultSensor(type);
+        if (sensor == null) {
+            done.on(null);
+            return;
+        }
+        Handler h = new Handler(Looper.getMainLooper());
+        final SensorEventListener[] holder = new SensorEventListener[1];
+        final boolean[] finished = {false};
+        Runnable timeout =
+                () -> {
+                    if (finished[0]) return;
+                    finished[0] = true;
+                    if (holder[0] != null) sm.unregisterListener(holder[0]);
+                    done.on(null);
+                };
+        holder[0] =
+                new SensorEventListener() {
+                    @Override
+                    public void onSensorChanged(SensorEvent event) {
+                        if (finished[0]) return;
+                        finished[0] = true;
+                        h.removeCallbacks(timeout);
+                        sm.unregisterListener(this);
+                        done.on(event.values == null ? null : event.values.clone());
+                    }
+
+                    @Override
+                    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+                };
+        sm.registerListener(holder[0], sensor, SensorManager.SENSOR_DELAY_FASTEST);
+        h.postDelayed(timeout, timeoutMs);
     }
 
     @PluginMethod

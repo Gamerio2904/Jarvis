@@ -108,11 +108,11 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 102 | [`sprint-102.md`](./sprint-102.md) | `2.0.0` | Haus-AI, ein Kontext (letztes Medium, ehrlich) | **CODE** |
 | 103 | [`sprint-103.md`](./sprint-103.md) | `2.1.0` | WLAN-Steckdosen lokal | **CODE** |
 | 104 | [`sprint-104.md`](./sprint-104.md) | `2.2.0` | Uhrzeit, Ort, Auto-Research | **CODE** |
-| 105 | [`sprint-105.md`](./sprint-105.md) | `2.2.3` | Live-Qualität (Uhr/Akku, Musik, Wetter, Einkauf) | **IN SPRINT** |
+| 105 | [`sprint-105.md`](./sprint-105.md) | `2.2.3` | Live-Qualität (Uhr/Akku, Musik, Wetter, Einkauf) | **CODE** (in `2.19.0`) |
 | 106 | [`sprint-106.md`](./sprint-106.md) | `2.2.4` | Optional 1.5B on-device | **PLANNED** SHOULD |
-| 107 | [`sprint-107.md`](./sprint-107.md) | `2.3.0` | Alltag & Welt Kickoff (DWD zuerst) | **PLAN** |
+| 107 | [`sprint-107.md`](./sprint-107.md) | `2.19.0` | Alltag & Welt DWD bis Schach | **CODE** |
 
-**Aktuell:** Sideload `2.2.2`. Als Nächstes: Sprint **105** / `2.2.3`. Welt-Reihe: [`31-next.md`](../31-next.md) `2.3`–`2.19`.
+**Aktuell:** Code `2.19.0`. `2.2.4` 1.5B bleibt SHOULD. Welt-Reihe: [`31-next.md`](../31-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

@@ -1,6 +1,6 @@
 # 04 — Roadmap & Phasen
 
-> **Aktuell:** Sideload `2.2.2`. Als Nächstes Code: **`2.2.3` Live-Qualität** ([`30-next.md`](./30-next.md), Sprint 105). Danach [`31-next.md`](./31-next.md) `2.3`–`2.19` auf PO-Kommando. Sprints 46–48 auf `main` bleiben historisch (`0.13.2` Hang-Fix, `0.14.0`, `0.14.1` TV).
+> **Aktuell:** Code **`2.19.0`** (Live-Qualität + Welt). `2.2.4` 1.5B bleibt SHOULD ([`30-next.md`](./30-next.md)). Sprints 46–48 auf `main` bleiben historisch (`0.13.2` Hang-Fix, `0.14.0`, `0.14.1` TV).
 
 Die Phasen sind **sequentiell im Schwerpunkt**, dürfen aber Lernschleifen haben.  
 Kein Kalenderversprechen — Fortschritt hängt von Hardware, Modellwahl und Persona-Abnahme ab.

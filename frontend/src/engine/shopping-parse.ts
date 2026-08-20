@@ -19,6 +19,7 @@ const CLEAR = /^\s*(?:einkauf(?:sliste)?\s+(?:leeren|löschen)|liste\s+leer)\s*$
 export function parseShopIntent(text: string): ShopIntent | null {
   const t = text.trim()
   if (!t || t.length > 120) return null
+  if (/^\s*(guten\s+morgen|guten\s+abend|hallo|hi|hey)[.!?]*\s*$/i.test(t)) return null
   if (LIST.test(t)) return { kind: 'list' }
   if (CLEAR.test(t)) return { kind: 'clear' }
   const missing = MISSING.exec(t)

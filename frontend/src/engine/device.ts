@@ -1,5 +1,5 @@
 import { formatClockReply, parseDeviceIntent } from './device-parse'
-import { openDevicePage, readBattery, readNetwork, setTorch } from '../native/device'
+import { openDevicePage, readBattery, readCompass, readNetwork, readPressure, readSteps, setTorch } from '../native/device'
 import type { ToolMeta } from './tools'
 
 export { formatClockReply, parseDeviceIntent } from './device-parse'
@@ -76,6 +76,61 @@ export async function handleDevice(_conversationId: string, text: string): Promi
       handled: true,
       reply: `${line} Kein 5G-Raten.`,
       tool: deviceTool('status', 'Netz'),
+      lastTool: 'device',
+    }
+  }
+
+  if (intent.kind === 'steps') {
+    const s = await readSteps()
+    if (!s.ok || s.count == null) {
+      return {
+        handled: true,
+        reply: s.message || 'Schrittzähler nicht lesbar. Recht fehlt oder kein Sensor. Keine Diagnose.',
+        tool: deviceTool('ask', 'Schritte'),
+        lastTool: 'device',
+      }
+    }
+    const note = s.sinceBoot ? ' Zähler seit Gerätestart, nicht nur heute.' : ''
+    return {
+      handled: true,
+      reply: `${s.count} Schritte.${note}`,
+      tool: deviceTool('status', 'Schritte'),
+      lastTool: 'device',
+    }
+  }
+
+  if (intent.kind === 'pressure') {
+    const p = await readPressure()
+    if (!p.ok || p.hpa == null) {
+      return {
+        handled: true,
+        reply: p.message || 'Luftdruck nicht lesbar. Kein Barometer oder kein Zugriff.',
+        tool: deviceTool('ask', 'Luftdruck'),
+        lastTool: 'device',
+      }
+    }
+    return {
+      handled: true,
+      reply: `Luftdruck ${p.hpa} hPa.`,
+      tool: deviceTool('status', 'Luftdruck'),
+      lastTool: 'device',
+    }
+  }
+
+  if (intent.kind === 'compass') {
+    const c = await readCompass()
+    if (!c.ok || c.heading == null) {
+      return {
+        handled: true,
+        reply: c.message || 'Kompass nicht lesbar. Kein Magnetometer oder Störung.',
+        tool: deviceTool('ask', 'Kompass'),
+        lastTool: 'device',
+      }
+    }
+    return {
+      handled: true,
+      reply: `${c.label || 'Richtung'} (${Math.round(c.heading)}°).`,
+      tool: deviceTool('status', 'Kompass'),
       lastTool: 'device',
     }
   }

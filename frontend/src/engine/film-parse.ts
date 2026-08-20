@@ -4,7 +4,7 @@ import { parseTvWatch } from './tv-parse.ts'
 export type FilmIntent = { kind: 'where' | 'rate' | 'about'; title: string }
 
 const SKIP =
-  /\b(wecker|timer|tanke|fahrmodus|carplay|wetter|einkauf|todo|spotify|ventilator|akku|wlan)\b/i
+  /\b(wecker|timer|tanke|fahrmodus|carplay|wetter|einkauf|todo|spotify|ventilator|akku|wlan|kaufen|besorgen|holen)\b/i
 
 const WHERE =
   /^\s*(?:wo\s+(?:läuft|laeuft|gibt'?s|gibt\s+es|kann\s+ich(?:\s+mir)?)\s+(?:den\s+film\s+|die\s+serie\s+|das\s+)?(.+?)(?:\s+(?:kostenlos|gratis|umsonst|schauen|sehen|streamen|gucken))?)\s*$/i
