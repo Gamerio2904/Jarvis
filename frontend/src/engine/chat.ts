@@ -1,8 +1,8 @@
-import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
+import { completeChat, ensureModel, getDownloadProgress, getLlmError, getThreadCount, hasCachedModel, isModelReady, releaseModel } from './llm'
 import { completeGemini, geminiReady, GEMINI_LABEL, streamGemini, testGemini } from './gemini'
 import { completeGroq, groqReady, testGroq } from './groq'
 import { userFacingCloudError } from './cloud-errors'
-import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
+import { HELP_TEXT, hardRefuse, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
 import { splitIntents } from './split-intents'
@@ -26,9 +26,12 @@ import {
   type ResearchMeta,
 } from './research-parse'
 import { fillResearchLinks } from './web-search'
+import { debugPayload } from './chat-debug'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
+  SHARP_MODEL,
+  activeModel,
   addMessage,
   addResearchAudit,
   createConversation as storeCreate,
@@ -74,10 +77,13 @@ import { handleHere } from './here'
 import { handleTransit } from './transit'
 import { handleHoliday } from './holiday'
 import { handleNews } from './news'
+import { handleSpeaker } from './speaker'
 import { handleEyeAsk } from './eye'
 import { parseEyeIntent } from './eye-parse'
+import { blockedCopy, blockedReason, isOnline, NO_GEMINI_VOICE } from './offline'
 import { handleChatSearch } from './search-chat'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
+import { handleWorld, isMusicHonesty } from './world'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -114,36 +120,42 @@ export async function getHealth() {
   const err = getLlmError()
   const prog = getDownloadProgress()
   const s = loadSettings()
+  const active = activeModel()
+  const reason = blockedReason(localReady)
+  const online = isOnline()
+  const block = blockedCopy(reason, online)
   return {
     ok: ready,
     ollama: false,
     engine: cloud ? 'gemini' : 'on-device',
-    model: cloud ? GEMINI_LABEL : DEFAULT_MODEL.label,
+    model: cloud ? GEMINI_LABEL : active.label,
     model_ready: localReady,
     gemini_ready: cloud,
     gemini_enabled: s.gemini_enabled,
-    configured_model: cloud ? GEMINI_LABEL : DEFAULT_MODEL.label,
+    configured_model: cloud ? GEMINI_LABEL : active.label,
     fallback_model: DEFAULT_MODEL.label,
-    model_heavy: DEFAULT_MODEL.label,
-    heavy_equals_default: !cloud,
+    model_heavy: SHARP_MODEL.label,
+    heavy_equals_default: active.id !== 'sharp',
     using_fallback: false,
     version: APP_VERSION,
     memory_count: mem.length,
     research_opt_in: s.research_opt_in,
+    blocked_reason: !online ? 'offline' : reason,
     tv: tvStatusFromSettings(),
     warning: cloud
       ? groqReady()
         ? 'Gemini — bei Limit nächstes Modell, dann Groq. Chat geht ins Netz.'
         : 'Gemini (Google) — bei Limit nächstes Modell. Chat geht ins Netz.'
       : localReady
-        ? 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
-        : err || 'Modell noch nicht geladen.',
+        ? active.id === 'sharp'
+          ? 'On-Device 1.5B — denkt auf diesem Handy, kein Server.'
+          : 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
+        : err || block || 'Modell noch nicht geladen.',
     error: ready
       ? undefined
-      : s.gemini_enabled && !s.gemini_api_key.trim()
-        ? 'Gemini an, aber kein API-Key.'
-        : err || 'Modell nicht geladen. Unter Einstellungen herunterladen oder Gemini nutzen.',
+      : block || err || 'Modell nicht geladen. Unter Einstellungen herunterladen oder Gemini nutzen.',
     download_pct: prog.pct,
+    n_threads: getThreadCount(),
   }
 }
 
@@ -162,6 +174,33 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: HELP_TEXT, lastTool: 'help' }
   }
 
+  const refuse = hardRefuse(content)
+  if (refuse) return { reply: refuse, lastTool: 'refuse' }
+
+  const homeHitEarly = await handleHome(conversationId, content)
+  if (homeHitEarly.handled && homeHitEarly.reply) {
+    return { reply: homeHitEarly.reply, tool: homeHitEarly.tool, lastTool: homeHitEarly.lastTool || 'home' }
+  }
+
+  const speakerHit = await handleSpeaker(conversationId, content)
+  if (speakerHit.handled && speakerHit.reply) {
+    return { reply: speakerHit.reply, tool: speakerHit.tool, lastTool: 'speaker' }
+  }
+
+  const step = loadSettings().last_step_tool
+  if (step === 'leave_ask' || step === 'leave_ask_city') {
+    const leavePending = await handleLeave(conversationId, content)
+    if (leavePending.handled && leavePending.reply) {
+      return { reply: leavePending.reply, tool: leavePending.tool, lastTool: leavePending.lastTool || 'leave' }
+    }
+  }
+  if (step === 'drive_ask_city' || step === 'drive_ask_far') {
+    const drivePending = await handleDrive(conversationId, content)
+    if (drivePending.handled && drivePending.reply) {
+      return { reply: drivePending.reply, tool: drivePending.tool, lastTool: drivePending.lastTool || 'drive' }
+    }
+  }
+
   if (loadSettings().last_comm_json) {
     const pendingHit = await handlePlaces(conversationId, content)
     if (pendingHit.handled && pendingHit.reply) {
@@ -169,6 +208,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         reply: pendingHit.reply,
         tool: pendingHit.tool,
         lastTool: pendingHit.lastTool || 'maps',
+      }
+    }
+  }
+
+  if (loadSettings().last_cal_json) {
+    const calPending = await handleCalendar(conversationId, content)
+    if (calPending.handled && calPending.reply) {
+      return {
+        reply: calPending.reply,
+        tool: calPending.tool,
+        lastTool: 'calendar',
       }
     }
   }
@@ -366,6 +416,13 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  if (isMusicHonesty(content)) {
+    return {
+      reply: 'Musik ist nicht angebunden.',
+      lastTool: 'music',
+    }
+  }
+
   const driveHit = await handleDrive(conversationId, content)
   if (driveHit.handled && driveHit.reply) {
     return {
@@ -407,6 +464,13 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: memHit.reply, lastTool: 'memory' }
   }
 
+  if (isBriefAsk(content)) {
+    const briefHit = await handleBrief()
+    if (briefHit.handled && briefHit.reply) {
+      return { reply: briefHit.reply, tool: briefHit.tool, lastTool: briefHit.lastTool || 'brief' }
+    }
+  }
+
   const shopHit = await handleShopping(conversationId, content)
   if (shopHit.handled && shopHit.reply) {
     return { reply: shopHit.reply, tool: shopHit.tool, lastTool: shopHit.lastTool || 'shopping' }
@@ -417,21 +481,9 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: bdayHit.reply, tool: bdayHit.tool, lastTool: bdayHit.lastTool || 'birthday' }
   }
 
-  const homeHit = await handleHome(conversationId, content)
-  if (homeHit.handled && homeHit.reply) {
-    return { reply: homeHit.reply, tool: homeHit.tool, lastTool: homeHit.lastTool || 'home' }
-  }
-
   const leaveHit = await handleLeave(conversationId, content)
   if (leaveHit.handled && leaveHit.reply) {
     return { reply: leaveHit.reply, tool: leaveHit.tool, lastTool: leaveHit.lastTool || 'leave' }
-  }
-
-  if (isBriefAsk(content)) {
-    const briefHit = await handleBrief()
-    if (briefHit.handled && briefHit.reply) {
-      return { reply: briefHit.reply, tool: briefHit.tool, lastTool: briefHit.lastTool || 'brief' }
-    }
   }
 
   const holidayHit = await handleHoliday(content)
@@ -468,6 +520,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     const eyeHit = await handleEyeAsk()
     if (eyeHit.handled && eyeHit.reply) {
       return { reply: eyeHit.reply, tool: eyeHit.tool, lastTool: eyeHit.lastTool || 'eye' }
+    }
+  }
+
+  const worldHit = await handleWorld(content)
+  if (worldHit.handled && worldHit.reply) {
+    return {
+      reply: worldHit.reply,
+      tool: worldHit.tool,
+      lastTool: worldHit.lastTool || 'world',
     }
   }
 
@@ -639,10 +700,21 @@ export async function streamChat(
       if (research) research = await attachResearchAudit(research, content)
       const joined = replies.join('\n\n')
       handlers.onToken?.(joined)
-      const assistant = await addMessage(conversationId, 'assistant', joined, {
-        tool: last.tool,
-        research,
-      })
+      const assistant = await addMessage(
+        conversationId,
+        'assistant',
+        joined,
+        debugPayload({
+          route: last.lastTool || 'tool',
+          model: 'deterministic',
+          gemini: false,
+          tool: last.tool,
+          research,
+          final: joined,
+          routes: found.map((h) => h.lastTool || ''),
+          missed: routed.map((h, i) => (h ? '' : parts[i])).filter(Boolean),
+        }),
+      )
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({
         assistant_message: assistant,
@@ -672,15 +744,38 @@ export async function streamChat(
         })
         const final = scrubReply((raw || acc).trim())
         if (final !== (raw || acc)) handlers.onReplace?.(final)
-        const assistant = await addMessage(conversationId, 'assistant', final)
+        const assistant = await addMessage(
+          conversationId,
+          'assistant',
+          final,
+          debugPayload({
+            route: 'llm',
+            model: 'groq',
+            gemini: false,
+            voice: true,
+            raw: raw || acc,
+            final,
+          }),
+        )
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
         return
       }
       const reply =
-        'Befehl nicht erkannt. Smalltalk im Sprachmodus braucht Gemini. Wetter, Timer, Route, Einkauf gehen ohne.'
+        NO_GEMINI_VOICE
       handlers.onToken?.(reply)
-      const assistant = await addMessage(conversationId, 'assistant', reply)
+      const assistant = await addMessage(
+        conversationId,
+        'assistant',
+        reply,
+        debugPayload({
+          route: 'voice-fallback',
+          model: 'none',
+          gemini: false,
+          voice: true,
+          final: reply,
+        }),
+      )
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
@@ -699,7 +794,17 @@ export async function streamChat(
     const live = isLiveLookup(content, discount)
     if (live && !geminiReady()) {
       if (!s.research_opt_in) {
-        const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
+        const assistant = await addMessage(
+          conversationId,
+          'assistant',
+          RESEARCH_OFF_REPLY,
+          debugPayload({
+            route: 'research',
+            model: 'deterministic',
+            gemini: false,
+            final: RESEARCH_OFF_REPLY,
+          }),
+        )
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
         return
@@ -715,12 +820,34 @@ export async function streamChat(
           discount,
         )
         handlers.onReplace?.(reply)
-        const assistant = await addMessage(conversationId, 'assistant', reply, { research })
+        const assistant = await addMessage(
+          conversationId,
+          'assistant',
+          reply,
+          debugPayload({
+            route: 'research',
+            model: 'deterministic',
+            gemini: false,
+            research,
+            final: reply,
+          }),
+        )
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, research, tool: null })
         return
       }
-      const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
+      const assistant = await addMessage(
+        conversationId,
+        'assistant',
+        RESEARCH_NEEDS_GEMINI,
+        debugPayload({
+          route: 'research',
+          model: 'deterministic',
+          gemini: false,
+          research,
+          final: RESEARCH_NEEDS_GEMINI,
+        }),
+      )
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
@@ -806,7 +933,18 @@ export async function streamChat(
         } else if (!text && !researchHasSources(research)) {
           const empty = RESEARCH_EMPTY
           handlers.onReplace?.(empty)
-          const assistant = await addMessage(conversationId, 'assistant', empty, { research })
+          const assistant = await addMessage(
+            conversationId,
+            'assistant',
+            empty,
+            debugPayload({
+              route: 'research',
+              model: geminiReady() ? GEMINI_LABEL : DEFAULT_MODEL.label,
+              gemini: geminiReady(),
+              research,
+              final: empty,
+            }),
+          )
           const updated = (await touchConversation(conversationId)) || conv
           handlers.onDone?.({
             assistant_message: assistant,
@@ -842,7 +980,20 @@ export async function streamChat(
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, content)
     if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
-    const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
+    const assistant = await addMessage(
+      conversationId,
+      'assistant',
+      final,
+      debugPayload({
+        route: 'llm',
+        model: geminiReady() ? GEMINI_LABEL : DEFAULT_MODEL.label,
+        gemini: geminiReady(),
+        voice: Boolean(opts?.voice),
+        research,
+        raw: text,
+        final,
+      }),
+    )
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({
       assistant_message: assistant,

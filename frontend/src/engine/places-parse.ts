@@ -30,6 +30,8 @@ const RECALL =
   /^\s*wo\s+(?:wohnt|ist|liegt)\s+(?:denn\s+)?(.+?)\s*[.?!]?\s*$/i
 const WRITE_WOHNT =
   /^\s*(?:merk(?:e)?\s*dir\s*[:-]?\s*)?(.+?)\s+wohnt\s+(?:in|auf|an)\s+(.+?)\s*$/i
+const FORGET_PLACE =
+  /^\s*(?:die\s+|der\s+)?([\wÄÖÜäöüß.-]{2,40})\s+(?:wohnt|lebt)\s+nicht\s+mehr(?:\s+in\s+.+)?\s*[.!]?\s*$/i
 const WRITE_ICH =
   /^\s*ich\s+wohne\s+(?:in|auf|an)\s+(.+?)\s*$/i
 const WRITE_ICH_ARBEITE =
@@ -107,6 +109,13 @@ export function isBarePlaceAnswer(text: string): boolean {
   }
   if (extractPhone(t)) return false
   return true
+}
+
+export function parsePlaceForget(text: string): string | null {
+  const m = FORGET_PLACE.exec(text.trim())
+  if (!m?.[1]) return null
+  const name = normalizePlaceName(m[1])
+  return name || null
 }
 
 export function parsePlaceWrite(text: string): PlaceWrite | null {
@@ -194,12 +203,18 @@ const SMS =
   /^\s*(?:schreib(?:e)?(?:\s+mal)?|(?:sende?\s+)?(?:eine?\s+)?(?:sms|kurze?\s*nachricht|nachricht))\s+(?:der|dem|an\s+(?:die|den|das)?\s*)?(.+)$/i
 const PHONE =
   /^\s*(?:(?:nummer\s+von|tel(?:efon)?\s+von)\s+(.+?)\s*[:-]\s*(.+)|(.+?)\s*[,:]\s*tel(?:efon)?\s+(.+))\s*$/i
+const PHONE_FUER =
+  /^\s*(?:(?:die\s+)?(?:handy[\s-]?)?nummer|tel(?:efonnummer|efon)?)\s+für\s+(?:die\s+|den\s+|das\s+|meine[nrs]?\s+)?(.+?)\s*[:–-]?\s*((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
+const PHONE_HAT =
+  /^\s*(?:(?:die\s+|meine[nrs]?\s+)?(.+?)\s+(?:hat\s+(?:die\s+)?nummer|ihre\s+nummer\s+ist|nummer\s+ist)\s+|nummer\s+(?:der|des|von\s+der)\s+(.+?)\s+ist\s+)((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const PHONE_NAME =
   /^\s*(.+?)\s*[,:–-]\s*((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const PHONE_SPACE =
-  /^\s*([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,28})\s+(?:tel(?:efon)?\s+)?((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
+  /^\s*([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,28})\s+(?:(?:tel(?:efon)?|nummer)\s+)?((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const ALIAS =
   /^\s*(?:meine[nrs]?\s+)?(.+?)\s+heißt\s+(.+?)\s*$/i
+const ALIAS_IST =
+  /^\s*(?:meine[nrs]?\s+)?(.+?)\s+ist\s+(?:meine[nrs]?\s+)?(.+?)\s*$/i
 
 export function looksLikePhone(value: string): boolean {
   const d = value.replace(/\D/g, '')
@@ -220,8 +235,10 @@ export function findContactRow(
   const q = normalizePlaceName(query)
   if (!q) return undefined
   const phones = rows.filter((r) => r.category === 'contact' && looksLikePhone(r.value))
-  const direct = phones.find((r) => r.key === q || r.key.includes(q) || q.includes(r.key))
+  const direct = phones.find((r) => r.key === q)
   if (direct) return { key: direct.key, value: direct.value }
+  const fuzzy = phones.find((r) => r.key.includes(q) || q.includes(r.key))
+  if (fuzzy) return { key: fuzzy.key, value: fuzzy.value }
   const forward = rows.find((r) => r.key === `alias:${q}` && r.value.trim())
   if (forward) {
     const other = normalizePlaceName(forward.value)
@@ -237,6 +254,32 @@ export function findContactRow(
   return undefined
 }
 
+export function findPlaceRow(
+  rows: Array<{ key: string; value: string; category: string }>,
+  query: string,
+): { key: string; value: string } | undefined {
+  const q = normalizePlaceName(query)
+  if (!q) return undefined
+  const places = rows.filter((r) => r.category === 'place' && r.value.trim())
+  const direct = places.find((r) => r.key === q)
+  if (direct) return { key: direct.key, value: direct.value }
+  const forward = rows.find((r) => r.key === `alias:${q}` && r.value.trim())
+  if (forward) {
+    const other = normalizePlaceName(forward.value)
+    const hit = places.find((r) => r.key === other)
+    if (hit) return { key: hit.key, value: hit.value }
+  }
+  const reverse = rows.find((r) => r.key.startsWith('alias:') && normalizePlaceName(r.value) === q)
+  if (reverse) {
+    const rel = reverse.key.slice('alias:'.length)
+    const hit = places.find((r) => r.key === rel)
+    if (hit) return { key: hit.key, value: hit.value }
+  }
+  const fuzzy = places.find((r) => r.key.includes(q) || q.includes(r.key))
+  if (fuzzy) return { key: fuzzy.key, value: fuzzy.value }
+  return undefined
+}
+
 function isNameLike(raw: string): boolean {
   const n = normalizePlaceName(raw)
   if (!n || n.length < 2 || n.length > 28) return false
@@ -245,12 +288,22 @@ function isNameLike(raw: string): boolean {
 }
 
 export function parseAlias(text: string): PlaceNav | null {
-  const m = ALIAS.exec(text.trim())
-  if (!m) return null
-  const name = normalizePlaceName(m[1])
-  const alias = normalizePlaceName(m[2])
-  if (!isNameLike(name) || !isNameLike(alias) || name === alias) return null
-  if (name === 'ich') return null
+  const t = text.trim()
+  const named = ALIAS.exec(t)
+  if (named) {
+    const name = normalizePlaceName(named[1])
+    const alias = normalizePlaceName(named[2])
+    if (isNameLike(name) && isNameLike(alias) && name !== alias && name !== 'ich') {
+      return { kind: 'alias', name, alias }
+    }
+  }
+  const ist = ALIAS_IST.exec(t)
+  if (!ist) return null
+  if (/\s+in\s+/i.test(t)) return null
+  const name = normalizePlaceName(ist[1])
+  const alias = normalizePlaceName(ist[2])
+  if (!isNameLike(name) || !isNameLike(alias) || name === alias || name === 'ich') return null
+  if (!isRelationName(name) && !isRelationName(alias)) return null
   return { kind: 'alias', name, alias }
 }
 
@@ -281,6 +334,8 @@ export function parseSms(text: string): PlaceNav | null {
 
 export function parseCallOrPhone(text: string): PlaceNav | null {
   const t = text.trim()
+  const homePhone = parseHomePhone(t)
+  if (homePhone) return homePhone
   const mal = CALL_MAL.exec(t)
   if (mal) {
     const query = normalizePlaceName(mal[1] || '')
@@ -301,6 +356,18 @@ export function parseCallOrPhone(text: string): PlaceNav | null {
     const query = normalizePlaceName(call[1] || call[2] || call[3] || '')
     if (query) return { kind: 'call', query }
   }
+  const fuer = PHONE_FUER.exec(t)
+  if (fuer) {
+    const name = normalizePlaceName(fuer[1] || '')
+    const number = (fuer[2] || '').replace(/[^\d+]/g, '')
+    if (name && isNameLike(name) && looksLikePhone(number)) return { kind: 'phone', name, number }
+  }
+  const hat = PHONE_HAT.exec(t)
+  if (hat) {
+    const name = normalizePlaceName(hat[1] || hat[2] || '')
+    const number = (hat[3] || '').replace(/[^\d+]/g, '')
+    if (name && isNameLike(name) && looksLikePhone(number)) return { kind: 'phone', name, number }
+  }
   const phone = PHONE.exec(t)
   if (phone) {
     const name = normalizePlaceName(phone[1] || phone[3] || '')
@@ -314,6 +381,22 @@ export function parseCallOrPhone(text: string): PlaceNav | null {
     if (name && isNameLike(name) && looksLikePhone(number)) return { kind: 'phone', name, number }
   }
   return null
+}
+
+function parseHomePhone(text: string): PlaceNav | null {
+  if (
+    !/\b(heimnummer|hausnummer|zuhause|zu\s*hause|\bheim\b|meinem\s+haus|vom\s+haus|nummer\s+von\s+(?:zu\s*)?hause)\b/i.test(
+      text,
+    )
+  ) {
+    return null
+  }
+  if (/\b(freundin|freund|bro|mama|papa|odett)\b/i.test(text) && !/\b(haus|heim|zuhause)\b/i.test(text)) {
+    return null
+  }
+  const num = extractPhone(text)
+  if (!num) return null
+  return { kind: 'phone', name: 'zuhause', number: num }
 }
 
 export function parseTravelNav(text: string): PlaceNav | null {
@@ -334,7 +417,12 @@ export function isCommYes(text: string, kind?: 'call' | 'sms'): boolean {
     return true
   }
   if (kind === 'sms') return /^\s*(senden|schick(?:en)?)\s*[.!?]*$/i.test(t)
-  if (kind === 'call') return /^\s*anrufen\s*[.!?]*$/i.test(t)
+  if (kind === 'call') {
+    if (/^\s*anrufen\s*[.!?]*$/i.test(t)) return true
+    if (/^\s*ruf(?:e)?\s+.+\s+an\s*[.!?]*$/i.test(t)) return true
+    if (/^\s*(?:den\s+kontakt\s+)?.+\s+anrufen\s*[.!?]*$/i.test(t)) return true
+    return false
+  }
   return /^\s*(anrufen|senden|schick(?:en)?)\s*[.!?]*$/i.test(t)
 }
 

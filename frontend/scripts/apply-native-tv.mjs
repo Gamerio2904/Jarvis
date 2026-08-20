@@ -120,6 +120,7 @@ const perms = [
   'android.permission.FLASHLIGHT',
   'android.permission.CALL_PHONE',
   'android.permission.SEND_SMS',
+  'android.permission.ACTIVITY_RECOGNITION',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -128,6 +129,12 @@ for (const perm of perms) {
       `    <uses-permission android:name="${perm}" />\n</manifest>`,
     )
   }
+}
+if (!manifest.includes('WRITE_EXTERNAL_STORAGE')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    `    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />\n</manifest>`,
+  )
 }
 if (!manifest.includes('android:usesCleartextTraffic')) {
   manifest = manifest.replace(
@@ -246,7 +253,44 @@ if (!manifest.includes('android.hardware.camera.flash')) {
     `    <uses-feature android:name="android.hardware.camera.flash" android:required="false" />\n</manifest>`,
   )
 }
-if (!manifest.includes('<queries>')) {
+if (!manifest.includes('android.hardware.camera"')) {
+  manifest = manifest.replace(
+    '</manifest>',
+    `    <uses-feature android:name="android.hardware.camera" android:required="false" />\n</manifest>`,
+  )
+}
+if (!manifest.includes('android.media.action.IMAGE_CAPTURE')) {
+  if (manifest.includes('<queries>')) {
+    manifest = manifest.replace(
+      '<queries>',
+      `<queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>`,
+    )
+  } else {
+    manifest = manifest.replace(
+      '</manifest>',
+      `    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.CALL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+    </queries>
+</manifest>`,
+    )
+  }
+} else if (!manifest.includes('<queries>')) {
   manifest = manifest.replace(
     '</manifest>',
     `    <queries>

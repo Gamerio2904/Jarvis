@@ -61,7 +61,7 @@ public class JarvisGlanceWidget extends AppWidgetProvider {
         }
     }
 
-    /** Körper und Mikro: derselbe Deep-Link wie Shortcut und Wake-Word — zuhören und antworten. */
+    /** Fläche = hören. Mikro = Wake-Word an/aus. Flags wie Wake-Word, ohne CLEAR_TOP. */
     static Intent voiceIntent(Context ctx) {
         Intent i = new Intent(ctx, MainActivity.class);
         i.setAction(Intent.ACTION_VIEW);
@@ -70,7 +70,7 @@ public class JarvisGlanceWidget extends AppWidgetProvider {
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP
                 | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
-                | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         return i;
     }
 }

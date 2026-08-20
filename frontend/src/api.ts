@@ -85,8 +85,10 @@ export type Health = {
   version?: string
   memory_count?: number
   research_opt_in?: boolean
-  error?: string
-  download_pct?: number
+    error?: string
+    download_pct?: number
+    n_threads?: number
+    blocked_reason?: string
   tv?: {
     enabled?: boolean
     name?: string
@@ -206,8 +208,8 @@ export async function listConversations(): Promise<Conversation[]> {
   return conversations.list()
 }
 
-export async function createConversation(): Promise<Conversation> {
-  return conversations.create()
+export async function createConversation(title?: string, kind?: string): Promise<Conversation> {
+  return conversations.create(title, kind)
 }
 
 export async function getConversation(

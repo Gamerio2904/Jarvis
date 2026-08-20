@@ -1,19 +1,35 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '2.2.2'
+export const APP_VERSION = '2.37.2'
 
-export const DEFAULT_MODEL = {
+export const FAST_MODEL = {
+  id: 'fast' as const,
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
   file: 'qwen2.5-0.5b-instruct-q4_k_m.gguf',
   label: 'Qwen2.5 0.5B Instruct Q4',
   sizeLabel: '~470 MB',
+  minBytes: 480_000_000,
 }
+
+export const SHARP_MODEL = {
+  id: 'sharp' as const,
+  repo: 'Qwen/Qwen2.5-1.5B-Instruct-GGUF',
+  file: 'qwen2.5-1.5b-instruct-q4_k_m.gguf',
+  label: 'Qwen2.5 1.5B Instruct Q4',
+  sizeLabel: '~1,1 GB',
+  minBytes: 900_000_000,
+}
+
+export const DEFAULT_MODEL = FAST_MODEL
+
+export const DEBUG_CHAT_KIND = 'debug'
 
 export type Conversation = {
   id: string
   title: string
   created_at: string
   updated_at: string
+  kind?: string
 }
 
 export type Message = {
@@ -123,6 +139,7 @@ export type Settings = {
   last_fuel_json: string
   last_poi_json: string
   last_comm_json: string
+  last_cal_json: string
   last_pc_json: string
   last_drive_json: string
   pc_enabled: boolean
@@ -167,8 +184,12 @@ export type Settings = {
   alarm_tone_name: string
   voice_tts: string
   gemini_tts_model: string
+  chess_fen: string
   model_default: string
   fallback_model: string
+  model_variant: string
+  last_speaker: string
+  last_eye_json: string
   routing_mode: string
   version: string
 }
@@ -202,6 +223,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_fuel_json: '',
   last_poi_json: '',
   last_comm_json: '',
+  last_cal_json: '',
   last_pc_json: '',
   last_drive_json: '',
   pc_enabled: false,
@@ -246,8 +268,12 @@ export const DEFAULT_SETTINGS: Settings = {
   alarm_tone_name: '',
   voice_tts: 'auto',
   gemini_tts_model: '',
+  chess_fen: '',
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
+  model_variant: 'fast',
+  last_speaker: '',
+  last_eye_json: '',
   routing_mode: 'on-device',
   version: APP_VERSION,
 }
@@ -386,12 +412,14 @@ export async function listConversations(): Promise<Conversation[]> {
 
 export async function createConversation(
   title = 'Neues Gespräch',
+  kind?: string,
 ): Promise<Conversation> {
   const row: Conversation = {
     id: newId(),
     title,
     created_at: nowIso(),
     updated_at: nowIso(),
+    ...(kind ? { kind } : {}),
   }
   await put('conversations', row)
   return row
@@ -436,7 +464,11 @@ export async function addMessage(
   const conv = await get<Conversation>('conversations', conversationId)
   if (conv) {
     const title =
-      role === 'user' && shouldRefreshTitle(content) ? titleFromUser(content) : conv.title
+      conv.kind === DEBUG_CHAT_KIND
+        ? conv.title
+        : role === 'user' && shouldRefreshTitle(content)
+          ? titleFromUser(content)
+          : conv.title
     await touchConversation(conversationId, title)
   }
   return row
@@ -455,18 +487,54 @@ export async function listMemory(category?: string | null): Promise<MemoryItem[]
   return filtered.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
 }
 
+export function activeModel() {
+  return loadSettings().model_variant === 'sharp' ? SHARP_MODEL : FAST_MODEL
+}
+
 export async function upsertMemory(
   key: string,
   value: string,
   category: string,
   conversationId?: string,
 ): Promise<MemoryItem> {
-  const existing = (await getAll<MemoryItem>('memory')).find(
-    (m) => m.key === key && m.category === category,
-  )
+  const keyN = key.trim().toLowerCase()
+  const rows = await getAll<MemoryItem>('memory')
+  if (category === 'contact') {
+    const dig = value.replace(/[^\d+]/g, '')
+    const other = rows.find(
+      (m) =>
+        m.category === 'contact' &&
+        m.key !== keyN &&
+        m.value.replace(/[^\d+]/g, '') === dig &&
+        dig.length >= 6,
+    )
+    if (other) {
+      await put('memory', {
+        id: newId(),
+        key: `alias:${keyN}`,
+        value: other.key,
+        category: 'fact',
+        confidence: 0.9,
+        source_conversation_id: conversationId || null,
+        updated_at: nowIso(),
+      })
+      await put('memory', {
+        id: newId(),
+        key: `alias:${other.key}`,
+        value: keyN,
+        category: 'fact',
+        confidence: 0.9,
+        source_conversation_id: conversationId || null,
+        updated_at: nowIso(),
+      })
+      return other
+    }
+  }
+  const existing = rows.find((m) => m.key === keyN && m.category === category)
+    || rows.find((m) => m.key.toLowerCase() === keyN && m.category === category)
   const row: MemoryItem = {
     id: existing?.id || newId(),
-    key,
+    key: existing?.key || keyN,
     value,
     category,
     confidence: 0.9,

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { Capacitor } from '@capacitor/core'
+import { App as CapApp } from '@capacitor/app'
 import {
   clearMemory,
   createConversation,
@@ -45,14 +47,23 @@ import { researchStatusLabel } from './engine/research-parse'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
 import { CalendarView } from './Calendar'
+import { CompassView } from './CompassView'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
 import { DriveMode } from './DriveMode'
 import { WakeBubble } from './WakeBubble'
 import { closeDrive, subscribeDrive } from './engine/drive'
-import { loadSettings } from './engine/store'
+import { DEBUG_CHAT_KIND, loadSettings } from './engine/store'
+import { downloadChatDebug, expandPickedMessageIds } from './engine/chat-debug'
+import {
+  TEST_COPY_GROUPS,
+  allTestPromptKeys,
+  selectedTestPrompts,
+  testPromptKey,
+} from './engine/test-copy'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
+import { takeNativePhoto, setDebugHold } from './native/device'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
@@ -116,6 +127,16 @@ function ToolChip({
           </button>
         </span>
       ) : null}
+      {tool.result?.confirmCall && onConfirm ? (
+        <span className="confirm-row">
+          <button type="button" className="confirm-btn yes" onClick={() => onConfirm('Ja')}>
+            Anrufen
+          </button>
+          <button type="button" className="confirm-btn no" onClick={() => onConfirm('Nein')}>
+            Nicht
+          </button>
+        </span>
+      ) : null}
       {tool.tool === 'maps'
         ? mapsRoutes(tool).map((r) => (
             <a
@@ -133,7 +154,7 @@ function ToolChip({
             </a>
           ))
         : null}
-      {typeof tool.result?.tel === 'string' && tool.result.tel ? (
+      {typeof tool.result?.tel === 'string' && tool.result.tel && !tool.result.confirmCall ? (
         <a
           className="maps-btn"
           href={String(tool.result.tel)}
@@ -176,7 +197,7 @@ function SourcesBlock({
   const query = (research.query || '').replace(/^[·.\s]+/, '').trim()
   if (!sources.length && !status && !query) return null
   return (
-    <details className="sources-block" open>
+    <details className="sources-block">
       <summary>
         <span className="sources-badge">{status || 'Quellen'}</span>
         {sources.length ? (
@@ -301,13 +322,29 @@ function App() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
-  const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('allgemein')
+  const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('hub')
+  const [settingsTestGroup, setSettingsTestGroup] = useState<string | null>(null)
+  const [testKeys, setTestKeys] = useState<Record<string, true>>({})
+  const [debugMode, setDebugMode] = useState(false)
+  const [debugPicking, setDebugPicking] = useState(false)
+  const [debugPicked, setDebugPicked] = useState<Record<string, true>>({})
+  const [debugProgress, setDebugProgress] = useState<{
+    i: number
+    n: number
+    text: string
+    done: boolean
+    cancelled?: boolean
+    stopping?: boolean
+  } | null>(null)
+  const [debugDlBusy, setDebugDlBusy] = useState(false)
+  const [debugDlMsg, setDebugDlMsg] = useState<string | null>(null)
   const [momentGlint, setMomentGlint] = useState(false)
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [remindBusy, setRemindBusy] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
+  const [compassOpen, setCompassOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
   const [wakeListening, setWakeListening] = useState(false)
@@ -332,18 +369,131 @@ function App() {
   const messagesRef = useRef<HTMLDivElement | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const eyeFileRef = useRef<HTMLInputElement | null>(null)
+  const eyeCamRef = useRef<HTMLInputElement | null>(null)
   const appRef = useRef<HTMLDivElement | null>(null)
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
   const voiceHoldUntilRef = useRef(0)
+  const activeIdRef = useRef<string | null>(null)
+  const debugCancelRef = useRef(false)
+  const debugChatIdRef = useRef<string | null>(null)
+  const debugRunningRef = useRef(false)
+  const busyRef = useRef(false)
+  activeIdRef.current = activeId
   const [voiceSeed, setVoiceSeed] = useState('')
+  const [voiceLaunchSeq, setVoiceLaunchSeq] = useState(0)
 
   function openVoiceMode(seed = '') {
-    voiceHoldUntilRef.current = Date.now() + 2500
-    if (seed) setVoiceSeed(seed)
+    debugCancelRef.current = true
+    debugRunningRef.current = false
+    debugChatIdRef.current = null
+    setDebugMode(false)
+    setDebugProgress(null)
+    setSetupOpen(false)
+    setSettingsPanelOpen(false)
+    voiceHoldUntilRef.current = Date.now() + 8000
+    setVoiceSeed(seed || '')
+    setVoiceLaunchSeq((n) => n + 1)
     setVoiceOpen(true)
     setCalendarOpen(false)
+    setCompassOpen(false)
   }
+
+  const overlayRef = useRef({
+    settingsPanelOpen: false,
+    settingsTopic: 'hub' as SettingsTopic,
+    settingsTestGroup: null as string | null,
+    calendarOpen: false,
+    compassOpen: false,
+    driveOpen: false,
+    voiceOpen: false,
+    sidebarOpen: false,
+  })
+  overlayRef.current = {
+    settingsPanelOpen,
+    settingsTopic,
+    settingsTestGroup,
+    calendarOpen,
+    compassOpen,
+    driveOpen,
+    voiceOpen,
+    sidebarOpen,
+  }
+
+  function settingsGoBack() {
+    if (settingsTopic === 'tests' && settingsTestGroup) {
+      setSettingsTestGroup(null)
+      return
+    }
+    if (settingsTopic !== 'hub') {
+      setSettingsTopic('hub')
+      setSettingsTestGroup(null)
+      return
+    }
+    setSettingsPanelOpen(false)
+    setSettingsTestGroup(null)
+  }
+
+  function navigateBack(): boolean {
+    const o = overlayRef.current
+    if (o.settingsPanelOpen && o.settingsTopic === 'tests' && o.settingsTestGroup) {
+      setSettingsTestGroup(null)
+      return true
+    }
+    if (o.settingsPanelOpen && o.settingsTopic !== 'hub') {
+      setSettingsTopic('hub')
+      setSettingsTestGroup(null)
+      return true
+    }
+    if (o.settingsPanelOpen) {
+      setSettingsPanelOpen(false)
+      setSettingsTestGroup(null)
+      return true
+    }
+    if (o.compassOpen) {
+      setCompassOpen(false)
+      return true
+    }
+    if (o.calendarOpen) {
+      setCalendarOpen(false)
+      return true
+    }
+    if (o.voiceOpen) {
+      setVoiceOpen(false)
+      return true
+    }
+    if (o.driveOpen) {
+      closeDrive()
+      setDriveOpen(false)
+      return true
+    }
+    if (o.sidebarOpen) {
+      setSidebarOpen(false)
+      return true
+    }
+    return false
+  }
+
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape' && navigateBack()) e.preventDefault()
+    }
+    window.addEventListener('keydown', onKey)
+    let sub: { remove: () => Promise<void> } | null = null
+    if (Capacitor.isNativePlatform()) {
+      void CapApp.addListener('backButton', ({ canGoBack }) => {
+        if (navigateBack()) return
+        if (canGoBack) window.history.back()
+        else void CapApp.minimizeApp()
+      }).then((h) => {
+        sub = h
+      })
+    }
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      void sub?.remove()
+    }
+  }, [])
 
   useEffect(() => {
     const unlock = () => {
@@ -438,10 +588,29 @@ function App() {
       })
     }
     document.addEventListener('visibilitychange', vis)
+    let appState: { remove: () => Promise<void> } | null = null
+    let urlOpen: { remove: () => Promise<void> } | null = null
+    if (Capacitor.isNativePlatform()) {
+      void CapApp.addListener('appStateChange', ({ isActive }) => {
+        if (!isActive) return
+        void consumeVoiceLaunch().then((v) => {
+          if (v.voice) openVoiceMode(v.utterance)
+        })
+      }).then((h) => {
+        appState = h
+      })
+      void CapApp.addListener('appUrlOpen', ({ url }) => {
+        if (url && /voice/i.test(url)) openVoiceMode()
+      }).then((h) => {
+        urlOpen = h
+      })
+    }
     return () => {
       off()
       window.clearTimeout(hideTimer)
       document.removeEventListener('visibilitychange', vis)
+      void appState?.remove()
+      void urlOpen?.remove()
     }
   }, [])
 
@@ -499,7 +668,9 @@ function App() {
 
   async function refreshMemory(filter: MemoryCategory | 'all' = memoryFilter) {
     try {
-      setMemoryItems(await listMemory(filter === 'all' ? null : filter))
+      setMemoryItems(
+        (await listMemory(filter === 'all' ? null : filter)).filter((m) => !m.key.startsWith('alias:')),
+      )
     } catch {
       /* panel shows empty / prior list */
     }
@@ -831,23 +1002,47 @@ function App() {
   }
 
   async function openConversation(id: string) {
+    if (debugChatIdRef.current && debugChatIdRef.current !== id) {
+      debugCancelRef.current = true
+      debugRunningRef.current = false
+    }
     setError(null)
     setLastFailed(null)
     setActiveId(id)
+    activeIdRef.current = id
     setSidebarOpen(false)
     setThreadKey((k) => k + 1)
     setEnterIds({})
     stickToBottomRef.current = true
     const data = await getConversation(id)
     setMessages(data.messages)
+    const isDebug = data.kind === DEBUG_CHAT_KIND
+    setDebugMode(isDebug)
+    setDebugPicking(false)
+    setDebugPicked({})
+    setDebugDlMsg(null)
+    if (isDebug) {
+      debugChatIdRef.current = id
+    } else {
+      debugChatIdRef.current = null
+      setDebugProgress(null)
+    }
   }
 
   async function onNewChat() {
+    debugCancelRef.current = true
+    debugRunningRef.current = false
+    debugChatIdRef.current = null
+    setDebugMode(false)
+    setDebugPicking(false)
+    setDebugPicked({})
+    setDebugProgress(null)
     setError(null)
     setLastFailed(null)
     const created = await createConversation()
     setConversations((prev) => [created, ...prev])
     setActiveId(created.id)
+    activeIdRef.current = created.id
     setMessages([])
     setEnterIds({})
     setThreadKey((k) => k + 1)
@@ -860,6 +1055,13 @@ function App() {
     const ok = window.confirm('Dieses Gespräch wirklich löschen?')
     if (!ok) return
     try {
+      if (debugChatIdRef.current === activeId) {
+        debugCancelRef.current = true
+        debugRunningRef.current = false
+        debugChatIdRef.current = null
+        setDebugMode(false)
+        setDebugProgress(null)
+      }
       await deleteConversation(activeId)
       const remaining = conversations.filter((c) => c.id !== activeId)
       setConversations(remaining)
@@ -882,8 +1084,11 @@ function App() {
     stickToBottomRef.current = distance < 96
   }
 
-  async function sendMessage(content: string) {
-    if (!content || busy) return
+  async function sendMessage(content: string, opts?: { fromDebug?: boolean }) {
+    if (!content) return
+    if (debugRunningRef.current && !opts?.fromDebug) return
+    if (busyRef.current) return
+    busyRef.current = true
     setBusy(true)
     setError(null)
     setLastFailed(null)
@@ -896,11 +1101,12 @@ function App() {
       volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
     })
 
-    let conversationId = activeId
+    let conversationId = activeIdRef.current
     try {
       if (!conversationId) {
         const created = await createConversation()
         conversationId = created.id
+        activeIdRef.current = created.id
         setConversations((prev) => [created, ...prev])
         setActiveId(created.id)
       }
@@ -975,21 +1181,30 @@ function App() {
           }
           if (payload.research) void refreshAudits()
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
-          if (payload.tool?.tool === 'calendar') {
-            if (payload.tool.action === 'open') {
-              setCalendarOpen(true)
-              setSidebarOpen(false)
+          if (!debugChatIdRef.current) {
+            if (payload.tool?.tool === 'calendar') {
+              if (payload.tool.action === 'open') {
+                setCalendarOpen(true)
+                setCompassOpen(false)
+                setSidebarOpen(false)
+              }
             }
-          }
-          if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
-            if (payload.tool?.action === 'close') setDriveOpen(false)
-            else {
-              setDriveOpen(true)
+            if (payload.tool?.tool === 'device' && payload.tool.action === 'compass') {
+              setCompassOpen(true)
               setCalendarOpen(false)
               setSidebarOpen(false)
             }
+            if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+              if (payload.tool?.action === 'close') setDriveOpen(false)
+              else {
+                setDriveOpen(true)
+                setCalendarOpen(false)
+                setCompassOpen(false)
+                setSidebarOpen(false)
+              }
+            }
+            maybeOpenSettingsFromReply(payload.assistant_message.content)
           }
-          maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
           setError(detail)
@@ -1006,8 +1221,9 @@ function App() {
       setStreamingText(null)
       setMessages((prev) => prev.filter((m) => !m.id.startsWith('tmp-')))
     } finally {
+      busyRef.current = false
       setBusy(false)
-      textareaRef.current?.focus()
+      if (!debugChatIdRef.current) textareaRef.current?.focus()
       void refreshHealth()
       void refreshMemory()
       void refreshSettings()
@@ -1044,14 +1260,183 @@ function App() {
     } finally {
       setBusy(false)
       if (eyeFileRef.current) eyeFileRef.current.value = ''
+      if (eyeCamRef.current) eyeCamRef.current.value = ''
     }
   }
 
+  async function onEyeCamera() {
+    if (busy) return
+    const shot = await takeNativePhoto()
+    if (shot.ok && shot.dataUrl) {
+      setBusy(true)
+      setError(null)
+      setStatusNote('Foto…')
+      try {
+        let conversationId = activeId
+        if (!conversationId) {
+          const created = await createConversation()
+          conversationId = created.id
+          setConversations((prev) => [created, ...prev])
+          setActiveId(created.id)
+        }
+        const { reply } = await readEyeImage(conversationId, shot.dataUrl)
+        const conv = await getConversation(conversationId)
+        setMessages(conv.messages)
+        setConversations((prev) => {
+          const rest = prev.filter((c) => c.id !== conv.id)
+          return [conv, ...rest]
+        })
+        setStatusNote(null)
+        if (!reply) setStatusNote('Nichts Lesbares auf dem Bild.')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Foto fehlgeschlagen')
+        setStatusNote(null)
+      } finally {
+        setBusy(false)
+      }
+      return
+    }
+    if (shot.message) {
+      setStatusNote(shot.message)
+      return
+    }
+    eyeCamRef.current?.click()
+  }
+
   async function onSend() {
+    if (debugMode) return
     const content = draft.trim()
     if (!content || busy) return
     setDraft('')
     await sendMessage(content)
+  }
+
+  function toggleTestKey(key: string) {
+    setTestKeys((prev) => {
+      const next = { ...prev }
+      if (next[key]) delete next[key]
+      else next[key] = true
+      return next
+    })
+  }
+
+  function toggleTestGroup(groupId: string, on: boolean) {
+    const g = TEST_COPY_GROUPS.find((x) => x.id === groupId)
+    if (!g) return
+    setTestKeys((prev) => {
+      const next = { ...prev }
+      for (const item of g.items) {
+        const k = testPromptKey(g.id, item)
+        if (on) next[k] = true
+        else delete next[k]
+      }
+      return next
+    })
+  }
+
+  function toggleAllTests(on: boolean) {
+    if (!on) {
+      setTestKeys({})
+      return
+    }
+    const next: Record<string, true> = {}
+    for (const k of allTestPromptKeys()) next[k] = true
+    setTestKeys(next)
+  }
+
+  function toggleDebugPicked(id: string) {
+    setDebugPicked((prev) => {
+      const next = { ...prev }
+      if (next[id]) delete next[id]
+      else next[id] = true
+      return next
+    })
+  }
+
+  async function onDebugDownload(picked?: string[]) {
+    const id = debugChatIdRef.current || activeId
+    if (!id) return
+    setDebugDlBusy(true)
+    setDebugDlMsg(null)
+    try {
+      const r = await downloadChatDebug(id, picked)
+      setDebugDlMsg(r.message)
+      setStatusNote(r.ok ? r.message : r.message)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Download fehlgeschlagen'
+      setDebugDlMsg(msg)
+    } finally {
+      setDebugDlBusy(false)
+    }
+  }
+
+  async function startDebugTest() {
+    const prompts = selectedTestPrompts(Object.keys(testKeys))
+    if (!prompts.length) return
+    if (debugRunningRef.current) {
+      debugCancelRef.current = true
+      const t0 = Date.now()
+      while (debugRunningRef.current && Date.now() - t0 < 120_000) {
+        await new Promise((r) => window.setTimeout(r, 80))
+      }
+    }
+    if (busyRef.current) {
+      setError('Warten, bis Jarvis fertig ist.')
+      return
+    }
+    debugCancelRef.current = false
+
+    setSettingsPanelOpen(false)
+    setSettingsTopic('hub')
+    setSettingsTestGroup(null)
+    setCalendarOpen(false)
+    setCompassOpen(false)
+    setDriveOpen(false)
+    setVoiceOpen(false)
+    setSidebarOpen(false)
+    setError(null)
+    setLastFailed(null)
+
+    const created = await createConversation('Debug-Test', DEBUG_CHAT_KIND)
+    debugChatIdRef.current = created.id
+    activeIdRef.current = created.id
+    setActiveId(created.id)
+    setConversations((prev) => [created, ...prev])
+    setMessages([])
+    setEnterIds({})
+    setThreadKey((k) => k + 1)
+    setDebugMode(true)
+    setDebugPicking(false)
+    setDebugPicked({})
+    setDebugDlMsg(null)
+    debugRunningRef.current = true
+    void setDebugHold(true)
+    setDebugProgress({ i: 0, n: prompts.length, text: prompts[0] || '', done: false })
+
+    let finished = 0
+    try {
+    for (let i = 0; i < prompts.length; i++) {
+      if (debugCancelRef.current) break
+      setDebugProgress({ i, n: prompts.length, text: prompts[i], done: false, stopping: debugCancelRef.current })
+      await sendMessage(prompts[i], { fromDebug: true })
+      finished = i + 1
+      if (debugCancelRef.current) break
+    }
+    } finally {
+    debugRunningRef.current = false
+    void setDebugHold(false)
+    }
+    if (debugCancelRef.current) {
+      setDebugProgress({ i: finished, n: prompts.length, text: '', done: true, cancelled: true })
+    } else {
+      setDebugProgress({ i: prompts.length, n: prompts.length, text: '', done: true })
+    }
+  }
+
+  function stopDebugTest() {
+    if (!debugRunningRef.current) return
+    debugCancelRef.current = true
+    setDebugProgress((p) => (p && !p.done ? { ...p, stopping: true } : p))
   }
 
   async function sendVoiceTurn(
@@ -1120,8 +1505,9 @@ function App() {
     await sendMessage(lastFailed)
   }
 
-  function openSettings(topic: SettingsTopic = 'allgemein') {
+  function openSettings(topic: SettingsTopic = 'hub') {
     setSettingsTopic(topic)
+    setSettingsTestGroup(null)
     setSettingsPanelOpen(true)
     setSidebarOpen(false)
     void refreshReminders()
@@ -1133,7 +1519,9 @@ function App() {
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
     else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
-    else if (/Einstellungen.*Gemini|API-Key|Gemini an, aber kein/i.test(t)) openSettings('cloud')
+    else if (/Einstellungen\s*→\s*APIs?|OMDb-Schlüssel|API-Keys?/i.test(t)) openSettings('apis')
+    else if (/Einstellungen\s*→\s*Rabatt/i.test(t)) openSettings('rabatt')
+    else if (/Einstellungen.*Gemini|Gemini an, aber kein/i.test(t)) openSettings('cloud')
     else if (/Einstellungen\s*→\s*Musik|Spotify-Client-ID|Spotify anmelden/i.test(t)) openSettings('musik')
   }
 
@@ -1149,6 +1537,9 @@ function App() {
 
   const healthOk = Boolean(health?.ok)
   const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
+  const debugHighlight = debugPicking
+    ? new Set(expandPickedMessageIds(messages, Object.keys(debugPicked)))
+    : null
 
   return (
     <div className="app" ref={appRef}>
@@ -1259,9 +1650,17 @@ function App() {
         <button
           type="button"
           className={`memory-toggle ${settingsPanelOpen ? 'active' : ''}`}
-          onClick={() => openSettings('allgemein')}
+          onClick={() => openSettings('hub')}
         >
           Einstellungen
+        </button>
+
+        <button
+          type="button"
+          className={`memory-toggle ${settingsPanelOpen && settingsTopic === 'debug' ? 'active' : ''}`}
+          onClick={() => openSettings('debug')}
+        >
+          Debug
         </button>
 
         <div className="chat-list">
@@ -1289,26 +1688,37 @@ function App() {
                 Lokal <strong>bereit</strong>
               </>
             )
+          ) : health?.blocked_reason === 'offline' ? (
+            <>
+              Gerät <strong>offline</strong>
+            </>
+          ) : health?.blocked_reason === 'no_key' ? (
+            <>
+              Gerät <strong>ohne Key</strong>
+            </>
           ) : (
             <>
-              Gerät <strong>nicht bereit</strong>
+              Gerät <strong>ohne Modell</strong>
             </>
           )}
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}`}>
+      <main className={`main${driveOpen ? ' is-drive' : ''}${calendarOpen ? ' is-calendar' : ''}${compassOpen ? ' is-compass' : ''}${debugMode ? ' is-debug' : ''}`}>
         {voiceOpen ? (
           <VoiceMode
+            key={voiceLaunchSeq}
             onClose={() => {
               setVoiceOpen(false)
               setVoiceSeed('')
             }}
             onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
+            onPhoto={() => void onEyeCamera()}
             initialUtterance={voiceSeed}
           />
         ) : null}
         {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}
+        {compassOpen ? <CompassView onClose={() => setCompassOpen(false)} /> : null}
         {driveOpen ? (
           <DriveMode
             onClose={() => {
@@ -1332,7 +1742,7 @@ function App() {
             <button
               type="button"
               className="ghost-btn icon-only"
-              onClick={() => openSettings('allgemein')}
+              onClick={() => openSettings('hub')}
               aria-label="Einstellungen"
               title="Einstellungen"
             >
@@ -1369,7 +1779,11 @@ function App() {
                   <i />
                 </div>
                 <h3>Jarvis</h3>
-                <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
+                <p>
+                  {debugMode
+                    ? 'Debug-Test. Prompts kommen von allein. Unten nur Download.'
+                    : `Ein Feld antippen — oder selbst schreiben. ${geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}`}
+                </p>
               </div>
             ) : null}
 
@@ -1377,8 +1791,26 @@ function App() {
               const enter =
                 enterIds[m.id] &&
                 (m.role === 'user' ? 'enter-user' : 'enter-assistant')
+              const picked = Boolean(debugHighlight?.has(m.id))
               return (
-                <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
+                <div
+                  key={m.id}
+                  className={`row ${m.role}${enter ? ` ${enter}` : ''}${debugPicking ? ' is-pick' : ''}${picked ? ' is-picked' : ''}`}
+                  onClick={debugPicking ? () => toggleDebugPicked(m.id) : undefined}
+                  onKeyDown={
+                    debugPicking
+                      ? (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            toggleDebugPicked(m.id)
+                          }
+                        }
+                      : undefined
+                  }
+                  role={debugPicking ? 'checkbox' : undefined}
+                  aria-checked={debugPicking ? picked : undefined}
+                  tabIndex={debugPicking ? 0 : undefined}
+                >
                   {m.role === 'assistant' ? (
                     <div className="avatar jarvis">J</div>
                   ) : null}
@@ -1387,7 +1819,10 @@ function App() {
                     {m.role === 'assistant' && m.meta?.tool ? (
                       <ToolChip
                         tool={m.meta.tool}
-                        onConfirm={(text) => void sendMessage(text)}
+                        onConfirm={(text) => {
+                          if (debugMode) return
+                          void sendMessage(text)
+                        }}
                       />
                     ) : null}
                     {m.role === 'assistant' && m.meta?.research ? (
@@ -1445,18 +1880,106 @@ function App() {
           {error ? (
             <div className="error-banner">
               <div>{error}</div>
-              {lastFailed ? (
+              {lastFailed && !debugMode ? (
                 <button type="button" className="retry-btn" onClick={() => void onRetry()}>
                   Erneut senden
                 </button>
               ) : null}
             </div>
           ) : null}
+          {debugMode ? (
+            <div className="debug-bar">
+              <p className="debug-bar-status">
+                {debugPicking
+                  ? 'Nachrichten antippen. Auswahl lädt Frage plus Antwort nach Downloads.'
+                  : debugProgress?.stopping && !debugProgress.done
+                    ? 'Wird abgebrochen… aktuelle Antwort läuft noch.'
+                    : debugProgress && !debugProgress.done
+                      ? `Test ${Math.min(debugProgress.i + 1, debugProgress.n)}/${debugProgress.n} — ${debugProgress.text}`
+                      : debugProgress?.cancelled
+                        ? `Abgebrochen · ${debugProgress.i}/${debugProgress.n}`
+                        : debugProgress?.done
+                          ? `Fertig · ${debugProgress.n} Prompts`
+                          : 'Debug-Chat. Nicht schreiben — nur Download.'}
+              </p>
+              {debugDlMsg ? <p className="debug-bar-status">{debugDlMsg}</p> : null}
+              <div className="debug-bar-actions">
+                {debugPicking ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled={debugDlBusy || !Object.keys(debugPicked).length}
+                      onClick={() => {
+                        void onDebugDownload(Object.keys(debugPicked)).then(() => {
+                          setDebugPicking(false)
+                          setDebugPicked({})
+                        })
+                      }}
+                    >
+                      Auswahl laden
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDebugPicking(false)
+                        setDebugPicked({})
+                      }}
+                    >
+                      Abbrechen
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {debugProgress && !debugProgress.done ? (
+                      <button
+                        type="button"
+                        className="is-stop"
+                        disabled={Boolean(debugProgress.stopping)}
+                        onClick={stopDebugTest}
+                      >
+                        {debugProgress.stopping ? 'Stoppe…' : 'Test abbrechen'}
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      disabled={debugDlBusy || messages.length === 0}
+                      onClick={() => void onDebugDownload()}
+                    >
+                      Alles runterladen
+                    </button>
+                    <button
+                      type="button"
+                      disabled={debugDlBusy || messages.length === 0 || Boolean(debugProgress && !debugProgress.done)}
+                      onClick={() => {
+                        setDebugPicking(true)
+                        setDebugPicked({})
+                        setDebugDlMsg(null)
+                      }}
+                    >
+                      Auswählen
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
           <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
+            <input
+              ref={eyeCamRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              capture="environment"
+              hidden
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) void onEyeFile(file)
+              }}
+            />
             <input
               ref={eyeFileRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               hidden
               onChange={(e) => {
                 const file = e.target.files?.[0]
@@ -1479,11 +2002,21 @@ function App() {
                 type="button"
                 className="icon-btn"
                 disabled={busy}
-                onClick={() => eyeFileRef.current?.click()}
-                aria-label="Foto"
-                title="Foto"
+                onClick={() => void onEyeCamera()}
+                aria-label="Kamera"
+                title="Kamera"
               >
                 <IconCamera />
+              </button>
+              <button
+                type="button"
+                className="icon-btn"
+                disabled={busy}
+                onClick={() => eyeFileRef.current?.click()}
+                aria-label="Galerie"
+                title="Galerie"
+              >
+                <span aria-hidden>🖼</span>
               </button>
               <button
                 type="button"
@@ -1514,6 +2047,8 @@ function App() {
               }}
             />
           ) : null}
+            </>
+          )}
         </div>
       </main>
 
@@ -1522,11 +2057,23 @@ function App() {
           topic={settingsTopic}
           onTopic={(t) => {
             setSettingsTopic(t)
+            setSettingsTestGroup(null)
             if (t === 'forschung') void refreshAudits()
             if (t === 'gedaechtnis') void refreshMemory(memoryFilter)
             if (t === 'wecker') void refreshReminders()
           }}
-          onClose={() => setSettingsPanelOpen(false)}
+          testGroup={settingsTestGroup}
+          onTestGroup={setSettingsTestGroup}
+          testKeys={testKeys}
+          onToggleTestKey={toggleTestKey}
+          onToggleTestGroup={toggleTestGroup}
+          onToggleAllTests={toggleAllTests}
+          onStartTest={() => void startDebugTest()}
+          onBack={settingsGoBack}
+          onClose={() => {
+            setSettingsPanelOpen(false)
+            setSettingsTestGroup(null)
+          }}
           settings={settings}
           settingsBusy={settingsBusy}
           patchSetting={patchSetting}

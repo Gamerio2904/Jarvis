@@ -34,9 +34,11 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 27 | [Sprachmodus Tempo](./27-next.md) | **`1.32.1` CODE** — sofort sprechen, keine Stille |
 | 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`2.0` CODE** — Suche bis Haus-AI 2.0 |
 | 29 | [WLAN-Steckdosen](./29-next.md) | **`2.1.0` CODE** — Shelly/Tasmota/Tuya-LAN |
-| 30 | [Uhrzeit, Ort, Research](./30-next.md) | **`2.2.0` CODE** — Gerätzeit, GPS, Auto-Suche |
-| 31 | [Alltag & Welt](./31-next.md) | **`2.3`–`2.19` PLAN** — DWD bis Schach |
-| — | [APK](./apk.md) | Sideload `2.2.2` |
+| 30 | [Uhrzeit, Ort, Research, Live-Qualität](./30-next.md) | **`2.2.0`–`2.2.3` CODE** (in `2.19.0`); `2.2.4` SHOULD |
+| 31 | [Alltag & Welt](./31-next.md) | **`2.3`–`2.19` CODE** in Sideload `2.19.0` |
+| — | [APK](./apk.md) | Sideload `2.19.0` |
+
+Probe für `2.2.3`: [`15-live-probe.md`](./15-live-probe.md). Mapping früher `0.13.2`–`0.14` → [`16-fahrplan.md`](./16-fahrplan.md). `14`/`16` in der Tabelle = TV bzw. Gemini, nicht IQ/Fahrplan.
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -100,6 +102,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 102 | `2.0.0` | **CODE** (Haus-AI, ein Kontext) |
 | 103 | `2.1.0` | **CODE** (WLAN-Steckdosen) |
 | 104 | `2.2.0` | **CODE** (Uhrzeit, Ort, Auto-Research) |
-| 105 | `2.3.0` | **PLAN** (Alltag & Welt, zuerst DWD) |
+| 105 | `2.2.3` | **CODE** (Live-Qualität, in `2.19.0`) |
+| 106 | `2.2.4` | **PLANNED** (optional 1.5B, kein Tor) |
+| 107 | `2.19.0` | **CODE** (Alltag & Welt `2.3`–`2.19`) |
 
-**Aktuell:** Sideload `2.2.2` — [`Jarvis.apk`](./apk.md). Geplant: [`31-next.md`](./31-next.md). PC-App: [`../desktop/README.md`](../desktop/README.md).
+**Aktuell:** Code `2.19.0` — [`apk.md`](./apk.md). `2.2.4` 1.5B bleibt SHOULD. PC-App: [`../desktop/README.md`](../desktop/README.md).

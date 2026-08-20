@@ -38,10 +38,11 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { parseTransitIntent } from '../src/engine/transit-parse.ts'
 import { parseHolidayIntent } from '../src/engine/holiday-parse.ts'
 import { parseNewsIntent } from '../src/engine/news-parse.ts'
+import { parseWorldIntent, isMusicHonesty } from '../src/engine/world-parse.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'music'|'drive'|'device'|'pc'|'maps'|'memory'|'brief'|'shopping'|'birthday'|'home'|'leave'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'world'|'weather'|'news'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -57,16 +58,17 @@ function route(text, ctx = {}) {
   if (parseFuelIntent(text)) return 'fuel'
   if (parsePoiIntent(text)) return 'poi'
   if (parseTransitIntent(text)) return 'transit'
+  if (isMusicHonesty(text)) return 'music'
   if (parseDriveIntent(text) || parseSpotifyIntent(text)) return 'drive'
   if (parseDeviceIntent(text)) return 'device'
   if (parsePcIntent(text)) return 'pc'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
   if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
+  if (isBriefAsk(text)) return 'brief'
   if (parseShopIntent(text)) return 'shopping'
   if (parseBirthdayIntent(text)) return 'birthday'
   if (parseHomeIntent(text)) return 'home'
   if (parseLeaveIntent(text)) return 'leave'
-  if (isBriefAsk(text)) return 'brief'
   if (parseHolidayIntent(text)) return 'holiday'
   if (parseCalendarIntent(text, NOW)) return 'calendar'
   if (parseAlarmIntent(text, NOW)) return 'alarm'
@@ -74,6 +76,7 @@ function route(text, ctx = {}) {
   if (parseReminderIntent(text, NOW)) return 'reminder'
   if (parseToolIntent(text)) return 'tools'
   if (parseEyeIntent(text)) return 'eye'
+  if (parseWorldIntent(text)) return 'world'
   if (parseWeatherIntent(text)) return 'weather'
   if (parseWeatherFollowup(text, ctx.weatherLast ?? null)) return 'weather'
   if (parseNewsIntent(text)) return 'news'
@@ -153,7 +156,7 @@ const EXPECT = {
   'Milch fehlt': 'shopping',
   'Ventilator Stufe zwei': 'fan',
   'Timer acht Minuten Nudeln': 'timer',
-  'Spiel mal was Nettes': 'llm',
+  'Spiel mal was Nettes': 'music',
   'Ich fahre gerne Auto': 'llm',
   'kein Kaffee mehr': 'memory',
   'Netflix an': 'tv',
@@ -243,6 +246,16 @@ assert.equal(parseHereIntent('wo könnte ich jetzt frühstücken'), null)
 assert.equal(parseDeviceIntent('wie spät ist es')?.kind, 'clock')
 assert.equal(route('Taschenlampe an'), 'device')
 assert.equal(route('Nach Ingersheim'), 'drive')
+assert.equal(route('Spiel mal was Nettes'), 'music')
+assert.equal(route('Zeig Spotify'), 'drive')
+assert.equal(route('Gibt’s Unwetter?'), 'world')
+assert.equal(route('Sind in BW Ferien?'), 'world')
+assert.equal(route('Was ist der Dollar?'), 'world')
+assert.equal(route('Wie hat der VfB gespielt?'), 'world')
+assert.equal(route('Schach e2e4'), 'world')
+assert.equal(route('Wie viele Schritte heute?'), 'device')
+assert.equal(route('Guten Morgen'), 'brief')
+assert.equal(route('Was steht an?'), 'brief')
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }

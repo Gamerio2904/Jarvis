@@ -99,5 +99,17 @@ export function isHelpCommand(text: string): boolean {
   return /^\s*\/?(hilfe|help)\s*$/i.test(text)
 }
 
+export function hardRefuse(text: string): string | null {
+  const t = text.trim()
+  if (!t) return null
+  if (/\b(essbar|genie[sß]bar|giftig)\b/i.test(t) && /\b(ist|sind|darf|kann|soll|fliegenpilz|pilz)\b/i.test(t)) {
+    return 'Essbarkeit bewerte ich nicht. Bei Wildpilzen eine Beratungsstelle, nicht mich.'
+  }
+  if (/\b(verklagen|anwalts?rat|klage\s+einreichen)\b/i.test(t)) {
+    return 'Das ist kein Anwaltsrat. Dafür Mieterverein oder Fachanwalt — ich entscheide das nicht.'
+  }
+  return null
+}
+
 export const HELP_TEXT =
-  'Jarvis auf diesem Handy, Version 2.2.2. Smalltalk, merken/vergessen (Widerspruch gilt auch im Plaudern), Einkaufsliste, Todos, Notizen, Erinnerungen mit Zeit — ohne Zeit fragt Jarvis wann. Wecker, Timer (spricht), lokaler Kalender, Losgehen, Fahrmodus intern nicht Apple: Straße aus dem Router, Overlay ist die Karte außer bei Spotify. Lautstärke am Steuer ist Spotify, am Fernseher nur mit „Fernseher“. Stopp trifft das letzte Medium, nicht alles. Standort, Uhrzeit, Akku, Taschenlampe. WLAN-Steckdosen lokal (Shelly, Tasmota, Tuya-LAN, Broadlink), ohne Tuya-Cloud. Anruf und SMS nach Nachfrage. Bahn nur wenn Sie Bahn sagen. Wetter nur Open-Meteo, Luft und Sonne nur auf Nachfrage. Nachrichten Tagesschau, sonst Netz, nichts erfinden. Mit Gemini sucht Jarvis von selbst, wenn Zahlen fehlen. Feiertage DE. Gespräch suchen und in der Liste löschen. Filme: IMDb über OMDb, wo gratis JustWatch; Spiel … Film öffnet den Fernseher. PC: JarvisPC.bat, Bild echt, Klick nur wenn eindeutig. Foto nur mit Gemini. Wake-Word „Jarvis“. Widget: Fläche hören, Mikrofon schaltet Wake an/aus. Fernseher Tizen plus Fire TV. Ventilator über Brücke oder ehrlich fehlt. Optional Gemini. Rabatt-Suche unter Netz zuschaltbar. Kein Apple CarPlay, kein WhatsApp, kein Play Store.'
+  'Jarvis auf diesem Handy, Version 2.37.2. Smalltalk, merken/vergessen (Widerspruch gilt auch im Plaudern), Einkaufsliste, Todos, Notizen, Erinnerungen mit Zeit — ohne Zeit fragt Jarvis wann. Wecker, Timer (spricht), lokaler Kalender, Losgehen, Fahrmodus intern nicht Apple: Straße aus dem Router, Overlay ist die Karte. Musik ist nicht angebunden. Lautstärke am Fernseher nur mit „Fernseher“. Stopp trifft das letzte Medium, nicht alles. Standort, Uhrzeit, Akku, Taschenlampe, Schritte, Luftdruck, Kompass. WLAN-Steckdosen lokal (Shelly, Tasmota, Tuya-LAN, Broadlink), ohne Tuya-Cloud. Anruf und SMS nach Nachfrage. Bahn nur wenn Sie Bahn sagen. Wetter nur Open-Meteo, Luft und Sonne nur auf Nachfrage; Unwetter DWD. Schulferien, Wechselkurs EZB, Open Food Facts, Open Library, Bundesliga, ISS, Mond, Pflanzen/Tiere über iNaturalist, Flüge OpenSky, Waschsymbole, Schach. Nachrichten Tagesschau, sonst Netz, nichts erfinden. Research zuerst Wikipedia und Destatis. Mit Gemini sucht Jarvis von selbst, wenn Zahlen fehlen. Feiertage DE. Gespräch suchen und in der Liste löschen. Filme: IMDb über OMDb, wo gratis JustWatch; Spiel … Film öffnet den Fernseher. PC: JarvisPC.bat, Bild echt, Klick nur wenn eindeutig. Foto und Kamera nur mit Gemini — Bild geht zu Google. Stimmen erkennt Jarvis nicht, Namen für die Runde schon. Optional 1.5B unter Modell, Default 0.5B. Wake-Word „Jarvis“. Widget: Fläche hören, Mikrofon schaltet Wake an/aus. Fernseher Tizen plus Fire TV. Ventilator über Brücke oder ehrlich fehlt. Optional Gemini. API-Keys unter Einstellungen → APIs. Rabatt-Suche unter Einstellungen → Rabatt. Kein Apple CarPlay, kein WhatsApp, kein Play Store. Kein Anwaltsrat, keine Essbarkeit.'

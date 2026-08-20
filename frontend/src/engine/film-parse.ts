@@ -4,10 +4,12 @@ import { parseTvWatch } from './tv-parse.ts'
 export type FilmIntent = { kind: 'where' | 'rate' | 'about'; title: string }
 
 const SKIP =
-  /\b(wecker|timer|tanke|fahrmodus|carplay|wetter|einkauf|todo|spotify|ventilator|akku|wlan)\b/i
+  /\b(wecker|timer|tanke|fahrmodus|carplay|wetter|einkauf|todo|spotify|ventilator|akku|wlan|kaufen|besorgen|holen|rabatt|preis|günstig|idealo|geizhals|switch\s*2)\b/i
 
 const WHERE =
-  /^\s*(?:wo\s+(?:läuft|laeuft|gibt'?s|gibt\s+es|kann\s+ich(?:\s+mir)?)\s+(?:den\s+film\s+|die\s+serie\s+|das\s+)?(.+?)(?:\s+(?:kostenlos|gratis|umsonst|schauen|sehen|streamen|gucken))?)\s*$/i
+  /^\s*(?:wo\s+(?:läuft|laeuft|gibt'?s|gibt\s+es)\s+(?:den\s+film\s+|die\s+serie\s+|das\s+)?(.+?)(?:\s+(?:kostenlos|gratis|umsonst|schauen|sehen|streamen|gucken))?)\s*$/i
+const WHERE_KANN =
+  /^\s*wo\s+kann\s+ich(?:\s+mir)?\s+(?:den\s+film\s+|die\s+serie\s+)?(.+?)\s+(?:kostenlos|gratis|umsonst|schauen|sehen|streamen|gucken)\s*$/i
 const WHERE2 =
   /^\s*(?:ist|läuft|laeuft)\s+(?:der\s+film\s+|die\s+serie\s+)?(.+?)\s+(?:kostenlos|gratis|umsonst|free)\b/i
 const WHERE3 =
@@ -41,7 +43,7 @@ export function parseFilmIntent(text: string): FilmIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || SKIP.test(t)) return null
   if (parseTvWatch(t)) return null
-  const where = WHERE.exec(t) || WHERE2.exec(t) || WHERE3.exec(t)
+  const where = WHERE.exec(t) || WHERE_KANN.exec(t) || WHERE2.exec(t) || WHERE3.exec(t)
   if (where) {
     const title = cleanTitle(where[1])
     if (title) return { kind: 'where', title }

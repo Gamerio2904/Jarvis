@@ -20,7 +20,10 @@ async function ensureHomeFix(): Promise<{ ok: boolean; message?: string }> {
   if (Number(s.home_lat) && Number(s.home_lon)) return { ok: true }
   const home = (await listMemory('place')).find((m) => m.key === 'zuhause')
   if (!home?.value) return { ok: false, message: 'Kein Zuhause. Sage zuerst „Ich wohne in …“.' }
-  const geo = await geocodePlace(home.value)
+  const geo = await geocodePlace(home.value, {
+    lat: Number(loadSettings().last_lat),
+    lon: Number(loadSettings().last_lon),
+  })
   if (!geo.ok) return { ok: false, message: geo.message }
   saveSettings({ home_lat: String(geo.fix.lat), home_lon: String(geo.fix.lon) })
   return { ok: true }
@@ -65,8 +68,32 @@ export async function handleHome(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
-  const intent = parseHomeIntent(text)
+  const step = loadSettings().last_step_tool
+  let intent = parseHomeIntent(text)
+  if (!intent && step === 'home_task_ask') {
+    if (
+      /[?]/.test(text) ||
+      /^[/?]/.test(text) ||
+      /\b(wetter|wecker|timer|termin|fahr|hilfe|hallo|spotify|nachrichten|fifa|foto|pc|geburtstag|kalender|einkauf|todo|film)\b/i.test(
+        text,
+      )
+    ) {
+      saveSettings({ last_step_tool: 'home' })
+      return { handled: false }
+    }
+    const task = text.replace(/^[.,!\s]+|[.!?]+$/g, '').trim()
+    if (task.length >= 2 && task.length <= 80) intent = { kind: 'when_home', task }
+  }
   if (!intent) return { handled: false }
+
+  if (intent.kind === 'ask_task') {
+    saveSettings({ last_step_tool: 'home_task_ask', last_step_title: '' })
+    return {
+      handled: true,
+      reply: 'Woran soll ich Sie zuhause erinnern? Zum Beispiel „Müll raus“.',
+      lastTool: 'home_task_ask',
+    }
+  }
 
   if (intent.kind === 'im_home') {
     const fired = await fireHomeTasks()
@@ -79,7 +106,11 @@ export async function handleHome(
 
   const home = (await listMemory('place')).find((m) => m.key === 'zuhause')
   if (intent.kind === 'when_home' && intent.address) {
-    const geo = await geocodePlace(intent.address)
+    const s = loadSettings()
+    const geo = await geocodePlace(intent.address, {
+      lat: Number(s.last_lat),
+      lon: Number(s.last_lon),
+    })
     if (!geo.ok) {
       return { handled: true, reply: geo.message, lastTool: 'home' }
     }
@@ -108,9 +139,10 @@ export async function handleHome(
   })
   const meters = intent.kind === 'when_home' && intent.radiusM ? ` Radius ${intent.radiusM} Meter.` : ''
   const where = intent.kind === 'when_home' && intent.address ? ` ${intent.address}.` : ''
+  saveSettings({ last_step_tool: 'home', last_step_title: intent.task })
   return {
     handled: true,
-    reply: `Wenn Sie zuhause sind:${where} ${intent.task}.${meters} Handy muss an sein — Gerät aus löst nicht aus.`,
+    reply: `Wenn Sie zuhause sind:${where} ${intent.task}.${meters} Das Handy muss an sein — ausgeschaltet löst nichts aus.`,
     tool: { tool_status: 'executed', tool: 'home', action: 'save', label: 'Zuhause', preview: intent.task },
     lastTool: 'home',
   }

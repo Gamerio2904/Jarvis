@@ -1,5 +1,5 @@
 import { formatClockReply, parseDeviceIntent } from './device-parse'
-import { openDevicePage, readBattery, readNetwork, setTorch } from '../native/device'
+import { compassWord, openDevicePage, readBattery, readCompass, readNetwork, readPressure, readSteps, setTorch } from '../native/device'
 import type { ToolMeta } from './tools'
 
 export { formatClockReply, parseDeviceIntent } from './device-parse'
@@ -49,10 +49,10 @@ export async function handleDevice(_conversationId: string, text: string): Promi
         lastTool: 'device',
       }
     }
-    const charge = b.charging ? 'Lädt.' : 'Lädt nicht.'
+    const charge = b.charging ? 'Das Gerät lädt gerade.' : 'Es lädt gerade nicht.'
     return {
       handled: true,
-      reply: `Akku ${b.percent} Prozent. ${charge}`,
+      reply: `Der Akku liegt bei ${b.percent} Prozent. ${charge}`,
       tool: deviceTool('status', 'Akku'),
       lastTool: 'device',
     }
@@ -68,14 +68,70 @@ export async function handleDevice(_conversationId: string, text: string): Promi
         lastTool: 'device',
       }
     }
-    let line = 'Offline.'
-    if (n.wifi) line = 'WLAN.'
-    else if (n.cellular) line = 'Mobilfunk.'
-    else if (n.online) line = 'Online, Träger unklar.'
+    let line = 'Sie sind offline.'
+    if (n.wifi) line = 'Sie sind im WLAN.'
+    else if (n.cellular) line = 'Sie sind im Mobilfunk.'
+    else if (n.online) line = 'Sie sind online, den Träger sehe ich nicht.'
     return {
       handled: true,
-      reply: `${line} Kein 5G-Raten.`,
+      reply: `${line} 5G rate ich nicht.`,
       tool: deviceTool('status', 'Netz'),
+      lastTool: 'device',
+    }
+  }
+
+  if (intent.kind === 'steps') {
+    const s = await readSteps()
+    if (!s.ok || s.count == null) {
+      return {
+        handled: true,
+        reply: s.message || 'Schrittzähler nicht lesbar. Recht fehlt oder kein Sensor. Keine Diagnose.',
+        tool: deviceTool('ask', 'Schritte'),
+        lastTool: 'device',
+      }
+    }
+    const note = s.sinceBoot ? ' Der Zähler läuft seit dem Gerätestart, nicht nur heute.' : ''
+    return {
+      handled: true,
+      reply: `Ich zähle ${s.count} Schritte.${note}`,
+      tool: deviceTool('status', 'Schritte'),
+      lastTool: 'device',
+    }
+  }
+
+  if (intent.kind === 'pressure') {
+    const p = await readPressure()
+    if (!p.ok || p.hpa == null) {
+      return {
+        handled: true,
+        reply: p.message || 'Luftdruck nicht lesbar. Kein Barometer oder kein Zugriff.',
+        tool: deviceTool('ask', 'Luftdruck'),
+        lastTool: 'device',
+      }
+    }
+    return {
+      handled: true,
+      reply: `Der Luftdruck liegt bei ${p.hpa} hPa.`,
+      tool: deviceTool('status', 'Luftdruck'),
+      lastTool: 'device',
+    }
+  }
+
+  if (intent.kind === 'compass') {
+    const c = await readCompass()
+    if (!c.ok || c.heading == null) {
+      return {
+        handled: true,
+        reply: c.message || 'Kompass nicht lesbar. Kein Magnetometer oder Störung.',
+        tool: deviceTool('ask', 'Kompass'),
+        lastTool: 'device',
+      }
+    }
+    const word = compassWord(c.heading)
+    return {
+      handled: true,
+      reply: `Sie schauen nach ${word}, etwa ${Math.round(c.heading)} Grad. Ich öffne den Live-Kompass.`,
+      tool: { tool_status: 'executed', tool: 'device', action: 'compass', label: 'Kompass' },
       lastTool: 'device',
     }
   }
@@ -92,7 +148,7 @@ export async function handleDevice(_conversationId: string, text: string): Promi
     }
     return {
       handled: true,
-      reply: intent.on ? 'Taschenlampe an.' : 'Taschenlampe aus.',
+      reply: intent.on ? 'Die Taschenlampe ist an.' : 'Die Taschenlampe ist aus.',
       tool: deviceTool(intent.on ? 'on' : 'off', 'Taschenlampe'),
       lastTool: 'device',
     }
@@ -116,7 +172,7 @@ export async function handleDevice(_conversationId: string, text: string): Promi
   }
   return {
     handled: true,
-    reply: `${labels[intent.page]}-Einstellungen sind offen. Den Schalter lege ich nicht selbst um.`,
+    reply: `Die ${labels[intent.page]}-Einstellungen sind offen. Den Schalter lege ich nicht selbst um.`,
     tool: deviceTool('open', labels[intent.page]),
     lastTool: 'device',
   }

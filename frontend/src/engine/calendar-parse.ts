@@ -91,11 +91,28 @@ export function splitTitlePlace(raw: string): { title: string; place?: string } 
   if (!t) return { title: 'Termin' }
   const inPlace = t.match(/^(.+?)\s+(?:in|an der|am|auf der)\s+(.+)$/i)
   if (inPlace && inPlace[1].trim().length >= 2) {
-    return { title: inPlace[1].trim(), place: inPlace[2].trim() }
+    const place = inPlace[2].trim()
+    if (!/\b(?:uhr|minuten?|stunden?)\b/i.test(place) && !/^\d/.test(place)) {
+      return { title: inPlace[1].trim(), place }
+    }
   }
   const m = t.match(/^(.+?)\s+((?:[A-ZÄÖÜ][\wÄÖÜäöüß.-]{2,})(?:\s+\d+[a-z]?)?)$/)
   if (m && m[1].trim().length >= 2) {
-    return { title: m[1].trim(), place: m[2].trim() }
+    const place = m[2].trim()
+    if (!/\b(?:uhr|minuten?|stunden?)\b/i.test(place) && !/^\d/.test(place)) {
+      return { title: m[1].trim(), place }
+    }
   }
   return { title: t }
+}
+
+export type CalDecision = 'overwrite' | 'keep' | 'add' | 'yes'
+
+export function parseCalDecision(text: string): CalDecision | null {
+  const t = text.trim()
+  if (/^\s*(belassen|behalten|lassen|nein|nicht|abbrechen)\s*[.!?]*$/i.test(t)) return 'keep'
+  if (/^\s*(überschreiben|ueberschreiben|ersetzen)\s*[.!?]*$/i.test(t)) return 'overwrite'
+  if (/^\s*(trotzdem|beides|auch|eintragen)\s*[.!?]*$/i.test(t)) return 'add'
+  if (/^\s*(ja|jo|yes|ok|okay|mach(?:\s+(?:es|mal))?|bitte|passt)\s*[.!?]*$/i.test(t)) return 'yes'
+  return null
 }

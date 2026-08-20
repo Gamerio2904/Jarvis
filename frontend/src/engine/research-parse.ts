@@ -82,6 +82,8 @@ export function isProductLookup(text: string, discount = false): boolean {
   if (/\b(preis(?:e|vergleich)?|günstig(?:er|ste[rn]?)?|was kostet|angebot(?:e)?|rabatt|idealo|geizhals)\b/i.test(t)) {
     return true
   }
+  if (/\bwo\s+kann\s+ich\b/i.test(t) && /\b(kaufen|bestellen|rabatt)\b/i.test(t)) return true
+  if (/\b(?:nintendo\s+)?switch\s*2\b/i.test(t) && /\b(kaufen|rabatt|preis|wo|shop)\b/i.test(t)) return true
   if (discount && /\b(gutschein(?:code)?|rabattcode|coupon|promo(?:code)?)\b/i.test(t)) {
     return true
   }
@@ -160,6 +162,11 @@ export function parseEuroPrices(text: string): string[] {
 
 export function researchQuery(text: string): string {
   const t = text.trim().replace(/[.!?]+$/g, '')
+  if (/\b(?:bip|b\.i\.p\.|gdp|bruttoinlandsprodukt)\b/i.test(t) && /\bdeutschland\b/i.test(t)) {
+    return isTableAsk(t)
+      ? 'Bruttoinlandsprodukt Deutschland Destatis Tabelle'
+      : 'Bruttoinlandsprodukt Deutschland Destatis'
+  }
   const m =
     /^\s*(?:suche(?:\s+(?:im\s+)?(?:internet|netz|web))?(?:\s+nach)?|recherchier(?:e|en)?(?:\s+nach)?|google(?:n)?(?:\s+nach)?|schau(?:e)?\s+nach)\s+(.+?)\s*$/i.exec(
       t,
@@ -180,7 +187,7 @@ export const RESEARCH_OFF_REPLY =
   'Live-Suche ist aus. Unter Einstellungen Internet-Research an — sonst erfinde ich kein Wetter und keine Suche.'
 
 export const RESEARCH_NEEDS_GEMINI =
-  'Research braucht Gemini. Unter Einstellungen Gemini an, dann die Suche nochmal.'
+  'Research braucht Gemini. Unter Einstellungen → APIs den Key, dann Cloud an. Danach die Suche nochmal.'
 
 export const RESEARCH_EMPTY =
   'Netz hat nicht geantwortet. Ich rate keine Rezepte und keine Fakten aus dem Kopf.'
@@ -413,11 +420,15 @@ export function formatResearchReply(
     const names = shops.slice(0, 3).join(', ')
     return `${query}: konkrete Euro-Beträge stehen auf den Vergleichsseiten, ich setze keine Preise ins Blaue. Unten Idealo, Geizhals${names ? ` und ${names}` : ''}.${discountNote(discount)}`
   }
+  const wiki =
+    live.find((s) => s.provider === 'wikipedia' && (s.snippet || '').trim().length > 40)?.snippet
+  const destatisOnly = live.some((s) => s.provider === 'destatis') && !wiki
   const snip =
+    wiki ||
     live.find((s) => s.provider === 'duckduckgo_ia' && s.snippet)?.snippet ||
     live.find((s) => (s.snippet || '').trim().length > 40)?.snippet
   if (snip) {
-    const body = snip.replace(/\s+/g, ' ').slice(0, 280)
+    const body = snip.replace(/\s+/g, ' ').slice(0, 320)
     if (asksDailyFigure(query) && !hasDailyUnit(live.map((s) => `${s.title} ${s.snippet}`).join('\n'))) {
       return `${body} Eine Stückzahl am Tag steht in den Treffern nicht. Links unten.`
     }
@@ -428,6 +439,9 @@ export function formatResearchReply(
     .map((s) => s.title.replace(/\s+/g, ' ').slice(0, 48))
     .join('; ')
   if (!titles) return 'Suche gelaufen, aber ohne brauchbare Links. Nochmal anders formulieren?'
+  if (destatisOnly) {
+    return `${query}: keine Zahl in den Treffern — Destatis-Link unten, ich erfinde nichts.`
+  }
   if (asksDailyFigure(query)) {
     return `${query}: in den Treffern keine belegte Tageszahl. ${titles}. Links unten prüfen, ich rechne nichts um.`
   }

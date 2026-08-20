@@ -28,7 +28,7 @@ Gerätzeit und GPS nutzen. Live-Fakten mit Gemini selbst suchen, statt Wissensl�
 
 ## Probe
 
-`Wie spät ist es?` · `Wo bin ich?` · `Was ist der BIP in Deutschland` · Tabelle-Frage · `Guten Morgen` bleibt Brief · `Wetter heute` bleibt Open-Meteo
+`Wie spät ist es?` · `Wo bin ich?` · `Was ist der BIP in Deutschland` · Tabelle-Frage · `Wetter heute` bleibt Open-Meteo. Ab `2.2.3`: `Guten Morgen` ist Begrüßung, kein Wetter-Brief und kein Einkauf.
 
 ## Won’t
 

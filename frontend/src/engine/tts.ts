@@ -12,7 +12,7 @@ export const TTS_VOICES = ['Charon'] as const
 
 /** Hard cap. Pipeline races native even sooner. */
 export const TTS_BUDGET_MS = 900
-export const TTS_NATIVE_RACE_MS = 500
+export const TTS_NATIVE_RACE_MS = 280
 
 export function wantGeminiVoice(): boolean {
   const s = loadSettings()

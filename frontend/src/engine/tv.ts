@@ -101,7 +101,9 @@ function recentTv(): boolean {
 }
 
 export function isTvFollowUp(text: string): boolean {
-  return recentTv() && isFollowUpPhrase(text)
+  const t = text.trim()
+  if (/^(ja|jo|yes|nein|no)\s*[.!?]*$/i.test(t)) return false
+  return recentTv() && isFollowUpPhrase(t)
 }
 
 function markTvTurn(via: 'tv' | 'fire' = 'tv', app?: TvAppId) {

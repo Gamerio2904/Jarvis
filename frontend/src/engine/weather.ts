@@ -20,6 +20,17 @@ export async function handleWeather(
   const intent = parseWeatherFollowup(content, last) || parseWeatherIntent(content)
   if (!intent) return { handled: false }
 
+  if (intent.kind === 'ask') {
+    return {
+      handled: true,
+      reply:
+        intent.focus === 'air'
+          ? 'Luft wo — welcher Ort oder „hier“ mit Standortfreigabe? München rate ich nicht.'
+          : 'Welcher Ort, oder „hier“ mit Standort? Ohne Lage kein Wetter, kein Anzieh-Tipp.',
+      tool: { tool_status: 'error', tool: 'weather', action: 'locate', label: 'Ort fehlt' },
+    }
+  }
+
   const fix =
     intent.kind === 'place' ? await geocodePlace(intent.place) : await resolveWeatherHere()
   if (!fix.ok) {

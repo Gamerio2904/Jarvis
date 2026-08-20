@@ -1,34 +1,34 @@
-# 31 — Alltag & Welt (`2.3`–`2.19`) **PLAN**
+# 31 — Alltag & Welt (`2.3`–`2.19`) **CODE**
 
 PO 2026-08-20: Nächste Updates planen — Unwetter/DWD, Schulferien, Wechselkurse, Open Food Facts, Open Library, Bundesliga, Research, Stimme, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sport, Handy-Sensoren, Schach. Freie APIs, nichts erfinden.
 
-Reihe davor: [`30-next.md`](./30-next.md). App jetzt: Sideload **`2.2.2`**. Bau erst auf PO-Kommando, erste Lieferung **`2.3.0`**.
+Reihe davor: [`30-next.md`](./30-next.md) — **`2.2.3` Live-Qualität CODE** (in Sideload **`2.19.0`**). `2.2.4` (1.5B) bleibt SHOULD und ist nicht gebaut.
 
-Eine Sideload-Stufe pro Version.
+Eine Sideload-Stufe: **`2.19.0`** enthält `2.3`–`2.19`.
 
 ## Reihenfolge
 
 | Version | Inhalt | API / Quelle | Status |
 |---------|--------|--------------|--------|
-| **`2.3.0`** | Unwetter / DWD-Warnung | DWD CAP/Warnungen, kein Key | **PLAN** |
-| **`2.4.0`** | Schulferien DE | Ferien-API, kein Key | **PLAN** |
-| **`2.5.0`** | Wechselkurse | EZB über Frankfurter.app, kein Key | **PLAN** |
-| **`2.6.0`** | Research härten | Wikipedia/Destatis zuerst, dann bestehende Suche | **PLAN** |
-| **`2.7.0`** | Stimme Alltag | vorhandenes TTS; Uhr, Warnung, Ferien vorsprechen | **PLAN** |
-| **`2.8.0`** | Open Food Facts | openfoodfacts.org + Kamera | **PLAN** |
-| **`2.9.0`** | Open Library | openlibrary.org | **PLAN** |
-| **`2.10.0`** | Bundesliga | OpenLigaDB, frei | **PLAN** |
-| **`2.11.0`** | Sport-Ergebnisse | gleiche Sport-Schiene, weitere Ligen | **PLAN** |
-| **`2.12.0`** | Garten & Pflanzen | iNaturalist/Wikipedia, Foto | **PLAN** |
-| **`2.13.0`** | Himmel | ISS Open Notify; Mond lokal | **PLAN** |
-| **`2.14.0`** | Tiere draußen | xeno-canto / iNaturalist | **PLAN** |
-| **`2.15.0`** | Flüge überm Haus | OpenSky, kein Key | **PLAN** |
-| **`2.16.0`** | Recht Alltag | gesetze-im-internet.de | **PLAN** |
-| **`2.17.0`** | Haushalt | Wikibooks / festes Wissen, keine Live-Erfindung | **PLAN** |
-| **`2.18.0`** | Handy-Sensoren | Schritte, Barometer, Kompass — lokal | **PLAN** |
-| **`2.19.0`** | Schach | Chat-Notation, Züge legal; optional Lichess-lesen | **PLAN** |
+| **`2.3.0`** | Unwetter / DWD-Warnung | DWD CAP/Warnungen, kein Key | **CODE** (in `2.19.0`) |
+| **`2.4.0`** | Schulferien DE | Ferien-API, kein Key | **CODE** (in `2.19.0`) |
+| **`2.5.0`** | Wechselkurse | EZB über Frankfurter.app, kein Key | **CODE** (in `2.19.0`) |
+| **`2.6.0`** | Research härten | Wikipedia/Destatis zuerst, dann bestehende Suche | **CODE** (in `2.19.0`) |
+| **`2.7.0`** | Stimme Alltag | vorhandenes TTS; Uhr, Warnung, Ferien vorsprechen | **CODE** (in `2.19.0`) |
+| **`2.8.0`** | Open Food Facts | openfoodfacts.org + Kamera | **CODE** (in `2.19.0`) |
+| **`2.9.0`** | Open Library | openlibrary.org | **CODE** (in `2.19.0`) |
+| **`2.10.0`** | Bundesliga | OpenLigaDB, frei | **CODE** (in `2.19.0`) |
+| **`2.11.0`** | Sport-Ergebnisse | gleiche Sport-Schiene, weitere Ligen | **CODE** (in `2.19.0`) |
+| **`2.12.0`** | Garten & Pflanzen | iNaturalist/Wikipedia, Foto | **CODE** (in `2.19.0`) |
+| **`2.13.0`** | Himmel | ISS Open Notify; Mond lokal | **CODE** (in `2.19.0`) |
+| **`2.14.0`** | Tiere draußen | xeno-canto / iNaturalist | **CODE** (in `2.19.0`) |
+| **`2.15.0`** | Flüge überm Haus | OpenSky, kein Key | **CODE** (in `2.19.0`) |
+| **`2.16.0`** | Recht Alltag | gesetze-im-internet.de | **CODE** (in `2.19.0`) |
+| **`2.17.0`** | Haushalt | Wikibooks / festes Wissen, keine Live-Erfindung | **CODE** (in `2.19.0`) |
+| **`2.18.0`** | Handy-Sensoren | Schritte, Barometer, Kompass — lokal | **CODE** (in `2.19.0`) |
+| **`2.19.0`** | Schach | Chat-Notation, Züge legal | **CODE** |
 
-Sprint-Kickoff: [`sprint-105.md`](./sprints/sprint-105.md).
+Sprint-Kickoff: [`sprint-107.md`](./sprints/sprint-107.md). Live-Qualität: [`sprint-105.md`](./sprints/sprint-105.md) / `2.2.3` **CODE** in `2.19.0`.
 
 ## Leitentscheidung
 
@@ -69,8 +69,8 @@ Sprint-Kickoff: [`sprint-105.md`](./sprints/sprint-105.md).
 ## Probe (wenn die jeweilige Version CODE ist)
 
 1. Frage wie in der Tabelle — Antwort aus der Quelle oder ehrlich leer.
-2. Regression: `Wetter heute`, `Steckdose an`, `Wie spät ist es?`, `kein Kaffee mehr`, `Guten Morgen`, Fahrmodus-Lautstärke = Spotify.
-3. `/hilfe` nennt die neue Fähigkeit erst nach dem Sideload.
+2. Regression nach `2.2.3`: `Wetter heute` (nur Wetter+Ort), `Was steht an` ohne Wetter, `Steckdose an`, `Wie spät ist es?` live, `kein Kaffee mehr`, `Guten Morgen` ≠ Einkauf, Fahrmodus-Lautstärke = Spotify (ehrlich, keine Fake-API).
+3. `/hilfe` nennt Version 2.19.0, DWD/Schach, und kein Spotify-Claim.
 
 ## Won’t
 

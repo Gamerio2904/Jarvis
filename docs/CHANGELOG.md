@@ -5,9 +5,88 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.2.2`**.
+App-Version im Code: **`2.37.2`**.
 
-Geplant (kein Code): [`31-next.md`](./31-next.md) `2.3.0`–`2.19.0`.
+### Geplant
+
+Native llama.cpp NDK bleibt PO. Rest der 20er-Liste: [`32-next.md`](./32-next.md).
+
+### `2.37.2` — Kontext, Zuhause, Sprache — *CODE*
+
+Zuhause: „erinner mich zu Hause“, „Ich bin zuhause“ ist Heim-Zaun nicht Sprecher. Freundin ist Odett / Nummer für Freundin. „Ja“ wiederholt nicht den letzten TV-Befehl. Wetter-Follow-up und Geo (München statt Münchenstein). Sprachmodus: leere Hörversuche still, letzte Antwort bleibt, Silence länger, TTS schneller.
+
+- versionCode `23702`
+
+### `2.37.1` — Karte: Straße, Auto, Fluss — *CODE*
+
+Fahrmodus-Karte: Voyager auch nachts (Flüsse blau, Straßen hell). Route Navi-Blau statt Grün. Standort ist ein Auto, nicht Gold-Dreieck.
+
+- versionCode `23701`
+
+### `2.37.0` — Kamera, Sprecher, 1.5B, Alltag härten — *CODE*
+
+Sideload-Stufe für die gewählten 2.23–2.37-Punkte plus Kamera: echte Handy-Kamera, Foto-OCR mit Gemini, Open Food Facts bei EAN. Sprecher nur per Name, ehrlich ohne Stimme. Optionales 1.5B (Default 0.5B). Personen mergen bei gleicher Nummer, Ort vergessen. Losgehen legt Erinnerung. Fahrt fragt Stadt/Fernziel nach. Wetter-Orte mit zwei Wörtern, DWD mit Lage. Research Wikipedia zuerst. VoiceMode hält Wake, Offline-Texte klar, Settings Denken, Debug-Test Wake-Lock.
+
+- versionCode `23700`
+- Sideload `releases/Jarvis.apk`
+- Natives NDK-llama.cpp **nicht** in dieser APK (WASM/wllama)
+
+### `2.22.0` — Widget hört und antwortet — *CODE*
+
+Widget-Fläche öffnet den Sprachmodus. Wake-Mikrofon bleibt aus, bis VoiceMode zu ist — sonst stiehlt es die Antwort. Debug-Test blockiert Voice nicht mehr. Overlay „Modell aufs Handy“ liegt nicht über Voice.
+
+- versionCode `22200`
+- Fläche = hören, Mikro = Wake-Word
+
+### `2.21.1` — Debug-Test abbrechen — *CODE*
+
+Laufender Debug-Test: Button **Test abbrechen**. Die aktuelle Antwort läuft zu Ende, danach stoppt die Reihe. Download bleibt möglich.
+
+- versionCode `22101`
+
+### `2.21.0` — Debug auto-testet — *CODE*
+
+Einstellungen → Tests: Themen und Prompts per Checkbox. Test starten öffnet einen Debug-Chat ohne Tastatur. Prompts nacheinander, warten auf Antwort. Unten **Alles runterladen** oder **Auswählen** (Frage plus Antwort) nach Downloads.
+
+- versionCode `22100`
+
+### `2.20.1` — Tests-Menü vor Debug — *CODE*
+
+Einstellungen → **Tests** (vor Debug): Kategorien wie Musik, CarPlay, Wetter. Prompt kopieren, im Chat einfügen. Debug bleibt Chat-Dump.
+
+- versionCode `22001`
+
+### `2.20.0` — Zurück, Kalender-Konflikt, Live-Kompass, Anruf — *CODE*
+
+Einstellungen: Zurück in Haus usw., Android-Zurücktaste. Kalender erkennt bestehende Termine (Überschreiben/Belassen) und Überschneidungen; Chat-Overlay ausgeblendet. Live-Kompass. Natürlichere Sätze (Film u. a.). Fahrmodus: Adresse zuerst geocoden, weit entfernte Ziele nachfragen. Anrufen: Heimnummer, Bestätigung ruft, Personen/Nummern/Adressen verbinden.
+
+- versionCode `22000`
+
+### `2.19.3` — APIs als eigener Settings-Bereich — *CODE*
+
+Einstellungen-Übersicht: **APIs** steht als eigener Block ganz oben, nicht in der gleichen Gruppe wie Rabatt. Rabatt nur unter Einkauf (Gutschein-Suche).
+
+- versionCode `21903`
+
+### `2.19.2` — APIs getrennt von Rabatt — *CODE*
+
+Einstellungen → **APIs**: alle Keys (Gemini, Groq, OMDb, Tankerkönig, Spotify). Einstellungen → **Rabatt**: nur die Gutschein-Suche.
+
+- versionCode `21902`
+
+### `2.19.1` — Settings-Hub, Rabatt-Keys, Screenshot-Fixes — *CODE*
+
+Einstellungen starten bei Übersicht, große Zeilen zum Durchklicken. Alle API-Keys plus Rabatt-Suche unter **Rabatt**. `Wo kann ich Switch 2 kaufen` ist Preis/Einkauf, nicht Film. Schirm in Bietigheim nimmt nur den Ort. Quellen-Badge bricht nicht mehr vertikal. Ferien: OpenHolidays als Fallback. BIP-Tabelle sucht Destatis, nicht Wiki-„Tabelle“.
+
+- versionCode `21901`
+- Sideload `releases/Jarvis.apk`
+
+### `2.19.0` — Live-Qualität + Alltag & Welt — *CODE*
+
+Eine Sideload-Stufe: `2.2.3`–`2.19.0` im Code. Uhr/Akku live, Musik ehrlich ohne Spotify-API, Briefing ohne Wetter, Wetter-Gate. DWD, Schulferien, EZB-Kurs, Research Wikipedia/Destatis zuerst, Open Food Facts, Open Library, OpenLigaDB, iNaturalist, ISS/Mond, OpenSky, BGB-Link, Waschsymbole, Schritte/Luftdruck/Kompass, Schach `e2e4`. Testprompts nicht in der App.
+
+- versionCode `21900`
+- [`30-next.md`](./30-next.md) · [`31-next.md`](./31-next.md)
 
 ### `2.2.2` — Testprompts raus aus der App — *CODE*
 
