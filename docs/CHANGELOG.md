@@ -5,12 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.21.0`**.
+App-Version im Code: **`2.21.1`**.
 
 ### Geplant
 
 1. **`2.2.4` SHOULD** — optionales 1.5B, Default bleibt 0.5B (früher intern `0.13.4`)
 2. Native llama.cpp (früher intern `0.14.0`): PO
+
+### `2.21.1` — Debug-Test abbrechen — *CODE*
+
+Laufender Debug-Test: Button **Test abbrechen**. Die aktuelle Antwort läuft zu Ende, danach stoppt die Reihe. Download bleibt möglich.
+
+- versionCode `22101`
 
 ### `2.21.0` — Debug auto-testet — *CODE*
 

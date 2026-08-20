@@ -1563,6 +1563,11 @@ button.linkish {
   cursor: default;
 }
 
+.debug-bar-actions button.is-stop {
+  border-color: rgba(228, 195, 106, 0.65);
+  color: var(--gold);
+}
+
 .row.is-pick {
   cursor: pointer;
 }

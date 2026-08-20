@@ -7,7 +7,7 @@ import { resolveWeatherHere } from './weather'
 
 export { parseWorldIntent, isMusicHonesty } from './world-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.21.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.21.1 (local.jarvis.app)' }
 
 type Hit = { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }
 

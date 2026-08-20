@@ -327,9 +327,14 @@ function App() {
   const [debugMode, setDebugMode] = useState(false)
   const [debugPicking, setDebugPicking] = useState(false)
   const [debugPicked, setDebugPicked] = useState<Record<string, true>>({})
-  const [debugProgress, setDebugProgress] = useState<{ i: number; n: number; text: string; done: boolean } | null>(
-    null,
-  )
+  const [debugProgress, setDebugProgress] = useState<{
+    i: number
+    n: number
+    text: string
+    done: boolean
+    cancelled?: boolean
+    stopping?: boolean
+  } | null>(null)
   const [debugDlBusy, setDebugDlBusy] = useState(false)
   const [debugDlMsg, setDebugDlMsg] = useState<string | null>(null)
   const [momentGlint, setMomentGlint] = useState(false)
@@ -1336,15 +1341,26 @@ function App() {
     debugRunningRef.current = true
     setDebugProgress({ i: 0, n: prompts.length, text: prompts[0] || '', done: false })
 
+    let finished = 0
     for (let i = 0; i < prompts.length; i++) {
       if (debugCancelRef.current) break
-      setDebugProgress({ i, n: prompts.length, text: prompts[i], done: false })
+      setDebugProgress({ i, n: prompts.length, text: prompts[i], done: false, stopping: debugCancelRef.current })
       await sendMessage(prompts[i], { fromDebug: true })
+      finished = i + 1
+      if (debugCancelRef.current) break
     }
     debugRunningRef.current = false
-    if (!debugCancelRef.current) {
+    if (debugCancelRef.current) {
+      setDebugProgress({ i: finished, n: prompts.length, text: '', done: true, cancelled: true })
+    } else {
       setDebugProgress({ i: prompts.length, n: prompts.length, text: '', done: true })
     }
+  }
+
+  function stopDebugTest() {
+    if (!debugRunningRef.current) return
+    debugCancelRef.current = true
+    setDebugProgress((p) => (p && !p.done ? { ...p, stopping: true } : p))
   }
 
   async function sendVoiceTurn(
@@ -1790,11 +1806,15 @@ function App() {
               <p className="debug-bar-status">
                 {debugPicking
                   ? 'Nachrichten antippen. Auswahl lädt Frage plus Antwort nach Downloads.'
-                  : debugProgress && !debugProgress.done
-                    ? `Test ${Math.min(debugProgress.i + 1, debugProgress.n)}/${debugProgress.n} — ${debugProgress.text}`
-                    : debugProgress?.done
-                      ? `Fertig · ${debugProgress.n} Prompts`
-                      : 'Debug-Chat. Nicht schreiben — nur Download.'}
+                  : debugProgress?.stopping && !debugProgress.done
+                    ? 'Wird abgebrochen… aktuelle Antwort läuft noch.'
+                    : debugProgress && !debugProgress.done
+                      ? `Test ${Math.min(debugProgress.i + 1, debugProgress.n)}/${debugProgress.n} — ${debugProgress.text}`
+                      : debugProgress?.cancelled
+                        ? `Abgebrochen · ${debugProgress.i}/${debugProgress.n}`
+                        : debugProgress?.done
+                          ? `Fertig · ${debugProgress.n} Prompts`
+                          : 'Debug-Chat. Nicht schreiben — nur Download.'}
               </p>
               {debugDlMsg ? <p className="debug-bar-status">{debugDlMsg}</p> : null}
               <div className="debug-bar-actions">
@@ -1824,6 +1844,16 @@ function App() {
                   </>
                 ) : (
                   <>
+                    {debugProgress && !debugProgress.done ? (
+                      <button
+                        type="button"
+                        className="is-stop"
+                        disabled={Boolean(debugProgress.stopping)}
+                        onClick={stopDebugTest}
+                      >
+                        {debugProgress.stopping ? 'Stoppe…' : 'Test abbrechen'}
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       disabled={debugDlBusy || messages.length === 0}
@@ -1833,7 +1863,7 @@ function App() {
                     </button>
                     <button
                       type="button"
-                      disabled={debugDlBusy || messages.length === 0}
+                      disabled={debugDlBusy || messages.length === 0 || Boolean(debugProgress && !debugProgress.done)}
                       onClick={() => {
                         setDebugPicking(true)
                         setDebugPicked({})
