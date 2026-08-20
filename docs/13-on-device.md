@@ -24,7 +24,7 @@ Ausbau ohne Cloud: [`14-on-device-iq.md`](./14-on-device-iq.md)
 | Version | Hebel |
 |---------|-------|
 | `0.13.2` | Threads, Stream (kein Prompt-Schnitt) — **CODE** |
-| `0.13.3` | Persona kompakt, Honesty, Siezen (kein Canned, kein Hart-Kappen) |
+| `0.13.3` | Live: kein Spotify, Wetter-Gate; plus Honesty/Siezen |
 | `0.13.4` | optional 1.5B Q4 (Default unverändert) |
 
 ## Parking
