@@ -376,8 +376,8 @@ IDs `S14.*` aus dem falsch nummerierten `0.13.x`-Entwurf, Lieferung jetzt `2.2.3
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 106** (`2.2.4`) **SHOULD** — optionales 1.5B [`30-next.md`](./30-next.md)
-2. `2.3`–`2.19` sind in **`2.19.0` CODE** [`31-next.md`](./31-next.md)
+1. **`2.22.0` CODE** — Widget hört und antwortet
+2. Nächste 20 Stufen [`32-next.md`](./32-next.md), zuerst Sprecher-Erkennung / optionales 1.5B (`2.2.4` SHOULD) / native llama.cpp (PO)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)

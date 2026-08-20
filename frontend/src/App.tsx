@@ -379,11 +379,19 @@ function App() {
   const busyRef = useRef(false)
   activeIdRef.current = activeId
   const [voiceSeed, setVoiceSeed] = useState('')
+  const [voiceLaunchSeq, setVoiceLaunchSeq] = useState(0)
 
   function openVoiceMode(seed = '') {
-    if (debugChatIdRef.current) return
-    voiceHoldUntilRef.current = Date.now() + 2500
-    if (seed) setVoiceSeed(seed)
+    debugCancelRef.current = true
+    debugRunningRef.current = false
+    debugChatIdRef.current = null
+    setDebugMode(false)
+    setDebugProgress(null)
+    setSetupOpen(false)
+    setSettingsPanelOpen(false)
+    voiceHoldUntilRef.current = Date.now() + 8000
+    setVoiceSeed(seed || '')
+    setVoiceLaunchSeq((n) => n + 1)
     setVoiceOpen(true)
     setCalendarOpen(false)
     setCompassOpen(false)
@@ -578,10 +586,29 @@ function App() {
       })
     }
     document.addEventListener('visibilitychange', vis)
+    let appState: { remove: () => Promise<void> } | null = null
+    let urlOpen: { remove: () => Promise<void> } | null = null
+    if (Capacitor.isNativePlatform()) {
+      void CapApp.addListener('appStateChange', ({ isActive }) => {
+        if (!isActive) return
+        void consumeVoiceLaunch().then((v) => {
+          if (v.voice) openVoiceMode(v.utterance)
+        })
+      }).then((h) => {
+        appState = h
+      })
+      void CapApp.addListener('appUrlOpen', ({ url }) => {
+        if (url && /voice/i.test(url)) openVoiceMode()
+      }).then((h) => {
+        urlOpen = h
+      })
+    }
     return () => {
       off()
       window.clearTimeout(hideTimer)
       document.removeEventListener('visibilitychange', vis)
+      void appState?.remove()
+      void urlOpen?.remove()
     }
   }, [])
 
@@ -1623,6 +1650,7 @@ function App() {
       <main className={`main${driveOpen ? ' is-drive' : ''}${calendarOpen ? ' is-calendar' : ''}${compassOpen ? ' is-compass' : ''}${debugMode ? ' is-debug' : ''}`}>
         {voiceOpen ? (
           <VoiceMode
+            key={voiceLaunchSeq}
             onClose={() => {
               setVoiceOpen(false)
               setVoiceSeed('')

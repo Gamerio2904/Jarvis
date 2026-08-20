@@ -71,6 +71,7 @@ public class JarvisVoicePlugin extends Plugin {
     private static JarvisVoicePlugin self;
     private static volatile boolean pendingWake = false;
     private static volatile String pendingUtterance = "";
+    private static volatile boolean voiceUiOpen = false;
 
     @Override
     public void load() {
@@ -179,7 +180,7 @@ public class JarvisVoicePlugin extends Plugin {
             if (listenCall != null) {
                 finishListen("", false, "schon am Zuhören", null);
             }
-            JarvisWakeService.pauseListen();
+            holdVoiceUi();
             listenCall = call;
             lastPartial = "";
             if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
@@ -274,7 +275,42 @@ public class JarvisVoicePlugin extends Plugin {
         }
         if (message != null && !message.isEmpty()) r.put("message", message);
         c.resolve(r);
-        main.postDelayed(() -> JarvisWakeService.resumeListen(getContext()), 400);
+        maybeResumeWake();
+    }
+
+    /** VoiceMode hält das Wake-Mikro, sonst stiehlt es die Antwort nach dem Widget-Tap. */
+    public static void holdVoiceUi() {
+        voiceUiOpen = true;
+        JarvisWakeService.pauseListen();
+    }
+
+    public static void releaseVoiceUi() {
+        voiceUiOpen = false;
+        maybeResumeWakeStatic();
+    }
+
+    private void maybeResumeWake() {
+        maybeResumeWakeStatic();
+    }
+
+    private static void maybeResumeWakeStatic() {
+        JarvisVoicePlugin p = self;
+        Handler h = p != null ? p.main : new Handler(Looper.getMainLooper());
+        h.postDelayed(() -> {
+            if (voiceUiOpen) return;
+            JarvisWakeService.resumeListen(p != null ? p.getContext() : null);
+        }, 400);
+    }
+
+    @PluginMethod
+    public void setVoiceUi(PluginCall call) {
+        boolean open = Boolean.TRUE.equals(call.getBoolean("open", false));
+        if (open) holdVoiceUi();
+        else releaseVoiceUi();
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        r.put("open", voiceUiOpen);
+        call.resolve(r);
     }
 
     @PluginMethod
@@ -424,6 +460,7 @@ public class JarvisVoicePlugin extends Plugin {
     }
 
     public static void emitWake(String utterance) {
+        holdVoiceUi();
         pendingWake = true;
         pendingUtterance = utterance == null ? "" : utterance.trim();
         JarvisVoicePlugin p = self;

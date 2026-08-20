@@ -7,6 +7,7 @@ import {
   listenOnce,
   requestMicPermission,
   setKeepScreenOn,
+  setVoiceUi,
   stopListen,
   stopSpeak,
 } from './native/voice'
@@ -39,6 +40,7 @@ export function VoiceMode({
 
   useEffect(() => {
     live.current = true
+    void setVoiceUi(true)
     void setKeepScreenOn(true)
     void startLoop()
     return () => {
@@ -50,6 +52,7 @@ export function VoiceMode({
       void stopListen()
       void stopSpeak()
       void setKeepScreenOn(false)
+      void setVoiceUi(false)
     }
   }, [])
 

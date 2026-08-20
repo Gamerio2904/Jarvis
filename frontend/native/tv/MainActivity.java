@@ -46,6 +46,7 @@ public class MainActivity extends BridgeActivity {
                     || (data != null && "voice".equals(data.getHost()));
         }
         if (!voice) return;
+        JarvisVoicePlugin.holdVoiceUi();
         JarvisVoicePlugin.emitWake();
         if (Build.VERSION.SDK_INT >= 27) {
             setShowWhenLocked(true);

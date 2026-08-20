@@ -5,12 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.21.1`**.
+App-Version im Code: **`2.22.0`**.
 
 ### Geplant
 
-1. **`2.2.4` SHOULD** — optionales 1.5B, Default bleibt 0.5B (früher intern `0.13.4`)
-2. Native llama.cpp (früher intern `0.14.0`): PO
+Nächste 20 Stufen: [`32-next.md`](./32-next.md). Darin u. a. optionales 1.5B (`2.2.4` SHOULD) und native llama.cpp (PO).
+
+### `2.22.0` — Widget hört und antwortet — *CODE*
+
+Widget-Fläche öffnet den Sprachmodus. Wake-Mikrofon bleibt aus, bis VoiceMode zu ist — sonst stiehlt es die Antwort. Debug-Test blockiert Voice nicht mehr. Overlay „Modell aufs Handy“ liegt nicht über Voice.
+
+- versionCode `22200`
+- Fläche = hören, Mikro = Wake-Word
 
 ### `2.21.1` — Debug-Test abbrechen — *CODE*
 
