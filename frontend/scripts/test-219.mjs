@@ -6,6 +6,7 @@ import { parseWorldIntent, isMusicHonesty } from '../src/engine/world-parse.ts'
 import { parseWeatherIntent } from '../src/engine/weather-parse.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
 import { parseFilmIntent } from '../src/engine/film-parse.ts'
+import { isProductLookup, researchQuery } from '../src/engine/research-parse.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
@@ -44,6 +45,16 @@ assert.equal(parseShopIntent('Guten Morgen'), null)
 assert.ok(isBriefAsk('Guten Morgen'))
 assert.ok(isBriefAsk('Was steht an?'))
 assert.equal(parseFilmIntent('Switch 2 kaufen'), null)
+assert.equal(parseFilmIntent('Wo kann ich Switch 2 kaufen'), null)
+assert.equal(parseFilmIntent('Ne die Switch 2 mit Rabatt'), null)
+assert.ok(isProductLookup('Wo kann ich Switch 2 kaufen'))
+assert.ok(isProductLookup('Ne die Switch 2 mit Rabatt'))
+assert.equal(parseShopIntent('Wo kann ich Switch 2 kaufen'), null)
+assert.equal(parseShopIntent('Switch 2 kaufen')?.kind, 'add')
+assert.equal(parseWeatherIntent('Brauche ich in Bietigheim einen Schirm?')?.kind, 'place')
+assert.equal(parseWeatherIntent('Brauche ich in Bietigheim einen Schirm?')?.place, 'Bietigheim')
+assert.match(researchQuery('Kannst du den bip von Deutschland in einer Tabelle darstellen?'), /Bruttoinlandsprodukt Deutschland Destatis/)
+assert.match(HELP_TEXT, /2\.19\.1/)
 assert.deepEqual(splitTitlePlace('Termin 15 Uhr'), { title: 'Termin 15 Uhr' })
 assert.equal(parseDeviceIntent('Wie viele Schritte heute?')?.kind, 'steps')
 assert.equal(parseDeviceIntent('Luftdruck')?.kind, 'pressure')
@@ -75,7 +86,7 @@ const keep = packChat([
 ])
 assert.equal(keep.length, 2)
 
-assert.match(HELP_TEXT, /2\.19\.0/)
+assert.match(HELP_TEXT, /2\.19\.1/)
 assert.match(HELP_TEXT, /Musik ist nicht angebunden/)
 assert.match(HELP_TEXT, /DWD/)
 assert.match(HELP_TEXT, /Schach/)

@@ -7,7 +7,7 @@ import { resolveWeatherHere } from './weather'
 
 export { parseWorldIntent, isMusicHonesty } from './world-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.19.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.19.1 (local.jarvis.app)' }
 
 type Hit = { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }
 
@@ -91,37 +91,8 @@ function summarizeWarn(json: Record<string, unknown>): string | null {
 async function ferien(land?: string): Promise<Hit> {
   const code = land || landFromPlace(loadSettings().last_place) || 'BW'
   const year = new Date().getFullYear()
-  try {
-    const { status, json } = await getJson(`https://ferien-api.de/api/v1/holidays/${code}/${year}`, UA)
-    if (status < 200 || status >= 300) throw new Error('ferien')
-    const rows = Array.isArray(json) ? (json as unknown as Array<{ name?: string; start?: string; end?: string }>) : []
-    const today = isoDate(new Date())
-    const now = rows.find((r) => r.start && r.end && r.start <= today && today <= r.end)
-    const next = rows.find((r) => r.start && r.start > today)
-    const name = landName(code)
-    if (now) {
-      return {
-        handled: true,
-        reply: `In ${name} sind ${now.name || 'Ferien'} bis ${fmtDay(now.end || '')}. Quelle ferien-api.de.`,
-        tool: tool('ferien', 'Ferien'),
-        lastTool: 'world',
-      }
-    }
-    if (next) {
-      return {
-        handled: true,
-        reply: `In ${name} als Nächstes ${next.name || 'Ferien'} ab ${fmtDay(next.start || '')}. Quelle ferien-api.de.`,
-        tool: tool('ferien', 'Ferien'),
-        lastTool: 'world',
-      }
-    }
-    return {
-      handled: true,
-      reply: `Für ${name} ${year} keine weiteren Ferien in der Liste.`,
-      tool: tool('ferien', 'Ferien'),
-      lastTool: 'world',
-    }
-  } catch {
+  const rows = (await ferienFromDe(code, year)) || (await ferienFromOpenHolidays(code, year))
+  if (!rows) {
     return {
       handled: true,
       reply: 'Die Ferien-API antwortet nicht. Ich rate keine Termine.',
@@ -129,6 +100,101 @@ async function ferien(land?: string): Promise<Hit> {
       lastTool: 'world',
     }
   }
+  const today = isoDate(new Date())
+  const now = rows.find((r) => r.start && r.end && r.start <= today && today <= r.end)
+  const next = rows.find((r) => r.start && r.start > today)
+  const name = landName(code)
+  if (now) {
+    return {
+      handled: true,
+      reply: `In ${name} sind ${now.name || 'Ferien'} bis ${fmtDay(now.end || '')}. Quelle Schulferien.`,
+      tool: tool('ferien', 'Ferien'),
+      lastTool: 'world',
+    }
+  }
+  if (next) {
+    return {
+      handled: true,
+      reply: `In ${name} als Nächstes ${next.name || 'Ferien'} ab ${fmtDay(next.start || '')}. Quelle Schulferien.`,
+      tool: tool('ferien', 'Ferien'),
+      lastTool: 'world',
+    }
+  }
+  return {
+    handled: true,
+    reply: `Für ${name} ${year} keine weiteren Ferien in der Liste.`,
+    tool: tool('ferien', 'Ferien'),
+    lastTool: 'world',
+  }
+}
+
+type FerienRow = { name?: string; start?: string; end?: string }
+
+async function ferienFromDe(code: string, year: number): Promise<FerienRow[] | null> {
+  try {
+    const { status, json } = await getJson(`https://ferien-api.de/api/v1/holidays/${code}/${year}`, UA)
+    if (status < 200 || status >= 300) return null
+    const raw = Array.isArray(json)
+      ? json
+      : Array.isArray((json as { data?: unknown }).data)
+        ? ((json as { data: unknown[] }).data)
+        : []
+    const rows = (raw as Array<{ name?: string; start?: string; end?: string }>)
+      .map((r) => ({ name: r.name, start: r.start?.slice(0, 10), end: r.end?.slice(0, 10) }))
+      .filter((r) => r.start && r.end)
+    return rows.length ? rows : null
+  } catch {
+    return null
+  }
+}
+
+async function ferienFromOpenHolidays(code: string, year: number): Promise<FerienRow[] | null> {
+  const sub = openHolidayLand(code)
+  if (!sub) return null
+  try {
+    const q = new URLSearchParams({
+      countryIsoCode: 'DE',
+      subdivisionCode: sub,
+      validFrom: `${year}-01-01`,
+      validTo: `${year}-12-31`,
+    })
+    const { status, json } = await getJson(`https://openholidaysapi.org/SchoolHolidays?${q}`, UA)
+    if (status < 200 || status >= 300) return null
+    const raw = Array.isArray(json) ? json : []
+    const rows = (raw as Array<{ startDate?: string; endDate?: string; name?: Array<{ text?: string }> }>)
+      .map((r) => ({
+        name: r.name?.find((n) => n.text)?.text || 'Ferien',
+        start: r.startDate?.slice(0, 10),
+        end: r.endDate?.slice(0, 10),
+      }))
+      .filter((r) => r.start && r.end)
+      .sort((a, b) => String(a.start).localeCompare(String(b.start)))
+    return rows.length ? rows : null
+  } catch {
+    return null
+  }
+}
+
+function openHolidayLand(code: string): string | null {
+  const map: Record<string, string> = {
+    BW: 'DE-BW',
+    BY: 'DE-BY',
+    BE: 'DE-BE',
+    BB: 'DE-BB',
+    HB: 'DE-HB',
+    HH: 'DE-HH',
+    HE: 'DE-HE',
+    MV: 'DE-MV',
+    NI: 'DE-NI',
+    NW: 'DE-NW',
+    RP: 'DE-RP',
+    SL: 'DE-SL',
+    SN: 'DE-SN',
+    ST: 'DE-ST',
+    SH: 'DE-SH',
+    TH: 'DE-TH',
+  }
+  return map[code] || null
 }
 
 async function fx(from: string, to: string): Promise<Hit> {

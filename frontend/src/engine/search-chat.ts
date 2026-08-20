@@ -10,10 +10,12 @@ export async function handleChatSearch(
   const q = parseChatSearch(text)
   if (!q) return { handled: false }
   const needle = q.toLowerCase()
+  const asked = text.trim().toLowerCase()
   const messages = await getAll<Message>('messages')
   const convs = await getAll<Conversation>('conversations')
   const hits = messages
     .filter((m) => m.content.toLowerCase().includes(needle) && m.content.length < 400)
+    .filter((m) => m.content.trim().toLowerCase() !== asked)
     .slice(-8)
   if (!hits.length) {
     const titled = convs.filter((c) => c.title.toLowerCase().includes(needle))

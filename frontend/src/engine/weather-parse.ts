@@ -49,10 +49,8 @@ export function parseWeatherFollowup(text: string, last: WeatherLast | null): We
 
   const placeHit = /(?:in|für|aus|bei)\s+([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-\s]{1,40})$/i.exec(rest)
   if (placeHit) {
-    const name = placeHit[1].replace(/[?.!]+$/, '').trim()
-    if (name && !/^(hier|heute|jetzt|draußen|morgen|übermorgen|wochenende)$/i.test(name)) {
-      return { kind: 'place', place: name, when, focus }
-    }
+    const name = cleanPlace(placeHit[1])
+    if (name) return { kind: 'place', place: name, when, focus }
   }
   if (last.kind === 'place' && last.place) return { kind: 'place', place: last.place, when, focus }
   return { kind: 'here', when, focus }
@@ -85,12 +83,22 @@ export function parseWeatherIntent(text: string): WeatherIntent | null {
 function extractPlace(text: string): string | null {
   const place = PLACE.exec(text)
   if (!place) return null
-  const name = place[1].replace(/[?.!]+$/, '').replace(PLACE_JUNK, '').trim()
+  return cleanPlace(place[1].replace(/[?.!]+$/, '').replace(PLACE_JUNK, ''))
+}
+
+function cleanPlace(raw: string): string | null {
+  const name = raw
+    .replace(/[?.!]+$/g, '')
+    .replace(
+      /\b(heute|jetzt|hier|draußen|morgen|übermorgen|wochenende|samstag|sonntag|schirm|anziehen|tragen|jacke|brauch(?:e)?|ich|einen?|eine|das|wetter|temperatur|regen|regnet)\b/gi,
+      ' ',
+    )
+    .replace(/\s+/g, ' ')
+    .trim()
   if (!name || /^(hier|heute|jetzt|draußen|morgen|übermorgen|wochenende)$/i.test(name)) return null
-  if (name.length > 40 || /\s/.test(name) && name.split(/\s+/).length > 3) {
-    return name.split(/\s+/)[0] || null
-  }
-  return name
+  const token = name.split(/\s+/)[0] || ''
+  if (!token || token.length < 2 || token.length > 40) return null
+  return token
 }
 
 function parseWhen(text: string): WeatherWhen {

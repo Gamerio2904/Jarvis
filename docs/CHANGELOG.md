@@ -5,12 +5,19 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.19.0`**.
+App-Version im Code: **`2.19.1`**.
 
 ### Geplant
 
 1. **`2.2.4` SHOULD** — optionales 1.5B, Default bleibt 0.5B (früher intern `0.13.4`)
 2. Native llama.cpp (früher intern `0.14.0`): PO
+
+### `2.19.1` — Settings-Hub, Rabatt-Keys, Screenshot-Fixes — *CODE*
+
+Einstellungen starten bei Übersicht, große Zeilen zum Durchklicken. Alle API-Keys plus Rabatt-Suche unter **Rabatt**. `Wo kann ich Switch 2 kaufen` ist Preis/Einkauf, nicht Film. Schirm in Bietigheim nimmt nur den Ort. Quellen-Badge bricht nicht mehr vertikal. Ferien: OpenHolidays als Fallback. BIP-Tabelle sucht Destatis, nicht Wiki-„Tabelle“.
+
+- versionCode `21901`
+- Sideload `releases/Jarvis.apk`
 
 ### `2.19.0` — Live-Qualität + Alltag & Welt — *CODE*
 

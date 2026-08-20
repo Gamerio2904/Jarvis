@@ -14,8 +14,8 @@ import {
 } from './research-parse'
 import { loadSettings } from './store'
 
-const UA = 'Jarvis/2.19.0 (local.jarvis.app)'
-const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.19.0'
+const UA = 'Jarvis/2.19.1 (local.jarvis.app)'
+const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.19.1'
 
 export async function fillResearchLinks(
   queryText: string,
@@ -147,7 +147,9 @@ async function wikipedia(query: string): Promise<ResearchSource[]> {
 }
 
 function companyHint(q: string): string {
-  const skip = /^(wie|was|wer|wo|wann|wieso|weshalb|viele|viel|am|tag|pro|der|die|das|ein|eine)$/i
+  if (/\b(?:bip|b\.i\.p\.|gdp|bruttoinlandsprodukt)\b/i.test(q)) return 'Bruttoinlandsprodukt Deutschland'
+  const skip =
+    /^(wie|was|wer|wo|wann|wieso|weshalb|viele|viel|am|tag|pro|der|die|das|ein|eine|tabelle|statistik|daten|destatis)$/i
   const words = q.split(/\s+/)
   for (let i = words.length - 1; i >= 0; i -= 1) {
     const w = words[i].replace(/[?.!,]/g, '')

@@ -35,6 +35,8 @@ export function parseShopIntent(text: string): ShopIntent | null {
   if (
     buy &&
     !/[?]/.test(t) &&
+    !/^\s*(wo|was|wann|wie|welche[rsn]?)\b/i.test(t) &&
+    !/\b(wo\s+kann\s+ich|mit\s+rabatt|preisvergleich|idealo)\b/i.test(t) &&
     !/\bin\s+(?:\d+\s+(?:minuten?|stunden?|tage(?:n)?|tag)|einer?\s+(?:minute|stunde|tag))\b/i.test(t)
   ) {
     return { kind: 'add', item: clean(buy[1]) }

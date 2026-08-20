@@ -176,7 +176,7 @@ function SourcesBlock({
   const query = (research.query || '').replace(/^[·.\s]+/, '').trim()
   if (!sources.length && !status && !query) return null
   return (
-    <details className="sources-block" open>
+    <details className="sources-block">
       <summary>
         <span className="sources-badge">{status || 'Quellen'}</span>
         {sources.length ? (
@@ -301,7 +301,7 @@ function App() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
-  const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('allgemein')
+  const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('hub')
   const [momentGlint, setMomentGlint] = useState(false)
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
@@ -1120,7 +1120,7 @@ function App() {
     await sendMessage(lastFailed)
   }
 
-  function openSettings(topic: SettingsTopic = 'allgemein') {
+  function openSettings(topic: SettingsTopic = 'hub') {
     setSettingsTopic(topic)
     setSettingsPanelOpen(true)
     setSidebarOpen(false)
@@ -1133,7 +1133,8 @@ function App() {
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
     else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
-    else if (/Einstellungen.*Gemini|API-Key|Gemini an, aber kein/i.test(t)) openSettings('cloud')
+    else if (/Einstellungen\s*→\s*Rabatt|OMDb-Schlüssel|API-Keys?/i.test(t)) openSettings('rabatt')
+    else if (/Einstellungen.*Gemini|Gemini an, aber kein/i.test(t)) openSettings('cloud')
     else if (/Einstellungen\s*→\s*Musik|Spotify-Client-ID|Spotify anmelden/i.test(t)) openSettings('musik')
   }
 
@@ -1259,7 +1260,7 @@ function App() {
         <button
           type="button"
           className={`memory-toggle ${settingsPanelOpen ? 'active' : ''}`}
-          onClick={() => openSettings('allgemein')}
+          onClick={() => openSettings('hub')}
         >
           Einstellungen
         </button>
@@ -1340,7 +1341,7 @@ function App() {
             <button
               type="button"
               className="ghost-btn icon-only"
-              onClick={() => openSettings('allgemein')}
+              onClick={() => openSettings('hub')}
               aria-label="Einstellungen"
               title="Einstellungen"
             >

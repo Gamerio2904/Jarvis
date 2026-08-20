@@ -1,6 +1,6 @@
-# Android-APK — `2.19.0`
+# Android-APK — `2.19.1`
 
-**2.19.0:** Live-Qualität (`2.2.3`) plus Alltag & Welt (`2.3`–`2.19`) in einer Sideload-Stufe. Keine Testprompts in der App. Chat ohne Chips. Musik nicht angebunden (keine Spotify-API). `2.2.4` (1.5B) ist nicht enthalten.
+**2.19.1:** Settings-Übersicht zum Durchklicken. Alle API-Keys unter **Rabatt**. Screenshot-Fixes (Switch-Kauf, Schirm-Ort, Quellen, Ferien-Fallback). Keine Testprompts in der App.
 
 ## Download
 
@@ -9,9 +9,10 @@ https://github.com/Gamerio2904/Jarvis/raw/cursor/on-device-iq-sprints-5517/relea
 APK nach Build: `releases/Jarvis.apk`
 
 - Dateiname: `Jarvis.apk`
-- versionName `2.19.0` · versionCode `21900`
+- versionName `2.19.1` · versionCode `21901`
 - App-ID `local.jarvis.app`
 
-1. Über 2.2.2 installieren.
-2. Uhr/Akku live; `Spiel mal was Nettes` → „Musik ist nicht angebunden.“
-3. Welt: Unwetter, Ferien, Kurs, Schach `e2e4`.
+1. Über 2.19.0 installieren.
+2. Einstellungen: Übersicht antippen, Keys unter Rabatt.
+3. Uhr/Akku live; `Spiel mal was Nettes` → „Musik ist nicht angebunden.“
+4. `Wo kann ich Switch 2 kaufen` ≠ Film.
