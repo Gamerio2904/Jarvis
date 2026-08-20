@@ -16,6 +16,7 @@ Native llama.cpp NDK bleibt PO. Rest der 20er-Liste: [`32-next.md`](./32-next.md
 Sideload-Stufe für die gewählten 2.23–2.37-Punkte plus Kamera: echte Handy-Kamera, Foto-OCR mit Gemini, Open Food Facts bei EAN. Sprecher nur per Name, ehrlich ohne Stimme. Optionales 1.5B (Default 0.5B). Personen mergen bei gleicher Nummer, Ort vergessen. Losgehen legt Erinnerung. Fahrt fragt Stadt/Fernziel nach. Wetter-Orte mit zwei Wörtern, DWD mit Lage. Research Wikipedia zuerst. VoiceMode hält Wake, Offline-Texte klar, Settings Denken, Debug-Test Wake-Lock.
 
 - versionCode `23700`
+- Sideload `releases/Jarvis.apk`
 - Natives NDK-llama.cpp **nicht** in dieser APK (WASM/wllama)
 
 ### `2.22.0` — Widget hört und antwortet — *CODE*
