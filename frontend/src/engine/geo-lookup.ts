@@ -129,14 +129,14 @@ async function geocodeOpenMeteo(
     const rows = raw.map((row) => {
       const lat = Number(row.latitude)
       const lon = Number(row.longitude)
-      const name = String(row.name || name)
-      const place = placeLabel(name, String(row.admin1 || ''), String(row.country || ''))
+      const hitName = String(row.name || name)
+      const place = placeLabel(hitName, String(row.admin1 || ''), String(row.country || ''))
       return {
         lat,
         lon,
         place,
         country: String(row.country_code || row.country || ''),
-        name,
+        name: hitName,
         population: Number(row.population) || 0,
       }
     })
