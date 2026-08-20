@@ -157,6 +157,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Steckdose an', text: 'Steckdose an' },
       { label: 'alle aus', text: 'alle Steckdosen aus' },
       { label: 'Zuhause-Regel', text: 'Wenn ich zuhause bin Müll raus' },
+      { label: 'Erinner zu Hause', text: 'erinner mich zu Hause an Müll' },
       { label: 'Ich bin zuhause', text: 'Ich bin zuhause' },
     ],
   },
@@ -208,8 +209,10 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     title: 'Anruf & SMS',
     hint: 'Leute, Nummern',
     items: [
+      { label: 'Freundin ist', text: 'Meine Freundin ist Odett' },
       { label: 'Freundin wohnt', text: 'Freundin wohnt in Heilbronn' },
       { label: 'Freundin Tel', text: 'Freundin, Tel 01711234567' },
+      { label: 'Nummer für', text: 'Nummer für Freundin 01711234567' },
       { label: 'Ruf an (erst nach ja)', text: 'Ruf die Freundin an' },
       { label: 'Ruf mal', text: 'Ruf mal die Freundin' },
       { label: 'SMS', text: 'Schreib der Freundin ich bin in 10 Minuten' },

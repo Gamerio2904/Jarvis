@@ -82,6 +82,25 @@ function samePerson(a: string, b: string): boolean {
   return false
 }
 
+async function aliasKeysOf(key: string): Promise<string[]> {
+  const n = normalizePlaceName(key)
+  const names = new Set<string>([n])
+  const rows = await listMemory()
+  for (const r of rows) {
+    if (r.key === `alias:${n}` && r.value.trim()) names.add(normalizePlaceName(r.value))
+    if (r.key.startsWith('alias:') && normalizePlaceName(r.value) === n) {
+      names.add(normalizePlaceName(r.key.slice('alias:'.length)))
+    }
+  }
+  return [...names].filter((k) => k.length >= 2)
+}
+
+async function mirrorContact(conversationId: string, key: string, number: string): Promise<void> {
+  for (const k of await aliasKeysOf(key)) {
+    await upsertMemory(k, number, 'contact', conversationId)
+  }
+}
+
 async function maybeAliasPerson(conversationId: string, key: string, kind: 'contact' | 'place'): Promise<string> {
   const n = normalizePlaceName(key)
   const rows = await listMemory()
@@ -118,7 +137,7 @@ type PendingComm = {
 }
 
 const OTHER_CMD =
-  /\b(wecker|timer|termin|wetter|tanke|fernseh|\btv\b|todo|notiz|suche|fahr|navigier|carplay|fahrmodus|akku|spotify|ventilator|apotheke|bäcker)\b/i
+  /\b(wecker|timer|termin|wetter|tanke|fernseh|\btv\b|todo|notiz|suche|fahr|navigier|carplay|fahrmodus|akku|spotify|ventilator|apotheke|bäcker|pc|fifa|foto|auge|kamera|geburtstag|schach|nachrichten|unwetter|steckdose|erinner|kalender|bahn|iss|mond|wikipedia|lies das|züge)\b/i
 
 function readComm(): PendingComm | null {
   try {
@@ -259,20 +278,23 @@ export async function handlePlaces(
     const rows = await listMemory()
     const hit = findContactRow(rows, nav.alias) || findContactRow(rows, nav.name)
     if (hit) {
+      await mirrorContact(conversationId, nav.name, hit.value)
+      await mirrorContact(conversationId, nav.alias, hit.value)
       return askCall(hit.key, hit.value)
     }
     writeComm({ kind: 'phone_ask', name: nav.alias }, 'phone_ask')
     return {
       handled: true,
-      reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(nav.alias)}, Tel …“. Dann frage ich nach, bevor ich anrufe.`,
+      reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Welche Nummer? Sage z. B. „Nummer für ${displayPlaceName(nav.alias)} …“ oder „${displayPlaceName(nav.alias)}, Tel …“. Dann frage ich nach, bevor ich anrufe.`,
       tool: commTool('ask', 'Nummer fehlt', nav.alias),
       lastTool: 'phone_ask',
     }
   }
 
   if (nav.kind === 'phone') {
-    await upsertMemory(nav.name, nav.number, 'contact', conversationId)
+    await mirrorContact(conversationId, nav.name, nav.number)
     const linked = await maybeAliasPerson(conversationId, nav.name, 'contact')
+    await mirrorContact(conversationId, nav.name, nav.number)
     return {
       handled: true,
       reply: `Die Nummer von ${displayPlaceName(nav.name)} ist gespeichert: ${nav.number}.${linked}`,
@@ -400,8 +422,9 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
 
   if (pending.kind === 'phone_ask') {
     if (num) {
-      await upsertMemory(pending.name, num, 'contact', conversationId)
+      await mirrorContact(conversationId, pending.name, num)
       await maybeAliasPerson(conversationId, pending.name, 'contact')
+      await mirrorContact(conversationId, pending.name, num)
       return askCall(pending.name, num)
     }
     const aliasName = text.trim().replace(/[.!?]+$/g, '')
@@ -433,7 +456,7 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
 
   if (pending.kind === 'sms_ask') {
     if (num) {
-      await upsertMemory(pending.name, num, 'contact', conversationId)
+      await mirrorContact(conversationId, pending.name, num)
       if (pending.body?.trim()) return askSms(pending.name, num, pending.body)
       writeComm({ kind: 'sms_body_ask', name: pending.name, number: num }, 'sms_body_ask')
       return {

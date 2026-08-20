@@ -159,6 +159,14 @@ async function handlePendingCal(
       writeCal(null)
       return null
     }
+    if (
+      /[?]/.test(text) ||
+      /^(wann|wo|wie|was|erinner|fahr|wetter|los)/i.test(text.trim()) ||
+      /\blos\b/i.test(text)
+    ) {
+      writeCal(null)
+      return null
+    }
     writeCal(pending)
     return {
       handled: true,

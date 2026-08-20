@@ -375,6 +375,14 @@ async function startRoute(_label: string, place: string): Promise<{
       lastTool: 'drive',
     }
   }
+  if (near && haversineM({ lat: near.lat, lon: near.lon, place: '' }, dest.fix) < 1200) {
+    return {
+      handled: true,
+      reply: `Sie sind schon in ${dest.fix.place}. Wohin soll ich fahren?`,
+      tool: driveTool('ask', 'schon da'),
+      lastTool: 'drive',
+    }
+  }
   if (near && haversineM({ lat: near.lat, lon: near.lon, place: '' }, dest.fix) > 150_000) {
     saveSettings({
       last_step_tool: 'drive_ask_far',

@@ -8,6 +8,8 @@ const WHO =
 const IAM =
   /^\s*(?:ich\s+bin|hier\s+ist|hier\s+spricht|am\s+apparat(?:\s+ist)?)\s+([A-ZÄÖÜ][\wÄÖÜäöüß.-]{1,40})\s*[.!]?\s*$/i
 const FORGET = /^\s*(?:stimme\s+vergessen|sprecher\s+vergessen|nicht\s+mehr\s+ich)\s*[.!]?\s*$/i
+const NOT_A_NAME =
+  /^(zuhause|zu\s*hause|heim|hier|da|zu|hause|müde|fertig|wach|daheim)$/i
 
 export function parseSpeakerIntent(text: string): SpeakerIntent | null {
   const t = text.trim()
@@ -15,6 +17,7 @@ export function parseSpeakerIntent(text: string): SpeakerIntent | null {
   if (WHO.test(t)) return { kind: 'who' }
   if (FORGET.test(t)) return { kind: 'forget' }
   const iam = IAM.exec(t)
-  if (iam?.[1]) return { kind: 'iam', name: iam[1].trim() }
+  const name = iam?.[1]?.trim()
+  if (name && !NOT_A_NAME.test(name)) return { kind: 'iam', name }
   return null
 }

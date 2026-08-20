@@ -68,8 +68,32 @@ export async function handleHome(
   conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
-  const intent = parseHomeIntent(text)
+  const step = loadSettings().last_step_tool
+  let intent = parseHomeIntent(text)
+  if (!intent && step === 'home_task_ask') {
+    if (
+      /[?]/.test(text) ||
+      /^[/?]/.test(text) ||
+      /\b(wetter|wecker|timer|termin|fahr|hilfe|hallo|spotify|nachrichten|fifa|foto|pc|geburtstag|kalender|einkauf|todo|film)\b/i.test(
+        text,
+      )
+    ) {
+      saveSettings({ last_step_tool: 'home' })
+      return { handled: false }
+    }
+    const task = text.replace(/^[.,!\s]+|[.!?]+$/g, '').trim()
+    if (task.length >= 2 && task.length <= 80) intent = { kind: 'when_home', task }
+  }
   if (!intent) return { handled: false }
+
+  if (intent.kind === 'ask_task') {
+    saveSettings({ last_step_tool: 'home_task_ask', last_step_title: '' })
+    return {
+      handled: true,
+      reply: 'Woran soll ich Sie zuhause erinnern? Zum Beispiel „Müll raus“.',
+      lastTool: 'home_task_ask',
+    }
+  }
 
   if (intent.kind === 'im_home') {
     const fired = await fireHomeTasks()
@@ -115,6 +139,7 @@ export async function handleHome(
   })
   const meters = intent.kind === 'when_home' && intent.radiusM ? ` Radius ${intent.radiusM} Meter.` : ''
   const where = intent.kind === 'when_home' && intent.address ? ` ${intent.address}.` : ''
+  saveSettings({ last_step_tool: 'home', last_step_title: intent.task })
   return {
     handled: true,
     reply: `Wenn Sie zuhause sind:${where} ${intent.task}.${meters} Das Handy muss an sein — ausgeschaltet löst nichts aus.`,

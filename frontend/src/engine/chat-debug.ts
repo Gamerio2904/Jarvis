@@ -72,8 +72,10 @@ export function flagReply(
   if (FAKE_ACTION.test(assistant) && !executed) flags.push('hallucinated_action')
   if (FAKE_SEARCH.test(assistant) && !research?.used && !(research?.sources || []).length) flags.push('hallucinated_search')
   if (DUZEN.test(assistant)) flags.push('duzen')
-  if (CLOCK.test(assistant) && route !== 'device' && route !== 'unknown') flags.push('clock_without_device')
-  if (WEATHER.test(assistant) && route !== 'weather' && route !== 'unknown') flags.push('weather_without_weather_tool')
+  if (CLOCK.test(assistant) && route !== 'device' && route !== 'help' && route !== 'unknown') flags.push('clock_without_device')
+  if (WEATHER.test(assistant) && route !== 'weather' && route !== 'device' && route !== 'help' && route !== 'unknown') {
+    flags.push('weather_without_weather_tool')
+  }
   if (MUSIC.test(assistant) && route !== 'music' && route !== 'drive' && !/nicht angebunden/i.test(assistant)) {
     flags.push('music_claim')
   }

@@ -1,6 +1,7 @@
 import { lookupOmdb, omdbKeyHint, type OmdbHit } from './omdb.ts'
 import { parseFilmIntent } from './film-parse.ts'
 import { lookupWatch, type FreeWhere, type WatchHit } from './tv-watch.ts'
+import { persistLastList } from './store.ts'
 
 export { parseFilmIntent } from './film-parse.ts'
 export type { FilmIntent } from './film-parse.ts'
@@ -38,6 +39,12 @@ export async function handleFilm(_conversationId: string, text: string): Promise
     omdbNote: omdb.ok ? '' : omdb.message,
     keyMissing,
   })
+  const titles = [
+    watch.title || intent.title,
+    ...(watch.freeWhere || []).map((f) => f.name),
+    ...(watch.offers || []).map((o) => o.provider),
+  ].filter(Boolean)
+  persistLastList('film', titles.slice(0, 8))
   return {
     handled: true,
     reply,

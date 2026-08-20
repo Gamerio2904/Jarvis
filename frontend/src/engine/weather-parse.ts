@@ -31,8 +31,10 @@ export function parseWeatherFollowup(text: string, last: WeatherLast | null): We
   const weatherish =
     /\b(morgen|übermorgen|heute|wochenende|schirm|anziehen|luft|pollen|sonnenaufgang|sonnenuntergang|regen|jacke|pulli|feinstaub|aqi)\b/i.test(
       rest,
-    ) || /^(in|für|aus|bei)\s+\S/i.test(rest)
+    ) || (/^(in|für|aus|bei)\s+[A-Za-zÄÖÜäöüß]/i.test(rest) && !/\bin\s+\d+/i.test(rest))
   if (!weatherish) return null
+  if (/\b(wetter|temperatur)\b/i.test(t)) return null
+  if (/\bin\s+\d+\s*(?:minuten?|stunden?|tage(?:n)?)?\b/i.test(t)) return null
   if (!rest) return last.kind === 'place' && last.place
     ? { kind: 'place', place: last.place, when: last.when, focus: last.focus }
     : { kind: 'here', when: last.when, focus: last.focus }

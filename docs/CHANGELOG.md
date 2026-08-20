@@ -5,11 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.37.1`**.
+App-Version im Code: **`2.37.2`**.
 
 ### Geplant
 
 Native llama.cpp NDK bleibt PO. Rest der 20er-Liste: [`32-next.md`](./32-next.md).
+
+### `2.37.2` — Kontext, Zuhause, Sprache — *CODE*
+
+Zuhause: „erinner mich zu Hause“, „Ich bin zuhause“ ist Heim-Zaun nicht Sprecher. Freundin ist Odett / Nummer für Freundin. „Ja“ wiederholt nicht den letzten TV-Befehl. Wetter-Follow-up und Geo (München statt Münchenstein). Sprachmodus: leere Hörversuche still, letzte Antwort bleibt, Silence länger, TTS schneller.
+
+- versionCode `23702`
 
 ### `2.37.1` — Karte: Straße, Auto, Fluss — *CODE*
 

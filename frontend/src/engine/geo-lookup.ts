@@ -54,7 +54,19 @@ export async function geocodePlace(
     if (addr.ok) return addr
   }
   const primary = await geocodeOpenMeteo(q, around)
-  if (primary.ok) return primary
+  if (primary.ok) {
+    if (around) {
+      const far = haversineM({ lat: around.lat, lon: around.lon, place: '' }, primary.fix)
+      if (far > 40_000) {
+        const fallback = await geocodeNominatim(q, around)
+        if (fallback.ok) {
+          const local = haversineM({ lat: around.lat, lon: around.lon, place: '' }, fallback.fix)
+          if (local + 2_000 < far) return fallback
+        }
+      }
+    }
+    return primary
+  }
   const fallback = await geocodeNominatim(q, around)
   if (fallback.ok) return fallback
   return primary
@@ -71,32 +83,38 @@ function placeLabel(name: string, admin?: string, country?: string): string {
   return bits.filter(Boolean).join(', ')
 }
 
-/** Nächster Treffer zum GPS, sonst DE vor FR — Ingersheim BW statt Grand Est. */
+/** Nächster Treffer zum GPS, sonst DE vor FR — Ingersheim BW statt Grand Est. Exakter Name vor Münchenstein. */
 export function pickGeoHits(
-  rows: Array<{ lat: number; lon: number; place: string; country?: string }>,
+  rows: Array<{ lat: number; lon: number; place: string; country?: string; name?: string; population?: number }>,
   near?: { lat: number; lon: number },
+  want?: string,
 ): Fix | null {
   const fixes = rows.filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lon))
   if (!fixes.length) return null
-  if (near && Number.isFinite(near.lat) && Number.isFinite(near.lon)) {
-    let best = fixes[0]
-    let bestM = haversineM({ lat: near.lat, lon: near.lon, place: '' }, best)
-    for (const f of fixes.slice(1)) {
-      const d = haversineM({ lat: near.lat, lon: near.lon, place: '' }, f)
-      if (d < bestM) {
-        best = f
-        bestM = d
-      }
+  const qn = (want || '').trim().toLowerCase()
+  let best = fixes[0]
+  let bestScore = -Infinity
+  for (const f of fixes) {
+    let s = 0
+    const label = (f.name || f.place.split(',')[0] || '').trim().toLowerCase()
+    if (qn) {
+      if (label === qn) s += 1_000_000
+      else if (label.startsWith(qn) && label.length >= qn.length + 3) s -= 500_000
+      else if (label.includes(qn)) s += 80_000
     }
-    return { lat: best.lat, lon: best.lon, place: best.place }
-  }
-  const de = fixes.find((f) => {
     const c = (f.country || '').toUpperCase()
-    return c === 'DE' || c === 'DEU' || c === 'GERMANY' || /deutschland/i.test(f.place)
-  })
-  const dach = fixes.find((f) => inDach(f.lat, f.lon))
-  const hit = de || dach || fixes[0]
-  return { lat: hit.lat, lon: hit.lon, place: hit.place }
+    if (c === 'DE' || c === 'DEU' || c === 'GERMANY' || /deutschland/i.test(f.place)) s += 80_000
+    else if (c === 'FR' || c === 'CH' || c === 'CHE') s -= 25_000
+    if (f.population && f.population > 0) s += Math.min(180_000, Math.log10(f.population + 10) * 30_000)
+    if (near && Number.isFinite(near.lat) && Number.isFinite(near.lon)) {
+      s -= haversineM({ lat: near.lat, lon: near.lon, place: '' }, f) / 80
+    }
+    if (s > bestScore) {
+      best = f
+      bestScore = s
+    }
+  }
+  return { lat: best.lat, lon: best.lon, place: best.place }
 }
 
 async function geocodeOpenMeteo(
@@ -111,10 +129,18 @@ async function geocodeOpenMeteo(
     const rows = raw.map((row) => {
       const lat = Number(row.latitude)
       const lon = Number(row.longitude)
-      const place = placeLabel(String(row.name || name), String(row.admin1 || ''), String(row.country || ''))
-      return { lat, lon, place, country: String(row.country_code || row.country || '') }
+      const name = String(row.name || name)
+      const place = placeLabel(name, String(row.admin1 || ''), String(row.country || ''))
+      return {
+        lat,
+        lon,
+        place,
+        country: String(row.country_code || row.country || ''),
+        name,
+        population: Number(row.population) || 0,
+      }
     })
-    const picked = pickGeoHits(rows, near)
+    const picked = pickGeoHits(rows, near, name)
     if (!picked) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
     return { ok: true, fix: picked }
   } catch {
@@ -166,9 +192,9 @@ async function nominatimOnce(
         .split(',')[0]
         .trim()
       const country = String(addr.country_code || addr.country || '')
-      return [{ lat, lon, place: city || name, country }]
+      return [{ lat, lon, place: city || name, country, name: city || name }]
     })
-    const picked = pickGeoHits(mapped, near) || pickNominatim(rows, name, near)
+    const picked = pickGeoHits(mapped, near, name) || pickNominatim(rows, name, near)
     if (!picked) return { ok: false, message: `Ort „${name}“ nicht gefunden.` }
     return { ok: true, fix: picked }
   } catch {

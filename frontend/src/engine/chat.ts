@@ -2,7 +2,7 @@ import { completeChat, ensureModel, getDownloadProgress, getLlmError, getThreadC
 import { completeGemini, geminiReady, GEMINI_LABEL, streamGemini, testGemini } from './gemini'
 import { completeGroq, groqReady, testGroq } from './groq'
 import { userFacingCloudError } from './cloud-errors'
-import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
+import { HELP_TEXT, hardRefuse, isHelpCommand, scrubReply } from './guards'
 import { handleMemory, memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
 import { splitIntents } from './split-intents'
@@ -172,6 +172,14 @@ export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, release
 async function routeDeterministic(conversationId: string, content: string): Promise<RouteHit | null> {
   if (isHelpCommand(content)) {
     return { reply: HELP_TEXT, lastTool: 'help' }
+  }
+
+  const refuse = hardRefuse(content)
+  if (refuse) return { reply: refuse, lastTool: 'refuse' }
+
+  const homeHitEarly = await handleHome(conversationId, content)
+  if (homeHitEarly.handled && homeHitEarly.reply) {
+    return { reply: homeHitEarly.reply, tool: homeHitEarly.tool, lastTool: homeHitEarly.lastTool || 'home' }
   }
 
   const speakerHit = await handleSpeaker(conversationId, content)
@@ -471,11 +479,6 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   const bdayHit = await handleBirthday(conversationId, content)
   if (bdayHit.handled && bdayHit.reply) {
     return { reply: bdayHit.reply, tool: bdayHit.tool, lastTool: bdayHit.lastTool || 'birthday' }
-  }
-
-  const homeHit = await handleHome(conversationId, content)
-  if (homeHit.handled && homeHit.reply) {
-    return { reply: homeHit.reply, tool: homeHit.tool, lastTool: homeHit.lastTool || 'home' }
   }
 
   const leaveHit = await handleLeave(conversationId, content)

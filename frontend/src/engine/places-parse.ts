@@ -203,12 +203,18 @@ const SMS =
   /^\s*(?:schreib(?:e)?(?:\s+mal)?|(?:sende?\s+)?(?:eine?\s+)?(?:sms|kurze?\s*nachricht|nachricht))\s+(?:der|dem|an\s+(?:die|den|das)?\s*)?(.+)$/i
 const PHONE =
   /^\s*(?:(?:nummer\s+von|tel(?:efon)?\s+von)\s+(.+?)\s*[:-]\s*(.+)|(.+?)\s*[,:]\s*tel(?:efon)?\s+(.+))\s*$/i
+const PHONE_FUER =
+  /^\s*(?:(?:die\s+)?(?:handy[\s-]?)?nummer|tel(?:efonnummer|efon)?)\s+für\s+(?:die\s+|den\s+|das\s+|meine[nrs]?\s+)?(.+?)\s*[:–-]?\s*((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
+const PHONE_HAT =
+  /^\s*(?:(?:die\s+|meine[nrs]?\s+)?(.+?)\s+(?:hat\s+(?:die\s+)?nummer|ihre\s+nummer\s+ist|nummer\s+ist)\s+|nummer\s+(?:der|des|von\s+der)\s+(.+?)\s+ist\s+)((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const PHONE_NAME =
   /^\s*(.+?)\s*[,:–-]\s*((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const PHONE_SPACE =
   /^\s*([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,28})\s+(?:(?:tel(?:efon)?|nummer)\s+)?((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const ALIAS =
   /^\s*(?:meine[nrs]?\s+)?(.+?)\s+heißt\s+(.+?)\s*$/i
+const ALIAS_IST =
+  /^\s*(?:meine[nrs]?\s+)?(.+?)\s+ist\s+(?:meine[nrs]?\s+)?(.+?)\s*$/i
 
 export function looksLikePhone(value: string): boolean {
   const d = value.replace(/\D/g, '')
@@ -282,12 +288,22 @@ function isNameLike(raw: string): boolean {
 }
 
 export function parseAlias(text: string): PlaceNav | null {
-  const m = ALIAS.exec(text.trim())
-  if (!m) return null
-  const name = normalizePlaceName(m[1])
-  const alias = normalizePlaceName(m[2])
-  if (!isNameLike(name) || !isNameLike(alias) || name === alias) return null
-  if (name === 'ich') return null
+  const t = text.trim()
+  const named = ALIAS.exec(t)
+  if (named) {
+    const name = normalizePlaceName(named[1])
+    const alias = normalizePlaceName(named[2])
+    if (isNameLike(name) && isNameLike(alias) && name !== alias && name !== 'ich') {
+      return { kind: 'alias', name, alias }
+    }
+  }
+  const ist = ALIAS_IST.exec(t)
+  if (!ist) return null
+  if (/\s+in\s+/i.test(t)) return null
+  const name = normalizePlaceName(ist[1])
+  const alias = normalizePlaceName(ist[2])
+  if (!isNameLike(name) || !isNameLike(alias) || name === alias || name === 'ich') return null
+  if (!isRelationName(name) && !isRelationName(alias)) return null
   return { kind: 'alias', name, alias }
 }
 
@@ -339,6 +355,18 @@ export function parseCallOrPhone(text: string): PlaceNav | null {
   if (call) {
     const query = normalizePlaceName(call[1] || call[2] || call[3] || '')
     if (query) return { kind: 'call', query }
+  }
+  const fuer = PHONE_FUER.exec(t)
+  if (fuer) {
+    const name = normalizePlaceName(fuer[1] || '')
+    const number = (fuer[2] || '').replace(/[^\d+]/g, '')
+    if (name && isNameLike(name) && looksLikePhone(number)) return { kind: 'phone', name, number }
+  }
+  const hat = PHONE_HAT.exec(t)
+  if (hat) {
+    const name = normalizePlaceName(hat[1] || hat[2] || '')
+    const number = (hat[3] || '').replace(/[^\d+]/g, '')
+    if (name && isNameLike(name) && looksLikePhone(number)) return { kind: 'phone', name, number }
   }
   const phone = PHONE.exec(t)
   if (phone) {

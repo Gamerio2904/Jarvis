@@ -79,7 +79,12 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   }
 
   if (CONFIRM.test(raw)) {
-    if (!tool || tool === 'todo' || tool === 'notes' || tool === 'weather') return null
+    if (
+      !tool ||
+      /^(todo|notes|weather|tv|llm|maps|film|music|speaker|help|device|home|refuse)$/.test(tool)
+    ) {
+      return null
+    }
     if (utterance && !CONFIRM.test(utterance) && !HALT.test(utterance)) return utterance
     return null
   }

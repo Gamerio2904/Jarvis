@@ -4,7 +4,7 @@ import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS, selectedTestProm
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
-import { scrubReply, isHelpCommand, finishReply, HELP_TEXT } from '../src/engine/guards.ts'
+import { scrubReply, isHelpCommand, finishReply, HELP_TEXT, hardRefuse } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import {
   formatResearchReply,
@@ -64,6 +64,7 @@ import { pickHeard } from '../src/engine/heard.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
 import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
+import { parseSpeakerIntent } from '../src/engine/speaker-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
@@ -589,6 +590,26 @@ assert.equal(parseWeatherFollowup('und morgen?', { kind: 'here', when: 'today', 
   assert.match(noGps?.place || '', /Baden-Württemberg/)
 }
 {
+  const near = { lat: 48.96, lon: 9.18 }
+  const munich = pickGeoHits(
+    [
+      {
+        lat: 47.514,
+        lon: 7.619,
+        place: 'Münchenstein, Basel-Landschaft',
+        country: 'CH',
+        name: 'Münchenstein',
+        population: 12_000,
+      },
+      { lat: 48.137, lon: 11.576, place: 'München, Bayern', country: 'DE', name: 'München', population: 1_500_000 },
+    ],
+    near,
+    'München',
+  )
+  assert.match(munich?.place || '', /^München/)
+  assert.doesNotMatch(munich?.place || '', /stein/)
+}
+{
   const ring = [
     [9.14, 48.95],
     [9.141, 48.9502],
@@ -690,7 +711,7 @@ assert.equal(
 )
 assert.equal(
   rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
-  'Öffne Netflix',
+  null,
 )
 assert.equal(
   rewriteFollowUp('ok', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
@@ -891,8 +912,40 @@ assert.equal(findPlaceRow(
   [{ key: 'freundin', value: 'Heilbronn', category: 'place' }, { key: 'alias:odett', value: 'freundin', category: 'fact' }],
   'odett',
 )?.value, 'Heilbronn')
-const alias = parsePlaceNav('Meine Freundin heißt Odett')
-assert.equal(alias?.kind, 'alias')
+assert.equal(parsePlaceNav('Meine Freundin heißt Odett')?.kind, 'alias')
+{
+  const ist = parsePlaceNav('Meine Freundin ist Odett')
+  assert.equal(ist?.kind, 'alias')
+  if (ist?.kind === 'alias') {
+    assert.equal(ist.name, 'freundin')
+    assert.equal(ist.alias, 'odett')
+  }
+  const rev = parsePlaceNav('Odett ist meine Freundin')
+  assert.equal(rev?.kind, 'alias')
+  if (rev?.kind === 'alias') {
+    assert.equal(rev.name, 'odett')
+    assert.equal(rev.alias, 'freundin')
+  }
+}
+assert.equal(parsePlaceNav('München ist schön'), null)
+{
+  const tel = parsePlaceNav('Nummer für Freundin +49 1512 9733243')
+  assert.equal(tel?.kind, 'phone')
+  if (tel?.kind === 'phone') {
+    assert.equal(tel.name, 'freundin')
+    assert.match(tel.number, /15129733243/)
+  }
+}
+assert.equal(parseSpeakerIntent('Ich bin zuhause'), null)
+assert.equal(parseSpeakerIntent('Ich bin Max')?.kind, 'iam')
+assert.equal(parseHomeIntent('erinner mich zu Hause')?.kind, 'ask_task')
+assert.equal(parseHomeIntent('erinner mich zu Hause an Müll')?.kind, 'when_home')
+assert.equal(parseHomeIntent('erinner mich zuhause')?.kind, 'ask_task')
+assert.ok(hardRefuse('Ist ein Fliegenpilz essbar?'))
+assert.ok(hardRefuse('Soll ich den Vermieter verklagen?'))
+assert.equal(parseShopIntent('Ne die Switch 2 mit Rabatt'), null)
+assert.equal(parseWeatherFollowup('Wetter heute', { kind: 'here', when: 'today', focus: 'sun' }), null)
+assert.equal(parseWeatherFollowup('in 20 Minuten', { kind: 'here', when: 'today', focus: 'general' }), null)
 assert.equal(
   findContactRow(
     [
@@ -1005,7 +1058,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.37\.1/)
+assert.match(HELP_TEXT, /2\.37\.2/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.match(HELP_TEXT, /Musik ist nicht angebunden/)
