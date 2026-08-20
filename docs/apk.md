@@ -1,16 +1,16 @@
-# Android-APK — `2.2.0`
+# Android-APK — `2.2.1`
 
-**2.2.0:** Uhrzeit vom Gerät. Standort über GPS. Mit Gemini sucht Jarvis von selbst, wenn Zahlen fehlen.
+**2.2.1:** Testprompts unter Einstellungen → Tests, ein Klick kopiert.
 
 ## Download
 
-**APK `2.2.0`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/clock-auto-research-3638/releases/Jarvis.apk
+**APK `2.2.1`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/test-copy-prompts-3638/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `2.2.0` · versionCode `20200`
+- versionName `2.2.1` · versionCode `20201`
 - App-ID `local.jarvis.app`
 
-1. Über 2.1.1 installieren.
-2. Gemini an. `Wie spät ist es?` — echte Uhr.
-3. `Was ist der BIP in Deutschland` — Suche mit Quellen, kein Raten.
+1. Über 2.2.0 installieren.
+2. Einstellungen → Tests → Kopieren → Chat einfügen.
+3. Randfälle sollen ehrlich scheitern, nicht Marvel oder Alexa spielen.

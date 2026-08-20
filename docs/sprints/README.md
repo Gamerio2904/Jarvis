@@ -109,7 +109,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 103 | [`sprint-103.md`](./sprint-103.md) | `2.1.0` | WLAN-Steckdosen lokal | **CODE** |
 | 104 | [`sprint-104.md`](./sprint-104.md) | `2.2.0` | Uhrzeit, Ort, Auto-Research | **CODE** |
 
-**Aktuell:** Sideload `2.2.0`. Uhr vom Gerät, BIP selbst suchen. [`30-next.md`](../30-next.md).
+**Aktuell:** Sideload `2.2.1`. Einstellungen → Tests kopiert Prompts. [`30-next.md`](../30-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
