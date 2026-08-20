@@ -5,12 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.19.2`**.
+App-Version im Code: **`2.19.3`**.
 
 ### Geplant
 
 1. **`2.2.4` SHOULD** — optionales 1.5B, Default bleibt 0.5B (früher intern `0.13.4`)
 2. Native llama.cpp (früher intern `0.14.0`): PO
+
+### `2.19.3` — APIs als eigener Settings-Bereich — *CODE*
+
+Einstellungen-Übersicht: **APIs** steht als eigener Block ganz oben, nicht in der gleichen Gruppe wie Rabatt. Rabatt nur unter Einkauf (Gutschein-Suche).
+
+- versionCode `21903`
 
 ### `2.19.2` — APIs getrennt von Rabatt — *CODE*
 

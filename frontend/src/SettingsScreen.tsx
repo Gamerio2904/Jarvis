@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Conversation, Health, MemoryCategory, MemoryItem, Plug, Reminder, ResearchAudit, Settings } from './api'
-import { fanDiscover, fanLearn, fanPick, fanTest, listConversations, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
+import { APP_VERSION, fanDiscover, fanLearn, fanPick, fanTest, listConversations, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
 import { copyText } from './copy-text'
 import { ensureDeviceLocation } from './native/geo'
 import { buildChatDebugDump, downloadChatDebug } from './engine/chat-debug'
@@ -278,11 +278,16 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <>
               <section className="settings-card">
                 <h3>Tippen, fertig</h3>
-                <p className="settings-lead">Ein Thema öffnen. Keys unter APIs, Gutscheine unter Rabatt.</p>
+                <p className="settings-lead">APIs ist ein eigener Bereich für alle Keys. Rabatt ist nur die Gutschein-Suche.</p>
               </section>
               {SETTINGS_GROUPS.map((group) => (
-                <section className="settings-card" key={group.title}>
-                  <h3>{group.title}</h3>
+                <section
+                  className={`settings-card${group.ids[0] === 'apis' ? ' settings-card-apis' : ''}`}
+                  key={group.title}
+                >
+                  {group.ids.length === 1 && SETTINGS_TOPICS.find((t) => t.id === group.ids[0])?.label === group.title ? null : (
+                    <h3>{group.title}</h3>
+                  )}
                   <div className="settings-hub-list">
                     {group.ids.map((id) => {
                       const meta = SETTINGS_TOPICS.find((t) => t.id === id)
@@ -305,6 +310,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                       )
                     })}
                   </div>
+                  {group.ids[0] === 'apis' ? (
+                    <p className="settings-hint">Gemini, Groq, OMDb, Tankerkönig, Spotify — eigener Bereich, nicht unter Rabatt.</p>
+                  ) : null}
                 </section>
               ))}
             </>
@@ -314,7 +322,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Dieses Handy</h3>
               <p className="settings-lead">
-                Version {s?.version || '2.19.2'} · on-device, kein Server.
+                Version {s?.version || APP_VERSION} · on-device, kein Server.
               </p>
               <p className="settings-hint">
                 {p.health?.ok
@@ -429,13 +437,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </label>
               <p className="settings-hint">
                 An = extra Gutscheine (mydealz, Sparwelt) bei „wo kaufen“ / Preis. Research muss an sein.
-                Keine erfundenen Codes. Stimme: „Rabatt-Suche an“. Keys stehen unter APIs.
+                Keine erfundenen Codes. Stimme: „Rabatt-Suche an“. API-Keys gehören nicht hierher.
               </p>
-              <div className="settings-actions">
-                <button type="button" className="retry-btn" onClick={() => p.onTopic('apis')}>
-                  APIs
-                </button>
-              </div>
             </section>
           ) : null}
 
@@ -1450,13 +1453,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 Mit Gemini sucht Jarvis von selbst nach aktuellen Zahlen, auch ohne das Wort suche. Fehlt eine
                 Antwort, geht er nochmal ins Netz. Aus zählt vor allem ohne Gemini.
               </p>
-              <p className="settings-hint">Keys unter APIs. Gutscheine unter Rabatt.</p>
+              <p className="settings-hint">Gemini-Key unter APIs, nicht unter Rabatt.</p>
               <div className="settings-actions">
                 <button type="button" className="retry-btn" onClick={() => p.onTopic('apis')}>
                   APIs
-                </button>
-                <button type="button" className="retry-btn" onClick={() => p.onTopic('rabatt')}>
-                  Rabatt
                 </button>
               </div>
               <button type="button" className={`audit-toggle ${p.auditOpen ? 'active' : ''}`} onClick={p.onToggleAudit}>

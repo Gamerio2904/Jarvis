@@ -401,6 +401,11 @@ textarea {
   background: linear-gradient(180deg, rgba(30, 215, 96, 0.07), rgba(16, 20, 18, 0.4));
 }
 
+.settings-card-apis {
+  border-color: rgba(30, 215, 96, 0.45);
+  background: linear-gradient(180deg, rgba(30, 215, 96, 0.16), rgba(16, 20, 18, 0.45));
+}
+
 .settings-card h3 {
   margin: 0;
   font-family: var(--font-display);

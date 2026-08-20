@@ -26,26 +26,28 @@ export type SettingsTopicMeta = { id: Exclude<SettingsTopic, 'hub'>; label: stri
 export const SETTINGS_TOPICS: SettingsTopicMeta[] = [
   { id: 'allgemein', label: 'Allgemein', hint: 'Version' },
   { id: 'modell', label: 'Modell', hint: 'Lokal' },
-  { id: 'apis', label: 'APIs', hint: 'Keys' },
-  { id: 'rabatt', label: 'Rabatt', hint: 'Gutscheine' },
-  { id: 'cloud', label: 'Cloud', hint: 'Gemini an/aus' },
+  { id: 'apis', label: 'APIs', hint: 'Alle Keys' },
   { id: 'sprache', label: 'Sprache', hint: 'Hören' },
   { id: 'wecker', label: 'Wecker', hint: 'Timer' },
   { id: 'ort', label: 'Ort', hint: 'Wetter' },
+  { id: 'cloud', label: 'Cloud', hint: 'Gemini an/aus' },
+  { id: 'forschung', label: 'Netz', hint: 'Suche' },
+  { id: 'rabatt', label: 'Rabatt', hint: 'Gutscheine' },
   { id: 'tv', label: 'Fernseher', hint: 'Tizen + Fire' },
   { id: 'pc', label: 'PC', hint: 'Bildschirm' },
   { id: 'haus', label: 'Haus', hint: 'Steckdose' },
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
-  { id: 'forschung', label: 'Netz', hint: 'Suche' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
   { id: 'debug', label: 'Debug', hint: 'Chat-Dump' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
 ]
 
 export const SETTINGS_GROUPS: Array<{ title: string; ids: Array<Exclude<SettingsTopic, 'hub'>> }> = [
+  { title: 'APIs', ids: ['apis'] },
   { title: 'Gerät', ids: ['allgemein', 'modell', 'sprache', 'wecker', 'ort'] },
-  { title: 'Keys & Netz', ids: ['apis', 'rabatt', 'cloud', 'forschung'] },
+  { title: 'Netz', ids: ['cloud', 'forschung'] },
+  { title: 'Einkauf', ids: ['rabatt'] },
   { title: 'Haus', ids: ['tv', 'pc', 'haus', 'musik'] },
   { title: 'Mehr', ids: ['ton', 'gedaechtnis', 'debug', 'gefahr'] },
 ]
