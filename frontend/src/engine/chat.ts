@@ -26,6 +26,7 @@ import {
   type ResearchMeta,
 } from './research-parse'
 import { fillResearchLinks } from './web-search'
+import { debugPayload } from './chat-debug'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
@@ -657,10 +658,21 @@ export async function streamChat(
       if (research) research = await attachResearchAudit(research, content)
       const joined = replies.join('\n\n')
       handlers.onToken?.(joined)
-      const assistant = await addMessage(conversationId, 'assistant', joined, {
-        tool: last.tool,
-        research,
-      })
+      const assistant = await addMessage(
+        conversationId,
+        'assistant',
+        joined,
+        debugPayload({
+          route: last.lastTool || 'tool',
+          model: 'deterministic',
+          gemini: false,
+          tool: last.tool,
+          research,
+          final: joined,
+          routes: found.map((h) => h.lastTool || ''),
+          missed: routed.map((h, i) => (h ? '' : parts[i])).filter(Boolean),
+        }),
+      )
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({
         assistant_message: assistant,
@@ -690,7 +702,19 @@ export async function streamChat(
         })
         const final = scrubReply((raw || acc).trim())
         if (final !== (raw || acc)) handlers.onReplace?.(final)
-        const assistant = await addMessage(conversationId, 'assistant', final)
+        const assistant = await addMessage(
+          conversationId,
+          'assistant',
+          final,
+          debugPayload({
+            route: 'llm',
+            model: 'groq',
+            gemini: false,
+            voice: true,
+            raw: raw || acc,
+            final,
+          }),
+        )
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
         return
@@ -698,7 +722,18 @@ export async function streamChat(
       const reply =
         'Befehl nicht erkannt. Smalltalk im Sprachmodus braucht Gemini. Wetter, Timer, Route, Einkauf gehen ohne.'
       handlers.onToken?.(reply)
-      const assistant = await addMessage(conversationId, 'assistant', reply)
+      const assistant = await addMessage(
+        conversationId,
+        'assistant',
+        reply,
+        debugPayload({
+          route: 'voice-fallback',
+          model: 'none',
+          gemini: false,
+          voice: true,
+          final: reply,
+        }),
+      )
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
@@ -717,7 +752,17 @@ export async function streamChat(
     const live = isLiveLookup(content, discount)
     if (live && !geminiReady()) {
       if (!s.research_opt_in) {
-        const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
+        const assistant = await addMessage(
+          conversationId,
+          'assistant',
+          RESEARCH_OFF_REPLY,
+          debugPayload({
+            route: 'research',
+            model: 'deterministic',
+            gemini: false,
+            final: RESEARCH_OFF_REPLY,
+          }),
+        )
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
         return
@@ -733,12 +778,34 @@ export async function streamChat(
           discount,
         )
         handlers.onReplace?.(reply)
-        const assistant = await addMessage(conversationId, 'assistant', reply, { research })
+        const assistant = await addMessage(
+          conversationId,
+          'assistant',
+          reply,
+          debugPayload({
+            route: 'research',
+            model: 'deterministic',
+            gemini: false,
+            research,
+            final: reply,
+          }),
+        )
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, research, tool: null })
         return
       }
-      const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
+      const assistant = await addMessage(
+        conversationId,
+        'assistant',
+        RESEARCH_NEEDS_GEMINI,
+        debugPayload({
+          route: 'research',
+          model: 'deterministic',
+          gemini: false,
+          research,
+          final: RESEARCH_NEEDS_GEMINI,
+        }),
+      )
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
@@ -824,7 +891,18 @@ export async function streamChat(
         } else if (!text && !researchHasSources(research)) {
           const empty = RESEARCH_EMPTY
           handlers.onReplace?.(empty)
-          const assistant = await addMessage(conversationId, 'assistant', empty, { research })
+          const assistant = await addMessage(
+            conversationId,
+            'assistant',
+            empty,
+            debugPayload({
+              route: 'research',
+              model: geminiReady() ? GEMINI_LABEL : DEFAULT_MODEL.label,
+              gemini: geminiReady(),
+              research,
+              final: empty,
+            }),
+          )
           const updated = (await touchConversation(conversationId)) || conv
           handlers.onDone?.({
             assistant_message: assistant,
@@ -860,7 +938,20 @@ export async function streamChat(
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, content)
     if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
-    const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
+    const assistant = await addMessage(
+      conversationId,
+      'assistant',
+      final,
+      debugPayload({
+        route: 'llm',
+        model: geminiReady() ? GEMINI_LABEL : DEFAULT_MODEL.label,
+        gemini: geminiReady(),
+        voice: Boolean(opts?.voice),
+        research,
+        raw: text,
+        final,
+      }),
+    )
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({
       assistant_message: assistant,

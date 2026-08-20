@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
-import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
-import type { Plug } from './api'
+import type { Conversation, Health, MemoryCategory, MemoryItem, Plug, Reminder, ResearchAudit, Settings } from './api'
+import { fanDiscover, fanLearn, fanPick, fanTest, listConversations, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
 import { copyText } from './copy-text'
 import { ensureDeviceLocation } from './native/geo'
+import { buildChatDebugDump, downloadChatDebug } from './engine/chat-debug'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -25,6 +25,7 @@ export type SettingsTopic =
   | 'ton'
   | 'forschung'
   | 'gedaechtnis'
+  | 'debug'
   | 'gefahr'
 
 const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
@@ -41,6 +42,7 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
+  { id: 'debug', label: 'Debug', hint: 'Chat-Dump' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
 ]
 
@@ -170,6 +172,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [plugDraft, setPlugDraft] = useState<Plug>(() => emptyPlug())
   const [locBusy, setLocBusy] = useState(false)
   const [locMsg, setLocMsg] = useState<string | null>(null)
+  const [debugChats, setDebugChats] = useState<Conversation[]>([])
+  const [debugPick, setDebugPick] = useState('')
+  const [debugBusy, setDebugBusy] = useState(false)
+  const [debugMsg, setDebugMsg] = useState<string | null>(null)
 
   useEffect(() => {
     setFireHost(s?.tv_fire_host || '')
@@ -192,6 +198,14 @@ export function SettingsScreen(p: SettingsScreenProps) {
   useEffect(() => {
     setPcToken(s?.pc_token || '')
   }, [s?.pc_token])
+
+  useEffect(() => {
+    if (p.topic !== 'debug') return
+    void listConversations().then((rows) => {
+      setDebugChats(rows)
+      setDebugPick((prev) => (prev && rows.some((c) => c.id === prev) ? prev : rows[0]?.id || ''))
+    })
+  }, [p.topic])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1459,6 +1473,66 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   Alles löschen
                 </button>
               ) : null}
+            </section>
+          ) : null}
+
+          {p.topic === 'debug' ? (
+            <section className="settings-card">
+              <h3>Chat für den Agenten</h3>
+              <p className="settings-lead">
+                Gespräch wählen, JSON runterladen. Enthält alle Nachrichten, welche Route/Tools liefen, Quellen und
+                Verdacht auf Halluzination — ohne API-Keys.
+              </p>
+              {debugChats.length === 0 ? (
+                <p className="settings-hint">Noch kein Gespräch.</p>
+              ) : (
+                <label className="settings-field">
+                  <span>Gespräch</span>
+                  <select value={debugPick} onChange={(e) => setDebugPick(e.target.value)} disabled={debugBusy}>
+                    {debugChats.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title || 'Ohne Titel'}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={debugBusy || !debugPick}
+                  onClick={() => {
+                    if (!debugPick) return
+                    setDebugBusy(true)
+                    setDebugMsg(null)
+                    void downloadChatDebug(debugPick)
+                      .then((r) => setDebugMsg(r.message))
+                      .catch((err) => setDebugMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
+                      .finally(() => setDebugBusy(false))
+                  }}
+                >
+                  {debugBusy ? 'Export…' : 'JSON herunterladen'}
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={debugBusy || !debugPick}
+                  onClick={() => {
+                    if (!debugPick) return
+                    setDebugBusy(true)
+                    setDebugMsg(null)
+                    void buildChatDebugDump(debugPick)
+                      .then((dump) => copyText(JSON.stringify(dump, null, 2)))
+                      .then((ok) => setDebugMsg(ok ? 'JSON kopiert. Im Chat an den Agenten einfügen.' : 'Kopieren fehlgeschlagen.'))
+                      .catch((err) => setDebugMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
+                      .finally(() => setDebugBusy(false))
+                  }}
+                >
+                  Kopieren
+                </button>
+              </div>
+              {debugMsg ? <p className="settings-hint">{debugMsg}</p> : null}
             </section>
           ) : null}
 

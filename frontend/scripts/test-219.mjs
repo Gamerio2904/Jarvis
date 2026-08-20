@@ -12,6 +12,7 @@ import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { applyMove, parseFen, START_FEN, fenOf } from '../src/engine/chess.ts'
 import { packChat } from '../src/engine/prompt.ts'
 import { HELP_TEXT } from '../src/engine/guards.ts'
+import { debugFileName, debugPayload, flagReply } from '../src/engine/chat-debug.ts'
 
 assert.equal(isMusicHonesty('Spiel mal was Nettes'), true)
 assert.equal(isMusicHonesty('Zeig Spotify'), false)
@@ -80,5 +81,21 @@ assert.match(HELP_TEXT, /DWD/)
 assert.match(HELP_TEXT, /Schach/)
 assert.doesNotMatch(HELP_TEXT, /Einstellungen → Musik/)
 assert.doesNotMatch(HELP_TEXT, /Lautstärke am Steuer ist Spotify/)
+
+assert.ok(flagReply('Fernseher an', 'Ich habe den Fernseher angeschaltet.', { debug: { route: 'llm', model: 'x', gemini: false } }).includes('hallucinated_action'))
+assert.ok(flagReply('Wie spät', 'Es ist 12:01 Uhr.', { debug: { route: 'device', model: 'deterministic', gemini: false } }).includes('tool_executed') === false)
+assert.ok(!flagReply('Wie spät', 'Montag, 12:01 Uhr.', { debug: { route: 'device', model: 'deterministic', gemini: false, executed: true }, tool: { tool_status: 'executed', tool: 'device' } }).includes('clock_without_device'))
+assert.ok(flagReply('Hallo', 'Es ist 12:01 Uhr.', { debug: { route: 'llm', model: 'x', gemini: false } }).includes('clock_without_device'))
+assert.ok(flagReply('Spiel mal was Nettes', 'Ich öffne die Musik.', { debug: { route: 'llm', model: 'x', gemini: false } }).includes('music_claim'))
+assert.ok(flagReply('Spiel mal was Nettes', 'Musik ist nicht angebunden.', { debug: { route: 'music', model: 'deterministic', gemini: false } }).includes('music_claim') === false)
+const payload = debugPayload({
+  route: 'weather',
+  model: 'deterministic',
+  gemini: false,
+  tool: { tool_status: 'executed', tool: 'weather', action: 'now', label: 'Wetter' },
+  final: 'In Heilbronn 18 Grad.',
+})
+assert.equal(payload.debug.route, 'weather')
+assert.match(debugFileName({ id: '1', title: 'Was steht an?', created_at: '', updated_at: '' }), /jarvis-debug-was-steht-an-/)
 
 console.log('ok test-219')

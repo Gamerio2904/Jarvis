@@ -1264,6 +1264,14 @@ function App() {
           Einstellungen
         </button>
 
+        <button
+          type="button"
+          className={`memory-toggle ${settingsPanelOpen && settingsTopic === 'debug' ? 'active' : ''}`}
+          onClick={() => openSettings('debug')}
+        >
+          Debug
+        </button>
+
         <div className="chat-list">
           {conversations.map((c, i) => (
             <button
