@@ -20,14 +20,15 @@ Jarvis **klingt** nach Jarvis und **rät nicht**. Latenz-Fixes aus `0.13.2` blei
 | Q3 | Memory-Recall breiter + Honesty (kein Pref erfinden) | „Was mag ich?“ nur Store oder „weiß ich nicht“ |
 | Q4 | Siezen-Scrub ohne `willst Sie` / `*st Sie` | Probe-Set ohne Broken-Siezen |
 | Q5 | Hartes Kappen nach 3 Sätzen | messenger-kurz |
-| Q6 | Version `0.13.3` | UI/Health/Changelog |
+| Q6 | Pack nur wenn Budget eng: letzte 4 Turns / Top-4 Pins **sonst 8 Turns / alle Pins** | lange Chats halten den Faden, Prefill nur bei Druck |
+| Q7 | Version `0.13.3` | UI/Health/Changelog |
 
 ## Should
 
 | ID | Inhalt |
 |----|--------|
-| Q7 | Canned-Bank mit 3–5 Varianten pro Begrüßung (Anti-Template) |
-| Q8 | Frontend-Smoke für Recall/Honesty/Siezen |
+| Q8 | Canned-Bank mit 3–5 Varianten (Hey/Danke) — bewusst Template-Risiko, PO-Abnahme |
+| Q9 | Frontend-Smoke für Recall/Honesty/Siezen |
 
 ## Won’t
 

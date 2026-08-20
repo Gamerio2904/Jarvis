@@ -234,7 +234,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 |----|-------|--------|--------|------------------|
 | S14.1 | Als Nutzer will ich Antworten ohne 1-Thread-WASM-Bremse. | Must | ready | Sprint 46 / `0.13.2` |
 | S14.2 | Als Nutzer will ich Tokens gestreamt sehen, nicht 75 s warten. | Must | ready | Sprint 46 / `0.13.2` |
-| S14.3 | Als Nutzer will ich „Hey/Danke“ ohne Modell. | Must | ready | Sprint 46 / `0.13.2` |
+| S14.3 | Als Nutzer will ich „Hey/Danke“ ohne Modell, ohne Template-Bot. | Could | ready | Sprint 47 / `0.13.3` Should — PO |
 | S14.4 | Als Nutzer will ich Jarvis-Ton und ehrliches Memory auf 0.5B. | Must | ready | Sprint 47 / `0.13.3` |
 | S14.5 | Als Nutzer will ich optional ein schärferes 1.5B on-device. | Should | ready | Sprint 48 / `0.13.4` |
 

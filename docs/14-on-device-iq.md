@@ -20,7 +20,7 @@ Memory/Tools umgehen das LLM schon — das bleibt der schnelle Pfad.
 
 | Sprint | Version | Thema | Warum zuerst |
 |--------|---------|-------|--------------|
-| [46](./sprints/sprint-46.md) | **`0.13.2`** | Latenz | Gleiches Modell, spürbar schneller |
+| [46](./sprints/sprint-46.md) | **`0.13.2`** | Latenz | Gleiches Modell **und gleicher Prompt** — nur schneller |
 | [47](./sprints/sprint-47.md) | **`0.13.3`** | Qualität | 0.5B klingt wie Jarvis, halluziniert weniger |
 | [48](./sprints/sprint-48.md) | **`0.13.4`** | Intelligenz | Optional 1.5B; Default bleibt 0.5B |
 
@@ -28,19 +28,21 @@ Native llama.cpp (Capacitor-Plugin) = **`0.14.0`**, nicht in 46–48. Ohne das b
 
 ---
 
-## 1) Latenz (`0.13.2`)
+## 1) Latenz (`0.13.2`) — **ohne Qualitätsverlust**
 
-| ID | Update | Erwartung |
-|----|--------|-----------|
-| L1 | `n_threads` = `min(4, hardwareConcurrency − 1)` (Floor 2) | 2–4× schnellere Decode |
-| L2 | Token-Stream an die UI (`stream: true`) | Erstes Token < 2 s statt volle Antwort |
-| L3 | Pack: Persona kurz, Top-4 Memory, letzte **4** Turns | weniger Prefill |
-| L4 | Smalltalk-Canned: Hey/Danke/Ok/Gute Nacht — **ohne** LLM | ~0 ms |
-| L5 | Smalltalk `max_tokens: 64`; Timeout 25 s | weniger Warten, klarer Fail |
+Gleiches GGUF, gleiches Sampling, gleicher Prompt (Persona, 8 Turns, alle Pins), gleiche `max_tokens: 96`. Nur Runtime/UI.
+
+| ID | Update | Qualität | Erwartung |
+|----|--------|----------|-----------|
+| L1 | `n_threads` = `min(4, hardwareConcurrency − 1)` (Floor 2) | **neutral** — dieselben Tokens, schneller | 2–4× Decode |
+| L2 | Token-Stream bis EOS (`stream: true`) | **neutral** — volle Antwort wie bisher, früher sichtbar | TTFT spürbar |
+| L3 | Version `0.13.2` | — | UI/Health/Changelog |
+
+**Nicht in 46** (das wäre Qualitätsrisiko → 47): kürzere Persona, 8→4 Turns, Top-4-Memory, Begrüßungs-Canned, `max_tokens` 64, Timeout-Schnitt auf 25 s.
 
 Won’t: neues GGUF, natives C++, WebGPU.
 
-Abnahme: „Hey“ sofort; normale Chat-Antwort merklich unter 0.13.1, nicht 75 s hängen.
+Abnahme: gleiche Antworten wie `0.13.1` (Ton/Fakten), nur schneller und gestreamt.
 
 ---
 
@@ -55,6 +57,7 @@ Abnahme: „Hey“ sofort; normale Chat-Antwort merklich unter 0.13.1, nicht 75 
 | Q3 | Recall breiter: mag/liebling/hund/job — Unbekannt = ehrlich, kein Raten | kein Smalltalk-Halluzinieren |
 | Q4 | Siezen-Scrub: Verben (`willst`/`bringst`) nicht roh `du→Sie` | kein `*st Sie` |
 | Q5 | Antwort nach Satz 3 kappen | messenger-kurz |
+| Q6 | Pack nur bei engem Budget (sonst 8 Turns / alle Pins) | Prefill runter ohne Faden zu opfern |
 
 Won’t: 1.5B-Download, Research-Netz, TV.
 

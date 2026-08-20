@@ -9,7 +9,7 @@ App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
 
 ### Geplant — `0.13.2`–`0.13.4` (Sprints 46–48)
 
-- **`0.13.2` Latenz:** Threads > 1, Token-Stream, Context-Pack, Smalltalk-Canned
+- **`0.13.2` Latenz (qualitätsneutral):** Threads > 1, Token-Stream; gleicher Prompt/`max_tokens`
 - **`0.13.3` Qualität:** kurze Persona, Sampling, Memory-Honesty, Siezen-Scrub
 - **`0.13.4` Intelligenz:** optional Qwen2.5-1.5B Q4; Default bleibt 0.5B
 - [`14-on-device-iq.md`](./14-on-device-iq.md) · [`sprints/sprint-46.md`](./sprints/sprint-46.md)
