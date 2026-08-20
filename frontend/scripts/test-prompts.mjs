@@ -4,6 +4,7 @@
  */
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
+import { allTestCopyTexts } from '../src/engine/test-copy.ts'
 import { isHelpCommand } from '../src/engine/guards.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { isIdentityAsk, isMemoryRecall, isMemoryWrite } from '../src/engine/memory-parse.ts'
@@ -197,6 +198,9 @@ const EXPECT = {
   'wo könnte ich denn sein': 'here',
   'Was ist der bip in Deutschland': 'research',
   'Kannst du den bip von Deutschland in einer Tabelle darstellen?': 'research',
+  'Taschenlampe an': 'device',
+  'ohne meine Adresse nachzugucken weißt du wo ich bin': 'here',
+  'Nach Ingersheim': 'drive',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -237,6 +241,11 @@ assert.equal(route('wo könnte ich jetzt frühstücken'), 'poi')
 assert.equal(route('Was ist der bip in Deutschland'), 'research')
 assert.equal(parseHereIntent('wo könnte ich jetzt frühstücken'), null)
 assert.equal(parseDeviceIntent('wie spät ist es')?.kind, 'clock')
+assert.equal(route('Taschenlampe an'), 'device')
+assert.equal(route('Nach Ingersheim'), 'drive')
+for (const p of TEST_PROMPTS) {
+  assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
+}
 
 for (const r of rows) {
   const mark = r.got === r.want ? 'ok' : 'FAIL'
