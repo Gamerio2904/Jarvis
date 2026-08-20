@@ -5,7 +5,7 @@ import { FAST_MODEL, SHARP_MODEL, activeModel } from './store'
 type Spec = typeof FAST_MODEL | typeof SHARP_MODEL
 let spec: Spec = FAST_MODEL
 
-export function useModelSpec(next: Spec) {
+export function applyModelSpec(next: Spec) {
   spec = next
 }
 
@@ -133,7 +133,7 @@ export function readReadyFlag(): { file: string; size: number } | null {
 }
 
 export async function hasCachedModel(): Promise<boolean> {
-  useModelSpec(activeModel())
+  applyModelSpec(activeModel())
   if (await hasNativeModel()) return true
   if (await readOpfs()) return true
   if (await readIdb()) return true

@@ -3,7 +3,7 @@ import wasmUrl from '@wllama/wllama/esm/wasm/wllama.wasm?url'
 import compatWasmUrl from '@wllama/wllama-compat/wasm/wllama.wasm?url'
 import compatWorkerCode from '@wllama/wllama-compat/wasm/wllama.js?raw'
 import { FAST_MODEL, activeModel, isGeminiConfigured, saveSettings } from './store'
-import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel, useModelSpec } from './model-cache'
+import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel, applyModelSpec } from './model-cache'
 import { formatQwenChat, packChat, QWEN_STOP, toChatRole } from './prompt'
 
 export type DownloadProgress = {
@@ -217,7 +217,7 @@ export async function ensureModel(
     throw new Error('Lokales Modell bleibt aus, solange Gemini an ist.')
   }
   const want = activeModel()
-  useModelSpec(want)
+  applyModelSpec(want)
   if (loaded && instance && loadedId === want.id) return
   if (loaded && loadedId !== want.id) await releaseModel()
   if (loading) return loading
@@ -256,7 +256,7 @@ export async function ensureModel(
       const oom = /memory|oom|allocat/i.test(msg)
       if (oom && want.id === 'sharp') {
         saveSettings({ model_variant: 'fast' })
-        useModelSpec(FAST_MODEL)
+        applyModelSpec(FAST_MODEL)
         throw new Error('1.5B passt nicht in den Speicher. Zurück auf 0.5B — unter Modell erneut starten.')
       }
       throw err
@@ -289,7 +289,7 @@ export async function ensureModel(
     instance = null
     lastError = explainError(err)
     if (want.id === 'sharp' && /1\.5B passt nicht/.test(lastError)) {
-      useModelSpec(FAST_MODEL)
+      applyModelSpec(FAST_MODEL)
     }
     throw new Error(lastError)
   } finally {
