@@ -9,9 +9,9 @@ App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
 
 ### Geplant — `0.13.2`–`0.13.4` (Sprints 46–48)
 
-- **`0.13.2` Latenz (qualitätsneutral):** Threads > 1, Token-Stream; gleicher Prompt/`max_tokens`
-- **`0.13.3` Qualität:** kurze Persona, Sampling, Memory-Honesty, Siezen-Scrub
-- **`0.13.4` Intelligenz:** optional Qwen2.5-1.5B Q4; Default bleibt 0.5B
+- **`0.13.2` Latenz (neutral):** Threads > 1, Stream; gleicher Prompt/Sampling
+- **`0.13.3` Qualität (ohne tot/langsam):** kompakte Persona, repeat_penalty, Memory-Honesty, Siezen, Pack nur bei Overflow
+- **`0.13.4` Intelligenz (Default unverändert):** optional 1.5B; kein Auto-Switch, kein Canned-Router
 - [`14-on-device-iq.md`](./14-on-device-iq.md) · [`sprints/sprint-46.md`](./sprints/sprint-46.md)
 
 ### `0.13.1` — Modell-Download Hotfix — *CODE*

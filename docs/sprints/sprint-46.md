@@ -28,8 +28,8 @@ Gleiches 0.5B, **gleicher Prompt**, spürbar schneller. **Kein Qualitätsverlust
 
 ## Won’t (Qualität)
 
-- Persona kürzen, Turns 8→4, Memory auf Top-4 (→ Sprint 47)
-- Begrüßungs-Canned statt LLM (→ Sprint 47 Should)
+- Persona kürzen / Turns hart 8→4 / Memory hart Top-4 (→ Sprint 47 nur bei Overflow)
+- Begrüßungs-Canned, temp-Schnitt, Hart-Kappen (raus — Qualitätsverlust)
 - `max_tokens` 64, Timeout 25 s
 - Neues GGUF / 1.5B / native llama.cpp / Cloud
 

@@ -3,42 +3,35 @@
 | Feld | Wert |
 |------|------|
 | Status | **PLANNED** |
-| Priorität | **MUST** — 0.5B braucht kurze Regeln + ehrliches Memory |
+| Priorität | **MUST** |
 | Ziel-Version | **`0.13.3`** |
-| Quelle | [`14-on-device-iq.md`](../14-on-device-iq.md); Carry Memory-Honesty aus Sprint 31 |
+| Quelle | [`14-on-device-iq.md`](../14-on-device-iq.md) |
 
 ## Ziel
 
-Jarvis **klingt** nach Jarvis und **rät nicht**. Latenz-Fixes aus `0.13.2` bleiben.
+0.5B **ehrlicher und jarvis-treuer**, ohne tot zu klingen und ohne extra Wartezeit.
 
 ## Must
 
 | ID | Verbesserung | Done wenn |
 |----|--------------|-----------|
-| Q1 | Persona komprimiert (~8 Regeln), kein langer Essay-Prompt | Systemprompt klar kürzer |
-| Q2 | Sampling: temp 0.55, top_p 0.85, repeat_penalty 1.12 | weniger Loops/Floskeln |
-| Q3 | Memory-Recall breiter + Honesty (kein Pref erfinden) | „Was mag ich?“ nur Store oder „weiß ich nicht“ |
-| Q4 | Siezen-Scrub ohne `willst Sie` / `*st Sie` | Probe-Set ohne Broken-Siezen |
-| Q5 | Hartes Kappen nach 3 Sätzen | messenger-kurz |
-| Q6 | Pack nur wenn Budget eng: letzte 4 Turns / Top-4 Pins **sonst 8 Turns / alle Pins** | lange Chats halten den Faden, Prefill nur bei Druck |
-| Q7 | Version `0.13.3` | UI/Health/Changelog |
+| Q1 | Persona kompakt, Charakter bleibt (frech, Humor, DE, Siezen, kurz, kein Helpdesk) | kürzer als `0.13.1`, Ton-Anker noch da |
+| Q2 | `repeat_penalty 1.12`; **temp 0.7 / top_p 0.88 bleiben** | weniger Loops, gleiche Lebendigkeit |
+| Q3 | Memory-Recall breiter + Honesty | Pref-Fragen nur Store oder „weiß ich nicht“ |
+| Q4 | Siezen-Scrub ohne `willst Sie` / `*st Sie` | Probe ohne Broken-Siezen |
+| Q5 | Pack nur bei Prompt > `n_ctx` | sonst 8 Turns + alle Pins wie bisher |
+| Q6 | Version `0.13.3` | UI/Health/Changelog |
 
-## Should
+## Won’t (Nebenwirkung)
 
-| ID | Inhalt |
-|----|--------|
-| Q8 | Canned-Bank mit 3–5 Varianten (Hey/Danke) — bewusst Template-Risiko, PO-Abnahme |
-| Q9 | Frontend-Smoke für Recall/Honesty/Siezen |
-
-## Won’t
-
-- 1.5B-Modell
-- Research im Netz
-- Python-Eval-Suiten der `0.9.x`-Ära als Pflicht
+- temp 0.55 / top_p 0.85 (tötet Variation)
+- Hart nach 3 Sätzen kappen (schneidet gute Antworten)
+- Begrüßungs-Canned (Template-Bot)
+- 1.5B, Research, TV
 
 ## Exit / Abnahme
 
-PO: Ton sitzt; Pref-Fragen halluzinieren nicht; Siezen nicht kaputt. Tag **`v0.13.3`**.
+PO: Ton lebendig; Prefs ohne Halluzination; Siezen sauber; Smalltalk nicht langsamer. Tag **`v0.13.3`**.
 
 ## Danach
 
