@@ -26,6 +26,8 @@ APK: `frontend\dist-apk\jarvis-debug.apk`
 
 Modell: Qwen2.5 0.5B Instruct Q4 (kleiner als der alte PC-7b, dafür offline).
 
+Als Nächstes (geplant): Latenz `0.13.2` → Qualität `0.13.3` → optional 1.5B `0.13.4` — [`docs/14-on-device-iq.md`](docs/14-on-device-iq.md)
+
 ## Was weg ist
 
 Python-Backend, Ollama, NAS-Proxy, Docker. TV-Steuerung geparkt.

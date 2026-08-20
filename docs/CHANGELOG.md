@@ -7,6 +7,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`0.13.1`** (On-Device Handy, kein Server).
 
+### Geplant — `0.13.2`–`0.13.4` (Sprints 46–48)
+
+- **`0.13.2` Latenz:** Threads > 1, Token-Stream, Context-Pack, Smalltalk-Canned
+- **`0.13.3` Qualität:** kurze Persona, Sampling, Memory-Honesty, Siezen-Scrub
+- **`0.13.4` Intelligenz:** optional Qwen2.5-1.5B Q4; Default bleibt 0.5B
+- [`14-on-device-iq.md`](./14-on-device-iq.md) · [`sprints/sprint-46.md`](./sprints/sprint-46.md)
+
 ### `0.13.1` — Modell-Download Hotfix — *CODE*
 
 - First-Run lädt die GGUF direkt (OPFS/IndexedDB), nicht über wllama-OPFS-Metadaten

@@ -142,6 +142,8 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Samsung-TV lokal → **`0.11.0`–`0.11.2`** (Sprints 40–42)
 - Mail / Fire TV / Alexa / Play Store — **Parking**
 - Tools (Kalender/Mail) — **nicht** in `0.9.x`/`0.10.x`
+- On-Device Latenz / Qualität / Intelligenz → **`0.13.2`–`0.13.4`** (Sprints 46–48, [`14`](./14-on-device-iq.md))
+- Native llama.cpp → **`0.14.0`** (PO)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---

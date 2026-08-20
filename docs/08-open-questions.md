@@ -54,9 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. PO-Review Sprint 8–18 (`0.4.0`–`0.7.0`) → Tags bei OK
-2. Danach: Sprint 31–33 (`0.9.3`–`0.9.5`), dann `0.10.x` NAS+APK, dann `0.11.x` TV
-3. Parallel ok: Tags/Reviews `0.1.0`–`0.3.1`
+1. Sprint **46** (`0.13.2`) On-Device Latenz — [`14-on-device-iq.md`](./14-on-device-iq.md)
+2. Dann 47 Qualität (`0.13.3`), 48 optionales 1.5B (`0.13.4`)
+3. NAS/TV bleiben Parking; native llama.cpp = `0.14.0` (PO)
 
 ---
 

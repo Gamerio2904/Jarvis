@@ -228,16 +228,24 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ---
 
+### E14 — On-Device IQ (`0.13.2`–`0.13.4`)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S14.1 | Als Nutzer will ich Antworten ohne 1-Thread-WASM-Bremse. | Must | ready | Sprint 46 / `0.13.2` |
+| S14.2 | Als Nutzer will ich Tokens gestreamt sehen, nicht 75 s warten. | Must | ready | Sprint 46 / `0.13.2` |
+| S14.3 | Als Nutzer will ich „Hey/Danke“ ohne Modell. | Must | ready | Sprint 46 / `0.13.2` |
+| S14.4 | Als Nutzer will ich Jarvis-Ton und ehrliches Memory auf 0.5B. | Must | ready | Sprint 47 / `0.13.3` |
+| S14.5 | Als Nutzer will ich optional ein schärferes 1.5B on-device. | Should | ready | Sprint 48 / `0.13.4` |
+
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 31** (`0.9.3`) — Memory Quality Hotfix
-2. **Sprint 32** (`0.9.4`) — Assist Continuity & Siezen
-3. **Sprint 33** (`0.9.5`) — Tools Hygiene & Confirm-UX
-4. **Sprints 34–39** (`0.10.0`–`0.10.5`) — NAS-Compose **Parking**
-5. **Sprints 40–42** (`0.11.0`–`0.11.2`) — Samsung-TV lokal
-6. **Sprint 43** (`0.12.0`) — NAS native + Reverse-Proxy & APK
-7. TTS / `1.0.0` — **PO-Kommando**
-8. Mail / Fire TV / Alexa / Play Store / Docker-NAS — **Parking**
+1. **Sprint 46** (`0.13.2`) — On-Device Latenz
+2. **Sprint 47** (`0.13.3`) — On-Device Qualität
+3. **Sprint 48** (`0.13.4`) — optionales 1.5B
+4. Native llama.cpp / `0.14.0` — **PO-Kommando**
+5. TTS / `1.0.0` — **PO-Kommando**
+6. NAS / Samsung-TV / Mail / Fire TV / Alexa / Play Store — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

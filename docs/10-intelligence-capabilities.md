@@ -24,6 +24,9 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 | 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **PLANNED** |
 | 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PLANNED** |
 | 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **PLANNED** |
+| 6 | **`0.13.2`** | [46](./sprints/sprint-46.md) | On-Device Latenz | **PLANNED** |
+| 6a | **`0.13.3`** | [47](./sprints/sprint-47.md) | On-Device Qualität | **PLANNED** |
+| 6b | **`0.13.4`** | [48](./sprints/sprint-48.md) | On-Device Intelligenz (1.5B optional) | **PLANNED** |
 
 ```text
 Sprint 8  0.4.0 Memory
@@ -356,6 +359,8 @@ Memory („Merk dir …“) bleibt Fakten-Gedächtnis; Tools sind **explizite Ar
 
 NAS/APK: **`0.10.x`** ([`12-nas-apk.md`](./12-nas-apk.md)). Samsung-TV: **`0.11.x`** (Sprints 40–42).
 
+On-Device nach `0.13.1`: Latenz/Qualität/Intelligenz **`0.13.2`–`0.13.4`** ([`14-on-device-iq.md`](./14-on-device-iq.md), Sprints 46–48). Native llama.cpp = `0.14.0`.
+
 Vorher empfohlen: **`0.8.5`** Persona/Continuity ([27](./sprints/sprint-27.md)).
 
 ---
@@ -384,4 +389,12 @@ Tools Hygiene & Confirm-UX             →  0.9.5  (Sprint 33)
 NAS Core + APK                         →  0.10.0–0.10.5  (Sprints 34–39)
         ↓
 Samsung TV                             →  0.11.0–0.11.2  (Sprints 40–42)
+        ↓
+On-Device Handy                        →  0.13.0–0.13.1  (Sprints 44–45)
+        ↓
+On-Device Latenz                       →  0.13.2  (Sprint 46)
+        ↓
+On-Device Qualität                     →  0.13.3  (Sprint 47)
+        ↓
+On-Device Intelligenz (1.5B optional)  →  0.13.4  (Sprint 48)
 ```

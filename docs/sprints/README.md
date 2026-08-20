@@ -50,11 +50,13 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 43 | [`sprint-43.md`](./sprint-43.md) | `0.12.0` | NAS-Proxy (superseded) | **SUPERSEDED** |
 | 44 | [`sprint-44.md`](./sprint-44.md) | `0.13.0` | On-Device Handy | **CODE** |
 | 45 | [`sprint-45.md`](./sprint-45.md) | `0.13.1` | Modell-Download Hotfix | **CODE** |
+| 46 | [`sprint-46.md`](./sprint-46.md) | `0.13.2` | On-Device Latenz | **PLANNED** |
+| 47 | [`sprint-47.md`](./sprint-47.md) | `0.13.3` | On-Device Qualität | **PLANNED** |
+| 48 | [`sprint-48.md`](./sprint-48.md) | `0.13.4` | On-Device Intelligenz (1.5B optional) | **PLANNED** |
 
-**Nächste Pull-Reihenfolge:** Sprint **31** (`0.9.3`) Memory Quality.  
-Danach 32–33 (`0.9.4`–`0.9.5`), dann **`0.10.x`** Compose **Parking**, **`0.11.x` Samsung-TV** (40–42), **`0.12.0` NAS-Proxy** (43).  
-TTS / `1.0.0` — **PO-Kommando**.  
-Überblick Proxy/APK: [`../13-lan-proxy.md`](../13-lan-proxy.md)
+**Nächste Pull-Reihenfolge:** Sprint **46** (`0.13.2`) Latenz, dann 47 Qualität, dann 48 optionales 1.5B.  
+`0.9.3`–`0.9.5` Memory/Siezen on-device in 47. NAS/TV **Parking**. Native llama.cpp = `0.14.0` (PO).  
+On-Device IQ: [`../14-on-device-iq.md`](../14-on-device-iq.md)
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

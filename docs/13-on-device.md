@@ -19,6 +19,14 @@ Kein FastAPI, kein Ollama, kein Reverse-Proxy.
 
 Kleineres Modell als RTX-3060-7b. Ton und Tools bleiben lokal; Antworten sind schwächer.
 
+Ausbau ohne Cloud: [`14-on-device-iq.md`](./14-on-device-iq.md)
+
+| Version | Hebel |
+|---------|-------|
+| `0.13.2` | Threads, Stream, Pack, Canned |
+| `0.13.3` | Persona, Honesty, Siezen |
+| `0.13.4` | optional 1.5B Q4 |
+
 ## Parking
 
-Samsung-TV, NAS, Docker, Play Store, TTS.
+Samsung-TV, NAS, Docker, Play Store, TTS. Native llama.cpp → `0.14.0` (PO).
