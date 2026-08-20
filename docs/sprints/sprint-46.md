@@ -1,42 +1,24 @@
-# Sprint 46 — On-Device Latenz (`0.13.2`)
+# Sprint 46 — Chat-Hang Hotfix (`0.13.2`)
 
 | Feld | Wert |
 |------|------|
 | Status | **CODE** |
-| Priorität | **MUST** — `n_threads: 1` + kein Stream ist der Alltagskiller |
+| Priorität | **MUST** — Modell bereit, Chat bleibt auf „Jarvis schreibt…“ |
 | Ziel-Version | **`0.13.2`** |
-| Quelle | [`14-on-device-iq.md`](../14-on-device-iq.md) |
+| Quelle | PO 2026-08-15: Download ok, keine Antwort |
 
-## Ziel
+## Ursache
 
-Gleiches 0.5B, **gleicher Prompt**, spürbar schneller. **Kein Qualitätsverlust.**
+`0.13.1` hat Non-Stream + `n_threads: 1` + langes Persona-Prompt. Auf dem Handy (WASM/compat) dauert die Prompt-Eval so lange, dass keine Tokens erscheinen. Der UI-Timeout greift nicht, solange nichts zurückkommt — wirkt wie ein Hänger.
 
-## Must
+## Fix
 
-| ID | Verbesserung | Done wenn |
-|----|--------------|-----------|
-| L1 | Threads: `min(4, max(2, hardwareConcurrency − 1))` | Health zeigt Thread-Zahl > 1; Sampling/`max_tokens`/Stop unverändert |
-| L2 | Stream Tokens bis EOS in die Chat-UI | Tokens erscheinen; Endtext = volle Completion wie `0.13.1` |
-| L3 | Version `0.13.2` | UI/Health/Changelog |
+- Streaming mit `onData` — Tokens erscheinen, sobald sie da sind
+- Mehr Threads (bis 4), `n_ctx` 512, kurzes Persona
+- Abbruch wenn 45s kein erstes Token / 90s Gesamt
+- Status „Jarvis denkt… Xs“
+- Leere Antwort → kurzer Fallback statt ewigem Warten
 
-## Should
+## Exit
 
-| ID | Inhalt |
-|----|--------|
-| L4 | `n_batch` nur wenn wllama Sampling nicht ändert |
-| L5 | Health-Hinweis „Threads / Stream“ |
-
-## Won’t (Qualität)
-
-- Persona kürzen / Turns hart 8→4 / Memory hart Top-4 (→ Sprint 47 nur bei Overflow)
-- Begrüßungs-Canned, temp-Schnitt, Hart-Kappen (raus — Qualitätsverlust)
-- `max_tokens` 64, Timeout 25 s
-- Neues GGUF / 1.5B / native llama.cpp / Cloud
-
-## Exit / Abnahme
-
-Sideload `0.13.2`: gleiche Art Antwort wie `0.13.1`, nur schneller + Stream. Modell bleibt 0.5B Q4.
-
-## Danach
-
-Sprint 47 / `0.13.3` Live-Qualität.
+Sideload `0.13.2`, Modell schon da (kein erneuter 470-MB-Download), „Hallo Jarvis“ bekommt Text oder eine klare Fehlermeldung — kein endloses Tippen.

@@ -1,43 +1,60 @@
-# Sprint 48 — On-Device Intelligenz (`0.13.4`)
+# Sprint 48 — TV verbinden & steuern (`0.14.1`)
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
-| Priorität | **SHOULD** — Default bleibt 0.5B, **keine** Extra-Latenz ohne Toggle |
-| Ziel-Version | **`0.13.4`** |
-| Quelle | [`14-on-device-iq.md`](../14-on-device-iq.md) |
+| Status | **CODE** |
+| Priorität | **MUST** — geparktes `0.11` in der APK live |
+| Ziel-Version | **`0.14.1`** |
+| Quelle | PO 2026-08-15: Fernseher-Steuerung und Connecten sollen funktionieren |
+| Voraussetzung | Sprint 47 / `0.14.0` (Parser/Routing sitzt) |
 
 ## Ziel
 
-Klüger **auf Wunsch**. Ohne Toggle ändert sich weder Tempo noch Smalltalk.
+Ein Samsung-Tizen-TV im selben WLAN: **suchen, koppeln, testen**, dann per Chat **an/aus, Lautstärke, Mute, HDMI**. Kein neues Produkt — das alte TV-Soll, on-device.
 
 ## Must
 
-| ID | Verbesserung | Done wenn |
-|----|--------------|-----------|
-| I1 | Toggle schnell = 0.5B Q4 (Default); scharf = Qwen2.5-1.5B-Instruct Q4_K_M (~1,1 GB) | First-Run nur 0.5B; 1.5B extra, persistiert |
-| I2 | Task-Nudge **nur** bei Task-Intent | Smalltalk unverändert; Plan ohne Coach-Essay |
-| I3 | 1.5B fehlt / OOM → 0.5B + klare Meldung | kein stiller Absturz |
-| I4 | Version `0.13.4` | Health zeigt aktives Modell |
+| ID | Story | Done wenn |
+|----|-------|-----------|
+| V1 | **Native Brücke** — Capacitor/Android: WOL (UDP), Tizen-WS (8001/8002), Token auf dem Gerät | WebView allein reicht nicht; Keys gehen |
+| V2 | **Suchen** — Settings listet Tizen-Geräte | PO wählt den Wohnzimmer-TV |
+| V3 | **Koppeln** — Button + Hinweis „am TV erlauben“ | Token bleibt nach App-Neustart |
+| V4 | **Testen** — harmloser Key oder Status; Ergebnis in UI | erreichbar ja/nein, ehrlich |
+| V5 | **Chat** — „Fernseher an/aus“, „lauter/leiser/stumm“, „HDMI 2“; Anker `Fernseher`/`TV` | Sofort, kein Confirm |
+| V6 | **Kill-Switch + Ehrlichkeit** — `tv_enabled` aus oder ungepaart → keine Keys, keine Fake-Claims | Live |
+| V7 | Follow-up „lauter“ nur nach TV-Turn; WOL-Misserfolg klar | Analog `0.11.1` |
+| V8 | Version `0.14.1` | Tag **`v0.14.1`** |
 
-## Won’t (Nebenwirkung)
+## Should
 
-- Auto-Switch 0.5B ↔ 1.5B
-- Smalltalk über Canned routen
-- 7b / Cloud / Phi-3.5 / Gemma-2-2B
-- Native C++ (`0.14.0`)
+| ID | Inhalt |
+|----|--------|
+| V9 | MAC für WOL in Settings sichtbar/editierbar |
+| V10 | HDMI-Synonyme (hdmi 1, Quelle 2) |
+| V11 | Gastnetz/AP-Isolation → verständlicher Fehler |
 
-## Modellwahl
+## Won’t
 
-| Profil | Datei | Größe | Nebenwirkung |
-|--------|-------|-------|--------------|
-| schnell (Default) | `qwen2.5-0.5b-instruct-q4_k_m.gguf` | ~470 MB | keine gegenüber `0.13.3` |
-| scharf | `qwen2.5-1.5b-instruct-q4_k_m.gguf` | ~1,1 GB | langsamer, Tasks klüger |
+- SmartThings-Cloud
+- Apps (Netflix, YouTube)
+- Mehrere TVs
+- Fire TV / Alexa
+- Confirm-Dialog
+
+## Architektur
+
+```text
+Settings / Chat
+    → tv.ts (Parser, Anker, enabled?)
+    → Capacitor-Plugin
+         suchen | pair | wol | key
+    → Reply nur aus Plugin-Ergebnis
+```
 
 ## Exit / Abnahme
 
-Default wie nach `0.13.3`. Toggle „scharf“: einmal laden, offline, Tasks klüger, Smalltalk darf 0.5B bleiben.
+PO am eigenen Tizen: suchen → koppeln → Test → aus der APK an, aus, Vol, HDMI. Ohne Haken am TV kein Erfolg. Reihe `0.14` zu, wenn das sitzt.
 
 ## Danach
 
-Native llama.cpp / `0.14.0` nur auf PO-Kommando.
+Nachzieher als `0.14.2` falls nötig. TTS / `1.0.0` — **PO-Kommando**.

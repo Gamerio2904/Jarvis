@@ -1,6 +1,8 @@
-# 16 — Fahrplan (verbindlich)
+# 16 — Fahrplan (Entwurf, nicht die Live-Reihenfolge)
 
-Aus den Docs: [`14`](./14-on-device-iq.md) · [`15`](./15-live-probe.md) · Sprints 46–48.
+> **Konflikt:** Auf `main` ist [`16-gemini.md`](./16-gemini.md) die Doc-Nr. 16, und Sprints 46–48 sind bereits `0.13.2` Chat-Hang / `0.14.0` / `0.14.1` TV. Live-Stand: **`2.2.2`**. Nächste Lieferung: [`31-next.md`](./31-next.md) (`2.3`–`2.19`). Dieser Text bleibt als Entwurf der On-Device-IQ-Reihe, nicht als Sprint-Plan.
+
+Aus den Docs: [`14-on-device-iq.md`](./14-on-device-iq.md) · [`15-live-probe.md`](./15-live-probe.md).
 
 ```text
 0.13.2 Latenz     CODE

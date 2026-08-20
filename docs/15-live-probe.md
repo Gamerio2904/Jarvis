@@ -1,7 +1,9 @@
 # 15 — Live-Probe (Screenshots 2026-08-20)
 
 PO-Alltag: Jarvis **2.2.1**, Banner **Gemini (Google) — Nachrichten gehen ins Netz.**  
-Dieses Git-Repo ist on-device WASM (`0.13.2`); die Probe ist trotzdem Sprint **47** / `0.13.3`.
+Live auf `main` ist **`2.2.2`**. Die Musts unten sind Bugs/Soll der Gemini-App, nicht Sprint 47 auf `main` (`0.14.0`). Einordnung in `2.3+` ist offen.
+
+## PO-Vorgabe (verbindlich)
 
 ## PO-Vorgabe (verbindlich)
 

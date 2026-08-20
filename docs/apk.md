@@ -1,14 +1,15 @@
-# Android-APK — On-Device (`0.13.2`)
+# Android-APK — `2.2.2`
 
-Jarvis denkt **auf dem Handy**. Einmal Modell laden (~470 MB), danach offline.  
-`0.13.2`: mehrere CPU-Threads + Token-Stream (gleicher Prompt wie `0.13.1`).
+**2.2.2:** Keine Testprompts in der App. Chat ohne Chips.
 
-```bat
-build-apk.bat
-```
+## Download
 
-Ergebnis: `frontend\dist-apk\jarvis-debug.apk`
+**APK `2.2.2`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/remove-test-settings-3638/releases/Jarvis.apk
 
-1. APK installieren (unbekannte Quellen).
-2. App öffnen → **Modell herunterladen** (WLAN).
-3. Chat, merken, Todos — alles lokal.
+- Dateiname: `Jarvis.apk`
+- versionName `2.2.2` · versionCode `20202`
+- App-ID `local.jarvis.app`
+
+1. Über 2.2.1 installieren.
+2. Einstellungen hat kein Thema Tests mehr.

@@ -29,4 +29,6 @@ Ausbau: [`16-fahrplan.md`](./16-fahrplan.md) · [`14-on-device-iq.md`](./14-on-d
 
 ## Parking
 
-Samsung-TV, NAS, Docker, Play Store, TTS. Native llama.cpp → `0.14.0` (PO).
+NAS, Docker, Play Store, iOS. TTS und Research-Netz sind in `1.x` (Gemini Opt-in). Nächste Alltag-Reihe: [`19-next.md`](./19-next.md).
+
+Samsung-TV: **live in `0.14.1`** ([`14-quality-tv.md`](./14-quality-tv.md)) — nativ in der APK (WOL/Tizen-WS), nicht WASM.

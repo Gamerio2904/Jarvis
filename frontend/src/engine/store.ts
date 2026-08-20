@@ -1,4 +1,6 @@
-export const APP_VERSION = '0.13.2'
+import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
+
+export const APP_VERSION = '2.2.2'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -22,6 +24,8 @@ export type Message = {
   created_at: string
   meta?: Record<string, unknown> | null
 }
+
+export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke' | 'place' | 'contact' | 'birthday'
 
 export type MemoryItem = {
   id: string
@@ -51,6 +55,38 @@ export type Todo = {
   updated_at: string
 }
 
+export type CalendarEvent = {
+  id: string
+  title: string
+  start_at: string
+  place?: string
+  source_conversation_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type ShoppingItem = {
+  id: string
+  title: string
+  status: 'open' | 'got' | string
+  source_conversation_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type Reminder = {
+  id: string
+  title: string
+  due_at: string
+  status: 'open' | 'fired' | 'missed' | string
+  source_conversation_id?: string | null
+  created_at: string
+  updated_at: string
+  kind?: 'once' | 'timer' | 'recur' | 'alarm' | 'home' | 'birthday'
+  recur?: 'daily' | 'weekly' | null
+  weekday?: number | null
+}
+
 export type ToolPending = {
   conversation_id: string
   tool: string
@@ -72,6 +108,65 @@ export type Settings = {
   tv_name: string
   tv_host: string
   tv_mac: string
+  tv_port: number
+  tv_token: string
+  tv_paired: boolean
+  tv_volume: string
+  tv_fire_host: string
+  tv_fire_port: number
+  tv_fire_hdmi: number
+  gemini_enabled: boolean
+  gemini_api_key: string
+  tankerkoenig_api_key: string
+  omdb_api_key: string
+  shop_discount: boolean
+  last_fuel_json: string
+  last_poi_json: string
+  last_comm_json: string
+  last_pc_json: string
+  last_drive_json: string
+  pc_enabled: boolean
+  pc_host: string
+  pc_port: number
+  pc_token: string
+  gemini_model: string
+  gemini_skip_until: string
+  groq_api_key: string
+  last_lat: string
+  last_lon: string
+  last_place: string
+  last_fix_at: string
+  last_weather_place: string
+  last_weather_when: string
+  last_weather_focus: string
+  last_weather_kind: string
+  last_weather_line: string
+  last_step_tool: string
+  last_step_title: string
+  last_step_when: string
+  last_step_utterance: string
+  last_medium: string
+  last_list_json: string
+  home_lat: string
+  home_lon: string
+  home_radius_m: string
+  wake_word: boolean
+  fan_enabled: boolean
+  fan_name: string
+  fan_host: string
+  fan_mac: string
+  fan_codes_json: string
+  plugs_enabled: boolean
+  plugs_json: string
+  drive_mode: boolean
+  spotify_client_id: string
+  spotify_access: string
+  spotify_refresh: string
+  spotify_expires_at: string
+  alarm_tone_uri: string
+  alarm_tone_name: string
+  voice_tts: string
+  gemini_tts_model: string
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -92,6 +187,65 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_name: 'Wohnzimmer',
   tv_host: '',
   tv_mac: '',
+  tv_port: 8002,
+  tv_token: '',
+  tv_paired: false,
+  tv_volume: '',
+  tv_fire_host: '',
+  tv_fire_port: 5555,
+  tv_fire_hdmi: 3,
+  gemini_enabled: false,
+  gemini_api_key: '',
+  tankerkoenig_api_key: '',
+  omdb_api_key: '',
+  shop_discount: false,
+  last_fuel_json: '',
+  last_poi_json: '',
+  last_comm_json: '',
+  last_pc_json: '',
+  last_drive_json: '',
+  pc_enabled: false,
+  pc_host: '',
+  pc_port: 18790,
+  pc_token: '',
+  gemini_model: '',
+  gemini_skip_until: '',
+  groq_api_key: '',
+  last_lat: '',
+  last_lon: '',
+  last_place: '',
+  last_fix_at: '',
+  last_weather_place: '',
+  last_weather_when: 'now',
+  last_weather_focus: 'general',
+  last_weather_kind: '',
+  last_weather_line: '',
+  last_step_tool: '',
+  last_step_title: '',
+  last_step_when: '',
+  last_step_utterance: '',
+  last_medium: '',
+  last_list_json: '',
+  home_lat: '',
+  home_lon: '',
+  home_radius_m: '250',
+  wake_word: false,
+  fan_enabled: false,
+  fan_name: 'Wohnzimmer',
+  fan_host: '',
+  fan_mac: '',
+  fan_codes_json: '',
+  plugs_enabled: true,
+  plugs_json: '',
+  drive_mode: false,
+  spotify_client_id: '',
+  spotify_access: '',
+  spotify_refresh: '',
+  spotify_expires_at: '',
+  alarm_tone_uri: '',
+  alarm_tone_name: '',
+  voice_tts: 'auto',
+  gemini_tts_model: '',
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',
@@ -116,15 +270,48 @@ export function loadSettings(): Settings {
   }
 }
 
+export function isGeminiConfigured(s = loadSettings()): boolean {
+  return Boolean(s.gemini_enabled && s.gemini_api_key.trim())
+}
+
 export function saveSettings(patch: Partial<Settings>): Settings {
   const next = { ...loadSettings(), ...patch, version: APP_VERSION }
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(next))
   return next
 }
 
+export function persistLastList(tool: string, titles: string[]): void {
+  saveSettings({
+    last_step_tool: tool,
+    last_step_title: titles[0] || loadSettings().last_step_title,
+    last_list_json: JSON.stringify(titles.slice(0, 12)),
+  })
+}
+
+export function readLastList(): string[] {
+  try {
+    const raw = loadSettings().last_list_json
+    if (!raw) return []
+    const arr = JSON.parse(raw) as unknown
+    return Array.isArray(arr)
+      ? arr.filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+      : []
+  } catch {
+    return []
+  }
+}
+
+export type ResearchAudit = {
+  id: string
+  query: string
+  status: string
+  sources: Array<{ title: string; url: string; snippet?: string; provider?: string }>
+  created_at: string
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 1)
+    const req = indexedDB.open('jarvis-ondevice', 5)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -134,6 +321,10 @@ function openDb(): Promise<IDBDatabase> {
         'notes',
         'todos',
         'pending',
+        'research_audits',
+        'reminders',
+        'events',
+        'shopping',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -245,9 +436,7 @@ export async function addMessage(
   const conv = await get<Conversation>('conversations', conversationId)
   if (conv) {
     const title =
-      conv.title === 'Neues Gespräch' && role === 'user'
-        ? content.slice(0, 42)
-        : conv.title
+      role === 'user' && shouldRefreshTitle(content) ? titleFromUser(content) : conv.title
     await touchConversation(conversationId, title)
   }
   return row
@@ -272,7 +461,9 @@ export async function upsertMemory(
   category: string,
   conversationId?: string,
 ): Promise<MemoryItem> {
-  const existing = (await getAll<MemoryItem>('memory')).find((m) => m.key === key)
+  const existing = (await getAll<MemoryItem>('memory')).find(
+    (m) => m.key === key && m.category === category,
+  )
   const row: MemoryItem = {
     id: existing?.id || newId(),
     key,
@@ -321,6 +512,10 @@ export async function setTodoStatus(id: string, status: string): Promise<void> {
   await put('todos', { ...row, status, updated_at: nowIso() })
 }
 
+export async function deleteTodo(id: string): Promise<void> {
+  await del('todos', id)
+}
+
 export async function deleteDoneTodos(): Promise<number> {
   const rows = await getAll<Todo>('todos')
   const done = rows.filter((t) => t.status === 'done')
@@ -357,4 +552,123 @@ export async function setPending(row: ToolPending): Promise<void> {
 
 export async function clearPending(conversationId: string): Promise<void> {
   await del('pending', conversationId)
+}
+
+export async function listReminders(): Promise<Reminder[]> {
+  const rows = await getAll<Reminder>('reminders')
+  return rows.sort((a, b) => (a.due_at < b.due_at ? -1 : 1))
+}
+
+export async function addReminder(opts: {
+  title: string
+  due_at: string
+  conversationId?: string
+  kind?: Reminder['kind']
+  recur?: Reminder['recur']
+  weekday?: number | null
+}): Promise<Reminder> {
+  const row: Reminder = {
+    id: newId(),
+    title: opts.title,
+    due_at: opts.due_at,
+    status: 'open',
+    source_conversation_id: opts.conversationId || null,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+    kind: opts.kind || (opts.recur ? 'recur' : 'once'),
+    recur: opts.recur || null,
+    weekday: opts.weekday ?? null,
+  }
+  await put('reminders', row)
+  return row
+}
+
+export async function putReminder(row: Reminder): Promise<void> {
+  await put('reminders', { ...row, updated_at: nowIso() })
+}
+
+export async function setReminderStatus(id: string, status: string): Promise<void> {
+  const row = await get<Reminder>('reminders', id)
+  if (!row) return
+  await put('reminders', { ...row, status, updated_at: nowIso() })
+}
+
+export async function deleteReminder(id: string): Promise<void> {
+  await del('reminders', id)
+}
+
+export async function listEvents(): Promise<CalendarEvent[]> {
+  const rows = await getAll<CalendarEvent>('events')
+  return rows.sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
+}
+
+export async function addEvent(opts: {
+  title: string
+  start_at: string
+  place?: string
+  conversationId?: string
+}): Promise<CalendarEvent> {
+  const row: CalendarEvent = {
+    id: newId(),
+    title: opts.title,
+    start_at: opts.start_at,
+    place: opts.place || '',
+    source_conversation_id: opts.conversationId || null,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  await put('events', row)
+  return row
+}
+
+export async function listShopping(): Promise<ShoppingItem[]> {
+  const rows = await getAll<ShoppingItem>('shopping')
+  return rows.sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
+}
+
+export async function addShopping(title: string, conversationId?: string): Promise<ShoppingItem> {
+  const open = (await listShopping()).filter((s) => s.status === 'open')
+  const dup = open.find((s) => s.title.toLowerCase() === title.toLowerCase())
+  if (dup) return dup
+  const row: ShoppingItem = {
+    id: newId(),
+    title,
+    status: 'open',
+    source_conversation_id: conversationId || null,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  await put('shopping', row)
+  return row
+}
+
+export async function markShoppingGot(query: string): Promise<ShoppingItem | undefined> {
+  const q = query.toLowerCase()
+  const rows = (await listShopping()).filter((s) => s.status === 'open')
+  const hit = rows.find((s) => s.title.toLowerCase().includes(q) || q.includes(s.title.toLowerCase()))
+  if (!hit) return undefined
+  const next = { ...hit, status: 'got', updated_at: nowIso() }
+  await put('shopping', next)
+  return next
+}
+
+export async function clearGotShopping(): Promise<number> {
+  const rows = await listShopping()
+  const got = rows.filter((s) => s.status === 'got')
+  for (const s of got) await del('shopping', s.id)
+  return got.length
+}
+
+export async function deleteEvent(id: string): Promise<void> {
+  await del('events', id)
+}
+
+export async function addResearchAudit(row: ResearchAudit): Promise<ResearchAudit> {
+  await put('research_audits', row)
+  return row
+}
+
+export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
+  const rows = await getAll<ResearchAudit>('research_audits')
+  return rows.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)).slice(0, limit)
 }

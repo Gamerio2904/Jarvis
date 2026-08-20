@@ -3,6 +3,38 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first- / Privacy-Linie zu brechen.  
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
+### Live `1.33.0` (Code)
+
+Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/Geizhals, € nur aus Snippets. Router wie `1.32.1` plus `Öffnen CarPlay` → Fahrmodus. `pickHeard` scored ohne Drive-`inMode`-Raten.
+
+Nächste Schärfe (CODE bis `2.2`): [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  
+Nächste Reihe **PLAN:** [`31-next.md`](./31-next.md) inkl. Research härten (`2.6.0`).
+
+### Live `1.32.1` (Code)
+
+Router-Reihenfolge in `chat.ts`: help → ordinal → TV → Fan → Drive → Maps → Memory → Einkauf → … → LLM.  
+Zwei Befehle an „und“ (genau zwei Teile). `pickHeard` nimmt den ersten Parser (Drive mit `inMode=true`). Voice-History Gemini `-16`, lokal `-4`. Fahrmodus: OSRM, Cue-Phasen, Replan setzt Cue-Gedächtnis zurück.
+
+Nächste Schärfe: [`28-next.md`](./28-next.md) `1.33`–`1.40` — Parser/STT, Antworten, Fahrmodus, Phrasen. Lokal 0,5B denkt nicht plötzlich besser.
+
+### Live `1.24.0` (Code)
+
+Router-Reihenfolge in `chat.ts`: help → ordinal → TV → Maps → Memory → Einkauf → Geburtstag → Zuhause → Los → Tageslage → Kalender → Wecker → Timer → Erinnerung → Tools → Auge → Wetter → Chatsuche → LLM.  
+Zwei Befehle an „und“. Letzter Schritt inkl. „das zweite“. Memory-Block lokal = Gemini. Personenorte, Nummer, Maps-Modus, Einkauf, Losgehen, JS-Zaun Zuhause, Auge (Gemini), lokale Chatsuche.
+
+### Reihe `1.16`–`1.24` — [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md)
+
+| Version | Intelligenz | Status |
+|---------|-------------|--------|
+| `1.14` | Letztes Tool; zwei Dinge; ein Name; Titel; Suche ehrlich | **CODE** |
+| `1.15` | Personen↔Orte; Route in Google Maps | **CODE** |
+| `1.16`–`1.18` | Liste, Losgehen (Ort am Termin + Route), Zuhause | **CODE** |
+| `1.19`–`1.20` | Eine Tageslage; Auge nur Gemini | **CODE** |
+| `1.21`–`1.24` | Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche | **CODE** |
+| `1.33`–`1.40` | Qualität: Suche/Preise (`1.33` CODE), Antworten, Fahrmodus, Phrasen, Flüssigkeit, Gedächtnis, Stimme | **`1.33` CODE**, Rest **PLANNED** [`28-next.md`](./28-next.md) |
+
+Lokal 0,5B denkt nicht plötzlich besser. Schärfe = Router + Speicher + ehrliche Tools.
+
 ## Sprint- & Versions-Mapping (verbindlich)
 
 | Stufe | Version | Sprint | Inhalt | Status |

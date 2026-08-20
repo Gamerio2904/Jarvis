@@ -1,5 +1,7 @@
 # 02 — Architektur
 
+> **Live `2.2.2`:** Gemini-Opt-in, TV, Alltag. Nächste Reihe [`31-next.md`](./31-next.md) (`2.3`–`2.19`). Zeilen zu `0.13.3`/`0.13.4` und „TV Parking“ unten sind ein Parallel-Entwurf ([`14-on-device-iq.md`](./14-on-device-iq.md)), nicht die aktuelle Lieferung. `14` in der Tabelle von [`README.md`](./README.md) ist TV.
+
 ## Leitentscheidung
 
 **Design = Variante 3 (lokal).**  
@@ -15,11 +17,11 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Laufzeit `0.13.x` | Android-APK, llama.cpp WASM; Default Qwen2.5-0.5B Q4; optional 1.5B in `0.13.4` |
 | Chat-Persistenz MVP | **Gespräche zwischen Sessions speichern** |
 | Sicherheit MVP (vorerst) | Kein Cloud-LLM + Zugang nur für dich; At-rest-Encryption noch nicht fest (erstmal zurückgestellt) |
-| Stimme | Später: TTS liest denselben Text vor |
+| Stimme | **Code `1.5`+:** TTS liest denselben Text (Gemini-Stimme opt-in) |
 | Handy | Die App **ist** Jarvis; Sideload, kein Store |
 | UI-Kanal | Web-UI in Capacitor; kein Telegram |
 | UI-Look | **Spotify dunkel** (Schwarz/Grün) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
-| UI-Motion | MVP: **Light**; später eigenes **GUI-Update** mit spürbar premium Motion |
+| UI-Motion | **Code `1.13.0`:** Chrome fest, Chat scrollt, Motion; `prefers-reduced-motion` |
 | Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
 | Kontext / Erinnern | In-Chat + Langzeitgedächtnis (`0.4.x`); Honesty-Nachzug `0.13.3` |
 | Engine | TypeScript in der APK (kein FastAPI) |

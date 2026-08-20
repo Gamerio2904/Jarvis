@@ -1,5 +1,7 @@
 # 04 — Roadmap & Phasen
 
+> **Aktuell:** Sideload `2.2.2`. Geplant: [`31-next.md`](./31-next.md) `2.3`–`2.19`. Die Zeile „als Nächstes: Sprint 47 / `0.13.3`“ unten ist ein Parallel-Entwurf; auf `main` sind Sprints 46–48 bereits CODE (`0.13.2` Hang-Fix, `0.14.0`, `0.14.1` TV).
+
 Die Phasen sind **sequentiell im Schwerpunkt**, dürfen aber Lernschleifen haben.  
 Kein Kalenderversprechen — Fortschritt hängt von Hardware, Modellwahl und Persona-Abnahme ab.
 
@@ -19,7 +21,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (Gedächtnis, Tools — teils schon in 0.4–0.9)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. TV geparkt. TTS bleibt PO-Kommando.
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.33.0`:** Alltag auf dem Handy inkl. Suche mit Preisen. **`2.2.2`:** Sideload. Nächste Reihe **PLAN** `2.3`–`2.19`: [`31-next.md`](./31-next.md). TTS ist geliefert (`1.5`+).
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -145,6 +147,8 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - On-Device Latenz / Live-Qualität / Intelligenz → **`0.13.2`–`0.13.4`** (Sprints 46–48, [`14`](./14-on-device-iq.md) · [`15`](./15-live-probe.md)) — **als Nächstes: 47**
 - Native llama.cpp → **`0.14.0`** (PO)
 - Mail / Fire TV / Alexa / Play Store — **Parking**
+- Tools (Kalender/Mail) — Kalender **ist** in `1.4`+; Mail bleibt Parking
+- Alltag `1.14`–`1.15` — **CODE**; `1.16`–`1.20` — **PLANNED** [`19-next.md`](./19-next.md); Extra `1.21`–`1.24` — **PLANNED** [`20-next.md`](./20-next.md)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---

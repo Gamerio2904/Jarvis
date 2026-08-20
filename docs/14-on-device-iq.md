@@ -1,6 +1,8 @@
-# 14 — On-Device: Latenz, Qualität, Intelligenz
+# 14 — On-Device: Latenz, Qualität, Intelligenz (Entwurf)
 
-Quelle: Ist-Stand **`0.13.2` CODE** (Threads + Stream). Nächster Sprint: **47 Live-Qualität**.
+> **Konflikt:** Auf `main` ist [`14-quality-tv.md`](./14-quality-tv.md) die Doc-Nr. 14 (`0.14.1` TV). Sprints 46–48 dort = Chat-Hang / Qualität / Tizen, nicht diese `0.13.2`–`0.13.4`-Reihe. Live: **`2.2.2`**. Plan ab hier: [`31-next.md`](./31-next.md).
+
+Quelle (dieser Entwurf): Threads + Stream. Nicht mit Sprint 47/48 auf `main` verwechseln.
 
 ## Diagnose
 

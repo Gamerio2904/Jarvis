@@ -3,13 +3,19 @@ import {
   addTodo,
   clearPending,
   deleteDoneTodos,
+  deleteTodo,
   getPending,
   listNotes,
   listTodos,
+  persistLastList,
   setPending,
   setTodoStatus,
   type ToolPending,
 } from './store'
+import { parseToolIntent } from './tools-parse'
+
+export type { ToolIntent } from './tools-parse'
+export { parseToolIntent } from './tools-parse'
 
 export type ToolMeta = {
   tool_status?: string
@@ -21,10 +27,6 @@ export type ToolMeta = {
   error?: string
 }
 
-const TODO_WRITE = /^\s*(?:todo|to-?do|aufgabe)(?![sS])\s*[:\-]?\s*(.+)$/is
-const NOTE_WRITE = /^\s*(?:notiz(?:e)?|notiere|notiz:)\s*[:\-]?\s*(.+)$/is
-const TODO_LIST = /\b(?:offene\s+)?todos?\b|\baufgaben\b/i
-const TODO_CLEANUP = /\btodos?\s+aufräumen\b|\berledigte\s+todos?\s+löschen\b/i
 const YES = /^\s*(ja|jo|yes|ok|okay|mach|passt)\s*[.!]?\s*$/i
 const NO = /^\s*(nein|no|abbrechen|stopp|lass)\s*[.!]?\s*$/i
 
@@ -62,9 +64,20 @@ export async function handleTools(
     }
   }
 
-  const todoWrite = TODO_WRITE.exec(text)
-  if (todoWrite) {
-    const title = todoWrite[1].trim()
+  const intent = parseToolIntent(text)
+  if (!intent) return { handled: false }
+
+  if (intent.kind === 'todo_create') {
+    const title = intent.title
+    const open = (await listTodos()).filter((t) => t.status === 'open')
+    const dup = open.find((t) => t.title.toLowerCase() === title.toLowerCase())
+    if (dup) {
+      return {
+        handled: true,
+        reply: `„${title}“ steht schon offen.`,
+        tool: { tool_status: 'duplicate', tool: 'todo', action: 'create', label: 'Todo schon offen' },
+      }
+    }
     const row: ToolPending = {
       conversation_id: conversationId,
       tool: 'todo',
@@ -87,32 +100,23 @@ export async function handleTools(
     }
   }
 
-  const noteWrite = NOTE_WRITE.exec(text)
-  if (noteWrite) {
-    const body = noteWrite[1].trim()
-    const row: ToolPending = {
-      conversation_id: conversationId,
-      tool: 'notes',
-      action: 'create',
-      args: { body },
-      preview: `Notiz: ${body}`,
-      created_at: new Date().toISOString(),
-    }
-    await setPending(row)
+  if (intent.kind === 'note_create') {
+    const body = intent.body
+    await addNote(body, conversationId)
     return {
       handled: true,
-      reply: `Notiz speichern: „${body}“?`,
+      reply: `Notiz liegt: ${body}`,
       tool: {
-        tool_status: 'pending',
+        tool_status: 'executed',
         tool: 'notes',
         action: 'create',
-        preview: row.preview,
-        label: 'Tool bereit — Confirm?',
+        label: 'Tool ausgeführt',
+        preview: body,
       },
     }
   }
 
-  if (TODO_CLEANUP.test(text)) {
+  if (intent.kind === 'todo_cleanup') {
     const row: ToolPending = {
       conversation_id: conversationId,
       tool: 'todo',
@@ -135,17 +139,71 @@ export async function handleTools(
     }
   }
 
-  if (/\boffene\s+todos?\b/i.test(text) || /^\s*todos?\??\s*$/i.test(text) || TODO_LIST.test(text) && /zeig|liste|offen/i.test(text)) {
-    const todos = await listTodos(conversationId)
+  if (intent.kind === 'todo_delete_last' || intent.kind === 'todo_delete') {
+    const open = (await listTodos()).filter((t) => t.status === 'open')
+    const hit =
+      intent.kind === 'todo_delete_last'
+        ? [...open].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0]
+        : open.find(
+            (t) =>
+              t.title.toLowerCase().includes(intent.query.toLowerCase()) ||
+              intent.query.toLowerCase().includes(t.title.toLowerCase()),
+          )
+    if (!hit) {
+      return {
+        handled: true,
+        reply:
+          intent.kind === 'todo_delete_last'
+            ? 'Kein offenes Todo zum Löschen.'
+            : `Kein Todo zu „${intent.query}“.`,
+      }
+    }
+    await deleteTodo(hit.id)
+    return {
+      handled: true,
+      reply: `Todo weg: ${hit.title}.`,
+      tool: { tool_status: 'executed', tool: 'todo', action: 'delete', label: 'Todo weg', preview: hit.title },
+    }
+  }
+
+  if (intent.kind === 'todo_done_first') {
+    const open = (await listTodos())
+      .filter((t) => t.status === 'open')
+      .sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
+    if (!open.length) return { handled: true, reply: 'Kein offenes Todo.' }
+    const first = open[0]
+    await setTodoStatus(first.id, 'done')
+    return {
+      handled: true,
+      reply: `Erledigt: ${first.title}.`,
+      tool: {
+        tool_status: 'executed',
+        tool: 'todo',
+        action: 'done',
+        label: 'Tool ausgeführt',
+        preview: first.title,
+      },
+    }
+  }
+
+  if (intent.kind === 'todo_list') {
+    const todos = await listTodos()
     const open = todos.filter((t) => t.status === 'open')
-    if (!open.length) return { handled: true, reply: 'Keine offenen Todos in diesem Gespräch.' }
-    const lines = open.map((t, i) => `${i + 1}. ${t.title}`).join('\n')
+    if (!open.length) return { handled: true, reply: 'Keine offenen Todos.' }
+    const lines = open
+      .sort((a, b) => (a.created_at < b.created_at ? -1 : 1))
+      .map((t, i) => `${i + 1}. ${t.title}`)
+      .join('\n')
+    persistLastList(
+      'todo',
+      open.sort((a, b) => (a.created_at < b.created_at ? -1 : 1)).map((t) => t.title),
+    )
     return { handled: true, reply: `Offen:\n${lines}` }
   }
 
-  if (/\bnotizen\b/i.test(text) && /zeig|liste/i.test(text)) {
-    const notes = await listNotes(conversationId)
-    if (!notes.length) return { handled: true, reply: 'Keine Notizen in diesem Gespräch.' }
+  if (intent.kind === 'note_list') {
+    const notes = await listNotes()
+    if (!notes.length) return { handled: true, reply: 'Keine Notizen.' }
     return {
       handled: true,
       reply: notes.map((n, i) => `${i + 1}. ${n.body}`).join('\n'),

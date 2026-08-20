@@ -1,5 +1,7 @@
 # 01 — Vision & Produktziele
 
+> **Stand Code `1.24.0`:** On-Device-APK, lokales 0,5B **oder** Gemini (aus bis Opt-in), Timer/Wecker, Wetter, Kalender, Einkauf, Losgehen, Memory, Personenorte, Route in Google Maps. Live-Ton: **Siezen**, kurz. Reihe: [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md).
+
 ## Vision
 
 Jarvis ist dein **privater Personal Assistant**. Er soll sich im Alltag wie ein verlässlicher Chat-Gegenüber anfühlen — mit Charakter, nicht wie eine generische KI-Demo.
@@ -10,9 +12,9 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 
 1. **Privat by design** — Denken und Speichern möglichst nur auf eigener Hardware.
 2. **Menschlich wirken, nicht Menschen imitieren** — Ziel ist ein realistisches Gefühl für dich, kein Deepfake-Mensch.
-3. **Chat first** — Architektur-Gefühl Typ A (Messenger-Freund). Stimme kommt später als Vorlesen des Textes.
-4. **Charakter vor Features** — Erst Smalltalk & Persona, dann Assistenten-Fähigkeiten.
-5. **Kern vor Breite** — Lieber ein stabiler lokaler Chat als früh Kalender, Tools und App-Store.
+3. **Chat first** — Messenger-Gefühl. Stimme ist da (`1.5`+), Text bleibt Quelle.
+4. **Charakter vor Features** — Ton fest (Siezen im Code), dann neue Alltags-Tools.
+5. **Kern vor Breite** — Lieber ein ehrlicher Router als ein größeres Modell vortäuschen.
 6. **UI-Qualität als Produktstandard** — Extrem hochwertige, smoothe Web-GUI. Referenz: **Spotify dunkel** (Farbe/Atmosphäre), **ChatGPT** (Chat-Layout/Buttons). Motion im MVP light, später GUI-Update.
 7. **Versionierung** — Jedes Sprint-Ziel und jeder Nachzieher ist einer Version zugeordnet (`09-versioning.md`).
 8. **Lebendigkeit** — Kein Template-Bot: Antworten variieren, Kontext nutzen; Stil-Beispiele nur als grobe Vorgabe.
@@ -34,13 +36,12 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 ## Nicht-Ziele (aktuell)
 
 - Öffentliche Nutzer, Marketing, Multi-User-Accounts
-- Native Store-App / Play Store (Sideload-APK kommt in `0.10.3`)
-- Cloud-LLM als primäre Intelligenz
-- Tools (Mail, Kalender, Smart Home, Web-Agent) im MVP
-- Langzeitgedächtnis / „kennt mein ganzes Leben“ im MVP
-- Stimme/TTS im MVP
+- Play Store, iOS
+- Cloud-LLM als **Default** (Gemini nur Opt-in; Chat geht dann zu Google)
+- ChatGPT-Qualität mit dem lokalen 0,5B
+- Google-Kalender-OAuth
+- Gerät komplett aus: kein Timer, kein Wake-Word, kein „zuhause“
 - Perfekte Menschen-Imitation
-- Chat-Löschen im Sprint 1 (kommt später)
 
 ## Erfolgskriterium Gesamtprodukt (langfristig)
 

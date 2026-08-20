@@ -1,58 +1,46 @@
-# Sprint 47 — Live-Qualität (`0.13.3`)
+# Sprint 47 — Qualität & Latenz (`0.14.0`)
 
 | Feld | Wert |
 |------|------|
-| Status | **IN SPRINT** |
-| Priorität | **MUST** — PO-Screenshots 2026-08-20 (2.2.1 / Gemini) |
-| Ziel-Version | **`0.13.3`** |
-| Quelle | [`15-live-probe.md`](../15-live-probe.md), [`14-on-device-iq.md`](../14-on-device-iq.md) |
+| Status | **CODE** |
+| Priorität | **MUST** — bestehendes härten, nichts Neues |
+| Ziel-Version | **`0.14.0`** |
+| Quelle | PO 2026-08-15: weniger Latenz, bessere Antworten, intelligenter; TV folgt in 48 |
 
 ## Ziel
 
-Live-Alltag **wahr**: Uhr/Akku frisch, kein Fake-Spotify, Briefing ohne Wetter, Wetter nur mit Standort, Begrüßung ≠ Einkauf.
+Dieselben Fähigkeiten wie `0.13.2` (Chat, Memory, Todos/Notizen, Settings) — **schneller, klarer, weniger dumm**. Kein neues Modell, keine neuen Features.
 
-## Must — Live
+## Must
 
 | ID | Verbesserung | Done wenn |
 |----|--------------|-----------|
-| L1 | Musik: kein Spotify-Modal, kein Settings-Link, **kein „ich öffne die Musik“** ohne Player | „Spiel mal was Nettes“ ehrlich; keine API |
-| L2 | „Was steht an“ / „Was kommt heute?“ ohne Wetter/Luft/Sonne | kein Open-Meteo, kein Valeo-Wetterblock |
-| L3 | Wetter nur bei Wetterfrage + Standort | „anziehen“ ohne Ort = kein Wetter |
-| L4 | Ort aus Satz, nicht ganzer Satz als Name | Bietigheim+Schirm trifft Ort |
-| L5 | Kein München-Default ohne Ort | Luft ohne Ort → nachfragen |
-| L6 | Kauf ≠ Film; Terminzeit ≠ Ort | Switch-2-Kauf; Steuer 15 Uhr |
-| L7 | Recall ohne Müll | Steuer-Frage nicht Valeo-Wischer |
-| L8 | **Uhr live** vom Gerät | ±1 min zur Statusleiste |
-| L9 | **Akku live** vom OS | Prozent = Statusleiste |
-| L10 | Smalltalk/Begrüßung **nicht** auf die Einkaufsliste | „Guten Morgen“ ≠ Posten |
+| Q1 | **Erstes Wort schneller** — Modell warm, Prompt kurz, `cache_prompt` wo wllama das hergibt, Threads/Batch ohne 1-Thread-Zwang | „Hallo“: erstes Token spürbar vor `0.13.2` |
+| Q2 | **Deterministik vor LLM** — Memory/Tools (und TV-Anker vorbereiten) nicht durch 0.5B schicken | Bekannte Befehle antworten sofort |
+| Q3 | **Memory-Alltag** — natürliche Phrasen, Multi-Fact, ehrliches Nichtwissen statt Halluzination | „Was trinke ich?“ ohne Raten |
+| Q4 | **Tool-Alltag** — weniger starre `todo:`-Syntax; Follow-up erledigen | „Milch kaufen“ / „erstes erledigen“ klappt |
+| Q5 | **Ton & Claims** — Siezen halten; kein „habe ich gemacht“ ohne Tool/Memory-Ergebnis | Live: keine Fake-Acks |
+| Q6 | **UI-Ehrlichkeit** — kein „Ollama: online“; Status = On-Device | Settings/Health sagen Handy |
+| Q7 | Version `0.14.0` | `APP_VERSION` + Changelog |
 
-## Should — Live
+## Should
 
 | ID | Inhalt |
 |----|--------|
-| L11 | Einfache Tabelle im Chat (BIP-Beispiel) |
-| L12 | Fakten mit Netz: Zahl oder „keine Quelle“, kein leeres Verweigern trotz Gemini |
-| L13 | Ticker überlappt nicht Menu/Settings |
-| L14 | `/hilfe` nennt kein Spotify, solange keine API |
-
-## Must — On-Device 0.5B (gleiche Version)
-
-| ID | Verbesserung | Done wenn |
-|----|--------------|-----------|
-| Q1–Q5 | Persona kompakt, repeat_penalty, Honesty, Siezen, Pack-bei-Overflow | wie [`14`](../14-on-device-iq.md) |
-| Q6 | Version `0.13.3` | UI/Changelog |
+| Q8 | Sampling gegen Waffle (früher stoppen, weniger Canned) |
+| Q9 | Status „denkt… Xs“ nur bis zum ersten Token, dann still streamen |
 
 ## Won’t
 
-- Spotify-API / Playback
-- Wetter an Briefings
-- Smart-Home/Karte/Bahn aus der 2.2.1-Hilfe als Lieferziel
-- temp-Schnitt, Hart-Kappen, Canned, 1.5B
+- Anderes/größeres GGUF
+- Research-Netz, TTS, NAS
+- TV-Keys in diesem Sprint (Sprint 48 / `0.14.1`)
+- Neue Tool-Typen
 
 ## Exit / Abnahme
 
-PO: Uhr/Akku stimmen; Musik ohne Lüge; Briefing ohne Wetter; „Guten Morgen“ nicht im Einkauf; Wetter nur mit Standort. Tag **`v0.13.3`**.
+PO: 10 Minuten Alltagschat fühlt sich flüssiger und treffsicherer an als `0.13.2`. Tag **`v0.14.0`**.
 
 ## Danach
 
-Sprint 48 / `0.13.4` optionales 1.5B.
+- Sprint 48 / `0.14.1` TV verbinden & steuern

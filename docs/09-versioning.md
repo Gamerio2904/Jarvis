@@ -68,11 +68,106 @@ MAJOR.MINOR.PATCH
 | `0.12.0` | **NAS-Proxy & APK** — **superseded** durch On-Device | Sprint 43 |
 | `0.13.0` | **On-Device Handy** (WASM-LLM, kein Server) | Sprint 44 |
 | `0.13.1` | **Modell-Download Hotfix** (Cache API, kein OPFS-„file not found“) | Sprint 45 |
-| `0.13.2` | **On-Device Latenz** (Threads, Stream — gleicher Prompt) | Sprint 46 |
-| `0.13.3` | **Live-Qualität** (Gerät live, kein Spotify, Wetter-Gate, Einkauf-Intent, 0.5B Honesty) | Sprint 47 |
-| `0.13.4` | **On-Device Intelligenz** (optional 1.5B, Default 0.5B) | Sprint 48 |
-| `0.14.0` | **Native llama.cpp** (optional, PO) | nach 48 |
-| `1.0.0` | **nächster MAJOR** — Inhalt PO | nach `0.13`/`0.14` |
+| `0.13.2` | **Chat-Hang Hotfix** (Streaming, Threads, Timeout) | Sprint 46 |
+| `0.14.0` | **Qualität & Latenz** — bestehendes härten, nichts Neues | Sprint 47 |
+| `0.14.1` | **TV verbinden & steuern** — Tizen on-device (ex-`0.11`) | Sprint 48 |
+| `0.16.0` | **Gemini Opt-in** — Google-API, Default aus | Sprint 50 |
+| `1.0.0` | **Jarvis 1.0** — On-Device, TV, Gemini-Kaskade, APK `Jarvis.apk` | nach `0.16` |
+| `2.0.0` | **Jarvis 2.0** — ein Kontext, ehrliche Tools, internes CarPlay | Sprint 102 |
+| `1.1.0` | Sound + Research-Quellen | Sprint 51 |
+| `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
+| `1.3.0` | Ort & Wetter | Sprint 53 |
+| `1.4.0` | Kalender-GUI (lokal) | Sprint 54 |
+| `1.5.0` | Sprachmodus + Homescreen-Shortcut | Sprint 55 |
+| `1.6.0` | Wetter als Lage + Tipp | Sprint 56 |
+| `1.7.0` | Timer + Klingeln (Screen aus) | Sprint 57 |
+| `1.8.0` | Wiederkehrende Erinnerungen | Sprint 58 |
+| `1.9.0` | Wetter-Nachfragen | Sprint 59 |
+| `1.10.0` | Homescreen-Widget | Sprint 60 |
+| `1.11.0` | Wake-Word (Handy an) | Sprint 61 |
+| `1.12.0` | Wecker + eigener Ton | Sprint 62 |
+| `1.13.0` | GUI fest, Chat scrollt, Motion | Sprint 63 |
+| `1.13.1` | Kalender-Datum + Wecker-Titel | Sprint 64 |
+| `1.13.2` | Timer-Ton (nicht nur Vibration) | Sprint 65 |
+| `1.14.0` | Kontext überall + Gedächtnis gleich | Sprint 66 |
+| `1.15.0` | Personen/Orte + Google-Maps-Route | Sprint 67 |
+| `1.16.0`–`1.23.0` | Einkauf … Widget (geplant gestuft) | Sprints 68–75, **mitgeliefert in `1.24.0`** |
+| `1.24.0` | Alltag 1.16–1.24 inkl. Gespräch suchen | Sprint 76 |
+| `1.24.1` | Chat-Hang TV/Standort | Sprint 76 Patch |
+| `1.25.0` | Einstellungen Vollbild + Themen-Leiste | Sprint 77 |
+| `1.26.0` | Fahrmodus, Spotify, Auge, TV-Lautstärke | Sprint 78 |
+| `1.27.0` | Internes Spotify im Fahrmodus | Sprint 79 |
+| `1.27.1` | Anruf-Hotfix (Service-Prefix, Nummer) | Sprint 79 Patch |
+| `1.27.2` | Fahrmodus „Nach Heilbronn“ + Sprache | Sprint 79 Patch |
+| `1.28.0` | Wake-Word Hintergrund + Fire TV HDMI | Sprint 80 |
+| `1.28.1` | Wake-Word öffnet Sprachmodus | Sprint 80 Patch |
+| `1.28.2` | Fire-TV-Test sichtbar, Gen-2-Hinweis | Sprint 80 Patch |
+| `1.28.3` | Wecker klingelt (Dienst + Alarm-Lautstärke) | Sprint 80 Patch |
+| `1.29.0` | Suche, Fire TV in der APK, GUI-Icons, Widget 2×4, Ventilator | Sprint 81 |
+| `1.30.0` | CarPlay flüssig: HUD, Voice-Tabs, Navi-Ansagen | Sprint 82 |
+| `1.31.0` | Stimme Charon + Latenz; Jarvis-Smalltalk | Sprint 83 |
+| `1.32.0` | Samsung-Apps YouTube/Amazon/Disney/Netflix | Sprint 84 |
+| `1.32.1` | Sprachmodus Tempo (kein Hänger, sofort Ton) | Sprint 85 |
+| `1.33.0` | Suche & Antworten (Preise, keine Absage, CarPlay öffnen) | Sprint 86 |
+| `1.33.1` | Fernseher: YouTube-Video vs Film, Follow-up `… ab` | Sprint 86 Patch |
+| `1.33.2` | Widget öffnet Sprachmodus (hören + antworten) | Sprint 86 Patch |
+| `1.33.3` | Wecker klingelt wieder (nicht nur Anzeige) | Sprint 86 Patch |
+| `1.34.0` | Bessere Antworten (History, Memory, Persona, Groq) | Sprint 87 |
+| `1.35.0` | CarPlay besser (Replan, Cue, HUD, Zoom, Ankunft) | Sprint 88 |
+| `1.36.0` | Alltag-Phrasen (bestehende Tools, Smalltalk-Schutz) | Sprint 89 |
+| `1.37.0` | Flüssig (Chat, Overlay, Wake-Word, Voice, TV, Widget) | Sprint 90 |
+| `1.38.0` | Gedächtnis im Dialog (Recall, Widerspruch, Anapher) | Sprint 91 |
+| `1.39.0` | Stimme bleiben (NO_MATCH, Barge-in, Navi vs Jarvis) | Sprint 92 |
+| `1.40.0` | Härten (Eval, False-Positives, keine Fake-Erfolge) | Sprint 93 |
+| `1.40.1` | Sätze zu Ende; TV-Tasten/Ordinal, YouTube-Suche, kein Live-Bild | Sprint 93 Patch |
+| `1.40.2` | Timer spricht ohne Klingeln; natürliche Timer-Sätze | Sprint 93 Patch |
+| `1.40.3` | Chat/Stimme näher am Film-Jarvis (Understatement) | Sprint 93 Patch |
+| `1.41.0` | Tanke: nächste + günstigste, immer E10, Preise | Sprint 94 |
+| `1.42.0` | Wo bin ich: GPS + Freigabe anstoßen | Sprint 95 |
+| `1.43.0` | CarPlay ehrlich: Overlay, Restweg, POI, Anruf/SMS | Sprint 96 |
+| `1.44.0` | Filme: IMDb/RT über OMDb, wo gratis; Rabatt-Suche | Sprint 97 |
+| `1.45.0` | Öffnungszeiten für Läden aus OSM | Sprint 98 |
+| `1.46.0` | Anruf/SMS direkt, erst nach Nachfrage | Sprint 99 |
+| `1.47.0` | PC live: Bildschirm, Maus, FIFA, Ordner | Sprint 100 |
+| `1.47.1` | Ein-Klick-Kopieren IP/Token/Prompts | Sprint 100 Patch |
+| `1.48.0` | Luft/Sonne auf Nachfrage, Bahn, Tagesschau, Feiertage | Sprint 101 |
+| `1.48.1` | Satzbildung näher am Film-Jarvis | Sprint 101 Patch |
+| `1.48.2` | Live-Test-Bugs: Parser, Overlay, Straße | Sprint 101 Patch |
+| `1.48.3` | Fahrmodus: Karte und Route | Sprint 101 Patch |
+| `1.48.4` | Fahrmodus-Karte: vollflächig, Norden oben | Sprint 101 Patch |
+| `1.48.5` | Karte schieben/zoomen, Sprache im Fahrmodus | Sprint 101 Patch |
+| `1.48.6` | Overlay=Karte, Cafés am GPS, echte Route | Sprint 101 Patch |
+| `1.48.7` | Research: Zahlen nur aus Treffern | Sprint 101 Patch |
+| `1.48.8` | CarPlay-Route auf Straßen, Cafés am GPS | Sprint 101 Patch |
+| `2.0.0` | Haus-AI: letztes Medium, ehrliches Wetter, interne Navi | Sprint 102 MAJOR |
+| `2.0.1` | Latenz, Ingersheim DE, Kurven/Kreisverkehr, Follow-ups | Sprint 102 Patch |
+| `2.1.0` | WLAN-Steckdosen lokal (Shelly, Tasmota, Tuya-LAN) | Sprint 103 |
+| `2.1.1` | Steckdose: Hausnetz-IP, nicht öffentliche 89.… | Sprint 103 Patch |
+| `2.2.0` | Uhrzeit vom Gerät, GPS statt Raten, Auto-Research | Sprint 104 |
+| `2.2.1` | Testprompts: Kopierfelder unter Einstellungen → Tests | Sprint 104 Patch |
+| `2.2.2` | Testprompts wieder raus aus der APK | Sprint 104 Patch |
+
+### Geplant — Reihe [`31-next.md`](./31-next.md) (noch kein Code)
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `2.3.0` | DWD-Unwetterwarnung | 105+ |
+| `2.4.0` | Schulferien DE | 106 |
+| `2.5.0` | Wechselkurse EZB | 107 |
+| `2.6.0` | Research: Wikipedia/Destatis zuerst | 108 |
+| `2.7.0` | Stimme: Uhr, Warnung, Ferien | 109 |
+| `2.8.0` | Open Food Facts | 110 |
+| `2.9.0` | Open Library | 111 |
+| `2.10.0` | Bundesliga | 112 |
+| `2.11.0` | Sport-Ergebnisse | 113 |
+| `2.12.0` | Garten & Pflanzen | 114 |
+| `2.13.0` | Himmel (ISS, Mond) | 115 |
+| `2.14.0` | Tiere draußen | 116 |
+| `2.15.0` | Flüge überm Haus | 117 |
+| `2.16.0` | Recht Alltag | 118 |
+| `2.17.0` | Haushalt | 119 |
+| `2.18.0` | Handy-Sensoren (Schritte, Barometer) | 120 |
+| `2.19.0` | Schach | 121 |
 
 ### Weitere Beispiele
 
