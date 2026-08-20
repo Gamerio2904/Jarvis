@@ -11,9 +11,9 @@ import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from './persona'
 import {
   formatResearchReply,
   guardResearchReply,
+  isKnowledgeGap,
   isLiveLookup,
   isProductLookup,
-  isSearchRefusal,
   parseEuroPrices,
   parseShopDiscountIntent,
   RESEARCH_EMPTY,
@@ -21,6 +21,7 @@ import {
   RESEARCH_OFF_REPLY,
   researchHasSources,
   researchQuery,
+  shouldRetrySearch,
   sourceDigest,
   type ResearchMeta,
 } from './research-parse'
@@ -695,134 +696,146 @@ export async function streamChat(
 
     const s = loadSettings()
     const discount = Boolean(s.shop_discount)
-    if (isLiveLookup(content, discount)) {
+    const live = isLiveLookup(content, discount)
+    if (live && !geminiReady()) {
       if (!s.research_opt_in) {
         const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
         return
       }
-      if (!geminiReady()) {
-        const filled = await fillResearchLinks(content, '', undefined)
-        const research = (await attachResearchAudit(filled, researchQuery(content))) || filled
-        persistLastStep('research')
-        if (researchHasSources(research)) {
-          const reply = formatResearchReply(
-            researchQuery(content),
-            research.sources || [],
-            isProductLookup(content, discount),
-            discount,
-          )
-          handlers.onReplace?.(reply)
-          const assistant = await addMessage(conversationId, 'assistant', reply, { research })
-          const updated = (await touchConversation(conversationId)) || conv
-          handlers.onDone?.({ assistant_message: assistant, conversation: updated, research, tool: null })
-          return
-        }
-        const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
+      const filled = await fillResearchLinks(content, '', undefined)
+      const research = (await attachResearchAudit(filled, researchQuery(content))) || filled
+      persistLastStep('research')
+      if (researchHasSources(research)) {
+        const reply = formatResearchReply(
+          researchQuery(content),
+          research.sources || [],
+          isProductLookup(content, discount),
+          discount,
+        )
+        handlers.onReplace?.(reply)
+        const assistant = await addMessage(conversationId, 'assistant', reply, { research })
         const updated = (await touchConversation(conversationId)) || conv
-        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+        handlers.onDone?.({ assistant_message: assistant, conversation: updated, research, tool: null })
         return
       }
+      const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
+      const updated = (await touchConversation(conversationId)) || conv
+      handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+      return
     }
 
     const history = await listMessages(conversationId)
     const mem = await listMemory()
-    const wantSearch = Boolean(s.research_opt_in && isLiveLookup(content, discount))
+    let wantSearch = Boolean(geminiReady() && live)
     let research: ResearchMeta | undefined
-    if (wantSearch) {
-      research = await fillResearchLinks(content, '', undefined)
-    }
-    const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
-    const system = geminiReady()
-      ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
-          .filter(Boolean)
-          .join('\n\n')
-      : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
-    const llmMessages = [
-      { role: 'system', content: system },
-      ...history.slice(geminiReady() || opts?.voice ? -12 : -8).map((m) => ({
-        role: m.role === 'assistant' ? 'assistant' : 'user',
-        content: m.content,
-      })),
-    ]
-    if (digest) {
-      const last = llmMessages[llmMessages.length - 1]
-      if (last && last.role === 'user') {
-        last.content = `${last.content}\n\nTreffer (für die Antwort, nicht vorlesen):\n${digest}`
-      }
-    }
-
     let acc = ''
     let raw = ''
-    try {
-      raw = geminiReady()
-        ? await (opts?.voice || !wantSearch ? streamGemini : completeGemini)(
-            llmMessages,
-            (_piece, full) => {
-              acc = full
-              handlers.onToken?.(_piece)
-            },
-            {
-              search: wantSearch,
-              maxOutputTokens: opts?.voice ? 420 : wantSearch ? 900 : 420,
-              timeoutMs: wantSearch ? 12_000 : 8_000,
-            },
-          ).then((r) => {
-            if (r.research?.sources?.length) {
-              research = {
-                ...(research || r.research),
-                ...r.research,
-                sources: [...(research?.sources || []), ...r.research.sources],
-              }
-            }
-            return r.text
-          })
-        : await completeChat(llmMessages, (_piece, full) => {
-            acc = full
-            handlers.onToken?.(_piece)
-          })
-    } catch (err) {
-      if (!wantSearch || !researchHasSources(research)) throw err
-      raw = ''
-    }
+    let text = ''
 
-    let text = (raw || acc).trim()
-    if (wantSearch) {
-      const filled = await fillResearchLinks(content, text, research)
-      research = (await attachResearchAudit(filled, researchQuery(content))) || filled
-      persistLastStep('research')
-      const product = isProductLookup(content, discount)
-      const sources = research.sources || []
-      const weak = !text || isSearchRefusal(text)
-      if (weak && researchHasSources(research)) {
-        text = formatResearchReply(researchQuery(content), sources, product, discount)
-        handlers.onReplace?.(text)
-      } else if (!text && !researchHasSources(research)) {
-        const empty = RESEARCH_EMPTY
-        handlers.onReplace?.(empty)
-        const assistant = await addMessage(conversationId, 'assistant', empty, { research })
-        const updated = (await touchConversation(conversationId)) || conv
-        handlers.onDone?.({
-          assistant_message: assistant,
-          conversation: updated,
-          research,
-          tool: null,
-        })
-        return
-      } else if (product && researchHasSources(research) && text && !parseEuroPrices(text).length) {
-        const extra = formatResearchReply(researchQuery(content), sources, true, discount)
-        if (/€/.test(extra) && extra !== text) {
-          text = `${text.replace(/\s+$/, '')} ${extra}`
-          handlers.onReplace?.(text)
-        }
-      } else if (!product && text) {
-        const guarded = guardResearchReply(researchQuery(content), text, sources)
-        if (guarded !== text) {
-          text = guarded
-          handlers.onReplace?.(text)
+    for (let pass = 0; pass < 2; pass++) {
+      if (wantSearch && !researchHasSources(research)) {
+        research = await fillResearchLinks(content, '', research)
+      }
+      const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
+      const system = geminiReady()
+        ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
+            .filter(Boolean)
+            .join('\n\n')
+        : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
+      const llmMessages = [
+        { role: 'system', content: system },
+        ...history.slice(geminiReady() || opts?.voice ? -12 : -8).map((m) => ({
+          role: m.role === 'assistant' ? 'assistant' : 'user',
+          content: m.content,
+        })),
+      ]
+      if (digest) {
+        const last = llmMessages[llmMessages.length - 1]
+        if (last && last.role === 'user') {
+          last.content = `${last.content}\n\nTreffer (für die Antwort, nicht vorlesen):\n${digest}`
         }
       }
+
+      acc = ''
+      raw = ''
+      try {
+        raw = geminiReady()
+          ? await (opts?.voice || !wantSearch ? streamGemini : completeGemini)(
+              llmMessages,
+              (_piece, full) => {
+                acc = full
+                handlers.onToken?.(_piece)
+              },
+              {
+                search: wantSearch,
+                maxOutputTokens: opts?.voice ? 420 : wantSearch ? 900 : 420,
+                timeoutMs: wantSearch ? 12_000 : 8_000,
+              },
+            ).then((r) => {
+              if (r.research?.sources?.length) {
+                research = {
+                  ...(research || r.research),
+                  ...r.research,
+                  sources: [...(research?.sources || []), ...r.research.sources],
+                }
+              }
+              return r.text
+            })
+          : await completeChat(llmMessages, (_piece, full) => {
+              acc = full
+              handlers.onToken?.(_piece)
+            })
+      } catch (err) {
+        if (!wantSearch || !researchHasSources(research)) throw err
+        raw = ''
+      }
+
+      text = (raw || acc).trim()
+      if (wantSearch) {
+        const filled = await fillResearchLinks(content, text, research)
+        research = (await attachResearchAudit(filled, researchQuery(content))) || filled
+        persistLastStep('research')
+        const product = isProductLookup(content, discount)
+        const sources = research.sources || []
+        const weak = !text || isKnowledgeGap(text)
+        if (weak && researchHasSources(research)) {
+          text = formatResearchReply(researchQuery(content), sources, product, discount)
+          handlers.onReplace?.(text)
+        } else if (!text && !researchHasSources(research)) {
+          const empty = RESEARCH_EMPTY
+          handlers.onReplace?.(empty)
+          const assistant = await addMessage(conversationId, 'assistant', empty, { research })
+          const updated = (await touchConversation(conversationId)) || conv
+          handlers.onDone?.({
+            assistant_message: assistant,
+            conversation: updated,
+            research,
+            tool: null,
+          })
+          return
+        } else if (product && researchHasSources(research) && text && !parseEuroPrices(text).length) {
+          const extra = formatResearchReply(researchQuery(content), sources, true, discount)
+          if (/€/.test(extra) && extra !== text) {
+            text = `${text.replace(/\s+$/, '')} ${extra}`
+            handlers.onReplace?.(text)
+          }
+        } else if (!product && text) {
+          const guarded = guardResearchReply(researchQuery(content), text, sources)
+          if (guarded !== text) {
+            text = guarded
+            handlers.onReplace?.(text)
+          }
+        }
+      }
+
+      if (pass === 0 && geminiReady() && !wantSearch && shouldRetrySearch(content, text, discount)) {
+        wantSearch = true
+        continue
+      }
+      if (pass === 1 && text) handlers.onReplace?.(text)
+      break
     }
 
     const final = scrubReply(text, { searched: Boolean(researchHasSources(research) || wantSearch) })

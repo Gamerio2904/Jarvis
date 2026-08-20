@@ -108,4 +108,10 @@ export const TEST_PROMPTS = [
   'Wie viele Scheibenwischer verkauft Valeo am tag',
   'Steckdose an',
   'alle Steckdosen aus',
+  'Wie spät ist es?',
+  'weißt du wie viel Uhr es ist',
+  'weißt du wo ich bin',
+  'wo könnte ich denn sein',
+  'Was ist der bip in Deutschland',
+  'Kannst du den bip von Deutschland in einer Tabelle darstellen?',
 ] as const

@@ -143,6 +143,7 @@ MAJOR.MINOR.PATCH
 | `2.0.1` | Latenz, Ingersheim DE, Kurven/Kreisverkehr, Follow-ups | Sprint 102 Patch |
 | `2.1.0` | WLAN-Steckdosen lokal (Shelly, Tasmota, Tuya-LAN) | Sprint 103 |
 | `2.1.1` | Steckdose: Hausnetz-IP, nicht öffentliche 89.… | Sprint 103 Patch |
+| `2.2.0` | Uhrzeit vom Gerät, GPS statt Raten, Auto-Research | Sprint 104 |
 
 ### Weitere Beispiele
 

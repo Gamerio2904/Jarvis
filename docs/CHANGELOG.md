@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.1.1`**.
+App-Version im Code: **`2.2.0`**.
+
+### `2.2.0` — Uhrzeit, Ort, Auto-Research — *CODE*
+
+Handy-Uhr statt „kein Zugriff“. Standort über GPS, nicht Wohnort raten. Mit Gemini sucht Jarvis von selbst nach BIP und aktuellen Zahlen; Tabellen als Text. Wissenslücke löst eine zweite Suche aus.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 20200)
+- [`30-next.md`](./30-next.md) · [`sprints/sprint-104.md`](./sprints/sprint-104.md)
 
 ### `2.1.1` — Stecker-IP im Hausnetz — *CODE*
 

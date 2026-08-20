@@ -1366,7 +1366,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 />
                 <span>Websuche (braucht Gemini)</span>
               </label>
-              <p className="settings-hint">Aus = keine erfundene Suche. Wetter kommt von Open-Meteo.</p>
+              <p className="settings-hint">
+                Mit Gemini sucht Jarvis von selbst nach aktuellen Zahlen, auch ohne das Wort suche. Fehlt eine
+                Antwort, geht er nochmal ins Netz. Aus zählt vor allem ohne Gemini.
+              </p>
               <label className="settings-toggle">
                 <input
                   type="checkbox"
