@@ -145,6 +145,7 @@ MAJOR.MINOR.PATCH
 | `2.1.1` | Steckdose: Hausnetz-IP, nicht öffentliche 89.… | Sprint 103 Patch |
 | `2.2.0` | Uhrzeit vom Gerät, GPS statt Raten, Auto-Research | Sprint 104 |
 | `2.2.1` | Testprompts: Kopierfelder unter Einstellungen → Tests | Sprint 104 Patch |
+| `2.2.2` | Testprompts wieder raus aus der APK | Sprint 104 Patch |
 
 ### Weitere Beispiele
 

@@ -1,4 +1,4 @@
-# 30 — Uhrzeit, Ort, Research (`2.2.0`–`2.2.1`)
+# 30 — Uhrzeit, Ort, Research (`2.2.0`–`2.2.2`)
 
 PO 2026-08-20 (Screenshots): Jarvis wusste die Uhrzeit nicht, hat den Wohnort geraten und bei BIP „keine Zahlen“ gesagt statt zu suchen.
 
@@ -12,6 +12,7 @@ Eine Sideload-Stufe.
 |---------|--------|--------|
 | **`2.2.0`** | Uhrzeit vom Gerät, GPS statt Wohnort-Raten, Suche von selbst bei Live-Fakten | **CODE** |
 | **`2.2.1`** | Testprompts zum Kopieren (Einstellungen → Tests) | **CODE** |
+| **`2.2.2`** | Testprompts wieder raus aus der APK | **CODE** |
 
 Sprint: [`sprint-104.md`](./sprints/sprint-104.md).
 
@@ -46,6 +47,10 @@ Sprint: [`sprint-104.md`](./sprints/sprint-104.md).
 Einstellungen → Tests: jedes Prompt-Feld hat **Kopieren**, plus Alle je Gruppe und Alles. Chat bleibt ohne Chips.
 
 **Probe:** Kopieren, Chat einfügen. Randfälle (Duzen, Marvel, Alexa, BIP erfinden) ehrlich ablehnen.
+
+## `2.2.2` — Tests nicht in der App — **CODE**
+
+Kopierfelder wieder weg aus Einstellungen. Prompts nur außerhalb der APK (dieser Chat). Chat ohne Chips.
 
 ## Won’t
 
