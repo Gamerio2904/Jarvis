@@ -24,6 +24,7 @@ Gerätzeit und GPS nutzen. Live-Fakten mit Gemini selbst suchen, statt Wissensl�
 | P5 | Tabelle als Text | keine Absage „Format“, Zahlen nur aus Treffern |
 | P6 | Sideload `2.2.0` | versionCode 20200 |
 | P7 | Testprompts kopieren (`2.2.1`) | Einstellungen → Tests, ein Klick |
+| P8 | Tests raus aus der APK (`2.2.2`) | Keine Kopierfelder in Settings |
 
 ## Probe
 

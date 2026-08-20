@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.2.1`**.
+App-Version im Code: **`2.2.2`**.
+
+### `2.2.2` — Testprompts raus aus der App — *CODE*
+
+Einstellungen → Tests ist weg. Prompts nicht in der APK, Chat ohne Chips.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 20202)
+- [`30-next.md`](./30-next.md)
 
 ### `2.2.1` — Testprompts kopieren — *CODE*
 
