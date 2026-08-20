@@ -1,6 +1,6 @@
-# Android-APK — `2.20.0`
+# Android-APK — `2.20.1`
 
-**2.20.0:** Zurück in Einstellungen (auch Handy-Taste). Kalender-Konflikte. Live-Kompass. Natürliche Sätze. Fahrmodus-Ziel. Anrufen/Personen.
+**2.20.1:** Einstellungen → Tests: Kategorien (Musik, CarPlay, Wetter …), Prompt kopieren. Debug bleibt Chat-Dump danach.
 
 ## Download
 
@@ -9,10 +9,11 @@ https://github.com/Gamerio2904/Jarvis/raw/cursor/on-device-iq-sprints-5517/relea
 APK nach Build: `releases/Jarvis.apk`
 
 - Dateiname: `Jarvis.apk`
-- versionName `2.20.0` · versionCode `22000`
+- versionName `2.20.1` · versionCode `22001`
 - App-ID `local.jarvis.app`
 
-1. Über 2.19.3 installieren.
-2. Einstellungen → Haus: Zurück. Handy-Zurücktaste schließt Thema, dann Übersicht.
-3. Zweimal `Termin morgen 15 Uhr Zahnarzt` → Überschreiben oder belassen?
-4. `Kalender` blendet Chat aus. `Kompass` öffnet Live-Anzeige.
+1. Über 2.20.0 installieren.
+2. Einstellungen → Mehr → Tests: Kategorie wählen, Kopieren, im Chat einfügen.
+3. Zurück in der Kategorie geht zur Test-Übersicht, dann zur Settings-Übersicht.
+4. Debug danach ist weiter nur der Chat-Dump.
+

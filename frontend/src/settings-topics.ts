@@ -18,6 +18,7 @@ export type SettingsTopic =
   | 'ton'
   | 'forschung'
   | 'gedaechtnis'
+  | 'tests'
   | 'debug'
   | 'gefahr'
 
@@ -39,6 +40,7 @@ export const SETTINGS_TOPICS: SettingsTopicMeta[] = [
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
+  { id: 'tests', label: 'Tests', hint: 'Kategorien' },
   { id: 'debug', label: 'Debug', hint: 'Chat-Dump' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
 ]
@@ -49,7 +51,7 @@ export const SETTINGS_GROUPS: Array<{ title: string; ids: Array<Exclude<Settings
   { title: 'Netz', ids: ['cloud', 'forschung'] },
   { title: 'Einkauf', ids: ['rabatt'] },
   { title: 'Haus', ids: ['tv', 'pc', 'haus', 'musik'] },
-  { title: 'Mehr', ids: ['ton', 'gedaechtnis', 'debug', 'gefahr'] },
+  { title: 'Mehr', ids: ['ton', 'gedaechtnis', 'tests', 'debug', 'gefahr'] },
 ]
 
 function keyOn(v?: string | null): boolean {
@@ -95,6 +97,7 @@ export function settingsTopicStatus(
   if (id === 'ton') return s?.ui_sounds ? 'an' : 'aus'
   if (id === 'forschung') return s?.research_opt_in ? 'Suche an' : 'Suche aus'
   if (id === 'gedaechtnis') return 'Memory'
+  if (id === 'tests') return 'Kategorien'
   if (id === 'debug') return 'Dump'
   if (id === 'gefahr') return 'löschen'
   return ''

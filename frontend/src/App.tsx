@@ -315,6 +315,7 @@ function App() {
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
   const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('hub')
+  const [settingsTestGroup, setSettingsTestGroup] = useState<string | null>(null)
   const [momentGlint, setMomentGlint] = useState(false)
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
@@ -363,6 +364,7 @@ function App() {
   const overlayRef = useRef({
     settingsPanelOpen: false,
     settingsTopic: 'hub' as SettingsTopic,
+    settingsTestGroup: null as string | null,
     calendarOpen: false,
     compassOpen: false,
     driveOpen: false,
@@ -372,6 +374,7 @@ function App() {
   overlayRef.current = {
     settingsPanelOpen,
     settingsTopic,
+    settingsTestGroup,
     calendarOpen,
     compassOpen,
     driveOpen,
@@ -379,14 +382,34 @@ function App() {
     sidebarOpen,
   }
 
+  function settingsGoBack() {
+    if (settingsTopic === 'tests' && settingsTestGroup) {
+      setSettingsTestGroup(null)
+      return
+    }
+    if (settingsTopic !== 'hub') {
+      setSettingsTopic('hub')
+      setSettingsTestGroup(null)
+      return
+    }
+    setSettingsPanelOpen(false)
+    setSettingsTestGroup(null)
+  }
+
   function navigateBack(): boolean {
     const o = overlayRef.current
+    if (o.settingsPanelOpen && o.settingsTopic === 'tests' && o.settingsTestGroup) {
+      setSettingsTestGroup(null)
+      return true
+    }
     if (o.settingsPanelOpen && o.settingsTopic !== 'hub') {
       setSettingsTopic('hub')
+      setSettingsTestGroup(null)
       return true
     }
     if (o.settingsPanelOpen) {
       setSettingsPanelOpen(false)
+      setSettingsTestGroup(null)
       return true
     }
     if (o.compassOpen) {
@@ -1218,6 +1241,7 @@ function App() {
 
   function openSettings(topic: SettingsTopic = 'hub') {
     setSettingsTopic(topic)
+    setSettingsTestGroup(null)
     setSettingsPanelOpen(true)
     setSidebarOpen(false)
     void refreshReminders()
@@ -1629,11 +1653,18 @@ function App() {
           topic={settingsTopic}
           onTopic={(t) => {
             setSettingsTopic(t)
+            setSettingsTestGroup(null)
             if (t === 'forschung') void refreshAudits()
             if (t === 'gedaechtnis') void refreshMemory(memoryFilter)
             if (t === 'wecker') void refreshReminders()
           }}
-          onClose={() => setSettingsPanelOpen(false)}
+          testGroup={settingsTestGroup}
+          onTestGroup={setSettingsTestGroup}
+          onBack={settingsGoBack}
+          onClose={() => {
+            setSettingsPanelOpen(false)
+            setSettingsTestGroup(null)
+          }}
           settings={settings}
           settingsBusy={settingsBusy}
           patchSetting={patchSetting}

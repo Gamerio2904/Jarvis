@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Conversation, Health, MemoryCategory, MemoryItem, Plug, Reminder, ResearchAudit, Settings } from './api'
 import { APP_VERSION, fanDiscover, fanLearn, fanPick, fanTest, listConversations, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
 import { copyText } from './copy-text'
+import { TEST_COPY_GROUPS, formatTestCopyGroup, testCopyGroupById } from './engine/test-copy'
 import { ensureDeviceLocation } from './native/geo'
 import { buildChatDebugDump, downloadChatDebug } from './engine/chat-debug'
 import {
@@ -107,6 +108,9 @@ function CopyField({ label, value }: { label: string; value: string }) {
 export type SettingsScreenProps = {
   topic: SettingsTopic
   onTopic: (t: SettingsTopic) => void
+  testGroup: string | null
+  onTestGroup: (id: string | null) => void
+  onBack: () => void
   onClose: () => void
   settings: Settings | null
   settingsBusy: boolean
@@ -183,6 +187,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [debugPick, setDebugPick] = useState('')
   const [debugBusy, setDebugBusy] = useState(false)
   const [debugMsg, setDebugMsg] = useState<string | null>(null)
+  const testCat = p.topic === 'tests' ? testCopyGroupById(p.testGroup) : undefined
+  const paneTitle = testCat?.title || topic.label
 
   useEffect(() => {
     setFireHost(s?.tv_fire_host || '')
@@ -213,16 +219,6 @@ export function SettingsScreen(p: SettingsScreenProps) {
       setDebugPick((prev) => (prev && rows.some((c) => c.id === prev) ? prev : rows[0]?.id || ''))
     })
   }, [p.topic])
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      if (p.topic !== 'hub') p.onTopic('hub')
-      else p.onClose()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [p.onClose, p.onTopic, p.topic])
 
   return (
     <div
@@ -262,13 +258,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
         <header className="settings-pane-bar">
           <div>
             {p.topic !== 'hub' ? (
-              <button type="button" className="settings-back" onClick={() => p.onTopic('hub')}>
+              <button type="button" className="settings-back" onClick={p.onBack}>
                 Zurück
               </button>
             ) : (
               <p className="settings-kicker">Einstellungen</p>
             )}
-            <h2 id="settings-title">{topic.label}</h2>
+            <h2 id="settings-title">{paneTitle}</h2>
           </div>
           <button type="button" className="settings-close" onClick={p.onClose}>
             Fertig
@@ -1537,6 +1533,42 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   Alles löschen
                 </button>
               ) : null}
+            </section>
+          ) : null}
+
+          {p.topic === 'tests' && !testCat ? (
+            <section className="settings-card">
+              <h3>Was testen?</h3>
+              <p className="settings-lead">
+                Kategorie wählen, Prompt kopieren, im Chat einfügen. Debug bleibt der Chat-Dump danach.
+              </p>
+              <div className="settings-hub-list">
+                {TEST_COPY_GROUPS.map((g) => (
+                  <button
+                    key={g.id}
+                    type="button"
+                    className="settings-hub-row"
+                    onClick={() => p.onTestGroup(g.id)}
+                  >
+                    <span className="settings-hub-copy">
+                      <strong>{g.title}</strong>
+                      <span>{g.hint}</span>
+                    </span>
+                    <span className="settings-hub-status">{g.items.length}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {p.topic === 'tests' && testCat ? (
+            <section className="settings-card">
+              <h3>{testCat.title}</h3>
+              <p className="settings-lead">Tippen kopiert den Prompt. Danach im Chat einfügen.</p>
+              <CopyField label="Alle" value={formatTestCopyGroup(testCat)} />
+              {testCat.items.map((item) => (
+                <CopyField key={`${testCat.id}-${item.label}`} label={item.label} value={item.text} />
+              ))}
             </section>
           ) : null}
 
