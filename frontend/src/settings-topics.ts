@@ -5,6 +5,7 @@ export type SettingsTopic =
   | 'hub'
   | 'allgemein'
   | 'modell'
+  | 'apis'
   | 'rabatt'
   | 'cloud'
   | 'sprache'
@@ -25,7 +26,8 @@ export type SettingsTopicMeta = { id: Exclude<SettingsTopic, 'hub'>; label: stri
 export const SETTINGS_TOPICS: SettingsTopicMeta[] = [
   { id: 'allgemein', label: 'Allgemein', hint: 'Version' },
   { id: 'modell', label: 'Modell', hint: 'Lokal' },
-  { id: 'rabatt', label: 'Rabatt', hint: 'APIs' },
+  { id: 'apis', label: 'APIs', hint: 'Keys' },
+  { id: 'rabatt', label: 'Rabatt', hint: 'Gutscheine' },
   { id: 'cloud', label: 'Cloud', hint: 'Gemini an/aus' },
   { id: 'sprache', label: 'Sprache', hint: 'Hören' },
   { id: 'wecker', label: 'Wecker', hint: 'Timer' },
@@ -43,7 +45,7 @@ export const SETTINGS_TOPICS: SettingsTopicMeta[] = [
 
 export const SETTINGS_GROUPS: Array<{ title: string; ids: Array<Exclude<SettingsTopic, 'hub'>> }> = [
   { title: 'Gerät', ids: ['allgemein', 'modell', 'sprache', 'wecker', 'ort'] },
-  { title: 'Keys & Netz', ids: ['rabatt', 'cloud', 'forschung'] },
+  { title: 'Keys & Netz', ids: ['apis', 'rabatt', 'cloud', 'forschung'] },
   { title: 'Haus', ids: ['tv', 'pc', 'haus', 'musik'] },
   { title: 'Mehr', ids: ['ton', 'gedaechtnis', 'debug', 'gefahr'] },
 ]
@@ -75,11 +77,11 @@ export function settingsTopicStatus(
     if (health?.model_ready) return 'bereit'
     return 'laden'
   }
-  if (id === 'rabatt') {
+  if (id === 'apis') {
     const n = countKeys(s)
-    const extra = s?.shop_discount ? ' · Suche an' : ''
-    return n ? `${n} Keys${extra}` : `leer${extra}`
+    return n ? `${n} Keys` : 'leer'
   }
+  if (id === 'rabatt') return s?.shop_discount ? 'an' : 'aus'
   if (id === 'cloud') return geminiOn ? 'an' : 'aus'
   if (id === 'sprache') return s?.wake_word ? 'Wake an' : 'Wake aus'
   if (id === 'wecker') return 'Timer'

@@ -278,7 +278,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <>
               <section className="settings-card">
                 <h3>Tippen, fertig</h3>
-                <p className="settings-lead">Ein Thema öffnen. Keys alle unter Rabatt.</p>
+                <p className="settings-lead">Ein Thema öffnen. Keys unter APIs, Gutscheine unter Rabatt.</p>
               </section>
               {SETTINGS_GROUPS.map((group) => (
                 <section className="settings-card" key={group.title}>
@@ -314,7 +314,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Dieses Handy</h3>
               <p className="settings-lead">
-                Version {s?.version || '2.19.1'} · on-device, kein Server.
+                Version {s?.version || '2.19.2'} · on-device, kein Server.
               </p>
               <p className="settings-hint">
                 {p.health?.ok
@@ -358,79 +358,85 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
+          {p.topic === 'apis' ? (
+            <section className="settings-card">
+              <h3>Alle API-Keys</h3>
+              <p className="settings-lead">Ein Feld pro Dienst. Leer lassen, wenn Sie den Dienst nicht nutzen.</p>
+              <KeyField
+                label="Gemini (Google)"
+                value={s?.gemini_api_key || ''}
+                placeholder="AIza… aistudio.google.com/apikey"
+                disabled={busy}
+                onSave={(v) => void p.patchSetting({ gemini_api_key: v })}
+              />
+              <div className="settings-actions">
+                <button type="button" className="retry-btn" disabled={p.geminiBusy || busy} onClick={p.onGeminiTest}>
+                  Gemini testen
+                </button>
+              </div>
+              {p.geminiMsg ? <p className="settings-hint">{p.geminiMsg}</p> : null}
+              <KeyField
+                label="Groq (optional)"
+                value={s?.groq_api_key || ''}
+                placeholder="gsk_… console.groq.com/keys"
+                disabled={busy}
+                onSave={(v) => void p.patchSetting({ groq_api_key: v })}
+              />
+              <div className="settings-actions">
+                <button type="button" className="retry-btn" disabled={p.groqBusy || busy} onClick={p.onGroqTest}>
+                  Groq testen
+                </button>
+              </div>
+              {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
+              <KeyField
+                label="OMDb (IMDb / Rotten Tomatoes)"
+                value={s?.omdb_api_key || ''}
+                placeholder="Key von omdbapi.com"
+                disabled={busy}
+                onSave={(v) => void p.patchSetting({ omdb_api_key: v })}
+              />
+              <p className="settings-hint">omdbapi.com/apikey.aspx — kostenlos, nicht teilen.</p>
+              <KeyField
+                label="Tankerkönig (E10)"
+                value={s?.tankerkoenig_api_key || ''}
+                placeholder="UUID von tankerkoenig.de"
+                disabled={busy}
+                onSave={(v) => void p.patchSetting({ tankerkoenig_api_key: v })}
+              />
+              <p className="settings-hint">creativecommons.tankerkoenig.de — Standort geht an Tankerkönig.</p>
+              <KeyField
+                label="Spotify Client-ID"
+                value={s?.spotify_client_id || ''}
+                placeholder="developer.spotify.com"
+                disabled={busy}
+                onSave={(v) => void p.patchSetting({ spotify_client_id: v })}
+              />
+              <p className="settings-hint">Musik bleibt ehrlich: ohne Login „nicht angebunden“. Anmelden unter Musik.</p>
+            </section>
+          ) : null}
+
           {p.topic === 'rabatt' ? (
-            <>
-              <section className="settings-card">
-                <h3>Rabatt-Suche</h3>
-                <label className="settings-toggle">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(s?.shop_discount)}
-                    disabled={busy}
-                    onChange={(e) => void p.patchSetting({ shop_discount: e.target.checked })}
-                  />
-                  <span>Rabatt-Suche beim Online-Shopping</span>
-                </label>
-                <p className="settings-hint">
-                  An = extra Gutscheine (mydealz, Sparwelt) bei „wo kaufen“ / Preis. Research muss an sein.
-                  Keine erfundenen Codes. Stimme: „Rabatt-Suche an“.
-                </p>
-              </section>
-              <section className="settings-card">
-                <h3>Alle API-Keys</h3>
-                <p className="settings-lead">Ein Feld pro Dienst. Leer lassen, wenn Sie den Dienst nicht nutzen.</p>
-                <KeyField
-                  label="Gemini (Google)"
-                  value={s?.gemini_api_key || ''}
-                  placeholder="AIza… aistudio.google.com/apikey"
+            <section className="settings-card">
+              <h3>Rabatt-Suche</h3>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.shop_discount)}
                   disabled={busy}
-                  onSave={(v) => void p.patchSetting({ gemini_api_key: v })}
+                  onChange={(e) => void p.patchSetting({ shop_discount: e.target.checked })}
                 />
-                <div className="settings-actions">
-                  <button type="button" className="retry-btn" disabled={p.geminiBusy || busy} onClick={p.onGeminiTest}>
-                    Gemini testen
-                  </button>
-                </div>
-                {p.geminiMsg ? <p className="settings-hint">{p.geminiMsg}</p> : null}
-                <KeyField
-                  label="Groq (optional)"
-                  value={s?.groq_api_key || ''}
-                  placeholder="gsk_… console.groq.com/keys"
-                  disabled={busy}
-                  onSave={(v) => void p.patchSetting({ groq_api_key: v })}
-                />
-                <div className="settings-actions">
-                  <button type="button" className="retry-btn" disabled={p.groqBusy || busy} onClick={p.onGroqTest}>
-                    Groq testen
-                  </button>
-                </div>
-                {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
-                <KeyField
-                  label="OMDb (IMDb / Rotten Tomatoes)"
-                  value={s?.omdb_api_key || ''}
-                  placeholder="Key von omdbapi.com"
-                  disabled={busy}
-                  onSave={(v) => void p.patchSetting({ omdb_api_key: v })}
-                />
-                <p className="settings-hint">omdbapi.com/apikey.aspx — kostenlos, nicht teilen.</p>
-                <KeyField
-                  label="Tankerkönig (E10)"
-                  value={s?.tankerkoenig_api_key || ''}
-                  placeholder="UUID von tankerkoenig.de"
-                  disabled={busy}
-                  onSave={(v) => void p.patchSetting({ tankerkoenig_api_key: v })}
-                />
-                <p className="settings-hint">creativecommons.tankerkoenig.de — Standort geht an Tankerkönig.</p>
-                <KeyField
-                  label="Spotify Client-ID"
-                  value={s?.spotify_client_id || ''}
-                  placeholder="developer.spotify.com"
-                  disabled={busy}
-                  onSave={(v) => void p.patchSetting({ spotify_client_id: v })}
-                />
-                <p className="settings-hint">Musik bleibt ehrlich: ohne Login „nicht angebunden“. Anmelden unter Musik.</p>
-              </section>
-            </>
+                <span>Rabatt-Suche beim Online-Shopping</span>
+              </label>
+              <p className="settings-hint">
+                An = extra Gutscheine (mydealz, Sparwelt) bei „wo kaufen“ / Preis. Research muss an sein.
+                Keine erfundenen Codes. Stimme: „Rabatt-Suche an“. Keys stehen unter APIs.
+              </p>
+              <div className="settings-actions">
+                <button type="button" className="retry-btn" onClick={() => p.onTopic('apis')}>
+                  APIs
+                </button>
+              </div>
+            </section>
           ) : null}
 
           {p.topic === 'cloud' ? (
@@ -438,7 +444,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <section className="settings-card">
                 <h3>Gemini (Google)</h3>
                 <p className="settings-lead">
-                  Key unter Rabatt eintragen. Hier nur an/aus und Test.
+                  Key unter APIs eintragen. Hier nur an/aus und Test.
                 </p>
                 <label className="settings-toggle">
                   <input
@@ -456,15 +462,15 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   <button type="button" className="retry-btn" disabled={p.geminiBusy || busy} onClick={p.onGeminiTest}>
                     Testen
                   </button>
-                  <button type="button" className="retry-btn" onClick={() => p.onTopic('rabatt')}>
-                    Keys
+                  <button type="button" className="retry-btn" onClick={() => p.onTopic('apis')}>
+                    APIs
                   </button>
                 </div>
                 {p.geminiMsg ? <p className="settings-hint">{p.geminiMsg}</p> : null}
               </section>
               <section className="settings-card">
                 <h3>Groq (optional)</h3>
-                <p className="settings-hint">Nur wenn Gemini leer oder überlastet ist. Key unter Rabatt.</p>
+                <p className="settings-hint">Nur wenn Gemini leer oder überlastet ist. Key unter APIs.</p>
                 <div className="settings-actions">
                   <button type="button" className="retry-btn" disabled={p.groqBusy || busy} onClick={p.onGroqTest}>
                     Testen
@@ -1444,12 +1450,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 Mit Gemini sucht Jarvis von selbst nach aktuellen Zahlen, auch ohne das Wort suche. Fehlt eine
                 Antwort, geht er nochmal ins Netz. Aus zählt vor allem ohne Gemini.
               </p>
-              <p className="settings-hint">
-                Rabatt-Suche und alle API-Keys: Thema Rabatt.
-              </p>
+              <p className="settings-hint">Keys unter APIs. Gutscheine unter Rabatt.</p>
               <div className="settings-actions">
+                <button type="button" className="retry-btn" onClick={() => p.onTopic('apis')}>
+                  APIs
+                </button>
                 <button type="button" className="retry-btn" onClick={() => p.onTopic('rabatt')}>
-                  Rabatt &amp; Keys
+                  Rabatt
                 </button>
               </div>
               <button type="button" className={`audit-toggle ${p.auditOpen ? 'active' : ''}`} onClick={p.onToggleAudit}>

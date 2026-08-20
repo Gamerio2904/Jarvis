@@ -5,12 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.19.1`**.
+App-Version im Code: **`2.19.2`**.
 
 ### Geplant
 
 1. **`2.2.4` SHOULD** — optionales 1.5B, Default bleibt 0.5B (früher intern `0.13.4`)
 2. Native llama.cpp (früher intern `0.14.0`): PO
+
+### `2.19.2` — APIs getrennt von Rabatt — *CODE*
+
+Einstellungen → **APIs**: alle Keys (Gemini, Groq, OMDb, Tankerkönig, Spotify). Einstellungen → **Rabatt**: nur die Gutschein-Suche.
+
+- versionCode `21902`
 
 ### `2.19.1` — Settings-Hub, Rabatt-Keys, Screenshot-Fixes — *CODE*
 

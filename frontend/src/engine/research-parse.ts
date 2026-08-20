@@ -187,7 +187,7 @@ export const RESEARCH_OFF_REPLY =
   'Live-Suche ist aus. Unter Einstellungen Internet-Research an — sonst erfinde ich kein Wetter und keine Suche.'
 
 export const RESEARCH_NEEDS_GEMINI =
-  'Research braucht Gemini. Unter Einstellungen → Rabatt den Key, dann Cloud an. Danach die Suche nochmal.'
+  'Research braucht Gemini. Unter Einstellungen → APIs den Key, dann Cloud an. Danach die Suche nochmal.'
 
 export const RESEARCH_EMPTY =
   'Netz hat nicht geantwortet. Ich rate keine Rezepte und keine Fakten aus dem Kopf.'

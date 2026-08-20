@@ -11,7 +11,7 @@ export type OmdbHit = {
 }
 
 const KEY_HINT =
-  'OMDb-Schlüssel unter Einstellungen → Rabatt (omdbapi.com, kostenlos). Rotten Tomatoes hat keine eigene öffentliche API — Noten nur wenn OMDb sie liefert. Ich erfinde keine.'
+  'OMDb-Schlüssel unter Einstellungen → APIs (omdbapi.com, kostenlos). Rotten Tomatoes hat keine eigene öffentliche API — Noten nur wenn OMDb sie liefert. Ich erfinde keine.'
 
 export function omdbKeyHint(): string {
   return KEY_HINT

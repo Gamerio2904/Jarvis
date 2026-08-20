@@ -981,10 +981,11 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.19\.1/)
+assert.match(HELP_TEXT, /2\.19\.2/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.match(HELP_TEXT, /Musik ist nicht angebunden/)
+assert.match(HELP_TEXT, /Einstellungen → APIs/)
 assert.match(HELP_TEXT, /Einstellungen → Rabatt/)
 assert.doesNotMatch(HELP_TEXT, /Lautstärke am Steuer ist Spotify/)
 

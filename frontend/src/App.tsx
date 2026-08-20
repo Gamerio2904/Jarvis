@@ -1133,7 +1133,8 @@ function App() {
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
     else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
-    else if (/Einstellungen\s*→\s*Rabatt|OMDb-Schlüssel|API-Keys?/i.test(t)) openSettings('rabatt')
+    else if (/Einstellungen\s*→\s*APIs?|OMDb-Schlüssel|API-Keys?/i.test(t)) openSettings('apis')
+    else if (/Einstellungen\s*→\s*Rabatt/i.test(t)) openSettings('rabatt')
     else if (/Einstellungen.*Gemini|Gemini an, aber kein/i.test(t)) openSettings('cloud')
     else if (/Einstellungen\s*→\s*Musik|Spotify-Client-ID|Spotify anmelden/i.test(t)) openSettings('musik')
   }
