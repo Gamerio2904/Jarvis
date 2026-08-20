@@ -480,6 +480,13 @@ textarea {
   font-size: 0.95rem;
 }
 
+.test-copy-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
 .settings-card .memory-filter {
   text-transform: none;
 }

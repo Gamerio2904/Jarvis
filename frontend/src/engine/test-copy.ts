@@ -1,4 +1,4 @@
-/** Prompt-Katalog für Routing-Tests. Nicht in der APK-UI. */
+/** Prompt-Katalog: Einstellungen → Tests, ein Kopierfeld pro Prompt. Chat ohne Chips. */
 
 export type TestCopyItem = { label: string; text: string }
 export type TestCopyGroup = { title: string; items: TestCopyItem[] }
@@ -50,6 +50,9 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Uhr', text: 'Wie spät ist es?' },
       { label: 'Uhr umgangssprachlich', text: 'weißt du wie viel Uhr es ist' },
       { label: 'Akku', text: 'Wie voll ist der Akku' },
+      { label: 'Schritte', text: 'Wie viele Schritte heute?' },
+      { label: 'Luftdruck', text: 'Luftdruck' },
+      { label: 'Kompass', text: 'Kompass' },
       { label: 'Taschenlampe an', text: 'Taschenlampe an' },
       { label: 'Taschenlampe aus', text: 'Taschenlampe aus' },
       { label: 'WLAN öffnen', text: 'Öffne WLAN' },
@@ -201,6 +204,28 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Nachrichten', text: 'Nachrichten' },
       { label: 'Ort-News', text: 'Was ist heute in Ingesheim passiert' },
       { label: 'Feiertag', text: 'Ist heute Feiertag?' },
+    ],
+  },
+  {
+    title: 'Welt 2.3–2.19',
+    items: [
+      { label: 'Unwetter', text: 'Gibt’s Unwetter?' },
+      { label: 'DWD', text: 'DWD Warnung' },
+      { label: 'Ferien BW', text: 'Sind in BW Ferien?' },
+      { label: 'Dollar', text: 'Was ist der Dollar?' },
+      { label: 'Produkt', text: 'Was ist das für ein Produkt Nutella' },
+      { label: 'Buch', text: 'Was ist das für ein Buch Dune' },
+      { label: 'VfB', text: 'Wie hat der VfB gespielt?' },
+      { label: 'Bayern', text: 'Ergebnis Bayern' },
+      { label: 'Pflanze', text: 'Was ist das für eine Pflanze Gänseblümchen' },
+      { label: 'ISS', text: 'Wann fliegt die ISS?' },
+      { label: 'Mond', text: 'Mondphase' },
+      { label: 'Vogel', text: 'Welcher Vogel ist das Amsel' },
+      { label: 'Flüge', text: 'Was fliegt da?' },
+      { label: 'Kündigung', text: 'Kündigungsfrist Wohnung' },
+      { label: 'Waschschüssel', text: 'Was bedeutet die Waschschüssel?' },
+      { label: 'Schach e2e4', text: 'Schach e2e4' },
+      { label: 'Schach neu', text: 'Schach neu' },
     ],
   },
   {

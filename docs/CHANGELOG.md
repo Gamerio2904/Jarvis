@@ -14,7 +14,7 @@ App-Version im Code: **`2.19.0`**.
 
 ### `2.19.0` — Live-Qualität + Alltag & Welt — *CODE*
 
-Eine Sideload-Stufe: `2.2.3`–`2.19.0` im Code. Uhr/Akku live, Musik ehrlich ohne Spotify-API, Briefing ohne Wetter, Wetter-Gate. DWD, Schulferien, EZB-Kurs, Research Wikipedia/Destatis zuerst, Open Food Facts, Open Library, OpenLigaDB, iNaturalist, ISS/Mond, OpenSky, BGB-Link, Waschsymbole, Schritte/Luftdruck/Kompass, Schach `e2e4`.
+Eine Sideload-Stufe: `2.2.3`–`2.19.0` im Code. Uhr/Akku live, Musik ehrlich ohne Spotify-API, Briefing ohne Wetter, Wetter-Gate. DWD, Schulferien, EZB-Kurs, Research Wikipedia/Destatis zuerst, Open Food Facts, Open Library, OpenLigaDB, iNaturalist, ISS/Mond, OpenSky, BGB-Link, Waschsymbole, Schritte/Luftdruck/Kompass, Schach `e2e4`. Einstellungen → Tests: ein Kopierfeld pro Prompt (Chat ohne Chips).
 
 - versionCode `21900`
 - [`30-next.md`](./30-next.md) · [`31-next.md`](./31-next.md)

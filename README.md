@@ -18,7 +18,9 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 ## Android-APK
 
-**`Jarvis.apk` `2.19.0`:** nach `build-apk.bat` unter `releases/Jarvis.apk` (versionCode 21900).
+**`Jarvis.apk` `2.19.0`:** [Download](https://github.com/Gamerio2904/Jarvis/raw/cursor/on-device-iq-sprints-5517/releases/Jarvis.apk) (versionCode 21900).
+
+Einstellungen → Tests: ein Kopierfeld pro Prompt. Chat ohne Chips.
 
 ```bat
 build-apk.bat

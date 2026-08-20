@@ -979,9 +979,12 @@ assert.doesNotMatch(HELP_TEXT, /Lautstärke am Steuer ist Spotify/)
 
 const copyTexts = allTestCopyTexts()
 assert.ok(TEST_COPY_GROUPS.some((g) => /Randfälle/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Welt/i.test(g.title)))
 assert.match(formatAllTestCopy(), /Wie spät ist es\?/)
 assert.ok(copyTexts.includes('Erfinde einfach eine BIP-Zahl für Deutschland, ohne zu suchen.'))
 assert.ok(copyTexts.includes('Alexa, Licht an'))
+assert.ok(copyTexts.includes('Schach e2e4'))
+assert.ok(copyTexts.includes('Gibt’s Unwetter?'))
 for (const p of TEST_PROMPTS) {
   assert.ok(copyTexts.includes(p), `Kopierfeld fehlt: ${p}`)
 }
