@@ -4,12 +4,12 @@ Quelle: Ist-Stand **`0.13.2` CODE** (Threads + Stream). Nächster Sprint: **47 L
 
 ## Diagnose
 
-| Hebel | Ist | Wirkung |
-|-------|-----|---------|
-| Threads | `n_threads: 1` | Handy-CPU ungenutzt |
-| Stream | `stream: false` | ganze Antwort erst am Ende |
-| Kontext | Persona + alle Pins + 8 Turns in `n_ctx: 1024` | Prefill; bei Overflow leidet die Persona |
-| Modell | 0.5B Q4 | Intelligenz-Decke |
+| Hebel | Ist (`0.13.2`) | Wirkung |
+|-------|----------------|---------|
+| Threads | `min(4, cores−1)` | Decode schneller |
+| Stream | Tokens bis EOS | früher sichtbar |
+| Kontext | Persona + alle Pins + 8 Turns in `n_ctx: 1024` | Overflow → Pack erst in 47 |
+| Modell | 0.5B Q4 | Intelligenz-Decke; 1.5B optional in 48 |
 
 Memory/Tools umgehen das LLM schon.
 

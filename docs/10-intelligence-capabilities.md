@@ -361,7 +361,7 @@ Memory („Merk dir …“) bleibt Fakten-Gedächtnis; Tools sind **explizite Ar
 
 NAS/APK: **`0.10.x`** ([`12-nas-apk.md`](./12-nas-apk.md)). Samsung-TV: **`0.11.x`** (Sprints 40–42).
 
-On-Device nach `0.13.1`: Latenz/Qualität/Intelligenz **`0.13.2`–`0.13.4`** ([`14-on-device-iq.md`](./14-on-device-iq.md), Sprints 46–48). Native llama.cpp = `0.14.0`.
+On-Device nach `0.13.2`: Live-Qualität **`0.13.3` IN SPRINT**, dann 1.5B **`0.13.4`**. Fahrplan [`16-fahrplan.md`](./16-fahrplan.md).
 
 Vorher empfohlen: **`0.8.5`** Persona/Continuity ([27](./sprints/sprint-27.md)).
 
