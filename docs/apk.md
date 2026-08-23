@@ -5,7 +5,7 @@
 ## Download
 
 **APK `2.3.0`:**  
-Sideload nach dem Build (`releases/Jarvis.apk`).
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-modus-phone-ask-b173/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
 - versionName `2.3.0` · versionCode `20300`
