@@ -45,6 +45,19 @@ import { parseFolderIntent } from '../src/engine/folder-parse.ts'
 import { parseOfferIntent } from '../src/engine/offer-parse.ts'
 import { parseSquadIntent } from '../src/engine/squad-parse.ts'
 import { parseSpeakMode } from '../src/engine/speak-brief.ts'
+import { parseDwdIntent } from '../src/engine/dwd-parse.ts'
+import { parseFerienIntent } from '../src/engine/ferien-parse.ts'
+import { parseFxIntent } from '../src/engine/fx-parse.ts'
+import { parseFoodIntent } from '../src/engine/food-parse.ts'
+import { parseLibraryIntent } from '../src/engine/library-parse.ts'
+import { parseSportIntent } from '../src/engine/sport-parse.ts'
+import { parseGardenIntent } from '../src/engine/garden-parse.ts'
+import { parseSkyIntent } from '../src/engine/sky-parse.ts'
+import { parseAnimalIntent } from '../src/engine/animal-parse.ts'
+import { parseFlightIntent } from '../src/engine/flight-parse.ts'
+import { parseLawIntent } from '../src/engine/law-parse.ts'
+import { parseHouseIntent } from '../src/engine/house-parse.ts'
+import { parseChessIntent } from '../src/engine/chess-parse.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
@@ -67,6 +80,19 @@ function route(text, ctx = {}) {
   if (parseTransitIntent(text)) return 'transit'
   if (parseSpeakMode(text)) return 'drive'
   if (parseRadarIntent(text)) return 'radar'
+  if (parseDwdIntent(text)) return 'dwd'
+  if (parseFerienIntent(text)) return 'ferien'
+  if (parseFxIntent(text)) return 'fx'
+  if (parseFoodIntent(text)) return 'food'
+  if (parseLibraryIntent(text)) return 'library'
+  if (parseSportIntent(text)) return 'sport'
+  if (parseGardenIntent(text)) return 'garden'
+  if (parseSkyIntent(text)) return 'sky'
+  if (parseAnimalIntent(text)) return 'animal'
+  if (parseFlightIntent(text)) return 'flight'
+  if (parseLawIntent(text)) return 'law'
+  if (parseHouseIntent(text)) return 'house'
+  if (parseChessIntent(text)) return 'chess'
   if (parseFolderIntent(text)) return 'folder'
   if (parseOfferIntent(text)) return 'offer'
   if (parseSquadIntent(text)) return 'squad'
@@ -269,6 +295,29 @@ assert.equal(route('Leg das Gespräch nach Arbeit'), 'folder')
 assert.equal(route('Sag Bescheid wenn Instanudeln im Angebot sind'), 'offer')
 assert.equal(route('Wer fehlt in der Mannschaft'), 'squad')
 assert.equal(route('nur vorlesen'), 'drive')
+assert.equal(route('Gibt’s Unwetter?'), 'dwd')
+assert.equal(route('DWD Warnung'), 'dwd')
+assert.equal(route('Sind in BW Ferien?'), 'ferien')
+assert.equal(route('Was ist der Dollar?'), 'fx')
+assert.equal(route('Was ist das für ein Produkt?'), 'food')
+assert.equal(route('Was ist das für ein Buch?'), 'library')
+assert.equal(route('Wie hat der VfB gespielt?'), 'sport')
+assert.equal(route('Ergebnis Bayern'), 'sport')
+assert.equal(route('Was ist das für eine Pflanze?'), 'garden')
+assert.equal(route('Wann fliegt die ISS?'), 'sky')
+assert.equal(route('Mondphase'), 'sky')
+assert.equal(route('Welcher Vogel ist das?'), 'animal')
+assert.equal(route('Was fliegt da?'), 'flight')
+assert.equal(route('Kündigungsfrist Wohnung'), 'law')
+assert.equal(route('Was bedeutet die Waschschüssel?'), 'house')
+assert.equal(route('Wie viele Schritte heute?'), 'device')
+assert.equal(route('Luftdruck'), 'device')
+assert.equal(route('Schach e2e4'), 'chess')
+assert.equal(route('Schach neu'), 'chess')
+assert.equal(route('Wetter heute'), 'weather')
+assert.equal(route('Ist heute Feiertag?'), 'holiday')
+assert.equal(route('Was ist der bip in Deutschland'), 'research')
+assert.equal(route('FIFA starten'), 'pc')
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }

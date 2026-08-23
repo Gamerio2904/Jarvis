@@ -8,6 +8,9 @@ export type DeviceIntent =
   | { kind: 'network' }
   | { kind: 'torch'; on: boolean }
   | { kind: 'page'; page: DevicePage }
+  | { kind: 'steps' }
+  | { kind: 'pressure' }
+  | { kind: 'compass' }
   | { kind: 'ask' }
 
 const SKIP =
@@ -33,6 +36,10 @@ const PAGE_DND =
 
 const SYSTEM =
   /^\s*(?:stoß(?:e|en)?|anstoß(?:e|en)?)\s+(?:das\s+)?system|(?:system)\s+(?:anstoßen|aktivieren)\s*[.!?]*$/i
+
+const STEPS = /\b(?:schritte|schrittzähler|wie\s+viele\s+schritte)\b/i
+const PRESSURE = /\b(?:luftdruck|barometer|hpa)\b/i
+const COMPASS = /\b(?:kompass|himmelsrichtung|wo\s+ist\s+norden)\b/i
 
 const CLOCK =
   /\b(?:wie\s+spät(?:\s+ist\s+(?:es|die\s+uhr))?|wie\s*viel\s+uhr(?:\s+es\s+ist)?|wie\s*viel\s+uhr\s+ist\s+es|welche\s+uhrzeit|wie\s+ist\s+(?:die\s+)?uhrzeit|weißt?\s+du(?:\s+denn)?\s+(?:wie\s+spät|wie\s*viel\s+uhr)|aktuelle(?:\s+)?uhrzeit)\b/i
@@ -62,6 +69,9 @@ export function parseDeviceIntent(text: string): DeviceIntent | null {
     return { kind: 'page', page: 'dnd' }
   }
   if (CLOCK.test(t)) return { kind: 'clock' }
+  if (STEPS.test(t)) return { kind: 'steps' }
+  if (PRESSURE.test(t)) return { kind: 'pressure' }
+  if (COMPASS.test(t)) return { kind: 'compass' }
   if (BATTERY.test(t)) return { kind: 'battery' }
   if (NETWORK.test(t)) return { kind: 'network' }
   return null

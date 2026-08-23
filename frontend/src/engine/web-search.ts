@@ -31,13 +31,17 @@ export async function fillResearchLinks(
   ]
   const fact = isFactLookup(queryText) || isFactLookup(query)
   const need = product ? 3 : fact ? 3 : 2
+  if (fact) {
+    extra.push(...(await wikipedia(companyHint(query))))
+    extra.push(...(await destatis(query)))
+  }
   if (extra.filter((s) => s.url).length < need || (fact && extra.filter((s) => (s.snippet || '').length > 40).length < 1)) {
     const searches = product
       ? discount
         ? [query, `${query} Preis Vergleich`, `${query} Gutschein Rabatt`]
         : [query, `${query} Preis Vergleich`]
       : fact
-        ? [query, `${query} Statistik`, `${query} Geschäftsbericht`]
+        ? [query, `${query} Statistik site:destatis.de`, `${query} Geschäftsbericht`]
         : [query]
     const found = await Promise.all(searches.map((q) => duckDuckGo(q)))
     extra.push(...found.flat())
@@ -50,8 +54,16 @@ export async function fillResearchLinks(
   }
   if (product) extra.push(...compareShopSources(query))
   if (product && discount) extra.push(...compareDiscountSources(query))
-  extra.sort((a, b) => shopRank(a.url) - shopRank(b.url))
+  if (product) extra.sort((a, b) => shopRank(a.url) - shopRank(b.url))
+  else if (fact) extra.sort((a, b) => factRank(a.url) - factRank(b.url))
   return mergeResearchSources(research, extra, query)
+}
+
+function factRank(url: string): number {
+  if (/destatis\.de/i.test(url)) return 0
+  if (/wikipedia\.org/i.test(url)) return 1
+  if (/europa\.eu|ecb\.europa/i.test(url)) return 2
+  return 9
 }
 
 async function duckDuckGo(query: string): Promise<ResearchSource[]> {
@@ -138,6 +150,27 @@ async function wikipedia(query: string): Promise<ResearchSource[]> {
   } catch {
     return []
   }
+}
+
+async function destatis(query: string): Promise<ResearchSource[]> {
+  const q = query.slice(0, 80)
+  if (!/\b(?:bip|gdp|bruttoinlands|inflation|arbeitslos|destatis|statistisches\s+amt|bevölkerung|einwohner)\b/i.test(q)) {
+    return []
+  }
+  const now = new Date().toISOString()
+  const found = await duckDuckGo(`${q} site:destatis.de`)
+  if (found.length) {
+    return found.map((s) => ({ ...s, provider: s.provider || 'destatis' }))
+  }
+  return [
+    {
+      title: 'Destatis — Themen',
+      url: 'https://www.destatis.de/DE/Themen/_inhalt.html',
+      snippet: 'Statistisches Bundesamt, nur wenn die Suche einen konkreten Treffer liefert.',
+      provider: 'destatis',
+      retrieved_at: now,
+    },
+  ]
 }
 
 function companyHint(q: string): string {

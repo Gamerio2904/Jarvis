@@ -12,6 +12,16 @@ type NativeDevice = {
   }>
   torch(opts: { on: boolean }): Promise<{ ok: boolean; on?: boolean; message?: string }>
   openPage(opts: { page: string }): Promise<{ ok: boolean; message?: string }>
+  sensors(opts: { kind: string }): Promise<{
+    ok: boolean
+    steps?: number
+    stepsSince?: string
+    hpa?: number
+    heading?: number
+    cardinal?: string
+    needPerm?: boolean
+    message?: string
+  }>
   openUrl(opts: { url: string }): Promise<{ ok: boolean; message?: string }>
   dial(opts: { number: string }): Promise<{ ok: boolean; message?: string }>
   sms(opts: { number: string; body?: string }): Promise<{ ok: boolean; message?: string }>
@@ -73,6 +83,29 @@ export async function readNetwork(): Promise<{
     wifi: false,
     cellular: false,
   }
+}
+
+export async function readSensors(kind: 'steps' | 'pressure' | 'compass'): Promise<{
+  ok: boolean
+  steps?: number
+  stepsSince?: string
+  hpa?: number
+  heading?: number
+  cardinal?: string
+  needPerm?: boolean
+  message?: string
+}> {
+  if (native && 'sensors' in native) {
+    try {
+      return await withTimeout(native.sensors({ kind }), 8_000, {
+        ok: false,
+        message: 'Sensor nicht lesbar.',
+      })
+    } catch {
+      return { ok: false, message: 'Sensor nicht lesbar.' }
+    }
+  }
+  return { ok: false, message: 'Schritte, Luftdruck und Kompass nur auf dem Handy.' }
 }
 
 export async function setTorch(on: boolean): Promise<{ ok: boolean; message?: string }> {

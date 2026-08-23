@@ -1,17 +1,17 @@
-# Sprint 105 — Alltag & Welt, Kickoff (`2.4.0` zuerst) **PLAN**
+# Sprint 105 — Alltag & Welt, Kickoff (`2.4.0` zuerst) **CODE** (geliefert in `2.28.0`)
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
-| Priorität | **MUST** (Reihenfolge fest, Bau auf PO-Kommando) |
-| Ziel-Version | **`2.4.0`** als erste Lieferung dieser Reihe |
-| Quelle | PO: Reihe Unwetter bis Schach planen |
-| Voraussetzung | `2.3.0` |
+| Status | **CODE** |
+| Priorität | **MUST** |
+| Ziel-Version | **`2.4.0`** geplant; Sideload **`2.28.0`** |
+| Quelle | PO: Reihe Unwetter bis Schach; „Setze das um“ |
+| Voraussetzung | `2.3.0` / `2.21.0` |
 | Plan | [`31-next.md`](../31-next.md) |
 
 ## Ziel
 
-Die Reihe `2.4`–`2.20` steht schriftlich. `2.3.0` wurde Tablet (Sprint 106). Gebaut wird DWD erst, wenn der PO `2.4.0` anstößt.
+Die Reihe `2.4`–`2.20` steht schriftlich. Code: [`sprint-108.md`](./sprint-108.md).
 
 ## Must (Plan)
 
@@ -19,7 +19,7 @@ Die Reihe `2.4`–`2.20` steht schriftlich. `2.3.0` wurde Tablet (Sprint 106). G
 |----|--------|-----------|
 | P1 | `31-next.md` mit Versionen, APIs, Chat-Beispielen | Docs |
 | P2 | Backlog E25 + Priorität | Docs |
-| P3 | Erste Code-Lieferung später: DWD-Warnung | Sideload `2.4.0` — **noch nicht** |
+| P3 | Code-Lieferung DWD … Schach | Sideload `2.28.0` |
 
 ## Reihe (nicht dieser Sprint-Code)
 
@@ -27,4 +27,4 @@ Die Reihe `2.4`–`2.20` steht schriftlich. `2.3.0` wurde Tablet (Sprint 106). G
 
 ## Won’t
 
-Code in diesem Sprint. Alexa, Tuya-Cloud, Tapo, Apple CarPlay, Hacking.
+Alexa, Tuya-Cloud, Tapo, Apple CarPlay, Hacking.

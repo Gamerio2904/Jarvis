@@ -5,9 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.21.0`**.
+App-Version im Code: **`2.28.0`**.
 
-Geplant danach: [`31-next.md`](./31-next.md) DWD und Alltag `2.4`–`2.20`.
+### `2.28.0` — Alltag & Welt (DWD bis Schach) — *CODE*
+
+`2.4`–`2.20` in einem Sideload nach `2.21.0`. DWD-Warnung, Schulferien, EZB-Kurs, Wikipedia/Destatis zuerst bei Fakten, Open Food Facts, Open Library, OpenLigaDB, iNaturalist/xeno-canto, ISS/Mond, OpenSky, Gesetzestext + Link, Waschzeichen, Schritte/Luftdruck/Kompass, Schach. Nichts erfinden.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 22800)
+- [`31-next.md`](./31-next.md) · [`sprints/sprint-108.md`](./sprints/sprint-108.md)
 
 ### `2.21.0` — Blitzer, CarPlay-Stimme, Amazon, Ordner, Angebot, FC 26 — *CODE*
 

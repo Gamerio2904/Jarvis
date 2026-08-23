@@ -1,5 +1,5 @@
 import { formatClockReply, parseDeviceIntent } from './device-parse'
-import { openDevicePage, readBattery, readNetwork, setTorch } from '../native/device'
+import { openDevicePage, readBattery, readNetwork, readSensors, setTorch } from '../native/device'
 import type { ToolMeta } from './tools'
 
 export { formatClockReply, parseDeviceIntent } from './device-parse'
@@ -76,6 +76,51 @@ export async function handleDevice(_conversationId: string, text: string): Promi
       handled: true,
       reply: `${line} Kein 5G-Raten.`,
       tool: deviceTool('status', 'Netz'),
+      lastTool: 'device',
+    }
+  }
+
+  if (intent.kind === 'steps' || intent.kind === 'pressure' || intent.kind === 'compass') {
+    const s = await readSensors(intent.kind)
+    if (!s.ok) {
+      return {
+        handled: true,
+        reply: s.message || 'Sensor nicht lesbar. Ohne Freigabe rate ich keine Zahl.',
+        tool: deviceTool('ask', 'Sensor'),
+        lastTool: 'device',
+      }
+    }
+    if (intent.kind === 'steps') {
+      const n = s.steps
+      const since = s.stepsSince || 'seit Mitternacht, wenn der Zähler durchlief'
+      return {
+        handled: true,
+        reply:
+          n == null
+            ? 'Schrittzähler nicht da oder keine Freigabe. Ich schätze die Schritte nicht.'
+            : `${n} Schritte ${since}. Keine Gesundheitsdiagnose.`,
+        tool: deviceTool('status', 'Schritte'),
+        lastTool: 'device',
+      }
+    }
+    if (intent.kind === 'pressure') {
+      return {
+        handled: true,
+        reply:
+          s.hpa == null
+            ? 'Kein Barometer in diesem Gerät. Ich rate den Luftdruck nicht.'
+            : `Luftdruck ${s.hpa.toFixed(0)} hPa. Lokal gemessen, kein Wetteramt.`,
+        tool: deviceTool('status', 'Luftdruck'),
+        lastTool: 'device',
+      }
+    }
+    return {
+      handled: true,
+      reply:
+        s.heading == null
+          ? 'Kompass nicht lesbar. Ich rate die Richtung nicht.'
+          : `Richtung ${s.heading.toFixed(0)} Grad, ${s.cardinal || 'unbekannt'}. Magnetisch, nicht navigiert.`,
+      tool: deviceTool('status', 'Kompass'),
       lastTool: 'device',
     }
   }

@@ -90,6 +90,7 @@ export async function readEyeImage(
       : 'Lesen Sie nur, was auf dem Bild steht. Deutsch, Siezen, 1–3 Sätze. Nichts erfinden, was nicht zu sehen ist.'
     const text = await completeGeminiVision(prompt, m[2], m[1])
     const reply = scrubReply(text || 'Nichts Lesbares auf dem Bild.')
+    if (dataUrl.startsWith('data:image/')) saveLastEye(dataUrl, reply)
     await addMessage(conversationId, 'assistant', reply, {
       tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'Auge', result: { image: dataUrl } },
     })

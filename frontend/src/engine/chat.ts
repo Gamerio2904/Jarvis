@@ -84,6 +84,19 @@ import { handleAmazon } from './amazon'
 import { handleFolders } from './folders'
 import { handleOffer } from './offer'
 import { handleSquad } from './squad'
+import { handleDwd } from './dwd'
+import { handleFerien } from './ferien'
+import { handleFx } from './fx'
+import { handleFood } from './food'
+import { handleLibrary } from './library'
+import { handleSport } from './sport'
+import { handleGarden } from './garden'
+import { handleSky } from './sky'
+import { handleAnimal } from './animal'
+import { handleFlight } from './flight'
+import { handleLaw } from './law'
+import { handleHouse } from './house'
+import { handleChess } from './chess'
 import { briefSpeak, parseSpeakMode } from './speak-brief'
 
 export type StreamHandlers = {
@@ -402,6 +415,71 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       tool: radarHit.tool,
       lastTool: radarHit.lastTool || 'radar',
     }
+  }
+
+  const dwdHit = await handleDwd(conversationId, content)
+  if (dwdHit.handled && dwdHit.reply) {
+    return { reply: dwdHit.reply, tool: dwdHit.tool, lastTool: dwdHit.lastTool || 'dwd' }
+  }
+
+  const ferienHit = await handleFerien(conversationId, content)
+  if (ferienHit.handled && ferienHit.reply) {
+    return { reply: ferienHit.reply, tool: ferienHit.tool, lastTool: ferienHit.lastTool || 'ferien' }
+  }
+
+  const fxHit = await handleFx(conversationId, content)
+  if (fxHit.handled && fxHit.reply) {
+    return { reply: fxHit.reply, tool: fxHit.tool, lastTool: fxHit.lastTool || 'fx' }
+  }
+
+  const foodHit = await handleFood(conversationId, content)
+  if (foodHit.handled && foodHit.reply) {
+    return { reply: foodHit.reply, tool: foodHit.tool, lastTool: foodHit.lastTool || 'food' }
+  }
+
+  const libraryHit = await handleLibrary(conversationId, content)
+  if (libraryHit.handled && libraryHit.reply) {
+    return { reply: libraryHit.reply, tool: libraryHit.tool, lastTool: libraryHit.lastTool || 'library' }
+  }
+
+  const sportHit = await handleSport(conversationId, content)
+  if (sportHit.handled && sportHit.reply) {
+    return { reply: sportHit.reply, tool: sportHit.tool, lastTool: sportHit.lastTool || 'sport' }
+  }
+
+  const gardenHit = await handleGarden(conversationId, content)
+  if (gardenHit.handled && gardenHit.reply) {
+    return { reply: gardenHit.reply, tool: gardenHit.tool, lastTool: gardenHit.lastTool || 'garden' }
+  }
+
+  const skyHit = await handleSky(conversationId, content)
+  if (skyHit.handled && skyHit.reply) {
+    return { reply: skyHit.reply, tool: skyHit.tool, lastTool: skyHit.lastTool || 'sky' }
+  }
+
+  const animalHit = await handleAnimal(conversationId, content)
+  if (animalHit.handled && animalHit.reply) {
+    return { reply: animalHit.reply, tool: animalHit.tool, lastTool: animalHit.lastTool || 'animal' }
+  }
+
+  const flightHit = await handleFlight(conversationId, content)
+  if (flightHit.handled && flightHit.reply) {
+    return { reply: flightHit.reply, tool: flightHit.tool, lastTool: flightHit.lastTool || 'flight' }
+  }
+
+  const lawHit = await handleLaw(conversationId, content)
+  if (lawHit.handled && lawHit.reply) {
+    return { reply: lawHit.reply, tool: lawHit.tool, lastTool: lawHit.lastTool || 'law' }
+  }
+
+  const houseHit = await handleHouse(conversationId, content)
+  if (houseHit.handled && houseHit.reply) {
+    return { reply: houseHit.reply, tool: houseHit.tool, lastTool: houseHit.lastTool || 'house' }
+  }
+
+  const chessHit = await handleChess(conversationId, content)
+  if (chessHit.handled && chessHit.reply) {
+    return { reply: chessHit.reply, tool: chessHit.tool, lastTool: chessHit.lastTool || 'chess' }
   }
 
   const folderHit = await handleFolders(conversationId, content)

@@ -62,6 +62,20 @@ import {
 } from '../src/engine/places-parse.ts'
 import { isNameOnly, parseTabletIntent } from '../src/engine/tablet-parse.ts'
 import { parseRadarIntent, mentionsMobileRadar } from '../src/engine/radar-parse.ts'
+import { parseDwdIntent } from '../src/engine/dwd-parse.ts'
+import { parseFerienIntent } from '../src/engine/ferien-parse.ts'
+import { parseFxIntent } from '../src/engine/fx-parse.ts'
+import { parseFoodIntent } from '../src/engine/food-parse.ts'
+import { parseLibraryIntent } from '../src/engine/library-parse.ts'
+import { parseSportIntent } from '../src/engine/sport-parse.ts'
+import { parseGardenIntent } from '../src/engine/garden-parse.ts'
+import { parseSkyIntent } from '../src/engine/sky-parse.ts'
+import { parseAnimalIntent } from '../src/engine/animal-parse.ts'
+import { parseFlightIntent } from '../src/engine/flight-parse.ts'
+import { parseLawIntent } from '../src/engine/law-parse.ts'
+import { parseHouseIntent } from '../src/engine/house-parse.ts'
+import { parseChessIntent } from '../src/engine/chess-parse.ts'
+import { moonLine } from '../src/engine/sky-parse.ts'
 import { parseAmazonIntent, namesAmazon } from '../src/engine/amazon-parse.ts'
 import { parseFolderIntent } from '../src/engine/folder-parse.ts'
 import { parseOfferIntent } from '../src/engine/offer-parse.ts'
@@ -1004,7 +1018,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.21\.0/)
+assert.match(HELP_TEXT, /2\.28\.0/)
 assert.match(HELP_TEXT, /fullscreen/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
@@ -1372,5 +1386,32 @@ assert.ok(estimateOvr(findPlayer('Lamine Yamal'), 2028) >= findPlayer('Lamine Ya
 assert.match(HELP_TEXT, /Blitzer/)
 assert.match(HELP_TEXT, /Amazon/)
 assert.match(HELP_TEXT, /FC 26/)
+assert.match(HELP_TEXT, /DWD/)
+assert.match(HELP_TEXT, /OpenLigaDB/)
+assert.match(HELP_TEXT, /Schach/)
+assert.equal(parseDwdIntent('Gibt’s Unwetter?')?.kind, 'warn')
+assert.equal(parseDwdIntent('DWD Warnung')?.kind, 'warn')
+assert.equal(parseDwdIntent('Wetter heute'), null)
+assert.equal(parseFerienIntent('Sind in BW Ferien?')?.kind, 'now')
+assert.equal(parseFerienIntent('Sind in BW Ferien?')?.land, 'BW')
+assert.equal(parseFxIntent('Was ist der Dollar?')?.from, 'USD')
+assert.equal(parseFxIntent('Was ist der Dollar?')?.to, 'EUR')
+assert.equal(parseFoodIntent('Was ist das für ein Produkt?')?.kind, 'lookup')
+assert.equal(parseLibraryIntent('Was ist das für ein Buch?')?.kind, 'lookup')
+assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.team, 'VfB Stuttgart')
+assert.equal(parseSportIntent('Ergebnis Bayern')?.league, 'bl1')
+assert.equal(parseGardenIntent('Was ist das für eine Pflanze?')?.kind, 'id')
+assert.equal(parseSkyIntent('Wann fliegt die ISS?')?.kind, 'iss')
+assert.equal(parseSkyIntent('Mondphase')?.kind, 'moon')
+assert.equal(parseAnimalIntent('Welcher Vogel ist das?')?.kind, 'id')
+assert.equal(parseFlightIntent('Was fliegt da?')?.kind, 'overhead')
+assert.equal(parseLawIntent('Kündigungsfrist Wohnung')?.kind, 'cite')
+assert.equal(parseLawIntent('Ist heute Feiertag?'), null)
+assert.equal(parseHouseIntent('Was bedeutet die Waschschüssel?')?.kind, 'wash')
+assert.equal(parseDeviceIntent('Wie viele Schritte heute?')?.kind, 'steps')
+assert.equal(parseDeviceIntent('Luftdruck')?.kind, 'pressure')
+assert.equal(parseChessIntent('Schach e2e4')?.kind, 'move')
+assert.equal(parseChessIntent('Schach neu')?.kind, 'new')
+assert.match(moonLine(new Date('2026-08-23T12:00:00Z')), /Mondphase/)
 
 console.log('ok 0.14 parsers')

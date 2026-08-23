@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `2.21.0`. [`apk.md`](./apk.md).
+1. Sideload `2.28.0`. [`apk.md`](./apk.md).
 2. Geplant: [`31-next.md`](./31-next.md) `2.4`–`2.20` (DWD zuerst) — Bau auf PO-Kommando.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 

@@ -148,28 +148,13 @@ MAJOR.MINOR.PATCH
 | `2.2.2` | Testprompts wieder raus aus der APK | Sprint 104 Patch |
 | `2.3.0` | Tablet-Modus + Telefon-Stuck | Sprint 106 |
 | `2.21.0` | Blitzer, CarPlay-Stimme, Amazon, Ordner, Angebot, FC 26 (`2.21`–`2.27`) | Sprint 107 |
+| `2.28.0` | Alltag & Welt `2.4`–`2.20` (DWD … Schach) | Sprint 108 |
 
-### Geplant — Reihe [`31-next.md`](./31-next.md) (noch kein Code)
+### Reihe [`31-next.md`](./31-next.md) — **CODE** in `2.28.0`
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `2.4.0` | DWD-Unwetterwarnung | 105+ |
-| `2.5.0` | Schulferien DE | 107 |
-| `2.6.0` | Wechselkurse EZB | 108 |
-| `2.7.0` | Research: Wikipedia/Destatis zuerst | 109 |
-| `2.8.0` | Stimme: Uhr, Warnung, Ferien | 110 |
-| `2.9.0` | Open Food Facts | 111 |
-| `2.10.0` | Open Library | 112 |
-| `2.11.0` | Bundesliga | 113 |
-| `2.12.0` | Sport-Ergebnisse | 114 |
-| `2.13.0` | Garten & Pflanzen | 115 |
-| `2.14.0` | Himmel (ISS, Mond) | 116 |
-| `2.15.0` | Tiere draußen | 117 |
-| `2.16.0` | Flüge überm Haus | 118 |
-| `2.17.0` | Recht Alltag | 119 |
-| `2.18.0` | Haushalt | 120 |
-| `2.19.0` | Handy-Sensoren (Schritte, Barometer) | 121 |
-| `2.20.0` | Schach | 122 |
+| `2.4.0`–`2.20.0` | DWD, Ferien, EZB, Research, Stimme, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach | 108 |
 
 ### Reihe [`32-next.md`](./32-next.md) — **CODE** in `2.21.0`
 
