@@ -1,15 +1,15 @@
-# Android-APK — `2.2.2`
+# Android-APK — `2.3.0`
 
-**2.2.2:** Keine Testprompts in der App. Chat ohne Chips.
+**2.3.0:** Tablet-Vollbild. Telefon-Nachfrage klebt nicht mehr. Kontakte per „ist“ und „Nummer für …“.
 
 ## Download
 
-**APK `2.2.2`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/remove-test-settings-3638/releases/Jarvis.apk
+**APK `2.3.0`:**  
+Sideload nach dem Build (`releases/Jarvis.apk`).
 
 - Dateiname: `Jarvis.apk`
-- versionName `2.2.2` · versionCode `20202`
+- versionName `2.3.0` · versionCode `20300`
 - App-ID `local.jarvis.app`
 
-1. Über 2.2.1 installieren.
-2. Einstellungen hat kein Thema Tests mehr.
+1. Über 2.2.2 installieren.
+2. `aktiviere fullscreen` — Vollbild, Name, Befehle, Bild, Wetter.

@@ -57,7 +57,10 @@ import {
   parsePlaceRecall,
   parsePlaceWrite,
   looksLikeBareStreet,
+  isCommOtherCommand,
+  isAliasAnswer,
 } from '../src/engine/places-parse.ts'
+import { isNameOnly, parseTabletIntent } from '../src/engine/tablet-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { pickHeard } from '../src/engine/heard.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
@@ -669,7 +672,7 @@ assert.equal(
 )
 assert.equal(
   rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
-  'Öffne Netflix',
+  null,
 )
 assert.equal(
   rewriteFollowUp('ok', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
@@ -854,6 +857,34 @@ assert.equal(phoneOdett?.kind, 'phone')
 if (phoneOdett?.kind === 'phone') assert.equal(phoneOdett.number.replace(/\D/g, '').length >= 6, true)
 const alias = parsePlaceNav('Meine Freundin heißt Odett')
 assert.equal(alias?.kind, 'alias')
+const aliasIst = parsePlaceNav('Meine Freundin ist Odett')
+assert.equal(aliasIst?.kind, 'alias')
+if (aliasIst?.kind === 'alias') {
+  assert.equal(aliasIst.name, 'freundin')
+  assert.equal(aliasIst.alias, 'odett')
+}
+const phoneFuer = parsePlaceNav('Nummer für Freundin +49 1512 9733243')
+assert.equal(phoneFuer?.kind, 'phone')
+if (phoneFuer?.kind === 'phone') {
+  assert.equal(phoneFuer.name, 'freundin')
+  assert.ok(phoneFuer.number.replace(/\D/g, '').length >= 10)
+}
+assert.equal(isAliasAnswer('aus'), false)
+assert.equal(isAliasAnswer('Odett'), true)
+assert.equal(isCommOtherCommand('Fernseher an'), true)
+assert.equal(isCommOtherCommand('äh Lautstärke 10'), true)
+assert.equal(isCommOtherCommand('Wo kann ich jetzt in ein cafe'), true)
+assert.equal(isCommOtherCommand('aus'), true)
+assert.equal(isCommOtherCommand('aktiviere fullscreen'), true)
+assert.equal(parsePoiIntent('Wo kann ich jetzt in ein cafe')?.kind, 'cafe')
+assert.equal(parseTabletIntent('aktiviere fullscreen')?.kind, 'on')
+assert.equal(parseTabletIntent('fullscreen aus')?.kind, 'off')
+assert.equal(parseTabletIntent('zeig das bild')?.kind, 'show_image')
+assert.equal(parseTabletIntent('zeig das Wetter')?.kind, 'show_weather')
+assert.equal(parseTabletIntent('zeig den Status')?.kind, 'show_status')
+assert.equal(isNameOnly('Jarvis'), true)
+assert.equal(isNameOnly('Hey Jarvis'), true)
+assert.equal(isNameOnly('Jarvis Wetter'), false)
 assert.equal(
   findContactRow(
     [
@@ -966,7 +997,8 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.2\.2/)
+assert.match(HELP_TEXT, /2\.3\.0/)
+assert.match(HELP_TEXT, /fullscreen/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)

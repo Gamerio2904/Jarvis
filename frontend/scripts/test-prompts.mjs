@@ -38,10 +38,11 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { parseTransitIntent } from '../src/engine/transit-parse.ts'
 import { parseHolidayIntent } from '../src/engine/holiday-parse.ts'
 import { parseNewsIntent } from '../src/engine/news-parse.ts'
+import { parseTabletIntent } from '../src/engine/tablet-parse.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'tablet'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -57,6 +58,7 @@ function route(text, ctx = {}) {
   if (parseFuelIntent(text)) return 'fuel'
   if (parsePoiIntent(text)) return 'poi'
   if (parseTransitIntent(text)) return 'transit'
+  if (parseTabletIntent(text)) return 'tablet'
   if (parseDriveIntent(text) || parseSpotifyIntent(text)) return 'drive'
   if (parseDeviceIntent(text)) return 'device'
   if (parsePcIntent(text)) return 'pc'
@@ -201,6 +203,12 @@ const EXPECT = {
   'Taschenlampe an': 'device',
   'ohne meine Adresse nachzugucken weißt du wo ich bin': 'here',
   'Nach Ingersheim': 'drive',
+  'Meine Freundin ist Odett': 'maps',
+  'Nummer für Freundin +49 1512 9733243': 'maps',
+  'Ruf Odett an': 'maps',
+  'aktiviere fullscreen': 'tablet',
+  'zeig das bild': 'tablet',
+  'zeig den Status': 'tablet',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

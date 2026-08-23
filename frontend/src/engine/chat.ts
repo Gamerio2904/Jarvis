@@ -78,6 +78,7 @@ import { handleEyeAsk } from './eye'
 import { parseEyeIntent } from './eye-parse'
 import { handleChatSearch } from './search-chat'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
+import { handleTablet, publishTabletFromHit } from './tablet'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -366,6 +367,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  const tabletHit = await handleTablet(conversationId, content)
+  if (tabletHit.handled && tabletHit.reply) {
+    return {
+      reply: tabletHit.reply,
+      tool: tabletHit.tool,
+      lastTool: tabletHit.lastTool || 'tablet',
+    }
+  }
+
   const driveHit = await handleDrive(conversationId, content)
   if (driveHit.handled && driveHit.reply) {
     return {
@@ -635,6 +645,7 @@ export async function streamChat(
       )
       for (const hit of found) await rememberHit(hit, content)
       const last = found[found.length - 1]
+      publishTabletFromHit(content, last.reply, last.tool)
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
       const joined = replies.join('\n\n')
@@ -672,6 +683,7 @@ export async function streamChat(
         })
         const final = scrubReply((raw || acc).trim())
         if (final !== (raw || acc)) handlers.onReplace?.(final)
+        publishTabletFromHit(content, final)
         const assistant = await addMessage(conversationId, 'assistant', final)
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
@@ -842,6 +854,7 @@ export async function streamChat(
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, content)
     if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
+    publishTabletFromHit(content, final)
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({

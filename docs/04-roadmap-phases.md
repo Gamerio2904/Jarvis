@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.33.0`:** Alltag auf dem Handy inkl. Suche mit Preisen. **`2.2.2`:** Sideload. Nächste Reihe **PLAN** `2.3`–`2.19`: [`31-next.md`](./31-next.md). TTS ist geliefert (`1.5`+).
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.33.0`:** Alltag auf dem Handy inkl. Suche mit Preisen. **`2.3.0`:** Sideload Tablet-Modus. Nächste Reihe **PLAN** `2.4`–`2.20`: [`31-next.md`](./31-next.md). TTS ist geliefert (`1.5`+).
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 

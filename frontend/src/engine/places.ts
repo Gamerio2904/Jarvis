@@ -3,13 +3,14 @@ import {
   displayPlaceName,
   extractPhone,
   findContactRow,
+  isAliasAnswer,
   isBarePlaceAnswer,
   isCommNo,
+  isCommOtherCommand,
   isCommYes,
   isHomeName,
   isRelationName,
   looksLikeAddress,
-  looksLikePhone,
   mapsDirUrl,
   parsePlaceNav,
   parsePlaceRecall,
@@ -76,8 +77,7 @@ type PendingComm = {
   body?: string
 }
 
-const OTHER_CMD =
-  /\b(wecker|timer|termin|wetter|tanke|fernseh|\btv\b|todo|notiz|suche|fahr|navigier|carplay|fahrmodus|akku|spotify|ventilator|apotheke|bäcker)\b/i
+const OTHER_CMD = isCommOtherCommand
 
 function readComm(): PendingComm | null {
   try {
@@ -330,16 +330,15 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
   const num = extractPhone(text)
   const nav = parsePlaceNav(text)
   const written = parsePlaceWrite(text)
-  const other = OTHER_CMD.test(text) || Boolean(nav) || Boolean(written)
+  const other = OTHER_CMD(text) || Boolean(nav) || Boolean(written)
 
   if (pending.kind === 'phone_ask') {
     if (num) {
       await upsertMemory(pending.name, num, 'contact', conversationId)
       return askCall(pending.name, num)
     }
-    const aliasName = text.trim().replace(/[.!?]+$/g, '')
-    if (/^[A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß-]{1,24}$/.test(aliasName) && !looksLikePhone(aliasName)) {
-      const alias = aliasName.toLowerCase()
+    if (isAliasAnswer(text)) {
+      const alias = text.trim().replace(/[.!?]+$/g, '').toLowerCase()
       if (alias !== pending.name) {
         await upsertMemory(`alias:${pending.name}`, alias, 'fact', conversationId)
         await upsertMemory(`alias:${alias}`, pending.name, 'fact', conversationId)

@@ -117,4 +117,10 @@ export const TEST_PROMPTS = [
   'Taschenlampe an',
   'ohne meine Adresse nachzugucken weißt du wo ich bin',
   'Nach Ingersheim',
+  'Meine Freundin ist Odett',
+  'Nummer für Freundin +49 1512 9733243',
+  'Ruf Odett an',
+  'aktiviere fullscreen',
+  'zeig das bild',
+  'zeig den Status',
 ] as const

@@ -1,6 +1,7 @@
 import { completeGeminiVision, geminiReady } from './gemini'
 import { addMessage, loadSettings } from './store'
 import { scrubReply } from './guards'
+import { saveLastEye } from './tablet'
 import type { ToolMeta } from './tools'
 
 export { parseEyeIntent } from './eye-parse'
@@ -58,7 +59,8 @@ export async function readEyeImage(
   conversationId: string,
   dataUrl: string,
 ): Promise<{ reply: string }> {
-  await addMessage(conversationId, 'user', 'Foto')
+  await addMessage(conversationId, 'user', 'Foto', dataUrl.startsWith('data:image/') ? { image: dataUrl } : null)
+  if (dataUrl.startsWith('data:image/')) saveLastEye(dataUrl)
   if (dataUrl.startsWith('error:')) {
     const reply = dataUrl.slice(6) || 'Bild nicht lesbar.'
     await addMessage(conversationId, 'assistant', reply, {
@@ -89,7 +91,7 @@ export async function readEyeImage(
     const text = await completeGeminiVision(prompt, m[2], m[1])
     const reply = scrubReply(text || 'Nichts Lesbares auf dem Bild.')
     await addMessage(conversationId, 'assistant', reply, {
-      tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'Auge' },
+      tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'Auge', result: { image: dataUrl } },
     })
     return { reply }
   } catch (err) {

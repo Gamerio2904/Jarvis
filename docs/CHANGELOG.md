@@ -5,9 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.2.2`**.
+App-Version im Code: **`2.3.0`**.
 
-Geplant (kein Code): [`31-next.md`](./31-next.md) `2.3.0`–`2.19.0`.
+Geplant danach: [`31-next.md`](./31-next.md) DWD und Alltag `2.4`–`2.19`.
+
+### `2.3.0` — Tablet-Modus + Telefon-Stuck — *CODE*
+
+`phone_ask` klebt nicht mehr: Fernseher, Lautstärke, Café und Fragen kommen durch. `Meine Freundin ist Odett` und `Nummer für Freundin +49…` speichern Alias und Nummer. `Ja` nach Smalltalk startet nicht den letzten TV-Befehl. `aktiviere fullscreen` füllt den Schirm, hört auf Jarvis, zeigt Wetter, Status und das letzte Foto.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 20300)
+- [`sprints/sprint-106.md`](./sprints/sprint-106.md)
 
 ### `2.2.2` — Testprompts raus aus der App — *CODE*
 

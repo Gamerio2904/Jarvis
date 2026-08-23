@@ -48,8 +48,10 @@ import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
 import { DriveMode } from './DriveMode'
+import { TabletMode } from './TabletMode'
 import { WakeBubble } from './WakeBubble'
 import { closeDrive, subscribeDrive } from './engine/drive'
+import { closeTablet, openTablet, subscribeTablet } from './engine/tablet'
 import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
@@ -158,7 +160,11 @@ function ToolChip({
         </a>
       ) : null}
       {typeof tool.result?.image === 'string' && String(tool.result.image).startsWith('data:image/') ? (
-        <img className="pc-shot" alt="PC-Bildschirm" src={String(tool.result.image)} />
+        <img
+          className={tool.tool === 'eye' || tool.tool === 'tablet' ? 'chat-photo' : 'pc-shot'}
+          alt={tool.tool === 'eye' || tool.tool === 'tablet' ? 'Foto' : 'PC-Bildschirm'}
+          src={String(tool.result.image)}
+        />
       ) : null}
     </span>
   )
@@ -310,6 +316,7 @@ function App() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
+  const [tabletOpen, setTabletOpen] = useState(false)
   const [wakeListening, setWakeListening] = useState(false)
   const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
@@ -364,6 +371,19 @@ function App() {
       if (on) {
         setCalendarOpen(false)
         setSidebarOpen(false)
+        setTabletOpen(false)
+      }
+    })
+  }, [])
+
+  useEffect(() => {
+    return subscribeTablet(() => {
+      const on = Boolean(loadSettings().tablet_mode)
+      setTabletOpen(on)
+      if (on) {
+        setCalendarOpen(false)
+        setSidebarOpen(false)
+        setVoiceOpen(false)
       }
     })
   }, [])
@@ -420,7 +440,13 @@ function App() {
   }, [settings?.wake_word])
 
   useEffect(() => {
-    const off = onWakeHit((utt) => openVoiceMode(utt || ''))
+    const off = onWakeHit((utt) => {
+      if (loadSettings().tablet_mode) {
+        setTabletOpen(true)
+        return
+      }
+      openVoiceMode(utt || '')
+    })
     let hideTimer = 0
     const vis = () => {
       window.clearTimeout(hideTimer)
@@ -750,6 +776,7 @@ function App() {
     }
     const s = await getSettings()
     if (s.drive_mode) setDriveOpen(true)
+    if (s.tablet_mode) setTabletOpen(true)
     if (s.wake_word) {
       try {
         await startWakeWord()
@@ -989,6 +1016,15 @@ function App() {
               setSidebarOpen(false)
             }
           }
+          if (payload.tool?.tool === 'tablet' || loadSettings().tablet_mode) {
+            if (payload.tool?.action === 'close') setTabletOpen(false)
+            else {
+              setTabletOpen(true)
+              setCalendarOpen(false)
+              setSidebarOpen(false)
+              setVoiceOpen(false)
+            }
+          }
           maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
@@ -1103,6 +1139,13 @@ function App() {
           if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
             if (payload.tool?.action === 'close') setDriveOpen(false)
             else setDriveOpen(true)
+          }
+          if (payload.tool?.tool === 'tablet' || loadSettings().tablet_mode) {
+            if (payload.tool?.action === 'close') setTabletOpen(false)
+            else {
+              setTabletOpen(true)
+              setVoiceOpen(false)
+            }
           }
           maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
@@ -1255,6 +1298,18 @@ function App() {
         >
           Jarvis hören
         </button>
+        <button
+          type="button"
+          className={`memory-toggle ${tabletOpen ? 'active' : ''}`}
+          onClick={() => {
+            openTablet()
+            setTabletOpen(true)
+            setSidebarOpen(false)
+            setVoiceOpen(false)
+          }}
+        >
+          Tablet / Vollbild
+        </button>
 
         <button
           type="button"
@@ -1297,8 +1352,8 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}`}>
-        {voiceOpen ? (
+      <main className={`main${driveOpen ? ' is-drive' : ''}${tabletOpen ? ' is-tablet' : ''}`}>
+        {voiceOpen && !tabletOpen ? (
           <VoiceMode
             onClose={() => {
               setVoiceOpen(false)
@@ -1316,6 +1371,15 @@ function App() {
               setDriveOpen(false)
             }}
             onCommand={(text) => sendVoiceTurn(text)}
+          />
+        ) : null}
+        {tabletOpen ? (
+          <TabletMode
+            onClose={() => {
+              closeTablet()
+              setTabletOpen(false)
+            }}
+            onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
           />
         ) : null}
         <div className="topbar">
@@ -1383,6 +1447,9 @@ function App() {
                     <div className="avatar jarvis">J</div>
                   ) : null}
                   <div className="bubble">
+                    {typeof m.meta?.image === 'string' && String(m.meta.image).startsWith('data:image/') ? (
+                      <img className="chat-photo" alt="" src={String(m.meta.image)} />
+                    ) : null}
                     <div className="bubble-text">{m.content}</div>
                     {m.role === 'assistant' && m.meta?.tool ? (
                       <ToolChip
@@ -1506,7 +1573,7 @@ function App() {
               </button>
             </div>
           </div>
-          {!voiceOpen ? (
+          {!voiceOpen && !tabletOpen ? (
             <WakeBubble
               listening={wakeListening}
               onTap={() => {
