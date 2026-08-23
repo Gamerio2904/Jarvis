@@ -11,6 +11,8 @@ App-Version im Code: **`2.28.0`**.
 
 `2.4`–`2.20` in einem Sideload nach `2.21.0`. DWD-Warnung, Schulferien, EZB-Kurs, Wikipedia/Destatis zuerst bei Fakten, Open Food Facts, Open Library, OpenLigaDB, iNaturalist/xeno-canto, ISS/Mond, OpenSky, Gesetzestext + Link, Waschzeichen, Schritte/Luftdruck/Kompass, Schach. Nichts erfinden.
 
+Einstellungen-GUI bleibt **`1.25.0` Vollbild + Themenleiste** — kein neues Design in `2.21`–`2.28`. Das 7er-Panel von `0.7.0` ist Historie. [`11-delight-and-settings.md`](./11-delight-and-settings.md) beschreibt den Live-Stand.
+
 - Sideload-APK `releases/Jarvis.apk` (versionCode 22800)
 - [`31-next.md`](./31-next.md) · [`sprints/sprint-108.md`](./sprints/sprint-108.md)
 

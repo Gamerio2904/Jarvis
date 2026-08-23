@@ -2,6 +2,8 @@
 
 **2.28.0:** Alltag & Welt (`2.4`–`2.20` mitgeliefert): DWD, Ferien, EZB, Research härter, Food/Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach. 2.21 bleibt.
 
+Einstellungen: **Vollbild + Themenleiste** aus `1.25.0` ([`11-delight-and-settings.md`](./11-delight-and-settings.md)). Kein neues Design in dieser Stufe. Upgrade behält Keys und Gespräche.
+
 ## Download
 
 **APK `2.28.0`:**  

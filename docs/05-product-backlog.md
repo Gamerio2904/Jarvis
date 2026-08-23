@@ -145,7 +145,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S8.2 | Als Nutzer will ich dosierte Inside Jokes aus dem Gedächtnis. | Should | done | Sprint 18 / `0.7.0` — `11` |
 | S8.3 | Als Nutzer will ich optionale UI-Sounds. | Could | done | Sprint 18 / `0.7.0` — `11` |
 | S8.4 | Als Nutzer will ich Easter-Egg-Commands, gelistet in den Einstellungen. | Should | done | Sprint 18 / `0.7.0` — `11` |
-| S8.5 | Als Nutzer will ich ein flaches Settings-Panel (wenig Verschachtelung). | Must | done | Sprint 18 / `0.7.0` — `11` |
+| S8.5 | Als Nutzer will ich Einstellungen ohne Sidebar-Dump. | Must | done | `1.25.0` Vollbild + Themenleiste (`11`); `0.7.0`-Panel ersetzt |
 | S8.6 | Als Nutzer will ich, dass Guards harmlosen Smalltalk/Tasks nicht mit Canned erschlagen. | Must | done | Sprint 19 / `0.7.1` |
 | S8.7 | Als Nutzer will ich valide Research-Timeouts (kein Negativwert). | Must | done | Sprint 19 / `0.7.1` |
 | S8.8 | Als Nutzer will ich korrekte Meta-Antworten (Modell/Version/Research), keine Marken-Halluzination. | Must | done | Sprint 19 / `0.7.1` |

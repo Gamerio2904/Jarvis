@@ -10,6 +10,7 @@ import {
   spotifyRedirect,
   startSpotifyLogin,
 } from './engine/spotify'
+import { APP_VERSION } from './engine/store'
 
 export type SettingsTopic =
   | 'allgemein'
@@ -238,7 +239,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Dieses Handy</h3>
               <p className="settings-lead">
-                Version {s?.version || '1.25.0'} · on-device, kein Server.
+                Version {s?.version || APP_VERSION} · on-device, kein Server.
               </p>
               <p className="settings-hint">
                 {p.health?.ok
