@@ -277,6 +277,18 @@ const gradlePath = join(android, 'app/build.gradle')
 let gradle = readFileSync(gradlePath, 'utf8')
 gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${versionCode}`)
 gradle = gradle.replace(/versionName\s+"[^"]+"/, `versionName "${versionName}"`)
+if (!gradle.includes('v1SigningEnabled')) {
+  gradle = gradle.replace(
+    /buildTypes\s*\{/,
+    `signingConfigs {
+        debug {
+            v1SigningEnabled true
+            v2SigningEnabled true
+        }
+    }
+    buildTypes {`,
+  )
+}
 if (!gradle.includes('archivesBaseName')) {
   gradle = gradle.replace(
     /android\s*\{\s*\n\s*namespace/,
