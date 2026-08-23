@@ -110,9 +110,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 104 | [`sprint-104.md`](./sprint-104.md) | `2.2.0` | Uhrzeit, Ort, Auto-Research | **CODE** |
 | 105 | [`sprint-105.md`](./sprint-105.md) | `2.4.0` | Alltag & Welt Kickoff (DWD zuerst) | **PLAN** |
 | 106 | [`sprint-106.md`](./sprint-106.md) | `2.3.0` | Tablet-Modus + Telefon-Stuck | **CODE** |
-| 107 | [`sprint-107.md`](./sprint-107.md) | `2.21.0` | Fahren, Musik, Chat, Angebot, FC 26 Kickoff | **PLAN** |
+| 107 | [`sprint-107.md`](./sprint-107.md) | `2.21.0` | Fahren, Musik, Chat, Angebot, FC 26 | **CODE** |
 
-**Aktuell:** Sideload `2.3.0`. Geplant: [`31-next.md`](../31-next.md) `2.4`–`2.20`, [`32-next.md`](../32-next.md) `2.21`–`2.27`.
+**Aktuell:** Sideload `2.21.0`. Geplant: [`31-next.md`](../31-next.md) `2.4`–`2.20`.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

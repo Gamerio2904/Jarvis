@@ -2,7 +2,7 @@
 
 PO 2026-08-23: Blitzer inkl. mobile Baustellen; CarPlay erst ausführen, dann vorlesen (oder nur vorlesen); Graphik glatter / weniger Latenz; Alternative zur Spotify-API (Amazon Musik); Chats in Ordner; benachrichtigen wenn Instanudeln im Angebot; FC-26-Mannschaft vom Bild analysieren, Vorschläge nach Karrierejahr und Potenzial, FIFA-Karten im Tablet, Auswahl-Animation.
 
-Reihe davor: [`31-next.md`](./31-next.md) Alltag & Welt `2.4`–`2.20`. App jetzt: Sideload **`2.3.0`**. Diese Reihe ist **PLAN**, Bau auf PO-Kommando.
+Reihe davor: [`31-next.md`](./31-next.md) Alltag & Welt `2.4`–`2.20`. App jetzt: Sideload **`2.21.0`** — `2.21`–`2.27` **mitgeliefert**.
 
 Eine Sideload-Stufe pro Version. Nichts erfinden. Keine Amts-API vortäuschen.
 
@@ -10,13 +10,13 @@ Eine Sideload-Stufe pro Version. Nichts erfinden. Keine Amts-API vortäuschen.
 
 | Version | Inhalt | API / Quelle | Status |
 |---------|--------|--------------|--------|
-| **`2.21.0`** | Blitzer + mobile Baustellen | Autobahn GmbH (Baustelle/Warnung/Sperrung), OSM fest + Baustelle; mobiles Blitzer nur benannte freie Liste oder ehrlich leer | **PLAN** |
-| **`2.22.0`** | CarPlay: zuerst tun, dann sprechen | intern Fahrmodus + vorhandenes TTS | **PLAN** |
-| **`2.23.0`** | Graphik & Latenz | intern (Chat, Overlay, Tablet, Karte) | **PLAN** |
-| **`2.24.0`** | Amazon Musik als Alternative | Android-Intent in die Amazon-Musik-App; interne API nur mit PO-Zugang (closed Beta) | **PLAN** |
-| **`2.25.0`** | Chats in Ordner | lokal IndexedDB | **PLAN** |
-| **`2.26.0`** | Instanudeln im Angebot | vorhandene Research + Notify; keine Rewe/Lidl-Reverse-API | **PLAN** |
-| **`2.27.0`** | FC 26 Mannschaft + Tablet-Karten | Auge (Foto) + benannte Spielerquelle; Potenzial-Jahr = Näherung | **PLAN** |
+| **`2.21.0`** | Blitzer + mobile Baustellen | Autobahn GmbH (Baustelle/Warnung/Sperrung), OSM fest + Baustelle; mobiles Blitzer nur benannte freie Liste oder ehrlich leer | **CODE** |
+| **`2.22.0`** | CarPlay: zuerst tun, dann sprechen | intern Fahrmodus + vorhandenes TTS | **CODE** |
+| **`2.23.0`** | Graphik & Latenz | intern (Chat, Overlay, Tablet, Karte) | **CODE** |
+| **`2.24.0`** | Amazon Musik als Alternative | Android-Intent in die Amazon-Musik-App; interne API nur mit PO-Zugang (closed Beta) | **CODE** |
+| **`2.25.0`** | Chats in Ordner | lokal IndexedDB | **CODE** |
+| **`2.26.0`** | Instanudeln im Angebot | vorhandene Research + Notify; keine Rewe/Lidl-Reverse-API | **CODE** |
+| **`2.27.0`** | FC 26 Mannschaft + Tablet-Karten | Auge (Foto) + benannte Spielerquelle; Potenzial-Jahr = Näherung | **CODE** |
 
 Sprint-Kickoff: [`sprint-107.md`](./sprints/sprint-107.md).
 

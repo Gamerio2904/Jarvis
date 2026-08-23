@@ -292,6 +292,23 @@ export function TabletMode({
             <strong>{card.reply}</strong>
           </article>
         ) : null}
+        {card.kind === 'squad' ? (
+          <div className={`tablet-squad ${card.focus ? 'has-focus' : ''}`}>
+            {card.picks.map((p) => (
+              <article
+                key={p.name}
+                className={`fifa-card ${p.kind} ${card.focus === p.name ? 'is-focus' : card.focus ? 'is-away' : ''}`}
+              >
+                <p className="settings-kicker">{p.kind === 'veteran' ? 'Erfahren' : p.kind === 'youth' ? 'Talent' : 'Mitte'}</p>
+                <strong>{p.est}</strong>
+                <span>{p.name}</span>
+                <span>
+                  {p.pos} · {p.age} · Pot. {p.pot}
+                </span>
+              </article>
+            ))}
+          </div>
+        ) : null}
       </section>
       <p className="tablet-hint">
         {neural ? 'Name oder Befehl. Charon wenn er schnell da ist.' : '„Jarvis“ oder ein Befehl. Gemini an = natürliche Stimme.'}

@@ -36,8 +36,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 29 | [WLAN-Steckdosen](./29-next.md) | **`2.1.0` CODE** — Shelly/Tasmota/Tuya-LAN |
 | 30 | [Uhrzeit, Ort, Research](./30-next.md) | **`2.2.0` CODE** — Gerätzeit, GPS, Auto-Suche |
 | 31 | [Alltag & Welt](./31-next.md) | **`2.3.0` CODE** Tablet; danach DWD bis Schach `2.4`–`2.20` **PLAN** |
-| 32 | [Fahren, Musik, Chat, FC 26](./32-next.md) | **`2.21`–`2.27` PLAN** — Blitzer, CarPlay-Stimme, Latenz, Amazon, Ordner, Instanudeln, FC 26 |
-| — | [APK](./apk.md) | Sideload `2.3.0` |
+| 32 | [Fahren, Musik, Chat, FC 26](./32-next.md) | **`2.21.0` CODE** — Blitzer, CarPlay-Stimme, Latenz, Amazon, Ordner, Instanudeln, FC 26 |
+| — | [APK](./apk.md) | Sideload `2.21.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -103,6 +103,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 104 | `2.2.0` | **CODE** (Uhrzeit, Ort, Auto-Research) |
 | 105 | `2.4.0` | **PLAN** (Alltag & Welt Kickoff; erste Code-Stufe DWD) |
 | 106 | `2.3.0` | **CODE** (Tablet-Modus + Telefon-Stuck) |
-| 107 | `2.21.0` | **PLAN** (Fahren/Musik/Chat/FC 26 Kickoff) |
+| 107 | `2.21.0` | **CODE** (Fahren/Musik/Chat/FC 26) |
 
-**Aktuell:** Sideload `2.3.0` — [`Jarvis.apk`](./apk.md). Geplant: [`31-next.md`](./31-next.md) `2.4`–`2.20`, [`32-next.md`](./32-next.md) `2.21`–`2.27`. PC-App: [`../desktop/README.md`](../desktop/README.md).
+**Aktuell:** Sideload `2.21.0` — [`Jarvis.apk`](./apk.md). Geplant: [`31-next.md`](./31-next.md) `2.4`–`2.20`. PC-App: [`../desktop/README.md`](../desktop/README.md).

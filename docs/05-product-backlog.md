@@ -28,7 +28,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E16 | Extra `1.21`–`1.24` | 4 | Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — [`20-next.md`](./20-next.md) |
 | E17 | Qualität `1.33`–`1.40` | 5+ | Bestehendes härten: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit — kein neues Produkt — [`28-next.md`](./28-next.md) |
 | E25 | Alltag & Welt `2.4`–`2.20` | 5+ | DWD, Ferien, Kurs, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach — [`31-next.md`](./31-next.md) **PLAN** |
-| E26 | Fahren, Musik, Chat, FC 26 `2.21`–`2.27` | 5+ | Blitzer/Baustelle, CarPlay tun-dann-sprechen, Latenz, Amazon Musik, Chat-Ordner, Instanudeln, FC 26 — [`32-next.md`](./32-next.md) **PLAN** |
+| E26 | Fahren, Musik, Chat, FC 26 `2.21`–`2.27` | 5+ | Blitzer/Baustelle, CarPlay tun-dann-sprechen, Latenz, Amazon Musik, Chat-Ordner, Instanudeln, FC 26 — [`32-next.md`](./32-next.md) **CODE** in `2.21.0` |
 
 ---
 
@@ -356,22 +356,21 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S26.1 | Blitzer + mobile Baustellen | Must | ready | `2.21.0` PLAN — Autobahn/OSM; mobil ehrlich |
-| S26.2 | CarPlay: zuerst tun, dann vorlesen | Must | ready | `2.22.0` PLAN — intern, nicht Apple |
-| S26.3 | Graphik glatter, weniger Latenz | Must | ready | `2.23.0` PLAN — bestehendes härten |
-| S26.4 | Amazon Musik als Spotify-Alternative | Must | ready | `2.24.0` PLAN — Intent; interne API nur mit Zugang |
-| S26.5 | Chats in Ordner sortieren | Must | ready | `2.25.0` PLAN — lokal |
-| S26.6 | Instanudeln-Angebot benachrichtigen | Must | ready | `2.26.0` PLAN — Research + Notify, nichts erfinden |
-| S26.7 | FC 26 Mannschaft + Tablet-Karten | Must | ready | `2.27.0` PLAN — Foto, Jahr fragen, drei Vorschläge |
+| S26.1 | Blitzer + mobile Baustellen | Must | done | `2.21.0` — Autobahn/OSM; mobil ehrlich |
+| S26.2 | CarPlay: zuerst tun, dann vorlesen | Must | done | `2.21.0` — intern, nicht Apple |
+| S26.3 | Graphik glatter, weniger Latenz | Must | done | `2.21.0` — bestehendes härten |
+| S26.4 | Amazon Musik als Spotify-Alternative | Must | done | `2.21.0` — Intent; interne API nur mit Zugang |
+| S26.5 | Chats in Ordner sortieren | Must | done | `2.21.0` — lokal |
+| S26.6 | Instanudeln-Angebot benachrichtigen | Must | done | `2.21.0` — Research + Notify, nichts erfinden |
+| S26.7 | FC 26 Mannschaft + Tablet-Karten | Must | done | `2.21.0` — Foto, Jahr fragen, drei Vorschläge |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `2.3.0` — [`apk.md`](./apk.md)
-2. Reihe Fahren/Musik/Chat/FC 26 **PLAN** [`32-next.md`](./32-next.md) — erste Code-Lieferung `2.21.0` Blitzer, wenn PO „bauen“ sagt
-3. Reihe Alltag & Welt **PLAN** [`31-next.md`](./31-next.md) — erste Code-Lieferung `2.4.0` DWD, wenn PO „bauen“ sagt
-4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. Sideload `2.21.0` — [`apk.md`](./apk.md)
+2. Reihe Alltag & Welt **PLAN** [`31-next.md`](./31-next.md) — erste Code-Lieferung `2.4.0` DWD, wenn PO „bauen“ sagt
+3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

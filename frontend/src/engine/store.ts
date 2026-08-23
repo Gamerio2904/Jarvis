@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '2.3.0'
+export const APP_VERSION = '2.21.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -14,6 +14,13 @@ export type Conversation = {
   title: string
   created_at: string
   updated_at: string
+  folder_id?: string | null
+}
+
+export type ChatFolder = {
+  id: string
+  title: string
+  created_at: string
 }
 
 export type Message = {
@@ -161,6 +168,12 @@ export type Settings = {
   drive_mode: boolean
   tablet_mode: boolean
   last_eye_json: string
+  last_radar_json: string
+  last_fc_json: string
+  offer_watch_json: string
+  last_offer_at: string
+  last_offer_hit: string
+  drive_speak_only: boolean
   spotify_client_id: string
   spotify_access: string
   spotify_refresh: string
@@ -242,6 +255,12 @@ export const DEFAULT_SETTINGS: Settings = {
   drive_mode: false,
   tablet_mode: false,
   last_eye_json: '',
+  last_radar_json: '',
+  last_fc_json: '',
+  offer_watch_json: '',
+  last_offer_at: '',
+  last_offer_hit: '',
+  drive_speak_only: false,
   spotify_client_id: '',
   spotify_access: '',
   spotify_refresh: '',
@@ -315,7 +334,7 @@ export type ResearchAudit = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 5)
+    const req = indexedDB.open('jarvis-ondevice', 6)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -329,6 +348,7 @@ function openDb(): Promise<IDBDatabase> {
         'reminders',
         'events',
         'shopping',
+        'folders',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -390,15 +410,48 @@ export async function listConversations(): Promise<Conversation[]> {
 
 export async function createConversation(
   title = 'Neues Gespräch',
+  folderId?: string | null,
 ): Promise<Conversation> {
   const row: Conversation = {
     id: newId(),
     title,
     created_at: nowIso(),
     updated_at: nowIso(),
+    folder_id: folderId || null,
   }
   await put('conversations', row)
   return row
+}
+
+export async function listFolders(): Promise<ChatFolder[]> {
+  const rows = await getAll<ChatFolder>('folders')
+  return rows.sort((a, b) => a.title.localeCompare(b.title, 'de'))
+}
+
+export async function createFolder(title: string): Promise<ChatFolder> {
+  const name = title.trim().slice(0, 40) || 'Ordner'
+  const existing = (await listFolders()).find((f) => f.title.toLowerCase() === name.toLowerCase())
+  if (existing) return existing
+  const row: ChatFolder = { id: newId(), title: name, created_at: nowIso() }
+  await put('folders', row)
+  return row
+}
+
+export async function moveConversation(id: string, folderId: string | null): Promise<Conversation | undefined> {
+  const row = await get<Conversation>('conversations', id)
+  if (!row) return undefined
+  const next = { ...row, folder_id: folderId, updated_at: nowIso() }
+  await put('conversations', next)
+  return next
+}
+
+export async function deleteFolder(id: string, withChats = false): Promise<void> {
+  const convs = await listConversations()
+  for (const c of convs.filter((x) => x.folder_id === id)) {
+    if (withChats) await deleteConversation(c.id)
+    else await moveConversation(c.id, null)
+  }
+  await del('folders', id)
 }
 
 export async function touchConversation(id: string, title?: string): Promise<Conversation | undefined> {

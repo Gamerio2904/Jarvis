@@ -172,6 +172,27 @@ public class JarvisDevicePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void openUrl(PluginCall call) {
+        String url = call.getString("url", "");
+        JSObject r = new JSObject();
+        if (url == null || url.trim().isEmpty()) {
+            r.put("ok", false);
+            r.put("message", "Keine Adresse.");
+            call.resolve(r);
+            return;
+        }
+        try {
+            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url.trim()));
+            startExt(i);
+            r.put("ok", true);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "App nicht geöffnet.");
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
     public void dial(PluginCall call) {
         String number = digits(call.getString("number", ""));
         JSObject r = new JSObject();

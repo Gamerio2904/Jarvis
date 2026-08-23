@@ -207,7 +207,7 @@ const ALIAS_IST =
 const ALIAS_SKIP =
   /^(wetter|termin|timer|wecker|todo|notiz|erinnerung|fernseher|tv|heute|morgen|schön|gut|ok|aus|an|cafe|café|kaffee)$/i
 const COMM_OTHER =
-  /\b(wecker|timer|termin|wetter|tanke|fernseh(?:er)?|\btv\b|lautstärke|volume|todo|notiz|suche|fahr(?:e)?|navigier|carplay|fahrmodus|akku|spotify|ventilator|steckdose|apotheke|bäcker|cafés?|cafes?|kaffee|frühstück|fullscreen|vollbild|tablet|overlay|youtube|netflix|disney|kalender|taschenlampe|status)\b/i
+  /\b(wecker|timer|termin|wetter|tanke|fernseh(?:er)?|\btv\b|lautstärke|volume|todo|notiz|suche|fahr(?:e)?|navigier|carplay|fahrmodus|akku|spotify|ventilator|steckdose|apotheke|bäcker|cafés?|cafes?|kaffee|frühstück|fullscreen|vollbild|tablet|overlay|youtube|netflix|disney|kalender|taschenlampe|status|blitzer|baustelle|amazon|ordner|instanudeln|mannschaft)\b/i
 const NOT_ALIAS_WORD =
   /^(aus|an|ein|ja|nein|ok|okay|tv|fernseher|lautstärke|volume|cafe|café|kaffee|wetter|tanke|timer|wecker|stopp|halt|bitte|danke|hier|jetzt|heute|morgen)$/i
 

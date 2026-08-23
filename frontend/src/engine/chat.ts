@@ -79,6 +79,12 @@ import { parseEyeIntent } from './eye-parse'
 import { handleChatSearch } from './search-chat'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
 import { handleTablet, publishTabletFromHit } from './tablet'
+import { handleRadar } from './radar'
+import { handleAmazon } from './amazon'
+import { handleFolders } from './folders'
+import { handleOffer } from './offer'
+import { handleSquad } from './squad'
+import { briefSpeak, parseSpeakMode } from './speak-brief'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -105,6 +111,7 @@ type RouteHit = {
   tool?: ToolMeta | null
   research?: ResearchMeta
   lastTool?: string
+  speak?: string
 }
 
 export async function getHealth() {
@@ -185,6 +192,18 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
+  const speakMode = parseSpeakMode(content)
+  if (speakMode) {
+    saveSettings({ drive_speak_only: speakMode === 'only' })
+    return {
+      reply:
+        speakMode === 'only'
+          ? 'Nur vorlesen. Im Fahrmodus die kurze Zeile, kein langer Satz.'
+          : 'Zuerst ausführen, dann vorlesen. So bleibt es.',
+      lastTool: 'drive',
+    }
+  }
+
   const discountToggle = parseShopDiscountIntent(content)
   if (discountToggle) {
     saveSettings({ shop_discount: discountToggle.on })
@@ -245,6 +264,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     if (rewritten) return routeDeterministic(conversationId, rewritten)
     const label = ord.index === 1 ? 'zweite' : `${ord.index + 1}.`
     return { reply: `Das ${label}: ${title}.`, lastTool: loadSettings().last_step_tool || 'ordinal' }
+  }
+
+  const amazonEarly = await handleAmazon(conversationId, content)
+  if (amazonEarly.handled && amazonEarly.reply) {
+    return {
+      reply: amazonEarly.reply,
+      tool: amazonEarly.tool,
+      lastTool: amazonEarly.lastTool || 'amazon',
+    }
   }
 
   const tvHit = await handleTv(content)
@@ -364,6 +392,42 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       tool: transitHit.tool,
       lastTool: transitHit.lastTool || 'transit',
       research: transitHit.research,
+    }
+  }
+
+  const radarHit = await handleRadar(conversationId, content)
+  if (radarHit.handled && radarHit.reply) {
+    return {
+      reply: radarHit.reply,
+      tool: radarHit.tool,
+      lastTool: radarHit.lastTool || 'radar',
+    }
+  }
+
+  const folderHit = await handleFolders(conversationId, content)
+  if (folderHit.handled && folderHit.reply) {
+    return {
+      reply: folderHit.reply,
+      tool: folderHit.tool,
+      lastTool: folderHit.lastTool || 'folder',
+    }
+  }
+
+  const offerHit = await handleOffer(conversationId, content)
+  if (offerHit.handled && offerHit.reply) {
+    return {
+      reply: offerHit.reply,
+      tool: offerHit.tool,
+      lastTool: offerHit.lastTool || 'offer',
+    }
+  }
+
+  const squadHit = await handleSquad(conversationId, content)
+  if (squadHit.handled && squadHit.reply) {
+    return {
+      reply: squadHit.reply,
+      tool: squadHit.tool,
+      lastTool: squadHit.lastTool || 'squad',
     }
   }
 
@@ -649,8 +713,11 @@ export async function streamChat(
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
       const joined = replies.join('\n\n')
-      handlers.onToken?.(joined)
-      const assistant = await addMessage(conversationId, 'assistant', joined, {
+      const driving = Boolean(loadSettings().drive_mode)
+      const spoken = driving ? briefSpeak(joined) : joined
+      const out = driving && loadSettings().drive_speak_only ? spoken : joined
+      handlers.onToken?.(out)
+      const assistant = await addMessage(conversationId, 'assistant', out, {
         tool: last.tool,
         research,
       })

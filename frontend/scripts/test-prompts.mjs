@@ -39,6 +39,12 @@ import { parseTransitIntent } from '../src/engine/transit-parse.ts'
 import { parseHolidayIntent } from '../src/engine/holiday-parse.ts'
 import { parseNewsIntent } from '../src/engine/news-parse.ts'
 import { parseTabletIntent } from '../src/engine/tablet-parse.ts'
+import { parseRadarIntent } from '../src/engine/radar-parse.ts'
+import { parseAmazonIntent } from '../src/engine/amazon-parse.ts'
+import { parseFolderIntent } from '../src/engine/folder-parse.ts'
+import { parseOfferIntent } from '../src/engine/offer-parse.ts'
+import { parseSquadIntent } from '../src/engine/squad-parse.ts'
+import { parseSpeakMode } from '../src/engine/speak-brief.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
@@ -48,6 +54,7 @@ const NOW = new Date('2026-08-15T14:00:00')
 function route(text, ctx = {}) {
   text = normalizeUtterance(text)
   if (isHelpCommand(text)) return 'help'
+  if (parseAmazonIntent(text)) return 'amazon'
   if (parseShopDiscountIntent(text)) return 'discount'
   if (parseOrdinalFollowUp(text)) return 'ordinal'
   if (parseTvWatch(text) || parseTvIntent(text)) return 'tv'
@@ -58,6 +65,11 @@ function route(text, ctx = {}) {
   if (parseFuelIntent(text)) return 'fuel'
   if (parsePoiIntent(text)) return 'poi'
   if (parseTransitIntent(text)) return 'transit'
+  if (parseSpeakMode(text)) return 'drive'
+  if (parseRadarIntent(text)) return 'radar'
+  if (parseFolderIntent(text)) return 'folder'
+  if (parseOfferIntent(text)) return 'offer'
+  if (parseSquadIntent(text)) return 'squad'
   if (parseTabletIntent(text)) return 'tablet'
   if (parseDriveIntent(text) || parseSpotifyIntent(text)) return 'drive'
   if (parseDeviceIntent(text)) return 'device'
@@ -251,6 +263,12 @@ assert.equal(parseHereIntent('wo könnte ich jetzt frühstücken'), null)
 assert.equal(parseDeviceIntent('wie spät ist es')?.kind, 'clock')
 assert.equal(route('Taschenlampe an'), 'device')
 assert.equal(route('Nach Ingersheim'), 'drive')
+assert.equal(route('Gibt’s Blitzer?'), 'radar')
+assert.equal(route('Spiel Hotel California auf Amazon'), 'amazon')
+assert.equal(route('Leg das Gespräch nach Arbeit'), 'folder')
+assert.equal(route('Sag Bescheid wenn Instanudeln im Angebot sind'), 'offer')
+assert.equal(route('Wer fehlt in der Mannschaft'), 'squad')
+assert.equal(route('nur vorlesen'), 'drive')
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }

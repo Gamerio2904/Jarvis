@@ -18,7 +18,7 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 ## Android-APK
 
-**`Jarvis.apk` `2.3.0`:** [Download](https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-modus-phone-ask-b173/releases/Jarvis.apk)
+**`Jarvis.apk` `2.21.0`:** [Download](https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-modus-phone-ask-b173/releases/Jarvis.apk)
 
 ```bat
 build-apk.bat

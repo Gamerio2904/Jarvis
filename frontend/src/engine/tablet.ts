@@ -11,6 +11,20 @@ export type TabletCard =
   | { kind: 'image'; dataUrl: string; caption?: string }
   | { kind: 'status'; title: string; body: string }
   | { kind: 'reply'; heard: string; reply: string }
+  | {
+      kind: 'squad'
+      picks: Array<{
+        name: string
+        pos: string
+        age: number
+        ovr: number
+        pot: number
+        club: string
+        kind: string
+        est: number
+      }>
+      focus?: string
+    }
 
 export type LastEyeItem = { dataUrl: string; at: string; caption?: string }
 

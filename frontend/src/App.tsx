@@ -52,7 +52,8 @@ import { TabletMode } from './TabletMode'
 import { WakeBubble } from './WakeBubble'
 import { closeDrive, subscribeDrive } from './engine/drive'
 import { closeTablet, openTablet, subscribeTablet } from './engine/tablet'
-import { loadSettings } from './engine/store'
+import { checkOfferWatch } from './engine/offer'
+import { createFolder, listFolders, loadSettings, type ChatFolder } from './engine/store'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
@@ -288,6 +289,8 @@ function IconSend() {
 
 function App() {
   const [conversations, setConversations] = useState<Conversation[]>([])
+  const [folders, setFolders] = useState<ChatFolder[]>([])
+  const [folderFilter, setFolderFilter] = useState<string | 'all'>('all')
   const [activeId, setActiveId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
@@ -801,6 +804,12 @@ function App() {
     try {
       const list = await listConversations()
       setConversations(list)
+      try {
+        setFolders(await listFolders())
+      } catch {
+        /* Ordner optional */
+      }
+      void checkOfferWatch()
       if (list[0]) {
         await openConversation(list[0].id)
       }
@@ -1002,6 +1011,9 @@ function App() {
           }
           if (payload.research) void refreshAudits()
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
+          if (payload.tool?.tool === 'folder') {
+            void listFolders().then(setFolders)
+          }
           if (payload.tool?.tool === 'calendar') {
             if (payload.tool.action === 'open') {
               setCalendarOpen(true)
@@ -1319,8 +1331,43 @@ function App() {
           Einstellungen
         </button>
 
+        <div className="folder-row">
+          <button
+            type="button"
+            className={`folder-chip ${folderFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setFolderFilter('all')}
+          >
+            Alle
+          </button>
+          {folders.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              className={`folder-chip ${folderFilter === f.id ? 'active' : ''}`}
+              onClick={() => setFolderFilter(f.id)}
+            >
+              {f.title}
+            </button>
+          ))}
+          <button
+            type="button"
+            className="folder-chip"
+            onClick={() => {
+              const title = window.prompt('Neuer Ordner')
+              if (!title?.trim()) return
+              void createFolder(title.trim()).then(async (row) => {
+                setFolders(await listFolders())
+                setFolderFilter(row.id)
+              })
+            }}
+          >
+            +
+          </button>
+        </div>
         <div className="chat-list">
-          {conversations.map((c, i) => (
+          {conversations
+            .filter((c) => folderFilter === 'all' || c.folder_id === folderFilter)
+            .map((c, i) => (
             <button
               key={c.id}
               type="button"

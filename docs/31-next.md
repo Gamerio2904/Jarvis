@@ -4,7 +4,7 @@ PO 2026-08-20: Nächste Updates planen — Unwetter/DWD, Schulferien, Wechselkur
 
 Reihe davor: [`30-next.md`](./30-next.md). Reihe danach: [`32-next.md`](./32-next.md) Fahren/Musik/Chat/Angebot/FC 26 (`2.21`–`2.27`) **PLAN**.
 
-App jetzt: Sideload **`2.3.0`** Tablet-Modus. Nächste Code-Stufe dieser Reihe: DWD als **`2.4.0`**, wenn der PO „bauen“ sagt.
+App jetzt: Sideload **`2.21.0`**. Nächste Code-Stufe dieser Reihe: DWD als **`2.4.0`**, wenn der PO „bauen“ sagt.
 
 Eine Sideload-Stufe pro Version.
 

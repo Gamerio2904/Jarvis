@@ -30,6 +30,8 @@ import {
 import { formatNavBanner, nextManeuver } from './engine/nav-speak'
 import { watchDeviceLocation } from './native/geo'
 import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, speakText, stopListen, stopSpeak } from './native/voice'
+import { briefSpeak } from './engine/speak-brief'
+import { loadSettings } from './engine/store'
 import { isChatSpeaking } from './engine/speak-lock'
 import { parseFuelIntent } from './engine/fuel-parse'
 import { parsePoiIntent } from './engine/poi-parse'
@@ -557,7 +559,9 @@ export function DriveMode({
         const line = reply.trim()
         if (line) {
           setHearMsg(line)
-          await speakText(line)
+          const short = briefSpeak(line)
+          await speakCueFast(short)
+          if (!loadSettings().drive_speak_only && line !== short) await speakText(line)
         } else {
           setHearMsg('Verstanden.')
         }

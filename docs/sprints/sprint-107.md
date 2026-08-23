@@ -1,30 +1,34 @@
-# Sprint 107 — Fahren, Musik, Chat, Angebot, FC 26, Kickoff (`2.21.0` zuerst) **PLAN**
+# Sprint 107 — Fahren, Musik, Chat, Angebot, FC 26 (`2.21.0`)
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
-| Priorität | **MUST** (Reihenfolge fest, Bau auf PO-Kommando) |
-| Ziel-Version | **`2.21.0`** als erste Lieferung dieser Reihe |
+| Status | **CODE** |
+| Priorität | **MUST** |
+| Ziel-Version | **`2.21.0`** (`2.21`–`2.27` mitgeliefert) |
 | Quelle | PO: Blitzer/Baustellen, CarPlay zuerst tun, Graphik, Amazon Musik, Chat-Ordner, Instanudeln, FC 26 |
 | Voraussetzung | `2.3.0` |
 | Plan | [`32-next.md`](../32-next.md) |
 
 ## Ziel
 
-Die Reihe `2.21`–`2.27` steht schriftlich. Gebaut wird erst, wenn der PO `2.21.0` (Blitzer) anstößt.
+Die Reihe `2.21`–`2.27` ist gebaut und sideloadbar.
 
-## Must (Plan)
+## Must
 
 | ID | Inhalt | Done wenn |
 |----|--------|-----------|
-| P1 | `32-next.md` mit Versionen, Quellen, Chat-Beispielen | Docs |
-| P2 | Backlog E26 + Priorität | Docs |
-| P3 | Erste Code-Lieferung später: Blitzer + Baustellen | Sideload `2.21.0` — **noch nicht** |
+| P1 | Blitzer/Baustelle OSM + Autobahn | `Gibt’s Blitzer?` ehrlich, kein mobiler Fake |
+| P2 | CarPlay zuerst tun, dann kurze Zeile | `nur vorlesen` kürzt |
+| P3 | Amazon-Intent | `Spiel … auf Amazon` öffnet die App |
+| P4 | Chat-Ordner | `Leg das Gespräch nach Arbeit` |
+| P5 | Instanudeln-Watchlist | Research + Notify, kein erfundenes Angebot |
+| P6 | FC 26 Karten | Jahr fragen, drei Vorschläge, „Gute Wahl, Sir.“ |
+| P7 | Sideload `2.21.0` | versionCode 22100 |
 
-## Reihe (nicht dieser Sprint-Code)
+## Probe
 
-`2.21` Blitzer/Baustelle · `2.22` CarPlay tun-dann-sprechen · `2.23` Graphik/Latenz · `2.24` Amazon Musik · `2.25` Chat-Ordner · `2.26` Instanudeln · `2.27` FC 26 Tablet-Karten
+`Gibt’s Blitzer?` · `Nach Heilbronn` dann kurze Zeile · `Spiel Hotel California auf Amazon` · `neuer Ordner Arbeit` · `Sag Bescheid wenn Instanudeln im Angebot sind` · Foto + `Ich bin im Jahr 2028` · Name einer Karte.
 
 ## Won’t
 
-Code in diesem Sprint. Apple CarPlay, Blitzer.de-Scrape, Amazon-Stream ohne Zugang, Rewe/Lidl-Reverse, erfundene OVR, Tuya-Cloud.
+Apple CarPlay, Blitzer.de-Scrape, Amazon-Stream ohne Zugang, Rewe/Lidl-Reverse, erfundene OVR, Tuya-Cloud.

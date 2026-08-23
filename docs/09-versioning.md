@@ -147,6 +147,7 @@ MAJOR.MINOR.PATCH
 | `2.2.1` | Testprompts: Kopierfelder unter Einstellungen → Tests | Sprint 104 Patch |
 | `2.2.2` | Testprompts wieder raus aus der APK | Sprint 104 Patch |
 | `2.3.0` | Tablet-Modus + Telefon-Stuck | Sprint 106 |
+| `2.21.0` | Blitzer, CarPlay-Stimme, Amazon, Ordner, Angebot, FC 26 (`2.21`–`2.27`) | Sprint 107 |
 
 ### Geplant — Reihe [`31-next.md`](./31-next.md) (noch kein Code)
 
@@ -170,17 +171,11 @@ MAJOR.MINOR.PATCH
 | `2.19.0` | Handy-Sensoren (Schritte, Barometer) | 121 |
 | `2.20.0` | Schach | 122 |
 
-### Geplant — Reihe [`32-next.md`](./32-next.md) (noch kein Code)
+### Reihe [`32-next.md`](./32-next.md) — **CODE** in `2.21.0`
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `2.21.0` | Blitzer + mobile Baustellen | 107+ |
-| `2.22.0` | CarPlay: zuerst tun, dann sprechen | 124 |
-| `2.23.0` | Graphik & Latenz | 125 |
-| `2.24.0` | Amazon Musik (Intent, API nur mit Zugang) | 126 |
-| `2.25.0` | Chat-Ordner | 127 |
-| `2.26.0` | Instanudeln-Angebot (Research + Notify) | 128 |
-| `2.27.0` | FC 26 Mannschaft + Tablet-Karten | 129 |
+| `2.21.0`–`2.27.0` | Blitzer, CarPlay-Stimme, Graphik, Amazon, Ordner, Instanudeln, FC 26 | 107 |
 
 ### Weitere Beispiele
 

@@ -61,6 +61,13 @@ import {
   isAliasAnswer,
 } from '../src/engine/places-parse.ts'
 import { isNameOnly, parseTabletIntent } from '../src/engine/tablet-parse.ts'
+import { parseRadarIntent, mentionsMobileRadar } from '../src/engine/radar-parse.ts'
+import { parseAmazonIntent, namesAmazon } from '../src/engine/amazon-parse.ts'
+import { parseFolderIntent } from '../src/engine/folder-parse.ts'
+import { parseOfferIntent } from '../src/engine/offer-parse.ts'
+import { parseSquadIntent, parseSquadPick } from '../src/engine/squad-parse.ts'
+import { briefSpeak, parseSpeakMode } from '../src/engine/speak-brief.ts'
+import { estimateOvr, findPlayer } from '../src/engine/fc26-players.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { pickHeard } from '../src/engine/heard.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
@@ -997,7 +1004,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.3\.0/)
+assert.match(HELP_TEXT, /2\.21\.0/)
 assert.match(HELP_TEXT, /fullscreen/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
@@ -1343,5 +1350,27 @@ const got = tap2.feed('Eins. Zwei kommt jetzt wirklich.')
 assert.equal(got.length, 1)
 assert.match(got[0], /Eins/)
 assert.match(got[0], /Zwei/)
+
+assert.equal(parseRadarIntent('Gibt’s Blitzer?')?.kind, 'ahead')
+assert.equal(parseRadarIntent('Baustelle vor mir')?.kind, 'works')
+assert.equal(mentionsMobileRadar('mobile Blitzer'), true)
+assert.equal(parseAmazonIntent('Spiel Hotel California auf Amazon')?.kind, 'play')
+assert.equal(namesAmazon('Spiel das auf Amazon'), true)
+assert.equal(parseAmazonIntent('Zeig Spotify'), null)
+assert.equal(parseFolderIntent('Leg das Gespräch nach Arbeit')?.kind, 'move')
+assert.equal(parseFolderIntent('neuer Ordner Arbeit')?.kind, 'create')
+assert.equal(parseOfferIntent('Sag Bescheid wenn Instanudeln im Angebot sind')?.kind, 'watch')
+assert.equal(parseOfferIntent('Sind Instanudeln im Angebot')?.kind, 'check')
+assert.equal(parseSquadIntent('Wer fehlt in der Mannschaft')?.kind, 'analyze')
+assert.equal(parseSquadIntent('Ich bin im Jahr 2028')?.kind, 'year')
+assert.equal(parseSquadPick('Mbappé', ['Kylian Mbappé']), 'Kylian Mbappé')
+assert.equal(parseSpeakMode('nur vorlesen'), 'only')
+assert.equal(parseSpeakMode('erst ausführen dann vorlesen'), 'then')
+assert.equal(briefSpeak('Route liegt. Noch drei Sätze mehr hier.'), 'Route liegt.')
+assert.ok((findPlayer('Haaland')?.pot || 0) >= 90)
+assert.ok(estimateOvr(findPlayer('Lamine Yamal'), 2028) >= findPlayer('Lamine Yamal').ovr)
+assert.match(HELP_TEXT, /Blitzer/)
+assert.match(HELP_TEXT, /Amazon/)
+assert.match(HELP_TEXT, /FC 26/)
 
 console.log('ok 0.14 parsers')

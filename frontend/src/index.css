@@ -913,6 +913,30 @@ textarea {
   flex: 1 1 0;
   padding-right: 2px;
   min-height: 0;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
+}
+
+.folder-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.folder-chip {
+  border: 1px solid rgba(246, 243, 234, 0.12);
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.folder-chip.active {
+  border-color: rgba(30, 215, 96, 0.45);
+  color: var(--text);
 }
 
 .chat-item {
@@ -2030,6 +2054,8 @@ button.linkish {
 }
 
 .drive-view {
+  contain: layout paint;
+  transform: translateZ(0);
   position: absolute;
   inset: 0;
   z-index: 14;
@@ -2821,6 +2847,8 @@ button.linkish {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  contain: layout paint;
+  transform: translateZ(0);
 }
 
 .tablet-burst {
@@ -3005,6 +3033,40 @@ button.linkish {
 
 .tablet-photo {
   padding: 8px;
+}
+
+.tablet-squad {
+  display: flex;
+  gap: 12px;
+  grid-column: 1 / -1;
+  min-height: 160px;
+}
+
+.fifa-card {
+  flex: 1;
+  min-width: 0;
+  padding: 14px 12px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, #d4b06a 0%, #7a5a1e 55%, #1a1408 100%);
+  color: #1a1206;
+  transition:
+    transform 0.45s var(--ease-out),
+    opacity 0.4s ease;
+}
+
+.fifa-card strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.fifa-card.is-focus {
+  transform: scale(1.18);
+  z-index: 3;
+}
+
+.fifa-card.is-away {
+  opacity: 0;
+  transform: scale(0.4);
 }
 
 .tablet-photo img {

@@ -5,9 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.3.0`**.
+App-Version im Code: **`2.21.0`**.
 
-Geplant danach: [`31-next.md`](./31-next.md) DWD und Alltag `2.4`–`2.20`; [`32-next.md`](./32-next.md) Fahren/Musik/Chat/FC 26 `2.21`–`2.27`.
+Geplant danach: [`31-next.md`](./31-next.md) DWD und Alltag `2.4`–`2.20`.
+
+### `2.21.0` — Blitzer, CarPlay-Stimme, Amazon, Ordner, Angebot, FC 26 — *CODE*
+
+`2.21`–`2.27` in einem Sideload. Blitzer/Baustelle aus OSM und Autobahn GmbH, mobile Blitzer ehrlich leer. Im Fahrmodus zuerst tun, dann kurze Zeile. Graphik etwas ruhiger. Amazon öffnet die App, spielt nicht intern. Chats in Ordner. Instanudeln-Watchlist über vorhandene Suche + Notify. FC-26-Foto, Karrierejahr, drei Vorschläge, Karten im Tablet, „Gute Wahl, Sir.“
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 22100)
+- [`32-next.md`](./32-next.md) · [`sprints/sprint-107.md`](./sprints/sprint-107.md)
 
 ### `2.3.0` — Tablet-Modus + Telefon-Stuck — *CODE*
 

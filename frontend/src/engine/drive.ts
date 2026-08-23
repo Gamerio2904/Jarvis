@@ -1,4 +1,7 @@
 import { parseDriveIntent, type DriveTab } from './drive-parse'
+import { handleAmazon, namesAmazon } from './amazon'
+import { peekRadarCue } from './radar'
+import { briefSpeak } from './speak-brief'
 import { isFuelPlace } from './fuel-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
 import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
@@ -53,7 +56,17 @@ let announced = new Map<string, Set<string>>()
 let offSince = 0
 let lastRerouteAt = 0
 let lastSnapI = 0
+let radarCue: string | null = null
+let radarAt = 0
 const listeners = new Set<() => void>()
+
+function pullRadar(here: DriveFix) {
+  if (Date.now() - radarAt < 20_000) return
+  radarAt = Date.now()
+  void peekRadarCue(here.lat, here.lon).then((c) => {
+    radarCue = c
+  })
+}
 
 function persistActive() {
   if (!active) {
@@ -226,6 +239,17 @@ function guidanceFor(here: DriveFix): DriveGuidance | null {
       announced.set(key, seen)
       cue = formatNavCue(nxt.dir, nxt.meters, phase, nxt.exit)
     }
+  }
+  pullRadar(here)
+  if (!cue && radarCue) {
+    const key = `radar|${radarCue}`
+    const seen = announced.get(key) || new Set<string>()
+    if (!seen.has('once')) {
+      seen.add('once')
+      announced.set(key, seen)
+      cue = radarCue
+    }
+    radarCue = null
   }
   return { ...banner, cue, offRoute: nxt.offRoute }
 }
@@ -401,7 +425,9 @@ async function startRoute(_label: string, place: string): Promise<{
   const km = route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`
   return {
     handled: true,
-    reply: `Fahrmodus nach ${dest.fix.place}: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`,
+    reply: s.drive_speak_only
+      ? briefSpeak(`Route liegt. ${dest.fix.place}, ${route.minutes} Min.`)
+      : `Fahrmodus nach ${dest.fix.place}: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`,
     tool,
     lastTool: 'drive',
   }
@@ -451,6 +477,7 @@ export async function handleDrive(
   _conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
+  if (namesAmazon(text)) return handleAmazon(_conversationId, text)
   const s = loadSettings()
   const music = parseSpotifyIntent(text)
   const namesSpotify = /\bspotify\b/i.test(text)
