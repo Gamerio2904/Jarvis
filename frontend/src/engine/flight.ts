@@ -6,7 +6,7 @@ import type { ToolMeta } from './tools'
 
 export { parseFlightIntent } from './flight-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.1 (local.jarvis.app)' }
 
 function tool(action: string, label: string): ToolMeta {
   return { tool_status: 'executed', tool: 'flight', action, label }

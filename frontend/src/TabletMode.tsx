@@ -110,8 +110,10 @@ export function TabletMode({
       if (!live.current) return
       const text = heardRes.text.trim()
       if (!text) {
-        if (heardRes.message) setErr(heardRes.message)
-        await new Promise((r) => setTimeout(r, 220))
+        if (heardRes.message) {
+          setErr(heardRes.message)
+          await new Promise((r) => setTimeout(r, 600))
+        }
         continue
       }
       if (isNameOnly(text)) {
@@ -311,7 +313,7 @@ export function TabletMode({
         ) : null}
       </section>
       <p className="tablet-hint">
-        {neural ? 'Name oder Befehl. Charon wenn er schnell da ist.' : '„Jarvis“ oder ein Befehl. Gemini an = natürliche Stimme.'}
+        {neural ? 'Name oder Befehl. Charon spricht.' : '„Jarvis“ oder ein Befehl. Gemini an = natürliche Stimme.'}
       </p>
     </div>
   )

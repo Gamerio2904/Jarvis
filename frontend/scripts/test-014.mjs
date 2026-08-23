@@ -37,7 +37,7 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
-import { ttsModelsToTry } from '../src/engine/tts.ts'
+import { spokenForGemini, ttsModelsToTry, TTS_NATIVE_RACE_MS } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
@@ -975,6 +975,9 @@ assert.deepEqual(pullReady('Ja. ').parts, [])
 assert.ok(pullReady('Guten Morgen.', true).parts.length >= 1)
 assert.equal(ttsModelsToTry()[0], 'gemini-2.5-flash-preview-tts')
 assert.equal(ttsModelsToTry('gemini-2.5-flash-preview-tts').length, 2)
+assert.equal(spokenForGemini('Guten Tag.'), 'Guten Tag.')
+assert.doesNotMatch(spokenForGemini('Ruhe, bitte.'), /Calm|Read only|German/)
+assert.ok(TTS_NATIVE_RACE_MS >= 2000)
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
 assert.equal(two.parts.length, 1)
 assert.match(two.parts[0], /Ja\./)
@@ -1018,7 +1021,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.28\.0/)
+assert.match(HELP_TEXT, /2\.28\.1/)
 assert.match(HELP_TEXT, /fullscreen/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)

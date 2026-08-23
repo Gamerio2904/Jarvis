@@ -10,9 +10,9 @@ const TTS_MODELS = [
 /** Male, informative — one voice, no retry carousel. */
 export const TTS_VOICES = ['Charon'] as const
 
-/** Hard cap. Pipeline races native even sooner. */
-export const TTS_BUDGET_MS = 900
-export const TTS_NATIVE_RACE_MS = 500
+/** Charon needs ~2s. Short race made Android win and sound robotic. */
+export const TTS_BUDGET_MS = 2800
+export const TTS_NATIVE_RACE_MS = 2400
 
 export function wantGeminiVoice(): boolean {
   const s = loadSettings()
@@ -21,14 +21,13 @@ export function wantGeminiVoice(): boolean {
   return isGeminiConfigured()
 }
 
-function spokenForGemini(text: string): string {
-  const body = text
+/** German body only — English style prefixes are spoken aloud. */
+export function spokenForGemini(text: string): string {
+  return text
     .replace(/[`#*]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 420)
-  if (!body) return ''
-  return `Calm, low German, precise, slightly dry. Not theatrical. Read only: ${body}`
+    .slice(0, 720)
 }
 
 export function ttsModelsToTry(cached?: string): string[] {

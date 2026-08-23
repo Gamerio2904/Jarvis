@@ -6,7 +6,7 @@ import type { ToolMeta } from './tools'
 
 export { parseFerienIntent } from './ferien-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.1 (local.jarvis.app)' }
 
 type Row = { start: string; end: string; name?: string; stateCode?: string }
 

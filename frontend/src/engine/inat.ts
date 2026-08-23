@@ -1,6 +1,6 @@
 import { getJson } from './http-json'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.1 (local.jarvis.app)' }
 
 export type InatTaxon = { name: string; common: string; rank: string; wiki: string; url: string }
 

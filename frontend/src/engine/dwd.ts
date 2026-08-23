@@ -7,7 +7,7 @@ import type { ToolMeta } from './tools'
 
 export { parseDwdIntent } from './dwd-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.1 (local.jarvis.app)' }
 const WFS =
   'https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=dwd:Warnungen_Gemeinden&outputFormat=application/json&srsName=EPSG:4326'
 

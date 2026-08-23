@@ -406,7 +406,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Mit Gemini-Key: Antwort sofort (Android). Charon nur wenn er in unter einer halben Sekunde da ist — sonst keine Stille.
+                Mit Gemini-Key: Charon spricht die Antwort. Android nur wenn das Netz nicht rechtzeitig kommt.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>

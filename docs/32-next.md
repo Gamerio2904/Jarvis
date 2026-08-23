@@ -2,7 +2,7 @@
 
 PO 2026-08-23: Blitzer inkl. mobile Baustellen; CarPlay erst ausführen, dann vorlesen (oder nur vorlesen); Graphik glatter / weniger Latenz; Alternative zur Spotify-API (Amazon Musik); Chats in Ordner; benachrichtigen wenn Instanudeln im Angebot; FC-26-Mannschaft vom Bild analysieren, Vorschläge nach Karrierejahr und Potenzial, FIFA-Karten im Tablet, Auswahl-Animation.
 
-Reihe davor: [`31-next.md`](./31-next.md) Alltag & Welt `2.4`–`2.20` **CODE** in `2.28.0`. App Sideload **`2.28.0`**. `2.21`–`2.27` bleiben in `2.21.0`.
+Reihe davor: [`31-next.md`](./31-next.md) Alltag & Welt `2.4`–`2.20` **CODE** in `2.28.0`. App Sideload **`2.28.1`**. `2.21`–`2.27` bleiben in `2.21.0`.
 
 Eine Sideload-Stufe pro Version. Nichts erfinden. Keine Amts-API vortäuschen.
 

@@ -87,7 +87,7 @@ async function readLichess(user: string): Promise<{ handled: boolean; reply?: st
   try {
     const { status, text } = await getText(`https://lichess.org/api/games/user/${encodeURIComponent(name)}?max=1&moves=true&opening=true`, {
       Accept: 'application/x-ndjson',
-      'User-Agent': 'Jarvis/2.28.0 (local.jarvis.app)',
+      'User-Agent': 'Jarvis/2.28.1 (local.jarvis.app)',
     })
     if (status < 200 || status >= 300 || !text.trim()) {
       return {

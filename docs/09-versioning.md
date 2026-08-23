@@ -149,6 +149,7 @@ MAJOR.MINOR.PATCH
 | `2.3.0` | Tablet-Modus + Telefon-Stuck | Sprint 106 |
 | `2.21.0` | Blitzer, CarPlay-Stimme, Amazon, Ordner, Angebot, FC 26 (`2.21`–`2.27`) | Sprint 107 |
 | `2.28.0` | Alltag & Welt `2.4`–`2.20` (DWD … Schach) | Sprint 108 |
+| `2.28.1` | Tablet/Sprache still, Charon statt Klick-TTS | Sprint 108 Patch |
 
 ### Reihe [`31-next.md`](./31-next.md) — **CODE** in `2.28.0`
 

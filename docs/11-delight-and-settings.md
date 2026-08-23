@@ -50,6 +50,7 @@ Ein Sideload über `2.21.0` lässt Keys, TV und Gespräche liegen — gleiche Ap
 | `1.25.0` | Sprint 77 | **Einstellungen Vollbild + Themenleiste** — gilt |
 | `2.2.2` | Sprint 104 | Tests-Thema wieder raus |
 | `2.28.0` | Sprint 108 | gleiche Settings-GUI; Alltag & Welt im Chat |
+| `2.28.1` | Sprint 108 Patch | Sprache: still zuhören, Charon statt Klick-TTS |
 
 ### Delight im Chat
 

@@ -4,7 +4,7 @@ PO 2026-08-20: Nächste Updates planen — Unwetter/DWD, Schulferien, Wechselkur
 
 Reihe davor: [`30-next.md`](./30-next.md). Reihe danach: [`32-next.md`](./32-next.md) Fahren/Musik/Chat/Angebot/FC 26 (`2.21`–`2.27`) **CODE**.
 
-App jetzt: Sideload **`2.28.0`** — `2.4`–`2.20` **mitgeliefert** (nach `2.21.0`, damit versionCode steigt).
+App jetzt: Sideload **`2.28.1`** — `2.4`–`2.20` **mitgeliefert**, plus stilles Zuhören / Charon.
 
 Eine Sideload-Stufe pro Version. Hier gebündelt, weil der PO die ganze Reihe angefordert hat.
 

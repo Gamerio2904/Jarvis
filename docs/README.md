@@ -37,7 +37,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 30 | [Uhrzeit, Ort, Research](./30-next.md) | **`2.2.0` CODE** — Gerätzeit, GPS, Auto-Suche |
 | 31 | [Alltag & Welt](./31-next.md) | **`2.28.0` CODE** — DWD bis Schach (`2.4`–`2.20`) |
 | 32 | [Fahren, Musik, Chat, FC 26](./32-next.md) | **`2.21.0` CODE** — Blitzer, CarPlay-Stimme, Latenz, Amazon, Ordner, Instanudeln, FC 26 |
-| — | [APK](./apk.md) | Sideload `2.28.0` |
+| — | [APK](./apk.md) | Sideload `2.28.1` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -106,4 +106,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 107 | `2.21.0` | **CODE** (Fahren/Musik/Chat/FC 26) |
 | 108 | `2.28.0` | **CODE** (Alltag & Welt `2.4`–`2.20`) |
 
-**Aktuell:** Sideload `2.28.0` — [`Jarvis.apk`](./apk.md). PC-App: [`../desktop/README.md`](../desktop/README.md).
+**Aktuell:** Sideload `2.28.1` — [`Jarvis.apk`](./apk.md). PC-App: [`../desktop/README.md`](../desktop/README.md).

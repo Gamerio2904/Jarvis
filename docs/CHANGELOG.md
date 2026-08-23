@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.28.0`**.
+App-Version im Code: **`2.28.1`**.
+
+### `2.28.1` — Tablet/Sprache: still hören, menschlicher sprechen — *CODE*
+
+Keine Klick-Schleife mehr, wenn nichts gesagt wird: die Erkennung bleibt offen, System-Pieps sind stumm, die UI blinkt nicht „Nichts gehört“. Charon bekommt Zeit (kein 0,5-s-Rennen gegen Android). Englischer TTS-Vorspann wird nicht mehr mitgesprochen. System-Stimme etwas langsamer und tiefer.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 22801)
 
 ### `2.28.0` — Alltag & Welt (DWD bis Schach) — *CODE*
 

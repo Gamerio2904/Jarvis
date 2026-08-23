@@ -25,6 +25,7 @@ Die Reihe `2.4`–`2.20` ist gebaut und sideloadbar. versionCode höher als 2210
 | P6 | Recht + Haushalt | Zitat + Link; Waschzeichen fest |
 | P7 | Sensoren + Schach | lokal; Züge legal |
 | P8 | Sideload `2.28.0` | versionCode 22800, signiert |
+| P9 | Patch `2.28.1` stilles Zuhören + Charon | versionCode 22801; kein Pieps bei Stille |
 
 ## Probe
 

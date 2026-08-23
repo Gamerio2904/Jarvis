@@ -5,7 +5,7 @@ import type { ToolMeta } from './tools'
 
 export { parseSportIntent } from './sport-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.1 (local.jarvis.app)' }
 
 type Match = {
   team1?: { teamName?: string }

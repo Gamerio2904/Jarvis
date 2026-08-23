@@ -113,7 +113,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 107 | [`sprint-107.md`](./sprint-107.md) | `2.21.0` | Fahren, Musik, Chat, Angebot, FC 26 | **CODE** |
 | 108 | [`sprint-108.md`](./sprint-108.md) | `2.28.0` | Alltag & Welt `2.4`–`2.20` | **CODE** |
 
-**Aktuell:** Sideload `2.28.0`.
+**Aktuell:** Sideload `2.28.1`.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
