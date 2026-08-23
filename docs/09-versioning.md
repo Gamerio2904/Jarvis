@@ -170,6 +170,18 @@ MAJOR.MINOR.PATCH
 | `2.19.0` | Handy-Sensoren (Schritte, Barometer) | 121 |
 | `2.20.0` | Schach | 122 |
 
+### Geplant — Reihe [`32-next.md`](./32-next.md) (noch kein Code)
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `2.21.0` | Blitzer + mobile Baustellen | 107+ |
+| `2.22.0` | CarPlay: zuerst tun, dann sprechen | 124 |
+| `2.23.0` | Graphik & Latenz | 125 |
+| `2.24.0` | Amazon Musik (Intent, API nur mit Zugang) | 126 |
+| `2.25.0` | Chat-Ordner | 127 |
+| `2.26.0` | Instanudeln-Angebot (Research + Notify) | 128 |
+| `2.27.0` | FC 26 Mannschaft + Tablet-Karten | 129 |
+
 ### Weitere Beispiele
 
 | Version | Bedeutung (Beispiel) |

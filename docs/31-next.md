@@ -1,10 +1,10 @@
-# 31 — Alltag & Welt (`2.3`–`2.19`)
+# 31 — Alltag & Welt (`2.3`–`2.20`)
 
 PO 2026-08-20: Nächste Updates planen — Unwetter/DWD, Schulferien, Wechselkurse, Open Food Facts, Open Library, Bundesliga, Research, Stimme, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sport, Handy-Sensoren, Schach. Freie APIs, nichts erfinden.
 
-Reihe davor: [`30-next.md`](./30-next.md). App jetzt: Sideload **`2.3.0`** Tablet-Modus. Nächste Code-Stufe: DWD.
+Reihe davor: [`30-next.md`](./30-next.md). Reihe danach: [`32-next.md`](./32-next.md) Fahren/Musik/Chat/Angebot/FC 26 (`2.21`–`2.27`) **PLAN**.
 
-`2.3.0` wurde am 2026-08-23 als Tablet-Vollbild + Telefon-Stuck geliefert (PO live). DWD startet als **`2.4.0`**.
+App jetzt: Sideload **`2.3.0`** Tablet-Modus. Nächste Code-Stufe dieser Reihe: DWD als **`2.4.0`**, wenn der PO „bauen“ sagt.
 
 Eine Sideload-Stufe pro Version.
 

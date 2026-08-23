@@ -7,7 +7,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`2.3.0`**.
 
-Geplant danach: [`31-next.md`](./31-next.md) DWD und Alltag `2.4`–`2.19`.
+Geplant danach: [`31-next.md`](./31-next.md) DWD und Alltag `2.4`–`2.20`; [`32-next.md`](./32-next.md) Fahren/Musik/Chat/FC 26 `2.21`–`2.27`.
 
 ### `2.3.0` — Tablet-Modus + Telefon-Stuck — *CODE*
 

@@ -55,7 +55,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 ## Nächster Schritt
 
 1. Sideload `2.3.0`. [`apk.md`](./apk.md).
-2. Geplant: Alltag & Welt [`31-next.md`](./31-next.md) — Bau ab `2.3.0` DWD auf PO-Kommando.
+2. Geplant: [`32-next.md`](./32-next.md) `2.21`–`2.27` (Blitzer zuerst) und [`31-next.md`](./31-next.md) `2.4`–`2.20` (DWD zuerst) — Bau auf PO-Kommando.
 3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---
@@ -74,4 +74,5 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-18 | Q43 | Öffnungszeiten von Läden nur aus OSM `opening_hours`. Fehlt der Tag: ehrlich. Keine erfundenen Stunden. | PO |
 | 2026-08-18 | Q44 | Anruf und SMS direkt, aber immer nachfragen. Kein Abheben/Zustellung behaupten. | PO |
 | 2026-08-19 | Q46 | WLAN-Steckdosen lokal: Shelly/Tasmota per IP, Tuya/Smart Life nur LAN mit Local Key, keine Tuya-Cloud, kein Tapo | PO |
-| 2026-08-20 | Q47 | Nächste Reihe `2.3`–`2.19`: DWD, Ferien, Kurs, Research, Stimme, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach. Frei, ehrlich. [`31-next.md`](./31-next.md) | PO |
+| 2026-08-20 | Q47 | Nächste Reihe `2.4`–`2.20`: DWD, Ferien, Kurs, Research, Stimme, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach. Frei, ehrlich. [`31-next.md`](./31-next.md) | PO |
+| 2026-08-23 | Q48 | Reihe `2.21`–`2.27`: Blitzer/Baustelle (Autobahn+OSM, mobil ehrlich), CarPlay zuerst tun dann vorlesen, Graphik/Latenz, Amazon Musik per Intent (API closed Beta), Chat-Ordner lokal, Instanudeln über Research+Notify, FC 26 Foto+Jahr+drei Vorschläge+Tablet-Karten. [`32-next.md`](./32-next.md) | PO |

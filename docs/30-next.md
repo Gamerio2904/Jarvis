@@ -2,7 +2,7 @@
 
 PO 2026-08-20 (Screenshots): Jarvis wusste die Uhrzeit nicht, hat den Wohnort geraten und bei BIP „keine Zahlen“ gesagt statt zu suchen.
 
-Reihe davor: [`29-next.md`](./29-next.md). App vorher: Sideload **`2.1.1`**. Reihe danach: [`31-next.md`](./31-next.md) **PLAN**.
+Reihe davor: [`29-next.md`](./29-next.md). App vorher: Sideload **`2.1.1`**. Reihe danach: [`31-next.md`](./31-next.md) (Tablet **CODE**, DWD–Schach **PLAN**), dann [`32-next.md`](./32-next.md) **PLAN**.
 
 Eine Sideload-Stufe.
 

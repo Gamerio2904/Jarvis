@@ -1,17 +1,17 @@
-# Sprint 105 — Alltag & Welt, Kickoff (`2.3.0` zuerst) **PLAN**
+# Sprint 105 — Alltag & Welt, Kickoff (`2.4.0` zuerst) **PLAN**
 
 | Feld | Wert |
 |------|------|
 | Status | **PLAN** |
 | Priorität | **MUST** (Reihenfolge fest, Bau auf PO-Kommando) |
-| Ziel-Version | **`2.3.0`** als erste Lieferung |
+| Ziel-Version | **`2.4.0`** als erste Lieferung dieser Reihe |
 | Quelle | PO: Reihe Unwetter bis Schach planen |
-| Voraussetzung | `2.2.2` |
+| Voraussetzung | `2.3.0` |
 | Plan | [`31-next.md`](../31-next.md) |
 
 ## Ziel
 
-Die Reihe `2.3`–`2.19` steht schriftlich. Gebaut wird erst, wenn der PO `2.3.0` (DWD) anstößt.
+Die Reihe `2.4`–`2.20` steht schriftlich. `2.3.0` wurde Tablet (Sprint 106). Gebaut wird DWD erst, wenn der PO `2.4.0` anstößt.
 
 ## Must (Plan)
 
@@ -19,11 +19,11 @@ Die Reihe `2.3`–`2.19` steht schriftlich. Gebaut wird erst, wenn der PO `2.3.0
 |----|--------|-----------|
 | P1 | `31-next.md` mit Versionen, APIs, Chat-Beispielen | Docs |
 | P2 | Backlog E25 + Priorität | Docs |
-| P3 | Erste Code-Lieferung später: DWD-Warnung | Sideload `2.3.0` — **noch nicht** |
+| P3 | Erste Code-Lieferung später: DWD-Warnung | Sideload `2.4.0` — **noch nicht** |
 
 ## Reihe (nicht dieser Sprint-Code)
 
-`2.3` DWD · `2.4` Ferien · `2.5` Kurs · `2.6` Research · `2.7` Stimme · `2.8` Food Facts · `2.9` Library · `2.10` Bundesliga · `2.11` Sport · `2.12` Garten · `2.13` Himmel · `2.14` Tiere · `2.15` Flüge · `2.16` Recht · `2.17` Haushalt · `2.18` Sensoren · `2.19` Schach
+`2.4` DWD · `2.5` Ferien · `2.6` Kurs · `2.7` Research · `2.8` Stimme · `2.9` Food Facts · `2.10` Library · `2.11` Bundesliga · `2.12` Sport · `2.13` Garten · `2.14` Himmel · `2.15` Tiere · `2.16` Flüge · `2.17` Recht · `2.18` Haushalt · `2.19` Sensoren · `2.20` Schach
 
 ## Won’t
 
