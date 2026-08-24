@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Stand Code `2.2.2`:** On-Device-APK. Live-Fähigkeiten: [`00-now.md`](./00-now.md). Ton: **Siezen**, kurz. Geplant: [`31-next.md`](./31-next.md), [`32-next.md`](./32-next.md) (Kaufmodus, nicht Einkaufsliste).
+> **Stand Code `2.29.0`:** On-Device-APK. Live-Fähigkeiten: [`00-now.md`](./00-now.md). Ton: **Siezen**, kurz. Geliefert: [`31-next.md`](./31-next.md), [`32-next.md`](./32-next.md) (Kaufmodus, nicht Einkaufsliste), [`33-next.md`](./33-next.md).
 
 ## Vision
 
@@ -28,7 +28,7 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 | Lokale Kontrolle | Kein Cloud-LLM als Denk-Engine. |
 | Handy-Nutzbarkeit | Sideload-APK, Modell on-device (`0.13.0`). |
 | 24/7 | Handy selbst; kein NAS-LLM. |
-| Versionierung | `0.1.0` MVP · `0.13` On-Device · `2.0` Haus-AI · Live `2.2.2` — [`09-versioning.md`](./09-versioning.md) |
+| Versionierung | `0.1.0` MVP · `0.13` On-Device · `2.0` Haus-AI · Live `2.29.0` — [`09-versioning.md`](./09-versioning.md) |
 | Stimme | TTS liest denselben Text (`1.5`+). |
 | Premium-Web-UI | Spotify-**Dunkel** + ChatGPT-Layout; Motion geliefert (`1.13`). |
 
@@ -48,4 +48,4 @@ Du nutzt Jarvis regelmäßig vom Handy aus für Gespräch & später Hilfe — mi
 
 ## Erfolgskriterium jetzt
 
-Sideload `2.2.2` im Alltag. Nächste Code-Lieferung nur auf PO-Kommando (`2.3.0` DWD oder vorgezogen `2.20` Kaufmodus).
+Sideload `2.29.0` im Alltag. Parking: Mail, Alexa, Play Store, iOS, Apple CarPlay.

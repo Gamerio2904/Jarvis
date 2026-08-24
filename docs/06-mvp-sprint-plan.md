@@ -2,7 +2,7 @@
 
 > **Historisch** — MVP `0.1` / Ollama. Nicht der Live-Stack.
 >
-> **Jetzt:** [`00-now.md`](./00-now.md) Sideload `2.2.2`. Geplant: [`31-next.md`](./31-next.md), [`32-next.md`](./32-next.md). Sprints: [`sprints/README.md`](./sprints/README.md).
+> **Jetzt:** [`00-now.md`](./00-now.md) Sideload `2.29.0`. Geliefert: [`31-next.md`](./31-next.md), [`32-next.md`](./32-next.md). Sprints: [`sprints/README.md`](./sprints/README.md).
 
 ## MVP v0.1 — Definition
 

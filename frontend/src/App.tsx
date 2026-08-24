@@ -48,8 +48,10 @@ import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
 import { DriveMode } from './DriveMode'
+import { KaufOverlay } from './KaufOverlay'
 import { WakeBubble } from './WakeBubble'
 import { closeDrive, subscribeDrive } from './engine/drive'
+import { closeKauf, isKaufSessionOpen, subscribeKauf } from './engine/kauf'
 import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
 import { pickAlarmTone } from './native/notify'
@@ -310,6 +312,7 @@ function App() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
+  const [kaufOpen, setKaufOpen] = useState(false)
   const [wakeListening, setWakeListening] = useState(false)
   const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
@@ -366,6 +369,19 @@ function App() {
         setSidebarOpen(false)
       }
     })
+  }, [])
+
+  useEffect(() => {
+    if (isKaufSessionOpen()) setKaufOpen(true)
+    return subscribeKauf(() => setKaufOpen(isKaufSessionOpen()))
+  }, [])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 900px)')
+    const apply = () => document.documentElement.classList.toggle('jarvis-tablet', mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
   }, [])
 
   useEffect(() => {
@@ -989,6 +1005,13 @@ function App() {
               setSidebarOpen(false)
             }
           }
+          if (payload.tool?.tool === 'kauf') {
+            setKaufOpen(payload.tool.action !== 'close')
+            if (payload.tool.action !== 'close') {
+              setCalendarOpen(false)
+              setSidebarOpen(false)
+            }
+          }
           maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
@@ -1104,6 +1127,9 @@ function App() {
             if (payload.tool?.action === 'close') setDriveOpen(false)
             else setDriveOpen(true)
           }
+          if (payload.tool?.tool === 'kauf') {
+            setKaufOpen(payload.tool.action !== 'close')
+          }
           maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
@@ -1151,7 +1177,7 @@ function App() {
   const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
 
   return (
-    <div className="app" ref={appRef}>
+    <div className={`app${kaufOpen ? ' is-kauf' : ''}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1314,6 +1340,15 @@ function App() {
             onClose={() => {
               closeDrive()
               setDriveOpen(false)
+            }}
+            onCommand={(text) => sendVoiceTurn(text)}
+          />
+        ) : null}
+        {kaufOpen ? (
+          <KaufOverlay
+            onClose={() => {
+              closeKauf()
+              setKaufOpen(false)
             }}
             onCommand={(text) => sendVoiceTurn(text)}
           />

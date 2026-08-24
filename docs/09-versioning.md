@@ -147,26 +147,13 @@ MAJOR.MINOR.PATCH
 | `2.2.1` | Testprompts: Kopierfelder unter Einstellungen → Tests | Sprint 104 Patch |
 | `2.2.2` | Testprompts wieder raus aus der APK | Sprint 104 Patch |
 
-### Geplant — Reihe [`31-next.md`](./31-next.md) (noch kein Code)
+### Geliefert — Reihe [`31-next.md`](./31-next.md) / [`32-next.md`](./32-next.md) (in `2.29.0`)
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `2.3.0` | DWD-Unwetterwarnung | 105 |
-| `2.4.0`–`2.19.0` | Ferien … Schach — eine Version je Stufe in [`31-next.md`](./31-next.md) | 106–121 **reserviert**, Sprint-Datei erst beim Bau |
-
-### Geplant — Reihe [`32-next.md`](./32-next.md) (noch kein Code)
-
-| Version | Bedeutung | Sprint |
-|---------|-----------|--------|
-| `2.20.0` | Kaufmodus: Intent vs Einkaufsliste + Overlay-Gerüst | 122 |
-| `2.21.0` | Produktsuche (Research-Adapter) | 123 |
-| `2.22.0` | Preisvergleich, Händlerkarten, Gesamtpreis | 124 |
-| `2.23.0` | Filter, Chips, Nur-Angebote | 125 |
-| `2.24.0` | Produktvergleich + Empfehlung | 126 |
-| `2.25.0` | Merkliste, nicht Einkaufsliste | 127 |
-| `2.26.0` | Lokale Händler (OSM, Route) | 128 |
-| `2.27.0` | Prospekte / lokale Angebote | 129 |
-| `2.28.0` | Stimme im Overlay + Polish | 130 |
+| `2.3.0`–`2.19.0` | Alltag & Welt (DWD … Schach) | 105–121, mitgeliefert in 123 |
+| `2.20.0`–`2.28.0` | Kaufmodus (Overlay, nie Einkaufsliste) | 122, mitgeliefert in 123 |
+| `2.29.0` | Sideload-Bündel + Tablet/Stimme/CarPlay-Polish | 123 |
 
 ### Weitere Beispiele
 

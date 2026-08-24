@@ -43,6 +43,29 @@ export async function postJson(
   return { status: res.status, json }
 }
 
+export async function getUnknown(
+  url: string,
+  headers: Record<string, string> = {},
+): Promise<{ status: number; data: unknown }> {
+  if (Capacitor.isNativePlatform()) {
+    const res = await CapacitorHttp.get({
+      url,
+      headers,
+      connectTimeout: 12_000,
+      readTimeout: 20_000,
+    })
+    try {
+      const parsed: unknown = typeof res.data === 'string' ? JSON.parse(res.data || 'null') : res.data
+      return { status: res.status, data: parsed }
+    } catch {
+      return { status: res.status, data: res.data }
+    }
+  }
+  const res = await fetch(url, { headers })
+  const data: unknown = await res.json().catch(() => null)
+  return { status: res.status, data }
+}
+
 export async function getJson(
   url: string,
   headers: Record<string, string> = {},

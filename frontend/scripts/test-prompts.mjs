@@ -38,10 +38,12 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { parseTransitIntent } from '../src/engine/transit-parse.ts'
 import { parseHolidayIntent } from '../src/engine/holiday-parse.ts'
 import { parseNewsIntent } from '../src/engine/news-parse.ts'
+import { parseKaufIntent } from '../src/engine/kauf-intent.ts'
+import { parseWorldIntent } from '../src/engine/world-parse.ts'
 
 const NOW = new Date('2026-08-15T14:00:00')
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'kauf'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'world'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -62,12 +64,14 @@ function route(text, ctx = {}) {
   if (parsePcIntent(text)) return 'pc'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
   if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
+  if (parseKaufIntent(text)) return 'kauf'
   if (parseShopIntent(text)) return 'shopping'
   if (parseBirthdayIntent(text)) return 'birthday'
   if (parseHomeIntent(text)) return 'home'
   if (parseLeaveIntent(text)) return 'leave'
   if (isBriefAsk(text)) return 'brief'
   if (parseHolidayIntent(text)) return 'holiday'
+  if (parseWorldIntent(text)) return 'world'
   if (parseCalendarIntent(text, NOW)) return 'calendar'
   if (parseAlarmIntent(text, NOW)) return 'alarm'
   if (parseTimerIntent(text, NOW)) return 'timer'
@@ -201,6 +205,16 @@ const EXPECT = {
   'Taschenlampe an': 'device',
   'ohne meine Adresse nachzugucken weißt du wo ich bin': 'here',
   'Nach Ingersheim': 'drive',
+  Kaufmodus: 'kauf',
+  'Such mir einen Fernseher': 'kauf',
+  'Ich brauche neue Kopfhörer': 'kauf',
+  'Gibt’s Unwetter?': 'world',
+  'Sind in BW Ferien?': 'world',
+  'Was ist der Dollar?': 'world',
+  'Wie hat der VfB gespielt?': 'world',
+  Mondphase: 'world',
+  'Wie viele Schritte heute?': 'world',
+  'Schach e2e4': 'world',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -243,6 +257,18 @@ assert.equal(parseHereIntent('wo könnte ich jetzt frühstücken'), null)
 assert.equal(parseDeviceIntent('wie spät ist es')?.kind, 'clock')
 assert.equal(route('Taschenlampe an'), 'device')
 assert.equal(route('Nach Ingersheim'), 'drive')
+assert.equal(route('Kaufmodus'), 'kauf')
+assert.equal(route('Such mir einen Fernseher'), 'kauf')
+assert.equal(route('Milch kaufen'), 'shopping')
+assert.equal(route('Pack Milch auf die Einkaufsliste'), 'shopping')
+assert.equal(route('Gibt’s Unwetter?'), 'world')
+assert.equal(route('Sind in BW Ferien?'), 'world')
+assert.equal(route('Was ist der Dollar?'), 'world')
+assert.equal(route('Schach e2e4'), 'world')
+assert.equal(route('Wetter heute'), 'weather')
+assert.equal(parseKaufIntent('Milch kaufen'), null)
+assert.equal(parseKaufIntent('Kaufmodus')?.kind, 'open')
+assert.equal(parseWorldIntent('Schach e2e4')?.kind, 'chess')
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }

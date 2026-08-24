@@ -5,11 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.2.2`**. Live: [`00-now.md`](./00-now.md).
+App-Version im Code: **`2.29.0`**. Live: [`00-now.md`](./00-now.md).
 
-Docs aufgeräumt: ein Jetzt-Stand, Index ohne doppelte Sprint-Tabelle, Kaufmodus bleibt **PLAN**.
+### `2.29.0` — Alltag, Kaufmodus, Tablet/Stimme/CarPlay — *CODE*
 
-Geplant (kein Code): [`31-next.md`](./31-next.md) `2.3.0`–`2.19.0`, danach [`32-next.md`](./32-next.md) Kaufmodus `2.20.0`–`2.28.0`.
+Eine Sideload-Stufe: `2.3`–`2.19` Welt-Tools, `2.20`–`2.28` Kaufmodus (nie Einkaufsliste), Polish Tablet / Sprachmodus / internes CarPlay.
+
+- DWD/Bright Sky, Ferien, EZB, Food Facts, Library, Bundesliga, iNaturalist, ISS/Mond, OpenSky, Gesetz+Link, Sensoren, Schach e2e4
+- Kaufmodus-Overlay, Research-Preise nur mit Quelle, Merkliste `kauf_saved`, Zum Händler, Prospekte ehrlich ohne Lizenz
+- `html.jarvis-tablet`, Sprachmodus ohne Dauer-Nörgeln, CarPlay-HUD/Mic größer
+- Sideload-APK `releases/Jarvis.apk` (versionCode 22900)
+- [`31-next.md`](./31-next.md) · [`32-next.md`](./32-next.md) · [`33-next.md`](./33-next.md) · [`sprints/sprint-123.md`](./sprints/sprint-123.md)
 
 ### `2.2.2` — Testprompts raus aus der App — *CODE*
 

@@ -1,6 +1,6 @@
 # Jarvis — Docs
 
-**Jetzt lesen:** [`00-now.md`](./00-now.md) — Live **`2.2.2`**, was der Code tut, was geplant ist.
+**Jetzt lesen:** [`00-now.md`](./00-now.md) — Live **`2.29.0`**, was der Code tut, was geplant ist.
 
 Sideload: [`apk.md`](./apk.md) · Changelog: [`CHANGELOG.md`](./CHANGELOG.md) · Sprints: [`sprints/README.md`](./sprints/README.md) · PC: [`../desktop/README.md`](../desktop/README.md)
 
@@ -8,9 +8,9 @@ Sideload: [`apk.md`](./apk.md) · Changelog: [`CHANGELOG.md`](./CHANGELOG.md) ·
 
 | | Version | Doc |
 |--|---------|-----|
-| **Live** | Sideload `2.2.2` | [`00-now.md`](./00-now.md) · [`30-next.md`](./30-next.md) |
-| **Als Nächstes** | `2.3`–`2.19` Alltag & Welt | [`31-next.md`](./31-next.md) **PLAN** |
-| **Danach** | `2.20`–`2.28` Kaufmodus | [`32-next.md`](./32-next.md) **PLAN** |
+| **Live** | Sideload `2.29.0` | [`00-now.md`](./00-now.md) · [`33-next.md`](./33-next.md) |
+| **Geliefert mit 2.29** | `2.3`–`2.19` Alltag & Welt | [`31-next.md`](./31-next.md) **CODE** |
+| **Geliefert mit 2.29** | `2.20`–`2.28` Kaufmodus | [`32-next.md`](./32-next.md) **CODE** |
 
 Keine zweite Sprint-Tabelle hier. Status nur in [`sprints/README.md`](./sprints/README.md).
 
@@ -27,12 +27,13 @@ Keine zweite Sprint-Tabelle hier. Status nur in [`sprints/README.md`](./sprints/
 | 07 | [Persona](./07-persona.md) | Ton, Siezen |
 | 08 | [Offene Fragen](./08-open-questions.md) | Q48 Kaufmodus |
 | 09 | [Versionierung](./09-versioning.md) | SemVer, Sprint ↔ Version |
-| 10 | [Intelligence](./10-intelligence-capabilities.md) | Router live `2.2.2` |
+| 10 | [Intelligence](./10-intelligence-capabilities.md) | Router live `2.29.0` |
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Settings |
 | 29 | [Steckdosen](./29-next.md) | **`2.1` CODE** |
 | 30 | [Uhr / Ort / Research](./30-next.md) | **`2.2` CODE** |
-| 31 | [Alltag & Welt](./31-next.md) | **`2.3`–`2.19` PLAN** |
-| 32 | [Kaufmodus](./32-next.md) | **`2.20`–`2.28` PLAN** — nie Einkaufsliste |
+| 31 | [Alltag & Welt](./31-next.md) | **`2.3`–`2.19` CODE** (in `2.29.0`) |
+| 32 | [Kaufmodus](./32-next.md) | **`2.20`–`2.28` CODE** (in `2.29.0`) — nie Einkaufsliste |
+| 33 | [Polish](./33-next.md) | **`2.29.0` CODE** Tablet / Sprache / CarPlay intern |
 
 ## Geliefert (Reihen, nicht mehr bauen)
 

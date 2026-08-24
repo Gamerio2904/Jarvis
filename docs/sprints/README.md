@@ -108,8 +108,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 102 | [`sprint-102.md`](./sprint-102.md) | `2.0.0` | Haus-AI, ein Kontext (letztes Medium, ehrlich) | **CODE** |
 | 103 | [`sprint-103.md`](./sprint-103.md) | `2.1.0` | WLAN-Steckdosen lokal | **CODE** |
 | 104 | [`sprint-104.md`](./sprint-104.md) | `2.2.0` | Uhrzeit, Ort, Auto-Research | **CODE** |
-| 105 | [`sprint-105.md`](./sprint-105.md) | `2.3.0` | Alltag & Welt Kickoff (DWD zuerst) | **PLAN** |
-| 106–121 | — | `2.4`–`2.19` | Reserviert in [`31-next.md`](../31-next.md); Datei erst beim Bau | **PLAN** |
-| 122 | [`sprint-122.md`](./sprint-122.md) | `2.20.0` | Kaufmodus Kickoff (Intent + Overlay) | **PLAN** |
+| 105 | [`sprint-105.md`](./sprint-105.md) | `2.3.0` | Alltag & Welt Kickoff (DWD zuerst) | **CODE** (in `2.29.0`) |
+| 106–121 | — | `2.4`–`2.19` | Mitgeliefert in [`31-next.md`](../31-next.md) / `2.29.0` | **CODE** (in `2.29.0`) |
+| 122 | [`sprint-122.md`](./sprint-122.md) | `2.20.0` | Kaufmodus Kickoff (Intent + Overlay) | **CODE** (in `2.29.0`) |
+| 123 | [`sprint-123.md`](./sprint-123.md) | `2.29.0` | Welt + Kaufmodus + Tablet/Stimme/CarPlay | **CODE** |
 
-**Aktuell:** Sideload `2.2.2` — [`00-now.md`](../00-now.md). Geplant: [`31-next.md`](../31-next.md), [`32-next.md`](../32-next.md). Versionen: [`../09-versioning.md`](../09-versioning.md).
+**Aktuell:** Sideload `2.29.0` — [`00-now.md`](../00-now.md). Versionen: [`../09-versioning.md`](../09-versioning.md).

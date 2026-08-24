@@ -2,16 +2,17 @@
 
 Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first-Linie zu brechen. Gestuft über Versionen — nicht alles auf einmal.
 
-### Live `2.2.2` (Code)
+### Live `2.29.0` (Code)
 
 Router in `frontend/src/engine/chat.ts` **vor** dem LLM — kanonisch: [`00-now.md`](./00-now.md).
 
-`/hilfe` → Maps-Pending → PC-Pending → Rabatt-Toggle → Ordinal → TV → Film → Ventilator → Steckdose → Hier → Tanke → POI → Bahn → Fahrmodus → Gerät → PC → Maps → Memory → **Einkaufsliste** (`shopping.ts`) → Geburtstag → Zuhause → Losgehen → Tageslage → Feiertag → Kalender → Wecker → Timer → Erinnerung → Tools → Auge → Wetter → Nachrichten → Chatsuche → LLM.
+Kaufmodus-Parser vor der Einkaufsliste. Welt-Tools nach Feiertag. `Milch kaufen` = Liste. `Such mir einen Fernseher` = Kaufmodus. Wikipedia/Destatis zuerst bei Fakten.
 
-Suche: Quellen zuerst, € nur aus Snippets. Kein Kaufmodus-Parser. `Milch kaufen` = Einkaufsliste.
+`/hilfe` → Maps-Pending → PC-Pending → Rabatt-Toggle → Ordinal → TV → Film → Ventilator → Steckdose → Hier → Tanke → POI → Bahn → Fahrmodus → Gerät → PC → Maps → Memory → **Kaufmodus** → **Einkaufsliste** (`shopping.ts`) → Geburtstag → Zuhause → Losgehen → Tageslage → Feiertag → **Welt** → Kalender → Wecker → Timer → Erinnerung → Tools → Auge → Wetter → Nachrichten → Chatsuche → LLM.
 
-Nächste Reihe **PLAN:** [`31-next.md`](./31-next.md) inkl. Research härten (`2.6.0`).  
-Danach **PLAN:** [`32-next.md`](./32-next.md) — `parseKaufIntent` **vor** der Einkaufsliste, Preise nur mit Quelle.
+Suche: Quellen zuerst, € nur aus Snippets. `Milch kaufen` = Einkaufsliste. `Such mir einen Fernseher` = Kaufmodus.
+
+Geliefert: [`31-next.md`](./31-next.md) `2.3`–`2.19`, [`32-next.md`](./32-next.md) Kaufmodus, [`33-next.md`](./33-next.md) Polish.
 
 ### Ältere Live-Schnitte (geliefert, nicht mehr der Router)
 

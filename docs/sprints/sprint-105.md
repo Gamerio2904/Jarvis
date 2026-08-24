@@ -1,17 +1,18 @@
-# Sprint 105 — Alltag & Welt, Kickoff (`2.3.0` zuerst) **PLAN**
+# Sprint 105 — Alltag & Welt, Kickoff (`2.3.0` zuerst) **CODE** (in `2.29.0`)
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
-| Priorität | **MUST** (Reihenfolge fest, Bau auf PO-Kommando) |
-| Ziel-Version | **`2.3.0`** als erste Lieferung |
-| Quelle | PO: Reihe Unwetter bis Schach planen |
+| Status | **CODE** (mitgeliefert in `2.29.0`) |
+| Priorität | **MUST** |
+| Ziel-Version | **`2.3.0`** als erste geplante Lieferung; gebündelt in **`2.29.0`** |
+| Quelle | PO: Reihe Unwetter bis Schach, dann „alles bis 2.28 umsetzen“ |
 | Voraussetzung | `2.2.2` |
 | Plan | [`31-next.md`](../31-next.md) |
+| Lieferung | [`sprint-123.md`](./sprint-123.md) |
 
 ## Ziel
 
-Die Reihe `2.3`–`2.19` steht schriftlich. Gebaut wird erst, wenn der PO `2.3.0` (DWD) anstößt.
+Die Reihe `2.3`–`2.19` steht im Code (`world.ts`). Sideload `2.29.0`.
 
 ## Must (Plan)
 
@@ -19,7 +20,7 @@ Die Reihe `2.3`–`2.19` steht schriftlich. Gebaut wird erst, wenn der PO `2.3.0
 |----|--------|-----------|
 | P1 | `31-next.md` mit Versionen, APIs, Chat-Beispielen | Docs |
 | P2 | Backlog E25 + Priorität | Docs |
-| P3 | Erste Code-Lieferung später: DWD-Warnung | Sideload `2.3.0` — **noch nicht** |
+| P3 | Erste Code-Lieferung: DWD-Warnung plus Rest der Reihe | Sideload `2.29.0` |
 
 ## Reihe (nicht dieser Sprint-Code)
 

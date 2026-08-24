@@ -1,34 +1,34 @@
-# 31 — Alltag & Welt (`2.3`–`2.19`) **PLAN**
+# 31 — Alltag & Welt (`2.3`–`2.19`) **CODE** (in `2.29.0`)
 
 PO 2026-08-20: Nächste Updates planen — Unwetter/DWD, Schulferien, Wechselkurse, Open Food Facts, Open Library, Bundesliga, Research, Stimme, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sport, Handy-Sensoren, Schach. Freie APIs, nichts erfinden.
 
-Reihe davor: [`30-next.md`](./30-next.md). Reihe danach: [`32-next.md`](./32-next.md) Kaufmodus **PLAN**. App jetzt: Sideload **`2.2.2`** — [`00-now.md`](./00-now.md). Bau erst auf PO-Kommando, erste Lieferung **`2.3.0`**.
+Mitgeliefert in Sideload **`2.29.0`**. App jetzt: [`00-now.md`](./00-now.md). Reihe danach: Kaufmodus [`32-next.md`](./32-next.md) **CODE** (ebenfalls in `2.29.0`). Polish: [`33-next.md`](./33-next.md).
 
-Eine Sideload-Stufe pro Version.
+Engine: `frontend/src/engine/world.ts` + `world-parse.ts`. Router nach Feiertag, vor Kalender.
 
 ## Reihenfolge
 
 | Version | Inhalt | API / Quelle | Status |
 |---------|--------|--------------|--------|
-| **`2.3.0`** | Unwetter / DWD-Warnung | DWD CAP/Warnungen, kein Key | **PLAN** |
-| **`2.4.0`** | Schulferien DE | Ferien-API, kein Key | **PLAN** |
-| **`2.5.0`** | Wechselkurse | EZB über Frankfurter.app, kein Key | **PLAN** |
-| **`2.6.0`** | Research härten | Wikipedia/Destatis zuerst, dann bestehende Suche | **PLAN** |
-| **`2.7.0`** | Stimme Alltag | vorhandenes TTS; Uhr, Warnung, Ferien vorsprechen | **PLAN** |
-| **`2.8.0`** | Open Food Facts | openfoodfacts.org + Kamera | **PLAN** |
-| **`2.9.0`** | Open Library | openlibrary.org | **PLAN** |
-| **`2.10.0`** | Bundesliga | OpenLigaDB, frei | **PLAN** |
-| **`2.11.0`** | Sport-Ergebnisse | gleiche Sport-Schiene, weitere Ligen | **PLAN** |
-| **`2.12.0`** | Garten & Pflanzen | iNaturalist/Wikipedia, Foto | **PLAN** |
-| **`2.13.0`** | Himmel | ISS Open Notify; Mond lokal | **PLAN** |
-| **`2.14.0`** | Tiere draußen | xeno-canto / iNaturalist | **PLAN** |
-| **`2.15.0`** | Flüge überm Haus | OpenSky, kein Key | **PLAN** |
-| **`2.16.0`** | Recht Alltag | gesetze-im-internet.de | **PLAN** |
-| **`2.17.0`** | Haushalt | Wikibooks / festes Wissen, keine Live-Erfindung | **PLAN** |
-| **`2.18.0`** | Handy-Sensoren | Schritte, Barometer, Kompass — lokal | **PLAN** |
-| **`2.19.0`** | Schach | Chat-Notation, Züge legal; optional Lichess-lesen | **PLAN** |
+| **`2.3.0`** | Unwetter / DWD-Warnung | Bright Sky / DWD, kein Key | **CODE** (in `2.29.0`) |
+| **`2.4.0`** | Schulferien DE | ferien-api.de, kein Key | **CODE** (in `2.29.0`) |
+| **`2.5.0`** | Wechselkurse | EZB über Frankfurter.app, kein Key | **CODE** (in `2.29.0`) |
+| **`2.6.0`** | Research härten | Wikipedia/Destatis zuerst, dann bestehende Suche | **CODE** (in `2.29.0`) |
+| **`2.7.0`** | Stimme Alltag | vorhandenes TTS spricht die kurzen Fakten | **CODE** (in `2.29.0`) |
+| **`2.8.0`** | Open Food Facts | openfoodfacts.org | **CODE** (in `2.29.0`) |
+| **`2.9.0`** | Open Library | openlibrary.org | **CODE** (in `2.29.0`) |
+| **`2.10.0`** | Bundesliga | OpenLigaDB, frei | **CODE** (in `2.29.0`) |
+| **`2.11.0`** | Sport-Ergebnisse | gleiche Sport-Schiene, 2. Liga | **CODE** (in `2.29.0`) |
+| **`2.12.0`** | Garten & Pflanzen | iNaturalist, keine Essbarkeit | **CODE** (in `2.29.0`) |
+| **`2.13.0`** | Himmel | ISS Where The ISS At; Mond lokal | **CODE** (in `2.29.0`) |
+| **`2.14.0`** | Tiere draußen | iNaturalist | **CODE** (in `2.29.0`) |
+| **`2.15.0`** | Flüge überm Haus | OpenSky, kein Key | **CODE** (in `2.29.0`) |
+| **`2.16.0`** | Recht Alltag | gesetze-im-internet.de über Research | **CODE** (in `2.29.0`) |
+| **`2.17.0`** | Haushalt | festes Wissen, keine Live-Erfindung | **CODE** (in `2.29.0`) |
+| **`2.18.0`** | Handy-Sensoren | Schritte, Barometer, Kompass — lokal | **CODE** (in `2.29.0`) |
+| **`2.19.0`** | Schach | Chat-Notation e2e4, Züge pseudo-legal | **CODE** (in `2.29.0`) |
 
-Sprint-Kickoff: [`sprint-105.md`](./sprints/sprint-105.md).
+Sprint-Kickoff historisch: [`sprint-105.md`](./sprints/sprint-105.md). Lieferung: [`sprint-123.md`](./sprints/sprint-123.md) / `2.29.0`.
 
 ## Leitentscheidung
 

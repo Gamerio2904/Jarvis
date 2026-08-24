@@ -1,8 +1,8 @@
 # 02 — Architektur
 
-> **Live `2.2.2`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Fähigkeiten und Router: [`00-now.md`](./00-now.md). Die Tabelle darunter ist die **MVP-Entscheidung** (`0.1`) — historisch, wo sie Ollama/NAS/Desktop-VRAM nennt.
+> **Live `2.29.0`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Fähigkeiten und Router: [`00-now.md`](./00-now.md). Die Tabelle darunter ist die **MVP-Entscheidung** (`0.1`) — historisch, wo sie Ollama/NAS/Desktop-VRAM nennt.
 
-## Live-Stack (`2.2.2`)
+## Live-Stack (`2.29.0`)
 
 ```text
 [Handy — Sideload-APK]
@@ -45,7 +45,7 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** Defa
 | UI-Motion | **Code `1.13.0`** |
 | Version `0.1.0` | MVP |
 | Version `0.13.0` | On-Device Handy — **gilt** |
-| Version `2.2.2` | Live — [`00-now.md`](./00-now.md) |
+| Version `2.29.0` | Live — [`00-now.md`](./00-now.md) |
 
 Die Zeilen Ollama / Desktop-VRAM / NAS-`0.10` oben sind **abgelöst**.
 

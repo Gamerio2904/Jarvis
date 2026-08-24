@@ -103,7 +103,7 @@ function where(h: Holiday): string {
   return ` (${h.counties.map(landName).join(', ')})`
 }
 
-function landOf(place: string): string | null {
+export function landOf(place: string): string | null {
   const p = place.toLowerCase()
   if (/baden|württemb|wuerttemb|stuttgart|heilbronn|karlsruhe|mannheim|ingersheim|ingesheim|ulm/.test(p)) return 'DE-BW'
   if (/bayern|münchen|muenchen|nürnberg|nuernberg|augsburg/.test(p)) return 'DE-BY'

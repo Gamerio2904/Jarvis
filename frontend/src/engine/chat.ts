@@ -60,6 +60,8 @@ import { handlePlug } from './plug'
 import { handleWeather } from './weather'
 import { handlePlaces } from './places'
 import { handleShopping } from './shopping'
+import { handleKauf } from './kauf'
+import { handleWorld } from './world'
 import { handleBirthday } from './birthday'
 import { handleHome } from './home'
 import { handleLeave } from './leave'
@@ -407,6 +409,11 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: memHit.reply, lastTool: 'memory' }
   }
 
+  const kaufHit = await handleKauf(conversationId, content)
+  if (kaufHit.handled && kaufHit.reply) {
+    return { reply: kaufHit.reply, tool: kaufHit.tool, lastTool: kaufHit.lastTool || 'kauf' }
+  }
+
   const shopHit = await handleShopping(conversationId, content)
   if (shopHit.handled && shopHit.reply) {
     return { reply: shopHit.reply, tool: shopHit.tool, lastTool: shopHit.lastTool || 'shopping' }
@@ -437,6 +444,11 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   const holidayHit = await handleHoliday(content)
   if (holidayHit.handled && holidayHit.reply) {
     return { reply: holidayHit.reply, tool: holidayHit.tool, lastTool: holidayHit.lastTool || 'holiday' }
+  }
+
+  const worldHit = await handleWorld(content)
+  if (worldHit.handled && worldHit.reply) {
+    return { reply: worldHit.reply, tool: worldHit.tool, lastTool: worldHit.lastTool || 'world' }
   }
 
   const calHit = await handleCalendar(conversationId, content)
@@ -556,7 +568,7 @@ async function rememberToolFromStore(tool: string): Promise<void> {
     persistLastStep('todo', td?.title ?? '', '')
     return
   }
-  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave' || tool === 'fan' || tool === 'plug') {
+  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave' || tool === 'fan' || tool === 'plug' || tool === 'kauf' || tool === 'world') {
     persistLastStep(tool)
     return
   }

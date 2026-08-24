@@ -23,14 +23,20 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
-import java.util.ArrayList;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Handler;
+import android.os.Looper;
 
 @CapacitorPlugin(
         name = "JarvisDevice",
         permissions = {
                 @Permission(alias = "camera", strings = {Manifest.permission.CAMERA}),
                 @Permission(alias = "phone", strings = {Manifest.permission.CALL_PHONE}),
-                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS})
+                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS}),
+                @Permission(alias = "activity", strings = {Manifest.permission.ACTIVITY_RECOGNITION})
         }
 )
 public class JarvisDevicePlugin extends Plugin {
@@ -323,6 +329,79 @@ public class JarvisDevicePlugin extends Plugin {
             r.put("message", "SMS nicht gesendet.");
         }
         call.resolve(r);
+    }
+
+    @PluginMethod
+    public void sensors(PluginCall call) {
+        if (android.os.Build.VERSION.SDK_INT >= 29
+                && getPermissionState("activity") != PermissionState.GRANTED) {
+            call.setKeepAlive(true);
+            requestPermissionForAlias("activity", call, "onActivityPerm");
+            return;
+        }
+        readSensors(call);
+    }
+
+    @PermissionCallback
+    private void onActivityPerm(PluginCall call) {
+        readSensors(call);
+    }
+
+    private void readSensors(PluginCall call) {
+        JSObject r = new JSObject();
+        Context ctx = getContext();
+        SensorManager sm = (SensorManager) ctx.getSystemService(Context.SENSOR_SERVICE);
+        if (sm == null) {
+            r.put("ok", false);
+            r.put("message", "Keine Sensoren lesbar.");
+            call.resolve(r);
+            return;
+        }
+        final float[] pressure = {Float.NaN};
+        final float[] heading = {Float.NaN};
+        final float[] steps = {Float.NaN};
+        SensorEventListener l = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_PRESSURE && event.values.length > 0) {
+                    pressure[0] = event.values[0];
+                }
+                if (event.sensor.getType() == Sensor.TYPE_ORIENTATION && event.values.length > 0) {
+                    heading[0] = event.values[0];
+                }
+                if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER && event.values.length > 0) {
+                    steps[0] = event.values[0];
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+        };
+        Sensor p = sm.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        Sensor o = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        Sensor st = sm.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        if (p != null) sm.registerListener(l, p, SensorManager.SENSOR_DELAY_NORMAL);
+        if (o != null) sm.registerListener(l, o, SensorManager.SENSOR_DELAY_NORMAL);
+        if (st != null) sm.registerListener(l, st, SensorManager.SENSOR_DELAY_NORMAL);
+        new Handler(Looper.getMainLooper())
+                .postDelayed(
+                        () -> {
+                            sm.unregisterListener(l);
+                            r.put("ok", true);
+                            if (!Float.isNaN(pressure[0])) r.put("pressureHpa", pressure[0]);
+                            if (!Float.isNaN(heading[0])) {
+                                float h = heading[0];
+                                if (h < 0) h += 360f;
+                                r.put("heading", h);
+                            }
+                            if (!Float.isNaN(steps[0])) r.put("steps", Math.round(steps[0]));
+                            if (Float.isNaN(pressure[0]) && Float.isNaN(heading[0]) && Float.isNaN(steps[0])) {
+                                r.put("ok", false);
+                                r.put("message", "Sensor ohne Wert. Keine Diagnose.");
+                            }
+                            call.resolve(r);
+                        },
+                        700);
     }
 
     private void startExt(Intent i) {

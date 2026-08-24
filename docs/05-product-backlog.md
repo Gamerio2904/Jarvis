@@ -19,7 +19,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E4 | Private Access | 2 | Handy, Owner-Token, APK (`0.10.2`–`0.10.5`) |
 | E5 | Always-On Ops | — | historisch: NAS Compose `0.10` — **superseded** |
 | E6 | Voice Out | 4 | TTS — **CODE** `1.5`+ |
-| E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research — live in `2.2.2` |
+| E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research — live in `2.29.0` |
 | E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, Settings |
 | E11 | NAS & APK | — | historisch `0.10` — [`12-nas-apk.md`](./12-nas-apk.md) |
 | E12 | Samsung TV | 5+ | Tizen lokal — **`0.14.1`** (ex-`0.11`, on-device) |
@@ -27,8 +27,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E15 | Alltag `1.14`–`1.20` | 5+ | Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Auge — [`19-next.md`](./19-next.md) |
 | E16 | Extra `1.21`–`1.24` | 4 | Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — [`20-next.md`](./20-next.md) |
 | E17 | Qualität `1.33`–`1.40` | 5+ | Bestehendes härten: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit — kein neues Produkt — [`28-next.md`](./28-next.md) |
-| E25 | Alltag & Welt `2.3`–`2.19` | 5+ | DWD, Ferien, Kurs, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach — [`31-next.md`](./31-next.md) **PLAN** |
-| E26 | Kaufmodus `2.20`–`2.28` | 5+ | Overlay, Preisvergleich, Angebote, Prospekte, lokal — nie Einkaufsliste — [`32-next.md`](./32-next.md) **PLAN** |
+| E25 | Alltag & Welt `2.3`–`2.19` | 5+ | DWD, Ferien, Kurs, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach — [`31-next.md`](./31-next.md) **CODE** (in `2.29.0`) |
+| E26 | Kaufmodus `2.20`–`2.28` | 5+ | Overlay, Preisvergleich, Angebote, Prospekte, lokal — nie Einkaufsliste — [`32-next.md`](./32-next.md) **CODE** (in `2.29.0`) |
 
 ---
 
@@ -334,48 +334,46 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S25.1 | Unwetter / DWD-Warnung | Must | ready | `2.3.0` PLAN — freie DWD-Quelle, kein Raten |
-| S25.2 | Schulferien DE | Must | ready | `2.4.0` PLAN |
-| S25.3 | Wechselkurse EZB | Must | ready | `2.5.0` PLAN |
-| S25.4 | Research: belegte DE-Zahlen zuerst | Must | ready | `2.6.0` PLAN — bestehendes Tool |
-| S25.5 | Stimme spricht Uhr/Warnung/Ferien | Should | ready | `2.7.0` PLAN — vorhandenes TTS |
-| S25.6 | Open Food Facts (Foto/Produkt) | Must | ready | `2.8.0` PLAN |
-| S25.7 | Open Library (Buch) | Must | ready | `2.9.0` PLAN |
-| S25.8 | Bundesliga-Stand | Must | ready | `2.10.0` PLAN — OpenLigaDB |
-| S25.9 | Weitere Sport-Ergebnisse | Should | ready | `2.11.0` PLAN |
-| S25.10 | Garten & Pflanzen bestimmen | Must | ready | `2.12.0` PLAN — keine Essbarkeit |
-| S25.11 | Himmel: ISS, Mond | Must | ready | `2.13.0` PLAN |
-| S25.12 | Tiere draußen bestimmen | Must | ready | `2.14.0` PLAN |
-| S25.13 | Flüge überm Haus | Must | ready | `2.15.0` PLAN — OpenSky |
-| S25.14 | Recht Alltag (Gesetzestext + Link) | Must | ready | `2.16.0` PLAN — kein Anwalts-Rat |
-| S25.15 | Haushalt (Waschsymbol, Fleck) | Should | ready | `2.17.0` PLAN |
-| S25.16 | Schritte, Barometer, Handy-Sensoren | Must | ready | `2.18.0` PLAN — lokal |
-| S25.17 | Schach im Chat | Should | ready | `2.19.0` PLAN |
+| S25.1 | Unwetter / DWD-Warnung | Must | done | `2.3` in `2.29.0` — Bright Sky/DWD, kein Raten |
+| S25.2 | Schulferien DE | Must | done | `2.4` in `2.29.0` |
+| S25.3 | Wechselkurse EZB | Must | done | `2.5` in `2.29.0` |
+| S25.4 | Research: belegte DE-Zahlen zuerst | Must | done | `2.6` in `2.29.0` — Wikipedia/Destatis |
+| S25.5 | Stimme spricht Uhr/Warnung/Ferien | Should | done | `2.7` in `2.29.0` — vorhandenes TTS |
+| S25.6 | Open Food Facts (Foto/Produkt) | Must | done | `2.8` in `2.29.0` |
+| S25.7 | Open Library (Buch) | Must | done | `2.9` in `2.29.0` |
+| S25.8 | Bundesliga-Stand | Must | done | `2.10` in `2.29.0` — OpenLigaDB |
+| S25.9 | Weitere Sport-Ergebnisse | Should | done | `2.11` in `2.29.0` |
+| S25.10 | Garten & Pflanzen bestimmen | Must | done | `2.12` in `2.29.0` — keine Essbarkeit |
+| S25.11 | Himmel: ISS, Mond | Must | done | `2.13` in `2.29.0` |
+| S25.12 | Tiere draußen bestimmen | Must | done | `2.14` in `2.29.0` |
+| S25.13 | Flüge überm Haus | Must | done | `2.15` in `2.29.0` — OpenSky |
+| S25.14 | Recht Alltag (Gesetzestext + Link) | Must | done | `2.16` in `2.29.0` — kein Anwalts-Rat |
+| S25.15 | Haushalt (Waschsymbol, Fleck) | Should | done | `2.17` in `2.29.0` |
+| S25.16 | Schritte, Barometer, Handy-Sensoren | Must | done | `2.18` in `2.29.0` — lokal |
+| S25.17 | Schach im Chat | Should | done | `2.19` in `2.29.0` |
 
 ### E26 — Kaufmodus `2.20`–`2.28`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S26.1 | Als Nutzer will ich Kaufmodus und Einkaufsliste getrennt: Suche/Vergleich öffnet das Overlay, Packen bleibt die Liste. | Must | ready | `2.20.0` PLAN — Parser vor `shopping` |
-| S26.2 | Als Nutzer will ich ein Jarvis-Overlay (Bild links, Händler rechts), ohne Fake-Preise. | Must | ready | `2.20.0` PLAN |
-| S26.3 | Als Nutzer will ich Produkte in natürlicher Sprache suchen, ohne exakten Namen. | Must | ready | `2.21.0` PLAN — Research-Adapter |
-| S26.4 | Als Nutzer will ich Händler nach Gesamtpreis vergleichen, mit Quelle und Zeitstempel. | Must | ready | `2.22.0` PLAN |
-| S26.5 | Als Nutzer will ich Chips und „Nur Angebote“ inkl. Preisgrenze aus der Sprache. | Must | ready | `2.23.0` PLAN |
-| S26.6 | Als Nutzer will ich zwei/drei Produkte vergleichen und eine belegte Empfehlung. | Must | ready | `2.24.0` PLAN |
-| S26.7 | Als Nutzer will ich Treffer merken, ohne die Lebensmittelliste anzufassen. | Must | ready | `2.25.0` PLAN — `kauf_saved` |
-| S26.8 | Als Nutzer will ich lokale Läden, Distanz, Stunden und Route, wenn OSM sie hat. | Must | ready | `2.26.0` PLAN |
-| S26.9 | Als Nutzer will ich Prospekte/Angebote lokaler Ketten — oder eine ehrliche Lücke. | Should | ready | `2.27.0` PLAN — kein Scraping |
-| S26.10 | Als Nutzer will ich das Overlay per Stimme steuern (Nummer, Sort, merken, öffnen). | Must | ready | `2.28.0` PLAN |
-| S26.11 | Als Nutzer will ich „Kauf das“ nur als Händler-Link, nie als stille Bestellung. | Must | ready | ab `2.22` — kein Checkout |
+| S26.1 | Als Nutzer will ich Kaufmodus und Einkaufsliste getrennt: Suche/Vergleich öffnet das Overlay, Packen bleibt die Liste. | Must | done | `2.20` in `2.29.0` — Parser vor `shopping` |
+| S26.2 | Als Nutzer will ich ein Jarvis-Overlay (Bild links, Händler rechts), ohne Fake-Preise. | Must | done | Overlay `KaufOverlay` |
+| S26.3 | Als Nutzer will ich Produkte in natürlicher Sprache suchen, ohne exakten Namen. | Must | done | Research-Adapter |
+| S26.4 | Als Nutzer will ich Händler nach Gesamtpreis vergleichen, mit Quelle und Zeitstempel. | Must | done | Quote + fetchedAt |
+| S26.5 | Als Nutzer will ich Chips und „Nur Angebote“ inkl. Preisgrenze aus der Sprache. | Must | done | Filter/Chips |
+| S26.6 | Als Nutzer will ich zwei/drei Produkte vergleichen und eine belegte Empfehlung. | Must | done | compare/recommend |
+| S26.7 | Als Nutzer will ich Treffer merken, ohne die Lebensmittelliste anzufassen. | Must | done | `kauf_saved` |
+| S26.8 | Als Nutzer will ich lokale Läden, Distanz, Stunden und Route, wenn OSM sie hat. | Must | done | Lokal-Filter + Research vor Ort |
+| S26.9 | Als Nutzer will ich Prospekte/Angebote lokaler Ketten — oder eine ehrliche Lücke. | Should | done | ehrliche Lücke ohne kaufDA |
+| S26.10 | Als Nutzer will ich das Overlay per Stimme steuern (Nummer, Sort, merken, öffnen). | Must | done | Mic + NL im Overlay |
+| S26.11 | Als Nutzer will ich „Kauf das“ nur als Händler-Link, nie als stille Bestellung. | Must | done | Zum Händler, kein Checkout |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `2.2.2` — [`apk.md`](./apk.md) · [`00-now.md`](./00-now.md)
-2. Reihe Alltag & Welt **PLAN** [`31-next.md`](./31-next.md) — erste Code-Lieferung `2.3.0` DWD, wenn PO „bauen“ sagt
-3. Reihe Kaufmodus **PLAN** [`32-next.md`](./32-next.md) — erste Code-Lieferung `2.20.0` Intent+Overlay, wenn PO „bauen“ sagt
-4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. Sideload `2.29.0` — [`apk.md`](./apk.md) · [`00-now.md`](./00-now.md)
+2. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

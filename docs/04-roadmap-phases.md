@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. Live **`2.2.2`:** [`00-now.md`](./00-now.md). Nächste Reihen **PLAN:** `2.3`–`2.19` [`31-next.md`](./31-next.md), dann Kaufmodus `2.20`–`2.28` [`32-next.md`](./32-next.md). TTS ist geliefert (`1.5`+).
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. Live **`2.29.0`:** [`00-now.md`](./00-now.md). Geliefert: `2.3`–`2.19` [`31-next.md`](./31-next.md), Kaufmodus `2.20`–`2.28` [`32-next.md`](./32-next.md), Polish [`33-next.md`](./33-next.md). TTS ist geliefert (`1.5`+).
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -146,9 +146,10 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - NAS Compose 24/7 → **`0.10.0`** (Sprint 34) — **historisch**, siehe [`12-nas-apk.md`](./12-nas-apk.md)
 - NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** — superseded durch On-Device `0.13`
 - Samsung-TV lokal → **`0.11`**, live nativ in der APK (`0.14.1`+)
-- Alltag `1.14`–`2.2.2` — **CODE** ([`00-now.md`](./00-now.md))
-- Alltag & Welt `2.3`–`2.19` — **PLAN** [`31-next.md`](./31-next.md)
-- Kaufmodus `2.20`–`2.28` — **PLAN** [`32-next.md`](./32-next.md)
+- Alltag `1.14`–`2.29.0` — **CODE** ([`00-now.md`](./00-now.md))
+- Alltag & Welt `2.3`–`2.19` — **CODE** [`31-next.md`](./31-next.md) (in `2.29.0`)
+- Kaufmodus `2.20`–`2.28` — **CODE** [`32-next.md`](./32-next.md) (in `2.29.0`)
+- Polish Tablet/Sprache/CarPlay — **CODE** [`33-next.md`](./33-next.md)
 - Mail / Alexa / Play Store / iOS — **Parking**
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.

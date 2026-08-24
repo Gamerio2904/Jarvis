@@ -33,6 +33,9 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Milch hab ich', text: 'Milch hab ich' },
       { label: 'Milch kaufen', text: 'Milch kaufen' },
       { label: 'Milch fehlt', text: 'Milch fehlt' },
+      { label: 'Kaufmodus', text: 'Kaufmodus' },
+      { label: 'Fernseher suchen', text: 'Such mir einen Fernseher' },
+      { label: 'Kopfhörer brauchen', text: 'Ich brauche neue Kopfhörer' },
     ],
   },
   {
@@ -201,6 +204,13 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Nachrichten', text: 'Nachrichten' },
       { label: 'Ort-News', text: 'Was ist heute in Ingesheim passiert' },
       { label: 'Feiertag', text: 'Ist heute Feiertag?' },
+      { label: 'Unwetter', text: 'Gibt’s Unwetter?' },
+      { label: 'Ferien BW', text: 'Sind in BW Ferien?' },
+      { label: 'Dollar', text: 'Was ist der Dollar?' },
+      { label: 'Bundesliga', text: 'Wie hat der VfB gespielt?' },
+      { label: 'Mondphase', text: 'Mondphase' },
+      { label: 'Schritte', text: 'Wie viele Schritte heute?' },
+      { label: 'Schach', text: 'Schach e2e4' },
     ],
   },
   {

@@ -471,7 +471,7 @@ export function DriveMode({
         speed: pos.speed ?? liveRef.current.speed,
       }
       const t = Date.now()
-      if (t - hudAt.current > 220) {
+      if (t - hudAt.current > 160) {
         hudAt.current = t
         setHere({ lat: pos.lat, lon: pos.lon })
       }
@@ -540,7 +540,7 @@ export function DriveMode({
       try {
         await stopSpeak()
         await stopListen()
-        await new Promise((r) => window.setTimeout(r, 180))
+        await new Promise((r) => window.setTimeout(r, 120))
         const ok = await requestMicPermission()
         if (!ok) {
           setHearMsg('Mikrofon erlauben — sonst höre ich hier nichts.')

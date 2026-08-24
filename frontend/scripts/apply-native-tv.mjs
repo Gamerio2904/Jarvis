@@ -120,6 +120,7 @@ const perms = [
   'android.permission.FLASHLIGHT',
   'android.permission.CALL_PHONE',
   'android.permission.SEND_SMS',
+  'android.permission.ACTIVITY_RECOGNITION',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {

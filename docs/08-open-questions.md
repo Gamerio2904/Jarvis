@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `2.2.2`. [`apk.md`](./apk.md) · [`00-now.md`](./00-now.md).
+1. Sideload `2.29.0`. [`apk.md`](./apk.md) · [`00-now.md`](./00-now.md).
 2. Geplant: Alltag & Welt [`31-next.md`](./31-next.md) — Bau ab `2.3.0` DWD auf PO-Kommando.
 3. Danach: Kaufmodus [`32-next.md`](./32-next.md) — Bau ab `2.20.0` auf PO-Kommando. Vorziehen nur wenn PO es sagt.
 4. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.

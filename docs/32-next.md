@@ -1,28 +1,26 @@
-# 32 — Kaufmodus (`2.20`–`2.28`) **PLAN**
+# 32 — Kaufmodus (`2.20`–`2.28`) **CODE** (in `2.29.0`)
 
 PO 2026-08-24: Intelligenter Shopping Mode / Kaufmodus. Overlay, Preisvergleich, Angebote, Prospekte, lokale Händler, Empfehlung. **Nie** die Einkaufsliste öffnen oder verändern.
 
-**Nicht im Code.** Live `2.2.2` hat nur die Einkaufsliste (`shopping.ts`). [`00-now.md`](./00-now.md).
+Mitgeliefert in Sideload **`2.29.0`**. [`00-now.md`](./00-now.md). Engine: `kauf.ts` / `KaufOverlay.tsx`. Store **`shopping` bleibt die Lebensmittel-Liste.** Merkliste `kauf_saved`.
 
-Reihe davor: [`31-next.md`](./31-next.md) `2.3`–`2.19`. App jetzt: Sideload **`2.2.2`**. Bau erst auf PO-Kommando, erste Lieferung **`2.20.0`**. Wenn der PO den Kaufmodus vor DWD will: Reihenfolge in [`05-product-backlog.md`](./05-product-backlog.md) umdrehen — nicht heimlich.
-
-Eine Sideload-Stufe pro Version.
+Reihe davor: [`31-next.md`](./31-next.md) `2.3`–`2.19` **CODE**. Polish: [`33-next.md`](./33-next.md).
 
 ## Reihenfolge
 
 | Version | Inhalt | Quelle / Adapter | Status |
 |---------|--------|------------------|--------|
-| **`2.20.0`** | Intent-Trennung + Overlay-Gerüst | Parser vor der Einkaufsliste; Overlay leer ehrlich | **PLAN** |
-| **`2.21.0`** | Produktsuche | bestehende Research (Idealo/Geizhals-Snippets), Adapter-Interface | **PLAN** |
-| **`2.22.0`** | Preisvergleich + Händlerkarten | Gesamtpreis nur mit belegtem Versand; Sortierung Preis | **PLAN** |
-| **`2.23.0`** | Filter, Chips, Nur-Angebote | NL-Filter; Rabatt nur aus Treffern | **PLAN** |
-| **`2.24.0`** | Produktvergleich + Empfehlung | Specs nur aus Treffern; sonst ehrlich | **PLAN** |
-| **`2.25.0`** | Merkliste (`ShoppingMemory`) | eigener Store, nicht `shopping` | **PLAN** |
-| **`2.26.0`** | Lokal kaufen | OSM wie Öffnungszeiten/POI; Route | **PLAN** |
-| **`2.27.0`** | Prospekte / lokale Angebote | Adapter; ohne Lizenz nur Research + ehrlich | **PLAN** |
-| **`2.28.0`** | Stimme im Overlay + Polish | Nummer 1/3, Sort, Merken, bestes Angebot öffnen | **PLAN** |
+| **`2.20.0`** | Intent-Trennung + Overlay-Gerüst | Parser vor der Einkaufsliste; Overlay leer ehrlich | **CODE** (in `2.29.0`) |
+| **`2.21.0`** | Produktsuche | bestehende Research (Snippets), kein HTML-Crawl | **CODE** (in `2.29.0`) |
+| **`2.22.0`** | Preisvergleich + Händlerkarten | Gesamtpreis nur mit belegtem Versand; Sortierung Preis | **CODE** (in `2.29.0`) |
+| **`2.23.0`** | Filter, Chips, Nur-Angebote | NL-Filter; Rabatt nur aus Treffern | **CODE** (in `2.29.0`) |
+| **`2.24.0`** | Produktvergleich + Empfehlung | Specs nur aus Treffern; sonst ehrlich | **CODE** (in `2.29.0`) |
+| **`2.25.0`** | Merkliste (`kauf_saved`) | eigener Store, nicht `shopping` | **CODE** (in `2.29.0`) |
+| **`2.26.0`** | Lokal kaufen | Filter + Research „vor Ort“; OSM-Route über bestehenden Fahr-Befehl | **CODE** (in `2.29.0`) |
+| **`2.27.0`** | Prospekte / lokale Angebote | ohne Lizenz Research + ehrliche Lücke | **CODE** (in `2.29.0`) |
+| **`2.28.0`** | Stimme im Overlay + Polish | Mic, Nummer, Sort, Merken, bestes Angebot öffnen | **CODE** (in `2.29.0`) |
 
-Sprint-Kickoff: [`sprint-122.md`](./sprints/sprint-122.md).
+Sprint-Kickoff historisch: [`sprint-122.md`](./sprints/sprint-122.md). Lieferung: [`sprint-123.md`](./sprints/sprint-123.md) / `2.29.0`.
 
 ## Leitentscheidung
 

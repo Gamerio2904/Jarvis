@@ -1,17 +1,17 @@
-# Android-APK — `2.2.2`
+# Android-APK — `2.29.0`
 
-Live-Stand: [`00-now.md`](./00-now.md). Keine Testprompts in der App. Chat ohne Chips.
+Live-Stand: [`00-now.md`](./00-now.md). Kaufmodus getrennt von der Einkaufsliste. Tablet / Sprachmodus / internes CarPlay nachgezogen.
 
 ## Download
 
-**APK `2.2.2`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/remove-test-settings-3638/releases/Jarvis.apk
+**APK `2.29.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/cursor/jarvis-2-29-4728/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `2.2.2` · versionCode `20202` (aus `frontend/package.json`)
+- versionName `2.29.0` · versionCode `22900` (aus `frontend/package.json`)
 - App-ID `local.jarvis.app`
 
-Über 2.2.1 installieren. Einstellungen hat kein Thema Tests.
+Über 2.2.2 installieren.
 
 ## Lokal bauen
 
