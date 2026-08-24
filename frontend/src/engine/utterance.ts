@@ -7,7 +7,7 @@ const VOCATIVE =
 const FILLER =
   /^(?:ähm+|also|ja\s+)?(?:bitte\s+)?(?:kannst\s+du(?:\s+mal)?|könntest\s+du|könnten\s+sie|würdest\s+du|ich\s+(?:möchte|will|würde\s+gerne)|mach(?:e)?(?:\s+mal)?)\s+/i
 const COMMAND_START =
-  /^(?:ruf|anruf|fahr|bring|navigier|route|spiel|pause|weiter|wecker|timer|termin|kalender|wetter|merk|zeig|öffne[n]?|such|lies|aktivier|deaktivier|laut|fernseh|\btv\b|einkauf|kaufmodus|erinner|todo|notiz|wo\s+|lauf|geh|nach|zu(?:r|m)?\s+|carplay|fahrmodus|spotify|musik|karte|overlay|restweg|akku|taschenlampe|schreib|sms|youtube|netflix|disney|amazon|unwetter|schach)/i
+  /^(?:ruf|anruf|fahr|bring|navigier|route|spiel|pause|weiter|wecker|timer|termin|kalender|wetter|merk|zeig|öffne[n]?|such|lies|aktivier|deaktivier|laut|fernseh|\btv\b|einkauf(?:sliste)?\b|kaufmodus|erinner|todo|notiz|wo\s+|lauf|geh|nach|zu(?:r|m)?\s+|carplay|fahrmodus|spotify|musik|karte|overlay|restweg|akku|taschenlampe|schreib|sms|youtube|netflix|disney|amazon|unwetter|schach)/i
 
 const REPAIRS: Array<[RegExp, string]> = [
   [/\bheil\s*bron(?:n|e)?\b/gi, 'Heilbronn'],

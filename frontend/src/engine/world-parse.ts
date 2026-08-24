@@ -49,7 +49,7 @@ export function parseWorldIntent(text: string): WorldIntent | null {
   ) {
     return { kind: 'fx', q: t }
   }
-  if (/\b(open\s*food|lebensmittel\s+scannen|was\s+ist\s+das\s+für\s+ein\s+produkt|nutriscore|barcode)\b/i.test(t)) {
+  if (/\b(open\s*food|lebensmittel\s+scannen|was\s+ist\s+das\s+für\s+ein\s+produkt|nutri-?score|barcode)\b/i.test(t)) {
     return { kind: 'food', q: t }
   }
   if (/\b(open\s*library|was\s+ist\s+das\s+für\s+ein\s+buch|isbn|wer\s+schrieb)\b/i.test(t)) {

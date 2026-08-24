@@ -22,8 +22,14 @@ export function parseKaufIntent(text: string, sessionOpen = isKaufSessionOpen())
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 220) return null
   if (LIST_LOCK.test(t) && !/\bpack(?:e)?\s+nummer\b/i.test(t)) return null
-  if (/^\s*kaufmodus\s+(?:aus|zu|beenden)\s*[.!?]*$/i.test(t)) return { kind: 'close' }
-  if (/^\s*(?:kaufmodus|shopping[\s-]?modus|ich\s+will\s+einkaufen)\s*[.!?]*$/i.test(t)) return { kind: 'open' }
+  if (/^\s*kaufmodus\s+(?:aus|zu|beenden|schließen)\s*[.!?]*$/i.test(t)) return { kind: 'close' }
+  if (
+    /^\s*(?:kaufmodus|shopping[\s-]?modus|ich\s+will\s+einkaufen|einkaufen|öffne\s+(?:den\s+)?kaufmodus)\s*[.!?]*$/i.test(
+      t,
+    )
+  ) {
+    return { kind: 'open' }
+  }
 
   const packNum = /^\s*pack(?:e)?\s+nummer\s+(\d+)\s+auf\s+die\s+einkaufsliste\s*$/i.exec(t)
   if (packNum) return { kind: 'toList', index: Number(packNum[1]) - 1 }
@@ -50,13 +56,13 @@ export function parseKaufIntent(text: string, sessionOpen = isKaufSessionOpen())
     if (/öffne\s+das\s+beste\s+angebot|bestes\s+angebot\s+öffnen/i.test(t)) return { kind: 'openDeal', best: true }
     const openN = /öffne\s+nummer\s+(\d+)|kauf(?:e)?\s+(?:diese[sn]?|nummer\s+(\d+))/i.exec(t)
     if (openN) return { kind: 'openDeal', index: Number(openN[1] || openN[2]) - 1 }
-    if (/günstigere\s+alternativen|such\s+günstiger/i.test(t)) {
+    if (/günstigere\s+alternativen|such(?:e)?\s+günstiger/i.test(t)) {
       return { kind: 'search', q: t, offersOnly, maxEuro: max, local }
     }
     if (max != null && t.length < 36) return { kind: 'filter', filter: offersOnly ? 'offers' : 'all', maxEuro: max }
   }
 
-  if (searchVerb(t) || productNeed(t) || compareAsk(t) || (offersOnly && productish(t))) {
+  if (searchVerb(t) || productNeed(t) || compareAsk(t) || offerBrowse(t) || (offersOnly && productish(t))) {
     const q = stripLead(t)
     if (!q) return { kind: 'open' }
     return {
@@ -73,7 +79,9 @@ export function parseKaufIntent(text: string, sessionOpen = isKaufSessionOpen())
 }
 
 function searchVerb(t: string): boolean {
-  return /\b(such(?:e)?\s+mir|such(?:e)?\s+(?:günstig|angebote)|ich\s+brauche|wo\s+bekomme\s+ich)\b/i.test(t)
+  return /\b(such(?:e)?\s+mir|such(?:e)?\s+(?:günstig(?:er|ere|e)?|angebote)|ich\s+brauche|wo\s+bekomme\s+ich)\b/i.test(
+    t,
+  )
 }
 
 function productNeed(t: string): boolean {
@@ -84,7 +92,11 @@ function productNeed(t: string): boolean {
 }
 
 function compareAsk(t: string): boolean {
-  return /\bvergleich(?:e|en)?\s+(?:diese|die|mir)\b/i.test(t)
+  return /\bvergleich(?:e|en)?\s+(?:diese|die|mir|nummer)\b/i.test(t)
+}
+
+function offerBrowse(t: string): boolean {
+  return /\b(?:alle\s+(?:aktuellen\s+)?angebote|angebote\s+für|aktuelle[n]?\s+angebote(?:\s+für)?)\b/i.test(t)
 }
 
 function productish(t: string): boolean {

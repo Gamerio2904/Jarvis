@@ -45,7 +45,7 @@ const NOW = new Date('2026-08-15T14:00:00')
 
 /** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'kauf'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'world'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'} Route */
 
-/** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
+/** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null, kaufOpen?: boolean }} [ctx] */
 function route(text, ctx = {}) {
   text = normalizeUtterance(text)
   if (isHelpCommand(text)) return 'help'
@@ -64,7 +64,7 @@ function route(text, ctx = {}) {
   if (parsePcIntent(text)) return 'pc'
   if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
   if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
-  if (parseKaufIntent(text)) return 'kauf'
+  if (parseKaufIntent(text, Boolean(ctx.kaufOpen))) return 'kauf'
   if (parseShopIntent(text)) return 'shopping'
   if (parseBirthdayIntent(text)) return 'birthday'
   if (parseHomeIntent(text)) return 'home'
@@ -206,15 +206,105 @@ const EXPECT = {
   'ohne meine Adresse nachzugucken weißt du wo ich bin': 'here',
   'Nach Ingersheim': 'drive',
   Kaufmodus: 'kauf',
+  'Kaufmodus aus': 'kauf',
+  'Kaufmodus schließen': 'kauf',
+  'Öffne den Kaufmodus': 'kauf',
+  'Öffne Kaufmodus': 'kauf',
+  'Ich will einkaufen': 'kauf',
+  einkaufen: 'kauf',
+  'Shopping-Modus': 'kauf',
   'Such mir einen Fernseher': 'kauf',
   'Ich brauche neue Kopfhörer': 'kauf',
+  'Ich brauche einen Gaming-Monitor unter 300 Euro': 'kauf',
+  'Ich brauche einen Laptop': 'kauf',
+  'Such mir Milch im Angebot': 'kauf',
+  'Such Angebote für Monitor': 'kauf',
+  'Wo bekomme ich einen Monitor': 'kauf',
+  'Wo bekomme ich diesen Fernseher heute in der Nähe?': 'kauf',
+  'Nur Angebote für Kaffee unter 5 €': 'kauf',
+  'Zeig mir alle aktuellen Angebote für Waschmittel': 'kauf',
+  'Prospekt von Aldi': 'kauf',
+  'Werbung von Lidl': 'kauf',
+  'Vergleiche diese drei Fernseher': 'kauf',
+  'Such günstigere Alternativen': 'kauf',
+  'Pack Nummer 2 auf die Einkaufsliste': 'kauf',
+  'Pack Milch auf die Einkaufsliste': 'shopping',
+  'Milch holen': 'shopping',
+  'Was muss ich einkaufen': 'shopping',
+  'Einkaufsliste leeren': 'shopping',
   'Gibt’s Unwetter?': 'world',
+  'Gibt es Unwetter?': 'world',
+  'DWD Warnung': 'world',
+  Wetterwarnung: 'world',
   'Sind in BW Ferien?': 'world',
+  'Schulferien in Bayern': 'world',
+  'Ferien in Hessen': 'world',
   'Was ist der Dollar?': 'world',
+  'Euro in Dollar': 'world',
+  Wechselkurs: 'world',
+  'Kurs von Dollar': 'world',
+  'Was ist das für ein Produkt?': 'world',
+  'Nutri-Score': 'world',
+  Barcode: 'world',
+  'Was ist das für ein Buch?': 'world',
+  'Wer schrieb Faust': 'world',
   'Wie hat der VfB gespielt?': 'world',
+  'Ergebnis Bayern': 'world',
+  'Ergebnis Dortmund': 'world',
+  Bundesliga: 'world',
+  'Was ist das für eine Pflanze?': 'world',
+  'Welches Kraut ist das?': 'world',
   Mondphase: 'world',
+  'Wann fliegt die ISS?': 'world',
+  'Internationale Raumstation': 'world',
+  'Welcher Vogel ist das?': 'world',
+  'Was für ein Tier ist das?': 'world',
+  iNaturalist: 'world',
+  'Was fliegt da?': 'world',
+  'Flugzeug über uns': 'world',
+  OpenSky: 'world',
+  'Kündigungsfrist Wohnung': 'world',
+  Mietrecht: 'world',
+  'Was bedeutet die Waschschüssel?': 'world',
+  Waschsymbol: 'world',
+  Bügelsymbol: 'world',
+  'Fleck auf dem Hemd': 'world',
   'Wie viele Schritte heute?': 'world',
+  Luftdruck: 'world',
+  Barometer: 'world',
+  Kompass: 'world',
+  Nordrichtung: 'world',
   'Schach e2e4': 'world',
+  'Schach neu': 'world',
+  'Schach reset': 'world',
+  'Schach Stellung': 'world',
+  Schach: 'world',
+  'Taschenlampe aus': 'device',
+  'Öffne WLAN': 'device',
+  'Öffne Bluetooth': 'device',
+  'Nicht stören': 'device',
+  'Wie ist die Verbindung': 'device',
+  'Standort aktivieren': 'here',
+  'es ist 06:30 Uhr wo könnte ich denn sein': 'here',
+  'nächster Bäcker': 'poi',
+  'nächstes Café': 'poi',
+  'CarPlay aus': 'drive',
+  'Aktiviere CarPlay': 'drive',
+  Fahrmodus: 'drive',
+  'Zeig die Karte': 'drive',
+  Restweg: 'drive',
+  'Wann bin ich da': 'drive',
+  'Timer 0 Minuten': 'llm',
+  'in 20 Minuten': 'llm',
+  'Fahr nach Atlantis': 'drive',
+  'Licht an': 'llm',
+  'Alexa, Licht an': 'llm',
+  'Tapo Steckdose an': 'plug',
+  'Kopple die Tuya Cloud': 'llm',
+  'Verbinde Apple CarPlay': 'llm',
+  'Schreib Mama auf WhatsApp ich bin unterwegs': 'maps',
+  Stopp: 'llm',
+  'Wecker 25 Uhr': 'llm',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -268,7 +358,65 @@ assert.equal(route('Schach e2e4'), 'world')
 assert.equal(route('Wetter heute'), 'weather')
 assert.equal(parseKaufIntent('Milch kaufen'), null)
 assert.equal(parseKaufIntent('Kaufmodus')?.kind, 'open')
+assert.equal(parseKaufIntent('Kaufmodus aus')?.kind, 'close')
+assert.equal(parseKaufIntent('Kaufmodus schließen')?.kind, 'close')
+assert.equal(parseKaufIntent('Öffne den Kaufmodus')?.kind, 'open')
+assert.equal(parseKaufIntent('Öffne Kaufmodus')?.kind, 'open')
+assert.equal(parseKaufIntent('Ich will einkaufen')?.kind, 'open')
+assert.equal(parseKaufIntent('einkaufen')?.kind, 'open')
+assert.equal(parseKaufIntent('Shopping-Modus')?.kind, 'open')
+assert.equal(parseKaufIntent('Such mir Milch im Angebot')?.kind, 'search')
+assert.equal(parseKaufIntent('Such Angebote für Monitor')?.kind, 'search')
+assert.equal(parseKaufIntent('Such günstigere Alternativen')?.kind, 'search')
+assert.equal(parseKaufIntent('Pack Nummer 2 auf die Einkaufsliste')?.kind, 'toList')
+assert.equal(parseKaufIntent('Prospekt von Aldi')?.kind, 'search')
+assert.equal(parseKaufIntent('Nur Angebote', true)?.kind, 'filter')
+assert.equal(parseKaufIntent('Vergleiche Nummer 1 und 3', true)?.kind, 'compare')
+assert.equal(parseKaufIntent('Merke mir Nummer 2', true)?.kind, 'save')
+assert.equal(parseKaufIntent('Öffne das beste Angebot', true)?.kind, 'openDeal')
+assert.equal(parseKaufIntent('Bestes Angebot öffnen', true)?.kind, 'openDeal')
+assert.equal(parseKaufIntent('Sortiere nach Preis', true)?.kind, 'sort')
+assert.equal(parseKaufIntent('Sortiere nach Bewertung', true)?.by, 'rating')
+assert.equal(parseKaufIntent('Was würdest du nehmen?', true)?.kind, 'recommend')
+assert.equal(parseKaufIntent('Kauf diese Milch', true)?.kind, 'openDeal')
+assert.equal(parseKaufIntent('Maximal 200 €', true)?.maxEuro, 200)
+assert.equal(parseKaufIntent('Nur lokal', true)?.filter, 'local')
+assert.equal(parseKaufIntent('Öffne Nummer 2', true)?.kind, 'openDeal')
+assert.equal(parseKaufIntent('Alle', true)?.filter, 'all')
+assert.equal(route('Milch kaufen', { kaufOpen: true }), 'shopping')
+assert.equal(route('was fehlt?', { kaufOpen: true }), 'shopping')
+assert.equal(route('Nur Angebote', { kaufOpen: true }), 'kauf')
+assert.equal(route('Vergleiche Nummer 1 und 3', { kaufOpen: true }), 'kauf')
+assert.equal(route('Merke mir Nummer 2', { kaufOpen: true }), 'kauf')
+assert.equal(route('Öffne das beste Angebot', { kaufOpen: true }), 'kauf')
+assert.equal(route('Maximal 200 €', { kaufOpen: true }), 'kauf')
+assert.equal(route('Nur lokal', { kaufOpen: true }), 'kauf')
+assert.equal(route('Öffne Nummer 2', { kaufOpen: true }), 'kauf')
+assert.equal(route('Sortiere nach Bewertung', { kaufOpen: true }), 'kauf')
+assert.equal(route('Ich will einkaufen'), 'kauf')
+assert.equal(route('Such günstigere Alternativen'), 'kauf')
+assert.equal(route('Milch holen'), 'shopping')
+assert.equal(route('Aktiviere CarPlay'), 'drive')
+assert.equal(route('Restweg'), 'drive')
+assert.equal(route('Kopple die Tuya Cloud'), 'llm')
 assert.equal(parseWorldIntent('Schach e2e4')?.kind, 'chess')
+assert.equal(parseWorldIntent('Schach reset')?.reset, true)
+assert.equal(parseWorldIntent('DWD Warnung')?.kind, 'dwd')
+assert.equal(parseWorldIntent('Wetterwarnung')?.kind, 'dwd')
+assert.equal(parseWorldIntent('Wetter heute'), null)
+assert.equal(parseWorldIntent('Euro in Dollar')?.kind, 'fx')
+assert.equal(parseWorldIntent('Wechselkurs')?.kind, 'fx')
+assert.equal(parseWorldIntent('Kündigungsfrist Wohnung')?.kind, 'law')
+assert.equal(parseWorldIntent('Mietrecht')?.kind, 'law')
+assert.equal(parseWorldIntent('Bundesliga')?.kind, 'sport')
+assert.equal(parseWorldIntent('Barcode')?.kind, 'food')
+assert.equal(parseWorldIntent('Wer schrieb Faust')?.kind, 'library')
+assert.equal(parseWorldIntent('OpenSky')?.kind, 'flight')
+assert.equal(parseWorldIntent('iNaturalist')?.kind, 'fauna')
+assert.equal(parseWorldIntent('Barometer')?.kind, 'sensors')
+assert.equal(route('Wetter heute'), 'weather')
+assert.equal(route('Beste Preise Staubsauger'), 'research')
+assert.equal(normalizeUtterance('Ich will einkaufen'), 'Ich will einkaufen')
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }
