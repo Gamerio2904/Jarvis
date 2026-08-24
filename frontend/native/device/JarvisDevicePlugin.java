@@ -14,6 +14,7 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.BatteryManager;
 import android.provider.Settings;
+import java.util.ArrayList;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
