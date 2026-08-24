@@ -109,8 +109,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 103 | [`sprint-103.md`](./sprint-103.md) | `2.1.0` | WLAN-Steckdosen lokal | **CODE** |
 | 104 | [`sprint-104.md`](./sprint-104.md) | `2.2.0` | Uhrzeit, Ort, Auto-Research | **CODE** |
 | 105 | [`sprint-105.md`](./sprint-105.md) | `2.3.0` | Alltag & Welt Kickoff (DWD zuerst) | **PLAN** |
+| 122 | [`sprint-122.md`](./sprint-122.md) | `2.20.0` | Kaufmodus Kickoff (Intent + Overlay) | **PLAN** |
 
-**Aktuell:** Sideload `2.2.2`. Geplant: [`31-next.md`](../31-next.md) `2.3`–`2.19`.
+**Aktuell:** Sideload `2.2.2`. Geplant: [`31-next.md`](../31-next.md) `2.3`–`2.19`, danach [`32-next.md`](../32-next.md) `2.20`–`2.28`.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

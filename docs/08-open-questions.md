@@ -56,7 +56,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 1. Sideload `2.2.2`. [`apk.md`](./apk.md).
 2. Geplant: Alltag & Welt [`31-next.md`](./31-next.md) — Bau ab `2.3.0` DWD auf PO-Kommando.
-3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
+3. Danach: Kaufmodus [`32-next.md`](./32-next.md) — Bau ab `2.20.0` auf PO-Kommando. Vorziehen nur wenn PO es sagt.
+4. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---
 
@@ -75,3 +76,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-18 | Q44 | Anruf und SMS direkt, aber immer nachfragen. Kein Abheben/Zustellung behaupten. | PO |
 | 2026-08-19 | Q46 | WLAN-Steckdosen lokal: Shelly/Tasmota per IP, Tuya/Smart Life nur LAN mit Local Key, keine Tuya-Cloud, kein Tapo | PO |
 | 2026-08-20 | Q47 | Nächste Reihe `2.3`–`2.19`: DWD, Ferien, Kurs, Research, Stimme, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach. Frei, ehrlich. [`31-next.md`](./31-next.md) | PO |
+| 2026-08-24 | Q48 | Kaufmodus `2.20`–`2.28` nach Alltag & Welt. Overlay, Vergleich, Prospekte. **Nie** Einkaufsliste. Preise nur mit Quelle+Zeit. Kein In-App-Kauf, kein Scraping. [`32-next.md`](./32-next.md) | PO |

@@ -169,6 +169,20 @@ MAJOR.MINOR.PATCH
 | `2.18.0` | Handy-Sensoren (Schritte, Barometer) | 120 |
 | `2.19.0` | Schach | 121 |
 
+### Geplant — Reihe [`32-next.md`](./32-next.md) (noch kein Code)
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `2.20.0` | Kaufmodus: Intent vs Einkaufsliste + Overlay-Gerüst | 122 |
+| `2.21.0` | Produktsuche (Research-Adapter) | 123 |
+| `2.22.0` | Preisvergleich, Händlerkarten, Gesamtpreis | 124 |
+| `2.23.0` | Filter, Chips, Nur-Angebote | 125 |
+| `2.24.0` | Produktvergleich + Empfehlung | 126 |
+| `2.25.0` | Merkliste, nicht Einkaufsliste | 127 |
+| `2.26.0` | Lokale Händler (OSM, Route) | 128 |
+| `2.27.0` | Prospekte / lokale Angebote | 129 |
+| `2.28.0` | Stimme im Overlay + Polish | 130 |
+
 ### Weitere Beispiele
 
 | Version | Bedeutung (Beispiel) |

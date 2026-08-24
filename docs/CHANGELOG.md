@@ -7,7 +7,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`2.2.2`**.
 
-Geplant (kein Code): [`31-next.md`](./31-next.md) `2.3.0`–`2.19.0`.
+Geplant (kein Code): [`31-next.md`](./31-next.md) `2.3.0`–`2.19.0`, danach [`32-next.md`](./32-next.md) Kaufmodus `2.20.0`–`2.28.0`.
 
 ### `2.2.2` — Testprompts raus aus der App — *CODE*
 

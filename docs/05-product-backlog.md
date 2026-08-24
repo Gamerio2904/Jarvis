@@ -28,6 +28,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E16 | Extra `1.21`–`1.24` | 4 | Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — [`20-next.md`](./20-next.md) |
 | E17 | Qualität `1.33`–`1.40` | 5+ | Bestehendes härten: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit — kein neues Produkt — [`28-next.md`](./28-next.md) |
 | E25 | Alltag & Welt `2.3`–`2.19` | 5+ | DWD, Ferien, Kurs, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach — [`31-next.md`](./31-next.md) **PLAN** |
+| E26 | Kaufmodus `2.20`–`2.28` | 5+ | Overlay, Preisvergleich, Angebote, Prospekte, lokal — nie Einkaufsliste — [`32-next.md`](./32-next.md) **PLAN** |
 
 ---
 
@@ -351,13 +352,30 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S25.16 | Schritte, Barometer, Handy-Sensoren | Must | ready | `2.18.0` PLAN — lokal |
 | S25.17 | Schach im Chat | Should | ready | `2.19.0` PLAN |
 
+### E26 — Kaufmodus `2.20`–`2.28`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S26.1 | Als Nutzer will ich Kaufmodus und Einkaufsliste getrennt: Suche/Vergleich öffnet das Overlay, Packen bleibt die Liste. | Must | ready | `2.20.0` PLAN — Parser vor `shopping` |
+| S26.2 | Als Nutzer will ich ein Jarvis-Overlay (Bild links, Händler rechts), ohne Fake-Preise. | Must | ready | `2.20.0` PLAN |
+| S26.3 | Als Nutzer will ich Produkte in natürlicher Sprache suchen, ohne exakten Namen. | Must | ready | `2.21.0` PLAN — Research-Adapter |
+| S26.4 | Als Nutzer will ich Händler nach Gesamtpreis vergleichen, mit Quelle und Zeitstempel. | Must | ready | `2.22.0` PLAN |
+| S26.5 | Als Nutzer will ich Chips und „Nur Angebote“ inkl. Preisgrenze aus der Sprache. | Must | ready | `2.23.0` PLAN |
+| S26.6 | Als Nutzer will ich zwei/drei Produkte vergleichen und eine belegte Empfehlung. | Must | ready | `2.24.0` PLAN |
+| S26.7 | Als Nutzer will ich Treffer merken, ohne die Lebensmittelliste anzufassen. | Must | ready | `2.25.0` PLAN — `kauf_saved` |
+| S26.8 | Als Nutzer will ich lokale Läden, Distanz, Stunden und Route, wenn OSM sie hat. | Must | ready | `2.26.0` PLAN |
+| S26.9 | Als Nutzer will ich Prospekte/Angebote lokaler Ketten — oder eine ehrliche Lücke. | Should | ready | `2.27.0` PLAN — kein Scraping |
+| S26.10 | Als Nutzer will ich das Overlay per Stimme steuern (Nummer, Sort, merken, öffnen). | Must | ready | `2.28.0` PLAN |
+| S26.11 | Als Nutzer will ich „Kauf das“ nur als Händler-Link, nie als stille Bestellung. | Must | ready | ab `2.22` — kein Checkout |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
 1. Sideload `2.2.2` — [`apk.md`](./apk.md)
 2. Reihe Alltag & Welt **PLAN** [`31-next.md`](./31-next.md) — erste Code-Lieferung `2.3.0` DWD, wenn PO „bauen“ sagt
-3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+3. Reihe Kaufmodus **PLAN** [`32-next.md`](./32-next.md) — erste Code-Lieferung `2.20.0` Intent+Overlay, wenn PO „bauen“ sagt
+4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 
