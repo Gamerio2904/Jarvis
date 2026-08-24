@@ -2,7 +2,7 @@
 
 PO 2026-08-20: Nächste Updates planen — Unwetter/DWD, Schulferien, Wechselkurse, Open Food Facts, Open Library, Bundesliga, Research, Stimme, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sport, Handy-Sensoren, Schach. Freie APIs, nichts erfinden.
 
-Reihe davor: [`30-next.md`](./30-next.md). Reihe danach: [`32-next.md`](./32-next.md) Kaufmodus **PLAN**. App jetzt: Sideload **`2.2.2`**. Bau erst auf PO-Kommando, erste Lieferung **`2.3.0`**.
+Reihe davor: [`30-next.md`](./30-next.md). Reihe danach: [`32-next.md`](./32-next.md) Kaufmodus **PLAN**. App jetzt: Sideload **`2.2.2`** — [`00-now.md`](./00-now.md). Bau erst auf PO-Kommando, erste Lieferung **`2.3.0`**.
 
 Eine Sideload-Stufe pro Version.
 

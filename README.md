@@ -4,9 +4,11 @@
   <img src="frontend/native/brand/cover.png" alt="Jarvis" width="920" />
 </p>
 
-Privater Assistant. Läuft **auf dem Handy**. PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
+Privater Assistant auf dem **Handy**. Live **`2.2.2`** — was geht und was nicht: [`docs/00-now.md`](docs/00-now.md).
 
-## Start (Dev-PC, nur zum Bauen)
+PC im selben WLAN: `desktop/JarvisPC.bat`. Kein NAS, kein Docker, kein Ollama.
+
+## Start (Dev)
 
 ```bash
 cd frontend
@@ -14,27 +16,18 @@ npm install
 npm run dev
 ```
 
-Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
+Browser: http://localhost:5173 — einmal Modell herunterladen (~470 MB, Qwen2.5 0.5B Instruct Q4).
 
 ## Android-APK
 
-**`Jarvis.apk` `2.2.2`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/remove-test-settings-3638/releases/Jarvis.apk
+Sideload **`2.2.2`** (versionCode `20202`): [`docs/apk.md`](docs/apk.md)
 
-```bat
-build-apk.bat
-```
+Lokal bauen: `build-apk.bat` → `frontend/dist-apk/jarvis-debug.apk`
 
-APK: `releases/Jarvis.apk`
-
-1. Installieren (unbekannte Quellen).
+1. Unbekannte Quellen erlauben, APK installieren.
 2. App öffnen → Modell laden (WLAN).
 3. Chat. Daten bleiben auf dem Gerät (IndexedDB).
 
-Modell: Qwen2.5 0.5B Instruct Q4 (kleiner als der alte PC-7b, dafür offline).
-
-## Was weg ist
-
-Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen in der Android-App.
+Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen **in der App**, nicht über NAS.
 
 Planung: [`docs/README.md`](docs/README.md)

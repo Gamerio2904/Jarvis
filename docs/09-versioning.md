@@ -151,23 +151,8 @@ MAJOR.MINOR.PATCH
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `2.3.0` | DWD-Unwetterwarnung | 105+ |
-| `2.4.0` | Schulferien DE | 106 |
-| `2.5.0` | Wechselkurse EZB | 107 |
-| `2.6.0` | Research: Wikipedia/Destatis zuerst | 108 |
-| `2.7.0` | Stimme: Uhr, Warnung, Ferien | 109 |
-| `2.8.0` | Open Food Facts | 110 |
-| `2.9.0` | Open Library | 111 |
-| `2.10.0` | Bundesliga | 112 |
-| `2.11.0` | Sport-Ergebnisse | 113 |
-| `2.12.0` | Garten & Pflanzen | 114 |
-| `2.13.0` | Himmel (ISS, Mond) | 115 |
-| `2.14.0` | Tiere draußen | 116 |
-| `2.15.0` | Flüge überm Haus | 117 |
-| `2.16.0` | Recht Alltag | 118 |
-| `2.17.0` | Haushalt | 119 |
-| `2.18.0` | Handy-Sensoren (Schritte, Barometer) | 120 |
-| `2.19.0` | Schach | 121 |
+| `2.3.0` | DWD-Unwetterwarnung | 105 |
+| `2.4.0`–`2.19.0` | Ferien … Schach — eine Version je Stufe in [`31-next.md`](./31-next.md) | 106–121 **reserviert**, Sprint-Datei erst beim Bau |
 
 ### Geplant — Reihe [`32-next.md`](./32-next.md) (noch kein Code)
 

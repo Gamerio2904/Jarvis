@@ -2,6 +2,8 @@
 
 PO 2026-08-24: Intelligenter Shopping Mode / Kaufmodus. Overlay, Preisvergleich, Angebote, Prospekte, lokale Händler, Empfehlung. **Nie** die Einkaufsliste öffnen oder verändern.
 
+**Nicht im Code.** Live `2.2.2` hat nur die Einkaufsliste (`shopping.ts`). [`00-now.md`](./00-now.md).
+
 Reihe davor: [`31-next.md`](./31-next.md) `2.3`–`2.19`. App jetzt: Sideload **`2.2.2`**. Bau erst auf PO-Kommando, erste Lieferung **`2.20.0`**. Wenn der PO den Kaufmodus vor DWD will: Reihenfolge in [`05-product-backlog.md`](./05-product-backlog.md) umdrehen — nicht heimlich.
 
 Eine Sideload-Stufe pro Version.

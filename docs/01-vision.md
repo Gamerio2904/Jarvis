@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Stand Code `1.24.0`:** On-Device-APK, lokales 0,5B **oder** Gemini (aus bis Opt-in), Timer/Wecker, Wetter, Kalender, Einkauf, Losgehen, Memory, Personenorte, Route in Google Maps. Live-Ton: **Siezen**, kurz. Reihe: [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md).
+> **Stand Code `2.2.2`:** On-Device-APK. Live-Fähigkeiten: [`00-now.md`](./00-now.md). Ton: **Siezen**, kurz. Geplant: [`31-next.md`](./31-next.md), [`32-next.md`](./32-next.md) (Kaufmodus, nicht Einkaufsliste).
 
 ## Vision
 
@@ -15,7 +15,7 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 3. **Chat first** — Messenger-Gefühl. Stimme ist da (`1.5`+), Text bleibt Quelle.
 4. **Charakter vor Features** — Ton fest (Siezen im Code), dann neue Alltags-Tools.
 5. **Kern vor Breite** — Lieber ein ehrlicher Router als ein größeres Modell vortäuschen.
-6. **UI-Qualität als Produktstandard** — Extrem hochwertige, smoothe Web-GUI. Referenz: **Spotify dunkel** (Farbe/Atmosphäre), **ChatGPT** (Chat-Layout/Buttons). Motion im MVP light, später GUI-Update.
+6. **UI-Qualität als Produktstandard** — Spotify dunkel + ChatGPT-Layout. Motion geliefert (`1.13`).
 7. **Versionierung** — Jedes Sprint-Ziel und jeder Nachzieher ist einer Version zugeordnet (`09-versioning.md`).
 8. **Lebendigkeit** — Kein Template-Bot: Antworten variieren, Kontext nutzen; Stil-Beispiele nur als grobe Vorgabe.
 
@@ -28,10 +28,9 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 | Lokale Kontrolle | Kein Cloud-LLM als Denk-Engine. |
 | Handy-Nutzbarkeit | Sideload-APK, Modell on-device (`0.13.0`). |
 | 24/7 | Handy selbst; kein NAS-LLM. |
-| Versionierung | `0.1.0` = MVP; `0.13.0` = On-Device; `1.0.0` = späterer MAJOR |
-| Stimme später | Realistisches Vorlesen derselben Antworten, auf dein Kommando. |
-| Premium-Web-UI | Spotify-**Dunkel** + ChatGPT-Layout; Motion light → späteres GUI-Update |
-| Versionierung | `0.1.0` = MVP; `0.10.x` = NAS+APK; `0.11.x` = Samsung-TV; `1.0.0` = späterer MAJOR |
+| Versionierung | `0.1.0` MVP · `0.13` On-Device · `2.0` Haus-AI · Live `2.2.2` — [`09-versioning.md`](./09-versioning.md) |
+| Stimme | TTS liest denselben Text (`1.5`+). |
+| Premium-Web-UI | Spotify-**Dunkel** + ChatGPT-Layout; Motion geliefert (`1.13`). |
 
 ## Nicht-Ziele (aktuell)
 
@@ -47,6 +46,6 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 
 Du nutzt Jarvis regelmäßig vom Handy aus für Gespräch & später Hilfe — mit dem Gefühl: *das ist meiner*, und die Daten bleiben in deinem Bereich.
 
-## Erfolgskriterium jetzt (Planungsstand)
+## Erfolgskriterium jetzt
 
-Die Planung ist so klar, dass Sprint 1 (lokaler Smalltalk) ohne Architektur-Umentscheidung starten kann.
+Sideload `2.2.2` im Alltag. Nächste Code-Lieferung nur auf PO-Kommando (`2.3.0` DWD oder vorgezogen `2.20` Kaufmodus).

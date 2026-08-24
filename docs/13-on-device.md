@@ -2,6 +2,8 @@
 
 PO 2026-08-14: Jarvis läuft **vollständig auf dem Handy**. DS218 kann kein LLM. PC/NAS/Docker entfallen.
 
+Live-Version: **`2.2.2`** — [`00-now.md`](./00-now.md). Dieses Doc beschreibt den Stack seit `0.13`.
+
 ## Stack
 
 ```text

@@ -2,7 +2,7 @@
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
-Reihe davor: [`27-next.md`](./27-next.md). App vorher: Sideload **`2.0.1`**. Steckdosen: [`29-next.md`](./29-next.md) **`2.1.0`**.
+Reihe davor: [`27-next.md`](./27-next.md). **CODE** durch `2.0`; live in **`2.2.2`**. Steckdosen: [`29-next.md`](./29-next.md).
 
 Eine Sideload-Stufe pro Version. Kein Kalender.
 

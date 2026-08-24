@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.33.0`:** Alltag auf dem Handy inkl. Suche mit Preisen. **`2.2.2`:** Sideload. Nächste Reihe **PLAN** `2.3`–`2.19`: [`31-next.md`](./31-next.md). Danach Kaufmodus **PLAN** `2.20`–`2.28`: [`32-next.md`](./32-next.md). TTS ist geliefert (`1.5`+).
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. Live **`2.2.2`:** [`00-now.md`](./00-now.md). Nächste Reihen **PLAN:** `2.3`–`2.19` [`31-next.md`](./31-next.md), dann Kaufmodus `2.20`–`2.28` [`32-next.md`](./32-next.md). TTS ist geliefert (`1.5`+).
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -57,7 +57,11 @@ Du kannst sagen: „Jarvis klingt so: …“ und Beispiele in `07-persona.md` si
 
 ---
 
-## Phase 2 — Privat vom Handy (in `0.10.x` mit Phase 3)
+## Phase 2 — Privat vom Handy — **historisch als NAS-APK**
+
+Ab `0.13` ist die APK selbst Jarvis (kein Token gegen NAS). Live: [`00-now.md`](./00-now.md).
+
+Unten: wie Phase 2 in `0.10` geplant war.
 
 **Ziel:** Vom Handy im eigenen WLAN chatten — **Sideload-APK** gegen NAS, plus Browser.
 
@@ -74,7 +78,9 @@ APK-Chat gegen NAS ist Alltag; ohne Token kein Zugriff.
 
 ---
 
-## Phase 3 — 24/7 auf NAS (in `0.10.x` mit Phase 2)
+## Phase 3 — 24/7 auf NAS — **historisch / superseded**
+
+Kein NAS-LLM im Alltag. Das Handy ist 24/7, solange es an ist.
 
 **Ziel:** Dauerbetrieb ohne dass der Laptop an sein muss.
 
@@ -134,15 +140,16 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Local Tools Core (Option A) → **`0.9.0`** (Sprint 28, READY FOR REVIEW)
 - Tools Hotfix → **`0.9.1`** (Sprint 29, READY FOR REVIEW)
 - Tools Polish & Continuity → **`0.9.2`** (Sprint 30, READY FOR REVIEW)
-- Memory Quality Hotfix → **`0.9.3`** (Sprint 31, geplant)
-- Assist Continuity & Siezen → **`0.9.4`** (Sprint 32, geplant)
-- Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33, geplant)
-- NAS Compose 24/7 → **`0.10.0`** (Sprint 34)
-- NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** (Sprints 36–39) — [`12`](./12-nas-apk.md)
-- Samsung-TV lokal → **`0.11.0`–`0.11.2`** (Sprints 40–42)
-- Mail / Fire TV / Alexa / Play Store — **Parking**
-- Tools (Kalender/Mail) — Kalender **ist** in `1.4`+; Mail bleibt Parking
-- Alltag `1.14`–`1.15` — **CODE**; `1.16`–`1.20` — **PLANNED** [`19-next.md`](./19-next.md); Extra `1.21`–`1.24` — **PLANNED** [`20-next.md`](./20-next.md)
+- Memory Quality Hotfix → **`0.9.3`** (Sprint 31, CODE)
+- Assist Continuity & Siezen → **`0.9.4`** (Sprint 32, CODE)
+- Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33, CODE)
+- NAS Compose 24/7 → **`0.10.0`** (Sprint 34) — **historisch**, siehe [`12-nas-apk.md`](./12-nas-apk.md)
+- NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** — superseded durch On-Device `0.13`
+- Samsung-TV lokal → **`0.11`**, live nativ in der APK (`0.14.1`+)
+- Alltag `1.14`–`2.2.2` — **CODE** ([`00-now.md`](./00-now.md))
+- Alltag & Welt `2.3`–`2.19` — **PLAN** [`31-next.md`](./31-next.md)
+- Kaufmodus `2.20`–`2.28` — **PLAN** [`32-next.md`](./32-next.md)
+- Mail / Alexa / Play Store / iOS — **Parking**
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---
@@ -151,13 +158,12 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 
 | Willst du … | Brauchst du zuerst … |
 |-------------|----------------------|
-| TTS | Stabilen Text-Charakter (Phase 1+) |
-| NAS 24/7 | Laufenden Stack auf dem PC (Phase 1) |
-| Handy-Alltag | NAS-Stack + Owner-Token + APK (`0.10.2`+) |
-| Tools | Klare Persona + zuverlässigen Betrieb |
+| TTS | Stabilen Text-Charakter — **geliefert** |
+| Handy-Alltag | On-Device-APK (`0.13`+), nicht NAS |
+| Tools | Klare Persona + ehrlichen Router |
 
 ## Sparring-Korrekturen in der Roadmap
 
-- Handy-App und NAS sind **nicht** Phase-1-Arbeit (kommen als `0.10.x` nach `0.9.5`).
+- Handy-App ist On-Device (`0.13`+). NAS-Compose ist **historisch**, nicht Alltag.
 - Lokales Modell kann Smalltalk schwächen → Persona/Stil und ggf. Modellwechsel sind Teil von Phase 1, keine „spätere Politur“.
 - Stimme ersetzt keine gute Text-Persona.

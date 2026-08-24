@@ -16,13 +16,11 @@ Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 
 Reihenfolge bewusst: erst scharfsinnig/verlässlich, dann Delight.
 
-### Live `1.14.0`
+### Live `2.2.2`
 
-Momente/Jokes/Eggs/Sounds existieren in Settings. GUI-Motion in `1.13.0`. Persona siezt. Confirm bei jedem Todo ist **nicht** menschlich — Änderung in `1.16`/`1.19`.
+Momente/Jokes/Eggs/Sounds in Settings → Ton. GUI-Motion seit `1.13`. Persona siezt. Einkauf ohne Ja/Nein pro Artikel. Settings-Themen: [`00-now.md`](./00-now.md).
 
-### Geplant `1.19` — menschlicher ([`19-next.md`](./19-next.md))
-
-Eine Morgen-Lage, kurze Sätze, Siezen, kein Pflicht-Disclaimer nach jedem Timer, Folgesatz nach Küchentimer erlaubt. Witze bleiben selten und abschaltbar.
+`1.19` (Morgen-Lage, kurzer Ton) ist **CODE**, mitgeliefert in `1.24.0`.
 
 ---
 

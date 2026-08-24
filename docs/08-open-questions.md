@@ -39,7 +39,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
 | Q9 | Encryption at-rest MVP? | P1 | zurückgestellt | |
-| Q10 | Ollama-Download? | P1 | entschieden | Ja |
+| Q10 | Ollama-Download? | P1 | entschieden | Ja für MVP `0.1`. Ab `0.13` **wllama on-device**, kein Ollama |
 | Q11 | History speichern? | P1 | entschieden | Ja |
 | Q12 | Löschen? | P2 | zurückgestellt | Nicht Sprint 1 |
 
@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `2.2.2`. [`apk.md`](./apk.md).
+1. Sideload `2.2.2`. [`apk.md`](./apk.md) · [`00-now.md`](./00-now.md).
 2. Geplant: Alltag & Welt [`31-next.md`](./31-next.md) — Bau ab `2.3.0` DWD auf PO-Kommando.
 3. Danach: Kaufmodus [`32-next.md`](./32-next.md) — Bau ab `2.20.0` auf PO-Kommando. Vorziehen nur wenn PO es sagt.
 4. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.

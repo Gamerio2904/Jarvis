@@ -5,7 +5,9 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.2.2`**.
+App-Version im Code: **`2.2.2`**. Live: [`00-now.md`](./00-now.md).
+
+Docs aufgeräumt: ein Jetzt-Stand, Index ohne doppelte Sprint-Tabelle, Kaufmodus bleibt **PLAN**.
 
 Geplant (kein Code): [`31-next.md`](./31-next.md) `2.3.0`–`2.19.0`, danach [`32-next.md`](./32-next.md) Kaufmodus `2.20.0`–`2.28.0`.
 
