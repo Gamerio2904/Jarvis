@@ -203,3 +203,15 @@ export function parseTvIntent(text: string, followUp = false): TvIntent | null {
 export function isFollowUpPhrase(text: string): boolean {
   return TV_FOLLOWUP_ONLY.test(text)
 }
+
+/** Stimme: koppeln / verbinden — nicht HDMI, nicht CarPlay, nicht Tuya. */
+export function parseTvConnect(text: string): boolean {
+  const t = text.trim()
+  if (!t) return false
+  if (FIRE_ANCHOR.test(t)) return false
+  if (/\bspotify\b/i.test(t)) return false
+  if (/\b(?:hdmi|quelle|eingang|input)\b/i.test(t)) return false
+  if (parseTvApp(t)) return false
+  if (!TV_ANCHOR.test(t) && !/\b(?:samsung|tizen)\b/i.test(t)) return false
+  return /\b(?:koppeln|kopple|verbinden|verbinde(?:\s+dich)?|neu\s+koppeln|pairing)\b/i.test(t)
+}

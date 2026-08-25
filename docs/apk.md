@@ -1,17 +1,17 @@
-# Android-APK — `2.29.1`
+# Android-APK — `2.29.2`
 
-Live-Stand: [`00-now.md`](./00-now.md). Kaufmodus getrennt von der Einkaufsliste. Tablet / Sprachmodus / internes CarPlay nachgezogen. Interner Debug: Einstellungen → Tests.
+Live-Stand: [`00-now.md`](./00-now.md). Kaufmodus getrennt von der Einkaufsliste. Interner Debug: Einstellungen → Tests. „Nochmal“ wiederholt den letzten Befehl. Fernseher koppeln per Stimme.
 
 ## Download
 
-**APK `2.29.1`:**  
+**APK `2.29.2`:**  
 https://github.com/Gamerio2904/Jarvis/raw/cursor/jarvis-2-29-4728/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `2.29.1` · versionCode `22901` (aus `frontend/package.json`)
+- versionName `2.29.2` · versionCode `22902` (aus `frontend/package.json`)
 - App-ID `local.jarvis.app`
 
-Über 2.29.0 installieren.
+Über 2.29.1 installieren.
 
 ## Lokal bauen
 

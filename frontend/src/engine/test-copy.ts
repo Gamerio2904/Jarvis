@@ -178,6 +178,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     hint: 'TV, IMDb',
     items: [
       { label: 'TV an', text: 'Fernseher an' },
+      { label: 'TV verbinden', text: 'Verbinde dich mit dem Fernseher' },
+      { label: 'TV koppeln', text: 'Fernseher koppeln' },
       { label: 'Fire TV', text: 'Fire TV' },
       { label: 'Netflix öffnen', text: 'Öffne Netflix' },
       { label: 'Netflix an', text: 'Netflix an' },

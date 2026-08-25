@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.29.1`**. Live: [`00-now.md`](./00-now.md).
+App-Version im Code: **`2.29.2`**. Live: [`00-now.md`](./00-now.md).
+
+### `2.29.2` — Nochmal + Fernseher koppeln per Stimme — *CODE*
+
+„Versuche nochmal“ / „nochmal“ / „erneut“ wiederholt den letzten erkannten Befehl (Steckdose, Timer, TV, …), ohne extra Parser. `Verbinde dich mit dem Fernseher` koppelt wirklich (suchen wenn nötig, am TV erlauben). `Verbinde Apple CarPlay` und `Kopple die Tuya Cloud` bleiben LLM. Composer ohne Chips.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 22902)
 
 ### `2.29.1` — Debug-Tests in der App — *CODE*
 

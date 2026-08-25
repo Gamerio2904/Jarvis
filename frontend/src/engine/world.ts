@@ -9,7 +9,7 @@ import { formatResearchReply, researchHasSources } from './research-parse'
 
 export { parseWorldIntent } from './world-parse'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.29.1 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.29.2 (local.jarvis.app)' }
 
 type Hit = { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }
 
@@ -139,7 +139,7 @@ async function food(q: string): Promise<string> {
   try {
     const { status, json } = await getJson(
       `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${search}&search_simple=1&action=process&json=1&page_size=3`,
-      { ...UA, 'User-Agent': 'Jarvis/2.29.1 - https://github.com/Gamerio2904/Jarvis' },
+      { ...UA, 'User-Agent': 'Jarvis/2.29.2 - https://github.com/Gamerio2904/Jarvis' },
     )
     if (status < 200 || status >= 300) return 'Open Food Facts ist nicht da. Ein Produkt würde ich nicht erraten.'
     const products = Array.isArray((json as { products?: unknown }).products)

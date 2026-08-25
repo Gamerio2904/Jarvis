@@ -17,6 +17,7 @@ import {
   TV_ANCHOR,
   TV_FOLLOWUP_MS,
   isFollowUpPhrase,
+  parseTvConnect,
   parseTvIntent,
   parseTvWatch,
   type TvAction,
@@ -24,7 +25,7 @@ import {
 } from './tv-parse.ts'
 import { lookupWatch, youtubeDeepLink, youtubeSearch, youtubeSearchLink, youtubeVideoId, type WatchHit, type WatchOffer } from './tv-watch.ts'
 
-export { parseTvIntent, parseTvWatch } from './tv-parse.ts'
+export { parseTvConnect, parseTvIntent, parseTvWatch } from './tv-parse.ts'
 export type { TvAction, TvIntent, TvWatchIntent } from './tv-parse.ts'
 
 let lastTvAt = 0
@@ -320,7 +321,55 @@ async function applyVolume(intent: { action: TvAction; steps?: number; level?: n
   return sendOrExplain(intent.action)
 }
 
+async function connectSamsung(): Promise<{ handled: true; reply: string }> {
+  const s = loadSettings()
+  if (!s.tv_enabled) saveSettings({ tv_enabled: true })
+  let host = (loadSettings().tv_host || '').trim()
+  let mac = loadSettings().tv_mac
+  let name = loadSettings().tv_name || 'Wohnzimmer'
+  let port = loadSettings().tv_port || 8001
+
+  if (!host) {
+    const found = await discoverTvs()
+    const item = (found.items || []).find((d) => d.host && d.kind !== 'fire') || found.items?.[0]
+    if (!item?.host) {
+      markTvTurn()
+      return {
+        handled: true,
+        reply:
+          found.message ||
+          'Kein Samsung im WLAN. Gleicher Router, kein Gastnetz, TV an, dann nochmal sagen.',
+      }
+    }
+    host = item.host
+    mac = item.mac || mac
+    name = item.name || name
+    port = item.port || port
+    saveSettings({ tv_host: host, tv_mac: mac || '', tv_name: name, tv_port: port })
+  }
+
+  const cur = loadSettings()
+  if (cur.tv_paired && cur.tv_token) {
+    const probe = await testTv()
+    if (probe.ok) {
+      markTvTurn()
+      return {
+        handled: true,
+        reply: `Schon gekoppelt: ${cur.tv_name || host}. „Fernseher an“ schaltet ihn.`,
+      }
+    }
+  }
+
+  const res = await pairTv({ host, mac, name, port })
+  markTvTurn()
+  if (res.ok) return { handled: true, reply: res.message || 'Gekoppelt. Token liegt auf dem Handy.' }
+  const msg = res.message || 'Koppeln fehlgeschlagen. Am TV erlauben, gleiches WLAN, dann nochmal sagen.'
+  return { handled: true, reply: /nochmal/i.test(msg) ? msg : `${msg} Dann nochmal sagen.` }
+}
+
 export async function handleTv(text: string): Promise<{ handled: boolean; reply?: string }> {
+  if (parseTvConnect(text)) return connectSamsung()
+
   const watch =
     parseTvWatch(text) ||
     (recentTv() ? parseTvWatch(text, { followUp: true, lastApp: lastWatchApp }) : null)

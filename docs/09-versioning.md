@@ -155,6 +155,7 @@ MAJOR.MINOR.PATCH
 | `2.20.0`–`2.28.0` | Kaufmodus (Overlay, nie Einkaufsliste) | 122, mitgeliefert in 123 |
 | `2.29.0` | Sideload-Bündel + Tablet/Stimme/CarPlay-Polish | 123 |
 | `2.29.1` | Einstellungen Tests: Auswahl + Auto-Lauf in Debug-Chat | 123 Patch |
+| `2.29.2` | Nochmal = letzter Befehl; Fernseher koppeln per Stimme | 123 Patch |
 
 ### Weitere Beispiele
 

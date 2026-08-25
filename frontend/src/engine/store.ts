@@ -1,7 +1,7 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import { isDebugChatTitle } from './test-copy.ts'
 
-export const APP_VERSION = '2.29.1'
+export const APP_VERSION = '2.29.2'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',

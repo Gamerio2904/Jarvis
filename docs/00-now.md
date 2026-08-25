@@ -1,4 +1,4 @@
-# 00 — Jetzt (`2.29.1`)
+# 00 — Jetzt (`2.29.2`)
 
 Single source of truth für den **laufenden Code**. Fähigkeitenliste im Chat: `/hilfe` (`HELP_TEXT` in `frontend/src/engine/guards.ts`). Version: `APP_VERSION` in `frontend/src/engine/store.ts` und `frontend/package.json`.
 
@@ -14,13 +14,13 @@ Einstellungen (16 Themen): Allgemein, Modell, Cloud, Sprache, Wecker, Ort, Ferns
 
 | Bereich | Live |
 |---------|------|
-| Chat | Smalltalk, merken/vergessen, Siezen |
+| Chat | Smalltalk, merken/vergessen, Siezen. „Nochmal“ / „Versuche nochmal“ wiederholt den letzten Befehl |
 | Listen | Einkaufsliste (`shopping`) **und** Kaufmodus-Overlay (`kauf`) — getrennt |
 | Zeit | Gerätuhr, Timer (spricht), Wecker, Erinnerungen, lokaler Kalender |
 | Ort | GPS, Losgehen, Zuhause, POI, Öffnungszeiten OSM |
 | Fahren | Internes Overlay (OSM/OSRM), nicht Apple CarPlay. Overlay = Karte außer Spotify. Polish `2.29` Tablet-HUD |
 | Haus | WLAN-Steckdosen lokal (Shelly, Tasmota, Tuya-LAN, Broadlink). Ventilator über Broadlink-Brücke |
-| TV | Samsung Tizen + Fire TV. Film: IMDb/RT über OMDb, wo gratis JustWatch |
+| TV | Samsung Tizen + Fire TV. Koppeln per Stimme. Film: IMDb/RT über OMDb, wo gratis JustWatch |
 | PC | Bildschirm, Maus, FIFA, Ordner — nur mit laufender JarvisPC-App |
 | Netz | Research opt-in, Zahlen nur aus Treffern. Wikipedia/Destatis zuerst bei Fakten. Rabatt-Suche extra (Default aus) |
 | Lage | Wetter Open-Meteo. Unwetter DWD/Bright Sky. Luft/Sonne nur auf Nachfrage. Bahn nur wenn „Bahn“. Nachrichten Tagesschau. Feiertage DE. Schulferien, EZB-Kurs |
@@ -41,8 +41,8 @@ Deterministisch **vor** dem LLM, Reihenfolge wie im Code:
 
 ## Diese Lieferung
 
-Sideload **`2.29.1`** bündelt [`31-next.md`](./31-next.md) `2.3`–`2.19`, [`32-next.md`](./32-next.md) `2.20`–`2.28` und Polish [`33-next.md`](./33-next.md), plus internen Debug-Auto-Lauf. Sprint [`sprint-123.md`](./sprints/sprint-123.md).
+Sideload **`2.29.2`** bündelt [`31-next.md`](./31-next.md) `2.3`–`2.19`, [`32-next.md`](./32-next.md) `2.20`–`2.28` und Polish [`33-next.md`](./33-next.md), plus internen Debug-Auto-Lauf, Stimme-Koppeln und „Nochmal“. Sprint [`sprint-123.md`](./sprints/sprint-123.md).
 
 ## APK bauen
 
-`build-apk.bat` schreibt `frontend/dist-apk/jarvis-debug.apk` (versionName `2.29.1`, versionCode `22901`). Veröffentlichtes Sideload: [`apk.md`](./apk.md) (`releases/Jarvis.apk` auf dem Release-Branch).
+`build-apk.bat` schreibt `frontend/dist-apk/jarvis-debug.apk` (versionName `2.29.2`, versionCode `22902`). Veröffentlichtes Sideload: [`apk.md`](./apk.md) (`releases/Jarvis.apk` auf dem Release-Branch).

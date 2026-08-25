@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
 import { isHelpCommand } from '../src/engine/guards.ts'
-import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
+import { parseTvConnect, parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { isIdentityAsk, isMemoryRecall, isMemoryWrite } from '../src/engine/memory-parse.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
@@ -51,7 +51,7 @@ function route(text, ctx = {}) {
   if (isHelpCommand(text)) return 'help'
   if (parseShopDiscountIntent(text)) return 'discount'
   if (parseOrdinalFollowUp(text)) return 'ordinal'
-  if (parseTvWatch(text) || parseTvIntent(text)) return 'tv'
+  if (parseTvWatch(text) || parseTvIntent(text) || parseTvConnect(text)) return 'tv'
   if (parseFilmIntent(text)) return 'film'
   if (parseFanIntent(text)) return 'fan'
   if (parsePlugIntent(text)) return 'plug'
@@ -103,6 +103,8 @@ const EXPECT = {
   'Guten Morgen': 'brief',
   '/hilfe': 'help',
   'Fernseher an': 'tv',
+  'Verbinde dich mit dem Fernseher': 'tv',
+  'Fernseher koppeln': 'tv',
   'Fire TV': 'tv',
   'Öffne Netflix': 'tv',
   'Spiel Dune Film': 'tv',

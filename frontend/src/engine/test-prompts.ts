@@ -15,6 +15,8 @@ export const TEST_PROMPTS = [
   'Guten Morgen',
   '/hilfe',
   'Fernseher an',
+  'Verbinde dich mit dem Fernseher',
+  'Fernseher koppeln',
   'Fire TV',
   'Öffne Netflix',
   'Spiel Dune Film',

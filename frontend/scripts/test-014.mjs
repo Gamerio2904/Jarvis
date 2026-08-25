@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts, allTestPromptKeys, formatAllTestCopy, isDebugChatTitle, selectedTestPrompts, TEST_COPY_GROUPS, testPromptKey } from '../src/engine/test-copy.ts'
 import { flagReply, expandPickedMessageIds, debugFileName, applyTurnFilter } from '../src/engine/chat-debug.ts'
-import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
+import { parseTvConnect, parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand, finishReply, HELP_TEXT } from '../src/engine/guards.ts'
@@ -41,7 +41,7 @@ import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
 import { ttsModelsToTry } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
-import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
+import { isFollowUpPhrase, isRetryPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
@@ -684,6 +684,28 @@ assert.equal(
   'Termin morgen Zahnarzt',
 )
 assert.equal(rewriteFollowUp('ja', { last_step_tool: 'todo' }), null)
+assert.equal(
+  rewriteFollowUp('Versuche nochmal', { last_step_tool: 'tv', last_step_utterance: 'Verbinde dich mit dem Fernseher' }),
+  'Verbinde dich mit dem Fernseher',
+)
+assert.equal(
+  rewriteFollowUp('nochmal', { last_step_tool: 'plug', last_step_utterance: 'Steckdose an' }),
+  'Steckdose an',
+)
+assert.equal(rewriteFollowUp('erneut', { last_step_utterance: 'Wetter heute', last_step_tool: 'weather' }), 'Wetter heute')
+assert.equal(rewriteFollowUp('Versuche nochmal', { last_step_tool: 'tv' }), null)
+assert.equal(isRetryPhrase('Versuche nochmal'), true)
+assert.equal(isRetryPhrase('noch mal'), true)
+assert.equal(isRetryPhrase('bitte nochmal'), true)
+assert.equal(isRetryPhrase('nochmal 5 Minuten'), false)
+assert.equal(shouldRefreshTitle('Versuche nochmal'), false)
+assert.equal(parseTvConnect('Verbinde dich mit dem Fernseher'), true)
+assert.equal(parseTvConnect('Fernseher koppeln'), true)
+assert.equal(parseTvConnect('Kopple den TV'), true)
+assert.equal(parseTvConnect('Verbinde Apple CarPlay'), false)
+assert.equal(parseTvConnect('Kopple die Tuya Cloud'), false)
+assert.equal(parseTvConnect('Fernseher auf HDMI 2'), false)
+assert.equal(parseTvConnect('Öffne Netflix'), false)
 
 assert.equal(shouldRefreshTitle('Kuchenrezepte suchen bitte'), true)
 assert.equal(shouldRefreshTitle('und morgen?'), false)
@@ -969,7 +991,8 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.29\.1/)
+assert.match(HELP_TEXT, /2\.29\.2/)
+assert.match(HELP_TEXT, /Nochmal wiederholt/)
 assert.match(HELP_TEXT, /Kaufmodus/)
 assert.match(HELP_TEXT, /Unwetter/)
 assert.match(HELP_TEXT, /Schach/)
