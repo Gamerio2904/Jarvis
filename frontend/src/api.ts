@@ -206,8 +206,8 @@ export async function listConversations(): Promise<Conversation[]> {
   return conversations.list()
 }
 
-export async function createConversation(): Promise<Conversation> {
-  return conversations.create()
+export async function createConversation(title?: string): Promise<Conversation> {
+  return conversations.create(title || 'Neues Gespräch')
 }
 
 export async function getConversation(

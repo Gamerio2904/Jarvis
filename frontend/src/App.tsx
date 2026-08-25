@@ -47,6 +47,14 @@ import { playUiSound, unlockUiAudio } from './sounds'
 import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
+import {
+  TEST_COPY_GROUPS,
+  allTestPromptKeys,
+  isDebugChatTitle,
+  selectedTestPrompts,
+  testPromptKey,
+} from './engine/test-copy'
+import { downloadChatDebug } from './engine/chat-debug'
 import { DriveMode } from './DriveMode'
 import { KaufOverlay } from './KaufOverlay'
 import { WakeBubble } from './WakeBubble'
@@ -282,6 +290,23 @@ function IconSend() {
   )
 }
 
+const TEST_KEYS_LS = 'jarvis_debug_test_keys_v1'
+
+function loadTestKeys(): Record<string, true> {
+  try {
+    const raw = localStorage.getItem(TEST_KEYS_LS)
+    if (!raw) return {}
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    const out: Record<string, true> = {}
+    for (const k of Object.keys(parsed)) {
+      if (parsed[k]) out[k] = true
+    }
+    return out
+  } catch {
+    return {}
+  }
+}
+
 function App() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -304,6 +329,21 @@ function App() {
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
   const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('allgemein')
+  const [settingsTestGroup, setSettingsTestGroup] = useState<string | null>(null)
+  const [testKeys, setTestKeys] = useState<Record<string, true>>(loadTestKeys)
+  const [debugMode, setDebugMode] = useState(false)
+  const [debugProgress, setDebugProgress] = useState<{
+    i: number
+    n: number
+    text: string
+    done?: boolean
+    stopping?: boolean
+    cancelled?: boolean
+  } | null>(null)
+  const [debugPicking, setDebugPicking] = useState(false)
+  const [debugPicked, setDebugPicked] = useState<Record<string, true>>({})
+  const [debugDlBusy, setDebugDlBusy] = useState(false)
+  const [debugDlMsg, setDebugDlMsg] = useState<string | null>(null)
   const [momentGlint, setMomentGlint] = useState(false)
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
@@ -339,14 +379,29 @@ function App() {
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
   const voiceHoldUntilRef = useRef(0)
+  const activeIdRef = useRef<string | null>(null)
+  const debugCancelRef = useRef(false)
+  const debugChatIdRef = useRef<string | null>(null)
+  const debugRunningRef = useRef(false)
+  const busyRef = useRef(false)
+  activeIdRef.current = activeId
   const [voiceSeed, setVoiceSeed] = useState('')
 
   function openVoiceMode(seed = '') {
+    if (debugChatIdRef.current) return
     voiceHoldUntilRef.current = Date.now() + 2500
     if (seed) setVoiceSeed(seed)
     setVoiceOpen(true)
     setCalendarOpen(false)
   }
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(TEST_KEYS_LS, JSON.stringify(testKeys))
+    } catch {
+      /* quota */
+    }
+  }, [testKeys])
 
   useEffect(() => {
     const unlock = () => {
@@ -847,28 +902,43 @@ function App() {
   }
 
   async function openConversation(id: string) {
+    if (debugRunningRef.current && debugChatIdRef.current && id !== debugChatIdRef.current) {
+      debugCancelRef.current = true
+    }
     setError(null)
     setLastFailed(null)
     setActiveId(id)
+    activeIdRef.current = id
     setSidebarOpen(false)
     setThreadKey((k) => k + 1)
     setEnterIds({})
     stickToBottomRef.current = true
     const data = await getConversation(id)
     setMessages(data.messages)
+    const dbg = isDebugChatTitle(data.title)
+    setDebugMode(dbg)
+    debugChatIdRef.current = dbg ? id : null
+    setDebugPicking(false)
+    setDebugPicked({})
+    if (!dbg) setDebugProgress(null)
   }
 
   async function onNewChat() {
+    if (debugRunningRef.current) debugCancelRef.current = true
     setError(null)
     setLastFailed(null)
     const created = await createConversation()
     setConversations((prev) => [created, ...prev])
     setActiveId(created.id)
+    activeIdRef.current = created.id
     setMessages([])
     setEnterIds({})
     setThreadKey((k) => k + 1)
     setSidebarOpen(false)
     stickToBottomRef.current = true
+    setDebugMode(false)
+    debugChatIdRef.current = null
+    setDebugProgress(null)
   }
 
   async function onDeleteChat() {
@@ -898,8 +968,11 @@ function App() {
     stickToBottomRef.current = distance < 96
   }
 
-  async function sendMessage(content: string) {
-    if (!content || busy) return
+  async function sendMessage(content: string, opts?: { fromDebug?: boolean }) {
+    if (!content) return
+    if (debugRunningRef.current && !opts?.fromDebug) return
+    if (busyRef.current) return
+    busyRef.current = true
     setBusy(true)
     setError(null)
     setLastFailed(null)
@@ -912,11 +985,14 @@ function App() {
       volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
     })
 
-    let conversationId = activeId
+    let conversationId = opts?.fromDebug
+      ? debugChatIdRef.current || activeIdRef.current
+      : activeIdRef.current
     try {
       if (!conversationId) {
         const created = await createConversation()
         conversationId = created.id
+        activeIdRef.current = created.id
         setConversations((prev) => [created, ...prev])
         setActiveId(created.id)
       }
@@ -991,28 +1067,32 @@ function App() {
           }
           if (payload.research) void refreshAudits()
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
-          if (payload.tool?.tool === 'calendar') {
-            if (payload.tool.action === 'open') {
-              setCalendarOpen(true)
-              setSidebarOpen(false)
+          if (!debugChatIdRef.current) {
+            if (payload.tool?.tool === 'calendar') {
+              if (payload.tool.action === 'open') {
+                setCalendarOpen(true)
+                setSidebarOpen(false)
+              }
             }
-          }
-          if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
-            if (payload.tool?.action === 'close') setDriveOpen(false)
-            else {
-              setDriveOpen(true)
-              setCalendarOpen(false)
-              setSidebarOpen(false)
+            if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+              if (payload.tool?.action === 'close') setDriveOpen(false)
+              else {
+                setDriveOpen(true)
+                setCalendarOpen(false)
+                setSidebarOpen(false)
+              }
             }
-          }
-          if (payload.tool?.tool === 'kauf') {
+            if (payload.tool?.tool === 'kauf') {
+              setKaufOpen(payload.tool.action !== 'close')
+              if (payload.tool.action !== 'close') {
+                setCalendarOpen(false)
+                setSidebarOpen(false)
+              }
+            }
+            maybeOpenSettingsFromReply(payload.assistant_message.content)
+          } else if (payload.tool?.tool === 'kauf') {
             setKaufOpen(payload.tool.action !== 'close')
-            if (payload.tool.action !== 'close') {
-              setCalendarOpen(false)
-              setSidebarOpen(false)
-            }
           }
-          maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
           setError(detail)
@@ -1029,8 +1109,9 @@ function App() {
       setStreamingText(null)
       setMessages((prev) => prev.filter((m) => !m.id.startsWith('tmp-')))
     } finally {
+      busyRef.current = false
       setBusy(false)
-      textareaRef.current?.focus()
+      if (!debugChatIdRef.current) textareaRef.current?.focus()
       void refreshHealth()
       void refreshMemory()
       void refreshSettings()
@@ -1071,10 +1152,145 @@ function App() {
   }
 
   async function onSend() {
+    if (debugMode) return
     const content = draft.trim()
     if (!content || busy) return
     setDraft('')
     await sendMessage(content)
+  }
+
+  function toggleTestKey(key: string) {
+    setTestKeys((prev) => {
+      const next = { ...prev }
+      if (next[key]) delete next[key]
+      else next[key] = true
+      return next
+    })
+  }
+
+  function toggleTestGroup(groupId: string, on: boolean) {
+    const g = TEST_COPY_GROUPS.find((x) => x.id === groupId)
+    if (!g) return
+    setTestKeys((prev) => {
+      const next = { ...prev }
+      for (const item of g.items) {
+        const k = testPromptKey(g.id, item)
+        if (on) next[k] = true
+        else delete next[k]
+      }
+      return next
+    })
+  }
+
+  function toggleAllTests(on: boolean) {
+    if (!on) {
+      setTestKeys({})
+      return
+    }
+    const next: Record<string, true> = {}
+    for (const k of allTestPromptKeys()) next[k] = true
+    setTestKeys(next)
+  }
+
+  async function onDebugDownload(picked?: string[]) {
+    const id = debugChatIdRef.current || activeId
+    if (!id) return
+    setDebugDlBusy(true)
+    setDebugDlMsg(null)
+    try {
+      const r = await downloadChatDebug(id, picked)
+      setDebugDlMsg(r.message)
+      setStatusNote(r.ok ? r.message : r.message)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Download fehlgeschlagen'
+      setDebugDlMsg(msg)
+    } finally {
+      setDebugDlBusy(false)
+    }
+  }
+
+  async function startDebugTest(onlyKeys?: string[]) {
+    const prompts = selectedTestPrompts(onlyKeys?.length ? onlyKeys : Object.keys(testKeys))
+    if (!prompts.length) return
+    if (debugRunningRef.current) {
+      debugCancelRef.current = true
+      const t0 = Date.now()
+      while (debugRunningRef.current && Date.now() - t0 < 120_000) {
+        await new Promise((r) => window.setTimeout(r, 80))
+      }
+    }
+    if (busyRef.current) {
+      setError('Warten, bis Jarvis fertig ist.')
+      return
+    }
+    debugCancelRef.current = false
+
+    setSettingsPanelOpen(false)
+    setSettingsTopic('allgemein')
+    setSettingsTestGroup(null)
+    setCalendarOpen(false)
+    setDriveOpen(false)
+    setVoiceOpen(false)
+    setSidebarOpen(false)
+    setKaufOpen(false)
+    closeKauf()
+    setError(null)
+    setLastFailed(null)
+
+    const created = await createConversation('Debug-Test')
+    debugChatIdRef.current = created.id
+    activeIdRef.current = created.id
+    setActiveId(created.id)
+    setConversations((prev) => [created, ...prev])
+    setMessages([])
+    setEnterIds({})
+    setThreadKey((k) => k + 1)
+    setDebugMode(true)
+    setDebugPicking(false)
+    setDebugPicked({})
+    setDebugDlMsg(null)
+    debugRunningRef.current = true
+    setDebugProgress({ i: 0, n: prompts.length, text: prompts[0] || '', done: false })
+
+    let finished = 0
+    for (let i = 0; i < prompts.length; i++) {
+      if (debugCancelRef.current) break
+      setDebugProgress({ i, n: prompts.length, text: prompts[i], done: false, stopping: debugCancelRef.current })
+      await sendMessage(prompts[i], { fromDebug: true })
+      finished = i + 1
+      if (debugCancelRef.current) break
+    }
+    debugRunningRef.current = false
+    if (debugCancelRef.current) {
+      setDebugProgress({ i: finished, n: prompts.length, text: '', done: true, cancelled: true })
+    } else {
+      setDebugProgress({ i: prompts.length, n: prompts.length, text: '', done: true })
+    }
+  }
+
+  function stopDebugTest() {
+    if (!debugRunningRef.current) return
+    debugCancelRef.current = true
+    setDebugProgress((p) => (p && !p.done ? { ...p, stopping: true } : p))
+  }
+
+  function startGroupTest(groupId: string) {
+    const g = TEST_COPY_GROUPS.find((x) => x.id === groupId)
+    if (!g) return
+    const selected = g.items.map((item) => testPromptKey(g.id, item)).filter((k) => testKeys[k])
+    const keys = selected.length ? selected : g.items.map((item) => testPromptKey(g.id, item))
+    void startDebugTest(keys)
+  }
+
+  function sendPromptNow(text: string) {
+    if (!text.trim()) return
+    if (debugRunningRef.current) {
+      setError('Erst den laufenden Test abbrechen.')
+      return
+    }
+    setSettingsPanelOpen(false)
+    setSettingsTestGroup(null)
+    void sendMessage(text.trim())
   }
 
   async function sendVoiceTurn(
@@ -1323,7 +1539,7 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}`}>
+      <main className={`main${driveOpen ? ' is-drive' : ''}${debugMode ? ' is-debug' : ''}`}>
         {voiceOpen ? (
           <VoiceMode
             onClose={() => {
@@ -1404,7 +1620,11 @@ function App() {
                   <i />
                 </div>
                 <h3>Jarvis</h3>
-                <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
+                <p>
+                  {debugMode
+                    ? 'Debug-Test. Prompts kommen von allein. Unten nur Download.'
+                    : `Ein Feld antippen — oder selbst schreiben. ${geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}`}
+                </p>
               </div>
             ) : null}
 
@@ -1413,7 +1633,22 @@ function App() {
                 enterIds[m.id] &&
                 (m.role === 'user' ? 'enter-user' : 'enter-assistant')
               return (
-                <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
+                <div
+                  key={m.id}
+                  className={`row ${m.role}${enter ? ` ${enter}` : ''}${debugPicking ? ' is-pick' : ''}${debugPicked[m.id] ? ' is-picked' : ''}`}
+                  onClick={
+                    debugPicking
+                      ? () => {
+                          setDebugPicked((prev) => {
+                            const next = { ...prev }
+                            if (next[m.id]) delete next[m.id]
+                            else next[m.id] = true
+                            return next
+                          })
+                        }
+                      : undefined
+                  }
+                >
                   {m.role === 'assistant' ? (
                     <div className="avatar jarvis">J</div>
                   ) : null}
@@ -1480,13 +1715,89 @@ function App() {
           {error ? (
             <div className="error-banner">
               <div>{error}</div>
-              {lastFailed ? (
+              {lastFailed && !debugMode ? (
                 <button type="button" className="retry-btn" onClick={() => void onRetry()}>
                   Erneut senden
                 </button>
               ) : null}
             </div>
           ) : null}
+          {debugMode ? (
+            <div className="debug-bar">
+              <p className="debug-bar-status">
+                {debugPicking
+                  ? 'Nachrichten antippen. Auswahl lädt Frage plus Antwort.'
+                  : debugProgress?.stopping && !debugProgress.done
+                    ? 'Wird abgebrochen… aktuelle Antwort läuft noch.'
+                    : debugProgress && !debugProgress.done
+                      ? `Test ${Math.min(debugProgress.i + 1, debugProgress.n)}/${debugProgress.n} — ${debugProgress.text}`
+                      : debugProgress?.cancelled
+                        ? `Abgebrochen · ${debugProgress.i}/${debugProgress.n}`
+                        : debugProgress?.done
+                          ? `Fertig · ${debugProgress.n} Prompts`
+                          : 'Debug-Chat. Nicht schreiben — nur Download.'}
+              </p>
+              {debugDlMsg ? <p className="debug-bar-status">{debugDlMsg}</p> : null}
+              <div className="debug-bar-actions">
+                {debugPicking ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled={debugDlBusy || !Object.keys(debugPicked).length}
+                      onClick={() => {
+                        void onDebugDownload(Object.keys(debugPicked)).then(() => {
+                          setDebugPicking(false)
+                          setDebugPicked({})
+                        })
+                      }}
+                    >
+                      Auswahl laden
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDebugPicking(false)
+                        setDebugPicked({})
+                      }}
+                    >
+                      Abbrechen
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {debugProgress && !debugProgress.done ? (
+                      <button
+                        type="button"
+                        className="is-stop"
+                        disabled={Boolean(debugProgress.stopping)}
+                        onClick={stopDebugTest}
+                      >
+                        {debugProgress.stopping ? 'Stoppe…' : 'Test abbrechen'}
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      disabled={debugDlBusy || messages.length === 0}
+                      onClick={() => void onDebugDownload()}
+                    >
+                      Alles runterladen
+                    </button>
+                    <button
+                      type="button"
+                      disabled={debugDlBusy || messages.length === 0 || Boolean(debugProgress && !debugProgress.done)}
+                      onClick={() => {
+                        setDebugPicking(true)
+                        setDebugPicked({})
+                        setDebugDlMsg(null)
+                      }}
+                    >
+                      Auswählen
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
           <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
             <input
               ref={eyeFileRef}
@@ -1541,7 +1852,8 @@ function App() {
               </button>
             </div>
           </div>
-          {!voiceOpen ? (
+          )}
+          {!voiceOpen && !debugMode ? (
             <WakeBubble
               listening={wakeListening}
               onTap={() => {
@@ -1557,10 +1869,20 @@ function App() {
           topic={settingsTopic}
           onTopic={(t) => {
             setSettingsTopic(t)
+            if (t !== 'tests') setSettingsTestGroup(null)
             if (t === 'forschung') void refreshAudits()
             if (t === 'gedaechtnis') void refreshMemory(memoryFilter)
             if (t === 'wecker') void refreshReminders()
           }}
+          testGroup={settingsTestGroup}
+          onTestGroup={setSettingsTestGroup}
+          testKeys={testKeys}
+          onToggleTestKey={toggleTestKey}
+          onToggleTestGroup={toggleTestGroup}
+          onToggleAllTests={toggleAllTests}
+          onStartTest={() => void startDebugTest()}
+          onStartGroup={startGroupTest}
+          onSendNow={sendPromptNow}
           onClose={() => setSettingsPanelOpen(false)}
           settings={settings}
           settingsBusy={settingsBusy}

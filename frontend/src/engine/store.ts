@@ -1,6 +1,7 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
+import { isDebugChatTitle } from './test-copy.ts'
 
-export const APP_VERSION = '2.29.0'
+export const APP_VERSION = '2.29.1'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -435,8 +436,9 @@ export async function addMessage(
   await put('messages', row)
   const conv = await get<Conversation>('conversations', conversationId)
   if (conv) {
+    const keep = isDebugChatTitle(conv.title)
     const title =
-      role === 'user' && shouldRefreshTitle(content) ? titleFromUser(content) : conv.title
+      keep || !(role === 'user' && shouldRefreshTitle(content)) ? conv.title : titleFromUser(content)
     await touchConversation(conversationId, title)
   }
   return row

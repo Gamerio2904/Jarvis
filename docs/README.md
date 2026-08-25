@@ -1,6 +1,6 @@
 # Jarvis — Docs
 
-**Jetzt lesen:** [`00-now.md`](./00-now.md) — Live **`2.29.0`**, was der Code tut, was geplant ist.
+**Jetzt lesen:** [`00-now.md`](./00-now.md) — Live **`2.29.1`**, was der Code tut, was geplant ist.
 
 Sideload: [`apk.md`](./apk.md) · Changelog: [`CHANGELOG.md`](./CHANGELOG.md) · Sprints: [`sprints/README.md`](./sprints/README.md) · PC: [`../desktop/README.md`](../desktop/README.md)
 
@@ -8,7 +8,7 @@ Sideload: [`apk.md`](./apk.md) · Changelog: [`CHANGELOG.md`](./CHANGELOG.md) ·
 
 | | Version | Doc |
 |--|---------|-----|
-| **Live** | Sideload `2.29.0` | [`00-now.md`](./00-now.md) · [`33-next.md`](./33-next.md) |
+| **Live** | Sideload `2.29.1` | [`00-now.md`](./00-now.md) · [`33-next.md`](./33-next.md) |
 | **Geliefert mit 2.29** | `2.3`–`2.19` Alltag & Welt | [`31-next.md`](./31-next.md) **CODE** |
 | **Geliefert mit 2.29** | `2.20`–`2.28` Kaufmodus | [`32-next.md`](./32-next.md) **CODE** |
 

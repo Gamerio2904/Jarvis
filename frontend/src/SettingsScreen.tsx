@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react'
-import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
-import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
+import type { Conversation, Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
+import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc, listConversations } from './api'
 import type { Plug } from './api'
 import { copyText } from './copy-text'
+import {
+  TEST_COPY_GROUPS,
+  groupSelectedCount,
+  testCopyGroupById,
+  testPromptKey,
+  allTestPromptKeys,
+} from './engine/test-copy'
 import { ensureDeviceLocation } from './native/geo'
+import { buildChatDebugDump, downloadChatDebug } from './engine/chat-debug'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -25,6 +33,8 @@ export type SettingsTopic =
   | 'ton'
   | 'forschung'
   | 'gedaechtnis'
+  | 'tests'
+  | 'debug'
   | 'gefahr'
 
 const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
@@ -41,6 +51,8 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
+  { id: 'tests', label: 'Tests', hint: 'Auswahl' },
+  { id: 'debug', label: 'Debug', hint: 'Auto-Test' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
 ]
 
@@ -95,9 +107,43 @@ function CopyField({ label, value }: { label: string; value: string }) {
   )
 }
 
+function CheckBox({
+  checked,
+  indeterminate,
+  onChange,
+  label,
+}: {
+  checked: boolean
+  indeterminate?: boolean
+  onChange: (on: boolean) => void
+  label?: string
+}) {
+  return (
+    <input
+      type="checkbox"
+      checked={checked}
+      aria-label={label}
+      ref={(el) => {
+        if (el) el.indeterminate = Boolean(indeterminate) && !checked
+      }}
+      onChange={(e) => onChange(e.target.checked)}
+      onClick={(e) => e.stopPropagation()}
+    />
+  )
+}
+
 export type SettingsScreenProps = {
   topic: SettingsTopic
   onTopic: (t: SettingsTopic) => void
+  testGroup: string | null
+  onTestGroup: (id: string | null) => void
+  testKeys: Record<string, true>
+  onToggleTestKey: (key: string) => void
+  onToggleTestGroup: (groupId: string, on: boolean) => void
+  onToggleAllTests: (on: boolean) => void
+  onStartTest: () => void
+  onStartGroup: (groupId: string) => void
+  onSendNow: (text: string) => void
   onClose: () => void
   settings: Settings | null
   settingsBusy: boolean
@@ -170,6 +216,17 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [plugDraft, setPlugDraft] = useState<Plug>(() => emptyPlug())
   const [locBusy, setLocBusy] = useState(false)
   const [locMsg, setLocMsg] = useState<string | null>(null)
+  const [debugChats, setDebugChats] = useState<Conversation[]>([])
+  const [debugPick, setDebugPick] = useState('')
+  const [debugBusy, setDebugBusy] = useState(false)
+  const [debugMsg, setDebugMsg] = useState<string | null>(null)
+  const [testQuery, setTestQuery] = useState('')
+  const testCat = p.topic === 'tests' ? testCopyGroupById(p.testGroup) : undefined
+  const testSel = Object.keys(p.testKeys).length
+  const allTestKeys = allTestPromptKeys()
+  const allTestsOn = allTestKeys.length > 0 && allTestKeys.every((k) => p.testKeys[k])
+  const allTestsInd = testSel > 0 && !allTestsOn
+  const paneTitle = testCat?.title || topic.label
 
   useEffect(() => {
     setFireHost(s?.tv_fire_host || '')
@@ -194,6 +251,16 @@ export function SettingsScreen(p: SettingsScreenProps) {
   }, [s?.pc_token])
 
   useEffect(() => {
+    if (p.topic !== 'debug') return
+    void listConversations()
+      .then((rows) => {
+        setDebugChats(rows)
+        setDebugPick((cur) => cur || rows[0]?.id || '')
+      })
+      .catch(() => setDebugChats([]))
+  }, [p.topic])
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') p.onClose()
     }
@@ -213,7 +280,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
               key={t.id}
               type="button"
               className={`settings-rail-item ${p.topic === t.id ? 'active' : ''}`}
-              onClick={() => p.onTopic(t.id)}
+              onClick={() => {
+                p.onTopic(t.id)
+                if (t.id !== 'tests') p.onTestGroup(null)
+              }}
             >
               <strong>{t.label}</strong>
               <span>{t.hint}</span>
@@ -226,11 +296,18 @@ export function SettingsScreen(p: SettingsScreenProps) {
         <header className="settings-pane-bar">
           <div>
             <p className="settings-kicker">Einstellungen</p>
-            <h2 id="settings-title">{topic.label}</h2>
+            <h2 id="settings-title">{paneTitle}</h2>
           </div>
-          <button type="button" className="settings-close" onClick={p.onClose}>
-            Fertig
-          </button>
+          <div className="settings-pane-actions">
+            {p.topic === 'tests' && p.testGroup ? (
+              <button type="button" className="settings-close" onClick={() => p.onTestGroup(null)}>
+                Zurück
+              </button>
+            ) : null}
+            <button type="button" className="settings-close" onClick={p.onClose}>
+              Fertig
+            </button>
+          </div>
         </header>
 
         <div className="settings-pane-body">
@@ -1459,6 +1536,203 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   Alles löschen
                 </button>
               ) : null}
+            </section>
+          ) : null}
+
+          {p.topic === 'tests' && !testCat ? (
+            <section className="settings-card">
+              <h3>Was testen?</h3>
+              <p className="settings-lead">
+                Themen ankreuzen. Reinzoomen für einzelne Prompts. Test starten schickt die Auswahl nacheinander in
+                einen Debug-Chat. Prompt-Text antippen sendet sofort in den offenen Chat.
+              </p>
+              <label className="settings-field">
+                <span>Suche</span>
+                <input
+                  type="search"
+                  value={testQuery}
+                  placeholder="Prompt oder Thema"
+                  onChange={(e) => setTestQuery(e.target.value)}
+                />
+              </label>
+              <div className="settings-check-row">
+                <CheckBox
+                  checked={allTestsOn}
+                  indeterminate={allTestsInd}
+                  label="Alle Themen"
+                  onChange={(on) => p.onToggleAllTests(on)}
+                />
+                <span className="settings-hub-copy">
+                  <strong>Alle Themen</strong>
+                  <span>{testSel} Prompts</span>
+                </span>
+              </div>
+              <div className="settings-hub-list">
+                {TEST_COPY_GROUPS.filter((g) => {
+                  const q = testQuery.trim().toLowerCase()
+                  if (!q) return true
+                  if (g.title.toLowerCase().includes(q) || g.hint.toLowerCase().includes(q)) return true
+                  return g.items.some((i) => i.label.toLowerCase().includes(q) || i.text.toLowerCase().includes(q))
+                }).map((g) => {
+                  const { n, total } = groupSelectedCount(g, Object.keys(p.testKeys))
+                  return (
+                    <div key={g.id} className="settings-check-row">
+                      <CheckBox
+                        checked={n === total && total > 0}
+                        indeterminate={n > 0 && n < total}
+                        label={g.title}
+                        onChange={(on) => p.onToggleTestGroup(g.id, on)}
+                      />
+                      <button type="button" className="settings-hub-copy" onClick={() => p.onTestGroup(g.id)}>
+                        <strong>{g.title}</strong>
+                        <span>{g.hint}</span>
+                      </button>
+                      <span className="settings-hub-status">
+                        {n}/{total}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+              <div className="tests-start-bar">
+                <span>{testSel ? `${testSel} ausgewählt` : 'Nichts ausgewählt'}</span>
+                <button type="button" className="retry-btn" disabled={!testSel} onClick={p.onStartTest}>
+                  Test starten
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          {p.topic === 'tests' && testCat ? (
+            <section className="settings-card">
+              <h3>{testCat.title}</h3>
+              <p className="settings-lead">
+                Ankreuzen für den Lauf. Text antippen sendet den Prompt sofort in den offenen Chat. Diese Gruppe
+                starten nimmt nur diese Themenzeile, nicht die restliche Auswahl.
+              </p>
+              <div className="settings-check-row">
+                <CheckBox
+                  checked={groupSelectedCount(testCat, Object.keys(p.testKeys)).n === testCat.items.length}
+                  indeterminate={
+                    groupSelectedCount(testCat, Object.keys(p.testKeys)).n > 0 &&
+                    groupSelectedCount(testCat, Object.keys(p.testKeys)).n < testCat.items.length
+                  }
+                  label={`Alle ${testCat.title}`}
+                  onChange={(on) => p.onToggleTestGroup(testCat.id, on)}
+                />
+                <span className="settings-hub-copy">
+                  <strong>Alle in {testCat.title}</strong>
+                  <span>
+                    {groupSelectedCount(testCat, Object.keys(p.testKeys)).n}/{testCat.items.length}
+                  </span>
+                </span>
+              </div>
+              <div className="settings-hub-list">
+                {testCat.items
+                  .filter((item) => {
+                    const q = testQuery.trim().toLowerCase()
+                    if (!q) return true
+                    return item.label.toLowerCase().includes(q) || item.text.toLowerCase().includes(q)
+                  })
+                  .map((item) => {
+                    const key = testPromptKey(testCat.id, item)
+                    return (
+                      <div key={key} className="settings-check-row is-prompt">
+                        <CheckBox
+                          checked={Boolean(p.testKeys[key])}
+                          label={item.label}
+                          onChange={() => p.onToggleTestKey(key)}
+                        />
+                        <button
+                          type="button"
+                          className="settings-hub-copy"
+                          onClick={() => p.onSendNow(item.text)}
+                        >
+                          <strong>{item.label}</strong>
+                          <span>{item.text}</span>
+                        </button>
+                      </div>
+                    )
+                  })}
+              </div>
+              <div className="tests-start-bar">
+                <span>
+                  {groupSelectedCount(testCat, Object.keys(p.testKeys)).n
+                    ? `${groupSelectedCount(testCat, Object.keys(p.testKeys)).n} in ${testCat.title}`
+                    : `Alle ${testCat.items.length} in ${testCat.title}`}
+                </span>
+                <button type="button" className="retry-btn" onClick={() => p.onStartGroup(testCat.id)}>
+                  Diese Gruppe starten
+                </button>
+                <button type="button" className="retry-btn" disabled={!testSel} onClick={p.onStartTest}>
+                  Auswahl starten
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          {p.topic === 'debug' ? (
+            <section className="settings-card">
+              <h3>Automatischer Debug-Chat</h3>
+              <p className="settings-lead">
+                Unter Tests Themen ankreuzen und starten. Jarvis öffnet einen Chat namens Debug-Test und schickt die
+                Prompts nacheinander. Prompt antippen geht in den gerade offenen Chat. Unten JSON ohne API-Keys.
+              </p>
+              <button type="button" className="retry-btn" onClick={() => p.onTopic('tests')}>
+                Zu Tests
+              </button>
+              <h3>Frühere Chats</h3>
+              <p className="settings-lead">Gespräch wählen, JSON nach Downloads oder kopieren.</p>
+              {debugChats.length === 0 ? (
+                <p className="settings-hint">Noch kein Gespräch.</p>
+              ) : (
+                <label className="settings-field">
+                  <span>Gespräch</span>
+                  <select value={debugPick} onChange={(e) => setDebugPick(e.target.value)} disabled={debugBusy}>
+                    {debugChats.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.title || 'Ohne Titel'}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={debugBusy || !debugPick}
+                  onClick={() => {
+                    if (!debugPick) return
+                    setDebugBusy(true)
+                    setDebugMsg(null)
+                    void downloadChatDebug(debugPick)
+                      .then((r) => setDebugMsg(r.message))
+                      .catch((err) => setDebugMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
+                      .finally(() => setDebugBusy(false))
+                  }}
+                >
+                  {debugBusy ? 'Export…' : 'JSON nach Downloads'}
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={debugBusy || !debugPick}
+                  onClick={() => {
+                    if (!debugPick) return
+                    setDebugBusy(true)
+                    setDebugMsg(null)
+                    void buildChatDebugDump(debugPick)
+                      .then((dump) => copyText(JSON.stringify(dump, null, 2)))
+                      .then((ok) => setDebugMsg(ok ? 'JSON kopiert.' : 'Kopieren fehlgeschlagen.'))
+                      .catch((err) => setDebugMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
+                      .finally(() => setDebugBusy(false))
+                  }}
+                >
+                  Kopieren
+                </button>
+              </div>
+              {debugMsg ? <p className="settings-hint">{debugMsg}</p> : null}
             </section>
           ) : null}
 

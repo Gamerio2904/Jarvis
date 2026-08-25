@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.29.0`**. Live: [`00-now.md`](./00-now.md).
+App-Version im Code: **`2.29.1`**. Live: [`00-now.md`](./00-now.md).
+
+### `2.29.1` — Debug-Tests in der App — *CODE*
+
+Einstellungen → Tests: Themen und Prompts ankreuzen. Test starten schickt die Auswahl nacheinander in einen Chat namens Debug-Test. Prompt-Text antippen sendet sofort in den offenen Chat. Diese Gruppe starten nimmt nur die aktuelle Themenzeile. Debug: JSON ohne API-Keys. Katalog derselbe wie `npm run test:prompts`. Composer bleibt ohne Chips.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 22901)
 
 ### `2.29.0` — Alltag, Kaufmodus, Tablet/Stimme/CarPlay — *CODE*
 

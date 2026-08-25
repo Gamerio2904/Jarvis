@@ -2,7 +2,7 @@
 
 PO 2026-08-20 (Screenshots): Jarvis wusste die Uhrzeit nicht, hat den Wohnort geraten und bei BIP „keine Zahlen“ gesagt statt zu suchen.
 
-Reihe davor: [`29-next.md`](./29-next.md). App vorher: Sideload **`2.1.1`**. Live jetzt: **`2.29.0`** [`00-now.md`](./00-now.md). Reihe danach: [`31-next.md`](./31-next.md) **CODE** (in `2.29.0`).
+Reihe davor: [`29-next.md`](./29-next.md). App vorher: Sideload **`2.1.1`**. Live jetzt: **`2.29.1`** [`00-now.md`](./00-now.md). Reihe danach: [`31-next.md`](./31-next.md) **CODE** (in `2.29.0`).
 
 Eine Sideload-Stufe.
 
@@ -51,6 +51,8 @@ Einstellungen → Tests: jedes Prompt-Feld hat **Kopieren**, plus Alle je Gruppe
 ## `2.2.2` — Tests nicht in der App — **CODE**
 
 Kopierfelder wieder weg aus Einstellungen. Prompts nur außerhalb der APK (dieser Chat). Chat ohne Chips.
+
+Seit `2.29.1` gibt es Tests wieder in den Einstellungen — Auto-Lauf und Sofort-Senden in den Chat, nicht Kopier-Chips im Composer.
 
 ## Won’t
 

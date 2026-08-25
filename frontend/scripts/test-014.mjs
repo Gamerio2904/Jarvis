@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
-import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
+import { allTestCopyTexts, allTestPromptKeys, formatAllTestCopy, isDebugChatTitle, selectedTestPrompts, TEST_COPY_GROUPS, testPromptKey } from '../src/engine/test-copy.ts'
+import { flagReply, expandPickedMessageIds, debugFileName, applyTurnFilter } from '../src/engine/chat-debug.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
@@ -968,7 +969,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.29\.0/)
+assert.match(HELP_TEXT, /2\.29\.1/)
 assert.match(HELP_TEXT, /Kaufmodus/)
 assert.match(HELP_TEXT, /Unwetter/)
 assert.match(HELP_TEXT, /Schach/)
@@ -989,11 +990,57 @@ for (const p of TEST_PROMPTS) {
 }
 for (const g of TEST_COPY_GROUPS) {
   assert.ok(g.items.length > 0, g.title)
+  assert.ok(g.id.trim(), g.title)
+  assert.ok(g.hint.trim(), g.title)
   for (const i of g.items) {
     assert.ok(i.label.trim(), g.title)
     assert.ok(i.text.trim(), i.label)
   }
 }
+const groupIds = TEST_COPY_GROUPS.map((g) => g.id)
+assert.equal(new Set(groupIds).size, groupIds.length, 'doppelte Test-Gruppen-IDs')
+assert.ok(allTestPromptKeys().length >= TEST_PROMPTS.length)
+assert.equal(new Set(allTestPromptKeys()).size, allTestPromptKeys().length, 'doppelte Prompt-Keys')
+assert.equal(isDebugChatTitle('Debug-Test'), true)
+assert.equal(isDebugChatTitle('debug-test kauf'), true)
+assert.equal(isDebugChatTitle('Neues Gespräch'), false)
+const milchKey = testPromptKey('shop', { label: 'Milch kaufen', text: 'Milch kaufen' })
+assert.deepEqual(selectedTestPrompts([milchKey]), ['Milch kaufen'])
+assert.ok(allTestPromptKeys().includes(milchKey))
+assert.ok(flagReply('Hallo', 'Ich habe den Fernseher angeschaltet.', {}).includes('hallucinated_action'))
+assert.ok(flagReply('x', 'Guten Tag.', { debug: { route: 'llm' } }).includes('llm'))
+assert.deepEqual(
+  expandPickedMessageIds(
+    [
+      { id: 'u1', role: 'user' },
+      { id: 'a1', role: 'assistant' },
+      { id: 'u2', role: 'user' },
+      { id: 'a2', role: 'assistant' },
+    ],
+    ['u1'],
+  ),
+  ['u1', 'a1'],
+)
+assert.match(debugFileName({ id: 'x', title: 'Debug-Test', created_at: '', updated_at: '' }), /jarvis-debug-debug-test-/)
+const filtered = applyTurnFilter(
+  {
+    kind: 'jarvis-chat-debug',
+    app_version: '2.29.1',
+    exported_at: '',
+    conversation: { id: 'x', title: 'Debug-Test', created_at: '', updated_at: '' },
+    transcript: 'USER\na\n\nJARVIS\nb',
+    runtime: {},
+    turns: [
+      { id: 'u1', role: 'user', created_at: '', content: 'a', flags: [] },
+      { id: 'a1', role: 'assistant', created_at: '', content: 'b', flags: ['llm'], route: 'llm' },
+    ],
+    summary: { user_turns: 2, assistant_turns: 2, tools_executed: [], llm_turns: 1, flags: ['llm'] },
+    memory_from_this_chat: [],
+  },
+  ['u1'],
+)
+assert.equal(filtered.turns.length, 1)
+assert.equal(filtered.summary.user_turns, 1)
 
 assert.equal(parseFuelIntent('Fahr mich zu einer Tanke')?.prefer, 'nearest')
 assert.equal(parseFuelIntent('fahr mich zur Tankstelle')?.prefer, 'nearest')
