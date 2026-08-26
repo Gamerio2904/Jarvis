@@ -27,7 +27,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E15 | Alltag `1.14`–`1.20` | 5+ | Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Auge — [`19-next.md`](./19-next.md) |
 | E16 | Extra `1.21`–`1.24` | 4 | Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — [`20-next.md`](./20-next.md) |
 | E17 | Qualität `1.33`–`1.40` | 5+ | Bestehendes härten: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit — kein neues Produkt — [`28-next.md`](./28-next.md) |
-| E25 | Alltag & Welt `2.3`–`2.19` | 5+ | DWD, Ferien, Kurs, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach — [`31-next.md`](./31-next.md) **PLAN** |
+| E25 | Alltag & Welt `2.7`–`2.23` | 5+ | DWD, Ferien, Kurs, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach — [`31-next.md`](./31-next.md) **PLAN** (nach Register) |
+| E26 | Tool-Register `2.3`–`2.6` | 5+ | Katalog, Parse vor Execute, Score-Policy — [`32-registry.md`](./32-registry.md) **PLAN** |
 
 ---
 
@@ -329,35 +330,45 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S24.3 | Als Nutzer will ich Nachrichten: national Tagesschau, Ort zuerst Tagesschau sonst Netz. | Must | done | nichts erfinden |
 | S24.4 | Als Nutzer will ich wissen, ob heute in DE Feiertag ist. | Must | done | Nager.Date |
 
-### E25 — Alltag & Welt `2.3`–`2.19`
+### E26 — Tool-Register `2.3`–`2.6`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S25.1 | Unwetter / DWD-Warnung | Must | ready | `2.3.0` PLAN — freie DWD-Quelle, kein Raten |
-| S25.2 | Schulferien DE | Must | ready | `2.4.0` PLAN |
-| S25.3 | Wechselkurse EZB | Must | ready | `2.5.0` PLAN |
-| S25.4 | Research: belegte DE-Zahlen zuerst | Must | ready | `2.6.0` PLAN — bestehendes Tool |
-| S25.5 | Stimme spricht Uhr/Warnung/Ferien | Should | ready | `2.7.0` PLAN — vorhandenes TTS |
-| S25.6 | Open Food Facts (Foto/Produkt) | Must | ready | `2.8.0` PLAN |
-| S25.7 | Open Library (Buch) | Must | ready | `2.9.0` PLAN |
-| S25.8 | Bundesliga-Stand | Must | ready | `2.10.0` PLAN — OpenLigaDB |
-| S25.9 | Weitere Sport-Ergebnisse | Should | ready | `2.11.0` PLAN |
-| S25.10 | Garten & Pflanzen bestimmen | Must | ready | `2.12.0` PLAN — keine Essbarkeit |
-| S25.11 | Himmel: ISS, Mond | Must | ready | `2.13.0` PLAN |
-| S25.12 | Tiere draußen bestimmen | Must | ready | `2.14.0` PLAN |
-| S25.13 | Flüge überm Haus | Must | ready | `2.15.0` PLAN — OpenSky |
-| S25.14 | Recht Alltag (Gesetzestext + Link) | Must | ready | `2.16.0` PLAN — kein Anwalts-Rat |
-| S25.15 | Haushalt (Waschsymbol, Fleck) | Should | ready | `2.17.0` PLAN |
-| S25.16 | Schritte, Barometer, Handy-Sensoren | Must | ready | `2.18.0` PLAN — lokal |
-| S25.17 | Schach im Chat | Should | ready | `2.19.0` PLAN |
+| S26.1 | Vertrag + Register + Pilot Wetter/Kalender/TV | Must | ready | `2.3.0` PLAN — Parse ohne Execute |
+| S26.2 | Score-Policy, Konflikttabelle, last_step-Prior | Must | ready | `2.4.0` PLAN — kein Cosine |
+| S26.3 | Alle bestehenden Tools im Register | Must | ready | `2.5.0` PLAN — If-Kette tot |
+| S26.4 | Nachfrage bei Gleichstand + Gold-Set-Eval | Must | ready | `2.6.0` PLAN — kein Rate-Gerät |
+
+### E25 — Alltag & Welt `2.7`–`2.23`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S25.1 | Unwetter / DWD-Warnung | Must | ready | `2.7.0` PLAN — freie DWD-Quelle, kein Raten; nur Register-Eintrag |
+| S25.2 | Schulferien DE | Must | ready | `2.8.0` PLAN |
+| S25.3 | Wechselkurse EZB | Must | ready | `2.9.0` PLAN |
+| S25.4 | Research: belegte DE-Zahlen zuerst | Must | ready | `2.10.0` PLAN — bestehendes Tool |
+| S25.5 | Stimme spricht Uhr/Warnung/Ferien | Should | ready | `2.11.0` PLAN — vorhandenes TTS |
+| S25.6 | Open Food Facts (Foto/Produkt) | Must | ready | `2.12.0` PLAN |
+| S25.7 | Open Library (Buch) | Must | ready | `2.13.0` PLAN |
+| S25.8 | Bundesliga-Stand | Must | ready | `2.14.0` PLAN — OpenLigaDB |
+| S25.9 | Weitere Sport-Ergebnisse | Should | ready | `2.15.0` PLAN |
+| S25.10 | Garten & Pflanzen bestimmen | Must | ready | `2.16.0` PLAN — keine Essbarkeit |
+| S25.11 | Himmel: ISS, Mond | Must | ready | `2.17.0` PLAN |
+| S25.12 | Tiere draußen bestimmen | Must | ready | `2.18.0` PLAN |
+| S25.13 | Flüge überm Haus | Must | ready | `2.19.0` PLAN — OpenSky |
+| S25.14 | Recht Alltag (Gesetzestext + Link) | Must | ready | `2.20.0` PLAN — kein Anwalts-Rat |
+| S25.15 | Haushalt (Waschsymbol, Fleck) | Should | ready | `2.21.0` PLAN |
+| S25.16 | Schritte, Barometer, Handy-Sensoren | Must | ready | `2.22.0` PLAN — lokal |
+| S25.17 | Schach im Chat | Should | ready | `2.23.0` PLAN |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
 1. Sideload `2.2.2` — [`apk.md`](./apk.md)
-2. Reihe Alltag & Welt **PLAN** [`31-next.md`](./31-next.md) — erste Code-Lieferung `2.3.0` DWD, wenn PO „bauen“ sagt
-3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+2. Reihe Tool-Register **PLAN** [`32-registry.md`](./32-registry.md) — erste Code-Lieferung `2.3.0` Pilot, wenn PO „bauen“ sagt
+3. Reihe Alltag & Welt **PLAN** [`31-next.md`](./31-next.md) — erste Welt-Lieferung `2.7.0` DWD, nach Register `2.6.0`
+4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

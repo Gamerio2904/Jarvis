@@ -108,9 +108,10 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 102 | [`sprint-102.md`](./sprint-102.md) | `2.0.0` | Haus-AI, ein Kontext (letztes Medium, ehrlich) | **CODE** |
 | 103 | [`sprint-103.md`](./sprint-103.md) | `2.1.0` | WLAN-Steckdosen lokal | **CODE** |
 | 104 | [`sprint-104.md`](./sprint-104.md) | `2.2.0` | Uhrzeit, Ort, Auto-Research | **CODE** |
-| 105 | [`sprint-105.md`](./sprint-105.md) | `2.3.0` | Alltag & Welt Kickoff (DWD zuerst) | **PLAN** |
+| 105 | [`sprint-105.md`](./sprint-105.md) | Docs | Alltag & Welt Kickoff (DWD jetzt `2.7.0`) | **PLAN** |
+| 106 | [`sprint-106.md`](./sprint-106.md) | `2.3.0` | Tool-Register Kickoff (Pilot zuerst) | **PLAN** |
 
-**Aktuell:** Sideload `2.2.2`. Geplant: [`31-next.md`](../31-next.md) `2.3`–`2.19`.
+**Aktuell:** Sideload `2.2.2`. Als Nächstes: [`32-registry.md`](../32-registry.md) `2.3`–`2.6`, danach [`31-next.md`](../31-next.md) `2.7`–`2.23`.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
