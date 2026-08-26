@@ -5,9 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.2.2`**.
+App-Version im Code: **`3.0.0`**. Letzter Sideload: **`2.2.2`**.
 
-Geplant (kein Code): Register [`32-registry.md`](./32-registry.md) `2.3.0`–`2.6.0`, danach Welt [`31-next.md`](./31-next.md) `2.7.0`–`2.23.0`.
+### `3.0.0` — Intelligenz + Welt — *CODE*
+
+Register statt If-Kette. Parser zuerst, dann Score-Policy (Prior, Kosten, Konflikte). Bei knappem Gleichstand eine Rückfrage. 0,5B wählt keine Tools. Welt-Reihe `3.1`–`3.17` mitgeliefert: DWD, Ferien, EZB-Kurs, Wikipedia/Destatis zuerst, Food, Library, Sport, iNaturalist, ISS/Mond, OpenSky, Recht, Waschsymbole, Sensoren ehrlich, Schach.
+
+- App-Code `3.0.0` (`package.json`, `APP_VERSION`, `/hilfe`)
+- Sideload-APK noch `2.2.2` — nächster Build `3.0.0`
+- [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) · [`sprints/sprint-106.md`](./sprints/sprint-106.md)
 
 ### `2.2.2` — Testprompts raus aus der App — *CODE*
 

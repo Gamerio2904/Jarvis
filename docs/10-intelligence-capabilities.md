@@ -7,8 +7,8 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 
 Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/Geizhals, € nur aus Snippets. Router wie `1.32.1` plus `Öffnen CarPlay` → Fahrmodus. `pickHeard` scored ohne Drive-`inMode`-Raten.
 
-Nächste Schärfe (CODE bis `2.2`): [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  
-Nächste Reihe **PLAN:** Register [`32-registry.md`](./32-registry.md) `2.3`–`2.6`, danach Welt [`31-next.md`](./31-next.md) `2.7`–`2.23` (Research härten dort `2.10.0`).
+Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  
+**`3.0.0` CODE:** Register + Score-Policy [`32-intelligence.md`](./32-intelligence.md). Welt `3.1`–`3.17` mitgeliefert [`31-next.md`](./31-next.md).
 
 ### Live `1.32.1` (Code)
 
@@ -31,11 +31,13 @@ Zwei Befehle an „und“. Letzter Schritt inkl. „das zweite“. Memory-Block 
 | `1.16`–`1.18` | Liste, Losgehen (Ort am Termin + Route), Zuhause | **CODE** |
 | `1.19`–`1.20` | Eine Tageslage; Auge nur Gemini | **CODE** |
 | `1.21`–`1.24` | Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche | **CODE** |
-| `1.33`–`1.40` | Qualität: Suche/Preise (`1.33` CODE), Antworten, Fahrmodus, Phrasen, Flüssigkeit, Gedächtnis, Stimme | **`1.33` CODE**, Rest **PLANNED** [`28-next.md`](./28-next.md) |
+| `1.33`–`1.40` | Qualität: Suche/Preise, Antworten, Fahrmodus, Phrasen, Flüssigkeit, Gedächtnis, Stimme | **CODE** [`28-next.md`](./28-next.md) |
+| `3.0` | Register, Parse vor Execute, Score-Policy | **CODE** [`32-intelligence.md`](./32-intelligence.md) |
+| `3.1`–`3.17` | DWD bis Schach | **CODE** in `3.0.0` [`31-next.md`](./31-next.md) |
 
 Lokal 0,5B denkt nicht plötzlich besser. Schärfe = Router + Speicher + ehrliche Tools.
 
-Nächster Router-Schnitt (`2.3`–`2.6`): Register statt If-Kette, Parse vor Execute, Score-Policy — [`32-registry.md`](./32-registry.md).
+Router `3.0.0`: Register statt If-Kette, Parse vor Execute, Score-Policy — [`32-intelligence.md`](./32-intelligence.md).
 
 ## Sprint- & Versions-Mapping (verbindlich)
 
@@ -58,6 +60,7 @@ Nächster Router-Schnitt (`2.3`–`2.6`): Register statt If-Kette, Parse vor Exe
 | 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **PLANNED** |
 | 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PLANNED** |
 | 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **PLANNED** |
+| 6 | **`3.0.0`** | [106](./sprints/sprint-106.md) | Register + Score-Policy; Welt `3.1`–`3.17` | **CODE** |
 
 ```text
 Sprint 8  0.4.0 Memory

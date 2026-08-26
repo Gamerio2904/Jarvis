@@ -74,6 +74,7 @@ MAJOR.MINOR.PATCH
 | `0.16.0` | **Gemini Opt-in** — Google-API, Default aus | Sprint 50 |
 | `1.0.0` | **Jarvis 1.0** — On-Device, TV, Gemini-Kaskade, APK `Jarvis.apk` | nach `0.16` |
 | `2.0.0` | **Jarvis 2.0** — ein Kontext, ehrliche Tools, internes CarPlay | Sprint 102 |
+| `3.0.0` | **Jarvis 3.0** — Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -146,32 +147,30 @@ MAJOR.MINOR.PATCH
 | `2.2.0` | Uhrzeit vom Gerät, GPS statt Raten, Auto-Research | Sprint 104 |
 | `2.2.1` | Testprompts: Kopierfelder unter Einstellungen → Tests | Sprint 104 Patch |
 | `2.2.2` | Testprompts wieder raus aus der APK | Sprint 104 Patch |
+| `3.0.0` | Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
 
-### Geplant — Register [`32-registry.md`](./32-registry.md), danach Welt [`31-next.md`](./31-next.md) (noch kein Code)
+### `3.0` — Intelligenz + Welt [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) **CODE**
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `2.3.0` | Tool-Register Pilot (Wetter, Kalender, TV) | 106 |
-| `2.4.0` | Score-Policy + Konflikttabelle | 107 |
-| `2.5.0` | Alle Tools im Register | 108 |
-| `2.6.0` | Nachfrage bei Gleichstand + Eval | 109 |
-| `2.7.0` | DWD-Unwetterwarnung | 110 |
-| `2.8.0` | Schulferien DE | 111 |
-| `2.9.0` | Wechselkurse EZB | 112 |
-| `2.10.0` | Research: Wikipedia/Destatis zuerst | 113 |
-| `2.11.0` | Stimme: Uhr, Warnung, Ferien | 114 |
-| `2.12.0` | Open Food Facts | 115 |
-| `2.13.0` | Open Library | 116 |
-| `2.14.0` | Bundesliga | 117 |
-| `2.15.0` | Sport-Ergebnisse | 118 |
-| `2.16.0` | Garten & Pflanzen | 119 |
-| `2.17.0` | Himmel (ISS, Mond) | 120 |
-| `2.18.0` | Tiere draußen | 121 |
-| `2.19.0` | Flüge überm Haus | 122 |
-| `2.20.0` | Recht Alltag | 123 |
-| `2.21.0` | Haushalt | 124 |
-| `2.22.0` | Handy-Sensoren (Schritte, Barometer) | 125 |
-| `2.23.0` | Schach | 126 |
+| `3.0.0` | Register, Policy, Konflikte, Nachfrage | 106 |
+| `3.1.0` | DWD-Unwetterwarnung | 106 (in `3.0.0`) |
+| `3.2.0` | Schulferien DE | 106 (in `3.0.0`) |
+| `3.3.0` | Wechselkurse EZB | 106 (in `3.0.0`) |
+| `3.4.0` | Research: Wikipedia/Destatis zuerst | 106 (in `3.0.0`) |
+| `3.5.0` | Stimme: ganze Sätze | 106 (in `3.0.0`) |
+| `3.6.0` | Open Food Facts | 106 (in `3.0.0`) |
+| `3.7.0` | Open Library | 106 (in `3.0.0`) |
+| `3.8.0` | Bundesliga | 106 (in `3.0.0`) |
+| `3.9.0` | Sport-Ergebnisse | 106 (in `3.0.0`) |
+| `3.10.0` | Garten & Pflanzen | 106 (in `3.0.0`) |
+| `3.11.0` | Himmel (ISS, Mond) | 106 (in `3.0.0`) |
+| `3.12.0` | Tiere draußen | 106 (in `3.0.0`) |
+| `3.13.0` | Flüge überm Haus | 106 (in `3.0.0`) |
+| `3.14.0` | Recht Alltag | 106 (in `3.0.0`) |
+| `3.15.0` | Haushalt | 106 (in `3.0.0`) |
+| `3.16.0` | Handy-Sensoren | 106 (in `3.0.0`) |
+| `3.17.0` | Schach | 106 (in `3.0.0`) |
 
 ### Weitere Beispiele
 

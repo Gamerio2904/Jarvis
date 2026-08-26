@@ -1,4 +1,6 @@
-# Android-APK — `2.2.2`
+# Android-APK — letzter Sideload `2.2.2`
+
+App-Code steht auf **`3.0.0`** (Intelligenz + Welt). Der zuletzt gebaute Sideload bleibt **`2.2.2`**, bis `build-apk.bat` `3.0.0` schreibt.
 
 **2.2.2:** Keine Testprompts in der App. Chat ohne Chips.
 

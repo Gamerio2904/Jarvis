@@ -1,0 +1,161 @@
+import { parseTvIntent, parseTvWatch } from './tv-parse.ts'
+import { parseFilmIntent } from './film-parse.ts'
+import { parseFanIntent } from './fan-parse.ts'
+import { parsePlugIntent } from './plug-parse.ts'
+import { parseHereIntent } from './here-parse.ts'
+import { parseFuelIntent } from './fuel-parse.ts'
+import { parsePoiIntent } from './poi-parse.ts'
+import { parseTransitIntent } from './transit-parse.ts'
+import { parseDriveIntent } from './drive-parse.ts'
+import { parseSpotifyIntent } from './spotify-parse.ts'
+import { parseDeviceIntent } from './device-parse.ts'
+import { parsePcIntent } from './pc-parse.ts'
+import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from './places-parse.ts'
+import { isIdentityAsk, isMemoryRecall, isMemoryWrite, VERGISS, VERGISS_ALL } from './memory-parse.ts'
+import { parseShopIntent } from './shopping-parse.ts'
+import { parseBirthdayIntent } from './birthday-parse.ts'
+import { parseHomeIntent } from './home-parse.ts'
+import { parseLeaveIntent } from './leave-parse.ts'
+import { isBriefAsk } from './brief-parse.ts'
+import { parseHolidayIntent } from './holiday-parse.ts'
+import { parseCalendarIntent } from './calendar-parse.ts'
+import { parseAlarmIntent } from './alarm-parse.ts'
+import { parseTimerIntent } from './timer-parse.ts'
+import { parseReminderIntent } from './remind-parse.ts'
+import { parseToolIntent } from './tools-parse.ts'
+import { parseEyeIntent } from './eye-parse.ts'
+import { parseWeatherFollowup, parseWeatherIntent } from './weather-parse.ts'
+import { parseNewsIntent } from './news-parse.ts'
+import { parseChatSearch } from './search-chat-parse.ts'
+import { parseWarnIntent } from './warn.ts'
+import { parseFerienIntent } from './ferien.ts'
+import { parseFxIntent } from './fx.ts'
+import { parseFoodIntent } from './food.ts'
+import { parseLibraryIntent } from './library.ts'
+import { parseSportIntent } from './sport.ts'
+import { parseSkyIntent } from './sky.ts'
+import { parseNatureIntent } from './nature.ts'
+import { parseFlightsIntent } from './flights.ts'
+import { parseLawIntent } from './law.ts'
+import { parseHaushaltIntent } from './haushalt.ts'
+import { parseSensorsIntent } from './sensors.ts'
+import { parseChessIntent } from './chess.ts'
+import { applyConflicts } from './conflicts.ts'
+import { isFollowish, pickPolicy, withCost, withPrior } from './policy.ts'
+import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
+
+function score(text: string, extra = 0): number {
+  const n = text.trim().length
+  const brevity = n <= 36 ? 0.1 : n <= 72 ? 0.05 : 0
+  return Math.min(0.99, 0.72 + brevity + extra)
+}
+
+type Parser = (ctx: RouteCtx) => number | null
+
+const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
+  { id: 'tv', sideEffect: 'device', parse: (ctx) => (parseTvWatch(ctx.text) || parseTvIntent(ctx.text, ctx.lastTool === 'tv') ? score(ctx.text, 0.06) : null) },
+  { id: 'film', sideEffect: 'read', parse: (ctx) => (parseFilmIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
+  { id: 'fan', sideEffect: 'device', parse: (ctx) => (parseFanIntent(ctx.text, ctx.lastTool === 'fan') ? score(ctx.text, 0.05) : null) },
+  {
+    id: 'plug',
+    sideEffect: 'device',
+    parse: (ctx) =>
+      parsePlugIntent(ctx.text, ctx.plugNames || [], ctx.lastTool === 'plug') ? score(ctx.text, 0.05) : null,
+  },
+  { id: 'here', sideEffect: 'read', parse: (ctx) => (parseHereIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.05) : null) },
+  { id: 'fuel', sideEffect: 'read', parse: (ctx) => (parseFuelIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
+  { id: 'poi', sideEffect: 'read', parse: (ctx) => (parsePoiIntent(ctx.text) ? score(ctx.text) : null) },
+  { id: 'transit', sideEffect: 'read', parse: (ctx) => (parseTransitIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
+  {
+    id: 'drive',
+    sideEffect: 'device',
+    parse: (ctx) => (parseDriveIntent(ctx.text, ctx.inDrive) || parseSpotifyIntent(ctx.text) ? score(ctx.text, 0.04) : null),
+  },
+  { id: 'device', sideEffect: 'device', parse: (ctx) => (parseDeviceIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
+  { id: 'pc', sideEffect: 'device', parse: (ctx) => (parsePcIntent(ctx.text) ? score(ctx.text, 0.05) : null) },
+  {
+    id: 'maps',
+    sideEffect: 'read',
+    parse: (ctx) =>
+      parsePlaceWrite(ctx.text) || parsePlaceRecall(ctx.text) || parsePlaceNav(ctx.text) ? score(ctx.text) : null,
+  },
+  {
+    id: 'memory',
+    sideEffect: 'write',
+    parse: (ctx) => {
+      const t = ctx.text
+      return VERGISS_ALL.test(t) || VERGISS.test(t) || isMemoryWrite(t) || isMemoryRecall(t) || isIdentityAsk(t)
+        ? score(t, 0.04)
+        : null
+    },
+  },
+  { id: 'shopping', sideEffect: 'write', parse: (ctx) => (parseShopIntent(ctx.text) ? score(ctx.text) : null) },
+  { id: 'birthday', sideEffect: 'write', parse: (ctx) => (parseBirthdayIntent(ctx.text) ? score(ctx.text) : null) },
+  { id: 'home', sideEffect: 'write', parse: (ctx) => (parseHomeIntent(ctx.text) ? score(ctx.text) : null) },
+  { id: 'leave', sideEffect: 'read', parse: (ctx) => (parseLeaveIntent(ctx.text) ? score(ctx.text) : null) },
+  { id: 'brief', sideEffect: 'read', parse: (ctx) => (isBriefAsk(ctx.text) ? score(ctx.text, 0.08) : null) },
+  { id: 'holiday', sideEffect: 'read', parse: (ctx) => (parseHolidayIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
+  { id: 'calendar', sideEffect: 'write', parse: (ctx) => (parseCalendarIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
+  { id: 'alarm', sideEffect: 'write', parse: (ctx) => (parseAlarmIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
+  { id: 'timer', sideEffect: 'write', parse: (ctx) => (parseTimerIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
+  { id: 'reminder', sideEffect: 'write', parse: (ctx) => (parseReminderIntent(ctx.text) ? score(ctx.text) : null) },
+  { id: 'todo', sideEffect: 'write', parse: (ctx) => (parseToolIntent(ctx.text) ? score(ctx.text) : null) },
+  { id: 'eye', sideEffect: 'read', parse: (ctx) => (parseEyeIntent(ctx.text) ? score(ctx.text) : null) },
+  {
+    id: 'weather',
+    sideEffect: 'read',
+    parse: (ctx) =>
+      parseWeatherIntent(ctx.text) || parseWeatherFollowup(ctx.text, ctx.weatherLast ?? null)
+        ? score(ctx.text, 0.05)
+        : null,
+  },
+  { id: 'news', sideEffect: 'read', parse: (ctx) => (parseNewsIntent(ctx.text) ? score(ctx.text) : null) },
+  { id: 'search', sideEffect: 'read', parse: (ctx) => (parseChatSearch(ctx.text) ? score(ctx.text) : null) },
+  { id: 'warn', sideEffect: 'read', parse: (ctx) => (parseWarnIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
+  { id: 'ferien', sideEffect: 'read', parse: (ctx) => (parseFerienIntent(ctx.text, ctx.lastPlace) ? score(ctx.text, 0.08) : null) },
+  { id: 'fx', sideEffect: 'read', parse: (ctx) => (parseFxIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
+  { id: 'food', sideEffect: 'read', parse: (ctx) => (parseFoodIntent(ctx.text) ? score(ctx.text, 0.06) : null) },
+  { id: 'library', sideEffect: 'read', parse: (ctx) => (parseLibraryIntent(ctx.text) ? score(ctx.text, 0.06) : null) },
+  { id: 'sport', sideEffect: 'read', parse: (ctx) => (parseSportIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
+  { id: 'sky', sideEffect: 'read', parse: (ctx) => (parseSkyIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
+  { id: 'nature', sideEffect: 'read', parse: (ctx) => (parseNatureIntent(ctx.text) ? score(ctx.text, 0.06) : null) },
+  { id: 'flights', sideEffect: 'read', parse: (ctx) => (parseFlightsIntent(ctx.text) ? score(ctx.text, 0.06) : null) },
+  { id: 'law', sideEffect: 'read', parse: (ctx) => (parseLawIntent(ctx.text) ? score(ctx.text, 0.05) : null) },
+  { id: 'haushalt', sideEffect: 'read', parse: (ctx) => (parseHaushaltIntent(ctx.text) ? score(ctx.text, 0.05) : null) },
+  { id: 'sensors', sideEffect: 'read', parse: (ctx) => (parseSensorsIntent(ctx.text) ? score(ctx.text, 0.05) : null) },
+  {
+    id: 'chess',
+    sideEffect: 'read',
+    parse: (ctx) => (parseChessIntent(ctx.text, ctx.lastTool === 'chess') ? score(ctx.text, 0.08) : null),
+  },
+]
+
+export function propose(ctx: RouteCtx): Candidate[] {
+  const raw: Candidate[] = []
+  for (const cap of PARSERS) {
+    try {
+      const n = cap.parse(ctx)
+      if (n != null) raw.push({ id: cap.id, score: n, sideEffect: cap.sideEffect })
+    } catch {
+      /* ein Parser darf Routing nicht kippen */
+    }
+  }
+  return withCost(withPrior(applyConflicts(raw, ctx.text, ctx), ctx.lastTool, isFollowish(ctx.text)))
+}
+
+export function pickRouteFromCtx(ctx: RouteCtx): string | null {
+  const pick = pickPolicy(propose(ctx))
+  if (pick.kind === 'run') return pick.id
+  if (pick.kind === 'ask') return pick.a
+  return null
+}
+
+export function pickRoute(text: string): string | null {
+  return pickRouteFromCtx({
+    conversationId: 'test',
+    text,
+    lastTool: '',
+    lastMedium: '',
+    inDrive: false,
+  })
+}

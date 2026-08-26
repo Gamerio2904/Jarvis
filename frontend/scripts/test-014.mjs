@@ -85,6 +85,20 @@ import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
+import { pickRoute } from '../src/engine/route-pick.ts'
+import { parseWarnIntent } from '../src/engine/warn.ts'
+import { parseFerienIntent } from '../src/engine/ferien.ts'
+import { parseFxIntent } from '../src/engine/fx.ts'
+import { parseSkyIntent } from '../src/engine/sky.ts'
+import { parseChessIntent } from '../src/engine/chess.ts'
+import { parseSportIntent } from '../src/engine/sport.ts'
+import { parseFoodIntent } from '../src/engine/food.ts'
+import { parseLibraryIntent } from '../src/engine/library.ts'
+import { parseLawIntent } from '../src/engine/law.ts'
+import { parseHaushaltIntent } from '../src/engine/haushalt.ts'
+import { parseSensorsIntent } from '../src/engine/sensors.ts'
+import { parseFlightsIntent } from '../src/engine/flights.ts'
+import { parseNatureIntent } from '../src/engine/nature.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -966,7 +980,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.2\.2/)
+assert.match(HELP_TEXT, /3\.0\.0/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)
@@ -1311,5 +1325,28 @@ const got = tap2.feed('Eins. Zwei kommt jetzt wirklich.')
 assert.equal(got.length, 1)
 assert.match(got[0], /Eins/)
 assert.match(got[0], /Zwei/)
+
+assert.equal(pickRoute('Wetter heute'), 'weather')
+assert.equal(pickRoute('Termin morgen 15 Uhr Zahnarzt'), 'calendar')
+assert.equal(pickRoute('Fernseher an'), 'tv')
+assert.equal(pickRoute('kein Kaffee mehr'), 'memory')
+assert.equal(pickRoute('Was steht an?'), 'brief')
+assert.equal(parseWarnIntent('Gibt’s Unwetter?')?.kind, 'ask')
+assert.equal(parseFerienIntent('Sind in BW Ferien?')?.land, 'BW')
+assert.equal(parseFxIntent('Was ist der Dollar?')?.from, 'USD')
+assert.equal(parseSkyIntent('Wann fliegt die ISS?')?.kind, 'iss')
+assert.equal(parseSkyIntent('Mondphase')?.kind, 'moon')
+assert.equal(parseChessIntent('Schach neu')?.kind, 'new')
+assert.equal(parseChessIntent('schach e2e4')?.kind, 'move')
+assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.team, 'Stuttgart')
+assert.equal(parseFoodIntent('Was ist das für ein Produkt Nutella')?.query.toLowerCase().includes('nutella'), true)
+assert.equal(parseLibraryIntent('Was ist das für ein Buch Der Prozess')?.query.toLowerCase().includes('prozess'), true)
+assert.ok(parseLawIntent('Kündigungsfrist Wohnung'))
+assert.equal(parseHaushaltIntent('Was bedeutet die Waschschüssel 30'), true)
+assert.equal(parseSensorsIntent('Wie viele Schritte heute?')?.kind, 'steps')
+assert.equal(parseFlightsIntent('Was fliegt da?'), true)
+assert.equal(parseNatureIntent('Was ist das für eine Pflanze')?.kind, 'plant')
+assert.equal(pickRoute('Gibt’s Unwetter?'), 'warn')
+assert.equal(pickRoute('Schach neu'), 'chess')
 
 console.log('ok 0.14 parsers')

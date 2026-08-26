@@ -54,9 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `2.2.2`. [`apk.md`](./apk.md).
-2. Als Nächstes: Tool-Register [`32-registry.md`](./32-registry.md) — Bau ab `2.3.0` Pilot auf PO-Kommando.
-3. Danach: Alltag & Welt [`31-next.md`](./31-next.md) — Bau ab `2.7.0` DWD.
+1. Sideload `3.0.0` (Code steht; letzter APK `2.2.2`). [`apk.md`](./apk.md).
+2. Intelligenz **CODE** [`32-intelligence.md`](./32-intelligence.md) — `3.0.0`.
+3. Alltag & Welt **CODE** [`31-next.md`](./31-next.md) — `3.1`–`3.17` in `3.0.0`.
 4. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 
 ---
@@ -75,5 +75,6 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-18 | Q43 | Öffnungszeiten von Läden nur aus OSM `opening_hours`. Fehlt der Tag: ehrlich. Keine erfundenen Stunden. | PO |
 | 2026-08-18 | Q44 | Anruf und SMS direkt, aber immer nachfragen. Kein Abheben/Zustellung behaupten. | PO |
 | 2026-08-19 | Q46 | WLAN-Steckdosen lokal: Shelly/Tasmota per IP, Tuya/Smart Life nur LAN mit Local Key, keine Tuya-Cloud, kein Tapo | PO |
-| 2026-08-20 | Q47 | Welt-Reihe: DWD, Ferien, Kurs, Research, Stimme, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach. Frei, ehrlich. Zuerst `2.3`–`2.19`, am 2026-08-26 auf `2.7`–`2.23` verschoben. [`31-next.md`](./31-next.md) | PO |
-| 2026-08-26 | Q48 | Tool-Register `2.3`–`2.6` vor neuen Welt-Tools. Katalog + Score-Policy, kein Embedding, 0,5B wählt keine Tools. [`32-registry.md`](./32-registry.md) | PO |
+| 2026-08-20 | Q47 | Welt-Reihe: DWD, Ferien, Kurs, Research, Stimme, Food, Library, Sport, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sensoren, Schach. Frei, ehrlich. Zuerst `2.3`–`2.19`, dann `2.7`–`2.23`, in `3.0.0` als `3.1`–`3.17` CODE. [`31-next.md`](./31-next.md) | PO |
+| 2026-08-26 | Q48 | Intelligenz zuerst: Katalog + Score-Policy, kein Embedding, 0,5B wählt keine Tools. War Plan `2.3`–`2.6`, umgesetzt als **`3.0.0`**. [`32-intelligence.md`](./32-intelligence.md) | PO |
+| 2026-08-26 | Q49 | `3.0.0` = intelligenter als Fokus: Register + Policy + Härten. Welt-Sprints im selben Code. Kein Sideload-APK in diesem Schritt. | PO |

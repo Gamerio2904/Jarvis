@@ -35,9 +35,9 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 28 | [Qualität statt Breite](./28-next.md) | **`1.33`–`2.0` CODE** — Suche bis Haus-AI 2.0 |
 | 29 | [WLAN-Steckdosen](./29-next.md) | **`2.1.0` CODE** — Shelly/Tasmota/Tuya-LAN |
 | 30 | [Uhrzeit, Ort, Research](./30-next.md) | **`2.2.0` CODE** — Gerätzeit, GPS, Auto-Suche |
-| 31 | [Alltag & Welt](./31-next.md) | **`2.7`–`2.23` PLAN** — DWD bis Schach (nach Register) |
-| 32 | [Tool-Register](./32-registry.md) | **`2.3`–`2.6` PLAN** — Katalog, Score-Policy, kein Cosine |
-| — | [APK](./apk.md) | Sideload `2.2.2` |
+| 31 | [Alltag & Welt](./31-next.md) | **`3.1`–`3.17` CODE** — DWD bis Schach (in `3.0.0`) |
+| 32 | [Intelligenz](./32-intelligence.md) | **`3.0` CODE** — Register, Score-Policy |
+| — | [APK](./apk.md) | letzter Sideload `2.2.2`; Code `3.0.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -101,7 +101,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 102 | `2.0.0` | **CODE** (Haus-AI, ein Kontext) |
 | 103 | `2.1.0` | **CODE** (WLAN-Steckdosen) |
 | 104 | `2.2.0` | **CODE** (Uhrzeit, Ort, Auto-Research) |
-| 105 | — | **PLAN** (Welt-Reihe Docs; DWD erst `2.7.0`) |
-| 106 | `2.3.0` | **PLAN** (Tool-Register, zuerst Pilot) |
+| 105 | — | **CODE** (Welt-Reihe Docs + Code in `3.0.0`) |
+| 106 | `3.0.0` | **CODE** (Intelligenz / Register) |
 
-**Aktuell:** Sideload `2.2.2` — [`Jarvis.apk`](./apk.md). Als Nächstes: [`32-registry.md`](./32-registry.md) `2.3`–`2.6`, danach [`31-next.md`](./31-next.md) `2.7`–`2.23`. PC-App: [`../desktop/README.md`](../desktop/README.md).
+**Aktuell:** Code **`3.0.0`**. Sideload-APK zuletzt `2.2.2` — [`Jarvis.apk`](./apk.md). Intelligenz: [`32-intelligence.md`](./32-intelligence.md). Welt: [`31-next.md`](./31-next.md). PC-App: [`../desktop/README.md`](../desktop/README.md).

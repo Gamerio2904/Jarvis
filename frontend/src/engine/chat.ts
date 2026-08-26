@@ -3,7 +3,7 @@ import { completeGemini, geminiReady, GEMINI_LABEL, streamGemini, testGemini } f
 import { completeGroq, groqReady, testGroq } from './groq'
 import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
-import { handleMemory, memoryBlock } from './memory'
+import { memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
 import { splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
@@ -48,36 +48,14 @@ import {
   type Message,
   type Settings,
 } from './store'
-import { handleCalendar } from './calendar'
-import { handleReminders } from './reminders'
-import { handleAlarms } from './alarms'
-import { handleTimers } from './timers'
-import { handleTools, type ToolMeta } from './tools'
-import { handleTv, handleTvOrdinal, tvStatusFromSettings } from './tv'
-import { handleFilm } from './film'
-import { handleFan } from './fan'
-import { handlePlug } from './plug'
-import { handleWeather } from './weather'
 import { handlePlaces } from './places'
-import { handleShopping } from './shopping'
-import { handleBirthday } from './birthday'
-import { handleHome } from './home'
-import { handleLeave } from './leave'
-import { handleBrief } from './brief'
-import { isBriefAsk } from './brief-parse'
-import { handlePoi, handlePoiOrdinal } from './poi'
-import { handleDevice } from './device'
 import { handlePc } from './pc'
-import { handleDrive } from './drive'
-import { handleFuel, handleFuelOrdinal } from './fuel'
-import { handleHere } from './here'
-import { handleTransit } from './transit'
-import { handleHoliday } from './holiday'
-import { handleNews } from './news'
-import { handleEyeAsk } from './eye'
-import { parseEyeIntent } from './eye-parse'
-import { handleChatSearch } from './search-chat'
+import { handleTvOrdinal, tvStatusFromSettings } from './tv'
+import { handleFuelOrdinal } from './fuel'
+import { handlePoiOrdinal } from './poi'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
+import { type ToolMeta } from './tools'
+import { routeRegistry, type RouteHit } from './registry'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -97,13 +75,6 @@ export type StreamHandlers = {
     tool?: ToolMeta | null
   }) => void
   onError?: (detail: string) => void
-}
-
-type RouteHit = {
-  reply: string
-  tool?: ToolMeta | null
-  research?: ResearchMeta
-  lastTool?: string
 }
 
 export async function getHealth() {
@@ -246,257 +217,7 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: `Das ${label}: ${title}.`, lastTool: loadSettings().last_step_tool || 'ordinal' }
   }
 
-  const tvHit = await handleTv(content)
-  if (tvHit.handled && tvHit.reply) {
-    return {
-      reply: tvHit.reply,
-      tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
-      lastTool: 'tv',
-    }
-  }
-
-  const filmHit = await handleFilm(conversationId, content)
-  if (filmHit.handled && filmHit.reply) {
-    return {
-      reply: filmHit.reply,
-      tool: filmHit.tool,
-      lastTool: filmHit.lastTool || 'film',
-    }
-  }
-
-  const fanHit = await handleFan(content)
-  if (fanHit.handled && fanHit.reply) {
-    return {
-      reply: fanHit.reply,
-      tool: { tool_status: 'executed', tool: 'fan', action: 'command', label: 'Ventilator' },
-      lastTool: 'fan',
-    }
-  }
-
-  const plugHit = await handlePlug(content)
-  if (plugHit.handled && plugHit.reply) {
-    return {
-      reply: plugHit.reply,
-      tool: { tool_status: 'executed', tool: 'plug', action: 'command', label: 'Steckdose' },
-      lastTool: 'plug',
-    }
-  }
-
-  const hereHit = await handleHere(content)
-  if (hereHit.retry === 'fuel') {
-    const retryFuel = await handleFuel(conversationId, loadSettings().last_step_utterance || 'fahr mich zu einer Tanke')
-    if (retryFuel.handled && retryFuel.reply) {
-      return {
-        reply: retryFuel.reply,
-        tool: retryFuel.tool,
-        lastTool: retryFuel.lastTool || 'fuel',
-        research: retryFuel.research,
-      }
-    }
-  }
-  if (hereHit.retry === 'weather') {
-    const retryWeather = await handleWeather(loadSettings().last_step_utterance || 'Wetter hier')
-    if (retryWeather.handled && retryWeather.reply) {
-      return {
-        reply: retryWeather.reply,
-        tool: retryWeather.tool,
-        research: retryWeather.research,
-        lastTool: 'weather',
-      }
-    }
-  }
-  if (hereHit.retry === 'poi') {
-    const retryPoi = await handlePoi(conversationId, loadSettings().last_step_utterance || 'nächste Apotheke')
-    if (retryPoi.handled && retryPoi.reply) {
-      return {
-        reply: retryPoi.reply,
-        tool: retryPoi.tool,
-        lastTool: retryPoi.lastTool || 'poi',
-      }
-    }
-  }
-  if (hereHit.retry === 'transit') {
-    const retryTransit = await handleTransit(
-      conversationId,
-      loadSettings().last_step_utterance || 'nächste Bahn nach Heilbronn',
-    )
-    if (retryTransit.handled && retryTransit.reply) {
-      return {
-        reply: retryTransit.reply,
-        tool: retryTransit.tool,
-        lastTool: retryTransit.lastTool || 'transit',
-        research: retryTransit.research,
-      }
-    }
-  }
-  if (hereHit.handled && hereHit.reply) {
-    return {
-      reply: hereHit.reply,
-      tool: hereHit.tool,
-      lastTool: hereHit.lastTool || 'here',
-    }
-  }
-
-  const fuelHit = await handleFuel(conversationId, content)
-  if (fuelHit.handled && fuelHit.reply) {
-    return {
-      reply: fuelHit.reply,
-      tool: fuelHit.tool,
-      lastTool: fuelHit.lastTool || 'fuel',
-      research: fuelHit.research,
-    }
-  }
-
-  const poiHit = await handlePoi(conversationId, content)
-  if (poiHit.handled && poiHit.reply) {
-    return {
-      reply: poiHit.reply,
-      tool: poiHit.tool,
-      lastTool: poiHit.lastTool || 'poi',
-    }
-  }
-
-  const transitHit = await handleTransit(conversationId, content)
-  if (transitHit.handled && transitHit.reply) {
-    return {
-      reply: transitHit.reply,
-      tool: transitHit.tool,
-      lastTool: transitHit.lastTool || 'transit',
-      research: transitHit.research,
-    }
-  }
-
-  const driveHit = await handleDrive(conversationId, content)
-  if (driveHit.handled && driveHit.reply) {
-    return {
-      reply: driveHit.reply,
-      tool: driveHit.tool,
-      lastTool: driveHit.lastTool || 'drive',
-    }
-  }
-
-  const deviceHit = await handleDevice(conversationId, content)
-  if (deviceHit.handled && deviceHit.reply) {
-    return {
-      reply: deviceHit.reply,
-      tool: deviceHit.tool,
-      lastTool: deviceHit.lastTool || 'device',
-    }
-  }
-
-  const pcHit = await handlePc(conversationId, content)
-  if (pcHit.handled && pcHit.reply) {
-    return {
-      reply: pcHit.reply,
-      tool: pcHit.tool,
-      lastTool: pcHit.lastTool || 'pc',
-    }
-  }
-
-  const placeHit = await handlePlaces(conversationId, content)
-  if (placeHit.handled && placeHit.reply) {
-    return {
-      reply: placeHit.reply,
-      tool: placeHit.tool,
-      lastTool: placeHit.lastTool || 'maps',
-    }
-  }
-
-  const memHit = await handleMemory(conversationId, content)
-  if (memHit.handled && memHit.reply) {
-    return { reply: memHit.reply, lastTool: 'memory' }
-  }
-
-  const shopHit = await handleShopping(conversationId, content)
-  if (shopHit.handled && shopHit.reply) {
-    return { reply: shopHit.reply, tool: shopHit.tool, lastTool: shopHit.lastTool || 'shopping' }
-  }
-
-  const bdayHit = await handleBirthday(conversationId, content)
-  if (bdayHit.handled && bdayHit.reply) {
-    return { reply: bdayHit.reply, tool: bdayHit.tool, lastTool: bdayHit.lastTool || 'birthday' }
-  }
-
-  const homeHit = await handleHome(conversationId, content)
-  if (homeHit.handled && homeHit.reply) {
-    return { reply: homeHit.reply, tool: homeHit.tool, lastTool: homeHit.lastTool || 'home' }
-  }
-
-  const leaveHit = await handleLeave(conversationId, content)
-  if (leaveHit.handled && leaveHit.reply) {
-    return { reply: leaveHit.reply, tool: leaveHit.tool, lastTool: leaveHit.lastTool || 'leave' }
-  }
-
-  if (isBriefAsk(content)) {
-    const briefHit = await handleBrief()
-    if (briefHit.handled && briefHit.reply) {
-      return { reply: briefHit.reply, tool: briefHit.tool, lastTool: briefHit.lastTool || 'brief' }
-    }
-  }
-
-  const holidayHit = await handleHoliday(content)
-  if (holidayHit.handled && holidayHit.reply) {
-    return { reply: holidayHit.reply, tool: holidayHit.tool, lastTool: holidayHit.lastTool || 'holiday' }
-  }
-
-  const calHit = await handleCalendar(conversationId, content)
-  if (calHit.handled && calHit.reply) {
-    return { reply: calHit.reply, tool: calHit.tool, lastTool: 'calendar' }
-  }
-
-  const alarmHit = await handleAlarms(conversationId, content)
-  if (alarmHit.handled && alarmHit.reply) {
-    return { reply: alarmHit.reply, tool: alarmHit.tool, lastTool: 'alarm' }
-  }
-
-  const timerHit = await handleTimers(conversationId, content)
-  if (timerHit.handled && timerHit.reply) {
-    return { reply: timerHit.reply, tool: timerHit.tool, lastTool: 'timer' }
-  }
-
-  const remindHit = await handleReminders(conversationId, content)
-  if (remindHit.handled && remindHit.reply) {
-    return { reply: remindHit.reply, tool: remindHit.tool, lastTool: 'reminder' }
-  }
-
-  const toolHit = await handleTools(conversationId, content)
-  if (toolHit.handled && toolHit.reply) {
-    return { reply: toolHit.reply, tool: toolHit.tool, lastTool: toolHit.tool?.tool || 'todo' }
-  }
-
-  if (parseEyeIntent(content)) {
-    const eyeHit = await handleEyeAsk()
-    if (eyeHit.handled && eyeHit.reply) {
-      return { reply: eyeHit.reply, tool: eyeHit.tool, lastTool: eyeHit.lastTool || 'eye' }
-    }
-  }
-
-  const weatherHit = await handleWeather(content)
-  if (weatherHit.handled && weatherHit.reply) {
-    return {
-      reply: weatherHit.reply,
-      tool: weatherHit.tool,
-      research: weatherHit.research,
-      lastTool: 'weather',
-    }
-  }
-
-  const newsHit = await handleNews(content)
-  if (newsHit.handled && newsHit.reply) {
-    return {
-      reply: newsHit.reply,
-      tool: newsHit.tool,
-      research: newsHit.research,
-      lastTool: newsHit.lastTool || 'news',
-    }
-  }
-
-  const searchHit = await handleChatSearch(content)
-  if (searchHit.handled && searchHit.reply) {
-    return { reply: searchHit.reply, tool: searchHit.tool, lastTool: searchHit.lastTool || 'search' }
-  }
-
-  return null
+  return routeRegistry(conversationId, content)
 }
 
 function lastStepHint(): string {

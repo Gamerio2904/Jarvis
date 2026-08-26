@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Sideload `2.2.2`, als Nächstes Register [`32-registry.md`](./32-registry.md), danach Welt [`31-next.md`](./31-next.md), Sprints [`sprints/README.md`](./sprints/README.md).
+> Historisch (MVP `0.1`). **Jetzt:** Code `3.0.0` Intelligenz [`32-intelligence.md`](./32-intelligence.md), Welt [`31-next.md`](./31-next.md), Sprints [`sprints/README.md`](./sprints/README.md). Letzter Sideload `2.2.2`.
 
 ## MVP v0.1 — Definition
 

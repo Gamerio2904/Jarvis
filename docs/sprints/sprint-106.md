@@ -1,30 +1,27 @@
-# Sprint 106 — Tool-Register, Kickoff (`2.3.0` zuerst) **PLAN**
+# Sprint 106 — Intelligenz 3.0 **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
-| Priorität | **MUST** (vor der Welt-Reihe) |
-| Ziel-Version | **`2.3.0`** als erste Lieferung |
-| Quelle | PO 2026-08-26: Register statt If-Kette, Score-Policy statt Cosine |
+| Status | **CODE** |
+| Priorität | **MUST** |
+| Ziel-Version | **`3.0.0`** (Welt `3.1`–`3.17` mitgeliefert) |
+| Quelle | PO 2026-08-26: KI intelligenter, Register, geplante Sprints umsetzen |
 | Voraussetzung | `2.2.2` |
-| Plan | [`32-registry.md`](../32-registry.md) |
+| Plan | [`32-intelligence.md`](../32-intelligence.md) · [`31-next.md`](../31-next.md) |
 
 ## Ziel
 
-Die Reihe `2.3`–`2.6` steht schriftlich: Vertrag, Pilot (Wetter/Kalender/TV), Policy, alle Tools, Nachfrage. Gebaut wird erst, wenn der PO `2.3.0` anstößt.
+Jarvis 3.0 wählt Tools über Register + Score-Policy. Die bisher geplante Welt-Reihe liegt als Register-Einträge im selben Code.
 
-## Must (Plan)
+## Must
 
 | ID | Inhalt | Done wenn |
 |----|--------|-----------|
-| P1 | `32-registry.md` mit Schichten, Vertrag, Konflikten, Gold-Set | Docs |
-| P2 | Backlog E26 + Welt-Reihe auf `2.7`–`2.23` verschoben | Docs |
-| P3 | Erste Code-Lieferung später: Register-Pilot | Sideload `2.3.0` — **noch nicht** |
-
-## Reihe (nicht dieser Sprint-Code)
-
-`2.3` Vertrag+Pilot · `2.4` Policy+Konflikte · `2.5` alle Tools · `2.6` Nachfrage+Eval · ab `2.7` DWD ([`31-next.md`](../31-next.md))
+| I1 | Register, Parse vor Execute, Policy, Konflikte | `route-pick.ts` / `registry.ts` / `chat.ts` |
+| I2 | Gold/Chip-Routing | `test:014`, `test:prompts` |
+| I3 | Welt-Tools DWD bis Schach | Parser + Handler, ehrlich leer |
+| I4 | Docs 3.0 + Verschiebung der Welt-Nummern | `32-intelligence.md`, `31-next.md` |
 
 ## Won’t
 
-Code in diesem Sprint. Embeddings, 0,5B-Function-Calling, DWD vor dem Register, Alexa, Tuya-Cloud, Apple CarPlay.
+Embeddings, 0,5B-Function-Calling, Alexa, Tuya-Cloud, Apple CarPlay.

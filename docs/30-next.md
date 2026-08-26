@@ -2,7 +2,7 @@
 
 PO 2026-08-20 (Screenshots): Jarvis wusste die Uhrzeit nicht, hat den Wohnort geraten und bei BIP „keine Zahlen“ gesagt statt zu suchen.
 
-Reihe davor: [`29-next.md`](./29-next.md). App vorher: Sideload **`2.1.1`**. Reihe danach: [`32-registry.md`](./32-registry.md) **PLAN**, dann [`31-next.md`](./31-next.md).
+Reihe davor: [`29-next.md`](./29-next.md). App vorher: Sideload **`2.1.1`**. Reihe danach: [`32-intelligence.md`](./32-intelligence.md) **CODE** (`3.0.0`), Welt [`31-next.md`](./31-next.md).
 
 Eine Sideload-Stufe.
 

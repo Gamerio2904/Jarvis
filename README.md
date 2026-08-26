@@ -4,7 +4,7 @@
   <img src="frontend/native/brand/cover.png" alt="Jarvis" width="920" />
 </p>
 
-Privater Assistant. Läuft **auf dem Handy**. PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`3.0.0`**: Register + Score-Policy, Welt-Tools (DWD bis Schach). PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
 
 ## Start (Dev-PC, nur zum Bauen)
 
@@ -18,7 +18,7 @@ Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
 
 ## Android-APK
 
-**`Jarvis.apk` `2.2.2`:**  
+Letzter Sideload **`Jarvis.apk` `2.2.2`** (Code bereits `3.0.0`):  
 https://github.com/Gamerio2904/Jarvis/raw/cursor/remove-test-settings-3638/releases/Jarvis.apk
 
 ```bat
