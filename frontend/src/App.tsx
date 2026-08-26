@@ -1274,7 +1274,7 @@ function App() {
           className={`memory-toggle ${lageOn ? 'active' : ''}`}
           onClick={() => {
             const next = !loadSettings().hud_force
-            setSettings(patchSettings({ hud_force: next, hud_hidden: !next }))
+            void patchSettings({ hud_force: next, hud_hidden: !next }).then((s) => setSettings(s))
             setSidebarOpen(false)
           }}
         >

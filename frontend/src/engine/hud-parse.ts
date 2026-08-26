@@ -82,7 +82,7 @@ export function parseHudIntent(text: string): HudIntent | null {
   if (mod) {
     const id = ALIAS[mod[1].toLowerCase()]
     if (!id) return null
-    if (id === 'spotify' && !/\b(kachel|modul|lage|statistik)\b/i.test(t)) return null
+    if (id !== 'weather' && !/\b(kachel|modul|lage|statistik)\b/i.test(t)) return null
     return { kind: 'module', id, on: /an|ein/i.test(mod[2]) }
   }
 

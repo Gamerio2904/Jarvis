@@ -99,7 +99,7 @@ export async function fetchHudSnap(): Promise<HudSnap> {
   if (on.includes('spotify')) {
     const now = getSpotifyNow()
     snap.spotify = {
-      title: now?.title || '',
+      title: now?.name || '',
       artist: now?.artist || '',
       playing: Boolean(now?.playing),
       loggedIn: spotifyLoggedIn(s),
