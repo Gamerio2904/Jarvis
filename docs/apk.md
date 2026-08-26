@@ -1,6 +1,6 @@
 # Android-APK — letzter Sideload `2.2.2`
 
-App-Code steht auf **`3.18.0`** (Lage, Traceroute, Digest). Der zuletzt gebaute Sideload bleibt **`2.2.2`**, bis `build-apk.bat` `3.18.0` schreibt.
+App-Code steht auf **`3.18.1`** (Lage, Traceroute, Digest, GUI-Slides). Der zuletzt gebaute Sideload bleibt **`2.2.2`**, bis `build-apk.bat` oder `build-apk.sh` `3.18.1` schreibt (versionCode `31801`).
 
 **2.2.2:** Keine Testprompts in der App. Chat ohne Chips.
 

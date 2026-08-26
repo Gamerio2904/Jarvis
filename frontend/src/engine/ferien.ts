@@ -3,7 +3,7 @@ import { loadSettings } from './store.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.18.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.18.1 (local.jarvis.app)' }
 
 const LAND: Record<string, string> = {
   bw: 'BW',

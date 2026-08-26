@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `3.18.0` (Code steht; letzter APK `2.2.2`). [`apk.md`](./apk.md).
+1. Sideload `3.18.1` (Code steht; letzter APK `2.2.2`). [`apk.md`](./apk.md).
 2. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
 
@@ -79,3 +79,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-26 | Q49 | `3.0.0` = intelligenter als Fokus: Register + Policy + Härten. Welt-Sprints im selben Code. Kein Sideload-APK in diesem Schritt. | PO |
 | 2026-08-26 | Q50 | 3.x danach: Reels als Anstoß. Traceroute ehrlich (PC). Tablet-Lage modular aus Reel-3-Screenshots. Telefon nur Haus (Nachfrage, kein 24/7-Fremden-Empfang). Sales-CRM nicht. [`33-next.md`](./33-next.md) | PO |
 | 2026-08-26 | Q51 | 3.x danach gebündelt als **`3.18.0`**: Lage, Traceroute, Digest, Härten. Kein Sideload in diesem Schritt. [`33-next.md`](./33-next.md) | PO |
+| 2026-08-26 | Q52 | GUI-Slides `3.18.1`, dann mergen und APK versuchen. [`sprints/sprint-108.md`](./sprints/sprint-108.md) | PO |

@@ -50,6 +50,7 @@ import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
 import { DriveMode } from './DriveMode'
 import { Lage } from './Lage'
 import { WakeBubble } from './WakeBubble'
+import { useOverlay } from './overlay'
 import { closeDrive, subscribeDrive } from './engine/drive'
 import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
@@ -1162,6 +1163,9 @@ function App() {
   const liveHud = loadSettings()
   const lageOn = Boolean(liveHud.hud_force) || (lageWide && !liveHud.hud_hidden)
   const lageAmber = liveHud.hud_accent === 'amber'
+  const settingsLayer = useOverlay(settingsPanelOpen)
+  const calendarLayer = useOverlay(calendarOpen)
+  const voiceLayer = useOverlay(voiceOpen)
 
   return (
     <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}`} ref={appRef}>
@@ -1323,8 +1327,9 @@ function App() {
       </aside>
 
       <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}`}>
-        {voiceOpen ? (
+        {voiceLayer.shown ? (
           <VoiceMode
+            leaving={voiceLayer.leaving}
             onClose={() => {
               setVoiceOpen(false)
               setVoiceSeed('')
@@ -1333,7 +1338,9 @@ function App() {
             initialUtterance={voiceSeed}
           />
         ) : null}
-        {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}
+        {calendarLayer.shown ? (
+          <CalendarView leaving={calendarLayer.leaving} onClose={() => setCalendarOpen(false)} />
+        ) : null}
         {driveOpen ? (
           <DriveMode
             onClose={() => {
@@ -1388,8 +1395,8 @@ function App() {
           <Lage onSend={(text) => void sendMessage(text)} draft={draft} setDraft={setDraft} busy={busy} />
         ) : (
           <>
-        <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
-          <div className="messages-inner">
+          <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
+          <div className="messages-inner thread-slide" key={threadKey}>
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
                 <div className="empty-halo" aria-hidden>
@@ -1548,8 +1555,9 @@ function App() {
         )}
       </main>
 
-      {settingsPanelOpen ? (
+      {settingsLayer.shown ? (
         <SettingsScreen
+          leaving={settingsLayer.leaving}
           topic={settingsTopic}
           onTopic={(t) => {
             setSettingsTopic(t)

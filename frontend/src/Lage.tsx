@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import {
   fetchHudSnap,
   HUD_CATALOG,
@@ -52,14 +52,19 @@ export function Lage({
         {typeof bat === 'number' ? <span className="lage-bat">{bat} %</span> : null}
       </header>
       <div className="lage-grid">
-        {modules.map((id) => {
-          if (id === 'weather') return <WeatherTile key={id} data={snap.weather} />
-          if (id === 'spotify') return <SpotifyTile key={id} data={snap.spotify} />
-          if (id === 'device') return <DeviceTile key={id} data={snap.device} />
-          if (id === 'brief') return <TextTile key={id} title="Tageslage" body={snap.brief?.line || '—'} />
+        {modules.map((id, i) => {
+          const cell = (node: ReactNode) => (
+            <div key={id} className="lage-cell" style={{ ['--i' as string]: i }}>
+              {node}
+            </div>
+          )
+          if (id === 'weather') return cell(<WeatherTile data={snap.weather} />)
+          if (id === 'spotify') return cell(<SpotifyTile data={snap.spotify} />)
+          if (id === 'device') return cell(<DeviceTile data={snap.device} />)
+          if (id === 'brief') return cell(<TextTile title="Tageslage" body={snap.brief?.line || '—'} />)
           if (id === 'chat') {
-            return (
-              <article key={id} className="lage-tile lage-chat">
+            return cell(
+              <article className="lage-tile lage-chat">
                 <h3>Chat</h3>
                 <form
                   onSubmit={(e) => {
@@ -77,56 +82,53 @@ export function Lage({
                     disabled={busy}
                   />
                 </form>
-              </article>
+              </article>,
             )
           }
           if (id === 'plugs') {
             const names = snap.plugs?.names || []
-            return <TextTile key={id} title="Steckdosen" body={names.length ? names.join(', ') : 'Keine gepaart.'} />
+            return cell(<TextTile title="Steckdosen" body={names.length ? names.join(', ') : 'Keine gepaart.'} />)
           }
           if (id === 'tv') {
-            return (
+            return cell(
               <TextTile
-                key={id}
                 title="Fernseher"
                 body={snap.tv?.on ? `${snap.tv.name} gekoppelt.` : 'TV aus oder ungepaart.'}
-              />
+              />,
             )
           }
-          if (id === 'news') return <TextTile key={id} title="Nachrichten" body={snap.news?.line || '—'} />
+          if (id === 'news') return cell(<TextTile title="Nachrichten" body={snap.news?.line || '—'} />)
           if (id === 'drive') {
             const d = snap.drive
-            return (
+            return cell(
               <TextTile
-                key={id}
                 title="Restweg"
                 body={d ? `${d.dest}: ${d.minutes} min, ${Math.round(d.meters / 100) / 10} km.` : 'Kein Fahrmodus.'}
-              />
+              />,
             )
           }
-          if (id === 'warn') return <TextTile key={id} title="Unwetter" body={snap.warn?.line || '—'} />
-          if (id === 'fx') return <TextTile key={id} title="Kurs" body={snap.fx?.line || '—'} />
-          if (id === 'sport') return <TextTile key={id} title="Sport" body={snap.sport?.line || '—'} />
+          if (id === 'warn') return cell(<TextTile title="Unwetter" body={snap.warn?.line || '—'} />)
+          if (id === 'fx') return cell(<TextTile title="Kurs" body={snap.fx?.line || '—'} />)
+          if (id === 'sport') return cell(<TextTile title="Sport" body={snap.sport?.line || '—'} />)
           if (id === 'chess') {
-            return (
-              <article key={id} className="lage-tile">
+            return cell(
+              <article className="lage-tile">
                 <h3>Schach</h3>
                 <ChessBoard fen={snap.chess?.fen || ''} />
-              </article>
+              </article>,
             )
           }
           if (id === 'trace') {
             const hops = snap.trace?.hops || []
-            return (
+            return cell(
               <TextTile
-                key={id}
                 title={snap.trace?.host ? `Route ${snap.trace.host}` : 'Route'}
                 body={hops.length ? hops.slice(0, 8).join('\n') : 'Noch kein Traceroute.'}
-              />
+              />,
             )
           }
           const label = HUD_CATALOG.find((c) => c.id === id)?.label || id
-          return <TextTile key={id} title={label} body="" />
+          return cell(<TextTile title={label} body="" />)
         })}
       </div>
     </section>

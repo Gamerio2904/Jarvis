@@ -76,6 +76,7 @@ MAJOR.MINOR.PATCH
 | `2.0.0` | **Jarvis 2.0** — ein Kontext, ehrliche Tools, internes CarPlay | Sprint 102 |
 | `3.0.0` | **Jarvis 3.0** — Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
 | `3.18.0` | **Lage + Härten** — Tablet-HUD, Traceroute, Digest; Stufen `3.0.1`–`3.45` mitgeliefert | Sprint 107 |
+| `3.18.1` | **GUI Premium** — Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -150,6 +151,7 @@ MAJOR.MINOR.PATCH
 | `2.2.2` | Testprompts wieder raus aus der APK | Sprint 104 Patch |
 | `3.0.0` | Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
 | `3.18.0` | Lage, Traceroute, Digest, Routing härten (`3.0.1`–`3.45`) | Sprint 107 |
+| `3.18.1` | GUI: Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
 
 ### `3.0` — Intelligenz + Welt [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) **CODE**
 
@@ -174,12 +176,13 @@ MAJOR.MINOR.PATCH
 | `3.16.0` | Handy-Sensoren | 106 (in `3.0.0`) |
 | `3.17.0` | Schach | 106 (in `3.0.0`) |
 
-### `3.x` danach [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`)
+### `3.x` danach [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`, GUI `3.18.1`)
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `3.0.1` | Sideload 3.0 + Gold-Set | 107 (in `3.18.0`; APK noch `2.2.2`) |
 | `3.18.0` | Follow-up / last-tool | 107 |
+| `3.18.1` | GUI: Overlay-Slides, Lage-Kacheln | 108 |
 | `3.19.0` | Zwei Intents an „und“ | 107 (in `3.18.0`) |
 | `3.20.0` | Parser-Score aus Sicherheit | 107 (in `3.18.0`) |
 | `3.21.0` | Nachfrage Jarvis-Ton | 107 (in `3.18.0`) |

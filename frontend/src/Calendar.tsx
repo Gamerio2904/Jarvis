@@ -16,7 +16,7 @@ function monthCells(year: number, month: number): Array<Date | null> {
   return cells
 }
 
-export function CalendarView({ onClose }: { onClose: () => void }) {
+export function CalendarView({ onClose, leaving }: { onClose: () => void; leaving?: boolean }) {
   const today = startOfDay(new Date())
   const [cursor, setCursor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1))
   const [selected, setSelected] = useState(() => new Date(today))
@@ -83,7 +83,7 @@ export function CalendarView({ onClose }: { onClose: () => void }) {
   const label = cursor.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })
 
   return (
-    <div className="cal-view fx-in">
+    <div className={`cal-view fx-in${leaving ? ' is-leaving' : ''}`}>
       <header className="cal-head">
         <div>
           <h2>Kalender</h2>

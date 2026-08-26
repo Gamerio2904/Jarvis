@@ -3,7 +3,7 @@ import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 import { saveSettings } from './store.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.18.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.18.1 (local.jarvis.app)' }
 
 const NAMES: Record<string, string> = {
   dollar: 'USD',

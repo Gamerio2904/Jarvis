@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`3.18.0`**. Letzter Sideload: **`2.2.2`**.
+App-Version im Code: **`3.18.1`**. Letzter Sideload: **`2.2.2`**.
+
+### `3.18.1` — GUI Premium — *CODE*
+
+Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.
+
+- App-Code `3.18.1` (`package.json`, `APP_VERSION`, `/hilfe`)
+- Sideload-APK noch `2.2.2` — nächster Build `3.18.1`
+- [`sprints/sprint-108.md`](./sprints/sprint-108.md)
 
 ### `3.18.0` — Lage, Traceroute, Digest, Routing härten — *CODE*
 

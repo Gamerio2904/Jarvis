@@ -379,7 +379,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `3.18.0` — [`apk.md`](./apk.md) (letzter gebauter APK `2.2.2`)
+1. Sideload `3.18.1` — [`apk.md`](./apk.md) (letzter gebauter APK `2.2.2`)
 2. Reihe 3.x **CODE** [`33-next.md`](./33-next.md)
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 

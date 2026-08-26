@@ -5,7 +5,7 @@ export function prefersReducedMotion(): boolean {
 }
 
 const MAGNET_SEL =
-  'button, .chat-item, .prompt-chip, .cal-cell, .memory-item, .voice-orb, .confirm-btn, .memory-toggle'
+  'button, .chat-item, .prompt-chip, .cal-cell, .memory-item, .voice-orb, .confirm-btn, .memory-toggle, .settings-rail-item, .lage-tile, .lage-btn'
 
 export function bindChromeFx(root: HTMLElement): () => void {
   if (prefersReducedMotion()) return () => {}

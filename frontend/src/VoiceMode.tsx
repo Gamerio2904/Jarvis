@@ -17,10 +17,12 @@ export function VoiceMode({
   onClose,
   onTurn,
   initialUtterance = '',
+  leaving = false,
 }: {
   onClose: () => void
   onTurn: (text: string, onToken?: (piece: string, full: string) => void) => Promise<string>
   initialUtterance?: string
+  leaving?: boolean
 }) {
   const [phase, setPhase] = useState<Phase>('idle')
   const [heard, setHeard] = useState('')
@@ -175,7 +177,7 @@ export function VoiceMode({
 
   return (
     <div
-      className="voice-mode"
+      className={`voice-mode${leaving ? ' is-leaving' : ''}`}
       role="dialog"
       aria-label="Sprachmodus"
       onPointerDown={(e) => {

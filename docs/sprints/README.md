@@ -111,8 +111,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 105 | [`sprint-105.md`](./sprint-105.md) | `3.1`–`3.17` | Alltag & Welt (in `3.0.0`) | **CODE** |
 | 106 | [`sprint-106.md`](./sprint-106.md) | `3.0.0` | Intelligenz: Register + Score-Policy | **CODE** |
 | 107 | [`sprint-107.md`](./sprint-107.md) | `3.18.0` | Lage, Traceroute, Digest (`3.0.1`–`3.45`) | **CODE** |
+| 108 | [`sprint-108.md`](./sprint-108.md) | `3.18.1` | GUI Premium (Overlay-Slides) | **CODE** |
 
-**Aktuell:** Code **`3.18.0`**. Letzter Sideload `2.2.2`. Lage/Härten: [`33-next.md`](../33-next.md). Intelligenz: [`32-intelligence.md`](../32-intelligence.md). Welt: [`31-next.md`](../31-next.md).
+**Aktuell:** Code **`3.18.1`**. Letzter Sideload `2.2.2`. Lage/Härten: [`33-next.md`](../33-next.md). Intelligenz: [`32-intelligence.md`](../32-intelligence.md). Welt: [`31-next.md`](../31-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

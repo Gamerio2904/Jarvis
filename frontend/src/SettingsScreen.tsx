@@ -100,6 +100,7 @@ export type SettingsScreenProps = {
   topic: SettingsTopic
   onTopic: (t: SettingsTopic) => void
   onClose: () => void
+  leaving?: boolean
   settings: Settings | null
   settingsBusy: boolean
   patchSetting: (patch: Partial<Settings>) => Promise<void>
@@ -215,17 +216,23 @@ export function SettingsScreen(p: SettingsScreenProps) {
   }, [p.onClose])
 
   return (
-    <div className="settings-screen" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div
+      className={`settings-screen${p.leaving ? ' is-leaving' : ''}`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settings-title"
+    >
       <aside className="settings-rail" aria-label="Themen">
         <div className="settings-rail-head">
           <span>Themen</span>
         </div>
         <nav className="settings-rail-nav">
-          {TOPICS.map((t) => (
+          {TOPICS.map((t, i) => (
             <button
               key={t.id}
               type="button"
               className={`settings-rail-item ${p.topic === t.id ? 'active' : ''}`}
+              style={{ ['--i' as string]: i }}
               onClick={() => p.onTopic(t.id)}
             >
               <strong>{t.label}</strong>
@@ -239,7 +246,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
         <header className="settings-pane-bar">
           <div>
             <p className="settings-kicker">Einstellungen</p>
-            <h2 id="settings-title">{topic.label}</h2>
+            <h2 key={topic.id} id="settings-title">
+              {topic.label}
+            </h2>
           </div>
           <button type="button" className="settings-close" onClick={p.onClose}>
             Fertig
@@ -247,6 +256,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
         </header>
 
         <div className="settings-pane-body">
+          <div key={p.topic} className="settings-topic-slide">
           {p.topic === 'allgemein' ? (
             <section className="settings-card">
               <h3>Dieses Handy</h3>
@@ -1529,6 +1539,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </button>
             </section>
           ) : null}
+          </div>
         </div>
       </div>
     </div>
