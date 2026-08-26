@@ -156,6 +156,7 @@ export function parsePlaceRecall(text: string): PlaceRecall | null {
 export function parsePlaceNav(text: string): PlaceNav | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 180) return null
+  if (/^\s*ruf(?:e)?\s+mich\b/i.test(t)) return null
   if (isFuelPlace(t)) return null
   const extra = parseCallOrPhone(t) || parseSms(t) || parseAlias(t) || parseTravelNav(t)
   if (extra) return extra

@@ -1,8 +1,9 @@
 import { getText } from './http-json.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
+import { saveSettings } from './store.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.0.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.18.0 (local.jarvis.app)' }
 
 const TEAMS: Record<string, string> = {
   vfb: 'Stuttgart',
@@ -95,6 +96,7 @@ export async function handleSport(
       m.done ? `${m.home} ${m.hs}:${m.as} ${m.away}` : `${m.home} gegen ${m.away}, noch kein Stand`,
     )
     .join('. ')
+  saveSettings({ last_sport_line: line.slice(0, 220) })
   return {
     handled: true,
     reply: `${line}. OpenLigaDB, kein Tipp.`,

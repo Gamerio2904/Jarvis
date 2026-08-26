@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.33.0`:** Alltag auf dem Handy inkl. Suche mit Preisen. **`2.2.2`:** Sideload. **`3.0.0` CODE:** Intelligenz (Register) [`32-intelligence.md`](./32-intelligence.md); Welt `3.1`–`3.17` mitgeliefert [`31-next.md`](./31-next.md). TTS ist geliefert (`1.5`+).
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.33.0`:** Alltag auf dem Handy inkl. Suche mit Preisen. **`2.2.2`:** Sideload. **`3.0.0` CODE:** Intelligenz (Register) [`32-intelligence.md`](./32-intelligence.md); Welt `3.1`–`3.17` mitgeliefert [`31-next.md`](./31-next.md). **`3.18.0` CODE:** Lage, Traceroute, Digest [`33-next.md`](./33-next.md). TTS ist geliefert (`1.5`+).
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -145,6 +145,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Alltag `1.14`–`1.24` — **CODE** [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md)
 - Intelligenz `3.0.0` — **CODE** [`32-intelligence.md`](./32-intelligence.md)
 - Welt `3.1`–`3.17` — **CODE** in `3.0.0` [`31-next.md`](./31-next.md)
+- Lage / Härten `3.18.0` — **CODE** [`33-next.md`](./33-next.md)
 - 3.x danach — **PLAN** [`33-next.md`](./33-next.md)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.

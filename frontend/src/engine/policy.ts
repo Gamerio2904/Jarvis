@@ -39,10 +39,22 @@ export function withPrior(cands: Candidate[], lastTool: string, followish: boole
   return cands.map((c) => (c.id === lastTool ? { ...c, score: Math.min(0.99, c.score + 0.14) } : c))
 }
 
+export function parserScore(text: string, extra = 0): number {
+  const n = text.trim().length
+  const words = text.trim().split(/\s+/).filter(Boolean).length
+  const brevity = n <= 24 ? 0.14 : n <= 48 ? 0.08 : n <= 80 ? 0.02 : -0.08
+  const tight = words <= 4 ? 0.06 : words <= 8 ? 0.02 : 0
+  return Math.min(0.98, Math.max(0.45, 0.58 + brevity + tight + extra))
+}
+
 export function isFollowish(text: string): boolean {
   const t = text.trim()
   if (t.length > 48) return false
-  return /^(und\s+)?(lauter|leiser|stopp|halt|pause|ok|okay|das\s+zweite|morgen|heute|nochmal)/i.test(t)
+  if (/^(und\s+)?(lauter|leiser|stopp|halt|pause|ok|okay|das\s+zweite|morgen|heute|nochmal)/i.test(t)) return true
+  if (/^noch\s*mal(?:s)?(?:\s+bitte)?[.!?]*$/i.test(t)) return true
+  if (/^(wieder|erneut)(?:\s+bitte)?[.!?]*$/i.test(t)) return true
+  if (/^(und\s+)?(morgen|übermorgen|gestern)[?.!]*$/i.test(t)) return true
+  return false
 }
 
 export const TOOL_LABEL: Record<string, string> = {
@@ -75,6 +87,9 @@ export const TOOL_LABEL: Record<string, string> = {
   haushalt: 'Haushalt',
   sensors: 'Sensor',
   chess: 'Schach',
+  hud: 'Lage',
+  trace: 'Traceroute',
+  digest: 'Gespräch',
 }
 
 export function askReply(a: string, b: string): string {

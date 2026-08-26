@@ -1,9 +1,9 @@
 import { getJson } from './http-json.ts'
-import { loadSettings } from './store.ts'
+import { loadSettings, saveSettings } from './store.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.0.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.18.0 (local.jarvis.app)' }
 const WARN_URL = 'https://www.dwd.de/DWD/warnungen/opendata/Warnungen_Gemeinden_V2.json'
 
 export type WarnIntent = { kind: 'ask'; place?: string }
@@ -49,6 +49,7 @@ export async function handleWarn(
     }
   }
   const line = use.map((w) => `${w.headline}${w.region ? ` (${w.region})` : ''}`).join(' ')
+  saveSettings({ last_warn_line: `DWD: ${line}`.slice(0, 220) })
   return {
     handled: true,
     reply: `DWD: ${line}`,

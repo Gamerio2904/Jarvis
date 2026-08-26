@@ -1,8 +1,9 @@
 import { getJson } from './http-json.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
+import { saveSettings } from './store.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.0.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.18.0 (local.jarvis.app)' }
 
 const NAMES: Record<string, string> = {
   dollar: 'USD',
@@ -52,9 +53,11 @@ export async function handleFx(
       }
     }
     const date = String(json.date || '').trim()
+    const reply = `Ein ${intent.from} sind ${rate.toFixed(4)} ${intent.to}${date ? `, Stand ${date}` : ''}. EZB über Frankfurter.app.`
+    saveSettings({ last_fx_line: reply.slice(0, 220) })
     return {
       handled: true,
-      reply: `Ein ${intent.from} sind ${rate.toFixed(4)} ${intent.to}${date ? `, Stand ${date}` : ''}. EZB über Frankfurter.app.`,
+      reply,
       tool: { tool_status: 'executed', tool: 'fx', action: 'rate', label: 'Kurs' },
       lastTool: 'fx',
     }

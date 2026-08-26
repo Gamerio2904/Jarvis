@@ -1,4 +1,4 @@
-# 33 — Jarvis 3.x danach **PLAN**
+# 33 — Jarvis 3.x danach **CODE**
 
 PO 2026-08-26: Nach `3.0.0` (Register + Welt) weiter unter dem **v3-Thema**: intelligenter wählen, Härten, dann sichtbare Lage. Drei Reels als Anstoß, nicht als Kopie fremder Cloud-Stacks.
 
@@ -8,7 +8,7 @@ Quellen (ohne Klammern/Tracking):
 - Telefon-Agent: https://www.instagram.com/reel/DboqOSvEj_b/
 - Lage / Screenshots: https://www.instagram.com/reel/Dak3Si6oBro/
 
-Reihe davor: [`32-intelligence.md`](./32-intelligence.md) **CODE** (`3.0.0`). App-Code: **`3.0.0`**. Letzter Sideload: **`2.2.2`**.
+Reihe davor: [`32-intelligence.md`](./32-intelligence.md) **CODE** (`3.0.0`). App-Code: **`3.18.0`** (logische Stufen `3.0.1`–`3.45` mitgeliefert). Letzter Sideload: **`2.2.2`**.
 
 Eine logische Stufe pro Version. Sideload darf bündeln.
 
@@ -71,41 +71,41 @@ Anfang: Dual-Screen, dunkel, Header `JARVIS > …`, großer Kreis-Prozent, gesta
 | Look | Reel-Layout (Gauges, Balken, Kacheln, Header). Jarvis-Ton und Spotify-Dunkel. |
 | Router | Neue Fähigkeiten nur Register, kein `if` in `chat.ts`. |
 | 0,5B | Wählt keine Tools. |
-| Sideload | `3.0.0` APK vor oder mit erstem 3.x-Patch. |
+| Sideload | nächster Build `3.18.0`; letzter APK bleibt `2.2.2`. |
 
 ## Reihenfolge
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`3.0.1`** | Sideload `3.0.0` + Gold-Set Welt/Konflikte | **PLAN** |
-| **`3.18.0`** | Follow-up / last-tool: `und morgen?`, `nochmal`, `lauter` | **PLAN** |
-| **`3.19.0`** | Zwei Dinge an „und“ = zwei Register-Läufe | **PLAN** |
-| **`3.20.0`** | Parser-Score aus Treffer-Sicherheit, nicht nur Kürze | **PLAN** |
-| **`3.21.0`** | Nachfrage-Satz Jarvis-Ton; Gleichstand eine Frage | **PLAN** |
-| **`3.22.0`** | Konflikttabelle + Gold aus Live-Fehlern | **PLAN** |
-| **`3.23.0`** | Tablet-Lage: Raster, Header `JARVIS > Lage`, Kreis/Balken-Kacheln | **PLAN** |
-| **`3.24.0`** | Module an/aus (Setting + Chat/Stimme), Raster fließt | **PLAN** |
-| **`3.25.0`** | Modul Wetterstatistik (Open-Meteo + DWD-Hinweis) | **PLAN** |
-| **`3.26.0`** | Modul Spotify now-playing | **PLAN** |
-| **`3.27.0`** | Modul Gerät: Uhr, Akku, Netz ehrlich | **PLAN** |
-| **`3.28.0`** | Modul Tageslage / Kalender / nächste Erinnerung | **PLAN** |
-| **`3.29.0`** | Modul Chat auf dem Tablet (eine Kachel, nicht Vollbild-Zwang) | **PLAN** |
-| **`3.30.0`** | Modul Steckdosen / TV / Ventilator Status | **PLAN** |
-| **`3.31.0`** | Modul Nachrichten / Feiertag / Ferien | **PLAN** |
-| **`3.32.0`** | Modul Karte/Restweg wenn Fahrmodus | **PLAN** |
-| **`3.33.0`** | Traceroute: PC `tracert`, Handy ehrlich ohne ICMP | **PLAN** |
-| **`3.34.0`** | Telefon: Anruf-Nachfrage härten, Termin danach lokal | **PLAN** |
-| **`3.35.0`** | „Ruf mich wenn …“ = Erinnerung + Stimme | **PLAN** |
-| **`3.36.0`** | Sprachnotiz → Notiz/PDF lokal, keine Kundenrechnung | **PLAN** |
-| **`3.37.0`** | Gespräch nachbereiten (lokal, Gemini opt-in) | **PLAN** |
-| **`3.38.0`** | Foto: Food / Pflanze / Tier (3.6/3.10/3.12 brauchbar) | **PLAN** |
-| **`3.39.0`** | Stimme spricht Warnung, Ferien, Kurs, Hops in ganzen Sätzen | **PLAN** |
-| **`3.40.0`** | Sensoren nur mit Sensor; sonst ehrlich | **PLAN** |
-| **`3.41.0`** | Schach-Brett in der Lage, nicht nur FEN-Text | **PLAN** |
-| **`3.42.0`** | Slot-Füllen: Ort/Name aus letztem Tool | **PLAN** |
-| **`3.43.0`** | Ordinal `das zweite` über Lage-Listen | **PLAN** |
-| **`3.44.0`** | World-Phrasen Gold-Set (Unwetter, Dollar, Schach, ISS) | **PLAN** |
-| **`3.45.0`** | Härten: False-Positives der neuen Module, keine Fake-Kurven | **PLAN** |
+| **`3.0.1`** | Sideload `3.0.0` + Gold-Set Welt/Konflikte | **CODE** (in `3.18.0`; APK noch `2.2.2`) |
+| **`3.18.0`** | Follow-up / last-tool: `und morgen?`, `nochmal`, `lauter` | **CODE** |
+| **`3.19.0`** | Zwei Dinge an „und“ = zwei Register-Läufe | **CODE** |
+| **`3.20.0`** | Parser-Score aus Treffer-Sicherheit, nicht nur Kürze | **CODE** |
+| **`3.21.0`** | Nachfrage-Satz Jarvis-Ton; Gleichstand eine Frage | **CODE** |
+| **`3.22.0`** | Konflikttabelle + Gold aus Live-Fehlern | **CODE** |
+| **`3.23.0`** | Tablet-Lage: Raster, Header `JARVIS > Lage`, Kreis/Balken-Kacheln | **CODE** |
+| **`3.24.0`** | Module an/aus (Setting + Chat/Stimme), Raster fließt | **CODE** |
+| **`3.25.0`** | Modul Wetterstatistik (Open-Meteo + DWD-Hinweis) | **CODE** |
+| **`3.26.0`** | Modul Spotify now-playing | **CODE** |
+| **`3.27.0`** | Modul Gerät: Uhr, Akku, Netz ehrlich | **CODE** |
+| **`3.28.0`** | Modul Tageslage / Kalender / nächste Erinnerung | **CODE** |
+| **`3.29.0`** | Modul Chat auf dem Tablet (eine Kachel, nicht Vollbild-Zwang) | **CODE** |
+| **`3.30.0`** | Modul Steckdosen / TV / Ventilator Status | **CODE** |
+| **`3.31.0`** | Modul Nachrichten / Feiertag / Ferien | **CODE** |
+| **`3.32.0`** | Modul Karte/Restweg wenn Fahrmodus | **CODE** |
+| **`3.33.0`** | Traceroute: PC `tracert`, Handy ehrlich ohne ICMP | **CODE** |
+| **`3.34.0`** | Telefon: Anruf-Nachfrage härten, Termin danach lokal | **CODE** |
+| **`3.35.0`** | „Ruf mich wenn …“ = Erinnerung + Stimme | **CODE** |
+| **`3.36.0`** | Sprachnotiz → Notiz/PDF lokal, keine Kundenrechnung | **CODE** |
+| **`3.37.0`** | Gespräch nachbereiten (lokal, Gemini opt-in) | **CODE** |
+| **`3.38.0`** | Foto: Food / Pflanze / Tier (3.6/3.10/3.12 brauchbar) | **CODE** |
+| **`3.39.0`** | Stimme spricht Warnung, Ferien, Kurs, Hops in ganzen Sätzen | **CODE** |
+| **`3.40.0`** | Sensoren nur mit Sensor; sonst ehrlich | **CODE** |
+| **`3.41.0`** | Schach-Brett in der Lage, nicht nur FEN-Text | **CODE** |
+| **`3.42.0`** | Slot-Füllen: Ort/Name aus letztem Tool | **CODE** |
+| **`3.43.0`** | Ordinal `das zweite` über Lage-Listen | **CODE** |
+| **`3.44.0`** | World-Phrasen Gold-Set (Unwetter, Dollar, Schach, ISS) | **CODE** |
+| **`3.45.0`** | Härten: False-Positives der neuen Module, keine Fake-Kurven | **CODE** |
 
 Kickoff: [`sprint-107.md`](./sprints/sprint-107.md).
 
@@ -125,7 +125,7 @@ Kickoff: [`sprint-107.md`](./sprints/sprint-107.md).
 
 - Querformat oder Viewport ≳ 900 px **oder** Setting „Tablet-Lage“.
 - Module aus dem Katalog. Aus = Kachel weg, Nachbarn rücken nach.
-- Chat: `Wetterstatistik an`, `Spotify aus`, `Zeige Steckdosen`, `Lage aus` (zurück zum Chat).
+- Chat: `Wetterstatistik an`, `Spotify-Kachel aus`, `Zeige Steckdosen`, `Lage aus` (zurück zum Chat). `Spotify aus` bleibt Pause.
 - Kreis-Gauge: nur echte Größe (Akku, Timer-Rest, nicht „Sales 71 %“).
 - Balken/Kurve: z. B. 7-Tage-Temperatur aus Open-Meteo. Kein Dummy.
 
@@ -175,9 +175,9 @@ Kickoff: [`sprint-107.md`](./sprints/sprint-107.md).
 
 ## Probe
 
-1. Sideload `3.0.0`. `/hilfe` Version.  
+1. Sideload folgt (`2.2.2` zuletzt). `/hilfe` `3.18.0`.  
 2. `kein Kaffee mehr`, `Fahr mich zur Freundin`, `lauter` nach Spotify.  
-3. Tablet quer: Lage. `Spotify an` → Kachel. `Spotify aus` → weg.  
+3. Tablet quer oder Setting Lage. `Wetterstatistik an`. `Spotify aus` = Pause, `Spotify-Kachel aus` = Kachel weg.  
 4. Wetterstatistik nur mit Open-Meteo-Zahlen, sonst leer.  
 5. Traceroute ohne PC: ehrlicher Satz, keine erfundenen Hops.  
 6. Kein `if (handleHud)` in `chat.ts` — Register.  

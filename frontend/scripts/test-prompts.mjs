@@ -12,7 +12,7 @@ import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -195,6 +195,13 @@ assert.equal(parseHereIntent('wo könnte ich jetzt frühstücken'), null)
 assert.equal(parseDeviceIntent('wie spät ist es')?.kind, 'clock')
 assert.equal(route('Taschenlampe an'), 'device')
 assert.equal(route('Nach Ingersheim'), 'drive')
+assert.equal(route('Wetterstatistik an'), 'hud')
+assert.equal(route('Welche Route nimmt google.de'), 'trace')
+assert.equal(route('Fass das Gespräch zusammen'), 'digest')
+assert.equal(route('Ruf mich in 20 Minuten'), 'reminder')
+assert.equal(route('Wetter heute'), 'weather')
+assert.equal(route('kein Kaffee mehr'), 'memory')
+assert.equal(route('Fahr mich zur Freundin'), 'drive')
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }

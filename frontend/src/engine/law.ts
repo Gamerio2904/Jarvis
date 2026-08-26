@@ -3,7 +3,7 @@ import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 import type { ResearchMeta } from './research-parse.ts'
 
-const UA = { Accept: 'text/html', 'User-Agent': 'Jarvis/3.0.0 (local.jarvis.app)' }
+const UA = { Accept: 'text/html', 'User-Agent': 'Jarvis/3.18.0 (local.jarvis.app)' }
 
 export type LawIntent = { query: string }
 

@@ -54,7 +54,7 @@ function pack(line: string, board: string) {
   }
 }
 
-function loadFen(): string {
+export function loadFen(): string {
   try {
     return localStorage.getItem(KEY) || START
   } catch {

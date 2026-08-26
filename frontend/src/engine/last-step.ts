@@ -84,6 +84,10 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     return null
   }
 
+  if (/^(?:noch\s*mal(?:s)?|wieder|erneut)(?:\s+bitte)?[.!?]*$/i.test(raw)) {
+    return utterance || null
+  }
+
   if (!FOLLOW_UP.test(raw)) return null
   if (!tool || tool === 'weather') return null
 

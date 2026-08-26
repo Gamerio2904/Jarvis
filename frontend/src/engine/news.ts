@@ -3,6 +3,7 @@ import { fillResearchLinks } from './web-search'
 import { formatResearchReply, researchHasSources, type ResearchMeta, type ResearchSource } from './research-parse'
 import { parseNewsIntent } from './news-parse'
 import type { ToolMeta } from './tools'
+import { saveSettings } from './store'
 
 export { parseNewsIntent } from './news-parse'
 
@@ -61,6 +62,7 @@ function pack(
   sources: ResearchSource[],
   query: string,
 ): { handled: boolean; reply: string; tool: ToolMeta; research: ResearchMeta; lastTool: string } {
+  saveSettings({ last_news_line: reply.slice(0, 220) })
   return {
     handled: true,
     reply,

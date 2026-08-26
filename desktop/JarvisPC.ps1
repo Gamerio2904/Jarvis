@@ -262,7 +262,38 @@ function Handle-Command([string]$path, $body) {
     }
     '/v1/launch' { Invoke-Launch ([string]$body.query) }
     '/v1/files' { Invoke-Files $body }
+    '/v1/trace' { Invoke-Trace ([string]$body.host) }
     default { @{ ok = $false; message = 'Unbekannter Pfad.' } }
+  }
+}
+
+function Invoke-Trace([string]$target) {
+  $h = ([string]$target).Trim()
+  if (-not $h) { return @{ ok = $false; message = 'Kein Host.' } }
+  if ($h -notmatch '^[A-Za-z0-9._:-]+$') { return @{ ok = $false; message = 'Host ungültig.' } }
+  $script:LastAction = "tracert $h"
+  try {
+    $raw = & tracert.exe -d -h 15 -w 2000 $h 2>&1
+    $hops = @()
+    foreach ($line in @($raw)) {
+      $s = [string]$line
+      if ($s -match '^\s*(\d+)\s+(.+)$') {
+        $n = [int]$Matches[1]
+        $rest = $Matches[2]
+        $ip = $null
+        $ms = '*'
+        if ($rest -match '((?:\d{1,3}\.){3}\d{1,3})') { $ip = $Matches[1] }
+        if ($rest -match '(\d+)\s*ms') { $ms = [int]$Matches[1] }
+        $name = if ($ip) { $ip } else { '*' }
+        $hops += @{ hop = $n; host = $name; ip = $ip; ms = $ms }
+      }
+    }
+    if (-not $hops.Count) {
+      return @{ ok = $false; message = 'Keine Hops. Firewall oder Timeout.'; host = $h }
+    }
+    @{ ok = $true; host = $h; hops = $hops }
+  } catch {
+    @{ ok = $false; message = $_.Exception.Message; host = $h }
   }
 }
 

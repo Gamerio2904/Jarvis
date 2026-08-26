@@ -57,7 +57,7 @@ import { handleNews } from './news'
 import { parseChatSearch } from './search-chat-parse'
 import { handleChatSearch } from './search-chat'
 import type { ResearchMeta } from './research-parse'
-import { askReply, pickPolicy } from './policy'
+import { askReply, parserScore, pickPolicy } from './policy'
 import { propose } from './route-pick'
 import type { RouteCtx, SideEffect } from './route-types'
 import { parseWarnIntent, handleWarn } from './warn'
@@ -73,6 +73,12 @@ import { parseLawIntent, handleLaw } from './law'
 import { parseHaushaltIntent, handleHaushalt } from './haushalt'
 import { parseSensorsIntent, handleSensors } from './sensors'
 import { parseChessIntent, handleChess } from './chess'
+import { parseHudIntent } from './hud-parse'
+import { handleHud } from './hud'
+import { parseTraceIntent } from './trace-parse'
+import { handleTrace } from './trace'
+import { parseDigestIntent } from './digest-parse'
+import { handleDigest } from './digest'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -93,9 +99,7 @@ type Capability = {
 }
 
 function score(text: string, extra = 0): number {
-  const n = text.trim().length
-  const brevity = n <= 36 ? 0.1 : n <= 72 ? 0.05 : 0
-  return Math.min(0.99, 0.72 + brevity + extra)
+  return parserScore(text, extra)
 }
 
 function weatherLast(): WeatherLast | null {
@@ -454,6 +458,27 @@ function makeCatalog(): Capability[] {
       sideEffect: 'read',
       parse: (ctx) => (parseChessIntent(ctx.text, ctx.lastTool === 'chess') ? score(ctx.text, 0.08) : null),
       execute: async (ctx) => fromHandler('chess', await handleChess(ctx.text)),
+    },
+    {
+      id: 'hud',
+      label: 'Lage',
+      sideEffect: 'write',
+      parse: (ctx) => (parseHudIntent(ctx.text) ? score(ctx.text, 0.12) : null),
+      execute: async (ctx) => fromHandler('hud', await handleHud(ctx.text)),
+    },
+    {
+      id: 'trace',
+      label: 'Traceroute',
+      sideEffect: 'read',
+      parse: (ctx) => (parseTraceIntent(ctx.text) ? score(ctx.text, 0.14) : null),
+      execute: async (ctx) => fromHandler('trace', await handleTrace(ctx.text)),
+    },
+    {
+      id: 'digest',
+      label: 'Gespräch',
+      sideEffect: 'write',
+      parse: (ctx) => (parseDigestIntent(ctx.text) ? score(ctx.text, 0.1) : null),
+      execute: async (ctx) => fromHandler('digest', await handleDigest(ctx.conversationId, ctx.text)),
     },
   ]
 }

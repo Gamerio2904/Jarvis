@@ -5,9 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`3.0.0`**. Letzter Sideload: **`2.2.2`**.
+App-Version im Code: **`3.18.0`**. Letzter Sideload: **`2.2.2`**.
 
-Geplant (kein Code): 3.x danach [`33-next.md`](./33-next.md) `3.0.1`–`3.45.0` — Härten, Tablet-Lage, Traceroute, Telefon-Haus.
+### `3.18.0` — Lage, Traceroute, Digest, Routing härten — *CODE*
+
+Logische Stufen `3.0.1`–`3.45` mitgeliefert. Follow-up (`und morgen?`, `nochmal`). Zwei Intents an „und“. Parser-Score aus Treffer-Sicherheit. Konflikte (Lage vs Wetter, Ruf mich vs Anruf, Traceroute vs Karte). Tablet-Lage mit Modulen. Traceroute am PC (`tracert`), Handy ohne ICMP. `Ruf mich in 20 Minuten` = Erinnerung Rückruf. Sprachnotiz und Gesprächszusammenfassung lokal, keine Kundenrechnung. Schach-Brett in der Lage. 0,5B wählt keine Tools. Gates bleiben Gates.
+
+- App-Code `3.18.0` (`package.json`, `APP_VERSION`, `/hilfe`)
+- Sideload-APK noch `2.2.2` — nächster Build `3.18.0`
+- [`33-next.md`](./33-next.md) · [`sprints/sprint-107.md`](./sprints/sprint-107.md)
 
 ### `3.0.0` — Intelligenz + Welt — *CODE*
 

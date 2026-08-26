@@ -75,6 +75,7 @@ MAJOR.MINOR.PATCH
 | `1.0.0` | **Jarvis 1.0** — On-Device, TV, Gemini-Kaskade, APK `Jarvis.apk` | nach `0.16` |
 | `2.0.0` | **Jarvis 2.0** — ein Kontext, ehrliche Tools, internes CarPlay | Sprint 102 |
 | `3.0.0` | **Jarvis 3.0** — Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
+| `3.18.0` | **Lage + Härten** — Tablet-HUD, Traceroute, Digest; Stufen `3.0.1`–`3.45` mitgeliefert | Sprint 107 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -148,6 +149,7 @@ MAJOR.MINOR.PATCH
 | `2.2.1` | Testprompts: Kopierfelder unter Einstellungen → Tests | Sprint 104 Patch |
 | `2.2.2` | Testprompts wieder raus aus der APK | Sprint 104 Patch |
 | `3.0.0` | Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
+| `3.18.0` | Lage, Traceroute, Digest, Routing härten (`3.0.1`–`3.45`) | Sprint 107 |
 
 ### `3.0` — Intelligenz + Welt [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) **CODE**
 
@@ -172,20 +174,20 @@ MAJOR.MINOR.PATCH
 | `3.16.0` | Handy-Sensoren | 106 (in `3.0.0`) |
 | `3.17.0` | Schach | 106 (in `3.0.0`) |
 
-### `3.x` danach [`33-next.md`](./33-next.md) **PLAN**
+### `3.x` danach [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`)
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `3.0.1` | Sideload 3.0 + Gold-Set | 107 |
+| `3.0.1` | Sideload 3.0 + Gold-Set | 107 (in `3.18.0`; APK noch `2.2.2`) |
 | `3.18.0` | Follow-up / last-tool | 107 |
-| `3.19.0` | Zwei Intents an „und“ | 107 |
-| `3.20.0` | Parser-Score aus Sicherheit | 107 |
-| `3.21.0` | Nachfrage Jarvis-Ton | 107 |
-| `3.22.0` | Konflikte + Gold live | 107 |
-| `3.23.0`–`3.32.0` | Tablet-Lage + Module | 107 |
-| `3.33.0` | Traceroute ehrlich | 107 |
-| `3.34.0`–`3.37.0` | Telefon-Haus, Notiz, Gespräch | 107 |
-| `3.38.0`–`3.45.0` | Foto, Stimme, Sensoren, Schach-UI, Slots, Härten | 107 |
+| `3.19.0` | Zwei Intents an „und“ | 107 (in `3.18.0`) |
+| `3.20.0` | Parser-Score aus Sicherheit | 107 (in `3.18.0`) |
+| `3.21.0` | Nachfrage Jarvis-Ton | 107 (in `3.18.0`) |
+| `3.22.0` | Konflikte + Gold live | 107 (in `3.18.0`) |
+| `3.23.0`–`3.32.0` | Tablet-Lage + Module | 107 (in `3.18.0`) |
+| `3.33.0` | Traceroute ehrlich | 107 (in `3.18.0`) |
+| `3.34.0`–`3.37.0` | Telefon-Haus, Notiz, Gespräch | 107 (in `3.18.0`) |
+| `3.38.0`–`3.45.0` | Foto, Stimme, Sensoren, Schach-UI, Slots, Härten | 107 (in `3.18.0`) |
 
 ### Weitere Beispiele
 

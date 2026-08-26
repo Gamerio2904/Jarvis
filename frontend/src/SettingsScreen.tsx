@@ -4,6 +4,7 @@ import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugT
 import type { Plug } from './api'
 import { copyText } from './copy-text'
 import { ensureDeviceLocation } from './native/geo'
+import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -171,6 +172,18 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [locBusy, setLocBusy] = useState(false)
   const [locMsg, setLocMsg] = useState<string | null>(null)
 
+  let hudOn: HudId[] = [...HUD_DEFAULT_ON]
+  try {
+    const raw = s?.hud_modules_json
+    if (raw) {
+      const parsed = JSON.parse(raw) as string[]
+      const ids = parsed.filter((id): id is HudId => HUD_CATALOG.some((c) => c.id === id))
+      if (ids.length) hudOn = ids
+    }
+  } catch {
+    hudOn = [...HUD_DEFAULT_ON]
+  }
+
   useEffect(() => {
     setFireHost(s?.tv_fire_host || '')
   }, [s?.tv_fire_host])
@@ -252,6 +265,51 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   TV: {s.tv_paired ? s.tv_name || 'gekoppelt' : 'nicht gekoppelt'}
                 </p>
               ) : null}
+            </section>
+          ) : null}
+
+          {p.topic === 'allgemein' ? (
+            <section className="settings-card">
+              <h3>Tablet-Lage</h3>
+              <p className="settings-lead">Querformat ab 900 px zeigt die Kacheln. Oder hier immer an.</p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.hud_force)}
+                  disabled={busy}
+                  onChange={(e) =>
+                    void p.patchSetting({ hud_force: e.target.checked, hud_hidden: !e.target.checked })
+                  }
+                />
+                <span>Lage immer</span>
+              </label>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={s?.hud_accent === 'amber'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ hud_accent: e.target.checked ? 'amber' : 'green' })}
+                />
+                <span>Akzent orange</span>
+              </label>
+              <p className="settings-hint">Module. Aus = Kachel weg.</p>
+              {HUD_CATALOG.map((m) => (
+                <label key={m.id} className="settings-toggle">
+                  <input
+                    type="checkbox"
+                    checked={hudOn.includes(m.id)}
+                    disabled={busy}
+                    onChange={(e) => {
+                      const next = e.target.checked
+                        ? [...hudOn.filter((id) => id !== m.id), m.id]
+                        : hudOn.filter((id) => id !== m.id)
+                      const ordered = HUD_CATALOG.map((c) => c.id).filter((id) => next.includes(id))
+                      void p.patchSetting({ hud_modules_json: JSON.stringify(ordered) })
+                    }}
+                  />
+                  <span>{m.label}</span>
+                </label>
+              ))}
             </section>
           ) : null}
 

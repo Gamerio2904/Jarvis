@@ -85,7 +85,10 @@ import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
-import { pickRoute } from '../src/engine/route-pick.ts'
+import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
+import { parseHudIntent } from '../src/engine/hud-parse.ts'
+import { parseTraceIntent } from '../src/engine/trace-parse.ts'
+import { parseDigestIntent } from '../src/engine/digest-parse.ts'
 import { parseWarnIntent } from '../src/engine/warn.ts'
 import { parseFerienIntent } from '../src/engine/ferien.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
@@ -980,7 +983,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /3\.0\.0/)
+assert.match(HELP_TEXT, /3\.18\.0/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)
@@ -1348,5 +1351,42 @@ assert.equal(parseFlightsIntent('Was fliegt da?'), true)
 assert.equal(parseNatureIntent('Was ist das für eine Pflanze')?.kind, 'plant')
 assert.equal(pickRoute('Gibt’s Unwetter?'), 'warn')
 assert.equal(pickRoute('Schach neu'), 'chess')
+assert.equal(pickRoute('Wetterstatistik an'), 'hud')
+assert.equal(pickRoute('Wetter heute'), 'weather')
+assert.equal(pickRoute('Welche Route nimmt google.de?'), 'trace')
+assert.equal(pickRoute('Fass das Gespräch zusammen'), 'digest')
+assert.equal(pickRoute('kein Kaffee mehr'), 'memory')
+assert.equal(pickRoute('Fahr mich zur Freundin'), 'drive')
+assert.equal(parsePlaceNav('Ruf mich in 20 Minuten'), null)
+assert.equal(parseReminderIntent('Ruf mich in 20 Minuten')?.kind, 'create')
+if (parseReminderIntent('Ruf mich in 20 Minuten')?.kind === 'create') {
+  assert.equal(parseReminderIntent('Ruf mich in 20 Minuten').title, 'Rückruf')
+}
+assert.equal(parseHudIntent('Wetterstatistik an')?.kind, 'module')
+assert.equal(parseHudIntent('Spotify aus'), null)
+assert.equal(parseHudIntent('Spotify-Kachel aus')?.kind, 'module')
+assert.equal(parseTraceIntent('Was ist traceroute?')?.kind, 'explain')
+assert.equal(parseTraceIntent('Welche Route nimmt google.de')?.kind, 'run')
+assert.equal(parseDigestIntent('Fass das Gespräch zusammen')?.kind, 'summary')
+assert.equal(parseDigestIntent('Sprachnotiz: Milch fehlt')?.kind, 'note')
+assert.equal(
+  pickRouteFromCtx({
+    conversationId: 't',
+    text: 'und morgen?',
+    lastTool: 'weather',
+    lastMedium: '',
+    inDrive: false,
+    weatherLast: { kind: 'here', when: 'today', focus: 'general' },
+  }),
+  'weather',
+)
+assert.equal(
+  rewriteFollowUp('nochmal', { last_step_tool: 'weather', last_step_utterance: 'Wetter heute' }),
+  'Wetter heute',
+)
+assert.deepEqual(splitIntents('Wetterstatistik an und traceroute google.de'), [
+  'Wetterstatistik an',
+  'traceroute google.de',
+])
 
 console.log('ok 0.14 parsers')

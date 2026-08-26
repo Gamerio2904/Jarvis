@@ -54,9 +54,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `3.0.0` (Code steht; letzter APK `2.2.2`). [`apk.md`](./apk.md).
-2. Reihe 3.x **PLAN** [`33-next.md`](./33-next.md) — erste Code-Lieferung `3.0.1` auf PO-Kommando.
-3. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
+1. Sideload `3.18.0` (Code steht; letzter APK `2.2.2`). [`apk.md`](./apk.md).
+2. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
+3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
 
 ---
 
@@ -78,3 +78,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-26 | Q48 | Intelligenz zuerst: Katalog + Score-Policy, kein Embedding, 0,5B wählt keine Tools. War Plan `2.3`–`2.6`, umgesetzt als **`3.0.0`**. [`32-intelligence.md`](./32-intelligence.md) | PO |
 | 2026-08-26 | Q49 | `3.0.0` = intelligenter als Fokus: Register + Policy + Härten. Welt-Sprints im selben Code. Kein Sideload-APK in diesem Schritt. | PO |
 | 2026-08-26 | Q50 | 3.x danach: Reels als Anstoß. Traceroute ehrlich (PC). Tablet-Lage modular aus Reel-3-Screenshots. Telefon nur Haus (Nachfrage, kein 24/7-Fremden-Empfang). Sales-CRM nicht. [`33-next.md`](./33-next.md) | PO |
+| 2026-08-26 | Q51 | 3.x danach gebündelt als **`3.18.0`**: Lage, Traceroute, Digest, Härten. Kein Sideload in diesem Schritt. [`33-next.md`](./33-next.md) | PO |

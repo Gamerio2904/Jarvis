@@ -48,6 +48,7 @@ import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
 import { DriveMode } from './DriveMode'
+import { Lage } from './Lage'
 import { WakeBubble } from './WakeBubble'
 import { closeDrive, subscribeDrive } from './engine/drive'
 import { loadSettings } from './engine/store'
@@ -337,6 +338,7 @@ function App() {
   const sawTokenRef = useRef(false)
   const voiceHoldUntilRef = useRef(0)
   const [voiceSeed, setVoiceSeed] = useState('')
+  const [lageWide, setLageWide] = useState(false)
 
   function openVoiceMode(seed = '') {
     voiceHoldUntilRef.current = Date.now() + 2500
@@ -344,6 +346,14 @@ function App() {
     setVoiceOpen(true)
     setCalendarOpen(false)
   }
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 900px) and (orientation: landscape)')
+    const apply = () => setLageWide(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
 
   useEffect(() => {
     const unlock = () => {
@@ -1149,9 +1159,12 @@ function App() {
 
   const healthOk = Boolean(health?.ok)
   const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
+  const liveHud = loadSettings()
+  const lageOn = Boolean(liveHud.hud_force) || (lageWide && !liveHud.hud_hidden)
+  const lageAmber = liveHud.hud_accent === 'amber'
 
   return (
-    <div className="app" ref={appRef}>
+    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1258,6 +1271,18 @@ function App() {
 
         <button
           type="button"
+          className={`memory-toggle ${lageOn ? 'active' : ''}`}
+          onClick={() => {
+            const next = !loadSettings().hud_force
+            setSettings(patchSettings({ hud_force: next, hud_hidden: !next }))
+            setSidebarOpen(false)
+          }}
+        >
+          Lage
+        </button>
+
+        <button
+          type="button"
           className={`memory-toggle ${settingsPanelOpen ? 'active' : ''}`}
           onClick={() => openSettings('allgemein')}
         >
@@ -1297,7 +1322,7 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}`}>
+      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}`}>
         {voiceOpen ? (
           <VoiceMode
             onClose={() => {
@@ -1359,6 +1384,10 @@ function App() {
           </div>
         ) : null}
 
+        {lageOn && !voiceOpen && !calendarOpen && !driveOpen ? (
+          <Lage onSend={(text) => void sendMessage(text)} draft={draft} setDraft={setDraft} busy={busy} />
+        ) : (
+          <>
         <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
           <div className="messages-inner">
             {messages.length === 0 && !busy && streamingText === null ? (
@@ -1515,6 +1544,8 @@ function App() {
             />
           ) : null}
         </div>
+          </>
+        )}
       </main>
 
       {settingsPanelOpen ? (

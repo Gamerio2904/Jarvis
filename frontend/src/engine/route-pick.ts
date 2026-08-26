@@ -40,14 +40,15 @@ import { parseLawIntent } from './law.ts'
 import { parseHaushaltIntent } from './haushalt.ts'
 import { parseSensorsIntent } from './sensors.ts'
 import { parseChessIntent } from './chess.ts'
+import { parseHudIntent } from './hud-parse.ts'
+import { parseTraceIntent } from './trace-parse.ts'
+import { parseDigestIntent } from './digest-parse.ts'
 import { applyConflicts } from './conflicts.ts'
-import { isFollowish, pickPolicy, withCost, withPrior } from './policy.ts'
+import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
 
 function score(text: string, extra = 0): number {
-  const n = text.trim().length
-  const brevity = n <= 36 ? 0.1 : n <= 72 ? 0.05 : 0
-  return Math.min(0.99, 0.72 + brevity + extra)
+  return parserScore(text, extra)
 }
 
 type Parser = (ctx: RouteCtx) => number | null
@@ -128,6 +129,9 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
     sideEffect: 'read',
     parse: (ctx) => (parseChessIntent(ctx.text, ctx.lastTool === 'chess') ? score(ctx.text, 0.08) : null),
   },
+  { id: 'hud', sideEffect: 'write', parse: (ctx) => (parseHudIntent(ctx.text) ? score(ctx.text, 0.12) : null) },
+  { id: 'trace', sideEffect: 'read', parse: (ctx) => (parseTraceIntent(ctx.text) ? score(ctx.text, 0.14) : null) },
+  { id: 'digest', sideEffect: 'write', parse: (ctx) => (parseDigestIntent(ctx.text) ? score(ctx.text, 0.1) : null) },
 ]
 
 export function propose(ctx: RouteCtx): Candidate[] {

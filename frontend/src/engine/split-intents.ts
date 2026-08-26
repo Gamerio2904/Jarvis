@@ -1,5 +1,5 @@
 const TOOLISH =
-  /\b(wecker|weck|timer|termin|kalender|erinner|todo|aufgabe|wetter|tv|fernseh|lautstärke|sender|note|notiz|suche|schau(en)?\s+nach|was\s+steht|fahr|fahrmodus|spiel|spotify|navigier|route|wohnt|einkauf|liste|los|zuhause|geburtstag|foto|auge|ruf|tel|ventilator|lüfter|tanke|tanken|tankstelle|standort|nachrichten?|steckdose|unwetter|ferien|dollar|euro|kurs|bundesliga|iss|mond|schach|dwd)\b/i;
+  /\b(wecker|weck|timer|termin|kalender|erinner|todo|aufgabe|wetter|tv|fernseh|lautstärke|sender|note|notiz|suche|schau(en)?\s+nach|was\s+steht|fahr|fahrmodus|spiel|spotify|navigier|route|wohnt|einkauf|liste|los|zuhause|geburtstag|foto|auge|ruf|tel|ventilator|lüfter|tanke|tanken|tankstelle|standort|nachrichten?|steckdose|unwetter|ferien|dollar|euro|kurs|bundesliga|iss|mond|schach|dwd|lage|traceroute|tracert|statistik|sprachnotiz|zusammenfassen)\b/i;
 
 const MEMORY_WRITE = /^(ich\s+heiße|merk\s+dir|ich\s+bin|ich\s+wohne|ich\s+mag|ich\s+trinke)/i;
 

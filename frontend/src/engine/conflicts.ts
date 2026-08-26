@@ -90,5 +90,34 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'chess', 0.3)
   }
 
+  if (/\b(wetterstatistik|lage[- ]?kachel|\bkacheln?\b|tablet[- ]?lage)\b/.test(t) || /^\s*lage\s+(an|aus)\s*$/i.test(t)) {
+    out = drop(out, 'weather')
+    out = drop(out, 'brief')
+    out = boost(out, 'hud', 0.25)
+  }
+
+  if (/^\s*guten\s+morgen\b/.test(t) && !/\b(wetter|regen|schirm|temperatur)\b/.test(t)) {
+    out = drop(out, 'weather')
+    out = drop(out, 'hud')
+    if (has(out, 'brief')) out = drop(out, 'calendar')
+  }
+
+  if (/^\s*ruf(?:e)?\s+mich\b/.test(t)) {
+    out = drop(out, 'maps')
+    out = boost(out, 'reminder', 0.3)
+  }
+
+  if (/\b(traceroute|tracert|welche\s+route\s+nimmt|tracepath)\b/.test(t)) {
+    out = drop(out, 'maps')
+    out = drop(out, 'drive')
+    out = drop(out, 'hud')
+    out = boost(out, 'trace', 0.28)
+  }
+
+  if (/\b(zusammenfassen|sprachnotiz|gespräch\s+nachbereiten|fass(?:e)?\s+das\s+gespräch)\b/.test(t)) {
+    out = drop(out, 'todo')
+    out = boost(out, 'digest', 0.25)
+  }
+
   return out
 }
