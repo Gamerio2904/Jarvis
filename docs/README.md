@@ -37,6 +37,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 30 | [Uhrzeit, Ort, Research](./30-next.md) | **`2.2.0` CODE** — Gerätzeit, GPS, Auto-Suche |
 | 31 | [Alltag & Welt](./31-next.md) | **`3.1`–`3.17` CODE** — DWD bis Schach (in `3.0.0`) |
 | 32 | [Intelligenz](./32-intelligence.md) | **`3.0` CODE** — Register, Score-Policy |
+| 33 | [3.x danach](./33-next.md) | **PLAN** — Härten, Tablet-Lage, Traceroute, Telefon-Haus |
 | — | [APK](./apk.md) | letzter Sideload `2.2.2`; Code `3.0.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -103,5 +104,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 104 | `2.2.0` | **CODE** (Uhrzeit, Ort, Auto-Research) |
 | 105 | — | **CODE** (Welt-Reihe Docs + Code in `3.0.0`) |
 | 106 | `3.0.0` | **CODE** (Intelligenz / Register) |
+| 107 | `3.0.1`–`3.45` | **PLAN** (Härten, Tablet-Lage, Reel-Haus-Tools) |
 
-**Aktuell:** Code **`3.0.0`**. Sideload-APK zuletzt `2.2.2` — [`Jarvis.apk`](./apk.md). Intelligenz: [`32-intelligence.md`](./32-intelligence.md). Welt: [`31-next.md`](./31-next.md). PC-App: [`../desktop/README.md`](../desktop/README.md).
+**Aktuell:** Code **`3.0.0`**. Sideload-APK zuletzt `2.2.2` — [`Jarvis.apk`](./apk.md). Als Nächstes: [`33-next.md`](./33-next.md). Intelligenz: [`32-intelligence.md`](./32-intelligence.md). Welt: [`31-next.md`](./31-next.md). PC-App: [`../desktop/README.md`](../desktop/README.md).

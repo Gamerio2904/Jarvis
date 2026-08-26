@@ -172,6 +172,21 @@ MAJOR.MINOR.PATCH
 | `3.16.0` | Handy-Sensoren | 106 (in `3.0.0`) |
 | `3.17.0` | Schach | 106 (in `3.0.0`) |
 
+### `3.x` danach [`33-next.md`](./33-next.md) **PLAN**
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `3.0.1` | Sideload 3.0 + Gold-Set | 107 |
+| `3.18.0` | Follow-up / last-tool | 107 |
+| `3.19.0` | Zwei Intents an „und“ | 107 |
+| `3.20.0` | Parser-Score aus Sicherheit | 107 |
+| `3.21.0` | Nachfrage Jarvis-Ton | 107 |
+| `3.22.0` | Konflikte + Gold live | 107 |
+| `3.23.0`–`3.32.0` | Tablet-Lage + Module | 107 |
+| `3.33.0` | Traceroute ehrlich | 107 |
+| `3.34.0`–`3.37.0` | Telefon-Haus, Notiz, Gespräch | 107 |
+| `3.38.0`–`3.45.0` | Foto, Stimme, Sensoren, Schach-UI, Slots, Härten | 107 |
+
 ### Weitere Beispiele
 
 | Version | Bedeutung (Beispiel) |

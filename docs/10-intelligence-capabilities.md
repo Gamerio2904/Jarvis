@@ -8,7 +8,8 @@ Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal
 Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/Geizhals, € nur aus Snippets. Router wie `1.32.1` plus `Öffnen CarPlay` → Fahrmodus. `pickHeard` scored ohne Drive-`inMode`-Raten.
 
 Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  
-**`3.0.0` CODE:** Register + Score-Policy [`32-intelligence.md`](./32-intelligence.md). Welt `3.1`–`3.17` mitgeliefert [`31-next.md`](./31-next.md).
+**`3.0.0` CODE:** Register + Score-Policy [`32-intelligence.md`](./32-intelligence.md). Welt `3.1`–`3.17` mitgeliefert [`31-next.md`](./31-next.md).  
+**Danach PLAN:** [`33-next.md`](./33-next.md) — Follow-up, „und“, Parser-Score, Tablet-Lage.
 
 ### Live `1.32.1` (Code)
 

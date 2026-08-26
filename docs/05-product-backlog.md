@@ -29,6 +29,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E17 | Qualität `1.33`–`1.40` | 5+ | Bestehendes härten: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit — kein neues Produkt — [`28-next.md`](./28-next.md) |
 | E25 | Alltag & Welt `3.1`–`3.17` | 5+ | DWD bis Schach — [`31-next.md`](./31-next.md) **CODE** (in `3.0.0`) |
 | E26 | Intelligenz `3.0` | 5+ | Register, Parse vor Execute, Score-Policy — [`32-intelligence.md`](./32-intelligence.md) **CODE** |
+| E27 | Jarvis 3.x danach | 5+ | Härten, Tablet-Lage, Traceroute, Telefon-Haus — [`33-next.md`](./33-next.md) **PLAN** |
 
 ---
 
@@ -363,12 +364,24 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 ---
 
+### E27 — Jarvis 3.x danach `3.0.1`–`3.45`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S27.1 | Sideload 3.0 + Gold-Set | Must | ready | `3.0.1` PLAN |
+| S27.2 | Follow-up / „und“ / Parser-Score / Nachfrage | Must | ready | `3.18`–`3.22` PLAN |
+| S27.3 | Tablet-Lage modular (Wetterstatistik, Spotify, …) | Must | ready | `3.23`–`3.32` PLAN — Reel-3-Layout, Jarvis-Farben |
+| S27.4 | Traceroute ehrlich | Should | ready | `3.33` PLAN — PC ja, Handy kein ICMP |
+| S27.5 | Telefon-Haus, Sprachnotiz, Gespräch lokal | Should | ready | `3.34`–`3.37` PLAN — keine Fremden-Hotline |
+| S27.6 | Foto, Stimme, Sensor, Schach-UI, Slots, Härten | Should | ready | `3.38`–`3.45` PLAN |
+
+---
+
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
 1. Sideload `3.0.0` — [`apk.md`](./apk.md) (letzter gebauter APK `2.2.2`)
-2. Intelligenz **CODE** [`32-intelligence.md`](./32-intelligence.md) — `3.0.0`
-3. Alltag & Welt **CODE** [`31-next.md`](./31-next.md) — `3.1`–`3.17`, mitgeliefert in `3.0.0`
-4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+2. Reihe 3.x **PLAN** [`33-next.md`](./33-next.md) — erste Code-Lieferung `3.0.1`
+3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

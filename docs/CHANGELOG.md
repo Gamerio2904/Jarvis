@@ -7,6 +7,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`3.0.0`**. Letzter Sideload: **`2.2.2`**.
 
+Geplant (kein Code): 3.x danach [`33-next.md`](./33-next.md) `3.0.1`–`3.45.0` — Härten, Tablet-Lage, Traceroute, Telefon-Haus.
+
 ### `3.0.0` — Intelligenz + Welt — *CODE*
 
 Register statt If-Kette. Parser zuerst, dann Score-Policy (Prior, Kosten, Konflikte). Bei knappem Gleichstand eine Rückfrage. 0,5B wählt keine Tools. Welt-Reihe `3.1`–`3.17` mitgeliefert: DWD, Ferien, EZB-Kurs, Wikipedia/Destatis zuerst, Food, Library, Sport, iNaturalist, ISS/Mond, OpenSky, Recht, Waschsymbole, Sensoren ehrlich, Schach.

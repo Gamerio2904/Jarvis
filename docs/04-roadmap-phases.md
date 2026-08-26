@@ -145,6 +145,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Alltag `1.14`–`1.24` — **CODE** [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md)
 - Intelligenz `3.0.0` — **CODE** [`32-intelligence.md`](./32-intelligence.md)
 - Welt `3.1`–`3.17` — **CODE** in `3.0.0` [`31-next.md`](./31-next.md)
+- 3.x danach — **PLAN** [`33-next.md`](./33-next.md)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---
