@@ -1,17 +1,17 @@
-# Android-APK — letzter Sideload `2.2.2`
+# Android-APK — Sideload `3.18.1`
 
-App-Code steht auf **`3.18.1`** (Lage, Traceroute, Digest, GUI-Slides). Der zuletzt gebaute Sideload bleibt **`2.2.2`**, bis `build-apk.bat` oder `build-apk.sh` `3.18.1` schreibt (versionCode `31801`).
+App-Code und Sideload stehen auf **`3.18.1`** (Lage, Traceroute, Digest, GUI-Slides). versionCode `31801`.
 
-**2.2.2:** Keine Testprompts in der App. Chat ohne Chips.
+**3.18.1:** Overlay-Slides. Lage-Kacheln. Keine Testprompts in der App.
 
 ## Download
 
-**APK `2.2.2`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/remove-test-settings-3638/releases/Jarvis.apk
+**APK `3.18.1`:**  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `2.2.2` · versionCode `20202`
+- versionName `3.18.1` · versionCode `31801`
 - App-ID `local.jarvis.app`
 
-1. Über 2.2.1 installieren.
-2. Einstellungen hat kein Thema Tests mehr.
+1. Über 2.2.2 installieren.
+2. Einstellungen hat kein Thema Tests.

@@ -180,7 +180,7 @@ MAJOR.MINOR.PATCH
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `3.0.1` | Sideload 3.0 + Gold-Set | 107 (in `3.18.0`; APK noch `2.2.2`) |
+| `3.0.1` | Sideload 3.0 + Gold-Set | 107 (in `3.18.0`; APK `3.18.1`) |
 | `3.18.0` | Follow-up / last-tool | 107 |
 | `3.18.1` | GUI: Overlay-Slides, Lage-Kacheln | 108 |
 | `3.19.0` | Zwei Intents an „und“ | 107 (in `3.18.0`) |

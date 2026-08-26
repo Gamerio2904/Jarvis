@@ -6,6 +6,10 @@ ROOT="$(pwd)"
 FRONT="$ROOT/frontend"
 OUT="$FRONT/dist-apk"
 APK_SRC="$FRONT/android/app/build/outputs/apk/debug/app-debug.apk"
+JARVIS_SRC="$FRONT/android/app/build/outputs/apk/debug/Jarvis-debug.apk"
+if [[ -f "$JARVIS_SRC" ]]; then
+  APK_SRC="$JARVIS_SRC"
+fi
 
 if [[ -z "${ANDROID_HOME:-}" && -d "$HOME/Android/Sdk" ]]; then
   export ANDROID_HOME="$HOME/Android/Sdk"
@@ -20,6 +24,9 @@ echo " ----------------------------"
 
 command -v node >/dev/null
 command -v java >/dev/null
+python3 - <<'PY' || pip3 install --user pillow
+from PIL import Image
+PY
 
 pushd "$FRONT" >/dev/null
 npm install

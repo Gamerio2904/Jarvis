@@ -18,7 +18,7 @@ Einstellungen, Stimme, Kalender und Chat-Wechsel gleiten. Lage-Kacheln nacheinan
 |----|--------|-----------|
 | N1 | Overlay bleibt bis Leave-Animation | `useOverlay` |
 | N2 | Settings-Themen, Lage-Kacheln, Thread | CSS slides |
-| N3 | Sideload versuchen | [`apk.md`](../apk.md) |
+| N3 | Sideload `3.18.1` | [`apk.md`](../apk.md) |
 
 ## Won’t
 

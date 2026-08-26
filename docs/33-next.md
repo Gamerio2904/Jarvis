@@ -8,7 +8,7 @@ Quellen (ohne Klammern/Tracking):
 - Telefon-Agent: https://www.instagram.com/reel/DboqOSvEj_b/
 - Lage / Screenshots: https://www.instagram.com/reel/Dak3Si6oBro/
 
-Reihe davor: [`32-intelligence.md`](./32-intelligence.md) **CODE** (`3.0.0`). App-Code: **`3.18.1`** (logische Stufen `3.0.1`–`3.45` in `3.18.0`, GUI-Slides in `3.18.1`). Letzter Sideload: **`2.2.2`**.
+Reihe davor: [`32-intelligence.md`](./32-intelligence.md) **CODE** (`3.0.0`). App-Code: **`3.18.1`** (logische Stufen `3.0.1`–`3.45` in `3.18.0`, GUI-Slides in `3.18.1`). Sideload: **`3.18.1`**.
 
 Eine logische Stufe pro Version. Sideload darf bündeln.
 
@@ -71,7 +71,7 @@ Anfang: Dual-Screen, dunkel, Header `JARVIS > …`, großer Kreis-Prozent, gesta
 | Look | Reel-Layout (Gauges, Balken, Kacheln, Header). Jarvis-Ton und Spotify-Dunkel. |
 | Router | Neue Fähigkeiten nur Register, kein `if` in `chat.ts`. |
 | 0,5B | Wählt keine Tools. |
-| Sideload | nächster Build `3.18.1`; letzter APK bleibt `2.2.2`. |
+| Sideload | `3.18.1` in `releases/Jarvis.apk` (versionCode 31801). |
 
 ## Reihenfolge
 
@@ -176,7 +176,7 @@ Kickoff: [`sprint-107.md`](./sprints/sprint-107.md).
 
 ## Probe
 
-1. Sideload folgt (`2.2.2` zuletzt). `/hilfe` `3.18.1`.  
+1. Sideload `3.18.1` (`releases/Jarvis.apk`). `/hilfe` `3.18.1`.  
 2. `kein Kaffee mehr`, `Fahr mich zur Freundin`, `lauter` nach Spotify.  
 3. Tablet quer oder Setting Lage. `Wetterstatistik an`. `Spotify aus` = Pause, `Spotify-Kachel aus` = Kachel weg.  
 4. Wetterstatistik nur mit Open-Meteo-Zahlen, sonst leer.  

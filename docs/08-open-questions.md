@@ -54,7 +54,7 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `3.18.1` (Code steht; letzter APK `2.2.2`). [`apk.md`](./apk.md).
+1. Sideload `3.18.1` (steht). [`apk.md`](./apk.md).
 2. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
 3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
 
