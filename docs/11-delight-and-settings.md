@@ -16,9 +16,9 @@ Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 
 Reihenfolge bewusst: erst scharfsinnig/verlässlich, dann Delight.
 
-### Live `2.29.0`
+### Live `2.30.0`
 
-Momente/Jokes/Eggs/Sounds in Settings → Ton. GUI-Motion seit `1.13`. Persona siezt. Einkauf ohne Ja/Nein pro Artikel. Settings-Themen: [`00-now.md`](./00-now.md).
+Momente/Jokes/Eggs/Sounds in Settings → Ton. Allgemein → Sichern: JSON runterladen/hochladen. GUI-Motion seit `1.13`. Persona siezt. Einkauf ohne Ja/Nein pro Artikel. Settings-Themen: [`00-now.md`](./00-now.md).
 
 `1.19` (Morgen-Lage, kurzer Ton) ist **CODE**, mitgeliefert in `1.24.0`.
 

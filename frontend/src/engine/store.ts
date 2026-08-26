@@ -1,7 +1,7 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import { isDebugChatTitle } from './test-copy.ts'
 
-export const APP_VERSION = '2.29.2'
+export const APP_VERSION = '2.30.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -279,6 +279,13 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   const next = { ...loadSettings(), ...patch, version: APP_VERSION }
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(next))
   return next
+}
+
+/** Komplett ersetzen — für Backup-Restore. Unbekannte Keys ignoriert der Aufrufer. */
+export function replaceSettings(next: Settings): Settings {
+  const row = { ...DEFAULT_SETTINGS, ...next, version: APP_VERSION }
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(row))
+  return row
 }
 
 export function persistLastList(tool: string, titles: string[]): void {

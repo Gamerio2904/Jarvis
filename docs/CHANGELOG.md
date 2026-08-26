@@ -5,7 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.29.2`**. Live: [`00-now.md`](./00-now.md).
+App-Version im Code: **`2.30.0`**. Live: [`00-now.md`](./00-now.md).
+
+### `2.30.0` — Einstellungen sichern — *CODE*
+
+Einstellungen → Allgemein → Sichern: JSON runterladen und hochladen. Drin: alle Felder (Keys, Hosts, TV-Token, Steckdosen, Schalter). Nicht drin: Chats, Gedächtnis, Kalender, Listen. Datei nicht teilen. Eigener Weckton gilt nur auf dem Gerät, das ihn gewählt hat. Hochladen überschreibt nach Nachfrage.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 23000)
+- [`sprints/sprint-124.md`](./sprints/sprint-124.md)
 
 ### `2.29.2` — Nochmal + Fernseher koppeln per Stimme — *CODE*
 

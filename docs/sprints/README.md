@@ -112,5 +112,6 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 106–121 | — | `2.4`–`2.19` | Mitgeliefert in [`31-next.md`](../31-next.md) / `2.29.0` | **CODE** (in `2.29.0`) |
 | 122 | [`sprint-122.md`](./sprint-122.md) | `2.20.0` | Kaufmodus Kickoff (Intent + Overlay) | **CODE** (in `2.29.0`) |
 | 123 | [`sprint-123.md`](./sprint-123.md) | `2.29.0` | Welt + Kaufmodus + Tablet/Stimme/CarPlay | **CODE** |
+| 124 | [`sprint-124.md`](./sprint-124.md) | `2.30.0` | Einstellungen als JSON sichern/laden | **CODE** |
 
-**Aktuell:** Sideload `2.29.0` — [`00-now.md`](../00-now.md). Versionen: [`../09-versioning.md`](../09-versioning.md).
+**Aktuell:** Sideload `2.30.0` — [`00-now.md`](../00-now.md). Versionen: [`../09-versioning.md`](../09-versioning.md).

@@ -1,4 +1,4 @@
-# 00 — Jetzt (`2.29.2`)
+# 00 — Jetzt (`2.30.0`)
 
 Single source of truth für den **laufenden Code**. Fähigkeitenliste im Chat: `/hilfe` (`HELP_TEXT` in `frontend/src/engine/guards.ts`). Version: `APP_VERSION` in `frontend/src/engine/store.ts` und `frontend/package.json`.
 
@@ -8,7 +8,7 @@ Sideload: [`apk.md`](./apk.md). Changelog: [`CHANGELOG.md`](./CHANGELOG.md).
 
 Android-APK (Capacitor + React). Denken **on-device** (wllama, Qwen2.5 0.5B Instruct Q4) **oder** Gemini Opt-in. Speicher IndexedDB auf dem Gerät. PC-Steuerung: `desktop/JarvisPC.bat` im selben WLAN — kein NAS, kein Docker, kein Ollama.
 
-Einstellungen (16 Themen): Allgemein, Modell, Cloud, Sprache, Wecker, Ort, Fernseher, PC, Haus, Musik, Ton, Netz, Gedächtnis, Tests, Debug, Gefahr. Tests sind intern: Prompts ankreuzen, Auto-Lauf in einen Debug-Chat oder sofort in den offenen Chat. Nicht in `/hilfe`.
+Einstellungen (16 Themen): Allgemein, Modell, Cloud, Sprache, Wecker, Ort, Fernseher, PC, Haus, Musik, Ton, Netz, Gedächtnis, Tests, Debug, Gefahr. Allgemein: Einstellungen als JSON runterladen und hochladen (Keys inklusive, Datei nicht teilen). Tests sind intern: Prompts ankreuzen, Auto-Lauf in einen Debug-Chat oder sofort in den offenen Chat. Nicht in `/hilfe`.
 
 ## Was der Code tut
 
@@ -25,7 +25,7 @@ Einstellungen (16 Themen): Allgemein, Modell, Cloud, Sprache, Wecker, Ort, Ferns
 | Netz | Research opt-in, Zahlen nur aus Treffern. Wikipedia/Destatis zuerst bei Fakten. Rabatt-Suche extra (Default aus) |
 | Lage | Wetter Open-Meteo. Unwetter DWD/Bright Sky. Luft/Sonne nur auf Nachfrage. Bahn nur wenn „Bahn“. Nachrichten Tagesschau. Feiertage DE. Schulferien, EZB-Kurs |
 | Welt | Open Food Facts, Open Library, Bundesliga/OpenLigaDB, iNaturalist, ISS, Mond lokal, OpenSky, Gesetzestext+Link, Waschsymbole, Schritte/Barometer/Kompass, Schach e2e4 |
-| Gerät | Akku, Taschenlampe, Wake-Word „Jarvis“, Widget, Sprachmodus. Tablet-Layout ab 900 px |
+| Gerät | Akku, Taschenlampe, Wake-Word „Jarvis“, Widget, Sprachmodus. Tablet-Layout ab 900 px. Einstellungen-Backup als Datei |
 
 ## Was der Code nicht tut
 
@@ -41,8 +41,8 @@ Deterministisch **vor** dem LLM, Reihenfolge wie im Code:
 
 ## Diese Lieferung
 
-Sideload **`2.29.2`** bündelt [`31-next.md`](./31-next.md) `2.3`–`2.19`, [`32-next.md`](./32-next.md) `2.20`–`2.28` und Polish [`33-next.md`](./33-next.md), plus internen Debug-Auto-Lauf, Stimme-Koppeln und „Nochmal“. Sprint [`sprint-123.md`](./sprints/sprint-123.md).
+Sideload **`2.30.0`**: Einstellungen als JSON sichern und wiederherstellen. Darunter weiter `2.29.2` (Nochmal, TV koppeln), Debug-Tests, Welt, Kaufmodus, Polish. Sprint [`sprint-124.md`](./sprints/sprint-124.md).
 
 ## APK bauen
 
-`build-apk.bat` schreibt `frontend/dist-apk/jarvis-debug.apk` (versionName `2.29.2`, versionCode `22902`). Veröffentlichtes Sideload: [`apk.md`](./apk.md) (`releases/Jarvis.apk` auf dem Release-Branch).
+`build-apk.bat` schreibt `frontend/dist-apk/jarvis-debug.apk` (versionName `2.30.0`, versionCode `23000`). Veröffentlichtes Sideload: [`apk.md`](./apk.md) (`releases/Jarvis.apk` auf dem Release-Branch).

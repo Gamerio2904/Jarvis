@@ -2,6 +2,13 @@ import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts, allTestPromptKeys, formatAllTestCopy, isDebugChatTitle, selectedTestPrompts, TEST_COPY_GROUPS, testPromptKey } from '../src/engine/test-copy.ts'
 import { flagReply, expandPickedMessageIds, debugFileName, applyTurnFilter } from '../src/engine/chat-debug.ts'
+import {
+  SETTINGS_BACKUP_KIND,
+  pickSettingsPatch,
+  parseSettingsBackup,
+  restoreSettingsBackup,
+  settingsBackupFileName,
+} from '../src/engine/settings-backup.ts'
 import { parseTvConnect, parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
@@ -991,7 +998,8 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.29\.2/)
+assert.match(HELP_TEXT, /2\.30\.0/)
+assert.match(HELP_TEXT, /Einstellungen als Datei sichern/)
 assert.match(HELP_TEXT, /Nochmal wiederholt/)
 assert.match(HELP_TEXT, /Kaufmodus/)
 assert.match(HELP_TEXT, /Unwetter/)
@@ -1064,6 +1072,80 @@ const filtered = applyTurnFilter(
 )
 assert.equal(filtered.turns.length, 1)
 assert.equal(filtered.summary.user_turns, 1)
+
+if (typeof globalThis.localStorage === 'undefined') {
+  const mem = Object.create(null)
+  globalThis.localStorage = {
+    getItem: (k) => (Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : null),
+    setItem: (k, v) => {
+      mem[k] = String(v)
+    },
+    removeItem: (k) => {
+      delete mem[k]
+    },
+    clear: () => {
+      for (const k of Object.keys(mem)) delete mem[k]
+    },
+    key: (i) => Object.keys(mem)[i] ?? null,
+    get length() {
+      return Object.keys(mem).length
+    },
+  }
+}
+
+const backupPatch = pickSettingsPatch({
+  version: '1.0.0',
+  gemini_api_key: 'AIza-test',
+  gemini_enabled: true,
+  tv_port: 8001,
+  wake_word: true,
+  unknown_field: 'x',
+  research_opt_in: 'yes',
+})
+assert.equal(backupPatch.gemini_api_key, 'AIza-test')
+assert.equal(backupPatch.gemini_enabled, true)
+assert.equal(backupPatch.tv_port, 8001)
+assert.equal(backupPatch.wake_word, true)
+assert.equal('version' in backupPatch, false)
+assert.equal('unknown_field' in backupPatch, false)
+assert.equal('research_opt_in' in backupPatch, false)
+
+const wrappedOk = parseSettingsBackup({
+  kind: SETTINGS_BACKUP_KIND,
+  app_version: '2.29.2',
+  exported_at: '2026-08-26T00:00:00.000Z',
+  settings: { gemini_api_key: 'k2', plugs_json: '[]', tv_token: 'tok' },
+})
+assert.equal(wrappedOk.ok, true)
+if (wrappedOk.ok) {
+  assert.equal(wrappedOk.patch.gemini_api_key, 'k2')
+  assert.equal(wrappedOk.patch.plugs_json, '[]')
+  assert.equal(wrappedOk.patch.tv_token, 'tok')
+}
+
+const rawOk = parseSettingsBackup({ groq_api_key: 'gsk_x', ui_sounds: false })
+assert.equal(rawOk.ok, true)
+if (rawOk.ok) assert.equal(rawOk.patch.groq_api_key, 'gsk_x')
+
+const debugReject = parseSettingsBackup({
+  kind: 'jarvis-chat-debug',
+  settings: { gemini_api_key: 'nope' },
+})
+assert.equal(debugReject.ok, false)
+if (!debugReject.ok) assert.match(debugReject.message, /Chat-Debug/)
+
+const emptyReject = parseSettingsBackup({ kind: SETTINGS_BACKUP_KIND, settings: { version: '2.0.0' } })
+assert.equal(emptyReject.ok, false)
+
+assert.match(settingsBackupFileName(new Date('2026-08-26T12:34:56.000Z')), /jarvis-settings-2026-08-26-12-34-56\.json/)
+
+if (wrappedOk.ok) {
+  const restored = restoreSettingsBackup(wrappedOk.patch)
+  assert.equal(restored.gemini_api_key, 'k2')
+  assert.equal(restored.tv_token, 'tok')
+  assert.equal(restored.version, '2.30.0')
+  assert.equal(restored.gemini_enabled, false)
+}
 
 assert.equal(parseFuelIntent('Fahr mich zu einer Tanke')?.prefer, 'nearest')
 assert.equal(parseFuelIntent('fahr mich zur Tankstelle')?.prefer, 'nearest')

@@ -4,7 +4,7 @@
   <img src="frontend/native/brand/cover.png" alt="Jarvis" width="920" />
 </p>
 
-Privater Assistant auf dem **Handy**. Live **`2.29.2`** — was geht und was nicht: [`docs/00-now.md`](docs/00-now.md).
+Privater Assistant auf dem **Handy**. Live **`2.30.0`** — was geht und was nicht: [`docs/00-now.md`](docs/00-now.md).
 
 PC im selben WLAN: `desktop/JarvisPC.bat`. Kein NAS, kein Docker, kein Ollama.
 
@@ -20,7 +20,7 @@ Browser: http://localhost:5173 — einmal Modell herunterladen (~470 MB, Qwen2.5
 
 ## Android-APK
 
-Sideload **`2.29.2`** (versionCode `22902`): [`docs/apk.md`](docs/apk.md)
+Sideload **`2.30.0`** (versionCode `23000`): [`docs/apk.md`](docs/apk.md)
 
 Lokal bauen: `build-apk.bat` → `frontend/dist-apk/jarvis-debug.apk`
 

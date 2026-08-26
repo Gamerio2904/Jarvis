@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Conversation, Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
 import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc, listConversations } from './api'
 import type { Plug } from './api'
@@ -12,6 +12,7 @@ import {
 } from './engine/test-copy'
 import { ensureDeviceLocation } from './native/geo'
 import { buildChatDebugDump, downloadChatDebug } from './engine/chat-debug'
+import { downloadSettingsBackup, readSettingsBackupText, restoreSettingsBackup } from './engine/settings-backup'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -38,7 +39,7 @@ export type SettingsTopic =
   | 'gefahr'
 
 const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
-  { id: 'allgemein', label: 'Allgemein', hint: 'Version' },
+  { id: 'allgemein', label: 'Allgemein', hint: 'Backup' },
   { id: 'modell', label: 'Modell', hint: 'Lokal' },
   { id: 'cloud', label: 'Cloud', hint: 'Gemini' },
   { id: 'sprache', label: 'Sprache', hint: 'Hören' },
@@ -145,6 +146,8 @@ export type SettingsScreenProps = {
   onStartGroup: (groupId: string) => void
   onSendNow: (text: string) => void
   onClose: () => void
+  onSettingsRestored: (s: Settings) => void
+  formEpoch: number
   settings: Settings | null
   settingsBusy: boolean
   patchSetting: (patch: Partial<Settings>) => Promise<void>
@@ -221,6 +224,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [debugBusy, setDebugBusy] = useState(false)
   const [debugMsg, setDebugMsg] = useState<string | null>(null)
   const [testQuery, setTestQuery] = useState('')
+  const [backupBusy, setBackupBusy] = useState(false)
+  const [backupMsg, setBackupMsg] = useState<string | null>(null)
+  const backupFileRef = useRef<HTMLInputElement | null>(null)
   const testCat = p.topic === 'tests' ? testCopyGroupById(p.testGroup) : undefined
   const testSel = Object.keys(p.testKeys).length
   const allTestKeys = allTestPromptKeys()
@@ -332,6 +338,73 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
+          {p.topic === 'allgemein' ? (
+            <section className="settings-card">
+              <h3>Sichern</h3>
+              <p className="settings-lead">
+                Alle Einstellungen als JSON: Keys, Hosts, TV-Token, Steckdosen, Schalter. Datei nicht teilen.
+              </p>
+              <p className="settings-hint">
+                Eigener Weckton gilt nur auf dem Gerät, das ihn gewählt hat. Chats und Gedächtnis sind nicht drin.
+              </p>
+              <input
+                ref={backupFileRef}
+                type="file"
+                accept="application/json,.json"
+                hidden
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  e.target.value = ''
+                  if (!file) return
+                  const ok = window.confirm('Einstellungen überschreiben, inkl. Keys und TV-Token?')
+                  if (!ok) return
+                  setBackupBusy(true)
+                  setBackupMsg(null)
+                  void file
+                    .text()
+                    .then((text) => readSettingsBackupText(text))
+                    .then((parsed) => {
+                      if (!parsed.ok) {
+                        setBackupMsg(parsed.message)
+                        return
+                      }
+                      const next = restoreSettingsBackup(parsed.patch)
+                      p.onSettingsRestored(next)
+                      setBackupMsg('Einstellungen geladen.')
+                    })
+                    .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Laden fehlgeschlagen'))
+                    .finally(() => setBackupBusy(false))
+                }}
+              />
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={backupBusy}
+                  onClick={() => {
+                    setBackupBusy(true)
+                    setBackupMsg(null)
+                    void downloadSettingsBackup()
+                      .then((r) => setBackupMsg(r.message))
+                      .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Sichern fehlgeschlagen'))
+                      .finally(() => setBackupBusy(false))
+                  }}
+                >
+                  {backupBusy ? 'Bitte warten…' : 'Runterladen'}
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={backupBusy}
+                  onClick={() => backupFileRef.current?.click()}
+                >
+                  Hochladen
+                </button>
+              </div>
+              {backupMsg ? <p className="settings-hint">{backupMsg}</p> : null}
+            </section>
+          ) : null}
+
           {p.topic === 'modell' ? (
             <section className="settings-card">
               <h3>Lokales Modell</h3>
@@ -384,7 +457,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
-                    key={`gemini-key-${s?.gemini_api_key ? 'set' : 'empty'}`}
+                    key={`gemini-key-${p.formEpoch}`}
                     defaultValue={s?.gemini_api_key || ''}
                     disabled={busy}
                     placeholder="AIza… hier einfügen"
@@ -411,7 +484,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
-                    key={`groq-key-${s?.groq_api_key ? 'set' : 'empty'}`}
+                    key={`groq-key-${p.formEpoch}`}
                     defaultValue={s?.groq_api_key || ''}
                     disabled={busy}
                     placeholder="gsk_… hier einfügen"
@@ -441,7 +514,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
-                    key={`tanker-key-${s?.tankerkoenig_api_key ? 'set' : 'empty'}`}
+                    key={`tanker-key-${p.formEpoch}`}
                     defaultValue={s?.tankerkoenig_api_key || ''}
                     disabled={busy}
                     placeholder="UUID von tankerkoenig.de"
@@ -466,7 +539,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
-                    key={`omdb-key-${s?.omdb_api_key ? 'set' : 'empty'}`}
+                    key={`omdb-key-${p.formEpoch}`}
                     defaultValue={s?.omdb_api_key || ''}
                     disabled={busy}
                     placeholder="Key von omdbapi.com"
@@ -601,7 +674,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   type="number"
                   min={50}
                   max={2000}
-                  key={`home-r-${s?.home_radius_m || '250'}`}
+                  key={`home-r-${p.formEpoch}`}
                   defaultValue={s?.home_radius_m || '250'}
                   disabled={busy}
                   onBlur={(e) => {
@@ -679,7 +752,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>Name</span>
                 <input
-                  key={`tv-name-${s?.tv_name || ''}`}
+                  key={`tv-name-${p.formEpoch}`}
                   defaultValue={s?.tv_name || ''}
                   disabled={busy}
                   onBlur={(e) => void p.patchSetting({ tv_name: e.target.value })}
@@ -688,7 +761,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>Host</span>
                 <input
-                  key={`tv-host-${s?.tv_host || ''}`}
+                  key={`tv-host-${p.formEpoch}`}
                   defaultValue={s?.tv_host || ''}
                   disabled={busy}
                   placeholder="192.168.1.20"
@@ -698,7 +771,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>MAC</span>
                 <input
-                  key={`tv-mac-${s?.tv_mac || ''}`}
+                  key={`tv-mac-${p.formEpoch}`}
                   defaultValue={s?.tv_mac || ''}
                   disabled={busy}
                   placeholder="aa:bb:cc:dd:ee:ff"
@@ -708,7 +781,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>Port</span>
                 <input
-                  key={`tv-port-${s?.tv_port || 8002}`}
+                  key={`tv-port-${p.formEpoch}`}
                   defaultValue={String(s?.tv_port || 8002)}
                   disabled={busy}
                   onBlur={(e) => {
@@ -1312,7 +1385,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   autoComplete="off"
                   autoCapitalize="none"
                   spellCheck={false}
-                  key={`sp-id-${s?.spotify_client_id ? 'set' : 'empty'}`}
+                  key={`sp-id-${p.formEpoch}`}
                   defaultValue={s?.spotify_client_id || ''}
                   disabled={busy}
                   placeholder="Spotify Client ID"

@@ -328,6 +328,7 @@ function App() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
+  const [settingsEpoch, setSettingsEpoch] = useState(0)
   const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('allgemein')
   const [settingsTestGroup, setSettingsTestGroup] = useState<string | null>(null)
   const [testKeys, setTestKeys] = useState<Record<string, true>>(loadTestKeys)
@@ -1884,6 +1885,20 @@ function App() {
           onStartGroup={startGroupTest}
           onSendNow={sendPromptNow}
           onClose={() => setSettingsPanelOpen(false)}
+          onSettingsRestored={() => {
+            void getSettings().then((updated) => {
+              setSettings(updated)
+              setSettingsEpoch((n) => n + 1)
+              if (updated.gemini_enabled && updated.gemini_api_key?.trim()) {
+                setSetupOpen(false)
+                void releaseModel()
+              }
+              if (updated.wake_word) void startWakeWord()
+              else void stopWakeWord()
+              void refreshHealth()
+            })
+          }}
+          formEpoch={settingsEpoch}
           settings={settings}
           settingsBusy={settingsBusy}
           patchSetting={patchSetting}
