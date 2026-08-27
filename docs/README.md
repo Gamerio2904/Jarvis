@@ -1,6 +1,8 @@
 # Jarvis — Planungsdokumente
 
-Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
+**Jetzt:** Code **`3.19.0`**. Sideload **`3.18.1`**. Offene Pläne: [`35-next.md`](./35-next.md) Weltlage · [`36-next.md`](./36-next.md) Alltagskette · [`37-next.md`](./37-next.md) Stimme/Steuer · [`38-next.md`](./38-next.md) **Backup (MUST vor Deinstall)** · [`39-next.md`](./39-next.md) Jarvis/Friday + Tablet. Kalender/Stimme: [`34-next.md`](./34-next.md). APK: [`apk.md`](./apk.md). PC-BAT: [`../desktop/README.md`](../desktop/README.md).
+
+Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
 ## Lesereihenfolge
 
@@ -39,7 +41,12 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 32 | [Intelligenz](./32-intelligence.md) | **`3.0` CODE** — Register, Score-Policy |
 | 33 | [3.x danach](./33-next.md) | **`3.18.1` CODE** — Härten, Tablet-Lage, Traceroute, Telefon-Haus, GUI |
 | 34 | [Stimme Kalender Debug](./34-next.md) | **`3.19.0` CODE** — ein Gespräch, Jahr, Debug |
-| — | [APK](./apk.md) | Sideload `3.18.1`; Code `3.19.0` |
+| 35 | [Weltlage / Vorhersage](./35-next.md) | **`4.0` PLAN** — Research zuerst, dann Ausblick (Öl/Benzin), kein Orakel |
+| 36 | [Alltagskette Stimme](./36-next.md) | **`4.19` PLAN vollständig** — Bar, SMS-Note, Taxi, Kette |
+| 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` PLAN** — Film-TTS free, Reel finden/eine Frage |
+| 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` PLAN** — Export/Import, Tippfehler Schreib+Sprache |
+| 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` PLAN** — Jarvis/Friday Stimme, Lage nicht statt Chat |
+| — | [APK](./apk.md) | Sideload `3.18.1`; Code `3.19.0`; Deinstall löscht Keys — erst [`38`](./38-next.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -70,9 +77,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 26 | `0.8.4` | **READY FOR REVIEW** (Siezen & Recall Hotfix) |
 | 27 | `0.8.5` | **READY FOR REVIEW** (in `0.9.0`) |
 | 28–30 | `0.9.0`–`0.9.2` | **READY FOR REVIEW** (Local Tools) |
-| 31–33 | `0.9.3`–`0.9.5` | **PLANNED** |
-| 34–39 | `0.10.0`–`0.10.5` | **PLANNED** (NAS + APK) |
-| 40–42 | `0.11.0`–`0.11.2` | **CODE** (Samsung-TV, Pairing offen) |
+| 31–33 | `0.9.3`–`0.9.5` | **CODE** (historisch, in späteren Sideloads) |
+| 34–39 | `0.10.0`–`0.10.5` | **SUPERSEDED** (NAS; On-Device `0.13`) |
+| 40–42 | `0.11.0`–`0.11.2` | **CODE** (Samsung-TV, in `0.14.1`) |
 | 43 | `0.12.0` | **SUPERSEDED** (NAS-Proxy) |
 | 44 | `0.13.0` | **CODE** (On-Device Handy) |
 | 45 | `0.13.1` | **CODE** (Modell-Download Hotfix) |
@@ -108,5 +115,10 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 107 | `3.18.0` | **CODE** (Lage, Traceroute, Digest; `3.0.1`–`3.45`) |
 | 108 | `3.18.1` | **CODE** (GUI Premium: Overlay-Slides) |
 | 109 | `3.19.0` | **CODE** (Stimme-Thread, Kalender, Debug) |
+| 110 | `4.0.0` | **PLAN** (Weltlage / Vorhersage, Research zuerst) |
+| 111 | `4.19.0` | **PLAN** (Alltagskette vollständig) |
+| 112 | `4.33.0` | **PLAN** (Gespräch, Film-Stimme, Reel am Steuer) |
+| 113 | `4.46.0` | **PLAN** (Hausstand Export/Import, Autokorrektur) |
+| 114 | `4.53.0` | **PLAN** (Jarvis/Friday + Tablet-Lage flüssig) |
 
-**Aktuell:** Code **`3.19.0`**. Sideload-APK `3.18.1` — [`Jarvis.apk`](./apk.md). Stimme/Kalender: [`34-next.md`](./34-next.md). Lage/Härten: [`33-next.md`](./33-next.md).
+**Aktuell:** Code **`3.19.0`**. Sideload `3.18.1`. Pläne: [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md). Stimme/Kalender: [`34-next.md`](./34-next.md).

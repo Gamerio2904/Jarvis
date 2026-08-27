@@ -20,7 +20,7 @@ Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 |---------|--------|
 | Persona inkl. Stil-Beispiele (Q5) | **entschieden** |
 | Architektur / Stack / UI / Versionen | **entschieden** |
-| Phase 2+3 NAS/APK | **geplant** (`0.10.x`) |
+| Phase 2+3 NAS/APK | **superseded** (`0.13` On-Device; [`13-on-device.md`](./13-on-device.md)) |
 | Sprint-1-Blocker | **keine offenen P0** |
 
 Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN, …).
@@ -38,8 +38,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
-| Q9 | Encryption at-rest MVP? | P1 | zurückgestellt | |
-| Q10 | Ollama-Download? | P1 | entschieden | Ja |
+| Q9 | Encryption at-rest MVP? | P1 | zurückgestellt | Backup-Datei [`38-next.md`](./38-next.md) User schützt selbst |
+| Q10 | Ollama-Download? | P1 | entschieden | Historisch Sprint 1; ab `0.13` wllama |
 | Q11 | History speichern? | P1 | entschieden | Ja |
 | Q12 | Löschen? | P2 | zurückgestellt | Nicht Sprint 1 |
 
@@ -54,9 +54,11 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 
 ## Nächster Schritt
 
-1. Sideload `3.19.0` (Code steht; letzter APK `3.18.1`). [`apk.md`](./apk.md).
-2. Wake-Word und „zuhause“ nie bei Gerät komplett aus. Losgehen ohne Ort: nachfragen, nicht raten.
-3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
+1. **Vor Deinstall:** Hausstand — [`38-next.md`](./38-next.md) (noch PLAN; bis CODE Keys notieren).
+2. Code `3.19.0` auf `main`. Sideload noch `3.18.1` [`apk.md`](./apk.md). PC-BAT: [`../desktop/README.md`](../desktop/README.md).
+3. Alltagskette / Weltlage / Stimme: [`36-next.md`](./36-next.md) [`35-next.md`](./35-next.md) [`37-next.md`](./37-next.md).
+4. Faces + Tablet: [`39-next.md`](./39-next.md).
+5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
 
 ---
 
@@ -79,4 +81,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-26 | Q49 | `3.0.0` = intelligenter als Fokus: Register + Policy + Härten. Welt-Sprints im selben Code. Kein Sideload-APK in diesem Schritt. | PO |
 | 2026-08-26 | Q50 | 3.x danach: Reels als Anstoß. Traceroute ehrlich (PC). Tablet-Lage modular aus Reel-3-Screenshots. Telefon nur Haus (Nachfrage, kein 24/7-Fremden-Empfang). Sales-CRM nicht. [`33-next.md`](./33-next.md) | PO |
 | 2026-08-26 | Q51 | 3.x danach gebündelt als **`3.18.0`**: Lage, Traceroute, Digest, Härten. Kein Sideload in diesem Schritt. [`33-next.md`](./33-next.md) | PO |
-| 2026-08-26 | Q52 | GUI-Slides `3.18.1`, dann mergen und APK versuchen. [`sprints/sprint-108.md`](./sprints/sprint-108.md) | PO |
+| 2026-08-27 | Q53 | Alltagskette vollständig geplant. WhatsApp still Won’t; `wa.me` nach Ja ok. Taxi Default Anruf. [`36-next.md`](./36-next.md) | PO |
+| 2026-08-27 | Q54 | APK-Deinstall löscht On-Device-Daten. Export/Import lokal, kein Jarvis-Cloud. [`38-next.md`](./38-next.md) | PO |
+| 2026-08-27 | Q55 | Autokorrektur Schreib+Sprache; Bahn vs Bar nicht per Levenshtein. [`38-next.md`](./38-next.md) | PO |
+| 2026-08-27 | Q56 | Zwei Gesichter: Jarvis Default (Work+Smalltalk), Friday weiblich auf Zuruf; ein Register; kein Marvel. [`39-next.md`](./39-next.md) | PO |
+| 2026-08-27 | Q57 | Tablet-Lage: Chat bleibt sichtbar; Uhr/Poll/Raster. Screenshots fehlten — Ist aus Code. [`39-next.md`](./39-next.md) | PO |

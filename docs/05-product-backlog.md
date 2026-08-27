@@ -30,6 +30,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E25 | Alltag & Welt `3.1`–`3.17` | 5+ | DWD bis Schach — [`31-next.md`](./31-next.md) **CODE** (in `3.0.0`) |
 | E26 | Intelligenz `3.0` | 5+ | Register, Parse vor Execute, Score-Policy — [`32-intelligence.md`](./32-intelligence.md) **CODE** |
 | E27 | Jarvis 3.x danach | 5+ | Härten, Tablet-Lage, Traceroute, Telefon-Haus — [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`) |
+| E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **PLAN** |
+| E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **PLAN** |
+| E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **PLAN** |
+| E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **PLAN** |
+| E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **PLAN** |
 
 ---
 
@@ -99,7 +104,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
 | S5.1 | Als Nutzer will ich Jarvis 24/7 auf NAS/Mini-Server. | Must | ready | Sprint 34 / `0.10.0` Compose |
-| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Should | ready | Sprint 35 / `0.10.1` |
+| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Must | ready | On-Device: [`38-next.md`](./38-next.md) (`4.46`); NAS-`0.10.1` gilt nicht mehr |
 
 ### E6 — Voice Out
 
@@ -375,17 +380,74 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S27.5 | Telefon-Haus, Sprachnotiz, Gespräch lokal | Should | done | `3.34`–`3.37` CODE — keine Fremden-Hotline |
 | S27.6 | Foto, Stimme, Sensor, Schach-UI, Slots, Härten | Should | done | `3.38`–`3.45` CODE |
 
+### E28 — Weltlage / Vorhersage `4.0`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S28.0 | Leitentscheidung + Researchphasen | Must | ready | [`35-next.md`](./35-next.md) PLAN, kein Execute |
+| S28.1 | Research Ingest/Serien/Methode/Architektur | Must | idea | `4.1`–`4.4` entschieden, dann Code |
+| S28.2 | Ausblick auf Nachfrage (Weltlage, warum Öl, Benzin) | Must | idea | Quellen + Serie + Szenario, kein Orakel |
+| S28.3 | Unterbrechen opt-in | Should | idea | nur Δ, Default aus |
+| S28.4 | Aktien-Gewissheit | Won’t | parked | kein „fällt morgen“ |
+
+### E29 — Alltagskette Stimme `4.19`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S29.0 | Leitentscheidung + Research | Must | ready | [`36-next.md`](./36-next.md) PLAN |
+| S29.1 | Bar/Kneipe POI | Must | idea | Overpass `bar`/`pub` |
+| S29.2 | Sprachnachricht als SMS v1 | Must | idea | Nachfrage, kein stilles WhatsApp |
+| S29.3 | Taxi öffnen oder anrufen | Must | idea | nie „ist bestellt“ |
+| S29.4 | Drei Aufträge, Confirm-Schlange | Must | idea | ein Ja = ein Schritt |
+| S29.5 | WhatsApp still senden | Won’t | parked | Business-API / Accessibility |
+
+### E30 — Gespräch / Stimme / Steuer `4.33`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S30.0 | Leitentscheidung; `3.19` Kalender nicht neu | Must | ready | [`37-next.md`](./37-next.md) |
+| S30.1 | Film-nähere Gemini-TTS, free | Must | idea | Spike Stimme + Budget stehend vs. Fahrt |
+| S30.2 | Reel: finden/beheben/eine Frage | Must | idea | Whitelist Haus, HUD am Steuer |
+| S30.3 | Eingehender Anruf von Jarvis | Won’t | parked | kein Fake-Call, kein Retell |
+
+### E31 — Hausstand `4.46`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S31.0 | Leitentscheidung Backup + Tippfehler | Must | ready | [`38-next.md`](./38-next.md) |
+| S31.1 | Export JSON (Keys, Nummern, Erinnerungen, Settings) | Must | idea | ein Share/Download |
+| S31.2 | Import ein Tippen nach Deinstall | Must | idea | Confirm, dann gleicher Stand |
+| S31.3 | Composer DE + Jarvis-Wörterbuch | Must | idea | Keys-Felder ohne Spellcheck |
+| S31.4 | STT pickHeard + Rückfrage Bar/Bahn | Must | idea | kein Blind-Levenshtein |
+| S31.5 | Jarvis-Cloud-Sync | Won’t | parked | Datei bleibt beim User |
+
+### E32 — Zwei Gesichter + Tablet `4.53`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S32.0 | Leitentscheidung Faces + HUD | Must | ready | [`39-next.md`](./39-next.md) PLAN, kein Execute |
+| S32.1 | Jarvis Default, Friday Zuruf, zwei Stimmen | Must | idea | ein Register, ein Gedächtnis |
+| S32.2 | Wake Friday, nicht Freitag | Must | idea | Kalender `Freitag` bleibt Termin |
+| S32.3 | Lage neben Chat, Uhr tickt, Poll split | Must | idea | Composer+Mic sichtbar |
+| S32.4 | Marvel-Friday / zwei Modelle | Won’t | parked | Hausname, ein Hirn |
+| S32.5 | Auto Work-Stunden → Face | Won’t | parked | nur explizit |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `3.19.0` — [`apk.md`](./apk.md) (letzter APK `3.18.1`)
-2. Reihe 3.x **CODE** [`33-next.md`](./33-next.md)
-3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. **Hausstand Backup** [`38-next.md`](./38-next.md) — vor jedem Sideload
+2. `3.19.0` **CODE auf main** [`34-next.md`](./34-next.md) — nächster Sideload nach Backup
+3. Alltagskette [`36-next.md`](./36-next.md)
+4. Weltlage [`35-next.md`](./35-next.md)
+5. Gespräch/Stimme [`37-next.md`](./37-next.md)
+6. **Tablet-Lage glätten** [`39-next.md`](./39-next.md) `4.59+`
+7. Zwei Gesichter Jarvis/Friday [`39-next.md`](./39-next.md)
+8. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 
-- Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus
+- Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus (Face Jarvis/Friday ist [`39-next.md`](./39-next.md), nicht Stimmungsslider)
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
 - Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate

@@ -78,6 +78,11 @@ MAJOR.MINOR.PATCH
 | `3.18.0` | **Lage + Härten** — Tablet-HUD, Traceroute, Digest; Stufen `3.0.1`–`3.45` mitgeliefert | Sprint 107 |
 | `3.18.1` | **GUI Premium** — Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
 | `3.19.0` | **Stimme + Kalender + Debug** — ein Thread, Jahr/Fenster, Settings-Debug | Sprint 109 |
+| `4.0.0` | **Weltlage / Vorhersage** — Research zuerst, dann Ausblick; nicht ein zweites `3.20` | Sprint 110 |
+| `4.19.0` | **Alltagskette Stimme** — Sprachnachricht, Bar, Taxi; Research vor WhatsApp/Taxi-App | Sprint 111 |
+| `4.33.0` | **Gespräch / Film-Stimme / Steuer** — Reel lukebuildsai anpassen | Sprint 112 |
+| `4.46.0` | **Hausstand** — Export/Import nach APK-Deinstall; Autokorrektur Schreib+Sprache | Sprint 113 |
+| `4.53.0` | **Zwei Gesichter + Tablet** — Jarvis/Friday Stimme; Lage nicht statt Chat | Sprint 114 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -193,6 +198,80 @@ MAJOR.MINOR.PATCH
 | `3.33.0` | Traceroute ehrlich | 107 (in `3.18.0`) |
 | `3.34.0`–`3.37.0` | Telefon-Haus, Notiz, Gespräch | 107 (in `3.18.0`) |
 | `3.38.0`–`3.45.0` | Foto, Stimme, Sensoren, Schach-UI, Slots, Härten | 107 (in `3.18.0`) |
+
+### `4.0` — Weltlage / Vorhersage [`35-next.md`](./35-next.md) **PLAN**
+
+`3.19.0`–`3.45.0` sind logische Stufen **in** `3.18.0`. Nächster Produktsprung ist `4.0`, nicht ein zweites `3.20`.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.0.0` | Leitentscheidung (Docs) | 110 |
+| `4.1.0` | Research: Nachrichten-Ingest | nach 110 |
+| `4.2.0` | Research: Zeitreihen Öl/FX/E10 | nach 110 |
+| `4.3.0` | Research: Prognose-Methode + Recht | nach 110 |
+| `4.4.0` | Research: Architektur/Akku/Konflikte | nach 110 |
+| `4.5.0` | `outlook` Nachfrage + Tags | nach Research |
+| `4.6.0` | Serien in der Antwort | nach Research |
+| `4.7.0` | Kette Meldung → Öl/E10 (Reel) | nach Research |
+| `4.8.0` | Szenarien + Unsicherheit | nach Research |
+| `4.9.0` | Unterbrechen opt-in | nach `4.5` |
+| `4.10.0` | Weitere Märkte nur mit sauberer Quelle | später |
+| `4.11.0`–`4.18.0` | Lage-Kachel, Härten, Quellen, Analog, Akku, Gold, Stimme, Sideload | Verbesserungen |
+
+### `4.19+` — Alltagskette Stimme [`36-next.md`](./36-next.md) **PLAN**
+
+Reel: Sprachnachricht, Bar, Taxi — nur geredet. Plan **vollständig** (Gold, Voten, Dateien). Sideload nach Hausstand [`38-next.md`](./38-next.md).
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.19.0` | Leitentscheidung (Docs) | 111 |
+| `4.20.0` | Research: Sprachnachricht / WhatsApp-Composer | nach 111 |
+| `4.21.0` | Research: Taxi Deep-Link DE | nach 111 |
+| `4.22.0` | Research: Kette + Confirm-Schlange | nach 111 |
+| `4.23.0` | POI Bar/Kneipe | nach Spike |
+| `4.24.0` | Sprachnachricht = SMS-Text v1 | nach `4.20` |
+| `4.25.0` | Taxi: öffnen oder anrufen, nicht „bestellt“ | nach `4.21` |
+| `4.26.0` | Kette in einem Satz | nach `4.22` |
+| `4.27.0`–`4.32.0` | Stimme, `wa.me`, Audio optional, Follow-up, Härten, Sideload nach Backup | Verbesserungen |
+
+### `4.33+` — Gespräch, Film-Stimme, Reel am Steuer [`37-next.md`](./37-next.md) **PLAN**
+
+Kalender-Jahr/Fenster/`erstell` und ein Voice-Thread sind **CODE** `3.19.0` auf `main`. Neu: Gemini-TTS näher am Film (free), Anruf am Steuer nicht fake.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.33.0` | Leitentscheidung (Docs) | 112 |
+| `4.34.0` | Research: Stimme/Gespräch | nach 112 |
+| `4.35.0` | Research: Stören am Steuer | nach 112 |
+| `4.36.0` | Research: Watchdog-Signale | nach 112 |
+| `4.37.0` | TTS stehend vs. Fahrt | nach Research |
+| `4.38.0` | Gespräch härten, Siezen | nach Research |
+| `4.39.0`–`4.45.0` | Watchdog, HUD-Interrupt, optionale zweite Nummer, Kalender-Rest, Sideload | Verbesserungen |
+
+### `4.46+` — Hausstand [`38-next.md`](./38-next.md) **PLAN**
+
+Deinstall wegen APK-Signatur löscht WebView-Daten. Export/Import vor Sideload. Autokorrektur Schreib+Sprache, kein blindes Bahn↔Bar.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.46.0` | Research Backup | 113 |
+| `4.47.0` | Research Tippfehler | 113 |
+| `4.48.0`–`4.49.0` | Export / Import | nach Research |
+| `4.50.0`–`4.51.0` | Composer + STT-Wörterbuch | nach Research |
+| `4.52.0` | Sideload mit Hausstand-Thema | nach `4.49` |
+
+### `4.53+` — Zwei Gesichter + Tablet [`39-next.md`](./39-next.md) **PLAN**
+
+Ein Hirn, zwei Faces. Tablet-Lage split, nicht Chat-Ersatz. Female-TTS andockt an `4.34`. Sideload nach Hausstand.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.53.0` | Leitentscheidung (Docs) | 114 |
+| `4.54.0` | Research Face + weibliche Gemini-TTS | nach 114 |
+| `4.55.0` | Research Tablet (Code + ggf. Fotos) | nach 114 |
+| `4.56.0`–`4.58.0` | Parser/Setting, TTS-Bindung, Wake Friday | nach Research |
+| `4.59.0`–`4.62.0` | Lage Split, Poll, Raster, Chat-Kachel | darf vor Friday |
+| `4.63.0`–`4.65.0` | Gold, Header/Avatar, Sideload nach `4.52` | Verbesserungen |
 
 ### Weitere Beispiele
 

@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Code `3.19.0` Stimme/Kalender/Debug [`34-next.md`](./34-next.md). Sprints [`sprints/README.md`](./sprints/README.md). Sideload `3.18.1`.
+> Historisch (MVP `0.1`). **Jetzt:** Code `3.19.0` [`34-next.md`](./34-next.md). Pläne [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md). Sideload `3.18.1`.
 
 ## MVP v0.1 — Definition
 
@@ -537,7 +537,7 @@ Listen-Scope, UI-Confirm, Aufräumen.
 | — | TTS-Vorlesen | nach PO-Go |
 | — | `1.0.0` MAJOR | nach `0.12`, Inhalt PO |
 
-Detail Proxy/APK: [`13-lan-proxy.md`](./13-lan-proxy.md) · Sprints: [`sprints/README.md`](./sprints/README.md)
+Detail On-Device/APK: [`13-on-device.md`](./13-on-device.md) · [`apk.md`](./apk.md) · Sprints: [`sprints/README.md`](./sprints/README.md)
 
 ---
 

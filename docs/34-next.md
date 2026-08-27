@@ -2,7 +2,7 @@
 
 PO 2026-08-27: Reel [lukebuildsai](https://www.instagram.com/reel/Dcgcg5rRdKT/) plus Kalender-Screenshots, Sprachmodus-Bug, Debug in der App.
 
-App-Code: **`3.19.0`**. Sideload zuletzt **`3.18.1`**, bis neu gebaut.
+App-Code: **`3.19.0`** (auf `main`). Sideload zuletzt **`3.18.1`**, bis neu gebaut. Hausstand vor Deinstall: [`38-next.md`](./38-next.md). Film-TTS / Anruf am Steuer: [`37-next.md`](./37-next.md).
 
 ## Reel — was die KI dort tut
 
@@ -31,7 +31,7 @@ Einstellungen → **Debug**. Kategorie (Uhr, CarPlay, Smalltalk, Kalender, …).
 
 | Wer | Was |
 |-----|-----|
-| Ihr Windows-PC | Emulator + `JarvisPC.bat` nebeneinander. Emulator: Host `10.0.2.2`, Port 18790, Token |
+| Ihr Windows-PC | Emulator + `JarvisPC.bat` nebeneinander. Emulator: Host `10.0.2.2`, Port 18790, Token. WLAN-IP: [`desktop/README.md`](../desktop/README.md) |
 | Diese Cloud-VM | Linux. Echte WinForms-`JarvisPC` **nein**. Web-UI + Node-Stub `desktop/jarvis-pc.mjs` **ja** |
 
 ## Reihenfolge

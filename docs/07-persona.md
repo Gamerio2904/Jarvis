@@ -4,8 +4,9 @@ Dieses Dokument steuert den **Charakter**. Es ist Eingang zu Phase 0 und Abnahme
 
 > Status: **Kern + Stil-Beispiele gesetzt**  
 > Beispiele = **grobe Vorgaben**, keine Copy-Paste-Antworten.  
-> **Live `2.1.0`:** WLAN-Steckdosen lokal. Overlay mit Route auf den Straßen, Kurven/Kreisverkehr auf der Linie. Wetter ohne Raten. Research: Zahlen nur aus Treffern. Satzbildung Film-Jarvis. Ton: ruhig, Understatement, Straight Man. Nur Deutsch und Siezen (`persona.ts`). Sparsam „Master“/„Sir“. Stimme: Gemini Charon bzw. Android Neural.  
-> Keine Filmzitate im Prompt, keine Marvel-Rolle behaupten.
+> **Live `3.19.0`:** Ton Siezen, Understatement (`persona.ts`). Stimme: Gemini Charon (oft Native-Race) bzw. Android Neural — Verbesserung [`37-next.md`](./37-next.md). Keine Filmzitate im Prompt.  
+> Keine Filmzitate im Prompt, keine Marvel-Rolle behaupten.  
+> **Geplant `4.53`:** zweites Gesicht **Friday** (weibliche Stimme, Zuruf) — Hausname, nicht MCU. Jarvis bleibt Default (Work + Smalltalk). [`39-next.md`](./39-next.md).
 
 ## Kern (fest aus Produktentscheidung)
 

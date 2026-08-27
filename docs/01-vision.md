@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Stand Code `1.24.0`:** On-Device-APK, lokales 0,5B **oder** Gemini (aus bis Opt-in), Timer/Wecker, Wetter, Kalender, Einkauf, Losgehen, Memory, Personenorte, Route in Google Maps. Live-Ton: **Siezen**, kurz. Reihe: [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md).
+> **Stand Code `3.19.0`:** On-Device, Stimme ein Thread, Kalender-Fenster. Sideload **`3.18.1`**. Live-Ton: **Siezen**. Nächste Pläne: [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md).
 
 ## Vision
 

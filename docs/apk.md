@@ -2,6 +2,8 @@
 
 App-Code steht auf **`3.19.0`**. Der zuletzt gebaute Sideload bleibt **`3.18.1`**, bis `build-apk.sh` / `build-apk.bat` `3.19.0` schreibt (versionCode `31900`).
 
+**Deinstall** (andere Signatur): WebView-Daten weg — Keys, Nummern, Erinnerungen. Bis [`38-next.md`](./38-next.md) CODE ist: vor Neuinstall Settings notieren. GGUF ebenfalls neu laden.
+
 **3.18.1:** Overlay-Slides. Lage-Kacheln. Keine Testprompts in der App.
 
 ## Download

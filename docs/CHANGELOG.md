@@ -21,6 +21,45 @@ Sprachmodus bleibt im selben Gespräch. Kalender: Jahr-Ansicht, `nächste N Tage
 
 - [`desktop/README.md`](../desktop/README.md)
 
+### `4.0.0` — Weltlage / Vorhersage — *PLAN*
+
+Leitentscheidung und Researchphasen, noch kein Execute. Ausblick = zitierte Lage + Serie + Szenario, kein Orakel. MAJOR `4.0`, weil `3.19`–`3.45` schon logisch in `3.18.0` liegen.
+
+- Docs [`35-next.md`](./35-next.md) · [`sprints/sprint-110.md`](./sprints/sprint-110.md)
+- Inspiration: https://www.instagram.com/reel/DblW9QliG5l/
+- App-Code **`3.19.0`**, Sideload noch `3.18.1`
+
+### `4.19.0` — Alltagskette Stimme — *PLAN*
+
+Sprachnachricht, Bar, Taxi aus einem gesprochenen Satz. SMS nach Nachfrage ja, WhatsApp still nein, Taxi öffnen/anrufen ja, „ist bestellt“ nein. Research `4.20`–`4.22` vor Code.
+
+- Docs [`36-next.md`](./36-next.md) · [`sprints/sprint-111.md`](./sprints/sprint-111.md)
+- Inspiration: https://www.instagram.com/reel/Db8bcYijN5y/
+- App-Code **`3.19.0`**, Sideload noch `3.18.1`
+
+### `4.33.0` — Gespräch, Film-Stimme, Reel am Steuer — *PLAN*
+
+Kalender-Screenshots und ein Sprach-Thread sind CODE `3.19.0` auf `main`. Neu: beste freie Gemini-TTS (Charon-Race oft Android), Reel finden/beheben/eine Frage, Anruf am Steuer nicht fake (HUD/Notify).
+
+- Docs [`37-next.md`](./37-next.md) · [`sprints/sprint-112.md`](./sprints/sprint-112.md)
+- Inspiration: https://www.instagram.com/reel/Dcgcg5rRdKT/
+- App-Code **`3.19.0`**, Sideload noch `3.18.1`
+
+### `4.46.0` — Hausstand Backup + Autokorrektur — *PLAN*
+
+Deinstall löscht `jarvis_settings_v13` und IndexedDB. Ein JSON-Export, ein Import. Composer/STT korrigieren Jarvis-Wörter, nicht API-Keys. Kein Jarvis-Cloud.
+
+- Docs [`38-next.md`](./38-next.md) · [`sprints/sprint-113.md`](./sprints/sprint-113.md)
+- App-Code **`3.19.0`**, Sideload noch `3.18.1`
+
+### `4.53.0` — Zwei Gesichter + Tablet flüssig — *PLAN*
+
+Jarvis (männlich, Default: Work + Smalltalk) und Friday (weiblich, Zuruf). Ein Register, ein Gedächtnis, zwei Stimmen. Lage auf dem Tablet **neben** dem Chat, nicht statt. Wake Friday ≠ Freitag. Marvel-Rolle Won’t.
+
+- Docs [`39-next.md`](./39-next.md) · [`sprints/sprint-114.md`](./sprints/sprint-114.md)
+- Tablet-Bugs aus Code (Screenshots in der PO-Nachricht nicht angehängt)
+- App-Code **`3.19.0`**, Sideload noch `3.18.1`
+
 ### `3.18.1` — GUI Premium — *CODE*
 
 Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.
