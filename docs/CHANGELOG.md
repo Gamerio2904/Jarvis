@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`3.18.1`**. Letzter Sideload: **`3.18.1`**.
+App-Version im Code: **`3.19.0`**. Letzter Sideload: **`3.18.1`**.
+
+### `3.19.0` — Stimme ein Thread, Kalender, Debug — *CODE*
+
+Sprachmodus bleibt im selben Gespräch. Kalender: Jahr-Ansicht, `nächste N Tage` als Fenster, `erstell einen Termin für den 5.9. 2026 …`. Einstellungen → Debug: Kategorie, Start, Chat herunterladen. Stimme: Charon wenn Gemini an.
+
+- App-Code `3.19.0`
+- Sideload-APK noch `3.18.1` — nächster Build `3.19.0`
+- [`34-next.md`](./34-next.md) · [`sprints/sprint-109.md`](./sprints/sprint-109.md)
 
 ### `3.18.1` — GUI Premium — *CODE*
 

@@ -77,6 +77,7 @@ MAJOR.MINOR.PATCH
 | `3.0.0` | **Jarvis 3.0** — Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
 | `3.18.0` | **Lage + Härten** — Tablet-HUD, Traceroute, Digest; Stufen `3.0.1`–`3.45` mitgeliefert | Sprint 107 |
 | `3.18.1` | **GUI Premium** — Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
+| `3.19.0` | **Stimme + Kalender + Debug** — ein Thread, Jahr/Fenster, Settings-Debug | Sprint 109 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -152,6 +153,7 @@ MAJOR.MINOR.PATCH
 | `3.0.0` | Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
 | `3.18.0` | Lage, Traceroute, Digest, Routing härten (`3.0.1`–`3.45`) | Sprint 107 |
 | `3.18.1` | GUI: Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
+| `3.19.0` | Sprachmodus ein Thread, Kalender Jahr/nächste Tage, Debug | Sprint 109 |
 
 ### `3.0` — Intelligenz + Welt [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) **CODE**
 

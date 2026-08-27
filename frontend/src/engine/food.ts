@@ -2,7 +2,7 @@ import { getJson } from './http-json.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.18.1 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.19.0 (local.jarvis.app)' }
 
 export type FoodIntent = { query: string }
 

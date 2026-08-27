@@ -38,7 +38,8 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 31 | [Alltag & Welt](./31-next.md) | **`3.1`–`3.17` CODE** — DWD bis Schach (in `3.0.0`) |
 | 32 | [Intelligenz](./32-intelligence.md) | **`3.0` CODE** — Register, Score-Policy |
 | 33 | [3.x danach](./33-next.md) | **`3.18.1` CODE** — Härten, Tablet-Lage, Traceroute, Telefon-Haus, GUI |
-| — | [APK](./apk.md) | Sideload `3.18.1` |
+| 34 | [Stimme Kalender Debug](./34-next.md) | **`3.19.0` CODE** — ein Gespräch, Jahr, Debug |
+| — | [APK](./apk.md) | Sideload `3.18.1`; Code `3.19.0` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -106,5 +107,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 106 | `3.0.0` | **CODE** (Intelligenz / Register) |
 | 107 | `3.18.0` | **CODE** (Lage, Traceroute, Digest; `3.0.1`–`3.45`) |
 | 108 | `3.18.1` | **CODE** (GUI Premium: Overlay-Slides) |
+| 109 | `3.19.0` | **CODE** (Stimme-Thread, Kalender, Debug) |
 
-**Aktuell:** Code **`3.18.1`**. Sideload-APK `3.18.1` — [`Jarvis.apk`](./apk.md). Lage/Härten: [`33-next.md`](./33-next.md). Intelligenz: [`32-intelligence.md`](./32-intelligence.md). Welt: [`31-next.md`](./31-next.md). PC-App: [`../desktop/README.md`](../desktop/README.md).
+**Aktuell:** Code **`3.19.0`**. Sideload-APK `3.18.1` — [`Jarvis.apk`](./apk.md). Stimme/Kalender: [`34-next.md`](./34-next.md). Lage/Härten: [`33-next.md`](./33-next.md).

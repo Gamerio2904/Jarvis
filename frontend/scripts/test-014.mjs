@@ -640,6 +640,28 @@ if (datedTime?.kind === 'create') {
 assert.equal(parseAlarmIntent('Wecker 5 Uhr', frozen)?.title, 'Wecker')
 assert.equal(parseCalendarIntent('Kalender')?.kind, 'open')
 assert.equal(parseCalendarIntent('was habe ich am Freitag', frozen)?.kind, 'list')
+assert.equal(parseCalendarIntent('was steht heute so an?', frozen)?.kind, 'list')
+assert.equal(parseCalendarIntent('was steht diese Woche an?', frozen)?.kind, 'list')
+{
+  const next3 = parseCalendarIntent('was steht die nächsten 3 Tage an?', frozen)
+  assert.equal(next3?.kind, 'list')
+  if (next3?.kind === 'list') {
+    assert.ok(next3.until)
+    const span = (next3.until.getTime() - next3.day.getTime()) / 86_400_000
+    assert.equal(span, 3)
+  }
+}
+{
+  const made = parseCalendarIntent('erstell einen Termin für den 5.9. 2026, 15:00 Uhr Zahnarzt', frozen)
+  assert.equal(made?.kind, 'create')
+  if (made?.kind === 'create') {
+    assert.equal(made.title, 'Zahnarzt')
+    assert.equal(made.start.getFullYear(), 2026)
+    assert.equal(made.start.getMonth(), 8)
+    assert.equal(made.start.getDate(), 5)
+    assert.equal(made.start.getHours(), 15)
+  }
+}
 assert.equal(parseCalendarIntent('lösche Termin Zahnarzt')?.kind, 'delete')
 assert.equal(parseCalendarIntent('lösche den letzten Termin')?.kind, 'delete_last')
 assert.equal(parseToolIntent('lösche Todo Milch')?.kind, 'todo_delete')
@@ -983,7 +1005,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /3\.18\.1/)
+assert.match(HELP_TEXT, /3\.19\.0/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)

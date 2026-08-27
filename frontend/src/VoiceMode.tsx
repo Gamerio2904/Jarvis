@@ -33,6 +33,8 @@ export function VoiceMode({
   const pipelineRef = useRef<ReturnType<typeof createSpeakPipeline> | null>(null)
   const turnGen = useRef(0)
   const abortTurn = useRef<(() => void) | null>(null)
+  const onTurnRef = useRef(onTurn)
+  onTurnRef.current = onTurn
   const neural = wantGeminiVoice()
 
   useEffect(() => {
@@ -102,7 +104,7 @@ export function VoiceMode({
     let answer = ''
     try {
       answer = await Promise.race([
-        onTurn(text, (_piece, full) => {
+        onTurnRef.current(text, (_piece, full) => {
           if (!live.current || turnGen.current !== gen) return
           setReply(full)
           const ready = tap.feed(full)
