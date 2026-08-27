@@ -35,6 +35,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **PLAN** |
 | E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **PLAN** |
 | E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **PLAN** |
+| E33 | Körper intern `4.66` | 5+ | Hirn/Auge/Hand in der Lage, APK; PC nur PC-Organe — [`40-next.md`](./40-next.md) **PLAN** |
 
 ---
 

@@ -60,6 +60,14 @@ Jarvis (männlich, Default: Work + Smalltalk) und Friday (weiblich, Zuruf). Ein 
 - Tablet-Bugs aus Code (Screenshots in der PO-Nachricht nicht angehängt)
 - App-Code **`3.19.0`**, Sideload noch `3.18.1`
 
+### `4.66.0` — Körper intern (Hirn, Auge, Hand) — *PLAN*
+
+Lage-Sicht **Körper**: vorhandene Organe sichtbar, keine Fake-Gauges. Darstellung in der APK. PC nur für PC-Auge/PC-Hand. Mails/Instagram/24/7-Cloud-Employee Won’t.
+
+- Docs [`40-next.md`](./40-next.md) · [`sprints/sprint-115.md`](./sprints/sprint-115.md)
+- Inspiration: https://www.instagram.com/reel/DcjTYTiCt6P/
+- App-Code **`3.19.0`**, Sideload noch `3.18.1`
+
 ### `3.18.1` — GUI Premium — *CODE*
 
 Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.

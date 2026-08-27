@@ -83,6 +83,7 @@ MAJOR.MINOR.PATCH
 | `4.33.0` | **Gespräch / Film-Stimme / Steuer** — Reel lukebuildsai anpassen | Sprint 112 |
 | `4.46.0` | **Hausstand** — Export/Import nach APK-Deinstall; Autokorrektur Schreib+Sprache | Sprint 113 |
 | `4.53.0` | **Zwei Gesichter + Tablet** — Jarvis/Friday Stimme; Lage nicht statt Chat | Sprint 114 |
+| `4.66.0` | **Körper intern** — Hirn/Auge/Hand in der Lage; APK, PC nur PC-Organe | Sprint 115 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -272,6 +273,17 @@ Ein Hirn, zwei Faces. Tablet-Lage split, nicht Chat-Ersatz. Female-TTS andockt a
 | `4.56.0`–`4.58.0` | Parser/Setting, TTS-Bindung, Wake Friday | nach Research |
 | `4.59.0`–`4.62.0` | Lage Split, Poll, Raster, Chat-Kachel | darf vor Friday |
 | `4.63.0`–`4.65.0` | Gold, Header/Avatar, Sideload nach `4.52` | Verbesserungen |
+
+### `4.66+` — Körper intern [`40-next.md`](./40-next.md) **PLAN**
+
+Lage-Sicht auf vorhandene Organe. Handy ist Hirn. PC nur PC-Auge/PC-Hand. Kein Cloud-Employee.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.66.0` | Leitentscheidung (Docs) | 115 |
+| `4.67.0`–`4.69.0` | Research: Kacheln, Live-Felder, PC-leer | nach 115 |
+| `4.70.0`–`4.74.0` | HUD-Sicht, Organ-Kacheln, Gold | nach Research |
+| `4.75.0` | Sideload nach Hausstand | nach `4.52` |
 
 ### Weitere Beispiele
 
