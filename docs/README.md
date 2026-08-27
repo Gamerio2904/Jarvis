@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`4.19.0`**. Sideload **`3.18.1`**. Nächste Pläne: [`37-next.md`](./37-next.md) Stimme/Steuer · [`38-next.md`](./38-next.md) **Backup** · [`39-next.md`](./39-next.md) Jarvis/Friday. Weltlage: [`35-next.md`](./35-next.md). Alltagskette: [`36-next.md`](./36-next.md).
+**Jetzt:** Code **`4.53.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export. Weltlage: [`35-next.md`](./35-next.md). Alltagskette: [`36-next.md`](./36-next.md). Stimme/Steuer: [`37-next.md`](./37-next.md). Backup: [`38-next.md`](./38-next.md). Jarvis/Friday: [`39-next.md`](./39-next.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -43,10 +43,10 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 34 | [Stimme Kalender Debug](./34-next.md) | **`3.19.0` CODE** — ein Gespräch, Jahr, Debug |
 | 35 | [Weltlage / Vorhersage](./35-next.md) | **`4.0` CODE** — Ausblick zitiert, Serie, Szenario, kein Orakel |
 | 36 | [Alltagskette Stimme](./36-next.md) | **`4.19` CODE** — Bar, SMS-Note, Taxi, Kette |
-| 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` PLAN** — Film-TTS free, Reel finden/eine Frage |
-| 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` PLAN** — Export/Import, Tippfehler Schreib+Sprache |
-| 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` PLAN** — Jarvis/Friday Stimme, Lage nicht statt Chat |
-| — | [APK](./apk.md) | Sideload `3.18.1`; Code `4.0.0`; Deinstall löscht Keys — erst [`38`](./38-next.md) |
+| 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` CODE** — Film-TTS Algieba, HUD am Steuer |
+| 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` CODE** — Export/Import, Tippfehler Schreib+Sprache |
+| 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
+| — | [APK](./apk.md) | Sideload `3.18.1`; Code `4.53.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -117,8 +117,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 109 | `3.19.0` | **CODE** (Stimme-Thread, Kalender, Debug) |
 | 110 | `4.0.0` | **CODE** (Weltlage / Vorhersage) |
 | 111 | `4.19.0` | **CODE** (Alltagskette Bar/SMS/Taxi) |
-| 112 | `4.33.0` | **PLAN** (Gespräch, Film-Stimme, Reel am Steuer) |
-| 113 | `4.46.0` | **PLAN** (Hausstand Export/Import, Autokorrektur) |
-| 114 | `4.53.0` | **PLAN** (Jarvis/Friday + Tablet-Lage flüssig) |
+| 112 | `4.33.0` | **CODE** (Gespräch, Film-Stimme, Reel am Steuer) |
+| 113 | `4.46.0` | **CODE** (Hausstand Export/Import, Autokorrektur) |
+| 114 | `4.53.0` | **CODE** (Jarvis/Friday + Tablet-Lage flüssig) |
 
-**Aktuell:** Code **`4.19.0`**. Sideload `3.18.1`. Nächste Pläne: [`37-next.md`](./37-next.md)–[`39-next.md`](./39-next.md).
+**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Sideload erst nach Hausstand-Export.

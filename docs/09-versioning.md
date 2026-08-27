@@ -161,6 +161,9 @@ MAJOR.MINOR.PATCH
 | `3.19.0` | Sprachmodus ein Thread, Kalender Jahr/nächste Tage, Debug | Sprint 109 |
 | `4.0.0` | Weltlage / Vorhersage: `outlook`, Serie, Szenario, kein Orakel (`4.1`–`4.17`) | Sprint 110 |
 | `4.19.0` | Alltagskette: Bar, Sprachnachricht=SMS, Taxi nach Ja, Kette | Sprint 111 |
+| `4.33.0` | Film-TTS Algieba, HUD/Notify am Steuer, Watchdog | Sprint 112 |
+| `4.46.0` | Hausstand-Export/Import, Autokorrektur Schreib+Sprache | Sprint 113 |
+| `4.53.0` | Jarvis/Friday-Gesichter, Lage neben dem Chat | Sprint 114 |
 
 ### `3.0` — Intelligenz + Welt [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) **CODE**
 
@@ -220,7 +223,7 @@ MAJOR.MINOR.PATCH
 | `4.10.0` | Weitere Märkte nur mit sauberer Quelle | später |
 | `4.11.0`–`4.18.0` | Lage-Kachel, Härten, Quellen, Analog, Akku, Gold, Stimme, Sideload | Verbesserungen |
 
-### `4.19+` — Alltagskette Stimme [`36-next.md`](./36-next.md) **PLAN**
+### `4.19+` — Alltagskette Stimme [`36-next.md`](./36-next.md) **CODE**
 
 Reel: Sprachnachricht, Bar, Taxi — nur geredet. Plan **vollständig** (Gold, Voten, Dateien). Sideload nach Hausstand [`38-next.md`](./38-next.md).
 
@@ -236,7 +239,7 @@ Reel: Sprachnachricht, Bar, Taxi — nur geredet. Plan **vollständig** (Gold, V
 | `4.26.0` | Kette in einem Satz | nach `4.22` |
 | `4.27.0`–`4.32.0` | Stimme, `wa.me`, Audio optional, Follow-up, Härten, Sideload nach Backup | Verbesserungen |
 
-### `4.33+` — Gespräch, Film-Stimme, Reel am Steuer [`37-next.md`](./37-next.md) **PLAN**
+### `4.33+` — Gespräch, Film-Stimme, Reel am Steuer [`37-next.md`](./37-next.md) **CODE**
 
 Kalender-Jahr/Fenster/`erstell` und ein Voice-Thread sind **CODE** `3.19.0` auf `main`. Neu: Gemini-TTS näher am Film (free), Anruf am Steuer nicht fake.
 
@@ -250,7 +253,7 @@ Kalender-Jahr/Fenster/`erstell` und ein Voice-Thread sind **CODE** `3.19.0` auf 
 | `4.38.0` | Gespräch härten, Siezen | nach Research |
 | `4.39.0`–`4.45.0` | Watchdog, HUD-Interrupt, optionale zweite Nummer, Kalender-Rest, Sideload | Verbesserungen |
 
-### `4.46+` — Hausstand [`38-next.md`](./38-next.md) **PLAN**
+### `4.46+` — Hausstand [`38-next.md`](./38-next.md) **CODE**
 
 Deinstall wegen APK-Signatur löscht WebView-Daten. Export/Import vor Sideload. Autokorrektur Schreib+Sprache, kein blindes Bahn↔Bar.
 
@@ -262,7 +265,7 @@ Deinstall wegen APK-Signatur löscht WebView-Daten. Export/Import vor Sideload. 
 | `4.50.0`–`4.51.0` | Composer + STT-Wörterbuch | nach Research |
 | `4.52.0` | Sideload mit Hausstand-Thema | nach `4.49` |
 
-### `4.53+` — Zwei Gesichter + Tablet [`39-next.md`](./39-next.md) **PLAN**
+### `4.53+` — Zwei Gesichter + Tablet [`39-next.md`](./39-next.md) **CODE**
 
 Ein Hirn, zwei Faces. Tablet-Lage split, nicht Chat-Ersatz. Female-TTS andockt an `4.34`. Sideload nach Hausstand.
 

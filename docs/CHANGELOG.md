@@ -5,7 +5,26 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`4.19.0`**. Letzter Sideload: **`3.18.1`**.
+App-Version im Code: **`4.53.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
+
+### `4.53.0` — Zwei Gesichter + Tablet flüssig — *CODE*
+
+Ein Register, zwei Gesichter: Jarvis (Default, Algieba) und Friday (Kore, auf Zuruf). Wake Friday ≠ Freitag. Lage **neben** dem Chat ab 900 px, Composer und Mic bleiben. Uhr 1 s, Wetter 10 min.
+
+- [`39-next.md`](./39-next.md) · [`sprints/sprint-114.md`](./sprints/sprint-114.md)
+- Sideload-APK noch `3.18.1` — kein APK-Claim
+
+### `4.46.0` — Hausstand Backup + Autokorrektur — *CODE*
+
+JSON-Export `jarvis-haus-YYYYMMDD.json` (Settings+Memory+Listen, Chats optional). Import nur nach Vorschau und **Überschreiben ja**. Composer `lang=de` spellCheck. `repairSpeech` / `pickHeard` für Jarvis-Wörter und Memory-Namen. Kein Jarvis-Cloud.
+
+- [`38-next.md`](./38-next.md) · [`sprints/sprint-113.md`](./sprints/sprint-113.md)
+
+### `4.33.0` — Gespräch, Film-Stimme, Reel am Steuer — *CODE*
+
+TTS: Algieba, stehend 3,5 s ohne Native-Race, Fahrt Race 400 ms / Budget 700 ms. Am Steuer: HUD + Notify + Ja/Nein, kein Fake-Anruf. Zweite Nummer nur Opt-in und ≠ dieses Gerät. Watchdog Default aus (Steckdose tot, Termin-Kollision).
+
+- [`37-next.md`](./37-next.md) · [`sprints/sprint-112.md`](./sprints/sprint-112.md)
 
 ### `4.19.0` — Alltagskette Stimme — *CODE*
 
@@ -34,29 +53,6 @@ Sprachmodus bleibt im selben Gespräch. Kalender: Jahr-Ansicht, `nächste N Tage
 `JarvisPC.bat` kopiert die WLAN-IP (`192.168`/`10`), nicht die erste WSL/Hyper-V-Adresse. Firewall-Knopf. Handy entfernt `http://` und Port aus dem IP-Feld. Ohne neue APK reicht die neue BAT; klarere Fehlzeile erst nach nächstem Sideload.
 
 - [`desktop/README.md`](../desktop/README.md)
-
-### `4.33.0` — Gespräch, Film-Stimme, Reel am Steuer — *PLAN*
-
-Kalender-Screenshots und ein Sprach-Thread sind CODE `3.19.0` auf `main`. Neu: beste freie Gemini-TTS (Charon-Race oft Android), Reel finden/beheben/eine Frage, Anruf am Steuer nicht fake (HUD/Notify).
-
-- Docs [`37-next.md`](./37-next.md) · [`sprints/sprint-112.md`](./sprints/sprint-112.md)
-- Inspiration: https://www.instagram.com/reel/Dcgcg5rRdKT/
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
-
-### `4.46.0` — Hausstand Backup + Autokorrektur — *PLAN*
-
-Deinstall löscht `jarvis_settings_v13` und IndexedDB. Ein JSON-Export, ein Import. Composer/STT korrigieren Jarvis-Wörter, nicht API-Keys. Kein Jarvis-Cloud.
-
-- Docs [`38-next.md`](./38-next.md) · [`sprints/sprint-113.md`](./sprints/sprint-113.md)
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
-
-### `4.53.0` — Zwei Gesichter + Tablet flüssig — *PLAN*
-
-Jarvis (männlich, Default: Work + Smalltalk) und Friday (weiblich, Zuruf). Ein Register, ein Gedächtnis, zwei Stimmen. Lage auf dem Tablet **neben** dem Chat, nicht statt. Wake Friday ≠ Freitag. Marvel-Rolle Won’t.
-
-- Docs [`39-next.md`](./39-next.md) · [`sprints/sprint-114.md`](./sprints/sprint-114.md)
-- Tablet-Bugs aus Code (Screenshots in der PO-Nachricht nicht angehängt)
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
 
 ### `3.18.1` — GUI Premium — *CODE*
 

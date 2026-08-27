@@ -70,7 +70,7 @@ Ohne GPS: Bar ehrlich wie andere POI (`NO_GPS` in `poi.ts`). Ohne Kontakt Taxi u
 
 ## Research — Voten (geschlossen, außer Spike-URL)
 
-### `4.19.0` Leitentscheidung — **PLAN** (dieses Dokument)
+### `4.19.0` Leitentscheidung — **CODE** (dieses Dokument)
 
 ### `4.20.0` Sprachnachricht
 
