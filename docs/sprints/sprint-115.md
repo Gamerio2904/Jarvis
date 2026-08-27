@@ -11,18 +11,18 @@
 
 ## Ziel
 
-Jarvis’ Organe **intern sichtbar** in der Lage: Hirn, Auge, Hand, plus Ohr, Mund, Gedächtnis. PC-Auge/PC-Hand nur mit BAT. Dieselbe APK-WebView — kein PC-Pflicht-Dashboard.
+Jarvis’ Organe **intern sichtbar** in der Lage: 3D-Schema live und anklickbar (Darstellung), plus dieselben Daten als Kacheln. Hirn, Auge, Hand, Ohr, Mund, Gedächtnis. PC-Auge/PC-Hand nur mit BAT. Dieselbe APK-WebView — kein PC-Pflicht-Dashboard. Klick startet keine Tools.
 
 ## Must
 
 | ID | Inhalt |
 |----|--------|
 | K1 | Reel ehrlich vs. Marketing (Mails/Instagram/24/7 = Won’t) |
-| K2 | APK = Darstellungsort; PC nur zwei Organe |
+| K2 | APK = Darstellungsort inkl. WebGL-Schema; PC nur zwei Organe |
 | K3 | Nur echte Zustände, keine Fake-Gauges |
-| K4 | Research `4.67`–`4.69` vor Execute |
-| K5 | Chat bleibt neben der Lage |
+| K4 | Research `4.67`–`4.69` vor Execute (WebGL-Spike auf dem Handy) |
+| K5 | Chat bleibt neben der Lage; Organ-Tippen = Sicht, nicht Execute |
 
 ## Won’t (dieser Sprint)
 
-Sideload. Cloud-Employee. Marvel-Hologramm. Zweites Hirn auf Windows.
+Sideload. Cloud-Employee. Marvel-/Iron-Man-Mesh. Organ-Klick als Tool. Zweites Hirn auf Windows.

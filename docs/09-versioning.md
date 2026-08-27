@@ -281,8 +281,8 @@ Lage-Sicht auf vorhandene Organe. Handy ist Hirn. PC nur PC-Auge/PC-Hand. Kein C
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `4.66.0` | Leitentscheidung (Docs) | 115 |
-| `4.67.0`–`4.69.0` | Research: Kacheln, Live-Felder, PC-leer | nach 115 |
-| `4.70.0`–`4.74.0` | HUD-Sicht, Organ-Kacheln, Gold | nach Research |
+| `4.67.0`–`4.69.0` | Research: Schema/WebGL, Live-Felder, PC-leer | nach 115 |
+| `4.70.0`–`4.74.0` | HUD-Sicht, 3D + Kacheln, Gold | nach Research |
 | `4.75.0` | Sideload nach Hausstand | nach `4.52` |
 
 ### Weitere Beispiele

@@ -62,7 +62,7 @@ Jarvis (männlich, Default: Work + Smalltalk) und Friday (weiblich, Zuruf). Ein 
 
 ### `4.66.0` — Körper intern (Hirn, Auge, Hand) — *PLAN*
 
-Lage-Sicht **Körper**: vorhandene Organe sichtbar, keine Fake-Gauges. Darstellung in der APK. PC nur für PC-Auge/PC-Hand. Mails/Instagram/24/7-Cloud-Employee Won’t.
+Lage-Sicht **Körper**: 3D-Schema live und anklickbar (nur Darstellung) plus ehrliche Kacheln. APK-WebView, kein PC nötig zum Ansehen. PC nur für PC-Auge/PC-Hand. Mails/Instagram/24/7-Cloud-Employee und Marvel-Mesh Won’t.
 
 - Docs [`40-next.md`](./40-next.md) · [`sprints/sprint-115.md`](./sprints/sprint-115.md)
 - Inspiration: https://www.instagram.com/reel/DcjTYTiCt6P/

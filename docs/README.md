@@ -46,7 +46,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` PLAN** — Film-TTS free, Reel finden/eine Frage |
 | 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` PLAN** — Export/Import, Tippfehler Schreib+Sprache |
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` PLAN** — Jarvis/Friday Stimme, Lage nicht statt Chat |
-| 40 | [Körper intern](./40-next.md) | **`4.66` PLAN** — Hirn/Auge/Hand in der Lage, APK; PC nur PC-Organe |
+| 40 | [Körper intern](./40-next.md) | **`4.66` PLAN** — 3D-Schema live/klickbar in der APK; PC nur PC-Organe |
 | — | [APK](./apk.md) | Sideload `3.18.1`; Code `3.19.0`; Deinstall löscht Keys — erst [`38`](./38-next.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -121,6 +121,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 112 | `4.33.0` | **PLAN** (Gespräch, Film-Stimme, Reel am Steuer) |
 | 113 | `4.46.0` | **PLAN** (Hausstand Export/Import, Autokorrektur) |
 | 114 | `4.53.0` | **PLAN** (Jarvis/Friday + Tablet-Lage flüssig) |
-| 115 | `4.66.0` | **PLAN** (Körper intern: Hirn, Auge, Hand) |
+| 115 | `4.66.0` | **PLAN** (Körper intern: 3D-Schema + Kacheln) |
 
 **Aktuell:** Code **`3.19.0`**. Sideload `3.18.1`. Pläne: [`35-next.md`](./35-next.md)–[`40-next.md`](./40-next.md). Stimme/Kalender: [`34-next.md`](./34-next.md).
