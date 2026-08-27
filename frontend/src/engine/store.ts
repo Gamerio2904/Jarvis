@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '4.0.0'
+export const APP_VERSION = '4.19.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -163,6 +163,9 @@ export type Settings = {
   outlook_watch: boolean
   outlook_interrupt: boolean
   outlook_fred_key: string
+  taxi_app: string
+  chain_json: string
+  last_taxi_json: string
   home_lat: string
   home_lon: string
   home_radius_m: string
@@ -258,6 +261,9 @@ export const DEFAULT_SETTINGS: Settings = {
   outlook_watch: false,
   outlook_interrupt: false,
   outlook_fred_key: '',
+  taxi_app: 'call',
+  chain_json: '',
+  last_taxi_json: '',
   home_lat: '',
   home_lon: '',
   home_radius_m: '250',

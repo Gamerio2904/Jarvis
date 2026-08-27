@@ -50,6 +50,9 @@ import {
 } from './store'
 import { handlePlaces } from './places'
 import { handlePc } from './pc'
+import { handleTaxi } from './taxi'
+import { clearChain, partitionChain, popChain, writeChain } from './chain'
+import { isCommNo, isCommYes } from './places-parse'
 import { handleTvOrdinal, tvStatusFromSettings } from './tv'
 import { handleFuelOrdinal } from './fuel'
 import { handlePoiOrdinal } from './poi'
@@ -152,6 +155,31 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         tool: pcPending.tool,
         lastTool: pcPending.lastTool || 'pc',
       }
+    }
+  }
+
+  if (loadSettings().last_taxi_json) {
+    const taxiPending = await handleTaxi(conversationId, content)
+    if (taxiPending.handled && taxiPending.reply) {
+      return {
+        reply: taxiPending.reply,
+        tool: taxiPending.tool,
+        lastTool: taxiPending.lastTool || 'taxi',
+      }
+    }
+  }
+
+  if (loadSettings().last_step_tool === 'chain_ask') {
+    if (isCommNo(content)) {
+      clearChain()
+      saveSettings({ last_step_tool: '' })
+      return { reply: 'Kette verworfen.', lastTool: 'taxi' }
+    }
+    if (isCommYes(content)) {
+      saveSettings({ last_step_tool: '' })
+      const next = popChain()
+      if (next) return routeDeterministic(conversationId, next)
+      return { reply: 'Nichts mehr in der Kette.', lastTool: 'taxi' }
     }
   }
 
@@ -344,7 +372,13 @@ export async function streamChat(
 
   try {
     const parts = splitIntents(normalizeUtterance(content))
-    const texts = parts.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
+    let queue = parts
+    if (parts.length > 1) {
+      const { reads, writes } = partitionChain(parts)
+      writeChain(writes.slice(1))
+      queue = writes.length ? [...reads, writes[0]] : reads
+    }
+    const texts = queue.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
     const routed: Array<RouteHit | null> = []
     for (const text of texts) {
       routed.push(await routeDeterministic(conversationId, text))
@@ -352,7 +386,7 @@ export async function streamChat(
     const found = routed.filter((h): h is RouteHit => Boolean(h))
     if (found.length && (found.length === routed.length || routed.length > 1)) {
       const replies = routed.map((h, i) =>
-        h ? h.reply : `„${parts[i]}“ habe ich nicht als Befehl erkannt.`,
+        h ? h.reply : `„${queue[i]}“ habe ich nicht als Befehl erkannt.`,
       )
       for (const hit of found) await rememberHit(hit, content)
       const last = found[found.length - 1]

@@ -92,6 +92,7 @@ export const TOOL_LABEL: Record<string, string> = {
   trace: 'Traceroute',
   digest: 'Gespräch',
   outlook: 'Weltlage',
+  taxi: 'Taxi',
 }
 
 export function askReply(a: string, b: string): string {

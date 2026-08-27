@@ -160,5 +160,25 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'outlook')
   }
 
+  if (/\b(taxi|uber|freenow|free\s*now)\b/.test(t) && !/\b(bahn|öpnv)\b/.test(t)) {
+    out = drop(out, 'drive')
+    out = drop(out, 'poi')
+    out = drop(out, 'transit')
+    out = drop(out, 'maps')
+    out = boost(out, 'taxi', 0.3)
+  }
+
+  if (/\b(bahn|öpnv|zug)\b/.test(t)) {
+    out = drop(out, 'poi')
+    out = drop(out, 'taxi')
+    out = boost(out, 'transit', 0.25)
+  }
+
+  if (/\b(kneipe|pubs?|\bbars?\b)\b/.test(t) && /\b(nähe|nächste|nächster)\b/.test(t)) {
+    out = drop(out, 'taxi')
+    out = drop(out, 'transit')
+    out = boost(out, 'poi', 0.25)
+  }
+
   return out
 }

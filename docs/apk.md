@@ -1,6 +1,6 @@
 # Android-APK — Sideload `3.18.1`
 
-App-Code steht auf **`4.0.0`**. Der zuletzt gebaute Sideload bleibt **`3.18.1`**, bis ein neuer Build existiert. Kein APK-Claim für `4.0.0`.
+App-Code steht auf **`4.19.0`**. Der zuletzt gebaute Sideload bleibt **`3.18.1`**. Kein APK-Claim für `4.19`.
 
 **Deinstall** (andere Signatur): WebView-Daten weg — Keys, Nummern, Erinnerungen. Bis [`38-next.md`](./38-next.md) CODE ist: vor Neuinstall Settings notieren. GGUF ebenfalls neu laden.
 

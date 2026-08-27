@@ -160,6 +160,7 @@ MAJOR.MINOR.PATCH
 | `3.18.1` | GUI: Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
 | `3.19.0` | Sprachmodus ein Thread, Kalender Jahr/nächste Tage, Debug | Sprint 109 |
 | `4.0.0` | Weltlage / Vorhersage: `outlook`, Serie, Szenario, kein Orakel (`4.1`–`4.17`) | Sprint 110 |
+| `4.19.0` | Alltagskette: Bar, Sprachnachricht=SMS, Taxi nach Ja, Kette | Sprint 111 |
 
 ### `3.0` — Intelligenz + Welt [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) **CODE**
 

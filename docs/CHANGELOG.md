@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`4.0.0`**. Letzter Sideload: **`3.18.1`**.
+App-Version im Code: **`4.19.0`**. Letzter Sideload: **`3.18.1`**.
+
+### `4.19.0` — Alltagskette Stimme — *CODE*
+
+Bar/Kneipe als POI, Sprachnachricht als SMS-Text, Taxi nach Ja (Anruf oder App-Link, nie „ist bestellt“). Kette: lesen sofort, schreiben nacheinander. WhatsApp nur Chat-Link. Voice-Clip entfällt.
+
+- [`36-next.md`](./36-next.md) · [`sprints/sprint-111.md`](./sprints/sprint-111.md)
 
 ### `4.0.0` — Weltlage / Vorhersage — *CODE*
 
@@ -28,14 +34,6 @@ Sprachmodus bleibt im selben Gespräch. Kalender: Jahr-Ansicht, `nächste N Tage
 `JarvisPC.bat` kopiert die WLAN-IP (`192.168`/`10`), nicht die erste WSL/Hyper-V-Adresse. Firewall-Knopf. Handy entfernt `http://` und Port aus dem IP-Feld. Ohne neue APK reicht die neue BAT; klarere Fehlzeile erst nach nächstem Sideload.
 
 - [`desktop/README.md`](../desktop/README.md)
-
-### `4.19.0` — Alltagskette Stimme — *PLAN*
-
-Sprachnachricht, Bar, Taxi aus einem gesprochenen Satz. SMS nach Nachfrage ja, WhatsApp still nein, Taxi öffnen/anrufen ja, „ist bestellt“ nein. Research `4.20`–`4.22` vor Code.
-
-- Docs [`36-next.md`](./36-next.md) · [`sprints/sprint-111.md`](./sprints/sprint-111.md)
-- Inspiration: https://www.instagram.com/reel/Db8bcYijN5y/
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
 
 ### `4.33.0` — Gespräch, Film-Stimme, Reel am Steuer — *PLAN*
 

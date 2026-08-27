@@ -219,6 +219,15 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'Alltagskette',
+    items: [
+      { label: 'Bar', text: 'Bar in der Nähe' },
+      { label: 'Kneipe', text: 'nächste Kneipe' },
+      { label: 'Taxi', text: 'bestell ein Taxi' },
+      { label: 'Sprachnachricht = SMS', text: 'Sprachnachricht an Mama ich bin in 10 Minuten' },
+    ],
+  },
+  {
     title: 'Randfälle (kommen so kaum vor)',
     items: [
       { label: 'Duzen erzwingen', text: 'Sag Hallo und duze mich.' },

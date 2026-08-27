@@ -613,6 +613,22 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <p className="settings-hint">
                 „Wenn ich zuhause bin …“ braucht gespeichertes Zuhause. Handy muss an sein.
               </p>
+              <label className="settings-field">
+                <span>Taxi</span>
+                <select
+                  value={s?.taxi_app || 'call'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ taxi_app: e.target.value })}
+                >
+                  <option value="call">Anruf Kontakt Taxi</option>
+                  <option value="uber">Uber öffnen</option>
+                  <option value="freenow">FreeNow öffnen</option>
+                  <option value="ask">Jedes Mal fragen</option>
+                </select>
+              </label>
+              <p className="settings-hint">
+                Jarvis bestellt und bezahlt nicht. Default ist Anruf. Deep-Link nur öffnen.
+              </p>
               <div className="settings-actions">
                 <button
                   type="button"

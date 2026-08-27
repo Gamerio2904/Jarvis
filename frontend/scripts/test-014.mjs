@@ -56,6 +56,7 @@ import {
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
+  parseSms,
   looksLikeBareStreet,
 } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
@@ -103,6 +104,7 @@ import { parseSensorsIntent } from '../src/engine/sensors.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
 import { parseNatureIntent } from '../src/engine/nature.ts'
 import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
+import { parseTaxiIntent } from '../src/engine/taxi-parse.ts'
 import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
 import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
 import { tagNewsText } from '../src/engine/outlook-tags.ts'
@@ -1009,7 +1011,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /4\.0\.0/)
+assert.match(HELP_TEXT, /4\.19\.0/)
 assert.match(HELP_TEXT, /Weltlage/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
@@ -1493,5 +1495,25 @@ const rss = parseRssItems(
 )
 assert.equal(rss[0]?.provider, 'dw')
 assert.ok(rss[0]?.tags.includes('opec'))
+
+assert.equal(parsePoiIntent('Bar in der Nähe')?.kind, 'bar')
+assert.equal(parsePoiIntent('nächste Kneipe')?.kind, 'bar')
+assert.equal(parsePoiIntent('nächstes Café')?.kind, 'cafe')
+assert.equal(parsePoiIntent('Minibar im Hotel'), null)
+assert.equal(parseTaxiIntent('bestell ein Taxi')?.kind, 'order')
+assert.equal(parseTaxiIntent('Taxi zur Bar')?.kind, 'order')
+assert.equal(parseTaxiIntent('Mit der Bahn nach Heilbronn'), null)
+assert.equal(pickRoute('Bar in der Nähe'), 'poi')
+assert.equal(pickRoute('nächste Kneipe'), 'poi')
+assert.equal(pickRoute('nächstes Café'), 'poi')
+assert.equal(pickRoute('bestell ein Taxi'), 'taxi')
+assert.equal(pickRoute('Taxi zur Bar'), 'taxi')
+assert.equal(pickRoute('Mit der Bahn nach Heilbronn'), 'transit')
+assert.equal(pickRoute('Nachrichten'), 'news')
+assert.equal(parseSms('Sprachnachricht an Mama ich bin in 10 Minuten')?.kind, 'sms')
+assert.equal(parseSms('Sprachnachricht an Mama ich bin in 10 Minuten')?.voiceNote, true)
+assert.equal(parseSms('Schreib Mama auf WhatsApp ich bin unterwegs')?.kind, 'whatsapp')
+assert.deepEqual(splitIntents('Schreib Tom ich komme, such eine Bar und bestell ein Taxi').length, 3)
+assert.equal(splitIntents('Brot und Butter').length, 1)
 
 console.log('ok 0.14 parsers')

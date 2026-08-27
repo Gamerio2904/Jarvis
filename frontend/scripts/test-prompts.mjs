@@ -12,7 +12,7 @@ import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -163,6 +163,10 @@ const EXPECT = {
   'Fällt der Dollar?': 'outlook',
   'Fällt SAP morgen?': 'outlook',
   'Was ist der Dollar?': 'fx',
+  'Bar in der Nähe': 'poi',
+  'nächste Kneipe': 'poi',
+  'bestell ein Taxi': 'taxi',
+  'Sprachnachricht an Mama ich bin in 10 Minuten': 'maps',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -218,11 +222,11 @@ assert.equal(route('Wird Benzin teurer?'), 'outlook')
 assert.equal(route('Fällt der Dollar?'), 'outlook')
 assert.equal(route('Fällt SAP morgen?'), 'outlook')
 assert.equal(route('Was ist der Dollar?'), 'fx')
-assert.equal(route('Nachrichten'), 'news')
-assert.equal(route('Tagesschau'), 'news')
-assert.equal(route('Fahr mich zu einer Tanke'), 'fuel')
-assert.equal(route('Guten Morgen'), 'brief')
-assert.equal(route('Wetterstatistik an'), 'hud')
+assert.equal(route('Bar in der Nähe'), 'poi')
+assert.equal(route('nächste Kneipe'), 'poi')
+assert.equal(route('bestell ein Taxi'), 'taxi')
+assert.equal(route('Sprachnachricht an Mama ich bin in 10 Minuten'), 'maps')
+assert.equal(route('Mit der Bahn nach Heilbronn'), 'transit')
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }

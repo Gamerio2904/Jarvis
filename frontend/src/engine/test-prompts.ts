@@ -127,4 +127,8 @@ export const TEST_PROMPTS = [
   'Fällt der Dollar?',
   'Fällt SAP morgen?',
   'Was ist der Dollar?',
+  'Bar in der Nähe',
+  'nächste Kneipe',
+  'bestell ein Taxi',
+  'Sprachnachricht an Mama ich bin in 10 Minuten',
 ] as const
