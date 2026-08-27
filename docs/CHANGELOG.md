@@ -29,6 +29,7 @@ Kalender-Screenshots und ein Sprach-Thread sind CODE `3.19.0` (nicht `main`) —
 
 - Docs [`37-next.md`](./37-next.md) · [`sprints/sprint-112.md`](./sprints/sprint-112.md)
 - Inspiration: https://www.instagram.com/reel/Dcgcg5rRdKT/
+- App-Code und Sideload unverändert `3.18.1`
 
 ### `3.18.1` — GUI Premium — *CODE*
 
