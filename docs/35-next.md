@@ -4,6 +4,8 @@ PO 2026-08-27: Jarvis soll **die Zukunft vorhersagen** können — aktuelle Welt
 
 https://www.instagram.com/reel/DblW9QliG5l/
 
+Zweites Reel (Sprachnachricht, Bar, Taxi): [`36-next.md`](./36-next.md) — Schiene `4.19+`, parallel, nicht in `4.0`–`4.18` mischen.
+
 Reihe davor: [`33-next.md`](./33-next.md) **CODE** (`3.18.1`). App-Code jetzt: **`3.18.1`**. Sideload: **`3.18.1`**.
 
 **Warum `4.0`, nicht `3.19`/`3.20`:** In [`09-versioning.md`](./09-versioning.md) sind `3.19.0`–`3.45.0` schon **logische Stufen innerhalb von `3.18.0`**. Ein neues MINOR `3.20` würde kollidieren. Das ist ein eigener Produktsprung (Weltlage, nicht noch ein Haus-Tool) → **MAJOR `4.0`**.
@@ -287,6 +289,8 @@ Thema in Settings: **Weltlage**, nicht unter Sales.
 - Retell, Play Store, iOS, Alexa.  
 - Sales-CRM (altes Reel). Fake-Gauges.  
 - 24/7-Hotline. Kundenrechnung.
+
+Alltagskette (Nachricht/Bar/Taxi): [`36-next.md`](./36-next.md).
 
 ## Verbesserungen (eigene Updates, nach dem Kern)
 

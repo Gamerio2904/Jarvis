@@ -31,6 +31,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E26 | Intelligenz `3.0` | 5+ | Register, Parse vor Execute, Score-Policy — [`32-intelligence.md`](./32-intelligence.md) **CODE** |
 | E27 | Jarvis 3.x danach | 5+ | Härten, Tablet-Lage, Traceroute, Telefon-Haus — [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`) |
 | E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **PLAN** |
+| E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **PLAN** |
 
 ---
 
@@ -386,14 +387,26 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S28.3 | Unterbrechen opt-in | Should | idea | nur Δ, Default aus |
 | S28.4 | Aktien-Gewissheit | Won’t | parked | kein „fällt morgen“ |
 
+### E29 — Alltagskette Stimme `4.19`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S29.0 | Leitentscheidung + Research | Must | ready | [`36-next.md`](./36-next.md) PLAN |
+| S29.1 | Bar/Kneipe POI | Must | idea | Overpass `bar`/`pub` |
+| S29.2 | Sprachnachricht als SMS v1 | Must | idea | Nachfrage, kein stilles WhatsApp |
+| S29.3 | Taxi öffnen oder anrufen | Must | idea | nie „ist bestellt“ |
+| S29.4 | Drei Aufträge, Confirm-Schlange | Must | idea | ein Ja = ein Schritt |
+| S29.5 | WhatsApp still senden | Won’t | parked | Business-API / Accessibility |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
 1. Weltlage **PLAN** [`35-next.md`](./35-next.md) — Research `4.1`–`4.4` vor Code
-2. Sideload `3.18.1` — [`apk.md`](./apk.md)
-3. Reihe 3.x **CODE** [`33-next.md`](./33-next.md)
-4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+2. Alltagskette **PLAN** [`36-next.md`](./36-next.md) — Research `4.20`–`4.22` vor Taxi/WhatsApp
+3. Sideload `3.18.1` — [`apk.md`](./apk.md)
+4. Reihe 3.x **CODE** [`33-next.md`](./33-next.md)
+5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

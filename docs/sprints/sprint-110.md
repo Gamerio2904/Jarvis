@@ -23,6 +23,8 @@ Planen, **wie** Jarvis Weltlage holt und Ausblicke **rechnet** — ohne Orakel. 
 | N4 | Bau-Reihenfolge inkl. Härten/Verbesserungen | `4.5`–`4.18` |
 | N5 | Won’t: Allwissen, Aktien-Garantie, Captcha-Bypass | Won’t-Abschnitt |
 
+Parallel: Alltagskette [`sprint-111.md`](./sprint-111.md) / [`36-next.md`](../36-next.md).
+
 ## Won’t (dieser Sprint)
 
 Execute-Code, APK, neue Register-Einträge, EIA-Key in der App.

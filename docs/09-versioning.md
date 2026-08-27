@@ -78,6 +78,7 @@ MAJOR.MINOR.PATCH
 | `3.18.0` | **Lage + Härten** — Tablet-HUD, Traceroute, Digest; Stufen `3.0.1`–`3.45` mitgeliefert | Sprint 107 |
 | `3.18.1` | **GUI Premium** — Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
 | `4.0.0` | **Weltlage / Vorhersage** — Research zuerst, dann Ausblick; nicht `3.19`/`3.20` (schon logisch in `3.18.0`) | Sprint 110 |
+| `4.19.0` | **Alltagskette Stimme** — Sprachnachricht, Bar, Taxi; Research vor WhatsApp/Taxi-App | Sprint 111 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -211,6 +212,22 @@ MAJOR.MINOR.PATCH
 | `4.9.0` | Unterbrechen opt-in | nach `4.5` |
 | `4.10.0` | Weitere Märkte nur mit sauberer Quelle | später |
 | `4.11.0`–`4.18.0` | Lage-Kachel, Härten, Quellen, Analog, Akku, Gold, Stimme, Sideload | Verbesserungen |
+
+### `4.19+` — Alltagskette Stimme [`36-next.md`](./36-next.md) **PLAN**
+
+Reel: Sprachnachricht, Bar, Taxi — nur geredet. Parallel zu Weltlage, nicht in `4.1`–`4.18` schieben.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.19.0` | Leitentscheidung (Docs) | 111 |
+| `4.20.0` | Research: Sprachnachricht / WhatsApp-Composer | nach 111 |
+| `4.21.0` | Research: Taxi Deep-Link DE | nach 111 |
+| `4.22.0` | Research: Kette + Confirm-Schlange | nach 111 |
+| `4.23.0` | POI Bar/Kneipe | nach Spike |
+| `4.24.0` | Sprachnachricht = SMS-Text v1 | nach `4.20` |
+| `4.25.0` | Taxi: öffnen oder anrufen, nicht „bestellt“ | nach `4.21` |
+| `4.26.0` | Kette in einem Satz | nach `4.22` |
+| `4.27.0`–`4.32.0` | Stimme, optional `wa.me`, Audio-Share, Follow-up, Härten, Sideload | Verbesserungen |
 
 ### Weitere Beispiele
 

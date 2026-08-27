@@ -15,6 +15,13 @@ Leitentscheidung und Researchphasen, noch kein Execute. Ausblick = zitierte Lage
 - Inspiration: https://www.instagram.com/reel/DblW9QliG5l/
 - App-Code und Sideload unverändert `3.18.1`
 
+### `4.19.0` — Alltagskette Stimme — *PLAN*
+
+Sprachnachricht, Bar, Taxi aus einem gesprochenen Satz. SMS nach Nachfrage ja, WhatsApp still nein, Taxi öffnen/anrufen ja, „ist bestellt“ nein. Research `4.20`–`4.22` vor Code.
+
+- Docs [`36-next.md`](./36-next.md) · [`sprints/sprint-111.md`](./sprints/sprint-111.md)
+- Inspiration: https://www.instagram.com/reel/Db8bcYijN5y/
+
 ### `3.18.1` — GUI Premium — *CODE*
 
 Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.
