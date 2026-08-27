@@ -36,6 +36,7 @@ Kalender-Screenshots und ein Sprach-Thread sind CODE `3.19.0` (nicht `main`) —
 Deinstall löscht `jarvis_settings_v13` und IndexedDB. Ein JSON-Export, ein Import. Composer/STT korrigieren Jarvis-Wörter, nicht API-Keys. Kein Jarvis-Cloud.
 
 - Docs [`38-next.md`](./38-next.md) · [`sprints/sprint-113.md`](./sprints/sprint-113.md)
+- App-Code und Sideload unverändert `3.18.1`
 
 ### `3.18.1` — GUI Premium — *CODE*
 
