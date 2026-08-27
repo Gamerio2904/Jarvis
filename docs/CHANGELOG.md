@@ -21,6 +21,7 @@ Sprachnachricht, Bar, Taxi aus einem gesprochenen Satz. SMS nach Nachfrage ja, W
 
 - Docs [`36-next.md`](./36-next.md) · [`sprints/sprint-111.md`](./sprints/sprint-111.md)
 - Inspiration: https://www.instagram.com/reel/Db8bcYijN5y/
+- App-Code und Sideload unverändert `3.18.1`
 
 ### `3.18.1` — GUI Premium — *CODE*
 
