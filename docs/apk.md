@@ -1,6 +1,6 @@
 # Android-APK — Sideload `3.18.1`
 
-App-Code und Sideload stehen auf **`3.18.1`** (Lage, Traceroute, Digest, GUI-Slides). versionCode `31801`.
+App-Code steht auf **`3.19.0`**. Der zuletzt gebaute Sideload bleibt **`3.18.1`**, bis `build-apk.sh` / `build-apk.bat` `3.19.0` schreibt (versionCode `31900`).
 
 **3.18.1:** Overlay-Slides. Lage-Kacheln. Keine Testprompts in der App.
 

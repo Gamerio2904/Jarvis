@@ -10,7 +10,7 @@ Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/
 Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  
 **`3.0.0` CODE:** Register + Score-Policy [`32-intelligence.md`](./32-intelligence.md). Welt `3.1`–`3.17` mitgeliefert [`31-next.md`](./31-next.md).  
 **`3.18.0` CODE:** Follow-up, „und“, Parser-Score, Tablet-Lage, Traceroute, Digest [`33-next.md`](./33-next.md).  
-**`3.18.1` CODE:** GUI Overlay-Slides.
+**`3.19.0` CODE:** Sprachmodus ein Thread, Kalender-Fenster, Debug [`34-next.md`](./34-next.md).
 
 ### Live `1.32.1` (Code)
 

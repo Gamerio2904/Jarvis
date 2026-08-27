@@ -285,6 +285,7 @@ function IconSend() {
 function App() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
+  const activeIdRef = useRef<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
@@ -340,6 +341,19 @@ function App() {
   const voiceHoldUntilRef = useRef(0)
   const [voiceSeed, setVoiceSeed] = useState('')
   const [lageWide, setLageWide] = useState(false)
+
+  useEffect(() => {
+    activeIdRef.current = activeId
+  }, [activeId])
+
+  async function ensureConversation(): Promise<string> {
+    if (activeIdRef.current) return activeIdRef.current
+    const created = await createConversation()
+    activeIdRef.current = created.id
+    setConversations((prev) => [created, ...prev])
+    setActiveId(created.id)
+    return created.id
+  }
 
   function openVoiceMode(seed = '') {
     voiceHoldUntilRef.current = Date.now() + 2500
@@ -857,6 +871,7 @@ function App() {
     setError(null)
     setLastFailed(null)
     const created = await createConversation()
+    activeIdRef.current = created.id
     setConversations((prev) => [created, ...prev])
     setActiveId(created.id)
     setMessages([])
@@ -907,15 +922,9 @@ function App() {
       volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
     })
 
-    let conversationId = activeId
+    let conversationId = await ensureConversation()
+    let lastReply = ''
     try {
-      if (!conversationId) {
-        const created = await createConversation()
-        conversationId = created.id
-        setConversations((prev) => [created, ...prev])
-        setActiveId(created.id)
-      }
-
       const optimistic: Message = {
         id: `tmp-${Date.now()}`,
         conversation_id: conversationId,
@@ -966,6 +975,7 @@ function App() {
             msg.meta = { ...(msg.meta || {}), tool: payload.tool }
           }
           setMessages((prev) => [...prev, msg])
+          lastReply = msg.content
           setConversations((prev) => {
             const rest = prev.filter((c) => c.id !== payload.conversation.id)
             return [payload.conversation, ...rest]
@@ -1023,6 +1033,7 @@ function App() {
       void refreshMemory()
       void refreshSettings()
     }
+    return lastReply
   }
 
   async function onEyeFile(file: File) {
@@ -1069,13 +1080,7 @@ function App() {
     content: string,
     onToken?: (piece: string, full: string) => void,
   ): Promise<string> {
-    let conversationId = activeId
-    if (!conversationId) {
-      const created = await createConversation()
-      conversationId = created.id
-      setConversations((prev) => [created, ...prev])
-      setActiveId(created.id)
-    }
+    let conversationId = await ensureConversation()
     const optimistic: Message = {
       id: `tmp-voice-${Date.now()}`,
       conversation_id: conversationId,
@@ -1641,6 +1646,9 @@ function App() {
           }}
           onDeleteMemory={(id) => void onDeleteMemory(id)}
           onClearMemory={() => void onClearMemory()}
+          onDebugSend={(text) => sendMessage(text)}
+          debugConversationId={activeId}
+          debugBusy={busy}
         />
       ) : null}
     </div>

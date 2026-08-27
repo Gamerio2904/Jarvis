@@ -4,6 +4,7 @@ import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugT
 import type { Plug } from './api'
 import { copyText } from './copy-text'
 import { ensureDeviceLocation } from './native/geo'
+import { DebugPanel } from './DebugPanel'
 import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
 import {
   spotifyLoggedIn,
@@ -26,6 +27,7 @@ export type SettingsTopic =
   | 'ton'
   | 'forschung'
   | 'gedaechtnis'
+  | 'debug'
   | 'gefahr'
 
 const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
@@ -42,6 +44,7 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
+  { id: 'debug', label: 'Debug', hint: 'Prompts' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
 ]
 
@@ -143,6 +146,9 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
+  onDebugSend: (text: string) => Promise<string | void>
+  debugConversationId: string | null
+  debugBusy: boolean
 }
 
 export function SettingsScreen(p: SettingsScreenProps) {
@@ -1528,6 +1534,14 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </button>
               ) : null}
             </section>
+          ) : null}
+
+          {p.topic === 'debug' ? (
+            <DebugPanel
+              onSend={p.onDebugSend}
+              conversationId={p.debugConversationId}
+              busy={p.debugBusy}
+            />
           ) : null}
 
           {p.topic === 'gefahr' ? (

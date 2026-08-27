@@ -1,4 +1,4 @@
-/** Prompt-Katalog für Routing-Tests. Nicht in der APK-UI. */
+/** Prompt-Katalog. In der App: Einstellungen → Debug. */
 
 export type TestCopyItem = { label: string; text: string }
 export type TestCopyGroup = { title: string; items: TestCopyItem[] }
@@ -98,6 +98,10 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     title: 'Kalender & Losgehen',
     items: [
       { label: 'Termin', text: 'Termin morgen 15 Uhr Zahnarzt' },
+      { label: 'Termin Datum', text: 'erstell einen Termin für den 5.9. 2026, 15:00 Uhr Zahnarzt' },
+      { label: 'Heute so', text: 'was steht heute so an?' },
+      { label: 'Diese Woche', text: 'was steht diese Woche an?' },
+      { label: 'Nächste 3 Tage', text: 'was steht die nächsten 3 Tage an?' },
       { label: 'Termin mit Straße', text: 'Termin morgen 15 Uhr Zahnarzt Bahnhofstraße' },
       { label: 'Losgehen', text: 'Wann muss ich zum Zahnarzt los?' },
       { label: 'Kalender', text: 'Kalender' },
