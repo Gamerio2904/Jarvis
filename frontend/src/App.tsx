@@ -55,6 +55,7 @@ import { closeDrive, subscribeDrive } from './engine/drive'
 import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
 import { tickOutlookWatch } from './engine/outlook-watch'
+import { tickWatchdog } from './engine/watchdog'
 import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
@@ -421,16 +422,25 @@ function App() {
     }, 5 * 60_000)
     const outlook = window.setInterval(() => {
       void tickOutlookWatch()
+      void tickWatchdog()
     }, 20 * 60_000)
+    const watchdog = window.setInterval(() => {
+      if (!document.hidden) void tickWatchdog()
+    }, 60_000)
     const vis = () => {
-      if (!document.hidden) void tickOutlookWatch()
+      if (!document.hidden) {
+        void tickOutlookWatch()
+        void tickWatchdog()
+      }
     }
     document.addEventListener('visibilitychange', vis)
     void tickOutlookWatch()
+    void tickWatchdog()
     return () => {
       window.clearInterval(t)
       window.clearInterval(glance)
       window.clearInterval(outlook)
+      window.clearInterval(watchdog)
       document.removeEventListener('visibilitychange', vis)
     }
   }, [])

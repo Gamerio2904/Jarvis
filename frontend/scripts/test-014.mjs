@@ -37,7 +37,7 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
-import { ttsModelsToTry } from '../src/engine/tts.ts'
+import { ttsBudgetMs, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
@@ -105,6 +105,8 @@ import { parseFlightsIntent } from '../src/engine/flights.ts'
 import { parseNatureIntent } from '../src/engine/nature.ts'
 import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
 import { parseTaxiIntent } from '../src/engine/taxi-parse.ts'
+import { shouldCallSecondPhone } from '../src/engine/interrupt.ts'
+import { overlappingEvents } from '../src/engine/watchdog.ts'
 import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
 import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
 import { tagNewsText } from '../src/engine/outlook-tags.ts'
@@ -968,6 +970,11 @@ assert.deepEqual(pullReady('Ja. ').parts, [])
 assert.ok(pullReady('Guten Morgen.', true).parts.length >= 1)
 assert.equal(ttsModelsToTry()[0], 'gemini-2.5-flash-preview-tts')
 assert.equal(ttsModelsToTry('gemini-2.5-flash-preview-tts').length, 2)
+assert.equal(TTS_VOICE, 'Algieba')
+assert.equal(ttsNativeRaceMs(false), 0)
+assert.equal(ttsNativeRaceMs(true), 400)
+assert.ok(ttsBudgetMs(false) >= 2000)
+assert.ok(ttsBudgetMs(true) <= 900)
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
 assert.equal(two.parts.length, 1)
 assert.match(two.parts[0], /Ja\./)
@@ -1011,7 +1018,9 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /4\.19\.0/)
+assert.match(HELP_TEXT, /4\.33\.0/)
+assert.match(HELP_TEXT, /Algieba/)
+assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
@@ -1515,5 +1524,32 @@ assert.equal(parseSms('Sprachnachricht an Mama ich bin in 10 Minuten')?.voiceNot
 assert.equal(parseSms('Schreib Mama auf WhatsApp ich bin unterwegs')?.kind, 'whatsapp')
 assert.deepEqual(splitIntents('Schreib Tom ich komme, such eine Bar und bestell ein Taxi').length, 3)
 assert.equal(splitIntents('Brot und Butter').length, 1)
+
+assert.equal(shouldCallSecondPhone({ mode: 'hud', second: '01711111111', own: '01712222222' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '', own: '01712222222' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '01711111111', own: '' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '01711111111', own: '01711111111' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '0171 1111111', own: '01712222222' }), true)
+const ov = overlappingEvents(
+  [
+    { id: '1', title: 'Zahnarzt', start_at: '2026-09-05T13:00:00.000Z', created_at: '', updated_at: '' },
+    { id: '2', title: 'Meeting', start_at: '2026-09-05T13:20:00.000Z', created_at: '', updated_at: '' },
+  ],
+  Date.parse('2026-09-05T08:00:00.000Z'),
+)
+assert.ok(ov)
+assert.match(ov.question, /Zahnarzt/)
+assert.match(ov.question, /Meeting/)
+assert.equal(
+  overlappingEvents(
+    [{ id: '1', title: 'Zahnarzt', start_at: '2026-09-05T13:00:00.000Z', created_at: '', updated_at: '' }],
+    Date.parse('2026-09-05T08:00:00.000Z'),
+  ),
+  null,
+)
+assert.equal(
+  rewriteFollowUp('Ja', { last_step_tool: 'interrupt', last_step_utterance: 'überlappen' }),
+  null,
+)
 
 console.log('ok 0.14 parsers')

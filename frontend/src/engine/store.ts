@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '4.19.0'
+export const APP_VERSION = '4.33.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -166,6 +166,16 @@ export type Settings = {
   taxi_app: string
   chain_json: string
   last_taxi_json: string
+  drive_interrupt: string
+  drive_second_tel: string
+  own_tel: string
+  watchdog: boolean
+  last_interrupt_json: string
+  last_watchdog_fp: string
+  gemini_tts_voice: string
+  tts_voice_jarvis: string
+  tts_voice_friday: string
+  face: string
   home_lat: string
   home_lon: string
   home_radius_m: string
@@ -264,6 +274,16 @@ export const DEFAULT_SETTINGS: Settings = {
   taxi_app: 'call',
   chain_json: '',
   last_taxi_json: '',
+  drive_interrupt: 'hud',
+  drive_second_tel: '',
+  own_tel: '',
+  watchdog: false,
+  last_interrupt_json: '',
+  last_watchdog_fp: '',
+  gemini_tts_voice: '',
+  tts_voice_jarvis: '',
+  tts_voice_friday: '',
+  face: 'jarvis',
   home_lat: '',
   home_lon: '',
   home_radius_m: '250',

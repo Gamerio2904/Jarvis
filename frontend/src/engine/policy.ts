@@ -93,6 +93,7 @@ export const TOOL_LABEL: Record<string, string> = {
   digest: 'Gespräch',
   outlook: 'Weltlage',
   taxi: 'Taxi',
+  interrupt: 'Hinweis',
 }
 
 export function askReply(a: string, b: string): string {

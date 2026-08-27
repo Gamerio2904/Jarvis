@@ -51,6 +51,7 @@ import {
 import { handlePlaces } from './places'
 import { handlePc } from './pc'
 import { handleTaxi } from './taxi'
+import { handleInterrupt } from './interrupt'
 import { clearChain, partitionChain, popChain, writeChain } from './chain'
 import { isCommNo, isCommYes } from './places-parse'
 import { handleTvOrdinal, tvStatusFromSettings } from './tv'
@@ -165,6 +166,17 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         reply: taxiPending.reply,
         tool: taxiPending.tool,
         lastTool: taxiPending.lastTool || 'taxi',
+      }
+    }
+  }
+
+  if (loadSettings().last_interrupt_json) {
+    const interruptHit = await handleInterrupt(conversationId, content)
+    if (interruptHit.handled && interruptHit.reply) {
+      return {
+        reply: interruptHit.reply,
+        tool: interruptHit.tool,
+        lastTool: interruptHit.lastTool || 'interrupt',
       }
     }
   }

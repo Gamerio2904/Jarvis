@@ -482,7 +482,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Mit Gemini-Key: Antwort sofort (Android). Charon nur wenn er in unter einer halben Sekunde da ist — sonst keine Stille.
+                Mit Gemini-Key: stehend wartet Jarvis auf Algieba (Film-näher, kein Charon-Karussell). Am Steuer gewinnt Tempo — Native, kein 3-Sekunden-Loch. Navi-Ansagen bleiben immer Native. Kein ElevenLabs, kein Stimmklon.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>
@@ -517,6 +517,48 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 Sagen Sie laut „Jarvis“. Es muss eine Meldung „Jarvis hört auf den Namen“ oben
                 stehen. Bildschirm aus und andere Apps: nur der Name. Beenden: Schalter oder die
                 Meldung. Akku: nicht optimieren.
+              </p>
+              <label className="settings-field">
+                <span>Am Steuer stören</span>
+                <select
+                  value={s?.drive_interrupt || 'hud'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ drive_interrupt: e.target.value })}
+                >
+                  <option value="hud">HUD und Notify — kein Fake-Anruf</option>
+                  <option value="call">Anruf auf zweite Nummer</option>
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Dieses Handy (nicht anrufen)</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="off"
+                  spellCheck={false}
+                  key={`own-tel-${s?.own_tel ? 'set' : 'empty'}`}
+                  defaultValue={s?.own_tel || ''}
+                  disabled={busy}
+                  placeholder="eigene Nummer"
+                  onBlur={(e) => void p.patchSetting({ own_tel: e.target.value.trim() })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Zweites Handy (optional)</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="off"
+                  spellCheck={false}
+                  key={`second-tel-${s?.drive_second_tel ? 'set' : 'empty'}`}
+                  defaultValue={s?.drive_second_tel || ''}
+                  disabled={busy}
+                  placeholder="anderes Gerät, nicht dieses"
+                  onBlur={(e) => void p.patchSetting({ drive_second_tel: e.target.value.trim() })}
+                />
+              </label>
+              <p className="settings-hint">
+                Jarvis ruft sich nicht selbst an. Zweite Nummer nur wenn sie sich von diesem Handy unterscheidet.
               </p>
               {p.shortcutMsg ? <p className="settings-hint">{p.shortcutMsg}</p> : null}
             </section>
@@ -952,6 +994,18 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   onChange={(e) => void p.patchSetting({ plugs_enabled: e.target.checked })}
                 />
               </label>
+              <label className="settings-toggle">
+                <span>Watchdog Haus</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.watchdog)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ watchdog: e.target.checked })}
+                />
+              </label>
+              <p className="settings-hint">
+                Aus = Ruhe. An = nur Haus-Signale (Steckdose tot, Termin-Kollision). Timer klingeln schon. Kein Fake-Anruf, kein Firmen-Finden.
+              </p>
               {(loadPlugs().length ? loadPlugs() : []).map((plug) => (
                 <div key={plug.id} className="settings-hint" style={{ marginTop: 8 }}>
                   <strong>{plug.name}</strong> · {plug.kind} · {plug.host || 'ohne IP'}

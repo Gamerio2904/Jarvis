@@ -52,7 +52,7 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   const medium = (step?.last_medium ?? '').trim()
   const utterance = (step?.last_step_utterance ?? '').trim()
 
-  if (/^(?:call_confirm|sms_confirm|sms_body_ask|sms_ask|phone_ask|pc_confirm|taxi|chain_ask)$/.test(tool)) return null
+  if (/^(?:call_confirm|sms_confirm|sms_body_ask|sms_ask|phone_ask|pc_confirm|taxi|chain_ask|interrupt)$/.test(tool)) return null
 
   const vol = VOL.exec(raw)
   if (vol) {

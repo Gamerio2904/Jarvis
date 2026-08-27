@@ -1,5 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { synthesizeGemini, TTS_NATIVE_RACE_MS, wantGeminiVoice } from '../engine/tts'
+import { synthesizeGemini, ttsNativeRaceMs, wantGeminiVoice } from '../engine/tts'
 import { pickHeard } from '../engine/heard.ts'
 
 export { createSentenceTap } from '../engine/speak-tap'
@@ -195,11 +195,16 @@ export function createSpeakPipeline() {
   function prepare(text: string): Promise<Blob | 'native'> {
     return (async () => {
       if (!wantGeminiVoice()) return 'native'
+      const race = ttsNativeRaceMs()
+      if (race <= 0) {
+        const blob = await synthesizeGemini(text)
+        return blob || 'native'
+      }
       const gemini = synthesizeGemini(text)
       const raced = await Promise.race([
         gemini,
         new Promise<null>((resolve) => {
-          globalThis.setTimeout(() => resolve(null), TTS_NATIVE_RACE_MS)
+          globalThis.setTimeout(() => resolve(null), race)
         }),
       ])
       if (raced) return raced
