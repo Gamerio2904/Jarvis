@@ -45,6 +45,7 @@ import { parseTraceIntent } from './trace-parse.ts'
 import { parseDigestIntent } from './digest-parse.ts'
 import { parseOutlookIntent } from './outlook-parse.ts'
 import { parseTaxiIntent } from './taxi-parse.ts'
+import { parseBackupIntent } from './backup.ts'
 import { applyConflicts } from './conflicts.ts'
 import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
@@ -136,6 +137,7 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'digest', sideEffect: 'write', parse: (ctx) => (parseDigestIntent(ctx.text) ? score(ctx.text, 0.1) : null) },
   { id: 'outlook', sideEffect: 'read', parse: (ctx) => (parseOutlookIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.1) : null) },
   { id: 'taxi', sideEffect: 'read', parse: (ctx) => (parseTaxiIntent(ctx.text) ? score(ctx.text, 0.12) : null) },
+  { id: 'backup', sideEffect: 'read', parse: (ctx) => (parseBackupIntent(ctx.text) ? score(ctx.text, 0.2) : null) },
 ]
 
 export function propose(ctx: RouteCtx): Candidate[] {

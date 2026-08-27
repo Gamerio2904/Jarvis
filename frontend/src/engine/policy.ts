@@ -94,6 +94,7 @@ export const TOOL_LABEL: Record<string, string> = {
   outlook: 'Weltlage',
   taxi: 'Taxi',
   interrupt: 'Hinweis',
+  backup: 'Hausstand',
 }
 
 export function askReply(a: string, b: string): string {

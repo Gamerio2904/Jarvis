@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-    "version": "4.33.0",
+    "version": "4.46.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

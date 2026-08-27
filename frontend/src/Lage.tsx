@@ -80,6 +80,9 @@ export function Lage({
                     onChange={(e) => setDraft(e.target.value)}
                     placeholder="Nachricht…"
                     disabled={busy}
+                    lang="de"
+                    spellCheck
+                    autoCorrect="on"
                   />
                 </form>
               </article>,

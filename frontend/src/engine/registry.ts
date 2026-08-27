@@ -83,6 +83,7 @@ import { parseOutlookIntent } from './outlook-parse'
 import { handleOutlook } from './outlook'
 import { parseTaxiIntent } from './taxi-parse'
 import { handleTaxi } from './taxi'
+import { parseBackupIntent, handleBackup } from './backup'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -497,6 +498,13 @@ function makeCatalog(): Capability[] {
       sideEffect: 'read',
       parse: (ctx) => (parseTaxiIntent(ctx.text) ? score(ctx.text, 0.12) : null),
       execute: async (ctx) => fromHandler('taxi', await handleTaxi(ctx.conversationId, ctx.text)),
+    },
+    {
+      id: 'backup',
+      label: 'Hausstand',
+      sideEffect: 'read',
+      parse: (ctx) => (parseBackupIntent(ctx.text) ? score(ctx.text, 0.2) : null),
+      execute: async (ctx) => fromHandler('backup', await handleBackup(ctx.conversationId, ctx.text)),
     },
   ]
 }

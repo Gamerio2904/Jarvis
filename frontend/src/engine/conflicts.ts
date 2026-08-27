@@ -180,5 +180,10 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'poi', 0.25)
   }
 
+  if (/\b(hausstand|einstellungen\s+export|backup\s+export)\b/.test(t)) {
+    out = drop(out, 'research')
+    out = boost(out, 'backup', 0.3)
+  }
+
   return out
 }

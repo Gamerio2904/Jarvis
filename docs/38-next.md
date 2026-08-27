@@ -1,8 +1,8 @@
-# 38 — Haus-Stand: Backup + Autokorrektur (`4.46`) **PLAN**
+# 38 — Haus-Stand: Backup + Autokorrektur (`4.46`) **CODE**
 
 PO 2026-08-27: Nach APK-Neuinstall (falsche Signatur / Deinstall) sind Keys, Erinnerungen, Nummern weg. Export → ein Tippen Import = gleicher Stand. Dazu: Tippfehler in **Schreiben** und **Sprache**, Jarvis merkt falsche Wörter.
 
-Code jetzt: **`3.19.0`**. Daten sitzen in **WebView**: `localStorage` Key `jarvis_settings_v13`, IndexedDB `jarvis-ondevice` (conversations, messages, memory, notes, todos, pending, research_audits, reminders, events, shopping). Deinstall **löscht beides**. GGUF (OPFS) ist groß — nicht im JSON.
+Code jetzt: **`4.46.0`**. Daten sitzen in **WebView**: `localStorage` Key `jarvis_settings_v13`, IndexedDB `jarvis-ondevice`.
 
 Alltagskette: [`36-next.md`](./36-next.md). Diese Schiene ist **MUST vor dem nächsten Sideload**.
 
@@ -61,12 +61,12 @@ Sideload mit anderem Keystore → Android verlangt Deinstall → Hausstand weg. 
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`4.46.0`** | Research Backup | **PLAN** |
-| **`4.47.0`** | Research Tippfehler | **PLAN** |
-| **`4.48.0`** | Export Teilen/Download, Banner Keys | geplant |
-| **`4.49.0`** | Import ein Tippen, Confirm, IDB+Settings schreiben, Erinnerungen neu schedulen (`scheduleNotify`) | geplant |
-| **`4.50.0`** | Composer DE-Spellcheck; `repairSpeech` + Memory-Namen; Chat-Tipp: eine Rückfrage bei Bar/Bahn | geplant |
-| **`4.51.0`** | Stimme: `pickHeard` + Kontakte; Gold | geplant |
+| **`4.46.0`** | Research Backup + Export/Import | **CODE** |
+| **`4.47.0`** | Research Tippfehler | **CODE** |
+| **`4.48.0`** | Export Teilen/Download, Banner Keys | **CODE** |
+| **`4.49.0`** | Import ein Tippen, Confirm, IDB+Settings schreiben, Erinnerungen neu schedulen | **CODE** |
+| **`4.50.0`** | Composer DE-Spellcheck; `repairSpeech` + Memory-Namen | **CODE** |
+| **`4.51.0`** | Stimme: `pickHeard` + Kontakte; Gold | **CODE** |
 | **`4.52.0`** | Sideload **mit** Hausstand-Thema in Settings | geplant |
 
 ## Settings-UI

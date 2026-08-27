@@ -13,6 +13,13 @@ import {
   spotifyRedirect,
   startSpotifyLogin,
 } from './engine/spotify'
+import {
+  applyBackup,
+  asBackup,
+  previewBackup,
+  shareOrDownloadBackup,
+  type BackupPreview,
+} from './engine/backup'
 
 export type SettingsTopic =
   | 'allgemein'
@@ -28,6 +35,7 @@ export type SettingsTopic =
   | 'ton'
   | 'forschung'
   | 'weltlage'
+  | 'hausstand'
   | 'gedaechtnis'
   | 'debug'
   | 'gefahr'
@@ -46,6 +54,7 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
   { id: 'weltlage', label: 'Weltlage', hint: 'Ausblick' },
+  { id: 'hausstand', label: 'Hausstand', hint: 'Backup' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
   { id: 'debug', label: 'Debug', hint: 'Prompts' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
@@ -181,6 +190,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [plugDraft, setPlugDraft] = useState<Plug>(() => emptyPlug())
   const [locBusy, setLocBusy] = useState(false)
   const [locMsg, setLocMsg] = useState<string | null>(null)
+  const [backupChats, setBackupChats] = useState(false)
+  const [backupBusy, setBackupBusy] = useState(false)
+  const [backupMsg, setBackupMsg] = useState<string | null>(null)
+  const [backupPreview, setBackupPreview] = useState<BackupPreview | null>(null)
+  const [backupPending, setBackupPending] = useState<ReturnType<typeof asBackup>>(null)
 
   let hudOn: HudId[] = [...HUD_DEFAULT_ON]
   try {
@@ -1607,6 +1621,110 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 />
               </label>
               <p className="settings-hint">Serie DCOILBRENTEU, kostenlos registrieren. Nicht teilen.</p>
+            </section>
+          ) : null}
+
+          {p.topic === 'hausstand' ? (
+            <section className="settings-card">
+              <h3>Hausstand</h3>
+              <p className="settings-lead">
+                Vor dem nächsten Sideload exportieren. Deinstall löscht Keys, Nummern und Erinnerungen. Die Datei
+                enthält API-Keys — nicht in den Chat, nicht nach Git, nicht per Mail.
+              </p>
+              <p className="settings-hint">
+                {s?.last_backup_at
+                  ? `Letzter Export: ${new Date(s.last_backup_at).toLocaleString('de-DE')}`
+                  : 'Noch kein Export auf diesem Gerät.'}
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={backupChats}
+                  disabled={busy || backupBusy}
+                  onChange={(e) => setBackupChats(e.target.checked)}
+                />
+                <span>Chats mitexportieren (kann groß werden)</span>
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || backupBusy}
+                  onClick={() => {
+                    setBackupBusy(true)
+                    setBackupMsg(null)
+                    void shareOrDownloadBackup(backupChats)
+                      .then((msg) => setBackupMsg(msg))
+                      .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
+                      .finally(() => setBackupBusy(false))
+                  }}
+                >
+                  Exportieren
+                </button>
+                <label className="retry-btn" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  Datei wählen
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    hidden
+                    disabled={busy || backupBusy}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      e.target.value = ''
+                      if (!file) return
+                      setBackupBusy(true)
+                      setBackupMsg(null)
+                      setBackupPreview(null)
+                      setBackupPending(null)
+                      void file
+                        .text()
+                        .then((text) => {
+                          let parsed: unknown
+                          try {
+                            parsed = JSON.parse(text)
+                          } catch {
+                            setBackupMsg('Keine JSON-Datei.')
+                            return
+                          }
+                          const data = asBackup(parsed)
+                          const prev = previewBackup(parsed)
+                          setBackupPreview(prev)
+                          setBackupPending(data)
+                          setBackupMsg(prev.message)
+                        })
+                        .finally(() => setBackupBusy(false))
+                    }}
+                  />
+                </label>
+              </div>
+              {backupPreview?.ok ? (
+                <p className="settings-hint">
+                  Vorschau: {backupPreview.keys} Keys, {backupPreview.contacts} Nummern, {backupPreview.reminders}{' '}
+                  Erinnerungen, {backupPreview.events} Termine
+                  {backupPreview.chats ? `, ${backupPreview.chats} Chats` : ''}.
+                </p>
+              ) : null}
+              <button
+                type="button"
+                className="retry-btn"
+                disabled={busy || backupBusy || !backupPending}
+                onClick={() => {
+                  if (!backupPending) return
+                  setBackupBusy(true)
+                  void applyBackup(backupPending)
+                    .then((msg) => {
+                      setBackupMsg(msg)
+                      setBackupPending(null)
+                      setBackupPreview(null)
+                    })
+                    .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Import fehlgeschlagen'))
+                    .finally(() => setBackupBusy(false))
+                }}
+              >
+                Überschreiben ja
+              </button>
+              <p className="settings-hint">Ohne diesen Knopf ändert Import nichts.</p>
+              {backupMsg ? <p className="settings-hint">{backupMsg}</p> : null}
             </section>
           ) : null}
 

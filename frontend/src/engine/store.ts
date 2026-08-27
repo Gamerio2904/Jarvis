@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '4.33.0'
+export const APP_VERSION = '4.46.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -176,6 +176,7 @@ export type Settings = {
   tts_voice_jarvis: string
   tts_voice_friday: string
   face: string
+  last_backup_at: string
   home_lat: string
   home_lon: string
   home_radius_m: string
@@ -284,6 +285,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tts_voice_jarvis: '',
   tts_voice_friday: '',
   face: 'jarvis',
+  last_backup_at: '',
   home_lat: '',
   home_lon: '',
   home_radius_m: '250',
@@ -425,6 +427,18 @@ export async function del(store: string, id: string): Promise<void> {
   const tx = db.transaction(store, 'readwrite')
   tx.objectStore(store).delete(id)
   await txDone(tx)
+}
+
+export async function clearStore(name: string): Promise<void> {
+  const db = await openDb()
+  const tx = db.transaction(name, 'readwrite')
+  tx.objectStore(name).clear()
+  await txDone(tx)
+}
+
+export async function replaceStore<T>(name: string, rows: T[]): Promise<void> {
+  await clearStore(name)
+  for (const row of rows) await put(name, row)
 }
 
 export async function getAll<T>(store: string): Promise<T[]> {

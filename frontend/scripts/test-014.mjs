@@ -107,6 +107,7 @@ import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
 import { parseTaxiIntent } from '../src/engine/taxi-parse.ts'
 import { shouldCallSecondPhone } from '../src/engine/interrupt.ts'
 import { overlappingEvents } from '../src/engine/watchdog.ts'
+import { backupFilename, countSetKeys, previewBackup, stripSettings, parseBackupIntent } from '../src/engine/backup.ts'
 import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
 import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
 import { tagNewsText } from '../src/engine/outlook-tags.ts'
@@ -1018,7 +1019,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /4\.33\.0/)
+assert.match(HELP_TEXT, /4\.46\.0/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1551,5 +1552,37 @@ assert.equal(
   rewriteFollowUp('Ja', { last_step_tool: 'interrupt', last_step_utterance: 'überlappen' }),
   null,
 )
+
+assert.equal(parseBackupIntent('Hausstand exportieren'), 'export')
+assert.equal(parseBackupIntent('Einstellungen importieren'), 'import')
+assert.equal(pickRoute('Hausstand exportieren'), 'backup')
+assert.match(normalizeUtterance('nächste Barn'), /Bar/)
+assert.equal(parsePoiIntent(normalizeUtterance('nächste Barn'))?.kind, 'bar')
+assert.match(normalizeUtterance('Kalnader morgen'), /Kalender/)
+assert.match(normalizeUtterance('Steckose Küche'), /Steckdose/)
+assert.equal(backupFilename(new Date('2026-08-27T12:00:00Z')), 'jarvis-haus-20260827.json')
+const stripped = stripSettings({
+  last_taxi_json: 'x',
+  gemini_api_key: 'secret',
+  taxi_app: 'call',
+})
+assert.equal(stripped.last_taxi_json, undefined)
+assert.equal(stripped.gemini_api_key, 'secret')
+const prev = previewBackup({
+  backup_version: 1,
+  settings: { gemini_api_key: 'abc', groq_api_key: '' },
+  memory: [{ category: 'contact', key: 'Mama' }],
+  reminders: [{ id: '1' }],
+  events: [],
+  notes: [],
+  todos: [],
+  shopping: [],
+})
+assert.equal(prev.ok, true)
+assert.equal(prev.keys, 1)
+assert.equal(prev.contacts, 1)
+assert.equal(prev.reminders, 1)
+assert.equal(countSetKeys({ gemini_api_key: 'a', tankerkoenig_api_key: 'b' }), 2)
+assert.match(HELP_TEXT, /Hausstand/)
 
 console.log('ok 0.14 parsers')

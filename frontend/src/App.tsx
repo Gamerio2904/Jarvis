@@ -56,6 +56,7 @@ import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
 import { tickOutlookWatch } from './engine/outlook-watch'
 import { tickWatchdog } from './engine/watchdog'
+import { setHeardNames } from './engine/heard'
 import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
@@ -546,6 +547,8 @@ function App() {
   async function refreshMemory(filter: MemoryCategory | 'all' = memoryFilter) {
     try {
       setMemoryItems(await listMemory(filter === 'all' ? null : filter))
+      const all = await listMemory(null)
+      setHeardNames(all.map((r) => r.key).filter(Boolean))
     } catch {
       /* panel shows empty / prior list */
     }
@@ -1535,6 +1538,10 @@ function App() {
               placeholder="Nachricht an Jarvis…"
               rows={1}
               disabled={busy}
+              lang="de"
+              spellCheck
+              autoCorrect="on"
+              autoCapitalize="sentences"
             />
             <div className="composer-actions">
               <button
