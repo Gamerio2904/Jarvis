@@ -117,7 +117,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 111 | [`sprint-111.md`](./sprint-111.md) | `4.19.0` | Alltagskette Stimme (vollständig) | **PLAN** |
 | 112 | [`sprint-112.md`](./sprint-112.md) | `4.33.0` | Gespräch, Film-Stimme, Reel am Steuer | **PLAN** |
 | 113 | [`sprint-113.md`](./sprint-113.md) | `4.46.0` | Hausstand Backup + Autokorrektur | **PLAN** |
-| 114 | [`sprint-114.md`](./sprint-114.md) | `4.53.0` | Zwei Gesichter Jarvis/Friday + Tablet flüssig | **PLAN** |
+| 114 | [`sprint-114.md`](./sprint-114.md) | `4.53.0` | Jarvis Haupt+CarPlay, Friday Sekretärin + Tablet | **PLAN** |
 
 **Aktuell:** Code **`3.19.0`**. Sideload `3.18.1`. Pläne: [`35-next.md`](../35-next.md)–[`39-next.md`](../39-next.md). Stimme/Kalender: [`34-next.md`](../34-next.md).
 

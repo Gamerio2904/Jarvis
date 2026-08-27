@@ -45,7 +45,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 36 | [Alltagskette Stimme](./36-next.md) | **`4.19` PLAN vollständig** — Bar, SMS-Note, Taxi, Kette |
 | 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` PLAN** — Film-TTS free, Reel finden/eine Frage |
 | 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` PLAN** — Export/Import, Tippfehler Schreib+Sprache |
-| 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` PLAN** — Jarvis/Friday Stimme, Lage nicht statt Chat |
+| 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` PLAN** — Jarvis Haupt+CarPlay, Friday Sekretärin, Lage nicht statt Chat |
 | — | [APK](./apk.md) | Sideload `3.18.1`; Code `3.19.0`; Deinstall löscht Keys — erst [`38`](./38-next.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)

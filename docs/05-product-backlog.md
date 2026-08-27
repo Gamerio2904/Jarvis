@@ -34,7 +34,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **PLAN** |
 | E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **PLAN** |
 | E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **PLAN** |
-| E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **PLAN** |
+| E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis Haupt+CarPlay, Friday Sekretärin, Lage neben Chat — [`39-next.md`](./39-next.md) **PLAN** |
 
 ---
 
@@ -426,11 +426,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
 | S32.0 | Leitentscheidung Faces + HUD | Must | ready | [`39-next.md`](./39-next.md) PLAN, kein Execute |
-| S32.1 | Jarvis Default, Friday Zuruf, zwei Stimmen | Must | idea | ein Register, ein Gedächtnis |
+| S32.1 | Jarvis Haupt+CarPlay, Friday Sekretärin | Must | idea | Domain-Tabelle, Drive = Jarvis |
 | S32.2 | Wake Friday, nicht Freitag | Must | idea | Kalender `Freitag` bleibt Termin |
 | S32.3 | Lage neben Chat, Uhr tickt, Poll split | Must | idea | Composer+Mic sichtbar |
-| S32.4 | Marvel-Friday / zwei Modelle | Won’t | parked | Hausname, ein Hirn |
-| S32.5 | Auto Work-Stunden → Face | Won’t | parked | nur explizit |
+| S32.4 | Marvel-Friday / zwei Modelle / Friday am Steuer | Won’t | parked | Hausname, ein Hirn, CarPlay = Jarvis |
+| S32.5 | Auto Work-Stunden → Face | Won’t | parked | Domain + Name, keine Uhr |
 
 ---
 

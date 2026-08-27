@@ -86,3 +86,4 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-27 | Q55 | Autokorrektur Schreib+Sprache; Bahn vs Bar nicht per Levenshtein. [`38-next.md`](./38-next.md) | PO |
 | 2026-08-27 | Q56 | Zwei Gesichter: Jarvis Default (Work+Smalltalk), Friday weiblich auf Zuruf; ein Register; kein Marvel. [`39-next.md`](./39-next.md) | PO |
 | 2026-08-27 | Q57 | Tablet-Lage: Chat bleibt sichtbar; Uhr/Poll/Raster. Screenshots fehlten — Ist aus Code. [`39-next.md`](./39-next.md) | PO |
+| 2026-08-27 | Q58 | Friday = Sekretärin (Kalender, Erinnerung, Anruf/SMS, Listen, Tageslage). Jarvis = Smalltalk, Hauptfunktionen, immer CarPlay. Domain nach Toolwahl, keine Embeddings. [`39-next.md`](./39-next.md) | PO |

@@ -82,7 +82,7 @@ MAJOR.MINOR.PATCH
 | `4.19.0` | **Alltagskette Stimme** — Sprachnachricht, Bar, Taxi; Research vor WhatsApp/Taxi-App | Sprint 111 |
 | `4.33.0` | **Gespräch / Film-Stimme / Steuer** — Reel lukebuildsai anpassen | Sprint 112 |
 | `4.46.0` | **Hausstand** — Export/Import nach APK-Deinstall; Autokorrektur Schreib+Sprache | Sprint 113 |
-| `4.53.0` | **Zwei Gesichter + Tablet** — Jarvis/Friday Stimme; Lage nicht statt Chat | Sprint 114 |
+| `4.53.0` | **Zwei Gesichter + Tablet** — Jarvis Haupt+CarPlay, Friday Sekretärin; Lage nicht statt Chat | Sprint 114 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -262,14 +262,14 @@ Deinstall wegen APK-Signatur löscht WebView-Daten. Export/Import vor Sideload. 
 
 ### `4.53+` — Zwei Gesichter + Tablet [`39-next.md`](./39-next.md) **PLAN**
 
-Ein Hirn, zwei Faces. Tablet-Lage split, nicht Chat-Ersatz. Female-TTS andockt an `4.34`. Sideload nach Hausstand.
+Ein Hirn, zwei Faces: Jarvis Haupt+CarPlay, Friday Sekretärin (`FACE_BY_TOOL`). Tablet-Lage split. Female-TTS andockt an `4.34`. Sideload nach Hausstand.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `4.53.0` | Leitentscheidung (Docs) | 114 |
 | `4.54.0` | Research Face + weibliche Gemini-TTS | nach 114 |
 | `4.55.0` | Research Tablet (Code + ggf. Fotos) | nach 114 |
-| `4.56.0`–`4.58.0` | Parser/Setting, TTS-Bindung, Wake Friday | nach Research |
+| `4.56.0`–`4.58.0` | Domain-Tabelle + Parser/Setting `auto`, TTS, Wake Friday | nach Research |
 | `4.59.0`–`4.62.0` | Lage Split, Poll, Raster, Chat-Kachel | darf vor Friday |
 | `4.63.0`–`4.65.0` | Gold, Header/Avatar, Sideload nach `4.52` | Verbesserungen |
 
