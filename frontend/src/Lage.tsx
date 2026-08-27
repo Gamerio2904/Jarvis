@@ -127,6 +127,7 @@ export function Lage({
               />,
             )
           }
+          if (id === 'world') return cell(<TextTile title="Welt" body={snap.world?.line || '—'} />)
           const label = HUD_CATALOG.find((c) => c.id === id)?.label || id
           return cell(<TextTile title={label} body="" />)
         })}

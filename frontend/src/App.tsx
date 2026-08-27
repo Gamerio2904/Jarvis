@@ -54,6 +54,7 @@ import { useOverlay } from './overlay'
 import { closeDrive, subscribeDrive } from './engine/drive'
 import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
+import { tickOutlookWatch } from './engine/outlook-watch'
 import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
@@ -418,9 +419,19 @@ function App() {
     const glance = window.setInterval(() => {
       void syncGlance()
     }, 5 * 60_000)
+    const outlook = window.setInterval(() => {
+      void tickOutlookWatch()
+    }, 20 * 60_000)
+    const vis = () => {
+      if (!document.hidden) void tickOutlookWatch()
+    }
+    document.addEventListener('visibilitychange', vis)
+    void tickOutlookWatch()
     return () => {
       window.clearInterval(t)
       window.clearInterval(glance)
+      window.clearInterval(outlook)
+      document.removeEventListener('visibilitychange', vis)
     }
   }, [])
 

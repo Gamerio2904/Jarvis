@@ -119,5 +119,46 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'digest', 0.25)
   }
 
+  if (
+    /weltlage|lage\s+welt|ölpreis|rohöL|brent|\bwti\b|opec|hormus|hormuz/.test(t) ||
+    (/\b(benzin|e10|sprit)\b/.test(t) && /\b(teurer|billiger|ausblick|prognose|wird)\b/.test(t)) ||
+    (/(^|[^a-zäöüß])öl([^a-zäöüß]|$)/.test(t) && /\b(warum|teuer|steigt|fällt|preis|ausblick)\b/.test(t)) ||
+    (/\b(dollar|euro)\b/.test(t) && /\b(fällt|steigt|ausblick|prognose|wird)\b/.test(t)) ||
+    (/\b(aktie|aktien|dax)\b/.test(t) && /\b(fällt|steigt|morgen|kaufen)\b/.test(t))
+  ) {
+    out = drop(out, 'news')
+    out = drop(out, 'fuel')
+    out = drop(out, 'fx')
+    out = drop(out, 'research')
+    out = boost(out, 'outlook', 0.28)
+  }
+
+  if (/^\s*(?:die\s+)?(?:nachrichten|tagesschau|schlagzeilen)\s*[.!?]*$/.test(t)) {
+    out = drop(out, 'outlook')
+    out = boost(out, 'news', 0.25)
+  }
+
+  if (/\bfahr(?:e|en)?\s+mich\b/.test(t) && /\b(tanke|tankstelle)\b/.test(t)) {
+    out = drop(out, 'outlook')
+    out = boost(out, 'fuel', 0.25)
+  }
+
+  if (/^\s*(?:was\s+ist|kurs)\s+(?:der\s+)?(?:dollar|euro)\b/.test(t) && !/\b(fällt|steigt|ausblick|wird)\b/.test(t)) {
+    out = drop(out, 'outlook')
+    out = boost(out, 'fx', 0.25)
+  }
+
+  if (/^\s*guten\s+morgen\b/.test(t)) {
+    out = drop(out, 'outlook')
+  }
+
+  if (/\b(wetterstatistik|lage[- ]?kachel)\b/.test(t) || /^\s*lage\s+(an|aus)\s*$/.test(t)) {
+    out = drop(out, 'outlook')
+  }
+
+  if (/\bbip\b/.test(t)) {
+    out = drop(out, 'outlook')
+  }
+
   return out
 }

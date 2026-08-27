@@ -5,7 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`3.19.0`**. Letzter Sideload: **`3.18.1`**.
+App-Version im Code: **`4.0.0`**. Letzter Sideload: **`3.18.1`**.
+
+### `4.0.0` — Weltlage / Vorhersage — *CODE*
+
+Tool `outlook`: Tagesschau + DW, FX-Historie, Brent nur mit FRED-Key, E10-Spot, Kette Hormus/Kiew/OPEC, Szenario A/B, kein Aktien-Orakel. Watch und Unterbrechen opt-in. Lage-Kachel Welt. `/hilfe` 4.0.0.
+
+- Research `4.1`–`4.4` entschieden in [`35-next.md`](./35-next.md)
+- [`sprints/sprint-110.md`](./sprints/sprint-110.md)
+- Sideload-APK noch `3.18.1` — kein APK-Claim
 
 ### `3.19.0` — Stimme ein Thread, Kalender, Debug — *CODE*
 
@@ -20,14 +28,6 @@ Sprachmodus bleibt im selben Gespräch. Kalender: Jahr-Ansicht, `nächste N Tage
 `JarvisPC.bat` kopiert die WLAN-IP (`192.168`/`10`), nicht die erste WSL/Hyper-V-Adresse. Firewall-Knopf. Handy entfernt `http://` und Port aus dem IP-Feld. Ohne neue APK reicht die neue BAT; klarere Fehlzeile erst nach nächstem Sideload.
 
 - [`desktop/README.md`](../desktop/README.md)
-
-### `4.0.0` — Weltlage / Vorhersage — *PLAN*
-
-Leitentscheidung und Researchphasen, noch kein Execute. Ausblick = zitierte Lage + Serie + Szenario, kein Orakel. MAJOR `4.0`, weil `3.19`–`3.45` schon logisch in `3.18.0` liegen.
-
-- Docs [`35-next.md`](./35-next.md) · [`sprints/sprint-110.md`](./sprints/sprint-110.md)
-- Inspiration: https://www.instagram.com/reel/DblW9QliG5l/
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
 
 ### `4.19.0` — Alltagskette Stimme — *PLAN*
 

@@ -121,4 +121,10 @@ export const TEST_PROMPTS = [
   'Taschenlampe an',
   'ohne meine Adresse nachzugucken weißt du wo ich bin',
   'Nach Ingersheim',
+  'Was ist die Weltlage?',
+  'Warum steigt der Ölpreis?',
+  'Wird Benzin teurer?',
+  'Fällt der Dollar?',
+  'Fällt SAP morgen?',
+  'Was ist der Dollar?',
 ] as const

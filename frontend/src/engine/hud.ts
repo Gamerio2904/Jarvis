@@ -89,6 +89,7 @@ export type HudSnap = {
   sport?: { line: string }
   chess?: { fen: string }
   trace?: { host: string; hops: string[] }
+  world?: { line: string }
 }
 
 export async function fetchHudSnap(): Promise<HudSnap> {
@@ -134,6 +135,7 @@ export async function fetchHudSnap(): Promise<HudSnap> {
     }
     snap.trace = { host: s.last_trace_host || '', hops }
   }
+  if (on.includes('world')) snap.world = { line: s.last_outlook_line || 'Weltlage im Chat fragen.' }
   return snap
 }
 

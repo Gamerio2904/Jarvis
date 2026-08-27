@@ -102,6 +102,10 @@ import { parseHaushaltIntent } from '../src/engine/haushalt.ts'
 import { parseSensorsIntent } from '../src/engine/sensors.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
 import { parseNatureIntent } from '../src/engine/nature.ts'
+import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
+import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
+import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
+import { tagNewsText } from '../src/engine/outlook-tags.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -1005,7 +1009,8 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /3\.19\.0/)
+assert.match(HELP_TEXT, /4\.0\.0/)
+assert.match(HELP_TEXT, /Weltlage/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)
@@ -1410,5 +1415,83 @@ assert.deepEqual(splitIntents('Wetterstatistik an und traceroute google.de'), [
   'Wetterstatistik an',
   'traceroute google.de',
 ])
+
+assert.equal(parseOutlookIntent('Was ist die Weltlage?')?.kind, 'world')
+assert.equal(parseOutlookIntent('Was passiert in der Welt?')?.kind, 'world')
+assert.equal(parseOutlookIntent('Warum steigt der Ölpreis?')?.kind, 'oil_why')
+assert.equal(parseOutlookIntent('Wird Benzin teurer?')?.kind, 'fuel_outlook')
+assert.equal(parseOutlookIntent('Fällt der Dollar?')?.kind, 'fx_outlook')
+assert.equal(parseOutlookIntent('Fällt SAP morgen?')?.kind, 'stock_ask')
+assert.equal(parseOutlookIntent('Nachrichten'), null)
+assert.equal(parseOutlookIntent('Tagesschau'), null)
+assert.equal(parseOutlookIntent('Fahr mich zu einer Tanke'), null)
+assert.equal(parseOutlookIntent('Was ist der Dollar?'), null)
+assert.equal(parseOutlookIntent('Guten Morgen'), null)
+assert.equal(parseOutlookIntent('Wetterstatistik an'), null)
+assert.equal(parseOutlookIntent('Was ist der bip in Deutschland'), null)
+assert.equal(parseOutlookIntent('Olivenöl Rezept'), null)
+assert.equal(parseOutlookIntent('und Benzin?', 'outlook')?.kind, 'fuel_outlook')
+assert.equal(pickRoute('Was ist die Weltlage?'), 'outlook')
+assert.equal(pickRoute('Warum steigt der Ölpreis?'), 'outlook')
+assert.equal(pickRoute('Wird Benzin teurer?'), 'outlook')
+assert.equal(pickRoute('Fällt der Dollar?'), 'outlook')
+assert.equal(pickRoute('Fällt SAP morgen?'), 'outlook')
+assert.equal(pickRoute('Nachrichten'), 'news')
+assert.equal(pickRoute('Fahr mich zu einer Tanke'), 'fuel')
+assert.equal(pickRoute('Was ist der Dollar?'), 'fx')
+assert.equal(pickRoute('Guten Morgen'), 'brief')
+assert.equal(pickRoute('Wetterstatistik an'), 'hud')
+assert.equal(parseFxIntent('Fällt der Dollar?'), null)
+assert.equal(parseFxIntent('Was ist der Dollar?')?.from, 'USD')
+assert.deepEqual(tagNewsText('Spannung an der Straße von Hormus treibt den Ölpreis'), ['hormus', 'oil'])
+const analog = analogPct(
+  [
+    { date: '2019-09-10', value: 60 },
+    { date: '2019-09-16', value: 72 },
+  ],
+  '2019-09-14',
+  '2019-09-20',
+)
+assert.equal(analog, 20)
+assert.match(pickAnalog([{ date: '2019-09-10', value: 60 }, { date: '2019-09-16', value: 72 }], ['hormus'])?.label || '', /Abqaiq/)
+const noOil = formatOutlookReply(
+  {
+    at: '2026-08-27T00:00:00.000Z',
+    news: [{ title: 'Spannung am Golf', teaser: 'Straße von Hormus.', url: 'https://www.tagesschau.de/x', date: '2026-08-27', tags: ['hormus'], provider: 'tagesschau' }],
+    oil: null,
+    oilMissing: 'no_key',
+    oilPoints: [],
+    fx: null,
+    e10: { price: 1.689, at: '2026-08-27T00:00:00.000Z' },
+    analog: null,
+  },
+  'oil_why',
+)
+assert.doesNotMatch(noOil, /\$/)
+assert.match(noOil, /FRED-Key|Rohöl-Zahl fehlt/)
+assert.match(noOil, /kein Kauf-Rat/)
+assert.equal(hasForbiddenClaim(noOil), false)
+assert.equal(hasForbiddenClaim('SAP wird sicher fallen'), true)
+const stock = formatOutlookReply(
+  {
+    at: '2026-08-27T00:00:00.000Z',
+    news: [],
+    oil: null,
+    oilMissing: 'no_key',
+    oilPoints: [],
+    fx: null,
+    e10: null,
+    analog: null,
+  },
+  'stock_ask',
+)
+assert.match(stock, /keinen Kauf/)
+assert.doesNotMatch(stock, /\$/)
+assert.equal(hasForbiddenClaim(stock), false)
+const rss = parseRssItems(
+  '<rss><channel><item><title>OPEC kürzt</title><link>https://www.dw.com/opec</link><description>Förderkürzung</description></item></channel></rss>',
+)
+assert.equal(rss[0]?.provider, 'dw')
+assert.ok(rss[0]?.tags.includes('opec'))
 
 console.log('ok 0.14 parsers')

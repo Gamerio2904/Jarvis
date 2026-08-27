@@ -113,13 +113,13 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 107 | [`sprint-107.md`](./sprint-107.md) | `3.18.0` | Lage, Traceroute, Digest (`3.0.1`–`3.45`) | **CODE** |
 | 108 | [`sprint-108.md`](./sprint-108.md) | `3.18.1` | GUI Premium (Overlay-Slides) | **CODE** |
 | 109 | [`sprint-109.md`](./sprint-109.md) | `3.19.0` | Stimme-Thread, Kalender, Debug | **CODE** |
-| 110 | [`sprint-110.md`](./sprint-110.md) | `4.0.0` | Weltlage / Vorhersage (Research zuerst) | **PLAN** |
+| 110 | [`sprint-110.md`](./sprint-110.md) | `4.0.0` | Weltlage / Vorhersage | **CODE** |
 | 111 | [`sprint-111.md`](./sprint-111.md) | `4.19.0` | Alltagskette Stimme (vollständig) | **PLAN** |
 | 112 | [`sprint-112.md`](./sprint-112.md) | `4.33.0` | Gespräch, Film-Stimme, Reel am Steuer | **PLAN** |
 | 113 | [`sprint-113.md`](./sprint-113.md) | `4.46.0` | Hausstand Backup + Autokorrektur | **PLAN** |
 | 114 | [`sprint-114.md`](./sprint-114.md) | `4.53.0` | Zwei Gesichter Jarvis/Friday + Tablet flüssig | **PLAN** |
 
-**Aktuell:** Code **`3.19.0`**. Sideload `3.18.1`. Pläne: [`35-next.md`](../35-next.md)–[`39-next.md`](../39-next.md). Stimme/Kalender: [`34-next.md`](../34-next.md).
+**Aktuell:** Code **`4.0.0`**. Sideload `3.18.1`. Nächste Pläne: [`36-next.md`](../36-next.md)–[`39-next.md`](../39-next.md). Weltlage: [`35-next.md`](../35-next.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

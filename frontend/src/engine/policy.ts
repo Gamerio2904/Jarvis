@@ -54,6 +54,7 @@ export function isFollowish(text: string): boolean {
   if (/^noch\s*mal(?:s)?(?:\s+bitte)?[.!?]*$/i.test(t)) return true
   if (/^(wieder|erneut)(?:\s+bitte)?[.!?]*$/i.test(t)) return true
   if (/^(und\s+)?(morgen|übermorgen|gestern)[?.!]*$/i.test(t)) return true
+  if (/^(und\s+)?(benzin|e10|öl|warum|dollar)[?.!]*$/i.test(t)) return true
   return false
 }
 
@@ -90,6 +91,7 @@ export const TOOL_LABEL: Record<string, string> = {
   hud: 'Lage',
   trace: 'Traceroute',
   digest: 'Gespräch',
+  outlook: 'Weltlage',
 }
 
 export function askReply(a: string, b: string): string {

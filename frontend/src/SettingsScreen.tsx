@@ -27,6 +27,7 @@ export type SettingsTopic =
   | 'musik'
   | 'ton'
   | 'forschung'
+  | 'weltlage'
   | 'gedaechtnis'
   | 'debug'
   | 'gefahr'
@@ -44,6 +45,7 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
+  { id: 'weltlage', label: 'Weltlage', hint: 'Ausblick' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
   { id: 'debug', label: 'Debug', hint: 'Prompts' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
@@ -1485,6 +1487,56 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   )}
                 </div>
               ) : null}
+            </section>
+          ) : null}
+
+          {p.topic === 'weltlage' ? (
+            <section className="settings-card">
+              <h3>Weltlage</h3>
+              <p className="settings-hint">
+                Ausblick aus öffentlichen Meldungen und Serien. Kein Insider, kein Orakel, kein Kauf-Rat. Ohne
+                FRED-Key keine Rohöl-Zahl — Jarvis erfindet keine.
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.outlook_watch)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ outlook_watch: e.target.checked })}
+                />
+                <span>Watch (holen, wenn die App offen ist)</span>
+              </label>
+              <p className="settings-hint">
+                Zielintervall 20 Minuten. Android Doze hält das oft nicht genauer. Aus = kein stilles Netz im
+                Hintergrund.
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.outlook_interrupt)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ outlook_interrupt: e.target.checked })}
+                />
+                <span>Unterbrechen bei neuer Lage</span>
+              </label>
+              <p className="settings-hint">Nur wenn Watch an. Nur bei neuer Meldung gegenüber dem letzten Stand.</p>
+              <label className="settings-field">
+                <span>FRED-Key (Brent, optional)</span>
+                <input
+                  type="text"
+                  inputMode="text"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  key={`fred-key-${s?.outlook_fred_key ? 'set' : 'empty'}`}
+                  defaultValue={s?.outlook_fred_key || ''}
+                  disabled={busy}
+                  placeholder="Key von fred.stlouisfed.org"
+                  onBlur={(e) => void p.patchSetting({ outlook_fred_key: e.target.value.trim() })}
+                />
+              </label>
+              <p className="settings-hint">Serie DCOILBRENTEU, kostenlos registrieren. Nicht teilen.</p>
             </section>
           ) : null}
 

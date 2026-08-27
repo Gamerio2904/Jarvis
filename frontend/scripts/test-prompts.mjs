@@ -12,7 +12,7 @@ import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -157,6 +157,12 @@ const EXPECT = {
   'Taschenlampe an': 'device',
   'ohne meine Adresse nachzugucken weißt du wo ich bin': 'here',
   'Nach Ingersheim': 'drive',
+  'Was ist die Weltlage?': 'outlook',
+  'Warum steigt der Ölpreis?': 'outlook',
+  'Wird Benzin teurer?': 'outlook',
+  'Fällt der Dollar?': 'outlook',
+  'Fällt SAP morgen?': 'outlook',
+  'Was ist der Dollar?': 'fx',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -206,6 +212,17 @@ assert.equal(route('Ruf mich in 20 Minuten'), 'reminder')
 assert.equal(route('Wetter heute'), 'weather')
 assert.equal(route('kein Kaffee mehr'), 'memory')
 assert.equal(route('Fahr mich zur Freundin'), 'drive')
+assert.equal(route('Was ist die Weltlage?'), 'outlook')
+assert.equal(route('Warum steigt der Ölpreis?'), 'outlook')
+assert.equal(route('Wird Benzin teurer?'), 'outlook')
+assert.equal(route('Fällt der Dollar?'), 'outlook')
+assert.equal(route('Fällt SAP morgen?'), 'outlook')
+assert.equal(route('Was ist der Dollar?'), 'fx')
+assert.equal(route('Nachrichten'), 'news')
+assert.equal(route('Tagesschau'), 'news')
+assert.equal(route('Fahr mich zu einer Tanke'), 'fuel')
+assert.equal(route('Guten Morgen'), 'brief')
+assert.equal(route('Wetterstatistik an'), 'hud')
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }

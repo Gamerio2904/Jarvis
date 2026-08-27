@@ -79,6 +79,8 @@ import { parseTraceIntent } from './trace-parse'
 import { handleTrace } from './trace'
 import { parseDigestIntent } from './digest-parse'
 import { handleDigest } from './digest'
+import { parseOutlookIntent } from './outlook-parse'
+import { handleOutlook } from './outlook'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -479,6 +481,13 @@ function makeCatalog(): Capability[] {
       sideEffect: 'write',
       parse: (ctx) => (parseDigestIntent(ctx.text) ? score(ctx.text, 0.1) : null),
       execute: async (ctx) => fromHandler('digest', await handleDigest(ctx.conversationId, ctx.text)),
+    },
+    {
+      id: 'outlook',
+      label: 'Weltlage',
+      sideEffect: 'read',
+      parse: (ctx) => (parseOutlookIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.1) : null),
+      execute: async (ctx) => fromHandler('outlook', await handleOutlook(ctx.text)),
     },
   ]
 }
