@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`3.18.1` CODE.** Pläne `4.0` [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md), Stimme [`37-next.md`](./37-next.md), **Hausstand [`38-next.md`](./38-next.md)** (Export vor Deinstall), **Gesichter + Tablet [`39-next.md`](./39-next.md)**. TTS `1.5`+.
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **Code `4.53.0`.** Sideload `3.18.1`. Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md), Stimme [`37-next.md`](./37-next.md), Hausstand [`38-next.md`](./38-next.md) (Export vor Deinstall), Gesichter + Tablet [`39-next.md`](./39-next.md). TTS `1.5`+.
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -147,7 +147,12 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Welt `3.1`–`3.17` — **CODE** in `3.0.0` [`31-next.md`](./31-next.md)
 - Lage / Härten `3.18.0` — **CODE** [`33-next.md`](./33-next.md)
 - GUI Premium `3.18.1` — **CODE** [`sprints/sprint-108.md`](./sprints/sprint-108.md)
-- 3.x danach — **PLAN** [`33-next.md`](./33-next.md)
+- Stimme/Kalender `3.19.0` — **CODE** [`34-next.md`](./34-next.md)
+- Weltlage `4.0` — **CODE** [`35-next.md`](./35-next.md)
+- Alltagskette `4.19` — **CODE** [`36-next.md`](./36-next.md)
+- Film-TTS / Steuer `4.33` — **CODE** [`37-next.md`](./37-next.md)
+- Hausstand `4.46` — **CODE** [`38-next.md`](./38-next.md)
+- Jarvis/Friday + Tablet `4.53` — **CODE** [`39-next.md`](./39-next.md)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---

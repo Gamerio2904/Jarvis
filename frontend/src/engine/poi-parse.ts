@@ -1,7 +1,7 @@
 import { isFuelPlace } from './fuel-parse.ts'
 import { normalizeUtterance } from './utterance.ts'
 
-export type PoiKind = 'pharmacy' | 'bakery' | 'parking' | 'supermarket' | 'chemist' | 'shop' | 'cafe'
+export type PoiKind = 'pharmacy' | 'bakery' | 'parking' | 'supermarket' | 'chemist' | 'shop' | 'cafe' | 'bar'
 
 export type PoiIntent = { kind: PoiKind | 'ask'; hours: boolean; nav?: boolean }
 
@@ -25,11 +25,13 @@ const KINDS: Array<{ kind: PoiKind; re: RegExp }> = [
   { kind: 'chemist', re: /\b(?:drogerie|dm|rossmann)\b/i },
   { kind: 'shop', re: /\b(?:laden|geschäft|kiosk|spät[ie]|späti)\b/i },
   { kind: 'cafe', re: /(?<!\p{L})(?:cafés?|cafes?|kaffeehaus|kaffeehäuser)(?!\p{L})/iu },
+  { kind: 'bar', re: /(?<!\p{L})(?:bars?|kneipe(?:n)?|pubs?)(?!\p{L})/iu },
 ]
 
 export function parsePoiIntent(text: string, lastKind?: PoiKind | null): PoiIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t) return null
+  if (/minibar|schokoladenbar|müsliriegel|milchbar/i.test(t)) return null
   if (isFuelPlace(t)) return null
   if (/\b(?:song|titel|track|lied)\b/i.test(t)) return null
   if (namedCafe(t)) return null
@@ -50,6 +52,7 @@ export function parsePoiIntent(text: string, lastKind?: PoiKind | null): PoiInte
     }
     if (hours) return { kind: typed, hours: true, nav: false }
     if (typed === 'cafe') return { kind: 'cafe', hours: false, nav: false }
+    if (typed === 'bar') return { kind: 'bar', hours: false, nav: false }
   }
   if (hours && lastKind && HOURS_FOLLOW.test(t) && !typed && !near) {
     return { kind: lastKind, hours: true, nav: false }
@@ -66,6 +69,7 @@ export function poiLabel(kind: PoiKind | 'ask'): string {
   if (kind === 'chemist') return 'Drogerie'
   if (kind === 'shop') return 'Laden'
   if (kind === 'cafe') return 'Café'
+  if (kind === 'bar') return 'Bar'
   return 'Ort'
 }
 

@@ -1,28 +1,23 @@
-# Sprint 112 — Gespräch, Film-Stimme, Reel am Steuer **PLAN**
+# Sprint 112 — Gespräch, Film-Stimme, Reel am Steuer **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | **MUST** |
-| Ziel-Version | `4.33.0` Leitentscheidung; `4.34`–`4.45` in [`37-next.md`](../37-next.md) |
+| Ziel-Version | `4.33.0` (bündelt `4.34`–`4.44`, ohne Sideload) |
 | Quelle | PO: realistisches Gespräch/Stimme, Reel lukebuildsai, Kalender-Screenshots |
 | Voraussetzung | `3.19.0` auf `main`; Kalender/Voice-Thread nicht neu bauen |
 | Plan | [`37-next.md`](../37-next.md) |
 
-## Ziel
+## Code
 
-Nur Lücken planen. Kalender-Fenster und ein Sprach-Thread sind schon `3.19`. Neu: Stimme näher am Film (free Gemini-TTS, Fahrt vs. Stehen), Reel finden/beheben/eine Frage, Anruf am Steuer **nicht** fake übernehmen.
+- TTS: stehend Budget 3,5 s, Native-Race aus. Fahrt Race 400 ms / Budget 700 ms. Stimme **Algieba** (eine, kein Karussell). Navi bleibt Native.
+- Am Steuer: HUD-Zeile + Notify + Ja/Nein. Kein Fake-Incoming-Call. Zweite Nummer nur Opt-in und ≠ dieses Gerät.
+- Watchdog (Default aus): Steckdose tot, Termin-Kollision. Timer klingeln schon. Outlook-Watch bleibt `4.9`.
+- Kalender-Fenster und Voice-Thread: nicht angefasst (`3.19`).
 
-## Must
+Kein neuer Sideload. Backup vor Sideload: [`38-next.md`](../38-next.md).
 
-| ID | Inhalt | Done wenn |
-|----|--------|-----------|
-| N1 | Ist vs. `3.19` / Charon-Race / Reel | Tabellen in `37-next.md` |
-| N2 | Hollywood = beste freie Gemini-Stimme, kein Klon | Research `4.34` |
-| N3 | Anruf geht nicht → HUD/Notify | Research `4.35` |
-| N4 | Updates `4.37`–`4.45` | Reihenfolge im Plan |
-| N5 | Won’t Retell, Fake-Call, ElevenLabs | Won’t-Abschnitt |
+## Won’t
 
-## Won’t (dieser Sprint)
-
-Execute-Code, neue APK, ConnectionService-Schauspiel.
+Retell, Twilio, Fake-Incoming-Call, Stimmklone, ElevenLabs, Play Store, iOS, Duzen, 0,5B als Film-Stimme, Allwissen-Finden.

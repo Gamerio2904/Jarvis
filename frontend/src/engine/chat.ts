@@ -7,7 +7,8 @@ import { memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
 import { splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
-import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from './persona'
+import { SEARCH_ON_HINT, VOICE_HINT, personaPack } from './persona'
+import { loadFace } from './face.ts'
 import {
   formatResearchReply,
   guardResearchReply,
@@ -50,6 +51,10 @@ import {
 } from './store'
 import { handlePlaces } from './places'
 import { handlePc } from './pc'
+import { handleTaxi } from './taxi'
+import { handleInterrupt } from './interrupt'
+import { clearChain, partitionChain, popChain, writeChain } from './chain'
+import { isCommNo, isCommYes } from './places-parse'
 import { handleTvOrdinal, tvStatusFromSettings } from './tv'
 import { handleFuelOrdinal } from './fuel'
 import { handlePoiOrdinal } from './poi'
@@ -152,6 +157,42 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         tool: pcPending.tool,
         lastTool: pcPending.lastTool || 'pc',
       }
+    }
+  }
+
+  if (loadSettings().last_taxi_json) {
+    const taxiPending = await handleTaxi(conversationId, content)
+    if (taxiPending.handled && taxiPending.reply) {
+      return {
+        reply: taxiPending.reply,
+        tool: taxiPending.tool,
+        lastTool: taxiPending.lastTool || 'taxi',
+      }
+    }
+  }
+
+  if (loadSettings().last_interrupt_json) {
+    const interruptHit = await handleInterrupt(conversationId, content)
+    if (interruptHit.handled && interruptHit.reply) {
+      return {
+        reply: interruptHit.reply,
+        tool: interruptHit.tool,
+        lastTool: interruptHit.lastTool || 'interrupt',
+      }
+    }
+  }
+
+  if (loadSettings().last_step_tool === 'chain_ask') {
+    if (isCommNo(content)) {
+      clearChain()
+      saveSettings({ last_step_tool: '' })
+      return { reply: 'Kette verworfen.', lastTool: 'taxi' }
+    }
+    if (isCommYes(content)) {
+      saveSettings({ last_step_tool: '' })
+      const next = popChain()
+      if (next) return routeDeterministic(conversationId, next)
+      return { reply: 'Nichts mehr in der Kette.', lastTool: 'taxi' }
     }
   }
 
@@ -344,7 +385,13 @@ export async function streamChat(
 
   try {
     const parts = splitIntents(normalizeUtterance(content))
-    const texts = parts.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
+    let queue = parts
+    if (parts.length > 1) {
+      const { reads, writes } = partitionChain(parts)
+      writeChain(writes.slice(1))
+      queue = writes.length ? [...reads, writes[0]] : reads
+    }
+    const texts = queue.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
     const routed: Array<RouteHit | null> = []
     for (const text of texts) {
       routed.push(await routeDeterministic(conversationId, text))
@@ -352,7 +399,7 @@ export async function streamChat(
     const found = routed.filter((h): h is RouteHit => Boolean(h))
     if (found.length && (found.length === routed.length || routed.length > 1)) {
       const replies = routed.map((h, i) =>
-        h ? h.reply : `„${parts[i]}“ habe ich nicht als Befehl erkannt.`,
+        h ? h.reply : `„${queue[i]}“ habe ich nicht als Befehl erkannt.`,
       )
       for (const hit of found) await rememberHit(hit, content)
       const last = found[found.length - 1]
@@ -378,7 +425,8 @@ export async function streamChat(
       if (groqReady()) {
         const history = await listMessages(conversationId)
         const mem = await listMemory()
-        const system = [GEMINI_PERSONA, VOICE_HINT, memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
+        const pack = personaPack(loadFace())
+        const system = [pack.gemini, VOICE_HINT, memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
         const llmMessages = [
           { role: 'system', content: system },
           ...history.slice(-16).map((m) => ({
@@ -460,11 +508,12 @@ export async function streamChat(
         research = await fillResearchLinks(content, '', research)
       }
       const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
+      const pack = personaPack(loadFace())
       const system = geminiReady()
-        ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
+        ? [pack.gemini, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
             .filter(Boolean)
             .join('\n\n')
-        : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
+        : [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
       const llmMessages = [
         { role: 'system', content: system },
         ...history.slice(geminiReady() || opts?.voice ? -12 : -8).map((m) => ({

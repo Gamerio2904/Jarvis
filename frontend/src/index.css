@@ -2237,6 +2237,44 @@ button.linkish {
   font-size: 1.05rem;
 }
 
+.drive-ask {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 92px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(12, 16, 14, 0.9);
+  border: 1px solid rgba(228, 195, 106, 0.4);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+}
+
+.drive-ask p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.drive-ask-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.drive-ask-actions button {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(228, 195, 106, 0.35);
+  background: rgba(228, 195, 106, 0.16);
+  color: inherit;
+  font: inherit;
+}
+
 .drive-spotify-overlay,
 .drive-dest-sheet {
   position: absolute;
@@ -3089,6 +3127,64 @@ button.linkish {
 
 .main.is-lage {
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 900px) {
+  .main.is-lage {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    grid-template-rows: auto auto 1fr auto;
+  }
+  .main.is-lage .topbar,
+  .main.is-lage .fallback-banner {
+    grid-column: 1 / -1;
+  }
+  .main.is-lage .lage {
+    grid-column: 1;
+    grid-row: 3;
+  }
+  .main.is-lage .messages,
+  .main.is-lage .composer-wrap {
+    grid-column: 2;
+  }
+  .main.is-lage .messages {
+    grid-row: 3;
+  }
+  .main.is-lage .composer-wrap {
+    grid-row: 4;
+  }
+  .lage-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.app.is-lage .ambient {
+  animation: none;
+  opacity: 0.25;
+}
+
+.lage-chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+  max-height: 7rem;
+  overflow: auto;
+  font-size: 0.82rem;
+}
+
+.lage-chat-log p {
+  margin: 0;
+}
+
+.lage-chat-log .is-bot {
+  color: var(--accent);
+}
+
+.avatar.jarvis.is-friday {
+  background: #5b6fd6;
 }
 
 .lage {

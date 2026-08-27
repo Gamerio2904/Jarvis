@@ -27,6 +27,12 @@ function commandScore(text: string): number {
   return n + Math.min(t.length, 48) / 48
 }
 
+let extraNames: string[] = []
+
+export function setHeardNames(names: string[]) {
+  extraNames = names.map((n) => n.trim()).filter((n) => n.length >= 2)
+}
+
 /** Pick the STT candidate that looks most like a Jarvis command. */
 export function pickHeard(primary: string, alts: string[] = []): string {
   const raw = [primary, ...alts].map((s) => String(s || '').trim()).filter(Boolean)
@@ -40,7 +46,10 @@ export function pickHeard(primary: string, alts: string[] = []): string {
   let best = cands[0]
   let bestScore = -1
   for (const t of cands) {
-    const s = commandScore(t)
+    let s = commandScore(t)
+    for (const name of extraNames) {
+      if (name && t.toLowerCase().includes(name.toLowerCase())) s += 4
+    }
     if (s > bestScore) {
       best = t
       bestScore = s

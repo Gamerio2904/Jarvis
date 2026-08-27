@@ -54,6 +54,9 @@ import { useOverlay } from './overlay'
 import { closeDrive, subscribeDrive } from './engine/drive'
 import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
+import { tickOutlookWatch } from './engine/outlook-watch'
+import { tickWatchdog } from './engine/watchdog'
+import { setHeardNames } from './engine/heard'
 import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
@@ -363,7 +366,7 @@ function App() {
   }
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 900px) and (orientation: landscape)')
+    const mq = window.matchMedia('(min-width: 900px)')
     const apply = () => setLageWide(mq.matches)
     apply()
     mq.addEventListener('change', apply)
@@ -418,9 +421,28 @@ function App() {
     const glance = window.setInterval(() => {
       void syncGlance()
     }, 5 * 60_000)
+    const outlook = window.setInterval(() => {
+      void tickOutlookWatch()
+      void tickWatchdog()
+    }, 20 * 60_000)
+    const watchdog = window.setInterval(() => {
+      if (!document.hidden) void tickWatchdog()
+    }, 60_000)
+    const vis = () => {
+      if (!document.hidden) {
+        void tickOutlookWatch()
+        void tickWatchdog()
+      }
+    }
+    document.addEventListener('visibilitychange', vis)
+    void tickOutlookWatch()
+    void tickWatchdog()
     return () => {
       window.clearInterval(t)
       window.clearInterval(glance)
+      window.clearInterval(outlook)
+      window.clearInterval(watchdog)
+      document.removeEventListener('visibilitychange', vis)
     }
   }, [])
 
@@ -525,6 +547,8 @@ function App() {
   async function refreshMemory(filter: MemoryCategory | 'all' = memoryFilter) {
     try {
       setMemoryItems(await listMemory(filter === 'all' ? null : filter))
+      const all = await listMemory(null)
+      setHeardNames(all.map((r) => r.key).filter(Boolean))
     } catch {
       /* panel shows empty / prior list */
     }
@@ -1397,8 +1421,16 @@ function App() {
         ) : null}
 
         {lageOn && !voiceOpen && !calendarOpen && !driveOpen ? (
-          <Lage onSend={(text) => void sendMessage(text)} draft={draft} setDraft={setDraft} busy={busy} />
-        ) : (
+          <Lage
+            onSend={(text) => void sendMessage(text)}
+            draft={draft}
+            setDraft={setDraft}
+            busy={busy}
+            recent={messages.slice(-4)}
+            streaming={streamingText}
+          />
+        ) : null}
+        {true ? (
           <>
           <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
           <div className="messages-inner thread-slide" key={threadKey}>
@@ -1409,7 +1441,7 @@ function App() {
                   <i />
                   <i />
                 </div>
-                <h3>Jarvis</h3>
+                <h3>{liveHud.face === 'friday' ? 'Friday' : 'Jarvis'}</h3>
                 <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}
@@ -1421,7 +1453,9 @@ function App() {
               return (
                 <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
                   {m.role === 'assistant' ? (
-                    <div className="avatar jarvis">J</div>
+                    <div className={`avatar jarvis${liveHud.face === 'friday' ? ' is-friday' : ''}`}>
+                      {liveHud.face === 'friday' ? 'F' : 'J'}
+                    </div>
                   ) : null}
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
@@ -1448,7 +1482,9 @@ function App() {
 
             {streamingText !== null ? (
               <div className="row assistant streaming">
-                <div className="avatar jarvis">J</div>
+                <div className={`avatar jarvis${liveHud.face === 'friday' ? ' is-friday' : ''}`}>
+                  {liveHud.face === 'friday' ? 'F' : 'J'}
+                </div>
                 <div className="bubble">
                   {streamingText ? (
                     <>
@@ -1514,6 +1550,10 @@ function App() {
               placeholder="Nachricht an Jarvis…"
               rows={1}
               disabled={busy}
+              lang="de"
+              spellCheck
+              autoCorrect="on"
+              autoCapitalize="sentences"
             />
             <div className="composer-actions">
               <button
@@ -1557,7 +1597,7 @@ function App() {
           ) : null}
         </div>
           </>
-        )}
+        ) : null}
       </main>
 
       {settingsLayer.shown ? (

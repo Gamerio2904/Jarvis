@@ -5,7 +5,40 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`3.19.0`**. Letzter Sideload: **`3.18.1`**.
+App-Version im Code: **`4.53.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
+
+### `4.53.0` — Zwei Gesichter + Tablet flüssig — *CODE*
+
+Ein Register, zwei Gesichter: Jarvis (Default, Algieba) und Friday (Kore, auf Zuruf). Wake Friday ≠ Freitag. Lage **neben** dem Chat ab 900 px, Composer und Mic bleiben. Uhr 1 s, Wetter 10 min.
+
+- [`39-next.md`](./39-next.md) · [`sprints/sprint-114.md`](./sprints/sprint-114.md)
+- Sideload-APK noch `3.18.1` — kein APK-Claim
+
+### `4.46.0` — Hausstand Backup + Autokorrektur — *CODE*
+
+JSON-Export `jarvis-haus-YYYYMMDD.json` (Settings+Memory+Listen, Chats optional). Import nur nach Vorschau und **Überschreiben ja**. Composer `lang=de` spellCheck. `repairSpeech` / `pickHeard` für Jarvis-Wörter und Memory-Namen. Kein Jarvis-Cloud.
+
+- [`38-next.md`](./38-next.md) · [`sprints/sprint-113.md`](./sprints/sprint-113.md)
+
+### `4.33.0` — Gespräch, Film-Stimme, Reel am Steuer — *CODE*
+
+TTS: Algieba, stehend 3,5 s ohne Native-Race, Fahrt Race 400 ms / Budget 700 ms. Am Steuer: HUD + Notify + Ja/Nein, kein Fake-Anruf. Zweite Nummer nur Opt-in und ≠ dieses Gerät. Watchdog Default aus (Steckdose tot, Termin-Kollision).
+
+- [`37-next.md`](./37-next.md) · [`sprints/sprint-112.md`](./sprints/sprint-112.md)
+
+### `4.19.0` — Alltagskette Stimme — *CODE*
+
+Bar/Kneipe als POI, Sprachnachricht als SMS-Text, Taxi nach Ja (Anruf oder App-Link, nie „ist bestellt“). Kette: lesen sofort, schreiben nacheinander. WhatsApp nur Chat-Link. Voice-Clip entfällt.
+
+- [`36-next.md`](./36-next.md) · [`sprints/sprint-111.md`](./sprints/sprint-111.md)
+
+### `4.0.0` — Weltlage / Vorhersage — *CODE*
+
+Tool `outlook`: Tagesschau + DW, FX-Historie, Brent nur mit FRED-Key, E10-Spot, Kette Hormus/Kiew/OPEC, Szenario A/B, kein Aktien-Orakel. Watch und Unterbrechen opt-in. Lage-Kachel Welt. `/hilfe` 4.0.0.
+
+- Research `4.1`–`4.4` entschieden in [`35-next.md`](./35-next.md)
+- [`sprints/sprint-110.md`](./sprints/sprint-110.md)
+- Sideload-APK noch `3.18.1` — kein APK-Claim
 
 ### `3.19.0` — Stimme ein Thread, Kalender, Debug — *CODE*
 
@@ -20,45 +53,6 @@ Sprachmodus bleibt im selben Gespräch. Kalender: Jahr-Ansicht, `nächste N Tage
 `JarvisPC.bat` kopiert die WLAN-IP (`192.168`/`10`), nicht die erste WSL/Hyper-V-Adresse. Firewall-Knopf. Handy entfernt `http://` und Port aus dem IP-Feld. Ohne neue APK reicht die neue BAT; klarere Fehlzeile erst nach nächstem Sideload.
 
 - [`desktop/README.md`](../desktop/README.md)
-
-### `4.0.0` — Weltlage / Vorhersage — *PLAN*
-
-Leitentscheidung und Researchphasen, noch kein Execute. Ausblick = zitierte Lage + Serie + Szenario, kein Orakel. MAJOR `4.0`, weil `3.19`–`3.45` schon logisch in `3.18.0` liegen.
-
-- Docs [`35-next.md`](./35-next.md) · [`sprints/sprint-110.md`](./sprints/sprint-110.md)
-- Inspiration: https://www.instagram.com/reel/DblW9QliG5l/
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
-
-### `4.19.0` — Alltagskette Stimme — *PLAN*
-
-Sprachnachricht, Bar, Taxi aus einem gesprochenen Satz. SMS nach Nachfrage ja, WhatsApp still nein, Taxi öffnen/anrufen ja, „ist bestellt“ nein. Research `4.20`–`4.22` vor Code.
-
-- Docs [`36-next.md`](./36-next.md) · [`sprints/sprint-111.md`](./sprints/sprint-111.md)
-- Inspiration: https://www.instagram.com/reel/Db8bcYijN5y/
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
-
-### `4.33.0` — Gespräch, Film-Stimme, Reel am Steuer — *PLAN*
-
-Kalender-Screenshots und ein Sprach-Thread sind CODE `3.19.0` auf `main`. Neu: beste freie Gemini-TTS (Charon-Race oft Android), Reel finden/beheben/eine Frage, Anruf am Steuer nicht fake (HUD/Notify).
-
-- Docs [`37-next.md`](./37-next.md) · [`sprints/sprint-112.md`](./sprints/sprint-112.md)
-- Inspiration: https://www.instagram.com/reel/Dcgcg5rRdKT/
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
-
-### `4.46.0` — Hausstand Backup + Autokorrektur — *PLAN*
-
-Deinstall löscht `jarvis_settings_v13` und IndexedDB. Ein JSON-Export, ein Import. Composer/STT korrigieren Jarvis-Wörter, nicht API-Keys. Kein Jarvis-Cloud.
-
-- Docs [`38-next.md`](./38-next.md) · [`sprints/sprint-113.md`](./sprints/sprint-113.md)
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
-
-### `4.53.0` — Zwei Gesichter + Tablet flüssig — *PLAN*
-
-Jarvis (männlich, Default: Work + Smalltalk) und Friday (weiblich, Zuruf). Ein Register, ein Gedächtnis, zwei Stimmen. Lage auf dem Tablet **neben** dem Chat, nicht statt. Wake Friday ≠ Freitag. Marvel-Rolle Won’t.
-
-- Docs [`39-next.md`](./39-next.md) · [`sprints/sprint-114.md`](./sprints/sprint-114.md)
-- Tablet-Bugs aus Code (Screenshots in der PO-Nachricht nicht angehängt)
-- App-Code **`3.19.0`**, Sideload noch `3.18.1`
 
 ### `3.18.1` — GUI Premium — *CODE*
 

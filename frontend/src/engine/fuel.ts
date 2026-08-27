@@ -17,6 +17,7 @@ import { haversineM } from './geo-lookup'
 import { getJson } from './http-json'
 import type { ResearchMeta, ResearchSource } from './research-parse'
 import { loadSettings, persistLastList, saveSettings } from './store'
+import { rememberE10Spot } from './outlook-series.ts'
 import type { ToolMeta } from './tools'
 
 export { parseFuelFollowUp, parseFuelIntent } from './fuel-parse'
@@ -176,6 +177,10 @@ function rememberPair(pair: FuelPair, prefer: FuelPrefer) {
     cheapest: pair.cheapest,
   }
   saveSettings({ last_fuel_json: JSON.stringify(payload) })
+  const e10 = pair.nearest.priceE10 ?? pair.cheapest.priceE10
+  if (typeof e10 === 'number' && Number.isFinite(e10)) {
+    rememberE10Spot({ price: e10, at: payload.at })
+  }
   const titles =
     pair.nearest.id === pair.cheapest.id
       ? [stationLabel(pair.nearest)]

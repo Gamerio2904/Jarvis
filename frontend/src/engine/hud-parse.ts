@@ -15,6 +15,7 @@ export const HUD_CATALOG = [
   { id: 'sport', label: 'Sport' },
   { id: 'chess', label: 'Schach' },
   { id: 'trace', label: 'Route' },
+  { id: 'world', label: 'Welt' },
 ] as const
 
 export type HudId = (typeof HUD_CATALOG)[number]['id']
@@ -51,6 +52,9 @@ const ALIAS: Record<string, HudId> = {
   traceroute: 'trace',
   hops: 'trace',
   route: 'trace',
+  welt: 'world',
+  weltlage: 'world',
+  ausblick: 'world',
 }
 
 export type HudIntent =
@@ -76,7 +80,7 @@ export function parseHudIntent(text: string): HudIntent | null {
   if (/^\s*(?:module|kacheln|lage[- ]?kacheln)\s*$/i.test(t)) return { kind: 'list' }
 
   const mod =
-    /^(?:(?:modul|kachel)\s+)?(wetterstatistik|wetterstats|wetterkurve|statistik|spotify|musik|gerät|geraet|akku|uhr|tageslage|kalender|chat|steckdosen|steckdose|fernseher|tv|nachrichten|restweg|unwetter|dwd|kurs|dollar|sport|bundesliga|schach|traceroute|hops|route)(?:[- ]kachel)?\s+(an|ein|aus|weg)\s*$/i.exec(
+    /^(?:(?:modul|kachel)\s+)?(wetterstatistik|wetterstats|wetterkurve|statistik|spotify|musik|gerät|geraet|akku|uhr|tageslage|kalender|chat|steckdosen|steckdose|fernseher|tv|nachrichten|restweg|unwetter|dwd|kurs|dollar|sport|bundesliga|schach|traceroute|hops|route|welt|weltlage|ausblick)(?:[- ]kachel)?\s+(an|ein|aus|weg)\s*$/i.exec(
       t,
     )
   if (mod) {

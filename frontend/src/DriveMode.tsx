@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
-import {
-  getDriveRoute,
-  getDriveTab,
-  refreshDriveRoute,
-  setDriveTab,
-  snapDriveFix,
-  subscribeDrive,
-  type DriveRoute,
-  type DriveTab,
-} from './engine/drive'
+import { getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from './engine/drive'
+import { readInterrupt, subscribeInterrupt } from './engine/interrupt'
 import {
   TILE_SIZE,
   clampMapZoom,
@@ -419,6 +411,7 @@ export function DriveMode({
   const [musicBusy, setMusicBusy] = useState(false)
   const [hearMsg, setHearMsg] = useState<string | null>(null)
   const [hearing, setHearing] = useState(false)
+  const [ask, setAsk] = useState(() => readInterrupt())
   const navBusy = useRef(false)
   const listenLock = useRef(false)
   const loggedIn = spotifyLoggedIn()
@@ -428,6 +421,7 @@ export function DriveMode({
     setRoute(getDriveRoute())
     setTab(getDriveTab())
   }), [])
+  useEffect(() => subscribeInterrupt(() => setAsk(readInterrupt())), [])
   useEffect(() => {
     if (here) return
     if (!route) return
@@ -600,6 +594,29 @@ export function DriveMode({
           <div className="drive-hud-eta">
             <strong>{route ? `${route.minutes || '—'} Min` : '—'}</strong>
             <span>{km}</span>
+          </div>
+        </div>
+      ) : null}
+      {ask ? (
+        <div className="drive-ask" role="alertdialog" aria-label="Nachfrage">
+          <p>{ask.question}</p>
+          <div className="drive-ask-actions">
+            <button
+              type="button"
+              onClick={() => {
+                void Promise.resolve(onCommand?.('Ja')).finally(() => setAsk(readInterrupt()))
+              }}
+            >
+              Ja
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                void Promise.resolve(onCommand?.('Nein')).finally(() => setAsk(readInterrupt()))
+              }}
+            >
+              Nein
+            </button>
           </div>
         </div>
       ) : null}

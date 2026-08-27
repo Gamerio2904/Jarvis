@@ -119,5 +119,81 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'digest', 0.25)
   }
 
+  if (
+    /weltlage|lage\s+welt|ölpreis|rohöL|brent|\bwti\b|opec|hormus|hormuz/.test(t) ||
+    (/\b(benzin|e10|sprit)\b/.test(t) && /\b(teurer|billiger|ausblick|prognose|wird)\b/.test(t)) ||
+    (/(^|[^a-zäöüß])öl([^a-zäöüß]|$)/.test(t) && /\b(warum|teuer|steigt|fällt|preis|ausblick)\b/.test(t)) ||
+    (/\b(dollar|euro)\b/.test(t) && /\b(fällt|steigt|ausblick|prognose|wird)\b/.test(t)) ||
+    (/\b(aktie|aktien|dax)\b/.test(t) && /\b(fällt|steigt|morgen|kaufen)\b/.test(t))
+  ) {
+    out = drop(out, 'news')
+    out = drop(out, 'fuel')
+    out = drop(out, 'fx')
+    out = drop(out, 'research')
+    out = boost(out, 'outlook', 0.28)
+  }
+
+  if (/^\s*(?:die\s+)?(?:nachrichten|tagesschau|schlagzeilen)\s*[.!?]*$/.test(t)) {
+    out = drop(out, 'outlook')
+    out = boost(out, 'news', 0.25)
+  }
+
+  if (/\bfahr(?:e|en)?\s+mich\b/.test(t) && /\b(tanke|tankstelle)\b/.test(t)) {
+    out = drop(out, 'outlook')
+    out = boost(out, 'fuel', 0.25)
+  }
+
+  if (/^\s*(?:was\s+ist|kurs)\s+(?:der\s+)?(?:dollar|euro)\b/.test(t) && !/\b(fällt|steigt|ausblick|wird)\b/.test(t)) {
+    out = drop(out, 'outlook')
+    out = boost(out, 'fx', 0.25)
+  }
+
+  if (/^\s*guten\s+morgen\b/.test(t)) {
+    out = drop(out, 'outlook')
+  }
+
+  if (/\b(wetterstatistik|lage[- ]?kachel)\b/.test(t) || /^\s*lage\s+(an|aus)\s*$/.test(t)) {
+    out = drop(out, 'outlook')
+  }
+
+  if (/\bbip\b/.test(t)) {
+    out = drop(out, 'outlook')
+  }
+
+  if (/\b(taxi|uber|freenow|free\s*now)\b/.test(t) && !/\b(bahn|öpnv)\b/.test(t)) {
+    out = drop(out, 'drive')
+    out = drop(out, 'poi')
+    out = drop(out, 'transit')
+    out = drop(out, 'maps')
+    out = boost(out, 'taxi', 0.3)
+  }
+
+  if (/\b(bahn|öpnv|zug)\b/.test(t)) {
+    out = drop(out, 'poi')
+    out = drop(out, 'taxi')
+    out = boost(out, 'transit', 0.25)
+  }
+
+  if (/\b(kneipe|pubs?|\bbars?\b)\b/.test(t) && /\b(nähe|nächste|nächster)\b/.test(t)) {
+    out = drop(out, 'taxi')
+    out = drop(out, 'transit')
+    out = boost(out, 'poi', 0.25)
+  }
+
+  if (/\b(hausstand|einstellungen\s+export|backup\s+export)\b/.test(t)) {
+    out = drop(out, 'research')
+    out = boost(out, 'backup', 0.3)
+  }
+
+  if (/\bfreitag\b/.test(t) && !/\bfriday\b/.test(t)) {
+    out = drop(out, 'face')
+    out = boost(out, 'calendar', 0.2)
+  }
+
+  if (/^(?:(?:hey|hallo|hi)\s+)?friday\b/.test(t) && !/\bfreitag\b/.test(t)) {
+    out = drop(out, 'calendar')
+    out = boost(out, 'face', 0.25)
+  }
+
   return out
 }

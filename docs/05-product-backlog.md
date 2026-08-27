@@ -30,11 +30,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E25 | Alltag & Welt `3.1`–`3.17` | 5+ | DWD bis Schach — [`31-next.md`](./31-next.md) **CODE** (in `3.0.0`) |
 | E26 | Intelligenz `3.0` | 5+ | Register, Parse vor Execute, Score-Policy — [`32-intelligence.md`](./32-intelligence.md) **CODE** |
 | E27 | Jarvis 3.x danach | 5+ | Härten, Tablet-Lage, Traceroute, Telefon-Haus — [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`) |
-| E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **PLAN** |
-| E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **PLAN** |
-| E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **PLAN** |
-| E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **PLAN** |
-| E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **PLAN** |
+| E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **CODE** |
+| E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **CODE** |
+| E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **CODE** |
+| E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **CODE** |
+| E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **CODE** |
 
 ---
 

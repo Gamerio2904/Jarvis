@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '3.19.0'
+export const APP_VERSION = '4.53.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -157,6 +157,26 @@ export type Settings = {
   last_warn_line: string
   last_fx_line: string
   last_sport_line: string
+  last_outlook_line: string
+  last_outlook_json: string
+  last_outlook_notified: string
+  outlook_watch: boolean
+  outlook_interrupt: boolean
+  outlook_fred_key: string
+  taxi_app: string
+  chain_json: string
+  last_taxi_json: string
+  drive_interrupt: string
+  drive_second_tel: string
+  own_tel: string
+  watchdog: boolean
+  last_interrupt_json: string
+  last_watchdog_fp: string
+  gemini_tts_voice: string
+  tts_voice_jarvis: string
+  tts_voice_friday: string
+  face: string
+  last_backup_at: string
   home_lat: string
   home_lon: string
   home_radius_m: string
@@ -246,6 +266,26 @@ export const DEFAULT_SETTINGS: Settings = {
   last_warn_line: '',
   last_fx_line: '',
   last_sport_line: '',
+  last_outlook_line: '',
+  last_outlook_json: '',
+  last_outlook_notified: '',
+  outlook_watch: false,
+  outlook_interrupt: false,
+  outlook_fred_key: '',
+  taxi_app: 'call',
+  chain_json: '',
+  last_taxi_json: '',
+  drive_interrupt: 'hud',
+  drive_second_tel: '',
+  own_tel: '',
+  watchdog: false,
+  last_interrupt_json: '',
+  last_watchdog_fp: '',
+  gemini_tts_voice: '',
+  tts_voice_jarvis: '',
+  tts_voice_friday: '',
+  face: 'jarvis',
+  last_backup_at: '',
   home_lat: '',
   home_lon: '',
   home_radius_m: '250',
@@ -387,6 +427,18 @@ export async function del(store: string, id: string): Promise<void> {
   const tx = db.transaction(store, 'readwrite')
   tx.objectStore(store).delete(id)
   await txDone(tx)
+}
+
+export async function clearStore(name: string): Promise<void> {
+  const db = await openDb()
+  const tx = db.transaction(name, 'readwrite')
+  tx.objectStore(name).clear()
+  await txDone(tx)
+}
+
+export async function replaceStore<T>(name: string, rows: T[]): Promise<void> {
+  await clearStore(name)
+  for (const row of rows) await put(name, row)
 }
 
 export async function getAll<T>(store: string): Promise<T[]> {

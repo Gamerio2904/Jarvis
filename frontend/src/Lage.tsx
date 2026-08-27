@@ -7,21 +7,37 @@ import {
   type HudSnap,
 } from './engine/hud'
 import { ChessBoard } from './ChessBoard'
-import { loadSettings } from './engine/store'
+import { loadSettings, type Message } from './engine/store'
 
 export function Lage({
   onSend,
   draft,
   setDraft,
   busy,
+  recent = [],
+  streaming = null,
 }: {
   onSend: (text: string) => void
   draft: string
   setDraft: (v: string) => void
   busy: boolean
+  recent?: Message[]
+  streaming?: string | null
 }) {
   const [snap, setSnap] = useState<HudSnap>({})
+  const [clock, setClock] = useState(() =>
+    new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+  )
   const modules = loadHudModules()
+  const face = loadSettings().face === 'friday' ? 'FRIDAY' : 'JARVIS'
+  const spotifyOn = modules.includes('spotify')
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setClock(new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+    }, 1000)
+    return () => window.clearInterval(id)
+  }, [])
 
   useEffect(() => {
     let live = true
@@ -30,21 +46,19 @@ export function Lage({
       if (live) setSnap(next)
     }
     void tick()
-    const id = window.setInterval(() => void tick(), 20_000)
+    const id = window.setInterval(() => void tick(), spotifyOn ? 5_000 : 20_000)
     return () => {
       live = false
       window.clearInterval(id)
     }
-  }, [modules.join(',')])
-
-  const clock = new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+  }, [modules.join(','), spotifyOn])
   const bat = snap.device?.battery
   const amber = loadSettings().hud_accent === 'amber'
 
   return (
     <section className={`lage ${amber ? 'is-amber' : ''}`} aria-label="Lage">
       <header className="lage-head">
-        <span className="lage-brand">JARVIS</span>
+        <span className="lage-brand">{face}</span>
         <span className="lage-sep">&gt;</span>
         <span>Lage</span>
         <span className="lage-spacer" />
@@ -63,9 +77,18 @@ export function Lage({
           if (id === 'device') return cell(<DeviceTile data={snap.device} />)
           if (id === 'brief') return cell(<TextTile title="Tageslage" body={snap.brief?.line || '—'} />)
           if (id === 'chat') {
+            const last = recent.slice(-2)
             return cell(
               <article className="lage-tile lage-chat">
                 <h3>Chat</h3>
+                <div className="lage-chat-log">
+                  {last.map((m) => (
+                    <p key={m.id} className={m.role === 'assistant' ? 'is-bot' : ''}>
+                      {m.content.slice(0, 160)}
+                    </p>
+                  ))}
+                  {streaming ? <p className="is-bot">{streaming.slice(0, 160)}</p> : null}
+                </div>
                 <form
                   onSubmit={(e) => {
                     e.preventDefault()
@@ -80,6 +103,9 @@ export function Lage({
                     onChange={(e) => setDraft(e.target.value)}
                     placeholder="Nachricht…"
                     disabled={busy}
+                    lang="de"
+                    spellCheck
+                    autoCorrect="on"
                   />
                 </form>
               </article>,
@@ -127,6 +153,7 @@ export function Lage({
               />,
             )
           }
+          if (id === 'world') return cell(<TextTile title="Welt" body={snap.world?.line || '—'} />)
           const label = HUD_CATALOG.find((c) => c.id === id)?.label || id
           return cell(<TextTile title={label} body="" />)
         })}
@@ -180,6 +207,9 @@ function WeatherTile({ data }: { data: HudSnap['weather'] }) {
         ))}
       </div>
       {data?.warn ? <p className="lage-body">{data.warn}</p> : null}
+      {days.some((d) => d.rain > 40) ? (
+        <p className="lage-body">Regenpunkt {days.filter((d) => d.rain > 40).map((d) => d.d).slice(0, 3).join(', ')}</p>
+      ) : null}
     </article>
   )
 }

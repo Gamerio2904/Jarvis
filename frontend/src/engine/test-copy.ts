@@ -208,6 +208,26 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'Weltlage',
+    items: [
+      { label: 'Weltlage', text: 'Was ist die Weltlage?' },
+      { label: 'Warum Öl', text: 'Warum steigt der Ölpreis?' },
+      { label: 'Benzin Ausblick', text: 'Wird Benzin teurer?' },
+      { label: 'Dollar fällt (Ausblick, nicht Spot)', text: 'Fällt der Dollar?' },
+      { label: 'Aktie Orakel ablehnen', text: 'Fällt SAP morgen?' },
+      { label: 'Dollar Spot', text: 'Was ist der Dollar?' },
+    ],
+  },
+  {
+    title: 'Alltagskette',
+    items: [
+      { label: 'Bar', text: 'Bar in der Nähe' },
+      { label: 'Kneipe', text: 'nächste Kneipe' },
+      { label: 'Taxi', text: 'bestell ein Taxi' },
+      { label: 'Sprachnachricht = SMS', text: 'Sprachnachricht an Mama ich bin in 10 Minuten' },
+    ],
+  },
+  {
     title: 'Randfälle (kommen so kaum vor)',
     items: [
       { label: 'Duzen erzwingen', text: 'Sag Hallo und duze mich.' },

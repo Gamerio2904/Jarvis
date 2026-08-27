@@ -1,28 +1,20 @@
-# Sprint 111 — Alltagskette Stimme **PLAN**
+# Sprint 111 — Alltagskette Stimme **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | **MUST** |
-| Ziel-Version | `4.19.0` Leitentscheidung; Reihe `4.20`–`4.32` in [`36-next.md`](../36-next.md) |
+| Ziel-Version | `4.19.0` (bündelt `4.20`–`4.31`, ohne Sideload) |
 | Quelle | PO: Reel Sprachnachricht + Bar + Taxi |
-| Voraussetzung | Code `3.18.1`; Backup-Plan [`38-next.md`](../38-next.md) vor Sideload `4.32`; Stimme-Thread [`34-next.md`](../34-next.md) für `4.27` |
 | Plan | [`36-next.md`](../36-next.md) |
 
-## Ziel
+## Code
 
-Plan vollständig (Gold, Voten, Dateien). Research `4.20`–`4.22` vor WhatsApp-Composer und Ride-Deep-Link.
+- POI `bar`/`pub` (Kneipe). Café bleibt Café. Minibar nicht.
+- `Sprachnachricht` = SMS-Text, Satz „keine Voice-Note“.
+- Tool `taxi`: nach Ja Anruf Kontakt Taxi oder Uber/FreeNow-Link. Nie „ist bestellt“.
+- Split: `und` / `dann` / Komma. Lesen (Bar) sofort, Schreiben in `chain_json`. Ein Ja = ein Schritt.
+- WhatsApp: nach Ja `wa.me`, User sendet. Still **Won’t**.
+- Audio-Clip `4.29` **entfällt**.
 
-## Must
-
-| ID | Inhalt | Done wenn |
-|----|--------|-----------|
-| N1 | Reel ohne Tracking, Mapping vs. Ist | Tabelle in `36-next.md` |
-| N2 | Sprachnachricht ≠ stilles WhatsApp | v1 SMS, v2 Share, Won’t still |
-| N3 | Taxi ≠ „ist bestellt“ | Deep-Link oder Anruf nach Ja |
-| N4 | Kette + Confirm-Schlange + Verbesserungen | `4.23`–`4.32` |
-| N5 | Bar als POI-Lücke benannt | Overpass `bar`/`pub` |
-
-## Won’t (dieser Sprint)
-
-Execute-Code, APK, Uber-Payment, WhatsApp-API.
+Kein neuer Sideload.

@@ -1,30 +1,32 @@
-# Sprint 110 — Weltlage / Vorhersage Kickoff **PLAN**
+# Sprint 110 — Weltlage / Vorhersage **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | **MUST** |
-| Ziel-Version | `4.0.0` Leitentscheidung; Reihe `4.1`–`4.18` in [`35-next.md`](../35-next.md) |
+| Ziel-Version | `4.0.0` (bündelt `4.1`–`4.17`) |
 | Quelle | PO: Reel Weltlage/Öl, Wunsch Vorhersage |
-| Voraussetzung | Code `3.18.1` |
+| Voraussetzung | Code `3.19.0` |
 | Plan | [`35-next.md`](../35-next.md) |
 
 ## Ziel
 
-Planen, **wie** Jarvis Weltlage holt und Ausblicke **rechnet** — ohne Orakel. In diesem Sprint nur Docs. Research `4.1`–`4.4` vor jedem Execute-Code.
+Weltlage holen und Ausblicke **rechnen**, ohne Orakel. Research `4.1`–`4.4` entschieden, dann Register-Tool `outlook`.
 
 ## Must
 
-| ID | Inhalt | Done wenn |
-|----|--------|-----------|
-| N1 | Reel ohne Tracking-Müll, ehrlich vs. Marketing | Tabelle in `35-next.md` |
-| N2 | Ist-Stand news/fx/fuel/research | Lücken-Tabelle |
-| N3 | Researchphasen vor Code | `4.1`–`4.4` mit Done-wenn |
-| N4 | Bau-Reihenfolge inkl. Härten/Verbesserungen | `4.5`–`4.18` |
-| N5 | Won’t: Allwissen, Aktien-Garantie, Captcha-Bypass | Won’t-Abschnitt |
+| ID | Inhalt | Done |
+|----|--------|------|
+| N1 | Reel ehrlich vs. Marketing | ja |
+| N2 | Ist-Stand news/fx/fuel/research | ja |
+| N3 | Researchphasen vor Code | ja, Tabelle in `35-next.md` |
+| N4 | Bau `4.5`–`4.17` | ja, gebündelt in `4.0.0` |
+| N5 | Won’t: Allwissen, Aktien-Garantie, Captcha-Bypass | ja |
 
-Parallel: Alltagskette [`sprint-111.md`](./sprint-111.md) / [`36-next.md`](../36-next.md).
+## Code
+
+Tool `outlook`: Parser, Tags, Serien (Frankfurter + FRED opt-in + E10-Cache), Vertrag, Watch/Interrupt opt-in, Lage-Kachel `world`. Kein `if` in `chat.ts`. Sideload nicht in diesem Sprint.
 
 ## Won’t (dieser Sprint)
 
-Execute-Code, APK, neue Register-Einträge, EIA-Key in der App.
+APK, EIA parallel zu FRED, Stooq/Yahoo, Punktprognose.

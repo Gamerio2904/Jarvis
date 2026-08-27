@@ -1,8 +1,8 @@
 # Android-APK — Sideload `3.18.1`
 
-App-Code steht auf **`3.19.0`**. Der zuletzt gebaute Sideload bleibt **`3.18.1`**, bis `build-apk.sh` / `build-apk.bat` `3.19.0` schreibt (versionCode `31900`).
+App-Code steht auf **`4.53.0`**. Der zuletzt gebaute Sideload bleibt **`3.18.1`**. Kein APK-Claim für `4.53`.
 
-**Deinstall** (andere Signatur): WebView-Daten weg — Keys, Nummern, Erinnerungen. Bis [`38-next.md`](./38-next.md) CODE ist: vor Neuinstall Settings notieren. GGUF ebenfalls neu laden.
+**Deinstall** (andere Signatur): WebView-Daten weg — Keys, Nummern, Erinnerungen. Hausstand-Export ist **CODE** ([`38-next.md`](./38-next.md)): vor Neuinstall Einstellungen → Hausstand → Exportieren. GGUF ebenfalls neu laden.
 
 **3.18.1:** Overlay-Slides. Lage-Kacheln. Keine Testprompts in der App.
 

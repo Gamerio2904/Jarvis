@@ -1,4 +1,5 @@
-import { openDevicePage, placeCall, sendSmsNow } from '../native/device'
+import { openDevicePage, openExternal, placeCall, sendSmsNow } from '../native/device'
+import { hasChain, popChain } from './chain'
 import {
   displayPlaceName,
   extractPhone,
@@ -70,10 +71,11 @@ function routeReply(name: string, place: string): string {
 }
 
 type PendingComm = {
-  kind: 'call_confirm' | 'sms_confirm' | 'sms_body_ask' | 'phone_ask' | 'sms_ask'
+  kind: 'call_confirm' | 'sms_confirm' | 'sms_body_ask' | 'phone_ask' | 'sms_ask' | 'wa_confirm'
   name: string
   number?: string
   body?: string
+  voiceNote?: boolean
 }
 
 const OTHER_CMD =
@@ -243,7 +245,29 @@ export async function handlePlaces(
         lastTool: 'sms_body_ask',
       }
     }
-    return askSms(hit.key, hit.value, nav.body)
+    return askSms(hit.key, hit.value, nav.body, nav.voiceNote)
+  }
+
+  if (nav.kind === 'whatsapp') {
+    const rows = await listMemory()
+    const hit = findContactRow(rows, nav.query)
+    if (!hit) {
+      const who = displayPlaceName(nav.query)
+      writeComm({ kind: 'sms_ask', name: nav.query, body: nav.body }, 'sms_ask')
+      return {
+        handled: true,
+        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“. WhatsApp sende ich nicht still — nur Chat-Link nach Ja.`,
+        tool: commTool('ask', 'Nummer fehlt', nav.query),
+        lastTool: 'sms_ask',
+      }
+    }
+    writeComm({ kind: 'wa_confirm', name: hit.key, number: hit.value, body: nav.body }, 'sms_confirm')
+    return {
+      handled: true,
+      reply: `WhatsApp an ${displayPlaceName(hit.key)}: „${nav.body}“. Ich öffne den Chat, senden tun Sie. Stilles Senden mache ich nicht. Ja?`,
+      tool: commTool('ask', 'WhatsApp', hit.key),
+      lastTool: 'sms_confirm',
+    }
   }
 
   if (nav.kind === 'call') {
@@ -402,19 +426,43 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
     }
   }
 
-  if (pending.kind === 'sms_confirm') {
+  if (pending.kind === 'sms_confirm' || pending.kind === 'wa_confirm') {
+    if (isCommNo(text)) {
+      writeComm(null, 'maps')
+      if (hasChain()) {
+        saveSettings({ last_step_tool: 'chain_ask' })
+        return {
+          handled: true,
+          reply: 'Nicht gesendet. Nächster Schritt trotzdem?',
+          tool: commTool('ask', 'Kette', pending.name),
+          lastTool: 'chain_ask',
+        }
+      }
+      return {
+        handled: true,
+        reply: 'Nicht gesendet.',
+        tool: commTool('ask', 'Abbruch', pending.name),
+        lastTool: 'maps',
+      }
+    }
     if (isCommYes(text, 'sms') && pending.number && pending.body?.trim()) {
-      return doSms(pending.name, pending.number, pending.body)
+      if (pending.kind === 'wa_confirm') return doWhatsApp(conversationId, pending.name, pending.number, pending.body)
+      return doSms(conversationId, pending.name, pending.number, pending.body)
     }
     if (other) {
       writeComm(null, 'maps')
       return null
     }
-    if (text.trim().length >= 2) return askSms(pending.name, pending.number || '', text.trim())
+    if (text.trim().length >= 2 && pending.kind !== 'wa_confirm') {
+      return askSms(pending.name, pending.number || '', text.trim(), pending.voiceNote)
+    }
     return {
       handled: true,
-      reply: `SMS an ${displayPlaceName(pending.name)}: „${pending.body}“. Senden?`,
-      tool: commTool('ask', 'SMS', pending.name),
+      reply:
+        pending.kind === 'wa_confirm'
+          ? `WhatsApp an ${displayPlaceName(pending.name)}: „${pending.body}“. Chat öffnen? Senden tun Sie.`
+          : `SMS an ${displayPlaceName(pending.name)}: „${pending.body}“. Senden?`,
+      tool: commTool('ask', pending.kind === 'wa_confirm' ? 'WhatsApp' : 'SMS', pending.name),
       lastTool: 'sms_confirm',
     }
   }
@@ -455,11 +503,12 @@ function askCall(name: string, number: string): PlaceHit {
   }
 }
 
-function askSms(name: string, number: string, body: string): PlaceHit {
-  writeComm({ kind: 'sms_confirm', name, number, body }, 'sms_confirm')
+function askSms(name: string, number: string, body: string, voiceNote?: boolean): PlaceHit {
+  writeComm({ kind: 'sms_confirm', name, number, body, voiceNote }, 'sms_confirm')
+  const note = voiceNote ? ' Das ist Text per SMS, keine Voice-Note.' : ''
   return {
     handled: true,
-    reply: `SMS an ${displayPlaceName(name)}: „${body}“. Senden?`,
+    reply: `SMS an ${displayPlaceName(name)}: „${body}“. Senden?${note}`,
     tool: commTool('ask', 'SMS', name, { sms: `sms:${number}`, name, body }),
     lastTool: 'sms_confirm',
   }
@@ -488,7 +537,7 @@ async function doCall(name: string, number: string): Promise<PlaceHit> {
   }
 }
 
-async function doSms(name: string, number: string, body: string): Promise<PlaceHit> {
+async function doSms(conversationId: string, name: string, number: string, body: string): Promise<PlaceHit> {
   writeComm(null, 'maps')
   const res = await sendSmsNow(number, body)
   if (res.needPerm) {
@@ -501,12 +550,47 @@ async function doSms(name: string, number: string, body: string): Promise<PlaceH
       lastTool: 'sms_confirm',
     }
   }
+  let reply = res.ok
+    ? `SMS an ${displayPlaceName(name)} ist raus. Zustellung prüfe ich nicht.`
+    : res.message || `SMS an ${displayPlaceName(name)} nicht gesendet.`
+  const extra = await runNextInChain(conversationId)
+  if (extra) reply = `${reply}\n\n${extra}`
   return {
     handled: true,
-    reply: res.ok
-      ? `SMS an ${displayPlaceName(name)} ist raus. Zustellung prüfe ich nicht.`
-      : res.message || `SMS an ${displayPlaceName(name)} nicht gesendet.`,
+    reply,
     tool: commTool('sms', 'SMS', name, { sms: `sms:${number}`, name, body }),
     lastTool: 'maps',
   }
+}
+
+async function doWhatsApp(conversationId: string, name: string, number: string, body: string): Promise<PlaceHit> {
+  writeComm(null, 'maps')
+  const url = waMeUrl(number, body)
+  const opened = await openExternal(url)
+  let reply = opened.ok
+    ? `WhatsApp-Chat an ${displayPlaceName(name)} ist auf. Senden tun Sie. Stilles Senden mache ich nicht.`
+    : 'WhatsApp-Link geht hier nicht auf. Stilles Senden mache ich nicht.'
+  const extra = await runNextInChain(conversationId)
+  if (extra) reply = `${reply}\n\n${extra}`
+  return {
+    handled: true,
+    reply,
+    tool: commTool('sms', 'WhatsApp', name, { url, name, body }),
+    lastTool: 'maps',
+  }
+}
+
+function waMeUrl(number: string, body: string): string {
+  let d = number.replace(/\D/g, '')
+  if (d.startsWith('0')) d = `49${d.slice(1)}`
+  const q = new URLSearchParams({ text: body })
+  return `https://wa.me/${d}?${q}`
+}
+
+async function runNextInChain(conversationId: string): Promise<string | null> {
+  const next = popChain()
+  if (!next) return null
+  const { routeRegistry } = await import('./registry.ts')
+  const hit = await routeRegistry(conversationId, next)
+  return hit?.reply || null
 }

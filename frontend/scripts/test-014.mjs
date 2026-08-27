@@ -37,7 +37,7 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
-import { ttsModelsToTry } from '../src/engine/tts.ts'
+import { ttsBudgetMs, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
@@ -56,6 +56,7 @@ import {
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
+  parseSms,
   looksLikeBareStreet,
 } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
@@ -102,6 +103,15 @@ import { parseHaushaltIntent } from '../src/engine/haushalt.ts'
 import { parseSensorsIntent } from '../src/engine/sensors.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
 import { parseNatureIntent } from '../src/engine/nature.ts'
+import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
+import { parseTaxiIntent } from '../src/engine/taxi-parse.ts'
+import { shouldCallSecondPhone } from '../src/engine/interrupt.ts'
+import { overlappingEvents } from '../src/engine/watchdog.ts'
+import { backupFilename, countSetKeys, previewBackup, stripSettings, parseBackupIntent } from '../src/engine/backup.ts'
+import { parseFaceIntent } from '../src/engine/face-parse.ts'
+import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
+import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
+import { tagNewsText } from '../src/engine/outlook-tags.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -962,6 +972,11 @@ assert.deepEqual(pullReady('Ja. ').parts, [])
 assert.ok(pullReady('Guten Morgen.', true).parts.length >= 1)
 assert.equal(ttsModelsToTry()[0], 'gemini-2.5-flash-preview-tts')
 assert.equal(ttsModelsToTry('gemini-2.5-flash-preview-tts').length, 2)
+assert.equal(TTS_VOICE, 'Algieba')
+assert.equal(ttsNativeRaceMs(false), 0)
+assert.equal(ttsNativeRaceMs(true), 400)
+assert.ok(ttsBudgetMs(false) >= 2000)
+assert.ok(ttsBudgetMs(true) <= 900)
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
 assert.equal(two.parts.length, 1)
 assert.match(two.parts[0], /Ja\./)
@@ -1005,7 +1020,10 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /3\.19\.0/)
+assert.match(HELP_TEXT, /4\.53\.0/)
+assert.match(HELP_TEXT, /Algieba/)
+assert.match(HELP_TEXT, /kein Fake-Anruf/)
+assert.match(HELP_TEXT, /Weltlage/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)
@@ -1410,5 +1428,174 @@ assert.deepEqual(splitIntents('Wetterstatistik an und traceroute google.de'), [
   'Wetterstatistik an',
   'traceroute google.de',
 ])
+
+assert.equal(parseOutlookIntent('Was ist die Weltlage?')?.kind, 'world')
+assert.equal(parseOutlookIntent('Was passiert in der Welt?')?.kind, 'world')
+assert.equal(parseOutlookIntent('Warum steigt der Ölpreis?')?.kind, 'oil_why')
+assert.equal(parseOutlookIntent('Wird Benzin teurer?')?.kind, 'fuel_outlook')
+assert.equal(parseOutlookIntent('Fällt der Dollar?')?.kind, 'fx_outlook')
+assert.equal(parseOutlookIntent('Fällt SAP morgen?')?.kind, 'stock_ask')
+assert.equal(parseOutlookIntent('Nachrichten'), null)
+assert.equal(parseOutlookIntent('Tagesschau'), null)
+assert.equal(parseOutlookIntent('Fahr mich zu einer Tanke'), null)
+assert.equal(parseOutlookIntent('Was ist der Dollar?'), null)
+assert.equal(parseOutlookIntent('Guten Morgen'), null)
+assert.equal(parseOutlookIntent('Wetterstatistik an'), null)
+assert.equal(parseOutlookIntent('Was ist der bip in Deutschland'), null)
+assert.equal(parseOutlookIntent('Olivenöl Rezept'), null)
+assert.equal(parseOutlookIntent('und Benzin?', 'outlook')?.kind, 'fuel_outlook')
+assert.equal(pickRoute('Was ist die Weltlage?'), 'outlook')
+assert.equal(pickRoute('Warum steigt der Ölpreis?'), 'outlook')
+assert.equal(pickRoute('Wird Benzin teurer?'), 'outlook')
+assert.equal(pickRoute('Fällt der Dollar?'), 'outlook')
+assert.equal(pickRoute('Fällt SAP morgen?'), 'outlook')
+assert.equal(pickRoute('Nachrichten'), 'news')
+assert.equal(pickRoute('Fahr mich zu einer Tanke'), 'fuel')
+assert.equal(pickRoute('Was ist der Dollar?'), 'fx')
+assert.equal(pickRoute('Guten Morgen'), 'brief')
+assert.equal(pickRoute('Wetterstatistik an'), 'hud')
+assert.equal(parseFxIntent('Fällt der Dollar?'), null)
+assert.equal(parseFxIntent('Was ist der Dollar?')?.from, 'USD')
+assert.deepEqual(tagNewsText('Spannung an der Straße von Hormus treibt den Ölpreis'), ['hormus', 'oil'])
+const analog = analogPct(
+  [
+    { date: '2019-09-10', value: 60 },
+    { date: '2019-09-16', value: 72 },
+  ],
+  '2019-09-14',
+  '2019-09-20',
+)
+assert.equal(analog, 20)
+assert.match(pickAnalog([{ date: '2019-09-10', value: 60 }, { date: '2019-09-16', value: 72 }], ['hormus'])?.label || '', /Abqaiq/)
+const noOil = formatOutlookReply(
+  {
+    at: '2026-08-27T00:00:00.000Z',
+    news: [{ title: 'Spannung am Golf', teaser: 'Straße von Hormus.', url: 'https://www.tagesschau.de/x', date: '2026-08-27', tags: ['hormus'], provider: 'tagesschau' }],
+    oil: null,
+    oilMissing: 'no_key',
+    oilPoints: [],
+    fx: null,
+    e10: { price: 1.689, at: '2026-08-27T00:00:00.000Z' },
+    analog: null,
+  },
+  'oil_why',
+)
+assert.doesNotMatch(noOil, /\$/)
+assert.match(noOil, /FRED-Key|Rohöl-Zahl fehlt/)
+assert.match(noOil, /kein Kauf-Rat/)
+assert.equal(hasForbiddenClaim(noOil), false)
+assert.equal(hasForbiddenClaim('SAP wird sicher fallen'), true)
+const stock = formatOutlookReply(
+  {
+    at: '2026-08-27T00:00:00.000Z',
+    news: [],
+    oil: null,
+    oilMissing: 'no_key',
+    oilPoints: [],
+    fx: null,
+    e10: null,
+    analog: null,
+  },
+  'stock_ask',
+)
+assert.match(stock, /keinen Kauf/)
+assert.doesNotMatch(stock, /\$/)
+assert.equal(hasForbiddenClaim(stock), false)
+const rss = parseRssItems(
+  '<rss><channel><item><title>OPEC kürzt</title><link>https://www.dw.com/opec</link><description>Förderkürzung</description></item></channel></rss>',
+)
+assert.equal(rss[0]?.provider, 'dw')
+assert.ok(rss[0]?.tags.includes('opec'))
+
+assert.equal(parsePoiIntent('Bar in der Nähe')?.kind, 'bar')
+assert.equal(parsePoiIntent('nächste Kneipe')?.kind, 'bar')
+assert.equal(parsePoiIntent('nächstes Café')?.kind, 'cafe')
+assert.equal(parsePoiIntent('Minibar im Hotel'), null)
+assert.equal(parseTaxiIntent('bestell ein Taxi')?.kind, 'order')
+assert.equal(parseTaxiIntent('Taxi zur Bar')?.kind, 'order')
+assert.equal(parseTaxiIntent('Mit der Bahn nach Heilbronn'), null)
+assert.equal(pickRoute('Bar in der Nähe'), 'poi')
+assert.equal(pickRoute('nächste Kneipe'), 'poi')
+assert.equal(pickRoute('nächstes Café'), 'poi')
+assert.equal(pickRoute('bestell ein Taxi'), 'taxi')
+assert.equal(pickRoute('Taxi zur Bar'), 'taxi')
+assert.equal(pickRoute('Mit der Bahn nach Heilbronn'), 'transit')
+assert.equal(pickRoute('Nachrichten'), 'news')
+assert.equal(parseSms('Sprachnachricht an Mama ich bin in 10 Minuten')?.kind, 'sms')
+assert.equal(parseSms('Sprachnachricht an Mama ich bin in 10 Minuten')?.voiceNote, true)
+assert.equal(parseSms('Schreib Mama auf WhatsApp ich bin unterwegs')?.kind, 'whatsapp')
+assert.deepEqual(splitIntents('Schreib Tom ich komme, such eine Bar und bestell ein Taxi').length, 3)
+assert.equal(splitIntents('Brot und Butter').length, 1)
+
+assert.equal(shouldCallSecondPhone({ mode: 'hud', second: '01711111111', own: '01712222222' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '', own: '01712222222' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '01711111111', own: '' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '01711111111', own: '01711111111' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '0171 1111111', own: '01712222222' }), true)
+const ov = overlappingEvents(
+  [
+    { id: '1', title: 'Zahnarzt', start_at: '2026-09-05T13:00:00.000Z', created_at: '', updated_at: '' },
+    { id: '2', title: 'Meeting', start_at: '2026-09-05T13:20:00.000Z', created_at: '', updated_at: '' },
+  ],
+  Date.parse('2026-09-05T08:00:00.000Z'),
+)
+assert.ok(ov)
+assert.match(ov.question, /Zahnarzt/)
+assert.match(ov.question, /Meeting/)
+assert.equal(
+  overlappingEvents(
+    [{ id: '1', title: 'Zahnarzt', start_at: '2026-09-05T13:00:00.000Z', created_at: '', updated_at: '' }],
+    Date.parse('2026-09-05T08:00:00.000Z'),
+  ),
+  null,
+)
+assert.equal(
+  rewriteFollowUp('Ja', { last_step_tool: 'interrupt', last_step_utterance: 'überlappen' }),
+  null,
+)
+
+assert.equal(parseBackupIntent('Hausstand exportieren'), 'export')
+assert.equal(parseBackupIntent('Einstellungen importieren'), 'import')
+assert.equal(pickRoute('Hausstand exportieren'), 'backup')
+assert.match(normalizeUtterance('nächste Barn'), /Bar/)
+assert.equal(parsePoiIntent(normalizeUtterance('nächste Barn'))?.kind, 'bar')
+assert.match(normalizeUtterance('Kalnader morgen'), /Kalender/)
+assert.match(normalizeUtterance('Steckose Küche'), /Steckdose/)
+assert.equal(backupFilename(new Date('2026-08-27T12:00:00Z')), 'jarvis-haus-20260827.json')
+const stripped = stripSettings({
+  last_taxi_json: 'x',
+  gemini_api_key: 'secret',
+  taxi_app: 'call',
+})
+assert.equal(stripped.last_taxi_json, undefined)
+assert.equal(stripped.gemini_api_key, 'secret')
+const prev = previewBackup({
+  backup_version: 1,
+  settings: { gemini_api_key: 'abc', groq_api_key: '' },
+  memory: [{ category: 'contact', key: 'Mama' }],
+  reminders: [{ id: '1' }],
+  events: [],
+  notes: [],
+  todos: [],
+  shopping: [],
+})
+assert.equal(prev.ok, true)
+assert.equal(prev.keys, 1)
+assert.equal(prev.contacts, 1)
+assert.equal(prev.reminders, 1)
+assert.equal(countSetKeys({ gemini_api_key: 'a', tankerkoenig_api_key: 'b' }), 2)
+assert.match(HELP_TEXT, /Hausstand/)
+assert.match(HELP_TEXT, /Friday/)
+assert.equal(parseFaceIntent('Friday'), 'friday')
+assert.equal(parseFaceIntent('Hey Friday'), 'friday')
+assert.equal(parseFaceIntent('Hallo Jarvis.'), null)
+assert.equal(parseFaceIntent('Friday übernimmt'), 'friday')
+assert.equal(parseFaceIntent('Sprich als Friday'), 'friday')
+assert.equal(parseFaceIntent('Jarvis übernimmt'), 'jarvis')
+assert.equal(parseFaceIntent('Freitag Zahnarzt'), null)
+assert.equal(pickRoute('Friday'), 'face')
+assert.equal(pickRoute('Friday übernimmt'), 'face')
+assert.notEqual(pickRoute('Freitag Zahnarzt'), 'face')
+assert.notEqual(pickRoute('Work-Modus'), 'face')
 
 console.log('ok 0.14 parsers')
