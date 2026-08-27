@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Live `3.19.0`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — **Deinstall löscht alles** ([`38-next.md`](./38-next.md)). Lage: [`33-next.md`](./33-next.md). Zwei Gesichter geplant: [`39-next.md`](./39-next.md).
+> **Live `4.53.0`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — Export [`38-next.md`](./38-next.md); **Deinstall ohne Import löscht alles**. Lage neben Chat: [`39-next.md`](./39-next.md). Körper geplant: [`40-next.md`](./40-next.md). PC-Sehen geplant: [`41-next.md`](./41-next.md).
 
 ## Leitentscheidung
 

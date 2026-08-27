@@ -36,6 +36,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **CODE** |
 | E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **CODE** |
 | E33 | Körper intern `4.66` | 5+ | 3D-Schema live/klickbar (Darstellung) + Kacheln, APK; PC nur PC-Organe — [`40-next.md`](./40-next.md) **PLAN** |
+| E34 | Lokales Sehen `4.76` | 5+ | LocateAnything am PC, Klick mit Boxen — [`41-next.md`](./41-next.md) **PLAN** |
 
 ---
 
@@ -385,66 +386,97 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S28.0 | Leitentscheidung + Researchphasen | Must | ready | [`35-next.md`](./35-next.md) PLAN, kein Execute |
-| S28.1 | Research Ingest/Serien/Methode/Architektur | Must | idea | `4.1`–`4.4` entschieden, dann Code |
-| S28.2 | Ausblick auf Nachfrage (Weltlage, warum Öl, Benzin) | Must | idea | Quellen + Serie + Szenario, kein Orakel |
-| S28.3 | Unterbrechen opt-in | Should | idea | nur Δ, Default aus |
+| S28.0 | Leitentscheidung + Researchphasen | Must | done | [`35-next.md`](./35-next.md) **CODE** |
+| S28.1 | Research Ingest/Serien/Methode/Architektur | Must | done | `4.1`–`4.4` in Docs, Execute in `4.0.0` |
+| S28.2 | Ausblick auf Nachfrage (Weltlage, warum Öl, Benzin) | Must | done | `outlook.ts` — Quellen + Serie + Szenario |
+| S28.3 | Unterbrechen opt-in | Should | done | Watch Default aus |
 | S28.4 | Aktien-Gewissheit | Won’t | parked | kein „fällt morgen“ |
 
 ### E29 — Alltagskette Stimme `4.19`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S29.0 | Leitentscheidung + Research | Must | ready | [`36-next.md`](./36-next.md) PLAN |
-| S29.1 | Bar/Kneipe POI | Must | idea | Overpass `bar`/`pub` |
-| S29.2 | Sprachnachricht als SMS v1 | Must | idea | Nachfrage, kein stilles WhatsApp |
-| S29.3 | Taxi öffnen oder anrufen | Must | idea | nie „ist bestellt“ |
-| S29.4 | Drei Aufträge, Confirm-Schlange | Must | idea | ein Ja = ein Schritt |
+| S29.0 | Leitentscheidung + Research | Must | done | [`36-next.md`](./36-next.md) **CODE** |
+| S29.1 | Bar/Kneipe POI | Must | done | `poi.ts` Overpass |
+| S29.2 | Sprachnachricht als SMS v1 | Must | done | Nachfrage, kein stilles WhatsApp |
+| S29.3 | Taxi öffnen oder anrufen | Must | done | `taxi.ts` — nie „ist bestellt“ |
+| S29.4 | Drei Aufträge, Confirm-Schlange | Must | done | ein Ja = ein Schritt |
 | S29.5 | WhatsApp still senden | Won’t | parked | Business-API / Accessibility |
 
 ### E30 — Gespräch / Stimme / Steuer `4.33`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S30.0 | Leitentscheidung; `3.19` Kalender nicht neu | Must | ready | [`37-next.md`](./37-next.md) |
-| S30.1 | Film-nähere Gemini-TTS, free | Must | idea | Spike Stimme + Budget stehend vs. Fahrt |
-| S30.2 | Reel: finden/beheben/eine Frage | Must | idea | Whitelist Haus, HUD am Steuer |
+| S30.0 | Leitentscheidung; `3.19` Kalender nicht neu | Must | done | [`37-next.md`](./37-next.md) **CODE** |
+| S30.1 | Film-nähere Gemini-TTS, free | Must | done | Algieba, Budget stehend vs. Fahrt |
+| S30.2 | Reel: finden/beheben/eine Frage | Must | done | Watchdog + HUD am Steuer |
 | S30.3 | Eingehender Anruf von Jarvis | Won’t | parked | kein Fake-Call, kein Retell |
 
 ### E31 — Hausstand `4.46`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S31.0 | Leitentscheidung Backup + Tippfehler | Must | ready | [`38-next.md`](./38-next.md) |
-| S31.1 | Export JSON (Keys, Nummern, Erinnerungen, Settings) | Must | idea | ein Share/Download |
-| S31.2 | Import ein Tippen nach Deinstall | Must | idea | Confirm, dann gleicher Stand |
-| S31.3 | Composer DE + Jarvis-Wörterbuch | Must | idea | Keys-Felder ohne Spellcheck |
-| S31.4 | STT pickHeard + Rückfrage Bar/Bahn | Must | idea | kein Blind-Levenshtein |
+| S31.0 | Leitentscheidung Backup + Tippfehler | Must | done | [`38-next.md`](./38-next.md) **CODE** |
+| S31.1 | Export JSON (Keys, Nummern, Erinnerungen, Settings) | Must | done | `backup.ts` Share/Download |
+| S31.2 | Import ein Tippen nach Deinstall | Must | done | Confirm, dann gleicher Stand |
+| S31.3 | Composer DE + Jarvis-Wörterbuch | Must | done | Keys-Felder ohne Spellcheck |
+| S31.4 | STT pickHeard + Rückfrage Bar/Bahn | Must | done | `repairSpeech` / `pickHeard` |
 | S31.5 | Jarvis-Cloud-Sync | Won’t | parked | Datei bleibt beim User |
 
 ### E32 — Zwei Gesichter + Tablet `4.53`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S32.0 | Leitentscheidung Faces + HUD | Must | ready | [`39-next.md`](./39-next.md) PLAN, kein Execute |
-| S32.1 | Jarvis Default, Friday Zuruf, zwei Stimmen | Must | idea | ein Register, ein Gedächtnis |
-| S32.2 | Wake Friday, nicht Freitag | Must | idea | Kalender `Freitag` bleibt Termin |
-| S32.3 | Lage neben Chat, Uhr tickt, Poll split | Must | idea | Composer+Mic sichtbar |
+| S32.0 | Leitentscheidung Faces + HUD | Must | done | [`39-next.md`](./39-next.md) **CODE** |
+| S32.1 | Jarvis Default, Friday Zuruf, zwei Stimmen | Must | done | `face.ts` — ein Register, ein Gedächtnis |
+| S32.2 | Wake Friday, nicht Freitag | Must | done | Kalender `Freitag` bleibt Termin |
+| S32.3 | Lage neben Chat, Uhr tickt, Poll split | Must | done | Composer+Mic sichtbar |
 | S32.4 | Marvel-Friday / zwei Modelle | Won’t | parked | Hausname, ein Hirn |
 | S32.5 | Auto Work-Stunden → Face | Won’t | parked | nur explizit |
+
+### E33 — Körper intern `4.66`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S33.0 | Leitentscheidung Körper in der Lage | Must | ready | [`40-next.md`](./40-next.md) PLAN |
+| S33.1 | 3D-Schema live, Tippen = Kachel nicht Tool | Must | idea | WebGL-Spike `4.67` |
+| S33.2 | Nur echte Store-Zustände | Must | idea | kein Fake-Puls |
+| S33.3 | PC-Auge/PC-Hand ehrlich ohne BAT | Must | idea | `4.73` |
+| S33.4 | Mails/Instagram/Marvel-Mesh | Won’t | parked | Darstellung intern |
+
+### E34 — Lokales Sehen `4.76`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S34.0 | Leitentscheidung LocateAnything am PC | Must | ready | [`41-next.md`](./41-next.md) — nicht `4.66` |
+| S34.1 | 3060/Windows Spike GO/NO-GO | Must | idea | `4.77` |
+| S34.2 | `klick …` über Box, unsicher = kein Klick | Must | idea | `4.82` |
+| S34.3 | Screenshot deuten ohne Google wenn Vision ready | Should | idea | `4.83` |
+| S34.4 | Handy-Foto zum PC, sonst Gemini/Absage | Should | idea | `4.84` |
+| S34.5 | 3B-VLM auf dem Handy / Face-ID / APK-Gewichte | Won’t | parked | Sprint 72 bleibt |
+| S34.6 | `wo ist` / `zeig` Overlay ohne Klick | Must | ready | `4.87` Sprint 117 |
+| S34.7 | Fenster/Icons zählen | Should | ready | `4.88` |
+| S34.8 | In ein gefundenes Feld tippen | Must | ready | `4.89` |
+| S34.9 | Nachklick-Delta | Should | ready | `4.90` |
+| S34.10 | Beleg lokal lesen | Must | ready | `4.91` |
+| S34.11 | Zettel → Termin nach Ja | Should | ready | `4.92` |
+| S34.12 | TV-Foto → Taste | Should | ready | `4.93` |
+| S34.13 | Schreibtisch wo liegt X | Should | ready | `4.94` Sprint 118 |
+| S34.14 | Waschlabel ISO | Should | ready | `4.95` |
+| S34.15 | Zwei GUI-Schritte mit Confirm | Should | ready | `4.97` |
+| S34.16 | Computer-Use / Live-AR / Banking | Won’t | parked | |
+| S34.17 | EAN-Box → Open Food Facts | Should | ready | `4.96` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Hausstand Backup** [`38-next.md`](./38-next.md) — vor jedem Sideload
-2. `3.19.0` **CODE auf main** [`34-next.md`](./34-next.md) — nächster Sideload nach Backup
-3. Alltagskette [`36-next.md`](./36-next.md)
-4. Weltlage [`35-next.md`](./35-next.md)
-5. Gespräch/Stimme [`37-next.md`](./37-next.md)
-6. **Tablet-Lage glätten** [`39-next.md`](./39-next.md) `4.59+`
-7. Zwei Gesichter Jarvis/Friday [`39-next.md`](./39-next.md)
-8. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. Sideload nach Hausstand-Export (`4.46` **CODE**, APK noch `3.18.1`)
+2. Körper intern [`40-next.md`](./40-next.md) `4.66`
+3. Lokales Sehen [`41-next.md`](./41-next.md) `4.76` — nach 3060-Spike
+4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+
+Komplette Liste: [`42-planned.md`](./42-planned.md).
 
 ## Parking Lot (Ideen, nicht geplant)
 

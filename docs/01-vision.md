@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Stand Code `3.19.0`:** On-Device, Stimme ein Thread, Kalender-Fenster. Sideload **`3.18.1`**. Live-Ton: **Siezen**. Nächste Pläne: [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md).
+> **Stand Code `4.53.0`:** On-Device, Weltlage, Alltagskette, Algieba, Hausstand-Export, Friday, Lage neben Chat. Sideload **`3.18.1`**. Live-Ton: **Siezen**. Offene Pläne: Körper [`40-next.md`](./40-next.md), LocateAnything [`41-next.md`](./41-next.md).
 
 ## Vision
 

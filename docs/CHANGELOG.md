@@ -7,6 +7,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`4.53.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
 
+### `4.76.0` — Lokales Sehen / LocateAnything — *PLAN*
+
+NVIDIA LocateAnything-3B als PC-Werkzeug (GUI-Grounding, private Boxen). **Nicht** Körper `4.66`. Research `4.77`–`4.80` (3060 GO/NO-GO) vor Execute. Alltag `4.87`+, Rest `4.94`+.
+
+- Docs [`41-next.md`](./41-next.md) · [`sprints/sprint-116.md`](./sprints/sprint-116.md)–[`sprint-118.md`](./sprints/sprint-118.md)
+- Index [`42-planned.md`](./42-planned.md)
+- Inspiration: https://www.instagram.com/reel/DaJuh6euSLq/
+- App-Code **`4.53.0`**, Sideload noch `3.18.1`
+
 ### `4.66.0` — Körper intern (Hirn, Auge, Hand) — *PLAN*
 
 Lage-Sicht **Körper**: 3D-Schema live und anklickbar (nur Darstellung) plus ehrliche Kacheln. APK-WebView, kein PC nötig zum Ansehen. PC nur für PC-Auge/PC-Hand. Mails/Instagram/24/7-Cloud-Employee und Marvel-Mesh Won’t.

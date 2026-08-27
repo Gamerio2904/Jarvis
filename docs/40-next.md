@@ -45,7 +45,7 @@ Kein PC nötig, um den Körper **zu sehen**. Kein zweites Hirn auf Windows.
 |-------|-----|----------------|
 | Hirn | wllama 0,5B **oder** Gemini Opt-in. Register + Score. Face Jarvis/Friday. 0,5B wählt keine Tools. | `llm.ts`, `registry.ts`, `face.ts` |
 | Auge (Handy) | `Lies das Foto` — nur mit Gemini, Bild zu Google. Sonst ehrlich. | `eye.ts` |
-| Auge (PC) | `Was siehst du auf dem PC` — Screenshot über BAT | `pc.ts` |
+| Auge (PC) | `Was siehst du auf dem PC` — Screenshot über BAT; Deutung Gemini. Treffsichere Boxen: [`41-next.md`](./41-next.md) | `pc.ts` |
 | Hand (Handy) | Steckdose, Anruf/SMS nach Ja, Taxi nach Ja, Kalender, TV, Timer, … | Register |
 | Hand (PC) | FIFA, Klick, Ordner, `tracert` | `pc.ts` / `trace.ts` |
 | Ohr | STT, Wake Jarvis/Friday (nicht Freitag) | `voice.ts`, Wake-Service |
@@ -194,3 +194,5 @@ Mails-Agent. Instagram-Poster. 24/7-Cloud-Mitarbeiter. Jarvis-Cloud. Zweites Hir
 3. `Lies das Foto` ändert Auge-Knoten/Kachel nach echtem Lauf, nicht vorher.  
 4. Taxi-Confirm erscheint an der Hand, Satz bleibt „Bestellt habe ich nicht.“  
 5. Reduced-motion: 2D, kein Orbit. WebGL aus: dieselben Sätze als Kacheln.
+
+PC-Auge **treffsicher** (Boxen statt Gemini-JSON) ist nicht dieser Sprint — [`41-next.md`](./41-next.md) `4.76`.

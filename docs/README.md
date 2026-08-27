@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`4.53.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export. Offener Plan: Körper intern [`40-next.md`](./40-next.md). Weltlage: [`35-next.md`](./35-next.md). Alltagskette: [`36-next.md`](./36-next.md). Stimme/Steuer: [`37-next.md`](./37-next.md). Backup: [`38-next.md`](./38-next.md). Jarvis/Friday: [`39-next.md`](./39-next.md).
+**Jetzt:** Code **`4.53.0`**. Sideload **`3.18.1`**. Offene Pläne: Körper [`40-next.md`](./40-next.md) · LocateAnything [`41-next.md`](./41-next.md). Index: [`42-planned.md`](./42-planned.md). CODE: [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md). Nächster Sideload erst nach Hausstand-Export.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -47,6 +47,8 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` CODE** — Export/Import, Tippfehler Schreib+Sprache |
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` PLAN** — 3D-Schema live/klickbar in der APK; PC nur PC-Organe |
+| 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` PLAN** — PC-Grounding, nicht WASM; nicht mit `4.66` mischen |
+| 42 | [Alles geplant](./42-planned.md) | Index Code `4.53` + offene Pläne |
 | — | [APK](./apk.md) | Sideload `3.18.1`; Code `4.53.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -122,5 +124,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 113 | `4.46.0` | **CODE** (Hausstand Export/Import, Autokorrektur) |
 | 114 | `4.53.0` | **CODE** (Jarvis/Friday + Tablet-Lage flüssig) |
 | 115 | `4.66.0` | **PLAN** (Körper intern: 3D-Schema + Kacheln) |
+| 116 | `4.76.0` | **PLAN** (LocateAnything am PC) |
+| 117 | `4.87.0` | **PLAN** (Sehen Alltag: Zeig, Beleg, TV-Foto) |
+| 118 | `4.94.0` | **PLAN** (Sehen Schreibtisch, Wasch, EAN, zwei Schritte) |
 
-**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Offener Plan: [`40-next.md`](./40-next.md). Sideload erst nach Hausstand-Export.
+**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Pläne: [`40-next.md`](./40-next.md), [`41-next.md`](./41-next.md). Index: [`42-planned.md`](./42-planned.md).

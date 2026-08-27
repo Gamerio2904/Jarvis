@@ -84,6 +84,7 @@ MAJOR.MINOR.PATCH
 | `4.46.0` | **Hausstand** — Export/Import nach APK-Deinstall; Autokorrektur Schreib+Sprache | Sprint 113 |
 | `4.53.0` | **Zwei Gesichter + Tablet** — Jarvis/Friday Stimme; Lage nicht statt Chat | Sprint 114 |
 | `4.66.0` | **Körper intern** — Hirn/Auge/Hand in der Lage; APK, PC nur PC-Organe | Sprint 115 |
+| `4.76.0` | **Lokales Sehen** — LocateAnything am PC (GUI-Grounding), nicht `4.66` Körper | Sprint 116 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -205,7 +206,7 @@ MAJOR.MINOR.PATCH
 | `3.34.0`–`3.37.0` | Telefon-Haus, Notiz, Gespräch | 107 (in `3.18.0`) |
 | `3.38.0`–`3.45.0` | Foto, Stimme, Sensoren, Schach-UI, Slots, Härten | 107 (in `3.18.0`) |
 
-### `4.0` — Weltlage / Vorhersage [`35-next.md`](./35-next.md) **PLAN**
+### `4.0` — Weltlage / Vorhersage [`35-next.md`](./35-next.md) **CODE**
 
 `3.19.0`–`3.45.0` sind logische Stufen **in** `3.18.0`. Nächster Produktsprung ist `4.0`, nicht ein zweites `3.20`.
 
@@ -289,6 +290,18 @@ Lage-Sicht auf vorhandene Organe. Handy ist Hirn. PC nur PC-Auge/PC-Hand. Kein C
 | `4.67.0`–`4.69.0` | Research: Schema/WebGL, Live-Felder, PC-leer | nach 115 |
 | `4.70.0`–`4.74.0` | HUD-Sicht, 3D + Kacheln, Gold | nach Research |
 | `4.75.0` | Sideload nach Hausstand | nach `4.52` |
+
+### `4.76+` — Lokales Sehen / LocateAnything [`41-next.md`](./41-next.md) **PLAN**
+
+PC-Sidecar, nicht Handy-WASM. `4.66`–`4.75` bleiben Körper. 3060/Windows = GO/NO-GO vor Execute.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.76.0` | Leitentscheidung (Docs) | 116 |
+| `4.77.0`–`4.80.0` | Research: 3060, Sidecar, Klick vs Gemini, Foto/OCR | nach 116 |
+| `4.81.0`–`4.86.0` | Ground, Click mit Box, Overlay, Foto, Crop, Fallback | nach GO |
+| `4.87.0`–`4.93.0` | Zeig, Zählen, Tippen, Delta, Beleg, Termin, TV-Foto | 117 |
+| `4.94.0`–`4.99.0` | Schreibtisch, Waschlabel, EAN, zwei Schritte, Gold, Sideload | 118 |
 
 ### Weitere Beispiele
 
