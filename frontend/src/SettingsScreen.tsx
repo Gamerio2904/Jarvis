@@ -5,6 +5,7 @@ import type { Plug } from './api'
 import { copyText } from './copy-text'
 import { ensureDeviceLocation } from './native/geo'
 import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
+import { sanitizePcHost } from './engine/pc-host'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -812,11 +813,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>PC im WLAN</h3>
               <p className="settings-lead">
-                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> starten. Jarvis sieht den echten Bildschirm,
-                bewegt die Maus, startet FIFA, bearbeitet Ordner — nur wenn die App läuft.
+                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> doppelklicken. Das graue Fenster offen
+                lassen. IP mit <strong>192.168</strong> oder <strong>10.</strong> — nicht 172 (WSL). Schalter an, dann
+                PC testen.
               </p>
               <p className="settings-hint">
-                Gleiches WLAN. IP und Token stehen im PC-Fenster. Ohne App: nichts behaupten. Löschen nur nach Ja.
+                Gleiches WLAN, kein Gäste-Netz, kein VPN. IP ohne http:// und ohne Port. Firewall im PC-Fenster
+                erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja.
               </p>
               <label className="settings-toggle">
                 <span>PC-Steuerung an</span>
@@ -837,7 +840,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   autoComplete="off"
                   onChange={(e) => setPcHost(e.target.value)}
                   onBlur={() => {
-                    const v = pcHost.trim()
+                    const v = sanitizePcHost(pcHost)
                     setPcHost(v)
                     void p.patchSetting({ pc_host: v })
                   }}
@@ -879,10 +882,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   className="retry-btn"
                   disabled={busy || pcBusy}
                   onClick={() => {
+                    const host = sanitizePcHost(pcHost)
+                    setPcHost(host)
                     setPcBusy(true)
                     setPcMsg('Prüfe PC…')
                     void p.patchSetting({
-                      pc_host: pcHost.trim(),
+                      pc_host: host,
                       pc_token: pcToken.trim(),
                       pc_port: Number.parseInt(pcPort, 10) || 18790,
                       pc_enabled: true,
