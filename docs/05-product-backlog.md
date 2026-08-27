@@ -37,6 +37,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **CODE** |
 | E33 | Körper intern `4.66` | 5+ | 3D-Schema live/klickbar (Darstellung) + Kacheln, APK; PC nur PC-Organe — [`40-next.md`](./40-next.md) **PLAN** |
 | E34 | Lokales Sehen `4.76` | 5+ | LocateAnything am PC, Klick mit Boxen — [`41-next.md`](./41-next.md) **PLAN** |
+| E36 | Debug-Lauf `5.11` | 5+ | Kategorien, Sequenz, Export mit Verdict — [`44-next.md`](./44-next.md) **PLAN** |
 
 ---
 
@@ -467,14 +468,27 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S34.16 | Computer-Use / Live-AR / Banking | Won’t | parked | |
 | S34.17 | EAN-Box → Open Food Facts | Should | ready | `4.96` |
 
+### E36 — Debug-Lauf `5.11`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S36.0 | Leitentscheidung Debug-Lauf | Must | ready | [`44-next.md`](./44-next.md) PLAN |
+| S36.1 | Klickboxen mehrerer Kategorien | Must | idea | nicht nur ein Select |
+| S36.2 | Start öffnet neues Gespräch | Must | idea | Alltagschat unangetastet |
+| S36.3 | Prompts inkl. Welt/Face fest im Code | Must | idea | `test-copy.ts` |
+| S36.4 | Download JSON+TXT mit Soll/Ist | Must | idea | `5.16` |
+| S36.5 | Auto-Ja / Debug-Cloud / Hausstand-Import im Lauf | Won’t | parked | |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
 1. Sideload nach Hausstand-Export (`4.46` **CODE**, APK noch `3.18.1`)
-2. Körper intern [`40-next.md`](./40-next.md) `4.66`
-3. Lokales Sehen [`41-next.md`](./41-next.md) `4.76` — nach 3060-Spike
-4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+2. Debug-Lauf [`44-next.md`](./44-next.md) `5.11`
+3. Körper intern [`40-next.md`](./40-next.md) `4.66`
+4. Weltkugel `5.0` — PR #58
+5. Lokales Sehen [`41-next.md`](./41-next.md) `4.76` — nach 3060-Spike
+6. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Komplette Liste: [`42-planned.md`](./42-planned.md).
 

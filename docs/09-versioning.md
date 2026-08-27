@@ -85,6 +85,8 @@ MAJOR.MINOR.PATCH
 | `4.53.0` | **Zwei Gesichter + Tablet** — Jarvis/Friday Stimme; Lage nicht statt Chat | Sprint 114 |
 | `4.66.0` | **Körper intern** — Hirn/Auge/Hand in der Lage; APK, PC nur PC-Organe | Sprint 115 |
 | `4.76.0` | **Lokales Sehen** — LocateAnything am PC (GUI-Grounding), nicht `4.66` Körper | Sprint 116 |
+| `5.0.0` | **Weltkugel** — Lage-Sicht Erde (PLAN anderer Branch, PR #58); Nummern `5.0`–`5.10` | Sprint 119 |
+| `5.11.0` | **Debug-Lauf** — Mehrfach-Kategorien, neues Gespräch, Export mit Verdict | Sprint 120 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -302,6 +304,21 @@ PC-Sidecar, nicht Handy-WASM. `4.66`–`4.75` bleiben Körper. 3060/Windows = GO
 | `4.81.0`–`4.86.0` | Ground, Click mit Box, Overlay, Foto, Crop, Fallback | nach GO |
 | `4.87.0`–`4.93.0` | Zeig, Zählen, Tippen, Delta, Beleg, Termin, TV-Foto | 117 |
 | `4.94.0`–`4.99.0` | Schreibtisch, Waschlabel, EAN, zwei Schritte, Gold, Sideload | 118 |
+
+### `5.0` — Weltkugel (andere Schiene)
+
+`5.0`–`5.10` sind die Lage-Sicht Erde (PR #58). Nicht mit Debug mischen.
+
+### `5.11+` — Debug-Lauf [`44-next.md`](./44-next.md) **PLAN**
+
+Upgrade des Settings-Debug `3.19`. Mehrere Kategorien, neues Gespräch, JSON-Export.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `5.11.0` | Leitentscheidung (Docs) | 120 |
+| `5.12.0`–`5.13.0` | Research: Hintergrund/Writes, Export-Schema | nach 120 |
+| `5.14.0`–`5.17.0` | UI, Katalog+Expect, JSON+TXT, WakeLock/Service | nach Research |
+| `5.18.0` | Sideload nach Hausstand | nach `4.52` |
 
 ### Weitere Beispiele
 

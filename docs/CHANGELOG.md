@@ -7,6 +7,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`4.53.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
 
+### `5.11.0` — Debug-Lauf — *PLAN*
+
+Settings → Debug: mehrere Kategorien per Klickbox, neues Gespräch, Prompt nach Prompt, JSON+TXT mit Route/`tool_status`/Verdict. Baut auf `3.19`. Kein Auto-Ja. `5.0`–`5.10` bleiben Weltkugel (PR #58).
+
+- Docs [`44-next.md`](./44-next.md) · [`sprints/sprint-120.md`](./sprints/sprint-120.md)
+- App-Code **`4.53.0`**, Sideload noch `3.18.1`
+
 ### `4.76.0` — Lokales Sehen / LocateAnything — *PLAN*
 
 NVIDIA LocateAnything-3B als PC-Werkzeug (GUI-Grounding, private Boxen). **Nicht** Körper `4.66`. Research `4.77`–`4.80` (3060 GO/NO-GO) vor Execute. Alltag `4.87`+, Rest `4.94`+.

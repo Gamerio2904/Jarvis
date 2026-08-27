@@ -27,6 +27,8 @@ Ein Sprachmodus = **ein Gespräch**. `activeIdRef`, nicht jedes Mal `createConve
 
 Einstellungen → **Debug**. Kategorie (Uhr, CarPlay, Smalltalk, Kalender, …). Start: Prompt, warten, nächster. Chat herunterladen.
 
+Upgrade (Mehrfachwahl, neues Gespräch, JSON mit Tool-Verdict): [`44-next.md`](./44-next.md) `5.11`.
+
 ## Emulator + PC auf einem Bildschirm
 
 | Wer | Was |

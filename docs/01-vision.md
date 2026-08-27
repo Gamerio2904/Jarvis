@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Stand Code `4.53.0`:** On-Device, Weltlage, Alltagskette, Algieba, Hausstand-Export, Friday, Lage neben Chat. Sideload **`3.18.1`**. Live-Ton: **Siezen**. Offene Pläne: Körper [`40-next.md`](./40-next.md), LocateAnything [`41-next.md`](./41-next.md).
+> **Stand Code `4.53.0`:** On-Device, Weltlage, Alltagskette, Algieba, Hausstand-Export, Friday, Lage neben Chat. Sideload **`3.18.1`**. Live-Ton: **Siezen**. Offene Pläne: Körper [`40-next.md`](./40-next.md), LocateAnything [`41-next.md`](./41-next.md), Debug-Lauf [`44-next.md`](./44-next.md).
 
 ## Vision
 

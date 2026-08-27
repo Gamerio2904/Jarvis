@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Code `3.19.0` [`34-next.md`](./34-next.md). Pläne [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md). Sideload `3.18.1`.
+> Historisch (MVP `0.1`). **Jetzt:** Code `4.53.0`. Pläne [`40-next.md`](./40-next.md)–[`41-next.md`](./41-next.md), [`44-next.md`](./44-next.md). Sideload `3.18.1`.
 
 ## MVP v0.1 — Definition
 
