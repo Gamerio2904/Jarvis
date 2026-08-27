@@ -84,6 +84,8 @@ import { handleOutlook } from './outlook'
 import { parseTaxiIntent } from './taxi-parse'
 import { handleTaxi } from './taxi'
 import { parseBackupIntent, handleBackup } from './backup'
+import { parseFaceIntent } from './face-parse.ts'
+import { handleFace } from './face.ts'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -505,6 +507,13 @@ function makeCatalog(): Capability[] {
       sideEffect: 'read',
       parse: (ctx) => (parseBackupIntent(ctx.text) ? score(ctx.text, 0.2) : null),
       execute: async (ctx) => fromHandler('backup', await handleBackup(ctx.conversationId, ctx.text)),
+    },
+    {
+      id: 'face',
+      label: 'Gesicht',
+      sideEffect: 'write',
+      parse: (ctx) => (parseFaceIntent(ctx.text) ? score(ctx.text, 0.22) : null),
+      execute: async (ctx) => fromHandler('face', await handleFace(ctx.conversationId, ctx.text)),
     },
   ]
 }

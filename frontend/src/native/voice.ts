@@ -1,6 +1,7 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { synthesizeGemini, ttsNativeRaceMs, wantGeminiVoice } from '../engine/tts'
 import { pickHeard } from '../engine/heard.ts'
+import { loadFace } from '../engine/face.ts'
 
 export { createSentenceTap } from '../engine/speak-tap'
 
@@ -8,7 +9,7 @@ type NativeVoice = {
   requestPermission(): Promise<{ granted: boolean }>
   listen(): Promise<{ ok: boolean; text?: string; alts?: string[]; message?: string }>
   stopListen(): Promise<{ ok: boolean }>
-  speak(opts: { text: string }): Promise<{ ok: boolean; message?: string }>
+  speak(opts: { text: string; gender?: string }): Promise<{ ok: boolean; message?: string }>
   stopSpeak(): Promise<{ ok: boolean }>
   consumeLaunch(): Promise<{ voice: boolean; utterance?: string }>
   pinShortcut(): Promise<{ ok: boolean; message?: string }>
@@ -249,7 +250,8 @@ export function createSpeakPipeline() {
 function speakNative(text: string): Promise<void> {
   const clean = text.replace(/[#*_`]+/g, ' ').replace(/\s+/g, ' ').trim()
   if (!clean) return Promise.resolve()
-  if (native) return native.speak({ text: clean }).then(() => undefined)
+  const gender = loadFace() === 'friday' ? 'female' : 'male'
+  if (native) return native.speak({ text: clean, gender }).then(() => undefined)
   return webSpeak(clean)
 }
 

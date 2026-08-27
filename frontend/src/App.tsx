@@ -366,7 +366,7 @@ function App() {
   }
 
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 900px) and (orientation: landscape)')
+    const mq = window.matchMedia('(min-width: 900px)')
     const apply = () => setLageWide(mq.matches)
     apply()
     mq.addEventListener('change', apply)
@@ -1421,8 +1421,16 @@ function App() {
         ) : null}
 
         {lageOn && !voiceOpen && !calendarOpen && !driveOpen ? (
-          <Lage onSend={(text) => void sendMessage(text)} draft={draft} setDraft={setDraft} busy={busy} />
-        ) : (
+          <Lage
+            onSend={(text) => void sendMessage(text)}
+            draft={draft}
+            setDraft={setDraft}
+            busy={busy}
+            recent={messages.slice(-4)}
+            streaming={streamingText}
+          />
+        ) : null}
+        {true ? (
           <>
           <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
           <div className="messages-inner thread-slide" key={threadKey}>
@@ -1433,7 +1441,7 @@ function App() {
                   <i />
                   <i />
                 </div>
-                <h3>Jarvis</h3>
+                <h3>{liveHud.face === 'friday' ? 'Friday' : 'Jarvis'}</h3>
                 <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}
@@ -1445,7 +1453,9 @@ function App() {
               return (
                 <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
                   {m.role === 'assistant' ? (
-                    <div className="avatar jarvis">J</div>
+                    <div className={`avatar jarvis${liveHud.face === 'friday' ? ' is-friday' : ''}`}>
+                      {liveHud.face === 'friday' ? 'F' : 'J'}
+                    </div>
                   ) : null}
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
@@ -1472,7 +1482,9 @@ function App() {
 
             {streamingText !== null ? (
               <div className="row assistant streaming">
-                <div className="avatar jarvis">J</div>
+                <div className={`avatar jarvis${liveHud.face === 'friday' ? ' is-friday' : ''}`}>
+                  {liveHud.face === 'friday' ? 'F' : 'J'}
+                </div>
                 <div className="bubble">
                   {streamingText ? (
                     <>
@@ -1585,7 +1597,7 @@ function App() {
           ) : null}
         </div>
           </>
-        )}
+        ) : null}
       </main>
 
       {settingsLayer.shown ? (

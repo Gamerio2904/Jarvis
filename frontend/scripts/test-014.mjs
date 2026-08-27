@@ -108,6 +108,7 @@ import { parseTaxiIntent } from '../src/engine/taxi-parse.ts'
 import { shouldCallSecondPhone } from '../src/engine/interrupt.ts'
 import { overlappingEvents } from '../src/engine/watchdog.ts'
 import { backupFilename, countSetKeys, previewBackup, stripSettings, parseBackupIntent } from '../src/engine/backup.ts'
+import { parseFaceIntent } from '../src/engine/face-parse.ts'
 import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
 import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
 import { tagNewsText } from '../src/engine/outlook-tags.ts'
@@ -1019,7 +1020,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /4\.46\.0/)
+assert.match(HELP_TEXT, /4\.53\.0/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1584,5 +1585,17 @@ assert.equal(prev.contacts, 1)
 assert.equal(prev.reminders, 1)
 assert.equal(countSetKeys({ gemini_api_key: 'a', tankerkoenig_api_key: 'b' }), 2)
 assert.match(HELP_TEXT, /Hausstand/)
+assert.match(HELP_TEXT, /Friday/)
+assert.equal(parseFaceIntent('Friday'), 'friday')
+assert.equal(parseFaceIntent('Hey Friday'), 'friday')
+assert.equal(parseFaceIntent('Hallo Jarvis.'), null)
+assert.equal(parseFaceIntent('Friday übernimmt'), 'friday')
+assert.equal(parseFaceIntent('Sprich als Friday'), 'friday')
+assert.equal(parseFaceIntent('Jarvis übernimmt'), 'jarvis')
+assert.equal(parseFaceIntent('Freitag Zahnarzt'), null)
+assert.equal(pickRoute('Friday'), 'face')
+assert.equal(pickRoute('Friday übernimmt'), 'face')
+assert.notEqual(pickRoute('Freitag Zahnarzt'), 'face')
+assert.notEqual(pickRoute('Work-Modus'), 'face')
 
 console.log('ok 0.14 parsers')

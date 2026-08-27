@@ -46,7 +46,7 @@ export async function handleHud(
   if (!intent) return { handled: false }
   if (intent.kind === 'lage') {
     saveSettings({ hud_force: intent.on, hud_hidden: !intent.on })
-    return pack(intent.on ? 'Lage an. Querformat oder Tablet zeigt die Kacheln.' : 'Lage aus. Chat wieder voll.')
+    return pack(intent.on ? 'Lage an. Kacheln neben dem Chat.' : 'Lage aus. Chat wieder voll.')
   }
   if (intent.kind === 'accent') {
     saveSettings({ hud_accent: intent.amber ? 'amber' : 'green' })
@@ -92,6 +92,11 @@ export type HudSnap = {
   world?: { line: string }
 }
 
+let weatherAt = 0
+let weatherCache: HudSnap['weather'] | undefined
+let batteryAt = 0
+let batteryCache: HudSnap['device'] | undefined
+
 export async function fetchHudSnap(): Promise<HudSnap> {
   const s = loadSettings()
   const on = loadHudModules()
@@ -107,11 +112,19 @@ export async function fetchHudSnap(): Promise<HudSnap> {
     }
   }
   if (on.includes('device')) {
-    const bat = await readBattery()
+    const now = Date.now()
+    if (!batteryCache || now - batteryAt > 60_000) {
+      batteryAt = now
+      const bat = await readBattery()
+      batteryCache = {
+        clock: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+        battery: bat.ok ? bat.percent : undefined,
+        charging: bat.charging,
+      }
+    }
     snap.device = {
-      clock: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-      battery: bat.ok ? bat.percent : undefined,
-      charging: bat.charging,
+      ...batteryCache,
+      clock: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     }
   }
   if (on.includes('brief')) snap.brief = { line: await briefLine() }
@@ -153,6 +166,8 @@ async function briefLine(): Promise<string> {
 }
 
 async function weekWeather(): Promise<HudSnap['weather']> {
+  const now = Date.now()
+  if (weatherCache && now - weatherAt < 10 * 60_000) return weatherCache
   const s = loadSettings()
   const lat = Number(s.last_lat)
   const lon = Number(s.last_lon)
@@ -163,7 +178,7 @@ async function weekWeather(): Promise<HudSnap['weather']> {
     const q = new URLSearchParams({
       latitude: String(lat),
       longitude: String(lon),
-      current: 'temperature_2m,weather_code',
+      current: 'temperature_2m,weather_code,rain',
       daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max',
       forecast_days: '7',
       timezone: 'auto',
@@ -182,13 +197,16 @@ async function weekWeather(): Promise<HudSnap['weather']> {
       min: Number(daily.temperature_2m_min?.[i]),
       rain: Number(daily.precipitation_probability_max?.[i] || 0),
     }))
-    const cur = json.current as { temperature_2m?: number }
-    return {
+    const cur = json.current as { temperature_2m?: number; rain?: number }
+    const rainNow = Number(cur?.rain || 0)
+    weatherAt = now
+    weatherCache = {
       temp: Number(cur?.temperature_2m),
-      label: s.last_place || 'hier',
+      label: rainNow > 0 ? `${s.last_place || 'hier'} · Regen` : s.last_place || 'hier',
       days,
       warn: s.last_warn_line || undefined,
     }
+    return weatherCache
   } catch {
     return { temp: NaN, label: 'Wetterdienst fehlt.', days: [] }
   }

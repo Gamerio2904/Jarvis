@@ -95,6 +95,7 @@ export const TOOL_LABEL: Record<string, string> = {
   taxi: 'Taxi',
   interrupt: 'Hinweis',
   backup: 'Hausstand',
+  face: 'Gesicht',
 }
 
 export function askReply(a: string, b: string): string {

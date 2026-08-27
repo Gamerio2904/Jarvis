@@ -1,9 +1,10 @@
 import { expandZahlenworte } from './zahlenworte.ts'
+import { setFace } from './face.ts'
 
 /** Spoken German → written command. Vocative, fillers, STT-Tippfehler. */
 
 const VOCATIVE =
-  /^(?:(?:hey|hallo|hi|ok(?:ay)?|so)\s+)?(?:jarvis|service|google)\s*[,:\-–]?\s+/i
+  /^(?:(?:hey|hallo|hi|ok(?:ay)?|so)\s+)?(?:jarvis|friday|service|google)\s*[,:\-–]?\s+/i
 const FILLER =
   /^(?:ähm+|also|ja\s+)?(?:bitte\s+)?(?:kannst\s+du(?:\s+mal)?|könntest\s+du|könnten\s+sie|würdest\s+du|ich\s+(?:möchte|will|würde\s+gerne)|mach(?:e)?(?:\s+mal)?)\s+/i
 const COMMAND_START =
@@ -58,8 +59,11 @@ export function normalizeUtterance(text: string): string {
   if (!raw) return raw
   const voc = VOCATIVE.exec(raw)
   if (voc) {
+    const spoken = voc[0].toLowerCase()
+    if (/\bfriday\b/.test(spoken)) setFace('friday')
+    else if (/\bjarvis\b/.test(spoken)) setFace('jarvis')
     const rest = raw.slice(voc[0].length).trim()
-    if (rest && COMMAND_START.test(rest)) raw = rest
+    if (rest && !/^übernimmt\b/i.test(rest) && (COMMAND_START.test(rest) || rest.length >= 2)) raw = rest
   }
   const fill = FILLER.exec(raw)
   if (fill) {

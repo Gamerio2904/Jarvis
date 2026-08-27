@@ -7,7 +7,8 @@ import { memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
 import { splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
-import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from './persona'
+import { SEARCH_ON_HINT, VOICE_HINT, personaPack } from './persona'
+import { loadFace } from './face.ts'
 import {
   formatResearchReply,
   guardResearchReply,
@@ -424,7 +425,8 @@ export async function streamChat(
       if (groqReady()) {
         const history = await listMessages(conversationId)
         const mem = await listMemory()
-        const system = [GEMINI_PERSONA, VOICE_HINT, memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
+        const pack = personaPack(loadFace())
+        const system = [pack.gemini, VOICE_HINT, memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
         const llmMessages = [
           { role: 'system', content: system },
           ...history.slice(-16).map((m) => ({
@@ -506,11 +508,12 @@ export async function streamChat(
         research = await fillResearchLinks(content, '', research)
       }
       const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
+      const pack = personaPack(loadFace())
       const system = geminiReady()
-        ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
+        ? [pack.gemini, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
             .filter(Boolean)
             .join('\n\n')
-        : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
+        : [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
       const llmMessages = [
         { role: 'system', content: system },
         ...history.slice(geminiReady() || opts?.voice ? -12 : -8).map((m) => ({

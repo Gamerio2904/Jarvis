@@ -1,28 +1,17 @@
-# Sprint 114 — Zwei Gesichter + Tablet flüssig **PLAN**
+# Sprint 114 — Zwei Gesichter + Tablet flüssig **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
-| Priorität | nach Hausstand; Tablet-HUD darf früher |
-| Ziel-Version | `4.53.0` Leitentscheidung; Reihe `4.54`–`4.65` in [`39-next.md`](../39-next.md) |
-| Quelle | PO: Jarvis männlich Work+Smalltalk, Friday weiblich, Stimmen wechseln; Tablet-Bugs; flüssiger |
-| Voraussetzung | Code `3.18.1`; TTS-Spike männlich [`37-next.md`](../37-next.md) `4.34`; Sideload nach [`38-next.md`](../38-next.md) |
+| Status | **CODE** |
+| Priorität | nach Hausstand |
+| Ziel-Version | `4.53.0` (bündelt Face + Tablet-Split, ohne Sideload) |
 | Plan | [`39-next.md`](../39-next.md) |
 
-## Ziel
+## Code
 
-Ein Hirn, zwei Gesichter (Prompt+Stimme). Tablet-Lage neben dem Chat, nicht statt. Keine Execute in diesem Sprint außer Docs.
+- Ein Register, zwei Gesichter: `face` Jarvis/Friday. Sticky Setting. Wake Friday ≠ Freitag.
+- TTS: Algieba / Kore. Native versucht de-DE male/female, sonst eine Stimme.
+- Lage **neben** Chat ab 900 px Breite. Composer+Mic bleiben. Uhr tickt 1 s. Wetter-Poll 10 min.
+- Grid 3 Spalten am Tablet. Ambient gedrosselt in der Lage.
 
-## Must
-
-| ID | Inhalt | Done wenn |
-|----|--------|-----------|
-| N1 | Spaltung = Faces, nicht zwei Router | Tabelle in `39-next.md` |
-| N2 | Default Jarvis; Friday nur Zuruf/Sticky | Gold-Sätze |
-| N3 | Wake Friday ≠ Freitag | Won’t Freitag |
-| N4 | Lage ersetzt Chat nicht | Split-Pane in `4.59` |
-| N5 | Screenshots fehlten — Bugs aus Code | `4.55`; Fotos nachziehen |
-
-## Won’t (dieser Sprint)
-
-Execute-Code, Marvel, zweites Modell, Embeddings, neue APK.
+Kein Sideload. Hausstand `4.46` bleibt Voraussetzung vor APK.

@@ -304,7 +304,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
           {p.topic === 'allgemein' ? (
             <section className="settings-card">
               <h3>Tablet-Lage</h3>
-              <p className="settings-lead">Querformat ab 900 px zeigt die Kacheln. Oder hier immer an.</p>
+              <p className="settings-lead">Ab 900 px Breite: Kacheln neben dem Chat. Composer und Mic bleiben. Oder hier immer an.</p>
               <label className="settings-toggle">
                 <input
                   type="checkbox"
@@ -525,7 +525,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   disabled={busy}
                   onChange={(e) => p.onWakeWord(e.target.checked)}
                 />
-                <span>Auf „Jarvis“ hören</span>
+                <span>Auf „Jarvis“ oder „Friday“ hören</span>
               </label>
               <p className="settings-hint">
                 Sagen Sie laut „Jarvis“. Es muss eine Meldung „Jarvis hört auf den Namen“ oben
@@ -575,6 +575,21 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 Jarvis ruft sich nicht selbst an. Zweite Nummer nur wenn sie sich von diesem Handy unterscheidet.
               </p>
               {p.shortcutMsg ? <p className="settings-hint">{p.shortcutMsg}</p> : null}
+              <label className="settings-field">
+                <span>Gesicht</span>
+                <select
+                  value={s?.face || 'jarvis'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ face: e.target.value })}
+                >
+                  <option value="jarvis">Jarvis — männlich, Default</option>
+                  <option value="friday">Friday — weiblich, auf Zuruf</option>
+                </select>
+              </label>
+              <p className="settings-hint">
+                Ein Hirn, zwei Gesichter. Friday übernimmt nur nach Name oder diesem Schalter. Wake „Friday“, nicht
+                „Freitag“. Native-Fallback: eine de-DE-Stimme, wenn das Gerät kein Gender hat.
+              </p>
             </section>
           ) : null}
 
