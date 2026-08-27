@@ -1,231 +1,215 @@
-# 36 — Alltagskette Stimme (`4.19`) **PLAN**
+# 36 — Alltagskette Stimme (`4.19`) **PLAN** (vollständig)
 
-PO 2026-08-27: Zweites Reel derselben Reihe. Jarvis soll **nur aus dem Gesprochenen** drei Dinge hintereinander erledigen: Sprachnachricht, Bar suchen, Taxi bestellen.
+PO 2026-08-27: Eine gesprochene Äußerung → Sprachnachricht, Bar, Taxi. Reel ohne Tracking:
 
 https://www.instagram.com/reel/Db8bcYijN5y/
 
-Weltlage bleibt [`35-next.md`](./35-next.md) (`4.0`–`4.18`). Diese Schiene ist **unabhängig** — Bar/Taxi blockieren kein Öl-Research. App-Code jetzt: **`3.18.1`**. Sideload: **`3.18.1`**.
+**Vollständig** = Ist aus dem Code, geschlossene Research-Voten, Gold-Sätze, Dateien, Konflikte, Tests. Noch kein Execute.
 
-Eine logische Stufe pro Version. **Kein Execute in diesem Sprint.** Research `4.20`–`4.22` vor den gefährlichen Teilen (WhatsApp, Bezahl-Taxi). Bar-POI darf nach kurzem Spike.
+Code jetzt: **`3.18.1`** (`APP_VERSION` in `frontend/src/engine/store.ts`). Sideload: **`3.18.1`**. Weltlage: [`35-next.md`](./35-next.md). Gespräch/TTS: [`37-next.md`](./37-next.md). **Haus-Backup + Tippfehler:** [`38-next.md`](./38-next.md) — nicht in dieser Schiene mischen; vor dem nächsten Sideload **Backup zuerst**, sonst sind Keys/Nummern nach Deinstall weg.
 
-## Reel — was dort wirklich steht
+## Reel
 
-Account: moritz.maaker. Caption: Diesmal hat er eine **Sprachnachricht** gesendet, eine **Bar** gesucht, ein **Taxi** bestellt. *Ich hab nur geredet.*
+Caption: Sprachnachricht, Bar, Taxi. *Ich hab nur geredet.* Kein 267-€-Abo.
 
-Das ist **eine Äußerung → drei Haus-Handlungen**, nicht ein neuer Cloud-Mitarbeiter. Kommentare im Clip sprechen von fremder Einrichtung (~267 € plus Abo). Bei uns: vorhandene Tools ketten, kein Retell, kein Abo-Stack.
+| Teil | Code `3.18.1` | Soll |
+|------|----------------|------|
+| Nur geredet | `VoiceMode` → STT-Text. `splitIntents` nur an **„und“**, beide Teile `TOOLISH`. | Nach `normalizeUtterance`/`repairSpeech` splitten: `und` / `dann` / `danach` / Komma / Punkt. Max. 5. |
+| Sprachnachricht | `parseSms` + `handlePlaces`: SMS nach Ja (`ACTION_SENDTO` / `sendSms`). Kein Audio-Blob. WhatsApp-Chip in `test-copy.ts` ist **Refuse-Probe**, kein Feature. | v1: STT-Text = SMS-Body, ehrlich „keine Voice-Note“. `wa.me` erst `4.28`. Still senden **Won’t**. |
+| Bar | `PoiKind`: pharmacy, bakery, parking, supermarket, chemist, shop, cafe. Overpass in `poi.ts` `FILTER`. **Kein bar/pub.** | `bar`: `amenity=bar` **oder** `amenity=pub`. |
+| Taxi | Anruf an Kontakt nach Nachfrage. Kein Ride-Intent. | Tool `taxi`: nach Ja App öffnen **oder** Kontakt `Taxi` anrufen. Nie „ist bestellt“. |
 
-| Teil im Video | Technisch | Bei uns |
-|---------------|-----------|---------|
-| Nur geredet | Ein Voice-Turn, mehrere Intents | **teilweise** — `splitIntents` nur an **„und“**, und nur wenn beide Hälften toolisch klingen. Kommas / „dann“ / drei Aufträge: Lücke. |
-| Sprachnachricht gesendet | Audio an Kontakt, oft WhatsApp | **SMS-Text nach Nachfrage** gibt es (`1.46`). WhatsApp still senden: **Won’t** (Sprint 99). Echte Voice-Note: Voice-Modus liefert heute **Text (STT)**, kein Audio-Blob. |
-| Bar gesucht | POI in der Nähe | **Café/Apotheke/…** über Overpass. **Bar/Kneipe/Pub fehlt.** |
-| Taxi bestellt | Ride-Hailing mit Ziel | **kein** FreeNow/Uber/Bolt. Anruf an gespeicherten Kontakt **ja**, nach Nachfrage. Zahlen/Buchen in fremder App **Won’t** als stiller Erfolg. |
+## Ist (Dateien)
 
-Nutzen: **Kette + ehrliche Intents**, nicht „zugestellt“ und nicht „Taxi ist unterwegs“ erfinden.
+| Datei | Rolle jetzt |
+|-------|-------------|
+| `frontend/src/engine/split-intents.ts` | `und`, 2–5 Teile, `TOOLISH` |
+| `frontend/src/engine/poi-parse.ts` / `poi.ts` | POI, Overpass, Ordinal, `beginDriveTo` |
+| `frontend/src/engine/places-parse.ts` / `places.ts` | SMS/Anruf, `last_comm_json` |
+| `frontend/src/engine/chat.ts` | `splitIntents` dann `routeDeterministic` |
+| `frontend/src/engine/route-pick.ts` / `registry.ts` / `conflicts.ts` | kein `taxi`, kein `bar` |
+| `frontend/src/engine/utterance.ts` | `repairSpeech` + Vocative; keine Bar/Taxi-Tippfehler |
+| `frontend/src/engine/heard.ts` | STT-Alts nach Parser-Score |
+| `frontend/native/device/JarvisDevicePlugin.java` | `dial`, `sms`, `callNow`, `sendSms` — kein Share-Audio, kein Ride |
+| `frontend/src/engine/store.ts` | `last_comm_json`, `last_poi_json` — kein `chain_json` |
 
-## Ist (heute, `3.18.1`)
+Pending: **ein** Confirm (`last_comm_json` oder `pending`). Schlange fehlt.
 
-| Thema | Stand | Lücke zum Reel |
-|-------|-------|----------------|
-| Stimme | Sprachmodus, ein Turn → Text | Kein letztes Audio zum Teilen. |
-| SMS | `Schreib Mama ich bin unterwegs` → Text vorlesen → `Ja` → SMS-App / Senden | Kein „Sprachnachricht“. Testchip *WhatsApp* existiert, Produkt **Won’t**. |
-| Anruf | `Bro anrufen` → Nachfrage → `ACTION_CALL` | Kein Taxi-Produkt. |
-| POI | Apotheke, Bäcker, Parkplatz, Supermarkt, Drogerie, Laden, Café. Overpass. Ordinal. Fahrmodus. | Kein `amenity=bar` / `pub`. |
-| Kette | `splitIntents`: max. 5 Teile an „und“, jedes Teil muss `TOOLISH` matchen | „Such eine Bar, schick …, bestell Taxi“ ohne „und“ = **ein** Blob → oft LLM. |
-| Confirm | Ein Pending (SMS oder Anruf). Gates unscored. | Zwei Nachfragen nacheinander (SMS **und** Taxi) nicht als Schlange. |
-| Native | `dial`, `sms`, `callNow`, `sendSms` | Kein `shareAudio`, kein `uber://`, kein `wa.me`. |
-
-## Leitentscheidung
+## Leitentscheidung (fest)
 
 | Thema | Entscheidung |
 |-------|----------------|
-| Produkt | Kein neues Major. Schiene **`4.19+`** unter demselben `4.0`-Thema Alltag/Welt. |
-| Reihenfolge vs. Weltlage | Parallel planbar. Code: Bar zuerst (klein), Kette danach, Taxi/WhatsApp erst nach Research. |
-| Sprachnachricht v1 | Gesprochenes **als SMS-Text** (STT), Nachfrage, dann senden wie `1.46`. Satz: das ist Text, keine Voice-Note. |
-| Sprachnachricht v2 | Letzten Voice-Clip behalten → Android **Share** (User wählt WhatsApp). Jarvis behauptet nicht „zugestellt“. |
-| WhatsApp still | **Won’t** (kein Business-API, kein Accessibility-Klick). Composer `wa.me` **nur** wenn 4.20 ja sagt — gleiches Muster wie SMS-App öffnen, User tippt Senden. |
-| Bar | POI-Kind `bar` (`amenity=bar` + `pub`). „Kneipe“, „Bar in der Nähe“. Café bleibt Café. |
-| Taxi | Nach Nachfrage: Deep-Link in installierte App (Ziel = letzte Bar/GPS) **oder** Anruf an Kontakt `Taxi`. Nie: „ist bestellt“, nie bezahlen. |
-| Kette | Read-Tools (Bar) sofort. Side-Effects (SMS, Taxi) **nacheinander nachfragen**. Ein „Ja“ gilt nur für den aktuellen Schritt. |
-| Router | Register. Taxi = neues Tool `taxi` oder `ride`. Bar = bestehendes `poi`. SMS bleibt `places`. Kein `if` in `chat.ts`. |
-| 0,5B | Wählt nicht. Stimme liefert Text; Parser/Kette wählen Tools. |
-| Sideload | Erst wenn Kette + Bar + ehrliches Taxi nutzbar (`4.26`+). |
+| Bar | Nur `poi`, Kind `bar`. Café bleibt Café. |
+| Taxi | Neues Register-Tool **`taxi`**. Nicht `drive` (das ist Jarvis-Navi). |
+| SMS | bleibt `places`. `Sprachnachricht an X …` → `parseSms`. |
+| WhatsApp still | **Won’t**. Composer `wa.me` nach Ja = SMS-Analog (**T1 ja**, Stufe `4.28`). |
+| Taxi-Default | **Anruf Kontakt `Taxi`** (haben wir). Deep-Link FreeNow/Uber **nur** wenn 4.21 eine URL ohne Payment-API belegt. Sonst Settings `call`. |
+| Audio-Note | **v1 nein** (kein Blob). `4.29` nur wenn Research einen Clip ohne extra Cloud hält — sonst Stufe streichen, ehrlich sagen. |
+| Kette | Lesen (Bar) sofort. Schreiben (SMS, Taxi) nacheinander. Ein `Ja` = ein Schritt. `Nein` bricht nur den aktuellen, Rest der Schlange fragen oder verwerfen (nachfragen: „Taxi trotzdem?“). |
+| Split | Nach `normalizeUtterance`. Nicht Memory-Write. `Brot und Butter` bleibt ganz (`TOOLISH` greift nicht). |
+| STT für die Kette | `repairSpeech`: taxsi→Taxi, kneipe, sprachnachricht. `pickHeard` profitiert sobald `parsePoi`/`parseTaxi` existieren. Bahn≠Bar: `conflicts.ts`. Generelle Tippfehler: [`38-next.md`](./38-next.md). |
+| Thread | Ein Voice-Gespräch: **`3.19.0` mergen** (anderer Branch), nicht in `taxi.ts` nachbauen. |
+| Router | Nur Register. Tests: `route-pick.ts`, Imports `.ts`. Kein `if` in `chat.ts`. |
+| 0,5B | wählt nicht. |
+| Sideload | nach `4.26`, und **nur** wenn Backup [`38-next.md`](./38-next.md) existiert — sonst Keys weg bei Deinstall. |
 
-## Soll — ein Durchlauf
+## Soll — Durchlauf
 
 ```text
-„Schick Tom eine Nachricht ich komme, such eine Bar, bestell ein Taxi.“
-  → Split (und/Komma/dann, nicht nur „und“)
-  → 1. poi bar  (lesen, GPS, 1–3 Treffer, merken)
-  → 2. sms      (Pending: Text + Nummer. Warten auf Ja/Nein)
-  → 3. nach Ja: taxi Pending (Ziel = Bar 1, App oder Anruf)
-  → 4. nach Ja: Intent öffnen, ehrlich „App ist auf, ich habe nicht bezahlt“
+„Schreib Tom ich komme, such eine Bar und bestell ein Taxi.“
+  repairSpeech / normalizeUtterance
+  split → [sms Tom], [poi bar], [taxi]
+  1. poi bar → 1–3 Treffer, last_poi_json, last_step
+  2. chain_json = [sms, taxi]; start sms pending (last_comm_json wie heute)
+  3. Ja → SMS-Intent; pop chain → taxi pending (Ziel = POI[0] oder GPS)
+  4. Ja → openRide oder call Kontakt Taxi
+     Reply: „App ist auf / ich rufe an. Bestellt und bezahlt habe ich nicht.“
 ```
 
-Stimme: dieselben Parser. „Ich hab nur geredet“ = ASR-Text muss splitbar sein, nicht ein Roman an Gemini.
+Ohne GPS: Bar ehrlich wie andere POI (`NO_GPS` in `poi.ts`). Ohne Kontakt Taxi und ohne App: „Wen soll ich anrufen, oder welche App?“
 
-## Researchphasen (zuerst)
+## Research — Voten (geschlossen, außer Spike-URL)
 
-### `4.19.0` — Leitentscheidung (dieser Nachtrag)
+### `4.19.0` Leitentscheidung — **PLAN** (dieses Dokument)
 
-| Feld | Wert |
-|------|------|
-| Art | PLAN, Docs |
-| Done wenn | Dieses Dokument + Versioning `4.19+` |
-| Status | **PLAN** (jetzt) |
+### `4.20.0` Sprachnachricht
 
-### `4.20.0` — Research: Sprachnachricht
-
-**Frage:** Was kann das Handy senden, ohne WhatsApp-Lüge?
-
-| Kandidat | Aufwand | Ehrlichkeit | Votum (erste Sichtung) |
-|----------|---------|-------------|-------------------------|
-| SMS-Text aus STT, Nachfrage wie `1.46` | niedrig | hoch | **v1 ja** |
-| WhatsApp Business / Cloud API | Account, Abo | „zugestellt“ verlockend | **Won’t** |
-| Accessibility, fremde App klicken | fragil, ToS | — | **Won’t** |
-| `https://wa.me/<e164>?text=` nach Ja | mittel | Composer, User sendet | **prüfen** in 4.20 (wie SMS-App) |
-| Letzten Voice-Puffer als Audio share | mittel–hoch | echte Note, User wählt App | **v2**, wenn VoiceMode den Clip hält |
-| TTS-Datei als „Voice-Note“ | mittel | nicht die Stimme des Users | nur mit klarem Satz, sonst **Won’t** |
-
-Heute: VoiceMode → STT, **kein** `MediaRecorder`-Blob im Repo.
-
-**Done wenn:** v1 fest (SMS). v2 ja/nein (Clip). `wa.me` ja/nein ohne das alte WhatsApp-Won’t zu brechen (still senden bleibt nein).
-
-### `4.21.0` — Research: Taxi DE
-
-**Frage:** Bestellen ohne zu bezahlen und ohne Fake-Erfolg?
-
-| Kandidat | Key? | Was passiert | Votum |
-|----------|------|--------------|--------|
-| Uber `uber://` / m.uber.com Deep-Link, Pickup = GPS, Dropoff = Bar | oft `client_id` | App/Web mit Ziel, User tippt Bestellen | **prüfen** — öffnen ja, „bestellt“ nein |
-| FreeNow / Bolt Intents | herstellerabhängig | DE üblich | **prüfen**, eine DE-App bevorzugen |
-| Kontakt `Taxi` anrufen | nein | haben wir | **Fallback immer** |
-| Google Maps Ride | nein | nicht Jarvis-Navi | Could |
-| Offizielle Ride-API + Payment | ja | Abo wie im Kommentar | **Won’t** |
-| Stille Buchung | — | Lüge | **Won’t** |
-
-**Done wenn:** Eine Deep-Link-Formel getestet (oder ehrlich „keine App“) + Fallback Anruf. Settings: welche App (FreeNow/Uber/Bolt/nur Anruf).
-
-### `4.22.0` — Research: Kette + Nachfragen
-
-**Frage:** Drei Aufträge, zwei davon mit Ja — ohne `chat.ts`-If-Orgie.
-
-| Thema | Ziel |
+| Votum | Fest |
 |-------|------|
-| Split | Nicht nur `und`. Auch Komma, `dann`, `danach`, Punkte. Max. weiter 5. Memory-Sätze ganz lassen (schon so). |
-| TOOLISH | `bar`, `kneipe`, `taxi`, `uber`, `freenow`, `sprachnachricht`, `whatsapp` (wenn 4.20 Composer). |
-| Queue | `pending` bleibt **ein** Confirm. Nach Erledigung nächstes Side-Effect aus einer kurzen Liste (`chain_json`). |
-| Gates | Help/Confirm/Ordinal/Follow-up/Pending unscored. Ordinal nach Bar: `die zweite` → POI, nicht Taxi. |
-| Konflikte | `fahr mich zur Bar` = drive/poi, nicht taxi. `bestell ein Taxi` = taxi. `schreib` = sms, nicht research. |
-| Stimme | Ein Thread (wie 3.19-Idee). Kette in **einem** Voice-Turn. |
+| SMS-Text v1 | **ja** |
+| WhatsApp Business / Accessibility | **Won’t** |
+| `wa.me` nach Ja | **ja in 4.28**, User sendet |
+| Voice-Clip Share | **4.29 nur bei Blob**; sonst entfällt |
+| TTS als Fake-Note | **Won’t** |
 
-**Done wenn:** Gold-Äußerungen in Docs; Queue-Vertrag (ein Ja = ein Schritt).
+Rest-Spike: E.164 für `wa.me` aus Memory `contact` (wie SMS).
+
+### `4.21.0` Taxi
+
+| Votum | Fest |
+|-------|------|
+| Stille Buchung / Payment-API | **Won’t** |
+| Fallback Anruf `Taxi` | **ja, Default** |
+| Deep-Link | **Spike:** eine dokumentierte URL (FreeNow oder `uber://` Pickup=my_location, Dropoff=lat/lon). Scheitert der Spike: nur Anruf. |
+| Google Maps Ride | Could, nicht v1 |
+
+Settings `taxi_app`: `call` \| `freenow` \| `uber` \| `ask`. Default `call` bis Spike grün.
+
+### `4.22.0` Kette
+
+| Votum | Fest |
+|-------|------|
+| Split-Trenner | `\s+und\s+` \| `\s+dann\s+` \| `\s+danach\s+` \| `\s*,\s*` \| `(?<=[a-zäöüß])\.\s+(?=[A-ZÄÖÜ])` — nur wenn **jedes** Teil nach Split `TOOLISH` (erweitert) oder bekannten Parser hat |
+| Queue | `chain_json` in Settings (kurz, wie `last_list_json`). Confirm bleibt `last_comm_json` **oder** taxi-pending, nie zwei gleichzeitig |
+| Ordinal | nach Bar: `die zweite` → `handlePoiOrdinal`, nicht Taxi |
+| Gold | unten |
+
+**TOOLISH erweitern:** `bar|kneipe|pub|taxi|uber|freenow|sprachnachricht|whatsapp|nachricht|sms` (whatsapp nur Routing zum ehrlichen Satz / Composer).
 
 ## Bau-Reihenfolge
 
-| Version | Inhalt | Abhängigkeit | Status |
-|---------|--------|--------------|--------|
-| **`4.19.0`** | Leitentscheidung Alltagskette | — | **PLAN** |
-| **`4.20.0`** | Research Sprachnachricht | 4.19 | **PLAN** |
-| **`4.21.0`** | Research Taxi | 4.19 | **PLAN** |
-| **`4.22.0`** | Research Kette | 4.19 | **PLAN** |
-| **`4.23.0`** | POI `bar` / Kneipe / Pub, Overpass, Ordinal | Spike Overlay-Tags | geplant |
-| **`4.24.0`** | Parser: `Sprachnachricht an X …` = SMS-Text v1, ehrlicher Satz | 4.20 | geplant |
-| **`4.25.0`** | Tool `taxi`: Nachfrage, Deep-Link oder Anruf, nie „bestellt“ | 4.21, letzte POI/GPS | geplant |
-| **`4.26.0`** | Kette: Split + Confirm-Schlange | 4.22, 4.23–4.25 | geplant |
-| **`4.27.0`** | Stimme: eine Äußerung, drei Tools, Siezen | 4.26 | geplant |
-| **`4.28.0`** | `wa.me`-Composer **nur** wenn 4.20 ja; sonst Chip WhatsApp ehrlich ablehnen | 4.20, 4.24 | geplant |
-| **`4.29.0`** | Audio-Share Voice-Note v2 oder ehrlich „kein Clip“ | 4.20 | geplant |
-| **`4.30.0`** | Follow-up `Taxi dorthin` / `die zweite Bar` | 4.25, last-tool | geplant |
-| **`4.31.0`** | Härten: False-Positives (`Schokolade`, `Minibar`), Gold-Set | 4.26 | geplant |
-| **`4.32.0`** | Sideload wenn 4.26+ nutzbar | 4.26 | geplant |
+| Version | Inhalt | Status |
+|---------|--------|--------|
+| **`4.19.0`** | Dieses Dokument | **PLAN** |
+| **`4.20`–`4.22`** | Spikes: `wa.me`-Format, eine Ride-URL, Split-Gold | **PLAN** |
+| **`4.23.0`** | `PoiKind` + `bar`, FILTER, Parser, Label, Konflikte Bahn/Café | geplant |
+| **`4.24.0`** | `Sprachnachricht` → SMS, Satz „Text, keine Note“ | geplant |
+| **`4.25.0`** | `taxi-parse.ts` / `taxi.ts`, Confirm, call oder Deep-Link | geplant |
+| **`4.26.0`** | Split + `chain_json` | geplant |
+| **`4.27.0`** | Stimme, Siezen; braucht `3.19` Thread | geplant |
+| **`4.28.0`** | `wa.me` nach Ja; Chip WhatsApp = Composer oder klare Absage | geplant |
+| **`4.29.0`** | Audio-Share **oder Stufe streichen** | geplant |
+| **`4.30.0`** | `Taxi dorthin`, Ordinal | geplant |
+| **`4.31.0`** | False-Positives Minibar/Schokolade, Gold | geplant |
+| **`4.32.0`** | Sideload **nach** Backup `4.46` | geplant |
 
-## Chat / Stimme (Zielbild)
+## Gold (Parser / Route)
 
-| Version | Beispiel | Soll |
-|---------|----------|------|
-| 4.23 | `Bar in der Nähe` / `nächste Kneipe` | 1–3 Treffer, Entfernung, optional fahren. |
-| 4.24 | `Sprachnachricht an Mama ich bin in 10 Minuten` | „Das geht als SMS, nicht als WhatsApp-Note. Text: … Senden?“ |
-| 4.25 | `Bestell ein Taxi zur Bar` | „Ich öffne FreeNow zur … / rufe Taxi an. Bestellen und Zahlen tun Sie. Soll ich öffnen?“ |
-| 4.26 | `Schreib Tom ich komme, such eine Bar und bestell ein Taxi` | Bar-Liste, dann SMS-Frage, nach Ja Taxi-Frage. |
-| 4.28 | `Schreib Mama auf WhatsApp ich bin unterwegs` | Composer oder klar: „WhatsApp sende ich nicht still. SMS?“ |
-| — | `Bro anrufen` | unverändert Nachfrage. |
-
-## Konflikte (Ziel)
-
-| Äußerung | Gewinner |
-|----------|----------|
-| `nächste Bar` | `poi` |
-| `fahr mich zur Bar` | `drive` (Ziel aus last POI) |
-| `Taxi zur Bar` / `bestell ein Taxi` | `taxi` |
-| `Schreib … WhatsApp` | sms oder wa-composer, **nicht** research |
+| Äußerung | Tool-Reihenfolge |
+|----------|------------------|
+| `Bar in der Nähe` | `poi` bar |
+| `nächste Kneipe` | `poi` bar |
+| `nächstes Café` | `poi` cafe |
+| `fahr mich zur Bar` | `drive` (Ziel last POI) |
+| `bestell ein Taxi` / `Taxi zur Bar` | `taxi` |
+| `mit der Bahn nach …` | `transit`, nicht bar |
+| `Sprachnachricht an Mama ich bin in 10 Minuten` | `places` sms |
+| `Schreib Mama auf WhatsApp ich bin unterwegs` | bis 4.28: ehrliche Absage; danach Composer |
+| `Schreib Tom ich komme, such eine Bar und bestell ein Taxi` | poi → sms-pending → taxi-pending |
+| `Bro anrufen` | call, unverändert |
 | `Nachrichten` | `news` |
-| `Minibar` / Hotel-Smalltalk | LLM, nicht poi |
+| `Minibar im Hotel` | LLM, nicht poi |
 
-## Settings (Ziel)
+## Konflikte
 
-| Key | Default | Zweck |
-|-----|---------|--------|
-| `taxi_app` | `ask` | `freenow` / `uber` / `bolt` / `call` / nachfragen |
-| WhatsApp-Composer | aus bis 4.20 ja | sonst nur SMS |
+| Muster | Gewinner |
+|--------|----------|
+| `tanke` | `fuel` (schon) |
+| `bar` + nähe/nächste | `poi` |
+| `taxi` / `uber` / `freenow` / `bestell` | `taxi` |
+| `fahr mich` + Bar | `drive` |
+| `bahn` / `öpnv` | `transit` |
+| `schreib` + Name | `places`, nicht research |
+| `wetterstatistik` / `lage` | `hud` (schon) |
 
-## Tests (wenn Code kommt)
+`conflicts.ts` ergänzen, nicht `chat.ts`.
 
-| Art | Inhalt |
-|-----|--------|
-| Parser | Bar, Kneipe, Taxi, Sprachnachricht vs. Café, SMS, Anruf, Nachrichten |
-| Split | drei Teile mit Komma und mit `und` |
-| Confirm | ein Ja sendet nicht gleichzeitig SMS **und** Taxi |
-| Ehrlichkeit | Reply enthält nicht `zugestellt` / `Taxi ist unterwegs` ohne App-Beweis |
-| WhatsApp | stilles Senden bleibt tot; Testchip nicht als Erfolg lügen |
-| Regression | `Bro anrufen`, `nächste Apotheke`, `Schreib Mama …` |
+## Native (Ziel)
 
-## Dateien (Ziel)
+| Methode | Wann |
+|---------|------|
+| bestehend `sms` / `sendSms` / `callNow` | 4.24, 4.25 Fallback |
+| `openUrl(uri)` oder `openRide` | 4.25 wenn Spike URL |
+| `shareAudio` | nur 4.29 |
 
-| Datei | Rolle |
-|-------|--------|
-| `poi-parse.ts` / `poi.ts` | Kind `bar` |
-| `taxi-parse.ts` / `taxi.ts` | Intent, Confirm, Deep-Link |
-| `places-parse.ts` | `Sprachnachricht` → sms (v1) |
-| `split-intents.ts` | Komma/dann + TOOLISH |
-| Native | optional `shareAudio`, `openRide` |
-| `store.ts` | `chain_json`, `taxi_app`, last bar |
+Kein neues Permission außer schon SMS/CALL.
 
-## Probe (nach `4.26`, nicht jetzt)
+## Settings
 
-1. `nächste Bar` ≠ Café-only.  
-2. Drei Aufträge in einem Satz: Bar zuerst, dann eine Nachfrage.  
-3. `Ja` nach SMS öffnet nicht heimlich Uber.  
-4. Ohne Ride-App: Anruf-Fallback oder ehrlich.  
-5. Kein `if (handleTaxi)` in `chat.ts`.  
-6. Regression: Tanke, Steckdose, Tagesschau, Bro anrufen.
+| Key | Default |
+|-----|---------|
+| `taxi_app` | `call` |
+| `chain_json` | `''` |
+| WhatsApp-Composer | aus bis 4.28 |
+
+## Dateien (anlegen/ändern)
+
+| Datei | Änderung |
+|-------|----------|
+| `poi-parse.ts` | Kind `bar`, Regex Kneipe/Pub/Bar |
+| `poi.ts` | FILTER bar/pub |
+| `taxi-parse.ts` **neu** | Intent |
+| `taxi.ts` **neu** | Confirm, Link, Anruf |
+| `places-parse.ts` | `sprachnachricht` |
+| `split-intents.ts` | Trenner + TOOLISH |
+| `route-pick.ts` / `registry.ts` / `policy.ts` / `conflicts.ts` | `taxi` |
+| `utterance.ts` | REPAIRS taxsi, kneipe-STT |
+| `store.ts` | `taxi_app`, `chain_json` |
+| `test-copy.ts` | Gold-Zeilen; WhatsApp-Chip bleibt Refuse bis 4.28 |
+| Native Device | optional URL |
+
+## Tests
+
+`test:014` / `test:prompts`: Gold-Tabelle. Confirm: ein Ja ≠ SMS und Taxi. Reply-Verbot: `/zugestellt|taxi ist unterwegs|habe bestellt/`. Ohne Key/GPS: kein erfundener Treffer. Regression: Apotheke, Bro, Tagesschau, Steckdose.
+
+## Probe (`4.26`, nicht jetzt)
+
+1. `nächste Bar` liefert Kneipe/Bar, nicht nur Café.  
+2. Drei Aufträge: Bar-Liste, dann **eine** Nachfrage.  
+3. `Ja` nach SMS öffnet nicht Uber.  
+4. Kein Ride-App + kein Kontakt: ehrlich.  
+5. Kein `handleTaxi` in `chat.ts`.  
+6. `mit der Bahn` ≠ Bar.
 
 ## Won’t
 
-- WhatsApp/Telegram still zustellen, Business-API, Accessibility.  
-- „Nachricht zugestellt“, „Taxi kommt in 3 Minuten“ ohne Quelle.  
-- Ride bezahlen, Konto anlegen, Abo-Stack aus dem Reel-Kommentar.  
-- Retell/Twilio als Taxizentrale.  
-- Embeddings-Router, 0,5B-Function-Calling.  
-- iOS, Play Store, Apple CarPlay.
+Stilles WhatsApp/Telegram. „Zugestellt“. Taxi bezahlen. Retell. Embeddings. 0,5B-Function-Calling. iOS, Play Store, Apple CarPlay. ConnectionService-Fake-Anruf ([`37-next.md`](./37-next.md)).
 
-## Verbesserungen (eigene Updates, nach der Kette)
+## Offene Punkte (nur Spike)
 
-| Version | Verbesserung |
-|---------|----------------|
-| `4.30` | `Taxi dorthin` nach Bar-Liste; Ordinal. |
-| `4.31` | Split-False-Positives, Gold. |
-| `4.28`/`4.29` | Composer / Audio-Share nur nach Research-Ja. |
-| später | Öffnungszeiten Bar (OSM `opening_hours`, schon POI-Schiene). |
-| später | Mehrere Taxis-Apps in der Nachfrage nennen, nicht raten welche installiert ist — `PackageManager` prüfen. |
+| ID | Rest |
+|----|------|
+| T2b | Konkrete FreeNow-URI nach einem Gerätetest |
+| T3 | Clip ja/nein → 4.29 behalten oder Zeile in Changelog „entfällt“ |
 
-## Offene Punkte
-
-| ID | Frage | Stufe |
-|----|-------|--------|
-| T1 | `wa.me` Composer = erlaubtes SMS-Analog oder bleibt WhatsApp-Won’t? | 4.20 |
-| T2 | FreeNow vs. Uber vs. nur Anruf als Default DE | 4.21 |
-| T3 | Voice-Clip speichern: wie lange, wo (Cache), Datenschutz | 4.20 / 4.29 |
-| T4 | Kette ohne „und“ zu aggressiv? (`Brot und Butter` muss Memory/Einkauf bleiben) | 4.22 |
-
-Sprint: [`sprint-111.md`](./sprints/sprint-111.md). Weltlage: [`35-next.md`](./35-next.md). Gespräch/Stimme: [`37-next.md`](./37-next.md).
+Sprint: [`sprint-111.md`](./sprints/sprint-111.md). Backup: [`38-next.md`](./38-next.md).

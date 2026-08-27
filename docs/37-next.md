@@ -182,4 +182,4 @@ Retell, Twilio, Fake-Incoming-Call, Stimmklone, ElevenLabs, Play Store, iOS, Duz
 | `4.44` | Watchdog-False-Positives. |
 | später | Zweite Gemini-Stimme nur als Setting, wenn Spike zwei gleich gute hat. |
 
-Sprint: [`sprint-112.md`](./sprints/sprint-112.md).
+Sprint: [`sprint-112.md`](./sprints/sprint-112.md). Backup vor Sideload: [`38-next.md`](./38-next.md).

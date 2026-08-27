@@ -33,6 +33,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **PLAN** |
 | E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **PLAN** |
 | E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **PLAN** |
+| E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **PLAN** |
 
 ---
 
@@ -102,7 +103,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
 | S5.1 | Als Nutzer will ich Jarvis 24/7 auf NAS/Mini-Server. | Must | ready | Sprint 34 / `0.10.0` Compose |
-| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Should | ready | Sprint 35 / `0.10.1` |
+| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Must | ready | On-Device: [`38-next.md`](./38-next.md) (`4.46`); NAS-`0.10.1` gilt nicht mehr |
 
 ### E6 — Voice Out
 
@@ -408,15 +409,26 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S30.2 | Reel: finden/beheben/eine Frage | Must | idea | Whitelist Haus, HUD am Steuer |
 | S30.3 | Eingehender Anruf von Jarvis | Won’t | parked | kein Fake-Call, kein Retell |
 
+### E31 — Hausstand `4.46`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S31.0 | Leitentscheidung Backup + Tippfehler | Must | ready | [`38-next.md`](./38-next.md) |
+| S31.1 | Export JSON (Keys, Nummern, Erinnerungen, Settings) | Must | idea | ein Share/Download |
+| S31.2 | Import ein Tippen nach Deinstall | Must | idea | Confirm, dann gleicher Stand |
+| S31.3 | Composer DE + Jarvis-Wörterbuch | Must | idea | Keys-Felder ohne Spellcheck |
+| S31.4 | STT pickHeard + Rückfrage Bar/Bahn | Must | idea | kein Blind-Levenshtein |
+| S31.5 | Jarvis-Cloud-Sync | Won’t | parked | Datei bleibt beim User |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Weltlage **PLAN** [`35-next.md`](./35-next.md)
-2. Alltagskette **PLAN** [`36-next.md`](./36-next.md)
-3. Gespräch/Stimme/Steuer **PLAN** [`37-next.md`](./37-next.md) — Kalender aus `3.19` mergen
-4. Sideload `3.18.1` — [`apk.md`](./apk.md)
-5. Reihe 3.x **CODE** [`33-next.md`](./33-next.md)
+1. **Hausstand Backup** [`38-next.md`](./38-next.md) — vor jedem Sideload
+2. `3.19.0` mergen [`34-next.md`](./34-next.md) — Kalender-Fenster, Voice-Thread
+3. Alltagskette [`36-next.md`](./36-next.md) — vollständig geplant
+4. Weltlage [`35-next.md`](./35-next.md)
+5. Gespräch/Stimme [`37-next.md`](./37-next.md)
 6. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)

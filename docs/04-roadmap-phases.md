@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`0.14`:** bestehendes härten + TV live. **`1.0`–`1.33.0`:** Alltag auf dem Handy inkl. Suche mit Preisen. **`2.2.2`:** Sideload. **`3.0.0` CODE:** Intelligenz (Register) [`32-intelligence.md`](./32-intelligence.md); Welt `3.1`–`3.17` mitgeliefert [`31-next.md`](./31-next.md). **`3.18.0` CODE:** Lage, Traceroute, Digest [`33-next.md`](./33-next.md). **`3.18.1` CODE:** GUI-Slides. **`4.0` PLAN:** Weltlage [`35-next.md`](./35-next.md). **`4.19` PLAN:** Alltagskette [`36-next.md`](./36-next.md). **`4.33` PLAN:** Gespräch/Stimme/Steuer [`37-next.md`](./37-next.md). TTS ist geliefert (`1.5`+).
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **`3.18.1` CODE.** Pläne `4.0` [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md), Stimme [`37-next.md`](./37-next.md), **Hausstand [`38-next.md`](./38-next.md)** (Export vor Deinstall). TTS `1.5`+.
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 

@@ -6,12 +6,12 @@
 | Priorität | **MUST** |
 | Ziel-Version | `4.19.0` Leitentscheidung; Reihe `4.20`–`4.32` in [`36-next.md`](../36-next.md) |
 | Quelle | PO: Reel Sprachnachricht + Bar + Taxi |
-| Voraussetzung | Code `3.18.1`; Weltlage-Plan [`35-next.md`](../35-next.md) parallel |
+| Voraussetzung | Code `3.18.1`; Backup-Plan [`38-next.md`](../38-next.md) vor Sideload `4.32`; Stimme-Thread [`34-next.md`](../34-next.md) für `4.27` |
 | Plan | [`36-next.md`](../36-next.md) |
 
 ## Ziel
 
-Planen, wie Jarvis **nur aus dem Gesprochenen** Nachricht, Bar und Taxi **hintereinander** macht — ehrlich. In diesem Sprint nur Docs. Research `4.20`–`4.22` vor WhatsApp-Composer und Ride-Deep-Link.
+Plan vollständig (Gold, Voten, Dateien). Research `4.20`–`4.22` vor WhatsApp-Composer und Ride-Deep-Link.
 
 ## Must
 

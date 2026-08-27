@@ -15,6 +15,8 @@ Android-APK
 
 Kein FastAPI, kein Ollama, kein Reverse-Proxy.
 
+**Deinstall / andere APK-Signatur:** WebView löscht `jarvis_settings_v13` und IDB `jarvis-ondevice`. Keys, Nummern, Erinnerungen sind weg, bis [`38-next.md`](./38-next.md) Export/Import da ist. GGUF in OPFS ebenfalls weg.
+
 ## Qualität
 
 Kleineres Modell als RTX-3060-7b. Ton und Tools bleiben lokal; Antworten sind schwächer.

@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Live `1.24.0`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Stimme, Timer, Wetter, Kalender, Einkauf, Losgehen, Zuhause, Auge, Personenorte, Maps-Route. Reihe: [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md).
+> **Live `3.18.1`:** Denken on-device (wllama 0,5B) **oder** Gemini Opt-in. Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — **Deinstall löscht alles** ([`38-next.md`](./38-next.md)). Reihe Lage: [`33-next.md`](./33-next.md).
 
 ## Leitentscheidung
 
@@ -11,7 +11,7 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 |--------|----------------|
 | Gesprächsform | Text-Chat (Typ A: Chat-Mensch) |
 | Denk-Engine | Lokales LLM |
-| Modell-Host MVP | **Ollama** (Default, solange keine klar bessere Alternative) |
+| Modell-Host MVP | **Ollama** — **historisch Sprint 1**. Ab `0.13`: wllama on-device |
 | Laufzeit MVP | Entwicklungsrechner: **Windows, 16 GB RAM, NVIDIA RTX 3060** |
 | Qualitäts-/Speed-Priorität | **Qualität > Rohgeschwindigkeit**; so schnell wie möglich, Speed-Feintuning später |
 | Chat-Persistenz MVP | **Gespräche zwischen Sessions speichern** |

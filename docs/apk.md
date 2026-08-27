@@ -2,6 +2,8 @@
 
 App-Code und Sideload stehen auf **`3.18.1`** (Lage, Traceroute, Digest, GUI-Slides). versionCode `31801`.
 
+**Deinstall** (andere Signatur): WebView-Daten weg — Keys, Nummern, Erinnerungen. Bis [`38-next.md`](./38-next.md) CODE ist: vor Neuinstall Settings notieren. GGUF ebenfalls neu laden.
+
 **3.18.1:** Overlay-Slides. Lage-Kacheln. Keine Testprompts in der App.
 
 ## Download

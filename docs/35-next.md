@@ -59,7 +59,7 @@ Nutzen: **Weltlage verknüpfen**, nicht Bloomberg und nicht Horoskop.
 | Netz | Freie APIs oder schon erlaubte Suche. Kein Scraping hinter Login, kein Captcha-Bypass, kein inoffizielles Yahoo-Chart. |
 | Akku | Watch **opt-in**, grobes Intervall (Ziel 15–30 min, Android erlaubt oft nicht genauer). App-offen = frisch holen. |
 | PC | Optional später mehr holen. **Nicht** nötig für v1. Handy bleibt Hirn. |
-| Sideload | Erst wenn ein nutzbarer Kern da ist (`4.8` oder Bündel). Bis dahin ehrlich: kein APK-Claim. |
+| Sideload | Erst wenn Kern da (`4.8`+) **und** Hausstand-Export [`38-next.md`](./38-next.md). Bis dahin kein APK-Claim. |
 
 ## Soll — ein Durchlauf
 

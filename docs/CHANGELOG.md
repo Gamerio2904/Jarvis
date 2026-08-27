@@ -31,6 +31,12 @@ Kalender-Screenshots und ein Sprach-Thread sind CODE `3.19.0` (nicht `main`) —
 - Inspiration: https://www.instagram.com/reel/Dcgcg5rRdKT/
 - App-Code und Sideload unverändert `3.18.1`
 
+### `4.46.0` — Hausstand Backup + Autokorrektur — *PLAN*
+
+Deinstall löscht `jarvis_settings_v13` und IndexedDB. Ein JSON-Export, ein Import. Composer/STT korrigieren Jarvis-Wörter, nicht API-Keys. Kein Jarvis-Cloud.
+
+- Docs [`38-next.md`](./38-next.md) · [`sprints/sprint-113.md`](./sprints/sprint-113.md)
+
 ### `3.18.1` — GUI Premium — *CODE*
 
 Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.

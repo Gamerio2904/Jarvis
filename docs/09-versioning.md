@@ -80,6 +80,7 @@ MAJOR.MINOR.PATCH
 | `4.0.0` | **Weltlage / Vorhersage** — Research zuerst, dann Ausblick; nicht `3.19`/`3.20` (schon logisch in `3.18.0`) | Sprint 110 |
 | `4.19.0` | **Alltagskette Stimme** — Sprachnachricht, Bar, Taxi; Research vor WhatsApp/Taxi-App | Sprint 111 |
 | `4.33.0` | **Gespräch / Film-Stimme / Steuer** — Reel lukebuildsai anpassen, Kalender aus `3.19` | Sprint 112 |
+| `4.46.0` | **Hausstand** — Export/Import nach APK-Deinstall; Autokorrektur Schreib+Sprache | Sprint 113 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -216,7 +217,7 @@ MAJOR.MINOR.PATCH
 
 ### `4.19+` — Alltagskette Stimme [`36-next.md`](./36-next.md) **PLAN**
 
-Reel: Sprachnachricht, Bar, Taxi — nur geredet. Parallel zu Weltlage, nicht in `4.1`–`4.18` schieben.
+Reel: Sprachnachricht, Bar, Taxi — nur geredet. Plan **vollständig** (Gold, Voten, Dateien). Sideload nach Hausstand [`38-next.md`](./38-next.md).
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -228,7 +229,7 @@ Reel: Sprachnachricht, Bar, Taxi — nur geredet. Parallel zu Weltlage, nicht in
 | `4.24.0` | Sprachnachricht = SMS-Text v1 | nach `4.20` |
 | `4.25.0` | Taxi: öffnen oder anrufen, nicht „bestellt“ | nach `4.21` |
 | `4.26.0` | Kette in einem Satz | nach `4.22` |
-| `4.27.0`–`4.32.0` | Stimme, optional `wa.me`, Audio-Share, Follow-up, Härten, Sideload | Verbesserungen |
+| `4.27.0`–`4.32.0` | Stimme, `wa.me`, Audio optional, Follow-up, Härten, Sideload nach Backup | Verbesserungen |
 
 ### `4.33+` — Gespräch, Film-Stimme, Reel am Steuer [`37-next.md`](./37-next.md) **PLAN**
 
@@ -243,6 +244,18 @@ Kalender-Jahr/Fenster/`erstell` und ein Voice-Thread sind **CODE** `3.19.0` (and
 | `4.37.0` | TTS stehend vs. Fahrt | nach Research |
 | `4.38.0` | Gespräch härten, Siezen | nach Research |
 | `4.39.0`–`4.45.0` | Watchdog, HUD-Interrupt, optionale zweite Nummer, Kalender-Rest, Sideload | Verbesserungen |
+
+### `4.46+` — Hausstand [`38-next.md`](./38-next.md) **PLAN**
+
+Deinstall wegen APK-Signatur löscht WebView-Daten. Export/Import vor Sideload. Autokorrektur Schreib+Sprache, kein blindes Bahn↔Bar.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.46.0` | Research Backup | 113 |
+| `4.47.0` | Research Tippfehler | 113 |
+| `4.48.0`–`4.49.0` | Export / Import | nach Research |
+| `4.50.0`–`4.51.0` | Composer + STT-Wörterbuch | nach Research |
+| `4.52.0` | Sideload mit Hausstand-Thema | nach `4.49` |
 
 ### Weitere Beispiele
 
