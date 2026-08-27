@@ -122,8 +122,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 116 | [`sprint-116.md`](./sprint-116.md) | `4.76.0` | Lokales Sehen / LocateAnything am PC | **PLAN** |
 | 117 | [`sprint-117.md`](./sprint-117.md) | `4.87.0` | Sehen Alltag (Zeig, Beleg, TV-Foto) | **PLAN** |
 | 118 | [`sprint-118.md`](./sprint-118.md) | `4.94.0` | Sehen Schreibtisch, Wasch, EAN, zwei Schritte | **PLAN** |
+| 119 | [`sprint-119.md`](./sprint-119.md) | `5.0.0` | Weltkugel in der Lage | **PLAN** |
 
-**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Pläne: [`40-next.md`](../40-next.md), [`41-next.md`](../41-next.md). Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Pläne: [`40-next.md`](../40-next.md), [`41-next.md`](../41-next.md), [`43-next.md`](../43-next.md). Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

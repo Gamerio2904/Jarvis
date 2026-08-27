@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`4.53.0`**. Sideload **`3.18.1`**. Offene Pläne: Körper [`40-next.md`](./40-next.md) · LocateAnything [`41-next.md`](./41-next.md). Index: [`42-planned.md`](./42-planned.md). CODE: [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md). Nächster Sideload erst nach Hausstand-Export.
+**Jetzt:** Code **`4.53.0`**. Sideload **`3.18.1`**. Offene Pläne: Körper [`40-next.md`](./40-next.md) · LocateAnything [`41-next.md`](./41-next.md) · Weltkugel [`43-next.md`](./43-next.md). Index: [`42-planned.md`](./42-planned.md). CODE: [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md). Nächster Sideload erst nach Hausstand-Export.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -49,6 +49,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 40 | [Körper intern](./40-next.md) | **`4.66` PLAN** — 3D-Schema live/klickbar in der APK; PC nur PC-Organe |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` PLAN** — PC-Grounding, nicht WASM; nicht mit `4.66` mischen |
 | 42 | [Alles geplant](./42-planned.md) | Index Code `4.53` + offene Pläne |
+| 43 | [Weltkugel](./43-next.md) | **`5.0` PLAN** — 3D-Erde in der Lage, Pins aus Ist-Tools, Satellit ehrlich |
 | — | [APK](./apk.md) | Sideload `3.18.1`; Code `4.53.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -127,5 +128,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 116 | `4.76.0` | **PLAN** (LocateAnything am PC) |
 | 117 | `4.87.0` | **PLAN** (Sehen Alltag: Zeig, Beleg, TV-Foto) |
 | 118 | `4.94.0` | **PLAN** (Sehen Schreibtisch, Wasch, EAN, zwei Schritte) |
+| 119 | `5.0.0` | **PLAN** (Weltkugel in der Lage) |
 
-**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Pläne: [`40-next.md`](./40-next.md), [`41-next.md`](./41-next.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Pläne: [`40-next.md`](./40-next.md), [`41-next.md`](./41-next.md), [`43-next.md`](./43-next.md). Index: [`42-planned.md`](./42-planned.md).

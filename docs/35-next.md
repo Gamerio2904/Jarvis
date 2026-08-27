@@ -6,7 +6,7 @@ https://www.instagram.com/reel/DblW9QliG5l/
 
 Zweites Reel (Sprachnachricht, Bar, Taxi): [`36-next.md`](./36-next.md) — Schiene `4.19+`, nicht in `4.0` mischen.
 
-App-Code jetzt: **`4.0.0`**. Sideload: **`3.18.1`** (kein neuer APK-Claim).
+App-Code jetzt: **`4.0.0`**. Sideload: **`3.18.1`** (kein neuer APK-Claim). 3D-Erde mit News-Pins ist nicht diese Schiene — [`43-next.md`](./43-next.md) `5.0`.
 
 **Warum `4.0`, nicht `3.19`/`3.20`:** In [`09-versioning.md`](./09-versioning.md) sind `3.19.0`–`3.45.0` schon **logische Stufen innerhalb von `3.18.0`**. Eigenes MAJOR: Weltlage, nicht noch ein Haus-Tool.
 

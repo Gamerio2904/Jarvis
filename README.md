@@ -39,4 +39,4 @@ Modell: Qwen2.5 0.5B Instruct Q4 (kleiner als der alte PC-7b, dafür offline).
 
 Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen in der Android-App.
 
-Planung: [`docs/README.md`](docs/README.md)
+Planung: [`docs/README.md`](docs/README.md) · offene Pläne: Körper `4.66`, Sehen `4.76`, Weltkugel `5.0`

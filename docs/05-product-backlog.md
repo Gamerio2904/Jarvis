@@ -37,6 +37,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **CODE** |
 | E33 | Körper intern `4.66` | 5+ | 3D-Schema live/klickbar (Darstellung) + Kacheln, APK; PC nur PC-Organe — [`40-next.md`](./40-next.md) **PLAN** |
 | E34 | Lokales Sehen `4.76` | 5+ | LocateAnything am PC, Klick mit Boxen — [`41-next.md`](./41-next.md) **PLAN** |
+| E35 | Weltkugel `5.0` | 5+ | 3D-Erde in der Lage, Pins aus Ist-Tools, Satellit ehrlich — [`43-next.md`](./43-next.md) **PLAN** |
 
 ---
 
@@ -467,14 +468,26 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S34.16 | Computer-Use / Live-AR / Banking | Won’t | parked | |
 | S34.17 | EAN-Box → Open Food Facts | Should | ready | `4.96` |
 
+### E35 — Weltkugel `5.0`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S35.0 | Leitentscheidung Kugel in der Lage | Must | ready | [`43-next.md`](./43-next.md) PLAN |
+| S35.1 | Drehbare Erde oder 2D-Fallback, Chat bleibt | Must | idea | WebGL mit `4.67` teilen |
+| S35.2 | Pins nur aus Ist-Tools + Ortslexikon | Must | idea | kein Geocoder-Orakel |
+| S35.3 | Tap = bestehender Handler, Quelle bleibt | Must | idea | `5.8` |
+| S35.4 | Satellit: Blue Marble oder GIBS mit Stand | Should | idea | kein „Live“-Video |
+| S35.5 | Überwachung / Starlink-Schwarm / Fake-Livecam | Won’t | parked | Caption „andere beobachten“ |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
 1. Sideload nach Hausstand-Export (`4.46` **CODE**, APK noch `3.18.1`)
 2. Körper intern [`40-next.md`](./40-next.md) `4.66`
-3. Lokales Sehen [`41-next.md`](./41-next.md) `4.76` — nach 3060-Spike
-4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+3. Weltkugel [`43-next.md`](./43-next.md) `5.0` — nach WebGL-Spike `4.67`
+4. Lokales Sehen [`41-next.md`](./41-next.md) `4.76` — nach 3060-Spike
+5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Komplette Liste: [`42-planned.md`](./42-planned.md).
 

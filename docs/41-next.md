@@ -124,4 +124,4 @@ NO-GO in `4.77`: `4.81+` nicht starten.
 
 3B im WASM. Face-ID. Live-Kamera. NVIDIA-Cloud. APK-Gewichte. FastAPI-Hirn. Computer-Use-Schleife. Beleg → Bank. Körper-3D ersetzen.
 
-Sprints: [`sprint-116.md`](./sprints/sprint-116.md)–[`sprint-118.md`](./sprints/sprint-118.md). Körper: [`40-next.md`](./40-next.md). Index: [`42-planned.md`](./42-planned.md).
+Sprints: [`sprint-116.md`](./sprints/sprint-116.md)–[`sprint-118.md`](./sprints/sprint-118.md). Körper: [`40-next.md`](./40-next.md). Weltkugel: [`43-next.md`](./43-next.md) `5.0`. Index: [`42-planned.md`](./42-planned.md).

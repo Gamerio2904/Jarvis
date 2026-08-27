@@ -13,7 +13,8 @@ Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).
 **`3.19.0` CODE:** Sprachmodus ein Thread, Kalender-Fenster, Debug [`34-next.md`](./34-next.md).  
 **`4.0`–`4.53` CODE:** Weltlage, Alltagskette, Algieba/HUD, Hausstand, Friday+Lage-Split.  
 **`4.66` PLAN:** Körper-Schema [`40-next.md`](./40-next.md).  
-**`4.76` PLAN:** LocateAnything am PC [`41-next.md`](./41-next.md).
+**`4.76` PLAN:** LocateAnything am PC [`41-next.md`](./41-next.md).  
+**`5.0` PLAN:** Weltkugel in der Lage [`43-next.md`](./43-next.md).
 
 ### Live `1.32.1` (Code)
 

@@ -9,9 +9,10 @@ Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
 ## Pull-Reihenfolge
 
 1. Sideload mit Hausstand (Export ist CODE `4.46`, APK noch `3.18.1`)
-2. Körper intern `4.66` (PLAN, Darstellung)
-3. Lokales Sehen `4.76` (PLAN, LocateAnything am PC) — nach `4.77` GO
-4. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+2. Körper intern `4.66` (PLAN, Darstellung) — WebGL-Spike `4.67` gilt auch für die Kugel
+3. Weltkugel `5.0` (PLAN, Lage-Sicht) — nach `4.67`, unabhängig von 3060
+4. Lokales Sehen `4.76` (PLAN, LocateAnything am PC) — nach `4.77` GO
+5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
 ---
 
@@ -38,6 +39,12 @@ NVIDIA LocateAnything-3B am PC. Erst Spike 3060. Dann Klick mit Box, Overlay, Be
 
 Konflikt vermeiden: **`4.66` = Körper, `4.76` = LocateAnything.**
 
+### Weltkugel `5.0`–`5.10` · Sprint 119 · [`43-next.md`](./43-next.md)
+
+3D-Erde in der Lage, Pins aus ISS/OpenSky/GPS/DWD/outlook/news. Satellit = Blue Marble oder GIBS mit Stand, kein Live-Video. Tap = bestehendes Tool. WebGL-Budget mit Körper teilen.
+
+Konflikt vermeiden: **`5.0` = Kugel, nicht `4.66` Körper, nicht `4.76` Sehen.**
+
 ## Won’t (übergreifend)
 
-Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife.
+Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Überwachungs-Kugel, Fake-Satelliten-Live.
