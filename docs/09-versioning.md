@@ -79,6 +79,7 @@ MAJOR.MINOR.PATCH
 | `3.18.1` | **GUI Premium** — Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
 | `4.0.0` | **Weltlage / Vorhersage** — Research zuerst, dann Ausblick; nicht `3.19`/`3.20` (schon logisch in `3.18.0`) | Sprint 110 |
 | `4.19.0` | **Alltagskette Stimme** — Sprachnachricht, Bar, Taxi; Research vor WhatsApp/Taxi-App | Sprint 111 |
+| `4.33.0` | **Gespräch / Film-Stimme / Steuer** — Reel lukebuildsai anpassen, Kalender aus `3.19` | Sprint 112 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -228,6 +229,20 @@ Reel: Sprachnachricht, Bar, Taxi — nur geredet. Parallel zu Weltlage, nicht in
 | `4.25.0` | Taxi: öffnen oder anrufen, nicht „bestellt“ | nach `4.21` |
 | `4.26.0` | Kette in einem Satz | nach `4.22` |
 | `4.27.0`–`4.32.0` | Stimme, optional `wa.me`, Audio-Share, Follow-up, Härten, Sideload | Verbesserungen |
+
+### `4.33+` — Gespräch, Film-Stimme, Reel am Steuer [`37-next.md`](./37-next.md) **PLAN**
+
+Kalender-Jahr/Fenster/`erstell` und ein Voice-Thread sind **CODE** `3.19.0` (anderer Branch) — mergen, nicht neu. Neu: Gemini-TTS näher am Film (free), Anruf am Steuer nicht fake.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.33.0` | Leitentscheidung (Docs) | 112 |
+| `4.34.0` | Research: Stimme/Gespräch | nach 112 |
+| `4.35.0` | Research: Stören am Steuer | nach 112 |
+| `4.36.0` | Research: Watchdog-Signale | nach 112 |
+| `4.37.0` | TTS stehend vs. Fahrt | nach Research |
+| `4.38.0` | Gespräch härten, Siezen | nach Research |
+| `4.39.0`–`4.45.0` | Watchdog, HUD-Interrupt, optionale zweite Nummer, Kalender-Rest, Sideload | Verbesserungen |
 
 ### Weitere Beispiele
 

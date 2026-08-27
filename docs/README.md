@@ -40,6 +40,7 @@ Dieses Verzeichnis enthält die **agile Projektplanung** für Jarvis.
 | 33 | [3.x danach](./33-next.md) | **`3.18.1` CODE** — Härten, Tablet-Lage, Traceroute, Telefon-Haus, GUI |
 | 35 | [Weltlage / Vorhersage](./35-next.md) | **`4.0` PLAN** — Research zuerst, dann Ausblick (Öl/Benzin), kein Orakel |
 | 36 | [Alltagskette Stimme](./36-next.md) | **`4.19` PLAN** — Sprachnachricht, Bar, Taxi; Kette, kein stilles WhatsApp |
+| 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` PLAN** — Film-TTS free, Reel finden/eine Frage, Kalender aus `3.19` mergen |
 | — | [APK](./apk.md) | Sideload `3.18.1` |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -110,5 +111,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 108 | `3.18.1` | **CODE** (GUI Premium: Overlay-Slides) |
 | 110 | `4.0.0` | **PLAN** (Weltlage / Vorhersage, Research zuerst) |
 | 111 | `4.19.0` | **PLAN** (Alltagskette: Nachricht, Bar, Taxi) |
+| 112 | `4.33.0` | **PLAN** (Gespräch, Film-Stimme, Reel am Steuer) |
 
-**Aktuell:** Code **`3.18.1`**. Sideload-APK `3.18.1` — [`Jarvis.apk`](./apk.md). Nächste Reihen: [`35-next.md`](./35-next.md) · [`36-next.md`](./36-next.md) **PLAN**. Lage/Härten: [`33-next.md`](./33-next.md).
+**Aktuell:** Code **`3.18.1`**. Sideload-APK `3.18.1` — [`Jarvis.apk`](./apk.md). Nächste Reihen: [`35-next.md`](./35-next.md) · [`36-next.md`](./36-next.md) · [`37-next.md`](./37-next.md) **PLAN**. Lage/Härten: [`33-next.md`](./33-next.md).

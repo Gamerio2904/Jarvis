@@ -23,6 +23,13 @@ Sprachnachricht, Bar, Taxi aus einem gesprochenen Satz. SMS nach Nachfrage ja, W
 - Inspiration: https://www.instagram.com/reel/Db8bcYijN5y/
 - App-Code und Sideload unverändert `3.18.1`
 
+### `4.33.0` — Gespräch, Film-Stimme, Reel am Steuer — *PLAN*
+
+Kalender-Screenshots und ein Sprach-Thread sind CODE `3.19.0` (nicht `main`) — mergen. Neu: beste freie Gemini-TTS (Charon-Race oft Android), Reel finden/beheben/eine Frage, Anruf am Steuer nicht fake (HUD/Notify).
+
+- Docs [`37-next.md`](./37-next.md) · [`sprints/sprint-112.md`](./sprints/sprint-112.md)
+- Inspiration: https://www.instagram.com/reel/Dcgcg5rRdKT/
+
 ### `3.18.1` — GUI Premium — *CODE*
 
 Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.

@@ -290,7 +290,7 @@ Thema in Settings: **Weltlage**, nicht unter Sales.
 - Sales-CRM (altes Reel). Fake-Gauges.  
 - 24/7-Hotline. Kundenrechnung.
 
-Alltagskette (Nachricht/Bar/Taxi): [`36-next.md`](./36-next.md).
+Alltagskette (Nachricht/Bar/Taxi): [`36-next.md`](./36-next.md). Gespräch/Stimme/Steuer: [`37-next.md`](./37-next.md).
 
 ## Verbesserungen (eigene Updates, nach dem Kern)
 

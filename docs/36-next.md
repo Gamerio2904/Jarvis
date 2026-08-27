@@ -228,4 +228,4 @@ Heute: VoiceMode → STT, **kein** `MediaRecorder`-Blob im Repo.
 | T3 | Voice-Clip speichern: wie lange, wo (Cache), Datenschutz | 4.20 / 4.29 |
 | T4 | Kette ohne „und“ zu aggressiv? (`Brot und Butter` muss Memory/Einkauf bleiben) | 4.22 |
 
-Sprint: [`sprint-111.md`](./sprints/sprint-111.md). Weltlage: [`35-next.md`](./35-next.md).
+Sprint: [`sprint-111.md`](./sprints/sprint-111.md). Weltlage: [`35-next.md`](./35-next.md). Gespräch/Stimme: [`37-next.md`](./37-next.md).

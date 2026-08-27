@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Code `3.18.1`. Nächste Reihen **PLAN:** Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md). Sideload `3.18.1`.
+> Historisch (MVP `0.1`). **Jetzt:** Code `3.18.1`. Nächste Reihen **PLAN:** [`35-next.md`](./35-next.md), [`36-next.md`](./36-next.md), [`37-next.md`](./37-next.md). Sideload `3.18.1`.
 
 ## MVP v0.1 — Definition
 

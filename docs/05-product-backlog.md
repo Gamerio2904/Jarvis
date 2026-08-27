@@ -32,6 +32,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E27 | Jarvis 3.x danach | 5+ | Härten, Tablet-Lage, Traceroute, Telefon-Haus — [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`) |
 | E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **PLAN** |
 | E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **PLAN** |
+| E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **PLAN** |
 
 ---
 
@@ -398,15 +399,25 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S29.4 | Drei Aufträge, Confirm-Schlange | Must | idea | ein Ja = ein Schritt |
 | S29.5 | WhatsApp still senden | Won’t | parked | Business-API / Accessibility |
 
+### E30 — Gespräch / Stimme / Steuer `4.33`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S30.0 | Leitentscheidung; `3.19` Kalender nicht neu | Must | ready | [`37-next.md`](./37-next.md) |
+| S30.1 | Film-nähere Gemini-TTS, free | Must | idea | Spike Stimme + Budget stehend vs. Fahrt |
+| S30.2 | Reel: finden/beheben/eine Frage | Must | idea | Whitelist Haus, HUD am Steuer |
+| S30.3 | Eingehender Anruf von Jarvis | Won’t | parked | kein Fake-Call, kein Retell |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Weltlage **PLAN** [`35-next.md`](./35-next.md) — Research `4.1`–`4.4` vor Code
-2. Alltagskette **PLAN** [`36-next.md`](./36-next.md) — Research `4.20`–`4.22` vor Taxi/WhatsApp
-3. Sideload `3.18.1` — [`apk.md`](./apk.md)
-4. Reihe 3.x **CODE** [`33-next.md`](./33-next.md)
-5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. Weltlage **PLAN** [`35-next.md`](./35-next.md)
+2. Alltagskette **PLAN** [`36-next.md`](./36-next.md)
+3. Gespräch/Stimme/Steuer **PLAN** [`37-next.md`](./37-next.md) — Kalender aus `3.19` mergen
+4. Sideload `3.18.1` — [`apk.md`](./apk.md)
+5. Reihe 3.x **CODE** [`33-next.md`](./33-next.md)
+6. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 
