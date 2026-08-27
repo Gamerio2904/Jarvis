@@ -95,6 +95,7 @@ Docs. Done: dieses Dokument.
 2. Flash vs Pro TTS: Latenz vs. Film.  
 3. Stehend: welches Budget, bis Native nicht mehr gewinnt?  
 4. Gemini Live: ja/nein als Opt-in, Default aus.  
+Weibliche Stimme (Friday) ist **nicht** dieser Spike — [`39-next.md`](./39-next.md) `4.54`, dockt an diese eine männliche Wahl.  
 **Done wenn:** eine `voiceName` + zwei Budgets in der Tabelle.
 
 ### `4.35.0` — Research: Stören am Steuer

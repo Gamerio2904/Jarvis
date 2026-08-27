@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code und Sideload **`3.18.1`**. Offene Pläne: [`35-next.md`](./35-next.md) Weltlage · [`36-next.md`](./36-next.md) Alltagskette (vollständig) · [`37-next.md`](./37-next.md) Stimme/Steuer · [`38-next.md`](./38-next.md) **Backup + Autokorrektur (MUST vor Deinstall)**. Kalender-Fenster: [`34-next.md`](./34-next.md) CODE `3.19.0` auf anderem Branch — mergen. APK: [`apk.md`](./apk.md).
+**Jetzt:** Code und Sideload **`3.18.1`**. Offene Pläne: [`35-next.md`](./35-next.md) Weltlage · [`36-next.md`](./36-next.md) Alltagskette (vollständig) · [`37-next.md`](./37-next.md) Stimme/Steuer · [`38-next.md`](./38-next.md) **Backup + Autokorrektur (MUST vor Deinstall)** · [`39-next.md`](./39-next.md) **Jarvis/Friday + Tablet flüssig**. Kalender-Fenster: [`34-next.md`](./34-next.md) CODE `3.19.0` auf anderem Branch — mergen. APK: [`apk.md`](./apk.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -45,6 +45,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 36 | [Alltagskette Stimme](./36-next.md) | **`4.19` PLAN vollständig** — Bar, SMS-Note, Taxi, Kette |
 | 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` PLAN** — Film-TTS free, Reel finden/eine Frage |
 | 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` PLAN** — Export/Import, Tippfehler Schreib+Sprache |
+| 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` PLAN** — Jarvis/Friday Stimme, Lage nicht statt Chat |
 | — | [APK](./apk.md) | Sideload `3.18.1`; Deinstall löscht Keys — erst [`38`](./38-next.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -117,5 +118,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 111 | `4.19.0` | **PLAN** (Alltagskette vollständig) |
 | 112 | `4.33.0` | **PLAN** (Gespräch, Film-Stimme, Reel am Steuer) |
 | 113 | `4.46.0` | **PLAN** (Hausstand Export/Import, Autokorrektur) |
+| 114 | `4.53.0` | **PLAN** (Jarvis/Friday + Tablet-Lage flüssig) |
 
-**Aktuell:** Code **`3.18.1`**. Sideload `3.18.1`. Pläne: [`35-next.md`](./35-next.md) · [`36-next.md`](./36-next.md) · [`37-next.md`](./37-next.md) · [`38-next.md`](./38-next.md). `3.19.0`: [`34-next.md`](./34-next.md).
+**Aktuell:** Code **`3.18.1`**. Sideload `3.18.1`. Pläne: [`35-next.md`](./35-next.md) · [`36-next.md`](./36-next.md) · [`37-next.md`](./37-next.md) · [`38-next.md`](./38-next.md) · [`39-next.md`](./39-next.md). `3.19.0`: [`34-next.md`](./34-next.md).

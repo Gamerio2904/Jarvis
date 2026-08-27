@@ -30,7 +30,7 @@ Sideload mit anderem Keystore → Android verlangt Deinstall → Hausstand weg. 
 | Thema | Entscheidung |
 |-------|----------------|
 | Format | Eine JSON-Datei `jarvis-haus-YYYYMMDD.json`, Versionfeld `backup_version`. |
-| Inhalt Default | Settings (Keys!) + memory + reminders + events + notes + todos + shopping + plugs. **Optional Häkchen:** Chats. **Nie:** GGUF, `pending`, flüchtiges `last_*` außer Keys/Hosts. |
+| Inhalt Default | Settings (Keys!) + memory + reminders + events + notes + todos + shopping + plugs. **Optional Häkchen:** Chats. **Nie:** GGUF, `pending`, flüchtiges `last_*` außer Keys/Hosts. Ab Face-CODE: `face` + TTS-Stimmen mitexportieren ([`39-next.md`](./39-next.md)). |
 | Export | Einstellungen → **Hausstand** → Teilen/Speichern (Android Share + Download). Vor Deinstall den Satz zeigen. |
 | Import | **Ein** Datei wählen → Vorschau (Anzahl Keys gesetzt, N Kontakte, N Erinnerungen) → **Überschreiben ja**. Merge-Modus v1 unnötig (verdirbt Keys). |
 | Sync | Kein Jarvis-Backend. Wer Drive will, teilt die Datei selbst. |

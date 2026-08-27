@@ -57,7 +57,8 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 1. **Vor Deinstall:** Hausstand — [`38-next.md`](./38-next.md) (noch PLAN; bis CODE Keys notieren).
 2. Sideload `3.18.1` [`apk.md`](./apk.md). `3.19.0` mergen [`34-next.md`](./34-next.md).
 3. Alltagskette / Weltlage / Stimme: [`36-next.md`](./36-next.md) [`35-next.md`](./35-next.md) [`37-next.md`](./37-next.md).
-4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
+4. Faces + Tablet: [`39-next.md`](./39-next.md).
+5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
 
 ---
 
@@ -83,3 +84,5 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-27 | Q53 | Alltagskette vollständig geplant. WhatsApp still Won’t; `wa.me` nach Ja ok. Taxi Default Anruf. [`36-next.md`](./36-next.md) | PO |
 | 2026-08-27 | Q54 | APK-Deinstall löscht On-Device-Daten. Export/Import lokal, kein Jarvis-Cloud. [`38-next.md`](./38-next.md) | PO |
 | 2026-08-27 | Q55 | Autokorrektur Schreib+Sprache; Bahn vs Bar nicht per Levenshtein. [`38-next.md`](./38-next.md) | PO |
+| 2026-08-27 | Q56 | Zwei Gesichter: Jarvis Default (Work+Smalltalk), Friday weiblich auf Zuruf; ein Register; kein Marvel. [`39-next.md`](./39-next.md) | PO |
+| 2026-08-27 | Q57 | Tablet-Lage: Chat bleibt sichtbar; Uhr/Poll/Raster. Screenshots fehlten — Ist aus Code. [`39-next.md`](./39-next.md) | PO |

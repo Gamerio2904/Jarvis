@@ -5,7 +5,8 @@ Dieses Dokument steuert den **Charakter**. Es ist Eingang zu Phase 0 und Abnahme
 > Status: **Kern + Stil-Beispiele gesetzt**  
 > Beispiele = **grobe Vorgaben**, keine Copy-Paste-Antworten.  
 > **Live `3.18.1`:** Ton Siezen, Understatement (`persona.ts`). Stimme: Gemini Charon (oft Native-Race) bzw. Android Neural — Verbesserung [`37-next.md`](./37-next.md). Keine Filmzitate im Prompt.  
-> Keine Filmzitate im Prompt, keine Marvel-Rolle behaupten.
+> Keine Filmzitate im Prompt, keine Marvel-Rolle behaupten.  
+> **Geplant `4.53`:** zweites Gesicht **Friday** (weibliche Stimme, Zuruf) — Hausname, nicht MCU. Jarvis bleibt Default (Work + Smalltalk). [`39-next.md`](./39-next.md).
 
 ## Kern (fest aus Produktentscheidung)
 

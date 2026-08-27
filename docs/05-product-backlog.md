@@ -34,6 +34,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **PLAN** |
 | E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **PLAN** |
 | E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **PLAN** |
+| E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **PLAN** |
 
 ---
 
@@ -420,6 +421,17 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S31.4 | STT pickHeard + Rückfrage Bar/Bahn | Must | idea | kein Blind-Levenshtein |
 | S31.5 | Jarvis-Cloud-Sync | Won’t | parked | Datei bleibt beim User |
 
+### E32 — Zwei Gesichter + Tablet `4.53`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S32.0 | Leitentscheidung Faces + HUD | Must | ready | [`39-next.md`](./39-next.md) PLAN, kein Execute |
+| S32.1 | Jarvis Default, Friday Zuruf, zwei Stimmen | Must | idea | ein Register, ein Gedächtnis |
+| S32.2 | Wake Friday, nicht Freitag | Must | idea | Kalender `Freitag` bleibt Termin |
+| S32.3 | Lage neben Chat, Uhr tickt, Poll split | Must | idea | Composer+Mic sichtbar |
+| S32.4 | Marvel-Friday / zwei Modelle | Won’t | parked | Hausname, ein Hirn |
+| S32.5 | Auto Work-Stunden → Face | Won’t | parked | nur explizit |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
@@ -428,12 +440,14 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 2. `3.19.0` mergen [`34-next.md`](./34-next.md) — Kalender-Fenster, Voice-Thread
 3. Alltagskette [`36-next.md`](./36-next.md) — vollständig geplant
 4. Weltlage [`35-next.md`](./35-next.md)
-5. Gespräch/Stimme [`37-next.md`](./37-next.md)
-6. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+5. Gespräch/Stimme [`37-next.md`](./37-next.md) (männliche TTS-Spike `4.34` vor Female)
+6. **Tablet-Lage glätten** [`39-next.md`](./39-next.md) `4.59+` — darf vor Friday, bestehendes HUD
+7. Zwei Gesichter Jarvis/Friday [`39-next.md`](./39-next.md) — nach `4.34`/`4.54`
+8. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 
-- Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus
+- Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus (Face Jarvis/Friday ist [`39-next.md`](./39-next.md), nicht Stimmungsslider)
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
 - Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate

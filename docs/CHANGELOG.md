@@ -38,6 +38,14 @@ Deinstall löscht `jarvis_settings_v13` und IndexedDB. Ein JSON-Export, ein Impo
 - Docs [`38-next.md`](./38-next.md) · [`sprints/sprint-113.md`](./sprints/sprint-113.md)
 - App-Code und Sideload unverändert `3.18.1`
 
+### `4.53.0` — Zwei Gesichter + Tablet flüssig — *PLAN*
+
+Jarvis (männlich, Default: Work + Smalltalk) und Friday (weiblich, Zuruf). Ein Register, ein Gedächtnis, zwei Stimmen. Lage auf dem Tablet **neben** dem Chat, nicht statt. Wake Friday ≠ Freitag. Marvel-Rolle Won’t.
+
+- Docs [`39-next.md`](./39-next.md) · [`sprints/sprint-114.md`](./sprints/sprint-114.md)
+- Tablet-Bugs aus Code (Screenshots in der PO-Nachricht nicht angehängt)
+- App-Code und Sideload unverändert `3.18.1`
+
 ### `3.18.1` — GUI Premium — *CODE*
 
 Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.

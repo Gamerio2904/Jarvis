@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Stand Code `3.18.1`:** On-Device-APK, 0,5B oder Gemini Opt-in, Haus-Tools, Lage. Live-Ton: **Siezen**. Nächste Pläne: [`35-next.md`](./35-next.md)–[`38-next.md`](./38-next.md). Kalender-Fenster: [`34-next.md`](./34-next.md) (`3.19.0` mergen).
+> **Stand Code `3.18.1`:** On-Device-APK, 0,5B oder Gemini Opt-in, Haus-Tools, Lage. Live-Ton: **Siezen**. Nächste Pläne: [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md). Kalender-Fenster: [`34-next.md`](./34-next.md) (`3.19.0` mergen).
 
 ## Vision
 
