@@ -1,11 +1,13 @@
 import { completeGeminiVision, geminiReady } from './gemini'
 import { getJson, postJson } from './http-json'
+import { sanitizePcHost } from './pc-host'
 import { parsePcIntent, type PcIntent } from './pc-parse'
 import { isCommNo, isCommYes } from './places-parse'
 import { loadSettings, saveSettings } from './store'
 import { scrubReply } from './guards'
 import type { ToolMeta } from './tools'
 
+export { sanitizePcHost } from './pc-host'
 export { parsePcIntent, PC_COPY_PROMPTS } from './pc-parse'
 export type { PcIntent } from './pc-parse'
 
@@ -41,18 +43,22 @@ function writePending(p: PendingPc | null) {
 
 function endpoint(): { url: string; token: string } | { error: string } {
   const s = loadSettings()
-  const host = (s.pc_host || '').trim()
+  const host = sanitizePcHost(s.pc_host || '')
+  if (host && host !== (s.pc_host || '').trim()) saveSettings({ pc_host: host })
+  const token = (s.pc_token || '').trim()
   if (!s.pc_enabled) {
-    return { error: 'PC-Steuerung aus. Unter Einstellungen → PC anschalten, App auf dem Rechner starten.' }
+    if (host && token) saveSettings({ pc_enabled: true })
+    else {
+      return { error: 'PC-Steuerung aus. Unter Einstellungen → PC anschalten, App auf dem Rechner starten.' }
+    }
   }
   if (!host) {
     return {
       error:
-        'Keine PC-IP. Auf dem Windows-Rechner JarvisPC.bat starten — IP und Token stehen im Fenster. Dann Einstellungen → PC.',
+        'Keine PC-IP. Auf dem Windows-Rechner JarvisPC.bat starten — die gelbe IP (192.168…), nicht 172…. Dann Einstellungen → PC.',
     }
   }
   const port = s.pc_port > 0 ? s.pc_port : 18790
-  const token = (s.pc_token || '').trim()
   if (!token) return { error: 'Kein Token. Den Code aus dem Jarvis-PC-Fenster unter Einstellungen → PC eintragen.' }
   return { url: `http://${host}:${port}`, token }
 }
@@ -85,9 +91,11 @@ async function callPc(
     }
     return json
   } catch {
+    const where = 'error' in ep ? '' : ` (${ep.url})`
     return {
       ok: false,
-      message: 'PC nicht erreicht. JarvisPC.bat muss laufen, gleiches WLAN, Firewall Port 18790.',
+      message:
+        `PC nicht erreicht${where}. Fenster „Jarvis PC“ offen lassen. IP muss 192.168…/10… sein (nicht 172…/WSL). Gleiches WLAN, kein Gäste-Netz. Im PC-Fenster „Firewall erlauben“, dann PC testen.`,
     }
   }
 }
@@ -105,7 +113,7 @@ export async function testPc(opts?: { host?: string; token?: string; port?: numb
 }> {
   if (opts?.host) {
     saveSettings({
-      pc_host: opts.host.trim(),
+      pc_host: sanitizePcHost(opts.host),
       pc_token: opts.token?.trim() || loadSettings().pc_token,
       pc_port: opts.port || loadSettings().pc_port || 18790,
       pc_enabled: true,

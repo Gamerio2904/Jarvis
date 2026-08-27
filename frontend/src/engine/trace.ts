@@ -1,5 +1,6 @@
 import { loadSettings, persistLastList, saveSettings } from './store.ts'
 import { getJson, postJson } from './http-json.ts'
+import { sanitizePcHost } from './pc-host.ts'
 import type { ToolMeta } from './tools.ts'
 import { parseTraceIntent } from './trace-parse.ts'
 
@@ -41,7 +42,8 @@ export async function handleTrace(
 
 async function runTrace(host: string): Promise<{ ok: true; lines: string[] } | { ok: false; message: string }> {
   const s = loadSettings()
-  if (!s.pc_enabled || !s.pc_host.trim() || !s.pc_token.trim()) {
+  const pcHost = sanitizePcHost(s.pc_host)
+  if (!s.pc_enabled || !pcHost || !s.pc_token.trim()) {
     return {
       ok: false,
       message:
@@ -49,7 +51,7 @@ async function runTrace(host: string): Promise<{ ok: true; lines: string[] } | {
     }
   }
   const port = s.pc_port > 0 ? s.pc_port : 18790
-  const url = `http://${s.pc_host.trim()}:${port}/v1/trace`
+  const url = `http://${pcHost}:${port}/v1/trace`
   const headers = {
     'Content-Type': 'application/json',
     'X-Jarvis-Token': s.pc_token.trim(),
@@ -74,7 +76,7 @@ async function runTrace(host: string): Promise<{ ok: true; lines: string[] } | {
     return { ok: true, lines }
   } catch {
     try {
-      await getJson(`http://${s.pc_host.trim()}:${port}/v1/status`, headers)
+      await getJson(`http://${pcHost}:${port}/v1/status`, headers)
     } catch {
       /* ignore */
     }

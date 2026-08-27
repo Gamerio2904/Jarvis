@@ -15,6 +15,12 @@ Sprachmodus bleibt im selben Gespräch. Kalender: Jahr-Ansicht, `nächste N Tage
 - Sideload-APK noch `3.18.1` — nächster Build `3.19.0`
 - [`34-next.md`](./34-next.md) · [`sprints/sprint-109.md`](./sprints/sprint-109.md)
 
+### PC-Verbindung — *CODE* (kein neuer Sideload)
+
+`JarvisPC.bat` kopiert die WLAN-IP (`192.168`/`10`), nicht die erste WSL/Hyper-V-Adresse. Firewall-Knopf. Handy entfernt `http://` und Port aus dem IP-Feld. Ohne neue APK reicht die neue BAT; klarere Fehlzeile erst nach nächstem Sideload.
+
+- [`desktop/README.md`](../desktop/README.md)
+
 ### `3.18.1` — GUI Premium — *CODE*
 
 Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.
