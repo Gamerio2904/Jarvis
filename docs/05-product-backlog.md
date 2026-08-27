@@ -30,6 +30,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E25 | Alltag & Welt `3.1`–`3.17` | 5+ | DWD bis Schach — [`31-next.md`](./31-next.md) **CODE** (in `3.0.0`) |
 | E26 | Intelligenz `3.0` | 5+ | Register, Parse vor Execute, Score-Policy — [`32-intelligence.md`](./32-intelligence.md) **CODE** |
 | E27 | Jarvis 3.x danach | 5+ | Härten, Tablet-Lage, Traceroute, Telefon-Haus — [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`) |
+| E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **PLAN** |
 
 ---
 
@@ -375,13 +376,24 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S27.5 | Telefon-Haus, Sprachnotiz, Gespräch lokal | Should | done | `3.34`–`3.37` CODE — keine Fremden-Hotline |
 | S27.6 | Foto, Stimme, Sensor, Schach-UI, Slots, Härten | Should | done | `3.38`–`3.45` CODE |
 
+### E28 — Weltlage / Vorhersage `4.0`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S28.0 | Leitentscheidung + Researchphasen | Must | ready | [`35-next.md`](./35-next.md) PLAN, kein Execute |
+| S28.1 | Research Ingest/Serien/Methode/Architektur | Must | idea | `4.1`–`4.4` entschieden, dann Code |
+| S28.2 | Ausblick auf Nachfrage (Weltlage, warum Öl, Benzin) | Must | idea | Quellen + Serie + Szenario, kein Orakel |
+| S28.3 | Unterbrechen opt-in | Should | idea | nur Δ, Default aus |
+| S28.4 | Aktien-Gewissheit | Won’t | parked | kein „fällt morgen“ |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload `3.18.1` — [`apk.md`](./apk.md)
-2. Reihe 3.x **CODE** [`33-next.md`](./33-next.md)
-3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. Weltlage **PLAN** [`35-next.md`](./35-next.md) — Research `4.1`–`4.4` vor Code
+2. Sideload `3.18.1` — [`apk.md`](./apk.md)
+3. Reihe 3.x **CODE** [`33-next.md`](./33-next.md)
+4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 ## Parking Lot (Ideen, nicht geplant)
 

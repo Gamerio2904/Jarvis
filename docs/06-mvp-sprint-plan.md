@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Code `3.18.1` GUI [`sprints/sprint-108.md`](./sprints/sprint-108.md), Lage/Härten [`33-next.md`](./33-next.md), Intelligenz [`32-intelligence.md`](./32-intelligence.md), Welt [`31-next.md`](./31-next.md). Sprints [`sprints/README.md`](./sprints/README.md). Sideload `3.18.1`.
+> Historisch (MVP `0.1`). **Jetzt:** Code `3.18.1` GUI [`sprints/sprint-108.md`](./sprints/sprint-108.md). Nächste Reihe: Weltlage [`35-next.md`](./35-next.md) **PLAN** ([`sprints/sprint-110.md`](./sprints/sprint-110.md)). Lage/Härten [`33-next.md`](./33-next.md). Sideload `3.18.1`.
 
 ## MVP v0.1 — Definition
 

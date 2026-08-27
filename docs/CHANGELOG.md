@@ -7,6 +7,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`3.18.1`**. Letzter Sideload: **`3.18.1`**.
 
+### `4.0.0` — Weltlage / Vorhersage — *PLAN*
+
+Leitentscheidung und Researchphasen, noch kein Execute. Ausblick = zitierte Lage + Serie + Szenario, kein Orakel. MAJOR `4.0`, weil `3.19`–`3.45` schon logisch in `3.18.0` liegen.
+
+- Docs [`35-next.md`](./35-next.md) · [`sprints/sprint-110.md`](./sprints/sprint-110.md)
+- Inspiration: https://www.instagram.com/reel/DblW9QliG5l/
+- App-Code und Sideload unverändert `3.18.1`
+
 ### `3.18.1` — GUI Premium — *CODE*
 
 Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.

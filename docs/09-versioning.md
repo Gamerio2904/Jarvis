@@ -77,6 +77,7 @@ MAJOR.MINOR.PATCH
 | `3.0.0` | **Jarvis 3.0** — Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
 | `3.18.0` | **Lage + Härten** — Tablet-HUD, Traceroute, Digest; Stufen `3.0.1`–`3.45` mitgeliefert | Sprint 107 |
 | `3.18.1` | **GUI Premium** — Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
+| `4.0.0` | **Weltlage / Vorhersage** — Research zuerst, dann Ausblick; nicht `3.19`/`3.20` (schon logisch in `3.18.0`) | Sprint 110 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -191,6 +192,25 @@ MAJOR.MINOR.PATCH
 | `3.33.0` | Traceroute ehrlich | 107 (in `3.18.0`) |
 | `3.34.0`–`3.37.0` | Telefon-Haus, Notiz, Gespräch | 107 (in `3.18.0`) |
 | `3.38.0`–`3.45.0` | Foto, Stimme, Sensoren, Schach-UI, Slots, Härten | 107 (in `3.18.0`) |
+
+### `4.0` — Weltlage / Vorhersage [`35-next.md`](./35-next.md) **PLAN**
+
+`3.19.0`–`3.45.0` sind logische Stufen **in** `3.18.0`. Nächster Produktsprung ist `4.0`, nicht ein zweites `3.20`.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.0.0` | Leitentscheidung (Docs) | 110 |
+| `4.1.0` | Research: Nachrichten-Ingest | nach 110 |
+| `4.2.0` | Research: Zeitreihen Öl/FX/E10 | nach 110 |
+| `4.3.0` | Research: Prognose-Methode + Recht | nach 110 |
+| `4.4.0` | Research: Architektur/Akku/Konflikte | nach 110 |
+| `4.5.0` | `outlook` Nachfrage + Tags | nach Research |
+| `4.6.0` | Serien in der Antwort | nach Research |
+| `4.7.0` | Kette Meldung → Öl/E10 (Reel) | nach Research |
+| `4.8.0` | Szenarien + Unsicherheit | nach Research |
+| `4.9.0` | Unterbrechen opt-in | nach `4.5` |
+| `4.10.0` | Weitere Märkte nur mit sauberer Quelle | später |
+| `4.11.0`–`4.18.0` | Lage-Kachel, Härten, Quellen, Analog, Akku, Gold, Stimme, Sideload | Verbesserungen |
 
 ### Weitere Beispiele
 

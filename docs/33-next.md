@@ -187,3 +187,5 @@ Kickoff: [`sprint-107.md`](./sprints/sprint-107.md).
 ## Won’t
 
 Embeddings als Primärwahl. 0,5B-Function-Calling. Retell/Twilio/ElevenLabs. 24/7-Fremden-Hotline. Kundenrechnungen. Sales-CRM. Fireflies + Google Meet. Orange-Iron-Man-Klon als Default. Fake-Gauges. ICMP-Exploit, NAT-Jack, Spoofing. Apple CarPlay, iOS, Play Store, Alexa, Tuya-Cloud, Cloud-Kalender-OAuth.
+
+Nächste Reihe: [`35-next.md`](./35-next.md) **PLAN** (`4.0` Weltlage / Vorhersage).
