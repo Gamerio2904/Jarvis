@@ -7,6 +7,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`4.53.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
 
+### `4.66.0` — Körper intern (Hirn, Auge, Hand) — *PLAN*
+
+Lage-Sicht **Körper**: 3D-Schema live und anklickbar (nur Darstellung) plus ehrliche Kacheln. APK-WebView, kein PC nötig zum Ansehen. PC nur für PC-Auge/PC-Hand. Mails/Instagram/24/7-Cloud-Employee und Marvel-Mesh Won’t.
+
+- Docs [`40-next.md`](./40-next.md) · [`sprints/sprint-115.md`](./sprints/sprint-115.md)
+- Inspiration: https://www.instagram.com/reel/DcjTYTiCt6P/
+- App-Code **`4.53.0`**, Sideload noch `3.18.1`
+
 ### `4.53.0` — Zwei Gesichter + Tablet flüssig — *CODE*
 
 Ein Register, zwei Gesichter: Jarvis (Default, Algieba) und Friday (Kore, auf Zuruf). Wake Friday ≠ Freitag. Lage **neben** dem Chat ab 900 px, Composer und Mic bleiben. Uhr 1 s, Wetter 10 min.

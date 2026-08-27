@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`4.53.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export. Weltlage: [`35-next.md`](./35-next.md). Alltagskette: [`36-next.md`](./36-next.md). Stimme/Steuer: [`37-next.md`](./37-next.md). Backup: [`38-next.md`](./38-next.md). Jarvis/Friday: [`39-next.md`](./39-next.md).
+**Jetzt:** Code **`4.53.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export. Offener Plan: Körper intern [`40-next.md`](./40-next.md). Weltlage: [`35-next.md`](./35-next.md). Alltagskette: [`36-next.md`](./36-next.md). Stimme/Steuer: [`37-next.md`](./37-next.md). Backup: [`38-next.md`](./38-next.md). Jarvis/Friday: [`39-next.md`](./39-next.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -46,6 +46,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` CODE** — Film-TTS Algieba, HUD am Steuer |
 | 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` CODE** — Export/Import, Tippfehler Schreib+Sprache |
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
+| 40 | [Körper intern](./40-next.md) | **`4.66` PLAN** — 3D-Schema live/klickbar in der APK; PC nur PC-Organe |
 | — | [APK](./apk.md) | Sideload `3.18.1`; Code `4.53.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -120,5 +121,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 112 | `4.33.0` | **CODE** (Gespräch, Film-Stimme, Reel am Steuer) |
 | 113 | `4.46.0` | **CODE** (Hausstand Export/Import, Autokorrektur) |
 | 114 | `4.53.0` | **CODE** (Jarvis/Friday + Tablet-Lage flüssig) |
+| 115 | `4.66.0` | **PLAN** (Körper intern: 3D-Schema + Kacheln) |
 
-**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Sideload erst nach Hausstand-Export.
+**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Offener Plan: [`40-next.md`](./40-next.md). Sideload erst nach Hausstand-Export.

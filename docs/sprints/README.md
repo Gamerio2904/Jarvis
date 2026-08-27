@@ -118,8 +118,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 112 | [`sprint-112.md`](./sprint-112.md) | `4.33.0` | Gespräch, Film-Stimme, Reel am Steuer | **CODE** |
 | 113 | [`sprint-113.md`](./sprint-113.md) | `4.46.0` | Hausstand Backup + Autokorrektur | **CODE** |
 | 114 | [`sprint-114.md`](./sprint-114.md) | `4.53.0` | Zwei Gesichter Jarvis/Friday + Tablet flüssig | **CODE** |
+| 115 | [`sprint-115.md`](./sprint-115.md) | `4.66.0` | Körper intern: 3D-Schema + Kacheln | **PLAN** |
 
-**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Sideload erst nach Hausstand-Export.
+**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Offener Plan: [`40-next.md`](../40-next.md). Sideload erst nach Hausstand-Export.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
