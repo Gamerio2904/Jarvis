@@ -167,6 +167,16 @@ const EXPECT = {
   'nächste Kneipe': 'poi',
   'bestell ein Taxi': 'taxi',
   'Sprachnachricht an Mama ich bin in 10 Minuten': 'maps',
+  'Todo: Testdebug Milch': 'tools',
+  'Gibt es Unwetter?': 'warn',
+  'Wo ist die ISS?': 'sky',
+  'Körper an': 'hud',
+  'Kugel an': 'hud',
+  Friday: 'face',
+  'Was steht am Freitag an?': 'calendar',
+  'Darf ich im Park grillen?': 'law',
+  'Wo ist Speichern': 'pc',
+  'Lage an': 'hud',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))

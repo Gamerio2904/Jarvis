@@ -932,8 +932,8 @@ function App() {
     stickToBottomRef.current = distance < 96
   }
 
-  async function sendMessage(content: string) {
-    if (!content || busy) return
+  async function sendMessage(content: string): Promise<{ reply: string; tool?: ToolMeta; error?: string }> {
+    if (!content || busy) return { reply: '' }
     setBusy(true)
     setError(null)
     setLastFailed(null)
@@ -948,6 +948,8 @@ function App() {
 
     let conversationId = await ensureConversation()
     let lastReply = ''
+    let lastTool: ToolMeta | undefined
+    let lastError: string | undefined
     try {
       const optimistic: Message = {
         id: `tmp-${Date.now()}`,
@@ -998,6 +1000,7 @@ function App() {
           if (payload.tool && !msg.meta?.tool) {
             msg.meta = { ...(msg.meta || {}), tool: payload.tool }
           }
+          lastTool = (payload.tool as ToolMeta | undefined) || (msg.meta?.tool as ToolMeta | undefined)
           setMessages((prev) => [...prev, msg])
           lastReply = msg.content
           setConversations((prev) => {
@@ -1037,11 +1040,13 @@ function App() {
           maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
+          lastError = detail
           setError(detail)
         },
       })
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Senden fehlgeschlagen'
+      lastError = msg
       setError(msg)
       playUiSound('error', {
         enabled: Boolean(settings?.ui_sounds),
@@ -1057,7 +1062,15 @@ function App() {
       void refreshMemory()
       void refreshSettings()
     }
-    return lastReply
+    return { reply: lastReply, tool: lastTool, error: lastError }
+  }
+
+  async function startDebugChat(title: string) {
+    const created = await createConversation(title)
+    setConversations((prev) => [created, ...prev])
+    setActiveId(created.id)
+    setMessages([])
+    return created.id
   }
 
   async function onEyeFile(file: File) {
@@ -1428,6 +1441,8 @@ function App() {
             busy={busy}
             recent={messages.slice(-4)}
             streaming={streamingText}
+            conversationId={activeId}
+            onHudChange={() => void refreshSettings()}
           />
         ) : null}
         {true ? (
@@ -1687,7 +1702,7 @@ function App() {
           onDeleteMemory={(id) => void onDeleteMemory(id)}
           onClearMemory={() => void onClearMemory()}
           onDebugSend={(text) => sendMessage(text)}
-          debugConversationId={activeId}
+          onDebugStart={(title) => startDebugChat(title)}
           debugBusy={busy}
         />
       ) : null}

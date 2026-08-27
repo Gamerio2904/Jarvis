@@ -10,6 +10,7 @@ import { parseDriveIntent } from './drive-parse.ts'
 import { parseSpotifyIntent } from './spotify-parse.ts'
 import { parseDeviceIntent } from './device-parse.ts'
 import { parsePcIntent } from './pc-parse.ts'
+import { isEyeGround, isPcGround, parseGroundIntent } from './ground-parse.ts'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from './places-parse.ts'
 import { isIdentityAsk, isMemoryRecall, isMemoryWrite, VERGISS, VERGISS_ALL } from './memory-parse.ts'
 import { parseShopIntent } from './shopping-parse.ts'
@@ -77,7 +78,12 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
     parse: (ctx) => (parseDriveIntent(ctx.text, ctx.inDrive) || parseSpotifyIntent(ctx.text) ? score(ctx.text, 0.04) : null),
   },
   { id: 'device', sideEffect: 'device', parse: (ctx) => (parseDeviceIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
-  { id: 'pc', sideEffect: 'device', parse: (ctx) => (parsePcIntent(ctx.text) ? score(ctx.text, 0.05) : null) },
+  {
+    id: 'pc',
+    sideEffect: 'device',
+    parse: (ctx) =>
+      parsePcIntent(ctx.text) || isPcGround(parseGroundIntent(ctx.text)) ? score(ctx.text, 0.05) : null,
+  },
   {
     id: 'maps',
     sideEffect: 'read',
@@ -105,7 +111,12 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'timer', sideEffect: 'write', parse: (ctx) => (parseTimerIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
   { id: 'reminder', sideEffect: 'write', parse: (ctx) => (parseReminderIntent(ctx.text) ? score(ctx.text) : null) },
   { id: 'todo', sideEffect: 'write', parse: (ctx) => (parseToolIntent(ctx.text) ? score(ctx.text) : null) },
-  { id: 'eye', sideEffect: 'read', parse: (ctx) => (parseEyeIntent(ctx.text) ? score(ctx.text) : null) },
+  {
+    id: 'eye',
+    sideEffect: 'read',
+    parse: (ctx) =>
+      parseEyeIntent(ctx.text) || isEyeGround(parseGroundIntent(ctx.text)) ? score(ctx.text) : null,
+  },
   {
     id: 'weather',
     sideEffect: 'read',

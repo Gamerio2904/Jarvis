@@ -88,6 +88,9 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
+import { parseGroundIntent } from '../src/engine/ground-parse.ts'
+import { pinForTag } from '../src/engine/globe-geo.ts'
+import { judgeTurn } from '../src/engine/debug-judge.ts'
 import { parseTraceIntent } from '../src/engine/trace-parse.ts'
 import { parseDigestIntent } from '../src/engine/digest-parse.ts'
 import { parseWarnIntent } from '../src/engine/warn.ts'
@@ -1020,7 +1023,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /4\.53\.0/)
+assert.match(HELP_TEXT, /5\.11\.0/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1405,6 +1408,55 @@ if (parseReminderIntent('Ruf mich in 20 Minuten')?.kind === 'create') {
 assert.equal(parseHudIntent('Wetterstatistik an')?.kind, 'module')
 assert.equal(parseHudIntent('Spotify aus'), null)
 assert.equal(parseHudIntent('Spotify-Kachel aus')?.kind, 'module')
+assert.equal(parseHudIntent('Körper an')?.kind, 'view')
+assert.equal(parseHudIntent('Körper an')?.view, 'body')
+assert.equal(parseHudIntent('Zeig den Körper')?.view, 'body')
+assert.equal(parseHudIntent('Zeig Hirn')?.view, 'body')
+assert.equal(parseHudIntent('Körper aus')?.view, 'tiles')
+assert.equal(parseHudIntent('Kugel an')?.view, 'globe')
+assert.equal(parseHudIntent('Zeig die Erde')?.view, 'globe')
+assert.equal(parseHudIntent('Weltkugel')?.view, 'globe')
+assert.equal(parseHudIntent('Zeig das Hirn')?.kind, 'organ')
+assert.equal(parseHudIntent('Zeig das Hirn')?.id, 'brain')
+assert.equal(pickRoute('Körper an'), 'hud')
+assert.equal(pickRoute('Zeig die Erde'), 'hud')
+assert.equal(pickRoute('Weltkugel'), 'hud')
+assert.equal(pickRoute('Lage an'), 'hud')
+assert.equal(pickRoute('Zeig Spotify'), 'drive')
+assert.equal(pickRoute('Wo ist die ISS?'), 'sky')
+assert.equal(pickRoute('Wo bin ich gerade?'), 'here')
+assert.equal(pickRoute('Wo ist Speichern'), 'pc')
+assert.equal(pickRoute('Wie viele Fenster'), 'pc')
+assert.equal(pickRoute('Was steht auf dem Beleg'), 'eye')
+assert.equal(pickRoute('Einstellungen, dann Datenschutz'), 'pc')
+assert.equal(pickRoute('Friday'), 'face')
+assert.equal(pickRoute('Was steht am Freitag an?'), 'calendar')
+assert.notEqual(pickRoute('Was steht am Freitag an?'), 'face')
+assert.equal(pickRoute('Darf ich im Park grillen?'), 'law')
+assert.equal(parseGroundIntent('Wo ist Speichern')?.kind, 'find')
+assert.equal(parseGroundIntent('Wo ist Speichern')?.click, false)
+assert.equal(parseGroundIntent('klick Start')?.kind, 'find')
+assert.equal(parseGroundIntent('klick Start')?.click, true)
+assert.equal(parseGroundIntent('Wie viele Fenster')?.kind, 'count')
+assert.equal(parseGroundIntent('Zeig Spotify'), null)
+assert.equal(parseGroundIntent('Wo ist die ISS'), null)
+assert.equal(parseGroundIntent('Körper an'), null)
+assert.equal(pinForTag('hormus')?.name, 'Straße von Hormus')
+assert.equal(pinForTag('asien'), null)
+assert.equal(
+  judgeTurn({ label: 't', text: 'x', expect: { tool: 'taxi', confirm: true, mustNot: ['ist bestellt'] } }, 'Taxi ist bestellt.'),
+  'fail',
+)
+assert.equal(
+  judgeTurn({ label: 't', text: 'x', expect: { tool: 'taxi', confirm: true } }, 'Wirklich ein Taxi? Ja oder nein.', {
+    tool_status: 'executed',
+    tool: 'taxi',
+    action: 'ask',
+    label: 'Taxi',
+  }),
+  'pass',
+)
+assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'smalltalk' } }, 'Guten Tag.'), 'unknown')
 assert.equal(parseTraceIntent('Was ist traceroute?')?.kind, 'explain')
 assert.equal(parseTraceIntent('Welche Route nimmt google.de')?.kind, 'run')
 assert.equal(parseDigestIntent('Fass das Gespräch zusammen')?.kind, 'summary')

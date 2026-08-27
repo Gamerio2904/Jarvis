@@ -1,4 +1,6 @@
-# 41 — Lokales Sehen / LocateAnything (`4.76`) **PLAN**
+# 41 — Lokales Sehen / LocateAnything (`4.76`) **CODE** (Protokoll, Vision aus)
+
+PO 2026-08-27: Jarvis soll **sehen, ohne dass das Bild zu Google muss** — und auf dem PC **klicken, wo etwas wirklich liegt**. Inspiration, nicht Kopie:
 
 PO 2026-08-27: Jarvis soll **sehen, ohne dass das Bild zu Google muss** — und auf dem PC **klicken, wo etwas wirklich liegt**. Inspiration, nicht Kopie:
 
@@ -104,17 +106,17 @@ Messen: Fit in 12 GB bei 1280 px, WSL2 vs. nativ, Latenz, Lizenzzeile. **GO/NO-G
 
 | Version | Inhalt | Sprint |
 |---------|--------|--------|
-| **`4.76.0`** | Leitentscheidung | 116 **PLAN** |
-| **`4.77.0`–`4.80.0`** | Research 3060 / Sidecar / Klick / Foto | 116 |
-| **`4.81.0`** | `/v1/ground` + Status | nach GO |
-| **`4.82.0`** | **Reel-Kern:** `doClick` mit Box | |
-| **`4.83.0`** | Box-Liste + Overlay | |
-| **`4.84.0`–`4.86.0`** | Foto zum PC, Crop Food/Nature, Fallback/Gold | |
-| **`4.87.0`–`4.93.0`** | Zeig, Zählen, Tippen, Delta, Beleg, Termin, TV-Foto | 117 |
-| **`4.94.0`–`4.97.0`** | Schreibtisch, Waschlabel, EAN, zwei Schritte | 118 |
-| **`4.98.0`–`4.99.0`** | Gold, Sideload nach Hausstand | |
+| **`4.76.0`** | Leitentscheidung + Parser `ground-parse` + `/v1/ground` Client | 116 **CODE** in `5.11.0` |
+| **`4.77.0`–`4.80.0`** | Research 3060 / Sidecar / Klick / Foto | **offen** — kein Fake-GO |
+| **`4.81.0`** | `/v1/ground` + Status | **CODE** Client; Sidecar fehlt → ehrlich aus |
+| **`4.82.0`** | **Reel-Kern:** `doClick` versucht Box, unsicher = kein Klick | **CODE** Fallback Gemini nur mit Satz |
+| **`4.83.0`** | Overlay ohne Klick (`Wo ist Speichern`) | **CODE** Parser + ehrliche Antwort |
+| **`4.84.0`–`4.86.0`** | Foto zum PC, Crop Food/Nature, Fallback/Gold | Gold **CODE**; Crop nach GO |
+| **`4.87.0`–`4.93.0`** | Zeig, Zählen, Tippen, Beleg, Termin, TV-Foto | 117 Parser **CODE**, Vision braucht Sidecar |
+| **`4.94.0`–`4.97.0`** | Schreibtisch, Waschlabel, EAN, zwei Schritte | 118 Parser **CODE** |
+| **`4.98.0`–`4.99.0`** | Gold, Sideload nach Hausstand | Gold **CODE**, Sideload geplant |
 
-NO-GO in `4.77`: `4.81+` nicht starten.
+NO-GO in `4.77` bleibt: Gewichte nicht in der APK, keine erfundenen Boxen. Ohne JarvisSee sagt der Chat **Sehen am PC ist aus**.
 
 ## Chat (Ziel)
 

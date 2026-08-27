@@ -1,8 +1,8 @@
-# Sprint 116 — Lokales Sehen / LocateAnything **PLAN**
+# Sprint 116 — Lokales Sehen / LocateAnything **CODE** (Protokoll)
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** Parser + ehrliches „Vision aus“; RTX-GO offen |
 | Priorität | nach Körper-Darstellung `4.66`; Sideload nach Hausstand |
 | Ziel-Version | `4.76.0` Leitentscheidung; Research `4.77`–`4.80`; Kern `4.81`–`4.86` in [`41-next.md`](../41-next.md) |
 | Quelle | PO: NVIDIA LocateAnything; PC-Klick privat; nicht mit Körper `4.66` mischen |

@@ -1,8 +1,8 @@
-# Sprint 120 — Debug-Lauf (Kategorien, Sequenz, Export) **PLAN**
+# Sprint 120 — Debug-Lauf (Kategorien, Sequenz, Export) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | vor Körper-Execute, damit Live-Spuren schickbar sind; ohne Sideload |
 | Ziel-Version | `5.11.0` (Research `5.12`–`5.13`, Bau `5.14`+) |
 | Quelle | PO: Debug-Fenster, Mehrfachwahl, neues Gespräch, Download mit Ausführung |

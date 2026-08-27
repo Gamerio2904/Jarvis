@@ -1,4 +1,6 @@
-# 40 — Körper intern: Hirn, Auge, Hand (`4.66`) **PLAN**
+# 40 — Körper intern: Hirn, Auge, Hand (`4.66`) **CODE**
+
+PO 2026-08-27: Reel intern nutzen — Jarvis **Hirn, Hand, Auge** und was dazugehört **sichtbar** machen, zugeschnitten auf *dieses* Jarvis. Nicht kopieren, erweitern. Nachzug: **3D-Modell live und anklickbar** — nur Darstellung, keine neuen Funktionen.
 
 PO 2026-08-27: Reel intern nutzen — Jarvis **Hirn, Hand, Auge** und was dazugehört **sichtbar** machen, zugeschnitten auf *dieses* Jarvis. Nicht kopieren, erweitern. Nachzug: **3D-Modell live und anklickbar** — nur Darstellung, keine neuen Funktionen.
 
@@ -146,15 +148,15 @@ Dieses Dokument. **Done wenn:** APK-ja inkl. 3D-Schema, PC-nur-Organe, Klick≠E
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`4.66.0`** | Leitentscheidung | **PLAN** |
-| **`4.67.0`** | Research Katalog + WebGL-Spike | geplant |
-| **`4.68.0`** | Research Live-Felder | geplant |
-| **`4.69.0`** | Research PC-leer | geplant |
-| **`4.70.0`** | HUD-Intent `körper` + Setting-Sicht | geplant |
-| **`4.71.0`** | 3D-Schema + Kacheln Hirn / Auge / Hand | geplant |
-| **`4.72.0`** | Ohr / Mund / Gedächtnis klickbar | geplant |
-| **`4.73.0`** | PC-Auge / PC-Hand ehrlich | geplant |
-| **`4.74.0`** | Gold, Härten, Reduced-motion-2D | geplant |
+| **`4.66.0`** | Leitentscheidung + Lage-Sicht Körper (Canvas-Schema, Organ-Kachel, kein Tool-Start) | **CODE** in `5.11.0` |
+| **`4.67.0`** | Research Katalog + WebGL-Spike | **CODE** als 2D-Projektion, kein Three.js |
+| **`4.68.0`** | Research Live-Felder | **CODE** (`body-snap.ts`) |
+| **`4.69.0`** | Research PC-leer | **CODE** |
+| **`4.70.0`** | HUD-Intent `Körper an` / `Zeig Hirn` | **CODE** |
+| **`4.71.0`** | Schema + Kacheln Hirn / Auge / Hand | **CODE** |
+| **`4.72.0`** | Ohr / Mund / Gedächtnis klickbar | **CODE** |
+| **`4.73.0`** | PC-Auge / PC-Hand ehrlich | **CODE** |
+| **`4.74.0`** | Gold, Reduced-motion ohne Orbit | **CODE** |
 | **`4.75.0`** | Sideload **nach** Hausstand `4.52` | geplant |
 
 ## Chat / Stimme (Ziel)

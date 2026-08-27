@@ -195,5 +195,43 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'face', 0.25)
   }
 
+  if (
+    /\b(körper|koerper|weltkugel|\bkugel\b)\b/.test(t) ||
+    /^\s*zeig(?:e)?\s+(?:die\s+)?(?:erde|hirn|körper|koerper)\s*$/.test(t)
+  ) {
+    out = drop(out, 'pc')
+    out = drop(out, 'eye')
+    out = drop(out, 'here')
+    out = boost(out, 'hud', 0.3)
+  }
+
+  if (/^\s*wo\s+ist\s+(?:der|die|das)?\s*(?:speichern|start|ok)\b/.test(t) || /^\s*zeig(?:e)?\s+speichern\b/.test(t)) {
+    out = drop(out, 'here')
+    out = drop(out, 'sky')
+    out = drop(out, 'maps')
+    out = boost(out, 'pc', 0.3)
+  }
+
+  if (/\b(wo\s+ist\s+die\s+iss|internationale\s+raumstation)\b/.test(t)) {
+    out = drop(out, 'pc')
+    out = drop(out, 'here')
+    out = boost(out, 'sky', 0.3)
+  }
+
+  if (/\bwie\s+viele\s+(fenster|icons?|schaltflächen)\b/.test(t)) {
+    out = drop(out, 'sensors')
+    out = boost(out, 'pc', 0.25)
+  }
+
+  if (
+    /\b(was\s+steht\s+auf\s+dem\s+beleg|beleg\s+lesen|termin\s+aus\s+dem\s+zettel|waschlabel|ean\s+auf\s+dem\s+foto|wo\s+liegt\s+)/.test(
+      t,
+    )
+  ) {
+    out = drop(out, 'pc')
+    out = drop(out, 'haushalt')
+    out = boost(out, 'eye', 0.25)
+  }
+
   return out
 }

@@ -85,7 +85,7 @@ MAJOR.MINOR.PATCH
 | `4.53.0` | **Zwei Gesichter + Tablet** — Jarvis/Friday Stimme; Lage nicht statt Chat | Sprint 114 |
 | `4.66.0` | **Körper intern** — Hirn/Auge/Hand in der Lage; APK, PC nur PC-Organe | Sprint 115 |
 | `4.76.0` | **Lokales Sehen** — LocateAnything am PC (GUI-Grounding), nicht `4.66` Körper | Sprint 116 |
-| `5.0.0` | **Weltkugel** — Lage-Sicht Erde (PLAN anderer Branch, PR #58); Nummern `5.0`–`5.10` | Sprint 119 |
+| `5.0.0` | **Weltkugel** — Lage-Sicht Erde; Nummern `5.0`–`5.10` | Sprint 119 |
 | `5.11.0` | **Debug-Lauf** — Mehrfach-Kategorien, neues Gespräch, Export mit Verdict | Sprint 120 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
@@ -168,6 +168,10 @@ MAJOR.MINOR.PATCH
 | `4.33.0` | Film-TTS Algieba, HUD/Notify am Steuer, Watchdog | Sprint 112 |
 | `4.46.0` | Hausstand-Export/Import, Autokorrektur Schreib+Sprache | Sprint 113 |
 | `4.53.0` | Jarvis/Friday-Gesichter, Lage neben dem Chat | Sprint 114 |
+| `4.66.0` | Körper intern in der Lage (gebündelt in `5.11.0`) | Sprint 115 |
+| `4.76.0` | LocateAnything-Parser, Vision ehrlich aus (in `5.11.0`) | Sprint 116 |
+| `5.0.0` | Weltkugel in der Lage (gebündelt in `5.11.0`) | Sprint 119 |
+| `5.11.0` | Debug-Lauf + Körper + Kugel + Sehen-Parser | Sprint 120 |
 
 ### `3.0` — Intelligenz + Welt [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) **CODE**
 

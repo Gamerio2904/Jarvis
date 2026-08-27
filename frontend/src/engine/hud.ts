@@ -10,13 +10,16 @@ import type { ToolMeta } from './tools.ts'
 import {
   HUD_CATALOG,
   HUD_DEFAULT_ON,
+  organLabel,
   parseHudIntent,
+  type BodyOrgan,
   type HudId,
   type HudIntent,
+  type HudView,
 } from './hud-parse.ts'
 
-export { HUD_CATALOG, parseHudIntent }
-export type { HudId, HudIntent }
+export { HUD_CATALOG, parseHudIntent, organLabel }
+export type { HudId, HudIntent, HudView, BodyOrgan }
 
 export function loadHudModules(): HudId[] {
   try {
@@ -60,6 +63,25 @@ export async function handleHud(
     )
     const line = HUD_CATALOG.map((c) => `${c.label}${on.includes(c.id) ? ' an' : ' aus'}`).join(', ')
     return pack(`Kacheln: ${line}.`)
+  }
+  if (intent.kind === 'view') {
+    saveSettings({
+      hud_view: intent.view,
+      hud_force: true,
+      hud_hidden: false,
+    })
+    if (intent.view === 'body') return pack('Körper an. Schema in der Lage, Chat bleibt. Antippen startet kein Tool.')
+    if (intent.view === 'globe') return pack('Kugel an. Erde in der Lage, Chat bleibt. Kein Live-Satellitenvideo.')
+    return pack('Kacheln wieder. Chat bleibt.')
+  }
+  if (intent.kind === 'organ') {
+    saveSettings({
+      hud_view: 'body',
+      hud_force: true,
+      hud_hidden: false,
+      last_body_organ: intent.id,
+    })
+    return pack(`${organLabel(intent.id)} in der Lage. Kein Tool gestartet.`)
   }
   const next = setHudModule(intent.id, intent.on)
   const label = HUD_CATALOG.find((c) => c.id === intent.id)?.label || intent.id

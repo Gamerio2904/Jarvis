@@ -22,6 +22,7 @@ import { parseDeviceIntent } from './device-parse'
 import { handleDevice } from './device'
 import { parsePcIntent } from './pc-parse'
 import { handlePc } from './pc'
+import { isPcGround, isEyeGround, parseGroundIntent } from './ground-parse'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from './places-parse'
 import { handlePlaces } from './places'
 import { isIdentityAsk, isMemoryRecall, isMemoryWrite, VERGISS, VERGISS_ALL } from './memory-parse'
@@ -239,7 +240,8 @@ function makeCatalog(): Capability[] {
       id: 'pc',
       label: 'PC',
       sideEffect: 'device',
-      parse: (ctx) => (parsePcIntent(ctx.text) ? score(ctx.text, 0.05) : null),
+      parse: (ctx) =>
+        parsePcIntent(ctx.text) || isPcGround(parseGroundIntent(ctx.text)) ? score(ctx.text, 0.05) : null,
       execute: async (ctx) => fromHandler('pc', await handlePc(ctx.conversationId, ctx.text)),
     },
     {
@@ -346,8 +348,9 @@ function makeCatalog(): Capability[] {
       id: 'eye',
       label: 'Auge',
       sideEffect: 'read',
-      parse: (ctx) => (parseEyeIntent(ctx.text) ? score(ctx.text) : null),
-      execute: async () => fromHandler('eye', await handleEyeAsk()),
+      parse: (ctx) =>
+        parseEyeIntent(ctx.text) || isEyeGround(parseGroundIntent(ctx.text)) ? score(ctx.text) : null,
+      execute: async (ctx) => fromHandler('eye', await handleEyeAsk(ctx.text)),
     },
     {
       id: 'weather',

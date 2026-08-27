@@ -158,8 +158,8 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
-  onDebugSend: (text: string) => Promise<string | void>
-  debugConversationId: string | null
+  onDebugSend: (text: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
+  onDebugStart: (title: string) => Promise<string>
   debugBusy: boolean
 }
 
@@ -324,6 +324,25 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   onChange={(e) => void p.patchSetting({ hud_accent: e.target.checked ? 'amber' : 'green' })}
                 />
                 <span>Akzent orange</span>
+              </label>
+              <label className="settings-inline">
+                <span>Sicht</span>
+                <select
+                  value={s?.hud_view || 'tiles'}
+                  disabled={busy}
+                  onChange={(e) => {
+                    const hud_view = e.target.value as 'tiles' | 'body' | 'globe'
+                    void p.patchSetting({
+                      hud_view,
+                      hud_force: hud_view === 'tiles' ? Boolean(s?.hud_force) : true,
+                      hud_hidden: hud_view === 'tiles' ? Boolean(s?.hud_hidden) : false,
+                    })
+                  }}
+                >
+                  <option value="tiles">Kacheln</option>
+                  <option value="body">Körper</option>
+                  <option value="globe">Kugel</option>
+                </select>
               </label>
               <p className="settings-hint">Module. Aus = Kachel weg.</p>
               {HUD_CATALOG.map((m) => (
@@ -1799,7 +1818,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
           {p.topic === 'debug' ? (
             <DebugPanel
               onSend={p.onDebugSend}
-              conversationId={p.debugConversationId}
+              onStartChat={p.onDebugStart}
               busy={p.debugBusy}
             />
           ) : null}

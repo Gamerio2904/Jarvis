@@ -118,14 +118,14 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 112 | [`sprint-112.md`](./sprint-112.md) | `4.33.0` | Gespräch, Film-Stimme, Reel am Steuer | **CODE** |
 | 113 | [`sprint-113.md`](./sprint-113.md) | `4.46.0` | Hausstand Backup + Autokorrektur | **CODE** |
 | 114 | [`sprint-114.md`](./sprint-114.md) | `4.53.0` | Zwei Gesichter Jarvis/Friday + Tablet flüssig | **CODE** |
-| 115 | [`sprint-115.md`](./sprint-115.md) | `4.66.0` | Körper intern: 3D-Schema + Kacheln | **PLAN** |
-| 116 | [`sprint-116.md`](./sprint-116.md) | `4.76.0` | Lokales Sehen / LocateAnything am PC | **PLAN** |
-| 117 | [`sprint-117.md`](./sprint-117.md) | `4.87.0` | Sehen Alltag (Zeig, Beleg, TV-Foto) | **PLAN** |
-| 118 | [`sprint-118.md`](./sprint-118.md) | `4.94.0` | Sehen Schreibtisch, Wasch, EAN, zwei Schritte | **PLAN** |
-| 119 | PR [#58](https://github.com/Gamerio2904/Jarvis/pull/58) | `5.0.0` | Weltkugel in der Lage | **PLAN** (anderer Branch) |
-| 120 | [`sprint-120.md`](./sprint-120.md) | `5.11.0` | Debug-Lauf: Kategorien, Sequenz, Export | **PLAN** |
+| 115 | [`sprint-115.md`](./sprint-115.md) | `4.66.0` | Körper intern: 3D-Schema + Kacheln | **CODE** (in `5.11.0`) |
+| 116 | [`sprint-116.md`](./sprint-116.md) | `4.76.0` | Lokales Sehen / LocateAnything am PC | **CODE** Parser, Vision ehrlich aus |
+| 117 | [`sprint-117.md`](./sprint-117.md) | `4.87.0` | Sehen Alltag (Zeig, Beleg, TV-Foto) | **CODE** Parser |
+| 118 | [`sprint-118.md`](./sprint-118.md) | `4.94.0` | Sehen Schreibtisch, Wasch, EAN, zwei Schritte | **CODE** Parser |
+| 119 | [`sprint-119.md`](./sprint-119.md) | `5.0.0` | Weltkugel in der Lage | **CODE** (in `5.11.0`) |
+| 120 | [`sprint-120.md`](./sprint-120.md) | `5.11.0` | Debug-Lauf: Kategorien, Sequenz, Export | **CODE** |
 
-**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Pläne: [`40-next.md`](../40-next.md), [`41-next.md`](../41-next.md), [`44-next.md`](../44-next.md). Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`5.11.0`**. Sideload `3.18.1`. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

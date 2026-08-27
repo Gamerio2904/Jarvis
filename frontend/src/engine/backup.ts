@@ -49,6 +49,8 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_step_when',
   'last_step_utterance',
   'last_medium',
+  'last_eye_line',
+  'last_ground_json',
 ]
 
 const KEY_FIELDS: Array<keyof Settings> = [

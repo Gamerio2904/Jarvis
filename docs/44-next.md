@@ -1,4 +1,4 @@
-# 44 — Debug-Lauf: Kategorien, Sequenz, Export (`5.11`) **PLAN**
+# 44 — Debug-Lauf: Kategorien, Sequenz, Export (`5.11`) **CODE**
 
 PO 2026-08-27: Debug-Button, Fenster mit **allen** eingebauten Themen als Klickboxen, vorbereitete Prompts pro Gruppe, Start → **neues Gespräch**, Prompt für Prompt warten, Download mit Prompt/Antwort **und** ob der Befehl sauber gelaufen ist — zum Schicken an die Planung. Hintergrund wenn möglich, sonst Chat/Settings offen.
 
@@ -162,13 +162,13 @@ Dieses Dokument. **Done wenn:** Mehrfachwahl, neues Gespräch, Expect+Export, Wr
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`5.11.0`** | Leitentscheidung | **PLAN** |
-| **`5.12.0`** | Research Hintergrund / Writes | geplant |
-| **`5.13.0`** | Research Export + eine Prompt-Quelle | geplant |
-| **`5.14.0`** | UI: Boxen, Alle/keine, neues Gespräch, Sequenz, Stop | geplant |
-| **`5.15.0`** | Neue Gruppen + `expect` an Altgruppen | geplant |
-| **`5.16.0`** | JSON+TXT Download, Verdict | geplant |
-| **`5.17.0`** | WakeLock oder Service laut `5.12`; Gold | geplant |
+| **`5.11.0`** | Leitentscheidung + Boxen, neues Gespräch, Expect, JSON+TXT | **CODE** |
+| **`5.12.0`** | Research Hintergrund / Writes | v1: App offen lassen **CODE**; Service später |
+| **`5.13.0`** | Research Export + eine Prompt-Quelle | **CODE** (`test-copy.ts` + `test-prompts.ts`) |
+| **`5.14.0`** | UI: Boxen, Alle/keine, Sequenz, Stop | **CODE** |
+| **`5.15.0`** | Neue Gruppen + `expect` | **CODE** |
+| **`5.16.0`** | JSON+TXT Download, Verdict | **CODE** |
+| **`5.17.0`** | WakeLock oder Service laut `5.12`; Gold | WakeLock-Versuch **CODE**; Service geplant |
 | **`5.18.0`** | Sideload nach Hausstand | geplant |
 
 ## Chat / Settings (Ziel)

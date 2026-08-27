@@ -22,6 +22,21 @@ export type HudId = (typeof HUD_CATALOG)[number]['id']
 
 export const HUD_DEFAULT_ON: HudId[] = ['weather', 'device', 'brief', 'chat']
 
+export type HudView = 'tiles' | 'body' | 'globe'
+
+export const BODY_ORGANS = [
+  'brain',
+  'eye',
+  'hand',
+  'ear',
+  'mouth',
+  'memory',
+  'pc_eye',
+  'pc_hand',
+] as const
+
+export type BodyOrgan = (typeof BODY_ORGANS)[number]
+
 const ALIAS: Record<string, HudId> = {
   wetterstatistik: 'weather',
   wetterstats: 'weather',
@@ -57,11 +72,29 @@ const ALIAS: Record<string, HudId> = {
   ausblick: 'world',
 }
 
+const ORGAN_ALIAS: Record<string, BodyOrgan> = {
+  hirn: 'brain',
+  gehirn: 'brain',
+  auge: 'eye',
+  hand: 'hand',
+  ohr: 'ear',
+  mund: 'mouth',
+  stimme: 'mouth',
+  gedächtnis: 'memory',
+  gedaechtnis: 'memory',
+  'pc-auge': 'pc_eye',
+  pcauge: 'pc_eye',
+  'pc-hand': 'pc_hand',
+  pchand: 'pc_hand',
+}
+
 export type HudIntent =
   | { kind: 'lage'; on: boolean }
   | { kind: 'accent'; amber: boolean }
   | { kind: 'module'; id: HudId; on: boolean }
   | { kind: 'list' }
+  | { kind: 'view'; view: HudView }
+  | { kind: 'organ'; id: BodyOrgan }
 
 export function parseHudIntent(text: string): HudIntent | null {
   const t = normalizeUtterance(text.trim())
@@ -78,6 +111,35 @@ export function parseHudIntent(text: string): HudIntent | null {
     return { kind: 'accent', amber: /an/i.test(t) }
   }
   if (/^\s*(?:module|kacheln|lage[- ]?kacheln)\s*$/i.test(t)) return { kind: 'list' }
+
+  if (
+    /^\s*(?:körper|koerper)\s+(an|ein|auf|zeig(?:e)?)\s*$/i.test(t) ||
+    /^\s*zeig(?:e)?\s+(?:den\s+|mir\s+)?(?:den\s+)?körper\s*$/i.test(t) ||
+    /^\s*zeig(?:e)?\s+hirn\s*$/i.test(t)
+  ) {
+    return { kind: 'view', view: 'body' }
+  }
+  if (/^\s*(?:körper|koerper)\s+(aus|weg|zu)\s*$/i.test(t)) {
+    return { kind: 'view', view: 'tiles' }
+  }
+  if (
+    /^\s*(?:kugel|weltkugel|erde)\s+(an|ein|auf)\s*$/i.test(t) ||
+    /^\s*zeig(?:e)?\s+(?:die\s+)?(?:erde|kugel|weltkugel)\s*$/i.test(t) ||
+    /^\s*weltkugel\s*$/i.test(t)
+  ) {
+    return { kind: 'view', view: 'globe' }
+  }
+  if (/^\s*(?:kugel|weltkugel|erde)\s+(aus|weg|zu)\s*$/i.test(t)) {
+    return { kind: 'view', view: 'tiles' }
+  }
+
+  const organ = /^\s*zeig(?:e)?\s+(?:das\s+|die\s+|den\s+)?(hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|gedaechtnis|pc-auge|pc-hand)\s*$/i.exec(
+    t,
+  )
+  if (organ) {
+    const id = ORGAN_ALIAS[organ[1].toLowerCase()]
+    if (id) return { kind: 'organ', id }
+  }
 
   const mod =
     /^(?:(?:modul|kachel)\s+)?(wetterstatistik|wetterstats|wetterkurve|statistik|spotify|musik|gerät|geraet|akku|uhr|tageslage|kalender|chat|steckdosen|steckdose|fernseher|tv|nachrichten|restweg|unwetter|dwd|kurs|dollar|sport|bundesliga|schach|traceroute|hops|route|welt|weltlage|ausblick)(?:[- ]kachel)?\s+(an|ein|aus|weg)\s*$/i.exec(
@@ -98,4 +160,18 @@ export function parseHudIntent(text: string): HudIntent | null {
     return { kind: 'module', id: 'weather', on }
   }
   return null
+}
+
+export function organLabel(id: BodyOrgan): string {
+  const map: Record<BodyOrgan, string> = {
+    brain: 'Hirn',
+    eye: 'Auge',
+    hand: 'Hand',
+    ear: 'Ohr',
+    mouth: 'Mund',
+    memory: 'Gedächtnis',
+    pc_eye: 'PC-Auge',
+    pc_hand: 'PC-Hand',
+  }
+  return map[id]
 }

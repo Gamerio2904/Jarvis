@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`4.53.0`**. Sideload **`3.18.1`**. Offene Pläne: Körper [`40-next.md`](./40-next.md) · LocateAnything [`41-next.md`](./41-next.md) · Debug-Lauf [`44-next.md`](./44-next.md). Index: [`42-planned.md`](./42-planned.md). CODE: [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md). Nächster Sideload erst nach Hausstand-Export.
+**Jetzt:** Code **`5.11.0`**. Sideload **`3.18.1`**. CODE: Körper [`40-next.md`](./40-next.md) · LocateAnything-Parser [`41-next.md`](./41-next.md) · Kugel [`43-next.md`](./43-next.md) · Debug-Lauf [`44-next.md`](./44-next.md). Index: [`42-planned.md`](./42-planned.md). Nächster Sideload erst nach Hausstand-Export.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -124,11 +124,11 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 112 | `4.33.0` | **CODE** (Gespräch, Film-Stimme, Reel am Steuer) |
 | 113 | `4.46.0` | **CODE** (Hausstand Export/Import, Autokorrektur) |
 | 114 | `4.53.0` | **CODE** (Jarvis/Friday + Tablet-Lage flüssig) |
-| 115 | `4.66.0` | **PLAN** (Körper intern: 3D-Schema + Kacheln) |
-| 116 | `4.76.0` | **PLAN** (LocateAnything am PC) |
-| 117 | `4.87.0` | **PLAN** (Sehen Alltag: Zeig, Beleg, TV-Foto) |
-| 118 | `4.94.0` | **PLAN** (Sehen Schreibtisch, Wasch, EAN, zwei Schritte) |
-| 119 | `5.0.0` | **PLAN** (Weltkugel, PR #58) |
-| 120 | `5.11.0` | **PLAN** (Debug-Lauf: Kategorien, Sequenz, Export) |
+| 115 | `4.66.0` | **CODE** (Körper intern, in `5.11.0`) |
+| 116 | `4.76.0` | **CODE** (LocateAnything-Parser, Vision ehrlich aus) |
+| 117 | `4.87.0` | **CODE** (Sehen Alltag Parser) |
+| 118 | `4.94.0` | **CODE** (Schreibtisch/Wasch/EAN/zwei Schritte Parser) |
+| 119 | `5.0.0` | **CODE** (Weltkugel, in `5.11.0`) |
+| 120 | `5.11.0` | **CODE** (Debug-Lauf: Kategorien, Sequenz, Export) |
 
-**Aktuell:** Code **`4.53.0`**. Sideload `3.18.1`. Pläne: [`40-next.md`](./40-next.md), [`41-next.md`](./41-next.md), [`44-next.md`](./44-next.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`5.11.0`**. Sideload `3.18.1`. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

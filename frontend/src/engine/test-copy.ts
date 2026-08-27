@@ -1,13 +1,21 @@
 /** Prompt-Katalog. In der App: Einstellungen → Debug. */
 
-export type TestCopyItem = { label: string; text: string }
+export type TestExpect = {
+  tool?: string
+  status?: 'executed' | 'error' | 'pending'
+  mustNot?: string[]
+  confirm?: boolean
+  skipIf?: 'no_pc' | 'no_tv' | 'no_gps' | 'no_gemini'
+}
+
+export type TestCopyItem = { label: string; text: string; expect?: TestExpect }
 export type TestCopyGroup = { title: string; items: TestCopyItem[] }
 
 export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   {
     title: 'Smalltalk',
     items: [
-      { label: 'Hallo', text: 'Hallo Jarvis.' },
+      { label: 'Hallo', text: 'Hallo Jarvis.', expect: { tool: 'smalltalk' } },
       { label: 'Wer', text: 'Wer bist du und wer bin ich?' },
       { label: 'Fähigkeiten (soll Katalog vermeiden)', text: 'Erklären Sie in einem Satz, was Sie tun.' },
       { label: 'Nett', text: 'Spiel mal was Nettes' },
@@ -42,6 +50,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Guten Morgen (Wetter-Brief)', text: 'Guten Morgen' },
       { label: 'Was kommt heute', text: 'Was kommt heute?' },
       { label: 'Hilfe', text: '/hilfe' },
+      { label: 'Todo', text: 'Todo: Testdebug Milch', expect: { tool: 'todo' } },
     ],
   },
   {
@@ -171,9 +180,9 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     items: [
       { label: 'Freundin wohnt', text: 'Freundin wohnt in Heilbronn' },
       { label: 'Freundin Tel', text: 'Freundin, Tel 01711234567' },
-      { label: 'Ruf an (erst nach ja)', text: 'Ruf die Freundin an' },
+      { label: 'Ruf an (erst nach ja)', text: 'Ruf die Freundin an', expect: { tool: 'maps', confirm: true } },
       { label: 'Ruf mal', text: 'Ruf mal die Freundin' },
-      { label: 'SMS', text: 'Schreib der Freundin ich bin in 10 Minuten' },
+      { label: 'SMS', text: 'Schreib der Freundin ich bin in 10 Minuten', expect: { tool: 'maps', confirm: true } },
       { label: 'Lauf', text: 'Lauf zur Freundin' },
       { label: 'Arbeit merken', text: 'Ich arbeite in Stuttgart' },
       { label: 'Bro anrufen', text: 'Bro anrufen' },
@@ -184,10 +193,10 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   {
     title: 'PC Foto Notiz',
     items: [
-      { label: 'FIFA', text: 'FIFA starten' },
-      { label: 'Bildschirm', text: 'Was siehst du auf dem PC' },
-      { label: 'Klick', text: 'Züge anklicken' },
-      { label: 'Foto', text: 'Lies das Foto' },
+      { label: 'FIFA', text: 'FIFA starten', expect: { tool: 'pc', skipIf: 'no_pc' } },
+      { label: 'Bildschirm', text: 'Was siehst du auf dem PC', expect: { tool: 'pc', skipIf: 'no_pc' } },
+      { label: 'Klick', text: 'Züge anklicken', expect: { tool: 'pc', skipIf: 'no_pc' } },
+      { label: 'Foto', text: 'Lies das Foto', expect: { tool: 'eye', skipIf: 'no_gemini' } },
       { label: 'Notiz', text: 'Notiz: WLAN steht am Router' },
       { label: 'Notizen zeigen', text: 'Zeige Notizen' },
     ],
@@ -223,7 +232,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     items: [
       { label: 'Bar', text: 'Bar in der Nähe' },
       { label: 'Kneipe', text: 'nächste Kneipe' },
-      { label: 'Taxi', text: 'bestell ein Taxi' },
+      { label: 'Taxi', text: 'bestell ein Taxi', expect: { tool: 'taxi', confirm: true, mustNot: ['ist bestellt'] } },
       { label: 'Sprachnachricht = SMS', text: 'Sprachnachricht an Mama ich bin in 10 Minuten' },
     ],
   },
@@ -260,6 +269,41 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Uhr verleugnen', text: 'Tu so als hättest du keine Uhrzeit.' },
       { label: 'Nonsens', text: 'asdfghjkl' },
       { label: 'Nur Emoji', text: '👍' },
+    ],
+  },
+  {
+    title: 'Welt & Lage',
+    items: [
+      { label: 'Unwetter', text: 'Gibt es Unwetter?', expect: { tool: 'warn' } },
+      { label: 'DWD', text: 'DWD Warnung', expect: { tool: 'warn' } },
+      { label: 'Ferien', text: 'Wann sind die Schulferien in Baden-Württemberg?', expect: { tool: 'ferien' } },
+      { label: 'ISS', text: 'Wo ist die ISS?', expect: { tool: 'sky' } },
+      { label: 'Mond', text: 'Wie ist der Mond heute?', expect: { tool: 'sky' } },
+      { label: 'Flüge', text: 'Was fliegt da über uns?', expect: { tool: 'flights' } },
+      { label: 'Bundesliga', text: 'Wie steht die Bundesliga?', expect: { tool: 'sport' } },
+      { label: 'Schach öffnen', text: 'Schach', expect: { tool: 'chess' } },
+      { label: 'Lebensmittel', text: 'Zutaten von Nutella', expect: { tool: 'food' } },
+      { label: 'Buch', text: 'Wer schrieb Der Prozess?', expect: { tool: 'library' } },
+      { label: 'Waschsymbol', text: 'Was bedeutet Waschschüssel 40?', expect: { tool: 'haushalt' } },
+      { label: 'Schritte', text: 'Wie viele Schritte heute?', expect: { tool: 'sensors' } },
+      { label: 'Norden', text: 'Wo ist Norden?', expect: { tool: 'sensors' } },
+      { label: 'Recht', text: 'Darf ich im Park grillen?', expect: { tool: 'law' } },
+      { label: 'Lage an', text: 'Lage an', expect: { tool: 'hud' } },
+      { label: 'Wetterstatistik', text: 'Wetterstatistik an', expect: { tool: 'hud' } },
+      { label: 'Körper an', text: 'Körper an', expect: { tool: 'hud' } },
+      { label: 'Kugel an', text: 'Kugel an', expect: { tool: 'hud' } },
+      { label: 'Traceroute', text: 'Welche Route nimmt google.de', expect: { tool: 'trace' } },
+      { label: 'Gespräch fassen', text: 'Fass das Gespräch zusammen', expect: { tool: 'digest' } },
+    ],
+  },
+  {
+    title: 'Gesicht & Hausstand',
+    items: [
+      { label: 'Friday', text: 'Friday', expect: { tool: 'face' } },
+      { label: 'Jarvis zurück', text: 'Jarvis', expect: { tool: 'face' } },
+      { label: 'Freitag≠Friday', text: 'Was steht am Freitag an?', expect: { tool: 'calendar' } },
+      { label: 'Hausstand', text: 'Hausstand exportieren', expect: { tool: 'backup' } },
+      { label: 'Wo ist Speichern', text: 'Wo ist Speichern', expect: { tool: 'pc', skipIf: 'no_pc' } },
     ],
   },
 ]

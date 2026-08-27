@@ -1,23 +1,23 @@
-# 42 — Alles geplant (Stand Code `4.53.0`)
+# 42 — Alles geplant (Stand Code `5.11.0`)
 
-Eine Liste, die **zum Code und zu den offenen Plänen passt**. Kein Execute in diesem Dokument.
+Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`4.53.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export (Export ist CODE, APK noch alt).
+**Live:** App-Code **`5.11.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export (Export ist CODE, APK noch alt).
 
 Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
 
 ## Pull-Reihenfolge
 
 1. Sideload mit Hausstand (Export ist CODE `4.46`, APK noch `3.18.1`)
-2. Debug-Lauf `5.11` (PLAN) — Live-Spuren schickbar, baut auf Debug `3.19`
-3. Körper intern `4.66` (PLAN, Darstellung)
-4. Weltkugel `5.0` (PLAN, PR #58, Lage-Sicht)
-5. Lokales Sehen `4.76` (PLAN, LocateAnything am PC) — nach `4.77` GO
+2. Debug-Lauf `5.11` — **CODE**
+3. Körper intern `4.66` — **CODE** (Lage-Sicht)
+4. Weltkugel `5.0` — **CODE** (Lage-Sicht)
+5. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
 6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
 ---
 
-## CODE auf main (`4.53.0`)
+## CODE auf diesem Stand (`5.11.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -26,30 +26,26 @@ Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
 | Stimme/Steuer | `4.33` | TTS Algieba, HUD-Interrupt, Watchdog opt-in |
 | Hausstand | `4.46` | Export/Import JSON, `repairSpeech` / `pickHeard` |
 | Friday + Tablet | `4.53` | Face Jarvis/Friday, Lage **neben** Chat |
+| Körper | `4.66` | Lage-Sicht Körper, Canvas-Schema, Organ-Kachel, kein Tool-Start |
+| Sehen-Parser | `4.76`–`4.97` | `ground-parse`, `/v1/ground` Client, zwei Confirms; **keine** 3B-Gewichte |
+| Weltkugel | `5.0` | Lage-Sicht Kugel, Terminator, Pins ISS/GPS/DWD/outlook-Lexikon |
+| Debug-Lauf | `5.11` | Klickboxen, neues Gespräch, JSON+TXT mit Verdict |
 | Davor | `3.19`–`3.0` / `1.x` | Kalender-Fenster, Register, Auge=Gemini, PC-Screenshot |
 
-## PLAN
+## Offen
 
-### Körper `4.66`–`4.75` · Sprint 115 · [`40-next.md`](./40-next.md)
+### LocateAnything Sidecar (`4.77`)
 
-3D-Schema in der APK, Organe anklicken = Kachel, kein Tool. PC nur PC-Auge/PC-Hand-Zustand.
+RTX 3060 GO/NO-GO. JarvisSee localhost. Ohne Sidecar: ehrlicher Satz, keine Fake-Boxen.
 
-### Lokales Sehen `4.76`–`4.99` · Sprints 116–118 · [`41-next.md`](./41-next.md)
+### GIBS (`5.9`)
 
-NVIDIA LocateAnything-3B am PC. Erst Spike 3060. Dann Klick mit Box, Overlay, Beleg, TV-Foto, Schreibtisch, EAN.
+Satellitenfoto mit Zeitstempel, Default aus.
 
-Konflikt vermeiden: **`4.66` = Körper, `4.76` = LocateAnything.**
+### Debug-Hintergrund (`5.12` Service)
 
-### Weltkugel `5.0`–`5.10` · Sprint 119 · PR [#58](https://github.com/Gamerio2904/Jarvis/pull/58)
-
-3D-Erde in der Lage. Nummern nicht für Debug verwenden.
-
-### Debug-Lauf `5.11`–`5.18` · Sprint 120 · [`44-next.md`](./44-next.md)
-
-Settings-Debug aus `3.19` erweitern: Klickboxen, neues Gespräch, Prompts inkl. Welt/Face, JSON-Export mit Soll/Ist. Kein Auto-Ja.
-
-Konflikt vermeiden: **`5.11` = Debug, `5.0` = Kugel.**
+v1: App offen lassen. Foreground-Service nach Spike.
 
 ## Won’t (übergreifend)
 
-Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Debug-Cloud, Auto-Ja im Prompt-Lauf.
+Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Debug-Cloud, Auto-Ja im Prompt-Lauf, Live-Satellitenvideo, Überwachung.

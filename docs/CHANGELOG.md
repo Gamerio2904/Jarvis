@@ -5,14 +5,23 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`4.53.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
+App-Version im Code: **`5.11.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
 
-### `5.11.0` — Debug-Lauf — *PLAN*
+### `5.11.0` — Körper, Kugel, Debug-Lauf, Sehen-Parser — *CODE*
 
-Settings → Debug: mehrere Kategorien per Klickbox, neues Gespräch, Prompt nach Prompt, JSON+TXT mit Route/`tool_status`/Verdict. Baut auf `3.19`. Kein Auto-Ja. `5.0`–`5.10` bleiben Weltkugel (PR #58).
+Bündelt Sprints 115–120 in einer App-Version. Sideload bleibt `3.18.1`.
+
+- **Körper:** Lage-Sicht Schema (Canvas), Organ antippen = Kachel, kein Tool. `Körper an` / `Zeig Hirn`.
+- **Kugel:** Lage-Sicht Erde, Terminator, Pins aus GPS/ISS/DWD/outlook-Lexikon. Kein Live-Satellitenvideo.
+- **Debug:** Klickboxen, neues Gespräch, Writes-Warnung, Stop, JSON+TXT mit Verdict. Kein Auto-Ja. App offen lassen.
+- **Sehen:** Parser für Zeig/Zählen/Tippen/Beleg/zwei Schritte. `/v1/ground` Client. Ohne JarvisSee: ehrlich aus, keine Fake-Boxen.
+
+### `5.11.0` — Debug-Lauf — *war PLAN*
+
+Settings → Debug: mehrere Kategorien per Klickbox, neues Gespräch, Prompt nach Prompt, JSON+TXT mit Route/`tool_status`/Verdict. Baut auf `3.19`. Kein Auto-Ja.
 
 - Docs [`44-next.md`](./44-next.md) · [`sprints/sprint-120.md`](./sprints/sprint-120.md)
-- App-Code **`4.53.0`**, Sideload noch `3.18.1`
+- Sideload noch `3.18.1`
 
 ### `4.76.0` — Lokales Sehen / LocateAnything — *PLAN*
 
