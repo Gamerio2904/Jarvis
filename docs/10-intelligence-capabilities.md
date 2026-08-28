@@ -3,9 +3,9 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**. Tools und Speicher bleiben on-device. Smalltalk-Hirn ist Gemini (Key), nicht das 0,5B.
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
-> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Parser wählen Tools. Gemini formuliert. 0,5B wählt keine Tools.
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.60.0`**. Parser wählen Tools. Gemini formuliert. 0,5B wählt keine Tools.
 
-### Live `6.60.0` (Code)
+### Live `6.90.0` (Code)
 
 **Hirn:** Gemini zuerst, Groq Backup, 0,5B zuletzt [`16-gemini.md`](./16-gemini.md) · [`45-next.md`](./45-next.md). Overlay Gemini zuerst [`47-next.md`](./47-next.md).  
 **Parser `6.51`:** Wont/Help/HUD-Skip [`46-next.md`](./46-next.md).  

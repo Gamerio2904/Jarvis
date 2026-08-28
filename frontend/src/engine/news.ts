@@ -90,7 +90,7 @@ async function tagesschauHome(): Promise<{ hits: string[]; sources: ResearchSour
   }
 }
 
-async function tagesschauSearch(place: string): Promise<{ hits: string[]; sources: ResearchSource[] }> {
+export async function tagesschauSearch(place: string): Promise<{ hits: string[]; sources: ResearchSource[] }> {
   try {
     const q = new URLSearchParams({ searchText: place })
     const { status, json } = await getJson(`${TS}/search?${q}`, UA)

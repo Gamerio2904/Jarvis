@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser wählen Tools. Körper, Globus, Debug, Hausstand-Export **CODE**. Live-Ton: **Siezen**. LocateAnything-Gewichte nach 3060-GO [`41-next.md`](./41-next.md).
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser wählen Tools. Körper, Globus, Debug, Hausstand-Export **CODE**. Globus-Briefing `6.90` **CODE**. Live-Ton: **Siezen**. LocateAnything-Gewichte nach 3060-GO [`41-next.md`](./41-next.md).
 
 ## Vision
 
@@ -47,6 +47,6 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 
 Du nutzt Jarvis regelmäßig vom Handy aus für Gespräch & Hilfe — mit dem Gefühl: *das ist meiner*. Daten und Keys bleiben in deinem Bereich. Smalltalk läuft über Gemini, sobald der Key da ist.
 
-## Erfolgskriterium jetzt (Code `6.60.0`)
+## Erfolgskriterium jetzt (Code `6.90.0`)
 
 Sideload steht. Overlay fordert den Gemini-Key zuerst. Parser treffen Geräte. 0,5B ist nur Backup.

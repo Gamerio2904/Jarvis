@@ -158,6 +158,7 @@ const EXPECT = {
   'ohne meine Adresse nachzugucken weißt du wo ich bin': 'here',
   'Nach Ingersheim': 'drive',
   'Was ist die Weltlage?': 'outlook',
+  'Was ist heute so auf der Welt passiert': 'outlook',
   'Warum steigt der Ölpreis?': 'outlook',
   'Wird Benzin teurer?': 'outlook',
   'Fällt der Dollar?': 'outlook',
@@ -250,6 +251,8 @@ assert.equal(route('Wetter heute'), 'weather')
 assert.equal(route('kein Kaffee mehr'), 'memory')
 assert.equal(route('Fahr mich zur Freundin'), 'drive')
 assert.equal(route('Was ist die Weltlage?'), 'outlook')
+assert.equal(route('Was ist heute so auf der Welt passiert'), 'outlook')
+assert.equal(route('Weltbrief'), 'outlook')
 assert.equal(route('Warum steigt der Ölpreis?'), 'outlook')
 assert.equal(route('Wird Benzin teurer?'), 'outlook')
 assert.equal(route('Fällt der Dollar?'), 'outlook')

@@ -1,8 +1,8 @@
-# Sprint 133 — Fly-to Satellit + Stadt-Briefing (`6.80`) **PLAN**
+# Sprint 133 — Fly-to Satellit + Stadt-Briefing (`6.80`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | nach Research `6.71` |
 | Ziel-Version | `6.80.0` |
 | Quelle | [`48-next.md`](../48-next.md) |

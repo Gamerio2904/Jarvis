@@ -1,8 +1,8 @@
-# Sprint 134 — Welt-Tour: Glow, Seite, Zoom (`6.82`) **PLAN**
+# Sprint 134 — Welt-Tour: Glow, Seite, Zoom (`6.82`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | nach Fly-to `6.80` |
 | Ziel-Version | `6.82.0` |
 | Quelle | [`48-next.md`](../48-next.md) · Reel [DZSsz-9t7aE](https://www.instagram.com/reel/DZSsz-9t7aE/) |

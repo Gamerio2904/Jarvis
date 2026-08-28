@@ -1023,7 +1023,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /6\.60\.0/)
+assert.match(HELP_TEXT, /6\.90\.0/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1517,6 +1517,9 @@ assert.deepEqual(splitIntents('Wetterstatistik an und traceroute google.de'), [
 
 assert.equal(parseOutlookIntent('Was ist die Weltlage?')?.kind, 'world')
 assert.equal(parseOutlookIntent('Was passiert in der Welt?')?.kind, 'world')
+assert.equal(parseOutlookIntent('Was ist heute so auf der Welt passiert')?.kind, 'world')
+assert.equal(parseOutlookIntent('Weltbrief')?.kind, 'world')
+assert.equal(parseOutlookIntent('Tour aus')?.kind, 'tour_stop')
 assert.equal(parseOutlookIntent('Warum steigt der Ölpreis?')?.kind, 'oil_why')
 assert.equal(parseOutlookIntent('Wird Benzin teurer?')?.kind, 'fuel_outlook')
 assert.equal(parseOutlookIntent('Fällt der Dollar?')?.kind, 'fx_outlook')

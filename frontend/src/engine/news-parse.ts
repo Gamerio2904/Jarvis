@@ -8,6 +8,12 @@ const SKIP =
 export function parseNewsIntent(text: string): NewsIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 180) return null
+  if (
+    /\b(weltlage|weltbrief|in\s+der\s+welt|auf\s+der\s+welt)\b/i.test(t) &&
+    !/\b(nachrichten|tagesschau|schlagzeilen)\b/i.test(t)
+  ) {
+    return null
+  }
 
   const local =
     /^\s*was\s+(?:ist|war|gab\s+es|passierte)\s+(?:denn\s+)?(?:heute\s+)?in\s+(.+?)\s+(?:passiert|los|gewesen)\s*[.!?]*$/i.exec(

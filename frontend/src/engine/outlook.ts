@@ -15,6 +15,7 @@ import {
   type OilQuote,
   type SeriesPoint,
 } from './outlook-series.ts'
+import { buildTourStops, overviewLine, startTour, stopTour } from './globe-tour.ts'
 
 export { parseOutlookIntent, parseOutlookFollowUp } from './outlook-parse.ts'
 export type { OutlookIntent, OutlookKind }
@@ -127,13 +128,23 @@ export async function handleOutlook(
   const intent = parseOutlookIntent(text, last) || (last ? parseOutlookFollowUp(text) : null)
   if (!intent) return { handled: false }
 
+  if (intent.kind === 'tour_stop') {
+    stopTour()
+    return pack('Tour aus. Die Kugel bleibt.', [], 'Tour', 'tour_stop')
+  }
+
   if (intent.kind === 'stock_ask') {
     const reply = formatOutlookReply(emptySnap(), 'stock_ask')
     return pack(reply, [], 'Aktie', intent.kind)
   }
 
   const snap = await loadOutlookSnap(intent.kind)
-  const reply = formatOutlookReply(snap, intent.kind)
+  let reply = formatOutlookReply(snap, intent.kind)
+  if (intent.kind === 'world') {
+    const stops = buildTourStops(snap.news)
+    startTour(stops)
+    reply = `${reply} ${overviewLine(stops)}`.replace(/\s+/g, ' ').trim()
+  }
   const sources = sourcesFromSnap(snap)
   persistLastList('outlook', snap.news.map((n) => n.title).slice(0, 8))
   return pack(reply, sources, intent.kind, intent.kind)

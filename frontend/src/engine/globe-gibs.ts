@@ -1,6 +1,9 @@
 /** NASA GIBS True Color — Stunden alt, Datum sichtbar. Kein Live-Video. */
 
 export const GIBS_ZOOM_IN = 3.8
+/** Fly-to nach „Zeig Stadt“: in der GIBS-Disk, unter Street-View / 2D-Karte. */
+export const CITY_FLY_ZOOM = 4.4
+export const TOUR_OVERVIEW_ZOOM = 1.7
 export const GIBS_LAYER = 'MODIS_Terra_CorrectedReflectance_TrueColor'
 const TILE = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best'
 

@@ -17,8 +17,9 @@ import {
   type HudIntent,
   type HudView,
 } from './hud-parse.ts'
-import { cityLine, nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from './globe-geo.ts'
-import { polishToolLine } from './polish.ts'
+import { nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from './globe-geo.ts'
+import { briefPlace, CITY_FLY_ZOOM, focusJson, fromPlaceFix } from './globe-brief.ts'
+import { clearTour } from './globe-tour.ts'
 
 export { HUD_CATALOG, parseHudIntent, organLabel }
 export type { HudId, HudIntent, HudView, BodyOrgan }
@@ -97,26 +98,25 @@ export async function handleHud(
     const lon = at?.lon ?? NaN
     const hit = nearestPlace(lat, lon)
     if (hit) {
-      const canned = cityLine(hit)
-      return pack(await polishToolLine(canned, `${hit.name}. ${hit.blurb}`))
+      const reply = await briefPlace(fromPlaceFix(hit))
+      saveSettings({ last_globe_brief: reply.slice(0, 500) })
+      return pack(reply)
     }
     return pack(noCityInViewLine())
   }
   if (intent.kind === 'pin') {
+    clearTour()
+    const place = { name: intent.name, lat: intent.lat, lon: intent.lon, blurb: intent.blurb }
     saveSettings({
       hud_view: 'globe',
       hud_force: true,
       hud_hidden: false,
-      last_globe_focus: JSON.stringify({
-        name: intent.name,
-        lat: intent.lat,
-        lon: intent.lon,
-        zoom: 2.15,
-      }),
-      last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: 2.15 }),
+      last_globe_focus: focusJson(place, CITY_FLY_ZOOM),
+      last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: CITY_FLY_ZOOM }),
     })
-    const canned = cityLine({ name: intent.name, blurb: intent.blurb })
-    return pack(await polishToolLine(canned, `${intent.name}. ${intent.blurb}`))
+    const reply = await briefPlace(place)
+    saveSettings({ last_globe_brief: reply.slice(0, 500) })
+    return pack(reply)
   }
   const next = setHudModule(intent.id, intent.on)
   const label = HUD_CATALOG.find((c) => c.id === intent.id)?.label || intent.id

@@ -2,12 +2,20 @@ import { getJson } from './http-json.ts'
 import { loadSettings } from './store.ts'
 import { pinForTag, pinForText, type GeoFix } from './globe-geo.ts'
 import type { OutlookSnap } from './outlook.ts'
+import { tourGlowPins } from './globe-tour.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/6.60.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/6.90.0 (local.jarvis.app)' }
 
 export async function loadGlobePins(): Promise<GeoFix[]> {
   const s = loadSettings()
   const pins: GeoFix[] = []
+  const seen = new Set<string>()
+  const add = (p: GeoFix) => {
+    if (seen.has(p.name)) return
+    seen.add(p.name)
+    pins.push(p)
+  }
+  for (const g of tourGlowPins()) add(g)
   try {
     const raw = s.last_globe_focus
     if (raw) {
@@ -15,7 +23,7 @@ export async function loadGlobePins(): Promise<GeoFix[]> {
       const lat = Number(focus.lat)
       const lon = Number(focus.lon)
       if (focus.name && Number.isFinite(lat) && Number.isFinite(lon)) {
-        pins.push({ name: focus.name, lat, lon, kind: 'outlook', line: 'Gazetteer' })
+        add({ name: focus.name, lat, lon, kind: 'outlook', line: s.last_globe_brief || 'Gazetteer' })
       }
     }
   } catch {
@@ -24,12 +32,12 @@ export async function loadGlobePins(): Promise<GeoFix[]> {
   const lat = Number(s.last_lat)
   const lon = Number(s.last_lon)
   if (Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90) {
-    pins.push({ name: 'Sie', lat, lon, kind: 'here', line: s.last_place || 'GPS' })
+    add({ name: 'Sie', lat, lon, kind: 'here', line: s.last_place || 'GPS' })
   }
   const iss = await loadIss()
-  if (iss) pins.push({ name: 'ISS', lat: iss.lat, lon: iss.lon, kind: 'iss', line: 'Where The ISS At' })
+  if (iss) add({ name: 'ISS', lat: iss.lat, lon: iss.lon, kind: 'iss', line: 'Where The ISS At' })
   if (s.last_warn_line) {
-    pins.push({
+    add({
       name: 'Unwetter',
       lat: Number.isFinite(lat) ? lat : 51.16,
       lon: Number.isFinite(lon) ? lon : 10.45,
@@ -41,25 +49,23 @@ export async function loadGlobePins(): Promise<GeoFix[]> {
     const raw = s.last_outlook_json
     if (raw) {
       const snap = JSON.parse(raw) as OutlookSnap
-      const seen = new Set<string>()
       for (const n of snap.news || []) {
         for (const tag of n.tags || []) {
           const p = pinForTag(tag)
-          if (!p || seen.has(p.name)) continue
-          seen.add(p.name)
-          pins.push({ ...p, line: n.title })
+          if (p) add({ ...p, line: n.title })
         }
         const fromText = pinForText(`${n.title} ${n.teaser}`)
-        if (fromText && !seen.has(fromText.name)) {
-          seen.add(fromText.name)
-          pins.push(fromText)
-        }
+        if (fromText) add(fromText)
       }
     }
   } catch {
     /* ignore */
   }
   return pins
+}
+
+export async function fetchIssNow(): Promise<{ lat: number; lon: number } | null> {
+  return loadIss()
 }
 
 async function loadIss(): Promise<{ lat: number; lon: number } | null> {

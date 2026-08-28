@@ -5,14 +5,28 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.60.0`**. Sideload: **`6.60.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`6.90.0`**. Sideload: **`6.60.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
-### `6.70.0` — Globus-Briefing Leitentscheidung — *PLAN* (Docs CODE)
+### `6.90.0` — Globus-Briefing Gold — *CODE*
+
+Sprints 132–136. Stadt → GIBS-Zoom **4.4** + Briefing. Welt-Tour: Glow, Seite, Zoom-Kette. Sideload bleibt **`6.60.0`**.
+
+- **Fly-to:** `Zeig London` landet in NASA GIBS (nicht Blue Marble). Stamp mit Datum, kein Live.
+- **Briefing:** Lexikon + Tagesschau-Ort oder ehrlich leer. Markt nur Hormus/EZB-Kette. DWD bei DE-Ort, ISS in der Sicht, EONET optional.
+- **Ihr Plan:** Kalender/Memory/Todo nur mit Ortsnamen im Eintrag.
+- **Welt-Tour:** `Was ist heute so auf der Welt passiert` / `Weltbrief` → `outlook`, Kugel, max 5 Allowlist-Länder. `Zeig mir die Nachrichten` bleibt `news`.
+- **Stopp:** bricht die Tour, nicht TV/Spotify (Medium-Wort Standing).
+- **Debug:** Gruppe Globus-Briefing.
+
+- Docs [`48-next.md`](./48-next.md) · Sprints 132–136
+- App-Code **`6.90.0`**. APK **`6.60.0`**.
+
+### `6.70.0` — Globus-Briefing Leitentscheidung — *CODE* (Docs)
 
 Sprint 131. Stadt → GIBS. **Welt-Tour:** Länder mit weltpolitischer Lage leuchten, Seite erklärt, Zoom-Kette. Quellen Tagesschau/DW, kein Geheim-Feed.
 
 - Docs [`48-next.md`](./48-next.md) · [`sprints/sprint-131.md`](./sprints/sprint-131.md)–[`sprint-136.md`](./sprints/sprint-136.md)
-- App-Code bleibt **`6.60.0`** bis Execute `6.80` / `6.82`
+- Execute in `6.90.0`
 
 ### `6.60.0` — Split, Identität, Overlay, Sideload — *CODE*
 

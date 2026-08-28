@@ -1,23 +1,23 @@
-# 42 — Alles geplant (Stand Code `6.60.0`)
+# 42 — Alles geplant (Stand Code `6.90.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`6.60.0`**. Sideload **`6.60.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`6.90.0`**. Sideload **`6.60.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
-1. **Globus-Briefing `6.70`** — **PLAN** [`48-next.md`](./48-next.md) (Stadt → Satellit; Welt-Tour: Länder leuchten + Seite + Zoom)
-2. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-3. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
-4. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
+2. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
+3. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+4. Nächster Sideload nach Hausstand (APK steht auf `6.60.0`)
 
-Bereits **CODE** in `6.60.0`: Sideload, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
+Bereits **CODE** in `6.90.0`: Globus-Briefing (Stadt → GIBS + Briefing, Welt-Tour Glow/Seite/Zoom), Sideload `6.60`, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
 
 ---
 
-## CODE auf diesem Stand (`6.60.0`)
+## CODE auf diesem Stand (`6.90.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -33,22 +33,16 @@ Bereits **CODE** in `6.60.0`: Sideload, Bühne & Hirn `6.50`, Parser `6.51`, Spl
 | Bühne & Hirn | `6.50` | Gemini zuerst, Motion 30 fps, Globus, HUD, Sprach-Orb |
 | Parser | `6.51` | Wont/Help/HUD-Skip nach Prompt-Test |
 | Split / Overlay / APK | `6.60` | Live-Split, Identität canned, Overlay Gemini zuerst, `releases/Jarvis.apk` |
+| Globus-Briefing | `6.90` | Fly-to 4.4, Stadt-Briefing, Welt-Tour Glow, Debug-Gruppe |
 | Davor | `3.19`–`3.0` / `1.x` | Kalender-Fenster, Register, Auge=Gemini, PC-Screenshot |
 
 ## Offen
 
 ### LocateAnything Sidecar (`4.77`)
+Parser CODE. Gewichte erst nach 3060-GO. Ohne Sidecar: ehrlich aus.
 
-RTX 3060 GO/NO-GO. JarvisSee localhost. Ohne Sidecar: ehrlicher Satz, keine Fake-Boxen.
+### Debug-Hintergrund (`5.12`)
+Lauf in der App ist CODE. Dienst im Hintergrund PLAN.
 
-### Globus-Briefing (`6.70`) — **PLAN**
-
-Reel Stadt: sagen, Satellit ran. Reel News: `Was ist heute so auf der Welt passiert` — Länder leuchten, Seite, Zoom-Kette, Tagesschau/DW. Fly-to heute unter GIBS-Schwelle. Plan [`48-next.md`](./48-next.md).
-
-### Debug-Hintergrund (`5.12` Service)
-
-v1: App offen lassen. Foreground-Service nach Spike.
-
-## Won’t (übergreifend)
-
-Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Debug-Cloud, Auto-Ja im Prompt-Lauf, Live-Satellitenvideo, Überwachung, 0,5B als Claude, 1,5B lokal.
+### Parking
+Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.

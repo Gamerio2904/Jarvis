@@ -160,6 +160,7 @@ export const TEST_PROMPTS = [
   'Hilfe',
   'Rufe 112',
   'mach die weltkugel an',
+  'Was ist heute so auf der Welt passiert',
   'Zeig New York',
   'Was is das für ne Stadt',
   'Körper an und Zeig London',

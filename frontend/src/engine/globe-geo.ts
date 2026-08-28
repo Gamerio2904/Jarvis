@@ -1,8 +1,8 @@
 import type { OutlookTag } from './outlook-tags.ts'
 
-export type GeoPinKind = 'here' | 'iss' | 'flight' | 'warn' | 'news' | 'outlook'
+export type GeoPinKind = 'here' | 'iss' | 'flight' | 'warn' | 'news' | 'outlook' | 'glow'
 
-export type GeoFix = { name: string; lat: number; lon: number; kind: GeoPinKind; line?: string }
+export type GeoFix = { name: string; lat: number; lon: number; kind: GeoPinKind; line?: string; hot?: boolean }
 
 export type PlaceFix = { re: RegExp; name: string; lat: number; lon: number; blurb: string }
 

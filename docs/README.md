@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Nächste Kugel: [`48-next.md`](./48-next.md) `6.70` **PLAN**. CODE: Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`6.90.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -145,10 +145,10 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 129 | `6.53.0` | **CODE** (Overlay Gemini zuerst, in `6.60.0`) |
 | 130 | `6.60.0` | **CODE** (Sideload APK) |
 | 131 | `6.70.0` | **CODE** (Globus-Briefing Leitentscheidung, Docs) |
-| 132 | `6.71.0` | **PLAN** (Research Satellit + Land) |
-| 133 | `6.80.0` | **PLAN** (Fly-to Satellit + Briefing) |
-| 134 | `6.82.0` | **PLAN** (Welt-Tour Glow/Seite/Zoom) |
-| 135 | `6.81.0` | **PLAN** (Anomalien + Ihr Plan) |
-| 136 | `6.90.0` | **PLAN** (Gold / Debug) |
+| 132 | `6.71.0` | **CODE** (Research Satellit + Land) |
+| 133 | `6.80.0` | **CODE** (Fly-to Satellit + Briefing) |
+| 134 | `6.82.0` | **CODE** (Welt-Tour Glow/Seite/Zoom) |
+| 135 | `6.81.0` | **CODE** (Anomalien + Ihr Plan) |
+| 136 | `6.90.0` | **CODE** (Gold / Debug, kein Sideload) |
 
-**Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. Nächste Kugel: [`48-next.md`](./48-next.md) `6.70` **PLAN**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`6.90.0`**. Sideload `6.60.0`. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

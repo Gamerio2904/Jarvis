@@ -1,4 +1,4 @@
-# 48 — Globus-Briefing (`6.70`) **PLAN**
+# 48 — Globus-Briefing (`6.90`) **CODE**
 
 PO 2026-08-28: Reel als **Zielbild für die Kugel**, zuschneiden, nicht kopieren.
 
@@ -8,9 +8,7 @@ Stadt-Briefing: https://www.instagram.com/reel/DY7VsZItwtR/
 
 Account beide: **moritz.maaker**. Zweites Reel-Caption (sinngemäß): *Vierzig Sekunden Welt-Brief. Aus Quellen, die in deutschen Hauptmedien nicht laufen.* Das **Quellen-Versprechen kopieren wir nicht** — bei uns Tagesschau + DW, Stand sagen. **Übernehmen:** `Was ist heute so auf der Welt passiert` → weltpolitisch wichtige Länder **leuchten**, Seite zeigt die Meldung, kurzer Satz was dort passiert, **nacheinander** auf das Land zoomen, Überblick.
 
-**Ist:** Code **`6.60.0`**. Sideload **`6.60.0`**. Hirn Gemini zuerst. Kugel CODE. `Zeig London` dreht auf Zoom **2.15**. GIBS ab **3.8**. Outlook-Text `weltlage` ist CODE, öffnet **keine** Tour. Phrase `was ist heute so auf der Welt passiert` trifft heute weder `outlook` (`in der Welt`) noch zuverlässig `news`. Pins aus outlook-Tags existieren, Länder **leuchten nicht**, keine Zoom-Kette.
-
-Kein Execute in Sprint 131. Research vor Satelliten-Tiefe und EONET. Sideload nicht in `6.70`. LocateAnything und Debug-Service bleiben eigene Schienen.
+**Ist:** Code **`6.90.0`**. Sideload **`6.60.0`**. Hirn Gemini zuerst. `Zeig London` fliegt auf Zoom **4.4** (GIBS ab **3.8**). Stadt-Briefing + Welt-Tour **CODE**. Phrase `was ist heute so auf der Welt passiert` → `outlook` world + Tour. Glow-Scheiben am Länder-Centroid, max 5 Stops. EONET optional, bei Fehler still.
 
 ## Reel — was dort wirklich steht
 
@@ -60,22 +58,22 @@ Caption verspricht **Geheim-Quellen**. Bei uns: **dieselben** freien Quellen wie
 
 **Anders als das Video (bewusst):** Jarvis brieft **Sie** mit Quellen, die er schon hat. Er hat kein privates Satellitennetz. Er sieht nicht, was andere tun.
 
-## Ist vs. Lücke (Code `6.60.0`)
+## Ist vs. Lücke (Code `6.90.0`)
 
 | Fläche | Ist | Lücke zum Reel-Ziel |
 |--------|-----|---------------------|
-| `Zeig London` | `hud` pin, Fly-to Zoom **2.15**, Satz `Das ist London, …` aus `PLACES.blurb` | Zoom unter GIBS-Schwelle → **kein Satellit** nach dem Satz |
-| Finger-Zoom | GIBS ab 3.8, 2D-Karte ab 5.2, Kappe Zoom 8, Tile-Z max 7 | Nur per Geste, nicht per Fly-to |
-| Pin-Tap | speichert Focus, Kachel = `pin.line` oder Hint | kein Tool-Briefing |
-| Nachrichten | `news.ts` Ortssuche Tagesschau, sonst Netz ehrlich | nicht an `Zeig Stadt` gehängt |
-| Weltlage | `outlook.ts` Tags + Öl/FX-Serie, kein Orakel | nicht an Stadt gebunden außer Tag-Pins |
-| Unwetter | `warn.ts` DWD Gemeinden | nicht nach Fly-to |
-| ISS | `sky.ts` Pin | nicht als „Anomalie in der Sicht“ formuliert |
-| Ihr Plan | Kalender, Memory, Todos, Losgehen CODE | Kugel liest das nicht |
-| GIBS-Layer | `MODIS_Terra_CorrectedReflectance_TrueColor` Level9 | Stadt bleibt grob — kein Street-View vortäuschen |
-| Weltlage-Text | `outlook` kind `world` — Chat-Absatz, Tags, Serie | keine Kugel, keine Länder-Glow, keine Zoom-Kette |
-| Phrase Welt-passiert | `was passiert in der Welt` → outlook; `heute so auf der Welt` oft **kein** Treffer | Parser erweitern |
-| Outlook-Pins | Tag → Hormus/Kiew/… wenn JSON im Store | kein Glow, keine Tour, Asien/Öl oft **ohne** Pin (`pinForTag` null) |
+| `Zeig London` | `hud` pin, Fly-to Zoom **4.4**, Briefing Lexikon + Tagesschau oder ehrlich leer | GIBS-Disk nach dem Satz, Stamp mit Datum |
+| Finger-Zoom | GIBS ab 3.8, 2D-Karte ab 5.2, Kappe Zoom 8, Tile-Z max **7** | MODIS True Color, kein VIIRS-Wechsel |
+| Pin-Tap | Stadt = dasselbe Briefing; Glow = Stop wählen; Leertipp bricht Tour | — |
+| Nachrichten | `news.ts` Ortssuche Tagesschau, sonst Netz ehrlich | an `Zeig Stadt` gehängt |
+| Weltlage | `outlook.ts` Tags + Öl/FX-Serie, kein Orakel | Stadt nur Kette Hormus/EZB |
+| Unwetter | `warn.ts` DWD Gemeinden | nach Fly-to DE-Ort |
+| ISS | `sky.ts` Pin; im Briefing nur wenn in der Sicht | keine Überwachung |
+| Ihr Plan | Kalender, Memory, Todos, Losgehen CODE | nur bei Ortsnamen im Eintrag |
+| GIBS-Layer | `MODIS_Terra_CorrectedReflectance_TrueColor` Level9 | Stadt als Fleck, kein Street-View |
+| Weltlage-Text | `outlook` kind `world` — Chat-Absatz + Tour | Kugel, Glow, Zoom-Kette |
+| Phrase Welt-passiert | `heute so auf der Welt` / `Weltbrief` / `in der Welt` → outlook | `Nachrichten` bleibt `news` |
+| Outlook-Pins | Glow am Centroid + Tag-Pins | Asien/Öl ohne Land → kein Glow |
 
 ## Leitentscheidung
 
@@ -112,30 +110,30 @@ Caption verspricht **Geheim-Quellen**. Bei uns: **dieselben** freien Quellen wie
 | Anomalie | DWD-Warnung, ISS-Pin, optional EONET | Quelle sagen |
 | Geheim-Feed „nicht in der Tagesschau“ | Gibt es hier nicht. Tagesschau + DW, sonst ehrlich leer | — |
 
-## Research (vor Execute der Fläche)
+## Research (erledigt in `6.71` / Sprint 132)
 
-| Version | Frage | Grün wenn |
-|---------|-------|-----------|
-| `6.71` | Fly-to-Zoom 4.4 auf dem Handy: GIBS-Disk sichtbar, Akku ok, Stamp da | `Zeig London` zeigt Satellit, nicht nur Blue Marble |
-| `6.71` | Tile-Z 7 vs 8/9: Stadt erkennbar, nicht Street | London als Stadt-Fleck, keine Hausnummern behauptet |
-| `6.71` | VIIRS vs MODIS | nur wechseln wenn schärfer **und** CORS/Akku gleich; sonst MODIS lassen |
-| `6.71` | Länder-Glow: Scheibe am Centroid vs Mini-Polygon | 5 Glows 30 fps; Polygon nur wenn Datei klein und Reduced-Motion ok |
-| `6.71` | Headline → Land: Tagesschau-Felder vs Wortliste | Ukraine-Meldung → UA, nicht „Europa“ als Land |
-| `6.72` | Tagesschau-Ort + outlook-Tag am selben Turn, Timeout | ein Reply, keine doppelten Tools im Chat |
+| Version | Frage | Votum |
+|---------|-------|-------|
+| `6.71` | Fly-to-Zoom 4.4 auf dem Handy: GIBS-Disk sichtbar, Akku ok, Stamp da | **4.4** — über `GIBS_ZOOM_IN` 3.8, unter 2D 5.2 |
+| `6.71` | Tile-Z 7 vs 8/9: Stadt erkennbar, nicht Street | **max 7** (unverändert) |
+| `6.71` | VIIRS vs MODIS | **MODIS** lassen |
+| `6.71` | Länder-Glow: Scheibe am Centroid vs Mini-Polygon | **Glow-Scheibe**; kein 190-Länder-GeoJSON |
+| `6.71` | Headline → Land: Tagesschau-Felder vs Wortliste | **Wortliste** Allowlist; Ukraine → UA, nicht Europa |
+| `6.72` | Tagesschau-Ort + outlook-Tag am selben Turn, Timeout | ein Reply in `briefPlace` |
 | `6.72` | Tour: `outlook` world öffnet Kugel, Parser-Konflikt `news` | `auf der Welt passiert` = outlook+Tour, `Nachrichten` = news |
-| `6.73` | EONET JSON in der WebView | GO: Pins in der Sicht mit Quelle. NO-GO: weglassen, kein Fake |
-| `6.73` | Kalender/Memory-Match nur exakter Ortsname / Lexikon-Name | Zahnarzt ohne Ort bleibt still |
+| `6.73` | EONET JSON in der WebView | **GO** optional; Fehler = weglassen, kein Fake |
+| `6.73` | Kalender/Memory-Match nur exakter Ortsname / Lexikon-Name | Wortgrenze auf Lexikon-Name |
 
 ## Sprints
 
 | Sprint | Version | Inhalt |
 |--------|---------|--------|
 | 131 | `6.70.0` | Leitentscheidung (dieses Dokument) — **CODE** (Docs) |
-| 132 | `6.71.0` | Research: Zoom-Tiefe, GIBS, Länder-Glow, Headline→Land, EONET |
-| 133 | `6.80.0` | Execute: Fly-to in Satellit + Stadt-Briefing (Politik, Markt-Kette) |
-| 134 | `6.82.0` | Execute: Welt-Tour — Länder leuchten, Seite, Zoom-Kette |
-| 135 | `6.81.0` | Anomalien ehrlich + Ihr Plan am Ort (`Zeig Stadt`) |
-| 136 | `6.90.0` | Gold, Debug-Gruppe Stadt+Tour — **kein** Sideload |
+| 132 | `6.71.0` | Research: Zoom-Tiefe, GIBS, Länder-Glow, Headline→Land, EONET — **CODE** |
+| 133 | `6.80.0` | Execute: Fly-to in Satellit + Stadt-Briefing (Politik, Markt-Kette) — **CODE** |
+| 134 | `6.82.0` | Execute: Welt-Tour — Länder leuchten, Seite, Zoom-Kette — **CODE** |
+| 135 | `6.81.0` | Anomalien ehrlich + Ihr Plan am Ort (`Zeig Stadt`) — **CODE** |
+| 136 | `6.90.0` | Gold, Debug-Gruppe Stadt+Tour — **CODE**, **kein** Sideload |
 
 `5.12` und LocateAnything `4.77` daneben. Welt-Geocoder bleibt Won’t.
 

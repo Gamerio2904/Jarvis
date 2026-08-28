@@ -1,8 +1,8 @@
-# Sprint 132 — Research: Satellit + Land (`6.71`) **PLAN**
+# Sprint 132 — Research: Satellit + Land (`6.71`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | nach Leitentscheidung `6.70` |
 | Ziel-Version | `6.71.0` |
 | Quelle | [`48-next.md`](../48-next.md) |
@@ -12,18 +12,18 @@
 
 Klären: Fly-to-Zoom für GIBS; Headline → **Land** (nicht „Europa“); Glow-Scheibe vs Mini-Polygon; Parser `auf der Welt` vs `news`; EONET ja/nein.
 
-## Must
+## Voten (im Execute `6.90`)
 
-| ID | Inhalt |
+| ID | Votum |
 |----|--------|
-| R1 | `Zeig London` Zoom 4.4 vs 5.2 vs 2.15 |
-| R2 | Tile-Z 7 vs 8 — Stadt-Fleck, keine Hausnummer |
-| R3 | EONET: GO mit Quelle oder NO-GO |
+| R1 | Fly-to **4.4** |
+| R2 | Tile-Z **max 7** |
+| R3 | EONET **optional**, Fehler = still |
 | R4 | Reduced-Motion: Stadt-Sprung; Tour ohne Auto-Flug |
-| R5 | Länder-Tabelle + Glow bei 5 Stops, 30 fps |
-| R6 | Tagesschau-Item → ein Allowlist-Land oder verwerfen |
+| R5 | Glow-Scheibe, ~40 Länder, kein Polygon |
+| R6 | Wortliste Allowlist; Ukraine → UA |
 | R7 | `Was ist heute so auf der Welt passiert` = outlook-Tour, nicht `news` |
 
 ## Won’t
 
-Live-Video. Geocoder. Geheim-Feed. Execute 133/134.
+Live-Video. Geocoder. Geheim-Feed.

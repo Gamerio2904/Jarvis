@@ -1,6 +1,6 @@
 import { normalizeUtterance } from './utterance.ts'
 
-export type OutlookKind = 'world' | 'oil_why' | 'fuel_outlook' | 'fx_outlook' | 'stock_ask'
+export type OutlookKind = 'world' | 'oil_why' | 'fuel_outlook' | 'fx_outlook' | 'stock_ask' | 'tour_stop'
 
 export type OutlookIntent = { kind: OutlookKind }
 
@@ -28,17 +28,26 @@ export function parseOutlookIntent(text: string, lastTool = ''): OutlookIntent |
     if (follow) return follow
   }
 
-  if (/\b(aktie|aktien|dax|sap\b|tesla|nvidia)\b/i.test(t) && /\b(fällt|steigt|morgen|kaufen|verkaufen|ausblick)\b/i.test(t)) {
-    return { kind: 'stock_ask' }
+  if (
+    /^\s*(?:tour|welt[- ]?tour|weltbrief)\s+(?:aus|stopp|stop|abbrechen)\s*$/i.test(t) ||
+    /^\s*stopp(?:e)?\s+(?:die\s+)?(?:tour|kugel[- ]?tour|welt[- ]?tour)\s*$/i.test(t)
+  ) {
+    return { kind: 'tour_stop' }
   }
 
   if (
-    /\b(weltlage|lage\s+welt)\b/i.test(t) ||
-    /\bwas\s+passiert\s+in\s+der\s+welt\b/i.test(t) ||
+    /\b(weltlage|lage\s+welt|weltbrief)\b/i.test(t) ||
+    /\bwas\s+passiert\s+(?:in|auf)\s+der\s+welt\b/i.test(t) ||
     /\bwas\s+ist\s+(?:die\s+)?weltlage\b/i.test(t) ||
-    /\bwas\s+ist\s+die\s+lage\s+(?:in\s+der\s+welt|weltweit)\b/i.test(t)
+    /\bwas\s+ist\s+die\s+lage\s+(?:in\s+der\s+welt|weltweit)\b/i.test(t) ||
+    /\bwas\s+ist\s+heute\s+so\s+auf\s+der\s+welt\b/i.test(t) ||
+    /\bauf\s+der\s+welt\s+passiert\b/i.test(t)
   ) {
     return { kind: 'world' }
+  }
+
+  if (/\b(aktie|aktien|dax|sap\b|tesla|nvidia)\b/i.test(t) && /\b(fällt|steigt|morgen|kaufen|verkaufen|ausblick)\b/i.test(t)) {
+    return { kind: 'stock_ask' }
   }
 
   if (

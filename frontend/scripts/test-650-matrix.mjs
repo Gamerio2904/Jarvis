@@ -63,6 +63,9 @@ const LOCK = [
   ['Wie heißt du?', 'identity', null],
   ['Körper an und Zeig London', 'hud', null],
   ['Zeig Spotify und London', 'hud', null],
+  ['Was ist heute so auf der Welt passiert', 'outlook', null],
+  ['Was passiert in der Welt', 'outlook', null],
+  ['Weltbrief', 'outlook', null],
 ]
 
 let fail = 0

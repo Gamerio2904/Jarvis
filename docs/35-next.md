@@ -6,7 +6,7 @@ https://www.instagram.com/reel/DblW9QliG5l/
 
 Zweites Reel (Sprachnachricht, Bar, Taxi): [`36-next.md`](./36-next.md) — Schiene `4.19+`, nicht in `4.0` mischen.
 
-> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.0.0`**. Kugel-Tour der Meldungen: [`48-next.md`](./48-next.md) `6.82` **PLAN**.
+> **Jetzt mitgeliefert in `6.90.0`.** Schiene gelandet als **`4.0.0`**. Kugel-Tour der Meldungen: [`48-next.md`](./48-next.md) `6.82` **CODE**.
 
 **Warum `4.0`, nicht `3.19`/`3.20`:** In [`09-versioning.md`](./09-versioning.md) sind `3.19.0`–`3.45.0` schon **logische Stufen innerhalb von `3.18.0`**. Eigenes MAJOR: Weltlage, nicht noch ein Haus-Tool.
 

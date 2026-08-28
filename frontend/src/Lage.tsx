@@ -15,8 +15,10 @@ import { GlobeView, type GlobeFocus } from './GlobeView'
 import { fetchBodySnap, type BodySnap } from './engine/body-snap'
 import { loadGlobePins } from './engine/globe-pins'
 import type { GeoFix } from './engine/globe-geo'
+import { CITY_FLY_ZOOM } from './engine/globe-gibs'
 import { prefersReducedMotion } from './engine/motion'
 import { loadSettings, saveSettings, type Message } from './engine/store'
+import { advanceTour, selectTourStop, stopTour } from './engine/globe-tour'
 
 export function Lage({
   onSend,
@@ -41,6 +43,7 @@ export function Lage({
   const [body, setBody] = useState<BodySnap | null>(null)
   const [pins, setPins] = useState<GeoFix[]>([])
   const [pin, setPin] = useState<GeoFix | null>(null)
+  const [globeTick, setGlobeTick] = useState(0)
   const [clock, setClock] = useState(() =>
     new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
   )
@@ -85,7 +88,21 @@ export function Lage({
       live = false
       window.clearInterval(id)
     }
-  }, [view, modules.join(','), spotifyOn, busy, conversationId])
+  }, [view, modules.join(','), spotifyOn, busy, conversationId, globeTick])
+
+  useEffect(() => {
+    if (view !== 'globe') return
+    const id = window.setInterval(() => {
+      if (!loadSettings().globe_tour_on || prefersReducedMotion()) return
+      const stop = advanceTour()
+      if (stop) {
+        setPin({ name: stop.name, lat: stop.lat, lon: stop.lon, kind: 'glow', line: stop.line, hot: true })
+        setGlobeTick((n) => n + 1)
+        onHudChange?.()
+      }
+    }, 500)
+    return () => window.clearInterval(id)
+  }, [view, onHudChange])
 
   function setView(next: HudView) {
     saveSettings({ hud_view: next, hud_force: true, hud_hidden: false })
@@ -98,7 +115,7 @@ export function Lage({
       if (!raw) return null
       const f = JSON.parse(raw) as GlobeFocus
       if (!f.name || !Number.isFinite(Number(f.lat))) return null
-      return { name: f.name, lat: Number(f.lat), lon: Number(f.lon), zoom: Number(f.zoom) || 2.15 }
+      return { name: f.name, lat: Number(f.lat), lon: Number(f.lon), zoom: Number(f.zoom) || CITY_FLY_ZOOM }
     } catch {
       return null
     }
@@ -169,10 +186,29 @@ export function Lage({
             pins={pins}
             onPin={(next) => {
               setPin(next)
+              if (next.kind === 'glow') {
+                selectTourStop(next.name)
+                setGlobeTick((n) => n + 1)
+                onHudChange?.()
+                return
+              }
               saveSettings({
-                last_globe_focus: JSON.stringify({ name: next.name, lat: next.lat, lon: next.lon }),
-                last_globe_look: JSON.stringify({ lat: next.lat, lon: next.lon, zoom: 2.2 }),
+                last_globe_focus: JSON.stringify({
+                  name: next.name,
+                  lat: next.lat,
+                  lon: next.lon,
+                  zoom: CITY_FLY_ZOOM,
+                }),
+                last_globe_look: JSON.stringify({ lat: next.lat, lon: next.lon, zoom: CITY_FLY_ZOOM }),
               })
+              if (next.kind === 'iss' || next.kind === 'here' || next.kind === 'warn') return
+              onSend(`Zeig ${next.name}`)
+            }}
+            onEmpty={() => {
+              if (!loadSettings().globe_tour_on) return
+              stopTour()
+              setGlobeTick((n) => n + 1)
+              onHudChange?.()
             }}
             reduced={reduced}
             focus={globeFocus()}
@@ -182,7 +218,8 @@ export function Lage({
             title={pin?.name || globeFocus()?.name || 'Erde'}
             body={
               pin?.line ||
-              'Drehen, zoomen, Satellitenfoto wenn nah genug. „Zeig mir London“ dreht die Kugel. „Was ist das für eine Stadt?“ nennt die Blickmitte. Kein Live-Video.'
+              s.last_globe_brief ||
+              'Drehen, zoomen, Satellitenfoto wenn nah genug. „Zeig mir London“ dreht in das NASA-Foto. „Was ist heute so auf der Welt passiert“ startet die Tour. Kein Live-Video.'
             }
           />
           {modules.includes('chat') ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}

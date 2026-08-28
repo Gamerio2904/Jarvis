@@ -3,6 +3,7 @@ import type { GeoFix } from './engine/globe-geo'
 import { lookLatLon, yawPitchFor } from './engine/globe-geo'
 import {
   blueMarbleUrls,
+  CITY_FLY_ZOOM,
   GIBS_ZOOM_IN,
   gibsStamp,
   gibsTileUrl,
@@ -44,12 +45,14 @@ export type GlobeFocus = { name: string; lat: number; lon: number; zoom?: number
 export function GlobeView({
   pins,
   onPin,
+  onEmpty,
   reduced,
   focus,
   onLook,
 }: {
   pins: GeoFix[]
   onPin: (pin: GeoFix) => void
+  onEmpty?: () => void
   reduced: boolean
   focus?: GlobeFocus | null
   onLook?: (look: { lat: number; lon: number; zoom: number; date: string }) => void
@@ -65,6 +68,8 @@ export function GlobeView({
   pinsRef.current = pins
   const onPinRef = useRef(onPin)
   onPinRef.current = onPin
+  const onEmptyRef = useRef(onEmpty)
+  onEmptyRef.current = onEmpty
   const onLookRef = useRef(onLook)
   onLookRef.current = onLook
   const marble = useRef<HTMLCanvasElement | null>(null)
@@ -80,7 +85,8 @@ export function GlobeView({
     if (key === lastFocus.current) return
     lastFocus.current = key
     const aim = yawPitchFor(focus.lat, focus.lon)
-    const z = Math.max(zoom.current, focus.zoom || 2.15)
+    const want = Number(focus.zoom)
+    const z = Number.isFinite(want) && want > 0 ? Math.max(1, Math.min(8, want)) : Math.max(zoom.current, CITY_FLY_ZOOM)
     onLookRef.current?.({ lat: focus.lat, lon: focus.lon, zoom: z, date: dateRef.current })
     if (reduced) {
       yaw.current = aim.yaw
@@ -281,9 +287,16 @@ export function GlobeView({
         const px = ((pin.lon - lon0) / (lon1 - lon0)) * w
         const py = ((lat0 - pin.lat) / (lat0 - lat1)) * h
         if (px < 0 || py < 0 || px > w || py > h) continue
+        if (pin.kind === 'glow') {
+          pen.beginPath()
+          pen.fillStyle = pin.hot ? 'rgba(125, 211, 160, 0.4)' : 'rgba(125, 211, 160, 0.2)'
+          pen.arc(px, py, pin.hot ? 18 : 14, 0, Math.PI * 2)
+          pen.fill()
+        }
         pen.beginPath()
-        pen.fillStyle = pin.kind === 'iss' ? '#fff' : pin.kind === 'here' ? '#1db954' : '#7dd3a0'
-        pen.arc(px, py, 5, 0, Math.PI * 2)
+        pen.fillStyle =
+          pin.kind === 'iss' ? '#fff' : pin.kind === 'here' ? '#1db954' : pin.kind === 'glow' ? '#c8f0d8' : '#7dd3a0'
+        pen.arc(px, py, pin.kind === 'glow' && pin.hot ? 6 : 5, 0, Math.PI * 2)
         pen.fill()
         pen.fillStyle = 'rgba(255,255,255,0.85)'
         pen.font = '11px Inter, system-ui, sans-serif'
@@ -348,10 +361,26 @@ export function GlobeView({
         })
         .filter((x) => x.q.z > -0.05)
       for (const { pin, q } of shown) {
+        if (pin.kind === 'glow') {
+          pen.beginPath()
+          pen.fillStyle = pin.hot ? 'rgba(125, 211, 160, 0.42)' : 'rgba(125, 211, 160, 0.2)'
+          pen.arc(q.x, q.y, pin.hot ? 22 : 16, 0, Math.PI * 2)
+          pen.fill()
+        }
         pen.beginPath()
         pen.fillStyle =
-          pin.kind === 'iss' ? '#ffffff' : pin.kind === 'here' ? '#1db954' : pin.kind === 'warn' ? '#e8b84a' : '#7dd3a0'
-        pen.arc(q.x, q.y, pin.kind === 'iss' ? 4 : 5, 0, Math.PI * 2)
+          pin.kind === 'iss'
+            ? '#ffffff'
+            : pin.kind === 'here'
+              ? '#1db954'
+              : pin.kind === 'warn'
+                ? '#e8b84a'
+                : pin.kind === 'glow'
+                  ? pin.hot
+                    ? '#e8f8ee'
+                    : '#9be0b5'
+                  : '#7dd3a0'
+        pen.arc(q.x, q.y, pin.kind === 'iss' ? 4 : pin.kind === 'glow' && pin.hot ? 6 : 5, 0, Math.PI * 2)
         pen.fill()
         pen.fillStyle = 'rgba(255,255,255,0.8)'
         pen.font = '10px Inter, system-ui, sans-serif'
@@ -439,12 +468,14 @@ export function GlobeView({
         const q = project(xyz(pin.lat, pin.lon).x, xyz(pin.lat, pin.lon).y, xyz(pin.lat, pin.lon).z)
         if (q.z < -0.05) continue
         const d = Math.hypot(q.x - p.x, q.y - p.y)
-        if (d < bestD) {
+        const hit = pin.kind === 'glow' ? 28 : 18
+        if (d < bestD && d < hit) {
           bestD = d
           best = pin
         }
       }
       if (best) onPinRef.current(best)
+      else onEmptyRef.current?.()
     }
     const wheel = (ev: WheelEvent) => {
       ev.preventDefault()

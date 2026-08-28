@@ -1,8 +1,8 @@
-# Sprint 135 — Anomalien + Ihr Plan (`6.81`) **PLAN**
+# Sprint 135 — Anomalien + Ihr Plan (`6.81`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | nach Welt-Tour `6.82` |
 | Ziel-Version | `6.81.0` |
 | Quelle | [`48-next.md`](../48-next.md) |

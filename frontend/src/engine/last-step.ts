@@ -4,6 +4,7 @@ export type LastStep = {
   last_step_when?: string
   last_step_utterance?: string
   last_medium?: string
+  globe_tour_on?: boolean
 }
 
 const FOLLOW_UP =
@@ -71,6 +72,7 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   }
 
   if (HALT.test(raw)) {
+    if (step?.globe_tour_on) return 'Tour aus'
     if (medium === 'tv' || tool === 'tv') return 'Fernseher pause'
     if (medium === 'spotify' || medium === 'drive' || tool === 'drive') return 'Spotify Pause'
     if (tool === 'timer') return 'Timer aus'

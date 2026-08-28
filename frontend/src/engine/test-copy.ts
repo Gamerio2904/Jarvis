@@ -385,6 +385,21 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Nur London', text: 'London' },
     ],
   },
+  {
+    title: 'Globus-Briefing',
+    items: [
+      { label: 'Zeig London GIBS', text: 'Zeig London', expect: { tool: 'hud' } },
+      { label: 'Zeig mir London', text: 'Zeig mir London', expect: { tool: 'hud' } },
+      { label: 'Zeig Hormus', text: 'Zeig Hormus', expect: { tool: 'hud' } },
+      { label: 'Zeig Ingersheim', text: 'Zeig Ingersheim', expect: { tool: 'hud' } },
+      { label: 'Welt-passiert Tour', text: 'Was ist heute so auf der Welt passiert', expect: { tool: 'outlook' } },
+      { label: 'Was passiert in der Welt', text: 'Was passiert in der Welt', expect: { tool: 'outlook' } },
+      { label: 'Weltbrief', text: 'Weltbrief', expect: { tool: 'outlook' } },
+      { label: 'Nachrichten nicht Tour', text: 'Zeig mir die Nachrichten', expect: { tool: 'news' } },
+      { label: 'Street View Won’t', text: 'Zeig Street View von London', expect: { tool: 'wont' } },
+      { label: 'Look nach Fly-to', text: 'Was ist das für eine Stadt?', expect: { tool: 'hud' } },
+    ],
+  },
 ]
 
 export function formatTestCopyGroup(group: TestCopyGroup): string {

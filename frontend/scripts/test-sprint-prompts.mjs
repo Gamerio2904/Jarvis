@@ -6,6 +6,8 @@ import assert from 'node:assert/strict'
 import { pickRoute } from '../src/engine/route-pick.ts'
 import { isHelpCommand, isPersonaAsk } from '../src/engine/guards.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
+import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
+import { parseNewsIntent } from '../src/engine/news-parse.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
 import { parseFaceIntent } from '../src/engine/face-parse.ts'
 import { parseLawIntent } from '../src/engine/law.ts'
@@ -59,6 +61,8 @@ const GOLD = [
   ['Zeig mir Atlantis', 'hud'],
   ['Zeig New York', 'hud'],
   ['mach die weltkugel an', 'hud'],
+  ['Was ist heute so auf der Welt passiert', 'outlook'],
+  ['Weltbrief', 'outlook'],
 ]
 
 const EVERYDAY = [
@@ -238,6 +242,13 @@ assert.equal(
   judgeTurn({ label: 't', text: 'x', expect: { tool: 'taxi', confirm: true, mustNot: ['ist bestellt'] } }, 'Taxi ist bestellt.'),
   'fail',
 )
+
+assert.equal(pickRoute(normalizeUtterance('Was ist heute so auf der Welt passiert')), 'outlook')
+assert.equal(pickRoute(normalizeUtterance('Weltbrief')), 'outlook')
+assert.equal(parseOutlookIntent('Was ist heute so auf der Welt passiert')?.kind, 'world')
+assert.equal(parseNewsIntent('Was ist heute so auf der Welt passiert'), null)
+assert.equal(parseNewsIntent('Zeig mir die Nachrichten')?.kind, 'national')
+assert.equal(pickRoute(normalizeUtterance('Zeig mir die Nachrichten')), 'news')
 
 console.log(`\nrouting fails: ${fail} / ${rows.length}`)
 if (fail) process.exitCode = 2

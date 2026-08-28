@@ -1,8 +1,8 @@
-# Sprint 136 — Globus-Briefing Gold (`6.90`) **PLAN**
+# Sprint 136 — Globus-Briefing Gold (`6.90`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | nach `6.81` |
 | Ziel-Version | `6.90.0` |
 | Quelle | [`48-next.md`](../48-next.md) |
