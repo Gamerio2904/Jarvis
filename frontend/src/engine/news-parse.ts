@@ -60,3 +60,17 @@ function cleanPlace(raw: string): string {
   if (!t || t.length < 2 || SKIP.test(t)) return ''
   return t
 }
+
+/** Treffer nur, wenn der Ortsname nicht bloß in einer Uni-/College-Zeile steht. */
+export function placeInHeadline(place: string, title: string, teaser: string): boolean {
+  const p = place.trim()
+  if (!p) return false
+  const esc = p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const word = new RegExp(`\\b${esc}\\b`, 'i')
+  const affiliation = new RegExp(
+    `(?:king['’]?s\\s+college(?:\\s+${esc})?|university(?:\\s+college)?\\s+of\\s+${esc}|${esc}\\s+(?:university|universität|college|school)|college\\s+${esc})`,
+    'gi',
+  )
+  const cleaned = (s: string) => s.replace(affiliation, ' ')
+  return word.test(cleaned(title)) || word.test(cleaned(teaser))
+}

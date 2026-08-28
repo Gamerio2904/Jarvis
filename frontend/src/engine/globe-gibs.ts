@@ -39,8 +39,8 @@ export function tile2lat(y: number, z: number): number {
 }
 
 export function globeZoomToTileZ(zoom: number): number {
-  const z = Math.floor(3 + (zoom - GIBS_ZOOM_IN) * 1.6)
-  return Math.max(3, Math.min(7, z))
+  const z = Math.floor(4 + (zoom - GIBS_ZOOM_IN) * 2)
+  return Math.max(4, Math.min(7, z))
 }
 
 export function gibsStamp(date: string): string {

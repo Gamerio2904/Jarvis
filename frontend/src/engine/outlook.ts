@@ -15,7 +15,7 @@ import {
   type OilQuote,
   type SeriesPoint,
 } from './outlook-series.ts'
-import { buildTourStops, overviewLine, startTour, stopTour } from './globe-tour.ts'
+import { buildTourStops, startTour, stopTour, tourChatReply } from './globe-tour.ts'
 
 export { parseOutlookIntent, parseOutlookFollowUp } from './outlook-parse.ts'
 export type { OutlookIntent, OutlookKind }
@@ -143,7 +143,7 @@ export async function handleOutlook(
   if (intent.kind === 'world') {
     const stops = buildTourStops(snap.news)
     startTour(stops)
-    reply = `${reply} ${overviewLine(stops)}`.replace(/\s+/g, ' ').trim()
+    reply = tourChatReply(stops)
   }
   const sources = sourcesFromSnap(snap)
   persistLastList('outlook', snap.news.map((n) => n.title).slice(0, 8))
@@ -322,7 +322,16 @@ function tagInner(block: string, name: string): string {
 }
 
 function stripCdata(raw: string): string {
-  return raw.replace(/^<!\[CDATA\[/i, '').replace(/\]\]>$/i, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
+  return raw
+    .replace(/^<!\[CDATA\[/i, '')
+    .replace(/\]\]>$/i, '')
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .trim()
 }
 
 function takeNews(rows: Array<Record<string, unknown>>, provider: string, n: number): OutlookNews[] {

@@ -98,6 +98,10 @@ export async function handleHud(
     const lon = at?.lon ?? NaN
     const hit = nearestPlace(lat, lon)
     if (hit) {
+      const cached = (s.last_globe_brief || '').trim()
+      if (cached.toLowerCase().includes(hit.name.toLowerCase())) {
+        return pack(cached)
+      }
       const reply = await briefPlace(fromPlaceFix(hit))
       saveSettings({ last_globe_brief: reply.slice(0, 500) })
       return pack(reply)

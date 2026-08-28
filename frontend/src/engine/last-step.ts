@@ -75,6 +75,7 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     if (step?.globe_tour_on) return 'Tour aus'
     if (medium === 'tv' || tool === 'tv') return 'Fernseher pause'
     if (medium === 'spotify' || medium === 'drive' || tool === 'drive') return 'Spotify Pause'
+    if (tool === 'outlook') return 'Tour aus'
     if (tool === 'timer') return 'Timer aus'
     if (tool === 'alarm') return 'Wecker aus'
     return null

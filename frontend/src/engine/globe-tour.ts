@@ -9,7 +9,7 @@ import type { OutlookNews } from './outlook.ts'
 import type { OutlookTag } from './outlook-tags.ts'
 
 export const TOUR_SKIP =
-  /\b(fußball|fussball|bundesliga|wetter|unwetter|unfall|stau|verkehr|sport|tennis|formel\s*1|handball|olympia|boxen)\b/i
+  /\b(fußball|fussball|bundesliga|wetter|unwetter|unfall|stau|verkehr|sport|tennis|formel\s*1|handball|olympia|boxen|nachruf|gestorben|kunstmuseum|biennale)\b/i
 
 export const TOUR_OVERVIEW_MS = 2500
 export const TOUR_STOP_MS = 7500
@@ -49,7 +49,7 @@ export function buildTourStops(news: OutlookNews[]): GlobeTourStop[] {
   for (const n of news) {
     const blob = `${n.title} ${n.teaser}`
     if (TOUR_SKIP.test(blob)) continue
-    let c = matchCountry(blob)
+    let c = matchCountry(n.title) || matchCountry(`${n.title} ${n.teaser}`)
     if (!c) {
       const tag = (n.tags || []).find((t) => TAG_FALLBACK[t])
       const id = tag ? TAG_FALLBACK[tag] : ''
@@ -199,4 +199,10 @@ export function overviewLine(stops: GlobeTourStop[]): string {
     return 'In Tagesschau und DW steht gerade keine weltpolitische Lage, die ich einem Land zuordnen kann. Kein Geheim-Feed, nichts erfunden.'
   }
   return `Auf der Kugel leuchten ${stops.map((s) => s.name).join(', ')}. Nacheinander, Stopp bricht ab. Quellen Tagesschau und DW, kein Live.`
+}
+
+export function tourChatReply(stops: GlobeTourStop[]): string {
+  if (!stops.length) return overviewLine(stops)
+  const stopLines = stops.map((s, i) => `${i + 1}. ${s.name}: ${s.title}`).join(' ')
+  return `${overviewLine(stops)} ${stopLines}`.replace(/\s+/g, ' ').trim()
 }

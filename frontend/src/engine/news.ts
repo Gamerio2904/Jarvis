@@ -1,11 +1,11 @@
 import { getJson } from './http-json'
 import { fillResearchLinks } from './web-search'
 import { formatResearchReply, researchHasSources, type ResearchMeta, type ResearchSource } from './research-parse'
-import { parseNewsIntent } from './news-parse'
+import { parseNewsIntent, placeInHeadline } from './news-parse'
 import type { ToolMeta } from './tools'
 import { saveSettings } from './store'
 
-export { parseNewsIntent } from './news-parse'
+export { parseNewsIntent, placeInHeadline } from './news-parse'
 
 const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.1.0 (local.jarvis.app)' }
 const TS = 'https://www.tagesschau.de/api2u'
@@ -96,11 +96,9 @@ export async function tagesschauSearch(place: string): Promise<{ hits: string[];
     const { status, json } = await getJson(`${TS}/search?${q}`, UA)
     if (status < 200 || status >= 300) return { hits: [], sources: [] }
     const rows = (json.searchResults as Array<Record<string, unknown>> | undefined) || []
-    const needle = place.toLowerCase()
-    const tight = rows.filter((r) => {
-      const blob = `${r.title || ''} ${r.teaser || r.firstSentence || ''}`.toLowerCase()
-      return blob.includes(needle)
-    })
+    const tight = rows.filter((r) =>
+      placeInHeadline(place, String(r.title || ''), String(r.teaser || r.firstSentence || '')),
+    )
     return take(tight, 3)
   } catch {
     return { hits: [], sources: [] }

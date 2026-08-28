@@ -402,7 +402,10 @@ export function GlobeView({
         const e = 1 - (1 - k) * (1 - k)
         yaw.current += shortest(yaw.current, f.yaw) * (0.12 + e * 0.2)
         pitch.current += (f.pitch - pitch.current) * (0.12 + e * 0.2)
-        zoom.current += (f.zoom - zoom.current) * (0.08 + e * 0.12)
+        zoom.current =
+          f.zoom >= GIBS_ZOOM_IN && zoom.current < GIBS_ZOOM_IN
+            ? GIBS_ZOOM_IN
+            : zoom.current + (f.zoom - zoom.current) * (0.18 + e * 0.22)
         if (k >= 1 && Math.abs(shortest(yaw.current, f.yaw)) < 0.01) {
           yaw.current = f.yaw
           pitch.current = f.pitch

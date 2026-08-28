@@ -27,19 +27,17 @@ export function focusJson(place: PlaceBrief, zoom = CITY_FLY_ZOOM): string {
 
 export async function briefPlace(place: PlaceBrief): Promise<string> {
   const parts: string[] = [`Das ist ${place.name}, ${place.blurb}`.replace(/\s+/g, ' ').trim()]
-  const news = await newsLine(place.name)
+  const [news, market, warn, plan] = await Promise.all([
+    newsLine(place.name),
+    marketLine(place.name),
+    anomalyLines(place),
+    planLine(place.name),
+  ])
   if (news) parts.push(news)
   else parts.push(`Die Tagesschau erwähnt ${place.name} gerade nicht. Eine Lokalnachricht würde ich nicht erfinden.`)
-
-  const market = await marketLine(place.name)
   if (market) parts.push(market)
-
-  const warn = await anomalyLines(place)
   parts.push(...warn)
-
-  const plan = await planLine(place.name)
   if (plan) parts.push(plan)
-
   const canned = parts.join(' ').replace(/\s+/g, ' ').trim()
   return polishToolLine(canned, canned)
 }
@@ -83,33 +81,33 @@ async function marketLine(name: string): Promise<string | null> {
 }
 
 async function anomalyLines(place: PlaceBrief): Promise<string[]> {
-  const out: string[] = []
-  if (isGermanPlace(place.name)) {
-    try {
-      const dwd = await dwdLineForPlace(place.name)
-      if (dwd) out.push(dwd)
-    } catch {
-      /* skip */
-    }
-  }
-  try {
-    const iss = await fetchIssNow()
-    if (iss && haversineKm(place, iss) <= ISS_VIEW_KM) {
-      out.push(
-        `Die ISS steht in der Region um ${place.name} (${iss.lat.toFixed(1)}°, ${iss.lon.toFixed(1)}°; Where The ISS At). Kein Überflug erfunden.`,
-      )
-    }
-  } catch {
-    /* skip */
-  }
-  const eonet = await eonetLine(place)
-  if (eonet) out.push(eonet)
-  return out
+  const [dwd, issLine, eonet] = await Promise.all([
+    isGermanPlace(place.name)
+      ? dwdLineForPlace(place.name).catch(() => null)
+      : Promise.resolve(null),
+    fetchIssNow()
+      .then((iss) => {
+        if (!iss || haversineKm(place, iss) > ISS_VIEW_KM) return null
+        return `Die ISS steht in der Region um ${place.name} (${iss.lat.toFixed(1)}°, ${iss.lon.toFixed(1)}°; Where The ISS At). Kein Überflug erfunden.`
+      })
+      .catch(() => null),
+    eonetLine(place),
+  ])
+  return [dwd, issLine, eonet].filter((x): x is string => Boolean(x))
 }
 
 async function eonetLine(place: PlaceBrief): Promise<string | null> {
   try {
-    const { status, json } = await getJson('https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=16', UA)
+    const timed = new Promise<null>((resolve) => {
+      globalThis.setTimeout(() => resolve(null), 4000)
+    })
+    const fetched = (async () => {
+      const { status, json } = await getJson('https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=16', UA)
+      return { status, json }
+    })()
+    const raced = await Promise.race([fetched, timed])
+    if (!raced) return null
+    const { status, json } = raced
     if (status < 200 || status >= 300) return null
     const events = (json.events as Array<Record<string, unknown>> | undefined) || []
     for (const ev of events) {
