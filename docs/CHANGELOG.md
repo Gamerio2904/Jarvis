@@ -15,6 +15,7 @@ Bündelt Sprints 115–120 in einer App-Version. Sideload bleibt `3.18.1`.
 - **Kugel:** Lage-Sicht Erde, Terminator, Pins aus GPS/ISS/DWD/outlook-Lexikon. Kein Live-Satellitenvideo.
 - **Debug:** Klickboxen, neues Gespräch, Writes-Warnung, Stop, JSON+TXT mit Verdict. Kein Auto-Ja. App offen lassen.
 - **Sehen:** Parser für Zeig/Zählen/Tippen/Beleg/zwei Schritte. `/v1/ground` Client. Ohne JarvisSee: ehrlich aus, keine Fake-Boxen.
+- **Parser-Patches nach Prompt-Test:** Alltag `zeig mal den Körper` / `mach die Kugel aus` / `Zeig PC Auge`. `Wo liegt Berlin` = Kugel-Pin, nicht Schreibtisch-Foto. Captcha/Banking/Handy-GUI = ehrlich Won’t. `Einstellungen dann Datenschutz` ohne Komma. `Zeig den Mond`. `Was steht am Friday an?` = Kalender. Doppelbefehle mit Körper/Erde/Grillen splitten.
 
 ### `5.11.0` — Debug-Lauf — *war PLAN*
 

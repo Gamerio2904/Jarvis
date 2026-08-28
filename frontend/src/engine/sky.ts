@@ -10,7 +10,13 @@ export function parseSkyIntent(text: string): SkyIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 140) return null
   if (/\b(iss|internationale\s+raumstation)\b/i.test(t)) return { kind: 'iss' }
-  if (/\b(mondphase|mond\s+heute|vollmond|neumond|wie\s+ist\s+der\s+mond)\b/i.test(t)) return { kind: 'moon' }
+  if (
+    /\b(mondphase|mond\s+heute|vollmond|neumond|wie\s+ist\s+der\s+mond|zeig(?:e)?\s+(?:mir\s+)?(?:den\s+|die\s+|das\s+)?mond)\b/i.test(
+      t,
+    )
+  ) {
+    return { kind: 'moon' }
+  }
   return null
 }
 

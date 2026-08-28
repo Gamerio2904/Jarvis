@@ -48,6 +48,7 @@ import { parseOutlookIntent } from './outlook-parse.ts'
 import { parseTaxiIntent } from './taxi-parse.ts'
 import { parseBackupIntent } from './backup.ts'
 import { parseFaceIntent } from './face-parse.ts'
+import { parseWontIntent } from './wont-parse.ts'
 import { applyConflicts } from './conflicts.ts'
 import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
@@ -59,6 +60,7 @@ function score(text: string, extra = 0): number {
 type Parser = (ctx: RouteCtx) => number | null
 
 const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
+  { id: 'wont', sideEffect: 'read', parse: (ctx) => (parseWontIntent(ctx.text) ? score(ctx.text, 0.4) : null) },
   { id: 'tv', sideEffect: 'device', parse: (ctx) => (parseTvWatch(ctx.text) || parseTvIntent(ctx.text, ctx.lastTool === 'tv') ? score(ctx.text, 0.06) : null) },
   { id: 'film', sideEffect: 'read', parse: (ctx) => (parseFilmIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
   { id: 'fan', sideEffect: 'device', parse: (ctx) => (parseFanIntent(ctx.text, ctx.lastTool === 'fan') ? score(ctx.text, 0.05) : null) },

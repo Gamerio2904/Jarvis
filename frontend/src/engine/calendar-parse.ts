@@ -7,7 +7,7 @@ export type CalendarIntent =
   | { kind: 'delete_last' }
   | { kind: 'open' }
 
-const WEEKDAYS = 'montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonnabend|sonntag'
+const WEEKDAYS = 'montag|dienstag|mittwoch|donnerstag|freitag|friday|samstag|sonnabend|sonntag'
 const CREATE = /^\s*termin(?:e)?\s*[:-]?\s*(.+)$/is
 const CREATE_NL =
   /^\s*(?:erstell(?:e)?|leg(?:e)?\s+an|mach(?:e)?)\s+(?:einen?\s+)?termin(?:\s+für)?(?:\s+den)?\s+(\d{1,2})\.(\d{1,2})\.?\s*(\d{2,4})?\s*[, ]+(?:um\s+)?(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?\s*[,:]?\s+(.+)$/is
@@ -38,6 +38,7 @@ const WEEKDAY_JS: Record<string, number> = {
   mittwoch: 3,
   donnerstag: 4,
   freitag: 5,
+  friday: 5,
   samstag: 6,
   sonnabend: 6,
 }

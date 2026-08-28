@@ -9,6 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test:014": "node --experimental-strip-types scripts/test-014.mjs",
+    "test:sprint": "node --experimental-strip-types scripts/test-sprint-prompts.mjs",
     "test:pc": "node --experimental-strip-types scripts/test-pc.mjs",
     "test:prompts": "node --experimental-strip-types scripts/test-prompts.mjs",
     "test:gemini": "node --experimental-strip-types scripts/test-gemini-fallback.mjs",

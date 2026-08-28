@@ -87,6 +87,7 @@ import { handleTaxi } from './taxi'
 import { parseBackupIntent, handleBackup } from './backup'
 import { parseFaceIntent } from './face-parse.ts'
 import { handleFace } from './face.ts'
+import { parseWontIntent, handleWont } from './wont-parse.ts'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -158,6 +159,13 @@ async function fromHandler(
 
 function makeCatalog(): Capability[] {
   return [
+    {
+      id: 'wont',
+      label: 'Won’t',
+      sideEffect: 'read',
+      parse: (ctx) => (parseWontIntent(ctx.text) ? score(ctx.text, 0.4) : null),
+      execute: async (ctx) => fromHandler('wont', handleWont(ctx.text)),
+    },
     {
       id: 'tv',
       label: 'Fernseher',

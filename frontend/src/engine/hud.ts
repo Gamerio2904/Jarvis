@@ -83,6 +83,19 @@ export async function handleHud(
     })
     return pack(`${organLabel(intent.id)} in der Lage. Kein Tool gestartet.`)
   }
+  if (intent.kind === 'pin') {
+    saveSettings({
+      hud_view: 'globe',
+      hud_force: true,
+      hud_hidden: false,
+      last_globe_focus: JSON.stringify({ name: intent.name, lat: intent.lat, lon: intent.lon }),
+    })
+    const ns = intent.lat >= 0 ? 'Nord' : 'Süd'
+    const ew = intent.lon >= 0 ? 'Ost' : 'West'
+    return pack(
+      `${intent.name} liegt bei ${Math.abs(intent.lat).toFixed(1)}° ${ns}, ${Math.abs(intent.lon).toFixed(1)}° ${ew}. Kugel in der Lage. Kein Live-Satellit.`,
+    )
+  }
   const next = setHudModule(intent.id, intent.on)
   const label = HUD_CATALOG.find((c) => c.id === intent.id)?.label || intent.id
   return pack(intent.on ? `${label} an.` : `${label} aus.`, next)

@@ -1,3 +1,4 @@
+import { gazetteerHit } from './globe-geo.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export const HUD_CATALOG = [
@@ -83,8 +84,10 @@ const ORGAN_ALIAS: Record<string, BodyOrgan> = {
   gedächtnis: 'memory',
   gedaechtnis: 'memory',
   'pc-auge': 'pc_eye',
+  'pc auge': 'pc_eye',
   pcauge: 'pc_eye',
   'pc-hand': 'pc_hand',
+  'pc hand': 'pc_hand',
   pchand: 'pc_hand',
 }
 
@@ -95,9 +98,17 @@ export type HudIntent =
   | { kind: 'list' }
   | { kind: 'view'; view: HudView }
   | { kind: 'organ'; id: BodyOrgan }
+  | { kind: 'pin'; name: string; lat: number; lon: number }
+
+function hudText(raw: string): string {
+  return normalizeUtterance(raw.trim())
+    .replace(/\b(bitte|mal|doch|einfach)\b/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
 export function parseHudIntent(text: string): HudIntent | null {
-  const t = normalizeUtterance(text.trim())
+  const t = hudText(text)
   if (!t || t.length > 80) return null
   if (/^\s*(?:lage|tablet(?:[- ]?lage)?|hud)\s+(an|ein|auf|zeig(?:e)?)\s*$/i.test(t)) {
     return { kind: 'lage', on: true }
@@ -113,27 +124,39 @@ export function parseHudIntent(text: string): HudIntent | null {
   if (/^\s*(?:module|kacheln|lage[- ]?kacheln)\s*$/i.test(t)) return { kind: 'list' }
 
   if (
-    /^\s*(?:körper|koerper)\s+(an|ein|auf|zeig(?:e)?)\s*$/i.test(t) ||
-    /^\s*zeig(?:e)?\s+(?:den\s+|mir\s+)?(?:den\s+)?körper\s*$/i.test(t) ||
-    /^\s*zeig(?:e)?\s+hirn\s*$/i.test(t)
+    /^\s*(?:mach(?:e)?\s+)?(?:den\s+|die\s+)?(?:körper|koerper)\s+(an|ein|auf|zeig(?:e)?)\s*$/i.test(t) ||
+    /^\s*zeig(?:e)?\s+(?:mir\s+)?(?:den\s+|die\s+)?(?:körper|koerper)\s*$/i.test(t) ||
+    /^\s*zeig(?:e)?\s+hirn\s*$/i.test(t) ||
+    /^\s*den\s+(?:körper|koerper)\s*$/i.test(t)
   ) {
     return { kind: 'view', view: 'body' }
   }
-  if (/^\s*(?:körper|koerper)\s+(aus|weg|zu)\s*$/i.test(t)) {
+  if (
+    /^\s*(?:mach(?:e)?\s+)?(?:den\s+|die\s+)?(?:körper|koerper)\s+(aus|weg|zu)\s*$/i.test(t)
+  ) {
     return { kind: 'view', view: 'tiles' }
   }
   if (
-    /^\s*(?:kugel|weltkugel|erde)\s+(an|ein|auf)\s*$/i.test(t) ||
-    /^\s*zeig(?:e)?\s+(?:die\s+)?(?:erde|kugel|weltkugel)\s*$/i.test(t) ||
-    /^\s*weltkugel\s*$/i.test(t)
+    /^\s*(?:mach(?:e)?\s+)?(?:die\s+)?(?:kugel|weltkugel|erde)\s+(an|ein|auf)\s*$/i.test(t) ||
+    /^\s*zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?(?:erde|kugel|weltkugel)\s*$/i.test(t) ||
+    /^\s*weltkugel\s*$/i.test(t) ||
+    /^\s*die\s+(?:erde|kugel|weltkugel)\s*$/i.test(t)
   ) {
     return { kind: 'view', view: 'globe' }
   }
-  if (/^\s*(?:kugel|weltkugel|erde)\s+(aus|weg|zu)\s*$/i.test(t)) {
+  if (
+    /^\s*(?:mach(?:e)?\s+)?(?:die\s+)?(?:kugel|weltkugel|erde)\s+(aus|weg|zu)\s*$/i.test(t)
+  ) {
     return { kind: 'view', view: 'tiles' }
   }
 
-  const organ = /^\s*zeig(?:e)?\s+(?:das\s+|die\s+|den\s+)?(hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|gedaechtnis|pc-auge|pc-hand)\s*$/i.exec(
+  const where = /^\s*wo\s+(?:liegt|ist)\s+(.+?)\s*$/i.exec(t)
+  if (where) {
+    const hit = gazetteerHit(where[1])
+    if (hit) return { kind: 'pin', name: hit.name, lat: hit.lat, lon: hit.lon }
+  }
+
+  const organ = /^\s*zeig(?:e)?\s+(?:mir\s+)?(?:das\s+|die\s+|den\s+)?(hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|gedaechtnis|pc[- ]auge|pc[- ]hand|pcauge|pchand)\s*$/i.exec(
     t,
   )
   if (organ) {

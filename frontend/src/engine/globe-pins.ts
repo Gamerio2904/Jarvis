@@ -8,6 +8,19 @@ const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/5.11.0 (local.jar
 export async function loadGlobePins(): Promise<GeoFix[]> {
   const s = loadSettings()
   const pins: GeoFix[] = []
+  try {
+    const raw = s.last_globe_focus
+    if (raw) {
+      const focus = JSON.parse(raw) as { name?: string; lat?: number; lon?: number }
+      const lat = Number(focus.lat)
+      const lon = Number(focus.lon)
+      if (focus.name && Number.isFinite(lat) && Number.isFinite(lon)) {
+        pins.push({ name: focus.name, lat, lon, kind: 'outlook', line: 'Gazetteer' })
+      }
+    }
+  } catch {
+    /* ignore */
+  }
   const lat = Number(s.last_lat)
   const lon = Number(s.last_lon)
   if (Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90) {

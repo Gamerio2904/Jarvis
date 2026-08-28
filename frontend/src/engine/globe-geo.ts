@@ -34,10 +34,16 @@ export function pinForTag(tag: OutlookTag): GeoFix | null {
   return TAG_FIX[tag] || null
 }
 
-export function pinForText(blob: string): GeoFix | null {
+export function gazetteerHit(blob: string): { name: string; lat: number; lon: number } | null {
   const t = blob || ''
   for (const p of PLACES) {
-    if (p.re.test(t)) return { name: p.name, lat: p.lat, lon: p.lon, kind: 'news', line: t.slice(0, 140) }
+    if (p.re.test(t)) return { name: p.name, lat: p.lat, lon: p.lon }
   }
   return null
+}
+
+export function pinForText(blob: string): GeoFix | null {
+  const hit = gazetteerHit(blob)
+  if (!hit) return null
+  return { ...hit, kind: 'news', line: (blob || '').slice(0, 140) }
 }
