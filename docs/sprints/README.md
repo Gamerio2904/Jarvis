@@ -53,7 +53,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 46 | [`sprint-46.md`](./sprint-46.md) | `0.13.2` | Chat-Hang Hotfix | **CODE** |
 | 47 | [`sprint-47.md`](./sprint-47.md) | `0.14.0` | Qualität & Latenz (bestehendes) | **CODE** (in `0.14.1`) |
 | 48 | [`sprint-48.md`](./sprint-48.md) | `0.14.1` | TV verbinden & steuern | **CODE** |
-| 50 | [`sprint-50.md`](./sprint-50.md) | `0.16.0` | Gemini Opt-in | **CODE** |
+| 50 | [`sprint-50.md`](./sprint-50.md) | `0.16.0` | Gemini Opt-in (ab `6.50` Hauptweg) | **CODE** |
 | 51 | [`sprint-51.md`](./sprint-51.md) | `1.1.0` | Sound + Research-Quellen | **CODE** |
 | 52 | [`sprint-52.md`](./sprint-52.md) | `1.2.0` | Erinnerungen mit Zeit | **CODE** |
 | 53 | [`sprint-53.md`](./sprint-53.md) | `1.3.0` | Ort & Wetter | **CODE** |
@@ -124,18 +124,24 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 118 | [`sprint-118.md`](./sprint-118.md) | `4.94.0` | Sehen Schreibtisch, Wasch, EAN, zwei Schritte | **CODE** Parser |
 | 119 | [`sprint-119.md`](./sprint-119.md) | `5.0.0` | Weltkugel in der Lage | **CODE** (in `5.11.0`) |
 | 120 | [`sprint-120.md`](./sprint-120.md) | `5.11.0` | Debug-Lauf: Kategorien, Sequenz, Export | **CODE** |
-| 121 | [`sprint-121.md`](./sprint-121.md) | `6.0.0` | Bühne & Hirn: Leitentscheidung | **PLAN** |
-| 122 | [`sprint-122.md`](./sprint-122.md) | `6.10.0` | Motion-Kern + GUI Over-the-top | **PLAN** |
-| 123 | [`sprint-123.md`](./sprint-123.md) | `6.20.0` | Körper & Kugel cinematic | **PLAN** |
-| 124 | [`sprint-124.md`](./sprint-124.md) | `6.30.0` | Fahrmodus-Bühne | **PLAN** |
-| 125 | [`sprint-125.md`](./sprint-125.md) | `6.40.0` | Sprach-Theater + Stimme | **PLAN** |
-| 126 | [`sprint-126.md`](./sprint-126.md) | `6.50.0` | Hirn: Schliff, Kontext, Modell-Spike | **PLAN** |
-| 127 | [`sprint-127.md`](./sprint-127.md) | `6.60.0` | Agentic Recall: Leitentscheidung | **PLAN** |
-| 128 | [`sprint-128.md`](./sprint-128.md) | `6.61.0` | Retrieve + RRF + Prompt-Block | **PLAN** |
-| 129 | [`sprint-129.md`](./sprint-129.md) | `6.70.0` | Working Memory Overwrite | **PLAN** |
-| 130 | [`sprint-130.md`](./sprint-130.md) | `6.80.0` | Sleep-Time + Recall-Tool | **PLAN** |
+| 121 | [`sprint-121.md`](./sprint-121.md) | `6.0.0` | Bühne & Hirn: Leitentscheidung | **CODE** (in `6.50.0`) |
+| 122 | [`sprint-122.md`](./sprint-122.md) | `6.10.0` | Motion-Kern + GUI Over-the-top | **CODE** (in `6.50.0`) |
+| 123 | [`sprint-123.md`](./sprint-123.md) | `6.20.0` | Körper-Show + virtueller Globus (GIBS, Zeig Stadt) | **CODE** (in `6.50.0`) |
+| 124 | [`sprint-124.md`](./sprint-124.md) | `6.30.0` | Fahrmodus-Bühne | **CODE** (in `6.50.0`) |
+| 125 | [`sprint-125.md`](./sprint-125.md) | `6.40.0` | Sprach-Theater + Stimme | **CODE** (in `6.50.0`) |
+| 126 | [`sprint-126.md`](./sprint-126.md) | `6.50.0` | Hirn: Gemini zuerst, Groq/0,5B Backup | **CODE** |
+| 127 | [`sprint-127.md`](./sprint-127.md) | `6.51.0` | Parser-Patches nach Prompt-Test | **CODE** |
+| 128 | [`sprint-128.md`](./sprint-128.md) | `6.52.0` | Live-Split + Identität ohne Hirn | **CODE** (in `6.60.0`) |
+| 129 | [`sprint-129.md`](./sprint-129.md) | `6.53.0` | Overlay: Gemini zuerst | **CODE** (in `6.60.0`) |
+| 130 | [`sprint-130.md`](./sprint-130.md) | `6.60.0` | Sideload APK | **CODE** |
+| 131 | [`sprint-131.md`](./sprint-131.md) | `6.70.0` | Globus-Briefing Leitentscheidung | **CODE** (Docs) |
+| 132 | [`sprint-132.md`](./sprint-132.md) | `6.71.0` | Research Satellit + Land | **CODE** |
+| 133 | [`sprint-133.md`](./sprint-133.md) | `6.80.0` | Fly-to Satellit + Stadt-Briefing | **CODE** |
+| 134 | [`sprint-134.md`](./sprint-134.md) | `6.82.0` | Welt-Tour Glow, Seite, Zoom | **CODE** |
+| 135 | [`sprint-135.md`](./sprint-135.md) | `6.81.0` | Anomalien + Ihr Plan | **CODE** |
+| 136 | [`sprint-136.md`](./sprint-136.md) | `6.90.0` | Globus-Briefing Gold | **CODE** |
 
-**Aktuell:** Code **`5.11.0`**. Sideload `3.18.1`. Nächste Schiene: Bühne & Hirn [`45-next.md`](../45-next.md). Recall danach [`46-next.md`](../46-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`6.90.0`**. Sideload `6.60.0`. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

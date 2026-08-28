@@ -104,5 +104,8 @@ export function parseDriveIntent(text: string, inMode = false): DriveIntent | nu
     const dest = destOf(d[1])
     if (dest) return inMode ? { kind: 'dest', query: dest } : { kind: 'on', dest }
   }
+  if (/^\s*(?:wie\s+komme\s+ich|wie\s+komme\s+wir)\s+(?:nach\s+)?(?:hause|heim|zuhause)\s*[.!?]*$/i.test(t)) {
+    return inMode ? { kind: 'dest', query: 'zuhause' } : { kind: 'on', dest: 'zuhause' }
+  }
   return null
 }

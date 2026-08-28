@@ -52,6 +52,8 @@ import { parseWontIntent } from './wont-parse.ts'
 import { applyConflicts } from './conflicts.ts'
 import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
+import { isPersonaAsk } from './guards.ts'
+import { promoteSplitPart, splitIntents } from './split-intents.ts'
 
 function score(text: string, extra = 0): number {
   return parserScore(text, extra)
@@ -61,6 +63,7 @@ type Parser = (ctx: RouteCtx) => number | null
 
 const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'wont', sideEffect: 'read', parse: (ctx) => (parseWontIntent(ctx.text) ? score(ctx.text, 0.4) : null) },
+  { id: 'identity', sideEffect: 'read', parse: (ctx) => (isPersonaAsk(ctx.text) ? score(ctx.text, 0.45) : null) },
   { id: 'tv', sideEffect: 'device', parse: (ctx) => (parseTvWatch(ctx.text) || parseTvIntent(ctx.text, ctx.lastTool === 'tv') ? score(ctx.text, 0.06) : null) },
   { id: 'film', sideEffect: 'read', parse: (ctx) => (parseFilmIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
   { id: 'fan', sideEffect: 'device', parse: (ctx) => (parseFanIntent(ctx.text, ctx.lastTool === 'fan') ? score(ctx.text, 0.05) : null) },
@@ -168,11 +171,26 @@ export function propose(ctx: RouteCtx): Candidate[] {
   return withCost(withPrior(applyConflicts(raw, ctx.text, ctx), ctx.lastTool, isFollowish(ctx.text)))
 }
 
-export function pickRouteFromCtx(ctx: RouteCtx): string | null {
+function pickOneFromCtx(ctx: RouteCtx): string | null {
   const pick = pickPolicy(propose(ctx))
   if (pick.kind === 'run') return pick.id
   if (pick.kind === 'ask') return pick.a
   return null
+}
+
+export function pickRouteFromCtx(ctx: RouteCtx): string | null {
+  const whole = pickOneFromCtx(ctx)
+  if (whole === 'wont') return 'wont'
+  const parts = splitIntents(ctx.text)
+  if (parts.length > 1) {
+    let last: string | null = null
+    for (const raw of parts) {
+      const id = pickOneFromCtx({ ...ctx, text: promoteSplitPart(raw) })
+      if (id) last = id
+    }
+    if (last) return last
+  }
+  return whole
 }
 
 export function pickRoute(text: string): string | null {

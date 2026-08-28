@@ -20,6 +20,7 @@ import {
   type MapFix,
 } from './engine/drive-map'
 import { formatNavBanner, nextManeuver } from './engine/nav-speak'
+import { isDocumentHidden, prefersReducedMotion } from './engine/motion'
 import { watchDeviceLocation } from './native/geo'
 import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, speakText, stopListen, stopSpeak } from './native/voice'
 import { isChatSpeaking } from './engine/speak-lock'
@@ -183,6 +184,7 @@ function FollowMap({
       const canvas = canvasRef.current
       const pin = youRef.current
       if (!box || !canvas) return
+      if (isDocumentHidden()) return
       const cssW = box.clientWidth
       const cssH = box.clientHeight
       if (cssW < 8 || cssH < 8) return
@@ -505,8 +507,8 @@ export function DriveMode({
       route.coords,
       pos,
     )
-    if (!nxt) return { arrow: '↑', line: route.dest || 'Wohin?', sub: route.hint || '' }
-    return formatNavBanner(nxt.dir, nxt.meters, nxt.name, nxt.exit)
+    if (!nxt) return { arrow: '↑', line: route.dest || 'Wohin?', sub: route.hint || '', dir: 'straight' as const }
+    return { ...formatNavBanner(nxt.dir, nxt.meters, nxt.name, nxt.exit), dir: nxt.dir }
   }, [here, route])
 
   const km = route && route.meters ? (route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`) : ''
@@ -585,7 +587,8 @@ export function DriveMode({
         </div>
       </header>
       {hud ? (
-        <div className={`drive-hud ${dayTiles() ? 'is-day' : ''}`} aria-live="polite">
+        <div className={`drive-hud ${dayTiles() ? 'is-day' : ''}${prefersReducedMotion() ? ' is-still' : ''}`} aria-live="polite">
+          <span className={`drive-hud-chevron is-${hud.dir}`} aria-hidden />
           <span className="drive-hud-arrow">{hud.arrow}</span>
           <div>
             <strong>{hud.line}</strong>
@@ -725,7 +728,11 @@ export function DriveMode({
         <button type="button" className={tab === 'map' ? 'is-on' : ''} onClick={() => setDriveTab('map')}>
           Karte
         </button>
-        <button type="button" className={tab === 'spotify' ? 'is-on' : ''} onClick={() => setDriveTab('spotify')}>
+        <button
+          type="button"
+          className={`${tab === 'spotify' ? 'is-on' : ''}${now?.playing ? ' is-playing' : ''}`}
+          onClick={() => setDriveTab('spotify')}
+        >
           Spotify
         </button>
         <button

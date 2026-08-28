@@ -1,27 +1,24 @@
-# Sprint 129 — Working Memory Overwrite (`6.70`) **PLAN**
+# Sprint 129 — Overlay: Gemini zuerst
 
-| Feld | Wert |
-|------|------|
-| Status | **PLAN** |
-| Priorität | nach Retrieve `6.61` |
-| Ziel-Version | `6.70.0`; `6.71` Digest in [`46-next.md`](../46-next.md) |
-| Voraussetzung | Sprint 128 |
-| Quelle | MemAgent: festes Panel, überschreiben, nicht anhängen |
+**Version:** `6.53.0` (mitgeliefert in `6.60.0`)  
+**Status:** CODE (in App `6.60.0`)  
+**Quelle:** [`47-next.md`](../47-next.md) · [`45-next.md`](../45-next.md)
 
 ## Ziel
 
-Ein Feld `working_memory` (max. ~8 Zeilen / 600 Zeichen). Nach jedem Tool- oder LLM-Turn: Overwrite nach Sorte (TV-Zeile ersetzt TV-Zeile). Smalltalk schreibt nichts. Digest liest Panel + last 8, nicht 24 raw Turns.
+Erststart schiebt nicht das 0,5B-Modell als Hauptweg. Gemini-Key zuerst, Groq Backup, lokales Modell letzter Knopf. Tools ohne Hirn nutzbar (Fertig).
 
 ## Must
 
-| ID | Inhalt |
-|----|--------|
-| W1 | Panel-Kappe hart; älteste Zeile fliegt |
-| W2 | Tool-Sorten ersetzen sich; kein Append-only |
-| W3 | Prompt-Reihenfolge: Persona, Memory-Block, Working Memory, last_k |
-| W4 | `digest.ts` nutzt dasselbe Panel |
-| W5 | 40-Turn-Gold: Prompt bleibt klein |
+- Overlay-Titel und Primärknopf: Gemini.
+- Fertig ohne Download; Dismissal bleibt (Settings-Flag).
+- 0,5B als Backup beschriftet.
+- Hinweis Hausstand vor Neuinstall.
 
-## Won’t (dieser Sprint)
+## Won’t
 
-MemAgent-7B. Sleep-Upsert. Embedding. Sideload.
+Auto-Download. Overlay überspringen wenn Gemini-Key schon da (bleibt).
+
+## Done when
+
+Ohne Key: Overlay bietet Gemini und Fertig, Download ist nicht der erste Knopf.

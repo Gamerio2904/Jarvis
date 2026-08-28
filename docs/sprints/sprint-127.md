@@ -1,28 +1,25 @@
-# Sprint 127 — Agentic Recall Leitentscheidung (`6.60`) **PLAN**
+# Sprint 127 — Parser-Patches nach 6.50-Prompt-Test
 
-| Feld | Wert |
-|------|------|
-| Status | **PLAN** |
-| Priorität | nach Hirn-Schliff `6.50` in derselben Lieferung; **darf** vor Bühne `6.10` wenn PO Intelligenz zuerst will |
-| Ziel-Version | `6.60.0` (Research in diesem Doc; Bau `6.61`–`6.65` = Sprint 128) |
-| Quelle | PO: NVIDIA Agentic Retrieval, MemAgent, LightMem — Fragen LanceDB/Nemotron, Gemini-Opt-in, Won’t Punkt 8 |
-| Plan | [`46-next.md`](../46-next.md) |
-| Baut auf | Memory `0.4` / Chatsuche `1.24` / Register `3.0` / Gemini Opt-in `0.16` |
+**Version:** `6.51.0`  
+**Status:** CODE  
+**Quelle:** [`46-test-650.md`](../46-test-650.md) · Execute [`46-next.md`](../46-next.md)
 
 ## Ziel
 
-Festschreiben, **was** nach `6.50` die nächste Intelligenz ist: lokale Retrieve-Schleife über IndexedDB. Kein LanceDB, kein Nemotron, kein zweites Cloud-Produkt. Kein Execute.
+Falsche Tools und stumme Naive-Fragen aus dem 6.50-Lauf schließen. Katalog war schon in `6.50`. Kein neues Modell, kein Sideload.
 
 ## Must
 
-| ID | Inhalt |
-|----|--------|
-| R1 | Vorteile/Nachteile LanceDB + Nemotron schriftlich, Votum Won’t |
-| R2 | Cloud = bestehende Kaskade Gemini→Groq, Default aus; Sleep ohne Key nur Regeln |
-| R3 | Punkt 8 (Embedding-Router, 0,5B-Tools, keine Python-Deps, kein Alles-Mitschneiden, kein Auge in dieser Schiene) begründet |
-| R4 | Version `6.60`, kein Clash mit `5.0` Kugel / `6.0` Bühne |
-| R5 | Execute braucht kein PC/WebGL |
+- Wont: `Überweise 200 Euro` (Unicode vor `ü`), Mail nicht als SMS, Street View / Live-Sat / 112 / Malen / App / Pizza / Foto.
+- HUD: `Zeig mir` nicht Ort „mir“; Nachrichten nicht Globus; look-Umgangssprache; Gazetteer nicht Teilstring.
+- Help: `Was kannst du?` = Katalog `6.51.0`.
+- Split: `Körper an und Zeig London`.
+- Fremde Wake-Wörter nicht still Writes starten.
 
-## Won’t (dieser Sprint)
+## Won’t
 
-Code. Sideload. Modellwechsel. Neue Tools im Register.
+Welt-Geocoder, Street View bauen, 112 anrufen, Auto-Ja im Debug.
+
+## Done when
+
+`test:matrix` lock fails `0 / 29`. Debug Naive/Kaputt ohne Massen-fail bei Tools (`wont` zählt als `refuse`).

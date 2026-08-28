@@ -2,7 +2,9 @@
 
 PO 2026-08-26: Jarvis **3.0** macht die Wahl schärfer. Fähigkeiten liegen in einem Register. Die Wahl ist eine Score-Policy, keine If-Kette und kein Embedding. Dazu: Härten des Bisherigen und die Welt-Reihe aus [`31-next.md`](./31-next.md), mitgeliefert.
 
-Reihe davor: [`30-next.md`](./30-next.md) (`2.2.2`). Reihe danach: [`33-next.md`](./33-next.md) **PLAN**. App-Code: **`3.0.0`**.
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`3.0.0`**. Reihe danach: [`33-next.md`](./33-next.md) **CODE**. 0,5B wählt keine Tools — das gilt weiter; Smalltalk-Hirn ist Gemini.
+
+Reihe davor: [`30-next.md`](./30-next.md) (`2.2.2`). App-Code damals: **`3.0.0`**.
 
 ## Leitentscheidung
 

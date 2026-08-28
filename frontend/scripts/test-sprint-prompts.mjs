@@ -4,7 +4,10 @@
  */
 import assert from 'node:assert/strict'
 import { pickRoute } from '../src/engine/route-pick.ts'
+import { isHelpCommand, isPersonaAsk } from '../src/engine/guards.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
+import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
+import { parseNewsIntent } from '../src/engine/news-parse.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
 import { parseFaceIntent } from '../src/engine/face-parse.ts'
 import { parseLawIntent } from '../src/engine/law.ts'
@@ -13,7 +16,9 @@ import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { parseWontIntent } from '../src/engine/wont-parse.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
 import { parsePcIntent } from '../src/engine/pc-parse.ts'
-import { splitIntents } from '../src/engine/split-intents.ts'
+import { promoteSplitPart, splitIntents } from '../src/engine/split-intents.ts'
+import { partitionChain } from '../src/engine/chain.ts'
+import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
 
 const GOLD = [
@@ -46,6 +51,18 @@ const GOLD = [
   ['Gibt es Unwetter?', 'warn'],
   ['Lies das Foto', 'eye'],
   ['Was siehst du auf dem PC', 'pc'],
+  ['Zeig mir London', 'hud'],
+  ['Zeig London', 'hud'],
+  ['flieg nach Berlin', 'hud'],
+  ['zoom auf Tokio', 'hud'],
+  ['Was ist das für eine Stadt?', 'hud'],
+  ['Was sehe ich?', 'hud'],
+  ['Welche Stadt ist das?', 'hud'],
+  ['Zeig mir Atlantis', 'hud'],
+  ['Zeig New York', 'hud'],
+  ['mach die weltkugel an', 'hud'],
+  ['Was ist heute so auf der Welt passiert', 'outlook'],
+  ['Weltbrief', 'outlook'],
 ]
 
 const EVERYDAY = [
@@ -91,6 +108,14 @@ const EVERYDAY = [
   ['DWD Warnung', 'warn'],
   ['Wie viele Schritte heute?', 'sensors'],
   ['Todo: Testdebug Milch', 'todo'],
+  ['zeig mal london auf der weltkugel', 'hud'],
+  ['wo liegt eigentlich paris', 'hud'],
+  ['flieg nach berlin bitte', 'hud'],
+  ['Was ist das für eine Stadt', 'hud'],
+  ['Was sehe ich', 'hud'],
+  ['Zeig NYC', 'hud'],
+  ['Zeig München', 'hud'],
+  ['Zeig den Atlantik', 'hud'],
 ]
 
 const BROKEN = [
@@ -120,11 +145,31 @@ const BROKEN = [
   ['ja', null],
   ['Timer 0 Minuten', null],
   ['Wecker 25 Uhr', null],
+  ['Was kannst du?', 'help'],
+  ['Bist du ChatGPT?', 'identity'],
+  ['Kannst du Bilder malen?', 'wont'],
+  ['Schreib mir eine E-Mail', 'wont'],
+  ['Zeig mir die Nachrichten', 'news'],
+  ['Überweise 200 Euro', 'wont'],
+  ['Zeig Street View von London', 'wont'],
+  ['Zeige Notizen', 'todo'],
+  ['Was is das für ne Stadt', 'hud'],
+  ['Körper an und Zeig London', 'hud'],
+  ['Wo liegt Berln', 'hud'],
+  ['erde bitte anzeigen', 'hud'],
+  ['Kuegel an', 'hud'],
+  ['Ist das Paris?', 'hud'],
+  ['Was sehe ich auf der Kugel', 'hud'],
+  ['Mach Live-Satellitenvideo an', 'wont'],
+  ['Rufe 112', 'wont'],
+  ['Zeig mir', 'wont'],
 ]
 
 function route(text) {
   if (!text || !text.trim()) return null
-  return pickRoute(text)
+  const t = text
+  if (isHelpCommand(t)) return 'help'
+  return pickRoute(t)
 }
 
 const rows = []
@@ -170,13 +215,40 @@ assert.equal(parseFxIntent('Öffne Banking und überweise 500 Euro'), null)
 assert.equal(parsePcIntent('klick das Captcha'), null)
 assert.deepEqual(splitIntents('Körper an und Steckdose an'), ['Körper an', 'Steckdose an'])
 assert.deepEqual(splitIntents('Zeig Spotify und die Erde'), ['Zeig Spotify', 'die Erde'])
+assert.equal(parseHudIntent('Zeig mir London')?.kind, 'pin')
+assert.equal(parseHudIntent('Zeig mir London')?.name, 'London')
+assert.equal(parseHudIntent('Was ist das für eine Stadt?')?.kind, 'look')
+assert.equal(parseHudIntent('Was sehe ich auf der Kugel')?.kind, 'look')
+assert.equal(parseHudIntent('Was is das für ne Stadt')?.kind, 'look')
+assert.deepEqual(splitIntents('Körper an und Zeig London'), ['Körper an', 'Zeig London'])
+assert.equal(isHelpCommand('Was kannst du?'), true)
+assert.equal(isPersonaAsk('Bist du ChatGPT?'), true)
+assert.equal(promoteSplitPart('London'), 'Zeig London')
+assert.equal(parseHudIntent('Welche Stadt ist das?')?.kind, 'look')
+assert.equal(parseHudIntent('Zeig mir Atlantis')?.kind, 'unknown_place')
+assert.equal(parseHudIntent('Wo liegt Berln')?.kind, 'unknown_place')
+assert.equal(parseGroundIntent('Wo liegt Berln'), null)
+assert.equal(parseGroundIntent('wo liegt eigentlich paris'), null)
+assert.equal(parseHudIntent('wo liegt eigentlich paris')?.name, 'Paris')
+assert.equal(parseHudIntent('mach die weltkugel an')?.view, 'globe')
+assert.equal(parseHudIntent('zeig mal london auf der weltkugel')?.kind, 'pin')
 assert.equal(parseHudIntent('die Erde')?.view, 'globe')
 assert.ok(splitIntents('Darf ich im Park grillen und ein Taxi bestellen').length === 2)
 assert.ok(parseLawIntent('Darf ich im Park grillen'))
+assert.deepEqual(partitionChain(['Körper an', 'Zeig London']).reads, ['Körper an', 'Zeig London'])
+assert.deepEqual(partitionChain(['Zeig Spotify', 'Zeig London']).reads, ['Zeig Spotify', 'Zeig London'])
+assert.equal(pickRoute(normalizeUtterance('Krper an und Zeig London')), 'hud')
 assert.equal(
   judgeTurn({ label: 't', text: 'x', expect: { tool: 'taxi', confirm: true, mustNot: ['ist bestellt'] } }, 'Taxi ist bestellt.'),
   'fail',
 )
+
+assert.equal(pickRoute(normalizeUtterance('Was ist heute so auf der Welt passiert')), 'outlook')
+assert.equal(pickRoute(normalizeUtterance('Weltbrief')), 'outlook')
+assert.equal(parseOutlookIntent('Was ist heute so auf der Welt passiert')?.kind, 'world')
+assert.equal(parseNewsIntent('Was ist heute so auf der Welt passiert'), null)
+assert.equal(parseNewsIntent('Zeig mir die Nachrichten')?.kind, 'national')
+assert.equal(pickRoute(normalizeUtterance('Zeig mir die Nachrichten')), 'news')
 
 console.log(`\nrouting fails: ${fail} / ${rows.length}`)
 if (fail) process.exitCode = 2

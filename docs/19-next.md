@@ -4,7 +4,9 @@ PO 2026-08-16: Einkauf als Liste, Losgehen mit Nachfrage + Route, Erinnerung „
 
 Mitgeliefert in **`1.24.0`**. Jede Stufe bleibt sideloadbar dokumentiert.
 
-Reihe davor (fertig): [`18-next.md`](./18-next.md) · App jetzt: **`1.24.0`** (1.16–1.24 in einem Wurf).
+> Historisch `1.14`–`1.20`. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst.
+
+Reihe davor (fertig): [`18-next.md`](./18-next.md). Schiene gelandet in **`1.24.0`**.
 
 ## Stand im Code (`1.24.0`) — nicht schönreden
 

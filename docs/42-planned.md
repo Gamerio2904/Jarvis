@@ -1,23 +1,23 @@
-# 42 — Alles geplant (Stand Code `5.11.0`)
+# 42 — Alles geplant (Stand Code `6.90.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`5.11.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export (Export ist CODE, APK noch alt).
+**Live:** App-Code **`6.90.0`**. Sideload **`6.60.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
-Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
+Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
-1. Sideload mit Hausstand (Export ist CODE `4.46`, APK noch `3.18.1`)
-2. **Bühne & Hirn `6.0`** — PLAN [`45-next.md`](./45-next.md) (Motion, Lage-Show, CarPlay, Stimme, Gemini-Schliff)
-3. **Agentic Recall `6.60`** — PLAN [`46-next.md`](./46-next.md) (Retrieve/RRF, Working Memory, Sleep; nach `6.50`, darf vor Motion)
-4. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
-5. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
+2. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
+3. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+4. Nächster Sideload nach Hausstand (APK steht auf `6.60.0`)
+
+Bereits **CODE** in `6.90.0`: Globus-Briefing (Stadt → GIBS + Briefing, Welt-Tour Glow/Seite/Zoom), Sideload `6.60`, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
 
 ---
 
-## CODE auf diesem Stand (`5.11.0`)
+## CODE auf diesem Stand (`6.90.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -28,32 +28,21 @@ Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
 | Friday + Tablet | `4.53` | Face Jarvis/Friday, Lage **neben** Chat |
 | Körper | `4.66` | Lage-Sicht Körper, Canvas-Schema, Organ-Kachel, kein Tool-Start |
 | Sehen-Parser | `4.76`–`4.97` | `ground-parse`, `/v1/ground` Client, zwei Confirms; **keine** 3B-Gewichte |
-| Weltkugel | `5.0` | Lage-Sicht Kugel, Terminator, Pins ISS/GPS/DWD/outlook-Lexikon |
+| Weltkugel | `5.0` / `6.20` | Lage-Sicht Kugel, Terminator, GIBS beim Zoom, Pins ISS/GPS/DWD/outlook-Lexikon |
 | Debug-Lauf | `5.11` | Klickboxen, neues Gespräch, JSON+TXT mit Verdict |
+| Bühne & Hirn | `6.50` | Gemini zuerst, Motion 30 fps, Globus, HUD, Sprach-Orb |
+| Parser | `6.51` | Wont/Help/HUD-Skip nach Prompt-Test |
+| Split / Overlay / APK | `6.60` | Live-Split, Identität canned, Overlay Gemini zuerst, `releases/Jarvis.apk` |
+| Globus-Briefing | `6.90` | Fly-to 4.4, Stadt-Briefing, Welt-Tour Glow, Debug-Gruppe |
 | Davor | `3.19`–`3.0` / `1.x` | Kalender-Fenster, Register, Auge=Gemini, PC-Screenshot |
 
 ## Offen
 
 ### LocateAnything Sidecar (`4.77`)
+Parser CODE. Gewichte erst nach 3060-GO. Ohne Sidecar: ehrlich aus.
 
-RTX 3060 GO/NO-GO. JarvisSee localhost. Ohne Sidecar: ehrlicher Satz, keine Fake-Boxen.
+### Debug-Hintergrund (`5.12`)
+Lauf in der App ist CODE. Dienst im Hintergrund PLAN.
 
-### GIBS (`5.9`)
-
-Satellitenfoto mit Zeitstempel, Default aus.
-
-### Debug-Hintergrund (`5.12` Service)
-
-v1: App offen lassen. Foreground-Service nach Spike.
-
-### Bühne & Hirn (`6.0`)
-
-Motion-Kern, Körper/Kugel-Show, Fahrmodus-HUD, Sprach-Theater, Gemini-Schliff. 0,5B wird nicht Claude. Plan [`45-next.md`](./45-next.md).
-
-### Agentic Recall (`6.60`)
-
-Lokale Retrieve-Schleife über IndexedDB (NVIDIA-Idee ohne Lance/Nemotron), Working Memory, Sleep-Time. Plan [`46-next.md`](./46-next.md).
-
-## Won’t (übergreifend)
-
-Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Debug-Cloud, Auto-Ja im Prompt-Lauf, Live-Satellitenvideo, Überwachung, LanceDB/Nemotron in der APK, Embedding-Router.
+### Parking
+Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.

@@ -1,11 +1,14 @@
 # 20 — Extra-Alltag (`1.21`–`1.24`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-16: Nummer an Person, Maps-Modus, Geburtstag, Serie ohne Geofence, Widget, „das zweite“, Gespräch suchen.  
 Ort am Termin im selben Satz hängt an **`1.17`** (Losgehen), nicht hier.
 
 Mitgeliefert in **`1.24.0`**.
 
-Reihe davor: [`19-next.md`](./19-next.md) (`1.14`–`1.20`). App jetzt: **`1.24.0`**.
+Reihe davor: [`19-next.md`](./19-next.md) (`1.14`–`1.20`). Schiene gelandet in **`1.24.0`**.
 
 ## Reihenfolge
 

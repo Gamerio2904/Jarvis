@@ -242,7 +242,7 @@ export function findContactRow(
 function isNameLike(raw: string): boolean {
   const n = normalizePlaceName(raw)
   if (!n || n.length < 2 || n.length > 28) return false
-  if (/^(was|wer|wie|das|es|ich|wir|der|die|wo|wann)$/i.test(n)) return false
+  if (/^(was|wer|wie|das|es|ich|wir|der|die|wo|wann|mir|dir|uns|euch)$/i.test(n)) return false
   return !/\s/.test(n) || isRelationName(n)
 }
 
@@ -258,6 +258,7 @@ export function parseAlias(text: string): PlaceNav | null {
 
 export function parseSms(text: string): PlaceNav | null {
   const t = text.trim()
+  if (/\b(e-?mail|email)\b/i.test(t)) return null
   const voice = /sprachnachricht/i.test(t)
   const wa = /whatsapp/i.test(t)
   const m = SMS.exec(t)

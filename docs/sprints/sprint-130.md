@@ -1,27 +1,23 @@
-# Sprint 130 — Sleep-Time + Recall-Tool (`6.80`) **PLAN**
+# Sprint 130 — Sideload `6.60`
 
-| Feld | Wert |
-|------|------|
-| Status | **PLAN** |
-| Priorität | nach Working Memory `6.70` |
-| Ziel-Version | `6.80.0`; Reihe `6.80`–`6.82` in [`46-next.md`](../46-next.md) |
-| Voraussetzung | Sprint 129 |
-| Quelle | LightMem: sensorisch filtern, Thema, verdichten **offline** |
+**Version:** `6.60.0`  
+**Status:** CODE  
+**Quelle:** [`47-next.md`](../47-next.md) · [`apk.md`](../apk.md)
 
 ## Ziel
 
-Job wenn idle/laden oder nach N Turns — nicht im Chat-Pfad, nicht am Steuer im Sprachmodus. Filter: Hilfe, „lauter“, Timer-Echos weg. Upsert nur parser-sicher; JSON-Facts nur wenn Gemini/Groq-Opt-in an. Register-Tool `recall` (Search mergen). Gold + Debug-Gruppe.
+Handy bekommt denselben Stand wie der Code: Bühne, Globus, Gemini zuerst, Parser `6.51`, Split/Identität/Overlay. Kein Play Store.
 
 ## Must
 
-| ID | Inhalt |
-|----|--------|
-| S1 | Trigger überspringt ehrlich (Fahrt, kein Idle) |
-| S2 | Ohne Cloud-Key keine erfundenen Pins |
-| S3 | Sleep löscht nicht; Contradiction bleibt User-Parser |
-| S4 | `recall` nur Register, kein `if` in `chat.ts` |
-| S5 | Gold: Zahnarzt-Recall, Milch-Suche, kein-Kaffee, Gemini-aus |
+- App-Version `6.60.0`, Android `versionName`/`versionCode` aus `package.json`.
+- `releases/Jarvis.apk` (debug-signiert wie die bisherigen Sideloads).
+- Docs: Sideload `6.60.0`, Deinstall löscht Keys — erst Hausstand.
 
-## Won’t (dieser Sprint)
+## Won’t
 
-Python-LightMem. LLMLingua-2. Qdrant. Sleep-Daten zu Google ohne Opt-in. e5-small (Could `6.83`). Sideload (`6.84` nach Hausstand).
+Release-Keystore neu erfinden wenn der Debug-Key der Hausstand ist. LocateAnything-GGUF. iOS.
+
+## Done when
+
+APK existiert, versionName `6.60.0`, Browser-Abnahme der 128/129-Prompts grün.

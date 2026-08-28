@@ -2,7 +2,7 @@
 
 PO 2026-08-27: Reel [lukebuildsai](https://www.instagram.com/reel/Dcgcg5rRdKT/) plus Kalender-Screenshots, Sprachmodus-Bug, Debug in der App.
 
-App-Code: **`3.19.0`** (auf `main`). Sideload zuletzt **`3.18.1`**, bis neu gebaut. Hausstand vor Deinstall: [`38-next.md`](./38-next.md). Film-TTS / Anruf am Steuer: [`37-next.md`](./37-next.md).
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`3.19.0`**. Hausstand vor Deinstall: [`38-next.md`](./38-next.md). Film-TTS / Anruf am Steuer: [`37-next.md`](./37-next.md). Debug-Lauf erweitert in [`44-next.md`](./44-next.md).
 
 ## Reel — was die KI dort tut
 

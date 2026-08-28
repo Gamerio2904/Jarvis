@@ -15,6 +15,8 @@ import {
   type OilQuote,
   type SeriesPoint,
 } from './outlook-series.ts'
+import { buildTourStops, startTour, stopTour, tourChatReply } from './globe-tour.ts'
+import { decodeHtml } from './html-text.ts'
 
 export { parseOutlookIntent, parseOutlookFollowUp } from './outlook-parse.ts'
 export type { OutlookIntent, OutlookKind }
@@ -127,14 +129,29 @@ export async function handleOutlook(
   const intent = parseOutlookIntent(text, last) || (last ? parseOutlookFollowUp(text) : null)
   if (!intent) return { handled: false }
 
+  if (intent.kind === 'tour_stop') {
+    stopTour()
+    return {
+      handled: true,
+      reply: 'Tour aus. Die Kugel bleibt.',
+      tool: { tool_status: 'executed', tool: 'outlook', action: 'tour_stop', label: 'Weltlage' },
+      lastTool: 'outlook',
+    }
+  }
+
   if (intent.kind === 'stock_ask') {
     const reply = formatOutlookReply(emptySnap(), 'stock_ask')
     return pack(reply, [], 'Aktie', intent.kind)
   }
 
   const snap = await loadOutlookSnap(intent.kind)
-  const reply = formatOutlookReply(snap, intent.kind)
-  const sources = sourcesFromSnap(snap)
+  let reply = formatOutlookReply(snap, intent.kind)
+  if (intent.kind === 'world') {
+    const stops = buildTourStops(snap.news)
+    startTour(stops)
+    reply = tourChatReply(stops)
+  }
+  const sources = intent.kind === 'world' ? sourcesFromSnap(snap, true) : sourcesFromSnap(snap)
   persistLastList('outlook', snap.news.map((n) => n.title).slice(0, 8))
   return pack(reply, sources, intent.kind, intent.kind)
 }
@@ -210,20 +227,20 @@ function pack(
   }
 }
 
-function sourcesFromSnap(snap: OutlookSnap): ResearchSource[] {
+function sourcesFromSnap(snap: OutlookSnap, newsOnly = false): ResearchSource[] {
   const now = new Date().toISOString()
   const sources: ResearchSource[] = []
   for (const n of snap.news) {
     if (!n.url) continue
     sources.push({
-      title: n.title,
+      title: decodeHtml(n.title),
       url: n.url,
-      snippet: n.teaser.slice(0, 200),
+      snippet: decodeHtml(n.teaser).slice(0, 200),
       provider: n.provider,
       retrieved_at: now,
     })
   }
-  if (snap.oil) {
+  if (!newsOnly && snap.oil) {
     sources.push({
       title: `Brent ${formatBarrel(snap.oil.value)}`,
       url: 'https://fred.stlouisfed.org/series/DCOILBRENTEU',
@@ -232,7 +249,7 @@ function sourcesFromSnap(snap: OutlookSnap): ResearchSource[] {
       retrieved_at: now,
     })
   }
-  if (snap.fx) {
+  if (!newsOnly && snap.fx) {
     sources.push({
       title: `${snap.fx.from}/${snap.fx.to} ${snap.fx.last.toFixed(4)}`,
       url: 'https://www.frankfurter.app/',
@@ -311,7 +328,7 @@ function tagInner(block: string, name: string): string {
 }
 
 function stripCdata(raw: string): string {
-  return raw.replace(/^<!\[CDATA\[/i, '').replace(/\]\]>$/i, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
+  return decodeHtml(raw.replace(/^<!\[CDATA\[/i, '').replace(/\]\]>$/i, ''))
 }
 
 function takeNews(rows: Array<Record<string, unknown>>, provider: string, n: number): OutlookNews[] {

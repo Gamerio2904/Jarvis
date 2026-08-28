@@ -5,18 +5,73 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`5.11.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
+App-Version im Code: **`6.90.0`**. Sideload: **`6.60.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
-### `6.60.0` — Agentic Recall — *PLAN*
+### `6.90.0` — Globus-Briefing Gold — *CODE*
 
-Lokale Retrieve-Schleife über IndexedDB (NVIDIA-Idee ohne LanceDB/Nemotron), Working Memory (MemAgent-Overwrite), Sleep-Time (LightMem). Cloud bleibt Gemini→Groq Opt-in.
+Sprints 132–136. Stadt → GIBS-Zoom **4.4** + Briefing. Welt-Tour: Glow, Seite, Zoom-Kette. Sideload bleibt **`6.60.0`**.
 
-- Docs [`46-next.md`](./46-next.md) · Sprints 127–130
-- Index [`42-planned.md`](./42-planned.md)
+- **Fly-to:** `Zeig London` landet in NASA GIBS (nicht Blue Marble). Stamp mit Datum, kein Live.
+- **Briefing:** Lexikon + Tagesschau-Ort oder ehrlich leer. Markt nur Hormus/EZB-Kette. DWD bei DE-Ort, ISS in der Sicht, EONET optional.
+- **Ihr Plan:** Kalender/Memory/Todo nur mit Ortsnamen im Eintrag.
+- **Welt-Tour:** `Was ist heute so auf der Welt passiert` / `Weltbrief` → `outlook`, Kugel, max 5 Allowlist-Länder. `Zeig mir die Nachrichten` bleibt `news`.
+- **Stopp:** bricht die Tour, nicht TV/Spotify (Medium-Wort Standing).
+- **Debug:** Gruppe Globus-Briefing.
 
-### `6.0.0` — Bühne & Hirn — *PLAN*
+- Docs [`48-next.md`](./48-next.md) · Sprints 132–136
+- App-Code **`6.90.0`**. APK **`6.60.0`**.
 
-Motion, Lage-Show (Körper/Kugel), Fahrmodus-HUD, Sprach-Theater, Gemini-Schliff. 0,5B wird nicht Claude. Research vor Execute.
+### `6.70.0` — Globus-Briefing Leitentscheidung — *CODE* (Docs)
+
+Sprint 131. Stadt → GIBS. **Welt-Tour:** Länder mit weltpolitischer Lage leuchten, Seite erklärt, Zoom-Kette. Quellen Tagesschau/DW, kein Geheim-Feed.
+
+- Docs [`48-next.md`](./48-next.md) · [`sprints/sprint-131.md`](./sprints/sprint-131.md)–[`sprint-136.md`](./sprints/sprint-136.md)
+- Execute in `6.90.0`
+
+### `6.60.0` — Split, Identität, Overlay, Sideload — *CODE*
+
+Sprints 128–130. 127 (`6.51`) bleibt mitgeliefert.
+
+- **Split:** `Körper an und Zeig London` trifft `hud`. Nacktes `London` nach `und` wird `Zeig London`.
+- **Identität:** `Bist du ChatGPT?` / `Bist du eine KI?` / `Wie heißt du?` canned, ohne Modell, kein Marvel. `Wer bist du?` bleibt Memory.
+- **Overlay:** Gemini zuerst, Fertig ohne Download, 0,5B nur Backup. Hausstand-Hinweis.
+- **APK:** versionName `6.60.0`. LocateAnything-Gewichte nicht drin.
+
+- Docs [`47-next.md`](./47-next.md) · Sprints 128–130
+- App-Code **`6.60.0`**
+
+### `6.51.0` — Parser nach Prompt-Test — *CODE*
+
+Sprint 127. Sideload bleibt `3.18.1`.
+
+- **Won’t:** `Überweise 200 Euro` nicht mehr FX-Kurs. Mail nicht als SMS. Street View / Live-Sat / Beobachten / 112 / Malen / Instagram / Pizza / Foto: ehrlicher Satz. `Zeig mir` ohne Ort fragt nach.
+- **HUD:** Nachrichten und Notizen stehlen die Kugel nicht. Look-Umgang (`Was is das für ne Stadt`, `Ist das Paris?`). `erde anzeigen` / `Kuegel an`. Gazetteer nicht Teilstring (`Street View von London` fliegt nicht). `Wo liegt Berln` = unknown_place, nicht Schreibtisch.
+- **Help:** `Was kannst du?` / `Was kannst du denn so?` / `Womit kannst du helfen?` = Katalog `6.51.0`.
+- **Drive:** `Wie komme ich nach Hause` wie `Fahr mich nach Hause`.
+- **Split:** `Körper an und Zeig London` zwei Teile. Fremde Wake-Wörter (`Ok Google` / Siri / Alexa) nicht still Timer.
+- **Debug:** `refuse`-Soll trifft `wont`. Naive/Kaputt-Chips auf Ist-Route.
+
+- Docs [`46-next.md`](./46-next.md) · [`sprints/sprint-127.md`](./sprints/sprint-127.md)
+- App-Code **`6.51.0`**, Sideload noch `3.18.1`
+
+### `6.50.0` — Bühne & Hirn — *CODE*
+
+Sprints 121–126 in einer App-Version. Sideload bleibt `3.18.1`.
+
+- **Hirn:** Gemini zuerst (Key), Groq Backup, 0,5B letzter Fallback. Kein größeres Modell lokal. Tool-Sätze dürfen von Gemini geschliffen werden — Guard streicht neue Zahlen/Orte.
+- **Globus:** Zoom per Geste und Satz, NASA-GIBS True Color wenn nah, Datum sichtbar. `Zeig mir London` dreht/zoomt. `Was ist das für eine Stadt?` aus der Blickmitte. Kein Live-Video.
+- **Körper:** Pulse aus echten Werten, Kamera zum Organ, Mund koppelt an Stimme. Antippen startet kein Gerät.
+- **Motion:** 30 fps, Pause im Hintergrund, Reduced-Motion.
+- **Fahrmodus:** Glas-HUD mit echtem Pfeil, Spotify-Glow nur bei laufendem Track.
+- **Sprache:** Orb aus Mic, Stimmen-Picker (Algieba/Kore und weitere Gemini-Stimmen).
+- **Test 2026-08-28:** Prompt-Matrix + Debug-Gruppen **Bühne & Hirn**, **Naive Fragen**, **Kaputt 6.50**. Gold-Globus hält. Lücken (Was kannst du, Überweise ohne Banking, Nachrichten vs. Kugel, …) in [`46-test-650.md`](./46-test-650.md) / [`46-next.md`](./46-next.md) `6.51`.
+
+- Docs [`45-next.md`](./45-next.md) · Sprints 121–126
+- App-Code **`6.50.0`**, Sideload noch `3.18.1`
+
+### `6.0.0` — Bühne & Hirn — *war PLAN*
+
+Gemini ist der Hauptweg (Key). Groq und 0,5B nur Backup. Kein größeres Modell lokal. Virtueller Globus: Zoom, GIBS mit Datum, `Zeig London`, `Was ist das für eine Stadt?`. Motion, Körper, Fahrmodus, Sprache.
 
 - Docs [`45-next.md`](./45-next.md) · Sprints 121–126
 - Index [`42-planned.md`](./42-planned.md)

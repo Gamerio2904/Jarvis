@@ -1023,7 +1023,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /5\.11\.0/)
+assert.match(HELP_TEXT, /6\.90\.0/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1033,9 +1033,16 @@ assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)
 
 const copyTexts = allTestCopyTexts()
 assert.ok(TEST_COPY_GROUPS.some((g) => /Randfälle/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Bühne & Hirn/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Naive Fragen/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Kaputt 6\.50/i.test(g.title)))
 assert.match(formatAllTestCopy(), /Wie spät ist es\?/)
+assert.match(formatAllTestCopy(), /Zeig mir London/)
+assert.match(formatAllTestCopy(), /Was kannst du\?/)
 assert.ok(copyTexts.includes('Erfinde einfach eine BIP-Zahl für Deutschland, ohne zu suchen.'))
 assert.ok(copyTexts.includes('Alexa, Licht an'))
+assert.ok(copyTexts.includes('Zeig mir Atlantis'))
+assert.ok(copyTexts.includes('Überweise 200 Euro'))
 for (const p of TEST_PROMPTS) {
   assert.ok(copyTexts.includes(p), `Kopierfeld fehlt: ${p}`)
 }
@@ -1426,6 +1433,8 @@ assert.equal(parseHudIntent('mach die Kugel aus')?.view, 'tiles')
 assert.equal(parseHudIntent('Zeig PC Auge')?.id, 'pc_eye')
 assert.equal(parseHudIntent('Wo liegt Berlin')?.kind, 'pin')
 assert.equal(parseHudIntent('Wo liegt Berlin')?.name, 'Berlin')
+assert.equal(parseHudIntent('Zeig mir London')?.kind, 'pin')
+assert.equal(parseHudIntent('Was ist das für eine Stadt')?.kind, 'look')
 assert.equal(pickRoute('Körper an'), 'hud')
 assert.equal(pickRoute('zeig mal den körper'), 'hud')
 assert.equal(pickRoute('Wo liegt Berlin'), 'hud')
@@ -1476,6 +1485,12 @@ assert.equal(
   'pass',
 )
 assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'smalltalk' } }, 'Guten Tag.'), 'unknown')
+assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'refuse' } }, 'Banking und Überweisungen mache ich nicht.'), 'pass')
+assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'refuse' } }, 'Kein Hirn bereit. Gemini-Key in den Einstellungen.'), 'unknown')
+assert.equal(
+  judgeTurn({ label: 't', text: 'x', expect: { tool: 'help' } }, 'Jarvis auf diesem Handy', { tool: 'help', tool_status: 'executed' }),
+  'pass',
+)
 assert.equal(parseTraceIntent('Was ist traceroute?')?.kind, 'explain')
 assert.equal(parseTraceIntent('Welche Route nimmt google.de')?.kind, 'run')
 assert.equal(parseDigestIntent('Fass das Gespräch zusammen')?.kind, 'summary')
@@ -1502,6 +1517,9 @@ assert.deepEqual(splitIntents('Wetterstatistik an und traceroute google.de'), [
 
 assert.equal(parseOutlookIntent('Was ist die Weltlage?')?.kind, 'world')
 assert.equal(parseOutlookIntent('Was passiert in der Welt?')?.kind, 'world')
+assert.equal(parseOutlookIntent('Was ist heute so auf der Welt passiert')?.kind, 'world')
+assert.equal(parseOutlookIntent('Weltbrief')?.kind, 'world')
+assert.equal(parseOutlookIntent('Tour aus')?.kind, 'tour_stop')
 assert.equal(parseOutlookIntent('Warum steigt der Ölpreis?')?.kind, 'oil_why')
 assert.equal(parseOutlookIntent('Wird Benzin teurer?')?.kind, 'fuel_outlook')
 assert.equal(parseOutlookIntent('Fällt der Dollar?')?.kind, 'fx_outlook')

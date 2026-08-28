@@ -2,13 +2,13 @@
 
 PO 2026-08-27: Debug-Button, Fenster mit **allen** eingebauten Themen als Klickboxen, vorbereitete Prompts pro Gruppe, Start → **neues Gespräch**, Prompt für Prompt warten, Download mit Prompt/Antwort **und** ob der Befehl sauber gelaufen ist — zum Schicken an die Planung. Hintergrund wenn möglich, sonst Chat/Settings offen.
 
-**Ist:** Settings → Debug ist **CODE** `3.19.0` ([`34-next.md`](./34-next.md), `DebugPanel.tsx`). Eine Kategorie (Select), Start im **aktuellen** Chat, Download nur `Sie:`/`Jarvis:`-Text. Katalog: `test-copy.ts`. CI-Flachliste: `test-prompts.ts`.
+**Ist `5.11` (mitgeliefert in `6.60`):** Settings → Debug: Klickboxen, neues Gespräch, JSON+TXT mit Route/`tool_status`/Verdict. Katalog: `test-copy.ts`. CI: `test-prompts.ts`. Parser-Gruppen `6.51` drin.
 
-**Lücke:** keine Mehrfachwahl, kein neues Gespräch, keine Soll-Route, kein Tool-Status im File, Welt-Tools `3.1`–`3.17` und Face/Lage/Hausstand fehlen in den Gruppen, kein Stop, Android-Hintergrund ungeklärt.
+**Lücke:** Debug-Hintergrund `5.12` (App schließen = Lauf tot). Kein Auto-Ja.
 
-**Live:** Code **`4.53.0`**. Sideload **`3.18.1`**. `4.66` Körper, `4.76` LocateAnything, `5.0` Weltkugel (PR #58) bleiben eigene Schienen. Diese Nummer: **`5.11`**, nicht `5.0`.
+**Live:** Code **`6.60.0`**. Sideload **`6.60.0`**. Körper, LocateAnything-Parser, Weltkugel, Bühne sind **CODE**. Diese Nummer: **`5.11`**, nicht `5.0`.
 
-Kein Execute in diesem Sprint. Research `5.12` vor Hintergrund-Service. Sideload nach Hausstand.
+Research `5.12` vor Hintergrund-Service. Hausstand vor Neuinstall.
 
 ## Kurz: was wir konkret bauen
 
@@ -24,7 +24,7 @@ Kein Execute in diesem Sprint. Research `5.12` vor Hintergrund-Service. Sideload
 
 ## Ist vs. Soll
 
-| Heute `3.19` | `5.11` |
+| Heute `3.19` (historisch vor `5.11`) | `5.11` (CODE) |
 |--------------|--------|
 | `<select>` eine Gruppe | Klickboxen, mehrere Gruppen hintereinander |
 | `activeId` (Alltagschat) | `createConversation()` extra |
@@ -66,6 +66,14 @@ Start-Hinweis, sonst kein Start:
 Bestehende Titel in `test-copy.ts` **behalten** (Prompts schon CODE):
 
 Smalltalk · Gedächtnis · Einkauf · Tag & Hilfe · Uhr & Gerät · Ort · Wetter · Timer Wecker Erinnerung · Kalender & Losgehen · Fernseher & Film · Haus · Fahren & Spotify · Tanke POI Bahn · Leute Anruf SMS · PC Foto Notiz · Research Nachrichten Feiertag · Weltlage · Alltagskette · Randfälle
+
+**Neu CODE `5.11`:** Welt & Lage · Gesicht & Hausstand
+
+**Neu CODE `6.50` nach Prompt-Test** ([`46-test-650.md`](./46-test-650.md)):
+
+### Bühne & Hirn · Naive Fragen · Kaputt 6.50
+
+Globus `Zeig mir London` / Blickmitte / Atlantis, naive „Was kannst du?“, kaputte Sätze. Soll-Werte sind **CODE in `6.51`** ([`46-next.md`](./46-next.md)). `Ok Google, Timer …` **nicht** im Live-Katalog (echter Write).
 
 **Neu einbauen** (Prompts fest, Execute füllt `test-copy.ts`):
 
@@ -169,7 +177,7 @@ Dieses Dokument. **Done wenn:** Mehrfachwahl, neues Gespräch, Expect+Export, Wr
 | **`5.15.0`** | Neue Gruppen + `expect` | **CODE** |
 | **`5.16.0`** | JSON+TXT Download, Verdict | **CODE** |
 | **`5.17.0`** | WakeLock oder Service laut `5.12`; Gold | WakeLock-Versuch **CODE**; Service geplant |
-| **`5.18.0`** | Sideload nach Hausstand | geplant |
+| **`5.18.0`** | Sideload nach Hausstand | **CODE** als `6.60.0` |
 
 ## Chat / Settings (Ziel)
 

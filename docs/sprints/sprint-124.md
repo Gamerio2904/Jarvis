@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (in App `6.50.0`) |
 | Priorität | nach Motion-Tokens `6.10` |
 | Ziel-Version | `6.30.0` (Research `6.31` HUD vs Tiles) |
 | Quelle | PO: CarPlay-Animation massiv, flüssig |

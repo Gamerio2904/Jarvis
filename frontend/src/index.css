@@ -1541,6 +1541,14 @@ button.linkish {
   opacity: 0.7;
 }
 
+.composer.is-busy {
+  box-shadow: 0 0 0 1px rgba(30, 215, 96, 0.35), 0 0 18px rgba(30, 215, 96, 0.12);
+}
+
+.composer.is-busy::after {
+  opacity: 0.45;
+}
+
 .composer textarea {
   flex: 1 1 auto;
   width: 100%;
@@ -2208,6 +2216,45 @@ button.linkish {
   color: #3a4038;
 }
 
+.drive-hud-chevron {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  background: #e4c36a;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+  transform-origin: 50% 55%;
+  transition: transform 180ms var(--ease-out);
+}
+
+.drive-hud-chevron.is-left,
+.drive-hud-chevron.is-slight_left,
+.drive-hud-chevron.is-sharp_left {
+  transform: rotate(-90deg);
+}
+
+.drive-hud-chevron.is-right,
+.drive-hud-chevron.is-slight_right,
+.drive-hud-chevron.is-sharp_right {
+  transform: rotate(90deg);
+}
+
+.drive-hud-chevron.is-uturn {
+  transform: rotate(180deg);
+}
+
+.drive-hud-chevron.is-arrive {
+  clip-path: circle(38% at 50% 50%);
+}
+
+.drive-hud.is-still .drive-hud-chevron {
+  transition: none;
+}
+
+.drive-hud.is-day .drive-hud-chevron {
+  background: #121410;
+}
+
 .drive-hud-arrow {
   font-size: 2rem;
   line-height: 1;
@@ -2352,6 +2399,10 @@ button.linkish {
   background: #1db95422;
   border-color: #1db95488;
   color: #f4f1ea;
+}
+
+.drive-tabs button.is-playing {
+  box-shadow: 0 0 0 1px rgba(29, 185, 84, 0.55), 0 0 18px rgba(29, 185, 84, 0.28);
 }
 
 .drive-mic {
@@ -3423,6 +3474,7 @@ button.linkish {
 }
 
 .body-schema,
+.globe-wrap,
 .globe-view {
   width: 100%;
   min-height: 240px;
@@ -3431,6 +3483,34 @@ button.linkish {
   background: #0c1210;
   border: 1px solid var(--border);
   touch-action: none;
+}
+
+.globe-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.globe-wrap .globe-view {
+  border: 0;
+  background: transparent;
+}
+
+.globe-stamp {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: rgba(246, 243, 234, 0.78);
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+}
+
+.lage-tile.is-follow {
+  box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(29, 185, 84, 0.12);
 }
 
 .debug-box-bar {

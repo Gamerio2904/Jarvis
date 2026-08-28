@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (in App `6.50.0`) |
 | Priorität | nach Motion `6.10`; parallel zu Drive möglich |
 | Ziel-Version | `6.40.0` (Research `6.41` Stimmenliste) |
 | Quelle | PO: Sprachsteuerung Animation, Stimme verbessern, Antworten im Sprachmodus intelligenter |

@@ -319,7 +319,10 @@ function App() {
   const [wakeListening, setWakeListening] = useState(false)
   const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
-  const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
+  const [setupOpen, setSetupOpen] = useState(() => {
+    const s = loadSettings()
+    return !isGeminiConfigured() && !s.groq_api_key.trim() && !isModelReady() && !s.setup_dismissed
+  })
   const [downloadPct, setDownloadPct] = useState(0)
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadPhase, setDownloadPhase] = useState<'download' | 'load'>('download')
@@ -498,7 +501,9 @@ function App() {
       return
     }
     const started = Date.now()
-    const cloud = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
+    const cloud = Boolean(
+      (settings?.gemini_enabled && settings.gemini_api_key?.trim()) || settings?.groq_api_key?.trim(),
+    )
     const id = window.setInterval(() => {
       if (sawTokenRef.current) return
       const s = Math.max(1, Math.round((Date.now() - started) / 1000))
@@ -509,7 +514,7 @@ function App() {
       )
     }, 1000)
     return () => window.clearInterval(id)
-  }, [busy, settings?.gemini_enabled, settings?.gemini_api_key])
+  }, [busy, settings?.gemini_enabled, settings?.gemini_api_key, settings?.groq_api_key])
 
   useEffect(() => {
     if (!stickToBottomRef.current) return
@@ -815,7 +820,7 @@ function App() {
     if (gemini) {
       setSetupOpen(false)
       void releaseModel()
-    } else if (isModelReady()) {
+    } else if (isModelReady() || loadSettings().setup_dismissed) {
       setSetupOpen(false)
     } else {
       setSetupOpen(true)
@@ -1185,9 +1190,9 @@ function App() {
   function maybeOpenSettingsFromReply(reply: string) {
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
-    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
-    else if (/Einstellungen.*Gemini|API-Key|Gemini an, aber kein/i.test(t)) openSettings('cloud')
-    else if (/Einstellungen\s*→\s*Musik|Spotify-Client-ID|Spotify anmelden/i.test(t)) openSettings('musik')
+    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t)) openSettings('haus')
+    else if (/Gemini an, aber kein/i.test(t)) openSettings('cloud')
+    else if (/Einstellungen\s*→\s*Musik|Spotify anmelden/i.test(t)) openSettings('musik')
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -1226,10 +1231,10 @@ function App() {
       {setupOpen ? (
         <div className="setup-overlay" role="dialog" aria-labelledby="setup-title">
           <div className="setup-card">
-            <h2 id="setup-title">Modell aufs Handy</h2>
+            <h2 id="setup-title">Gemini zuerst</h2>
             <p>
-              Jarvis kann lokal auf dem Handy denken (einmal ~470 MB) oder über Gemini
-              (Google). Das lokale Modell startet nur, wenn Gemini aus ist.
+              Hirn ist Gemini sobald ein Key da ist. Groq nur Backup. Das kleine lokale 0,5B
+              zuletzt — nicht ChatGPT. Timer, Kugel und Wetter laufen auch ohne Modell.
             </p>
             {downloadBusy ? (
               <p className="settings-hint">
@@ -1241,15 +1246,36 @@ function App() {
               </p>
             ) : (
               <p className="settings-hint">
-                {hasLocalModel
-                  ? 'Modell liegt auf dem Gerät. Einmal starten, dann chatten.'
-                  : 'WLAN empfohlen. Das Modell bleibt auf dem Handy.'}
+                Vor Neuinstall: Einstellungen → Hausstand → Exportieren. Sonst sind Keys weg.
               </p>
             )}
             {error ? <p className="settings-hint setup-error">{error}</p> : null}
             <button
               type="button"
               className="retry-btn"
+              disabled={downloadBusy}
+              onClick={() => {
+                void patchSettings({ setup_dismissed: true })
+                setSetupOpen(false)
+                openSettings('cloud')
+              }}
+            >
+              Gemini-Key eintragen
+            </button>
+            <button
+              type="button"
+              className="ghost-btn"
+              disabled={downloadBusy}
+              onClick={() => {
+                void patchSettings({ setup_dismissed: true })
+                setSetupOpen(false)
+              }}
+            >
+              Fertig — Tools ohne Modell
+            </button>
+            <button
+              type="button"
+              className="ghost-btn"
               disabled={downloadBusy}
               onClick={() => void downloadModel()}
             >
@@ -1258,19 +1284,8 @@ function App() {
                   ? 'Modell starten…'
                   : `Laden ${downloadPct}%`
                 : hasLocalModel
-                  ? 'Modell starten'
-                  : 'Modell herunterladen'}
-            </button>
-            <button
-              type="button"
-              className="ghost-btn"
-              disabled={downloadBusy}
-              onClick={() => {
-                setSetupOpen(false)
-                openSettings('cloud')
-              }}
-            >
-              Stattdessen Gemini (Google)
+                  ? 'Modell starten (Backup)'
+                  : 'Lokales 0,5B laden (nur Backup)'}
             </button>
             <p className="settings-hint">Gemini: Chat geht zu Google. Key von aistudio.google.com</p>
           </div>
@@ -1544,7 +1559,7 @@ function App() {
               ) : null}
             </div>
           ) : null}
-          <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
+          <div className={`composer ${composerFocused ? 'is-focused' : ''} ${busy ? 'is-busy' : ''}`}>
             <input
               ref={eyeFileRef}
               type="file"

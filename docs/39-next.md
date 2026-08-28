@@ -2,7 +2,7 @@
 
 PO 2026-08-27: Persönlichkeit spalten — **männlich Jarvis** (Work + normales Smalltalk = **Haupt-KI**) und **weiblich Friday**; Stimmen entsprechend. Dazu: was sonst noch dazu gehört. Und **Tabletmodus** aus Screenshots glätten, alles flüssiger.
 
-Code jetzt: **`4.53.0`**. Stimme/Kalender: [`34-next.md`](./34-next.md). Film-TTS: [`37-next.md`](./37-next.md). Hausstand vor Sideload: [`38-next.md`](./38-next.md).
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.53.0`**. Stimme/Kalender: [`34-next.md`](./34-next.md). Film-TTS: [`37-next.md`](./37-next.md). Hausstand: [`38-next.md`](./38-next.md). Ein Hirn (Gemini zuerst), zwei Faces.
 
 In dieser Nachricht **keine** Tablet-Screenshots angehängt. Bugs unten aus **Code + Reel-3-Lage** ([`33-next.md`](./33-next.md)). Kommen echte Fotos nach: Gold-Zeilen in `4.55` nachziehen, nicht raten.
 

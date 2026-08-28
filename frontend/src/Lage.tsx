@@ -10,12 +10,16 @@ import {
 } from './engine/hud'
 import { BODY_ORGANS, type BodyOrgan } from './engine/hud-parse'
 import { ChessBoard } from './ChessBoard'
-import { loadSettings, saveSettings, type Message } from './engine/store'
 import { BodySchema } from './BodySchema'
-import { GlobeView } from './GlobeView'
+import { GlobeView, type GlobeFocus } from './GlobeView'
 import { fetchBodySnap, type BodySnap } from './engine/body-snap'
 import { loadGlobePins } from './engine/globe-pins'
 import type { GeoFix } from './engine/globe-geo'
+import { CITY_FLY_ZOOM } from './engine/globe-gibs'
+import { prefersReducedMotion } from './engine/motion'
+import { loadSettings, saveSettings, type Message } from './engine/store'
+import { advanceTour, selectTourStop, stopTour } from './engine/globe-tour'
+import { decodeHtml } from './engine/html-text'
 
 export function Lage({
   onSend,
@@ -40,6 +44,7 @@ export function Lage({
   const [body, setBody] = useState<BodySnap | null>(null)
   const [pins, setPins] = useState<GeoFix[]>([])
   const [pin, setPin] = useState<GeoFix | null>(null)
+  const [globeTick, setGlobeTick] = useState(0)
   const [clock, setClock] = useState(() =>
     new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
   )
@@ -51,7 +56,7 @@ export function Lage({
   const modules = loadHudModules()
   const face = s.face === 'friday' ? 'FRIDAY' : 'JARVIS'
   const spotifyOn = modules.includes('spotify')
-  const reduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const reduced = prefersReducedMotion()
   const bat = snap.device?.battery
   const amber = s.hud_accent === 'amber'
 
@@ -84,11 +89,41 @@ export function Lage({
       live = false
       window.clearInterval(id)
     }
-  }, [view, modules.join(','), spotifyOn, busy, conversationId])
+  }, [view, modules.join(','), spotifyOn, busy, conversationId, globeTick])
+
+  useEffect(() => {
+    if (view !== 'globe') return
+    const id = window.setInterval(() => {
+      if (!loadSettings().globe_tour_on || prefersReducedMotion()) return
+      const stop = advanceTour()
+      if (stop) {
+        setPin({ name: stop.name, lat: stop.lat, lon: stop.lon, kind: 'glow', line: stop.line, hot: true })
+        setGlobeTick((n) => n + 1)
+        onHudChange?.()
+      }
+    }, 500)
+    return () => window.clearInterval(id)
+  }, [view, onHudChange])
 
   function setView(next: HudView) {
     saveSettings({ hud_view: next, hud_force: true, hud_hidden: false })
     onHudChange?.()
+  }
+
+  function globeFocus(): GlobeFocus | null {
+    try {
+      const raw = s.last_globe_focus
+      if (!raw) return null
+      const f = JSON.parse(raw) as GlobeFocus
+      if (!f.name || !Number.isFinite(Number(f.lat))) return null
+      return { name: f.name, lat: Number(f.lat), lon: Number(f.lon), zoom: Number(f.zoom) || CITY_FLY_ZOOM }
+    } catch {
+      return null
+    }
+  }
+
+  function onLook(look: { lat: number; lon: number; zoom: number; date: string }) {
+    saveSettings({ last_globe_look: JSON.stringify(look) })
   }
 
   function selectOrgan(id: BodyOrgan) {
@@ -143,18 +178,50 @@ export function Lage({
             onSelect={selectOrgan}
             reduced={reduced}
           />
-          <TextTile title={organLabel(organ)} body={body?.[organ]?.line || '—'} />
+          <TextTile title={organLabel(organ)} body={body?.[organ]?.line || '—'} live />
           {modules.includes('chat') ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
         </div>
       ) : view === 'globe' ? (
         <div className="lage-split">
-          <GlobeView pins={pins} onPin={setPin} reduced={reduced} />
+          <GlobeView
+            pins={pins}
+            onPin={(next) => {
+              setPin(next)
+              if (next.kind === 'glow') {
+                selectTourStop(next.name)
+                setGlobeTick((n) => n + 1)
+                onHudChange?.()
+                return
+              }
+              saveSettings({
+                last_globe_focus: JSON.stringify({
+                  name: next.name,
+                  lat: next.lat,
+                  lon: next.lon,
+                  zoom: CITY_FLY_ZOOM,
+                }),
+                last_globe_look: JSON.stringify({ lat: next.lat, lon: next.lon, zoom: CITY_FLY_ZOOM }),
+              })
+              if (next.kind === 'iss' || next.kind === 'here' || next.kind === 'warn') return
+              onSend(`Zeig ${next.name}`)
+            }}
+            onEmpty={() => {
+              if (!loadSettings().globe_tour_on) return
+              stopTour()
+              setGlobeTick((n) => n + 1)
+              onHudChange?.()
+            }}
+            reduced={reduced}
+            focus={globeFocus()}
+            onLook={onLook}
+          />
           <TextTile
-            title={pin?.name || 'Erde'}
-            body={
+            title={pin?.name || globeFocus()?.name || 'Erde'}
+            body={decodeHtml(
               pin?.line ||
-              'Blue Marble plus Terminator aus der Uhr. Kein Live-Satellitenvideo. Pin antippen für den Satz aus vorhandenen Tools.'
-            }
+                s.last_globe_brief ||
+                'Drehen, zoomen, Satellitenfoto wenn nah genug. „Zeig mir London“ dreht in das NASA-Foto. „Was ist heute so auf der Welt passiert“ startet die Tour. Kein Live-Video.',
+            )}
           />
           {modules.includes('chat') ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
         </div>
@@ -242,7 +309,7 @@ function ChatTile({
 }) {
   const last = recent.slice(-2)
   return (
-    <article className="lage-tile lage-chat">
+    <article className={`lage-tile lage-chat${streaming ? ' is-follow' : ''}`}>
       <h3>Chat</h3>
       <div className="lage-chat-log">
         {last.map((m) => (
@@ -275,9 +342,9 @@ function ChatTile({
   )
 }
 
-function TextTile({ title, body }: { title: string; body: string }) {
+function TextTile({ title, body, live }: { title: string; body: string; live?: boolean }) {
   return (
-    <article className="lage-tile">
+    <article className={`lage-tile${live ? ' is-follow' : ''}`}>
       <h3>{title}</h3>
       <p className="lage-body">{body}</p>
     </article>

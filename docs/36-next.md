@@ -4,9 +4,9 @@ PO 2026-08-27: Eine gesprochene Äußerung → Sprachnachricht, Bar, Taxi. Reel 
 
 https://www.instagram.com/reel/Db8bcYijN5y/
 
-**Vollständig** = Ist aus dem Code, geschlossene Research-Voten, Gold-Sätze, Dateien, Konflikte, Tests. Noch kein Execute.
+**Vollständig** = Ist aus dem Code, geschlossene Research-Voten, Gold-Sätze, Dateien, Konflikte, Tests. Geliefert in `4.19`+.
 
-Code jetzt: **`4.19.0`**. Sideload: **`3.18.1`**. Weltlage: [`35-next.md`](./35-next.md). Gespräch/TTS: [`37-next.md`](./37-next.md). **Haus-Backup + Tippfehler:** [`38-next.md`](./38-next.md) — vor dem nächsten Sideload **Backup zuerst**.
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.19.0`**. Weltlage: [`35-next.md`](./35-next.md). Gespräch/TTS: [`37-next.md`](./37-next.md). **Haus-Backup:** [`38-next.md`](./38-next.md) **CODE**.
 
 ## Reel
 

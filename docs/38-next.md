@@ -2,13 +2,13 @@
 
 PO 2026-08-27: Nach APK-Neuinstall (falsche Signatur / Deinstall) sind Keys, Erinnerungen, Nummern weg. Export → ein Tippen Import = gleicher Stand. Dazu: Tippfehler in **Schreiben** und **Sprache**, Jarvis merkt falsche Wörter.
 
-Code jetzt: **`4.46.0`**. Daten sitzen in **WebView**: `localStorage` Key `jarvis_settings_v13`, IndexedDB `jarvis-ondevice`.
+> **Jetzt:** Code **`6.60.0`**. Export/Import ist **CODE**. Vor Sideload/Deinstall: Einstellungen → Hausstand → Exportieren. Daten sitzen in **WebView**: `localStorage` Key `jarvis_settings_v13`, IndexedDB `jarvis-ondevice`.
 
-Alltagskette: [`36-next.md`](./36-next.md). Diese Schiene ist **MUST vor dem nächsten Sideload**.
+Alltagskette: [`36-next.md`](./36-next.md). Schiene gelandet als **`4.46.0`**.
 
 ## Warum
 
-Sideload mit anderem Keystore → Android verlangt Deinstall → Hausstand weg. S5.2 (`0.10.1` NAS-Backup) gilt **nicht** für On-Device. Es gibt **keinen** Export im Code (`SettingsScreen` speichert nur lokal).
+Sideload mit anderem Keystore → Android verlangt Deinstall → Hausstand weg. S5.2 (`0.10.1` NAS-Backup) gilt **nicht** für On-Device.
 
 „Immer synchronisiert“ = **derselbe Stand nach Import**, nicht ein Jarvis-Server. Datei liegt bei Ihnen (Downloads, Teilen nach Drive). Kein Cloud-Zwang.
 

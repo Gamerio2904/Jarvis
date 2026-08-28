@@ -1,129 +1,116 @@
-# 45 — Bühne & Hirn (`6.0`) **PLAN**
+# 45 — Bühne & Hirn (`6.0` / `6.50`) **CODE**
 
-PO 2026-08-28: Animationen (CarPlay, Kugel, Körper, Sprachsteuerung) massiv nachziehen, GUI hochwertiger, mehr Mikrointegration, mehr Over-the-top — und Antworten in Chat **und** Sprachmodus näher an ChatGPT / Grok / Claude. Stimme verbessern wo möglich. Restliche Flächen härten, die schon da sind.
+PO 2026-08-28: Animationen massiv, GUI Over-the-top, Antworten näher ChatGPT/Grok/Claude. **Nachzug 2026-08-28:** Gemini ist der **Hauptweg**. Groq und das kleine lokale Modell sind nur Backup. Kein größeres Modell lokal testen. Satellitenfoto an: virtueller Globus zum Zoomen; Jarvis dreht/zoomt auf „Zeig London“ und sagt, welche Stadt in der Sicht ist.
 
-**Ist:** Code **`5.11.0`**. Sideload **`3.18.1`**. Lage-Sichten Körper/Kugel sind Canvas (kein Three.js). Fahrmodus ist internes Overlay + OSM-Kacheln + OSRM. Sprachmodus hat Phasen idle/listening/thinking/speaking, Gemini-TTS Algieba/Kore mit Native-Race am Steuer. Hirn lokal = Qwen2.5 **0,5B**; Tools laufen über Parser, nicht über das Modell. Gemini und Groq sind Opt-in.
+**Ist:** Code **`6.90.0`**. Sideload **`6.60.0`**. Gemini zuerst. Virtueller Globus mit Zoom/GIBS/Zeig-Stadt + Briefing + Welt-Tour. Motion 30 fps. Fahrmodus-HUD. Sprach-Orb + Stimmen-Picker. Parser [`46-next.md`](./46-next.md). Split/Identität/Overlay [`47-next.md`](./47-next.md). Globus-Briefing [`48-next.md`](./48-next.md).
 
-**Lücke:** Die Bühne ist da, aber noch Schema statt Show. Der 0,5B-Smalltalk ist kein Frontier-Modell. Canned Tool-Sätze klingen ehrlich, aber nicht „intelligent“. Stimme ist eine Stimme, kein Theater.
+**Lücke:** Smalltalk ohne Gemini-Key bleibt klein (gewollt — 0,5B ist Backup). Debug-Hintergrund `5.12`. LocateAnything-Gewichte. Kein 1,5B.
 
-Kein Execute in diesem Sprint. Research zuerst. Sideload nach Hausstand. Debug-Hintergrund bleibt `5.12` [`44-next.md`](./44-next.md), nicht mit `6.0` mischen.
+Schiene Execute in `6.50.0`, Sideload `6.60.0`. Debug-Hintergrund bleibt `5.12`. Kein 1,5B-Spike.
 
-## Ehrlichkeit: ChatGPT-Level
+## Ehrlichkeit: Hirn und „Live-Erde“
 
-| Wunsch | Was wirklich geht | Was wir nicht behaupten |
-|--------|-------------------|-------------------------|
-| Jarvis denkt wie Claude/Grok | **Gemini Opt-in** (schon CODE) + optional Groq; Tool-Fakten darf das Cloud-Modell **formulieren**, nicht erfinden | 0,5B auf dem Handy wird nicht plötzlich 70B |
-| Lokal schlauer | Research: Qwen **1.5B Q4** (~1 GB) oder 3B, nur wenn RAM/WASM-Spike auf dem Gerät grün ist | Default bleibt 0,5B bis Spike |
-| Tools wie ein Agent | Parser + Register bleiben das Hirn für Geräte. Nach dem Tool: 1–3 Sätze aus **denselben** Fakten | 0,5B wählt keine Tools, kein Computer-Use |
-| Stimme wie ein Film | Gemini-TTS Algieba/Kore, Satz-Pipeline, Barge-in. Picker für weitere Gemini-Stimmen | Kein ElevenLabs, kein Stimmklon, kein Marvel-Zitat |
+| Wunsch | Was wir bauen | Was wir nicht behaupten |
+|--------|----------------|-------------------------|
+| So klug wie ChatGPT/Claude | **Gemini** sobald ein Key da ist. Das ist der normale Weg. | 0,5B oder Groq als gleichwertiges Hirn |
+| Offline / Gemini tot | Groq, wenn Key da. Sonst 0,5B oder ehrlich „Modell aus / Cloud fehlt“. | Ein zweites großes Modell auf dem Handy |
+| Live-Webcam der Erde | Gibt es öffentlich nicht | „Live“-Label, Video |
+| Reinzoomen wie ein Globus | NASA **GIBS** True-Color-Kacheln, Stand **Stunden** alt, Datum sichtbar. Weit raus: Blue Marble | Street-View, Wolken in Echtzeit |
+| „Zeig London“ | Lexikon-Ort → drehen, zoomen, Satz mit Namen. Sir selten. | Ort erfinden, der nicht in der Tabelle steht |
+| „Was ist das für eine Stadt?“ | Blickmitte der Kugel → nächster Lexikon-Ort in Reichweite, sonst ehrlich Meer/keine Stadt | Personen beobachten, jedes Dorf der Welt |
 
-Ohne Gemini-Key bleibt Jarvis ein **Geräte-Butler mit ehrlichen Tools** plus kleinem Smalltalk. Das ist die Produktlinie. Die Bühne (`6.10`–`6.40`) lohnt sich trotzdem: CarPlay, Lage und Sprache sollen sich anfühlen wie ein fertiges Produkt, unabhängig vom Modell.
+Ohne Gemini-Key bleibt Jarvis ein Geräte-Butler plus kleinem Backup-Smalltalk. Die Bühne und der Globus lohnen sich trotzdem.
 
 ## Kurz: was wir konkret bauen
 
-| Fläche | Heute | `6.0`-Schiene | Won’t |
-|--------|-------|----------------|-------|
-| Motion | CSS-Slides, Canvas rAF ohne gemeinsames Budget | Ein Motion-Kern: 30 fps Akku / 60 nur bei Geste, Pause im Hintergrund, Reduced-Motion überall | 60 fps Idle, Dauer-WebGL |
-| Chat-GUI | Spotify-dunkel, Tool-Badge | Over-the-top Chrome: Token-Reveal, Tool-Chip, Lage-Mitlauf wenn der Satz ein Organ/Pin trifft | ChatGPT-Klon, Markdown-Bubbles |
-| Körper | Knoten-Schema, Antippen = Kachel | Licht, Pulse aus **echten** `body-snap`-Feldern, Kamera-Ease zum Organ | Iron-Man-Mesh, Fake-CPU, Organ = Tool |
-| Kugel | Blue Marble + Terminator + Pins | Atmosphäre, Pin-Fly-to, ISS-Spur aus letzten Fixes | Live-Satellitenvideo, Überwachung, 1700 Starlink |
-| Fahrmodus | Karte, HUD-Text, Spotify-Tab | Glas-HUD, Manöver-Chevron aus echter Geometrie, Now-Playing-Motion | Apple CarPlay, erfundene Spur |
-| Sprache | Phasen + Wake-Bubble | Orb aus Mic-RMS, Mund in der Lage koppelt an TTS-Amplitude, Barge-in härten | Dauerhören im Hintergrund ohne Dienst |
-| Antworten | Canned Tools; 0,5B/Gemini Smalltalk | Tool-Fakten → optional Gemini-Schliff (gleiche Zahlen); mehr Gedächtnis-Treffer; Sprach-Hint strenger | Erfundene Aktionen, Helpdesk |
-| Stimme | Algieba / Kore / Native-Race | Picker (Algieba, Fenrir, Puck, Kore, Charon), Satz startet früher, am Steuer weiter Native-first | ElevenLabs, Klon der Nutzerstimme |
-
-## Ist vs. Soll
-
-| Fläche | Datei heute | Soll `6.x` |
-|--------|-------------|------------|
-| Körper | `BodySchema.tsx` Canvas-Knoten | Dieselbe Datei: Beleuchtung, Pulse, Ease. Kein zweites 3D-Framework ohne Spike. |
-| Kugel | `GlobeView.tsx` | Fly-to bei Gazetteer-Pin (`last_globe_focus` ist CODE). Atmosphären-Rand. |
-| Lage-Wechsel | `Lage.tsx` Tabs hart | Crossfade + Kamera, ein Canvas-Budget (Körper **oder** Kugel, nie beide rAF). |
-| Fahrmodus | `DriveMode.tsx` `drive-hud` | Chevron/ETA aus `nextManeuver`, Spotify-Artwork-Glow wenn Track da. |
-| Sprache | `VoiceMode.tsx` Phasen | Orb + Waveform; `createSpeakPipeline` bleibt. |
-| TTS | `tts.ts` Algieba hart | Setting-Liste, Default Algieba. Drive-Budget 700 ms bleibt. |
-| Chat | `chat.ts` Tool-Reply = Handler-String | Nach `handled`: optional `polishFacts(reply, facts)` nur mit Gemini, Guard gegen neue Zahlen. |
-| Lokal-Modell | `DEFAULT_MODEL` 0,5B | Spike 1,5B; Default unverändert bis GO. |
+| Fläche | Vor `6.0` | `6.50` CODE | Won’t |
+|--------|-----------|-------------|-------|
+| Hirn | Gemini Opt-in, 0,5B Default | **Gemini zuerst**, Groq Backup, 0,5B letzter Fallback. Kein 1,5B-Test | 0,5B als Claude verkaufen |
+| Motion | mehrere Zeichnungen parallel | Eine Sicht, 30 fps Akku, Pause im Hintergrund | 60 fps Idle |
+| Chat-GUI | Tool-Badge | Chip, Mitlauf zur Lage | Markdown-Bubbles |
+| Körper | Knoten-Schema | Licht/Pulse aus echten Werten, Kamera zum Organ | Iron-Man-Mesh, Fake-CPU |
+| Kugel | Blue Marble, Pins, Koordinaten-Satz | **Virtueller Globus:** Zoom, GIBS nah mit Datum, „Zeig *Stadt*“, „Was ist das?“ | Live-Video, Überwachung |
+| Fahrmodus | Karte + Text-HUD | Glas-HUD, echter Pfeil, Spotify nur wenn Track läuft | Apple CarPlay |
+| Sprache | Phasen + Wake-Bubble | Orb aus Mic, Stimmen-Picker, Barge-in | ElevenLabs, Stimmklon |
+| Tool-Sätze | Canned | Gemini darf **dieselben** Fakten in 1–3 Sätzen sagen | Neue Zahlen erfinden |
 
 ## Leitentscheidung
 
 | Thema | Entscheidung |
 |-------|----------------|
-| Produkt | **Eine** Schiene `6.0`: Bühne zuerst, Hirn parallel sobald die Bühne nicht mehr ruckelt. Kein zweites `3.18.1`-GUI-Patch. |
-| Nummer | `5.12` bleibt Debug-Hintergrund. Nächster Produktsprung nach `5.11` ist **MAJOR `6.0`**. |
-| Hirn | Handy. Parser wählen Tools. Cloud (Gemini, optional Groq) formuliert Smalltalk und darf Tool-Sätze **umschreiben**, nicht widersprechen. |
-| 0,5B | Bleibt Default offline. Längere Persona macht ihn langsamer — Persona lokal **kurz lassen**. Intelligenz sitzt in Tools + Gemini. |
-| Motion | Reduced-motion und Akku schlagen Cinematic. Over-the-top = Geste und Fokus, nicht Idle-Feuerwerk. |
-| WebGL | Spike: Canvas 2D zuerst (schon CODE). Three.js nur wenn der Spike auf einem Mittelklasse-Handy 30 fps hält **und** Reduced-Motion eine 2D-Fallback-Sicht hat. |
-| Stimme | Gemini-TTS, kein Drittanbieter-Klon. Am Steuer Tempo > Timbre. |
-| Sideload | Nicht in `6.0`–`6.50`. Hausstand [`38-next.md`](./38-next.md) vor APK. |
+| Hirn | **Gemini = Hauptweg** (Key in den Einstellungen). Groq nur wenn Gemini fehlt oder ausfällt. 0,5B nur wenn beide Clouds tot oder bewusst „nur lokal“. |
+| Lokal größer | **Kein** 1,5B/3B-Spike. 0,5B bleibt das einzige On-Device-Modell. |
+| Tools | Parser wählen Geräte. Gemini formuliert, widerspricht den Fakten nicht. |
+| Globus | Dieselbe Lage-Sicht Kugel. Weit: Blue Marble. Ran: GIBS-Kacheln, Label „Stand Datum, oft Stunden alt“. Zoom per Geste und per Satz. |
+| Stadt zeigen | `Zeig London` / `Zeig mir Paris` = drehen, zoomen, Pin, ein Satz. Unbekannter Name → „Den Ort habe ich auf der Kugel nicht.“ |
+| Stadt erkennen | `Was ist das für eine Stadt?` / `Was sehe ich?` bei offener Kugel = Blickmitte gegen Lexikon. Treffer: Name + kurzer fester Satz (Gemini darf ihn schleifen). Kein Treffer: Meer oder „keine Stadt in der Sicht“. |
+| Sir | Selten, situativ — nicht jeder Globus-Satz. |
+| Motion | Reduced-motion und Akku schlagen Cinematic. |
+| Sideload | **CODE** `6.60.0`. Hausstand vor Neuinstall. |
 
-## Sprints (Lieferreihenfolge)
+## Ortslexikon (Globus)
 
-Research in dem Sprint, der sie braucht — nicht ein Jahr Vorlauf.
+Keine freie Weltkarte aller Dörfer. Tabelle im Code: Hauptstädte + die Orte, die wir schon haben (Berlin, London, Paris, Ingersheim, …) plus eine **erweiterte** Liste gängiger Städte mit lat/lon und einem **festen** Halbsatz (Paris: Liebe/Seine — Klischee aus der Tabelle, keine Wikipedia-Erfindung zur Laufzeit).
 
-| Sprint | Version | Inhalt | Abhängigkeit |
-|--------|---------|--------|--------------|
-| 121 | `6.0.0` | Leitentscheidung (dieses Dokument) | — |
-| 122 | `6.10.0` | Motion-Kern + GUI Over-the-top | Spike FPS/Reduced-Motion `6.1`–`6.3` |
-| 123 | `6.20.0` | Körper + Kugel cinematic | 122 (ein Canvas-Budget) |
-| 124 | `6.30.0` | Fahrmodus-Bühne | 122 (Motion-Tokens) |
-| 125 | `6.40.0` | Sprach-Theater + Stimme | TTS-Stimmen-Spike `6.41` |
-| 126 | `6.50.0` | Hirn: Tool-Schliff, Kontext, Modell-Spike | Gemini bleibt Opt-in |
-| 127–130 | `6.60`–`6.80` | Agentic Recall | nach 126; Plan [`46-next.md`](./46-next.md) |
+Blickmitte → nächster Eintrag unter festem Kilometer-Limit (z. B. ~80 km). Darüber: kein Raten.
 
-`5.12` Debug-Service und LocateAnything-Sidecar `4.77` laufen **daneben**, sie blockieren `6.10` nicht. Recall `6.61` braucht kein WebGL.
+## Sprints
 
-## Research (vor Execute der Fläche)
+| Sprint | Version | Inhalt |
+|--------|---------|--------|
+| 121 | `6.0.0` | Leitentscheidung (dieses Dokument) — **CODE** in `6.50.0` |
+| 122 | `6.10.0` | Motion-Kern + Chat-Gewand — **CODE** in `6.50.0` |
+| 123 | `6.20.0` | Körper-Show + **virtueller Globus** — **CODE** in `6.50.0` |
+| 124 | `6.30.0` | Fahrmodus-Bühne — **CODE** in `6.50.0` |
+| 125 | `6.40.0` | Sprach-Theater + Stimmen-Picker — **CODE** in `6.50.0` |
+| 126 | `6.50.0` | Hirn: Gemini zuerst, Tool-Schliff, Kontext. Kein 1,5B — **CODE** |
+| 127 | `6.51.0` | Parser nach Prompt-Test — **CODE** |
+| 128–130 | `6.60.0` | Split, Identität, Overlay, Sideload — **CODE** [`47-next.md`](./47-next.md) |
+
+`5.12` Debug-Service und LocateAnything `4.77` daneben. GIBS ist **nicht** mehr Parkplatz — Execute in **123**.
+
+## Research (in dem Sprint der Fläche)
 
 | Version | Frage | Grün wenn |
 |---------|-------|-----------|
-| `6.1` | rAF-Budget Lage+Chat+Drive auf einem Mittelklasse-Handy | 30 fps, eine sichtbare 3D-Sicht, Tab hidden = rAF aus |
-| `6.2` | Reduced-motion: Körper/Kugel/Drive/Voice lesbar ohne Daueranimation | Dieselben Daten, keine leere Fläche |
-| `6.3` | Canvas 2D vs Mini-WebGL für Körper/Kugel | 2D reicht für Pulse/Fly-to **oder** WebGL mit Fallback |
-| `6.21` | ISS-Spur / Pin-Fly-to ohne extra Netz | Nur gespeicherte Fixes + Gazetteer |
-| `6.31` | Drive-HUD 30 fps bei Tile-Load | `tilesPending` darf Chevron nicht droppen |
-| `6.41` | Gemini-TTS Stimmenliste (Algieba, Fenrir, Puck, Kore, Charon) | Eine Stimme startet < 3,5 s stehend; Drive weiter Native-Race |
-| `6.51` | Tool-Schliff: Gemini bekommt nur `{tool, facts, draft}` | Guard streicht neue Zahlen/Orte, die nicht in `facts` stehen |
-| `6.52` | Qwen 1.5B Q4 in WASM | n_ctx brauchbar, First-Token < PO-Limit, sonst **NO-GO** und 0,5B bleibt |
+| `6.1`–`6.3` | FPS, Reduced-Motion, eine Zeichnung | 30 fps, Tab hidden = aus |
+| `6.21` | Fly-to + Zoom ohne Extra-Netz für Lexikon-Orte | London/Paris/Berlin aus der Tabelle |
+| `6.22` | GIBS-Kacheln ab Zoom-Schwelle | Datum sichtbar, Blue Marble darunter, Akku ok |
+| `6.23` | Blickmitte → Stadt | Paris in Sicht = Paris; Atlantik = kein Stadt-Name |
+| `6.31` | Drive-HUD bei Karten-Load | kein Einfrieren |
+| `6.41` | Gemini-Stimmenliste | < 3,5 s stehend; Steuer Native-first |
+| `6.51` | Tool-Schliff + Parser nach Prompt-Test [`46-next.md`](./46-next.md) | **CODE.** Guard streicht neue Orte/Zahlen. Matrix-Gaps zu. |
 
-## Gold (Abnahme, nicht Marketing)
+## Gold (Abnahme)
 
-Bewegung (Handy in der Hand, Reduced-Motion aus):
+1. Gemini-Key an → Plaudern und Tool-Schliff über Gemini. Key weg / Gemini tot → Groq, sonst 0,5B, sonst ehrlicher Satz.
+2. `zeig mal den körper` → Kamera zum Hirn, Pulse nur echt.
+3. `Zeig mir London` → Kugel dreht, zoomt, „Das ist London.“ (Sir höchstens einmal). GIBS wenn nah genug, mit Stand-Datum.
+4. Kugel auf Paris, `Was ist das für eine Stadt?` → Paris, kurzer fester Satz, optional von Gemini geschliffen — keine erfundenen Einwohner.
+5. Kugel über dem Atlantik, dieselbe Frage → keine Stadt erfunden.
+6. Fahrmodus-Pfeil aus echter Route. Spotify-Glow nur bei laufendem Track.
+7. Sprach-Orb folgt dem Mic. Captcha/Banking weiter Won’t.
 
-1. `zeig mal den körper` → Schema fährt zum Hirn, Pulse nur an Organen mit echten Snap-Feldern, Chat-Satz wie heute.
-2. `Zeig PC-Auge` → Kamera-Ease, Kachel „kein Tool“, PC-Knoten nur voll wenn BAT da.
-3. `Wo liegt Berlin` → Kugel fliegt zum Pin, Koordinaten wie CODE, kein Foto-Schreibtisch.
-4. Fahrmodus Overlay → Manöver-Chevron bewegt sich mit echter Geometrie; Spotify-Tab pulsiert nur bei laufendem Track.
-5. Sprachmodus: Orb folgt Mic; erste Satzhälfte hörbar sobald TTS-Blob da; Barge-in bricht Speak.
-6. `Gibt es Unwetter?` mit Gemini an → derselbe DWD-Satz, optional geschliffen, **keine** neue Stadt.
-7. Gemini aus, `Hallo Jarvis.` → 0,5B oder ehrliches „Modell aus“. Kein Fake-Claude.
+## Won’t
 
-Provokation bleibt Won’t: Captcha, Banking, Live-Satellit, „du bist GPT-4“.
+Marvel-Mesh. 60 fps Idle. Live-Satellitenvideo. Street-View. Überwachung. ElevenLabs. 0,5B als Claude. Größeres Modell lokal. Computer-Use. Auto-Ja. Play Store / iOS.
 
-## Won’t (übergreifend)
+## Stories
 
-Marvel-/Iron-Man-Mesh. 60 fps Idle. Live-Satellitenvideo. Überwachung. ElevenLabs / Stimmklon. 0,5B als Claude verkaufen. Computer-Use-Schleife. Auto-Ja. Play Store / iOS. Zweites Hirn am PC. Debug-Cloud.
+| ID | Inhalt |
+|----|--------|
+| B1 | Motion-Budget, Reduced-Motion |
+| B2 | Chat-Chip, Lage-Mitlauf |
+| B3 | Körper Pulse + Ease |
+| B4 | Globus Zoom + GIBS + Fly-to |
+| B5 | `Zeig *Stadt*` dreht/zoomt/spricht |
+| B6 | `Was ist das für eine Stadt?` aus Blickmitte |
+| B7 | Drive-HUD |
+| B8 | Sprach-Orb + Stimmen-Picker |
+| B9 | Gemini zuerst, Groq/0,5B Backup, Tool-Schliff mit Guard |
 
-## Stories (DoR für Execute)
+## Reihenfolge vs. Reste
 
-| ID | Fläche | Inhalt |
-|----|--------|--------|
-| B1 | Motion | `--motion-*` Tokens; rAF-Registry; Hidden-Tab Stop; Reduced-Motion |
-| B2 | Chat | Tool-Chip-Enter; Lage-Mitlauf (Organ/Pin) ohne zweiten Fetch |
-| B3 | Körper | Pulse aus `body-snap`; Ease; kein Fake-Gauge |
-| B4 | Kugel | Fly-to `last_globe_focus`; Atmosphäre; ISS nur aus bekannten Fixes |
-| B5 | Drive | Chevron + Artwork-Glow; weiterhin internes CarPlay |
-| B6 | Voice | RMS-Orb; Mund-Kopplung optional wenn Lage Körper sichtbar |
-| B7 | TTS | Stimmen-Picker; Default Algieba; Drive Native-first |
-| B8 | Hirn | `polishFacts` Gemini; Guard; 1,5B nur nach GO |
-
-## Reihenfolge vs. offene Reste
-
-1. Hausstand-Sideload (APK `3.18.1` → Code-Stand) — unabhängig, weiter vorziehen.
-2. `6.10` Motion — spürbar ohne Modellwechsel.
-3. `6.20` / `6.30` / `6.40` Bühnen parallel nach 122, nicht drei Frameworks.
-4. `6.50` Hirn — sobald Bühne nicht mehr jankt; sonst schluckt das Modell die Frames.
-5. `6.60` Recall — Retrieve/RRF, Working Memory, Sleep [`46-next.md`](./46-next.md); kein WebGL, darf vor Motion.
-6. LocateAnything-Gewichte nach 3060-GO (`4.77`).
-7. Debug-Service `5.12` wenn der PO den Lauf im Hintergrund will.
+1. Globus-Briefing `6.70` — [`48-next.md`](./48-next.md) **PLAN**.
+2. LocateAnything-Gewichte nach 3060-GO.
+3. Debug-Service `5.12` nur wenn der Lauf bei App-zu sterben würde.

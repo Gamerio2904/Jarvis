@@ -17,6 +17,9 @@ import {
   type HudIntent,
   type HudView,
 } from './hud-parse.ts'
+import { nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from './globe-geo.ts'
+import { briefPlace, CITY_FLY_ZOOM, focusJson, fromPlaceFix } from './globe-brief.ts'
+import { clearTour } from './globe-tour.ts'
 
 export { HUD_CATALOG, parseHudIntent, organLabel }
 export type { HudId, HudIntent, HudView, BodyOrgan }
@@ -83,18 +86,41 @@ export async function handleHud(
     })
     return pack(`${organLabel(intent.id)} in der Lage. Kein Tool gestartet.`)
   }
+  if (intent.kind === 'unknown_place') {
+    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    return pack(unknownPlaceLine(intent.asked))
+  }
+  if (intent.kind === 'look') {
+    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    const s = loadSettings()
+    const at = resolveLookTarget(s.last_globe_look || '', s.last_globe_focus || '')
+    const lat = at?.lat ?? NaN
+    const lon = at?.lon ?? NaN
+    const hit = nearestPlace(lat, lon)
+    if (hit) {
+      const cached = (s.last_globe_brief || '').trim()
+      if (cached.toLowerCase().includes(hit.name.toLowerCase())) {
+        return pack(cached)
+      }
+      const reply = await briefPlace(fromPlaceFix(hit))
+      saveSettings({ last_globe_brief: reply.slice(0, 500) })
+      return pack(reply)
+    }
+    return pack(noCityInViewLine())
+  }
   if (intent.kind === 'pin') {
+    clearTour()
+    const place = { name: intent.name, lat: intent.lat, lon: intent.lon, blurb: intent.blurb }
     saveSettings({
       hud_view: 'globe',
       hud_force: true,
       hud_hidden: false,
-      last_globe_focus: JSON.stringify({ name: intent.name, lat: intent.lat, lon: intent.lon }),
+      last_globe_focus: focusJson(place, CITY_FLY_ZOOM),
+      last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: CITY_FLY_ZOOM }),
     })
-    const ns = intent.lat >= 0 ? 'Nord' : 'Süd'
-    const ew = intent.lon >= 0 ? 'Ost' : 'West'
-    return pack(
-      `${intent.name} liegt bei ${Math.abs(intent.lat).toFixed(1)}° ${ns}, ${Math.abs(intent.lon).toFixed(1)}° ${ew}. Kugel in der Lage. Kein Live-Satellit.`,
-    )
+    const reply = await briefPlace(place)
+    saveSettings({ last_globe_brief: reply.slice(0, 500) })
+    return pack(reply)
   }
   const next = setHudModule(intent.id, intent.on)
   const label = HUD_CATALOG.find((c) => c.id === intent.id)?.label || intent.id

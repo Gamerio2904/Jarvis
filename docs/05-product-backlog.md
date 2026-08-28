@@ -2,6 +2,8 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`.
+
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
 **MoSCoW:** Must / Should / Could / Won’t (für aktuellen Horizont)
@@ -35,11 +37,13 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **CODE** |
 | E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **CODE** |
 | E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **CODE** |
-| E33 | Körper intern `4.66` | 5+ | 3D-Schema live/klickbar (Darstellung) + Kacheln, APK; PC nur PC-Organe — [`40-next.md`](./40-next.md) **PLAN** |
-| E34 | Lokales Sehen `4.76` | 5+ | LocateAnything am PC, Klick mit Boxen — [`41-next.md`](./41-next.md) **PLAN** |
-| E35 | Bühne & Hirn `6.0` | 5+ | Motion, Lage-Show, Gemini-Schliff — [`45-next.md`](./45-next.md) **PLAN** |
+| E33 | Körper intern `4.66` | 5+ | 3D-Schema live/klickbar (Darstellung) + Kacheln, APK; PC nur PC-Organe — [`40-next.md`](./40-next.md) **CODE** |
+| E34 | Lokales Sehen `4.76` | 5+ | Parser CODE; LocateAnything-Gewichte nach 3060-GO — [`41-next.md`](./41-next.md) |
+| E35 | Weltkugel `5.0` | 5+ | Lage-Sicht Erde, GIBS beim Zoom `6.20`/`6.50` — [`43-next.md`](./43-next.md) **CODE** |
 | E36 | Debug-Lauf `5.11` | 5+ | Kategorien, Sequenz, Export mit Verdict — [`44-next.md`](./44-next.md) **CODE** |
-| E37 | Agentic Recall `6.60` | 5+ | Retrieve/RRF, Working Memory, Sleep — [`46-next.md`](./46-next.md) **PLAN** |
+| E45 | Bühne & Hirn `6.50` | 5+ | Gemini Hauptweg, Globus, Motion, Stimme — [`45-next.md`](./45-next.md) **CODE** |
+| E47 | Split / Overlay / Sideload `6.60` | 5+ | Live-Split, Identität, Overlay Gemini zuerst, APK — [`47-next.md`](./47-next.md) **CODE** |
+| E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **PLAN** |
 
 ---
 
@@ -441,17 +445,17 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S33.0 | Leitentscheidung Körper in der Lage | Must | ready | [`40-next.md`](./40-next.md) PLAN |
-| S33.1 | 3D-Schema live, Tippen = Kachel nicht Tool | Must | idea | WebGL-Spike `4.67` |
-| S33.2 | Nur echte Store-Zustände | Must | idea | kein Fake-Puls |
-| S33.3 | PC-Auge/PC-Hand ehrlich ohne BAT | Must | idea | `4.73` |
+| S33.0 | Leitentscheidung Körper in der Lage | Must | done | [`40-next.md`](./40-next.md) **CODE** |
+| S33.1 | 3D-Schema live, Tippen = Kachel nicht Tool | Must | done | Canvas-Schema in der Lage |
+| S33.2 | Nur echte Store-Zustände | Must | done | Pulse aus Werten, kein Fake |
+| S33.3 | PC-Auge/PC-Hand ehrlich ohne BAT | Must | done | Kachel „PC nicht verbunden“ |
 | S33.4 | Mails/Instagram/Marvel-Mesh | Won’t | parked | Darstellung intern |
 
 ### E34 — Lokales Sehen `4.76`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S34.0 | Leitentscheidung LocateAnything am PC | Must | ready | [`41-next.md`](./41-next.md) — nicht `4.66` |
+| S34.0 | Leitentscheidung LocateAnything am PC | Must | done | Parser CODE; Vision ehrlich aus bis 3060-GO |
 | S34.1 | 3060/Windows Spike GO/NO-GO | Must | idea | `4.77` |
 | S34.2 | `klick …` über Box, unsicher = kein Klick | Must | idea | `4.82` |
 | S34.3 | Screenshot deuten ohne Google wenn Vision ready | Should | idea | `4.83` |
@@ -474,35 +478,38 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S36.0 | Leitentscheidung Debug-Lauf | Must | ready | [`44-next.md`](./44-next.md) PLAN |
-| S36.1 | Klickboxen mehrerer Kategorien | Must | idea | nicht nur ein Select |
-| S36.2 | Start öffnet neues Gespräch | Must | idea | Alltagschat unangetastet |
-| S36.3 | Prompts inkl. Welt/Face fest im Code | Must | idea | `test-copy.ts` |
-| S36.4 | Download JSON+TXT mit Soll/Ist | Must | idea | `5.16` |
+| S36.0 | Leitentscheidung Debug-Lauf | Must | done | [`44-next.md`](./44-next.md) **CODE** |
+| S36.1 | Klickboxen mehrerer Kategorien | Must | done | nicht nur ein Select |
+| S36.2 | Start öffnet neues Gespräch | Must | done | Alltagschat unangetastet |
+| S36.3 | Prompts inkl. Welt/Face fest im Code | Must | done | `test-copy.ts` |
+| S36.4 | Download JSON+TXT mit Soll/Ist | Must | done | `5.16` in `5.11` |
 | S36.5 | Auto-Ja / Debug-Cloud / Hausstand-Import im Lauf | Won’t | parked | |
 
-### E37 — Agentic Recall `6.60`
+### E48 — Globus-Briefing `6.70`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S37.0 | Leitentscheidung Recall (kein Lance/Nemotron) | Must | ready | [`46-next.md`](./46-next.md) PLAN |
-| S37.1 | `retrieve.ts` Sub-Queries + RRF über IDB | Must | idea | Sprint 128 |
-| S37.2 | Chatsuche + Memory-Recall nutzen retrieve | Must | idea | Write/Forget bleiben Parser |
-| S37.3 | memoryBlock Pins+Hits, kürzere History | Must | idea | max. 10 Zeilen |
-| S37.4 | Working Memory Overwrite 8 Zeilen | Must | idea | Sprint 129 |
-| S37.5 | Sleep-Time ohne heimliche Cloud | Must | idea | Sprint 130 |
-| S37.6 | Embedding-Router / Nemotron-Hirn / Alles-Mitschneiden | Won’t | parked | Punkt 8 in `46-next` |
+| S48.0 | Leitentscheidung Stadt → Satellit → Briefing | Must | done | [`48-next.md`](./48-next.md) PLAN |
+| S48.1 | Fly-to in GIBS, Stamp mit Datum | Must | ready | Zoom ≥ 3.8, kein „Live“ |
+| S48.2 | Politik aus Tagesschau-Ort / outlook-Tag | Must | ready | leer = weglassen |
+| S48.3 | Markt nur Hormus/OPEC/EZB-Kette | Must | ready | kein Aktien-Orakel |
+| S48.4 | Anomalie nur DWD/ISS/EONET-GO | Should | ready | keine erfundenen Hotspots |
+| S48.5 | Ihr Plan nur Kalender/Memory-Treffer | Should | ready | kein Bildschirm-Mitschnitt |
+| S48.6 | Live-Sat / Street-View / Überwachung / Geheim-Feed | Won’t | parked | |
+| S48.7 | Welt-Tour Parser `auf der Welt passiert` | Must | ready | `outlook` + Kugel, nicht `news` |
+| S48.8 | Länder-Glow + Seite + Zoom-Kette max 5 | Must | ready | weltpolitisch-Filter |
+| S48.9 | Reduced-Motion Tour ohne Auto-Flug | Should | ready | Glow+Liste |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Sideload nach Hausstand-Export (`4.46` **CODE**, APK noch `3.18.1`)
-2. Bühne & Hirn [`45-next.md`](./45-next.md) `6.0`
-3. Agentic Recall [`46-next.md`](./46-next.md) `6.60` — nach `6.50`, darf vor Motion
-4. Debug-Hintergrund `5.12` (Lauf v1 ist CODE `5.11`)
-5. LocateAnything-Sidecar nach `4.77` GO
-6. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. Globus-Briefing [`48-next.md`](./48-next.md) `6.70`
+2. LocateAnything-Sidecar nach 3060-GO [`41-next.md`](./41-next.md) — Parser schon CODE
+3. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
+4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+
+Sideload **`6.60.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay sind **CODE**.
 
 Komplette Liste: [`42-planned.md`](./42-planned.md).
 

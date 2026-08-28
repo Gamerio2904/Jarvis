@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (in App `6.50.0`) |
 | Priorität | erste spürbare Fläche nach Leit `6.0` |
 | Ziel-Version | `6.10.0` (Research `6.1`–`6.3` in diesem Sprint) |
 | Quelle | PO: flüssig, hochwertige GUI, Mikrointegration |
@@ -25,4 +25,4 @@ Ein rAF-/Motion-Budget für Chat, Lage und Overlays. Reduced-Motion und Hidden-T
 
 ## Won’t (dieser Sprint)
 
-Körper-Cinematic (123). Drive-HUD (124). TTS-Picker (125). 1,5B-Modell. Sideload.
+Körper-Cinematic (123 Globus). Drive-HUD (124). TTS-Picker (125). Sideload. Größeres lokales Modell.
