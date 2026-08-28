@@ -67,6 +67,14 @@ Bestehende Titel in `test-copy.ts` **behalten** (Prompts schon CODE):
 
 Smalltalk · Gedächtnis · Einkauf · Tag & Hilfe · Uhr & Gerät · Ort · Wetter · Timer Wecker Erinnerung · Kalender & Losgehen · Fernseher & Film · Haus · Fahren & Spotify · Tanke POI Bahn · Leute Anruf SMS · PC Foto Notiz · Research Nachrichten Feiertag · Weltlage · Alltagskette · Randfälle
 
+**Neu CODE `5.11`:** Welt & Lage · Gesicht & Hausstand
+
+**Neu CODE `6.50` nach Prompt-Test** ([`46-test-650.md`](./46-test-650.md)):
+
+### Bühne & Hirn · Naive Fragen · Kaputt 6.50
+
+Globus `Zeig mir London` / Blickmitte / Atlantis, naive „Was kannst du?“, kaputte Sätze. Soll-Werte oft **Absicht `6.51`** — der Lauf darf `fail` zeigen, bis [`46-next.md`](./46-next.md) sitzt. `Ok Google, Timer …` **nicht** im Live-Katalog (echter Write).
+
 **Neu einbauen** (Prompts fest, Execute füllt `test-copy.ts`):
 
 ### Welt & Lage (`3.1`–`3.18`)

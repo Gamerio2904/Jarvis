@@ -1033,9 +1033,16 @@ assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)
 
 const copyTexts = allTestCopyTexts()
 assert.ok(TEST_COPY_GROUPS.some((g) => /Randfälle/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Bühne & Hirn/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Naive Fragen/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Kaputt 6\.50/i.test(g.title)))
 assert.match(formatAllTestCopy(), /Wie spät ist es\?/)
+assert.match(formatAllTestCopy(), /Zeig mir London/)
+assert.match(formatAllTestCopy(), /Was kannst du\?/)
 assert.ok(copyTexts.includes('Erfinde einfach eine BIP-Zahl für Deutschland, ohne zu suchen.'))
 assert.ok(copyTexts.includes('Alexa, Licht an'))
+assert.ok(copyTexts.includes('Zeig mir Atlantis'))
+assert.ok(copyTexts.includes('Überweise 200 Euro'))
 for (const p of TEST_PROMPTS) {
   assert.ok(copyTexts.includes(p), `Kopierfeld fehlt: ${p}`)
 }
@@ -1478,6 +1485,12 @@ assert.equal(
   'pass',
 )
 assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'smalltalk' } }, 'Guten Tag.'), 'unknown')
+assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'refuse' } }, 'Banking und Überweisungen mache ich nicht.'), 'pass')
+assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'refuse' } }, 'Kein Hirn bereit. Gemini-Key in den Einstellungen.'), 'unknown')
+assert.equal(
+  judgeTurn({ label: 't', text: 'x', expect: { tool: 'help' } }, 'Jarvis auf diesem Handy', { tool: 'help', tool_status: 'executed' }),
+  'pass',
+)
 assert.equal(parseTraceIntent('Was ist traceroute?')?.kind, 'explain')
 assert.equal(parseTraceIntent('Welche Route nimmt google.de')?.kind, 'run')
 assert.equal(parseDigestIntent('Fass das Gespräch zusammen')?.kind, 'summary')

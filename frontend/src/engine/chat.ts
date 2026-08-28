@@ -140,7 +140,11 @@ export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, release
 
 async function routeDeterministic(conversationId: string, content: string): Promise<RouteHit | null> {
   if (isHelpCommand(content)) {
-    return { reply: HELP_TEXT, lastTool: 'help' }
+    return {
+      reply: HELP_TEXT,
+      lastTool: 'help',
+      tool: { tool_status: 'executed', tool: 'help', action: 'catalog', label: 'Hilfe' },
+    }
   }
 
   if (loadSettings().last_comm_json) {

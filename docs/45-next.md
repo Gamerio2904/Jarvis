@@ -77,7 +77,7 @@ Blickmitte → nächster Eintrag unter festem Kilometer-Limit (z. B. ~80 km). Da
 | `6.23` | Blickmitte → Stadt | Paris in Sicht = Paris; Atlantik = kein Stadt-Name |
 | `6.31` | Drive-HUD bei Karten-Load | kein Einfrieren |
 | `6.41` | Gemini-Stimmenliste | < 3,5 s stehend; Steuer Native-first |
-| `6.51` | Tool-Schliff nur mit Fakten-Paket | Guard streicht neue Orte/Zahlen |
+| `6.51` | Tool-Schliff + Parser nach Prompt-Test [`46-next.md`](./46-next.md) | Guard streicht neue Orte/Zahlen. Matrix-Gaps zu. |
 
 ## Gold (Abnahme)
 

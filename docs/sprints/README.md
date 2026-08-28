@@ -130,8 +130,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 124 | [`sprint-124.md`](./sprint-124.md) | `6.30.0` | Fahrmodus-Bühne | **CODE** (in `6.50.0`) |
 | 125 | [`sprint-125.md`](./sprint-125.md) | `6.40.0` | Sprach-Theater + Stimme | **CODE** (in `6.50.0`) |
 | 126 | [`sprint-126.md`](./sprint-126.md) | `6.50.0` | Hirn: Gemini zuerst, Groq/0,5B Backup | **CODE** |
+| 127 | [`sprint-127.md`](./sprint-127.md) | `6.51.0` | Parser-Patches nach Prompt-Test | **PLAN** |
 
-**Aktuell:** Code **`6.50.0`**. Sideload `3.18.1`. Bühne & Hirn [`45-next.md`](../45-next.md) **CODE**. Gemini Hauptweg. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`6.50.0`**. Sideload `3.18.1`. Bühne & Hirn [`45-next.md`](../45-next.md) **CODE**. Prompt-Test [`46-test-650.md`](../46-test-650.md). Nächster Execute [`46-next.md`](../46-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

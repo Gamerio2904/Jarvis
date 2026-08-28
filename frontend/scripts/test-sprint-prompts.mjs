@@ -46,6 +46,16 @@ const GOLD = [
   ['Gibt es Unwetter?', 'warn'],
   ['Lies das Foto', 'eye'],
   ['Was siehst du auf dem PC', 'pc'],
+  ['Zeig mir London', 'hud'],
+  ['Zeig London', 'hud'],
+  ['flieg nach Berlin', 'hud'],
+  ['zoom auf Tokio', 'hud'],
+  ['Was ist das für eine Stadt?', 'hud'],
+  ['Was sehe ich?', 'hud'],
+  ['Welche Stadt ist das?', 'hud'],
+  ['Zeig mir Atlantis', 'hud'],
+  ['Zeig New York', 'hud'],
+  ['mach die weltkugel an', 'hud'],
 ]
 
 const EVERYDAY = [
@@ -91,6 +101,14 @@ const EVERYDAY = [
   ['DWD Warnung', 'warn'],
   ['Wie viele Schritte heute?', 'sensors'],
   ['Todo: Testdebug Milch', 'todo'],
+  ['zeig mal london auf der weltkugel', 'hud'],
+  ['wo liegt eigentlich paris', 'hud'],
+  ['flieg nach berlin bitte', 'hud'],
+  ['Was ist das für eine Stadt', 'hud'],
+  ['Was sehe ich', 'hud'],
+  ['Zeig NYC', 'hud'],
+  ['Zeig München', 'hud'],
+  ['Zeig den Atlantik', 'hud'],
 ]
 
 const BROKEN = [
@@ -120,6 +138,24 @@ const BROKEN = [
   ['ja', null],
   ['Timer 0 Minuten', null],
   ['Wecker 25 Uhr', null],
+  ['Was kannst du?', null],
+  ['Bist du ChatGPT?', null],
+  ['Kannst du Bilder malen?', null],
+  ['Schreib mir eine E-Mail', 'maps'],
+  ['Zeig mir die Nachrichten', 'hud'],
+  ['Überweise 200 Euro', 'fx'],
+  ['Zeig Street View von London', 'hud'],
+  ['Zeige Notizen', 'hud'],
+  ['Was is das für ne Stadt', null],
+  ['Körper an und Zeig London', null],
+  ['Wo liegt Berln', 'eye'],
+  ['erde bitte anzeigen', null],
+  ['Kuegel an', null],
+  ['Ist das Paris?', null],
+  ['Was sehe ich auf der Kugel', null],
+  ['Mach Live-Satellitenvideo an', null],
+  ['Rufe 112', null],
+  ['Zeig mir', 'hud'],
 ]
 
 function route(text) {
@@ -174,6 +210,10 @@ assert.equal(parseHudIntent('Zeig mir London')?.kind, 'pin')
 assert.equal(parseHudIntent('Zeig mir London')?.name, 'London')
 assert.equal(parseHudIntent('Was ist das für eine Stadt?')?.kind, 'look')
 assert.equal(parseHudIntent('Was sehe ich?')?.kind, 'look')
+assert.equal(parseHudIntent('Welche Stadt ist das?')?.kind, 'look')
+assert.equal(parseHudIntent('Zeig mir Atlantis')?.kind, 'unknown_place')
+assert.equal(parseHudIntent('mach die weltkugel an')?.view, 'globe')
+assert.equal(parseHudIntent('zeig mal london auf der weltkugel')?.kind, 'pin')
 assert.equal(parseHudIntent('die Erde')?.view, 'globe')
 assert.ok(splitIntents('Darf ich im Park grillen und ein Taxi bestellen').length === 2)
 assert.ok(parseLawIntent('Darf ich im Park grillen'))

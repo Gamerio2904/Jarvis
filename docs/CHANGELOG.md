@@ -17,6 +17,7 @@ Sprints 121–126 in einer App-Version. Sideload bleibt `3.18.1`.
 - **Motion:** 30 fps, Pause im Hintergrund, Reduced-Motion.
 - **Fahrmodus:** Glas-HUD mit echtem Pfeil, Spotify-Glow nur bei laufendem Track.
 - **Sprache:** Orb aus Mic, Stimmen-Picker (Algieba/Kore und weitere Gemini-Stimmen).
+- **Test 2026-08-28:** Prompt-Matrix + Debug-Gruppen **Bühne & Hirn**, **Naive Fragen**, **Kaputt 6.50**. Gold-Globus hält. Lücken (Was kannst du, Überweise ohne Banking, Nachrichten vs. Kugel, …) in [`46-test-650.md`](./46-test-650.md) / [`46-next.md`](./46-next.md) `6.51`.
 
 - Docs [`45-next.md`](./45-next.md) · Sprints 121–126
 - App-Code **`6.50.0`**, Sideload noch `3.18.1`
