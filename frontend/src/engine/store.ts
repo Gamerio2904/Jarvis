@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '6.51.0'
+export const APP_VERSION = '6.60.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -206,6 +206,7 @@ export type Settings = {
   model_default: string
   fallback_model: string
   routing_mode: string
+  setup_dismissed: boolean
   version: string
 }
 
@@ -321,6 +322,7 @@ export const DEFAULT_SETTINGS: Settings = {
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',
+  setup_dismissed: false,
   version: APP_VERSION,
 }
 

@@ -5,7 +5,19 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.51.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
+App-Version im Code: **`6.60.0`**. Sideload: **`6.60.0`** (`releases/Jarvis.apk`). Vor Neuinstall Hausstand exportieren.
+
+### `6.60.0` — Split, Identität, Overlay, Sideload — *CODE*
+
+Sprints 128–130. 127 (`6.51`) bleibt mitgeliefert.
+
+- **Split:** `Körper an und Zeig London` trifft `hud`. Nacktes `London` nach `und` wird `Zeig London`.
+- **Identität:** `Bist du ChatGPT?` / `Bist du eine KI?` / `Wie heißt du?` canned, ohne Modell, kein Marvel. `Wer bist du?` bleibt Memory.
+- **Overlay:** Gemini zuerst, Fertig ohne Download, 0,5B nur Backup. Hausstand-Hinweis.
+- **APK:** versionName `6.60.0`. LocateAnything-Gewichte nicht drin.
+
+- Docs [`47-next.md`](./47-next.md) · Sprints 128–130
+- App-Code **`6.60.0`**
 
 ### `6.51.0` — Parser nach Prompt-Test — *CODE*
 

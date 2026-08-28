@@ -1,15 +1,15 @@
 /**
- * Prompt-Matrix 6.51: Gold lockt. Gaps müssen 0 sein.
+ * Prompt-Matrix 6.60: Gold lockt. Gaps müssen 0 sein.
  */
 import assert from 'node:assert/strict'
 import { pickRouteFromCtx } from '../src/engine/route-pick.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
-import { isHelpCommand } from '../src/engine/guards.ts'
+import { isHelpCommand, isPersonaAsk } from '../src/engine/guards.ts'
 import { isLiveLookup, parseShopDiscountIntent } from '../src/engine/research-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { parseWontIntent } from '../src/engine/wont-parse.ts'
-import { splitIntents } from '../src/engine/split-intents.ts'
+import { promoteSplitPart, splitIntents } from '../src/engine/split-intents.ts'
 
 function route(text) {
   text = normalizeUtterance(text)
@@ -59,10 +59,14 @@ const LOCK = [
   ['Zeige Notizen', 'todo', null],
   ['klick das Captcha', 'wont', null],
   ['Öffne Banking und überweise 500 Euro', 'wont', null],
+  ['Bist du ChatGPT?', 'identity', null],
+  ['Wie heißt du?', 'identity', null],
+  ['Körper an und Zeig London', 'hud', null],
+  ['Zeig Spotify und London', 'hud', null],
 ]
 
 let fail = 0
-console.log('\n=== LOCK 6.51 ===')
+console.log('\n=== LOCK 6.60 ===')
 for (const [prompt, want, hudKind] of LOCK) {
   const got = route(prompt)
   const hud = parseHudIntent(prompt)
@@ -82,6 +86,12 @@ assert.equal(parseWontIntent('Überweise 200 Euro')?.reason, 'banking')
 assert.equal(parseHudIntent('Zeig Street View von London'), null)
 assert.equal(parseWontIntent('Zeig Street View von London')?.reason, 'street')
 assert.equal(parseHudIntent('wo liegt eigentlich paris')?.name, 'Paris')
+assert.equal(isPersonaAsk('Bist du ChatGPT?'), true)
+assert.equal(promoteSplitPart('London'), 'Zeig London')
+assert.deepEqual(
+  splitIntents('Zeig Spotify und London').map(promoteSplitPart),
+  ['Zeig Spotify', 'Zeig London'],
+)
 
 console.log(`\nlock fails: ${fail} / ${LOCK.length}`)
 if (fail) process.exitCode = 2

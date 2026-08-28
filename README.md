@@ -4,7 +4,7 @@
   <img src="frontend/native/brand/cover.png" alt="Jarvis" width="920" />
 </p>
 
-Privater Assistant. Läuft **auf dem Handy**. App-Code **`6.51.0`**. Sideload **`3.18.1`**. PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`6.60.0`**. Sideload **`6.60.0`**. PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
 
 ## Start (Dev-PC, nur zum Bauen)
 

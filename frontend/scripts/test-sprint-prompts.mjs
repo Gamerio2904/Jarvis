@@ -4,7 +4,7 @@
  */
 import assert from 'node:assert/strict'
 import { pickRoute } from '../src/engine/route-pick.ts'
-import { isHelpCommand } from '../src/engine/guards.ts'
+import { isHelpCommand, isPersonaAsk } from '../src/engine/guards.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
 import { parseFaceIntent } from '../src/engine/face-parse.ts'
@@ -14,7 +14,7 @@ import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { parseWontIntent } from '../src/engine/wont-parse.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
 import { parsePcIntent } from '../src/engine/pc-parse.ts'
-import { splitIntents } from '../src/engine/split-intents.ts'
+import { promoteSplitPart, splitIntents } from '../src/engine/split-intents.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
 
 const GOLD = [
@@ -140,7 +140,7 @@ const BROKEN = [
   ['Timer 0 Minuten', null],
   ['Wecker 25 Uhr', null],
   ['Was kannst du?', 'help'],
-  ['Bist du ChatGPT?', null],
+  ['Bist du ChatGPT?', 'identity'],
   ['Kannst du Bilder malen?', 'wont'],
   ['Schreib mir eine E-Mail', 'wont'],
   ['Zeig mir die Nachrichten', 'news'],
@@ -148,7 +148,7 @@ const BROKEN = [
   ['Zeig Street View von London', 'wont'],
   ['Zeige Notizen', 'todo'],
   ['Was is das für ne Stadt', 'hud'],
-  ['Körper an und Zeig London', null],
+  ['Körper an und Zeig London', 'hud'],
   ['Wo liegt Berln', 'hud'],
   ['erde bitte anzeigen', 'hud'],
   ['Kuegel an', 'hud'],
@@ -216,6 +216,8 @@ assert.equal(parseHudIntent('Was sehe ich auf der Kugel')?.kind, 'look')
 assert.equal(parseHudIntent('Was is das für ne Stadt')?.kind, 'look')
 assert.deepEqual(splitIntents('Körper an und Zeig London'), ['Körper an', 'Zeig London'])
 assert.equal(isHelpCommand('Was kannst du?'), true)
+assert.equal(isPersonaAsk('Bist du ChatGPT?'), true)
+assert.equal(promoteSplitPart('London'), 'Zeig London')
 assert.equal(parseHudIntent('Welche Stadt ist das?')?.kind, 'look')
 assert.equal(parseHudIntent('Zeig mir Atlantis')?.kind, 'unknown_place')
 assert.equal(parseHudIntent('Wo liegt Berln')?.kind, 'unknown_place')

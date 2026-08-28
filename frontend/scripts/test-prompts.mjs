@@ -12,7 +12,7 @@ import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -186,7 +186,7 @@ const EXPECT = {
   'Zeig mir Atlantis': 'hud',
   'zoom auf Tokio': 'hud',
   'Was kannst du?': 'help',
-  'Bist du ChatGPT?': 'llm',
+  'Bist du ChatGPT?': 'identity',
   'Kannst du Bilder malen?': 'wont',
   'Spiele Musik': 'drive',
   'Schreib mir eine E-Mail': 'wont',
@@ -198,7 +198,7 @@ const EXPECT = {
   'mach die weltkugel an': 'hud',
   'Zeig New York': 'hud',
   'Was is das für ne Stadt': 'hud',
-  'Körper an und Zeig London': 'llm',
+  'Körper an und Zeig London': 'hud',
   'Mach Live-Satellitenvideo an': 'wont',
 }
 

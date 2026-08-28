@@ -3,10 +3,10 @@ import { completeGemini, geminiReady, streamGemini, testGemini } from './gemini'
 import { groqReady, testGroq } from './groq'
 import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain'
 import { userFacingCloudError } from './cloud-errors'
-import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
+import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards'
 import { memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
-import { splitIntents } from './split-intents'
+import { promoteSplitPart, splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
 import { SEARCH_ON_HINT, VOICE_HINT, personaPack } from './persona'
 import { loadFace } from './face.ts'
@@ -144,6 +144,14 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: HELP_TEXT,
       lastTool: 'help',
       tool: { tool_status: 'executed', tool: 'help', action: 'catalog', label: 'Hilfe' },
+    }
+  }
+
+  if (isPersonaAsk(content) || isPersonaAsk(normalizeUtterance(content))) {
+    return {
+      reply: PERSONA_ASK_TEXT,
+      lastTool: 'identity',
+      tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Jarvis' },
     }
   }
 
@@ -393,7 +401,8 @@ export async function streamChat(
   })
 
   try {
-    const parts = splitIntents(normalizeUtterance(content))
+    const rawParts = splitIntents(normalizeUtterance(content))
+    const parts = rawParts.length > 1 ? rawParts.map(promoteSplitPart) : rawParts
     let queue = parts
     if (parts.length > 1) {
       const { reads, writes } = partitionChain(parts)

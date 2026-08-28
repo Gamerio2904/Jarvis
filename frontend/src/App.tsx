@@ -321,7 +321,7 @@ function App() {
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
   const [setupOpen, setSetupOpen] = useState(() => {
     const s = loadSettings()
-    return !isGeminiConfigured() && !s.groq_api_key.trim() && !isModelReady()
+    return !isGeminiConfigured() && !s.groq_api_key.trim() && !isModelReady() && !s.setup_dismissed
   })
   const [downloadPct, setDownloadPct] = useState(0)
   const [downloadBusy, setDownloadBusy] = useState(false)
@@ -820,7 +820,7 @@ function App() {
     if (gemini) {
       setSetupOpen(false)
       void releaseModel()
-    } else if (isModelReady()) {
+    } else if (isModelReady() || loadSettings().setup_dismissed) {
       setSetupOpen(false)
     } else {
       setSetupOpen(true)
@@ -1231,10 +1231,10 @@ function App() {
       {setupOpen ? (
         <div className="setup-overlay" role="dialog" aria-labelledby="setup-title">
           <div className="setup-card">
-            <h2 id="setup-title">Modell aufs Handy</h2>
+            <h2 id="setup-title">Gemini zuerst</h2>
             <p>
-              Jarvis kann lokal auf dem Handy denken (einmal ~470 MB) oder über Gemini
-              (Google). Das lokale Modell startet nur, wenn Gemini aus ist.
+              Hirn ist Gemini sobald ein Key da ist. Groq nur Backup. Das kleine lokale 0,5B
+              zuletzt — nicht ChatGPT. Timer, Kugel und Wetter laufen auch ohne Modell.
             </p>
             {downloadBusy ? (
               <p className="settings-hint">
@@ -1246,15 +1246,36 @@ function App() {
               </p>
             ) : (
               <p className="settings-hint">
-                {hasLocalModel
-                  ? 'Modell liegt auf dem Gerät. Einmal starten, dann chatten.'
-                  : 'WLAN empfohlen. Das Modell bleibt auf dem Handy.'}
+                Vor Neuinstall: Einstellungen → Hausstand → Exportieren. Sonst sind Keys weg.
               </p>
             )}
             {error ? <p className="settings-hint setup-error">{error}</p> : null}
             <button
               type="button"
               className="retry-btn"
+              disabled={downloadBusy}
+              onClick={() => {
+                void patchSettings({ setup_dismissed: true })
+                setSetupOpen(false)
+                openSettings('cloud')
+              }}
+            >
+              Gemini-Key eintragen
+            </button>
+            <button
+              type="button"
+              className="ghost-btn"
+              disabled={downloadBusy}
+              onClick={() => {
+                void patchSettings({ setup_dismissed: true })
+                setSetupOpen(false)
+              }}
+            >
+              Fertig — Tools ohne Modell
+            </button>
+            <button
+              type="button"
+              className="ghost-btn"
               disabled={downloadBusy}
               onClick={() => void downloadModel()}
             >
@@ -1263,19 +1284,8 @@ function App() {
                   ? 'Modell starten…'
                   : `Laden ${downloadPct}%`
                 : hasLocalModel
-                  ? 'Modell starten'
-                  : 'Modell herunterladen'}
-            </button>
-            <button
-              type="button"
-              className="ghost-btn"
-              disabled={downloadBusy}
-              onClick={() => {
-                setSetupOpen(false)
-                openSettings('cloud')
-              }}
-            >
-              Stattdessen Gemini (Google)
+                  ? 'Modell starten (Backup)'
+                  : 'Lokales 0,5B laden (nur Backup)'}
             </button>
             <p className="settings-hint">Gemini: Chat geht zu Google. Key von aistudio.google.com</p>
           </div>

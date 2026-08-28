@@ -1023,7 +1023,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /6\.51\.0/)
+assert.match(HELP_TEXT, /6\.60\.0/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)

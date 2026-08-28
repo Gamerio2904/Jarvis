@@ -2,7 +2,7 @@
 
 PO 2026-08-28: Animationen massiv, GUI Over-the-top, Antworten näher ChatGPT/Grok/Claude. **Nachzug 2026-08-28:** Gemini ist der **Hauptweg**. Groq und das kleine lokale Modell sind nur Backup. Kein größeres Modell lokal testen. Satellitenfoto an: virtueller Globus zum Zoomen; Jarvis dreht/zoomt auf „Zeig London“ und sagt, welche Stadt in der Sicht ist.
 
-**Ist:** Code **`6.51.0`**. Sideload **`3.18.1`**. Gemini zuerst. Virtueller Globus mit Zoom/GIBS/Zeig-Stadt. Motion 30 fps. Fahrmodus-HUD. Sprach-Orb + Stimmen-Picker. Parser nach Prompt-Test [`46-next.md`](./46-next.md).
+**Ist:** Code **`6.60.0`**. Sideload **`6.60.0`**. Gemini zuerst. Virtueller Globus mit Zoom/GIBS/Zeig-Stadt. Motion 30 fps. Fahrmodus-HUD. Sprach-Orb + Stimmen-Picker. Parser [`46-next.md`](./46-next.md). Split/Identität/Overlay [`47-next.md`](./47-next.md).
 
 **Lücke:** Bühne ist Skizze. Smalltalk ohne Gemini ist klein. GIBS (Satellitenfoto, Stunden alt) war nur Option auf dem Papier. Die Kugel spricht nicht über die Sicht.
 
@@ -64,6 +64,8 @@ Blickmitte → nächster Eintrag unter festem Kilometer-Limit (z. B. ~80 km). Da
 | 124 | `6.30.0` | Fahrmodus-Bühne — **CODE** in `6.50.0` |
 | 125 | `6.40.0` | Sprach-Theater + Stimmen-Picker — **CODE** in `6.50.0` |
 | 126 | `6.50.0` | Hirn: Gemini zuerst, Tool-Schliff, Kontext. Kein 1,5B — **CODE** |
+| 127 | `6.51.0` | Parser nach Prompt-Test — **CODE** |
+| 128–130 | `6.60.0` | Split, Identität, Overlay, Sideload — **CODE** [`47-next.md`](./47-next.md) |
 
 `5.12` Debug-Service und LocateAnything `4.77` daneben. GIBS ist **nicht** mehr Parkplatz — Execute in **123**.
 
