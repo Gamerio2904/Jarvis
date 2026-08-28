@@ -80,7 +80,8 @@ export function GlobeView({
     if (key === lastFocus.current) return
     lastFocus.current = key
     const aim = yawPitchFor(focus.lat, focus.lon)
-    const z = Math.max(zoom.current, focus.zoom || 3.35)
+    const z = Math.max(zoom.current, focus.zoom || 2.15)
+    onLookRef.current?.({ lat: focus.lat, lon: focus.lon, zoom: z, date: dateRef.current })
     if (reduced) {
       yaw.current = aim.yaw
       pitch.current = Math.max(-1.35, Math.min(1.35, aim.pitch))
@@ -429,7 +430,7 @@ export function GlobeView({
       if (pts.current.size < 2) pinch.current = null
       if (pts.current.size === 1) drag.current = [...pts.current.values()][0]
       else drag.current = null
-      emitLook()
+      if (!fly.current) emitLook()
       if (!start || pts.current.size > 0) return
       const p = pos(ev)
       if (Math.hypot(p.x - start.x, p.y - start.y) > 10) return
@@ -450,7 +451,7 @@ export function GlobeView({
       ev.preventDefault()
       if (reduced) return
       zoom.current = Math.max(1, Math.min(8, zoom.current * (ev.deltaY > 0 ? 0.92 : 1.08)))
-      emitLook()
+      if (!fly.current) emitLook()
       draw()
     }
     surface.addEventListener('pointerdown', down)

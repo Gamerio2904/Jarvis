@@ -98,7 +98,7 @@ export function Lage({
       if (!raw) return null
       const f = JSON.parse(raw) as GlobeFocus
       if (!f.name || !Number.isFinite(Number(f.lat))) return null
-      return { name: f.name, lat: Number(f.lat), lon: Number(f.lon), zoom: Number(f.zoom) || 3.35 }
+      return { name: f.name, lat: Number(f.lat), lon: Number(f.lon), zoom: Number(f.zoom) || 2.15 }
     } catch {
       return null
     }

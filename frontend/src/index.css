@@ -2254,6 +2254,8 @@ button.linkish {
 .drive-hud.is-day .drive-hud-chevron {
   background: #121410;
 }
+
+.drive-hud-arrow {
   font-size: 2rem;
   line-height: 1;
   width: 2.2rem;

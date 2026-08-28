@@ -110,9 +110,11 @@ export async function handleHud(
       }
     }
     const hit = nearestPlace(lat, lon)
-    if (!hit) return pack(noCityInViewLine())
-    const canned = cityLine(hit)
-    return pack(await polishToolLine(canned, `${hit.name}. ${hit.blurb}`))
+    if (hit) {
+      const canned = cityLine(hit)
+      return pack(await polishToolLine(canned, `${hit.name}. ${hit.blurb}`))
+    }
+    return pack(noCityInViewLine())
   }
   if (intent.kind === 'pin') {
     saveSettings({
@@ -123,9 +125,9 @@ export async function handleHud(
         name: intent.name,
         lat: intent.lat,
         lon: intent.lon,
-        zoom: 3.4,
+        zoom: 2.15,
       }),
-      last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: 3.4 }),
+      last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: 2.15 }),
     })
     const canned = cityLine({ name: intent.name, blurb: intent.blurb })
     return pack(await polishToolLine(canned, `${intent.name}. ${intent.blurb}`))
