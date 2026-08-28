@@ -19,7 +19,7 @@ Frontier-Ton **ohne** zu lügen: Tools bleiben Parser. Gemini (optional Groq) da
 |----|--------|
 | H1 | `polishFacts(draft, facts)` nur mit Cloud-Hirn; Guard streicht neue Orte/Zahlen |
 | H2 | Sprachmodus: dieselben Fakten, `VOICE_HINT` 1–2 Sätze, kein Telegramm |
-| H3 | Memory-Block: relevante Keys, nicht die ganze Liste in den 0,5B |
+| H3 | Memory-Block: relevante Keys, nicht die ganze Liste in den 0,5B — Voll-Loop ist [`46-next.md`](../46-next.md) `6.64` |
 | H4 | Spike 1,5B Q4 WASM — NO-GO lässt Default unangetastet |
 | H5 | Gemini aus: Tools weiter ehrlich canned; Smalltalk 0,5B oder „Modell aus“ |
 

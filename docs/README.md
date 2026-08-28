@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`5.11.0`**. Sideload **`3.18.1`**. CODE: Körper [`40-next.md`](./40-next.md) · LocateAnything-Parser [`41-next.md`](./41-next.md) · Kugel [`43-next.md`](./43-next.md) · Debug-Lauf [`44-next.md`](./44-next.md). **Nächste Schiene:** Bühne & Hirn [`45-next.md`](./45-next.md) `6.0`. Index: [`42-planned.md`](./42-planned.md). Nächster Sideload erst nach Hausstand-Export.
+**Jetzt:** Code **`5.11.0`**. Sideload **`3.18.1`**. CODE: Körper [`40-next.md`](./40-next.md) · LocateAnything-Parser [`41-next.md`](./41-next.md) · Kugel [`43-next.md`](./43-next.md) · Debug-Lauf [`44-next.md`](./44-next.md). **Nächste Schiene:** Bühne & Hirn [`45-next.md`](./45-next.md) `6.0`, danach Recall [`46-next.md`](./46-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Nächster Sideload erst nach Hausstand-Export.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -48,9 +48,11 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Code `5.11` + offene Pläne `6.0` |
+| 42 | [Alles geplant](./42-planned.md) | Index Code `5.11` + offene Pläne `6.0` / `6.60` |
+| 43 | [Weltkugel](./43-next.md) | **`5.0` CODE** — Lage-Sicht Erde (in `5.11`) |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.0` PLAN** — Motion, Lage-Show, CarPlay, Stimme, Gemini-Schliff |
+| 46 | [Agentic Recall](./46-next.md) | **`6.60` PLAN** — Retrieve/RRF, Working Memory, Sleep; kein Lance/Nemotron |
 | — | [APK](./apk.md) | Sideload `3.18.1`; Code `5.11.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -137,5 +139,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 124 | `6.30.0` | **PLAN** (Fahrmodus-Bühne) |
 | 125 | `6.40.0` | **PLAN** (Sprach-Theater + Stimme) |
 | 126 | `6.50.0` | **PLAN** (Hirn-Schliff, 1,5B-Spike) |
+| 127 | `6.60.0` | **PLAN** (Agentic Recall Leitentscheidung) |
+| 128 | `6.61.0` | **PLAN** (Retrieve + RRF + Prompt) |
+| 129 | `6.70.0` | **PLAN** (Working Memory Overwrite) |
+| 130 | `6.80.0` | **PLAN** (Sleep-Time + Recall-Tool) |
 
-**Aktuell:** Code **`5.11.0`**. Sideload `3.18.1`. Nächste Schiene: [`45-next.md`](./45-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`5.11.0`**. Sideload `3.18.1`. Nächste Schiene: [`45-next.md`](./45-next.md). Recall danach [`46-next.md`](./46-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

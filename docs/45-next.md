@@ -70,8 +70,9 @@ Research in dem Sprint, der sie braucht — nicht ein Jahr Vorlauf.
 | 124 | `6.30.0` | Fahrmodus-Bühne | 122 (Motion-Tokens) |
 | 125 | `6.40.0` | Sprach-Theater + Stimme | TTS-Stimmen-Spike `6.41` |
 | 126 | `6.50.0` | Hirn: Tool-Schliff, Kontext, Modell-Spike | Gemini bleibt Opt-in |
+| 127–130 | `6.60`–`6.80` | Agentic Recall | nach 126; Plan [`46-next.md`](./46-next.md) |
 
-`5.12` Debug-Service und LocateAnything-Sidecar `4.77` laufen **daneben**, sie blockieren `6.10` nicht.
+`5.12` Debug-Service und LocateAnything-Sidecar `4.77` laufen **daneben**, sie blockieren `6.10` nicht. Recall `6.61` braucht kein WebGL.
 
 ## Research (vor Execute der Fläche)
 
@@ -123,5 +124,6 @@ Marvel-/Iron-Man-Mesh. 60 fps Idle. Live-Satellitenvideo. Überwachung. ElevenLa
 2. `6.10` Motion — spürbar ohne Modellwechsel.
 3. `6.20` / `6.30` / `6.40` Bühnen parallel nach 122, nicht drei Frameworks.
 4. `6.50` Hirn — sobald Bühne nicht mehr jankt; sonst schluckt das Modell die Frames.
-5. LocateAnything-Gewichte nach 3060-GO (`4.77`).
-6. Debug-Service `5.12` wenn der PO den Lauf im Hintergrund will.
+5. `6.60` Recall — Retrieve/RRF, Working Memory, Sleep [`46-next.md`](./46-next.md); kein WebGL, darf vor Motion.
+6. LocateAnything-Gewichte nach 3060-GO (`4.77`).
+7. Debug-Service `5.12` wenn der PO den Lauf im Hintergrund will.

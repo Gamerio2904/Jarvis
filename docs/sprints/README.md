@@ -130,8 +130,12 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 124 | [`sprint-124.md`](./sprint-124.md) | `6.30.0` | Fahrmodus-Bühne | **PLAN** |
 | 125 | [`sprint-125.md`](./sprint-125.md) | `6.40.0` | Sprach-Theater + Stimme | **PLAN** |
 | 126 | [`sprint-126.md`](./sprint-126.md) | `6.50.0` | Hirn: Schliff, Kontext, Modell-Spike | **PLAN** |
+| 127 | [`sprint-127.md`](./sprint-127.md) | `6.60.0` | Agentic Recall: Leitentscheidung | **PLAN** |
+| 128 | [`sprint-128.md`](./sprint-128.md) | `6.61.0` | Retrieve + RRF + Prompt-Block | **PLAN** |
+| 129 | [`sprint-129.md`](./sprint-129.md) | `6.70.0` | Working Memory Overwrite | **PLAN** |
+| 130 | [`sprint-130.md`](./sprint-130.md) | `6.80.0` | Sleep-Time + Recall-Tool | **PLAN** |
 
-**Aktuell:** Code **`5.11.0`**. Sideload `3.18.1`. Nächste Schiene: Bühne & Hirn [`45-next.md`](../45-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`5.11.0`**. Sideload `3.18.1`. Nächste Schiene: Bühne & Hirn [`45-next.md`](../45-next.md). Recall danach [`46-next.md`](../46-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

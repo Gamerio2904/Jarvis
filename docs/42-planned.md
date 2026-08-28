@@ -10,9 +10,10 @@ Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
 
 1. Sideload mit Hausstand (Export ist CODE `4.46`, APK noch `3.18.1`)
 2. **Bühne & Hirn `6.0`** — PLAN [`45-next.md`](./45-next.md) (Motion, Lage-Show, CarPlay, Stimme, Gemini-Schliff)
-3. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
-4. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+3. **Agentic Recall `6.60`** — PLAN [`46-next.md`](./46-next.md) (Retrieve/RRF, Working Memory, Sleep; nach `6.50`, darf vor Motion)
+4. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
+5. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
+6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
 ---
 
@@ -49,6 +50,10 @@ v1: App offen lassen. Foreground-Service nach Spike.
 
 Motion-Kern, Körper/Kugel-Show, Fahrmodus-HUD, Sprach-Theater, Gemini-Schliff. 0,5B wird nicht Claude. Plan [`45-next.md`](./45-next.md).
 
+### Agentic Recall (`6.60`)
+
+Lokale Retrieve-Schleife über IndexedDB (NVIDIA-Idee ohne Lance/Nemotron), Working Memory, Sleep-Time. Plan [`46-next.md`](./46-next.md).
+
 ## Won’t (übergreifend)
 
-Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Debug-Cloud, Auto-Ja im Prompt-Lauf, Live-Satellitenvideo, Überwachung.
+Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Debug-Cloud, Auto-Ja im Prompt-Lauf, Live-Satellitenvideo, Überwachung, LanceDB/Nemotron in der APK, Embedding-Router.

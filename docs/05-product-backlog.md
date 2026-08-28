@@ -37,7 +37,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **CODE** |
 | E33 | Körper intern `4.66` | 5+ | 3D-Schema live/klickbar (Darstellung) + Kacheln, APK; PC nur PC-Organe — [`40-next.md`](./40-next.md) **PLAN** |
 | E34 | Lokales Sehen `4.76` | 5+ | LocateAnything am PC, Klick mit Boxen — [`41-next.md`](./41-next.md) **PLAN** |
-| E36 | Debug-Lauf `5.11` | 5+ | Kategorien, Sequenz, Export mit Verdict — [`44-next.md`](./44-next.md) **PLAN** |
+| E35 | Bühne & Hirn `6.0` | 5+ | Motion, Lage-Show, Gemini-Schliff — [`45-next.md`](./45-next.md) **PLAN** |
+| E36 | Debug-Lauf `5.11` | 5+ | Kategorien, Sequenz, Export mit Verdict — [`44-next.md`](./44-next.md) **CODE** |
+| E37 | Agentic Recall `6.60` | 5+ | Retrieve/RRF, Working Memory, Sleep — [`46-next.md`](./46-next.md) **PLAN** |
 
 ---
 
@@ -479,15 +481,27 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S36.4 | Download JSON+TXT mit Soll/Ist | Must | idea | `5.16` |
 | S36.5 | Auto-Ja / Debug-Cloud / Hausstand-Import im Lauf | Won’t | parked | |
 
+### E37 — Agentic Recall `6.60`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S37.0 | Leitentscheidung Recall (kein Lance/Nemotron) | Must | ready | [`46-next.md`](./46-next.md) PLAN |
+| S37.1 | `retrieve.ts` Sub-Queries + RRF über IDB | Must | idea | Sprint 128 |
+| S37.2 | Chatsuche + Memory-Recall nutzen retrieve | Must | idea | Write/Forget bleiben Parser |
+| S37.3 | memoryBlock Pins+Hits, kürzere History | Must | idea | max. 10 Zeilen |
+| S37.4 | Working Memory Overwrite 8 Zeilen | Must | idea | Sprint 129 |
+| S37.5 | Sleep-Time ohne heimliche Cloud | Must | idea | Sprint 130 |
+| S37.6 | Embedding-Router / Nemotron-Hirn / Alles-Mitschneiden | Won’t | parked | Punkt 8 in `46-next` |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
 1. Sideload nach Hausstand-Export (`4.46` **CODE**, APK noch `3.18.1`)
-2. Debug-Lauf [`44-next.md`](./44-next.md) `5.11`
-3. Körper intern [`40-next.md`](./40-next.md) `4.66`
-4. Weltkugel `5.0` — PR #58
-5. Lokales Sehen [`41-next.md`](./41-next.md) `4.76` — nach 3060-Spike
+2. Bühne & Hirn [`45-next.md`](./45-next.md) `6.0`
+3. Agentic Recall [`46-next.md`](./46-next.md) `6.60` — nach `6.50`, darf vor Motion
+4. Debug-Hintergrund `5.12` (Lauf v1 ist CODE `5.11`)
+5. LocateAnything-Sidecar nach `4.77` GO
 6. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Komplette Liste: [`42-planned.md`](./42-planned.md).

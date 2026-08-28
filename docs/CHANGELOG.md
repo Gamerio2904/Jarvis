@@ -7,6 +7,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`5.11.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
 
+### `6.60.0` — Agentic Recall — *PLAN*
+
+Lokale Retrieve-Schleife über IndexedDB (NVIDIA-Idee ohne LanceDB/Nemotron), Working Memory (MemAgent-Overwrite), Sleep-Time (LightMem). Cloud bleibt Gemini→Groq Opt-in.
+
+- Docs [`46-next.md`](./46-next.md) · Sprints 127–130
+- Index [`42-planned.md`](./42-planned.md)
+
 ### `6.0.0` — Bühne & Hirn — *PLAN*
 
 Motion, Lage-Show (Körper/Kugel), Fahrmodus-HUD, Sprach-Theater, Gemini-Schliff. 0,5B wird nicht Claude. Research vor Execute.

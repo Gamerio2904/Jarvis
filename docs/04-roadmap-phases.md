@@ -153,8 +153,10 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Film-TTS / Steuer `4.33` — **CODE** [`37-next.md`](./37-next.md)
 - Hausstand `4.46` — **CODE** [`38-next.md`](./38-next.md)
 - Jarvis/Friday + Tablet `4.53` — **CODE** [`39-next.md`](./39-next.md)
-- Körper intern `4.66` — **PLAN** [`40-next.md`](./40-next.md)
-- Debug-Lauf `5.11` — **PLAN** [`44-next.md`](./44-next.md)
+- Körper intern `4.66` — **CODE** in `5.11` [`40-next.md`](./40-next.md)
+- Debug-Lauf `5.11` — **CODE** [`44-next.md`](./44-next.md)
+- Bühne & Hirn `6.0` — **PLAN** [`45-next.md`](./45-next.md)
+- Agentic Recall `6.60` — **PLAN** [`46-next.md`](./46-next.md)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---
