@@ -53,7 +53,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
 | 47 | [Split, Identität, Sideload](./47-next.md) | **`6.60` CODE** |
-| 48 | [Globus-Briefing](./48-next.md) | **`6.70` PLAN** — Stadt → Satellit + zitiertes Briefing |
+| 48 | [Globus-Briefing](./48-next.md) | **`6.70` PLAN** — Stadt-Satellit + Welt-Tour (Länder leuchten) |
 | — | [APK](./apk.md) | Sideload `6.60.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -145,9 +145,10 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 129 | `6.53.0` | **CODE** (Overlay Gemini zuerst, in `6.60.0`) |
 | 130 | `6.60.0` | **CODE** (Sideload APK) |
 | 131 | `6.70.0` | **CODE** (Globus-Briefing Leitentscheidung, Docs) |
-| 132 | `6.71.0` | **PLAN** (Research Satellit-Tiefe) |
+| 132 | `6.71.0` | **PLAN** (Research Satellit + Land) |
 | 133 | `6.80.0` | **PLAN** (Fly-to Satellit + Briefing) |
-| 134 | `6.81.0` | **PLAN** (Anomalien + Ihr Plan) |
-| 135 | `6.90.0` | **PLAN** (Gold / Debug) |
+| 134 | `6.82.0` | **PLAN** (Welt-Tour Glow/Seite/Zoom) |
+| 135 | `6.81.0` | **PLAN** (Anomalien + Ihr Plan) |
+| 136 | `6.90.0` | **PLAN** (Gold / Debug) |
 
 **Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. Nächste Kugel: [`48-next.md`](./48-next.md) `6.70` **PLAN**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

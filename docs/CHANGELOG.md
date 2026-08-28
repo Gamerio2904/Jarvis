@@ -9,10 +9,10 @@ App-Version im Code: **`6.60.0`**. Sideload: **`6.60.0`** (`releases/Jarvis.apk`
 
 ### `6.70.0` — Globus-Briefing Leitentscheidung — *PLAN* (Docs CODE)
 
-Sprint 131. Reel-Ziel für die Kugel: Stadt sagen → NASA-GIBS ranzoomen → Briefing aus news/outlook/warn, Markt nur Kette, Anomalie nur mit Quelle, Ihr Plan nur bei Kalender/Memory-Treffer. Kein Live, keine Überwachung.
+Sprint 131. Stadt → GIBS. **Welt-Tour:** Länder mit weltpolitischer Lage leuchten, Seite erklärt, Zoom-Kette. Quellen Tagesschau/DW, kein Geheim-Feed.
 
-- Docs [`48-next.md`](./48-next.md) · [`sprints/sprint-131.md`](./sprints/sprint-131.md)–[`sprint-135.md`](./sprints/sprint-135.md)
-- App-Code bleibt **`6.60.0`** bis Execute `6.80`
+- Docs [`48-next.md`](./48-next.md) · [`sprints/sprint-131.md`](./sprints/sprint-131.md)–[`sprint-136.md`](./sprints/sprint-136.md)
+- App-Code bleibt **`6.60.0`** bis Execute `6.80` / `6.82`
 
 ### `6.60.0` — Split, Identität, Overlay, Sideload — *CODE*
 

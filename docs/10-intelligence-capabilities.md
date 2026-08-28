@@ -19,7 +19,7 @@ Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).
 **`4.76` CODE:** Sehen-Parser; Gewichte nach 3060-GO [`41-next.md`](./41-next.md).  
 **`5.11` CODE:** Debug-Lauf [`44-next.md`](./44-next.md).  
 **`6.50`–`6.60` CODE:** Bühne, Globus, Gemini Hauptweg.  
-**`6.70` PLAN:** Globus-Briefing — Stadt → Satellit → zitierte Tools [`48-next.md`](./48-next.md).
+**`6.70` PLAN:** Globus — Stadt-Satellit + Welt-Tour [`48-next.md`](./48-next.md).
 
 ### Live `1.33.0` (Code) — historisch
 

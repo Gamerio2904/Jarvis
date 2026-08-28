@@ -43,7 +43,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E36 | Debug-Lauf `5.11` | 5+ | Kategorien, Sequenz, Export mit Verdict — [`44-next.md`](./44-next.md) **CODE** |
 | E45 | Bühne & Hirn `6.50` | 5+ | Gemini Hauptweg, Globus, Motion, Stimme — [`45-next.md`](./45-next.md) **CODE** |
 | E47 | Split / Overlay / Sideload `6.60` | 5+ | Live-Split, Identität, Overlay Gemini zuerst, APK — [`47-next.md`](./47-next.md) **CODE** |
-| E48 | Globus-Briefing `6.70` | 5+ | Stadt → Satellit + zitiertes Briefing — [`48-next.md`](./48-next.md) **PLAN** |
+| E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **PLAN** |
 
 ---
 
@@ -495,7 +495,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S48.3 | Markt nur Hormus/OPEC/EZB-Kette | Must | ready | kein Aktien-Orakel |
 | S48.4 | Anomalie nur DWD/ISS/EONET-GO | Should | ready | keine erfundenen Hotspots |
 | S48.5 | Ihr Plan nur Kalender/Memory-Treffer | Should | ready | kein Bildschirm-Mitschnitt |
-| S48.6 | Live-Sat / Street-View / Überwachung | Won’t | parked | |
+| S48.6 | Live-Sat / Street-View / Überwachung / Geheim-Feed | Won’t | parked | |
+| S48.7 | Welt-Tour Parser `auf der Welt passiert` | Must | ready | `outlook` + Kugel, nicht `news` |
+| S48.8 | Länder-Glow + Seite + Zoom-Kette max 5 | Must | ready | weltpolitisch-Filter |
+| S48.9 | Reduced-Motion Tour ohne Auto-Flug | Should | ready | Glow+Liste |
 
 ---
 

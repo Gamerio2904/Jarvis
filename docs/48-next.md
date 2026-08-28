@@ -2,19 +2,13 @@
 
 PO 2026-08-28: Reel als **Zielbild für die Kugel**, zuschneiden, nicht kopieren.
 
-https://www.instagram.com/reel/DY7VsZItwtR/
+Stadt-Briefing: https://www.instagram.com/reel/DY7VsZItwtR/
 
-Account: **moritz.maaker** (derselbe Autor wie Körper [`40-next.md`](./40-next.md) und Kugel [`43-next.md`](./43-next.md)).
+**Nachzug Nachrichten-Tour** (PO 2026-08-28): https://www.instagram.com/reel/DZSsz-9t7aE/
 
-Caption (sinngemäß, ohne Tracking-Kram):
+Account beide: **moritz.maaker**. Zweites Reel-Caption (sinngemäß): *Vierzig Sekunden Welt-Brief. Aus Quellen, die in deutschen Hauptmedien nicht laufen.* Das **Quellen-Versprechen kopieren wir nicht** — bei uns Tagesschau + DW, Stand sagen. **Übernehmen:** `Was ist heute so auf der Welt passiert` → weltpolitisch wichtige Länder **leuchten**, Seite zeigt die Meldung, kurzer Satz was dort passiert, **nacheinander** auf das Land zoomen, Überblick.
 
-> Kommentiere JARVIS, dann zeig ich dir das Setup. **Mein Mitarbeiter hat Zugriff auf Satelliten. Ich sage eine Stadt, er zoomt rein und brieft mich. Politik, Märkte, Anomalien. Er sieht, ich plane.**
-
-Hashtags dort: claude / ki / jarvis / ironmantri.
-
-**Nicht** [`43-next.md`](./43-next.md) / [`45-next.md`](./45-next.md): dort ist die Kugel **da** (drehen, GIBS beim Finger-Zoom, `Zeig London` = Lexikon-Satz). Dieses Reel ist der **nächste Sinn** derselben Sicht: Satellit **beim Satz** + Briefing aus **bestehenden** Tools.
-
-**Ist:** Code **`6.60.0`**. Sideload **`6.60.0`**. Hirn Gemini zuerst. Kugel CODE. `Zeig London` dreht auf Zoom **2.15**. GIBS beginnt erst ab Zoom **3.8**. Fly-to bleibt also auf Blue Marble. Die Kachel nach Pin ist `pin.line` oder ein Hint-Text, kein Politik/Markt/Unwetter-Satz.
+**Ist:** Code **`6.60.0`**. Sideload **`6.60.0`**. Hirn Gemini zuerst. Kugel CODE. `Zeig London` dreht auf Zoom **2.15**. GIBS ab **3.8**. Outlook-Text `weltlage` ist CODE, öffnet **keine** Tour. Phrase `was ist heute so auf der Welt passiert` trifft heute weder `outlook` (`in der Welt`) noch zuverlässig `news`. Pins aus outlook-Tags existieren, Länder **leuchten nicht**, keine Zoom-Kette.
 
 Kein Execute in Sprint 131. Research vor Satelliten-Tiefe und EONET. Sideload nicht in `6.70`. LocateAnything und Debug-Service bleiben eigene Schienen.
 
@@ -29,7 +23,23 @@ Das Video **verspricht** vier Dinge, die Marketing oft vermischt:
 | Brieft Politik, Märkte, Anomalien | Zitierte Meldungen + Serie + Unwetter/Ereignis **am Ort**, keine Hellseherei | **ja, mergen** — `news` / `outlook` / `warn` / ISS. Keine Aktien-Orakel. |
 | Er sieht, ich plane | Im Reel: Mitarbeiter schaut zu, während der User plant | **zuschneiden** — nur **Ihr** Kalender/Memory/Todo **zu diesem Ort**. Keine Überwachung, kein Bildschirm-Mitschnitt. |
 
-Kommentare unter dem Reel sind „Jarvis bitte“ — kein Produkt-Ist.
+Kommentare unter den Reels sind „Jarvis bitte“ — kein Produkt-Ist.
+
+## Zweites Reel — Nachrichten-Tour (übernehmen)
+
+Caption verspricht **Geheim-Quellen**. Bei uns: **dieselben** freien Quellen wie Weltlage [`35-next.md`](./35-next.md) (Tagesschau `api2u`, DW-RSS). Kein Dark-Web, kein „hört ihr heute Abend nicht“.
+
+| Aus dem Video / Wunsch | Bei uns | Votum |
+|------------------------|---------|-------|
+| 40-Sekunden-Weltbrief | Überblick **ein** Satz, dann **höchstens 5** Länder-Stops. TTS denselben Text. Stopp bricht ab | **ja**, kürzer ehrlich |
+| Länder leuchten | Glow am **Länder-Mittelpunkt** (Tabelle), Label. Volle Länder-Polygone nur wenn Research klein genug | **ja** Glow; Polygon **Could** |
+| Seite: News + Kurz-Erklärung | Lage-Textkachel + Chat: Titel, Quelle, 1–2 Sätze was **in dem Land** passiert (zitiert, nicht erfunden) | **ja** |
+| Nacheinander ranzoomen | Dieselbe Fly-to-Kette wie `Zeig Stadt`, Zoom Land (nicht Street). Pause bis TTS/Kachel da | **ja** |
+| Weltpolitisch wichtig | Allowlist-Länder + outlook-Tags (Hormus, Ukraine, OPEC, EZB, Öl, China/Asien). Sport, Wetter, Landes-Verkehr **raus** | **ja** |
+| Quellen außerhalb der Tagesschau | Won’t als Behauptung. Netz nur wie `news` place: ehrlich „Tagesschau erwähnt X nicht“ | **Won’t** Geheimfeed |
+| Unterbricht bei der Arbeit | Watch bleibt opt-in [`35-next.md`](./35-next.md) | nicht in dieser Schiene |
+
+**Satz der Tour:** `Was ist heute so auf der Welt passiert` / `Was passiert in der Welt` / `Weltlage` / `Weltbrief`. Öffnet Kugel. Tool bleibt **`outlook`** (kein zweites Register, kein `if` in `chat.ts`). `Zeig mir die Nachrichten` bleibt national `news`, stiehlt die Kugel nicht (Standing `6.51`).
 
 ## Kurz: Zielbild (und was nicht)
 
@@ -63,6 +73,9 @@ Kommentare unter dem Reel sind „Jarvis bitte“ — kein Produkt-Ist.
 | ISS | `sky.ts` Pin | nicht als „Anomalie in der Sicht“ formuliert |
 | Ihr Plan | Kalender, Memory, Todos, Losgehen CODE | Kugel liest das nicht |
 | GIBS-Layer | `MODIS_Terra_CorrectedReflectance_TrueColor` Level9 | Stadt bleibt grob — kein Street-View vortäuschen |
+| Weltlage-Text | `outlook` kind `world` — Chat-Absatz, Tags, Serie | keine Kugel, keine Länder-Glow, keine Zoom-Kette |
+| Phrase Welt-passiert | `was passiert in der Welt` → outlook; `heute so auf der Welt` oft **kein** Treffer | Parser erweitern |
+| Outlook-Pins | Tag → Hormus/Kiew/… wenn JSON im Store | kein Glow, keine Tour, Asien/Öl oft **ohne** Pin (`pinForTag` null) |
 
 ## Leitentscheidung
 
@@ -77,10 +90,16 @@ Kommentare unter dem Reel sind „Jarvis bitte“ — kein Produkt-Ist.
 | Märkte | Keine Aktie, kein „kaufen Sie“. Öl/Benzin/Euro wie `outlook` — nur wenn der Ort in der Kette liegt. |
 | Anomalien | Keine erfundenen Hotspots. DWD, ISS, nach Research evtl. NASA EONET (Naturereignis mit Koordinate). Keine Personen, keine Schiffe weltweit, kein Radar-Film. |
 | Plan-Kontext | Nur lokale Stores. „In London steht Dienstag …“ wenn der Eintrag den Ortsnamen trägt. Sonst still. **Won’t:** Screenshot, Clipboard, „ich sehe Sie planen“. |
-| Parser | Bleibt `hud` pin/look. Kein neues Tool, kein `if` in `chat.ts`. Briefing **in** `handleHud` nach Fly-to. |
+| Parser | Stadt: `hud` pin/look. Tour: `outlook` world (erweiterte Phrasen). Kein `if` in `chat.ts`. |
+| Akku | 30 fps Standing. Reduced-Motion: Stadt = Sprung; Tour = Glow+Liste **ohne** Auto-Flug. |
 | Sir | Selten, nicht jeder Globus-Satz. |
-| Akku | 30 fps Standing. Reduced-Motion: Sprung ohne Flug, dieselben Kacheln. |
-| Sideload | Nicht in `6.70`–`6.81`. Hausstand vor nächster APK. |
+| Sideload | Nicht in `6.70`–`6.82`. Hausstand vor nächster APK. |
+| Welt-Tour | `Was ist heute so auf der Welt passiert` = Kugel an + Überblick + leuchtende Länder + Seite + Zoom-Kette. Quellen Tagesschau/DW. |
+| Weltpolitisch | Feste Länder-Tabelle (~40: DE, US, CN, RU, UA, IR, IL, GB, FR, … + Hormus als Enge). Meldung muss Land **oder** outlook-Tag treffen. Rest verwerfen. |
+| Glow | Heller Pin + weiche Scheibe am Centroid. Name daneben. Nicht die ganze Erde flackern. |
+| Stops | Max **5**, Reihenfolge wie Quelle (Tagesschau zuerst). Leer → ehrlich: keine weltpolitische Lage in den Quellen, nationale Schlagzeilen nur im Chat wenn vorhanden. |
+| Seite | Pro Stop: Land, eine Meldung, Quelle, Stand. Gemini schleift, **keine** neuen Länder/Zahlen. |
+| Tour-Stopp | `Stopp` / Tippen auf die Kugel bricht die Kette, letzter Stop bleibt. TV/Spotify-Stopp nur mit Medium-Wort (Standing). |
 
 ## Ehrlichkeit: Satellit und „Anomalie“
 
@@ -91,7 +110,7 @@ Kommentare unter dem Reel sind „Jarvis bitte“ — kein Produkt-Ist.
 | Politik in London | Tagesschau-Suche / DW, sonst „nichts von der Tagesschau“ | Minuten–Stunden, **Text** |
 | Märkte in New York | Keine NYSE-Live-Zahl. Öl/FX nur Kette | wie outlook |
 | Anomalie | DWD-Warnung, ISS-Pin, optional EONET | Quelle sagen |
-| Er sieht meinen Bildschirm | Nicht. Nur was Sie Jarvis schon gegeben haben | — |
+| Geheim-Feed „nicht in der Tagesschau“ | Gibt es hier nicht. Tagesschau + DW, sonst ehrlich leer | — |
 
 ## Research (vor Execute der Fläche)
 
@@ -100,7 +119,10 @@ Kommentare unter dem Reel sind „Jarvis bitte“ — kein Produkt-Ist.
 | `6.71` | Fly-to-Zoom 4.4 auf dem Handy: GIBS-Disk sichtbar, Akku ok, Stamp da | `Zeig London` zeigt Satellit, nicht nur Blue Marble |
 | `6.71` | Tile-Z 7 vs 8/9: Stadt erkennbar, nicht Street | London als Stadt-Fleck, keine Hausnummern behauptet |
 | `6.71` | VIIRS vs MODIS | nur wechseln wenn schärfer **und** CORS/Akku gleich; sonst MODIS lassen |
+| `6.71` | Länder-Glow: Scheibe am Centroid vs Mini-Polygon | 5 Glows 30 fps; Polygon nur wenn Datei klein und Reduced-Motion ok |
+| `6.71` | Headline → Land: Tagesschau-Felder vs Wortliste | Ukraine-Meldung → UA, nicht „Europa“ als Land |
 | `6.72` | Tagesschau-Ort + outlook-Tag am selben Turn, Timeout | ein Reply, keine doppelten Tools im Chat |
+| `6.72` | Tour: `outlook` world öffnet Kugel, Parser-Konflikt `news` | `auf der Welt passiert` = outlook+Tour, `Nachrichten` = news |
 | `6.73` | EONET JSON in der WebView | GO: Pins in der Sicht mit Quelle. NO-GO: weglassen, kein Fake |
 | `6.73` | Kalender/Memory-Match nur exakter Ortsname / Lexikon-Name | Zahnarzt ohne Ort bleibt still |
 
@@ -109,10 +131,11 @@ Kommentare unter dem Reel sind „Jarvis bitte“ — kein Produkt-Ist.
 | Sprint | Version | Inhalt |
 |--------|---------|--------|
 | 131 | `6.70.0` | Leitentscheidung (dieses Dokument) — **CODE** (Docs) |
-| 132 | `6.71.0` | Research Zoom-Tiefe / GIBS / EONET |
+| 132 | `6.71.0` | Research: Zoom-Tiefe, GIBS, Länder-Glow, Headline→Land, EONET |
 | 133 | `6.80.0` | Execute: Fly-to in Satellit + Stadt-Briefing (Politik, Markt-Kette) |
-| 134 | `6.81.0` | Anomalien ehrlich + Ihr Plan am Ort |
-| 135 | `6.90.0` | Gold, Debug-Gruppe, Härten — **kein** Sideload |
+| 134 | `6.82.0` | Execute: Welt-Tour — Länder leuchten, Seite, Zoom-Kette |
+| 135 | `6.81.0` | Anomalien ehrlich + Ihr Plan am Ort (`Zeig Stadt`) |
+| 136 | `6.90.0` | Gold, Debug-Gruppe Stadt+Tour — **kein** Sideload |
 
 `5.12` und LocateAnything `4.77` daneben. Welt-Geocoder bleibt Won’t.
 
@@ -126,10 +149,13 @@ Kommentare unter dem Reel sind „Jarvis bitte“ — kein Produkt-Ist.
 6. Kalender „Dienstag London“ → ein Satz „Sie haben … in London.“ Fehlt der Eintrag → kein erfundenes Meeting.
 7. Reduced-Motion: Zielzoom ohne Dauerspin, Briefing gleich.
 8. Captcha / Beobachten / Street View weiter Won’t.
+9. `Was ist heute so auf der Welt passiert` → Kugel, Überblick, mindestens ein Glow wenn Tagesschau/DW ein Allowlist-Land trifft, Seite nennt Land+Quelle, Zoom auf das erste Land. Kein „Live“, kein Geheim-Feed.
+10. Nur NRW-Wetter in den Quellen → keine Tour-Länder, ehrlicher Satz, nationale Schlagzeilen höchstens im Chat.
+11. `Stopp` während der Tour → Kette tot, Kugel bleibt. `Zeig mir die Nachrichten` weiter `news`, nicht Tour.
 
 ## Won’t
 
-Live-Satellitenvideo. Street-View. Gebäude-Mesh. Überwachung. Starlink-Schwärme. Aktien-Orakel. Geocoder aller Dörfer. Claude am PC. 60 fps Idle. 1,5B lokal. Sideload in dieser Schiene. EONET-Fake wenn der Spike NO-GO ist.
+Live-Satellitenvideo. Street-View. Gebäude-Mesh. Überwachung. Starlink-Schwärme. Aktien-Orakel. Geocoder aller Dörfer. Claude am PC. 60 fps Idle. 1,5B lokal. Sideload in dieser Schiene. Geheim-Nachrichten-Feed. 40-Sekunden-Kino. Alle 190 Staaten. Sport als Weltpolitik. `news` und Tour vertauschen.
 
 ## Stories
 
@@ -142,6 +168,8 @@ Live-Satellitenvideo. Street-View. Gebäude-Mesh. Überwachung. Starlink-Schwär
 | G5 | Plan-Kontext aus Kalender/Memory/Todo |
 | G6 | Pin-Tap = dasselbe Briefing wie der Satz |
 | G7 | Debug-Gruppe Globus-Briefing, Gold hält `6.50` |
+| G8 | Welt-Tour: Glow, Seite, Zoom-Kette, Parser-Phrase |
+| G9 | Weltpolitisch-Filter + max 5 Stops |
 
 ## Reihenfolge vs. Reste
 

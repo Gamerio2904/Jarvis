@@ -99,7 +99,7 @@ MAJOR.MINOR.PATCH
 | `6.52.0` | **Live-Split + Identität** — mitgeliefert in `6.60` | Sprint 128 |
 | `6.53.0` | **Overlay Gemini zuerst** — mitgeliefert in `6.60` | Sprint 129 |
 | `6.60.0` | **Sideload** Bühne + Parser + Split | Sprint 130 |
-| `6.70.0` | **Globus-Briefing Leitentscheidung** — Stadt → Satellit + zitiertes Briefing | Sprint 131 |
+| `6.70.0` | **Globus-Briefing** — Stadt-Satellit + Welt-Tour | Sprint 131 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -358,15 +358,16 @@ Nach `5.11`. Over-the-top GUI und Frontier-Ton ohne 0,5B als Claude zu verkaufen
 
 ### `6.70+` — Globus-Briefing [`48-next.md`](./48-next.md) **PLAN**
 
-Nach `6.60`. Reel-Ziel: Stadt sagen → Satellit → zitiertes Briefing. Kein Live, keine Überwachung.
+Nach `6.60`. Stadt sagen → Satellit → Briefing. **Nachrichten-Tour:** Welt-passiert → Länder leuchten, Seite, Zoom-Kette. Kein Live, kein Geheim-Feed.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `6.70.0` | Leitentscheidung (Docs) | 131 |
-| `6.71.0` | Research: Fly-to-Zoom, GIBS-Tiefe, EONET | 132 |
+| `6.71.0` | Research: Fly-to-Zoom, GIBS, Headline→Land, Glow | 132 |
 | `6.80.0` | Execute: Fly-to in Satellit + Politik/Markt-Kette | 133 |
-| `6.81.0` | Anomalien ehrlich + Ihr Plan am Ort | 134 |
-| `6.90.0` | Gold, Debug-Gruppe | 135 |
+| `6.82.0` | Execute: Welt-Tour Glow + Seite + Zoom-Kette | 134 |
+| `6.81.0` | Anomalien ehrlich + Ihr Plan am Ort | 135 |
+| `6.90.0` | Gold, Debug-Gruppe Stadt+Tour | 136 |
 
 ### Weitere Beispiele
 

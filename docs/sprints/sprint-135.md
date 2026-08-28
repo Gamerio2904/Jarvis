@@ -1,25 +1,26 @@
-# Sprint 135 — Globus-Briefing Gold (`6.90`) **PLAN**
+# Sprint 135 — Anomalien + Ihr Plan (`6.81`) **PLAN**
 
 | Feld | Wert |
 |------|------|
 | Status | **PLAN** |
-| Priorität | nach `6.81` |
-| Ziel-Version | `6.90.0` |
+| Priorität | nach Welt-Tour `6.82` |
+| Ziel-Version | `6.81.0` |
 | Quelle | [`48-next.md`](../48-next.md) |
-| Baut auf | Debug-Lauf `5.11`, Matrix `6.51`/`6.60` |
+| Baut auf | `warn.ts`, `sky.ts`, Kalender/Memory, EONET-Votum aus 132 |
 
 ## Ziel
 
-Gold-Sätze im Debug-Katalog. `6.50`-Globus (Look, unknown_place, Split) bleibt grün. Reduced-Motion. Kein Sideload.
+Nach `Zeig *Stadt*`: optional DWD wenn DE-Ort und Warnung; ISS wenn in der Sicht; EONET nur bei GO. Kalender/Memory/Todo mit diesem Ortsnamen — ein Satz, sonst still.
 
 ## Must
 
 | ID | Inhalt |
 |----|--------|
-| H1 | Debug-Gruppe **Globus-Briefing** |
-| H2 | Matrix: `Zeig London` weiter `hud`; Street View weiter `wont` |
-| H3 | Stamp-Text ohne „Live“ |
+| A1 | Keine Anomalie ohne Quelle |
+| A2 | ISS nicht als Überwachung formulieren |
+| A3 | Plan-Kontext nur lokaler Treffer auf Lexikon-Namen |
+| A4 | Gold 6 aus [`48-next.md`](../48-next.md) |
 
 ## Won’t
 
-Sideload. Neue Orte außerhalb der Tabelle. 1,5B.
+Personen beobachten. Schiffe weltweit. Bildschirm sehen. Sideload.
