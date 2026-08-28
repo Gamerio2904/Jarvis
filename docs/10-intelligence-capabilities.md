@@ -14,7 +14,8 @@ Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).
 **`4.0`–`4.53` CODE:** Weltlage, Alltagskette, Algieba/HUD, Hausstand, Friday+Lage-Split.  
 **`4.66` PLAN:** Körper-Schema [`40-next.md`](./40-next.md).  
 **`4.76` PLAN:** LocateAnything am PC [`41-next.md`](./41-next.md).  
-**`5.11` PLAN:** Debug-Lauf [`44-next.md`](./44-next.md).
+**`5.11` CODE:** Debug-Lauf [`44-next.md`](./44-next.md).  
+**`6.0` PLAN:** Bühne & Hirn [`45-next.md`](./45-next.md) — Motion, Lage-Show, Gemini-Schliff; 0,5B wird nicht Claude.
 
 ### Live `1.32.1` (Code)
 

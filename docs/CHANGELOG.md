@@ -7,6 +7,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`5.11.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
 
+### `6.0.0` — Bühne & Hirn — *PLAN*
+
+Motion, Lage-Show (Körper/Kugel), Fahrmodus-HUD, Sprach-Theater, Gemini-Schliff. 0,5B wird nicht Claude. Research vor Execute.
+
+- Docs [`45-next.md`](./45-next.md) · Sprints 121–126
+- Index [`42-planned.md`](./42-planned.md)
+- App-Code **`5.11.0`**, Sideload noch `3.18.1`
+
 ### `5.11.0` — Körper, Kugel, Debug-Lauf, Sehen-Parser — *CODE*
 
 Bündelt Sprints 115–120 in einer App-Version. Sideload bleibt `3.18.1`.

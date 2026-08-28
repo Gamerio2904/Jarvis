@@ -9,11 +9,10 @@ Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
 ## Pull-Reihenfolge
 
 1. Sideload mit Hausstand (Export ist CODE `4.46`, APK noch `3.18.1`)
-2. Debug-Lauf `5.11` — **CODE**
-3. Körper intern `4.66` — **CODE** (Lage-Sicht)
-4. Weltkugel `5.0` — **CODE** (Lage-Sicht)
-5. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+2. **Bühne & Hirn `6.0`** — PLAN [`45-next.md`](./45-next.md) (Motion, Lage-Show, CarPlay, Stimme, Gemini-Schliff)
+3. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
+4. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
+5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
 ---
 
@@ -45,6 +44,10 @@ Satellitenfoto mit Zeitstempel, Default aus.
 ### Debug-Hintergrund (`5.12` Service)
 
 v1: App offen lassen. Foreground-Service nach Spike.
+
+### Bühne & Hirn (`6.0`)
+
+Motion-Kern, Körper/Kugel-Show, Fahrmodus-HUD, Sprach-Theater, Gemini-Schliff. 0,5B wird nicht Claude. Plan [`45-next.md`](./45-next.md).
 
 ## Won’t (übergreifend)
 

@@ -87,6 +87,7 @@ MAJOR.MINOR.PATCH
 | `4.76.0` | **Lokales Sehen** — LocateAnything am PC (GUI-Grounding), nicht `4.66` Körper | Sprint 116 |
 | `5.0.0` | **Weltkugel** — Lage-Sicht Erde; Nummern `5.0`–`5.10` | Sprint 119 |
 | `5.11.0` | **Debug-Lauf** — Mehrfach-Kategorien, neues Gespräch, Export mit Verdict | Sprint 120 |
+| `6.0.0` | **Bühne & Hirn** — Motion, Lage-Show, CarPlay, Stimme, Gemini-Schliff; nicht 0,5B=Claude | Sprint 121 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -172,6 +173,7 @@ MAJOR.MINOR.PATCH
 | `4.76.0` | LocateAnything-Parser, Vision ehrlich aus (in `5.11.0`) | Sprint 116 |
 | `5.0.0` | Weltkugel in der Lage (gebündelt in `5.11.0`) | Sprint 119 |
 | `5.11.0` | Debug-Lauf + Körper + Kugel + Sehen-Parser | Sprint 120 |
+| `6.0.0` | Bühne & Hirn Leitentscheidung | Sprint 121 |
 
 ### `3.0` — Intelligenz + Welt [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) **CODE**
 
@@ -323,6 +325,20 @@ Upgrade des Settings-Debug `3.19`. Mehrere Kategorien, neues Gespräch, JSON-Exp
 | `5.12.0`–`5.13.0` | Research: Hintergrund/Writes, Export-Schema | nach 120 |
 | `5.14.0`–`5.17.0` | UI, Katalog+Expect, JSON+TXT, WakeLock/Service | nach Research |
 | `5.18.0` | Sideload nach Hausstand | nach `4.52` |
+
+### `6.0+` — Bühne & Hirn [`45-next.md`](./45-next.md) **PLAN**
+
+Nach `5.11`. Over-the-top GUI und Frontier-Ton ohne 0,5B als Claude zu verkaufen. `5.12` Debug-Service bleibt eigene Schiene.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `6.0.0` | Leitentscheidung (Docs) | 121 |
+| `6.1.0`–`6.3.0` | Research: FPS, Reduced-Motion, Canvas vs WebGL | in 122 |
+| `6.10.0` | Motion-Kern + Chat-Chrome | 122 |
+| `6.20.0` | Körper + Kugel cinematic | 123 |
+| `6.30.0` | Fahrmodus-Bühne | 124 |
+| `6.40.0` | Sprach-Theater + TTS-Picker | 125 |
+| `6.50.0` | Hirn: Tool-Schliff, Kontext, 1,5B-Spike | 126 |
 
 ### Weitere Beispiele
 
