@@ -112,7 +112,9 @@ function take(rows: Array<Record<string, unknown>>, n: number): { hits: string[]
   for (const r of rows) {
     if (hits.length >= n) break
     if (String(r.type || '') === 'video' && !r.title) continue
-    const title = String(r.title || '').trim()
+    const title = String(r.title || '')
+      .replace(/^\s*\d+[.)]\s*/, '')
+      .trim()
     if (!title) continue
     const teaser = String(r.firstSentence || r.teaser || '').trim()
     const url = String(r.shareURL || r.details || '').trim()

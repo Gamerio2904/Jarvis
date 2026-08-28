@@ -19,6 +19,7 @@ import { CITY_FLY_ZOOM } from './engine/globe-gibs'
 import { prefersReducedMotion } from './engine/motion'
 import { loadSettings, saveSettings, type Message } from './engine/store'
 import { advanceTour, selectTourStop, stopTour } from './engine/globe-tour'
+import { decodeHtml } from './engine/html-text'
 
 export function Lage({
   onSend,
@@ -216,11 +217,11 @@ export function Lage({
           />
           <TextTile
             title={pin?.name || globeFocus()?.name || 'Erde'}
-            body={
+            body={decodeHtml(
               pin?.line ||
-              s.last_globe_brief ||
-              'Drehen, zoomen, Satellitenfoto wenn nah genug. „Zeig mir London“ dreht in das NASA-Foto. „Was ist heute so auf der Welt passiert“ startet die Tour. Kein Live-Video.'
-            }
+                s.last_globe_brief ||
+                'Drehen, zoomen, Satellitenfoto wenn nah genug. „Zeig mir London“ dreht in das NASA-Foto. „Was ist heute so auf der Welt passiert“ startet die Tour. Kein Live-Video.',
+            )}
           />
           {modules.includes('chat') ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
         </div>

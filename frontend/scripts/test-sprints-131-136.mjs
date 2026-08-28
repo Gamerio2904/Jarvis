@@ -6,6 +6,7 @@ import { CITY_FLY_ZOOM, GIBS_ZOOM_IN, globeZoomToTileZ } from '../src/engine/glo
 import { matchCountry, marketKindForPlace } from '../src/engine/globe-countries.ts'
 import { buildTourStops, TOUR_MAX, TOUR_SKIP, tourChatReply } from '../src/engine/globe-tour.ts'
 import { parseOutlookIntent, parseRssItems } from '../src/engine/outlook.ts'
+import { decodeHtml } from '../src/engine/html-text.ts'
 import { parseNewsIntent, placeInHeadline } from '../src/engine/news-parse.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { pickRoute } from '../src/engine/route-pick.ts'
@@ -73,5 +74,12 @@ const rss = parseRssItems(
 )
 assert.match(rss[0]?.teaser || '', /"nein"/)
 assert.doesNotMatch(rss[0]?.teaser || '', /&quot;/)
+assert.equal(decodeHtml('seien &amp;quot;fiese Leute&amp;quot;.'), 'seien "fiese Leute".')
+const dirty = buildTourStops([
+  { title: 'Trump in Washington', teaser: 'seien &quot;fiese Leute&quot;', url: 'https://www.dw.com/t', date: '', tags: [], provider: 'dw' },
+])
+assert.equal(dirty[0]?.id, 'us')
+assert.doesNotMatch(dirty[0]?.line || '', /&quot;/)
+assert.match(dirty[0]?.line || '', /"fiese Leute"/)
 
 console.log('ok sprints 132–136 globe briefing')

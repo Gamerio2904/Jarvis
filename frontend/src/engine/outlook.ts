@@ -16,6 +16,7 @@ import {
   type SeriesPoint,
 } from './outlook-series.ts'
 import { buildTourStops, startTour, stopTour, tourChatReply } from './globe-tour.ts'
+import { decodeHtml } from './html-text.ts'
 
 export { parseOutlookIntent, parseOutlookFollowUp } from './outlook-parse.ts'
 export type { OutlookIntent, OutlookKind }
@@ -130,7 +131,12 @@ export async function handleOutlook(
 
   if (intent.kind === 'tour_stop') {
     stopTour()
-    return pack('Tour aus. Die Kugel bleibt.', [], 'Tour', 'tour_stop')
+    return {
+      handled: true,
+      reply: 'Tour aus. Die Kugel bleibt.',
+      tool: { tool_status: 'executed', tool: 'outlook', action: 'tour_stop', label: 'Weltlage' },
+      lastTool: 'outlook',
+    }
   }
 
   if (intent.kind === 'stock_ask') {
@@ -322,16 +328,7 @@ function tagInner(block: string, name: string): string {
 }
 
 function stripCdata(raw: string): string {
-  return raw
-    .replace(/^<!\[CDATA\[/i, '')
-    .replace(/\]\]>$/i, '')
-    .replace(/&quot;/gi, '"')
-    .replace(/&apos;/gi, "'")
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .trim()
+  return decodeHtml(raw.replace(/^<!\[CDATA\[/i, '').replace(/\]\]>$/i, ''))
 }
 
 function takeNews(rows: Array<Record<string, unknown>>, provider: string, n: number): OutlookNews[] {

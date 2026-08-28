@@ -12,6 +12,7 @@ import { getJson } from './http-json.ts'
 import { listEvents, listMemory, listReminders, listTodos } from './store.ts'
 import { formatDue } from './remind-parse.ts'
 import { polishToolLine } from './polish.ts'
+import { TOUR_SKIP } from './globe-tour.ts'
 
 export { CITY_FLY_ZOOM }
 
@@ -45,8 +46,9 @@ export async function briefPlace(place: PlaceBrief): Promise<string> {
 async function newsLine(name: string): Promise<string | null> {
   try {
     const local = await tagesschauSearch(name)
-    if (!local.hits.length) return null
-    return `Zur Lage in ${name}: ${local.hits[0]}`
+    const hit = local.hits.find((h) => !TOUR_SKIP.test(h))
+    if (!hit) return null
+    return `Zur Lage in ${name}: ${hit}`
   } catch {
     return null
   }

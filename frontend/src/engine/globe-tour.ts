@@ -7,6 +7,7 @@ import { prefersReducedMotion } from './motion.ts'
 import type { GeoFix } from './globe-geo.ts'
 import type { OutlookNews } from './outlook.ts'
 import type { OutlookTag } from './outlook-tags.ts'
+import { decodeHtml } from './html-text.ts'
 
 export const TOUR_SKIP =
   /\b(fußball|fussball|bundesliga|wetter|unwetter|unfall|stau|verkehr|sport|tennis|formel\s*1|handball|olympia|boxen|nachruf|gestorben|kunstmuseum|biennale)\b/i
@@ -57,14 +58,15 @@ export function buildTourStops(news: OutlookNews[]): GlobeTourStop[] {
     }
     if (!c || seen.has(c.id)) continue
     seen.add(c.id)
-    const teaser = (n.teaser || '').slice(0, 140)
-    const line = `${c.name}: ${n.title}.${teaser ? ` ${teaser}` : ''} Quelle ${n.provider}, kein Live.`
+    const teaser = decodeHtml(n.teaser || '').slice(0, 140)
+    const title = decodeHtml(n.title)
+    const line = `${c.name}: ${title}.${teaser ? ` ${teaser}` : ''} Quelle ${n.provider}, kein Live.`
     stops.push({
       id: c.id,
       name: c.name,
       lat: c.lat,
       lon: c.lon,
-      title: n.title,
+      title: title,
       teaser: teaser,
       provider: n.provider,
       url: n.url,
