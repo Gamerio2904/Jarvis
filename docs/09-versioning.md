@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. `6.50` = Gemini Hauptweg. `6.51` Parser. `6.52`/`6.53` Split + Overlay, mitgeliefert in `6.60`. Historisch: `0.16` Gemini **Opt-in** (Default aus).
+> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. `6.50` = Gemini Hauptweg. Nächste Kugel: Globus-Briefing [`48-next.md`](./48-next.md) `6.70` **PLAN**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -99,6 +99,7 @@ MAJOR.MINOR.PATCH
 | `6.52.0` | **Live-Split + Identität** — mitgeliefert in `6.60` | Sprint 128 |
 | `6.53.0` | **Overlay Gemini zuerst** — mitgeliefert in `6.60` | Sprint 129 |
 | `6.60.0` | **Sideload** Bühne + Parser + Split | Sprint 130 |
+| `6.70.0` | **Globus-Briefing Leitentscheidung** — Stadt → Satellit + zitiertes Briefing | Sprint 131 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -337,7 +338,7 @@ Upgrade des Settings-Debug `3.19`. Mehrere Kategorien, neues Gespräch, JSON-Exp
 | `5.14.0`–`5.17.0` | UI, Katalog+Expect, JSON+TXT, WakeLock/Service | nach Research |
 | `5.18.0` | Sideload nach Hausstand | nach `4.52` |
 
-### `6.0+` — Bühne & Hirn [`45-next.md`](./45-next.md) **PLAN**
+### `6.0+` — Bühne & Hirn [`45-next.md`](./45-next.md) **CODE** in `6.50`/`6.60`
 
 Nach `5.11`. Over-the-top GUI und Frontier-Ton ohne 0,5B als Claude zu verkaufen. `5.12` Debug-Service bleibt eigene Schiene.
 
@@ -354,6 +355,18 @@ Nach `5.11`. Over-the-top GUI und Frontier-Ton ohne 0,5B als Claude zu verkaufen
 | `6.52.0` | Live-Split + Identität ohne Hirn | 128 |
 | `6.53.0` | Overlay: Gemini zuerst, 0,5B Backup | 129 |
 | `6.60.0` | Sideload APK | 130 |
+
+### `6.70+` — Globus-Briefing [`48-next.md`](./48-next.md) **PLAN**
+
+Nach `6.60`. Reel-Ziel: Stadt sagen → Satellit → zitiertes Briefing. Kein Live, keine Überwachung.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `6.70.0` | Leitentscheidung (Docs) | 131 |
+| `6.71.0` | Research: Fly-to-Zoom, GIBS-Tiefe, EONET | 132 |
+| `6.80.0` | Execute: Fly-to in Satellit + Politik/Markt-Kette | 133 |
+| `6.81.0` | Anomalien ehrlich + Ihr Plan am Ort | 134 |
+| `6.90.0` | Gold, Debug-Gruppe | 135 |
 
 ### Weitere Beispiele
 

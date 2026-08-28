@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. CODE: Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Bühne [`45-next.md`](./45-next.md). Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Nächste Kugel: [`48-next.md`](./48-next.md) `6.70` **PLAN**. CODE: Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -53,6 +53,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
 | 47 | [Split, Identität, Sideload](./47-next.md) | **`6.60` CODE** |
+| 48 | [Globus-Briefing](./48-next.md) | **`6.70` PLAN** — Stadt → Satellit + zitiertes Briefing |
 | — | [APK](./apk.md) | Sideload `6.60.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -143,5 +144,10 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 128 | `6.52.0` | **CODE** (Live-Split + Identität, in `6.60.0`) |
 | 129 | `6.53.0` | **CODE** (Overlay Gemini zuerst, in `6.60.0`) |
 | 130 | `6.60.0` | **CODE** (Sideload APK) |
+| 131 | `6.70.0` | **CODE** (Globus-Briefing Leitentscheidung, Docs) |
+| 132 | `6.71.0` | **PLAN** (Research Satellit-Tiefe) |
+| 133 | `6.80.0` | **PLAN** (Fly-to Satellit + Briefing) |
+| 134 | `6.81.0` | **PLAN** (Anomalien + Ihr Plan) |
+| 135 | `6.90.0` | **PLAN** (Gold / Debug) |
 
-**Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. [`47-next.md`](./47-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. Nächste Kugel: [`48-next.md`](./48-next.md) `6.70` **PLAN**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

@@ -111,6 +111,6 @@ Marvel-Mesh. 60 fps Idle. Live-Satellitenvideo. Street-View. Überwachung. Eleve
 
 ## Reihenfolge vs. Reste
 
-1. Sideload `6.60.0` — **CODE**.
+1. Globus-Briefing `6.70` — [`48-next.md`](./48-next.md) **PLAN**.
 2. LocateAnything-Gewichte nach 3060-GO.
 3. Debug-Service `5.12` nur wenn der Lauf bei App-zu sterben würde.

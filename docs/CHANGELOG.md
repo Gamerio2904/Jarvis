@@ -7,6 +7,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`6.60.0`**. Sideload: **`6.60.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
+### `6.70.0` — Globus-Briefing Leitentscheidung — *PLAN* (Docs CODE)
+
+Sprint 131. Reel-Ziel für die Kugel: Stadt sagen → NASA-GIBS ranzoomen → Briefing aus news/outlook/warn, Markt nur Kette, Anomalie nur mit Quelle, Ihr Plan nur bei Kalender/Memory-Treffer. Kein Live, keine Überwachung.
+
+- Docs [`48-next.md`](./48-next.md) · [`sprints/sprint-131.md`](./sprints/sprint-131.md)–[`sprint-135.md`](./sprints/sprint-135.md)
+- App-Code bleibt **`6.60.0`** bis Execute `6.80`
+
 ### `6.60.0` — Split, Identität, Overlay, Sideload — *CODE*
 
 Sprints 128–130. 127 (`6.51`) bleibt mitgeliefert.

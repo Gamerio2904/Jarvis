@@ -134,8 +134,13 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 128 | [`sprint-128.md`](./sprint-128.md) | `6.52.0` | Live-Split + Identität ohne Hirn | **CODE** (in `6.60.0`) |
 | 129 | [`sprint-129.md`](./sprint-129.md) | `6.53.0` | Overlay: Gemini zuerst | **CODE** (in `6.60.0`) |
 | 130 | [`sprint-130.md`](./sprint-130.md) | `6.60.0` | Sideload APK | **CODE** |
+| 131 | [`sprint-131.md`](./sprint-131.md) | `6.70.0` | Globus-Briefing Leitentscheidung | **CODE** (Docs) |
+| 132 | [`sprint-132.md`](./sprint-132.md) | `6.71.0` | Research Satellit-Tiefe | **PLAN** |
+| 133 | [`sprint-133.md`](./sprint-133.md) | `6.80.0` | Fly-to Satellit + Stadt-Briefing | **PLAN** |
+| 134 | [`sprint-134.md`](./sprint-134.md) | `6.81.0` | Anomalien + Ihr Plan | **PLAN** |
+| 135 | [`sprint-135.md`](./sprint-135.md) | `6.90.0` | Globus-Briefing Gold | **PLAN** |
 
-**Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. [`47-next.md`](../47-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. Nächste Kugel: [`48-next.md`](../48-next.md) `6.70` **PLAN**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

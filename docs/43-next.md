@@ -10,7 +10,7 @@ Caption dort: „Kommentiere Jarvis wenn du das auch willst. **Andere werden beo
 
 **Warum `5.0`, nicht `4.100`:** In [`09-versioning.md`](./09-versioning.md) sind `4.66`–`4.75` Körper und `4.76`–`4.99` LocateAnything. Nächster Produktsprung nach `4.99` ist **MAJOR `5.0`**. Kein zweites `4.66`.
 
-Schiene gelandet in `5.11`; Globus-Zoom/GIBS in `6.20`/`6.50`; Sideload `6.60`.
+Schiene gelandet in `5.11`; Globus-Zoom/GIBS in `6.20`/`6.50`; Sideload `6.60`. **Nächstes Zielbild der Kugel:** Stadt → Satellit → Briefing [`48-next.md`](./48-next.md) `6.70`.
 
 ## Kurz: was wir konkret bauen (und was nicht)
 

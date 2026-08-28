@@ -43,6 +43,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E36 | Debug-Lauf `5.11` | 5+ | Kategorien, Sequenz, Export mit Verdict — [`44-next.md`](./44-next.md) **CODE** |
 | E45 | Bühne & Hirn `6.50` | 5+ | Gemini Hauptweg, Globus, Motion, Stimme — [`45-next.md`](./45-next.md) **CODE** |
 | E47 | Split / Overlay / Sideload `6.60` | 5+ | Live-Split, Identität, Overlay Gemini zuerst, APK — [`47-next.md`](./47-next.md) **CODE** |
+| E48 | Globus-Briefing `6.70` | 5+ | Stadt → Satellit + zitiertes Briefing — [`48-next.md`](./48-next.md) **PLAN** |
 
 ---
 
@@ -484,13 +485,26 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S36.4 | Download JSON+TXT mit Soll/Ist | Must | done | `5.16` in `5.11` |
 | S36.5 | Auto-Ja / Debug-Cloud / Hausstand-Import im Lauf | Won’t | parked | |
 
+### E48 — Globus-Briefing `6.70`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S48.0 | Leitentscheidung Stadt → Satellit → Briefing | Must | done | [`48-next.md`](./48-next.md) PLAN |
+| S48.1 | Fly-to in GIBS, Stamp mit Datum | Must | ready | Zoom ≥ 3.8, kein „Live“ |
+| S48.2 | Politik aus Tagesschau-Ort / outlook-Tag | Must | ready | leer = weglassen |
+| S48.3 | Markt nur Hormus/OPEC/EZB-Kette | Must | ready | kein Aktien-Orakel |
+| S48.4 | Anomalie nur DWD/ISS/EONET-GO | Should | ready | keine erfundenen Hotspots |
+| S48.5 | Ihr Plan nur Kalender/Memory-Treffer | Should | ready | kein Bildschirm-Mitschnitt |
+| S48.6 | Live-Sat / Street-View / Überwachung | Won’t | parked | |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. LocateAnything-Sidecar nach 3060-GO [`41-next.md`](./41-next.md) — Parser schon CODE
-2. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
-3. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. Globus-Briefing [`48-next.md`](./48-next.md) `6.70`
+2. LocateAnything-Sidecar nach 3060-GO [`41-next.md`](./41-next.md) — Parser schon CODE
+3. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
+4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Sideload **`6.60.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay sind **CODE**.
 

@@ -8,9 +8,10 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 
 ## Pull-Reihenfolge
 
-1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-2. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
-3. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+1. **Globus-Briefing `6.70`** — **PLAN** [`48-next.md`](./48-next.md) (Stadt → Satellit → zitiertes Briefing)
+2. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
+3. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
+4. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
 Bereits **CODE** in `6.60.0`: Sideload, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
 
@@ -39,6 +40,10 @@ Bereits **CODE** in `6.60.0`: Sideload, Bühne & Hirn `6.50`, Parser `6.51`, Spl
 ### LocateAnything Sidecar (`4.77`)
 
 RTX 3060 GO/NO-GO. JarvisSee localhost. Ohne Sidecar: ehrlicher Satz, keine Fake-Boxen.
+
+### Globus-Briefing (`6.70`) — **PLAN**
+
+Reel: Stadt sagen, Satellit ran, Politik/Märkte/Anomalien, Ihr Plan. Fly-to heute unter GIBS-Schwelle. Plan [`48-next.md`](./48-next.md).
 
 ### Debug-Hintergrund (`5.12` Service)
 
