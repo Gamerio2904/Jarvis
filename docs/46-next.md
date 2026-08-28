@@ -1,6 +1,6 @@
 # 46 — Parser-Patches nach Prompt-Test (`6.51`) **PLAN**
 
-Quelle: Live-Matrix 2026-08-28 [`46-test-650.md`](./46-test-650.md). Katalog und CI sind **CODE** in `6.50`. Hier nur Routing/Won’t/Help, kein neues Hirn, kein 1,5B, kein Sideload.
+Quelle: Live-Matrix 2026-08-28 [`46-test-650.md`](./46-test-650.md). Katalog und CI sind **CODE** in `6.50`. **Schon in `6.50` nach dem GUI-Lauf:** Blickmitte fällt auf den letzten Pin zurück; `/hilfe` öffnet nicht mehr Haus-Settings wegen Broadlink im Katalog. Rest: Routing/Won’t/Help, kein neues Hirn, kein 1,5B, kein Sideload.
 
 **Grün:** `npm run test:matrix` Gaps `open: 0`. Debug-Gruppen Naive + Kaputt 6.50 ohne Massen-`fail` (Smalltalk ohne Key bleibt `unknown`). Sideload weiter `3.18.1`.
 

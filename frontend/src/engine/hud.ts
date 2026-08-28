@@ -17,7 +17,7 @@ import {
   type HudIntent,
   type HudView,
 } from './hud-parse.ts'
-import { cityLine, nearestPlace, noCityInViewLine, unknownPlaceLine } from './globe-geo.ts'
+import { cityLine, nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from './globe-geo.ts'
 import { polishToolLine } from './polish.ts'
 
 export { HUD_CATALOG, parseHudIntent, organLabel }
@@ -91,24 +91,10 @@ export async function handleHud(
   }
   if (intent.kind === 'look') {
     saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
-    let lat = NaN
-    let lon = NaN
-    try {
-      const look = JSON.parse(loadSettings().last_globe_look || '{}') as { lat?: number; lon?: number }
-      lat = Number(look.lat)
-      lon = Number(look.lon)
-    } catch {
-      /* ignore */
-    }
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-      try {
-        const focus = JSON.parse(loadSettings().last_globe_focus || '{}') as { lat?: number; lon?: number }
-        lat = Number(focus.lat)
-        lon = Number(focus.lon)
-      } catch {
-        /* ignore */
-      }
-    }
+    const s = loadSettings()
+    const at = resolveLookTarget(s.last_globe_look || '', s.last_globe_focus || '')
+    const lat = at?.lat ?? NaN
+    const lon = at?.lon ?? NaN
     const hit = nearestPlace(lat, lon)
     if (hit) {
       const canned = cityLine(hit)

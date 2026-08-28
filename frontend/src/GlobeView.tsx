@@ -379,7 +379,6 @@ export function GlobeView({
           pitch.current = f.pitch
           zoom.current = f.zoom
           fly.current = null
-          emitLook()
         }
         draw()
       }

@@ -1190,9 +1190,9 @@ function App() {
   function maybeOpenSettingsFromReply(reply: string) {
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
-    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
-    else if (/Einstellungen.*Gemini|API-Key|Gemini an, aber kein/i.test(t)) openSettings('cloud')
-    else if (/Einstellungen\s*→\s*Musik|Spotify-Client-ID|Spotify anmelden/i.test(t)) openSettings('musik')
+    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t)) openSettings('haus')
+    else if (/Gemini an, aber kein/i.test(t)) openSettings('cloud')
+    else if (/Einstellungen\s*→\s*Musik|Spotify anmelden/i.test(t)) openSettings('musik')
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
-import { cityLine, gazetteerHit, nearestPlace, noCityInViewLine, unknownPlaceLine } from '../src/engine/globe-geo.ts'
+import { cityLine, gazetteerHit, nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from '../src/engine/globe-geo.ts'
 import { pickBrain } from '../src/engine/brain-pick.ts'
 import { guardPolish } from '../src/engine/polish-guard.ts'
 import { gibsStamp, gibsTimeCandidates, globeZoomToTileZ, GIBS_ZOOM_IN } from '../src/engine/globe-gibs.ts'
@@ -29,6 +29,8 @@ assert.equal(nearestPlace(51.51, -0.13)?.name, 'London')
 assert.ok(cityLine(paris).includes('Paris'))
 assert.ok(unknownPlaceLine('Atlantis').includes('Atlantis'))
 assert.ok(noCityInViewLine().includes('Meer'))
+assert.equal(resolveLookTarget(JSON.stringify({ lat: 0, lon: -30 }), JSON.stringify({ lat: 51.51, lon: -0.13 }))?.lat, 51.51)
+assert.equal(resolveLookTarget(JSON.stringify({ lat: 48.86, lon: 2.35 }), JSON.stringify({ lat: 51.51, lon: -0.13 }))?.lat, 48.86)
 
 assert.equal(pickBrain({ gemini: true, groq: true, local: true }), 'gemini')
 assert.equal(pickBrain({ gemini: false, groq: true, local: true }), 'groq')

@@ -139,6 +139,27 @@ export function noCityInViewLine(): string {
   return 'Hier liegt keine Stadt aus meinem Lexikon — Meer oder Land ohne Eintrag.'
 }
 
+export function coordsFromJson(raw: string): { lat: number; lon: number } | null {
+  try {
+    const o = JSON.parse(raw || '{}') as { lat?: number; lon?: number }
+    const lat = Number(o.lat)
+    const lon = Number(o.lon)
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+    return { lat, lon }
+  } catch {
+    return null
+  }
+}
+
+/** Blickmitte, sonst letzter Pin. Drift nach Fly-to darf London nicht als Meer verkaufen. */
+export function resolveLookTarget(lookRaw: string, focusRaw: string): { lat: number; lon: number } | null {
+  const look = coordsFromJson(lookRaw)
+  const focus = coordsFromJson(focusRaw)
+  if (look && nearestPlace(look.lat, look.lon)) return look
+  if (focus) return focus
+  return look
+}
+
 export function lookLatLon(yaw: number, pitch: number): { lat: number; lon: number } {
   const lat = Math.max(-85, Math.min(85, (pitch * 180) / Math.PI))
   let lon = ((yaw * 180) / Math.PI + 540) % 360
