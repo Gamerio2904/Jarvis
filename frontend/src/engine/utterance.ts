@@ -40,6 +40,8 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\bnaviga(?:tion|iere?n?)\b/gi, 'navigiere'],
   [/\bkuegel\b/gi, 'Kugel'],
   [/\bkörpern\b/gi, 'Körper'],
+  [/\bkrper\b/gi, 'Körper'],
+  [/\bkoerper\b/gi, 'Körper'],
 ]
 
 export function repairSpeech(text: string): string {

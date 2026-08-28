@@ -15,6 +15,8 @@ import { parseWontIntent } from '../src/engine/wont-parse.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
 import { parsePcIntent } from '../src/engine/pc-parse.ts'
 import { promoteSplitPart, splitIntents } from '../src/engine/split-intents.ts'
+import { partitionChain } from '../src/engine/chain.ts'
+import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
 
 const GOLD = [
@@ -229,6 +231,9 @@ assert.equal(parseHudIntent('zeig mal london auf der weltkugel')?.kind, 'pin')
 assert.equal(parseHudIntent('die Erde')?.view, 'globe')
 assert.ok(splitIntents('Darf ich im Park grillen und ein Taxi bestellen').length === 2)
 assert.ok(parseLawIntent('Darf ich im Park grillen'))
+assert.deepEqual(partitionChain(['Körper an', 'Zeig London']).reads, ['Körper an', 'Zeig London'])
+assert.deepEqual(partitionChain(['Zeig Spotify', 'Zeig London']).reads, ['Zeig Spotify', 'Zeig London'])
+assert.equal(pickRoute(normalizeUtterance('Krper an und Zeig London')), 'hud')
 assert.equal(
   judgeTurn({ label: 't', text: 'x', expect: { tool: 'taxi', confirm: true, mustNot: ['ist bestellt'] } }, 'Taxi ist bestellt.'),
   'fail',
