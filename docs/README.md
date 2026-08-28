@@ -50,7 +50,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
 | 42 | [Alles geplant](./42-planned.md) | Index Code `5.11` + offene Pläne `6.0` |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
-| 45 | [Bühne & Hirn](./45-next.md) | **`6.0` PLAN** — Motion, Lage-Show, CarPlay, Stimme, Gemini-Schliff |
+| 45 | [Bühne & Hirn](./45-next.md) | **`6.0` PLAN** — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | — | [APK](./apk.md) | Sideload `3.18.1`; Code `5.11.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -133,9 +133,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 120 | `5.11.0` | **CODE** (Debug-Lauf: Kategorien, Sequenz, Export) |
 | 121 | `6.0.0` | **PLAN** (Bühne & Hirn Leitentscheidung) |
 | 122 | `6.10.0` | **PLAN** (Motion-Kern + GUI) |
-| 123 | `6.20.0` | **PLAN** (Körper & Kugel cinematic) |
+| 123 | `6.20.0` | **PLAN** (Körper-Show + virtueller Globus) |
 | 124 | `6.30.0` | **PLAN** (Fahrmodus-Bühne) |
 | 125 | `6.40.0` | **PLAN** (Sprach-Theater + Stimme) |
-| 126 | `6.50.0` | **PLAN** (Hirn-Schliff, 1,5B-Spike) |
+| 126 | `6.50.0` | **PLAN** (Gemini zuerst, Groq/0,5B Backup) |
 
 **Aktuell:** Code **`5.11.0`**. Sideload `3.18.1`. Nächste Schiene: [`45-next.md`](./45-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

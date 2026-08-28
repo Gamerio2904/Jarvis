@@ -3,26 +3,25 @@
 | Feld | Wert |
 |------|------|
 | Status | **PLAN** |
-| Priorität | nach `5.11` Prompt-Patches; ohne Sideload |
-| Ziel-Version | `6.0.0` (Research `6.1`–`6.3`, Bau ab `6.10`) |
-| Quelle | PO: Animationen massiv, GUI Over-the-top, Chat/Stimme näher ChatGPT/Grok/Claude, Stimme besser |
+| Priorität | nach `5.11`; ohne Sideload |
+| Ziel-Version | `6.0.0` |
+| Quelle | PO: Animationen, GUI, Chat/Stimme; Gemini Hauptweg; Globus zoomen und sprechen |
 | Plan | [`45-next.md`](../45-next.md) |
-| Baut auf | Lage Körper/Kugel **CODE** `5.11.0`, Fahrmodus intern, Gemini-TTS Algieba/Kore |
 
 ## Ziel
 
-Festschreiben, **was** der Sprung nach `5.11` ist: eine Schiene **Bühne** (Motion, Lage, CarPlay, Sprache) plus **Hirn** (Gemini-Schliff, nicht 0,5B = Claude). Kein Execute.
+Festschreiben: **Gemini ist das Hirn**, Groq und 0,5B nur Backup. Kein größeres Modell lokal. Kugel wird virtueller Globus (Zoom, Satellitenfoto mit Datum, Zeig-Stadt, Was-sehe-ich). Bühne zuerst, dann Hirn-Schliff. Kein Execute.
 
 ## Must
 
 | ID | Inhalt |
 |----|--------|
-| L1 | Ehrlichkeit: 0,5B bleibt Default; Frontier-Ton = Gemini/Groq Opt-in |
-| L2 | Over-the-top = Geste/Fokus, nicht 60 fps Idle |
-| L3 | Körper/Kugel/Drive/Voice bleiben ehrliche Daten, keine Fake-Gauges |
-| L4 | Kein ElevenLabs, kein Marvel-Mesh, kein Live-Satellit |
-| L5 | `5.12` Debug-Hintergrund und `4.77` LocateAnything nicht überschreiben |
+| L1 | Gemini zuerst sobald Key da; Groq dann 0,5B |
+| L2 | Kein 1,5B/3B-Spike |
+| L3 | Globus: GIBS beim Ranzoomen, ehrlich Stunden alt |
+| L4 | Over-the-top = Geste, nicht Dauerfeuerwerk |
+| L5 | Kein Marvel-Mesh, kein Live-Video, kein ElevenLabs |
 
 ## Won’t (dieser Sprint)
 
-Code. Sideload. Modellwechsel. Neue Tools.
+App-Code. Sideload. Neue Tools.

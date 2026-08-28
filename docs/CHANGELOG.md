@@ -9,7 +9,7 @@ App-Version im Code: **`5.11.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer AP
 
 ### `6.0.0` — Bühne & Hirn — *PLAN*
 
-Motion, Lage-Show (Körper/Kugel), Fahrmodus-HUD, Sprach-Theater, Gemini-Schliff. 0,5B wird nicht Claude. Research vor Execute.
+Gemini ist der Hauptweg (Key). Groq und 0,5B nur Backup. Kein größeres Modell lokal. Virtueller Globus: Zoom, GIBS mit Datum, `Zeig London`, `Was ist das für eine Stadt?`. Motion, Körper, Fahrmodus, Sprache.
 
 - Docs [`45-next.md`](./45-next.md) · Sprints 121–126
 - Index [`42-planned.md`](./42-planned.md)

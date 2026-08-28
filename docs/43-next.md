@@ -148,7 +148,7 @@ Dieses Dokument. **Done wenn:** Kugel = Lage-Sicht, Tools mergen, GIBS ehrlich, 
 | **`5.6.0`** | Pins ISS + DWD wenn Warnung | **CODE** (OpenSky-Nachbar später) |
 | **`5.7.0`** | Pins outlook/news über Lexikon | **CODE** |
 | **`5.8.0`** | Tap = Pin-Kachel + Gold | **CODE** |
-| **`5.9.0`** | Optional GIBS-Textur mit Stand | geplant |
+| **`5.9.0`** | Optional GIBS-Textur mit Stand | **PLAN** Execute in `6.20` Sprint 123 [`45-next.md`](./45-next.md) |
 | **`5.10.0`** | Reduced-motion, Sideload nach `4.52` | Reduced-motion **CODE**, Sideload geplant |
 
 ## Chat / Stimme (Ziel)
@@ -161,6 +161,8 @@ Dieses Dokument. **Done wenn:** Kugel = Lage-Sicht, Tools mergen, GIBS ehrlich, 
 | `Was ist die Weltlage?` | `outlook` wie heute, Kugel muss nicht offen sein |
 | `Wo ist die ISS?` | `sky` wie heute; auf der Kugel nur extra Pin |
 | `Satelliten live` | ehrlich: Foto-Stand oder „kein Live-Video“ |
+| `Zeig mir London` / `Zeig Paris` | **PLAN** `6.20`: drehen, zoomen, Name |
+| `Was ist das für eine Stadt?` (Kugel offen) | **PLAN** `6.20`: Blickmitte gegen Lexikon |
 
 ## Settings
 

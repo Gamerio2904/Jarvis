@@ -15,7 +15,7 @@ Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).
 **`4.66` PLAN:** Körper-Schema [`40-next.md`](./40-next.md).  
 **`4.76` PLAN:** LocateAnything am PC [`41-next.md`](./41-next.md).  
 **`5.11` CODE:** Debug-Lauf [`44-next.md`](./44-next.md).  
-**`6.0` PLAN:** Bühne & Hirn [`45-next.md`](./45-next.md) — Motion, Lage-Show, Gemini-Schliff; 0,5B wird nicht Claude.
+**`6.0` PLAN:** Bühne & Hirn [`45-next.md`](./45-next.md) — **Gemini Hauptweg**, Groq/0,5B Backup, virtueller Globus, kein 1,5B.
 
 ### Live `1.32.1` (Code)
 

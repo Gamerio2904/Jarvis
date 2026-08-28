@@ -4,12 +4,12 @@ Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
 **Live:** App-Code **`5.11.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export (Export ist CODE, APK noch alt).
 
-Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
+Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq und 0,5B Backup. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
 1. Sideload mit Hausstand (Export ist CODE `4.46`, APK noch `3.18.1`)
-2. **Bühne & Hirn `6.0`** — PLAN [`45-next.md`](./45-next.md) (Motion, Lage-Show, CarPlay, Stimme, Gemini-Schliff)
+2. **Bühne & Hirn `6.0`** — PLAN [`45-next.md`](./45-next.md) (Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme)
 3. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
 4. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
 5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
@@ -37,9 +37,9 @@ Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
 
 RTX 3060 GO/NO-GO. JarvisSee localhost. Ohne Sidecar: ehrlicher Satz, keine Fake-Boxen.
 
-### GIBS (`5.9`)
+### GIBS / virtueller Globus (`6.20`, Sprint 123)
 
-Satellitenfoto mit Zeitstempel, Default aus.
+Satellitenfoto beim Ranzoomen, Stand Stunden alt, Datum sichtbar. `Zeig London`, `Was ist das für eine Stadt?`. Kein Live-Video. Plan [`45-next.md`](./45-next.md).
 
 ### Debug-Hintergrund (`5.12` Service)
 
@@ -47,7 +47,7 @@ v1: App offen lassen. Foreground-Service nach Spike.
 
 ### Bühne & Hirn (`6.0`)
 
-Motion-Kern, Körper/Kugel-Show, Fahrmodus-HUD, Sprach-Theater, Gemini-Schliff. 0,5B wird nicht Claude. Plan [`45-next.md`](./45-next.md).
+Gemini zuerst. Motion, Körper, Globus, Fahrmodus, Sprache, Tool-Schliff. Kein 1,5B lokal. Plan [`45-next.md`](./45-next.md).
 
 ## Won’t (übergreifend)
 

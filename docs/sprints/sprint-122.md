@@ -25,4 +25,4 @@ Ein rAF-/Motion-Budget für Chat, Lage und Overlays. Reduced-Motion und Hidden-T
 
 ## Won’t (dieser Sprint)
 
-Körper-Cinematic (123). Drive-HUD (124). TTS-Picker (125). 1,5B-Modell. Sideload.
+Körper-Cinematic (123 Globus). Drive-HUD (124). TTS-Picker (125). Sideload. Größeres lokales Modell.
