@@ -8,7 +8,7 @@ Stadt-Briefing: https://www.instagram.com/reel/DY7VsZItwtR/
 
 Account beide: **moritz.maaker**. Zweites Reel-Caption (sinngemäß): *Vierzig Sekunden Welt-Brief. Aus Quellen, die in deutschen Hauptmedien nicht laufen.* Das **Quellen-Versprechen kopieren wir nicht** — bei uns Tagesschau + DW, Stand sagen. **Übernehmen:** `Was ist heute so auf der Welt passiert` → weltpolitisch wichtige Länder **leuchten**, Seite zeigt die Meldung, kurzer Satz was dort passiert, **nacheinander** auf das Land zoomen, Überblick.
 
-**Ist:** Code **`6.90.0`**. Sideload **`6.60.0`**. Hirn Gemini zuerst. `Zeig London` fliegt auf Zoom **4.4** (GIBS ab **3.8**). Stadt-Briefing + Welt-Tour **CODE**. Phrase `was ist heute so auf der Welt passiert` → `outlook` world + Tour. Glow-Scheiben am Länder-Centroid, max 5 Stops. EONET optional, bei Fehler still.
+**Ist:** Code **`6.90.0`**. Sideload **`6.90.0`**. Hirn Gemini zuerst. `Zeig London` fliegt auf Zoom **4.4** (GIBS ab **3.8**). Stadt-Briefing + Welt-Tour **CODE**. Phrase `was ist heute so auf der Welt passiert` → `outlook` world + Tour. Glow-Scheiben am Länder-Centroid, max 5 Stops. EONET optional, bei Fehler still.
 
 ## Reel — was dort wirklich steht
 

@@ -140,8 +140,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 134 | [`sprint-134.md`](./sprint-134.md) | `6.82.0` | Welt-Tour Glow, Seite, Zoom | **CODE** |
 | 135 | [`sprint-135.md`](./sprint-135.md) | `6.81.0` | Anomalien + Ihr Plan | **CODE** |
 | 136 | [`sprint-136.md`](./sprint-136.md) | `6.90.0` | Globus-Briefing Gold | **CODE** |
+| 137+ | [`../49-next.md`](../49-next.md) | `7.0.0` | Agentic Recall | **PLAN** |
 
-**Aktuell:** Code **`6.90.0`**. Sideload `6.60.0`. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`6.90.0`**. Sideload `6.90.0`. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Recall-Plan [`49-next.md`](../49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

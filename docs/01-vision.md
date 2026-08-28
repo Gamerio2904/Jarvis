@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser wählen Tools. Körper, Globus, Debug, Hausstand-Export **CODE**. Globus-Briefing `6.90` **CODE**. Live-Ton: **Siezen**. LocateAnything-Gewichte nach 3060-GO [`41-next.md`](./41-next.md).
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser wählen Tools. Körper, Globus, Debug, Hausstand-Export **CODE**. Globus-Briefing `6.90` **CODE**. Live-Ton: **Siezen**. LocateAnything-Gewichte nach 3060-GO [`41-next.md`](./41-next.md).
 
 ## Vision
 
@@ -26,9 +26,9 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 | Alltags-Smalltalk | Jarvis führt natürliche Kurzgespräche (Hallo, Wie geht’s, …). |
 | Charakterfestigkeit | Gleicher Ton über Tage; erkennbar „dein“ Jarvis (Understatement, „Master“, nur Deutsch, Siezen). |
 | Lokale Kontrolle | Tools und Speicher on-device. Cloud-Hirn nur mit **deinem** Key. |
-| Handy-Nutzbarkeit | Sideload-APK `6.60.0`. Overlay Gemini zuerst. |
+| Handy-Nutzbarkeit | Sideload-APK `6.90.0`. Overlay Gemini zuerst. |
 | 24/7 | Handy selbst; kein NAS-LLM. |
-| Versionierung | `0.1.0` = MVP; `0.13.0` = On-Device; `6.50` = Gemini Hauptweg; `6.60.0` = aktueller Sideload |
+| Versionierung | `0.1.0` = MVP; `0.13.0` = On-Device; `6.50` = Gemini Hauptweg; `6.90.0` = aktueller Sideload |
 | Stimme | Realistisches Vorlesen derselben Antworten, auf dein Kommando (Algieba). |
 | Premium-Web-UI | Spotify-**Dunkel** + ChatGPT-Layout; Bühne `6.50`+ |
 

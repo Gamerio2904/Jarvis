@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`6.90.0`**. Sideload **`6.60.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`6.90.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
@@ -11,9 +11,9 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
 2. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
 3. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-4. Nächster Sideload nach Hausstand (APK steht auf `6.60.0`)
+4. Agentic Recall nach `6.90` — [`49-next.md`](./49-next.md) **PLAN** (`7.0`, Sprints 137+)
 
-Bereits **CODE** in `6.90.0`: Globus-Briefing (Stadt → GIBS + Briefing, Welt-Tour Glow/Seite/Zoom), Sideload `6.60`, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
+Bereits **CODE** in `6.90.0`: Globus-Briefing (Stadt → GIBS + Briefing, Welt-Tour Glow/Seite/Zoom), Sideload `6.90`, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
 
 ---
 

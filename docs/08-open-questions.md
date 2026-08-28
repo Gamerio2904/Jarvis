@@ -1,6 +1,6 @@
 # 08 — Offene Fragen
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Offen: LocateAnything-Gewichte (`4.77` 3060-GO), Debug-Hintergrund `5.12`, At-rest-Encryption.
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Offen: LocateAnything-Gewichte (`4.77` 3060-GO), Debug-Hintergrund `5.12`, At-rest-Encryption.
 
 Alles, was die Planung noch **lückig** macht.  
 Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.

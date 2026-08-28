@@ -10,7 +10,7 @@
 
 ## Ziel
 
-Gold Stadt-Briefing **und** Welt-Tour. `6.50`-Globus bleibt grün. Reduced-Motion. Kein Sideload.
+Gold Stadt-Briefing **und** Welt-Tour. `6.50`-Globus bleibt grün. Reduced-Motion. Sideload **`6.90.0`**.
 
 ## Must
 
@@ -23,4 +23,4 @@ Gold Stadt-Briefing **und** Welt-Tour. `6.50`-Globus bleibt grün. Reduced-Motio
 
 ## Won’t
 
-Sideload. Neue Orte außerhalb der Tabelle. 1,5B. Geheim-Feed.
+Neue Orte außerhalb der Tabelle. 1,5B. Geheim-Feed.

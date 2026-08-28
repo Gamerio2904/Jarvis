@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.60.0`**. `6.50` = Gemini Hauptweg. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**.
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -101,6 +101,7 @@ MAJOR.MINOR.PATCH
 | `6.60.0` | **Sideload** Bühne + Parser + Split | Sprint 130 |
 | `6.70.0` | **Globus-Briefing** Leitentscheidung (Docs) | Sprint 131 |
 | `6.90.0` | **Globus-Briefing Gold** — Stadt-Satellit + Welt-Tour | Sprint 136 |
+| `7.0.0` | **Agentic Recall** Leitentscheidung (PLAN) | Sprint 137 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -359,7 +360,7 @@ Nach `5.11`. Over-the-top GUI und Frontier-Ton ohne 0,5B als Claude zu verkaufen
 
 ### `6.70+` — Globus-Briefing [`48-next.md`](./48-next.md) **CODE**
 
-Nach `6.60`. Stadt sagen → Satellit → Briefing. **Nachrichten-Tour:** Welt-passiert → Länder leuchten, Seite, Zoom-Kette. Kein Live, kein Geheim-Feed. Sideload bleibt `6.60.0`.
+Nach `6.60`. Stadt sagen → Satellit → Briefing. **Nachrichten-Tour:** Welt-passiert → Länder leuchten, Seite, Zoom-Kette. Kein Live, kein Geheim-Feed. Sideload **`6.90.0`**.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
