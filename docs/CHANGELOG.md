@@ -5,7 +5,21 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.50.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
+App-Version im Code: **`6.51.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
+
+### `6.51.0` — Parser nach Prompt-Test — *CODE*
+
+Sprint 127. Sideload bleibt `3.18.1`.
+
+- **Won’t:** `Überweise 200 Euro` nicht mehr FX-Kurs. Mail nicht als SMS. Street View / Live-Sat / Beobachten / 112 / Malen / Instagram / Pizza / Foto: ehrlicher Satz. `Zeig mir` ohne Ort fragt nach.
+- **HUD:** Nachrichten und Notizen stehlen die Kugel nicht. Look-Umgang (`Was is das für ne Stadt`, `Ist das Paris?`). `erde anzeigen` / `Kuegel an`. Gazetteer nicht Teilstring (`Street View von London` fliegt nicht). `Wo liegt Berln` = unknown_place, nicht Schreibtisch.
+- **Help:** `Was kannst du?` / `Was kannst du denn so?` / `Womit kannst du helfen?` = Katalog `6.51.0`.
+- **Drive:** `Wie komme ich nach Hause` wie `Fahr mich nach Hause`.
+- **Split:** `Körper an und Zeig London` zwei Teile. Fremde Wake-Wörter (`Ok Google` / Siri / Alexa) nicht still Timer.
+- **Debug:** `refuse`-Soll trifft `wont`. Naive/Kaputt-Chips auf Ist-Route.
+
+- Docs [`46-next.md`](./46-next.md) · [`sprints/sprint-127.md`](./sprints/sprint-127.md)
+- App-Code **`6.51.0`**, Sideload noch `3.18.1`
 
 ### `6.50.0` — Bühne & Hirn — *CODE*
 

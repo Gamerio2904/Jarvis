@@ -73,7 +73,7 @@ Smalltalk · Gedächtnis · Einkauf · Tag & Hilfe · Uhr & Gerät · Ort · Wet
 
 ### Bühne & Hirn · Naive Fragen · Kaputt 6.50
 
-Globus `Zeig mir London` / Blickmitte / Atlantis, naive „Was kannst du?“, kaputte Sätze. Soll-Werte oft **Absicht `6.51`** — der Lauf darf `fail` zeigen, bis [`46-next.md`](./46-next.md) sitzt. `Ok Google, Timer …` **nicht** im Live-Katalog (echter Write).
+Globus `Zeig mir London` / Blickmitte / Atlantis, naive „Was kannst du?“, kaputte Sätze. Soll-Werte sind **CODE in `6.51`** ([`46-next.md`](./46-next.md)). `Ok Google, Timer …` **nicht** im Live-Katalog (echter Write).
 
 **Neu einbauen** (Prompts fest, Execute füllt `test-copy.ts`):
 

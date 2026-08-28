@@ -35,8 +35,15 @@ export function parseGroundIntent(text: string): GroundIntent | null {
   }
   const desk = /^\s*wo\s+liegt\s+(.+?)\s*$/i.exec(t)
   if (desk) {
-    const q = desk[1].replace(/[.!?]+$/, '').trim()
-    if (gazetteerHit(q)) return null
+    const raw = desk[1].replace(/[.!?]+$/, '').trim()
+    const stripped = raw
+      .replace(/\b(eigentlich|denn|bitte|mal|so|noch|jetzt|genau|hier|dort|übrigens|uebrigens|wohl)\b/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+    const q = stripped.replace(/^(?:der|die|das|dem|den|mein|meine)\s+/i, '').trim()
+    if (gazetteerHit(raw) || gazetteerHit(stripped) || gazetteerHit(q)) return null
+    const hadArt = /^(?:der|die|das|dem|den|mein|meine)\s+/i.test(stripped)
+    if (!hadArt && /^[A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,28}$/.test(q || raw)) return null
     if (q.length >= 2 && !/\b(speichern|start|ok|button|feld|symbol|einstellungen)\b/i.test(q)) {
       return { kind: 'slip', topic: 'desk', query: q }
     }

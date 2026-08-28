@@ -4,7 +4,8 @@ import { setFace } from './face.ts'
 /** Spoken German → written command. Vocative, fillers, STT-Tippfehler. */
 
 const VOCATIVE =
-  /^(?:(?:hey|hallo|hi|ok(?:ay)?|so)\s+)?(?:jarvis|friday|service|google)\s*[,:\-–]?\s+/i
+  /^(?:(?:hey|hallo|hi|ok(?:ay)?|so)\s+)?(?:jarvis|friday|service)\s*[,:\-–]?\s+/i
+const FOREIGN_WAKE = /^(?:ok(?:ay)?\s+google|hey\s+siri|alexa)\s*[,:\-–]?\s+/i
 const FILLER =
   /^(?:ähm+|also|ja\s+)?(?:bitte\s+)?(?:kannst\s+du(?:\s+mal)?|könntest\s+du|könnten\s+sie|würdest\s+du|ich\s+(?:möchte|will|würde\s+gerne)|mach(?:e)?(?:\s+mal)?)\s+/i
 const COMMAND_START =
@@ -37,6 +38,8 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\brotren\s+tomato(?:es|s)?\b/gi, 'Rotten Tomatoes'],
   [/\brotten\s+tomato(?:es|s)?\b/gi, 'Rotten Tomatoes'],
   [/\bnaviga(?:tion|iere?n?)\b/gi, 'navigiere'],
+  [/\bkuegel\b/gi, 'Kugel'],
+  [/\bkörpern\b/gi, 'Körper'],
 ]
 
 export function repairSpeech(text: string): string {
@@ -64,6 +67,11 @@ export function normalizeUtterance(text: string): string {
     else if (/\bjarvis\b/.test(spoken)) setFace('jarvis')
     const rest = raw.slice(voc[0].length).trim()
     if (rest && !/^übernimmt\b/i.test(rest) && (COMMAND_START.test(rest) || rest.length >= 2)) raw = rest
+  }
+  const foreign = FOREIGN_WAKE.exec(raw)
+  if (foreign) {
+    const rest = raw.slice(foreign[0].length).trim()
+    if (rest && !/\b(timer|wecker|erinner(?:e|ung)?)\b/i.test(rest)) raw = rest
   }
   const fill = FILLER.exec(raw)
   if (fill) {

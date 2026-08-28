@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`6.50.0`**. Sideload **`3.18.1`**. CODE: Körper [`40-next.md`](./40-next.md) · LocateAnything-Parser [`41-next.md`](./41-next.md) · Kugel/Globus [`43-next.md`](./43-next.md) · Debug-Lauf [`44-next.md`](./44-next.md) · Bühne & Hirn [`45-next.md`](./45-next.md) `6.50`. Prompt-Test [`46-test-650.md`](./46-test-650.md). Index: [`42-planned.md`](./42-planned.md). Nächster Sideload erst nach Hausstand-Export.
+**Jetzt:** Code **`6.51.0`**. Sideload **`3.18.1`**. CODE: Körper [`40-next.md`](./40-next.md) · LocateAnything-Parser [`41-next.md`](./41-next.md) · Kugel/Globus [`43-next.md`](./43-next.md) · Debug-Lauf [`44-next.md`](./44-next.md) · Bühne & Hirn [`45-next.md`](./45-next.md) `6.50`. Parser nach Prompt-Test [`46-next.md`](./46-next.md) `6.51`. Index: [`42-planned.md`](./42-planned.md). Nächster Sideload erst nach Hausstand-Export.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -48,11 +48,11 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Code `6.50` |
+| 42 | [Alles geplant](./42-planned.md) | Index Code `6.51` |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** — Gemini zuerst, Globus Zoom/GIBS, Motion, Stimme |
-| 46 | [Prompt-Test + Parser-Plan](./46-test-650.md) | **`6.50` Test CODE** · Execute [`46-next.md`](./46-next.md) `6.51` |
-| — | [APK](./apk.md) | Sideload `3.18.1`; Code `6.50.0`; Deinstall löscht Keys — erst Hausstand-Export |
+| 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
+| — | [APK](./apk.md) | Sideload `3.18.1`; Code `6.51.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -138,6 +138,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 124 | `6.30.0` | **CODE** (Fahrmodus-Bühne, in `6.50.0`) |
 | 125 | `6.40.0` | **CODE** (Sprach-Theater + Stimme, in `6.50.0`) |
 | 126 | `6.50.0` | **CODE** (Gemini zuerst, Groq/0,5B Backup) |
-| 127 | `6.51.0` | **PLAN** (Parser nach Prompt-Test) |
+| 127 | `6.51.0` | **CODE** (Parser nach Prompt-Test) |
 
-**Aktuell:** Code **`6.50.0`**. Sideload `3.18.1`. Bühne & Hirn: [`45-next.md`](./45-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`6.51.0`**. Sideload `3.18.1`. Parser: [`46-next.md`](./46-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

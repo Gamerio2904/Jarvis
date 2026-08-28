@@ -1,8 +1,8 @@
-# 42 — Alles geplant (Stand Code `6.50.0`)
+# 42 — Alles geplant (Stand Code `6.51.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`6.50.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export (Export ist CODE, APK noch alt).
+**Live:** App-Code **`6.51.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export (Export ist CODE, APK noch alt).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq und 0,5B Backup. Parser wählen Tools.
 
@@ -10,7 +10,7 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq und 0,5B Backup. Pa
 
 1. Sideload mit Hausstand (Export ist CODE `4.46`, APK noch `3.18.1`)
 2. **Bühne & Hirn `6.50`** — **CODE** [`45-next.md`](./45-next.md) (Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme)
-3. **Parser `6.51`** — PLAN [`46-next.md`](./46-next.md) nach Prompt-Test [`46-test-650.md`](./46-test-650.md)
+3. **Parser `6.51`** — **CODE** [`46-next.md`](./46-next.md) nach Prompt-Test [`46-test-650.md`](./46-test-650.md)
 4. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
 5. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
 6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn

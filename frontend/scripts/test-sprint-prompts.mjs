@@ -4,6 +4,7 @@
  */
 import assert from 'node:assert/strict'
 import { pickRoute } from '../src/engine/route-pick.ts'
+import { isHelpCommand } from '../src/engine/guards.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
 import { parseFaceIntent } from '../src/engine/face-parse.ts'
@@ -138,29 +139,31 @@ const BROKEN = [
   ['ja', null],
   ['Timer 0 Minuten', null],
   ['Wecker 25 Uhr', null],
-  ['Was kannst du?', null],
+  ['Was kannst du?', 'help'],
   ['Bist du ChatGPT?', null],
-  ['Kannst du Bilder malen?', null],
-  ['Schreib mir eine E-Mail', 'maps'],
-  ['Zeig mir die Nachrichten', 'hud'],
-  ['Überweise 200 Euro', 'fx'],
-  ['Zeig Street View von London', 'hud'],
-  ['Zeige Notizen', 'hud'],
-  ['Was is das für ne Stadt', null],
+  ['Kannst du Bilder malen?', 'wont'],
+  ['Schreib mir eine E-Mail', 'wont'],
+  ['Zeig mir die Nachrichten', 'news'],
+  ['Überweise 200 Euro', 'wont'],
+  ['Zeig Street View von London', 'wont'],
+  ['Zeige Notizen', 'todo'],
+  ['Was is das für ne Stadt', 'hud'],
   ['Körper an und Zeig London', null],
-  ['Wo liegt Berln', 'eye'],
-  ['erde bitte anzeigen', null],
-  ['Kuegel an', null],
-  ['Ist das Paris?', null],
-  ['Was sehe ich auf der Kugel', null],
-  ['Mach Live-Satellitenvideo an', null],
-  ['Rufe 112', null],
-  ['Zeig mir', 'hud'],
+  ['Wo liegt Berln', 'hud'],
+  ['erde bitte anzeigen', 'hud'],
+  ['Kuegel an', 'hud'],
+  ['Ist das Paris?', 'hud'],
+  ['Was sehe ich auf der Kugel', 'hud'],
+  ['Mach Live-Satellitenvideo an', 'wont'],
+  ['Rufe 112', 'wont'],
+  ['Zeig mir', 'wont'],
 ]
 
 function route(text) {
   if (!text || !text.trim()) return null
-  return pickRoute(text)
+  const t = text
+  if (isHelpCommand(t)) return 'help'
+  return pickRoute(t)
 }
 
 const rows = []
@@ -209,9 +212,16 @@ assert.deepEqual(splitIntents('Zeig Spotify und die Erde'), ['Zeig Spotify', 'di
 assert.equal(parseHudIntent('Zeig mir London')?.kind, 'pin')
 assert.equal(parseHudIntent('Zeig mir London')?.name, 'London')
 assert.equal(parseHudIntent('Was ist das für eine Stadt?')?.kind, 'look')
-assert.equal(parseHudIntent('Was sehe ich?')?.kind, 'look')
+assert.equal(parseHudIntent('Was sehe ich auf der Kugel')?.kind, 'look')
+assert.equal(parseHudIntent('Was is das für ne Stadt')?.kind, 'look')
+assert.deepEqual(splitIntents('Körper an und Zeig London'), ['Körper an', 'Zeig London'])
+assert.equal(isHelpCommand('Was kannst du?'), true)
 assert.equal(parseHudIntent('Welche Stadt ist das?')?.kind, 'look')
 assert.equal(parseHudIntent('Zeig mir Atlantis')?.kind, 'unknown_place')
+assert.equal(parseHudIntent('Wo liegt Berln')?.kind, 'unknown_place')
+assert.equal(parseGroundIntent('Wo liegt Berln'), null)
+assert.equal(parseGroundIntent('wo liegt eigentlich paris'), null)
+assert.equal(parseHudIntent('wo liegt eigentlich paris')?.name, 'Paris')
 assert.equal(parseHudIntent('mach die weltkugel an')?.view, 'globe')
 assert.equal(parseHudIntent('zeig mal london auf der weltkugel')?.kind, 'pin')
 assert.equal(parseHudIntent('die Erde')?.view, 'globe')

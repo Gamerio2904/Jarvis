@@ -1,6 +1,6 @@
 # Android-APK — Sideload `3.18.1`
 
-App-Code steht auf **`6.50.0`**. Der zuletzt gebaute Sideload bleibt **`3.18.1`**. Kein APK-Claim für `6.50`. LocateAnything-Gewichte nicht in der APK.
+App-Code steht auf **`6.51.0`**. Der zuletzt gebaute Sideload bleibt **`3.18.1`**. Kein APK-Claim für `6.51`. LocateAnything-Gewichte nicht in der APK.
 
 **Deinstall** (andere Signatur): WebView-Daten weg — Keys, Nummern, Erinnerungen. Hausstand-Export ist **CODE** ([`38-next.md`](./38-next.md)): vor Neuinstall Einstellungen → Hausstand → Exportieren. GGUF ebenfalls neu laden.
 

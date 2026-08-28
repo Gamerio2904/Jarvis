@@ -12,6 +12,7 @@ export function judgeTurn(item: TestCopyItem, reply: string, tool?: ToolMeta | n
     return reply.trim() ? 'unknown' : 'fail'
   }
   if (expect.tool === 'refuse') {
+    if (tool?.tool === 'wont') return 'pass'
     if (/kein hirn/i.test(reply)) return 'unknown'
     return /nicht|kein|ohne|mache ich nicht|kann ich nicht/i.test(reply) ? 'pass' : 'fail'
   }

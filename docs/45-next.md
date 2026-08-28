@@ -2,7 +2,7 @@
 
 PO 2026-08-28: Animationen massiv, GUI Over-the-top, Antworten näher ChatGPT/Grok/Claude. **Nachzug 2026-08-28:** Gemini ist der **Hauptweg**. Groq und das kleine lokale Modell sind nur Backup. Kein größeres Modell lokal testen. Satellitenfoto an: virtueller Globus zum Zoomen; Jarvis dreht/zoomt auf „Zeig London“ und sagt, welche Stadt in der Sicht ist.
 
-**Ist:** Code **`6.50.0`**. Sideload **`3.18.1`**. Gemini zuerst. Virtueller Globus mit Zoom/GIBS/Zeig-Stadt. Motion 30 fps. Fahrmodus-HUD. Sprach-Orb + Stimmen-Picker.
+**Ist:** Code **`6.51.0`**. Sideload **`3.18.1`**. Gemini zuerst. Virtueller Globus mit Zoom/GIBS/Zeig-Stadt. Motion 30 fps. Fahrmodus-HUD. Sprach-Orb + Stimmen-Picker. Parser nach Prompt-Test [`46-next.md`](./46-next.md).
 
 **Lücke:** Bühne ist Skizze. Smalltalk ohne Gemini ist klein. GIBS (Satellitenfoto, Stunden alt) war nur Option auf dem Papier. Die Kugel spricht nicht über die Sicht.
 
@@ -77,7 +77,7 @@ Blickmitte → nächster Eintrag unter festem Kilometer-Limit (z. B. ~80 km). Da
 | `6.23` | Blickmitte → Stadt | Paris in Sicht = Paris; Atlantik = kein Stadt-Name |
 | `6.31` | Drive-HUD bei Karten-Load | kein Einfrieren |
 | `6.41` | Gemini-Stimmenliste | < 3,5 s stehend; Steuer Native-first |
-| `6.51` | Tool-Schliff + Parser nach Prompt-Test [`46-next.md`](./46-next.md) | Guard streicht neue Orte/Zahlen. Matrix-Gaps zu. |
+| `6.51` | Tool-Schliff + Parser nach Prompt-Test [`46-next.md`](./46-next.md) | **CODE.** Guard streicht neue Orte/Zahlen. Matrix-Gaps zu. |
 
 ## Gold (Abnahme)
 

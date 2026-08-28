@@ -93,6 +93,7 @@ MAJOR.MINOR.PATCH
 | `6.30.0` | **Fahrmodus-Bühne** | Sprint 124 |
 | `6.40.0` | **Sprach-Theater + Stimmen-Picker** | Sprint 125 |
 | `6.50.0` | **Hirn Gemini zuerst** + Bühne 122–125 mitgeliefert | Sprint 126 |
+| `6.51.0` | **Parser nach Prompt-Test** — Wont/Help/HUD-Skip | Sprint 127 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -344,6 +345,7 @@ Nach `5.11`. Over-the-top GUI und Frontier-Ton ohne 0,5B als Claude zu verkaufen
 | `6.30.0` | Fahrmodus-Bühne | 124 |
 | `6.40.0` | Sprach-Theater + TTS-Picker | 125 |
 | `6.50.0` | Hirn: Gemini zuerst, Tool-Schliff, Groq/0,5B Backup | 126 |
+| `6.51.0` | Parser: Wont/Help/HUD nach 6.50-Prompt-Test | 127 |
 
 ### Weitere Beispiele
 

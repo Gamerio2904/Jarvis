@@ -83,10 +83,20 @@ export function pinForTag(tag: OutlookTag): GeoFix | null {
   return TAG_FIX[tag] || null
 }
 
+const GAZETTEER_FILLER =
+  /^(?:die|das|den|der|dem|stadt|von|in|bei|am|the|eigentlich|denn|bitte|mal|so|noch|jetzt|genau|hier|dort|übrigens|uebrigens|wohl|auch|schon)$/i
+
 export function gazetteerHit(blob: string): PlaceFix | null {
-  const t = blob || ''
+  const t = (blob || '')
+    .replace(/\s+auf\s+der\s+(?:weltkugel|kugel|erde)\s*$/i, '')
+    .trim()
+  if (!t || /\bund\b/i.test(t)) return null
   for (const p of PLACES) {
-    if (p.re.test(t)) return p
+    const m = t.match(p.re)
+    if (!m) continue
+    const leftover = t.replace(m[0], ' ').replace(/\s+/g, ' ').trim()
+    if (leftover && leftover.split(' ').some((w) => !GAZETTEER_FILLER.test(w))) continue
+    return p
   }
   return null
 }

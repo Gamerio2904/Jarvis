@@ -104,7 +104,7 @@ export type HudIntent =
 
 function hudText(raw: string): string {
   return normalizeUtterance(raw.trim())
-    .replace(/\b(bitte|mal|doch|einfach)\b/gi, ' ')
+    .replace(/\b(bitte|mal|doch|einfach|eigentlich)\b/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 }
@@ -139,10 +139,11 @@ export function parseHudIntent(text: string): HudIntent | null {
     return { kind: 'view', view: 'tiles' }
   }
   if (
-    /^\s*(?:mach(?:e)?\s+)?(?:die\s+)?(?:kugel|weltkugel|erde)\s+(an|ein|auf)\s*$/i.test(t) ||
+    /^\s*(?:mach(?:e)?\s+)?(?:die\s+)?(?:kugel|weltkugel|erde)\s+(an|ein|auf|anzeigen|zeigen)\s*$/i.test(t) ||
     /^\s*zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?(?:erde|kugel|weltkugel)\s*$/i.test(t) ||
     /^\s*weltkugel\s*$/i.test(t) ||
-    /^\s*die\s+(?:erde|kugel|weltkugel)\s*$/i.test(t)
+    /^\s*die\s+(?:erde|kugel|weltkugel)\s*$/i.test(t) ||
+    /^\s*(?:erde|kugel|weltkugel)\s+(?:anzeigen|zeigen)\s*$/i.test(t)
   ) {
     return { kind: 'view', view: 'globe' }
   }
@@ -153,28 +154,36 @@ export function parseHudIntent(text: string): HudIntent | null {
   }
 
   if (
-    /^\s*was\s+ist\s+das\s+für\s+eine\s+stadt\s*\??\s*$/i.test(t) ||
-    /^\s*was\s+sehe\s+ich\s*\??\s*$/i.test(t) ||
-    /^\s*welche\s+stadt\s+(?:ist\s+das|sehe\s+ich)\s*\??\s*$/i.test(t) ||
+    /^\s*was\s+ist\s+das\s+für\s+(?:eine\s+|ne\s+|n\s+)?stadt\s*\??\s*$/i.test(t) ||
+    /^\s*was\s+is+\s+das\s+für\s+(?:eine\s+|ne\s+|n\s+)?stadt\s*\??\s*$/i.test(t) ||
+    /^\s*was\s+sehe\s+ich(?:\s+auf\s+der\s+(?:kugel|weltkugel|erde))?\s*\??\s*$/i.test(t) ||
+    /^\s*welche\s+stadt\s+(?:ist\s+das|sehe\s+ich(?:\s+denn)?)\s*\??\s*$/i.test(t) ||
     /^\s*wo\s+schaue\s+ich\s+hin\s*\??\s*$/i.test(t)
   ) {
     return { kind: 'look' }
   }
+  const isThat = /^\s*ist\s+das\s+(.+?)\s*\??\s*$/i.exec(t)
+  if (isThat && gazetteerHit(isThat[1].trim())) return { kind: 'look' }
 
   const where = /^\s*(?:wo\s+(?:liegt|ist)|zeig(?:e)?(?:\s+mir)?(?:\s+die\s+stadt)?|flieg(?:e)?\s+nach|zoom(?:e)?\s+auf)\s+(.+?)\s*$/i.exec(
     t,
   )
   if (where) {
-    const rest = where[1].replace(/^(?:die\s+|das\s+|den\s+|stadt\s+)/i, '').trim()
+    const rawRest = where[1].trim()
+    const rest = rawRest.replace(/^(?:die\s+|das\s+|den\s+|stadt\s+)/i, '').trim()
+    if (/^(?:mir|uns)$/i.test(rest) || !rest) return null
     const hit = gazetteerHit(rest)
     if (hit) return { kind: 'pin', name: hit.name, lat: hit.lat, lon: hit.lon, blurb: hit.blurb }
-    if (
-      /^(?:zeig|flieg|zoom)/i.test(t) &&
-      rest &&
-      rest.length < 40 &&
-      !/\b(körper|koerper|kugel|erde|weltkugel|hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|wetter|spotify|lage|kachel|modul|mond|iss|sonne|himmel|foto|beleg|bild|speichern|fenster)\b/i.test(
+    const hadArt = /^(?:der|die|das|dem|den|mein|meine|meiner|meinen)\s+/i.test(rawRest)
+    const skip =
+      /\b(körper|koerper|kugel|erde|weltkugel|hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|wetter|spotify|lage|kachel|modul|mond|iss|sonne|himmel|foto|beleg|bild|speichern|fenster|nachrichten|news|street|satellit|notizen|notiz|instagram|pizza|email|e-mail)\b/i.test(
         rest,
       )
+    if (
+      rest &&
+      rest.length < 40 &&
+      !skip &&
+      (/^(?:zeig|flieg|zoom)/i.test(t) || (/^wo\s+liegt/i.test(t) && !hadArt))
     ) {
       return { kind: 'unknown_place', asked: rest }
     }

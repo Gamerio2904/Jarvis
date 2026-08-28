@@ -139,7 +139,7 @@ export function patchSettings(patch: Partial<Settings>): Settings {
 export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, releaseModel, testGemini, testGroq, geminiReady }
 
 async function routeDeterministic(conversationId: string, content: string): Promise<RouteHit | null> {
-  if (isHelpCommand(content)) {
+  if (isHelpCommand(content) || isHelpCommand(normalizeUtterance(content))) {
     return {
       reply: HELP_TEXT,
       lastTool: 'help',
