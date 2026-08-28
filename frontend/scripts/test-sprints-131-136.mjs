@@ -28,6 +28,7 @@ assert.equal(marketKindForPlace('Frankfurt'), 'ezb')
 assert.equal(marketKindForPlace('Ingersheim'), null)
 assert.equal(marketKindForPlace('London'), null)
 assert.ok(TOUR_SKIP.test('Bundesliga Unwetter in NRW'))
+assert.ok(TOUR_SKIP.test('Eintracht gegen Premier-League-Klub'))
 
 const sport = buildTourStops([
   { title: 'Bayern siegt in der Bundesliga', teaser: 'Fußball', url: 'https://www.tagesschau.de/x', date: '', tags: [], provider: 'tagesschau' },

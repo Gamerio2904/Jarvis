@@ -151,7 +151,7 @@ export async function handleOutlook(
     startTour(stops)
     reply = tourChatReply(stops)
   }
-  const sources = sourcesFromSnap(snap)
+  const sources = intent.kind === 'world' ? sourcesFromSnap(snap, true) : sourcesFromSnap(snap)
   persistLastList('outlook', snap.news.map((n) => n.title).slice(0, 8))
   return pack(reply, sources, intent.kind, intent.kind)
 }
@@ -227,20 +227,20 @@ function pack(
   }
 }
 
-function sourcesFromSnap(snap: OutlookSnap): ResearchSource[] {
+function sourcesFromSnap(snap: OutlookSnap, newsOnly = false): ResearchSource[] {
   const now = new Date().toISOString()
   const sources: ResearchSource[] = []
   for (const n of snap.news) {
     if (!n.url) continue
     sources.push({
-      title: n.title,
+      title: decodeHtml(n.title),
       url: n.url,
-      snippet: n.teaser.slice(0, 200),
+      snippet: decodeHtml(n.teaser).slice(0, 200),
       provider: n.provider,
       retrieved_at: now,
     })
   }
-  if (snap.oil) {
+  if (!newsOnly && snap.oil) {
     sources.push({
       title: `Brent ${formatBarrel(snap.oil.value)}`,
       url: 'https://fred.stlouisfed.org/series/DCOILBRENTEU',
@@ -249,7 +249,7 @@ function sourcesFromSnap(snap: OutlookSnap): ResearchSource[] {
       retrieved_at: now,
     })
   }
-  if (snap.fx) {
+  if (!newsOnly && snap.fx) {
     sources.push({
       title: `${snap.fx.from}/${snap.fx.to} ${snap.fx.last.toFixed(4)}`,
       url: 'https://www.frankfurter.app/',

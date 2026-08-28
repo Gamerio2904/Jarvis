@@ -10,7 +10,7 @@ import type { OutlookTag } from './outlook-tags.ts'
 import { decodeHtml } from './html-text.ts'
 
 export const TOUR_SKIP =
-  /\b(fußball|fussball|bundesliga|wetter|unwetter|unfall|stau|verkehr|sport|tennis|formel\s*1|handball|olympia|boxen|nachruf|gestorben|kunstmuseum|biennale)\b/i
+  /\b(fußball|fussball|bundesliga|premier[- ]league|wetter|unwetter|unfall|stau|verkehr|sport|tennis|formel\s*1|handball|olympia|boxen|nachruf|gestorben|kunstmuseum|biennale)\b/i
 
 export const TOUR_OVERVIEW_MS = 2500
 export const TOUR_STOP_MS = 7500
