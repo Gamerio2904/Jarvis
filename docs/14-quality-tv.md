@@ -1,9 +1,11 @@
 # 14 — Update `0.14`: Bestehendes härten + TV live
 
-PO 2026-08-15: **Nichts Neues.** Kein größeres Modell, kein Research, kein TTS, keine neuen Tool-Typen.  
-Ziel: was schon da ist, **schneller, klüger, zuverlässiger** — und die **geparkte Fernseher-Steuerung** wirklich verbinden und bedienen.
+> Historisch Sprint 47–48. **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)). TV bleibt nativ in der APK.
 
-Status: **CODE** in Sideload `0.14.1` (Sprint 47+48 zusammen).
+PO 2026-08-15: **Nichts Neues** (für *diese* Etappe). Kein größeres Modell, kein Research, kein TTS, keine neuen Tool-Typen.  
+Ziel damals: was schon da ist, **schneller, klüger, zuverlässiger** — und die **geparkte Fernseher-Steuerung** wirklich verbinden und bedienen.
+
+Status: **CODE** in Sideload `0.14.1` (Sprint 47+48 zusammen), mitgeliefert in `6.60.0`.
 
 Basis: On-Device `0.13.2` ([`13-on-device.md`](./13-on-device.md)).
 
@@ -12,7 +14,7 @@ Basis: On-Device `0.13.2` ([`13-on-device.md`](./13-on-device.md)).
 | Thema | Entscheidung |
 |-------|----------------|
 | Scope | Nur vorhandene Fähigkeiten verbessern |
-| Modell | Bleibt Qwen2.5 0.5B Instruct Q4 (kein 1.5B, kein Cloud) |
+| Modell | Damals Qwen2.5 0.5B Instruct Q4. **Heute:** Gemini Hauptweg, 0,5B Backup. |
 | TV | Bestehendes `0.11`-Soll, jetzt **nativ in der APK** (kein Python, keine NAS) |
 | Geräte | Ein Samsung-Tizen im selben WLAN |
 | Confirm TV | Sofort ausführen (wie `0.11.0`) |

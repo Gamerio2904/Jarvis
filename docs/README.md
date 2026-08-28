@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. CODE: Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Bühne [`45-next.md`](./45-next.md). Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. CODE: Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Bühne [`45-next.md`](./45-next.md). Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -20,9 +20,9 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
 | 12 | [NAS & APK](./12-nas-apk.md) | historisch / superseded |
-| 13 | [On-Device](./13-on-device.md) | Handy-LLM `0.13.2` |
+| 13 | [On-Device](./13-on-device.md) | Handy: Parser + Speicher lokal; Hirn Gemini zuerst |
 | 14 | [Qualität & TV](./14-quality-tv.md) | **`0.14.1`** — härten + Tizen live |
-| 16 | [Gemini](./16-gemini.md) | **`0.16`** — Google-API, Opt-in |
+| 16 | [Gemini](./16-gemini.md) | **Hauptweg** (Key); historisch `0.16` Opt-in |
 | 17 | [Nächste Versionen](./17-next.md) | **`1.1`–`1.6`** — Erinnerung, Wetter, Kalender, Sprache — **CODE** |
 | 18 | [Timer bis GUI](./18-next.md) | **`1.7`–`1.13.2`** — Wecker, Widget, Wake-Word, Motion, Ton — **CODE** |
 | 19 | [Alltag & Kontext](./19-next.md) | **`1.14`–`1.20` CODE** (in `1.24.0`) |
@@ -50,7 +50,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
 | 42 | [Alles geplant](./42-planned.md) | Index Code `6.60` |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
-| 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** — Gemini zuerst, Globus Zoom/GIBS, Motion, Stimme |
+| 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
 | 47 | [Split, Identität, Sideload](./47-next.md) | **`6.60` CODE** |
 | — | [APK](./apk.md) | Sideload `6.60.0`; Deinstall löscht Keys — erst Hausstand-Export |
@@ -93,7 +93,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 46 | `0.13.2` | **CODE** (Chat-Hang Hotfix) |
 | 47 | `0.14.0` | **CODE** (in `0.14.1`) |
 | 48 | `0.14.1` | **CODE** (TV verbinden & steuern) |
-| 50 | `0.16.0` | **CODE** (Gemini Opt-in) |
+| 50 | `0.16.0` | **CODE** (Gemini Opt-in; ab `6.50` Hauptweg) |
 | 51–54 | `1.1`–`1.4` | **CODE** (Sound/Quellen, Erinnerung, Wetter, Kalender) |
 | 55 | `1.5.0` | **CODE** (Sprachmodus) |
 | 56 | `1.6.0` | **CODE** (Wetter als Lage) |
@@ -144,4 +144,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 129 | `6.53.0` | **CODE** (Overlay Gemini zuerst, in `6.60.0`) |
 | 130 | `6.60.0` | **CODE** (Sideload APK) |
 
-**Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. [`47-next.md`](./47-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. [`47-next.md`](./47-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

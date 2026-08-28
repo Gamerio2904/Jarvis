@@ -1,5 +1,8 @@
 # 25 — Stimme & Jarvis-Ton (`1.31`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-17: Stimmenqualität hoch, Latenz runter, Antworten besser — vor allem Smalltalk. Formulierung näher an Jarvis.
 
 Reihe davor: [`24-next.md`](./24-next.md). App vorher: Sideload **`1.30.0`**.

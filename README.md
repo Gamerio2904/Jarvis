@@ -6,6 +6,8 @@
 
 Privater Assistant. Läuft **auf dem Handy**. App-Code **`6.60.0`**. Sideload **`6.60.0`**. PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
 
+**Hirn:** Gemini (API-Key in Einstellungen → Cloud) ist der **Hauptweg**. Groq ist Backup. Das lokale 0,5B-Qwen ist **reiner letzter Fallback**, kein ChatGPT. Parser wählen die Geräte; das Modell formuliert. Tools, Speicher und Keys bleiben auf dem Gerät.
+
 ## Start (Dev-PC, nur zum Bauen)
 
 ```bash
@@ -14,12 +16,12 @@ npm install
 npm run dev
 ```
 
-Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
+Browser: http://localhost:5173 — Overlay **Gemini zuerst**. Gemini-Key eintragen. Lokales 0,5B nur als Backup (~470 MB), nicht nötig für Timer, Kugel, Wetter.
 
 ## Android-APK
 
-Letzter Sideload **`Jarvis.apk` `3.18.1`** (Code `3.19.0`):  
-https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Sideload **`Jarvis.apk` `6.60.0`** (versionCode `66000`):  
+`releases/Jarvis.apk` in diesem Repo.
 
 ```bat
 build-apk.bat
@@ -27,16 +29,12 @@ build-apk.bat
 
 Linux: `./build-apk.sh`
 
-APK: `releases/Jarvis.apk`
-
-1. Installieren (unbekannte Quellen).
-2. App öffnen → Modell laden (WLAN).
+1. Installieren (unbekannte Quellen). Vor Neuinstall: Einstellungen → Hausstand → Exportieren — Deinstall löscht Keys.
+2. App öffnen → Overlay: **Gemini-Key eintragen**. Optional Groq. 0,5B nur Backup.
 3. Chat. Daten bleiben auf dem Gerät (IndexedDB).
-
-Modell: Qwen2.5 0.5B Instruct Q4 (kleiner als der alte PC-7b, dafür offline).
 
 ## Was weg ist
 
 Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen in der Android-App.
 
-Planung: [`docs/README.md`](docs/README.md) · offene Pläne: Körper `4.66`, Sehen `4.76`, Debug-Lauf `5.11`
+Planung: [`docs/README.md`](docs/README.md) · Rest: LocateAnything-Gewichte nach 3060-GO, Debug-Hintergrund `5.12`.

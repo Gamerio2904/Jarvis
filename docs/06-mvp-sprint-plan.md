@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Code `6.60.0`. Sideload `6.60.0`. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
+> Historisch (MVP `0.1`). **Jetzt:** Code `6.60.0`. Sideload `6.60.0`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
 
 ## MVP v0.1 — Definition
 
@@ -543,7 +543,7 @@ Detail On-Device/APK: [`13-on-device.md`](./13-on-device.md) · [`apk.md`](./apk
 
 ## Abnahmetest MVP (Checkliste)
 
-- [ ] Kein Cloud-LLM im Antwortpfad
+- [ ] Kein Cloud-LLM im Antwortpfad *(historisch MVP `0.1`; ab `6.50` Gemini Hauptweg mit eigenem Key)*
 - [ ] „Hallo“ / „Wie geht’s?“ fühlt sich natürlich an
 - [ ] Folgefrage bezieht sich auf vorherige Aussage
 - [ ] Antwortlänge wirkt wie Chat, nicht wie Aufsatz

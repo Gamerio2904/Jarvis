@@ -1,12 +1,12 @@
-# 45 — Bühne & Hirn (`6.0`) **PLAN**
+# 45 — Bühne & Hirn (`6.0` / `6.50`) **CODE**
 
 PO 2026-08-28: Animationen massiv, GUI Over-the-top, Antworten näher ChatGPT/Grok/Claude. **Nachzug 2026-08-28:** Gemini ist der **Hauptweg**. Groq und das kleine lokale Modell sind nur Backup. Kein größeres Modell lokal testen. Satellitenfoto an: virtueller Globus zum Zoomen; Jarvis dreht/zoomt auf „Zeig London“ und sagt, welche Stadt in der Sicht ist.
 
 **Ist:** Code **`6.60.0`**. Sideload **`6.60.0`**. Gemini zuerst. Virtueller Globus mit Zoom/GIBS/Zeig-Stadt. Motion 30 fps. Fahrmodus-HUD. Sprach-Orb + Stimmen-Picker. Parser [`46-next.md`](./46-next.md). Split/Identität/Overlay [`47-next.md`](./47-next.md).
 
-**Lücke:** Bühne ist Skizze. Smalltalk ohne Gemini ist klein. GIBS (Satellitenfoto, Stunden alt) war nur Option auf dem Papier. Die Kugel spricht nicht über die Sicht.
+**Lücke:** Smalltalk ohne Gemini-Key bleibt klein (gewollt — 0,5B ist Backup). Debug-Hintergrund `5.12`. LocateAnything-Gewichte. Kein 1,5B.
 
-Kein Execute in Sprint 121. Research in dem Sprint, der die Fläche baut. Sideload nach Hausstand. Debug-Hintergrund bleibt `5.12`. Kein 1,5B-Spike. **CODE in `6.50.0`.**
+Schiene Execute in `6.50.0`, Sideload `6.60.0`. Debug-Hintergrund bleibt `5.12`. Kein 1,5B-Spike.
 
 ## Ehrlichkeit: Hirn und „Live-Erde“
 
@@ -23,13 +23,13 @@ Ohne Gemini-Key bleibt Jarvis ein Geräte-Butler plus kleinem Backup-Smalltalk. 
 
 ## Kurz: was wir konkret bauen
 
-| Fläche | Heute | `6.0`-Schiene | Won’t |
-|--------|-------|----------------|-------|
+| Fläche | Vor `6.0` | `6.50` CODE | Won’t |
+|--------|-----------|-------------|-------|
 | Hirn | Gemini Opt-in, 0,5B Default | **Gemini zuerst**, Groq Backup, 0,5B letzter Fallback. Kein 1,5B-Test | 0,5B als Claude verkaufen |
 | Motion | mehrere Zeichnungen parallel | Eine Sicht, 30 fps Akku, Pause im Hintergrund | 60 fps Idle |
 | Chat-GUI | Tool-Badge | Chip, Mitlauf zur Lage | Markdown-Bubbles |
 | Körper | Knoten-Schema | Licht/Pulse aus echten Werten, Kamera zum Organ | Iron-Man-Mesh, Fake-CPU |
-| Kugel | Blue Marble, Pins, Koordinaten-Satz | **Virtueller Globus:** Zoom, optional GIBS, „Zeig *Stadt*“, „Was ist das?“ | Live-Video, Überwachung |
+| Kugel | Blue Marble, Pins, Koordinaten-Satz | **Virtueller Globus:** Zoom, GIBS nah mit Datum, „Zeig *Stadt*“, „Was ist das?“ | Live-Video, Überwachung |
 | Fahrmodus | Karte + Text-HUD | Glas-HUD, echter Pfeil, Spotify nur wenn Track läuft | Apple CarPlay |
 | Sprache | Phasen + Wake-Bubble | Orb aus Mic, Stimmen-Picker, Barge-in | ElevenLabs, Stimmklon |
 | Tool-Sätze | Canned | Gemini darf **dieselben** Fakten in 1–3 Sätzen sagen | Neue Zahlen erfinden |
@@ -46,7 +46,7 @@ Ohne Gemini-Key bleibt Jarvis ein Geräte-Butler plus kleinem Backup-Smalltalk. 
 | Stadt erkennen | `Was ist das für eine Stadt?` / `Was sehe ich?` bei offener Kugel = Blickmitte gegen Lexikon. Treffer: Name + kurzer fester Satz (Gemini darf ihn schleifen). Kein Treffer: Meer oder „keine Stadt in der Sicht“. |
 | Sir | Selten, situativ — nicht jeder Globus-Satz. |
 | Motion | Reduced-motion und Akku schlagen Cinematic. |
-| Sideload | Nicht in `6.0`–`6.50`. Hausstand vor APK. |
+| Sideload | **CODE** `6.60.0`. Hausstand vor Neuinstall. |
 
 ## Ortslexikon (Globus)
 
@@ -111,10 +111,6 @@ Marvel-Mesh. 60 fps Idle. Live-Satellitenvideo. Street-View. Überwachung. Eleve
 
 ## Reihenfolge vs. Reste
 
-1. Hausstand-Sideload weiter vorziehen.
-2. 122 Motion.
-3. 123 Körper + Globus (GIBS hier, nicht später).
-4. 124 / 125 Bühnen.
-5. 126 Gemini-Hirn (Keys schon CODE, Reihenfolge umdrehen + Schliff).
-6. LocateAnything-Gewichte nach 3060-GO.
-7. Debug-Service `5.12` nur wenn der Lauf bei App-zu sterben würde.
+1. Sideload `6.60.0` — **CODE**.
+2. LocateAnything-Gewichte nach 3060-GO.
+3. Debug-Service `5.12` nur wenn der Lauf bei App-zu sterben würde.

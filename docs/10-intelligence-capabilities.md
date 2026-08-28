@@ -1,21 +1,28 @@
 # 10 — Intelligence Capabilities (Ausarbeitung)
 
-Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first- / Privacy-Linie zu brechen.  
+Ziel: Jarvis wird **professioneller und scharfsinniger**. Tools und Speicher bleiben on-device. Smalltalk-Hirn ist Gemini (Key), nicht das 0,5B.
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
-### Live `1.33.0` (Code)
+> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Parser wählen Tools. Gemini formuliert. 0,5B wählt keine Tools.
 
-Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/Geizhals, € nur aus Snippets. Router wie `1.32.1` plus `Öffnen CarPlay` → Fahrmodus. `pickHeard` scored ohne Drive-`inMode`-Raten.
+### Live `6.60.0` (Code)
 
+**Hirn:** Gemini zuerst, Groq Backup, 0,5B zuletzt [`16-gemini.md`](./16-gemini.md) · [`45-next.md`](./45-next.md). Overlay Gemini zuerst [`47-next.md`](./47-next.md).  
+**Parser `6.51`:** Wont/Help/HUD-Skip [`46-next.md`](./46-next.md).  
+**Split/Identität:** Live-Doppelbefehl, canned Identität ohne Modell.  
 Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  
 **`3.0.0` CODE:** Register + Score-Policy [`32-intelligence.md`](./32-intelligence.md). Welt `3.1`–`3.17` mitgeliefert [`31-next.md`](./31-next.md).  
 **`3.18.0` CODE:** Follow-up, „und“, Parser-Score, Tablet-Lage, Traceroute, Digest [`33-next.md`](./33-next.md).  
 **`3.19.0` CODE:** Sprachmodus ein Thread, Kalender-Fenster, Debug [`34-next.md`](./34-next.md).  
 **`4.0`–`4.53` CODE:** Weltlage, Alltagskette, Algieba/HUD, Hausstand, Friday+Lage-Split.  
-**`4.66` PLAN:** Körper-Schema [`40-next.md`](./40-next.md).  
-**`4.76` PLAN:** LocateAnything am PC [`41-next.md`](./41-next.md).  
+**`4.66` CODE:** Körper-Schema [`40-next.md`](./40-next.md).  
+**`4.76` CODE:** Sehen-Parser; Gewichte nach 3060-GO [`41-next.md`](./41-next.md).  
 **`5.11` CODE:** Debug-Lauf [`44-next.md`](./44-next.md).  
-**`6.0` PLAN:** Bühne & Hirn [`45-next.md`](./45-next.md) — **Gemini Hauptweg**, Groq/0,5B Backup, virtueller Globus, kein 1,5B.
+**`6.50`–`6.60` CODE:** Bühne, Globus, Gemini Hauptweg.
+
+### Live `1.33.0` (Code) — historisch
+
+Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/Geizhals, € nur aus Snippets. Router wie `1.32.1` plus `Öffnen CarPlay` → Fahrmodus. `pickHeard` scored ohne Drive-`inMode`-Raten.
 
 ### Live `1.32.1` (Code)
 

@@ -1,8 +1,8 @@
 # 46 — Parser-Patches nach Prompt-Test (`6.51`) **CODE**
 
-Quelle: Live-Matrix 2026-08-28 [`46-test-650.md`](./46-test-650.md). Katalog und CI waren **CODE** in `6.50`. Parser-Routing ist **CODE** in **`6.51.0`**. Kein neues Hirn, kein 1,5B, kein Sideload.
+Quelle: Live-Matrix 2026-08-28 [`46-test-650.md`](./46-test-650.md). Katalog und CI waren **CODE** in `6.50`. Parser-Routing ist **CODE** in **`6.51.0`**, mitgeliefert in Sideload **`6.60.0`**. Kein neues Hirn, kein 1,5B.
 
-**Grün:** `npm run test:matrix` lock fails `0 / 29`. Debug-Gruppen Naive + Kaputt 6.50: `expect.tool` trifft Ist-Route (`wont`/`help`/`hud`/`drive`/`news`). Smalltalk ohne Key bleibt `unknown`. Sideload weiter `3.18.1`.
+**Grün:** `npm run test:matrix` lock fails `0 / 29`. Debug-Gruppen Naive + Kaputt 6.50: `expect.tool` trifft Ist-Route (`wont`/`help`/`hud`/`drive`/`news`). Smalltalk ohne Key bleibt `unknown`. **Jetzt:** Sideload `6.60.0`.
 
 ## Reihenfolge
 

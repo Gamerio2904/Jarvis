@@ -53,7 +53,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 46 | [`sprint-46.md`](./sprint-46.md) | `0.13.2` | Chat-Hang Hotfix | **CODE** |
 | 47 | [`sprint-47.md`](./sprint-47.md) | `0.14.0` | Qualität & Latenz (bestehendes) | **CODE** (in `0.14.1`) |
 | 48 | [`sprint-48.md`](./sprint-48.md) | `0.14.1` | TV verbinden & steuern | **CODE** |
-| 50 | [`sprint-50.md`](./sprint-50.md) | `0.16.0` | Gemini Opt-in | **CODE** |
+| 50 | [`sprint-50.md`](./sprint-50.md) | `0.16.0` | Gemini Opt-in (ab `6.50` Hauptweg) | **CODE** |
 | 51 | [`sprint-51.md`](./sprint-51.md) | `1.1.0` | Sound + Research-Quellen | **CODE** |
 | 52 | [`sprint-52.md`](./sprint-52.md) | `1.2.0` | Erinnerungen mit Zeit | **CODE** |
 | 53 | [`sprint-53.md`](./sprint-53.md) | `1.3.0` | Ort & Wetter | **CODE** |
@@ -135,7 +135,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 129 | [`sprint-129.md`](./sprint-129.md) | `6.53.0` | Overlay: Gemini zuerst | **CODE** (in `6.60.0`) |
 | 130 | [`sprint-130.md`](./sprint-130.md) | `6.60.0` | Sideload APK | **CODE** |
 
-**Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. [`47-next.md`](../47-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`6.60.0`**. Sideload `6.60.0`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. [`47-next.md`](../47-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

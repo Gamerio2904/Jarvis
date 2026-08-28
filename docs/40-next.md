@@ -2,15 +2,15 @@
 
 PO 2026-08-27: Reel intern nutzen — Jarvis **Hirn, Hand, Auge** und was dazugehört **sichtbar** machen, zugeschnitten auf *dieses* Jarvis. Nicht kopieren, erweitern. Nachzug: **3D-Modell live und anklickbar** — nur Darstellung, keine neuen Funktionen.
 
-PO 2026-08-27: Reel intern nutzen — Jarvis **Hirn, Hand, Auge** und was dazugehört **sichtbar** machen, zugeschnitten auf *dieses* Jarvis. Nicht kopieren, erweitern. Nachzug: **3D-Modell live und anklickbar** — nur Darstellung, keine neuen Funktionen.
-
 https://www.instagram.com/reel/DcjTYTiCt6P/
 
 Caption dort: Jarvis aus **drei Teilen** — was er über mich weiß, was er für mich tut, wie wir reden. Dort: Mails, Instagram, Dashboards, 24/7. Website desselben Autors: **Gehirn, Stimme, Hand**, lokal am Rechner.
 
 Bei uns: **Handy ist das Hirn.** PC ist Werkzeug. Lage gibt es schon ([`33-next.md`](./33-next.md)). Auge, Stimme, Tools, PC-Bildschirm sind CODE — sie liegen nur nicht als **Körper** beieinander.
 
-Voraussetzung: Lage `3.18`+. Organe existieren schon (Auge `1.20`/`1.26`, PC `1.47`, Stimme `1.31`/`4.33`, Face `4.53` auf Branch). Sideload bleibt **`3.18.1`** bis Hausstand-Export.
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.66`** (in `5.11`/`6.50` gehärtet). Overlay und Smalltalk: Gemini zuerst.
+
+Voraussetzung: Lage `3.18`+. Organe existieren schon (Auge `1.20`/`1.26`, PC `1.47`, Stimme `1.31`/`4.33`, Face `4.53`).
 
 ## Kurz: APK oder nur PC?
 
@@ -32,7 +32,7 @@ Kein PC nötig, um den Körper **zu sehen**. Kein zweites Hirn auf Windows.
 | Im Video / Caption | Bei uns | Votum |
 |--------------------|---------|-------|
 | Drei Teile: Wissen / Tun / Reden | Gedächtnis / Hand / Ohr+Mund+Face | **ja**, intern so nennen |
-| Gehirn am Laptop, Claude-Mitarbeiter | Hirn = Handy (0,5B oder Gemini Opt-in) | **zuschneiden**, nicht übernehmen |
+| Gehirn am Laptop, Claude-Mitarbeiter | Hirn = Handy (**Gemini Hauptweg**, Groq/0,5B Backup) | **zuschneiden**, nicht übernehmen |
 | Hand steuert den Rechner | Handy-Hand = Register (Steckdose, SMS, Taxi, …). PC-Hand extra | **ja, getrennt** |
 | Auge / Bildschirm sehen | Handy-Auge = Foto (`Lies das Foto`, Gemini). PC-Auge = Screenshot | **ja, getrennt** |
 | Stimme | TTS Algieba/Kore, Native-Fallback | **ja** (Mund) |
@@ -45,7 +45,7 @@ Kein PC nötig, um den Körper **zu sehen**. Kein zweites Hirn auf Windows.
 
 | Organ | Ist | Datei / Tool |
 |-------|-----|----------------|
-| Hirn | wllama 0,5B **oder** Gemini Opt-in. Register + Score. Face Jarvis/Friday. 0,5B wählt keine Tools. | `llm.ts`, `registry.ts`, `face.ts` |
+| Hirn | Gemini **Hauptweg** (Key), Groq Backup, 0,5B zuletzt. Register + Score. Face Jarvis/Friday. 0,5B wählt keine Tools. | `llm.ts`, `brain-pick.ts`, `registry.ts`, `face.ts` |
 | Auge (Handy) | `Lies das Foto` — nur mit Gemini, Bild zu Google. Sonst ehrlich. | `eye.ts` |
 | Auge (PC) | `Was siehst du auf dem PC` — Screenshot über BAT; Deutung Gemini. Treffsichere Boxen: [`41-next.md`](./41-next.md) | `pc.ts` |
 | Hand (Handy) | Steckdose, Anruf/SMS nach Ja, Taxi nach Ja, Kalender, TV, Timer, … | Register |

@@ -13,7 +13,7 @@ Nach [`46-next.md`](./46-next.md) / Sprint 127 (`6.51` **CODE**). 128–130: Liv
 | 129 | `6.53.0` | Overlay: Gemini zuerst, 0,5B Backup, Fertig ohne Download — **CODE** in `6.60.0` |
 | 130 | `6.60.0` | Sideload-APK — **CODE** |
 
-App-Code und APK: **`6.60.0`**. Vor Neuinstall: Hausstand exportieren.
+App-Code und APK: **`6.60.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B zuletzt. Vor Neuinstall: Hausstand exportieren.
 
 ## Sprint 128 — Split + Identität
 

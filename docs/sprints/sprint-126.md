@@ -1,4 +1,4 @@
-# Sprint 126 — Hirn: Gemini zuerst, Schliff, Backup (`6.50`) **PLAN**
+# Sprint 126 — Hirn: Gemini zuerst, Schliff, Backup (`6.50`) **CODE**
 
 | Feld | Wert |
 |------|------|

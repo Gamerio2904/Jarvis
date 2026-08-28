@@ -8,7 +8,7 @@ Quellen (ohne Klammern/Tracking):
 - Telefon-Agent: https://www.instagram.com/reel/DboqOSvEj_b/
 - Lage / Screenshots: https://www.instagram.com/reel/Dak3Si6oBro/
 
-Reihe davor: [`32-intelligence.md`](./32-intelligence.md) **CODE** (`3.0.0`). App-Code: **`3.18.1`** (logische Stufen `3.0.1`–`3.45` in `3.18.0`, GUI-Slides in `3.18.1`). Sideload: **`3.18.1`**.
+Reihe davor: [`32-intelligence.md`](./32-intelligence.md) **CODE** (`3.0.0`). Schiene gelandet als **`3.18.1`**. **Jetzt mitgeliefert in `6.60.0`.**
 
 Eine logische Stufe pro Version. Sideload darf bündeln.
 

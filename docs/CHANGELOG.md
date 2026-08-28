@@ -5,7 +5,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.60.0`**. Sideload: **`6.60.0`** (`releases/Jarvis.apk`). Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`6.60.0`**. Sideload: **`6.60.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
 ### `6.60.0` — Split, Identität, Overlay, Sideload — *CODE*
 

@@ -1,5 +1,8 @@
 # 21 — Auge, TV-Lautstärke, Fahrmodus, Spotify, Wake-Bubble (`1.26`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-16: Foto muss eine Antwort liefern. TV-Lautstärke 1–100. Fahrmodus mit eigener Karte (kein Google Maps) und internem Spotify. Unten eine permanente Wake-Word-Bubble.
 
 Mitgeliefert in **`1.26.0`**.

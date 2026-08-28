@@ -1,5 +1,7 @@
 # 09 — Versionierung
 
+> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. `6.50` = Gemini Hauptweg. `6.51` Parser. `6.52`/`6.53` Split + Overlay, mitgeliefert in `6.60`. Historisch: `0.16` Gemini **Opt-in** (Default aus).
+
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
 ## Prinzip
@@ -71,7 +73,7 @@ MAJOR.MINOR.PATCH
 | `0.13.2` | **Chat-Hang Hotfix** (Streaming, Threads, Timeout) | Sprint 46 |
 | `0.14.0` | **Qualität & Latenz** — bestehendes härten, nichts Neues | Sprint 47 |
 | `0.14.1` | **TV verbinden & steuern** — Tizen on-device (ex-`0.11`) | Sprint 48 |
-| `0.16.0` | **Gemini Opt-in** — Google-API, Default aus | Sprint 50 |
+| `0.16.0` | **Gemini Opt-in** — Google-API, Default aus (historisch; ab `6.50` Hauptweg) | Sprint 50 |
 | `1.0.0` | **Jarvis 1.0** — On-Device, TV, Gemini-Kaskade, APK `Jarvis.apk` | nach `0.16` |
 | `2.0.0` | **Jarvis 2.0** — ein Kontext, ehrliche Tools, internes CarPlay | Sprint 102 |
 | `3.0.0` | **Jarvis 3.0** — Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |

@@ -4,21 +4,19 @@ Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
 **Live:** App-Code **`6.60.0`**. Sideload **`6.60.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
-Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq und 0,5B Backup. Parser wählen Tools.
+Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
-1. Sideload **`6.60.0`** — **CODE** [`47-next.md`](./47-next.md) (Hausstand vorher exportieren)
-2. **Bühne & Hirn `6.50`** — **CODE** [`45-next.md`](./45-next.md)
-3. **Parser `6.51`** — **CODE** [`46-next.md`](./46-next.md)
-4. **Split/Identität/Overlay `6.52`–`6.53`** — **CODE** in `6.60`
-5. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
-5. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
+2. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
+3. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+
+Bereits **CODE** in `6.60.0`: Sideload, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
 
 ---
 
-## CODE auf diesem Stand (`5.11.0`)
+## CODE auf diesem Stand (`6.60.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -29,8 +27,11 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq und 0,5B Backup. Pa
 | Friday + Tablet | `4.53` | Face Jarvis/Friday, Lage **neben** Chat |
 | Körper | `4.66` | Lage-Sicht Körper, Canvas-Schema, Organ-Kachel, kein Tool-Start |
 | Sehen-Parser | `4.76`–`4.97` | `ground-parse`, `/v1/ground` Client, zwei Confirms; **keine** 3B-Gewichte |
-| Weltkugel | `5.0` | Lage-Sicht Kugel, Terminator, Pins ISS/GPS/DWD/outlook-Lexikon |
+| Weltkugel | `5.0` / `6.20` | Lage-Sicht Kugel, Terminator, GIBS beim Zoom, Pins ISS/GPS/DWD/outlook-Lexikon |
 | Debug-Lauf | `5.11` | Klickboxen, neues Gespräch, JSON+TXT mit Verdict |
+| Bühne & Hirn | `6.50` | Gemini zuerst, Motion 30 fps, Globus, HUD, Sprach-Orb |
+| Parser | `6.51` | Wont/Help/HUD-Skip nach Prompt-Test |
+| Split / Overlay / APK | `6.60` | Live-Split, Identität canned, Overlay Gemini zuerst, `releases/Jarvis.apk` |
 | Davor | `3.19`–`3.0` / `1.x` | Kalender-Fenster, Register, Auge=Gemini, PC-Screenshot |
 
 ## Offen
@@ -39,18 +40,10 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq und 0,5B Backup. Pa
 
 RTX 3060 GO/NO-GO. JarvisSee localhost. Ohne Sidecar: ehrlicher Satz, keine Fake-Boxen.
 
-### GIBS / virtueller Globus (`6.20`, Sprint 123) — **CODE** in `6.50.0`
-
-Satellitenfoto beim Ranzoomen, Stand Stunden alt, Datum sichtbar. `Zeig London`, `Was ist das für eine Stadt?`. Kein Live-Video. Plan [`45-next.md`](./45-next.md).
-
 ### Debug-Hintergrund (`5.12` Service)
 
 v1: App offen lassen. Foreground-Service nach Spike.
 
-### Bühne & Hirn (`6.50`) — **CODE**
-
-Gemini zuerst. Motion, Körper, Globus, Fahrmodus, Sprache, Tool-Schliff. Kein 1,5B lokal. Plan [`45-next.md`](./45-next.md).
-
 ## Won’t (übergreifend)
 
-Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Debug-Cloud, Auto-Ja im Prompt-Lauf, Live-Satellitenvideo, Überwachung.
+Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Debug-Cloud, Auto-Ja im Prompt-Lauf, Live-Satellitenvideo, Überwachung, 0,5B als Claude, 1,5B lokal.

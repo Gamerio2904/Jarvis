@@ -1,5 +1,8 @@
 # 26 — Samsung-Apps (`1.32`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-17: YouTube, Amazon, Disney+, Netflix per Befehl auf dem Samsung-Tizen. „Spiele … Film“ sucht, wo der Titel **kostenlos** läuft, und öffnet die passende App.
 
 Reihe davor: [`25-next.md`](./25-next.md). App vorher: Sideload **`1.31.0`**.

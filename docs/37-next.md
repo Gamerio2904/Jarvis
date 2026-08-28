@@ -4,11 +4,9 @@ PO 2026-08-27: Realistisches Gespräch und Stimme. Reel lukebuildsai: findet ein
 
 https://www.instagram.com/reel/Dcgcg5rRdKT/
 
-Reihen daneben: Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md). Diese Schiene **`4.33+`**. App-Code auf `main`: **`3.19.0`**.
+Reihen daneben: Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md). Diese Schiene **`4.33+`**.
 
-**Kalender + ein Sprach-Thread** sind **CODE** auf `main` (`3.19.0`). Nicht neu bauen — Rest härten.
-
-Code jetzt: **`4.33.0`**. Kalender + Sprach-Thread bleiben `3.19` — nicht neu gebaut. Sideload: **`3.18.1`**.
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.33.0`**. Kalender + Sprach-Thread bleiben `3.19` — nicht neu gebaut. Hirn für Smalltalk: Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
 
 Research `4.34`–`4.36` ist in der Tabelle festgezogen. Execute: TTS-Budgets, Interrupt HUD/Notify, Watchdog Whitelist.
 
@@ -66,7 +64,7 @@ Style-Prompt schon: *Calm, low German, precise, slightly dry.* Nach Stimmenwahl 
 
 | Hebel | Ist | Soll |
 |-------|-----|------|
-| Inhalt | Gemini Opt-in: Persona, Stream, Siezen. Lokal 0,5B: knapp. | Gemini an = Gespräch. 0,5B nicht als Film verkaufen. |
+| Inhalt | Gemini **Hauptweg**: Persona, Stream, Siezen. Lokal 0,5B: knapp, nur Backup. | Gemini an = Gespräch. 0,5B nicht als Film verkaufen. |
 | Ein Thread | Bug auf `main`: jede Voice-Äußerung neues Gespräch. Fix **CODE** `3.19`. | mergen |
 | Barge-in | VoiceMode bricht Speak ab | behalten |
 | Live-Audio (Gemini Live, dauerhaft Cloud-Mitschnitt) | nicht da | **Research 4.34**. Default eher **nein** (anders Produkt, Akku, Privacy). Turn-basiert + gute TTS ist der Haus-Weg. |

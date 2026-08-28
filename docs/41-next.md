@@ -2,17 +2,13 @@
 
 PO 2026-08-27: Jarvis soll **sehen, ohne dass das Bild zu Google muss** — und auf dem PC **klicken, wo etwas wirklich liegt**. Inspiration, nicht Kopie:
 
-PO 2026-08-27: Jarvis soll **sehen, ohne dass das Bild zu Google muss** — und auf dem PC **klicken, wo etwas wirklich liegt**. Inspiration, nicht Kopie:
-
 https://www.instagram.com/reel/DaJuh6euSLq/?igsi=MWt1dDhkdXBsbnUybg==
 
 **Nicht** [`40-next.md`](./40-next.md): dort ist `4.66` **Körper** (3D-Schema, Darstellung). LocateAnything macht PC-Auge/PC-Hand **treffsicher**, es ersetzt den Körper nicht.
 
-**Live:** Code **`4.53.0`**. Sideload **`3.18.1`**. Weltlage/Alltagskette/Stimme/Hausstand/Friday sind **CODE**. Auge und PC-Klick gehen weiter über Gemini (`eye.ts`, `pc.ts`).
+> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Parser für Zeig/Zählen/Tippen **CODE**. Vision/Gewichte **aus** bis 3060-GO. Auge und PC-Klick ohne Sidecar weiter über Gemini (`eye.ts`, `pc.ts`).
 
 **Warum `4.76`, nicht `4.66`:** `4.66`–`4.75` = Körper, Sprint 115. Diese Schiene beginnt **danach**. Handy-WASM trägt kein 3B-VLM.
-
-Kein Execute in diesem Sprint. Research zuerst. Sideload nach Hausstand-Export.
 
 ## Reel — was dort wirklich steht
 
@@ -24,15 +20,15 @@ NVIDIA **LocateAnything-3B** (Eagle, arXiv:2605.27365, HF `nvidia/LocateAnything
 | Ganze Box | genau der PC-Klick |
 | Open Source | Download am PC, nie in der APK |
 
-## Ist (`4.53.0`)
+## Ist (`6.60.0`)
 
 | Thema | Code | Lücke |
 |-------|------|-------|
 | Auge | `eye.ts` — Foto → Gemini, sonst Absage | Bild zu Google |
-| PC-Bild | `pc.ts` Screenshot lokal, Vorlesen Gemini | Deutung Cloud |
-| PC-Klick | Gemini JSON `{nx,ny}` | GUI-Grounding fehlt |
+| PC-Bild | `pc.ts` Screenshot lokal, Vorlesen Gemini | Deutung Cloud ohne Sidecar |
+| PC-Klick | Gemini JSON `{nx,ny}` + Parser `ground-parse` | GUI-Grounding ohne JarvisSee-Gewichte |
 | Food/Pflanze | Name oder Foto; API / Gemini | Locate **lokalisiert**, bestimmt keine Art |
-| Körper `4.66` | PLAN: PC-Auge-Kachel ehrlich leer/verbunden | keine Boxen |
+| Körper `4.66` | **CODE:** PC-Auge-Kachel ehrlich leer/verbunden | keine Boxen ohne Sidecar |
 | GPU | RTX 3060 12 GB | LocateAnything-Karte: A100/H100/4090, OS Linux → **GO/NO-GO** |
 
 ## Was besser würde
