@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (in App `6.50.0`) |
 | Priorität | nach Bühne `6.10` (sonst frisst das Modell die Frames) |
 | Ziel-Version | `6.50.0` (Research `6.51` Guard) |
 | Quelle | PO: Gemini Hauptweg; Groq und 0,5B nur Backup; kein größeres Modell lokal; Antworten Chat+Sprache |

@@ -124,14 +124,14 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 118 | [`sprint-118.md`](./sprint-118.md) | `4.94.0` | Sehen Schreibtisch, Wasch, EAN, zwei Schritte | **CODE** Parser |
 | 119 | [`sprint-119.md`](./sprint-119.md) | `5.0.0` | Weltkugel in der Lage | **CODE** (in `5.11.0`) |
 | 120 | [`sprint-120.md`](./sprint-120.md) | `5.11.0` | Debug-Lauf: Kategorien, Sequenz, Export | **CODE** |
-| 121 | [`sprint-121.md`](./sprint-121.md) | `6.0.0` | Bühne & Hirn: Leitentscheidung | **PLAN** |
-| 122 | [`sprint-122.md`](./sprint-122.md) | `6.10.0` | Motion-Kern + GUI Over-the-top | **PLAN** |
-| 123 | [`sprint-123.md`](./sprint-123.md) | `6.20.0` | Körper-Show + virtueller Globus (GIBS, Zeig Stadt) | **PLAN** |
-| 124 | [`sprint-124.md`](./sprint-124.md) | `6.30.0` | Fahrmodus-Bühne | **PLAN** |
-| 125 | [`sprint-125.md`](./sprint-125.md) | `6.40.0` | Sprach-Theater + Stimme | **PLAN** |
-| 126 | [`sprint-126.md`](./sprint-126.md) | `6.50.0` | Hirn: Gemini zuerst, Groq/0,5B Backup | **PLAN** |
+| 121 | [`sprint-121.md`](./sprint-121.md) | `6.0.0` | Bühne & Hirn: Leitentscheidung | **CODE** (in `6.50.0`) |
+| 122 | [`sprint-122.md`](./sprint-122.md) | `6.10.0` | Motion-Kern + GUI Over-the-top | **CODE** (in `6.50.0`) |
+| 123 | [`sprint-123.md`](./sprint-123.md) | `6.20.0` | Körper-Show + virtueller Globus (GIBS, Zeig Stadt) | **CODE** (in `6.50.0`) |
+| 124 | [`sprint-124.md`](./sprint-124.md) | `6.30.0` | Fahrmodus-Bühne | **CODE** (in `6.50.0`) |
+| 125 | [`sprint-125.md`](./sprint-125.md) | `6.40.0` | Sprach-Theater + Stimme | **CODE** (in `6.50.0`) |
+| 126 | [`sprint-126.md`](./sprint-126.md) | `6.50.0` | Hirn: Gemini zuerst, Groq/0,5B Backup | **CODE** |
 
-**Aktuell:** Code **`5.11.0`**. Sideload `3.18.1`. Nächste Schiene: Bühne & Hirn [`45-next.md`](../45-next.md). Gemini Hauptweg. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`6.50.0`**. Sideload `3.18.1`. Bühne & Hirn [`45-next.md`](../45-next.md) **CODE**. Gemini Hauptweg. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

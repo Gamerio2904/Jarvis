@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (in App `6.50.0`) |
 | Priorität | nach `5.11`; ohne Sideload |
 | Ziel-Version | `6.0.0` |
 | Quelle | PO: Animationen, GUI, Chat/Stimme; Gemini Hauptweg; Globus zoomen und sprechen |

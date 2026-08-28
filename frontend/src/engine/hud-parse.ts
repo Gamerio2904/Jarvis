@@ -98,7 +98,9 @@ export type HudIntent =
   | { kind: 'list' }
   | { kind: 'view'; view: HudView }
   | { kind: 'organ'; id: BodyOrgan }
-  | { kind: 'pin'; name: string; lat: number; lon: number }
+  | { kind: 'pin'; name: string; lat: number; lon: number; blurb: string }
+  | { kind: 'look' }
+  | { kind: 'unknown_place'; asked: string }
 
 function hudText(raw: string): string {
   return normalizeUtterance(raw.trim())
@@ -150,10 +152,32 @@ export function parseHudIntent(text: string): HudIntent | null {
     return { kind: 'view', view: 'tiles' }
   }
 
-  const where = /^\s*wo\s+(?:liegt|ist)\s+(.+?)\s*$/i.exec(t)
+  if (
+    /^\s*was\s+ist\s+das\s+für\s+eine\s+stadt\s*\??\s*$/i.test(t) ||
+    /^\s*was\s+sehe\s+ich\s*\??\s*$/i.test(t) ||
+    /^\s*welche\s+stadt\s+(?:ist\s+das|sehe\s+ich)\s*\??\s*$/i.test(t) ||
+    /^\s*wo\s+schaue\s+ich\s+hin\s*\??\s*$/i.test(t)
+  ) {
+    return { kind: 'look' }
+  }
+
+  const where = /^\s*(?:wo\s+(?:liegt|ist)|zeig(?:e)?(?:\s+mir)?(?:\s+die\s+stadt)?|flieg(?:e)?\s+nach|zoom(?:e)?\s+auf)\s+(.+?)\s*$/i.exec(
+    t,
+  )
   if (where) {
-    const hit = gazetteerHit(where[1])
-    if (hit) return { kind: 'pin', name: hit.name, lat: hit.lat, lon: hit.lon }
+    const rest = where[1].replace(/^(?:die\s+|das\s+|den\s+|stadt\s+)/i, '').trim()
+    const hit = gazetteerHit(rest)
+    if (hit) return { kind: 'pin', name: hit.name, lat: hit.lat, lon: hit.lon, blurb: hit.blurb }
+    if (
+      /^(?:zeig|flieg|zoom)/i.test(t) &&
+      rest &&
+      rest.length < 40 &&
+      !/\b(körper|koerper|kugel|erde|weltkugel|hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|wetter|spotify|lage|kachel|modul|mond|iss|sonne|himmel|foto|beleg|bild|speichern|fenster)\b/i.test(
+        rest,
+      )
+    ) {
+      return { kind: 'unknown_place', asked: rest }
+    }
   }
 
   const organ = /^\s*zeig(?:e)?\s+(?:mir\s+)?(?:das\s+|die\s+|den\s+)?(hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|gedaechtnis|pc[- ]auge|pc[- ]hand|pcauge|pchand)\s*$/i.exec(

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { organLabel, type BodyOrgan } from './engine/hud-parse'
 import type { BodySnap } from './engine/body-snap'
+import { isDocumentHidden, MOTION_FRAME_MS, onVisibility, onVoiceAmp } from './engine/motion'
 
 const NODES: Array<{ id: BodyOrgan; x: number; y: number; z: number }> = [
   { id: 'brain', x: 0, y: 1.1, z: 0.2 },
@@ -23,6 +24,11 @@ const EDGES: Array<[BodyOrgan, BodyOrgan]> = [
   ['hand', 'pc_hand'],
 ]
 
+function aimFor(id: BodyOrgan): { yaw: number; pitch: number } {
+  const n = NODES.find((x) => x.id === id) || NODES[0]
+  return { yaw: Math.atan2(n.x, n.z + 0.8), pitch: Math.max(-0.5, Math.min(0.5, n.y * 0.28)) }
+}
+
 export function BodySchema({
   snap,
   selected,
@@ -42,6 +48,13 @@ export function BodySchema({
   snapRef.current = snap
   const selRef = useRef(selected)
   selRef.current = selected
+  const ampRef = useRef(0)
+  const onSelectRef = useRef(onSelect)
+  onSelectRef.current = onSelect
+
+  useEffect(() => onVoiceAmp((n) => {
+    ampRef.current = n
+  }), [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -52,6 +65,7 @@ export function BodySchema({
     const g = ctx
     let raf = 0
     let last = 0
+    let pulseT = 0
 
     function resize() {
       const dpr = Math.min(1.5, window.devicePixelRatio || 1)
@@ -67,6 +81,9 @@ export function BodySchema({
       draw()
     })
     ro.observe(canvas)
+    const offVis = onVisibility(() => {
+      if (!isDocumentHidden()) draw()
+    })
 
     function project(x: number, y: number, z: number) {
       const cy = Math.cos(yaw.current)
@@ -84,6 +101,7 @@ export function BodySchema({
     }
 
     function draw() {
+      if (isDocumentHidden()) return
       const w = surface.clientWidth
       const h = surface.clientHeight
       g.clearRect(0, 0, w, h)
@@ -103,13 +121,22 @@ export function BodySchema({
       for (const n of ordered) {
         const live = snapRef.current[n.id]?.live
         const hot = selRef.current === n.id
+        let extra = 0
+        if (!reduced && live) extra += 0.1 * (0.5 + 0.5 * Math.sin(pulseT * 0.006))
+        if (!reduced && n.id === 'mouth') extra += ampRef.current * 0.45
         g.beginPath()
         g.fillStyle = live ? '#1db954' : 'rgba(180,180,180,0.35)'
         g.strokeStyle = hot ? '#fff' : 'rgba(255,255,255,0.2)'
-        g.lineWidth = hot ? 2 : 1
-        g.arc(n.p.x, n.p.y, n.p.r, 0, Math.PI * 2)
+        g.lineWidth = hot ? 2.4 : 1
+        g.arc(n.p.x, n.p.y, n.p.r * (1 + extra), 0, Math.PI * 2)
         g.fill()
         g.stroke()
+        if (live && !reduced) {
+          g.beginPath()
+          g.strokeStyle = 'rgba(29,185,84,0.35)'
+          g.arc(n.p.x, n.p.y, n.p.r * (1.35 + extra), 0, Math.PI * 2)
+          g.stroke()
+        }
         g.fillStyle = 'rgba(255,255,255,0.82)'
         g.font = '11px Inter, system-ui, sans-serif'
         g.textAlign = 'center'
@@ -118,16 +145,25 @@ export function BodySchema({
     }
 
     function loop(ts: number) {
-      const busy = snapRef.current.brain.live
-      if (!reduced && busy && ts - last > 80) {
-        yaw.current += 0.008
-        last = ts
-        draw()
+      if (ts - last < MOTION_FRAME_MS) {
+        raf = requestAnimationFrame(loop)
+        return
+      }
+      last = ts
+      pulseT = ts
+      if (!reduced) {
+        const aim = aimFor(selRef.current)
+        yaw.current += (aim.yaw - yaw.current) * 0.08
+        pitch.current += (aim.pitch - pitch.current) * 0.08
+        const moving =
+          Math.abs(aim.yaw - yaw.current) > 0.003 || Math.abs(aim.pitch - pitch.current) > 0.003 || Boolean(drag.current)
+        const anyLive = Object.values(snapRef.current).some((n) => n.live) || ampRef.current > 0.02
+        if (anyLive || moving) draw()
       }
       raf = requestAnimationFrame(loop)
     }
     draw()
-    if (!reduced) raf = requestAnimationFrame(loop)
+    raf = requestAnimationFrame(loop)
 
     function pos(ev: PointerEvent) {
       const r = surface.getBoundingClientRect()
@@ -166,7 +202,7 @@ export function BodySchema({
       const p = pos(ev)
       if (Math.hypot(p.x - start.x, p.y - start.y) < 8) {
         const id = hit(p.x, p.y)
-        if (id) onSelect(id)
+        if (id) onSelectRef.current(id)
       }
     }
     surface.addEventListener('pointerdown', down)
@@ -178,11 +214,12 @@ export function BodySchema({
     return () => {
       cancelAnimationFrame(raf)
       ro.disconnect()
+      offVis()
       surface.removeEventListener('pointerdown', down)
       surface.removeEventListener('pointermove', move)
       surface.removeEventListener('pointerup', up)
     }
-  }, [onSelect, reduced, selected, snap])
+  }, [reduced])
 
   return <canvas ref={canvasRef} className="body-schema" aria-label="Körper-Schema" />
 }

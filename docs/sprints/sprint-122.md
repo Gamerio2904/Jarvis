@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (in App `6.50.0`) |
 | Priorität | erste spürbare Fläche nach Leit `6.0` |
 | Ziel-Version | `6.10.0` (Research `6.1`–`6.3` in diesem Sprint) |
 | Quelle | PO: flüssig, hochwertige GUI, Mikrointegration |

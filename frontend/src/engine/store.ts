@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '5.11.0'
+export const APP_VERSION = '6.50.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -154,6 +154,7 @@ export type Settings = {
   hud_view: 'tiles' | 'body' | 'globe'
   last_body_organ: string
   last_globe_focus: string
+  last_globe_look: string
   last_eye_line: string
   last_ground_json: string
   last_hops_json: string
@@ -268,6 +269,7 @@ export const DEFAULT_SETTINGS: Settings = {
   hud_view: 'tiles',
   last_body_organ: 'brain',
   last_globe_focus: '',
+  last_globe_look: '',
   last_eye_line: '',
   last_ground_json: '',
   last_hops_json: '',

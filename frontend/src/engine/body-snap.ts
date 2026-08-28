@@ -1,5 +1,6 @@
 import { listMemory, listReminders, loadSettings, getPending } from './store.ts'
 import { geminiReady } from './gemini.ts'
+import { groqReady } from './groq.ts'
 import { isModelReady } from './llm.ts'
 import { organLabel, type BodyOrgan } from './hud-parse.ts'
 import { sanitizePcHost } from './pc-host.ts'
@@ -19,11 +20,14 @@ export async function fetchBodySnap(opts: { busy: boolean; conversationId: strin
   const pcOn = Boolean(s.pc_enabled && pcHost && s.pc_token)
   const local = isModelReady()
   const gemini = geminiReady()
+  const groq = groqReady()
   const brainLine = gemini
-    ? `Gemini · Face ${s.face === 'friday' ? 'Friday' : 'Jarvis'}${opts.busy ? ' · denkt' : ''}.`
-    : local
-      ? `Lokal 0,5B · Face ${s.face === 'friday' ? 'Friday' : 'Jarvis'}${opts.busy ? ' · denkt' : ''}.`
-      : 'Hirn nicht bereit. Modell laden oder Gemini an.'
+    ? `Gemini zuerst · Face ${s.face === 'friday' ? 'Friday' : 'Jarvis'}${opts.busy ? ' · denkt' : ''}.`
+    : groq
+      ? `Groq-Backup · Face ${s.face === 'friday' ? 'Friday' : 'Jarvis'}${opts.busy ? ' · denkt' : ''}.`
+      : local
+        ? `Lokal 0,5B · Face ${s.face === 'friday' ? 'Friday' : 'Jarvis'}${opts.busy ? ' · denkt' : ''}.`
+        : 'Hirn nicht bereit. Gemini-Key, Groq oder Modell laden.'
   const eyeLine = s.last_eye_line || (gemini ? 'Kein Foto gelesen.' : 'Auge braucht Gemini oder ein Foto.')
   const write = s.last_step_tool || ''
   const handLine = pending
@@ -39,7 +43,7 @@ export async function fetchBodySnap(opts: { busy: boolean; conversationId: strin
   const pcEye = pcOn ? 'PC verbunden. Screenshot auf Nachfrage.' : 'PC nicht verbunden.'
   const pcHand = pcOn ? 'PC-Hand bereit (Klick, FIFA, Ordner).' : 'PC nicht verbunden.'
   return {
-    brain: { live: opts.busy || local || gemini, line: brainLine },
+    brain: { live: opts.busy || local || gemini || groq, line: brainLine },
     eye: { live: Boolean(s.last_eye_line), line: eyeLine },
     hand: { live: Boolean(pending || write), line: handLine },
     ear: { live: Boolean(s.wake_word), line: earLine },

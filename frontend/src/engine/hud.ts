@@ -17,6 +17,8 @@ import {
   type HudIntent,
   type HudView,
 } from './hud-parse.ts'
+import { cityLine, nearestPlace, noCityInViewLine, unknownPlaceLine } from './globe-geo.ts'
+import { polishToolLine } from './polish.ts'
 
 export { HUD_CATALOG, parseHudIntent, organLabel }
 export type { HudId, HudIntent, HudView, BodyOrgan }
@@ -83,18 +85,50 @@ export async function handleHud(
     })
     return pack(`${organLabel(intent.id)} in der Lage. Kein Tool gestartet.`)
   }
+  if (intent.kind === 'unknown_place') {
+    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    return pack(unknownPlaceLine(intent.asked))
+  }
+  if (intent.kind === 'look') {
+    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    let lat = NaN
+    let lon = NaN
+    try {
+      const look = JSON.parse(loadSettings().last_globe_look || '{}') as { lat?: number; lon?: number }
+      lat = Number(look.lat)
+      lon = Number(look.lon)
+    } catch {
+      /* ignore */
+    }
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      try {
+        const focus = JSON.parse(loadSettings().last_globe_focus || '{}') as { lat?: number; lon?: number }
+        lat = Number(focus.lat)
+        lon = Number(focus.lon)
+      } catch {
+        /* ignore */
+      }
+    }
+    const hit = nearestPlace(lat, lon)
+    if (!hit) return pack(noCityInViewLine())
+    const canned = cityLine(hit)
+    return pack(await polishToolLine(canned, `${hit.name}. ${hit.blurb}`))
+  }
   if (intent.kind === 'pin') {
     saveSettings({
       hud_view: 'globe',
       hud_force: true,
       hud_hidden: false,
-      last_globe_focus: JSON.stringify({ name: intent.name, lat: intent.lat, lon: intent.lon }),
+      last_globe_focus: JSON.stringify({
+        name: intent.name,
+        lat: intent.lat,
+        lon: intent.lon,
+        zoom: 3.4,
+      }),
+      last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: 3.4 }),
     })
-    const ns = intent.lat >= 0 ? 'Nord' : 'Süd'
-    const ew = intent.lon >= 0 ? 'Ost' : 'West'
-    return pack(
-      `${intent.name} liegt bei ${Math.abs(intent.lat).toFixed(1)}° ${ns}, ${Math.abs(intent.lon).toFixed(1)}° ${ew}. Kugel in der Lage. Kein Live-Satellit.`,
-    )
+    const canned = cityLine({ name: intent.name, blurb: intent.blurb })
+    return pack(await polishToolLine(canned, `${intent.name}. ${intent.blurb}`))
   }
   const next = setHudModule(intent.id, intent.on)
   const label = HUD_CATALOG.find((c) => c.id === intent.id)?.label || intent.id

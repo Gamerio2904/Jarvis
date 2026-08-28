@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (in App `6.50.0`) |
 | Priorität | nach Motion-Kern `6.10` |
 | Ziel-Version | `6.20.0` (Research `6.21` Fly-to/Zoom, `6.22` GIBS, `6.23` Blickmitte) |
 | Quelle | PO: Körper/Kugel massiv; Satellitenfoto; Zoomen; Zeig London; Was ist das für eine Stadt |

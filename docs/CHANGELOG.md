@@ -5,9 +5,23 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`5.11.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
+App-Version im Code: **`6.50.0`**. Letzter Sideload: **`3.18.1`**. Kein neuer APK-Claim.
 
-### `6.0.0` — Bühne & Hirn — *PLAN*
+### `6.50.0` — Bühne & Hirn — *CODE*
+
+Sprints 121–126 in einer App-Version. Sideload bleibt `3.18.1`.
+
+- **Hirn:** Gemini zuerst (Key), Groq Backup, 0,5B letzter Fallback. Kein größeres Modell lokal. Tool-Sätze dürfen von Gemini geschliffen werden — Guard streicht neue Zahlen/Orte.
+- **Globus:** Zoom per Geste und Satz, NASA-GIBS True Color wenn nah, Datum sichtbar. `Zeig mir London` dreht/zoomt. `Was ist das für eine Stadt?` aus der Blickmitte. Kein Live-Video.
+- **Körper:** Pulse aus echten Werten, Kamera zum Organ, Mund koppelt an Stimme. Antippen startet kein Gerät.
+- **Motion:** 30 fps, Pause im Hintergrund, Reduced-Motion.
+- **Fahrmodus:** Glas-HUD mit echtem Pfeil, Spotify-Glow nur bei laufendem Track.
+- **Sprache:** Orb aus Mic, Stimmen-Picker (Algieba/Kore und weitere Gemini-Stimmen).
+
+- Docs [`45-next.md`](./45-next.md) · Sprints 121–126
+- App-Code **`6.50.0`**, Sideload noch `3.18.1`
+
+### `6.0.0` — Bühne & Hirn — *war PLAN*
 
 Gemini ist der Hauptweg (Key). Groq und 0,5B nur Backup. Kein größeres Modell lokal. Virtueller Globus: Zoom, GIBS mit Datum, `Zeig London`, `Was ist das für eine Stadt?`. Motion, Körper, Fahrmodus, Sprache.
 

@@ -319,7 +319,10 @@ function App() {
   const [wakeListening, setWakeListening] = useState(false)
   const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
-  const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
+  const [setupOpen, setSetupOpen] = useState(() => {
+    const s = loadSettings()
+    return !isGeminiConfigured() && !s.groq_api_key.trim() && !isModelReady()
+  })
   const [downloadPct, setDownloadPct] = useState(0)
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadPhase, setDownloadPhase] = useState<'download' | 'load'>('download')
@@ -498,7 +501,9 @@ function App() {
       return
     }
     const started = Date.now()
-    const cloud = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
+    const cloud = Boolean(
+      (settings?.gemini_enabled && settings.gemini_api_key?.trim()) || settings?.groq_api_key?.trim(),
+    )
     const id = window.setInterval(() => {
       if (sawTokenRef.current) return
       const s = Math.max(1, Math.round((Date.now() - started) / 1000))
@@ -509,7 +514,7 @@ function App() {
       )
     }, 1000)
     return () => window.clearInterval(id)
-  }, [busy, settings?.gemini_enabled, settings?.gemini_api_key])
+  }, [busy, settings?.gemini_enabled, settings?.gemini_api_key, settings?.groq_api_key])
 
   useEffect(() => {
     if (!stickToBottomRef.current) return
@@ -1544,7 +1549,7 @@ function App() {
               ) : null}
             </div>
           ) : null}
-          <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
+          <div className={`composer ${composerFocused ? 'is-focused' : ''} ${busy ? 'is-busy' : ''}`}>
             <input
               ref={eyeFileRef}
               type="file"

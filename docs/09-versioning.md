@@ -87,7 +87,12 @@ MAJOR.MINOR.PATCH
 | `4.76.0` | **Lokales Sehen** — LocateAnything am PC (GUI-Grounding), nicht `4.66` Körper | Sprint 116 |
 | `5.0.0` | **Weltkugel** — Lage-Sicht Erde; Nummern `5.0`–`5.10` | Sprint 119 |
 | `5.11.0` | **Debug-Lauf** — Mehrfach-Kategorien, neues Gespräch, Export mit Verdict | Sprint 120 |
-| `6.0.0` | **Bühne & Hirn** — Gemini Hauptweg; Globus Zoom; Motion; Stimme | Sprint 121 |
+| `6.0.0` | **Bühne & Hirn Leitentscheidung** | Sprint 121 |
+| `6.10.0` | **Motion-Kern + Chat-Gewand** | Sprint 122 |
+| `6.20.0` | **Körper-Show + virtueller Globus** | Sprint 123 |
+| `6.30.0` | **Fahrmodus-Bühne** | Sprint 124 |
+| `6.40.0` | **Sprach-Theater + Stimmen-Picker** | Sprint 125 |
+| `6.50.0` | **Hirn Gemini zuerst** + Bühne 122–125 mitgeliefert | Sprint 126 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |

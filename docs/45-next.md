@@ -2,11 +2,11 @@
 
 PO 2026-08-28: Animationen massiv, GUI Over-the-top, Antworten näher ChatGPT/Grok/Claude. **Nachzug 2026-08-28:** Gemini ist der **Hauptweg**. Groq und das kleine lokale Modell sind nur Backup. Kein größeres Modell lokal testen. Satellitenfoto an: virtueller Globus zum Zoomen; Jarvis dreht/zoomt auf „Zeig London“ und sagt, welche Stadt in der Sicht ist.
 
-**Ist:** Code **`5.11.0`**. Sideload **`3.18.1`**. Lage Körper/Kugel = Canvas. Kugel: Blue Marble + Terminator + Pins, Fly-to Berlin als Koordinaten-Satz, **kein** Zoom in Satellitenkacheln, **kein** „was sehe ich“. Fahrmodus intern. Sprachmodus Phasen + Algieba/Kore. Hirn: 0,5B Default, Gemini/Groq Opt-in. Tools über Parser.
+**Ist:** Code **`6.50.0`**. Sideload **`3.18.1`**. Gemini zuerst. Virtueller Globus mit Zoom/GIBS/Zeig-Stadt. Motion 30 fps. Fahrmodus-HUD. Sprach-Orb + Stimmen-Picker.
 
 **Lücke:** Bühne ist Skizze. Smalltalk ohne Gemini ist klein. GIBS (Satellitenfoto, Stunden alt) war nur Option auf dem Papier. Die Kugel spricht nicht über die Sicht.
 
-Kein Execute in Sprint 121. Research in dem Sprint, der die Fläche baut. Sideload nach Hausstand. Debug-Hintergrund bleibt `5.12`. Kein 1,5B-Spike.
+Kein Execute in Sprint 121. Research in dem Sprint, der die Fläche baut. Sideload nach Hausstand. Debug-Hintergrund bleibt `5.12`. Kein 1,5B-Spike. **CODE in `6.50.0`.**
 
 ## Ehrlichkeit: Hirn und „Live-Erde“
 
@@ -58,12 +58,12 @@ Blickmitte → nächster Eintrag unter festem Kilometer-Limit (z. B. ~80 km). Da
 
 | Sprint | Version | Inhalt |
 |--------|---------|--------|
-| 121 | `6.0.0` | Leitentscheidung (dieses Dokument) — **PLAN** |
-| 122 | `6.10.0` | Motion-Kern + Chat-Gewand |
-| 123 | `6.20.0` | Körper-Show + **virtueller Globus** (Zoom, GIBS, Zeig/Erkenne Stadt) |
-| 124 | `6.30.0` | Fahrmodus-Bühne |
-| 125 | `6.40.0` | Sprach-Theater + Stimmen-Picker |
-| 126 | `6.50.0` | Hirn: Gemini zuerst, Tool-Schliff, Kontext. Kein 1,5B |
+| 121 | `6.0.0` | Leitentscheidung (dieses Dokument) — **CODE** in `6.50.0` |
+| 122 | `6.10.0` | Motion-Kern + Chat-Gewand — **CODE** in `6.50.0` |
+| 123 | `6.20.0` | Körper-Show + **virtueller Globus** — **CODE** in `6.50.0` |
+| 124 | `6.30.0` | Fahrmodus-Bühne — **CODE** in `6.50.0` |
+| 125 | `6.40.0` | Sprach-Theater + Stimmen-Picker — **CODE** in `6.50.0` |
+| 126 | `6.50.0` | Hirn: Gemini zuerst, Tool-Schliff, Kontext. Kein 1,5B — **CODE** |
 
 `5.12` Debug-Service und LocateAnything `4.77` daneben. GIBS ist **nicht** mehr Parkplatz — Execute in **123**.
 

@@ -10,7 +10,7 @@ const TTS_MODELS = [
 /** Male default after 4.34 spike. Charon lost the 500 ms race too often. One voice, no carousel. */
 export const TTS_VOICE = 'Algieba'
 export const TTS_VOICE_FRIDAY = 'Kore'
-export const TTS_VOICES = [TTS_VOICE] as const
+export const TTS_VOICES = ['Algieba', 'Kore', 'Charon', 'Puck', 'Fenrir', 'Orus', 'Aoede', 'Zephyr'] as const
 
 /** Standing: wait for Gemini. Driving: short cap so Native wins. */
 export const TTS_BUDGET_STANDING_MS = 3500
