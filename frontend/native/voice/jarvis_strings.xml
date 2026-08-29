@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="jarvis_voice_short">Jarvis hören</string>
+    <string name="jarvis_voice_long">Jarvis hören</string>
+    <string name="jarvis_widget_desc">Nächster Termin, Wetter, Mikro öffnet Jarvis hören</string>
+    <string name="jarvis_wake_note">Jarvis hört auf den Namen</string>
+</resources>

@@ -2,6 +2,8 @@
 
 Jarvis wird **agil** geplant. Klassisches Scrum für große Teams wird auf ein **Scrum-lite** für Solo-Produkt + AI-Umsetzung zugeschnitten.
 
+> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Hirn Gemini zuerst. Sprints numerisch in [`sprints/README.md`](./sprints/README.md).
+
 ## Rollen
 
 | Rolle | Wer | Verantwortung |

@@ -1,13 +1,22 @@
-# Android-APK — On-Device (`0.13.1`)
+# Android-APK — Sideload `6.90.0`
 
-Jarvis denkt **auf dem Handy**. Einmal Modell laden (~470 MB), danach offline.
+App-Code und Sideload stehen auf **`6.90.0`**. LocateAnything-Gewichte nicht in der APK.
 
-```bat
-build-apk.bat
-```
+**Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback — nicht nötig für Timer, Kugel, Wetter.
 
-Ergebnis: `frontend\dist-apk\jarvis-debug.apk`
+**Deinstall** (andere Signatur): WebView-Daten weg — Keys, Nummern, Erinnerungen. Hausstand-Export ist **CODE** ([`38-next.md`](./38-next.md)): vor Neuinstall Einstellungen → Hausstand → Exportieren. GGUF ebenfalls neu laden.
 
-1. APK installieren (unbekannte Quellen).
-2. App öffnen → **Modell herunterladen** (WLAN).
-3. Chat, merken, Todos — alles lokal.
+**6.90.0:** Globus-Briefing (Stadt → GIBS + Briefing, Welt-Tour). Dazu `6.60`: Overlay Gemini zuerst, Parser `6.51`, Split + Identität, Bühne.
+
+## Download
+
+**APK `6.90.0`:**  
+`releases/Jarvis.apk` im Repo (`main`).
+
+- Dateiname: `Jarvis.apk`
+- versionName `6.90.0` · versionCode `69000`
+- App-ID `local.jarvis.app`
+
+1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).
+2. App öffnen → **Gemini-Key eintragen** (oder Fertig — Tools ohne Modell).
+3. Optional Groq. 0,5B nur Backup.

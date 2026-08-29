@@ -8,6 +8,9 @@ import {
   isModelReady,
   patchSettings as enginePatch,
   streamChat as engineStream,
+  testGemini as engineTestGemini,
+  testGroq as engineTestGroq,
+  releaseModel as engineReleaseModel,
   type StreamHandlers,
 } from './engine/chat'
 import {
@@ -15,40 +18,44 @@ import {
   addMessage,
   clearMemory as storeClearMemory,
   deleteMemory,
+  isGeminiConfigured,
   listMemory as storeListMemory,
   listMessages,
   loadSettings,
+  listResearchAudits as storeListAudits,
+  listReminders as storeListReminders,
   type Conversation,
+  type Reminder,
+  type MemoryCategory,
   type MemoryItem,
   type Message,
   type Settings as EngineSettings,
 } from './engine/store'
+import { discoverTvs, pairTv, testFireTv, testTv, tvStatusFromSettings } from './engine/tv'
+import {
+  discoverFan,
+  learnFan,
+  pickFan,
+  testFan,
+} from './engine/fan'
+import {
+  discoverPlugs,
+  probePlug,
+  testPlug,
+  loadPlugs,
+  upsertPlug,
+  removePlug,
+  emptyPlug,
+  type Plug,
+} from './engine/plug'
+import { testPc as engineTestPc } from './engine/pc'
+import type { ResearchMeta, ResearchSource } from './engine/research-parse'
 
-export type { Conversation, MemoryItem, Message, StreamHandlers }
-export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady }
+export type { Conversation, MemoryCategory, MemoryItem, Message, Reminder, StreamHandlers, ResearchMeta, ResearchSource }
+export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady, isGeminiConfigured }
 
-export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke'
-
-export type ResearchSource = {
-  title: string
-  url: string
-  snippet: string
-  provider: string
-  retrieved_at: string
-}
-
-export type ResearchMeta = {
-  used?: boolean
-  status?: string
-  query?: string
-  sources?: ResearchSource[]
-  error?: string | null
-  diverges?: boolean
-  privacy_note?: string | null
-  badge?: string | null
-  audit_id?: string
-  status_label?: string | null
-  network_attempted?: boolean
+export async function releaseModel(): Promise<void> {
+  return engineReleaseModel()
 }
 
 export type ToolMeta = {
@@ -64,8 +71,11 @@ export type ToolMeta = {
 export type Health = {
   ok: boolean
   ollama: boolean
+  engine?: string
   model: string
   model_ready: boolean
+  gemini_ready?: boolean
+  gemini_enabled?: boolean
   configured_model?: string
   fallback_model?: string
   model_heavy?: string
@@ -77,6 +87,15 @@ export type Health = {
   research_opt_in?: boolean
   error?: string
   download_pct?: number
+  tv?: {
+    enabled?: boolean
+    name?: string
+    host?: string
+    mac?: string
+    port?: number
+    paired?: boolean
+    reachable?: boolean
+  }
 }
 
 export type EasterEgg = { command: string; description: string; example: string }
@@ -89,7 +108,17 @@ export type Settings = EngineSettings & {
   owner_token_set?: boolean
   easter_eggs?: EasterEgg[]
   tv_port?: number
-  tv_status?: { enabled?: boolean; name?: string; host?: string; mac?: string; paired?: boolean; reachable?: boolean }
+  tv_token?: string
+  tv_paired?: boolean
+  tv_status?: {
+    enabled?: boolean
+    name?: string
+    host?: string
+    mac?: string
+    port?: number
+    paired?: boolean
+    reachable?: boolean
+  }
 }
 
 export type ResearchAudit = {
@@ -127,7 +156,7 @@ export async function getSettings(): Promise<Settings> {
     easter_eggs: [
       { command: '/hilfe', description: 'Kurz was Jarvis kann', example: '/hilfe' },
     ],
-    tv_status: { enabled: false, paired: false, reachable: false },
+    tv_status: tvStatusFromSettings(),
   }
 }
 
@@ -136,8 +165,29 @@ export async function patchSettings(patch: Partial<Settings>): Promise<Settings>
   return getSettings()
 }
 
-export async function listResearchAudits(_limit = 30): Promise<ResearchAudit[]> {
-  return []
+export async function listReminders() {
+  return storeListReminders()
+}
+
+export { removeReminder, syncReminderAlarms } from './engine/reminders'
+export { readEyeImage, fileToJpegDataUrl } from './engine/eye'
+export { checkHomeFence } from './engine/home'
+
+export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
+  const rows = await storeListAudits(limit)
+  return rows.map((r) => ({
+    id: r.id,
+    query: r.query,
+    status: r.status,
+    created_at: r.created_at,
+    sources: (r.sources || []).map((s) => ({
+      title: s.title,
+      url: s.url,
+      snippet: s.snippet || '',
+      provider: s.provider || 'google_search',
+      retrieved_at: r.created_at,
+    })),
+  }))
 }
 
 export async function listMemory(category?: MemoryCategory | null): Promise<MemoryItem[]> {
@@ -156,8 +206,8 @@ export async function listConversations(): Promise<Conversation[]> {
   return conversations.list()
 }
 
-export async function createConversation(): Promise<Conversation> {
-  return conversations.create()
+export async function createConversation(title?: string): Promise<Conversation> {
+  return conversations.create(title)
 }
 
 export async function getConversation(
@@ -194,31 +244,76 @@ export async function streamChat(
   id: string,
   content: string,
   handlers: StreamHandlers,
+  opts?: { voice?: boolean },
 ): Promise<void> {
-  return engineStream(id, content, handlers)
+  return engineStream(id, content, handlers, opts)
 }
 
-export async function tvDiscover(): Promise<{ items: Array<Record<string, unknown>> }> {
-  return { items: [] }
+export async function tvDiscover(): Promise<{ items: Array<Record<string, unknown>>; message?: string }> {
+  return discoverTvs()
 }
 
-export async function tvPair(_body: {
+export async function tvPair(body: {
   host?: string
   mac?: string
   name?: string
   port?: number
 }): Promise<{ ok: boolean; message: string }> {
-  return {
-    ok: false,
-    message: 'TV ist in 0.13.1 geparkt. Jarvis denkt auf dem Handy; Tizen-Keys kommen später.',
-  }
+  return pairTv(body)
 }
 
 export async function tvTest(): Promise<{ ok?: boolean; reply?: string }> {
-  return {
-    ok: false,
-    reply: 'TV-Steuerung nicht im On-Device-Build. Chat läuft lokal.',
-  }
+  return testTv()
+}
+
+export async function tvFireTest(opts?: { host?: string; port?: number }): Promise<{ ok?: boolean; reply?: string }> {
+  return testFireTv(opts)
+}
+
+export async function fanDiscover(): Promise<{ items: Array<{ host?: string; mac?: string; name?: string }>; message?: string }> {
+  return discoverFan()
+}
+
+export async function fanTest(opts?: { host?: string }): Promise<{ ok: boolean; reply: string }> {
+  return testFan(opts)
+}
+
+export async function fanLearn(slot: 'on' | 'off' | 'speed1' | 'speed2' | 'speed3' | 'light'): Promise<{ ok: boolean; reply: string }> {
+  return learnFan(slot)
+}
+
+export async function fanPick(item: { host?: string; mac?: string; name?: string }): Promise<string> {
+  return pickFan(item)
+}
+
+export async function plugDiscover(): Promise<{ items: Array<{ host?: string; mac?: string; name?: string; kind?: string; deviceId?: string }>; message?: string }> {
+  return discoverPlugs()
+}
+
+export async function plugProbe(plug: Partial<Plug>): Promise<{ ok: boolean; reply: string; kind?: string }> {
+  return probePlug(plug)
+}
+
+export async function plugTest(plug: Partial<Plug>, on: boolean): Promise<{ ok: boolean; reply: string }> {
+  return testPlug(plug, on)
+}
+
+export { loadPlugs, upsertPlug, removePlug, emptyPlug }
+export type { Plug }
+
+export async function testPc(opts?: { host?: string; token?: string; port?: number }): Promise<{
+  ok: boolean
+  reply: string
+}> {
+  return engineTestPc(opts)
+}
+
+export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
+  return engineTestGemini()
+}
+
+export async function testGroq(): Promise<{ ok: boolean; reply: string }> {
+  return engineTestGroq()
 }
 
 export { testPlug } from './engine/plugs'

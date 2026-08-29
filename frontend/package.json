@@ -1,13 +1,19 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "0.14.0",
+  "version": "6.90.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "test:014": "node --experimental-strip-types scripts/test-014.mjs",
+    "test:sprint": "node --experimental-strip-types scripts/test-sprint-prompts.mjs && node --experimental-strip-types scripts/test-sprints-131-136.mjs",
+    "test:pc": "node --experimental-strip-types scripts/test-pc.mjs",
+    "test:prompts": "node --experimental-strip-types scripts/test-prompts.mjs",
+    "test:650": "node --experimental-strip-types scripts/test-650.mjs",
+    "test:matrix": "node --experimental-strip-types scripts/test-650-matrix.mjs",
     "smoke": "node --experimental-strip-types scripts/smoke-prompt.mts",
     "smoke:browser": "node scripts/browser-smoke.mjs"
   },

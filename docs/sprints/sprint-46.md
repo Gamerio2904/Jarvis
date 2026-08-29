@@ -1,38 +1,24 @@
-# Sprint 46 — WLAN-Steckdosen lokal (`0.14.0`)
+# Sprint 46 — Chat-Hang Hotfix (`0.13.2`)
 
 | Feld | Wert |
 |------|------|
 | Status | **CODE** |
-| Priorität | **MUST** — PO: PC, Bildschirm, LEDs über Jarvis |
-| Ziel-Version | **`0.14.0`** |
-| Quelle | PO 2026-08-15: drei WLAN-Steckdosen, nicht Alexa |
+| Priorität | **MUST** — Modell bereit, Chat bleibt auf „Jarvis schreibt…“ |
+| Ziel-Version | **`0.13.2`** |
+| Quelle | PO 2026-08-15: Download ok, keine Antwort |
 
-## Ziel
+## Ursache
 
-Drei benannte Steckdosen **lokal im LAN** schalten: **PC**, **Bildschirm**, **LEDs**. Handy und Dosen im gleichen WLAN. Confirm vor dem Schalten. Keine Amazon-/Tuya-Cloud.
+`0.13.1` hat Non-Stream + `n_threads: 1` + langes Persona-Prompt. Auf dem Handy (WASM/compat) dauert die Prompt-Eval so lange, dass keine Tokens erscheinen. Der UI-Timeout greift nicht, solange nichts zurückkommt — wirkt wie ein Hänger.
 
-## Must
+## Fix
 
-| ID | Story | Done wenn |
-|----|-------|-----------|
-| P1 | Settings: Toggle + IP + Protokoll je Dose (Tasmota / Shelly / Shelly RPC) | PO trägt drei IPs ein |
-| P2 | Chat: „PC an“, „Bildschirm aus“, „LEDs an“, „alles aus“, „Steckdosen“ | Confirm Ja/Nein, dann HTTP |
-| P3 | Test-Button pro Dose | erreichbar ja/nein, ehrlicher Fehler |
-| P4 | Host-Allowlist (nur IP/Hostname, kein URL-Injection) | Smoke |
-| P5 | `/hilfe` nennt Steckdosen | Text aktuell |
-| P6 | Version `0.14.0` | Changelog + UI |
-
-## Won’t
-
-- Tuya/Smart Life Cloud
-- Alexa / Echo Show
-- Strommessung, Zeitpläne, Gruppen außer „alles“
-- Fernseher (bleibt geparkt)
-
-## Hinweis Hardware
-
-Billig-Dosen mit Tuya-App brauchen **Tasmota oder ESPHome** (oder Shelly). Sonst kein lokales HTTP.
+- Streaming mit `onData` — Tokens erscheinen, sobald sie da sind
+- Mehr Threads (bis 4), `n_ctx` 512, kurzes Persona
+- Abbruch wenn 45s kein erstes Token / 90s Gesamt
+- Status „Jarvis denkt… Xs“
+- Leere Antwort → kurzer Fallback statt ewigem Warten
 
 ## Exit
 
-Sideload `0.14.0`, IPs setzen, „PC an“ → Ja → Dose schaltet. Handy im gleichen WLAN.
+Sideload `0.13.2`, Modell schon da (kein erneuter 470-MB-Download), „Hallo Jarvis“ bekommt Text oder eine klare Fehlermeldung — kein endloses Tippen.
