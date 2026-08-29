@@ -99,6 +99,8 @@ GO nur wenn: Steuerbarkeit Pause/Weiter/Suche **oder** ehrliches „App geöffne
 | Notify | Bestehendes `notify.ts`. Kein zweites Push-Produkt. |
 | Sideload | Nicht in `8.0`–`8.60`. Hausstand vorher. |
 | Recall / 3060 | Unabhängig. |
+| Test-Tore | Nach einem **Execute-Bündel**, das der Nutzer anfassen kann. Nicht nach reiner Research. Vier Phasen, bestehender Debug-Lauf `5.11`. |
+| Dauer-Zuhören | Nach Recall-Gold: Wake **härten**, nicht neu erfinden. Wetter-Satz und internes CarPlay. Opt-in bleibt. |
 
 ---
 
@@ -294,6 +296,58 @@ Execute **`8.33`**: `isLiveLookup` + Hint + Guard + Gold. Kein neues Hirn.
 
 ---
 
+## Test-Tore (vier Phasen)
+
+PO 2026-08-29: Tests einbauen, **wann es Sinn hat**. Nicht nach jedem Research, nicht nach jedem Patch. Ein Tor nach einem Bündel, das jemand **benutzen** kann.
+
+Bestehender Lauf: Settings → Debug (`5.11`, `test-copy.ts`). Kein zweites Testprodukt, kein Auto-Ja, kein neues Hirn. Hintergrund-Service bleibt `5.12`.
+
+### Wann
+
+| Nach | Tor | Warum hier |
+|------|-----|------------|
+| `8.20` + `8.32` + `8.33` + `8.30` | **`8.34`** | Erste Fläche, die der PO schon gesehen hat (Mic, Kugel, Venedig, Lag) |
+| `8.10` | **`8.12`** | Fahrt-Gefahr: falsch = gefährlich |
+| `8.35` | **`8.36`** | Settings-IA: finden, nicht verbauen |
+| `8.40`–`8.60` | **`8.61`** | Ordner/Preis/Musik nur wenn gebaut |
+| Alltag-Executes + Tore | **`8.90`** | Gold, letzte Alltag-Runde |
+| Recall `7.30` | **`7.31`** | in [`49-next.md`](./49-next.md) |
+| `8.95` Dauer-Zuhören | im selben Execute, Phasen 1–4 bis sauber | sonst Wake-Regression |
+
+Keine Tore nach `8.1`–`8.4` allein.
+
+### Die vier Phasen (jedes Tor)
+
+1. **Schnitt.** Was ist seit dem letzten Tor **neu im Code**. Daraus drei Prompt-Sätze in `test-copy.ts` (neue Debug-Gruppe, fest im Code, nicht vom LLM):
+   - **Erstnutzer** — erste Berührung, normale Worte (`Wetter`, `Wo ist London`, Mic antippen).
+   - **Geübt** — Folge, Kurzform, Tab, Setting (`Lage aus`, `nur vorlesen`, Deep-Link).
+   - **Kaputt** — alles falsch: leeres GPS, Suche aus, Wake+Mic gleichzeitig, `Street View von London`, fünf-Euro-Venedig als Jetzt.
+2. **Lauf.** Debug-Sequenz oder Handy: Prompt, warten auf `onDone`, nächster. Stimme/Lage zusätzlich per Hand, wenn der Lauf kein Mic hat.
+3. **Schnitt der Fehler.** Was falsch oder schlecht war → patchen (Parser, Layout, Guard, Wake-Pause). Kein neues Feature im Tor.
+4. **Angepasster Lauf.** Dieselben drei Rollen, Prompts nachgezogen (Tippfehler, die der Fix jetzt treffen muss).  
+
+Phase 3 und 4 **wiederholen**, bis der Lauf keine roten Verdicts mehr hat und die Hand-Proben (Mic, Kugel, Wake) still sind. Dann nächstes Execute.
+
+Won’t im Tor: neue Schiene, Sideload, „einmal ignorieren“.
+
+---
+
+## Dauer-Zuhören härten (`8.95`) — nach Recall
+
+Nach Sprint 140 / `7.30` und Tor `7.31`. **Kein** neues Zuhör-Produkt. Upgrade von Wake-Word + VoiceMode + `JarvisWakeService` (`1.11`/`1.28`/`1.39` **CODE**).
+
+Soll: dauerhaft **zuhören wenn Wake an**, Treffer zuverlässig, App nach vorn, Befehl ausführen. *Wie wird das Wetter?* → Wetter-Tool + kurzer Satz. *Öffne CarPlay* / *Fahrmodus* → internes Overlay, nicht Apple. App aus / Bildschirm aus: Service hält, wie heute gewollt, aber ohne `RECOGNIZER_BUSY` und ohne verschluckten Satz.
+
+| Muss | Nicht |
+|------|--------|
+| Wake an = Name treffen → STT → Tool (Wetter, Drive, Lage) → kurzer Satz | Zuhören bei Wake **aus** |
+| App in den Vordergrund, wenn ein Befehl kommt | Zweites Icon, neue Speech-Cloud |
+| Ein Erkenner (steht in `8.20`); nach Turn wieder scharf, ohne 400-ms-Blindflug | Zwei Recognizer, Dauer-Upload in die Cloud |
+| Flüssig: weniger NO_MATCH-Loops, ehrliches *Nichts gehört* | 60-fps-Orb, jedes Geräusch = Befehl |
+| Opt-in + Akku-Hinweis bleiben | Mithören ohne Erlaubnis, alles auf Disk |
+
+---
+
 ## Stimme — Hören, dann tun, dann sprechen (`8.20`)
 
 PO 2026-08-29: **Sprachinput geht nicht.** Keine neue Versionsnummer — gehört in das schon geplante **`8.20`** (bisher nur TTS nach Execute).
@@ -369,11 +423,16 @@ Execute: **`8.32`** Lage. **`8.33`** Research-Aktuell. Lag-Messung der übrigen 
 | **`8.30.0`** | GUI/Lag Chat + Drive-HUD | nach `8.2` |
 | **`8.32.0`** | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper-Pane | nach `8.2` |
 | **`8.33.0`** | Netz-Antwort: Jarvis-Ton, aktueller Stand (Venedig zuerst) | nach `8.2` |
+| **`8.34.0`** | Test-Tor A: Stimme + Lage + Netz + Lag | nach `8.20`/`8.30`/`8.32`/`8.33` |
+| **`8.12.0`** | Test-Tor Fahrt (Blitzer) | nach `8.10` |
 | **`8.35.0`** | Einstellungen: Gruppen, deutsche Karten, GUI | nach `8.4` |
+| **`8.36.0`** | Test-Tor Settings | nach `8.35` |
 | **`8.40.0`** | Amazon-Musik-Fallback **oder** ehrlich Parking | nach `8.3` GO |
 | **`8.50.0`** | Chat-Ordner + Hausstand | nach `8.3` |
 | **`8.60.0`** | Preiswache (Instanudeln zuerst) | nach `8.3` |
-| **`8.90.0`** | Gold, Debug-Gruppe Alltag-Zettel | nach den Executes |
+| **`8.61.0`** | Test-Tor Alltag-Rest (Musik/Ordner/Preis) | nach `8.40`–`8.60` |
+| **`8.90.0`** | Gold, Debug-Gruppe Alltag-Zettel | nach den Executes + Toren |
+| **`8.95.0`** | Dauer-Zuhören härten (Wake flüssig, App/CarPlay auf) | nach Recall `7.30` + Tor `7.31` |
 
 ---
 
@@ -395,10 +454,12 @@ Execute: **`8.32`** Lage. **`8.33`** Research-Aktuell. Lag-Messung der übrigen 
 | `Muss man Eintritt zahlen für Venedig` | *Aktuell nicht* + Quelle. Nicht fünf Euro als Jetzt. Zukunft nur wenn die Treffer sie nennen |
 | `Körper an` / Tab Körper | Schema vollständig, Organ-Satz darunter |
 | `Lage aus` / X in der Leiste | Pane zu, Chat volle Höhe. `hud_force` aus |
+| Wake an + `Wie wird das Wetter?` | App nach vorn, Open-Meteo, kurzer Satz (`8.95`) |
+| Wake an + `Öffne CarPlay` | Internes Overlay, nicht Apple |
 
 ## Won’t
 
-Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Automatisch kaufen. Amazon-Musik so tun als Spotify-SDK. Chat-Ordner in der Cloud. 60-fps-Idle. Neues 3D-Framework. Zweites WebGL. Geocoder-Oracle. Street-View. Google-Listen im Chat. Comune-Scraping. Zweites Hirn. Recall-Nummern klauen. Sideload in der Leitentscheidung. Play Store, iOS. Settings-Keys umbenennen nur wegen der GUI. iOS-Settings-Klon. Debug streichen.
+Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Automatisch kaufen. Amazon-Musik so tun als Spotify-SDK. Chat-Ordner in der Cloud. 60-fps-Idle. Neues 3D-Framework. Zweites WebGL. Geocoder-Oracle. Street-View. Google-Listen im Chat. Comune-Scraping. Zweites Hirn. Recall-Nummern klauen. Sideload in der Leitentscheidung. Play Store, iOS. Settings-Keys umbenennen nur wegen der GUI. iOS-Settings-Klon. Debug streichen. Zuhören bei Wake aus. Dauer-Upload der Stimme. Neues Speech-SDK.
 
 ## Abnahme (nach Execute)
 
@@ -411,6 +472,8 @@ Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Aut
 7. Preiswache: Notify nur bei Treffer mit Quelle; ohne Research-Toggle kein stilles Netz.  
 8. Einstellungen: in 10 s Hirn vs. Hausstand finden; „Modell“ nicht als erstes; Danger deutsch; Deep-Link `cloud`/`musik` trifft.  
 9. Handy-Lage: ganze Kugel/Körper sichtbar, Chat nicht darunter. `Sie` nicht ohne GPS. `Wo ist London` = Fly-to. Idle ohne Dauer-rAF.  
-10. Venedig-Eintritt (Stand nach 26.7.2026): *aktuell nicht*, nicht fünf Euro als Jetzt. Max 3 Sätze, Quelle, keine Google-Liste.
+10. Venedig-Eintritt (Stand nach 26.7.2026): *aktuell nicht*, nicht fünf Euro als Jetzt. Max 3 Sätze, Quelle, keine Google-Liste.  
+11. Jedes Test-Tor: Erstnutzer / geübt / kaputt im Debug-Lauf, Phase 3–4 bis keine roten Verdicts.  
+12. `8.95`: Wake an → Wetter-Satz; *Öffne CarPlay* → internes Overlay. Wake aus → kein Mithören.
 
 Fahr-Basis: [`24-next.md`](./24-next.md) · [`28-next.md`](./28-next.md). Spotify: Settings Musik. Suche: [`28-next.md`](./28-next.md) Idealo. Notify: `notify.ts`. Recall: [`49-next.md`](./49-next.md). Index: [`42-planned.md`](./42-planned.md). Sprint: [`sprints/sprint-141.md`](./sprints/sprint-141.md).

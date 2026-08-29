@@ -25,6 +25,8 @@ Festschreiben: was von den Notizen schon `6.90` ist, was neu ist, warum **MAJOR 
 | Z7 | Settings: 5–6 Gruppen, deutsche Wozu-Sätze, `8.35` — Keys bleiben |
 | Z8 | Lage-Overlay `8.32`: Phone-Pane nicht clippen, Pins ohne 0/0, `wo ist London` → Gazetteer-Flug, Idle-Pause, Kacheln/Körper/Kugel |
 | Z9 | Netz-Antwort `8.33`: Jarvis-Ton, aktueller Stand (Venedig: nicht fünf Euro als Jetzt) |
+| Z10 | Test-Tore nach Execute-Bündeln (`8.34`/`8.12`/`8.36`/`8.61`/`8.90`/`7.31`): vier Phasen, Debug-Lauf |
+| Z11 | Dauer-Zuhören `8.95` nach Recall: Wake härten, Wetter + internes CarPlay |
 
 ## Won’t (dieser Sprint)
 

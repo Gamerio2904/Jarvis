@@ -46,7 +46,7 @@ Parser CODE. Gewichte erst nach 3060-GO. Ohne Sidecar: ehrlich aus.
 Lauf in der App ist CODE. Dienst im Hintergrund PLAN.
 
 ### Alltag vom Zettel (`8.0`) · Sprint 141 · [`50-next.md`](./50-next.md)
-Alte Notizen: Blitzer+Baustelle, **Stimme `8.20`** (Mic/Wake hören + Execute-dann-TTS), GUI-Härte, **Lage-Overlay** (`8.32`), **Netz-Antwort aktuell** (`8.33`: Jarvis-Ton, nicht Training-5-€), Settings neu gliedern (`8.35`), Amazon-Musik-Research, Chat-Ordner, Preiswache Instanudeln. Nicht mit Recall `7.0` mischen.
+Alte Notizen: Blitzer+Baustelle, **Stimme `8.20`**, GUI-Härte, **Lage** `8.32`, **Netz** `8.33`, **Test-Tore** nach Bündeln, Settings `8.35`, Amazon/Ordner/Preis. Nach Recall: **Dauer-Zuhören `8.95`**. Nicht mit Recall-Nummern mischen.
 
 ### Parking
 Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.

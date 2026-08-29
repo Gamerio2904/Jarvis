@@ -8,8 +8,9 @@ Sprint-Nummern **127–130** und Version **`6.60`** sind vergeben (Parser, Overl
 | Sprint 128 / Retrieve + RRF | Sprint **138** / **`7.10.0`** |
 | Sprint 129 / Working Memory | Sprint **139** / **`7.20.0`** |
 | Sprint 130 / Sleep-Time + Recall-Tool | Sprint **140** / **`7.30.0`** |
+| — | **`7.31.0`** Test-Tor Recall (vier Phasen, nach `7.30`) |
 
-Kein Execute in dieser Lieferung. Sideload bleibt **`6.90.0`**. Alltag vom Zettel ist **nicht** diese Schiene — [`50-next.md`](./50-next.md) `8.0`, Sprints 141+.
+Kein Execute in dieser Lieferung. Sideload bleibt **`6.90.0`**. Alltag vom Zettel ist **nicht** diese Schiene — [`50-next.md`](./50-next.md) `8.0`, Sprints 141+. Nach `7.31`: Dauer-Zuhören [`50-next.md`](./50-next.md) `8.95`.
 
 ---
 
@@ -204,6 +205,7 @@ Bühne `6.10` blockiert 128 nicht. Hirn-Schliff `6.50` sollte **vor** 128 liegen
 | **`6.80.0`** | `sleep-memory.ts` idle/laden; Sensor-Filter; Upsert nur sicher | PLAN |
 | **`6.81.0`** | Register-Tool `recall` (Search mergen) | PLAN |
 | **`6.82.0`** | Gold-Sätze + Debug-Gruppe Gedächtnis erweitern | PLAN |
+| **`7.31.0`** | Test-Tor Recall: Erstnutzer / geübt / kaputt, Phase 3–4 bis sauber | nach `7.30` / `6.82` |
 | **`6.83.0`** | Could: e5-small nur Rank | später |
 | **`6.84.0`** | Sideload nach Hausstand | nach `4.52` |
 
