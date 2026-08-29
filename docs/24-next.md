@@ -1,5 +1,8 @@
 # 24 — CarPlay flüssig (`1.30`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-17: Fahrmodus/CarPlay soll **flüssig** laufen. Per Stimme Tabs öffnen (z. B. „Spiel das auf Spotify“ → Spotify-Overlay). Jarvis sagt die Abbieger: **„Vorne links in 300 Metern abbiegen.“**
 
 Reihe davor: [`23-next.md`](./23-next.md). App vorher: Sideload **`1.29.0`**.

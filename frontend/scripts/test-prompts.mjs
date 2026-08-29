@@ -1,48 +1,18 @@
 /**
- * Routes every TEST_PROMPT the same way chat.ts does (no LLM, no phone).
- * Order: help → discount → ordinal → tv → film → fan → plug → here → fuel → poi → transit → drive → device → maps → ...
+ * Routes every TEST_PROMPT via Register-Score (route-pick), plus Gates.
  */
 import assert from 'node:assert/strict'
+import { isLiveLookup, parseShopDiscountIntent } from '../src/engine/research-parse.ts'
+import { normalizeUtterance } from '../src/engine/utterance.ts'
+import { isHelpCommand } from '../src/engine/guards.ts'
+import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
+import { pickRouteFromCtx } from '../src/engine/route-pick.ts'
+import { parseHereIntent } from '../src/engine/here-parse.ts'
+import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
-import { isHelpCommand } from '../src/engine/guards.ts'
-import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
-import { isIdentityAsk, isMemoryRecall, isMemoryWrite } from '../src/engine/memory-parse.ts'
-import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
-import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
-import { parseTimerIntent } from '../src/engine/timer-parse.ts'
-import { parseReminderIntent } from '../src/engine/remind-parse.ts'
-import { parseToolIntent } from '../src/engine/tools-parse.ts'
-import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
-import { parseFanIntent } from '../src/engine/fan-parse.ts'
-import { parsePlugIntent } from '../src/engine/plug-parse.ts'
-import { isLiveLookup, parseShopDiscountIntent } from '../src/engine/research-parse.ts'
-import { parseFilmIntent } from '../src/engine/film-parse.ts'
-import { parseDeviceIntent } from '../src/engine/device-parse.ts'
-import { parsePcIntent } from '../src/engine/pc-parse.ts'
-import { parseDriveIntent } from '../src/engine/drive-parse.ts'
-import { parseSpotifyIntent } from '../src/engine/spotify-parse.ts'
-import { parseFuelIntent } from '../src/engine/fuel-parse.ts'
-import { parseHereIntent } from '../src/engine/here-parse.ts'
-import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from '../src/engine/places-parse.ts'
-import { parsePoiIntent } from '../src/engine/poi-parse.ts'
-import { parseShopIntent } from '../src/engine/shopping-parse.ts'
-import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
-import { parseHomeIntent } from '../src/engine/home-parse.ts'
-import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
-import { normalizeUtterance } from '../src/engine/utterance.ts'
-import { isBriefAsk } from '../src/engine/brief-parse.ts'
-import { parseEyeIntent } from '../src/engine/eye-parse.ts'
-import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
-import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
-import { parseTransitIntent } from '../src/engine/transit-parse.ts'
-import { parseHolidayIntent } from '../src/engine/holiday-parse.ts'
-import { parseNewsIntent } from '../src/engine/news-parse.ts'
-import { parseWorldIntent, isMusicHonesty } from '../src/engine/world-parse.ts'
 
-const NOW = new Date('2026-08-15T14:00:00')
-
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'music'|'drive'|'device'|'pc'|'maps'|'memory'|'brief'|'shopping'|'birthday'|'home'|'leave'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'world'|'weather'|'news'|'research'|'search'|'llm'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -50,37 +20,16 @@ function route(text, ctx = {}) {
   if (isHelpCommand(text)) return 'help'
   if (parseShopDiscountIntent(text)) return 'discount'
   if (parseOrdinalFollowUp(text)) return 'ordinal'
-  if (parseTvWatch(text) || parseTvIntent(text)) return 'tv'
-  if (parseFilmIntent(text)) return 'film'
-  if (parseFanIntent(text)) return 'fan'
-  if (parsePlugIntent(text)) return 'plug'
-  if (parseHereIntent(text)) return 'here'
-  if (parseFuelIntent(text)) return 'fuel'
-  if (parsePoiIntent(text)) return 'poi'
-  if (parseTransitIntent(text)) return 'transit'
-  if (isMusicHonesty(text)) return 'music'
-  if (parseDriveIntent(text) || parseSpotifyIntent(text)) return 'drive'
-  if (parseDeviceIntent(text)) return 'device'
-  if (parsePcIntent(text)) return 'pc'
-  if (parsePlaceWrite(text) || parsePlaceRecall(text) || parsePlaceNav(text)) return 'maps'
-  if (isMemoryWrite(text) || isMemoryRecall(text) || isIdentityAsk(text)) return 'memory'
-  if (isBriefAsk(text)) return 'brief'
-  if (parseShopIntent(text)) return 'shopping'
-  if (parseBirthdayIntent(text)) return 'birthday'
-  if (parseHomeIntent(text)) return 'home'
-  if (parseLeaveIntent(text)) return 'leave'
-  if (parseHolidayIntent(text)) return 'holiday'
-  if (parseCalendarIntent(text, NOW)) return 'calendar'
-  if (parseAlarmIntent(text, NOW)) return 'alarm'
-  if (parseTimerIntent(text, NOW)) return 'timer'
-  if (parseReminderIntent(text, NOW)) return 'reminder'
-  if (parseToolIntent(text)) return 'tools'
-  if (parseEyeIntent(text)) return 'eye'
-  if (parseWorldIntent(text)) return 'world'
-  if (parseWeatherIntent(text)) return 'weather'
-  if (parseWeatherFollowup(text, ctx.weatherLast ?? null)) return 'weather'
-  if (parseNewsIntent(text)) return 'news'
-  if (parseChatSearch(text)) return 'search'
+  const id = pickRouteFromCtx({
+    conversationId: 'test',
+    text,
+    lastTool: '',
+    lastMedium: '',
+    inDrive: false,
+    weatherLast: ctx.weatherLast ?? null,
+  })
+  if (id === 'todo') return 'tools'
+  if (id) return id
   if (isLiveLookup(text)) return 'research'
   return 'llm'
 }
@@ -130,6 +79,10 @@ const EXPECT = {
   'Temperatur hier': 'weather',
   'Termin morgen 15 Uhr Zahnarzt': 'calendar',
   'Termin morgen 15 Uhr Zahnarzt Bahnhofstraße': 'calendar',
+  'erstell einen Termin für den 5.9. 2026, 15:00 Uhr Zahnarzt': 'calendar',
+  'was steht heute so an?': 'calendar',
+  'was steht diese Woche an?': 'calendar',
+  'was steht die nächsten 3 Tage an?': 'calendar',
   'Wann muss ich zum Zahnarzt los?': 'leave',
   Kalender: 'calendar',
   'Freundin wohnt in Heilbronn': 'maps',
@@ -204,6 +157,50 @@ const EXPECT = {
   'Taschenlampe an': 'device',
   'ohne meine Adresse nachzugucken weißt du wo ich bin': 'here',
   'Nach Ingersheim': 'drive',
+  'Was ist die Weltlage?': 'outlook',
+  'Was ist heute so auf der Welt passiert': 'outlook',
+  'Warum steigt der Ölpreis?': 'outlook',
+  'Wird Benzin teurer?': 'outlook',
+  'Fällt der Dollar?': 'outlook',
+  'Fällt SAP morgen?': 'outlook',
+  'Was ist der Dollar?': 'fx',
+  'Bar in der Nähe': 'poi',
+  'nächste Kneipe': 'poi',
+  'bestell ein Taxi': 'taxi',
+  'Sprachnachricht an Mama ich bin in 10 Minuten': 'maps',
+  'Todo: Testdebug Milch': 'tools',
+  'Gibt es Unwetter?': 'warn',
+  'Wo ist die ISS?': 'sky',
+  'Körper an': 'hud',
+  'zeig mal den körper': 'hud',
+  'Kugel an': 'hud',
+  'Wo liegt Berlin': 'hud',
+  'klick das Captcha': 'wont',
+  Friday: 'face',
+  'Was steht am Freitag an?': 'calendar',
+  'Darf ich im Park grillen?': 'law',
+  'Wo ist Speichern': 'pc',
+  'Lage an': 'hud',
+  'Zeig mir London': 'hud',
+  'Was ist das für eine Stadt?': 'hud',
+  'Was sehe ich?': 'hud',
+  'Zeig mir Atlantis': 'hud',
+  'zoom auf Tokio': 'hud',
+  'Was kannst du?': 'help',
+  'Bist du ChatGPT?': 'identity',
+  'Kannst du Bilder malen?': 'wont',
+  'Spiele Musik': 'drive',
+  'Schreib mir eine E-Mail': 'wont',
+  'Zeig mir die Nachrichten': 'news',
+  'Überweise 200 Euro': 'wont',
+  'Zeig Street View von London': 'wont',
+  Hilfe: 'help',
+  'Rufe 112': 'wont',
+  'mach die weltkugel an': 'hud',
+  'Zeig New York': 'hud',
+  'Was is das für ne Stadt': 'hud',
+  'Körper an und Zeig London': 'hud',
+  'Mach Live-Satellitenvideo an': 'wont',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -246,16 +243,26 @@ assert.equal(parseHereIntent('wo könnte ich jetzt frühstücken'), null)
 assert.equal(parseDeviceIntent('wie spät ist es')?.kind, 'clock')
 assert.equal(route('Taschenlampe an'), 'device')
 assert.equal(route('Nach Ingersheim'), 'drive')
-assert.equal(route('Spiel mal was Nettes'), 'music')
-assert.equal(route('Zeig Spotify'), 'drive')
-assert.equal(route('Gibt’s Unwetter?'), 'world')
-assert.equal(route('Sind in BW Ferien?'), 'world')
-assert.equal(route('Was ist der Dollar?'), 'world')
-assert.equal(route('Wie hat der VfB gespielt?'), 'world')
-assert.equal(route('Schach e2e4'), 'world')
-assert.equal(route('Wie viele Schritte heute?'), 'device')
-assert.equal(route('Guten Morgen'), 'brief')
-assert.equal(route('Was steht an?'), 'brief')
+assert.equal(route('Wetterstatistik an'), 'hud')
+assert.equal(route('Welche Route nimmt google.de'), 'trace')
+assert.equal(route('Fass das Gespräch zusammen'), 'digest')
+assert.equal(route('Ruf mich in 20 Minuten'), 'reminder')
+assert.equal(route('Wetter heute'), 'weather')
+assert.equal(route('kein Kaffee mehr'), 'memory')
+assert.equal(route('Fahr mich zur Freundin'), 'drive')
+assert.equal(route('Was ist die Weltlage?'), 'outlook')
+assert.equal(route('Was ist heute so auf der Welt passiert'), 'outlook')
+assert.equal(route('Weltbrief'), 'outlook')
+assert.equal(route('Warum steigt der Ölpreis?'), 'outlook')
+assert.equal(route('Wird Benzin teurer?'), 'outlook')
+assert.equal(route('Fällt der Dollar?'), 'outlook')
+assert.equal(route('Fällt SAP morgen?'), 'outlook')
+assert.equal(route('Was ist der Dollar?'), 'fx')
+assert.equal(route('Bar in der Nähe'), 'poi')
+assert.equal(route('nächste Kneipe'), 'poi')
+assert.equal(route('bestell ein Taxi'), 'taxi')
+assert.equal(route('Sprachnachricht an Mama ich bin in 10 Minuten'), 'maps')
+assert.equal(route('Mit der Bahn nach Heilbronn'), 'transit')
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }

@@ -1,13 +1,15 @@
-import { completeChat, ensureModel, getDownloadProgress, getLlmError, getThreadCount, hasCachedModel, isModelReady, releaseModel } from './llm'
-import { completeGemini, geminiReady, GEMINI_LABEL, streamGemini, testGemini } from './gemini'
-import { completeGroq, groqReady, testGroq } from './groq'
+import { ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
+import { completeGemini, geminiReady, streamGemini, testGemini } from './gemini'
+import { groqReady, testGroq } from './groq'
+import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain'
 import { userFacingCloudError } from './cloud-errors'
-import { HELP_TEXT, hardRefuse, isHelpCommand, scrubReply } from './guards'
-import { handleMemory, memoryBlock } from './memory'
+import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards'
+import { memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
-import { splitIntents } from './split-intents'
+import { promoteSplitPart, splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
-import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from './persona'
+import { SEARCH_ON_HINT, VOICE_HINT, personaPack } from './persona'
+import { loadFace } from './face.ts'
 import {
   formatResearchReply,
   guardResearchReply,
@@ -51,39 +53,18 @@ import {
   type Message,
   type Settings,
 } from './store'
-import { handleCalendar } from './calendar'
-import { handleReminders } from './reminders'
-import { handleAlarms } from './alarms'
-import { handleTimers } from './timers'
-import { handleTools, type ToolMeta } from './tools'
-import { handleTv, handleTvOrdinal, tvStatusFromSettings } from './tv'
-import { handleFilm } from './film'
-import { handleFan } from './fan'
-import { handlePlug } from './plug'
-import { handleWeather } from './weather'
 import { handlePlaces } from './places'
-import { handleShopping } from './shopping'
-import { handleBirthday } from './birthday'
-import { handleHome } from './home'
-import { handleLeave } from './leave'
-import { handleBrief } from './brief'
-import { isBriefAsk } from './brief-parse'
-import { handlePoi, handlePoiOrdinal } from './poi'
-import { handleDevice } from './device'
 import { handlePc } from './pc'
-import { handleDrive } from './drive'
-import { handleFuel, handleFuelOrdinal } from './fuel'
-import { handleHere } from './here'
-import { handleTransit } from './transit'
-import { handleHoliday } from './holiday'
-import { handleNews } from './news'
-import { handleSpeaker } from './speaker'
-import { handleEyeAsk } from './eye'
-import { parseEyeIntent } from './eye-parse'
-import { blockedCopy, blockedReason, isOnline, NO_GEMINI_VOICE } from './offline'
-import { handleChatSearch } from './search-chat'
+import { handleTaxi } from './taxi'
+import { handleInterrupt } from './interrupt'
+import { clearChain, partitionChain, popChain, writeChain } from './chain'
+import { isCommNo, isCommYes } from './places-parse'
+import { handleTvOrdinal, tvStatusFromSettings } from './tv'
+import { handleFuelOrdinal } from './fuel'
+import { handlePoiOrdinal } from './poi'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
-import { handleWorld, isMusicHonesty } from './world'
+import { type ToolMeta } from './tools'
+import { routeRegistry, type RouteHit } from './registry'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -105,18 +86,12 @@ export type StreamHandlers = {
   onError?: (detail: string) => void
 }
 
-type RouteHit = {
-  reply: string
-  tool?: ToolMeta | null
-  research?: ResearchMeta
-  lastTool?: string
-}
-
 export async function getHealth() {
   const mem = await listMemory()
+  const kind = brainKind()
   const localReady = isModelReady()
-  const cloud = geminiReady()
-  const ready = cloud || localReady
+  const cloud = kind === 'gemini'
+  const ready = kind !== 'none'
   const err = getLlmError()
   const prog = getDownloadProgress()
   const s = loadSettings()
@@ -127,33 +102,36 @@ export async function getHealth() {
   return {
     ok: ready,
     ollama: false,
-    engine: cloud ? 'gemini' : 'on-device',
-    model: cloud ? GEMINI_LABEL : active.label,
+    engine: kind === 'gemini' ? 'gemini' : kind === 'groq' ? 'groq' : 'on-device',
+    model: brainLabel(kind),
     model_ready: localReady,
     gemini_ready: cloud,
     gemini_enabled: s.gemini_enabled,
-    configured_model: cloud ? GEMINI_LABEL : active.label,
-    fallback_model: DEFAULT_MODEL.label,
-    model_heavy: SHARP_MODEL.label,
-    heavy_equals_default: active.id !== 'sharp',
-    using_fallback: false,
+    configured_model: brainLabel(kind),
+    fallback_model: groqReady() ? 'Groq, dann 0.5B' : DEFAULT_MODEL.label,
+    model_heavy: DEFAULT_MODEL.label,
+    heavy_equals_default: kind !== 'gemini',
+    using_fallback: kind === 'groq' || kind === 'local',
     version: APP_VERSION,
     memory_count: mem.length,
     research_opt_in: s.research_opt_in,
     blocked_reason: !online ? 'offline' : reason,
     tv: tvStatusFromSettings(),
-    warning: cloud
-      ? groqReady()
-        ? 'Gemini — bei Limit nächstes Modell, dann Groq. Chat geht ins Netz.'
-        : 'Gemini (Google) — bei Limit nächstes Modell. Chat geht ins Netz.'
-      : localReady
-        ? active.id === 'sharp'
-          ? 'On-Device 1.5B — denkt auf diesem Handy, kein Server.'
-          : 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
-        : err || block || 'Modell noch nicht geladen.',
+    warning:
+      kind === 'gemini'
+        ? groqReady()
+          ? 'Gemini zuerst — bei Limit Groq, sonst 0,5B. Chat geht ins Netz.'
+          : 'Gemini (Google) zuerst. Chat geht ins Netz.'
+        : kind === 'groq'
+          ? 'Groq-Backup. Gemini aus oder ohne Key.'
+          : kind === 'local'
+            ? 'On-Device 0,5B — Backup, kein Server.'
+            : err || 'Kein Hirn. Gemini-Key, Groq-Key oder Modell laden.',
     error: ready
       ? undefined
-      : block || err || 'Modell nicht geladen. Unter Einstellungen herunterladen oder Gemini nutzen.',
+      : s.gemini_enabled && !s.gemini_api_key.trim()
+        ? 'Gemini an, aber kein API-Key. Groq oder lokales Modell als Backup.'
+        : err || noBrainLine(),
     download_pct: prog.pct,
     n_threads: getThreadCount(),
   }
@@ -170,8 +148,20 @@ export function patchSettings(patch: Partial<Settings>): Settings {
 export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, releaseModel, testGemini, testGroq, geminiReady }
 
 async function routeDeterministic(conversationId: string, content: string): Promise<RouteHit | null> {
-  if (isHelpCommand(content)) {
-    return { reply: HELP_TEXT, lastTool: 'help' }
+  if (isHelpCommand(content) || isHelpCommand(normalizeUtterance(content))) {
+    return {
+      reply: HELP_TEXT,
+      lastTool: 'help',
+      tool: { tool_status: 'executed', tool: 'help', action: 'catalog', label: 'Hilfe' },
+    }
+  }
+
+  if (isPersonaAsk(content) || isPersonaAsk(normalizeUtterance(content))) {
+    return {
+      reply: PERSONA_ASK_TEXT,
+      lastTool: 'identity',
+      tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Jarvis' },
+    }
   }
 
   const refuse = hardRefuse(content)
@@ -231,6 +221,42 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         tool: pcPending.tool,
         lastTool: pcPending.lastTool || 'pc',
       }
+    }
+  }
+
+  if (loadSettings().last_taxi_json) {
+    const taxiPending = await handleTaxi(conversationId, content)
+    if (taxiPending.handled && taxiPending.reply) {
+      return {
+        reply: taxiPending.reply,
+        tool: taxiPending.tool,
+        lastTool: taxiPending.lastTool || 'taxi',
+      }
+    }
+  }
+
+  if (loadSettings().last_interrupt_json) {
+    const interruptHit = await handleInterrupt(conversationId, content)
+    if (interruptHit.handled && interruptHit.reply) {
+      return {
+        reply: interruptHit.reply,
+        tool: interruptHit.tool,
+        lastTool: interruptHit.lastTool || 'interrupt',
+      }
+    }
+  }
+
+  if (loadSettings().last_step_tool === 'chain_ask') {
+    if (isCommNo(content)) {
+      clearChain()
+      saveSettings({ last_step_tool: '' })
+      return { reply: 'Kette verworfen.', lastTool: 'taxi' }
+    }
+    if (isCommYes(content)) {
+      saveSettings({ last_step_tool: '' })
+      const next = popChain()
+      if (next) return routeDeterministic(conversationId, next)
+      return { reply: 'Nichts mehr in der Kette.', lastTool: 'taxi' }
     }
   }
 
@@ -296,268 +322,7 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: `Das ${label}: ${title}.`, lastTool: loadSettings().last_step_tool || 'ordinal' }
   }
 
-  const tvHit = await handleTv(content)
-  if (tvHit.handled && tvHit.reply) {
-    return {
-      reply: tvHit.reply,
-      tool: { tool_status: 'executed', tool: 'tv', action: 'command', label: 'TV' },
-      lastTool: 'tv',
-    }
-  }
-
-  const filmHit = await handleFilm(conversationId, content)
-  if (filmHit.handled && filmHit.reply) {
-    return {
-      reply: filmHit.reply,
-      tool: filmHit.tool,
-      lastTool: filmHit.lastTool || 'film',
-    }
-  }
-
-  const fanHit = await handleFan(content)
-  if (fanHit.handled && fanHit.reply) {
-    return {
-      reply: fanHit.reply,
-      tool: { tool_status: 'executed', tool: 'fan', action: 'command', label: 'Ventilator' },
-      lastTool: 'fan',
-    }
-  }
-
-  const plugHit = await handlePlug(content)
-  if (plugHit.handled && plugHit.reply) {
-    return {
-      reply: plugHit.reply,
-      tool: { tool_status: 'executed', tool: 'plug', action: 'command', label: 'Steckdose' },
-      lastTool: 'plug',
-    }
-  }
-
-  const hereHit = await handleHere(content)
-  if (hereHit.retry === 'fuel') {
-    const retryFuel = await handleFuel(conversationId, loadSettings().last_step_utterance || 'fahr mich zu einer Tanke')
-    if (retryFuel.handled && retryFuel.reply) {
-      return {
-        reply: retryFuel.reply,
-        tool: retryFuel.tool,
-        lastTool: retryFuel.lastTool || 'fuel',
-        research: retryFuel.research,
-      }
-    }
-  }
-  if (hereHit.retry === 'weather') {
-    const retryWeather = await handleWeather(loadSettings().last_step_utterance || 'Wetter hier')
-    if (retryWeather.handled && retryWeather.reply) {
-      return {
-        reply: retryWeather.reply,
-        tool: retryWeather.tool,
-        research: retryWeather.research,
-        lastTool: 'weather',
-      }
-    }
-  }
-  if (hereHit.retry === 'poi') {
-    const retryPoi = await handlePoi(conversationId, loadSettings().last_step_utterance || 'nächste Apotheke')
-    if (retryPoi.handled && retryPoi.reply) {
-      return {
-        reply: retryPoi.reply,
-        tool: retryPoi.tool,
-        lastTool: retryPoi.lastTool || 'poi',
-      }
-    }
-  }
-  if (hereHit.retry === 'transit') {
-    const retryTransit = await handleTransit(
-      conversationId,
-      loadSettings().last_step_utterance || 'nächste Bahn nach Heilbronn',
-    )
-    if (retryTransit.handled && retryTransit.reply) {
-      return {
-        reply: retryTransit.reply,
-        tool: retryTransit.tool,
-        lastTool: retryTransit.lastTool || 'transit',
-        research: retryTransit.research,
-      }
-    }
-  }
-  if (hereHit.handled && hereHit.reply) {
-    return {
-      reply: hereHit.reply,
-      tool: hereHit.tool,
-      lastTool: hereHit.lastTool || 'here',
-    }
-  }
-
-  const fuelHit = await handleFuel(conversationId, content)
-  if (fuelHit.handled && fuelHit.reply) {
-    return {
-      reply: fuelHit.reply,
-      tool: fuelHit.tool,
-      lastTool: fuelHit.lastTool || 'fuel',
-      research: fuelHit.research,
-    }
-  }
-
-  const poiHit = await handlePoi(conversationId, content)
-  if (poiHit.handled && poiHit.reply) {
-    return {
-      reply: poiHit.reply,
-      tool: poiHit.tool,
-      lastTool: poiHit.lastTool || 'poi',
-    }
-  }
-
-  const transitHit = await handleTransit(conversationId, content)
-  if (transitHit.handled && transitHit.reply) {
-    return {
-      reply: transitHit.reply,
-      tool: transitHit.tool,
-      lastTool: transitHit.lastTool || 'transit',
-      research: transitHit.research,
-    }
-  }
-
-  if (isMusicHonesty(content)) {
-    return {
-      reply: 'Musik ist nicht angebunden.',
-      lastTool: 'music',
-    }
-  }
-
-  const driveHit = await handleDrive(conversationId, content)
-  if (driveHit.handled && driveHit.reply) {
-    return {
-      reply: driveHit.reply,
-      tool: driveHit.tool,
-      lastTool: driveHit.lastTool || 'drive',
-    }
-  }
-
-  const deviceHit = await handleDevice(conversationId, content)
-  if (deviceHit.handled && deviceHit.reply) {
-    return {
-      reply: deviceHit.reply,
-      tool: deviceHit.tool,
-      lastTool: deviceHit.lastTool || 'device',
-    }
-  }
-
-  const pcHit = await handlePc(conversationId, content)
-  if (pcHit.handled && pcHit.reply) {
-    return {
-      reply: pcHit.reply,
-      tool: pcHit.tool,
-      lastTool: pcHit.lastTool || 'pc',
-    }
-  }
-
-  const placeHit = await handlePlaces(conversationId, content)
-  if (placeHit.handled && placeHit.reply) {
-    return {
-      reply: placeHit.reply,
-      tool: placeHit.tool,
-      lastTool: placeHit.lastTool || 'maps',
-    }
-  }
-
-  const memHit = await handleMemory(conversationId, content)
-  if (memHit.handled && memHit.reply) {
-    return { reply: memHit.reply, lastTool: 'memory' }
-  }
-
-  if (isBriefAsk(content)) {
-    const briefHit = await handleBrief()
-    if (briefHit.handled && briefHit.reply) {
-      return { reply: briefHit.reply, tool: briefHit.tool, lastTool: briefHit.lastTool || 'brief' }
-    }
-  }
-
-  const shopHit = await handleShopping(conversationId, content)
-  if (shopHit.handled && shopHit.reply) {
-    return { reply: shopHit.reply, tool: shopHit.tool, lastTool: shopHit.lastTool || 'shopping' }
-  }
-
-  const bdayHit = await handleBirthday(conversationId, content)
-  if (bdayHit.handled && bdayHit.reply) {
-    return { reply: bdayHit.reply, tool: bdayHit.tool, lastTool: bdayHit.lastTool || 'birthday' }
-  }
-
-  const leaveHit = await handleLeave(conversationId, content)
-  if (leaveHit.handled && leaveHit.reply) {
-    return { reply: leaveHit.reply, tool: leaveHit.tool, lastTool: leaveHit.lastTool || 'leave' }
-  }
-
-  const holidayHit = await handleHoliday(content)
-  if (holidayHit.handled && holidayHit.reply) {
-    return { reply: holidayHit.reply, tool: holidayHit.tool, lastTool: holidayHit.lastTool || 'holiday' }
-  }
-
-  const calHit = await handleCalendar(conversationId, content)
-  if (calHit.handled && calHit.reply) {
-    return { reply: calHit.reply, tool: calHit.tool, lastTool: 'calendar' }
-  }
-
-  const alarmHit = await handleAlarms(conversationId, content)
-  if (alarmHit.handled && alarmHit.reply) {
-    return { reply: alarmHit.reply, tool: alarmHit.tool, lastTool: 'alarm' }
-  }
-
-  const timerHit = await handleTimers(conversationId, content)
-  if (timerHit.handled && timerHit.reply) {
-    return { reply: timerHit.reply, tool: timerHit.tool, lastTool: 'timer' }
-  }
-
-  const remindHit = await handleReminders(conversationId, content)
-  if (remindHit.handled && remindHit.reply) {
-    return { reply: remindHit.reply, tool: remindHit.tool, lastTool: 'reminder' }
-  }
-
-  const toolHit = await handleTools(conversationId, content)
-  if (toolHit.handled && toolHit.reply) {
-    return { reply: toolHit.reply, tool: toolHit.tool, lastTool: toolHit.tool?.tool || 'todo' }
-  }
-
-  if (parseEyeIntent(content)) {
-    const eyeHit = await handleEyeAsk()
-    if (eyeHit.handled && eyeHit.reply) {
-      return { reply: eyeHit.reply, tool: eyeHit.tool, lastTool: eyeHit.lastTool || 'eye' }
-    }
-  }
-
-  const worldHit = await handleWorld(content)
-  if (worldHit.handled && worldHit.reply) {
-    return {
-      reply: worldHit.reply,
-      tool: worldHit.tool,
-      lastTool: worldHit.lastTool || 'world',
-    }
-  }
-
-  const weatherHit = await handleWeather(content)
-  if (weatherHit.handled && weatherHit.reply) {
-    return {
-      reply: weatherHit.reply,
-      tool: weatherHit.tool,
-      research: weatherHit.research,
-      lastTool: 'weather',
-    }
-  }
-
-  const newsHit = await handleNews(content)
-  if (newsHit.handled && newsHit.reply) {
-    return {
-      reply: newsHit.reply,
-      tool: newsHit.tool,
-      research: newsHit.research,
-      lastTool: newsHit.lastTool || 'news',
-    }
-  }
-
-  const searchHit = await handleChatSearch(content)
-  if (searchHit.handled && searchHit.reply) {
-    return { reply: searchHit.reply, tool: searchHit.tool, lastTool: searchHit.lastTool || 'search' }
-  }
-
-  return null
+  return routeRegistry(conversationId, content)
 }
 
 function lastStepHint(): string {
@@ -674,17 +439,24 @@ export async function streamChat(
   if (!conv) throw new Error('Gespräch nicht gefunden.')
 
   const userMessage = await addMessage(conversationId, 'user', content)
-  const usingGemini = geminiReady()
+  const kind = brainKind()
   handlers.onMeta?.({
     user_message: userMessage,
-    model: usingGemini ? GEMINI_LABEL : DEFAULT_MODEL.label,
-    using_fallback: false,
+    model: brainLabel(kind),
+    using_fallback: kind === 'groq' || kind === 'local',
     research: null,
   })
 
   try {
-    const parts = splitIntents(normalizeUtterance(content))
-    const texts = parts.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
+    const rawParts = splitIntents(normalizeUtterance(content))
+    const parts = rawParts.length > 1 ? rawParts.map(promoteSplitPart) : rawParts
+    let queue = parts
+    if (parts.length > 1) {
+      const { reads, writes } = partitionChain(parts)
+      writeChain(writes.slice(1))
+      queue = writes.length ? [...reads, writes[0]] : reads
+    }
+    const texts = queue.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
     const routed: Array<RouteHit | null> = []
     for (const text of texts) {
       routed.push(await routeDeterministic(conversationId, text))
@@ -692,7 +464,7 @@ export async function streamChat(
     const found = routed.filter((h): h is RouteHit => Boolean(h))
     if (found.length && (found.length === routed.length || routed.length > 1)) {
       const replies = routed.map((h, i) =>
-        h ? h.reply : `„${parts[i]}“ habe ich nicht als Befehl erkannt.`,
+        h ? h.reply : `„${queue[i]}“ habe ich nicht als Befehl erkannt.`,
       )
       for (const hit of found) await rememberHit(hit, content)
       const last = found[found.length - 1]
@@ -725,44 +497,9 @@ export async function streamChat(
       return
     }
 
-    if (opts?.voice && !geminiReady()) {
-      if (groqReady()) {
-        const history = await listMessages(conversationId)
-        const mem = await listMemory()
-        const system = [GEMINI_PERSONA, VOICE_HINT, memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
-        const llmMessages = [
-          { role: 'system', content: system },
-          ...history.slice(-16).map((m) => ({
-            role: m.role === 'assistant' ? 'assistant' : 'user',
-            content: m.content,
-          })),
-        ]
-        let acc = ''
-        const raw = await completeGroq(llmMessages, (_piece, full) => {
-          acc = full
-          handlers.onToken?.(_piece)
-        })
-        const final = scrubReply((raw || acc).trim())
-        if (final !== (raw || acc)) handlers.onReplace?.(final)
-        const assistant = await addMessage(
-          conversationId,
-          'assistant',
-          final,
-          debugPayload({
-            route: 'llm',
-            model: 'groq',
-            gemini: false,
-            voice: true,
-            raw: raw || acc,
-            final,
-          }),
-        )
-        const updated = (await touchConversation(conversationId)) || conv
-        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
-        return
-      }
+    if (opts?.voice && kind === 'none') {
       const reply =
-        NO_GEMINI_VOICE
+        'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
       handlers.onToken?.(reply)
       const assistant = await addMessage(
         conversationId,
@@ -781,12 +518,8 @@ export async function streamChat(
       return
     }
 
-    if (!geminiReady()) {
-      if (!isModelReady()) {
-        throw new Error(
-          'Lokales Modell ist aus. Unter Einstellungen starten — oder Gemini einschalten.',
-        )
-      }
+    if (kind === 'none') {
+      throw new Error(noBrainLine())
     }
 
     const s = loadSettings()
@@ -866,14 +599,16 @@ export async function streamChat(
         research = await fillResearchLinks(content, '', research)
       }
       const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
-      const system = geminiReady()
-        ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
+      const pack = personaPack(loadFace())
+      const cloud = kind === 'gemini' || kind === 'groq'
+      const system = cloud
+        ? [pack.gemini, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content), lastStepHint()]
             .filter(Boolean)
             .join('\n\n')
-        : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
+        : [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content), lastStepHint()].filter(Boolean).join('\n\n')
       const llmMessages = [
         { role: 'system', content: system },
-        ...history.slice(geminiReady() || opts?.voice ? -12 : -8).map((m) => ({
+        ...history.slice(cloud || opts?.voice ? -12 : -8).map((m) => ({
           role: m.role === 'assistant' ? 'assistant' : 'user',
           content: m.content,
         })),
@@ -888,7 +623,7 @@ export async function streamChat(
       acc = ''
       raw = ''
       try {
-        raw = geminiReady()
+        raw = kind === 'gemini'
           ? await (opts?.voice || !wantSearch ? streamGemini : completeGemini)(
               llmMessages,
               (_piece, full) => {
@@ -910,10 +645,21 @@ export async function streamChat(
               }
               return r.text
             })
-          : await completeChat(llmMessages, (_piece, full) => {
-              acc = full
-              handlers.onToken?.(_piece)
-            })
+          : (
+              await completeBrain(
+                llmMessages,
+                (_piece, full) => {
+                  acc = full
+                  handlers.onToken?.(_piece)
+                },
+                {
+                  search: wantSearch,
+                  maxOutputTokens: opts?.voice ? 420 : 420,
+                  timeoutMs: 8_000,
+                  voice: opts?.voice,
+                },
+              )
+            ).text
       } catch (err) {
         if (!wantSearch || !researchHasSources(research)) throw err
         raw = ''
@@ -968,7 +714,7 @@ export async function streamChat(
         }
       }
 
-      if (pass === 0 && geminiReady() && !wantSearch && shouldRetrySearch(content, text, discount)) {
+      if (pass === 0 && kind === 'gemini' && !wantSearch && shouldRetrySearch(content, text, discount)) {
         wantSearch = true
         continue
       }
@@ -1004,7 +750,7 @@ export async function streamChat(
     })
   } catch (err) {
     const raw = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
-    const detail = geminiReady() ? userFacingCloudError(raw, groqReady()) : raw
+    const detail = kind === 'gemini' || kind === 'groq' ? userFacingCloudError(raw, groqReady()) : raw
     handlers.onError?.(detail)
     throw new Error(detail)
   }

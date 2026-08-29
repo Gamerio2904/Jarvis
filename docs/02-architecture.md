@@ -1,57 +1,61 @@
 # 02 — Architektur
 
-> **Live `2.19.0`:** Gemini-Opt-in, TV, Alltag, Welt (DWD bis Schach). `2.2.4` 1.5B SHOULD ([`30-next.md`](./30-next.md)). `14` in [`README.md`](./README.md) ist TV.
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback (`pickBrain` in `brain-pick.ts`). Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — Export [`38-next.md`](./38-next.md) **CODE**; **Deinstall ohne Import löscht alles**. Lage neben Chat: [`39-next.md`](./39-next.md). Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md)/[`48-next.md`](./48-next.md) **CODE**, Debug [`44-next.md`](./44-next.md) **CODE**. LocateAnything-Gewichte: [`41-next.md`](./41-next.md).
 
 ## Leitentscheidung
 
-**Design = Variante 3 (lokal).**  
-Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorgesehen.
+**Gerät = Handy.** Jarvis denkt auf dem Telefon. Der PC ist Werkzeug (`JarvisPC.bat`), kein zweites Hirn.
+
+**Denk-Kaskade (`6.50`+, Overlay `6.53` in `6.60`):**
+
+1. **Gemini** — sobald Toggle + API-Key in Einstellungen → Cloud (`geminiReady`)
+2. **Groq** — eigener Key, wenn Gemini fehlt oder tot
+3. **0,5B Qwen** (wllama) — letzter Fallback, nie als Claude verkaufen
+4. sonst ehrlich: Tools ohne Modell, Overlay „Fertig — Tools ohne Modell“
+
+Parser wählen Geräte. Das Hirn formuliert, erfindet keine Tool-Zahlen.
 
 | Aspekt | Entscheidung |
 |--------|----------------|
 | Gesprächsform | Text-Chat (Typ A: Chat-Mensch) |
-| Denk-Engine | Lokales LLM |
-| Modell-Host MVP | **historisch Ollama** (PC). Ab `0.13.0`: **wllama / llama.cpp WASM** on-device |
-| Laufzeit MVP | historisch Windows + RTX 3060. Alltag: **Android-APK** |
-| Qualitäts-/Speed-Priorität | **Qualität zuerst**; Tempo ohne Prompt-/Sampling-Schnitt (`0.13.2`) |
-| Laufzeit `0.13.x` | Android-APK, llama.cpp WASM; Default Qwen2.5-0.5B Q4; optional 1.5B in `2.2.4` |
+| Denk-Engine **jetzt** | Gemini Hauptweg, Groq Backup, 0,5B zuletzt |
+| Denk-Engine historisch Sprint 1 | Lokales LLM über **Ollama** — entfallen ab `0.13` |
+| Modell-Host lokal | wllama / llama.cpp WASM, Qwen2.5-0.5B-Instruct Q4 (~470 MB) |
+| Laufzeit MVP | Entwicklungsrechner: **Windows, 16 GB RAM, NVIDIA RTX 3060** |
+| Qualitäts-/Speed-Priorität | **Qualität > Rohgeschwindigkeit**; so schnell wie möglich, Speed-Feintuning später |
 | Chat-Persistenz MVP | **Gespräche zwischen Sessions speichern** |
-| Sicherheit MVP (vorerst) | Kein Cloud-LLM + Zugang nur für dich; At-rest-Encryption noch nicht fest (erstmal zurückgestellt) |
-| Stimme | **Code `1.5`+:** TTS liest denselben Text (Gemini-Stimme opt-in) |
+| Sicherheit | Keys nur auf dem Gerät; kein Key in der APK; At-rest-Encryption zurückgestellt |
+| Laufzeit `0.13.x`+ | Android-APK, llama.cpp WASM on-device |
+| Stimme | **Code `1.5`+:** TTS liest denselben Text (Gemini-Stimme Algieba) |
 | Handy | Die App **ist** Jarvis; Sideload, kein Store |
 | UI-Kanal | Web-UI in Capacitor; kein Telegram |
 | UI-Look | **Spotify dunkel** (Schwarz/Grün) + **ChatGPT** (Layout/Buttons/Chat-Struktur) |
-| UI-Motion | **Code `1.13.0`:** Chrome fest, Chat scrollt, Motion; `prefers-reduced-motion` |
-| Chat-Organisation | **Zielbild:** mehrere Chats + Liste + „Neues Gespräch“ (ChatGPT-ähnlich) |
-| Kontext / Erinnern | In-Chat + Langzeitgedächtnis (`0.4.x`); Honesty-Nachzug `2.2.3` |
-| Engine | TypeScript in der APK (kein FastAPI) |
-| Modellklasse Alltag | Qwen2.5-0.5B Q4; optional 1.5B (`2.2.4`) |
+| UI-Motion | **Code `1.13.0`:** Chrome fest, Chat scrollt; Bühne `6.50` 30 fps |
+| Chat-Organisation | mehrere Chats + Liste + „Neues Gespräch“ |
+| Kontext / Erinnern | In-Chat inkl. Wiederöffnen; Memory-Tools on-device |
+| Backend | On-Device TypeScript; kein Server |
 | Version `0.1.0` | = **MVP** (Sprint-1-Abnahme) |
-| Version `0.10.0` | = NAS Core — **Parking** |
-| Version `0.11.0` | = Samsung-TV — **Parking** |
 | Version `0.13.0` | = **On-Device Handy** |
-| Version `0.13.2` | Chat-Hang: Stream + Threads — **CODE**, in `2.2.2` |
-| Version `2.2.3` | Live-Qualität ([`30-next.md`](./30-next.md)) |
-| Version `2.2.4` | optional 1.5B (SHOULD) |
-| Version `0.14.1` | Samsung-TV live |
-| Version `1.0.0` | Jarvis 1.0 (historisch geliefert, Stand jetzt `2.2.2`) |
+| Version `6.50.0` | = Gemini Hauptweg + Bühne |
+| Version `6.90.0` | = aktueller App-Code und Sideload (Globus-Briefing) |
+| Version `6.60.0` | = voriger Sideload (Split, Overlay, Parser) |
 
 ## Logische Bausteine
 
 ```text
 [Du — Handy]
         │
-        │  `0.13.x`: on-device, kein Server
+        │  on-device, kein Server
         ▼
 [Chat-UI in der APK]
         │
         ▼
 [Jarvis-Engine auf dem Handy]
-   • Persona / Memory / Tools / Guards
-   • wllama (llama.cpp WASM)
+   • Persona / Memory / Tools / Guards / Parser
+   • pickBrain: Gemini → Groq → 0,5B
         │
         ▼
-[IndexedDB auf dem Gerät]
+[IndexedDB + localStorage auf dem Gerät]
 ```
 
 ### Baustein-Erklärung (für Amateure)
@@ -59,37 +63,33 @@ Jarvis denkt auf deiner Hardware. Cloud-LLMs sind für das Denken **nicht** vorg
 | Baustein | Einfach gesagt |
 |----------|----------------|
 | **Chat-UI** | Das Fenster, in dem du tippst und Antworten liest. |
-| **Engine** | Persona, Memory, Tools, Guards — läuft in der App. |
-| **Modell** | llama.cpp WASM (wllama) auf dem Handy. |
+| **Parser / Register** | Wählen das Gerät (Timer, Kugel, SMS, …), nicht das LLM. |
+| **Hirn** | Gemini mit Key, sonst Groq, sonst 0,5B. Formuliert, wählt keine Tools. |
 | **Kurzzeitgedächtnis** | Die letzten Nachrichten werden mitgeschickt, damit Jarvis dem Gespräch folgen kann. |
-| **TTS (später)** | Wandelt Jarvis’ Text in gesprochene Sprache um — ohne das Denkmodell zu ersetzen. |
+| **TTS** | Wandelt Jarvis’ Text in gesprochene Sprache um — ohne das Denkmodell zu ersetzen. |
 
 ## Prinzipien
 
-1. **Eine Denk-Quelle** — Lokal. Keine heimliche Cloud-Fallback-KI ohne bewusste Entscheidung.
+1. **Eine Denk-Quelle pro Turn** — `pickBrain`, keine heimliche zweite KI. Reihenfolge bewusst: Gemini zuerst.
 2. **Persona sitzt in der Engine** — Nicht „hoffentlich antwortet das Modell nett“, sondern feste Regeln.
 3. **Ausgabe ≠ Intelligenz** — TTS ist nur Stimme für vorhandenen Text.
-4. **Kein Server im Alltag** — `0.13.x` braucht kein LAN, kein Token, kein NAS-Port.
-5. **On-device Alltag** — Denken in der APK. NAS/PC-Ollama sind Parking.
+4. **Netzwerk hart machen** — Fernzugriff erst mit Auth; PC-Token im WLAN.
+5. **Keys lokal** — Gemini/Groq-Keys in `localStorage`, Hausstand-Export vor Deinstall.
 
 ## Datenschutz & Sicherheit (Architektur-Regeln)
 
-- Chats und Persona bleiben auf dem Gerät (IndexedDB).
-- Kein Cloud-LLM fürs Denken.
+- Chats, Memory, Keys bleiben auf dem Gerät.
+- Cloud-Hirn nur mit **deinem** Key (Gemini Hauptweg, Groq Backup). Kein Key in der APK.
+- 0,5B geht nicht ins Netz; Gemini/Groq-Chat schon — Overlay und Banner sagen das.
 - Keine unnötigen Drittanbieter-Telemetrie-Abhängigkeiten in der UI.
-- Fernzugriff entfällt in `0.13.x` (kein Server).
-- Speichern nur, was für Chat/Memory/Tools nötig ist.
+- MVP speichert nur, was für Smalltalk und Haus-Tools nötig ist.
 
 ## Bewusst offene Technikdetails
 
-Fest in `0.13.x`: Modell Qwen2.5-0.5B Q4, Host wllama, Persistenz IndexedDB/OPFS.  
-Offen (PO): natives llama.cpp `0.14.0`, TTS, optional 1.5B-Abnahme.
+Geklärt in späteren Docs; Rest in `08-open-questions.md`:
 
-## Spätere Erweiterungen (nicht Alltag jetzt)
+- LocateAnything-Gewichte am PC (`4.77` 3060-GO)
+- Debug-Hintergrund-Service `5.12`
+- At-rest-Encryption
 
-| Erweiterung | Phase / Version |
-|-------------|-----------------|
-| On-Device Latenz / Qualität / 1.5B | `0.13.2`–`0.13.4` |
-| Native llama.cpp | `0.14.0` (PO) |
-| TTS-Vorlesen | Phase 4 (PO) |
-| NAS / Samsung-TV | Parking |
+Historische Sprint-1-Offenheiten (Ollama, NAS-Host) sind **superseded**.

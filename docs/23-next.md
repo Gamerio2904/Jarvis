@@ -1,5 +1,8 @@
 # 23 — Alltag 1.29 (Suche, Fire TV, GUI, Widget, Ventilator)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-17: Screenshot-Suche ist leer, Fire TV behauptet „nur in der Android-App“ obwohl die APK offen ist, GUI soll schlichter (Icons, runder Mic), Widget 2×4 mit Sprache an/aus, Deckenventilator steuern ([Amazon B0CGQSNR76](https://www.amazon.de/dp/B0CGQSNR76)).
 
 Reihe davor: [`22-next.md`](./22-next.md). App vorher: Sideload **`1.28.3`**.

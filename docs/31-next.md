@@ -1,34 +1,39 @@
-# 31 — Alltag & Welt (`2.3`–`2.19`) **CODE**
+# 31 — Alltag & Welt (`3.1`–`3.17`) **CODE**
 
-PO 2026-08-20: Nächste Updates planen — Unwetter/DWD, Schulferien, Wechselkurse, Open Food Facts, Open Library, Bundesliga, Research, Stimme, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sport, Handy-Sensoren, Schach. Freie APIs, nichts erfinden.
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
 
-Reihe davor: [`30-next.md`](./30-next.md) — **`2.2.3` Live-Qualität CODE** (in Sideload **`2.19.0`**). `2.2.4` (1.5B) bleibt SHOULD und ist nicht gebaut.
 
-Eine Sideload-Stufe: **`2.19.0`** enthält `2.3`–`2.19`.
+PO 2026-08-20: Unwetter/DWD, Schulferien, Wechselkurse, Open Food Facts, Open Library, Bundesliga, Research, Stimme, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sport, Handy-Sensoren, Schach. Freie APIs, nichts erfinden.
+
+PO 2026-08-26: Intelligenz zuerst — [`32-intelligence.md`](./32-intelligence.md) ist **`3.0.0`**. Diese Reihe ist **`3.1`–`3.17`**, mitgeliefert in Sideload-Code `3.0.0`.
+
+Reihe davor: Register `3.0.0`. Schiene gelandet in **`3.0.0`**, mitgeliefert in `6.60.0`.
+
+Eine logische Stufe pro Version; Auslieferung gebündelt.
 
 ## Reihenfolge
 
 | Version | Inhalt | API / Quelle | Status |
 |---------|--------|--------------|--------|
-| **`2.3.0`** | Unwetter / DWD-Warnung | DWD CAP/Warnungen, kein Key | **CODE** (in `2.19.0`) |
-| **`2.4.0`** | Schulferien DE | Ferien-API, kein Key | **CODE** (in `2.19.0`) |
-| **`2.5.0`** | Wechselkurse | EZB über Frankfurter.app, kein Key | **CODE** (in `2.19.0`) |
-| **`2.6.0`** | Research härten | Wikipedia/Destatis zuerst, dann bestehende Suche | **CODE** (in `2.19.0`) |
-| **`2.7.0`** | Stimme Alltag | vorhandenes TTS; Uhr, Warnung, Ferien vorsprechen | **CODE** (in `2.19.0`) |
-| **`2.8.0`** | Open Food Facts | openfoodfacts.org + Kamera | **CODE** (in `2.19.0`) |
-| **`2.9.0`** | Open Library | openlibrary.org | **CODE** (in `2.19.0`) |
-| **`2.10.0`** | Bundesliga | OpenLigaDB, frei | **CODE** (in `2.19.0`) |
-| **`2.11.0`** | Sport-Ergebnisse | gleiche Sport-Schiene, weitere Ligen | **CODE** (in `2.19.0`) |
-| **`2.12.0`** | Garten & Pflanzen | iNaturalist/Wikipedia, Foto | **CODE** (in `2.19.0`) |
-| **`2.13.0`** | Himmel | ISS Open Notify; Mond lokal | **CODE** (in `2.19.0`) |
-| **`2.14.0`** | Tiere draußen | xeno-canto / iNaturalist | **CODE** (in `2.19.0`) |
-| **`2.15.0`** | Flüge überm Haus | OpenSky, kein Key | **CODE** (in `2.19.0`) |
-| **`2.16.0`** | Recht Alltag | gesetze-im-internet.de | **CODE** (in `2.19.0`) |
-| **`2.17.0`** | Haushalt | Wikibooks / festes Wissen, keine Live-Erfindung | **CODE** (in `2.19.0`) |
-| **`2.18.0`** | Handy-Sensoren | Schritte, Barometer, Kompass — lokal | **CODE** (in `2.19.0`) |
-| **`2.19.0`** | Schach | Chat-Notation, Züge legal | **CODE** |
+| **`3.1.0`** | Unwetter / DWD-Warnung | DWD JSON, kein Key | **CODE** |
+| **`3.2.0`** | Schulferien DE | ferien-api.de | **CODE** |
+| **`3.3.0`** | Wechselkurse | EZB über Frankfurter.app | **CODE** |
+| **`3.4.0`** | Research härten | Wikipedia + Destatis zuerst | **CODE** |
+| **`3.5.0`** | Stimme Alltag | vorhandenes TTS, ganze Sätze | **CODE** |
+| **`3.6.0`** | Open Food Facts | openfoodfacts.org | **CODE** |
+| **`3.7.0`** | Open Library | openlibrary.org | **CODE** |
+| **`3.8.0`** | Bundesliga | OpenLigaDB | **CODE** |
+| **`3.9.0`** | Sport-Ergebnisse | gleiche Schiene, weitere Ligen | **CODE** |
+| **`3.10.0`** | Garten & Pflanzen | iNaturalist | **CODE** |
+| **`3.11.0`** | Himmel | Where The ISS At; Mond lokal | **CODE** |
+| **`3.12.0`** | Tiere draußen | iNaturalist | **CODE** |
+| **`3.13.0`** | Flüge überm Haus | OpenSky | **CODE** |
+| **`3.14.0`** | Recht Alltag | Wikipedia + gesetze-im-internet.de | **CODE** |
+| **`3.15.0`** | Haushalt | ISO-3758-Symbole, festes Wissen | **CODE** |
+| **`3.16.0`** | Handy-Sensoren | Schritte/Luftdruck ehrlich leer; Kompass wenn Sensor | **CODE** |
+| **`3.17.0`** | Schach | Chat-Brett, legale Züge | **CODE** |
 
-Sprint-Kickoff: [`sprint-107.md`](./sprints/sprint-107.md). Live-Qualität: [`sprint-105.md`](./sprints/sprint-105.md) / `2.2.3` **CODE** in `2.19.0`.
+Kickoff Docs: [`sprint-105.md`](./sprints/sprint-105.md). Intelligenz-Code: [`sprint-106.md`](./sprints/sprint-106.md).
 
 ## Leitentscheidung
 
@@ -36,41 +41,43 @@ Sprint-Kickoff: [`sprint-107.md`](./sprints/sprint-107.md). Live-Qualität: [`sp
 |-------|----------------|
 | Netz | Nur freie APIs oder schon vorhandene Suche. Kein neuer Cloud-Zwang. |
 | Ehrlichkeit | Fehlt die Zahl/Art/Warnung: das sagen. Kein Raten, kein Anwalts-Rat, keine Essbarkeit. |
-| Wetter | `Wetter heute` bleibt Open-Meteo ohne AQI/Sonne. Warnung nur bei Unwetter-Frage oder klarer Lage. |
-| Foto | Food/Pflanze/Tier nur mit Treffer + Link. Unbekannt = ehrlich. |
-| Stimme | Keine neue TTS-Firma. Vorhandenes TTS spricht die neuen kurzen Fakten. |
-| Sport | Nur API-Stand. Kein Tippspiel, keine erfundenen Tore. |
+| Wetter | `Wetter heute` bleibt Open-Meteo. Warnung nur bei Unwetter-Frage. |
+| Foto | Food/Pflanze/Tier: Name oder Foto-Knopf. Unbekannt = ehrlich. |
+| Stimme | Keine neue TTS-Firma. |
+| Sport | Nur API-Stand. Kein Tippspiel. |
 | Recht | Zitat + Link. Nicht „Sie sollten klagen“. |
-| Sensoren | Ohne Freigabe ehrlich. Keine Gesundheitsdiagnose. |
-| Schach | Brett im Chat. Kein Account-Zwang. |
+| Sensoren | Ohne Sensor ehrlich. Keine Gesundheitsdiagnose. |
+| Schach | Brett im Chat. Kein Account. |
+| Routing | Jede Fähigkeit ist ein Register-Eintrag. |
 
 ## Chat (Zielbild)
 
 | Version | Beispiel |
 |---------|----------|
-| `2.3.0` | `Gibt’s Unwetter?` / `DWD Warnung` |
-| `2.4.0` | `Sind in BW Ferien?` |
-| `2.5.0` | `Was ist der Dollar?` |
-| `2.6.0` | `Was ist der BIP in Deutschland` — zuerst belegte Quelle |
-| `2.7.0` | Uhr, Warnung, Ferien werden vorgelesen, ganze Sätze |
-| `2.8.0` | Foto + `Was ist das für ein Produkt?` |
-| `2.9.0` | `Was ist das für ein Buch?` / Titel |
-| `2.10.0` | `Wie hat der VfB gespielt?` |
-| `2.11.0` | `Ergebnis Bayern` / andere Liga, wenn die API sie hat |
-| `2.12.0` | Foto + `Was ist das für eine Pflanze?` |
-| `2.13.0` | `Wann fliegt die ISS?` / `Mondphase` |
-| `2.14.0` | `Welcher Vogel ist das?` (Foto oder ehrliche Absage ohne Clip) |
-| `2.15.0` | `Was fliegt da?` |
-| `2.16.0` | `Kündigungsfrist Wohnung` — Paragraph + Link |
-| `2.17.0` | `Was bedeutet die Waschschüssel?` / Fleck |
-| `2.18.0` | `Wie viele Schritte heute?` / `Luftdruck` |
-| `2.19.0` | `Schach e2e4` / `Schach neu` |
+| `3.1.0` | `Gibt’s Unwetter?` / `DWD Warnung` |
+| `3.2.0` | `Sind in BW Ferien?` |
+| `3.3.0` | `Was ist der Dollar?` |
+| `3.4.0` | `Was ist der BIP in Deutschland` — Wikipedia/Destatis zuerst |
+| `3.5.0` | Uhr, Warnung, Ferien in ganzen Sätzen |
+| `3.6.0` | `Was ist das für ein Produkt Nutella` |
+| `3.7.0` | `Was ist das für ein Buch Der Prozess` |
+| `3.8.0` | `Wie hat der VfB gespielt?` |
+| `3.9.0` | `Ergebnis Bayern` / andere Liga, wenn die API sie hat |
+| `3.10.0` | `Was ist das für eine Pflanze` |
+| `3.11.0` | `Wann fliegt die ISS?` / `Mondphase` |
+| `3.12.0` | `Welcher Vogel ist das?` |
+| `3.13.0` | `Was fliegt da?` |
+| `3.14.0` | `Kündigungsfrist Wohnung` — Text + Link, kein Rat |
+| `3.15.0` | `Was bedeutet die Waschschüssel 30` |
+| `3.16.0` | `Wie viele Schritte heute?` / `Luftdruck` — ehrlich ohne Sensor |
+| `3.17.0` | `Schach e2e4` / `Schach neu` |
 
-## Probe (wenn die jeweilige Version CODE ist)
+## Probe
 
-1. Frage wie in der Tabelle — Antwort aus der Quelle oder ehrlich leer.
-2. Regression nach `2.2.3`: `Wetter heute` (nur Wetter+Ort), `Was steht an` ohne Wetter, `Steckdose an`, `Wie spät ist es?` live, `kein Kaffee mehr`, `Guten Morgen` ≠ Einkauf, Fahrmodus-Lautstärke = Spotify (ehrlich, keine Fake-API).
-3. `/hilfe` nennt Version 2.19.0, DWD/Schach, und kein Spotify-Claim.
+1. Fragen wie in der Tabelle — Quelle oder ehrlich leer.  
+2. Regression: `Wetter heute`, `Steckdose an`, `Wie spät ist es?`, `kein Kaffee mehr`, `Guten Morgen`, Fahrmodus-Lautstärke = Spotify.  
+3. `/hilfe` Version `3.0.0`.  
+4. Kein neues `if (handleX)` in `chat.ts`.
 
 ## Won’t
 

@@ -230,6 +230,17 @@ export async function openDevicePage(
   return { ok: false, message: 'Einstellungen nur auf dem Handy.' }
 }
 
+export async function openExternal(url: string): Promise<{ ok: boolean; message?: string }> {
+  const href = url.trim()
+  if (!/^https?:\/\//i.test(href)) return { ok: false, message: 'Kein Link.' }
+  try {
+    window.open(href, Capacitor.isNativePlatform() ? '_system' : '_blank')
+    return { ok: true }
+  } catch {
+    return { ok: false, message: 'Link nicht geöffnet.' }
+  }
+}
+
 export async function openDialer(number: string): Promise<{ ok: boolean; message?: string }> {
   const n = number.replace(/[^\d+]/g, '')
   if (native) {

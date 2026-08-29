@@ -1,5 +1,11 @@
 import assert from 'node:assert/strict'
 import { startJarvisPcServer, lastActions } from '../../desktop/jarvis-pc.mjs'
+import { sanitizePcHost } from '../src/engine/pc-host.ts'
+
+assert.equal(sanitizePcHost(' http://192.168.1.20:18790/ '), '192.168.1.20')
+assert.equal(sanitizePcHost('192.168.0.10'), '192.168.0.10')
+assert.equal(sanitizePcHost('10.0.0.5, 172.22.0.1'), '10.0.0.5')
+assert.equal(sanitizePcHost(''), '')
 
 const port = 18791
 const token = '654321'

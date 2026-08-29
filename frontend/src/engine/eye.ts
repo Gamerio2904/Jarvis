@@ -1,7 +1,7 @@
 import { completeGeminiVision, geminiReady } from './gemini'
 import { addMessage, loadSettings, saveSettings } from './store'
 import { scrubReply } from './guards'
-import { getJson } from './http-json'
+import { parseGroundIntent } from './ground-parse'
 import type { ToolMeta } from './tools'
 
 export { parseEyeIntent } from './eye-parse'
@@ -40,39 +40,35 @@ export async function fileToJpegDataUrl(file: File): Promise<{ dataUrl: string }
   }
 }
 
-export async function handleEyeAsk(): Promise<{
+export async function handleEyeAsk(text = ''): Promise<{
   handled: boolean
   reply?: string
   tool?: ToolMeta
   lastTool?: string
 }> {
-  const last = loadSettings().last_eye_json.trim()
-  if (last) {
-    try {
-      const parsed = JSON.parse(last) as { reply?: string }
-      if (parsed.reply?.trim()) {
-        return {
-          handled: true,
-          reply: `Letztes Foto: ${parsed.reply} Neues Bild: Kamera-Knopf unten.`,
-          tool: { tool_status: 'executed', tool: 'eye', action: 'ask', label: 'Auge' },
-          lastTool: 'eye',
-        }
-      }
-    } catch {
-      /* ignore */
-    }
+  const slip = parseGroundIntent(text)
+  const topic = slip?.kind === 'slip' ? slip.topic : null
+  const lines: Record<string, string> = {
+    receipt: 'Foto-Knopf: den Beleg fotografieren. Betrag und Datum lese ich nur vom Bild, nichts erfinden.',
+    paper: 'Foto vom Zettel. Einen Termin lege ich erst an, wenn Sie danach Ja sagen.',
+    wash: 'Foto vom Waschlabel. Ohne Bild nenne ich nur ISO-Zeichen, die Sie sagen.',
+    ean: 'Foto vom Strichcode. Die Zahl geht dann an Open Food Facts, nicht geraten.',
+    desk: `Foto vom Schreibtisch${slip?.kind === 'slip' && slip.query ? ` — wo „${slip.query}“ liegt` : ''}. Keine Überwachung, nur dieses Bild.`,
   }
-  if (!geminiReady()) {
-    return {
-      handled: true,
-      reply: 'Foto braucht Gemini. Dann Kamera-Knopf — das Bild geht zu Google, nicht lokal.',
-      lastTool: 'eye',
-    }
+  const extra = topic ? lines[topic] : ''
+  if (!geminiReady() && topic !== 'desk') {
+    const reply = extra
+      ? `${extra} Dafür Gemini an — das Bild geht zu Google, nicht lokal. LocateAnything liegt auf dem PC, nicht im Handy.`
+      : 'Dafür Gemini an. Dann Foto-Knopf — das Bild geht zu Google, nicht lokal.'
+    saveSettings({ last_eye_line: reply })
+    return { handled: true, reply, lastTool: 'eye' }
   }
+  const reply = extra || (geminiReady() ? 'Foto-Knopf unten. Das Bild geht zu Google.' : 'Dafür Gemini an. Dann Foto-Knopf — das Bild geht zu Google, nicht lokal.')
+  saveSettings({ last_eye_line: reply })
   return {
     handled: true,
-    reply: 'Kamera-Knopf unten (Foto) oder Galerie. Das Bild geht zu Google.',
-    tool: { tool_status: 'executed', tool: 'eye', action: 'ask', label: 'Auge' },
+    reply,
+    tool: { tool_status: 'executed', tool: 'eye', action: topic || 'ask', label: 'Auge' },
     lastTool: 'eye',
   }
 }
@@ -90,7 +86,8 @@ export async function readEyeImage(
     return { reply }
   }
   if (!geminiReady()) {
-    const reply = 'Foto braucht Gemini. Das Bild ginge zu Google — nicht lokal. Unter Cloud einschalten, Key unter APIs.'
+    const reply = 'Dafür Gemini an. Das Bild geht dann zu Google — nicht lokal.'
+    saveSettings({ last_eye_line: reply })
     await addMessage(conversationId, 'assistant', reply, {
       tool: { tool_status: 'error', tool: 'eye', action: 'read', label: 'Auge' },
     })
@@ -106,13 +103,12 @@ export async function readEyeImage(
   }
   try {
     const tv = loadSettings().last_step_tool === 'tv'
-    const text = await completeGeminiVision(tv ? TV_PROMPT : EYE_PROMPT, m[2], m[1])
-    let reply = scrubReply(text || 'Nichts Lesbares auf dem Bild.')
-    const extra = await enrichFromVision(reply)
-    if (extra) reply = `${reply} ${extra}`.trim()
-    saveSettings({
-      last_eye_json: JSON.stringify({ reply, at: new Date().toISOString() }),
-    })
+    const prompt = tv
+      ? 'Fernseher-Foto: Sagen Sie nur, was auf dem Schirm steht (Login, Suche, Liste). Keine erfundenen Tasten. 1–3 Sätze, Siezen. Jarvis sieht den TV nicht live — nur dieses Foto.'
+      : 'Lesen Sie nur, was auf dem Bild steht. Deutsch, Siezen, 1–3 Sätze. Nichts erfinden, was nicht zu sehen ist.'
+    const text = await completeGeminiVision(prompt, m[2], m[1])
+    const reply = scrubReply(text || 'Nichts Lesbares auf dem Bild.')
+    saveSettings({ last_eye_line: reply, last_step_tool: 'eye' })
     await addMessage(conversationId, 'assistant', reply, {
       tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'Auge' },
     })

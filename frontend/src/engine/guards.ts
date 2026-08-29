@@ -96,20 +96,24 @@ export function finishReply(text: string): string {
 }
 
 export function isHelpCommand(text: string): boolean {
-  return /^\s*\/?(hilfe|help)\s*$/i.test(text)
+  const t = text.trim()
+  if (/^\s*\/?(hilfe|help)\s*$/i.test(t)) return true
+  return /^\s*(?:was\s+kannst\s+du(?:\s+denn(?:\s+so)?)?|womit\s+kannst\s+du\s+(?:mir\s+)?helfen)\s*\??\s*$/i.test(
+    t,
+  )
 }
 
-export function hardRefuse(text: string): string | null {
+/** Naive „Bist du ChatGPT?“ — Canned, kein Modell, kein Marvel. Wer bist du bleibt Memory. */
+export function isPersonaAsk(text: string): boolean {
   const t = text.trim()
-  if (!t) return null
-  if (/\b(essbar|genie[sß]bar|giftig)\b/i.test(t) && /\b(ist|sind|darf|kann|soll|fliegenpilz|pilz)\b/i.test(t)) {
-    return 'Essbarkeit bewerte ich nicht. Bei Wildpilzen eine Beratungsstelle, nicht mich.'
-  }
-  if (/\b(verklagen|anwalts?rat|klage\s+einreichen)\b/i.test(t)) {
-    return 'Das ist kein Anwaltsrat. Dafür Mieterverein oder Fachanwalt — ich entscheide das nicht.'
-  }
-  return null
+  if (!t || t.length > 80) return false
+  return /^\s*(?:bist\s+du\s+(?:chatgpt|claude|grok|alexa|siri|eine\s+ki|ein\s+(?:ki|assistent|sprachassistent))|wie\s+heißt\s+du)\s*\??\s*$/i.test(
+    t,
+  )
 }
+
+export const PERSONA_ASK_TEXT =
+  'Jarvis auf diesem Handy. Kein ChatGPT, kein Claude, kein Marvel. Hirn: Gemini wenn ein Key da ist, sonst Groq, sonst das kleine lokale 0,5B. Timer, Kugel und Wetter laufen über Parser, auch ohne Modell.'
 
 export const HELP_TEXT =
-  'Jarvis auf diesem Handy, Version 2.37.2. Smalltalk, merken/vergessen (Widerspruch gilt auch im Plaudern), Einkaufsliste, Todos, Notizen, Erinnerungen mit Zeit — ohne Zeit fragt Jarvis wann. Wecker, Timer (spricht), lokaler Kalender, Losgehen, Fahrmodus intern nicht Apple: Straße aus dem Router, Overlay ist die Karte. Musik ist nicht angebunden. Lautstärke am Fernseher nur mit „Fernseher“. Stopp trifft das letzte Medium, nicht alles. Standort, Uhrzeit, Akku, Taschenlampe, Schritte, Luftdruck, Kompass. WLAN-Steckdosen lokal (Shelly, Tasmota, Tuya-LAN, Broadlink), ohne Tuya-Cloud. Anruf und SMS nach Nachfrage. Bahn nur wenn Sie Bahn sagen. Wetter nur Open-Meteo, Luft und Sonne nur auf Nachfrage; Unwetter DWD. Schulferien, Wechselkurs EZB, Open Food Facts, Open Library, Bundesliga, ISS, Mond, Pflanzen/Tiere über iNaturalist, Flüge OpenSky, Waschsymbole, Schach. Nachrichten Tagesschau, sonst Netz, nichts erfinden. Research zuerst Wikipedia und Destatis. Mit Gemini sucht Jarvis von selbst, wenn Zahlen fehlen. Feiertage DE. Gespräch suchen und in der Liste löschen. Filme: IMDb über OMDb, wo gratis JustWatch; Spiel … Film öffnet den Fernseher. PC: JarvisPC.bat, Bild echt, Klick nur wenn eindeutig. Foto und Kamera nur mit Gemini — Bild geht zu Google. Stimmen erkennt Jarvis nicht, Namen für die Runde schon. Optional 1.5B unter Modell, Default 0.5B. Wake-Word „Jarvis“. Widget: Fläche hören, Mikrofon schaltet Wake an/aus. Fernseher Tizen plus Fire TV. Ventilator über Brücke oder ehrlich fehlt. Optional Gemini. API-Keys unter Einstellungen → APIs. Rabatt-Suche unter Einstellungen → Rabatt. Kein Apple CarPlay, kein WhatsApp, kein Play Store. Kein Anwaltsrat, keine Essbarkeit.'
+  'Jarvis auf diesem Handy, Version 6.90.0. Smalltalk, merken/vergessen (Widerspruch gilt auch im Plaudern), Einkaufsliste, Todos, Notizen, Erinnerungen mit Zeit — ohne Zeit fragt Jarvis wann. Wecker, Timer (spricht), lokaler Kalender, Losgehen, Fahrmodus intern nicht Apple: Straße aus dem Router, Overlay ist die Karte außer bei Spotify. Lautstärke am Steuer ist Spotify, am Fernseher nur mit „Fernseher“. Stopp trifft das letzte Medium, nicht alles — während der Welt-Tour bricht Stopp die Kette. Standort, Uhrzeit, Akku, Taschenlampe. WLAN-Steckdosen lokal (Shelly, Tasmota, Tuya-LAN, Broadlink), ohne Tuya-Cloud. Anruf und SMS nach Nachfrage. Sprachnachricht geht als SMS-Text, keine Voice-Note. Bar in der Nähe. Taxi nach Ja: Anruf oder App, nie „ist bestellt“. Bahn nur wenn Sie Bahn sagen. Wetter nur Open-Meteo, Luft und Sonne nur auf Nachfrage. Unwetter DWD, Schulferien, EZB-Kurs. Nachrichten Tagesschau, sonst Netz, nichts erfinden. Weltlage auf Nachfrage: zitierte Meldungen, Serie wenn Quelle da, Szenario kein Orakel. Welt-Tour: „Was ist heute so auf der Welt passiert“ öffnet die Kugel, Länder leuchten, Seite erklärt, Zoom nacheinander — Tagesschau und DW, kein Geheim-Feed. Hirn: Gemini zuerst wenn Key da, sonst Groq, sonst 0,5B. Mit Gemini sucht Jarvis von selbst, wenn Zahlen fehlen — Wikipedia und Destatis zuerst. Feiertage DE. Gespräch suchen und in der Liste löschen. Filme: IMDb über OMDb, wo gratis JustWatch; Spiel … Film öffnet den Fernseher. PC: JarvisPC.bat, Bild echt, Klick nur wenn eindeutig; Traceroute am PC, vom Handy kein ICMP. Foto nur mit Gemini. LocateAnything am PC nur wenn JarvisSee da ist, sonst ehrlich aus — keine erfundenen Boxen. Bundesliga OpenLigaDB, ISS, Mond lokal, Open Food Facts, Open Library, OpenSky, Gesetze mit Link ohne Rat, Schach im Chat und in der Tablet-Lage. Lage: Kacheln, Körper-Schema oder virtueller Globus (Zoom in NASA-Satellitenfoto Stunden alt, Zeig London, Was ist das für eine Stadt — kein Live-Video). Stehend: Gemini-Stimme Algieba wenn der Key da ist, Fahrt Native ohne Stille. Am Steuer stört HUD plus Notify, kein Fake-Anruf. Hausstand unter Einstellungen exportieren — Datei enthält Keys. Friday auf Zuruf, Jarvis bleibt Default. Wake-Word „Jarvis“ oder „Friday“, nicht Freitag. Widget: Fläche hören, Mikrofon schaltet Wake an/aus. Fernseher Tizen plus Fire TV. Ventilator über Brücke oder ehrlich fehlt. Optional Gemini. Rabatt-Suche unter Einstellungen zuschaltbar. Debug: Kategorien, neues Gespräch, JSON-Download. Kein Apple CarPlay, kein stilles WhatsApp, kein Play Store.'

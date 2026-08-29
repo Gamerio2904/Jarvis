@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Code `2.19.0` ([`30-next.md`](./30-next.md) / [`31-next.md`](./31-next.md)), Sprints [`sprints/README.md`](./sprints/README.md). `2.2.4` 1.5B bleibt SHOULD.
+> Historisch (MVP `0.1`). **Jetzt:** Code `6.90.0`. Sideload `6.60.0`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
 
 ## MVP v0.1 — Definition
 
@@ -570,13 +570,13 @@ Optionales 1.5B (intern falsch „Sprint 48 / 0.13.4“) liegt in **Sprint 106 /
 | — | TTS-Vorlesen | nach PO-Go |
 | — | `1.0.0` MAJOR | Inhalt PO |
 
-Sprints: [`sprints/README.md`](./sprints/README.md)
+Detail On-Device/APK: [`13-on-device.md`](./13-on-device.md) · [`apk.md`](./apk.md) · Sprints: [`sprints/README.md`](./sprints/README.md)
 
 ---
 
 ## Abnahmetest MVP (Checkliste)
 
-- [ ] Kein Cloud-LLM im Antwortpfad
+- [ ] Kein Cloud-LLM im Antwortpfad *(historisch MVP `0.1`; ab `6.50` Gemini Hauptweg mit eigenem Key)*
 - [ ] „Hallo“ / „Wie geht’s?“ fühlt sich natürlich an
 - [ ] Folgefrage bezieht sich auf vorherige Aussage
 - [ ] Antwortlänge wirkt wie Chat, nicht wie Aufsatz

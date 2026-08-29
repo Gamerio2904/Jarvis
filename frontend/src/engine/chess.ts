@@ -1,254 +1,200 @@
-/** Minimal legal chess: start position, UCI or SAN pawn/piece moves, castling. */
+import { normalizeUtterance } from './utterance.ts'
+import type { ToolMeta } from './tools.ts'
 
-export const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+const START =
+  'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+const KEY = 'jarvis_chess_fen'
 
-type Piece = 'P' | 'N' | 'B' | 'R' | 'Q' | 'K' | 'p' | 'n' | 'b' | 'r' | 'q' | 'k'
+export type ChessIntent = { kind: 'new' | 'show' | 'move'; move?: string }
 
-type Board = Array<Piece | ''>
-
-export type ChessState = {
-  board: Board
-  white: boolean
-  castle: string
-  ep: number | null
+export function parseChessIntent(text: string, follow = false): ChessIntent | null {
+  const t = normalizeUtterance(text.trim())
+  if (!t || t.length > 80) return null
+  if (/^\s*schach\s*(?:neu|reset|von\s+vorn)\s*$/i.test(t) || /^\s*neues\s+schach\s*$/i.test(t)) {
+    return { kind: 'new' }
+  }
+  if (/^\s*schach\s*$/i.test(t) || /^\s*schachbrett\s*$/i.test(t)) return { kind: 'show' }
+  const m = /(?:schach\s+)?([a-h][1-8][a-h][1-8][qrbn]?)|([a-h][1-8]-[a-h][1-8])/i.exec(t)
+  if (m && (/^\s*schach\b/i.test(t) || follow || /^\s*[a-h][1-8][a-h][1-8]/.test(t))) {
+    const raw = (m[1] || m[2] || '').replace('-', '')
+    return { kind: 'move', move: raw.toLowerCase() }
+  }
+  return null
 }
 
-const FILES = 'abcdefgh'
+export async function handleChess(
+  text: string,
+): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
+  const follow = loadFen() !== START
+  const intent = parseChessIntent(text, follow)
+  if (!intent) return { handled: false }
+  if (intent.kind === 'new') {
+    saveFen(START)
+    return pack('Neues Spiel. Weiß am Zug.', boardText(START))
+  }
+  const fen = loadFen()
+  if (intent.kind === 'show') {
+    return pack(turnLine(fen), boardText(fen))
+  }
+  const move = intent.move || ''
+  const next = applyMove(fen, move)
+  if (!next) {
+    return pack(`Zug ${move} ist nicht legal. ${turnLine(fen)}`, boardText(fen))
+  }
+  saveFen(next)
+  return pack(`${move}. ${turnLine(next)}`, boardText(next))
+}
 
-export function parseFen(fen = START_FEN): ChessState {
-  const [place, stm, castle, ep] = fen.split(' ')
-  const board: Board = Array(64).fill('')
-  let i = 0
+function pack(line: string, board: string) {
+  return {
+    handled: true,
+    reply: `${line}\n${board}`,
+    tool: { tool_status: 'executed', tool: 'chess', action: 'move', label: 'Schach' } as ToolMeta,
+    lastTool: 'chess',
+  }
+}
+
+export function loadFen(): string {
+  try {
+    return localStorage.getItem(KEY) || START
+  } catch {
+    return START
+  }
+}
+
+function saveFen(fen: string): void {
+  try {
+    localStorage.setItem(KEY, fen)
+  } catch {
+    /* ignore */
+  }
+}
+
+function turnLine(fen: string): string {
+  const side = fen.split(' ')[1] === 'b' ? 'Schwarz' : 'Weiß'
+  return `${side} am Zug.`
+}
+
+function boardText(fen: string): string {
+  const rows = fen.split(' ')[0].split('/')
+  return rows
+    .map((row) =>
+      row
+        .replace(/(\d)/g, (n) => '.'.repeat(Number(n)))
+        .split('')
+        .join(' '),
+    )
+    .join('\n')
+}
+
+type Sq = { p: string; white: boolean } | null
+
+function parseBoard(fen: string): { grid: Sq[][]; white: boolean } {
+  const [place, stm] = fen.split(' ')
+  const grid: Sq[][] = []
   for (const row of place.split('/')) {
+    const line: Sq[] = []
     for (const ch of row) {
-      if (/[1-8]/.test(ch)) i += Number(ch)
-      else {
-        board[i] = ch as Piece
-        i += 1
+      if (/\d/.test(ch)) {
+        for (let i = 0; i < Number(ch); i++) line.push(null)
+      } else {
+        line.push({ p: ch.toLowerCase(), white: ch === ch.toUpperCase() })
       }
     }
+    while (line.length < 8) line.push(null)
+    grid.push(line.slice(0, 8))
   }
-  const epSq = ep && ep !== '-' ? algebraicToSq(ep) : null
-  return { board, white: stm !== 'b', castle: castle || '-', ep: epSq }
+  return { grid, white: stm !== 'b' }
 }
 
-export function fenOf(s: ChessState): string {
-  const rows: string[] = []
-  for (let r = 0; r < 8; r += 1) {
-    let empty = 0
-    let line = ''
-    for (let f = 0; f < 8; f += 1) {
-      const p = s.board[r * 8 + f]
-      if (!p) empty += 1
-      else {
-        if (empty) line += String(empty)
-        empty = 0
-        line += p
+function fenOf(grid: Sq[][], white: boolean, rest: string): string {
+  const rows = grid.map((row) => {
+    let s = ''
+    let z = 0
+    for (const sq of row) {
+      if (!sq) {
+        z += 1
+        continue
       }
+      if (z) {
+        s += String(z)
+        z = 0
+      }
+      s += sq.white ? sq.p.toUpperCase() : sq.p
     }
-    if (empty) line += String(empty)
-    rows.push(line)
-  }
-  const ep = s.ep == null ? '-' : sqToAlgebraic(s.ep)
-  return `${rows.join('/')} ${s.white ? 'w' : 'b'} ${s.castle || '-'} ${ep} 0 1`
+    if (z) s += String(z)
+    return s
+  })
+  const bits = rest.split(' ')
+  bits[0] = white ? 'w' : 'b'
+  return `${rows.join('/')} ${bits.join(' ')}`
 }
 
-export function boardText(s: ChessState): string {
-  const lines = ['  a b c d e f g h']
-  for (let r = 0; r < 8; r += 1) {
-    const rank = 8 - r
-    let row = `${rank} `
-    for (let f = 0; f < 8; f += 1) {
-      row += (s.board[r * 8 + f] || '.') + ' '
+function applyMove(fen: string, uci: string): string | null {
+  if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci)) return null
+  const { grid, white } = parseBoard(fen)
+  const ff = uci.charCodeAt(0) - 97
+  const fr = 8 - Number(uci[1])
+  const tf = uci.charCodeAt(2) - 97
+  const tr = 8 - Number(uci[3])
+  const piece = grid[fr]?.[ff]
+  if (!piece || piece.white !== white) return null
+  const dest = grid[tr]?.[tf]
+  if (dest && dest.white === white) return null
+  const df = tf - ff
+  const dr = tr - fr
+  if (!legal(grid, piece, ff, fr, tf, tr, df, dr, dest)) return null
+  grid[tr][tf] = piece
+  grid[fr][ff] = null
+  if (piece.p === 'p' && (tr === 0 || tr === 7)) {
+    const promo = uci[4] || 'q'
+    grid[tr][tf] = { p: promo, white: piece.white }
+  }
+  const rest = fen.split(' ').slice(1).join(' ')
+  return fenOf(grid, !white, rest)
+}
+
+function legal(
+  grid: Sq[][],
+  piece: { p: string; white: boolean },
+  ff: number,
+  fr: number,
+  tf: number,
+  tr: number,
+  df: number,
+  dr: number,
+  dest: Sq,
+): boolean {
+  const dir = piece.white ? -1 : 1
+  if (piece.p === 'p') {
+    if (df === 0 && !dest) {
+      if (dr === dir) return true
+      if (dr === 2 * dir && ((piece.white && fr === 6) || (!piece.white && fr === 1)) && !grid[fr + dir][ff]) return true
     }
-    lines.push(row.trimEnd())
+    if (Math.abs(df) === 1 && dr === dir && dest) return true
+    return false
   }
-  lines.push(s.white ? 'Weiß am Zug.' : 'Schwarz am Zug.')
-  return lines.join('\n')
-}
-
-export function applyMove(s: ChessState, raw: string): { ok: true; next: ChessState } | { ok: false; message: string } {
-  const token = raw.trim()
-  const uci = /^[a-h][1-8][a-h][1-8][qrbn]?$/i.exec(token)
-  if (uci) {
-    const from = algebraicToSq(token.slice(0, 2))
-    const to = algebraicToSq(token.slice(2, 4))
-    const promo = token[4]?.toLowerCase()
-    return tryMove(s, from, to, promo)
+  if (piece.p === 'n') return (Math.abs(df) === 1 && Math.abs(dr) === 2) || (Math.abs(df) === 2 && Math.abs(dr) === 1)
+  if (piece.p === 'k') return Math.abs(df) <= 1 && Math.abs(dr) <= 1 && (df !== 0 || dr !== 0)
+  if (piece.p === 'b') return Math.abs(df) === Math.abs(dr) && df !== 0 && clear(grid, ff, fr, tf, tr)
+  if (piece.p === 'r') return (df === 0 || dr === 0) && (df !== 0 || dr !== 0) && clear(grid, ff, fr, tf, tr)
+  if (piece.p === 'q') {
+    const diag = Math.abs(df) === Math.abs(dr) && df !== 0
+    const ortho = (df === 0 || dr === 0) && (df !== 0 || dr !== 0)
+    return (diag || ortho) && clear(grid, ff, fr, tf, tr)
   }
-  if (/^O-O-O$/i.test(token)) return castle(s, false)
-  if (/^O-O$/i.test(token)) return castle(s, true)
-  const san = parseSan(s, token)
-  if (!san.ok) return san
-  return tryMove(s, san.from, san.to, san.promo)
+  return false
 }
 
-function parseSan(
-  s: ChessState,
-  token: string,
-): { ok: true; from: number; to: number; promo?: string } | { ok: false; message: string } {
-  const t = token.replace(/[+#]$/, '')
-  const promoM = /=([QRBN])$/i.exec(t)
-  const promo = promoM?.[1]?.toLowerCase()
-  const body = t.replace(/=[QRBN]$/i, '').replace(/x/g, '')
-  const dest = body.slice(-2)
-  if (!/^[a-h][1-8]$/i.test(dest)) return { ok: false, message: 'Zug nicht gelesen. z. B. e2e4 oder Nf3.' }
-  const to = algebraicToSq(dest)
-  const pieceLetter = /^[NBRQK]/i.test(body) ? body[0].toUpperCase() : 'P'
-  const want = (s.white ? pieceLetter : pieceLetter.toLowerCase()) as Piece
-  const rest = /^[NBRQK]/i.test(body) ? body.slice(1, -2) : body.slice(0, -2)
-  const fileHint = rest.match(/[a-h]/i)?.[0]
-  const rankHint = rest.match(/[1-8]/)?.[0]
-  const cands: number[] = []
-  for (let i = 0; i < 64; i += 1) {
-    const piece = s.board[i]
-    if (!piece || piece !== want) continue
-    if (fileHint && FILES[i % 8] !== fileHint.toLowerCase()) continue
-    if (rankHint && String(8 - Math.floor(i / 8)) !== rankHint) continue
-    if (attacks(s, i, to, piece)) cands.push(i)
-  }
-  if (cands.length !== 1) return { ok: false, message: cands.length ? 'Zug zweideutig.' : 'Kein legaler Zug.' }
-  return { ok: true, from: cands[0], to, promo }
-}
-
-function tryMove(
-  s: ChessState,
-  from: number,
-  to: number,
-  promo?: string,
-): { ok: true; next: ChessState } | { ok: false; message: string } {
-  const p = s.board[from]
-  if (!p) return { ok: false, message: 'Kein Stein auf dem Startfeld.' }
-  if (s.white !== isWhite(p)) return { ok: false, message: 'Der andere ist am Zug.' }
-  if (!attacks(s, from, to, p) && !isEp(s, from, to, p)) return { ok: false, message: 'Zug nicht legal.' }
-  const next: ChessState = {
-    board: [...s.board],
-    white: !s.white,
-    castle: s.castle,
-    ep: null,
-  }
-  if (isEp(s, from, to, p) && s.ep === to) {
-    const cap = to + (isWhite(p) ? 8 : -8)
-    next.board[cap] = ''
-  }
-  next.board[to] = promote(p, to, promo)
-  next.board[from] = ''
-  if (p === 'P' && to - from === -16) next.ep = from - 8
-  if (p === 'p' && to - from === 16) next.ep = from + 8
-  next.castle = updateCastle(s.castle, from, to)
-  return { ok: true, next }
-}
-
-function castle(
-  s: ChessState,
-  kingSide: boolean,
-): { ok: true; next: ChessState } | { ok: false; message: string } {
-  const white = s.white
-  const flag = white ? (kingSide ? 'K' : 'Q') : kingSide ? 'k' : 'q'
-  if (!s.castle.includes(flag)) return { ok: false, message: 'Rochade nicht erlaubt.' }
-  const king = white ? 60 : 4
-  const rook = kingSide ? (white ? 63 : 7) : white ? 56 : 0
-  const kingTo = kingSide ? king + 2 : king - 2
-  const rookTo = kingSide ? king + 1 : king - 1
-  const step = kingSide ? 1 : -1
-  for (let sq = king + step; sq !== rook; sq += step) {
-    if (s.board[sq]) return { ok: false, message: 'Rochade versperrt.' }
-  }
-  const next: ChessState = { board: [...s.board], white: !white, castle: s.castle.replace(flag, ''), ep: null }
-  next.board[kingTo] = s.board[king]
-  next.board[king] = ''
-  next.board[rookTo] = s.board[rook]
-  next.board[rook] = ''
-  next.castle = updateCastle(next.castle, king, kingTo)
-  return { ok: true, next }
-}
-
-function promote(p: Piece, to: number, promo?: string): Piece {
-  const rank = Math.floor(to / 8)
-  if (p === 'P' && rank === 0) return ((promo || 'q').toUpperCase() as Piece) || 'Q'
-  if (p === 'p' && rank === 7) return ((promo || 'q').toLowerCase() as Piece) || 'q'
-  return p
-}
-
-function isEp(s: ChessState, from: number, to: number, p: Piece): boolean {
-  if (p !== 'P' && p !== 'p') return false
-  return s.ep === to && Math.abs((from % 8) - (to % 8)) === 1
-}
-
-function attacks(s: ChessState, from: number, to: number, p: Piece): boolean {
-  const df = (to % 8) - (from % 8)
-  const dr = Math.floor(to / 8) - Math.floor(from / 8)
-  const target = s.board[to]
-  if (target && isWhite(target) === isWhite(p)) return false
-  const absf = Math.abs(df)
-  const absr = Math.abs(dr)
-  switch (p) {
-    case 'P':
-      if (df === 0 && dr === -1 && !target) return true
-      if (df === 0 && dr === -2 && from >= 48 && from <= 55 && !target && !s.board[from - 8]) return true
-      if (absf === 1 && dr === -1 && target) return true
-      return false
-    case 'p':
-      if (df === 0 && dr === 1 && !target) return true
-      if (df === 0 && dr === 2 && from >= 8 && from <= 15 && !target && !s.board[from + 8]) return true
-      if (absf === 1 && dr === 1 && target) return true
-      return false
-    case 'N':
-    case 'n':
-      return (absf === 1 && absr === 2) || (absf === 2 && absr === 1)
-    case 'B':
-    case 'b':
-      return absf === absr && absf > 0 && clear(s.board, from, to)
-    case 'R':
-    case 'r':
-      return ((df === 0) !== (dr === 0)) && clear(s.board, from, to)
-    case 'Q':
-    case 'q':
-      return ((absf === absr && absf > 0) || ((df === 0) !== (dr === 0))) && clear(s.board, from, to)
-    case 'K':
-    case 'k':
-      return absf <= 1 && absr <= 1 && (absf !== 0 || absr !== 0)
-    default:
-      return false
-  }
-}
-
-function clear(board: Board, from: number, to: number): boolean {
-  const df = Math.sign((to % 8) - (from % 8))
-  const dr = Math.sign(Math.floor(to / 8) - Math.floor(from / 8))
-  let f = (from % 8) + df
-  let r = Math.floor(from / 8) + dr
-  const tf = to % 8
-  const tr = Math.floor(to / 8)
+function clear(grid: Sq[][], ff: number, fr: number, tf: number, tr: number): boolean {
+  const sf = Math.sign(tf - ff)
+  const sr = Math.sign(tr - fr)
+  let f = ff + sf
+  let r = fr + sr
   while (f !== tf || r !== tr) {
-    if (board[r * 8 + f]) return false
-    f += df
-    r += dr
+    if (grid[r][f]) return false
+    f += sf
+    r += sr
   }
   return true
-}
-
-function updateCastle(castle: string, from: number, to: number): string {
-  let c = castle
-  if (from === 60 || to === 60) c = c.replace(/K/g, '').replace(/Q/g, '')
-  if (from === 4 || to === 4) c = c.replace(/k/g, '').replace(/q/g, '')
-  if (from === 63 || to === 63) c = c.replace(/K/g, '')
-  if (from === 56 || to === 56) c = c.replace(/Q/g, '')
-  if (from === 7 || to === 7) c = c.replace(/k/g, '')
-  if (from === 0 || to === 0) c = c.replace(/q/g, '')
-  return c || '-'
-}
-
-function isWhite(p: Piece): boolean {
-  return p === p.toUpperCase()
-}
-
-function algebraicToSq(a: string): number {
-  const f = a.toLowerCase().charCodeAt(0) - 97
-  const r = 8 - Number(a[1])
-  return r * 8 + f
-}
-
-function sqToAlgebraic(sq: number): string {
-  return FILES[sq % 8] + String(8 - Math.floor(sq / 8))
 }

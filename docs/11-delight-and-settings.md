@@ -3,6 +3,8 @@
 Spielerei und Begeisterung — **dosiert**, abschaltbar, local-first.  
 Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 
+> **Jetzt:** Code **`6.60.0`**. Cloud-Settings: Gemini-Key Hauptweg, Groq Backup. Overlay Gemini zuerst.
+
 ## Versionierung (verbindlich)
 
 | Version | Sprint / Doc | Inhalt |

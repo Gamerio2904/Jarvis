@@ -61,6 +61,7 @@ export function parseWeatherFollowup(text: string, last: WeatherLast | null): We
 export function parseWeatherIntent(text: string): WeatherIntent | null {
   const t = text.trim()
   if (!t || t.length > 160) return null
+  if (/\b(wetterstatistik|lage[- ]?kachel|\bkacheln?\b)\b/i.test(t)) return null
   const air = AIR.test(t)
   const sun = SUN.test(t)
   if (

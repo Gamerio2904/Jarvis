@@ -10,22 +10,62 @@ import {
   allTestPromptKeys,
 } from './engine/test-copy'
 import { ensureDeviceLocation } from './native/geo'
-import { buildChatDebugDump, downloadChatDebug } from './engine/chat-debug'
-import {
-  SETTINGS_GROUPS,
-  SETTINGS_TOPICS,
-  settingsTopicMeta,
-  settingsTopicStatus,
-  type SettingsTopic,
-} from './settings-topics'
+import { DebugPanel } from './DebugPanel'
+import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
+import { TTS_VOICES } from './engine/tts'
+import { sanitizePcHost } from './engine/pc-host'
 import {
   spotifyLoggedIn,
   spotifyLogout,
   spotifyRedirect,
   startSpotifyLogin,
 } from './engine/spotify'
+import {
+  applyBackup,
+  asBackup,
+  previewBackup,
+  shareOrDownloadBackup,
+  type BackupPreview,
+} from './engine/backup'
 
-export type { SettingsTopic }
+export type SettingsTopic =
+  | 'allgemein'
+  | 'modell'
+  | 'cloud'
+  | 'sprache'
+  | 'wecker'
+  | 'ort'
+  | 'tv'
+  | 'pc'
+  | 'haus'
+  | 'musik'
+  | 'ton'
+  | 'forschung'
+  | 'weltlage'
+  | 'hausstand'
+  | 'gedaechtnis'
+  | 'debug'
+  | 'gefahr'
+
+const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
+  { id: 'allgemein', label: 'Allgemein', hint: 'Version' },
+  { id: 'modell', label: 'Modell', hint: 'Lokal' },
+  { id: 'cloud', label: 'Cloud', hint: 'Gemini' },
+  { id: 'sprache', label: 'Sprache', hint: 'Hören' },
+  { id: 'wecker', label: 'Wecker', hint: 'Timer' },
+  { id: 'ort', label: 'Ort', hint: 'Wetter' },
+  { id: 'tv', label: 'Fernseher', hint: 'Tizen + Fire' },
+  { id: 'pc', label: 'PC', hint: 'Bildschirm' },
+  { id: 'haus', label: 'Haus', hint: 'Steckdose' },
+  { id: 'musik', label: 'Musik', hint: 'Spotify' },
+  { id: 'ton', label: 'Ton', hint: 'Delight' },
+  { id: 'forschung', label: 'Netz', hint: 'Suche' },
+  { id: 'weltlage', label: 'Weltlage', hint: 'Ausblick' },
+  { id: 'hausstand', label: 'Hausstand', hint: 'Backup' },
+  { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
+  { id: 'debug', label: 'Debug', hint: 'Prompts' },
+  { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
+]
 
 const MEM_FILTERS = [
   'all',
@@ -148,6 +188,7 @@ export type SettingsScreenProps = {
   onStartTest: () => void
   onBack: () => void
   onClose: () => void
+  leaving?: boolean
   settings: Settings | null
   settingsBusy: boolean
   patchSetting: (patch: Partial<Settings>) => Promise<void>
@@ -190,6 +231,9 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
+  onDebugSend: (text: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
+  onDebugStart: (title: string) => Promise<string>
+  debugBusy: boolean
 }
 
 export function SettingsScreen(p: SettingsScreenProps) {
@@ -219,16 +263,23 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [plugDraft, setPlugDraft] = useState<Plug>(() => emptyPlug())
   const [locBusy, setLocBusy] = useState(false)
   const [locMsg, setLocMsg] = useState<string | null>(null)
-  const [debugChats, setDebugChats] = useState<Conversation[]>([])
-  const [debugPick, setDebugPick] = useState('')
-  const [debugBusy, setDebugBusy] = useState(false)
-  const [debugMsg, setDebugMsg] = useState<string | null>(null)
-  const testCat = p.topic === 'tests' ? testCopyGroupById(p.testGroup) : undefined
-  const paneTitle = testCat?.title || topic.label
-  const testSel = Object.keys(p.testKeys).length
-  const allTestKeys = allTestPromptKeys()
-  const allTestsOn = allTestKeys.length > 0 && allTestKeys.every((k) => p.testKeys[k])
-  const allTestsInd = testSel > 0 && !allTestsOn
+  const [backupChats, setBackupChats] = useState(false)
+  const [backupBusy, setBackupBusy] = useState(false)
+  const [backupMsg, setBackupMsg] = useState<string | null>(null)
+  const [backupPreview, setBackupPreview] = useState<BackupPreview | null>(null)
+  const [backupPending, setBackupPending] = useState<ReturnType<typeof asBackup>>(null)
+
+  let hudOn: HudId[] = [...HUD_DEFAULT_ON]
+  try {
+    const raw = s?.hud_modules_json
+    if (raw) {
+      const parsed = JSON.parse(raw) as string[]
+      const ids = parsed.filter((id): id is HudId => HUD_CATALOG.some((c) => c.id === id))
+      if (ids.length) hudOn = ids
+    }
+  } catch {
+    hudOn = [...HUD_DEFAULT_ON]
+  }
 
   useEffect(() => {
     setFireHost(s?.tv_fire_host || '')
@@ -262,7 +313,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
   return (
     <div
-      className={`settings-screen ${p.topic === 'hub' ? 'is-hub' : 'is-topic'}`}
+      className={`settings-screen${p.leaving ? ' is-leaving' : ''}`}
       role="dialog"
       aria-modal="true"
       aria-labelledby="settings-title"
@@ -272,19 +323,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
           <span>Themen</span>
         </div>
         <nav className="settings-rail-nav">
-          <button
-            type="button"
-            className={`settings-rail-item ${p.topic === 'hub' ? 'active' : ''}`}
-            onClick={() => p.onTopic('hub')}
-          >
-            <strong>Übersicht</strong>
-            <span>durchklicken</span>
-          </button>
-          {SETTINGS_TOPICS.map((t) => (
+          {TOPICS.map((t, i) => (
             <button
               key={t.id}
               type="button"
               className={`settings-rail-item ${p.topic === t.id ? 'active' : ''}`}
+              style={{ ['--i' as string]: i }}
               onClick={() => p.onTopic(t.id)}
             >
               <strong>{t.label}</strong>
@@ -297,14 +341,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
       <div className="settings-pane">
         <header className="settings-pane-bar">
           <div>
-            {p.topic !== 'hub' ? (
-              <button type="button" className="settings-back" onClick={p.onBack}>
-                Zurück
-              </button>
-            ) : (
-              <p className="settings-kicker">Einstellungen</p>
-            )}
-            <h2 id="settings-title">{paneTitle}</h2>
+            <p className="settings-kicker">Einstellungen</p>
+            <h2 key={topic.id} id="settings-title">
+              {topic.label}
+            </h2>
           </div>
           <button type="button" className="settings-close" onClick={p.onClose}>
             Fertig
@@ -312,50 +352,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
         </header>
 
         <div className="settings-pane-body">
-          {p.topic === 'hub' ? (
-            <>
-              <section className="settings-card">
-                <h3>Tippen, fertig</h3>
-                <p className="settings-lead">APIs ist ein eigener Bereich für alle Keys. Rabatt ist nur die Gutschein-Suche.</p>
-              </section>
-              {SETTINGS_GROUPS.map((group) => (
-                <section
-                  className={`settings-card${group.ids[0] === 'apis' ? ' settings-card-apis' : ''}`}
-                  key={group.title}
-                >
-                  {group.ids.length === 1 && SETTINGS_TOPICS.find((t) => t.id === group.ids[0])?.label === group.title ? null : (
-                    <h3>{group.title}</h3>
-                  )}
-                  <div className="settings-hub-list">
-                    {group.ids.map((id) => {
-                      const meta = SETTINGS_TOPICS.find((t) => t.id === id)
-                      if (!meta) return null
-                      return (
-                        <button
-                          key={id}
-                          type="button"
-                          className="settings-hub-row"
-                          onClick={() => p.onTopic(id)}
-                        >
-                          <span className="settings-hub-copy">
-                            <strong>{meta.label}</strong>
-                            <span>{meta.hint}</span>
-                          </span>
-                          <span className="settings-hub-status">
-                            {settingsTopicStatus(id, s, p.health, p.geminiOn)}
-                          </span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                  {group.ids[0] === 'apis' ? (
-                    <p className="settings-hint">Gemini, Groq, OMDb, Tankerkönig, Spotify — eigener Bereich, nicht unter Rabatt.</p>
-                  ) : null}
-                </section>
-              ))}
-            </>
-          ) : null}
-
+          <div key={p.topic} className="settings-topic-slide">
           {p.topic === 'allgemein' ? (
             <section className="settings-card">
               <h3>Dieses Handy</h3>
@@ -377,29 +374,75 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
+          {p.topic === 'allgemein' ? (
+            <section className="settings-card">
+              <h3>Tablet-Lage</h3>
+              <p className="settings-lead">Ab 900 px Breite: Kacheln neben dem Chat. Composer und Mic bleiben. Oder hier immer an.</p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.hud_force)}
+                  disabled={busy}
+                  onChange={(e) =>
+                    void p.patchSetting({ hud_force: e.target.checked, hud_hidden: !e.target.checked })
+                  }
+                />
+                <span>Lage immer</span>
+              </label>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={s?.hud_accent === 'amber'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ hud_accent: e.target.checked ? 'amber' : 'green' })}
+                />
+                <span>Akzent orange</span>
+              </label>
+              <label className="settings-inline">
+                <span>Sicht</span>
+                <select
+                  value={s?.hud_view || 'tiles'}
+                  disabled={busy}
+                  onChange={(e) => {
+                    const hud_view = e.target.value as 'tiles' | 'body' | 'globe'
+                    void p.patchSetting({
+                      hud_view,
+                      hud_force: hud_view === 'tiles' ? Boolean(s?.hud_force) : true,
+                      hud_hidden: hud_view === 'tiles' ? Boolean(s?.hud_hidden) : false,
+                    })
+                  }}
+                >
+                  <option value="tiles">Kacheln</option>
+                  <option value="body">Körper</option>
+                  <option value="globe">Kugel</option>
+                </select>
+              </label>
+              <p className="settings-hint">Module. Aus = Kachel weg.</p>
+              {HUD_CATALOG.map((m) => (
+                <label key={m.id} className="settings-toggle">
+                  <input
+                    type="checkbox"
+                    checked={hudOn.includes(m.id)}
+                    disabled={busy}
+                    onChange={(e) => {
+                      const next = e.target.checked
+                        ? [...hudOn.filter((id) => id !== m.id), m.id]
+                        : hudOn.filter((id) => id !== m.id)
+                      const ordered = HUD_CATALOG.map((c) => c.id).filter((id) => next.includes(id))
+                      void p.patchSetting({ hud_modules_json: JSON.stringify(ordered) })
+                    }}
+                  />
+                  <span>{m.label}</span>
+                </label>
+              ))}
+            </section>
+          ) : null}
+
           {p.topic === 'modell' ? (
             <section className="settings-card">
               <h3>Lokales Modell</h3>
               <p className="settings-lead">
-                Default 0.5B (~470 MB) auf diesem Handy. Optional scharf 1.5B (~1,1 GB). Lokal ist llama.cpp als WASM
-                (wllama) — natives NDK ist nicht in dieser APK.
-              </p>
-              <label className="settings-toggle">
-                <span>Scharf (1.5B, extra Download)</span>
-                <input
-                  type="checkbox"
-                  checked={s?.model_variant === 'sharp'}
-                  disabled={busy || p.geminiOn || p.downloadBusy}
-                  onChange={(e) => {
-                    const sharp = e.target.checked
-                    void p.patchSetting({ model_variant: sharp ? 'sharp' : 'fast' }).then(() => {
-                      p.downloadModel()
-                    })
-                  }}
-                />
-              </label>
-              <p className="settings-hint">
-                First-Run bleibt 0.5B. 1.5B extra, persistiert. Passt es nicht in den Speicher, fällt Jarvis auf 0.5B zurück.
+                {s?.model_default || 'Qwen2.5 0.5B'} auf diesem Handy (~470 MB). Letzter Fallback, wenn Gemini und Groq fehlen — nicht ChatGPT.
               </p>
               {!p.health?.model_ready && !p.geminiOn ? (
                 <div className="settings-actions">
@@ -500,10 +543,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
           {p.topic === 'cloud' ? (
             <>
               <section className="settings-card">
-                <h3>Gemini (Google)</h3>
-                <p className="settings-lead">
-                  Key unter APIs eintragen. Hier nur an/aus und Test.
-                </p>
+                <h3>Gemini (Google) — Hauptweg</h3>
                 <label className="settings-toggle">
                   <input
                     type="checkbox"
@@ -511,10 +551,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     disabled={busy}
                     onChange={(e) => void p.patchSetting({ gemini_enabled: e.target.checked })}
                   />
-                  <span>Gemini statt lokalem 0.5B</span>
+                  <span>Gemini zuerst (Key nötig)</span>
                 </label>
                 <p className="settings-hint warn">
-                  An = Chat und Fotos gehen zu Google. Nicht privat.
+                  An = Plaudern und Fotos gehen zu Google. Groq und das kleine lokale Modell sind nur Backup. Nicht privat.
                 </p>
                 <div className="settings-actions">
                   <button type="button" className="retry-btn" disabled={p.geminiBusy || busy} onClick={p.onGeminiTest}>
@@ -527,8 +567,24 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 {p.geminiMsg ? <p className="settings-hint">{p.geminiMsg}</p> : null}
               </section>
               <section className="settings-card">
-                <h3>Groq (optional)</h3>
-                <p className="settings-hint">Nur wenn Gemini leer oder überlastet ist. Key unter APIs.</p>
+                <h3>Groq (Backup)</h3>
+                <p className="settings-hint">Nur wenn Gemini fehlt oder ausfällt. Dann 0,5B. Free-Tier ohne Karte.</p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`groq-key-${s?.groq_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.groq_api_key || ''}
+                    disabled={busy}
+                    placeholder="gsk_… hier einfügen"
+                    onBlur={(e) => void p.patchSetting({ groq_api_key: e.target.value.trim() })}
+                  />
+                </label>
                 <div className="settings-actions">
                   <button type="button" className="retry-btn" disabled={p.groqBusy || busy} onClick={p.onGroqTest}>
                     Testen
@@ -543,7 +599,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Mit Gemini-Key: Antwort sofort (Android). Charon nur wenn er in unter einer halben Sekunde da ist — sonst keine Stille.
+                Gemini-Stimmen-Picker unten. Default Algieba, Friday Kore. Am Steuer gewinnt Tempo — Native zuerst. Navi-Ansagen bleiben Native. Kein ElevenLabs, kein Stimmklon.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>
@@ -552,9 +608,37 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   disabled={busy}
                   onChange={(e) => void p.patchSetting({ voice_tts: e.target.value })}
                 >
-                  <option value="auto">Auto (Gemini wenn an)</option>
+                  <option value="auto">Auto (Gemini wenn Key da)</option>
                   <option value="gemini">Gemini — Netz</option>
                   <option value="system">System — offline</option>
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Jarvis-Stimme</span>
+                <select
+                  value={s?.gemini_tts_voice || s?.tts_voice_jarvis || 'Algieba'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ gemini_tts_voice: e.target.value, tts_voice_jarvis: e.target.value })}
+                >
+                  {TTS_VOICES.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Friday-Stimme</span>
+                <select
+                  value={s?.tts_voice_friday || 'Kore'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ tts_voice_friday: e.target.value })}
+                >
+                  {TTS_VOICES.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
                 </select>
               </label>
               <div className="settings-actions">
@@ -572,14 +656,71 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   disabled={busy}
                   onChange={(e) => p.onWakeWord(e.target.checked)}
                 />
-                <span>Auf „Jarvis“ hören</span>
+                <span>Auf „Jarvis“ oder „Friday“ hören</span>
               </label>
               <p className="settings-hint">
                 Sagen Sie laut „Jarvis“. Es muss eine Meldung „Jarvis hört auf den Namen“ oben
                 stehen. Bildschirm aus und andere Apps: nur der Name. Beenden: Schalter oder die
                 Meldung. Akku: nicht optimieren.
               </p>
+              <label className="settings-field">
+                <span>Am Steuer stören</span>
+                <select
+                  value={s?.drive_interrupt || 'hud'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ drive_interrupt: e.target.value })}
+                >
+                  <option value="hud">HUD und Notify — kein Fake-Anruf</option>
+                  <option value="call">Anruf auf zweite Nummer</option>
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Dieses Handy (nicht anrufen)</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="off"
+                  spellCheck={false}
+                  key={`own-tel-${s?.own_tel ? 'set' : 'empty'}`}
+                  defaultValue={s?.own_tel || ''}
+                  disabled={busy}
+                  placeholder="eigene Nummer"
+                  onBlur={(e) => void p.patchSetting({ own_tel: e.target.value.trim() })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Zweites Handy (optional)</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="off"
+                  spellCheck={false}
+                  key={`second-tel-${s?.drive_second_tel ? 'set' : 'empty'}`}
+                  defaultValue={s?.drive_second_tel || ''}
+                  disabled={busy}
+                  placeholder="anderes Gerät, nicht dieses"
+                  onBlur={(e) => void p.patchSetting({ drive_second_tel: e.target.value.trim() })}
+                />
+              </label>
+              <p className="settings-hint">
+                Jarvis ruft sich nicht selbst an. Zweite Nummer nur wenn sie sich von diesem Handy unterscheidet.
+              </p>
               {p.shortcutMsg ? <p className="settings-hint">{p.shortcutMsg}</p> : null}
+              <label className="settings-field">
+                <span>Gesicht</span>
+                <select
+                  value={s?.face || 'jarvis'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ face: e.target.value })}
+                >
+                  <option value="jarvis">Jarvis — männlich, Default</option>
+                  <option value="friday">Friday — weiblich, auf Zuruf</option>
+                </select>
+              </label>
+              <p className="settings-hint">
+                Ein Hirn, zwei Gesichter. Friday übernimmt nur nach Name oder diesem Schalter. Wake „Friday“, nicht
+                „Freitag“. Native-Fallback: eine de-DE-Stimme, wenn das Gerät kein Gender hat.
+              </p>
             </section>
           ) : null}
 
@@ -673,6 +814,22 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </label>
               <p className="settings-hint">
                 „Wenn ich zuhause bin …“ braucht gespeichertes Zuhause. Handy muss an sein.
+              </p>
+              <label className="settings-field">
+                <span>Taxi</span>
+                <select
+                  value={s?.taxi_app || 'call'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ taxi_app: e.target.value })}
+                >
+                  <option value="call">Anruf Kontakt Taxi</option>
+                  <option value="uber">Uber öffnen</option>
+                  <option value="freenow">FreeNow öffnen</option>
+                  <option value="ask">Jedes Mal fragen</option>
+                </select>
+              </label>
+              <p className="settings-hint">
+                Jarvis bestellt und bezahlt nicht. Default ist Anruf. Deep-Link nur öffnen.
               </p>
               <div className="settings-actions">
                 <button
@@ -882,11 +1039,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>PC im WLAN</h3>
               <p className="settings-lead">
-                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> starten. Jarvis sieht den echten Bildschirm,
-                bewegt die Maus, startet FIFA, bearbeitet Ordner — nur wenn die App läuft.
+                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> doppelklicken. Das graue Fenster offen
+                lassen. IP mit <strong>192.168</strong> oder <strong>10.</strong> — nicht 172 (WSL). Schalter an, dann
+                PC testen.
               </p>
               <p className="settings-hint">
-                Gleiches WLAN. IP und Token stehen im PC-Fenster. Ohne App: nichts behaupten. Löschen nur nach Ja.
+                Gleiches WLAN, kein Gäste-Netz, kein VPN. IP ohne http:// und ohne Port. Firewall im PC-Fenster
+                erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja.
               </p>
               <label className="settings-toggle">
                 <span>PC-Steuerung an</span>
@@ -907,7 +1066,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   autoComplete="off"
                   onChange={(e) => setPcHost(e.target.value)}
                   onBlur={() => {
-                    const v = pcHost.trim()
+                    const v = sanitizePcHost(pcHost)
                     setPcHost(v)
                     void p.patchSetting({ pc_host: v })
                   }}
@@ -949,10 +1108,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   className="retry-btn"
                   disabled={busy || pcBusy}
                   onClick={() => {
+                    const host = sanitizePcHost(pcHost)
+                    setPcHost(host)
                     setPcBusy(true)
                     setPcMsg('Prüfe PC…')
                     void p.patchSetting({
-                      pc_host: pcHost.trim(),
+                      pc_host: host,
                       pc_token: pcToken.trim(),
                       pc_port: Number.parseInt(pcPort, 10) || 18790,
                       pc_enabled: true,
@@ -993,6 +1154,18 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   onChange={(e) => void p.patchSetting({ plugs_enabled: e.target.checked })}
                 />
               </label>
+              <label className="settings-toggle">
+                <span>Watchdog Haus</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.watchdog)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ watchdog: e.target.checked })}
+                />
+              </label>
+              <p className="settings-hint">
+                Aus = Ruhe. An = nur Haus-Signale (Steckdose tot, Termin-Kollision). Timer klingeln schon. Kein Fake-Anruf, kein Firmen-Finden.
+              </p>
               {(loadPlugs().length ? loadPlugs() : []).map((plug) => (
                 <div key={plug.id} className="settings-hint" style={{ marginTop: 8 }}>
                   <strong>{plug.name}</strong> · {plug.kind} · {plug.host || 'ohne IP'}
@@ -1540,6 +1713,160 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
+          {p.topic === 'weltlage' ? (
+            <section className="settings-card">
+              <h3>Weltlage</h3>
+              <p className="settings-hint">
+                Ausblick aus öffentlichen Meldungen und Serien. Kein Insider, kein Orakel, kein Kauf-Rat. Ohne
+                FRED-Key keine Rohöl-Zahl — Jarvis erfindet keine.
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.outlook_watch)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ outlook_watch: e.target.checked })}
+                />
+                <span>Watch (holen, wenn die App offen ist)</span>
+              </label>
+              <p className="settings-hint">
+                Zielintervall 20 Minuten. Android Doze hält das oft nicht genauer. Aus = kein stilles Netz im
+                Hintergrund.
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.outlook_interrupt)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ outlook_interrupt: e.target.checked })}
+                />
+                <span>Unterbrechen bei neuer Lage</span>
+              </label>
+              <p className="settings-hint">Nur wenn Watch an. Nur bei neuer Meldung gegenüber dem letzten Stand.</p>
+              <label className="settings-field">
+                <span>FRED-Key (Brent, optional)</span>
+                <input
+                  type="text"
+                  inputMode="text"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  key={`fred-key-${s?.outlook_fred_key ? 'set' : 'empty'}`}
+                  defaultValue={s?.outlook_fred_key || ''}
+                  disabled={busy}
+                  placeholder="Key von fred.stlouisfed.org"
+                  onBlur={(e) => void p.patchSetting({ outlook_fred_key: e.target.value.trim() })}
+                />
+              </label>
+              <p className="settings-hint">Serie DCOILBRENTEU, kostenlos registrieren. Nicht teilen.</p>
+            </section>
+          ) : null}
+
+          {p.topic === 'hausstand' ? (
+            <section className="settings-card">
+              <h3>Hausstand</h3>
+              <p className="settings-lead">
+                Vor dem nächsten Sideload exportieren. Deinstall löscht Keys, Nummern und Erinnerungen. Die Datei
+                enthält API-Keys — nicht in den Chat, nicht nach Git, nicht per Mail.
+              </p>
+              <p className="settings-hint">
+                {s?.last_backup_at
+                  ? `Letzter Export: ${new Date(s.last_backup_at).toLocaleString('de-DE')}`
+                  : 'Noch kein Export auf diesem Gerät.'}
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={backupChats}
+                  disabled={busy || backupBusy}
+                  onChange={(e) => setBackupChats(e.target.checked)}
+                />
+                <span>Chats mitexportieren (kann groß werden)</span>
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || backupBusy}
+                  onClick={() => {
+                    setBackupBusy(true)
+                    setBackupMsg(null)
+                    void shareOrDownloadBackup(backupChats)
+                      .then((msg) => setBackupMsg(msg))
+                      .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
+                      .finally(() => setBackupBusy(false))
+                  }}
+                >
+                  Exportieren
+                </button>
+                <label className="retry-btn" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  Datei wählen
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    hidden
+                    disabled={busy || backupBusy}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      e.target.value = ''
+                      if (!file) return
+                      setBackupBusy(true)
+                      setBackupMsg(null)
+                      setBackupPreview(null)
+                      setBackupPending(null)
+                      void file
+                        .text()
+                        .then((text) => {
+                          let parsed: unknown
+                          try {
+                            parsed = JSON.parse(text)
+                          } catch {
+                            setBackupMsg('Keine JSON-Datei.')
+                            return
+                          }
+                          const data = asBackup(parsed)
+                          const prev = previewBackup(parsed)
+                          setBackupPreview(prev)
+                          setBackupPending(data)
+                          setBackupMsg(prev.message)
+                        })
+                        .finally(() => setBackupBusy(false))
+                    }}
+                  />
+                </label>
+              </div>
+              {backupPreview?.ok ? (
+                <p className="settings-hint">
+                  Vorschau: {backupPreview.keys} Keys, {backupPreview.contacts} Nummern, {backupPreview.reminders}{' '}
+                  Erinnerungen, {backupPreview.events} Termine
+                  {backupPreview.chats ? `, ${backupPreview.chats} Chats` : ''}.
+                </p>
+              ) : null}
+              <button
+                type="button"
+                className="retry-btn"
+                disabled={busy || backupBusy || !backupPending}
+                onClick={() => {
+                  if (!backupPending) return
+                  setBackupBusy(true)
+                  void applyBackup(backupPending)
+                    .then((msg) => {
+                      setBackupMsg(msg)
+                      setBackupPending(null)
+                      setBackupPreview(null)
+                    })
+                    .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Import fehlgeschlagen'))
+                    .finally(() => setBackupBusy(false))
+                }}
+              >
+                Überschreiben ja
+              </button>
+              <p className="settings-hint">Ohne diesen Knopf ändert Import nichts.</p>
+              {backupMsg ? <p className="settings-hint">{backupMsg}</p> : null}
+            </section>
+          ) : null}
+
           {p.topic === 'gedaechtnis' ? (
             <section className="settings-card">
               <h3>Was Jarvis über Sie weiß</h3>
@@ -1593,168 +1920,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'tests' && !testCat ? (
-            <section className="settings-card">
-              <h3>Was testen?</h3>
-              <p className="settings-lead">
-                Themen ankreuzen. Optional reinzoomen und einzelne Prompts wählen. Dann Test starten — Debug schreibt
-                nacheinander, ohne Tastatur.
-              </p>
-              <div className="settings-check-row">
-                <CheckBox
-                  checked={allTestsOn}
-                  indeterminate={allTestsInd}
-                  label="Alle Themen"
-                  onChange={(on) => p.onToggleAllTests(on)}
-                />
-                <span className="settings-hub-copy">
-                  <strong>Alle Themen</strong>
-                  <span>{testSel} Prompts</span>
-                </span>
-              </div>
-              <div className="settings-hub-list">
-                {TEST_COPY_GROUPS.map((g) => {
-                  const { n, total } = groupSelectedCount(g, Object.keys(p.testKeys))
-                  return (
-                    <div key={g.id} className="settings-check-row">
-                      <CheckBox
-                        checked={n === total && total > 0}
-                        indeterminate={n > 0 && n < total}
-                        label={g.title}
-                        onChange={(on) => p.onToggleTestGroup(g.id, on)}
-                      />
-                      <button type="button" className="settings-hub-copy" onClick={() => p.onTestGroup(g.id)}>
-                        <strong>{g.title}</strong>
-                        <span>{g.hint}</span>
-                      </button>
-                      <span className="settings-hub-status">
-                        {n}/{total}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-              <div className="tests-start-bar">
-                <span>{testSel ? `${testSel} ausgewählt` : 'Nichts ausgewählt'}</span>
-                <button type="button" className="retry-btn" disabled={!testSel} onClick={p.onStartTest}>
-                  Test starten
-                </button>
-              </div>
-            </section>
-          ) : null}
-
-          {p.topic === 'tests' && testCat ? (
-            <section className="settings-card">
-              <h3>{testCat.title}</h3>
-              <p className="settings-lead">Prompts ankreuzen. Test starten schreibt sie nacheinander in einen Debug-Chat.</p>
-              <div className="settings-check-row">
-                <CheckBox
-                  checked={groupSelectedCount(testCat, Object.keys(p.testKeys)).n === testCat.items.length}
-                  indeterminate={
-                    groupSelectedCount(testCat, Object.keys(p.testKeys)).n > 0 &&
-                    groupSelectedCount(testCat, Object.keys(p.testKeys)).n < testCat.items.length
-                  }
-                  label={`Alle ${testCat.title}`}
-                  onChange={(on) => p.onToggleTestGroup(testCat.id, on)}
-                />
-                <span className="settings-hub-copy">
-                  <strong>Alle in {testCat.title}</strong>
-                  <span>
-                    {groupSelectedCount(testCat, Object.keys(p.testKeys)).n}/{testCat.items.length}
-                  </span>
-                </span>
-              </div>
-              <div className="settings-hub-list">
-                {testCat.items.map((item) => {
-                  const key = testPromptKey(testCat.id, item)
-                  return (
-                    <label key={key} className="settings-check-row is-prompt">
-                      <CheckBox
-                        checked={Boolean(p.testKeys[key])}
-                        label={item.label}
-                        onChange={() => p.onToggleTestKey(key)}
-                      />
-                      <span className="settings-hub-copy">
-                        <strong>{item.label}</strong>
-                        <span>{item.text}</span>
-                      </span>
-                    </label>
-                  )
-                })}
-              </div>
-              <div className="tests-start-bar">
-                <span>{testSel ? `${testSel} ausgewählt` : 'Nichts ausgewählt'}</span>
-                <button type="button" className="retry-btn" disabled={!testSel} onClick={p.onStartTest}>
-                  Test starten
-                </button>
-              </div>
-            </section>
-          ) : null}
-
           {p.topic === 'debug' ? (
-            <section className="settings-card">
-              <h3>Automatischer Debug-Chat</h3>
-              <p className="settings-lead">
-                Test läuft unter Tests. Hier nur Export früherer Chats. Ein laufender Test hält das Handy wach, auch wenn die App im Hintergrund ist — solange Android die WebView nicht tötet.
-              </p>
-              <button type="button" className="retry-btn" onClick={() => p.onTopic('tests')}>
-                Zu Tests
-              </button>
-              <h3>Frühere Chats</h3>
-              <p className="settings-lead">
-                Gespräch wählen, JSON nach Downloads. Enthält Route, Tools, Quellen — ohne API-Keys.
-              </p>
-              {debugChats.length === 0 ? (
-                <p className="settings-hint">Noch kein Gespräch.</p>
-              ) : (
-                <label className="settings-field">
-                  <span>Gespräch</span>
-                  <select value={debugPick} onChange={(e) => setDebugPick(e.target.value)} disabled={debugBusy}>
-                    {debugChats.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.title || 'Ohne Titel'}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-              <div className="settings-actions">
-                <button
-                  type="button"
-                  className="retry-btn"
-                  disabled={debugBusy || !debugPick}
-                  onClick={() => {
-                    if (!debugPick) return
-                    setDebugBusy(true)
-                    setDebugMsg(null)
-                    void downloadChatDebug(debugPick)
-                      .then((r) => setDebugMsg(r.message))
-                      .catch((err) => setDebugMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
-                      .finally(() => setDebugBusy(false))
-                  }}
-                >
-                  {debugBusy ? 'Export…' : 'JSON nach Downloads'}
-                </button>
-                <button
-                  type="button"
-                  className="retry-btn"
-                  disabled={debugBusy || !debugPick}
-                  onClick={() => {
-                    if (!debugPick) return
-                    setDebugBusy(true)
-                    setDebugMsg(null)
-                    void buildChatDebugDump(debugPick)
-                      .then((dump) => copyText(JSON.stringify(dump, null, 2)))
-                      .then((ok) => setDebugMsg(ok ? 'JSON kopiert. Im Chat an den Agenten einfügen.' : 'Kopieren fehlgeschlagen.'))
-                      .catch((err) => setDebugMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
-                      .finally(() => setDebugBusy(false))
-                  }}
-                >
-                  Kopieren
-                </button>
-              </div>
-              {debugMsg ? <p className="settings-hint">{debugMsg}</p> : null}
-            </section>
+            <DebugPanel
+              onSend={p.onDebugSend}
+              onStartChat={p.onDebugStart}
+              busy={p.debugBusy}
+            />
           ) : null}
 
           {p.topic === 'gefahr' ? (
@@ -1766,6 +1937,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </button>
             </section>
           ) : null}
+          </div>
         </div>
       </div>
     </div>

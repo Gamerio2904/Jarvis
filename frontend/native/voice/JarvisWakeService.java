@@ -207,6 +207,11 @@ public class JarvisWakeService extends Service {
                 || n.contains("service")) {
             return true;
         }
+        if (n.contains("friday") || n.contains("fraidi") || n.contains("freidi")
+                || n.contains("fridei") || n.equals("fridi")) {
+            return true;
+        }
+        if (n.contains("freitag")) return false;
         return n.contains("jar") && (n.contains("vis") || n.contains("wis") || n.contains("bis"));
     }
 
@@ -226,7 +231,7 @@ public class JarvisWakeService extends Service {
         if (raw == null) return "";
         String t = raw.trim();
         java.util.regex.Matcher m = java.util.regex.Pattern
-                .compile("(?i)^(?:(?:hey|hallo|hi|ok(?:ay)?)\\s+)?(?:jarvis|jarwis|javis|yarvis|charvis|gervis|djarvis|scharvis|jaervis|service)\\s*[,:\\-–]?\\s*(.*)$")
+                .compile("(?i)^(?:(?:hey|hallo|hi|ok(?:ay)?)\\s+)?(?:jarvis|jarwis|javis|yarvis|charvis|gervis|djarvis|scharvis|jaervis|service|friday|fraidi|freidi|fridei)\\s*[,:\\-–]?\\s*(.*)$")
                 .matcher(t);
         if (m.find()) {
             String rest = m.group(1) == null ? "" : m.group(1).trim();

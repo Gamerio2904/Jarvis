@@ -338,15 +338,16 @@ public class JarvisVoicePlugin extends Plugin {
         call.setKeepAlive(true);
         speakCall = call;
         final int gen = ++speakGen;
-        trySpeak(call, text, gen, 0);
+        final String gender = call.getString("gender", "");
+        trySpeak(call, text, gender == null ? "" : gender, gen, 0);
     }
 
-    private void trySpeak(PluginCall call, String text, int gen, int attempt) {
+    private void trySpeak(PluginCall call, String text, String gender, int gen, int attempt) {
         main.post(() -> {
             if (speakGen != gen || speakCall != call) return;
             if (tts == null || !ttsReady) {
                 if (attempt < 15) {
-                    main.postDelayed(() -> trySpeak(call, text, gen, attempt + 1), 100);
+                    main.postDelayed(() -> trySpeak(call, text, gender, gen, attempt + 1), 100);
                     return;
                 }
                 JSObject r = new JSObject();
@@ -362,6 +363,7 @@ public class JarvisVoicePlugin extends Plugin {
                 @Override public void onDone(String utteranceId) { finishSpeak(true); }
                 @Override public void onError(String utteranceId) { finishSpeak(false); }
             });
+            applyVoiceGender(gender);
             Bundle params = new Bundle();
             int queued = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, "jarvis-voice");
             if (queued == TextToSpeech.ERROR) {
@@ -382,6 +384,28 @@ public class JarvisVoicePlugin extends Plugin {
         JSObject r = new JSObject();
         r.put("ok", ok);
         c.resolve(r);
+    }
+
+    private void applyVoiceGender(String gender) {
+        if (tts == null || gender == null || gender.isEmpty()) return;
+        try {
+            Set<Voice> voices = tts.getVoices();
+            if (voices == null || voices.isEmpty()) return;
+            boolean wantFemale = "female".equalsIgnoreCase(gender);
+            Voice pick = null;
+            for (Voice v : voices) {
+                if (v == null || v.getLocale() == null) continue;
+                if (!"de".equalsIgnoreCase(v.getLocale().getLanguage())) continue;
+                String n = v.getName() == null ? "" : v.getName().toLowerCase(Locale.US);
+                boolean female = n.contains("female") || n.contains("-f") || n.contains("frau");
+                boolean male = (n.contains("male") && !n.contains("female")) || n.contains("-m") || n.contains("mann");
+                if (wantFemale && female) { pick = v; break; }
+                if (!wantFemale && male) { pick = v; break; }
+            }
+            if (pick != null) tts.setVoice(pick);
+        } catch (Exception ignored) {
+            /* Gerät hat oft nur eine de-DE-Stimme — ehrlich Native. */
+        }
     }
 
     @PluginMethod

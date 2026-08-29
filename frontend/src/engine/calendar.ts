@@ -108,18 +108,21 @@ export async function handleCalendar(
   }
 
   if (intent.kind === 'list') {
-    const rows = await eventsOnOrAfter(intent.day)
+    const rows = await eventsInWindow(intent.day, intent.until)
+    const span = intent.label
+      ? intent.label
+      : intent.day
+        ? intent.day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })
+        : 'kommend'
     if (!rows.length) {
       return {
         handled: true,
-        reply: intent.day
-          ? `Am ${intent.day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })} steht nichts im Kalender.`
-          : 'Im Kalender steht gerade nichts.',
+        reply: intent.until || intent.day ? `Keine Termine ${span}.` : 'Keine Termine.',
       }
     }
     const lines = rows.map((e, i) => `${i + 1}. ${e.title}${e.place ? ` in ${e.place}` : ''} — ${formatDue(new Date(e.start_at))}`)
     persistLastList('calendar', rows.map((e) => e.title))
-    return { handled: true, reply: `Sie haben diese Termine:\n${lines.join('\n')}` }
+    return { handled: true, reply: `Termine ${span}:\n${lines.join('\n')}` }
   }
 
   if (intent.kind === 'delete_last') {
@@ -148,142 +151,20 @@ export async function handleCalendar(
   }
 }
 
-async function handlePendingCal(
-  text: string,
-  pending: PendingCal,
-): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta } | null> {
-  const d = parseCalDecision(text)
-  if (!d) {
-    const next = parseCalendarIntent(text)
-    if (next) {
-      writeCal(null)
-      return null
-    }
-    if (
-      /[?]/.test(text) ||
-      /^(wann|wo|wie|was|erinner|fahr|wetter|los)/i.test(text.trim()) ||
-      /\blos\b/i.test(text)
-    ) {
-      writeCal(null)
-      return null
-    }
-    writeCal(pending)
-    return {
-      handled: true,
-      reply:
-        pending.mode === 'same'
-          ? `Sie haben da schon „${pending.existingTitle}“. Überschreiben oder belassen?`
-          : `Das überschneidet sich mit „${pending.existingTitle}“. Trotzdem eintragen oder belassen?`,
-      tool: { tool_status: 'executed', tool: 'calendar', action: 'ask', label: 'Termin?' },
-    }
-  }
-  if (d === 'keep') {
-    writeCal(null)
-    return { handled: true, reply: 'Alles klar, der alte Termin bleibt.' }
-  }
-  const overwrite = d === 'overwrite' || (d === 'yes' && pending.mode === 'same')
-  const addAnyway = d === 'add' || (d === 'yes' && pending.mode === 'overlap')
-  if (!overwrite && !addAnyway) {
-    writeCal(null)
-    return { handled: true, reply: 'Alles klar, der alte Termin bleibt.' }
-  }
-  if (overwrite && pending.existingId) {
-    await cancelNotify(notifyIdFromKey(`evt-${pending.existingId}`))
-    await deleteEvent(pending.existingId)
-  }
-  writeCal(null)
-  return commitCreate({
-    title: pending.title,
-    start: new Date(pending.start),
-    whenLabel: pending.whenLabel,
-    place: pending.place,
-    conversationId: pending.conversationId,
-  })
-}
-
-async function askOrCreate(opts: {
-  title: string
-  start: Date
-  whenLabel: string
-  place?: string
-  conversationId: string
-}): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
-  const clash = await findEventConflict(opts.start)
-  if (clash) {
-    writeCal({
-      title: opts.title,
-      start: opts.start.toISOString(),
-      whenLabel: opts.whenLabel,
-      place: opts.place,
-      conversationId: opts.conversationId,
-      existingId: clash.event.id,
-      existingTitle: clash.event.title,
-      mode: clash.kind,
-    })
-    const when = formatDue(new Date(clash.event.start_at))
-    if (clash.kind === 'same') {
-      return {
-        handled: true,
-        reply: `Sie haben da schon einen Termin: ${clash.event.title}, ${when}. Überschreiben oder belassen?`,
-        tool: { tool_status: 'executed', tool: 'calendar', action: 'ask', label: 'Termin?' },
-      }
-    }
-    return {
-      handled: true,
-      reply: `${opts.title} um ${opts.whenLabel} überschneidet sich mit ${clash.event.title} (${when}). Trotzdem eintragen oder belassen?`,
-      tool: { tool_status: 'executed', tool: 'calendar', action: 'ask', label: 'Termin?' },
-    }
-  }
-  return commitCreate(opts)
-}
-
-async function commitCreate(opts: {
-  title: string
-  start: Date
-  whenLabel: string
-  place?: string
-  conversationId: string
-}): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta }> {
-  const row = await addEvent({
-    title: opts.title,
-    start_at: opts.start.toISOString(),
-    place: opts.place,
-    conversationId: opts.conversationId,
-  })
-  await requestNotifyPermission()
-  await scheduleNotify({
-    id: notifyIdFromKey(`evt-${row.id}`),
-    title: 'Jarvis · Termin',
-    body: row.place ? `${row.title} · ${row.place}` : row.title,
-    at: opts.start,
-  })
-  persistLastList('calendar', [row.title])
-  const where = row.place ? ` in ${row.place}` : ''
-  return {
-    handled: true,
-    reply: `Ich habe ${row.title}${where} für ${opts.whenLabel} in den Kalender geschrieben.`,
-    tool: {
-      tool_status: 'executed',
-      tool: 'calendar',
-      action: 'create',
-      label: 'Termin liegt',
-      preview: `${row.title}${where} · ${opts.whenLabel}`,
-    },
-  }
-}
-
-async function eventsOnOrAfter(day?: Date): Promise<CalendarEvent[]> {
+async function eventsInWindow(day?: Date, until?: Date): Promise<CalendarEvent[]> {
   const rows = await listEvents()
   if (!day) {
     const start = startOfDay(new Date()).getTime()
     return rows.filter((e) => new Date(e.start_at).getTime() >= start).slice(0, 20)
   }
   const from = startOfDay(day).getTime()
-  const to = from + 86_400_000
-  return rows.filter((e) => {
-    const t = new Date(e.start_at).getTime()
-    return t >= from && t < to
-  })
+  const to = until ? startOfDay(until).getTime() : from + 86_400_000
+  return rows
+    .filter((e) => {
+      const t = new Date(e.start_at).getTime()
+      return t >= from && t < to
+    })
+    .sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
 }
 
 export async function removeEvent(id: string): Promise<void> {

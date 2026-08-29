@@ -4,7 +4,9 @@
   <img src="frontend/native/brand/cover.png" alt="Jarvis" width="920" />
 </p>
 
-Privater Assistant. Läuft **auf dem Handy**. PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`6.90.0`**. Sideload **`6.90.0`**. PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
+
+**Hirn:** Gemini (API-Key in Einstellungen → Cloud) ist der **Hauptweg**. Groq ist Backup. Das lokale 0,5B-Qwen ist **reiner letzter Fallback**, kein ChatGPT. Parser wählen die Geräte; das Modell formuliert. Tools, Speicher und Keys bleiben auf dem Gerät.
 
 ## Start (Dev-PC, nur zum Bauen)
 
@@ -14,30 +16,25 @@ npm install
 npm run dev
 ```
 
-Browser: http://localhost:5173 — einmal „Modell herunterladen“ (~470 MB).
+Browser: http://localhost:5173 — Overlay **Gemini zuerst**. Gemini-Key eintragen. Lokales 0,5B nur als Backup (~470 MB), nicht nötig für Timer, Kugel, Wetter.
 
 ## Android-APK
 
-**`Jarvis.apk` `2.37.2`:** [Download](https://github.com/Gamerio2904/Jarvis/raw/cursor/on-device-iq-sprints-5517/releases/Jarvis.apk) (versionCode 23702).
-
-Testprompts: Einstellungen → Tests, ankreuzen, Test starten. Debug-Chat ohne Tastatur, Download nach Downloads. Chat ohne Chips. API-Keys unter Einstellungen → APIs (eigener Bereich). Rabatt-Suche unter Einstellungen → Rabatt.
+Sideload **`Jarvis.apk` `6.90.0`** (versionCode `69000`):  
+`releases/Jarvis.apk` in diesem Repo.
 
 ```bat
 build-apk.bat
 ```
 
-APK: `releases/Jarvis.apk`
+Linux: `./build-apk.sh`
 
-1. Installieren (unbekannte Quellen).
-2. App öffnen → Modell laden (WLAN).
+1. Installieren (unbekannte Quellen). Vor Neuinstall: Einstellungen → Hausstand → Exportieren — Deinstall löscht Keys.
+2. App öffnen → Overlay: **Gemini-Key eintragen**. Optional Groq. 0,5B nur Backup.
 3. Chat. Daten bleiben auf dem Gerät (IndexedDB).
-
-Modell: Qwen2.5 0.5B Instruct Q4 (kleiner als der alte PC-7b, dafür offline).
-
-Als Nächstes: optionales 1.5B `2.2.4` SHOULD — [`docs/30-next.md`](docs/30-next.md). Welt-Reihe ist in `2.19.0` **CODE** — [`docs/31-next.md`](docs/31-next.md).
 
 ## Was weg ist
 
 Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen in der Android-App.
 
-Planung: [`docs/README.md`](docs/README.md)
+Planung: [`docs/README.md`](docs/README.md) · Rest: LocateAnything-Gewichte nach 3060-GO, Debug-Hintergrund `5.12`.
