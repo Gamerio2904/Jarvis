@@ -1,33 +1,21 @@
-# Jarvis — Docs
+# Jarvis — Planungsdokumente
 
 **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
-Sideload: [`apk.md`](./apk.md) · Changelog: [`CHANGELOG.md`](./CHANGELOG.md) · Sprints: [`sprints/README.md`](./sprints/README.md) · PC: [`../desktop/README.md`](../desktop/README.md)
-
-## Live vs. geplant
-
-| | Version | Doc |
-|--|---------|-----|
-| **Live** | Sideload `2.2.2` | [`00-now.md`](./00-now.md) · [`30-next.md`](./30-next.md) |
-| **Als Nächstes** | `2.3`–`2.19` Alltag & Welt | [`31-next.md`](./31-next.md) **PLAN** |
-| **Danach** | `2.20`–`2.28` Kaufmodus | [`32-next.md`](./32-next.md) **PLAN** |
-
-Keine zweite Sprint-Tabelle hier. Status nur in [`sprints/README.md`](./sprints/README.md).
-
-## Aktuell
+## Lesereihenfolge
 
 | Nr. | Dokument | Zweck |
 |-----|----------|--------|
-| 00 | [Jetzt](./00-now.md) | Live-Stand, Router, Won’t |
-| 01 | [Vision](./01-vision.md) | Wozu Jarvis existiert |
-| 02 | [Architektur](./02-architecture.md) | On-Device-Stack; MVP-Zeilen historisch |
-| 03 | [Prozess](./03-agile-process.md) | Scrum-lite, DoR/DoD |
-| 04 | [Roadmap](./04-roadmap-phases.md) | Phasen; nächste Reihen 31/32 |
-| 05 | [Backlog](./05-product-backlog.md) | Epics; E25/E26 PLAN |
-| 07 | [Persona](./07-persona.md) | Ton, Siezen |
-| 08 | [Offene Fragen](./08-open-questions.md) | Q48 Kaufmodus |
+| 01 | [Vision & Produktziele](./01-vision.md) | Wozu Jarvis existiert, Ziele, Nicht-Ziele |
+| 02 | [Architektur](./02-architecture.md) | Lokales Design, UI-Richtung, Kontext-Stufen |
+| 03 | [Agiler Prozess (Scrum-lite)](./03-agile-process.md) | Rollen, Sprints, DoR/DoD |
+| 04 | [Roadmap & Phasen](./04-roadmap-phases.md) | Phase 0 → 5+ |
+| 05 | [Product Backlog](./05-product-backlog.md) | Epics & User Stories |
+| 06 | [MVP & Sprint-Plan](./06-mvp-sprint-plan.md) | MVP + Sprint-Überblick |
+| 07 | [Persona Jarvis](./07-persona.md) | Charakter, Stil, Beispiele |
+| 08 | [Offene Fragen](./08-open-questions.md) | Restlücken |
 | 09 | [Versionierung](./09-versioning.md) | SemVer, Sprint ↔ Version |
 | 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
@@ -69,19 +57,9 @@ Keine zweite Sprint-Tabelle hier. Status nur in [`sprints/README.md`](./sprints/
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
 | — | [APK](./apk.md) | Sideload `6.90.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
-## Geliefert (Reihen, nicht mehr bauen)
+Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
-| Nr. | Dokument | Version |
-|-----|----------|---------|
-| 13 | [On-Device](./13-on-device.md) | `0.13` — Stack gilt weiter |
-| 14 | [Qualität & TV](./14-quality-tv.md) | `0.14.1` |
-| 16 | [Gemini](./16-gemini.md) | `0.16` Opt-in |
-| 17 | [Erinnerung–Sprache](./17-next.md) | `1.1`–`1.6` |
-| 18 | [Timer–GUI](./18-next.md) | `1.7`–`1.13.2` |
-| 19 | [Alltag & Kontext](./19-next.md) | `1.14`–`1.20` (in `1.24`) |
-| 20 | [Extra-Alltag](./20-next.md) | `1.21`–`1.24` |
-| 21–27 | [Fahrmodus](./21-next.md) … [Voice-Tempo](./27-next.md) | `1.26`–`1.32.1` |
-| 28 | [Qualität statt Breite](./28-next.md) | `1.33`–`2.0` **CODE** |
+## Status (Kurz)
 
 | Sprint | Version | Status |
 |--------|---------|--------|

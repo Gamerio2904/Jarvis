@@ -8,9 +8,7 @@ Privater Assistant. Läuft **auf dem Handy**. App-Code **`6.90.0`**. Sideload **
 
 **Hirn:** Gemini (API-Key in Einstellungen → Cloud) ist der **Hauptweg**. Groq ist Backup. Das lokale 0,5B-Qwen ist **reiner letzter Fallback**, kein ChatGPT. Parser wählen die Geräte; das Modell formuliert. Tools, Speicher und Keys bleiben auf dem Gerät.
 
-PC im selben WLAN: `desktop/JarvisPC.bat`. Kein NAS, kein Docker, kein Ollama.
-
-## Start (Dev)
+## Start (Dev-PC, nur zum Bauen)
 
 ```bash
 cd frontend
@@ -25,7 +23,9 @@ Browser: http://localhost:5173 — Overlay **Gemini zuerst**. Gemini-Key eintrag
 Sideload **`Jarvis.apk` `6.90.0`** (versionCode `69000`):  
 `releases/Jarvis.apk` in diesem Repo.
 
-Lokal bauen: `build-apk.bat` → `frontend/dist-apk/jarvis-debug.apk`
+```bat
+build-apk.bat
+```
 
 Linux: `./build-apk.sh`
 

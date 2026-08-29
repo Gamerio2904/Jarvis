@@ -57,11 +57,7 @@ Du kannst sagen: „Jarvis klingt so: …“ und Beispiele in `07-persona.md` si
 
 ---
 
-## Phase 2 — Privat vom Handy — **historisch als NAS-APK**
-
-Ab `0.13` ist die APK selbst Jarvis (kein Token gegen NAS). Live: [`00-now.md`](./00-now.md).
-
-Unten: wie Phase 2 in `0.10` geplant war.
+## Phase 2 — Privat vom Handy (in `0.10.x` mit Phase 3)
 
 **Ziel:** Vom Handy im eigenen WLAN chatten — **Sideload-APK** gegen NAS, plus Browser.
 
@@ -78,9 +74,7 @@ APK-Chat gegen NAS ist Alltag; ohne Token kein Zugriff.
 
 ---
 
-## Phase 3 — 24/7 auf NAS — **historisch / superseded**
-
-Kein NAS-LLM im Alltag. Das Handy ist 24/7, solange es an ist.
+## Phase 3 — 24/7 auf NAS (in `0.10.x` mit Phase 2)
 
 **Ziel:** Dauerbetrieb ohne dass der Laptop an sein muss.
 
@@ -171,12 +165,13 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 
 | Willst du … | Brauchst du zuerst … |
 |-------------|----------------------|
-| TTS | Stabilen Text-Charakter — **geliefert** |
-| Handy-Alltag | On-Device-APK (`0.13`+), nicht NAS |
-| Tools | Klare Persona + ehrlichen Router |
+| TTS | Stabilen Text-Charakter (Phase 1+) |
+| NAS 24/7 | Laufenden Stack auf dem PC (Phase 1) |
+| Handy-Alltag | NAS-Stack + Owner-Token + APK (`0.10.2`+) |
+| Tools | Klare Persona + zuverlässigen Betrieb |
 
 ## Sparring-Korrekturen in der Roadmap
 
-- Handy-App ist On-Device (`0.13`+). NAS-Compose ist **historisch**, nicht Alltag.
+- Handy-App und NAS sind **nicht** Phase-1-Arbeit (kommen als `0.10.x` nach `0.9.5`).
 - Lokales Modell kann Smalltalk schwächen → Persona/Stil und ggf. Modellwechsel sind Teil von Phase 1, keine „spätere Politur“.
 - Stimme ersetzt keine gute Text-Persona.

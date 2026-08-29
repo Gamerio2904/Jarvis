@@ -1,4 +1,4 @@
-# 10 — Intelligence Capabilities
+# 10 — Intelligence Capabilities (Ausarbeitung)
 
 Ziel: Jarvis wird **professioneller und scharfsinniger**. Tools und Speicher bleiben on-device. Smalltalk-Hirn ist Gemini (Key), nicht das 0,5B.
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
@@ -23,14 +23,14 @@ Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).
 
 ### Live `1.33.0` (Code) — historisch
 
-Router in `frontend/src/engine/chat.ts` **vor** dem LLM — kanonisch: [`00-now.md`](./00-now.md).
+Suche: Quellen zuerst, Absage wird ersetzt wenn Links da sind. Produkte: Idealo/Geizhals, € nur aus Snippets. Router wie `1.32.1` plus `Öffnen CarPlay` → Fahrmodus. `pickHeard` scored ohne Drive-`inMode`-Raten.
 
 ### Live `1.32.1` (Code)
 
-Nächste Reihe **PLAN:** [`31-next.md`](./31-next.md) inkl. Research härten (`2.6.0`).  
-Danach **PLAN:** [`32-next.md`](./32-next.md) — `parseKaufIntent` **vor** der Einkaufsliste, Preise nur mit Quelle.
+Router-Reihenfolge in `chat.ts`: help → ordinal → TV → Fan → Drive → Maps → Memory → Einkauf → … → LLM.  
+Zwei Befehle an „und“ (genau zwei Teile). `pickHeard` nimmt den ersten Parser (Drive mit `inMode=true`). Voice-History Gemini `-16`, lokal `-4`. Fahrmodus: OSRM, Cue-Phasen, Replan setzt Cue-Gedächtnis zurück.
 
-### Ältere Live-Schnitte (geliefert, nicht mehr der Router)
+Nächste Schärfe: [`28-next.md`](./28-next.md) `1.33`–`1.40` — Parser/STT, Antworten, Fahrmodus, Phrasen. Lokal 0,5B denkt nicht plötzlich besser.
 
 ### Live `1.24.0` (Code)
 

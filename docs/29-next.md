@@ -5,7 +5,7 @@
 
 PO 2026-08-19: Eigene WLAN-Steckdosen aus Jarvis schalten. Code fertig, lokal im Hausnetz, ehrlich wenn ungepaart.
 
-Reihe davor: [`28-next.md`](./28-next.md). Live in Sideload **`2.2.2`** — [`00-now.md`](./00-now.md).
+Reihe davor: [`28-next.md`](./28-next.md). App vorher: Sideload **`2.0.1`**.
 
 Eine Sideload-Stufe.
 

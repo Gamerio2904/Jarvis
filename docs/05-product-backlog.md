@@ -19,11 +19,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E2 | Jarvis Core Chat | 1 | Backend, Persona-Injection, Kurzgedächtnis, API |
 | E3 | Chat UI | 1–2 | Einfache Web-UI, mobil nutzbar |
 | E4 | Private Access | 2 | Handy, Owner-Token, APK (`0.10.2`–`0.10.5`) |
-| E5 | Always-On Ops | — | historisch: NAS Compose `0.10` — **superseded** |
-| E6 | Voice Out | 4 | TTS — **CODE** `1.5`+ |
-| E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research — live in `2.2.2` |
-| E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, Settings |
-| E11 | NAS & APK | — | historisch `0.10` — [`12-nas-apk.md`](./12-nas-apk.md) |
+| E5 | Always-On Ops | 3 | NAS Compose, Autostart, Backup (`0.10.0`–`0.10.1`) |
+| E6 | Voice Out | 4 | TTS-Vorlesen |
+| E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research, Scores |
+| E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, flaches Settings |
+| E11 | NAS & APK | 2–3 | Compose 24/7 + Sideload-APK — `0.10.x` |
 | E12 | Samsung TV | 5+ | Tizen lokal — **`0.14.1`** (ex-`0.11`, on-device) |
 | E14 | Qualität `0.14` | 2 | Bestehendes härten: Latenz, Ton, Memory/Tools — kein neues Feature |
 | E15 | Alltag `1.14`–`1.20` | 5+ | Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Auge — [`19-next.md`](./19-next.md) |
@@ -499,22 +499,6 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S48.7 | Welt-Tour Parser `auf der Welt passiert` | Must | ready | `outlook` + Kugel, nicht `news` |
 | S48.8 | Länder-Glow + Seite + Zoom-Kette max 5 | Must | ready | weltpolitisch-Filter |
 | S48.9 | Reduced-Motion Tour ohne Auto-Flug | Should | ready | Glow+Liste |
-
-### E26 — Kaufmodus `2.20`–`2.28`
-
-| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
-|----|-------|--------|--------|------------------|
-| S26.1 | Als Nutzer will ich Kaufmodus und Einkaufsliste getrennt: Suche/Vergleich öffnet das Overlay, Packen bleibt die Liste. | Must | ready | `2.20.0` PLAN — Parser vor `shopping` |
-| S26.2 | Als Nutzer will ich ein Jarvis-Overlay (Bild links, Händler rechts), ohne Fake-Preise. | Must | ready | `2.20.0` PLAN |
-| S26.3 | Als Nutzer will ich Produkte in natürlicher Sprache suchen, ohne exakten Namen. | Must | ready | `2.21.0` PLAN — Research-Adapter |
-| S26.4 | Als Nutzer will ich Händler nach Gesamtpreis vergleichen, mit Quelle und Zeitstempel. | Must | ready | `2.22.0` PLAN |
-| S26.5 | Als Nutzer will ich Chips und „Nur Angebote“ inkl. Preisgrenze aus der Sprache. | Must | ready | `2.23.0` PLAN |
-| S26.6 | Als Nutzer will ich zwei/drei Produkte vergleichen und eine belegte Empfehlung. | Must | ready | `2.24.0` PLAN |
-| S26.7 | Als Nutzer will ich Treffer merken, ohne die Lebensmittelliste anzufassen. | Must | ready | `2.25.0` PLAN — `kauf_saved` |
-| S26.8 | Als Nutzer will ich lokale Läden, Distanz, Stunden und Route, wenn OSM sie hat. | Must | ready | `2.26.0` PLAN |
-| S26.9 | Als Nutzer will ich Prospekte/Angebote lokaler Ketten — oder eine ehrliche Lücke. | Should | ready | `2.27.0` PLAN — kein Scraping |
-| S26.10 | Als Nutzer will ich das Overlay per Stimme steuern (Nummer, Sort, merken, öffnen). | Must | ready | `2.28.0` PLAN |
-| S26.11 | Als Nutzer will ich „Kauf das“ nur als Händler-Link, nie als stille Bestellung. | Must | ready | ab `2.22` — kein Checkout |
 
 ---
 

@@ -76,7 +76,7 @@ Parser wählen Geräte. Das Hirn formuliert, erfindet keine Tool-Zahlen.
 4. **Netzwerk hart machen** — Fernzugriff erst mit Auth; PC-Token im WLAN.
 5. **Keys lokal** — Gemini/Groq-Keys in `localStorage`, Hausstand-Export vor Deinstall.
 
-## Datenschutz & Sicherheit
+## Datenschutz & Sicherheit (Architektur-Regeln)
 
 - Chats, Memory, Keys bleiben auf dem Gerät.
 - Cloud-Hirn nur mit **deinem** Key (Gemini Hauptweg, Groq Backup). Kein Key in der APK.

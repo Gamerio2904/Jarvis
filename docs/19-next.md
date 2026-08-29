@@ -8,9 +8,7 @@ Mitgeliefert in **`1.24.0`**. Jede Stufe bleibt sideloadbar dokumentiert.
 
 Reihe davor (fertig): [`18-next.md`](./18-next.md). Schiene gelandet in **`1.24.0`**.
 
-## Stand im Code (`1.24.0`) — Snapshot der Reihe, nicht Live-Router
-
-Live-Router `2.2.2`: [`00-now.md`](./00-now.md) / [`10-intelligence-capabilities.md`](./10-intelligence-capabilities.md). Unten: was **diese** Reihe geliefert hat.
+## Stand im Code (`1.24.0`) — nicht schönreden
 
 | Thema | Was der Code tut | Was er nicht tut |
 |-------|------------------|------------------|
