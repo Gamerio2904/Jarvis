@@ -144,37 +144,6 @@ export function needsLanProxySetup(): boolean {
   return false
 }
 
-const API_BASE_KEY = 'jarvis_api_base'
-
-/** Backend origin for Capacitor/APK; empty = same-origin (Vite proxy / reverse-proxy). */
-export function getApiBase(): string {
-  try {
-    const fromLs = localStorage.getItem(API_BASE_KEY)
-    if (fromLs != null && fromLs.trim()) return fromLs.trim().replace(/\/$/, '')
-  } catch {
-    /* ignore */
-  }
-  const fromEnv = (import.meta as { env?: { VITE_API_BASE?: string } }).env?.VITE_API_BASE
-  if (fromEnv && fromEnv.trim()) return fromEnv.trim().replace(/\/$/, '')
-  return ''
-}
-
-export function setApiBase(url: string): void {
-  const cleaned = (url || '').trim().replace(/\/$/, '')
-  try {
-    if (!cleaned) localStorage.removeItem(API_BASE_KEY)
-    else localStorage.setItem(API_BASE_KEY, cleaned)
-  } catch {
-    /* ignore */
-  }
-}
-
-export function apiUrl(path: string): string {
-  const base = getApiBase()
-  if (!path.startsWith('/')) return `${base}/${path}`
-  return `${base}${path}`
-}
-
 export async function getHealth(): Promise<Health> {
   return engineHealth()
 }

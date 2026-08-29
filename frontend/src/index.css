@@ -605,17 +605,6 @@ textarea {
   flex: 1;
 }
 
-.settings-input {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--bg-input);
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 0.82rem;
-}
-
 .egg-list {
   list-style: none;
   margin: 0;

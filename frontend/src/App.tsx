@@ -4,7 +4,6 @@ import {
   createConversation,
   deleteConversation,
   deleteMemoryItem,
-  getApiBase,
   getConversation,
   getHealth,
   getSettings,
@@ -1048,10 +1047,6 @@ function App() {
         onError: (detail) => {
           lastError = detail
           setError(detail)
-          setStreamingText(null)
-          setStreamResearch(null)
-          setStatusNote(null)
-          setBusy(false)
         },
       })
     } catch (err) {
@@ -1064,14 +1059,9 @@ function App() {
       })
       setLastFailed(content)
       setStreamingText(null)
-      setStreamResearch(null)
-      setStatusNote(null)
       setMessages((prev) => prev.filter((m) => !m.id.startsWith('tmp-')))
     } finally {
       setBusy(false)
-      setStreamingText((cur) => (cur === '' ? null : cur))
-      // Never leave "Jarvis schreibt…" hanging after a finished/failed turn
-      setStatusNote((cur) => (cur === 'Jarvis schreibt…' ? null : cur))
       textareaRef.current?.focus()
       void refreshHealth()
       void refreshMemory()
