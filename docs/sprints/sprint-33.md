@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** (Code im Repo; Live-PO) |
 | Priorität | **SHOULD** — Alltag nach Tools-Polish |
 | Ziel-Version | **`0.9.5`** |
 | Quelle | Feedback (Eval-Müll in Listen; Confirm nur per Text) |
@@ -29,9 +29,10 @@ Tools **alltagstauglich**: Listen nicht voller Testschrott; Confirm per UI; opti
 
 ## Won’t
 
-- Mail / Smart-Home / Fire TV / Alexa
+- Mail / Fire TV / Alexa
 - Cloud-Kalender-OAuth
-- Phase 2 Auth (eigenes Sprint-Track)
+- NAS/APK (Sprints 34–39)
+- Samsung-TV (`0.11.x`)
 
 ## Exit / Abnahme
 
@@ -39,5 +40,5 @@ PO: Listen nutzbar; Confirm per UI. Tag **`v0.9.5`**.
 
 ## Danach
 
-- Phase 2 Handy privat — **PO-Kommando**
-- Smart-Home/Fire TV nur nach explizitem neuen Scope (Parking)
+- Sprint 34 / `0.10.0` NAS Core — siehe [`12-nas-apk.md`](../12-nas-apk.md)
+- Samsung-TV erst `0.11.x` (Sprint 40)

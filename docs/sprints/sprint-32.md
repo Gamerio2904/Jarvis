@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLANNED** |
+| Status | **READY FOR REVIEW** (Code im Repo; Live-PO) |
 | Priorität | **HIGH** — Live-Probe (Clarify-Follow-up, Broken-Siezen, EN-Leak) |
 | Ziel-Version | **`0.9.4`** |
 | Quelle | Feedback nach `0.9.2`; Carry aus Sprint 27 Continuity |
@@ -40,3 +40,4 @@ PO: Clarify-Continuity spürbar; Siezen/EN stabil. Tag **`v0.9.4`**.
 ## Danach
 
 - Sprint 33 / `0.9.5` Tools Hygiene & Confirm-UX
+- Ab Sprint 34: NAS+APK (`0.10.x`)
