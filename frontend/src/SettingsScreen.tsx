@@ -6,6 +6,7 @@ import { copyText } from './copy-text'
 import { ensureDeviceLocation } from './native/geo'
 import { DebugPanel } from './DebugPanel'
 import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
+import { TTS_VOICES } from './engine/tts'
 import { sanitizePcHost } from './engine/pc-host'
 import {
   spotifyLoggedIn,
@@ -158,8 +159,8 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
-  onDebugSend: (text: string) => Promise<string | void>
-  debugConversationId: string | null
+  onDebugSend: (text: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
+  onDebugStart: (title: string) => Promise<string>
   debugBusy: boolean
 }
 
@@ -325,6 +326,25 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 />
                 <span>Akzent orange</span>
               </label>
+              <label className="settings-inline">
+                <span>Sicht</span>
+                <select
+                  value={s?.hud_view || 'tiles'}
+                  disabled={busy}
+                  onChange={(e) => {
+                    const hud_view = e.target.value as 'tiles' | 'body' | 'globe'
+                    void p.patchSetting({
+                      hud_view,
+                      hud_force: hud_view === 'tiles' ? Boolean(s?.hud_force) : true,
+                      hud_hidden: hud_view === 'tiles' ? Boolean(s?.hud_hidden) : false,
+                    })
+                  }}
+                >
+                  <option value="tiles">Kacheln</option>
+                  <option value="body">Körper</option>
+                  <option value="globe">Kugel</option>
+                </select>
+              </label>
               <p className="settings-hint">Module. Aus = Kachel weg.</p>
               {HUD_CATALOG.map((m) => (
                 <label key={m.id} className="settings-toggle">
@@ -350,8 +370,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Lokales Modell</h3>
               <p className="settings-lead">
-                {s?.model_default || 'Qwen2.5 0.5B'} auf diesem Handy (~470 MB). Kleiner als ChatGPT —
-                dafür ohne Cloud.
+                {s?.model_default || 'Qwen2.5 0.5B'} auf diesem Handy (~470 MB). Letzter Fallback, wenn Gemini und Groq fehlen — nicht ChatGPT.
               </p>
               {!p.health?.model_ready && !p.geminiOn ? (
                 <div className="settings-actions">
@@ -376,7 +395,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
           {p.topic === 'cloud' ? (
             <>
               <section className="settings-card">
-                <h3>Gemini (Google)</h3>
+                <h3>Gemini (Google) — Hauptweg</h3>
                 <label className="settings-toggle">
                   <input
                     type="checkbox"
@@ -384,10 +403,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     disabled={busy}
                     onChange={(e) => void p.patchSetting({ gemini_enabled: e.target.checked })}
                   />
-                  <span>Gemini statt lokalem 0.5B</span>
+                  <span>Gemini zuerst (Key nötig)</span>
                 </label>
                 <p className="settings-hint warn">
-                  An = Chat und Fotos gehen zu Google. Nicht privat.
+                  An = Plaudern und Fotos gehen zu Google. Groq und das kleine lokale Modell sind nur Backup. Nicht privat.
                 </p>
                 <label className="settings-field">
                   <span>API-Key</span>
@@ -414,8 +433,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <p className="settings-hint">Key: aistudio.google.com/apikey — nicht teilen.</p>
               </section>
               <section className="settings-card">
-                <h3>Groq (optional)</h3>
-                <p className="settings-hint">Nur wenn Gemini leer oder überlastet ist. Free-Tier ohne Karte.</p>
+                <h3>Groq (Backup)</h3>
+                <p className="settings-hint">Nur wenn Gemini fehlt oder ausfällt. Dann 0,5B. Free-Tier ohne Karte.</p>
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
@@ -496,7 +515,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Mit Gemini-Key: stehend wartet Jarvis auf Algieba (Film-näher, kein Charon-Karussell). Am Steuer gewinnt Tempo — Native, kein 3-Sekunden-Loch. Navi-Ansagen bleiben immer Native. Kein ElevenLabs, kein Stimmklon.
+                Gemini-Stimmen-Picker unten. Default Algieba, Friday Kore. Am Steuer gewinnt Tempo — Native zuerst. Navi-Ansagen bleiben Native. Kein ElevenLabs, kein Stimmklon.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>
@@ -505,9 +524,37 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   disabled={busy}
                   onChange={(e) => void p.patchSetting({ voice_tts: e.target.value })}
                 >
-                  <option value="auto">Auto (Gemini wenn an)</option>
+                  <option value="auto">Auto (Gemini wenn Key da)</option>
                   <option value="gemini">Gemini — Netz</option>
                   <option value="system">System — offline</option>
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Jarvis-Stimme</span>
+                <select
+                  value={s?.gemini_tts_voice || s?.tts_voice_jarvis || 'Algieba'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ gemini_tts_voice: e.target.value, tts_voice_jarvis: e.target.value })}
+                >
+                  {TTS_VOICES.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Friday-Stimme</span>
+                <select
+                  value={s?.tts_voice_friday || 'Kore'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ tts_voice_friday: e.target.value })}
+                >
+                  {TTS_VOICES.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
                 </select>
               </label>
               <div className="settings-actions">
@@ -1799,7 +1846,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
           {p.topic === 'debug' ? (
             <DebugPanel
               onSend={p.onDebugSend}
-              conversationId={p.debugConversationId}
+              onStartChat={p.onDebugStart}
               busy={p.debugBusy}
             />
           ) : null}

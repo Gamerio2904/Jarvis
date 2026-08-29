@@ -11,7 +11,9 @@ export function parseLawIntent(text: string): LawIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 160) return null
   if (
-    !/\b(kündigungsfrist|mietrecht|bgb|gesetz(?:estext)?|was\s+steht\s+im\s+gesetz|paragraph)\b/i.test(t)
+    !/\b(kündigungsfrist|mietrecht|bgb|gesetz(?:estext)?|was\s+steht\s+im\s+gesetz|paragraph|darf\s+ich\s+im\s+park\s+grillen|grillverbot)\b/i.test(
+      t,
+    )
   ) {
     return null
   }

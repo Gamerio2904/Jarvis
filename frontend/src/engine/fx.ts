@@ -27,6 +27,7 @@ export function parseFxIntent(text: string): FxIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 140) return null
   if (!/\b(dollar|euro|wechselkurs|kurs|pfund|franken|yen|zloty|usd|eur|gbp|chf)\b/i.test(t)) return null
+  if (/\b(banking|überweis|ueberweis|iban|online[- ]?banking)\b/i.test(t)) return null
   if (/\b(wetter|tanke|e10|nachrichten|bundesliga)\b/i.test(t)) return null
   if (/\b(fällt|steigt|ausblick|prognose|teurer|billiger|wird)\b/i.test(t)) return null
   if (!/\b(was\s+ist|kurs|wechsel|wie\s+viel(?:e)?\s+(?:ist|sind)|euro|dollar)\b/i.test(t)) return null

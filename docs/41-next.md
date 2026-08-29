@@ -1,4 +1,4 @@
-# 41 — Lokales Sehen / LocateAnything (`4.76`) **PLAN**
+# 41 — Lokales Sehen / LocateAnything (`4.76`) **CODE** (Protokoll, Vision aus)
 
 PO 2026-08-27: Jarvis soll **sehen, ohne dass das Bild zu Google muss** — und auf dem PC **klicken, wo etwas wirklich liegt**. Inspiration, nicht Kopie:
 
@@ -6,11 +6,9 @@ https://www.instagram.com/reel/DaJuh6euSLq/?igsi=MWt1dDhkdXBsbnUybg==
 
 **Nicht** [`40-next.md`](./40-next.md): dort ist `4.66` **Körper** (3D-Schema, Darstellung). LocateAnything macht PC-Auge/PC-Hand **treffsicher**, es ersetzt den Körper nicht.
 
-**Live:** Code **`4.53.0`**. Sideload **`3.18.1`**. Weltlage/Alltagskette/Stimme/Hausstand/Friday sind **CODE**. Auge und PC-Klick gehen weiter über Gemini (`eye.ts`, `pc.ts`).
+> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Parser für Zeig/Zählen/Tippen **CODE**. Vision/Gewichte **aus** bis 3060-GO. Auge und PC-Klick ohne Sidecar weiter über Gemini (`eye.ts`, `pc.ts`).
 
 **Warum `4.76`, nicht `4.66`:** `4.66`–`4.75` = Körper, Sprint 115. Diese Schiene beginnt **danach**. Handy-WASM trägt kein 3B-VLM.
-
-Kein Execute in diesem Sprint. Research zuerst. Sideload nach Hausstand-Export.
 
 ## Reel — was dort wirklich steht
 
@@ -22,15 +20,15 @@ NVIDIA **LocateAnything-3B** (Eagle, arXiv:2605.27365, HF `nvidia/LocateAnything
 | Ganze Box | genau der PC-Klick |
 | Open Source | Download am PC, nie in der APK |
 
-## Ist (`4.53.0`)
+## Ist (`6.60.0`)
 
 | Thema | Code | Lücke |
 |-------|------|-------|
 | Auge | `eye.ts` — Foto → Gemini, sonst Absage | Bild zu Google |
-| PC-Bild | `pc.ts` Screenshot lokal, Vorlesen Gemini | Deutung Cloud |
-| PC-Klick | Gemini JSON `{nx,ny}` | GUI-Grounding fehlt |
+| PC-Bild | `pc.ts` Screenshot lokal, Vorlesen Gemini | Deutung Cloud ohne Sidecar |
+| PC-Klick | Gemini JSON `{nx,ny}` + Parser `ground-parse` | GUI-Grounding ohne JarvisSee-Gewichte |
 | Food/Pflanze | Name oder Foto; API / Gemini | Locate **lokalisiert**, bestimmt keine Art |
-| Körper `4.66` | PLAN: PC-Auge-Kachel ehrlich leer/verbunden | keine Boxen |
+| Körper `4.66` | **CODE:** PC-Auge-Kachel ehrlich leer/verbunden | keine Boxen ohne Sidecar |
 | GPU | RTX 3060 12 GB | LocateAnything-Karte: A100/H100/4090, OS Linux → **GO/NO-GO** |
 
 ## Was besser würde
@@ -104,17 +102,17 @@ Messen: Fit in 12 GB bei 1280 px, WSL2 vs. nativ, Latenz, Lizenzzeile. **GO/NO-G
 
 | Version | Inhalt | Sprint |
 |---------|--------|--------|
-| **`4.76.0`** | Leitentscheidung | 116 **PLAN** |
-| **`4.77.0`–`4.80.0`** | Research 3060 / Sidecar / Klick / Foto | 116 |
-| **`4.81.0`** | `/v1/ground` + Status | nach GO |
-| **`4.82.0`** | **Reel-Kern:** `doClick` mit Box | |
-| **`4.83.0`** | Box-Liste + Overlay | |
-| **`4.84.0`–`4.86.0`** | Foto zum PC, Crop Food/Nature, Fallback/Gold | |
-| **`4.87.0`–`4.93.0`** | Zeig, Zählen, Tippen, Delta, Beleg, Termin, TV-Foto | 117 |
-| **`4.94.0`–`4.97.0`** | Schreibtisch, Waschlabel, EAN, zwei Schritte | 118 |
-| **`4.98.0`–`4.99.0`** | Gold, Sideload nach Hausstand | |
+| **`4.76.0`** | Leitentscheidung + Parser `ground-parse` + `/v1/ground` Client | 116 **CODE** in `5.11.0` |
+| **`4.77.0`–`4.80.0`** | Research 3060 / Sidecar / Klick / Foto | **offen** — kein Fake-GO |
+| **`4.81.0`** | `/v1/ground` + Status | **CODE** Client; Sidecar fehlt → ehrlich aus |
+| **`4.82.0`** | **Reel-Kern:** `doClick` versucht Box, unsicher = kein Klick | **CODE** Fallback Gemini nur mit Satz |
+| **`4.83.0`** | Overlay ohne Klick (`Wo ist Speichern`) | **CODE** Parser + ehrliche Antwort |
+| **`4.84.0`–`4.86.0`** | Foto zum PC, Crop Food/Nature, Fallback/Gold | Gold **CODE**; Crop nach GO |
+| **`4.87.0`–`4.93.0`** | Zeig, Zählen, Tippen, Beleg, Termin, TV-Foto | 117 Parser **CODE**, Vision braucht Sidecar |
+| **`4.94.0`–`4.97.0`** | Schreibtisch, Waschlabel, EAN, zwei Schritte | 118 Parser **CODE** |
+| **`4.98.0`–`4.99.0`** | Gold, Sideload nach Hausstand | Gold **CODE**, Sideload geplant |
 
-NO-GO in `4.77`: `4.81+` nicht starten.
+NO-GO in `4.77` bleibt: Gewichte nicht in der APK, keine erfundenen Boxen. Ohne JarvisSee sagt der Chat **Sehen am PC ist aus**.
 
 ## Chat (Ziel)
 

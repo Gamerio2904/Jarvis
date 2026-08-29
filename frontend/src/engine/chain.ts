@@ -34,6 +34,16 @@ export function clearChain(): void {
 }
 
 const READ_FIRST = new Set(['poi', 'fuel', 'news', 'outlook', 'here', 'weather', 'warn', 'fx'])
+const RUN_NOW = new Set([
+  ...READ_FIRST,
+  'hud',
+  'drive',
+  'identity',
+  'help',
+  'wont',
+  'sky',
+  'face',
+])
 
 export function partitionChain(parts: string[]): { reads: string[]; writes: string[] } {
   const reads: string[] = []
@@ -46,7 +56,7 @@ export function partitionChain(parts: string[]): { reads: string[]; writes: stri
       lastMedium: '',
       inDrive: false,
     })
-    if (id && READ_FIRST.has(id)) reads.push(part)
+    if (!id || RUN_NOW.has(id)) reads.push(part)
     else writes.push(part)
   }
   return { reads, writes }

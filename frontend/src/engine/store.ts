@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '4.53.0'
+export const APP_VERSION = '6.90.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -151,6 +151,15 @@ export type Settings = {
   hud_hidden: boolean
   hud_accent: 'green' | 'amber'
   hud_modules_json: string
+  hud_view: 'tiles' | 'body' | 'globe'
+  last_body_organ: string
+  last_globe_focus: string
+  last_globe_look: string
+  last_globe_tour_json: string
+  last_globe_brief: string
+  globe_tour_on: boolean
+  last_eye_line: string
+  last_ground_json: string
   last_hops_json: string
   last_trace_host: string
   last_news_line: string
@@ -200,6 +209,7 @@ export type Settings = {
   model_default: string
   fallback_model: string
   routing_mode: string
+  setup_dismissed: boolean
   version: string
 }
 
@@ -260,6 +270,15 @@ export const DEFAULT_SETTINGS: Settings = {
   hud_hidden: false,
   hud_accent: 'green',
   hud_modules_json: '',
+  hud_view: 'tiles',
+  last_body_organ: 'brain',
+  last_globe_focus: '',
+  last_globe_look: '',
+  last_globe_tour_json: '',
+  last_globe_brief: '',
+  globe_tour_on: false,
+  last_eye_line: '',
+  last_ground_json: '',
   last_hops_json: '',
   last_trace_host: '',
   last_news_line: '',
@@ -309,6 +328,7 @@ export const DEFAULT_SETTINGS: Settings = {
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',
+  setup_dismissed: false,
   version: APP_VERSION,
 }
 

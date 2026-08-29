@@ -1,4 +1,4 @@
-# 40 — Körper intern: Hirn, Auge, Hand (`4.66`) **PLAN**
+# 40 — Körper intern: Hirn, Auge, Hand (`4.66`) **CODE**
 
 PO 2026-08-27: Reel intern nutzen — Jarvis **Hirn, Hand, Auge** und was dazugehört **sichtbar** machen, zugeschnitten auf *dieses* Jarvis. Nicht kopieren, erweitern. Nachzug: **3D-Modell live und anklickbar** — nur Darstellung, keine neuen Funktionen.
 
@@ -8,7 +8,9 @@ Caption dort: Jarvis aus **drei Teilen** — was er über mich weiß, was er fü
 
 Bei uns: **Handy ist das Hirn.** PC ist Werkzeug. Lage gibt es schon ([`33-next.md`](./33-next.md)). Auge, Stimme, Tools, PC-Bildschirm sind CODE — sie liegen nur nicht als **Körper** beieinander.
 
-Voraussetzung: Lage `3.18`+. Organe existieren schon (Auge `1.20`/`1.26`, PC `1.47`, Stimme `1.31`/`4.33`, Face `4.53` auf Branch). Sideload bleibt **`3.18.1`** bis Hausstand-Export.
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.66`** (in `5.11`/`6.50` gehärtet). Overlay und Smalltalk: Gemini zuerst.
+
+Voraussetzung: Lage `3.18`+. Organe existieren schon (Auge `1.20`/`1.26`, PC `1.47`, Stimme `1.31`/`4.33`, Face `4.53`).
 
 ## Kurz: APK oder nur PC?
 
@@ -30,7 +32,7 @@ Kein PC nötig, um den Körper **zu sehen**. Kein zweites Hirn auf Windows.
 | Im Video / Caption | Bei uns | Votum |
 |--------------------|---------|-------|
 | Drei Teile: Wissen / Tun / Reden | Gedächtnis / Hand / Ohr+Mund+Face | **ja**, intern so nennen |
-| Gehirn am Laptop, Claude-Mitarbeiter | Hirn = Handy (0,5B oder Gemini Opt-in) | **zuschneiden**, nicht übernehmen |
+| Gehirn am Laptop, Claude-Mitarbeiter | Hirn = Handy (**Gemini Hauptweg**, Groq/0,5B Backup) | **zuschneiden**, nicht übernehmen |
 | Hand steuert den Rechner | Handy-Hand = Register (Steckdose, SMS, Taxi, …). PC-Hand extra | **ja, getrennt** |
 | Auge / Bildschirm sehen | Handy-Auge = Foto (`Lies das Foto`, Gemini). PC-Auge = Screenshot | **ja, getrennt** |
 | Stimme | TTS Algieba/Kore, Native-Fallback | **ja** (Mund) |
@@ -43,7 +45,7 @@ Kein PC nötig, um den Körper **zu sehen**. Kein zweites Hirn auf Windows.
 
 | Organ | Ist | Datei / Tool |
 |-------|-----|----------------|
-| Hirn | wllama 0,5B **oder** Gemini Opt-in. Register + Score. Face Jarvis/Friday. 0,5B wählt keine Tools. | `llm.ts`, `registry.ts`, `face.ts` |
+| Hirn | Gemini **Hauptweg** (Key), Groq Backup, 0,5B zuletzt. Register + Score. Face Jarvis/Friday. 0,5B wählt keine Tools. | `llm.ts`, `brain-pick.ts`, `registry.ts`, `face.ts` |
 | Auge (Handy) | `Lies das Foto` — nur mit Gemini, Bild zu Google. Sonst ehrlich. | `eye.ts` |
 | Auge (PC) | `Was siehst du auf dem PC` — Screenshot über BAT; Deutung Gemini. Treffsichere Boxen: [`41-next.md`](./41-next.md) | `pc.ts` |
 | Hand (Handy) | Steckdose, Anruf/SMS nach Ja, Taxi nach Ja, Kalender, TV, Timer, … | Register |
@@ -146,15 +148,15 @@ Dieses Dokument. **Done wenn:** APK-ja inkl. 3D-Schema, PC-nur-Organe, Klick≠E
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`4.66.0`** | Leitentscheidung | **PLAN** |
-| **`4.67.0`** | Research Katalog + WebGL-Spike | geplant |
-| **`4.68.0`** | Research Live-Felder | geplant |
-| **`4.69.0`** | Research PC-leer | geplant |
-| **`4.70.0`** | HUD-Intent `körper` + Setting-Sicht | geplant |
-| **`4.71.0`** | 3D-Schema + Kacheln Hirn / Auge / Hand | geplant |
-| **`4.72.0`** | Ohr / Mund / Gedächtnis klickbar | geplant |
-| **`4.73.0`** | PC-Auge / PC-Hand ehrlich | geplant |
-| **`4.74.0`** | Gold, Härten, Reduced-motion-2D | geplant |
+| **`4.66.0`** | Leitentscheidung + Lage-Sicht Körper (Canvas-Schema, Organ-Kachel, kein Tool-Start) | **CODE** in `5.11.0` |
+| **`4.67.0`** | Research Katalog + WebGL-Spike | **CODE** als 2D-Projektion, kein Three.js |
+| **`4.68.0`** | Research Live-Felder | **CODE** (`body-snap.ts`) |
+| **`4.69.0`** | Research PC-leer | **CODE** |
+| **`4.70.0`** | HUD-Intent `Körper an` / `Zeig Hirn` | **CODE** |
+| **`4.71.0`** | Schema + Kacheln Hirn / Auge / Hand | **CODE** |
+| **`4.72.0`** | Ohr / Mund / Gedächtnis klickbar | **CODE** |
+| **`4.73.0`** | PC-Auge / PC-Hand ehrlich | **CODE** |
+| **`4.74.0`** | Gold, Reduced-motion ohne Orbit | **CODE** |
 | **`4.75.0`** | Sideload **nach** Hausstand `4.52` | geplant |
 
 ## Chat / Stimme (Ziel)

@@ -3,6 +3,7 @@ import { getJson, postJson } from './http-json'
 import { sanitizePcHost } from './pc-host'
 import { parsePcIntent, type PcIntent } from './pc-parse'
 import { isCommNo, isCommYes } from './places-parse'
+import { isPcGround, parseGroundIntent, type GroundIntent } from './ground-parse'
 import { loadSettings, saveSettings } from './store'
 import { scrubReply } from './guards'
 import type { ToolMeta } from './tools'
@@ -14,6 +15,10 @@ export type { PcIntent } from './pc-parse'
 type PcHit = { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }
 
 type PendingPc = { kind: 'delete_confirm'; path: string }
+type PendingGround = { kind: 'two_step'; a: string; b: string; phase: 'ask1' | 'ask2' }
+
+const VISION_OFF =
+  'Sehen am PC ist aus. LocateAnything (JarvisSee auf der RTX) läuft nicht. Nichts eingezeichnet, nichts angeklickt. Gemini-Auge bleibt Opt-in — das Bild ginge dann zu Google.'
 
 function pcTool(action: string, label: string, extra?: Record<string, unknown>): ToolMeta {
   return {
@@ -39,6 +44,21 @@ function readPending(): PendingPc | null {
 
 function writePending(p: PendingPc | null) {
   saveSettings({ last_pc_json: p ? JSON.stringify(p) : '', last_step_tool: p ? 'pc_confirm' : 'pc' })
+}
+
+function writeGroundPending(p: PendingGround | null) {
+  saveSettings({ last_ground_json: p ? JSON.stringify(p) : '' })
+}
+
+function readGroundPending(): PendingGround | null {
+  try {
+    const raw = loadSettings().last_ground_json
+    if (!raw) return null
+    const p = JSON.parse(raw) as PendingGround
+    return p?.kind === 'two_step' && p.a && p.b ? p : null
+  } catch {
+    return null
+  }
 }
 
 function endpoint(): { url: string; token: string } | { error: string } {
@@ -166,9 +186,56 @@ export async function handlePc(_conversationId: string, text: string): Promise<P
     }
   }
 
+  const two = readGroundPending()
+  if (two) {
+    if (isCommNo(text)) {
+      writeGroundPending(null)
+      return {
+        handled: true,
+        reply: 'Beide Schritte abgebrochen. Nichts geklickt.',
+        tool: pcTool('ask', 'PC'),
+        lastTool: 'pc',
+      }
+    }
+    if (isCommYes(text)) {
+      if (two.phase === 'ask1') {
+        const first = await runGround({ kind: 'find', query: two.a, click: true })
+        writeGroundPending({ ...two, phase: 'ask2' })
+        return {
+          handled: true,
+          reply: `${first.reply} Zweiter Schritt „${two.b}“? Ja oder nein. Einen dritten mache ich nicht.`,
+          tool: first.tool,
+          lastTool: 'pc_confirm',
+        }
+      }
+      writeGroundPending(null)
+      const second = await runGround({ kind: 'find', query: two.b, click: true })
+      return {
+        handled: true,
+        reply: `${second.reply} Fertig. Kein dritter Schritt.`,
+        tool: second.tool,
+        lastTool: 'pc',
+      }
+    }
+    const nextPc = parsePcIntent(text)
+    const nextG = parseGroundIntent(text)
+    if (nextPc || isPcGround(nextG)) writeGroundPending(null)
+    else {
+      const step = two.phase === 'ask1' ? two.a : two.b
+      return {
+        handled: true,
+        reply: `Nächster GUI-Schritt „${step}“? Ja oder nein. Einen dritten mache ich nicht.`,
+        tool: pcTool('ask', 'PC'),
+        lastTool: 'pc_confirm',
+      }
+    }
+  }
+
   const intent = parsePcIntent(text)
-  if (!intent) return { handled: false }
-  return runIntent(intent)
+  if (intent) return runIntent(intent)
+  const g = parseGroundIntent(text)
+  if (isPcGround(g)) return runGround(g)
+  return { handled: false }
 }
 
 async function runIntent(intent: PcIntent): Promise<PcHit> {
@@ -301,14 +368,176 @@ async function seeScreen(): Promise<PcHit> {
   }
 }
 
+async function lookupGround(query: string): Promise<{
+  vision: 'off' | 'loading' | 'ready' | 'error' | 'missing'
+  nx?: number
+  ny?: number
+  label?: string
+  score?: number
+  message?: string
+}> {
+  const res = await callPc('/v1/ground', { query }, 20_000)
+  const msg = String(res.message || '')
+  if (!res.ok && /nicht erreicht|404|unknown|kein endpoint|not found/i.test(msg)) {
+    return { vision: 'missing', message: msg }
+  }
+  const visionRaw = String(res.vision || '')
+  const vision =
+    visionRaw === 'ready' || visionRaw === 'off' || visionRaw === 'loading' || visionRaw === 'error'
+      ? visionRaw
+      : res.ok
+        ? 'ready'
+        : 'error'
+  const boxes = Array.isArray(res.boxes) ? res.boxes : []
+  const first = boxes[0] as { nx?: number; ny?: number; x?: number; y?: number; label?: string; score?: number } | undefined
+  const nx = Number(first?.nx ?? res.nx)
+  const ny = Number(first?.ny ?? res.ny)
+  return {
+    vision,
+    nx: Number.isFinite(nx) ? nx : undefined,
+    ny: Number.isFinite(ny) ? ny : undefined,
+    label: typeof first?.label === 'string' ? first.label : typeof res.label === 'string' ? res.label : undefined,
+    score: Number(first?.score ?? res.score),
+    message: msg,
+  }
+}
+
+function visionOffHit(): PcHit {
+  return {
+    handled: true,
+    reply: VISION_OFF,
+    tool: pcTool('ground', 'PC', { ok: false, vision: 'off' }),
+    lastTool: 'pc',
+  }
+}
+
+async function runGround(intent: Extract<GroundIntent, { kind: 'find' | 'count' | 'type_into' | 'two_step' }>): Promise<PcHit> {
+  if (intent.kind === 'two_step') {
+    writeGroundPending({ kind: 'two_step', a: intent.a, b: intent.b, phase: 'ask1' })
+    return {
+      handled: true,
+      reply: `Zwei Schritte, jeder mit Ja: zuerst „${intent.a}“, dann „${intent.b}“. Ersten Schritt jetzt? Ja oder nein. Einen dritten mache ich nicht.`,
+      tool: pcTool('ask', 'PC'),
+      lastTool: 'pc_confirm',
+    }
+  }
+
+  const hit = await lookupGround(intent.kind === 'type_into' ? intent.field : intent.query)
+  if (hit.vision === 'missing' || hit.vision === 'off' || hit.vision === 'loading' || hit.vision === 'error') {
+    if (intent.kind === 'count') {
+      return {
+        handled: true,
+        reply: `${VISION_OFF} Eine Zahl erfinde ich nicht.`,
+        tool: pcTool('ground', 'PC', { ok: false, vision: hit.vision }),
+        lastTool: 'pc',
+      }
+    }
+    return visionOffHit()
+  }
+
+  const sure = typeof hit.nx === 'number' && typeof hit.ny === 'number' && (hit.score || 1) >= 0.65
+
+  if (intent.kind === 'count') {
+    return {
+      handled: true,
+      reply: sure
+        ? `Mindestens ein Treffer für ${intent.query} (Box ${hit.label || intent.query}). Eine genaue Fensterzahl ohne Sidecar-Liste nenne ich nicht.`
+        : `Keine klare Menge für ${intent.query}. Eine Zahl erfinde ich nicht.`,
+      tool: pcTool('ground', 'PC', { ok: true, vision: 'ready' }),
+      lastTool: 'pc',
+    }
+  }
+
+  if (intent.kind === 'type_into') {
+    if (!sure) {
+      return {
+        handled: true,
+        reply: `Feld „${intent.field}“ nicht eindeutig. Nichts getippt.`,
+        tool: pcTool('ground', 'PC', { ok: true, vision: 'ready' }),
+        lastTool: 'pc',
+      }
+    }
+    await callPc('/v1/input', { kind: 'click', nx: hit.nx, ny: hit.ny })
+    const typed = await callPc('/v1/input', { kind: 'type', text: intent.text })
+    return {
+      handled: true,
+      reply: typed.ok ? `In „${hit.label || intent.field}“ getippt.` : String(typed.message || 'Nicht getippt.'),
+      tool: pcTool('type', 'PC', typed),
+      lastTool: 'pc',
+    }
+  }
+
+  if (!intent.click) {
+    return {
+      handled: true,
+      reply: sure
+        ? `„${hit.label || intent.query}“ liegt ungefähr bei ${Math.round((hit.nx || 0) * 100)} % / ${Math.round((hit.ny || 0) * 100)} %. Maus bleibt.`
+        : `„${intent.query}“ nicht eindeutig. Nichts eingezeichnet.`,
+      tool: pcTool('ground', 'PC', { ok: true, vision: 'ready', image: undefined }),
+      lastTool: 'pc',
+    }
+  }
+
+  if (!sure) {
+    return {
+      handled: true,
+      reply: `„${intent.query}“ nicht eindeutig. Nichts angeklickt.`,
+      tool: pcTool('ground', 'PC', { ok: true, vision: 'ready' }),
+      lastTool: 'pc',
+    }
+  }
+  const click = await callPc('/v1/input', {
+    kind: 'click',
+    nx: Math.min(1, Math.max(0, hit.nx || 0)),
+    ny: Math.min(1, Math.max(0, hit.ny || 0)),
+  })
+  return {
+    handled: true,
+    reply: click.ok
+      ? `Klick auf ${hit.label || intent.query}. Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.`
+      : String(click.message || 'Nicht geklickt.'),
+    tool: pcTool('click', 'PC', click),
+    lastTool: 'pc',
+  }
+}
+
 async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<PcHit> {
   if (intent.target) {
+    const local = await lookupGround(intent.target)
+    if (local.vision === 'ready') {
+      const sure = typeof local.nx === 'number' && typeof local.ny === 'number' && (local.score || 1) >= 0.65
+      if (!sure) {
+        return {
+          handled: true,
+          reply: `„${intent.target}“ nicht eindeutig. Nichts angeklickt.`,
+          tool: pcTool('ground', 'PC', { ok: true, vision: 'ready' }),
+          lastTool: 'pc',
+        }
+      }
+      const click = await callPc('/v1/input', {
+        kind: 'click',
+        nx: Math.min(1, Math.max(0, local.nx || 0)),
+        ny: Math.min(1, Math.max(0, local.ny || 0)),
+        button: intent.button || 'left',
+        times: intent.times || 1,
+      })
+      return {
+        handled: true,
+        reply: click.ok
+          ? `Klick auf ${local.label || intent.target}. Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.`
+          : String(click.message || 'Nicht geklickt.'),
+        tool: pcTool('click', 'PC', click),
+        lastTool: 'pc',
+      }
+    }
     const shot = await callPc('/v1/screenshot', {}, 20_000)
     const image = shotFrom(shot)
     if (!shot.ok || !image) {
       return {
         handled: true,
-        reply: String(shot.message || 'Ohne Bildschirm kann ich den Zug nicht sehen.'),
+        reply: local.vision === 'missing' || local.vision === 'off'
+          ? `${VISION_OFF} ${String(shot.message || 'Kein Bildschirm.')}`
+          : String(shot.message || 'Ohne Bildschirm kann ich den Zug nicht sehen.'),
         tool: pcTool('click', 'PC', { ok: false }),
         lastTool: 'pc',
       }
@@ -316,8 +545,7 @@ async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<Pc
     if (!geminiReady()) {
       return {
         handled: true,
-        reply:
-          'Bild unten. Zum Anklicken eines Elements Gemini an. Oder „klick Mitte“ / Maus nach links.',
+        reply: `${VISION_OFF} Bild unten. Zum Anklicken über Google Gemini an. Oder „klick Mitte“.`,
         tool: pcTool('click', 'PC', { ok: true, image }),
         lastTool: 'pc',
       }
@@ -340,7 +568,7 @@ async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<Pc
     if (!parsed.found || !Number.isFinite(nx) || !Number.isFinite(ny)) {
       return {
         handled: true,
-        reply: `„${intent.target}“ auf dem Bild nicht eindeutig. Screenshot unten — nichts angeklickt.`,
+        reply: `LocateAnything aus. Gemini fand „${intent.target}“ nicht eindeutig. Screenshot unten — nichts angeklickt.`,
         tool: pcTool('click', 'PC', { ok: true, image }),
         lastTool: 'pc',
       }
@@ -355,7 +583,7 @@ async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<Pc
     return {
       handled: true,
       reply: click.ok
-        ? `Klick auf ${parsed.label || intent.target}. Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.`
+        ? `LocateAnything aus — Gemini-Klick auf ${parsed.label || intent.target} (Bild zu Google). Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.`
         : String(click.message || 'Nicht geklickt.'),
       tool: pcTool('click', 'PC', { ...click, image }),
       lastTool: 'pc',

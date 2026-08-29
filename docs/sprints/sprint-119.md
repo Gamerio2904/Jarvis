@@ -1,8 +1,8 @@
-# Sprint 119 — Weltkugel in der Lage **PLAN**
+# Sprint 119 — Weltkugel in der Lage **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (in App `5.11.0`) |
 | Priorität | nach Körper-WebGL-Spike `4.67`, ohne Sideload, unabhängig von LocateAnything-3060 |
 | Ziel-Version | `5.0.0` (bündelt Research `5.1`–`5.3`, Bau `5.4`+) |
 | Quelle | PO: Reel 3D-Kugel, Satellitenbilder, News; bestehende Tools einbauen |

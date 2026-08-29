@@ -12,7 +12,7 @@ import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -158,6 +158,7 @@ const EXPECT = {
   'ohne meine Adresse nachzugucken weißt du wo ich bin': 'here',
   'Nach Ingersheim': 'drive',
   'Was ist die Weltlage?': 'outlook',
+  'Was ist heute so auf der Welt passiert': 'outlook',
   'Warum steigt der Ölpreis?': 'outlook',
   'Wird Benzin teurer?': 'outlook',
   'Fällt der Dollar?': 'outlook',
@@ -167,6 +168,39 @@ const EXPECT = {
   'nächste Kneipe': 'poi',
   'bestell ein Taxi': 'taxi',
   'Sprachnachricht an Mama ich bin in 10 Minuten': 'maps',
+  'Todo: Testdebug Milch': 'tools',
+  'Gibt es Unwetter?': 'warn',
+  'Wo ist die ISS?': 'sky',
+  'Körper an': 'hud',
+  'zeig mal den körper': 'hud',
+  'Kugel an': 'hud',
+  'Wo liegt Berlin': 'hud',
+  'klick das Captcha': 'wont',
+  Friday: 'face',
+  'Was steht am Freitag an?': 'calendar',
+  'Darf ich im Park grillen?': 'law',
+  'Wo ist Speichern': 'pc',
+  'Lage an': 'hud',
+  'Zeig mir London': 'hud',
+  'Was ist das für eine Stadt?': 'hud',
+  'Was sehe ich?': 'hud',
+  'Zeig mir Atlantis': 'hud',
+  'zoom auf Tokio': 'hud',
+  'Was kannst du?': 'help',
+  'Bist du ChatGPT?': 'identity',
+  'Kannst du Bilder malen?': 'wont',
+  'Spiele Musik': 'drive',
+  'Schreib mir eine E-Mail': 'wont',
+  'Zeig mir die Nachrichten': 'news',
+  'Überweise 200 Euro': 'wont',
+  'Zeig Street View von London': 'wont',
+  Hilfe: 'help',
+  'Rufe 112': 'wont',
+  'mach die weltkugel an': 'hud',
+  'Zeig New York': 'hud',
+  'Was is das für ne Stadt': 'hud',
+  'Körper an und Zeig London': 'hud',
+  'Mach Live-Satellitenvideo an': 'wont',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -217,6 +251,8 @@ assert.equal(route('Wetter heute'), 'weather')
 assert.equal(route('kein Kaffee mehr'), 'memory')
 assert.equal(route('Fahr mich zur Freundin'), 'drive')
 assert.equal(route('Was ist die Weltlage?'), 'outlook')
+assert.equal(route('Was ist heute so auf der Welt passiert'), 'outlook')
+assert.equal(route('Weltbrief'), 'outlook')
 assert.equal(route('Warum steigt der Ölpreis?'), 'outlook')
 assert.equal(route('Wird Benzin teurer?'), 'outlook')
 assert.equal(route('Fällt der Dollar?'), 'outlook')

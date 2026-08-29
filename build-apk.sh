@@ -43,8 +43,14 @@ chmod +x gradlew
 ./gradlew assembleDebug --no-daemon
 popd >/dev/null
 
+APK_SRC="$FRONT/android/app/build/outputs/apk/debug/app-debug.apk"
+JARVIS_SRC="$FRONT/android/app/build/outputs/apk/debug/Jarvis-debug.apk"
+if [[ -f "$JARVIS_SRC" ]]; then
+  APK_SRC="$JARVIS_SRC"
+fi
 if [[ ! -f "$APK_SRC" ]]; then
   echo "[!] APK nicht gefunden: $APK_SRC" >&2
+  ls -la "$FRONT/android/app/build/outputs/apk/debug/" 2>/dev/null || true
   exit 1
 fi
 mkdir -p "$OUT" "$ROOT/releases"

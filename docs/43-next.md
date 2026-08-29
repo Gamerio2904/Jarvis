@@ -1,4 +1,4 @@
-# 43 — Weltkugel in der Lage (`5.0`) **PLAN**
+# 43 — Weltkugel in der Lage (`5.0`) **CODE**
 
 PO 2026-08-27: 3D-Weltkugel, Satellitenbilder so aktuell wie möglich, Nachrichten einbauen — und **die Tools, die es schon gibt**, nicht neu erfinden. Inspiration, nicht Kopie:
 
@@ -6,11 +6,11 @@ https://www.instagram.com/reel/DcgfA4ojF7a/
 
 Caption dort: „Kommentiere Jarvis wenn du das auch willst. **Andere werden beobachtet. Ich werde gebrieft.**“ Hashtags claude / ki / jarvis / ironmantri. Derselbe Autor wie Körper-Reel (`moritz.maaker`).
 
-**Live:** Code **`4.53.0`**. Sideload **`3.18.1`**. Weltlage `outlook` ist **CODE**. ISS/Mond `sky`, OpenSky `flights`, Tagesschau `news`, DWD `warn`, GPS `here` sind **CODE**. Körper-3D ist **PLAN** [`40-next.md`](./40-next.md) `4.66`. LocateAnything ist **PLAN** [`41-next.md`](./41-next.md) `4.76`.
+**Live:** Code **`6.60.0`**. Sideload **`6.60.0`**. Weltlage `outlook` ist **CODE**. ISS/Mond `sky`, OpenSky `flights`, Tagesschau `news`, DWD `warn`, GPS `here` sind **CODE**. Körper-3D **CODE** [`40-next.md`](./40-next.md). Kugel + GIBS-Zoom **CODE** in `6.50`. LocateAnything-Parser **CODE**, Gewichte [`41-next.md`](./41-next.md).
 
 **Warum `5.0`, nicht `4.100`:** In [`09-versioning.md`](./09-versioning.md) sind `4.66`–`4.75` Körper und `4.76`–`4.99` LocateAnything. Nächster Produktsprung nach `4.99` ist **MAJOR `5.0`**. Kein zweites `4.66`.
 
-Kein Execute in diesem Sprint. Research zuerst. Sideload nach Hausstand-Export.
+Schiene gelandet in `5.11`; Globus-Zoom/GIBS in `6.20`/`6.50`; Sideload `6.60`. **Nächstes Zielbild der Kugel:** Stadt → Satellit → Briefing [`48-next.md`](./48-next.md) `6.70`.
 
 ## Kurz: was wir konkret bauen (und was nicht)
 
@@ -41,7 +41,7 @@ Kein Execute in diesem Sprint. Research zuerst. Sideload nach Hausstand-Export.
 
 GIBS-Kacheln liefern `access-control-allow-origin: *` (2026-08-27 geprüft). GetCapabilities ist groß — **Layer-IDs fest im Code**, nicht jedes Mal Capabilities laden. Wolkenlücken und Nahtstellen sind echte Satellitenartefakte, kein Bug zum Wegretuschieren.
 
-Default-Textur bleibt **Blue Marble** (eine Datei, kein Dauer-HTTP). GIBS ist Opt-in, weil Kacheln Datenvolumen und Akku kosten.
+Default-Textur bleibt **Blue Marble** (weit raus, eine Datei). **GIBS True Color beim Ranzoomen** ist **CODE** in `6.50` (Sprint 123): Stand Stunden alt, Datum sichtbar. Kein Live-Video.
 
 ## Was schon da ist — mergen, nicht neu erfinden
 
@@ -55,9 +55,9 @@ Default-Textur bleibt **Blue Marble** (eine Datei, kein Dauer-HTTP). GIBS ist Op
 | Unwetter | DWD Gemeinden | `warn.ts` |
 | Sie | GPS | `here.ts` |
 | Wetter | Open-Meteo | `weather` / HUD |
-| 3D in der APK | geplant als Körper-Schema | [`40-next.md`](./40-next.md) `4.67` Spike |
+| 3D in der APK | **CODE** Körper-Schema + Kugel | [`40-next.md`](./40-next.md), Lage-Sicht Kugel |
 
-Lücke: die Weltlage ist eine **Textkachel**. Es gibt keine Kugel und keine Pins. Der User sieht „Welt“ als Satz, nicht als Ort.
+Kugel **CODE**: Sicht, Pins, Terminator, Zoom, GIBS nah, `Zeig London`, `Was ist das für eine Stadt?`. Weltlage-Textkachel bleibt daneben.
 
 ## Leitentscheidung
 
@@ -67,13 +67,13 @@ Lücke: die Weltlage ist eine **Textkachel**. Es gibt keine Kugel und keine Pins
 | Ort | APK-WebView. Kein Unity, kein EarthOS-Klon, kein PC-Pflicht-Fenster. |
 | Daten | Nur Pins aus vorhandenen Tools + festem Ortslexikon. Fehlt Koordinate → **kein Pin**, Satz in der Kachel. |
 | Textur v1 | Blue Marble + Terminator aus Uhrzeit/Lon. Kein „Live“-Label. |
-| Textur v2 | GIBS True Color, Label **„Stand YYYY-MM-DD, oft Stunden alt“**. Default aus. |
+| Textur v2 | GIBS True Color, Label **„Stand YYYY-MM-DD, oft Stunden alt“**. **CODE** beim Zoom (`6.20`/`6.50`). |
 | Tap | Pin füllt die mittlere Karte **und** darf denselben Handler rufen wie der Chat (`outlook`, `news`, `sky`, …). Das ist **kein** neues LLM. 0,5B wählt das nicht. |
 | Körper vs Kugel | Zwei Sichten, **ein** WebGL-Budget. Spike `4.67` gilt auch hier. Nicht zwei Three.js-Welten gleichzeitig rendern. |
 | LocateAnything | Unabhängig (PC). Kugel wartet nicht auf 3060-GO. |
 | Router | `Kugel an` / `Zeig die Erde` / `Weltkugel` = HUD-Intent, Register, kein `if` in `chat.ts`. |
 | Look | Spotify-dunkel, deutsch, wenig Punkte. Reduced-motion oder WebGL tot → **2D-Karte** dieselben Pins. |
-| Sideload | Nicht in `5.0`. Hausstand [`38`](./38-next.md) vor APK. |
+| Sideload | **CODE** `6.60.0`. Hausstand [`38`](./38-next.md) vor Neuinstall. |
 
 ## Ortslexikon (kein Geocoder-Orakel)
 
@@ -139,17 +139,17 @@ Dieses Dokument. **Done wenn:** Kugel = Lage-Sicht, Tools mergen, GIBS ehrlich, 
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`5.0.0`** | Leitentscheidung | **PLAN** |
-| **`5.1.0`** | Research WebGL-Budget mit `4.67` | geplant |
-| **`5.2.0`** | Research Pins + Lexikon | geplant |
-| **`5.3.0`** | Research GIBS / Blue Marble | geplant |
-| **`5.4.0`** | HUD-Sicht `globe` + `Kugel an/aus` | geplant |
-| **`5.5.0`** | Kugel v1: Blue Marble, Terminator, GPS-Pin | geplant |
-| **`5.6.0`** | Pins ISS + OpenSky-Nachbar + DWD wenn Warnung | geplant |
-| **`5.7.0`** | Pins outlook/news über Lexikon | geplant |
-| **`5.8.0`** | Tap = bestehender Handler + Gold | geplant |
-| **`5.9.0`** | Optional GIBS-Textur mit Stand | geplant |
-| **`5.10.0`** | Reduced-motion 2D, Härten, Sideload nach `4.52` | geplant |
+| **`5.0.0`** | Leitentscheidung + Lage-Sicht Kugel | **CODE** in `5.11.0` |
+| **`5.1.0`** | Research WebGL-Budget mit `4.67` | **CODE** als Canvas-Kugel, nicht Two-WebGL |
+| **`5.2.0`** | Research Pins + Lexikon | **CODE** (`globe-geo.ts`) |
+| **`5.3.0`** | Research GIBS / Blue Marble | v1 Schema+Terminator **CODE**; GIBS Execute in `6.20`/`6.50` **CODE** |
+| **`5.4.0`** | HUD-Sicht `globe` + `Kugel an/aus` | **CODE** |
+| **`5.5.0`** | Kugel v1: Terminator, GPS-Pin | **CODE** |
+| **`5.6.0`** | Pins ISS + DWD wenn Warnung | **CODE** (OpenSky-Nachbar später) |
+| **`5.7.0`** | Pins outlook/news über Lexikon | **CODE** |
+| **`5.8.0`** | Tap = Pin-Kachel + Gold | **CODE** |
+| **`5.9.0`** | Optional GIBS-Textur mit Stand | **CODE** in `6.20` Sprint 123 / `6.50` [`45-next.md`](./45-next.md) |
+| **`5.10.0`** | Reduced-motion, Sideload nach `4.52` | Reduced-motion **CODE**, Sideload **`6.60.0`** |
 
 ## Chat / Stimme (Ziel)
 
@@ -161,6 +161,8 @@ Dieses Dokument. **Done wenn:** Kugel = Lage-Sicht, Tools mergen, GIBS ehrlich, 
 | `Was ist die Weltlage?` | `outlook` wie heute, Kugel muss nicht offen sein |
 | `Wo ist die ISS?` | `sky` wie heute; auf der Kugel nur extra Pin |
 | `Satelliten live` | ehrlich: Foto-Stand oder „kein Live-Video“ |
+| `Zeig mir London` / `Zeig Paris` | **PLAN** `6.20`: drehen, zoomen, Name |
+| `Was ist das für eine Stadt?` (Kugel offen) | **PLAN** `6.20`: Blickmitte gegen Lexikon |
 
 ## Settings
 

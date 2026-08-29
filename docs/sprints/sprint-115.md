@@ -1,8 +1,8 @@
-# Sprint 115 — Körper intern (Hirn, Auge, Hand) **PLAN**
+# Sprint 115 — Körper intern (Hirn, Auge, Hand) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (in App `5.11.0`) |
 | Priorität | nach Face/Lage `4.53`, ohne Sideload |
 | Ziel-Version | `4.66.0` (bündelt Research `4.67`–`4.69`, Bau danach) |
 | Quelle | PO: Reel intern Körper darstellen, auf Jarvis zuschneiden |

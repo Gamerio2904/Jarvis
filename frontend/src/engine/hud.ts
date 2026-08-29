@@ -10,13 +10,19 @@ import type { ToolMeta } from './tools.ts'
 import {
   HUD_CATALOG,
   HUD_DEFAULT_ON,
+  organLabel,
   parseHudIntent,
+  type BodyOrgan,
   type HudId,
   type HudIntent,
+  type HudView,
 } from './hud-parse.ts'
+import { nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from './globe-geo.ts'
+import { briefPlace, CITY_FLY_ZOOM, focusJson, fromPlaceFix } from './globe-brief.ts'
+import { clearTour } from './globe-tour.ts'
 
-export { HUD_CATALOG, parseHudIntent }
-export type { HudId, HudIntent }
+export { HUD_CATALOG, parseHudIntent, organLabel }
+export type { HudId, HudIntent, HudView, BodyOrgan }
 
 export function loadHudModules(): HudId[] {
   try {
@@ -60,6 +66,61 @@ export async function handleHud(
     )
     const line = HUD_CATALOG.map((c) => `${c.label}${on.includes(c.id) ? ' an' : ' aus'}`).join(', ')
     return pack(`Kacheln: ${line}.`)
+  }
+  if (intent.kind === 'view') {
+    saveSettings({
+      hud_view: intent.view,
+      hud_force: true,
+      hud_hidden: false,
+    })
+    if (intent.view === 'body') return pack('Körper an. Schema in der Lage, Chat bleibt. Antippen startet kein Tool.')
+    if (intent.view === 'globe') return pack('Kugel an. Erde in der Lage, Chat bleibt. Kein Live-Satellitenvideo.')
+    return pack('Kacheln wieder. Chat bleibt.')
+  }
+  if (intent.kind === 'organ') {
+    saveSettings({
+      hud_view: 'body',
+      hud_force: true,
+      hud_hidden: false,
+      last_body_organ: intent.id,
+    })
+    return pack(`${organLabel(intent.id)} in der Lage. Kein Tool gestartet.`)
+  }
+  if (intent.kind === 'unknown_place') {
+    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    return pack(unknownPlaceLine(intent.asked))
+  }
+  if (intent.kind === 'look') {
+    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    const s = loadSettings()
+    const at = resolveLookTarget(s.last_globe_look || '', s.last_globe_focus || '')
+    const lat = at?.lat ?? NaN
+    const lon = at?.lon ?? NaN
+    const hit = nearestPlace(lat, lon)
+    if (hit) {
+      const cached = (s.last_globe_brief || '').trim()
+      if (cached.toLowerCase().includes(hit.name.toLowerCase())) {
+        return pack(cached)
+      }
+      const reply = await briefPlace(fromPlaceFix(hit))
+      saveSettings({ last_globe_brief: reply.slice(0, 500) })
+      return pack(reply)
+    }
+    return pack(noCityInViewLine())
+  }
+  if (intent.kind === 'pin') {
+    clearTour()
+    const place = { name: intent.name, lat: intent.lat, lon: intent.lon, blurb: intent.blurb }
+    saveSettings({
+      hud_view: 'globe',
+      hud_force: true,
+      hud_hidden: false,
+      last_globe_focus: focusJson(place, CITY_FLY_ZOOM),
+      last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: CITY_FLY_ZOOM }),
+    })
+    const reply = await briefPlace(place)
+    saveSettings({ last_globe_brief: reply.slice(0, 500) })
+    return pack(reply)
   }
   const next = setHudModule(intent.id, intent.on)
   const label = HUD_CATALOG.find((c) => c.id === intent.id)?.label || intent.id

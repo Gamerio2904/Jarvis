@@ -60,6 +60,23 @@ export async function handleWarn(
 
 type WarnRow = { headline: string; region: string }
 
+/** Eine DWD-Zeile zum Ortsnamen, sonst null — nichts erfinden. */
+export async function dwdLineForPlace(place: string): Promise<string | null> {
+  const needle = (place || '').trim().toLowerCase()
+  if (!needle) return null
+  const rows = await loadWarnings()
+  if (!rows.length) return null
+  const hits = rows.filter(
+    (w) => w.region.toLowerCase().includes(needle) || needle.includes(w.region.toLowerCase().slice(0, 8)),
+  )
+  if (!hits.length) return null
+  const line = hits
+    .slice(0, 2)
+    .map((w) => `${w.headline}${w.region ? ` (${w.region})` : ''}`)
+    .join(' ')
+  return `DWD: ${line}`
+}
+
 async function loadWarnings(): Promise<WarnRow[]> {
   try {
     const { status, json } = await getJson(WARN_URL, UA)

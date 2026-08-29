@@ -4,7 +4,7 @@ Dieses Dokument steuert den **Charakter**. Es ist Eingang zu Phase 0 und Abnahme
 
 > Status: **Kern + Stil-Beispiele gesetzt**  
 > Beispiele = **grobe Vorgaben**, keine Copy-Paste-Antworten.  
-> **Live `4.53.0`:** Ton Siezen, Understatement (`persona.ts`). Stimme: Gemini **Algieba** (stehend), Native am Steuer ([`37-next.md`](./37-next.md)). Friday auf Zuruf, Jarvis Default ([`39-next.md`](./39-next.md)). Keine Filmzitate im Prompt, keine Marvel-Rolle.
+> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Ton Siezen, Understatement (`persona.ts`). Stimme: Gemini **Algieba** (stehend), Native am Steuer ([`37-next.md`](./37-next.md)). Friday auf Zuruf, Jarvis Default ([`39-next.md`](./39-next.md)). Smalltalk-Hirn: Gemini zuerst. Identität `Bist du ChatGPT?` canned ohne Modell ([`47-next.md`](./47-next.md)). Keine Filmzitate im Prompt, keine Marvel-Rolle.
 
 ## Kern (fest aus Produktentscheidung)
 

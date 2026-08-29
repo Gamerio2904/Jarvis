@@ -37,6 +37,9 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_outlook_notified',
   'last_outlook_line',
   'last_list_json',
+  'last_globe_tour_json',
+  'last_globe_brief',
+  'globe_tour_on',
   'last_hops_json',
   'last_news_line',
   'last_warn_line',
@@ -49,6 +52,8 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_step_when',
   'last_step_utterance',
   'last_medium',
+  'last_eye_line',
+  'last_ground_json',
 ]
 
 const KEY_FIELDS: Array<keyof Settings> = [

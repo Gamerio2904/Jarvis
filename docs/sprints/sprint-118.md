@@ -1,8 +1,8 @@
-# Sprint 118 — Sehen Schreibtisch, Wasch, EAN, zwei Schritte **PLAN**
+# Sprint 118 — Sehen Schreibtisch, Wasch, EAN, zwei Schritte **CODE** (Parser)
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** Parser + zwei Confirms; Sidecar offen |
 | Priorität | nach `4.87`–`4.93` |
 | Ziel-Version | `4.94.0`; Reihe `4.94`–`4.99` in [`41-next.md`](../41-next.md) |
 | Voraussetzung | Sprint 117 |

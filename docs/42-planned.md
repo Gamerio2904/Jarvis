@@ -1,22 +1,23 @@
-# 42 — Alles geplant (Stand Code `4.53.0`)
+# 42 — Alles geplant (Stand Code `6.90.0`)
 
-Eine Liste, die **zum Code und zu den offenen Plänen passt**. Kein Execute in diesem Dokument.
+Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`4.53.0`**. Sideload **`3.18.1`**. Nächster Sideload erst nach Hausstand-Export (Export ist CODE, APK noch alt).
+**Live:** App-Code **`6.90.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
-Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
+Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
-1. Sideload mit Hausstand (Export ist CODE `4.46`, APK noch `3.18.1`)
-2. Körper intern `4.66` (PLAN, Darstellung) — WebGL-Spike `4.67` gilt auch für die Kugel
-3. Weltkugel `5.0` (PLAN, Lage-Sicht) — nach `4.67`, unabhängig von 3060
-4. Lokales Sehen `4.76` (PLAN, LocateAnything am PC) — nach `4.77` GO
-5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
+2. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
+3. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+4. Agentic Recall nach `6.90` — [`49-next.md`](./49-next.md) **PLAN** (`7.0`, Sprints 137+)
+
+Bereits **CODE** in `6.90.0`: Globus-Briefing (Stadt → GIBS + Briefing, Welt-Tour Glow/Seite/Zoom), Sideload `6.90`, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
 
 ---
 
-## CODE auf main (`4.53.0`)
+## CODE auf diesem Stand (`6.90.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -25,26 +26,23 @@ Hirn = Handy. PC = Werkzeug. 0,5B wählt keine Tools. Gemini Opt-in.
 | Stimme/Steuer | `4.33` | TTS Algieba, HUD-Interrupt, Watchdog opt-in |
 | Hausstand | `4.46` | Export/Import JSON, `repairSpeech` / `pickHeard` |
 | Friday + Tablet | `4.53` | Face Jarvis/Friday, Lage **neben** Chat |
+| Körper | `4.66` | Lage-Sicht Körper, Canvas-Schema, Organ-Kachel, kein Tool-Start |
+| Sehen-Parser | `4.76`–`4.97` | `ground-parse`, `/v1/ground` Client, zwei Confirms; **keine** 3B-Gewichte |
+| Weltkugel | `5.0` / `6.20` | Lage-Sicht Kugel, Terminator, GIBS beim Zoom, Pins ISS/GPS/DWD/outlook-Lexikon |
+| Debug-Lauf | `5.11` | Klickboxen, neues Gespräch, JSON+TXT mit Verdict |
+| Bühne & Hirn | `6.50` | Gemini zuerst, Motion 30 fps, Globus, HUD, Sprach-Orb |
+| Parser | `6.51` | Wont/Help/HUD-Skip nach Prompt-Test |
+| Split / Overlay / APK | `6.60` | Live-Split, Identität canned, Overlay Gemini zuerst, `releases/Jarvis.apk` |
+| Globus-Briefing | `6.90` | Fly-to 4.4, Stadt-Briefing, Welt-Tour Glow, Debug-Gruppe |
 | Davor | `3.19`–`3.0` / `1.x` | Kalender-Fenster, Register, Auge=Gemini, PC-Screenshot |
 
-## PLAN
+## Offen
 
-### Körper `4.66`–`4.75` · Sprint 115 · [`40-next.md`](./40-next.md)
+### LocateAnything Sidecar (`4.77`)
+Parser CODE. Gewichte erst nach 3060-GO. Ohne Sidecar: ehrlich aus.
 
-3D-Schema in der APK, Organe anklicken = Kachel, kein Tool. PC nur PC-Auge/PC-Hand-Zustand.
+### Debug-Hintergrund (`5.12`)
+Lauf in der App ist CODE. Dienst im Hintergrund PLAN.
 
-### Lokales Sehen `4.76`–`4.99` · Sprints 116–118 · [`41-next.md`](./41-next.md)
-
-NVIDIA LocateAnything-3B am PC. Erst Spike 3060. Dann Klick mit Box, Overlay, Beleg, TV-Foto, Schreibtisch, EAN.
-
-Konflikt vermeiden: **`4.66` = Körper, `4.76` = LocateAnything.**
-
-### Weltkugel `5.0`–`5.10` · Sprint 119 · [`43-next.md`](./43-next.md)
-
-3D-Erde in der Lage, Pins aus ISS/OpenSky/GPS/DWD/outlook/news. Satellit = Blue Marble oder GIBS mit Stand, kein Live-Video. Tap = bestehendes Tool. WebGL-Budget mit Körper teilen.
-
-Konflikt vermeiden: **`5.0` = Kugel, nicht `4.66` Körper, nicht `4.76` Sehen.**
-
-## Won’t (übergreifend)
-
-Play Store, iOS, Alexa, Cloud-Kalender-OAuth, Jarvis-Cloud, Marvel-Friday, Aktien-Orakel, Fake-Anruf, 3B-VLM im Handy, Computer-Use-Schleife, Überwachungs-Kugel, Fake-Satelliten-Live.
+### Parking
+Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.
