@@ -45,7 +45,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E47 | Split / Overlay / Sideload `6.60` | 5+ | Live-Split, Identität, Overlay Gemini zuerst, APK — [`47-next.md`](./47-next.md) **CODE** |
 | E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **CODE** |
 | E49 | Agentic Recall `7.0` | 5+ | Retrieve/RRF nach `6.90` — [`49-next.md`](./49-next.md) **PLAN** |
-| E50 | Alltag vom Zettel `8.0` | 5+ | Blitzer, Steuer-Stimme, GUI-Härte, Musik-Fallback, Chat-Ordner, Preiswache — [`50-next.md`](./50-next.md) **PLAN** |
+| E50 | Alltag vom Zettel `8.0` | 5+ | Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache — [`50-next.md`](./50-next.md) **PLAN** |
 
 ---
 
@@ -514,6 +514,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S50.5 | Chats in Ordner | Must | idea | IDB + Hausstand |
 | S50.6 | Preiswache (Instanudeln zuerst) | Must | idea | opt-in, € nur aus Treffer |
 | S50.7 | Scraping / Preise erfinden / Auto-Kauf | Won’t | parked | |
+| S50.8 | Einstellungen: Gruppen, deutsche Karten, bessere GUI | Must | ready | `8.35`, Keys gleich, Deep-Links halten |
 
 ---
 

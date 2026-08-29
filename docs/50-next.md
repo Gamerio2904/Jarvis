@@ -20,6 +20,7 @@ Kein Execute in Sprint 141. Sideload bleibt **`6.90.0`**. Hausstand vor nächste
 | Alternative zur Spotify-API — Amazon Musik? | Spotify Web Playback + OAuth **CODE**. Kein Amazon Music, kein Deezer, kein Apple Music. „Amazon“ am TV = **Tizen-App**, nicht Musik | Zweiter Player nur nach Research-GO | **planen** (Research zuerst) |
 | Chats in Ordner sortieren | `Conversation` = id/Titel/Daten. Chatsuche **CODE**. PC-„Ordner“ = Windows-Dateien, **nicht** Chats | `folder_id` + Sidebar + Hausstand | **planen** |
 | Immer Bescheid wenn Instanudeln im Angebot — API wenn möglich | Produktsuche Idealo/Geizhals **CODE**. Rabatt-Suche mydealz **opt-in**. Erinnerungen = **Uhrzeit**, kein Preis. Watchdog = Steckdose/Termin, nicht Shop | Preiswache: merken + pollen + Notify, € nur aus Treffer | **planen** |
+| Einstellungen unübersichtlich, unverstanden, GUI schwach | 17 gleichrangige Themen in einer Leiste (`SettingsScreen.tsx`). Hinweise Jargon: Delight, Memory, Tizen, Ausblick. Cloud mixt Gemini+Groq+Tanke+OMDb. „Modell“ = 0,5B-Fallback, steht oben. Haus ≠ Hausstand. Ton ≠ Stimme. Gefahr heißt „Danger Zone“. Keine Suche, kein Status auf der Leiste. Flaches Panel ist **CODE** seit `0.7`/`1.25` — die **Menge** ist das Problem, nicht ein fehlendes Screen | Gruppen + deutsche Wozu-Sätze + bessere Karten. Keys bleiben | **planen** (`8.35`) |
 
 Schon da, **nicht** nochmal als neues Produkt:
 
@@ -46,6 +47,9 @@ Schon da, **nicht** nochmal als neues Produkt:
 | Instanudeln-Alarm | Eine Preiswache, Beispielprodukt Instanudeln. Opt-in, Intervall, Quelle nennen | **ja** |
 | Jede Minute Push ohne Erlaubnis | Akku, Spam | **Won’t** |
 | Preise erfinden / automatisch kaufen | Standing Research | **Won’t** |
+| Einstellungen finden ohne Fachwort | 5–6 Gruppen, Startkarten, Suche, Status-Pillen | **ja** |
+| Schöner, ruhiger Settings-Look | Größere Karten, weniger Leisten-Rauschen, Advanced eingeklappt | **ja** |
+| Neues Settings-Backend / iOS-Klon | Dieselben `Settings`-Keys, alte Topic-IDs als Deep-Link | **Won’t** |
 
 ---
 
@@ -76,18 +80,98 @@ GO nur wenn: Steuerbarkeit Pause/Weiter/Suche **oder** ehrliches „App geöffne
 
 | Thema | Entscheidung |
 |-------|----------------|
-| Produkt | **Eine** Alltag-Schiene `8.0`: Fahrt-Gefahren, Steuer-Stimme, GUI-Härte, Musik-Fallback, Chat-Ordner, Preiswache. Kein neues Hirn. |
+| Produkt | **Eine** Alltag-Schiene `8.0`: Fahrt-Gefahren, Steuer-Stimme, GUI-Härte, **Einstellungen neu gliedern**, Musik-Fallback, Chat-Ordner, Preiswache. Kein neues Hirn. |
 | Reihenfolge | Research vor Execute. Blitzer ohne Lizenz-GO nicht bauen. Musik ohne GO nicht bauen. Ordner und Preiswache brauchen kein 3060. |
 | Parser | Neue Intents ins Register (`blitzer`, `watch-price`, `chat-folder`). Kein `if` in `chat.ts`. |
 | Fahrt | Internes CarPlay. Apple CarPlay bleibt Won’t. |
 | Stimme am Steuer | **Execute → dann Native-TTS.** Phrase/Setting `nur vorlesen`: kurzer Satz, kein Gemini-Essay. Abbieger bleiben Native wie heute. |
 | Grafik | Spike messen, dann bestehende Motion/Overlay/Stream. Kein neues Framework, kein 60-fps-Idle. |
+| Einstellungen | **Gruppen statt 17 Peers.** Deutsch, ein Wozu-Satz pro Karte. Alltag oben, Werkstatt unten. Keys unverändert. Deep-Links der alten IDs halten. |
 | Musik | Spotify bleibt. Amazon nur Fallback nach GO. |
 | Ordner | IndexedDB + Hausstand. Kein Cloud-Sync. |
 | Preiswache | Opt-in. Poll nur mit Erlaubnis. € nur aus Snippet. Instanudeln = erstes Beispiel, nicht einziges Produkt. |
 | Notify | Bestehendes `notify.ts`. Kein zweites Push-Produkt. |
 | Sideload | Nicht in `8.0`–`8.60`. Hausstand vorher. |
 | Recall / 3060 | Unabhängig. |
+
+---
+
+## Einstellungen — Ist vs Ziel (`8.35`)
+
+PO 2026-08-29: die Einstellungen sind **unübersichtlich**, die Namen **unverstanden**, die GUI **nicht auf der Höhe** der Bühne `6.50`.
+
+Flach war `0.7` richtig (wenig Verschachtelung). Seitdem sind **17 Themen** gleich laut: Allgemein, Modell, Cloud, Sprache, Wecker, Ort, Fernseher, PC, Haus, Musik, Ton, Netz, Weltlage, Hausstand, Gedächtnis, Debug, Gefahr. Jedes hat einen Ein-Wort-Hinweis, oft Englisch oder Technik.
+
+### Was heute schiefgeht
+
+| Symptom | Warum |
+|---------|--------|
+| Alles gleich wichtig | Eine Leiste, 17 Buttons, Debug neben Wecker |
+| „Modell“ oben | Das ist der **letzte** Fallback (0,5B), nicht das Hirn |
+| „Cloud“ | Gemini, Groq, Tankerkönig **und** OMDb in einem Stapel |
+| „Ton“ vs Sprache | Ton = UI-Klick + Delight. Sprechen liegt unter Sprache |
+| „Haus“ vs „Hausstand“ | Steckdose vs. Backup. Zwei Wörter, ein Missverständnis |
+| „Netz“ / id `forschung` | Suche, nicht WLAN |
+| „Danger Zone“ | Englisch in einer deutschen App |
+| Tablet-Lage unter Allgemein | Aussehen, nicht „dieses Handy“ |
+| Kein Status | Man sieht nicht, ob Gemini an oder Spotify raus ist, ohne das Thema zu öffnen |
+| Keine Suche | Wer „Key“ sucht, scrollt Cloud durch |
+
+### Ziel-Gliederung (5 Gruppen + Werkstatt)
+
+Alte Topic-IDs bleiben als Deep-Link (`Einstellungen → Cloud` landet in **Hirn**). Keine neuen Store-Keys nur für die IA.
+
+| Gruppe | Deutsch, ein Satz | Heute drin | Nicht hier |
+|--------|-------------------|------------|------------|
+| **Hirn** | *Wer denkt — zuerst Gemini, dann Groq, zuletzt das kleine Modell auf dem Handy.* | `cloud` (Gemini+Groq), `modell` **eingeklappt** | Tanke/OMDb → „Weitere Schlüssel“ unter Hirn, nicht erste Karte |
+| **Stimme** | *Hören, wecken, vorlesen. Am Steuer kurz.* | `sprache` + später `drive_speak` | UI-Klicks |
+| **Alltag** | *Wecker, Wetter, wo Sie sind.* | `wecker`, `ort` | Backup |
+| **Geräte** | *Was Jarvis schalten oder spielen darf.* | `tv`, `pc`, `haus`, `musik` | Hausstand |
+| **Welt** | *Suche im Netz und Weltlage. Nur wenn Sie das anmachen.* | `forschung`, `weltlage` | Geheim-Feed |
+| **Ihre Daten** | *Was er merkt, was Sie sichern, was weg ist.* | `gedaechtnis`, `hausstand`, `gefahr` | Steckdosen |
+| **Aussehen** | *Lage neben dem Chat, Farben, leise Töne.* | Tablet-Lage aus `allgemein`, `ton` | Hirn-Keys |
+| **Werkstatt** | *Version, Debug, nur wenn Sie testen.* | `allgemein` (Version), `debug` | Alltagskarten |
+
+Startseite (wenn kein Deep-Link): **sechs große Karten** — Hirn, Stimme, Alltag, Geräte, Welt, Ihre Daten. Aussehen und Werkstatt kleiner darunter. Eine Suchzeile filtert Karten und Felder (deutsch: „Key“, „Steckdose“, „löschen“).
+
+### Verständliche Namen (Leiste + Karten)
+
+| Alt | Neu (sichtbar) | Eine Zeile darunter |
+|-----|----------------|---------------------|
+| Allgemein | Dieses Handy | Version, ob Gemini oder das lokale Modell läuft |
+| Modell | Kleines Modell (selten) | Nur wenn Cloud aus ist. ~470 MB. |
+| Cloud | Hirn in der Cloud | Gemini ist der Hauptweg. Groq springt ein. |
+| Sprache | Hören und sprechen | Mikrofon, Stimme Jarvis/Friday |
+| Wecker | Wecker und Timer | Töne, Erinnerungen |
+| Ort | Ort und Wetter | GPS, Open-Meteo |
+| Fernseher | Fernseher | Samsung und Fire am HDMI |
+| PC | Windows-PC | Nur mit laufender Jarvis-PC-App |
+| Haus | Steckdosen und Ventilator | Im WLAN, keine Cloud-Dose |
+| Musik | Musik | Spotify in Jarvis. Amazon nur nach GO. |
+| Ton | Töne und Stimmung | Klicks und seltene Witze, nicht die Stimme |
+| Netz | Im Internet suchen | Aus = keine Produktsuche |
+| Weltlage | Weltlage | Ausblick auf Nachfrage, kein Orakel |
+| Hausstand | Sichern und zurückholen | Vor Neuinstall. Sonst sind Keys weg. |
+| Gedächtnis | Was Jarvis merkt | Sie können Zeilen löschen |
+| Debug | Tests | Mehrere Kategorien, Export |
+| Gefahr | Alles löschen | Unumkehrbar. Deutsch, nicht Danger Zone. |
+
+### Bessere GUI (dieselbe WebView)
+
+| Muss | Nicht |
+|------|--------|
+| Gruppen in der Leiste, aufklappbar. Handy: Akkordeon. Breit: Gruppen links, Karten rechts | 17 gleich hohe Buttons |
+| Karte: Titel (Verb/Alltagswort) → ein Lead-Satz → Schalter | Hinweis-Einwort „Delight“ |
+| Status-Pille auf der Gruppe: „Gemini an“, „Spotify raus“, „TV offen“ | Zustand erst nach dem Klick |
+| Suche oben | Nur Scrollen |
+| „Mehr“ für 0,5B, OMDb, Tankerkönig, Debug-Export | Alles auf einer Fläche |
+| Gefahr zuletzt, rot, deutsches Confirm | Englische Danger Zone gleich groß wie Wecker |
+| Ruhigere Typo, mehr Luft, weniger Staffel-Animation | Neues Design-System, 60 fps Idle |
+| Reduced-Motion: keine Topic-Slides | Motion abschalten ganz |
+
+### Deep-Link und Parser
+
+`Einstellungen → Cloud` / `Einstellungen dann Datenschutz` / bestehende `openSettings('musik')` bleiben. Mapping-Tabelle alt-id → Gruppe im Execute. Kein `if` in `chat.ts`.
 
 ---
 
@@ -119,6 +203,13 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 3. Preiswache: Idealo/Geizhals/mydealz — was darf man pollen? Intervall, Notify-Text mit Quelle, kein € ohne Snippet.  
 **Done wenn:** drei kurze Tabellen + GO/NO-GO Amazon.
 
+### `8.4.0` Research: Settings-Karten
+
+1. Jede der 17 Flächen: Gruppe, neuer Titel, ein Wozu-Satz, Advanced ja/nein.  
+2. Deep-Link-Tabelle alt → neu.  
+3. Handy-Akkordeon vs. Tablet-Zwei-Spalten (eine Skizze, kein Figma-Zwang).  
+**Done wenn:** Mapping steht, keine neuen Keys, Gefahr und Debug demoted.
+
 ---
 
 ## Bau
@@ -129,9 +220,11 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 | **`8.1.0`** | Research Blitzer/Baustelle | geplant |
 | **`8.2.0`** | Research Steuer-Stimme + Lag | geplant |
 | **`8.3.0`** | Research Musik / Ordner / Preis | geplant |
+| **`8.4.0`** | Research Settings-Gruppen + Namen | geplant |
 | **`8.10.0`** | Blitzer+Baustelle auf der Route | nach `8.1` GO |
 | **`8.20.0`** | Execute-dann-sprechen / nur vorlesen | nach `8.2` |
-| **`8.30.0`** | GUI/Lag-Härte (bestehende Surfaces) | nach `8.2` |
+| **`8.30.0`** | GUI/Lag-Härte Chat/Overlay/Lage | nach `8.2` |
+| **`8.35.0`** | Einstellungen: Gruppen, deutsche Karten, GUI | nach `8.4` |
 | **`8.40.0`** | Amazon-Musik-Fallback **oder** ehrlich Parking | nach `8.3` GO |
 | **`8.50.0`** | Chat-Ordner + Hausstand | nach `8.3` |
 | **`8.60.0`** | Preiswache (Instanudeln zuerst) | nach `8.3` |
@@ -151,10 +244,11 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 | `Leg den Chat in Arbeit` / Ordner in der Sidebar | `folder_id`, Liste gruppiert |
 | `Sag Bescheid wenn Instanudeln im Angebot sind` | Wache anlegen, Poll opt-in, Notify mit Quelle |
 | `Preiswache aus` | Wache weg, kein stilles Weiterpollen |
+| `Einstellungen` / `Einstellungen Cloud` | Startkarten oder Gruppe Hirn. Alte IDs mappen |
 
 ## Won’t
 
-Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Automatisch kaufen. Amazon-Musik so tun als Spotify-SDK. Chat-Ordner in der Cloud. 60-fps-Idle. Neues 3D-Framework. Zweites Hirn. Recall-Nummern klauen. Sideload in der Leitentscheidung. Play Store, iOS.
+Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Automatisch kaufen. Amazon-Musik so tun als Spotify-SDK. Chat-Ordner in der Cloud. 60-fps-Idle. Neues 3D-Framework. Zweites Hirn. Recall-Nummern klauen. Sideload in der Leitentscheidung. Play Store, iOS. Settings-Keys umbenennen nur wegen der GUI. iOS-Settings-Klon. Debug streichen.
 
 ## Abnahme (nach Execute)
 
@@ -164,6 +258,7 @@ Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Aut
 4. Lag-Pass: gemessene Surfaces, Motion-Budget bleibt.  
 5. Amazon: GO = Intent oder Steuerfläche; NO-GO = ehrlicher Satz, Spotify bleibt.  
 6. Ordner überleben Hausstand-Export/Import.  
-7. Preiswache: Notify nur bei Treffer mit Quelle; ohne Research-Toggle kein stilles Netz.
+7. Preiswache: Notify nur bei Treffer mit Quelle; ohne Research-Toggle kein stilles Netz.  
+8. Einstellungen: in 10 s Hirn vs. Hausstand finden; „Modell“ nicht als erstes; Danger deutsch; Deep-Link `cloud`/`musik` trifft.
 
 Fahr-Basis: [`24-next.md`](./24-next.md) · [`28-next.md`](./28-next.md). Spotify: Settings Musik. Suche: [`28-next.md`](./28-next.md) Idealo. Notify: `notify.ts`. Recall: [`49-next.md`](./49-next.md). Index: [`42-planned.md`](./42-planned.md). Sprint: [`sprints/sprint-141.md`](./sprints/sprint-141.md).

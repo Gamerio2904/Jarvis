@@ -4,8 +4,8 @@
 |------|------|
 | Status | **PLAN** |
 | Priorität | unabhängig von Recall `7.0` und LocateAnything-3060; Alltag darf zuerst |
-| Ziel-Version | `8.0.0` (bündelt Research `8.1`–`8.3`, Bau `8.10`+) |
-| Quelle | PO: alte Notizen (Blitzer/Baustelle, CarPlay-Reihenfolge, GUI-Lag, Amazon Musik, Chat-Ordner, Instanudeln-Angebot) |
+| Ziel-Version | `8.0.0` (bündelt Research `8.1`–`8.4`, Bau `8.10`+) |
+| Quelle | PO: alte Notizen + Einstellungen unübersichtlich |
 | Plan | [`50-next.md`](../50-next.md) |
 
 ## Ziel
@@ -22,6 +22,7 @@ Festschreiben: was von den Notizen schon `6.90` ist, was neu ist, warum **MAJOR 
 | Z4 | Amazon Musik nur nach Research-GO (vermutlich Intent) |
 | Z5 | Chat-Ordner lokal + Hausstand; Preiswache opt-in, € nur aus Treffer |
 | Z6 | Won’t: Scraping, Preise erfinden, 60-fps, Recall-Nummern |
+| Z7 | Settings: 5–6 Gruppen, deutsche Wozu-Sätze, `8.35` — Keys bleiben |
 
 ## Won’t (dieser Sprint)
 
