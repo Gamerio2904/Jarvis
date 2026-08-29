@@ -198,5 +198,3 @@ Mails-Agent. Instagram-Poster. 24/7-Cloud-Mitarbeiter. Jarvis-Cloud. Zweites Hir
 5. Reduced-motion: 2D, kein Orbit. WebGL aus: dieselben Sätze als Kacheln.
 
 PC-Auge **treffsicher** (Boxen statt Gemini-JSON) ist nicht dieser Sprint — [`41-next.md`](./41-next.md) `4.76`.
-
-Weltkugel (3D-Erde, News-Pins) ist nicht dieser Sprint — [`43-next.md`](./43-next.md) `5.0`. WebGL-Spike `4.67` gilt für beide Sichten; nicht zwei 3D-Welten gleichzeitig.

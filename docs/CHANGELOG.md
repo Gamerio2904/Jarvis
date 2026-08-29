@@ -94,14 +94,6 @@ Settings → Debug: mehrere Kategorien per Klickbox, neues Gespräch, Prompt nac
 - Docs [`44-next.md`](./44-next.md) · [`sprints/sprint-120.md`](./sprints/sprint-120.md)
 - Sideload noch `3.18.1`
 
-### `5.0.0` — Weltkugel in der Lage — *PLAN*
-
-Lage-Sicht **Kugel**: drehbare Erde, Pins aus ISS/OpenSky/GPS/DWD/outlook/news. Satellit = Blue Marble oder NASA GIBS mit Zeitstempel, kein Live-Video. Tap = bestehendes Tool. MAJOR nach `4.66` Körper / `4.76` Sehen.
-
-- Docs [`43-next.md`](./43-next.md) · [`sprints/sprint-119.md`](./sprints/sprint-119.md)
-- Inspiration: https://www.instagram.com/reel/DcgfA4ojF7a/
-- App-Code **`4.53.0`**, Sideload noch `3.18.1`
-
 ### `4.76.0` — Lokales Sehen / LocateAnything — *PLAN*
 
 NVIDIA LocateAnything-3B als PC-Werkzeug (GUI-Grounding, private Boxen). **Nicht** Körper `4.66`. Research `4.77`–`4.80` (3060 GO/NO-GO) vor Execute. Alltag `4.87`+, Rest `4.94`+.
