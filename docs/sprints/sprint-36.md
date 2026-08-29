@@ -1,10 +1,8 @@
 # Sprint 36 — NAS Auth & LAN
 
-> **SUPERSEDED (2026-08-15).** Kein Server, kein Owner-Token. Aktuell: [`13-on-device.md`](../13-on-device.md).
-
 | Feld | Wert |
 |------|------|
-| Status | **SUPERSEDED** |
+| Status | **PLANNED** |
 | Priorität | **MUST** — ohne Token kein Handy/APK |
 | Ziel-Version | **`0.10.2`** |
 | Quelle | Architektur: Fernzugriff nur mit Auth; APK kommt in 37 |

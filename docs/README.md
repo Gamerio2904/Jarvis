@@ -4,22 +4,20 @@
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
-**Aktueller Produktstand:** On-Device Handy **`0.13.1`** — offline nach dem Modell-Download. Kein Server, keine NAS. Kanonisch: [`13-on-device.md`](./13-on-device.md).
-
 ## Lesereihenfolge
 
 | Nr. | Dokument | Zweck |
 |-----|----------|--------|
 | 01 | [Vision & Produktziele](./01-vision.md) | Wozu Jarvis existiert, Ziele, Nicht-Ziele |
-| 02 | [Architektur](./02-architecture.md) | On-Device-Design, UI-Richtung |
+| 02 | [Architektur](./02-architecture.md) | Lokales Design, UI-Richtung, Kontext-Stufen |
 | 03 | [Agiler Prozess (Scrum-lite)](./03-agile-process.md) | Rollen, Sprints, DoR/DoD |
-| 04 | [Roadmap & Phasen](./04-roadmap-phases.md) | Ist-Stand + Parking |
+| 04 | [Roadmap & Phasen](./04-roadmap-phases.md) | Phase 0 → 5+ |
 | 05 | [Product Backlog](./05-product-backlog.md) | Epics & User Stories |
-| 06 | [MVP & Sprint-Plan](./06-mvp-sprint-plan.md) | Historischer Sprint-Überblick |
+| 06 | [MVP & Sprint-Plan](./06-mvp-sprint-plan.md) | MVP + Sprint-Überblick |
 | 07 | [Persona Jarvis](./07-persona.md) | Charakter, Stil, Beispiele |
 | 08 | [Offene Fragen](./08-open-questions.md) | Restlücken |
 | 09 | [Versionierung](./09-versioning.md) | SemVer, Sprint ↔ Version |
-| 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Tools, historischer Router/Research |
+| 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
 | 12 | [NAS & APK](./12-nas-apk.md) | historisch / superseded |
 | 13 | [On-Device](./13-on-device.md) | Handy: Parser + Speicher lokal; Hirn Gemini zuerst |
@@ -59,7 +57,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
 | — | [APK](./apk.md) | Sideload `6.90.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
-Sprints (numerisch = Lieferreihenfolge, ältere = Historie): [`sprints/README.md`](./sprints/README.md)
+Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
 ## Status (Kurz)
 

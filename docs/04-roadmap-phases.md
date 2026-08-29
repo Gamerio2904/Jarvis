@@ -1,21 +1,22 @@
 # 04 — Roadmap & Phasen
 
-Kein Kalenderversprechen. **Aktueller Ist-Stand:** On-Device `0.13.1` auf dem Handy, offline nach dem Modell-Download. Details: [`13-on-device.md`](./13-on-device.md).
+Die Phasen sind **sequentiell im Schwerpunkt**, dürfen aber Lernschleifen haben.  
+Kein Kalenderversprechen — Fortschritt hängt von Hardware, Modellwahl und Persona-Abnahme ab.
 
 ## Überblick
 
 ```text
-Phase 0  Persona & Regeln                 DONE
+Phase 0  Persona & Regeln
     ↓
-Phase 1  Local Smalltalk (historisch PC)  HISTORISCH — portiert nach 0.13.x
+Phase 1  Local Smalltalk-MVP   ← erster Bau-Schwerpunkt
     ↓
-Phase 2  Handy on-device, offline         AKTUELL (0.13.1)
+Phase 2  Privat vom Handy nutzbar
     ↓
-Phase 3  NAS 24/7                         SUPERSEDED — entfällt
+Phase 3  24/7 auf NAS
     ↓
-Phase 4  TTS-Vorlesen                     nur auf PO-Kommando
+Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
     ↓
-Phase 5+ Extra-Assistent                  TV / Research-Netz / Store = Parking
+Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
 **Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **Jetzt:** Code **`6.60.0`**, Sideload **`6.60.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md), Stimme [`37-next.md`](./37-next.md), Hausstand [`38-next.md`](./38-next.md) (Export vor Deinstall), Gesichter + Tablet [`39-next.md`](./39-next.md), Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md), Debug-Lauf [`44-next.md`](./44-next.md) — alles **CODE**. TTS `1.5`+.
@@ -24,45 +25,84 @@ Phase 5+ Extra-Assistent                  TV / Research-Netz / Store = Parking
 
 **Ziel:** Jarvis’ Charakter ist in Worten und Beispielen greifbar.
 
-**Inhalt:** Ton, Anrede, Humor, Tabus, Anti-KI-Stil, Soll/Nicht-Soll in `07-persona.md`.
-
-## Phase 1 — Local Smalltalk — **HISTORISCH**
-
-Gebaut als Browser + Ollama auf dem Dev-PC (`0.1.0`–`0.9.5`). Der Stack ist **entfernt**. Chat, Persona, Memory, Tools und UI leben in der On-Device-Engine weiter.
-
-## Phase 2 — Handy on-device — **AKTUELL**
-
-**Ziel:** Jarvis denkt auf dem Telefon. Einmal Modell laden, danach offline.
-
-**Inhalt** (geliefert in `0.13.0`–`0.13.1`)
-- Capacitor-APK mit TypeScript-Engine
-- wllama / Qwen2.5 0.5B Q4
-- IndexedDB (Chats, Memory, Todos, Notizen)
-- First-Run-Download, Cache überlebt App-Neustart
+**Inhalt**
+- Ton, Anrede, Humor, Tabus
+- Anti-KI-Stilregeln
+- 10–20 Beispiel-Smalltalks (Soll/Nicht-Soll)
 
 **Exit-Kriterium**  
-Sideload, einmal laden, schließen/öffnen ohne Download, Chat ohne Server.
+Du kannst sagen: „Jarvis klingt so: …“ und Beispiele in `07-persona.md` sind gefüllt.
 
-**Nicht:** Play Store, iOS, NAS-URL, Owner-Token.
+**Scrum:** oft Teil von Sprint 0 / parallel zu technischem Spike.
 
-## Phase 3 — NAS 24/7 — **SUPERSEDED**
+---
 
-Compose, Proxy, FastAPI, Ollama-auf-NAS: **entfallen**. DS218 kann kein LLM. Historie: [`12-nas-apk.md`](./12-nas-apk.md).
+## Phase 1 — Local Smalltalk-MVP
+
+**Ziel:** Im Browser auf dem Entwicklungsrechner mit lokalem Modell smalltalken.
+
+**Inhalt**
+- Lokaler Modell-Host + gewähltes Modell
+- Mini-Backend mit Persona + Kurzgedächtnis
+- Einfache mobilfreundliche Chat-UI
+- Nur Smalltalk — keine Tools/Stimme/Langzeitgedächtnis
+
+**Exit-Kriterium**  
+~10 Minuten Alltags-Smalltalk fühlen sich nach *deinem* Jarvis an.
+
+**Sprint-Ziel-Beispiele**
+- „Ollama läuft und antwortet roh“
+- „Chat-UI spricht mit Backend + Persona“
+- „Kurzgedächtnis hält 1 Gespräch konsistent“
+
+---
+
+## Phase 2 — Privat vom Handy (in `0.10.x` mit Phase 3)
+
+**Ziel:** Vom Handy im eigenen WLAN chatten — **Sideload-APK** gegen NAS, plus Browser.
+
+**Inhalt** (geliefert in `0.10.2`–`0.10.5`)
+- Owner-Token (kein Multi-User)
+- Capacitor-APK um die bestehende Web-UI
+- NAS-URL + Token in der App (First-Run)
+- Optional später: Tailscale/VPN (Should, nicht Must)
+
+**Exit-Kriterium**  
+APK-Chat gegen NAS ist Alltag; ohne Token kein Zugriff.
+
+**Nicht:** Play Store, iOS.
+
+---
+
+## Phase 3 — 24/7 auf NAS (in `0.10.x` mit Phase 2)
+
+**Ziel:** Dauerbetrieb ohne dass der Laptop an sein muss.
+
+**Inhalt** (geliefert in `0.10.0`–`0.10.1`)
+- Docker Compose: Backend, Frontend-Static, Ollama
+- Autostart, Volumes, Backup
+- Modell an NAS-Ressourcen (`3b` ohne GPU, `7b` mit GPU)
+
+**Exit-Kriterium**  
+Reboot → Stack wieder da; Chat im Browser gegen NAS-IP.
+
+**Version:** früher `1.0.0` — jetzt **`0.10.0`–`0.10.5`**. `1.0.0` ist frei für einen späteren MAJOR.
+
+---
 
 ## Phase 4 — Realistisches Vorlesen (TTS)
 
 **Voraussetzung:** Explizites Go vom PO.
 
-**Ziel:** Denselben Text realistischer vorlesen lassen. Stimme ersetzt keine Text-Persona.
+**Ziel:** Denselben Text realistischer vorlesen lassen.
 
-## Phase 5+ — Extra
+**Inhalt**
+- TTS-Anbindung an bestehende Antworten
+- Stimmwahl / Natürlichkeit
+- Optional später: Spracheingabe (eigener Schnitt, nicht automatisch inkl.)
 
-| Thema | Status |
-|-------|--------|
-| Memory / Tools / Settings | **in `0.13.x`** (schlanker als der alte PC-Stack) |
-| Internet-Research (`0.6.x`) | **geparkt** — App ist offline |
-| Samsung-TV (`0.11.x`) | **geparkt** |
-| Mail / Fire TV / Alexa / Play Store | **Parking** |
+**Exit-Kriterium**  
+Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 
 ---
 
@@ -125,7 +165,13 @@ Compose, Proxy, FastAPI, Ollama-auf-NAS: **entfallen**. DS218 kann kein LLM. His
 
 | Willst du … | Brauchst du zuerst … |
 |-------------|----------------------|
-| TTS | Stabilen Text-Charakter + PO-Go |
-| NAS 24/7 | Neue PO-Entscheidung (aktuell: nein) |
-| Handy-Alltag | Sideload `0.13.1` — **ist der Alltag** |
-| Research im Netz | Widerspricht Offline — nur nach PO-Go |
+| TTS | Stabilen Text-Charakter (Phase 1+) |
+| NAS 24/7 | Laufenden Stack auf dem PC (Phase 1) |
+| Handy-Alltag | NAS-Stack + Owner-Token + APK (`0.10.2`+) |
+| Tools | Klare Persona + zuverlässigen Betrieb |
+
+## Sparring-Korrekturen in der Roadmap
+
+- Handy-App und NAS sind **nicht** Phase-1-Arbeit (kommen als `0.10.x` nach `0.9.5`).
+- Lokales Modell kann Smalltalk schwächen → Persona/Stil und ggf. Modellwechsel sind Teil von Phase 1, keine „spätere Politur“.
+- Stimme ersetzt keine gute Text-Persona.

@@ -58,7 +58,7 @@ Parser wählen Geräte. Das Hirn formuliert, erfindet keine Tool-Zahlen.
 [IndexedDB + localStorage auf dem Gerät]
 ```
 
-### Baustein-Erklärung
+### Baustein-Erklärung (für Amateure)
 
 | Baustein | Einfach gesagt |
 |----------|----------------|
@@ -76,7 +76,7 @@ Parser wählen Geräte. Das Hirn formuliert, erfindet keine Tool-Zahlen.
 4. **Netzwerk hart machen** — Fernzugriff erst mit Auth; PC-Token im WLAN.
 5. **Keys lokal** — Gemini/Groq-Keys in `localStorage`, Hausstand-Export vor Deinstall.
 
-## Datenschutz & Sicherheit
+## Datenschutz & Sicherheit (Architektur-Regeln)
 
 - Chats, Memory, Keys bleiben auf dem Gerät.
 - Cloud-Hirn nur mit **deinem** Key (Gemini Hauptweg, Groq Backup). Kein Key in der APK.
@@ -84,7 +84,7 @@ Parser wählen Geräte. Das Hirn formuliert, erfindet keine Tool-Zahlen.
 - Keine unnötigen Drittanbieter-Telemetrie-Abhängigkeiten in der UI.
 - MVP speichert nur, was für Smalltalk und Haus-Tools nötig ist.
 
-## Spätere Erweiterungen
+## Bewusst offene Technikdetails
 
 Geklärt in späteren Docs; Rest in `08-open-questions.md`:
 

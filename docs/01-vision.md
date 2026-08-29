@@ -43,7 +43,7 @@ Er wird **nicht vermarktet** und ist **nicht für die Öffentlichkeit** gedacht.
 - Gerät komplett aus: kein Timer, kein Wake-Word, kein „zuhause“
 - Perfekte Menschen-Imitation
 
-## Erfolgskriterium Gesamtprodukt
+## Erfolgskriterium Gesamtprodukt (langfristig)
 
 Du nutzt Jarvis regelmäßig vom Handy aus für Gespräch & Hilfe — mit dem Gefühl: *das ist meiner*. Daten und Keys bleiben in deinem Bereich. Smalltalk läuft über Gemini, sobald der Key da ist.
 

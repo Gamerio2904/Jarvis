@@ -1,10 +1,8 @@
 # Sprint 39 — APK Polish (0.10 Abschluss)
 
-> **SUPERSEDED (2026-08-15).** `0.10.x` NAS-Reihe ist geschlossen ohne Lieferung. Alltag = `0.13.1`.
-
 | Feld | Wert |
 |------|------|
-| Status | **SUPERSEDED** |
+| Status | **PLANNED** |
 | Priorität | **SHOULD** — Alltag nach APK-Hotfix |
 | Ziel-Version | **`0.10.5`** |
 | Quelle | PO: NAS-Reihe inkl. APK zu Ende führen, danach TV |

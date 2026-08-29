@@ -59,7 +59,7 @@ Du schreibst z.B. „Hey, wie geht’s?“ und die Antwort ist:
 | Hardware-Kurzcheck | **Done** | Windows, 16 GB, RTX 3060; VRAM-Standard ~12 GB |
 | Stack-Richtung | **Done** | Ollama, ausgewogenes Modell, Web-only, Backend pragmatisch |
 | UI-Anspruch | **Done** | Spotify dunkel + ChatGPT-Layout; Motion light → späteres GUI-Update |
-| Versionierung | **Done** | `0.1.0`=MVP; `0.13.1`=On-Device aktuell; `0.10`–`0.12` superseded; `1.0.0`=PO (`09`) |
+| Versionierung | **Done** | `0.1.0`=MVP; `0.10.x`=NAS+APK; `1.0.0`≠NAS (`09`) |
 
 **Increment Sprint 0:** Entscheidbare Planung; Sprint 1 freigegeben.
 
@@ -508,32 +508,34 @@ Multi-Turn Tool-Flows, Listen-UX, Scorecard, UI-Chips.
 
 ## Sprint 31 — Memory Quality Hotfix → **`0.9.3`**
 
-**Status:** HISTORISCH · Teil in `0.13.x` (Multi-Fact / Pref-Recall) · [`sprints/sprint-31.md`](./sprints/sprint-31.md)
+**Status:** PLANNED · [`sprints/sprint-31.md`](./sprints/sprint-31.md)  
+Multi-Fact Write, Pref-Recall-Routing, Honesty.
 
 ---
 
 ## Sprint 32 — Assist Continuity & Siezen → **`0.9.4`**
 
-**Status:** HISTORISCH · Guards/Persona in `0.13.x` · [`sprints/sprint-32.md`](./sprints/sprint-32.md)
+**Status:** PLANNED · [`sprints/sprint-32.md`](./sprints/sprint-32.md)  
+Clarify→Plan, Residual-Siezen, EN-Leak.
 
 ---
 
 ## Sprint 33 — Tools Hygiene & Confirm-UX → **`0.9.5`**
 
-**Status:** HISTORISCH · Confirm + Aufräumen in `0.13.x` · [`sprints/sprint-33.md`](./sprints/sprint-33.md)
+**Status:** PLANNED · [`sprints/sprint-33.md`](./sprints/sprint-33.md)  
+Listen-Scope, UI-Confirm, Aufräumen.
 
 ---
 
-## Sprints danach (nicht mehr pullen)
+## Weitere geplante Sprints (Richtung)
 
-| Sprint | Zielrichtung | Version | Status |
-|--------|--------------|---------|--------|
-| 34–39 | NAS 24/7 Compose + Token-APK | `0.10.0`–`0.10.5` | **SUPERSEDED** |
-| 40–42 | Samsung-TV lokal (Tizen) | `0.11.0`–`0.11.2` | **PARKED** |
-| 43 | NAS-Proxy + Sideload gegen NAS | `0.12.0` | **SUPERSEDED** |
-| 44–45 | On-Device Handy | `0.13.0`–`0.13.1` | **CODE** (aktuell) |
-| — | TTS-Vorlesen | — | nach PO-Go |
-| — | `1.0.0` MAJOR | nach `0.13` | Inhalt PO |
+| Sprint | Zielrichtung | Version |
+|--------|--------------|---------|
+| 34–39 | NAS 24/7 Compose | **`0.10.0`–`0.10.5`** — **Parking** |
+| 40–42 | Samsung-TV lokal (Tizen) | **`0.11.0`–`0.11.2`** |
+| 43 | NAS native + Reverse-Proxy + Sideload-APK | **`0.12.0`** |
+| — | TTS-Vorlesen | nach PO-Go |
+| — | `1.0.0` MAJOR | nach `0.12`, Inhalt PO |
 
 Detail On-Device/APK: [`13-on-device.md`](./13-on-device.md) · [`apk.md`](./apk.md) · Sprints: [`sprints/README.md`](./sprints/README.md)
 

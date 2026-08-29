@@ -1,10 +1,8 @@
 # Sprint 34 — NAS Core
 
-> **SUPERSEDED (2026-08-15).** Jarvis läuft on-device (`0.13.1`). NAS/Compose entfallen. Siehe [`13-on-device.md`](../13-on-device.md).
-
 | Feld | Wert |
 |------|------|
-| Status | **SUPERSEDED** |
+| Status | **PLANNED** |
 | Priorität | **MINOR** — neues nutzbares Fähigkeitsniveau (`0.10.0`) |
 | Ziel-Version | **`0.10.0`** |
 | Quelle | PO: `0.10`-Reihe = NAS 24/7 inkl. APK; TV nach `0.11` |

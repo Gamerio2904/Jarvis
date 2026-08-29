@@ -95,7 +95,7 @@ Sprint 18 0.7.0 Delight
 
 ## Prioritätsreihenfolge
 
-Historische Lieferreihenfolge = Sprint-Nummer. **Jetzt nicht pullen:** Research-Netz, NAS, TV. Alltag ist `0.13.1`.
+Gleiche Reihenfolge wie oben (Sprint-Nummer = Lieferreihenfolge). Details in den Sprint-Dateien.
 
 ---
 
@@ -115,7 +115,7 @@ Fakten und Vorlieben **über Sessions und Chats hinweg** behalten — dosiert, k
 | `updated_at` | ISO |
 | `expires_at` | optional ISO — TTL vor allem für Soft-Harvest (`0.4.2`) |
 
-Persistenz: **IndexedDB** auf dem Handy (`0.13.x`). Historisch: SQLite `memory_items` auf dem PC-Backend.
+Persistenz: SQLite-Tabelle `memory_items` (kein Cloud).
 
 ### Schreiben
 - Explizit: „Merk dir …“ / „Vergiss …“ → hohe Confidence, kein TTL (oder sehr lang)
@@ -333,11 +333,7 @@ Regressionen an Charakter & Intelligenz **messbar** machen — nicht nur Bauchge
 
 ---
 
-## 7) Verlässliche Internet-Research — **PARKED**
-
-> On-Device `0.13.x` ist **offline**. Es gibt keinen Research-Netzpfad. Der Rest dieses Abschnitts ist Historie (`0.6.x` auf dem PC-Stack).
-
-### Historisches Engineering-Ziel
+## 7) Verlässliche Internet-Research („100 % verlässlich“ = Engineering-Ziel)
 
 > Ehrlich: Kein System ist epistemisch 100 % wahr.  
 > **Produktziel:** Research ist **nachvollziehbar, zitiert, wiederholbar, opt-in, lokal orchestriert** — Fehler werden sichtbar, nicht vertuscht.
@@ -394,7 +390,7 @@ Neben Memory/Research **handlungsfähige**, lokale Persistenz: Notizen und Todos
 | Geht in `0.9.x` | Geht **nicht** |
 |-----------------|----------------|
 | Tool-Runtime (Allowlist, Schema, Dry-Run, Confirm, Audit) | Mail / Fire TV / Alexa in `0.9.x` |
-| `notes` + `todo` (IndexedDB in `0.13.x`) | Cloud-Kalender-OAuth; TV geparkt |
+| `notes` + `todo` (SQLite) | Cloud-Kalender-OAuth; TV erst `0.11` |
 | Router/`/hilfe` Integration | Autonome Multi-Tool-Ketten ohne Confirm |
 | False-Confirm-Guards | Secrets speichern |
 
@@ -410,7 +406,9 @@ Memory („Merk dir …“) bleibt Fakten-Gedächtnis; Tools sind **explizite Ar
 | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity |
 | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene |
 
-NAS/APK-gegen-Server: **superseded** ([`12-nas-apk.md`](./12-nas-apk.md)). Samsung-TV: **geparkt**. Aktuell: [`13-on-device.md`](./13-on-device.md).
+NAS/APK: **`0.10.x`** ([`12-nas-apk.md`](./12-nas-apk.md)). Samsung-TV: **`0.11.x`** (Sprints 40–42).
+
+Vorher empfohlen: **`0.8.5`** Persona/Continuity ([27](./sprints/sprint-27.md)).
 
 ---
 
@@ -435,6 +433,7 @@ Assist Continuity & Siezen             →  0.9.4  (Sprint 32)
         ↓
 Tools Hygiene & Confirm-UX             →  0.9.5  (Sprint 33)
         ↓
-On-Device Handy                        →  0.13.0–0.13.1  (Sprints 44–45)  ← aktuell
-NAS / TV                               →  superseded / parked
+NAS Core + APK                         →  0.10.0–0.10.5  (Sprints 34–39)
+        ↓
+Samsung TV                             →  0.11.0–0.11.2  (Sprints 40–42)
 ```

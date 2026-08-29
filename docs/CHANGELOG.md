@@ -763,31 +763,62 @@ Eine Sideload-Stufe, Inhalt aus [`19-next.md`](./19-next.md) und [`20-next.md`](
 
 ### `0.12.0` — Sprint 43 (NAS-Proxy) — *SUPERSEDED*
 
-NAS-Proxy entfällt. Alltag = On-Device `0.13.x`.
+### `0.11.2` — Sprint 42 (Samsung TV Settings-UI) — *CODE*
 
-### `0.11.2` — Sprint 42 (Samsung TV Settings-UI) — *PARKED*
+- Suchen, koppeln, testen, umbenennen
+- [`sprints/sprint-42.md`](./sprints/sprint-42.md)
 
-### `0.11.1` — Sprint 41 (Samsung TV Hotfix) — *PARKED*
+### `0.11.1` — Sprint 41 (Samsung TV Hotfix) — *PLANNED*
 
-### `0.11.0` — Sprint 40 (Samsung TV Core) — *PARKED*
+- WOL-Timing, False-Claims, Follow-up-Phrasen
+- [`sprints/sprint-41.md`](./sprints/sprint-41.md)
 
-Tizen lokal war geplant; aus der WebView nicht alltagstauglich. Settings-Felder bleiben tot.
+### `0.11.0` — Sprint 40 (Samsung TV Core) — *PLANNED*
 
-### `0.10.5`–`0.10.0` — Sprints 34–39 (NAS + Token-APK) — *SUPERSEDED*
+- Tizen lokal: Ein/Aus (WOL), Vol, Mute, HDMI; kein Confirm; ein Gerät
+- [`sprints/sprint-40.md`](./sprints/sprint-40.md)
 
-Compose, Owner-Token, APK gegen NAS: entfallen. Historie: [`12-nas-apk.md`](./12-nas-apk.md).
+### `0.10.5` — Sprint 39 (APK Polish) — *PLANNED*
 
-### `0.9.5` — Sprint 33 (Tools Hygiene & Confirm-UX) — *HISTORISCH*
+- First-Run, Icon, Sideload-README; Abschluss `0.10`
+- [`sprints/sprint-39.md`](./sprints/sprint-39.md)
+
+### `0.10.4` — Sprint 38 (APK Hotfix) — *PLANNED*
+
+- Tastatur, Reconnect, ehrliche URL/401-Fehler
+- [`sprints/sprint-38.md`](./sprints/sprint-38.md)
+
+### `0.10.3` — Sprint 37 (APK Core) — *PLANNED*
+
+- Capacitor-Android Sideload gegen NAS (URL + Token)
+- [`sprints/sprint-37.md`](./sprints/sprint-37.md)
+
+### `0.10.2` — Sprint 36 (NAS Auth & LAN) — *PLANNED*
+
+- Owner-Token, 401 ohne Header, LAN-Default
+- [`sprints/sprint-36.md`](./sprints/sprint-36.md)
+
+### `0.10.1` — Sprint 35 (NAS Hotfix) — *PLANNED*
+
+- Backup/Restore, Volume-Rechte, ehrliche Startfehler
+- [`sprints/sprint-35.md`](./sprints/sprint-35.md)
+
+### `0.10.0` — Sprint 34 (NAS Core) — *PLANNED*
+
+- Docker Compose: backend + frontend + ollama, Autostart, Volumes
+- [`sprints/sprint-34.md`](./sprints/sprint-34.md) · [`12-nas-apk.md`](./12-nas-apk.md)
+
+### `0.9.5` — Sprint 33 (Tools Hygiene & Confirm-UX) — *PLANNED*
 
 - Listen-Scope, UI Ja/Nein-Confirm, Aufräumen
 - [`sprints/sprint-33.md`](./sprints/sprint-33.md)
 
-### `0.9.4` — Sprint 32 (Assist Continuity & Siezen) — *HISTORISCH*
+### `0.9.4` — Sprint 32 (Assist Continuity & Siezen) — *PLANNED*
 
 - Clarify→Plan hart; Residual-Siezen; EN-Leak Guard
 - [`sprints/sprint-32.md`](./sprints/sprint-32.md)
 
-### `0.9.3` — Sprint 31 (Memory Quality Hotfix) — *HISTORISCH*
+### `0.9.3` — Sprint 31 (Memory Quality Hotfix) — *PLANNED*
 
 - Multi-Fact Write; Pref-Recall-Routing; Honesty statt Halluzination
 - [`sprints/sprint-31.md`](./sprints/sprint-31.md)
@@ -953,14 +984,14 @@ Compose, Owner-Token, APK gegen NAS: entfallen. Historie: [`12-nas-apk.md`](./12
 - Message-Enter, Streaming-Caret, Composer-Focus, Sidebar/Drawer
 - `prefers-reduced-motion`, Ambient-Gradient, Typografie Outfit/Manrope
 
-## Geplant / Parking
+## Planned
 
 | Version | Sprint | Inhalt |
 |---------|--------|--------|
-| `1.0.0` | PO | nächster MAJOR — Inhalt offen |
-| TTS | — | nur auf PO-Kommando |
-| `0.10`–`0.12` | 34–43 | NAS/Proxy — **SUPERSEDED** |
-| `0.11.x` | 40–42 | Samsung-TV — **PARKED** |
+| `0.10.0`–`0.10.5` | 34–39 | NAS-Compose — **Parking** (Docker geht nicht) |
+| `0.11.0`–`0.11.2` | 40–42 | Samsung-TV lokal |
+| `0.12.0` | 43 | NAS native + Reverse-Proxy :8080 + Sideload-APK |
+| `1.0.0` | PO | nächster MAJOR (nicht NAS) |
 
 ## Earlier (pending tags)
 

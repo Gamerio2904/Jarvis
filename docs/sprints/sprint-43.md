@@ -1,10 +1,8 @@
 # Sprint 43 — NAS-Proxy & APK (kein Docker)
 
-> **SUPERSEDED (2026-08-15)** durch `0.13.0` On-Device. NAS-Proxy entfällt. Siehe [`13-on-device.md`](../13-on-device.md).
-
 | Feld | Wert |
 |------|------|
-| Status | **SUPERSEDED** |
+| Status | **CODE** |
 | Priorität | **MUST** — Docker auf der NAS geht nicht |
 | Ziel-Version | **`0.12.0`** |
 | Quelle | PO 2026-08-14: Jarvis **auf der NAS**, Proxy **auf der NAS**; APK sideload |

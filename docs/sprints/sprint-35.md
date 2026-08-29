@@ -1,10 +1,8 @@
 # Sprint 35 — NAS Hotfix
 
-> **SUPERSEDED (2026-08-15).** NAS-Ops entfallen. Aktuell: [`13-on-device.md`](../13-on-device.md).
-
 | Feld | Wert |
 |------|------|
-| Status | **SUPERSEDED** |
+| Status | **PLANNED** |
 | Priorität | **MUST** — Ops nach erstem NAS-Stack |
 | Ziel-Version | **`0.10.1`** |
 | Quelle | Nachzieher zu `0.10.0` (Rechte, Modelle, Backup) |

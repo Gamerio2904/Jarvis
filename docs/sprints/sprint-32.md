@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **HISTORISCH** — Guards/Persona in `0.13.x` |
+| Status | **READY FOR REVIEW** (Code im Repo; Live-PO) |
 | Priorität | **HIGH** — Live-Probe (Clarify-Follow-up, Broken-Siezen, EN-Leak) |
 | Ziel-Version | **`0.9.4`** |
 | Quelle | Feedback nach `0.9.2`; Carry aus Sprint 27 Continuity |

@@ -1,10 +1,8 @@
 # Sprint 42 — Samsung TV Settings-UI
 
-> **PARKED (2026-08-15).** Settings-Felder können existieren, steuern keinen TV.
-
 | Feld | Wert |
 |------|------|
-| Status | **PARKED** |
+| Status | **PLANNED** |
 | Priorität | **SHOULD** — koppelt ohne settings.json-Handarbeit |
 | Ziel-Version | **`0.11.2`** |
 | Quelle | PO: volle UI — suchen, koppeln, testen, umbenennen |

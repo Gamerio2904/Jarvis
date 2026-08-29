@@ -1,10 +1,8 @@
 # Sprint 41 — Samsung TV Hotfix
 
-> **PARKED (2026-08-15).** Samsung-TV bleibt geparkt. Siehe [`13-on-device.md`](../13-on-device.md).
-
 | Feld | Wert |
 |------|------|
-| Status | **PARKED** |
+| Status | **PLANNED** |
 | Priorität | **MUST** — nach erstem Live-TV |
 | Ziel-Version | **`0.11.1`** |
 | Quelle | Kanten: WOL, Phrasen, False-Claims |

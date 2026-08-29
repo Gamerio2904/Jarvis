@@ -5,7 +5,16 @@
 Alles, was die Planung noch **lückig** macht.  
 Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 
-**Status:** `offen` · `entschieden` · `zurückgestellt` · `entfallen`
+**Legende Priorität**
+
+- **P0** — Blocker für Sprint 1
+- **P1** — sollte vor/während Sprint 1 klar sein
+- **P2** — vor Phase 2/3/4
+- **P3** — später / Luxus
+
+**Status:** `offen` · `entschieden` · `zurückgestellt`
+
+---
 
 ## Übersicht
 
@@ -22,11 +31,9 @@ Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 
 Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Hausstand-Export ist **CODE**.
 
-- Hardware/Ollama/Web für den alten PC-MVP: **entschieden**, Stack **entfernt**
-- Memory: In-Chat + Langzeitgedächtnis lokal: **entschieden** (jetzt IndexedDB)
-- `0.1.0` = MVP; `0.13.1` = On-Device aktuell; `0.10`–`0.12` = superseded; `1.0.0` = späterer MAJOR
+---
 
-## Noch offen / bewusst später
+## A. Produkt & Persona
 
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
