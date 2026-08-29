@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. Live **`2.29.0`:** [`00-now.md`](./00-now.md). Geliefert: `2.3`–`2.19` [`31-next.md`](./31-next.md), Kaufmodus `2.20`–`2.28` [`32-next.md`](./32-next.md), Polish [`33-next.md`](./33-next.md). TTS ist geliefert (`1.5`+).
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **Jetzt:** Code **`6.60.0`**, Sideload **`6.60.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md), Stimme [`37-next.md`](./37-next.md), Hausstand [`38-next.md`](./38-next.md) (Export vor Deinstall), Gesichter + Tablet [`39-next.md`](./39-next.md), Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md), Debug-Lauf [`44-next.md`](./44-next.md) — alles **CODE**. TTS `1.5`+.
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -140,17 +140,29 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Local Tools Core (Option A) → **`0.9.0`** (Sprint 28, READY FOR REVIEW)
 - Tools Hotfix → **`0.9.1`** (Sprint 29, READY FOR REVIEW)
 - Tools Polish & Continuity → **`0.9.2`** (Sprint 30, READY FOR REVIEW)
-- Memory Quality Hotfix → **`0.9.3`** (Sprint 31, CODE)
-- Assist Continuity & Siezen → **`0.9.4`** (Sprint 32, CODE)
-- Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33, CODE)
-- NAS Compose 24/7 → **`0.10.0`** (Sprint 34) — **historisch**, siehe [`12-nas-apk.md`](./12-nas-apk.md)
-- NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** — superseded durch On-Device `0.13`
-- Samsung-TV lokal → **`0.11`**, live nativ in der APK (`0.14.1`+)
-- Alltag `1.14`–`2.29.0` — **CODE** ([`00-now.md`](./00-now.md))
-- Alltag & Welt `2.3`–`2.19` — **CODE** [`31-next.md`](./31-next.md) (in `2.29.0`)
-- Kaufmodus `2.20`–`2.28` — **CODE** [`32-next.md`](./32-next.md) (in `2.29.0`)
-- Polish Tablet/Sprache/CarPlay — **CODE** [`33-next.md`](./33-next.md)
-- Mail / Alexa / Play Store / iOS — **Parking**
+- Memory Quality Hotfix → **`0.9.3`** (Sprint 31, geplant)
+- Assist Continuity & Siezen → **`0.9.4`** (Sprint 32, geplant)
+- Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33, geplant)
+- NAS Compose 24/7 → **`0.10.0`** (Sprint 34)
+- NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** (Sprints 36–39) — [`12`](./12-nas-apk.md)
+- Samsung-TV lokal → **`0.11.0`–`0.11.2`** (Sprints 40–42)
+- Mail / Fire TV / Alexa / Play Store — **Parking**
+- Tools (Kalender/Mail) — Kalender **ist** in `1.4`+; Mail bleibt Parking
+- Alltag `1.14`–`1.24` — **CODE** [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md)
+- Intelligenz `3.0.0` — **CODE** [`32-intelligence.md`](./32-intelligence.md)
+- Welt `3.1`–`3.17` — **CODE** in `3.0.0` [`31-next.md`](./31-next.md)
+- Lage / Härten `3.18.0` — **CODE** [`33-next.md`](./33-next.md)
+- GUI Premium `3.18.1` — **CODE** [`sprints/sprint-108.md`](./sprints/sprint-108.md)
+- Stimme/Kalender `3.19.0` — **CODE** [`34-next.md`](./34-next.md)
+- Weltlage `4.0` — **CODE** [`35-next.md`](./35-next.md)
+- Alltagskette `4.19` — **CODE** [`36-next.md`](./36-next.md)
+- Film-TTS / Steuer `4.33` — **CODE** [`37-next.md`](./37-next.md)
+- Hausstand `4.46` — **CODE** [`38-next.md`](./38-next.md)
+- Jarvis/Friday + Tablet `4.53` — **CODE** [`39-next.md`](./39-next.md)
+- Körper intern `4.66` — **CODE** in `5.11` [`40-next.md`](./40-next.md)
+- Debug-Lauf `5.11` — **CODE** [`44-next.md`](./44-next.md)
+- Bühne & Hirn `6.0` — **PLAN** [`45-next.md`](./45-next.md)
+- Agentic Recall `6.60` — **PLAN** [`46-next.md`](./46-next.md)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---

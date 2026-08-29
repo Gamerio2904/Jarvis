@@ -1,28 +1,34 @@
-# Sprint 123 — Sideload `2.29.0` (Welt + Kaufmodus + Polish)
+# Sprint 123 — Körper-Show + virtueller Globus (`6.20`) **PLAN**
 
 | Feld | Wert |
 |------|------|
-| Status | **CODE** |
-| Priorität | **MUST** |
-| Ziel-Version | **`2.29.0`** |
-| Quelle | PO: alles bis `2.28` umsetzen, APK, Tablet/Sprache/CarPlay polish |
-| Voraussetzung | Plan `2.3`–`2.28` in [`31-next.md`](../31-next.md) / [`32-next.md`](../32-next.md) |
-| Polish | [`33-next.md`](../33-next.md) |
+| Status | **CODE** (in App `6.50.0`) |
+| Priorität | nach Motion-Kern `6.10` |
+| Ziel-Version | `6.20.0` (Research `6.21` Fly-to/Zoom, `6.22` GIBS, `6.23` Blickmitte) |
+| Quelle | PO: Körper/Kugel massiv; Satellitenfoto; Zoomen; Zeig London; Was ist das für eine Stadt |
+| Plan | [`45-next.md`](../45-next.md) |
+| Baut auf | `BodySchema.tsx`, `GlobeView.tsx`, Gazetteer-Pin `5.11`, GIBS-Plan [`43-next.md`](../43-next.md) |
 
 ## Ziel
 
-Eine Sideload-APK `2.29.0`: Alltag & Welt, Kaufmodus (nie Einkaufsliste), Polish für Tablet, Sprachmodus und internes CarPlay.
+Körper: Show statt Skizze (Licht, Pulse aus echten Werten, Kamera zum Organ).
+
+Kugel: **virtueller Globus**. Weit weg Blue Marble. Ranzoomen — Finger oder Satz — NASA-Satellitenfoto (GIBS), Stand in Stunden, Datum sichtbar. `Zeig mir London` dreht, zoomt, sagt den Namen. `Was ist das für eine Stadt?` nennt die Stadt in der Blickmitte, wenn sie im Lexikon liegt.
+
+Chat bleibt. Organ antippen startet kein Gerät. Kein Live-Video.
 
 ## Must
 
-| ID | Inhalt | Done wenn |
-|----|--------|-----------|
-| W1 | `2.3`–`2.19` in `world.ts` / `world-parse.ts` | Router nach Feiertag, vor Kalender |
-| K1 | Kaufmodus `2.20`–`2.28` | Parser vor Einkaufsliste, Overlay, Merkliste `kauf_saved` |
-| P1 | Tablet / Stimme / CarPlay | `html.jarvis-tablet`, Voice-Loop, HUD/Tabs |
-| T1 | Prompt-Router | `Kaufmodus` kauf, `Milch kaufen` shopping, Unwetter/Ferien/Dollar/Schach world |
-| A1 | APK | `releases/Jarvis.apk` versionName `2.29.0` versionCode `22900` |
+| ID | Inhalt |
+|----|--------|
+| C1 | Körper: Pulse nur mit echten Werten; Ease zu Hirn/PC-Auge; kein Tool-Start |
+| C2 | Zoom an der Kugel (Geste). Weit = Blue Marble, nah = GIBS mit „Stand Datum, oft Stunden alt“ |
+| C3 | `Zeig London` / `Zeig mir Paris` / `Wo liegt Berlin`: drehen, zoomen, Pin, ein Satz. Unbekannt: ehrlich nicht auf der Kugel |
+| C4 | `Was ist das für eine Stadt?` / `Was sehe ich?` bei offener Kugel: Blickmitte → Lexikon. Treffer: Name + fester kurzer Satz (Gemini darf schleifen). Meer: keine Stadt erfinden |
+| C5 | Lexikon erweitern (Hauptstädte + vorhandene Orte + ein Klischee-Halbsatz fest im Code) |
+| C6 | Reduced-motion: Zoom ohne Dauerspin; 2D-Karte mit denselben Orten |
+| C7 | Ein Zeichen-Budget mit dem Körper — nicht beide Sichten gleichzeitig |
 
-## Won’t
+## Won’t (dieser Sprint)
 
-Apple CarPlay, Play Store, iOS, Tuya-Cloud, In-App-Kauf, erfundene Preise.
+Live-Satellitenvideo. Street-View. Überwachung. Jedes Dorf der Welt. Iron-Man-Mesh. Sideload. Apple CarPlay (124).

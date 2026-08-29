@@ -1,5 +1,8 @@
 # 22 — Internes Spotify im Fahrmodus (`1.27`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-16: Im CarPlay/Fahrmodus soll Spotify **in Jarvis** laufen, über die Spotify-API — nicht nur die Spotify-App fernsteuern.
 
 Mitgeliefert in **`1.27.0`**.

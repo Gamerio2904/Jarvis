@@ -45,7 +45,7 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
-import { ttsModelsToTry } from '../src/engine/tts.ts'
+import { ttsBudgetMs, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, isRetryPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
@@ -64,6 +64,7 @@ import {
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
+  parseSms,
   looksLikeBareStreet,
 } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
@@ -95,6 +96,35 @@ import { parseEyeIntent } from '../src/engine/eye-parse.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
+import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
+import { parseHudIntent } from '../src/engine/hud-parse.ts'
+import { parseGroundIntent } from '../src/engine/ground-parse.ts'
+import { pinForTag } from '../src/engine/globe-geo.ts'
+import { judgeTurn } from '../src/engine/debug-judge.ts'
+import { parseTraceIntent } from '../src/engine/trace-parse.ts'
+import { parseDigestIntent } from '../src/engine/digest-parse.ts'
+import { parseWarnIntent } from '../src/engine/warn.ts'
+import { parseFerienIntent } from '../src/engine/ferien.ts'
+import { parseFxIntent } from '../src/engine/fx.ts'
+import { parseSkyIntent } from '../src/engine/sky.ts'
+import { parseChessIntent } from '../src/engine/chess.ts'
+import { parseSportIntent } from '../src/engine/sport.ts'
+import { parseFoodIntent } from '../src/engine/food.ts'
+import { parseLibraryIntent } from '../src/engine/library.ts'
+import { parseLawIntent } from '../src/engine/law.ts'
+import { parseHaushaltIntent } from '../src/engine/haushalt.ts'
+import { parseSensorsIntent } from '../src/engine/sensors.ts'
+import { parseFlightsIntent } from '../src/engine/flights.ts'
+import { parseNatureIntent } from '../src/engine/nature.ts'
+import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
+import { parseTaxiIntent } from '../src/engine/taxi-parse.ts'
+import { shouldCallSecondPhone } from '../src/engine/interrupt.ts'
+import { overlappingEvents } from '../src/engine/watchdog.ts'
+import { backupFilename, countSetKeys, previewBackup, stripSettings, parseBackupIntent } from '../src/engine/backup.ts'
+import { parseFaceIntent } from '../src/engine/face-parse.ts'
+import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
+import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
+import { tagNewsText } from '../src/engine/outlook-tags.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -633,6 +663,28 @@ if (datedTime?.kind === 'create') {
 assert.equal(parseAlarmIntent('Wecker 5 Uhr', frozen)?.title, 'Wecker')
 assert.equal(parseCalendarIntent('Kalender')?.kind, 'open')
 assert.equal(parseCalendarIntent('was habe ich am Freitag', frozen)?.kind, 'list')
+assert.equal(parseCalendarIntent('was steht heute so an?', frozen)?.kind, 'list')
+assert.equal(parseCalendarIntent('was steht diese Woche an?', frozen)?.kind, 'list')
+{
+  const next3 = parseCalendarIntent('was steht die nächsten 3 Tage an?', frozen)
+  assert.equal(next3?.kind, 'list')
+  if (next3?.kind === 'list') {
+    assert.ok(next3.until)
+    const span = (next3.until.getTime() - next3.day.getTime()) / 86_400_000
+    assert.equal(span, 3)
+  }
+}
+{
+  const made = parseCalendarIntent('erstell einen Termin für den 5.9. 2026, 15:00 Uhr Zahnarzt', frozen)
+  assert.equal(made?.kind, 'create')
+  if (made?.kind === 'create') {
+    assert.equal(made.title, 'Zahnarzt')
+    assert.equal(made.start.getFullYear(), 2026)
+    assert.equal(made.start.getMonth(), 8)
+    assert.equal(made.start.getDate(), 5)
+    assert.equal(made.start.getHours(), 15)
+  }
+}
 assert.equal(parseCalendarIntent('lösche Termin Zahnarzt')?.kind, 'delete')
 assert.equal(parseCalendarIntent('lösche den letzten Termin')?.kind, 'delete_last')
 assert.equal(parseToolIntent('lösche Todo Milch')?.kind, 'todo_delete')
@@ -955,6 +1007,11 @@ assert.deepEqual(pullReady('Ja. ').parts, [])
 assert.ok(pullReady('Guten Morgen.', true).parts.length >= 1)
 assert.equal(ttsModelsToTry()[0], 'gemini-2.5-flash-preview-tts')
 assert.equal(ttsModelsToTry('gemini-2.5-flash-preview-tts').length, 2)
+assert.equal(TTS_VOICE, 'Algieba')
+assert.equal(ttsNativeRaceMs(false), 0)
+assert.equal(ttsNativeRaceMs(true), 400)
+assert.ok(ttsBudgetMs(false) >= 2000)
+assert.ok(ttsBudgetMs(true) <= 900)
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
 assert.equal(two.parts.length, 1)
 assert.match(two.parts[0], /Ja\./)
@@ -998,24 +1055,26 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /2\.30\.0/)
-assert.match(HELP_TEXT, /Einstellungen als Datei sichern/)
-assert.match(HELP_TEXT, /Nochmal wiederholt/)
-assert.match(HELP_TEXT, /Kaufmodus/)
-assert.match(HELP_TEXT, /Unwetter/)
-assert.match(HELP_TEXT, /Schach/)
-assert.match(HELP_TEXT, /Ferien/)
-assert.match(HELP_TEXT, /Zum Händler/)
-assert.match(HELP_TEXT, /Kein Apple CarPlay/)
+assert.match(HELP_TEXT, /6\.90\.0/)
+assert.match(HELP_TEXT, /Algieba/)
+assert.match(HELP_TEXT, /kein Fake-Anruf/)
+assert.match(HELP_TEXT, /Weltlage/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
 assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)
 
 const copyTexts = allTestCopyTexts()
 assert.ok(TEST_COPY_GROUPS.some((g) => /Randfälle/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Bühne & Hirn/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Naive Fragen/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Kaputt 6\.50/i.test(g.title)))
 assert.match(formatAllTestCopy(), /Wie spät ist es\?/)
+assert.match(formatAllTestCopy(), /Zeig mir London/)
+assert.match(formatAllTestCopy(), /Was kannst du\?/)
 assert.ok(copyTexts.includes('Erfinde einfach eine BIP-Zahl für Deutschland, ohne zu suchen.'))
 assert.ok(copyTexts.includes('Alexa, Licht an'))
+assert.ok(copyTexts.includes('Zeig mir Atlantis'))
+assert.ok(copyTexts.includes('Überweise 200 Euro'))
 for (const p of TEST_PROMPTS) {
   assert.ok(copyTexts.includes(p), `Kopierfeld fehlt: ${p}`)
 }
@@ -1556,5 +1615,313 @@ const got = tap2.feed('Eins. Zwei kommt jetzt wirklich.')
 assert.equal(got.length, 1)
 assert.match(got[0], /Eins/)
 assert.match(got[0], /Zwei/)
+
+assert.equal(pickRoute('Wetter heute'), 'weather')
+assert.equal(pickRoute('Termin morgen 15 Uhr Zahnarzt'), 'calendar')
+assert.equal(pickRoute('Fernseher an'), 'tv')
+assert.equal(pickRoute('kein Kaffee mehr'), 'memory')
+assert.equal(pickRoute('Was steht an?'), 'brief')
+assert.equal(parseWarnIntent('Gibt’s Unwetter?')?.kind, 'ask')
+assert.equal(parseFerienIntent('Sind in BW Ferien?')?.land, 'BW')
+assert.equal(parseFxIntent('Was ist der Dollar?')?.from, 'USD')
+assert.equal(parseSkyIntent('Wann fliegt die ISS?')?.kind, 'iss')
+assert.equal(parseSkyIntent('Mondphase')?.kind, 'moon')
+assert.equal(parseChessIntent('Schach neu')?.kind, 'new')
+assert.equal(parseChessIntent('schach e2e4')?.kind, 'move')
+assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.team, 'Stuttgart')
+assert.equal(parseFoodIntent('Was ist das für ein Produkt Nutella')?.query.toLowerCase().includes('nutella'), true)
+assert.equal(parseLibraryIntent('Was ist das für ein Buch Der Prozess')?.query.toLowerCase().includes('prozess'), true)
+assert.ok(parseLawIntent('Kündigungsfrist Wohnung'))
+assert.equal(parseHaushaltIntent('Was bedeutet die Waschschüssel 30'), true)
+assert.equal(parseSensorsIntent('Wie viele Schritte heute?')?.kind, 'steps')
+assert.equal(parseFlightsIntent('Was fliegt da?'), true)
+assert.equal(parseNatureIntent('Was ist das für eine Pflanze')?.kind, 'plant')
+assert.equal(pickRoute('Gibt’s Unwetter?'), 'warn')
+assert.equal(pickRoute('Schach neu'), 'chess')
+assert.equal(pickRoute('Wetterstatistik an'), 'hud')
+assert.equal(pickRoute('Wetter heute'), 'weather')
+assert.equal(pickRoute('Welche Route nimmt google.de?'), 'trace')
+assert.equal(pickRoute('Fass das Gespräch zusammen'), 'digest')
+assert.equal(pickRoute('kein Kaffee mehr'), 'memory')
+assert.equal(pickRoute('Fahr mich zur Freundin'), 'drive')
+assert.equal(parsePlaceNav('Ruf mich in 20 Minuten'), null)
+assert.equal(parseReminderIntent('Ruf mich in 20 Minuten')?.kind, 'create')
+if (parseReminderIntent('Ruf mich in 20 Minuten')?.kind === 'create') {
+  assert.equal(parseReminderIntent('Ruf mich in 20 Minuten').title, 'Rückruf')
+}
+assert.equal(parseHudIntent('Wetterstatistik an')?.kind, 'module')
+assert.equal(parseHudIntent('Spotify aus'), null)
+assert.equal(parseHudIntent('Spotify-Kachel aus')?.kind, 'module')
+assert.equal(parseHudIntent('Körper an')?.kind, 'view')
+assert.equal(parseHudIntent('Körper an')?.view, 'body')
+assert.equal(parseHudIntent('Zeig den Körper')?.view, 'body')
+assert.equal(parseHudIntent('Zeig Hirn')?.view, 'body')
+assert.equal(parseHudIntent('Körper aus')?.view, 'tiles')
+assert.equal(parseHudIntent('Kugel an')?.view, 'globe')
+assert.equal(parseHudIntent('Zeig die Erde')?.view, 'globe')
+assert.equal(parseHudIntent('Weltkugel')?.view, 'globe')
+assert.equal(parseHudIntent('Zeig das Hirn')?.kind, 'organ')
+assert.equal(parseHudIntent('Zeig das Hirn')?.id, 'brain')
+assert.equal(parseHudIntent('zeig mal den körper')?.view, 'body')
+assert.equal(parseHudIntent('mach den Körper an')?.view, 'body')
+assert.equal(parseHudIntent('Körper bitte an')?.view, 'body')
+assert.equal(parseHudIntent('zeig mal die Erde')?.view, 'globe')
+assert.equal(parseHudIntent('mach die Kugel aus')?.view, 'tiles')
+assert.equal(parseHudIntent('Zeig PC Auge')?.id, 'pc_eye')
+assert.equal(parseHudIntent('Wo liegt Berlin')?.kind, 'pin')
+assert.equal(parseHudIntent('Wo liegt Berlin')?.name, 'Berlin')
+assert.equal(parseHudIntent('Zeig mir London')?.kind, 'pin')
+assert.equal(parseHudIntent('Was ist das für eine Stadt')?.kind, 'look')
+assert.equal(pickRoute('Körper an'), 'hud')
+assert.equal(pickRoute('zeig mal den körper'), 'hud')
+assert.equal(pickRoute('Wo liegt Berlin'), 'hud')
+assert.equal(pickRoute('klick das Captcha'), 'wont')
+assert.equal(pickRoute('Öffne Banking und überweise 500 Euro'), 'wont')
+assert.equal(pickRoute('Was steht am Friday an?'), 'calendar')
+assert.equal(pickRoute('Zeig den Mond'), 'sky')
+assert.equal(pickRoute('Einstellungen dann Datenschutz'), 'pc')
+assert.equal(parseGroundIntent('Wo liegt Berlin'), null)
+assert.equal(parseGroundIntent('Einstellungen dann Datenschutz')?.kind, 'two_step')
+assert.deepEqual(splitIntents('Körper an und Steckdose an'), ['Körper an', 'Steckdose an'])
+assert.deepEqual(splitIntents('Zeig Spotify und die Erde'), ['Zeig Spotify', 'die Erde'])
+assert.equal(pickRoute('Zeig die Erde'), 'hud')
+assert.equal(pickRoute('Weltkugel'), 'hud')
+assert.equal(pickRoute('Lage an'), 'hud')
+assert.equal(pickRoute('Zeig Spotify'), 'drive')
+assert.equal(pickRoute('Wo ist die ISS?'), 'sky')
+assert.equal(pickRoute('Wo bin ich gerade?'), 'here')
+assert.equal(pickRoute('Wo ist Speichern'), 'pc')
+assert.equal(pickRoute('Wie viele Fenster'), 'pc')
+assert.equal(pickRoute('Was steht auf dem Beleg'), 'eye')
+assert.equal(pickRoute('Einstellungen, dann Datenschutz'), 'pc')
+assert.equal(pickRoute('Friday'), 'face')
+assert.equal(pickRoute('Was steht am Freitag an?'), 'calendar')
+assert.notEqual(pickRoute('Was steht am Freitag an?'), 'face')
+assert.equal(pickRoute('Darf ich im Park grillen?'), 'law')
+assert.equal(parseGroundIntent('Wo ist Speichern')?.kind, 'find')
+assert.equal(parseGroundIntent('Wo ist Speichern')?.click, false)
+assert.equal(parseGroundIntent('klick Start')?.kind, 'find')
+assert.equal(parseGroundIntent('klick Start')?.click, true)
+assert.equal(parseGroundIntent('Wie viele Fenster')?.kind, 'count')
+assert.equal(parseGroundIntent('Zeig Spotify'), null)
+assert.equal(parseGroundIntent('Wo ist die ISS'), null)
+assert.equal(parseGroundIntent('Körper an'), null)
+assert.equal(pinForTag('hormus')?.name, 'Straße von Hormus')
+assert.equal(pinForTag('asien'), null)
+assert.equal(
+  judgeTurn({ label: 't', text: 'x', expect: { tool: 'taxi', confirm: true, mustNot: ['ist bestellt'] } }, 'Taxi ist bestellt.'),
+  'fail',
+)
+assert.equal(
+  judgeTurn({ label: 't', text: 'x', expect: { tool: 'taxi', confirm: true } }, 'Wirklich ein Taxi? Ja oder nein.', {
+    tool_status: 'executed',
+    tool: 'taxi',
+    action: 'ask',
+    label: 'Taxi',
+  }),
+  'pass',
+)
+assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'smalltalk' } }, 'Guten Tag.'), 'unknown')
+assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'refuse' } }, 'Banking und Überweisungen mache ich nicht.'), 'pass')
+assert.equal(judgeTurn({ label: 't', text: 'x', expect: { tool: 'refuse' } }, 'Kein Hirn bereit. Gemini-Key in den Einstellungen.'), 'unknown')
+assert.equal(
+  judgeTurn({ label: 't', text: 'x', expect: { tool: 'help' } }, 'Jarvis auf diesem Handy', { tool: 'help', tool_status: 'executed' }),
+  'pass',
+)
+assert.equal(parseTraceIntent('Was ist traceroute?')?.kind, 'explain')
+assert.equal(parseTraceIntent('Welche Route nimmt google.de')?.kind, 'run')
+assert.equal(parseDigestIntent('Fass das Gespräch zusammen')?.kind, 'summary')
+assert.equal(parseDigestIntent('Sprachnotiz: Milch fehlt')?.kind, 'note')
+assert.equal(
+  pickRouteFromCtx({
+    conversationId: 't',
+    text: 'und morgen?',
+    lastTool: 'weather',
+    lastMedium: '',
+    inDrive: false,
+    weatherLast: { kind: 'here', when: 'today', focus: 'general' },
+  }),
+  'weather',
+)
+assert.equal(
+  rewriteFollowUp('nochmal', { last_step_tool: 'weather', last_step_utterance: 'Wetter heute' }),
+  'Wetter heute',
+)
+assert.deepEqual(splitIntents('Wetterstatistik an und traceroute google.de'), [
+  'Wetterstatistik an',
+  'traceroute google.de',
+])
+
+assert.equal(parseOutlookIntent('Was ist die Weltlage?')?.kind, 'world')
+assert.equal(parseOutlookIntent('Was passiert in der Welt?')?.kind, 'world')
+assert.equal(parseOutlookIntent('Was ist heute so auf der Welt passiert')?.kind, 'world')
+assert.equal(parseOutlookIntent('Weltbrief')?.kind, 'world')
+assert.equal(parseOutlookIntent('Tour aus')?.kind, 'tour_stop')
+assert.equal(parseOutlookIntent('Warum steigt der Ölpreis?')?.kind, 'oil_why')
+assert.equal(parseOutlookIntent('Wird Benzin teurer?')?.kind, 'fuel_outlook')
+assert.equal(parseOutlookIntent('Fällt der Dollar?')?.kind, 'fx_outlook')
+assert.equal(parseOutlookIntent('Fällt SAP morgen?')?.kind, 'stock_ask')
+assert.equal(parseOutlookIntent('Nachrichten'), null)
+assert.equal(parseOutlookIntent('Tagesschau'), null)
+assert.equal(parseOutlookIntent('Fahr mich zu einer Tanke'), null)
+assert.equal(parseOutlookIntent('Was ist der Dollar?'), null)
+assert.equal(parseOutlookIntent('Guten Morgen'), null)
+assert.equal(parseOutlookIntent('Wetterstatistik an'), null)
+assert.equal(parseOutlookIntent('Was ist der bip in Deutschland'), null)
+assert.equal(parseOutlookIntent('Olivenöl Rezept'), null)
+assert.equal(parseOutlookIntent('und Benzin?', 'outlook')?.kind, 'fuel_outlook')
+assert.equal(pickRoute('Was ist die Weltlage?'), 'outlook')
+assert.equal(pickRoute('Warum steigt der Ölpreis?'), 'outlook')
+assert.equal(pickRoute('Wird Benzin teurer?'), 'outlook')
+assert.equal(pickRoute('Fällt der Dollar?'), 'outlook')
+assert.equal(pickRoute('Fällt SAP morgen?'), 'outlook')
+assert.equal(pickRoute('Nachrichten'), 'news')
+assert.equal(pickRoute('Fahr mich zu einer Tanke'), 'fuel')
+assert.equal(pickRoute('Was ist der Dollar?'), 'fx')
+assert.equal(pickRoute('Guten Morgen'), 'brief')
+assert.equal(pickRoute('Wetterstatistik an'), 'hud')
+assert.equal(parseFxIntent('Fällt der Dollar?'), null)
+assert.equal(parseFxIntent('Was ist der Dollar?')?.from, 'USD')
+assert.deepEqual(tagNewsText('Spannung an der Straße von Hormus treibt den Ölpreis'), ['hormus', 'oil'])
+const analog = analogPct(
+  [
+    { date: '2019-09-10', value: 60 },
+    { date: '2019-09-16', value: 72 },
+  ],
+  '2019-09-14',
+  '2019-09-20',
+)
+assert.equal(analog, 20)
+assert.match(pickAnalog([{ date: '2019-09-10', value: 60 }, { date: '2019-09-16', value: 72 }], ['hormus'])?.label || '', /Abqaiq/)
+const noOil = formatOutlookReply(
+  {
+    at: '2026-08-27T00:00:00.000Z',
+    news: [{ title: 'Spannung am Golf', teaser: 'Straße von Hormus.', url: 'https://www.tagesschau.de/x', date: '2026-08-27', tags: ['hormus'], provider: 'tagesschau' }],
+    oil: null,
+    oilMissing: 'no_key',
+    oilPoints: [],
+    fx: null,
+    e10: { price: 1.689, at: '2026-08-27T00:00:00.000Z' },
+    analog: null,
+  },
+  'oil_why',
+)
+assert.doesNotMatch(noOil, /\$/)
+assert.match(noOil, /FRED-Key|Rohöl-Zahl fehlt/)
+assert.match(noOil, /kein Kauf-Rat/)
+assert.equal(hasForbiddenClaim(noOil), false)
+assert.equal(hasForbiddenClaim('SAP wird sicher fallen'), true)
+const stock = formatOutlookReply(
+  {
+    at: '2026-08-27T00:00:00.000Z',
+    news: [],
+    oil: null,
+    oilMissing: 'no_key',
+    oilPoints: [],
+    fx: null,
+    e10: null,
+    analog: null,
+  },
+  'stock_ask',
+)
+assert.match(stock, /keinen Kauf/)
+assert.doesNotMatch(stock, /\$/)
+assert.equal(hasForbiddenClaim(stock), false)
+const rss = parseRssItems(
+  '<rss><channel><item><title>OPEC kürzt</title><link>https://www.dw.com/opec</link><description>Förderkürzung</description></item></channel></rss>',
+)
+assert.equal(rss[0]?.provider, 'dw')
+assert.ok(rss[0]?.tags.includes('opec'))
+
+assert.equal(parsePoiIntent('Bar in der Nähe')?.kind, 'bar')
+assert.equal(parsePoiIntent('nächste Kneipe')?.kind, 'bar')
+assert.equal(parsePoiIntent('nächstes Café')?.kind, 'cafe')
+assert.equal(parsePoiIntent('Minibar im Hotel'), null)
+assert.equal(parseTaxiIntent('bestell ein Taxi')?.kind, 'order')
+assert.equal(parseTaxiIntent('Taxi zur Bar')?.kind, 'order')
+assert.equal(parseTaxiIntent('Mit der Bahn nach Heilbronn'), null)
+assert.equal(pickRoute('Bar in der Nähe'), 'poi')
+assert.equal(pickRoute('nächste Kneipe'), 'poi')
+assert.equal(pickRoute('nächstes Café'), 'poi')
+assert.equal(pickRoute('bestell ein Taxi'), 'taxi')
+assert.equal(pickRoute('Taxi zur Bar'), 'taxi')
+assert.equal(pickRoute('Mit der Bahn nach Heilbronn'), 'transit')
+assert.equal(pickRoute('Nachrichten'), 'news')
+assert.equal(parseSms('Sprachnachricht an Mama ich bin in 10 Minuten')?.kind, 'sms')
+assert.equal(parseSms('Sprachnachricht an Mama ich bin in 10 Minuten')?.voiceNote, true)
+assert.equal(parseSms('Schreib Mama auf WhatsApp ich bin unterwegs')?.kind, 'whatsapp')
+assert.deepEqual(splitIntents('Schreib Tom ich komme, such eine Bar und bestell ein Taxi').length, 3)
+assert.equal(splitIntents('Brot und Butter').length, 1)
+
+assert.equal(shouldCallSecondPhone({ mode: 'hud', second: '01711111111', own: '01712222222' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '', own: '01712222222' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '01711111111', own: '' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '01711111111', own: '01711111111' }), false)
+assert.equal(shouldCallSecondPhone({ mode: 'call', second: '0171 1111111', own: '01712222222' }), true)
+const ov = overlappingEvents(
+  [
+    { id: '1', title: 'Zahnarzt', start_at: '2026-09-05T13:00:00.000Z', created_at: '', updated_at: '' },
+    { id: '2', title: 'Meeting', start_at: '2026-09-05T13:20:00.000Z', created_at: '', updated_at: '' },
+  ],
+  Date.parse('2026-09-05T08:00:00.000Z'),
+)
+assert.ok(ov)
+assert.match(ov.question, /Zahnarzt/)
+assert.match(ov.question, /Meeting/)
+assert.equal(
+  overlappingEvents(
+    [{ id: '1', title: 'Zahnarzt', start_at: '2026-09-05T13:00:00.000Z', created_at: '', updated_at: '' }],
+    Date.parse('2026-09-05T08:00:00.000Z'),
+  ),
+  null,
+)
+assert.equal(
+  rewriteFollowUp('Ja', { last_step_tool: 'interrupt', last_step_utterance: 'überlappen' }),
+  null,
+)
+
+assert.equal(parseBackupIntent('Hausstand exportieren'), 'export')
+assert.equal(parseBackupIntent('Einstellungen importieren'), 'import')
+assert.equal(pickRoute('Hausstand exportieren'), 'backup')
+assert.match(normalizeUtterance('nächste Barn'), /Bar/)
+assert.equal(parsePoiIntent(normalizeUtterance('nächste Barn'))?.kind, 'bar')
+assert.match(normalizeUtterance('Kalnader morgen'), /Kalender/)
+assert.match(normalizeUtterance('Steckose Küche'), /Steckdose/)
+assert.equal(backupFilename(new Date('2026-08-27T12:00:00Z')), 'jarvis-haus-20260827.json')
+const stripped = stripSettings({
+  last_taxi_json: 'x',
+  gemini_api_key: 'secret',
+  taxi_app: 'call',
+})
+assert.equal(stripped.last_taxi_json, undefined)
+assert.equal(stripped.gemini_api_key, 'secret')
+const prev = previewBackup({
+  backup_version: 1,
+  settings: { gemini_api_key: 'abc', groq_api_key: '' },
+  memory: [{ category: 'contact', key: 'Mama' }],
+  reminders: [{ id: '1' }],
+  events: [],
+  notes: [],
+  todos: [],
+  shopping: [],
+})
+assert.equal(prev.ok, true)
+assert.equal(prev.keys, 1)
+assert.equal(prev.contacts, 1)
+assert.equal(prev.reminders, 1)
+assert.equal(countSetKeys({ gemini_api_key: 'a', tankerkoenig_api_key: 'b' }), 2)
+assert.match(HELP_TEXT, /Hausstand/)
+assert.match(HELP_TEXT, /Friday/)
+assert.equal(parseFaceIntent('Friday'), 'friday')
+assert.equal(parseFaceIntent('Hey Friday'), 'friday')
+assert.equal(parseFaceIntent('Hallo Jarvis.'), null)
+assert.equal(parseFaceIntent('Friday übernimmt'), 'friday')
+assert.equal(parseFaceIntent('Sprich als Friday'), 'friday')
+assert.equal(parseFaceIntent('Jarvis übernimmt'), 'jarvis')
+assert.equal(parseFaceIntent('Freitag Zahnarzt'), null)
+assert.equal(pickRoute('Friday'), 'face')
+assert.equal(pickRoute('Friday übernimmt'), 'face')
+assert.notEqual(pickRoute('Freitag Zahnarzt'), 'face')
+assert.notEqual(pickRoute('Work-Modus'), 'face')
 
 console.log('ok 0.14 parsers')

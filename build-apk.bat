@@ -7,6 +7,7 @@ set "ROOT=%~dp0"
 set "FRONT=%ROOT%frontend"
 set "OUT=%FRONT%\dist-apk"
 set "APK_SRC=%FRONT%\android\app\build\outputs\apk\debug\app-debug.apk"
+if exist "%FRONT%\android\app\build\outputs\apk\debug\Jarvis-debug.apk" set "APK_SRC=%FRONT%\android\app\build\outputs\apk\debug\Jarvis-debug.apk"
 
 if not defined ANDROID_HOME (
   if exist "%LOCALAPPDATA%\Android\Sdk" set "ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk"

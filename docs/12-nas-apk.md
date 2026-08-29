@@ -1,8 +1,6 @@
-# 12 — NAS 24/7 & Android-APK — **historisch**
+# 12 — NAS 24/7 & Android-APK **SUPERSEDED**
 
-> **Nicht der Live-Stack.** Ab `0.13` läuft Jarvis on-device auf dem Handy. Kein NAS-LLM, kein Docker, kein Proxy als Alltag. Live: [`00-now.md`](./00-now.md) · [`13-on-device.md`](./13-on-device.md).
->
-> Unten: wie `0.10`/`0.12` geplant waren. Compose unter `deploy/` bleibt Parking.
+> **Historisch.** On-Device ab `0.13.0`: [`13-on-device.md`](./13-on-device.md). **Jetzt:** Sideload [`apk.md`](./apk.md) `6.60.0`. Compose/`deploy/` und NAS-LLM **Parking**. Tote Links auf `13-lan-proxy.md` / `deploy-nas.md` entfernt.
 
 Phase 2 (Handy) und Phase 3 (NAS) waren **gemeinsam** als MINOR-Reihe **`0.10.x`** geplant.  
 Samsung-TV ist **nicht** Teil von `0.10` — siehe Sprints 40–42 / **`0.11.x`**.

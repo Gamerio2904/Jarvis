@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { wantGeminiVoice } from './engine/tts'
 import { setChatSpeaking } from './engine/speak-lock'
+import { dispatchVoiceAmp, prefersReducedMotion } from './engine/motion'
 import {
   createSentenceTap,
   createSpeakPipeline,
@@ -17,25 +18,93 @@ export function VoiceMode({
   onClose,
   onTurn,
   initialUtterance = '',
+  leaving = false,
 }: {
   onClose: () => void
   onTurn: (text: string, onToken?: (piece: string, full: string) => void) => Promise<string>
   initialUtterance?: string
+  leaving?: boolean
 }) {
   const [phase, setPhase] = useState<Phase>('idle')
   const [heard, setHeard] = useState('')
   const [reply, setReply] = useState('')
   const [err, setErr] = useState<string | null>(null)
+  const [level, setLevel] = useState(0)
   const live = useRef(true)
   const phaseRef = useRef<Phase>('idle')
   const pipelineRef = useRef<ReturnType<typeof createSpeakPipeline> | null>(null)
   const turnGen = useRef(0)
   const abortTurn = useRef<(() => void) | null>(null)
+  const onTurnRef = useRef(onTurn)
+  onTurnRef.current = onTurn
   const neural = wantGeminiVoice()
+  const reduced = prefersReducedMotion()
 
   useEffect(() => {
     phaseRef.current = phase
   }, [phase])
+
+  useEffect(() => {
+    if (reduced || (phase !== 'listening' && phase !== 'speaking')) {
+      setLevel(0)
+      dispatchVoiceAmp(0)
+      return
+    }
+    if (phase === 'speaking') {
+      let t = 0
+      const id = window.setInterval(() => {
+        t += 1
+        const n = 0.25 + 0.2 * Math.abs(Math.sin(t / 3))
+        setLevel(n)
+        dispatchVoiceAmp(n)
+      }, 80)
+      return () => {
+        window.clearInterval(id)
+        dispatchVoiceAmp(0)
+      }
+    }
+    let stream: MediaStream | null = null
+    let ctx: AudioContext | null = null
+    let raf = 0
+    let dead = false
+    void (async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+        if (dead) {
+          stream.getTracks().forEach((tr) => tr.stop())
+          return
+        }
+        ctx = new AudioContext()
+        const src = ctx.createMediaStreamSource(stream)
+        const an = ctx.createAnalyser()
+        an.fftSize = 512
+        src.connect(an)
+        const data = new Uint8Array(an.fftSize)
+        const loop = () => {
+          an.getByteTimeDomainData(data)
+          let s = 0
+          for (const v of data) {
+            const n = (v - 128) / 128
+            s += n * n
+          }
+          const rms = Math.min(1, Math.sqrt(s / data.length) * 3)
+          setLevel(rms)
+          dispatchVoiceAmp(rms)
+          raf = requestAnimationFrame(loop)
+        }
+        raf = requestAnimationFrame(loop)
+      } catch {
+        /* Native-STT hält das Mic — CSS-Pulse bleibt. */
+      }
+    })()
+    return () => {
+      dead = true
+      cancelAnimationFrame(raf)
+      stream?.getTracks().forEach((tr) => tr.stop())
+      void ctx?.close()
+      dispatchVoiceAmp(0)
+    }
+  }, [phase, reduced])
 
   useEffect(() => {
     live.current = true
@@ -104,7 +173,7 @@ export function VoiceMode({
     let answer = ''
     try {
       answer = await Promise.race([
-        onTurn(text, (_piece, full) => {
+        onTurnRef.current(text, (_piece, full) => {
           if (!live.current || turnGen.current !== gen) return
           setReply(full)
           const ready = tap.feed(full)
@@ -179,7 +248,7 @@ export function VoiceMode({
 
   return (
     <div
-      className="voice-mode"
+      className={`voice-mode${leaving ? ' is-leaving' : ''}`}
       role="dialog"
       aria-label="Sprachmodus"
       onPointerDown={(e) => {
@@ -193,8 +262,8 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Antwort sofort. Charon nur wenn er schnell da ist, sonst Android.'
-                : 'Text sofort. Gemini an = natürliche Stimme.'}
+                ? 'Orb folgt dem Mic. Antippen unterbricht. Stimme in den Einstellungen.'
+                : 'Orb folgt dem Mic. Gemini-Key = natürliche Stimme, sonst System.'}
             </p>
           </div>
           <button type="button" className="ghost-btn voice-close" onClick={onClose}>
@@ -204,6 +273,7 @@ export function VoiceMode({
         <button
           type="button"
           className={`voice-orb ${phase}`}
+          style={{ transform: reduced ? undefined : `scale(${(1 + level * 0.55).toFixed(3)})` }}
           onClick={() => void onOrb()}
           aria-label={label}
         >

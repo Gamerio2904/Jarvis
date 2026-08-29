@@ -20,7 +20,7 @@ $DataDir = Join-Path $env:LOCALAPPDATA 'JarvisPC'
 New-Item -ItemType Directory -Force -Path $DataDir | Out-Null
 $TokenFile = Join-Path $DataDir 'token.txt'
 $Token = ''
-if (Test-Path $TokenFile) { $Token = (Get-Content -Raw $TokenFile).Trim() }
+if (Test-Path $TokenFile) { $Token = (Get-Content -Raw $TokenFile).Trim().Trim([char]0xFEFF) }
 if ($Token.Length -lt 6) {
   $Token = Get-Random -Minimum 100000 -Maximum 999999
   $Token = $Token.ToString()
@@ -31,12 +31,59 @@ $script:LastAction = 'Warte auf das Handy…'
 
 function Get-LanIps {
   $list = New-Object System.Collections.Generic.List[string]
+  function Add-Ip([string]$ip) {
+    if (-not $ip) { return }
+    if ($ip -match '^127\.' -or $ip -match '^169\.254\.') { return }
+    if (-not $list.Contains($ip)) { [void]$list.Add($ip) }
+  }
   try {
-    foreach ($a in [System.Net.Dns]::GetHostAddresses([System.Net.Dns]::GetHostName())) {
-      if ($a.AddressFamily -eq 'InterNetwork' -and $a.ToString() -notmatch '^127\.') { [void]$list.Add($a.ToString()) }
+    $gw = Get-NetRoute -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue |
+      Sort-Object RouteMetric, InterfaceMetric |
+      Select-Object -First 1
+    if ($gw) {
+      Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $gw.InterfaceIndex -ErrorAction SilentlyContinue |
+        ForEach-Object { Add-Ip $_.IPAddress }
     }
   } catch {}
-  return @($list)
+  try {
+    Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | ForEach-Object {
+      $alias = [string]$_.InterfaceAlias
+      if ($alias -match 'vEthernet|WSL|Hyper-V|Loopback|VirtualBox|VMware|Docker|Default Switch|Bluetooth') { return }
+      Add-Ip $_.IPAddress
+    }
+  } catch {}
+  try {
+    foreach ($a in [System.Net.Dns]::GetHostAddresses([System.Net.Dns]::GetHostName())) {
+      if ($a.AddressFamily -eq 'InterNetwork') { Add-Ip $a.ToString() }
+    }
+  } catch {}
+  $ordered = @($list | Sort-Object {
+    if ($_ -match '^192\.168\.') { 0 }
+    elseif ($_ -match '^10\.') { 1 }
+    elseif ($_ -match '^172\.(1[6-9]|2[0-9]|3[0-1])\.') { 3 }
+    else { 2 }
+  })
+  return @($ordered)
+}
+
+function Test-LikelyLan([string]$ip) {
+  return [bool]($ip -match '^192\.168\.' -or $ip -match '^10\.')
+}
+
+function Ensure-Firewall {
+  $name = "JarvisPC $Port"
+  try {
+    if (Get-NetFirewallRule -DisplayName $name -ErrorAction SilentlyContinue) { return $true }
+    New-NetFirewallRule -DisplayName $name -Direction Inbound -Action Allow -Protocol TCP -LocalPort $Port -Profile Any -ErrorAction Stop | Out-Null
+    return $true
+  } catch {
+    return $false
+  }
+}
+
+function Start-FirewallElevated {
+  $inner = "New-NetFirewallRule -DisplayName 'JarvisPC $Port' -Direction Inbound -Action Allow -Protocol TCP -LocalPort $Port -Profile Any -ErrorAction SilentlyContinue"
+  Start-Process powershell -Verb RunAs -ArgumentList @('-NoProfile', '-Command', $inner) -Wait -ErrorAction SilentlyContinue
 }
 
 function Get-UserRoot { [Environment]::GetFolderPath('UserProfile') }
@@ -262,7 +309,38 @@ function Handle-Command([string]$path, $body) {
     }
     '/v1/launch' { Invoke-Launch ([string]$body.query) }
     '/v1/files' { Invoke-Files $body }
+    '/v1/trace' { Invoke-Trace ([string]$body.host) }
     default { @{ ok = $false; message = 'Unbekannter Pfad.' } }
+  }
+}
+
+function Invoke-Trace([string]$target) {
+  $h = ([string]$target).Trim()
+  if (-not $h) { return @{ ok = $false; message = 'Kein Host.' } }
+  if ($h -notmatch '^[A-Za-z0-9._:-]+$') { return @{ ok = $false; message = 'Host ungültig.' } }
+  $script:LastAction = "tracert $h"
+  try {
+    $raw = & tracert.exe -d -h 15 -w 2000 $h 2>&1
+    $hops = @()
+    foreach ($line in @($raw)) {
+      $s = [string]$line
+      if ($s -match '^\s*(\d+)\s+(.+)$') {
+        $n = [int]$Matches[1]
+        $rest = $Matches[2]
+        $ip = $null
+        $ms = '*'
+        if ($rest -match '((?:\d{1,3}\.){3}\d{1,3})') { $ip = $Matches[1] }
+        if ($rest -match '(\d+)\s*ms') { $ms = [int]$Matches[1] }
+        $name = if ($ip) { $ip } else { '*' }
+        $hops += @{ hop = $n; host = $name; ip = $ip; ms = $ms }
+      }
+    }
+    if (-not $hops.Count) {
+      return @{ ok = $false; message = 'Keine Hops. Firewall oder Timeout.'; host = $h }
+    }
+    @{ ok = $true; host = $h; hops = $hops }
+  } catch {
+    @{ ok = $false; message = $_.Exception.Message; host = $h }
   }
 }
 
@@ -282,6 +360,7 @@ try { $script:Tcp.Start() } catch {
   [Windows.Forms.MessageBox]::Show("Port $Port belegt. Andere Jarvis-PC-App schließen.")
   exit 1
 }
+$script:FwOk = Ensure-Firewall
 
 function Add-CopyRow($parent, [int]$y, [string]$caption, [string]$value) {
   $lab = New-Object Windows.Forms.Label
@@ -311,29 +390,51 @@ function Add-CopyRow($parent, [int]$y, [string]$caption, [string]$value) {
 $form = New-Object Windows.Forms.Form
 $form.Text = 'Jarvis PC'
 $form.Width = 510
-$form.Height = 640
+$form.Height = 700
 $form.StartPosition = 'CenterScreen'
 $form.FormBorderStyle = 'FixedSingle'
 $form.MaximizeBox = $false
 
 $ips = Get-LanIps
-$copyIp = if ($ips.Count) { $ips[0] } else { '' }
+$copyIp = ''
+foreach ($cand in $ips) {
+  if (Test-LikelyLan $cand) { $copyIp = $cand; break }
+}
+if (-not $copyIp -and $ips.Count) { $copyIp = $ips[0] }
+$otherIps = @($ips | Where-Object { $_ -ne $copyIp })
 
 $panel = New-Object Windows.Forms.Panel
-$panel.SetBounds(8, 8, 478, 540)
+$panel.SetBounds(8, 8, 478, 590)
 $panel.AutoScroll = $true
 $form.Controls.Add($panel)
 
 $y = 4
 $head = New-Object Windows.Forms.Label
-$head.SetBounds(8, $y, 440, 36)
-$head.Text = "Bereit auf Port $Port. Gleiches WLAN. Ein Klick kopiert ins Clipboard."
+$head.SetBounds(8, $y, 440, 48)
+$head.Text = "Bereit auf Port $Port. Gelbe IP ins Handy (192.168 oder 10, nicht 172/WSL). Fenster offen lassen."
 $panel.Controls.Add($head)
-$y = 44
-$y = Add-CopyRow $panel $y 'IP (ins Handy)' $copyIp
+$y = 54
+$y = Add-CopyRow $panel $y 'IP ins Handy (WLAN/LAN)' $copyIp
 $y = Add-CopyRow $panel $y 'Port' "$Port"
 $y = Add-CopyRow $panel $y 'Token' $Token
-$y += 8
+if ($otherIps.Count) {
+  $alt = New-Object Windows.Forms.Label
+  $alt.SetBounds(8, $y, 450, 32)
+  $alt.Text = "Weitere IPs, falls Test scheitert: $($otherIps -join ', ')"
+  $panel.Controls.Add($alt)
+  $y += 34
+}
+$fw = New-Object Windows.Forms.Button
+$fw.SetBounds(8, $y, 448, 32)
+$fw.Text = if ($script:FwOk) { 'Firewall: Port 18790 ist frei' } else { 'Firewall erlauben (einmal Admin)' }
+$fw.Add_Click({
+  Start-FirewallElevated
+  $script:FwOk = Ensure-Firewall
+  $this.Text = if ($script:FwOk) { 'Firewall: Port 18790 ist frei' } else { 'Firewall erlauben — noch blockiert' }
+  $script:LastAction = if ($script:FwOk) { 'Firewall ok.' } else { 'Firewall noch zu. Als Admin erlauben.' }
+})
+$panel.Controls.Add($fw)
+$y += 40
 $sub = New-Object Windows.Forms.Label
 $sub.SetBounds(8, $y, 440, 20)
 $sub.Text = 'Prompts — kopieren, im Handy-Chat einfügen'
@@ -360,7 +461,7 @@ $allBtn.Add_Click({
 $panel.Controls.Add($allBtn)
 
 $status = New-Object Windows.Forms.Label
-$status.SetBounds(16, 552, 460, 40)
+$status.SetBounds(16, 604, 460, 48)
 $status.Text = $script:LastAction
 $form.Controls.Add($status)
 
@@ -376,6 +477,9 @@ $serveTimer.Add_Tick({
     while ($script:Tcp.Pending()) {
       $client = $script:Tcp.AcceptTcpClient()
       try {
+        $from = '?'
+        try { $from = $client.Client.RemoteEndPoint.ToString() } catch {}
+        $script:LastAction = "Anfrage von $from"
         $client.ReceiveTimeout = 12000
         $stream = $client.GetStream()
         $deadline = [DateTime]::UtcNow.AddSeconds(2)
@@ -397,6 +501,7 @@ $serveTimer.Add_Tick({
         if ($raw -match '(?im)^X-Jarvis-Token:\s*(\S+)') { $auth = $Matches[1].Trim() }
         elseif ($raw -match '(?im)^Authorization:\s*Bearer\s+(\S+)') { $auth = $Matches[1].Trim() }
         if ($auth -ne $Token) {
+          $script:LastAction = "Token falsch von $from"
           Write-Http $client @{ ok = $false; message = 'Token falsch. Den Code aus diesem Fenster eintragen.' }
           $client.Close(); continue
         }

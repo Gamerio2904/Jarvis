@@ -1,26 +1,28 @@
-# Sprint 124 — Einstellungen-Backup (`2.30.0`)
+# Sprint 124 — Fahrmodus-Bühne (`6.30`) **PLAN**
 
 | Feld | Wert |
 |------|------|
-| Status | **CODE** |
-| Priorität | **MUST** |
-| Ziel-Version | **`2.30.0`** |
-| Quelle | PO: Backup für alle Felder, in die man etwas einträgt, plus Einstellungen allgemein — runterladen und hochladen |
-| Voraussetzung | Sideload `2.29.2` |
+| Status | **CODE** (in App `6.50.0`) |
+| Priorität | nach Motion-Tokens `6.10` |
+| Ziel-Version | `6.30.0` (Research `6.31` HUD vs Tiles) |
+| Quelle | PO: CarPlay-Animation massiv, flüssig |
+| Plan | [`45-next.md`](../45-next.md) |
+| Baut auf | `DriveMode.tsx`, `drive-map.ts`, `nav-speak.ts`, intern nicht Apple |
 
 ## Ziel
 
-Einstellungen komplett als JSON-Datei sichern und auf demselben oder einem neuen Handy wiederherstellen. Keine Chats, kein Gedächtnis, kein Kalender, keine Einkaufsliste.
+Internes Overlay sieht aus wie ein HUD, bleibt ehrlich: Chevron und Zoom aus echter Route/GPS. Spotify-Tab pulsiert nur bei laufendem Track. Navi-Ansagen Native. Am Steuer weiter Native-TTS-Race.
 
 ## Must
 
-| ID | Inhalt | Done wenn |
-|----|--------|-----------|
-| B1 | Export | Einstellungen → Allgemein → Sichern → Runterladen schreibt JSON (Keys, Hosts, TV-Token, Steckdosen, Schalter) |
-| B2 | Import | Hochladen mit Bestätigung überschreibt alle Settings; unbekannte Keys ignoriert |
-| B3 | Hinweis | UI sagt Datei nicht teilen; eigener Weckton gilt nur auf dem Gerät, das ihn gewählt hat |
-| A1 | APK | `releases/Jarvis.apk` versionName `2.30.0` versionCode `23000` |
+| ID | Inhalt |
+|----|--------|
+| F1 | Glas-HUD + Manöver-Chevron aus `nextManeuver`, keine erfundene Spur |
+| F2 | Tile-Load darf HUD nicht einfrieren (`6.31`) |
+| F3 | Spotify-Artwork-Glow nur wenn `playing` |
+| F4 | Overlay bleibt Karte außer Spotify-Tab — wie CODE |
+| F5 | Reduced-motion: Chevron statisch, Zahlen bleiben |
 
-## Won’t
+## Won’t (dieser Sprint)
 
-Chats/Memory/Kalender/Listen im Backup. Neues Settings-Thema. Cloud-Sync.
+Apple CarPlay. Erfundene Navigation. Live-Kamera der Straße. Sideload.

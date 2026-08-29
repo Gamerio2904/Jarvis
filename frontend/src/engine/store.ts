@@ -1,7 +1,7 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import { isDebugChatTitle } from './test-copy.ts'
 
-export const APP_VERSION = '2.30.0'
+export const APP_VERSION = '6.90.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -148,6 +148,45 @@ export type Settings = {
   last_step_utterance: string
   last_medium: string
   last_list_json: string
+  hud_force: boolean
+  hud_hidden: boolean
+  hud_accent: 'green' | 'amber'
+  hud_modules_json: string
+  hud_view: 'tiles' | 'body' | 'globe'
+  last_body_organ: string
+  last_globe_focus: string
+  last_globe_look: string
+  last_globe_tour_json: string
+  last_globe_brief: string
+  globe_tour_on: boolean
+  last_eye_line: string
+  last_ground_json: string
+  last_hops_json: string
+  last_trace_host: string
+  last_news_line: string
+  last_warn_line: string
+  last_fx_line: string
+  last_sport_line: string
+  last_outlook_line: string
+  last_outlook_json: string
+  last_outlook_notified: string
+  outlook_watch: boolean
+  outlook_interrupt: boolean
+  outlook_fred_key: string
+  taxi_app: string
+  chain_json: string
+  last_taxi_json: string
+  drive_interrupt: string
+  drive_second_tel: string
+  own_tel: string
+  watchdog: boolean
+  last_interrupt_json: string
+  last_watchdog_fp: string
+  gemini_tts_voice: string
+  tts_voice_jarvis: string
+  tts_voice_friday: string
+  face: string
+  last_backup_at: string
   home_lat: string
   home_lon: string
   home_radius_m: string
@@ -171,6 +210,7 @@ export type Settings = {
   model_default: string
   fallback_model: string
   routing_mode: string
+  setup_dismissed: boolean
   version: string
 }
 
@@ -227,6 +267,45 @@ export const DEFAULT_SETTINGS: Settings = {
   last_step_utterance: '',
   last_medium: '',
   last_list_json: '',
+  hud_force: false,
+  hud_hidden: false,
+  hud_accent: 'green',
+  hud_modules_json: '',
+  hud_view: 'tiles',
+  last_body_organ: 'brain',
+  last_globe_focus: '',
+  last_globe_look: '',
+  last_globe_tour_json: '',
+  last_globe_brief: '',
+  globe_tour_on: false,
+  last_eye_line: '',
+  last_ground_json: '',
+  last_hops_json: '',
+  last_trace_host: '',
+  last_news_line: '',
+  last_warn_line: '',
+  last_fx_line: '',
+  last_sport_line: '',
+  last_outlook_line: '',
+  last_outlook_json: '',
+  last_outlook_notified: '',
+  outlook_watch: false,
+  outlook_interrupt: false,
+  outlook_fred_key: '',
+  taxi_app: 'call',
+  chain_json: '',
+  last_taxi_json: '',
+  drive_interrupt: 'hud',
+  drive_second_tel: '',
+  own_tel: '',
+  watchdog: false,
+  last_interrupt_json: '',
+  last_watchdog_fp: '',
+  gemini_tts_voice: '',
+  tts_voice_jarvis: '',
+  tts_voice_friday: '',
+  face: 'jarvis',
+  last_backup_at: '',
   home_lat: '',
   home_lon: '',
   home_radius_m: '250',
@@ -250,6 +329,7 @@ export const DEFAULT_SETTINGS: Settings = {
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',
+  setup_dismissed: false,
   version: APP_VERSION,
 }
 
@@ -375,6 +455,18 @@ export async function del(store: string, id: string): Promise<void> {
   const tx = db.transaction(store, 'readwrite')
   tx.objectStore(store).delete(id)
   await txDone(tx)
+}
+
+export async function clearStore(name: string): Promise<void> {
+  const db = await openDb()
+  const tx = db.transaction(name, 'readwrite')
+  tx.objectStore(name).clear()
+  await txDone(tx)
+}
+
+export async function replaceStore<T>(name: string, rows: T[]): Promise<void> {
+  await clearStore(name)
+  for (const row of rows) await put(name, row)
 }
 
 export async function getAll<T>(store: string): Promise<T[]> {

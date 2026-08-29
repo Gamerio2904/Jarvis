@@ -1,31 +1,28 @@
-# Sprint 122 — Kaufmodus Kickoff (`2.20.0` zuerst) **CODE** (in `2.29.0`)
+# Sprint 122 — Motion-Kern + GUI Over-the-top (`6.10`) **PLAN**
 
 | Feld | Wert |
 |------|------|
-| Status | **CODE** (mitgeliefert in `2.29.0`) |
-| Priorität | **MUST** |
-| Ziel-Version | **`2.20.0`** als erste geplante Lieferung; gebündelt in **`2.29.0`** |
-| Quelle | PO: Shopping Mode / Kaufmodus, Overlay, Vergleich, Prospekte, nie Einkaufsliste |
-| Voraussetzung | Reihe `2.3`–`2.19` mitgeliefert |
-| Plan | [`32-next.md`](../32-next.md) |
-| Lieferung | [`sprint-123.md`](./sprint-123.md) |
+| Status | **CODE** (in App `6.50.0`) |
+| Priorität | erste spürbare Fläche nach Leit `6.0` |
+| Ziel-Version | `6.10.0` (Research `6.1`–`6.3` in diesem Sprint) |
+| Quelle | PO: flüssig, hochwertige GUI, Mikrointegration |
+| Plan | [`45-next.md`](../45-next.md) |
+| Baut auf | `index.css` Motion-Tokens, Lage-Split `4.53`, GUI Premium `3.18.1` |
 
 ## Ziel
 
-Die Reihe `2.20`–`2.28` steht im Code (`kauf.ts` / `KaufOverlay.tsx`). Sideload `2.29.0`.
+Ein rAF-/Motion-Budget für Chat, Lage und Overlays. Reduced-Motion und Hidden-Tab. Chat-Chrome: Tool-Chip, Token-Reveal, Composer/Mic-Mikro. Kein neues 3D-Framework.
 
-## Must (Plan)
+## Must
 
-| ID | Inhalt | Done wenn |
-|----|--------|-----------|
-| P1 | `32-next.md` mit Versionen, Konflikt-Tabelle, Adaptern | Docs |
-| P2 | Backlog E26 + Priorität hinter E25 | Docs |
-| P3 | Parser vor der Liste + Overlay ohne Fake-Preise | Sideload `2.29.0` |
+| ID | Inhalt |
+|----|--------|
+| M1 | Spike FPS auf Mittelklasse-Handy: 30 fps Default, 60 nur bei Geste |
+| M2 | Eine 3D-Sicht gleichzeitig; rAF aus wenn Tab hidden |
+| M3 | Reduced-motion: dieselben Daten, keine leere Lage |
+| M4 | Tool-Chip + Lage-Mitlauf (Organ/Pin) ohne zweiten Fetch |
+| M5 | Composer/Wake-Bubble Pulse aus echtem State, nicht Deko-Loop |
 
-## Reihe (nicht dieser Sprint-Code)
+## Won’t (dieser Sprint)
 
-`2.20` Intent+Overlay · `2.21` Suche · `2.22` Preisvergleich · `2.23` Filter/Angebote · `2.24` Vergleich+Empfehlung · `2.25` Merkliste · `2.26` Lokal · `2.27` Prospekte · `2.28` Stimme+Polish
-
-## Won’t
-
-Code in diesem Sprint. In-App-Kauf, Scraping, erfundene Preise, Einkaufsliste umbiegen.
+Körper-Cinematic (123 Globus). Drive-HUD (124). TTS-Picker (125). Sideload. Größeres lokales Modell.

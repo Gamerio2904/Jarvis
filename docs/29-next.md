@@ -1,5 +1,8 @@
 # 29 — WLAN-Steckdosen (`2.1.0`–`2.1.1`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-19: Eigene WLAN-Steckdosen aus Jarvis schalten. Code fertig, lokal im Hausnetz, ehrlich wenn ungepaart.
 
 Reihe davor: [`28-next.md`](./28-next.md). Live in Sideload **`2.2.2`** — [`00-now.md`](./00-now.md).

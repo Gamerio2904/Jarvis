@@ -1,31 +1,28 @@
-# Sprint 105 — Alltag & Welt, Kickoff (`2.3.0` zuerst) **CODE** (in `2.29.0`)
+# Sprint 105 — Alltag & Welt, Kickoff (Docs) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **CODE** (mitgeliefert in `2.29.0`) |
+| Status | **CODE** (Inhalte in `3.0.0`) |
 | Priorität | **MUST** |
-| Ziel-Version | **`2.3.0`** als erste geplante Lieferung; gebündelt in **`2.29.0`** |
-| Quelle | PO: Reihe Unwetter bis Schach, dann „alles bis 2.28 umsetzen“ |
+| Ziel-Version | Welt-Reihe `3.1`–`3.17`, ausgeliefert mit Intelligenz `3.0.0` |
+| Quelle | PO: Reihe Unwetter bis Schach |
 | Voraussetzung | `2.2.2` |
-| Plan | [`31-next.md`](../31-next.md) |
-| Lieferung | [`sprint-123.md`](./sprint-123.md) |
+| Plan | [`31-next.md`](../31-next.md) · [`32-intelligence.md`](../32-intelligence.md) |
 
 ## Ziel
 
-Die Reihe `2.3`–`2.19` steht im Code (`world.ts`). Sideload `2.29.0`.
+Die Welt-Reihe steht und ist gebaut — nach dem Register, nicht in der If-Kette.
 
-## Must (Plan)
+## Must (Plan + Code)
 
 | ID | Inhalt | Done wenn |
 |----|--------|-----------|
-| P1 | `31-next.md` mit Versionen, APIs, Chat-Beispielen | Docs |
-| P2 | Backlog E25 + Priorität | Docs |
-| P3 | Erste Code-Lieferung: DWD-Warnung plus Rest der Reihe | Sideload `2.29.0` |
+| P1 | `31-next.md` Versionen `3.1`–`3.17` | Docs |
+| P2 | Backlog E25 | Docs |
+| P3 | Code in `3.0.0` | Register-Einträge, ehrliche APIs |
 
-## Reihe (nicht dieser Sprint-Code)
-
-`2.3` DWD · `2.4` Ferien · `2.5` Kurs · `2.6` Research · `2.7` Stimme · `2.8` Food Facts · `2.9` Library · `2.10` Bundesliga · `2.11` Sport · `2.12` Garten · `2.13` Himmel · `2.14` Tiere · `2.15` Flüge · `2.16` Recht · `2.17` Haushalt · `2.18` Sensoren · `2.19` Schach
+Register: [`sprint-106.md`](./sprint-106.md).
 
 ## Won’t
 
-Code in diesem Sprint. Alexa, Tuya-Cloud, Tapo, Apple CarPlay, Hacking.
+Alexa, Tuya-Cloud, Tapo, Apple CarPlay, Hacking.
