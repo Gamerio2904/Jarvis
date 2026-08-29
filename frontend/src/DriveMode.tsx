@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
-import {
-  getDriveRoute,
-  getDriveTab,
-  refreshDriveRoute,
-  setDriveTab,
-  snapDriveFix,
-  subscribeDrive,
-  type DriveRoute,
-  type DriveTab,
-} from './engine/drive'
+import { getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from './engine/drive'
+import { readInterrupt, subscribeInterrupt } from './engine/interrupt'
 import {
   TILE_SIZE,
   clampMapZoom,
@@ -28,6 +20,7 @@ import {
   type MapFix,
 } from './engine/drive-map'
 import { formatNavBanner, nextManeuver } from './engine/nav-speak'
+import { isDocumentHidden, prefersReducedMotion } from './engine/motion'
 import { watchDeviceLocation } from './native/geo'
 import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, speakText, stopListen, stopSpeak } from './native/voice'
 import { briefSpeak } from './engine/speak-brief'
@@ -193,6 +186,7 @@ function FollowMap({
       const canvas = canvasRef.current
       const pin = youRef.current
       if (!box || !canvas) return
+      if (isDocumentHidden()) return
       const cssW = box.clientWidth
       const cssH = box.clientHeight
       if (cssW < 8 || cssH < 8) return
@@ -421,6 +415,7 @@ export function DriveMode({
   const [musicBusy, setMusicBusy] = useState(false)
   const [hearMsg, setHearMsg] = useState<string | null>(null)
   const [hearing, setHearing] = useState(false)
+  const [ask, setAsk] = useState(() => readInterrupt())
   const navBusy = useRef(false)
   const listenLock = useRef(false)
   const loggedIn = spotifyLoggedIn()
@@ -430,6 +425,7 @@ export function DriveMode({
     setRoute(getDriveRoute())
     setTab(getDriveTab())
   }), [])
+  useEffect(() => subscribeInterrupt(() => setAsk(readInterrupt())), [])
   useEffect(() => {
     if (here) return
     if (!route) return
@@ -513,8 +509,8 @@ export function DriveMode({
       route.coords,
       pos,
     )
-    if (!nxt) return { arrow: '↑', line: route.dest || 'Wohin?', sub: route.hint || '' }
-    return formatNavBanner(nxt.dir, nxt.meters, nxt.name, nxt.exit)
+    if (!nxt) return { arrow: '↑', line: route.dest || 'Wohin?', sub: route.hint || '', dir: 'straight' as const }
+    return { ...formatNavBanner(nxt.dir, nxt.meters, nxt.name, nxt.exit), dir: nxt.dir }
   }, [here, route])
 
   const km = route && route.meters ? (route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`) : ''
@@ -595,7 +591,8 @@ export function DriveMode({
         </div>
       </header>
       {hud ? (
-        <div className={`drive-hud ${dayTiles() ? 'is-day' : ''}`} aria-live="polite">
+        <div className={`drive-hud ${dayTiles() ? 'is-day' : ''}${prefersReducedMotion() ? ' is-still' : ''}`} aria-live="polite">
+          <span className={`drive-hud-chevron is-${hud.dir}`} aria-hidden />
           <span className="drive-hud-arrow">{hud.arrow}</span>
           <div>
             <strong>{hud.line}</strong>
@@ -604,6 +601,29 @@ export function DriveMode({
           <div className="drive-hud-eta">
             <strong>{route ? `${route.minutes || '—'} Min` : '—'}</strong>
             <span>{km}</span>
+          </div>
+        </div>
+      ) : null}
+      {ask ? (
+        <div className="drive-ask" role="alertdialog" aria-label="Nachfrage">
+          <p>{ask.question}</p>
+          <div className="drive-ask-actions">
+            <button
+              type="button"
+              onClick={() => {
+                void Promise.resolve(onCommand?.('Ja')).finally(() => setAsk(readInterrupt()))
+              }}
+            >
+              Ja
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                void Promise.resolve(onCommand?.('Nein')).finally(() => setAsk(readInterrupt()))
+              }}
+            >
+              Nein
+            </button>
           </div>
         </div>
       ) : null}
@@ -712,7 +732,11 @@ export function DriveMode({
         <button type="button" className={tab === 'map' ? 'is-on' : ''} onClick={() => setDriveTab('map')}>
           Karte
         </button>
-        <button type="button" className={tab === 'spotify' ? 'is-on' : ''} onClick={() => setDriveTab('spotify')}>
+        <button
+          type="button"
+          className={`${tab === 'spotify' ? 'is-on' : ''}${now?.playing ? ' is-playing' : ''}`}
+          onClick={() => setDriveTab('spotify')}
+        >
           Spotify
         </button>
         <button

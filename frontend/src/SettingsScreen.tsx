@@ -4,13 +4,23 @@ import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugT
 import type { Plug } from './api'
 import { copyText } from './copy-text'
 import { ensureDeviceLocation } from './native/geo'
+import { DebugPanel } from './DebugPanel'
+import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
+import { TTS_VOICES } from './engine/tts'
+import { sanitizePcHost } from './engine/pc-host'
 import {
   spotifyLoggedIn,
   spotifyLogout,
   spotifyRedirect,
   startSpotifyLogin,
 } from './engine/spotify'
-import { APP_VERSION } from './engine/store'
+import {
+  applyBackup,
+  asBackup,
+  previewBackup,
+  shareOrDownloadBackup,
+  type BackupPreview,
+} from './engine/backup'
 
 export type SettingsTopic =
   | 'allgemein'
@@ -25,7 +35,10 @@ export type SettingsTopic =
   | 'musik'
   | 'ton'
   | 'forschung'
+  | 'weltlage'
+  | 'hausstand'
   | 'gedaechtnis'
+  | 'debug'
   | 'gefahr'
 
 const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
@@ -41,7 +54,10 @@ const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
   { id: 'musik', label: 'Musik', hint: 'Spotify' },
   { id: 'ton', label: 'Ton', hint: 'Delight' },
   { id: 'forschung', label: 'Netz', hint: 'Suche' },
+  { id: 'weltlage', label: 'Weltlage', hint: 'Ausblick' },
+  { id: 'hausstand', label: 'Hausstand', hint: 'Backup' },
   { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
+  { id: 'debug', label: 'Debug', hint: 'Prompts' },
   { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
 ]
 
@@ -100,6 +116,7 @@ export type SettingsScreenProps = {
   topic: SettingsTopic
   onTopic: (t: SettingsTopic) => void
   onClose: () => void
+  leaving?: boolean
   settings: Settings | null
   settingsBusy: boolean
   patchSetting: (patch: Partial<Settings>) => Promise<void>
@@ -142,6 +159,9 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
+  onDebugSend: (text: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
+  onDebugStart: (title: string) => Promise<string>
+  debugBusy: boolean
 }
 
 export function SettingsScreen(p: SettingsScreenProps) {
@@ -171,6 +191,23 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [plugDraft, setPlugDraft] = useState<Plug>(() => emptyPlug())
   const [locBusy, setLocBusy] = useState(false)
   const [locMsg, setLocMsg] = useState<string | null>(null)
+  const [backupChats, setBackupChats] = useState(false)
+  const [backupBusy, setBackupBusy] = useState(false)
+  const [backupMsg, setBackupMsg] = useState<string | null>(null)
+  const [backupPreview, setBackupPreview] = useState<BackupPreview | null>(null)
+  const [backupPending, setBackupPending] = useState<ReturnType<typeof asBackup>>(null)
+
+  let hudOn: HudId[] = [...HUD_DEFAULT_ON]
+  try {
+    const raw = s?.hud_modules_json
+    if (raw) {
+      const parsed = JSON.parse(raw) as string[]
+      const ids = parsed.filter((id): id is HudId => HUD_CATALOG.some((c) => c.id === id))
+      if (ids.length) hudOn = ids
+    }
+  } catch {
+    hudOn = [...HUD_DEFAULT_ON]
+  }
 
   useEffect(() => {
     setFireHost(s?.tv_fire_host || '')
@@ -203,17 +240,23 @@ export function SettingsScreen(p: SettingsScreenProps) {
   }, [p.onClose])
 
   return (
-    <div className="settings-screen" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div
+      className={`settings-screen${p.leaving ? ' is-leaving' : ''}`}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="settings-title"
+    >
       <aside className="settings-rail" aria-label="Themen">
         <div className="settings-rail-head">
           <span>Themen</span>
         </div>
         <nav className="settings-rail-nav">
-          {TOPICS.map((t) => (
+          {TOPICS.map((t, i) => (
             <button
               key={t.id}
               type="button"
               className={`settings-rail-item ${p.topic === t.id ? 'active' : ''}`}
+              style={{ ['--i' as string]: i }}
               onClick={() => p.onTopic(t.id)}
             >
               <strong>{t.label}</strong>
@@ -227,7 +270,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
         <header className="settings-pane-bar">
           <div>
             <p className="settings-kicker">Einstellungen</p>
-            <h2 id="settings-title">{topic.label}</h2>
+            <h2 key={topic.id} id="settings-title">
+              {topic.label}
+            </h2>
           </div>
           <button type="button" className="settings-close" onClick={p.onClose}>
             Fertig
@@ -235,6 +280,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
         </header>
 
         <div className="settings-pane-body">
+          <div key={p.topic} className="settings-topic-slide">
           {p.topic === 'allgemein' ? (
             <section className="settings-card">
               <h3>Dieses Handy</h3>
@@ -256,12 +302,75 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
+          {p.topic === 'allgemein' ? (
+            <section className="settings-card">
+              <h3>Tablet-Lage</h3>
+              <p className="settings-lead">Ab 900 px Breite: Kacheln neben dem Chat. Composer und Mic bleiben. Oder hier immer an.</p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.hud_force)}
+                  disabled={busy}
+                  onChange={(e) =>
+                    void p.patchSetting({ hud_force: e.target.checked, hud_hidden: !e.target.checked })
+                  }
+                />
+                <span>Lage immer</span>
+              </label>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={s?.hud_accent === 'amber'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ hud_accent: e.target.checked ? 'amber' : 'green' })}
+                />
+                <span>Akzent orange</span>
+              </label>
+              <label className="settings-inline">
+                <span>Sicht</span>
+                <select
+                  value={s?.hud_view || 'tiles'}
+                  disabled={busy}
+                  onChange={(e) => {
+                    const hud_view = e.target.value as 'tiles' | 'body' | 'globe'
+                    void p.patchSetting({
+                      hud_view,
+                      hud_force: hud_view === 'tiles' ? Boolean(s?.hud_force) : true,
+                      hud_hidden: hud_view === 'tiles' ? Boolean(s?.hud_hidden) : false,
+                    })
+                  }}
+                >
+                  <option value="tiles">Kacheln</option>
+                  <option value="body">Körper</option>
+                  <option value="globe">Kugel</option>
+                </select>
+              </label>
+              <p className="settings-hint">Module. Aus = Kachel weg.</p>
+              {HUD_CATALOG.map((m) => (
+                <label key={m.id} className="settings-toggle">
+                  <input
+                    type="checkbox"
+                    checked={hudOn.includes(m.id)}
+                    disabled={busy}
+                    onChange={(e) => {
+                      const next = e.target.checked
+                        ? [...hudOn.filter((id) => id !== m.id), m.id]
+                        : hudOn.filter((id) => id !== m.id)
+                      const ordered = HUD_CATALOG.map((c) => c.id).filter((id) => next.includes(id))
+                      void p.patchSetting({ hud_modules_json: JSON.stringify(ordered) })
+                    }}
+                  />
+                  <span>{m.label}</span>
+                </label>
+              ))}
+            </section>
+          ) : null}
+
           {p.topic === 'modell' ? (
             <section className="settings-card">
               <h3>Lokales Modell</h3>
               <p className="settings-lead">
-                {s?.model_default || 'Qwen2.5 0.5B'} auf diesem Handy (~470 MB). Kleiner als ChatGPT —
-                dafür ohne Cloud.
+                {s?.model_default || 'Qwen2.5 0.5B'} auf diesem Handy (~470 MB). Letzter Fallback, wenn Gemini und Groq fehlen — nicht ChatGPT.
               </p>
               {!p.health?.model_ready && !p.geminiOn ? (
                 <div className="settings-actions">
@@ -286,7 +395,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
           {p.topic === 'cloud' ? (
             <>
               <section className="settings-card">
-                <h3>Gemini (Google)</h3>
+                <h3>Gemini (Google) — Hauptweg</h3>
                 <label className="settings-toggle">
                   <input
                     type="checkbox"
@@ -294,10 +403,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     disabled={busy}
                     onChange={(e) => void p.patchSetting({ gemini_enabled: e.target.checked })}
                   />
-                  <span>Gemini statt lokalem 0.5B</span>
+                  <span>Gemini zuerst (Key nötig)</span>
                 </label>
                 <p className="settings-hint warn">
-                  An = Chat und Fotos gehen zu Google. Nicht privat.
+                  An = Plaudern und Fotos gehen zu Google. Groq und das kleine lokale Modell sind nur Backup. Nicht privat.
                 </p>
                 <label className="settings-field">
                   <span>API-Key</span>
@@ -324,8 +433,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <p className="settings-hint">Key: aistudio.google.com/apikey — nicht teilen.</p>
               </section>
               <section className="settings-card">
-                <h3>Groq (optional)</h3>
-                <p className="settings-hint">Nur wenn Gemini leer oder überlastet ist. Free-Tier ohne Karte.</p>
+                <h3>Groq (Backup)</h3>
+                <p className="settings-hint">Nur wenn Gemini fehlt oder ausfällt. Dann 0,5B. Free-Tier ohne Karte.</p>
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
@@ -406,7 +515,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Mit Gemini-Key: Charon spricht die Antwort. Android nur wenn das Netz nicht rechtzeitig kommt.
+                Gemini-Stimmen-Picker unten. Default Algieba, Friday Kore. Am Steuer gewinnt Tempo — Native zuerst. Navi-Ansagen bleiben Native. Kein ElevenLabs, kein Stimmklon.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>
@@ -415,9 +524,37 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   disabled={busy}
                   onChange={(e) => void p.patchSetting({ voice_tts: e.target.value })}
                 >
-                  <option value="auto">Auto (Gemini wenn an)</option>
+                  <option value="auto">Auto (Gemini wenn Key da)</option>
                   <option value="gemini">Gemini — Netz</option>
                   <option value="system">System — offline</option>
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Jarvis-Stimme</span>
+                <select
+                  value={s?.gemini_tts_voice || s?.tts_voice_jarvis || 'Algieba'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ gemini_tts_voice: e.target.value, tts_voice_jarvis: e.target.value })}
+                >
+                  {TTS_VOICES.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Friday-Stimme</span>
+                <select
+                  value={s?.tts_voice_friday || 'Kore'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ tts_voice_friday: e.target.value })}
+                >
+                  {TTS_VOICES.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
                 </select>
               </label>
               <div className="settings-actions">
@@ -435,14 +572,71 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   disabled={busy}
                   onChange={(e) => p.onWakeWord(e.target.checked)}
                 />
-                <span>Auf „Jarvis“ hören</span>
+                <span>Auf „Jarvis“ oder „Friday“ hören</span>
               </label>
               <p className="settings-hint">
                 Sagen Sie laut „Jarvis“. Es muss eine Meldung „Jarvis hört auf den Namen“ oben
                 stehen. Bildschirm aus und andere Apps: nur der Name. Beenden: Schalter oder die
                 Meldung. Akku: nicht optimieren.
               </p>
+              <label className="settings-field">
+                <span>Am Steuer stören</span>
+                <select
+                  value={s?.drive_interrupt || 'hud'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ drive_interrupt: e.target.value })}
+                >
+                  <option value="hud">HUD und Notify — kein Fake-Anruf</option>
+                  <option value="call">Anruf auf zweite Nummer</option>
+                </select>
+              </label>
+              <label className="settings-field">
+                <span>Dieses Handy (nicht anrufen)</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="off"
+                  spellCheck={false}
+                  key={`own-tel-${s?.own_tel ? 'set' : 'empty'}`}
+                  defaultValue={s?.own_tel || ''}
+                  disabled={busy}
+                  placeholder="eigene Nummer"
+                  onBlur={(e) => void p.patchSetting({ own_tel: e.target.value.trim() })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Zweites Handy (optional)</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="off"
+                  spellCheck={false}
+                  key={`second-tel-${s?.drive_second_tel ? 'set' : 'empty'}`}
+                  defaultValue={s?.drive_second_tel || ''}
+                  disabled={busy}
+                  placeholder="anderes Gerät, nicht dieses"
+                  onBlur={(e) => void p.patchSetting({ drive_second_tel: e.target.value.trim() })}
+                />
+              </label>
+              <p className="settings-hint">
+                Jarvis ruft sich nicht selbst an. Zweite Nummer nur wenn sie sich von diesem Handy unterscheidet.
+              </p>
               {p.shortcutMsg ? <p className="settings-hint">{p.shortcutMsg}</p> : null}
+              <label className="settings-field">
+                <span>Gesicht</span>
+                <select
+                  value={s?.face || 'jarvis'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ face: e.target.value })}
+                >
+                  <option value="jarvis">Jarvis — männlich, Default</option>
+                  <option value="friday">Friday — weiblich, auf Zuruf</option>
+                </select>
+              </label>
+              <p className="settings-hint">
+                Ein Hirn, zwei Gesichter. Friday übernimmt nur nach Name oder diesem Schalter. Wake „Friday“, nicht
+                „Freitag“. Native-Fallback: eine de-DE-Stimme, wenn das Gerät kein Gender hat.
+              </p>
             </section>
           ) : null}
 
@@ -536,6 +730,22 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </label>
               <p className="settings-hint">
                 „Wenn ich zuhause bin …“ braucht gespeichertes Zuhause. Handy muss an sein.
+              </p>
+              <label className="settings-field">
+                <span>Taxi</span>
+                <select
+                  value={s?.taxi_app || 'call'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ taxi_app: e.target.value })}
+                >
+                  <option value="call">Anruf Kontakt Taxi</option>
+                  <option value="uber">Uber öffnen</option>
+                  <option value="freenow">FreeNow öffnen</option>
+                  <option value="ask">Jedes Mal fragen</option>
+                </select>
+              </label>
+              <p className="settings-hint">
+                Jarvis bestellt und bezahlt nicht. Default ist Anruf. Deep-Link nur öffnen.
               </p>
               <div className="settings-actions">
                 <button
@@ -745,11 +955,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>PC im WLAN</h3>
               <p className="settings-lead">
-                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> starten. Jarvis sieht den echten Bildschirm,
-                bewegt die Maus, startet FIFA, bearbeitet Ordner — nur wenn die App läuft.
+                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> doppelklicken. Das graue Fenster offen
+                lassen. IP mit <strong>192.168</strong> oder <strong>10.</strong> — nicht 172 (WSL). Schalter an, dann
+                PC testen.
               </p>
               <p className="settings-hint">
-                Gleiches WLAN. IP und Token stehen im PC-Fenster. Ohne App: nichts behaupten. Löschen nur nach Ja.
+                Gleiches WLAN, kein Gäste-Netz, kein VPN. IP ohne http:// und ohne Port. Firewall im PC-Fenster
+                erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja.
               </p>
               <label className="settings-toggle">
                 <span>PC-Steuerung an</span>
@@ -770,7 +982,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   autoComplete="off"
                   onChange={(e) => setPcHost(e.target.value)}
                   onBlur={() => {
-                    const v = pcHost.trim()
+                    const v = sanitizePcHost(pcHost)
                     setPcHost(v)
                     void p.patchSetting({ pc_host: v })
                   }}
@@ -812,10 +1024,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   className="retry-btn"
                   disabled={busy || pcBusy}
                   onClick={() => {
+                    const host = sanitizePcHost(pcHost)
+                    setPcHost(host)
                     setPcBusy(true)
                     setPcMsg('Prüfe PC…')
                     void p.patchSetting({
-                      pc_host: pcHost.trim(),
+                      pc_host: host,
                       pc_token: pcToken.trim(),
                       pc_port: Number.parseInt(pcPort, 10) || 18790,
                       pc_enabled: true,
@@ -856,6 +1070,18 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   onChange={(e) => void p.patchSetting({ plugs_enabled: e.target.checked })}
                 />
               </label>
+              <label className="settings-toggle">
+                <span>Watchdog Haus</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.watchdog)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ watchdog: e.target.checked })}
+                />
+              </label>
+              <p className="settings-hint">
+                Aus = Ruhe. An = nur Haus-Signale (Steckdose tot, Termin-Kollision). Timer klingeln schon. Kein Fake-Anruf, kein Firmen-Finden.
+              </p>
               {(loadPlugs().length ? loadPlugs() : []).map((plug) => (
                 <div key={plug.id} className="settings-hint" style={{ marginTop: 8 }}>
                   <strong>{plug.name}</strong> · {plug.kind} · {plug.host || 'ohne IP'}
@@ -1410,6 +1636,160 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
+          {p.topic === 'weltlage' ? (
+            <section className="settings-card">
+              <h3>Weltlage</h3>
+              <p className="settings-hint">
+                Ausblick aus öffentlichen Meldungen und Serien. Kein Insider, kein Orakel, kein Kauf-Rat. Ohne
+                FRED-Key keine Rohöl-Zahl — Jarvis erfindet keine.
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.outlook_watch)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ outlook_watch: e.target.checked })}
+                />
+                <span>Watch (holen, wenn die App offen ist)</span>
+              </label>
+              <p className="settings-hint">
+                Zielintervall 20 Minuten. Android Doze hält das oft nicht genauer. Aus = kein stilles Netz im
+                Hintergrund.
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.outlook_interrupt)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ outlook_interrupt: e.target.checked })}
+                />
+                <span>Unterbrechen bei neuer Lage</span>
+              </label>
+              <p className="settings-hint">Nur wenn Watch an. Nur bei neuer Meldung gegenüber dem letzten Stand.</p>
+              <label className="settings-field">
+                <span>FRED-Key (Brent, optional)</span>
+                <input
+                  type="text"
+                  inputMode="text"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  key={`fred-key-${s?.outlook_fred_key ? 'set' : 'empty'}`}
+                  defaultValue={s?.outlook_fred_key || ''}
+                  disabled={busy}
+                  placeholder="Key von fred.stlouisfed.org"
+                  onBlur={(e) => void p.patchSetting({ outlook_fred_key: e.target.value.trim() })}
+                />
+              </label>
+              <p className="settings-hint">Serie DCOILBRENTEU, kostenlos registrieren. Nicht teilen.</p>
+            </section>
+          ) : null}
+
+          {p.topic === 'hausstand' ? (
+            <section className="settings-card">
+              <h3>Hausstand</h3>
+              <p className="settings-lead">
+                Vor dem nächsten Sideload exportieren. Deinstall löscht Keys, Nummern und Erinnerungen. Die Datei
+                enthält API-Keys — nicht in den Chat, nicht nach Git, nicht per Mail.
+              </p>
+              <p className="settings-hint">
+                {s?.last_backup_at
+                  ? `Letzter Export: ${new Date(s.last_backup_at).toLocaleString('de-DE')}`
+                  : 'Noch kein Export auf diesem Gerät.'}
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={backupChats}
+                  disabled={busy || backupBusy}
+                  onChange={(e) => setBackupChats(e.target.checked)}
+                />
+                <span>Chats mitexportieren (kann groß werden)</span>
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || backupBusy}
+                  onClick={() => {
+                    setBackupBusy(true)
+                    setBackupMsg(null)
+                    void shareOrDownloadBackup(backupChats)
+                      .then((msg) => setBackupMsg(msg))
+                      .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
+                      .finally(() => setBackupBusy(false))
+                  }}
+                >
+                  Exportieren
+                </button>
+                <label className="retry-btn" style={{ display: 'inline-flex', alignItems: 'center' }}>
+                  Datei wählen
+                  <input
+                    type="file"
+                    accept="application/json,.json"
+                    hidden
+                    disabled={busy || backupBusy}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0]
+                      e.target.value = ''
+                      if (!file) return
+                      setBackupBusy(true)
+                      setBackupMsg(null)
+                      setBackupPreview(null)
+                      setBackupPending(null)
+                      void file
+                        .text()
+                        .then((text) => {
+                          let parsed: unknown
+                          try {
+                            parsed = JSON.parse(text)
+                          } catch {
+                            setBackupMsg('Keine JSON-Datei.')
+                            return
+                          }
+                          const data = asBackup(parsed)
+                          const prev = previewBackup(parsed)
+                          setBackupPreview(prev)
+                          setBackupPending(data)
+                          setBackupMsg(prev.message)
+                        })
+                        .finally(() => setBackupBusy(false))
+                    }}
+                  />
+                </label>
+              </div>
+              {backupPreview?.ok ? (
+                <p className="settings-hint">
+                  Vorschau: {backupPreview.keys} Keys, {backupPreview.contacts} Nummern, {backupPreview.reminders}{' '}
+                  Erinnerungen, {backupPreview.events} Termine
+                  {backupPreview.chats ? `, ${backupPreview.chats} Chats` : ''}.
+                </p>
+              ) : null}
+              <button
+                type="button"
+                className="retry-btn"
+                disabled={busy || backupBusy || !backupPending}
+                onClick={() => {
+                  if (!backupPending) return
+                  setBackupBusy(true)
+                  void applyBackup(backupPending)
+                    .then((msg) => {
+                      setBackupMsg(msg)
+                      setBackupPending(null)
+                      setBackupPreview(null)
+                    })
+                    .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Import fehlgeschlagen'))
+                    .finally(() => setBackupBusy(false))
+                }}
+              >
+                Überschreiben ja
+              </button>
+              <p className="settings-hint">Ohne diesen Knopf ändert Import nichts.</p>
+              {backupMsg ? <p className="settings-hint">{backupMsg}</p> : null}
+            </section>
+          ) : null}
+
           {p.topic === 'gedaechtnis' ? (
             <section className="settings-card">
               <h3>Was Jarvis über Sie weiß</h3>
@@ -1463,6 +1843,14 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
+          {p.topic === 'debug' ? (
+            <DebugPanel
+              onSend={p.onDebugSend}
+              onStartChat={p.onDebugStart}
+              busy={p.debugBusy}
+            />
+          ) : null}
+
           {p.topic === 'gefahr' ? (
             <section className="settings-card danger-zone">
               <h3>Danger Zone</h3>
@@ -1472,6 +1860,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </button>
             </section>
           ) : null}
+          </div>
         </div>
       </div>
     </div>

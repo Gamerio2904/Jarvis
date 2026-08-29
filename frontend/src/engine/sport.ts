@@ -1,123 +1,141 @@
-import { parseSportIntent } from './sport-parse'
-import { getText } from './http-json'
-import { persistLastList, saveSettings } from './store'
-import type { ToolMeta } from './tools'
+import { getText } from './http-json.ts'
+import { normalizeUtterance } from './utterance.ts'
+import type { ToolMeta } from './tools.ts'
+import { saveSettings } from './store.ts'
 
-export { parseSportIntent } from './sport-parse'
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.19.0 (local.jarvis.app)' }
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.1 (local.jarvis.app)' }
-
-type Match = {
-  team1?: { teamName?: string }
-  team2?: { teamName?: string }
-  matchResults?: Array<{ resultName?: string; pointsTeam1?: number; pointsTeam2?: number }>
-  matchDateTime?: string
-  matchIsFinished?: boolean
-  leagueName?: string
+const TEAMS: Record<string, string> = {
+  vfb: 'Stuttgart',
+  stuttgart: 'Stuttgart',
+  bayern: 'Bayern',
+  münchen: 'Bayern',
+  muenchen: 'Bayern',
+  dortmund: 'Dortmund',
+  bvb: 'Dortmund',
+  leverkusen: 'Leverkusen',
+  frankfurt: 'Frankfurt',
+  leipzig: 'Leipzig',
+  wolfsburg: 'Wolfsburg',
+  gladbach: 'Gladbach',
+  union: 'Union',
+  köln: 'Köln',
+  koeln: 'Köln',
+  mainz: 'Mainz',
+  freiburg: 'Freiburg',
+  augsburg: 'Augsburg',
+  bremen: 'Bremen',
+  hoffenheim: 'Hoffenheim',
+  heidenheim: 'Heidenheim',
+  'st. pauli': 'St. Pauli',
+  pauli: 'St. Pauli',
 }
 
-function tool(action: string, label: string): ToolMeta {
-  return { tool_status: 'executed', tool: 'sport', action, label }
+const LEAGUES: Record<string, string> = {
+  bundesliga: 'bl1',
+  bl1: 'bl1',
+  zweite: 'bl2',
+  '2. liga': 'bl2',
+  bl2: 'bl2',
+  dfb: 'dfb',
+  pokal: 'dfb',
+  champions: 'cl',
+}
+
+export type SportIntent = { league: string; team?: string }
+
+export function parseSportIntent(text: string): SportIntent | null {
+  const t = normalizeUtterance(text.trim())
+  if (!t || t.length > 160) return null
+  const sportish =
+    /\b(bundesliga|spielstand|spielergebnis|wie\s+hat\s+(?:der|die)\s+|ergebnis\s+|dfb[\s-]*pokal|zweite\s+liga)\b/i.test(
+      t,
+    ) ||
+    /\b(vfb|bayern|bvb|dortmund)\b/i.test(t) && /\b(gespielt|gewonnen|ergebnis|spiel)\b/i.test(t)
+  if (!sportish) return null
+  if (/\b(wetter|wecker|timer|fernseh)\b/i.test(t)) return null
+  let league = 'bl1'
+  for (const [k, v] of Object.entries(LEAGUES)) {
+    if (t.toLowerCase().includes(k)) league = v
+  }
+  let team: string | undefined
+  const low = t.toLowerCase()
+  for (const [k, v] of Object.entries(TEAMS)) {
+    if (low.includes(k)) {
+      team = v
+      break
+    }
+  }
+  return { league, team }
 }
 
 export async function handleSport(
-  _conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const intent = parseSportIntent(text)
   if (!intent) return { handled: false }
-  const rows = await loadLeague(intent.league)
-  if (!rows.length) {
+  const matches = await loadMatches(intent.league)
+  if (!matches.length) {
     return {
       handled: true,
-      reply: 'OpenLigaDB liefert gerade keine Spiele. Ich erfinde keinen Stand.',
-      tool: tool('error', 'Sport fehlt'),
+      reply: 'OpenLigaDB liefert gerade keine Spiele. Einen Stand rate ich nicht.',
+      tool: { tool_status: 'error', tool: 'sport', action: 'fetch', label: 'Sport fehlt' },
       lastTool: 'sport',
     }
   }
   const filtered = intent.team
-    ? rows.filter((m) => names(m).some((n) => n.includes(norm(intent.team || '')) || norm(intent.team || '').includes(n)))
-    : rows.filter((m) => m.matchIsFinished).slice(-5)
-  persistLastList(
-    'sport',
-    filtered.slice(0, 6).map((m) => line(m)),
-  )
-  saveSettings({ last_sport_json: JSON.stringify({ at: new Date().toISOString(), league: intent.league }) })
-  if (!filtered.length) {
-    return {
-      handled: true,
-      reply: intent.team
-        ? `Kein Spiel von ${intent.team} in dieser OpenLigaDB-Liste. Ich rate das Ergebnis nicht.`
-        : 'Keine beendeten Spiele in der Liste.',
-      tool: tool('empty', 'Kein Spiel'),
-      lastTool: 'sport',
-    }
-  }
-  const pick = intent.team
-    ? [...filtered].reverse().find((m) => m.matchIsFinished) || filtered[filtered.length - 1]
-    : filtered[filtered.length - 1]
-  const extra = !intent.team && filtered.length > 1 ? ` Weitere: ${filtered.slice(-3, -1).map(short).join('; ')}.` : ''
+    ? matches.filter(
+        (m) =>
+          m.home.toLowerCase().includes(intent.team!.toLowerCase()) ||
+          m.away.toLowerCase().includes(intent.team!.toLowerCase()),
+      )
+    : matches
+  const use = (filtered.length ? filtered : matches).slice(-3).reverse()
+  const line = use
+    .map((m) =>
+      m.done ? `${m.home} ${m.hs}:${m.as} ${m.away}` : `${m.home} gegen ${m.away}, noch kein Stand`,
+    )
+    .join('. ')
+  saveSettings({ last_sport_line: line.slice(0, 220) })
   return {
     handled: true,
-    reply: `${line(pick)} Quelle: OpenLigaDB.${extra}`,
-    tool: tool('score', pick.team1?.teamName || 'Spiel'),
+    reply: `${line}. OpenLigaDB, kein Tipp.`,
+    tool: { tool_status: 'executed', tool: 'sport', action: 'score', label: 'Sport' },
     lastTool: 'sport',
   }
 }
 
-async function loadLeague(league: string): Promise<Match[]> {
-  const year = seasonYear()
-  const urls = [
-    `https://api.openligadb.de/getmatchdata/${league}/${year}`,
-    `https://api.openligadb.de/getmatchdata/${league}`,
-  ]
-  for (const url of urls) {
-    try {
-      const { status, text } = await getText(url, UA)
-      if (status < 200 || status >= 300 || !text) continue
-      const parsed = JSON.parse(text) as unknown
-      if (Array.isArray(parsed) && parsed.length) return parsed as Match[]
-    } catch {
-      /* nächste URL */
-    }
+type Match = { home: string; away: string; hs: number; as: number; done: boolean }
+
+async function loadMatches(league: string): Promise<Match[]> {
+  const year = new Date().getFullYear()
+  const url = `https://api.openligadb.de/getmatchdata/${league}/${year}`
+  try {
+    const { status, text } = await getText(url, UA)
+    if (status < 200 || status >= 300 || !text) return []
+    const data = JSON.parse(text) as unknown
+    const arr = Array.isArray(data) ? data : []
+    return arr
+      .map((row) => {
+        if (!row || typeof row !== 'object') return null
+        const o = row as Record<string, unknown>
+        const home = String(o.team1 && typeof o.team1 === 'object' ? (o.team1 as { teamName?: string }).teamName : '').trim()
+        const away = String(o.team2 && typeof o.team2 === 'object' ? (o.team2 as { teamName?: string }).teamName : '').trim()
+        const results = Array.isArray(o.matchResults) ? o.matchResults : []
+        const last = results[results.length - 1] as { pointsTeam1?: number; pointsTeam2?: number } | undefined
+        if (!home || !away) return null
+        const hs = Number(last?.pointsTeam1)
+        const as = Number(last?.pointsTeam2)
+        return {
+          home,
+          away,
+          hs: Number.isFinite(hs) ? hs : 0,
+          as: Number.isFinite(as) ? as : 0,
+          done: Boolean(o.matchIsFinished) && Number.isFinite(hs),
+        }
+      })
+      .filter((m): m is Match => Boolean(m))
+  } catch {
+    return []
   }
-  return []
-}
-
-function seasonYear(): number {
-  const n = new Date()
-  return n.getMonth() >= 6 ? n.getFullYear() : n.getFullYear() - 1
-}
-
-function names(m: Match): string[] {
-  return [m.team1?.teamName, m.team2?.teamName].filter(Boolean).map((s) => norm(String(s)))
-}
-
-function norm(s: string): string {
-  return s.toLowerCase().replace(/[.\-]/g, ' ').replace(/\s+/g, ' ').trim()
-}
-
-function score(m: Match): string {
-  const end = (m.matchResults || []).find((r) => /end|ende/i.test(String(r.resultName || ''))) || m.matchResults?.[0]
-  if (!end || end.pointsTeam1 == null || end.pointsTeam2 == null) {
-    return m.matchIsFinished ? 'ohne Zahl' : 'noch kein Ergebnis'
-  }
-  return `${end.pointsTeam1}:${end.pointsTeam2}`
-}
-
-function line(m: Match): string {
-  const a = m.team1?.teamName || 'Heim'
-  const b = m.team2?.teamName || 'Gast'
-  const when = m.matchDateTime ? ` ${fmt(m.matchDateTime)}` : ''
-  return `${a} gegen ${b} ${score(m)}.${when}`
-}
-
-function short(m: Match): string {
-  return `${m.team1?.teamName || '?'} ${score(m)} ${m.team2?.teamName || '?'}`
-}
-
-function fmt(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })
 }

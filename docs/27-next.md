@@ -1,5 +1,8 @@
 # 27 — Sprachmodus Tempo (`1.32.1`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-17: Jarvis antwortet im Sprachmodus nicht bzw. viel zu langsam.
 
 Reihe davor: [`26-next.md`](./26-next.md). App vorher: Sideload **`1.32.0`**.

@@ -9,7 +9,8 @@ export type PlaceNav =
   | { kind: 'navigate'; query: string; via: 'zu' | 'nach'; mode?: TravelMode }
   | { kind: 'list' }
   | { kind: 'call'; query: string }
-  | { kind: 'sms'; query: string; body: string }
+  | { kind: 'sms'; query: string; body: string; voiceNote?: boolean }
+  | { kind: 'whatsapp'; query: string; body: string }
   | { kind: 'phone'; name: string; number: string }
   | { kind: 'alias'; name: string; alias: string }
 
@@ -156,6 +157,7 @@ export function parsePlaceRecall(text: string): PlaceRecall | null {
 export function parsePlaceNav(text: string): PlaceNav | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 180) return null
+  if (/^\s*ruf(?:e)?\s+mich\b/i.test(t)) return null
   if (isFuelPlace(t)) return null
   const extra = parseCallOrPhone(t) || parseSms(t) || parseAlias(t) || parseTravelNav(t)
   if (extra) return extra
@@ -191,7 +193,7 @@ const CALL_MAL =
 const CALL_TEL =
   /^\s*telefon(?:at|ier(?:e)?)?\s+(?:mit\s+)?(?:der|dem|die|den|das|meine[nrs]?)?\s*(.+?)\s*$/i
 const SMS =
-  /^\s*(?:schreib(?:e)?(?:\s+mal)?|(?:sende?\s+)?(?:eine?\s+)?(?:sms|kurze?\s*nachricht|nachricht))\s+(?:der|dem|an\s+(?:die|den|das)?\s*)?(.+)$/i
+  /^\s*(?:schreib(?:e)?(?:\s+mal)?|(?:sende?\s+)?(?:eine?\s+)?(?:sms|kurze?\s*nachricht|nachricht)|sprachnachricht)\s+(?:der|dem|an\s+(?:die|den|das)?\s*)?(.+)$/i
 const PHONE =
   /^\s*(?:(?:nummer\s+von|tel(?:efon)?\s+von)\s+(.+?)\s*[:-]\s*(.+)|(.+?)\s*[,:]\s*tel(?:efon)?\s+(.+))\s*$/i
 const PHONE_FOR =
@@ -250,8 +252,7 @@ export function findContactRow(
 function isNameLike(raw: string): boolean {
   const n = normalizePlaceName(raw)
   if (!n || n.length < 2 || n.length > 28) return false
-  if (/^(was|wer|wie|das|es|ich|wir|der|die|wo|wann)$/i.test(n)) return false
-  if (ALIAS_SKIP.test(n) || NOT_ALIAS_WORD.test(n)) return false
+  if (/^(was|wer|wie|das|es|ich|wir|der|die|wo|wann|mir|dir|uns|euch)$/i.test(n)) return false
   return !/\s/.test(n) || isRelationName(n)
 }
 
@@ -297,26 +298,34 @@ export function parseAlias(text: string): PlaceNav | null {
 
 export function parseSms(text: string): PlaceNav | null {
   const t = text.trim()
+  if (/\b(e-?mail|email)\b/i.test(t)) return null
+  const voice = /sprachnachricht/i.test(t)
+  const wa = /whatsapp/i.test(t)
   const m = SMS.exec(t)
   if (!m) return null
-  const rest = (m[1] || '').trim()
+  const rest = (m[1] || '').trim().replace(/\s*auf\s+whatsapp\s*/gi, ' ').replace(/\s+/g, ' ').trim()
   if (!rest) return null
+  const pack = (query: string, body: string): PlaceNav | null => {
+    if (!query) return null
+    if (wa) return { kind: 'whatsapp', query, body }
+    return { kind: 'sms', query, body, voiceNote: voice }
+  }
   const rel = rest.match(
     /^(freundin|freund|bro|mama|papa|mutter|vater|oma|opa|eltern|chef|chefin|schwester|bruder|kollege|kollegin|arbeit)\s+(?:dass\s+)?(.+)$/i,
   )
   if (rel) {
     const query = normalizePlaceName(rel[1])
     const body = rel[2].trim()
-    if (query && body.length >= 2) return { kind: 'sms', query, body }
+    if (query && body.length >= 2) return pack(query, body)
   }
   const named = rest.match(/^([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,24})\s+(?:dass\s+)?(.+)$/)
   if (named) {
     const query = normalizePlaceName(named[1])
     const body = named[2].trim()
-    if (query && isNameLike(query) && body.length >= 2) return { kind: 'sms', query, body }
+    if (query && isNameLike(query) && body.length >= 2) return pack(query, body)
   }
   const only = normalizePlaceName(rest)
-  if (only && isNameLike(only)) return { kind: 'sms', query: only, body: '' }
+  if (only && isNameLike(only)) return pack(only, '')
   return null
 }
 

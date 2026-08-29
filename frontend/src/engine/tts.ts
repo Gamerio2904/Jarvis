@@ -7,12 +7,35 @@ const TTS_MODELS = [
   'gemini-2.5-pro-preview-tts',
 ]
 
-/** Male, informative — one voice, no retry carousel. */
-export const TTS_VOICES = ['Charon'] as const
+/** Male default after 4.34 spike. Charon lost the 500 ms race too often. One voice, no carousel. */
+export const TTS_VOICE = 'Algieba'
+export const TTS_VOICE_FRIDAY = 'Kore'
+export const TTS_VOICES = ['Algieba', 'Kore', 'Charon', 'Puck', 'Fenrir', 'Orus', 'Aoede', 'Zephyr'] as const
 
-/** Charon needs ~2s. Short race made Android win and sound robotic. */
-export const TTS_BUDGET_MS = 2800
-export const TTS_NATIVE_RACE_MS = 2400
+/** Standing: wait for Gemini. Driving: short cap so Native wins. */
+export const TTS_BUDGET_STANDING_MS = 3500
+export const TTS_BUDGET_DRIVE_MS = 700
+export const TTS_NATIVE_RACE_DRIVE_MS = 400
+/** @deprecated use ttsBudgetMs() — kept so old imports do not break. */
+export const TTS_BUDGET_MS = TTS_BUDGET_STANDING_MS
+/** Standing: 0 = do not race Native. Driving uses TTS_NATIVE_RACE_DRIVE_MS. */
+export const TTS_NATIVE_RACE_MS = 0
+
+export function ttsVoiceName(face?: string): string {
+  const s = loadSettings()
+  const who = (face || s.face || 'jarvis').toLowerCase()
+  if (who === 'friday') return (s.tts_voice_friday || '').trim() || TTS_VOICE_FRIDAY
+  return (s.gemini_tts_voice || s.tts_voice_jarvis || '').trim() || TTS_VOICE
+}
+
+export function ttsBudgetMs(inDrive = loadSettings().drive_mode): number {
+  return inDrive ? TTS_BUDGET_DRIVE_MS : TTS_BUDGET_STANDING_MS
+}
+
+export function ttsNativeRaceMs(inDrive = loadSettings().drive_mode): number {
+  if (!inDrive) return 0
+  return TTS_NATIVE_RACE_DRIVE_MS
+}
 
 export function wantGeminiVoice(): boolean {
   const s = loadSettings()
@@ -42,10 +65,12 @@ export async function synthesizeGemini(text: string): Promise<Blob | null> {
   const spoken = spokenForGemini(text)
   if (!spoken) return null
   const started = Date.now()
+  const budget = ttsBudgetMs()
+  const voice = ttsVoiceName()
   for (const model of ttsModelsToTry(loadSettings().gemini_tts_model)) {
-    const left = TTS_BUDGET_MS - (Date.now() - started)
+    const left = budget - (Date.now() - started)
     if (left < 200) break
-    const blob = await tryTts(model, 'Charon', spoken, left)
+    const blob = await tryTts(model, voice, spoken, left)
     if (blob) {
       saveSettings({ gemini_tts_model: model })
       return blob

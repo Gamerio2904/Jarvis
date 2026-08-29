@@ -40,7 +40,7 @@ const OVERPASS = [
 const NO_GPS =
   'Ohne Standort kein Ort in der Nähe. Sagen Sie „aktivieren“ — Android-Abfrage, notfalls App-Einstellungen. Ich rate den Ort nicht.'
 const ASK =
-  'Welcher Ort — Apotheke, Bäcker, Café, Parkplatz, Supermarkt, Drogerie oder Laden? Tanke extra sagen. Öffnungszeiten nur aus der Karte.'
+  'Welcher Ort — Apotheke, Bäcker, Café, Bar, Parkplatz, Supermarkt, Drogerie oder Laden? Tanke extra sagen. Öffnungszeiten nur aus der Karte.'
 
 const FILTER: Record<PoiKind, string> = {
   pharmacy: '["amenity"="pharmacy"]',
@@ -50,6 +50,7 @@ const FILTER: Record<PoiKind, string> = {
   chemist: '["shop"~"^(chemist|drugstore)$"]',
   shop: '["shop"~"^(supermarket|convenience|bakery|chemist|kiosk|greengrocer|butcher)$"]',
   cafe: '["amenity"="cafe"]',
+  bar: '["amenity"="bar"]',
 }
 
 export async function handlePoi(_conversationId: string, text: string): Promise<PoiHit> {
@@ -238,8 +239,8 @@ async function lookupPoi(
   lat: number,
   lon: number,
 ): Promise<{ ok: true; hits: PoiPlace[] } | { ok: false; message: string }> {
-  const radii = kind === 'cafe' ? [3, 8] : [8, 20]
-  const capKm = kind === 'cafe' ? 8 : 20
+  const radii = kind === 'cafe' || kind === 'bar' ? [3, 8] : [8, 20]
+  const capKm = kind === 'cafe' || kind === 'bar' ? 8 : 20
   for (const radKm of radii) {
     const once = await osmOnce(kind, lat, lon, radKm)
     if (!once.ok) {
@@ -302,6 +303,7 @@ async function osmOnce(
 
 function filtersFor(kind: PoiKind): string[] {
   if (kind === 'cafe') return ['["amenity"="cafe"]', '["shop"="bakery"]']
+  if (kind === 'bar') return ['["amenity"="bar"]', '["amenity"="pub"]']
   return [FILTER[kind]]
 }
 

@@ -1,33 +1,27 @@
-# Sprint 106 — Tablet-Modus + Telefon-Stuck (`2.3.0`)
+# Sprint 106 — Intelligenz 3.0 **CODE**
 
 | Feld | Wert |
 |------|------|
 | Status | **CODE** |
 | Priorität | **MUST** |
-| Ziel-Version | **`2.3.0`** |
-| Quelle | PO-Debug: `phone_ask` klebt; PO: Vollbild / Tablet |
+| Ziel-Version | **`3.0.0`** (Welt `3.1`–`3.17` mitgeliefert) |
+| Quelle | PO 2026-08-26: KI intelligenter, Register, geplante Sprints umsetzen |
 | Voraussetzung | `2.2.2` |
-| Plan | PO live, vor DWD |
+| Plan | [`32-intelligence.md`](../32-intelligence.md) · [`31-next.md`](../31-next.md) |
 
 ## Ziel
 
-Nummer-Nachfrage verschluckt keine anderen Befehle mehr. Kontakte per „ist“ und „Nummer für …“. Tablet-Vollbild mit Animation, Name, Befehlen, Bild und Wetter.
+Jarvis 3.0 wählt Tools über Register + Score-Policy. Die bisher geplante Welt-Reihe liegt als Register-Einträge im selben Code.
 
 ## Must
 
 | ID | Inhalt | Done wenn |
 |----|--------|-----------|
-| T1 | `phone_ask` lässt TV, Lautstärke, Café, Fragen durch | `Fernseher an` nach fehlender Nummer steuert den TV |
-| T2 | `Meine Freundin ist Odett` + `Nummer für Freundin +49…` | Alias und Kontakt liegen, `Ruf Odett an` fragt nicht nach einer neuen Nummer |
-| T3 | `Ja` nach Smalltalk startet nicht den letzten TV-Befehl | `rewriteFollowUp('ja', tv)` = null |
-| T4 | `aktiviere fullscreen` | Vollbild-HUD, Animation, hört auf Jarvis |
-| T5 | Foto und Wetter im Vollbild | `zeig das bild`, `zeig das Wetter`, Statuskarte |
-| T6 | Sideload `2.3.0` | versionCode 20300 |
-
-## Probe
-
-`Meine Freundin ist Odett` → `Nummer für Freundin +49…` → `Ruf Odett an` fragt nach dem Anruf, nicht nach der Nummer. Danach `Fernseher an` schaltet den TV, nicht die Nummer. `Wo kann ich jetzt in ein cafe` findet Cafés. `aktiviere fullscreen` füllt den Schirm.
+| I1 | Register, Parse vor Execute, Policy, Konflikte | `route-pick.ts` / `registry.ts` / `chat.ts` |
+| I2 | Gold/Chip-Routing | `test:014`, `test:prompts` |
+| I3 | Welt-Tools DWD bis Schach | Parser + Handler, ehrlich leer |
+| I4 | Docs 3.0 + Verschiebung der Welt-Nummern | `32-intelligence.md`, `31-next.md` |
 
 ## Won’t
 
-DWD, Apple CarPlay, neue TTS-Firma, Tuya-Cloud.
+Embeddings, 0,5B-Function-Calling, Alexa, Tuya-Cloud, Apple CarPlay.

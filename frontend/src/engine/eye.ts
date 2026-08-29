@@ -1,7 +1,7 @@
 import { completeGeminiVision, geminiReady } from './gemini'
-import { addMessage, loadSettings } from './store'
+import { addMessage, loadSettings, saveSettings } from './store'
 import { scrubReply } from './guards'
-import { saveLastEye } from './tablet'
+import { parseGroundIntent } from './ground-parse'
 import type { ToolMeta } from './tools'
 
 export { parseEyeIntent } from './eye-parse'
@@ -34,23 +34,35 @@ export async function fileToJpegDataUrl(file: File): Promise<{ dataUrl: string }
   }
 }
 
-export async function handleEyeAsk(): Promise<{
+export async function handleEyeAsk(text = ''): Promise<{
   handled: boolean
   reply?: string
   tool?: ToolMeta
   lastTool?: string
 }> {
-  if (!geminiReady()) {
-    return {
-      handled: true,
-      reply: 'Dafür Gemini an. Dann Foto-Knopf — das Bild geht zu Google, nicht lokal.',
-      lastTool: 'eye',
-    }
+  const slip = parseGroundIntent(text)
+  const topic = slip?.kind === 'slip' ? slip.topic : null
+  const lines: Record<string, string> = {
+    receipt: 'Foto-Knopf: den Beleg fotografieren. Betrag und Datum lese ich nur vom Bild, nichts erfinden.',
+    paper: 'Foto vom Zettel. Einen Termin lege ich erst an, wenn Sie danach Ja sagen.',
+    wash: 'Foto vom Waschlabel. Ohne Bild nenne ich nur ISO-Zeichen, die Sie sagen.',
+    ean: 'Foto vom Strichcode. Die Zahl geht dann an Open Food Facts, nicht geraten.',
+    desk: `Foto vom Schreibtisch${slip?.kind === 'slip' && slip.query ? ` — wo „${slip.query}“ liegt` : ''}. Keine Überwachung, nur dieses Bild.`,
   }
+  const extra = topic ? lines[topic] : ''
+  if (!geminiReady() && topic !== 'desk') {
+    const reply = extra
+      ? `${extra} Dafür Gemini an — das Bild geht zu Google, nicht lokal. LocateAnything liegt auf dem PC, nicht im Handy.`
+      : 'Dafür Gemini an. Dann Foto-Knopf — das Bild geht zu Google, nicht lokal.'
+    saveSettings({ last_eye_line: reply })
+    return { handled: true, reply, lastTool: 'eye' }
+  }
+  const reply = extra || (geminiReady() ? 'Foto-Knopf unten. Das Bild geht zu Google.' : 'Dafür Gemini an. Dann Foto-Knopf — das Bild geht zu Google, nicht lokal.')
+  saveSettings({ last_eye_line: reply })
   return {
     handled: true,
-    reply: 'Foto-Knopf unten. Das Bild geht zu Google.',
-    tool: { tool_status: 'executed', tool: 'eye', action: 'ask', label: 'Auge' },
+    reply,
+    tool: { tool_status: 'executed', tool: 'eye', action: topic || 'ask', label: 'Auge' },
     lastTool: 'eye',
   }
 }
@@ -70,6 +82,7 @@ export async function readEyeImage(
   }
   if (!geminiReady()) {
     const reply = 'Dafür Gemini an. Das Bild geht dann zu Google — nicht lokal.'
+    saveSettings({ last_eye_line: reply })
     await addMessage(conversationId, 'assistant', reply, {
       tool: { tool_status: 'error', tool: 'eye', action: 'read', label: 'Auge' },
     })
@@ -90,7 +103,7 @@ export async function readEyeImage(
       : 'Lesen Sie nur, was auf dem Bild steht. Deutsch, Siezen, 1–3 Sätze. Nichts erfinden, was nicht zu sehen ist.'
     const text = await completeGeminiVision(prompt, m[2], m[1])
     const reply = scrubReply(text || 'Nichts Lesbares auf dem Bild.')
-    if (dataUrl.startsWith('data:image/')) saveLastEye(dataUrl, reply)
+    saveSettings({ last_eye_line: reply, last_step_tool: 'eye' })
     await addMessage(conversationId, 'assistant', reply, {
       tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'Auge', result: { image: dataUrl } },
     })

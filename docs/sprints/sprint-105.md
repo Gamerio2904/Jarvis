@@ -1,29 +1,27 @@
-# Sprint 105 — Alltag & Welt, Kickoff (`2.4.0` zuerst) **CODE** (geliefert in `2.28.0`)
+# Sprint 105 — Alltag & Welt, Kickoff (Docs) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **CODE** |
+| Status | **CODE** (Inhalte in `3.0.0`) |
 | Priorität | **MUST** |
-| Ziel-Version | **`2.4.0`** geplant; Sideload **`2.28.0`** |
-| Quelle | PO: Reihe Unwetter bis Schach; „Setze das um“ |
-| Voraussetzung | `2.3.0` / `2.21.0` |
-| Plan | [`31-next.md`](../31-next.md) |
+| Ziel-Version | Welt-Reihe `3.1`–`3.17`, ausgeliefert mit Intelligenz `3.0.0` |
+| Quelle | PO: Reihe Unwetter bis Schach |
+| Voraussetzung | `2.2.2` |
+| Plan | [`31-next.md`](../31-next.md) · [`32-intelligence.md`](../32-intelligence.md) |
 
 ## Ziel
 
-Die Reihe `2.4`–`2.20` steht schriftlich. Code: [`sprint-108.md`](./sprint-108.md).
+Die Welt-Reihe steht und ist gebaut — nach dem Register, nicht in der If-Kette.
 
-## Must (Plan)
+## Must (Plan + Code)
 
 | ID | Inhalt | Done wenn |
 |----|--------|-----------|
-| P1 | `31-next.md` mit Versionen, APIs, Chat-Beispielen | Docs |
-| P2 | Backlog E25 + Priorität | Docs |
-| P3 | Code-Lieferung DWD … Schach | Sideload `2.28.0` |
+| P1 | `31-next.md` Versionen `3.1`–`3.17` | Docs |
+| P2 | Backlog E25 | Docs |
+| P3 | Code in `3.0.0` | Register-Einträge, ehrliche APIs |
 
-## Reihe (nicht dieser Sprint-Code)
-
-`2.4` DWD · `2.5` Ferien · `2.6` Kurs · `2.7` Research · `2.8` Stimme · `2.9` Food Facts · `2.10` Library · `2.11` Bundesliga · `2.12` Sport · `2.13` Garten · `2.14` Himmel · `2.15` Tiere · `2.16` Flüge · `2.17` Recht · `2.18` Haushalt · `2.19` Sensoren · `2.20` Schach
+Register: [`sprint-106.md`](./sprint-106.md).
 
 ## Won’t
 

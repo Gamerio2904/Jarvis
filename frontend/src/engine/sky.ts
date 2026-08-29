@@ -1,18 +1,26 @@
-import { moonLine, parseSkyIntent } from './sky-parse'
-import { resolveFix } from './here-fix'
-import { getJson } from './http-json'
-import type { ToolMeta } from './tools'
+import { getJson } from './http-json.ts'
+import { normalizeUtterance } from './utterance.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseSkyIntent } from './sky-parse'
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.19.0 (local.jarvis.app)' }
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.28.1 (local.jarvis.app)' }
+export type SkyIntent = { kind: 'iss' | 'moon' }
 
-function tool(action: string, label: string): ToolMeta {
-  return { tool_status: 'executed', tool: 'sky', action, label }
+export function parseSkyIntent(text: string): SkyIntent | null {
+  const t = normalizeUtterance(text.trim())
+  if (!t || t.length > 140) return null
+  if (/\b(iss|internationale\s+raumstation)\b/i.test(t)) return { kind: 'iss' }
+  if (
+    /\b(mondphase|mond\s+heute|vollmond|neumond|wie\s+ist\s+der\s+mond|zeig(?:e)?\s+(?:mir\s+)?(?:den\s+|die\s+|das\s+)?mond)\b/i.test(
+      t,
+    )
+  ) {
+    return { kind: 'moon' }
+  }
+  return null
 }
 
 export async function handleSky(
-  _conversationId: string,
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const intent = parseSkyIntent(text)
@@ -20,73 +28,55 @@ export async function handleSky(
   if (intent.kind === 'moon') {
     return {
       handled: true,
-      reply: moonLine(),
-      tool: tool('moon', 'Mond'),
+      reply: moonLine(new Date()),
+      tool: { tool_status: 'executed', tool: 'sky', action: 'moon', label: 'Mond' },
       lastTool: 'sky',
     }
   }
-  const pos = await issNow()
-  if (!pos) {
+  const iss = await loadIss()
+  if (!iss) {
     return {
       handled: true,
-      reply: 'Die ISS-Position ist gerade nicht da. Ich schätze den Überflug nicht.',
-      tool: tool('error', 'ISS fehlt'),
+      reply: 'Die ISS-Position ist gerade nicht da. Ich rate nicht.',
+      tool: { tool_status: 'error', tool: 'sky', action: 'iss', label: 'ISS fehlt' },
       lastTool: 'sky',
     }
-  }
-  const here = await resolveFix()
-  let pass = ''
-  if (here.ok) {
-    const next = await issPass(here.lat, here.lon)
-    if (next) pass = ` ${next}`
-    else pass = ' Eine freie Überflug-Zeit habe ich dazu nicht.'
-  } else {
-    pass = ' Für die nächste Sichtbarkeit brauche ich den Standort.'
   }
   return {
     handled: true,
-    reply: `Die ISS steht jetzt bei ${pos.lat.toFixed(1)}° / ${pos.lon.toFixed(1)}°.${pass} Quelle: Open Notify / Where The ISS At.`,
-    tool: tool('iss', 'ISS'),
+    reply: `Die ISS steht bei ${iss.lat.toFixed(1)}° Nord, ${iss.lon.toFixed(1)}° Ost. Where The ISS At, kein Überflug erfunden.`,
+    tool: { tool_status: 'executed', tool: 'sky', action: 'iss', label: 'ISS' },
     lastTool: 'sky',
   }
 }
 
-async function issNow(): Promise<{ lat: number; lon: number } | null> {
+async function loadIss(): Promise<{ lat: number; lon: number } | null> {
   try {
     const { status, json } = await getJson('https://api.wheretheiss.at/v1/satellites/25544', UA)
+    if (status < 200 || status >= 300) return null
     const lat = Number(json.latitude)
     const lon = Number(json.longitude)
-    if (status >= 200 && status < 300 && Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon }
-  } catch {
-    /* Fallback */
-  }
-  try {
-    const { status, json } = await getJson('http://api.open-notify.org/iss-now.json', UA)
-    const pos = json.iss_position && typeof json.iss_position === 'object' ? (json.iss_position as Record<string, unknown>) : {}
-    const lat = Number(pos.latitude)
-    const lon = Number(pos.longitude)
-    if (status >= 200 && status < 300 && Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon }
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+    return { lat, lon }
   } catch {
     return null
   }
-  return null
 }
 
-async function issPass(lat: number, lon: number): Promise<string | null> {
-  try {
-    const { status, json } = await getJson(
-      `https://sat.terrestre.ar/passes/25544?lat=${lat.toFixed(3)}&lon=${lon.toFixed(3)}&limit=1`,
-      UA,
-    )
-    const rows = Array.isArray(json) ? json : Array.isArray((json as { passes?: unknown }).passes) ? (json as { passes: unknown[] }).passes : []
-    const first = rows[0] && typeof rows[0] === 'object' ? (rows[0] as Record<string, unknown>) : null
-    if (status < 200 || status >= 300 || !first) return null
-    const rise = first.rise || first.start || first.aos
-    const when = typeof rise === 'number' ? new Date(rise * (rise < 1e12 ? 1000 : 1)) : rise ? new Date(String(rise)) : null
-    if (!when || Number.isNaN(when.getTime())) return null
-    const clock = when.toLocaleString('de-DE', { weekday: 'short', hour: '2-digit', minute: '2-digit' })
-    return `Nächster berechneter Überflug: ${clock}.`
-  } catch {
-    return null
-  }
+function moonLine(now: Date): string {
+  const synodic = 29.53058867
+  const known = Date.UTC(2000, 0, 6, 18, 14, 0)
+  const age = ((now.getTime() - known) / 86400000) % synodic
+  const a = age < 0 ? age + synodic : age
+  let name = 'zunehmender Mond'
+  if (a < 1.85) name = 'Neumond'
+  else if (a < 5.5) name = 'zunehmende Sichel'
+  else if (a < 9.1) name = 'zunehmender Halbmond'
+  else if (a < 12.8) name = 'zunehmender Mond'
+  else if (a < 16.6) name = 'Vollmond'
+  else if (a < 20.3) name = 'abnehmender Mond'
+  else if (a < 23.9) name = 'abnehmender Halbmond'
+  else if (a < 27.7) name = 'abnehmende Sichel'
+  else name = 'Neumond'
+  return `Mondphase lokal gerechnet: ${name}. Kein Horoskop.`
 }

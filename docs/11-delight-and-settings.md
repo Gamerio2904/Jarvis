@@ -37,6 +37,8 @@ Einstellungen (Vollbild)
 
 Ein Sideload über `2.21.0` lässt Keys, TV und Gespräche liegen — gleiche App-ID. Das ist Speicher, nicht ein zweites Design.
 
+> **Jetzt:** Code **`6.60.0`**. Cloud-Settings: Gemini-Key Hauptweg, Groq Backup. Overlay Gemini zuerst.
+
 ## Versionierung (verbindlich)
 
 | Version | Sprint / Doc | Inhalt |

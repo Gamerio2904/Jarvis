@@ -1,36 +1,25 @@
-# Sprint 108 — Alltag & Welt (`2.28.0`)
+# Sprint 108 — GUI Premium **CODE**
 
 | Feld | Wert |
 |------|------|
 | Status | **CODE** |
 | Priorität | **MUST** |
-| Ziel-Version | **`2.28.0`** (`2.4`–`2.20` mitgeliefert; nach `2.21.0`) |
-| Quelle | PO: „Setze das um“ zur Reihe Alltag & Welt; APK-Paket ungültig |
-| Voraussetzung | `2.21.0` |
-| Plan | [`31-next.md`](../31-next.md) |
+| Ziel-Version | `3.18.1` |
+| Quelle | PO: Overlay-Slides, mergen, APK |
+| Voraussetzung | Code `3.18.0` |
 
 ## Ziel
 
-Die Reihe `2.4`–`2.20` ist gebaut und sideloadbar. versionCode höher als 22100, damit 2.21 sich überschreiben lässt.
+Einstellungen, Stimme, Kalender und Chat-Wechsel gleiten. Lage-Kacheln nacheinander. Reduced-motion bleibt hart.
 
 ## Must
 
 | ID | Inhalt | Done wenn |
 |----|--------|-----------|
-| P1 | DWD-Warnung | `Gibt’s Unwetter?` aus DWD, kein Raten |
-| P2 | Schulferien | `Sind in BW Ferien?` Ferien-API |
-| P3 | EZB-Kurs | `Was ist der Dollar?` Frankfurter.app |
-| P4 | Research härten | Wikipedia/Destatis vor DDG bei Fakten |
-| P5 | Food / Library / Sport / Garten / Himmel / Tiere / Flüge | freie APIs, ehrlich leer |
-| P6 | Recht + Haushalt | Zitat + Link; Waschzeichen fest |
-| P7 | Sensoren + Schach | lokal; Züge legal |
-| P8 | Sideload `2.28.0` | versionCode 22800, signiert |
-| P9 | Patch `2.28.1` stilles Zuhören + Charon | versionCode 22801; kein Pieps bei Stille |
-
-## Probe
-
-`Gibt’s Unwetter?` · `Sind in BW Ferien?` · `Was ist der Dollar?` · `Wie hat der VfB gespielt?` · `Mondphase` · `Kündigungsfrist Wohnung` · `Schach e2e4` · `Wetter heute` · `Steckdose an`.
+| N1 | Overlay bleibt bis Leave-Animation | `useOverlay` |
+| N2 | Settings-Themen, Lage-Kacheln, Thread | CSS slides |
+| N3 | Sideload `3.18.1` | [`apk.md`](../apk.md) |
 
 ## Won’t
 
-Anwalts-Mandat, Giftpilz-Freigabe, Flugpassagiere, Blitzer.de, Play Store.
+Neue Tools. Play Store. iOS.

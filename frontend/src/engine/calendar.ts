@@ -66,18 +66,21 @@ export async function handleCalendar(
   }
 
   if (intent.kind === 'list') {
-    const rows = await eventsOnOrAfter(intent.day)
+    const rows = await eventsInWindow(intent.day, intent.until)
+    const span = intent.label
+      ? intent.label
+      : intent.day
+        ? intent.day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })
+        : 'kommend'
     if (!rows.length) {
       return {
         handled: true,
-        reply: intent.day
-          ? `Keine Termine am ${intent.day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}.`
-          : 'Keine Termine.',
+        reply: intent.until || intent.day ? `Keine Termine ${span}.` : 'Keine Termine.',
       }
     }
     const lines = rows.map((e, i) => `${i + 1}. ${e.title}${e.place ? ` · ${e.place}` : ''} — ${formatDue(new Date(e.start_at))}`)
     persistLastList('calendar', rows.map((e) => e.title))
-    return { handled: true, reply: `Termine:\n${lines.join('\n')}` }
+    return { handled: true, reply: `Termine ${span}:\n${lines.join('\n')}` }
   }
 
   if (intent.kind === 'delete_last') {
@@ -106,18 +109,20 @@ export async function handleCalendar(
   }
 }
 
-async function eventsOnOrAfter(day?: Date): Promise<CalendarEvent[]> {
+async function eventsInWindow(day?: Date, until?: Date): Promise<CalendarEvent[]> {
   const rows = await listEvents()
   if (!day) {
     const start = startOfDay(new Date()).getTime()
     return rows.filter((e) => new Date(e.start_at).getTime() >= start).slice(0, 20)
   }
   const from = startOfDay(day).getTime()
-  const to = from + 86_400_000
-  return rows.filter((e) => {
-    const t = new Date(e.start_at).getTime()
-    return t >= from && t < to
-  })
+  const to = until ? startOfDay(until).getTime() : from + 86_400_000
+  return rows
+    .filter((e) => {
+      const t = new Date(e.start_at).getTime()
+      return t >= from && t < to
+    })
+    .sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
 }
 
 export async function removeEvent(id: string): Promise<void> {

@@ -4,8 +4,7 @@ Dieses Dokument steuert den **Charakter**. Es ist Eingang zu Phase 0 und Abnahme
 
 > Status: **Kern + Stil-Beispiele gesetzt**  
 > Beispiele = **grobe Vorgaben**, keine Copy-Paste-Antworten.  
-> **Live `2.1.0`:** WLAN-Steckdosen lokal. Overlay mit Route auf den Straßen, Kurven/Kreisverkehr auf der Linie. Wetter ohne Raten. Research: Zahlen nur aus Treffern. Satzbildung Film-Jarvis. Ton: ruhig, Understatement, Straight Man. Nur Deutsch und Siezen (`persona.ts`). Sparsam „Master“/„Sir“. Stimme: Gemini Charon bzw. Android Neural.  
-> Keine Filmzitate im Prompt, keine Marvel-Rolle behaupten.
+> **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Ton Siezen, Understatement (`persona.ts`). Stimme: Gemini **Algieba** (stehend), Native am Steuer ([`37-next.md`](./37-next.md)). Friday auf Zuruf, Jarvis Default ([`39-next.md`](./39-next.md)). Smalltalk-Hirn: Gemini zuerst. Identität `Bist du ChatGPT?` canned ohne Modell ([`47-next.md`](./47-next.md)). Keine Filmzitate im Prompt, keine Marvel-Rolle.
 
 ## Kern (fest aus Produktentscheidung)
 
