@@ -179,7 +179,7 @@ Startseite (wenn kein Deep-Link): **sechs große Karten** — Hirn, Stimme, Allt
 
 ### `8.0.0` Leitentscheidung
 
-Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitzer ehrlich, Amazon nur nach GO, Won’t-Liste, Sprint 141.
+Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitzer ehrlich, Amazon nur nach GO, Settings-Gruppen-Tafel, Won’t-Liste, Sprint 141.
 
 ### `8.1.0` Research: Blitzer + Baustelle
 

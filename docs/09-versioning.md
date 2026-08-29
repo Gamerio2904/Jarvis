@@ -389,7 +389,7 @@ Nach `6.50`. NVIDIA-Loop über IndexedDB, MemAgent-Panel, LightMem-Sleep. Kein L
 
 ### `8.0+` — Alltag vom Zettel [`50-next.md`](./50-next.md) **PLAN**
 
-Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitzer nur mit erlaubter Quelle. Amazon Musik nur nach Research-GO. Sideload bleibt **`6.90.0`** bis Hausstand + Gold.
+Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitzer nur mit erlaubter Quelle. Amazon Musik nur nach Research-GO. Settings `8.35`: Gruppen statt 17 Peers. Sideload bleibt **`6.90.0`** bis Hausstand + Gold.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
