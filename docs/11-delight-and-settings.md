@@ -3,6 +3,8 @@
 Spielerei und Begeisterung — **dosiert**, abschaltbar, local-first.  
 Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 
+> **Jetzt:** Code **`6.60.0`**. Cloud-Settings: Gemini-Key Hauptweg, Groq Backup. Overlay Gemini zuerst.
+
 ## Versionierung (verbindlich)
 
 | Version | Sprint / Doc | Inhalt |
@@ -15,6 +17,14 @@ Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 | **`0.7.0`** | Sprint 18 | Jarvis-Moment, Inside-Jokes, Sound, Easter Eggs + flaches Settings |
 
 Reihenfolge bewusst: erst scharfsinnig/verlässlich, dann Delight.
+
+### Live `1.14.0`
+
+Momente/Jokes/Eggs/Sounds existieren in Settings. GUI-Motion in `1.13.0`. Persona siezt. Confirm bei jedem Todo ist **nicht** menschlich — Änderung in `1.16`/`1.19`.
+
+### Geplant `1.19` — menschlicher ([`19-next.md`](./19-next.md))
+
+Eine Morgen-Lage, kurze Sätze, Siezen, kein Pflicht-Disclaimer nach jedem Timer, Folgesatz nach Küchentimer erlaubt. Witze bleiben selten und abschaltbar.
 
 ---
 

@@ -2,6 +2,8 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`.
+
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
 **MoSCoW:** Must / Should / Could / Won’t (für aktuellen Horizont)
@@ -22,7 +24,26 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research, Scores |
 | E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, flaches Settings |
 | E11 | NAS & APK | 2–3 | Compose 24/7 + Sideload-APK — `0.10.x` |
-| E12 | Samsung TV | 5+ | Tizen lokal — `0.11.x` |
+| E12 | Samsung TV | 5+ | Tizen lokal — **`0.14.1`** (ex-`0.11`, on-device) |
+| E14 | Qualität `0.14` | 2 | Bestehendes härten: Latenz, Ton, Memory/Tools — kein neues Feature |
+| E15 | Alltag `1.14`–`1.20` | 5+ | Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Auge — [`19-next.md`](./19-next.md) |
+| E16 | Extra `1.21`–`1.24` | 4 | Nummer, Maps-Modus, Geburtstag, Serie, Widget, Chatsuche — [`20-next.md`](./20-next.md) |
+| E17 | Qualität `1.33`–`1.40` | 5+ | Bestehendes härten: Verstehen, Antworten, Fahrmodus, Phrasen, Flüssigkeit — kein neues Produkt — [`28-next.md`](./28-next.md) |
+| E25 | Alltag & Welt `3.1`–`3.17` | 5+ | DWD bis Schach — [`31-next.md`](./31-next.md) **CODE** (in `3.0.0`) |
+| E26 | Intelligenz `3.0` | 5+ | Register, Parse vor Execute, Score-Policy — [`32-intelligence.md`](./32-intelligence.md) **CODE** |
+| E27 | Jarvis 3.x danach | 5+ | Härten, Tablet-Lage, Traceroute, Telefon-Haus — [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`) |
+| E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **CODE** |
+| E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **CODE** |
+| E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **CODE** |
+| E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **CODE** |
+| E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **CODE** |
+| E33 | Körper intern `4.66` | 5+ | 3D-Schema live/klickbar (Darstellung) + Kacheln, APK; PC nur PC-Organe — [`40-next.md`](./40-next.md) **CODE** |
+| E34 | Lokales Sehen `4.76` | 5+ | Parser CODE; LocateAnything-Gewichte nach 3060-GO — [`41-next.md`](./41-next.md) |
+| E35 | Weltkugel `5.0` | 5+ | Lage-Sicht Erde, GIBS beim Zoom `6.20`/`6.50` — [`43-next.md`](./43-next.md) **CODE** |
+| E36 | Debug-Lauf `5.11` | 5+ | Kategorien, Sequenz, Export mit Verdict — [`44-next.md`](./44-next.md) **CODE** |
+| E45 | Bühne & Hirn `6.50` | 5+ | Gemini Hauptweg, Globus, Motion, Stimme — [`45-next.md`](./45-next.md) **CODE** |
+| E47 | Split / Overlay / Sideload `6.60` | 5+ | Live-Split, Identität, Overlay Gemini zuerst, APK — [`47-next.md`](./47-next.md) **CODE** |
+| E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **PLAN** |
 
 ---
 
@@ -92,7 +113,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
 | S5.1 | Als Nutzer will ich Jarvis 24/7 auf NAS/Mini-Server. | Must | ready | Sprint 34 / `0.10.0` Compose |
-| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Should | ready | Sprint 35 / `0.10.1` |
+| S5.2 | Als Nutzer will ich Config/Chats backupbar haben. | Must | ready | On-Device: [`38-next.md`](./38-next.md) (`4.46`); NAS-`0.10.1` gilt nicht mehr |
 
 ### E6 — Voice Out
 
@@ -195,13 +216,22 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S11.4 | Als Nutzer will ich die APK sideloaden und gegen NAS chatten. | Must | ready | Sprint 37 / `0.10.3` |
 | S11.5 | Als Nutzer will ich First-Run (URL+Token) und bedienbare Tastatur. | Must | ready | Sprint 38–39 / `0.10.4`–`0.10.5` |
 
-### E12 — Samsung TV (`0.11.x`)
+### E12 — Samsung TV (`0.14.1`, ex-`0.11`)
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S12.1 | Als Nutzer will ich den Tizen-TV ein/aus, Lautstärke, Mute, HDMI lokal steuern. | Must | ready | Sprint 40 / `0.11.0` |
-| S12.2 | Als Nutzer will ich ehrliche Fehler wenn WOL/TV tot ist. | Must | ready | Sprint 41 / `0.11.1` |
-| S12.3 | Als Nutzer will ich TV in Settings suchen, koppeln, testen, umbenennen. | Must | ready | Sprint 42 / `0.11.2` |
+| S12.1 | Als Nutzer will ich den Tizen-TV ein/aus, Lautstärke, Mute, HDMI lokal steuern. | Must | done | Sprint 48 / `0.14.1` |
+| S12.2 | Als Nutzer will ich ehrliche Fehler wenn WOL/TV tot ist. | Must | done | Sprint 48 / `0.14.1` |
+| S12.3 | Als Nutzer will ich TV in Settings suchen, koppeln, testen, umbenennen. | Must | done | Sprint 48 / `0.14.1` |
+
+### E14 — Qualität `0.14.0`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S14.1 | Als Nutzer will ich das erste Wort schneller als in `0.13.2`. | Must | done | Sprint 47 / `0.14.0` |
+| S14.2 | Als Nutzer will ich Memory/Tools ohne LLM-Umweg, wenn der Befehl klar ist. | Must | done | Sprint 47 |
+| S14.3 | Als Nutzer will ich ehrliches Recall statt Halluzination. | Must | done | Sprint 47 |
+| S14.4 | Als Nutzer will ich Todos/Notizen in Alltagssprache. | Should | done | Sprint 47 |
 
 ### E13 — LAN-Proxy & APK (`0.12.x`)
 
@@ -226,22 +256,266 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S7.19 | Als Nutzer will ich erweiterte Broken-Siezen-Reparatur (`möchtest Sie` …). | Must | done | Sprint 26 / `0.8.4` |
 | S7.20 | Als Nutzer will ich Eval-Pins älterer Suites unter neuer `0.8.x` grün. | Should | done | Sprint 27 / `0.8.5` |
 
+### E15 — Alltag `1.14`–`1.20`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S15.1 | Als Nutzer will ich ein Gedächtnis, das lokal und mit Gemini denselben Namen kennt. | Must | done | Sprint 66 / `1.14.0` |
+| S15.2 | Als Nutzer will ich Personen an Orte (Freundin, Praxis, Zuhause). | Must | done | Sprint 67 / `1.15.0` |
+| S15.3 | Als Nutzer will ich „lösch das“ / „und um 16“ auf das letzte Tool, nicht nur Wetter. | Must | done | Sprint 66 / `1.14.0` |
+| S15.4 | Als Nutzer will ich zwei Befehle in einem Satz. | Must | done | Sprint 66 / `1.14.0` |
+| S15.5 | Als Nutzer will ich eine Einkaufsliste ohne Ja/Nein pro Artikel. | Must | done | Sprint 68 / `1.24.0` |
+| S15.6 | Als Nutzer will ich Losgehen: fehlt der Zahnarzt-Ort, nachfragen, dann Route. | Must | done | Sprint 69 / `1.24.0` |
+| S15.6a | Als Nutzer will ich Ort und Termin in einem Satz. | Must | done | Sprint 69 / `1.24.0` |
+| S15.7 | Als Nutzer will ich „wenn ich zuhause bin …“. | Must | done | Sprint 70 / `1.24.0` |
+| S15.8 | Als Nutzer will ich eine kurze Tageslage und einen menschlicheren Ton (Siezen). | Must | done | Sprint 71 / `1.24.0` |
+| S15.9 | Als Nutzer will ich ein Foto vorlesen lassen, nur mit Gemini. | Must | done | Sprint 72 / `1.24.0` |
+| S15.10 | Als Nutzer will ich Suche mit Quellen oder ehrlicher Absage, kein Raten. | Must | done | Sprint 66 / `1.14.0` |
+
+### E16 — Extra-Alltag `1.21`–`1.24`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S16.1 | Als Nutzer will ich eine Nummer an der Person und „Ruf … an“. | Should | done | Sprint 73 / `1.24.0` |
+| S16.2 | Als Nutzer will ich Maps zu Fuß oder mit der Bahn. | Should | done | Sprint 73 / `1.24.0` |
+| S16.3 | Als Nutzer will ich Geburtstage merken. | Should | done | Sprint 74 / `1.24.0` |
+| S16.4 | Als Nutzer will ich Wochenserien ohne Geofence (Müll). | Should | done | Sprint 74 / `1.24.0` |
+| S16.5 | Als Nutzer will ich im Widget Termin/Einkauf/Route nach Hause. | Should | done | Sprint 75 / `1.24.0` |
+| S16.6 | Als Nutzer will ich „das zweite“ nach einer Liste. | Should | done | Sprint 75 / `1.24.0` |
+| S16.7 | Als Nutzer will ich alte Gespräche lokal suchen. | Should | done | Sprint 76 / `1.24.0` |
+
+### E17 — Qualität `1.33`–`1.40`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S17.1 | Als Nutzer will ich bei der Suche eine Antwort plus Links, bei Produkten Preise oder ehrlichen Vergleich. | Must | done | Sprint 86 / `1.33.0` |
+| S17.2 | Als Nutzer will ich Jarvis-Antworten mit Kontext und Variation, ohne erfundenen Namen. | Must | ready | Sprint 87 / `1.34.0` |
+| S17.3 | Als Nutzer will ich den Fahrmodus zuverlässig: Replan, eine Cue, lesbares HUD. | Must | ready | Sprint 88 / `1.35.0` |
+| S17.4 | Als Nutzer will ich mehr Phrasen zu denselben Tools, ohne Smalltalk-Diebstahl. | Must | ready | Sprint 89 / `1.36.0` |
+| S17.5 | Als Nutzer will ich Chat, Wake-Word, Voice und TV ohne Ruckler. | Must | ready | Sprint 90 / `1.37.0` |
+| S17.6 | Als Nutzer will ich den vorhandenen Speicher natürlich abfragen und korrigieren. | Must | ready | Sprint 91 / `1.38.0` |
+| S17.7 | Als Nutzer will ich Zuhören/Sprechen ohne verschluckte Treffer und Doppel-Stimme. | Must | ready | Sprint 92 / `1.39.0` |
+| S17.8 | Als Nutzer will ich keine Fake-Erfolge und stabile Regressionen. | Must | ready | Sprint 93 / `1.40.0` |
+
+### E18 — Tanke E10 `1.41`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S18.1 | Als Fahrer will ich im Chat oder Fahrmodus die nächste und die günstigste Tanke mit E10-Preis sehen und dorthin navigieren. | Must | done | Sprint 94 / `1.41.0` |
+| S18.2 | Als Nutzer will ich wissen, wo ich bin, und die Standortfreigabe anstoßen können — unabhängig von Tanke und für Tanke. | Must | done | Sprint 95 / `1.42.0` |
+
+### E19 — CarPlay Alltag `1.43`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S19.1 | Als Fahrer will ich nacktes „Carplay“ und „öffne das overlay“ ohne Gemini-Lügen. | Must | done | Sprint 96 / `1.43.0` |
+| S19.2 | Als Fahrer will ich Restweg, nächsten POI, Arbeit/Freundin, Akku und Anruf/SMS ehrlich. | Must | done | Sprint 96 / `1.43.0` |
+
+### E20 — Filme + Rabatt `1.44`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S20.1 | Als Nutzer will ich IMDb/Rotten-Tomatoes-Noten und wo ein Film in DE gratis läuft — ohne erfundene Streams. | Must | done | Sprint 97 / `1.44.0` |
+| S20.2 | Als Nutzer will ich die Rabatt-Suche beim Online-Shopping an- und ausschalten können. | Must | done | Sprint 97 / `1.44.0` |
+
+### E21 — Öffnungszeiten `1.45`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S21.1 | Als Nutzer will ich wissen, ob Apotheke, Bäcker oder Laden jetzt auf hat — nur aus der Karte. | Must | done | Sprint 98 / `1.45.0` |
+
+### E22 — Anruf/SMS `1.46`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S22.1 | Als Nutzer will ich Bro/Freundin direkt anrufen und SMS senden — erst nach Nachfrage. | Must | done | Sprint 99 / `1.46.0` |
+
+### E23 — PC live `1.47`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S23.1 | Als Nutzer will ich vom Handy aus den Windows-PC sehen und steuern (FIFA, Maus, Ordner). | Must | done | Sprint 100 / `1.47.0` |
+
+### E24 — Live-Lage auf Nachfrage `1.48`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S24.1 | Als Nutzer will ich Luftqualität und Sonnenaufgang nur wenn ich danach frage. | Must | done | Sprint 101 / `1.48.0` |
+| S24.2 | Als Nutzer will ich Bahn/ÖPNV-Zeiten, ohne dass Jarvis sie erfindet. | Must | done | transport.rest / Transitous |
+| S24.3 | Als Nutzer will ich Nachrichten: national Tagesschau, Ort zuerst Tagesschau sonst Netz. | Must | done | nichts erfinden |
+| S24.4 | Als Nutzer will ich wissen, ob heute in DE Feiertag ist. | Must | done | Nager.Date |
+
+### E26 — Intelligenz `3.0`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S26.1 | Vertrag + Register + Pilot Wetter/Kalender/TV | Must | done | `3.0.0` CODE — Parse vor Execute |
+| S26.2 | Score-Policy, Konflikttabelle, last_step-Prior | Must | done | `3.0.0` CODE — kein Cosine |
+| S26.3 | Alle bestehenden Tools im Register | Must | done | `3.0.0` CODE — If-Kette tot |
+| S26.4 | Nachfrage bei Gleichstand + Gold-Set-Eval | Must | done | `3.0.0` CODE — `test:014` / `test:prompts` |
+
+### E25 — Alltag & Welt `3.1`–`3.17`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S25.1 | Unwetter / DWD-Warnung | Must | done | `3.1.0` CODE (in `3.0.0`) — DWD JSON, kein Raten |
+| S25.2 | Schulferien DE | Must | done | `3.2.0` CODE (in `3.0.0`) |
+| S25.3 | Wechselkurse EZB | Must | done | `3.3.0` CODE (in `3.0.0`) |
+| S25.4 | Research: belegte DE-Zahlen zuerst | Must | done | `3.4.0` CODE (in `3.0.0`) — Wikipedia + Destatis |
+| S25.5 | Stimme spricht Uhr/Warnung/Ferien | Should | done | `3.5.0` CODE (in `3.0.0`) — vorhandenes TTS |
+| S25.6 | Open Food Facts (Foto/Produkt) | Must | done | `3.6.0` CODE (in `3.0.0`) |
+| S25.7 | Open Library (Buch) | Must | done | `3.7.0` CODE (in `3.0.0`) |
+| S25.8 | Bundesliga-Stand | Must | done | `3.8.0` CODE (in `3.0.0`) — OpenLigaDB |
+| S25.9 | Weitere Sport-Ergebnisse | Should | done | `3.9.0` CODE (in `3.0.0`) |
+| S25.10 | Garten & Pflanzen bestimmen | Must | done | `3.10.0` CODE (in `3.0.0`) — keine Essbarkeit |
+| S25.11 | Himmel: ISS, Mond | Must | done | `3.11.0` CODE (in `3.0.0`) |
+| S25.12 | Tiere draußen bestimmen | Must | done | `3.12.0` CODE (in `3.0.0`) |
+| S25.13 | Flüge überm Haus | Must | done | `3.13.0` CODE (in `3.0.0`) — OpenSky |
+| S25.14 | Recht Alltag (Gesetzestext + Link) | Must | done | `3.14.0` CODE (in `3.0.0`) — kein Anwalts-Rat |
+| S25.15 | Haushalt (Waschsymbol, Fleck) | Should | done | `3.15.0` CODE (in `3.0.0`) |
+| S25.16 | Schritte, Barometer, Handy-Sensoren | Must | done | `3.16.0` CODE (in `3.0.0`) — ehrlich leer |
+| S25.17 | Schach im Chat | Should | done | `3.17.0` CODE (in `3.0.0`) |
+
+---
+
+### E27 — Jarvis 3.x danach `3.0.1`–`3.45`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S27.1 | Sideload 3.0 + Gold-Set | Must | done | `3.0.1` CODE (in `3.18.0`; APK noch `2.2.2`) |
+| S27.2 | Follow-up / „und“ / Parser-Score / Nachfrage | Must | done | `3.18`–`3.22` CODE |
+| S27.3 | Tablet-Lage modular (Wetterstatistik, Spotify, …) | Must | done | `3.23`–`3.32` CODE — Reel-3-Layout, Jarvis-Farben |
+| S27.4 | Traceroute ehrlich | Should | done | `3.33` CODE — PC ja, Handy kein ICMP |
+| S27.5 | Telefon-Haus, Sprachnotiz, Gespräch lokal | Should | done | `3.34`–`3.37` CODE — keine Fremden-Hotline |
+| S27.6 | Foto, Stimme, Sensor, Schach-UI, Slots, Härten | Should | done | `3.38`–`3.45` CODE |
+
+### E28 — Weltlage / Vorhersage `4.0`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S28.0 | Leitentscheidung + Researchphasen | Must | done | [`35-next.md`](./35-next.md) **CODE** |
+| S28.1 | Research Ingest/Serien/Methode/Architektur | Must | done | `4.1`–`4.4` in Docs, Execute in `4.0.0` |
+| S28.2 | Ausblick auf Nachfrage (Weltlage, warum Öl, Benzin) | Must | done | `outlook.ts` — Quellen + Serie + Szenario |
+| S28.3 | Unterbrechen opt-in | Should | done | Watch Default aus |
+| S28.4 | Aktien-Gewissheit | Won’t | parked | kein „fällt morgen“ |
+
+### E29 — Alltagskette Stimme `4.19`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S29.0 | Leitentscheidung + Research | Must | done | [`36-next.md`](./36-next.md) **CODE** |
+| S29.1 | Bar/Kneipe POI | Must | done | `poi.ts` Overpass |
+| S29.2 | Sprachnachricht als SMS v1 | Must | done | Nachfrage, kein stilles WhatsApp |
+| S29.3 | Taxi öffnen oder anrufen | Must | done | `taxi.ts` — nie „ist bestellt“ |
+| S29.4 | Drei Aufträge, Confirm-Schlange | Must | done | ein Ja = ein Schritt |
+| S29.5 | WhatsApp still senden | Won’t | parked | Business-API / Accessibility |
+
+### E30 — Gespräch / Stimme / Steuer `4.33`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S30.0 | Leitentscheidung; `3.19` Kalender nicht neu | Must | done | [`37-next.md`](./37-next.md) **CODE** |
+| S30.1 | Film-nähere Gemini-TTS, free | Must | done | Algieba, Budget stehend vs. Fahrt |
+| S30.2 | Reel: finden/beheben/eine Frage | Must | done | Watchdog + HUD am Steuer |
+| S30.3 | Eingehender Anruf von Jarvis | Won’t | parked | kein Fake-Call, kein Retell |
+
+### E31 — Hausstand `4.46`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S31.0 | Leitentscheidung Backup + Tippfehler | Must | done | [`38-next.md`](./38-next.md) **CODE** |
+| S31.1 | Export JSON (Keys, Nummern, Erinnerungen, Settings) | Must | done | `backup.ts` Share/Download |
+| S31.2 | Import ein Tippen nach Deinstall | Must | done | Confirm, dann gleicher Stand |
+| S31.3 | Composer DE + Jarvis-Wörterbuch | Must | done | Keys-Felder ohne Spellcheck |
+| S31.4 | STT pickHeard + Rückfrage Bar/Bahn | Must | done | `repairSpeech` / `pickHeard` |
+| S31.5 | Jarvis-Cloud-Sync | Won’t | parked | Datei bleibt beim User |
+
+### E32 — Zwei Gesichter + Tablet `4.53`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S32.0 | Leitentscheidung Faces + HUD | Must | done | [`39-next.md`](./39-next.md) **CODE** |
+| S32.1 | Jarvis Default, Friday Zuruf, zwei Stimmen | Must | done | `face.ts` — ein Register, ein Gedächtnis |
+| S32.2 | Wake Friday, nicht Freitag | Must | done | Kalender `Freitag` bleibt Termin |
+| S32.3 | Lage neben Chat, Uhr tickt, Poll split | Must | done | Composer+Mic sichtbar |
+| S32.4 | Marvel-Friday / zwei Modelle | Won’t | parked | Hausname, ein Hirn |
+| S32.5 | Auto Work-Stunden → Face | Won’t | parked | nur explizit |
+
+### E33 — Körper intern `4.66`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S33.0 | Leitentscheidung Körper in der Lage | Must | done | [`40-next.md`](./40-next.md) **CODE** |
+| S33.1 | 3D-Schema live, Tippen = Kachel nicht Tool | Must | done | Canvas-Schema in der Lage |
+| S33.2 | Nur echte Store-Zustände | Must | done | Pulse aus Werten, kein Fake |
+| S33.3 | PC-Auge/PC-Hand ehrlich ohne BAT | Must | done | Kachel „PC nicht verbunden“ |
+| S33.4 | Mails/Instagram/Marvel-Mesh | Won’t | parked | Darstellung intern |
+
+### E34 — Lokales Sehen `4.76`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S34.0 | Leitentscheidung LocateAnything am PC | Must | done | Parser CODE; Vision ehrlich aus bis 3060-GO |
+| S34.1 | 3060/Windows Spike GO/NO-GO | Must | idea | `4.77` |
+| S34.2 | `klick …` über Box, unsicher = kein Klick | Must | idea | `4.82` |
+| S34.3 | Screenshot deuten ohne Google wenn Vision ready | Should | idea | `4.83` |
+| S34.4 | Handy-Foto zum PC, sonst Gemini/Absage | Should | idea | `4.84` |
+| S34.5 | 3B-VLM auf dem Handy / Face-ID / APK-Gewichte | Won’t | parked | Sprint 72 bleibt |
+| S34.6 | `wo ist` / `zeig` Overlay ohne Klick | Must | ready | `4.87` Sprint 117 |
+| S34.7 | Fenster/Icons zählen | Should | ready | `4.88` |
+| S34.8 | In ein gefundenes Feld tippen | Must | ready | `4.89` |
+| S34.9 | Nachklick-Delta | Should | ready | `4.90` |
+| S34.10 | Beleg lokal lesen | Must | ready | `4.91` |
+| S34.11 | Zettel → Termin nach Ja | Should | ready | `4.92` |
+| S34.12 | TV-Foto → Taste | Should | ready | `4.93` |
+| S34.13 | Schreibtisch wo liegt X | Should | ready | `4.94` Sprint 118 |
+| S34.14 | Waschlabel ISO | Should | ready | `4.95` |
+| S34.15 | Zwei GUI-Schritte mit Confirm | Should | ready | `4.97` |
+| S34.16 | Computer-Use / Live-AR / Banking | Won’t | parked | |
+| S34.17 | EAN-Box → Open Food Facts | Should | ready | `4.96` |
+
+### E36 — Debug-Lauf `5.11`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S36.0 | Leitentscheidung Debug-Lauf | Must | done | [`44-next.md`](./44-next.md) **CODE** |
+| S36.1 | Klickboxen mehrerer Kategorien | Must | done | nicht nur ein Select |
+| S36.2 | Start öffnet neues Gespräch | Must | done | Alltagschat unangetastet |
+| S36.3 | Prompts inkl. Welt/Face fest im Code | Must | done | `test-copy.ts` |
+| S36.4 | Download JSON+TXT mit Soll/Ist | Must | done | `5.16` in `5.11` |
+| S36.5 | Auto-Ja / Debug-Cloud / Hausstand-Import im Lauf | Won’t | parked | |
+
+### E48 — Globus-Briefing `6.70`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S48.0 | Leitentscheidung Stadt → Satellit → Briefing | Must | done | [`48-next.md`](./48-next.md) PLAN |
+| S48.1 | Fly-to in GIBS, Stamp mit Datum | Must | ready | Zoom ≥ 3.8, kein „Live“ |
+| S48.2 | Politik aus Tagesschau-Ort / outlook-Tag | Must | ready | leer = weglassen |
+| S48.3 | Markt nur Hormus/OPEC/EZB-Kette | Must | ready | kein Aktien-Orakel |
+| S48.4 | Anomalie nur DWD/ISS/EONET-GO | Should | ready | keine erfundenen Hotspots |
+| S48.5 | Ihr Plan nur Kalender/Memory-Treffer | Should | ready | kein Bildschirm-Mitschnitt |
+| S48.6 | Live-Sat / Street-View / Überwachung / Geheim-Feed | Won’t | parked | |
+| S48.7 | Welt-Tour Parser `auf der Welt passiert` | Must | ready | `outlook` + Kugel, nicht `news` |
+| S48.8 | Länder-Glow + Seite + Zoom-Kette max 5 | Must | ready | weltpolitisch-Filter |
+| S48.9 | Reduced-Motion Tour ohne Auto-Flug | Should | ready | Glow+Liste |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Sprint 31** (`0.9.3`) — Memory Quality Hotfix
-2. **Sprint 32** (`0.9.4`) — Assist Continuity & Siezen
-3. **Sprint 33** (`0.9.5`) — Tools Hygiene & Confirm-UX
-4. **Sprints 34–39** (`0.10.0`–`0.10.5`) — NAS-Compose **Parking**
-5. **Sprints 40–42** (`0.11.0`–`0.11.2`) — Samsung-TV lokal
-6. **Sprint 43** (`0.12.0`) — NAS native + Reverse-Proxy & APK
-7. TTS / `1.0.0` — **PO-Kommando**
-8. Mail / Fire TV / Alexa / Play Store / Docker-NAS — **Parking**
+1. Globus-Briefing [`48-next.md`](./48-next.md) `6.70`
+2. LocateAnything-Sidecar nach 3060-GO [`41-next.md`](./41-next.md) — Parser schon CODE
+3. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
+4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+
+Sideload **`6.90.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing sind **CODE**.
+
+Komplette Liste: [`42-planned.md`](./42-planned.md).
 
 ## Parking Lot (Ideen, nicht geplant)
 
-- Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus
+- Mehrere Jarvis-„Stimmungs“-Presets über Eggs hinaus (Face Jarvis/Friday ist [`39-next.md`](./39-next.md), nicht Stimmungsslider)
 - Export der Chat-History
 - Komplett offline ohne jegliche Modell-Downloads nach Initial-Setup (Policy später)
 - Richere Joke-Harvest-UX / Research-LLM-Synth mit Citation-Gate
