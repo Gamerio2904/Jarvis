@@ -16,7 +16,6 @@ App-Code und Sideload stehen auf **`6.90.0`**. LocateAnything-Gewichte nicht in 
 - Dateiname: `Jarvis.apk`
 - versionName `6.90.0` · versionCode `69000`
 - App-ID `local.jarvis.app`
-- Dateigröße etwa 20 MB. Wenn der Browser eine HTML-Seite speichert, den **Raw**-Link oben nutzen, nicht die GitHub-Vorschau.
 
 1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).
 2. App öffnen → **Gemini-Key eintragen** (oder Fertig — Tools ohne Modell).

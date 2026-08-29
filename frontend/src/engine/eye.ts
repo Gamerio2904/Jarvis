@@ -71,8 +71,7 @@ export async function readEyeImage(
   conversationId: string,
   dataUrl: string,
 ): Promise<{ reply: string }> {
-  await addMessage(conversationId, 'user', 'Foto', dataUrl.startsWith('data:image/') ? { image: dataUrl } : null)
-  if (dataUrl.startsWith('data:image/')) saveLastEye(dataUrl)
+  await addMessage(conversationId, 'user', 'Foto')
   if (dataUrl.startsWith('error:')) {
     const reply = dataUrl.slice(6) || 'Bild nicht lesbar.'
     await addMessage(conversationId, 'assistant', reply, {
@@ -105,7 +104,7 @@ export async function readEyeImage(
     const reply = scrubReply(text || 'Nichts Lesbares auf dem Bild.')
     saveSettings({ last_eye_line: reply, last_step_tool: 'eye' })
     await addMessage(conversationId, 'assistant', reply, {
-      tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'Auge', result: { image: dataUrl } },
+      tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'Auge' },
     })
     return { reply }
   } catch (err) {

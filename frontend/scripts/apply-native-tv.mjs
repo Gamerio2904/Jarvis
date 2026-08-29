@@ -67,7 +67,6 @@ const voiceDest = join(android, 'app/src/main/java/app/jarvis/voice')
 mkdirSync(voiceDest, { recursive: true })
 copyFileSync(join(voiceSrc, 'JarvisVoicePlugin.java'), join(voiceDest, 'JarvisVoicePlugin.java'))
 copyFileSync(join(voiceSrc, 'JarvisWakeService.java'), join(voiceDest, 'JarvisWakeService.java'))
-copyFileSync(join(voiceSrc, 'JarvisListenAudio.java'), join(voiceDest, 'JarvisListenAudio.java'))
 mkdirSync(join(android, 'app/src/main/res/xml'), { recursive: true })
 copyFileSync(join(voiceSrc, 'shortcuts.xml'), join(android, 'app/src/main/res/xml/shortcuts.xml'))
 copyFileSync(join(voiceSrc, 'jarvis_strings.xml'), join(android, 'app/src/main/res/values/jarvis_strings.xml'))
@@ -121,7 +120,6 @@ const perms = [
   'android.permission.FLASHLIGHT',
   'android.permission.CALL_PHONE',
   'android.permission.SEND_SMS',
-  'android.permission.ACTIVITY_RECOGNITION',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {
@@ -278,18 +276,6 @@ const gradlePath = join(android, 'app/build.gradle')
 let gradle = readFileSync(gradlePath, 'utf8')
 gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${versionCode}`)
 gradle = gradle.replace(/versionName\s+"[^"]+"/, `versionName "${versionName}"`)
-if (!gradle.includes('v1SigningEnabled')) {
-  gradle = gradle.replace(
-    /buildTypes\s*\{/,
-    `signingConfigs {
-        debug {
-            v1SigningEnabled true
-            v2SigningEnabled true
-        }
-    }
-    buildTypes {`,
-  )
-}
 if (!gradle.includes('archivesBaseName')) {
   gradle = gradle.replace(
     /android\s*\{\s*\n\s*namespace/,

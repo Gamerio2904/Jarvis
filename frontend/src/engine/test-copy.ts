@@ -189,9 +189,6 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Bro anrufen', text: 'Bro anrufen' },
       { label: 'Nachricht Bro', text: 'Nachricht an Bro ich bin da' },
       { label: 'Geburtstag', text: 'Mama hat am 3. März Geburtstag' },
-      { label: 'Freundin ist', text: 'Meine Freundin ist Odett' },
-      { label: 'Nummer für', text: 'Nummer für Freundin +49 1512 9733243' },
-      { label: 'Ruf Odett', text: 'Ruf Odett an' },
     ],
   },
   {

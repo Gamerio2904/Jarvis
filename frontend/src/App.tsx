@@ -52,9 +52,7 @@ import { Lage } from './Lage'
 import { WakeBubble } from './WakeBubble'
 import { useOverlay } from './overlay'
 import { closeDrive, subscribeDrive } from './engine/drive'
-import { closeTablet, openTablet, subscribeTablet } from './engine/tablet'
-import { checkOfferWatch } from './engine/offer'
-import { createFolder, listFolders, loadSettings, type ChatFolder } from './engine/store'
+import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
 import { tickOutlookWatch } from './engine/outlook-watch'
 import { tickWatchdog } from './engine/watchdog'
@@ -165,11 +163,7 @@ function ToolChip({
         </a>
       ) : null}
       {typeof tool.result?.image === 'string' && String(tool.result.image).startsWith('data:image/') ? (
-        <img
-          className={tool.tool === 'eye' || tool.tool === 'tablet' ? 'chat-photo' : 'pc-shot'}
-          alt={tool.tool === 'eye' || tool.tool === 'tablet' ? 'Foto' : 'PC-Bildschirm'}
-          src={String(tool.result.image)}
-        />
+        <img className="pc-shot" alt="PC-Bildschirm" src={String(tool.result.image)} />
       ) : null}
     </span>
   )
@@ -293,8 +287,6 @@ function IconSend() {
 
 function App() {
   const [conversations, setConversations] = useState<Conversation[]>([])
-  const [folders, setFolders] = useState<ChatFolder[]>([])
-  const [folderFilter, setFolderFilter] = useState<string | 'all'>('all')
   const [activeId, setActiveId] = useState<string | null>(null)
   const activeIdRef = useRef<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -324,7 +316,6 @@ function App() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
-  const [tabletOpen, setTabletOpen] = useState(false)
   const [wakeListening, setWakeListening] = useState(false)
   const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
@@ -404,19 +395,6 @@ function App() {
       if (on) {
         setCalendarOpen(false)
         setSidebarOpen(false)
-        setTabletOpen(false)
-      }
-    })
-  }, [])
-
-  useEffect(() => {
-    return subscribeTablet(() => {
-      const on = Boolean(loadSettings().tablet_mode)
-      setTabletOpen(on)
-      if (on) {
-        setCalendarOpen(false)
-        setSidebarOpen(false)
-        setVoiceOpen(false)
       }
     })
   }, [])
@@ -492,13 +470,7 @@ function App() {
   }, [settings?.wake_word])
 
   useEffect(() => {
-    const off = onWakeHit((utt) => {
-      if (loadSettings().tablet_mode) {
-        setTabletOpen(true)
-        return
-      }
-      openVoiceMode(utt || '')
-    })
+    const off = onWakeHit((utt) => openVoiceMode(utt || ''))
     let hideTimer = 0
     const vis = () => {
       window.clearTimeout(hideTimer)
@@ -832,7 +804,6 @@ function App() {
     }
     const s = await getSettings()
     if (s.drive_mode) setDriveOpen(true)
-    if (s.tablet_mode) setTabletOpen(true)
     if (s.wake_word) {
       try {
         await startWakeWord()
@@ -857,12 +828,6 @@ function App() {
     try {
       const list = await listConversations()
       setConversations(list)
-      try {
-        setFolders(await listFolders())
-      } catch {
-        /* Ordner optional */
-      }
-      void checkOfferWatch()
       if (list[0]) {
         await openConversation(list[0].id)
       }
@@ -1063,9 +1028,6 @@ function App() {
           }
           if (payload.research) void refreshAudits()
           if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
-          if (payload.tool?.tool === 'folder') {
-            void listFolders().then(setFolders)
-          }
           if (payload.tool?.tool === 'calendar') {
             if (payload.tool.action === 'open') {
               setCalendarOpen(true)
@@ -1078,15 +1040,6 @@ function App() {
               setDriveOpen(true)
               setCalendarOpen(false)
               setSidebarOpen(false)
-            }
-          }
-          if (payload.tool?.tool === 'tablet' || loadSettings().tablet_mode) {
-            if (payload.tool?.action === 'close') setTabletOpen(false)
-            else {
-              setTabletOpen(true)
-              setCalendarOpen(false)
-              setSidebarOpen(false)
-              setVoiceOpen(false)
             }
           }
           maybeOpenSettingsFromReply(payload.assistant_message.content)
@@ -1208,13 +1161,6 @@ function App() {
           if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
             if (payload.tool?.action === 'close') setDriveOpen(false)
             else setDriveOpen(true)
-          }
-          if (payload.tool?.tool === 'tablet' || loadSettings().tablet_mode) {
-            if (payload.tool?.action === 'close') setTabletOpen(false)
-            else {
-              setTabletOpen(true)
-              setVoiceOpen(false)
-            }
           }
           maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
@@ -1383,18 +1329,6 @@ function App() {
         >
           Jarvis hören
         </button>
-        <button
-          type="button"
-          className={`memory-toggle ${tabletOpen ? 'active' : ''}`}
-          onClick={() => {
-            openTablet()
-            setTabletOpen(true)
-            setSidebarOpen(false)
-            setVoiceOpen(false)
-          }}
-        >
-          Tablet / Vollbild
-        </button>
 
         <button
           type="button"
@@ -1416,43 +1350,8 @@ function App() {
           Einstellungen
         </button>
 
-        <div className="folder-row">
-          <button
-            type="button"
-            className={`folder-chip ${folderFilter === 'all' ? 'active' : ''}`}
-            onClick={() => setFolderFilter('all')}
-          >
-            Alle
-          </button>
-          {folders.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              className={`folder-chip ${folderFilter === f.id ? 'active' : ''}`}
-              onClick={() => setFolderFilter(f.id)}
-            >
-              {f.title}
-            </button>
-          ))}
-          <button
-            type="button"
-            className="folder-chip"
-            onClick={() => {
-              const title = window.prompt('Neuer Ordner')
-              if (!title?.trim()) return
-              void createFolder(title.trim()).then(async (row) => {
-                setFolders(await listFolders())
-                setFolderFilter(row.id)
-              })
-            }}
-          >
-            +
-          </button>
-        </div>
         <div className="chat-list">
-          {conversations
-            .filter((c) => folderFilter === 'all' || c.folder_id === folderFilter)
-            .map((c, i) => (
+          {conversations.map((c, i) => (
             <button
               key={c.id}
               type="button"
@@ -1506,15 +1405,6 @@ function App() {
               setDriveOpen(false)
             }}
             onCommand={(text) => sendVoiceTurn(text)}
-          />
-        ) : null}
-        {tabletOpen ? (
-          <TabletMode
-            onClose={() => {
-              closeTablet()
-              setTabletOpen(false)
-            }}
-            onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
           />
         ) : null}
         <div className="topbar">
@@ -1598,9 +1488,6 @@ function App() {
                     </div>
                   ) : null}
                   <div className="bubble">
-                    {typeof m.meta?.image === 'string' && String(m.meta.image).startsWith('data:image/') ? (
-                      <img className="chat-photo" alt="" src={String(m.meta.image)} />
-                    ) : null}
                     <div className="bubble-text">{m.content}</div>
                     {m.role === 'assistant' && m.meta?.tool ? (
                       <ToolChip
@@ -1730,7 +1617,7 @@ function App() {
               </button>
             </div>
           </div>
-          {!voiceOpen && !tabletOpen ? (
+          {!voiceOpen ? (
             <WakeBubble
               listening={wakeListening}
               onTap={() => {

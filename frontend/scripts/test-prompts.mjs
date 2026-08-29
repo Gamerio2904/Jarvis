@@ -18,7 +18,6 @@ import { allTestCopyTexts } from '../src/engine/test-copy.ts'
 function route(text, ctx = {}) {
   text = normalizeUtterance(text)
   if (isHelpCommand(text)) return 'help'
-  if (parseAmazonIntent(text)) return 'amazon'
   if (parseShopDiscountIntent(text)) return 'discount'
   if (parseOrdinalFollowUp(text)) return 'ordinal'
   const id = pickRouteFromCtx({

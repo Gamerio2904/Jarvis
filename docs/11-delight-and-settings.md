@@ -1,41 +1,7 @@
 # 11 — Delight, Easter Eggs & Einstellungen
 
-Spielerei und Begeisterung — **dosiert**, abschaltbar, local-first.
-
-## Live `2.28.0` — Einstellungen
-
-Das **neue Design** aus `1.25.0` ([`sprint-77.md`](./sprints/sprint-77.md)) ist der Stand, nicht das flache 7er-Panel von `0.7.0`.
-
-| Was | Stand |
-|-----|--------|
-| Fläche | Einstellungen füllen den **ganzen Schirm** (Overlay). Nicht mehr der Dump in der Sidebar. |
-| Leiste | Links **Themen**. Rechts der Inhalt. Fertig oder Escape schließt. |
-| Sidebar | Nur Chats + eine Statuszeile. Gedächtnis sitzt unter Einstellungen. |
-| Tests | **Weg.** `2.2.1` hatte Kopierfelder, `2.2.2` hat sie aus der APK genommen. |
-| Delight / Eggs | Unter **Ton**, kein eigenes Thema mehr. |
-| Neue Marke | `2.21`–`2.28` härten Graphik, **kein** zweites Settings-Design. |
-
-### Themenleiste (jetzt)
-
-```text
-Einstellungen (Vollbild)
-├─ Allgemein     Version, Modell-Hinweis, TV-Kurzstatus
-├─ Modell        lokales Qwen, Download
-├─ Cloud         Gemini, Groq, Tankerkönig, OMDb
-├─ Sprache       Hören, Wake-Word, Shortcut
-├─ Wecker        Ton, Timer, Erinnerungen
-├─ Ort           GPS, letzter Ort, Wetter
-├─ Fernseher     Tizen + Fire TV
-├─ PC            JarvisPC im WLAN
-├─ Haus          Steckdosen, Ventilator
-├─ Musik         Spotify (Fahrmodus)
-├─ Ton           UI-Sounds + Delight + Easter Eggs
-├─ Netz          Research, Rabatt-Suche, Audit
-├─ Gedächtnis    Liste, Filter, löschen
-└─ Gefahr        Memory löschen (Bestätigung)
-```
-
-Ein Sideload über `2.21.0` lässt Keys, TV und Gespräche liegen — gleiche App-ID. Das ist Speicher, nicht ein zweites Design.
+Spielerei und Begeisterung — **dosiert**, abschaltbar, local-first.  
+Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
 
 > **Jetzt:** Code **`6.60.0`**. Cloud-Settings: Gemini-Key Hauptweg, Groq Backup. Overlay Gemini zuerst.
 
@@ -44,19 +10,21 @@ Ein Sideload über `2.21.0` lässt Keys, TV und Gespräche liegen — gleiche Ap
 | Version | Sprint / Doc | Inhalt |
 |---------|--------------|--------|
 | `0.4.0` | Sprint 8 | Gedächtnis (Voraussetzung für Jokes) |
-| `0.4.1`–`0.4.3` | Sprints 9–11 | Memory-Fixes/Polish/Hotfix |
-| `0.5.0`–`0.5.2` | Sprints 12–14 | Router + Hotfix/Polish |
-| `0.6.0`–`0.6.2` | Sprints 15–17 | Research |
-| `0.7.0` | Sprint 18 | Delight + **altes** flaches Panel (≤7 Anker) — **ersetzt** |
-| `1.13.0` | Sprint 63 | Chat-GUI fest, Motion |
-| `1.25.0` | Sprint 77 | **Einstellungen Vollbild + Themenleiste** — gilt |
-| `2.2.2` | Sprint 104 | Tests-Thema wieder raus |
-| `2.28.0` | Sprint 108 | gleiche Settings-GUI; Alltag & Welt im Chat |
-| `2.28.1` | Sprint 108 Patch | Sprache: still zuhören, Charon statt Klick-TTS |
+| `0.4.1`–`0.4.3` | Sprints 9–11 | Memory-Fixes/Polish/Hotfix (empfohlen vor Delight) |
+| `0.5.0`–`0.5.2` | Sprints 12–14 | Router + Hotfix/Polish (empfohlen) |
+| `0.6.0` | Sprint 15 | Research — **vorher** |
+| `0.6.1`–`0.6.2` | Sprints 16–17 | Research Hotfix/Polish (empfohlen) |
+| **`0.7.0`** | Sprint 18 | Jarvis-Moment, Inside-Jokes, Sound, Easter Eggs + flaches Settings |
 
-### Delight im Chat
+Reihenfolge bewusst: erst scharfsinnig/verlässlich, dann Delight.
 
-Momente/Jokes/Eggs/Sounds unter **Ton**. Persona siezt. Morgen-Lage und Timer ohne Pflicht-Disclaimer: `1.19` / [`19-next.md`](./19-next.md), **CODE**.
+### Live `1.14.0`
+
+Momente/Jokes/Eggs/Sounds existieren in Settings. GUI-Motion in `1.13.0`. Persona siezt. Confirm bei jedem Todo ist **nicht** menschlich — Änderung in `1.16`/`1.19`.
+
+### Geplant `1.19` — menschlicher ([`19-next.md`](./19-next.md))
+
+Eine Morgen-Lage, kurze Sätze, Siezen, kein Pflicht-Disclaimer nach jedem Timer, Folgesatz nach Küchentimer erlaubt. Witze bleiben selten und abschaltbar.
 
 ---
 
@@ -77,7 +45,7 @@ Seltene, situative Mikro-Momente: Jarvis wirkt präsent (UI + Text), ohne Gimmic
 - Frequency-Cap: z.B. max. 1–2 / Tag (Setting)
 
 ### Setting
-Einstellungen → **Ton** → Jarvis-Momente = An / Aus (Default: An)
+`Delight → Jarvis-Momente` = An / Aus (Default: An)
 
 ---
 
@@ -93,8 +61,8 @@ Laufende Gags aus **Langzeitgedächtnis** (category `joke` / `pref`), selten und
 - Kein Witz bei ernstem Intent (`task` / `research` / klar schlechte Stimmung)
 
 ### Setting
-Einstellungen → **Ton** → Inside Jokes = An / Aus  
-Einstellungen → **Ton** → Witz-Frequenz = Selten / Normal (zwei Stufen, kein Slider-Wald)
+`Delight → Inside Jokes` = An / Aus  
+`Delight → Witz-Frequenz` = Selten / Normal (zwei Stufen, kein Slider-Wald)
 
 ---
 
@@ -117,8 +85,8 @@ Minimale UI-Sounds für Präsenz — Premium, nicht Arcade.
 - `prefers-reduced-motion` respektiert; separates `prefers-reduced-sound` wenn möglich
 
 ### Setting
-Einstellungen → **Ton** → UI-Sounds An/Aus  
-Einstellungen → **Ton** → Lautstärke niedrig/mittel/hoch
+`Sound → UI-Sounds` An/Aus  
+`Sound → Lautstärke` niedrig/mittel (max. 2–3 Stufen)
 
 ---
 
@@ -137,9 +105,10 @@ Versteckte, aber **in den Einstellungen gelistete** Kommandos — Entdecken + Na
 | `/quellen` | nur sinnvoll wenn Research an |
 
 ### Sichtbarkeit
-Einstellungen → **Ton** (nicht mehr ein eigenes Thema „Easter Eggs“):
-- Toggle: Easter Eggs an (Default An)
+Einstellungen → Abschnitt **„Easter Eggs“**:
+- Liste: Command · Kurzbeschreibung · Beispiel
 - Keine Verschachtelung, keine versteckten Submenüs
+- Toggle: `Easter Eggs aktiv` (Default An)
 
 ### Sicherheit
 - Keine Shell, kein Dateisystem, kein Netz über Eggs
@@ -147,44 +116,50 @@ Einstellungen → **Ton** (nicht mehr ein eigenes Thema „Easter Eggs“):
 
 ---
 
-## 5) UX-Prinzip (weiter gültig)
+## 5) Einstellungs-Update (UX-Prinzip)
 
-Das 7er-Panel von `0.7.0` ist **Historie**. Die Regeln darunter gelten im Vollbild von `1.25.0`:
-
-1. **Ein** Overlay — kein Nesting über 1 Ebene (Thema → Karte → Kontrolle)
-2. Themen links, Inhalt rechts — nicht alles in der Sidebar
+### Leitregeln (verbindlich)
+1. **Eine Settings-Seite** (Panel/Route) — kein Nesting über 1 Ebene
+2. **Max. 5–7 Hauptabschnitte** als flache Anker-Liste
 3. Jede Einstellung: **Label + 1 Satz Hilfe + Kontrolle**
 4. Keine Modal-in-Modal; keine Accordion-Hölle
-5. Sofort speichern
-6. Gefahr klar getrennt (Gedächtnis löschen)
+5. Sofort speichern oder 1× „Speichern“ — nicht beides mischen
+6. Danger-Zonen klar getrennt (Memory löschen, Research)
 
-### Historie `0.7.0` (nicht mehr die GUI)
+### Vorgeschlagene Abschnitte (flach)
 
 ```text
-Allgemein · Modell · Gedächtnis · Delight · Sound · Easter Eggs · Forschung
+Einstellungen
+├─ Allgemein          (Sprache UI, Version-Anzeige)
+├─ Modell             (Default / Fallback / Routing-Modus)
+├─ Gedächtnis         (An/Aus, „Über mich“ öffnen, alles löschen)
+├─ Delight            (Momente, Jokes, Frequenz)
+├─ Sound              (An/Aus, Lautstärke)
+├─ Easter Eggs        (An/Aus + Command-Liste)
+└─ Forschung (Netz)   (Opt-in Research, Allowlist-Hinweis)  [erst wenn Feature da]
 ```
 
 ### Anti-Patterns
-- Tabs in Tabs
+- Tabs in Tabs in Tabs
+- 20 Toggle ohne Gruppierung
 - Versteckte Advanced-Seite mit 50 Flags
-- Einstellungen nur als JSON-Datei
+- Einstellungen nur als JSON-Datei für den PO (Datei darf bleiben, UI ist Primär)
 
 ### Abnahme Settings
-- Zahnrad oder Menü → Einstellungen: ganzer Schirm, Themenleiste
-- Ton: Sounds, Delight, Eggs
+- PO findet Easter-Egg-Liste in &lt; 10 Sekunden
 - Memory löschen braucht Bestätigung
-- Kein Tests-Thema in der APK
+- Kein Abschnitt tiefer als: Seite → Abschnitt → Kontrolle
 
 ---
 
-## Backlog-IDs
+## Backlog-IDs (Vorschlag)
 
-| ID | Story | Stand |
-|----|-------|--------|
-| S8.1 | Jarvis-Momente An/Aus + Frequency-Cap | done, unter Ton |
-| S8.2 | Inside Jokes via Memory-Pins | done, unter Ton |
-| S8.3 | UI-Sounds Send/Receive/Error | done, unter Ton |
-| S8.4 | Easter-Egg-Commands in Settings | done, unter Ton |
-| S8.5 | Settings-GUI | `0.7.0` Panel ersetzt durch `1.25.0` Vollbild |
+| ID | Story |
+|----|-------|
+| S8.1 | Jarvis-Momente An/Aus + Frequency-Cap |
+| S8.2 | Inside Jokes via Memory-Pins |
+| S8.3 | UI-Sounds Send/Receive/Error |
+| S8.4 | Easter-Egg-Commands + Liste in Settings |
+| S8.5 | Flaches Settings-Panel mit Abschnitten oben |
 
-Epic: **E8 Delight & Settings** in [`05-product-backlog.md`](./05-product-backlog.md).
+Epic: **E8 Delight & Settings** (neu im Product Backlog).

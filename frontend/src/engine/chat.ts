@@ -421,15 +421,11 @@ export async function streamChat(
       )
       for (const hit of found) await rememberHit(hit, content)
       const last = found[found.length - 1]
-      publishTabletFromHit(content, last.reply, last.tool)
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
       const joined = replies.join('\n\n')
-      const driving = Boolean(loadSettings().drive_mode)
-      const spoken = driving ? briefSpeak(joined) : joined
-      const out = driving && loadSettings().drive_speak_only ? spoken : joined
-      handlers.onToken?.(out)
-      const assistant = await addMessage(conversationId, 'assistant', out, {
+      handlers.onToken?.(joined)
+      const assistant = await addMessage(conversationId, 'assistant', joined, {
         tool: last.tool,
         research,
       })
@@ -618,7 +614,6 @@ export async function streamChat(
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, content)
     if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
-    publishTabletFromHit(content, final)
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({

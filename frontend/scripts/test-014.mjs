@@ -58,31 +58,7 @@ import {
   parsePlaceWrite,
   parseSms,
   looksLikeBareStreet,
-  isCommOtherCommand,
-  isAliasAnswer,
 } from '../src/engine/places-parse.ts'
-import { isNameOnly, parseTabletIntent } from '../src/engine/tablet-parse.ts'
-import { parseRadarIntent, mentionsMobileRadar } from '../src/engine/radar-parse.ts'
-import { parseDwdIntent } from '../src/engine/dwd-parse.ts'
-import { parseFerienIntent } from '../src/engine/ferien-parse.ts'
-import { parseFxIntent } from '../src/engine/fx-parse.ts'
-import { parseFoodIntent } from '../src/engine/food-parse.ts'
-import { parseLibraryIntent } from '../src/engine/library-parse.ts'
-import { parseSportIntent } from '../src/engine/sport-parse.ts'
-import { parseGardenIntent } from '../src/engine/garden-parse.ts'
-import { parseSkyIntent } from '../src/engine/sky-parse.ts'
-import { parseAnimalIntent } from '../src/engine/animal-parse.ts'
-import { parseFlightIntent } from '../src/engine/flight-parse.ts'
-import { parseLawIntent } from '../src/engine/law-parse.ts'
-import { parseHouseIntent } from '../src/engine/house-parse.ts'
-import { parseChessIntent } from '../src/engine/chess-parse.ts'
-import { moonLine } from '../src/engine/sky-parse.ts'
-import { parseAmazonIntent, namesAmazon } from '../src/engine/amazon-parse.ts'
-import { parseFolderIntent } from '../src/engine/folder-parse.ts'
-import { parseOfferIntent } from '../src/engine/offer-parse.ts'
-import { parseSquadIntent, parseSquadPick } from '../src/engine/squad-parse.ts'
-import { briefSpeak, parseSpeakMode } from '../src/engine/speak-brief.ts'
-import { estimateOvr, findPlayer } from '../src/engine/fc26-players.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { pickHeard } from '../src/engine/heard.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
@@ -745,7 +721,7 @@ assert.equal(
 )
 assert.equal(
   rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
-  null,
+  'Öffne Netflix',
 )
 assert.equal(
   rewriteFollowUp('ok', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
@@ -930,34 +906,6 @@ assert.equal(phoneOdett?.kind, 'phone')
 if (phoneOdett?.kind === 'phone') assert.equal(phoneOdett.number.replace(/\D/g, '').length >= 6, true)
 const alias = parsePlaceNav('Meine Freundin heißt Odett')
 assert.equal(alias?.kind, 'alias')
-const aliasIst = parsePlaceNav('Meine Freundin ist Odett')
-assert.equal(aliasIst?.kind, 'alias')
-if (aliasIst?.kind === 'alias') {
-  assert.equal(aliasIst.name, 'freundin')
-  assert.equal(aliasIst.alias, 'odett')
-}
-const phoneFuer = parsePlaceNav('Nummer für Freundin +49 1512 9733243')
-assert.equal(phoneFuer?.kind, 'phone')
-if (phoneFuer?.kind === 'phone') {
-  assert.equal(phoneFuer.name, 'freundin')
-  assert.ok(phoneFuer.number.replace(/\D/g, '').length >= 10)
-}
-assert.equal(isAliasAnswer('aus'), false)
-assert.equal(isAliasAnswer('Odett'), true)
-assert.equal(isCommOtherCommand('Fernseher an'), true)
-assert.equal(isCommOtherCommand('äh Lautstärke 10'), true)
-assert.equal(isCommOtherCommand('Wo kann ich jetzt in ein cafe'), true)
-assert.equal(isCommOtherCommand('aus'), true)
-assert.equal(isCommOtherCommand('aktiviere fullscreen'), true)
-assert.equal(parsePoiIntent('Wo kann ich jetzt in ein cafe')?.kind, 'cafe')
-assert.equal(parseTabletIntent('aktiviere fullscreen')?.kind, 'on')
-assert.equal(parseTabletIntent('fullscreen aus')?.kind, 'off')
-assert.equal(parseTabletIntent('zeig das bild')?.kind, 'show_image')
-assert.equal(parseTabletIntent('zeig das Wetter')?.kind, 'show_weather')
-assert.equal(parseTabletIntent('zeig den Status')?.kind, 'show_status')
-assert.equal(isNameOnly('Jarvis'), true)
-assert.equal(isNameOnly('Hey Jarvis'), true)
-assert.equal(isNameOnly('Jarvis Wetter'), false)
 assert.equal(
   findContactRow(
     [

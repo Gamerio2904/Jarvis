@@ -6,11 +6,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.net.ConnectivityManager;
@@ -18,10 +13,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.BatteryManager;
-import android.os.Build;
 import android.provider.Settings;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
@@ -38,10 +30,7 @@ import java.util.ArrayList;
         permissions = {
                 @Permission(alias = "camera", strings = {Manifest.permission.CAMERA}),
                 @Permission(alias = "phone", strings = {Manifest.permission.CALL_PHONE}),
-                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS}),
-                @Permission(
-                        alias = "activity",
-                        strings = {Manifest.permission.ACTIVITY_RECOGNITION})
+                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS})
         }
 )
 public class JarvisDevicePlugin extends Plugin {
@@ -155,165 +144,6 @@ public class JarvisDevicePlugin extends Plugin {
     }
 
     @PluginMethod
-    public void sensors(PluginCall call) {
-        String kind = call.getString("kind", "all");
-        if ("steps".equals(kind) && Build.VERSION.SDK_INT >= 29) {
-            if (getPermissionState("activity") != PermissionState.GRANTED) {
-                call.setKeepAlive(true);
-                requestPermissionForAlias("activity", call, "onActivityPerm");
-                return;
-            }
-        }
-        readSensors(call, kind);
-    }
-
-    @PermissionCallback
-    private void onActivityPerm(PluginCall call) {
-        if (getPermissionState("activity") != PermissionState.GRANTED) {
-            JSObject r = new JSObject();
-            r.put("ok", false);
-            r.put("needPerm", true);
-            r.put("message", "Schritt-Recht fehlt. Unter Einstellungen erlauben, dann nochmal. Ich schätze nicht.");
-            call.resolve(r);
-            return;
-        }
-        readSensors(call, call.getString("kind", "steps"));
-    }
-
-    private void readSensors(PluginCall call, String kind) {
-        JSObject r = new JSObject();
-        SensorManager sm = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
-        if (sm == null) {
-            r.put("ok", false);
-            r.put("message", "Keine Sensoren.");
-            call.resolve(r);
-            return;
-        }
-        try {
-            if ("steps".equals(kind)) {
-                float steps = readOnce(sm, Sensor.TYPE_STEP_COUNTER);
-                if (Float.isNaN(steps)) {
-                    r.put("ok", true);
-                    r.put("message", "Kein Schrittzähler in diesem Gerät.");
-                    call.resolve(r);
-                    return;
-                }
-                SharedPreferences p = getContext().getSharedPreferences("jarvis_sensors", Context.MODE_PRIVATE);
-                String day = todayKey();
-                String storedDay = p.getString("step_day", "");
-                float base = p.getFloat("step_base", steps);
-                if (!day.equals(storedDay)) {
-                    base = steps;
-                    p.edit().putString("step_day", day).putFloat("step_base", base).apply();
-                }
-                int today = Math.max(0, Math.round(steps - base));
-                r.put("ok", true);
-                r.put("steps", today);
-                r.put("stepsSince", "seit Mitternacht, wenn der Zähler durchlief");
-                call.resolve(r);
-                return;
-            }
-            if ("pressure".equals(kind)) {
-                float hpa = readOnce(sm, Sensor.TYPE_PRESSURE);
-                r.put("ok", true);
-                if (Float.isNaN(hpa)) r.put("message", "Kein Barometer in diesem Gerät.");
-                else r.put("hpa", (double) hpa);
-                call.resolve(r);
-                return;
-            }
-            float[] ori = readOrientation(sm);
-            r.put("ok", true);
-            if (ori == null) {
-                r.put("message", "Kompass nicht lesbar.");
-            } else {
-                float heading = ori[0];
-                if (heading < 0) heading += 360f;
-                r.put("heading", (double) heading);
-                r.put("cardinal", cardinal(heading));
-            }
-            call.resolve(r);
-        } catch (Exception e) {
-            r.put("ok", false);
-            r.put("message", "Sensor nicht lesbar.");
-            call.resolve(r);
-        }
-    }
-
-    private float readOnce(SensorManager sm, int type) throws InterruptedException {
-        Sensor sensor = sm.getDefaultSensor(type);
-        if (sensor == null) return Float.NaN;
-        final float[] hold = {Float.NaN};
-        final CountDownLatch latch = new CountDownLatch(1);
-        SensorEventListener lis =
-                new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        if (event.values != null && event.values.length > 0) {
-                            hold[0] = event.values[0];
-                            latch.countDown();
-                        }
-                    }
-
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-                };
-        sm.registerListener(lis, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-        latch.await(700, TimeUnit.MILLISECONDS);
-        sm.unregisterListener(lis);
-        return hold[0];
-    }
-
-    private float[] readOrientation(SensorManager sm) throws InterruptedException {
-        Sensor rot = sm.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        if (rot == null) rot = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);
-        if (rot == null) return null;
-        final float[] hold = {Float.NaN};
-        final CountDownLatch latch = new CountDownLatch(1);
-        final boolean vector = rot.getType() == Sensor.TYPE_ROTATION_VECTOR;
-        SensorEventListener lis =
-                new SensorEventListener() {
-                    @Override
-                    public void onSensorChanged(SensorEvent event) {
-                        if (event.values == null || event.values.length < 1) return;
-                        if (vector) {
-                            float[] R = new float[9];
-                            float[] ori = new float[3];
-                            SensorManager.getRotationMatrixFromVector(R, event.values);
-                            SensorManager.getOrientation(R, ori);
-                            hold[0] = (float) Math.toDegrees(ori[0]);
-                        } else {
-                            hold[0] = event.values[0];
-                        }
-                        latch.countDown();
-                    }
-
-                    @Override
-                    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-                };
-        sm.registerListener(lis, rot, SensorManager.SENSOR_DELAY_UI);
-        latch.await(700, TimeUnit.MILLISECONDS);
-        sm.unregisterListener(lis);
-        if (Float.isNaN(hold[0])) return null;
-        return hold;
-    }
-
-    private String todayKey() {
-        java.util.Calendar c = java.util.Calendar.getInstance();
-        return c.get(java.util.Calendar.YEAR)
-                + "-"
-                + (c.get(java.util.Calendar.MONTH) + 1)
-                + "-"
-                + c.get(java.util.Calendar.DAY_OF_MONTH);
-    }
-
-    private String cardinal(float deg) {
-        String[] names = {"N", "NO", "O", "SO", "S", "SW", "W", "NW"};
-        int i = Math.round(deg / 45f) % 8;
-        if (i < 0) i += 8;
-        return names[i];
-    }
-
-    @PluginMethod
     public void openPage(PluginCall call) {
         String page = call.getString("page", "app");
         JSObject r = new JSObject();
@@ -337,27 +167,6 @@ public class JarvisDevicePlugin extends Plugin {
         } catch (Exception e) {
             r.put("ok", false);
             r.put("message", "Einstellungen nicht geöffnet.");
-        }
-        call.resolve(r);
-    }
-
-    @PluginMethod
-    public void openUrl(PluginCall call) {
-        String url = call.getString("url", "");
-        JSObject r = new JSObject();
-        if (url == null || url.trim().isEmpty()) {
-            r.put("ok", false);
-            r.put("message", "Keine Adresse.");
-            call.resolve(r);
-            return;
-        }
-        try {
-            Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url.trim()));
-            startExt(i);
-            r.put("ok", true);
-        } catch (Exception e) {
-            r.put("ok", false);
-            r.put("message", "App nicht geöffnet.");
         }
         call.resolve(r);
     }

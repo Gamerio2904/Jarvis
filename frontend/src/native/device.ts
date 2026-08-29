@@ -12,17 +12,6 @@ type NativeDevice = {
   }>
   torch(opts: { on: boolean }): Promise<{ ok: boolean; on?: boolean; message?: string }>
   openPage(opts: { page: string }): Promise<{ ok: boolean; message?: string }>
-  sensors(opts: { kind: string }): Promise<{
-    ok: boolean
-    steps?: number
-    stepsSince?: string
-    hpa?: number
-    heading?: number
-    cardinal?: string
-    needPerm?: boolean
-    message?: string
-  }>
-  openUrl(opts: { url: string }): Promise<{ ok: boolean; message?: string }>
   dial(opts: { number: string }): Promise<{ ok: boolean; message?: string }>
   sms(opts: { number: string; body?: string }): Promise<{ ok: boolean; message?: string }>
   callNow(opts: { number: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
@@ -85,29 +74,6 @@ export async function readNetwork(): Promise<{
   }
 }
 
-export async function readSensors(kind: 'steps' | 'pressure' | 'compass'): Promise<{
-  ok: boolean
-  steps?: number
-  stepsSince?: string
-  hpa?: number
-  heading?: number
-  cardinal?: string
-  needPerm?: boolean
-  message?: string
-}> {
-  if (native && 'sensors' in native) {
-    try {
-      return await withTimeout(native.sensors({ kind }), 8_000, {
-        ok: false,
-        message: 'Sensor nicht lesbar.',
-      })
-    } catch {
-      return { ok: false, message: 'Sensor nicht lesbar.' }
-    }
-  }
-  return { ok: false, message: 'Schritte, Luftdruck und Kompass nur auf dem Handy.' }
-}
-
 export async function setTorch(on: boolean): Promise<{ ok: boolean; message?: string }> {
   if (native) {
     try {
@@ -120,27 +86,6 @@ export async function setTorch(on: boolean): Promise<{ ok: boolean; message?: st
     }
   }
   return { ok: false, message: 'Taschenlampe nur auf dem Handy.' }
-}
-
-export async function openExternalUrl(url: string): Promise<{ ok: boolean; message?: string }> {
-  const href = url.trim()
-  if (!/^https?:\/\//i.test(href)) return { ok: false, message: 'Keine Adresse.' }
-  if (native) {
-    try {
-      return await withTimeout(native.openUrl({ url: href }), 8_000, {
-        ok: false,
-        message: 'App nicht geöffnet.',
-      })
-    } catch {
-      return { ok: false, message: 'App nicht geöffnet.' }
-    }
-  }
-  try {
-    window.open(href, '_blank', 'noopener')
-    return { ok: true }
-  } catch {
-    return { ok: false, message: 'Link nicht geöffnet.' }
-  }
 }
 
 export async function openDevicePage(

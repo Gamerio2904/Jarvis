@@ -18,7 +18,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 08 | [Offene Fragen](./08-open-questions.md) | Restlücken |
 | 09 | [Versionierung](./09-versioning.md) | SemVer, Sprint ↔ Version |
 | 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
-| 11 | [Delight & Settings](./11-delight-and-settings.md) | Live: Vollbild + Themenleiste (`1.25`); Delight unter Ton |
+| 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
 | 12 | [NAS & APK](./12-nas-apk.md) | historisch / superseded |
 | 13 | [On-Device](./13-on-device.md) | Handy: Parser + Speicher lokal; Hirn Gemini zuerst |
 | 14 | [Qualität & TV](./14-quality-tv.md) | **`0.14.1`** — härten + Tizen live |

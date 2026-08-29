@@ -196,22 +196,12 @@ const SMS =
   /^\s*(?:schreib(?:e)?(?:\s+mal)?|(?:sende?\s+)?(?:eine?\s+)?(?:sms|kurze?\s*nachricht|nachricht)|sprachnachricht)\s+(?:der|dem|an\s+(?:die|den|das)?\s*)?(.+)$/i
 const PHONE =
   /^\s*(?:(?:nummer\s+von|tel(?:efon)?\s+von)\s+(.+?)\s*[:-]\s*(.+)|(.+?)\s*[,:]\s*tel(?:efon)?\s+(.+))\s*$/i
-const PHONE_FOR =
-  /^\s*(?:nummer|tel(?:efon)?(?:nummer)?)\s+(?:für|von)\s+(.+?)\s+((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const PHONE_NAME =
   /^\s*(.+?)\s*[,:–-]\s*((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const PHONE_SPACE =
   /^\s*([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,28})\s+(?:tel(?:efon)?\s+)?((?:\+|00)?\d[\d\s/-]{5,}\d)\s*$/i
 const ALIAS =
   /^\s*(?:meine[nrs]?\s+)?(.+?)\s+heißt\s+(.+?)\s*$/i
-const ALIAS_IST =
-  /^\s*(?:meine[nrs]?\s+)?(freundin|freund|bro|mama|papa|mutter|vater|oma|opa|eltern|chef|chefin|schwester|bruder|kollege|kollegin)\s+ist\s+([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß-]{1,24})\s*$/i
-const ALIAS_SKIP =
-  /^(wetter|termin|timer|wecker|todo|notiz|erinnerung|fernseher|tv|heute|morgen|schön|gut|ok|aus|an|cafe|café|kaffee)$/i
-const COMM_OTHER =
-  /\b(wecker|timer|termin|wetter|tanke|fernseh(?:er)?|\btv\b|lautstärke|volume|todo|notiz|suche|fahr(?:e)?|navigier|carplay|fahrmodus|akku|spotify|ventilator|steckdose|apotheke|bäcker|cafés?|cafes?|kaffee|frühstück|fullscreen|vollbild|tablet|overlay|youtube|netflix|disney|kalender|taschenlampe|status|blitzer|baustelle|amazon|ordner|instanudeln|mannschaft)\b/i
-const NOT_ALIAS_WORD =
-  /^(aus|an|ein|ja|nein|ok|okay|tv|fernseher|lautstärke|volume|cafe|café|kaffee|wetter|tanke|timer|wecker|stopp|halt|bitte|danke|hier|jetzt|heute|morgen)$/i
 
 export function looksLikePhone(value: string): boolean {
   const d = value.replace(/\D/g, '')
@@ -256,43 +246,13 @@ function isNameLike(raw: string): boolean {
   return !/\s/.test(n) || isRelationName(n)
 }
 
-/** Andere Befehle, während eine Nummer/SMS noch offen ist — nicht als Alias schlucken. */
-export function isCommOtherCommand(text: string): boolean {
-  const t = text.trim()
-  if (!t) return false
-  if (COMM_OTHER.test(t)) return true
-  if (/^\s*(wo|was|wie|wann|wer|warum)\b/i.test(t)) return true
-  if (/[?]/.test(t)) return true
-  const words = t.split(/\s+/).filter(Boolean)
-  if (words.length === 1 && NOT_ALIAS_WORD.test(words[0].replace(/[.!?]+$/g, ''))) return true
-  if (words.length >= 4 && !extractPhone(t)) return true
-  return false
-}
-
-export function isAliasAnswer(text: string): boolean {
-  const aliasName = text.trim().replace(/[.!?]+$/g, '')
-  if (!/^[A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß-]{1,24}$/.test(aliasName)) return false
-  if (looksLikePhone(aliasName)) return false
-  if (NOT_ALIAS_WORD.test(aliasName) || ALIAS_SKIP.test(aliasName)) return false
-  return true
-}
-
 export function parseAlias(text: string): PlaceNav | null {
-  const ist = ALIAS_IST.exec(text.trim())
-  if (ist) {
-    const name = normalizePlaceName(ist[1])
-    const alias = normalizePlaceName(ist[2])
-    if (isNameLike(name) && isNameLike(alias) && name !== alias) {
-      return { kind: 'alias', name, alias }
-    }
-  }
   const m = ALIAS.exec(text.trim())
   if (!m) return null
   const name = normalizePlaceName(m[1])
   const alias = normalizePlaceName(m[2])
   if (!isNameLike(name) || !isNameLike(alias) || name === alias) return null
   if (name === 'ich') return null
-  if (ALIAS_SKIP.test(name) || ALIAS_SKIP.test(alias)) return null
   return { kind: 'alias', name, alias }
 }
 
@@ -350,12 +310,6 @@ export function parseCallOrPhone(text: string): PlaceNav | null {
   if (call) {
     const query = normalizePlaceName(call[1] || call[2] || call[3] || '')
     if (query) return { kind: 'call', query }
-  }
-  const phoneFor = PHONE_FOR.exec(t)
-  if (phoneFor) {
-    const name = normalizePlaceName(phoneFor[1] || '')
-    const number = (phoneFor[2] || '').replace(/[^\d+]/g, '')
-    if (name && isNameLike(name) && looksLikePhone(number)) return { kind: 'phone', name, number }
   }
   const phone = PHONE.exec(t)
   if (phone) {
