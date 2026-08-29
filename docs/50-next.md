@@ -52,6 +52,8 @@ Schon da, **nicht** nochmal als neues Produkt:
 | Einstellungen finden ohne Fachwort | 5–6 Gruppen, Startkarten, Suche, Status-Pillen | **ja** |
 | Schöner, ruhiger Settings-Look | Größere Karten, weniger Leisten-Rauschen, Advanced eingeklappt | **ja** |
 | Neues Settings-Backend / iOS-Klon | Dieselben `Settings`-Keys, alte Topic-IDs als Deep-Link | **Won’t** |
+| Jarvis-Satz, Google-Fakten (Venedig) | 1–3 Sätze, jetzt zuerst, Quelle, Zukunft nur belegt | **ja** (`8.33`) |
+| Google-Übersicht im Chat | Listen, Fett, „Wichtige Infos“ | **Won’t** |
 
 ---
 
