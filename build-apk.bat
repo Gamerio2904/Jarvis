@@ -7,6 +7,7 @@ set "ROOT=%~dp0"
 set "FRONT=%ROOT%frontend"
 set "OUT=%FRONT%\dist-apk"
 set "APK_SRC=%FRONT%\android\app\build\outputs\apk\debug\app-debug.apk"
+if exist "%FRONT%\android\app\build\outputs\apk\debug\Jarvis-debug.apk" set "APK_SRC=%FRONT%\android\app\build\outputs\apk\debug\Jarvis-debug.apk"
 
 if not defined ANDROID_HOME (
   if exist "%LOCALAPPDATA%\Android\Sdk" set "ANDROID_HOME=%LOCALAPPDATA%\Android\Sdk"
@@ -34,6 +35,8 @@ if not exist "android\gradlew.bat" (
   if errorlevel 1 goto fail
 )
 call npx cap sync android
+if errorlevel 1 goto fail
+call node scripts\apply-native-tv.mjs
 if errorlevel 1 goto fail
 popd
 

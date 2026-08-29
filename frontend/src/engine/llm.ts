@@ -2,7 +2,7 @@ import { Wllama } from '@wllama/wllama/esm/index.js'
 import wasmUrl from '@wllama/wllama/esm/wasm/wllama.wasm?url'
 import compatWasmUrl from '@wllama/wllama-compat/wasm/wllama.wasm?url'
 import compatWorkerCode from '@wllama/wllama-compat/wasm/wllama.js?raw'
-import { DEFAULT_MODEL } from './store'
+import { DEFAULT_MODEL, isGeminiConfigured } from './store'
 import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel } from './model-cache'
 import { formatQwenChat, QWEN_STOP, toChatRole } from './prompt'
 
@@ -20,8 +20,10 @@ const MODEL_URLS = [
   `https://huggingface.co/${DEFAULT_MODEL.repo}/resolve/main/${DEFAULT_MODEL.file}?download=true`,
   `https://huggingface.co/${DEFAULT_MODEL.repo}/resolve/main/${DEFAULT_MODEL.file}`,
 ]
-const INFER_TIMEOUT_MS = 75_000
+const FIRST_TOKEN_MS = 45_000
+const INFER_TIMEOUT_MS = 90_000
 const LOAD_TIMEOUT_MS = 180_000
+const MAX_NEW_TOKENS = 128
 
 let instance: Wllama | null = null
 let loaded = false
@@ -186,9 +188,27 @@ async function createRuntime(): Promise<Wllama> {
   return wllama
 }
 
+export async function releaseModel(): Promise<void> {
+  const w = instance
+  instance = null
+  loaded = false
+  loading = null
+  lastError = null
+  if (w) {
+    try {
+      await w.exit()
+    } catch {
+      /* optional */
+    }
+  }
+}
+
 export async function ensureModel(
   onProgress?: (p: DownloadProgress) => void,
 ): Promise<void> {
+  if (isGeminiConfigured()) {
+    throw new Error('Lokales Modell bleibt aus, solange Gemini an ist.')
+  }
   if (loaded && instance) return
   if (loading) return loading
   loading = (async () => {
@@ -208,10 +228,13 @@ export async function ensureModel(
       await persistModel(blob)
     }
     const wllama = await createRuntime()
+    const cores = navigator.hardwareConcurrency || 2
+    const nThreads = Math.max(1, Math.min(4, Math.floor(cores / 2) || 2))
     await withTimeout(
       wllama.loadModel([blob], {
-        n_ctx: 1024,
-        n_threads: 1,
+        n_ctx: 512,
+        n_batch: 128,
+        n_threads: nThreads,
         n_gpu_layers: 0,
       }),
       LOAD_TIMEOUT_MS,
@@ -219,6 +242,21 @@ export async function ensureModel(
     )
     instance = wllama
     loaded = true
+    try {
+      await withTimeout(
+        wllama.createCompletion({
+          prompt:
+            '<|im_start|>system\nDu bist Jarvis.<|im_end|>\n<|im_start|>user\nping<|im_end|>\n<|im_start|>assistant\n',
+          max_tokens: 1,
+          temperature: 0,
+          cache_prompt: true,
+        } as never),
+        20_000,
+        'Warmstart übersprungen',
+      )
+    } catch {
+      /* Warmstart ist optional — Modell bleibt geladen. */
+    }
     reportProgress(blob.size, blob.size, 'load', onProgress)
   })()
   try {
@@ -233,21 +271,55 @@ export async function ensureModel(
   }
 }
 
-async function completeNonStream(prompt: string): Promise<string> {
+function cleanPiece(text: string): string {
+  return text.replace(/<\|im_end\|>/g, '').replace(/<\|im_start\|>/g, '')
+}
+
+async function completeStreaming(
+  prompt: string,
+  onToken?: (piece: string, full: string) => void,
+): Promise<string> {
   if (!instance) throw new Error('Modell nicht geladen. Erst Download starten.')
-  const res = await withTimeout(
-    instance.createCompletion({
+  const ac = new AbortController()
+  let acc = ''
+  let gotToken = false
+  const firstTimer = setTimeout(() => {
+    if (!gotToken) ac.abort()
+  }, FIRST_TOKEN_MS)
+  const totalTimer = setTimeout(() => ac.abort(), INFER_TIMEOUT_MS)
+  try {
+    await instance.createCompletion({
       prompt,
-      stream: false,
-      max_tokens: 96,
+      stream: true,
+      onData: (chunk: { choices?: Array<{ text?: string }> }) => {
+        const piece = chunk.choices?.[0]?.text || ''
+        if (!piece) return
+        gotToken = true
+        acc += piece
+        onToken?.(piece, cleanPiece(acc).trim())
+      },
+      max_tokens: MAX_NEW_TOKENS,
       temperature: 0.7,
-      top_p: 0.88,
+      top_p: 0.85,
+      cache_prompt: true,
       stop: QWEN_STOP,
-    }),
-    INFER_TIMEOUT_MS,
-    'timeout',
-  )
-  return (res.choices?.[0]?.text || '').replace(/<\|im_end\|>/g, '').trim()
+      abortSignal: ac.signal,
+    } as never)
+  } catch (err) {
+    if (cleanPiece(acc).trim()) return cleanPiece(acc).trim()
+    if (ac.signal.aborted) {
+      throw new Error(
+        gotToken
+          ? 'timeout'
+          : 'Modell denkt zu lange. Andere Apps schließen und erneut senden.',
+      )
+    }
+    throw err
+  } finally {
+    clearTimeout(firstTimer)
+    clearTimeout(totalTimer)
+  }
+  return cleanPiece(acc).trim()
 }
 
 export async function completeChat(
@@ -262,10 +334,9 @@ export async function completeChat(
     content: m.content,
   }))
   const prompt = formatQwenChat(mapped)
-  const text = await completeNonStream(prompt)
+  const text = await completeStreaming(prompt, onToken)
   if (!text) {
-    throw new Error('Keine Antwort vom Modell. Erneut senden.')
+    return 'Einen Moment. Noch einmal senden?'
   }
-  onToken?.(text, text)
   return text
 }
