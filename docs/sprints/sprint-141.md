@@ -23,6 +23,7 @@ Festschreiben: was von den Notizen schon `6.90` ist, was neu ist, warum **MAJOR 
 | Z5 | Chat-Ordner lokal + Hausstand; Preiswache opt-in, € nur aus Treffer |
 | Z6 | Won’t: Scraping, Preise erfinden, 60-fps, Recall-Nummern |
 | Z7 | Settings: 5–6 Gruppen, deutsche Wozu-Sätze, `8.35` — Keys bleiben |
+| Z8 | Lage-Overlay `8.32`: Phone-Pane nicht clippen, Pins ohne 0/0, `wo ist London` → Gazetteer-Flug, Idle-Pause, Kacheln/Körper/Kugel |
 
 ## Won’t (dieser Sprint)
 

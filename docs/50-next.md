@@ -21,6 +21,7 @@ Kein Execute in Sprint 141. Sideload bleibt **`6.90.0`**. Hausstand vor nächste
 | Chats in Ordner sortieren | `Conversation` = id/Titel/Daten. Chatsuche **CODE**. PC-„Ordner“ = Windows-Dateien, **nicht** Chats | `folder_id` + Sidebar + Hausstand | **planen** |
 | Immer Bescheid wenn Instanudeln im Angebot — API wenn möglich | Produktsuche Idealo/Geizhals **CODE**. Rabatt-Suche mydealz **opt-in**. Erinnerungen = **Uhrzeit**, kein Preis. Watchdog = Steckdose/Termin, nicht Shop | Preiswache: merken + pollen + Notify, € nur aus Treffer | **planen** |
 | Einstellungen unübersichtlich, unverstanden, GUI schwach | 17 gleichrangige Themen in einer Leiste (`SettingsScreen.tsx`). Hinweise Jargon: Delight, Memory, Tizen, Ausblick. Cloud mixt Gemini+Groq+Tanke+OMDb. „Modell“ = 0,5B-Fallback, steht oben. Haus ≠ Hausstand. Ton ≠ Stimme. Gefahr heißt „Danger Zone“. Keine Suche, kein Status auf der Leiste. Flaches Panel ist **CODE** seit `0.7`/`1.25` — die **Menge** ist das Problem, nicht ein fehlendes Screen | Gruppen + deutsche Wozu-Sätze + bessere Karten. Keys bleiben | **planen** (`8.35`) |
+| Overlay abgeschnitten, Pins falsch, laggy (Handy-Fotos) | Phone: Lage+Chat **eine Spalte**, Kugel `min-height: 240` + `overflow: hidden`, extra `ChatTile`. `Number('') === 0` → Pin **Sie** bei 0/0. `wo ist London` trifft `places` vor `hud` | Eine volle Pane, frische Pins, Gazetteer-Flug, Idle-Pause | **planen** (`8.32`) |
 
 Schon da, **nicht** nochmal als neues Produkt:
 
@@ -86,6 +87,7 @@ GO nur wenn: Steuerbarkeit Pause/Weiter/Suche **oder** ehrliches „App geöffne
 | Fahrt | Internes CarPlay. Apple CarPlay bleibt Won’t. |
 | Stimme am Steuer | **Execute → dann Native-TTS.** Phrase/Setting `nur vorlesen`: kurzer Satz, kein Gemini-Essay. Abbieger bleiben Native wie heute. |
 | Grafik | Spike messen, dann bestehende Motion/Overlay/Stream. Kein neues Framework, kein 60-fps-Idle. |
+| Lage-Overlay | **Nicht abschneiden, nicht über den Chat legen.** Pins nur mit frischem GPS / Lexikon. `Wo ist London` = Kugel, nicht Maps-Rückfrage. Körper und Kacheln dieselbe Pane. |
 | Einstellungen | **Gruppen statt 17 Peers.** Deutsch, ein Wozu-Satz pro Karte. Alltag oben, Werkstatt unten. Keys unverändert. Deep-Links der alten IDs halten. |
 | Musik | Spotify bleibt. Amazon nur Fallback nach GO. |
 | Ordner | IndexedDB + Hausstand. Kein Cloud-Sync. |
@@ -175,6 +177,80 @@ Startseite (wenn kein Deep-Link): **sechs große Karten** — Hirn, Stimme, Allt
 
 ---
 
+## Lage-Overlay — Ist vs Ziel (`8.32`)
+
+PO 2026-08-29, Screenshots Handy: Kugel-Rechteck **unten abgeschnitten**, liegt über dem Chat („Guten Tag…“). Pin **Sie** im Südmeer/Antarktis, **Kiew** zu weit östlich. Zweite Aufnahme: nur grüner Glow, keine Textur. Titel *Auf der Weltkarte* unter die Statusleiste. `Wo ist London` → „Lage oder maps? Ein Wort reicht.“ App **laggy**.
+
+Das ist dieselbe Lage-Sicht (`Lage.tsx`: Kacheln / Körper / Kugel), nicht ein zweites Overlay. Drive-HUD bleibt eigene Fläche, bekommt dieselben Lag-Regeln.
+
+### Was der Code heute macht
+
+| Fläche | Ist | Lücke auf dem Screenshot |
+|--------|-----|--------------------------|
+| Layout Phone | `.main.is-lage` ist **eine Spalte**. Lage `flex:1`, Kugel `min-height: 240` + `overflow: hidden`. Chat (`.messages`) **darunter im selben Stack** — und Lage hat zusätzlich `ChatTile` | Kugel wird beschnitten und verdeckt den Thread |
+| Tablet ≥900 px | Grid: Lage links, Chat rechts | Auf dem Handy nicht. Force-Lage (`hud_force`) gilt trotzdem schmal |
+| Safe-Area | Topbar ohne `env(safe-area-inset-top)` | Titel unter Notch/Status |
+| `Sie`-Pin | `globe-pins.ts`: `Number(last_lat)` — **leerer String wird 0**. Jedes finite Paar inkl. **0,0** und alten Fixes | Pin im Südmeer / Null Island ohne GPS |
+| Kiew | Lexikon 50,45° N 30,52° O ist richtig. Projektion `xyz`/`project` + Default-Yaw 0,8 | Pin wandert nach Sibirien, wenn Lon-Vorzeichen/Yaw nicht zur Textur passt |
+| Leere Kugel | Blue Marble lädt async; bis dahin nur Glow. GIBS erst ab Zoom 3,8 | Grüne Kugel ohne Erde |
+| `Wo ist London` | `parseHudIntent` kennt `wo ist/liegt` + Gazetteer. `places` `RECALL` (`wo wohnt/ist/liegt`) und Maps-Ask **können höher scoren** | Rückfrage statt Fly-to, obwohl London in `PLACES` steht |
+| Körper | Dieselbe `lage-split` + Canvas-Schema | Gleicher Clip, gleiches Doppel-Chat |
+| Kacheln | Viele Zellen + Chat-Kachel | Phone: Kugel/Körper nicht lesbar |
+| Lag | Canvas-Schleife (Marble-Step `R/48`), Tour-Tick **500 ms** auch wenn Tour aus, Uhr **1 s** rendert ganz `Lage` (Kugel neu), ISS-Poll 20 s, Poll 5–20 s | Ruckeln, Akku |
+| Kopf | `lage-head`: Breadcrumb + drei Tabs + Uhr + Akku **eine Zeile** | Tabs gequetscht, kein „Lage aus“ |
+| Caption | `lage-split` unter 720 px eine Spalte: Kugel **plus** TextTile **plus** ChatTile | Kugel verliert Höhe an Text und zweiten Composer |
+| Titel | Chat-Titel aus der Äußerung | „Auf der Weltkarte“ ok; darf die Statusleiste nicht treffen |
+
+### Ziel — Layout
+
+| Muss | Nicht |
+|------|--------|
+| Phone: **eine** reservierte Lage-Fläche (Kugel/Körper **quadratisch, vollständig**, `aspect-ratio: 1`), Chat **darunter oder daneben**, nie durchscheinend unter der Kugel | Lage als Floating-Card über den Bubbles |
+| `overflow: visible` der Sphäre **in** der Pane; Innenabstand, damit der Pol nicht am Rahmen klebt | `overflow: hidden` das die untere Halbkugel frisst |
+| Safe-Area oben (Topbar, Gemini-Banner, Lage-Tabs) | Titel in der Systemleiste |
+| Auf dem Phone **kein** zweites `ChatTile` in der Lage, solange der Haupt-Composer da ist | Zwei Composer, zwei Threads |
+| Caption (Stadt/Briefing) **unter** der Kugel, nicht neben ihr um Höhe | TextTile stiehlt die untere Halbkugel |
+| Kopf: Tabs **eigene Zeile** (Kacheln / Körper / Kugel), Uhr/Akku rechts; **Lage aus** (X oder `Lage aus`) | Breadcrumb+Tabs+Uhr in einer Zeile |
+| Ein Satz unter dem aktiven Tab: Kugel = Erde drehen; Körper = Organe; Kacheln = Wetter/Musik | Nur drei Wörter ohne Wozu |
+| Körper: dieselbe Pane-Höhe wie die Kugel, Schema ganz sichtbar, Organ-Text **unter** dem Schema nicht dahinter | Körper-Canvas abgeschnitten wie die Kugel |
+| Kacheln Phone: 1–2 Spalten, Rest scrollt **in der Lage**, Chat bleibt frei | 12 Kacheln + Kugel + Chat auf einer Fläche |
+| Reduced-Motion: 2D-Karte / Standbild, keine Idle-Schleife (schon Standing `6.90`) | 60 fps Idle |
+
+### Ziel — Orte und Pins
+
+| Muss | Nicht |
+|------|--------|
+| `Sie` nur bei GPS **frisch** (wie Tanke: Fix < 10 min, \|lat\|≤90, **nicht** 0,0, **nicht** `Number('')`). Sonst kein Pin, Satz „Standort unbekannt“ | Geratener Südpol / Null Island |
+| Unwetter-Pin nur mit eigenem Ort, nicht auf dem letzten/leeren GPS | Warn-Pin am 0/0 |
+| Projektion: Unit-Test Berlin, Kiew, London, Sydney gegen Pixelquadrant (nicht „sieht ungefähr aus“) | Geocoder-Orakel |
+| Labels: max 4–5, Kollision ausblenden, Kiew nicht über Sibirien stapeln | 20 Pins auf der Fernansicht |
+| `Wo ist London` / `Wo liegt London` / Kugel offen + Gazetteer → **`hud` Fly-to**, nicht Maps-Ask. Maps nur bei Person/Adresse (`wo wohnt …`, Straße+Hausnr.) | „Lage oder maps?“ für Lexikon-Städte |
+| `Zeig London` bleibt Gold (schon CODE). Pin-Tipp auf Lexikon-Stadt = Fly-to, nicht extra Chat-`Zeig …` auf dem Phone | Street View |
+| Textur: warten oder 2D-Blue-Marble-Sprite; kein leerer Glow als „Erde“ | Fake-Live |
+
+### Ziel — Tempo (Lage + Körper + Kacheln)
+
+| Muss | Nicht |
+|------|--------|
+| Kein `rAF`, wenn Lage zu oder Tab hidden (Standing `motion.ts`) | Dauer-Draw hinter dem Chat |
+| Marble/GIBS nur bei Geste oder Fly-to; Idle 2–4 fps oder Pause | Step `R/48` jedes Frame im Idle |
+| Tour-Interval **nur anlegen** wenn `globe_tour_on`; Uhr nur die Uhr-Spanzeile, nicht ganz `Lage` | 500 ms Tick + 1 s Remount im Stand |
+| ISS-Poll nur bei offener Kugel, ≥30 s, Cache | Where-the-ISS jedes 20-s-Pin-Load |
+| Körper: Organ-Glow aus Store, kein zweites 3D; Pulse pausiert wenn Tab nicht Körper | Two-WebGL (schon Won’t) |
+
+### Research `8.2` (Lage dazu)
+
+1. Phone-Höhe: wie viel bleibt unter Topbar+Composer für eine volle Kugel (Pixel).  
+2. Score-Reihenfolge `hud` vs `places` für `Wo ist London`.  
+3. 6 Pins mit bekannten Koordinaten auf dem Canvas — welcher Quadrant?  
+4. Frame-Zeit Idle vs Drag auf Mittelklasse.  
+
+**Done Research wenn:** Layout-Skizze Phone/Tablet, Score-Regel, Pin-Testliste, fps-Budget.
+
+Execute: **`8.32`** (Layout + Pins + Parser). Lag-Messung der übrigen Surfaces bleibt **`8.30`**.
+
+---
+
 ## Researchphasen
 
 ### `8.0.0` Leitentscheidung
@@ -193,7 +269,7 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 
 1. Ist-Pfad: wo spricht Gemini **vor** Tool-Ende? Lange Replies am Steuer?  
 2. Regel: Tool-Meta `executed` → dann ≤2 Sätze. Setting `drive_speak`: `after` / `only` (nur vorlesen).  
-3. Lag: Drive-Overlay, Chat-Stream, Lage-Wechsel auf Mittelklasse-Handy (wie `6.1`).  
+3. Lag: Drive-Overlay, Chat-Stream, **Lage-Kugel/Körper** auf Mittelklasse-Handy (wie `6.1`). Clip, Pins, `Wo ist London` — siehe Lage-Overlay oben.  
 **Done wenn:** Messpunkte + konkrete Patches, keine neuen Libraries.
 
 ### `8.3.0` Research: Musik, Ordner, Preiswache
@@ -223,7 +299,8 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 | **`8.4.0`** | Research Settings-Gruppen + Namen | geplant |
 | **`8.10.0`** | Blitzer+Baustelle auf der Route | nach `8.1` GO |
 | **`8.20.0`** | Execute-dann-sprechen / nur vorlesen | nach `8.2` |
-| **`8.30.0`** | GUI/Lag-Härte Chat/Overlay/Lage | nach `8.2` |
+| **`8.30.0`** | GUI/Lag Chat + Drive-HUD | nach `8.2` |
+| **`8.32.0`** | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper-Pane | nach `8.2` |
 | **`8.35.0`** | Einstellungen: Gruppen, deutsche Karten, GUI | nach `8.4` |
 | **`8.40.0`** | Amazon-Musik-Fallback **oder** ehrlich Parking | nach `8.3` GO |
 | **`8.50.0`** | Chat-Ordner + Hausstand | nach `8.3` |
@@ -245,10 +322,13 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 | `Sag Bescheid wenn Instanudeln im Angebot sind` | Wache anlegen, Poll opt-in, Notify mit Quelle |
 | `Preiswache aus` | Wache weg, kein stilles Weiterpollen |
 | `Einstellungen` / `Einstellungen Cloud` | Startkarten oder Gruppe Hirn. Alte IDs mappen |
+| `Wo ist London` / `Wo liegt Kiew` | Kugel auf, Fly-to, Briefing. Nicht „Lage oder maps?“ |
+| `Körper an` / Tab Körper | Schema vollständig, Organ-Satz darunter |
+| `Lage aus` / X in der Leiste | Pane zu, Chat volle Höhe. `hud_force` aus |
 
 ## Won’t
 
-Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Automatisch kaufen. Amazon-Musik so tun als Spotify-SDK. Chat-Ordner in der Cloud. 60-fps-Idle. Neues 3D-Framework. Zweites Hirn. Recall-Nummern klauen. Sideload in der Leitentscheidung. Play Store, iOS. Settings-Keys umbenennen nur wegen der GUI. iOS-Settings-Klon. Debug streichen.
+Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Automatisch kaufen. Amazon-Musik so tun als Spotify-SDK. Chat-Ordner in der Cloud. 60-fps-Idle. Neues 3D-Framework. Zweites WebGL. Geocoder-Oracle. Street-View. Zweites Hirn. Recall-Nummern klauen. Sideload in der Leitentscheidung. Play Store, iOS. Settings-Keys umbenennen nur wegen der GUI. iOS-Settings-Klon. Debug streichen.
 
 ## Abnahme (nach Execute)
 
@@ -259,6 +339,7 @@ Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Aut
 5. Amazon: GO = Intent oder Steuerfläche; NO-GO = ehrlicher Satz, Spotify bleibt.  
 6. Ordner überleben Hausstand-Export/Import.  
 7. Preiswache: Notify nur bei Treffer mit Quelle; ohne Research-Toggle kein stilles Netz.  
-8. Einstellungen: in 10 s Hirn vs. Hausstand finden; „Modell“ nicht als erstes; Danger deutsch; Deep-Link `cloud`/`musik` trifft.
+8. Einstellungen: in 10 s Hirn vs. Hausstand finden; „Modell“ nicht als erstes; Danger deutsch; Deep-Link `cloud`/`musik` trifft.  
+9. Handy-Lage: ganze Kugel/Körper sichtbar, Chat nicht darunter. `Sie` nicht ohne GPS. `Wo ist London` = Fly-to. Idle ohne Dauer-rAF.
 
 Fahr-Basis: [`24-next.md`](./24-next.md) · [`28-next.md`](./28-next.md). Spotify: Settings Musik. Suche: [`28-next.md`](./28-next.md) Idealo. Notify: `notify.ts`. Recall: [`49-next.md`](./49-next.md). Index: [`42-planned.md`](./42-planned.md). Sprint: [`sprints/sprint-141.md`](./sprints/sprint-141.md).

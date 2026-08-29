@@ -515,6 +515,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S50.6 | Preiswache (Instanudeln zuerst) | Must | idea | opt-in, € nur aus Treffer |
 | S50.7 | Scraping / Preise erfinden / Auto-Kauf | Won’t | parked | |
 | S50.8 | Einstellungen: Gruppen, deutsche Karten, bessere GUI | Must | ready | `8.35`, Keys gleich, Deep-Links halten |
+| S50.9 | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper/Kacheln | Must | ready | `8.32`, ganze Kugel, kein 0/0-Sie, hud vor places |
 
 ---
 

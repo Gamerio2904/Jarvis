@@ -46,7 +46,7 @@ Parser CODE. Gewichte erst nach 3060-GO. Ohne Sidecar: ehrlich aus.
 Lauf in der App ist CODE. Dienst im Hintergrund PLAN.
 
 ### Alltag vom Zettel (`8.0`) · Sprint 141 · [`50-next.md`](./50-next.md)
-Alte Notizen: Blitzer+Baustelle, CarPlay Execute-dann-TTS, GUI-Härte, Settings neu gliedern (`8.35`), Amazon-Musik-Research, Chat-Ordner, Preiswache Instanudeln. Nicht mit Recall `7.0` mischen.
+Alte Notizen: Blitzer+Baustelle, CarPlay Execute-dann-TTS, GUI-Härte, **Lage-Overlay** (`8.32`: Clip, Pins, Parser), Settings neu gliedern (`8.35`), Amazon-Musik-Research, Chat-Ordner, Preiswache Instanudeln. Nicht mit Recall `7.0` mischen.
 
 ### Parking
 Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.
