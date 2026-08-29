@@ -528,7 +528,10 @@ export function DriveMode({
   }
 
   function hear() {
-    if (hearing || listenLock.current) return
+    if (hearing || listenLock.current) {
+      void stopListen()
+      return
+    }
     listenLock.current = true
     setHearing(true)
     setHearMsg('Ich höre…')

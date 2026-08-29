@@ -104,7 +104,7 @@ function playBlob(blob: Blob): Promise<void> {
     currentUrl = url
     const audio = new Audio(url)
     currentAudio = audio
-    audio.playbackRate = 1.02
+    audio.playbackRate = 0.97
     audio.onended = () => {
       stopHtmlAudio()
       resolve()
@@ -395,6 +395,7 @@ type Rec = {
 }
 
 let webRec: Rec | null = null
+let webListening = false
 
 function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; text: string; message?: string }> {
   const Ctor =
@@ -407,10 +408,24 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
   return new Promise((resolve) => {
     const rec = new Ctor()
     webRec = rec
+    webListening = true
+    let settled = false
     rec.lang = 'de-DE'
     rec.interimResults = true
-    rec.continuous = false
+    rec.continuous = true
     rec.maxAlternatives = 5
+    const settle = (text: string) => {
+      if (settled) return
+      settled = true
+      webListening = false
+      webRec = null
+      try {
+        rec.stop()
+      } catch {
+        /* ignore */
+      }
+      resolve({ ok: true, text })
+    }
     rec.onresult = (ev) => {
       const last = ev.results[ev.results.length - 1]
       const alts: string[] = []
@@ -422,19 +437,34 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
       }
       const text = pickHeard(alts[0] || '', alts.slice(1))
       if (last && !last.isFinal) onPartial?.(text)
-      if (last?.isFinal) {
-        webRec = null
-        resolve({ ok: true, text })
-      }
+      if (last?.isFinal && text) settle(text)
     }
-    rec.onerror = () => {
-      webRec = null
-      resolve({ ok: true, text: '' })
+    rec.onerror = (ev) => {
+      const err = String(ev.error || '')
+      if (!webListening) {
+        settle('')
+        return
+      }
+      if (err === 'no-speech' || err === 'aborted') {
+        try {
+          rec.start()
+        } catch {
+          settle('')
+        }
+        return
+      }
+      settle('')
     }
     rec.onend = () => {
-      if (webRec === rec) {
-        webRec = null
-        resolve({ ok: true, text: '' })
+      if (settled) return
+      if (!webListening) {
+        settle('')
+        return
+      }
+      try {
+        rec.start()
+      } catch {
+        settle('')
       }
     }
     rec.start()
@@ -442,6 +472,7 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
 }
 
 function webStopListen() {
+  webListening = false
   try {
     webRec?.abort()
   } catch {
@@ -455,8 +486,8 @@ function webSpeak(text: string): Promise<void> {
   return new Promise((resolve) => {
     const u = new SpeechSynthesisUtterance(text)
     u.lang = 'de-DE'
-    u.rate = 1.12
-    u.pitch = 1.0
+    u.rate = 0.96
+    u.pitch = 0.92
     u.onend = () => resolve()
     u.onerror = () => resolve()
     window.speechSynthesis.cancel()

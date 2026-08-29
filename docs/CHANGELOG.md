@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.90.0`**. Sideload: **`6.90.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`6.90.1`**. Sideload: **`6.90.1`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `6.90.1` — Stilles Zuhören, menschlichere Stimme — *CODE*
+
+Sprachmodus piept und blinkt nicht mehr bei Stille: die Erkennung bleibt offen, System-Klicks sind stumm. Gemini-TTS spricht nur den deutschen Satz, keinen englischen Vorspann. Android-Stimme etwas langsamer und tiefer.
+
+- Sideload-APK `releases/Jarvis.apk` (versionCode 69001)
 
 ### `6.90.0` — Globus-Briefing Gold — *CODE*
 

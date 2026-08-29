@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`.
+> **Jetzt:** Code **`6.90.1`**. Sideload **`6.90.1`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`.
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
@@ -509,7 +509,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 3. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
 4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
-Sideload **`6.90.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing sind **CODE**.
+Sideload **`6.90.1`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing sind **CODE**.
 
 Komplette Liste: [`42-planned.md`](./42-planned.md).
 
