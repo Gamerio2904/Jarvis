@@ -58,6 +58,8 @@ export function parsePcIntent(text: string): PcIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 180) return null
   if (SKIP.test(t)) return null
+  if (/\bcaptcha\b/i.test(t)) return null
+  if (/\b(banking|überweis|ueberweis|iban)\b/i.test(t)) return null
 
   if (
     /^\s*(?:pc|rechner)\s+(?:testen|da|erreichbar|koppeln|prüfen)\s*[.!?]*$/i.test(t) ||

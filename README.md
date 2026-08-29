@@ -4,7 +4,9 @@
   <img src="frontend/native/brand/cover.png" alt="Jarvis" width="920" />
 </p>
 
-Privater Assistant auf dem **Handy**. Live **`2.2.2`** — was geht und was nicht: [`docs/00-now.md`](docs/00-now.md).
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`6.90.0`**. Sideload **`6.90.0`**. PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
+
+**Hirn:** Gemini (API-Key in Einstellungen → Cloud) ist der **Hauptweg**. Groq ist Backup. Das lokale 0,5B-Qwen ist **reiner letzter Fallback**, kein ChatGPT. Parser wählen die Geräte; das Modell formuliert. Tools, Speicher und Keys bleiben auf dem Gerät.
 
 PC im selben WLAN: `desktop/JarvisPC.bat`. Kein NAS, kein Docker, kein Ollama.
 
@@ -16,18 +18,23 @@ npm install
 npm run dev
 ```
 
-Browser: http://localhost:5173 — einmal Modell herunterladen (~470 MB, Qwen2.5 0.5B Instruct Q4).
+Browser: http://localhost:5173 — Overlay **Gemini zuerst**. Gemini-Key eintragen. Lokales 0,5B nur als Backup (~470 MB), nicht nötig für Timer, Kugel, Wetter.
 
 ## Android-APK
 
-Sideload **`2.2.2`** (versionCode `20202`): [`docs/apk.md`](docs/apk.md)
+Sideload **`Jarvis.apk` `6.90.0`** (versionCode `69000`):  
+`releases/Jarvis.apk` in diesem Repo.
 
 Lokal bauen: `build-apk.bat` → `frontend/dist-apk/jarvis-debug.apk`
 
-1. Unbekannte Quellen erlauben, APK installieren.
-2. App öffnen → Modell laden (WLAN).
+Linux: `./build-apk.sh`
+
+1. Installieren (unbekannte Quellen). Vor Neuinstall: Einstellungen → Hausstand → Exportieren — Deinstall löscht Keys.
+2. App öffnen → Overlay: **Gemini-Key eintragen**. Optional Groq. 0,5B nur Backup.
 3. Chat. Daten bleiben auf dem Gerät (IndexedDB).
 
-Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen **in der App**, nicht über NAS.
+## Was weg ist
 
-Planung: [`docs/README.md`](docs/README.md)
+Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen in der Android-App.
+
+Planung: [`docs/README.md`](docs/README.md) · Rest: LocateAnything-Gewichte nach 3060-GO, Debug-Hintergrund `5.12`.

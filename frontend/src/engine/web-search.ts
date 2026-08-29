@@ -25,11 +25,15 @@ export async function fillResearchLinks(
   const query = researchQuery(research?.query || queryText)
   const discount = Boolean(loadSettings().shop_discount)
   const product = isProductLookup(queryText, discount) || isProductLookup(query, discount)
-  const extra: ResearchSource[] = [
+  const   extra: ResearchSource[] = [
     ...sourcesFromText(answer),
     ...(research?.sources || []),
   ]
   const fact = isFactLookup(queryText) || isFactLookup(query)
+  if (fact) {
+    extra.push(...(await wikipedia(companyHint(query))))
+    extra.push(...(await duckDuckGo(`${query} site:destatis.de`)))
+  }
   const need = product ? 3 : fact ? 3 : 2
   if (extra.filter((s) => s.url).length < need || (fact && extra.filter((s) => (s.snippet || '').length > 40).length < 1)) {
     const searches = product

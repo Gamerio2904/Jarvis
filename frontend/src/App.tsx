@@ -48,10 +48,15 @@ import { CalendarView } from './Calendar'
 import { VoiceMode } from './VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
 import { DriveMode } from './DriveMode'
+import { Lage } from './Lage'
 import { WakeBubble } from './WakeBubble'
+import { useOverlay } from './overlay'
 import { closeDrive, subscribeDrive } from './engine/drive'
 import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
+import { tickOutlookWatch } from './engine/outlook-watch'
+import { tickWatchdog } from './engine/watchdog'
+import { setHeardNames } from './engine/heard'
 import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
@@ -283,6 +288,7 @@ function IconSend() {
 function App() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
+  const activeIdRef = useRef<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
@@ -313,7 +319,10 @@ function App() {
   const [wakeListening, setWakeListening] = useState(false)
   const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
-  const [setupOpen, setSetupOpen] = useState(() => !isGeminiConfigured() && !isModelReady())
+  const [setupOpen, setSetupOpen] = useState(() => {
+    const s = loadSettings()
+    return !isGeminiConfigured() && !s.groq_api_key.trim() && !isModelReady() && !s.setup_dismissed
+  })
   const [downloadPct, setDownloadPct] = useState(0)
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadPhase, setDownloadPhase] = useState<'download' | 'load'>('download')
@@ -337,6 +346,20 @@ function App() {
   const sawTokenRef = useRef(false)
   const voiceHoldUntilRef = useRef(0)
   const [voiceSeed, setVoiceSeed] = useState('')
+  const [lageWide, setLageWide] = useState(false)
+
+  useEffect(() => {
+    activeIdRef.current = activeId
+  }, [activeId])
+
+  async function ensureConversation(): Promise<string> {
+    if (activeIdRef.current) return activeIdRef.current
+    const created = await createConversation()
+    activeIdRef.current = created.id
+    setConversations((prev) => [created, ...prev])
+    setActiveId(created.id)
+    return created.id
+  }
 
   function openVoiceMode(seed = '') {
     voiceHoldUntilRef.current = Date.now() + 2500
@@ -344,6 +367,14 @@ function App() {
     setVoiceOpen(true)
     setCalendarOpen(false)
   }
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 900px)')
+    const apply = () => setLageWide(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
 
   useEffect(() => {
     const unlock = () => {
@@ -393,9 +424,28 @@ function App() {
     const glance = window.setInterval(() => {
       void syncGlance()
     }, 5 * 60_000)
+    const outlook = window.setInterval(() => {
+      void tickOutlookWatch()
+      void tickWatchdog()
+    }, 20 * 60_000)
+    const watchdog = window.setInterval(() => {
+      if (!document.hidden) void tickWatchdog()
+    }, 60_000)
+    const vis = () => {
+      if (!document.hidden) {
+        void tickOutlookWatch()
+        void tickWatchdog()
+      }
+    }
+    document.addEventListener('visibilitychange', vis)
+    void tickOutlookWatch()
+    void tickWatchdog()
     return () => {
       window.clearInterval(t)
       window.clearInterval(glance)
+      window.clearInterval(outlook)
+      window.clearInterval(watchdog)
+      document.removeEventListener('visibilitychange', vis)
     }
   }, [])
 
@@ -451,7 +501,9 @@ function App() {
       return
     }
     const started = Date.now()
-    const cloud = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
+    const cloud = Boolean(
+      (settings?.gemini_enabled && settings.gemini_api_key?.trim()) || settings?.groq_api_key?.trim(),
+    )
     const id = window.setInterval(() => {
       if (sawTokenRef.current) return
       const s = Math.max(1, Math.round((Date.now() - started) / 1000))
@@ -462,7 +514,7 @@ function App() {
       )
     }, 1000)
     return () => window.clearInterval(id)
-  }, [busy, settings?.gemini_enabled, settings?.gemini_api_key])
+  }, [busy, settings?.gemini_enabled, settings?.gemini_api_key, settings?.groq_api_key])
 
   useEffect(() => {
     if (!stickToBottomRef.current) return
@@ -500,6 +552,8 @@ function App() {
   async function refreshMemory(filter: MemoryCategory | 'all' = memoryFilter) {
     try {
       setMemoryItems(await listMemory(filter === 'all' ? null : filter))
+      const all = await listMemory(null)
+      setHeardNames(all.map((r) => r.key).filter(Boolean))
     } catch {
       /* panel shows empty / prior list */
     }
@@ -766,7 +820,7 @@ function App() {
     if (gemini) {
       setSetupOpen(false)
       void releaseModel()
-    } else if (isModelReady()) {
+    } else if (isModelReady() || loadSettings().setup_dismissed) {
       setSetupOpen(false)
     } else {
       setSetupOpen(true)
@@ -846,6 +900,7 @@ function App() {
     setError(null)
     setLastFailed(null)
     const created = await createConversation()
+    activeIdRef.current = created.id
     setConversations((prev) => [created, ...prev])
     setActiveId(created.id)
     setMessages([])
@@ -882,8 +937,8 @@ function App() {
     stickToBottomRef.current = distance < 96
   }
 
-  async function sendMessage(content: string) {
-    if (!content || busy) return
+  async function sendMessage(content: string): Promise<{ reply: string; tool?: ToolMeta; error?: string }> {
+    if (!content || busy) return { reply: '' }
     setBusy(true)
     setError(null)
     setLastFailed(null)
@@ -896,15 +951,11 @@ function App() {
       volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
     })
 
-    let conversationId = activeId
+    let conversationId = await ensureConversation()
+    let lastReply = ''
+    let lastTool: ToolMeta | undefined
+    let lastError: string | undefined
     try {
-      if (!conversationId) {
-        const created = await createConversation()
-        conversationId = created.id
-        setConversations((prev) => [created, ...prev])
-        setActiveId(created.id)
-      }
-
       const optimistic: Message = {
         id: `tmp-${Date.now()}`,
         conversation_id: conversationId,
@@ -954,7 +1005,9 @@ function App() {
           if (payload.tool && !msg.meta?.tool) {
             msg.meta = { ...(msg.meta || {}), tool: payload.tool }
           }
+          lastTool = (payload.tool as ToolMeta | undefined) || (msg.meta?.tool as ToolMeta | undefined)
           setMessages((prev) => [...prev, msg])
+          lastReply = msg.content
           setConversations((prev) => {
             const rest = prev.filter((c) => c.id !== payload.conversation.id)
             return [payload.conversation, ...rest]
@@ -992,11 +1045,13 @@ function App() {
           maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
+          lastError = detail
           setError(detail)
         },
       })
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Senden fehlgeschlagen'
+      lastError = msg
       setError(msg)
       playUiSound('error', {
         enabled: Boolean(settings?.ui_sounds),
@@ -1012,6 +1067,15 @@ function App() {
       void refreshMemory()
       void refreshSettings()
     }
+    return { reply: lastReply, tool: lastTool, error: lastError }
+  }
+
+  async function startDebugChat(title: string) {
+    const created = await createConversation(title)
+    setConversations((prev) => [created, ...prev])
+    setActiveId(created.id)
+    setMessages([])
+    return created.id
   }
 
   async function onEyeFile(file: File) {
@@ -1058,13 +1122,7 @@ function App() {
     content: string,
     onToken?: (piece: string, full: string) => void,
   ): Promise<string> {
-    let conversationId = activeId
-    if (!conversationId) {
-      const created = await createConversation()
-      conversationId = created.id
-      setConversations((prev) => [created, ...prev])
-      setActiveId(created.id)
-    }
+    let conversationId = await ensureConversation()
     const optimistic: Message = {
       id: `tmp-voice-${Date.now()}`,
       conversation_id: conversationId,
@@ -1132,9 +1190,9 @@ function App() {
   function maybeOpenSettingsFromReply(reply: string) {
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
-    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)|Broadlink|Fan-IP/i.test(t)) openSettings('haus')
-    else if (/Einstellungen.*Gemini|API-Key|Gemini an, aber kein/i.test(t)) openSettings('cloud')
-    else if (/Einstellungen\s*→\s*Musik|Spotify-Client-ID|Spotify anmelden/i.test(t)) openSettings('musik')
+    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t)) openSettings('haus')
+    else if (/Gemini an, aber kein/i.test(t)) openSettings('cloud')
+    else if (/Einstellungen\s*→\s*Musik|Spotify anmelden/i.test(t)) openSettings('musik')
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
@@ -1149,9 +1207,15 @@ function App() {
 
   const healthOk = Boolean(health?.ok)
   const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
+  const liveHud = loadSettings()
+  const lageOn = Boolean(liveHud.hud_force) || (lageWide && !liveHud.hud_hidden)
+  const lageAmber = liveHud.hud_accent === 'amber'
+  const settingsLayer = useOverlay(settingsPanelOpen)
+  const calendarLayer = useOverlay(calendarOpen)
+  const voiceLayer = useOverlay(voiceOpen)
 
   return (
-    <div className="app" ref={appRef}>
+    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1167,10 +1231,10 @@ function App() {
       {setupOpen ? (
         <div className="setup-overlay" role="dialog" aria-labelledby="setup-title">
           <div className="setup-card">
-            <h2 id="setup-title">Modell aufs Handy</h2>
+            <h2 id="setup-title">Gemini zuerst</h2>
             <p>
-              Jarvis kann lokal auf dem Handy denken (einmal ~470 MB) oder über Gemini
-              (Google). Das lokale Modell startet nur, wenn Gemini aus ist.
+              Hirn ist Gemini sobald ein Key da ist. Groq nur Backup. Das kleine lokale 0,5B
+              zuletzt — nicht ChatGPT. Timer, Kugel und Wetter laufen auch ohne Modell.
             </p>
             {downloadBusy ? (
               <p className="settings-hint">
@@ -1182,15 +1246,36 @@ function App() {
               </p>
             ) : (
               <p className="settings-hint">
-                {hasLocalModel
-                  ? 'Modell liegt auf dem Gerät. Einmal starten, dann chatten.'
-                  : 'WLAN empfohlen. Das Modell bleibt auf dem Handy.'}
+                Vor Neuinstall: Einstellungen → Hausstand → Exportieren. Sonst sind Keys weg.
               </p>
             )}
             {error ? <p className="settings-hint setup-error">{error}</p> : null}
             <button
               type="button"
               className="retry-btn"
+              disabled={downloadBusy}
+              onClick={() => {
+                void patchSettings({ setup_dismissed: true })
+                setSetupOpen(false)
+                openSettings('cloud')
+              }}
+            >
+              Gemini-Key eintragen
+            </button>
+            <button
+              type="button"
+              className="ghost-btn"
+              disabled={downloadBusy}
+              onClick={() => {
+                void patchSettings({ setup_dismissed: true })
+                setSetupOpen(false)
+              }}
+            >
+              Fertig — Tools ohne Modell
+            </button>
+            <button
+              type="button"
+              className="ghost-btn"
               disabled={downloadBusy}
               onClick={() => void downloadModel()}
             >
@@ -1199,19 +1284,8 @@ function App() {
                   ? 'Modell starten…'
                   : `Laden ${downloadPct}%`
                 : hasLocalModel
-                  ? 'Modell starten'
-                  : 'Modell herunterladen'}
-            </button>
-            <button
-              type="button"
-              className="ghost-btn"
-              disabled={downloadBusy}
-              onClick={() => {
-                setSetupOpen(false)
-                openSettings('cloud')
-              }}
-            >
-              Stattdessen Gemini (Google)
+                  ? 'Modell starten (Backup)'
+                  : 'Lokales 0,5B laden (nur Backup)'}
             </button>
             <p className="settings-hint">Gemini: Chat geht zu Google. Key von aistudio.google.com</p>
           </div>
@@ -1258,6 +1332,18 @@ function App() {
 
         <button
           type="button"
+          className={`memory-toggle ${lageOn ? 'active' : ''}`}
+          onClick={() => {
+            const next = !loadSettings().hud_force
+            void patchSettings({ hud_force: next, hud_hidden: !next }).then((s) => setSettings(s))
+            setSidebarOpen(false)
+          }}
+        >
+          Lage
+        </button>
+
+        <button
+          type="button"
           className={`memory-toggle ${settingsPanelOpen ? 'active' : ''}`}
           onClick={() => openSettings('allgemein')}
         >
@@ -1297,9 +1383,10 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}`}>
-        {voiceOpen ? (
+      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}`}>
+        {voiceLayer.shown ? (
           <VoiceMode
+            leaving={voiceLayer.leaving}
             onClose={() => {
               setVoiceOpen(false)
               setVoiceSeed('')
@@ -1308,7 +1395,9 @@ function App() {
             initialUtterance={voiceSeed}
           />
         ) : null}
-        {calendarOpen ? <CalendarView onClose={() => setCalendarOpen(false)} /> : null}
+        {calendarLayer.shown ? (
+          <CalendarView leaving={calendarLayer.leaving} onClose={() => setCalendarOpen(false)} />
+        ) : null}
         {driveOpen ? (
           <DriveMode
             onClose={() => {
@@ -1359,8 +1448,22 @@ function App() {
           </div>
         ) : null}
 
-        <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
-          <div className="messages-inner">
+        {lageOn && !voiceOpen && !calendarOpen && !driveOpen ? (
+          <Lage
+            onSend={(text) => void sendMessage(text)}
+            draft={draft}
+            setDraft={setDraft}
+            busy={busy}
+            recent={messages.slice(-4)}
+            streaming={streamingText}
+            conversationId={activeId}
+            onHudChange={() => void refreshSettings()}
+          />
+        ) : null}
+        {true ? (
+          <>
+          <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
+          <div className="messages-inner thread-slide" key={threadKey}>
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
                 <div className="empty-halo" aria-hidden>
@@ -1368,7 +1471,7 @@ function App() {
                   <i />
                   <i />
                 </div>
-                <h3>Jarvis</h3>
+                <h3>{liveHud.face === 'friday' ? 'Friday' : 'Jarvis'}</h3>
                 <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}
@@ -1380,7 +1483,9 @@ function App() {
               return (
                 <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
                   {m.role === 'assistant' ? (
-                    <div className="avatar jarvis">J</div>
+                    <div className={`avatar jarvis${liveHud.face === 'friday' ? ' is-friday' : ''}`}>
+                      {liveHud.face === 'friday' ? 'F' : 'J'}
+                    </div>
                   ) : null}
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
@@ -1407,7 +1512,9 @@ function App() {
 
             {streamingText !== null ? (
               <div className="row assistant streaming">
-                <div className="avatar jarvis">J</div>
+                <div className={`avatar jarvis${liveHud.face === 'friday' ? ' is-friday' : ''}`}>
+                  {liveHud.face === 'friday' ? 'F' : 'J'}
+                </div>
                 <div className="bubble">
                   {streamingText ? (
                     <>
@@ -1452,7 +1559,7 @@ function App() {
               ) : null}
             </div>
           ) : null}
-          <div className={`composer ${composerFocused ? 'is-focused' : ''}`}>
+          <div className={`composer ${composerFocused ? 'is-focused' : ''} ${busy ? 'is-busy' : ''}`}>
             <input
               ref={eyeFileRef}
               type="file"
@@ -1473,6 +1580,10 @@ function App() {
               placeholder="Nachricht an Jarvis…"
               rows={1}
               disabled={busy}
+              lang="de"
+              spellCheck
+              autoCorrect="on"
+              autoCapitalize="sentences"
             />
             <div className="composer-actions">
               <button
@@ -1515,10 +1626,13 @@ function App() {
             />
           ) : null}
         </div>
+          </>
+        ) : null}
       </main>
 
-      {settingsPanelOpen ? (
+      {settingsLayer.shown ? (
         <SettingsScreen
+          leaving={settingsLayer.leaving}
           topic={settingsTopic}
           onTopic={(t) => {
             setSettingsTopic(t)
@@ -1602,6 +1716,9 @@ function App() {
           }}
           onDeleteMemory={(id) => void onDeleteMemory(id)}
           onClearMemory={() => void onClearMemory()}
+          onDebugSend={(text) => sendMessage(text)}
+          onDebugStart={(title) => startDebugChat(title)}
+          debugBusy={busy}
         />
       ) : null}
     </div>

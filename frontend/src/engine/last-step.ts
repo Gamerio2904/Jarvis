@@ -4,6 +4,7 @@ export type LastStep = {
   last_step_when?: string
   last_step_utterance?: string
   last_medium?: string
+  globe_tour_on?: boolean
 }
 
 const FOLLOW_UP =
@@ -52,7 +53,7 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   const medium = (step?.last_medium ?? '').trim()
   const utterance = (step?.last_step_utterance ?? '').trim()
 
-  if (/^(?:call_confirm|sms_confirm|sms_body_ask|sms_ask|phone_ask|pc_confirm)$/.test(tool)) return null
+  if (/^(?:call_confirm|sms_confirm|sms_body_ask|sms_ask|phone_ask|pc_confirm|taxi|chain_ask|interrupt)$/.test(tool)) return null
 
   const vol = VOL.exec(raw)
   if (vol) {
@@ -71,8 +72,10 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   }
 
   if (HALT.test(raw)) {
+    if (step?.globe_tour_on) return 'Tour aus'
     if (medium === 'tv' || tool === 'tv') return 'Fernseher pause'
     if (medium === 'spotify' || medium === 'drive' || tool === 'drive') return 'Spotify Pause'
+    if (tool === 'outlook') return 'Tour aus'
     if (tool === 'timer') return 'Timer aus'
     if (tool === 'alarm') return 'Wecker aus'
     return null
@@ -82,6 +85,10 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     if (!tool || tool === 'todo' || tool === 'notes' || tool === 'weather') return null
     if (utterance && !CONFIRM.test(utterance) && !HALT.test(utterance)) return utterance
     return null
+  }
+
+  if (/^(?:noch\s*mal(?:s)?|wieder|erneut)(?:\s+bitte)?[.!?]*$/i.test(raw)) {
+    return utterance || null
   }
 
   if (!FOLLOW_UP.test(raw)) return null

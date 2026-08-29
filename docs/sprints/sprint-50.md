@@ -1,5 +1,7 @@
 # Sprint 50 — Gemini Opt-in (`0.16.0`)
 
+> Historisch: Gemini **Opt-in**, Default aus. **Heute (`6.50`+ / Sideload `6.60`):** Gemini ist der Hauptweg — [`16-gemini.md`](../16-gemini.md).
+
 | Feld | Wert |
 |------|------|
 | Status | **CODE** |

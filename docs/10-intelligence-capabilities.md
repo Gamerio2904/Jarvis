@@ -1,31 +1,60 @@
 # 10 — Intelligence Capabilities
 
-Ziel: Jarvis wird **professioneller und scharfsinniger**, ohne die Local-first-Linie zu brechen. Gestuft über Versionen — nicht alles auf einmal.
+Ziel: Jarvis wird **professioneller und scharfsinniger**. Tools und Speicher bleiben on-device. Smalltalk-Hirn ist Gemini (Key), nicht das 0,5B.
+Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
-### Live `2.2.2` (Code)
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. Parser wählen Tools. Gemini formuliert. 0,5B wählt keine Tools.
+
+### Live `6.90.0` (Code)
+
+**Hirn:** Gemini zuerst, Groq Backup, 0,5B zuletzt [`16-gemini.md`](./16-gemini.md) · [`45-next.md`](./45-next.md). Overlay Gemini zuerst [`47-next.md`](./47-next.md).  
+**Parser `6.51`:** Wont/Help/HUD-Skip [`46-next.md`](./46-next.md).  
+**Split/Identität:** Live-Doppelbefehl, canned Identität ohne Modell.  
+Härten bis `2.2`: [`28-next.md`](./28-next.md), [`30-next.md`](./30-next.md).  
+**`3.0.0` CODE:** Register + Score-Policy [`32-intelligence.md`](./32-intelligence.md). Welt `3.1`–`3.17` mitgeliefert [`31-next.md`](./31-next.md).  
+**`3.18.0` CODE:** Follow-up, „und“, Parser-Score, Tablet-Lage, Traceroute, Digest [`33-next.md`](./33-next.md).  
+**`3.19.0` CODE:** Sprachmodus ein Thread, Kalender-Fenster, Debug [`34-next.md`](./34-next.md).  
+**`4.0`–`4.53` CODE:** Weltlage, Alltagskette, Algieba/HUD, Hausstand, Friday+Lage-Split.  
+**`4.66` CODE:** Körper-Schema [`40-next.md`](./40-next.md).  
+**`4.76` CODE:** Sehen-Parser; Gewichte nach 3060-GO [`41-next.md`](./41-next.md).  
+**`5.11` CODE:** Debug-Lauf [`44-next.md`](./44-next.md).  
+**`6.50`–`6.60` CODE:** Bühne, Globus, Gemini Hauptweg.  
+**`6.70` PLAN:** Globus — Stadt-Satellit + Welt-Tour [`48-next.md`](./48-next.md).
+
+### Live `1.33.0` (Code) — historisch
 
 Router in `frontend/src/engine/chat.ts` **vor** dem LLM — kanonisch: [`00-now.md`](./00-now.md).
 
-`/hilfe` → Maps-Pending → PC-Pending → Rabatt-Toggle → Ordinal → TV → Film → Ventilator → Steckdose → Hier → Tanke → POI → Bahn → Fahrmodus → Gerät → PC → Maps → Memory → **Einkaufsliste** (`shopping.ts`) → Geburtstag → Zuhause → Losgehen → Tageslage → Feiertag → Kalender → Wecker → Timer → Erinnerung → Tools → Auge → Wetter → Nachrichten → Chatsuche → LLM.
-
-Suche: Quellen zuerst, € nur aus Snippets. Kein Kaufmodus-Parser. `Milch kaufen` = Einkaufsliste.
+### Live `1.32.1` (Code)
 
 Nächste Reihe **PLAN:** [`31-next.md`](./31-next.md) inkl. Research härten (`2.6.0`).  
 Danach **PLAN:** [`32-next.md`](./32-next.md) — `parseKaufIntent` **vor** der Einkaufsliste, Preise nur mit Quelle.
 
 ### Ältere Live-Schnitte (geliefert, nicht mehr der Router)
 
-| Stand | Was damals neu war |
-|-------|-------------------|
-| `1.24.0` | Einkaufsliste, Losgehen, Auge, Chatsuche — [`19-next.md`](./19-next.md) |
-| `1.32.1` | Fan, Drive, Voice-Tempo |
-| `1.33`–`2.0` | Suche/Preise, Qualität, Haus-AI — [`28-next.md`](./28-next.md) **CODE** |
+### Live `1.24.0` (Code)
+
+Router-Reihenfolge in `chat.ts`: help → ordinal → TV → Maps → Memory → Einkauf → Geburtstag → Zuhause → Los → Tageslage → Kalender → Wecker → Timer → Erinnerung → Tools → Auge → Wetter → Chatsuche → LLM.  
+Zwei Befehle an „und“. Letzter Schritt inkl. „das zweite“. Memory-Block lokal = Gemini. Personenorte, Nummer, Maps-Modus, Einkauf, Losgehen, JS-Zaun Zuhause, Auge (Gemini), lokale Chatsuche.
+
+### Reihe `1.16`–`1.24` — [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md)
+
+| Version | Intelligenz | Status |
+|---------|-------------|--------|
+| `1.14` | Letztes Tool; zwei Dinge; ein Name; Titel; Suche ehrlich | **CODE** |
+| `1.15` | Personen↔Orte; Route in Google Maps | **CODE** |
+| `1.16`–`1.18` | Liste, Losgehen (Ort am Termin + Route), Zuhause | **CODE** |
+| `1.19`–`1.20` | Eine Tageslage; Auge nur Gemini | **CODE** |
+| `1.21`–`1.24` | Nummer, Maps-Modus, Geburtstag, Serie, Widget, das zweite, Chatsuche | **CODE** |
+| `1.33`–`1.40` | Qualität: Suche/Preise, Antworten, Fahrmodus, Phrasen, Flüssigkeit, Gedächtnis, Stimme | **CODE** [`28-next.md`](./28-next.md) |
+| `3.0` | Register, Parse vor Execute, Score-Policy | **CODE** [`32-intelligence.md`](./32-intelligence.md) |
+| `3.1`–`3.17` | DWD bis Schach | **CODE** in `3.0.0` [`31-next.md`](./31-next.md) |
 
 Lokal 0,5B denkt nicht plötzlich besser. Schärfe = Router + Speicher + ehrliche Tools.
 
-## Sprint- & Versions-Mapping (Memory/Router-Anfang)
+Router `3.0.0`: Register statt If-Kette, Parse vor Execute, Score-Policy — [`32-intelligence.md`](./32-intelligence.md).
 
-Frühe Stufen `0.4`–`0.9` — Code im Repo. Status der Sprint-Dateien: [`sprints/README.md`](./sprints/README.md). Live-Fähigkeiten nicht hier duplizieren.
+## Sprint- & Versions-Mapping (verbindlich)
 
 | Stufe | Version | Sprint | Inhalt | Status |
 |-------|---------|--------|--------|--------|
@@ -43,9 +72,10 @@ Frühe Stufen `0.4`–`0.9` — Code im Repo. Status der Sprint-Dateien: [`sprin
 | 5 | **`0.9.0`** | [28](./sprints/sprint-28.md) | Local Tools Core (Notes/Todos, Confirm) | **READY FOR REVIEW** |
 | 5a | **`0.9.1`** | [29](./sprints/sprint-29.md) | Tools Hotfix | **READY FOR REVIEW** |
 | 5b | **`0.9.2`** | [30](./sprints/sprint-30.md) | Tools Polish & Continuity | **READY FOR REVIEW** |
-| 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **CODE** |
-| 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **CODE** |
-| 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **CODE** |
+| 5c | **`0.9.3`** | [31](./sprints/sprint-31.md) | Memory Quality Hotfix | **PLANNED** |
+| 5d | **`0.9.4`** | [32](./sprints/sprint-32.md) | Assist Continuity & Siezen | **PLANNED** |
+| 5e | **`0.9.5`** | [33](./sprints/sprint-33.md) | Tools Hygiene & Confirm-UX | **PLANNED** |
+| 6 | **`3.0.0`** | [106](./sprints/sprint-106.md) | Register + Score-Policy; Welt `3.1`–`3.17` | **CODE** |
 
 ```text
 Sprint 8  0.4.0 Memory

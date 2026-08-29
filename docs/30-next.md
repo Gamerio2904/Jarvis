@@ -1,8 +1,11 @@
 # 30 — Uhrzeit, Ort, Research (`2.2.0`–`2.2.2`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-20 (Screenshots): Jarvis wusste die Uhrzeit nicht, hat den Wohnort geraten und bei BIP „keine Zahlen“ gesagt statt zu suchen.
 
-Reihe davor: [`29-next.md`](./29-next.md). App vorher: Sideload **`2.1.1`**. Live jetzt: **`2.2.2`** [`00-now.md`](./00-now.md). Reihe danach: [`31-next.md`](./31-next.md) **PLAN**.
+Reihe davor: [`29-next.md`](./29-next.md). App vorher: Sideload **`2.1.1`**. Reihe danach: [`32-intelligence.md`](./32-intelligence.md) **CODE** (`3.0.0`), Welt [`31-next.md`](./31-next.md).
 
 Eine Sideload-Stufe.
 

@@ -5,11 +5,182 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`2.2.2`**. Live: [`00-now.md`](./00-now.md).
+App-Version im Code: **`6.90.0`**. Sideload: **`6.90.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
-Docs aufgeräumt: ein Jetzt-Stand, Index ohne doppelte Sprint-Tabelle, Kaufmodus bleibt **PLAN**.
+### `6.90.0` — Globus-Briefing Gold — *CODE*
 
-Geplant (kein Code): [`31-next.md`](./31-next.md) `2.3.0`–`2.19.0`, danach [`32-next.md`](./32-next.md) Kaufmodus `2.20.0`–`2.28.0`.
+Sprints 132–136. Stadt → GIBS-Zoom **4.4** + Briefing. Welt-Tour: Glow, Seite, Zoom-Kette. Sideload **`6.90.0`**.
+
+- **Fly-to:** `Zeig London` landet in NASA GIBS (nicht Blue Marble). Stamp mit Datum, kein Live.
+- **Briefing:** Lexikon + Tagesschau-Ort oder ehrlich leer. Markt nur Hormus/EZB-Kette. DWD bei DE-Ort, ISS in der Sicht, EONET optional.
+- **Ihr Plan:** Kalender/Memory/Todo nur mit Ortsnamen im Eintrag.
+- **Welt-Tour:** `Was ist heute so auf der Welt passiert` / `Weltbrief` → `outlook`, Kugel, max 5 Allowlist-Länder. `Zeig mir die Nachrichten` bleibt `news`.
+- **Stopp:** bricht die Tour, nicht TV/Spotify (Medium-Wort Standing).
+- **Debug:** Gruppe Globus-Briefing.
+
+- Docs [`48-next.md`](./48-next.md) · Sprints 132–136
+- App-Code **`6.90.0`**. APK **`6.90.0`** (versionCode `69000`).
+
+### `6.70.0` — Globus-Briefing Leitentscheidung — *CODE* (Docs)
+
+Sprint 131. Stadt → GIBS. **Welt-Tour:** Länder mit weltpolitischer Lage leuchten, Seite erklärt, Zoom-Kette. Quellen Tagesschau/DW, kein Geheim-Feed.
+
+- Docs [`48-next.md`](./48-next.md) · [`sprints/sprint-131.md`](./sprints/sprint-131.md)–[`sprint-136.md`](./sprints/sprint-136.md)
+- Execute in `6.90.0`
+
+### `6.60.0` — Split, Identität, Overlay, Sideload — *CODE*
+
+Sprints 128–130. 127 (`6.51`) bleibt mitgeliefert.
+
+- **Split:** `Körper an und Zeig London` trifft `hud`. Nacktes `London` nach `und` wird `Zeig London`.
+- **Identität:** `Bist du ChatGPT?` / `Bist du eine KI?` / `Wie heißt du?` canned, ohne Modell, kein Marvel. `Wer bist du?` bleibt Memory.
+- **Overlay:** Gemini zuerst, Fertig ohne Download, 0,5B nur Backup. Hausstand-Hinweis.
+- **APK:** versionName `6.60.0`. LocateAnything-Gewichte nicht drin.
+
+- Docs [`47-next.md`](./47-next.md) · Sprints 128–130
+- App-Code **`6.60.0`**
+
+### `6.51.0` — Parser nach Prompt-Test — *CODE*
+
+Sprint 127. Sideload bleibt `3.18.1`.
+
+- **Won’t:** `Überweise 200 Euro` nicht mehr FX-Kurs. Mail nicht als SMS. Street View / Live-Sat / Beobachten / 112 / Malen / Instagram / Pizza / Foto: ehrlicher Satz. `Zeig mir` ohne Ort fragt nach.
+- **HUD:** Nachrichten und Notizen stehlen die Kugel nicht. Look-Umgang (`Was is das für ne Stadt`, `Ist das Paris?`). `erde anzeigen` / `Kuegel an`. Gazetteer nicht Teilstring (`Street View von London` fliegt nicht). `Wo liegt Berln` = unknown_place, nicht Schreibtisch.
+- **Help:** `Was kannst du?` / `Was kannst du denn so?` / `Womit kannst du helfen?` = Katalog `6.51.0`.
+- **Drive:** `Wie komme ich nach Hause` wie `Fahr mich nach Hause`.
+- **Split:** `Körper an und Zeig London` zwei Teile. Fremde Wake-Wörter (`Ok Google` / Siri / Alexa) nicht still Timer.
+- **Debug:** `refuse`-Soll trifft `wont`. Naive/Kaputt-Chips auf Ist-Route.
+
+- Docs [`46-next.md`](./46-next.md) · [`sprints/sprint-127.md`](./sprints/sprint-127.md)
+- App-Code **`6.51.0`**, Sideload noch `3.18.1`
+
+### `6.50.0` — Bühne & Hirn — *CODE*
+
+Sprints 121–126 in einer App-Version. Sideload bleibt `3.18.1`.
+
+- **Hirn:** Gemini zuerst (Key), Groq Backup, 0,5B letzter Fallback. Kein größeres Modell lokal. Tool-Sätze dürfen von Gemini geschliffen werden — Guard streicht neue Zahlen/Orte.
+- **Globus:** Zoom per Geste und Satz, NASA-GIBS True Color wenn nah, Datum sichtbar. `Zeig mir London` dreht/zoomt. `Was ist das für eine Stadt?` aus der Blickmitte. Kein Live-Video.
+- **Körper:** Pulse aus echten Werten, Kamera zum Organ, Mund koppelt an Stimme. Antippen startet kein Gerät.
+- **Motion:** 30 fps, Pause im Hintergrund, Reduced-Motion.
+- **Fahrmodus:** Glas-HUD mit echtem Pfeil, Spotify-Glow nur bei laufendem Track.
+- **Sprache:** Orb aus Mic, Stimmen-Picker (Algieba/Kore und weitere Gemini-Stimmen).
+- **Test 2026-08-28:** Prompt-Matrix + Debug-Gruppen **Bühne & Hirn**, **Naive Fragen**, **Kaputt 6.50**. Gold-Globus hält. Lücken (Was kannst du, Überweise ohne Banking, Nachrichten vs. Kugel, …) in [`46-test-650.md`](./46-test-650.md) / [`46-next.md`](./46-next.md) `6.51`.
+
+- Docs [`45-next.md`](./45-next.md) · Sprints 121–126
+- App-Code **`6.50.0`**, Sideload noch `3.18.1`
+
+### `6.0.0` — Bühne & Hirn — *war PLAN*
+
+Gemini ist der Hauptweg (Key). Groq und 0,5B nur Backup. Kein größeres Modell lokal. Virtueller Globus: Zoom, GIBS mit Datum, `Zeig London`, `Was ist das für eine Stadt?`. Motion, Körper, Fahrmodus, Sprache.
+
+- Docs [`45-next.md`](./45-next.md) · Sprints 121–126
+- Index [`42-planned.md`](./42-planned.md)
+- App-Code **`5.11.0`**, Sideload noch `3.18.1`
+
+### `5.11.0` — Körper, Kugel, Debug-Lauf, Sehen-Parser — *CODE*
+
+Bündelt Sprints 115–120 in einer App-Version. Sideload bleibt `3.18.1`.
+
+- **Körper:** Lage-Sicht Schema (Canvas), Organ antippen = Kachel, kein Tool. `Körper an` / `Zeig Hirn`.
+- **Kugel:** Lage-Sicht Erde, Terminator, Pins aus GPS/ISS/DWD/outlook-Lexikon. Kein Live-Satellitenvideo.
+- **Debug:** Klickboxen, neues Gespräch, Writes-Warnung, Stop, JSON+TXT mit Verdict. Kein Auto-Ja. App offen lassen.
+- **Sehen:** Parser für Zeig/Zählen/Tippen/Beleg/zwei Schritte. `/v1/ground` Client. Ohne JarvisSee: ehrlich aus, keine Fake-Boxen.
+- **Parser-Patches nach Prompt-Test:** Alltag `zeig mal den Körper` / `mach die Kugel aus` / `Zeig PC Auge`. `Wo liegt Berlin` = Kugel-Pin, nicht Schreibtisch-Foto. Captcha/Banking/Handy-GUI = ehrlich Won’t. `Einstellungen dann Datenschutz` ohne Komma. `Zeig den Mond`. `Was steht am Friday an?` = Kalender. Doppelbefehle mit Körper/Erde/Grillen splitten.
+
+### `5.11.0` — Debug-Lauf — *war PLAN*
+
+Settings → Debug: mehrere Kategorien per Klickbox, neues Gespräch, Prompt nach Prompt, JSON+TXT mit Route/`tool_status`/Verdict. Baut auf `3.19`. Kein Auto-Ja.
+
+- Docs [`44-next.md`](./44-next.md) · [`sprints/sprint-120.md`](./sprints/sprint-120.md)
+- Sideload noch `3.18.1`
+
+### `4.76.0` — Lokales Sehen / LocateAnything — *PLAN*
+
+NVIDIA LocateAnything-3B als PC-Werkzeug (GUI-Grounding, private Boxen). **Nicht** Körper `4.66`. Research `4.77`–`4.80` (3060 GO/NO-GO) vor Execute. Alltag `4.87`+, Rest `4.94`+.
+
+- Docs [`41-next.md`](./41-next.md) · [`sprints/sprint-116.md`](./sprints/sprint-116.md)–[`sprint-118.md`](./sprints/sprint-118.md)
+- Index [`42-planned.md`](./42-planned.md)
+- Inspiration: https://www.instagram.com/reel/DaJuh6euSLq/
+- App-Code **`4.53.0`**, Sideload noch `3.18.1`
+
+### `4.66.0` — Körper intern (Hirn, Auge, Hand) — *PLAN*
+
+Lage-Sicht **Körper**: 3D-Schema live und anklickbar (nur Darstellung) plus ehrliche Kacheln. APK-WebView, kein PC nötig zum Ansehen. PC nur für PC-Auge/PC-Hand. Mails/Instagram/24/7-Cloud-Employee und Marvel-Mesh Won’t.
+
+- Docs [`40-next.md`](./40-next.md) · [`sprints/sprint-115.md`](./sprints/sprint-115.md)
+- Inspiration: https://www.instagram.com/reel/DcjTYTiCt6P/
+- App-Code **`4.53.0`**, Sideload noch `3.18.1`
+
+### `4.53.0` — Zwei Gesichter + Tablet flüssig — *CODE*
+
+Ein Register, zwei Gesichter: Jarvis (Default, Algieba) und Friday (Kore, auf Zuruf). Wake Friday ≠ Freitag. Lage **neben** dem Chat ab 900 px, Composer und Mic bleiben. Uhr 1 s, Wetter 10 min.
+
+- [`39-next.md`](./39-next.md) · [`sprints/sprint-114.md`](./sprints/sprint-114.md)
+- Sideload-APK noch `3.18.1` — kein APK-Claim
+
+### `4.46.0` — Hausstand Backup + Autokorrektur — *CODE*
+
+JSON-Export `jarvis-haus-YYYYMMDD.json` (Settings+Memory+Listen, Chats optional). Import nur nach Vorschau und **Überschreiben ja**. Composer `lang=de` spellCheck. `repairSpeech` / `pickHeard` für Jarvis-Wörter und Memory-Namen. Kein Jarvis-Cloud.
+
+- [`38-next.md`](./38-next.md) · [`sprints/sprint-113.md`](./sprints/sprint-113.md)
+
+### `4.33.0` — Gespräch, Film-Stimme, Reel am Steuer — *CODE*
+
+TTS: Algieba, stehend 3,5 s ohne Native-Race, Fahrt Race 400 ms / Budget 700 ms. Am Steuer: HUD + Notify + Ja/Nein, kein Fake-Anruf. Zweite Nummer nur Opt-in und ≠ dieses Gerät. Watchdog Default aus (Steckdose tot, Termin-Kollision).
+
+- [`37-next.md`](./37-next.md) · [`sprints/sprint-112.md`](./sprints/sprint-112.md)
+
+### `4.19.0` — Alltagskette Stimme — *CODE*
+
+Bar/Kneipe als POI, Sprachnachricht als SMS-Text, Taxi nach Ja (Anruf oder App-Link, nie „ist bestellt“). Kette: lesen sofort, schreiben nacheinander. WhatsApp nur Chat-Link. Voice-Clip entfällt.
+
+- [`36-next.md`](./36-next.md) · [`sprints/sprint-111.md`](./sprints/sprint-111.md)
+
+### `4.0.0` — Weltlage / Vorhersage — *CODE*
+
+Tool `outlook`: Tagesschau + DW, FX-Historie, Brent nur mit FRED-Key, E10-Spot, Kette Hormus/Kiew/OPEC, Szenario A/B, kein Aktien-Orakel. Watch und Unterbrechen opt-in. Lage-Kachel Welt. `/hilfe` 4.0.0.
+
+- Research `4.1`–`4.4` entschieden in [`35-next.md`](./35-next.md)
+- [`sprints/sprint-110.md`](./sprints/sprint-110.md)
+- Sideload-APK noch `3.18.1` — kein APK-Claim
+
+### `3.19.0` — Stimme ein Thread, Kalender, Debug — *CODE*
+
+Sprachmodus bleibt im selben Gespräch. Kalender: Jahr-Ansicht, `nächste N Tage` als Fenster, `erstell einen Termin für den 5.9. 2026 …`. Einstellungen → Debug: Kategorie, Start, Chat herunterladen. Stimme: Charon wenn Gemini an.
+
+- App-Code `3.19.0`
+- Sideload-APK noch `3.18.1` — nächster Build `3.19.0`
+- [`34-next.md`](./34-next.md) · [`sprints/sprint-109.md`](./sprints/sprint-109.md)
+
+### PC-Verbindung — *CODE* (kein neuer Sideload)
+
+`JarvisPC.bat` kopiert die WLAN-IP (`192.168`/`10`), nicht die erste WSL/Hyper-V-Adresse. Firewall-Knopf. Handy entfernt `http://` und Port aus dem IP-Feld. Ohne neue APK reicht die neue BAT; klarere Fehlzeile erst nach nächstem Sideload.
+
+- [`desktop/README.md`](../desktop/README.md)
+
+### `3.18.1` — GUI Premium — *CODE*
+
+Overlays gleiten raus (Einstellungen, Stimme, Kalender). Settings-Themen und Lage-Kacheln nacheinander. Chat-Wechsel mit Thread-Slide. Reduced-motion ohne Bewegung.
+
+- App-Code `3.18.1` (`package.json`, `APP_VERSION`, `/hilfe`)
+- Sideload-APK `releases/Jarvis.apk` (versionCode 31801)
+- [`sprints/sprint-108.md`](./sprints/sprint-108.md)
+
+### `3.18.0` — Lage, Traceroute, Digest, Routing härten — *CODE*
+
+Logische Stufen `3.0.1`–`3.45` mitgeliefert. Follow-up (`und morgen?`, `nochmal`). Zwei Intents an „und“. Parser-Score aus Treffer-Sicherheit. Konflikte (Lage vs Wetter, Ruf mich vs Anruf, Traceroute vs Karte). Tablet-Lage mit Modulen. Traceroute am PC (`tracert`), Handy ohne ICMP. `Ruf mich in 20 Minuten` = Erinnerung Rückruf. Sprachnotiz und Gesprächszusammenfassung lokal, keine Kundenrechnung. Schach-Brett in der Lage. 0,5B wählt keine Tools. Gates bleiben Gates.
+
+- App-Code `3.18.0` (`package.json`, `APP_VERSION`, `/hilfe`)
+- Sideload-APK noch `2.2.2` — nächster Build `3.18.0`
+- [`33-next.md`](./33-next.md) · [`sprints/sprint-107.md`](./sprints/sprint-107.md)
+
+### `3.0.0` — Intelligenz + Welt — *CODE*
+
+Register statt If-Kette. Parser zuerst, dann Score-Policy (Prior, Kosten, Konflikte). Bei knappem Gleichstand eine Rückfrage. 0,5B wählt keine Tools. Welt-Reihe `3.1`–`3.17` mitgeliefert: DWD, Ferien, EZB-Kurs, Wikipedia/Destatis zuerst, Food, Library, Sport, iNaturalist, ISS/Mond, OpenSky, Recht, Waschsymbole, Sensoren ehrlich, Schach.
+
+- App-Code `3.0.0` (`package.json`, `APP_VERSION`, `/hilfe`)
+- Sideload-APK noch `2.2.2` — nächster Build `3.0.0`
+- [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) · [`sprints/sprint-106.md`](./sprints/sprint-106.md)
 
 ### `2.2.2` — Testprompts raus aus der App — *CODE*
 

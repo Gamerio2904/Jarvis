@@ -104,6 +104,21 @@ export function startJarvisPcServer(opts = {}) {
         stub: true,
       }
     }
+    if (path === '/v1/trace') {
+      const host = String(body.host || '').trim()
+      lastActions.push(`trace:${host}`)
+      if (!host) return { ok: false, message: 'Kein Host.' }
+      if (!stub) return { ok: false, message: 'Traceroute nur in JarvisPC.bat auf Windows.' }
+      return {
+        ok: true,
+        host,
+        hops: [
+          { hop: 1, host: 'gateway', ip: '192.168.1.1', ms: 1 },
+          { hop: 2, host, ip: host, ms: 12 },
+        ],
+        stub: true,
+      }
+    }
     return { ok: false, message: 'Unbekannter Pfad.' }
   }
 

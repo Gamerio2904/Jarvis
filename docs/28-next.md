@@ -1,5 +1,8 @@
 # 28 — Qualität statt Breite (`1.33`–`1.40`)
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
 
 Reihe davor: [`27-next.md`](./27-next.md). **CODE** durch `2.0`; live in **`2.2.2`**. Steckdosen: [`29-next.md`](./29-next.md).
