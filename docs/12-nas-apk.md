@@ -1,6 +1,6 @@
-# 12 — NAS 24/7 & Android-APK (historisch)
+# 12 — NAS 24/7 & Android-APK **SUPERSEDED**
 
-> **Stand 2026-08-15:** **SUPERSEDED.** Jarvis läuft on-device auf dem Handy (`0.13.1`). NAS, Docker, FastAPI, Ollama und Reverse-Proxy entfallen. Aktuell: [`13-on-device.md`](./13-on-device.md) · Sideload: [`apk.md`](./apk.md).
+> **Historisch.** On-Device ab `0.13.0`: [`13-on-device.md`](./13-on-device.md). **Jetzt:** Sideload [`apk.md`](./apk.md) `6.60.0`. Compose/`deploy/` und NAS-LLM **Parking**. Tote Links auf `13-lan-proxy.md` / `deploy-nas.md` entfernt.
 
 Die Reihe `0.10.x` (Compose + Token-APK) und `0.12.0` (NAS-Proxy) bleiben als **Planungshistorie** in den Sprint-Dateien 34–39 und 43. Sie sind **kein** nächster Schritt.
 
