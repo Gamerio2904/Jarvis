@@ -40,7 +40,7 @@ Schon da, **nicht** nochmal als neues Produkt:
 | Blitzer auf der Strecke | Pins + kurze Ansage aus **genannter Quelle**, Korridor um die OSRM-Route | **ja** |
 | Mobile Baustellen / wandernde Gefahren | Nur wenn dieselbe Quelle den Typ liefert (Baustelle, mobil, fest). Sonst ehrlich leer | **ja**, ehrlich |
 | „Polizist steht jetzt da“ | Kein Live-Ortungsdienst, kein Scraping hinter Login | **Won’t** |
-| Am Steuer erst tun, dann sprechen | Tool-Execute endet, **dann** 1–2 Sätze Native-TTS. Kein Gemini-Film vor dem Klick | **ja** |
+| Am Steuer erst tun, dann sprechen | Hören klappt (ein Erkenner). Tool-Execute endet, **dann** 1–2 Sätze Native-TTS. Kein Gemini-Film vor dem Klick | **ja** (`8.20`) |
 | Nur vorlesen | Setting oder Phrase: TTS denselben kurzen Satz, kein zweites Chat-Essay | **ja** |
 | Flüssiger | Dieselben Surfaces messen (Chat-Stream, Drive-Overlay, Lage). 30 fps bleibt Default | **ja** |
 | Amazon Musik in Jarvis | Nur wenn Research eine **erlaubte** Steuerfläche findet (meist Android-Intent zur App, nicht Web-SDK) | **Could** nach GO |
