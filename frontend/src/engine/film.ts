@@ -1,7 +1,6 @@
 import { lookupOmdb, omdbKeyHint, type OmdbHit } from './omdb.ts'
 import { parseFilmIntent } from './film-parse.ts'
 import { lookupWatch, type FreeWhere, type WatchHit } from './tv-watch.ts'
-import { persistLastList } from './store.ts'
 
 export { parseFilmIntent } from './film-parse.ts'
 export type { FilmIntent } from './film-parse.ts'
@@ -39,12 +38,6 @@ export async function handleFilm(_conversationId: string, text: string): Promise
     omdbNote: omdb.ok ? '' : omdb.message,
     keyMissing,
   })
-  const titles = [
-    watch.title || intent.title,
-    ...(watch.freeWhere || []).map((f) => f.name),
-    ...(watch.offers || []).map((o) => o.provider),
-  ].filter(Boolean)
-  persistLastList('film', titles.slice(0, 8))
   return {
     handled: true,
     reply,
@@ -75,18 +68,17 @@ export function formatFilmReply(opts: {
 }): string {
   const title = opts.omdb?.title || opts.watch.title || opts.asked
   const year = opts.omdb?.year || (opts.watch.year ? String(opts.watch.year) : '')
-  const head = year ? `${title} von ${year}` : title
+  const head = year ? `${title} (${year}).` : `${title}.`
   const scores = scoreLine(opts.omdb, opts.keyMissing, opts.omdbNote)
   const free = freeLine(opts.watch)
   const paid = paidLine(opts.watch)
   if (opts.kind === 'rate') {
-    const f = free.replace(/^läuft/, 'Er läuft')
-    return [head + '.', scores, f].filter(Boolean).join(' ')
+    return [head, scores, opts.omdb?.plot ? opts.omdb.plot.slice(0, 180) : '', free].filter(Boolean).join(' ')
   }
   if (opts.kind === 'where') {
-    return [`${head} ${free}`, paid, scores].filter(Boolean).join(' ')
+    return [head, free, paid, scores].filter(Boolean).join(' ')
   }
-  return [head + '.', scores, free, paid].filter(Boolean).join(' ')
+  return [head, scores, free, paid].filter(Boolean).join(' ')
 }
 
 function scoreLine(omdb: OmdbHit | null, keyMissing?: boolean, note?: string): string {
@@ -94,11 +86,11 @@ function scoreLine(omdb: OmdbHit | null, keyMissing?: boolean, note?: string): s
     const bits: string[] = []
     if (omdb.imdb) bits.push(`IMDb ${omdb.imdb.replace('.', ',')}`)
     if (omdb.tomatoes) bits.push(`Rotten Tomatoes ${omdb.tomatoes} (über OMDb)`)
-    else bits.push('Rotten Tomatoes steht in der Quelle nicht')
-    return `Bewertet mit ${bits.join(', ')}.`
+    else bits.push('Rotten Tomatoes nicht in der Quelle.')
+    return `${bits.join('. ')}.`
   }
   if (keyMissing) return omdbKeyHint()
-  return note || 'Dazu habe ich keine IMDb- oder Rotten-Tomatoes-Zahl — ich erfinde keine.'
+  return note || 'Keine IMDb/RT-Zahl — ich erfinde keine.'
 }
 
 function freeLine(watch: Pick<WatchHit, 'freeWhere' | 'alsoFree' | 'target'>): string {
@@ -108,11 +100,9 @@ function freeLine(watch: Pick<WatchHit, 'freeWhere' | 'alsoFree' | 'target'>): s
   const fallback = watch.alsoFree || []
   const list = (names.length ? names : fallback).slice(0, 5)
   if (!list.length) {
-    return 'läuft in Deutschland gerade nicht kostenlos bei den bekannten Anbietern. Ich erfinde keine Streams.'
+    return 'In DE gerade nicht kostenlos bei den bekannten Anbietern. Ich erfinde keine Streams.'
   }
-  const listing =
-    list.length === 1 ? list[0] : `${list.slice(0, -1).join(', ')} und ${list[list.length - 1]}`
-  return `läuft in Deutschland kostenlos bei ${listing}. Andere Mediatheken starte ich nicht am Fernseher.`
+  return `Kostenlos in DE: ${list.join(', ')}. Andere Mediatheken starte ich nicht am Fernseher.`
 }
 
 function paidLine(watch: Pick<WatchHit, 'offers'>): string {

@@ -18,7 +18,6 @@ type NativeVoice = {
   wakeStatus(): Promise<{ running: boolean; wanted?: boolean }>
   requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }>
   setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
-  setVoiceUi(opts: { open: boolean }): Promise<{ ok: boolean; open?: boolean }>
   streamSse(opts: {
     url: string
     body: string
@@ -327,15 +326,6 @@ export async function setKeepScreenOn(on: boolean): Promise<void> {
   if (!native) return
   try {
     await native.setKeepScreenOn({ on })
-  } catch {
-    /* ignore */
-  }
-}
-
-export async function setVoiceUi(open: boolean): Promise<void> {
-  if (!native) return
-  try {
-    await native.setVoiceUi({ open })
   } catch {
     /* ignore */
   }

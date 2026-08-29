@@ -8,7 +8,6 @@ import {
   listenOnce,
   requestMicPermission,
   setKeepScreenOn,
-  setVoiceUi,
   stopListen,
   stopSpeak,
 } from './native/voice'
@@ -18,13 +17,11 @@ type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
 export function VoiceMode({
   onClose,
   onTurn,
-  onPhoto,
   initialUtterance = '',
   leaving = false,
 }: {
   onClose: () => void
   onTurn: (text: string, onToken?: (piece: string, full: string) => void) => Promise<string>
-  onPhoto?: () => void
   initialUtterance?: string
   leaving?: boolean
 }) {
@@ -111,7 +108,6 @@ export function VoiceMode({
 
   useEffect(() => {
     live.current = true
-    void setVoiceUi(true)
     void setKeepScreenOn(true)
     void startLoop()
     return () => {
@@ -123,7 +119,6 @@ export function VoiceMode({
       void stopListen()
       void stopSpeak()
       void setKeepScreenOn(false)
-      void setVoiceUi(false)
     }
   }, [])
 
@@ -145,6 +140,7 @@ export function VoiceMode({
   async function loop() {
     while (live.current) {
       setPhase('listening')
+      setHeard('')
       setChatSpeaking(false)
       const heardRes = await listenOnce((partial) => {
         if (live.current) setHeard(partial)
@@ -152,17 +148,12 @@ export function VoiceMode({
       if (!live.current) return
       const text = heardRes.text.trim()
       if (!text) {
-        missRef.current += 1
-        if (missRef.current >= 2) {
-          setErr(heardRes.message || 'Nichts gehört. Tippen Sie die Kugel.')
-        }
-        await new Promise((r) => setTimeout(r, 140))
+        if (heardRes.message) setErr(heardRes.message)
+        else setErr('Nichts gehört. Nochmal?')
+        await new Promise((r) => setTimeout(r, 280))
         continue
       }
-      missRef.current = 0
       await runTurn(text)
-      if (!live.current) return
-      await new Promise((r) => setTimeout(r, 80))
     }
   }
 
@@ -275,11 +266,6 @@ export function VoiceMode({
             Beenden
           </button>
         </header>
-        {onPhoto ? (
-          <button type="button" className="ghost-btn" onClick={() => onPhoto()}>
-            Kamera
-          </button>
-        ) : null}
         <button
           type="button"
           className={`voice-orb ${phase}`}
@@ -294,7 +280,7 @@ export function VoiceMode({
         </button>
         <p className="voice-status">{label}</p>
         {heard ? <p className="voice-line you">{heard}</p> : null}
-        {reply ? <p className="voice-line jarvis">{reply}</p> : null}
+        {reply && phase !== 'listening' ? <p className="voice-line jarvis">{reply}</p> : null}
         {err ? <p className="voice-err">{err}</p> : null}
       </div>
     </div>

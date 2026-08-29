@@ -1,5 +1,6 @@
 import { formatAgenda, upcomingReminders } from './reminders'
-import { listShopping, listEvents, listReminders } from './store'
+import { listShopping, listEvents, listReminders, loadSettings } from './store'
+import { handleWeather } from './weather'
 import type { ToolMeta } from './tools'
 
 export { isBriefAsk } from './brief-parse'
@@ -11,6 +12,8 @@ export async function handleBrief(): Promise<{
   lastTool?: string
 }> {
   const parts: string[] = []
+  const weather = await handleWeather('Wetter heute')
+  if (weather.handled && weather.reply) parts.push(weather.reply.split(/[.!?]/)[0] + '.')
 
   const agenda = await formatAgenda()
   if (agenda && !/^Nichts offen/.test(agenda)) parts.push(agenda)
@@ -37,8 +40,9 @@ export async function handleBrief(): Promise<{
   const home = (await upcomingReminders()).filter((r) => r.kind === 'home')
   if (home.length) parts.push(`Zuhause: ${home.map((h) => h.title).join(', ')}.`)
 
+  const s = loadSettings()
   if (!parts.length) {
-    return { handled: true, reply: 'Im Kalender liegt nichts, die Listen sind leer.', lastTool: 'brief' }
+    return { handled: true, reply: s.last_weather_line ? `${s.last_weather_line} Sonst liegt nichts an.` : 'Im Kalender liegt nichts, die Listen sind leer.' }
   }
   return {
     handled: true,

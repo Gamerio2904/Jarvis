@@ -16,48 +16,27 @@ const GOT =
   /^\s*(.+?)\s+(?:hab(?:e)?\s+ich|habe\s+ich|ist\s+da|weg|gestrichen)\s*[.!]?\s*$/i
 const CLEAR = /^\s*(?:einkauf(?:sliste)?\s+(?:leeren|löschen)|liste\s+leer)\s*$/i
 
-function clean(s: string): string {
-  return s.replace(/[.!?,;:]+$/g, '').replace(/\s+/g, ' ').trim()
-}
-
-function shopJunk(item: string): boolean {
-  return (
-    /\b(wo\s+kann|mit\s+rabatt|preisvergleich|idealo|geizhals|\?)\b/i.test(item) ||
-    /^\s*(wo|wie|was|wann|welche|ne|nein)\b/i.test(item)
-  )
-}
-
 export function parseShopIntent(text: string): ShopIntent | null {
   const t = text.trim()
   if (!t || t.length > 120) return null
-  if (/^\s*(guten\s+morgen|guten\s+abend|hallo|hi|hey)[.!?]*\s*$/i.test(t)) return null
   if (LIST.test(t)) return { kind: 'list' }
   if (CLEAR.test(t)) return { kind: 'clear' }
   const missing = MISSING.exec(t)
   if (missing) {
     const item = clean(missing[1])
-    if (item && !shopJunk(item) && !/\b(was|nichts|wenig)\b/i.test(item)) return { kind: 'add', item }
+    if (item && !/\b(was|nichts|wenig)\b/i.test(item)) return { kind: 'add', item }
   }
   const add = ADD.exec(t)
-  if (add) {
-    const item = clean(add[1])
-    if (!shopJunk(item)) return { kind: 'add', item }
-  }
+  if (add) return { kind: 'add', item: clean(add[1]) }
   const tail = ADD_TAIL.exec(t)
-  if (tail) {
-    const item = clean(tail[1])
-    if (!shopJunk(item)) return { kind: 'add', item }
-  }
+  if (tail) return { kind: 'add', item: clean(tail[1]) }
   const buy = ADD_BUY.exec(t)
   if (
     buy &&
     !/[?]/.test(t) &&
-    !/^\s*(wo|was|wann|wie|welche[rsn]?|ne|nein)\b/i.test(t) &&
-    !/\b(wo\s+kann\s+ich|mit\s+rabatt|preisvergleich|idealo)\b/i.test(t) &&
     !/\bin\s+(?:\d+\s+(?:minuten?|stunden?|tage(?:n)?|tag)|einer?\s+(?:minute|stunde|tag))\b/i.test(t)
   ) {
-    const item = clean(buy[1])
-    if (item && !shopJunk(item)) return { kind: 'add', item }
+    return { kind: 'add', item: clean(buy[1]) }
   }
   const got = GOT.exec(t)
   if (got) {
@@ -65,4 +44,8 @@ export function parseShopIntent(text: string): ShopIntent | null {
     if (item && !/\b(termin|wecker|timer|todo|erinner)\b/i.test(item)) return { kind: 'got', item }
   }
   return null
+}
+
+function clean(s: string): string {
+  return s.replace(/[.!?,;:]+$/g, '').replace(/\s+/g, ' ').trim()
 }

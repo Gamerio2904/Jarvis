@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'rea
 import { getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from './engine/drive'
 import { readInterrupt, subscribeInterrupt } from './engine/interrupt'
 import {
-  MAP_PAINT,
   TILE_SIZE,
   clampMapZoom,
   dayTiles,
@@ -11,7 +10,6 @@ import {
   projectOnTiles,
   readLastMapFix,
   settleZoom,
-  tileFilter,
   tilesPending,
   tileUrl,
   webMercator,
@@ -255,13 +253,12 @@ function FollowMap({
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.imageSmoothingEnabled = true
-      ctx.fillStyle = day ? MAP_PAINT.landDay : MAP_PAINT.landNight
+      ctx.fillStyle = day ? '#e4e0d4' : '#0b100e'
       ctx.fillRect(0, 0, cssW, cssH)
 
       const ready = () => {
         lastDraw = 0
       }
-      ctx.filter = tileFilter(day)
       for (let ty = y0; ty <= y1; ty += 1) {
         for (let tx = x0; tx <= x1; tx += 1) {
           const img = prefetchTile(tileUrl(zInt, tx, ty, day), ready)
@@ -269,11 +266,6 @@ function FollowMap({
           const sy = (ty - camM.y) * size + cy
           if (img) ctx.drawImage(img, sx, sy, size, size)
         }
-      }
-      ctx.filter = 'none'
-      if (!day) {
-        ctx.fillStyle = MAP_PAINT.nightVeil
-        ctx.fillRect(0, 0, cssW, cssH)
       }
 
       const dest = destRef.current
@@ -300,11 +292,11 @@ function FollowMap({
         if (started) {
           ctx.lineJoin = 'round'
           ctx.lineCap = 'round'
-          ctx.strokeStyle = MAP_PAINT.routeCasing
-          ctx.lineWidth = 10
+          ctx.strokeStyle = '#070908'
+          ctx.lineWidth = 8
           ctx.stroke()
-          ctx.strokeStyle = MAP_PAINT.route
-          ctx.lineWidth = 5.5
+          ctx.strokeStyle = '#1ed760'
+          ctx.lineWidth = 4
           ctx.stroke()
         }
       }
@@ -312,11 +304,11 @@ function FollowMap({
       const pinPt = projectOnTiles(dest.lat, dest.lon, camM, zInt, size, cx, cy)
       if (Number.isFinite(pinPt.x) && Number.isFinite(pinPt.y)) {
         ctx.beginPath()
-        ctx.arc(pinPt.x, pinPt.y, 8, 0, Math.PI * 2)
-        ctx.fillStyle = MAP_PAINT.dest
+        ctx.arc(pinPt.x, pinPt.y, 7, 0, Math.PI * 2)
+        ctx.fillStyle = '#f15e6c'
         ctx.fill()
-        ctx.lineWidth = 2.5
-        ctx.strokeStyle = MAP_PAINT.destRing
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#070908'
         ctx.stroke()
       }
 
@@ -327,7 +319,7 @@ function FollowMap({
       if (pin) {
         const on = you.x > -40 && you.x < cssW + 40 && you.y > -40 && you.y < cssH + 40
         pin.style.opacity = on ? '1' : '0'
-        pin.style.transform = `translate(${you.x - 16}px, ${you.y - 22}px) rotate(${headingRef.current}deg)`
+        pin.style.transform = `translate(${you.x - 14}px, ${you.y - 16}px) rotate(${headingRef.current}deg)`
       }
     }
 
@@ -351,15 +343,8 @@ function FollowMap({
     <div className="drive-map-wrap" ref={wrapRef}>
       <canvas className="drive-map-canvas" ref={canvasRef} />
       <div className="drive-you" ref={youRef} aria-hidden>
-        <svg viewBox="-14 -22 28 44" aria-hidden>
-          <ellipse cx="0" cy="2" rx="11" ry="18" fill="rgba(0,0,0,0.28)" />
-          <rect x="-9" y="-18" width="18" height="34" rx="7" fill="#1e2329" stroke="#ffffff" strokeWidth="2.2" />
-          <rect x="-7" y="-16" width="14" height="9" rx="3" fill="#2c333c" />
-          <rect x="-6" y="-5" width="12" height="8" rx="2" fill="#90a4ae" />
-          <rect x="-6.5" y="4" width="13" height="7" rx="2" fill="#eceff1" />
-          <rect x="-5.5" y="12" width="11" height="3.5" rx="1.4" fill="#78909c" />
-          <rect x="-7.2" y="-17.4" width="4.2" height="2" rx="1" fill="#ffe082" />
-          <rect x="3" y="-17.4" width="4.2" height="2" rx="1" fill="#ffe082" />
+        <svg viewBox="-12 -14 24 28">
+          <polygon points="0,-12 8,12 -8,12" fill="#e4c36a" stroke="#070908" strokeWidth="2" />
         </svg>
       </div>
       {browsing ? (

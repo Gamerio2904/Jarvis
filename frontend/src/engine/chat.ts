@@ -28,12 +28,9 @@ import {
   type ResearchMeta,
 } from './research-parse'
 import { fillResearchLinks } from './web-search'
-import { debugPayload } from './chat-debug'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
-  SHARP_MODEL,
-  activeModel,
   addMessage,
   addResearchAudit,
   createConversation as storeCreate,
@@ -95,10 +92,6 @@ export async function getHealth() {
   const err = getLlmError()
   const prog = getDownloadProgress()
   const s = loadSettings()
-  const active = activeModel()
-  const reason = blockedReason(localReady)
-  const online = isOnline()
-  const block = blockedCopy(reason, online)
   return {
     ok: ready,
     ollama: false,
@@ -115,7 +108,6 @@ export async function getHealth() {
     version: APP_VERSION,
     memory_count: mem.length,
     research_opt_in: s.research_opt_in,
-    blocked_reason: !online ? 'offline' : reason,
     tv: tvStatusFromSettings(),
     warning:
       kind === 'gemini'
@@ -133,7 +125,6 @@ export async function getHealth() {
         ? 'Gemini an, aber kein API-Key. Groq oder lokales Modell als Backup.'
         : err || noBrainLine(),
     download_pct: prog.pct,
-    n_threads: getThreadCount(),
   }
 }
 
@@ -164,33 +155,6 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     }
   }
 
-  const refuse = hardRefuse(content)
-  if (refuse) return { reply: refuse, lastTool: 'refuse' }
-
-  const homeHitEarly = await handleHome(conversationId, content)
-  if (homeHitEarly.handled && homeHitEarly.reply) {
-    return { reply: homeHitEarly.reply, tool: homeHitEarly.tool, lastTool: homeHitEarly.lastTool || 'home' }
-  }
-
-  const speakerHit = await handleSpeaker(conversationId, content)
-  if (speakerHit.handled && speakerHit.reply) {
-    return { reply: speakerHit.reply, tool: speakerHit.tool, lastTool: 'speaker' }
-  }
-
-  const step = loadSettings().last_step_tool
-  if (step === 'leave_ask' || step === 'leave_ask_city') {
-    const leavePending = await handleLeave(conversationId, content)
-    if (leavePending.handled && leavePending.reply) {
-      return { reply: leavePending.reply, tool: leavePending.tool, lastTool: leavePending.lastTool || 'leave' }
-    }
-  }
-  if (step === 'drive_ask_city' || step === 'drive_ask_far') {
-    const drivePending = await handleDrive(conversationId, content)
-    if (drivePending.handled && drivePending.reply) {
-      return { reply: drivePending.reply, tool: drivePending.tool, lastTool: drivePending.lastTool || 'drive' }
-    }
-  }
-
   if (loadSettings().last_comm_json) {
     const pendingHit = await handlePlaces(conversationId, content)
     if (pendingHit.handled && pendingHit.reply) {
@@ -198,17 +162,6 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         reply: pendingHit.reply,
         tool: pendingHit.tool,
         lastTool: pendingHit.lastTool || 'maps',
-      }
-    }
-  }
-
-  if (loadSettings().last_cal_json) {
-    const calPending = await handleCalendar(conversationId, content)
-    if (calPending.handled && calPending.reply) {
-      return {
-        reply: calPending.reply,
-        tool: calPending.tool,
-        lastTool: 'calendar',
       }
     }
   }
@@ -472,21 +425,10 @@ export async function streamChat(
       if (research) research = await attachResearchAudit(research, content)
       const joined = replies.join('\n\n')
       handlers.onToken?.(joined)
-      const assistant = await addMessage(
-        conversationId,
-        'assistant',
-        joined,
-        debugPayload({
-          route: last.lastTool || 'tool',
-          model: 'deterministic',
-          gemini: false,
-          tool: last.tool,
-          research,
-          final: joined,
-          routes: found.map((h) => h.lastTool || ''),
-          missed: routed.map((h, i) => (h ? '' : parts[i])).filter(Boolean),
-        }),
-      )
+      const assistant = await addMessage(conversationId, 'assistant', joined, {
+        tool: last.tool,
+        research,
+      })
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({
         assistant_message: assistant,
@@ -501,18 +443,7 @@ export async function streamChat(
       const reply =
         'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
       handlers.onToken?.(reply)
-      const assistant = await addMessage(
-        conversationId,
-        'assistant',
-        reply,
-        debugPayload({
-          route: 'voice-fallback',
-          model: 'none',
-          gemini: false,
-          voice: true,
-          final: reply,
-        }),
-      )
+      const assistant = await addMessage(conversationId, 'assistant', reply)
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
@@ -527,17 +458,7 @@ export async function streamChat(
     const live = isLiveLookup(content, discount)
     if (live && !geminiReady()) {
       if (!s.research_opt_in) {
-        const assistant = await addMessage(
-          conversationId,
-          'assistant',
-          RESEARCH_OFF_REPLY,
-          debugPayload({
-            route: 'research',
-            model: 'deterministic',
-            gemini: false,
-            final: RESEARCH_OFF_REPLY,
-          }),
-        )
+        const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
         return
@@ -553,34 +474,12 @@ export async function streamChat(
           discount,
         )
         handlers.onReplace?.(reply)
-        const assistant = await addMessage(
-          conversationId,
-          'assistant',
-          reply,
-          debugPayload({
-            route: 'research',
-            model: 'deterministic',
-            gemini: false,
-            research,
-            final: reply,
-          }),
-        )
+        const assistant = await addMessage(conversationId, 'assistant', reply, { research })
         const updated = (await touchConversation(conversationId)) || conv
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, research, tool: null })
         return
       }
-      const assistant = await addMessage(
-        conversationId,
-        'assistant',
-        RESEARCH_NEEDS_GEMINI,
-        debugPayload({
-          route: 'research',
-          model: 'deterministic',
-          gemini: false,
-          research,
-          final: RESEARCH_NEEDS_GEMINI,
-        }),
-      )
+      const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
       const updated = (await touchConversation(conversationId)) || conv
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
@@ -679,18 +578,7 @@ export async function streamChat(
         } else if (!text && !researchHasSources(research)) {
           const empty = RESEARCH_EMPTY
           handlers.onReplace?.(empty)
-          const assistant = await addMessage(
-            conversationId,
-            'assistant',
-            empty,
-            debugPayload({
-              route: 'research',
-              model: geminiReady() ? GEMINI_LABEL : DEFAULT_MODEL.label,
-              gemini: geminiReady(),
-              research,
-              final: empty,
-            }),
-          )
+          const assistant = await addMessage(conversationId, 'assistant', empty, { research })
           const updated = (await touchConversation(conversationId)) || conv
           handlers.onDone?.({
             assistant_message: assistant,
@@ -726,20 +614,7 @@ export async function streamChat(
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, content)
     if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
-    const assistant = await addMessage(
-      conversationId,
-      'assistant',
-      final,
-      debugPayload({
-        route: 'llm',
-        model: geminiReady() ? GEMINI_LABEL : DEFAULT_MODEL.label,
-        gemini: geminiReady(),
-        voice: Boolean(opts?.voice),
-        research,
-        raw: text,
-        final,
-      }),
-    )
+    const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || conv
     handlers.onDone?.({
       assistant_message: assistant,

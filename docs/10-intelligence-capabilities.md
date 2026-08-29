@@ -284,27 +284,25 @@ User-Msg
 
 ---
 
-## 5) Model-Routing on-device (`0.13.4`)
+## 5) Besseres Model-Routing
 
 ### Zweck
-Qualität wo nötig, Tempo wo möglich — **auf dem Handy**, ohne Cloud.
+Qualität wo nötig, Tempo wo möglich — auf der RTX-3060-Klasse.
 
-### Policy
+### Policy (Vorschlag)
 | Situation | Modell |
 |-----------|--------|
-| Default / Smalltalk | Qwen2.5-0.5B Q4 |
-| Tasks, wenn Toggle **scharf** | Qwen2.5-1.5B-Instruct Q4 (~1,1 GB) |
-| Memory / Tools / `/hilfe` | kein LLM |
-| 1.5B fehlt / OOM | Fallback 0.5B + Meldung |
-
-Kein Auto-Switch, kein Canned-Smalltalk-Router. Latenz `0.13.2` ändert das Routing nicht.
+| Smalltalk / kurz | Default `qwen2.5:7b` (oder schnelleres Fallback) |
+| Memory-Extrakt / Summary | 7b, niedriger Sampling |
+| Schwere Task / Research-Synthese | optional größeres Modell falls installiert |
+| Fallback | `3b` + UI-Warnung (schon vorhanden) |
 
 ### Settings
-- Toggle schnell / scharf (`0.13.4`)
-- Default immer 0.5B nach First-Run
+- `model_default`, `model_fallback`, `model_heavy` (optional)
+- `routing_mode`: `auto` \| `always_default` \| `always_heavy`
 
 ### Abnahme
-- Health zeigt aktives Modell
+- Auto-Routing wählbar; Health zeigt aktives Modell
 - Kein stiller Cloud-Fallback
 
 ---
@@ -410,8 +408,6 @@ Memory („Merk dir …“) bleibt Fakten-Gedächtnis; Tools sind **explizite Ar
 
 NAS/APK: **`0.10.x`** ([`12-nas-apk.md`](./12-nas-apk.md)). Samsung-TV: **`0.11.x`** (Sprints 40–42).
 
-On-Device nach `0.13.2`: Live-Qualität **`2.2.3` IN SPRINT**, dann 1.5B **`2.2.4` SHOULD**. Mapping [`16-fahrplan.md`](./16-fahrplan.md).
-
 Vorher empfohlen: **`0.8.5`** Persona/Continuity ([27](./sprints/sprint-27.md)).
 
 ---
@@ -440,14 +436,4 @@ Tools Hygiene & Confirm-UX             →  0.9.5  (Sprint 33)
 NAS Core + APK                         →  0.10.0–0.10.5  (Sprints 34–39)
         ↓
 Samsung TV                             →  0.11.0–0.11.2  (Sprints 40–42)
-        ↓
-On-Device Handy                        →  0.13.0–0.13.1  (Sprints 44–45)
-        ↓
-On-Device Latenz                       →  0.13.2  (Sprint 46, in 2.2.2)
-        ↓
-Live-Qualität                          →  2.2.3  (Sprint 105)
-        ↓
-Optional 1.5B                          →  2.2.4  (Sprint 106, SHOULD)
-        ↓
-Alltag & Welt                          →  2.3–2.19  (ab Sprint 107, PO)
 ```

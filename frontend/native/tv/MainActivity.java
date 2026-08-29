@@ -46,7 +46,6 @@ public class MainActivity extends BridgeActivity {
                     || (data != null && "voice".equals(data.getHost()));
         }
         if (!voice) return;
-        JarvisVoicePlugin.holdVoiceUi();
         JarvisVoicePlugin.emitWake();
         if (Build.VERSION.SDK_INT >= 27) {
             setShowWhenLocked(true);
@@ -56,14 +55,5 @@ public class MainActivity extends BridgeActivity {
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                         | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (JarvisDevicePlugin.debugHold() && getBridge() != null && getBridge().getWebView() != null) {
-            getBridge().getWebView().onResume();
-            getBridge().getWebView().resumeTimers();
-        }
     }
 }

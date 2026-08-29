@@ -28,7 +28,7 @@
             android:layout_height="44dp"
             android:background="@drawable/jarvis_widget_mic"
             android:clickable="true"
-            android:contentDescription="Wake-Word an"
+            android:contentDescription="Jarvis hören"
             android:focusable="true"
             android:gravity="center"
             android:text="🎙"

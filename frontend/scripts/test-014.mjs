@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
-import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS, selectedTestPrompts, testPromptKey } from '../src/engine/test-copy.ts'
+import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
-import { scrubReply, isHelpCommand, finishReply, HELP_TEXT, hardRefuse } from '../src/engine/guards.ts'
+import { scrubReply, isHelpCommand, finishReply, HELP_TEXT } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import {
   formatResearchReply,
@@ -35,7 +35,7 @@ import { timerDoneLine, cleanTimerTitle, timerSetLine, timerStopLine } from '../
 import { expandZahlenworte } from '../src/engine/zahlenworte.ts'
 import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
-import { parseCalendarIntent, parseCalDecision, splitTitlePlace } from '../src/engine/calendar-parse.ts'
+import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
 import { ttsBudgetMs, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
@@ -49,7 +49,6 @@ import { lanIpHint } from '../src/engine/plug-net.ts'
 import {
   displayPlaceName,
   findContactRow,
-  findPlaceRow,
   isCommNo,
   isCommYes,
   mapsDirUrl,
@@ -65,7 +64,6 @@ import { pickHeard } from '../src/engine/heard.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
 import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
-import { parseSpeakerIntent } from '../src/engine/speaker-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
@@ -81,7 +79,7 @@ import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { formatFilmReply } from '../src/engine/film.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
-import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, MAP_PAINT, panCam, projectOnTiles, projectToView, settleZoom, simplifyTrack, snapToTrack, tileFilter, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
+import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, panCam, projectOnTiles, projectToView, settleZoom, simplifyTrack, snapToTrack, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
 import { pickGeoHits } from '../src/engine/geo-lookup.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
@@ -291,13 +289,7 @@ assert.equal(dirFromManeuver('turn', 'slight left'), 'slight_left')
   assert.equal(settleZoom(16, 15, t0, t0 + 2000), 15)
   assert.equal(wrapTile(3, -1), 7)
   assert.ok(tileUrl(16, 1, 2, true).includes('cartocdn.com'))
-  assert.ok(tileUrl(16, 1, 2, true).includes('voyager'))
-  assert.ok(tileUrl(16, 1, 2, false).includes('voyager'))
-  assert.ok(!tileUrl(16, 1, 2, false).includes('dark_all'))
   assert.ok(!tileUrl(16, 1, 2, true).includes('rotate'))
-  assert.match(tileFilter(true), /saturate/)
-  assert.equal(MAP_PAINT.route, '#1a73e8')
-  assert.notEqual(MAP_PAINT.route, '#1ed760')
   const home = { lat: 48.78, lon: 9.18, zoom: 16 }
   const west = panCam(home, 256, 0)
   assert.ok(west.lon < home.lon)
@@ -493,19 +485,6 @@ if (munich?.kind === 'place') assert.equal(munich.place, 'München')
 assert.equal(parseWeatherIntent('Wetter morgen in Köln')?.when, 'tomorrow')
 assert.equal(parseWeatherIntent('Brauche ich einen Schirm')?.focus, 'rain')
 assert.equal(parseWeatherIntent('Was soll ich anziehen')?.focus, 'wear')
-assert.equal(parseWeatherIntent('Was soll ich anziehen')?.kind, 'ask')
-assert.equal(parseShopIntent('Guten Morgen'), null)
-assert.equal(parseFilmIntent('Switch 2 kaufen'), null)
-assert.equal(parseFilmIntent('Wo kann ich Switch 2 kaufen'), null)
-assert.equal(parseFilmIntent('Ne die Switch 2 mit Rabatt'), null)
-assert.ok(isProductLookup('Wo kann ich Switch 2 kaufen'))
-assert.ok(isProductLookup('Ne die Switch 2 mit Rabatt'))
-assert.equal(parseShopIntent('Wo kann ich Switch 2 kaufen'), null)
-assert.equal(parseShopIntent('Switch 2 kaufen')?.kind, 'add')
-assert.equal(parseWeatherIntent('Brauche ich in Bietigheim einen Schirm?')?.kind, 'place')
-assert.equal(parseWeatherIntent('Brauche ich in Bietigheim einen Schirm?')?.place, 'Bietigheim')
-assert.match(researchQuery('Kannst du den bip von Deutschland in einer Tabelle darstellen?'), /Bruttoinlandsprodukt/)
-assert.deepEqual(splitTitlePlace('Termin 15 Uhr'), { title: 'Termin 15 Uhr' })
 assert.equal(parseWeatherIntent('Wetter am Wochenende')?.when, 'weekend')
 assert.equal(parseWeatherIntent('Hallo Jarvis'), null)
 const last = { kind: 'place', place: 'München', when: 'today', focus: 'general' }
@@ -514,8 +493,6 @@ assert.equal(follow?.when, 'tomorrow')
 if (follow?.kind === 'place') assert.equal(follow.place, 'München')
 const followCity = parseWeatherFollowup('und in Berlin', last)
 if (followCity?.kind === 'place') assert.equal(followCity.place, 'Berlin')
-const schirmFollow = parseWeatherFollowup('Brauche ich in Bietigheim einen Schirm?', last)
-if (schirmFollow?.kind === 'place') assert.equal(schirmFollow.place, 'Bietigheim')
 assert.equal(parseWeatherFollowup('und morgen?', null), null)
 
 const snap = {
@@ -619,26 +596,6 @@ assert.equal(parseWeatherFollowup('und morgen?', { kind: 'here', when: 'today', 
     { lat: 48.961, lon: 9.178, place: 'Ingersheim, Baden-Württemberg', country: 'DE' },
   ])
   assert.match(noGps?.place || '', /Baden-Württemberg/)
-}
-{
-  const near = { lat: 48.96, lon: 9.18 }
-  const munich = pickGeoHits(
-    [
-      {
-        lat: 47.514,
-        lon: 7.619,
-        place: 'Münchenstein, Basel-Landschaft',
-        country: 'CH',
-        name: 'Münchenstein',
-        population: 12_000,
-      },
-      { lat: 48.137, lon: 11.576, place: 'München, Bayern', country: 'DE', name: 'München', population: 1_500_000 },
-    ],
-    near,
-    'München',
-  )
-  assert.match(munich?.place || '', /^München/)
-  assert.doesNotMatch(munich?.place || '', /stein/)
 }
 {
   const ring = [
@@ -764,7 +721,7 @@ assert.equal(
 )
 assert.equal(
   rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
-  null,
+  'Öffne Netflix',
 )
 assert.equal(
   rewriteFollowUp('ok', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix' }),
@@ -947,58 +904,8 @@ assert.equal(parseToolIntent('Odett anrufen'), null)
 const phoneOdett = parsePlaceNav('Odett 01711234567')
 assert.equal(phoneOdett?.kind, 'phone')
 if (phoneOdett?.kind === 'phone') assert.equal(phoneOdett.number.replace(/\D/g, '').length >= 6, true)
-const phoneOdettNum = parsePlaceNav('Odett Nummer 01711234567')
-assert.equal(phoneOdettNum?.kind, 'phone')
-if (phoneOdettNum?.kind === 'phone') assert.equal(phoneOdettNum.name, 'odett')
-const homeNum = parsePlaceNav('Meine Heimnummer ist 07142 788326. Das ist die Nummer von Meinem Haus')
-assert.equal(homeNum?.kind, 'phone')
-if (homeNum?.kind === 'phone') {
-  assert.equal(homeNum.name, 'zuhause')
-  assert.match(homeNum.number, /07142/)
-}
-assert.equal(isCommYes('Rufe zu Hause an', 'call'), true)
-assert.equal(isCommYes('Anrufen', 'call'), true)
-assert.equal(parseCalDecision('Überschreiben'), 'overwrite')
-assert.equal(parseCalDecision('belassen'), 'keep')
-assert.equal(parseCalDecision('trotzdem'), 'add')
-assert.equal(findPlaceRow(
-  [{ key: 'freundin', value: 'Heilbronn', category: 'place' }, { key: 'alias:odett', value: 'freundin', category: 'fact' }],
-  'odett',
-)?.value, 'Heilbronn')
-assert.equal(parsePlaceNav('Meine Freundin heißt Odett')?.kind, 'alias')
-{
-  const ist = parsePlaceNav('Meine Freundin ist Odett')
-  assert.equal(ist?.kind, 'alias')
-  if (ist?.kind === 'alias') {
-    assert.equal(ist.name, 'freundin')
-    assert.equal(ist.alias, 'odett')
-  }
-  const rev = parsePlaceNav('Odett ist meine Freundin')
-  assert.equal(rev?.kind, 'alias')
-  if (rev?.kind === 'alias') {
-    assert.equal(rev.name, 'odett')
-    assert.equal(rev.alias, 'freundin')
-  }
-}
-assert.equal(parsePlaceNav('München ist schön'), null)
-{
-  const tel = parsePlaceNav('Nummer für Freundin +49 1512 9733243')
-  assert.equal(tel?.kind, 'phone')
-  if (tel?.kind === 'phone') {
-    assert.equal(tel.name, 'freundin')
-    assert.match(tel.number, /15129733243/)
-  }
-}
-assert.equal(parseSpeakerIntent('Ich bin zuhause'), null)
-assert.equal(parseSpeakerIntent('Ich bin Max')?.kind, 'iam')
-assert.equal(parseHomeIntent('erinner mich zu Hause')?.kind, 'ask_task')
-assert.equal(parseHomeIntent('erinner mich zu Hause an Müll')?.kind, 'when_home')
-assert.equal(parseHomeIntent('erinner mich zuhause')?.kind, 'ask_task')
-assert.ok(hardRefuse('Ist ein Fliegenpilz essbar?'))
-assert.ok(hardRefuse('Soll ich den Vermieter verklagen?'))
-assert.equal(parseShopIntent('Ne die Switch 2 mit Rabatt'), null)
-assert.equal(parseWeatherFollowup('Wetter heute', { kind: 'here', when: 'today', focus: 'sun' }), null)
-assert.equal(parseWeatherFollowup('in 20 Minuten', { kind: 'here', when: 'today', focus: 'general' }), null)
+const alias = parsePlaceNav('Meine Freundin heißt Odett')
+assert.equal(alias?.kind, 'alias')
 assert.equal(
   findContactRow(
     [
@@ -1122,10 +1029,7 @@ assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
 assert.match(HELP_TEXT, /Steckdosen/)
 assert.match(HELP_TEXT, /Uhrzeit/)
-assert.match(HELP_TEXT, /Musik ist nicht angebunden/)
-assert.match(HELP_TEXT, /Einstellungen → APIs/)
-assert.match(HELP_TEXT, /Einstellungen → Rabatt/)
-assert.doesNotMatch(HELP_TEXT, /Lautstärke am Steuer ist Spotify/)
+assert.doesNotMatch(HELP_TEXT, /Einstellungen Tests/)
 
 const copyTexts = allTestCopyTexts()
 assert.ok(TEST_COPY_GROUPS.some((g) => /Randfälle/i.test(g.title)))

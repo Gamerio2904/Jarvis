@@ -14,8 +14,8 @@ import {
 } from './research-parse'
 import { loadSettings } from './store'
 
-const UA = 'Jarvis/2.37.2 (local.jarvis.app)'
-const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.37.2'
+const UA = 'Jarvis/2.2.0 (local.jarvis.app)'
+const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.2.0'
 
 export async function fillResearchLinks(
   queryText: string,
@@ -35,19 +35,13 @@ export async function fillResearchLinks(
     extra.push(...(await duckDuckGo(`${query} site:destatis.de`)))
   }
   const need = product ? 3 : fact ? 3 : 2
-  const weakSnippet = () => extra.filter((s) => (s.snippet || '').length > 40).length < 1
-  const weakUrl = () => extra.filter((s) => s.url).length < need
-  if (fact) {
-    extra.push(...(await wikipedia(companyHint(query) || query)))
-    extra.push(...destatis(query))
-  }
-  if (weakUrl() || (fact && weakSnippet())) {
+  if (extra.filter((s) => s.url).length < need || (fact && extra.filter((s) => (s.snippet || '').length > 40).length < 1)) {
     const searches = product
       ? discount
         ? [query, `${query} Preis Vergleich`, `${query} Gutschein Rabatt`]
         : [query, `${query} Preis Vergleich`]
       : fact
-        ? [query, `${query} Statistik Destatis`, `${query} Geschäftsbericht`]
+        ? [query, `${query} Statistik`, `${query} Geschäftsbericht`]
         : [query]
     const found = await Promise.all(searches.map((q) => duckDuckGo(q)))
     extra.push(...found.flat())
@@ -55,12 +49,12 @@ export async function fillResearchLinks(
   if (extra.filter((s) => s.url && s.snippet).length < 1) {
     extra.push(...(await duckInstant(query)))
   }
-  if (!fact && (weakUrl() || weakSnippet())) {
-    extra.push(...(await wikipedia(query)))
+  if (extra.filter((s) => s.url).length < 2 || (fact && extra.filter((s) => (s.snippet || '').length > 40).length < 1)) {
+    extra.push(...(await wikipedia(fact ? companyHint(query) : query)))
   }
   if (product) extra.push(...compareShopSources(query))
   if (product && discount) extra.push(...compareDiscountSources(query))
-  if (product) extra.sort((a, b) => shopRank(a.url) - shopRank(b.url))
+  extra.sort((a, b) => shopRank(a.url) - shopRank(b.url))
   return mergeResearchSources(research, extra, query)
 }
 
@@ -151,28 +145,13 @@ async function wikipedia(query: string): Promise<ResearchSource[]> {
 }
 
 function companyHint(q: string): string {
-  if (/\b(?:bip|b\.i\.p\.|gdp|bruttoinlandsprodukt)\b/i.test(q)) return 'Bruttoinlandsprodukt Deutschland'
-  const skip =
-    /^(wie|was|wer|wo|wann|wieso|weshalb|viele|viel|am|tag|pro|der|die|das|ein|eine|tabelle|statistik|daten|destatis)$/i
+  const skip = /^(wie|was|wer|wo|wann|wieso|weshalb|viele|viel|am|tag|pro|der|die|das|ein|eine)$/i
   const words = q.split(/\s+/)
   for (let i = words.length - 1; i >= 0; i -= 1) {
     const w = words[i].replace(/[?.!,]/g, '')
     if (w.length >= 3 && !skip.test(w) && /^[A-ZÄÖÜ]/.test(w)) return w
   }
   return q
-}
-
-function destatis(query: string): ResearchSource[] {
-  const q = encodeURIComponent(query.slice(0, 80))
-  return [
-    {
-      title: 'Destatis — Statistisches Bundesamt',
-      url: `https://www.destatis.de/DE/Service/Suche/suche_node.html?query=${q}`,
-      snippet: `Offizielle Statistik DE zur Anfrage „${query}“. Zahlen nur aus Destatis oder Wikipedia, nichts erfinden.`,
-      provider: 'destatis',
-      retrieved_at: new Date().toISOString(),
-    },
-  ]
 }
 
 async function wikiExtract(title: string): Promise<string> {
@@ -190,7 +169,7 @@ async function wikiExtract(title: string): Promise<string> {
       const extract = String(page?.extract || '')
         .replace(/\s+/g, ' ')
         .trim()
-      if (extract) return extract.slice(0, 800)
+      if (extract) return extract.slice(0, 400)
     }
   } catch {
     /* Extract ist optional */

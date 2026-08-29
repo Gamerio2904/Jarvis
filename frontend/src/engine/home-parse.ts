@@ -1,7 +1,6 @@
 export type HomeIntent =
   | { kind: 'when_home'; task: string; address?: string; radiusM?: number }
   | { kind: 'im_home' }
-  | { kind: 'ask_task' }
 
 function cleanTask(raw: string): string {
   return raw
@@ -10,23 +9,11 @@ function cleanTask(raw: string): string {
     .trim()
 }
 
-const HOME_WORD = '(?:zuhause|zu\\s*hause|heim|daheim)'
-
 export function parseHomeIntent(text: string): HomeIntent | null {
   const t = text.trim()
   if (!t || t.length > 220) return null
-  if (
-    /^ich\s+bin\s+(?:jetzt\s+)?(?:zuhause|zu\s*hause|heim|daheim)(?:\s+in\s+.+)?\s*[.!]?\s*$/i.test(t)
-  ) {
+  if (/^ich\s+bin\s+(?:jetzt\s+)?(?:zuhause|zu\s*hause|heim)\s*[.!]?\s*$/i.test(t)) {
     return { kind: 'im_home' }
-  }
-  const remindHome = new RegExp(
-    `^\\s*erinner(?:e)?\\s+mich\\s+(?:wenn\\s+ich\\s+)?${HOME_WORD}(?:\\s+bin)?(?:\\s+an\\s+(.+))?\\s*$`,
-    'i',
-  ).exec(t)
-  if (remindHome) {
-    const task = cleanTask(remindHome[1] || '')
-    return task.length >= 2 ? { kind: 'when_home', task } : { kind: 'ask_task' }
   }
   const geo =
     /^\s*wenn\s+(?:ich|du|sie)\s+.{0,60}?(?:umkreis|radius|meter).{0,40}?(?:haus|zuhause|wohnung)\s+(.+?)\s+(?:bin|bist|sind)\s*[,:]?\s*(.+)\s*$/i.exec(
@@ -45,7 +32,7 @@ export function parseHomeIntent(text: string): HomeIntent | null {
     }
   }
   const m =
-    /^\s*wenn\s+ich\s+(?:zuhause|zu\s*hause|heim|daheim)\s+bin\s*[,:]?\s*(.+?)\s*$/i.exec(t)
+    /^\s*wenn\s+ich\s+(?:zuhause|zu\s*hause|heim)\s+bin\s*[,:]?\s*(.+?)\s*$/i.exec(t)
   if (!m) return null
   const task = cleanTask(m[1])
   if (!task || task.length < 2) return null

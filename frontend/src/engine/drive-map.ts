@@ -17,29 +17,12 @@ export function wrapTile(n: number, x: number): number {
   return ((x % size) + size) % size
 }
 
-/** Street-map paint: gray roads and blue water on the tiles, nav-blue route, red pin. */
-export const MAP_PAINT = {
-  landDay: '#e8e4d6',
-  landNight: '#1a2832',
-  nightVeil: 'rgba(8, 24, 42, 0.2)',
-  routeCasing: '#0a2744',
-  route: '#1a73e8',
-  dest: '#c62828',
-  destRing: '#ffffff',
-} as const
-
-/** Voyager keeps rivers blue and streets light. dark_all made both asphalt-gray. */
-export function tileUrl(z: number, x: number, y: number, _day?: boolean): string {
+export function tileUrl(z: number, x: number, y: number, day: boolean): string {
   const tx = wrapTile(z, x)
   const n = 2 ** z
   const ty = Math.min(n - 1, Math.max(0, y))
-  return `https://basemaps.cartocdn.com/rastertiles/voyager/${z}/${tx}/${ty}@2x.png`
-}
-
-export function tileFilter(day: boolean): string {
-  return day
-    ? 'saturate(1.48) contrast(1.18) brightness(1.04)'
-    : 'saturate(1.38) contrast(1.2) brightness(0.86)'
+  const style = day ? 'rastertiles/voyager' : 'dark_all'
+  return `https://basemaps.cartocdn.com/${style}/${z}/${tx}/${ty}@2x.png`
 }
 
 export function dayTiles(at = new Date()): boolean {

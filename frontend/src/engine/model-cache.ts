@@ -1,20 +1,13 @@
 import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
-import { FAST_MODEL, SHARP_MODEL, activeModel } from './store'
+import { DEFAULT_MODEL } from './store'
 
-type Spec = typeof FAST_MODEL | typeof SHARP_MODEL
-let spec: Spec = FAST_MODEL
-
-export function applyModelSpec(next: Spec) {
-  spec = next
-}
-
-function FLAG_KEY() {
-  return `jarvis_gguf_ready_${spec.id}`
-}
-
+const OPFS_NAME = DEFAULT_MODEL.file
 const IDB_NAME = 'jarvis-gguf'
 const IDB_STORE = 'blobs'
+const MODEL_ID = 'default'
+const FLAG_KEY = 'jarvis_gguf_ready'
+const MIN_BYTES = 480_000_000
 
 type ModelRow = {
   id: string
@@ -49,7 +42,7 @@ function openModelDb(): Promise<IDBDatabase> {
 async function writeOpfs(blob: Blob): Promise<boolean> {
   try {
     const root = await navigator.storage.getDirectory()
-    const handle = await root.getFileHandle(spec.file, { create: true })
+    const handle = await root.getFileHandle(OPFS_NAME, { create: true })
     const writable = await handle.createWritable()
     await writable.write(blob)
     await writable.close()
@@ -62,9 +55,9 @@ async function writeOpfs(blob: Blob): Promise<boolean> {
 async function readOpfs(): Promise<Blob | null> {
   try {
     const root = await navigator.storage.getDirectory()
-    const handle = await root.getFileHandle(spec.file)
+    const handle = await root.getFileHandle(OPFS_NAME)
     const file = await handle.getFile()
-    return file.size >= spec.minBytes ? file : null
+    return file.size >= MIN_BYTES ? file : null
   } catch {
     return null
   }
@@ -78,8 +71,8 @@ async function writeIdb(blob: Blob): Promise<boolean> {
       tx.oncomplete = () => resolve()
       tx.onerror = () => reject(tx.error)
       tx.objectStore(IDB_STORE).put({
-        id: spec.id,
-        file: spec.file,
+        id: MODEL_ID,
+        file: DEFAULT_MODEL.file,
         size: blob.size,
         blob,
         saved_at: new Date().toISOString(),
@@ -96,11 +89,11 @@ async function readIdb(): Promise<Blob | null> {
     const db = await openModelDb()
     const row = await new Promise<ModelRow | undefined>((resolve, reject) => {
       const tx = db.transaction(IDB_STORE, 'readonly')
-      const req = tx.objectStore(IDB_STORE).get(spec.id)
+      const req = tx.objectStore(IDB_STORE).get(MODEL_ID)
       req.onsuccess = () => resolve(req.result as ModelRow | undefined)
       req.onerror = () => reject(req.error)
     })
-    if (!row?.blob || row.blob.size < spec.minBytes) return null
+    if (!row?.blob || row.blob.size < MIN_BYTES) return null
     return row.blob
   } catch {
     return null
@@ -110,8 +103,8 @@ async function readIdb(): Promise<Blob | null> {
 function setReadyFlag(size: number): void {
   try {
     localStorage.setItem(
-      FLAG_KEY(),
-      JSON.stringify({ file: spec.file, size, at: Date.now() }),
+      FLAG_KEY,
+      JSON.stringify({ file: DEFAULT_MODEL.file, size, at: Date.now() }),
     )
   } catch {
     /* quota */
@@ -120,10 +113,10 @@ function setReadyFlag(size: number): void {
 
 export function readReadyFlag(): { file: string; size: number } | null {
   try {
-    const raw = localStorage.getItem(FLAG_KEY())
+    const raw = localStorage.getItem(FLAG_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw) as { file?: string; size?: number }
-    if (parsed.file !== spec.file || !parsed.size || parsed.size < spec.minBytes) {
+    if (parsed.file !== DEFAULT_MODEL.file || !parsed.size || parsed.size < MIN_BYTES) {
       return null
     }
     return { file: parsed.file, size: parsed.size }
@@ -133,7 +126,6 @@ export function readReadyFlag(): { file: string; size: number } | null {
 }
 
 export async function hasCachedModel(): Promise<boolean> {
-  applyModelSpec(activeModel())
   if (await hasNativeModel()) return true
   if (await readOpfs()) return true
   if (await readIdb()) return true
@@ -158,7 +150,7 @@ export async function loadPersistedModel(): Promise<Blob | null> {
 }
 
 export async function persistModel(blob: Blob): Promise<void> {
-  if (blob.size < spec.minBytes) {
+  if (blob.size < MIN_BYTES) {
     throw new Error('Download unvollständig (Datei zu klein). WLAN prüfen und erneut versuchen.')
   }
   await requestPersistentStorage()
@@ -172,6 +164,9 @@ export async function persistModel(blob: Blob): Promise<void> {
   setReadyFlag(blob.size)
 }
 
+const NATIVE_FILE = DEFAULT_MODEL.file
+export const MODEL_DOWNLOAD_URL = `https://huggingface.co/${DEFAULT_MODEL.repo}/resolve/main/${DEFAULT_MODEL.file}?download=true`
+
 export function isNativeApp(): boolean {
   return Capacitor.isNativePlatform()
 }
@@ -179,8 +174,8 @@ export function isNativeApp(): boolean {
 export async function hasNativeModel(): Promise<boolean> {
   if (!Capacitor.isNativePlatform()) return false
   try {
-    const st = await Filesystem.stat({ path: spec.file, directory: Directory.Data })
-    return (st.size || 0) >= spec.minBytes
+    const st = await Filesystem.stat({ path: NATIVE_FILE, directory: Directory.Data })
+    return (st.size || 0) >= MIN_BYTES
   } catch {
     return false
   }
@@ -188,12 +183,12 @@ export async function hasNativeModel(): Promise<boolean> {
 
 export async function loadNativeModel(): Promise<Blob | null> {
   if (!(await hasNativeModel())) return null
-  const { uri } = await Filesystem.getUri({ path: spec.file, directory: Directory.Data })
+  const { uri } = await Filesystem.getUri({ path: NATIVE_FILE, directory: Directory.Data })
   const url = Capacitor.convertFileSrc(uri)
   const res = await fetch(url)
   if (!res.ok) return null
   const blob = await res.blob()
-  if (blob.size < spec.minBytes) return null
+  if (blob.size < MIN_BYTES) return null
   setReadyFlag(blob.size)
   return blob
 }
@@ -201,7 +196,6 @@ export async function loadNativeModel(): Promise<Blob | null> {
 export async function downloadNativeModel(
   onProgress: (loaded: number, total: number) => void,
 ): Promise<Blob> {
-  const url = `https://huggingface.co/${spec.repo}/resolve/main/${spec.file}?download=true`
   let lastErr: unknown = null
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
@@ -210,8 +204,8 @@ export async function downloadNativeModel(
       })
       try {
         await Filesystem.downloadFile({
-          url,
-          path: spec.file,
+          url: MODEL_DOWNLOAD_URL,
+          path: NATIVE_FILE,
           directory: Directory.Data,
           progress: true,
           recursive: true,
@@ -229,7 +223,7 @@ export async function downloadNativeModel(
     } catch (err) {
       lastErr = err
       try {
-        await Filesystem.deleteFile({ path: spec.file, directory: Directory.Data })
+        await Filesystem.deleteFile({ path: NATIVE_FILE, directory: Directory.Data })
       } catch {
         /* ignore */
       }

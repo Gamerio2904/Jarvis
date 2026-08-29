@@ -1,4 +1,4 @@
-# 30 — Uhrzeit, Ort, Research, Live-Qualität (`2.2.0`–`2.2.4`)
+# 30 — Uhrzeit, Ort, Research (`2.2.0`–`2.2.2`)
 
 > Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
 
@@ -7,9 +7,7 @@ PO 2026-08-20 (Screenshots): Jarvis wusste die Uhrzeit nicht, hat den Wohnort ge
 
 Reihe davor: [`29-next.md`](./29-next.md). App vorher: Sideload **`2.1.1`**. Reihe danach: [`32-intelligence.md`](./32-intelligence.md) **CODE** (`3.0.0`), Welt [`31-next.md`](./31-next.md).
 
-Früher intern falsch `0.13.2`–`0.14`: Latenz ist in `0.13.2`/`2.2.2` schon da; Live-Qualität = **`2.2.3`** (in `2.19.0`); optionales 1.5B = **`2.2.4`**; native llama.cpp bleibt PO.
-
-Eine Sideload-Stufe pro Version — `2.3`–`2.19` sind in **`2.19.0`** zusammengefasst.
+Eine Sideload-Stufe.
 
 ## Reihenfolge
 
@@ -18,10 +16,8 @@ Eine Sideload-Stufe pro Version — `2.3`–`2.19` sind in **`2.19.0`** zusammen
 | **`2.2.0`** | Uhrzeit vom Gerät, GPS statt Wohnort-Raten, Suche von selbst bei Live-Fakten | **CODE** |
 | **`2.2.1`** | Testprompts zum Kopieren (Einstellungen → Tests) | **CODE** |
 | **`2.2.2`** | Testprompts wieder raus aus der APK | **CODE** |
-| **`2.2.3`** | Live-Qualität: Uhr/Akku frisch, Musik ehrlich, Wetter-Gate, Einkauf-Intent | **CODE** (in `2.19.0`) |
-| **`2.2.4`** | Optional 1.5B Q4 on-device (Default 0.5B) | **CODE** (in `2.37.0`) |
 
-Sprints: [`sprint-104.md`](./sprints/sprint-104.md) (`2.2.0`–`2.2.2`) · [`sprint-105.md`](./sprints/sprint-105.md) (`2.2.3`) · [`sprint-106.md`](./sprints/sprint-106.md) (`2.2.4`).
+Sprint: [`sprint-104.md`](./sprints/sprint-104.md).
 
 ## Leitentscheidung
 
@@ -31,8 +27,7 @@ Sprints: [`sprint-104.md`](./sprints/sprint-104.md) (`2.2.0`–`2.2.2`) · [`spr
 | Ort | GPS / Freigabe. Wohnort aus dem Gedächtnis ist keine Live-Lage. |
 | Research | Mit Gemini: BIP, aktuelle Zahlen, Tabellen — Suche ohne das Wort „suche“. Lücke in der Antwort → nochmal Netz. |
 | Tabelle | Textzeilen mit Spatien, kein Markdown, keine Absage. Zahlen nur aus Treffern. |
-| Wetter (`2.2.0`) | `Wetter heute` = Open-Meteo. |
-| Wetter (`2.2.3`) | Nur Wetterfrage + Standort. **Kein** Wetter in „Was steht an“ / „Was kommt heute?“ / Briefing. |
+| Wetter | `Guten Morgen` / `Wetter heute` bleiben Brief bzw. Open-Meteo. |
 
 ## Chat
 
@@ -48,7 +43,7 @@ Sprints: [`sprint-104.md`](./sprints/sprint-104.md) (`2.2.0`–`2.2.2`) · [`spr
 2. `Wo bin ich?` — GPS oder Nachfrage, kein geratener Wohnort.
 3. `Was ist der BIP in Deutschland` mit Gemini — Zahlen aus Quellen, nicht „keine verifizierten Zahlen“.
 4. Tabelle-Frage — Texttabelle oder belegte Zahlen, nicht „Tabellen kann ich nicht“.
-5. `Steckdose an` bleibt Stecker. `kein Kaffee mehr` bleibt Gedächtnis. Ab `2.2.3`: `Guten Morgen` ist Begrüßung, kein Einkauf und kein Wetter-Brief.
+5. `Guten Morgen` bleibt Wetter-Brief. `Steckdose an` bleibt Stecker. `kein Kaffee mehr` bleibt Gedächtnis.
 
 ## `2.2.1` — Testprompts kopieren — **CODE**
 
@@ -60,31 +55,6 @@ Einstellungen → Tests: jedes Prompt-Feld hat **Kopieren**, plus Alle je Gruppe
 
 Kopierfelder wieder weg aus Einstellungen. Prompts nur außerhalb der APK (dieser Chat). Chat ohne Chips.
 
-## `2.2.3` — Live-Qualität — **CODE** (in `2.19.0`)
+## Won’t
 
-Quelle: [`15-live-probe.md`](./15-live-probe.md) · Sprint [`sprint-105.md`](./sprints/sprint-105.md).  
-(Intern früher `0.13.3`.)
-
-Live-Musts zuerst, dann 0.5B-Härten in derselben Version (Gemini aus).
-
-| Must | Chat / Probe |
-|------|----------------|
-| Uhr, Akku live | `Wie spät ist es?` / `Wie voll ist der Akku?` = Statusleiste |
-| Kein Fake-Spotify | `Spiel mal was Nettes` → „Musik ist nicht angebunden.“ Kein Modal, **keine API** |
-| Briefing ohne Wetter | `Was steht an?` / `Was kommt heute?` — Termine, keine °C/Luft/Sonne |
-| Wetter-Gate | nur Wetterfrage + Ort oder „hier“; `anziehen` ohne Ort = nachfragen |
-| Ort aus dem Satz | Bietigheim, nicht der ganze Satz; kein München-Default |
-| Einkauf nur Kauf | `Guten Morgen` ≠ Listenposten; `Milch kaufen` bleibt Liste |
-| Intent | Switch-2-Kauf ≠ Film; `Termin 15 Uhr` ≠ Ort; Recall ohne Müll |
-
-Should: Texttabelle (BIP), Zahl oder „keine Quelle“, Ticker nicht über Icons, `/hilfe` ohne Spotify-Claim.
-
-Won’t in `2.2.3`: Spotify bauen, Wetter „nett dazu“, 1.5B, DWD.
-
-## `2.2.4` — optionales 1.5B — **PLANNED** SHOULD
-
-Sprint [`sprint-106.md`](./sprints/sprint-106.md). Default 0.5B. Toggle scharf ≈ 1,1 GB. Blockiert `2.3.0` nicht. Native llama.cpp = PO, nicht diese Version.
-
-## Won’t (`2.2.x`)
-
-Zahlen erfinden, Standort raten, Spotify-API, Tuya-Cloud, Tapo, Apple CarPlay, iOS, Play Store.
+Zahlen erfinden, Standort raten, Tuya-Cloud, Tapo, Apple CarPlay, iOS, Play Store.

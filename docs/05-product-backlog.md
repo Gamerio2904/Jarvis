@@ -201,10 +201,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S10.1 | Als Nutzer will ich in einem „Merk dir“-Satz mehrere Fakten speichern. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S10.2 | Als Nutzer will ich Pref-Fragen („Was trinke ich?“) als Recall, nicht Smalltalk. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S10.3 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt Smalltalk. | Should | parked | Sprint 32 / `0.9.4` Parking |
-| S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
+| S10.1 | Als Nutzer will ich in einem „Merk dir“-Satz mehrere Fakten speichern. | Must | ready | Sprint 31 / `0.9.3` |
+| S10.2 | Als Nutzer will ich Pref-Fragen („Was trinke ich?“) als Recall, nicht Smalltalk. | Must | ready | Sprint 31 / `0.9.3` |
+| S10.3 | Als Nutzer will ich nach Clarify eine Plan-Fortsetzung statt Smalltalk. | Must | ready | Sprint 32 / `0.9.4` |
+| S10.4 | Als Nutzer will ich Rest-Broken-Siezen und EN-Leaks weg. | Must | ready | Sprint 32 / `0.9.4` |
 
 ### E11 — NAS & APK (`0.10.x`)
 
@@ -501,26 +501,6 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S48.9 | Reduced-Motion Tour ohne Auto-Flug | Should | ready | Glow+Liste |
 
 ---
-
-### E26 — Live-Qualität (`2.2.3`–`2.2.4`)
-
-IDs `S14.*` aus dem falsch nummerierten `0.13.x`-Entwurf, Lieferung jetzt `2.2.3` / `2.2.4`.
-
-| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
-|----|-------|--------|--------|------------------|
-| S14.1 | Als Nutzer will ich Antworten ohne 1-Thread-WASM-Bremse. | Must | done | historisch Sprint 46 / `0.13.2` — in `2.2.2` drin |
-| S14.2 | Als Nutzer will ich Tokens gestreamt sehen, nicht 75 s warten. | Must | done | historisch Sprint 46 / `0.13.2` — in `2.2.2` drin |
-| S14.3 | Als Nutzer will ich Pref-Fragen ehrlich, ohne Raten. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S14.4 | Als Nutzer will ich Jarvis-Ton und ehrliches Memory auf 0.5B. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S14.5 | Als Nutzer will ich optional ein schärferes 1.5B on-device. | Should | ready | Sprint 106 / `2.2.4` — blockiert DWD nicht |
-| S14.6 | Als Nutzer will ich keine Spotify-Fehlermeldung, weil es keine Spotify-API gibt. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S14.7 | Als Nutzer will ich bei „Was steht an“ kein Wetter. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S14.8 | Als Nutzer will ich Wetter nur, wenn ich nach dem Wetter an einem Standort frage. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S14.9 | Als Nutzer will ich die echte Uhr- und Akku-Anzeige, nicht einen alten Cache. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S14.10 | Als Nutzer will ich, dass „Guten Morgen“ nicht auf die Einkaufsliste kommt. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S14.11 | Als Nutzer will ich einen Switch-Kauf nicht als Film. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S14.12 | Als Nutzer will ich „Termin 15 Uhr“ als Zeit, nicht als Ort. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
-| S14.13 | Als Nutzer will ich Recall ohne Müll aus anderen Pins. | Must | done | Sprint 105 / `2.2.3` in `2.19.0` |
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 

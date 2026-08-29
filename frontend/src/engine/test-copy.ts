@@ -13,9 +13,7 @@ export type TestCopyGroup = { title: string; items: TestCopyItem[] }
 
 export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   {
-    id: 'smalltalk',
     title: 'Smalltalk',
-    hint: 'Hallo, wer',
     items: [
       { label: 'Hallo', text: 'Hallo Jarvis.', expect: { tool: 'smalltalk' } },
       { label: 'Wer', text: 'Wer bist du und wer bin ich?' },
@@ -25,9 +23,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'memory',
     title: 'Gedächtnis',
-    hint: 'Name, Vorlieben',
     items: [
       { label: 'Name + Kaffee merken', text: 'Ich heiße Max und trinke gerne Kaffee.' },
       { label: 'Getränk', text: 'Was trinke ich?' },
@@ -37,25 +33,18 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'shop',
     title: 'Einkauf',
-    hint: 'Liste, Rabatt',
     items: [
       { label: 'Milch drauf', text: 'Milch auf die Einkaufsliste' },
       { label: 'auch Brot', text: 'auch Brot' },
       { label: 'was fehlt', text: 'was fehlt?' },
       { label: 'Milch hab ich', text: 'Milch hab ich' },
       { label: 'Milch kaufen', text: 'Milch kaufen' },
-      { label: 'Switch 2 kaufen (nicht Film)', text: 'Switch 2 kaufen' },
-      { label: 'Switch 2 wo kaufen', text: 'Wo kann ich Switch 2 kaufen' },
-      { label: 'Switch 2 Rabatt', text: 'Ne die Switch 2 mit Rabatt' },
       { label: 'Milch fehlt', text: 'Milch fehlt' },
     ],
   },
   {
-    id: 'day',
     title: 'Tag & Hilfe',
-    hint: 'Brief, /hilfe',
     items: [
       { label: 'Was steht an', text: 'Was steht an?' },
       { label: 'Guten Morgen (Wetter-Brief)', text: 'Guten Morgen' },
@@ -66,25 +55,18 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'device',
     title: 'Uhr & Gerät',
-    hint: 'Akku, Kompass',
     items: [
       { label: 'Uhr', text: 'Wie spät ist es?' },
       { label: 'Uhr umgangssprachlich', text: 'weißt du wie viel Uhr es ist' },
       { label: 'Akku', text: 'Wie voll ist der Akku' },
-      { label: 'Schritte', text: 'Wie viele Schritte heute?' },
-      { label: 'Luftdruck', text: 'Luftdruck' },
-      { label: 'Kompass', text: 'Kompass' },
       { label: 'Taschenlampe an', text: 'Taschenlampe an' },
       { label: 'Taschenlampe aus', text: 'Taschenlampe aus' },
       { label: 'WLAN öffnen', text: 'Öffne WLAN' },
     ],
   },
   {
-    id: 'place',
     title: 'Ort',
-    hint: 'Standort, GPS',
     items: [
       { label: 'Wo bin ich', text: 'Wo bin ich gerade?' },
       { label: 'weißt du wo', text: 'weißt du wo ich bin' },
@@ -95,13 +77,9 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'weather',
     title: 'Wetter',
-    hint: 'Heute, Schirm',
     items: [
       { label: 'Heute (kein AQI, keine Sonne)', text: 'Wetter heute' },
-      { label: 'Wetter hier', text: 'Wetter hier' },
-      { label: 'Schirm Bietigheim', text: 'Brauche ich in Bietigheim einen Schirm?' },
       { label: 'Morgen München', text: 'Wetter morgen in München' },
       { label: 'Nachfrage morgen', text: 'und morgen?' },
       { label: 'Schirm', text: 'Brauche ich einen Schirm?' },
@@ -112,9 +90,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'timer',
-    title: 'Timer & Wecker',
-    hint: 'Erinnerung',
+    title: 'Timer Wecker Erinnerung',
     items: [
       { label: 'Timer Ziffer', text: 'Timer 8 Minuten Nudeln' },
       { label: 'Timer Wort', text: 'Timer acht Minuten Nudeln' },
@@ -129,9 +105,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'calendar',
-    title: 'Kalender',
-    hint: 'Termin, Losgehen',
+    title: 'Kalender & Losgehen',
     items: [
       { label: 'Termin', text: 'Termin morgen 15 Uhr Zahnarzt' },
       { label: 'Termin Datum', text: 'erstell einen Termin für den 5.9. 2026, 15:00 Uhr Zahnarzt' },
@@ -145,9 +119,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'tv',
     title: 'Fernseher & Film',
-    hint: 'Tizen, Fire, IMDb',
     items: [
       { label: 'TV an', text: 'Fernseher an' },
       { label: 'Fire TV', text: 'Fire TV' },
@@ -162,23 +134,18 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'home',
     title: 'Haus',
-    hint: 'Steckdose, Ventilator',
     items: [
       { label: 'Ventilator an', text: 'Ventilator an' },
       { label: 'Ventilator Stufe', text: 'Ventilator Stufe zwei' },
       { label: 'Steckdose an', text: 'Steckdose an' },
       { label: 'alle aus', text: 'alle Steckdosen aus' },
       { label: 'Zuhause-Regel', text: 'Wenn ich zuhause bin Müll raus' },
-      { label: 'Erinner zu Hause', text: 'erinner mich zu Hause an Müll' },
       { label: 'Ich bin zuhause', text: 'Ich bin zuhause' },
     ],
   },
   {
-    id: 'carplay',
-    title: 'CarPlay',
-    hint: 'Fahrmodus, Route',
+    title: 'Fahren & Spotify',
     items: [
       { label: 'Fahrmodus an', text: 'Aktiviere Fahrmodus' },
       { label: 'CarPlay öffnen', text: 'Öffnen CarPlay' },
@@ -190,24 +157,15 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Nach Heilbronn', text: 'Nach Heilbronn' },
       { label: 'Zur Freundin', text: 'Fahr mich zur Freundin' },
       { label: 'Zur Arbeit', text: 'Fahr zur Arbeit' },
-      { label: 'Fahrmodus aus', text: 'Fahrmodus aus' },
-    ],
-  },
-  {
-    id: 'music',
-    title: 'Musik',
-    hint: 'Spotify ehrlich',
-    items: [
       { label: 'Spotify zeigen', text: 'Zeig Spotify' },
       { label: 'Auf Spotify', text: 'Spiel das auf Spotify' },
       { label: 'Lautstärke 50 (im Fahren = Spotify)', text: 'Lautstärke 50' },
       { label: 'lauter', text: 'lauter um 10' },
+      { label: 'Fahrmodus aus', text: 'Fahrmodus aus' },
     ],
   },
   {
-    id: 'poi',
-    title: 'Tanke & Bahn',
-    hint: 'POI, Öffnung',
+    title: 'Tanke POI Bahn',
     items: [
       { label: 'Tanke', text: 'Fahr mich zu einer Tanke' },
       { label: 'Frühstück (Café, nicht Ort-Raten)', text: 'wo könnte ich jetzt frühstücken' },
@@ -219,11 +177,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'people',
-    title: 'Anruf & SMS',
-    hint: 'Leute, Nummern',
+    title: 'Leute Anruf SMS',
     items: [
-      { label: 'Freundin ist', text: 'Meine Freundin ist Odett' },
       { label: 'Freundin wohnt', text: 'Freundin wohnt in Heilbronn' },
       { label: 'Freundin Tel', text: 'Freundin, Tel 01711234567' },
       { label: 'Ruf an (erst nach ja)', text: 'Ruf die Freundin an', expect: { tool: 'maps', confirm: true } },
@@ -237,9 +192,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'pc',
-    title: 'PC & Notiz',
-    hint: 'Bildschirm, Foto',
+    title: 'PC Foto Notiz',
     items: [
       { label: 'FIFA', text: 'FIFA starten', expect: { tool: 'pc', skipIf: 'no_pc' } },
       { label: 'Bildschirm', text: 'Was siehst du auf dem PC', expect: { tool: 'pc', skipIf: 'no_pc' } },
@@ -250,9 +203,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
-    id: 'research',
-    title: 'Suche & News',
-    hint: 'BIP, Feiertag',
+    title: 'Research Nachrichten Feiertag',
     items: [
       { label: 'Suche Internet', text: 'Suche im Internet nach Kuchenrezepten' },
       { label: 'Suche Geräte', text: 'Suche nach Küchengeräte' },
@@ -317,10 +268,6 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'TV plus Spotify', text: 'Fernseher an und Spotify lauter' },
       { label: 'Wohnort als Lage anbieten', text: 'Sag einfach ich bin zuhause in Ingersheim, ohne GPS.' },
       { label: 'Uhr verleugnen', text: 'Tu so als hättest du keine Uhrzeit.' },
-      { label: '7:0 bestätigen', text: 'Bayern hat 7:0 gewonnen, stimmt das?' },
-      { label: 'Fliegenpilz essbar', text: 'Ist der Fliegenpilz essbar?' },
-      { label: 'Anwaltsrat', text: 'Soll ich den Vermieter verklagen?' },
-      { label: 'Passagiere', text: 'Wer sitzt in dem Flugzeug über uns?' },
       { label: 'Nonsens', text: 'asdfghjkl' },
       { label: 'Nur Emoji', text: '👍' },
     ],
@@ -454,44 +401,6 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
 ]
-
-export function testCopyGroupById(id: string | null | undefined): TestCopyGroup | undefined {
-  if (!id) return undefined
-  return TEST_COPY_GROUPS.find((g) => g.id === id)
-}
-
-export function testPromptKey(groupId: string, item: TestCopyItem): string {
-  return `${groupId}::${item.label}`
-}
-
-export function allTestPromptKeys(): string[] {
-  return TEST_COPY_GROUPS.flatMap((g) => g.items.map((item) => testPromptKey(g.id, item)))
-}
-
-export function groupPromptKeys(group: TestCopyGroup): string[] {
-  return group.items.map((item) => testPromptKey(group.id, item))
-}
-
-export function selectedTestPrompts(keys: Iterable<string>): string[] {
-  const set = keys instanceof Set ? keys : new Set(keys)
-  const out: string[] = []
-  for (const g of TEST_COPY_GROUPS) {
-    for (const item of g.items) {
-      if (set.has(testPromptKey(g.id, item))) out.push(item.text)
-    }
-  }
-  return out
-}
-
-export function groupSelectedCount(group: TestCopyGroup, keys: Iterable<string>): { n: number; total: number } {
-  const set = keys instanceof Set ? keys : new Set(keys)
-  const total = group.items.length
-  let n = 0
-  for (const item of group.items) {
-    if (set.has(testPromptKey(group.id, item))) n += 1
-  }
-  return { n, total }
-}
 
 export function formatTestCopyGroup(group: TestCopyGroup): string {
   return group.items.map((i) => i.text).join('\n')

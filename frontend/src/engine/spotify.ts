@@ -493,7 +493,7 @@ export async function playTrack(track: SpotifyTrack): Promise<string> {
 
 export async function playQuery(query: string): Promise<string> {
   if (!spotifyLoggedIn()) {
-    return 'Musik ist nicht angebunden.'
+    return 'Spotify nicht verbunden. Einstellungen → Musik: Client-ID, dann anmelden.'
   }
   const found = await searchTracks(query)
   if (!found.ok) return found.message

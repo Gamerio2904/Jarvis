@@ -3,7 +3,7 @@ import { isFuelPlace } from './fuel-parse'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
 import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
 import { compactCoords, isRoadTrack, simplifyTrack, snapToTrack } from './drive-map'
-import { displayPlaceName, findPlaceRow, isHomeName, isRelationName, looksLikeBareStreet, normalizePlaceName, parsePlaceNav } from './places-parse'
+import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo'
 import { listMemory, loadSettings, saveSettings } from './store'
 import type { ToolMeta } from './tools'
@@ -266,8 +266,12 @@ function driveTool(action: string, label: string, route?: DriveRoute): ToolMeta 
 async function resolveDest(query: string): Promise<{ place: string } | { ask: string }> {
   const q = normalizePlaceName(query)
   const mem = await listMemory()
-  const hit = findPlaceRow(mem, q)
-  if (hit?.value) return { place: hit.value }
+  const hit = mem.find(
+    (m) =>
+      (m.category === 'place' || m.category === 'contact') &&
+      (m.key === q || m.key.includes(q) || q.includes(m.key)),
+  )
+  if (hit?.category === 'place' && hit.value) return { place: hit.value }
   if (isHomeName(q) || isRelationName(q)) {
     const who = displayPlaceName(q)
     return {
@@ -293,6 +297,11 @@ function emptyRoute(dest: string, destLat: number, destLon: number, fromLat: num
   }
 }
 
+function cacheNearDest(lat: number, lon: number, destLat: number, destLon: number): boolean {
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || Math.abs(lat) < 0.2) return false
+  return haversineM({ lat, lon, place: '' }, { lat: destLat, lon: destLon }) < 8_000
+}
+
 export async function beginDriveTo(
   destName: string,
   destLat: number,
@@ -307,7 +316,7 @@ export async function beginDriveTo(
       lat: Number(loadSettings().last_lat),
       lon: Number(loadSettings().last_lon),
     }
-    const fromOk = Number.isFinite(kept.lat) && Math.abs(kept.lat) > 0.2
+    const fromOk = cacheNearDest(kept.lat, kept.lon, destLat, destLon)
     active = {
       dest: destName,
       destLat,
@@ -365,33 +374,9 @@ async function startRoute(_label: string, place: string): Promise<{
   const near = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null
   const dest = await geocodePlace(place, near)
   if (!dest.ok) {
-    if (/stadt liegt|ohne Ort rate/i.test(dest.message) || looksLikeBareStreet(place)) {
-      saveSettings({ last_step_tool: 'drive_ask_city', last_step_title: place, last_step_when: '' })
-    }
     return {
       handled: true,
       reply: dest.message,
-      tool: driveTool('ask', 'Ort fehlt'),
-      lastTool: 'drive',
-    }
-  }
-  if (near && haversineM({ lat: near.lat, lon: near.lon, place: '' }, dest.fix) < 1200) {
-    return {
-      handled: true,
-      reply: `Sie sind schon in ${dest.fix.place}. Wohin soll ich fahren?`,
-      tool: driveTool('ask', 'schon da'),
-      lastTool: 'drive',
-    }
-  }
-  if (near && haversineM({ lat: near.lat, lon: near.lon, place: '' }, dest.fix) > 150_000) {
-    saveSettings({
-      last_step_tool: 'drive_ask_far',
-      last_step_title: dest.fix.place,
-      last_step_when: `${dest.fix.lat},${dest.fix.lon}`,
-    })
-    return {
-      handled: true,
-      reply: `Das Ziel „${dest.fix.place}“ liegt weit weg von Ihrem Standort. Meinten Sie wirklich diesen Ort? Sagen Sie ja oder die Stadt nochmal.`,
       tool: driveTool('ask', 'Ort fehlt'),
       lastTool: 'drive',
     }
@@ -400,7 +385,7 @@ async function startRoute(_label: string, place: string): Promise<{
   if (!hereOk) {
     return {
       handled: true,
-      reply: `Fahrmodus: Ziel ist ${dest.fix.place}. Für die Route braucht es den Standort — intern, nicht Google Maps.`,
+      reply: `Fahrmodus: Ziel ${dest.fix.place}. Standort erlauben für die Route — intern, nicht Google Maps.`,
       tool,
       lastTool: 'drive',
     }
@@ -408,7 +393,7 @@ async function startRoute(_label: string, place: string): Promise<{
   if (!rideOk) {
     return {
       handled: true,
-      reply: `${route.hint || 'Das Netz hat die Route nicht geliefert.'} Das Ziel ${dest.fix.place} liegt trotzdem im Fahrmodus.`,
+      reply: `${route.hint || 'Netz hat die Route nicht geliefert.'} Ziel ${dest.fix.place} liegt trotzdem im Fahrmodus.`,
       tool,
       lastTool: 'drive',
     }
@@ -416,7 +401,7 @@ async function startRoute(_label: string, place: string): Promise<{
   const km = route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`
   return {
     handled: true,
-    reply: `Ich fahre intern nach ${dest.fix.place}: etwa ${route.minutes} Minuten, ${km}. ${route.hint} Die Karte ist nicht Google.`,
+    reply: `Fahrmodus nach ${dest.fix.place}: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`,
     tool,
     lastTool: 'drive',
   }
@@ -467,44 +452,6 @@ export async function handleDrive(
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const s = loadSettings()
-  if (s.last_step_tool === 'drive_ask_city' && s.last_step_title) {
-    const city = text.trim().replace(/^[iI]n\s+/, '').replace(/[.!?]+$/, '')
-    if (city.length >= 2 && city.length <= 80 && !/[?]/.test(city) && !looksLikeBareStreet(city)) {
-      saveSettings({ last_step_tool: 'drive', last_step_title: '' })
-      return startRoute(s.last_step_title, `${s.last_step_title}, ${city}`)
-    }
-  }
-  if (s.last_step_tool === 'drive_ask_far' && s.last_step_title) {
-    const t = text.trim()
-    if (/^(ja|genau|wirklich|doch|stimmt|ok|okay)\b/i.test(t) || t.toLowerCase().includes(s.last_step_title.toLowerCase().slice(0, 12))) {
-      const coords = s.last_step_when.split(',').map(Number)
-      saveSettings({ last_step_tool: 'drive', last_step_title: '', last_step_when: '' })
-      if (coords.length === 2 && Number.isFinite(coords[0]) && Number.isFinite(coords[1])) {
-        const { route, tool, hereOk, rideOk } = await beginDriveTo(s.last_step_title, coords[0], coords[1])
-        if (!hereOk) {
-          return {
-            handled: true,
-            reply: `Fahrmodus: Ziel ist ${s.last_step_title}. Für die Route braucht es den Standort.`,
-            tool,
-            lastTool: 'drive',
-          }
-        }
-        return {
-          handled: true,
-          reply: rideOk
-            ? `Route nach ${route.dest}, etwa ${route.minutes} Minuten.`
-            : `${route.hint || 'Route unvollständig.'} Ziel ${s.last_step_title} liegt im Fahrmodus.`,
-          tool,
-          lastTool: 'drive',
-        }
-      }
-      return startRoute(s.last_step_title, s.last_step_title)
-    }
-    if (t.length >= 2 && t.length <= 80 && !/[?]/.test(t) && !looksLikeBareStreet(t)) {
-      saveSettings({ last_step_tool: 'drive', last_step_title: '' })
-      return startRoute(s.last_step_title, t)
-    }
-  }
   const music = parseSpotifyIntent(text)
   const namesSpotify = /\bspotify\b/i.test(text)
   const volish =

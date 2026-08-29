@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PARKED** — Python-Backend weg; nicht Alltag `0.13.x` |
+| Status | **READY FOR REVIEW** (Code im Repo; Live-PO) |
 | Priorität | **SHOULD** — Alltag nach Tools-Polish |
 | Ziel-Version | **`0.9.5`** |
 | Quelle | Feedback (Eval-Müll in Listen; Confirm nur per Text) |

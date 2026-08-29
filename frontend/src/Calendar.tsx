@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createEventFromGui, findEventConflict, isoDay, marksForMonth, removeEvent, sameDay } from './engine/calendar'
+import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from './engine/calendar'
 import { formatDue, startOfDay } from './engine/remind-parse'
 import { listEvents, listReminders, type CalendarEvent, type Reminder } from './engine/store'
 
@@ -77,46 +77,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       const [h, m] = time.split(':').map((n) => Number(n))
       const start = new Date(selected)
       start.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0)
-      const clash = await findEventConflict(start)
-      if (clash && !ask) {
-        setAsk({
-          start,
-          name,
-          existingId: clash.kind === 'same' ? clash.event.id : undefined,
-          text:
-            clash.kind === 'same'
-              ? `Sie haben da schon „${clash.event.title}“. Überschreiben oder belassen?`
-              : `Überschneidung mit „${clash.event.title}“. Trotzdem eintragen oder belassen?`,
-        })
-        setBusy(false)
-        return
-      }
-      await createEventFromGui({ title: name, start, replaceId: ask?.existingId })
-      setAsk(null)
-      setTitle('')
-      await reload()
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Termin fehlgeschlagen')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function resolveAsk(mode: 'overwrite' | 'keep' | 'add') {
-    if (!ask || busy) return
-    if (mode === 'keep') {
-      setAsk(null)
-      return
-    }
-    setBusy(true)
-    setErr(null)
-    try {
-      await createEventFromGui({
-        title: ask.name,
-        start: ask.start,
-        replaceId: mode === 'overwrite' ? ask.existingId : undefined,
-      })
-      setAsk(null)
+      await createEventFromGui({ title: name, start })
       setTitle('')
       await reload()
     } catch (e) {
@@ -280,25 +241,6 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             Anlegen
           </button>
         </form>
-        {ask ? (
-          <div className="cal-ask">
-            <p>{ask.text}</p>
-            <div className="settings-actions">
-              {ask.existingId ? (
-                <button type="button" className="retry-btn" disabled={busy} onClick={() => void resolveAsk('overwrite')}>
-                  Überschreiben
-                </button>
-              ) : (
-                <button type="button" className="retry-btn" disabled={busy} onClick={() => void resolveAsk('add')}>
-                  Trotzdem
-                </button>
-              )}
-              <button type="button" className="retry-btn" disabled={busy} onClick={() => void resolveAsk('keep')}>
-                Belassen
-              </button>
-            </div>
-          </div>
-        ) : null}
         {err ? <p className="settings-hint">{err}</p> : null}
         <p className="settings-hint">Oder im Chat: „Termin morgen 15 Uhr Zahnarzt“ / „erstell einen Termin für den 5.9. 2026, 15:00 Uhr Zahnarzt“.</p>
       </section>

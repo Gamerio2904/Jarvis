@@ -4,7 +4,6 @@ import {
   displayPlaceName,
   extractPhone,
   findContactRow,
-  findPlaceRow,
   isBarePlaceAnswer,
   isCommNo,
   isCommYes,
@@ -13,13 +12,11 @@ import {
   looksLikeAddress,
   looksLikePhone,
   mapsDirUrl,
-  normalizePlaceName,
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
-  parsePlaceForget,
 } from './places-parse'
-import { addReminder, deleteMemory, listMemory, loadSettings, persistLastList, saveSettings, upsertMemory } from './store'
+import { addReminder, listMemory, loadSettings, persistLastList, saveSettings, upsertMemory } from './store'
 import type { ToolMeta } from './tools'
 
 export {
@@ -55,10 +52,9 @@ async function places(): Promise<Array<{ name: string; place: string }>> {
 }
 
 async function findPlace(name: string): Promise<{ name: string; place: string } | undefined> {
-  const rows = await listMemory()
-  const hit = findPlaceRow(rows, name)
-  if (!hit) return undefined
-  return { name: hit.key, place: hit.value }
+  const key = name.trim().toLowerCase()
+  const rows = await places()
+  return rows.find((r) => r.name === key || r.name.includes(key) || key.includes(r.name))
 }
 
 function routeOf(name: string, place: string, mode: 'driving' | 'walking' | 'transit' = 'driving'): MapsRoute {
@@ -70,64 +66,8 @@ function routeReply(name: string, place: string): string {
   const who = displayPlaceName(name)
   const same = who.toLowerCase() === place.toLowerCase()
   return same
-    ? `Hier ist die Route nach ${place}. Unten können Sie sie in Google Maps öffnen.`
-    : `Hier ist die Route zu ${who} (${place}). Unten in Google Maps öffnen.`
-}
-
-function samePerson(a: string, b: string): boolean {
-  const x = normalizePlaceName(a)
-  const y = normalizePlaceName(b)
-  if (!x || !y) return false
-  if (x === y) return true
-  if (isHomeName(x) && isHomeName(y)) return true
-  return false
-}
-
-async function aliasKeysOf(key: string): Promise<string[]> {
-  const n = normalizePlaceName(key)
-  const names = new Set<string>([n])
-  const rows = await listMemory()
-  for (const r of rows) {
-    if (r.key === `alias:${n}` && r.value.trim()) names.add(normalizePlaceName(r.value))
-    if (r.key.startsWith('alias:') && normalizePlaceName(r.value) === n) {
-      names.add(normalizePlaceName(r.key.slice('alias:'.length)))
-    }
-  }
-  return [...names].filter((k) => k.length >= 2)
-}
-
-async function mirrorContact(conversationId: string, key: string, number: string): Promise<void> {
-  for (const k of await aliasKeysOf(key)) {
-    await upsertMemory(k, number, 'contact', conversationId)
-  }
-}
-
-async function maybeAliasPerson(conversationId: string, key: string, kind: 'contact' | 'place'): Promise<string> {
-  const n = normalizePlaceName(key)
-  const rows = await listMemory()
-  const proper = (k: string) =>
-    !isHomeName(k) && !isRelationName(k) && !k.startsWith('alias:') && k.length >= 2
-  if (isRelationName(n) && kind === 'place') {
-    const named = rows.filter((r) => r.category === 'contact' && proper(r.key) && looksLikePhone(r.value))
-    const loose = named.filter((c) => !rows.some((r) => r.category === 'place' && r.key === c.key))
-    if (loose.length === 1) {
-      const other = loose[0].key
-      await upsertMemory(`alias:${n}`, other, 'fact', conversationId)
-      await upsertMemory(`alias:${other}`, n, 'fact', conversationId)
-      return ` Ich verbinde ${displayPlaceName(other)} mit ${displayPlaceName(n)}.`
-    }
-  }
-  if (proper(n) && kind === 'contact') {
-    const rels = rows.filter((r) => r.category === 'place' && isRelationName(r.key) && r.value.trim())
-    const loose = rels.filter((p) => !findContactRow(rows, p.key))
-    if (loose.length === 1) {
-      const other = loose[0].key
-      await upsertMemory(`alias:${n}`, other, 'fact', conversationId)
-      await upsertMemory(`alias:${other}`, n, 'fact', conversationId)
-      return ` Ich verbinde ${displayPlaceName(n)} mit ${displayPlaceName(other)}.`
-    }
-  }
-  return ''
+    ? `Route nach ${place}. In Google Maps öffnen.`
+    : `Route zu ${who} (${place}). In Google Maps öffnen.`
 }
 
 type PendingComm = {
@@ -139,7 +79,7 @@ type PendingComm = {
 }
 
 const OTHER_CMD =
-  /\b(wecker|timer|termin|wetter|tanke|fernseh|\btv\b|todo|notiz|suche|fahr|navigier|carplay|fahrmodus|akku|spotify|ventilator|apotheke|bäcker|pc|fifa|foto|auge|kamera|geburtstag|schach|nachrichten|unwetter|steckdose|erinner|kalender|bahn|iss|mond|wikipedia|lies das|züge)\b/i
+  /\b(wecker|timer|termin|wetter|tanke|fernseh|\btv\b|todo|notiz|suche|fahr|navigier|carplay|fahrmodus|akku|spotify|ventilator|apotheke|bäcker)\b/i
 
 function readComm(): PendingComm | null {
   try {
@@ -203,49 +143,24 @@ export async function handlePlaces(
   }
 
   const written = parsePlaceWrite(text)
-  const forgotten = parsePlaceForget(text)
-  if (forgotten) {
-    const rows = await listMemory()
-    const named = findPlaceRow(rows, forgotten)
-    const hit = rows.find(
-      (r) =>
-        r.category === 'place' &&
-        (r.key === forgotten || (named && r.key === named.key)),
-    )
-    if (hit) {
-      await deleteMemory(hit.id)
-      return {
-        handled: true,
-        reply: `Ort von ${displayPlaceName(forgotten)} ist weg.`,
-        tool: mapsTool('forget', 'Ort weg', [], forgotten),
-        lastTool: 'maps',
-      }
-    }
-    return {
-      handled: true,
-      reply: `Kein Ort für ${displayPlaceName(forgotten)} gespeichert.`,
-      lastTool: 'maps',
-    }
-  }
   if (written) {
     await upsertMemory(written.name, written.place, 'place', conversationId)
-    const linked = await maybeAliasPerson(conversationId, written.name, 'place')
     const who = displayPlaceName(written.name)
-    let extra = linked
-    const st = loadSettings()
-    if (written.name === 'zuhause' && st.last_step_tool === 'home_ask' && st.last_step_title) {
+    let extra = ''
+    const pending = loadSettings()
+    if (written.name === 'zuhause' && pending.last_step_tool === 'home_ask' && pending.last_step_title) {
       await addReminder({
-        title: st.last_step_title,
+        title: pending.last_step_title,
         due_at: new Date(Date.now() + 365 * 86_400_000).toISOString(),
         conversationId,
         kind: 'home',
       })
-      extra += ` Wenn Sie zuhause sind, erinnere ich an: ${st.last_step_title}. Das Handy muss an sein.`
-      saveSettings({ last_step_tool: 'home', last_step_title: st.last_step_title })
+      extra = ` Wenn Sie zuhause sind: ${pending.last_step_title}. Handy muss an sein.`
+      saveSettings({ last_step_tool: 'home', last_step_title: pending.last_step_title })
     }
     return {
       handled: true,
-      reply: `Ich habe ${who} mit ${written.place} gespeichert.${extra}`,
+      reply: `${who}: ${written.place} — liegt.${extra}`,
       tool: {
         tool_status: 'executed',
         tool: 'maps',
@@ -263,12 +178,12 @@ export async function handlePlaces(
     if (!hit) {
       return {
         handled: true,
-        reply: `Für ${displayPlaceName(recall.name)} kenne ich noch keinen Ort. Sagen Sie zum Beispiel „${displayPlaceName(recall.name)} wohnt in …“.`,
+        reply: `Kein Ort für ${displayPlaceName(recall.name)}. Sage z. B. „${displayPlaceName(recall.name)} wohnt in …“.`,
         tool: { tool_status: 'executed', tool: 'maps', action: 'ask', label: 'Ort fehlt', preview: recall.name },
         lastTool: 'maps_ask',
       }
     }
-    return { handled: true, reply: `${displayPlaceName(hit.name)} wohnt in ${hit.place}.` }
+    return { handled: true, reply: `${displayPlaceName(hit.name)}: ${hit.place}.` }
   }
 
   const nav = parsePlaceNav(text)
@@ -280,32 +195,29 @@ export async function handlePlaces(
     const rows = await listMemory()
     const hit = findContactRow(rows, nav.alias) || findContactRow(rows, nav.name)
     if (hit) {
-      await mirrorContact(conversationId, nav.name, hit.value)
-      await mirrorContact(conversationId, nav.alias, hit.value)
       return askCall(hit.key, hit.value)
     }
     writeComm({ kind: 'phone_ask', name: nav.alias }, 'phone_ask')
     return {
       handled: true,
-      reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Welche Nummer? Sage z. B. „Nummer für ${displayPlaceName(nav.alias)} …“ oder „${displayPlaceName(nav.alias)}, Tel …“. Dann frage ich nach, bevor ich anrufe.`,
+      reply: `${displayPlaceName(nav.name)} ist ${displayPlaceName(nav.alias)}. Welche Nummer? Sage z. B. „${displayPlaceName(nav.alias)}, Tel …“. Dann frage ich nach, bevor ich anrufe.`,
       tool: commTool('ask', 'Nummer fehlt', nav.alias),
       lastTool: 'phone_ask',
     }
   }
 
   if (nav.kind === 'phone') {
-    await mirrorContact(conversationId, nav.name, nav.number)
-    const linked = await maybeAliasPerson(conversationId, nav.name, 'contact')
-    await mirrorContact(conversationId, nav.name, nav.number)
+    await upsertMemory(nav.name, nav.number, 'contact', conversationId)
     return {
       handled: true,
-      reply: `Die Nummer von ${displayPlaceName(nav.name)} ist gespeichert: ${nav.number}.${linked}`,
+      reply: `${displayPlaceName(nav.name)}: ${nav.number} — liegt.`,
       tool: {
         tool_status: 'executed',
         tool: 'maps',
         action: 'phone',
         label: 'Nummer',
         preview: nav.name,
+        result: { tel: `tel:${nav.number}`, name: nav.name },
       },
       lastTool: 'maps',
     }
@@ -319,7 +231,7 @@ export async function handlePlaces(
       writeComm({ kind: 'sms_ask', name: nav.query, body: nav.body }, 'sms_ask')
       return {
         handled: true,
-        reply: `Keine Nummer für ${who}. Sagen Sie zum Beispiel „${who}, Tel …“. Danach frage ich nach, bevor ich sende.`,
+        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“. Danach frage ich nach, bevor ich sende.`,
         tool: commTool('ask', 'Nummer fehlt', nav.query),
         lastTool: 'sms_ask',
       }
@@ -366,7 +278,7 @@ export async function handlePlaces(
       writeComm({ kind: 'phone_ask', name: nav.query }, 'phone_ask')
       return {
         handled: true,
-        reply: `Keine Nummer für ${who}. Sagen Sie zum Beispiel „${who}, Tel …“. Danach frage ich nach, bevor ich anrufe.`,
+        reply: `Keine Nummer für ${who}. Sage z. B. „${who}, Tel …“. Danach frage ich nach, bevor ich anrufe.`,
         tool: commTool('ask', 'Nummer fehlt', nav.query),
         lastTool: 'phone_ask',
       }
@@ -446,9 +358,7 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
 
   if (pending.kind === 'phone_ask') {
     if (num) {
-      await mirrorContact(conversationId, pending.name, num)
-      await maybeAliasPerson(conversationId, pending.name, 'contact')
-      await mirrorContact(conversationId, pending.name, num)
+      await upsertMemory(pending.name, num, 'contact', conversationId)
       return askCall(pending.name, num)
     }
     const aliasName = text.trim().replace(/[.!?]+$/g, '')
@@ -480,7 +390,7 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
 
   if (pending.kind === 'sms_ask') {
     if (num) {
-      await mirrorContact(conversationId, pending.name, num)
+      await upsertMemory(pending.name, num, 'contact', conversationId)
       if (pending.body?.trim()) return askSms(pending.name, num, pending.body)
       writeComm({ kind: 'sms_body_ask', name: pending.name, number: num }, 'sms_body_ask')
       return {
@@ -504,22 +414,14 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
 
   if (pending.kind === 'call_confirm') {
     if (isCommYes(text, 'call') && pending.number) return doCall(pending.name, pending.number)
-    if (nav?.kind === 'call' && pending.number && samePerson(nav.query, pending.name)) {
-      return doCall(pending.name, pending.number)
-    }
-    if (nav?.kind === 'call' && pending.number) {
-      const rows = await listMemory()
-      const hit = findContactRow(rows, nav.query)
-      if (hit && hit.value === pending.number) return doCall(pending.name, pending.number)
-    }
-    if (other && nav?.kind !== 'call') {
+    if (other) {
       writeComm(null, 'maps')
       return null
     }
     return {
       handled: true,
-      reply: `Soll ich ${displayPlaceName(pending.name)} unter ${pending.number} anrufen? Ja oder nein.`,
-      tool: commTool('ask', 'Anrufen', pending.name, { confirmCall: true, name: pending.name }),
+      reply: `${displayPlaceName(pending.name)} — ${pending.number}. Soll ich anrufen? Ja oder nein.`,
+      tool: commTool('ask', 'Anrufen', pending.name, { tel: `tel:${pending.number || ''}` }),
       lastTool: 'call_confirm',
     }
   }
@@ -595,8 +497,8 @@ function askCall(name: string, number: string): PlaceHit {
   writeComm({ kind: 'call_confirm', name, number }, 'call_confirm')
   return {
     handled: true,
-    reply: `Die Nummer von ${displayPlaceName(name)} ist ${number}. Soll ich anrufen?`,
-    tool: commTool('ask', 'Anrufen', name, { confirmCall: true, name }),
+    reply: `${displayPlaceName(name)} — ${number}. Soll ich anrufen?`,
+    tool: commTool('ask', 'Anrufen', name, { tel: `tel:${number}`, name }),
     lastTool: 'call_confirm',
   }
 }

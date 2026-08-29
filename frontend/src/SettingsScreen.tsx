@@ -1,14 +1,8 @@
 import { useEffect, useState } from 'react'
-import type { Conversation, Health, MemoryCategory, MemoryItem, Plug, Reminder, ResearchAudit, Settings } from './api'
-import { APP_VERSION, fanDiscover, fanLearn, fanPick, fanTest, listConversations, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
+import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
+import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
+import type { Plug } from './api'
 import { copyText } from './copy-text'
-import {
-  TEST_COPY_GROUPS,
-  groupSelectedCount,
-  testCopyGroupById,
-  testPromptKey,
-  allTestPromptKeys,
-} from './engine/test-copy'
 import { ensureDeviceLocation } from './native/geo'
 import { DebugPanel } from './DebugPanel'
 import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
@@ -92,39 +86,6 @@ function memLabel(f: (typeof MEM_FILTERS)[number]): string {
   return f
 }
 
-function KeyField({
-  label,
-  value,
-  placeholder,
-  disabled,
-  onSave,
-}: {
-  label: string
-  value: string
-  placeholder: string
-  disabled?: boolean
-  onSave: (v: string) => void
-}) {
-  return (
-    <label className="settings-field">
-      <span>{label}</span>
-      <input
-        type="text"
-        inputMode="text"
-        autoComplete="off"
-        autoCapitalize="none"
-        autoCorrect="off"
-        spellCheck={false}
-        key={`${label}-${value ? 'set' : 'empty'}`}
-        defaultValue={value}
-        disabled={disabled}
-        placeholder={placeholder}
-        onBlur={(e) => onSave(e.target.value.trim())}
-      />
-    </label>
-  )
-}
-
 function CopyField({ label, value }: { label: string; value: string }) {
   const [done, setDone] = useState(false)
   return (
@@ -151,42 +112,9 @@ function CopyField({ label, value }: { label: string; value: string }) {
   )
 }
 
-function CheckBox({
-  checked,
-  indeterminate,
-  onChange,
-  label,
-}: {
-  checked: boolean
-  indeterminate?: boolean
-  onChange: (on: boolean) => void
-  label?: string
-}) {
-  return (
-    <input
-      type="checkbox"
-      checked={checked}
-      aria-label={label}
-      ref={(el) => {
-        if (el) el.indeterminate = Boolean(indeterminate) && !checked
-      }}
-      onChange={(e) => onChange(e.target.checked)}
-      onClick={(e) => e.stopPropagation()}
-    />
-  )
-}
-
 export type SettingsScreenProps = {
   topic: SettingsTopic
   onTopic: (t: SettingsTopic) => void
-  testGroup: string | null
-  onTestGroup: (id: string | null) => void
-  testKeys: Record<string, true>
-  onToggleTestKey: (key: string) => void
-  onToggleTestGroup: (groupId: string, on: boolean) => void
-  onToggleAllTests: (on: boolean) => void
-  onStartTest: () => void
-  onBack: () => void
   onClose: () => void
   leaving?: boolean
   settings: Settings | null
@@ -239,7 +167,7 @@ export type SettingsScreenProps = {
 export function SettingsScreen(p: SettingsScreenProps) {
   const s = p.settings
   const busy = p.settingsBusy
-  const topic = settingsTopicMeta(p.topic)
+  const topic = TOPICS.find((t) => t.id === p.topic) || TOPICS[0]
   const [spotifyMsg, setSpotifyMsg] = useState<string | null>(null)
   const [fireHost, setFireHost] = useState(s?.tv_fire_host || '')
   const [firePort, setFirePort] = useState(String(s?.tv_fire_port || 5555))
@@ -304,12 +232,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
   }, [s?.pc_token])
 
   useEffect(() => {
-    if (p.topic !== 'debug') return
-    void listConversations().then((rows) => {
-      setDebugChats(rows)
-      setDebugPick((prev) => (prev && rows.some((c) => c.id === prev) ? prev : rows[0]?.id || ''))
-    })
-  }, [p.topic])
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') p.onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [p.onClose])
 
   return (
     <div
@@ -332,7 +260,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               onClick={() => p.onTopic(t.id)}
             >
               <strong>{t.label}</strong>
-              <span>{settingsTopicStatus(t.id, s, p.health, p.geminiOn) || t.hint}</span>
+              <span>{t.hint}</span>
             </button>
           ))}
         </nav>
@@ -357,7 +285,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Dieses Handy</h3>
               <p className="settings-lead">
-                Version {s?.version || APP_VERSION} · on-device, kein Server.
+                Version {s?.version || '1.25.0'} · on-device, kein Server.
               </p>
               <p className="settings-hint">
                 {p.health?.ok
@@ -464,82 +392,6 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'apis' ? (
-            <section className="settings-card">
-              <h3>Alle API-Keys</h3>
-              <p className="settings-lead">Ein Feld pro Dienst. Leer lassen, wenn Sie den Dienst nicht nutzen.</p>
-              <KeyField
-                label="Gemini (Google)"
-                value={s?.gemini_api_key || ''}
-                placeholder="AIza… aistudio.google.com/apikey"
-                disabled={busy}
-                onSave={(v) => void p.patchSetting({ gemini_api_key: v })}
-              />
-              <div className="settings-actions">
-                <button type="button" className="retry-btn" disabled={p.geminiBusy || busy} onClick={p.onGeminiTest}>
-                  Gemini testen
-                </button>
-              </div>
-              {p.geminiMsg ? <p className="settings-hint">{p.geminiMsg}</p> : null}
-              <KeyField
-                label="Groq (optional)"
-                value={s?.groq_api_key || ''}
-                placeholder="gsk_… console.groq.com/keys"
-                disabled={busy}
-                onSave={(v) => void p.patchSetting({ groq_api_key: v })}
-              />
-              <div className="settings-actions">
-                <button type="button" className="retry-btn" disabled={p.groqBusy || busy} onClick={p.onGroqTest}>
-                  Groq testen
-                </button>
-              </div>
-              {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
-              <KeyField
-                label="OMDb (IMDb / Rotten Tomatoes)"
-                value={s?.omdb_api_key || ''}
-                placeholder="Key von omdbapi.com"
-                disabled={busy}
-                onSave={(v) => void p.patchSetting({ omdb_api_key: v })}
-              />
-              <p className="settings-hint">omdbapi.com/apikey.aspx — kostenlos, nicht teilen.</p>
-              <KeyField
-                label="Tankerkönig (E10)"
-                value={s?.tankerkoenig_api_key || ''}
-                placeholder="UUID von tankerkoenig.de"
-                disabled={busy}
-                onSave={(v) => void p.patchSetting({ tankerkoenig_api_key: v })}
-              />
-              <p className="settings-hint">creativecommons.tankerkoenig.de — Standort geht an Tankerkönig.</p>
-              <KeyField
-                label="Spotify Client-ID"
-                value={s?.spotify_client_id || ''}
-                placeholder="developer.spotify.com"
-                disabled={busy}
-                onSave={(v) => void p.patchSetting({ spotify_client_id: v })}
-              />
-              <p className="settings-hint">Musik bleibt ehrlich: ohne Login „nicht angebunden“. Anmelden unter Musik.</p>
-            </section>
-          ) : null}
-
-          {p.topic === 'rabatt' ? (
-            <section className="settings-card">
-              <h3>Rabatt-Suche</h3>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(s?.shop_discount)}
-                  disabled={busy}
-                  onChange={(e) => void p.patchSetting({ shop_discount: e.target.checked })}
-                />
-                <span>Rabatt-Suche beim Online-Shopping</span>
-              </label>
-              <p className="settings-hint">
-                An = extra Gutscheine (mydealz, Sparwelt) bei „wo kaufen“ / Preis. Research muss an sein.
-                Keine erfundenen Codes. Stimme: „Rabatt-Suche an“. API-Keys gehören nicht hierher.
-              </p>
-            </section>
-          ) : null}
-
           {p.topic === 'cloud' ? (
             <>
               <section className="settings-card">
@@ -556,15 +408,29 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <p className="settings-hint warn">
                   An = Plaudern und Fotos gehen zu Google. Groq und das kleine lokale Modell sind nur Backup. Nicht privat.
                 </p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`gemini-key-${s?.gemini_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.gemini_api_key || ''}
+                    disabled={busy}
+                    placeholder="AIza… hier einfügen"
+                    onBlur={(e) => void p.patchSetting({ gemini_api_key: e.target.value.trim() })}
+                  />
+                </label>
                 <div className="settings-actions">
                   <button type="button" className="retry-btn" disabled={p.geminiBusy || busy} onClick={p.onGeminiTest}>
                     Testen
                   </button>
-                  <button type="button" className="retry-btn" onClick={() => p.onTopic('apis')}>
-                    APIs
-                  </button>
                 </div>
                 {p.geminiMsg ? <p className="settings-hint">{p.geminiMsg}</p> : null}
+                <p className="settings-hint">Key: aistudio.google.com/apikey — nicht teilen.</p>
               </section>
               <section className="settings-card">
                 <h3>Groq (Backup)</h3>
@@ -591,6 +457,56 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   </button>
                 </div>
                 {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
+                <p className="settings-hint">Key: console.groq.com/keys</p>
+              </section>
+              <section className="settings-card">
+                <h3>Tankerkönig (E10)</h3>
+                <p className="settings-hint">
+                  Für „fahr mich zu einer Tanke“: nächste und günstigste Station, immer E10. Key kostenlos.
+                  Standort geht an Tankerkönig, nicht an uns. Ohne Key keine Preise — Jarvis erfindet keine.
+                </p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`tanker-key-${s?.tankerkoenig_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.tankerkoenig_api_key || ''}
+                    disabled={busy}
+                    placeholder="UUID von tankerkoenig.de"
+                    onBlur={(e) => void p.patchSetting({ tankerkoenig_api_key: e.target.value.trim() })}
+                  />
+                </label>
+                <p className="settings-hint">creativecommons.tankerkoenig.de — nicht teilen.</p>
+              </section>
+              <section className="settings-card">
+                <h3>OMDb (IMDb + Rotten Tomatoes)</h3>
+                <p className="settings-hint">
+                  Für Filmnoten. Rotten Tomatoes hat keine öffentliche API — die Prozentzahl kommt nur,
+                  wenn OMDb sie mitliefert. Ohne Key keine erfundenen Bewertungen. Wo ein Film gratis
+                  läuft, geht auch ohne Key (JustWatch DE).
+                </p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`omdb-key-${s?.omdb_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.omdb_api_key || ''}
+                    disabled={busy}
+                    placeholder="Key von omdbapi.com"
+                    onBlur={(e) => void p.patchSetting({ omdb_api_key: e.target.value.trim() })}
+                  />
+                </label>
+                <p className="settings-hint">omdbapi.com/apikey.aspx — kostenloser Key, nicht teilen.</p>
               </section>
             </>
           ) : null}
@@ -1681,12 +1597,19 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 Mit Gemini sucht Jarvis von selbst nach aktuellen Zahlen, auch ohne das Wort suche. Fehlt eine
                 Antwort, geht er nochmal ins Netz. Aus zählt vor allem ohne Gemini.
               </p>
-              <p className="settings-hint">Gemini-Key unter APIs, nicht unter Rabatt.</p>
-              <div className="settings-actions">
-                <button type="button" className="retry-btn" onClick={() => p.onTopic('apis')}>
-                  APIs
-                </button>
-              </div>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.shop_discount)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ shop_discount: e.target.checked })}
+                />
+                <span>Rabatt-Suche beim Online-Shopping</span>
+              </label>
+              <p className="settings-hint">
+                An = extra Gutscheine (mydealz, Sparwelt) bei Produktsuche. Research muss an sein.
+                Keine erfundenen Codes. Stimme: „Rabatt-Suche an“.
+              </p>
               <button type="button" className={`audit-toggle ${p.auditOpen ? 'active' : ''}`} onClick={p.onToggleAudit}>
                 Research-Audit
               </button>

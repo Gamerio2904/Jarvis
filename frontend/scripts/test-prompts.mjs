@@ -109,7 +109,7 @@ const EXPECT = {
   'Milch fehlt': 'shopping',
   'Ventilator Stufe zwei': 'fan',
   'Timer acht Minuten Nudeln': 'timer',
-  'Spiel mal was Nettes': 'music',
+  'Spiel mal was Nettes': 'llm',
   'Ich fahre gerne Auto': 'llm',
   'kein Kaffee mehr': 'memory',
   'Netflix an': 'tv',

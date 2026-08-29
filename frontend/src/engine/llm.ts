@@ -2,9 +2,9 @@ import { Wllama } from '@wllama/wllama/esm/index.js'
 import wasmUrl from '@wllama/wllama/esm/wasm/wllama.wasm?url'
 import compatWasmUrl from '@wllama/wllama-compat/wasm/wllama.wasm?url'
 import compatWorkerCode from '@wllama/wllama-compat/wasm/wllama.js?raw'
-import { FAST_MODEL, activeModel, isGeminiConfigured, saveSettings } from './store'
-import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel, applyModelSpec } from './model-cache'
-import { formatQwenChat, packChat, QWEN_STOP, toChatRole } from './prompt'
+import { DEFAULT_MODEL, isGeminiConfigured } from './store'
+import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel } from './model-cache'
+import { formatQwenChat, QWEN_STOP, toChatRole } from './prompt'
 
 export type DownloadProgress = {
   loaded: number
@@ -15,7 +15,11 @@ export type DownloadProgress = {
 
 export { hasCachedModel }
 
-let loadedId: 'fast' | 'sharp' | null = null
+const MIN_MODEL_BYTES = 480_000_000
+const MODEL_URLS = [
+  `https://huggingface.co/${DEFAULT_MODEL.repo}/resolve/main/${DEFAULT_MODEL.file}?download=true`,
+  `https://huggingface.co/${DEFAULT_MODEL.repo}/resolve/main/${DEFAULT_MODEL.file}`,
+]
 const FIRST_TOKEN_MS = 45_000
 const INFER_TIMEOUT_MS = 90_000
 const LOAD_TIMEOUT_MS = 180_000
@@ -26,11 +30,6 @@ let loaded = false
 let loading: Promise<void> | null = null
 let progress: DownloadProgress = { loaded: 0, total: 0, pct: 0, phase: 'download' }
 let lastError: string | null = null
-let threadCount = 2
-
-export function getThreadCount(): number {
-  return threadCount
-}
 
 export function isModelReady(): boolean {
   return loaded
@@ -159,13 +158,8 @@ async function downloadViaFetch(url: string, onProgress?: (p: DownloadProgress) 
 }
 
 async function downloadModelBlob(onProgress?: (p: DownloadProgress) => void): Promise<Blob> {
-  const spec = activeModel()
-  const urls = [
-    `https://huggingface.co/${spec.repo}/resolve/main/${spec.file}?download=true`,
-    `https://huggingface.co/${spec.repo}/resolve/main/${spec.file}`,
-  ]
   let last: unknown = null
-  for (const url of urls) {
+  for (const url of MODEL_URLS) {
     try {
       let blob: Blob
       try {
@@ -173,7 +167,7 @@ async function downloadModelBlob(onProgress?: (p: DownloadProgress) => void): Pr
       } catch {
         blob = await downloadViaFetch(url, onProgress)
       }
-      if (blob.size < spec.minBytes) {
+      if (blob.size < MIN_MODEL_BYTES) {
         throw new Error('Download unvollständig (Datei zu klein). WLAN prüfen und erneut versuchen.')
       }
       reportProgress(blob.size, blob.size, 'download', onProgress)
@@ -198,7 +192,6 @@ export async function releaseModel(): Promise<void> {
   const w = instance
   instance = null
   loaded = false
-  loadedId = null
   loading = null
   lastError = null
   if (w) {
@@ -216,10 +209,7 @@ export async function ensureModel(
   if (isGeminiConfigured()) {
     throw new Error('Lokales Modell bleibt aus, solange Gemini an ist.')
   }
-  const want = activeModel()
-  applyModelSpec(want)
-  if (loaded && instance && loadedId === want.id) return
-  if (loaded && loadedId !== want.id) await releaseModel()
+  if (loaded && instance) return
   if (loading) return loading
   loading = (async () => {
     lastError = null
@@ -239,31 +229,19 @@ export async function ensureModel(
     }
     const wllama = await createRuntime()
     const cores = navigator.hardwareConcurrency || 2
-    threadCount = Math.max(1, Math.min(4, Math.floor(cores / 2) || 2))
-    try {
-      await withTimeout(
-        wllama.loadModel([blob], {
-          n_ctx: want.id === 'sharp' ? 768 : 512,
-          n_batch: 128,
-          n_threads: threadCount,
-          n_gpu_layers: 0,
-        }),
-        LOAD_TIMEOUT_MS,
-        'Modellstart dauert zu lange. App neu öffnen.',
-      )
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      const oom = /memory|oom|allocat/i.test(msg)
-      if (oom && want.id === 'sharp') {
-        saveSettings({ model_variant: 'fast' })
-        applyModelSpec(FAST_MODEL)
-        throw new Error('1.5B passt nicht in den Speicher. Zurück auf 0.5B — unter Modell erneut starten.')
-      }
-      throw err
-    }
+    const nThreads = Math.max(1, Math.min(4, Math.floor(cores / 2) || 2))
+    await withTimeout(
+      wllama.loadModel([blob], {
+        n_ctx: 512,
+        n_batch: 128,
+        n_threads: nThreads,
+        n_gpu_layers: 0,
+      }),
+      LOAD_TIMEOUT_MS,
+      'Modellstart dauert zu lange. App neu öffnen.',
+    )
     instance = wllama
     loaded = true
-    loadedId = want.id
     try {
       await withTimeout(
         wllama.createCompletion({
@@ -285,12 +263,8 @@ export async function ensureModel(
     await loading
   } catch (err) {
     loaded = false
-    loadedId = null
     instance = null
     lastError = explainError(err)
-    if (want.id === 'sharp' && /1\.5B passt nicht/.test(lastError)) {
-      applyModelSpec(FAST_MODEL)
-    }
     throw new Error(lastError)
   } finally {
     loading = null
@@ -326,7 +300,6 @@ async function completeStreaming(
       },
       max_tokens: MAX_NEW_TOKENS,
       temperature: 0.7,
-      repeat_penalty: 1.12,
       top_p: 0.85,
       cache_prompt: true,
       stop: QWEN_STOP,
@@ -360,7 +333,7 @@ export async function completeChat(
     role: toChatRole(m.role),
     content: m.content,
   }))
-  const prompt = formatQwenChat(packChat(mapped))
+  const prompt = formatQwenChat(mapped)
   const text = await completeStreaming(prompt, onToken)
   if (!text) {
     return 'Einen Moment. Noch einmal senden?'

@@ -22,14 +22,6 @@ Kein FastAPI, kein Ollama, kein Reverse-Proxy.
 
 0,5B ist **Backup**, nicht das Produkt-Hirn. Ton und Tools bleiben lokal; Smalltalk ohne Gemini-Key ist schwach — Overlay sagt das. Gemini-Chat geht zu Google, sobald der Key an ist.
 
-Ausbau: [`30-next.md`](./30-next.md) `2.2.3`–`2.2.4`. Live: **`2.2.2`**. Welt: [`31-next.md`](./31-next.md).
-
-| Version | Hebel |
-|---------|-------|
-| `0.13.2` / `2.2.2` | Threads, Stream — **CODE** (nicht neu planen) |
-| `2.2.3` | Live: kein Spotify-Lüge, Wetter-Gate, Uhr/Akku, Einkauf-Intent; plus Honesty/Siezen |
-| `2.2.4` | optional 1.5B Q4 (Default unverändert) |
-
 ## Parking
 
 NAS, Docker, Play Store, iOS. TTS und Research-Netz sind in `1.x`. Gemini kam als Opt-in in `0.16` und ist ab `6.50` der **Hauptweg** ([`16-gemini.md`](./16-gemini.md)).

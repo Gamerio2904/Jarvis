@@ -239,7 +239,6 @@ function parseRecur(t: string, now: Date): ReminderIntent | null {
 export function parseReminderIntent(text: string, now = new Date()): ReminderIntent | null {
   const t = text.trim()
   if (!t || t.length > 200) return null
-  if (/erinner(?:e)?\s+mich\s+(?:wenn\s+ich\s+)?(?:zuhause|zu\s*hause|heim|daheim)\b/i.test(t)) return null
   if (LIST.test(t)) return { kind: 'list' }
   if (WEEK_OUT.test(t)) return { kind: 'week' }
   if (AGENDA.test(t)) return { kind: 'agenda' }
