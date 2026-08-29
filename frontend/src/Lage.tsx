@@ -16,7 +16,7 @@ import { fetchBodySnap, type BodySnap } from './engine/body-snap'
 import { loadGlobePins } from './engine/globe-pins'
 import type { GeoFix } from './engine/globe-geo'
 import { CITY_FLY_ZOOM } from './engine/globe-gibs'
-import { prefersReducedMotion } from './engine/motion'
+import { isDocumentHidden, onVisibility, prefersReducedMotion } from './engine/motion'
 import { loadSettings, saveSettings, type Message } from './engine/store'
 import { advanceTour, selectTourStop, stopTour } from './engine/globe-tour'
 import { decodeHtml } from './engine/html-text'
@@ -45,9 +45,6 @@ export function Lage({
   const [pins, setPins] = useState<GeoFix[]>([])
   const [pin, setPin] = useState<GeoFix | null>(null)
   const [globeTick, setGlobeTick] = useState(0)
-  const [clock, setClock] = useState(() =>
-    new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-  )
   const s = loadSettings()
   const view: HudView = s.hud_view === 'body' || s.hud_view === 'globe' ? s.hud_view : 'tiles'
   const organ = (BODY_ORGANS as readonly string[]).includes(s.last_body_organ)
@@ -59,17 +56,12 @@ export function Lage({
   const reduced = prefersReducedMotion()
   const bat = snap.device?.battery
   const amber = s.hud_accent === 'amber'
-
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      setClock(new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
-    }, 1000)
-    return () => window.clearInterval(id)
-  }, [])
+  const tourOn = Boolean(s.globe_tour_on)
 
   useEffect(() => {
     let live = true
     async function tick() {
+      if (isDocumentHidden()) return
       if (view === 'body') {
         const next = await fetchBodySnap({ busy, conversationId })
         if (live) setBody(next)
@@ -84,17 +76,21 @@ export function Lage({
       if (live) setSnap(next)
     }
     void tick()
-    const id = window.setInterval(() => void tick(), view === 'globe' ? 20_000 : spotifyOn ? 5_000 : 20_000)
+    const id = window.setInterval(() => void tick(), view === 'globe' ? 30_000 : spotifyOn ? 8_000 : 20_000)
+    const off = onVisibility(() => {
+      if (!isDocumentHidden()) void tick()
+    })
     return () => {
       live = false
       window.clearInterval(id)
+      off()
     }
   }, [view, modules.join(','), spotifyOn, busy, conversationId, globeTick])
 
   useEffect(() => {
-    if (view !== 'globe') return
+    if (view !== 'globe' || !tourOn || reduced) return
     const id = window.setInterval(() => {
-      if (!loadSettings().globe_tour_on || prefersReducedMotion()) return
+      if (isDocumentHidden() || !loadSettings().globe_tour_on) return
       const stop = advanceTour()
       if (stop) {
         setPin({ name: stop.name, lat: stop.lat, lon: stop.lon, kind: 'glow', line: stop.line, hot: true })
@@ -103,7 +99,7 @@ export function Lage({
       }
     }, 500)
     return () => window.clearInterval(id)
-  }, [view, onHudChange])
+  }, [view, tourOn, reduced, onHudChange])
 
   function setView(next: HudView) {
     saveSettings({ hud_view: next, hud_force: true, hud_hidden: false })
@@ -134,10 +130,25 @@ export function Lage({
   return (
     <section className={`lage ${amber ? 'is-amber' : ''}`} aria-label="Lage">
       <header className="lage-head">
-        <span className="lage-brand">{face}</span>
-        <span className="lage-sep">&gt;</span>
-        <span>Lage</span>
-        <span className="lage-tabs" role="tablist" aria-label="Lage-Sicht">
+        <div className="lage-head-row">
+          <span className="lage-brand">{face}</span>
+          <span className="lage-sep">&gt;</span>
+          <span>Lage</span>
+          <span className="lage-spacer" />
+          <LageClock />
+          {typeof bat === 'number' ? <span className="lage-bat">{bat} %</span> : null}
+          <button
+            type="button"
+            className="lage-tab"
+            onClick={() => {
+              saveSettings({ hud_force: false, hud_hidden: true })
+              onHudChange?.()
+            }}
+          >
+            Lage aus
+          </button>
+        </div>
+        <div className="lage-tabs" role="tablist" aria-label="Lage-Sicht">
           {(
             [
               ['tiles', 'Kacheln'],
@@ -154,10 +165,14 @@ export function Lage({
               {label}
             </button>
           ))}
-        </span>
-        <span className="lage-spacer" />
-        <span>{clock}</span>
-        {typeof bat === 'number' ? <span className="lage-bat">{bat} %</span> : null}
+        </div>
+        <p className="lage-hint">
+          {view === 'globe'
+            ? 'Erde drehen. Satellit wenn nah.'
+            : view === 'body'
+              ? 'Organe — Antippen startet kein Gerät.'
+              : 'Wetter, Musik, Gerät.'}
+        </p>
       </header>
       {view === 'body' ? (
         <div className="lage-split">
@@ -203,6 +218,7 @@ export function Lage({
                 last_globe_look: JSON.stringify({ lat: next.lat, lon: next.lon, zoom: CITY_FLY_ZOOM }),
               })
               if (next.kind === 'iss' || next.kind === 'here' || next.kind === 'warn') return
+              if (typeof window !== 'undefined' && window.innerWidth < 900) return
               onSend(`Zeig ${next.name}`)
             }}
             onEmpty={() => {
@@ -290,6 +306,25 @@ export function Lage({
       )}
     </section>
   )
+}
+
+function LageClock() {
+  const [clock, setClock] = useState(() =>
+    new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+  )
+  useEffect(() => {
+    const tick = () => {
+      if (isDocumentHidden()) return
+      setClock(new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+    }
+    const id = window.setInterval(tick, 1000)
+    const off = onVisibility(tick)
+    return () => {
+      window.clearInterval(id)
+      off()
+    }
+  }, [])
+  return <span>{clock}</span>
 }
 
 function ChatTile({

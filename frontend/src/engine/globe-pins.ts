@@ -1,4 +1,5 @@
 import { getJson } from './http-json.ts'
+import { isFreshHereFix } from './location-keep.ts'
 import { loadSettings } from './store.ts'
 import { pinForTag, pinForText, type GeoFix } from './globe-geo.ts'
 import type { OutlookSnap } from './outlook.ts'
@@ -29,18 +30,15 @@ export async function loadGlobePins(): Promise<GeoFix[]> {
   } catch {
     /* ignore */
   }
-  const lat = Number(s.last_lat)
-  const lon = Number(s.last_lon)
-  if (Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90) {
-    add({ name: 'Sie', lat, lon, kind: 'here', line: s.last_place || 'GPS' })
-  }
+  const here = isFreshHereFix(s.last_lat, s.last_lon, s.last_fix_at)
+  if (here) add({ name: 'Sie', lat: here.lat, lon: here.lon, kind: 'here', line: s.last_place || 'GPS' })
   const iss = await loadIss()
   if (iss) add({ name: 'ISS', lat: iss.lat, lon: iss.lon, kind: 'iss', line: 'Where The ISS At' })
-  if (s.last_warn_line) {
+  if (s.last_warn_line && here) {
     add({
       name: 'Unwetter',
-      lat: Number.isFinite(lat) ? lat : 51.16,
-      lon: Number.isFinite(lon) ? lon : 10.45,
+      lat: here.lat,
+      lon: here.lon,
       kind: 'warn',
       line: s.last_warn_line,
     })
@@ -68,15 +66,20 @@ export async function fetchIssNow(): Promise<{ lat: number; lon: number } | null
   return loadIss()
 }
 
+const ISS_TTL_MS = 30_000
+let issCache: { at: number; pos: { lat: number; lon: number } } | null = null
+
 async function loadIss(): Promise<{ lat: number; lon: number } | null> {
+  if (issCache && Date.now() - issCache.at < ISS_TTL_MS) return issCache.pos
   try {
     const { status, json } = await getJson('https://api.wheretheiss.at/v1/satellites/25544', UA)
-    if (status < 200 || status >= 300) return null
+    if (status < 200 || status >= 300) return issCache?.pos || null
     const lat = Number(json.latitude)
     const lon = Number(json.longitude)
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
-    return { lat, lon }
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return issCache?.pos || null
+    issCache = { at: Date.now(), pos: { lat, lon } }
+    return issCache.pos
   } catch {
-    return null
+    return issCache?.pos || null
   }
 }

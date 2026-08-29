@@ -1476,7 +1476,7 @@ function App() {
               </div>
             ) : null}
 
-            {messages.map((m) => {
+            {messages.slice(-80).map((m) => {
               const enter =
                 enterIds[m.id] &&
                 (m.role === 'user' ? 'enter-user' : 'enter-assistant')

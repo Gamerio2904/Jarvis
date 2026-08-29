@@ -165,4 +165,8 @@ export const TEST_PROMPTS = [
   'Was is das für ne Stadt',
   'Körper an und Zeig London',
   'Mach Live-Satellitenvideo an',
+  'Wo ist London',
+  'Lage aus',
+  'Muss man Eintritt zahlen für Venedig',
+  'Wo liegt Kiew',
 ] as const

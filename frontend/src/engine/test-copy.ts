@@ -400,6 +400,31 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Look nach Fly-to', text: 'Was ist das für eine Stadt?', expect: { tool: 'hud' } },
     ],
   },
+  {
+    title: 'Alltag 8.34 Erstnutzer',
+    items: [
+      { label: 'Wo ist London', text: 'Wo ist London', expect: { tool: 'hud' } },
+      { label: 'Venedig Eintritt', text: 'Muss man Eintritt zahlen für Venedig', expect: { tool: 'research' } },
+      { label: 'Wetter', text: 'Wetter heute', expect: { tool: 'weather' } },
+    ],
+  },
+  {
+    title: 'Alltag 8.34 geübt',
+    items: [
+      { label: 'Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
+      { label: 'Wo liegt Kiew', text: 'Wo liegt Kiew', expect: { tool: 'hud' } },
+      { label: 'Street View', text: 'Zeig Street View von London', expect: { tool: 'wont' } },
+    ],
+  },
+  {
+    title: 'Alltag 8.34 kaputt',
+    items: [
+      { label: 'London ohne GPS', text: 'Wo ist London', expect: { tool: 'hud' } },
+      { label: 'Leeres GPS', text: 'Wo bin ich gerade?', expect: { tool: 'here', skipIf: 'no_gps' } },
+      { label: 'Street View Won’t', text: 'Zeig Street View von London', expect: { tool: 'wont' } },
+      { label: 'Fünf-Euro-Venedig', text: 'Muss man Eintritt zahlen für Venedig', expect: { tool: 'research' } },
+    ],
+  },
 ]
 
 export function formatTestCopyGroup(group: TestCopyGroup): string {

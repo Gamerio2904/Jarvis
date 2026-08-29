@@ -20,9 +20,19 @@ import {
   type MapFix,
 } from './engine/drive-map'
 import { formatNavBanner, nextManeuver } from './engine/nav-speak'
-import { isDocumentHidden, prefersReducedMotion } from './engine/motion'
+import { isDocumentHidden, onVisibility, prefersReducedMotion } from './engine/motion'
 import { watchDeviceLocation } from './native/geo'
-import { listenOnce, requestMicPermission, setKeepScreenOn, speakCueFast, speakText, stopListen, stopSpeak } from './native/voice'
+import {
+  beginVoiceSession,
+  endVoiceSession,
+  listenOnce,
+  requestMicPermission,
+  setKeepScreenOn,
+  speakCueFast,
+  speakText,
+  stopListen,
+  stopSpeak,
+} from './native/voice'
 import { isChatSpeaking } from './engine/speak-lock'
 import { parseFuelIntent } from './engine/fuel-parse'
 import { parsePoiIntent } from './engine/poi-parse'
@@ -325,13 +335,21 @@ function FollowMap({
 
     const tick = (now: number) => {
       if (!liveLoop) return
+      if (isDocumentHidden()) {
+        frame = 0
+        return
+      }
       paint(now)
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
+    const offVis = onVisibility(() => {
+      if (!isDocumentHidden() && liveLoop && !frame) frame = requestAnimationFrame(tick)
+    })
     return () => {
       liveLoop = false
       cancelAnimationFrame(frame)
+      offVis()
       wrap.removeEventListener('pointerdown', onDown)
       wrap.removeEventListener('pointermove', onMove)
       wrap.removeEventListener('pointerup', onUp)
@@ -451,7 +469,10 @@ export function DriveMode({
   useEffect(() => {
     if (!loggedIn) return
     void ensureInternalPlayer()
-    const id = window.setInterval(() => void refreshNow(), 8000)
+    const id = window.setInterval(() => {
+      if (isDocumentHidden()) return
+      void refreshNow()
+    }, 8000)
     return () => window.clearInterval(id)
   }, [loggedIn])
 
@@ -534,6 +555,7 @@ export function DriveMode({
     setHearMsg('Ich höre…')
     void (async () => {
       try {
+        await beginVoiceSession()
         await stopSpeak()
         await stopListen()
         await new Promise((r) => window.setTimeout(r, 180))
@@ -560,6 +582,7 @@ export function DriveMode({
       } catch (err) {
         setHearMsg(err instanceof Error ? err.message : 'Zuhören fehlgeschlagen.')
       } finally {
+        await endVoiceSession()
         listenLock.current = false
         setHearing(false)
         window.setTimeout(() => setHearMsg(null), 5_200)

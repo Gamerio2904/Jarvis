@@ -2,7 +2,14 @@
  * Routes every TEST_PROMPT via Register-Score (route-pick), plus Gates.
  */
 import assert from 'node:assert/strict'
-import { isLiveLookup, parseShopDiscountIntent } from '../src/engine/research-parse.ts'
+import {
+  corpusSaysNowFree,
+  guardResearchReply,
+  isLiveLookup,
+  isStaleFeeNow,
+  parseShopDiscountIntent,
+} from '../src/engine/research-parse.ts'
+import { parsePlaceRecall } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { isHelpCommand } from '../src/engine/guards.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
@@ -201,6 +208,10 @@ const EXPECT = {
   'Was is das für ne Stadt': 'hud',
   'Körper an und Zeig London': 'hud',
   'Mach Live-Satellitenvideo an': 'wont',
+  'Wo ist London': 'hud',
+  'Lage aus': 'hud',
+  'Muss man Eintritt zahlen für Venedig': 'research',
+  'Wo liegt Kiew': 'hud',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -263,6 +274,33 @@ assert.equal(route('nächste Kneipe'), 'poi')
 assert.equal(route('bestell ein Taxi'), 'taxi')
 assert.equal(route('Sprachnachricht an Mama ich bin in 10 Minuten'), 'maps')
 assert.equal(route('Mit der Bahn nach Heilbronn'), 'transit')
+assert.equal(route('Wo ist London'), 'hud')
+assert.equal(route('Wo liegt Kiew'), 'hud')
+assert.equal(route('Lage aus'), 'hud')
+assert.equal(isLiveLookup('Muss man Eintritt zahlen für Venedig'), true)
+assert.equal(route('Muss man Eintritt zahlen für Venedig'), 'research')
+assert.equal(parsePlaceRecall('Wo ist London'), null)
+assert.equal(parsePlaceRecall('Wo liegt London'), null)
+assert.equal(parsePlaceRecall('Wo wohnt die Freundin')?.name, 'freundin')
+assert.equal(corpusSaysNowFree('Aktuell keine Eintrittsgebühr, Testphase beendet'), true)
+assert.equal(isStaleFeeNow('Für die Altstadt zahlt man 5 € Tagesgast.'), true)
+assert.ok(
+  /aktuell nicht/i.test(
+    guardResearchReply(
+      'Muss man Eintritt zahlen für Venedig',
+      'Für das Betreten der Altstadt zahlt man fünf Euro als Tagesgast.',
+      [
+        {
+          title: 'ADAC Venedig 2026',
+          url: 'https://www.adac.de/venedig',
+          snippet: 'Aktuell kein Eintritt. Testphase beendet. Geplant frühestens Ostern 2027.',
+          provider: 'adac',
+          retrieved_at: '2026-08-29T00:00:00Z',
+        },
+      ],
+    ),
+  ),
+)
 for (const p of TEST_PROMPTS) {
   assert.ok(allTestCopyTexts().includes(p), `Kopierfeld fehlt: ${p}`)
 }

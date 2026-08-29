@@ -71,6 +71,7 @@ public class JarvisVoicePlugin extends Plugin {
     private static JarvisVoicePlugin self;
     private static volatile boolean pendingWake = false;
     private static volatile String pendingUtterance = "";
+    private static volatile boolean voiceSession = false;
 
     @Override
     public void load() {
@@ -241,7 +242,14 @@ public class JarvisVoicePlugin extends Plugin {
             intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 650L);
             intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 350L);
             try {
-                recognizer.startListening(intent);
+                main.postDelayed(() -> {
+                    if (listenGen != gen || listenCall != call) return;
+                    try {
+                        if (recognizer != null) recognizer.startListening(intent);
+                    } catch (Exception e) {
+                        finishListen("", false, "Zuhören fehlgeschlagen.", null);
+                    }
+                }, 220);
             } catch (Exception e) {
                 finishListen("", false, "Zuhören fehlgeschlagen.", null);
                 return;
@@ -274,7 +282,27 @@ public class JarvisVoicePlugin extends Plugin {
         }
         if (message != null && !message.isEmpty()) r.put("message", message);
         c.resolve(r);
-        main.postDelayed(() -> JarvisWakeService.resumeListen(getContext()), 400);
+        if (!voiceSession) {
+            main.postDelayed(() -> JarvisWakeService.resumeListen(getContext()), 400);
+        }
+    }
+
+    @PluginMethod
+    public void beginVoiceSession(PluginCall call) {
+        voiceSession = true;
+        JarvisWakeService.pauseListen();
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void endVoiceSession(PluginCall call) {
+        voiceSession = false;
+        JarvisWakeService.resumeListen(getContext());
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
     }
 
     @PluginMethod
