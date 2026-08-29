@@ -14,7 +14,7 @@ import { allTestCopyTexts } from '../src/engine/test-copy.ts'
 
 /** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
 
-/** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null, kaufOpen?: boolean }} [ctx] */
+/** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
   text = normalizeUtterance(text)
   if (isHelpCommand(text)) return 'help'
@@ -51,8 +51,6 @@ const EXPECT = {
   'Guten Morgen': 'brief',
   '/hilfe': 'help',
   'Fernseher an': 'tv',
-  'Verbinde dich mit dem Fernseher': 'tv',
-  'Fernseher koppeln': 'tv',
   'Fire TV': 'tv',
   'Öffne Netflix': 'tv',
   'Spiel Dune Film': 'tv',

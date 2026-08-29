@@ -283,7 +283,7 @@ function lastStepHint(): string {
   const tool = (s.last_step_tool || '').trim()
   if (!tool) return ''
   const title = (s.last_step_title || '').trim()
-  return `Letzter Tool-Schritt: ${tool}${title ? ` (${title})` : ''}. „Nochmal“ und „Versuche nochmal“ wiederholt der Router als denselben Befehl. Keine Ausführung erfinden.`
+  return `Letzter Tool-Schritt: ${tool}${title ? ` (${title})` : ''}. Wenn der Nutzer „das“, „lauter“, „stopp“ oder „nochmal“ sagt, bezieht sich das darauf. Keine Ausführung erfinden.`
 }
 
 function persistLastStep(tool: string, title = '', when = '', utterance = ''): void {
@@ -335,7 +335,7 @@ async function rememberToolFromStore(tool: string): Promise<void> {
     persistLastStep('todo', td?.title ?? '', '')
     return
   }
-  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave' || tool === 'fan' || tool === 'plug' || tool === 'kauf' || tool === 'world') {
+  if (tool === 'shopping' || tool === 'birthday' || tool === 'home' || tool === 'leave' || tool === 'fan' || tool === 'plug') {
     persistLastStep(tool)
     return
   }
@@ -419,10 +419,7 @@ export async function streamChat(
       const replies = routed.map((h, i) =>
         h ? h.reply : `„${queue[i]}“ habe ich nicht als Befehl erkannt.`,
       )
-      for (let i = 0; i < routed.length; i++) {
-        const hit = routed[i]
-        if (hit) await rememberHit(hit, texts[i])
-      }
+      for (const hit of found) await rememberHit(hit, content)
       const last = found[found.length - 1]
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)

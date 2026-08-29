@@ -1,15 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
-import type { Conversation, Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
-import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc, listConversations } from './api'
+import { useEffect, useState } from 'react'
+import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
+import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
 import type { Plug } from './api'
 import { copyText } from './copy-text'
-import {
-  TEST_COPY_GROUPS,
-  groupSelectedCount,
-  testCopyGroupById,
-  testPromptKey,
-  allTestPromptKeys,
-} from './engine/test-copy'
 import { ensureDeviceLocation } from './native/geo'
 import { DebugPanel } from './DebugPanel'
 import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
@@ -49,7 +42,7 @@ export type SettingsTopic =
   | 'gefahr'
 
 const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
-  { id: 'allgemein', label: 'Allgemein', hint: 'Backup' },
+  { id: 'allgemein', label: 'Allgemein', hint: 'Version' },
   { id: 'modell', label: 'Modell', hint: 'Lokal' },
   { id: 'cloud', label: 'Cloud', hint: 'Gemini' },
   { id: 'sprache', label: 'Sprache', hint: 'Hören' },
@@ -119,43 +112,9 @@ function CopyField({ label, value }: { label: string; value: string }) {
   )
 }
 
-function CheckBox({
-  checked,
-  indeterminate,
-  onChange,
-  label,
-}: {
-  checked: boolean
-  indeterminate?: boolean
-  onChange: (on: boolean) => void
-  label?: string
-}) {
-  return (
-    <input
-      type="checkbox"
-      checked={checked}
-      aria-label={label}
-      ref={(el) => {
-        if (el) el.indeterminate = Boolean(indeterminate) && !checked
-      }}
-      onChange={(e) => onChange(e.target.checked)}
-      onClick={(e) => e.stopPropagation()}
-    />
-  )
-}
-
 export type SettingsScreenProps = {
   topic: SettingsTopic
   onTopic: (t: SettingsTopic) => void
-  testGroup: string | null
-  onTestGroup: (id: string | null) => void
-  testKeys: Record<string, true>
-  onToggleTestKey: (key: string) => void
-  onToggleTestGroup: (groupId: string, on: boolean) => void
-  onToggleAllTests: (on: boolean) => void
-  onStartTest: () => void
-  onStartGroup: (groupId: string) => void
-  onSendNow: (text: string) => void
   onClose: () => void
   leaving?: boolean
   settings: Settings | null
@@ -273,16 +232,6 @@ export function SettingsScreen(p: SettingsScreenProps) {
   }, [s?.pc_token])
 
   useEffect(() => {
-    if (p.topic !== 'debug') return
-    void listConversations()
-      .then((rows) => {
-        setDebugChats(rows)
-        setDebugPick((cur) => cur || rows[0]?.id || '')
-      })
-      .catch(() => setDebugChats([]))
-  }, [p.topic])
-
-  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') p.onClose()
     }
@@ -325,6 +274,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
               {topic.label}
             </h2>
           </div>
+          <button type="button" className="settings-close" onClick={p.onClose}>
+            Fertig
+          </button>
         </header>
 
         <div className="settings-pane-body">
@@ -465,7 +417,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
-                    key={`gemini-key-${p.formEpoch}`}
+                    key={`gemini-key-${s?.gemini_api_key ? 'set' : 'empty'}`}
                     defaultValue={s?.gemini_api_key || ''}
                     disabled={busy}
                     placeholder="AIza… hier einfügen"
@@ -492,7 +444,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
-                    key={`groq-key-${p.formEpoch}`}
+                    key={`groq-key-${s?.groq_api_key ? 'set' : 'empty'}`}
                     defaultValue={s?.groq_api_key || ''}
                     disabled={busy}
                     placeholder="gsk_… hier einfügen"
@@ -522,7 +474,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
-                    key={`tanker-key-${p.formEpoch}`}
+                    key={`tanker-key-${s?.tankerkoenig_api_key ? 'set' : 'empty'}`}
                     defaultValue={s?.tankerkoenig_api_key || ''}
                     disabled={busy}
                     placeholder="UUID von tankerkoenig.de"
@@ -547,7 +499,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
-                    key={`omdb-key-${p.formEpoch}`}
+                    key={`omdb-key-${s?.omdb_api_key ? 'set' : 'empty'}`}
                     defaultValue={s?.omdb_api_key || ''}
                     disabled={busy}
                     placeholder="Key von omdbapi.com"
@@ -767,7 +719,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   type="number"
                   min={50}
                   max={2000}
-                  key={`home-r-${p.formEpoch}`}
+                  key={`home-r-${s?.home_radius_m || '250'}`}
                   defaultValue={s?.home_radius_m || '250'}
                   disabled={busy}
                   onBlur={(e) => {
@@ -861,7 +813,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>Name</span>
                 <input
-                  key={`tv-name-${p.formEpoch}`}
+                  key={`tv-name-${s?.tv_name || ''}`}
                   defaultValue={s?.tv_name || ''}
                   disabled={busy}
                   onBlur={(e) => void p.patchSetting({ tv_name: e.target.value })}
@@ -870,7 +822,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>Host</span>
                 <input
-                  key={`tv-host-${p.formEpoch}`}
+                  key={`tv-host-${s?.tv_host || ''}`}
                   defaultValue={s?.tv_host || ''}
                   disabled={busy}
                   placeholder="192.168.1.20"
@@ -880,7 +832,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>MAC</span>
                 <input
-                  key={`tv-mac-${p.formEpoch}`}
+                  key={`tv-mac-${s?.tv_mac || ''}`}
                   defaultValue={s?.tv_mac || ''}
                   disabled={busy}
                   placeholder="aa:bb:cc:dd:ee:ff"
@@ -890,7 +842,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>Port</span>
                 <input
-                  key={`tv-port-${p.formEpoch}`}
+                  key={`tv-port-${s?.tv_port || 8002}`}
                   defaultValue={String(s?.tv_port || 8002)}
                   disabled={busy}
                   onBlur={(e) => {
@@ -1510,7 +1462,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   autoComplete="off"
                   autoCapitalize="none"
                   spellCheck={false}
-                  key={`sp-id-${p.formEpoch}`}
+                  key={`sp-id-${s?.spotify_client_id ? 'set' : 'empty'}`}
                   defaultValue={s?.spotify_client_id || ''}
                   disabled={busy}
                   placeholder="Spotify Client ID"

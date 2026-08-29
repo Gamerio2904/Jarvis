@@ -12,10 +12,6 @@ const FOLLOW_UP =
 
 const CONFIRM = /^(ja|jo|yes|ok|okay|mach(?:\s+es|\s+mal)?|bitte|passt)\s*[.!?]?$/i
 
-/** Letzten Befehl nochmal ausführen — kein extra Parser pro Gerät. */
-const RETRY =
-  /^(?:(?:bitte|dann)\s+)?(?:versuch(?:e|en|s)?(?:\s+(?:es|das|sie(?:\s+es)?))?\s+)?(?:noch\s*mal|nochmals|noch\s*einmal|erneut)(?:\s+(?:versuchen|machen|sagen))?\s*[.!?]*$/i
-
 const HALT = /^(?:stopp(?:e)?(?:\s+das)?|halt|pause)\s*[.!?]?$/i
 
 const VOL = /^(?:und\s+)?(?:das\s+)?(lauter|leiser)\s*[.!?]?$/i
@@ -41,22 +37,11 @@ const TV_PAD_MAP: Record<string, string> = {
 
 export function isFollowUpPhrase(text: string): boolean {
   const raw = text.trim()
-  return FOLLOW_UP.test(raw) || CONFIRM.test(raw) || RETRY.test(raw) || HALT.test(raw) || VOL.test(raw)
+  return FOLLOW_UP.test(raw) || CONFIRM.test(raw) || HALT.test(raw) || VOL.test(raw)
 }
 
 export function isConfirmPhrase(text: string): boolean {
   return CONFIRM.test(text.trim())
-}
-
-export function isRetryPhrase(text: string): boolean {
-  return RETRY.test(text.trim())
-}
-
-function replayUtterance(utterance: string): string | null {
-  const u = utterance.trim()
-  if (!u) return null
-  if (CONFIRM.test(u) || RETRY.test(u) || HALT.test(u)) return null
-  return u
 }
 
 /** Wetter-Nachfragen bleiben im Wetter-Handler (`rewrite` → null). */
@@ -96,13 +81,10 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     return null
   }
 
-  if (isRetryPhrase(raw)) {
-    return replayUtterance(utterance)
-  }
-
   if (CONFIRM.test(raw)) {
     if (!tool || tool === 'todo' || tool === 'notes' || tool === 'weather') return null
-    return replayUtterance(utterance)
+    if (utterance && !CONFIRM.test(utterance) && !HALT.test(utterance)) return utterance
+    return null
   }
 
   if (/^(?:noch\s*mal(?:s)?|wieder|erneut)(?:\s+bitte)?[.!?]*$/i.test(raw)) {

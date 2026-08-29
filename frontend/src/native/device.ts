@@ -16,13 +16,6 @@ type NativeDevice = {
   sms(opts: { number: string; body?: string }): Promise<{ ok: boolean; message?: string }>
   callNow(opts: { number: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
   sendSms(opts: { number: string; body: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
-  sensors(): Promise<{
-    ok: boolean
-    steps?: number
-    pressureHpa?: number
-    heading?: number
-    message?: string
-  }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeDevice>('JarvisDevice') : null
@@ -164,26 +157,6 @@ export async function openSms(
   } catch {
     return { ok: false, message: 'SMS-App nicht geöffnet.' }
   }
-}
-
-export async function readSensors(): Promise<{
-  ok: boolean
-  steps?: number
-  pressureHpa?: number
-  heading?: number
-  message?: string
-}> {
-  if (native) {
-    try {
-      return await withTimeout(native.sensors(), 4_000, {
-        ok: false,
-        message: 'Sensoren nicht lesbar.',
-      })
-    } catch {
-      return { ok: false, message: 'Sensoren nicht lesbar.' }
-    }
-  }
-  return { ok: false, message: 'Schritte, Luftdruck und Kompass nur auf dem Handy.' }
 }
 
 export async function placeCall(number: string): Promise<{

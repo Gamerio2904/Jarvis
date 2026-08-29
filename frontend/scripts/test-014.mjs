@@ -1,15 +1,7 @@
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
-import { allTestCopyTexts, allTestPromptKeys, formatAllTestCopy, isDebugChatTitle, selectedTestPrompts, TEST_COPY_GROUPS, testPromptKey } from '../src/engine/test-copy.ts'
-import { flagReply, expandPickedMessageIds, debugFileName, applyTurnFilter } from '../src/engine/chat-debug.ts'
-import {
-  SETTINGS_BACKUP_KIND,
-  pickSettingsPatch,
-  parseSettingsBackup,
-  restoreSettingsBackup,
-  settingsBackupFileName,
-} from '../src/engine/settings-backup.ts'
-import { parseTvConnect, parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
+import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
+import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand, finishReply, HELP_TEXT } from '../src/engine/guards.ts'
@@ -48,7 +40,7 @@ import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
 import { ttsBudgetMs, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
-import { isFollowUpPhrase, isRetryPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
+import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
@@ -70,8 +62,6 @@ import {
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { pickHeard } from '../src/engine/heard.ts'
 import { parseShopIntent } from '../src/engine/shopping-parse.ts'
-import { parseKaufIntent } from '../src/engine/kauf-intent.ts'
-import { parseWorldIntent } from '../src/engine/world-parse.ts'
 import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
@@ -743,28 +733,6 @@ assert.equal(
   'Termin morgen Zahnarzt',
 )
 assert.equal(rewriteFollowUp('ja', { last_step_tool: 'todo' }), null)
-assert.equal(
-  rewriteFollowUp('Versuche nochmal', { last_step_tool: 'tv', last_step_utterance: 'Verbinde dich mit dem Fernseher' }),
-  'Verbinde dich mit dem Fernseher',
-)
-assert.equal(
-  rewriteFollowUp('nochmal', { last_step_tool: 'plug', last_step_utterance: 'Steckdose an' }),
-  'Steckdose an',
-)
-assert.equal(rewriteFollowUp('erneut', { last_step_utterance: 'Wetter heute', last_step_tool: 'weather' }), 'Wetter heute')
-assert.equal(rewriteFollowUp('Versuche nochmal', { last_step_tool: 'tv' }), null)
-assert.equal(isRetryPhrase('Versuche nochmal'), true)
-assert.equal(isRetryPhrase('noch mal'), true)
-assert.equal(isRetryPhrase('bitte nochmal'), true)
-assert.equal(isRetryPhrase('nochmal 5 Minuten'), false)
-assert.equal(shouldRefreshTitle('Versuche nochmal'), false)
-assert.equal(parseTvConnect('Verbinde dich mit dem Fernseher'), true)
-assert.equal(parseTvConnect('Fernseher koppeln'), true)
-assert.equal(parseTvConnect('Kopple den TV'), true)
-assert.equal(parseTvConnect('Verbinde Apple CarPlay'), false)
-assert.equal(parseTvConnect('Kopple die Tuya Cloud'), false)
-assert.equal(parseTvConnect('Fernseher auf HDMI 2'), false)
-assert.equal(parseTvConnect('Öffne Netflix'), false)
 
 assert.equal(shouldRefreshTitle('Kuchenrezepte suchen bitte'), true)
 assert.equal(shouldRefreshTitle('und morgen?'), false)
@@ -1080,130 +1048,10 @@ for (const p of TEST_PROMPTS) {
 }
 for (const g of TEST_COPY_GROUPS) {
   assert.ok(g.items.length > 0, g.title)
-  assert.ok(g.id.trim(), g.title)
-  assert.ok(g.hint.trim(), g.title)
   for (const i of g.items) {
     assert.ok(i.label.trim(), g.title)
     assert.ok(i.text.trim(), i.label)
   }
-}
-const groupIds = TEST_COPY_GROUPS.map((g) => g.id)
-assert.equal(new Set(groupIds).size, groupIds.length, 'doppelte Test-Gruppen-IDs')
-assert.ok(allTestPromptKeys().length >= TEST_PROMPTS.length)
-assert.equal(new Set(allTestPromptKeys()).size, allTestPromptKeys().length, 'doppelte Prompt-Keys')
-assert.equal(isDebugChatTitle('Debug-Test'), true)
-assert.equal(isDebugChatTitle('debug-test kauf'), true)
-assert.equal(isDebugChatTitle('Neues Gespräch'), false)
-const milchKey = testPromptKey('shop', { label: 'Milch kaufen', text: 'Milch kaufen' })
-assert.deepEqual(selectedTestPrompts([milchKey]), ['Milch kaufen'])
-assert.ok(allTestPromptKeys().includes(milchKey))
-assert.ok(flagReply('Hallo', 'Ich habe den Fernseher angeschaltet.', {}).includes('hallucinated_action'))
-assert.ok(flagReply('x', 'Guten Tag.', { debug: { route: 'llm' } }).includes('llm'))
-assert.deepEqual(
-  expandPickedMessageIds(
-    [
-      { id: 'u1', role: 'user' },
-      { id: 'a1', role: 'assistant' },
-      { id: 'u2', role: 'user' },
-      { id: 'a2', role: 'assistant' },
-    ],
-    ['u1'],
-  ),
-  ['u1', 'a1'],
-)
-assert.match(debugFileName({ id: 'x', title: 'Debug-Test', created_at: '', updated_at: '' }), /jarvis-debug-debug-test-/)
-const filtered = applyTurnFilter(
-  {
-    kind: 'jarvis-chat-debug',
-    app_version: '2.29.1',
-    exported_at: '',
-    conversation: { id: 'x', title: 'Debug-Test', created_at: '', updated_at: '' },
-    transcript: 'USER\na\n\nJARVIS\nb',
-    runtime: {},
-    turns: [
-      { id: 'u1', role: 'user', created_at: '', content: 'a', flags: [] },
-      { id: 'a1', role: 'assistant', created_at: '', content: 'b', flags: ['llm'], route: 'llm' },
-    ],
-    summary: { user_turns: 2, assistant_turns: 2, tools_executed: [], llm_turns: 1, flags: ['llm'] },
-    memory_from_this_chat: [],
-  },
-  ['u1'],
-)
-assert.equal(filtered.turns.length, 1)
-assert.equal(filtered.summary.user_turns, 1)
-
-if (typeof globalThis.localStorage === 'undefined') {
-  const mem = Object.create(null)
-  globalThis.localStorage = {
-    getItem: (k) => (Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : null),
-    setItem: (k, v) => {
-      mem[k] = String(v)
-    },
-    removeItem: (k) => {
-      delete mem[k]
-    },
-    clear: () => {
-      for (const k of Object.keys(mem)) delete mem[k]
-    },
-    key: (i) => Object.keys(mem)[i] ?? null,
-    get length() {
-      return Object.keys(mem).length
-    },
-  }
-}
-
-const backupPatch = pickSettingsPatch({
-  version: '1.0.0',
-  gemini_api_key: 'AIza-test',
-  gemini_enabled: true,
-  tv_port: 8001,
-  wake_word: true,
-  unknown_field: 'x',
-  research_opt_in: 'yes',
-})
-assert.equal(backupPatch.gemini_api_key, 'AIza-test')
-assert.equal(backupPatch.gemini_enabled, true)
-assert.equal(backupPatch.tv_port, 8001)
-assert.equal(backupPatch.wake_word, true)
-assert.equal('version' in backupPatch, false)
-assert.equal('unknown_field' in backupPatch, false)
-assert.equal('research_opt_in' in backupPatch, false)
-
-const wrappedOk = parseSettingsBackup({
-  kind: SETTINGS_BACKUP_KIND,
-  app_version: '2.29.2',
-  exported_at: '2026-08-26T00:00:00.000Z',
-  settings: { gemini_api_key: 'k2', plugs_json: '[]', tv_token: 'tok' },
-})
-assert.equal(wrappedOk.ok, true)
-if (wrappedOk.ok) {
-  assert.equal(wrappedOk.patch.gemini_api_key, 'k2')
-  assert.equal(wrappedOk.patch.plugs_json, '[]')
-  assert.equal(wrappedOk.patch.tv_token, 'tok')
-}
-
-const rawOk = parseSettingsBackup({ groq_api_key: 'gsk_x', ui_sounds: false })
-assert.equal(rawOk.ok, true)
-if (rawOk.ok) assert.equal(rawOk.patch.groq_api_key, 'gsk_x')
-
-const debugReject = parseSettingsBackup({
-  kind: 'jarvis-chat-debug',
-  settings: { gemini_api_key: 'nope' },
-})
-assert.equal(debugReject.ok, false)
-if (!debugReject.ok) assert.match(debugReject.message, /Chat-Debug/)
-
-const emptyReject = parseSettingsBackup({ kind: SETTINGS_BACKUP_KIND, settings: { version: '2.0.0' } })
-assert.equal(emptyReject.ok, false)
-
-assert.match(settingsBackupFileName(new Date('2026-08-26T12:34:56.000Z')), /jarvis-settings-2026-08-26-12-34-56\.json/)
-
-if (wrappedOk.ok) {
-  const restored = restoreSettingsBackup(wrappedOk.patch)
-  assert.equal(restored.gemini_api_key, 'k2')
-  assert.equal(restored.tv_token, 'tok')
-  assert.equal(restored.version, '2.30.0')
-  assert.equal(restored.gemini_enabled, false)
 }
 
 assert.equal(parseFuelIntent('Fahr mich zu einer Tanke')?.prefer, 'nearest')
@@ -1445,7 +1293,6 @@ assert.equal(parseTvWatch('Spiel Dune Film')?.kind, 'play')
 assert.equal(parseFilmIntent('Spiel Dune Film'), null)
 assert.equal(parseFilmIntent('Wo läuft Dune kostenlos')?.kind, 'where')
 assert.equal(parseFilmIntent('Wo läuft Dune kostenlos')?.title, 'Dune')
-assert.equal(parseFilmIntent('Sortiere nach Bewertung'), null)
 assert.equal(parseFilmIntent('Wie gut ist Dune')?.kind, 'rate')
 assert.equal(parseFilmIntent('Wie ist mein Name?'), null)
 assert.equal(parseFilmIntent('IMDb Dune')?.kind, 'rate')
@@ -1497,90 +1344,6 @@ assert.equal(parseShopDiscountIntent('Rabatt-Suche aus')?.on, false)
 assert.equal(parseShopDiscountIntent('Tanke E10'), null)
 assert.equal(isProductLookup('Gutscheincode Mixer'), false)
 assert.equal(isProductLookup('Gutscheincode Mixer', true), true)
-
-assert.equal(parseKaufIntent('Kaufmodus')?.kind, 'open')
-assert.equal(parseKaufIntent('Ich will einkaufen')?.kind, 'open')
-assert.equal(parseKaufIntent('einkaufen')?.kind, 'open')
-assert.equal(parseKaufIntent('Öffne den Kaufmodus')?.kind, 'open')
-assert.equal(parseKaufIntent('Shopping-Modus')?.kind, 'open')
-assert.equal(parseKaufIntent('Kaufmodus aus')?.kind, 'close')
-assert.equal(parseKaufIntent('Kaufmodus schließen')?.kind, 'close')
-assert.equal(parseKaufIntent('Milch kaufen'), null)
-assert.equal(parseKaufIntent('Pack Milch auf die Einkaufsliste'), null)
-assert.equal(parseKaufIntent('Such mir einen Fernseher')?.kind, 'search')
-assert.equal(parseKaufIntent('Such mir Milch im Angebot')?.kind, 'search')
-assert.equal(parseKaufIntent('Such günstigere Alternativen')?.kind, 'search')
-assert.equal(parseKaufIntent('Ich brauche neue Kopfhörer')?.kind, 'search')
-assert.equal(parseKaufIntent('Ich brauche einen Laptop')?.kind, 'search')
-assert.equal(parseKaufIntent('Nur Angebote für Kaffee unter 5 €')?.kind, 'search')
-assert.equal(parseKaufIntent('Zeig mir alle aktuellen Angebote für Waschmittel')?.kind, 'search')
-assert.equal(parseKaufIntent('Prospekt von Aldi')?.kind, 'search')
-assert.equal(parseKaufIntent('Vergleiche diese drei Fernseher')?.kind, 'search')
-assert.equal(parseKaufIntent('Pack Nummer 2 auf die Einkaufsliste')?.kind, 'toList')
-assert.equal(parseKaufIntent('Nur Angebote', true)?.kind, 'filter')
-assert.equal(parseKaufIntent('Vergleiche Nummer 1 und 3', true)?.kind, 'compare')
-assert.equal(parseKaufIntent('Merke mir Nummer 2', true)?.kind, 'save')
-assert.equal(parseKaufIntent('Öffne das beste Angebot', true)?.best, true)
-assert.equal(parseKaufIntent('Bestes Angebot öffnen', true)?.best, true)
-assert.equal(parseKaufIntent('Sortiere nach Preis', true)?.by, 'price')
-assert.equal(parseKaufIntent('Sortiere nach Bewertung', true)?.by, 'rating')
-assert.equal(parseKaufIntent('Was würdest du nehmen?', true)?.kind, 'recommend')
-assert.equal(parseKaufIntent('Maximal 200 €', true)?.maxEuro, 200)
-assert.equal(parseKaufIntent('Nur lokal', true)?.filter, 'local')
-assert.equal(parseKaufIntent('Öffne Nummer 2', true)?.kind, 'openDeal')
-assert.equal(parseKaufIntent('Alle', true)?.filter, 'all')
-assert.equal(parseShopIntent('Milch kaufen')?.kind, 'add')
-assert.equal(parseShopIntent('Milch holen')?.kind, 'add')
-assert.equal(parseShopIntent('Was muss ich einkaufen')?.kind, 'list')
-assert.equal(parseShopIntent('Einkaufsliste leeren')?.kind, 'clear')
-assert.equal(parseWorldIntent('Gibt’s Unwetter?')?.kind, 'dwd')
-assert.equal(parseWorldIntent('DWD Warnung')?.kind, 'dwd')
-assert.equal(parseWorldIntent('Wetterwarnung')?.kind, 'dwd')
-assert.equal(parseWorldIntent('Wetter heute'), null)
-assert.equal(parseWorldIntent('Sind in BW Ferien?')?.kind, 'ferien')
-assert.equal(parseWorldIntent('Ferien in Hessen')?.kind, 'ferien')
-assert.equal(parseWorldIntent('Was ist der Dollar?')?.kind, 'fx')
-assert.equal(parseWorldIntent('Wechselkurs')?.kind, 'fx')
-assert.equal(parseWorldIntent('Was ist das für ein Produkt?')?.kind, 'food')
-assert.equal(parseWorldIntent('Barcode')?.kind, 'food')
-assert.equal(parseWorldIntent('Was ist das für ein Buch?')?.kind, 'library')
-assert.equal(parseWorldIntent('Wer schrieb Faust')?.kind, 'library')
-assert.equal(parseWorldIntent('Wie hat der VfB gespielt?')?.kind, 'sport')
-assert.equal(parseWorldIntent('Bundesliga')?.kind, 'sport')
-assert.equal(parseWorldIntent('Ergebnis Dortmund')?.kind, 'sport')
-assert.equal(parseWorldIntent('Was ist das für eine Pflanze?')?.kind, 'plant')
-assert.equal(parseWorldIntent('Welches Kraut ist das?')?.kind, 'plant')
-assert.equal(parseWorldIntent('Wann fliegt die ISS?')?.kind, 'sky')
-assert.equal(parseWorldIntent('Internationale Raumstation')?.kind, 'sky')
-assert.equal(parseWorldIntent('Mondphase')?.kind, 'sky')
-assert.equal(parseWorldIntent('Welcher Vogel ist das?')?.kind, 'fauna')
-assert.equal(parseWorldIntent('iNaturalist')?.kind, 'fauna')
-assert.equal(parseWorldIntent('Was fliegt da?')?.kind, 'flight')
-assert.equal(parseWorldIntent('OpenSky')?.kind, 'flight')
-assert.equal(parseWorldIntent('Kündigungsfrist Wohnung')?.kind, 'law')
-assert.equal(parseWorldIntent('Mietrecht')?.kind, 'law')
-assert.equal(parseWorldIntent('Was bedeutet die Waschschüssel?')?.kind, 'household')
-assert.equal(parseWorldIntent('Waschsymbol')?.kind, 'household')
-assert.equal(parseWorldIntent('Wie viele Schritte heute?')?.kind, 'sensors')
-assert.equal(parseWorldIntent('Luftdruck')?.kind, 'sensors')
-assert.equal(parseWorldIntent('Barometer')?.kind, 'sensors')
-assert.equal(parseWorldIntent('Nordrichtung')?.kind, 'sensors')
-assert.equal(parseWorldIntent('Schach e2e4')?.kind, 'chess')
-assert.equal(parseWorldIntent('Schach neu')?.reset, true)
-assert.equal(parseWorldIntent('Schach reset')?.reset, true)
-assert.equal(parseWorldIntent('Schach Stellung')?.kind, 'chess')
-assert.equal(parseWorldIntent('Ventilator an'), null)
-assert.equal(parseDriveIntent('Aktiviere CarPlay')?.kind, 'on')
-assert.equal(parseDriveIntent('CarPlay aus')?.kind, 'off')
-assert.equal(parseDriveIntent('Restweg')?.kind, 'eta')
-assert.equal(parseDriveIntent('Wann bin ich da')?.kind, 'eta')
-assert.equal(parseDriveIntent('Verbinde Apple CarPlay'), null)
-assert.equal(parseDeviceIntent('Öffne Bluetooth')?.page, 'bluetooth')
-assert.equal(parseDeviceIntent('Nicht stören')?.page, 'dnd')
-assert.equal(parseDeviceIntent('Wie ist die Verbindung')?.kind, 'network')
-assert.equal(normalizeUtterance('Ich will einkaufen'), 'Ich will einkaufen')
-assert.ok(TEST_COPY_GROUPS.some((g) => /Kaufmodus/i.test(g.title)))
-assert.ok(TEST_COPY_GROUPS.some((g) => /^Welt$/i.test(g.title)))
 assert.match(
   formatResearchReply(
     'Mixer',

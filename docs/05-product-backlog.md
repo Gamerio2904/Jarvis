@@ -19,11 +19,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E2 | Jarvis Core Chat | 1 | Backend, Persona-Injection, Kurzgedächtnis, API |
 | E3 | Chat UI | 1–2 | Einfache Web-UI, mobil nutzbar |
 | E4 | Private Access | 2 | Handy, Owner-Token, APK (`0.10.2`–`0.10.5`) |
-| E5 | Always-On Ops | — | historisch: NAS Compose `0.10` — **superseded** |
-| E6 | Voice Out | 4 | TTS — **CODE** `1.5`+ |
-| E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research — live in `2.29.0` |
-| E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, Settings |
-| E11 | NAS & APK | — | historisch `0.10` — [`12-nas-apk.md`](./12-nas-apk.md) |
+| E5 | Always-On Ops | 3 | NAS Compose, Autostart, Backup (`0.10.0`–`0.10.1`) |
+| E6 | Voice Out | 4 | TTS-Vorlesen |
+| E7 | Assistant Capabilities | 4–6 | Gedächtnis, Router, Research, Scores |
+| E8 | Delight & Settings | 5 | Momente, Jokes, Sound, Eggs, flaches Settings |
+| E11 | NAS & APK | 2–3 | Compose 24/7 + Sideload-APK — `0.10.x` |
 | E12 | Samsung TV | 5+ | Tizen lokal — **`0.14.1`** (ex-`0.11`, on-device) |
 | E14 | Qualität `0.14` | 2 | Bestehendes härten: Latenz, Ton, Memory/Tools — kein neues Feature |
 | E15 | Alltag `1.14`–`1.20` | 5+ | Gedächtnis, Kontext, Einkauf, Losgehen, Zuhause, Auge — [`19-next.md`](./19-next.md) |

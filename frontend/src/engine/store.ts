@@ -1,5 +1,4 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
-import { isDebugChatTitle } from './test-copy.ts'
 
 export const APP_VERSION = '6.90.0'
 
@@ -361,13 +360,6 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   return next
 }
 
-/** Komplett ersetzen — für Backup-Restore. Unbekannte Keys ignoriert der Aufrufer. */
-export function replaceSettings(next: Settings): Settings {
-  const row = { ...DEFAULT_SETTINGS, ...next, version: APP_VERSION }
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(row))
-  return row
-}
-
 export function persistLastList(tool: string, titles: string[]): void {
   saveSettings({
     last_step_tool: tool,
@@ -535,9 +527,8 @@ export async function addMessage(
   await put('messages', row)
   const conv = await get<Conversation>('conversations', conversationId)
   if (conv) {
-    const keep = isDebugChatTitle(conv.title)
     const title =
-      keep || !(role === 'user' && shouldRefreshTitle(content)) ? conv.title : titleFromUser(content)
+      role === 'user' && shouldRefreshTitle(content) ? titleFromUser(content) : conv.title
     await touchConversation(conversationId, title)
   }
   return row

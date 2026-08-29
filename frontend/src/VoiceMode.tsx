@@ -138,7 +138,6 @@ export function VoiceMode({
   }
 
   async function loop() {
-    let empty = 0
     while (live.current) {
       setPhase('listening')
       setHeard('')
@@ -149,14 +148,11 @@ export function VoiceMode({
       if (!live.current) return
       const text = heardRes.text.trim()
       if (!text) {
-        empty += 1
         if (heardRes.message) setErr(heardRes.message)
-        else if (empty >= 2) setErr('Nichts gehört. Antippen und nochmal.')
-        else setErr(null)
-        await new Promise((r) => setTimeout(r, 180))
+        else setErr('Nichts gehört. Nochmal?')
+        await new Promise((r) => setTimeout(r, 280))
         continue
       }
-      empty = 0
       await runTurn(text)
     }
   }

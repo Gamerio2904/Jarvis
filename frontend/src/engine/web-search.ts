@@ -35,10 +35,6 @@ export async function fillResearchLinks(
     extra.push(...(await duckDuckGo(`${query} site:destatis.de`)))
   }
   const need = product ? 3 : fact ? 3 : 2
-  if (fact) {
-    extra.push(...(await wikipedia(companyHint(query))))
-    extra.push(...(await duckDuckGo(`${query} site:destatis.de`)))
-  }
   if (extra.filter((s) => s.url).length < need || (fact && extra.filter((s) => (s.snippet || '').length > 40).length < 1)) {
     const searches = product
       ? discount

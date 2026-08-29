@@ -55,8 +55,6 @@ Einstellungen → Tests: jedes Prompt-Feld hat **Kopieren**, plus Alle je Gruppe
 
 Kopierfelder wieder weg aus Einstellungen. Prompts nur außerhalb der APK (dieser Chat). Chat ohne Chips.
 
-Seit `2.29.1` gibt es Tests wieder in den Einstellungen — Auto-Lauf und Sofort-Senden in den Chat, nicht Kopier-Chips im Composer.
-
 ## Won’t
 
 Zahlen erfinden, Standort raten, Tuya-Cloud, Tapo, Apple CarPlay, iOS, Play Store.
