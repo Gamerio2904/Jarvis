@@ -1,54 +1,14 @@
-# Jarvis — Local Personal Assistant
+# Jarvis — On-Device
 
-Privater Personal Assistant — lokal, text-first, nur für den Besitzer.
+<p align="center">
+  <img src="frontend/native/brand/cover.png" alt="Jarvis" width="920" />
+</p>
 
-## Status
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`6.90.0`**. Sideload **`6.90.0`**. PC-Steuerung über die Windows-App `desktop/JarvisPC.bat` im selben WLAN — nicht über NAS/Docker.
 
-- **Sprint 0:** DONE
-- **Sprints 1–7:** `0.1.0`–`0.3.1` (Review)
-- **Sprint 8:** `0.4.0` Gedächtnis & Kontext (Review)
-- **Sprint 9:** `0.4.1` Memory Must-Fixes (Review)
-- **Sprint 10:** `0.4.2` Memory Polish (Review)
-- **Sprint 11:** `0.4.3` Memory Hotfix (Review)
-- **Sprint 12:** `0.5.0` Router + Memory-Intent (Review)
-- **Sprint 13:** `0.5.1` Router Hotfix (Review; mitgeliefert in `0.5.2`)
-- **Sprint 14:** `0.5.2` Router Polish (Review)
-- **Sprint 15:** `0.6.0` Internet-Research (Review)
-- **Sprint 16:** `0.6.1` Research Hotfix (Review; in `0.7.0`)
-- **Sprint 17:** `0.6.2` Research Polish (Review; in `0.7.0`)
-- **Sprint 18:** `0.7.0` Delight + Settings (Review)
+**Hirn:** Gemini (API-Key in Einstellungen → Cloud) ist der **Hauptweg**. Groq ist Backup. Das lokale 0,5B-Qwen ist **reiner letzter Fallback**, kein ChatGPT. Parser wählen die Geräte; das Modell formuliert. Tools, Speicher und Keys bleiben auf dem Gerät.
 
-Planung: [`docs/sprints/README.md`](docs/sprints/README.md) · [`docs/10-intelligence-capabilities.md`](docs/10-intelligence-capabilities.md)
-
-## Schnellstart (Windows / Linux)
-
-### 1. Ollama
-
-1. [Ollama installieren](https://ollama.com/download)
-2. **Zielhardware (RTX 3060):** 
-
-```bash
-ollama pull qwen2.5:7b
-```
-
-Fallback (CPU / wenig VRAM) — wird automatisch genutzt, wenn 7b fehlt:
-
-```bash
-ollama pull qwen2.5:3b
-```
-
-### 2. Backend
-
-```bash
-cd backend
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### 3. Frontend
+## Start (Dev-PC, nur zum Bauen)
 
 ```bash
 cd frontend
@@ -56,25 +16,25 @@ npm install
 npm run dev
 ```
 
-Browser: http://localhost:5173
+Browser: http://localhost:5173 — Overlay **Gemini zuerst**. Gemini-Key eintragen. Lokales 0,5B nur als Backup (~470 MB), nicht nötig für Timer, Kugel, Wetter.
 
-### Smoke / Eval
+## Android-APK
 
-```bash
-python scripts/smoke_0_1_1.py
-python scripts/eval_0_2_0.py
-python scripts/eval_0_2_1.py
-python scripts/eval_0_2_2.py
+Sideload **`Jarvis.apk` `6.90.0`** (versionCode `69000`):  
+`releases/Jarvis.apk` in diesem Repo.
+
+```bat
+build-apk.bat
 ```
 
-## Planung
+Linux: `./build-apk.sh`
 
-Siehe [`docs/README.md`](./docs/README.md).
+1. Installieren (unbekannte Quellen). Vor Neuinstall: Einstellungen → Hausstand → Exportieren — Deinstall löscht Keys.
+2. App öffnen → Overlay: **Gemini-Key eintragen**. Optional Groq. 0,5B nur Backup.
+3. Chat. Daten bleiben auf dem Gerät (IndexedDB).
 
-## Konfiguration
+## Was weg ist
 
-| Datei | Zweck |
-|-------|--------|
-| `backend/config/settings.json` | Modell (`qwen2.5:7b`), Fallback, Sampling, Guard-Retries |
-| `backend/config/persona.md` | Jarvis-Systemprompt / Anti-Hijack |
-| `backend/data/` | SQLite-Chats (lokal, gitignored) |
+Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen in der Android-App.
+
+Planung: [`docs/README.md`](docs/README.md) · Rest: LocateAnything-Gewichte nach 3060-GO, Debug-Hintergrund `5.12`.

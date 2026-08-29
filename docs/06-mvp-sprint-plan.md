@@ -1,5 +1,7 @@
 # 06 — MVP & Sprint-Plan
 
+> Historisch (MVP `0.1`). **Jetzt:** Code `6.90.0`. Sideload `6.60.0`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
+
 ## MVP v0.1 — Definition
 
 **Name:** Local Smalltalk Jarvis  
@@ -57,7 +59,7 @@ Du schreibst z.B. „Hey, wie geht’s?“ und die Antwort ist:
 | Hardware-Kurzcheck | **Done** | Windows, 16 GB, RTX 3060; VRAM-Standard ~12 GB |
 | Stack-Richtung | **Done** | Ollama, ausgewogenes Modell, Web-only, Backend pragmatisch |
 | UI-Anspruch | **Done** | Spotify dunkel + ChatGPT-Layout; Motion light → späteres GUI-Update |
-| Versionierung | **Done** | `0.1.0`=MVP, `1.0.0`=NAS (`09`) |
+| Versionierung | **Done** | `0.1.0`=MVP; `0.10.x`=NAS+APK; `1.0.0`≠NAS (`09`) |
 
 **Increment Sprint 0:** Entscheidbare Planung; Sprint 1 freigegeben.
 
@@ -529,15 +531,19 @@ Listen-Scope, UI-Confirm, Aufräumen.
 
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
-| Phase 2 | Handy privat (VPN/Auth) | `0.x` vor NAS |
-| Phase 3 | NAS 24/7 | **`1.0.0`** |
-| Phase 4 | TTS-Vorlesen | nach PO-Go |
+| 34–39 | NAS 24/7 Compose | **`0.10.0`–`0.10.5`** — **Parking** |
+| 40–42 | Samsung-TV lokal (Tizen) | **`0.11.0`–`0.11.2`** |
+| 43 | NAS native + Reverse-Proxy + Sideload-APK | **`0.12.0`** |
+| — | TTS-Vorlesen | nach PO-Go |
+| — | `1.0.0` MAJOR | nach `0.12`, Inhalt PO |
+
+Detail On-Device/APK: [`13-on-device.md`](./13-on-device.md) · [`apk.md`](./apk.md) · Sprints: [`sprints/README.md`](./sprints/README.md)
 
 ---
 
 ## Abnahmetest MVP (Checkliste)
 
-- [ ] Kein Cloud-LLM im Antwortpfad
+- [ ] Kein Cloud-LLM im Antwortpfad *(historisch MVP `0.1`; ab `6.50` Gemini Hauptweg mit eigenem Key)*
 - [ ] „Hallo“ / „Wie geht’s?“ fühlt sich natürlich an
 - [ ] Folgefrage bezieht sich auf vorherige Aussage
 - [ ] Antwortlänge wirkt wie Chat, nicht wie Aufsatz

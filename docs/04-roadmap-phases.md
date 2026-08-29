@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Phase 2+ (Handy/Netz, NAS, TTS) wird **bewusst später** im Detail geplant — Roadmap-Richtung bleibt, Feinschnitt auf PO-Kommando.
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **Jetzt:** Code **`6.60.0`**, Sideload **`6.60.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md), Stimme [`37-next.md`](./37-next.md), Hausstand [`38-next.md`](./38-next.md) (Export vor Deinstall), Gesichter + Tablet [`39-next.md`](./39-next.md), Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md), Debug-Lauf [`44-next.md`](./44-next.md) — alles **CODE**. TTS `1.5`+.
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -57,31 +57,36 @@ Du kannst sagen: „Jarvis klingt so: …“ und Beispiele in `07-persona.md` si
 
 ---
 
-## Phase 2 — Privat vom Handy
+## Phase 2 — Privat vom Handy (in `0.10.x` mit Phase 3)
 
-**Ziel:** Zuverlässig vom Handy im eigenen Setup chatten — ohne Native App.
+**Ziel:** Vom Handy im eigenen WLAN chatten — **Sideload-APK** gegen NAS, plus Browser.
 
-**Inhalt**
-- Erreichbarkeit im eigenen Netz / VPN (z.B. Tailscale o.Ä.)
-- Auth (nur du)
-- Stabilerer Start der Dienste
+**Inhalt** (geliefert in `0.10.2`–`0.10.5`)
+- Owner-Token (kein Multi-User)
+- Capacitor-APK um die bestehende Web-UI
+- NAS-URL + Token in der App (First-Run)
+- Optional später: Tailscale/VPN (Should, nicht Must)
 
 **Exit-Kriterium**  
-Handy-Chat mit lokalem Jarvis ist Alltagstauglich-genug.
+APK-Chat gegen NAS ist Alltag; ohne Token kein Zugriff.
+
+**Nicht:** Play Store, iOS.
 
 ---
 
-## Phase 3 — 24/7 auf NAS
+## Phase 3 — 24/7 auf NAS (in `0.10.x` mit Phase 2)
 
 **Ziel:** Dauerbetrieb ohne dass der Laptop an sein muss.
 
-**Inhalt**
-- Stack-Umzug (idealerweise containerisiert)
-- Autostart, Backup von Config/Chats
-- Modellgröße an NAS-Ressourcen anpassen
+**Inhalt** (geliefert in `0.10.0`–`0.10.1`)
+- Docker Compose: Backend, Frontend-Static, Ollama
+- Autostart, Volumes, Backup
+- Modell an NAS-Ressourcen (`3b` ohne GPU, `7b` mit GPU)
 
 **Exit-Kriterium**  
-Jarvis ist dauerhaft erreichbar; Ausfall/Neustart ist handhabbar.
+Reboot → Stack wieder da; Chat im Browser gegen NAS-IP.
+
+**Version:** früher `1.0.0` — jetzt **`0.10.0`–`0.10.5`**. `1.0.0` ist frei für einen späteren MAJOR.
 
 ---
 
@@ -132,7 +137,27 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Memory Quality Hotfix → **`0.9.3`** (Sprint 31, geplant)
 - Assist Continuity & Siezen → **`0.9.4`** (Sprint 32, geplant)
 - Tools Hygiene & Confirm-UX → **`0.9.5`** (Sprint 33, geplant)
-- Tools (Kalender/Mail/Smart-Home/Fire TV) / Native App nur falls nötig — **nicht** in `0.9.x`
+- NAS Compose 24/7 → **`0.10.0`** (Sprint 34)
+- NAS Auth + APK Sideload → **`0.10.2`–`0.10.5`** (Sprints 36–39) — [`12`](./12-nas-apk.md)
+- Samsung-TV lokal → **`0.11.0`–`0.11.2`** (Sprints 40–42)
+- Mail / Fire TV / Alexa / Play Store — **Parking**
+- Tools (Kalender/Mail) — Kalender **ist** in `1.4`+; Mail bleibt Parking
+- Alltag `1.14`–`1.24` — **CODE** [`19-next.md`](./19-next.md) · [`20-next.md`](./20-next.md)
+- Intelligenz `3.0.0` — **CODE** [`32-intelligence.md`](./32-intelligence.md)
+- Welt `3.1`–`3.17` — **CODE** in `3.0.0` [`31-next.md`](./31-next.md)
+- Lage / Härten `3.18.0` — **CODE** [`33-next.md`](./33-next.md)
+- GUI Premium `3.18.1` — **CODE** [`sprints/sprint-108.md`](./sprints/sprint-108.md)
+- Stimme/Kalender `3.19.0` — **CODE** [`34-next.md`](./34-next.md)
+- Weltlage `4.0` — **CODE** [`35-next.md`](./35-next.md)
+- Alltagskette `4.19` — **CODE** [`36-next.md`](./36-next.md)
+- Film-TTS / Steuer `4.33` — **CODE** [`37-next.md`](./37-next.md)
+- Hausstand `4.46` — **CODE** [`38-next.md`](./38-next.md)
+- Jarvis/Friday + Tablet `4.53` — **CODE** [`39-next.md`](./39-next.md)
+- Körper intern `4.66` — **CODE** in `5.11` [`40-next.md`](./40-next.md)
+- Debug-Lauf `5.11` — **CODE** [`44-next.md`](./44-next.md)
+- Bühne & Hirn `6.0` — **PLAN** [`45-next.md`](./45-next.md)
+- Agentic Recall `6.60` — **PLAN** [`46-next.md`](./46-next.md)
+
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---
 
@@ -142,11 +167,11 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 |-------------|----------------------|
 | TTS | Stabilen Text-Charakter (Phase 1+) |
 | NAS 24/7 | Laufenden Stack auf dem PC (Phase 1) |
-| Handy-Alltag | Auth + Netz-Härte (Phase 2) |
+| Handy-Alltag | NAS-Stack + Owner-Token + APK (`0.10.2`+) |
 | Tools | Klare Persona + zuverlässigen Betrieb |
 
 ## Sparring-Korrekturen in der Roadmap
 
-- Handy-App und NAS sind **nicht** Phase-1-Arbeit.
+- Handy-App und NAS sind **nicht** Phase-1-Arbeit (kommen als `0.10.x` nach `0.9.5`).
 - Lokales Modell kann Smalltalk schwächen → Persona/Stil und ggf. Modellwechsel sind Teil von Phase 1, keine „spätere Politur“.
 - Stimme ersetzt keine gute Text-Persona.
