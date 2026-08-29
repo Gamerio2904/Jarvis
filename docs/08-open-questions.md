@@ -1,7 +1,9 @@
 # 08 — Offene Fragen
 
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Offen: LocateAnything-Gewichte (`4.77` 3060-GO), Debug-Hintergrund `5.12`, At-rest-Encryption.
+
 Alles, was die Planung noch **lückig** macht.  
-Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
+Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 
 **Legende Priorität**
 
@@ -22,8 +24,12 @@ Ziel: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 | Architektur / Stack / UI / Versionen | **entschieden** |
 | Phase 2+3 NAS/APK | **superseded** (`0.13` On-Device; [`13-on-device.md`](./13-on-device.md)) |
 | Sprint-1-Blocker | **keine offenen P0** |
+| Hirn-Kaskade | **entschieden** (`6.50`): Gemini Hauptweg, Groq Backup, 0,5B zuletzt |
+| LocateAnything-Gewichte | **offen** — Parser CODE, Vision nach 3060-GO |
+| Debug-Hintergrund | **offen** `5.12` — Lauf v1 ist CODE `5.11` |
+| Globus-Briefing | **PLAN** `6.70` — [`48-next.md`](./48-next.md) |
 
-Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN, …).
+Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Hausstand-Export ist **CODE**.
 
 ---
 
@@ -86,4 +92,6 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, Löschen, VPN
 | 2026-08-27 | Q55 | Autokorrektur Schreib+Sprache; Bahn vs Bar nicht per Levenshtein. [`38-next.md`](./38-next.md) | PO |
 | 2026-08-27 | Q56 | Zwei Gesichter: Jarvis Default (Work+Smalltalk), Friday weiblich auf Zuruf; ein Register; kein Marvel. [`39-next.md`](./39-next.md) | PO |
 | 2026-08-27 | Q57 | Tablet-Lage: Chat bleibt sichtbar; Uhr/Poll/Raster. Screenshots fehlten — Ist aus Code. [`39-next.md`](./39-next.md) | PO |
-| 2026-08-27 | Q58 | Friday = Sekretärin (Kalender, Erinnerung, Anruf/SMS, Listen, Tageslage). Jarvis = Smalltalk, Hauptfunktionen, immer CarPlay. Domain nach Toolwahl, keine Embeddings. [`39-next.md`](./39-next.md) | PO |
+| 2026-08-28 | Q58 | Gemini ist der **Hauptweg** (Key). Groq Backup. 0,5B reiner letzter Fallback, nie als Claude. Overlay Gemini zuerst. [`16-gemini.md`](./16-gemini.md) · [`45-next.md`](./45-next.md) | PO |
+| 2026-08-28 | Q59 | Globus-Ziel: Stadt sagen → GIBS-Satellit → Briefing. [`48-next.md`](./48-next.md) | PO |
+| 2026-08-28 | Q60 | Welt-Tour auf der Kugel: `Was ist heute so auf der Welt passiert` — Länder leuchten, Seite, Zoom; Quellen Tagesschau/DW, kein Geheim-Feed. [`48-next.md`](./48-next.md) | PO |

@@ -10,13 +10,19 @@ import type { ToolMeta } from './tools.ts'
 import {
   HUD_CATALOG,
   HUD_DEFAULT_ON,
+  organLabel,
   parseHudIntent,
+  type BodyOrgan,
   type HudId,
   type HudIntent,
+  type HudView,
 } from './hud-parse.ts'
+import { nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from './globe-geo.ts'
+import { briefPlace, CITY_FLY_ZOOM, focusJson, fromPlaceFix } from './globe-brief.ts'
+import { clearTour } from './globe-tour.ts'
 
-export { HUD_CATALOG, parseHudIntent }
-export type { HudId, HudIntent }
+export { HUD_CATALOG, parseHudIntent, organLabel }
+export type { HudId, HudIntent, HudView, BodyOrgan }
 
 export function loadHudModules(): HudId[] {
   try {
@@ -46,7 +52,7 @@ export async function handleHud(
   if (!intent) return { handled: false }
   if (intent.kind === 'lage') {
     saveSettings({ hud_force: intent.on, hud_hidden: !intent.on })
-    return pack(intent.on ? 'Lage an. Querformat oder Tablet zeigt die Kacheln.' : 'Lage aus. Chat wieder voll.')
+    return pack(intent.on ? 'Lage an. Kacheln neben dem Chat.' : 'Lage aus. Chat wieder voll.')
   }
   if (intent.kind === 'accent') {
     saveSettings({ hud_accent: intent.amber ? 'amber' : 'green' })
@@ -60,6 +66,61 @@ export async function handleHud(
     )
     const line = HUD_CATALOG.map((c) => `${c.label}${on.includes(c.id) ? ' an' : ' aus'}`).join(', ')
     return pack(`Kacheln: ${line}.`)
+  }
+  if (intent.kind === 'view') {
+    saveSettings({
+      hud_view: intent.view,
+      hud_force: true,
+      hud_hidden: false,
+    })
+    if (intent.view === 'body') return pack('Körper an. Schema in der Lage, Chat bleibt. Antippen startet kein Tool.')
+    if (intent.view === 'globe') return pack('Kugel an. Erde in der Lage, Chat bleibt. Kein Live-Satellitenvideo.')
+    return pack('Kacheln wieder. Chat bleibt.')
+  }
+  if (intent.kind === 'organ') {
+    saveSettings({
+      hud_view: 'body',
+      hud_force: true,
+      hud_hidden: false,
+      last_body_organ: intent.id,
+    })
+    return pack(`${organLabel(intent.id)} in der Lage. Kein Tool gestartet.`)
+  }
+  if (intent.kind === 'unknown_place') {
+    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    return pack(unknownPlaceLine(intent.asked))
+  }
+  if (intent.kind === 'look') {
+    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    const s = loadSettings()
+    const at = resolveLookTarget(s.last_globe_look || '', s.last_globe_focus || '')
+    const lat = at?.lat ?? NaN
+    const lon = at?.lon ?? NaN
+    const hit = nearestPlace(lat, lon)
+    if (hit) {
+      const cached = (s.last_globe_brief || '').trim()
+      if (cached.toLowerCase().includes(hit.name.toLowerCase())) {
+        return pack(cached)
+      }
+      const reply = await briefPlace(fromPlaceFix(hit))
+      saveSettings({ last_globe_brief: reply.slice(0, 500) })
+      return pack(reply)
+    }
+    return pack(noCityInViewLine())
+  }
+  if (intent.kind === 'pin') {
+    clearTour()
+    const place = { name: intent.name, lat: intent.lat, lon: intent.lon, blurb: intent.blurb }
+    saveSettings({
+      hud_view: 'globe',
+      hud_force: true,
+      hud_hidden: false,
+      last_globe_focus: focusJson(place, CITY_FLY_ZOOM),
+      last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: CITY_FLY_ZOOM }),
+    })
+    const reply = await briefPlace(place)
+    saveSettings({ last_globe_brief: reply.slice(0, 500) })
+    return pack(reply)
   }
   const next = setHudModule(intent.id, intent.on)
   const label = HUD_CATALOG.find((c) => c.id === intent.id)?.label || intent.id
@@ -89,7 +150,13 @@ export type HudSnap = {
   sport?: { line: string }
   chess?: { fen: string }
   trace?: { host: string; hops: string[] }
+  world?: { line: string }
 }
+
+let weatherAt = 0
+let weatherCache: HudSnap['weather'] | undefined
+let batteryAt = 0
+let batteryCache: HudSnap['device'] | undefined
 
 export async function fetchHudSnap(): Promise<HudSnap> {
   const s = loadSettings()
@@ -106,11 +173,19 @@ export async function fetchHudSnap(): Promise<HudSnap> {
     }
   }
   if (on.includes('device')) {
-    const bat = await readBattery()
+    const now = Date.now()
+    if (!batteryCache || now - batteryAt > 60_000) {
+      batteryAt = now
+      const bat = await readBattery()
+      batteryCache = {
+        clock: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+        battery: bat.ok ? bat.percent : undefined,
+        charging: bat.charging,
+      }
+    }
     snap.device = {
-      clock: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-      battery: bat.ok ? bat.percent : undefined,
-      charging: bat.charging,
+      ...batteryCache,
+      clock: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
     }
   }
   if (on.includes('brief')) snap.brief = { line: await briefLine() }
@@ -134,6 +209,7 @@ export async function fetchHudSnap(): Promise<HudSnap> {
     }
     snap.trace = { host: s.last_trace_host || '', hops }
   }
+  if (on.includes('world')) snap.world = { line: s.last_outlook_line || 'Weltlage im Chat fragen.' }
   return snap
 }
 
@@ -151,6 +227,8 @@ async function briefLine(): Promise<string> {
 }
 
 async function weekWeather(): Promise<HudSnap['weather']> {
+  const now = Date.now()
+  if (weatherCache && now - weatherAt < 10 * 60_000) return weatherCache
   const s = loadSettings()
   const lat = Number(s.last_lat)
   const lon = Number(s.last_lon)
@@ -161,7 +239,7 @@ async function weekWeather(): Promise<HudSnap['weather']> {
     const q = new URLSearchParams({
       latitude: String(lat),
       longitude: String(lon),
-      current: 'temperature_2m,weather_code',
+      current: 'temperature_2m,weather_code,rain',
       daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max',
       forecast_days: '7',
       timezone: 'auto',
@@ -180,13 +258,16 @@ async function weekWeather(): Promise<HudSnap['weather']> {
       min: Number(daily.temperature_2m_min?.[i]),
       rain: Number(daily.precipitation_probability_max?.[i] || 0),
     }))
-    const cur = json.current as { temperature_2m?: number }
-    return {
+    const cur = json.current as { temperature_2m?: number; rain?: number }
+    const rainNow = Number(cur?.rain || 0)
+    weatherAt = now
+    weatherCache = {
       temp: Number(cur?.temperature_2m),
-      label: s.last_place || 'hier',
+      label: rainNow > 0 ? `${s.last_place || 'hier'} · Regen` : s.last_place || 'hier',
       days,
       warn: s.last_warn_line || undefined,
     }
+    return weatherCache
   } catch {
     return { temp: NaN, label: 'Wetterdienst fehlt.', days: [] }
   }

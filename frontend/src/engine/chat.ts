@@ -1,13 +1,15 @@
-import { completeChat, ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
-import { completeGemini, geminiReady, GEMINI_LABEL, streamGemini, testGemini } from './gemini'
-import { completeGroq, groqReady, testGroq } from './groq'
+import { ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
+import { completeGemini, geminiReady, streamGemini, testGemini } from './gemini'
+import { groqReady, testGroq } from './groq'
+import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain'
 import { userFacingCloudError } from './cloud-errors'
-import { HELP_TEXT, isHelpCommand, scrubReply } from './guards'
+import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards'
 import { memoryBlock } from './memory'
 import { rewriteFollowUp } from './last-step'
-import { splitIntents } from './split-intents'
+import { promoteSplitPart, splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
-import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from './persona'
+import { SEARCH_ON_HINT, VOICE_HINT, personaPack } from './persona'
+import { loadFace } from './face.ts'
 import {
   formatResearchReply,
   guardResearchReply,
@@ -50,6 +52,10 @@ import {
 } from './store'
 import { handlePlaces } from './places'
 import { handlePc } from './pc'
+import { handleTaxi } from './taxi'
+import { handleInterrupt } from './interrupt'
+import { clearChain, partitionChain, popChain, writeChain } from './chain'
+import { isCommNo, isCommYes } from './places-parse'
 import { handleTvOrdinal, tvStatusFromSettings } from './tv'
 import { handleFuelOrdinal } from './fuel'
 import { handlePoiOrdinal } from './poi'
@@ -79,41 +85,45 @@ export type StreamHandlers = {
 
 export async function getHealth() {
   const mem = await listMemory()
+  const kind = brainKind()
   const localReady = isModelReady()
-  const cloud = geminiReady()
-  const ready = cloud || localReady
+  const cloud = kind === 'gemini'
+  const ready = kind !== 'none'
   const err = getLlmError()
   const prog = getDownloadProgress()
   const s = loadSettings()
   return {
     ok: ready,
     ollama: false,
-    engine: cloud ? 'gemini' : 'on-device',
-    model: cloud ? GEMINI_LABEL : DEFAULT_MODEL.label,
+    engine: kind === 'gemini' ? 'gemini' : kind === 'groq' ? 'groq' : 'on-device',
+    model: brainLabel(kind),
     model_ready: localReady,
     gemini_ready: cloud,
     gemini_enabled: s.gemini_enabled,
-    configured_model: cloud ? GEMINI_LABEL : DEFAULT_MODEL.label,
-    fallback_model: DEFAULT_MODEL.label,
+    configured_model: brainLabel(kind),
+    fallback_model: groqReady() ? 'Groq, dann 0.5B' : DEFAULT_MODEL.label,
     model_heavy: DEFAULT_MODEL.label,
-    heavy_equals_default: !cloud,
-    using_fallback: false,
+    heavy_equals_default: kind !== 'gemini',
+    using_fallback: kind === 'groq' || kind === 'local',
     version: APP_VERSION,
     memory_count: mem.length,
     research_opt_in: s.research_opt_in,
     tv: tvStatusFromSettings(),
-    warning: cloud
-      ? groqReady()
-        ? 'Gemini — bei Limit nächstes Modell, dann Groq. Chat geht ins Netz.'
-        : 'Gemini (Google) — bei Limit nächstes Modell. Chat geht ins Netz.'
-      : localReady
-        ? 'On-Device 0.5B — denkt auf diesem Handy, kein Server.'
-        : err || 'Modell noch nicht geladen.',
+    warning:
+      kind === 'gemini'
+        ? groqReady()
+          ? 'Gemini zuerst — bei Limit Groq, sonst 0,5B. Chat geht ins Netz.'
+          : 'Gemini (Google) zuerst. Chat geht ins Netz.'
+        : kind === 'groq'
+          ? 'Groq-Backup. Gemini aus oder ohne Key.'
+          : kind === 'local'
+            ? 'On-Device 0,5B — Backup, kein Server.'
+            : err || 'Kein Hirn. Gemini-Key, Groq-Key oder Modell laden.',
     error: ready
       ? undefined
       : s.gemini_enabled && !s.gemini_api_key.trim()
-        ? 'Gemini an, aber kein API-Key.'
-        : err || 'Modell nicht geladen. Unter Einstellungen herunterladen oder Gemini nutzen.',
+        ? 'Gemini an, aber kein API-Key. Groq oder lokales Modell als Backup.'
+        : err || noBrainLine(),
     download_pct: prog.pct,
   }
 }
@@ -129,8 +139,20 @@ export function patchSettings(patch: Partial<Settings>): Settings {
 export { ensureModel, getDownloadProgress, hasCachedModel, isModelReady, releaseModel, testGemini, testGroq, geminiReady }
 
 async function routeDeterministic(conversationId: string, content: string): Promise<RouteHit | null> {
-  if (isHelpCommand(content)) {
-    return { reply: HELP_TEXT, lastTool: 'help' }
+  if (isHelpCommand(content) || isHelpCommand(normalizeUtterance(content))) {
+    return {
+      reply: HELP_TEXT,
+      lastTool: 'help',
+      tool: { tool_status: 'executed', tool: 'help', action: 'catalog', label: 'Hilfe' },
+    }
+  }
+
+  if (isPersonaAsk(content) || isPersonaAsk(normalizeUtterance(content))) {
+    return {
+      reply: PERSONA_ASK_TEXT,
+      lastTool: 'identity',
+      tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Jarvis' },
+    }
   }
 
   if (loadSettings().last_comm_json) {
@@ -152,6 +174,42 @@ async function routeDeterministic(conversationId: string, content: string): Prom
         tool: pcPending.tool,
         lastTool: pcPending.lastTool || 'pc',
       }
+    }
+  }
+
+  if (loadSettings().last_taxi_json) {
+    const taxiPending = await handleTaxi(conversationId, content)
+    if (taxiPending.handled && taxiPending.reply) {
+      return {
+        reply: taxiPending.reply,
+        tool: taxiPending.tool,
+        lastTool: taxiPending.lastTool || 'taxi',
+      }
+    }
+  }
+
+  if (loadSettings().last_interrupt_json) {
+    const interruptHit = await handleInterrupt(conversationId, content)
+    if (interruptHit.handled && interruptHit.reply) {
+      return {
+        reply: interruptHit.reply,
+        tool: interruptHit.tool,
+        lastTool: interruptHit.lastTool || 'interrupt',
+      }
+    }
+  }
+
+  if (loadSettings().last_step_tool === 'chain_ask') {
+    if (isCommNo(content)) {
+      clearChain()
+      saveSettings({ last_step_tool: '' })
+      return { reply: 'Kette verworfen.', lastTool: 'taxi' }
+    }
+    if (isCommYes(content)) {
+      saveSettings({ last_step_tool: '' })
+      const next = popChain()
+      if (next) return routeDeterministic(conversationId, next)
+      return { reply: 'Nichts mehr in der Kette.', lastTool: 'taxi' }
     }
   }
 
@@ -334,17 +392,24 @@ export async function streamChat(
   if (!conv) throw new Error('Gespräch nicht gefunden.')
 
   const userMessage = await addMessage(conversationId, 'user', content)
-  const usingGemini = geminiReady()
+  const kind = brainKind()
   handlers.onMeta?.({
     user_message: userMessage,
-    model: usingGemini ? GEMINI_LABEL : DEFAULT_MODEL.label,
-    using_fallback: false,
+    model: brainLabel(kind),
+    using_fallback: kind === 'groq' || kind === 'local',
     research: null,
   })
 
   try {
-    const parts = splitIntents(normalizeUtterance(content))
-    const texts = parts.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
+    const rawParts = splitIntents(normalizeUtterance(content))
+    const parts = rawParts.length > 1 ? rawParts.map(promoteSplitPart) : rawParts
+    let queue = parts
+    if (parts.length > 1) {
+      const { reads, writes } = partitionChain(parts)
+      writeChain(writes.slice(1))
+      queue = writes.length ? [...reads, writes[0]] : reads
+    }
+    const texts = queue.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
     const routed: Array<RouteHit | null> = []
     for (const text of texts) {
       routed.push(await routeDeterministic(conversationId, text))
@@ -352,7 +417,7 @@ export async function streamChat(
     const found = routed.filter((h): h is RouteHit => Boolean(h))
     if (found.length && (found.length === routed.length || routed.length > 1)) {
       const replies = routed.map((h, i) =>
-        h ? h.reply : `„${parts[i]}“ habe ich nicht als Befehl erkannt.`,
+        h ? h.reply : `„${queue[i]}“ habe ich nicht als Befehl erkannt.`,
       )
       for (const hit of found) await rememberHit(hit, content)
       const last = found[found.length - 1]
@@ -374,32 +439,9 @@ export async function streamChat(
       return
     }
 
-    if (opts?.voice && !geminiReady()) {
-      if (groqReady()) {
-        const history = await listMessages(conversationId)
-        const mem = await listMemory()
-        const system = [GEMINI_PERSONA, VOICE_HINT, memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
-        const llmMessages = [
-          { role: 'system', content: system },
-          ...history.slice(-16).map((m) => ({
-            role: m.role === 'assistant' ? 'assistant' : 'user',
-            content: m.content,
-          })),
-        ]
-        let acc = ''
-        const raw = await completeGroq(llmMessages, (_piece, full) => {
-          acc = full
-          handlers.onToken?.(_piece)
-        })
-        const final = scrubReply((raw || acc).trim())
-        if (final !== (raw || acc)) handlers.onReplace?.(final)
-        const assistant = await addMessage(conversationId, 'assistant', final)
-        const updated = (await touchConversation(conversationId)) || conv
-        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
-        return
-      }
+    if (opts?.voice && kind === 'none') {
       const reply =
-        'Befehl nicht erkannt. Smalltalk im Sprachmodus braucht Gemini. Wetter, Timer, Route, Einkauf gehen ohne.'
+        'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
       handlers.onToken?.(reply)
       const assistant = await addMessage(conversationId, 'assistant', reply)
       const updated = (await touchConversation(conversationId)) || conv
@@ -407,12 +449,8 @@ export async function streamChat(
       return
     }
 
-    if (!geminiReady()) {
-      if (!isModelReady()) {
-        throw new Error(
-          'Lokales Modell ist aus. Unter Einstellungen starten — oder Gemini einschalten.',
-        )
-      }
+    if (kind === 'none') {
+      throw new Error(noBrainLine())
     }
 
     const s = loadSettings()
@@ -460,14 +498,16 @@ export async function streamChat(
         research = await fillResearchLinks(content, '', research)
       }
       const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
-      const system = geminiReady()
-        ? [GEMINI_PERSONA, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()]
+      const pack = personaPack(loadFace())
+      const cloud = kind === 'gemini' || kind === 'groq'
+      const system = cloud
+        ? [pack.gemini, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content), lastStepHint()]
             .filter(Boolean)
             .join('\n\n')
-        : [PERSONA, opts?.voice ? VOICE_HINT : '', memoryBlock(mem), lastStepHint()].filter(Boolean).join('\n\n')
+        : [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content), lastStepHint()].filter(Boolean).join('\n\n')
       const llmMessages = [
         { role: 'system', content: system },
-        ...history.slice(geminiReady() || opts?.voice ? -12 : -8).map((m) => ({
+        ...history.slice(cloud || opts?.voice ? -12 : -8).map((m) => ({
           role: m.role === 'assistant' ? 'assistant' : 'user',
           content: m.content,
         })),
@@ -482,7 +522,7 @@ export async function streamChat(
       acc = ''
       raw = ''
       try {
-        raw = geminiReady()
+        raw = kind === 'gemini'
           ? await (opts?.voice || !wantSearch ? streamGemini : completeGemini)(
               llmMessages,
               (_piece, full) => {
@@ -504,10 +544,21 @@ export async function streamChat(
               }
               return r.text
             })
-          : await completeChat(llmMessages, (_piece, full) => {
-              acc = full
-              handlers.onToken?.(_piece)
-            })
+          : (
+              await completeBrain(
+                llmMessages,
+                (_piece, full) => {
+                  acc = full
+                  handlers.onToken?.(_piece)
+                },
+                {
+                  search: wantSearch,
+                  maxOutputTokens: opts?.voice ? 420 : 420,
+                  timeoutMs: 8_000,
+                  voice: opts?.voice,
+                },
+              )
+            ).text
       } catch (err) {
         if (!wantSearch || !researchHasSources(research)) throw err
         raw = ''
@@ -551,7 +602,7 @@ export async function streamChat(
         }
       }
 
-      if (pass === 0 && geminiReady() && !wantSearch && shouldRetrySearch(content, text, discount)) {
+      if (pass === 0 && kind === 'gemini' && !wantSearch && shouldRetrySearch(content, text, discount)) {
         wantSearch = true
         continue
       }
@@ -574,7 +625,7 @@ export async function streamChat(
     })
   } catch (err) {
     const raw = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
-    const detail = geminiReady() ? userFacingCloudError(raw, groqReady()) : raw
+    const detail = kind === 'gemini' || kind === 'groq' ? userFacingCloudError(raw, groqReady()) : raw
     handlers.onError?.(detail)
     throw new Error(detail)
   }

@@ -1,12 +1,12 @@
-# 36 — Alltagskette Stimme (`4.19`) **PLAN** (vollständig)
+# 36 — Alltagskette Stimme (`4.19`) **CODE**
 
 PO 2026-08-27: Eine gesprochene Äußerung → Sprachnachricht, Bar, Taxi. Reel ohne Tracking:
 
 https://www.instagram.com/reel/Db8bcYijN5y/
 
-**Vollständig** = Ist aus dem Code, geschlossene Research-Voten, Gold-Sätze, Dateien, Konflikte, Tests. Noch kein Execute.
+**Vollständig** = Ist aus dem Code, geschlossene Research-Voten, Gold-Sätze, Dateien, Konflikte, Tests. Geliefert in `4.19`+.
 
-Code jetzt: **`3.19.0`**. Sideload: **`3.18.1`**. Weltlage: [`35-next.md`](./35-next.md). Gespräch/TTS: [`37-next.md`](./37-next.md). **Haus-Backup + Tippfehler:** [`38-next.md`](./38-next.md) — nicht in dieser Schiene mischen; vor dem nächsten Sideload **Backup zuerst**, sonst sind Keys/Nummern nach Deinstall weg.
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.19.0`**. Weltlage: [`35-next.md`](./35-next.md). Gespräch/TTS: [`37-next.md`](./37-next.md). **Haus-Backup:** [`38-next.md`](./38-next.md) **CODE**.
 
 ## Reel
 
@@ -70,7 +70,7 @@ Ohne GPS: Bar ehrlich wie andere POI (`NO_GPS` in `poi.ts`). Ohne Kontakt Taxi u
 
 ## Research — Voten (geschlossen, außer Spike-URL)
 
-### `4.19.0` Leitentscheidung — **PLAN** (dieses Dokument)
+### `4.19.0` Leitentscheidung — **CODE** (dieses Dokument)
 
 ### `4.20.0` Sprachnachricht
 
@@ -110,17 +110,17 @@ Settings `taxi_app`: `call` \| `freenow` \| `uber` \| `ask`. Default `call` bis 
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`4.19.0`** | Dieses Dokument | **PLAN** |
-| **`4.20`–`4.22`** | Spikes: `wa.me`-Format, eine Ride-URL, Split-Gold | **PLAN** |
-| **`4.23.0`** | `PoiKind` + `bar`, FILTER, Parser, Label, Konflikte Bahn/Café | geplant |
-| **`4.24.0`** | `Sprachnachricht` → SMS, Satz „Text, keine Note“ | geplant |
-| **`4.25.0`** | `taxi-parse.ts` / `taxi.ts`, Confirm, call oder Deep-Link | geplant |
-| **`4.26.0`** | Split + `chain_json` | geplant |
-| **`4.27.0`** | Stimme, Siezen; braucht `3.19` Thread | geplant |
-| **`4.28.0`** | `wa.me` nach Ja; Chip WhatsApp = Composer oder klare Absage | geplant |
-| **`4.29.0`** | Audio-Share **oder Stufe streichen** | geplant |
-| **`4.30.0`** | `Taxi dorthin`, Ordinal | geplant |
-| **`4.31.0`** | False-Positives Minibar/Schokolade, Gold | geplant |
+| **`4.19.0`** | Dieses Dokument + Kern Bar/SMS/Taxi/Kette | **CODE** |
+| **`4.20`–`4.22`** | Spikes: `wa.me`-Format, eine Ride-URL, Split-Gold | **CODE** |
+| **`4.23.0`** | `PoiKind` + `bar`, FILTER, Parser, Label, Konflikte Bahn/Café | **CODE** |
+| **`4.24.0`** | `Sprachnachricht` → SMS, Satz „Text, keine Note“ | **CODE** |
+| **`4.25.0`** | `taxi-parse.ts` / `taxi.ts`, Confirm, call oder Deep-Link | **CODE** |
+| **`4.26.0`** | Split + `chain_json` | **CODE** |
+| **`4.27.0`** | Stimme, Siezen; braucht `3.19` Thread | **CODE** (Thread schon `3.19`) |
+| **`4.28.0`** | `wa.me` nach Ja; Chip WhatsApp = Composer | **CODE** |
+| **`4.29.0`** | Audio-Share **oder Stufe streichen** | **entfällt** (kein Blob ohne extra Cloud) |
+| **`4.30.0`** | `Taxi dorthin`, Ordinal | **CODE** |
+| **`4.31.0`** | False-Positives Minibar/Schokolade, Gold | **CODE** |
 | **`4.32.0`** | Sideload **nach** Backup `4.46` | geplant |
 
 ## Gold (Parser / Route)

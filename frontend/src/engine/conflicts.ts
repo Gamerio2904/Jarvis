@@ -1,4 +1,6 @@
 import type { Candidate, RouteCtx } from './route-types.ts'
+import { gazetteerHit } from './globe-geo.ts'
+import { parseWontIntent } from './wont-parse.ts'
 
 function drop(cands: Candidate[], id: string): Candidate[] {
   return cands.filter((c) => c.id !== id)
@@ -117,6 +119,135 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   if (/\b(zusammenfassen|sprachnotiz|gespräch\s+nachbereiten|fass(?:e)?\s+das\s+gespräch)\b/.test(t)) {
     out = drop(out, 'todo')
     out = boost(out, 'digest', 0.25)
+  }
+
+  if (
+    /weltlage|lage\s+welt|ölpreis|rohöL|brent|\bwti\b|opec|hormus|hormuz/.test(t) ||
+    (/\b(benzin|e10|sprit)\b/.test(t) && /\b(teurer|billiger|ausblick|prognose|wird)\b/.test(t)) ||
+    (/(^|[^a-zäöüß])öl([^a-zäöüß]|$)/.test(t) && /\b(warum|teuer|steigt|fällt|preis|ausblick)\b/.test(t)) ||
+    (/\b(dollar|euro)\b/.test(t) && /\b(fällt|steigt|ausblick|prognose|wird)\b/.test(t)) ||
+    (/\b(aktie|aktien|dax)\b/.test(t) && /\b(fällt|steigt|morgen|kaufen)\b/.test(t))
+  ) {
+    out = drop(out, 'news')
+    out = drop(out, 'fuel')
+    out = drop(out, 'fx')
+    out = drop(out, 'research')
+    out = boost(out, 'outlook', 0.28)
+  }
+
+  if (/^\s*(?:die\s+)?(?:nachrichten|tagesschau|schlagzeilen)\s*[.!?]*$/.test(t)) {
+    out = drop(out, 'outlook')
+    out = boost(out, 'news', 0.25)
+  }
+
+  if (/\bfahr(?:e|en)?\s+mich\b/.test(t) && /\b(tanke|tankstelle)\b/.test(t)) {
+    out = drop(out, 'outlook')
+    out = boost(out, 'fuel', 0.25)
+  }
+
+  if (/^\s*(?:was\s+ist|kurs)\s+(?:der\s+)?(?:dollar|euro)\b/.test(t) && !/\b(fällt|steigt|ausblick|wird)\b/.test(t)) {
+    out = drop(out, 'outlook')
+    out = boost(out, 'fx', 0.25)
+  }
+
+  if (/^\s*guten\s+morgen\b/.test(t)) {
+    out = drop(out, 'outlook')
+  }
+
+  if (/\b(wetterstatistik|lage[- ]?kachel)\b/.test(t) || /^\s*lage\s+(an|aus)\s*$/.test(t)) {
+    out = drop(out, 'outlook')
+  }
+
+  if (/\bbip\b/.test(t)) {
+    out = drop(out, 'outlook')
+  }
+
+  if (/\b(taxi|uber|freenow|free\s*now)\b/.test(t) && !/\b(bahn|öpnv)\b/.test(t)) {
+    out = drop(out, 'drive')
+    out = drop(out, 'poi')
+    out = drop(out, 'transit')
+    out = drop(out, 'maps')
+    out = boost(out, 'taxi', 0.3)
+  }
+
+  if (/\b(bahn|öpnv|zug)\b/.test(t)) {
+    out = drop(out, 'poi')
+    out = drop(out, 'taxi')
+    out = boost(out, 'transit', 0.25)
+  }
+
+  if (/\b(kneipe|pubs?|\bbars?\b)\b/.test(t) && /\b(nähe|nächste|nächster)\b/.test(t)) {
+    out = drop(out, 'taxi')
+    out = drop(out, 'transit')
+    out = boost(out, 'poi', 0.25)
+  }
+
+  if (/\b(hausstand|einstellungen\s+export|backup\s+export)\b/.test(t)) {
+    out = drop(out, 'research')
+    out = boost(out, 'backup', 0.3)
+  }
+
+  if (/\bfreitag\b/.test(t) && !/\bfriday\b/.test(t)) {
+    out = drop(out, 'face')
+    out = boost(out, 'calendar', 0.2)
+  }
+
+  if (/\bwas\s+steht\b/.test(t) && /\bfriday\b/.test(t)) {
+    out = drop(out, 'face')
+    out = boost(out, 'calendar', 0.25)
+  }
+
+  if (/^(?:(?:hey|hallo|hi)\s+)?friday\b/.test(t) && !/\bfreitag\b/.test(t) && !/\bwas\s+steht\b/.test(t)) {
+    out = drop(out, 'calendar')
+    out = boost(out, 'face', 0.25)
+  }
+
+  if (
+    /\b(körper|koerper|weltkugel|\bkugel\b)\b/.test(t) ||
+    /^\s*zeig(?:e)?\s+(?:die\s+)?(?:erde|hirn|körper|koerper)\s*$/.test(t) ||
+    (gazetteerHit(t) && /^\s*wo\s+(?:liegt|ist)\s+/.test(t))
+  ) {
+    out = drop(out, 'pc')
+    out = drop(out, 'eye')
+    out = drop(out, 'here')
+    out = drop(out, 'maps')
+    out = boost(out, 'hud', 0.3)
+  }
+
+  if (/^\s*wo\s+ist\s+(?:der|die|das)?\s*(?:speichern|start|ok)\b/.test(t) || /^\s*zeig(?:e)?\s+speichern\b/.test(t)) {
+    out = drop(out, 'here')
+    out = drop(out, 'sky')
+    out = drop(out, 'maps')
+    out = boost(out, 'pc', 0.3)
+  }
+
+  if (/\b(wo\s+ist\s+die\s+iss|internationale\s+raumstation)\b/.test(t)) {
+    out = drop(out, 'pc')
+    out = drop(out, 'here')
+    out = boost(out, 'sky', 0.3)
+  }
+
+  if (/\bwie\s+viele\s+(fenster|icons?|schaltflächen)\b/.test(t)) {
+    out = drop(out, 'sensors')
+    out = boost(out, 'pc', 0.25)
+  }
+
+  if (
+    /\b(was\s+steht\s+auf\s+dem\s+beleg|beleg\s+lesen|termin\s+aus\s+dem\s+zettel|waschlabel|ean\s+auf\s+dem\s+foto|wo\s+liegt\s+)/.test(
+      t,
+    )
+  ) {
+    out = drop(out, 'pc')
+    out = drop(out, 'haushalt')
+    out = boost(out, 'eye', 0.25)
+  }
+
+  if (parseWontIntent(text)) {
+    out = drop(out, 'pc')
+    out = drop(out, 'fx')
+    out = drop(out, 'eye')
+    out = drop(out, 'maps')
+    out = boost(out, 'wont', 0.35)
   }
 
   return out

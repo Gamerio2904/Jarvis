@@ -1,18 +1,14 @@
-# 35 — Weltlage / Vorhersage (`4.0`) **PLAN**
+# 35 — Weltlage / Vorhersage (`4.0`) **CODE**
 
 PO 2026-08-27: Jarvis soll **die Zukunft vorhersagen** können — aktuelle Weltlage (Krieg, Politik, Märkte, Alltag) sofort kennen, aus **Vergangenheit + Gegenwart** rechnen, und sagen was folgen kann (Öl, Benzin, Kurse). Inspiration, nicht Kopie:
 
 https://www.instagram.com/reel/DblW9QliG5l/
 
-Zweites Reel (Sprachnachricht, Bar, Taxi): [`36-next.md`](./36-next.md) — Schiene `4.19+`, parallel, nicht in `4.0`–`4.18` mischen.
+Zweites Reel (Sprachnachricht, Bar, Taxi): [`36-next.md`](./36-next.md) — Schiene `4.19+`, nicht in `4.0` mischen.
 
-Reihe davor: [`33-next.md`](./33-next.md) **CODE**. App-Code jetzt: **`3.19.0`**. Sideload: **`3.18.1`**.
+> **Jetzt mitgeliefert in `6.90.0`.** Schiene gelandet als **`4.0.0`**. Kugel-Tour der Meldungen: [`48-next.md`](./48-next.md) `6.82` **CODE**.
 
-**Warum `4.0`, nicht `3.19`/`3.20`:** In [`09-versioning.md`](./09-versioning.md) sind `3.19.0`–`3.45.0` schon **logische Stufen innerhalb von `3.18.0`**. Ein neues MINOR `3.20` würde kollidieren. Das ist ein eigener Produktsprung (Weltlage, nicht noch ein Haus-Tool) → **MAJOR `4.0`**.
-
-Parallel (nicht Blocker): Stimme/Kalender/Debug liegt als eigener Stand außerhalb von `main`. Diese Reihe startet von Sideload `3.18.1`.
-
-Eine logische Stufe pro Version. Sideload darf später bündeln. **Kein Code in diesem Sprint** — zuerst Research, dann bauen.
+**Warum `4.0`, nicht `3.19`/`3.20`:** In [`09-versioning.md`](./09-versioning.md) sind `3.19.0`–`3.45.0` schon **logische Stufen innerhalb von `3.18.0`**. Eigenes MAJOR: Weltlage, nicht noch ein Haus-Tool.
 
 ## Reel — was dort wirklich steht
 
@@ -89,18 +85,18 @@ Ohne abgeschlossene Research-Stufe kein Execute-Code für diese Domäne. Jede St
 
 | Feld | Wert |
 |------|------|
-| Art | PLAN, Docs |
-| Done wenn | Dieses Dokument + Sprint 110 + Versioning-Zeile |
-| Status | **PLAN** (jetzt) |
+| Art | CODE, gebündelt `4.1`–`4.17` |
+| Done wenn | Dieses Dokument + Sprint 110 + Versioning-Zeile + Register `outlook` |
+| Status | **CODE** |
 
-### `4.1.0` — Research: Nachrichten-Ingest
+### `4.1.0` — Research: Nachrichten-Ingest — **ENTSCHIEDEN**
 
 **Frage:** Wie kommt „alles was in der Welt passiert“ aufs Handy, ohne Lüge und ohne Akku-Tod?
 
 | Kandidat | Lizenz / Zugang | Latenz | Aufwand Handy | Votum (erste Sichtung) |
 |----------|-----------------|--------|---------------|-------------------------|
 | Tagesschau `api2u` | öffentlich, schon im Code | Minuten–Stunden | niedrig | **behalten**, Kern DE |
-| DW / andere ARD-RSS | öffentlich RSS | ähnlich | mittel | **prüfen** in 4.1, 1–2 Extra-Feeds |
+| DW / andere ARD-RSS | öffentlich RSS | ähnlich | mittel | **ja** — `rss.dw.com/xml/rss-de-all` |
 | Reuters/AFP API | meist Vertrag/Key | schnell | hoch | **Won’t** ohne Vertrag |
 | GDELT | frei, riesig | hoch | zu schwer fürs Phone | **Won’t** on-device |
 | Wikipedia Current events | frei | langsam | niedrig | Could, nicht Kern |
@@ -127,7 +123,7 @@ Ohne abgeschlossene Research-Stufe kein Execute-Code für diese Domäne. Jede St
 |-------|----------|------|-----|-------------------------|
 | FX Historie | Frankfurter.app / frankfurter.dev (EZB u. a.), wir nutzen schon `latest` | nein | offen | **ja** — erste Serie, Risiko niedrig |
 | Rohöl Brent/WTI | EIA API | **ja**, frei registrieren | offiziell | **opt-in Key** in Settings, wie Tankerkönig |
-| Rohöl | FRED `DCOILBRENTEU` | ja, frei | offiziell | Alternative zu EIA, **eine** Quelle wählen in 4.2 |
+| Rohöl | FRED `DCOILBRENTEU` | ja, frei | offiziell | **gewählt** — Settings `outlook_fred_key` |
 | Rohöl | Stooq `oil` CSV | Captcha-Key 2026, Quota | fragil | **Won’t** (Captcha, Quota, Bypass = Won’t) |
 | Rohöl | Yahoo Chart inoffiziell | — | ToS | **Won’t** |
 | E10 DE | Tankerkönig list | schon Settings-Key | CC | **ja, Spot**. Lange Historie **nicht** in der Gratis-API — Bundesschnitt über Tage müssen wir **selbst cachen** wenn Watch an |
@@ -201,25 +197,25 @@ Erst wenn `4.1`–`4.4` Status **entschieden**.
 
 | Version | Inhalt | Abhängigkeit | Status |
 |---------|--------|--------------|--------|
-| **`4.0.0`** | Leitentscheidung, dieses Dokument | — | **PLAN** |
-| **`4.1.0`** | Research Nachrichten | 4.0 | **PLAN** |
-| **`4.2.0`** | Research Serien | 4.0 | **PLAN** |
-| **`4.3.0`** | Research Prognose + Recht | 4.0 | **PLAN** |
-| **`4.4.0`** | Research Architektur | 4.0 | **PLAN** |
-| **`4.5.0`** | `outlook` v1: Watch-Ingest + Tags, **auf Nachfrage** „Was ist die Weltlage?“ | 4.1, 4.4 | geplant |
-| **`4.6.0`** | Serien: FX-History + Öl wenn Key + E10-Spot in dieselbe Antwort | 4.2, 4.5 | geplant |
-| **`4.7.0`** | **Reel-Kern:** Meldungstag → Kette Hormus/Kiew/Asien/OPEC → Öl/E10 | 4.3, 4.6 | geplant |
-| **`4.8.0`** | Szenarien A/B + Analog ±% + Unsicher-Satz fest | 4.7 | geplant |
-| **`4.9.0`** | Unterbrechen opt-in (nur Δ zum Snapshot, Dedupe) | 4.5, Notify | geplant |
-| **`4.10.0`** | Märkte breiter **nur** mit sauberer Quelle; sonst ehrlich nein. Kein „Aktie fällt“. | 4.2 Rest, 4.8 | geplant |
-| **`4.11.0`** | Lage-Kachel „Welt“ — echte `last_outlook_line`, sonst leer | 4.7, HUD-Katalog | geplant |
-| **`4.12.0`** | Härten Parser/Konflikte/Follow-up (`und Benzin?`) | 4.8 | geplant |
-| **`4.13.0`** | Zweite News-Quelle falls 4.1 ja gesagt hat | 4.5 | geplant |
-| **`4.14.0`** | Analog-Bibliothek (feste Schock-Fenster in der Serie, keine Wikipedia-Erfindung) | 4.8 | geplant |
-| **`4.15.0`** | Akku: Intervall, Doze, Watch aus = null Netz | 4.9 | geplant |
-| **`4.16.0`** | Gold-Set: Routing + verbotene Claims + Quellenpflicht | 4.12 | geplant |
-| **`4.17.0`** | Stimme: Ausblick in ganzen Sätzen, Siezen, kein Ticker-Staccato | 4.8 | geplant |
-| **`4.18.0`** | Sideload wenn Kern (`4.8`+) nutzbar — versionName/code aus `package.json` | 4.8+ | geplant |
+| **`4.0.0`** | Leitentscheidung + gebündelter Kern | — | **CODE** |
+| **`4.1.0`** | Research Nachrichten | 4.0 | **ENTSCHIEDEN** |
+| **`4.2.0`** | Research Serien | 4.0 | **ENTSCHIEDEN** |
+| **`4.3.0`** | Research Prognose + Recht | 4.0 | **ENTSCHIEDEN** |
+| **`4.4.0`** | Research Architektur | 4.0 | **ENTSCHIEDEN** |
+| **`4.5.0`** | `outlook` v1: Watch-Ingest + Tags, **auf Nachfrage** „Was ist die Weltlage?“ | 4.1, 4.4 | **CODE** |
+| **`4.6.0`** | Serien: FX-History + Öl wenn Key + E10-Spot in dieselbe Antwort | 4.2, 4.5 | **CODE** |
+| **`4.7.0`** | **Reel-Kern:** Meldungstag → Kette Hormus/Kiew/Asien/OPEC → Öl/E10 | 4.3, 4.6 | **CODE** |
+| **`4.8.0`** | Szenarien A/B + Analog ±% + Unsicher-Satz fest | 4.7 | **CODE** |
+| **`4.9.0`** | Unterbrechen opt-in (nur Δ zum Snapshot, Dedupe) | 4.5, Notify | **CODE** |
+| **`4.10.0`** | Märkte breiter **nur** mit sauberer Quelle; sonst ehrlich nein. Kein „Aktie fällt“. | 4.2 Rest, 4.8 | **CODE** (Ablehnen) |
+| **`4.11.0`** | Lage-Kachel „Welt“ — echte `last_outlook_line`, sonst leer | 4.7, HUD-Katalog | **CODE** |
+| **`4.12.0`** | Härten Parser/Konflikte/Follow-up (`und Benzin?`) | 4.8 | **CODE** |
+| **`4.13.0`** | Zweite News-Quelle falls 4.1 ja gesagt hat | 4.5 | **CODE** (DW RSS) |
+| **`4.14.0`** | Analog-Bibliothek (feste Schock-Fenster in der Serie, keine Wikipedia-Erfindung) | 4.8 | **CODE** |
+| **`4.15.0`** | Akku: Intervall, Doze, Watch aus = null Netz | 4.9 | **CODE** |
+| **`4.16.0`** | Gold-Set: Routing + verbotene Claims + Quellenpflicht | 4.12 | **CODE** |
+| **`4.17.0`** | Stimme: Ausblick in ganzen Sätzen, Siezen, kein Ticker-Staccato | 4.8 | **CODE** |
+| **`4.18.0`** | Sideload wenn Kern (`4.8`+) nutzbar — versionName/code aus `package.json` | 4.8+ | geplant (kein APK in diesem Commit) |
 
 Eine App-Version darf mehrere logische Stufen bündeln (wie `3.18.0`). Research-Stufen bleiben sichtbar.
 

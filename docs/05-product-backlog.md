@@ -2,6 +2,8 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`.
+
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
 **MoSCoW:** Must / Should / Could / Won’t (für aktuellen Horizont)
@@ -30,11 +32,18 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E25 | Alltag & Welt `3.1`–`3.17` | 5+ | DWD bis Schach — [`31-next.md`](./31-next.md) **CODE** (in `3.0.0`) |
 | E26 | Intelligenz `3.0` | 5+ | Register, Parse vor Execute, Score-Policy — [`32-intelligence.md`](./32-intelligence.md) **CODE** |
 | E27 | Jarvis 3.x danach | 5+ | Härten, Tablet-Lage, Traceroute, Telefon-Haus — [`33-next.md`](./33-next.md) **CODE** (in `3.18.0`) |
-| E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **PLAN** |
-| E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **PLAN** |
-| E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **PLAN** |
-| E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **PLAN** |
-| E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis Haupt+CarPlay, Friday Sekretärin, Lage neben Chat — [`39-next.md`](./39-next.md) **PLAN** |
+| E28 | Weltlage / Vorhersage `4.0` | 5+ | News-Watch, Serien, Szenario — [`35-next.md`](./35-next.md) **CODE** |
+| E29 | Alltagskette Stimme `4.19` | 5+ | Nachricht, Bar, Taxi in einem Satz — [`36-next.md`](./36-next.md) **CODE** |
+| E30 | Gespräch / Stimme / Steuer `4.33` | 5+ | Film-TTS free, Reel am Steuer anpassen — [`37-next.md`](./37-next.md) **CODE** |
+| E31 | Hausstand `4.46` | 5+ | Export/Import, Autokorrektur — [`38-next.md`](./38-next.md) **CODE** |
+| E32 | Zwei Gesichter + Tablet `4.53` | 5+ | Jarvis/Friday Stimme, Lage neben Chat — [`39-next.md`](./39-next.md) **CODE** |
+| E33 | Körper intern `4.66` | 5+ | 3D-Schema live/klickbar (Darstellung) + Kacheln, APK; PC nur PC-Organe — [`40-next.md`](./40-next.md) **CODE** |
+| E34 | Lokales Sehen `4.76` | 5+ | Parser CODE; LocateAnything-Gewichte nach 3060-GO — [`41-next.md`](./41-next.md) |
+| E35 | Weltkugel `5.0` | 5+ | Lage-Sicht Erde, GIBS beim Zoom `6.20`/`6.50` — [`43-next.md`](./43-next.md) **CODE** |
+| E36 | Debug-Lauf `5.11` | 5+ | Kategorien, Sequenz, Export mit Verdict — [`44-next.md`](./44-next.md) **CODE** |
+| E45 | Bühne & Hirn `6.50` | 5+ | Gemini Hauptweg, Globus, Motion, Stimme — [`45-next.md`](./45-next.md) **CODE** |
+| E47 | Split / Overlay / Sideload `6.60` | 5+ | Live-Split, Identität, Overlay Gemini zuerst, APK — [`47-next.md`](./47-next.md) **CODE** |
+| E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **PLAN** |
 
 ---
 
@@ -384,66 +393,125 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S28.0 | Leitentscheidung + Researchphasen | Must | ready | [`35-next.md`](./35-next.md) PLAN, kein Execute |
-| S28.1 | Research Ingest/Serien/Methode/Architektur | Must | idea | `4.1`–`4.4` entschieden, dann Code |
-| S28.2 | Ausblick auf Nachfrage (Weltlage, warum Öl, Benzin) | Must | idea | Quellen + Serie + Szenario, kein Orakel |
-| S28.3 | Unterbrechen opt-in | Should | idea | nur Δ, Default aus |
+| S28.0 | Leitentscheidung + Researchphasen | Must | done | [`35-next.md`](./35-next.md) **CODE** |
+| S28.1 | Research Ingest/Serien/Methode/Architektur | Must | done | `4.1`–`4.4` in Docs, Execute in `4.0.0` |
+| S28.2 | Ausblick auf Nachfrage (Weltlage, warum Öl, Benzin) | Must | done | `outlook.ts` — Quellen + Serie + Szenario |
+| S28.3 | Unterbrechen opt-in | Should | done | Watch Default aus |
 | S28.4 | Aktien-Gewissheit | Won’t | parked | kein „fällt morgen“ |
 
 ### E29 — Alltagskette Stimme `4.19`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S29.0 | Leitentscheidung + Research | Must | ready | [`36-next.md`](./36-next.md) PLAN |
-| S29.1 | Bar/Kneipe POI | Must | idea | Overpass `bar`/`pub` |
-| S29.2 | Sprachnachricht als SMS v1 | Must | idea | Nachfrage, kein stilles WhatsApp |
-| S29.3 | Taxi öffnen oder anrufen | Must | idea | nie „ist bestellt“ |
-| S29.4 | Drei Aufträge, Confirm-Schlange | Must | idea | ein Ja = ein Schritt |
+| S29.0 | Leitentscheidung + Research | Must | done | [`36-next.md`](./36-next.md) **CODE** |
+| S29.1 | Bar/Kneipe POI | Must | done | `poi.ts` Overpass |
+| S29.2 | Sprachnachricht als SMS v1 | Must | done | Nachfrage, kein stilles WhatsApp |
+| S29.3 | Taxi öffnen oder anrufen | Must | done | `taxi.ts` — nie „ist bestellt“ |
+| S29.4 | Drei Aufträge, Confirm-Schlange | Must | done | ein Ja = ein Schritt |
 | S29.5 | WhatsApp still senden | Won’t | parked | Business-API / Accessibility |
 
 ### E30 — Gespräch / Stimme / Steuer `4.33`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S30.0 | Leitentscheidung; `3.19` Kalender nicht neu | Must | ready | [`37-next.md`](./37-next.md) |
-| S30.1 | Film-nähere Gemini-TTS, free | Must | idea | Spike Stimme + Budget stehend vs. Fahrt |
-| S30.2 | Reel: finden/beheben/eine Frage | Must | idea | Whitelist Haus, HUD am Steuer |
+| S30.0 | Leitentscheidung; `3.19` Kalender nicht neu | Must | done | [`37-next.md`](./37-next.md) **CODE** |
+| S30.1 | Film-nähere Gemini-TTS, free | Must | done | Algieba, Budget stehend vs. Fahrt |
+| S30.2 | Reel: finden/beheben/eine Frage | Must | done | Watchdog + HUD am Steuer |
 | S30.3 | Eingehender Anruf von Jarvis | Won’t | parked | kein Fake-Call, kein Retell |
 
 ### E31 — Hausstand `4.46`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S31.0 | Leitentscheidung Backup + Tippfehler | Must | ready | [`38-next.md`](./38-next.md) |
-| S31.1 | Export JSON (Keys, Nummern, Erinnerungen, Settings) | Must | idea | ein Share/Download |
-| S31.2 | Import ein Tippen nach Deinstall | Must | idea | Confirm, dann gleicher Stand |
-| S31.3 | Composer DE + Jarvis-Wörterbuch | Must | idea | Keys-Felder ohne Spellcheck |
-| S31.4 | STT pickHeard + Rückfrage Bar/Bahn | Must | idea | kein Blind-Levenshtein |
+| S31.0 | Leitentscheidung Backup + Tippfehler | Must | done | [`38-next.md`](./38-next.md) **CODE** |
+| S31.1 | Export JSON (Keys, Nummern, Erinnerungen, Settings) | Must | done | `backup.ts` Share/Download |
+| S31.2 | Import ein Tippen nach Deinstall | Must | done | Confirm, dann gleicher Stand |
+| S31.3 | Composer DE + Jarvis-Wörterbuch | Must | done | Keys-Felder ohne Spellcheck |
+| S31.4 | STT pickHeard + Rückfrage Bar/Bahn | Must | done | `repairSpeech` / `pickHeard` |
 | S31.5 | Jarvis-Cloud-Sync | Won’t | parked | Datei bleibt beim User |
 
 ### E32 — Zwei Gesichter + Tablet `4.53`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S32.0 | Leitentscheidung Faces + HUD | Must | ready | [`39-next.md`](./39-next.md) PLAN, kein Execute |
-| S32.1 | Jarvis Haupt+CarPlay, Friday Sekretärin | Must | idea | Domain-Tabelle, Drive = Jarvis |
-| S32.2 | Wake Friday, nicht Freitag | Must | idea | Kalender `Freitag` bleibt Termin |
-| S32.3 | Lage neben Chat, Uhr tickt, Poll split | Must | idea | Composer+Mic sichtbar |
-| S32.4 | Marvel-Friday / zwei Modelle / Friday am Steuer | Won’t | parked | Hausname, ein Hirn, CarPlay = Jarvis |
-| S32.5 | Auto Work-Stunden → Face | Won’t | parked | Domain + Name, keine Uhr |
+| S32.0 | Leitentscheidung Faces + HUD | Must | done | [`39-next.md`](./39-next.md) **CODE** |
+| S32.1 | Jarvis Default, Friday Zuruf, zwei Stimmen | Must | done | `face.ts` — ein Register, ein Gedächtnis |
+| S32.2 | Wake Friday, nicht Freitag | Must | done | Kalender `Freitag` bleibt Termin |
+| S32.3 | Lage neben Chat, Uhr tickt, Poll split | Must | done | Composer+Mic sichtbar |
+| S32.4 | Marvel-Friday / zwei Modelle | Won’t | parked | Hausname, ein Hirn |
+| S32.5 | Auto Work-Stunden → Face | Won’t | parked | nur explizit |
+
+### E33 — Körper intern `4.66`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S33.0 | Leitentscheidung Körper in der Lage | Must | done | [`40-next.md`](./40-next.md) **CODE** |
+| S33.1 | 3D-Schema live, Tippen = Kachel nicht Tool | Must | done | Canvas-Schema in der Lage |
+| S33.2 | Nur echte Store-Zustände | Must | done | Pulse aus Werten, kein Fake |
+| S33.3 | PC-Auge/PC-Hand ehrlich ohne BAT | Must | done | Kachel „PC nicht verbunden“ |
+| S33.4 | Mails/Instagram/Marvel-Mesh | Won’t | parked | Darstellung intern |
+
+### E34 — Lokales Sehen `4.76`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S34.0 | Leitentscheidung LocateAnything am PC | Must | done | Parser CODE; Vision ehrlich aus bis 3060-GO |
+| S34.1 | 3060/Windows Spike GO/NO-GO | Must | idea | `4.77` |
+| S34.2 | `klick …` über Box, unsicher = kein Klick | Must | idea | `4.82` |
+| S34.3 | Screenshot deuten ohne Google wenn Vision ready | Should | idea | `4.83` |
+| S34.4 | Handy-Foto zum PC, sonst Gemini/Absage | Should | idea | `4.84` |
+| S34.5 | 3B-VLM auf dem Handy / Face-ID / APK-Gewichte | Won’t | parked | Sprint 72 bleibt |
+| S34.6 | `wo ist` / `zeig` Overlay ohne Klick | Must | ready | `4.87` Sprint 117 |
+| S34.7 | Fenster/Icons zählen | Should | ready | `4.88` |
+| S34.8 | In ein gefundenes Feld tippen | Must | ready | `4.89` |
+| S34.9 | Nachklick-Delta | Should | ready | `4.90` |
+| S34.10 | Beleg lokal lesen | Must | ready | `4.91` |
+| S34.11 | Zettel → Termin nach Ja | Should | ready | `4.92` |
+| S34.12 | TV-Foto → Taste | Should | ready | `4.93` |
+| S34.13 | Schreibtisch wo liegt X | Should | ready | `4.94` Sprint 118 |
+| S34.14 | Waschlabel ISO | Should | ready | `4.95` |
+| S34.15 | Zwei GUI-Schritte mit Confirm | Should | ready | `4.97` |
+| S34.16 | Computer-Use / Live-AR / Banking | Won’t | parked | |
+| S34.17 | EAN-Box → Open Food Facts | Should | ready | `4.96` |
+
+### E36 — Debug-Lauf `5.11`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S36.0 | Leitentscheidung Debug-Lauf | Must | done | [`44-next.md`](./44-next.md) **CODE** |
+| S36.1 | Klickboxen mehrerer Kategorien | Must | done | nicht nur ein Select |
+| S36.2 | Start öffnet neues Gespräch | Must | done | Alltagschat unangetastet |
+| S36.3 | Prompts inkl. Welt/Face fest im Code | Must | done | `test-copy.ts` |
+| S36.4 | Download JSON+TXT mit Soll/Ist | Must | done | `5.16` in `5.11` |
+| S36.5 | Auto-Ja / Debug-Cloud / Hausstand-Import im Lauf | Won’t | parked | |
+
+### E48 — Globus-Briefing `6.70`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S48.0 | Leitentscheidung Stadt → Satellit → Briefing | Must | done | [`48-next.md`](./48-next.md) PLAN |
+| S48.1 | Fly-to in GIBS, Stamp mit Datum | Must | ready | Zoom ≥ 3.8, kein „Live“ |
+| S48.2 | Politik aus Tagesschau-Ort / outlook-Tag | Must | ready | leer = weglassen |
+| S48.3 | Markt nur Hormus/OPEC/EZB-Kette | Must | ready | kein Aktien-Orakel |
+| S48.4 | Anomalie nur DWD/ISS/EONET-GO | Should | ready | keine erfundenen Hotspots |
+| S48.5 | Ihr Plan nur Kalender/Memory-Treffer | Should | ready | kein Bildschirm-Mitschnitt |
+| S48.6 | Live-Sat / Street-View / Überwachung / Geheim-Feed | Won’t | parked | |
+| S48.7 | Welt-Tour Parser `auf der Welt passiert` | Must | ready | `outlook` + Kugel, nicht `news` |
+| S48.8 | Länder-Glow + Seite + Zoom-Kette max 5 | Must | ready | weltpolitisch-Filter |
+| S48.9 | Reduced-Motion Tour ohne Auto-Flug | Should | ready | Glow+Liste |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **Hausstand Backup** [`38-next.md`](./38-next.md) — vor jedem Sideload
-2. `3.19.0` **CODE auf main** [`34-next.md`](./34-next.md) — nächster Sideload nach Backup
-3. Alltagskette [`36-next.md`](./36-next.md)
-4. Weltlage [`35-next.md`](./35-next.md)
-5. Gespräch/Stimme [`37-next.md`](./37-next.md)
-6. **Tablet-Lage glätten** [`39-next.md`](./39-next.md) `4.59+`
-7. Zwei Gesichter Jarvis/Friday [`39-next.md`](./39-next.md)
-8. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. Globus-Briefing [`48-next.md`](./48-next.md) `6.70`
+2. LocateAnything-Sidecar nach 3060-GO [`41-next.md`](./41-next.md) — Parser schon CODE
+3. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
+4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+
+Sideload **`6.90.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing sind **CODE**.
+
+Komplette Liste: [`42-planned.md`](./42-planned.md).
 
 ## Parking Lot (Ideen, nicht geplant)
 

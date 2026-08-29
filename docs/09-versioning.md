@@ -1,5 +1,7 @@
 # 09 — Versionierung
 
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**.
+
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
 ## Prinzip
@@ -71,7 +73,7 @@ MAJOR.MINOR.PATCH
 | `0.13.2` | **Chat-Hang Hotfix** (Streaming, Threads, Timeout) | Sprint 46 |
 | `0.14.0` | **Qualität & Latenz** — bestehendes härten, nichts Neues | Sprint 47 |
 | `0.14.1` | **TV verbinden & steuern** — Tizen on-device (ex-`0.11`) | Sprint 48 |
-| `0.16.0` | **Gemini Opt-in** — Google-API, Default aus | Sprint 50 |
+| `0.16.0` | **Gemini Opt-in** — Google-API, Default aus (historisch; ab `6.50` Hauptweg) | Sprint 50 |
 | `1.0.0` | **Jarvis 1.0** — On-Device, TV, Gemini-Kaskade, APK `Jarvis.apk` | nach `0.16` |
 | `2.0.0` | **Jarvis 2.0** — ein Kontext, ehrliche Tools, internes CarPlay | Sprint 102 |
 | `3.0.0` | **Jarvis 3.0** — Intelligenz: Register + Score-Policy; Welt `3.1`–`3.17` mitgeliefert | Sprint 106 |
@@ -82,7 +84,24 @@ MAJOR.MINOR.PATCH
 | `4.19.0` | **Alltagskette Stimme** — Sprachnachricht, Bar, Taxi; Research vor WhatsApp/Taxi-App | Sprint 111 |
 | `4.33.0` | **Gespräch / Film-Stimme / Steuer** — Reel lukebuildsai anpassen | Sprint 112 |
 | `4.46.0` | **Hausstand** — Export/Import nach APK-Deinstall; Autokorrektur Schreib+Sprache | Sprint 113 |
-| `4.53.0` | **Zwei Gesichter + Tablet** — Jarvis Haupt+CarPlay, Friday Sekretärin; Lage nicht statt Chat | Sprint 114 |
+| `4.53.0` | **Zwei Gesichter + Tablet** — Jarvis/Friday Stimme; Lage nicht statt Chat | Sprint 114 |
+| `4.66.0` | **Körper intern** — Hirn/Auge/Hand in der Lage; APK, PC nur PC-Organe | Sprint 115 |
+| `4.76.0` | **Lokales Sehen** — LocateAnything am PC (GUI-Grounding), nicht `4.66` Körper | Sprint 116 |
+| `5.0.0` | **Weltkugel** — Lage-Sicht Erde; Nummern `5.0`–`5.10` | Sprint 119 |
+| `5.11.0` | **Debug-Lauf** — Mehrfach-Kategorien, neues Gespräch, Export mit Verdict | Sprint 120 |
+| `6.0.0` | **Bühne & Hirn Leitentscheidung** | Sprint 121 |
+| `6.10.0` | **Motion-Kern + Chat-Gewand** | Sprint 122 |
+| `6.20.0` | **Körper-Show + virtueller Globus** | Sprint 123 |
+| `6.30.0` | **Fahrmodus-Bühne** | Sprint 124 |
+| `6.40.0` | **Sprach-Theater + Stimmen-Picker** | Sprint 125 |
+| `6.50.0` | **Hirn Gemini zuerst** + Bühne 122–125 mitgeliefert | Sprint 126 |
+| `6.51.0` | **Parser nach Prompt-Test** — Wont/Help/HUD-Skip | Sprint 127 |
+| `6.52.0` | **Live-Split + Identität** — mitgeliefert in `6.60` | Sprint 128 |
+| `6.53.0` | **Overlay Gemini zuerst** — mitgeliefert in `6.60` | Sprint 129 |
+| `6.60.0` | **Sideload** Bühne + Parser + Split | Sprint 130 |
+| `6.70.0` | **Globus-Briefing** Leitentscheidung (Docs) | Sprint 131 |
+| `6.90.0` | **Globus-Briefing Gold** — Stadt-Satellit + Welt-Tour | Sprint 136 |
+| `7.0.0` | **Agentic Recall** Leitentscheidung (PLAN) | Sprint 137 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -159,6 +178,16 @@ MAJOR.MINOR.PATCH
 | `3.18.0` | Lage, Traceroute, Digest, Routing härten (`3.0.1`–`3.45`) | Sprint 107 |
 | `3.18.1` | GUI: Overlay-Slides, Lage-Kacheln, Thread-Wechsel | Sprint 108 |
 | `3.19.0` | Sprachmodus ein Thread, Kalender Jahr/nächste Tage, Debug | Sprint 109 |
+| `4.0.0` | Weltlage / Vorhersage: `outlook`, Serie, Szenario, kein Orakel (`4.1`–`4.17`) | Sprint 110 |
+| `4.19.0` | Alltagskette: Bar, Sprachnachricht=SMS, Taxi nach Ja, Kette | Sprint 111 |
+| `4.33.0` | Film-TTS Algieba, HUD/Notify am Steuer, Watchdog | Sprint 112 |
+| `4.46.0` | Hausstand-Export/Import, Autokorrektur Schreib+Sprache | Sprint 113 |
+| `4.53.0` | Jarvis/Friday-Gesichter, Lage neben dem Chat | Sprint 114 |
+| `4.66.0` | Körper intern in der Lage (gebündelt in `5.11.0`) | Sprint 115 |
+| `4.76.0` | LocateAnything-Parser, Vision ehrlich aus (in `5.11.0`) | Sprint 116 |
+| `5.0.0` | Weltkugel in der Lage (gebündelt in `5.11.0`) | Sprint 119 |
+| `5.11.0` | Debug-Lauf + Körper + Kugel + Sehen-Parser | Sprint 120 |
+| `6.0.0` | Bühne & Hirn Leitentscheidung (Gemini zuerst, Globus) | Sprint 121 |
 
 ### `3.0` — Intelligenz + Welt [`32-intelligence.md`](./32-intelligence.md) · [`31-next.md`](./31-next.md) **CODE**
 
@@ -199,7 +228,7 @@ MAJOR.MINOR.PATCH
 | `3.34.0`–`3.37.0` | Telefon-Haus, Notiz, Gespräch | 107 (in `3.18.0`) |
 | `3.38.0`–`3.45.0` | Foto, Stimme, Sensoren, Schach-UI, Slots, Härten | 107 (in `3.18.0`) |
 
-### `4.0` — Weltlage / Vorhersage [`35-next.md`](./35-next.md) **PLAN**
+### `4.0` — Weltlage / Vorhersage [`35-next.md`](./35-next.md) **CODE**
 
 `3.19.0`–`3.45.0` sind logische Stufen **in** `3.18.0`. Nächster Produktsprung ist `4.0`, nicht ein zweites `3.20`.
 
@@ -218,7 +247,7 @@ MAJOR.MINOR.PATCH
 | `4.10.0` | Weitere Märkte nur mit sauberer Quelle | später |
 | `4.11.0`–`4.18.0` | Lage-Kachel, Härten, Quellen, Analog, Akku, Gold, Stimme, Sideload | Verbesserungen |
 
-### `4.19+` — Alltagskette Stimme [`36-next.md`](./36-next.md) **PLAN**
+### `4.19+` — Alltagskette Stimme [`36-next.md`](./36-next.md) **CODE**
 
 Reel: Sprachnachricht, Bar, Taxi — nur geredet. Plan **vollständig** (Gold, Voten, Dateien). Sideload nach Hausstand [`38-next.md`](./38-next.md).
 
@@ -234,7 +263,7 @@ Reel: Sprachnachricht, Bar, Taxi — nur geredet. Plan **vollständig** (Gold, V
 | `4.26.0` | Kette in einem Satz | nach `4.22` |
 | `4.27.0`–`4.32.0` | Stimme, `wa.me`, Audio optional, Follow-up, Härten, Sideload nach Backup | Verbesserungen |
 
-### `4.33+` — Gespräch, Film-Stimme, Reel am Steuer [`37-next.md`](./37-next.md) **PLAN**
+### `4.33+` — Gespräch, Film-Stimme, Reel am Steuer [`37-next.md`](./37-next.md) **CODE**
 
 Kalender-Jahr/Fenster/`erstell` und ein Voice-Thread sind **CODE** `3.19.0` auf `main`. Neu: Gemini-TTS näher am Film (free), Anruf am Steuer nicht fake.
 
@@ -248,7 +277,7 @@ Kalender-Jahr/Fenster/`erstell` und ein Voice-Thread sind **CODE** `3.19.0` auf 
 | `4.38.0` | Gespräch härten, Siezen | nach Research |
 | `4.39.0`–`4.45.0` | Watchdog, HUD-Interrupt, optionale zweite Nummer, Kalender-Rest, Sideload | Verbesserungen |
 
-### `4.46+` — Hausstand [`38-next.md`](./38-next.md) **PLAN**
+### `4.46+` — Hausstand [`38-next.md`](./38-next.md) **CODE**
 
 Deinstall wegen APK-Signatur löscht WebView-Daten. Export/Import vor Sideload. Autokorrektur Schreib+Sprache, kein blindes Bahn↔Bar.
 
@@ -260,7 +289,7 @@ Deinstall wegen APK-Signatur löscht WebView-Daten. Export/Import vor Sideload. 
 | `4.50.0`–`4.51.0` | Composer + STT-Wörterbuch | nach Research |
 | `4.52.0` | Sideload mit Hausstand-Thema | nach `4.49` |
 
-### `4.53+` — Zwei Gesichter + Tablet [`39-next.md`](./39-next.md) **PLAN**
+### `4.53+` — Zwei Gesichter + Tablet [`39-next.md`](./39-next.md) **CODE**
 
 Ein Hirn, zwei Faces: Jarvis Haupt+CarPlay, Friday Sekretärin (`FACE_BY_TOOL`). Tablet-Lage split. Female-TTS andockt an `4.34`. Sideload nach Hausstand.
 
@@ -272,6 +301,90 @@ Ein Hirn, zwei Faces: Jarvis Haupt+CarPlay, Friday Sekretärin (`FACE_BY_TOOL`).
 | `4.56.0`–`4.58.0` | Domain-Tabelle + Parser/Setting `auto`, TTS, Wake Friday | nach Research |
 | `4.59.0`–`4.62.0` | Lage Split, Poll, Raster, Chat-Kachel | darf vor Friday |
 | `4.63.0`–`4.65.0` | Gold, Header/Avatar, Sideload nach `4.52` | Verbesserungen |
+
+### `4.66+` — Körper intern [`40-next.md`](./40-next.md) **PLAN**
+
+Lage-Sicht auf vorhandene Organe. Handy ist Hirn. PC nur PC-Auge/PC-Hand. Kein Cloud-Employee.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.66.0` | Leitentscheidung (Docs) | 115 |
+| `4.67.0`–`4.69.0` | Research: Schema/WebGL, Live-Felder, PC-leer | nach 115 |
+| `4.70.0`–`4.74.0` | HUD-Sicht, 3D + Kacheln, Gold | nach Research |
+| `4.75.0` | Sideload nach Hausstand | nach `4.52` |
+
+### `4.76+` — Lokales Sehen / LocateAnything [`41-next.md`](./41-next.md) **PLAN**
+
+PC-Sidecar, nicht Handy-WASM. `4.66`–`4.75` bleiben Körper. 3060/Windows = GO/NO-GO vor Execute.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `4.76.0` | Leitentscheidung (Docs) | 116 |
+| `4.77.0`–`4.80.0` | Research: 3060, Sidecar, Klick vs Gemini, Foto/OCR | nach 116 |
+| `4.81.0`–`4.86.0` | Ground, Click mit Box, Overlay, Foto, Crop, Fallback | nach GO |
+| `4.87.0`–`4.93.0` | Zeig, Zählen, Tippen, Delta, Beleg, Termin, TV-Foto | 117 |
+| `4.94.0`–`4.99.0` | Schreibtisch, Waschlabel, EAN, zwei Schritte, Gold, Sideload | 118 |
+
+### `5.0` — Weltkugel (andere Schiene)
+
+`5.0`–`5.10` sind die Lage-Sicht Erde (PR #58). Nicht mit Debug mischen.
+
+### `5.11+` — Debug-Lauf [`44-next.md`](./44-next.md) **PLAN**
+
+Upgrade des Settings-Debug `3.19`. Mehrere Kategorien, neues Gespräch, JSON-Export.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `5.11.0` | Leitentscheidung (Docs) | 120 |
+| `5.12.0`–`5.13.0` | Research: Hintergrund/Writes, Export-Schema | nach 120 |
+| `5.14.0`–`5.17.0` | UI, Katalog+Expect, JSON+TXT, WakeLock/Service | nach Research |
+| `5.18.0` | Sideload nach Hausstand | nach `4.52` |
+
+### `6.0+` — Bühne & Hirn [`45-next.md`](./45-next.md) **CODE** in `6.50`/`6.60`
+
+Nach `5.11`. Over-the-top GUI und Frontier-Ton ohne 0,5B als Claude zu verkaufen. `5.12` Debug-Service bleibt eigene Schiene.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `6.0.0` | Leitentscheidung (Docs): Gemini Hauptweg, Globus Zoom | 121 |
+| `6.1.0`–`6.3.0` | Research: FPS, Reduced-Motion, Canvas vs WebGL | in 122 |
+| `6.10.0` | Motion-Kern + Chat-Chrome | 122 |
+| `6.20.0` | Körper-Show + virtueller Globus (GIBS, Zeig/Erkenne Stadt) | 123 |
+| `6.30.0` | Fahrmodus-Bühne | 124 |
+| `6.40.0` | Sprach-Theater + TTS-Picker | 125 |
+| `6.50.0` | Hirn: Gemini zuerst, Tool-Schliff, Groq/0,5B Backup | 126 |
+| `6.51.0` | Parser: Wont/Help/HUD nach 6.50-Prompt-Test | 127 |
+| `6.52.0` | Live-Split + Identität ohne Hirn | 128 |
+| `6.53.0` | Overlay: Gemini zuerst, 0,5B Backup | 129 |
+| `6.60.0` | Sideload APK | 130 |
+
+### `6.70+` — Globus-Briefing [`48-next.md`](./48-next.md) **CODE**
+
+Nach `6.60`. Stadt sagen → Satellit → Briefing. **Nachrichten-Tour:** Welt-passiert → Länder leuchten, Seite, Zoom-Kette. Kein Live, kein Geheim-Feed. Sideload **`6.90.0`**.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `6.70.0` | Leitentscheidung (Docs) | 131 |
+| `6.71.0` | Research: Fly-to-Zoom, GIBS, Headline→Land, Glow | 132 |
+| `6.80.0` | Execute: Fly-to in Satellit + Politik/Markt-Kette | 133 |
+| `6.82.0` | Execute: Welt-Tour Glow + Seite + Zoom-Kette | 134 |
+| `6.81.0` | Anomalien ehrlich + Ihr Plan am Ort | 135 |
+| `6.90.0` | Gold, Debug-Gruppe Stadt+Tour — **CODE** | 136 |
+
+Recall `6.60`+ ist eigene Schiene [`46-next.md`](./46-next.md).
+
+### `6.60+` — Agentic Recall [`46-next.md`](./46-next.md) **PLAN**
+
+Nach `6.50`. NVIDIA-Loop über IndexedDB, MemAgent-Panel, LightMem-Sleep. Kein LanceDB, kein Nemotron.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `6.60.0` | Leitentscheidung (Docs) | 127 |
+| `6.61.0`–`6.65.0` | retrieve, Search, Memory-Recall, memoryBlock, Prompt | 128 |
+| `6.70.0`–`6.71.0` | Working Memory, Digest | 129 |
+| `6.80.0`–`6.82.0` | Sleep, Register `recall`, Gold | 130 |
+| `6.83.0` | Could: e5-small nur Rank | später |
+| `6.84.0` | Sideload nach Hausstand | nach `4.52` |
 
 ### Weitere Beispiele
 

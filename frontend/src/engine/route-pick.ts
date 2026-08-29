@@ -10,6 +10,7 @@ import { parseDriveIntent } from './drive-parse.ts'
 import { parseSpotifyIntent } from './spotify-parse.ts'
 import { parseDeviceIntent } from './device-parse.ts'
 import { parsePcIntent } from './pc-parse.ts'
+import { isEyeGround, isPcGround, parseGroundIntent } from './ground-parse.ts'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from './places-parse.ts'
 import { isIdentityAsk, isMemoryRecall, isMemoryWrite, VERGISS, VERGISS_ALL } from './memory-parse.ts'
 import { parseShopIntent } from './shopping-parse.ts'
@@ -43,9 +44,16 @@ import { parseChessIntent } from './chess.ts'
 import { parseHudIntent } from './hud-parse.ts'
 import { parseTraceIntent } from './trace-parse.ts'
 import { parseDigestIntent } from './digest-parse.ts'
+import { parseOutlookIntent } from './outlook-parse.ts'
+import { parseTaxiIntent } from './taxi-parse.ts'
+import { parseBackupIntent } from './backup.ts'
+import { parseFaceIntent } from './face-parse.ts'
+import { parseWontIntent } from './wont-parse.ts'
 import { applyConflicts } from './conflicts.ts'
 import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
+import { isPersonaAsk } from './guards.ts'
+import { promoteSplitPart, splitIntents } from './split-intents.ts'
 
 function score(text: string, extra = 0): number {
   return parserScore(text, extra)
@@ -54,6 +62,8 @@ function score(text: string, extra = 0): number {
 type Parser = (ctx: RouteCtx) => number | null
 
 const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
+  { id: 'wont', sideEffect: 'read', parse: (ctx) => (parseWontIntent(ctx.text) ? score(ctx.text, 0.4) : null) },
+  { id: 'identity', sideEffect: 'read', parse: (ctx) => (isPersonaAsk(ctx.text) ? score(ctx.text, 0.45) : null) },
   { id: 'tv', sideEffect: 'device', parse: (ctx) => (parseTvWatch(ctx.text) || parseTvIntent(ctx.text, ctx.lastTool === 'tv') ? score(ctx.text, 0.06) : null) },
   { id: 'film', sideEffect: 'read', parse: (ctx) => (parseFilmIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
   { id: 'fan', sideEffect: 'device', parse: (ctx) => (parseFanIntent(ctx.text, ctx.lastTool === 'fan') ? score(ctx.text, 0.05) : null) },
@@ -73,7 +83,12 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
     parse: (ctx) => (parseDriveIntent(ctx.text, ctx.inDrive) || parseSpotifyIntent(ctx.text) ? score(ctx.text, 0.04) : null),
   },
   { id: 'device', sideEffect: 'device', parse: (ctx) => (parseDeviceIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
-  { id: 'pc', sideEffect: 'device', parse: (ctx) => (parsePcIntent(ctx.text) ? score(ctx.text, 0.05) : null) },
+  {
+    id: 'pc',
+    sideEffect: 'device',
+    parse: (ctx) =>
+      parsePcIntent(ctx.text) || isPcGround(parseGroundIntent(ctx.text)) ? score(ctx.text, 0.05) : null,
+  },
   {
     id: 'maps',
     sideEffect: 'read',
@@ -101,7 +116,12 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'timer', sideEffect: 'write', parse: (ctx) => (parseTimerIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
   { id: 'reminder', sideEffect: 'write', parse: (ctx) => (parseReminderIntent(ctx.text) ? score(ctx.text) : null) },
   { id: 'todo', sideEffect: 'write', parse: (ctx) => (parseToolIntent(ctx.text) ? score(ctx.text) : null) },
-  { id: 'eye', sideEffect: 'read', parse: (ctx) => (parseEyeIntent(ctx.text) ? score(ctx.text) : null) },
+  {
+    id: 'eye',
+    sideEffect: 'read',
+    parse: (ctx) =>
+      parseEyeIntent(ctx.text) || isEyeGround(parseGroundIntent(ctx.text)) ? score(ctx.text) : null,
+  },
   {
     id: 'weather',
     sideEffect: 'read',
@@ -132,6 +152,10 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'hud', sideEffect: 'write', parse: (ctx) => (parseHudIntent(ctx.text) ? score(ctx.text, 0.12) : null) },
   { id: 'trace', sideEffect: 'read', parse: (ctx) => (parseTraceIntent(ctx.text) ? score(ctx.text, 0.14) : null) },
   { id: 'digest', sideEffect: 'write', parse: (ctx) => (parseDigestIntent(ctx.text) ? score(ctx.text, 0.1) : null) },
+  { id: 'outlook', sideEffect: 'read', parse: (ctx) => (parseOutlookIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.1) : null) },
+  { id: 'taxi', sideEffect: 'read', parse: (ctx) => (parseTaxiIntent(ctx.text) ? score(ctx.text, 0.12) : null) },
+  { id: 'backup', sideEffect: 'read', parse: (ctx) => (parseBackupIntent(ctx.text) ? score(ctx.text, 0.2) : null) },
+  { id: 'face', sideEffect: 'write', parse: (ctx) => (parseFaceIntent(ctx.text) ? score(ctx.text, 0.22) : null) },
 ]
 
 export function propose(ctx: RouteCtx): Candidate[] {
@@ -147,11 +171,26 @@ export function propose(ctx: RouteCtx): Candidate[] {
   return withCost(withPrior(applyConflicts(raw, ctx.text, ctx), ctx.lastTool, isFollowish(ctx.text)))
 }
 
-export function pickRouteFromCtx(ctx: RouteCtx): string | null {
+function pickOneFromCtx(ctx: RouteCtx): string | null {
   const pick = pickPolicy(propose(ctx))
   if (pick.kind === 'run') return pick.id
   if (pick.kind === 'ask') return pick.a
   return null
+}
+
+export function pickRouteFromCtx(ctx: RouteCtx): string | null {
+  const whole = pickOneFromCtx(ctx)
+  if (whole === 'wont') return 'wont'
+  const parts = splitIntents(ctx.text)
+  if (parts.length > 1) {
+    let last: string | null = null
+    for (const raw of parts) {
+      const id = pickOneFromCtx({ ...ctx, text: promoteSplitPart(raw) })
+      if (id) last = id
+    }
+    if (last) return last
+  }
+  return whole
 }
 
 export function pickRoute(text: string): string | null {

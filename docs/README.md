@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`3.19.0`**. Sideload **`3.18.1`**. Offene Pläne: [`35-next.md`](./35-next.md) Weltlage · [`36-next.md`](./36-next.md) Alltagskette · [`37-next.md`](./37-next.md) Stimme/Steuer · [`38-next.md`](./38-next.md) **Backup (MUST vor Deinstall)** · [`39-next.md`](./39-next.md) Jarvis/Friday + Tablet. Kalender/Stimme: [`34-next.md`](./34-next.md). APK: [`apk.md`](./apk.md). PC-BAT: [`../desktop/README.md`](../desktop/README.md).
+**Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -20,9 +20,9 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
 | 12 | [NAS & APK](./12-nas-apk.md) | historisch / superseded |
-| 13 | [On-Device](./13-on-device.md) | Handy-LLM `0.13.2` |
+| 13 | [On-Device](./13-on-device.md) | Handy: Parser + Speicher lokal; Hirn Gemini zuerst |
 | 14 | [Qualität & TV](./14-quality-tv.md) | **`0.14.1`** — härten + Tizen live |
-| 16 | [Gemini](./16-gemini.md) | **`0.16`** — Google-API, Opt-in |
+| 16 | [Gemini](./16-gemini.md) | **Hauptweg** (Key); historisch `0.16` Opt-in |
 | 17 | [Nächste Versionen](./17-next.md) | **`1.1`–`1.6`** — Erinnerung, Wetter, Kalender, Sprache — **CODE** |
 | 18 | [Timer bis GUI](./18-next.md) | **`1.7`–`1.13.2`** — Wecker, Widget, Wake-Word, Motion, Ton — **CODE** |
 | 19 | [Alltag & Kontext](./19-next.md) | **`1.14`–`1.20` CODE** (in `1.24.0`) |
@@ -41,12 +41,21 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 32 | [Intelligenz](./32-intelligence.md) | **`3.0` CODE** — Register, Score-Policy |
 | 33 | [3.x danach](./33-next.md) | **`3.18.1` CODE** — Härten, Tablet-Lage, Traceroute, Telefon-Haus, GUI |
 | 34 | [Stimme Kalender Debug](./34-next.md) | **`3.19.0` CODE** — ein Gespräch, Jahr, Debug |
-| 35 | [Weltlage / Vorhersage](./35-next.md) | **`4.0` PLAN** — Research zuerst, dann Ausblick (Öl/Benzin), kein Orakel |
-| 36 | [Alltagskette Stimme](./36-next.md) | **`4.19` PLAN vollständig** — Bar, SMS-Note, Taxi, Kette |
-| 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` PLAN** — Film-TTS free, Reel finden/eine Frage |
-| 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` PLAN** — Export/Import, Tippfehler Schreib+Sprache |
-| 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` PLAN** — Jarvis Haupt+CarPlay, Friday Sekretärin, Lage nicht statt Chat |
-| — | [APK](./apk.md) | Sideload `3.18.1`; Code `3.19.0`; Deinstall löscht Keys — erst [`38`](./38-next.md) |
+| 35 | [Weltlage / Vorhersage](./35-next.md) | **`4.0` CODE** — Ausblick zitiert, Serie, Szenario, kein Orakel |
+| 36 | [Alltagskette Stimme](./36-next.md) | **`4.19` CODE** — Bar, SMS-Note, Taxi, Kette |
+| 37 | [Gespräch / Stimme / Steuer](./37-next.md) | **`4.33` CODE** — Film-TTS Algieba, HUD am Steuer |
+| 38 | [Hausstand Backup + Korrektur](./38-next.md) | **`4.46` CODE** — Export/Import, Tippfehler Schreib+Sprache |
+| 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
+| 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
+| 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
+| 42 | [Alles geplant](./42-planned.md) | Index Code `6.60` |
+| 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
+| 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
+| 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
+| 47 | [Split, Identität, Sideload](./47-next.md) | **`6.60` CODE** |
+| 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
+| 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
+| — | [APK](./apk.md) | Sideload `6.90.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -86,7 +95,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 46 | `0.13.2` | **CODE** (Chat-Hang Hotfix) |
 | 47 | `0.14.0` | **CODE** (in `0.14.1`) |
 | 48 | `0.14.1` | **CODE** (TV verbinden & steuern) |
-| 50 | `0.16.0` | **CODE** (Gemini Opt-in) |
+| 50 | `0.16.0` | **CODE** (Gemini Opt-in; ab `6.50` Hauptweg) |
 | 51–54 | `1.1`–`1.4` | **CODE** (Sound/Quellen, Erinnerung, Wetter, Kalender) |
 | 55 | `1.5.0` | **CODE** (Sprachmodus) |
 | 56 | `1.6.0` | **CODE** (Wetter als Lage) |
@@ -115,10 +124,32 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 107 | `3.18.0` | **CODE** (Lage, Traceroute, Digest; `3.0.1`–`3.45`) |
 | 108 | `3.18.1` | **CODE** (GUI Premium: Overlay-Slides) |
 | 109 | `3.19.0` | **CODE** (Stimme-Thread, Kalender, Debug) |
-| 110 | `4.0.0` | **PLAN** (Weltlage / Vorhersage, Research zuerst) |
-| 111 | `4.19.0` | **PLAN** (Alltagskette vollständig) |
-| 112 | `4.33.0` | **PLAN** (Gespräch, Film-Stimme, Reel am Steuer) |
-| 113 | `4.46.0` | **PLAN** (Hausstand Export/Import, Autokorrektur) |
-| 114 | `4.53.0` | **PLAN** (Jarvis/Friday + Tablet-Lage flüssig) |
+| 110 | `4.0.0` | **CODE** (Weltlage / Vorhersage) |
+| 111 | `4.19.0` | **CODE** (Alltagskette Bar/SMS/Taxi) |
+| 112 | `4.33.0` | **CODE** (Gespräch, Film-Stimme, Reel am Steuer) |
+| 113 | `4.46.0` | **CODE** (Hausstand Export/Import, Autokorrektur) |
+| 114 | `4.53.0` | **CODE** (Jarvis/Friday + Tablet-Lage flüssig) |
+| 115 | `4.66.0` | **CODE** (Körper intern, in `5.11.0`) |
+| 116 | `4.76.0` | **CODE** (LocateAnything-Parser, Vision ehrlich aus) |
+| 117 | `4.87.0` | **CODE** (Sehen Alltag Parser) |
+| 118 | `4.94.0` | **CODE** (Schreibtisch/Wasch/EAN/zwei Schritte Parser) |
+| 119 | `5.0.0` | **CODE** (Weltkugel, in `5.11.0`) |
+| 120 | `5.11.0` | **CODE** (Debug-Lauf: Kategorien, Sequenz, Export) |
+| 121 | `6.0.0` | **CODE** (Leitentscheidung, in `6.50.0`) |
+| 122 | `6.10.0` | **CODE** (Motion-Kern + GUI, in `6.50.0`) |
+| 123 | `6.20.0` | **CODE** (Körper-Show + virtueller Globus, in `6.50.0`) |
+| 124 | `6.30.0` | **CODE** (Fahrmodus-Bühne, in `6.50.0`) |
+| 125 | `6.40.0` | **CODE** (Sprach-Theater + Stimme, in `6.50.0`) |
+| 126 | `6.50.0` | **CODE** (Gemini zuerst, Groq/0,5B Backup) |
+| 127 | `6.51.0` | **CODE** (Parser nach Prompt-Test) |
+| 128 | `6.52.0` | **CODE** (Live-Split + Identität, in `6.60.0`) |
+| 129 | `6.53.0` | **CODE** (Overlay Gemini zuerst, in `6.60.0`) |
+| 130 | `6.60.0` | **CODE** (Sideload APK) |
+| 131 | `6.70.0` | **CODE** (Globus-Briefing Leitentscheidung, Docs) |
+| 132 | `6.71.0` | **CODE** (Research Satellit + Land) |
+| 133 | `6.80.0` | **CODE** (Fly-to Satellit + Briefing) |
+| 134 | `6.82.0` | **CODE** (Welt-Tour Glow/Seite/Zoom) |
+| 135 | `6.81.0` | **CODE** (Anomalien + Ihr Plan) |
+| 136 | `6.90.0` | **CODE** (Gold / Debug, kein Sideload) |
 
-**Aktuell:** Code **`3.19.0`**. Sideload `3.18.1`. Pläne: [`35-next.md`](./35-next.md)–[`39-next.md`](./39-next.md). Stimme/Kalender: [`34-next.md`](./34-next.md).
+**Aktuell:** Code **`6.90.0`**. Sideload `6.90.0`. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Recall-Plan [`49-next.md`](./49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

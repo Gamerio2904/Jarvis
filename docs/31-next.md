@@ -1,10 +1,13 @@
 # 31 — Alltag & Welt (`3.1`–`3.17`) **CODE**
 
+> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+
+
 PO 2026-08-20: Unwetter/DWD, Schulferien, Wechselkurse, Open Food Facts, Open Library, Bundesliga, Research, Stimme, Garten, Himmel, Tiere, Flüge, Recht, Haushalt, Sport, Handy-Sensoren, Schach. Freie APIs, nichts erfinden.
 
 PO 2026-08-26: Intelligenz zuerst — [`32-intelligence.md`](./32-intelligence.md) ist **`3.0.0`**. Diese Reihe ist **`3.1`–`3.17`**, mitgeliefert in Sideload-Code `3.0.0`.
 
-Reihe davor: Register `3.0.0`. App-Code: **`3.0.0`**.
+Reihe davor: Register `3.0.0`. Schiene gelandet in **`3.0.0`**, mitgeliefert in `6.60.0`.
 
 Eine logische Stufe pro Version; Auslieferung gebündelt.
 

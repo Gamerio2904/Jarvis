@@ -21,7 +21,7 @@ Fertig wenn das Handy sagt „PC-App erreicht“ **und** im PC-Fenster kurz „H
 ## Testen (Chat)
 
 - `PC testen`
-- `Was siehst du auf dem PC` (Screenshot; Vorlesen braucht Gemini)
+- `Was siehst du auf dem PC` (Screenshot; Vorlesen braucht Gemini; lokal geplant [`docs/41-next.md`](../docs/41-next.md))
 - `klick Mitte` / `Maus nach rechts`
 - `Zeig Ordner Downloads`
 - `FIFA starten` (nur wenn im Startmenü)

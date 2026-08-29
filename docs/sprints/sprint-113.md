@@ -1,28 +1,18 @@
-# Sprint 113 — Hausstand Backup + Autokorrektur **PLAN**
+# Sprint 113 — Hausstand Backup + Autokorrektur **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Priorität | **MUST** (vor nächstem Sideload) |
-| Ziel-Version | `4.46.0` Research; Reihe `4.48`–`4.52` in [`38-next.md`](../38-next.md) |
+| Ziel-Version | `4.46.0` (bündelt `4.47`–`4.51`, ohne Sideload) |
 | Quelle | PO: Deinstall wegen APK-Signatur; Keys/Erinnerungen/Nummern; Tippfehler Schreib+Sprache |
-| Voraussetzung | Code `3.18.1` — Daten in `jarvis_settings_v13` + IDB `jarvis-ondevice` |
 | Plan | [`38-next.md`](../38-next.md) |
 
-## Ziel
+## Code
 
-Ein Export-File, ein Import. Composer und STT korrigieren Jarvis-Wörter, nicht API-Keys.
-
-## Must
-
-| ID | Inhalt | Done wenn |
-|----|--------|-----------|
-| N1 | Warum Deinstall alles löscht | Tabelle Speicher in `38-next.md` |
-| N2 | Export/Import Umfang | Settings+Memory+Reminders+Events, Chats optional |
-| N3 | Kein Jarvis-Cloud | lokal / Share |
-| N4 | Autokorrektur ohne Bahn↔Bar-Blindflug | `repairSpeech` + Rückfrage |
-| N5 | Won’t Cloud-Keys-Mail | Won’t |
-
-## Won’t (dieser Sprint)
-
-Execute-Code, Verschlüsselungspflicht, Auto-Backup als einziger Weg.
+- Export JSON `jarvis-haus-YYYYMMDD.json` (Settings+Memory+Reminders+Events+Notes+Todos+Shopping, Chats optional).
+- Import: Datei → Vorschau → **Überschreiben ja**. Ohne Confirm nichts.
+- Banner: Datei enthält API-Keys.
+- Composer `lang=de` `spellCheck`. Key-Felder bleiben `spellCheck={false}`.
+- `repairSpeech`: Barn+Nähe → Bar, Kalnader, Steckose. `pickHeard` kennt Memory-Namen.
+- Kein Jarvis-Cloud, kein Sideload in diesem Schritt.

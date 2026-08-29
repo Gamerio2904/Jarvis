@@ -1,10 +1,10 @@
-# 39 — Zwei Gesichter (Jarvis / Friday) + Tablet flüssig (`4.53`) **PLAN**
+# 39 — Zwei Gesichter (Jarvis / Friday) + Tablet flüssig (`4.53`) **CODE**
 
 PO 2026-08-27: Zwei Gesichter. **Jarvis** = Smalltalk, alle Hauptfunktionen, **CarPlay/Fahrmodus**. **Friday** = Kalender und alles, was eine **Sekretärin** täte (Termine, Erinnerungen, Anrufe nach Ja, Listen, Tageslage). Stimmen entsprechend. Tabletmodus glätten.
 
 Nachzug PO: Friday nicht nur „zweite Stimme“, sondern **Sekretärin**; Jarvis bleibt die Haupt-KI inkl. Steuer.
 
-Code jetzt: **`3.19.0`**. Stimme/Kalender: [`34-next.md`](./34-next.md). Film-TTS: [`37-next.md`](./37-next.md). Hausstand vor Sideload: [`38-next.md`](./38-next.md).
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.53.0`**. Stimme/Kalender: [`34-next.md`](./34-next.md). Film-TTS: [`37-next.md`](./37-next.md). Hausstand: [`38-next.md`](./38-next.md). Ein Hirn (Gemini zuerst), zwei Faces.
 
 In dieser Nachricht **keine** Tablet-Screenshots angehängt. Bugs unten aus **Code + Reel-3-Lage** ([`33-next.md`](./33-next.md)). Kommen echte Fotos nach: Gold-Zeilen in `4.55` nachziehen, nicht raten.
 
@@ -157,18 +157,18 @@ Kommt ein Screenshot: Zeile in diese Tabelle, nicht raten. **Done wenn:** Layout
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`4.53.0`** | Leitentscheidung | **PLAN** |
-| **`4.54.0`** | Research Face + Female-TTS | geplant |
-| **`4.55.0`** | Research Tablet | geplant |
-| **`4.56.0`** | `face-parse` + Setting `auto` + `FACE_BY_TOOL` + Prompts Jarvis/Friday | geplant |
-| **`4.57.0`** | TTS binden (Gemini + Native Gender) | nach `4.34`/`4.54` |
-| **`4.58.0`** | Wake Friday, nicht Freitag | geplant |
-| **`4.59.0`** | Lage Split-Pane: Chat bleibt | geplant |
-| **`4.60.0`** | Uhr / Poll split / keine toten Kacheln | geplant |
-| **`4.61.0`** | Raster 3-col, Portrait, Ambient aus in Lage | geplant |
-| **`4.62.0`** | Chat-Kachel = Verlauf + Mic | geplant |
-| **`4.63.0`** | Gold Face + Lage; Härten | geplant |
-| **`4.64.0`** | Header/Avatar je Face | geplant |
+| **`4.53.0`** | Leitentscheidung + Face + Tablet-Split | **CODE** |
+| **`4.54.0`** | Research Face + Female-TTS — Kore | **CODE** |
+| **`4.55.0`** | Research Tablet | **CODE** |
+| **`4.56.0`** | `face-parse` + Setting + Prompts Jarvis/Friday | **CODE** |
+| **`4.57.0`** | TTS binden (Gemini + Native Gender) | **CODE** |
+| **`4.58.0`** | Wake Friday, nicht Freitag | **CODE** |
+| **`4.59.0`** | Lage Split-Pane: Chat bleibt | **CODE** |
+| **`4.60.0`** | Uhr / Poll split / keine toten Kacheln | **CODE** |
+| **`4.61.0`** | Raster 3-col, Portrait, Ambient aus in Lage | **CODE** |
+| **`4.62.0`** | Chat-Kachel = Verlauf + Mic | **CODE** |
+| **`4.63.0`** | Gold Face + Lage; Härten | **CODE** |
+| **`4.64.0`** | Header/Avatar je Face | **CODE** |
 | **`4.65.0`** | Sideload **nach** Hausstand `4.52` | geplant |
 
 Tablet `4.59`–`4.62` **darf** vor Friday, wenn HUD weh tut. Friday ohne `4.54`/`4.57` nicht sideloaden (sonst zwei Namen, eine Stimme).

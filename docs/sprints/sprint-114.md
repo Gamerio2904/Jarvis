@@ -1,28 +1,17 @@
-# Sprint 114 — Zwei Gesichter + Tablet flüssig **PLAN**
+# Sprint 114 — Zwei Gesichter + Tablet flüssig **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
-| Priorität | nach Hausstand; Tablet-HUD darf früher |
-| Ziel-Version | `4.53.0` Leitentscheidung; Reihe `4.54`–`4.65` in [`39-next.md`](../39-next.md) |
-| Quelle | PO: Jarvis = Smalltalk + Hauptfunktionen + CarPlay; Friday = Sekretärin (Kalender …); Tablet |
-| Voraussetzung | Code `3.19.0`; TTS-Spike männlich [`37-next.md`](../37-next.md) `4.34`; Sideload nach [`38-next.md`](../38-next.md) |
+| Status | **CODE** |
+| Priorität | nach Hausstand |
+| Ziel-Version | `4.53.0` (bündelt Face + Tablet-Split, ohne Sideload) |
 | Plan | [`39-next.md`](../39-next.md) |
 
-## Ziel
+## Code
 
-Ein Hirn, zwei Gesichter. Jarvis Haupt-KI inkl. Steuer. Friday Sekretärin über `FACE_BY_TOOL` nach der normalen Toolwahl. Lage neben dem Chat. Kein Execute außer Docs.
+- Ein Register, zwei Gesichter: `face` Jarvis/Friday. Sticky Setting. Wake Friday ≠ Freitag.
+- TTS: Algieba / Kore. Native versucht de-DE male/female, sonst eine Stimme.
+- Lage **neben** Chat ab 900 px Breite. Composer+Mic bleiben. Uhr tickt 1 s. Wetter-Poll 10 min.
+- Grid 3 Spalten am Tablet. Ambient gedrosselt in der Lage.
 
-## Must
-
-| ID | Inhalt | Done wenn |
-|----|--------|-----------|
-| N1 | Spaltung = Faces, nicht zwei Router | Tabelle in `39-next.md` |
-| N2 | Jarvis Haupt + CarPlay; Friday Kalender/Sekretärin | Domain-Tabelle + Gold |
-| N3 | Drive schlägt Friday; Name schlägt Domain | Gold am Steuer / `Jarvis, was steht an` |
-| N4 | Wake Friday ≠ Freitag | Won’t Freitag |
-| N5 | Lage ersetzt Chat nicht | Split-Pane in `4.59` |
-
-## Won’t (dieser Sprint)
-
-Execute-Code, Marvel, zweites Modell, Embeddings, Friday am Steuer, neue APK.
+Kein Sideload. Hausstand `4.46` bleibt Voraussetzung vor APK.

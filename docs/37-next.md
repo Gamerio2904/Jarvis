@@ -1,14 +1,14 @@
-# 37 — Gespräch, Film-Stimme, Reel am Steuer **PLAN**
+# 37 — Gespräch, Film-Stimme, Reel am Steuer **CODE**
 
 PO 2026-08-27: Realistisches Gespräch und Stimme. Reel lukebuildsai: findet ein Problem, behebt es, stört nur bei Zustimmung — auch beim Fahren per Anruf. Wenn Anruf nicht geht: **nicht übernehmen**, anpassen. Kalender-Screenshots. Hollywood-Stimme, **free** wenn möglich, sonst bestes Freies.
 
 https://www.instagram.com/reel/Dcgcg5rRdKT/
 
-Reihen daneben: Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md). Diese Schiene **`4.33+`**. App-Code auf `main`: **`3.19.0`**.
+Reihen daneben: Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md). Diese Schiene **`4.33+`**.
 
-**Kalender + ein Sprach-Thread** sind **CODE** auf `main` (`3.19.0`). Nicht neu bauen — Rest härten.
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.33.0`**. Kalender + Sprach-Thread bleiben `3.19` — nicht neu gebaut. Hirn für Smalltalk: Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
 
-Kein Execute in diesem Sprint außer Docs. Research `4.34`–`4.36` vor Stimmenwechsel und „Anruf am Steuer“.
+Research `4.34`–`4.36` ist in der Tabelle festgezogen. Execute: TTS-Budgets, Interrupt HUD/Notify, Watchdog Whitelist.
 
 ## Was schon da ist — mergen oder ignorieren
 
@@ -64,7 +64,7 @@ Style-Prompt schon: *Calm, low German, precise, slightly dry.* Nach Stimmenwahl 
 
 | Hebel | Ist | Soll |
 |-------|-----|------|
-| Inhalt | Gemini Opt-in: Persona, Stream, Siezen. Lokal 0,5B: knapp. | Gemini an = Gespräch. 0,5B nicht als Film verkaufen. |
+| Inhalt | Gemini **Hauptweg**: Persona, Stream, Siezen. Lokal 0,5B: knapp, nur Backup. | Gemini an = Gespräch. 0,5B nicht als Film verkaufen. |
 | Ein Thread | Bug auf `main`: jede Voice-Äußerung neues Gespräch. Fix **CODE** `3.19`. | mergen |
 | Barge-in | VoiceMode bricht Speak ab | behalten |
 | Live-Audio (Gemini Live, dauerhaft Cloud-Mitschnitt) | nicht da | **Research 4.34**. Default eher **nein** (anders Produkt, Akku, Privacy). Turn-basiert + gute TTS ist der Haus-Weg. |
@@ -85,11 +85,20 @@ Style-Prompt schon: *Calm, low German, precise, slightly dry.* Nach Stimmenwahl 
 
 ## Researchphasen
 
-### `4.33.0` — Leitentscheidung (jetzt)
+### `4.33.0` — Leitentscheidung **CODE**
 
-Docs. Done: dieses Dokument.
+TTS-Budgets, Algieba, Interrupt HUD/Notify, Watchdog. Sideload nicht.
 
-### `4.34.0` — Research: Stimme + Gespräch
+### `4.34.0` — Research: Stimme + Gespräch **CODE**
+
+| Votum | Fest |
+|-------|------|
+| Default-Stimme | **Algieba** (smooth, männlich). Charon verlor den 500-ms-Race zu oft. |
+| Friday (weiblich) | Kore — [`39-next.md`](./39-next.md) `4.54` |
+| Stehend | Budget **3500 ms**, Native-Race **aus** (0) |
+| Fahrt | Race **400 ms**, Budget **700 ms**. Navi-Cues immer Native. |
+| Gemini Live | **Won’t** Default (Akku, Privacy, anderes Produkt) |
+| Flash vs Pro | Flash zuerst, Pro nur im Model-Cache wenn er schon lag |
 
 1. Dieselben DE-Sätze mit Charon, Algieba, Orus, Sadaltager, Iapetus, Algenib — eine männliche Default-Stimme.  
 2. Flash vs Pro TTS: Latenz vs. Film.  
@@ -98,7 +107,9 @@ Docs. Done: dieses Dokument.
 Weibliche Stimme (Friday) ist **nicht** dieser Spike — [`39-next.md`](./39-next.md) `4.54`, dockt an diese eine männliche Wahl.  
 **Done wenn:** eine `voiceName` + zwei Budgets in der Tabelle.
 
-### `4.35.0` — Research: Stören am Steuer
+### `4.35.0` — Research: Stören am Steuer **CODE**
+
+Default-Kanal: **HUD + Notify + Satz**. Anruf nur Opt-in auf zweite Nummer ≠ `own_tel`. ConnectionService: **Won’t**.
 
 1. Full-screen / high-priority Notify + `say` (haben wir am Notify-Plugin).  
 2. HUD-Zeile + Tasten Ja/Nein, ohne Navi zu erschlagen.  
@@ -106,7 +117,7 @@ Weibliche Stimme (Friday) ist **nicht** dieser Spike — [`39-next.md`](./39-nex
 4. Android `ConnectionService` als Fake-Incoming-Call: **Won’t** (übernehmen).  
 **Done wenn:** ein Kanal als Default, Anruf nur Opt-in.
 
-### `4.36.0` — Research: welche Probleme findbar sind
+### `4.36.0` — Research: welche Probleme findbar sind **CODE**
 
 Whitelist-Kandidaten (nur was Sensor/API hergibt):
 
@@ -125,18 +136,18 @@ Kein Scraping fremder Mails. **Done wenn:** 3–5 Signale, Rest Won’t.
 | Version | Inhalt | Status |
 |---------|--------|--------|
 | **`3.19.0`** | Kalender Jahr/Fenster/`erstell`, Voice-Thread, Debug | **CODE** (anderer Branch) — mergen |
-| **`4.33.0`** | Leitentscheidung | **PLAN** |
-| **`4.34.0`** | Research Stimme/Gespräch | **PLAN** |
-| **`4.35.0`** | Research Steuer-Kanal | **PLAN** |
-| **`4.36.0`** | Research Watchdog-Signale | **PLAN** |
-| **`4.37.0`** | TTS: gewählte Stimme + stehend längeres Budget, Fahrt Race/Native | geplant |
+| **`4.33.0`** | Leitentscheidung + TTS/Interrupt/Watchdog | **CODE** |
+| **`4.34.0`** | Research Stimme/Gespräch — Algieba, zwei Budgets | **CODE** |
+| **`4.35.0`** | Research Steuer-Kanal — HUD+Notify | **CODE** |
+| **`4.36.0`** | Research Watchdog-Signale | **CODE** |
+| **`4.37.0`** | TTS: Algieba + stehend längeres Budget, Fahrt Race/Native | **CODE** |
 | **`4.38.0`** | Gespräch: Siezen-Gold, weniger Canned, Follow-up Kalender | geplant |
-| **`4.39.0`** | Watchdog v1: finden + selbst tun aus Whitelist | geplant |
-| **`4.40.0`** | Interrupt: Notify + HUD-Satz + Ja/Nein; kein Fake-Anruf | geplant |
-| **`4.41.0`** | Optional: Anruf auf **zweite** Nummer, Opt-in | geplant |
+| **`4.39.0`** | Watchdog v1: finden + selbst tun aus Whitelist | **CODE** |
+| **`4.40.0`** | Interrupt: Notify + HUD-Satz + Ja/Nein; kein Fake-Anruf | **CODE** |
+| **`4.41.0`** | Optional: Anruf auf **zweite** Nummer, Opt-in | **CODE** |
 | **`4.42.0`** | Kalender-Restphrasen / Regression nach Merge `3.19` | geplant |
-| **`4.43.0`** | Fahrmodus: Confirm stiehlt nicht die Karte | geplant |
-| **`4.44.0`** | Härten, Gold-Set Reel (finden / still / eine Frage) | geplant |
+| **`4.43.0`** | Fahrmodus: Confirm stiehlt nicht die Karte (Banner unten) | **CODE** |
+| **`4.44.0`** | Härten, Gold-Set Reel (finden / still / eine Frage) | **CODE** |
 | **`4.45.0`** | Sideload wenn `4.37`+`4.40` hör- und fahrbar | geplant |
 
 ## Chat / Stimme (Ziel)
