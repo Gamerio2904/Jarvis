@@ -19,5 +19,5 @@ https://github.com/Gamerio2904/Jarvis/raw/cursor/tablet-modus-phone-ask-b173/rel
 - versionName `6.90.1` · versionCode `69001`
 - App-ID `local.jarvis.app`
 
-1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).
+1. Hausstand exportieren, alte App deinstallieren, dann diese APK — andere Debug-Signatur als `6.90.0` auf `main`.
 2. Raw-Link, nicht die GitHub-Vorschau — sonst „Paket ungültig“.
