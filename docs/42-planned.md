@@ -10,8 +10,9 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 
 1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
 2. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
-3. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+3. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060
 4. Agentic Recall nach `6.90` — [`49-next.md`](./49-next.md) **PLAN** (`7.0`, Sprints 137+)
+5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
 Bereits **CODE** in `6.90.0`: Globus-Briefing (Stadt → GIBS + Briefing, Welt-Tour Glow/Seite/Zoom), Sideload `6.90`, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
 
@@ -43,6 +44,9 @@ Parser CODE. Gewichte erst nach 3060-GO. Ohne Sidecar: ehrlich aus.
 
 ### Debug-Hintergrund (`5.12`)
 Lauf in der App ist CODE. Dienst im Hintergrund PLAN.
+
+### Alltag vom Zettel (`8.0`) · Sprint 141 · [`50-next.md`](./50-next.md)
+Alte Notizen: Blitzer+Baustelle, CarPlay Execute-dann-TTS, GUI-Härte, **Lage-Overlay** (`8.32`: Clip, Pins, Parser), Settings neu gliedern (`8.35`), Amazon-Musik-Research, Chat-Ordner, Preiswache Instanudeln. Nicht mit Recall `7.0` mischen.
 
 ### Parking
 Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.

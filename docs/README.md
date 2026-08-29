@@ -48,13 +48,14 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Code `6.60` |
+| 42 | [Alles geplant](./42-planned.md) | Index Code `6.90` + offene Pläne |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
 | 47 | [Split, Identität, Sideload](./47-next.md) | **`6.60` CODE** |
 | 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
+| 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` PLAN** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache |
 | — | [APK](./apk.md) | Sideload `6.90.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -151,5 +152,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 134 | `6.82.0` | **CODE** (Welt-Tour Glow/Seite/Zoom) |
 | 135 | `6.81.0` | **CODE** (Anomalien + Ihr Plan) |
 | 136 | `6.90.0` | **CODE** (Gold / Debug, kein Sideload) |
+| 137+ | `7.0.0` | **PLAN** (Agentic Recall) |
+| 141 | `8.0.0` | **PLAN** (Alltag vom Zettel) |
 
-**Aktuell:** Code **`6.90.0`**. Sideload `6.90.0`. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Recall-Plan [`49-next.md`](./49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`6.90.0`**. Sideload `6.90.0`. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall-Plan [`49-next.md`](./49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

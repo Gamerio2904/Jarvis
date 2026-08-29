@@ -37,4 +37,4 @@ Linux: `./build-apk.sh`
 
 Fernseher, Fire TV, Ventilator und WLAN-Steckdosen laufen in der Android-App.
 
-Planung: [`docs/README.md`](docs/README.md) · Rest: LocateAnything-Gewichte nach 3060-GO, Debug-Hintergrund `5.12`.
+Planung: [`docs/README.md`](docs/README.md) · Rest: LocateAnything-Gewichte nach 3060-GO, Debug-Hintergrund `5.12`, Alltag `8.0`, Recall `7.0`.

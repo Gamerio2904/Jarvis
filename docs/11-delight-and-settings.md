@@ -1,9 +1,9 @@
 # 11 — Delight, Easter Eggs & Einstellungen
 
 Spielerei und Begeisterung — **dosiert**, abschaltbar, local-first.  
-Einstellungen: **einfach, flach, klar** — wenig Verschachtelung.
+Einstellungen: **einfach, flach, klar** — wenig Verschachtelung. Die **17 Themen** sind trotzdem unübersichtlich — nächste IA: [`50-next.md`](./50-next.md) `8.35`.
 
-> **Jetzt:** Code **`6.60.0`**. Cloud-Settings: Gemini-Key Hauptweg, Groq Backup. Overlay Gemini zuerst.
+> **Jetzt:** Code **`6.90.0`**. Cloud-Settings: Gemini-Key Hauptweg, Groq Backup. Overlay Gemini zuerst. Plan Settings-Gruppen: [`50-next.md`](./50-next.md).
 
 ## Versionierung (verbindlich)
 

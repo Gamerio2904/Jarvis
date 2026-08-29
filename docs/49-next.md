@@ -9,7 +9,7 @@ Sprint-Nummern **127–130** und Version **`6.60`** sind vergeben (Parser, Overl
 | Sprint 129 / Working Memory | Sprint **139** / **`7.20.0`** |
 | Sprint 130 / Sleep-Time + Recall-Tool | Sprint **140** / **`7.30.0`** |
 
-Kein Execute in dieser Lieferung. Sideload bleibt **`6.90.0`**.
+Kein Execute in dieser Lieferung. Sideload bleibt **`6.90.0`**. Alltag vom Zettel ist **nicht** diese Schiene — [`50-next.md`](./50-next.md) `8.0`, Sprints 141+.
 
 ---
 

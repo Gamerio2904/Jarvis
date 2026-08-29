@@ -157,6 +157,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Debug-Lauf `5.11` — **CODE** [`44-next.md`](./44-next.md)
 - Bühne & Hirn `6.0` — **PLAN** [`45-next.md`](./45-next.md)
 - Agentic Recall `6.60` — **PLAN** [`46-next.md`](./46-next.md)
+- Alltag vom Zettel `8.0` — **PLAN** [`50-next.md`](./50-next.md)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---

@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback (`pickBrain` in `brain-pick.ts`). Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — Export [`38-next.md`](./38-next.md) **CODE**; **Deinstall ohne Import löscht alles**. Lage neben Chat: [`39-next.md`](./39-next.md). Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md)/[`48-next.md`](./48-next.md) **CODE**, Debug [`44-next.md`](./44-next.md) **CODE**. LocateAnything-Gewichte: [`41-next.md`](./41-next.md).
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback (`pickBrain` in `brain-pick.ts`). Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — Export [`38-next.md`](./38-next.md) **CODE**; **Deinstall ohne Import löscht alles**. Lage neben Chat: [`39-next.md`](./39-next.md). Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md)/[`48-next.md`](./48-next.md) **CODE**, Debug [`44-next.md`](./44-next.md) **CODE**. LocateAnything-Gewichte: [`41-next.md`](./41-next.md). Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
 
 ## Leitentscheidung
 

@@ -7,6 +7,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`6.90.0`**. Sideload: **`6.90.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
+### Docs — Alltag vom Zettel `8.0` PLAN
+
+Sprint 141. Alte Notizen gegen Code `6.90` gehalten. Neu geplant: Blitzer/Baustelle, Steuer-Stimme, GUI-Härte, **Lage-Overlay** (`8.32`: nicht abschneiden, Pins, `Wo ist London`), **Einstellungen neu gliedern** (`8.35`), Amazon-Musik-Research, Chat-Ordner, Preiswache. Recall bleibt `7.0`.
+
+- Docs [`50-next.md`](./50-next.md) · [`sprints/sprint-141.md`](./sprints/sprint-141.md)
+
 ### `6.90.0` — Globus-Briefing Gold — *CODE*
 
 Sprints 132–136. Stadt → GIBS-Zoom **4.4** + Briefing. Welt-Tour: Glow, Seite, Zoom-Kette. Sideload **`6.90.0`**.
