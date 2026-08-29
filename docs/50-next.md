@@ -15,7 +15,7 @@ Kein Execute in Sprint 141. Sideload bleibt **`6.90.0`**. Hausstand vor nächste
 | Notiz | Ist in `6.90` | Lücke | Votum |
 |-------|---------------|-------|--------|
 | Blitzer + mobile Baustellen aus Blitzer-APIs | `warn.ts` = **DWD Unwetter**, nicht Tempo. Fahrmodus = OSRM + Abbieger, **keine** Kameras/Baustellen auf der Route | Neues Tool + Overlay-Pins + Ansage | **planen** |
-| CarPlay verbessern: erst ausführen, dann vorlesen / nur vorlesen | Internes CarPlay **CODE** (`1.30`–`1.43`, Bühne `6.30`). `DriveMode` ruft `onCommand` (Tool läuft), **dann** `speakText`. Apple CarPlay **Won’t**. Gemini-TTS am Steuer Budget 700 ms / Native-Race 400 ms | Reihenfolge härten: Tool fertig **bevor** Satz; am Steuer **kurz** oder **nur vorlesen** (kein Essay) | **planen** (Härte, kein neues CarPlay) |
+| CarPlay verbessern: erst ausführen, dann vorlesen / nur vorlesen | Internes CarPlay **CODE** (`1.30`–`1.43`, Bühne `6.30`). `DriveMode` ruft `onCommand` (Tool läuft), **dann** `speakText`. Apple CarPlay **Won’t**. Gemini-TTS am Steuer Budget 700 ms / Native-Race 400 ms | Reihenfolge härten: Tool fertig **bevor** Satz; am Steuer **kurz** oder **nur vorlesen** (kein Essay). **Dazu:** Sprachinput (Mic/Wake) hält oft nicht — in **`8.20`** | **planen** (Härte, kein neues CarPlay) |
 | Grafik smoother, weniger Latenz/Lag | Motion 30 fps **CODE** `6.10`. Ältere Härten: GUI `0.3`/`1.13`/`3.18.1`, Latenz `0.14`/`2.0.1`, Overlay-FPS `1.35`/`6.30` | Kein offener nächster Polish-Pass nach `6.90` | **planen** als Härte derselben Flächen, kein neues 3D |
 | Alternative zur Spotify-API — Amazon Musik? | Spotify Web Playback + OAuth **CODE**. Kein Amazon Music, kein Deezer, kein Apple Music. „Amazon“ am TV = **Tizen-App**, nicht Musik | Zweiter Player nur nach Research-GO | **planen** (Research zuerst) |
 | Chats in Ordner sortieren | `Conversation` = id/Titel/Daten. Chatsuche **CODE**. PC-„Ordner“ = Windows-Dateien, **nicht** Chats | `folder_id` + Sidebar + Hausstand | **planen** |
@@ -88,7 +88,7 @@ GO nur wenn: Steuerbarkeit Pause/Weiter/Suche **oder** ehrliches „App geöffne
 | Reihenfolge | Research vor Execute. Blitzer ohne Lizenz-GO nicht bauen. Musik ohne GO nicht bauen. Ordner und Preiswache brauchen kein 3060. |
 | Parser | Neue Intents ins Register (`blitzer`, `watch-price`, `chat-folder`). Kein `if` in `chat.ts`. |
 | Fahrt | Internes CarPlay. Apple CarPlay bleibt Won’t. |
-| Stimme am Steuer | **Execute → dann Native-TTS.** Phrase/Setting `nur vorlesen`: kurzer Satz, kein Gemini-Essay. Abbieger bleiben Native wie heute. |
+| Stimme am Steuer | **Hören zuerst, dann Execute, dann Native-TTS.** Ein SpeechRecognizer. Phrase/Setting `nur vorlesen`: kurzer Satz, kein Gemini-Essay. Abbieger bleiben Native wie heute. |
 | Grafik | Spike messen, dann bestehende Motion/Overlay/Stream. Kein neues Framework, kein 60-fps-Idle. |
 | Lage-Overlay | **Nicht abschneiden, nicht über den Chat legen.** Pins nur mit frischem GPS / Lexikon. `Wo ist London` = Kugel, nicht Maps-Rückfrage. Körper und Kacheln dieselbe Pane. |
 | Netz-Antwort | **Jarvis-Länge, Google-Stand.** 1–3 Sätze, kein Markdown. Erst *aktuell*, dann höchstens eine Zeile *danach*. Zahlen nur aus Treffern mit Datum. Training (fünf Euro 2024/25) darf den heutigen Stand nicht überschreiben. |
@@ -294,6 +294,26 @@ Execute **`8.33`**: `isLiveLookup` + Hint + Guard + Gold. Kein neues Hirn.
 
 ---
 
+## Stimme — Hören, dann tun, dann sprechen (`8.20`)
+
+PO 2026-08-29: **Sprachinput geht nicht.** Keine neue Versionsnummer — gehört in das schon geplante **`8.20`** (bisher nur TTS nach Execute).
+
+Composer-Mic und die Leiste *Jarvis hört* öffnen `VoiceMode` → `listenOnce` → Android `SpeechRecognizer`. Parallel läuft `JarvisWakeService` auf **demselben** Erkenner. `pauseListen()` stoppt den Wake-Rec, `startListening` kommt oft im **selben** Frame — `ERROR_RECOGNIZER_BUSY` / `ERROR_CLIENT`. VoiceMode holt dazu `getUserMedia` für den Orb, während Native-STT das Mic schon hält. Die Leiste *Jarvis hört* ist **Wake-Word**, kein Diktat ins Feld — der User spricht ins Nichts.
+
+### Ziel (in `8.20`, nicht `8.21`)
+
+| Muss | Nicht |
+|------|--------|
+| **Ein** Erkenner. Wake **vollständig** aus (await `stopRec`), dann STT. Wake erst nach Ende des Turns zurück | Zwei `SpeechRecognizer` gleichzeitig |
+| Composer-Mic: Satz **ins Feld** oder VoiceMode, das wirklich hört. Leere Runde = ehrlicher Satz (*Mikrofon belegt* / *erlauben*), kein stilles Loop | Nur Overlay auf, ohne Treffer |
+| Orb-Pegel ohne zweites `getUserMedia`, solange Native-STT läuft | Mic stehlen für die Animation |
+| Leiste: *Auf den Namen* vs. *Ich höre Sie* — nicht beides *Jarvis hört* | Wake-Label als Diktat verkaufen |
+| Drive-HUD: derselbe `listenOnce`-Pfad | Zweite STT-Engine, Cloud-Speech, iOS |
+
+TTS-Hälfte bleibt: Tool fertig **bevor** Native-Satz; `nur vorlesen` kurz.
+
+---
+
 ## Researchphasen
 
 ### `8.0.0` Leitentscheidung
@@ -314,7 +334,8 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 2. Regel: Tool-Meta `executed` → dann ≤2 Sätze. Setting `drive_speak`: `after` / `only` (nur vorlesen).  
 3. Lag: Drive-Overlay, Chat-Stream, **Lage-Kugel/Körper** auf Mittelklasse-Handy (wie `6.1`). Clip, Pins, `Wo ist London` — siehe Lage-Overlay oben.  
 4. Netz-Antwort: trifft `Muss man Eintritt zahlen für Venedig` die Suche? Welche Snippets (ADAC 2026 vs. alte 5-€-Meldung)?  
-**Done wenn:** Messpunkte + konkrete Patches, keine neuen Libraries. Gold-Satz Venedig: aktuell nein, nicht fünf Euro.
+5. Sprachinput: Composer-Mic und Wake-Leiste *Jarvis hört* — wer hält `SpeechRecognizer`? `pauseListen` vs. `startListening` in demselben Frame? `getUserMedia` + Native-STT parallel?  
+**Done wenn:** Messpunkte + konkrete Patches, keine neuen Libraries. Gold-Satz Venedig: aktuell nein, nicht fünf Euro. Mic: ein Satz kommt im Composer oder VoiceMode an.
 
 Execute: **`8.32`** Lage. **`8.33`** Research-Aktuell. Lag-Messung der übrigen Surfaces bleibt **`8.30`**.
 
@@ -344,7 +365,7 @@ Execute: **`8.32`** Lage. **`8.33`** Research-Aktuell. Lag-Messung der übrigen 
 | **`8.3.0`** | Research Musik / Ordner / Preis | geplant |
 | **`8.4.0`** | Research Settings-Gruppen + Namen | geplant |
 | **`8.10.0`** | Blitzer+Baustelle auf der Route | nach `8.1` GO |
-| **`8.20.0`** | Execute-dann-sprechen / nur vorlesen | nach `8.2` |
+| **`8.20.0`** | Stimme: Mic/Wake hören, dann Execute, dann TTS / nur vorlesen | nach `8.2` |
 | **`8.30.0`** | GUI/Lag Chat + Drive-HUD | nach `8.2` |
 | **`8.32.0`** | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper-Pane | nach `8.2` |
 | **`8.33.0`** | Netz-Antwort: Jarvis-Ton, aktueller Stand (Venedig zuerst) | nach `8.2` |
@@ -364,6 +385,7 @@ Execute: **`8.32`** Lage. **`8.33`** Research-Aktuell. Lag-Messung der übrigen 
 | Pin / Ansage vor der Stelle | Ein Satz Native, Typ wenn bekannt |
 | `Navigier nach …` am Steuer | Route **zuerst**, dann kurzer Satz |
 | `Nur vorlesen` / Setting | TTS, kein Extra-Essay |
+| Mic / *Jarvis hört* / Wake | Satz kommt an (Composer oder VoiceMode). Nicht still. Wake gibt den Erkenner ab, bevor STT startet |
 | `Spiel das auf Amazon` | Nach GO: App/Intent. Vorher: ehrlich, Spotify anbieten |
 | `Leg den Chat in Arbeit` / Ordner in der Sidebar | `folder_id`, Liste gruppiert |
 | `Sag Bescheid wenn Instanudeln im Angebot sind` | Wache anlegen, Poll opt-in, Notify mit Quelle |
@@ -382,7 +404,7 @@ Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Aut
 
 1. Route ohne Quelle: kein erfundener Blitzer.  
 2. Mit Quelle: Pin im Korridor, Stand-Satz, Typ oder ehrlich ohne Typ.  
-3. Am Steuer: Tool sichtbar/ausgeführt **bevor** TTS; `nur vorlesen` = kurz.  
+3. Am Steuer: Tool sichtbar/ausgeführt **bevor** TTS; `nur vorlesen` = kurz. Mic/Wake: ein gesprochener Satz kommt an, nicht still.  
 4. Lag-Pass: gemessene Surfaces, Motion-Budget bleibt.  
 5. Amazon: GO = Intent oder Steuerfläche; NO-GO = ehrlicher Satz, Spotify bleibt.  
 6. Ordner überleben Hausstand-Export/Import.  

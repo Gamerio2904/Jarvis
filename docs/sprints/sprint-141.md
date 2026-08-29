@@ -18,7 +18,7 @@ Festschreiben: was von den Notizen schon `6.90` ist, was neu ist, warum **MAJOR 
 |----|--------|
 | Z1 | Ist-Tabelle: DWD ≠ Blitzer, CarPlay intern CODE, Spotify CODE, keine Chat-Ordner, keine Preiswache |
 | Z2 | Blitzer nur mit erlaubter Quelle + Stand; kein Live-Beamter |
-| Z3 | Am Steuer: Execute dann Native-TTS / nur vorlesen — Härte, kein Apple CarPlay |
+| Z3 | Stimme `8.20`: Mic/Wake hören (ein Erkenner), dann Execute, dann Native-TTS / nur vorlesen — kein Apple CarPlay |
 | Z4 | Amazon Musik nur nach Research-GO (vermutlich Intent) |
 | Z5 | Chat-Ordner lokal + Hausstand; Preiswache opt-in, € nur aus Treffer |
 | Z6 | Won’t: Scraping, Preise erfinden, 60-fps, Recall-Nummern |

@@ -399,7 +399,7 @@ Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitze
 | `8.3.0` | Research: Amazon-Intent, Ordner-Schema, Preiswache | nach 141 |
 | `8.4.0` | Research: Settings-Gruppen, deutsche Namen | nach 141 |
 | `8.10.0` | Execute: Gefahren auf der Route | nach `8.1` GO |
-| `8.20.0` | Execute: erst tun, dann Native-TTS / nur vorlesen | nach `8.2` |
+| `8.20.0` | Stimme: Mic/Wake hören, dann Execute, dann Native-TTS / nur vorlesen | nach `8.2` |
 | `8.30.0` | GUI/Lag Chat + Drive-HUD | nach `8.2` |
 | `8.32.0` | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper/Kacheln-Pane | nach `8.2` |
 | `8.33.0` | Netz-Antwort: Jarvis-Ton, aktueller Stand vor Training | nach `8.2` |
