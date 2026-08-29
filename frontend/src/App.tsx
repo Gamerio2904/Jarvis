@@ -37,7 +37,6 @@ import {
   type Reminder,
   type ResearchAudit,
   type ResearchMeta,
-  type PlugId,
   type Settings,
   type ToolMeta,
   APP_VERSION,
@@ -325,7 +324,6 @@ function App() {
     return !isGeminiConfigured() && !s.groq_api_key.trim() && !isModelReady() && !s.setup_dismissed
   })
   const [downloadPct, setDownloadPct] = useState(0)
-  const [plugTest, setPlugTest] = useState<Partial<Record<PlugId, string>>>({})
   const [downloadBusy, setDownloadBusy] = useState(false)
   const [downloadPhase, setDownloadPhase] = useState<'download' | 'load'>('download')
   const [hasLocalModel, setHasLocalModel] = useState(false)

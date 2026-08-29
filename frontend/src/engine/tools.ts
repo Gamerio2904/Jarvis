@@ -1,4 +1,3 @@
-import { listPlugReply, parsePlugCommand, switchPlug, type PlugId } from './plugs'
 import {
   addNote,
   addTodo,
@@ -211,40 +210,7 @@ export async function handleTools(
     }
   }
 
-  const plug = parsePlugCommand(text)
-  if (plug?.kind === 'list') {
-    return { handled: true, reply: listPlugReply() }
-  }
-  if (plug?.kind === 'switch') {
-    const labels = plug.ids.map((id) => labelFor(id)).join(', ')
-    const verb = plug.on ? 'einschalten' : 'ausschalten'
-    const row: ToolPending = {
-      conversation_id: conversationId,
-      tool: 'plug',
-      action: plug.on ? 'on' : 'off',
-      args: { ids: plug.ids, on: plug.on },
-      preview: `${labels} ${verb}`,
-      created_at: new Date().toISOString(),
-    }
-    await setPending(row)
-    return {
-      handled: true,
-      reply: `${labels} wirklich ${verb}?`,
-      tool: {
-        tool_status: 'pending',
-        tool: 'plug',
-        action: row.action,
-        preview: row.preview,
-        label: 'Steckdose — Confirm?',
-      },
-    }
-  }
-
   return { handled: false }
-}
-
-function labelFor(id: PlugId): string {
-  return id === 'pc' ? 'PC' : id === 'screen' ? 'Bildschirm' : 'LEDs'
 }
 
 async function execute(pending: ToolPending): Promise<{ reply: string }> {
@@ -263,19 +229,6 @@ async function execute(pending: ToolPending): Promise<{ reply: string }> {
   if (pending.tool === 'todo' && pending.action === 'done') {
     await setTodoStatus(String(pending.args.id || ''), 'done')
     return { reply: 'Erledigt.' }
-  }
-  if (pending.tool === 'plug') {
-    const ids = (pending.args.ids as PlugId[]) || []
-    const on = Boolean(pending.args.on)
-    const results = []
-    for (const id of ids) {
-      results.push(await switchPlug(id, on))
-    }
-    const ok = results.filter((r) => r.ok).map((r) => r.detail)
-    const bad = results.filter((r) => !r.ok).map((r) => r.detail)
-    if (!ok.length) return { reply: `Nicht geschaltet. ${bad.join('; ')}` }
-    if (bad.length) return { reply: `${ok.join(', ')}. Daneben: ${bad.join('; ')}` }
-    return { reply: ok.join(', ') + '.' }
   }
   return { reply: 'Tool unklar.' }
 }

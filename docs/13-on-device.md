@@ -22,10 +22,6 @@ Kein FastAPI, kein Ollama, kein Reverse-Proxy.
 
 0,5B ist **Backup**, nicht das Produkt-Hirn. Ton und Tools bleiben lokal; Smalltalk ohne Gemini-Key ist schwach — Overlay sagt das. Gemini-Chat geht zu Google, sobald der Key an ist.
 
-## WLAN-Steckdosen (`0.14.0`)
-
-Drei lokale Dosen: **PC**, **Bildschirm**, **LEDs**. Tasmota oder Shelly, IP in Settings. Chat mit Confirm. Handy im gleichen WLAN. Tuya-Cloud-Dosen gehen nicht.
-
 ## Parking
 
 NAS, Docker, Play Store, iOS. TTS und Research-Netz sind in `1.x`. Gemini kam als Opt-in in `0.16` und ist ab `6.50` der **Hauptweg** ([`16-gemini.md`](./16-gemini.md)).

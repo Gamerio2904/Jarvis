@@ -315,6 +315,3 @@ export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
 export async function testGroq(): Promise<{ ok: boolean; reply: string }> {
   return engineTestGroq()
 }
-
-export { testPlug } from './engine/plugs'
-export type { PlugId } from './engine/plugs'
