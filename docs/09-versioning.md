@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**.
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -102,6 +102,7 @@ MAJOR.MINOR.PATCH
 | `6.70.0` | **Globus-Briefing** Leitentscheidung (Docs) | Sprint 131 |
 | `6.90.0` | **Globus-Briefing Gold** — Stadt-Satellit + Welt-Tour | Sprint 136 |
 | `7.0.0` | **Agentic Recall** Leitentscheidung (PLAN) | Sprint 137 |
+| `8.0.0` | **Alltag vom Zettel** — Blitzer, Steuer-Stimme, GUI-Härte, Musik-Fallback, Chat-Ordner, Preiswache | Sprint 141 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |
 | `1.3.0` | Ort & Wetter | Sprint 53 |
@@ -385,6 +386,21 @@ Nach `6.50`. NVIDIA-Loop über IndexedDB, MemAgent-Panel, LightMem-Sleep. Kein L
 | `6.80.0`–`6.82.0` | Sleep, Register `recall`, Gold | 130 |
 | `6.83.0` | Could: e5-small nur Rank | später |
 | `6.84.0` | Sideload nach Hausstand | nach `4.52` |
+
+### `8.0+` — Alltag vom Zettel [`50-next.md`](./50-next.md) **PLAN**
+
+Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitzer nur mit erlaubter Quelle. Amazon Musik nur nach Research-GO. Sideload bleibt **`6.90.0`** bis Hausstand + Gold.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `8.0.0` | Leitentscheidung (Docs) | 141 |
+| `8.1.0` | Research: Blitzer/Baustelle, Lizenz, Korridor | nach 141 |
+| `8.2.0` | Research: Execute-dann-TTS, Lag-Messung | nach 141 |
+| `8.3.0` | Research: Amazon-Intent, Ordner-Schema, Preiswache | nach 141 |
+| `8.10.0` | Execute: Gefahren auf der Route | nach `8.1` GO |
+| `8.20.0`–`8.30.0` | Steuer-Stimme + GUI-Härte | nach `8.2` |
+| `8.40.0`–`8.60.0` | Musik-Fallback, Chat-Ordner, Preiswache | nach `8.3` |
+| `8.90.0` | Gold, Debug-Gruppe | nach Execute |
 
 ### Weitere Beispiele
 

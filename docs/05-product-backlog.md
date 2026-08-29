@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`.
+> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`, Alltag [`50-next.md`](./50-next.md) `8.0`, Recall [`49-next.md`](./49-next.md) `7.0`.
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
@@ -43,7 +43,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E36 | Debug-Lauf `5.11` | 5+ | Kategorien, Sequenz, Export mit Verdict — [`44-next.md`](./44-next.md) **CODE** |
 | E45 | Bühne & Hirn `6.50` | 5+ | Gemini Hauptweg, Globus, Motion, Stimme — [`45-next.md`](./45-next.md) **CODE** |
 | E47 | Split / Overlay / Sideload `6.60` | 5+ | Live-Split, Identität, Overlay Gemini zuerst, APK — [`47-next.md`](./47-next.md) **CODE** |
-| E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **PLAN** |
+| E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **CODE** |
+| E49 | Agentic Recall `7.0` | 5+ | Retrieve/RRF nach `6.90` — [`49-next.md`](./49-next.md) **PLAN** |
+| E50 | Alltag vom Zettel `8.0` | 5+ | Blitzer, Steuer-Stimme, GUI-Härte, Musik-Fallback, Chat-Ordner, Preiswache — [`50-next.md`](./50-next.md) **PLAN** |
 
 ---
 
@@ -500,14 +502,28 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S48.8 | Länder-Glow + Seite + Zoom-Kette max 5 | Must | ready | weltpolitisch-Filter |
 | S48.9 | Reduced-Motion Tour ohne Auto-Flug | Should | ready | Glow+Liste |
 
+### E50 — Alltag vom Zettel `8.0`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S50.0 | Leitentscheidung Notizen vs Ist | Must | ready | [`50-next.md`](./50-next.md) PLAN |
+| S50.1 | Blitzer + mobile Baustelle auf der Route | Must | idea | Quelle + Stand, kein Live-Beamter |
+| S50.2 | Am Steuer: Execute dann TTS / nur vorlesen | Must | idea | Native kurz, kein Apple CarPlay |
+| S50.3 | GUI/Lag-Härte bestehender Surfaces | Should | idea | 30 fps, kein neues Framework |
+| S50.4 | Amazon Musik als Spotify-Fallback | Could | idea | nur nach Research-GO |
+| S50.5 | Chats in Ordner | Must | idea | IDB + Hausstand |
+| S50.6 | Preiswache (Instanudeln zuerst) | Must | idea | opt-in, € nur aus Treffer |
+| S50.7 | Scraping / Preise erfinden / Auto-Kauf | Won’t | parked | |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Globus-Briefing [`48-next.md`](./48-next.md) `6.70`
-2. LocateAnything-Sidecar nach 3060-GO [`41-next.md`](./41-next.md) — Parser schon CODE
-3. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
-4. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. LocateAnything-Sidecar nach 3060-GO [`41-next.md`](./41-next.md) — Parser schon CODE
+2. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
+3. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` — unabhängig von Recall
+4. Agentic Recall [`49-next.md`](./49-next.md) `7.0`
+5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Sideload **`6.90.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing sind **CODE**.
 
