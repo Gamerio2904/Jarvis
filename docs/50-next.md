@@ -22,6 +22,7 @@ Kein Execute in Sprint 141. Sideload bleibt **`6.90.0`**. Hausstand vor nächste
 | Immer Bescheid wenn Instanudeln im Angebot — API wenn möglich | Produktsuche Idealo/Geizhals **CODE**. Rabatt-Suche mydealz **opt-in**. Erinnerungen = **Uhrzeit**, kein Preis. Watchdog = Steckdose/Termin, nicht Shop | Preiswache: merken + pollen + Notify, € nur aus Treffer | **planen** |
 | Einstellungen unübersichtlich, unverstanden, GUI schwach | 17 gleichrangige Themen in einer Leiste (`SettingsScreen.tsx`). Hinweise Jargon: Delight, Memory, Tizen, Ausblick. Cloud mixt Gemini+Groq+Tanke+OMDb. „Modell“ = 0,5B-Fallback, steht oben. Haus ≠ Hausstand. Ton ≠ Stimme. Gefahr heißt „Danger Zone“. Keine Suche, kein Status auf der Leiste. Flaches Panel ist **CODE** seit `0.7`/`1.25` — die **Menge** ist das Problem, nicht ein fehlendes Screen | Gruppen + deutsche Wozu-Sätze + bessere Karten. Keys bleiben | **planen** (`8.35`) |
 | Overlay abgeschnitten, Pins falsch, laggy (Handy-Fotos) | Phone: Lage+Chat **eine Spalte**, Kugel `min-height: 240` + `overflow: hidden`, extra `ChatTile`. `Number('') === 0` → Pin **Sie** bei 0/0. `wo ist London` trifft `places` vor `hud` | Eine volle Pane, frische Pins, Gazetteer-Flug, Idle-Pause | **planen** (`8.32`) |
+| Venedig-Eintritt: Jarvis kurz und gut, Inhalt alt (Fotos Google vs Chat) | Jarvis: *„Für das Betreten der Altstadt … fünf Euro … Tagesgast.“* Ton und Länge richtig. Google/ADAC 2026-08-29: Testphase bis 26.7.2026, **aktuell kein Eintritt**, Neuauflage ca. Ostern 2027, 30–50 € nur Diskussion. `Muss man Eintritt zahlen` trifft `isLiveLookup` oft **nicht** → Training statt Treffer | Dieselbe Jarvis-Stimme, Fakten vom **jetzt**, eine Zukunftszeile | **planen** (`8.33`) |
 
 Schon da, **nicht** nochmal als neues Produkt:
 
@@ -88,6 +89,7 @@ GO nur wenn: Steuerbarkeit Pause/Weiter/Suche **oder** ehrliches „App geöffne
 | Stimme am Steuer | **Execute → dann Native-TTS.** Phrase/Setting `nur vorlesen`: kurzer Satz, kein Gemini-Essay. Abbieger bleiben Native wie heute. |
 | Grafik | Spike messen, dann bestehende Motion/Overlay/Stream. Kein neues Framework, kein 60-fps-Idle. |
 | Lage-Overlay | **Nicht abschneiden, nicht über den Chat legen.** Pins nur mit frischem GPS / Lexikon. `Wo ist London` = Kugel, nicht Maps-Rückfrage. Körper und Kacheln dieselbe Pane. |
+| Netz-Antwort | **Jarvis-Länge, Google-Stand.** 1–3 Sätze, kein Markdown. Erst *aktuell*, dann höchstens eine Zeile *danach*. Zahlen nur aus Treffern mit Datum. Training (fünf Euro 2024/25) darf den heutigen Stand nicht überschreiben. |
 | Einstellungen | **Gruppen statt 17 Peers.** Deutsch, ein Wozu-Satz pro Karte. Alltag oben, Werkstatt unten. Keys unverändert. Deep-Links der alten IDs halten. |
 | Musik | Spotify bleibt. Amazon nur Fallback nach GO. |
 | Ordner | IndexedDB + Hausstand. Kein Cloud-Sync. |
@@ -251,6 +253,45 @@ Execute: **`8.32`** (Layout + Pins + Parser). Lag-Messung der übrigen Surfaces 
 
 ---
 
+## Netz-Antwort — Jarvis-Ton, aktueller Stand (`8.33`)
+
+PO 2026-08-29, zwei Screenshots: *Muss man Eintritt zahlen für Venedig*.
+
+| | Länge / Art | Inhalt |
+|--|-------------|--------|
+| **Jarvis** | 1 Satz, Siezen, tot-ruhig — **behalten** | Alt: fünf Euro an bestimmten Tagen für Tagesgäste (Regel 2024/25, Training) |
+| **Google** | Überschrift + Listen + Zukunftsblock — **nicht kopieren** | Richtig: Testphase 2026 bis 26.7., **jetzt kein Eintritt**, ohne Anmeldung; ab ca. Ostern 2027 wieder möglich; 30–50 € nur Gespräch |
+
+**Mittelweg (Ziel-Satz, nicht abschreiben):** *Aktuell nicht. Die Testphase 2026 ist vorbei, die Altstadt ist ohne Gebühr zugänglich — Stand ADAC. Ab Ostern 2027 kann für Tagesgäste wieder eine Abgabe kommen; 30–50 Euro sind Diskussion, kein Tarif.*
+
+Drei Sätze. Kein Markdown. Quelle genannt. Jetzt zuerst, Zukunft danach, Spekulation als Spekulation.
+
+### Was der Code heute macht
+
+| Fläche | Ist | Lücke |
+|--------|-----|--------|
+| Live-Trigger | `isLiveLookup`: Suche-Wort, Wetter/News, `aktuell`+Preis, Produkt, Valeo-Stückzahl | `Muss man Eintritt zahlen für …` fällt oft **durch**. Gemini antwortet aus dem Modell |
+| Suche an | Gemini `search` + Digest + `SEARCH_ON_HINT` (2–4 Sätze, Zahlen nur aus Treffern) | Kein „aktuell vor alt“. Alte 5-€-Snippets und Training gewinnen |
+| Guard | `guardResearchReply` streicht Umrechnung Jahr→Tag und Zahlen, die nicht im Corpus stehen | Fünf Euro **steht** oft in alten Treffern — Guard lässt sie, auch wenn neuere Zeilen „kein Eintritt“ sagen |
+| Fallback ohne Gemini | `formatResearchReply` nimmt den längsten Snippet | Kann die alte Gebühr zitieren |
+| Ton | Persona 1–3 Sätze, kein Markdown — das ist gut | Nicht zu Google-Listen aufblasen |
+
+### Ziel
+
+| Muss | Nicht |
+|------|--------|
+| Eintritt / Gebühr / City-Tax / Touristenabgabe / `muss man zahlen` + Ort → **Suche**, nicht Kopf | Nur wenn der User „suche“ sagt |
+| Digest: Datum und Wörter *aktuell / keine Gebühr / Testphase beendet* vor älteren €-Meldungen | Erster Treffer gewinnt immer |
+| Antwort: **jetzt** in Satz 1. Satz 2 = Beleg + Quelle. Satz 3 nur wenn die Quellen eine Neuauflage nennen | Google-Übersicht, Fett, Listen, „Wichtige Infos für die Zukunft“ |
+| 30–50 € / fünf € nur mit Rolle: *Diskussion* / *früher* / *geplant* — nie als heutiger Tarif, wenn die Quellen „aktuell frei“ sagen | Training 2024 als Gegenwart |
+| Gold: Venedig-Frage → kein „fünf Euro“ als Jetzt. Debug-Gruppe Alltag | Comune-Scraping, Street-View, Orakel 2027 |
+
+**Done Research `8.2` (Punkt 4) wenn:** Trigger-Liste, Digest-Regel, ein Gold-Satz.
+
+Execute **`8.33`**: `isLiveLookup` + Hint + Guard + Gold. Kein neues Hirn.
+
+---
+
 ## Researchphasen
 
 ### `8.0.0` Leitentscheidung
@@ -270,7 +311,10 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 1. Ist-Pfad: wo spricht Gemini **vor** Tool-Ende? Lange Replies am Steuer?  
 2. Regel: Tool-Meta `executed` → dann ≤2 Sätze. Setting `drive_speak`: `after` / `only` (nur vorlesen).  
 3. Lag: Drive-Overlay, Chat-Stream, **Lage-Kugel/Körper** auf Mittelklasse-Handy (wie `6.1`). Clip, Pins, `Wo ist London` — siehe Lage-Overlay oben.  
-**Done wenn:** Messpunkte + konkrete Patches, keine neuen Libraries.
+4. Netz-Antwort: trifft `Muss man Eintritt zahlen für Venedig` die Suche? Welche Snippets (ADAC 2026 vs. alte 5-€-Meldung)?  
+**Done wenn:** Messpunkte + konkrete Patches, keine neuen Libraries. Gold-Satz Venedig: aktuell nein, nicht fünf Euro.
+
+Execute: **`8.32`** Lage. **`8.33`** Research-Aktuell. Lag-Messung der übrigen Surfaces bleibt **`8.30`**.
 
 ### `8.3.0` Research: Musik, Ordner, Preiswache
 
@@ -301,6 +345,7 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 | **`8.20.0`** | Execute-dann-sprechen / nur vorlesen | nach `8.2` |
 | **`8.30.0`** | GUI/Lag Chat + Drive-HUD | nach `8.2` |
 | **`8.32.0`** | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper-Pane | nach `8.2` |
+| **`8.33.0`** | Netz-Antwort: Jarvis-Ton, aktueller Stand (Venedig zuerst) | nach `8.2` |
 | **`8.35.0`** | Einstellungen: Gruppen, deutsche Karten, GUI | nach `8.4` |
 | **`8.40.0`** | Amazon-Musik-Fallback **oder** ehrlich Parking | nach `8.3` GO |
 | **`8.50.0`** | Chat-Ordner + Hausstand | nach `8.3` |
@@ -323,12 +368,13 @@ Dieses Dokument. **Done wenn:** Notizen vs Ist-Tabelle, `8.0` ≠ Recall, Blitze
 | `Preiswache aus` | Wache weg, kein stilles Weiterpollen |
 | `Einstellungen` / `Einstellungen Cloud` | Startkarten oder Gruppe Hirn. Alte IDs mappen |
 | `Wo ist London` / `Wo liegt Kiew` | Kugel auf, Fly-to, Briefing. Nicht „Lage oder maps?“ |
+| `Muss man Eintritt zahlen für Venedig` | *Aktuell nicht* + Quelle. Nicht fünf Euro als Jetzt. Zukunft nur wenn die Treffer sie nennen |
 | `Körper an` / Tab Körper | Schema vollständig, Organ-Satz darunter |
 | `Lage aus` / X in der Leiste | Pane zu, Chat volle Höhe. `hud_force` aus |
 
 ## Won’t
 
-Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Automatisch kaufen. Amazon-Musik so tun als Spotify-SDK. Chat-Ordner in der Cloud. 60-fps-Idle. Neues 3D-Framework. Zweites WebGL. Geocoder-Oracle. Street-View. Zweites Hirn. Recall-Nummern klauen. Sideload in der Leitentscheidung. Play Store, iOS. Settings-Keys umbenennen nur wegen der GUI. iOS-Settings-Klon. Debug streichen.
+Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Automatisch kaufen. Amazon-Musik so tun als Spotify-SDK. Chat-Ordner in der Cloud. 60-fps-Idle. Neues 3D-Framework. Zweites WebGL. Geocoder-Oracle. Street-View. Google-Listen im Chat. Comune-Scraping. Zweites Hirn. Recall-Nummern klauen. Sideload in der Leitentscheidung. Play Store, iOS. Settings-Keys umbenennen nur wegen der GUI. iOS-Settings-Klon. Debug streichen.
 
 ## Abnahme (nach Execute)
 
@@ -340,6 +386,7 @@ Apple CarPlay. Live-Jagd auf Beamte. Scraping hinter Login. Preise erfinden. Aut
 6. Ordner überleben Hausstand-Export/Import.  
 7. Preiswache: Notify nur bei Treffer mit Quelle; ohne Research-Toggle kein stilles Netz.  
 8. Einstellungen: in 10 s Hirn vs. Hausstand finden; „Modell“ nicht als erstes; Danger deutsch; Deep-Link `cloud`/`musik` trifft.  
-9. Handy-Lage: ganze Kugel/Körper sichtbar, Chat nicht darunter. `Sie` nicht ohne GPS. `Wo ist London` = Fly-to. Idle ohne Dauer-rAF.
+9. Handy-Lage: ganze Kugel/Körper sichtbar, Chat nicht darunter. `Sie` nicht ohne GPS. `Wo ist London` = Fly-to. Idle ohne Dauer-rAF.  
+10. Venedig-Eintritt (Stand nach 26.7.2026): *aktuell nicht*, nicht fünf Euro als Jetzt. Max 3 Sätze, Quelle, keine Google-Liste.
 
 Fahr-Basis: [`24-next.md`](./24-next.md) · [`28-next.md`](./28-next.md). Spotify: Settings Musik. Suche: [`28-next.md`](./28-next.md) Idealo. Notify: `notify.ts`. Recall: [`49-next.md`](./49-next.md). Index: [`42-planned.md`](./42-planned.md). Sprint: [`sprints/sprint-141.md`](./sprints/sprint-141.md).

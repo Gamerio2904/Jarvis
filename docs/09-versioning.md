@@ -389,7 +389,7 @@ Nach `6.50`. NVIDIA-Loop über IndexedDB, MemAgent-Panel, LightMem-Sleep. Kein L
 
 ### `8.0+` — Alltag vom Zettel [`50-next.md`](./50-next.md) **PLAN**
 
-Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitzer nur mit erlaubter Quelle. Amazon Musik nur nach Research-GO. Settings `8.35`: Gruppen statt 17 Peers. Lage-Overlay `8.32`: Clip, Pins, Parser. Sideload bleibt **`6.90.0`** bis Hausstand + Gold.
+Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitzer nur mit erlaubter Quelle. Amazon Musik nur nach Research-GO. Settings `8.35`: Gruppen statt 17 Peers. Lage-Overlay `8.32`: Clip, Pins, Parser. Netz-Antwort `8.33`: Jarvis-Länge, aktueller Stand. Sideload bleibt **`6.90.0`** bis Hausstand + Gold.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -402,6 +402,7 @@ Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitze
 | `8.20.0` | Execute: erst tun, dann Native-TTS / nur vorlesen | nach `8.2` |
 | `8.30.0` | GUI/Lag Chat + Drive-HUD | nach `8.2` |
 | `8.32.0` | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper/Kacheln-Pane | nach `8.2` |
+| `8.33.0` | Netz-Antwort: Jarvis-Ton, aktueller Stand vor Training | nach `8.2` |
 | `8.35.0` | Settings neu: Gruppen, Karten, GUI | nach `8.4` |
 | `8.40.0`–`8.60.0` | Musik-Fallback, Chat-Ordner, Preiswache | nach `8.3` |
 | `8.90.0` | Gold, Debug-Gruppe | nach Execute |
