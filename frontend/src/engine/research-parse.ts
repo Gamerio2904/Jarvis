@@ -448,7 +448,8 @@ export function corpusSaysNowFree(text: string): boolean {
 
 export function isStaleFeeNow(sentence: string): boolean {
   if (/\b(?:früher|damals|2024|2025|geplant|diskussion|könnte|soll)\b/i.test(sentence)) return false
-  return /\b(?:fünf|5)\s*(?:€|euro)\b|\b30\s*[–-]\s*50\b/i.test(sentence) && /\b(?:eintritt|gebühr|tagesgast|altstadt)\b/i.test(sentence)
+  return /(?:\b(?:fünf|5)\s*(?:€|euro)|(?:fünf|5)\s*€|\b30\s*[–-]\s*50\b)/i.test(sentence) &&
+    /\b(?:eintritt|gebühr|tagesgast|altstadt)\b/i.test(sentence)
 }
 
 export function guardResearchReply(query: string, answer: string, sources: ResearchSource[]): string {
@@ -553,7 +554,7 @@ function freshnessRank(s: ResearchSource): number {
   if (corpusSaysNowFree(t)) n += 8
   if (/\b2026\b|\b2027\b|\baktuell\b/i.test(t)) n += 4
   if (/\b(?:adac|comune|official|amtlich)\b/i.test(t)) n += 2
-  if (/\b(?:fünf|5)\s*(?:€|euro)\b/i.test(t) && !corpusSaysNowFree(t)) n -= 3
+  if (/(?:\b(?:fünf|5)\s*(?:€|euro)|(?:fünf|5)\s*€)/i.test(t) && !corpusSaysNowFree(t)) n -= 3
   return n
 }
 
