@@ -3609,6 +3609,93 @@ button.linkish {
   color: var(--text-muted);
 }
 
+.debug-chat-dock {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  width: min(360px, calc(100vw - 24px));
+  max-height: min(46vh, 420px);
+  z-index: 22;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 12px 10px;
+  border: 1px solid rgba(30, 215, 96, 0.35);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(8, 14, 10, 0.94), rgba(5, 6, 5, 0.92));
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(30, 215, 96, 0.12);
+  backdrop-filter: blur(16px) saturate(1.15);
+  pointer-events: auto;
+}
+
+.debug-chat-dock.is-running {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 24px rgba(30, 215, 96, 0.18);
+}
+
+.debug-chat-dock-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.debug-chat-dock-kicker {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1ed760;
+}
+
+.debug-chat-dock h3 {
+  margin: 2px 0 0;
+  font-size: 1rem;
+}
+
+.debug-chat-dock-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.debug-chat-dock-progress {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.debug-chat-dock-log {
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 2px;
+}
+
+.debug-chat-line {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.debug-chat-line span {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.debug-chat-line.is-user span {
+  color: #e4c36a;
+}
+
+.debug-chat-line.is-stream {
+  color: var(--text-muted);
+}
+
 @media (max-width: 899px) {
   .lage-chat {
     display: none;

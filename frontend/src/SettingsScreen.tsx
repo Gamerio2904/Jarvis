@@ -123,8 +123,7 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
-  onDebugSend: (text: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
-  onDebugStart: (title: string) => Promise<string>
+  debug: import('./engine/use-debug-run').DebugRunApi
   debugBusy: boolean
 }
 
@@ -1844,11 +1843,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
           ) : null}
 
           {p.topic === 'debug' ? (
-            <DebugPanel
-              onSend={p.onDebugSend}
-              onStartChat={p.onDebugStart}
-              busy={p.debugBusy}
-            />
+            <DebugPanel debug={p.debug} busy={p.debugBusy} />
           ) : null}
 
           {p.topic === 'gefahr' ? (
