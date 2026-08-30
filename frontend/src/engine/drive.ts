@@ -46,7 +46,15 @@ export type DriveGuidance = {
   offRoute: boolean
 }
 
+export type DriveHazard = {
+  lat: number
+  lon: number
+  kind: 'camera' | 'works'
+  line: string
+}
+
 let active: DriveRoute | null = null
+let hazards: DriveHazard[] = []
 let tab: DriveTab = 'map'
 let lastFix: DriveFix | null = null
 let announced = new Map<string, Set<string>>()
@@ -91,6 +99,15 @@ export function getDriveRoute(): DriveRoute | null {
   return active
 }
 
+export function getDriveHazards(): DriveHazard[] {
+  return hazards
+}
+
+export function setDriveHazards(next: DriveHazard[]) {
+  hazards = next
+  emit()
+}
+
 export function getDriveTab(): DriveTab {
   return tab
 }
@@ -113,6 +130,7 @@ export function subscribeDrive(cb: () => void): () => void {
 export function closeDrive() {
   saveSettings({ drive_mode: false, last_drive_json: '' })
   active = null
+  hazards = []
   lastFix = null
   tab = 'map'
   announced = new Map()

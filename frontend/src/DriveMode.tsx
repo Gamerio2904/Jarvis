@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
-import { getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from './engine/drive'
+import { getDriveHazards, getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from './engine/drive'
+import { haversineM } from './engine/geo-lookup'
+import { loadSettings } from './engine/store'
 import { readInterrupt, subscribeInterrupt } from './engine/interrupt'
 import {
   TILE_SIZE,
@@ -311,6 +313,18 @@ function FollowMap({
         }
       }
 
+      for (const haz of getDriveHazards()) {
+        const hz = projectOnTiles(haz.lat, haz.lon, camM, zInt, size, cx, cy)
+        if (!Number.isFinite(hz.x) || !Number.isFinite(hz.y)) continue
+        ctx.beginPath()
+        ctx.arc(hz.x, hz.y, 6, 0, Math.PI * 2)
+        ctx.fillStyle = haz.kind === 'camera' ? '#e4c36a' : '#c97a3a'
+        ctx.fill()
+        ctx.lineWidth = 2
+        ctx.strokeStyle = '#070908'
+        ctx.stroke()
+      }
+
       const pinPt = projectOnTiles(dest.lat, dest.lon, camM, zInt, size, cx, cy)
       if (Number.isFinite(pinPt.x) && Number.isFinite(pinPt.y)) {
         ctx.beginPath()
@@ -434,8 +448,28 @@ export function DriveMode({
   const [ask, setAsk] = useState(() => readInterrupt())
   const navBusy = useRef(false)
   const listenLock = useRef(false)
+  const spokenHaz = useRef(new Set<string>())
   const loggedIn = spotifyLoggedIn()
   const configured = spotifyConfigured()
+
+  function maybeSpeakHazard(pos: { lat: number; lon: number }) {
+    if (listenLock.current) return
+    const speak = loadSettings().drive_speak
+    if (speak !== 'after' && speak !== 'only') return
+    for (const haz of getDriveHazards()) {
+      const key = `${haz.kind}:${haz.lat.toFixed(4)}:${haz.lon.toFixed(4)}`
+      if (spokenHaz.current.has(key)) continue
+      const dist = haversineM({ lat: pos.lat, lon: pos.lon, place: '' }, haz)
+      if (dist > 220) continue
+      spokenHaz.current.add(key)
+      const line =
+        haz.kind === 'camera'
+          ? 'Feste Säule voraus, OSM unvollständig.'
+          : 'Baustelle voraus, OSM.'
+      void speakCueFast(line)
+      return
+    }
+  }
 
   useEffect(() => subscribeDrive(() => {
     setRoute(getDriveRoute())
@@ -493,6 +527,7 @@ export function DriveMode({
         setHere({ lat: pos.lat, lon: pos.lon })
       }
       void refreshDriveRoute(raw).then((guide) => {
+        maybeSpeakHazard(pos)
         if (!guide?.cue) return
         if (listenLock.current) return
         if (guide.cue.startsWith('Ziel')) {

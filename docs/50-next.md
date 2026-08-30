@@ -1,12 +1,12 @@
-# 50 — Alltag vom Zettel (`8.0`) **PLAN**
+# 50 — Alltag vom Zettel (`8.0`) **CODE** (Router, kein neues Sideload)
 
 PO 2026-08-29: alte Notizen gefunden. Einplanen, was **nicht** schon Code oder Plan ist. Nicht neu erfinden, was `6.90` schon kann.
 
-**Live:** Code **`6.90.0`**. Sideload **`6.90.0`**. Recall bleibt eigene Schiene [`49-next.md`](./49-next.md) `7.0`. LocateAnything-Gewichte bleiben [`41-next.md`](./41-next.md). Debug-Hintergrund bleibt `5.12`.
+**Live:** Code **`6.90.0`**. Sideload **`6.90.0`**. Blitzer OSM, Settings-IA, Amazon-Intent, Ordner, Preiswache, Recall-Loop und Wake-Härte sind **CODE**. LocateAnything-Gewichte: [`41-next.md`](./41-next.md) **`4.77` NO-GO**. Debug-Hintergrund: `5.12` v1 (App offen + WakeLock).
 
 **Warum `8.0`, nicht `7.x`:** `7.0`–`7.30` sind Agentic Recall (Sprints 137–140). Alltag vom Zettel ist **Geschwister**, kein zweites Recall, kein 3060. Execute **darf vor Recall**, wenn der PO Alltag zuerst will.
 
-Kein Execute in Sprint 141. Sideload bleibt **`6.90.0`**. Hausstand vor nächster APK.
+Execute der Zettel-Punkte ist **CODE**. Sideload bleibt **`6.90.0`**. Hausstand vor nächster APK. Gerät-Phasen 2–4 (Debug-Lauf auf dem Handy) bleiben PO.
 
 ---
 
@@ -414,25 +414,25 @@ Execute: **`8.32`** Lage. **`8.33`** Research-Aktuell. Lag-Messung der übrigen 
 | Version | Inhalt | Status |
 |---------|--------|--------|
 | **`8.0.0`** | Leitentscheidung | **PLAN** |
-| **`8.1.0`** | Research Blitzer/Baustelle | geplant |
-| **`8.2.0`** | Research Steuer-Stimme + Lag | geplant |
-| **`8.3.0`** | Research Musik / Ordner / Preis | geplant |
-| **`8.4.0`** | Research Settings-Gruppen + Namen | geplant |
-| **`8.10.0`** | Blitzer+Baustelle auf der Route | nach `8.1` GO |
-| **`8.20.0`** | Stimme: Mic/Wake hören, dann Execute, dann TTS / nur vorlesen | nach `8.2` |
-| **`8.30.0`** | GUI/Lag Chat + Drive-HUD | nach `8.2` |
-| **`8.32.0`** | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper-Pane | nach `8.2` |
-| **`8.33.0`** | Netz-Antwort: Jarvis-Ton, aktueller Stand (Venedig zuerst) | nach `8.2` |
-| **`8.34.0`** | Test-Tor A: Stimme + Lage + Netz + Lag | nach `8.20`/`8.30`/`8.32`/`8.33` |
-| **`8.12.0`** | Test-Tor Fahrt (Blitzer) | nach `8.10` |
-| **`8.35.0`** | Einstellungen: Gruppen, deutsche Karten, GUI | nach `8.4` |
-| **`8.36.0`** | Test-Tor Settings | nach `8.35` |
-| **`8.40.0`** | Amazon-Musik-Fallback **oder** ehrlich Parking | nach `8.3` GO |
-| **`8.50.0`** | Chat-Ordner + Hausstand | nach `8.3` |
-| **`8.60.0`** | Preiswache (Instanudeln zuerst) | nach `8.3` |
-| **`8.61.0`** | Test-Tor Alltag-Rest (Musik/Ordner/Preis) | nach `8.40`–`8.60` |
-| **`8.90.0`** | Gold, Debug-Gruppe Alltag-Zettel | nach den Executes + Toren |
-| **`8.95.0`** | Dauer-Zuhören härten (Wake flüssig, App/CarPlay auf) | nach Recall `7.30` + Tor `7.31` |
+| **`8.1.0`** | Research Blitzer/Baustelle | **CODE** OSM-only v1, mobil leer |
+| **`8.2.0`** | Research Steuer-Stimme + Lag | **CODE** in `8.20`/`8.30` |
+| **`8.3.0`** | Research Musik / Ordner / Preis | **CODE** Amazon=Intent, Ordner, Preiswache |
+| **`8.4.0`** | Research Settings-Gruppen + Namen | **CODE** Mapping in `settings-ia.ts` |
+| **`8.10.0`** | Blitzer+Baustelle auf der Route | **CODE** OSM-Korridor, Pins, ein Satz |
+| **`8.20.0`** | Stimme: Mic/Wake hören, dann Execute, dann TTS / nur vorlesen | **CODE** |
+| **`8.30.0`** | GUI/Lag Chat + Drive-HUD | **CODE** |
+| **`8.32.0`** | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper-Pane | **CODE** |
+| **`8.33.0`** | Netz-Antwort: Jarvis-Ton, aktueller Stand (Venedig zuerst) | **CODE** |
+| **`8.34.0`** | Test-Tor A: Stimme + Lage + Netz + Lag | Router **CODE**; Gerät Phasen 2–4 bleiben PO |
+| **`8.12.0`** | Test-Tor Fahrt (Blitzer) | **CODE** Debug-Gruppe |
+| **`8.35.0`** | Einstellungen: Gruppen, deutsche Karten, GUI | **CODE** |
+| **`8.36.0`** | Test-Tor Settings | **CODE** Suche + Gruppen |
+| **`8.40.0`** | Amazon-Musik-Fallback **oder** ehrlich Parking | **CODE** Intent, ehrlich wenn App fehlt |
+| **`8.50.0`** | Chat-Ordner + Hausstand | **CODE** `folder_id` |
+| **`8.60.0`** | Preiswache (Instanudeln zuerst) | **CODE** kein Poll ohne Research |
+| **`8.61.0`** | Test-Tor Alltag-Rest (Musik/Ordner/Preis) | **CODE** |
+| **`8.90.0`** | Gold, Debug-Gruppe Alltag-Zettel | **CODE** |
+| **`8.95.0`** | Dauer-Zuhören härten (Wake flüssig, App/CarPlay auf) | **CODE** Wake aus = still |
 
 ---
 

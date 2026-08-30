@@ -73,6 +73,39 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'warn', 0.2)
   }
 
+  if (/\b(blitzer|baustelle|radarfalle)\b/.test(t)) {
+    out = drop(out, 'warn')
+    out = drop(out, 'drive')
+    out = boost(out, 'blitzer', 0.22)
+  }
+
+  if (/\bamazon\s*(music|musik)\b/.test(t) || (/\bamazon\b/.test(t) && /\b(spiel|musik)\b/.test(t))) {
+    out = drop(out, 'tv')
+    out = drop(out, 'drive')
+    out = boost(out, 'amazon', 0.2)
+  }
+
+  if (/\b(preiswache|instanudeln)\b/.test(t)) {
+    out = drop(out, 'shopping')
+    out = boost(out, 'watch-price', 0.2)
+  }
+
+  if (/\b(chat[- ]?ordner|leg(?:e)?\s+den\s+chat)\b/.test(t)) {
+    out = drop(out, 'search')
+    out = boost(out, 'chat-folder', 0.2)
+  }
+
+  if (
+    /^\s*was\s+weißt\s+du\s+über\s+(?!mich\b)/.test(t) ||
+    /^\s*wo\s+stand\s+das\s+mit\b/.test(t) ||
+    (/^\s*erinnerst\s+du\s+dich\s+an\b/.test(t) && !/\ban\s+mich\b/.test(t))
+  ) {
+    out = drop(out, 'memory')
+    out = drop(out, 'search')
+    out = drop(out, 'maps')
+    out = boost(out, 'recall', 0.22)
+  }
+
   if (/\b(schulferien|ferien\s+in)\b/.test(t)) {
     out = drop(out, 'holiday')
     out = boost(out, 'ferien', 0.2)

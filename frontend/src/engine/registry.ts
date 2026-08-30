@@ -88,6 +88,16 @@ import { parseBackupIntent, handleBackup } from './backup'
 import { parseFaceIntent } from './face-parse.ts'
 import { handleFace } from './face.ts'
 import { parseWontIntent, handleWont } from './wont-parse.ts'
+import { parseBlitzerIntent } from './blitzer-parse.ts'
+import { handleBlitzer } from './blitzer.ts'
+import { parseFolderIntent } from './folder-parse.ts'
+import { handleFolder } from './folders.ts'
+import { parseWatchPriceIntent } from './watch-price-parse.ts'
+import { handleWatchPrice } from './watch-price.ts'
+import { parseAmazonMusicIntent } from './amazon-parse.ts'
+import { handleAmazonMusic } from './amazon.ts'
+import { parseRecallIntent } from './recall-parse.ts'
+import { handleRecall } from './recall.ts'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -525,6 +535,41 @@ function makeCatalog(): Capability[] {
       sideEffect: 'write',
       parse: (ctx) => (parseFaceIntent(ctx.text) ? score(ctx.text, 0.22) : null),
       execute: async (ctx) => fromHandler('face', await handleFace(ctx.conversationId, ctx.text)),
+    },
+    {
+      id: 'blitzer',
+      label: 'Blitzer',
+      sideEffect: 'read',
+      parse: (ctx) => (parseBlitzerIntent(ctx.text) ? score(ctx.text, ctx.inDrive ? 0.22 : 0.12) : null),
+      execute: async (ctx) => fromHandler('blitzer', await handleBlitzer(ctx.text)),
+    },
+    {
+      id: 'chat-folder',
+      label: 'Ordner',
+      sideEffect: 'write',
+      parse: (ctx) => (parseFolderIntent(ctx.text) ? score(ctx.text, 0.18) : null),
+      execute: async (ctx) => fromHandler('chat-folder', await handleFolder(ctx.conversationId, ctx.text)),
+    },
+    {
+      id: 'watch-price',
+      label: 'Preiswache',
+      sideEffect: 'write',
+      parse: (ctx) => (parseWatchPriceIntent(ctx.text) ? score(ctx.text, 0.16) : null),
+      execute: async (ctx) => fromHandler('watch-price', await handleWatchPrice(ctx.text)),
+    },
+    {
+      id: 'amazon',
+      label: 'Amazon Music',
+      sideEffect: 'device',
+      parse: (ctx) => (parseAmazonMusicIntent(ctx.text) ? score(ctx.text, 0.14) : null),
+      execute: async (ctx) => fromHandler('amazon', await handleAmazonMusic(ctx.text)),
+    },
+    {
+      id: 'recall',
+      label: 'Gedächtnis',
+      sideEffect: 'read',
+      parse: (ctx) => (parseRecallIntent(ctx.text) ? score(ctx.text, 0.1) : null),
+      execute: async (ctx) => fromHandler('recall', await handleRecall(ctx.text)),
     },
   ]
 }

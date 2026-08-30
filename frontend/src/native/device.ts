@@ -12,6 +12,7 @@ type NativeDevice = {
   }>
   torch(opts: { on: boolean }): Promise<{ ok: boolean; on?: boolean; message?: string }>
   openPage(opts: { page: string }): Promise<{ ok: boolean; message?: string }>
+  openApp(opts: { pkg?: string; uri?: string }): Promise<{ ok: boolean; message?: string }>
   dial(opts: { number: string }): Promise<{ ok: boolean; message?: string }>
   sms(opts: { number: string; body?: string }): Promise<{ ok: boolean; message?: string }>
   callNow(opts: { number: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
@@ -86,6 +87,25 @@ export async function setTorch(on: boolean): Promise<{ ok: boolean; message?: st
     }
   }
   return { ok: false, message: 'Taschenlampe nur auf dem Handy.' }
+}
+
+export async function openAmazonMusic(): Promise<{ ok: boolean; message?: string }> {
+  if (native) {
+    try {
+      return await withTimeout(native.openApp({ pkg: 'com.amazon.mp3', uri: 'amzn://apps/android?p=com.amazon.mp3' }), 8_000, {
+        ok: false,
+        message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Jarvis.',
+      })
+    } catch {
+      return { ok: false, message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Jarvis.' }
+    }
+  }
+  try {
+    window.open('https://music.amazon.de', '_blank')
+    return { ok: true }
+  } catch {
+    return { ok: false, message: 'Amazon Music nur auf dem Handy zuverlässig.' }
+  }
 }
 
 export async function openDevicePage(

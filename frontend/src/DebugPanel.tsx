@@ -9,6 +9,7 @@ import {
   stampFilename,
   type DebugTurn,
 } from './engine/debug-run'
+import { setKeepScreenOn } from './native/voice'
 
 const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
 
@@ -66,6 +67,7 @@ export function DebugPanel({
     } catch {
       /* optional */
     }
+    void setKeepScreenOn(true)
     for (const item of items) {
       if (stopRef.current) break
       i += 1
@@ -77,6 +79,7 @@ export function DebugPanel({
     }
     setStopped(stopRef.current)
     setRunning(false)
+    void setKeepScreenOn(false)
     setProgress(stopRef.current ? `Stop nach ${acc.length} Turns.` : `Fertig · ${acc.length} Turns.`)
   }
 
@@ -95,7 +98,8 @@ export function DebugPanel({
     <section className="settings-card">
       <h3>Debug</h3>
       <p className="settings-lead">
-        Kategorien wählen, Start öffnet ein neues Gespräch. Download JSON + TXT mit Verdict. Bitte App offen lassen.
+        Kategorien wählen, Start öffnet ein neues Gespräch. Download JSON + TXT mit Verdict. App offen lassen — Home
+        kann den Lauf killen. Screen bleibt wach, solange der Lauf läuft. Kein zweiter Test-Dienst.
       </p>
       <div className="debug-box-bar">
         <button type="button" className="ghost-btn" disabled={running} onClick={() => setPicked(TEST_COPY_GROUPS.map((g) => g.title))}>

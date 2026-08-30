@@ -18,8 +18,15 @@ import { parseHereIntent } from '../src/engine/here-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
+import { filterTopics } from '../src/engine/settings-ia.ts'
+import { parseBlitzerIntent } from '../src/engine/blitzer-parse.ts'
+import { parseAmazonMusicIntent } from '../src/engine/amazon-parse.ts'
+import { parseFolderIntent } from '../src/engine/folder-parse.ts'
+import { parseWatchPriceIntent } from '../src/engine/watch-price-parse.ts'
+import { parseRecallIntent } from '../src/engine/recall-parse.ts'
+import { subQueries } from '../src/engine/retrieve.ts'
 
-/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
+/** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'blitzer'|'chat-folder'|'watch-price'|'amazon'|'recall'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
@@ -212,6 +219,18 @@ const EXPECT = {
   'Lage aus': 'hud',
   'Muss man Eintritt zahlen für Venedig': 'research',
   'Wo liegt Kiew': 'hud',
+  'Gibt es Blitzer?': 'blitzer',
+  'Baustellen auf der Strecke': 'blitzer',
+  'Spiel Amazon Music': 'amazon',
+  'Leg den Chat in Arbeit': 'chat-folder',
+  'Chat-Ordner': 'chat-folder',
+  'Sag Bescheid wenn Instanudeln im Angebot sind': 'watch-price',
+  Instanudeln: 'watch-price',
+  'Preiswache aus': 'watch-price',
+  'Was weißt du über den Zahnarzt': 'recall',
+  'Wo stand das mit der Steuer': 'recall',
+  'Wie wird das Wetter?': 'weather',
+  'Öffne CarPlay': 'drive',
 }
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
@@ -277,6 +296,27 @@ assert.equal(route('Mit der Bahn nach Heilbronn'), 'transit')
 assert.equal(route('Wo ist London'), 'hud')
 assert.equal(route('Wo liegt Kiew'), 'hud')
 assert.equal(route('Lage aus'), 'hud')
+assert.equal(route('Gibt es Blitzer?'), 'blitzer')
+assert.equal(route('Baustellen auf der Strecke'), 'blitzer')
+assert.equal(route('Spiel Amazon Music'), 'amazon')
+assert.equal(route('Leg den Chat in Arbeit'), 'chat-folder')
+assert.equal(route('Instanudeln'), 'watch-price')
+assert.equal(route('Was weißt du über den Zahnarzt'), 'recall')
+assert.equal(route('Was weißt du über mich'), 'memory')
+assert.equal(route('kein Kaffee mehr'), 'memory')
+assert.equal(route('Wie wird das Wetter?'), 'weather')
+assert.equal(route('Öffne CarPlay'), 'drive')
+assert.ok(parseBlitzerIntent('Gibt es Blitzer?'))
+assert.equal(parseBlitzerIntent('Gibt es Unwetter?'), null)
+assert.ok(parseAmazonMusicIntent('Spiel Amazon Music'))
+assert.equal(parseFolderIntent('Leg den Chat in Arbeit')?.folder, 'arbeit')
+assert.equal(parseWatchPriceIntent('Instanudeln')?.query, 'Instanudeln')
+assert.equal(parseRecallIntent('Was weißt du über den Zahnarzt'), 'Zahnarzt')
+assert.equal(parseRecallIntent('Was weißt du über mich'), null)
+assert.ok(filterTopics('Key').includes('cloud'))
+assert.ok(filterTopics('Steckdose').includes('haus'))
+assert.ok(filterTopics('löschen').includes('gefahr'))
+assert.ok(subQueries('Termin beim Zahnarzt').length >= 2)
 assert.equal(isLiveLookup('Muss man Eintritt zahlen für Venedig'), true)
 assert.equal(route('Muss man Eintritt zahlen für Venedig'), 'research')
 assert.equal(parsePlaceRecall('Wo ist London'), null)

@@ -284,6 +284,22 @@ textarea {
   color: var(--text-muted);
 }
 
+.settings-search {
+  padding: 0 10px 8px;
+}
+
+.settings-search input {
+  width: 100%;
+}
+
+.settings-group {
+  margin: 10px 4px 4px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .settings-rail-nav {
   flex: 1 1 0;
   min-height: 0;
@@ -337,6 +353,10 @@ textarea {
 .settings-rail-item.active {
   box-shadow: inset 2px 0 0 var(--accent);
   background: linear-gradient(90deg, rgba(30, 215, 96, 0.16), var(--bg-hover));
+}
+
+.settings-rail-item.is-danger strong {
+  color: #f15e6c;
 }
 
 .settings-pane {
@@ -968,6 +988,14 @@ textarea {
   flex: 1 1 0;
   padding-right: 2px;
   min-height: 0;
+}
+
+.chat-folder-label {
+  margin: 10px 4px 2px;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .chat-item {
