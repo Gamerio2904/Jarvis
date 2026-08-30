@@ -96,6 +96,11 @@ export const TOOL_LABEL: Record<string, string> = {
   interrupt: 'Hinweis',
   backup: 'Hausstand',
   face: 'Gesicht',
+  blitzer: 'Blitzer',
+  'chat-folder': 'Ordner',
+  'watch-price': 'Preiswache',
+  amazon: 'Amazon Music',
+  recall: 'Gedächtnis',
 }
 
 export function askReply(a: string, b: string): string {

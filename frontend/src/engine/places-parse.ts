@@ -1,4 +1,5 @@
 import { isFuelPlace } from './fuel-parse.ts'
+import { gazetteerHit } from './globe-geo.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export type PlaceWrite = { name: string; place: string }
@@ -149,6 +150,8 @@ export function parsePlaceRecall(text: string): PlaceRecall | null {
   const m = RECALL.exec(text.trim())
   if (!m) return null
   if (isFuelPlace(text) || isFuelPlace(m[1])) return null
+  const verb = /^\s*wo\s+(wohnt|ist|liegt)\b/i.exec(text.trim())
+  if (verb && /^(ist|liegt)$/i.test(verb[1]) && gazetteerHit(m[1])) return null
   const name = normalizePlaceName(m[1])
   if (!name || PEOPLE_LIST.test(name) || isFuelPlace(name)) return null
   return { name }

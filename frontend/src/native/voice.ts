@@ -9,6 +9,8 @@ type NativeVoice = {
   requestPermission(): Promise<{ granted: boolean }>
   listen(): Promise<{ ok: boolean; text?: string; alts?: string[]; message?: string }>
   stopListen(): Promise<{ ok: boolean }>
+  beginVoiceSession(): Promise<{ ok: boolean }>
+  endVoiceSession(): Promise<{ ok: boolean }>
   speak(opts: { text: string; gender?: string }): Promise<{ ok: boolean; message?: string }>
   stopSpeak(): Promise<{ ok: boolean }>
   consumeLaunch(): Promise<{ voice: boolean; utterance?: string }>
@@ -64,6 +66,24 @@ export async function listenOnce(onPartial?: (text: string) => void): Promise<{ 
     }
   }
   return webListen(onPartial)
+}
+
+export async function beginVoiceSession(): Promise<void> {
+  if (!native) return
+  try {
+    await native.beginVoiceSession()
+  } catch {
+    /* ignore */
+  }
+}
+
+export async function endVoiceSession(): Promise<void> {
+  if (!native) return
+  try {
+    await native.endVoiceSession()
+  } catch {
+    /* ignore */
+  }
 }
 
 export async function stopListen(): Promise<void> {

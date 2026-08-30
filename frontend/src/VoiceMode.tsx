@@ -3,8 +3,11 @@ import { wantGeminiVoice } from './engine/tts'
 import { setChatSpeaking } from './engine/speak-lock'
 import { dispatchVoiceAmp, prefersReducedMotion } from './engine/motion'
 import {
+  beginVoiceSession,
   createSentenceTap,
   createSpeakPipeline,
+  endVoiceSession,
+  isNativeVoice,
   listenOnce,
   requestMicPermission,
   setKeepScreenOn,
@@ -67,6 +70,7 @@ export function VoiceMode({
     let ctx: AudioContext | null = null
     let raf = 0
     let dead = false
+    if (isNativeVoice()) return
     void (async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
@@ -108,6 +112,7 @@ export function VoiceMode({
 
   useEffect(() => {
     live.current = true
+    void beginVoiceSession()
     void setKeepScreenOn(true)
     void startLoop()
     return () => {
@@ -118,6 +123,7 @@ export function VoiceMode({
       setChatSpeaking(false)
       void stopListen()
       void stopSpeak()
+      void endVoiceSession()
       void setKeepScreenOn(false)
     }
   }, [])

@@ -8,8 +8,9 @@ Sprint-Nummern **127–130** und Version **`6.60`** sind vergeben (Parser, Overl
 | Sprint 128 / Retrieve + RRF | Sprint **138** / **`7.10.0`** |
 | Sprint 129 / Working Memory | Sprint **139** / **`7.20.0`** |
 | Sprint 130 / Sleep-Time + Recall-Tool | Sprint **140** / **`7.30.0`** |
+| — | **`7.31.0`** Test-Tor Recall (vier Phasen, nach `7.30`) |
 
-Kein Execute in dieser Lieferung. Sideload bleibt **`6.90.0`**. Alltag vom Zettel ist **nicht** diese Schiene — [`50-next.md`](./50-next.md) `8.0`, Sprints 141+.
+Retrieve, Working Memory, Sleep-Regel, Tool `recall` und Test-Tor-Router sind **CODE**. Sideload bleibt **`6.90.0`**. Alltag vom Zettel: [`50-next.md`](./50-next.md) `8.0`. Nach `7.31`: Dauer-Zuhören [`50-next.md`](./50-next.md) `8.95`.
 
 ---
 
@@ -196,14 +197,15 @@ Bühne `6.10` blockiert 128 nicht. Hirn-Schliff `6.50` sollte **vor** 128 liegen
 | **`6.60.0`** | Leitentscheidung + Won’t Lance/Nemotron | **PLAN** (dieses Dokument) |
 | **`6.61.0`** | `retrieve.ts`: Sub-Queries, IDB-Stores, RRF | PLAN |
 | **`6.62.0`** | `search-chat.ts` Execute → retrieve | PLAN |
-| **`6.63.0`** | Memory-Recall über retrieve; Write/Forget/Contradiction unverändert | PLAN |
-| **`6.64.0`** | `memoryBlock(pins, hits)` max. 10 Zeilen | PLAN |
-| **`6.65.0`** | `chat.ts`: retrieve vor LLM; lokal 4 / Gemini 8 Turns | PLAN |
-| **`6.70.0`** | `working-memory.ts` Overwrite, Settings/IDB-Feld | PLAN |
-| **`6.71.0`** | `digest.ts` liest Working Memory + last 8 | PLAN |
-| **`6.80.0`** | `sleep-memory.ts` idle/laden; Sensor-Filter; Upsert nur sicher | PLAN |
-| **`6.81.0`** | Register-Tool `recall` (Search mergen) | PLAN |
-| **`6.82.0`** | Gold-Sätze + Debug-Gruppe Gedächtnis erweitern | PLAN |
+| **`6.63.0`** | Memory-Recall über retrieve; Write/Forget/Contradiction unverändert | **CODE** |
+| **`6.64.0`** | `memoryBlock(pins, hits)` max. 10 Zeilen | **CODE** |
+| **`6.65.0`** | `chat.ts`: retrieve vor LLM; lokal 4 / Gemini 8 Turns | **CODE** |
+| **`6.70.0`** | `working-memory.ts` Overwrite, Settings/IDB-Feld | **CODE** |
+| **`6.71.0`** | `digest.ts` liest Working Memory + last 8 | **CODE** |
+| **`6.80.0`** | `sleep-memory.ts` idle/laden; Sensor-Filter; Upsert nur sicher | **CODE** |
+| **`6.81.0`** | Register-Tool `recall` (Search mergen) | **CODE** |
+| **`6.82.0`** | Gold-Sätze + Debug-Gruppe Gedächtnis erweitern | **CODE** |
+| **`7.31.0`** | Test-Tor Recall: Erstnutzer / geübt / kaputt, Phase 3–4 bis sauber | **CODE** Router; Gerät Phase 3–4 PO |
 | **`6.83.0`** | Could: e5-small nur Rank | später |
 | **`6.84.0`** | Sideload nach Hausstand | nach `4.52` |
 

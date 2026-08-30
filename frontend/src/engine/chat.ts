@@ -5,6 +5,8 @@ import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain'
 import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards'
 import { memoryBlock } from './memory'
+import { retrieve } from './retrieve.ts'
+import { noteTurn, workingBlock } from './working-memory.ts'
 import { rewriteFollowUp } from './last-step'
 import { promoteSplitPart, splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
@@ -391,6 +393,7 @@ export async function streamChat(
   const conv = await storeGet<Conversation>('conversations', conversationId)
   if (!conv) throw new Error('Gespräch nicht gefunden.')
 
+  noteTurn('user', content)
   const userMessage = await addMessage(conversationId, 'user', content)
   const kind = brainKind()
   handlers.onMeta?.({
@@ -419,7 +422,10 @@ export async function streamChat(
       const replies = routed.map((h, i) =>
         h ? h.reply : `„${queue[i]}“ habe ich nicht als Befehl erkannt.`,
       )
-      for (const hit of found) await rememberHit(hit, content)
+      for (const hit of found) {
+        await rememberHit(hit, content)
+        noteTurn('assistant', hit.reply, hit.lastTool)
+      }
       const last = found[found.length - 1]
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
@@ -487,6 +493,7 @@ export async function streamChat(
 
     const history = await listMessages(conversationId)
     const mem = await listMemory()
+    const hits = await retrieve(content)
     let wantSearch = Boolean(geminiReady() && live)
     let research: ResearchMeta | undefined
     let acc = ''
@@ -501,13 +508,13 @@ export async function streamChat(
       const pack = personaPack(loadFace())
       const cloud = kind === 'gemini' || kind === 'groq'
       const system = cloud
-        ? [pack.gemini, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content), lastStepHint()]
+        ? [pack.gemini, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content, hits), workingBlock(), lastStepHint()]
             .filter(Boolean)
             .join('\n\n')
-        : [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content), lastStepHint()].filter(Boolean).join('\n\n')
+        : [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content, hits), workingBlock(), lastStepHint()].filter(Boolean).join('\n\n')
       const llmMessages = [
         { role: 'system', content: system },
-        ...history.slice(cloud || opts?.voice ? -12 : -8).map((m) => ({
+        ...history.slice(cloud || opts?.voice ? -8 : -4).map((m) => ({
           role: m.role === 'assistant' ? 'assistant' : 'user',
           content: m.content,
         })),

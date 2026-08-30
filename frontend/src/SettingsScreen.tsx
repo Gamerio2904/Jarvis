@@ -21,45 +21,9 @@ import {
   shareOrDownloadBackup,
   type BackupPreview,
 } from './engine/backup'
+import { filterTopics, SETTINGS_GROUPS, TOPIC_FACE, type SettingsTopic } from './engine/settings-ia'
 
-export type SettingsTopic =
-  | 'allgemein'
-  | 'modell'
-  | 'cloud'
-  | 'sprache'
-  | 'wecker'
-  | 'ort'
-  | 'tv'
-  | 'pc'
-  | 'haus'
-  | 'musik'
-  | 'ton'
-  | 'forschung'
-  | 'weltlage'
-  | 'hausstand'
-  | 'gedaechtnis'
-  | 'debug'
-  | 'gefahr'
-
-const TOPICS: Array<{ id: SettingsTopic; label: string; hint: string }> = [
-  { id: 'allgemein', label: 'Allgemein', hint: 'Version' },
-  { id: 'modell', label: 'Modell', hint: 'Lokal' },
-  { id: 'cloud', label: 'Cloud', hint: 'Gemini' },
-  { id: 'sprache', label: 'Sprache', hint: 'Hören' },
-  { id: 'wecker', label: 'Wecker', hint: 'Timer' },
-  { id: 'ort', label: 'Ort', hint: 'Wetter' },
-  { id: 'tv', label: 'Fernseher', hint: 'Tizen + Fire' },
-  { id: 'pc', label: 'PC', hint: 'Bildschirm' },
-  { id: 'haus', label: 'Haus', hint: 'Steckdose' },
-  { id: 'musik', label: 'Musik', hint: 'Spotify' },
-  { id: 'ton', label: 'Ton', hint: 'Delight' },
-  { id: 'forschung', label: 'Netz', hint: 'Suche' },
-  { id: 'weltlage', label: 'Weltlage', hint: 'Ausblick' },
-  { id: 'hausstand', label: 'Hausstand', hint: 'Backup' },
-  { id: 'gedaechtnis', label: 'Gedächtnis', hint: 'Memory' },
-  { id: 'debug', label: 'Debug', hint: 'Prompts' },
-  { id: 'gefahr', label: 'Gefahr', hint: 'Löschen' },
-]
+export type { SettingsTopic }
 
 const MEM_FILTERS = [
   'all',
@@ -167,7 +131,8 @@ export type SettingsScreenProps = {
 export function SettingsScreen(p: SettingsScreenProps) {
   const s = p.settings
   const busy = p.settingsBusy
-  const topic = TOPICS.find((t) => t.id === p.topic) || TOPICS[0]
+  const topic = { id: p.topic, ...(TOPIC_FACE[p.topic] || TOPIC_FACE.allgemein) }
+  const [railQuery, setRailQuery] = useState('')
   const [spotifyMsg, setSpotifyMsg] = useState<string | null>(null)
   const [fireHost, setFireHost] = useState(s?.tv_fire_host || '')
   const [firePort, setFirePort] = useState(String(s?.tv_fire_port || 5555))
@@ -250,18 +215,39 @@ export function SettingsScreen(p: SettingsScreenProps) {
         <div className="settings-rail-head">
           <span>Themen</span>
         </div>
+        <label className="settings-field settings-search">
+          <span className="sr-only">Suche</span>
+          <input
+            value={railQuery}
+            onChange={(e) => setRailQuery(e.target.value)}
+            placeholder="Suche: Key, Steckdose, löschen…"
+            aria-label="Einstellungen suchen"
+          />
+        </label>
         <nav className="settings-rail-nav">
-          {TOPICS.map((t, i) => (
-            <button
-              key={t.id}
-              type="button"
-              className={`settings-rail-item ${p.topic === t.id ? 'active' : ''}`}
-              style={{ ['--i' as string]: i }}
-              onClick={() => p.onTopic(t.id)}
-            >
-              <strong>{t.label}</strong>
-              <span>{t.hint}</span>
-            </button>
+          {(railQuery.trim()
+            ? filterTopics(railQuery).map((id) => ({ id, label: TOPIC_FACE[id].label, hint: TOPIC_FACE[id].hint, group: '' }))
+            : SETTINGS_GROUPS.flatMap((g) =>
+                g.topics.map((id, i) => ({
+                  id,
+                  label: TOPIC_FACE[id].label,
+                  hint: TOPIC_FACE[id].hint,
+                  group: i === 0 ? g.title : '',
+                })),
+              )
+          ).map((t, i) => (
+            <div key={t.id}>
+              {t.group ? <p className="settings-group">{t.group}</p> : null}
+              <button
+                type="button"
+                className={`settings-rail-item ${p.topic === t.id ? 'active' : ''}${t.id === 'gefahr' ? ' is-danger' : ''}`}
+                style={{ ['--i' as string]: i }}
+                onClick={() => p.onTopic(t.id)}
+              >
+                <strong>{t.label}</strong>
+                <span>{t.hint}</span>
+              </button>
+            </div>
           ))}
         </nav>
       </aside>
@@ -636,6 +622,20 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <p className="settings-hint">
                 Ein Hirn, zwei Gesichter. Friday übernimmt nur nach Name oder diesem Schalter. Wake „Friday“, nicht
                 „Freitag“. Native-Fallback: eine de-DE-Stimme, wenn das Gerät kein Gender hat.
+              </p>
+              <label className="settings-field">
+                <span>Am Steuer vorlesen</span>
+                <select
+                  value={s?.drive_speak || 'after'}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ drive_speak: e.target.value as 'after' | 'only' })}
+                >
+                  <option value="after">Erst ausführen, dann kurz vorlesen</option>
+                  <option value="only">Nur vorlesen, kein Extra-Essay</option>
+                </select>
+              </label>
+              <p className="settings-hint">
+                Blitzer und Abbieger: ein Satz Native. Kein langer Text am Steuer.
               </p>
             </section>
           ) : null}

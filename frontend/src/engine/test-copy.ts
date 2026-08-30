@@ -400,6 +400,78 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Look nach Fly-to', text: 'Was ist das für eine Stadt?', expect: { tool: 'hud' } },
     ],
   },
+  {
+    title: 'Alltag 8.34 Erstnutzer',
+    items: [
+      { label: 'Wo ist London', text: 'Wo ist London', expect: { tool: 'hud' } },
+      { label: 'Venedig Eintritt', text: 'Muss man Eintritt zahlen für Venedig', expect: { tool: 'research' } },
+      { label: 'Wetter', text: 'Wetter heute', expect: { tool: 'weather' } },
+    ],
+  },
+  {
+    title: 'Alltag 8.34 geübt',
+    items: [
+      { label: 'Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
+      { label: 'Wo liegt Kiew', text: 'Wo liegt Kiew', expect: { tool: 'hud' } },
+      { label: 'Street View', text: 'Zeig Street View von London', expect: { tool: 'wont' } },
+    ],
+  },
+  {
+    title: 'Alltag 8.34 kaputt',
+    items: [
+      { label: 'London ohne GPS', text: 'Wo ist London', expect: { tool: 'hud' } },
+      { label: 'Leeres GPS', text: 'Wo bin ich gerade?', expect: { tool: 'here', skipIf: 'no_gps' } },
+      { label: 'Street View Won’t', text: 'Zeig Street View von London', expect: { tool: 'wont' } },
+      { label: 'Fünf-Euro-Venedig', text: 'Muss man Eintritt zahlen für Venedig', expect: { tool: 'research' } },
+    ],
+  },
+  {
+    title: 'Alltag 8.12 Fahrt',
+    items: [
+      { label: 'Blitzer', text: 'Gibt es Blitzer?', expect: { tool: 'blitzer' } },
+      { label: 'Baustellen', text: 'Baustellen auf der Strecke', expect: { tool: 'blitzer' } },
+      { label: 'CarPlay intern', text: 'Öffne CarPlay', expect: { tool: 'drive' } },
+    ],
+  },
+  {
+    title: 'Alltag 8.36 Settings',
+    items: [
+      { label: 'Lage an', text: 'Lage an', expect: { tool: 'hud' } },
+      { label: 'Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
+      { label: 'Wetter', text: 'Wetter heute', expect: { tool: 'weather' } },
+    ],
+  },
+  {
+    title: 'Alltag 8.61 Rest',
+    items: [
+      { label: 'Amazon Music', text: 'Spiel Amazon Music', expect: { tool: 'amazon' } },
+      { label: 'Chat nach Arbeit', text: 'Leg den Chat in Arbeit', expect: { tool: 'chat-folder' } },
+      { label: 'Ordner', text: 'Chat-Ordner', expect: { tool: 'chat-folder' } },
+      { label: 'Instanudeln', text: 'Instanudeln', expect: { tool: 'watch-price' } },
+      { label: 'Preiswache Satz', text: 'Sag Bescheid wenn Instanudeln im Angebot sind', expect: { tool: 'watch-price' } },
+      { label: 'Preiswache aus', text: 'Preiswache aus', expect: { tool: 'watch-price' } },
+    ],
+  },
+  {
+    title: 'Recall 7.31',
+    items: [
+      { label: 'Über Zahnarzt', text: 'Was weißt du über den Zahnarzt', expect: { tool: 'recall' } },
+      { label: 'Wo stand Steuer', text: 'Wo stand das mit der Steuer', expect: { tool: 'recall' } },
+      { label: 'Über mich', text: 'Was weißt du über mich' },
+      { label: 'kein Kaffee', text: 'kein Kaffee mehr', expect: { tool: 'memory' } },
+    ],
+  },
+  {
+    title: 'Alltag Gold 8.90',
+    items: [
+      { label: 'Blitzer Gold', text: 'Gibt es Blitzer?', expect: { tool: 'blitzer' } },
+      { label: 'Amazon Gold', text: 'Spiel Amazon Music', expect: { tool: 'amazon' } },
+      { label: 'Ordner Gold', text: 'Leg den Chat in Arbeit', expect: { tool: 'chat-folder' } },
+      { label: 'Preis Gold', text: 'Instanudeln', expect: { tool: 'watch-price' } },
+      { label: 'Recall Gold', text: 'Was weißt du über den Zahnarzt', expect: { tool: 'recall' } },
+      { label: 'Wake Wetter', text: 'Wie wird das Wetter?', expect: { tool: 'weather' } },
+    ],
+  },
 ]
 
 export function formatTestCopyGroup(group: TestCopyGroup): string {

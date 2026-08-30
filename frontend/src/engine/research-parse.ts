@@ -32,6 +32,8 @@ export function isLiveLookup(text: string, discount = false): boolean {
   if (/\baktuell(?:e[nrs]?)?\b/i.test(t) && /\b(preis|kurs|spielstand|wetter|zahlen|daten|wert|statistik|wirtschaft)\b/i.test(t)) {
     return true
   }
+  if (/\b(?:eintritt|zugangsgebühr|city[- ]?tax|touristenabgabe|contributo)\b/i.test(t)) return true
+  if (/\bmuss\s+man\b/i.test(t) && /\b(?:zahl|gebühr|eintritt|beitrag)\b/i.test(t)) return true
   if (isTableAsk(t) && /\b(?:bip|gdp|deutschland|zahlen|statistik|daten|wirtschaft)\b/i.test(t)) return true
   if (isProductLookup(t, discount)) return true
   if (isFactLookup(t)) return true
@@ -438,21 +440,38 @@ export function asksDailyFigure(text: string): boolean {
   return /\b(?:am|pro)\s+tag\b|\btäglich\b/i.test(text)
 }
 
+export function corpusSaysNowFree(text: string): boolean {
+  return /aktuell(?:e[nrs]?)?\s+(?:kein|keine|ohne)|keine(?:n)?\s+eintritt|ohne\s+(?:gebühr|zahlung|anmeldung)|testphase.{0,40}(?:endet|beendet|vorbei)/i.test(
+    text,
+  )
+}
+
+export function isStaleFeeNow(sentence: string): boolean {
+  if (/\b(?:früher|damals|2024|2025|geplant|diskussion|könnte|soll)\b/i.test(sentence)) return false
+  return /(?:\b(?:fünf|5)\s*(?:€|euro)|(?:fünf|5)\s*€|\b30\s*[–-]\s*50\b)/i.test(sentence) &&
+    /\b(?:eintritt|gebühr|tagesgast|altstadt)\b/i.test(sentence)
+}
+
 export function guardResearchReply(query: string, answer: string, sources: ResearchSource[]): string {
   const live = sources.filter((s) => s.url)
   const corpus = live.map((s) => `${s.title} ${s.snippet}`).join('\n')
   const corpusText = corpus.replace(/\s+/g, ' ').trim()
   const dailyAsked = asksDailyFigure(query)
   const dailyInCorpus = hasDailyUnit(corpus)
+  const nowFree = corpusSaysNowFree(corpus)
   const raw = (answer || '').replace(/\s+/g, ' ').trim()
   if (!raw) return formatResearchReply(query, live, false)
   const kept: string[] = []
   for (const s of splitSentences(raw)) {
     if (isConversionSentence(s) && dailyAsked && !dailyInCorpus) continue
     if (corpusText.length >= 40 && hasUnsupportedFigure(s, corpus)) continue
+    if (nowFree && isStaleFeeNow(s)) continue
     kept.push(s)
   }
   let out = kept.join(' ').trim()
+  if (nowFree && !out) {
+    out = 'Aktuell nicht. In den Treffern steht keine gültige Eintrittsgebühr.'
+  }
   if (dailyAsked && !dailyInCorpus) {
     const note = 'Eine Stückzahl am Tag steht in den Treffern nicht.'
     if (!out) return formatResearchReply(query, live, false)
@@ -529,9 +548,21 @@ function discountNote(on: boolean): string {
   return ' Rabatt und Gutscheine nur aus den Treffern (mydealz/Sparwelt) — keine erfundenen Codes.'
 }
 
+function freshnessRank(s: ResearchSource): number {
+  const t = `${s.title} ${s.snippet}`
+  let n = 0
+  if (corpusSaysNowFree(t)) n += 8
+  if (/\b2026\b|\b2027\b|\baktuell\b/i.test(t)) n += 4
+  if (/\b(?:adac|comune|official|amtlich)\b/i.test(t)) n += 2
+  if (/(?:\b(?:fünf|5)\s*(?:€|euro)|(?:fünf|5)\s*€)/i.test(t) && !corpusSaysNowFree(t)) n -= 3
+  return n
+}
+
 export function sourceDigest(sources: ResearchSource[], limit = 6): string {
   return sources
     .filter((s) => s.url)
+    .slice()
+    .sort((a, b) => freshnessRank(b) - freshnessRank(a))
     .slice(0, limit)
     .map((s, i) => {
       const price = parseEuroPrices(`${s.title} ${s.snippet}`)[0] || ''

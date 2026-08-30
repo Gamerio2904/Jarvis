@@ -14,6 +14,7 @@ export type Conversation = {
   title: string
   created_at: string
   updated_at: string
+  folder_id?: string
 }
 
 export type Message = {
@@ -211,6 +212,11 @@ export type Settings = {
   routing_mode: string
   setup_dismissed: boolean
   version: string
+  last_blitzer_json: string
+  drive_speak: 'after' | 'only'
+  price_watch_on: boolean
+  last_price_watch_at: string
+  working_memory_json: string
 }
 
 const SETTINGS_KEY = 'jarvis_settings_v13'
@@ -330,6 +336,11 @@ export const DEFAULT_SETTINGS: Settings = {
   routing_mode: 'on-device',
   setup_dismissed: false,
   version: APP_VERSION,
+  last_blitzer_json: '',
+  drive_speak: 'after',
+  price_watch_on: false,
+  last_price_watch_at: '',
+  working_memory_json: '',
 }
 
 function nowIso(): string {
@@ -391,7 +402,7 @@ export type ResearchAudit = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 5)
+    const req = indexedDB.open('jarvis-ondevice', 6)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -405,6 +416,7 @@ function openDb(): Promise<IDBDatabase> {
         'reminders',
         'events',
         'shopping',
+        'price_watches',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -763,4 +775,53 @@ export async function addResearchAudit(row: ResearchAudit): Promise<ResearchAudi
 export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
   const rows = await getAll<ResearchAudit>('research_audits')
   return rows.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)).slice(0, limit)
+}
+
+export type PriceWatch = {
+  id: string
+  query: string
+  last_price: string
+  last_source: string
+  last_url: string
+  created_at: string
+  updated_at: string
+}
+
+export async function listPriceWatches(): Promise<PriceWatch[]> {
+  try {
+    const rows = await getAll<PriceWatch>('price_watches')
+    return rows.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
+  } catch {
+    return []
+  }
+}
+
+export async function addPriceWatch(query: string): Promise<PriceWatch> {
+  const row: PriceWatch = {
+    id: newId(),
+    query,
+    last_price: '',
+    last_source: '',
+    last_url: '',
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  await put('price_watches', row)
+  return row
+}
+
+export async function putPriceWatch(row: PriceWatch): Promise<void> {
+  await put('price_watches', { ...row, updated_at: nowIso() })
+}
+
+export async function deletePriceWatch(id: string): Promise<void> {
+  await del('price_watches', id)
+}
+
+export async function setConversationFolder(id: string, folder_id: string): Promise<Conversation | undefined> {
+  const row = await get<Conversation>('conversations', id)
+  if (!row) return undefined
+  const next = { ...row, folder_id, updated_at: nowIso() }
+  await put('conversations', next)
+  return next
 }

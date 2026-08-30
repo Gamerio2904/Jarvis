@@ -31,6 +31,29 @@ export function rememberStoredFix(lat: number, lon: number, place?: string): voi
   })
 }
 
+export function parseCoord(raw: string): number | null {
+  const t = (raw || '').trim()
+  if (!t) return null
+  const n = Number(t)
+  return Number.isFinite(n) ? n : null
+}
+
+/** Fresh GPS for pins: not empty, not 0/0, not older than LOCATION_KEEP_MS. */
+export function isFreshHereFix(
+  latRaw: string,
+  lonRaw: string,
+  fixAt: string,
+  now = Date.now(),
+): { lat: number; lon: number } | null {
+  const lat = parseCoord(latRaw)
+  const lon = parseCoord(lonRaw)
+  if (lat == null || lon == null) return null
+  if (lat === 0 && lon === 0) return null
+  if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null
+  if (!storedFixAllowed(true, fixAt, now)) return null
+  return { lat, lon }
+}
+
 export function readStoredFix(
   granted: boolean,
   now = Date.now(),
@@ -44,11 +67,10 @@ export function readStoredFix(
     forgetStoredFix()
     return null
   }
-  const lat = Number(s.last_lat)
-  const lon = Number(s.last_lon)
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+  const here = isFreshHereFix(s.last_lat, s.last_lon, s.last_fix_at, now)
+  if (!here) {
     forgetStoredFix()
     return null
   }
-  return { lat, lon, place: s.last_place || 'hier' }
+  return { lat: here.lat, lon: here.lon, place: s.last_place || 'hier' }
 }

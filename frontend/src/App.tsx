@@ -56,6 +56,10 @@ import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
 import { tickOutlookWatch } from './engine/outlook-watch'
 import { tickWatchdog } from './engine/watchdog'
+import { tickPriceWatch } from './engine/watch-price'
+import { tickSleepMemory } from './engine/sleep-memory'
+import { displayFolder } from './engine/folders'
+import { FOLDER_IDS } from './engine/folder-parse'
 import { setHeardNames } from './engine/heard'
 import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
@@ -316,6 +320,10 @@ function App() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
+  const voiceOpenRef = useRef(false)
+  const driveOpenRef = useRef(false)
+  voiceOpenRef.current = voiceOpen
+  driveOpenRef.current = driveOpen
   const [wakeListening, setWakeListening] = useState(false)
   const [shortcutMsg, setShortcutMsg] = useState<string | null>(null)
   const [streamResearch, setStreamResearch] = useState<ResearchMeta | null>(null)
@@ -427,19 +435,26 @@ function App() {
     const outlook = window.setInterval(() => {
       void tickOutlookWatch()
       void tickWatchdog()
+      void tickPriceWatch()
     }, 20 * 60_000)
     const watchdog = window.setInterval(() => {
-      if (!document.hidden) void tickWatchdog()
+      if (document.hidden) return
+      void tickWatchdog()
+      void tickPriceWatch()
+      void tickSleepMemory({ drive: driveOpenRef.current, voice: voiceOpenRef.current })
     }, 60_000)
     const vis = () => {
       if (!document.hidden) {
         void tickOutlookWatch()
         void tickWatchdog()
+        void tickPriceWatch()
+        void tickSleepMemory({ drive: driveOpenRef.current, voice: voiceOpenRef.current })
       }
     }
     document.addEventListener('visibilitychange', vis)
     void tickOutlookWatch()
     void tickWatchdog()
+    void tickPriceWatch()
     return () => {
       window.clearInterval(t)
       window.clearInterval(glance)
@@ -1351,17 +1366,26 @@ function App() {
         </button>
 
         <div className="chat-list">
-          {conversations.map((c, i) => (
-            <button
-              key={c.id}
-              type="button"
-              className={`chat-item ${c.id === activeId ? 'active' : ''}`}
-              style={{ ['--i' as string]: i }}
-              onClick={() => void openConversation(c.id)}
-            >
-              {c.title}
-            </button>
-          ))}
+          {FOLDER_IDS.map((fid) => {
+            const rows = conversations.filter((c) => (c.folder_id || 'sonstiges') === fid)
+            if (!rows.length) return null
+            return (
+              <div key={fid}>
+                <p className="chat-folder-label">{displayFolder(fid)}</p>
+                {rows.map((c, i) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className={`chat-item ${c.id === activeId ? 'active' : ''}`}
+                    style={{ ['--i' as string]: i }}
+                    onClick={() => void openConversation(c.id)}
+                  >
+                    {c.title}
+                  </button>
+                ))}
+              </div>
+            )
+          })}
         </div>
 
         <div className={`status ${healthOk ? (geminiOn ? 'warn' : '') : 'error'}`}>
@@ -1476,7 +1500,7 @@ function App() {
               </div>
             ) : null}
 
-            {messages.map((m) => {
+            {messages.slice(-80).map((m) => {
               const enter =
                 enterIds[m.id] &&
                 (m.role === 'user' ? 'enter-user' : 'enter-assistant')

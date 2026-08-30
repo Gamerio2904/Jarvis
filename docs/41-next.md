@@ -77,6 +77,8 @@ Done wenn: dieses Dokument + Sprint 116 + Versioning, **ohne** `4.66` zu übersc
 
 Messen: Fit in 12 GB bei 1280 px, WSL2 vs. nativ, Latenz, Lizenzzeile. **GO/NO-GO.**
 
+**Votum 2026-08-29: NO-GO für Gewichte.** In dieser Umgebung liegt keine RTX 3060, kein Windows-Sidecar, kein JarvisSee. Ohne Messung keine Gewichte, keine erfundenen Boxen. Parser bleibt CODE, Vision ehrlich aus.
+
 ### `4.78.0` Sidecar
 
 `JarvisSee` localhost, JarvisPC proxyt `/v1/ground`. Status `vision: off\|loading\|ready\|error`. Stub in CI.
@@ -103,7 +105,7 @@ Messen: Fit in 12 GB bei 1280 px, WSL2 vs. nativ, Latenz, Lizenzzeile. **GO/NO-G
 | Version | Inhalt | Sprint |
 |---------|--------|--------|
 | **`4.76.0`** | Leitentscheidung + Parser `ground-parse` + `/v1/ground` Client | 116 **CODE** in `5.11.0` |
-| **`4.77.0`–`4.80.0`** | Research 3060 / Sidecar / Klick / Foto | **offen** — kein Fake-GO |
+| **`4.77.0`–`4.80.0`** | Research 3060 / Sidecar / Klick / Foto | **`4.77` NO-GO** ohne 3060-Messung; Sidecar fehlt |
 | **`4.81.0`** | `/v1/ground` + Status | **CODE** Client; Sidecar fehlt → ehrlich aus |
 | **`4.82.0`** | **Reel-Kern:** `doClick` versucht Box, unsicher = kein Klick | **CODE** Fallback Gemini nur mit Satz |
 | **`4.83.0`** | Overlay ohne Klick (`Wo ist Speichern`) | **CODE** Parser + ehrliche Antwort |

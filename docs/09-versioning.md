@@ -389,7 +389,7 @@ Nach `6.50`. NVIDIA-Loop über IndexedDB, MemAgent-Panel, LightMem-Sleep. Kein L
 
 ### `8.0+` — Alltag vom Zettel [`50-next.md`](./50-next.md) **PLAN**
 
-Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitzer nur mit erlaubter Quelle. Amazon Musik nur nach Research-GO. Settings `8.35`: Gruppen statt 17 Peers. Lage-Overlay `8.32`: Clip, Pins, Parser. Sideload bleibt **`6.90.0`** bis Hausstand + Gold.
+Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitzer nur mit erlaubter Quelle. Amazon Musik nur nach Research-GO. Settings `8.35`: Gruppen statt 17 Peers. Lage `8.32`. Netz `8.33`. Test-Tore nach Execute-Bündeln. Dauer-Zuhören `8.95` nach Recall. Sideload bleibt **`6.90.0`** bis Hausstand + Gold.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -399,12 +399,18 @@ Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitze
 | `8.3.0` | Research: Amazon-Intent, Ordner-Schema, Preiswache | nach 141 |
 | `8.4.0` | Research: Settings-Gruppen, deutsche Namen | nach 141 |
 | `8.10.0` | Execute: Gefahren auf der Route | nach `8.1` GO |
-| `8.20.0` | Execute: erst tun, dann Native-TTS / nur vorlesen | nach `8.2` |
+| `8.20.0` | Stimme: Mic/Wake hören, dann Execute, dann Native-TTS / nur vorlesen | nach `8.2` |
 | `8.30.0` | GUI/Lag Chat + Drive-HUD | nach `8.2` |
 | `8.32.0` | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper/Kacheln-Pane | nach `8.2` |
+| `8.33.0` | Netz-Antwort: Jarvis-Ton, aktueller Stand vor Training | nach `8.2` |
+| `8.34.0` | Test-Tor A: Stimme + Lage + Netz + Lag (vier Phasen) | nach `8.20`/`8.30`–`8.33` |
+| `8.12.0` | Test-Tor Fahrt | nach `8.10` |
 | `8.35.0` | Settings neu: Gruppen, Karten, GUI | nach `8.4` |
+| `8.36.0` | Test-Tor Settings | nach `8.35` |
 | `8.40.0`–`8.60.0` | Musik-Fallback, Chat-Ordner, Preiswache | nach `8.3` |
-| `8.90.0` | Gold, Debug-Gruppe | nach Execute |
+| `8.61.0` | Test-Tor Alltag-Rest | nach `8.40`–`8.60` |
+| `8.90.0` | Gold, Debug-Gruppe | nach Execute + Tore |
+| `8.95.0` | Dauer-Zuhören härten (Wake, App/CarPlay auf) | nach Recall `7.31` |
 
 ### Weitere Beispiele
 

@@ -172,6 +172,35 @@ public class JarvisDevicePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void openApp(PluginCall call) {
+        String pkg = call.getString("pkg", "");
+        String uri = call.getString("uri", "");
+        JSObject r = new JSObject();
+        try {
+            android.content.pm.PackageManager pm = getContext().getPackageManager();
+            Intent i = null;
+            if (pkg != null && !pkg.isEmpty()) {
+                i = pm.getLaunchIntentForPackage(pkg);
+            }
+            if (i == null && uri != null && !uri.isEmpty()) {
+                i = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+            }
+            if (i == null) {
+                r.put("ok", false);
+                r.put("message", "App nicht installiert.");
+                call.resolve(r);
+                return;
+            }
+            startExt(i);
+            r.put("ok", true);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "App nicht geöffnet.");
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
     public void dial(PluginCall call) {
         String number = digits(call.getString("number", ""));
         JSObject r = new JSObject();

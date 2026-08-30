@@ -171,7 +171,7 @@ Dieses Dokument. **Done wenn:** Mehrfachwahl, neues Gespräch, Expect+Export, Wr
 | Version | Inhalt | Status |
 |---------|--------|--------|
 | **`5.11.0`** | Leitentscheidung + Boxen, neues Gespräch, Expect, JSON+TXT | **CODE** |
-| **`5.12.0`** | Research Hintergrund / Writes | v1: App offen lassen **CODE**; Service später |
+| **`5.12.0`** | Research Hintergrund / Writes | **CODE** v1: App offen + Screen-WakeLock; Home killt WebView. Kein zweiter FGS. Service bleibt `5.17` |
 | **`5.13.0`** | Research Export + eine Prompt-Quelle | **CODE** (`test-copy.ts` + `test-prompts.ts`) |
 | **`5.14.0`** | UI: Boxen, Alle/keine, Sequenz, Stop | **CODE** |
 | **`5.15.0`** | Neue Gruppen + `expect` | **CODE** |

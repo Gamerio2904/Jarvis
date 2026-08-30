@@ -99,9 +99,23 @@ export async function handleMemory(
       return { handled: true, reply: bits }
     }
     if (!items.length) return { handled: true, reply: 'Noch nichts gespeichert.' }
+    const { retrieve } = await import('./retrieve.ts')
+    const hits = await retrieve(text)
+    if (hits.length) {
+      return {
+        handled: true,
+        reply: hits
+          .slice(0, 4)
+          .map((h) => `${h.title}: ${h.body}`)
+          .join('\n'),
+      }
+    }
     return {
       handled: true,
-      reply: items.map((m) => `${m.key}: ${m.value}`).join('\n'),
+      reply: items
+        .filter((m) => m.key === 'name' || m.key === 'zuhause')
+        .map((m) => `${m.key}: ${m.value}`)
+        .join('\n') || 'Nichts Passendes.',
     }
   }
   if (isMemoryWrite(text)) {

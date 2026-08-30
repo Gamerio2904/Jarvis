@@ -61,6 +61,7 @@ public class JarvisWakeService extends Service {
 
     public static void resumeListen(Context ctx) {
         paused = false;
+        if (ctx != null && !wantEnabled(ctx)) return;
         JarvisWakeService s = inst;
         if (s == null || !running) return;
         s.armed = true;

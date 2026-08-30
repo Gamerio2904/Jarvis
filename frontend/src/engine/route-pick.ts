@@ -49,6 +49,11 @@ import { parseTaxiIntent } from './taxi-parse.ts'
 import { parseBackupIntent } from './backup.ts'
 import { parseFaceIntent } from './face-parse.ts'
 import { parseWontIntent } from './wont-parse.ts'
+import { parseBlitzerIntent } from './blitzer-parse.ts'
+import { parseFolderIntent } from './folder-parse.ts'
+import { parseWatchPriceIntent } from './watch-price-parse.ts'
+import { parseAmazonMusicIntent } from './amazon-parse.ts'
+import { parseRecallIntent } from './recall-parse.ts'
 import { applyConflicts } from './conflicts.ts'
 import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
@@ -133,6 +138,11 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'news', sideEffect: 'read', parse: (ctx) => (parseNewsIntent(ctx.text) ? score(ctx.text) : null) },
   { id: 'search', sideEffect: 'read', parse: (ctx) => (parseChatSearch(ctx.text) ? score(ctx.text) : null) },
   { id: 'warn', sideEffect: 'read', parse: (ctx) => (parseWarnIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
+  { id: 'blitzer', sideEffect: 'read', parse: (ctx) => (parseBlitzerIntent(ctx.text) ? score(ctx.text, ctx.inDrive ? 0.22 : 0.12) : null) },
+  { id: 'chat-folder', sideEffect: 'write', parse: (ctx) => (parseFolderIntent(ctx.text) ? score(ctx.text, 0.18) : null) },
+  { id: 'watch-price', sideEffect: 'write', parse: (ctx) => (parseWatchPriceIntent(ctx.text) ? score(ctx.text, 0.16) : null) },
+  { id: 'amazon', sideEffect: 'device', parse: (ctx) => (parseAmazonMusicIntent(ctx.text) ? score(ctx.text, 0.14) : null) },
+  { id: 'recall', sideEffect: 'read', parse: (ctx) => (parseRecallIntent(ctx.text) ? score(ctx.text, 0.1) : null) },
   { id: 'ferien', sideEffect: 'read', parse: (ctx) => (parseFerienIntent(ctx.text, ctx.lastPlace) ? score(ctx.text, 0.08) : null) },
   { id: 'fx', sideEffect: 'read', parse: (ctx) => (parseFxIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
   { id: 'food', sideEffect: 'read', parse: (ctx) => (parseFoodIntent(ctx.text) ? score(ctx.text, 0.06) : null) },

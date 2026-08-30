@@ -9,7 +9,7 @@ App-Version im Code: **`6.90.0`**. Sideload: **`6.90.0`** (`releases/Jarvis.apk`
 
 ### Docs — Alltag vom Zettel `8.0` PLAN
 
-Sprint 141. Alte Notizen gegen Code `6.90` gehalten. Neu geplant: Blitzer/Baustelle, Steuer-Stimme, GUI-Härte, **Lage-Overlay** (`8.32`: nicht abschneiden, Pins, `Wo ist London`), **Einstellungen neu gliedern** (`8.35`), Amazon-Musik-Research, Chat-Ordner, Preiswache. Recall bleibt `7.0`.
+Sprint 141. Alte Notizen gegen Code `6.90` gehalten. Neu geplant: Blitzer, Stimme `8.20`, Lage `8.32`, Netz `8.33`, **Test-Tore** (vier Phasen nach Execute-Bündeln), Settings `8.35`, Amazon/Ordner/Preis. Nach Recall: **Dauer-Zuhören `8.95`**. Recall bleibt `7.0`.
 
 - Docs [`50-next.md`](./50-next.md) · [`sprints/sprint-141.md`](./sprints/sprint-141.md)
 

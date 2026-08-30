@@ -75,9 +75,11 @@ export function GlobeView({
   const marble = useRef<HTMLCanvasElement | null>(null)
   const dateRef = useRef(gibsTimeCandidates()[0])
   const stampRef = useRef('')
-  const [stamp, setStamp] = useState('Blue Marble · Terminator aus der Uhr')
+  const [stamp, setStamp] = useState('Blue Marble lädt …')
   const fly = useRef<{ yaw: number; pitch: number; zoom: number; t: number } | null>(null)
   const lastFocus = useRef('')
+  const kickRef = useRef<() => void>(() => {})
+  const drawNowRef = useRef<() => void>(() => {})
 
   useEffect(() => {
     if (!focus || !Number.isFinite(focus.lat)) return
@@ -96,6 +98,7 @@ export function GlobeView({
       return
     }
     fly.current = { yaw: aim.yaw, pitch: aim.pitch, zoom: z, t: 0 }
+    kickRef.current()
   }, [focus, reduced])
 
   useEffect(() => {
@@ -114,6 +117,9 @@ export function GlobeView({
       g.drawImage(imgs[0], 0, 0)
       g.drawImage(imgs[1], imgs[0].naturalWidth, 0)
       marble.current = c
+      stampRef.current = ''
+      setStamp('Blue Marble · Terminator aus der Uhr')
+      drawNowRef.current()
     }
     for (const url of urls) {
       const img = new Image()
@@ -150,7 +156,13 @@ export function GlobeView({
     })
     ro.observe(canvas)
     const offVis = onVisibility(() => {
-      if (!isDocumentHidden()) draw()
+      if (isDocumentHidden()) {
+        cancelAnimationFrame(raf)
+        raf = 0
+        return
+      }
+      draw()
+      kick()
     })
 
     function project(x: number, y: number, z: number) {
@@ -322,6 +334,10 @@ export function GlobeView({
       } else {
         const textured = drawMarble(cx, cy, R)
         if (!textured) {
+          if (stampRef.current !== 'loading') {
+            stampRef.current = 'loading'
+            setStamp('Blue Marble lädt …')
+          }
           const shade = pen.createRadialGradient(cx - R * 0.3, cy - R * 0.3, R * 0.1, cx, cy, R)
           shade.addColorStop(0, '#3d8f6e')
           shade.addColorStop(0.45, '#1a4d3a')
@@ -347,7 +363,7 @@ export function GlobeView({
         pen.arc(svec.z > 0 ? svec.x : cx + (cx - svec.x) * 0.2, cy, R * 1.05, 0, Math.PI * 2)
         pen.fill()
         pen.restore()
-        if (stampRef.current) {
+        if (textured && stampRef.current === 'loading') {
           stampRef.current = ''
           setStamp('Blue Marble · Terminator aus der Uhr')
         }
@@ -389,9 +405,22 @@ export function GlobeView({
       }
     }
 
+    function busy() {
+      return Boolean(fly.current) || Boolean(drag.current) || Boolean(pinch.current) || pts.current.size > 0
+    }
+
+    function kick() {
+      if (raf || isDocumentHidden()) return
+      raf = requestAnimationFrame(loop)
+    }
+    kickRef.current = kick
+    drawNowRef.current = draw
+
     function loop(ts: number) {
+      raf = 0
+      if (isDocumentHidden()) return
       if (ts - last < MOTION_FRAME_MS) {
-        raf = requestAnimationFrame(loop)
+        if (busy()) kick()
         return
       }
       last = ts
@@ -413,11 +442,13 @@ export function GlobeView({
           fly.current = null
         }
         draw()
+      } else if (drag.current || pinch.current) {
+        draw()
       }
-      raf = requestAnimationFrame(loop)
+      if (busy()) kick()
     }
     draw()
-    raf = requestAnimationFrame(loop)
+    kick()
 
     function pos(ev: PointerEvent) {
       const r = surface.getBoundingClientRect()
@@ -437,6 +468,7 @@ export function GlobeView({
         pinch.current = { dist: Math.max(24, dist(a, b)), zoom: zoom.current }
         drag.current = null
       }
+      kick()
     }
     const move = (ev: PointerEvent) => {
       if (!pts.current.has(ev.pointerId)) return

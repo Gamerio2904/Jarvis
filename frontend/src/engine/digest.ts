@@ -1,5 +1,6 @@
 import { completeGemini, geminiReady } from './gemini.ts'
 import { listMessages, addNote } from './store.ts'
+import { loadWorkingMemory } from './working-memory.ts'
 import type { ToolMeta } from './tools.ts'
 import { parseDigestIntent } from './digest-parse.ts'
 
@@ -32,7 +33,10 @@ export async function handleDigest(
   }
 
   const history = await listMessages(conversationId)
-  const slice = history.slice(-24)
+  const work = loadWorkingMemory()
+    .map((r) => r.line)
+    .join('\n')
+  const slice = history.slice(-8)
   if (slice.length < 2) {
     return {
       handled: true,
@@ -41,7 +45,9 @@ export async function handleDigest(
       lastTool: 'digest',
     }
   }
-  const blob = slice.map((m) => `${m.role === 'assistant' ? 'Jarvis' : 'Sie'}: ${m.content}`).join('\n')
+  const blob = [work && `Arbeitsgedächtnis:\n${work}`, slice.map((m) => `${m.role === 'assistant' ? 'Jarvis' : 'Sie'}: ${m.content}`).join('\n')]
+    .filter(Boolean)
+    .join('\n\n')
   let line = ''
   if (geminiReady()) {
     try {
