@@ -311,7 +311,7 @@ function App() {
   const [settings, setSettings] = useState<Settings | null>(null)
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [settingsPanelOpen, setSettingsPanelOpen] = useState(false)
-  const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('allgemein')
+  const [settingsTopic, setSettingsTopic] = useState<SettingsTopic>('keys')
   const [momentGlint, setMomentGlint] = useState(false)
   const [auditOpen, setAuditOpen] = useState(false)
   const [audits, setAudits] = useState<ResearchAudit[]>([])
@@ -1193,7 +1193,7 @@ function App() {
     await sendMessage(lastFailed)
   }
 
-  function openSettings(topic: SettingsTopic = 'allgemein') {
+  function openSettings(topic: SettingsTopic = 'keys') {
     setSettingsTopic(topic)
     setSettingsPanelOpen(true)
     setSidebarOpen(false)
@@ -1206,7 +1206,7 @@ function App() {
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
     else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t)) openSettings('haus')
-    else if (/Gemini an, aber kein/i.test(t)) openSettings('cloud')
+    else if (/Gemini an, aber kein/i.test(t)) openSettings('keys')
     else if (/Einstellungen\s*→\s*Musik|Spotify anmelden/i.test(t)) openSettings('musik')
   }
 
@@ -1272,7 +1272,7 @@ function App() {
               onClick={() => {
                 void patchSettings({ setup_dismissed: true })
                 setSetupOpen(false)
-                openSettings('cloud')
+                openSettings('keys')
               }}
             >
               Gemini-Key eintragen
@@ -1360,7 +1360,7 @@ function App() {
         <button
           type="button"
           className={`memory-toggle ${settingsPanelOpen ? 'active' : ''}`}
-          onClick={() => openSettings('allgemein')}
+          onClick={() => openSettings('keys')}
         >
           Einstellungen
         </button>
@@ -1445,7 +1445,7 @@ function App() {
             <button
               type="button"
               className="ghost-btn icon-only"
-              onClick={() => openSettings('allgemein')}
+              onClick={() => openSettings('keys')}
               aria-label="Einstellungen"
               title="Einstellungen"
             >

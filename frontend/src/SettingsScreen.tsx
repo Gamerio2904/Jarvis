@@ -21,7 +21,14 @@ import {
   shareOrDownloadBackup,
   type BackupPreview,
 } from './engine/backup'
-import { filterTopics, SETTINGS_GROUPS, TOPIC_FACE, type SettingsTopic } from './engine/settings-ia'
+import {
+  filterTopics,
+  resolveTopic,
+  SETTINGS_TABS,
+  TOPIC_FACE,
+  type SettingsTab,
+  type SettingsTopic,
+} from './engine/settings-ia'
 
 export type { SettingsTopic }
 
@@ -128,10 +135,15 @@ export type SettingsScreenProps = {
   debugBusy: boolean
 }
 
+function KeyMark({ on }: { on: boolean }) {
+  return <em className={`key-mark ${on ? 'is-on' : ''}`}>{on ? 'liegt' : 'fehlt'}</em>
+}
+
 export function SettingsScreen(p: SettingsScreenProps) {
   const s = p.settings
   const busy = p.settingsBusy
-  const topic = { id: p.topic, ...(TOPIC_FACE[p.topic] || TOPIC_FACE.allgemein) }
+  const tab = resolveTopic(p.topic)
+  const face = TOPIC_FACE[tab]
   const [railQuery, setRailQuery] = useState('')
   const [spotifyMsg, setSpotifyMsg] = useState<string | null>(null)
   const [fireHost, setFireHost] = useState(s?.tv_fire_host || '')
@@ -204,6 +216,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
     return () => window.removeEventListener('keydown', onKey)
   }, [p.onClose])
 
+  const tabList: SettingsTab[] = railQuery.trim() ? filterTopics(railQuery) : SETTINGS_TABS.map((t) => t.id)
+
   return (
     <div
       className={`settings-screen${p.leaving ? ' is-leaving' : ''}`}
@@ -211,9 +225,18 @@ export function SettingsScreen(p: SettingsScreenProps) {
       aria-modal="true"
       aria-labelledby="settings-title"
     >
-      <aside className="settings-rail" aria-label="Themen">
-        <div className="settings-rail-head">
-          <span>Themen</span>
+      <header className="settings-top">
+        <div className="settings-top-row">
+          <div>
+            <p className="settings-kicker">Einstellungen</p>
+            <h2 key={tab} id="settings-title">
+              {face.label}
+            </h2>
+            <p className="settings-top-hint">{face.hint}</p>
+          </div>
+          <button type="button" className="settings-close" onClick={p.onClose}>
+            Fertig
+          </button>
         </div>
         <label className="settings-field settings-search">
           <span className="sr-only">Suche</span>
@@ -224,50 +247,29 @@ export function SettingsScreen(p: SettingsScreenProps) {
             aria-label="Einstellungen suchen"
           />
         </label>
-        <nav className="settings-rail-nav">
-          {(railQuery.trim()
-            ? filterTopics(railQuery).map((id) => ({ id, label: TOPIC_FACE[id].label, hint: TOPIC_FACE[id].hint, group: '' }))
-            : SETTINGS_GROUPS.flatMap((g) =>
-                g.topics.map((id, i) => ({
-                  id,
-                  label: TOPIC_FACE[id].label,
-                  hint: TOPIC_FACE[id].hint,
-                  group: i === 0 ? g.title : '',
-                })),
-              )
-          ).map((t, i) => (
-            <div key={t.id}>
-              {t.group ? <p className="settings-group">{t.group}</p> : null}
+        <nav className="settings-tabs" aria-label="Reiter">
+          {tabList.map((id) => {
+            const t = TOPIC_FACE[id]
+            return (
               <button
+                key={id}
                 type="button"
-                className={`settings-rail-item ${p.topic === t.id ? 'active' : ''}${t.id === 'gefahr' ? ' is-danger' : ''}`}
-                style={{ ['--i' as string]: i }}
-                onClick={() => p.onTopic(t.id)}
+                role="tab"
+                aria-selected={tab === id}
+                className={`settings-tab ${tab === id ? 'active' : ''}${id === 'daten' ? ' is-danger' : ''}`}
+                onClick={() => p.onTopic(id)}
               >
-                <strong>{t.label}</strong>
-                <span>{t.hint}</span>
+                {t.label}
               </button>
-            </div>
-          ))}
+            )
+          })}
         </nav>
-      </aside>
+      </header>
 
       <div className="settings-pane">
-        <header className="settings-pane-bar">
-          <div>
-            <p className="settings-kicker">Einstellungen</p>
-            <h2 key={topic.id} id="settings-title">
-              {topic.label}
-            </h2>
-          </div>
-          <button type="button" className="settings-close" onClick={p.onClose}>
-            Fertig
-          </button>
-        </header>
-
         <div className="settings-pane-body">
-          <div key={p.topic} className="settings-topic-slide">
-          {p.topic === 'allgemein' ? (
+          <div key={tab} className="settings-topic-slide">
+          {tab === 'hirn' ? (
             <section className="settings-card">
               <h3>Dieses Handy</h3>
               <p className="settings-lead">
@@ -288,7 +290,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'allgemein' ? (
+          {tab === 'lage' ? (
             <section className="settings-card">
               <h3>Tablet-Lage</h3>
               <p className="settings-lead">Ab 900 px Breite: Kacheln neben dem Chat. Composer und Mic bleiben. Oder hier immer an.</p>
@@ -352,7 +354,30 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'modell' ? (
+          {tab === 'hirn' ? (
+            <section className="settings-card">
+              <h3>Gemini zuerst</h3>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.gemini_enabled)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ gemini_enabled: e.target.checked })}
+                />
+                <span>Gemini zuerst (Key unter API-Keys)</span>
+              </label>
+              <p className="settings-hint warn">
+                An = Plaudern und Fotos gehen zu Google. Groq und das kleine lokale Modell sind nur Backup. Nicht privat.
+              </p>
+              <div className="settings-actions">
+                <button type="button" className="retry-btn" onClick={() => p.onTopic('keys')}>
+                  Zum API-Key
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          {tab === 'hirn' ? (
             <section className="settings-card">
               <h3>Lokales Modell</h3>
               <p className="settings-lead">
@@ -378,22 +403,39 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'cloud' ? (
+          {tab === 'keys' ? (
             <>
-              <section className="settings-card">
-                <h3>Gemini (Google) — Hauptweg</h3>
-                <label className="settings-toggle">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(s?.gemini_enabled)}
-                    disabled={busy}
-                    onChange={(e) => void p.patchSetting({ gemini_enabled: e.target.checked })}
-                  />
-                  <span>Gemini zuerst (Key nötig)</span>
-                </label>
-                <p className="settings-hint warn">
-                  An = Plaudern und Fotos gehen zu Google. Groq und das kleine lokale Modell sind nur Backup. Nicht privat.
+              <section className="settings-card keys-overview">
+                <h3>Alle Schlüssel</h3>
+                <p className="settings-lead">
+                  Hier liegen alle Keys der App. Nichts davon teilen, nicht in den Chat, nicht nach Git.
                 </p>
+                <ul className="key-index">
+                  <li>
+                    Gemini <KeyMark on={Boolean(s?.gemini_api_key?.trim())} />
+                  </li>
+                  <li>
+                    Groq <KeyMark on={Boolean(s?.groq_api_key?.trim())} />
+                  </li>
+                  <li>
+                    Tankerkönig <KeyMark on={Boolean(s?.tankerkoenig_api_key?.trim())} />
+                  </li>
+                  <li>
+                    OMDb <KeyMark on={Boolean(s?.omdb_api_key?.trim())} />
+                  </li>
+                  <li>
+                    FRED <KeyMark on={Boolean(s?.outlook_fred_key?.trim())} />
+                  </li>
+                  <li>
+                    Spotify <KeyMark on={Boolean(s?.spotify_client_id?.trim())} />
+                  </li>
+                </ul>
+              </section>
+              <section className="settings-card">
+                <h3>
+                  Gemini (Google) <KeyMark on={Boolean(s?.gemini_api_key?.trim())} />
+                </h3>
+                <p className="settings-hint">Hauptweg. aistudio.google.com/apikey — nicht teilen.</p>
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
@@ -416,11 +458,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   </button>
                 </div>
                 {p.geminiMsg ? <p className="settings-hint">{p.geminiMsg}</p> : null}
-                <p className="settings-hint">Key: aistudio.google.com/apikey — nicht teilen.</p>
               </section>
               <section className="settings-card">
-                <h3>Groq (Backup)</h3>
-                <p className="settings-hint">Nur wenn Gemini fehlt oder ausfällt. Dann 0,5B. Free-Tier ohne Karte.</p>
+                <h3>
+                  Groq <KeyMark on={Boolean(s?.groq_api_key?.trim())} />
+                </h3>
+                <p className="settings-hint">Backup wenn Gemini fehlt. console.groq.com/keys</p>
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
@@ -443,13 +486,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   </button>
                 </div>
                 {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
-                <p className="settings-hint">Key: console.groq.com/keys</p>
               </section>
               <section className="settings-card">
-                <h3>Tankerkönig (E10)</h3>
+                <h3>
+                  Tankerkönig (E10) <KeyMark on={Boolean(s?.tankerkoenig_api_key?.trim())} />
+                </h3>
                 <p className="settings-hint">
-                  Für „fahr mich zu einer Tanke“: nächste und günstigste Station, immer E10. Key kostenlos.
-                  Standort geht an Tankerkönig, nicht an uns. Ohne Key keine Preise — Jarvis erfindet keine.
+                  Nächste und günstigste Station, immer E10. Ohne Key keine Preise. creativecommons.tankerkoenig.de
                 </p>
                 <label className="settings-field">
                   <span>API-Key</span>
@@ -467,15 +510,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     onBlur={(e) => void p.patchSetting({ tankerkoenig_api_key: e.target.value.trim() })}
                   />
                 </label>
-                <p className="settings-hint">creativecommons.tankerkoenig.de — nicht teilen.</p>
               </section>
               <section className="settings-card">
-                <h3>OMDb (IMDb + Rotten Tomatoes)</h3>
-                <p className="settings-hint">
-                  Für Filmnoten. Rotten Tomatoes hat keine öffentliche API — die Prozentzahl kommt nur,
-                  wenn OMDb sie mitliefert. Ohne Key keine erfundenen Bewertungen. Wo ein Film gratis
-                  läuft, geht auch ohne Key (JustWatch DE).
-                </p>
+                <h3>
+                  OMDb (Filme) <KeyMark on={Boolean(s?.omdb_api_key?.trim())} />
+                </h3>
+                <p className="settings-hint">IMDb und Rotten Tomatoes nur wenn OMDb sie liefert. omdbapi.com/apikey.aspx</p>
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
@@ -492,12 +532,57 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     onBlur={(e) => void p.patchSetting({ omdb_api_key: e.target.value.trim() })}
                   />
                 </label>
-                <p className="settings-hint">omdbapi.com/apikey.aspx — kostenloser Key, nicht teilen.</p>
+              </section>
+              <section className="settings-card">
+                <h3>
+                  FRED (Brent) <KeyMark on={Boolean(s?.outlook_fred_key?.trim())} />
+                </h3>
+                <p className="settings-hint">Optionale Rohöl-Zahl für die Weltlage. Serie DCOILBRENTEU. fred.stlouisfed.org</p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`fred-key-${s?.outlook_fred_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.outlook_fred_key || ''}
+                    disabled={busy}
+                    placeholder="Key von fred.stlouisfed.org"
+                    onBlur={(e) => void p.patchSetting({ outlook_fred_key: e.target.value.trim() })}
+                  />
+                </label>
+              </section>
+              <section className="settings-card">
+                <h3>
+                  Spotify Client-ID <KeyMark on={Boolean(s?.spotify_client_id?.trim())} />
+                </h3>
+                <p className="settings-hint">
+                  developer.spotify.com → App anlegen → Redirect URI exakt:{' '}
+                  <code>{typeof window !== 'undefined' ? spotifyRedirect() : 'https://localhost/'}</code>
+                  . Anmelden bleibt unter Geräte.
+                </p>
+                <label className="settings-field">
+                  <span>Client-ID</span>
+                  <input
+                    type="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    key={`sp-id-${s?.spotify_client_id ? 'set' : 'empty'}`}
+                    defaultValue={s?.spotify_client_id || ''}
+                    disabled={busy}
+                    placeholder="Spotify Client ID"
+                    onBlur={(e) => void p.patchSetting({ spotify_client_id: e.target.value.trim() })}
+                  />
+                </label>
               </section>
             </>
           ) : null}
 
-          {p.topic === 'sprache' ? (
+          {tab === 'stimme' ? (
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
@@ -640,7 +725,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'wecker' ? (
+          {tab === 'alltag' ? (
             <section className="settings-card">
               <h3>Wecker, Timer, Erinnerungen</h3>
               <p className="settings-hint">
@@ -700,7 +785,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'ort' ? (
+          {tab === 'alltag' ? (
             <section className="settings-card">
               <h3>Ort & Wetter</h3>
               <p className="settings-hint">
@@ -791,7 +876,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'tv' ? (
+          {tab === 'geraete' ? (
             <>
             <section className="settings-card">
               <h3>Samsung Tizen</h3>
@@ -951,7 +1036,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </>
           ) : null}
 
-          {p.topic === 'pc' ? (
+          {tab === 'geraete' ? (
             <section className="settings-card">
               <h3>PC im WLAN</h3>
               <p className="settings-lead">
@@ -1053,7 +1138,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'haus' ? (
+          {tab === 'geraete' ? (
             <section className="settings-card">
               <h3>WLAN-Steckdosen</h3>
               <p className="settings-lead">
@@ -1314,7 +1399,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'haus' ? (
+          {tab === 'geraete' ? (
             <section className="settings-card">
               <h3>Deckenventilator</h3>
               <p className="settings-lead">
@@ -1444,37 +1529,21 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'musik' ? (
+          {tab === 'geraete' ? (
             <section className="settings-card">
               <h3>Spotify im Fahrmodus</h3>
               <p className="settings-lead">
-                Interner Player in Jarvis (Web Playback). Jarvis erscheint als Gerät „Jarvis“. Kein Key in der App.
+                Interner Player in Jarvis (Web Playback). Client-ID liegt unter API-Keys.
               </p>
-              <p className="settings-hint">
-                developer.spotify.com → App anlegen → Redirect URI exakt:{' '}
-                <code>{typeof window !== 'undefined' ? spotifyRedirect() : 'https://localhost/'}</code>
-                . In der APK ist das <code>https://localhost/</code>.
-              </p>
-              <label className="settings-field">
-                <span>Client-ID</span>
-                <input
-                  type="text"
-                  autoComplete="off"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                  key={`sp-id-${s?.spotify_client_id ? 'set' : 'empty'}`}
-                  defaultValue={s?.spotify_client_id || ''}
-                  disabled={busy}
-                  placeholder="Spotify Client ID"
-                  onBlur={(e) => void p.patchSetting({ spotify_client_id: e.target.value.trim() })}
-                />
-              </label>
               <p className="settings-hint">
                 {spotifyLoggedIn(s || undefined)
                   ? 'Angemeldet. Im Fahrmodus spielt Jarvis selbst (Premium). „Spiel …“, Pause, weiter.'
                   : 'Anmelden. Premium = volle Titel in Jarvis. Ohne Premium nur 30s-Vorschau.'}
               </p>
               <div className="settings-actions">
+                <button type="button" className="retry-btn" onClick={() => p.onTopic('keys')}>
+                  Zur Client-ID
+                </button>
                 <button
                   type="button"
                   className="retry-btn"
@@ -1503,7 +1572,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'ton' ? (
+          {tab === 'lage' ? (
             <>
               <section className="settings-card">
                 <h3>UI-Sounds</h3>
@@ -1581,7 +1650,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </>
           ) : null}
 
-          {p.topic === 'forschung' ? (
+          {tab === 'hirn' ? (
             <section className="settings-card">
               <h3>Internet-Research</h3>
               <label className="settings-toggle">
@@ -1636,7 +1705,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'weltlage' ? (
+          {tab === 'alltag' ? (
             <section className="settings-card">
               <h3>Weltlage</h3>
               <p className="settings-hint">
@@ -1666,27 +1735,16 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <span>Unterbrechen bei neuer Lage</span>
               </label>
               <p className="settings-hint">Nur wenn Watch an. Nur bei neuer Meldung gegenüber dem letzten Stand.</p>
-              <label className="settings-field">
-                <span>FRED-Key (Brent, optional)</span>
-                <input
-                  type="text"
-                  inputMode="text"
-                  autoComplete="off"
-                  autoCapitalize="none"
-                  autoCorrect="off"
-                  spellCheck={false}
-                  key={`fred-key-${s?.outlook_fred_key ? 'set' : 'empty'}`}
-                  defaultValue={s?.outlook_fred_key || ''}
-                  disabled={busy}
-                  placeholder="Key von fred.stlouisfed.org"
-                  onBlur={(e) => void p.patchSetting({ outlook_fred_key: e.target.value.trim() })}
-                />
-              </label>
-              <p className="settings-hint">Serie DCOILBRENTEU, kostenlos registrieren. Nicht teilen.</p>
+              <p className="settings-hint">Rohöl-Zahl braucht den FRED-Key unter API-Keys. Ohne Key erfindet Jarvis keinen Preis.</p>
+              <div className="settings-actions">
+                <button type="button" className="retry-btn" onClick={() => p.onTopic('keys')}>
+                  Zum FRED-Key
+                </button>
+              </div>
             </section>
           ) : null}
 
-          {p.topic === 'hausstand' ? (
+          {tab === 'daten' ? (
             <section className="settings-card">
               <h3>Hausstand</h3>
               <p className="settings-lead">
@@ -1790,7 +1848,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'gedaechtnis' ? (
+          {tab === 'daten' ? (
             <section className="settings-card">
               <h3>Was Jarvis über Sie weiß</h3>
               <div className="memory-filters" role="tablist" aria-label="Memory-Kategorien">
@@ -1843,7 +1901,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {p.topic === 'debug' ? (
+          {tab === 'tests' ? (
             <DebugPanel
               onSend={p.onDebugSend}
               onStartChat={p.onDebugStart}
@@ -1851,7 +1909,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             />
           ) : null}
 
-          {p.topic === 'gefahr' ? (
+          {tab === 'daten' ? (
             <section className="settings-card danger-zone">
               <h3>Danger Zone</h3>
               <p className="settings-hint">Memory löschen braucht Bestätigung.</p>

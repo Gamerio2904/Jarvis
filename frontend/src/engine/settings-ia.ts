@@ -1,4 +1,18 @@
+/** Acht Reiter. Alte Topic-IDs bleiben Deep-Links und landen auf dem neuen Tab. */
+
+export type SettingsTab =
+  | 'keys'
+  | 'hirn'
+  | 'stimme'
+  | 'alltag'
+  | 'geraete'
+  | 'lage'
+  | 'daten'
+  | 'tests'
+
+/** Alte IDs + neue Tabs. App und Deep-Links dürfen beides schicken. */
 export type SettingsTopic =
+  | SettingsTab
   | 'allgemein'
   | 'modell'
   | 'cloud'
@@ -18,59 +32,96 @@ export type SettingsTopic =
   | 'gefahr'
 
 export type SettingsGroup = {
-  id: string
+  id: SettingsTab
   title: string
   lead: string
-  topics: SettingsTopic[]
+  topics: SettingsTab[]
   workshop?: boolean
 }
 
-export const SETTINGS_GROUPS: SettingsGroup[] = [
-  { id: 'hirn', title: 'Hirn', lead: 'Wer denkt — zuerst Gemini, dann Groq, zuletzt das kleine Modell.', topics: ['cloud', 'modell'] },
-  { id: 'stimme', title: 'Stimme', lead: 'Hören, wecken, vorlesen. Am Steuer kurz.', topics: ['sprache'] },
-  { id: 'alltag', title: 'Alltag', lead: 'Wecker, Wetter, wo Sie sind.', topics: ['wecker', 'ort'] },
-  { id: 'geraete', title: 'Geräte', lead: 'Was Jarvis schalten oder spielen darf.', topics: ['tv', 'pc', 'haus', 'musik'] },
-  { id: 'welt', title: 'Welt', lead: 'Suche im Netz und Weltlage. Nur wenn Sie das anmachen.', topics: ['forschung', 'weltlage'] },
-  { id: 'daten', title: 'Ihre Daten', lead: 'Was er merkt, was Sie sichern, was weg ist.', topics: ['gedaechtnis', 'hausstand', 'gefahr'] },
-  { id: 'aussehen', title: 'Aussehen', lead: 'Lage neben dem Chat, Farben, leise Töne.', topics: ['allgemein', 'ton'], workshop: true },
-  { id: 'werkstatt', title: 'Werkstatt', lead: 'Version, Debug, nur wenn Sie testen.', topics: ['debug'], workshop: true },
+export const SETTINGS_TABS: Array<{
+  id: SettingsTab
+  label: string
+  hint: string
+  workshop?: boolean
+}> = [
+  { id: 'keys', label: 'API-Keys', hint: 'Alle Schlüssel an einem Ort' },
+  { id: 'hirn', label: 'Hirn', hint: 'Wer denkt, ob gesucht wird' },
+  { id: 'stimme', label: 'Stimme', hint: 'Hören, wecken, vorlesen' },
+  { id: 'alltag', label: 'Alltag', hint: 'Wecker, Ort, Weltlage' },
+  { id: 'geraete', label: 'Geräte', hint: 'TV, PC, Haus, Musik' },
+  { id: 'lage', label: 'Lage', hint: 'Kugel, Körper, Töne' },
+  { id: 'daten', label: 'Daten', hint: 'Merken, sichern, löschen' },
+  { id: 'tests', label: 'Tests', hint: 'Debug-Lauf', workshop: true },
 ]
 
-export const TOPIC_FACE: Record<SettingsTopic, { label: string; hint: string }> = {
-  allgemein: { label: 'Dieses Handy', hint: 'Version, ob Gemini oder das lokale Modell läuft' },
-  modell: { label: 'Kleines Modell (selten)', hint: 'Nur wenn Cloud aus ist. ~470 MB.' },
-  cloud: { label: 'Hirn in der Cloud', hint: 'Gemini zuerst. Groq springt ein.' },
-  sprache: { label: 'Hören und sprechen', hint: 'Mikrofon, Stimme, Wake' },
-  wecker: { label: 'Wecker und Timer', hint: 'Töne, Erinnerungen' },
-  ort: { label: 'Ort und Wetter', hint: 'GPS, Open-Meteo' },
-  tv: { label: 'Fernseher', hint: 'Samsung und Fire am HDMI' },
-  pc: { label: 'Windows-PC', hint: 'Nur mit laufender Jarvis-PC-App' },
-  haus: { label: 'Steckdosen und Ventilator', hint: 'Im WLAN, keine Cloud-Dose' },
-  musik: { label: 'Musik', hint: 'Spotify in Jarvis. Amazon öffnet die App.' },
-  ton: { label: 'Töne und Stimmung', hint: 'Klicks, nicht die Stimme' },
-  forschung: { label: 'Im Internet suchen', hint: 'Aus = keine Produktsuche' },
-  weltlage: { label: 'Weltlage', hint: 'Ausblick auf Nachfrage, kein Orakel' },
-  hausstand: { label: 'Sichern und zurückholen', hint: 'Vor Neuinstall. Sonst sind Keys weg.' },
-  gedaechtnis: { label: 'Was Jarvis merkt', hint: 'Sie können Zeilen löschen' },
-  debug: { label: 'Tests', hint: 'Mehrere Kategorien, Export' },
-  gefahr: { label: 'Alles löschen', hint: 'Unumkehrbar.' },
+/** @deprecated Gruppen = Reiter. Bleibt für alte Imports. */
+export const SETTINGS_GROUPS: SettingsGroup[] = SETTINGS_TABS.map((t) => ({
+  id: t.id,
+  title: t.label,
+  lead: t.hint,
+  topics: [t.id],
+  workshop: t.workshop,
+}))
+
+export const TOPIC_FACE: Record<SettingsTab, { label: string; hint: string }> = Object.fromEntries(
+  SETTINGS_TABS.map((t) => [t.id, { label: t.label, hint: t.hint }]),
+) as Record<SettingsTab, { label: string; hint: string }>
+
+const ALIAS: Record<string, SettingsTab> = {
+  keys: 'keys',
+  cloud: 'keys',
+  hirn: 'hirn',
+  modell: 'hirn',
+  forschung: 'hirn',
+  stimme: 'stimme',
+  sprache: 'stimme',
+  alltag: 'alltag',
+  wecker: 'alltag',
+  ort: 'alltag',
+  weltlage: 'alltag',
+  geraete: 'geraete',
+  tv: 'geraete',
+  pc: 'geraete',
+  haus: 'geraete',
+  musik: 'geraete',
+  lage: 'lage',
+  allgemein: 'lage',
+  ton: 'lage',
+  daten: 'daten',
+  gedaechtnis: 'daten',
+  hausstand: 'daten',
+  gefahr: 'daten',
+  tests: 'tests',
+  debug: 'tests',
+}
+
+export function resolveTopic(id: string | undefined | null): SettingsTab {
+  if (!id) return 'keys'
+  return ALIAS[id] || 'keys'
 }
 
 export function groupForTopic(id: SettingsTopic): SettingsGroup {
-  return SETTINGS_GROUPS.find((g) => g.topics.includes(id)) || SETTINGS_GROUPS[0]
+  const tab = resolveTopic(id)
+  return SETTINGS_GROUPS.find((g) => g.id === tab) || SETTINGS_GROUPS[0]
 }
 
-export function filterTopics(q: string): SettingsTopic[] {
+export function filterTopics(q: string): SettingsTab[] {
   const n = q.trim().toLowerCase()
   if (!n) return []
-  const hits: SettingsTopic[] = []
-  for (const [id, face] of Object.entries(TOPIC_FACE) as Array<[SettingsTopic, { label: string; hint: string }]>) {
-    if (id.includes(n) || face.label.toLowerCase().includes(n) || face.hint.toLowerCase().includes(n)) hits.push(id)
+  const hits: SettingsTab[] = []
+  for (const t of SETTINGS_TABS) {
+    if (t.id.includes(n) || t.label.toLowerCase().includes(n) || t.hint.toLowerCase().includes(n)) {
+      hits.push(t.id)
+    }
   }
-  if (/key|gemini|groq/.test(n) && !hits.includes('cloud')) hits.unshift('cloud')
-  if (/steck|dose/.test(n) && !hits.includes('haus')) hits.push('haus')
-  if (/lösch|gefahr/.test(n) && !hits.includes('gefahr')) hits.push('gefahr')
-  if (/wake|hören|stimme/.test(n) && !hits.includes('sprache')) hits.push('sprache')
-  if (/preis|research|netz/.test(n) && !hits.includes('forschung')) hits.push('forschung')
+  if (/key|gemini|groq|fred|omdb|tanke|spotify|aiza|gsk/.test(n) && !hits.includes('keys')) hits.unshift('keys')
+  if (/steck|dose|tv|pc|ventilator/.test(n) && !hits.includes('geraete')) hits.push('geraete')
+  if (/lösch|gefahr|hausstand|export/.test(n) && !hits.includes('daten')) hits.push('daten')
+  if (/wake|hören|stimme/.test(n) && !hits.includes('stimme')) hits.push('stimme')
+  if (/preis|research|netz|suche/.test(n) && !hits.includes('hirn')) hits.push('hirn')
+  if (/wecker|wetter|ort|weltlage/.test(n) && !hits.includes('alltag')) hits.push('alltag')
+  if (/lage|kugel|körper|ton/.test(n) && !hits.includes('lage')) hits.push('lage')
+  if (/debug|test/.test(n) && !hits.includes('tests')) hits.push('tests')
   return hits
 }

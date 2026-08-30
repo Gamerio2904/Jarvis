@@ -18,7 +18,7 @@ import { parseHereIntent } from '../src/engine/here-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
-import { filterTopics } from '../src/engine/settings-ia.ts'
+import { filterTopics, resolveTopic } from '../src/engine/settings-ia.ts'
 import { parseBlitzerIntent } from '../src/engine/blitzer-parse.ts'
 import { parseAmazonMusicIntent } from '../src/engine/amazon-parse.ts'
 import { parseFolderIntent } from '../src/engine/folder-parse.ts'
@@ -313,9 +313,15 @@ assert.equal(parseFolderIntent('Leg den Chat in Arbeit')?.folder, 'arbeit')
 assert.equal(parseWatchPriceIntent('Instanudeln')?.query, 'Instanudeln')
 assert.equal(parseRecallIntent('Was weißt du über den Zahnarzt'), 'Zahnarzt')
 assert.equal(parseRecallIntent('Was weißt du über mich'), null)
-assert.ok(filterTopics('Key').includes('cloud'))
-assert.ok(filterTopics('Steckdose').includes('haus'))
-assert.ok(filterTopics('löschen').includes('gefahr'))
+assert.ok(filterTopics('Key').includes('keys'))
+assert.ok(filterTopics('Steckdose').includes('geraete'))
+assert.ok(filterTopics('löschen').includes('daten'))
+assert.equal(resolveTopic('cloud'), 'keys')
+assert.equal(resolveTopic('musik'), 'geraete')
+assert.equal(resolveTopic('debug'), 'tests')
+assert.equal(resolveTopic('cloud'), 'keys')
+assert.equal(resolveTopic('haus'), 'geraete')
+assert.equal(resolveTopic('debug'), 'tests')
 assert.ok(subQueries('Termin beim Zahnarzt').length >= 2)
 assert.equal(isLiveLookup('Muss man Eintritt zahlen für Venedig'), true)
 assert.equal(route('Muss man Eintritt zahlen für Venedig'), 'research')
