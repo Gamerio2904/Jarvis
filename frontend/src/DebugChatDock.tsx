@@ -1,8 +1,10 @@
+import { createPortal } from 'react-dom'
 import type { Message } from './api'
 import type { DebugTurn } from './engine/debug-run'
 
 export function DebugChatDock({
   running,
+  overlayOpen,
   progress,
   turns,
   messages,
@@ -11,6 +13,7 @@ export function DebugChatDock({
   onOpen,
 }: {
   running: boolean
+  overlayOpen?: boolean
   progress: string
   turns: DebugTurn[]
   messages: Message[]
@@ -20,9 +23,9 @@ export function DebugChatDock({
 }) {
   if (!running && !turns.length) return null
   const recent = messages.slice(-8)
-  return (
+  const node = (
     <aside
-      className={`debug-chat-dock${running ? ' is-running' : ''}`}
+      className={`debug-chat-dock${running ? ' is-running' : ''}${overlayOpen ? ' is-over-overlay' : ''}`}
       role="status"
       aria-live="polite"
       aria-label="Debug-Chat"
@@ -69,4 +72,5 @@ export function DebugChatDock({
       </div>
     </aside>
   )
+  return createPortal(node, document.body)
 }

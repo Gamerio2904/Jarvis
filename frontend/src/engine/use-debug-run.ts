@@ -34,6 +34,8 @@ export function useDebugRun(opts: {
   onSend: (text: string) => Promise<DebugSendResult | string | void>
   onStartChat: (title: string) => Promise<string>
   busy: boolean
+  /** Einstellungen zu, Overlay darf auf — der Debug-Chat bleibt im Dock. */
+  onBegin?: () => void
 }): DebugRunApi {
   const [picked, setPicked] = useState<string[]>(() =>
     TEST_COPY_GROUPS.filter((g) => !DEBUG_OFF_BY_DEFAULT.has(g.title)).map((g) => g.title),
@@ -72,6 +74,7 @@ export function useDebugRun(opts: {
     setStopped(false)
     setRunning(true)
     setTurns([])
+    opts.onBegin?.()
     await opts.onStartChat(debugTitle())
     const acc: DebugTurn[] = []
     let i = 0

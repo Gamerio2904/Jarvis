@@ -324,6 +324,7 @@ function App() {
   const [driveOpen, setDriveOpen] = useState(false)
   const voiceOpenRef = useRef(false)
   const driveOpenRef = useRef(false)
+  const debugRunningRef = useRef(false)
   voiceOpenRef.current = voiceOpen
   driveOpenRef.current = driveOpen
   const [wakeListening, setWakeListening] = useState(false)
@@ -1205,6 +1206,7 @@ function App() {
   }
 
   function maybeOpenSettingsFromReply(reply: string) {
+    if (debugRunningRef.current) return
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
     else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t)) openSettings('haus')
@@ -1223,7 +1225,12 @@ function App() {
     onSend: (text) => sendMessage(text),
     onStartChat: (title) => startDebugChat(title),
     busy,
+    onBegin: () => {
+      setSettingsPanelOpen(false)
+      setSidebarOpen(false)
+    },
   })
+  debugRunningRef.current = debug.running
 
   const activeTitle =
     conversations.find((c) => c.id === activeId)?.title ?? 'Jarvis'
@@ -1758,6 +1765,7 @@ function App() {
 
       <DebugChatDock
         running={debug.running}
+        overlayOpen={driveOpen || voiceOpen || calendarOpen || settingsPanelOpen}
         progress={debug.progress}
         turns={debug.turns}
         messages={messages}

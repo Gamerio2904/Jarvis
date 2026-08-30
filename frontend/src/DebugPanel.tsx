@@ -9,9 +9,10 @@ export function DebugPanel({ debug, busy }: { debug: DebugRunApi; busy: boolean 
     <section className="settings-card">
       <h3>Debug</h3>
       <p className="settings-lead">
-        Kategorien wählen, Start öffnet ein neues Gespräch. Overlays wie CarPlay dürfen aufgehen — der Debug-Chat
-        bleibt als Fenster sichtbar und der Lauf geht weiter. Download JSON + TXT mit Verdict. App offen lassen — Home
-        kann den Lauf killen. Screen bleibt wach, solange der Lauf läuft. Kein zweiter Test-Dienst.
+        Kategorien wählen, Start öffnet ein neues Gespräch und schließt die Einstellungen. Overlays wie CarPlay dürfen
+        aufgehen — der Debug-Chat bleibt als Fenster darüber sichtbar und der Lauf geht weiter. Download JSON + TXT mit
+        Verdict. App offen lassen — Home kann den Lauf killen. Screen bleibt wach, solange der Lauf läuft. Kein zweiter
+        Test-Dienst.
       </p>
       <div className="debug-box-bar">
         <button type="button" className="ghost-btn" disabled={debug.running} onClick={() => debug.setAll(true)}>

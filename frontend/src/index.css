@@ -3615,7 +3615,8 @@ button.linkish {
   bottom: 12px;
   width: min(360px, calc(100vw - 24px));
   max-height: min(46vh, 420px);
-  z-index: 22;
+  /* Über Settings (30), Sidebar (20), Setup (40), CarPlay im Main. */
+  z-index: 50;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -3626,6 +3627,13 @@ button.linkish {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(30, 215, 96, 0.12);
   backdrop-filter: blur(16px) saturate(1.15);
   pointer-events: auto;
+}
+
+.debug-chat-dock.is-over-overlay {
+  width: min(300px, calc(100vw - 20px));
+  max-height: min(38vh, 340px);
+  right: 10px;
+  bottom: 10px;
 }
 
 .debug-chat-dock.is-running {
