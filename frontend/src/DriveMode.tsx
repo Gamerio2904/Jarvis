@@ -5,6 +5,7 @@ import { loadSettings } from './engine/store'
 import { readInterrupt, subscribeInterrupt } from './engine/interrupt'
 import {
   TILE_SIZE,
+  cartoKey,
   clampMapZoom,
   dayTiles,
   panCam,
@@ -428,9 +429,11 @@ function sourceHint(now: SpotifyNow | null, status: SpotifyPlayerStatus): string
 export function DriveMode({
   onClose,
   onCommand,
+  onOpenKeys,
 }: {
   onClose: () => void
   onCommand?: (text: string) => Promise<string> | void
+  onOpenKeys?: () => void
 }) {
   const [route, setRoute] = useState<DriveRoute | null>(() => getDriveRoute())
   const [tab, setTab] = useState<DriveTab>(() => getDriveTab())
@@ -644,6 +647,18 @@ export function DriveMode({
           </button>
         </div>
       </header>
+      {!cartoKey() ? (
+        <p className="drive-key-hint">
+          Carto-Key fehlt — Karte bleibt leer.{' '}
+          {onOpenKeys ? (
+            <button type="button" className="ghost-btn" onClick={onOpenKeys}>
+              Zum API-Key
+            </button>
+          ) : (
+            'Einstellungen → API-Keys.'
+          )}
+        </p>
+      ) : null}
       {hud ? (
         <div className={`drive-hud ${dayTiles() ? 'is-day' : ''}${prefersReducedMotion() ? ' is-still' : ''}`} aria-live="polite">
           <span className={`drive-hud-chevron is-${hud.dir}`} aria-hidden />

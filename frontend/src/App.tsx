@@ -1447,6 +1447,7 @@ function App() {
               setDriveOpen(false)
             }}
             onCommand={(text) => sendVoiceTurn(text)}
+            onOpenKeys={() => openSettings('keys')}
           />
         ) : null}
         <div className="topbar">

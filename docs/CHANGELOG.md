@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.91.0`**. Sideload: **`6.91.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`6.92.0`**. Sideload: **`6.92.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `6.92.0` — Carto-Key für CarPlay-Karte — *CODE*
+
+Carto-Basemap-Key unter Einstellungen → API-Keys. Kacheln hängen `?key=` an, sonst bleibt das Wasserzeichen.
+
+- App-Code **`6.92.0`**. APK **`6.92.0`** (versionCode `69200`).
 
 ### `6.91.0` — Settings-Reiter + Debug-Chat — *CODE*
 

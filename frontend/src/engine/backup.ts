@@ -69,6 +69,7 @@ const KEY_FIELDS: Array<keyof Settings> = [
   'spotify_refresh',
   'spotify_client_id',
   'outlook_fred_key',
+  'carto_api_key',
   'tv_token',
 ]
 

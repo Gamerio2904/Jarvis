@@ -428,6 +428,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   <li>
                     Spotify <KeyMark on={Boolean(s?.spotify_client_id?.trim())} />
                   </li>
+                  <li>
+                    Carto <KeyMark on={Boolean(s?.carto_api_key?.trim())} />
+                  </li>
                 </ul>
               </section>
               <section className="settings-card">
@@ -575,6 +578,31 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     disabled={busy}
                     placeholder="Spotify Client ID"
                     onBlur={(e) => void p.patchSetting({ spotify_client_id: e.target.value.trim() })}
+                  />
+                </label>
+              </section>
+              <section className="settings-card">
+                <h3>
+                  Carto (CarPlay-Karte) <KeyMark on={Boolean(s?.carto_api_key?.trim())} />
+                </h3>
+                <p className="settings-hint">
+                  Ohne Key zeigt die Karte „API key required“. Kostenlos unter carto.com/basemaps/apikey — dann hier
+                  einfügen. Der Key hängt an jeder Kachel.
+                </p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <input
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    key={`carto-key-${s?.carto_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.carto_api_key || ''}
+                    disabled={busy}
+                    placeholder="Carto Basemap-Key"
+                    onBlur={(e) => void p.patchSetting({ carto_api_key: e.target.value.trim() })}
                   />
                 </label>
               </section>

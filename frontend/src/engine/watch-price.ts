@@ -14,7 +14,7 @@ import type { ToolMeta } from './tools.ts'
 
 export { parseWatchPriceIntent }
 
-const UA = { Accept: 'text/html', 'User-Agent': 'Jarvis/6.91.0 (local.jarvis.app)' }
+const UA = { Accept: 'text/html', 'User-Agent': 'Jarvis/6.92.0 (local.jarvis.app)' }
 
 async function peekPrice(query: string): Promise<{ price: string; source: string; url: string }> {
   const shops = compareShopSources(query)

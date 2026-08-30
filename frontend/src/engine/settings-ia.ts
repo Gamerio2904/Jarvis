@@ -115,7 +115,9 @@ export function filterTopics(q: string): SettingsTab[] {
       hits.push(t.id)
     }
   }
-  if (/key|gemini|groq|fred|omdb|tanke|spotify|aiza|gsk/.test(n) && !hits.includes('keys')) hits.unshift('keys')
+  if (/key|gemini|groq|fred|omdb|tanke|spotify|aiza|gsk|carto|karte|carplay/.test(n) && !hits.includes('keys')) {
+    hits.unshift('keys')
+  }
   if (/steck|dose|tv|pc|ventilator/.test(n) && !hits.includes('geraete')) hits.push('geraete')
   if (/lösch|gefahr|hausstand|export/.test(n) && !hits.includes('daten')) hits.push('daten')
   if (/wake|hören|stimme/.test(n) && !hits.includes('stimme')) hits.push('stimme')
