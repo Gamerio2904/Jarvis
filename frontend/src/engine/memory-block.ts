@@ -1,7 +1,7 @@
 import type { RetrieveHit } from './retrieve.ts'
 
 export function memoryBlock(
-  items: Array<{ key: string; value: string }>,
+  items: Array<{ key: string; value: string; category?: string }>,
   question = '',
   hits: RetrieveHit[] = [],
 ): string {
