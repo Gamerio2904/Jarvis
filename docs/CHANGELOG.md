@@ -5,7 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.90.0`**. Sideload: **`6.90.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`6.91.0`**. Sideload: **`6.91.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `6.91.0` — Settings-Reiter + Debug-Chat — *CODE*
+
+Acht Einstellungs-Reiter, alle API-Keys auf einem Tab. Debug-Chat bleibt über CarPlay und anderen Overlays sichtbar.
+
+- App-Code **`6.91.0`**. APK **`6.91.0`** (versionCode `69100`).
 
 ### Docs — Alltag vom Zettel `8.0` PLAN
 

@@ -18,6 +18,7 @@ import { parseHereIntent } from '../src/engine/here-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts } from '../src/engine/test-copy.ts'
+import { readFileSync } from 'node:fs'
 import { filterTopics, resolveTopic } from '../src/engine/settings-ia.ts'
 import { parseBlitzerIntent } from '../src/engine/blitzer-parse.ts'
 import { parseAmazonMusicIntent } from '../src/engine/amazon-parse.ts'
@@ -319,9 +320,16 @@ assert.ok(filterTopics('löschen').includes('daten'))
 assert.equal(resolveTopic('cloud'), 'keys')
 assert.equal(resolveTopic('musik'), 'geraete')
 assert.equal(resolveTopic('debug'), 'tests')
-assert.equal(resolveTopic('cloud'), 'keys')
 assert.equal(resolveTopic('haus'), 'geraete')
-assert.equal(resolveTopic('debug'), 'tests')
+{
+  const dock = readFileSync(new URL('../src/DebugChatDock.tsx', import.meta.url), 'utf8')
+  const css = readFileSync(new URL('../src/index.css', import.meta.url), 'utf8')
+  const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8')
+  assert.match(dock, /createPortal/)
+  assert.match(css, /\.debug-chat-dock[\s\S]*?z-index:\s*50/)
+  assert.match(app, /debugRunningRef\.current\) return/)
+  assert.match(app, /onBegin:\s*\(\)\s*=>\s*\{[\s\S]*setSettingsPanelOpen\(false\)/)
+}
 assert.ok(subQueries('Termin beim Zahnarzt').length >= 2)
 assert.equal(isLiveLookup('Muss man Eintritt zahlen für Venedig'), true)
 assert.equal(route('Muss man Eintritt zahlen für Venedig'), 'research')

@@ -65,6 +65,8 @@ import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
+import { DebugChatDock } from './DebugChatDock'
+import { useDebugRun } from './engine/use-debug-run'
 
 function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
   const raw = tool.result
@@ -322,6 +324,7 @@ function App() {
   const [driveOpen, setDriveOpen] = useState(false)
   const voiceOpenRef = useRef(false)
   const driveOpenRef = useRef(false)
+  const debugRunningRef = useRef(false)
   voiceOpenRef.current = voiceOpen
   driveOpenRef.current = driveOpen
   const [wakeListening, setWakeListening] = useState(false)
@@ -1203,6 +1206,7 @@ function App() {
   }
 
   function maybeOpenSettingsFromReply(reply: string) {
+    if (debugRunningRef.current) return
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
     else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t)) openSettings('haus')
@@ -1217,6 +1221,17 @@ function App() {
     }
   }
 
+  const debug = useDebugRun({
+    onSend: (text) => sendMessage(text),
+    onStartChat: (title) => startDebugChat(title),
+    busy,
+    onBegin: () => {
+      setSettingsPanelOpen(false)
+      setSidebarOpen(false)
+    },
+  })
+  debugRunningRef.current = debug.running
+
   const activeTitle =
     conversations.find((c) => c.id === activeId)?.title ?? 'Jarvis'
 
@@ -1230,7 +1245,10 @@ function App() {
   const voiceLayer = useOverlay(voiceOpen)
 
   return (
-    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}`} ref={appRef}>
+    <div
+      className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${debug.running ? ' is-debug-run' : ''}`}
+      ref={appRef}
+    >
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1740,11 +1758,21 @@ function App() {
           }}
           onDeleteMemory={(id) => void onDeleteMemory(id)}
           onClearMemory={() => void onClearMemory()}
-          onDebugSend={(text) => sendMessage(text)}
-          onDebugStart={(title) => startDebugChat(title)}
+          debug={debug}
           debugBusy={busy}
         />
       ) : null}
+
+      <DebugChatDock
+        running={debug.running}
+        overlayOpen={driveOpen || voiceOpen || calendarOpen || settingsPanelOpen}
+        progress={debug.progress}
+        turns={debug.turns}
+        messages={messages}
+        streaming={streamingText}
+        onStop={debug.stop}
+        onOpen={() => openSettings('tests')}
+      />
     </div>
   )
 }

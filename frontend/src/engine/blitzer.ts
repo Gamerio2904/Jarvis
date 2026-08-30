@@ -6,7 +6,7 @@ import type { ToolMeta } from './tools.ts'
 
 export { parseBlitzerIntent }
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/6.90.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/6.91.0 (local.jarvis.app)' }
 const AROUND_M = 150
 const SAMPLE_M = 1800
 

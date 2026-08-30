@@ -130,8 +130,7 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
-  onDebugSend: (text: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
-  onDebugStart: (title: string) => Promise<string>
+  debug: import('./engine/use-debug-run').DebugRunApi
   debugBusy: boolean
 }
 
@@ -1901,13 +1900,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
-          {tab === 'tests' ? (
-            <DebugPanel
-              onSend={p.onDebugSend}
-              onStartChat={p.onDebugStart}
-              busy={p.debugBusy}
-            />
-          ) : null}
+          {tab === 'tests' ? <DebugPanel debug={p.debug} busy={p.debugBusy} /> : null}
 
           {tab === 'daten' ? (
             <section className="settings-card danger-zone">

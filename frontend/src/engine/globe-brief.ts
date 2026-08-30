@@ -18,7 +18,7 @@ export { CITY_FLY_ZOOM }
 
 const ISS_VIEW_KM = 2200
 const EONET_KM = 420
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/6.90.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/6.91.0 (local.jarvis.app)' }
 
 export type PlaceBrief = { name: string; lat: number; lon: number; blurb: string }
 
