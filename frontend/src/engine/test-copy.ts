@@ -49,6 +49,15 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'V3 Verified Actions',
+    items: [
+      { label: 'Route ersetzen', text: 'Das habe ich doch lieber nach Freiberg am Neckar', expect: { tool: 'drive' } },
+      { label: 'Ja bitte Suche', text: 'ja bitte' },
+      { label: 'Suche abbrechen', text: 'nein' },
+      { label: 'Einstellungen', text: 'Öffne Einstellungen', expect: { tool: 'app' } },
+    ],
+  },
+  {
     title: 'Gedächtnis',
     items: [
       { label: 'Name + Kaffee merken', text: 'Ich heiße Max und trinke gerne Kaffee.' },

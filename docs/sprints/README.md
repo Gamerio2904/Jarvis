@@ -148,9 +148,12 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 145 | [`sprint-145.md`](./sprint-145.md) | `6.94.0` | TTS Gemini-Primary | **CODE** (in `6.96.0`) |
 | 146 | [`sprint-146.md`](./sprint-146.md) | `6.95.0` | App-Action-Registry | **CODE** (in `6.96.0`) |
 | 147 | [`sprint-147.md`](./sprint-147.md) | `6.96.0` | Banner, Chips, Wake | **CODE** |
-| 148+ | [`../51-phase0-audit.md`](../51-phase0-audit.md) | `6.97`+ | Industry V3 → V9 | **PLAN** |
+| 148 | [`sprint-148.md`](./sprint-148.md) | `6.97.0` | Action-FSM | **CODE** (in `6.99.0`) |
+| 149 | [`sprint-149.md`](./sprint-149.md) | `6.98.0` | Navi Replace verifiziert | **CODE** (in `6.99.0`) |
+| 150 | [`sprint-150.md`](./sprint-150.md) | `6.99.0` | Research-Pending hart | **CODE** |
+| 151+ | [`../51-phase0-audit.md`](../51-phase0-audit.md) | `8.20`/`9.x` | Industry V4 → V9 | **PLAN** |
 
-**Aktuell:** Code **`6.96.0`**. Sideload `6.90.0`. Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1+V2 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall-Plan [`49-next.md`](../49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`6.99.0`**. Sideload `6.90.0`. Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V3 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall-Plan [`49-next.md`](../49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

@@ -6,6 +6,7 @@ import { isCommNo, isCommYes } from './places-parse'
 import { isPcGround, parseGroundIntent, type GroundIntent } from './ground-parse'
 import { loadSettings, saveSettings } from './store'
 import { scrubReply } from './guards'
+import { packVerified } from './action-fsm.ts'
 import type { ToolMeta } from './tools'
 
 export { sanitizePcHost } from './pc-host'
@@ -21,14 +22,44 @@ const VISION_OFF =
   'Sehen am PC ist aus. LocateAnything (JarvisSee auf der RTX) läuft nicht. Nichts eingezeichnet, nichts angeklickt. Gemini-Auge bleibt Opt-in — das Bild ginge dann zu Google.'
 
 function pcTool(action: string, label: string, extra?: Record<string, unknown>): ToolMeta {
-  return {
-    tool_status: extra?.ok === false ? 'error' : 'executed',
-    tool: 'pc',
-    action,
-    label,
-    preview: label,
-    result: extra,
+  const ok = extra?.ok
+  if (ok === false) {
+    return packVerified({
+      domain: 'pc',
+      intent: action,
+      plan: action,
+      label,
+      observation: extra ?? { ok: false },
+      verify: () => false,
+      successReply: '',
+      failReply: '',
+      extra,
+    }).tool
   }
+  if (ok === true) {
+    return packVerified({
+      domain: 'pc',
+      intent: action,
+      plan: action,
+      label,
+      observation: extra ?? { ok: false },
+      verify: (obs) => obs.ok === true,
+      successReply: '',
+      failReply: '',
+      extra,
+    }).tool
+  }
+  return packVerified({
+    domain: 'pc',
+    intent: action,
+    plan: action,
+    label,
+    waiting: true,
+    observation: extra || { ask: true },
+    successReply: '',
+    failReply: '',
+    extra,
+  }).tool
 }
 
 function readPending(): PendingPc | null {

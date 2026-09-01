@@ -11,6 +11,7 @@ import {
   setReminderStatus,
   upsertMemory,
 } from './store'
+import { packVerified } from './action-fsm.ts'
 import type { ToolMeta } from './tools'
 
 export { parseHomeIntent } from './home-parse'
@@ -70,11 +71,17 @@ export async function handleHome(
 
   if (intent.kind === 'im_home') {
     const fired = await fireHomeTasks()
-    return {
-      handled: true,
-      reply: fired.length ? `Zuhause: ${fired.join('; ')}.` : 'Nichts für Zuhause offen.',
-      lastTool: 'home',
-    }
+    const packed = packVerified({
+      domain: 'home',
+      intent: 'im_home',
+      plan: 'fire',
+      label: 'Zuhause',
+      observation: { fired: fired.length, titles: fired },
+      verify: () => true,
+      successReply: fired.length ? `Zuhause: ${fired.join('; ')}.` : 'Nichts für Zuhause offen.',
+      failReply: 'Zuhause-Aufgaben nicht ausgelöst.',
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'home' }
   }
 
   const home = (await listMemory('place')).find((m) => m.key === 'zuhause')
@@ -91,11 +98,17 @@ export async function handleHome(
     })
   } else if (!home?.value) {
     saveSettings({ last_step_tool: 'home_ask', last_step_title: intent.task })
-    return {
-      handled: true,
-      reply: 'Wo ist Zuhause? Sage „Ich wohne in …“, dann merke ich die Aufgabe.',
-      lastTool: 'home_ask',
-    }
+    const packed = packVerified({
+      domain: 'home',
+      intent: 'when_home',
+      plan: 'ask',
+      label: 'Zuhause',
+      waiting: true,
+      observation: null,
+      successReply: 'Wo ist Zuhause? Sage „Ich wohne in …“, dann merke ich die Aufgabe.',
+      failReply: 'Wo ist Zuhause? Sage „Ich wohne in …“, dann merke ich die Aufgabe.',
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'home_ask' }
   }
   const fix = await ensureHomeFix()
   if (!fix.ok) return { handled: true, reply: fix.message }
@@ -106,12 +119,20 @@ export async function handleHome(
     conversationId,
     kind: 'home',
   })
+  const rows = await listReminders()
+  const saved = rows.some((r) => r.kind === 'home' && r.title === intent.task && r.status === 'open')
   const meters = intent.kind === 'when_home' && intent.radiusM ? ` Radius ${intent.radiusM} Meter.` : ''
   const where = intent.kind === 'when_home' && intent.address ? ` ${intent.address}.` : ''
-  return {
-    handled: true,
-    reply: `Wenn Sie zuhause sind:${where} ${intent.task}.${meters} Handy muss an sein — Gerät aus löst nicht aus.`,
-    tool: { tool_status: 'executed', tool: 'home', action: 'save', label: 'Zuhause', preview: intent.task },
-    lastTool: 'home',
-  }
+  const packed = packVerified({
+    domain: 'home',
+    intent: 'when_home',
+    plan: 'save',
+    label: 'Zuhause',
+    observation: { saved, task: intent.task },
+    verify: (obs) => obs.saved === true,
+    successReply: `Wenn Sie zuhause sind:${where} ${intent.task}.${meters} Handy muss an sein — Gerät aus löst nicht aus.`,
+    failReply: 'Die Zuhause-Aufgabe ist nicht gespeichert.',
+    extra: { preview: intent.task },
+  })
+  return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'home' }
 }

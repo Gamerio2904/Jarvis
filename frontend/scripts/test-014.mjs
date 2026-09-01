@@ -127,6 +127,18 @@ import { reduceOverlay, overlayTop, overlayHidesDrive, OVERLAY_INIT } from '../s
 import { OUTLOOK_WATCH_ALARM } from '../src/engine/outlook-watch.ts'
 import { parseAppIntent } from '../src/engine/app-parse.ts'
 import { acceptWake, WAKE_DEBOUNCE_MS } from '../src/engine/wake-gate.ts'
+import { ACTION_INIT, packVerified, reduceAction, toolStatusOf } from '../src/engine/action-fsm.ts'
+import { destMatches, naviRouteVerified, NAVI_INIT, reduceNavi } from '../src/engine/navi-fsm.ts'
+import {
+  acceptResearchPending,
+  declineResearchPending,
+  expireResearchPending,
+  isResearchPendingWaiting,
+  offerResearchPending,
+  parseResearchPending,
+  RESEARCH_PENDING_TTL_MS,
+  serializeResearchPending,
+} from '../src/engine/research-pending.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -1037,7 +1049,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /6\.96\.0/)
+assert.match(HELP_TEXT, /6\.99\.0/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1815,7 +1827,7 @@ assert.equal(
     last_step_tool: 'research',
     last_step_utterance: 'was hat Elon Musk als letztes getweetet',
   }),
-  'was hat Elon Musk als letztes getweetet',
+  null,
 )
 assert.match(scrubReply('Guten Tag, Timon. Wie geht es Ihnen?', { names: ['Timon'] }), /Guten Tag/)
 assert.doesNotMatch(scrubReply('Guten Tag, Timon. Wie geht es Ihnen?', { names: ['Timon'] }), /Timon/)
@@ -1874,5 +1886,153 @@ assert.doesNotMatch(
   assert.ok(acceptWake({ lastAt: Date.now() - WAKE_DEBOUNCE_MS - 1, open: false }, ''))
 }
 assert.ok(TEST_COPY_GROUPS.some((g) => /V2 Voice/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V3 Verified/i.test(g.title)))
+
+{
+  let s = ACTION_INIT
+  s = reduceAction(s, { type: 'intent', domain: 'navi', intent: 'replace:Freiberg' })
+  s = reduceAction(s, { type: 'plan', plan: 'replace', expect: { dest: 'Freiberg' } })
+  s = reduceAction(s, { type: 'precheck', ok: true })
+  s = reduceAction(s, { type: 'run' })
+  s = reduceAction(s, { type: 'verify', ok: true })
+  assert.equal(s.phase, 'failed')
+  assert.match(s.error || '', /Observation/)
+  s = reduceAction(s, { type: 'observe', observation: { dest: 'Freiberg am Neckar', rideOk: true, minutes: 12 } })
+  s = reduceAction(s, { type: 'verify', ok: true })
+  assert.equal(s.phase, 'success')
+  s = reduceAction(s, { type: 'respond', reply: 'Route nach Freiberg am Neckar aktualisiert.' })
+  assert.equal(s.pipeline, 'response')
+  assert.equal(toolStatusOf(s.phase), 'executed')
+}
+
+{
+  const packed = packVerified({
+    domain: 'navi',
+    intent: 'replace:Freiberg',
+    plan: 'replace',
+    label: 'Fahrmodus',
+    observation: {
+      requested: 'Freiberg am Neckar',
+      dest: 'Heilbronn',
+      prevDest: 'Heilbronn',
+      replace: true,
+      geocoded: true,
+      hereOk: true,
+      rideOk: false,
+      minutes: 0,
+      meters: 0,
+      coords: 0,
+    },
+    verify: (obs) => naviRouteVerified(obs),
+    successReply: 'Die Route berechne ich sofort neu.',
+    failReply: 'Ziel Freiberg am Neckar liegt, die Strecke ist noch nicht berechnet.',
+  })
+  assert.equal(packed.state.phase, 'failed')
+  assert.equal(packed.tool.tool_status, 'error')
+  assert.doesNotMatch(packed.reply, /sofort neu/)
+  assert.match(packed.reply, /Strecke/)
+}
+
+{
+  const ok = packVerified({
+    domain: 'navi',
+    intent: 'replace:Freiberg',
+    plan: 'replace',
+    label: 'Fahrmodus',
+    observation: {
+      requested: 'Freiberg am Neckar',
+      dest: 'Freiberg am Neckar',
+      prevDest: 'Heilbronn',
+      replace: true,
+      geocoded: true,
+      hereOk: true,
+      rideOk: true,
+      minutes: 18,
+      meters: 12_000,
+      coords: 40,
+    },
+    verify: (obs) => naviRouteVerified(obs),
+    successReply: 'Route nach Freiberg am Neckar aktualisiert: etwa 18 Min, 12.0 km.',
+    failReply: 'Strecke fehlt.',
+  })
+  assert.equal(ok.state.phase, 'success')
+  assert.equal(ok.tool.tool_status, 'executed')
+  assert.match(ok.reply, /aktualisiert/)
+}
+
+{
+  let n = NAVI_INIT
+  n = reduceNavi(n, { type: 'calculate', dest: 'Heilbronn' })
+  assert.equal(n.phase, 'calculating')
+  n = reduceNavi(n, { type: 'verified', dest: 'Heilbronn', destLat: 49.1, destLon: 9.2, minutes: 10, meters: 8000 })
+  assert.equal(n.phase, 'active_route')
+  n = reduceNavi(n, { type: 'replace', dest: 'Freiberg am Neckar' })
+  assert.equal(n.phase, 'replacing_route')
+  n = reduceNavi(n, {
+    type: 'verified',
+    dest: 'Freiberg am Neckar',
+    destLat: 49.05,
+    destLon: 9.05,
+    minutes: 18,
+    meters: 12000,
+  })
+  assert.equal(n.phase, 'active_route')
+  assert.equal(n.dest, 'Freiberg am Neckar')
+  assert.equal(destMatches('Freiberg am Neckar', 'Freiberg am Neckar'), true)
+  assert.equal(destMatches('Freiberg', 'Freiberg am Neckar'), true)
+  assert.equal(naviRouteVerified({ requested: 'Freiberg', dest: 'Heilbronn', rideOk: true, hereOk: true, minutes: 10, meters: 1000 }).ok, false)
+}
+
+{
+  const offer = offerResearchPending('was hat Elon Musk als letztes getweetet', 'Elon Musk Tweet')
+  assert.equal(isResearchPendingWaiting(offer), true)
+  const acc = acceptResearchPending('ja bitte', offer)
+  assert.equal(acc?.utterance, 'was hat Elon Musk als letztes getweetet')
+  assert.equal(declineResearchPending('nein', offer), true)
+  const json = serializeResearchPending(offer)
+  assert.equal(parseResearchPending(json)?.query, 'Elon Musk Tweet')
+  const stale = expireResearchPending(offer, offer.at + RESEARCH_PENDING_TTL_MS + 1)
+  assert.equal(stale?.status, 'expired')
+  assert.equal(acceptResearchPending('ja bitte', stale, offer.at + RESEARCH_PENDING_TTL_MS + 2), null)
+  assert.equal(
+    rewriteFollowUp('ja bitte', {
+      last_step_tool: 'research_offer',
+      last_research_json: json,
+      last_step_utterance: 'was hat Elon Musk als letztes getweetet',
+    }),
+    'was hat Elon Musk als letztes getweetet',
+  )
+  assert.equal(
+    rewriteFollowUp('ja bitte', {
+      last_step_tool: 'research_offer',
+      last_research_json: serializeResearchPending(stale),
+      last_step_utterance: 'was hat Elon Musk als letztes getweetet',
+    }),
+    null,
+  )
+  assert.equal(
+    rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix', last_research_json: json }),
+    'Öffne Netflix',
+  )
+}
+
+assert.match(scrubReply('Die Route berechne ich sofort neu.'), /Fahrmodus ist intern/)
+assert.doesNotMatch(scrubReply('Die Route berechne ich sofort neu.'), /sofort neu/)
+
+{
+  const packed = packVerified({
+    domain: 'app',
+    intent: 'open:allgemein',
+    plan: 'settings',
+    label: 'Einstellungen',
+    observation: { action: 'settings', topic: 'allgemein' },
+    verify: (obs) => obs.action === 'settings',
+    successReply: 'Einstellungen ist offen.',
+    failReply: 'Einstellungen nicht geöffnet.',
+    extra: { topic: 'allgemein' },
+  })
+  assert.equal(packed.tool.tool_status, 'executed')
+  assert.equal(packed.tool.action, 'settings')
+}
 
 console.log('ok 0.14 parsers')

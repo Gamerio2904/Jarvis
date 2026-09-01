@@ -183,7 +183,7 @@ export function researchStatusLabel(r?: ResearchMeta | null): string {
 }
 
 export const RESEARCH_OFF_REPLY =
-  'Live-Suche ist aus. Unter Einstellungen Internet-Research an — sonst erfinde ich kein Wetter und keine Suche.'
+  'Suche ist aus. Unter Einstellungen Internet-Research an — oder „ja bitte“ für einmal suchen. Sonst erfinde ich keine Live-Zahlen.'
 
 export const RESEARCH_NEEDS_GEMINI =
   'Research braucht Gemini. Unter Einstellungen Gemini an, dann die Suche nochmal.'

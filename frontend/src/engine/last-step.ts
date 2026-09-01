@@ -1,3 +1,5 @@
+import { acceptResearchPending, expireResearchPending, parseResearchPending } from './research-pending.ts'
+
 export type LastStep = {
   last_step_tool?: string
   last_step_title?: string
@@ -5,6 +7,7 @@ export type LastStep = {
   last_step_utterance?: string
   last_medium?: string
   globe_tour_on?: boolean
+  last_research_json?: string
 }
 
 const FOLLOW_UP =
@@ -84,11 +87,17 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   }
 
   if (CONFIRM.test(raw) || RESEARCH_YES.test(raw)) {
-    if (tool === 'research' || tool === 'research_offer') {
+    const pending = expireResearchPending(parseResearchPending(step?.last_research_json))
+    if (tool === 'research_offer' || tool === 'research' || !tool) {
+      const accepted = acceptResearchPending(raw, pending)
+      if (accepted) return accepted.utterance
+    }
+    if (tool === 'research_offer') {
+      if (pending && pending.status !== 'waiting') return null
       const q = (utterance || title).trim()
       if (q && !CONFIRM.test(q) && !RESEARCH_YES.test(q)) return q
     }
-    if (!tool || tool === 'todo' || tool === 'notes' || tool === 'weather') return null
+    if (!tool || tool === 'todo' || tool === 'notes' || tool === 'weather' || tool === 'research') return null
     if (utterance && !CONFIRM.test(utterance) && !HALT.test(utterance) && !RESEARCH_YES.test(utterance)) return utterance
     return null
   }

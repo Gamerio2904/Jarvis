@@ -1,6 +1,6 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`6.96.0`** (V1 `6.91`–`6.93`, V2 `6.94`–`6.96`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Recall `7.0` und Alltag `8.0` bleiben geplant, **laufen nicht vor Stabilität**.
+> **Jetzt:** Code **`6.99.0`** (V1 `6.91`–`6.93`, V2 `6.94`–`6.96`, V3 `6.97`–`6.99`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Recall `7.0` und Alltag `8.0` bleiben geplant, **laufen nicht vor Stabilität**.
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
@@ -163,7 +163,7 @@ Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
 
 **LÖSUNG.** Unvollständige Sätze: Gemini-Retry (MAX_TOKENS / kein Satzende) oder `REPLY_TRUNCATED` vor `scrubReply` (sonst fälscht `finishReply` den Punkt). `ja bitte` bindet `research_offer`. Anrede: Siezen, Vorname nicht vokativ (`stripVocativeNames`).
 
-**Status `6.93`.** CODE. Volles Research-Pending-System bleibt V3.
+**Status `6.93`.** CODE. Volles Research-Pending-System ist V3 `6.99`.
 
 ### S6 — Elon-Tweet: kein Treffer, Satz abgeschnitten
 
@@ -175,7 +175,7 @@ Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
 
 **LÖSUNG.** Live-Lookup für Tweet/News-Personen; Confirm `ja bitte` führt pending search aus (`last_step_utterance`). Unvollständiger Satz → Retry oder Abbruch-Satz, nie Stumpf mit erfundenem Punkt.
 
-**Status `6.93`.** CODE. Verification „Sources oder ehrlich kein Treffer“ in der Live-Suche bleibt V3-hart.
+**Status `6.93`.** CODE. Verification „Sources oder ehrlich kein Treffer“ ist V3-hart `6.99`.
 
 ### S7 — Nächster Aldi → Hofläden, Produktliste als Name
 
@@ -227,7 +227,7 @@ Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
 
 **LÖSUNG.** Replace-Intent im Fahrmodus → `startRoute`. Reply nur nach `rideOk`. Sonst ehrlich: Ziel liegt, Strecke fehlt. Generisches Action-Verify = VERSION 3.
 
-**Status `6.91`.** Parser + ehrliche `startRoute`-Replies CODE. Volles Action-System später.
+**Status `6.99`.** Parser + ehrliche `startRoute`-Replies CODE in `6.91`. Action-Verify + Navi-FSM CODE.
 
 ### S11 — Debug bricht ab / Overlay hängt
 
@@ -434,16 +434,23 @@ Won’t in 142: WebRTC, Memory-Graph, PDF, SmartThings, Foreground-Service `5.12
 
 - Gemini-Banner einmal, Verstanden speichert. Quellen-Badge ohne `1 · Wetter`. Wake nur auf Final.
 
-### Sprint 148–150 — Action Architecture (`6.97+`)
+### Sprint 148 — Action-FSM (`6.97`) **CODE in `6.99.0`**
 
 ```text
 INTENT → PLANNER → PRECONDITIONS → EXECUTION → OBSERVATION → VERIFICATION → STATE → RESPONSE
 PLANNED | RUNNING | WAITING | VERIFYING | SUCCESS | FAILED | CANCELLED
 ```
 
-Navi: `IDLE → CALCULATING → ACTIVE_ROUTE → REPLACING_ROUTE → VERIFYING → ACTIVE_ROUTE`.
+`packVerified` in `action-fsm.ts`. SUCCESS nur mit Observation. TV, PC, App, Navi, Home.
 
-Gilt für TV, PC, App, Navi, Home.
+### Sprint 149 — Navi Replace verifiziert (`6.98`) **CODE in `6.99.0`**
+
+Navi: `IDLE → CALCULATING → ACTIVE_ROUTE → REPLACING_ROUTE → VERIFYING → ACTIVE_ROUTE`.
+`startRoute` spricht Erfolg nur nach `naviRouteVerified` (Ziel, GPS, rideOk, Minuten). `scrubReply` fängt Navi-Lügen.
+
+### Sprint 150 — Research-Pending hart (`6.99`) **CODE**
+
+Pending mit TTL, `ja bitte` sucht die gemerkte Frage, `nein` bricht ab. Ohne Quellen: `RESEARCH_EMPTY`. Completed Research frisst Confirm nicht.
 
 ### Danach
 
@@ -464,7 +471,7 @@ Zusätzlich zu `03-agile-process.md`:
 
 ### Beta Ready (PO) — nicht dieses Increment
 
-Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `6.96` schließt **V2** (145–147). Es ist **nicht** Beta Ready.
+Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `6.99` schließt **V3** (148–150). Es ist **nicht** Beta Ready.
 
 ---
 

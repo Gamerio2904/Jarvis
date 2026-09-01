@@ -404,6 +404,7 @@ function App() {
 
   function applyAppTool(tool?: ToolMeta | null) {
     if (!tool || tool.tool !== 'app') return
+    if (tool.tool_status === 'error' || tool.tool_status === 'aborted') return
     const action = (tool.action || '').trim()
     const topic = String(tool.result?.topic || '') as SettingsTopic
     if (action === 'voice') {

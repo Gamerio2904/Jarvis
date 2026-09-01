@@ -5,7 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.96.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`6.99.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `6.99.0` — V3 Verified Actions — *CODE*
+
+Sprints 148–150. Action-FSM, Navi-Replace nur nach Verification, Research-Pending hart. Sideload bleibt `6.90.0` bis zur nächsten APK.
+
+- **Action-FSM:** SUCCESS nur mit Observation. TV/PC/App/Navi/Home.
+- **Navi:** Replace verifiziert Zielwechsel, GPS, `rideOk`. Kein Erfolgssatz „sofort neu“ ohne Strecke.
+- **Research:** `ja bitte` sucht die gemerkte Frage; TTL; `nein` bricht ab; ohne Quellen ehrlich leer.
+- Docs [`sprints/sprint-148.md`](./sprints/sprint-148.md)–[`sprint-150.md`](./sprints/sprint-150.md)
 
 ### `6.96.0` — V2 Voice & App — *CODE*
 
