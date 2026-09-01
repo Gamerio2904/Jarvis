@@ -16,7 +16,7 @@ const FAKE_TV_OPEN =
 const FAKE_PC_DONE =
   /\b(?:fifa|das programm|die app)\s+(?:läuft|ist\s+(?:offen|gestartet))\b|klick\s+ausgeführt/i
 const FAKE_WEBRTC =
-  /\bwebrtc\s+ist\s+(?:an|verbunden|offen)\b|\bder\s+peer\s+steht\b|\blive-stream\s+läuft\b/i
+  /\bweb\s*rtc\s+ist\s+(?:an|verbunden|offen)\b|\bder\s+peer\s+steht\b|\blive-stream\s+läuft\b/i
 const INSULT_USER =
   /akute(?:r)?\s+amnesie|neurolog|kognitive(?:n)?\s+fähigkeiten|sinnlose fragen|blutbild|arterien|fürchte ich um ihre|offensichtlich an |ihr(?:em)?\s+letzten blut/i
 const FAKE_SEARCH =

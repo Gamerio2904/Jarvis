@@ -18,6 +18,7 @@ export type RtcStreamObs = {
   action?: string
   reached?: boolean
   can?: boolean
+  ok?: boolean
   sessionId?: string
   webrtc?: string
   mode?: string
@@ -84,9 +85,7 @@ export function rtcStreamVerified(obs: RtcStreamObs): { ok: boolean; error?: str
   if (!obs || obs.reached === false) return { ok: false, error: 'PC nicht erreicht.' }
   if (obs.can === false) return { ok: false, error: 'Live-Bild hat der Agent nicht.' }
   const action = String(obs.action || 'stream')
-  if (action === 'stream_stop') {
-    return obs.sessionId || obs.ok === true ? { ok: true } : { ok: true }
-  }
+  if (action === 'stream_stop') return { ok: true }
   const sessionId = String(obs.sessionId || '').trim()
   if (!sessionId) return { ok: false, error: 'Keine Live-Sitzung.' }
   if (obs.webrtc === 'ready') {

@@ -20,7 +20,6 @@ import {
   RTC_OFF,
   RTC_STOP,
   parseRtcSession,
-  rtcStreamVerified,
   rtcSuccessReply,
 } from './pc-rtc.ts'
 import { isCommNo, isCommYes } from './places-parse'
