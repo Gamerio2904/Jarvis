@@ -7,7 +7,7 @@ import { ensureDeviceLocation } from './native/geo'
 import { DebugPanel } from './DebugPanel'
 import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
 import { TTS_VOICES } from './engine/tts'
-import { sanitizePcHost } from './engine/pc-host'
+import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from './engine/pc-host'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -397,9 +397,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
-                    type="text"
+                    type="password"
                     inputMode="text"
-                    autoComplete="off"
+                    autoComplete="new-password"
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
@@ -424,9 +424,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
-                    type="text"
+                    type="password"
                     inputMode="text"
-                    autoComplete="off"
+                    autoComplete="new-password"
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
@@ -454,9 +454,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
-                    type="text"
+                    type="password"
                     inputMode="text"
-                    autoComplete="off"
+                    autoComplete="new-password"
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
@@ -479,9 +479,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
-                    type="text"
+                    type="password"
                     inputMode="text"
-                    autoComplete="off"
+                    autoComplete="new-password"
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
@@ -986,6 +986,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     const v = sanitizePcHost(pcHost)
                     setPcHost(v)
                     void p.patchSetting({ pc_host: v })
+                    if (v && !isAllowedPcHost(v)) {
+                      setPcMsgOk(false)
+                      setPcMsg(PC_HOST_HINT)
+                    }
                   }}
                 />
               </label>
@@ -1007,10 +1011,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>Token</span>
                 <input
+                  type="password"
                   value={pcToken}
                   disabled={busy || pcBusy}
                   placeholder="aus dem PC-Fenster"
-                  autoComplete="off"
+                  autoComplete="new-password"
                   onChange={(e) => setPcToken(e.target.value)}
                   onBlur={() => {
                     const v = pcToken.trim()
@@ -1027,6 +1032,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   onClick={() => {
                     const host = sanitizePcHost(pcHost)
                     setPcHost(host)
+                    if (host && !isAllowedPcHost(host)) {
+                      setPcMsgOk(false)
+                      setPcMsg(PC_HOST_HINT)
+                      return
+                    }
                     setPcBusy(true)
                     setPcMsg('Prüfe PC…')
                     void p.patchSetting({

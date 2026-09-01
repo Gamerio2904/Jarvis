@@ -4,7 +4,7 @@ import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS } from '../src/en
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
-import { scrubReply, isHelpCommand, finishReply, HELP_TEXT } from '../src/engine/guards.ts'
+import { scrubReply, isHelpCommand, finishReply, HELP_TEXT, redactSecrets } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import {
   formatResearchReply,
@@ -71,7 +71,7 @@ import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { beginTurn, endTurn } from '../src/engine/turn-gate.ts'
 import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
 import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
-import { sanitizePcHost } from '../src/engine/pc-host.ts'
+import { isAllowedPcHost, sanitizePcHost } from '../src/engine/pc-host.ts'
 import {
   needsLaunchConfirm,
   parsePcCaps,
@@ -1068,9 +1068,10 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /9\.3\.0/)
+assert.match(HELP_TEXT, /9\.9\.0/)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
+assert.match(HELP_TEXT, /Keys nicht im Chat/)
 assert.match(HELP_TEXT, /Datei-Knopf/)
 assert.match(HELP_TEXT, /Quelle nennen/)
 assert.match(HELP_TEXT, /SmartThings/)
@@ -1327,6 +1328,14 @@ assert.equal(parsePcIntent('PC testen')?.kind, 'status')
 assert.equal(parsePcIntent('Öffne Netflix'), null)
 assert.equal(parsePcIntent('Bro anrufen'), null)
 assert.equal(sanitizePcHost('http://192.168.1.10:18790'), '192.168.1.10')
+assert.equal(isAllowedPcHost('http://192.168.1.10:18790'), true)
+assert.equal(isAllowedPcHost('10.0.0.2'), true)
+assert.equal(isAllowedPcHost('127.0.0.1'), true)
+assert.equal(isAllowedPcHost('172.28.0.1'), false)
+assert.equal(isAllowedPcHost('8.8.8.8'), false)
+assert.equal(isAllowedPcHost('evil.example'), false)
+assert.equal(redactSecrets('Key AIzaSyDummyKeyDummyKeyDummy12 extra'), 'Key … extra')
+assert.doesNotMatch(scrubReply('Mein Key ist AIzaSyDummyKeyDummyKeyDummy12.'), /AIzaSy/)
 assert.equal(needsLaunchConfirm('fifa'), false)
 assert.equal(needsLaunchConfirm('chrome'), true)
 {
@@ -2032,6 +2041,8 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /V5 Gedächtnis/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V6 TV/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V7 PC/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V8 Live/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V9 Hardening/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V1 |Stabilität/i.test(g.title)) || TEST_COPY_GROUPS.some((g) => /Stabilität/i.test(g.title)))
 
 {
   let s = ACTION_INIT

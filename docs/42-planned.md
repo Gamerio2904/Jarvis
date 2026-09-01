@@ -1,25 +1,24 @@
-# 42 — Alles geplant (Stand Code `9.3.0`)
+# 42 — Alles geplant (Stand Code `9.9.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`9.3.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`9.9.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
 1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V8 `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` / `9.3` **CODE** — vor Alltag-Execute
+2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` / `9.3` / `9.9` **CODE** — vor Alltag-Execute
 3. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`, Session `6.91`)
-4. V9 Hardening [`51-phase0-audit.md`](./51-phase0-audit.md) `9.9` nach V8
-5. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
-6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+4. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
+5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
-Bereits **CODE** in `9.3.0`: V8 Live Signaling + Verify. V7 PC Capability-Levels + Confirm. V6 TV Registry + Verify Launch. V5 Hierarchical Memory. V4 Datei/PDF/OCR. V3 Action-FSM. V2 TTS/App/Wake. V1 Overlay/Weltlage.
+Bereits **CODE** in `9.9.0`: V9 Hardening. V8 Live Signaling + Verify. V7 PC Capability-Levels + Confirm. V6 TV Registry + Verify Launch. V5 Hierarchical Memory. V4 Datei/PDF/OCR. V3 Action-FSM. V2 TTS/App/Wake. V1 Overlay/Weltlage.
 
 ---
 
-## CODE auf diesem Stand (`9.3.0`)
+## CODE auf diesem Stand (`9.9.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -44,6 +43,7 @@ Bereits **CODE** in `9.3.0`: V8 Live Signaling + Verify. V7 PC Capability-Levels
 | TV V6 | `9.1` | Device-Registry, Verify Launch, kein SmartThings |
 | PC V7 | `9.2` | Capability-Levels, Confirm, Verify Launch/Klick |
 | Live V8 | `9.3` | `/v1/webrtc` Signaling, LAN-JPEG-Dock, WebRTC nur mit Peer |
+| Hardening V9 | `9.9` | Regression-Katalog, LAN-only PC, Secret-Redact, Password-Felder |
 | Davor | `3.19`–`3.0` / `1.x` | Kalender-Fenster, Register, Auge=Gemini, PC-Screenshot |
 
 ## Offen

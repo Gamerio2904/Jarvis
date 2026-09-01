@@ -1,6 +1,6 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`9.3.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`, V7 PC `9.2`, V8 Live `9.3`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag `8.0` bleibt geplant, **läuft nicht vor Stabilität**.
+> **Jetzt:** Code **`9.9.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`, V7 PC `9.2`, V8 Live `9.3`, V9 Hardening `9.9`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag `8.0` bleibt geplant, **läuft nicht vor Stabilität**.
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
@@ -374,7 +374,7 @@ Bestehende Pläne `7.0` Recall und `8.0` Alltag **nicht löschen**. Industry-Tra
 | **V6 TV** | **`9.1`** | 154–156 | Device-Registry, Verify Launch | V3 |
 | **V7 PC Beta** | **`9.2`** | 157–159 | Capability-Levels, Confirm, Verify | V3 |
 | **V8 Live-Stream** | **`9.3`** | 160–162 | WebRTC-Signaling, LAN-JPEG, Verify Peer | V7 Pairing |
-| **V9 Hardening** | `9.9` | zuletzt | Regression, Security, UX | alle |
+| **V9 Hardening** | **`9.9`** | 163–165 | Regression, Security, UX | alle |
 
 Alltag `8.0` (Blitzer, Settings-IA, Preiswache) kann **parallel zu V2** geschnitten werden, sobald V1 grün ist — nicht vor Debug/Dedup.
 
@@ -516,9 +516,21 @@ Einzelbilder in der Sitzung. Dock über dem Composer. Live aus beendet.
 
 WebRTC-Satz nur mit connected+track. JPEG bleibt JPEG.
 
+### Sprint 163 — Regression-Katalog (`9.9`) **CODE in `9.9.0`**
+
+Debug-Gruppe V9. V1–V8 bleiben im Katalog. `/hilfe` `9.9.0`.
+
+### Sprint 164 — Security hart (`9.9`) **CODE in `9.9.0`**
+
+PC nur LAN. Keys/Token nicht im Chat. Settings-Felder Passwort.
+
+### Sprint 165 — UX + Industry-DoD (`9.9`) **CODE**
+
+Live-Dock ohne Session kein HTTP. Industry-DoD abgehakt.
+
 ### Danach
 
-Hardening — wie PO V9. Kein Major ohne Verification-Schicht.
+Alltag `8.0`, Debug-Hintergrund `5.12`. Kein Major ohne Verification-Schicht.
 
 ---
 
@@ -526,16 +538,16 @@ Hardening — wie PO V9. Kein Major ohne Verification-Schicht.
 
 Zusätzlich zu `03-agile-process.md`:
 
-- [ ] Kein Erfolgssatz ohne Tool-Observation
-- [ ] Jeder Hintergrundprozess: Start, Monitor, Stop, Recovery
-- [ ] Overlay immer schließbar (Button + Back + Force)
-- [ ] Eine User-Nachricht = ein Turn (außer expliziter Retry)
-- [ ] Parser-Falschalarme aus diesem Audit haben Regressionstests
-- [ ] `test:014` grün; Debug-Katalog um die Screenshot-Prompts erweitert (143)
+- [x] Kein Erfolgssatz ohne Tool-Observation
+- [x] Jeder Hintergrundprozess: Start, Monitor, Stop, Recovery
+- [x] Overlay immer schließbar (Button + Back + Force)
+- [x] Eine User-Nachricht = ein Turn (außer expliziter Retry)
+- [x] Parser-Falschalarme aus diesem Audit haben Regressionstests
+- [x] `test:014` grün; Debug-Katalog um die Screenshot-Prompts erweitert (143)
 
-### Beta Ready (PO) — nicht dieses Increment
+### Beta Ready (PO)
 
-Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `9.3` schließt **V8** (160–162). Es ist **nicht** Beta Ready.
+`9.9` schließt **V9** (163–165). Industry-Track V1–V9 ist **CODE**. Sideload bleibt `6.90.0` — das ist kein Store-Release. Alltag `8.0` und Debug-Hintergrund `5.12` bleiben PLAN.
 
 ---
 
@@ -557,6 +569,7 @@ Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `9.3` schließt **V8** (160
 | TV Netflix | tvLaunchVerified + packVerified | launch + verify | **CODE `9.1`** |
 | PC offline | pc-cap + packVerified | Agent down | **CODE `9.2`** |
 | PC live | rtcStreamVerified | Agent down / kein Peer | **CODE `9.3`** |
+| PC Host / Keys | isAllowedPcHost + redactSecrets | 172/Key im Chat | **CODE `9.9`** |
 
 Failure Simulation: Tool Timeout, Success-ohne-Wirkung, Netz weg, große Uploads — ab V3/V4.
 

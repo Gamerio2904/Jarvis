@@ -1,6 +1,6 @@
 import { completeGeminiVision, geminiReady } from './gemini'
 import { getJson, postJson } from './http-json'
-import { sanitizePcHost } from './pc-host'
+import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from './pc-host'
 import { parsePcIntent, type PcIntent } from './pc-parse'
 import {
   CAP_OFFLINE,
@@ -29,7 +29,7 @@ import { scrubReply } from './guards'
 import { packVerified } from './action-fsm.ts'
 import type { ToolMeta } from './tools'
 
-export { sanitizePcHost } from './pc-host'
+export { sanitizePcHost, isAllowedPcHost, PC_HOST_HINT } from './pc-host'
 export { parsePcIntent, PC_COPY_PROMPTS } from './pc-parse'
 export type { PcIntent } from './pc-parse'
 export { parsePcCaps, pcCan, pcActionVerified, needsLaunchConfirm } from './pc-cap.ts'
@@ -189,6 +189,7 @@ function endpoint(): { url: string; token: string } | { error: string } {
         'Keine PC-IP. Auf dem Windows-Rechner JarvisPC.bat starten — die gelbe IP (192.168…), nicht 172…. Dann Einstellungen → PC.',
     }
   }
+  if (!isAllowedPcHost(host)) return { error: PC_HOST_HINT }
   const port = s.pc_port > 0 ? s.pc_port : 18790
   if (!token) return { error: 'Kein Token. Den Code aus dem Jarvis-PC-Fenster unter Einstellungen → PC eintragen.' }
   return { url: `http://${host}:${port}`, token }

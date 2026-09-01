@@ -30,6 +30,7 @@ import {
   checkHomeFence,
   pullRtcFrame,
   stopRtcLive,
+  readRtcLive,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -183,6 +184,10 @@ function PcLiveDock() {
   useEffect(() => {
     let alive = true
     async function tick() {
+      if (!readRtcLive()) {
+        if (alive) setSrc('')
+        return
+      }
       const r = await pullRtcFrame()
       if (!alive) return
       setSrc(r.ok && r.image ? r.image : '')

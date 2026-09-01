@@ -36,7 +36,7 @@ Dann kommt das Handy nicht durch — nicht weil die BAT „falsch ausgefüllt“
 
 | Check | Richtig |
 |-------|---------|
-| Richtige IP | Die **empfohlene** im PC-Fenster, meist `192.168…`. Andere IPs der Reihe nach testen. |
+| Richtige IP | Die **empfohlene** im PC-Fenster, meist `192.168…` oder `10…`. **Nicht** `172…` (WSL) und nicht Internet. |
 | Schalter | Einstellungen → PC → **an** |
 | Gleiches Netz | PC-WLAN = Handy-WLAN, kein VPN auf einem der beiden |
 | Firewall | „Firewall erlauben“ im Fenster, oder Windows-Abfrage zulassen |
