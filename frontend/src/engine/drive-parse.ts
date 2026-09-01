@@ -27,7 +27,7 @@ function destOf(raw?: string): string | undefined {
   if (!t || t.length < 2) return undefined
   if (SKIP_DEST.test(t)) return undefined
   if (/^\d+$/.test(t)) return undefined
-  if (t.split(/\s+/).length > 5) return undefined
+  if (t.split(/\s+/).length > 6) return undefined
   if (NOT_PLACE.test(t)) return undefined
   if (DEST_VERB.test(t)) return undefined
   if (/^(hause|heim|zuhause|zu\s*hause)$/i.test(t)) return 'zuhause'
@@ -54,6 +54,8 @@ const ETA =
   /^\s*(?:wie\s+weit\s+noch|wie\s+lange\s+noch|wann\s+(?:sind\s+wir|bin\s+ich)\s+da|restweg|ankunft|eta|wie\s+weit\s+ist\s+es\s+noch)\s*[.!?]*$/i
 const WANT_ROUTE =
   /^\s*(?:gib\s+(?:mir\s+)?(?:mal\s+)?(?:n|ne|nen|eine|die)\s+route(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?|zeig(?:e)?(?:\s+mir)?\s+(?:mal\s+)?(?:die\s+|ne\s+|eine\s+)?route(?:\s+(?:zu(?:r|m)?|nach)\s+(.+))?|route(?:\s+bitte|\s+jetzt)?)\s*[.!?]*$/i
+const REPLACE_DEST =
+  /\b(?:lieber|stattdessen|besser|neue\s+route|route\s+neu|ändere|wechsel(?:n)?|doch)\b.{0,48}(?:nach|zu(?:r|m)?)\s+(.+)$/i
 
 function overlayTab(t: string): DriveTab | null {
   if (!/\boverlay\b/i.test(t)) return null
@@ -77,6 +79,13 @@ export function parseDriveIntent(text: string, inMode = false): DriveIntent | nu
   if (/^nachher\b/i.test(t)) return null
   if (/\bnach\s+witz/i.test(t)) return null
   if (OFF.test(t)) return { kind: 'off' }
+  if (inMode) {
+    const swap = REPLACE_DEST.exec(t)
+    if (swap) {
+      const dest = destOf(swap[1])
+      if (dest) return { kind: 'dest', query: dest }
+    }
+  }
   const overlay = overlayTab(t)
   if (overlay === 'spotify' || (inMode && (TAB_MUSIC.test(t) || BARE_MUSIC.test(t)))) {
     return { kind: 'tab', tab: 'spotify' }

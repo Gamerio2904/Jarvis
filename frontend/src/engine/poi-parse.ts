@@ -3,7 +3,7 @@ import { normalizeUtterance } from './utterance.ts'
 
 export type PoiKind = 'pharmacy' | 'bakery' | 'parking' | 'supermarket' | 'chemist' | 'shop' | 'cafe' | 'bar'
 
-export type PoiIntent = { kind: PoiKind | 'ask'; hours: boolean; nav?: boolean }
+export type PoiIntent = { kind: PoiKind | 'ask'; hours: boolean; nav?: boolean; brand?: string }
 
 const NEAREST = /\b(?:nächste[nrs]?|nächster|zum\s+nächsten|zur\s+nächsten)\b/i
 const NEARBY = /\bin\s+der\s+nähe\b/i
@@ -36,6 +36,7 @@ export function parsePoiIntent(text: string, lastKind?: PoiKind | null): PoiInte
   if (/\b(?:song|titel|track|lied)\b/i.test(t)) return null
   if (namedCafe(t)) return null
   const typed = detectKind(t)
+  const brand = detectBrand(t)
   const hours = HOURS.test(t)
   const near = NEAREST.test(t) || NEARBY.test(t)
   if (BREAKFAST.test(t) && !typed) {
@@ -43,16 +44,16 @@ export function parsePoiIntent(text: string, lastKind?: PoiKind | null): PoiInte
   }
   if (POI_WORD.test(t)) {
     if (near || GO.test(t) || hours || /^\s*(?:nächste[nrs]?\s+)?(?:poi|pol)\s*[.!?]*$/i.test(t)) {
-      return { kind: typed || 'ask', hours: hours && !near && !GO.test(t), nav: !hours }
+      return { kind: typed || 'ask', hours: hours && !near && !GO.test(t), nav: !hours, brand }
     }
   }
   if (typed) {
     if (near || GO.test(t) || /^\s*(?:zur|zum)\s+\S+/i.test(t)) {
-      return { kind: typed, hours: false, nav: true }
+      return { kind: typed, hours: false, nav: true, brand }
     }
-    if (hours) return { kind: typed, hours: true, nav: false }
-    if (typed === 'cafe') return { kind: 'cafe', hours: false, nav: false }
-    if (typed === 'bar') return { kind: 'bar', hours: false, nav: false }
+    if (hours) return { kind: typed, hours: true, nav: false, brand }
+    if (typed === 'cafe') return { kind: 'cafe', hours: false, nav: false, brand }
+    if (typed === 'bar') return { kind: 'bar', hours: false, nav: false, brand }
   }
   if (hours && lastKind && HOURS_FOLLOW.test(t) && !typed && !near) {
     return { kind: lastKind, hours: true, nav: false }
@@ -82,4 +83,19 @@ function detectKind(t: string): PoiKind | null {
     if (row.re.test(t)) return row.kind
   }
   return null
+}
+
+export function detectBrand(t: string): string | undefined {
+  const m = /\b(aldi|lidl|rewe|edeka)\b/i.exec(t)
+  return m ? m[1].toLowerCase() : undefined
+}
+
+export function looksLikeGroceryList(name: string): boolean {
+  const n = name.trim()
+  if (!n) return false
+  if (/,/.test(n) && n.split(',').length >= 3) return true
+  return (
+    n.split(/\s+/).length >= 4 &&
+    /\b(eier|äpfel|apfel|honig|gemüse|apfelsaft|milch|brot|käse)\b/i.test(n)
+  )
 }

@@ -56,6 +56,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
 | 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` PLAN** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache |
+| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`6.91` CODE** — Audit, Screenshots, V1–V9, Sprint 142 Stabilität |
 | — | [APK](./apk.md) | Sideload `6.90.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -152,7 +153,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 134 | `6.82.0` | **CODE** (Welt-Tour Glow/Seite/Zoom) |
 | 135 | `6.81.0` | **CODE** (Anomalien + Ihr Plan) |
 | 136 | `6.90.0` | **CODE** (Gold / Debug, kein Sideload) |
-| 137+ | `7.0.0` | **PLAN** (Agentic Recall) |
+| 137+ | `7.0.0` | **PLAN** (Agentic Recall) — nach Stabilität |
 | 141 | `8.0.0` | **PLAN** (Alltag vom Zettel) |
+| 142 | `6.91.0` | **CODE** (Stabilität Kern — Audit + Parser + Debug-Session) |
 
-**Aktuell:** Code **`6.90.0`**. Sideload `6.90.0`. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall-Plan [`49-next.md`](./49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`6.91.0`**. Sideload zuletzt `6.90.0`. Audit [`51-phase0-audit.md`](./51-phase0-audit.md). Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall-Plan [`49-next.md`](./49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

@@ -5,11 +5,21 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.90.0`**. Sideload: **`6.90.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`6.91.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `6.91.0` — Stabilität Kern — *CODE*
+
+Sprint 142. Phase-0-Audit der gesamten App + Screenshot-Root-Causes. Kein Feature-Major.
+
+- **Turn-Gate:** Request-IDs, Dedup, UI-Lock; Debug parallel auf eigenem Gespräch.
+- **Debug-Session:** überlebt Settings-Unmount, 90 s Timeout/Turn, Persist, Download danach. Android-Back schließt Overlay.
+- **Parser:** Vereinsliste ≠ Ort; Greeting ≠ Wetter; „lieber nach X“ im Fahrmodus ersetzt die Route; Aldi-Brand; OSM-Warenlisten keine Laden-Namen.
+- **Titel:** Ellipsis, Wortgrenze.
+- Docs [`51-phase0-audit.md`](./51-phase0-audit.md) · [`sprints/sprint-142.md`](./sprints/sprint-142.md)
 
 ### Docs — Alltag vom Zettel `8.0` PLAN
 
-Sprint 141. Alte Notizen gegen Code `6.90` gehalten. Neu geplant: Blitzer, Stimme `8.20`, Lage `8.32`, Netz `8.33`, **Test-Tore** (vier Phasen nach Execute-Bündeln), Settings `8.35`, Amazon/Ordner/Preis. Nach Recall: **Dauer-Zuhören `8.95`**. Recall bleibt `7.0`.
+Sprint 141. Alte Notizen gegen Code `6.90` gehalten. Neu geplant: Blitzer, Stimme `8.20`, Lage `8.32`, Netz `8.33`, **Test-Tore** (vier Phasen nach Execute-Bündeln), Settings `8.35`, Amazon/Ordner/Preis. Nach Recall: **Dauer-Zuhören `8.95`**. Recall bleibt `7.0`. Execute **nach** Stabilität `6.91+`.
 
 - Docs [`50-next.md`](./50-next.md) · [`sprints/sprint-141.md`](./sprints/sprint-141.md)
 

@@ -1093,10 +1093,15 @@ textarea {
 
 .topbar h2 {
   margin: 0;
+  flex: 1;
+  min-width: 0;
   font-family: var(--font-display);
   font-size: 1.28rem;
   font-weight: 600;
   font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   animation: titleSlide var(--motion-med) var(--ease-out) both;
 }
 

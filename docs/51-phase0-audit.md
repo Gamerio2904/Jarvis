@@ -1,0 +1,378 @@
+# 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
+
+> **Jetzt:** Code **`6.91.0`**. Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Execute-Start: Sprint 142 (Stabilität). Recall `7.0` und Alltag `8.0` bleiben geplant, **laufen nicht vor Stabilität**.
+
+PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
+
+---
+
+## 1. Architektur-Ist (`6.90` → `6.91`)
+
+Jarvis ist **eine Capacitor-APK**. Das Hirn läuft auf dem Handy (TypeScript in der WebView). Es gibt **keinen Server**. Der PC ist LAN-Werkzeug (`desktop/JarvisPC.bat`), kein zweites Hirn.
+
+```text
+Du (Handy)
+    → Chat-UI (App.tsx)
+        → streamChat (engine/chat.ts)
+            → Parser / Register (registry.ts + route-pick.ts + policy.ts)
+            → Tool-Handler (weather, drive, poi, tv, pc, …)
+            → sonst Hirn: Gemini → Groq → 0,5B
+        → IndexedDB + localStorage
+    → Native Plugins (Stimme, TV, Geo, Notify, Home, Device)
+```
+
+**Leitentscheidung bleibt:** Parser wählen Geräte. Das Modell formuliert. Erfolg darf nur behauptet werden, wenn das Tool ein prüfbares Ergebnis geliefert hat. Das war in `6.90` **nicht durchgängig** so — das ist die zentrale Architektur-Lücke.
+
+### Bausteine
+
+| Schicht | Ort | Rolle |
+|---------|-----|--------|
+| UI-Shell | `frontend/src/App.tsx` (~1750 Zeilen) | Chat, Overlays, Busy, Debug-Anbindung |
+| API-Fassade | `frontend/src/api.ts` | UI → Engine |
+| Orchestrator | `engine/chat.ts` | Routing, Hirn, Persistenz |
+| Register | `engine/registry.ts` + `route-pick.ts` | ~50 Capabilities, **doppelter Parser-Katalog** |
+| Policy | `engine/policy.ts` | Score ≥ 0.45, Margin 0.12 |
+| Store | `engine/store.ts` | Settings-Gott-Objekt + IndexedDB |
+| Native | `frontend/native/*` | Voice, TV, Geo, Notify, Home, Device |
+| PC-Agent | `desktop/` | HTTP :18790 Screenshot/Input/Launch/Files |
+| Debug | `DebugPanel.tsx` + `debug-session.ts` (`6.91`) | Testlauf, Export |
+
+### Pipeline (Ist)
+
+```text
+User-Input
+  → App.sendMessage / sendVoiceTurn
+  → streamChat
+  → addMessage(user)          ← sofort, vor Erfolg
+  → splitIntents / routeDeterministic / routeRegistry
+  → Handler ODER completeBrain
+  → addMessage(assistant)
+  → onDone → UI (Drive-Overlay, Chips, Busy)
+```
+
+Es gab **keine Request-IDs**, **keine Idempotenz**, **kein globales Turn-Gate**, **keine Action-Verification**. `6.91` führt Turn-Gate + Debug-Session ein; das generische Action-System ist **VERSION 3**.
+
+---
+
+## 2. Technische Schulden (Root, nicht Symptom)
+
+1. **Erfolg ohne Observation.** Handler setzen `tool_status: 'executed'`, sobald der native Call oder die URL gebaut ist — nicht sobald Volume, Route oder App wirklich stehen.
+2. **Parser-First ohne Conversational Gate.** Ein Dash in einer Vereinsliste ist ein Ort. „heute Abend“ nach altem Wetter ist Wetter. Das Modell kommt nie zum Zug.
+3. **Zwei Parser-Kataloge** (`registry.ts` / `route-pick.ts`) — Drift-Risiko.
+4. **Settings als God-Object** (`last_*_json`, `drive_mode`, `working_memory_json`). Session-State und Prefs in einem Blob.
+5. **Ein `busy`-React-State** statt Mutex. Voice/Drive umgingen ihn.
+6. **Debug im Panel-Lifecycle.** Unmount = UI tot, Loop kopflos, Turns landen im falschen Chat.
+7. **Weltlage-Watch und Wecker teilen Notify-Infrastruktur.** Watch darf nie Alarm-GUI sein.
+8. **Memory = Keyword + RRF**, kein Graph, keine Consolidation, kein Contradiction-Resolver.
+9. **Dateien:** nur JPEG via Auge. Kein PDF/Doc-Pipeline.
+10. **TV:** Tizen-Keys + App-Launch, keine Screen-Verification. SmartThings bewusst Won’t bisher.
+11. **PC:** JPEG-Screenshot, kein WebRTC. Klick ohne Beweis.
+12. **App.tsx monolithisch.** Overlay-Stack, Busy, Voice, Drive, Debug in einer Komponente.
+
+---
+
+## 3. Race Conditions & konkurrierende Prozesse
+
+| Race | Wirkung | Fix-Schiene |
+|------|---------|-------------|
+| Enter + Send / Doppel-Tap | zwei `streamChat`, zwei User-Zeilen | Turn-Gate `6.91` |
+| Voice während Text | parallele Loops | UI-Lock + Conversation-Lock |
+| Debug-Unmount | Lauf kopflos / leere Turns | Debug-Session Singleton |
+| Debug + User dieselbe `activeId` | Prompts im Alltagschat | Debug hält `conversationId` |
+| Stale `onDone` nach Drive-Fertig | Overlay öffnet sich wieder | `driveCloseGenRef` |
+| Wake partial + final | doppeltes Voice-Open | VERSION 2 |
+| Settings z-index 30 über Drive 14 | Fertig unerreichbar | Overlay-Stack VERSION 1b |
+| `busy` TOCTOU | Guard liest alten Render | `beginTurn` synchron |
+
+---
+
+## 4. Screenshot-Review (Phase 2) — reale Fälle
+
+Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
+
+### S1 — Vereinsliste wird als Ort gespeichert
+
+**PROBLEM.** User: `Bayern - Dortmund VfB Freiburg Werder Bremen` (Gedächtnisübung). Jarvis: `Bayern: Dortmund VfB Freiburg Werder Bremen — liegt.` Chip **Ort liegt**. Zählt nicht mit.
+
+**Schweregrad.** Hoch (falsches Tool + Kontextverlust).
+
+**ROOT CAUSE.** `WRITE_DASH` in `places-parse.ts` matched `Name — Rest` und speichert Memory `place`. Kein Check, ob die rechte Seite eine Adresse ist.
+
+**KOMPONENTEN.** `places-parse.ts`, `places.ts` `handlePlaces`, Register `maps`.
+
+**LÖSUNG.** `looksLikeSavedPlace`: Adresse oder ≤3 Tokens, keine Vereinslisten. Dann fällt der Turn ans Hirn (Smalltalk/Zählen).
+
+**TESTS.** `parsePlaceWrite('Bayern - Dortmund …') === null`. Regression: `Jane — Praxis Bahnhofstraße` bleibt Save.
+
+**Status `6.91`.** CODE.
+
+### S2 — Chat-Titel = letzte User-Zeile, abgeschnitten
+
+**PROBLEM.** Header zeigt die Nachricht in Serif-Italic, mehrzeilig, `Brem` abgeschnitten.
+
+**Schweregrad.** Mittel (UX).
+
+**ROOT CAUSE.** `addMessage` ruft `titleFromUser` (Slice 42, keine Wortgrenze). `.topbar h2` ohne Ellipsis, Display-Font.
+
+**KOMPONENTEN.** `chat-title.ts`, `store.ts`, `index.css`.
+
+**LÖSUNG.** Slice 32 + Wortgrenze; `text-overflow: ellipsis; white-space: nowrap`.
+
+**Status `6.91`.** CODE.
+
+### S3 — Smalltalk löst Wetter aus
+
+**PROBLEM.** `ach wie geht's dir heute Abend` → Wetterbericht Kehrsbachstraße + Chip Wetter + `1 · Wetter`.
+
+**Schweregrad.** Hoch.
+
+**ROOT CAUSE.** `parseWeatherFollowup` wertet jedes `heute` als Wetter-Follow-up, sobald `last_weather_*` in **Settings (global, chatübergreifend)** steht. Greeting wird nicht ausgeschlossen.
+
+**KOMPONENTEN.** `weather-parse.ts`, `store.ts` last_weather, Register.
+
+**LÖSUNG.** SOCIAL-Gate; `heute` allein reicht nicht, außer kurzes `und heute?`.
+
+**TESTS.** Greeting → null; `und heute?` bleibt Follow-up.
+
+**Status `6.91`.** CODE.
+
+### S4 — Guten Tag um 00:44 / Abend ignoriert
+
+**PROBLEM.** User sagt Abend, Uhr 00:44, Jarvis `Guten Tag, Sir.`
+
+**Schweregrad.** Niedrig (Persona).
+
+**ROOT CAUSE.** Canned Greeting in Guards/Persona ohne Gerätezeit.
+
+**LÖSUNG.** VERSION 2: Greeting aus `Date` + `last_medium`.
+
+### S5 — Suche verweigert, Antwort abbricht bei „Unverifizierte“
+
+**PROBLEM.** User will suchen „egal ob es stimmt“. Jarvis lehnt ab, zweite Antwort endet mit `Unverifizierte`. Mix Timon/Ihnen.
+
+**Schweregrad.** Hoch (Abbruch + Guardrails zu starr).
+
+**ROOT CAUSE.**
+1. Persona/Guards: keine erfundenen Live-Fakten; Modell weicht in Verweigerung aus.
+2. `completeGemini`: MAX_TOKENS-Retry nur beim ersten Versuch und nur wenn sehr kurz/unvollständig. Lange Verweigerung wird nicht nachgezogen.
+3. Name aus Memory + Siezen-Scrub → Timon + Ihnen.
+
+**LÖSUNG.** VERSION 3: Pending-Research nach „ja bitte“/explizitem Suchbefehl. Unvollständige Sätze → Retry oder ehrlicher Abbruch-Satz. Anrede: Name *oder* Siezen, nicht beides unkontrolliert.
+
+### S6 — Elon-Tweet: kein Treffer, Satz abgeschnitten
+
+**PROBLEM.** `was hat Elon Musk als letztes getweetet` → keine Daten; `ja bitte` → „kein stabiler Treffer“, Satz bricht ab.
+
+**Schweregrad.** Hoch.
+
+**ROOT CAUSE.** `isLiveLookup` / `isAutoResearchAsk` treffen Tweets nicht. `ja bitte` ist kein Research-Intent und bindet nicht an pending search. LLM halluziniert „Abfragen“.
+
+**LÖSUNG.** VERSION 3: Live-Lookup für Tweet/News-Personen; Confirm `ja bitte` führt pending search aus; Verification: Sources oder ehrlich „kein Treffer“, nie abgeschnitten.
+
+### S7 — Nächster Aldi → Hofläden, Produktliste als Name
+
+**PROBLEM.** `dann fahre ich zur nächsten Aldi` → Willmanns Hofladen, `Nächste offene: Eier, Äpfel, …`. Grammatik `Nächste Supermarkt`.
+
+**Schweregrad.** Hoch (falsches Ziel + Halluzination der Bezeichnung).
+
+**ROOT CAUSE.** Overpass `shop=supermarket` ohne Brand-Filter. OSM-`name` kann eine Warenliste sein. Reply-Template `Nächste ${poiLabel}` (feminin) + Label Supermarkt statt Aldi.
+
+**LÖSUNG.** Brand-Filter (aldi/lidl/rewe/edeka). Grocery-List-Namen verwerfen. `Nächster Aldi`. Kein Erfolg, wenn kein Brand-Hit.
+
+**Status `6.91`.** CODE (Parser + Filter + Label). Live-Overpass bleibt Integrationsrisiko.
+
+### S8 — Gemini-Banner immer sichtbar
+
+**PROBLEM.** `Gemini (Google) — Nachrichten gehen ins Netz.` in jedem Chat.
+
+**Schweregrad.** Niedrig. Bewusst (Datenschutz-Hinweis).
+
+**LÖSUNG.** VERSION 2: einmalig / Settings, nicht jede Bubble-Fläche.
+
+### S9 — Tool-Chip + `1 · Wetter` sieht nach Debug aus
+
+**PROBLEM.** Grüner Chip und Zähler unter der Antwort.
+
+**Schweregrad.** Mittel (UX).
+
+**ROOT CAUSE.** Tool-Meta und Debug-Fortschritt teilen visuelle Sprache. Lage/HUD rendert interne Zähler.
+
+**LÖSUNG.** VERSION 2: User-Chips ohne interne Sequenznummern.
+
+### S10 — Route „sofort neu“, Karte bleibt
+
+**PROBLEM.** Heilbronn/Sontheim aktiv. `Das habe ich doch lieber nach Freiberg am Neckar` → „Die Route berechne ich sofort neu“ — Route ändert sich nicht.
+
+**Schweregrad.** Kritisch (Erfolg ohne Verification).
+
+**ROOT CAUSE.**
+1. `parseDriveIntent` kannte kein Replace-Pattern; Satz beginnt nicht mit `nach`/`fahr mich`.
+2. Turn fällt ins LLM. LLM behauptet Ausführung.
+3. `scrubReply` fängt keine Navi-Lügen.
+4. Selbst bei Tool: `tool_status executed` ohne `rideOk`.
+
+**LÖSUNG.** Replace-Intent im Fahrmodus → `startRoute`. Reply nur nach `rideOk`. Sonst ehrlich: Ziel liegt, Strecke fehlt. Generisches Action-Verify = VERSION 3.
+
+**Status `6.91`.** Parser + ehrliche `startRoute`-Replies CODE. Volles Action-System später.
+
+### S11 — Debug bricht ab / Overlay hängt
+
+**PROBLEM.** Debug-Lauf stirbt still. Overlay/Settings nicht zu. User will chatten und später Download.
+
+**Schweregrad.** Kritisch.
+
+**ROOT CAUSE.** Runner lebte in `DebugPanel`. Topic-Wechsel / Fertig / Escape unmountet. `sendMessage` nutzte `activeId`. Stop ohne Timeout. `busy` → leere Reply ohne error.
+
+**LÖSUNG.** `debug-session.ts` Singleton, FSM, Timeout 90 s/Turn, Persist `last_debug_json`, eigene `conversationId`, Android-Back schließt Overlay nicht den Lauf.
+
+**Status `6.91`.** CODE.
+
+### S12 — Doppelte Prompts
+
+**PROBLEM.** Dieselbe Nachricht zweimal verarbeitet.
+
+**ROOT CAUSE.** React-`busy` TOCTOU; `sendVoiceTurn` ohne Guard; `addMessage` vor Dedup.
+
+**LÖSUNG.** `turn-gate.ts`: Request-ID, Dedup 1,4 s, UI-Lock, Conversation-Lock (Debug parallel auf anderem Chat).
+
+**Status `6.91`.** CODE.
+
+---
+
+## 5. Mapping PO-Versionen → Code
+
+Bestehende Pläne `7.0` Recall und `8.0` Alltag **nicht löschen**. Industry-Track **davor und dazwischen** als `6.91+`, dann Verifikation, dann die großen Majors.
+
+| PO-Version | Code | Sprint | Inhalt | Abhängigkeit |
+|------------|------|--------|--------|----------------|
+| **V1 Stabilität** | `6.91`–`6.93` | 142–144 | Debug, Overlay, Dedup, Parser-Falschalarme, Weltlage nicht als Wecker | keine |
+| **V2 Voice & App** | `6.94`–`6.96` | 145–147 | TTS-Kaskade, App-Action-Registry | V1 |
+| **V3 Verified Actions** | `6.97`–`6.99` | 148–150 | Action-FSM, Navi-Replace verifiziert, Research-Pending | V1 |
+| **V4 Dokumente** | `8.20` Datei-Schiene oder `9.0` | 151+ | Attachments, Parser, OCR | V3 (Verify Upload) |
+| **V5 Memory** | `7.0` (bestehend) | 137+ nach V3 | Hierarchical Memory | V3 Context |
+| **V6 TV** | `9.1` | nach V3 | Device-Registry, Verify Launch | V3 |
+| **V7 PC Beta** | `9.2` | nach V6 | Capability-Levels, Confirm | V3 |
+| **V8 Live-Stream** | `9.3` | nach V7 | WebRTC | V7 Pairing |
+| **V9 Hardening** | `9.9` | zuletzt | Regression, Security, UX | alle |
+
+Alltag `8.0` (Blitzer, Settings-IA, Preiswache) kann **parallel zu V2** geschnitten werden, sobald V1 grün ist — nicht vor Debug/Dedup.
+
+---
+
+## 6. Sprint 142 — Stabilität Kern (`6.91.0`) **CODE in diesem PR**
+
+Ziel: Die Screenshot-Parser und der Debug/Send-Kern sind root-cause-fest, nicht kosmetisch.
+
+| ID | Must | DoD |
+|----|------|-----|
+| A1 | Turn-Gate: keine Doppel-Sends, Debug parallel auf eigenem Chat | Tests Dedup + parallel |
+| A2 | Debug-Session überlebt Settings-Unmount, Timeout, Download danach | FSM idle/starting/running/stopping |
+| A3 | Android-Back schließt Overlay, nicht den Lauf | popstate |
+| A4 | Drive schließt nicht durch stale onDone | closeGen |
+| A5 | WRITE_DASH keine Vereinsliste | test-014 |
+| A6 | Wetter-Greeting-Gate | test-014 |
+| A7 | Fahrmodus Replace „lieber nach X“ | test-014 |
+| A8 | Aldi-Brand + Grocery-List-Namen | test-014 |
+| A9 | Titel-Ellipsis | CSS + titleFromUser |
+| A10 | Version `6.91.0` | package + APP_VERSION |
+
+Won’t in 142: WebRTC, Memory-Graph, PDF, SmartThings, Foreground-Service `5.12` (Home killt JS weiter — ehrlich im UI-Text).
+
+---
+
+## 7. Folgesprints (V1 Rest → V9)
+
+### Sprint 143 — Overlay-FSM & Weltlage (`6.92`)
+
+- Overlay-State-Machine für Settings/Voice/Drive/Calendar einheitlich (`closed→opening→open→closing`).
+- Weltlage: **nur auf Befehl** Globus + Pins. Keine Notify/Alarm-GUI. Pin-Tap → Sprechblase (Bild-Swipe + Summary) — UI-Gerüst.
+- `outlook_interrupt` Default bleibt aus; Watch darf `alarm: true` nie setzen (schon `false`, Android-Kanal prüfen).
+
+### Sprint 144 — Gemini-Abbruch & Research-Pending (`6.93`)
+
+- Unvollständige Sätze immer retry oder klarer Abbruch.
+- `ja bitte` nach Such-Angebot = pending research.
+- Tweet/News-Personen in `isLiveLookup`.
+- Anrede: Siezen konsistent; Vorname nur wenn Settings es wollen.
+
+### Sprint 145–147 — Voice 2.0 & App Actions (`6.94+`)
+
+- TTS: Gemini Primary mit Health/Retry, nicht 400 ms Drive-Race als Default im Standing.
+- App-Action-Registry: Settings, Theme, Debug, Stimme, Lage, Memory-Show — interne APIs, keine Fake-Klicks.
+
+### Sprint 148–150 — Action Architecture (`6.97+`)
+
+```text
+INTENT → PLANNER → PRECONDITIONS → EXECUTION → OBSERVATION → VERIFICATION → STATE → RESPONSE
+PLANNED | RUNNING | WAITING | VERIFYING | SUCCESS | FAILED | CANCELLED
+```
+
+Navi: `IDLE → CALCULATING → ACTIVE_ROUTE → REPLACING_ROUTE → VERIFYING → ACTIVE_ROUTE`.
+
+Gilt für TV, PC, App, Navi, Home.
+
+### Danach
+
+Dokumente, Memory-Research (Papers + HF/GitHub), Device-Registry, PC-Beta, WebRTC — wie PO V4–V8. Kein Major ohne Verification-Schicht.
+
+---
+
+## 8. Definition of Done (Industry)
+
+Zusätzlich zu `03-agile-process.md`:
+
+- [ ] Kein Erfolgssatz ohne Tool-Observation
+- [ ] Jeder Hintergrundprozess: Start, Monitor, Stop, Recovery
+- [ ] Overlay immer schließbar (Button + Back + Force)
+- [ ] Eine User-Nachricht = ein Turn (außer expliziter Retry)
+- [ ] Parser-Falschalarme aus diesem Audit haben Regressionstests
+- [ ] `test:014` grün; Debug-Katalog um die Screenshot-Prompts erweitert (143)
+
+### Beta Ready (PO) — nicht dieses Increment
+
+Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `6.91` ist **nicht** Beta Ready. Es ist die erste ehrliche Stabilitätsstufe.
+
+---
+
+## 9. Teststrategie
+
+| Risiko | Unit | Integration | E2E / Debug-Lauf |
+|--------|------|-------------|------------------|
+| Doppel-Prompt | turn-gate | zwei Submits | Debug-Gruppe Randfälle |
+| Debug-Crash | Timeout in session | Topic-Wechsel während Lauf | Live 5.11-Katalog |
+| Overlay hängt | popstate | Fertig + Back | Handy |
+| Wetter-Greeting | weather-parse | Chat mit last_weather | Screenshot-Prompt |
+| Ort-Dash | places-parse | Memory nicht geschrieben | Screenshot-Prompt |
+| Route-Replace | drive-parse | startRoute rideOk | Fahrmodus GPS |
+| Aldi | poi-parse brand | Overpass mock / skip_if no_gps | Live |
+| Voice-Fallback | tts budgets | Provider down | VERSION 2 |
+| TV Netflix | — | launch + verify | VERSION 6 |
+| PC offline | pc.ts ehrlich | Agent down | VERSION 7 |
+
+Failure Simulation: Tool Timeout, Success-ohne-Wirkung, Netz weg, große Uploads — ab V3/V4.
+
+---
+
+## 10. Risiken
+
+| Risiko | Wirkung | Gegenmaßnahme |
+|--------|---------|----------------|
+| Home killt WebView | Debug tot trotz Session | `5.12` Foreground-Service; bis dahin Banner |
+| Overpass/OSRM down | POI/Navi leer | ehrliche Fehler, kein Fake |
+| Gemini MAX_TOKENS | Satzstümpfe | Sprint 144 |
+| Parser vs. Hirn | zu wenig Smalltalk | Score-Margin; Screenshot-Fälle als Wont/Skip |
+| Scope V4–V9 | Stabilität leidet | Freeze: keine TV/PC-Features in V1-Sprints |
+
+---
+
+## 11. Engineering-Regeln (verbindlich)
+
+1. Nie Erfolg ohne Verification.
+2. Root Cause, kein Symptom-Patch.
+3. Jede Action hat einen Lifecycle.
+4. Jeder Hintergrundprozess: Start/Monitor/Recovery/Stop.
+5. Externe Calls: Timeout, Retry, Fallback — Fallback nicht zu früh.
+6. UI-State und Engine-State dürfen nicht divergieren (`drive_mode` vs. Overlay).
+7. Memory braucht Quelle, Confidence, Bereinigung (V5).
+8. Android-App ist das Produkt. PC ist Erweiterung.
+9. Regression nach jedem Sprint (`test:014` + betroffene Gruppen).

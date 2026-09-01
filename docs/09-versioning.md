@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
+> **Jetzt:** Code **`6.91.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Stabilität [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -101,6 +101,7 @@ MAJOR.MINOR.PATCH
 | `6.60.0` | **Sideload** Bühne + Parser + Split | Sprint 130 |
 | `6.70.0` | **Globus-Briefing** Leitentscheidung (Docs) | Sprint 131 |
 | `6.90.0` | **Globus-Briefing Gold** — Stadt-Satellit + Welt-Tour | Sprint 136 |
+| `6.91.0` | **Stabilität Kern** — Debug-Session, Turn-Gate, Screenshot-Parser | Sprint 142 |
 | `7.0.0` | **Agentic Recall** Leitentscheidung (PLAN) | Sprint 137 |
 | `8.0.0` | **Alltag vom Zettel** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache | Sprint 141 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |

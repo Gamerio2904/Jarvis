@@ -141,9 +141,22 @@ export function parsePlaceWrite(text: string): PlaceWrite | null {
   if (dash) {
     const name = normalizePlaceName(dash[1])
     const place = cleanPlace(dash[2])
-    if (name && place) return { name, place }
+    if (name && place && looksLikeSavedPlace(place)) return { name, place }
   }
   return null
+}
+
+/** Dash-write is "Name — Adresse", not a club list or free prose. */
+export function looksLikeSavedPlace(place: string): boolean {
+  const p = place.trim()
+  if (!p || p.length < 2) return false
+  if (looksLikeAddress(p)) return true
+  const tokens = p.split(/\s+/).filter(Boolean)
+  if (tokens.length >= 4) return false
+  if (/\b(vfb|borussia|werder|bremen|dortmund|freiburg|bayern|fc|sv)\b/i.test(p) && tokens.length >= 2) {
+    return false
+  }
+  return tokens.length <= 3
 }
 
 export function parsePlaceRecall(text: string): PlaceRecall | null {

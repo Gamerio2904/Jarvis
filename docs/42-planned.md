@@ -1,18 +1,19 @@
-# 42 — Alles geplant (Stand Code `6.90.0`)
+# 42 — Alles geplant (Stand Code `6.91.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`6.90.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`6.91.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
 1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-2. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`)
-3. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060
-4. Agentic Recall nach `6.90` — [`49-next.md`](./49-next.md) **PLAN** (`7.0`, Sprints 137+)
-5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91` **CODE**, Rest `6.92`+ PLAN — vor Recall und Alltag-Execute
+3. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`, Session `6.91`)
+4. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
+5. Agentic Recall nach Stabilität — [`49-next.md`](./49-next.md) **PLAN** (`7.0`, Sprints 137+)
+6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
 Bereits **CODE** in `6.90.0`: Globus-Briefing (Stadt → GIBS + Briefing, Welt-Tour Glow/Seite/Zoom), Sideload `6.90`, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
 

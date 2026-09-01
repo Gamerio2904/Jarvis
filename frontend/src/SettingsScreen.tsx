@@ -123,7 +123,7 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
-  onDebugSend: (text: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
+  onDebugSend: (text: string, conversationId: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
   onDebugStart: (title: string) => Promise<string>
   debugBusy: boolean
 }

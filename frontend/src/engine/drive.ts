@@ -390,6 +390,7 @@ async function startRoute(_label: string, place: string): Promise<{
   const lat = Number(s.last_lat)
   const lon = Number(s.last_lon)
   const near = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null
+  const prevDest = active?.dest || ''
   const dest = await geocodePlace(place, near)
   if (!dest.ok) {
     return {
@@ -411,15 +412,18 @@ async function startRoute(_label: string, place: string): Promise<{
   if (!rideOk) {
     return {
       handled: true,
-      reply: `${route.hint || 'Netz hat die Route nicht geliefert.'} Ziel ${dest.fix.place} liegt trotzdem im Fahrmodus.`,
+      reply: `${route.hint || 'Netz hat die Route nicht geliefert.'} Ziel ${dest.fix.place} liegt im Fahrmodus, die Strecke ist noch nicht berechnet.`,
       tool,
       lastTool: 'drive',
     }
   }
   const km = route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`
+  const swapped = Boolean(prevDest && prevDest !== dest.fix.place)
   return {
     handled: true,
-    reply: `Fahrmodus nach ${dest.fix.place}: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`,
+    reply: swapped
+      ? `Route nach ${dest.fix.place} aktualisiert: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`
+      : `Fahrmodus nach ${dest.fix.place}: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`,
     tool,
     lastTool: 'drive',
   }

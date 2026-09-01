@@ -58,6 +58,7 @@ import {
   parsePlaceWrite,
   parseSms,
   looksLikeBareStreet,
+  looksLikeSavedPlace,
 } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { pickHeard } from '../src/engine/heard.ts'
@@ -66,9 +67,10 @@ import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { beginTurn, endTurn } from '../src/engine/turn-gate.ts'
 import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
 import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
-import { parsePoiIntent, poiLabel } from '../src/engine/poi-parse.ts'
+import { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList } from '../src/engine/poi-parse.ts'
 import { formatHoursSpeech, hoursOpenNow, isBwHoliday, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
 import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
@@ -1686,5 +1688,39 @@ assert.equal(pickRoute('Friday'), 'face')
 assert.equal(pickRoute('Friday übernimmt'), 'face')
 assert.notEqual(pickRoute('Freitag Zahnarzt'), 'face')
 assert.notEqual(pickRoute('Work-Modus'), 'face')
+
+assert.equal(parsePlaceWrite('Bayern - Dortmund VfB Freiburg Werder Bremen'), null)
+assert.equal(looksLikeSavedPlace('Dortmund VfB Freiburg Werder Bremen'), false)
+assert.equal(looksLikeSavedPlace('Praxis Bahnhofstraße'), true)
+assert.equal(parseWeatherIntent('ach wie geht\'s dir heute Abend'), null)
+assert.equal(parseWeatherFollowup('ach wie geht\'s dir heute Abend', { kind: 'here', when: 'today', focus: 'general' }), null)
+assert.equal(parseWeatherFollowup('und heute?', { kind: 'here', when: 'today', focus: 'general' })?.when, 'today')
+assert.equal(parseDriveIntent('Das habe ich doch lieber nach Freiberg am Neckar', true)?.kind, 'dest')
+assert.equal(
+  parseDriveIntent('Das habe ich doch lieber nach Freiberg am Neckar', true)?.kind === 'dest' &&
+    parseDriveIntent('Das habe ich doch lieber nach Freiberg am Neckar', true)?.query,
+  'Freiberg am Neckar',
+)
+assert.equal(parseDriveIntent('Das habe ich doch lieber nach Freiberg am Neckar', false), null)
+assert.equal(parsePoiIntent('dann fahre ich zur nächsten Aldi')?.kind, 'supermarket')
+assert.equal(parsePoiIntent('dann fahre ich zur nächsten Aldi')?.brand, 'aldi')
+assert.equal(detectBrand('nächster Lidl'), 'lidl')
+assert.equal(looksLikeGroceryList('Eier, Äpfel, Apfelsaft, Honig, Gemüse'), true)
+assert.equal(looksLikeGroceryList('ALDI Nord'), false)
+assert.match(titleFromUser('Bayern - Dortmund VfB Freiburg Werder Bremen'), /Bayern/)
+assert.ok(titleFromUser('Bayern - Dortmund VfB Freiburg Werder Bremen').length <= 32)
+
+const a = beginTurn({ source: 'user', content: 'hallo', conversationId: 'c1' })
+assert.equal(a.ok, true)
+const dup = beginTurn({ source: 'user', content: 'hallo', conversationId: 'c1' })
+assert.equal(dup.ok, false)
+assert.equal(dup.reason, 'duplicate')
+const other = beginTurn({ source: 'debug', content: 'Timer 1', conversationId: 'debug-1' })
+assert.equal(other.ok, true)
+endTurn({ source: 'user', conversationId: 'c1' })
+endTurn({ source: 'debug', conversationId: 'debug-1' })
+const again = beginTurn({ source: 'user', content: 'hallo zwei', conversationId: 'c1' })
+assert.equal(again.ok, true)
+endTurn({ source: 'user', conversationId: 'c1' })
 
 console.log('ok 0.14 parsers')
