@@ -961,7 +961,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </p>
               <p className="settings-hint">
                 Gleiches WLAN, kein Gäste-Netz, kein VPN. IP ohne http:// und ohne Port. Firewall im PC-Fenster
-                erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja.
+                erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja. „PC live“ zeigt
+                LAN-Einzelbilder — WebRTC nur wenn ein Peer steht.
               </p>
               <label className="settings-toggle">
                 <span>PC-Steuerung an</span>

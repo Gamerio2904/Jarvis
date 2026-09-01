@@ -78,6 +78,7 @@ import {
   pcActionVerified,
   pcCan,
 } from '../src/engine/pc-cap.ts'
+import { isLanIce, parseRtcSession, rtcStreamVerified } from '../src/engine/pc-rtc.ts'
 import { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList } from '../src/engine/poi-parse.ts'
 import { formatHoursSpeech, hoursOpenNow, isBwHoliday, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
@@ -1067,8 +1068,9 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /9\.2\.0/)
+assert.match(HELP_TEXT, /9\.3\.0/)
 assert.match(HELP_TEXT, /Capability-Levels/)
+assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
 assert.match(HELP_TEXT, /Datei-Knopf/)
 assert.match(HELP_TEXT, /Quelle nennen/)
 assert.match(HELP_TEXT, /SmartThings/)
@@ -1305,6 +1307,9 @@ assert.equal(isCommYes('senden', 'call'), false)
 assert.equal(isCommNo('nein'), true)
 assert.equal(rewriteFollowUp('ja', { last_step_tool: 'call_confirm', last_step_utterance: 'Bro anrufen' }), null)
 assert.equal(rewriteFollowUp('ja', { last_step_tool: 'pc_confirm', last_step_utterance: 'Lösche den Ordner Test' }), null)
+assert.equal(parsePcIntent('PC live')?.kind, 'stream')
+assert.equal(parsePcIntent('Live aus')?.kind, 'stream_stop')
+assert.equal(parsePcIntent('Was siehst du auf dem PC')?.kind, 'screen')
 assert.equal(parsePcIntent('FIFA starten')?.kind, 'launch')
 if (parsePcIntent('FIFA starten')?.kind === 'launch') {
   assert.equal(parsePcIntent('FIFA starten').query, 'fifa')
@@ -1377,8 +1382,63 @@ assert.equal(needsLaunchConfirm('chrome'), true)
   assert.doesNotMatch(launchBare.reply, /läuft/)
 }
 assert.equal(pickRoute('FIFA starten'), 'pc')
+assert.equal(pickRoute('PC live'), 'pc')
 assert.match(scrubReply('FIFA läuft.'), /angekommen|Schirm|nicht/)
 assert.doesNotMatch(scrubReply('Klick ausgeführt.'), /Klick ausgeführt/)
+assert.match(scrubReply('WebRTC ist verbunden.'), /Peer|JPEG|Sitzung/)
+assert.doesNotMatch(scrubReply('Live-Bild läuft (WebRTC).'), /JPEG ist kein Peer/)
+{
+  const offline = parsePcCaps({ ok: false })
+  assert.equal(pcCan(offline, 'stream'), false)
+  const streamed = parsePcCaps({
+    ok: true,
+    capabilities: ['status', 'screen', 'stream'],
+    webrtc: 'off',
+  })
+  assert.equal(streamed.level, 'stream')
+  assert.equal(pcCan(streamed, 'stream'), true)
+  assert.equal(rtcStreamVerified({}).ok, false)
+  assert.equal(rtcStreamVerified({ action: 'stream', reached: true, can: true, webrtc: 'ready' }).ok, false)
+  assert.equal(
+    rtcStreamVerified({
+      action: 'stream',
+      reached: true,
+      can: true,
+      sessionId: 'abc',
+      webrtc: 'ready',
+      connected: true,
+      track: true,
+    }).ok,
+    true,
+  )
+  assert.equal(
+    rtcStreamVerified({
+      action: 'stream',
+      reached: true,
+      can: true,
+      sessionId: 'abc',
+      mode: 'lan-jpeg',
+      webrtc: 'off',
+      frame: true,
+    }).ok,
+    true,
+  )
+  assert.equal(parseRtcSession({ ok: true, sessionId: 's1', mode: 'lan-jpeg', webrtc: 'off' })?.sessionId, 's1')
+  assert.equal(isLanIce('candidate:1 1 UDP 2122 192.168.1.10 9 typ host'), true)
+  assert.equal(isLanIce('candidate:2 1 UDP 1 1.2.3.4 9 typ relay'), false)
+  const lie = packVerified({
+    domain: 'pc',
+    intent: 'stream',
+    plan: 'stream',
+    label: 'PC',
+    observation: { action: 'stream', reached: true, can: true, webrtc: 'ready', sessionId: 'x' },
+    verify: (obs) => rtcStreamVerified(obs),
+    successReply: 'Live-Bild läuft (WebRTC).',
+    failReply: 'Live-Bild nicht verbunden.',
+  })
+  assert.equal(lie.state.phase, 'failed')
+  assert.doesNotMatch(lie.reply, /läuft \(WebRTC\)/)
+}
 assert.match(GEMINI_PERSONA, /PC/)
 for (const p of PC_COPY_PROMPTS) {
   assert.ok(parsePcIntent(p), `Prompt ohne Parser: ${p}`)
@@ -1971,6 +2031,7 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /V4 Dokumente/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V5 Gedächtnis/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V6 TV/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V7 PC/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V8 Live/i.test(g.title)))
 
 {
   let s = ACTION_INIT

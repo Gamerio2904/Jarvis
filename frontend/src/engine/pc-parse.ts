@@ -3,6 +3,8 @@ import { normalizeUtterance } from './utterance.ts'
 export const PC_COPY_PROMPTS = [
   'FIFA starten',
   'Was siehst du auf dem PC',
+  'PC live',
+  'Live aus',
   'klick Mitte',
   'Züge anklicken',
   'Maus nach rechts',
@@ -13,6 +15,8 @@ export const PC_COPY_PROMPTS = [
 export type PcIntent =
   | { kind: 'status' }
   | { kind: 'screen' }
+  | { kind: 'stream' }
+  | { kind: 'stream_stop' }
   | { kind: 'launch'; query: string }
   | {
       kind: 'click'
@@ -66,6 +70,26 @@ export function parsePcIntent(text: string): PcIntent | null {
     /^\s*(?:ist\s+der\s+)?(?:pc|rechner)\s+(?:da|an|erreichbar)\s*[.!?]*$/i.test(t)
   ) {
     return { kind: 'status' }
+  }
+
+  if (
+    /^\s*(?:live[\s-]*(?:bild|stream)?|webrtc|pc[\s-]*live)\s+(?:aus|stopp|stop|beenden|zu)\s*[.!?]*$/i.test(
+      t,
+    ) ||
+    /^\s*(?:beende|stopp(?:e)?)\s+(?:das\s+)?(?:live[\s-]*(?:bild|stream)?|webrtc)\s*[.!?]*$/i.test(t) ||
+    /^\s*live\s+aus\s*[.!?]*$/i.test(t)
+  ) {
+    return { kind: 'stream_stop' }
+  }
+
+  if (
+    /^\s*(?:pc|rechner)\s+live\b/i.test(t) ||
+    /^\s*(?:bildschirm|schirm)\s+live\b/i.test(t) ||
+    /^\s*live[\s-]*(?:bild|stream)\b/i.test(t) ||
+    /^\s*webrtc\s*[.!?]*$/i.test(t) ||
+    (PC_CUE.test(t) && /\blive\b/i.test(t))
+  ) {
+    return { kind: 'stream' }
   }
 
   if (

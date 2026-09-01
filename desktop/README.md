@@ -21,13 +21,14 @@ Fertig wenn das Handy sagt „PC-App erreicht“ **und** im PC-Fenster kurz „H
 ## Testen (Chat)
 
 - `PC testen`
+- `PC live` / `Live aus` (LAN-Einzelbilder; WebRTC nur wenn der Peer steht)
 - `Was siehst du auf dem PC` (Screenshot; Vorlesen braucht Gemini; lokal geplant [`docs/41-next.md`](../docs/41-next.md))
 - `klick Mitte` / `Maus nach rechts`
 - `Zeig Ordner Downloads`
 - `FIFA starten` (nur wenn im Startmenü)
 - `Welche Route nimmt google.de` (`tracert` am PC)
 
-Löschen von Ordnern erst nach **Ja**. Unbekannte Programme (nicht FIFA) erst nach **Ja**. Klick heißt „gesendet“, nicht „ausgeführt“ — den Schirm beweist JPEG nicht. Live-Stream ist nicht diese Version.
+Löschen von Ordnern erst nach **Ja**. Unbekannte Programme (nicht FIFA) erst nach **Ja**. Klick heißt „gesendet“, nicht „ausgeführt“ — den Schirm beweist JPEG nicht. Live ist LAN-JPEG, kein erfundener WebRTC-Peer.
 
 ## Wenn es „PC nicht erreicht / BAT starten“ sagt, obwohl das Fenster offen ist
 

@@ -1,8 +1,10 @@
-/** PC Capability-Levels + Action-Verify. JPEG ist kein Klick-Beweis. Kein WebRTC. */
+/** PC Capability-Levels + Action-Verify. JPEG ist kein Klick-Beweis. Stream ≠ WebRTC-Peer. */
 
-export type PcLevel = 'offline' | 'status' | 'screen' | 'input' | 'files' | 'ground'
+import { rtcStreamVerified } from './pc-rtc.ts'
 
-export type PcCap = 'status' | 'screen' | 'launch' | 'click' | 'move' | 'type' | 'key' | 'files' | 'ground'
+export type PcLevel = 'offline' | 'status' | 'screen' | 'input' | 'files' | 'ground' | 'stream'
+
+export type PcCap = 'status' | 'screen' | 'launch' | 'click' | 'move' | 'type' | 'key' | 'files' | 'ground' | 'stream'
 
 export type PcCaps = {
   level: PcLevel
@@ -26,9 +28,16 @@ export type PcActionObs = {
   image?: unknown
   vision?: string
   entries?: unknown
+  sessionId?: string
+  webrtc?: string
+  mode?: string
+  connected?: boolean
+  track?: boolean
+  frame?: boolean
+  ice?: string
 }
 
-const ALL_CAPS: PcCap[] = ['status', 'screen', 'launch', 'click', 'move', 'type', 'key', 'files', 'ground']
+const ALL_CAPS: PcCap[] = ['status', 'screen', 'launch', 'click', 'move', 'type', 'key', 'files', 'ground', 'stream']
 
 const INPUT_CAPS: PcCap[] = ['launch', 'click', 'move', 'type', 'key']
 
@@ -79,6 +88,7 @@ function normalizeCapList(raw: unknown): PcCap[] {
 
 export function levelFromCaps(caps: PcCap[], reached: boolean): PcLevel {
   if (!reached) return 'offline'
+  if (caps.includes('stream')) return 'stream'
   if (caps.includes('ground')) return 'ground'
   if (caps.includes('files')) return 'files'
   if (caps.some((c) => INPUT_CAPS.includes(c))) return 'input'
@@ -102,6 +112,7 @@ export function parsePcCaps(statusJson: Record<string, unknown> | null | undefin
   if (listed.length) {
     const caps = listed.includes('status') ? listed : uniqCaps(['status', ...listed])
     if (vision === 'ready' && !caps.includes('ground')) caps.push('ground')
+    if (asWebrtc(statusJson.webrtc) === 'ready' && !caps.includes('stream')) caps.push('stream')
     return { level: levelFromCaps(caps, true), reached: true, caps, vision: vision || 'off' }
   }
 
@@ -112,8 +123,13 @@ export function parsePcCaps(statusJson: Record<string, unknown> | null | undefin
   const app = String(statusJson.app || '')
   if (/jarvispc/i.test(app) || hasScreen) inferred.push(...INPUT_CAPS, 'files')
   if (vision === 'ready') inferred.push('ground')
+  if (asWebrtc(statusJson.webrtc) === 'ready') inferred.push('stream')
   const caps = uniqCaps(inferred)
   return { level: levelFromCaps(caps, true), reached: true, caps, vision: vision || 'off' }
+}
+
+function asWebrtc(raw: unknown): 'ready' | undefined {
+  return raw === 'ready' ? 'ready' : undefined
 }
 
 export function pcCan(caps: PcCaps, action: PcCap): boolean {
@@ -174,6 +190,8 @@ export function pcActionVerified(obs: PcActionObs): { ok: boolean; error?: strin
     return { ok: true }
   }
 
+  if (action === 'stream' || action === 'stream_stop') return rtcStreamVerified(obs)
+
   if (action === 'ask') return { ok: false, error: 'Wartet auf Bestätigung.' }
 
   return { ok: false, error: 'Unbekannte PC-Aktion.' }
@@ -193,6 +211,7 @@ export function capMissingReply(action: PcCap): string {
   }
   if (action === 'screen') return 'Kein JPEG. JarvisPC.bat muss laufen.'
   if (action === 'launch') return 'Der Agent startet hier keine Programme. JarvisPC.bat muss laufen.'
+  if (action === 'stream') return 'Live-Bild hat der Agent nicht. JarvisPC.bat muss laufen.'
   if (action === 'files') return 'Ordner nur, wenn der Agent Dateien kann.'
   if (action === 'click' || action === 'move' || action === 'type' || action === 'key') {
     return 'Eingabe nur, wenn der Agent Maus und Tastatur kann.'

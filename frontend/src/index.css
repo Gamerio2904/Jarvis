@@ -1300,6 +1300,33 @@ textarea {
   background: #111;
 }
 
+.pc-live-dock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
+.pc-live-frame {
+  display: block;
+  width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+  border-radius: 10px;
+  background: #111;
+}
+
+.pc-live-stop {
+  align-self: flex-end;
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: inherit;
+  font-weight: 650;
+  background: #2a2a2a;
+  color: #f2f2f2;
+}
+
 .confirm-row {
   display: inline-flex;
   gap: 6px;

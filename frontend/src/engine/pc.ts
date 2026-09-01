@@ -14,6 +14,15 @@ import {
   type PcCap,
   type PcCaps,
 } from './pc-cap.ts'
+import {
+  RTC_LIVE_JPEG,
+  RTC_NO_SESSION,
+  RTC_OFF,
+  RTC_STOP,
+  parseRtcSession,
+  rtcStreamVerified,
+  rtcSuccessReply,
+} from './pc-rtc.ts'
 import { isCommNo, isCommYes } from './places-parse'
 import { isPcGround, parseGroundIntent, type GroundIntent } from './ground-parse'
 import { loadSettings, saveSettings } from './store'
@@ -25,6 +34,7 @@ export { sanitizePcHost } from './pc-host'
 export { parsePcIntent, PC_COPY_PROMPTS } from './pc-parse'
 export type { PcIntent } from './pc-parse'
 export { parsePcCaps, pcCan, pcActionVerified, needsLaunchConfirm } from './pc-cap.ts'
+export { parseRtcSession, rtcStreamVerified } from './pc-rtc.ts'
 
 type PcHit = { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }
 
@@ -133,6 +143,23 @@ function writePending(p: PendingPc | null) {
 
 function writeGroundPending(p: PendingGround | null) {
   saveSettings({ last_ground_json: p ? JSON.stringify(p) : '' })
+}
+
+type LiveRtc = { sessionId: string; mode: 'lan-jpeg' | 'webrtc'; webrtc: string }
+
+export function readRtcLive(): LiveRtc | null {
+  try {
+    const raw = loadSettings().last_rtc_json
+    if (!raw) return null
+    const p = JSON.parse(raw) as LiveRtc
+    return p?.sessionId ? p : null
+  } catch {
+    return null
+  }
+}
+
+function writeRtcLive(p: LiveRtc | null) {
+  saveSettings({ last_rtc_json: p ? JSON.stringify(p) : '' })
 }
 
 function readGroundPending(): PendingGround | null {
@@ -360,6 +387,10 @@ async function runIntent(intent: PcIntent): Promise<PcHit> {
 
   if (intent.kind === 'screen') return seeScreen()
 
+  if (intent.kind === 'stream') return startLive()
+
+  if (intent.kind === 'stream_stop') return stopLive()
+
   if (intent.kind === 'launch') {
     if (needsLaunchConfirm(intent.query)) {
       writePending({ kind: 'launch_confirm', query: intent.query })
@@ -435,6 +466,88 @@ async function runIntent(intent: PcIntent): Promise<PcHit> {
   }
 
   return { handled: false }
+}
+
+async function startLive(): Promise<PcHit> {
+  const gated = await requireCap('stream')
+  if (!('caps' in gated)) return gated
+  const start = await callPc('/v1/webrtc', { action: 'start' }, 8_000)
+  const session = parseRtcSession(start)
+  if (!session) {
+    return packPc({
+      action: 'stream',
+      obs: obsBase('stream', gated.caps, { ok: false, webrtc: 'off' }),
+      success: String(start.message || RTC_OFF),
+      fail: String(start.message || RTC_OFF),
+    })
+  }
+  const frame = await callPc('/v1/webrtc', { action: 'frame', sessionId: session.sessionId }, 20_000)
+  const image = shotFrom(frame)
+  const hasFrame = Boolean(image)
+  const webrtc = session.webrtc === 'ready' ? 'ready' : 'off'
+  const connected = start.connected === true
+  const track = start.track === true
+  const mode = webrtc === 'ready' && connected && track ? 'webrtc' : 'lan-jpeg'
+  if (hasFrame) {
+    writeRtcLive({ sessionId: session.sessionId, mode, webrtc })
+  } else {
+    writeRtcLive(null)
+  }
+  const obs = obsBase('stream', gated.caps, {
+    sessionId: session.sessionId,
+    webrtc,
+    mode,
+    connected,
+    track,
+    frame: hasFrame,
+    ice: session.ice || 'host',
+    image: image || '',
+  })
+  const reply = rtcSuccessReply(obs)
+  return packPc({
+    action: 'stream',
+    obs,
+    success: reply,
+    fail: String(frame.message || start.message || RTC_OFF),
+    extra: image ? { image } : undefined,
+  })
+}
+
+export async function pullRtcFrame(): Promise<{ ok: boolean; image?: string; reply: string }> {
+  const live = readRtcLive()
+  if (!live) return { ok: false, reply: RTC_NO_SESSION }
+  const frame = await callPc('/v1/webrtc', { action: 'frame', sessionId: live.sessionId }, 20_000)
+  const image = shotFrom(frame)
+  if (!image) {
+    if (frame.ok === false) writeRtcLive(null)
+    return { ok: false, reply: String(frame.message || RTC_OFF) }
+  }
+  return { ok: true, image, reply: live.webrtc === 'ready' ? 'WebRTC' : RTC_LIVE_JPEG }
+}
+
+export async function stopRtcLive(): Promise<{ ok: boolean; reply: string }> {
+  const live = readRtcLive()
+  writeRtcLive(null)
+  if (!live) return { ok: true, reply: RTC_NO_SESSION }
+  await callPc('/v1/webrtc', { action: 'hangup', sessionId: live.sessionId }, 8_000)
+  return { ok: true, reply: RTC_STOP }
+}
+
+async function stopLive(): Promise<PcHit> {
+  const live = readRtcLive()
+  const stopped = await stopRtcLive()
+  return packPc({
+    action: 'stream_stop',
+    obs: {
+      action: 'stream_stop',
+      reached: true,
+      can: true,
+      sessionId: live?.sessionId || '',
+      ok: true,
+    },
+    success: stopped.reply,
+    fail: stopped.reply,
+  })
 }
 
 async function doLaunch(query: string): Promise<PcHit> {

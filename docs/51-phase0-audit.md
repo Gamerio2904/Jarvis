@@ -1,6 +1,6 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`9.2.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`, V7 PC `9.2`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag `8.0` bleibt geplant, **läuft nicht vor Stabilität**.
+> **Jetzt:** Code **`9.3.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`, V7 PC `9.2`, V8 Live `9.3`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag `8.0` bleibt geplant, **läuft nicht vor Stabilität**.
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
@@ -68,7 +68,7 @@ Es gab **keine Request-IDs**, **keine Idempotenz**, **kein globales Turn-Gate**,
 8. **Memory:** Schichten Sensory/Working/Episodic/Semantic. Quelle, Confidence, Contradiction, Prune. **CODE in `7.0.0`**. Kein Lance, kein Embedding-Router.
 9. **Dateien:** PDF/Text lokal, Foto/OCR mit Gemini, Verify Upload Domain `doc`. Word/Excel/HEIC ehrlich aus. **CODE in `9.0.0`**.
 10. **TV:** Device-Registry + Verify Launch (Native-OK, App-ID, Fähigkeit). Schirm weiter unsichtbar. SmartThings Won’t. **CODE in `9.1.0`**.
-11. **PC:** Capability-Levels + Confirm + Verify. JPEG-Screenshot, kein WebRTC. Klick heißt gesendet, nicht ausgeführt. **CODE in `9.2.0`**.
+11. **PC:** Capability-Levels + Confirm + Verify. JPEG-Screenshot. Live: LAN-JPEG, WebRTC nur mit Peer. Klick heißt gesendet, nicht ausgeführt. **CODE in `9.2.0`/`9.3.0`**.
 12. **App.tsx monolithisch.** Overlay-Stack, Busy, Voice, Drive, Debug in einer Komponente.
 
 ---
@@ -373,7 +373,7 @@ Bestehende Pläne `7.0` Recall und `8.0` Alltag **nicht löschen**. Industry-Tra
 | **V5 Memory** | **`7.0`** | 137–140 | Hierarchical Memory: Quelle, Confidence, Bereinigung | V3 Context |
 | **V6 TV** | **`9.1`** | 154–156 | Device-Registry, Verify Launch | V3 |
 | **V7 PC Beta** | **`9.2`** | 157–159 | Capability-Levels, Confirm, Verify | V3 |
-| **V8 Live-Stream** | `9.3` | nach V7 | WebRTC | V7 Pairing |
+| **V8 Live-Stream** | **`9.3`** | 160–162 | WebRTC-Signaling, LAN-JPEG, Verify Peer | V7 Pairing |
 | **V9 Hardening** | `9.9` | zuletzt | Regression, Security, UX | alle |
 
 Alltag `8.0` (Blitzer, Settings-IA, Preiswache) kann **parallel zu V2** geschnitten werden, sobald V1 grün ist — nicht vor Debug/Dedup.
@@ -504,9 +504,21 @@ Löschen und unbekanntes Starten warten auf Ja/Nein. FIFA ohne Extra-Confirm.
 
 Launch nur mit Start-Beweis. Klick „gesendet“, nicht „ausgeführt“. Agent down ehrlich.
 
+### Sprint 160 — PC WebRTC-Signaling (`9.3`) **CODE in `9.3.0`**
+
+`/v1/webrtc` über das LAN-Token. Capability `stream`. Kein TURN.
+
+### Sprint 161 — Live-Dock + Sitzung (`9.3`) **CODE in `9.3.0`**
+
+Einzelbilder in der Sitzung. Dock über dem Composer. Live aus beendet.
+
+### Sprint 162 — Verify Live-Stream (`9.3`) **CODE**
+
+WebRTC-Satz nur mit connected+track. JPEG bleibt JPEG.
+
 ### Danach
 
-WebRTC — wie PO V8. Kein Major ohne Verification-Schicht.
+Hardening — wie PO V9. Kein Major ohne Verification-Schicht.
 
 ---
 
@@ -523,7 +535,7 @@ Zusätzlich zu `03-agile-process.md`:
 
 ### Beta Ready (PO) — nicht dieses Increment
 
-Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `9.2` schließt **V7** (157–159). Es ist **nicht** Beta Ready.
+Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `9.3` schließt **V8** (160–162). Es ist **nicht** Beta Ready.
 
 ---
 
@@ -544,6 +556,7 @@ Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `9.2` schließt **V7** (157
 | Voice-Fallback | tts budgets | Provider down | VERSION 2 |
 | TV Netflix | tvLaunchVerified + packVerified | launch + verify | **CODE `9.1`** |
 | PC offline | pc-cap + packVerified | Agent down | **CODE `9.2`** |
+| PC live | rtcStreamVerified | Agent down / kein Peer | **CODE `9.3`** |
 
 Failure Simulation: Tool Timeout, Success-ohne-Wirkung, Netz weg, große Uploads — ab V3/V4.
 

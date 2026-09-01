@@ -84,6 +84,14 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'V8 Live',
+    items: [
+      { label: 'PC live', text: 'PC live', expect: { tool: 'pc', skipIf: 'no_pc' } },
+      { label: 'Live aus', text: 'Live aus', expect: { tool: 'pc', skipIf: 'no_pc' } },
+      { label: 'Einmal-Bild', text: 'Was siehst du auf dem PC', expect: { tool: 'pc', skipIf: 'no_pc' } },
+    ],
+  },
+  {
     title: 'V7 PC',
     items: [
       { label: 'FIFA', text: 'FIFA starten', expect: { tool: 'pc', skipIf: 'no_pc' } },

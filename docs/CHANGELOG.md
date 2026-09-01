@@ -5,7 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`9.2.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`9.3.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `9.3.0` — V8 Live-Stream (WebRTC-Signaling + LAN-JPEG) — *CODE*
+
+Sprints 160–162. Signaling über das LAN-Token. Live-Dock. WebRTC-Satz nur mit Peer. Sideload bleibt `6.90.0`. TURN Won’t.
+
+- **Signaling:** `/v1/webrtc` start/offer/frame/hangup. Capability `stream`.
+- **Live:** LAN-Einzelbilder im Dock. „Live aus“ beendet. JPEG ist kein Peer.
+- **Verify:** `rtcStreamVerified` — ready ohne Track = failed. Relay/TURN abgelehnt.
+- Docs [`sprints/sprint-160.md`](./sprints/sprint-160.md)–[`sprint-162.md`](./sprints/sprint-162.md)
 
 ### `9.2.0` — V7 PC Capability-Levels + Confirm + Verify — *CODE*
 

@@ -28,6 +28,7 @@ if ($Token.Length -lt 6) {
 }
 
 $script:LastAction = 'Warte auf das Handy…'
+$script:RtcSession = ''
 
 function Get-LanIps {
   $list = New-Object System.Collections.Generic.List[string]
@@ -253,9 +254,10 @@ function Handle-Command([string]$path, $body) {
         screen = @{ width = $b.Width; height = $b.Height }
         cursor = @{ x = $p.X; y = $p.Y }
         last = $script:LastAction
-        level = 'files'
-        capabilities = @('status','screen','launch','click','move','type','key','files')
+        level = 'stream'
+        capabilities = @('status','screen','launch','click','move','type','key','files','stream')
         vision = 'off'
+        webrtc = 'off'
       }
     }
     '/v1/screenshot' {
@@ -313,8 +315,53 @@ function Handle-Command([string]$path, $body) {
     '/v1/launch' { Invoke-Launch ([string]$body.query) }
     '/v1/files' { Invoke-Files $body }
     '/v1/trace' { Invoke-Trace ([string]$body.host) }
+    '/v1/webrtc' { Invoke-Webrtc $body }
+    '/v1/webrtc/frame' { Invoke-Webrtc ([pscustomobject]@{ action = 'frame' }) }
     default { @{ ok = $false; message = 'Unbekannter Pfad.' } }
   }
+}
+
+function Invoke-Webrtc($body) {
+  $act = [string]$body.action
+  if (-not $act -and $body.sdp) { $act = 'offer' }
+  if ($act -eq 'start' -or $act -eq 'offer') {
+    $script:RtcSession = ([guid]::NewGuid().ToString('N').Substring(0, 12))
+    $script:LastAction = 'Live-Sitzung'
+    @{
+      ok = $true
+      sessionId = $script:RtcSession
+      webrtc = 'off'
+      mode = 'lan-jpeg'
+      ice = 'host'
+      message = $(if ($act -eq 'offer') { 'Kein WebRTC-Peer. Live-Bilder über LAN-JPEG.' } else { 'Live-Sitzung (LAN-JPEG).' })
+    }
+  } elseif ($act -eq 'frame') {
+    if (-not $script:RtcSession) { return @{ ok = $false; message = 'Kein Live-Bild offen.' } }
+    $shot = New-ScreenshotJpeg
+    @{
+      ok = $true
+      sessionId = $script:RtcSession
+      webrtc = 'off'
+      mode = 'lan-jpeg'
+      frame = $true
+      mime = 'image/jpeg'
+      image = [Convert]::ToBase64String($shot.bytes)
+      width = $shot.width
+      height = $shot.height
+    }
+  } elseif ($act -eq 'hangup') {
+    $script:RtcSession = ''
+    $script:LastAction = 'Live aus.'
+    @{ ok = $true; webrtc = 'off' }
+  } elseif ($act -eq 'status') {
+    @{
+      ok = $true
+      sessionId = $script:RtcSession
+      webrtc = 'off'
+      mode = $(if ($script:RtcSession) { 'lan-jpeg' } else { '' })
+      alive = [bool]$script:RtcSession
+    }
+  } else { @{ ok = $false; message = 'Unbekannte Live-Aktion.' } }
 }
 
 function Invoke-Trace([string]$target) {
@@ -446,6 +493,8 @@ $y += 24
 $prompts = @(
   'FIFA starten',
   'Was siehst du auf dem PC',
+  'PC live',
+  'Live aus',
   'klick Mitte',
   'Züge anklicken',
   'Maus nach rechts',

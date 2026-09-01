@@ -28,6 +28,8 @@ import {
   testGroq,
   ingestDocFile,
   checkHomeFence,
+  pullRtcFrame,
+  stopRtcLive,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -173,6 +175,39 @@ function ToolChip({
         <img className="pc-shot" alt="PC-Bildschirm" src={String(tool.result.image)} />
       ) : null}
     </span>
+  )
+}
+
+function PcLiveDock() {
+  const [src, setSrc] = useState('')
+  useEffect(() => {
+    let alive = true
+    async function tick() {
+      const r = await pullRtcFrame()
+      if (!alive) return
+      setSrc(r.ok && r.image ? r.image : '')
+    }
+    void tick()
+    const id = window.setInterval(() => void tick(), 1000)
+    return () => {
+      alive = false
+      window.clearInterval(id)
+    }
+  }, [])
+  if (!src) return null
+  return (
+    <div className="pc-live-dock">
+      <img className="pc-live-frame" alt="PC live" src={src} />
+      <button
+        type="button"
+        className="pc-live-stop"
+        onClick={() => {
+          void stopRtcLive().then(() => setSrc(''))
+        }}
+      >
+        Live aus
+      </button>
+    </div>
   )
 }
 
@@ -1759,6 +1794,7 @@ function App() {
         </div>
 
         <div className="composer-wrap">
+          <PcLiveDock />
           {statusNote ? <div className="status-note">{statusNote}</div> : null}
           {error ? (
             <div className="error-banner">

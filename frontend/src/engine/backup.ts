@@ -30,6 +30,7 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_poi_json',
   'last_comm_json',
   'last_pc_json',
+  'last_rtc_json',
   'last_drive_json',
   'last_debug_json',
   'last_research_json',
