@@ -51,6 +51,8 @@ import { parseToolIntent } from './tools-parse'
 import { handleTools, type ToolMeta } from './tools'
 import { parseEyeIntent } from './eye-parse'
 import { handleEyeAsk } from './eye'
+import { parseDocIntent } from './doc-parse.ts'
+import { handleDoc } from './doc.ts'
 import { parseWeatherFollowup, parseWeatherIntent, type WeatherLast } from './weather-parse'
 import { handleWeather } from './weather'
 import { parseNewsIntent } from './news-parse'
@@ -371,6 +373,13 @@ function makeCatalog(): Capability[] {
       parse: (ctx) =>
         parseEyeIntent(ctx.text) || isEyeGround(parseGroundIntent(ctx.text)) ? score(ctx.text) : null,
       execute: async (ctx) => fromHandler('eye', await handleEyeAsk(ctx.text)),
+    },
+    {
+      id: 'doc',
+      label: 'Datei',
+      sideEffect: 'read',
+      parse: (ctx) => (parseDocIntent(ctx.text) ? score(ctx.text, 0.22) : null),
+      execute: async (ctx) => fromHandler('doc', await handleDoc(ctx.conversationId, ctx.text)),
     },
     {
       id: 'weather',

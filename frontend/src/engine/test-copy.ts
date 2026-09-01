@@ -58,6 +58,15 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'V4 Dokumente',
+    items: [
+      { label: 'PDF lesen', text: 'Lies das PDF', expect: { tool: 'doc' } },
+      { label: 'Datei Inhalt', text: 'Was steht in der Datei', expect: { tool: 'doc' } },
+      { label: 'Foto bleibt Auge', text: 'Lies das Foto', expect: { tool: 'eye' } },
+      { label: 'Beleg bleibt Auge', text: 'Was steht auf dem Beleg', expect: { tool: 'eye' } },
+    ],
+  },
+  {
     title: 'Gedächtnis',
     items: [
       { label: 'Name + Kaffee merken', text: 'Ich heiße Max und trinke gerne Kaffee.' },

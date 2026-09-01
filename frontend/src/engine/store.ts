@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '6.99.0'
+export const APP_VERSION = '9.0.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -221,6 +221,7 @@ export type Settings = {
   working_memory_json: string
   last_debug_json: string
   last_research_json: string
+  last_doc_json: string
 }
 
 const SETTINGS_KEY = 'jarvis_settings_v13'
@@ -349,6 +350,7 @@ export const DEFAULT_SETTINGS: Settings = {
   working_memory_json: '',
   last_debug_json: '',
   last_research_json: '',
+  last_doc_json: '',
 }
 
 function nowIso(): string {
@@ -408,9 +410,20 @@ export type ResearchAudit = {
   created_at: string
 }
 
+export type DocRecord = {
+  id: string
+  conversation_id: string
+  name: string
+  mime: string
+  kind: string
+  bytes: number
+  text: string
+  created_at: string
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 6)
+    const req = indexedDB.open('jarvis-ondevice', 7)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -425,6 +438,7 @@ function openDb(): Promise<IDBDatabase> {
         'events',
         'shopping',
         'price_watches',
+        'docs',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'

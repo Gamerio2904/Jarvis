@@ -26,8 +26,7 @@ import {
   tvFireTest,
   testGemini,
   testGroq,
-  readEyeImage,
-  fileToJpegDataUrl,
+  ingestDocFile,
   checkHomeFence,
   type Conversation,
   type Health,
@@ -1229,11 +1228,11 @@ function App() {
     return created.id
   }
 
-  async function onEyeFile(file: File) {
+  async function onDocFile(file: File) {
     if (!file || busy) return
     setBusy(true)
     setError(null)
-    setStatusNote('Foto…')
+    setStatusNote('Datei…')
     try {
       let conversationId = activeId
       if (!conversationId) {
@@ -1242,9 +1241,7 @@ function App() {
         setConversations((prev) => [created, ...prev])
         setActiveId(created.id)
       }
-      const prepared = await fileToJpegDataUrl(file)
-      const payload = 'error' in prepared ? `error:${prepared.error}` : prepared.dataUrl
-      const { reply } = await readEyeImage(conversationId, payload)
+      const { reply } = await ingestDocFile(conversationId, file)
       const conv = await getConversation(conversationId)
       setMessages(conv.messages)
       setConversations((prev) => {
@@ -1252,9 +1249,9 @@ function App() {
         return [conv, ...rest]
       })
       setStatusNote(null)
-      if (!reply) setStatusNote('Nichts Lesbares auf dem Bild.')
+      if (!reply) setStatusNote('Nichts Lesbares in der Datei.')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Foto fehlgeschlagen')
+      setError(err instanceof Error ? err.message : 'Datei fehlgeschlagen')
       setStatusNote(null)
     } finally {
       setBusy(false)
@@ -1777,11 +1774,11 @@ function App() {
             <input
               ref={eyeFileRef}
               type="file"
-              accept="image/*"
+              accept="image/*,.pdf,.txt,.md,.csv,.json,application/pdf,text/plain,text/markdown,text/csv,application/json"
               hidden
               onChange={(e) => {
                 const file = e.target.files?.[0]
-                if (file) void onEyeFile(file)
+                if (file) void onDocFile(file)
               }}
             />
             <textarea
@@ -1805,8 +1802,8 @@ function App() {
                 className="icon-btn"
                 disabled={busy}
                 onClick={() => eyeFileRef.current?.click()}
-                aria-label="Foto"
-                title="Foto"
+                aria-label="Datei (Foto, PDF, Text)"
+                title="Datei (Foto, PDF, Text)"
               >
                 <IconCamera />
               </button>

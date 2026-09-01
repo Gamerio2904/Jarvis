@@ -86,6 +86,8 @@ import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, 
 import { pickGeoHits } from '../src/engine/geo-lookup.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
+import { parseDocIntent } from '../src/engine/doc-parse.ts'
+import { classifyDoc, docUploadVerified, extractPdfText } from '../src/engine/doc-kind.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
@@ -1049,7 +1051,8 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /6\.99\.0/)
+assert.match(HELP_TEXT, /9\.0\.0/)
+assert.match(HELP_TEXT, /Datei-Knopf/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1887,6 +1890,7 @@ assert.doesNotMatch(
 }
 assert.ok(TEST_COPY_GROUPS.some((g) => /V2 Voice/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V3 Verified/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V4 Dokumente/i.test(g.title)))
 
 {
   let s = ACTION_INIT
@@ -2033,6 +2037,77 @@ assert.doesNotMatch(scrubReply('Die Route berechne ich sofort neu.'), /sofort ne
   })
   assert.equal(packed.tool.tool_status, 'executed')
   assert.equal(packed.tool.action, 'settings')
+}
+
+assert.equal(parseDocIntent('Lies das PDF')?.kind, 'read')
+assert.equal(parseDocIntent('Was steht in der Datei')?.kind, 'read')
+assert.equal(parseDocIntent('was steht drin')?.kind, 'read')
+assert.equal(parseDocIntent('Lies das Foto'), null)
+assert.equal(parseDocIntent('Was steht auf dem Beleg'), null)
+assert.equal(parseDocIntent('Was steht am Friday'), null)
+assert.equal(pickRoute('Lies das PDF'), 'doc')
+assert.equal(pickRoute('Was steht in der Datei'), 'doc')
+assert.equal(pickRoute('Lies das Foto'), 'eye')
+assert.equal(pickRoute('Was steht auf dem Beleg'), 'eye')
+assert.equal(classifyDoc('x.pdf'), 'pdf')
+assert.equal(classifyDoc('a.txt'), 'text')
+assert.equal(classifyDoc('n.docx'), 'other')
+assert.equal(classifyDoc('shot.jpg'), 'image')
+assert.equal(classifyDoc('scan.heic'), 'other')
+{
+  const pdf = new TextEncoder().encode('%PDF-1.1\nBT /F1 12 Tf (Hallo Jarvis) Tj ET\n')
+  assert.match(extractPdfText(pdf), /Hallo Jarvis/)
+  assert.equal(extractPdfText(new TextEncoder().encode('not a pdf (Hallo) Tj')), '')
+}
+assert.equal(docUploadVerified({ stored: true, bytes: 120, kind: 'pdf', chars: 12 }).ok, true)
+assert.equal(docUploadVerified({ stored: false, bytes: 0, kind: 'pdf', chars: 0 }).ok, false)
+assert.equal(docUploadVerified({ stored: false, bytes: 40, kind: 'other', chars: 0 }).ok, false)
+assert.equal(docUploadVerified({ stored: true, bytes: 80, kind: 'image', chars: 0, ocrOk: false }).ok, false)
+assert.equal(docUploadVerified({ stored: true, bytes: 80, kind: 'image', chars: 20, ocrOk: true }).ok, true)
+{
+  const empty = packVerified({
+    domain: 'doc',
+    intent: 'upload:leer.pdf',
+    plan: 'parse',
+    label: 'PDF',
+    observation: { stored: false, bytes: 0, kind: 'pdf', chars: 0 },
+    verify: (obs) => docUploadVerified(obs),
+    successReply: 'PDF gelesen.',
+    failReply: 'Die Datei ist leer.',
+  })
+  assert.equal(empty.state.phase, 'failed')
+  assert.equal(empty.tool.tool_status, 'error')
+  assert.doesNotMatch(empty.reply, /gelesen/)
+}
+{
+  const other = packVerified({
+    domain: 'doc',
+    intent: 'upload:n.docx',
+    plan: 'upload',
+    label: 'Datei',
+    observation: { stored: false, bytes: 12, kind: 'other', chars: 0 },
+    verify: (obs) => docUploadVerified(obs),
+    successReply: 'PDF gelesen.',
+    failReply: 'Word-Datei lese ich nicht. PDF, Text oder Foto.',
+  })
+  assert.equal(other.state.phase, 'failed')
+  assert.doesNotMatch(other.reply, /gelesen/)
+  assert.match(other.reply, /Word/)
+}
+{
+  const ok = packVerified({
+    domain: 'doc',
+    intent: 'upload:x.pdf',
+    plan: 'parse',
+    label: 'PDF',
+    observation: { stored: true, bytes: 240, kind: 'pdf', chars: 12 },
+    verify: (obs) => docUploadVerified(obs),
+    successReply: 'x.pdf: Hallo Jarvis',
+    failReply: 'Kein Text im PDF.',
+  })
+  assert.equal(ok.state.phase, 'success')
+  assert.equal(ok.tool.tool_status, 'executed')
+  assert.match(ok.reply, /Hallo Jarvis/)
 }
 
 console.log('ok 0.14 parsers')

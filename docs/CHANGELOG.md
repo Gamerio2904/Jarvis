@@ -5,7 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.99.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`9.0.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `9.0.0` — V4 Dokumente — *CODE*
+
+Sprints 151–153. Attachments, PDF/Text-Parser, OCR mit Verify Upload. Sideload bleibt `6.90.0` bis zur nächsten APK. **Nicht** Alltag-Stimme `8.20`.
+
+- **Datei-Knopf:** PDF, Text, Foto. Word, Excel, HEIC ehrlich abgelehnt.
+- **PDF:** unkomprimierte Literale lokal. Gescannte Seiten: Foto, kein „PDF gelesen“.
+- **OCR:** Gemini-Vision; ohne Key kein Fake.
+- **Verify:** Domain `doc` in der Action-FSM. SUCCESS nur mit Observation.
+- Docs [`sprints/sprint-151.md`](./sprints/sprint-151.md)–[`sprint-153.md`](./sprints/sprint-153.md)
 
 ### `6.99.0` — V3 Verified Actions — *CODE*
 

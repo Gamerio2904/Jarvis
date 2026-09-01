@@ -171,6 +171,7 @@ export async function listReminders() {
 
 export { removeReminder, syncReminderAlarms } from './engine/reminders'
 export { readEyeImage, fileToJpegDataUrl } from './engine/eye'
+export { ingestDocFile } from './engine/doc.ts'
 export { checkHomeFence } from './engine/home'
 
 export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {

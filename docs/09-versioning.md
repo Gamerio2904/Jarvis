@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`6.99.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Stabilität V1 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.93` **CODE**. V2 Voice & App `6.94`–`6.96` **CODE**. V3 Verified Actions `6.97`–`6.99` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
+> **Jetzt:** Code **`9.0.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Stabilität V1 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.93` **CODE**. V2 Voice & App `6.94`–`6.96` **CODE**. V3 Verified Actions `6.97`–`6.99` **CODE**. V4 Dokumente `9.0` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -110,6 +110,7 @@ MAJOR.MINOR.PATCH
 | `6.97.0` | **Action-FSM** — mitgeliefert in `6.99` | Sprint 148 |
 | `6.98.0` | **Navi Replace verifiziert** — mitgeliefert in `6.99` | Sprint 149 |
 | `6.99.0` | **V3 Abschluss** — Research-Pending hart | Sprint 150 |
+| `9.0.0` | **V4 Dokumente** — Attachments, Parser, OCR, Verify Upload | Sprint 151–153 |
 | `7.0.0` | **Agentic Recall** Leitentscheidung (PLAN) | Sprint 137 |
 | `8.0.0` | **Alltag vom Zettel** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache | Sprint 141 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |

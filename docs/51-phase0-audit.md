@@ -1,6 +1,6 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`6.99.0`** (V1 `6.91`–`6.93`, V2 `6.94`–`6.96`, V3 `6.97`–`6.99`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Recall `7.0` und Alltag `8.0` bleiben geplant, **laufen nicht vor Stabilität**.
+> **Jetzt:** Code **`9.0.0`** (V1 `6.91`–`6.93`, V2 `6.94`–`6.96`, V3 `6.97`–`6.99`, V4 `9.0`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Recall `7.0` und Alltag `8.0` bleiben geplant, **laufen nicht vor Stabilität**.
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
@@ -66,7 +66,7 @@ Es gab **keine Request-IDs**, **keine Idempotenz**, **kein globales Turn-Gate**,
 6. **Debug im Panel-Lifecycle.** Unmount = UI tot, Loop kopflos, Turns landen im falschen Chat.
 7. **Weltlage-Watch und Wecker teilen Notify-Infrastruktur.** Watch darf nie Alarm-GUI sein.
 8. **Memory = Keyword + RRF**, kein Graph, keine Consolidation, kein Contradiction-Resolver.
-9. **Dateien:** nur JPEG via Auge. Kein PDF/Doc-Pipeline.
+9. **Dateien:** PDF/Text lokal, Foto/OCR mit Gemini, Verify Upload Domain `doc`. Word/Excel/HEIC ehrlich aus. **CODE in `9.0.0`**.
 10. **TV:** Tizen-Keys + App-Launch, keine Screen-Verification. SmartThings bewusst Won’t bisher.
 11. **PC:** JPEG-Screenshot, kein WebRTC. Klick ohne Beweis.
 12. **App.tsx monolithisch.** Overlay-Stack, Busy, Voice, Drive, Debug in einer Komponente.
@@ -369,7 +369,7 @@ Bestehende Pläne `7.0` Recall und `8.0` Alltag **nicht löschen**. Industry-Tra
 | **V1 Stabilität** | `6.91`–`6.93` | 142–144 | Debug, Overlay, Dedup, Parser-Falschalarme, Weltlage nicht als Wecker | keine |
 | **V2 Voice & App** | `6.94`–`6.96` | 145–147 | TTS-Kaskade, App-Action-Registry | V1 |
 | **V3 Verified Actions** | `6.97`–`6.99` | 148–150 | Action-FSM, Navi-Replace verifiziert, Research-Pending | V1 |
-| **V4 Dokumente** | `8.20` Datei-Schiene oder `9.0` | 151+ | Attachments, Parser, OCR | V3 (Verify Upload) |
+| **V4 Dokumente** | **`9.0`** | 151–153 | Attachments, Parser, OCR, Verify Upload | V3 (Verify Upload) |
 | **V5 Memory** | `7.0` (bestehend) | 137+ nach V3 | Hierarchical Memory | V3 Context |
 | **V6 TV** | `9.1` | nach V3 | Device-Registry, Verify Launch | V3 |
 | **V7 PC Beta** | `9.2` | nach V6 | Capability-Levels, Confirm | V3 |
@@ -452,9 +452,21 @@ Navi: `IDLE → CALCULATING → ACTIVE_ROUTE → REPLACING_ROUTE → VERIFYING �
 
 Pending mit TTL, `ja bitte` sucht die gemerkte Frage, `nein` bricht ab. Ohne Quellen: `RESEARCH_EMPTY`. Completed Research frisst Confirm nicht.
 
+### Sprint 151 — Attachments + Verify Upload (`9.0`) **CODE in `9.0.0`**
+
+Datei-Knopf PDF/Text/Foto. IndexedDB `docs`. `packVerified` Domain `doc`. SUCCESS nur mit `docUploadVerified`.
+
+### Sprint 152 — PDF/Text-Parser (`9.0`) **CODE in `9.0.0`**
+
+`Lies das PDF` → `doc`. `Lies das Foto` bleibt `eye`. Unkomprimierte PDF-Literale lokal. Gescannte PDFs leer → ehrlich.
+
+### Sprint 153 — OCR (`9.0`) **CODE**
+
+Foto-OCR nur Gemini. Ohne Key kein Fake. Word/Excel/HEIC abgelehnt.
+
 ### Danach
 
-Dokumente, Memory-Research (Papers + HF/GitHub), Device-Registry, PC-Beta, WebRTC — wie PO V4–V8. Kein Major ohne Verification-Schicht.
+Memory-Research (Papers + HF/GitHub), Device-Registry, PC-Beta, WebRTC — wie PO V5–V8. Kein Major ohne Verification-Schicht.
 
 ---
 
@@ -471,7 +483,7 @@ Zusätzlich zu `03-agile-process.md`:
 
 ### Beta Ready (PO) — nicht dieses Increment
 
-Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `6.99` schließt **V3** (148–150). Es ist **nicht** Beta Ready.
+Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `9.0` schließt **V4** (151–153). Es ist **nicht** Beta Ready.
 
 ---
 

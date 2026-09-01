@@ -25,6 +25,7 @@ import { parseTimerIntent } from './timer-parse.ts'
 import { parseReminderIntent } from './remind-parse.ts'
 import { parseToolIntent } from './tools-parse.ts'
 import { parseEyeIntent } from './eye-parse.ts'
+import { parseDocIntent } from './doc-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from './weather-parse.ts'
 import { parseNewsIntent } from './news-parse.ts'
 import { parseChatSearch } from './search-chat-parse.ts'
@@ -127,6 +128,11 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
     sideEffect: 'read',
     parse: (ctx) =>
       parseEyeIntent(ctx.text) || isEyeGround(parseGroundIntent(ctx.text)) ? score(ctx.text) : null,
+  },
+  {
+    id: 'doc',
+    sideEffect: 'read',
+    parse: (ctx) => (parseDocIntent(ctx.text) ? score(ctx.text, 0.22) : null),
   },
   {
     id: 'weather',
