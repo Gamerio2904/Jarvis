@@ -52,7 +52,7 @@ export function scrubReply(text: string, opts?: { searched?: boolean; names?: st
     return 'Startbefehl ist angekommen oder nicht — den Schirm sehe ich nicht. Kein „ist offen“ ohne Observation.'
   }
   if (FAKE_PC_DONE.test(out)) {
-    return 'Befehl angekommen oder nicht — den Schirm sehe ich nicht. Kein „läuft“ und kein „Klick ausgeführt“ ohne Observation.'
+    return 'Befehl angekommen oder nicht — den Schirm sehe ich nicht. Kein Erfolgssatz ohne Observation.'
   }
   if (INSULT_USER.test(out)) {
     return 'Jarvis. Zur Sache — ohne Diagnosen.'
