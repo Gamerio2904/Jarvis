@@ -9,6 +9,7 @@ import {
   type MemoryItem,
   type Message,
 } from './store.ts'
+import { formatDue } from './remind-parse.ts'
 
 export type RetrieveHit = {
   store: string
@@ -18,7 +19,7 @@ export type RetrieveHit = {
 }
 
 const STOP = new Set(
-  'der die das den dem des ein eine einer einem einen und oder aber mit von zu im in am auf aus für fürs als wie was wer wo wann warum dass das ist sind war hat habe ich wir sie du mir uns ihr eure mein meine dein keine kein noch nur auch schon mal bitte doch'.split(
+  'der die das den dem des ein eine einer einem einen und oder aber mit von zu im in am auf aus für fürs als wie was wer wo wann warum dass ist sind war hat habe ich wir sie du mir mich uns ihr eure mein meine dein keine kein noch nur auch schon mal bitte doch über uber weißt weisst weiß weiss stand hatte gerade ohne kennst kennt davon dazu darüber darueber sagst gesagt liegt geben'.split(
     ' ',
   ),
 )
@@ -37,6 +38,21 @@ export function subQueries(text: string): string[] {
   if (/\b(?:termin|zahnarzt|arzt|kalender)\b/i.test(t) && !out.includes('termin')) out.push('termin')
   if (/\b(?:milch|einkauf|liste)\b/i.test(t) && !out.includes('milch')) out.push('einkauf')
   return [...new Set(out.filter(Boolean))].slice(0, 3)
+}
+
+export function isDumpLine(content: string): boolean {
+  const t = (content || '').replace(/\s+/g, ' ').trim()
+  if (!t) return true
+  if (/^\s*gefunden:/i.test(t)) return true
+  if (/(?:zeig mir london|fahr mich zu einer tanke)\s*:/i.test(t)) return true
+  const colons = (t.match(/:\s/g) || []).length
+  if (colons >= 3 && /(?:^|\s)•\s/.test(content)) return true
+  if (colons >= 4 && t.length > 100) return true
+  return false
+}
+
+function isDebugConversation(c: Conversation | undefined): boolean {
+  return Boolean(c && /^Debug \d{4}-/.test(c.title || ''))
 }
 
 function scoreBlob(q: string, blob: string): number {
@@ -82,23 +98,29 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
         store: 'memory',
         title: m.key,
         body: m.value,
-        rank: scoreBlob(q, `${m.key} ${m.value}`),
+        rank: scoreBlob(q, `${m.key} ${m.value}`) + 1.5,
       }))
-      .filter((h) => h.rank > 0)
+      .filter((h) => h.rank > 1.5)
       .sort((a, b) => b.rank - a.rank)
       .slice(0, 8)
     const msgHits = messages
-      .filter((m) => m.content.length < 400)
-      .map((m) => {
+      .filter((m) => {
+        if (m.content.length >= 400) return false
+        if (m.role === 'assistant' && isDumpLine(m.content)) return false
         const conv = convs.find((c) => c.id === m.conversation_id)
+        if (isDebugConversation(conv)) return false
+        return true
+      })
+      .map((m) => {
+        const snippet = m.content.replace(/\s+/g, ' ').slice(0, 140)
         return {
           store: 'messages',
-          title: conv?.title || 'Gespräch',
-          body: m.content.replace(/\s+/g, ' ').slice(0, 140),
+          title: snippet.slice(0, 48),
+          body: snippet,
           rank: scoreBlob(q, m.content),
         }
       })
-      .filter((h) => h.rank > 0)
+      .filter((h) => h.rank >= 2)
       .sort((a, b) => b.rank - a.rank)
       .slice(0, 8)
     const evHits = events
@@ -106,9 +128,9 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
         store: 'events',
         title: e.title,
         body: `${e.start_at}${e.place ? ` ${e.place}` : ''}`,
-        rank: scoreBlob(q, `${e.title} ${e.place || ''}`),
+        rank: scoreBlob(q, `${e.title} ${e.place || ''}`) + 2,
       }))
-      .filter((h) => h.rank > 0)
+      .filter((h) => h.rank > 2)
     const noteHits = notes
       .map((n) => ({
         store: 'notes',
@@ -133,9 +155,64 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
         rank: scoreBlob(q, s.title),
       }))
       .filter((h) => h.rank > 0)
-    lists.push([...memHits, ...msgHits, ...evHits, ...noteHits, ...remHits, ...shopHits])
+    lists.push([...memHits, ...evHits, ...noteHits, ...remHits, ...shopHits, ...msgHits])
   }
   return rrf(lists)
+}
+
+const STORE_ORDER = ['events', 'memory', 'reminders', 'notes', 'shopping', 'messages']
+
+function pickRecallHits(hits: RetrieveHit[]): RetrieveHit[] {
+  const hard = hits.filter((h) => h.store !== 'messages')
+  const msgs = hits.filter((h) => h.store === 'messages')
+  const sort = (xs: RetrieveHit[]) =>
+    [...xs].sort((a, b) => {
+      const da = STORE_ORDER.indexOf(a.store)
+      const db = STORE_ORDER.indexOf(b.store)
+      const ia = da < 0 ? 9 : da
+      const ib = db < 0 ? 9 : db
+      if (ia !== ib) return ia - ib
+      return b.rank - a.rank
+    })
+  const primary = sort(hard).slice(0, 3)
+  if (primary.length) return primary
+  return msgs.slice(0, 2)
+}
+
+function formatEventWhen(body: string): string {
+  const iso = body.trim().split(/\s/)[0]
+  if (!/^\d{4}-/.test(iso)) return body.trim()
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return body.trim()
+  return formatDue(d)
+}
+
+function formatOneHit(h: RetrieveHit): string {
+  if (h.store === 'events') {
+    const when = formatEventWhen(h.body)
+    return `Termin: ${h.title}${when ? ` — ${when}` : ''}.`
+  }
+  if (h.store === 'reminders') {
+    const when = formatEventWhen(h.body)
+    return `Erinnerung: ${h.title}${when ? ` — ${when}` : ''}.`
+  }
+  if (h.store === 'memory') {
+    if (h.title === 'name') return `Sie heißen ${h.body}.`
+    if (h.title === 'zuhause') return `Zuhause ist ${h.body}.`
+    if (h.title === 'getränk') return `Sie trinken ${h.body}.`
+    if (h.title === 'essen') return `Sie essen ${h.body}.`
+    return `${h.body}.`
+  }
+  if (h.store === 'shopping') return `Einkauf: ${h.title}.`
+  if (h.store === 'notes') return `Notiz: ${h.body}${/[.!?]$/.test(h.body) ? '' : '.'}`
+  return h.body.replace(/\s+/g, ' ').trim()
+}
+
+export function formatRecallReply(query: string, hits: RetrieveHit[]): string {
+  if (!hits.length) return `Nichts Belegtes zu „${query}“ in den lokalen Speichern.`
+  const lines = pickRecallHits(hits).map(formatOneHit).filter(Boolean)
+  if (!lines.length) return `Nichts Belegtes zu „${query}“ in den lokalen Speichern.`
+  return lines.join(' ')
 }
 
 export function formatRetrieveHits(hits: RetrieveHit[]): string {

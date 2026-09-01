@@ -22,7 +22,7 @@ export function memoryBlock(
   const pinHits = hits
     .filter((h) => h.store !== 'memory')
     .slice(0, 4)
-    .map((h) => `- ${h.title}: ${h.body}`)
+    .map((h) => (h.store === 'messages' ? `- Gespräch: ${h.body}` : `- ${h.title}: ${h.body}`))
   const picked = (q ? ranked.filter((x) => x.hit) : ranked).slice(0, q ? 4 : 4)
   const pins = items.filter((m) => m.key === 'name' || m.key === 'zuhause' || m.category === 'boundary').slice(0, 3)
   const use = picked.length ? picked.map((x) => x.m) : pins

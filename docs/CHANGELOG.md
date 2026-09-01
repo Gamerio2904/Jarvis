@@ -14,7 +14,10 @@ Sprint 142. Phase-0-Audit der gesamten App + Screenshot-Root-Causes. Kein Featur
 - **Turn-Gate:** Request-IDs, Dedup, UI-Lock; Debug parallel auf eigenem Gespräch.
 - **Debug-Session:** überlebt Settings-Unmount, 90 s Timeout/Turn, Persist, Download danach. Android-Back schließt Overlay.
 - **Parser:** Vereinsliste ≠ Ort; Greeting ≠ Wetter; „lieber nach X“ im Fahrmodus ersetzt die Route; Aldi-Brand; OSM-Warenlisten keine Laden-Namen.
-- **Titel:** Ellipsis, Wortgrenze.
+- **Titel:** Ellipsis, Wortgrenze; Header folgt `onMeta.conversation`, nicht erst `onDone`.
+- **Street View:** Kugel fliegt zum Lexikon-Ort, Chip **Geht nicht** statt „Won’t“.
+- **Globe-Brief:** keine leere Tagesschau-Formel; Polish 300 Tokens, Stumpf → Canned.
+- **Gedächtnis:** `formatRecallReply` statt `Titel: body`; Dumps und Debug-Chats raus; `Was weißt du über mich` nur gepinnte Fakten.
 - Docs [`51-phase0-audit.md`](./51-phase0-audit.md) · [`sprints/sprint-142.md`](./sprints/sprint-142.md)
 
 ### Docs — Alltag vom Zettel `8.0` PLAN

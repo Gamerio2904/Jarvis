@@ -87,7 +87,7 @@ import { handleTaxi } from './taxi'
 import { parseBackupIntent, handleBackup } from './backup'
 import { parseFaceIntent } from './face-parse.ts'
 import { handleFace } from './face.ts'
-import { parseWontIntent, handleWont } from './wont-parse.ts'
+import { parseWontIntent, handleWont, WONT_LABEL } from './wont-parse.ts'
 import { parseBlitzerIntent } from './blitzer-parse.ts'
 import { handleBlitzer } from './blitzer.ts'
 import { parseFolderIntent } from './folder-parse.ts'
@@ -171,7 +171,7 @@ function makeCatalog(): Capability[] {
   return [
     {
       id: 'wont',
-      label: 'Won’t',
+      label: WONT_LABEL,
       sideEffect: 'read',
       parse: (ctx) => (parseWontIntent(ctx.text) ? score(ctx.text, 0.4) : null),
       execute: async (ctx) => fromHandler('wont', handleWont(ctx.text)),

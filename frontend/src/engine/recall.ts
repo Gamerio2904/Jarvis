@@ -1,5 +1,5 @@
 import { parseRecallIntent } from './recall-parse.ts'
-import { formatRetrieveHits, retrieve } from './retrieve.ts'
+import { formatRecallReply, retrieve } from './retrieve.ts'
 import type { ToolMeta } from './tools.ts'
 
 export { parseRecallIntent }
@@ -18,16 +18,10 @@ export async function handleRecall(
       lastTool: 'recall',
     }
   }
-  const line = hits
-    .slice(0, 4)
-    .map((h) => `${h.title}: ${h.body}`)
-    .join(' ')
   return {
     handled: true,
-    reply: line,
+    reply: formatRecallReply(q, hits),
     tool: { tool_status: 'executed', tool: 'recall', action: 'hit', label: 'Gedächtnis' },
     lastTool: 'recall',
   }
 }
-
-void formatRetrieveHits

@@ -6,6 +6,12 @@ function placesIn(text: string): string[] {
   return [...text.matchAll(re)].map((m) => m[0].toLowerCase())
 }
 
+export function looksTruncated(text: string): boolean {
+  const t = (text || '').trim()
+  if (!t) return true
+  return !/[.!?…»"')\]]$/u.test(t)
+}
+
 export function guardPolish(facts: string, polished: string): string {
   const draft = (polished || '').trim()
   const pack = (facts || '').trim()

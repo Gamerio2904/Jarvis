@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
-import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
+import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand, finishReply, HELP_TEXT } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
@@ -91,7 +91,7 @@ import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
-import { pinForTag } from '../src/engine/globe-geo.ts'
+import { gazetteerHit, pinForTag, composePlaceBrief } from '../src/engine/globe-geo.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
 import { parseTraceIntent } from '../src/engine/trace-parse.ts'
 import { parseDigestIntent } from '../src/engine/digest-parse.ts'
@@ -117,6 +117,10 @@ import { parseFaceIntent } from '../src/engine/face-parse.ts'
 import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
 import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
 import { tagNewsText } from '../src/engine/outlook-tags.ts'
+import { parseRecallIntent } from '../src/engine/recall-parse.ts'
+import { formatRecallReply, isDumpLine, subQueries } from '../src/engine/retrieve.ts'
+import { handleWont, parseWontIntent, streetViewPlace, WONT_LABEL } from '../src/engine/wont-parse.ts'
+import { looksTruncated } from '../src/engine/polish-guard.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -1722,5 +1726,57 @@ endTurn({ source: 'debug', conversationId: 'debug-1' })
 const again = beginTurn({ source: 'user', content: 'hallo zwei', conversationId: 'c1' })
 assert.equal(again.ok, true)
 endTurn({ source: 'user', conversationId: 'c1' })
+
+assert.deepEqual(subQueries('Was weißt du über mich'), [])
+assert.equal(subQueries('Was weißt du über den Zahnarzt').some((q) => q.includes('zahnarzt')), true)
+assert.ok(!subQueries('Was weißt du über den Zahnarzt').includes('über'))
+assert.equal(parseRecallIntent('Was weißt du über den Zahnarzt'), 'Zahnarzt')
+assert.equal(parseRecallIntent('Was weißt du über mich'), null)
+assert.equal(parseRecallIntent('Wo stand das mit der Steuer'), 'Steuer')
+assert.equal(isMemoryRecall('Was weißt du über mich'), true)
+assert.equal(isDumpLine('Zeig mir London: Termine diese Woche: 1. Zahnarzt'), true)
+assert.equal(isDumpLine('Gefunden: • Wann hatte ich das mit der Steuer?'), true)
+assert.equal(isDumpLine('London ist die Hauptstadt des Vereinigten Königreichs.'), false)
+{
+  const line = formatRecallReply('Zahnarzt', [
+    { store: 'events', title: 'Zahnarzt', body: '2026-09-05T15:00:00', rank: 1 },
+    { store: 'messages', title: 'Zeig mir London', body: 'Fahr mich zu einer Tanke', rank: 0.9 },
+  ])
+  assert.match(line, /Zahnarzt/)
+  assert.doesNotMatch(line, /Zeig mir London:/)
+  assert.doesNotMatch(line, /Fahr mich zu einer Tanke:/)
+}
+{
+  const line = formatRecallReply('Steuer', [
+    { store: 'messages', title: 'Zeig mir London', body: 'Wann hatte ich das mit der Steuer?', rank: 1 },
+  ])
+  assert.match(line, /Steuer/)
+  assert.doesNotMatch(line, /Zeig mir London:/)
+}
+assert.match(formatPinnedMemory([{ key: 'name', value: 'Timon' }, { key: 'zuhause', value: 'Kehrsbachstraße 19' }]), /Sie heißen Timon/)
+assert.doesNotMatch(formatPinnedMemory([{ key: 'name', value: 'Timon' }]), /Zeig mir London/)
+assert.equal(parseWontIntent('Zeig Street View von London')?.reason, 'street')
+assert.equal(streetViewPlace('Zeig Street View von London')?.name, 'London')
+assert.equal(gazetteerHit('Zeig Street View von London'), null)
+assert.equal(pickRoute('Zeig Street View von London'), 'wont')
+{
+  const r = handleWont('Zeig Street View von London')
+  assert.equal(r.handled, true)
+  assert.equal(r.tool?.label, WONT_LABEL)
+  assert.match(r.reply || '', /London steht auf der Kugel/)
+  assert.match(r.reply || '', /Street View habe ich nicht/)
+}
+assert.equal(parseHudIntent('Wo ist London')?.kind, 'pin')
+{
+  const brief = composePlaceBrief(
+    { name: 'London', lat: 51.51, lon: -0.13, blurb: 'an der Themse, Hauptstadt des Vereinigten Königreichs.' },
+    [],
+  )
+  assert.match(brief, /London/)
+  assert.doesNotMatch(brief, /Tagesschau/)
+  assert.doesNotMatch(brief, /Lokalnachricht/)
+}
+assert.equal(looksTruncated('Die Tagesschau erwähnt die Stadt derzeit nicht, und Lokalnachrichten sollten nicht'), true)
+assert.equal(looksTruncated('London liegt an der Themse.'), false)
 
 console.log('ok 0.14 parsers')

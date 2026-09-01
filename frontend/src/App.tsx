@@ -1035,6 +1035,12 @@ function App() {
       await streamChat(conversationId, content, {
         onMeta: (meta) => {
           markEnter(meta.user_message.id)
+          if (meta.conversation) {
+            setConversations((prev) => {
+              const rest = prev.filter((c) => c.id !== meta.conversation!.id)
+              return [meta.conversation!, ...rest]
+            })
+          }
           if (!showUi()) return
           setMessages((prev) => {
             const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
@@ -1228,6 +1234,12 @@ function App() {
         {
           onMeta: (meta) => {
             markEnter(meta.user_message.id)
+            if (meta.conversation) {
+              setConversations((prev) => {
+                const rest = prev.filter((c) => c.id !== meta.conversation!.id)
+                return [meta.conversation!, ...rest]
+              })
+            }
             if (!showUi()) return
             setMessages((prev) => {
               const withoutTmp = prev.filter((m) => m.id !== optimistic.id)

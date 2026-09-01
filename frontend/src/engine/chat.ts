@@ -68,6 +68,7 @@ import { routeRegistry, type RouteHit } from './registry'
 export type StreamHandlers = {
   onMeta?: (meta: {
     user_message: Message
+    conversation?: Conversation
     model: string
     using_fallback: boolean
     research?: ResearchMeta | null
@@ -395,9 +396,11 @@ export async function streamChat(
 
   noteTurn('user', content)
   const userMessage = await addMessage(conversationId, 'user', content)
+  const convAfterUser = (await storeGet<Conversation>('conversations', conversationId)) || conv
   const kind = brainKind()
   handlers.onMeta?.({
     user_message: userMessage,
+    conversation: convAfterUser,
     model: brainLabel(kind),
     using_fallback: kind === 'groq' || kind === 'local',
     research: null,
@@ -435,7 +438,7 @@ export async function streamChat(
         tool: last.tool,
         research,
       })
-      const updated = (await touchConversation(conversationId)) || conv
+      const updated = (await touchConversation(conversationId)) || convAfterUser
       handlers.onDone?.({
         assistant_message: assistant,
         conversation: updated,
@@ -450,7 +453,7 @@ export async function streamChat(
         'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
       handlers.onToken?.(reply)
       const assistant = await addMessage(conversationId, 'assistant', reply)
-      const updated = (await touchConversation(conversationId)) || conv
+      const updated = (await touchConversation(conversationId)) || convAfterUser
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
     }
@@ -465,7 +468,7 @@ export async function streamChat(
     if (live && !geminiReady()) {
       if (!s.research_opt_in) {
         const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
-        const updated = (await touchConversation(conversationId)) || conv
+        const updated = (await touchConversation(conversationId)) || convAfterUser
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
         return
       }
@@ -481,12 +484,12 @@ export async function streamChat(
         )
         handlers.onReplace?.(reply)
         const assistant = await addMessage(conversationId, 'assistant', reply, { research })
-        const updated = (await touchConversation(conversationId)) || conv
+        const updated = (await touchConversation(conversationId)) || convAfterUser
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, research, tool: null })
         return
       }
       const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
-      const updated = (await touchConversation(conversationId)) || conv
+      const updated = (await touchConversation(conversationId)) || convAfterUser
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
     }
@@ -586,7 +589,7 @@ export async function streamChat(
           const empty = RESEARCH_EMPTY
           handlers.onReplace?.(empty)
           const assistant = await addMessage(conversationId, 'assistant', empty, { research })
-          const updated = (await touchConversation(conversationId)) || conv
+          const updated = (await touchConversation(conversationId)) || convAfterUser
           handlers.onDone?.({
             assistant_message: assistant,
             conversation: updated,
@@ -622,7 +625,7 @@ export async function streamChat(
     if (research && !research.audit_id) research = await attachResearchAudit(research, content)
     if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
-    const updated = (await touchConversation(conversationId)) || conv
+    const updated = (await touchConversation(conversationId)) || convAfterUser
     handlers.onDone?.({
       assistant_message: assistant,
       conversation: updated,

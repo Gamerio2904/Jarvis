@@ -56,7 +56,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
 | 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` PLAN** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache |
-| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`6.91` CODE** — Audit, Screenshots, V1–V9, Sprint 142 Stabilität |
+| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`6.91` CODE** — Audit, Screenshots S1–S18, V1–V9, Sprint 142 Stabilität |
 | — | [APK](./apk.md) | Sideload `6.90.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)

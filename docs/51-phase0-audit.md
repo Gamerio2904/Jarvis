@@ -239,6 +239,113 @@ Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
 
 ---
 
+### S13 — Street View London: ehrliches Won’t, Kugel fliegt nicht, Chip auf Englisch
+
+**PROBLEM.** `Zeig Street View von London` → „Street View habe ich nicht. Nur die Kugel mit Lexikon-Orten, kein Straßenblick.“ Chip **Won’t**. Die Kugel dreht nicht nach London. User wollte beides: Ort zeigen *und* Straßenblick ablehnen.
+
+**Schweregrad.** Mittel (fähige Teillösung fehlt + UI-Sprache).
+
+**ROOT CAUSE.**
+1. `parseWontIntent` matcht `\bstreet\s*view\b` und `handleWont` antwortet nur mit der Canned-Zeile. Kein Gazetteer, kein `hud_view`.
+2. `gazetteerHit('Zeig Street View von London')` ist **absichtlich** null: Leftover `Zeig Street View von` sind keine Füllwörter (`6.51`). HUD-Pin greift deshalb nicht.
+3. Chip-Label in `registry.ts` / `handleWont` hardcodiert `'Won’t'`.
+
+**KOMPONENTEN.** `wont-parse.ts`, `globe-geo.ts` `gazetteerHit`, `registry.ts` wont, `store.ts` `hud_view` / `last_globe_focus`.
+
+**LÖSUNG.** `streetViewPlace`: Street-View-Wörter strippen, dann Gazetteer. Treffer → Kugel fliegen (`hud_view: globe` + focus), Reply: „London steht auf der Kugel. Street View habe ich nicht …“. Chip **Geht nicht**. Ohne Orts-Treffer bleibt die Canned-Zeile.
+
+**TESTS.** `parseWontIntent` reason `street`; `streetViewPlace` → London; `gazetteerHit` voller Satz bleibt null; `pickRoute` → `wont`; Label `Geht nicht`.
+
+**Status `6.91`.** CODE.
+
+### S14 — „Wo ist London“ bricht nach Tagesschau-Leerformel ab
+
+**PROBLEM.** `Wo ist London` → „London ist die Hauptstadt … Die Tagesschau erwähnt die Stadt derzeit nicht, und Lokalnachrichten sollten nicht“. Satzstumpf. User hat nach dem Ort gefragt, nicht nach einem News-Briefing.
+
+**Schweregrad.** Hoch (abgeschnittene Antwort).
+
+**ROOT CAUSE.**
+1. HUD-Pin (`parseHudIntent` `wo ist|liegt`) ruft `briefPlace` auf.
+2. `briefPlace` hängte **immer** eine Tagesschau-Leerformel an, wenn `newsLine` null ist.
+3. `polishToolLine` `maxOutputTokens: 120` schneidet die umformulierte Zeile mitten im Satz. `guardPolish` prüft Zahlen/Orte, nicht Satzende.
+
+**KOMPONENTEN.** `globe-brief.ts`, `polish.ts`, `hud.ts` pin.
+
+**LÖSUNG.** Fehlende News weglassen (Kommentar im File: Fehlendes weglassen). `composePlaceBrief` nur echte Extras. Polish 300 Tokens; `looksTruncated` → Canned zurück.
+
+**TESTS.** `composePlaceBrief(London, [])` enthält kein Tagesschau; `looksTruncated` auf dem Screenshot-Stumpf true.
+
+**Status `6.91`.** CODE.
+
+### S15 — „Wo bin ich gerade?“ (Kontrolle, kein Bug)
+
+**PROBLEM.** Keins. Screenshot zeigt korrekte Adresse Kehrsbachstraße 19, Chip **Standort**.
+
+**ROOT CAUSE.** `here` / Geo-Plugin. Nicht Teil der Dump-/Street-View-Kette.
+
+**LÖSUNG.** Keine. Regression: Standort-Chip und Adresse bleiben.
+
+**Status `6.91`.** IST korrekt.
+
+### S16 — „Was weißt du über den Zahnarzt“ dumppt Chat-Titel
+
+**PROBLEM.** Antwort ist Wortsalat: `Zeig mir London: Termine … Fahr mich zu einer Tanke: … Zahnarzt … Sonne auf/unter`. Chip **Gedächtnis**.
+
+**Schweregrad.** Kritisch (Retrieval dump, kein Satz).
+
+**ROOT CAUSE.**
+1. `parseRecallIntent` liefert korrekt `Zahnarzt`. `handleRecall` macht `hits.map(h => title + ': ' + body)`.
+2. Message-Hits nehmen **`conversation.title`** als title. Titel *sind* die letzte User-Zeile (`titleFromUser`) — „Zeig mir London“, „Fahr mich zu einer Tanke“.
+3. Assistant-Dumps werden wieder indexiert → nächste Frage erbt den Salat.
+4. `subQueries` / `scoreBlob` ist Token-Overlap; schwache Tokens treffen fast alles, sobald der Dump London+Tanke+Zahnarzt in einer Zeile hat.
+
+**KOMPONENTEN.** `recall.ts`, `retrieve.ts`, `chat-title.ts`, `memory.ts` (gleicher Dump-Pfad).
+
+**LÖSUNG.** `formatRecallReply`: deutsche Sätze nach Store, nie `ChatTitel: body`. Events vor Messages. Message-Titel = Content-Snippet. Dump-Zeilen und Debug-Chats skippen. Events/Memory gewinnen, Chat nur wenn sonst nichts.
+
+**TESTS.** `formatRecallReply` mit Event+Message enthält Zahnarzt, nicht `Zeig mir London:`.
+
+**Status `6.91`.** CODE.
+
+### S17 — „Wo stand das mit der Steuer“ Feedback-Loop
+
+**PROBLEM.** Dieselbe Dump-Form plus `Gefunden:` und Bullet `•`, Wiederholung der eigenen Frage. Chip **Gedächtnis**.
+
+**Schweregrad.** Kritisch.
+
+**ROOT CAUSE.** Wie S16, plus: frühere Search/Recall-Replies (`Gefunden:`, `• Titel: body`) liegen als Assistant-Messages in IndexedDB. `retrieve` findet sie wieder. `parseRecallIntent` → `Steuer` ist richtig; die Formatierung und der Re-Index sind falsch.
+
+**KOMPONENTEN.** `retrieve.ts` `isDumpLine`, `recall.ts`, `search-chat.ts` (gleicher `title: body`-Join).
+
+**LÖSUNG.** `isDumpLine` filtert `Gefunden:` und Mehrfach-`Titel:`. `search-chat` nutzt `formatRecallReply`. Assistant-Dumps werden nicht mehr getroffen.
+
+**TESTS.** `isDumpLine('Gefunden: • …')`; `parseRecallIntent('Wo stand das mit der Steuer') === 'Steuer'`.
+
+**Status `6.91`.** CODE.
+
+### S18 — „Was weißt du über mich“ dumppt alte Prompts; Titel hängt
+
+**PROBLEM.** `Was weißt du über mich` → `Was weißt du über mich: … Zahnarzt … Fahr mich zu einer Tanke … Vorwerk …`. Header bleibt „Wie wird das Wetter?“ oder wickelt später `gibt's auch in den Laden…` ohne Ellipsis (Sideload `6.90`).
+
+**Schweregrad.** Kritisch (Memory) + Mittel (Titel).
+
+**ROOT CAUSE.**
+1. `parseRecallIntent('Was weißt du über mich')` ist **null** (bewusst). `RECALL_ALL` in `memory-parse.ts` → `handleMemory` läuft `retrieve(text)` und dumpt Hits.
+2. `subQueries('Was weißt du über mich')`: `mich` ist STOP, übrig `über` / `weißt` → trifft fast jede Message.
+3. Header: `addMessage` schreibt den Titel in IndexedDB, `onMeta` gab die Conversation nicht an die UI. Titel erst in `onDone` — bei Globe/News-Latenz bleibt der alte Titel stehen. Ellipsis war `6.90` CSS fehlend (S2, CODE in `6.91`).
+
+**KOMPONENTEN.** `memory.ts`, `memory-parse.ts` `RECALL_ALL`, `retrieve.ts` STOP, `chat.ts` `onMeta`, `App.tsx`.
+
+**LÖSUNG.** `RECALL_ALL` listet nur gepinnte Fakten (`formatPinnedMemory`: Name, Zuhause, Prefs), **kein** retrieve-Dump. STOP um `über`/`weißt`/`stand`. `onMeta.conversation` aktualisiert den Header sofort.
+
+**TESTS.** `subQueries('Was weißt du über mich') === []`; `isMemoryRecall` true; `parseRecallIntent` null; `formatPinnedMemory` ohne Chat-Titel.
+
+**Status `6.91`.** CODE.
+
+Aldi-Screenshot (Hofladen statt Aldi, Header-Wrap) ist **S7 + S2** auf Sideload `6.90`. Brand-Filter und Ellipsis sind in diesem PR.
+
+---
+
 ## 5. Mapping PO-Versionen → Code
 
 Bestehende Pläne `7.0` Recall und `8.0` Alltag **nicht löschen**. Industry-Track **davor und dazwischen** als `6.91+`, dann Verifikation, dann die großen Majors.
@@ -275,6 +382,12 @@ Ziel: Die Screenshot-Parser und der Debug/Send-Kern sind root-cause-fest, nicht 
 | A8 | Aldi-Brand + Grocery-List-Namen | test-014 |
 | A9 | Titel-Ellipsis | CSS + titleFromUser |
 | A10 | Version `6.91.0` | package + APP_VERSION |
+| A11 | Street View: Kugel + ehrlich, Chip „Geht nicht“ | test-014 S13 |
+| A12 | Globe-Brief ohne leere Tagesschau; Polish nicht stutzen | test-014 S14 |
+| A13 | Recall/Search nie `ChatTitel: body` | test-014 S16–S17 |
+| A14 | Dump-Zeilen und Debug-Chats nicht indexieren | `isDumpLine` |
+| A15 | `Was weißt du über mich` = gepinnte Fakten, kein RAG-Dump | test-014 S18 |
+| A16 | `onMeta.conversation` setzt den Header sofort | chat.ts + App.tsx |
 
 Won’t in 142: WebRTC, Memory-Graph, PDF, SmartThings, Foreground-Service `5.12` (Home killt JS weiter — ehrlich im UI-Text).
 
@@ -345,6 +458,9 @@ Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `6.91` ist **nicht** Beta R
 | Ort-Dash | places-parse | Memory nicht geschrieben | Screenshot-Prompt |
 | Route-Replace | drive-parse | startRoute rideOk | Fahrmodus GPS |
 | Aldi | poi-parse brand | Overpass mock / skip_if no_gps | Live |
+| Street View | wont-parse + streetViewPlace | Kugel-Focus gesetzt | Screenshot |
+| Globe-Stumpf | composePlaceBrief / looksTruncated | polish Fallback | Screenshot London |
+| Recall-Dump | formatRecallReply / isDumpLine | IndexedDB mit alten Titeln | Zahnarzt / Steuer / über mich |
 | Voice-Fallback | tts budgets | Provider down | VERSION 2 |
 | TV Netflix | — | launch + verify | VERSION 6 |
 | PC offline | pc.ts ehrlich | Agent down | VERSION 7 |

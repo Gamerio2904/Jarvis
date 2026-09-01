@@ -10,7 +10,7 @@
 
 ## Ziel
 
-Root Causes aus Audit und Chat-Screenshots: Debug-Session, Turn-Gate, Parser-Falschalarme (Ort, Wetter, Aldi, Route-Replace), Titel-Ellipsis. Kein neues Feature-Major.
+Root Causes aus Audit und Chat-Screenshots: Debug-Session, Turn-Gate, Parser-Falschalarme (Ort, Wetter, Aldi, Route-Replace), Titel-Ellipsis, Recall-Dumps, Street View + Globe-Stumpf. Kein neues Feature-Major.
 
 ## Must
 
@@ -26,6 +26,11 @@ Root Causes aus Audit und Chat-Screenshots: Debug-Session, Turn-Gate, Parser-Fal
 | A8 | Fahrmodus: „lieber nach Freiberg am Neckar“ = dest |
 | A9 | POI-Brand Aldi/Lidl/Rewe/Edeka; Grocery-List-Namen weg |
 | A10 | Chat-Titel Ellipsis; `test:014` inkl. Screenshot-Fälle |
+| A11 | Street View von London: Kugel fliegt, Chip „Geht nicht“ |
+| A12 | `briefPlace` ohne leere Tagesschau; Polish 300 Tokens + Truncation-Guard |
+| A13 | Recall/Search: `formatRecallReply`, nie `Gesprächstitel: body` |
+| A14 | `RECALL_ALL` listet Memory-Fakten, kein retrieve-Dump |
+| A15 | `onMeta` reicht die Conversation an die UI (Header sofort) |
 
 ## Won’t
 
@@ -39,3 +44,6 @@ Foreground-Service `5.12`. WebRTC. Memory-Graph. PDF. SmartThings. App-Action-Re
 - [ ] Greeting löst kein Wetter aus
 - [ ] Replace-Dest nur im Fahrmodus
 - [ ] Debug-Turns gehen nicht in den Alltagschat
+- [ ] Street View London: Route `wont`, Label deutsch, Gazetteer-Ort
+- [ ] Recall-Reply ohne `Zeig mir London:`
+- [ ] `Was weißt du über mich` ohne RAG-Dump
