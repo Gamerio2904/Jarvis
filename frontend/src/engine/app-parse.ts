@@ -37,6 +37,7 @@ export function parseAppIntent(text: string): AppIntent | null {
   if (!t || t.length > 80) return null
   if (/\b(wlan|wifi|bluetooth|nicht\s+st[oö]ren)\b/i.test(t)) return null
   if (/^\s*(?:was\s+weißt\s+du|was\s+hast\s+du\s+dir|erinnerst\s+du\s+dich)\b/i.test(t)) return null
+  if (/\bdann\b/i.test(t)) return null
 
   if (
     /^\s*(?:sprachmodus|jarvis\s+h[oö]ren)\s*[.!?]*$/i.test(t) ||
