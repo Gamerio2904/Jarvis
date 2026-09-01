@@ -5,7 +5,20 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.91.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`6.93.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `6.93.0` — V1 Abschluss — *CODE*
+
+Sprints 143–144. Overlay-FSM, Weltlage ≠ Wecker, Gemini-Abbruch, Research-Pending `ja bitte`. Sideload bleibt `6.90.0` bis zur nächsten APK.
+
+- **Overlay:** `overlay-fsm.ts` — Sheets exclusive, Drive bleibt darunter; `pointer-events: none` solange Settings/Stimme/Kalender oben. Fertig und Back schließen die oberste Fläche.
+- **Weltlage-Watch:** Native `alarm` Default false; Titel „Weltlage“ nie Alarm-Activity. `OUTLOOK_WATCH_ALARM = false`.
+- **Pin-Tap:** Sprechblase (Name, Kurzlage, kein Bilder-Swipe), Schließen / Im Chat.
+- **Gemini:** unvollständiger Satz → Retry mit mehr Tokens; bleibt stumpf → `Die Antwort ist abgebrochen…` vor `scrubReply`.
+- **Research:** Tweets in `isLiveLookup`; `ja bitte` nach `research_offer` wiederholt die gemerkte Frage.
+- **Anrede:** Siezen, Vorname nicht vokativ. Greeting nach Geräteuhr; Abend nach Mitternacht bleibt Abend.
+- **Debug:** Gruppe „Stabilität Screenshots“.
+- Docs [`sprints/sprint-143.md`](./sprints/sprint-143.md) · [`sprints/sprint-144.md`](./sprints/sprint-144.md)
 
 ### `6.91.0` — Stabilität Kern — *CODE*
 

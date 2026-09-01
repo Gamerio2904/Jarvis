@@ -51,6 +51,7 @@ import { DriveMode } from './DriveMode'
 import { Lage } from './Lage'
 import { WakeBubble } from './WakeBubble'
 import { useOverlay } from './overlay'
+import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm'
 import { closeDrive, subscribeDrive } from './engine/drive'
 import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
@@ -325,6 +326,7 @@ function App() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
+  const [overlay, setOverlay] = useState(OVERLAY_INIT)
   const voiceOpenRef = useRef(false)
   const driveOpenRef = useRef(false)
   voiceOpenRef.current = voiceOpen
@@ -374,11 +376,29 @@ function App() {
     return created.id
   }
 
+  function patchOverlay(...actions: Parameters<typeof reduceOverlay>[1][]) {
+    setOverlay((s) => {
+      let next = s
+      for (const action of actions) next = reduceOverlay(next, action)
+      return next
+    })
+  }
+
+  function openSheet(id: OverlayId) {
+    patchOverlay({ type: 'exclusive', id })
+  }
+
+  function closeSheet(id: OverlayId) {
+    patchOverlay({ type: 'drop', id })
+  }
+
   function openVoiceMode(seed = '') {
     voiceHoldUntilRef.current = Date.now() + 2500
     if (seed) setVoiceSeed(seed)
-    setVoiceOpen(true)
+    setSettingsPanelOpen(false)
     setCalendarOpen(false)
+    setVoiceOpen(true)
+    openSheet('voice')
   }
 
   useEffect(() => {
@@ -408,6 +428,9 @@ function App() {
       if (on) {
         setCalendarOpen(false)
         setSidebarOpen(false)
+        patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'ensure', id: 'drive' })
+      } else {
+        patchOverlay({ type: 'drop', id: 'drive' })
       }
     })
   }, [])
@@ -423,20 +446,24 @@ function App() {
     const onPop = () => {
       if (settingsPanelOpen) {
         setSettingsPanelOpen(false)
+        closeSheet('settings')
         return
       }
       if (calendarOpen) {
         setCalendarOpen(false)
+        closeSheet('calendar')
         return
       }
       if (voiceOpen) {
         setVoiceOpen(false)
+        closeSheet('voice')
         return
       }
       if (driveOpen) {
         driveCloseGenRef.current += 1
         closeDrive()
         setDriveOpen(false)
+        closeSheet('drive')
       }
     }
     window.addEventListener('popstate', onPop)
@@ -530,6 +557,7 @@ function App() {
         hideTimer = window.setTimeout(() => {
           if (document.hidden && Date.now() >= voiceHoldUntilRef.current) {
             setVoiceOpen(false)
+            closeSheet('voice')
           }
         }, 400)
         return
@@ -854,7 +882,10 @@ function App() {
       /* browser ohne Deep-Link */
     }
     const s = await getSettings()
-    if (s.drive_mode) setDriveOpen(true)
+    if (s.drive_mode) {
+      setDriveOpen(true)
+      patchOverlay({ type: 'ensure', id: 'drive' })
+    }
     if (s.wake_word) {
       try {
         await startWakeWord()
@@ -1110,16 +1141,22 @@ function App() {
           if (payload.tool?.tool === 'calendar') {
             if (payload.tool.action === 'open') {
               setCalendarOpen(true)
+              setSettingsPanelOpen(false)
+              setVoiceOpen(false)
               setSidebarOpen(false)
+              openSheet('calendar')
             }
           }
           if (driveCloseGenRef.current === closeGen) {
             if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
-              if (payload.tool?.action === 'close') setDriveOpen(false)
-              else {
+              if (payload.tool?.action === 'close') {
+                setDriveOpen(false)
+                closeSheet('drive')
+              } else {
                 setDriveOpen(true)
                 setCalendarOpen(false)
                 setSidebarOpen(false)
+                patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'ensure', id: 'drive' })
               }
             }
           }
@@ -1261,8 +1298,13 @@ function App() {
             if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
             if (driveCloseGenRef.current === closeGen) {
               if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
-                if (payload.tool?.action === 'close') setDriveOpen(false)
-                else setDriveOpen(true)
+                if (payload.tool?.action === 'close') {
+                  setDriveOpen(false)
+                  closeSheet('drive')
+                } else {
+                  setDriveOpen(true)
+                  patchOverlay({ type: 'ensure', id: 'drive' })
+                }
               }
             }
             maybeOpenSettingsFromReply(payload.assistant_message.content)
@@ -1286,8 +1328,11 @@ function App() {
 
   function openSettings(topic: SettingsTopic = 'allgemein') {
     setSettingsTopic(topic)
+    setVoiceOpen(false)
+    setCalendarOpen(false)
     setSettingsPanelOpen(true)
     setSidebarOpen(false)
+    openSheet('settings')
     void refreshReminders()
     void refreshMemory(memoryFilter)
     if (topic === 'forschung') void refreshAudits()
@@ -1321,7 +1366,7 @@ function App() {
   const voiceLayer = useOverlay(voiceOpen)
 
   return (
-    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}`} ref={appRef}>
+    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1420,7 +1465,10 @@ function App() {
           className={`memory-toggle ${calendarOpen ? 'active' : ''}`}
           onClick={() => {
             setCalendarOpen(true)
+            setSettingsPanelOpen(false)
+            setVoiceOpen(false)
             setSidebarOpen(false)
+            openSheet('calendar')
           }}
         >
           Kalender
@@ -1498,20 +1546,27 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}`}>
+      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
         {voiceLayer.shown ? (
           <VoiceMode
             leaving={voiceLayer.leaving}
             onClose={() => {
               setVoiceOpen(false)
               setVoiceSeed('')
+              closeSheet('voice')
             }}
             onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
             initialUtterance={voiceSeed}
           />
         ) : null}
         {calendarLayer.shown ? (
-          <CalendarView leaving={calendarLayer.leaving} onClose={() => setCalendarOpen(false)} />
+          <CalendarView
+            leaving={calendarLayer.leaving}
+            onClose={() => {
+              setCalendarOpen(false)
+              closeSheet('calendar')
+            }}
+          />
         ) : null}
         {driveOpen ? (
           <DriveMode
@@ -1519,6 +1574,7 @@ function App() {
               driveCloseGenRef.current += 1
               closeDrive()
               setDriveOpen(false)
+              closeSheet('drive')
             }}
             onCommand={(text) => sendVoiceTurn(text)}
           />
@@ -1761,7 +1817,10 @@ function App() {
             if (t === 'gedaechtnis') void refreshMemory(memoryFilter)
             if (t === 'wecker') void refreshReminders()
           }}
-          onClose={() => setSettingsPanelOpen(false)}
+          onClose={() => {
+            setSettingsPanelOpen(false)
+            closeSheet('settings')
+          }}
           settings={settings}
           settingsBusy={settingsBusy}
           patchSetting={patchSetting}

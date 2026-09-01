@@ -4,6 +4,7 @@ import { groqReady, testGroq } from './groq'
 import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain'
 import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards'
+import { greetingReply, parseGreeting } from './greeting.ts'
 import { memoryBlock } from './memory'
 import { retrieve } from './retrieve.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
@@ -23,12 +24,15 @@ import {
   RESEARCH_EMPTY,
   RESEARCH_NEEDS_GEMINI,
   RESEARCH_OFF_REPLY,
+  REPLY_TRUNCATED,
   researchHasSources,
   researchQuery,
   shouldRetrySearch,
   sourceDigest,
+  isSearchRefusal,
   type ResearchMeta,
 } from './research-parse'
+import { looksTruncated } from './polish-guard.ts'
 import { fillResearchLinks } from './web-search'
 import {
   APP_VERSION,
@@ -155,6 +159,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: PERSONA_ASK_TEXT,
       lastTool: 'identity',
       tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Jarvis' },
+    }
+  }
+
+  const greet = parseGreeting(content) || parseGreeting(normalizeUtterance(content))
+  if (greet) {
+    return {
+      reply: greetingReply(greet),
+      lastTool: 'smalltalk',
+      tool: { tool_status: 'executed', tool: 'smalltalk', action: 'greeting', label: 'Jarvis' },
     }
   }
 
@@ -474,7 +487,7 @@ export async function streamChat(
       }
       const filled = await fillResearchLinks(content, '', undefined)
       const research = (await attachResearchAudit(filled, researchQuery(content))) || filled
-      persistLastStep('research')
+      persistLastStep('research', researchQuery(content), '', content)
       if (researchHasSources(research)) {
         const reply = formatResearchReply(
           researchQuery(content),
@@ -578,7 +591,7 @@ export async function streamChat(
       if (wantSearch) {
         const filled = await fillResearchLinks(content, text, research)
         research = (await attachResearchAudit(filled, researchQuery(content))) || filled
-        persistLastStep('research')
+        persistLastStep('research', researchQuery(content), '', content)
         const product = isProductLookup(content, discount)
         const sources = research.sources || []
         const weak = !text || isKnowledgeGap(text)
@@ -616,14 +629,28 @@ export async function streamChat(
         wantSearch = true
         continue
       }
+      if (pass === 0 && looksTruncated(text) && kind === 'gemini') {
+        continue
+      }
       if (pass === 1 && text) handlers.onReplace?.(text)
       break
     }
 
-    const final = scrubReply(text, { searched: Boolean(researchHasSources(research) || wantSearch) })
+    if (!wantSearch && (looksTruncated(text) || isSearchRefusal(text))) {
+      persistLastStep('research_offer', researchQuery(content), '', content)
+    }
+    if (looksTruncated(text)) {
+      text = REPLY_TRUNCATED
+      handlers.onReplace?.(text)
+    }
+    const name = mem.find((m) => m.key === 'name')?.value
+    const final = scrubReply(text, {
+      searched: Boolean(researchHasSources(research) || wantSearch),
+      names: name ? [name] : [],
+    })
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, content)
-    if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
+    if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research', researchQuery(content), '', content)
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || convAfterUser
     handlers.onDone?.({

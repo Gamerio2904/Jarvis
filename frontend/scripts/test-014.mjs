@@ -24,6 +24,7 @@ import {
   researchStatusLabel,
   sourcesFromHtml,
   sourcesFromText,
+  REPLY_TRUNCATED,
 } from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
@@ -40,7 +41,7 @@ import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
 import { ttsBudgetMs, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
-import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
+import { isFollowUpPhrase, isConfirmPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
@@ -121,6 +122,9 @@ import { parseRecallIntent } from '../src/engine/recall-parse.ts'
 import { formatRecallReply, isDumpLine, subQueries } from '../src/engine/retrieve.ts'
 import { handleWont, parseWontIntent, streetViewPlace, WONT_LABEL } from '../src/engine/wont-parse.ts'
 import { looksTruncated } from '../src/engine/polish-guard.ts'
+import { parseGreeting, greetingReply, dayPartAt } from '../src/engine/greeting.ts'
+import { reduceOverlay, overlayTop, overlayHidesDrive, OVERLAY_INIT } from '../src/engine/overlay-fsm.ts'
+import { OUTLOOK_WATCH_ALARM } from '../src/engine/outlook-watch.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -1029,7 +1033,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /6\.90\.0/)
+assert.match(HELP_TEXT, /6\.93\.0/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1778,5 +1782,60 @@ assert.equal(parseHudIntent('Wo ist London')?.kind, 'pin')
 }
 assert.equal(looksTruncated('Die Tagesschau erwähnt die Stadt derzeit nicht, und Lokalnachrichten sollten nicht'), true)
 assert.equal(looksTruncated('London liegt an der Themse.'), false)
+
+assert.equal(isBriefAsk('Guten Morgen'), true)
+assert.equal(parseGreeting('Guten Morgen'), null)
+assert.equal(parseGreeting('Guten Abend'), 'evening')
+assert.equal(parseGreeting("ach wie geht's dir heute Abend"), 'evening')
+{
+  const night = new Date('2026-09-02T00:44:00')
+  assert.equal(dayPartAt(night), 'night')
+  assert.match(greetingReply('evening', night), /Guten Abend/)
+  assert.match(greetingReply('evening', night), /Mitternacht/)
+  assert.doesNotMatch(greetingReply('evening', night), /Guten Tag/)
+}
+assert.equal(isLiveLookup('was hat Elon Musk als letztes getweetet'), true)
+assert.equal(isLiveLookup('Elon Musk tweets heute'), true)
+assert.ok(isConfirmPhrase('ja bitte'))
+assert.ok(isFollowUpPhrase('ja bitte'))
+assert.equal(
+  rewriteFollowUp('ja bitte', {
+    last_step_tool: 'research_offer',
+    last_step_title: 'Elon Musk Tweet',
+    last_step_utterance: 'was hat Elon Musk als letztes getweetet',
+  }),
+  'was hat Elon Musk als letztes getweetet',
+)
+assert.equal(
+  rewriteFollowUp('ja bitte', {
+    last_step_tool: 'research',
+    last_step_utterance: 'was hat Elon Musk als letztes getweetet',
+  }),
+  'was hat Elon Musk als letztes getweetet',
+)
+assert.match(scrubReply('Guten Tag, Timon. Wie geht es Ihnen?', { names: ['Timon'] }), /Guten Tag/)
+assert.doesNotMatch(scrubReply('Guten Tag, Timon. Wie geht es Ihnen?', { names: ['Timon'] }), /Timon/)
+assert.match(REPLY_TRUNCATED, /abgebrochen/)
+assert.equal(OUTLOOK_WATCH_ALARM, false)
+assert.ok(TEST_COPY_GROUPS.some((g) => /Stabilität Screenshots/i.test(g.title)))
+{
+  let s = OVERLAY_INIT
+  s = reduceOverlay(s, { type: 'ensure', id: 'drive' })
+  assert.equal(overlayTop(s), 'drive')
+  assert.equal(overlayHidesDrive(s), false)
+  s = reduceOverlay(s, { type: 'exclusive', id: 'settings' })
+  assert.equal(overlayTop(s), 'settings')
+  assert.equal(overlayHidesDrive(s), true)
+  assert.ok(s.stack.includes('drive'))
+  s = reduceOverlay(s, { type: 'drop', id: 'settings' })
+  assert.equal(overlayTop(s), 'drive')
+  assert.equal(overlayHidesDrive(s), false)
+  s = reduceOverlay(s, { type: 'exclusive', id: 'voice' })
+  assert.equal(overlayTop(s), 'voice')
+  assert.ok(!s.stack.includes('settings'))
+  assert.ok(s.stack.includes('drive'))
+  s = reduceOverlay(s, { type: 'force' })
+  assert.equal(overlayTop(s), null)
+}
 
 console.log('ok 0.14 parsers')

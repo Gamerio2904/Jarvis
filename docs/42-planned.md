@@ -1,25 +1,26 @@
-# 42 — Alles geplant (Stand Code `6.91.0`)
+# 42 — Alles geplant (Stand Code `6.93.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`6.91.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`6.93.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
 1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91` **CODE**, Rest `6.92`+ PLAN — vor Recall und Alltag-Execute
+2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) V1 `6.91`–`6.93` **CODE** — vor Recall und Alltag-Execute
 3. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`, Session `6.91`)
-4. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
-5. Agentic Recall nach Stabilität — [`49-next.md`](./49-next.md) **PLAN** (`7.0`, Sprints 137+)
-6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+4. V2 Voice & App [`51-phase0-audit.md`](./51-phase0-audit.md) `6.94`+ — TTS-Kaskade, App-Actions
+5. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
+6. Agentic Recall nach Stabilität — [`49-next.md`](./49-next.md) **PLAN** (`7.0`, Sprints 137+)
+7. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
-Bereits **CODE** in `6.90.0`: Globus-Briefing (Stadt → GIBS + Briefing, Welt-Tour Glow/Seite/Zoom), Sideload `6.90`, Bühne & Hirn `6.50`, Parser `6.51`, Split/Identität/Overlay `6.52`–`6.53`, Hausstand, Körper, Globus, Debug-Lauf.
+Bereits **CODE** in `6.93.0`: V1 Overlay-FSM, Weltlage ≠ Wecker, Gemini-Retry/Abbruch, `ja bitte`, Tweet-Lookup. In `6.91`: Turn-Gate, Debug-Session, Screenshot-Parser. In `6.90`: Globus-Briefing, Sideload `6.90`, Bühne & Hirn `6.50`.
 
 ---
 
-## CODE auf diesem Stand (`6.90.0`)
+## CODE auf diesem Stand (`6.93.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -36,6 +37,7 @@ Bereits **CODE** in `6.90.0`: Globus-Briefing (Stadt → GIBS + Briefing, Welt-T
 | Parser | `6.51` | Wont/Help/HUD-Skip nach Prompt-Test |
 | Split / Overlay / APK | `6.60` | Live-Split, Identität canned, Overlay Gemini zuerst, `releases/Jarvis.apk` |
 | Globus-Briefing | `6.90` | Fly-to 4.4, Stadt-Briefing, Welt-Tour Glow, Debug-Gruppe |
+| Stabilität V1 | `6.91`–`6.93` | Turn-Gate, Debug-Session, Overlay-FSM, Weltlage ≠ Wecker, Gemini-Retry, `ja bitte` |
 | Davor | `3.19`–`3.0` / `1.x` | Kalender-Fenster, Register, Auge=Gemini, PC-Screenshot |
 
 ## Offen

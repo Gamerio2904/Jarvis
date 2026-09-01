@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`6.93.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Stabilität V1 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.93` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -56,7 +56,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
 | 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` PLAN** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache |
-| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`6.91` CODE** — Audit, Screenshots S1–S18, V1–V9, Sprint 142 Stabilität |
+| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`6.93` V1 CODE** — Audit, Screenshots S1–S18, Overlay-FSM, Gemini-Abbruch; V2+ PLAN |
 | — | [APK](./apk.md) | Sideload `6.90.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -156,5 +156,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 137+ | `7.0.0` | **PLAN** (Agentic Recall) — nach Stabilität |
 | 141 | `8.0.0` | **PLAN** (Alltag vom Zettel) |
 | 142 | `6.91.0` | **CODE** (Stabilität Kern — Audit + Parser + Debug-Session) |
+| 143 | `6.92.0` | **CODE** (Overlay-FSM & Weltlage, in `6.93.0`) |
+| 144 | `6.93.0` | **CODE** (Gemini-Abbruch, `ja bitte`, Tweets, Siezen) |
+| 145+ | `6.94`+ | **PLAN** (V2 Voice & App Actions) |
 
-**Aktuell:** Code **`6.91.0`**. Sideload zuletzt `6.90.0`. Audit [`51-phase0-audit.md`](./51-phase0-audit.md). Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall-Plan [`49-next.md`](./49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`6.93.0`**. Sideload zuletzt `6.90.0`. Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall-Plan [`49-next.md`](./49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

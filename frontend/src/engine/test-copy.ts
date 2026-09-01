@@ -23,6 +23,22 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'Stabilität Screenshots',
+    items: [
+      { label: 'Vereinsliste', text: 'Bayern - Dortmund VfB Freiburg Werder Bremen' },
+      { label: 'Abend-Greeting', text: "ach wie geht's dir heute Abend" },
+      { label: 'Nächster Aldi', text: 'dann fahre ich zur nächsten Aldi', expect: { tool: 'poi' } },
+      { label: 'Route ersetzen', text: 'Das habe ich doch lieber nach Freiberg am Neckar', expect: { tool: 'drive' } },
+      { label: 'Street View London', text: 'Zeig Street View von London', expect: { tool: 'wont' } },
+      { label: 'Wo ist London', text: 'Wo ist London', expect: { tool: 'hud' } },
+      { label: 'Zahnarzt', text: 'Was weißt du über den Zahnarzt', expect: { tool: 'recall' } },
+      { label: 'Steuer', text: 'Wo stand das mit der Steuer', expect: { tool: 'recall' } },
+      { label: 'Über mich', text: 'Was weißt du über mich' },
+      { label: 'Elon-Tweet', text: 'was hat Elon Musk als letztes getweetet' },
+      { label: 'Ja bitte', text: 'ja bitte' },
+    ],
+  },
+  {
     title: 'Gedächtnis',
     items: [
       { label: 'Name + Kaffee merken', text: 'Ich heiße Max und trinke gerne Kaffee.' },

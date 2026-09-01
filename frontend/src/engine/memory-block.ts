@@ -7,8 +7,8 @@ export function memoryBlock(
 ): string {
   const name = items.find((m) => m.key === 'name')?.value?.trim()
   const nameRule = name
-    ? `Der Nutzer heißt ${name}. Verwenden Sie nur diesen Namen. Erfinden Sie keinen anderen Vornamen.`
-    : 'Der Nutzer hat keinen Namen hinterlegt. Erfinden Sie keinen Vornamen.'
+    ? `Der Nutzer heißt ${name}. Siezen Sie. Den Vornamen nicht in die Anrede setzen, außer die Frage gilt dem Namen. Erfinden Sie keinen anderen Vornamen.`
+    : 'Der Nutzer hat keinen Namen hinterlegt. Erfinden Sie keinen Vornamen. Nur Siezen.'
   if (!items.length) {
     return `Langzeitgedächtnis (lokal und Cloud gleich):\n${nameRule}`
   }

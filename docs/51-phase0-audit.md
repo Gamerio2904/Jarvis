@@ -1,6 +1,8 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`6.91.0`**. Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Execute-Start: Sprint 142 (Stabilität). Recall `7.0` und Alltag `8.0` bleiben geplant, **laufen nicht vor Stabilität**.
+> **Jetzt:** Code **`6.93.0`** (V1: Sprints 142–144). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Recall `7.0` und Alltag `8.0` bleiben geplant, **laufen nicht vor Stabilität**.
+
+PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
@@ -81,7 +83,7 @@ Es gab **keine Request-IDs**, **keine Idempotenz**, **kein globales Turn-Gate**,
 | Debug + User dieselbe `activeId` | Prompts im Alltagschat | Debug hält `conversationId` |
 | Stale `onDone` nach Drive-Fertig | Overlay öffnet sich wieder | `driveCloseGenRef` |
 | Wake partial + final | doppeltes Voice-Open | VERSION 2 |
-| Settings z-index 30 über Drive 14 | Fertig unerreichbar | Overlay-Stack VERSION 1b |
+| Settings z-index 30 über Drive 14 | Fertig unerreichbar, Drive fängt Taps | Overlay-FSM `6.92` (`exclusive` + `pointer-events`) |
 | `busy` TOCTOU | Guard liest alten Render | `beginTurn` synchron |
 
 ---
@@ -144,7 +146,9 @@ Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
 
 **ROOT CAUSE.** Canned Greeting in Guards/Persona ohne Gerätezeit.
 
-**LÖSUNG.** VERSION 2: Greeting aus `Date` + `last_medium`.
+**LÖSUNG.** Greeting aus Geräteuhr (`greeting.ts`). User sagt Abend nach 22 Uhr / nach Mitternacht: Abend behalten, Mitternacht erwähnen. `Guten Morgen` bleibt Tageslage (`isBriefAsk`), kein Greeting.
+
+**Status `6.93`.** CODE.
 
 ### S5 — Suche verweigert, Antwort abbricht bei „Unverifizierte“
 
@@ -157,7 +161,9 @@ Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
 2. `completeGemini`: MAX_TOKENS-Retry nur beim ersten Versuch und nur wenn sehr kurz/unvollständig. Lange Verweigerung wird nicht nachgezogen.
 3. Name aus Memory + Siezen-Scrub → Timon + Ihnen.
 
-**LÖSUNG.** VERSION 3: Pending-Research nach „ja bitte“/explizitem Suchbefehl. Unvollständige Sätze → Retry oder ehrlicher Abbruch-Satz. Anrede: Name *oder* Siezen, nicht beides unkontrolliert.
+**LÖSUNG.** Unvollständige Sätze: Gemini-Retry (MAX_TOKENS / kein Satzende) oder `REPLY_TRUNCATED` vor `scrubReply` (sonst fälscht `finishReply` den Punkt). `ja bitte` bindet `research_offer`. Anrede: Siezen, Vorname nicht vokativ (`stripVocativeNames`).
+
+**Status `6.93`.** CODE. Volles Research-Pending-System bleibt V3.
 
 ### S6 — Elon-Tweet: kein Treffer, Satz abgeschnitten
 
@@ -167,7 +173,9 @@ Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
 
 **ROOT CAUSE.** `isLiveLookup` / `isAutoResearchAsk` treffen Tweets nicht. `ja bitte` ist kein Research-Intent und bindet nicht an pending search. LLM halluziniert „Abfragen“.
 
-**LÖSUNG.** VERSION 3: Live-Lookup für Tweet/News-Personen; Confirm `ja bitte` führt pending search aus; Verification: Sources oder ehrlich „kein Treffer“, nie abgeschnitten.
+**LÖSUNG.** Live-Lookup für Tweet/News-Personen; Confirm `ja bitte` führt pending search aus (`last_step_utterance`). Unvollständiger Satz → Retry oder Abbruch-Satz, nie Stumpf mit erfundenem Punkt.
+
+**Status `6.93`.** CODE. Verification „Sources oder ehrlich kein Treffer“ in der Live-Suche bleibt V3-hart.
 
 ### S7 — Nächster Aldi → Hofläden, Produktliste als Name
 
@@ -366,7 +374,7 @@ Alltag `8.0` (Blitzer, Settings-IA, Preiswache) kann **parallel zu V2** geschnit
 
 ---
 
-## 6. Sprint 142 — Stabilität Kern (`6.91.0`) **CODE in diesem PR**
+## 6. Sprint 142 — Stabilität Kern (`6.91.0`) **CODE**
 
 Ziel: Die Screenshot-Parser und der Debug/Send-Kern sind root-cause-fest, nicht kosmetisch.
 
@@ -395,18 +403,18 @@ Won’t in 142: WebRTC, Memory-Graph, PDF, SmartThings, Foreground-Service `5.12
 
 ## 7. Folgesprints (V1 Rest → V9)
 
-### Sprint 143 — Overlay-FSM & Weltlage (`6.92`)
+### Sprint 143 — Overlay-FSM & Weltlage (`6.92`) **CODE in `6.93.0`**
 
-- Overlay-State-Machine für Settings/Voice/Drive/Calendar einheitlich (`closed→opening→open→closing`).
-- Weltlage: **nur auf Befehl** Globus + Pins. Keine Notify/Alarm-GUI. Pin-Tap → Sprechblase (Bild-Swipe + Summary) — UI-Gerüst.
-- `outlook_interrupt` Default bleibt aus; Watch darf `alarm: true` nie setzen (schon `false`, Android-Kanal prüfen).
+- Overlay-State-Machine für Settings/Voice/Drive/Calendar (`closed→opening→open→closing`, `exclusive` hält Drive unter Sheets).
+- Weltlage: Banner, nie Alarm-GUI (`alarm` Default false, Titel „Weltlage“ erzwingt quiet). Pin-Tap → Sprechblase (Text, Swipe-Platzhalter).
+- `outlook_interrupt` Default bleibt aus; Watch setzt `alarm: true` nie.
 
-### Sprint 144 — Gemini-Abbruch & Research-Pending (`6.93`)
+### Sprint 144 — Gemini-Abbruch & Research-Pending (`6.93`) **CODE**
 
 - Unvollständige Sätze immer retry oder klarer Abbruch.
 - `ja bitte` nach Such-Angebot = pending research.
 - Tweet/News-Personen in `isLiveLookup`.
-- Anrede: Siezen konsistent; Vorname nur wenn Settings es wollen.
+- Anrede: Siezen konsistent; Vorname nicht vokativ.
 
 ### Sprint 145–147 — Voice 2.0 & App Actions (`6.94+`)
 
@@ -443,7 +451,7 @@ Zusätzlich zu `03-agile-process.md`:
 
 ### Beta Ready (PO) — nicht dieses Increment
 
-Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `6.91` ist **nicht** Beta Ready. Es ist die erste ehrliche Stabilitätsstufe.
+Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `6.93` schließt **V1** (142–144). Es ist **nicht** Beta Ready.
 
 ---
 

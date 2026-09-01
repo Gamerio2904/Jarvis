@@ -2,6 +2,9 @@ import { loadSettings, saveSettings } from './store.ts'
 import { notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
 import { loadOutlookSnap, outlookFingerprint, outlookNotifyLine } from './outlook.ts'
 
+/** Weltlage-Watch: Banner, nie Wecker-GUI, nie raiseInterrupt, Kugel nur auf Befehl. */
+export const OUTLOOK_WATCH_ALARM = false
+
 let lastTick = 0
 const MIN_GAP_MS = 20 * 60_000
 
@@ -33,7 +36,7 @@ export async function tickOutlookWatch(force = false): Promise<void> {
     title: 'Weltlage',
     body: outlookNotifyLine(snap).slice(0, 180),
     at: new Date(Date.now() + 400),
-    alarm: false,
+    alarm: OUTLOOK_WATCH_ALARM,
   })
 }
 
