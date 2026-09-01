@@ -5,7 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.93.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`6.96.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `6.96.0` — V2 Voice & App — *CODE*
+
+Sprints 145–147. TTS-Primary im Standing, App-Actions, Banner/Chips/Wake. Sideload bleibt `6.90.0` bis zur nächsten APK.
+
+- **TTS:** Standing wartet auf Gemini; 404/429 skippen das Modell. Am Steuer bleibt das kurze Native-Race.
+- **App-Actions:** `Öffne Einstellungen` / Debug / Gedächtnis-Panel / Sprachmodus / Theme — Parser, kein Fake-Klick.
+- **Banner:** Gemini-Hinweis einmal, Verstanden speichert.
+- **Chips:** Quellen-Badge ohne `1 · Wetter`.
+- **Wake:** nur Final-STT plus Debounce, kein doppeltes Voice-Open.
+- Docs [`sprints/sprint-145.md`](./sprints/sprint-145.md)–[`sprint-147.md`](./sprints/sprint-147.md)
 
 ### `6.93.0` — V1 Abschluss — *CODE*
 

@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '6.93.0'
+export const APP_VERSION = '6.96.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -207,6 +207,8 @@ export type Settings = {
   alarm_tone_name: string
   voice_tts: string
   gemini_tts_model: string
+  gemini_tts_skip_until: string
+  gemini_banner_dismissed: boolean
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -332,6 +334,8 @@ export const DEFAULT_SETTINGS: Settings = {
   alarm_tone_name: '',
   voice_tts: 'auto',
   gemini_tts_model: '',
+  gemini_tts_skip_until: '',
+  gemini_banner_dismissed: false,
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',

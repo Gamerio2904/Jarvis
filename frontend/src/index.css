@@ -1875,7 +1875,17 @@ button.linkish {
   color: #f6e2a4;
   font-size: 0.9rem;
   flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
   animation: fadeIn var(--motion-med) var(--ease-out);
+}
+
+.fallback-banner .ghost-btn {
+  margin-left: auto;
+  color: #f6e2a4;
+  border-color: rgba(240, 193, 75, 0.45);
 }
 
 .status-note {

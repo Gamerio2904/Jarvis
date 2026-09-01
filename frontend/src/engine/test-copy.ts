@@ -39,6 +39,16 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'V2 Voice & App',
+    items: [
+      { label: 'Einstellungen', text: 'Öffne Einstellungen', expect: { tool: 'app' } },
+      { label: 'Debug', text: 'Öffne Debug', expect: { tool: 'app' } },
+      { label: 'Gedächtnis zeigen', text: 'Zeig das Gedächtnis', expect: { tool: 'app' } },
+      { label: 'Sprachmodus', text: 'Sprachmodus', expect: { tool: 'app' } },
+      { label: 'Theme orange', text: 'Theme orange', expect: { tool: 'app' } },
+    ],
+  },
+  {
     title: 'Gedächtnis',
     items: [
       { label: 'Name + Kaffee merken', text: 'Ich heiße Max und trinke gerne Kaffee.' },

@@ -175,7 +175,8 @@ export function researchQuery(text: string): string {
 
 export function researchStatusLabel(r?: ResearchMeta | null): string {
   const n = r?.sources?.filter((s) => s.url).length || 0
-  if (n) return `${n} Quellen`
+  if (n === 1) return 'Quelle'
+  if (n > 1) return 'Quellen'
   if (r?.network_attempted) return 'Suche ohne Links'
   if (r?.status && r.status !== 'empty' && r.status !== 'ok') return r.status
   return 'Quellen'

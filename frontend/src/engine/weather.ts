@@ -60,7 +60,7 @@ export async function handleWeather(
   const research: ResearchMeta = {
     used: true,
     status: 'ok',
-    status_label: intent.focus === 'air' ? 'Luft · Quelle' : intent.focus === 'sun' ? 'Sonne · Quelle' : 'Wetter · Quelle',
+    status_label: intent.focus === 'air' ? 'Luft' : intent.focus === 'sun' ? 'Sonne' : 'Wetter',
     query:
       intent.focus === 'air'
         ? `Luft ${fix.fix.place}`

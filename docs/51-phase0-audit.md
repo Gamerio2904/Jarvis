@@ -1,6 +1,6 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`6.93.0`** (V1: Sprints 142–144). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Recall `7.0` und Alltag `8.0` bleiben geplant, **laufen nicht vor Stabilität**.
+> **Jetzt:** Code **`6.96.0`** (V1 `6.91`–`6.93`, V2 `6.94`–`6.96`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Recall `7.0` und Alltag `8.0` bleiben geplant, **laufen nicht vor Stabilität**.
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
@@ -82,7 +82,7 @@ Es gab **keine Request-IDs**, **keine Idempotenz**, **kein globales Turn-Gate**,
 | Debug-Unmount | Lauf kopflos / leere Turns | Debug-Session Singleton |
 | Debug + User dieselbe `activeId` | Prompts im Alltagschat | Debug hält `conversationId` |
 | Stale `onDone` nach Drive-Fertig | Overlay öffnet sich wieder | `driveCloseGenRef` |
-| Wake partial + final | doppeltes Voice-Open | VERSION 2 |
+| Wake partial + final | doppeltes Voice-Open | V2 `6.96` — Wake nur auf Final + Debounce |
 | Settings z-index 30 über Drive 14 | Fertig unerreichbar, Drive fängt Taps | Overlay-FSM `6.92` (`exclusive` + `pointer-events`) |
 | `busy` TOCTOU | Guard liest alten Render | `beginTurn` synchron |
 
@@ -195,7 +195,9 @@ Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
 
 **Schweregrad.** Niedrig. Bewusst (Datenschutz-Hinweis).
 
-**LÖSUNG.** VERSION 2: einmalig / Settings, nicht jede Bubble-Fläche.
+**LÖSUNG.** Einmalig, wegklappbar (`gemini_banner_dismissed`). Cloud-Thema in Settings bleibt die dauerhafte Erklärung.
+
+**Status `6.96`.** CODE.
 
 ### S9 — Tool-Chip + `1 · Wetter` sieht nach Debug aus
 
@@ -203,9 +205,13 @@ Jeder Fall: PROBLEM → ROOT CAUSE → KOMPONENTEN → LÖSUNG → TESTS.
 
 **Schweregrad.** Mittel (UX).
 
-**ROOT CAUSE.** Tool-Meta und Debug-Fortschritt teilen visuelle Sprache. Lage/HUD rendert interne Zähler.
+**ROOT CAUSE.** `researchStatusLabel` schrieb `1 Quellen`, die Summary hängte ` · Wetter Kehrsbach…` an. Das sah aus wie Debug-Schritt `1 · Wetter`. Der grüne Chip ist das Tool-Label.
 
-**LÖSUNG.** VERSION 2: User-Chips ohne interne Sequenznummern.
+**KOMPONENTEN.** `research-parse.ts`, `App.tsx` SourcesBlock, `weather.ts` status_label.
+
+**LÖSUNG.** Badge „Quelle“/„Quellen“ ohne Ziffer. Query nicht in der Summary. Chip bleibt „Wetter“.
+
+**Status `6.96`.** CODE.
 
 ### S10 — Route „sofort neu“, Karte bleibt
 
@@ -416,10 +422,17 @@ Won’t in 142: WebRTC, Memory-Graph, PDF, SmartThings, Foreground-Service `5.12
 - Tweet/News-Personen in `isLiveLookup`.
 - Anrede: Siezen konsistent; Vorname nicht vokativ.
 
-### Sprint 145–147 — Voice 2.0 & App Actions (`6.94+`)
+### Sprint 145 — TTS Gemini-Primary (`6.94`) **CODE in `6.96.0`**
 
-- TTS: Gemini Primary mit Health/Retry, nicht 400 ms Drive-Race als Default im Standing.
-- App-Action-Registry: Settings, Theme, Debug, Stimme, Lage, Memory-Show — interne APIs, keine Fake-Klicks.
+- Standing: warten auf Gemini, Health/Skip kranker TTS-Modelle. Native-Race 400 ms nur im Fahrmodus.
+
+### Sprint 146 — App-Action-Registry (`6.95`) **CODE in `6.96.0`**
+
+- Parser+Handler `app`: Settings (Topic), Debug, Gedächtnis-Panel, Sprachmodus, Theme. UI öffnet über `tool.action`. Lage bleibt `hud`.
+
+### Sprint 147 — Banner, Chips, Wake (`6.96`) **CODE**
+
+- Gemini-Banner einmal, Verstanden speichert. Quellen-Badge ohne `1 · Wetter`. Wake nur auf Final.
 
 ### Sprint 148–150 — Action Architecture (`6.97+`)
 
@@ -451,7 +464,7 @@ Zusätzlich zu `03-agile-process.md`:
 
 ### Beta Ready (PO) — nicht dieses Increment
 
-Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `6.93` schließt **V1** (142–144). Es ist **nicht** Beta Ready.
+Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `6.96` schließt **V2** (145–147). Es ist **nicht** Beta Ready.
 
 ---
 

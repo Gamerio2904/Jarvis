@@ -54,6 +54,7 @@ import { parseFolderIntent } from './folder-parse.ts'
 import { parseWatchPriceIntent } from './watch-price-parse.ts'
 import { parseAmazonMusicIntent } from './amazon-parse.ts'
 import { parseRecallIntent } from './recall-parse.ts'
+import { parseAppIntent } from './app-parse.ts'
 import { applyConflicts } from './conflicts.ts'
 import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
@@ -166,6 +167,7 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'taxi', sideEffect: 'read', parse: (ctx) => (parseTaxiIntent(ctx.text) ? score(ctx.text, 0.12) : null) },
   { id: 'backup', sideEffect: 'read', parse: (ctx) => (parseBackupIntent(ctx.text) ? score(ctx.text, 0.2) : null) },
   { id: 'face', sideEffect: 'write', parse: (ctx) => (parseFaceIntent(ctx.text) ? score(ctx.text, 0.22) : null) },
+  { id: 'app', sideEffect: 'write', parse: (ctx) => (parseAppIntent(ctx.text) ? score(ctx.text, 0.28) : null) },
 ]
 
 export function propose(ctx: RouteCtx): Candidate[] {

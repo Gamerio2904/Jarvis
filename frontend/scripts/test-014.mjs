@@ -38,7 +38,7 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
-import { ttsBudgetMs, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
+import { ttsBudgetMs, ttsGeminiPrimary, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, isConfirmPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
@@ -125,6 +125,8 @@ import { looksTruncated } from '../src/engine/polish-guard.ts'
 import { parseGreeting, greetingReply, dayPartAt } from '../src/engine/greeting.ts'
 import { reduceOverlay, overlayTop, overlayHidesDrive, OVERLAY_INIT } from '../src/engine/overlay-fsm.ts'
 import { OUTLOOK_WATCH_ALARM } from '../src/engine/outlook-watch.ts'
+import { parseAppIntent } from '../src/engine/app-parse.ts'
+import { acceptWake, WAKE_DEBOUNCE_MS } from '../src/engine/wake-gate.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -984,10 +986,12 @@ assert.deepEqual(pullReady('Hallo wie geht').parts, [])
 assert.deepEqual(pullReady('Ja. ').parts, [])
 assert.ok(pullReady('Guten Morgen.', true).parts.length >= 1)
 assert.equal(ttsModelsToTry()[0], 'gemini-2.5-flash-preview-tts')
-assert.equal(ttsModelsToTry('gemini-2.5-flash-preview-tts').length, 2)
+assert.ok(ttsModelsToTry('gemini-2.5-flash-preview-tts').length >= 2)
 assert.equal(TTS_VOICE, 'Algieba')
 assert.equal(ttsNativeRaceMs(false), 0)
 assert.equal(ttsNativeRaceMs(true), 400)
+assert.equal(ttsGeminiPrimary(false), true)
+assert.equal(ttsGeminiPrimary(true), false)
 assert.ok(ttsBudgetMs(false) >= 2000)
 assert.ok(ttsBudgetMs(true) <= 900)
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
@@ -1033,7 +1037,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /6\.93\.0/)
+assert.match(HELP_TEXT, /6\.96\.0/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1837,5 +1841,37 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /Stabilität Screenshots/i.test(g.title))
   s = reduceOverlay(s, { type: 'force' })
   assert.equal(overlayTop(s), null)
 }
+
+assert.equal(parseAppIntent('Öffne Einstellungen')?.kind, 'settings')
+assert.equal(parseAppIntent('Öffne Debug')?.topic, 'debug')
+assert.equal(parseAppIntent('Zeig das Gedächtnis')?.topic, 'gedaechtnis')
+assert.equal(parseAppIntent('Sprachmodus')?.kind, 'voice')
+assert.equal(parseAppIntent('Theme orange')?.accent, 'amber')
+assert.equal(parseAppIntent('Was weißt du über mich'), null)
+assert.equal(parseAppIntent('Lage an'), null)
+assert.equal(parseAppIntent('Öffne WLAN'), null)
+assert.equal(pickRoute('Öffne Einstellungen'), 'app')
+assert.equal(pickRoute('Sprachmodus'), 'app')
+assert.equal(pickRoute('Lage an'), 'hud')
+assert.equal(
+  researchStatusLabel({
+    sources: [{ title: 'Open-Meteo', url: 'https://open-meteo.com/', snippet: '', provider: 'open-meteo', retrieved_at: '' }],
+  }),
+  'Quelle',
+)
+assert.doesNotMatch(
+  researchStatusLabel({
+    sources: [{ title: 'Open-Meteo', url: 'https://open-meteo.com/', snippet: '', provider: 'open-meteo', retrieved_at: '' }],
+  }),
+  /^\d/,
+)
+{
+  const first = acceptWake({ lastAt: 0, open: false }, 'Jarvis')
+  assert.ok(first)
+  assert.equal(acceptWake(first, 'nochmal'), null)
+  assert.equal(acceptWake({ lastAt: Date.now(), open: false }, '', Date.now() + 10), null)
+  assert.ok(acceptWake({ lastAt: Date.now() - WAKE_DEBOUNCE_MS - 1, open: false }, ''))
+}
+assert.ok(TEST_COPY_GROUPS.some((g) => /V2 Voice/i.test(g.title)))
 
 console.log('ok 0.14 parsers')

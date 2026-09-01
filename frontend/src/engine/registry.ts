@@ -98,6 +98,8 @@ import { parseAmazonMusicIntent } from './amazon-parse.ts'
 import { handleAmazonMusic } from './amazon.ts'
 import { parseRecallIntent } from './recall-parse.ts'
 import { handleRecall } from './recall.ts'
+import { parseAppIntent } from './app-parse.ts'
+import { handleApp } from './app.ts'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -570,6 +572,13 @@ function makeCatalog(): Capability[] {
       sideEffect: 'read',
       parse: (ctx) => (parseRecallIntent(ctx.text) ? score(ctx.text, 0.1) : null),
       execute: async (ctx) => fromHandler('recall', await handleRecall(ctx.text)),
+    },
+    {
+      id: 'app',
+      label: 'App',
+      sideEffect: 'write',
+      parse: (ctx) => (parseAppIntent(ctx.text) ? score(ctx.text, 0.28) : null),
+      execute: async (ctx) => fromHandler('app', await handleApp(ctx.conversationId, ctx.text)),
     },
   ]
 }

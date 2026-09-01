@@ -68,6 +68,7 @@ import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate'
 import { debugSnapshot, subscribeDebug } from './engine/debug-session'
+import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate'
 
 function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
   const raw = tool.result
@@ -185,18 +186,14 @@ function SourcesBlock({
 }) {
   const sources = (research.sources || []).filter((s) => s.url)
   const status = researchStatusLabel(research)
-  const query = (research.query || '').replace(/^[·.\s]+/, '').trim()
-  if (!sources.length && !status && !query) return null
+  if (!sources.length && !status) return null
   return (
     <details className="sources-block" open>
       <summary>
         <span className="sources-badge">{status || 'Quellen'}</span>
-        {sources.length ? (
-          <span className="sources-count">
-            {sources.length} prüfbar
-          </span>
+        {sources.length > 1 ? (
+          <span className="sources-count">prüfbar</span>
         ) : null}
-        {query ? <span className="sources-query"> · {query}</span> : null}
       </summary>
       {sources.length ? (
         <ul className="sources-list">
@@ -329,6 +326,7 @@ function App() {
   const [overlay, setOverlay] = useState(OVERLAY_INIT)
   const voiceOpenRef = useRef(false)
   const driveOpenRef = useRef(false)
+  const wakeGateRef = useRef<WakeGate>({ lastAt: 0, open: false })
   voiceOpenRef.current = voiceOpen
   driveOpenRef.current = driveOpen
   const [wakeListening, setWakeListening] = useState(false)
@@ -393,12 +391,36 @@ function App() {
   }
 
   function openVoiceMode(seed = '') {
+    const next = acceptWake(wakeGateRef.current, seed, Date.now())
+    if (!next) return
+    wakeGateRef.current = next
     voiceHoldUntilRef.current = Date.now() + 2500
     if (seed) setVoiceSeed(seed)
     setSettingsPanelOpen(false)
     setCalendarOpen(false)
     setVoiceOpen(true)
     openSheet('voice')
+  }
+
+  function applyAppTool(tool?: ToolMeta | null) {
+    if (!tool || tool.tool !== 'app') return
+    const action = (tool.action || '').trim()
+    const topic = String(tool.result?.topic || '') as SettingsTopic
+    if (action === 'voice') {
+      openVoiceMode()
+      return
+    }
+    if (action === 'debug') {
+      openSettings('debug')
+      return
+    }
+    if (action === 'memory') {
+      openSettings('gedaechtnis')
+      return
+    }
+    if (action === 'settings') {
+      openSettings(topic || 'allgemein')
+    }
   }
 
   useEffect(() => {
@@ -457,6 +479,7 @@ function App() {
       if (voiceOpen) {
         setVoiceOpen(false)
         closeSheet('voice')
+        wakeGateRef.current = closeWake(wakeGateRef.current)
         return
       }
       if (driveOpen) {
@@ -558,6 +581,7 @@ function App() {
           if (document.hidden && Date.now() >= voiceHoldUntilRef.current) {
             setVoiceOpen(false)
             closeSheet('voice')
+            wakeGateRef.current = closeWake(wakeGateRef.current)
           }
         }, 400)
         return
@@ -1147,6 +1171,7 @@ function App() {
               openSheet('calendar')
             }
           }
+          applyAppTool(payload.tool)
           if (driveCloseGenRef.current === closeGen) {
             if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
               if (payload.tool?.action === 'close') {
@@ -1308,6 +1333,7 @@ function App() {
               }
             }
             maybeOpenSettingsFromReply(payload.assistant_message.content)
+            applyAppTool(payload.tool)
           },
           onError: (detail) => {
             if (showUi()) setError(detail)
@@ -1333,6 +1359,7 @@ function App() {
     setSettingsPanelOpen(true)
     setSidebarOpen(false)
     openSheet('settings')
+    wakeGateRef.current = closeWake(wakeGateRef.current)
     void refreshReminders()
     void refreshMemory(memoryFilter)
     if (topic === 'forschung') void refreshAudits()
@@ -1469,6 +1496,7 @@ function App() {
             setVoiceOpen(false)
             setSidebarOpen(false)
             openSheet('calendar')
+            wakeGateRef.current = closeWake(wakeGateRef.current)
           }}
         >
           Kalender
@@ -1554,6 +1582,7 @@ function App() {
               setVoiceOpen(false)
               setVoiceSeed('')
               closeSheet('voice')
+              wakeGateRef.current = closeWake(wakeGateRef.current)
             }}
             onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
             initialUtterance={voiceSeed}
@@ -1614,9 +1643,16 @@ function App() {
           </div>
         </div>
 
-        {geminiOn && healthOk ? (
+        {geminiOn && healthOk && !(settings?.gemini_banner_dismissed || liveHud.gemini_banner_dismissed) ? (
           <div className="fallback-banner">
-            Gemini (Google) — Nachrichten gehen ins Netz.
+            <span>Gemini (Google) — Nachrichten gehen ins Netz.</span>
+            <button
+              type="button"
+              className="ghost-btn"
+              onClick={() => void patchSetting({ gemini_banner_dismissed: true })}
+            >
+              Verstanden
+            </button>
           </div>
         ) : null}
         {debugRunning ? (
@@ -1649,7 +1685,7 @@ function App() {
                   <i />
                 </div>
                 <h3>{liveHud.face === 'friday' ? 'Friday' : 'Jarvis'}</h3>
-                <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
+                <p>Ein Feld antippen — oder selbst schreiben. {geminiOn && !(settings?.gemini_banner_dismissed || liveHud.gemini_banner_dismissed) ? 'Gemini (Google), nicht privat.' : geminiOn ? 'Gemini ist an.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}
 
