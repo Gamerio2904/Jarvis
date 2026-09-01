@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '9.0.0'
+export const APP_VERSION = '7.0.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -37,6 +37,7 @@ export type MemoryItem = {
   source_conversation_id?: string | null
   updated_at: string
   expires_at?: string | null
+  origin?: 'user' | 'sleep' | 'tool'
 }
 
 export type Note = {
@@ -586,18 +587,22 @@ export async function upsertMemory(
   value: string,
   category: string,
   conversationId?: string,
+  opts?: { confidence?: number; origin?: MemoryItem['origin']; expires_at?: string | null },
 ): Promise<MemoryItem> {
   const existing = (await getAll<MemoryItem>('memory')).find(
     (m) => m.key === key && m.category === category,
   )
+  const origin = opts?.origin || 'user'
   const row: MemoryItem = {
     id: existing?.id || newId(),
     key,
     value,
     category,
-    confidence: 0.9,
-    source_conversation_id: conversationId || null,
+    confidence: opts?.confidence ?? (origin === 'sleep' ? 0.4 : origin === 'tool' ? 0.8 : category === 'pref' ? 0.9 : 0.95),
+    source_conversation_id: conversationId || existing?.source_conversation_id || null,
     updated_at: nowIso(),
+    expires_at: opts?.expires_at === undefined ? existing?.expires_at || null : opts.expires_at,
+    origin,
   }
   await put('memory', row)
   return row

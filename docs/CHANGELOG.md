@@ -5,7 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`9.0.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`7.0.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `7.0.0` — V5 Hierarchical Memory — *CODE*
+
+Sprints 137–140. Quelle, Confidence, Contradiction, Prune. Retrieve/Working/Sleep bleiben lokal. Sideload bleibt `6.90.0`. V4 Dateien aus `9.0` bleiben im Baum.
+
+- **Schichten:** Sensory → Working (8) → Episodic (Retrieve mit Quelle) → Semantic (Pins ab 0.55).
+- **Write:** „Gemerkt“ nur nach Read-Back. Widerspruch prüft Löschung.
+- **Recall:** Kalender/Pin/Gespräch/Einkauf genannt; Treffer ohne Quelle = failed.
+- **Prune:** abgelaufen, Dumps, niedrige Confidence nach 14 Tagen, Kappe 80. Sleep-Harvest nur ohne Gemini.
+- Docs [`sprints/sprint-137.md`](./sprints/sprint-137.md)–[`sprint-140.md`](./sprints/sprint-140.md) · [`49-next.md`](./49-next.md)
 
 ### `9.0.0` — V4 Dokumente — *CODE*
 

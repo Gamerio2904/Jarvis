@@ -130,6 +130,14 @@ import { OUTLOOK_WATCH_ALARM } from '../src/engine/outlook-watch.ts'
 import { parseAppIntent } from '../src/engine/app-parse.ts'
 import { acceptWake, WAKE_DEBOUNCE_MS } from '../src/engine/wake-gate.ts'
 import { ACTION_INIT, packVerified, reduceAction, toolStatusOf } from '../src/engine/action-fsm.ts'
+import {
+  confidenceFor,
+  contradictionTargets,
+  memoryRecallVerified,
+  memoryWriteVerified,
+  pruneMemoryItems,
+  semanticPins,
+} from '../src/engine/memory-layer.ts'
 import { destMatches, naviRouteVerified, NAVI_INIT, reduceNavi } from '../src/engine/navi-fsm.ts'
 import {
   acceptResearchPending,
@@ -1051,8 +1059,9 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /9\.0\.0/)
+assert.match(HELP_TEXT, /7\.0\.0/)
 assert.match(HELP_TEXT, /Datei-Knopf/)
+assert.match(HELP_TEXT, /Quelle nennen/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1891,6 +1900,7 @@ assert.doesNotMatch(
 assert.ok(TEST_COPY_GROUPS.some((g) => /V2 Voice/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V3 Verified/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V4 Dokumente/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V5 Gedächtnis/i.test(g.title)))
 
 {
   let s = ACTION_INIT
@@ -2109,5 +2119,87 @@ assert.equal(docUploadVerified({ stored: true, bytes: 80, kind: 'image', chars: 
   assert.equal(ok.tool.tool_status, 'executed')
   assert.match(ok.reply, /Hallo Jarvis/)
 }
+
+assert.equal(confidenceFor('user', 'fact'), 0.95)
+assert.equal(confidenceFor('sleep', 'fact'), 0.4)
+assert.deepEqual(
+  contradictionTargets(
+    [
+      { key: 'getränk', value: 'Kaffee' },
+      { key: 'name', value: 'Max' },
+    ],
+    'Kaffee',
+  ).map((x) => x.key),
+  ['getränk'],
+)
+{
+  const now = Date.parse('2026-09-01T00:00:00Z')
+  const { drop, keep } = pruneMemoryItems(
+    [
+      {
+        id: '1',
+        key: 'name',
+        value: 'Max',
+        category: 'fact',
+        confidence: 0.95,
+        updated_at: '2026-01-01T00:00:00Z',
+        origin: 'user',
+      },
+      {
+        id: '2',
+        key: 'notiz',
+        value: 'Gefunden: • dump',
+        category: 'fact',
+        confidence: 0.9,
+        updated_at: '2026-08-01T00:00:00Z',
+        origin: 'sleep',
+      },
+      {
+        id: '3',
+        key: 'tmp',
+        value: 'alt',
+        category: 'fact',
+        confidence: 0.2,
+        updated_at: '2026-01-01T00:00:00Z',
+        origin: 'sleep',
+        expires_at: '2026-01-02T00:00:00Z',
+      },
+    ],
+    now,
+  )
+  assert.equal(keep.some((r) => r.key === 'name'), true)
+  assert.equal(drop.some((r) => r.id === '2'), true)
+  assert.equal(drop.some((r) => r.id === '3'), true)
+}
+assert.equal(semanticPins([{ key: 'x', value: 'y', confidence: 0.2, origin: 'sleep' }]).length, 0)
+assert.equal(semanticPins([{ key: 'x', value: 'y', confidence: 0.9, origin: 'user' }]).length, 1)
+assert.equal(memoryWriteVerified({ stored: false, key: 'name', value: 'Max' }).ok, false)
+assert.equal(memoryWriteVerified({ stored: true, key: 'name', value: 'Max' }).ok, true)
+assert.equal(memoryRecallVerified({ hits: 2, cited: false }).ok, false)
+assert.equal(memoryRecallVerified({ hits: 0, cited: false }).ok, true)
+{
+  const lie = packVerified({
+    domain: 'memory',
+    intent: 'write:name',
+    plan: 'write',
+    label: 'Gedächtnis',
+    observation: { stored: false, key: 'name', value: 'Max' },
+    verify: (obs) => memoryWriteVerified(obs),
+    successReply: 'Gemerkt: Max.',
+    failReply: 'Nicht gespeichert.',
+  })
+  assert.equal(lie.state.phase, 'failed')
+  assert.doesNotMatch(lie.reply, /Gemerkt/)
+}
+{
+  const line = formatRecallReply('Zahnarzt', [
+    { store: 'events', title: 'Zahnarzt', body: '2026-09-05T15:00:00', rank: 1 },
+  ])
+  assert.match(line, /Kalender/)
+  assert.match(line, /Zahnarzt/)
+}
+assert.equal(pickRoute('kein Kaffee mehr'), 'memory')
+assert.equal(pickRoute('Was weißt du über den Zahnarzt'), 'recall')
+assert.equal(pickRoute('Was weißt du über mich'), 'memory')
 
 console.log('ok 0.14 parsers')

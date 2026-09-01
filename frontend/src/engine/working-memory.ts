@@ -4,6 +4,12 @@ export type WorkLine = { key: string; line: string }
 
 const MAX = 8
 
+function dumpLike(t: string): boolean {
+  if (/^\s*gefunden:/i.test(t)) return true
+  const colons = (t.match(/:\s/g) || []).length
+  return colons >= 4 && t.length > 100
+}
+
 export function loadWorkingMemory(): WorkLine[] {
   try {
     const raw = loadSettings().working_memory_json
@@ -36,6 +42,7 @@ export function workingBlock(): string {
 export function noteTurn(role: string, text: string, tool?: string): void {
   const t = text.replace(/\s+/g, ' ').trim()
   if (!t || t.length < 4) return
+  if (dumpLike(t)) return
   if (/^(hallo|hi|hey|danke|ok|okay|ja|nein)\b/i.test(t) && t.length < 24) return
   const key = tool || (role === 'user' ? 'user' : 'jarvis')
   upsertWorking(key === 'user' ? `u:${t.slice(0, 24)}` : key, t.slice(0, 120))

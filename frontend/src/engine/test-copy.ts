@@ -67,6 +67,15 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'V5 Gedächtnis',
+    items: [
+      { label: 'Zahnarzt', text: 'Was weißt du über den Zahnarzt', expect: { tool: 'recall' } },
+      { label: 'Steuer', text: 'Wo stand das mit der Steuer', expect: { tool: 'recall' } },
+      { label: 'Über mich', text: 'Was weißt du über mich', expect: { tool: 'memory' } },
+      { label: 'Widerspruch Kaffee', text: 'kein Kaffee mehr', expect: { tool: 'memory' } },
+    ],
+  },
+  {
     title: 'Gedächtnis',
     items: [
       { label: 'Name + Kaffee merken', text: 'Ich heiße Max und trinke gerne Kaffee.' },

@@ -140,7 +140,10 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 134 | [`sprint-134.md`](./sprint-134.md) | `6.82.0` | Welt-Tour Glow, Seite, Zoom | **CODE** |
 | 135 | [`sprint-135.md`](./sprint-135.md) | `6.81.0` | Anomalien + Ihr Plan | **CODE** |
 | 136 | [`sprint-136.md`](./sprint-136.md) | `6.90.0` | Globus-Briefing Gold | **CODE** |
-| 137+ | [`../49-next.md`](../49-next.md) | `7.0.0` | Agentic Recall | **PLAN** (nach Stabilität) |
+| 137 | [`sprint-137.md`](./sprint-137.md) | `7.0.0` | Hierarchical Memory | **CODE** (in `7.0.0`) |
+| 138 | [`sprint-138.md`](./sprint-138.md) | `7.0.0` | Retrieve + Quelle | **CODE** (in `7.0.0`) |
+| 139 | [`sprint-139.md`](./sprint-139.md) | `7.0.0` | Working Memory + Write-Verify | **CODE** (in `7.0.0`) |
+| 140 | [`sprint-140.md`](./sprint-140.md) | `7.0.0` | Sleep-Prune | **CODE** |
 | 141 | [`sprint-141.md`](./sprint-141.md) | `8.0.0` | Alltag vom Zettel | **PLAN** |
 | 142 | [`sprint-142.md`](./sprint-142.md) | `6.91.0` | Stabilität Kern | **CODE** |
 | 143 | [`sprint-143.md`](./sprint-143.md) | `6.92.0` | Overlay-FSM & Weltlage | **CODE** (in `6.93.0`) |
@@ -154,9 +157,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 151 | [`sprint-151.md`](./sprint-151.md) | `9.0.0` | Attachments + Verify Upload | **CODE** (in `9.0.0`) |
 | 152 | [`sprint-152.md`](./sprint-152.md) | `9.0.0` | PDF/Text-Parser | **CODE** (in `9.0.0`) |
 | 153 | [`sprint-153.md`](./sprint-153.md) | `9.0.0` | OCR | **CODE** |
-| 154+ | [`../51-phase0-audit.md`](../51-phase0-audit.md) | `7.0`/`9.x` | Industry V5 → V9 | **PLAN** |
+| 154+ | [`../51-phase0-audit.md`](../51-phase0-audit.md) | `9.1`/`9.x` | Industry V6 → V9 | **PLAN** |
 
-**Aktuell:** Code **`9.0.0`**. Sideload `6.90.0`. Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V4 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall-Plan [`49-next.md`](../49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`7.0.0`**. Sideload `6.90.0`. Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V5 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall [`49-next.md`](../49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

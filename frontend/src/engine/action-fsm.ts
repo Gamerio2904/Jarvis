@@ -2,7 +2,7 @@
 
 import type { ToolMeta } from './tools.ts'
 
-export type ActionDomain = 'tv' | 'pc' | 'app' | 'navi' | 'home' | 'doc'
+export type ActionDomain = 'tv' | 'pc' | 'app' | 'navi' | 'home' | 'doc' | 'memory'
 
 export type ActionPhase =
   | 'idle'

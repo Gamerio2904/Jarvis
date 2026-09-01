@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`9.0.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Stabilität V1–V4 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`7.0.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Stabilität V1–V5 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` / `7.0` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -56,7 +56,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
 | 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` PLAN** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache |
-| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`9.0` V1–V4 CODE** — Audit, Overlay, TTS, App-Actions, Action-FSM, Dateien; V5+ PLAN |
+| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`7.0` V1–V5 CODE** — Audit, Overlay, TTS, Action-FSM, Dateien, Memory; V6+ PLAN |
 | — | [APK](./apk.md) | Sideload `6.90.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -153,7 +153,10 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 134 | `6.82.0` | **CODE** (Welt-Tour Glow/Seite/Zoom) |
 | 135 | `6.81.0` | **CODE** (Anomalien + Ihr Plan) |
 | 136 | `6.90.0` | **CODE** (Gold / Debug, kein Sideload) |
-| 137+ | `7.0.0` | **PLAN** (Agentic Recall) — nach Stabilität |
+| 137 | `7.0.0` | **CODE** (Hierarchical Memory Leitentscheidung, in `7.0.0`) |
+| 138 | `7.0.0` | **CODE** (Retrieve + Quelle, in `7.0.0`) |
+| 139 | `7.0.0` | **CODE** (Working Memory + Write-Verify, in `7.0.0`) |
+| 140 | `7.0.0` | **CODE** (Sleep-Prune) |
 | 141 | `8.0.0` | **PLAN** (Alltag vom Zettel) |
 | 142 | `6.91.0` | **CODE** (Stabilität Kern — Audit + Parser + Debug-Session) |
 | 143 | `6.92.0` | **CODE** (Overlay-FSM & Weltlage, in `6.93.0`) |
@@ -167,6 +170,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 151 | `9.0.0` | **CODE** (Attachments + Verify Upload, in `9.0.0`) |
 | 152 | `9.0.0` | **CODE** (PDF/Text-Parser, in `9.0.0`) |
 | 153 | `9.0.0` | **CODE** (OCR) |
-| 154+ | `7.0`/`9.x` | **PLAN** (V5 Memory → V9) |
+| 154+ | `9.1`/`9.x` | **PLAN** (V6 TV → V9) |
 
-**Aktuell:** Code **`9.0.0`**. Sideload zuletzt `6.90.0`. Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V4 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall-Plan [`49-next.md`](./49-next.md). LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`7.0.0`**. Sideload zuletzt `6.90.0`. Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V5 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall [`49-next.md`](./49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

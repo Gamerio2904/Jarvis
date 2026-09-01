@@ -1,7 +1,9 @@
-import { isGeminiConfigured, listMemory, upsertMemory } from './store.ts'
+import { isGeminiConfigured, listMemory, upsertMemory, deleteMemory } from './store.ts'
 import { loadWorkingMemory } from './working-memory.ts'
+import { confidenceFor, expiresFor, pruneMemoryItems } from './memory-layer.ts'
 
 let lastSleep = 0
+let lastPrune = 0
 
 function safeFact(line: string): { key: string; value: string } | null {
   const t = line.replace(/\s+/g, ' ').trim()
@@ -12,17 +14,33 @@ function safeFact(line: string): { key: string; value: string } | null {
   return null
 }
 
+export async function pruneStaleMemory(now = Date.now()): Promise<number> {
+  const items = await listMemory()
+  const { drop } = pruneMemoryItems(items, now)
+  for (const row of drop) await deleteMemory(row.id)
+  return drop.length
+}
+
 export async function tickSleepMemory(opts?: { drive?: boolean; voice?: boolean }): Promise<void> {
   if (opts?.drive || opts?.voice) return
-  if (Date.now() - lastSleep < 12 * 60 * 1000) return
-  lastSleep = Date.now()
+  const now = Date.now()
+  if (now - lastPrune > 2 * 60 * 1000) {
+    lastPrune = now
+    await pruneStaleMemory(now)
+  }
+  if (now - lastSleep < 12 * 60 * 1000) return
+  lastSleep = now
   if (isGeminiConfigured()) return
   const mem = await listMemory()
   const keys = new Set(mem.map((m) => m.key))
   for (const row of loadWorkingMemory()) {
     const fact = safeFact(row.line)
     if (!fact || keys.has(fact.key)) continue
-    await upsertMemory(fact.key, fact.value, 'fact')
+    await upsertMemory(fact.key, fact.value, 'fact', undefined, {
+      origin: 'sleep',
+      confidence: confidenceFor('sleep', 'fact'),
+      expires_at: expiresFor('sleep', 'fact', now),
+    })
     keys.add(fact.key)
   }
 }

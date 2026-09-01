@@ -190,22 +190,22 @@ function formatEventWhen(body: string): string {
 function formatOneHit(h: RetrieveHit): string {
   if (h.store === 'events') {
     const when = formatEventWhen(h.body)
-    return `Termin: ${h.title}${when ? ` — ${when}` : ''}.`
+    return `Kalender: ${h.title}${when ? ` — ${when}` : ''}.`
   }
   if (h.store === 'reminders') {
     const when = formatEventWhen(h.body)
     return `Erinnerung: ${h.title}${when ? ` — ${when}` : ''}.`
   }
   if (h.store === 'memory') {
-    if (h.title === 'name') return `Sie heißen ${h.body}.`
-    if (h.title === 'zuhause') return `Zuhause ist ${h.body}.`
-    if (h.title === 'getränk') return `Sie trinken ${h.body}.`
-    if (h.title === 'essen') return `Sie essen ${h.body}.`
-    return `${h.body}.`
+    if (h.title === 'name') return `Pin: Sie heißen ${h.body}.`
+    if (h.title === 'zuhause') return `Pin: Zuhause ist ${h.body}.`
+    if (h.title === 'getränk') return `Pin: Sie trinken ${h.body}.`
+    if (h.title === 'essen') return `Pin: Sie essen ${h.body}.`
+    return `Pin: ${h.body}.`
   }
   if (h.store === 'shopping') return `Einkauf: ${h.title}.`
   if (h.store === 'notes') return `Notiz: ${h.body}${/[.!?]$/.test(h.body) ? '' : '.'}`
-  return h.body.replace(/\s+/g, ' ').trim()
+  return `Gespräch: ${h.body.replace(/\s+/g, ' ').trim()}`
 }
 
 export function formatRecallReply(query: string, hits: RetrieveHit[]): string {

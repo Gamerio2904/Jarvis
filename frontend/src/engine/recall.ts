@@ -1,5 +1,7 @@
 import { parseRecallIntent } from './recall-parse.ts'
 import { formatRecallReply, retrieve } from './retrieve.ts'
+import { packVerified } from './action-fsm.ts'
+import { memoryRecallVerified } from './memory-layer.ts'
 import type { ToolMeta } from './tools.ts'
 
 export { parseRecallIntent }
@@ -10,18 +12,22 @@ export async function handleRecall(
   const q = parseRecallIntent(text)
   if (!q) return { handled: false }
   const hits = await retrieve(q)
-  if (!hits.length) {
-    return {
-      handled: true,
-      reply: `Nichts Belegtes zu „${q}“ in den lokalen Speichern.`,
-      tool: { tool_status: 'executed', tool: 'recall', action: 'empty', label: 'Gedächtnis' },
-      lastTool: 'recall',
-    }
-  }
-  return {
-    handled: true,
-    reply: formatRecallReply(q, hits),
-    tool: { tool_status: 'executed', tool: 'recall', action: 'hit', label: 'Gedächtnis' },
-    lastTool: 'recall',
-  }
+  const reply = formatRecallReply(q, hits)
+  const cited = hits.length > 0 && !/^Nichts Belegtes/.test(reply)
+  const packed = packVerified({
+    domain: 'memory',
+    intent: `recall:${q}`,
+    plan: 'recall',
+    label: 'Gedächtnis',
+    observation: {
+      hits: hits.length,
+      cited,
+      stores: [...new Set(hits.map((h) => h.store))],
+      key: q,
+    },
+    verify: (obs) => memoryRecallVerified(obs),
+    successReply: reply,
+    failReply: `Nichts Belegtes zu „${q}“ in den lokalen Speichern.`,
+  })
+  return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'recall' }
 }
