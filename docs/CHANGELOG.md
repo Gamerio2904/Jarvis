@@ -5,7 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`9.1.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`9.2.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `9.2.0` — V7 PC Capability-Levels + Confirm + Verify — *CODE*
+
+Sprints 157–159. Stufen vom Agent, Confirm für unbekanntes Starten und Löschen, Launch/Klick nur nach Observation. Sideload bleibt `6.90.0`. WebRTC Won’t.
+
+- **Stufen:** offline → status → screen → input → files → ground. Ohne Fähigkeit kein Start.
+- **Confirm:** FIFA bekannt ohne Extra-Frage. Chrome & Co. erst nach Ja. Löschen bleibt Ja/Nein.
+- **Verify:** Launch braucht `started`/`name`/`pid`. Klick „gesendet“, nicht „ausgeführt“. JPEG ist kein Zug-Beweis.
+- Docs [`sprints/sprint-157.md`](./sprints/sprint-157.md)–[`sprint-159.md`](./sprints/sprint-159.md)
 
 ### `9.1.0` — V6 TV Device-Registry + Verify Launch — *CODE*
 

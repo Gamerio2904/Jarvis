@@ -160,9 +160,12 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 154 | [`sprint-154.md`](./sprint-154.md) | `9.1.0` | TV Device-Registry | **CODE** (in `9.1.0`) |
 | 155 | [`sprint-155.md`](./sprint-155.md) | `9.1.0` | Verify Launch | **CODE** (in `9.1.0`) |
 | 156 | [`sprint-156.md`](./sprint-156.md) | `9.1.0` | Ehrliche Launch-Sätze | **CODE** |
-| 157+ | [`../51-phase0-audit.md`](../51-phase0-audit.md) | `9.2`/`9.x` | Industry V7 → V9 | **PLAN** |
+| 157 | [`sprint-157.md`](./sprint-157.md) | `9.2.0` | PC Capability-Levels | **CODE** (in `9.2.0`) |
+| 158 | [`sprint-158.md`](./sprint-158.md) | `9.2.0` | PC Confirm hart | **CODE** (in `9.2.0`) |
+| 159 | [`sprint-159.md`](./sprint-159.md) | `9.2.0` | Verify PC-Aktionen | **CODE** |
+| 160+ | [`../51-phase0-audit.md`](../51-phase0-audit.md) | `9.3`/`9.x` | Industry V8 → V9 | **PLAN** |
 
-**Aktuell:** Code **`9.1.0`**. Sideload `6.90.0`. Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V6 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall [`49-next.md`](../49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`9.2.0`**. Sideload `6.90.0`. Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V7 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall [`49-next.md`](../49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

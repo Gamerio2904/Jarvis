@@ -71,6 +71,13 @@ import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { beginTurn, endTurn } from '../src/engine/turn-gate.ts'
 import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
 import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
+import { sanitizePcHost } from '../src/engine/pc-host.ts'
+import {
+  needsLaunchConfirm,
+  parsePcCaps,
+  pcActionVerified,
+  pcCan,
+} from '../src/engine/pc-cap.ts'
 import { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList } from '../src/engine/poi-parse.ts'
 import { formatHoursSpeech, hoursOpenNow, isBwHoliday, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
@@ -1060,7 +1067,8 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /9\.1\.0/)
+assert.match(HELP_TEXT, /9\.2\.0/)
+assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /Datei-Knopf/)
 assert.match(HELP_TEXT, /Quelle nennen/)
 assert.match(HELP_TEXT, /SmartThings/)
@@ -1313,6 +1321,64 @@ assert.equal(parsePcIntent('Lösche den Ordner Test auf dem Desktop')?.kind, 'fi
 assert.equal(parsePcIntent('PC testen')?.kind, 'status')
 assert.equal(parsePcIntent('Öffne Netflix'), null)
 assert.equal(parsePcIntent('Bro anrufen'), null)
+assert.equal(sanitizePcHost('http://192.168.1.10:18790'), '192.168.1.10')
+assert.equal(needsLaunchConfirm('fifa'), false)
+assert.equal(needsLaunchConfirm('chrome'), true)
+{
+  const offline = parsePcCaps({ ok: false })
+  assert.equal(offline.level, 'offline')
+  assert.equal(pcCan(offline, 'launch'), false)
+  const input = parsePcCaps({
+    ok: true,
+    capabilities: ['status', 'screen', 'launch', 'click', 'move', 'type', 'key'],
+  })
+  assert.equal(input.level, 'input')
+  assert.equal(pcCan(input, 'launch'), true)
+  assert.equal(pcCan(input, 'ground'), false)
+  const files = parsePcCaps({
+    ok: true,
+    app: 'JarvisPC',
+    screen: { width: 1920, height: 1080 },
+  })
+  assert.equal(files.level, 'files')
+  assert.equal(pcCan(files, 'files'), true)
+  assert.equal(pcActionVerified({}).ok, false)
+  assert.equal(pcActionVerified({ action: 'launch', reached: false }).ok, false)
+  assert.equal(pcActionVerified({ action: 'launch', reached: true, can: true, ok: true }).ok, false)
+  assert.equal(
+    pcActionVerified({ action: 'launch', reached: true, can: true, ok: true, started: true, name: 'FIFA' }).ok,
+    true,
+  )
+  const clickSent = pcActionVerified({ action: 'click', reached: true, can: true, ok: true, proved: false })
+  assert.equal(clickSent.ok, true)
+  const clickLie = packVerified({
+    domain: 'pc',
+    intent: 'click',
+    plan: 'click',
+    label: 'PC',
+    observation: { action: 'click', reached: true, can: true, ok: true, sent: true, proved: false },
+    verify: (obs) => pcActionVerified(obs),
+    successReply: 'Klick gesendet. Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.',
+    failReply: 'Nicht geklickt.',
+  })
+  assert.equal(clickLie.state.phase, 'success')
+  assert.doesNotMatch(clickLie.reply, /ausgeführt/)
+  const launchBare = packVerified({
+    domain: 'pc',
+    intent: 'launch',
+    plan: 'launch',
+    label: 'PC',
+    observation: { action: 'launch', reached: true, can: true, ok: true },
+    verify: (obs) => pcActionVerified(obs),
+    successReply: 'FIFA läuft.',
+    failReply: 'Start nicht angekommen.',
+  })
+  assert.equal(launchBare.state.phase, 'failed')
+  assert.doesNotMatch(launchBare.reply, /läuft/)
+}
+assert.equal(pickRoute('FIFA starten'), 'pc')
+assert.match(scrubReply('FIFA läuft.'), /angekommen|Schirm|nicht/)
+assert.doesNotMatch(scrubReply('Klick ausgeführt.'), /Klick ausgeführt/)
 assert.match(GEMINI_PERSONA, /PC/)
 for (const p of PC_COPY_PROMPTS) {
   assert.ok(parsePcIntent(p), `Prompt ohne Parser: ${p}`)
@@ -1904,6 +1970,7 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /V3 Verified/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V4 Dokumente/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V5 Gedächtnis/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V6 TV/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V7 PC/i.test(g.title)))
 
 {
   let s = ACTION_INIT

@@ -2,6 +2,18 @@ import { completeGeminiVision, geminiReady } from './gemini'
 import { getJson, postJson } from './http-json'
 import { sanitizePcHost } from './pc-host'
 import { parsePcIntent, type PcIntent } from './pc-parse'
+import {
+  CAP_OFFLINE,
+  CLICK_SENT,
+  capMissingReply,
+  launchArrivedReply,
+  needsLaunchConfirm,
+  parsePcCaps,
+  pcActionVerified,
+  pcCan,
+  type PcCap,
+  type PcCaps,
+} from './pc-cap.ts'
 import { isCommNo, isCommYes } from './places-parse'
 import { isPcGround, parseGroundIntent, type GroundIntent } from './ground-parse'
 import { loadSettings, saveSettings } from './store'
@@ -12,54 +24,94 @@ import type { ToolMeta } from './tools'
 export { sanitizePcHost } from './pc-host'
 export { parsePcIntent, PC_COPY_PROMPTS } from './pc-parse'
 export type { PcIntent } from './pc-parse'
+export { parsePcCaps, pcCan, pcActionVerified, needsLaunchConfirm } from './pc-cap.ts'
 
 type PcHit = { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }
 
-type PendingPc = { kind: 'delete_confirm'; path: string }
+type PendingPc =
+  | { kind: 'delete_confirm'; path: string }
+  | { kind: 'launch_confirm'; query: string }
 type PendingGround = { kind: 'two_step'; a: string; b: string; phase: 'ask1' | 'ask2' }
 
 const VISION_OFF =
   'Sehen am PC ist aus. LocateAnything (JarvisSee auf der RTX) läuft nicht. Nichts eingezeichnet, nichts angeklickt. Gemini-Auge bleibt Opt-in — das Bild ginge dann zu Google.'
 
-function pcTool(action: string, label: string, extra?: Record<string, unknown>): ToolMeta {
-  const ok = extra?.ok
-  if (ok === false) {
-    return packVerified({
-      domain: 'pc',
-      intent: action,
-      plan: action,
-      label,
-      observation: extra ?? { ok: false },
-      verify: () => false,
-      successReply: '',
-      failReply: '',
-      extra,
-    }).tool
-  }
-  if (ok === true) {
-    return packVerified({
-      domain: 'pc',
-      intent: action,
-      plan: action,
-      label,
-      observation: extra ?? { ok: false },
-      verify: (obs) => obs.ok === true,
-      successReply: '',
-      failReply: '',
-      extra,
-    }).tool
-  }
-  return packVerified({
+function packPc(opts: {
+  action: string
+  obs: Record<string, unknown>
+  success: string
+  fail: string
+  extra?: Record<string, unknown>
+  waiting?: boolean
+  cancelled?: boolean
+  preOk?: boolean
+  preError?: string
+  lastTool?: string
+}): PcHit {
+  const packed = packVerified({
     domain: 'pc',
-    intent: action,
-    plan: action,
-    label,
+    intent: opts.action,
+    plan: opts.action,
+    label: 'PC',
+    waiting: opts.waiting,
+    cancelled: opts.cancelled,
+    preOk: opts.preOk,
+    preError: opts.preError,
+    observation: opts.obs,
+    verify: (obs) => pcActionVerified(obs),
+    successReply: opts.success,
+    failReply: opts.fail,
+    extra: opts.extra,
+  })
+  return {
+    handled: true,
+    reply: packed.reply,
+    tool: packed.tool,
+    lastTool: opts.lastTool || (opts.waiting ? 'pc_confirm' : 'pc'),
+  }
+}
+
+function packWait(action: string, reply: string): PcHit {
+  return packPc({
+    action,
+    obs: { ask: true, action },
+    success: reply,
+    fail: reply,
     waiting: true,
-    observation: extra || { ask: true },
-    successReply: '',
-    failReply: '',
-    extra,
-  }).tool
+    lastTool: 'pc_confirm',
+  })
+}
+
+function packOffline(action: string, message: string): PcHit {
+  const fail = message || CAP_OFFLINE
+  return packPc({
+    action,
+    obs: { action, reached: false, can: false, ok: false },
+    success: fail,
+    fail,
+    preOk: false,
+    preError: fail,
+  })
+}
+
+function packCapMissing(action: PcCap, caps: PcCaps): PcHit {
+  const fail = capMissingReply(action)
+  return packPc({
+    action,
+    obs: { action, reached: caps.reached, level: caps.level, can: false, ok: false },
+    success: fail,
+    fail,
+  })
+}
+
+function obsBase(action: string, caps: PcCaps, extra?: Record<string, unknown>): Record<string, unknown> {
+  return {
+    action,
+    reached: caps.reached,
+    level: caps.level,
+    can: pcCan(caps, action as PcCap),
+    ...extra,
+  }
 }
 
 function readPending(): PendingPc | null {
@@ -67,7 +119,9 @@ function readPending(): PendingPc | null {
     const raw = loadSettings().last_pc_json
     if (!raw) return null
     const p = JSON.parse(raw) as PendingPc
-    return p?.kind === 'delete_confirm' && p.path ? p : null
+    if (p?.kind === 'delete_confirm' && p.path) return p
+    if (p?.kind === 'launch_confirm' && p.query) return p
+    return null
   } catch {
     return null
   }
@@ -151,11 +205,38 @@ async function callPc(
   }
 }
 
+async function loadCaps(): Promise<{ caps: PcCaps; message: string }> {
+  const raw = await callPc('/v1/status', {}, 8_000)
+  return {
+    caps: parsePcCaps(raw),
+    message: String(raw.message || (raw.ok ? '' : CAP_OFFLINE)),
+  }
+}
+
+async function requireCap(action: PcCap): Promise<{ caps: PcCaps } | PcHit> {
+  const { caps, message } = await loadCaps()
+  if (!caps.reached) return packOffline(action, message)
+  if (!pcCan(caps, action)) return packCapMissing(action, caps)
+  return { caps }
+}
+
 function shotFrom(res: Record<string, unknown>): string | undefined {
   const img = typeof res.image === 'string' ? res.image : ''
   const mime = typeof res.mime === 'string' ? res.mime : 'image/jpeg'
   if (!img || img.length < 32) return undefined
   return `data:${mime};base64,${img}`
+}
+
+function statusReply(res: Record<string, unknown>, caps: PcCaps): { ok: boolean; reply: string } {
+  if (!caps.reached) return { ok: false, reply: String(res.message || CAP_OFFLINE) }
+  const ips = Array.isArray(res.ips) ? res.ips.join(', ') : ''
+  const screen = res.screen as { width?: number; height?: number } | undefined
+  const size = screen?.width ? `${screen.width}×${screen.height}` : ''
+  const level = caps.level !== 'status' ? `, Stufe ${caps.level}` : ''
+  return {
+    ok: true,
+    reply: `PC-App erreicht${size ? `, Bildschirm ${size}` : ''}${level}${ips ? `. IP ${ips}` : ''}.`,
+  }
 }
 
 export async function testPc(opts?: { host?: string; token?: string; port?: number }): Promise<{
@@ -171,14 +252,7 @@ export async function testPc(opts?: { host?: string; token?: string; port?: numb
     })
   }
   const res = await callPc('/v1/status', {}, 8_000)
-  if (!res.ok) return { ok: false, reply: String(res.message || 'PC nicht erreicht.') }
-  const ips = Array.isArray(res.ips) ? res.ips.join(', ') : ''
-  const screen = res.screen as { width?: number; height?: number } | undefined
-  const size = screen?.width ? `${screen.width}×${screen.height}` : ''
-  return {
-    ok: true,
-    reply: `PC-App erreicht${size ? `, Bildschirm ${size}` : ''}${ips ? `. IP ${ips}` : ''}.`,
-  }
+  return statusReply(res, parsePcCaps(res))
 }
 
 export async function handlePc(_conversationId: string, text: string): Promise<PcHit> {
@@ -186,34 +260,39 @@ export async function handlePc(_conversationId: string, text: string): Promise<P
   if (pending) {
     if (isCommNo(text)) {
       writePending(null)
-      return {
-        handled: true,
-        reply: 'Nicht gelöscht.',
-        tool: pcTool('ask', 'PC'),
+      const cancelled =
+        pending.kind === 'launch_confirm' ? 'Nicht gestartet.' : 'Nicht gelöscht.'
+      return packPc({
+        action: pending.kind === 'launch_confirm' ? 'launch' : 'files',
+        obs: { action: pending.kind === 'launch_confirm' ? 'launch' : 'files', ask: true },
+        success: cancelled,
+        fail: cancelled,
+        cancelled: true,
         lastTool: 'pc',
-      }
+      })
     }
     if (isCommYes(text)) {
       writePending(null)
+      if (pending.kind === 'launch_confirm') return doLaunch(pending.query)
+      const gated = await requireCap('files')
+      if (!('caps' in gated)) return gated
       const res = await callPc('/v1/files', { op: 'delete', path: pending.path })
-      return {
-        handled: true,
-        reply: res.ok
-          ? String(res.message || `Weg: ${pending.path}`)
-          : String(res.message || 'Nicht gelöscht.'),
-        tool: pcTool('files', 'PC', res),
-        lastTool: 'pc',
-      }
+      const ok = res.ok === true
+      return packPc({
+        action: 'files',
+        obs: obsBase('files', gated.caps, { ok, path: pending.path }),
+        success: String(res.message || `Weg: ${pending.path}`),
+        fail: String(res.message || 'Nicht gelöscht.'),
+      })
     }
     const next = parsePcIntent(text)
     if (next) writePending(null)
     else {
-      return {
-        handled: true,
-        reply: `Ordner/Datei ${pending.path} wirklich löschen? Ja oder nein.`,
-        tool: pcTool('ask', 'PC'),
-        lastTool: 'pc_confirm',
-      }
+      const ask =
+        pending.kind === 'launch_confirm'
+          ? `„${pending.query}“ auf dem PC starten? Ja oder nein.`
+          : `Ordner/Datei ${pending.path} wirklich löschen? Ja oder nein.`
+      return packWait(pending.kind === 'launch_confirm' ? 'launch' : 'files', ask)
     }
   }
 
@@ -221,12 +300,14 @@ export async function handlePc(_conversationId: string, text: string): Promise<P
   if (two) {
     if (isCommNo(text)) {
       writeGroundPending(null)
-      return {
-        handled: true,
-        reply: 'Beide Schritte abgebrochen. Nichts geklickt.',
-        tool: pcTool('ask', 'PC'),
+      return packPc({
+        action: 'ground',
+        obs: { action: 'ground', ask: true },
+        success: 'Beide Schritte abgebrochen. Nichts geklickt.',
+        fail: 'Beide Schritte abgebrochen. Nichts geklickt.',
+        cancelled: true,
         lastTool: 'pc',
-      }
+      })
     }
     if (isCommYes(text)) {
       if (two.phase === 'ask1') {
@@ -253,12 +334,7 @@ export async function handlePc(_conversationId: string, text: string): Promise<P
     if (nextPc || isPcGround(nextG)) writeGroundPending(null)
     else {
       const step = two.phase === 'ask1' ? two.a : two.b
-      return {
-        handled: true,
-        reply: `Nächster GUI-Schritt „${step}“? Ja oder nein. Einen dritten mache ich nicht.`,
-        tool: pcTool('ask', 'PC'),
-        lastTool: 'pc_confirm',
-      }
+      return packWait('ground', `Nächster GUI-Schritt „${step}“? Ja oder nein. Einen dritten mache ich nicht.`)
     }
   }
 
@@ -271,30 +347,30 @@ export async function handlePc(_conversationId: string, text: string): Promise<P
 
 async function runIntent(intent: PcIntent): Promise<PcHit> {
   if (intent.kind === 'status') {
-    const t = await testPc()
-    return {
-      handled: true,
-      reply: t.reply,
-      tool: pcTool('status', 'PC', { ok: t.ok }),
-      lastTool: 'pc',
-    }
+    const res = await callPc('/v1/status', {}, 8_000)
+    const caps = parsePcCaps(res)
+    const t = statusReply(res, caps)
+    return packPc({
+      action: 'status',
+      obs: obsBase('status', caps, { ok: t.ok }),
+      success: t.reply,
+      fail: t.reply,
+    })
   }
 
   if (intent.kind === 'screen') return seeScreen()
 
   if (intent.kind === 'launch') {
-    const res = await callPc('/v1/launch', { query: intent.query }, 15_000)
-    return {
-      handled: true,
-      reply: res.ok
-        ? String(res.message || `${intent.query} gestartet.`)
-        : String(res.message || `„${intent.query}“ nicht gestartet.`),
-      tool: pcTool('launch', 'PC', res),
-      lastTool: 'pc',
+    if (needsLaunchConfirm(intent.query)) {
+      writePending({ kind: 'launch_confirm', query: intent.query })
+      return packWait('launch', `„${intent.query}“ auf dem PC starten? Ja oder nein.`)
     }
+    return doLaunch(intent.query)
   }
 
   if (intent.kind === 'move') {
+    const gated = await requireCap('move')
+    if (!('caps' in gated)) return gated
     const res = await callPc('/v1/input', {
       kind: 'move',
       dx: intent.dx,
@@ -304,76 +380,98 @@ async function runIntent(intent: PcIntent): Promise<PcHit> {
       x: intent.x,
       y: intent.y,
     })
-    return {
-      handled: true,
-      reply: res.ok ? String(res.message || 'Maus bewegt.') : String(res.message || 'Maus nicht bewegt.'),
-      tool: pcTool('move', 'PC', res),
-      lastTool: 'pc',
-    }
+    const ok = res.ok === true
+    return packPc({
+      action: 'move',
+      obs: obsBase('move', gated.caps, { ok, sent: ok }),
+      success: String(res.message || 'Maus bewegt.'),
+      fail: String(res.message || 'Maus nicht bewegt.'),
+    })
   }
 
   if (intent.kind === 'click') return doClick(intent)
 
   if (intent.kind === 'type') {
+    const gated = await requireCap('type')
+    if (!('caps' in gated)) return gated
     const res = await callPc('/v1/input', { kind: 'type', text: intent.text })
-    return {
-      handled: true,
-      reply: res.ok ? 'Getippt.' : String(res.message || 'Nicht getippt.'),
-      tool: pcTool('type', 'PC', res),
-      lastTool: 'pc',
-    }
+    const ok = res.ok === true
+    return packPc({
+      action: 'type',
+      obs: obsBase('type', gated.caps, { ok, sent: ok }),
+      success: ok ? 'Getippt.' : String(res.message || 'Nicht getippt.'),
+      fail: String(res.message || 'Nicht getippt.'),
+    })
   }
 
   if (intent.kind === 'key') {
+    const gated = await requireCap('key')
+    if (!('caps' in gated)) return gated
     const res = await callPc('/v1/input', { kind: 'key', key: intent.key })
-    return {
-      handled: true,
-      reply: res.ok ? String(res.message || `Taste ${intent.key}.`) : String(res.message || 'Taste nicht.'),
-      tool: pcTool('key', 'PC', res),
-      lastTool: 'pc',
-    }
+    const ok = res.ok === true
+    return packPc({
+      action: 'key',
+      obs: obsBase('key', gated.caps, { ok, sent: ok }),
+      success: String(res.message || `Taste ${intent.key}.`),
+      fail: String(res.message || 'Taste nicht.'),
+    })
   }
 
   if (intent.kind === 'files') {
     if (intent.op === 'delete') {
       writePending({ kind: 'delete_confirm', path: intent.path })
-      return {
-        handled: true,
-        reply: `${intent.path} wirklich löschen? Ja oder nein.`,
-        tool: pcTool('ask', 'PC'),
-        lastTool: 'pc_confirm',
-      }
+      return packWait('files', `${intent.path} wirklich löschen? Ja oder nein.`)
     }
+    const gated = await requireCap('files')
+    if (!('caps' in gated)) return gated
     const res = await callPc('/v1/files', { op: intent.op, path: intent.path, dest: intent.dest })
-    return {
-      handled: true,
-      reply: String(res.message || (res.ok ? 'Erledigt.' : 'Nicht erledigt.')),
-      tool: pcTool('files', 'PC', res),
-      lastTool: 'pc',
-    }
+    const ok = res.ok === true
+    return packPc({
+      action: 'files',
+      obs: obsBase('files', gated.caps, { ok, path: res.path || intent.path, entries: res.entries }),
+      success: String(res.message || 'Erledigt.'),
+      fail: String(res.message || 'Nicht erledigt.'),
+    })
   }
 
   return { handled: false }
 }
 
+async function doLaunch(query: string): Promise<PcHit> {
+  const gated = await requireCap('launch')
+  if (!('caps' in gated)) return gated
+  const res = await callPc('/v1/launch', { query }, 15_000)
+  const name = String(res.name || '')
+  const started = res.started === true || Boolean(name) || Number(res.pid) > 0
+  const ok = res.ok === true
+  return packPc({
+    action: 'launch',
+    obs: obsBase('launch', gated.caps, { ok, started: ok && started, name, pid: res.pid }),
+    success: launchArrivedReply(name || query),
+    fail: String(res.message || `„${query}“ nicht gestartet.`),
+  })
+}
+
 async function seeScreen(): Promise<PcHit> {
+  const gated = await requireCap('screen')
+  if (!('caps' in gated)) return gated
   const res = await callPc('/v1/screenshot', {}, 20_000)
   const image = shotFrom(res)
   if (!res.ok || !image) {
-    return {
-      handled: true,
-      reply: String(res.message || 'Kein Bildschirm. JarvisPC.bat muss laufen.'),
-      tool: pcTool('screen', 'PC', { ok: false }),
-      lastTool: 'pc',
-    }
+    return packPc({
+      action: 'screen',
+      obs: obsBase('screen', gated.caps, { ok: false, image: '' }),
+      success: String(res.message || 'Kein Bildschirm. JarvisPC.bat muss laufen.'),
+      fail: String(res.message || 'Kein Bildschirm. JarvisPC.bat muss laufen.'),
+    })
   }
   if (!geminiReady()) {
-    return {
-      handled: true,
-      reply: 'Bildschirm unten — so wie er jetzt ist. Zum Vorlesen Gemini an (Bild geht dann zu Google).',
-      tool: pcTool('screen', 'PC', { ok: true, image }),
-      lastTool: 'pc',
-    }
+    return packPc({
+      action: 'screen',
+      obs: obsBase('screen', gated.caps, { ok: true, image }),
+      success: 'Bildschirm unten — so wie er jetzt ist. Zum Vorlesen Gemini an (Bild geht dann zu Google).',
+      fail: 'Kein Bildschirm. JarvisPC.bat muss laufen.',
+    })
   }
   const m = /^data:(image\/[a-zA-Z0+.-]+);base64,(.+)$/.exec(image)
   try {
@@ -382,20 +480,20 @@ async function seeScreen(): Promise<PcHit> {
       m?.[2] || '',
       m?.[1] || 'image/jpeg',
     )
-    return {
-      handled: true,
-      reply: scrubReply(text || 'Bild unten. Nichts Lesbares erkannt.'),
-      tool: pcTool('screen', 'PC', { ok: true, image }),
-      lastTool: 'pc',
-    }
+    return packPc({
+      action: 'screen',
+      obs: obsBase('screen', gated.caps, { ok: true, image }),
+      success: scrubReply(text || 'Bild unten. Nichts Lesbares erkannt.'),
+      fail: 'Kein Bildschirm. JarvisPC.bat muss laufen.',
+    })
   } catch (err) {
-    return {
-      handled: true,
-      reply:
+    return packPc({
+      action: 'screen',
+      obs: obsBase('screen', gated.caps, { ok: true, image }),
+      success:
         (err instanceof Error ? err.message : 'Bild ist da, Beschreibung nicht.') + ' Screenshot unten.',
-      tool: pcTool('screen', 'PC', { ok: true, image }),
-      lastTool: 'pc',
-    }
+      fail: 'Kein Bildschirm. JarvisPC.bat muss laufen.',
+    })
   }
 }
 
@@ -434,102 +532,105 @@ async function lookupGround(query: string): Promise<{
 }
 
 function visionOffHit(): PcHit {
-  return {
-    handled: true,
-    reply: VISION_OFF,
-    tool: pcTool('ground', 'PC', { ok: false, vision: 'off' }),
-    lastTool: 'pc',
-  }
+  return packPc({
+    action: 'ground',
+    obs: { action: 'ground', reached: true, can: false, vision: 'off', ok: false },
+    success: VISION_OFF,
+    fail: VISION_OFF,
+  })
 }
 
 async function runGround(intent: Extract<GroundIntent, { kind: 'find' | 'count' | 'type_into' | 'two_step' }>): Promise<PcHit> {
   if (intent.kind === 'two_step') {
     writeGroundPending({ kind: 'two_step', a: intent.a, b: intent.b, phase: 'ask1' })
-    return {
-      handled: true,
-      reply: `Zwei Schritte, jeder mit Ja: zuerst „${intent.a}“, dann „${intent.b}“. Ersten Schritt jetzt? Ja oder nein. Einen dritten mache ich nicht.`,
-      tool: pcTool('ask', 'PC'),
-      lastTool: 'pc_confirm',
-    }
+    return packWait(
+      'ground',
+      `Zwei Schritte, jeder mit Ja: zuerst „${intent.a}“, dann „${intent.b}“. Ersten Schritt jetzt? Ja oder nein. Einen dritten mache ich nicht.`,
+    )
   }
 
   const hit = await lookupGround(intent.kind === 'type_into' ? intent.field : intent.query)
   if (hit.vision === 'missing' || hit.vision === 'off' || hit.vision === 'loading' || hit.vision === 'error') {
     if (intent.kind === 'count') {
-      return {
-        handled: true,
-        reply: `${VISION_OFF} Eine Zahl erfinde ich nicht.`,
-        tool: pcTool('ground', 'PC', { ok: false, vision: hit.vision }),
-        lastTool: 'pc',
-      }
+      return packPc({
+        action: 'ground',
+        obs: { action: 'ground', reached: true, can: false, vision: hit.vision, ok: false },
+        success: `${VISION_OFF} Eine Zahl erfinde ich nicht.`,
+        fail: `${VISION_OFF} Eine Zahl erfinde ich nicht.`,
+      })
     }
     return visionOffHit()
   }
 
   const sure = typeof hit.nx === 'number' && typeof hit.ny === 'number' && (hit.score || 1) >= 0.65
+  const groundObs = { action: 'ground', reached: true, can: true, vision: 'ready' as const, ok: true }
 
   if (intent.kind === 'count') {
-    return {
-      handled: true,
-      reply: sure
+    return packPc({
+      action: 'ground',
+      obs: groundObs,
+      success: sure
         ? `Mindestens ein Treffer für ${intent.query} (Box ${hit.label || intent.query}). Eine genaue Fensterzahl ohne Sidecar-Liste nenne ich nicht.`
         : `Keine klare Menge für ${intent.query}. Eine Zahl erfinde ich nicht.`,
-      tool: pcTool('ground', 'PC', { ok: true, vision: 'ready' }),
-      lastTool: 'pc',
-    }
+      fail: `Keine klare Menge für ${intent.query}. Eine Zahl erfinde ich nicht.`,
+    })
   }
 
   if (intent.kind === 'type_into') {
     if (!sure) {
-      return {
-        handled: true,
-        reply: `Feld „${intent.field}“ nicht eindeutig. Nichts getippt.`,
-        tool: pcTool('ground', 'PC', { ok: true, vision: 'ready' }),
-        lastTool: 'pc',
-      }
+      return packPc({
+        action: 'ground',
+        obs: groundObs,
+        success: `Feld „${intent.field}“ nicht eindeutig. Nichts getippt.`,
+        fail: `Feld „${intent.field}“ nicht eindeutig. Nichts getippt.`,
+      })
     }
+    const gated = await requireCap('type')
+    if (!('caps' in gated)) return gated
     await callPc('/v1/input', { kind: 'click', nx: hit.nx, ny: hit.ny })
     const typed = await callPc('/v1/input', { kind: 'type', text: intent.text })
-    return {
-      handled: true,
-      reply: typed.ok ? `In „${hit.label || intent.field}“ getippt.` : String(typed.message || 'Nicht getippt.'),
-      tool: pcTool('type', 'PC', typed),
-      lastTool: 'pc',
-    }
+    const ok = typed.ok === true
+    return packPc({
+      action: 'type',
+      obs: obsBase('type', gated.caps, { ok, sent: ok }),
+      success: ok ? `In „${hit.label || intent.field}“ getippt.` : String(typed.message || 'Nicht getippt.'),
+      fail: String(typed.message || 'Nicht getippt.'),
+    })
   }
 
   if (!intent.click) {
-    return {
-      handled: true,
-      reply: sure
+    return packPc({
+      action: 'ground',
+      obs: { ...groundObs, image: undefined },
+      success: sure
         ? `„${hit.label || intent.query}“ liegt ungefähr bei ${Math.round((hit.nx || 0) * 100)} % / ${Math.round((hit.ny || 0) * 100)} %. Maus bleibt.`
         : `„${intent.query}“ nicht eindeutig. Nichts eingezeichnet.`,
-      tool: pcTool('ground', 'PC', { ok: true, vision: 'ready', image: undefined }),
-      lastTool: 'pc',
-    }
+      fail: `„${intent.query}“ nicht eindeutig. Nichts eingezeichnet.`,
+    })
   }
 
   if (!sure) {
-    return {
-      handled: true,
-      reply: `„${intent.query}“ nicht eindeutig. Nichts angeklickt.`,
-      tool: pcTool('ground', 'PC', { ok: true, vision: 'ready' }),
-      lastTool: 'pc',
-    }
+    return packPc({
+      action: 'ground',
+      obs: groundObs,
+      success: `„${intent.query}“ nicht eindeutig. Nichts angeklickt.`,
+      fail: `„${intent.query}“ nicht eindeutig. Nichts angeklickt.`,
+    })
   }
+  const gated = await requireCap('click')
+  if (!('caps' in gated)) return gated
   const click = await callPc('/v1/input', {
     kind: 'click',
     nx: Math.min(1, Math.max(0, hit.nx || 0)),
     ny: Math.min(1, Math.max(0, hit.ny || 0)),
   })
-  return {
-    handled: true,
-    reply: click.ok
-      ? `Klick auf ${hit.label || intent.query}. Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.`
-      : String(click.message || 'Nicht geklickt.'),
-    tool: pcTool('click', 'PC', click),
-    lastTool: 'pc',
-  }
+  const ok = click.ok === true
+  return packPc({
+    action: 'click',
+    obs: obsBase('click', gated.caps, { ok, sent: ok, proved: false }),
+    success: CLICK_SENT,
+    fail: String(click.message || 'Nicht geklickt.'),
+  })
 }
 
 async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<PcHit> {
@@ -538,13 +639,15 @@ async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<Pc
     if (local.vision === 'ready') {
       const sure = typeof local.nx === 'number' && typeof local.ny === 'number' && (local.score || 1) >= 0.65
       if (!sure) {
-        return {
-          handled: true,
-          reply: `„${intent.target}“ nicht eindeutig. Nichts angeklickt.`,
-          tool: pcTool('ground', 'PC', { ok: true, vision: 'ready' }),
-          lastTool: 'pc',
-        }
+        return packPc({
+          action: 'ground',
+          obs: { action: 'ground', reached: true, can: true, vision: 'ready', ok: true },
+          success: `„${intent.target}“ nicht eindeutig. Nichts angeklickt.`,
+          fail: `„${intent.target}“ nicht eindeutig. Nichts angeklickt.`,
+        })
       }
+      const gated = await requireCap('click')
+      if (!('caps' in gated)) return gated
       const click = await callPc('/v1/input', {
         kind: 'click',
         nx: Math.min(1, Math.max(0, local.nx || 0)),
@@ -552,34 +655,37 @@ async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<Pc
         button: intent.button || 'left',
         times: intent.times || 1,
       })
-      return {
-        handled: true,
-        reply: click.ok
-          ? `Klick auf ${local.label || intent.target}. Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.`
-          : String(click.message || 'Nicht geklickt.'),
-        tool: pcTool('click', 'PC', click),
-        lastTool: 'pc',
-      }
+      const ok = click.ok === true
+      return packPc({
+        action: 'click',
+        obs: obsBase('click', gated.caps, { ok, sent: ok, proved: false }),
+        success: `Klick auf ${local.label || intent.target}. Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.`,
+        fail: String(click.message || 'Nicht geklickt.'),
+      })
     }
     const shot = await callPc('/v1/screenshot', {}, 20_000)
     const image = shotFrom(shot)
     if (!shot.ok || !image) {
-      return {
-        handled: true,
-        reply: local.vision === 'missing' || local.vision === 'off'
-          ? `${VISION_OFF} ${String(shot.message || 'Kein Bildschirm.')}`
-          : String(shot.message || 'Ohne Bildschirm kann ich den Zug nicht sehen.'),
-        tool: pcTool('click', 'PC', { ok: false }),
-        lastTool: 'pc',
-      }
+      return packPc({
+        action: 'click',
+        obs: { action: 'click', reached: true, can: false, ok: false },
+        success:
+          local.vision === 'missing' || local.vision === 'off'
+            ? `${VISION_OFF} ${String(shot.message || 'Kein Bildschirm.')}`
+            : String(shot.message || 'Ohne Bildschirm kann ich den Zug nicht sehen.'),
+        fail:
+          local.vision === 'missing' || local.vision === 'off'
+            ? `${VISION_OFF} ${String(shot.message || 'Kein Bildschirm.')}`
+            : String(shot.message || 'Ohne Bildschirm kann ich den Zug nicht sehen.'),
+      })
     }
     if (!geminiReady()) {
-      return {
-        handled: true,
-        reply: `${VISION_OFF} Bild unten. Zum Anklicken über Google Gemini an. Oder „klick Mitte“.`,
-        tool: pcTool('click', 'PC', { ok: true, image }),
-        lastTool: 'pc',
-      }
+      return packPc({
+        action: 'screen',
+        obs: { action: 'screen', reached: true, can: true, ok: true, image },
+        success: `${VISION_OFF} Bild unten. Zum Anklicken über Google Gemini an. Oder „klick Mitte“.`,
+        fail: `${VISION_OFF} Bild unten. Zum Anklicken über Google Gemini an. Oder „klick Mitte“.`,
+      })
     }
     const m = /^data:(image\/[a-zA-Z0+.-]+);base64,(.+)$/.exec(image)
     let parsed: { found?: boolean; nx?: number; ny?: number; label?: string } = {}
@@ -597,13 +703,15 @@ async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<Pc
     const nx = Number(parsed.nx)
     const ny = Number(parsed.ny)
     if (!parsed.found || !Number.isFinite(nx) || !Number.isFinite(ny)) {
-      return {
-        handled: true,
-        reply: `LocateAnything aus. Gemini fand „${intent.target}“ nicht eindeutig. Screenshot unten — nichts angeklickt.`,
-        tool: pcTool('click', 'PC', { ok: true, image }),
-        lastTool: 'pc',
-      }
+      return packPc({
+        action: 'screen',
+        obs: { action: 'screen', reached: true, can: true, ok: true, image },
+        success: `LocateAnything aus. Gemini fand „${intent.target}“ nicht eindeutig. Screenshot unten — nichts angeklickt.`,
+        fail: `LocateAnything aus. Gemini fand „${intent.target}“ nicht eindeutig. Screenshot unten — nichts angeklickt.`,
+      })
     }
+    const gated = await requireCap('click')
+    if (!('caps' in gated)) return gated
     const click = await callPc('/v1/input', {
       kind: 'click',
       nx: Math.min(1, Math.max(0, nx)),
@@ -611,16 +719,17 @@ async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<Pc
       button: intent.button || 'left',
       times: intent.times || 1,
     })
-    return {
-      handled: true,
-      reply: click.ok
-        ? `LocateAnything aus — Gemini-Klick auf ${parsed.label || intent.target} (Bild zu Google). Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.`
-        : String(click.message || 'Nicht geklickt.'),
-      tool: pcTool('click', 'PC', { ...click, image }),
-      lastTool: 'pc',
-    }
+    const ok = click.ok === true
+    return packPc({
+      action: 'click',
+      obs: obsBase('click', gated.caps, { ok, sent: ok, proved: false, image }),
+      success: `LocateAnything aus — Gemini-Klick auf ${parsed.label || intent.target} (Bild zu Google). Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.`,
+      fail: String(click.message || 'Nicht geklickt.'),
+    })
   }
 
+  const gated = await requireCap('click')
+  if (!('caps' in gated)) return gated
   const res = await callPc('/v1/input', {
     kind: 'click',
     nx: intent.nx,
@@ -628,10 +737,11 @@ async function doClick(intent: Extract<PcIntent, { kind: 'click' }>): Promise<Pc
     button: intent.button || 'left',
     times: intent.times || 1,
   })
-  return {
-    handled: true,
-    reply: res.ok ? String(res.message || 'Klick ausgeführt.') : String(res.message || 'Nicht geklickt.'),
-    tool: pcTool('click', 'PC', res),
-    lastTool: 'pc',
-  }
+  const ok = res.ok === true
+  return packPc({
+    action: 'click',
+    obs: obsBase('click', gated.caps, { ok, sent: ok, proved: false }),
+    success: CLICK_SENT,
+    fail: String(res.message || 'Nicht geklickt.'),
+  })
 }

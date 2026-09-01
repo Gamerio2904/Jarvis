@@ -84,6 +84,15 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'V7 PC',
+    items: [
+      { label: 'FIFA', text: 'FIFA starten', expect: { tool: 'pc', skipIf: 'no_pc' } },
+      { label: 'PC testen', text: 'PC testen', expect: { tool: 'pc', skipIf: 'no_pc' } },
+      { label: 'Unbekannt starten', text: 'Öffne Chrome auf dem PC', expect: { tool: 'pc', confirm: true, skipIf: 'no_pc' } },
+      { label: 'Klick Mitte', text: 'klick Mitte', expect: { tool: 'pc', skipIf: 'no_pc' } },
+    ],
+  },
+  {
     title: 'Gedächtnis',
     items: [
       { label: 'Name + Kaffee merken', text: 'Ich heiße Max und trinke gerne Kaffee.' },

@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`9.1.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Stabilität V1–V6 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` / `7.0` / `9.1` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`9.2.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Stabilität V1–V7 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -56,7 +56,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
 | 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` PLAN** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache |
-| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`9.1` V1–V6 CODE** — Audit, Overlay, TTS, Action-FSM, Dateien, Memory, TV; V7+ PLAN |
+| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`9.2` V1–V7 CODE** — Audit, Overlay, TTS, Action-FSM, Dateien, Memory, TV, PC; V8+ PLAN |
 | — | [APK](./apk.md) | Sideload `6.90.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -173,6 +173,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 154 | `9.1.0` | **CODE** (TV Device-Registry, in `9.1.0`) |
 | 155 | `9.1.0` | **CODE** (Verify Launch, in `9.1.0`) |
 | 156 | `9.1.0` | **CODE** (Ehrliche Launch-Sätze) |
-| 157+ | `9.2`/`9.x` | **PLAN** (V7 PC → V9) |
+| 157 | `9.2.0` | **CODE** (PC Capability-Levels, in `9.2.0`) |
+| 158 | `9.2.0` | **CODE** (PC Confirm hart, in `9.2.0`) |
+| 159 | `9.2.0` | **CODE** (Verify PC-Aktionen) |
+| 160+ | `9.3`/`9.x` | **PLAN** (V8 WebRTC → V9) |
 
-**Aktuell:** Code **`9.1.0`**. Sideload zuletzt `6.90.0`. Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V6 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall [`49-next.md`](./49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`9.2.0`**. Sideload zuletzt `6.90.0`. Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V7 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall [`49-next.md`](./49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

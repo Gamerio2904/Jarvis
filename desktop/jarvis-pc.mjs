@@ -62,6 +62,11 @@ export function startJarvisPcServer(opts = {}) {
         screen: { width: 1920, height: 1080 },
         cursor: { x: 10, y: 10 },
         last: lastActions.at(-1) || 'Bereit.',
+        level: stub ? 'files' : 'screen',
+        capabilities: stub
+          ? ['status', 'screen', 'launch', 'click', 'move', 'type', 'key', 'files']
+          : ['status', 'screen'],
+        vision: 'off',
       }
     }
     if (path === '/v1/screenshot') {
@@ -81,7 +86,8 @@ export function startJarvisPcServer(opts = {}) {
       if (!stub) return { ok: false, message: 'Echte Maus nur in JarvisPC.bat auf Windows.' }
       return {
         ok: true,
-        message: body.kind === 'click' ? 'Klick ausgeführt.' : 'Maus bewegt.',
+        message: body.kind === 'click' ? 'Klick gesendet.' : 'Maus bewegt.',
+        sent: true,
         stub: true,
       }
     }
@@ -91,7 +97,7 @@ export function startJarvisPcServer(opts = {}) {
       if (!q) return { ok: false, message: 'Kein Programm.' }
       if (!stub) return { ok: false, message: 'Starten nur in JarvisPC.bat auf Windows.' }
       if (/^missing-app$/i.test(q)) return { ok: false, message: `„${q}“ nicht gefunden.` }
-      return { ok: true, name: q, message: `${q} gestartet (Stub).`, stub: true }
+      return { ok: true, name: q, started: true, message: `${q} Startbefehl angekommen (Stub).`, stub: true }
     }
     if (path === '/v1/files') {
       lastActions.push(`files:${String(body.op || '')}:${String(body.path || '')}`)

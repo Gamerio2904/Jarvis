@@ -1,25 +1,25 @@
-# 42 — Alles geplant (Stand Code `9.1.0`)
+# 42 — Alles geplant (Stand Code `9.2.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`9.1.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`9.2.0`**. Sideload **`6.90.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
 1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V6 `6.91`–`6.99` / `9.0` / `7.0` / `9.1` **CODE** — vor Alltag-Execute
+2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V7 `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` **CODE** — vor Alltag-Execute
 3. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`, Session `6.91`)
-4. V7 PC Beta [`51-phase0-audit.md`](./51-phase0-audit.md) `9.2` nach V6
+4. V8 Live-Stream [`51-phase0-audit.md`](./51-phase0-audit.md) `9.3` nach V7
 5. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
 6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
-Bereits **CODE** in `9.1.0`: V6 TV Registry + Verify Launch. V5 Hierarchical Memory. V4 Datei/PDF/OCR. V3 Action-FSM. V2 TTS/App/Wake. V1 Overlay/Weltlage.
+Bereits **CODE** in `9.2.0`: V7 PC Capability-Levels + Confirm. V6 TV Registry + Verify Launch. V5 Hierarchical Memory. V4 Datei/PDF/OCR. V3 Action-FSM. V2 TTS/App/Wake. V1 Overlay/Weltlage.
 
 ---
 
-## CODE auf diesem Stand (`9.1.0`)
+## CODE auf diesem Stand (`9.2.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -42,6 +42,7 @@ Bereits **CODE** in `9.1.0`: V6 TV Registry + Verify Launch. V5 Hierarchical Mem
 | Dokumente V4 | `9.0` | Datei-Knopf PDF/Text/Foto, Parser, OCR, Verify Upload |
 | Memory V5 | `7.0` | Hierarchical Memory: Quelle, Confidence, Contradiction, Prune |
 | TV V6 | `9.1` | Device-Registry, Verify Launch, kein SmartThings |
+| PC V7 | `9.2` | Capability-Levels, Confirm, Verify Launch/Klick; kein WebRTC |
 | Davor | `3.19`–`3.0` / `1.x` | Kalender-Fenster, Register, Auge=Gemini, PC-Screenshot |
 
 ## Offen

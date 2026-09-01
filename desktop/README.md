@@ -27,7 +27,7 @@ Fertig wenn das Handy sagt „PC-App erreicht“ **und** im PC-Fenster kurz „H
 - `FIFA starten` (nur wenn im Startmenü)
 - `Welche Route nimmt google.de` (`tracert` am PC)
 
-Löschen von Ordnern erst nach **Ja**.
+Löschen von Ordnern erst nach **Ja**. Unbekannte Programme (nicht FIFA) erst nach **Ja**. Klick heißt „gesendet“, nicht „ausgeführt“ — den Schirm beweist JPEG nicht. Live-Stream ist nicht diese Version.
 
 ## Wenn es „PC nicht erreicht / BAT starten“ sagt, obwohl das Fenster offen ist
 

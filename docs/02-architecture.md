@@ -1,10 +1,10 @@
 # 02 — Architektur
 
-> **Jetzt:** Code **`9.1.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback (`pickBrain` in `brain-pick.ts`). Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — Export [`38-next.md`](./38-next.md) **CODE**; **Deinstall ohne Import löscht alles**. Stabilität V1–V6 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` / `7.0` / `9.1` **CODE**. Lage neben Chat: [`39-next.md`](./39-next.md). Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md)/[`48-next.md`](./48-next.md) **CODE**, Debug [`44-next.md`](./44-next.md) **CODE** + Session `6.91`. LocateAnything-Gewichte: [`41-next.md`](./41-next.md). Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
+> **Jetzt:** Code **`9.2.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback (`pickBrain` in `brain-pick.ts`). Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — Export [`38-next.md`](./38-next.md) **CODE**; **Deinstall ohne Import löscht alles**. Stabilität V1–V7 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` **CODE**. Lage neben Chat: [`39-next.md`](./39-next.md). Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md)/[`48-next.md`](./48-next.md) **CODE**, Debug [`44-next.md`](./44-next.md) **CODE** + Session `6.91`. LocateAnything-Gewichte: [`41-next.md`](./41-next.md). Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
 
 ## Leitentscheidung
 
-**Gerät = Handy.** Jarvis denkt auf dem Telefon. Der PC ist Werkzeug (`JarvisPC.bat`), kein zweites Hirn.
+**Gerät = Handy.** Jarvis denkt auf dem Telefon. Der PC ist Werkzeug (`JarvisPC.bat`), kein zweites Hirn. Capability-Levels (`9.2`): der Agent wirbt, was er kann. Unbekanntes Starten erst nach Ja. JPEG ist kein Klick-Beweis. WebRTC ist V8.
 
 **Denk-Kaskade (`6.50`+, Overlay `6.53` in `6.60`):**
 

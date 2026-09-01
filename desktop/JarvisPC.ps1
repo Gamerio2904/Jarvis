@@ -191,7 +191,7 @@ function Invoke-Launch([string]$query) {
     if ($hit.kind -eq 'appid') { Start-Process "shell:AppsFolder\$($hit.target)" | Out-Null }
     else { Start-Process $hit.target | Out-Null }
     $script:LastAction = "Start: $($hit.name)"
-    @{ ok = $true; name = $hit.name; message = "$($hit.name) gestartet. Ob das Fenster vorn ist, sehe ich nur auf dem Bildschirm." }
+    @{ ok = $true; name = $hit.name; started = $true; message = "$($hit.name) Startbefehl angekommen. Ob das Fenster vorn ist, sehe ich nur auf dem Bildschirm." }
   } catch {
     @{ ok = $false; message = "Start fehlgeschlagen: $($_.Exception.Message)" }
   }
@@ -253,6 +253,9 @@ function Handle-Command([string]$path, $body) {
         screen = @{ width = $b.Width; height = $b.Height }
         cursor = @{ x = $p.X; y = $p.Y }
         last = $script:LastAction
+        level = 'files'
+        capabilities = @('status','screen','launch','click','move','type','key','files')
+        vision = 'off'
       }
     }
     '/v1/screenshot' {
@@ -291,7 +294,7 @@ function Handle-Command([string]$path, $body) {
         $times = if ($body.times) { [int]$body.times } else { 1 }
         Send-Click $btn $times
         $script:LastAction = "Klick $btn"
-        @{ ok = $true; message = 'Klick ausgeführt.' }
+        @{ ok = $true; sent = $true; message = 'Klick gesendet.' }
       } elseif ($kind -eq 'type') {
         $text = [string]$body.text
         if (-not $text) { return @{ ok = $false; message = 'Kein Text.' } }
