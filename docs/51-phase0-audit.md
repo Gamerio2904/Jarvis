@@ -1,6 +1,6 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`7.0.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag `8.0` bleibt geplant, **läuft nicht vor Stabilität**.
+> **Jetzt:** Code **`9.1.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`). Vorige Sideload-Linie **`6.90.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag `8.0` bleibt geplant, **läuft nicht vor Stabilität**.
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
@@ -67,7 +67,7 @@ Es gab **keine Request-IDs**, **keine Idempotenz**, **kein globales Turn-Gate**,
 7. **Weltlage-Watch und Wecker teilen Notify-Infrastruktur.** Watch darf nie Alarm-GUI sein.
 8. **Memory:** Schichten Sensory/Working/Episodic/Semantic. Quelle, Confidence, Contradiction, Prune. **CODE in `7.0.0`**. Kein Lance, kein Embedding-Router.
 9. **Dateien:** PDF/Text lokal, Foto/OCR mit Gemini, Verify Upload Domain `doc`. Word/Excel/HEIC ehrlich aus. **CODE in `9.0.0`**.
-10. **TV:** Tizen-Keys + App-Launch, keine Screen-Verification. SmartThings bewusst Won’t bisher.
+10. **TV:** Device-Registry + Verify Launch (Native-OK, App-ID, Fähigkeit). Schirm weiter unsichtbar. SmartThings Won’t. **CODE in `9.1.0`**.
 11. **PC:** JPEG-Screenshot, kein WebRTC. Klick ohne Beweis.
 12. **App.tsx monolithisch.** Overlay-Stack, Busy, Voice, Drive, Debug in einer Komponente.
 
@@ -371,7 +371,7 @@ Bestehende Pläne `7.0` Recall und `8.0` Alltag **nicht löschen**. Industry-Tra
 | **V3 Verified Actions** | `6.97`–`6.99` | 148–150 | Action-FSM, Navi-Replace verifiziert, Research-Pending | V1 |
 | **V4 Dokumente** | **`9.0`** | 151–153 | Attachments, Parser, OCR, Verify Upload | V3 (Verify Upload) |
 | **V5 Memory** | **`7.0`** | 137–140 | Hierarchical Memory: Quelle, Confidence, Bereinigung | V3 Context |
-| **V6 TV** | `9.1` | nach V3 | Device-Registry, Verify Launch | V3 |
+| **V6 TV** | **`9.1`** | 154–156 | Device-Registry, Verify Launch | V3 |
 | **V7 PC Beta** | `9.2` | nach V6 | Capability-Levels, Confirm | V3 |
 | **V8 Live-Stream** | `9.3` | nach V7 | WebRTC | V7 Pairing |
 | **V9 Hardening** | `9.9` | zuletzt | Regression, Security, UX | alle |
@@ -480,9 +480,21 @@ Overwrite max 8. „Gemerkt“ nur nach Read-Back. Widerspruch prüft Löschung.
 
 Aufräumen lokal. Sleep-Harvest nur ohne Gemini, Confidence 0.4.
 
+### Sprint 154 — TV Device-Registry (`9.1`) **CODE in `9.1.0`**
+
+`tv-registry.ts`. Tizen/Fire, Apps, Pick nach Name. Seed aus Settings.
+
+### Sprint 155 — Verify Launch (`9.1`) **CODE in `9.1.0`**
+
+SUCCESS nur mit Gerät, Kopplung, App-Fähigkeit, Native-OK, `appId`.
+
+### Sprint 156 — Ehrliche Launch-Sätze (`9.1`) **CODE**
+
+„Start angekommen“, nicht „ist offen“. `scrubReply` fängt TV-Lügen.
+
 ### Danach
 
-Device-Registry, PC-Beta, WebRTC — wie PO V6–V8. Kein Major ohne Verification-Schicht.
+PC-Beta, WebRTC — wie PO V7–V8. Kein Major ohne Verification-Schicht.
 
 ---
 
@@ -499,7 +511,7 @@ Zusätzlich zu `03-agile-process.md`:
 
 ### Beta Ready (PO) — nicht dieses Increment
 
-Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `7.0` schließt **V5** (137–140). Es ist **nicht** Beta Ready.
+Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `9.1` schließt **V6** (154–156). Es ist **nicht** Beta Ready.
 
 ---
 
@@ -518,7 +530,7 @@ Erst wenn V1–V9 DoD aus dem Auftrag erfüllt sind. `7.0` schließt **V5** (137
 | Globe-Stumpf | composePlaceBrief / looksTruncated | polish Fallback | Screenshot London |
 | Recall-Dump | formatRecallReply / isDumpLine | IndexedDB mit alten Titeln | Zahnarzt / Steuer / über mich |
 | Voice-Fallback | tts budgets | Provider down | VERSION 2 |
-| TV Netflix | — | launch + verify | VERSION 6 |
+| TV Netflix | tvLaunchVerified + packVerified | launch + verify | **CODE `9.1`** |
 | PC offline | pc.ts ehrlich | Agent down | VERSION 7 |
 
 Failure Simulation: Tool Timeout, Success-ohne-Wirkung, Netz weg, große Uploads — ab V3/V4.

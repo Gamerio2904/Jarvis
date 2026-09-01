@@ -76,6 +76,14 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'V6 TV Launch',
+    items: [
+      { label: 'Netflix', text: 'Öffne Netflix', expect: { tool: 'tv' } },
+      { label: 'YouTube TV', text: 'Starte YouTube am Fernseher', expect: { tool: 'tv' } },
+      { label: 'Fernseher an', text: 'Fernseher an', expect: { tool: 'tv' } },
+    ],
+  },
+  {
     title: 'Gedächtnis',
     items: [
       { label: 'Name + Kaffee merken', text: 'Ich heiße Max und trinke gerne Kaffee.' },

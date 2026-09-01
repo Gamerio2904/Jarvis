@@ -138,6 +138,7 @@ import {
   pruneMemoryItems,
   semanticPins,
 } from '../src/engine/memory-layer.ts'
+import { deviceCanLaunch, pickTvDevice, seedTvDevices, tvLaunchVerified } from '../src/engine/tv-registry.ts'
 import { destMatches, naviRouteVerified, NAVI_INIT, reduceNavi } from '../src/engine/navi-fsm.ts'
 import {
   acceptResearchPending,
@@ -1059,9 +1060,10 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /7\.0\.0/)
+assert.match(HELP_TEXT, /9\.1\.0/)
 assert.match(HELP_TEXT, /Datei-Knopf/)
 assert.match(HELP_TEXT, /Quelle nennen/)
+assert.match(HELP_TEXT, /SmartThings/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1901,6 +1903,7 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /V2 Voice/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V3 Verified/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V4 Dokumente/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V5 Gedächtnis/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V6 TV/i.test(g.title)))
 
 {
   let s = ACTION_INIT
@@ -2201,5 +2204,77 @@ assert.equal(memoryRecallVerified({ hits: 0, cited: false }).ok, true)
 assert.equal(pickRoute('kein Kaffee mehr'), 'memory')
 assert.equal(pickRoute('Was weißt du über den Zahnarzt'), 'recall')
 assert.equal(pickRoute('Was weißt du über mich'), 'memory')
+
+{
+  const seeded = seedTvDevices({
+    tv_enabled: true,
+    tv_name: 'Wohnzimmer',
+    tv_host: '192.168.1.40',
+    tv_paired: true,
+    tv_token: 'tok',
+    tv_fire_host: '192.168.1.50',
+  })
+  assert.equal(seeded.some((d) => d.kind === 'tizen' && d.apps.includes('netflix')), true)
+  assert.equal(pickTvDevice(seeded, 'Öffne Netflix am Wohnzimmer')?.kind, 'tizen')
+  assert.equal(pickTvDevice(seeded, 'Fire TV Pause', 'fire')?.kind, 'fire')
+  const tizen = seeded.find((d) => d.kind === 'tizen')
+  assert.equal(tizen ? deviceCanLaunch(tizen, 'netflix') : false, true)
+  const fire = seeded.find((d) => d.kind === 'fire')
+  assert.equal(fire ? deviceCanLaunch(fire, 'netflix') : true, false)
+}
+assert.equal(tvLaunchVerified({ launched: true, app: 'netflix', appId: '11101200001' }).ok, false)
+assert.equal(
+  tvLaunchVerified({
+    launched: true,
+    deviceId: 'tizen-default',
+    paired: true,
+    kind: 'tizen',
+    app: 'netflix',
+    appId: '11101200001',
+    apps: ['netflix', 'youtube'],
+  }).ok,
+  true,
+)
+assert.equal(
+  tvLaunchVerified({
+    launched: true,
+    deviceId: 'tizen-default',
+    paired: true,
+    kind: 'tizen',
+    app: 'netflix',
+    appId: '11101200001',
+    apps: ['youtube'],
+  }).ok,
+  false,
+)
+assert.equal(
+  tvLaunchVerified({
+    launched: true,
+    deviceId: 'fire-default',
+    paired: true,
+    kind: 'fire',
+    app: 'netflix',
+    appId: 'x',
+    apps: [],
+  }).ok,
+  false,
+)
+{
+  const lie = packVerified({
+    domain: 'tv',
+    intent: 'launch:netflix',
+    plan: 'open',
+    label: 'Netflix',
+    observation: { launched: false, deviceId: 'tizen-default', paired: true, kind: 'tizen', app: 'netflix', appId: '', apps: ['netflix'] },
+    verify: (obs) => tvLaunchVerified(obs),
+    successReply: 'Netflix ist offen.',
+    failReply: 'Start nicht angekommen.',
+  })
+  assert.equal(lie.state.phase, 'failed')
+  assert.doesNotMatch(lie.reply, /ist offen/)
+}
+assert.match(scrubReply('Netflix ist offen.'), /Schirm|angekommen|nicht/)
+assert.doesNotMatch(scrubReply('Netflix ist offen.'), /Netflix ist offen/)
+assert.equal(pickRoute('Öffne Netflix'), 'tv')
 
 console.log('ok 0.14 parsers')

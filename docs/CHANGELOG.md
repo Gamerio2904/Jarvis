@@ -5,7 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`7.0.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`9.1.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `9.1.0` — V6 TV Device-Registry + Verify Launch — *CODE*
+
+Sprints 154–156. Registry, Launch nur nach Observation. Sideload bleibt `6.90.0`. SmartThings Won’t.
+
+- **Registry:** Tizen + Fire, Apps, Pick nach Name. Seed aus den Settings-Feldern.
+- **Launch:** SUCCESS nur mit Gerät, Kopplung, App-Fähigkeit, Native-OK, `appId`.
+- **Satz:** „Start angekommen“, nicht „Netflix ist offen“. `scrubReply` fängt die Lüge.
+- Docs [`sprints/sprint-154.md`](./sprints/sprint-154.md)–[`sprint-156.md`](./sprints/sprint-156.md)
 
 ### `7.0.0` — V5 Hierarchical Memory — *CODE*
 
