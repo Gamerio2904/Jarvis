@@ -53,7 +53,7 @@ export async function handleHud(
   if (!intent) return { handled: false }
   if (intent.kind === 'lage') {
     saveSettings({ hud_force: intent.on, hud_hidden: !intent.on })
-    return pack(intent.on ? 'Lage an. Kacheln neben dem Chat.' : 'Lage aus. Chat wieder voll.')
+    return pack(intent.on ? 'Lage an.' : 'Lage aus. Chat wieder voll.')
   }
   if (intent.kind === 'accent') {
     saveSettings({ hud_accent: intent.amber ? 'amber' : 'green' })
@@ -72,7 +72,7 @@ export async function handleHud(
     saveSettings(patchForHudView(intent.view))
     if (intent.view === 'tiles') clearTour()
     if (intent.view === 'body') return pack('Körper an. Schema in der Lage, Chat bleibt. Antippen startet kein Tool.')
-    if (intent.view === 'globe') return pack('Kugel an. Erde in der Lage, Chat bleibt. Kein Live-Satellitenvideo.')
+    if (intent.view === 'globe') return pack('Kugel an. Erde in der Lage. Kein Live-Satellitenvideo.')
     return pack('Kugel aus. Lage zu, Chat wieder voll.')
   }
   if (intent.kind === 'organ') {

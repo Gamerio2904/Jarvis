@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import type { Message } from './api'
-import { debugSnapshot, requestDebugStop, subscribeDebug } from './engine/debug-session'
-import { formatLatency, lastLatency, subscribeLatency } from './engine/latency'
+import type { Message } from '../api'
+import { debugSnapshot, requestDebugStop, subscribeDebug } from '../engine/debug-session'
+import { formatLatency, lastLatency, subscribeLatency } from '../engine/latency'
 
 export function DebugChatDock({
   overlayOpen,

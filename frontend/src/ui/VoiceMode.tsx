@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { wantNeuralMouth } from './engine/tts'
-import { setChatSpeaking } from './engine/speak-lock'
-import { dispatchVoiceAmp, prefersReducedMotion } from './engine/motion'
+import { wantNeuralMouth } from '../engine/tts'
+import { setChatSpeaking } from '../engine/speak-lock'
+import { dispatchVoiceAmp, prefersReducedMotion } from '../engine/motion'
 import {
   beginVoiceSession,
   createSentenceTap,
@@ -14,7 +14,7 @@ import {
   stopListen,
   stopSpeak,
   watchBargeIn,
-} from './native/voice'
+} from '../native/voice'
 
 type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
 

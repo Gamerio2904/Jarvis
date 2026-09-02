@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { organLabel, type BodyOrgan } from './engine/hud-parse'
-import type { BodySnap } from './engine/body-snap'
-import { isDocumentHidden, MOTION_FRAME_MS, onVisibility, onVoiceAmp } from './engine/motion'
+import { organLabel, type BodyOrgan } from '../../engine/hud-parse'
+import type { BodySnap } from '../../engine/body-snap'
+import { isDocumentHidden, MOTION_FRAME_MS, onVisibility, onVoiceAmp } from '../../engine/motion'
 
 const NODES: Array<{ id: BodyOrgan; x: number; y: number; z: number }> = [
   { id: 'brain', x: 0, y: 1.1, z: 0.2 },

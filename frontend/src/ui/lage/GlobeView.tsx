@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
-import type { GeoFix } from './engine/globe-geo'
-import { lookLatLon, viewXYZ, yawPitchFor } from './engine/globe-geo'
-import { WORLD_RINGS } from './engine/world-rings'
-import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from './engine/motion'
+import type { GeoFix } from '../../engine/globe-geo'
+import { lookLatLon, viewXYZ, yawPitchFor } from '../../engine/globe-geo'
+import { WORLD_RINGS } from '../../engine/world-rings'
+import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion'
 
 const HOME = { lat: 50.1, lon: 10.4 }
 const ZOOM_MIN = 1

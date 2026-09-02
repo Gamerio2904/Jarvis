@@ -131,6 +131,7 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
 import { parseHudIntent, patchForHudView } from '../src/engine/hud-parse.ts'
+import { hideToolChip } from '../src/ui/tool-chip.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
 import { gazetteerHit, pinForTag, composePlaceBrief, lookLatLon, viewXYZ, yawPitchFor } from '../src/engine/globe-geo.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
@@ -1681,6 +1682,22 @@ assert.equal(parseHudIntent('mach die Kugel aus')?.view, 'tiles')
 assert.deepEqual(patchForHudView('globe'), { hud_view: 'globe', hud_force: true, hud_hidden: false })
 assert.deepEqual(patchForHudView('tiles'), { hud_view: 'tiles', hud_force: false, hud_hidden: true })
 assert.deepEqual(patchForHudView('body'), { hud_view: 'body', hud_force: true, hud_hidden: false })
+assert.equal(hideToolChip(undefined, { tool: 'hud', action: 'layout', label: 'Lage' }), true)
+assert.equal(hideToolChip(undefined, { tool: 'timer', action: 'set', label: 'Timer' }), false)
+assert.equal(
+  hideToolChip(
+    { role: 'assistant', meta: { tool: { tool: 'timer', action: 'set', label: 'Timer' } } },
+    { tool: 'timer', action: 'set', label: 'Timer' },
+  ),
+  true,
+)
+assert.equal(
+  hideToolChip(
+    { role: 'assistant', meta: { tool: { tool: 'hud', action: 'layout', label: 'Lage' } } },
+    { tool: 'smalltalk', action: 'greeting', label: 'Jarvis' },
+  ),
+  false,
+)
 {
   const ing = { lat: 49.08, lon: 9.18 }
   const aim = yawPitchFor(ing.lat, ing.lon)
