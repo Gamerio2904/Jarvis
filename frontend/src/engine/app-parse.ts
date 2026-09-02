@@ -8,6 +8,7 @@ export type AppIntent =
 
 const TOPIC_WORD: Array<{ re: RegExp; topic: SettingsTopic }> = [
   { re: /\b(debug|tests?)\b/i, topic: 'debug' },
+  { re: /\bprobe\b/i, topic: 'probe' },
   { re: /\bged[aä]chtnis\b/i, topic: 'gedaechtnis' },
   { re: /\b(gemini|groq|cloud|key)\b/i, topic: 'cloud' },
   { re: /\b(fernseh|\btv\b)\b/i, topic: 'tv' },
@@ -65,6 +66,13 @@ export function parseAppIntent(text: string): AppIntent | null {
     /^\s*debug(?:[- ]panel)?\s*[.!?]*$/i.test(t)
   ) {
     return { kind: 'settings', topic: 'debug' }
+  }
+
+  if (
+    /^\s*(?:[oö]ffne|zeig(?:e)?)\s+(?:die\s+)?probe(?:\s+v[1-9])?\s*[.!?]*$/i.test(t) ||
+    /^\s*probe(?:\s+v[1-9])?\s*[.!?]*$/i.test(t)
+  ) {
+    return { kind: 'settings', topic: 'probe' }
   }
 
   if (

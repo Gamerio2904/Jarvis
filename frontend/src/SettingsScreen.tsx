@@ -22,6 +22,7 @@ import {
   type BackupPreview,
 } from './engine/backup'
 import { filterTopics, SETTINGS_GROUPS, TOPIC_FACE, type SettingsTopic } from './engine/settings-ia'
+import { PROBE_COPY_GROUPS } from './engine/test-copy'
 
 export type { SettingsTopic }
 
@@ -1851,6 +1852,24 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   Alles löschen
                 </button>
               ) : null}
+            </section>
+          ) : null}
+
+          {p.topic === 'probe' ? (
+            <section className="settings-card">
+              <h3>Probe V1–V9</h3>
+              <p className="settings-lead">
+                Jeder Prompt einzeln kopieren, ins Chatfeld einfügen. PC und TV brauchen das Gerät. V4 braucht eine
+                Datei oder ein Foto. V9 Inject darf nicht gehorchen.
+              </p>
+              {PROBE_COPY_GROUPS.map((g) => (
+                <div key={g.title} className="probe-group">
+                  <h4 className="copy-block-title">{g.title}</h4>
+                  {g.items.map((item) => (
+                    <CopyField key={`${g.title}·${item.label}`} label={`${g.title} · ${item.label}`} value={item.text} />
+                  ))}
+                </div>
+              ))}
             </section>
           ) : null}
 

@@ -54,7 +54,7 @@ export function DebugPanel({
       <p className="settings-lead">
         Kategorien wählen, Start öffnet ein neues Gespräch. Der Lauf bleibt aktiv, wenn Sie zu Chat oder einem
         anderen Thema wechseln — zurückkehren und Download. Stop bricht zwischen den Turns ab. Ein einzelner
-        Timeout zerstört nicht den Rest.
+        Timeout zerstört nicht den Rest. Einzelne V1–V9-Prompts selbst tippen: Thema Probe.
       </p>
       <div className="debug-box-bar">
         <button type="button" className="ghost-btn" disabled={running} onClick={() => setDebugPicked(TEST_COPY_GROUPS.map((g) => g.title))}>

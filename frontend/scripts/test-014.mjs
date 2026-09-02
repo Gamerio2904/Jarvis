@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
-import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
+import { allTestCopyTexts, formatAllTestCopy, PROBE_COPY_GROUPS, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
@@ -2005,6 +2005,8 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /Stabilität Screenshots/i.test(g.title))
 
 assert.equal(parseAppIntent('Öffne Einstellungen')?.kind, 'settings')
 assert.equal(parseAppIntent('Öffne Debug')?.topic, 'debug')
+assert.equal(parseAppIntent('Öffne Probe')?.topic, 'probe')
+assert.equal(parseAppIntent('Zeig Probe V1')?.topic, 'probe')
 assert.equal(parseAppIntent('Zeig das Gedächtnis')?.topic, 'gedaechtnis')
 assert.equal(parseAppIntent('Sprachmodus')?.kind, 'voice')
 assert.equal(parseAppIntent('Theme orange')?.accent, 'amber')
@@ -2043,6 +2045,11 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /V7 PC/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V8 Live/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V9 Hardening/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /V1 |Stabilität/i.test(g.title)) || TEST_COPY_GROUPS.some((g) => /Stabilität/i.test(g.title)))
+assert.equal(PROBE_COPY_GROUPS.length, 9)
+assert.equal(PROBE_COPY_GROUPS[0].title, 'V1 Stabilität')
+assert.equal(PROBE_COPY_GROUPS[8].title, 'V9 Hardening')
+assert.ok(PROBE_COPY_GROUPS.every((g) => g.items.length > 0))
+assert.match(HELP_TEXT, /Probe V1–V9/)
 
 {
   let s = ACTION_INIT

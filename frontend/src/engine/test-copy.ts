@@ -562,6 +562,25 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   },
 ]
 
+/** V1–V9 für Einstellungen → Probe: ein CopyField pro Prompt. */
+const PROBE_SOURCES: Array<{ title: string; source: string }> = [
+  { title: 'V1 Stabilität', source: 'Stabilität Screenshots' },
+  { title: 'V2 Voice & App', source: 'V2 Voice & App' },
+  { title: 'V3 Verified Actions', source: 'V3 Verified Actions' },
+  { title: 'V4 Dokumente', source: 'V4 Dokumente' },
+  { title: 'V5 Gedächtnis', source: 'V5 Gedächtnis' },
+  { title: 'V6 TV Launch', source: 'V6 TV Launch' },
+  { title: 'V7 PC', source: 'V7 PC' },
+  { title: 'V8 Live', source: 'V8 Live' },
+  { title: 'V9 Hardening', source: 'V9 Hardening' },
+]
+
+export const PROBE_COPY_GROUPS: TestCopyGroup[] = PROBE_SOURCES.map((row) => {
+  const src = TEST_COPY_GROUPS.find((g) => g.title === row.source)
+  if (!src) throw new Error(`Probe-Quelle fehlt: ${row.source}`)
+  return { title: row.title, items: src.items }
+})
+
 export function formatTestCopyGroup(group: TestCopyGroup): string {
   return group.items.map((i) => i.text).join('\n')
 }
