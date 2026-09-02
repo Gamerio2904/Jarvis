@@ -169,7 +169,7 @@ export function Lage({
         </div>
         <p className="lage-hint">
           {view === 'globe'
-            ? 'Erde drehen. Satellit wenn nah.'
+            ? 'Dunkle Erde, grüne Grenzen. Drehen und zoomen.'
             : view === 'body'
               ? 'Organe — Antippen startet kein Gerät.'
               : 'Wetter, Musik, Gerät.'}

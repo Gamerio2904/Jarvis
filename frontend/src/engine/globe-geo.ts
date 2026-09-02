@@ -176,11 +176,41 @@ export function resolveLookTarget(lookRaw: string, focusRaw: string): { lat: num
 
 export function lookLatLon(yaw: number, pitch: number): { lat: number; lon: number } {
   const lat = Math.max(-85, Math.min(85, (pitch * 180) / Math.PI))
-  let lon = ((yaw * 180) / Math.PI + 540) % 360
-  if (lon > 180) lon -= 360
+  const raw = (yaw * 180) / Math.PI
+  const lon = ((((raw + 180) % 360) + 360) % 360) - 180
   return { lat, lon }
 }
 
 export function yawPitchFor(lat: number, lon: number): { yaw: number; pitch: number } {
   return { yaw: (lon * Math.PI) / 180, pitch: (lat * Math.PI) / 180 }
+}
+
+/** +Y Nord, +Z Greenwich, +X 90° Ost. */
+export function xyz(lat: number, lon: number, r = 1): { x: number; y: number; z: number } {
+  const la = (lat * Math.PI) / 180
+  const lo = (lon * Math.PI) / 180
+  return {
+    x: r * Math.cos(la) * Math.sin(lo),
+    y: r * Math.sin(la),
+    z: r * Math.cos(la) * Math.cos(lo),
+  }
+}
+
+/** Kameraraum: x rechts, y oben, z zur Kamera. Blickmitte bei x≈0, y≈0, z≈1. */
+export function viewXYZ(
+  lat: number,
+  lon: number,
+  yaw: number,
+  pitch: number,
+): { x: number; y: number; z: number } {
+  const p = xyz(lat, lon)
+  const cy = Math.cos(yaw)
+  const sy = Math.sin(yaw)
+  const cp = Math.cos(pitch)
+  const sp = Math.sin(pitch)
+  const x1 = p.x * cy - p.z * sy
+  const z1 = p.x * sy + p.z * cy
+  const y1 = p.y * cp - z1 * sp
+  const z2 = p.y * sp + z1 * cp
+  return { x: x1, y: y1, z: z2 }
 }

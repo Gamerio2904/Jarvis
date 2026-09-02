@@ -3738,7 +3738,7 @@ button.linkish {
   aspect-ratio: 1;
   max-height: 52vh;
   border-radius: 16px;
-  background: #0c1210;
+  background: #050a10;
   border: 1px solid var(--border);
   touch-action: none;
 }
