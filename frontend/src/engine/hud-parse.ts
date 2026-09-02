@@ -25,6 +25,16 @@ export const HUD_DEFAULT_ON: HudId[] = ['weather', 'device', 'brief', 'chat']
 
 export type HudView = 'tiles' | 'body' | 'globe'
 
+/** Kugel/Körper an: Lage auf. „aus“ gibt die Fläche frei — sonst bleibt die Kugel. */
+export function patchForHudView(view: HudView): {
+  hud_view: HudView
+  hud_force: boolean
+  hud_hidden: boolean
+} {
+  if (view === 'tiles') return { hud_view: 'tiles', hud_force: false, hud_hidden: true }
+  return { hud_view: view, hud_force: true, hud_hidden: false }
+}
+
 export const BODY_ORGANS = [
   'brain',
   'eye',

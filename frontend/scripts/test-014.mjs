@@ -100,7 +100,7 @@ import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
-import { parseHudIntent } from '../src/engine/hud-parse.ts'
+import { parseHudIntent, patchForHudView } from '../src/engine/hud-parse.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
 import { gazetteerHit, pinForTag, composePlaceBrief, lookLatLon, viewXYZ, yawPitchFor } from '../src/engine/globe-geo.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
@@ -136,7 +136,7 @@ import { parseGreeting, greetingReply, dayPartAt } from '../src/engine/greeting.
 import { reduceOverlay, overlayTop, overlayHidesDrive, OVERLAY_INIT } from '../src/engine/overlay-fsm.ts'
 import { OUTLOOK_WATCH_ALARM } from '../src/engine/outlook-watch.ts'
 import { parseAppIntent } from '../src/engine/app-parse.ts'
-import { resolveTopic, SETTINGS_TABS } from '../src/engine/settings-ia.ts'
+import { resolveTopic, SETTINGS_TABS, settingsTabForQuery, visibleSettingsTabs } from '../src/engine/settings-ia.ts'
 import { acceptWake, WAKE_DEBOUNCE_MS } from '../src/engine/wake-gate.ts'
 import { ACTION_INIT, packVerified, reduceAction, toolStatusOf } from '../src/engine/action-fsm.ts'
 import {
@@ -1610,6 +1610,9 @@ assert.equal(parseHudIntent('mach den Körper an')?.view, 'body')
 assert.equal(parseHudIntent('Körper bitte an')?.view, 'body')
 assert.equal(parseHudIntent('zeig mal die Erde')?.view, 'globe')
 assert.equal(parseHudIntent('mach die Kugel aus')?.view, 'tiles')
+assert.deepEqual(patchForHudView('globe'), { hud_view: 'globe', hud_force: true, hud_hidden: false })
+assert.deepEqual(patchForHudView('tiles'), { hud_view: 'tiles', hud_force: false, hud_hidden: true })
+assert.deepEqual(patchForHudView('body'), { hud_view: 'body', hud_force: true, hud_hidden: false })
 {
   const ing = { lat: 49.08, lon: 9.18 }
   const aim = yawPitchFor(ing.lat, ing.lon)
@@ -2053,6 +2056,11 @@ assert.equal(resolveTopic('probe'), 'tests')
 assert.equal(resolveTopic('debug'), 'tests')
 assert.equal(resolveTopic('allgemein'), 'lage')
 assert.equal(resolveTopic('tv'), 'geraete')
+assert.deepEqual(visibleSettingsTabs(''), SETTINGS_TABS.map((t) => t.id))
+assert.ok(visibleSettingsTabs('xyzzy-kein-treffer').length === 8)
+assert.equal(settingsTabForQuery('kugel', 'keys'), 'lage')
+assert.equal(settingsTabForQuery('xyzzy', 'stimme'), 'stimme')
+assert.ok(visibleSettingsTabs('kugel').includes('lage'))
 assert.equal(parseAppIntent('Sprachmodus')?.kind, 'voice')
 assert.equal(parseAppIntent('Theme orange')?.accent, 'amber')
 assert.equal(parseAppIntent('Was weißt du über mich'), null)

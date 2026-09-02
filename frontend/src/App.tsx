@@ -1391,6 +1391,7 @@ function App() {
       )
     } finally {
       endTurn({ source: 'voice', conversationId })
+      void refreshSettings()
     }
     return answer
   }
@@ -1434,12 +1435,12 @@ function App() {
 
   const healthOk = Boolean(health?.ok)
   const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
-  const liveHud = loadSettings()
-  const lageOn = Boolean(liveHud.hud_force) || (lageWide && !liveHud.hud_hidden)
-  const lageAmber = liveHud.hud_accent === 'amber'
   const settingsLayer = useOverlay(settingsPanelOpen)
   const calendarLayer = useOverlay(calendarOpen)
   const voiceLayer = useOverlay(voiceOpen)
+  const liveHud = settings || loadSettings()
+  const lageOn = Boolean(liveHud.hud_force) || (lageWide && !liveHud.hud_hidden)
+  const lageAmber = liveHud.hud_accent === 'amber'
 
   return (
     <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}`} ref={appRef}>
@@ -1710,7 +1711,7 @@ function App() {
           </div>
         ) : null}
 
-        {lageOn && !voiceOpen && !calendarOpen && !driveOpen ? (
+        {lageOn && !voiceOpen && !calendarOpen && !driveOpen && !settingsLayer.shown ? (
           <Lage
             onSend={(text) => void sendMessage(text)}
             draft={draft}

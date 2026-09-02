@@ -497,7 +497,7 @@ textarea {
   font-family: var(--font-display);
   font-size: 1.7rem;
   font-weight: 600;
-  animation: titleSlide var(--motion-med) var(--ease-out) both;
+  animation: titleSlide var(--motion-med) var(--ease-out);
 }
 
 .settings-topic-slide {
@@ -508,7 +508,7 @@ textarea {
 }
 
 .settings-topic-slide .settings-card {
-  animation: cardIn 0.5s var(--ease-out) both;
+  animation: cardIn 0.5s var(--ease-out);
 }
 
 .settings-topic-slide .settings-card:nth-child(1) { animation-delay: 40ms; }
@@ -3341,6 +3341,8 @@ button.linkish {
   .settings-screen,
   .settings-rail,
   .settings-topic-slide,
+  .settings-topic-slide .settings-card,
+  .settings-pane-bar h2,
   .settings-screen.is-leaving,
   .voice-mode.is-leaving,
   .voice-mode.is-leaving .voice-sheet,
@@ -3349,6 +3351,9 @@ button.linkish {
   .lage,
   .lage-cell {
     animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
   }
 
   .stream-caret {

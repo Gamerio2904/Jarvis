@@ -24,11 +24,13 @@ import {
 import {
   filterTopics,
   resolveTopic,
-  SETTINGS_TABS,
+  settingsTabForQuery,
   TOPIC_FACE,
+  visibleSettingsTabs,
   type SettingsTab,
   type SettingsTopic,
 } from './engine/settings-ia'
+import { loadSettings } from './engine/store'
 import { PROBE_COPY_GROUPS } from './engine/test-copy'
 
 export type { SettingsTopic }
@@ -161,7 +163,7 @@ export type SettingsScreenProps = {
 }
 
 export function SettingsScreen(p: SettingsScreenProps) {
-  const s = p.settings
+  const s = (p.settings || loadSettings()) as Settings
   const busy = p.settingsBusy
   const tab = resolveTopic(p.topic)
   const face = TOPIC_FACE[tab]
@@ -237,7 +239,14 @@ export function SettingsScreen(p: SettingsScreenProps) {
     return () => window.removeEventListener('keydown', onKey)
   }, [p.onClose])
 
-  const tabList: SettingsTab[] = railQuery.trim() ? filterTopics(railQuery) : SETTINGS_TABS.map((t) => t.id)
+  useEffect(() => {
+    const current = resolveTopic(p.topic)
+    const next = settingsTabForQuery(railQuery, current)
+    if (next !== current) p.onTopic(next)
+  }, [railQuery, p.topic])
+
+  const tabList: SettingsTab[] = visibleSettingsTabs(railQuery)
+  const searchMiss = Boolean(railQuery.trim()) && filterTopics(railQuery).length === 0
 
   return (
     <div
@@ -285,6 +294,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
             )
           })}
         </nav>
+        {searchMiss ? (
+          <p className="settings-hint">Nichts zu „{railQuery.trim()}“. Reiter bleiben, Pane unverändert.</p>
+        ) : null}
       </header>
 
       <div className="settings-pane">
