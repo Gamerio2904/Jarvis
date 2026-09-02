@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Message } from './api'
 import { debugSnapshot, requestDebugStop, subscribeDebug } from './engine/debug-session'
+import { formatLatency, lastLatency, subscribeLatency } from './engine/latency'
 
 export function DebugChatDock({
   overlayOpen,
@@ -17,7 +18,9 @@ export function DebugChatDock({
   onOpen: () => void
 }) {
   const [snap, setSnap] = useState(debugSnapshot)
+  const [lag, setLag] = useState(lastLatency)
   useEffect(() => subscribeDebug((s) => setSnap(s)), [])
+  useEffect(() => subscribeLatency(() => setLag(lastLatency())), [])
   if (!snap.running && !(snap.live && snap.turns.length)) return null
   const sameChat = Boolean(activeConversationId && snap.conversationId && activeConversationId === snap.conversationId)
   const recent = sameChat ? messages.slice(-8) : []
@@ -44,6 +47,7 @@ export function DebugChatDock({
         </div>
       </header>
       {snap.progress ? <p className="debug-chat-dock-progress">{snap.progress}</p> : null}
+      {lag ? <p className="debug-chat-dock-progress">{formatLatency(lag)}</p> : null}
       <div className="debug-chat-dock-log">
         {recent.length ? (
           recent.map((m) => (

@@ -575,6 +575,18 @@ export async function addMessage(
   return row
 }
 
+export async function patchMessage(id: string, content: string): Promise<Message | null> {
+  const row = await get<Message>('messages', id)
+  if (!row) return null
+  const next: Message = { ...row, content }
+  await put('messages', next)
+  return next
+}
+
+export async function deleteMessage(id: string): Promise<void> {
+  await del('messages', id)
+}
+
 export async function listMessages(conversationId: string): Promise<Message[]> {
   const rows = await getAll<Message>('messages')
   return rows

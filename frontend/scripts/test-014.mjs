@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts, formatAllTestCopy, PROBE_COPY_GROUPS, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
@@ -38,12 +39,31 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
-import { spokenForGemini, ttsBudgetMs, ttsGeminiPrimary, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
+import { spokenForGemini, ttsBudgetMs, ttsGeminiPrimary, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE, firstAudioUsesSystemRace, wantNeuralMouth } from '../src/engine/tts.ts'
+import {
+  EDGE_VOICE_FRIDAY,
+  EDGE_VOICE_JARVIS,
+  edgeFirstTimeoutMs,
+  firstBlobWins,
+  secMsGec,
+  ssmlEscape,
+  windowsFileTimeTicks,
+} from '../src/engine/edge-tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, isConfirmPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
+import { attachVariable, splitCloudPrompt } from '../src/engine/prompt-split.ts'
+import {
+  finishLatency,
+  formatLatency,
+  lastLatency,
+  latencyBand,
+  markFirstAudio,
+  markFirstToken,
+  startLatency,
+} from '../src/engine/latency.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
 import { parsePlugIntent } from '../src/engine/plug-parse.ts'
 import { lanIpHint } from '../src/engine/plug-net.ts'
@@ -69,6 +89,16 @@ import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { beginTurn, endTurn } from '../src/engine/turn-gate.ts'
+import {
+  isBackchannel,
+  isBargeInText,
+  silenceMsFor,
+  SILENCE_COMPLETE_MS,
+  SILENCE_HOLD_MS,
+  truncateSpoken,
+  turnLooksComplete,
+} from '../src/engine/turn-detect.ts'
+import { createEnergyVad, rmsFromPcm16 } from '../src/engine/vad.ts'
 import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
 import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
 import { isAllowedPcHost, sanitizePcHost } from '../src/engine/pc-host.ts'
@@ -1025,6 +1055,44 @@ assert.equal(ttsNativeRaceMs(false), 0)
 assert.equal(ttsNativeRaceMs(true), 400)
 assert.equal(ttsGeminiPrimary(false), true)
 assert.equal(ttsGeminiPrimary(true), false)
+assert.equal(firstAudioUsesSystemRace(), false)
+assert.equal(wantNeuralMouth(), true)
+assert.equal(EDGE_VOICE_JARVIS, 'de-DE-ConradNeural')
+assert.equal(EDGE_VOICE_FRIDAY, 'de-DE-KatjaNeural')
+assert.equal(edgeFirstTimeoutMs(false), 1600)
+assert.equal(edgeFirstTimeoutMs(true), 900)
+assert.equal(ssmlEscape('A & B <C> "x"'), 'A &amp; B &lt;C&gt; &quot;x&quot;')
+assert.equal(windowsFileTimeTicks(0), '116444736000000000')
+assert.match(windowsFileTimeTicks(1_756_800_000), /^\d+$/)
+{
+  const gec = await secMsGec(0)
+  assert.equal(gec.length, 64)
+  assert.match(gec, /^[0-9A-F]{64}$/)
+}
+{
+  const fast = Promise.resolve(new Blob([new Uint8Array([1, 2, 3])]))
+  const slow = new Promise((resolve) => {
+    globalThis.setTimeout(() => resolve(new Blob([new Uint8Array([9])])), 80)
+  })
+  const hit = await firstBlobWins([
+    { lane: 'gemini', run: slow },
+    { lane: 'edge', run: fast },
+  ])
+  assert.equal(hit?.lane, 'edge')
+  assert.equal(hit?.blob.size, 3)
+}
+{
+  const miss = await firstBlobWins([
+    { lane: 'edge', run: Promise.resolve(null) },
+    { lane: 'gemini', run: Promise.resolve(null) },
+  ])
+  assert.equal(miss, null)
+}
+{
+  const voiceSrc = readFileSync(new URL('../src/native/voice.ts', import.meta.url), 'utf8')
+  assert.doesNotMatch(voiceSrc, /ttsNativeRaceMs\(\)\s*\|\|\s*480/)
+  assert.doesNotMatch(voiceSrc, /setTimeout\(\s*\(\)\s*=>\s*resolve\(null\),\s*race/)
+}
 assert.ok(ttsBudgetMs(false) >= 2000)
 assert.ok(ttsBudgetMs(true) <= 900)
 assert.equal(spokenForGemini('  **Hallo** Welt  '), 'Hallo Welt')
@@ -1937,6 +2005,21 @@ const again = beginTurn({ source: 'user', content: 'hallo zwei', conversationId:
 assert.equal(again.ok, true)
 endTurn({ source: 'user', conversationId: 'c1' })
 
+{
+  const first = beginTurn({ source: 'voice', content: 'wetter', conversationId: 'v1' })
+  assert.equal(first.ok, true)
+  const second = beginTurn({
+    source: 'voice',
+    content: 'stopp',
+    conversationId: 'v1',
+    preempt: true,
+  })
+  assert.equal(second.ok, true)
+  endTurn({ source: 'voice', conversationId: 'v1', requestId: first.requestId })
+  assert.equal(beginTurn({ source: 'voice', content: 'noch was', conversationId: 'v1' }).ok, false)
+  endTurn({ source: 'voice', conversationId: 'v1', requestId: second.requestId })
+}
+
 assert.deepEqual(subQueries('Was weißt du über mich'), [])
 assert.equal(subQueries('Was weißt du über den Zahnarzt').some((q) => q.includes('zahnarzt')), true)
 assert.ok(!subQueries('Was weißt du über den Zahnarzt').includes('über'))
@@ -2475,5 +2558,63 @@ assert.equal(
 assert.match(scrubReply('Netflix ist offen.'), /Schirm|angekommen|nicht/)
 assert.doesNotMatch(scrubReply('Netflix ist offen.'), /Netflix ist offen/)
 assert.equal(pickRoute('Öffne Netflix'), 'tv')
+
+{
+  const a = splitCloudPrompt({ persona: GEMINI_PERSONA, memory: 'Langzeitgedächtnis: Name Tim' })
+  const b = splitCloudPrompt({ persona: GEMINI_PERSONA, memory: 'Langzeitgedächtnis: Name Ada' })
+  assert.equal(a.system, b.system)
+  assert.notEqual(a.variable, b.variable)
+  assert.ok(a.system.includes('Du bist Jarvis'))
+  assert.ok(!a.system.includes('Name Tim'))
+  assert.ok(a.variable.includes('Name Tim'))
+  const voiced = splitCloudPrompt({ persona: GEMINI_PERSONA, voice: true })
+  assert.ok(voiced.system.includes(VOICE_HINT.slice(0, 24)))
+  const searched = splitCloudPrompt({ persona: GEMINI_PERSONA, search: true, memory: 'x' })
+  assert.ok(searched.variable.includes('Google plus Links'))
+  assert.ok(!searched.system.includes('Google plus Links'))
+  const msgs = attachVariable(
+    [
+      { role: 'system', content: a.system },
+      { role: 'user', content: 'Hallo.' },
+    ],
+    a.variable,
+  )
+  assert.equal(msgs[0].content, a.system)
+  assert.match(msgs[1].content, /^Hallo\./)
+  assert.ok(msgs[1].content.includes(a.variable))
+}
+
+startLatency('parser')
+markFirstToken()
+markFirstAudio()
+const slo = finishLatency()
+assert.equal(slo?.path, 'parser')
+assert.equal(lastLatency()?.path, 'parser')
+assert.ok((slo?.msTotal ?? -1) >= 0)
+assert.equal(latencyBand(200), 'gut')
+assert.equal(latencyBand(500), 'ok')
+assert.equal(latencyBand(900), 'langsam')
+assert.match(formatLatency(slo), /Parser/)
+assert.match(formatLatency(slo), /Hirn/)
+
+assert.equal(turnLooksComplete('Wie spät ist es?'), true)
+assert.equal(turnLooksComplete('Ich wollte noch und'), false)
+assert.equal(turnLooksComplete('mhm'), false)
+assert.equal(silenceMsFor('Guten Morgen.'), SILENCE_COMPLETE_MS)
+assert.equal(silenceMsFor('Ich wollte noch und'), SILENCE_HOLD_MS)
+assert.equal(isBackchannel('mhm'), true)
+assert.equal(isBackchannel('Mach das Licht an'), false)
+assert.equal(isBargeInText('mhm'), false)
+assert.equal(isBargeInText('Stopp das'), true)
+assert.equal(truncateSpoken('Guten Abend. Der Termin ist um drei.', 'Guten Abend.'), 'Guten Abend.')
+assert.equal(truncateSpoken('Hallo.', ''), '')
+{
+  const vad = createEnergyVad({ threshold: 0.05, hangMs: 50, onsetMs: 20 })
+  assert.equal(vad.frame(0.2, 1000).event, 'none')
+  assert.equal(vad.frame(0.2, 1030).event, 'onset')
+  assert.equal(vad.frame(0.01, 1040).event, 'none')
+  assert.equal(vad.frame(0.01, 1100).event, 'end')
+  assert.ok(rmsFromPcm16([32767, -32768]) > 0.9)
+}
 
 console.log('ok 0.14 parsers')

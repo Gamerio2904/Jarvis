@@ -7,6 +7,9 @@ import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -29,11 +32,21 @@ import com.getcapacitor.annotation.PermissionCallback;
 
 import android.speech.tts.Voice;
 
+import android.util.Base64;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +57,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
 
 @CapacitorPlugin(
         name = "JarvisVoice",
@@ -60,6 +76,10 @@ public class JarvisVoicePlugin extends Plugin {
     private int listenGen = 0;
     private int speakGen = 0;
     private String lastPartial = "";
+    private String listenHold = "";
+    private int listenExtend = 0;
+    private volatile boolean bargeWatch = false;
+    private Intent listenIntent;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newCachedThreadPool();
     private final OkHttpClient http = new OkHttpClient.Builder()
@@ -101,6 +121,7 @@ public class JarvisVoicePlugin extends Plugin {
                 tts.shutdown();
                 tts = null;
             }
+            bargeWatch = false;
         });
     }
 
@@ -183,6 +204,8 @@ public class JarvisVoicePlugin extends Plugin {
             JarvisWakeService.pauseListen();
             listenCall = call;
             lastPartial = "";
+            listenHold = "";
+            listenExtend = 0;
             if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
                 finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.", null);
                 return;
@@ -195,7 +218,24 @@ public class JarvisVoicePlugin extends Plugin {
                     @Override public void onRmsChanged(float rmsdB) {}
                     @Override public void onBufferReceived(byte[] buffer) {}
                     @Override public void onEndOfSpeech() {}
-                    @Override public void onError(int error) {
+                    @Override
+                    public void onResults(Bundle results) {
+                        ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                        String text = list != null && !list.isEmpty() ? list.get(0) : "";
+                        String joined = joinHold(text);
+                        if (shouldExtend(joined)) {
+                            listenHold = joined;
+                            listenExtend += 1;
+                            lastPartial = joined;
+                            restartListen();
+                            return;
+                        }
+                        listenHold = "";
+                        listenExtend = 0;
+                        finishListen(joined, true, "", list);
+                    }
+                    @Override
+                    public void onError(int error) {
                         if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY
                                 || error == SpeechRecognizer.ERROR_CLIENT) {
                             try {
@@ -207,17 +247,17 @@ public class JarvisVoicePlugin extends Plugin {
                         }
                         if (error == SpeechRecognizer.ERROR_NO_MATCH
                                 || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                            String keep = lastPartial == null ? "" : lastPartial.trim();
+                            String keep = joinHold(lastPartial);
+                            if (shouldExtend(keep)) {
+                                listenHold = keep;
+                                listenExtend += 1;
+                                restartListen();
+                                return;
+                            }
                             finishListen(keep, true, keep.isEmpty() ? "" : "", null);
                             return;
                         }
-                        finishListen("", false, "Zuhören unterbrochen.", null);
-                    }
-                    @Override
-                    public void onResults(Bundle results) {
-                        ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                        String text = list != null && !list.isEmpty() ? list.get(0) : "";
-                        finishListen(text, true, "", list);
+                        finishListen(joinHold(lastPartial), false, "Zuhören unterbrochen.", null);
                     }
                     @Override
                     public void onPartialResults(Bundle partialResults) {
@@ -238,9 +278,10 @@ public class JarvisVoicePlugin extends Plugin {
             intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 800L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 650L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 350L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 280L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 200L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 280L);
+            listenIntent = intent;
             try {
                 main.postDelayed(() -> {
                     if (listenGen != gen || listenCall != call) return;
@@ -260,13 +301,61 @@ public class JarvisVoicePlugin extends Plugin {
                     try {
                         if (recognizer != null) recognizer.cancel();
                     } catch (Exception ignored) {}
-                    finishListen(lastPartial == null ? "" : lastPartial, true, "", null);
+                    finishListen(joinHold(lastPartial), true, "", null);
                 }
             }, 10_000);
         });
     }
 
+    private String joinHold(String next) {
+        String a = listenHold == null ? "" : listenHold.trim();
+        String b = next == null ? "" : next.trim();
+        if (a.isEmpty()) return b;
+        if (b.isEmpty() || b.startsWith(a)) return b.isEmpty() ? a : b;
+        return a + " " + b;
+    }
+
+    private boolean looksComplete(String text) {
+        if (text == null) return false;
+        String t = text.trim();
+        if (t.isEmpty()) return false;
+        String low = t.toLowerCase(Locale.GERMAN);
+        if (low.matches("(?s).*\\b(und|oder|aber|weil|dass|daß|also|dann|wenn|ob|mit|von|zu|für|nach)\\s*$")) {
+            return false;
+        }
+        if (t.matches(".*[.!?…]$") && t.length() >= 4) return true;
+        int words = t.split("\\s+").length;
+        return words >= 6 || t.length() >= 24;
+    }
+
+    private boolean shouldExtend(String text) {
+        if (listenExtend >= 2) return false;
+        if (text == null || text.trim().isEmpty()) return false;
+        return !looksComplete(text);
+    }
+
+    private void restartListen() {
+        final Intent intent = listenIntent;
+        final PluginCall call = listenCall;
+        final int gen = listenGen;
+        if (intent == null || call == null) return;
+        main.postDelayed(() -> {
+            if (listenGen != gen || listenCall != call) return;
+            try {
+                if (recognizer == null) {
+                    finishListen(joinHold(lastPartial), true, "", null);
+                    return;
+                }
+                recognizer.startListening(intent);
+            } catch (Exception e) {
+                finishListen(joinHold(lastPartial), true, "", null);
+            }
+        }, 160);
+    }
+
     private void finishListen(String text, boolean ok, String message, ArrayList<String> alts) {
+        listenHold = "";
+        listenExtend = 0;
         PluginCall c = listenCall;
         listenCall = null;
         if (c == null) return;
@@ -412,6 +501,88 @@ public class JarvisVoicePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void startBargeWatch(PluginCall call) {
+        bargeWatch = true;
+        io.execute(this::runBargeWatch);
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void stopBargeWatch(PluginCall call) {
+        bargeWatch = false;
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    private void runBargeWatch() {
+        int min = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        if (min <= 0) min = 16000;
+        AudioRecord rec = null;
+        try {
+            rec = new AudioRecord(
+                    MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                    16000,
+                    AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    Math.max(min, 3200));
+            if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
+                rec.release();
+                rec = new AudioRecord(
+                        MediaRecorder.AudioSource.MIC,
+                        16000,
+                        AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_PCM_16BIT,
+                        Math.max(min, 3200));
+            }
+            if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
+                rec.release();
+                return;
+            }
+            rec.startRecording();
+            short[] buf = new short[512];
+            int hot = 0;
+            long started = System.currentTimeMillis();
+            while (bargeWatch) {
+                int n = rec.read(buf, 0, buf.length);
+                if (n <= 0) continue;
+                if (System.currentTimeMillis() - started < 400) continue;
+                double sum = 0;
+                for (int i = 0; i < n; i += 1) {
+                    double v = buf[i] / 32768.0;
+                    sum += v * v;
+                }
+                double rms = Math.sqrt(sum / n);
+                if (rms >= 0.055) hot += 1;
+                else hot = Math.max(0, hot - 2);
+                if (hot >= 6) {
+                    bargeWatch = false;
+                    main.post(() -> {
+                        JSObject ev = new JSObject();
+                        ev.put("hit", true);
+                        notifyListeners("barge", ev);
+                    });
+                    break;
+                }
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (rec != null) {
+                try {
+                    rec.stop();
+                } catch (Exception ignored) {
+                }
+                try {
+                    rec.release();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
+
+    @PluginMethod
     public void streamSse(PluginCall call) {
         String url = call.getString("url", "");
         String body = call.getString("body", "{}");
@@ -435,7 +606,12 @@ public class JarvisVoicePlugin extends Plugin {
                     .addHeader("Content-Type", "application/json")
                     .addHeader("Accept", "text/event-stream");
             if (apiKey != null && !apiKey.isEmpty()) {
-                b.addHeader("x-goog-api-key", apiKey);
+                String auth = call.getString("auth", "google");
+                if ("bearer".equalsIgnoreCase(auth)) {
+                    b.addHeader("Authorization", "Bearer " + apiKey);
+                } else {
+                    b.addHeader("x-goog-api-key", apiKey);
+                }
             }
             Call httpCall = client.newCall(b.build());
             try (Response res = httpCall.execute()) {
@@ -632,5 +808,151 @@ public class JarvisVoicePlugin extends Plugin {
         r.put("running", JarvisWakeService.isRunning());
         r.put("wanted", JarvisWakeService.wantEnabled(getContext()));
         call.resolve(r);
+    }
+
+    private static final String EDGE_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
+    private static final String EDGE_GEC_VER = "1-143.0.3650.75";
+    private static final String EDGE_UA =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0";
+
+    @PluginMethod
+    public void synthEdge(PluginCall call) {
+        String text = call.getString("text", "");
+        String voice = call.getString("voice", "de-DE-ConradNeural");
+        Integer timeout = call.getInt("timeoutMs");
+        int ms = timeout == null ? 4000 : Math.max(400, Math.min(12_000, timeout));
+        if (text == null || text.trim().isEmpty()) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "leer");
+            call.resolve(r);
+            return;
+        }
+        final String spoken = text.trim();
+        final String voiceName = voice == null || voice.isEmpty() ? "de-DE-ConradNeural" : voice;
+        call.setKeepAlive(true);
+        io.execute(() -> {
+            JSObject r = new JSObject();
+            try {
+                byte[] mp3 = edgeMp3(spoken, voiceName, ms);
+                if (mp3 == null || mp3.length == 0) {
+                    r.put("ok", false);
+                    r.put("message", "kein audio");
+                } else {
+                    r.put("ok", true);
+                    r.put("audio", Base64.encodeToString(mp3, Base64.NO_WRAP));
+                }
+            } catch (Exception e) {
+                r.put("ok", false);
+                r.put("message", e.getMessage() == null ? "edge" : e.getMessage());
+            }
+            call.resolve(r);
+        });
+    }
+
+    private byte[] edgeMp3(String text, String voice, int timeoutMs) throws Exception {
+        String gec = edgeGec();
+        String conn = uuidHex();
+        String muid = uuidHex();
+        String url = "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1"
+                + "?TrustedClientToken=" + EDGE_TOKEN
+                + "&Sec-MS-GEC=" + gec
+                + "&Sec-MS-GEC-Version=" + EDGE_GEC_VER
+                + "&ConnectionId=" + conn;
+        CountDownLatch done = new CountDownLatch(1);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        OkHttpClient client = http.newBuilder()
+                .connectTimeout(4, TimeUnit.SECONDS)
+                .readTimeout(timeoutMs, TimeUnit.MILLISECONDS)
+                .build();
+        Request req = new Request.Builder()
+                .url(url)
+                .header("Pragma", "no-cache")
+                .header("Cache-Control", "no-cache")
+                .header("Origin", "chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold")
+                .header("User-Agent", EDGE_UA)
+                .header("Cookie", "muid=" + muid + ";")
+                .build();
+        WebSocket ws = client.newWebSocket(req, new WebSocketListener() {
+            @Override
+            public void onOpen(WebSocket webSocket, Response response) {
+                String ts = edgeDate();
+                webSocket.send("X-Timestamp:" + ts
+                        + "\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n"
+                        + "{\"context\":{\"synthesis\":{\"audio\":{\"metadataoptions\":"
+                        + "{\"sentenceBoundaryEnabled\":\"false\",\"wordBoundaryEnabled\":\"false\"},"
+                        + "\"outputFormat\":\"audio-24khz-48kbitrate-mono-mp3\"}}}}\r\n");
+                String ssml = "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>"
+                        + "<voice name='" + voice + "'><prosody pitch='+0Hz' rate='+0%' volume='+0%'>"
+                        + edgeSsmlEscape(text) + "</prosody></voice></speak>";
+                webSocket.send("X-RequestId:" + uuidHex()
+                        + "\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:" + ts
+                        + "Z\r\nPath:ssml\r\n\r\n" + ssml);
+            }
+
+            @Override
+            public void onMessage(WebSocket webSocket, String textMsg) {
+                if (textMsg != null && textMsg.contains("Path:turn.end")) {
+                    webSocket.close(1000, "ok");
+                    done.countDown();
+                }
+            }
+
+            @Override
+            public void onMessage(WebSocket webSocket, ByteString bytes) {
+                byte[] data = bytes.toByteArray();
+                if (data.length < 2) return;
+                int headerLen = ((data[0] & 0xff) << 8) | (data[1] & 0xff);
+                if (headerLen < 0 || headerLen + 2 > data.length) return;
+                String header = new String(data, 2, headerLen, StandardCharsets.UTF_8);
+                if (!header.contains("Path:audio")) return;
+                int start = headerLen + 2;
+                if (start >= data.length) return;
+                synchronized (out) {
+                    out.write(data, start, data.length - start);
+                }
+            }
+
+            @Override
+            public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+                done.countDown();
+            }
+
+            @Override
+            public void onClosed(WebSocket webSocket, int code, String reason) {
+                done.countDown();
+            }
+        });
+        boolean finished = done.await(timeoutMs, TimeUnit.MILLISECONDS);
+        ws.cancel();
+        if (!finished) return null;
+        if (out.size() == 0) return null;
+        return out.toByteArray();
+    }
+
+    private static String edgeGec() throws Exception {
+        double ticks = System.currentTimeMillis() / 1000.0 + 11_644_473_600.0;
+        ticks -= ticks % 300.0;
+        ticks *= 10_000_000.0;
+        String payload = String.format(Locale.US, "%.0f", ticks) + EDGE_TOKEN;
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(payload.getBytes(StandardCharsets.US_ASCII));
+        StringBuilder sb = new StringBuilder(hash.length * 2);
+        for (byte b : hash) sb.append(String.format(Locale.US, "%02X", b));
+        return sb.toString();
+    }
+
+    private static String edgeDate() {
+        SimpleDateFormat fmt = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss", Locale.US);
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return fmt.format(new Date()) + " GMT+0000 (Coordinated Universal Time)";
+    }
+
+    private static String uuidHex() {
+        return UUID.randomUUID().toString().replace("-", "").toUpperCase(Locale.US);
+    }
+
+    private static String edgeSsmlEscape(String text) {
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
     }
 }

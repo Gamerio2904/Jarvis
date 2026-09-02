@@ -13,6 +13,18 @@ App-Version im Code: **`9.9.0`**. Sideload zuletzt: **`9.9.0`**. **Hirn:** Gemin
 - **Einstellungen** überdecken die Lage (kein rAF darunter). Suche leert die Reiter nicht. Karten bleiben sichtbar (`cardIn` ohne `both`, sonst Android opacity 0).
 - Stimme-Turn aktualisiert Settings-State, damit Lage an/aus sofort greift.
 
+### Qualität / Latenz (in `9.9.0`) — *CODE*
+
+Recherche [`52-research-latency-quality.md`](./52-research-latency-quality.md). Loop aus Gemini/Groq Prompt-Cache, Pipecat/Twilio-SLOs, Groq-SSE. Kein neuer Stack.
+
+- **Prefix-Cache:** Persona (± Sprach-Hint) bleibt `system_instruction`. Memory, Working, Last-Step, Suche, Digest hängen am letzten User-Turn (`prompt-split.ts`).
+- **Groq:** Token-Stream (SSE, Bearer), Fallback JSON. Native SSE kann Bearer.
+- **SLO:** `latency.ts` markiert Hirn / erste Stimme / gesamt. Tests-Reiter und Debug-Dock zeigen die letzte Zeile.
+- **Warmup:** TLS/DNS gegen Google/Groq beim App-Start, ohne Key in der URL.
+- **Turn-Taking:** Fertiger Satz → 220 ms Stille, unfertig („und …“) → 800 ms. Android-Recognizer startet bei unfertigem Partial neu.
+- **Barge-in:** Mic während Denken/Sprechen. Backchannel (`mhm`) zählt nicht. Gespeichert wird nur, was schon gesprochen war.
+- **First-Audio:** Kein 480-ms-System-TTS mehr. Auto rennt Microsoft Edge Neural (Conrad/Katja, frei) gegen Gemini Algieba; eine Stimme pro Antwort. Groq-TTS spricht kein Deutsch. System-TTS nur wenn beide Neural-Wege fehlen.
+
 ### `9.9.0` — V9 Hardening — *CODE*
 
 Sprints 163–165. Regression, LAN-only PC, Secret-Redact. Sideload **`9.9.0`** (versionCode `90900`). Alltag Won’t.

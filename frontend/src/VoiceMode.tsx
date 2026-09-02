@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { wantGeminiVoice } from './engine/tts'
+import { wantNeuralMouth } from './engine/tts'
 import { setChatSpeaking } from './engine/speak-lock'
 import { dispatchVoiceAmp, prefersReducedMotion } from './engine/motion'
 import {
@@ -13,6 +13,7 @@ import {
   setKeepScreenOn,
   stopListen,
   stopSpeak,
+  watchBargeIn,
 } from './native/voice'
 
 type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
@@ -20,11 +21,17 @@ type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
 export function VoiceMode({
   onClose,
   onTurn,
+  onTruncate,
   initialUtterance = '',
   leaving = false,
 }: {
   onClose: () => void
-  onTurn: (text: string, onToken?: (piece: string, full: string) => void) => Promise<string>
+  onTurn: (
+    text: string,
+    onToken?: (piece: string, full: string) => void,
+    opts?: { preempt?: boolean },
+  ) => Promise<string>
+  onTruncate?: (spoken: string) => void
   initialUtterance?: string
   leaving?: boolean
 }) {
@@ -38,9 +45,12 @@ export function VoiceMode({
   const pipelineRef = useRef<ReturnType<typeof createSpeakPipeline> | null>(null)
   const turnGen = useRef(0)
   const abortTurn = useRef<(() => void) | null>(null)
+  const preemptNext = useRef(false)
   const onTurnRef = useRef(onTurn)
   onTurnRef.current = onTurn
-  const neural = wantGeminiVoice()
+  const onTruncateRef = useRef(onTruncate)
+  onTruncateRef.current = onTruncate
+  const neural = wantNeuralMouth()
   const reduced = prefersReducedMotion()
 
   useEffect(() => {
@@ -164,8 +174,20 @@ export function VoiceMode({
     }
   }
 
+  function cutIn(pipe: ReturnType<typeof createSpeakPipeline>) {
+    preemptNext.current = true
+    onTruncateRef.current?.(pipe.spoken())
+    turnGen.current += 1
+    abortTurn.current?.()
+    pipe.stop()
+    setChatSpeaking(false)
+    void stopSpeak()
+  }
+
   async function runTurn(text: string) {
     const gen = ++turnGen.current
+    const preempt = preemptNext.current
+    preemptNext.current = false
     setHeard(text)
     setErr(null)
     setPhase('thinking')
@@ -174,21 +196,30 @@ export function VoiceMode({
     pipelineRef.current = pipe
     let started = false
     let answer = ''
+    let barged = false
+    const stopBarge = watchBargeIn(() => {
+      barged = true
+      cutIn(pipe)
+    })
     try {
       answer = await Promise.race([
-        onTurnRef.current(text, (_piece, full) => {
-          if (!live.current || turnGen.current !== gen) return
-          setReply(full)
-          const ready = tap.feed(full)
-          if (ready.length) {
-            if (!started) {
-              started = true
-              setPhase('speaking')
-              setChatSpeaking(true)
+        onTurnRef.current(
+          text,
+          (_piece, full) => {
+            if (!live.current || turnGen.current !== gen) return
+            setReply(full)
+            const ready = tap.feed(full)
+            if (ready.length) {
+              if (!started) {
+                started = true
+                setPhase('speaking')
+                setChatSpeaking(true)
+              }
+              for (const s of ready) pipe.push(s)
             }
-            for (const s of ready) pipe.push(s)
-          }
-        }),
+          },
+          { preempt },
+        ),
         new Promise<string>((_, reject) => {
           abortTurn.current = () => reject(new Error('__barge_in__'))
         }),
@@ -200,9 +231,10 @@ export function VoiceMode({
       setErr(e instanceof Error ? e.message : 'Antwort fehlgeschlagen')
       return
     } finally {
+      stopBarge()
       if (abortTurn.current) abortTurn.current = null
     }
-    if (!live.current || turnGen.current !== gen) {
+    if (!live.current || turnGen.current !== gen || barged) {
       pipe.stop()
       setChatSpeaking(false)
       return
@@ -221,17 +253,28 @@ export function VoiceMode({
       setChatSpeaking(true)
       pipe.push(answer)
     }
-    await pipe.flush()
+    const stopBargePlay = watchBargeIn(() => {
+      barged = true
+      cutIn(pipe)
+    })
+    try {
+      await pipe.flush()
+    } finally {
+      stopBargePlay()
+    }
     setChatSpeaking(false)
   }
 
   async function onOrb() {
     if (phaseRef.current === 'speaking' || phaseRef.current === 'thinking') {
-      turnGen.current += 1
-      abortTurn.current?.()
-      pipelineRef.current?.stop()
-      setChatSpeaking(false)
-      await stopSpeak()
+      const pipe = pipelineRef.current
+      if (pipe) cutIn(pipe)
+      else {
+        turnGen.current += 1
+        abortTurn.current?.()
+        setChatSpeaking(false)
+        await stopSpeak()
+      }
       setPhase('listening')
       return
     }
@@ -246,7 +289,7 @@ export function VoiceMode({
       : phase === 'thinking'
         ? 'Antwort kommt…'
         : phase === 'speaking'
-          ? 'Jarvis spricht — antippen unterbricht.'
+          ? 'Jarvis spricht — einfach dazwischenreden.'
           : 'Bereit.'
 
   return (
@@ -265,8 +308,8 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Orb folgt dem Mic. Antippen unterbricht. Stimme in den Einstellungen.'
-                : 'Orb folgt dem Mic. Gemini-Key = natürliche Stimme, sonst System.'}
+                ? 'Dazwischenreden unterbricht. Erste Silbe Edge Neural oder Algieba, eine Stimme pro Antwort.'
+                : 'Dazwischenreden unterbricht. Stimme auf System = Geräte-TTS, sonst Edge Neural.'}
             </p>
           </div>
           <button type="button" className="ghost-btn voice-close" onClick={onClose}>

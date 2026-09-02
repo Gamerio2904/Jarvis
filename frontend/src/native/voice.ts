@@ -1,7 +1,12 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { synthesizeGemini, ttsNativeRaceMs, wantGeminiVoice } from '../engine/tts'
+import { edgeFirstTimeoutMs, firstBlobWins, synthesizeEdge, synthesizeGtts } from '../engine/edge-tts'
+import { synthesizeGemini, wantGeminiVoice, wantNeuralMouth } from '../engine/tts'
 import { pickHeard } from '../engine/heard.ts'
 import { loadFace } from '../engine/face.ts'
+import { markFirstAudio } from '../engine/latency.ts'
+import { loadSettings } from '../engine/store.ts'
+import { BARGE_IGNORE_TTS_MS, BARGE_ONSET_MS, silenceMsFor, turnLooksComplete } from '../engine/turn-detect.ts'
+import { createEnergyVad, rmsFromByteTimeDomain } from '../engine/vad.ts'
 
 export { createSentenceTap } from '../engine/speak-tap'
 
@@ -20,14 +25,22 @@ type NativeVoice = {
   wakeStatus(): Promise<{ running: boolean; wanted?: boolean }>
   requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }>
   setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
+  synthEdge(opts: { text: string; voice: string; timeoutMs?: number }): Promise<{
+    ok: boolean
+    audio?: string
+    message?: string
+  }>
   streamSse(opts: {
     url: string
     body: string
     apiKey: string
     timeoutMs?: number
+    auth?: string
   }): Promise<{ ok: boolean; status?: number; message?: string }>
+  startBargeWatch(): Promise<{ ok: boolean }>
+  stopBargeWatch(): Promise<{ ok: boolean }>
   addListener(
-    event: 'partial' | 'sse' | 'wake',
+    event: 'partial' | 'sse' | 'wake' | 'barge',
     cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string }) => void,
   ): Promise<{ remove: () => void }>
 }
@@ -98,6 +111,70 @@ export async function stopListen(): Promise<void> {
   webStopListen()
 }
 
+export function watchBargeIn(onHit: () => void): () => void {
+  let dead = false
+  const hit = () => {
+    if (dead) return
+    dead = true
+    onHit()
+  }
+  if (native) {
+    let handle: { remove: () => void } | undefined
+    void native.addListener('barge', () => hit()).then((h) => {
+      handle = h
+    })
+    void native.startBargeWatch().catch(() => undefined)
+    return () => {
+      dead = true
+      handle?.remove()
+      void native.stopBargeWatch()
+    }
+  }
+  let stream: MediaStream | null = null
+  let ctx: AudioContext | null = null
+  let raf = 0
+  const vad = createEnergyVad({ threshold: 0.11, hangMs: 120, onsetMs: BARGE_ONSET_MS })
+  const t0 = Date.now()
+  void (async () => {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        video: false,
+      })
+      if (dead) {
+        stream.getTracks().forEach((tr) => tr.stop())
+        return
+      }
+      ctx = new AudioContext()
+      const src = ctx.createMediaStreamSource(stream)
+      const an = ctx.createAnalyser()
+      an.fftSize = 512
+      src.connect(an)
+      const data = new Uint8Array(an.fftSize)
+      const loop = () => {
+        if (dead) return
+        an.getByteTimeDomainData(data)
+        if (Date.now() - t0 < BARGE_IGNORE_TTS_MS) {
+          raf = requestAnimationFrame(loop)
+          return
+        }
+        const ev = vad.frame(rmsFromByteTimeDomain(data))
+        if (ev.event === 'onset') hit()
+        else raf = requestAnimationFrame(loop)
+      }
+      raf = requestAnimationFrame(loop)
+    } catch {
+      /* no mic — tap barge-in remains */
+    }
+  })()
+  return () => {
+    dead = true
+    cancelAnimationFrame(raf)
+    stream?.getTracks().forEach((tr) => tr.stop())
+    void ctx?.close()
+  }
+}
+
 let currentAudio: HTMLAudioElement | null = null
 let currentUrl: string | null = null
 
@@ -141,10 +218,11 @@ function playBlob(blob: Blob): Promise<void> {
 }
 
 export async function streamSseLines(
-  opts: { url: string; body: unknown; apiKey: string; timeoutMs?: number },
+  opts: { url: string; body: unknown; apiKey: string; timeoutMs?: number; auth?: 'google' | 'bearer' },
   onData: (json: Record<string, unknown>) => void,
 ): Promise<{ ok: boolean; message?: string }> {
   const timeoutMs = opts.timeoutMs && opts.timeoutMs > 0 ? opts.timeoutMs : 8_000
+  const bearer = opts.auth === 'bearer'
   if (native) {
     const handle = await native.addListener('sse', (ev) => {
       if (!ev.data) return
@@ -160,6 +238,7 @@ export async function streamSseLines(
         body: JSON.stringify(opts.body),
         apiKey: opts.apiKey,
         timeoutMs,
+        auth: bearer ? 'bearer' : 'google',
       })
       return { ok: Boolean(res.ok), message: res.message }
     } finally {
@@ -167,13 +246,17 @@ export async function streamSseLines(
     }
   }
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    }
+    if (opts.apiKey) {
+      if (bearer) headers.Authorization = `Bearer ${opts.apiKey}`
+      else headers['x-goog-api-key'] = opts.apiKey
+    }
     const res = await fetch(opts.url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'text/event-stream',
-        'x-goog-api-key': opts.apiKey,
-      },
+      headers,
       body: JSON.stringify(opts.body),
       signal: AbortSignal.timeout(timeoutMs),
     })
@@ -207,28 +290,62 @@ export async function streamSseLines(
 }
 
 type SpeakJob = { text: string; ready: Promise<Blob | 'native'> }
+type MouthLane = 'gemini' | 'edge' | 'native'
+
+async function freeNeural(text: string, timeoutMs: number): Promise<Blob | null> {
+  return (await synthesizeEdge(text, { timeoutMs })) || (await synthesizeGtts(text))
+}
 
 export function createSpeakPipeline() {
   const q: SpeakJob[] = []
+  const heard: string[] = []
   let running = false
   let stopped = false
+  let lane: MouthLane | null = null
 
   function prepare(text: string): Promise<Blob | 'native'> {
     return (async () => {
-      if (!wantGeminiVoice()) return 'native'
-      const race = ttsNativeRaceMs()
-      if (race <= 0) {
+      if (!wantNeuralMouth() || lane === 'native') {
+        lane = 'native'
+        return 'native'
+      }
+      if (lane === 'gemini') {
         const blob = await synthesizeGemini(text)
         return blob || 'native'
       }
-      const gemini = synthesizeGemini(text)
-      const raced = await Promise.race([
-        gemini,
-        new Promise<null>((resolve) => {
-          globalThis.setTimeout(() => resolve(null), race)
-        }),
-      ])
-      if (raced) return raced
+      if (lane === 'edge') {
+        const blob = await freeNeural(text, 4000)
+        return blob || 'native'
+      }
+      if (loadSettings().voice_tts === 'gemini') {
+        const gem = await synthesizeGemini(text)
+        if (gem) {
+          lane = 'gemini'
+          return gem
+        }
+        const edge = await freeNeural(text, 2500)
+        if (edge) {
+          lane = 'edge'
+          return edge
+        }
+        lane = 'native'
+        return 'native'
+      }
+      const jobs: Array<{ lane: 'gemini' | 'edge'; run: Promise<Blob | null> }> = [
+        { lane: 'edge', run: synthesizeEdge(text, { timeoutMs: edgeFirstTimeoutMs() }) },
+      ]
+      if (wantGeminiVoice()) jobs.push({ lane: 'gemini', run: synthesizeGemini(text) })
+      const hit = await firstBlobWins(jobs)
+      if (hit) {
+        lane = hit.lane
+        return hit.blob
+      }
+      const gtts = await synthesizeGtts(text)
+      if (gtts) {
+        lane = 'edge'
+        return gtts
+      }
+      lane = 'native'
       return 'native'
     })()
   }
@@ -241,6 +358,8 @@ export function createSpeakPipeline() {
       if (!job) continue
       const audio = await job.ready
       if (stopped) break
+      markFirstAudio()
+      heard.push(job.text)
       if (audio instanceof Blob) await playBlob(audio)
       else await speakNative(job.text)
     }
@@ -253,6 +372,9 @@ export function createSpeakPipeline() {
       if (stopped || !clean) return
       q.push({ text: clean, ready: prepare(clean) })
       void pump()
+    },
+    spoken(): string {
+      return heard.join(' ').replace(/\s+/g, ' ').trim()
     },
     async flush() {
       while (!stopped && (running || q.length)) {
@@ -283,18 +405,10 @@ export function speakCueFast(text: string): Promise<void> {
 export async function speakText(text: string): Promise<void> {
   const clean = text.replace(/[#*_`]+/g, '').replace(/\s+/g, ' ').trim()
   if (!clean) return
-  if (wantGeminiVoice()) {
-    const blob = await synthesizeGemini(clean)
-    if (blob) {
-      await playBlob(blob)
-      return
-    }
-  }
-  if (native) {
-    await native.speak({ text: clean })
-    return
-  }
-  await webSpeak(clean)
+  const pipe = createSpeakPipeline()
+  pipe.push(clean)
+  await pipe.flush()
+  pipe.stop()
 }
 
 export async function stopSpeak(): Promise<void> {
@@ -434,11 +548,19 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
     rec.interimResults = true
     rec.continuous = true
     rec.maxAlternatives = 5
+    let hold = ''
+    let timer = 0
+    const arm = (text: string) => {
+      window.clearTimeout(timer)
+      if (!text.trim()) return
+      timer = window.setTimeout(() => settle(text), silenceMsFor(text))
+    }
     const settle = (text: string) => {
       if (settled) return
       settled = true
       webListening = false
       webRec = null
+      window.clearTimeout(timer)
       try {
         rec.stop()
       } catch {
@@ -456,35 +578,37 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
         }
       }
       const text = pickHeard(alts[0] || '', alts.slice(1))
-      if (last && !last.isFinal) onPartial?.(text)
-      if (last?.isFinal && text) settle(text)
+      hold = text
+      onPartial?.(text)
+      if (last?.isFinal && turnLooksComplete(text) && text) settle(text)
+      else arm(text)
     }
     rec.onerror = (ev) => {
       const err = String(ev.error || '')
       if (!webListening) {
-        settle('')
+        settle(hold)
         return
       }
       if (err === 'no-speech' || err === 'aborted') {
         try {
           rec.start()
         } catch {
-          settle('')
+          settle(hold)
         }
         return
       }
-      settle('')
+      settle(hold)
     }
     rec.onend = () => {
       if (settled) return
       if (!webListening) {
-        settle('')
+        settle(hold)
         return
       }
       try {
         rec.start()
       } catch {
-        settle('')
+        settle(hold)
       }
     }
     rec.start()

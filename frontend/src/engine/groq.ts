@@ -1,9 +1,10 @@
 import { GEMINI_PERSONA } from './persona'
 import { GROQ_MODELS_BEST_FIRST, isFatalAuth, isRetryableCloud, isUnknownModel } from './cloud-errors'
 import { postJson } from './http-json'
+import { streamSseLines } from '../native/voice'
 import { loadSettings } from './store'
 
-type GroqChoice = { message?: { content?: string } }
+type GroqChoice = { message?: { content?: string }; delta?: { content?: string } }
 type GroqResponse = {
   choices?: GroqChoice[]
   error?: { message?: string; type?: string; code?: string }
@@ -17,8 +18,15 @@ export function groqReady(): boolean {
   return Boolean(groqKey())
 }
 
+/** Groq speech (PlayAI/Orpheus) is English/Arabic only — mouth stays Edge/Gemini. */
+
 function textFrom(json: GroqResponse): string {
   return (json.choices?.[0]?.message?.content || '').trim()
+}
+
+function deltaFrom(json: Record<string, unknown>): string {
+  const choices = json.choices as GroqChoice[] | undefined
+  return choices?.[0]?.delta?.content || ''
 }
 
 export async function completeGroq(
@@ -27,17 +35,21 @@ export async function completeGroq(
 ): Promise<string> {
   const key = groqKey()
   if (!key) throw new Error('Kein Groq-Schlüssel.')
+  const mapped = messages.map((m) => ({
+    role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
+    content: m.content,
+  }))
   const body = {
-    messages: messages.map((m) => ({
-      role: m.role === 'assistant' ? 'assistant' : m.role === 'system' ? 'system' : 'user',
-      content: m.content,
-    })),
+    messages: mapped,
     temperature: 0.68,
     max_tokens: 420,
-    stream: false,
   }
   let last = 'Groq antwortet nicht.'
   for (const model of GROQ_MODELS_BEST_FIRST) {
+    const streamed = await streamGroq({ ...body, stream: true, model }, key, onToken)
+    if (streamed.fatal) throw new Error(streamed.last)
+    if (streamed.text) return streamed.text
+    if (streamed.last) last = streamed.last
     try {
       const { status, json } = await postJson(
         'https://api.groq.com/openai/v1/chat/completions',
@@ -45,7 +57,7 @@ export async function completeGroq(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${key}`,
         },
-        { ...body, model },
+        { ...body, model, stream: false },
         10_000,
       )
       const parsed = json as GroqResponse
@@ -76,6 +88,36 @@ export async function completeGroq(
     }
   }
   throw new Error(last)
+}
+
+async function streamGroq(
+  body: unknown,
+  key: string,
+  onToken?: (piece: string, full: string) => void,
+): Promise<{ text: string; last: string; fatal: boolean }> {
+  let full = ''
+  const res = await streamSseLines(
+    {
+      url: 'https://api.groq.com/openai/v1/chat/completions',
+      body,
+      apiKey: key,
+      timeoutMs: 8_000,
+      auth: 'bearer',
+    },
+    (json) => {
+      const piece = deltaFrom(json)
+      if (!piece) return
+      full += piece
+      onToken?.(piece, full)
+    },
+  )
+  const t = full.trim()
+  if (t) return { text: t, last: '', fatal: false }
+  const msg = (res.message || '').toLowerCase()
+  if (msg.includes('401') || msg.includes('403') || msg.includes('unauth')) {
+    return { text: '', last: 'Groq-Key ungültig. Unter console.groq.com/keys einen neuen holen.', fatal: true }
+  }
+  return { text: '', last: res.message || 'Groq-Stream leer.', fatal: false }
 }
 
 export async function testGroq(): Promise<{ ok: boolean; reply: string }> {

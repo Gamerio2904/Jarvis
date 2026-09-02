@@ -612,7 +612,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hören & sprechen</h3>
               <p className="settings-hint">
-                Gemini-Stimmen-Picker unten. Default Algieba, Friday Kore. Am Steuer gewinnt Tempo — Native zuerst. Navi-Ansagen bleiben Native. Kein ElevenLabs, kein Stimmklon.
+                Auto: Microsoft Edge Neural (Conrad/Katja, frei, kein Extra-Key) rennt gegen Gemini Algieba. Wer zuerst
+                fertig ist, bleibt die ganze Antwort — kein Mix. Groq-TTS spricht kein Deutsch, Groq bleibt Hirn-Backup.
+                System-TTS nur wenn beide Neural-Wege fehlen. Navi-Ansagen bleiben Native. Kein ElevenLabs, kein Stimmklon.
               </p>
               <label className="settings-field">
                 <span>Stimme</span>
@@ -621,7 +623,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   disabled={busy}
                   onChange={(e) => void p.patchSetting({ voice_tts: e.target.value })}
                 >
-                  <option value="auto">Auto (Gemini wenn Key da)</option>
+                  <option value="auto">Auto (Edge Neural + Gemini)</option>
                   <option value="gemini">Gemini — Netz</option>
                   <option value="system">System — offline</option>
                 </select>
@@ -746,7 +748,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </select>
               </label>
               <p className="settings-hint">
-                Blitzer und Abbieger: ein Satz Native. Kein langer Text am Steuer.
+                Blitzer und Abbieger: ein Satz Native. Gespräch am Steuer: Edge Neural zuerst, nicht Pico.
               </p>
             </section>
           ) : null}

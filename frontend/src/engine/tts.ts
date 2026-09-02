@@ -13,14 +13,23 @@ export const TTS_VOICE = 'Algieba'
 export const TTS_VOICE_FRIDAY = 'Kore'
 export const TTS_VOICES = ['Algieba', 'Kore', 'Charon', 'Puck', 'Fenrir', 'Orus', 'Aoede', 'Zephyr'] as const
 
-/** Standing: wait for Gemini. Driving: short cap so Native wins. */
+/** Standing: wait for Gemini. Driving: short cap so Edge can win the race. */
 export const TTS_BUDGET_STANDING_MS = 3500
 export const TTS_BUDGET_DRIVE_MS = 700
 export const TTS_NATIVE_RACE_DRIVE_MS = 400
 /** @deprecated use ttsBudgetMs() — kept so old imports do not break. */
 export const TTS_BUDGET_MS = TTS_BUDGET_STANDING_MS
-/** Standing: 0 = do not race Native. Driving uses TTS_NATIVE_RACE_DRIVE_MS. */
+/** Standing: 0 = do not race Native. Drive keeps the old constant for tests; mouth uses Edge, not Pico. */
 export const TTS_NATIVE_RACE_MS = 0
+
+/** First syllable is Edge/Gemini, never a timed System-TTS jump. */
+export function firstAudioUsesSystemRace(): boolean {
+  return false
+}
+
+export function wantNeuralMouth(): boolean {
+  return loadSettings().voice_tts !== 'system'
+}
 
 export function ttsVoiceName(face?: string): string {
   const s = loadSettings()

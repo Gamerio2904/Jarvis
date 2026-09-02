@@ -92,3 +92,38 @@ export async function getText(
   const res = await fetch(url, { headers })
   return { status: res.status, text: await res.text() }
 }
+
+function bytesFromBase64(b64: string): Uint8Array {
+  const bin = atob(b64)
+  const out = new Uint8Array(bin.length)
+  for (let i = 0; i < bin.length; i += 1) out[i] = bin.charCodeAt(i)
+  return out
+}
+
+/** Binary GET. Native CapacitorHttp avoids CORS (gTTS). */
+export async function getBinary(
+  url: string,
+  headers: Record<string, string> = {},
+  timeoutMs = 8_000,
+): Promise<{ status: number; bytes: Uint8Array }> {
+  const read = Math.max(400, timeoutMs)
+  const connect = Math.min(8_000, Math.max(400, Math.floor(read * 0.5)))
+  if (Capacitor.isNativePlatform()) {
+    const res = await CapacitorHttp.get({
+      url,
+      headers,
+      connectTimeout: connect,
+      readTimeout: read,
+      responseType: 'arraybuffer',
+    })
+    const data = res.data
+    const bytes: Uint8Array = typeof data === 'string' && data ? bytesFromBase64(data) : new Uint8Array(0)
+    return { status: res.status, bytes }
+  }
+  const res = await fetch(url, {
+    headers,
+    signal: abortAfter(read),
+  })
+  const buf = await res.arrayBuffer()
+  return { status: res.status, bytes: new Uint8Array(buf) }
+}
