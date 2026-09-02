@@ -17,6 +17,7 @@ type NativeDevice = {
   sms(opts: { number: string; body?: string }): Promise<{ ok: boolean; message?: string }>
   callNow(opts: { number: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
   sendSms(opts: { number: string; body: string }): Promise<{ ok: boolean; needPerm?: boolean; message?: string }>
+  saveDownload(opts: { name: string; text: string }): Promise<{ ok: boolean; path?: string; message?: string }>
 }
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeDevice>('JarvisDevice') : null
@@ -218,4 +219,23 @@ export async function sendSmsNow(
     }
   }
   return { ok: false, message: 'Direkt senden nur auf dem Handy. Ich habe nichts verschickt.' }
+}
+
+export async function saveToDownloads(
+  name: string,
+  text: string,
+): Promise<{ ok: boolean; path?: string; message?: string }> {
+  const file = name.trim()
+  if (!file || !text) return { ok: false, message: 'Kein Dateiname.' }
+  if (native) {
+    try {
+      return await withTimeout(native.saveDownload({ name: file, text }), 45_000, {
+        ok: false,
+        message: 'Datei nicht in Downloads geschrieben.',
+      })
+    } catch {
+      return { ok: false, message: 'Datei nicht in Downloads geschrieben.' }
+    }
+  }
+  return { ok: false, message: 'Native Downloads nur auf dem Handy.' }
 }

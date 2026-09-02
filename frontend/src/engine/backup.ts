@@ -5,6 +5,7 @@ import {
   listMemory,
   listMessages,
   listNotes,
+  listPriceWatches,
   listReminders,
   listShopping,
   listTodos,
@@ -16,15 +17,18 @@ import {
   type MemoryItem,
   type Message,
   type Note,
+  type PriceWatch,
   type Reminder,
   type Settings,
   type ShoppingItem,
   type Todo,
 } from './store.ts'
 import type { ToolMeta } from './tools.ts'
+import { Capacitor } from '@capacitor/core'
 
 export const BACKUP_VERSION = 1
 
+/** Nur Lauf-Cache, keine dauerhaften Einstellungen. Keys, Hosts, HUD, Stecker bleiben. */
 const EPHEMERAL: Array<keyof Settings> = [
   'last_fuel_json',
   'last_poi_json',
@@ -43,7 +47,6 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_list_json',
   'last_globe_tour_json',
   'last_globe_brief',
-  'globe_tour_on',
   'last_hops_json',
   'last_news_line',
   'last_warn_line',
@@ -61,6 +64,17 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_medium',
   'last_eye_line',
   'last_ground_json',
+  'last_weather_place',
+  'last_weather_when',
+  'last_weather_focus',
+  'last_weather_kind',
+  'last_weather_line',
+  'last_body_organ',
+  'last_globe_focus',
+  'last_globe_look',
+  'last_trace_host',
+  'gemini_skip_until',
+  'gemini_tts_skip_until',
 ]
 
 const KEY_FIELDS: Array<keyof Settings> = [
@@ -87,6 +101,7 @@ export type HausBackup = {
   notes: Note[]
   todos: Todo[]
   shopping: ShoppingItem[]
+  price_watches?: PriceWatch[]
   conversations?: Conversation[]
   messages?: Message[]
 }
@@ -170,6 +185,7 @@ export function asBackup(raw: unknown): HausBackup | null {
     notes: arr(o.notes),
     todos: arr(o.todos),
     shopping: arr(o.shopping),
+    price_watches: o.price_watches ? arr(o.price_watches) : undefined,
     conversations: o.conversations ? arr(o.conversations) : undefined,
     messages: o.messages ? arr(o.messages) : undefined,
   }
@@ -200,6 +216,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     notes: await listNotes(),
     todos: await listTodos(),
     shopping: await listShopping(),
+    price_watches: await listPriceWatches(),
     conversations,
     messages,
   }
@@ -217,6 +234,7 @@ export async function applyBackup(data: HausBackup): Promise<string> {
   await replaceStore('notes', data.notes || [])
   await replaceStore('todos', data.todos || [])
   await replaceStore('shopping', data.shopping || [])
+  if (data.price_watches) await replaceStore('price_watches', data.price_watches)
   if (data.conversations) {
     await replaceStore('conversations', data.conversations)
     await replaceStore('messages', data.messages || [])
@@ -251,25 +269,29 @@ export async function shareOrDownloadBackup(includeChats: boolean): Promise<stri
   const data = await buildBackup(includeChats)
   const name = backupFilename()
   const text = JSON.stringify(data, null, 2)
-  const blob = new Blob([text], { type: 'application/json' })
   saveSettings({ last_backup_at: new Date().toISOString() })
-  try {
-    const file = new File([blob], name, { type: 'application/json' })
-    const nav = navigator as Navigator & { canShare?: (d: { files: File[] }) => boolean; share?: (d: { files: File[]; title?: string }) => Promise<void> }
-    if (nav.share && nav.canShare?.({ files: [file] })) {
-      await nav.share({ files: [file], title: 'Jarvis Hausstand' })
-      return 'Hausstand geteilt. Datei enthält API-Keys.'
-    }
-  } catch {
-    /* fall through to download */
+
+  const { saveToDownloads } = await import('../native/device.ts')
+  const native = await saveToDownloads(name, text)
+  if (native.ok) {
+    return `Gespeichert in Downloads/${name}. Alle Keys und Einstellungen sind in der Datei — nicht in den Chat.`
   }
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = name
-  a.click()
-  window.setTimeout(() => URL.revokeObjectURL(url), 4000)
-  return `Gespeichert als ${name}. Datei enthält API-Keys — nicht in den Chat.`
+
+  if (!Capacitor.isNativePlatform()) {
+    const blob = new Blob([text], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = name
+    a.rel = 'noopener'
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    window.setTimeout(() => URL.revokeObjectURL(url), 4000)
+    return `Gespeichert als ${name} (Downloads des Browsers). Datei enthält API-Keys.`
+  }
+
+  return native.message || 'Datei nicht in Downloads geschrieben. Ordner Downloads prüfen oder nochmal.'
 }
 
 export function parseBackupIntent(text: string): 'export' | 'import' | null {

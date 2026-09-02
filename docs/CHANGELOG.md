@@ -13,6 +13,7 @@ Sprints 163–165. Regression, LAN-only PC, Secret-Redact. Sideload **`9.9.0`** 
 
 - **Regression:** Debug-Gruppe V9, HELP `9.9.0`, V1–V8 bleiben. Probe V1–V9: ein Kopierfeld pro Prompt.
 - **Settings:** Acht Reiter (API-Keys, Hirn, Stimme, Alltag, Geräte, Lage, Daten, Tests). Keys nicht mehr über 17 Themen verteilt.
+- **Hausstand:** Export schreibt nach Downloads. Alle dauerhaften Settings inkl. Keys, Stecker, HUD, Preiswachen.
 - **Security:** `isAllowedPcHost` (kein 172/Internet). `redactSecrets` im Chat. Keys als Passwort.
 - **UX:** Live-Dock pollt den Agenten nur mit Sitzung. Host-Hinweis in Settings.
 - Docs [`sprints/sprint-163.md`](./sprints/sprint-163.md)–[`sprint-165.md`](./sprints/sprint-165.md)

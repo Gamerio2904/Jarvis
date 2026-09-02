@@ -1835,6 +1835,20 @@ const stripped = stripSettings({
 })
 assert.equal(stripped.last_taxi_json, undefined)
 assert.equal(stripped.gemini_api_key, 'secret')
+assert.equal(
+  stripSettings({
+    plugs_json: '[{"host":"1"}]',
+    carto_api_key: 'ck',
+    globe_tour_on: true,
+    last_lat: '49.1',
+    hud_force: true,
+    last_taxi_json: 'x',
+  }).plugs_json,
+  '[{"host":"1"}]',
+)
+assert.equal(stripSettings({ globe_tour_on: true, last_taxi_json: 'x' }).globe_tour_on, true)
+assert.equal(stripSettings({ last_lat: '49.1', last_taxi_json: 'x' }).last_lat, '49.1')
+assert.equal(countSetKeys({ gemini_api_key: 'a', tankerkoenig_api_key: 'b', carto_api_key: 'c' }), 3)
 const prev = previewBackup({
   backup_version: 1,
   settings: { gemini_api_key: 'abc', groq_api_key: '' },
