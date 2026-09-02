@@ -12,7 +12,7 @@ Sideload **`releases/Jarvis.apk`** (versionCode `90900`) enthält Anzeige-Fix + 
 ### Handy-Lage / Beta-Polish — *CODE*
 
 - Screens unter `frontend/src/ui/` (Lage, Stimme, Settings, Fahrt, Kalender, Debug). Engine bleibt `frontend/src/engine/`.
-- Handy: Kugel und Körper füllen die Fläche über dem Composer. Der Chat-Verlauf liegt nicht mehr darunter gequetscht. **Lage aus** gibt den Chat frei.
+- Handy: Kugel, Körper und Kacheln füllen den Bereich über dem Composer. Der Chat-Verlauf liegt nicht mehr darunter gequetscht. **Lage aus** gibt den Chat frei.
 - Keine doppelten Lage-Chips (HUD-Layout ist die Fläche selbst).
 - Keine ERDE-Anleitungskarte; Kurzlage nur wenn ein Ort/Brief da ist.
 - Toter `{true ? (`-Wrapper im Chat weg. `titleSlide`/`tileIn` ohne `both` (Android opacity-0).

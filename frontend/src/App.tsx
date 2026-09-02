@@ -1374,7 +1374,7 @@ function App() {
   const voiceLayer = useOverlay(voiceOpen)
   const liveHud = settings || loadSettings()
   const lageOn = Boolean(liveHud.hud_force) || (lageWide && !liveHud.hud_hidden)
-  const lageScene = lageOn && !lageWide && (liveHud.hud_view === 'globe' || liveHud.hud_view === 'body')
+  const lageScene = lageOn && !lageWide
   const lageAmber = liveHud.hud_accent === 'amber'
 
   return (

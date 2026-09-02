@@ -3916,11 +3916,6 @@ button.linkish {
     flex: 1 1 auto;
     min-height: 0;
   }
-  .main.is-lage:not(.is-lage-scene) .lage {
-    flex: 0 1 auto;
-    max-height: 38vh;
-    overflow: auto;
-  }
   .main.is-lage-scene .messages {
     display: none;
   }
