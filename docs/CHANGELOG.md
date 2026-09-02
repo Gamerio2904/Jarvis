@@ -7,6 +7,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`9.9.0`**. Sideload zuletzt: **`9.9.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
+Sideload **`releases/Jarvis.apk`** (versionCode `90900`) enthält Anzeige-Fix + Latenz/Edge-Neural. Probe V1–V9: Einstellungen → Tests.
+
 ### Anzeige (bestehende Flächen, kein neues Feature) — *CODE*
 
 - **Kugel aus** gibt `hud_force` frei — die Erde bleibt nicht dauerhaft auf dem Handy.
