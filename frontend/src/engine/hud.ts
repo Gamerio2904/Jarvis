@@ -12,6 +12,7 @@ import {
   HUD_DEFAULT_ON,
   organLabel,
   parseHudIntent,
+  patchForHudView,
   type BodyOrgan,
   type HudId,
   type HudIntent,
@@ -68,14 +69,11 @@ export async function handleHud(
     return pack(`Kacheln: ${line}.`)
   }
   if (intent.kind === 'view') {
-    saveSettings({
-      hud_view: intent.view,
-      hud_force: true,
-      hud_hidden: false,
-    })
+    saveSettings(patchForHudView(intent.view))
+    if (intent.view === 'tiles') clearTour()
     if (intent.view === 'body') return pack('Körper an. Schema in der Lage, Chat bleibt. Antippen startet kein Tool.')
     if (intent.view === 'globe') return pack('Kugel an. Erde in der Lage, Chat bleibt. Kein Live-Satellitenvideo.')
-    return pack('Kacheln wieder. Chat bleibt.')
+    return pack('Kugel aus. Lage zu, Chat wieder voll.')
   }
   if (intent.kind === 'organ') {
     saveSettings({

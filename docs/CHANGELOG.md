@@ -7,6 +7,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`9.9.0`**. Sideload zuletzt: **`9.9.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
+### Anzeige (bestehende Flächen, kein neues Feature) — *CODE*
+
+- **Kugel aus** gibt `hud_force` frei — die Erde bleibt nicht dauerhaft auf dem Handy.
+- **Einstellungen** überdecken die Lage (kein rAF darunter). Suche leert die Reiter nicht. Karten bleiben sichtbar (`cardIn` ohne `both`, sonst Android opacity 0).
+- Stimme-Turn aktualisiert Settings-State, damit Lage an/aus sofort greift.
+
 ### `9.9.0` — V9 Hardening — *CODE*
 
 Sprints 163–165. Regression, LAN-only PC, Secret-Redact. Sideload **`9.9.0`** (versionCode `90900`). Alltag Won’t.

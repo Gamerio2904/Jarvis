@@ -108,6 +108,21 @@ export function groupForTopic(id: SettingsTopic): SettingsGroup {
   return SETTINGS_GROUPS.find((g) => g.id === tab) || SETTINGS_GROUPS[0]
 }
 
+/** Reiter für die Leiste: Suche darf sie nicht leer machen. */
+export function visibleSettingsTabs(q: string): SettingsTab[] {
+  const all = SETTINGS_TABS.map((t) => t.id)
+  if (!q.trim()) return all
+  const hits = filterTopics(q)
+  return hits.length ? hits : all
+}
+
+/** Treffer auf anderem Tab → dorthin, damit der Inhalt sichtbar bleibt. */
+export function settingsTabForQuery(q: string, current: SettingsTab): SettingsTab {
+  const hits = q.trim() ? filterTopics(q) : []
+  if (!hits.length) return current
+  return hits.includes(current) ? current : hits[0]
+}
+
 export function filterTopics(q: string): SettingsTab[] {
   const n = q.trim().toLowerCase()
   if (!n) return []
