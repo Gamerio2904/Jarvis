@@ -61,12 +61,20 @@ export function GlobeView({
   const homedHere = useRef(false)
   const pulse = useRef(0)
   const kickRef = useRef<() => void>(() => {})
+  const storedFocusKey = useRef<string | null>(null)
+  const focusKey = focus && Number.isFinite(focus.lat) && Number.isFinite(focus.lon)
+    ? `${focus.name}:${focus.lat}:${focus.lon}:${focus.zoom || ''}`
+    : ''
 
   useEffect(() => {
-    if (!focus || !Number.isFinite(focus.lat) || !Number.isFinite(focus.lon)) return
-    const key = `${focus.name}:${focus.lat}:${focus.lon}:${focus.zoom || ''}`
-    if (key === lastFocus.current) return
-    lastFocus.current = key
+    if (!focusKey || !focus) return
+    if (storedFocusKey.current === null) {
+      storedFocusKey.current = focusKey
+      return
+    }
+    if (focusKey === storedFocusKey.current) return
+    if (focusKey === lastFocus.current) return
+    lastFocus.current = focusKey
     const aim = yawPitchFor(focus.lat, focus.lon)
     const z = clampZoom(Number(focus.zoom) || zoom.current)
     onLookRef.current?.({ lat: focus.lat, lon: focus.lon, zoom: z, date: '' })
@@ -79,10 +87,10 @@ export function GlobeView({
     }
     fly.current = { yaw: aim.yaw, pitch: aim.pitch, zoom: z, t: 0 }
     kickRef.current()
-  }, [focus, reduced])
+  }, [focus, focusKey, reduced])
 
   useEffect(() => {
-    if (homedHere.current || focus) return
+    if (homedHere.current) return
     const here = pins.find((p) => p.kind === 'here')
     if (!here || !Number.isFinite(here.lat) || !Number.isFinite(here.lon)) return
     homedHere.current = true
@@ -91,12 +99,12 @@ export function GlobeView({
     if (reduced) {
       yaw.current = aim.yaw
       pitch.current = Math.max(-1.35, Math.min(1.35, aim.pitch))
-      zoom.current = 2.15
+      zoom.current = 1.42
       return
     }
-    fly.current = { yaw: aim.yaw, pitch: aim.pitch, zoom: 2.15, t: 0 }
+    fly.current = { yaw: aim.yaw, pitch: aim.pitch, zoom: 1.42, t: 0 }
     kickRef.current()
-  }, [pins, focus, reduced])
+  }, [pins, reduced])
 
   useEffect(() => {
     const canvas = canvasRef.current
