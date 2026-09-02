@@ -501,7 +501,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    return subscribeDebug(() => setDebugRunning(debugSnapshot().running))
+    return subscribeDebug((snap) => setDebugRunning(snap.running))
   }, [])
 
   useEffect(() => {
@@ -1984,6 +1984,11 @@ function App() {
           onClearMemory={() => void onClearMemory()}
           onDebugSend={(text, conversationId) => sendMessage(text, { conversationId, source: 'debug' })}
           onDebugStart={(title) => startDebugChat(title)}
+          onDebugBegin={() => {
+            setSettingsPanelOpen(false)
+            setSidebarOpen(false)
+            closeSheet('settings')
+          }}
           debugBusy={busy}
         />
       ) : null}

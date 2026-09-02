@@ -30,6 +30,8 @@ export type DebugSnapshot = {
   live: boolean
 }
 
+const DEBUG_EVENT = 'jarvis-debug'
+
 const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
 const TURN_TIMEOUT_MS = 90_000
 const PERSIST_KEY_TURNS = 80
@@ -63,6 +65,11 @@ restore()
 function emit() {
   for (const fn of listeners) fn()
   persist()
+  try {
+    window.dispatchEvent(new CustomEvent(DEBUG_EVENT, { detail: debugSnapshot() }))
+  } catch {
+    /* node tests */
+  }
 }
 
 function persist() {
@@ -104,9 +111,26 @@ function restore() {
   }
 }
 
-export function subscribeDebug(fn: () => void): () => void {
-  listeners.add(fn)
-  return () => listeners.delete(fn)
+export function subscribeDebug(fn: (snap: DebugSnapshot) => void): () => void {
+  const local = () => fn(debugSnapshot())
+  listeners.add(local)
+  const onWin = (e: Event) => {
+    const d = (e as CustomEvent<DebugSnapshot>).detail
+    fn(d || debugSnapshot())
+  }
+  try {
+    window.addEventListener(DEBUG_EVENT, onWin)
+  } catch {
+    /* node tests */
+  }
+  return () => {
+    listeners.delete(local)
+    try {
+      window.removeEventListener(DEBUG_EVENT, onWin)
+    } catch {
+      /* ignore */
+    }
+  }
 }
 
 export function debugSnapshot(): DebugSnapshot {

@@ -17,13 +17,14 @@ export function DebugChatDock({
   onOpen: () => void
 }) {
   const [snap, setSnap] = useState(debugSnapshot)
-  useEffect(() => subscribeDebug(() => setSnap(debugSnapshot())), [])
+  useEffect(() => subscribeDebug((s) => setSnap(s)), [])
   if (!snap.running && !(snap.live && snap.turns.length)) return null
   const sameChat = Boolean(activeConversationId && snap.conversationId && activeConversationId === snap.conversationId)
   const recent = sameChat ? messages.slice(-8) : []
   const node = (
     <aside
       className={`debug-chat-dock${snap.running ? ' is-running' : ''}${overlayOpen ? ' is-over-overlay' : ''}`}
+      id="debug-chat-dock"
       role="status"
       aria-live="polite"
       aria-label="Debug-Chat"

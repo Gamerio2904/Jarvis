@@ -18,14 +18,16 @@ export type { DebugSendResult }
 export function DebugPanel({
   onSend,
   onStartChat,
+  onBegin,
   busy,
 }: {
   onSend: (text: string, conversationId: string) => Promise<DebugSendResult | string | void>
   onStartChat: (title: string) => Promise<string>
+  onBegin?: () => void
   busy: boolean
 }) {
   const [snap, setSnap] = useState(debugSnapshot)
-  useEffect(() => subscribeDebug(() => setSnap(debugSnapshot())), [])
+  useEffect(() => subscribeDebug((s) => setSnap(s)), [])
 
   const items = useMemo(() => {
     const want = new Set(snap.picked)
@@ -45,6 +47,7 @@ export function DebugPanel({
       markDebugWarned()
       return
     }
+    onBegin?.()
     await startDebugRun({ onStartChat, onSend })
   }
 
