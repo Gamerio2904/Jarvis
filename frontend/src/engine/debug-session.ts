@@ -27,6 +27,7 @@ export type DebugSnapshot = {
   conversationId: string | null
   error: string | null
   warned: boolean
+  live: boolean
 }
 
 const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
@@ -54,6 +55,7 @@ let conversationId: string | null = null
 let error: string | null = null
 let stopFlag = false
 let runToken = 0
+let live = false
 const listeners = new Set<() => void>()
 
 restore()
@@ -119,6 +121,7 @@ export function debugSnapshot(): DebugSnapshot {
     conversationId,
     error,
     warned,
+    live,
   }
 }
 
@@ -162,7 +165,7 @@ export async function startDebugRun(opts: {
   if (!warned) {
     warned = true
     progress =
-      'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings dürfen zu, Chat bleibt nutzbar. Home kann den Lauf killen. Nochmal Start bestätigt.'
+      'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings gehen zu — der Debug-Chat bleibt als Dock über CarPlay und Overlays. Home kann den Lauf killen. Nochmal Start bestätigt.'
     emit()
     return
   }
@@ -171,6 +174,7 @@ export async function startDebugRun(opts: {
   stopped = false
   error = null
   turns = []
+  live = true
   phase = 'starting'
   progress = 'Gespräch…'
   emit()

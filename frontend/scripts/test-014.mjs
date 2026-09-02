@@ -38,7 +38,7 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
-import { ttsBudgetMs, ttsGeminiPrimary, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
+import { spokenForGemini, ttsBudgetMs, ttsGeminiPrimary, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, isConfirmPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
@@ -1027,6 +1027,9 @@ assert.equal(ttsGeminiPrimary(false), true)
 assert.equal(ttsGeminiPrimary(true), false)
 assert.ok(ttsBudgetMs(false) >= 2000)
 assert.ok(ttsBudgetMs(true) <= 900)
+assert.equal(spokenForGemini('  **Hallo** Welt  '), 'Hallo Welt')
+assert.equal(spokenForGemini('Calm, low German').includes('Read only'), false)
+assert.ok(!spokenForGemini('Die Zeit ist um.').includes('Calm'))
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
 assert.equal(two.parts.length, 1)
 assert.match(two.parts[0], /Ja\./)
