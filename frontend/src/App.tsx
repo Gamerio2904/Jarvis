@@ -69,6 +69,7 @@ import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestri
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate'
+import { DebugChatDock } from './DebugChatDock'
 import { debugSnapshot, subscribeDebug } from './engine/debug-session'
 import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate'
 
@@ -338,6 +339,8 @@ function App() {
   const busyRef = useRef(false)
   const driveCloseGenRef = useRef(0)
   const [debugRunning, setDebugRunning] = useState(() => debugSnapshot().running)
+  const debugRunningRef = useRef(false)
+  debugRunningRef.current = debugRunning
   const [streamingText, setStreamingText] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [lastFailed, setLastFailed] = useState<string | null>(null)
@@ -498,8 +501,15 @@ function App() {
   }, [])
 
   useEffect(() => {
-    return subscribeDebug(() => setDebugRunning(debugSnapshot().running))
+    return subscribeDebug((snap) => setDebugRunning(snap.running))
   }, [])
+
+  useEffect(() => {
+    if (!debugRunning) return
+    setSettingsPanelOpen(false)
+    setSidebarOpen(false)
+    closeSheet('settings')
+  }, [debugRunning])
 
   useEffect(() => {
     const overlayOpen = settingsPanelOpen || calendarOpen || voiceOpen || driveOpen
@@ -1404,6 +1414,7 @@ function App() {
   }
 
   function maybeOpenSettingsFromReply(reply: string) {
+    if (debugRunningRef.current) return
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
     else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t)) openSettings('haus')
@@ -1431,7 +1442,7 @@ function App() {
   const voiceLayer = useOverlay(voiceOpen)
 
   return (
-    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`} ref={appRef}>
+    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1973,9 +1984,22 @@ function App() {
           onClearMemory={() => void onClearMemory()}
           onDebugSend={(text, conversationId) => sendMessage(text, { conversationId, source: 'debug' })}
           onDebugStart={(title) => startDebugChat(title)}
+          onDebugBegin={() => {
+            setSettingsPanelOpen(false)
+            setSidebarOpen(false)
+            closeSheet('settings')
+          }}
           debugBusy={busy}
         />
       ) : null}
+
+      <DebugChatDock
+        overlayOpen={driveOpen || voiceOpen || calendarOpen || settingsPanelOpen}
+        messages={messages}
+        streaming={streamingText}
+        activeConversationId={activeId}
+        onOpen={() => openSettings('tests')}
+      />
     </div>
   )
 }

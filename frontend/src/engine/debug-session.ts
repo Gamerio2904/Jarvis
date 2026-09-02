@@ -27,7 +27,10 @@ export type DebugSnapshot = {
   conversationId: string | null
   error: string | null
   warned: boolean
+  live: boolean
 }
+
+const DEBUG_EVENT = 'jarvis-debug'
 
 const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
 const TURN_TIMEOUT_MS = 90_000
@@ -54,6 +57,7 @@ let conversationId: string | null = null
 let error: string | null = null
 let stopFlag = false
 let runToken = 0
+let live = false
 const listeners = new Set<() => void>()
 
 restore()
@@ -61,6 +65,11 @@ restore()
 function emit() {
   for (const fn of listeners) fn()
   persist()
+  try {
+    window.dispatchEvent(new CustomEvent(DEBUG_EVENT, { detail: debugSnapshot() }))
+  } catch {
+    /* node tests */
+  }
 }
 
 function persist() {
@@ -102,9 +111,26 @@ function restore() {
   }
 }
 
-export function subscribeDebug(fn: () => void): () => void {
-  listeners.add(fn)
-  return () => listeners.delete(fn)
+export function subscribeDebug(fn: (snap: DebugSnapshot) => void): () => void {
+  const local = () => fn(debugSnapshot())
+  listeners.add(local)
+  const onWin = (e: Event) => {
+    const d = (e as CustomEvent<DebugSnapshot>).detail
+    fn(d || debugSnapshot())
+  }
+  try {
+    window.addEventListener(DEBUG_EVENT, onWin)
+  } catch {
+    /* node tests */
+  }
+  return () => {
+    listeners.delete(local)
+    try {
+      window.removeEventListener(DEBUG_EVENT, onWin)
+    } catch {
+      /* ignore */
+    }
+  }
 }
 
 export function debugSnapshot(): DebugSnapshot {
@@ -119,6 +145,7 @@ export function debugSnapshot(): DebugSnapshot {
     conversationId,
     error,
     warned,
+    live,
   }
 }
 
@@ -162,7 +189,7 @@ export async function startDebugRun(opts: {
   if (!warned) {
     warned = true
     progress =
-      'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings dürfen zu, Chat bleibt nutzbar. Home kann den Lauf killen. Nochmal Start bestätigt.'
+      'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings gehen zu — der Debug-Chat bleibt als Dock über CarPlay und Overlays. Home kann den Lauf killen. Nochmal Start bestätigt.'
     emit()
     return
   }
@@ -171,6 +198,7 @@ export async function startDebugRun(opts: {
   stopped = false
   error = null
   turns = []
+  live = true
   phase = 'starting'
   progress = 'Gespräch…'
   emit()

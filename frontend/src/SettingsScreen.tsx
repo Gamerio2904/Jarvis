@@ -137,6 +137,7 @@ export type SettingsScreenProps = {
   onClearMemory: () => void
   onDebugSend: (text: string, conversationId: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
   onDebugStart: (title: string) => Promise<string>
+  onDebugBegin: () => void
   debugBusy: boolean
 }
 
@@ -1976,6 +1977,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <DebugPanel
               onSend={p.onDebugSend}
               onStartChat={p.onDebugStart}
+              onBegin={p.onDebugBegin}
               busy={p.debugBusy}
             />
           ) : null}
