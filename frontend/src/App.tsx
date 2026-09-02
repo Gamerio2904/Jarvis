@@ -55,7 +55,8 @@ import { WakeBubble } from './WakeBubble'
 import { useOverlay } from './overlay'
 import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm'
 import { closeDrive, subscribeDrive } from './engine/drive'
-import { loadSettings } from './engine/store'
+import { deleteMessage, loadSettings, patchMessage } from './engine/store'
+import { truncateSpoken } from './engine/turn-detect'
 import { warmCloud } from './engine/cloud-warm'
 import { syncGlance } from './engine/glance'
 import { tickOutlookWatch } from './engine/outlook-watch'
@@ -401,6 +402,8 @@ function App() {
   const stickToBottomRef = useRef(true)
   const sawTokenRef = useRef(false)
   const voiceHoldUntilRef = useRef(0)
+  const voiceCutsRef = useRef(new Map<string, string>())
+  const voiceReqRef = useRef<string | null>(null)
   const [voiceSeed, setVoiceSeed] = useState('')
   const [lageWide, setLageWide] = useState(false)
 
@@ -1324,11 +1327,18 @@ function App() {
   async function sendVoiceTurn(
     content: string,
     onToken?: (piece: string, full: string) => void,
+    opts?: { preempt?: boolean },
   ): Promise<string> {
     if (!content) return ''
     let conversationId = await ensureConversation()
-    const ticket = beginTurn({ source: 'voice', content, conversationId })
+    const ticket = beginTurn({
+      source: 'voice',
+      content,
+      conversationId,
+      preempt: opts?.preempt,
+    })
     if (!ticket.ok) return ''
+    voiceReqRef.current = ticket.requestId
     const closeGen = driveCloseGenRef.current
     const optimistic: Message = {
       id: `tmp-voice-${Date.now()}`,
@@ -1367,8 +1377,26 @@ function App() {
           },
           onDone: (payload) => {
             markEnter(payload.assistant_message.id)
-            answer = payload.assistant_message.content
-            if (showUi()) setMessages((prev) => [...prev, payload.assistant_message])
+            let contentOut = payload.assistant_message.content
+            const cut = voiceCutsRef.current.has(ticket.requestId)
+              ? voiceCutsRef.current.get(ticket.requestId) || ''
+              : undefined
+            if (cut !== undefined) {
+              voiceCutsRef.current.delete(ticket.requestId)
+              contentOut = truncateSpoken(contentOut, cut)
+              if (contentOut) {
+                void patchMessage(payload.assistant_message.id, contentOut)
+              } else {
+                void deleteMessage(payload.assistant_message.id)
+              }
+            }
+            answer = contentOut
+            if (showUi() && contentOut) {
+              setMessages((prev) => [
+                ...prev,
+                { ...payload.assistant_message, content: contentOut },
+              ])
+            }
             setConversations((prev) => {
               const rest = prev.filter((c) => c.id !== payload.conversation.id)
               return [payload.conversation, ...rest]
@@ -1385,7 +1413,7 @@ function App() {
                 }
               }
             }
-            maybeOpenSettingsFromReply(payload.assistant_message.content)
+            maybeOpenSettingsFromReply(contentOut)
             applyAppTool(payload.tool)
           },
           onError: (detail) => {
@@ -1395,7 +1423,7 @@ function App() {
         { voice: true },
       )
     } finally {
-      endTurn({ source: 'voice', conversationId })
+      endTurn({ source: 'voice', conversationId, requestId: ticket.requestId })
     }
     return answer
   }
@@ -1638,7 +1666,11 @@ function App() {
               closeSheet('voice')
               wakeGateRef.current = closeWake(wakeGateRef.current)
             }}
-            onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
+            onTurn={(text, onTok, opts) => sendVoiceTurn(text, onTok, opts)}
+            onTruncate={(spoken) => {
+              const id = voiceReqRef.current
+              if (id) voiceCutsRef.current.set(id, spoken)
+            }}
             initialUtterance={voiceSeed}
           />
         ) : null}

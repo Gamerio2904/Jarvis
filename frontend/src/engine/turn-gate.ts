@@ -9,6 +9,7 @@ export type TurnTicket =
 const DEDUPE_MS = 1400
 
 let uiHeld = false
+let holdToken = ''
 const convHeld = new Set<string>()
 let lastKey = ''
 let lastAt = 0
@@ -24,10 +25,17 @@ export function beginTurn(opts: {
   content: string
   conversationId?: string
   requestId?: string
+  preempt?: boolean
 }): TurnTicket {
   const requestId = opts.requestId || newRequestId(opts.source)
   const key = `${opts.source}:${opts.content.trim()}`
   const now = Date.now()
+  if (opts.preempt && opts.source === 'voice') {
+    uiHeld = false
+    holdToken = ''
+    const conv = opts.conversationId || ''
+    if (conv) convHeld.delete(conv)
+  }
   if (key && lastKey === key && now - lastAt < DEDUPE_MS) {
     return { ok: false, requestId, reason: 'duplicate' }
   }
@@ -42,19 +50,22 @@ export function beginTurn(opts: {
   if (uiHeld) return { ok: false, requestId, reason: 'busy' }
   if (conv && convHeld.has(conv)) return { ok: false, requestId, reason: 'busy' }
   uiHeld = true
+  holdToken = requestId
   if (conv) convHeld.add(conv)
   lastKey = key
   lastAt = now
   return { ok: true, requestId }
 }
 
-export function endTurn(opts?: { source?: TurnSource; conversationId?: string }): void {
+export function endTurn(opts?: { source?: TurnSource; conversationId?: string; requestId?: string }): void {
   const conv = opts?.conversationId || ''
   if (opts?.source === 'debug') {
     if (conv) convHeld.delete(conv)
     return
   }
+  if (opts?.requestId && holdToken && opts.requestId !== holdToken) return
   uiHeld = false
+  holdToken = ''
   if (conv) convHeld.delete(conv)
 }
 

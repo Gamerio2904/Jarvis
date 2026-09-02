@@ -7,6 +7,9 @@ import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -60,6 +63,10 @@ public class JarvisVoicePlugin extends Plugin {
     private int listenGen = 0;
     private int speakGen = 0;
     private String lastPartial = "";
+    private String listenHold = "";
+    private int listenExtend = 0;
+    private volatile boolean bargeWatch = false;
+    private Intent listenIntent;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newCachedThreadPool();
     private final OkHttpClient http = new OkHttpClient.Builder()
@@ -101,6 +108,7 @@ public class JarvisVoicePlugin extends Plugin {
                 tts.shutdown();
                 tts = null;
             }
+            bargeWatch = false;
         });
     }
 
@@ -183,6 +191,8 @@ public class JarvisVoicePlugin extends Plugin {
             JarvisWakeService.pauseListen();
             listenCall = call;
             lastPartial = "";
+            listenHold = "";
+            listenExtend = 0;
             if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
                 finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.", null);
                 return;
@@ -195,7 +205,24 @@ public class JarvisVoicePlugin extends Plugin {
                     @Override public void onRmsChanged(float rmsdB) {}
                     @Override public void onBufferReceived(byte[] buffer) {}
                     @Override public void onEndOfSpeech() {}
-                    @Override public void onError(int error) {
+                    @Override
+                    public void onResults(Bundle results) {
+                        ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                        String text = list != null && !list.isEmpty() ? list.get(0) : "";
+                        String joined = joinHold(text);
+                        if (shouldExtend(joined)) {
+                            listenHold = joined;
+                            listenExtend += 1;
+                            lastPartial = joined;
+                            restartListen();
+                            return;
+                        }
+                        listenHold = "";
+                        listenExtend = 0;
+                        finishListen(joined, true, "", list);
+                    }
+                    @Override
+                    public void onError(int error) {
                         if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY
                                 || error == SpeechRecognizer.ERROR_CLIENT) {
                             try {
@@ -207,17 +234,17 @@ public class JarvisVoicePlugin extends Plugin {
                         }
                         if (error == SpeechRecognizer.ERROR_NO_MATCH
                                 || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                            String keep = lastPartial == null ? "" : lastPartial.trim();
+                            String keep = joinHold(lastPartial);
+                            if (shouldExtend(keep)) {
+                                listenHold = keep;
+                                listenExtend += 1;
+                                restartListen();
+                                return;
+                            }
                             finishListen(keep, true, keep.isEmpty() ? "" : "", null);
                             return;
                         }
-                        finishListen("", false, "Zuhören unterbrochen.", null);
-                    }
-                    @Override
-                    public void onResults(Bundle results) {
-                        ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                        String text = list != null && !list.isEmpty() ? list.get(0) : "";
-                        finishListen(text, true, "", list);
+                        finishListen(joinHold(lastPartial), false, "Zuhören unterbrochen.", null);
                     }
                     @Override
                     public void onPartialResults(Bundle partialResults) {
@@ -238,9 +265,10 @@ public class JarvisVoicePlugin extends Plugin {
             intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
             intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
             intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 800L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 650L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 350L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 280L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 200L);
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 280L);
+            listenIntent = intent;
             try {
                 main.postDelayed(() -> {
                     if (listenGen != gen || listenCall != call) return;
@@ -260,13 +288,61 @@ public class JarvisVoicePlugin extends Plugin {
                     try {
                         if (recognizer != null) recognizer.cancel();
                     } catch (Exception ignored) {}
-                    finishListen(lastPartial == null ? "" : lastPartial, true, "", null);
+                    finishListen(joinHold(lastPartial), true, "", null);
                 }
             }, 10_000);
         });
     }
 
+    private String joinHold(String next) {
+        String a = listenHold == null ? "" : listenHold.trim();
+        String b = next == null ? "" : next.trim();
+        if (a.isEmpty()) return b;
+        if (b.isEmpty() || b.startsWith(a)) return b.isEmpty() ? a : b;
+        return a + " " + b;
+    }
+
+    private boolean looksComplete(String text) {
+        if (text == null) return false;
+        String t = text.trim();
+        if (t.isEmpty()) return false;
+        String low = t.toLowerCase(Locale.GERMAN);
+        if (low.matches("(?s).*\\b(und|oder|aber|weil|dass|daß|also|dann|wenn|ob|mit|von|zu|für|nach)\\s*$")) {
+            return false;
+        }
+        if (t.matches(".*[.!?…]$") && t.length() >= 4) return true;
+        int words = t.split("\\s+").length;
+        return words >= 6 || t.length() >= 24;
+    }
+
+    private boolean shouldExtend(String text) {
+        if (listenExtend >= 2) return false;
+        if (text == null || text.trim().isEmpty()) return false;
+        return !looksComplete(text);
+    }
+
+    private void restartListen() {
+        final Intent intent = listenIntent;
+        final PluginCall call = listenCall;
+        final int gen = listenGen;
+        if (intent == null || call == null) return;
+        main.postDelayed(() -> {
+            if (listenGen != gen || listenCall != call) return;
+            try {
+                if (recognizer == null) {
+                    finishListen(joinHold(lastPartial), true, "", null);
+                    return;
+                }
+                recognizer.startListening(intent);
+            } catch (Exception e) {
+                finishListen(joinHold(lastPartial), true, "", null);
+            }
+        }, 160);
+    }
+
     private void finishListen(String text, boolean ok, String message, ArrayList<String> alts) {
+        listenHold = "";
+        listenExtend = 0;
         PluginCall c = listenCall;
         listenCall = null;
         if (c == null) return;
@@ -409,6 +485,88 @@ public class JarvisVoicePlugin extends Plugin {
         JSObject r = new JSObject();
         r.put("ok", true);
         call.resolve(r);
+    }
+
+    @PluginMethod
+    public void startBargeWatch(PluginCall call) {
+        bargeWatch = true;
+        io.execute(this::runBargeWatch);
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void stopBargeWatch(PluginCall call) {
+        bargeWatch = false;
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    private void runBargeWatch() {
+        int min = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        if (min <= 0) min = 16000;
+        AudioRecord rec = null;
+        try {
+            rec = new AudioRecord(
+                    MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                    16000,
+                    AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    Math.max(min, 3200));
+            if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
+                rec.release();
+                rec = new AudioRecord(
+                        MediaRecorder.AudioSource.MIC,
+                        16000,
+                        AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_PCM_16BIT,
+                        Math.max(min, 3200));
+            }
+            if (rec.getState() != AudioRecord.STATE_INITIALIZED) {
+                rec.release();
+                return;
+            }
+            rec.startRecording();
+            short[] buf = new short[512];
+            int hot = 0;
+            long started = System.currentTimeMillis();
+            while (bargeWatch) {
+                int n = rec.read(buf, 0, buf.length);
+                if (n <= 0) continue;
+                if (System.currentTimeMillis() - started < 400) continue;
+                double sum = 0;
+                for (int i = 0; i < n; i += 1) {
+                    double v = buf[i] / 32768.0;
+                    sum += v * v;
+                }
+                double rms = Math.sqrt(sum / n);
+                if (rms >= 0.055) hot += 1;
+                else hot = Math.max(0, hot - 2);
+                if (hot >= 6) {
+                    bargeWatch = false;
+                    main.post(() -> {
+                        JSObject ev = new JSObject();
+                        ev.put("hit", true);
+                        notifyListeners("barge", ev);
+                    });
+                    break;
+                }
+            }
+        } catch (Exception ignored) {
+        } finally {
+            if (rec != null) {
+                try {
+                    rec.stop();
+                } catch (Exception ignored) {
+                }
+                try {
+                    rec.release();
+                } catch (Exception ignored) {
+                }
+            }
+        }
     }
 
     @PluginMethod

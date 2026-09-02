@@ -3,6 +3,8 @@ import { synthesizeGemini, ttsNativeRaceMs, wantGeminiVoice } from '../engine/tt
 import { pickHeard } from '../engine/heard.ts'
 import { loadFace } from '../engine/face.ts'
 import { markFirstAudio } from '../engine/latency.ts'
+import { BARGE_IGNORE_TTS_MS, BARGE_ONSET_MS, silenceMsFor, turnLooksComplete } from '../engine/turn-detect.ts'
+import { createEnergyVad, rmsFromByteTimeDomain } from '../engine/vad.ts'
 
 export { createSentenceTap } from '../engine/speak-tap'
 
@@ -28,8 +30,10 @@ type NativeVoice = {
     timeoutMs?: number
     auth?: string
   }): Promise<{ ok: boolean; status?: number; message?: string }>
+  startBargeWatch(): Promise<{ ok: boolean }>
+  stopBargeWatch(): Promise<{ ok: boolean }>
   addListener(
-    event: 'partial' | 'sse' | 'wake',
+    event: 'partial' | 'sse' | 'wake' | 'barge',
     cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string }) => void,
   ): Promise<{ remove: () => void }>
 }
@@ -98,6 +102,70 @@ export async function stopListen(): Promise<void> {
     return
   }
   webStopListen()
+}
+
+export function watchBargeIn(onHit: () => void): () => void {
+  let dead = false
+  const hit = () => {
+    if (dead) return
+    dead = true
+    onHit()
+  }
+  if (native) {
+    let handle: { remove: () => void } | undefined
+    void native.addListener('barge', () => hit()).then((h) => {
+      handle = h
+    })
+    void native.startBargeWatch().catch(() => undefined)
+    return () => {
+      dead = true
+      handle?.remove()
+      void native.stopBargeWatch()
+    }
+  }
+  let stream: MediaStream | null = null
+  let ctx: AudioContext | null = null
+  let raf = 0
+  const vad = createEnergyVad({ threshold: 0.11, hangMs: 120, onsetMs: BARGE_ONSET_MS })
+  const t0 = Date.now()
+  void (async () => {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        video: false,
+      })
+      if (dead) {
+        stream.getTracks().forEach((tr) => tr.stop())
+        return
+      }
+      ctx = new AudioContext()
+      const src = ctx.createMediaStreamSource(stream)
+      const an = ctx.createAnalyser()
+      an.fftSize = 512
+      src.connect(an)
+      const data = new Uint8Array(an.fftSize)
+      const loop = () => {
+        if (dead) return
+        an.getByteTimeDomainData(data)
+        if (Date.now() - t0 < BARGE_IGNORE_TTS_MS) {
+          raf = requestAnimationFrame(loop)
+          return
+        }
+        const ev = vad.frame(rmsFromByteTimeDomain(data))
+        if (ev.event === 'onset') hit()
+        else raf = requestAnimationFrame(loop)
+      }
+      raf = requestAnimationFrame(loop)
+    } catch {
+      /* no mic — tap barge-in remains */
+    }
+  })()
+  return () => {
+    dead = true
+    cancelAnimationFrame(raf)
+    stream?.getTracks().forEach((tr) => tr.stop())
+    void ctx?.close()
+  }
 }
 
 let currentAudio: HTMLAudioElement | null = null
@@ -218,16 +286,27 @@ type SpeakJob = { text: string; ready: Promise<Blob | 'native'> }
 
 export function createSpeakPipeline() {
   const q: SpeakJob[] = []
+  const heard: string[] = []
   let running = false
   let stopped = false
+  let lane: 'gemini' | 'native' | null = null
 
   function prepare(text: string): Promise<Blob | 'native'> {
     return (async () => {
-      if (!wantGeminiVoice()) return 'native'
-      const race = ttsNativeRaceMs()
+      if (!wantGeminiVoice() || lane === 'native') {
+        lane = 'native'
+        return 'native'
+      }
+      const first = lane === null
+      const race = first ? ttsNativeRaceMs() || 480 : ttsNativeRaceMs()
       if (race <= 0) {
         const blob = await synthesizeGemini(text)
-        return blob || 'native'
+        if (blob) {
+          lane = 'gemini'
+          return blob
+        }
+        lane = 'native'
+        return 'native'
       }
       const gemini = synthesizeGemini(text)
       const raced = await Promise.race([
@@ -236,7 +315,11 @@ export function createSpeakPipeline() {
           globalThis.setTimeout(() => resolve(null), race)
         }),
       ])
-      if (raced) return raced
+      if (raced) {
+        lane = 'gemini'
+        return raced
+      }
+      lane = 'native'
       return 'native'
     })()
   }
@@ -250,6 +333,7 @@ export function createSpeakPipeline() {
       const audio = await job.ready
       if (stopped) break
       markFirstAudio()
+      heard.push(job.text)
       if (audio instanceof Blob) await playBlob(audio)
       else await speakNative(job.text)
     }
@@ -262,6 +346,9 @@ export function createSpeakPipeline() {
       if (stopped || !clean) return
       q.push({ text: clean, ready: prepare(clean) })
       void pump()
+    },
+    spoken(): string {
+      return heard.join(' ').replace(/\s+/g, ' ').trim()
     },
     async flush() {
       while (!stopped && (running || q.length)) {
@@ -443,11 +530,19 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
     rec.interimResults = true
     rec.continuous = true
     rec.maxAlternatives = 5
+    let hold = ''
+    let timer = 0
+    const arm = (text: string) => {
+      window.clearTimeout(timer)
+      if (!text.trim()) return
+      timer = window.setTimeout(() => settle(text), silenceMsFor(text))
+    }
     const settle = (text: string) => {
       if (settled) return
       settled = true
       webListening = false
       webRec = null
+      window.clearTimeout(timer)
       try {
         rec.stop()
       } catch {
@@ -465,35 +560,37 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
         }
       }
       const text = pickHeard(alts[0] || '', alts.slice(1))
-      if (last && !last.isFinal) onPartial?.(text)
-      if (last?.isFinal && text) settle(text)
+      hold = text
+      onPartial?.(text)
+      if (last?.isFinal && turnLooksComplete(text) && text) settle(text)
+      else arm(text)
     }
     rec.onerror = (ev) => {
       const err = String(ev.error || '')
       if (!webListening) {
-        settle('')
+        settle(hold)
         return
       }
       if (err === 'no-speech' || err === 'aborted') {
         try {
           rec.start()
         } catch {
-          settle('')
+          settle(hold)
         }
         return
       }
-      settle('')
+      settle(hold)
     }
     rec.onend = () => {
       if (settled) return
       if (!webListening) {
-        settle('')
+        settle(hold)
         return
       }
       try {
         rec.start()
       } catch {
-        settle('')
+        settle(hold)
       }
     }
     rec.start()

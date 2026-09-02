@@ -15,6 +15,9 @@ Recherche [`52-research-latency-quality.md`](./52-research-latency-quality.md). 
 - **Groq:** Token-Stream (SSE, Bearer), Fallback JSON. Native SSE kann Bearer.
 - **SLO:** `latency.ts` markiert Hirn / erste Stimme / gesamt. Tests-Reiter und Debug-Dock zeigen die letzte Zeile.
 - **Warmup:** TLS/DNS gegen Google/Groq beim App-Start, ohne Key in der URL.
+- **Turn-Taking:** Fertiger Satz → 220 ms Stille, unfertig („und …“) → 800 ms. Android-Recognizer startet bei unfertigem Partial neu.
+- **Barge-in:** Mic während Denken/Sprechen. Backchannel (`mhm`) zählt nicht. Gespeichert wird nur, was schon gesprochen war.
+- **First-Audio:** Erster Chunk Standing Native-Race 480 ms; Rest bleibt bei derselben Stimme.
 
 ### `9.9.0` — V9 Hardening — *CODE*
 

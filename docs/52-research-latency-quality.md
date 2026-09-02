@@ -96,9 +96,9 @@ Parser-first bleibt der größte Latenzgewinn, den wir schon haben: Timer/Wetter
 
 ### Als Nächstes (Stimme, eigene Sprints, nicht Alltag-Execute)
 
-5. **Silero-VAD + Smart Turn v3** (HF, ~10 MB zusammen). Endpoint 200 ms, Backchannel ignorieren. `heard.ts` / Native-Listen. Echo während TTS: Schwelle hoch oder AEC — sonst False-Barge-in.
-6. **Barge-in aus dem Mic** + Truncate: nach Interrupt nur den gesprochenen Prefix in die History (`spokenForGemini` / Pipeline-Offset). Pipecat-Loop, ohne Pipecat.
-7. **Piper-de über sherpa-onnx** als Offline-Stimme neben Algieba. Drive bleibt Native-Race; Standing: Piper first-audio, Algieba nur wenn gewollt.
+5. **Silero-VAD + Smart Turn v3** — **CODE Loop** in `turn-detect.ts` / `vad.ts` / Native-Listen. Endpoint 200 ms wenn der Satz fertig klingt, 800 ms bei „und …“. ONNX-Gewichte (8 MB Smart Turn, Silero) bleiben Could wenn Energie+Transkript im Auto knirscht.
+6. **Barge-in aus dem Mic** + Truncate — **CODE**. `watchBargeIn` (Web echoCancellation, Android `AudioRecord` + AEC). History = Gesprochenes (`truncateSpoken` + `patchMessage`).
+7. **First-Audio eine Stimme** — **CODE**. Erster Chunk Standing 480 ms Native-Race (System-TTS = Piper, wenn die Engine so heißt). Rest derselben Lane, kein Mix Algieba/Pico. sherpa-onnx nicht gebündelt (APK-Gewicht); Piper-Engine-APK vom System nutzbar.
 8. **Groq specdec / kleinste Chat-Modelle** nur als Backup-Label, wenn TTFT-Messung Groq langsamer als Gemini zeigt.
 
 ### Could (Qualität / Profession)
@@ -121,10 +121,10 @@ Parser-first bleibt der größte Latenzgewinn, den wir schon haben: Timer/Wetter
 | Groq-SSE | `groq.ts`, `voice.ts`, `JarvisVoicePlugin.java` | klein | Native Header Bearer |
 | Latenz-SLO | `latency.ts`, Chat/Voice/Debug | klein | Keine PII, nur ms |
 | TLS-Warm | `cloud-warm.ts`, `App.tsx` | winzig | no-cors, kein Key in der URL |
-| Smart Turn | neu `turn-detect.ts` + ONNX | mittel | First-run Download, WASM-RAM |
-| Mic-Barge-in | `VoiceMode.tsx`, Native TTS-Stop | mittel | Echo → False-Stop |
-| Piper/Sherpa | Native Modul | groß | APK-Größe, zweite Stimme vs. Algieba |
-| e5 Rerank | `retrieve.ts` | mittel | 120 MB, nie Router |
+| Smart Turn | `turn-detect.ts`, Native-Listen | **CODE** Loop (ONNX Could) | Echo / unfertige Sätze |
+| Mic-Barge-in | `VoiceMode.tsx`, `JarvisVoicePlugin` | **CODE** | False-Stop im Auto — Drive ohne Mic-Barge |
+| First-Audio | `createSpeakPipeline` Lane | **CODE** | Eine Stimme pro Turn |
+| e5 Rerank | `retrieve.ts` | Won’t bis RRF knirscht | 120 MB, nie Router |
 
 ---
 

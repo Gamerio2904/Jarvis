@@ -79,6 +79,16 @@ import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
 import { beginTurn, endTurn } from '../src/engine/turn-gate.ts'
+import {
+  isBackchannel,
+  isBargeInText,
+  silenceMsFor,
+  SILENCE_COMPLETE_MS,
+  SILENCE_HOLD_MS,
+  truncateSpoken,
+  turnLooksComplete,
+} from '../src/engine/turn-detect.ts'
+import { createEnergyVad, rmsFromPcm16 } from '../src/engine/vad.ts'
 import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
 import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
 import { isAllowedPcHost, sanitizePcHost } from '../src/engine/pc-host.ts'
@@ -1944,6 +1954,21 @@ const again = beginTurn({ source: 'user', content: 'hallo zwei', conversationId:
 assert.equal(again.ok, true)
 endTurn({ source: 'user', conversationId: 'c1' })
 
+{
+  const first = beginTurn({ source: 'voice', content: 'wetter', conversationId: 'v1' })
+  assert.equal(first.ok, true)
+  const second = beginTurn({
+    source: 'voice',
+    content: 'stopp',
+    conversationId: 'v1',
+    preempt: true,
+  })
+  assert.equal(second.ok, true)
+  endTurn({ source: 'voice', conversationId: 'v1', requestId: first.requestId })
+  assert.equal(beginTurn({ source: 'voice', content: 'noch was', conversationId: 'v1' }).ok, false)
+  endTurn({ source: 'voice', conversationId: 'v1', requestId: second.requestId })
+}
+
 assert.deepEqual(subQueries('Was weißt du über mich'), [])
 assert.equal(subQueries('Was weißt du über den Zahnarzt').some((q) => q.includes('zahnarzt')), true)
 assert.ok(!subQueries('Was weißt du über den Zahnarzt').includes('über'))
@@ -2515,5 +2540,25 @@ assert.equal(latencyBand(500), 'ok')
 assert.equal(latencyBand(900), 'langsam')
 assert.match(formatLatency(slo), /Parser/)
 assert.match(formatLatency(slo), /Hirn/)
+
+assert.equal(turnLooksComplete('Wie spät ist es?'), true)
+assert.equal(turnLooksComplete('Ich wollte noch und'), false)
+assert.equal(turnLooksComplete('mhm'), false)
+assert.equal(silenceMsFor('Guten Morgen.'), SILENCE_COMPLETE_MS)
+assert.equal(silenceMsFor('Ich wollte noch und'), SILENCE_HOLD_MS)
+assert.equal(isBackchannel('mhm'), true)
+assert.equal(isBackchannel('Mach das Licht an'), false)
+assert.equal(isBargeInText('mhm'), false)
+assert.equal(isBargeInText('Stopp das'), true)
+assert.equal(truncateSpoken('Guten Abend. Der Termin ist um drei.', 'Guten Abend.'), 'Guten Abend.')
+assert.equal(truncateSpoken('Hallo.', ''), '')
+{
+  const vad = createEnergyVad({ threshold: 0.05, hangMs: 50, onsetMs: 20 })
+  assert.equal(vad.frame(0.2, 1000).event, 'none')
+  assert.equal(vad.frame(0.2, 1030).event, 'onset')
+  assert.equal(vad.frame(0.01, 1040).event, 'none')
+  assert.equal(vad.frame(0.01, 1100).event, 'end')
+  assert.ok(rmsFromPcm16([32767, -32768]) > 0.9)
+}
 
 console.log('ok 0.14 parsers')
