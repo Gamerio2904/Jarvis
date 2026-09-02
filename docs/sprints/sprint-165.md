@@ -8,7 +8,7 @@
 
 ## Ziel
 
-Live-Dock pollt den Agenten nur mit Sitzung. Host-Hinweis in Settings. Industry-DoD aus dem Audit ist abgehakt. Version `9.9.0`. Sideload bleibt `6.90.0`.
+Live-Dock pollt den Agenten nur mit Sitzung. Host-Hinweis in Settings. Industry-DoD aus dem Audit ist abgehakt. Version `9.9.0`. Sideload **`9.9.0`**.
 
 ## Must
 

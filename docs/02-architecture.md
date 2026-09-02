@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Jetzt:** Code **`9.9.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback (`pickBrain` in `brain-pick.ts`). Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — Export [`38-next.md`](./38-next.md) **CODE**; **Deinstall ohne Import löscht alles**. Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` / `9.3` / `9.9` **CODE**. Lage neben Chat: [`39-next.md`](./39-next.md). Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md)/[`48-next.md`](./48-next.md) **CODE**, Debug [`44-next.md`](./44-next.md) **CODE** + Session `6.91`. LocateAnything-Gewichte: [`41-next.md`](./41-next.md). Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
+> **Jetzt:** Code **`9.9.0`**. Sideload **`9.9.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback (`pickBrain` in `brain-pick.ts`). Kein Ollama, kein NAS. Speicher: `localStorage` + IndexedDB — Export [`38-next.md`](./38-next.md) **CODE**; **Deinstall ohne Import löscht alles**. Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` / `9.3` / `9.9` **CODE**. Lage neben Chat: [`39-next.md`](./39-next.md). Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md)/[`48-next.md`](./48-next.md) **CODE**, Debug [`44-next.md`](./44-next.md) **CODE** + Session `6.91`. LocateAnything-Gewichte: [`41-next.md`](./41-next.md). Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
 
 ## Leitentscheidung
 
@@ -37,7 +37,7 @@ Parser wählen Geräte. Das Hirn formuliert, erfindet keine Tool-Zahlen.
 | Version `0.1.0` | = **MVP** (Sprint-1-Abnahme) |
 | Version `0.13.0` | = **On-Device Handy** |
 | Version `6.50.0` | = Gemini Hauptweg + Bühne |
-| Version `6.90.0` | = aktueller App-Code und Sideload (Globus-Briefing) |
+| Version `9.9.0` | = aktueller App-Code und Sideload (V1–V9) |
 | Version `6.60.0` | = voriger Sideload (Split, Overlay, Parser) |
 
 ## Logische Bausteine

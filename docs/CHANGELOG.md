@@ -5,13 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`9.9.0`**. Sideload zuletzt: **`6.90.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`9.9.0`**. Sideload zuletzt: **`9.9.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
 ### `9.9.0` — V9 Hardening — *CODE*
 
-Sprints 163–165. Regression, LAN-only PC, Secret-Redact. Sideload bleibt `6.90.0`. Alltag Won’t.
+Sprints 163–165. Regression, LAN-only PC, Secret-Redact. Sideload **`9.9.0`** (versionCode `90900`). Alltag Won’t.
 
-- **Regression:** Debug-Gruppe V9, HELP `9.9.0`, V1–V8 bleiben.
+- **Regression:** Debug-Gruppe V9, HELP `9.9.0`, V1–V8 bleiben. Probe V1–V9: ein Kopierfeld pro Prompt.
 - **Security:** `isAllowedPcHost` (kein 172/Internet). `redactSecrets` im Chat. Keys als Passwort.
 - **UX:** Live-Dock pollt den Agenten nur mit Sitzung. Host-Hinweis in Settings.
 - Docs [`sprints/sprint-163.md`](./sprints/sprint-163.md)–[`sprint-165.md`](./sprints/sprint-165.md)

@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`9.9.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Stabilität V1 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.93` **CODE**. V2 Voice & App `6.94`–`6.96` **CODE**. V3 Verified Actions `6.97`–`6.99` **CODE**. V4 Dokumente `9.0` **CODE**. V5 Hierarchical Memory `7.0` **CODE**. V6 TV `9.1` **CODE**. V7 PC `9.2` **CODE**. V8 Live `9.3` **CODE**. V9 Hardening `9.9` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
+> **Jetzt:** Code **`9.9.0`**. Sideload **`9.9.0`**. `6.50` = Gemini Hauptweg. Stabilität V1 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.93` **CODE**. V2 Voice & App `6.94`–`6.96` **CODE**. V3 Verified Actions `6.97`–`6.99` **CODE**. V4 Dokumente `9.0` **CODE**. V5 Hierarchical Memory `7.0` **CODE**. V6 TV `9.1` **CODE**. V7 PC `9.2` **CODE**. V8 Live `9.3` **CODE**. V9 Hardening `9.9` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
