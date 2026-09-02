@@ -3,6 +3,7 @@ package app.jarvis.device;
 import android.telephony.SmsManager;
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,6 +14,9 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.BatteryManager;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 
 import com.getcapacitor.JSObject;
@@ -23,6 +27,10 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 @CapacitorPlugin(
@@ -352,6 +360,70 @@ public class JarvisDevicePlugin extends Plugin {
             r.put("message", "SMS nicht gesendet.");
         }
         call.resolve(r);
+    }
+
+    @PluginMethod
+    public void saveDownload(PluginCall call) {
+        String rawName = call.getString("name", "");
+        String text = call.getString("text", "");
+        JSObject r = new JSObject();
+        String name = safeFileName(rawName);
+        if (name.isEmpty() || text == null) {
+            r.put("ok", false);
+            r.put("message", "Kein Dateiname.");
+            call.resolve(r);
+            return;
+        }
+        try {
+            byte[] bytes = text.getBytes(StandardCharsets.UTF_8);
+            if (Build.VERSION.SDK_INT >= 29) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Downloads.DISPLAY_NAME, name);
+                values.put(MediaStore.Downloads.MIME_TYPE, "application/json");
+                values.put(MediaStore.Downloads.IS_PENDING, 1);
+                android.content.ContentResolver cr = getContext().getContentResolver();
+                Uri uri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (uri == null) throw new Exception("insert");
+                OutputStream os = cr.openOutputStream(uri);
+                if (os == null) throw new Exception("stream");
+                try {
+                    os.write(bytes);
+                } finally {
+                    os.close();
+                }
+                values.clear();
+                values.put(MediaStore.Downloads.IS_PENDING, 0);
+                cr.update(uri, values, null, null);
+            } else {
+                File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                if (dir != null && !dir.exists()) dir.mkdirs();
+                if (dir == null || !dir.isDirectory()) throw new Exception("downloads");
+                File out = new File(dir, name);
+                FileOutputStream fos = new FileOutputStream(out);
+                try {
+                    fos.write(bytes);
+                } finally {
+                    fos.close();
+                }
+            }
+            r.put("ok", true);
+            r.put("path", "Downloads/" + name);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Datei nicht in Downloads geschrieben.");
+        }
+        call.resolve(r);
+    }
+
+    private String safeFileName(String raw) {
+        if (raw == null) return "";
+        String t = raw.trim().replace('\\', '/');
+        int slash = t.lastIndexOf('/');
+        if (slash >= 0) t = t.substring(slash + 1);
+        t = t.replaceAll("[^A-Za-z0-9._-]", "_");
+        if (t.isEmpty()) return "jarvis-haus.json";
+        if (!t.toLowerCase().endsWith(".json")) t = t + ".json";
+        return t;
     }
 
     private void startExt(Intent i) {

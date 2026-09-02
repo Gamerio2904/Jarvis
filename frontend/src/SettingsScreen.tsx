@@ -1798,7 +1798,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <h3>Hausstand</h3>
               <p className="settings-lead">
                 Vor dem nächsten Sideload exportieren. Deinstall löscht Keys, Nummern und Erinnerungen. Die Datei
-                enthält API-Keys — nicht in den Chat, nicht nach Git, nicht per Mail.
+                enthält alle Einstellungen und API-Keys — nicht in den Chat, nicht nach Git, nicht per Mail.
+              </p>
+              <p className="settings-hint">
+                Export schreibt nach <strong>Downloads</strong> als <code>jarvis-haus-JJJJMMTT.json</code>. Nicht nur
+                teilen — die Datei muss dort liegen, sonst ist nach Neuinstall nichts da.
               </p>
               <p className="settings-hint">
                 {s?.last_backup_at
