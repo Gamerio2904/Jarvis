@@ -5,11 +5,113 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`6.90.0`**. Sideload: **`6.90.0`** (`releases/Jarvis.apk`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`9.9.0`**. Sideload zuletzt: **`9.9.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+### `9.9.0` — V9 Hardening — *CODE*
+
+Sprints 163–165. Regression, LAN-only PC, Secret-Redact. Sideload **`9.9.0`** (versionCode `90900`). Alltag Won’t.
+
+- **Regression:** Debug-Gruppe V9, HELP `9.9.0`, V1–V8 bleiben. Probe V1–V9: ein Kopierfeld pro Prompt.
+- **Security:** `isAllowedPcHost` (kein 172/Internet). `redactSecrets` im Chat. Keys als Passwort.
+- **UX:** Live-Dock pollt den Agenten nur mit Sitzung. Host-Hinweis in Settings.
+- Docs [`sprints/sprint-163.md`](./sprints/sprint-163.md)–[`sprint-165.md`](./sprints/sprint-165.md)
+
+### `9.3.0` — V8 Live-Stream (WebRTC-Signaling + LAN-JPEG) — *CODE*
+
+Sprints 160–162. Signaling über das LAN-Token. Live-Dock. WebRTC-Satz nur mit Peer. Sideload bleibt `6.90.0`. TURN Won’t.
+
+- **Signaling:** `/v1/webrtc` start/offer/frame/hangup. Capability `stream`.
+- **Live:** LAN-Einzelbilder im Dock. „Live aus“ beendet. JPEG ist kein Peer.
+- **Verify:** `rtcStreamVerified` — ready ohne Track = failed. Relay/TURN abgelehnt.
+- Docs [`sprints/sprint-160.md`](./sprints/sprint-160.md)–[`sprint-162.md`](./sprints/sprint-162.md)
+
+### `9.2.0` — V7 PC Capability-Levels + Confirm + Verify — *CODE*
+
+Sprints 157–159. Stufen vom Agent, Confirm für unbekanntes Starten und Löschen, Launch/Klick nur nach Observation. Sideload bleibt `6.90.0`. WebRTC Won’t.
+
+- **Stufen:** offline → status → screen → input → files → ground. Ohne Fähigkeit kein Start.
+- **Confirm:** FIFA bekannt ohne Extra-Frage. Chrome & Co. erst nach Ja. Löschen bleibt Ja/Nein.
+- **Verify:** Launch braucht `started`/`name`/`pid`. Klick „gesendet“, nicht „ausgeführt“. JPEG ist kein Zug-Beweis.
+- Docs [`sprints/sprint-157.md`](./sprints/sprint-157.md)–[`sprint-159.md`](./sprints/sprint-159.md)
+
+### `9.1.0` — V6 TV Device-Registry + Verify Launch — *CODE*
+
+Sprints 154–156. Registry, Launch nur nach Observation. Sideload bleibt `6.90.0`. SmartThings Won’t.
+
+- **Registry:** Tizen + Fire, Apps, Pick nach Name. Seed aus den Settings-Feldern.
+- **Launch:** SUCCESS nur mit Gerät, Kopplung, App-Fähigkeit, Native-OK, `appId`.
+- **Satz:** „Start angekommen“, nicht „Netflix ist offen“. `scrubReply` fängt die Lüge.
+- Docs [`sprints/sprint-154.md`](./sprints/sprint-154.md)–[`sprint-156.md`](./sprints/sprint-156.md)
+
+### `7.0.0` — V5 Hierarchical Memory — *CODE*
+
+Sprints 137–140. Quelle, Confidence, Contradiction, Prune. Retrieve/Working/Sleep bleiben lokal. Sideload bleibt `6.90.0`. V4 Dateien aus `9.0` bleiben im Baum.
+
+- **Schichten:** Sensory → Working (8) → Episodic (Retrieve mit Quelle) → Semantic (Pins ab 0.55).
+- **Write:** „Gemerkt“ nur nach Read-Back. Widerspruch prüft Löschung.
+- **Recall:** Kalender/Pin/Gespräch/Einkauf genannt; Treffer ohne Quelle = failed.
+- **Prune:** abgelaufen, Dumps, niedrige Confidence nach 14 Tagen, Kappe 80. Sleep-Harvest nur ohne Gemini.
+- Docs [`sprints/sprint-137.md`](./sprints/sprint-137.md)–[`sprint-140.md`](./sprints/sprint-140.md) · [`49-next.md`](./49-next.md)
+
+### `9.0.0` — V4 Dokumente — *CODE*
+
+Sprints 151–153. Attachments, PDF/Text-Parser, OCR mit Verify Upload. Sideload bleibt `6.90.0` bis zur nächsten APK. **Nicht** Alltag-Stimme `8.20`.
+
+- **Datei-Knopf:** PDF, Text, Foto. Word, Excel, HEIC ehrlich abgelehnt.
+- **PDF:** unkomprimierte Literale lokal. Gescannte Seiten: Foto, kein „PDF gelesen“.
+- **OCR:** Gemini-Vision; ohne Key kein Fake.
+- **Verify:** Domain `doc` in der Action-FSM. SUCCESS nur mit Observation.
+- Docs [`sprints/sprint-151.md`](./sprints/sprint-151.md)–[`sprint-153.md`](./sprints/sprint-153.md)
+
+### `6.99.0` — V3 Verified Actions — *CODE*
+
+Sprints 148–150. Action-FSM, Navi-Replace nur nach Verification, Research-Pending hart. Sideload bleibt `6.90.0` bis zur nächsten APK.
+
+- **Action-FSM:** SUCCESS nur mit Observation. TV/PC/App/Navi/Home.
+- **Navi:** Replace verifiziert Zielwechsel, GPS, `rideOk`. Kein Erfolgssatz „sofort neu“ ohne Strecke.
+- **Research:** `ja bitte` sucht die gemerkte Frage; TTL; `nein` bricht ab; ohne Quellen ehrlich leer.
+- Docs [`sprints/sprint-148.md`](./sprints/sprint-148.md)–[`sprint-150.md`](./sprints/sprint-150.md)
+
+### `6.96.0` — V2 Voice & App — *CODE*
+
+Sprints 145–147. TTS-Primary im Standing, App-Actions, Banner/Chips/Wake. Sideload bleibt `6.90.0` bis zur nächsten APK.
+
+- **TTS:** Standing wartet auf Gemini; 404/429 skippen das Modell. Am Steuer bleibt das kurze Native-Race.
+- **App-Actions:** `Öffne Einstellungen` / Debug / Gedächtnis-Panel / Sprachmodus / Theme — Parser, kein Fake-Klick.
+- **Banner:** Gemini-Hinweis einmal, Verstanden speichert.
+- **Chips:** Quellen-Badge ohne `1 · Wetter`.
+- **Wake:** nur Final-STT plus Debounce, kein doppeltes Voice-Open.
+- Docs [`sprints/sprint-145.md`](./sprints/sprint-145.md)–[`sprint-147.md`](./sprints/sprint-147.md)
+
+### `6.93.0` — V1 Abschluss — *CODE*
+
+Sprints 143–144. Overlay-FSM, Weltlage ≠ Wecker, Gemini-Abbruch, Research-Pending `ja bitte`. Sideload bleibt `6.90.0` bis zur nächsten APK.
+
+- **Overlay:** `overlay-fsm.ts` — Sheets exclusive, Drive bleibt darunter; `pointer-events: none` solange Settings/Stimme/Kalender oben. Fertig und Back schließen die oberste Fläche.
+- **Weltlage-Watch:** Native `alarm` Default false; Titel „Weltlage“ nie Alarm-Activity. `OUTLOOK_WATCH_ALARM = false`.
+- **Pin-Tap:** Sprechblase (Name, Kurzlage, kein Bilder-Swipe), Schließen / Im Chat.
+- **Gemini:** unvollständiger Satz → Retry mit mehr Tokens; bleibt stumpf → `Die Antwort ist abgebrochen…` vor `scrubReply`.
+- **Research:** Tweets in `isLiveLookup`; `ja bitte` nach `research_offer` wiederholt die gemerkte Frage.
+- **Anrede:** Siezen, Vorname nicht vokativ. Greeting nach Geräteuhr; Abend nach Mitternacht bleibt Abend.
+- **Debug:** Gruppe „Stabilität Screenshots“.
+- Docs [`sprints/sprint-143.md`](./sprints/sprint-143.md) · [`sprints/sprint-144.md`](./sprints/sprint-144.md)
+
+### `6.91.0` — Stabilität Kern — *CODE*
+
+Sprint 142. Phase-0-Audit der gesamten App + Screenshot-Root-Causes. Kein Feature-Major.
+
+- **Turn-Gate:** Request-IDs, Dedup, UI-Lock; Debug parallel auf eigenem Gespräch.
+- **Debug-Session:** überlebt Settings-Unmount, 90 s Timeout/Turn, Persist, Download danach. Android-Back schließt Overlay.
+- **Parser:** Vereinsliste ≠ Ort; Greeting ≠ Wetter; „lieber nach X“ im Fahrmodus ersetzt die Route; Aldi-Brand; OSM-Warenlisten keine Laden-Namen.
+- **Titel:** Ellipsis, Wortgrenze; Header folgt `onMeta.conversation`, nicht erst `onDone`.
+- **Street View:** Kugel fliegt zum Lexikon-Ort, Chip **Geht nicht** statt „Won’t“.
+- **Globe-Brief:** keine leere Tagesschau-Formel; Polish 300 Tokens, Stumpf → Canned.
+- **Gedächtnis:** `formatRecallReply` statt `Titel: body`; Dumps und Debug-Chats raus; `Was weißt du über mich` nur gepinnte Fakten.
+- Docs [`51-phase0-audit.md`](./51-phase0-audit.md) · [`sprints/sprint-142.md`](./sprints/sprint-142.md)
 
 ### Docs — Alltag vom Zettel `8.0` PLAN
 
-Sprint 141. Alte Notizen gegen Code `6.90` gehalten. Neu geplant: Blitzer, Stimme `8.20`, Lage `8.32`, Netz `8.33`, **Test-Tore** (vier Phasen nach Execute-Bündeln), Settings `8.35`, Amazon/Ordner/Preis. Nach Recall: **Dauer-Zuhören `8.95`**. Recall bleibt `7.0`.
+Sprint 141. Alte Notizen gegen Code `6.90` gehalten. Neu geplant: Blitzer, Stimme `8.20`, Lage `8.32`, Netz `8.33`, **Test-Tore** (vier Phasen nach Execute-Bündeln), Settings `8.35`, Amazon/Ordner/Preis. Nach Recall: **Dauer-Zuhören `8.95`**. Recall bleibt `7.0`. Execute **nach** Stabilität `6.91+`.
 
 - Docs [`50-next.md`](./50-next.md) · [`sprints/sprint-141.md`](./sprints/sprint-141.md)
 

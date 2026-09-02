@@ -1,4 +1,4 @@
-# 49 — Agentic Recall (`7.0`) **PLAN**
+# 49 — Agentic Recall (`7.0`) **CODE**
 
 Sprint-Nummern **127–130** und Version **`6.60`** sind vergeben (Parser, Overlay, Sideload, Globus **`6.90`**). Der Recall-Plan von `main` (`ba14126`) bleibt die **nächste Intelligenz-Schiene** nach `6.90`.
 

@@ -10,6 +10,7 @@ const STUB_JPEG = Buffer.from(
 )
 
 export const lastActions = []
+let rtcSession = ''
 
 export function startJarvisPcServer(opts = {}) {
   const port = opts.port || 18790
@@ -17,6 +18,7 @@ export function startJarvisPcServer(opts = {}) {
   const stub = Boolean(opts.stub)
   const host = opts.host || '127.0.0.1'
   lastActions.length = 0
+  rtcSession = ''
 
   function auth(req) {
     const h = String(req.headers['x-jarvis-token'] || '')
@@ -62,6 +64,12 @@ export function startJarvisPcServer(opts = {}) {
         screen: { width: 1920, height: 1080 },
         cursor: { x: 10, y: 10 },
         last: lastActions.at(-1) || 'Bereit.',
+        level: stub ? 'files' : 'screen',
+        capabilities: stub
+          ? ['status', 'screen', 'launch', 'click', 'move', 'type', 'key', 'files', 'stream']
+          : ['status', 'screen'],
+        vision: 'off',
+        webrtc: 'off',
       }
     }
     if (path === '/v1/screenshot') {
@@ -81,7 +89,8 @@ export function startJarvisPcServer(opts = {}) {
       if (!stub) return { ok: false, message: 'Echte Maus nur in JarvisPC.bat auf Windows.' }
       return {
         ok: true,
-        message: body.kind === 'click' ? 'Klick ausgeführt.' : 'Maus bewegt.',
+        message: body.kind === 'click' ? 'Klick gesendet.' : 'Maus bewegt.',
+        sent: true,
         stub: true,
       }
     }
@@ -91,7 +100,7 @@ export function startJarvisPcServer(opts = {}) {
       if (!q) return { ok: false, message: 'Kein Programm.' }
       if (!stub) return { ok: false, message: 'Starten nur in JarvisPC.bat auf Windows.' }
       if (/^missing-app$/i.test(q)) return { ok: false, message: `„${q}“ nicht gefunden.` }
-      return { ok: true, name: q, message: `${q} gestartet (Stub).`, stub: true }
+      return { ok: true, name: q, started: true, message: `${q} Startbefehl angekommen (Stub).`, stub: true }
     }
     if (path === '/v1/files') {
       lastActions.push(`files:${String(body.op || '')}:${String(body.path || '')}`)
@@ -103,6 +112,43 @@ export function startJarvisPcServer(opts = {}) {
         message: body.op === 'list' ? '[Ordner] Test' : `Stub ${String(body.op)}.`,
         stub: true,
       }
+    }
+    if (path === '/v1/webrtc' || path === '/v1/webrtc/frame') {
+      const act = path === '/v1/webrtc/frame' ? 'frame' : String(body.action || (body.sdp ? 'offer' : ''))
+      lastActions.push(`webrtc:${act}`)
+      if (act === 'start' || act === 'offer') {
+        rtcSession = `stub${Date.now().toString(36)}`
+        return {
+          ok: true,
+          sessionId: rtcSession,
+          webrtc: 'off',
+          mode: 'lan-jpeg',
+          ice: 'host',
+          message: act === 'offer' ? 'Kein WebRTC-Peer. Live-Bilder über LAN-JPEG.' : 'Live-Sitzung (LAN-JPEG).',
+          stub: true,
+        }
+      }
+      if (act === 'frame') {
+        if (!rtcSession) return { ok: false, message: 'Kein Live-Bild offen.' }
+        return {
+          ok: true,
+          sessionId: rtcSession,
+          webrtc: 'off',
+          mode: 'lan-jpeg',
+          frame: true,
+          mime: 'image/jpeg',
+          image: STUB_JPEG.toString('base64'),
+          stub: true,
+        }
+      }
+      if (act === 'hangup') {
+        rtcSession = ''
+        return { ok: true, webrtc: 'off' }
+      }
+      if (act === 'status') {
+        return { ok: true, sessionId: rtcSession, webrtc: 'off', mode: rtcSession ? 'lan-jpeg' : '', alive: Boolean(rtcSession) }
+      }
+      return { ok: false, message: 'Unbekannte Live-Aktion.' }
     }
     if (path === '/v1/trace') {
       const host = String(body.host || '').trim()

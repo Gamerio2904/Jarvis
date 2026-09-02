@@ -4,10 +4,20 @@ import { groqReady, testGroq } from './groq'
 import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain'
 import { userFacingCloudError } from './cloud-errors'
 import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards'
+import { greetingReply, parseGreeting } from './greeting.ts'
 import { memoryBlock } from './memory'
 import { retrieve } from './retrieve.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
 import { rewriteFollowUp } from './last-step'
+import {
+  acceptResearchPending,
+  declineResearchPending,
+  markResearchPending,
+  offerResearchPending,
+  parseResearchPending,
+  researchSourcesOk,
+  serializeResearchPending,
+} from './research-pending.ts'
 import { promoteSplitPart, splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
 import { SEARCH_ON_HINT, VOICE_HINT, personaPack } from './persona'
@@ -21,14 +31,16 @@ import {
   parseEuroPrices,
   parseShopDiscountIntent,
   RESEARCH_EMPTY,
-  RESEARCH_NEEDS_GEMINI,
   RESEARCH_OFF_REPLY,
+  REPLY_TRUNCATED,
   researchHasSources,
   researchQuery,
   shouldRetrySearch,
   sourceDigest,
+  isSearchRefusal,
   type ResearchMeta,
 } from './research-parse'
+import { looksTruncated } from './polish-guard.ts'
 import { fillResearchLinks } from './web-search'
 import {
   APP_VERSION,
@@ -68,6 +80,7 @@ import { routeRegistry, type RouteHit } from './registry'
 export type StreamHandlers = {
   onMeta?: (meta: {
     user_message: Message
+    conversation?: Conversation
     model: string
     using_fallback: boolean
     research?: ResearchMeta | null
@@ -154,6 +167,15 @@ async function routeDeterministic(conversationId: string, content: string): Prom
       reply: PERSONA_ASK_TEXT,
       lastTool: 'identity',
       tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Jarvis' },
+    }
+  }
+
+  const greet = parseGreeting(content) || parseGreeting(normalizeUtterance(content))
+  if (greet) {
+    return {
+      reply: greetingReply(greet),
+      lastTool: 'smalltalk',
+      tool: { tool_status: 'executed', tool: 'smalltalk', action: 'greeting', label: 'Jarvis' },
     }
   }
 
@@ -288,6 +310,37 @@ function lastStepHint(): string {
   return `Letzter Tool-Schritt: ${tool}${title ? ` (${title})` : ''}. Wenn der Nutzer „das“, „lauter“, „stopp“ oder „nochmal“ sagt, bezieht sich das darauf. Keine Ausführung erfinden.`
 }
 
+function persistResearchOffer(utterance: string, query: string): void {
+  const p = offerResearchPending(utterance, query)
+  saveSettings({
+    last_research_json: serializeResearchPending(p),
+    last_step_tool: 'research_offer',
+    last_step_title: query,
+    last_step_utterance: utterance.slice(0, 160),
+  })
+}
+
+function persistResearchDone(status: 'success' | 'failed' | 'cancelled' | 'running'): void {
+  const prev = parseResearchPending(loadSettings().last_research_json)
+  const next = markResearchPending(prev, status)
+  saveSettings({
+    last_research_json: serializeResearchPending(next),
+    last_step_tool: status === 'cancelled' ? '' : status === 'running' ? 'research_offer' : 'research',
+  })
+}
+
+function researchTool(sourceCount: number): ToolMeta {
+  const v = researchSourcesOk(sourceCount)
+  return {
+    tool_status: v.ok ? 'executed' : 'error',
+    tool: 'research',
+    action: 'search',
+    label: v.ok ? 'Suche' : 'Keine Quelle',
+    result: { sources: sourceCount },
+    error: v.error,
+  }
+}
+
 function persistLastStep(tool: string, title = '', when = '', utterance = ''): void {
   const medium =
     tool === 'tv' ? 'tv' : tool === 'drive' && /spotify/i.test(title) ? 'spotify' : tool === 'drive' ? 'drive' : loadSettings().last_medium
@@ -395,9 +448,11 @@ export async function streamChat(
 
   noteTurn('user', content)
   const userMessage = await addMessage(conversationId, 'user', content)
+  const convAfterUser = (await storeGet<Conversation>('conversations', conversationId)) || conv
   const kind = brainKind()
   handlers.onMeta?.({
     user_message: userMessage,
+    conversation: convAfterUser,
     model: brainLabel(kind),
     using_fallback: kind === 'groq' || kind === 'local',
     research: null,
@@ -412,7 +467,25 @@ export async function streamChat(
       writeChain(writes.slice(1))
       queue = writes.length ? [...reads, writes[0]] : reads
     }
-    const texts = queue.map((p) => rewriteFollowUp(p, loadSettings()) ?? p)
+    const settingsNow = loadSettings()
+    const researchPending = parseResearchPending(settingsNow.last_research_json)
+    const deviceBusy = Boolean(
+      settingsNow.last_pc_json || settingsNow.last_comm_json || settingsNow.last_taxi_json || settingsNow.last_interrupt_json,
+    )
+    const texts = queue.map((p) => rewriteFollowUp(p, settingsNow) ?? p)
+    const rewritten = texts[0] || content
+    const accepted = !deviceBusy ? acceptResearchPending(content, researchPending) : null
+    const ask = accepted?.utterance || rewritten
+    if (!deviceBusy && declineResearchPending(content, researchPending) && settingsNow.last_step_tool === 'research_offer') {
+      persistResearchDone('cancelled')
+      const reply = 'Suche nicht.'
+      handlers.onToken?.(reply)
+      const assistant = await addMessage(conversationId, 'assistant', reply)
+      const updated = (await touchConversation(conversationId)) || convAfterUser
+      handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+      return
+    }
+    if (accepted) persistResearchDone('running')
     const routed: Array<RouteHit | null> = []
     for (const text of texts) {
       routed.push(await routeDeterministic(conversationId, text))
@@ -435,7 +508,7 @@ export async function streamChat(
         tool: last.tool,
         research,
       })
-      const updated = (await touchConversation(conversationId)) || conv
+      const updated = (await touchConversation(conversationId)) || convAfterUser
       handlers.onDone?.({
         assistant_message: assistant,
         conversation: updated,
@@ -450,7 +523,7 @@ export async function streamChat(
         'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
       handlers.onToken?.(reply)
       const assistant = await addMessage(conversationId, 'assistant', reply)
-      const updated = (await touchConversation(conversationId)) || conv
+      const updated = (await touchConversation(conversationId)) || convAfterUser
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
     }
@@ -461,40 +534,55 @@ export async function streamChat(
 
     const s = loadSettings()
     const discount = Boolean(s.shop_discount)
-    const live = isLiveLookup(content, discount)
-    if (live && !geminiReady()) {
-      if (!s.research_opt_in) {
+    const live = isLiveLookup(ask, discount) || Boolean(accepted)
+    if ((live || accepted) && !geminiReady()) {
+      if (!s.research_opt_in && !accepted) {
+        persistResearchOffer(ask, researchQuery(ask))
         const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
-        const updated = (await touchConversation(conversationId)) || conv
+        const updated = (await touchConversation(conversationId)) || convAfterUser
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
         return
       }
-      const filled = await fillResearchLinks(content, '', undefined)
-      const research = (await attachResearchAudit(filled, researchQuery(content))) || filled
-      persistLastStep('research')
+      const filled = await fillResearchLinks(ask, '', undefined)
+      const research = (await attachResearchAudit(filled, researchQuery(ask))) || filled
+      const n = (research.sources || []).filter((x) => x.url).length
+      persistLastStep('research', researchQuery(ask), '', ask)
+      persistResearchDone(n > 0 ? 'success' : 'failed')
       if (researchHasSources(research)) {
         const reply = formatResearchReply(
-          researchQuery(content),
+          researchQuery(ask),
           research.sources || [],
-          isProductLookup(content, discount),
+          isProductLookup(ask, discount),
           discount,
         )
         handlers.onReplace?.(reply)
         const assistant = await addMessage(conversationId, 'assistant', reply, { research })
-        const updated = (await touchConversation(conversationId)) || conv
-        handlers.onDone?.({ assistant_message: assistant, conversation: updated, research, tool: null })
+        const updated = (await touchConversation(conversationId)) || convAfterUser
+        handlers.onDone?.({
+          assistant_message: assistant,
+          conversation: updated,
+          research,
+          tool: researchTool(n),
+        })
         return
       }
-      const assistant = await addMessage(conversationId, 'assistant', RESEARCH_NEEDS_GEMINI)
-      const updated = (await touchConversation(conversationId)) || conv
-      handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+      const empty = RESEARCH_EMPTY
+      handlers.onReplace?.(empty)
+      const assistant = await addMessage(conversationId, 'assistant', empty, { research })
+      const updated = (await touchConversation(conversationId)) || convAfterUser
+      handlers.onDone?.({
+        assistant_message: assistant,
+        conversation: updated,
+        research,
+        tool: researchTool(0),
+      })
       return
     }
 
     const history = await listMessages(conversationId)
     const mem = await listMemory()
-    const hits = await retrieve(content)
-    let wantSearch = Boolean(geminiReady() && live)
+    const hits = await retrieve(ask)
+    let wantSearch = Boolean((geminiReady() && live) || accepted)
     let research: ResearchMeta | undefined
     let acc = ''
     let raw = ''
@@ -502,16 +590,16 @@ export async function streamChat(
 
     for (let pass = 0; pass < 2; pass++) {
       if (wantSearch && !researchHasSources(research)) {
-        research = await fillResearchLinks(content, '', research)
+        research = await fillResearchLinks(ask, '', research)
       }
       const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
       const pack = personaPack(loadFace())
       const cloud = kind === 'gemini' || kind === 'groq'
       const system = cloud
-        ? [pack.gemini, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content, hits), workingBlock(), lastStepHint()]
+        ? [pack.gemini, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem, ask, hits), workingBlock(), lastStepHint()]
             .filter(Boolean)
             .join('\n\n')
-        : [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, content, hits), workingBlock(), lastStepHint()].filter(Boolean).join('\n\n')
+        : [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, ask, hits), workingBlock(), lastStepHint()].filter(Boolean).join('\n\n')
       const llmMessages = [
         { role: 'system', content: system },
         ...history.slice(cloud || opts?.voice ? -8 : -4).map((m) => ({
@@ -519,10 +607,13 @@ export async function streamChat(
           content: m.content,
         })),
       ]
+      const lastUser = llmMessages[llmMessages.length - 1]
+      if (lastUser && lastUser.role === 'user' && ask && ask !== content) {
+        lastUser.content = ask
+      }
       if (digest) {
-        const last = llmMessages[llmMessages.length - 1]
-        if (last && last.role === 'user') {
-          last.content = `${last.content}\n\nTreffer (für die Antwort, nicht vorlesen):\n${digest}`
+        if (lastUser && lastUser.role === 'user') {
+          lastUser.content = `${lastUser.content}\n\nTreffer (für die Antwort, nicht vorlesen):\n${digest}`
         }
       }
 
@@ -573,35 +664,28 @@ export async function streamChat(
 
       text = (raw || acc).trim()
       if (wantSearch) {
-        const filled = await fillResearchLinks(content, text, research)
-        research = (await attachResearchAudit(filled, researchQuery(content))) || filled
-        persistLastStep('research')
-        const product = isProductLookup(content, discount)
+        const filled = await fillResearchLinks(ask, text, research)
+        research = (await attachResearchAudit(filled, researchQuery(ask))) || filled
+        persistLastStep('research', researchQuery(ask), '', ask)
+        const n = (research.sources || []).filter((x) => x.url).length
+        persistResearchDone(n > 0 ? 'success' : 'failed')
+        const product = isProductLookup(ask, discount)
         const sources = research.sources || []
         const weak = !text || isKnowledgeGap(text)
-        if (weak && researchHasSources(research)) {
-          text = formatResearchReply(researchQuery(content), sources, product, discount)
+        if (!researchHasSources(research)) {
+          text = RESEARCH_EMPTY
           handlers.onReplace?.(text)
-        } else if (!text && !researchHasSources(research)) {
-          const empty = RESEARCH_EMPTY
-          handlers.onReplace?.(empty)
-          const assistant = await addMessage(conversationId, 'assistant', empty, { research })
-          const updated = (await touchConversation(conversationId)) || conv
-          handlers.onDone?.({
-            assistant_message: assistant,
-            conversation: updated,
-            research,
-            tool: null,
-          })
-          return
-        } else if (product && researchHasSources(research) && text && !parseEuroPrices(text).length) {
-          const extra = formatResearchReply(researchQuery(content), sources, true, discount)
+        } else if (weak) {
+          text = formatResearchReply(researchQuery(ask), sources, product, discount)
+          handlers.onReplace?.(text)
+        } else if (product && text && !parseEuroPrices(text).length) {
+          const extra = formatResearchReply(researchQuery(ask), sources, true, discount)
           if (/€/.test(extra) && extra !== text) {
             text = `${text.replace(/\s+$/, '')} ${extra}`
             handlers.onReplace?.(text)
           }
         } else if (!product && text) {
-          const guarded = guardResearchReply(researchQuery(content), text, sources)
+          const guarded = guardResearchReply(researchQuery(ask), text, sources)
           if (guarded !== text) {
             text = guarded
             handlers.onReplace?.(text)
@@ -609,26 +693,41 @@ export async function streamChat(
         }
       }
 
-      if (pass === 0 && kind === 'gemini' && !wantSearch && shouldRetrySearch(content, text, discount)) {
+      if (pass === 0 && kind === 'gemini' && !wantSearch && shouldRetrySearch(ask, text, discount)) {
         wantSearch = true
+        continue
+      }
+      if (pass === 0 && looksTruncated(text) && kind === 'gemini') {
         continue
       }
       if (pass === 1 && text) handlers.onReplace?.(text)
       break
     }
 
-    const final = scrubReply(text, { searched: Boolean(researchHasSources(research) || wantSearch) })
+    if (!wantSearch && (looksTruncated(text) || isSearchRefusal(text))) {
+      persistResearchOffer(ask, researchQuery(ask))
+    }
+    if (looksTruncated(text)) {
+      text = REPLY_TRUNCATED
+      handlers.onReplace?.(text)
+    }
+    const name = mem.find((m) => m.key === 'name')?.value
+    const final = scrubReply(text, {
+      searched: Boolean(researchHasSources(research) || wantSearch),
+      names: name ? [name] : [],
+    })
     if (final !== text) handlers.onReplace?.(final)
-    if (research && !research.audit_id) research = await attachResearchAudit(research, content)
-    if (isLiveLookup(content, discount) && !wantSearch) persistLastStep('research')
+    if (research && !research.audit_id) research = await attachResearchAudit(research, ask)
+    if (isLiveLookup(ask, discount) && !wantSearch) persistResearchOffer(ask, researchQuery(ask))
+    const nSources = (research?.sources || []).filter((x) => x.url).length
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
-    const updated = (await touchConversation(conversationId)) || conv
+    const updated = (await touchConversation(conversationId)) || convAfterUser
     handlers.onDone?.({
       assistant_message: assistant,
       conversation: updated,
       guarded: final !== (raw || acc),
       research: research || null,
-      tool: null,
+      tool: wantSearch ? researchTool(nSources) : null,
     })
   } catch (err) {
     const raw = err instanceof Error ? err.message : 'Chat fehlgeschlagen'

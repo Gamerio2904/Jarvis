@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '6.90.0'
+export const APP_VERSION = '9.9.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -37,6 +37,7 @@ export type MemoryItem = {
   source_conversation_id?: string | null
   updated_at: string
   expires_at?: string | null
+  origin?: 'user' | 'sleep' | 'tool'
 }
 
 export type Note = {
@@ -116,6 +117,7 @@ export type Settings = {
   tv_fire_host: string
   tv_fire_port: number
   tv_fire_hdmi: number
+  tv_devices_json: string
   gemini_enabled: boolean
   gemini_api_key: string
   tankerkoenig_api_key: string
@@ -125,6 +127,7 @@ export type Settings = {
   last_poi_json: string
   last_comm_json: string
   last_pc_json: string
+  last_rtc_json: string
   last_drive_json: string
   pc_enabled: boolean
   pc_host: string
@@ -207,6 +210,8 @@ export type Settings = {
   alarm_tone_name: string
   voice_tts: string
   gemini_tts_model: string
+  gemini_tts_skip_until: string
+  gemini_banner_dismissed: boolean
   model_default: string
   fallback_model: string
   routing_mode: string
@@ -217,6 +222,9 @@ export type Settings = {
   price_watch_on: boolean
   last_price_watch_at: string
   working_memory_json: string
+  last_debug_json: string
+  last_research_json: string
+  last_doc_json: string
 }
 
 const SETTINGS_KEY = 'jarvis_settings_v13'
@@ -240,6 +248,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_fire_host: '',
   tv_fire_port: 5555,
   tv_fire_hdmi: 3,
+  tv_devices_json: '',
   gemini_enabled: false,
   gemini_api_key: '',
   tankerkoenig_api_key: '',
@@ -249,6 +258,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_poi_json: '',
   last_comm_json: '',
   last_pc_json: '',
+  last_rtc_json: '',
   last_drive_json: '',
   pc_enabled: false,
   pc_host: '',
@@ -331,6 +341,8 @@ export const DEFAULT_SETTINGS: Settings = {
   alarm_tone_name: '',
   voice_tts: 'auto',
   gemini_tts_model: '',
+  gemini_tts_skip_until: '',
+  gemini_banner_dismissed: false,
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
   routing_mode: 'on-device',
@@ -341,6 +353,9 @@ export const DEFAULT_SETTINGS: Settings = {
   price_watch_on: false,
   last_price_watch_at: '',
   working_memory_json: '',
+  last_debug_json: '',
+  last_research_json: '',
+  last_doc_json: '',
 }
 
 function nowIso(): string {
@@ -400,9 +415,20 @@ export type ResearchAudit = {
   created_at: string
 }
 
+export type DocRecord = {
+  id: string
+  conversation_id: string
+  name: string
+  mime: string
+  kind: string
+  bytes: number
+  text: string
+  created_at: string
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 6)
+    const req = indexedDB.open('jarvis-ondevice', 7)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -417,6 +443,7 @@ function openDb(): Promise<IDBDatabase> {
         'events',
         'shopping',
         'price_watches',
+        'docs',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -564,18 +591,22 @@ export async function upsertMemory(
   value: string,
   category: string,
   conversationId?: string,
+  opts?: { confidence?: number; origin?: MemoryItem['origin']; expires_at?: string | null },
 ): Promise<MemoryItem> {
   const existing = (await getAll<MemoryItem>('memory')).find(
     (m) => m.key === key && m.category === category,
   )
+  const origin = opts?.origin || 'user'
   const row: MemoryItem = {
     id: existing?.id || newId(),
     key,
     value,
     category,
-    confidence: 0.9,
-    source_conversation_id: conversationId || null,
+    confidence: opts?.confidence ?? (origin === 'sleep' ? 0.4 : origin === 'tool' ? 0.8 : category === 'pref' ? 0.9 : 0.95),
+    source_conversation_id: conversationId || existing?.source_conversation_id || null,
     updated_at: nowIso(),
+    expires_at: opts?.expires_at === undefined ? existing?.expires_at || null : opts.expires_at,
+    origin,
   }
   await put('memory', row)
   return row

@@ -1,7 +1,7 @@
 /** Stadt-Briefing: Lexikon + Tagesschau + Markt-Kette + Anomalie + Ihr Plan. Fehlendes weglassen. */
 
 import { CITY_FLY_ZOOM } from './globe-gibs.ts'
-import { haversineKm, type PlaceFix } from './globe-geo.ts'
+import { haversineKm, composePlaceBrief, type PlaceFix } from './globe-geo.ts'
 import { isGermanPlace, marketKindForPlace } from './globe-countries.ts'
 import { tagesschauSearch } from './news.ts'
 import { loadOutlookSnap } from './outlook.ts'
@@ -14,7 +14,7 @@ import { formatDue } from './remind-parse.ts'
 import { polishToolLine } from './polish.ts'
 import { TOUR_SKIP } from './globe-tour.ts'
 
-export { CITY_FLY_ZOOM }
+export { CITY_FLY_ZOOM, composePlaceBrief }
 
 const ISS_VIEW_KM = 2200
 const EONET_KM = 420
@@ -27,19 +27,18 @@ export function focusJson(place: PlaceBrief, zoom = CITY_FLY_ZOOM): string {
 }
 
 export async function briefPlace(place: PlaceBrief): Promise<string> {
-  const parts: string[] = [`Das ist ${place.name}, ${place.blurb}`.replace(/\s+/g, ' ').trim()]
+  const extras: string[] = []
   const [news, market, warn, plan] = await Promise.all([
     newsLine(place.name),
     marketLine(place.name),
     anomalyLines(place),
     planLine(place.name),
   ])
-  if (news) parts.push(news)
-  else parts.push(`Die Tagesschau erwähnt ${place.name} gerade nicht. Eine Lokalnachricht würde ich nicht erfinden.`)
-  if (market) parts.push(market)
-  parts.push(...warn)
-  if (plan) parts.push(plan)
-  const canned = parts.join(' ').replace(/\s+/g, ' ').trim()
+  if (news) extras.push(news)
+  if (market) extras.push(market)
+  extras.push(...warn)
+  if (plan) extras.push(plan)
+  const canned = composePlaceBrief(place, extras)
   return polishToolLine(canned, canned)
 }
 

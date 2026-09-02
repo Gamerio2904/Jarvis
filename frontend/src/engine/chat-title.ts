@@ -14,5 +14,9 @@ export function shouldRefreshTitle(text: string): boolean {
 }
 
 export function titleFromUser(text: string): string {
-  return normalizeUtterance(text).replace(/\s+/g, ' ').slice(0, 42)
+  const t = normalizeUtterance(text).replace(/\s+/g, ' ').trim()
+  if (t.length <= 32) return t
+  const cut = t.slice(0, 32)
+  const sp = cut.lastIndexOf(' ')
+  return (sp > 16 ? cut.slice(0, sp) : cut).trim()
 }

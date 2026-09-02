@@ -48,7 +48,7 @@ import {
   emptyPlug,
   type Plug,
 } from './engine/plug'
-import { testPc as engineTestPc } from './engine/pc'
+import { testPc as engineTestPc, pullRtcFrame, stopRtcLive, readRtcLive } from './engine/pc'
 import type { ResearchMeta, ResearchSource } from './engine/research-parse'
 
 export type { Conversation, MemoryCategory, MemoryItem, Message, Reminder, StreamHandlers, ResearchMeta, ResearchSource }
@@ -171,6 +171,7 @@ export async function listReminders() {
 
 export { removeReminder, syncReminderAlarms } from './engine/reminders'
 export { readEyeImage, fileToJpegDataUrl } from './engine/eye'
+export { ingestDocFile } from './engine/doc.ts'
 export { checkHomeFence } from './engine/home'
 
 export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
@@ -307,6 +308,8 @@ export async function testPc(opts?: { host?: string; token?: string; port?: numb
 }> {
   return engineTestPc(opts)
 }
+
+export { pullRtcFrame, stopRtcLive, readRtcLive }
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
   return engineTestGemini()

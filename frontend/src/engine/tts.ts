@@ -1,4 +1,5 @@
 import { postJson } from './http-json.ts'
+import { markSkip, parseSkipMap } from './cloud-errors.ts'
 import { isGeminiConfigured, loadSettings, saveSettings } from './store.ts'
 
 const TTS_MODELS = [
@@ -54,10 +55,19 @@ function spokenForGemini(text: string): string {
   return `Calm, low German, precise, slightly dry. Not theatrical. Read only: ${body}`
 }
 
-export function ttsModelsToTry(cached?: string): string[] {
+export function ttsModelsToTry(cached?: string, skipRaw?: string): string[] {
+  const skip = parseSkipMap(skipRaw)
   const first = cached && TTS_MODELS.includes(cached) ? cached : TTS_MODELS[0]
   const rest = TTS_MODELS.filter((m) => m !== first)
-  return [first, ...rest].slice(0, 2)
+  const ordered = [first, ...rest]
+  const ready = ordered.filter((m) => !skip[m])
+  const later = ordered.filter((m) => skip[m])
+  return [...ready, ...later].slice(0, 3)
+}
+
+/** Standing: Gemini first, no Native-Race. Drive: kurzes Race bleibt. */
+export function ttsGeminiPrimary(inDrive = loadSettings().drive_mode): boolean {
+  return ttsNativeRaceMs(inDrive) === 0
 }
 
 export async function synthesizeGemini(text: string): Promise<Blob | null> {
@@ -68,19 +78,29 @@ export async function synthesizeGemini(text: string): Promise<Blob | null> {
   const started = Date.now()
   const budget = ttsBudgetMs()
   const voice = ttsVoiceName()
-  for (const model of ttsModelsToTry(loadSettings().gemini_tts_model)) {
+  let skipRaw = loadSettings().gemini_tts_skip_until
+  for (const model of ttsModelsToTry(loadSettings().gemini_tts_model, skipRaw)) {
     const left = budget - (Date.now() - started)
     if (left < 200) break
-    const blob = await tryTts(model, voice, spoken, left)
-    if (blob) {
+    const hit = await tryTts(model, voice, spoken, left)
+    if (hit.blob) {
       saveSettings({ gemini_tts_model: model })
-      return blob
+      return hit.blob
+    }
+    if (hit.skip) {
+      skipRaw = markSkip(skipRaw, model)
+      saveSettings({ gemini_tts_skip_until: skipRaw })
     }
   }
   return null
 }
 
-async function tryTts(model: string, voice: string, spoken: string, timeoutMs: number): Promise<Blob | null> {
+async function tryTts(
+  model: string,
+  voice: string,
+  spoken: string,
+  timeoutMs: number,
+): Promise<{ blob: Blob | null; skip: boolean }> {
   try {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`
     const { status, json } = await postJson(
@@ -100,11 +120,13 @@ async function tryTts(model: string, voice: string, spoken: string, timeoutMs: n
       },
       timeoutMs,
     )
-    if (status === 404 || isUnknownModel(json)) return null
-    if (status < 200 || status >= 300) return null
-    return audioFrom(json)
+    if (status === 404 || isUnknownModel(json)) return { blob: null, skip: true }
+    if (status === 429 || status === 503) return { blob: null, skip: true }
+    if (status < 200 || status >= 300) return { blob: null, skip: false }
+    const blob = audioFrom(json)
+    return { blob, skip: false }
   } catch {
-    return null
+    return { blob: null, skip: false }
   }
 }
 

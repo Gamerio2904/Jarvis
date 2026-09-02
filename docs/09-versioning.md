@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. `6.50` = Gemini Hauptweg. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
+> **Jetzt:** Code **`9.9.0`**. Sideload **`9.9.0`**. `6.50` = Gemini Hauptweg. Stabilität V1 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.93` **CODE**. V2 Voice & App `6.94`–`6.96` **CODE**. V3 Verified Actions `6.97`–`6.99` **CODE**. V4 Dokumente `9.0` **CODE**. V5 Hierarchical Memory `7.0` **CODE**. V6 TV `9.1` **CODE**. V7 PC `9.2` **CODE**. V8 Live `9.3` **CODE**. V9 Hardening `9.9` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -101,7 +101,21 @@ MAJOR.MINOR.PATCH
 | `6.60.0` | **Sideload** Bühne + Parser + Split | Sprint 130 |
 | `6.70.0` | **Globus-Briefing** Leitentscheidung (Docs) | Sprint 131 |
 | `6.90.0` | **Globus-Briefing Gold** — Stadt-Satellit + Welt-Tour | Sprint 136 |
-| `7.0.0` | **Agentic Recall** Leitentscheidung (PLAN) | Sprint 137 |
+| `6.91.0` | **Stabilität Kern** — Debug-Session, Turn-Gate, Screenshot-Parser | Sprint 142 |
+| `6.92.0` | **Overlay-FSM & Weltlage** — mitgeliefert in `6.93` | Sprint 143 |
+| `6.93.0` | **V1 Abschluss** — Gemini-Abbruch, `ja bitte`, Tweets, Siezen | Sprint 144 |
+| `6.94.0` | **TTS Gemini-Primary** — mitgeliefert in `6.96` | Sprint 145 |
+| `6.95.0` | **App-Action-Registry** — mitgeliefert in `6.96` | Sprint 146 |
+| `6.96.0` | **V2 Abschluss** — Banner, Chips, Wake-Debounce | Sprint 147 |
+| `6.97.0` | **Action-FSM** — mitgeliefert in `6.99` | Sprint 148 |
+| `6.98.0` | **Navi Replace verifiziert** — mitgeliefert in `6.99` | Sprint 149 |
+| `6.99.0` | **V3 Abschluss** — Research-Pending hart | Sprint 150 |
+| `9.0.0` | **V4 Dokumente** — Attachments, Parser, OCR, Verify Upload | Sprint 151–153 |
+| `9.1.0` | **V6 TV** — Device-Registry, Verify Launch | Sprint 154–156 |
+| `9.2.0` | **V7 PC Beta** — Capability-Levels, Confirm, Verify | Sprint 157–159 |
+| `9.3.0` | **V8 Live-Stream** — WebRTC-Signaling, LAN-JPEG, Verify Peer | Sprint 160–162 |
+| `9.9.0` | **V9 Hardening** — Regression, LAN-only PC, Secret-Redact | Sprint 163–165 |
+| `7.0.0` | **V5 Hierarchical Memory** — Quelle, Confidence, Bereinigung | Sprint 137–140 |
 | `8.0.0` | **Alltag vom Zettel** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache | Sprint 141 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
 | `1.2.0` | Erinnerungen mit Zeit | Sprint 52 |

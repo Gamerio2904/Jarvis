@@ -1,6 +1,6 @@
 import { parseChatSearch } from './search-chat-parse'
 import { persistLastList } from './store'
-import { retrieve } from './retrieve.ts'
+import { formatRecallReply, retrieve } from './retrieve.ts'
 import type { ToolMeta } from './tools'
 
 export { parseChatSearch } from './search-chat-parse'
@@ -20,7 +20,7 @@ export async function handleChatSearch(
   )
   return {
     handled: true,
-    reply: hits.map((h) => `• ${h.title}: ${h.body}`).join('\n'),
+    reply: formatRecallReply(q, hits),
     lastTool: 'search',
   }
 }

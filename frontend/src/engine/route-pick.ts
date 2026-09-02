@@ -25,6 +25,7 @@ import { parseTimerIntent } from './timer-parse.ts'
 import { parseReminderIntent } from './remind-parse.ts'
 import { parseToolIntent } from './tools-parse.ts'
 import { parseEyeIntent } from './eye-parse.ts'
+import { parseDocIntent } from './doc-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from './weather-parse.ts'
 import { parseNewsIntent } from './news-parse.ts'
 import { parseChatSearch } from './search-chat-parse.ts'
@@ -54,6 +55,7 @@ import { parseFolderIntent } from './folder-parse.ts'
 import { parseWatchPriceIntent } from './watch-price-parse.ts'
 import { parseAmazonMusicIntent } from './amazon-parse.ts'
 import { parseRecallIntent } from './recall-parse.ts'
+import { parseAppIntent } from './app-parse.ts'
 import { applyConflicts } from './conflicts.ts'
 import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
@@ -128,6 +130,11 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
       parseEyeIntent(ctx.text) || isEyeGround(parseGroundIntent(ctx.text)) ? score(ctx.text) : null,
   },
   {
+    id: 'doc',
+    sideEffect: 'read',
+    parse: (ctx) => (parseDocIntent(ctx.text) ? score(ctx.text, 0.22) : null),
+  },
+  {
     id: 'weather',
     sideEffect: 'read',
     parse: (ctx) =>
@@ -166,6 +173,7 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'taxi', sideEffect: 'read', parse: (ctx) => (parseTaxiIntent(ctx.text) ? score(ctx.text, 0.12) : null) },
   { id: 'backup', sideEffect: 'read', parse: (ctx) => (parseBackupIntent(ctx.text) ? score(ctx.text, 0.2) : null) },
   { id: 'face', sideEffect: 'write', parse: (ctx) => (parseFaceIntent(ctx.text) ? score(ctx.text, 0.22) : null) },
+  { id: 'app', sideEffect: 'write', parse: (ctx) => (parseAppIntent(ctx.text) ? score(ctx.text, 0.28) : null) },
 ]
 
 export function propose(ctx: RouteCtx): Candidate[] {

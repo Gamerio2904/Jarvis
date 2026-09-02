@@ -224,8 +224,18 @@ export async function streamGemini(
       if (piece) onToken?.(piece, full)
     })
     if (full.trim()) {
+      const t = full.trim()
+      if (!/[.!?…]$/.test(t)) {
+        return completeGemini(messages, onToken, {
+          ...opts,
+          maxOutputTokens: Math.max(opts?.maxOutputTokens || 0, 1800),
+          timeoutMs: Math.min(8_000, Math.max(left, 1_500)),
+          maxModels: 1,
+          thinking: false,
+        })
+      }
       saveSettings({ gemini_model: model })
-      return { text: full.trim() }
+      return { text: t }
     }
     if (res.message?.includes('403') || res.message?.toLowerCase().includes('unauth')) {
       throw new Error(germanAuthError())
@@ -301,7 +311,7 @@ export async function completeGemini(
         }
         const cut = cand?.finishReason === 'MAX_TOKENS' || cand?.finishReason === 'max_tokens'
         const incomplete = !/[.!?…]$/.test(text.trim())
-        if (cut && i === 0 && (incomplete || text.split(/\s+/).length < 8)) {
+        if ((cut || incomplete) && !String(last).includes('abgeschnitten')) {
           last = 'Antwort war abgeschnitten, nochmal mit mehr Platz.'
           attempts.push(
             buildBody(model, messages, {

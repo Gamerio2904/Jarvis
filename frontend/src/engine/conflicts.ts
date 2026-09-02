@@ -1,6 +1,7 @@
 import type { Candidate, RouteCtx } from './route-types.ts'
 import { gazetteerHit } from './globe-geo.ts'
 import { parseWontIntent } from './wont-parse.ts'
+import { parseDocIntent } from './doc-parse.ts'
 
 function drop(cands: Candidate[], id: string): Candidate[] {
   return cands.filter((c) => c.id !== id)
@@ -273,6 +274,21 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'pc')
     out = drop(out, 'haushalt')
     out = boost(out, 'eye', 0.25)
+  }
+
+  if (parseDocIntent(text)) {
+    out = drop(out, 'eye')
+    out = boost(out, 'doc', 0.28)
+  }
+
+  if (has(out, 'app')) {
+    out = drop(out, 'maps')
+    out = drop(out, 'device')
+    out = drop(out, 'memory')
+    if (/\b(einstell|debug|sprachmodus|ged[aä]chtnis|theme|akzent|settings)\b/.test(t)) {
+      out = drop(out, 'hud')
+      out = boost(out, 'app', 0.15)
+    }
   }
 
   if (parseWontIntent(text)) {

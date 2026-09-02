@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
-import { allTestCopyTexts, formatAllTestCopy, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
+import { allTestCopyTexts, formatAllTestCopy, PROBE_COPY_GROUPS, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
-import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
+import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
-import { scrubReply, isHelpCommand, finishReply, HELP_TEXT } from '../src/engine/guards.ts'
+import { scrubReply, isHelpCommand, finishReply, HELP_TEXT, redactSecrets } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import {
   formatResearchReply,
@@ -24,6 +24,7 @@ import {
   researchStatusLabel,
   sourcesFromHtml,
   sourcesFromText,
+  REPLY_TRUNCATED,
 } from '../src/engine/research-parse.ts'
 import { parseReminderIntent, formatDue } from '../src/engine/remind-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../src/engine/weather-parse.ts'
@@ -37,10 +38,10 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
-import { ttsBudgetMs, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
+import { ttsBudgetMs, ttsGeminiPrimary, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
-import { isFollowUpPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
+import { isFollowUpPhrase, isConfirmPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
@@ -58,6 +59,7 @@ import {
   parsePlaceWrite,
   parseSms,
   looksLikeBareStreet,
+  looksLikeSavedPlace,
 } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { pickHeard } from '../src/engine/heard.ts'
@@ -66,9 +68,18 @@ import { parseBirthdayIntent } from '../src/engine/birthday-parse.ts'
 import { parseHomeIntent } from '../src/engine/home-parse.ts'
 import { parseLeaveIntent } from '../src/engine/leave-parse.ts'
 import { parseDriveIntent } from '../src/engine/drive-parse.ts'
+import { beginTurn, endTurn } from '../src/engine/turn-gate.ts'
 import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
 import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
-import { parsePoiIntent, poiLabel } from '../src/engine/poi-parse.ts'
+import { isAllowedPcHost, sanitizePcHost } from '../src/engine/pc-host.ts'
+import {
+  needsLaunchConfirm,
+  parsePcCaps,
+  pcActionVerified,
+  pcCan,
+} from '../src/engine/pc-cap.ts'
+import { isLanIce, parseRtcSession, rtcStreamVerified } from '../src/engine/pc-rtc.ts'
+import { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList } from '../src/engine/poi-parse.ts'
 import { formatHoursSpeech, hoursOpenNow, isBwHoliday, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
 import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
@@ -83,13 +94,15 @@ import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, 
 import { pickGeoHits } from '../src/engine/geo-lookup.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
+import { parseDocIntent } from '../src/engine/doc-parse.ts'
+import { classifyDoc, docUploadVerified, extractPdfText } from '../src/engine/doc-kind.ts'
 import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
-import { pinForTag } from '../src/engine/globe-geo.ts'
+import { gazetteerHit, pinForTag, composePlaceBrief } from '../src/engine/globe-geo.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
 import { parseTraceIntent } from '../src/engine/trace-parse.ts'
 import { parseDigestIntent } from '../src/engine/digest-parse.ts'
@@ -115,6 +128,36 @@ import { parseFaceIntent } from '../src/engine/face-parse.ts'
 import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
 import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
 import { tagNewsText } from '../src/engine/outlook-tags.ts'
+import { parseRecallIntent } from '../src/engine/recall-parse.ts'
+import { formatRecallReply, isDumpLine, subQueries } from '../src/engine/retrieve.ts'
+import { handleWont, parseWontIntent, streetViewPlace, WONT_LABEL } from '../src/engine/wont-parse.ts'
+import { looksTruncated } from '../src/engine/polish-guard.ts'
+import { parseGreeting, greetingReply, dayPartAt } from '../src/engine/greeting.ts'
+import { reduceOverlay, overlayTop, overlayHidesDrive, OVERLAY_INIT } from '../src/engine/overlay-fsm.ts'
+import { OUTLOOK_WATCH_ALARM } from '../src/engine/outlook-watch.ts'
+import { parseAppIntent } from '../src/engine/app-parse.ts'
+import { acceptWake, WAKE_DEBOUNCE_MS } from '../src/engine/wake-gate.ts'
+import { ACTION_INIT, packVerified, reduceAction, toolStatusOf } from '../src/engine/action-fsm.ts'
+import {
+  confidenceFor,
+  contradictionTargets,
+  memoryRecallVerified,
+  memoryWriteVerified,
+  pruneMemoryItems,
+  semanticPins,
+} from '../src/engine/memory-layer.ts'
+import { deviceCanLaunch, pickTvDevice, seedTvDevices, tvLaunchVerified } from '../src/engine/tv-registry.ts'
+import { destMatches, naviRouteVerified, NAVI_INIT, reduceNavi } from '../src/engine/navi-fsm.ts'
+import {
+  acceptResearchPending,
+  declineResearchPending,
+  expireResearchPending,
+  isResearchPendingWaiting,
+  offerResearchPending,
+  parseResearchPending,
+  RESEARCH_PENDING_TTL_MS,
+  serializeResearchPending,
+} from '../src/engine/research-pending.ts'
 
 assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
 assert.equal(parseTvIntent('mach den TV aus')?.action, 'off')
@@ -974,10 +1017,12 @@ assert.deepEqual(pullReady('Hallo wie geht').parts, [])
 assert.deepEqual(pullReady('Ja. ').parts, [])
 assert.ok(pullReady('Guten Morgen.', true).parts.length >= 1)
 assert.equal(ttsModelsToTry()[0], 'gemini-2.5-flash-preview-tts')
-assert.equal(ttsModelsToTry('gemini-2.5-flash-preview-tts').length, 2)
+assert.ok(ttsModelsToTry('gemini-2.5-flash-preview-tts').length >= 2)
 assert.equal(TTS_VOICE, 'Algieba')
 assert.equal(ttsNativeRaceMs(false), 0)
 assert.equal(ttsNativeRaceMs(true), 400)
+assert.equal(ttsGeminiPrimary(false), true)
+assert.equal(ttsGeminiPrimary(true), false)
 assert.ok(ttsBudgetMs(false) >= 2000)
 assert.ok(ttsBudgetMs(true) <= 900)
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
@@ -1023,7 +1068,13 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /6\.90\.0/)
+assert.match(HELP_TEXT, /9\.9\.0/)
+assert.match(HELP_TEXT, /Capability-Levels/)
+assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
+assert.match(HELP_TEXT, /Keys nicht im Chat/)
+assert.match(HELP_TEXT, /Datei-Knopf/)
+assert.match(HELP_TEXT, /Quelle nennen/)
+assert.match(HELP_TEXT, /SmartThings/)
 assert.match(HELP_TEXT, /Algieba/)
 assert.match(HELP_TEXT, /kein Fake-Anruf/)
 assert.match(HELP_TEXT, /Weltlage/)
@@ -1257,6 +1308,9 @@ assert.equal(isCommYes('senden', 'call'), false)
 assert.equal(isCommNo('nein'), true)
 assert.equal(rewriteFollowUp('ja', { last_step_tool: 'call_confirm', last_step_utterance: 'Bro anrufen' }), null)
 assert.equal(rewriteFollowUp('ja', { last_step_tool: 'pc_confirm', last_step_utterance: 'Lösche den Ordner Test' }), null)
+assert.equal(parsePcIntent('PC live')?.kind, 'stream')
+assert.equal(parsePcIntent('Live aus')?.kind, 'stream_stop')
+assert.equal(parsePcIntent('Was siehst du auf dem PC')?.kind, 'screen')
 assert.equal(parsePcIntent('FIFA starten')?.kind, 'launch')
 if (parsePcIntent('FIFA starten')?.kind === 'launch') {
   assert.equal(parsePcIntent('FIFA starten').query, 'fifa')
@@ -1273,6 +1327,127 @@ assert.equal(parsePcIntent('Lösche den Ordner Test auf dem Desktop')?.kind, 'fi
 assert.equal(parsePcIntent('PC testen')?.kind, 'status')
 assert.equal(parsePcIntent('Öffne Netflix'), null)
 assert.equal(parsePcIntent('Bro anrufen'), null)
+assert.equal(sanitizePcHost('http://192.168.1.10:18790'), '192.168.1.10')
+assert.equal(isAllowedPcHost('http://192.168.1.10:18790'), true)
+assert.equal(isAllowedPcHost('10.0.0.2'), true)
+assert.equal(isAllowedPcHost('127.0.0.1'), true)
+assert.equal(isAllowedPcHost('172.28.0.1'), false)
+assert.equal(isAllowedPcHost('8.8.8.8'), false)
+assert.equal(isAllowedPcHost('evil.example'), false)
+assert.equal(redactSecrets('Key AIzaSyDummyKeyDummyKeyDummy12 extra'), 'Key … extra')
+assert.doesNotMatch(scrubReply('Mein Key ist AIzaSyDummyKeyDummyKeyDummy12.'), /AIzaSy/)
+assert.equal(needsLaunchConfirm('fifa'), false)
+assert.equal(needsLaunchConfirm('chrome'), true)
+{
+  const offline = parsePcCaps({ ok: false })
+  assert.equal(offline.level, 'offline')
+  assert.equal(pcCan(offline, 'launch'), false)
+  const input = parsePcCaps({
+    ok: true,
+    capabilities: ['status', 'screen', 'launch', 'click', 'move', 'type', 'key'],
+  })
+  assert.equal(input.level, 'input')
+  assert.equal(pcCan(input, 'launch'), true)
+  assert.equal(pcCan(input, 'ground'), false)
+  const files = parsePcCaps({
+    ok: true,
+    app: 'JarvisPC',
+    screen: { width: 1920, height: 1080 },
+  })
+  assert.equal(files.level, 'files')
+  assert.equal(pcCan(files, 'files'), true)
+  assert.equal(pcActionVerified({}).ok, false)
+  assert.equal(pcActionVerified({ action: 'launch', reached: false }).ok, false)
+  assert.equal(pcActionVerified({ action: 'launch', reached: true, can: true, ok: true }).ok, false)
+  assert.equal(
+    pcActionVerified({ action: 'launch', reached: true, can: true, ok: true, started: true, name: 'FIFA' }).ok,
+    true,
+  )
+  const clickSent = pcActionVerified({ action: 'click', reached: true, can: true, ok: true, proved: false })
+  assert.equal(clickSent.ok, true)
+  const clickLie = packVerified({
+    domain: 'pc',
+    intent: 'click',
+    plan: 'click',
+    label: 'PC',
+    observation: { action: 'click', reached: true, can: true, ok: true, sent: true, proved: false },
+    verify: (obs) => pcActionVerified(obs),
+    successReply: 'Klick gesendet. Ob der Zug gilt, sehe ich erst auf dem nächsten Bild.',
+    failReply: 'Nicht geklickt.',
+  })
+  assert.equal(clickLie.state.phase, 'success')
+  assert.doesNotMatch(clickLie.reply, /ausgeführt/)
+  const launchBare = packVerified({
+    domain: 'pc',
+    intent: 'launch',
+    plan: 'launch',
+    label: 'PC',
+    observation: { action: 'launch', reached: true, can: true, ok: true },
+    verify: (obs) => pcActionVerified(obs),
+    successReply: 'FIFA läuft.',
+    failReply: 'Start nicht angekommen.',
+  })
+  assert.equal(launchBare.state.phase, 'failed')
+  assert.doesNotMatch(launchBare.reply, /läuft/)
+}
+assert.equal(pickRoute('FIFA starten'), 'pc')
+assert.equal(pickRoute('PC live'), 'pc')
+assert.match(scrubReply('FIFA läuft.'), /angekommen|Schirm|nicht/)
+assert.doesNotMatch(scrubReply('Klick ausgeführt.'), /Klick ausgeführt/)
+assert.match(scrubReply('WebRTC ist verbunden.'), /Peer|JPEG|Sitzung/)
+assert.doesNotMatch(scrubReply('Live-Bild läuft (WebRTC).'), /JPEG ist kein Peer/)
+{
+  const offline = parsePcCaps({ ok: false })
+  assert.equal(pcCan(offline, 'stream'), false)
+  const streamed = parsePcCaps({
+    ok: true,
+    capabilities: ['status', 'screen', 'stream'],
+    webrtc: 'off',
+  })
+  assert.equal(streamed.level, 'stream')
+  assert.equal(pcCan(streamed, 'stream'), true)
+  assert.equal(rtcStreamVerified({}).ok, false)
+  assert.equal(rtcStreamVerified({ action: 'stream', reached: true, can: true, webrtc: 'ready' }).ok, false)
+  assert.equal(
+    rtcStreamVerified({
+      action: 'stream',
+      reached: true,
+      can: true,
+      sessionId: 'abc',
+      webrtc: 'ready',
+      connected: true,
+      track: true,
+    }).ok,
+    true,
+  )
+  assert.equal(
+    rtcStreamVerified({
+      action: 'stream',
+      reached: true,
+      can: true,
+      sessionId: 'abc',
+      mode: 'lan-jpeg',
+      webrtc: 'off',
+      frame: true,
+    }).ok,
+    true,
+  )
+  assert.equal(parseRtcSession({ ok: true, sessionId: 's1', mode: 'lan-jpeg', webrtc: 'off' })?.sessionId, 's1')
+  assert.equal(isLanIce('candidate:1 1 UDP 2122 192.168.1.10 9 typ host'), true)
+  assert.equal(isLanIce('candidate:2 1 UDP 1 1.2.3.4 9 typ relay'), false)
+  const lie = packVerified({
+    domain: 'pc',
+    intent: 'stream',
+    plan: 'stream',
+    label: 'PC',
+    observation: { action: 'stream', reached: true, can: true, webrtc: 'ready', sessionId: 'x' },
+    verify: (obs) => rtcStreamVerified(obs),
+    successReply: 'Live-Bild läuft (WebRTC).',
+    failReply: 'Live-Bild nicht verbunden.',
+  })
+  assert.equal(lie.state.phase, 'failed')
+  assert.doesNotMatch(lie.reply, /läuft \(WebRTC\)/)
+}
 assert.match(GEMINI_PERSONA, /PC/)
 for (const p of PC_COPY_PROMPTS) {
   assert.ok(parsePcIntent(p), `Prompt ohne Parser: ${p}`)
@@ -1686,5 +1861,566 @@ assert.equal(pickRoute('Friday'), 'face')
 assert.equal(pickRoute('Friday übernimmt'), 'face')
 assert.notEqual(pickRoute('Freitag Zahnarzt'), 'face')
 assert.notEqual(pickRoute('Work-Modus'), 'face')
+
+assert.equal(parsePlaceWrite('Bayern - Dortmund VfB Freiburg Werder Bremen'), null)
+assert.equal(looksLikeSavedPlace('Dortmund VfB Freiburg Werder Bremen'), false)
+assert.equal(looksLikeSavedPlace('Praxis Bahnhofstraße'), true)
+assert.equal(parseWeatherIntent('ach wie geht\'s dir heute Abend'), null)
+assert.equal(parseWeatherFollowup('ach wie geht\'s dir heute Abend', { kind: 'here', when: 'today', focus: 'general' }), null)
+assert.equal(parseWeatherFollowup('und heute?', { kind: 'here', when: 'today', focus: 'general' })?.when, 'today')
+assert.equal(parseDriveIntent('Das habe ich doch lieber nach Freiberg am Neckar', true)?.kind, 'dest')
+assert.equal(
+  parseDriveIntent('Das habe ich doch lieber nach Freiberg am Neckar', true)?.kind === 'dest' &&
+    parseDriveIntent('Das habe ich doch lieber nach Freiberg am Neckar', true)?.query,
+  'Freiberg am Neckar',
+)
+assert.equal(parseDriveIntent('Das habe ich doch lieber nach Freiberg am Neckar', false), null)
+assert.equal(parsePoiIntent('dann fahre ich zur nächsten Aldi')?.kind, 'supermarket')
+assert.equal(parsePoiIntent('dann fahre ich zur nächsten Aldi')?.brand, 'aldi')
+assert.equal(detectBrand('nächster Lidl'), 'lidl')
+assert.equal(looksLikeGroceryList('Eier, Äpfel, Apfelsaft, Honig, Gemüse'), true)
+assert.equal(looksLikeGroceryList('ALDI Nord'), false)
+assert.match(titleFromUser('Bayern - Dortmund VfB Freiburg Werder Bremen'), /Bayern/)
+assert.ok(titleFromUser('Bayern - Dortmund VfB Freiburg Werder Bremen').length <= 32)
+
+const a = beginTurn({ source: 'user', content: 'hallo', conversationId: 'c1' })
+assert.equal(a.ok, true)
+const dup = beginTurn({ source: 'user', content: 'hallo', conversationId: 'c1' })
+assert.equal(dup.ok, false)
+assert.equal(dup.reason, 'duplicate')
+const other = beginTurn({ source: 'debug', content: 'Timer 1', conversationId: 'debug-1' })
+assert.equal(other.ok, true)
+endTurn({ source: 'user', conversationId: 'c1' })
+endTurn({ source: 'debug', conversationId: 'debug-1' })
+const again = beginTurn({ source: 'user', content: 'hallo zwei', conversationId: 'c1' })
+assert.equal(again.ok, true)
+endTurn({ source: 'user', conversationId: 'c1' })
+
+assert.deepEqual(subQueries('Was weißt du über mich'), [])
+assert.equal(subQueries('Was weißt du über den Zahnarzt').some((q) => q.includes('zahnarzt')), true)
+assert.ok(!subQueries('Was weißt du über den Zahnarzt').includes('über'))
+assert.equal(parseRecallIntent('Was weißt du über den Zahnarzt'), 'Zahnarzt')
+assert.equal(parseRecallIntent('Was weißt du über mich'), null)
+assert.equal(parseRecallIntent('Wo stand das mit der Steuer'), 'Steuer')
+assert.equal(isMemoryRecall('Was weißt du über mich'), true)
+assert.equal(isDumpLine('Zeig mir London: Termine diese Woche: 1. Zahnarzt'), true)
+assert.equal(isDumpLine('Gefunden: • Wann hatte ich das mit der Steuer?'), true)
+assert.equal(isDumpLine('London ist die Hauptstadt des Vereinigten Königreichs.'), false)
+{
+  const line = formatRecallReply('Zahnarzt', [
+    { store: 'events', title: 'Zahnarzt', body: '2026-09-05T15:00:00', rank: 1 },
+    { store: 'messages', title: 'Zeig mir London', body: 'Fahr mich zu einer Tanke', rank: 0.9 },
+  ])
+  assert.match(line, /Zahnarzt/)
+  assert.doesNotMatch(line, /Zeig mir London:/)
+  assert.doesNotMatch(line, /Fahr mich zu einer Tanke:/)
+}
+{
+  const line = formatRecallReply('Steuer', [
+    { store: 'messages', title: 'Zeig mir London', body: 'Wann hatte ich das mit der Steuer?', rank: 1 },
+  ])
+  assert.match(line, /Steuer/)
+  assert.doesNotMatch(line, /Zeig mir London:/)
+}
+assert.match(formatPinnedMemory([{ key: 'name', value: 'Timon' }, { key: 'zuhause', value: 'Kehrsbachstraße 19' }]), /Sie heißen Timon/)
+assert.doesNotMatch(formatPinnedMemory([{ key: 'name', value: 'Timon' }]), /Zeig mir London/)
+assert.equal(parseWontIntent('Zeig Street View von London')?.reason, 'street')
+assert.equal(streetViewPlace('Zeig Street View von London')?.name, 'London')
+assert.equal(gazetteerHit('Zeig Street View von London'), null)
+assert.equal(pickRoute('Zeig Street View von London'), 'wont')
+{
+  const r = handleWont('Zeig Street View von London')
+  assert.equal(r.handled, true)
+  assert.equal(r.tool?.label, WONT_LABEL)
+  assert.match(r.reply || '', /London steht auf der Kugel/)
+  assert.match(r.reply || '', /Street View habe ich nicht/)
+}
+assert.equal(parseHudIntent('Wo ist London')?.kind, 'pin')
+{
+  const brief = composePlaceBrief(
+    { name: 'London', lat: 51.51, lon: -0.13, blurb: 'an der Themse, Hauptstadt des Vereinigten Königreichs.' },
+    [],
+  )
+  assert.match(brief, /London/)
+  assert.doesNotMatch(brief, /Tagesschau/)
+  assert.doesNotMatch(brief, /Lokalnachricht/)
+}
+assert.equal(looksTruncated('Die Tagesschau erwähnt die Stadt derzeit nicht, und Lokalnachrichten sollten nicht'), true)
+assert.equal(looksTruncated('London liegt an der Themse.'), false)
+
+assert.equal(isBriefAsk('Guten Morgen'), true)
+assert.equal(parseGreeting('Guten Morgen'), null)
+assert.equal(parseGreeting('Guten Abend'), 'evening')
+assert.equal(parseGreeting("ach wie geht's dir heute Abend"), 'evening')
+{
+  const night = new Date('2026-09-02T00:44:00')
+  assert.equal(dayPartAt(night), 'night')
+  assert.match(greetingReply('evening', night), /Guten Abend/)
+  assert.match(greetingReply('evening', night), /Mitternacht/)
+  assert.doesNotMatch(greetingReply('evening', night), /Guten Tag/)
+}
+assert.equal(isLiveLookup('was hat Elon Musk als letztes getweetet'), true)
+assert.equal(isLiveLookup('Elon Musk tweets heute'), true)
+assert.ok(isConfirmPhrase('ja bitte'))
+assert.ok(isFollowUpPhrase('ja bitte'))
+assert.equal(
+  rewriteFollowUp('ja bitte', {
+    last_step_tool: 'research_offer',
+    last_step_title: 'Elon Musk Tweet',
+    last_step_utterance: 'was hat Elon Musk als letztes getweetet',
+  }),
+  'was hat Elon Musk als letztes getweetet',
+)
+assert.equal(
+  rewriteFollowUp('ja bitte', {
+    last_step_tool: 'research',
+    last_step_utterance: 'was hat Elon Musk als letztes getweetet',
+  }),
+  null,
+)
+assert.match(scrubReply('Guten Tag, Timon. Wie geht es Ihnen?', { names: ['Timon'] }), /Guten Tag/)
+assert.doesNotMatch(scrubReply('Guten Tag, Timon. Wie geht es Ihnen?', { names: ['Timon'] }), /Timon/)
+assert.match(REPLY_TRUNCATED, /abgebrochen/)
+assert.equal(OUTLOOK_WATCH_ALARM, false)
+assert.ok(TEST_COPY_GROUPS.some((g) => /Stabilität Screenshots/i.test(g.title)))
+{
+  let s = OVERLAY_INIT
+  s = reduceOverlay(s, { type: 'ensure', id: 'drive' })
+  assert.equal(overlayTop(s), 'drive')
+  assert.equal(overlayHidesDrive(s), false)
+  s = reduceOverlay(s, { type: 'exclusive', id: 'settings' })
+  assert.equal(overlayTop(s), 'settings')
+  assert.equal(overlayHidesDrive(s), true)
+  assert.ok(s.stack.includes('drive'))
+  s = reduceOverlay(s, { type: 'drop', id: 'settings' })
+  assert.equal(overlayTop(s), 'drive')
+  assert.equal(overlayHidesDrive(s), false)
+  s = reduceOverlay(s, { type: 'exclusive', id: 'voice' })
+  assert.equal(overlayTop(s), 'voice')
+  assert.ok(!s.stack.includes('settings'))
+  assert.ok(s.stack.includes('drive'))
+  s = reduceOverlay(s, { type: 'force' })
+  assert.equal(overlayTop(s), null)
+}
+
+assert.equal(parseAppIntent('Öffne Einstellungen')?.kind, 'settings')
+assert.equal(parseAppIntent('Öffne Debug')?.topic, 'debug')
+assert.equal(parseAppIntent('Öffne Probe')?.topic, 'probe')
+assert.equal(parseAppIntent('Zeig Probe V1')?.topic, 'probe')
+assert.equal(parseAppIntent('Zeig das Gedächtnis')?.topic, 'gedaechtnis')
+assert.equal(parseAppIntent('Sprachmodus')?.kind, 'voice')
+assert.equal(parseAppIntent('Theme orange')?.accent, 'amber')
+assert.equal(parseAppIntent('Was weißt du über mich'), null)
+assert.equal(parseAppIntent('Lage an'), null)
+assert.equal(parseAppIntent('Öffne WLAN'), null)
+assert.equal(parseAppIntent('Einstellungen dann Datenschutz'), null)
+assert.equal(pickRoute('Öffne Einstellungen'), 'app')
+assert.equal(pickRoute('Sprachmodus'), 'app')
+assert.equal(pickRoute('Lage an'), 'hud')
+assert.equal(
+  researchStatusLabel({
+    sources: [{ title: 'Open-Meteo', url: 'https://open-meteo.com/', snippet: '', provider: 'open-meteo', retrieved_at: '' }],
+  }),
+  'Quelle',
+)
+assert.doesNotMatch(
+  researchStatusLabel({
+    sources: [{ title: 'Open-Meteo', url: 'https://open-meteo.com/', snippet: '', provider: 'open-meteo', retrieved_at: '' }],
+  }),
+  /^\d/,
+)
+{
+  const first = acceptWake({ lastAt: 0, open: false }, 'Jarvis')
+  assert.ok(first)
+  assert.equal(acceptWake(first, 'nochmal'), null)
+  assert.equal(acceptWake({ lastAt: Date.now(), open: false }, '', Date.now() + 10), null)
+  assert.ok(acceptWake({ lastAt: Date.now() - WAKE_DEBOUNCE_MS - 1, open: false }, ''))
+}
+assert.ok(TEST_COPY_GROUPS.some((g) => /V2 Voice/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V3 Verified/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V4 Dokumente/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V5 Gedächtnis/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V6 TV/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V7 PC/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V8 Live/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V9 Hardening/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /V1 |Stabilität/i.test(g.title)) || TEST_COPY_GROUPS.some((g) => /Stabilität/i.test(g.title)))
+assert.equal(PROBE_COPY_GROUPS.length, 9)
+assert.equal(PROBE_COPY_GROUPS[0].title, 'V1 Stabilität')
+assert.equal(PROBE_COPY_GROUPS[8].title, 'V9 Hardening')
+assert.ok(PROBE_COPY_GROUPS.every((g) => g.items.length > 0))
+assert.match(HELP_TEXT, /Probe V1–V9/)
+
+{
+  let s = ACTION_INIT
+  s = reduceAction(s, { type: 'intent', domain: 'navi', intent: 'replace:Freiberg' })
+  s = reduceAction(s, { type: 'plan', plan: 'replace', expect: { dest: 'Freiberg' } })
+  s = reduceAction(s, { type: 'precheck', ok: true })
+  s = reduceAction(s, { type: 'run' })
+  s = reduceAction(s, { type: 'verify', ok: true })
+  assert.equal(s.phase, 'failed')
+  assert.match(s.error || '', /Observation/)
+  s = reduceAction(s, { type: 'observe', observation: { dest: 'Freiberg am Neckar', rideOk: true, minutes: 12 } })
+  s = reduceAction(s, { type: 'verify', ok: true })
+  assert.equal(s.phase, 'success')
+  s = reduceAction(s, { type: 'respond', reply: 'Route nach Freiberg am Neckar aktualisiert.' })
+  assert.equal(s.pipeline, 'response')
+  assert.equal(toolStatusOf(s.phase), 'executed')
+}
+
+{
+  const packed = packVerified({
+    domain: 'navi',
+    intent: 'replace:Freiberg',
+    plan: 'replace',
+    label: 'Fahrmodus',
+    observation: {
+      requested: 'Freiberg am Neckar',
+      dest: 'Heilbronn',
+      prevDest: 'Heilbronn',
+      replace: true,
+      geocoded: true,
+      hereOk: true,
+      rideOk: false,
+      minutes: 0,
+      meters: 0,
+      coords: 0,
+    },
+    verify: (obs) => naviRouteVerified(obs),
+    successReply: 'Die Route berechne ich sofort neu.',
+    failReply: 'Ziel Freiberg am Neckar liegt, die Strecke ist noch nicht berechnet.',
+  })
+  assert.equal(packed.state.phase, 'failed')
+  assert.equal(packed.tool.tool_status, 'error')
+  assert.doesNotMatch(packed.reply, /sofort neu/)
+  assert.match(packed.reply, /Strecke/)
+}
+
+{
+  const ok = packVerified({
+    domain: 'navi',
+    intent: 'replace:Freiberg',
+    plan: 'replace',
+    label: 'Fahrmodus',
+    observation: {
+      requested: 'Freiberg am Neckar',
+      dest: 'Freiberg am Neckar',
+      prevDest: 'Heilbronn',
+      replace: true,
+      geocoded: true,
+      hereOk: true,
+      rideOk: true,
+      minutes: 18,
+      meters: 12_000,
+      coords: 40,
+    },
+    verify: (obs) => naviRouteVerified(obs),
+    successReply: 'Route nach Freiberg am Neckar aktualisiert: etwa 18 Min, 12.0 km.',
+    failReply: 'Strecke fehlt.',
+  })
+  assert.equal(ok.state.phase, 'success')
+  assert.equal(ok.tool.tool_status, 'executed')
+  assert.match(ok.reply, /aktualisiert/)
+}
+
+{
+  let n = NAVI_INIT
+  n = reduceNavi(n, { type: 'calculate', dest: 'Heilbronn' })
+  assert.equal(n.phase, 'calculating')
+  n = reduceNavi(n, { type: 'verified', dest: 'Heilbronn', destLat: 49.1, destLon: 9.2, minutes: 10, meters: 8000 })
+  assert.equal(n.phase, 'active_route')
+  n = reduceNavi(n, { type: 'replace', dest: 'Freiberg am Neckar' })
+  assert.equal(n.phase, 'replacing_route')
+  n = reduceNavi(n, {
+    type: 'verified',
+    dest: 'Freiberg am Neckar',
+    destLat: 49.05,
+    destLon: 9.05,
+    minutes: 18,
+    meters: 12000,
+  })
+  assert.equal(n.phase, 'active_route')
+  assert.equal(n.dest, 'Freiberg am Neckar')
+  assert.equal(destMatches('Freiberg am Neckar', 'Freiberg am Neckar'), true)
+  assert.equal(destMatches('Freiberg', 'Freiberg am Neckar'), true)
+  assert.equal(naviRouteVerified({ requested: 'Freiberg', dest: 'Heilbronn', rideOk: true, hereOk: true, minutes: 10, meters: 1000 }).ok, false)
+}
+
+{
+  const offer = offerResearchPending('was hat Elon Musk als letztes getweetet', 'Elon Musk Tweet')
+  assert.equal(isResearchPendingWaiting(offer), true)
+  const acc = acceptResearchPending('ja bitte', offer)
+  assert.equal(acc?.utterance, 'was hat Elon Musk als letztes getweetet')
+  assert.equal(declineResearchPending('nein', offer), true)
+  const json = serializeResearchPending(offer)
+  assert.equal(parseResearchPending(json)?.query, 'Elon Musk Tweet')
+  const stale = expireResearchPending(offer, offer.at + RESEARCH_PENDING_TTL_MS + 1)
+  assert.equal(stale?.status, 'expired')
+  assert.equal(acceptResearchPending('ja bitte', stale, offer.at + RESEARCH_PENDING_TTL_MS + 2), null)
+  assert.equal(
+    rewriteFollowUp('ja bitte', {
+      last_step_tool: 'research_offer',
+      last_research_json: json,
+      last_step_utterance: 'was hat Elon Musk als letztes getweetet',
+    }),
+    'was hat Elon Musk als letztes getweetet',
+  )
+  assert.equal(
+    rewriteFollowUp('ja bitte', {
+      last_step_tool: 'research_offer',
+      last_research_json: serializeResearchPending(stale),
+      last_step_utterance: 'was hat Elon Musk als letztes getweetet',
+    }),
+    null,
+  )
+  assert.equal(
+    rewriteFollowUp('ja', { last_step_tool: 'tv', last_step_utterance: 'Öffne Netflix', last_research_json: json }),
+    'Öffne Netflix',
+  )
+}
+
+assert.match(scrubReply('Die Route berechne ich sofort neu.'), /Fahrmodus ist intern/)
+assert.doesNotMatch(scrubReply('Die Route berechne ich sofort neu.'), /sofort neu/)
+
+{
+  const packed = packVerified({
+    domain: 'app',
+    intent: 'open:allgemein',
+    plan: 'settings',
+    label: 'Einstellungen',
+    observation: { action: 'settings', topic: 'allgemein' },
+    verify: (obs) => obs.action === 'settings',
+    successReply: 'Einstellungen ist offen.',
+    failReply: 'Einstellungen nicht geöffnet.',
+    extra: { topic: 'allgemein' },
+  })
+  assert.equal(packed.tool.tool_status, 'executed')
+  assert.equal(packed.tool.action, 'settings')
+}
+
+assert.equal(parseDocIntent('Lies das PDF')?.kind, 'read')
+assert.equal(parseDocIntent('Was steht in der Datei')?.kind, 'read')
+assert.equal(parseDocIntent('was steht drin')?.kind, 'read')
+assert.equal(parseDocIntent('Lies das Foto'), null)
+assert.equal(parseDocIntent('Was steht auf dem Beleg'), null)
+assert.equal(parseDocIntent('Was steht am Friday'), null)
+assert.equal(pickRoute('Lies das PDF'), 'doc')
+assert.equal(pickRoute('Was steht in der Datei'), 'doc')
+assert.equal(pickRoute('Lies das Foto'), 'eye')
+assert.equal(pickRoute('Was steht auf dem Beleg'), 'eye')
+assert.equal(classifyDoc('x.pdf'), 'pdf')
+assert.equal(classifyDoc('a.txt'), 'text')
+assert.equal(classifyDoc('n.docx'), 'other')
+assert.equal(classifyDoc('shot.jpg'), 'image')
+assert.equal(classifyDoc('scan.heic'), 'other')
+{
+  const pdf = new TextEncoder().encode('%PDF-1.1\nBT /F1 12 Tf (Hallo Jarvis) Tj ET\n')
+  assert.match(extractPdfText(pdf), /Hallo Jarvis/)
+  assert.equal(extractPdfText(new TextEncoder().encode('not a pdf (Hallo) Tj')), '')
+}
+assert.equal(docUploadVerified({ stored: true, bytes: 120, kind: 'pdf', chars: 12 }).ok, true)
+assert.equal(docUploadVerified({ stored: false, bytes: 0, kind: 'pdf', chars: 0 }).ok, false)
+assert.equal(docUploadVerified({ stored: false, bytes: 40, kind: 'other', chars: 0 }).ok, false)
+assert.equal(docUploadVerified({ stored: true, bytes: 80, kind: 'image', chars: 0, ocrOk: false }).ok, false)
+assert.equal(docUploadVerified({ stored: true, bytes: 80, kind: 'image', chars: 20, ocrOk: true }).ok, true)
+{
+  const empty = packVerified({
+    domain: 'doc',
+    intent: 'upload:leer.pdf',
+    plan: 'parse',
+    label: 'PDF',
+    observation: { stored: false, bytes: 0, kind: 'pdf', chars: 0 },
+    verify: (obs) => docUploadVerified(obs),
+    successReply: 'PDF gelesen.',
+    failReply: 'Die Datei ist leer.',
+  })
+  assert.equal(empty.state.phase, 'failed')
+  assert.equal(empty.tool.tool_status, 'error')
+  assert.doesNotMatch(empty.reply, /gelesen/)
+}
+{
+  const other = packVerified({
+    domain: 'doc',
+    intent: 'upload:n.docx',
+    plan: 'upload',
+    label: 'Datei',
+    observation: { stored: false, bytes: 12, kind: 'other', chars: 0 },
+    verify: (obs) => docUploadVerified(obs),
+    successReply: 'PDF gelesen.',
+    failReply: 'Word-Datei lese ich nicht. PDF, Text oder Foto.',
+  })
+  assert.equal(other.state.phase, 'failed')
+  assert.doesNotMatch(other.reply, /gelesen/)
+  assert.match(other.reply, /Word/)
+}
+{
+  const ok = packVerified({
+    domain: 'doc',
+    intent: 'upload:x.pdf',
+    plan: 'parse',
+    label: 'PDF',
+    observation: { stored: true, bytes: 240, kind: 'pdf', chars: 12 },
+    verify: (obs) => docUploadVerified(obs),
+    successReply: 'x.pdf: Hallo Jarvis',
+    failReply: 'Kein Text im PDF.',
+  })
+  assert.equal(ok.state.phase, 'success')
+  assert.equal(ok.tool.tool_status, 'executed')
+  assert.match(ok.reply, /Hallo Jarvis/)
+}
+
+assert.equal(confidenceFor('user', 'fact'), 0.95)
+assert.equal(confidenceFor('sleep', 'fact'), 0.4)
+assert.deepEqual(
+  contradictionTargets(
+    [
+      { key: 'getränk', value: 'Kaffee' },
+      { key: 'name', value: 'Max' },
+    ],
+    'Kaffee',
+  ).map((x) => x.key),
+  ['getränk'],
+)
+{
+  const now = Date.parse('2026-09-01T00:00:00Z')
+  const { drop, keep } = pruneMemoryItems(
+    [
+      {
+        id: '1',
+        key: 'name',
+        value: 'Max',
+        category: 'fact',
+        confidence: 0.95,
+        updated_at: '2026-01-01T00:00:00Z',
+        origin: 'user',
+      },
+      {
+        id: '2',
+        key: 'notiz',
+        value: 'Gefunden: • dump',
+        category: 'fact',
+        confidence: 0.9,
+        updated_at: '2026-08-01T00:00:00Z',
+        origin: 'sleep',
+      },
+      {
+        id: '3',
+        key: 'tmp',
+        value: 'alt',
+        category: 'fact',
+        confidence: 0.2,
+        updated_at: '2026-01-01T00:00:00Z',
+        origin: 'sleep',
+        expires_at: '2026-01-02T00:00:00Z',
+      },
+    ],
+    now,
+  )
+  assert.equal(keep.some((r) => r.key === 'name'), true)
+  assert.equal(drop.some((r) => r.id === '2'), true)
+  assert.equal(drop.some((r) => r.id === '3'), true)
+}
+assert.equal(semanticPins([{ key: 'x', value: 'y', confidence: 0.2, origin: 'sleep' }]).length, 0)
+assert.equal(semanticPins([{ key: 'x', value: 'y', confidence: 0.9, origin: 'user' }]).length, 1)
+assert.equal(memoryWriteVerified({ stored: false, key: 'name', value: 'Max' }).ok, false)
+assert.equal(memoryWriteVerified({ stored: true, key: 'name', value: 'Max' }).ok, true)
+assert.equal(memoryRecallVerified({ hits: 2, cited: false }).ok, false)
+assert.equal(memoryRecallVerified({ hits: 0, cited: false }).ok, true)
+{
+  const lie = packVerified({
+    domain: 'memory',
+    intent: 'write:name',
+    plan: 'write',
+    label: 'Gedächtnis',
+    observation: { stored: false, key: 'name', value: 'Max' },
+    verify: (obs) => memoryWriteVerified(obs),
+    successReply: 'Gemerkt: Max.',
+    failReply: 'Nicht gespeichert.',
+  })
+  assert.equal(lie.state.phase, 'failed')
+  assert.doesNotMatch(lie.reply, /Gemerkt/)
+}
+{
+  const line = formatRecallReply('Zahnarzt', [
+    { store: 'events', title: 'Zahnarzt', body: '2026-09-05T15:00:00', rank: 1 },
+  ])
+  assert.match(line, /Kalender/)
+  assert.match(line, /Zahnarzt/)
+}
+assert.equal(pickRoute('kein Kaffee mehr'), 'memory')
+assert.equal(pickRoute('Was weißt du über den Zahnarzt'), 'recall')
+assert.equal(pickRoute('Was weißt du über mich'), 'memory')
+
+{
+  const seeded = seedTvDevices({
+    tv_enabled: true,
+    tv_name: 'Wohnzimmer',
+    tv_host: '192.168.1.40',
+    tv_paired: true,
+    tv_token: 'tok',
+    tv_fire_host: '192.168.1.50',
+  })
+  assert.equal(seeded.some((d) => d.kind === 'tizen' && d.apps.includes('netflix')), true)
+  assert.equal(pickTvDevice(seeded, 'Öffne Netflix am Wohnzimmer')?.kind, 'tizen')
+  assert.equal(pickTvDevice(seeded, 'Fire TV Pause', 'fire')?.kind, 'fire')
+  const tizen = seeded.find((d) => d.kind === 'tizen')
+  assert.equal(tizen ? deviceCanLaunch(tizen, 'netflix') : false, true)
+  const fire = seeded.find((d) => d.kind === 'fire')
+  assert.equal(fire ? deviceCanLaunch(fire, 'netflix') : true, false)
+}
+assert.equal(tvLaunchVerified({ launched: true, app: 'netflix', appId: '11101200001' }).ok, false)
+assert.equal(
+  tvLaunchVerified({
+    launched: true,
+    deviceId: 'tizen-default',
+    paired: true,
+    kind: 'tizen',
+    app: 'netflix',
+    appId: '11101200001',
+    apps: ['netflix', 'youtube'],
+  }).ok,
+  true,
+)
+assert.equal(
+  tvLaunchVerified({
+    launched: true,
+    deviceId: 'tizen-default',
+    paired: true,
+    kind: 'tizen',
+    app: 'netflix',
+    appId: '11101200001',
+    apps: ['youtube'],
+  }).ok,
+  false,
+)
+assert.equal(
+  tvLaunchVerified({
+    launched: true,
+    deviceId: 'fire-default',
+    paired: true,
+    kind: 'fire',
+    app: 'netflix',
+    appId: 'x',
+    apps: [],
+  }).ok,
+  false,
+)
+{
+  const lie = packVerified({
+    domain: 'tv',
+    intent: 'launch:netflix',
+    plan: 'open',
+    label: 'Netflix',
+    observation: { launched: false, deviceId: 'tizen-default', paired: true, kind: 'tizen', app: 'netflix', appId: '', apps: ['netflix'] },
+    verify: (obs) => tvLaunchVerified(obs),
+    successReply: 'Netflix ist offen.',
+    failReply: 'Start nicht angekommen.',
+  })
+  assert.equal(lie.state.phase, 'failed')
+  assert.doesNotMatch(lie.reply, /ist offen/)
+}
+assert.match(scrubReply('Netflix ist offen.'), /Schirm|angekommen|nicht/)
+assert.doesNotMatch(scrubReply('Netflix ist offen.'), /Netflix ist offen/)
+assert.equal(pickRoute('Öffne Netflix'), 'tv')
 
 console.log('ok 0.14 parsers')

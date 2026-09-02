@@ -14,6 +14,15 @@ import {
   nextManeuver,
   type NavStep,
 } from './nav-speak'
+import { packVerified } from './action-fsm.ts'
+import {
+  destMatches,
+  naviRouteVerified,
+  NAVI_INIT,
+  reduceNavi,
+  type NaviObservation,
+  type NaviState,
+} from './navi-fsm.ts'
 
 export { parseDriveIntent } from './drive-parse'
 export type { DriveTab } from './drive-parse'
@@ -61,6 +70,7 @@ let announced = new Map<string, Set<string>>()
 let offSince = 0
 let lastRerouteAt = 0
 let lastSnapI = 0
+let navi: NaviState = { ...NAVI_INIT }
 const listeners = new Set<() => void>()
 
 function persistActive() {
@@ -84,6 +94,17 @@ function restoreActive() {
     if (!parsed?.dest || !Number.isFinite(parsed.destLat) || !Number.isFinite(parsed.destLon)) return
     if (!Array.isArray(parsed.coords) || !isRoadTrack(parsed.coords, parsed.meters)) parsed.coords = []
     active = parsed
+    if (parsed.minutes > 0 && parsed.meters > 0) {
+      navi = reduceNavi(NAVI_INIT, { type: 'calculate', dest: parsed.dest })
+      navi = reduceNavi(navi, {
+        type: 'verified',
+        dest: parsed.dest,
+        destLat: parsed.destLat,
+        destLon: parsed.destLon,
+        minutes: parsed.minutes,
+        meters: parsed.meters,
+      })
+    }
   } catch {
     /* kaputte letzte Route ignorieren */
   }
@@ -97,6 +118,10 @@ function emit() {
 
 export function getDriveRoute(): DriveRoute | null {
   return active
+}
+
+export function getNaviState(): NaviState {
+  return navi
 }
 
 export function getDriveHazards(): DriveHazard[] {
@@ -134,6 +159,7 @@ export function closeDrive() {
   lastFix = null
   tab = 'map'
   announced = new Map()
+  navi = reduceNavi(navi, { type: 'clear' })
   emit()
 }
 
@@ -256,9 +282,9 @@ export function formatRestweg(route: DriveRoute): string {
   return `Noch etwa ${route.minutes} Min, ${km} bis ${route.dest}.`
 }
 
-function driveTool(action: string, label: string, route?: DriveRoute): ToolMeta {
+function driveTool(action: string, label: string, route?: DriveRoute, status = 'executed'): ToolMeta {
   return {
-    tool_status: 'executed',
+    tool_status: status,
     tool: 'drive',
     action,
     label,
@@ -276,6 +302,7 @@ function driveTool(action: string, label: string, route?: DriveRoute): ToolMeta 
           coords: route.coords,
           internal: true,
           tab,
+          navi: navi.phase,
         }
       : { internal: true, tab },
   }
@@ -325,6 +352,8 @@ export async function beginDriveTo(
   destLat: number,
   destLon: number,
 ): Promise<{ route: DriveRoute; tool: ToolMeta; hereOk: boolean; rideOk: boolean }> {
+  const replacing = Boolean(active?.dest && !destMatches(active.dest, destName))
+  navi = reduceNavi(navi, replacing ? { type: 'replace', dest: destName } : { type: 'calculate', dest: destName })
   openDrive()
   tab = 'map'
   const granted = await requestLocationPermission()
@@ -350,7 +379,8 @@ export async function beginDriveTo(
     resetAnnounced()
     persistActive()
     emit()
-    return { route: active, tool: driveTool('nav', 'Fahrmodus', active), hereOk: false, rideOk: false }
+    navi = reduceNavi(navi, { type: 'failed' })
+    return { route: active, tool: driveTool('nav', 'Fahrmodus', active, 'error'), hereOk: false, rideOk: false }
   }
   const ride = await routeDrive({ lat: here.lat, lon: here.lon }, { lat: destLat, lon: destLon })
   if (!ride.ok) {
@@ -359,7 +389,8 @@ export async function beginDriveTo(
     resetAnnounced()
     persistActive()
     emit()
-    return { route: active, tool: driveTool('nav', 'Fahrmodus', active), hereOk: true, rideOk: false }
+    navi = reduceNavi(navi, { type: 'failed' })
+    return { route: active, tool: driveTool('nav', 'Fahrmodus', active, 'error'), hereOk: true, rideOk: false }
   }
   active = {
     dest: destName,
@@ -377,6 +408,14 @@ export async function beginDriveTo(
   resetAnnounced()
   persistActive()
   emit()
+  navi = reduceNavi(navi, {
+    type: 'verified',
+    dest: destName,
+    destLat,
+    destLon,
+    minutes: ride.minutes,
+    meters: ride.meters,
+  })
   return { route: active, tool: driveTool('nav', 'Fahrmodus', active), hereOk: true, rideOk: true }
 }
 
@@ -390,39 +429,54 @@ async function startRoute(_label: string, place: string): Promise<{
   const lat = Number(s.last_lat)
   const lon = Number(s.last_lon)
   const near = Number.isFinite(lat) && Number.isFinite(lon) ? { lat, lon } : null
+  const prevDest = active?.dest || ''
+  const replacing = Boolean(prevDest)
   const dest = await geocodePlace(place, near)
   if (!dest.ok) {
-    return {
-      handled: true,
-      reply: dest.message,
-      tool: driveTool('ask', 'Ort fehlt'),
-      lastTool: 'drive',
-    }
+    const packed = packVerified({
+      domain: 'navi',
+      intent: replacing ? `replace:${place}` : `route:${place}`,
+      plan: replacing ? 'replace' : 'route',
+      label: 'Ort fehlt',
+      observation: { requested: place, dest: '', geocoded: false, replace: replacing, prevDest },
+      verify: (obs) => naviRouteVerified(obs as NaviObservation),
+      successReply: dest.message,
+      failReply: dest.message,
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'drive' }
   }
-  const { route, tool, hereOk, rideOk } = await beginDriveTo(dest.fix.place, dest.fix.lat, dest.fix.lon)
-  if (!hereOk) {
-    return {
-      handled: true,
-      reply: `Fahrmodus: Ziel ${dest.fix.place}. Standort erlauben für die Route — intern, nicht Google Maps.`,
-      tool,
-      lastTool: 'drive',
-    }
-  }
-  if (!rideOk) {
-    return {
-      handled: true,
-      reply: `${route.hint || 'Netz hat die Route nicht geliefert.'} Ziel ${dest.fix.place} liegt trotzdem im Fahrmodus.`,
-      tool,
-      lastTool: 'drive',
-    }
+  const { route, hereOk, rideOk } = await beginDriveTo(dest.fix.place, dest.fix.lat, dest.fix.lon)
+  const obs: NaviObservation = {
+    requested: place,
+    dest: dest.fix.place,
+    prevDest,
+    replace: replacing,
+    geocoded: true,
+    hereOk,
+    rideOk,
+    minutes: route.minutes,
+    meters: route.meters,
+    coords: route.coords.length,
   }
   const km = route.meters >= 1000 ? `${(route.meters / 1000).toFixed(1)} km` : `${route.meters} m`
-  return {
-    handled: true,
-    reply: `Fahrmodus nach ${dest.fix.place}: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`,
-    tool,
-    lastTool: 'drive',
+  const success = replacing
+    ? `Route nach ${dest.fix.place} aktualisiert: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`
+    : `Fahrmodus nach ${dest.fix.place}: etwa ${route.minutes} Min, ${km}. ${route.hint} Karte intern, nicht Google.`
+  let fail = `${route.hint || 'Netz hat die Route nicht geliefert.'} Ziel ${dest.fix.place} liegt im Fahrmodus, die Strecke ist noch nicht berechnet.`
+  if (!hereOk) {
+    fail = `Fahrmodus: Ziel ${dest.fix.place}. Standort erlauben für die Route — intern, nicht Google Maps.`
   }
+  const packed = packVerified({
+    domain: 'navi',
+    intent: replacing ? `replace:${place}` : `route:${place}`,
+    plan: replacing ? 'replace' : 'route',
+    label: 'Fahrmodus',
+    observation: obs,
+    verify: (o) => naviRouteVerified(o as NaviObservation),
+    successReply: success,
+    failReply: fail,
+  })
+  return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'drive' }
 }
 
 async function destOrAsk(raw: string): Promise<

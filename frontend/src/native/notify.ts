@@ -68,7 +68,7 @@ export async function scheduleNotify(opts: {
         title: opts.title,
         body: opts.body,
         atMs,
-        alarm: opts.alarm !== false,
+        alarm: opts.alarm === true,
         recur: opts.recur || '',
         tone: opts.tone || '',
         mode: opts.mode || '',

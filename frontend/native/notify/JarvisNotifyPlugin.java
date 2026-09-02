@@ -1,5 +1,6 @@
 package app.jarvis.notify;
 
+import android.app.Notification;
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
@@ -14,6 +15,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.core.app.NotificationCompat;
 import androidx.activity.result.ActivityResult;
 
 import com.getcapacitor.JSArray;
@@ -78,7 +80,7 @@ public class JarvisNotifyPlugin extends Plugin {
         String title = call.getString("title", "Jarvis");
         String body = call.getString("body", "");
         Long atMs = call.getLong("atMs");
-        boolean alarm = Boolean.TRUE.equals(call.getBoolean("alarm", true));
+        boolean alarm = Boolean.TRUE.equals(call.getBoolean("alarm", false));
         String recur = call.getString("recur", "");
         String tone = call.getString("tone", "");
         String mode = call.getString("mode", "");
@@ -250,6 +252,27 @@ public class JarvisNotifyPlugin extends Plugin {
         AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
         if (am == null) return false;
         PendingIntent pi = pending(ctx, id, title, body, alarm, recur, tone, mode, say);
+        if (!alarm) {
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (am.canScheduleExactAlarms()) {
+                        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+                    } else {
+                        am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+                    }
+                } else {
+                    am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+                }
+                return true;
+            } catch (Exception e) {
+                try {
+                    am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMs, pi);
+                    return true;
+                } catch (Exception ignored) {
+                    return false;
+                }
+            }
+        }
         try {
             Intent show = new Intent(ctx, JarvisAlarmActivity.class);
             show.putExtra("title", title);
@@ -361,6 +384,7 @@ public class JarvisNotifyPlugin extends Plugin {
             String body = o.optString("body", "");
             long at = o.optLong("atMs");
             boolean alarm = o.optBoolean("alarm", true);
+            if ("Weltlage".equals(title)) alarm = false;
             String recur = o.optString("recur", "");
             String tone = o.optString("tone", "");
             String mode = o.optString("mode", "");
@@ -390,8 +414,46 @@ public class JarvisNotifyPlugin extends Plugin {
         return title != null && "Timer".equalsIgnoreCase(title.trim());
     }
 
+    static void showQuiet(Context ctx, int id, String title, String body) {
+        NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm == null) return;
+        Intent launch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
+        PendingIntent tap = null;
+        if (launch != null) {
+            launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                flags |= PendingIntent.FLAG_IMMUTABLE;
+            }
+            tap = PendingIntent.getActivity(ctx, id, launch, flags);
+        }
+        Notification n = new NotificationCompat.Builder(ctx, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(title == null || title.isEmpty() ? "Jarvis" : title)
+                .setContentText(body == null ? "" : body)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(body == null ? "" : body))
+                .setAutoCancel(true)
+                .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setContentIntent(tap)
+                .build();
+        nm.notify(id, n);
+    }
+
     static void show(Context ctx, int id, String title, String body, boolean alarm, String recur, String tone, String mode, String say) {
         ensureChannel(ctx);
+        if (!alarm) {
+            showQuiet(ctx, id, title, body);
+            if ("daily".equals(recur) || "weekly".equals(recur)) {
+                long step = "weekly".equals(recur) ? 7L * 86_400_000L : 86_400_000L;
+                long next = System.currentTimeMillis() + step;
+                persist(ctx, id, title, body, next, false, recur, "", "", "");
+                arm(ctx, id, title, body, next, false, recur, "", "", "");
+            } else {
+                removeStored(ctx, id);
+            }
+            return;
+        }
         if (isTimerSpeak(mode, title)) {
             mode = "speak";
             tone = "";

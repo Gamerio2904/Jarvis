@@ -138,6 +138,10 @@ export function cityLine(place: Pick<PlaceFix, 'name' | 'blurb'>): string {
   return `Das ist ${place.name}, ${place.blurb}`.replace(/\s+/g, ' ').trim()
 }
 
+export function composePlaceBrief(place: Pick<PlaceFix, 'name' | 'blurb'>, extras: string[] = []): string {
+  return [cityLine(place), ...extras.filter(Boolean)].join(' ').replace(/\s+/g, ' ').trim()
+}
+
 export function unknownPlaceLine(asked?: string): string {
   const name = (asked || '').trim()
   return name

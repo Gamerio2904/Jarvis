@@ -51,6 +51,8 @@ import { parseToolIntent } from './tools-parse'
 import { handleTools, type ToolMeta } from './tools'
 import { parseEyeIntent } from './eye-parse'
 import { handleEyeAsk } from './eye'
+import { parseDocIntent } from './doc-parse.ts'
+import { handleDoc } from './doc.ts'
 import { parseWeatherFollowup, parseWeatherIntent, type WeatherLast } from './weather-parse'
 import { handleWeather } from './weather'
 import { parseNewsIntent } from './news-parse'
@@ -87,7 +89,7 @@ import { handleTaxi } from './taxi'
 import { parseBackupIntent, handleBackup } from './backup'
 import { parseFaceIntent } from './face-parse.ts'
 import { handleFace } from './face.ts'
-import { parseWontIntent, handleWont } from './wont-parse.ts'
+import { parseWontIntent, handleWont, WONT_LABEL } from './wont-parse.ts'
 import { parseBlitzerIntent } from './blitzer-parse.ts'
 import { handleBlitzer } from './blitzer.ts'
 import { parseFolderIntent } from './folder-parse.ts'
@@ -98,6 +100,8 @@ import { parseAmazonMusicIntent } from './amazon-parse.ts'
 import { handleAmazonMusic } from './amazon.ts'
 import { parseRecallIntent } from './recall-parse.ts'
 import { handleRecall } from './recall.ts'
+import { parseAppIntent } from './app-parse.ts'
+import { handleApp } from './app.ts'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -171,7 +175,7 @@ function makeCatalog(): Capability[] {
   return [
     {
       id: 'wont',
-      label: 'Won’t',
+      label: WONT_LABEL,
       sideEffect: 'read',
       parse: (ctx) => (parseWontIntent(ctx.text) ? score(ctx.text, 0.4) : null),
       execute: async (ctx) => fromHandler('wont', handleWont(ctx.text)),
@@ -369,6 +373,13 @@ function makeCatalog(): Capability[] {
       parse: (ctx) =>
         parseEyeIntent(ctx.text) || isEyeGround(parseGroundIntent(ctx.text)) ? score(ctx.text) : null,
       execute: async (ctx) => fromHandler('eye', await handleEyeAsk(ctx.text)),
+    },
+    {
+      id: 'doc',
+      label: 'Datei',
+      sideEffect: 'read',
+      parse: (ctx) => (parseDocIntent(ctx.text) ? score(ctx.text, 0.22) : null),
+      execute: async (ctx) => fromHandler('doc', await handleDoc(ctx.conversationId, ctx.text)),
     },
     {
       id: 'weather',
@@ -570,6 +581,13 @@ function makeCatalog(): Capability[] {
       sideEffect: 'read',
       parse: (ctx) => (parseRecallIntent(ctx.text) ? score(ctx.text, 0.1) : null),
       execute: async (ctx) => fromHandler('recall', await handleRecall(ctx.text)),
+    },
+    {
+      id: 'app',
+      label: 'App',
+      sideEffect: 'write',
+      parse: (ctx) => (parseAppIntent(ctx.text) ? score(ctx.text, 0.28) : null),
+      execute: async (ctx) => fromHandler('app', await handleApp(ctx.conversationId, ctx.text)),
     },
   ]
 }

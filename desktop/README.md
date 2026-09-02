@@ -21,13 +21,14 @@ Fertig wenn das Handy sagt „PC-App erreicht“ **und** im PC-Fenster kurz „H
 ## Testen (Chat)
 
 - `PC testen`
+- `PC live` / `Live aus` (LAN-Einzelbilder; WebRTC nur wenn der Peer steht)
 - `Was siehst du auf dem PC` (Screenshot; Vorlesen braucht Gemini; lokal geplant [`docs/41-next.md`](../docs/41-next.md))
 - `klick Mitte` / `Maus nach rechts`
 - `Zeig Ordner Downloads`
 - `FIFA starten` (nur wenn im Startmenü)
 - `Welche Route nimmt google.de` (`tracert` am PC)
 
-Löschen von Ordnern erst nach **Ja**.
+Löschen von Ordnern erst nach **Ja**. Unbekannte Programme (nicht FIFA) erst nach **Ja**. Klick heißt „gesendet“, nicht „ausgeführt“ — den Schirm beweist JPEG nicht. Live ist LAN-JPEG, kein erfundener WebRTC-Peer.
 
 ## Wenn es „PC nicht erreicht / BAT starten“ sagt, obwohl das Fenster offen ist
 
@@ -35,7 +36,7 @@ Dann kommt das Handy nicht durch — nicht weil die BAT „falsch ausgefüllt“
 
 | Check | Richtig |
 |-------|---------|
-| Richtige IP | Die **empfohlene** im PC-Fenster, meist `192.168…`. Andere IPs der Reihe nach testen. |
+| Richtige IP | Die **empfohlene** im PC-Fenster, meist `192.168…` oder `10…`. **Nicht** `172…` (WSL) und nicht Internet. |
 | Schalter | Einstellungen → PC → **an** |
 | Gleiches Netz | PC-WLAN = Handy-WLAN, kein VPN auf einem der beiden |
 | Firewall | „Firewall erlauben“ im Fenster, oder Windows-Abfrage zulassen |

@@ -44,6 +44,7 @@ export function Lage({
   const [body, setBody] = useState<BodySnap | null>(null)
   const [pins, setPins] = useState<GeoFix[]>([])
   const [pin, setPin] = useState<GeoFix | null>(null)
+  const [pinCard, setPinCard] = useState<GeoFix | null>(null)
   const [globeTick, setGlobeTick] = useState(0)
   const s = loadSettings()
   const view: HudView = s.hud_view === 'body' || s.hud_view === 'globe' ? s.hud_view : 'tiles'
@@ -218,8 +219,7 @@ export function Lage({
                 last_globe_look: JSON.stringify({ lat: next.lat, lon: next.lon, zoom: CITY_FLY_ZOOM }),
               })
               if (next.kind === 'iss' || next.kind === 'here' || next.kind === 'warn') return
-              if (typeof window !== 'undefined' && window.innerWidth < 900) return
-              onSend(`Zeig ${next.name}`)
+              setPinCard(next)
             }}
             onEmpty={() => {
               if (!loadSettings().globe_tour_on) return
@@ -240,6 +240,30 @@ export function Lage({
             )}
           />
           {modules.includes('chat') ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
+          {pinCard ? (
+            <div className="pin-bubble" role="dialog" aria-labelledby="pin-bubble-title">
+              <h3 id="pin-bubble-title">{pinCard.name}</h3>
+              <p className="lage-body">
+                {decodeHtml(pinCard.line || s.last_globe_brief || 'Keine Kurzlage zu diesem Ort.')}
+              </p>
+              <p className="pin-bubble-swipe">Keine Bilder — nur Lage-Text.</p>
+              <div className="pin-bubble-actions">
+                <button type="button" className="lage-btn" onClick={() => setPinCard(null)}>
+                  Schließen
+                </button>
+                <button
+                  type="button"
+                  className="lage-btn"
+                  onClick={() => {
+                    onSend(`Zeig ${pinCard.name}`)
+                    setPinCard(null)
+                  }}
+                >
+                  Im Chat
+                </button>
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="lage-grid">

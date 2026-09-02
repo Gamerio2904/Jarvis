@@ -15,6 +15,7 @@ export type SettingsTopic =
   | 'hausstand'
   | 'gedaechtnis'
   | 'debug'
+  | 'probe'
   | 'gefahr'
 
 export type SettingsGroup = {
@@ -33,7 +34,7 @@ export const SETTINGS_GROUPS: SettingsGroup[] = [
   { id: 'welt', title: 'Welt', lead: 'Suche im Netz und Weltlage. Nur wenn Sie das anmachen.', topics: ['forschung', 'weltlage'] },
   { id: 'daten', title: 'Ihre Daten', lead: 'Was er merkt, was Sie sichern, was weg ist.', topics: ['gedaechtnis', 'hausstand', 'gefahr'] },
   { id: 'aussehen', title: 'Aussehen', lead: 'Lage neben dem Chat, Farben, leise Töne.', topics: ['allgemein', 'ton'], workshop: true },
-  { id: 'werkstatt', title: 'Werkstatt', lead: 'Version, Debug, nur wenn Sie testen.', topics: ['debug'], workshop: true },
+  { id: 'werkstatt', title: 'Werkstatt', lead: 'Version, Debug, nur wenn Sie testen.', topics: ['probe', 'debug'], workshop: true },
 ]
 
 export const TOPIC_FACE: Record<SettingsTopic, { label: string; hint: string }> = {
@@ -53,6 +54,7 @@ export const TOPIC_FACE: Record<SettingsTopic, { label: string; hint: string }> 
   hausstand: { label: 'Sichern und zurückholen', hint: 'Vor Neuinstall. Sonst sind Keys weg.' },
   gedaechtnis: { label: 'Was Jarvis merkt', hint: 'Sie können Zeilen löschen' },
   debug: { label: 'Tests', hint: 'Mehrere Kategorien, Export' },
+  probe: { label: 'Probe V1–V9', hint: 'Ein Prompt, ein Kopieren' },
   gefahr: { label: 'Alles löschen', hint: 'Unumkehrbar.' },
 }
 
@@ -72,5 +74,6 @@ export function filterTopics(q: string): SettingsTopic[] {
   if (/lösch|gefahr/.test(n) && !hits.includes('gefahr')) hits.push('gefahr')
   if (/wake|hören|stimme/.test(n) && !hits.includes('sprache')) hits.push('sprache')
   if (/preis|research|netz/.test(n) && !hits.includes('forschung')) hits.push('forschung')
+  if (/probe|kopier|v[1-9]/.test(n) && !hits.includes('probe')) hits.push('probe')
   return hits
 }

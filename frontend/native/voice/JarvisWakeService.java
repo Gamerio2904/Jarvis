@@ -175,7 +175,7 @@ public class JarvisWakeService extends Service {
                         || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT ? 180 : 450);
             }
             @Override public void onResults(Bundle results) { hit(results); restart(350); }
-            @Override public void onPartialResults(Bundle results) { hit(results); }
+            @Override public void onPartialResults(Bundle results) { /* Wake nur auf Final — sonst doppeltes Voice-Open */ }
             @Override public void onEvent(int eventType, Bundle params) {}
         });
         Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -217,7 +217,7 @@ public class JarvisWakeService extends Service {
     }
 
     private void hit(Bundle results) {
-        if (results == null || paused) return;
+        if (results == null || paused || !armed) return;
         ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         if (list == null) return;
         for (String s : list) {

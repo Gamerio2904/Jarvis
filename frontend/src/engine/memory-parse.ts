@@ -76,6 +76,33 @@ export function isMemoryWrite(text: string): boolean {
   return false
 }
 
+export function formatPinnedMemory(items: Array<{ key: string; value: string }>): string {
+  if (!items.length) return 'Noch nichts gespeichert über Sie.'
+  const order = ['name', 'zuhause', 'getränk', 'essen']
+  const say: Record<string, (v: string) => string> = {
+    name: (v) => `Sie heißen ${v}.`,
+    zuhause: (v) => `Zuhause ist ${v}.`,
+    getränk: (v) => `Sie trinken ${v}.`,
+    essen: (v) => `Sie essen ${v}.`,
+  }
+  const used = new Set<string>()
+  const bits: string[] = []
+  for (const k of order) {
+    const m = items.find((i) => i.key === k)
+    const v = m?.value.trim()
+    if (!v) continue
+    used.add(k)
+    bits.push(say[k](v))
+  }
+  for (const m of items) {
+    if (used.has(m.key)) continue
+    const v = m.value.trim()
+    if (!v) continue
+    bits.push(`${m.value.replace(/[.!?]+$/g, '')}.`)
+  }
+  return bits.slice(0, 8).join(' ')
+}
+
 export function isMemoryRecall(text: string): boolean {
   return (
     RECALL_ALL.test(text) ||

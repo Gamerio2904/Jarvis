@@ -26,9 +26,11 @@ import {
   tvFireTest,
   testGemini,
   testGroq,
-  readEyeImage,
-  fileToJpegDataUrl,
+  ingestDocFile,
   checkHomeFence,
+  pullRtcFrame,
+  stopRtcLive,
+  readRtcLive,
   type Conversation,
   type Health,
   type MemoryCategory,
@@ -51,6 +53,7 @@ import { DriveMode } from './DriveMode'
 import { Lage } from './Lage'
 import { WakeBubble } from './WakeBubble'
 import { useOverlay } from './overlay'
+import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm'
 import { closeDrive, subscribeDrive } from './engine/drive'
 import { loadSettings } from './engine/store'
 import { syncGlance } from './engine/glance'
@@ -65,6 +68,9 @@ import { pickAlarmTone } from './native/notify'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
+import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate'
+import { debugSnapshot, subscribeDebug } from './engine/debug-session'
+import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate'
 
 function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
   const raw = tool.result
@@ -173,6 +179,43 @@ function ToolChip({
   )
 }
 
+function PcLiveDock() {
+  const [src, setSrc] = useState('')
+  useEffect(() => {
+    let alive = true
+    async function tick() {
+      if (!readRtcLive()) {
+        if (alive) setSrc('')
+        return
+      }
+      const r = await pullRtcFrame()
+      if (!alive) return
+      setSrc(r.ok && r.image ? r.image : '')
+    }
+    void tick()
+    const id = window.setInterval(() => void tick(), 1000)
+    return () => {
+      alive = false
+      window.clearInterval(id)
+    }
+  }, [])
+  if (!src) return null
+  return (
+    <div className="pc-live-dock">
+      <img className="pc-live-frame" alt="PC live" src={src} />
+      <button
+        type="button"
+        className="pc-live-stop"
+        onClick={() => {
+          void stopRtcLive().then(() => setSrc(''))
+        }}
+      >
+        Live aus
+      </button>
+    </div>
+  )
+}
+
 function SourcesBlock({
   research,
   onOpenAudit,
@@ -182,18 +225,14 @@ function SourcesBlock({
 }) {
   const sources = (research.sources || []).filter((s) => s.url)
   const status = researchStatusLabel(research)
-  const query = (research.query || '').replace(/^[·.\s]+/, '').trim()
-  if (!sources.length && !status && !query) return null
+  if (!sources.length && !status) return null
   return (
     <details className="sources-block" open>
       <summary>
         <span className="sources-badge">{status || 'Quellen'}</span>
-        {sources.length ? (
-          <span className="sources-count">
-            {sources.length} prüfbar
-          </span>
+        {sources.length > 1 ? (
+          <span className="sources-count">prüfbar</span>
         ) : null}
-        {query ? <span className="sources-query"> · {query}</span> : null}
       </summary>
       {sources.length ? (
         <ul className="sources-list">
@@ -296,6 +335,9 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
   const [busy, setBusy] = useState(false)
+  const busyRef = useRef(false)
+  const driveCloseGenRef = useRef(0)
+  const [debugRunning, setDebugRunning] = useState(() => debugSnapshot().running)
   const [streamingText, setStreamingText] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [lastFailed, setLastFailed] = useState<string | null>(null)
@@ -320,8 +362,10 @@ function App() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
+  const [overlay, setOverlay] = useState(OVERLAY_INIT)
   const voiceOpenRef = useRef(false)
   const driveOpenRef = useRef(false)
+  const wakeGateRef = useRef<WakeGate>({ lastAt: 0, open: false })
   voiceOpenRef.current = voiceOpen
   driveOpenRef.current = driveOpen
   const [wakeListening, setWakeListening] = useState(false)
@@ -369,11 +413,54 @@ function App() {
     return created.id
   }
 
+  function patchOverlay(...actions: Parameters<typeof reduceOverlay>[1][]) {
+    setOverlay((s) => {
+      let next = s
+      for (const action of actions) next = reduceOverlay(next, action)
+      return next
+    })
+  }
+
+  function openSheet(id: OverlayId) {
+    patchOverlay({ type: 'exclusive', id })
+  }
+
+  function closeSheet(id: OverlayId) {
+    patchOverlay({ type: 'drop', id })
+  }
+
   function openVoiceMode(seed = '') {
+    const next = acceptWake(wakeGateRef.current, seed, Date.now())
+    if (!next) return
+    wakeGateRef.current = next
     voiceHoldUntilRef.current = Date.now() + 2500
     if (seed) setVoiceSeed(seed)
-    setVoiceOpen(true)
+    setSettingsPanelOpen(false)
     setCalendarOpen(false)
+    setVoiceOpen(true)
+    openSheet('voice')
+  }
+
+  function applyAppTool(tool?: ToolMeta | null) {
+    if (!tool || tool.tool !== 'app') return
+    if (tool.tool_status === 'error' || tool.tool_status === 'aborted') return
+    const action = (tool.action || '').trim()
+    const topic = String(tool.result?.topic || '') as SettingsTopic
+    if (action === 'voice') {
+      openVoiceMode()
+      return
+    }
+    if (action === 'debug') {
+      openSettings('debug')
+      return
+    }
+    if (action === 'memory') {
+      openSettings('gedaechtnis')
+      return
+    }
+    if (action === 'settings') {
+      openSettings(topic || 'allgemein')
+    }
   }
 
   useEffect(() => {
@@ -403,9 +490,48 @@ function App() {
       if (on) {
         setCalendarOpen(false)
         setSidebarOpen(false)
+        patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'ensure', id: 'drive' })
+      } else {
+        patchOverlay({ type: 'drop', id: 'drive' })
       }
     })
   }, [])
+
+  useEffect(() => {
+    return subscribeDebug(() => setDebugRunning(debugSnapshot().running))
+  }, [])
+
+  useEffect(() => {
+    const overlayOpen = settingsPanelOpen || calendarOpen || voiceOpen || driveOpen
+    if (!overlayOpen) return
+    window.history.pushState({ jarvisOverlay: true }, '')
+    const onPop = () => {
+      if (settingsPanelOpen) {
+        setSettingsPanelOpen(false)
+        closeSheet('settings')
+        return
+      }
+      if (calendarOpen) {
+        setCalendarOpen(false)
+        closeSheet('calendar')
+        return
+      }
+      if (voiceOpen) {
+        setVoiceOpen(false)
+        closeSheet('voice')
+        wakeGateRef.current = closeWake(wakeGateRef.current)
+        return
+      }
+      if (driveOpen) {
+        driveCloseGenRef.current += 1
+        closeDrive()
+        setDriveOpen(false)
+        closeSheet('drive')
+      }
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen])
 
   useEffect(() => {
     const el = appRef.current
@@ -494,6 +620,8 @@ function App() {
         hideTimer = window.setTimeout(() => {
           if (document.hidden && Date.now() >= voiceHoldUntilRef.current) {
             setVoiceOpen(false)
+            closeSheet('voice')
+            wakeGateRef.current = closeWake(wakeGateRef.current)
           }
         }, 400)
         return
@@ -818,7 +946,10 @@ function App() {
       /* browser ohne Deep-Link */
     }
     const s = await getSettings()
-    if (s.drive_mode) setDriveOpen(true)
+    if (s.drive_mode) {
+      setDriveOpen(true)
+      patchOverlay({ type: 'ensure', id: 'drive' })
+    }
     if (s.wake_word) {
       try {
         await startWakeWord()
@@ -952,12 +1083,24 @@ function App() {
     stickToBottomRef.current = distance < 96
   }
 
-  async function sendMessage(content: string): Promise<{ reply: string; tool?: ToolMeta; error?: string }> {
-    if (!content || busy) return { reply: '' }
-    setBusy(true)
+  async function sendMessage(
+    content: string,
+    opts?: { conversationId?: string; source?: TurnSource; requestId?: string },
+  ): Promise<{ reply: string; tool?: ToolMeta; error?: string }> {
+    const source: TurnSource = opts?.source || 'user'
+    if (!content) return { reply: '' }
+    const conversationHint = opts?.conversationId || activeIdRef.current || undefined
+    const ticket = beginTurn({ source, content, conversationId: conversationHint, requestId: opts?.requestId })
+    if (!ticket.ok) {
+      return { reply: '', error: ticket.reason === 'duplicate' ? 'duplicate' : 'busy' }
+    }
+    if (source !== 'debug') {
+      setBusy(true)
+      busyRef.current = true
+    }
     setError(null)
     setLastFailed(null)
-    setStatusNote('Jarvis denkt…')
+    if (source !== 'debug' || conversationHint === activeIdRef.current) setStatusNote('Jarvis denkt…')
     setStreamingText('')
     setStreamResearch(null)
     stickToBottomRef.current = true
@@ -966,10 +1109,12 @@ function App() {
       volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
     })
 
-    let conversationId = await ensureConversation()
+    let conversationId = opts?.conversationId || (await ensureConversation())
+    const closeGen = driveCloseGenRef.current
     let lastReply = ''
     let lastTool: ToolMeta | undefined
     let lastError: string | undefined
+    const showUi = () => conversationId === activeIdRef.current
     try {
       const optimistic: Message = {
         id: `tmp-${Date.now()}`,
@@ -979,12 +1124,19 @@ function App() {
         created_at: new Date().toISOString(),
       }
       markEnter(optimistic.id)
-      setMessages((prev) => [...prev, optimistic])
+      if (showUi()) setMessages((prev) => [...prev, optimistic])
 
       let acc = ''
       await streamChat(conversationId, content, {
         onMeta: (meta) => {
           markEnter(meta.user_message.id)
+          if (meta.conversation) {
+            setConversations((prev) => {
+              const rest = prev.filter((c) => c.id !== meta.conversation!.id)
+              return [meta.conversation!, ...rest]
+            })
+          }
+          if (!showUi()) return
           setMessages((prev) => {
             const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
             return [...withoutTmp, meta.user_message]
@@ -995,24 +1147,29 @@ function App() {
           }
         },
         onToken: (token) => {
+          if (!showUi()) return
           sawTokenRef.current = true
           acc += token
           setStreamingText(acc)
           setStatusNote(null)
         },
         onReplace: (text) => {
+          if (!showUi()) return
           acc = text
           setStreamingText(text)
         },
         onRetry: (attempt) => {
+          if (!showUi()) return
           setStatusNote(`Antwort wird neu generiert (Versuch ${attempt})…`)
           acc = ''
           setStreamingText('')
         },
         onDone: (payload) => {
-          setStreamingText(null)
-          setStreamResearch(null)
-          markEnter(payload.assistant_message.id)
+          if (showUi()) {
+            setStreamingText(null)
+            setStreamResearch(null)
+            markEnter(payload.assistant_message.id)
+          }
           const msg = payload.assistant_message
           if (payload.research && !msg.meta?.research) {
             msg.meta = { ...(msg.meta || {}), research: payload.research }
@@ -1021,19 +1178,21 @@ function App() {
             msg.meta = { ...(msg.meta || {}), tool: payload.tool }
           }
           lastTool = (payload.tool as ToolMeta | undefined) || (msg.meta?.tool as ToolMeta | undefined)
-          setMessages((prev) => [...prev, msg])
+          if (showUi()) setMessages((prev) => [...prev, msg])
           lastReply = msg.content
           setConversations((prev) => {
             const rest = prev.filter((c) => c.id !== payload.conversation.id)
             return [payload.conversation, ...rest]
           })
-          setStatusNote(null)
-          playUiSound('receive', {
-            enabled: Boolean(settings?.ui_sounds),
-            volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
-          })
+          if (showUi()) {
+            setStatusNote(null)
+            playUiSound('receive', {
+              enabled: Boolean(settings?.ui_sounds),
+              volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
+            })
+          }
           const delight = (payload as { delight?: { moment?: string } }).delight
-          if (delight?.moment) {
+          if (delight?.moment && showUi()) {
             setMomentGlint(true)
             window.setTimeout(() => setMomentGlint(false), 1200)
             playUiSound('moment', {
@@ -1046,38 +1205,53 @@ function App() {
           if (payload.tool?.tool === 'calendar') {
             if (payload.tool.action === 'open') {
               setCalendarOpen(true)
+              setSettingsPanelOpen(false)
+              setVoiceOpen(false)
               setSidebarOpen(false)
+              openSheet('calendar')
             }
           }
-          if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
-            if (payload.tool?.action === 'close') setDriveOpen(false)
-            else {
-              setDriveOpen(true)
-              setCalendarOpen(false)
-              setSidebarOpen(false)
+          applyAppTool(payload.tool)
+          if (driveCloseGenRef.current === closeGen) {
+            if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+              if (payload.tool?.action === 'close') {
+                setDriveOpen(false)
+                closeSheet('drive')
+              } else {
+                setDriveOpen(true)
+                setCalendarOpen(false)
+                setSidebarOpen(false)
+                patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'ensure', id: 'drive' })
+              }
             }
           }
           maybeOpenSettingsFromReply(payload.assistant_message.content)
         },
         onError: (detail) => {
           lastError = detail
-          setError(detail)
+          if (showUi()) setError(detail)
         },
       })
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Senden fehlgeschlagen'
       lastError = msg
-      setError(msg)
-      playUiSound('error', {
-        enabled: Boolean(settings?.ui_sounds),
-        volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
-      })
-      setLastFailed(content)
-      setStreamingText(null)
-      setMessages((prev) => prev.filter((m) => !m.id.startsWith('tmp-')))
+      if (showUi()) {
+        setError(msg)
+        playUiSound('error', {
+          enabled: Boolean(settings?.ui_sounds),
+          volume: (settings?.ui_sound_volume as 'low' | 'medium' | 'high') || 'low',
+        })
+        setLastFailed(content)
+        setStreamingText(null)
+        setMessages((prev) => prev.filter((m) => !m.id.startsWith('tmp-')))
+      }
     } finally {
-      setBusy(false)
-      textareaRef.current?.focus()
+      endTurn({ source, conversationId })
+      if (source !== 'debug') {
+        setBusy(false)
+        busyRef.current = false
+        textareaRef.current?.focus()
+      }
       void refreshHealth()
       void refreshMemory()
       void refreshSettings()
@@ -1087,17 +1261,18 @@ function App() {
 
   async function startDebugChat(title: string) {
     const created = await createConversation(title)
+    activeIdRef.current = created.id
     setConversations((prev) => [created, ...prev])
     setActiveId(created.id)
     setMessages([])
     return created.id
   }
 
-  async function onEyeFile(file: File) {
+  async function onDocFile(file: File) {
     if (!file || busy) return
     setBusy(true)
     setError(null)
-    setStatusNote('Foto…')
+    setStatusNote('Datei…')
     try {
       let conversationId = activeId
       if (!conversationId) {
@@ -1106,9 +1281,7 @@ function App() {
         setConversations((prev) => [created, ...prev])
         setActiveId(created.id)
       }
-      const prepared = await fileToJpegDataUrl(file)
-      const payload = 'error' in prepared ? `error:${prepared.error}` : prepared.dataUrl
-      const { reply } = await readEyeImage(conversationId, payload)
+      const { reply } = await ingestDocFile(conversationId, file)
       const conv = await getConversation(conversationId)
       setMessages(conv.messages)
       setConversations((prev) => {
@@ -1116,9 +1289,9 @@ function App() {
         return [conv, ...rest]
       })
       setStatusNote(null)
-      if (!reply) setStatusNote('Nichts Lesbares auf dem Bild.')
+      if (!reply) setStatusNote('Nichts Lesbares in der Datei.')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Foto fehlgeschlagen')
+      setError(err instanceof Error ? err.message : 'Datei fehlgeschlagen')
       setStatusNote(null)
     } finally {
       setBusy(false)
@@ -1137,7 +1310,11 @@ function App() {
     content: string,
     onToken?: (piece: string, full: string) => void,
   ): Promise<string> {
+    if (!content) return ''
     let conversationId = await ensureConversation()
+    const ticket = beginTurn({ source: 'voice', content, conversationId })
+    if (!ticket.ok) return ''
+    const closeGen = driveCloseGenRef.current
     const optimistic: Message = {
       id: `tmp-voice-${Date.now()}`,
       conversation_id: conversationId,
@@ -1146,45 +1323,65 @@ function App() {
       created_at: new Date().toISOString(),
     }
     markEnter(optimistic.id)
-    setMessages((prev) => [...prev, optimistic])
+    const showUi = () => conversationId === activeIdRef.current
+    if (showUi()) setMessages((prev) => [...prev, optimistic])
     let answer = ''
     let acc = ''
-    await streamChat(
-      conversationId,
-      content,
-      {
-        onMeta: (meta) => {
-          markEnter(meta.user_message.id)
-          setMessages((prev) => {
-            const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
-            return [...withoutTmp, meta.user_message]
-          })
+    try {
+      await streamChat(
+        conversationId,
+        content,
+        {
+          onMeta: (meta) => {
+            markEnter(meta.user_message.id)
+            if (meta.conversation) {
+              setConversations((prev) => {
+                const rest = prev.filter((c) => c.id !== meta.conversation!.id)
+                return [meta.conversation!, ...rest]
+              })
+            }
+            if (!showUi()) return
+            setMessages((prev) => {
+              const withoutTmp = prev.filter((m) => m.id !== optimistic.id)
+              return [...withoutTmp, meta.user_message]
+            })
+          },
+          onToken: (piece) => {
+            acc += piece
+            onToken?.(piece, acc)
+          },
+          onDone: (payload) => {
+            markEnter(payload.assistant_message.id)
+            answer = payload.assistant_message.content
+            if (showUi()) setMessages((prev) => [...prev, payload.assistant_message])
+            setConversations((prev) => {
+              const rest = prev.filter((c) => c.id !== payload.conversation.id)
+              return [payload.conversation, ...rest]
+            })
+            if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
+            if (driveCloseGenRef.current === closeGen) {
+              if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+                if (payload.tool?.action === 'close') {
+                  setDriveOpen(false)
+                  closeSheet('drive')
+                } else {
+                  setDriveOpen(true)
+                  patchOverlay({ type: 'ensure', id: 'drive' })
+                }
+              }
+            }
+            maybeOpenSettingsFromReply(payload.assistant_message.content)
+            applyAppTool(payload.tool)
+          },
+          onError: (detail) => {
+            if (showUi()) setError(detail)
+          },
         },
-        onToken: (piece) => {
-          acc += piece
-          onToken?.(piece, acc)
-        },
-        onDone: (payload) => {
-          markEnter(payload.assistant_message.id)
-          answer = payload.assistant_message.content
-          setMessages((prev) => [...prev, payload.assistant_message])
-          setConversations((prev) => {
-            const rest = prev.filter((c) => c.id !== payload.conversation.id)
-            return [payload.conversation, ...rest]
-          })
-          if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
-          if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
-            if (payload.tool?.action === 'close') setDriveOpen(false)
-            else setDriveOpen(true)
-          }
-          maybeOpenSettingsFromReply(payload.assistant_message.content)
-        },
-        onError: (detail) => {
-          setError(detail)
-        },
-      },
-      { voice: true },
-    )
+        { voice: true },
+      )
+    } finally {
+      endTurn({ source: 'voice', conversationId })
+    }
     return answer
   }
 
@@ -1195,8 +1392,12 @@ function App() {
 
   function openSettings(topic: SettingsTopic = 'allgemein') {
     setSettingsTopic(topic)
+    setVoiceOpen(false)
+    setCalendarOpen(false)
     setSettingsPanelOpen(true)
     setSidebarOpen(false)
+    openSheet('settings')
+    wakeGateRef.current = closeWake(wakeGateRef.current)
     void refreshReminders()
     void refreshMemory(memoryFilter)
     if (topic === 'forschung') void refreshAudits()
@@ -1230,7 +1431,7 @@ function App() {
   const voiceLayer = useOverlay(voiceOpen)
 
   return (
-    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}`} ref={appRef}>
+    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1329,7 +1530,11 @@ function App() {
           className={`memory-toggle ${calendarOpen ? 'active' : ''}`}
           onClick={() => {
             setCalendarOpen(true)
+            setSettingsPanelOpen(false)
+            setVoiceOpen(false)
             setSidebarOpen(false)
+            openSheet('calendar')
+            wakeGateRef.current = closeWake(wakeGateRef.current)
           }}
         >
           Kalender
@@ -1407,26 +1612,36 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}`}>
+      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
         {voiceLayer.shown ? (
           <VoiceMode
             leaving={voiceLayer.leaving}
             onClose={() => {
               setVoiceOpen(false)
               setVoiceSeed('')
+              closeSheet('voice')
+              wakeGateRef.current = closeWake(wakeGateRef.current)
             }}
             onTurn={(text, onTok) => sendVoiceTurn(text, onTok)}
             initialUtterance={voiceSeed}
           />
         ) : null}
         {calendarLayer.shown ? (
-          <CalendarView leaving={calendarLayer.leaving} onClose={() => setCalendarOpen(false)} />
+          <CalendarView
+            leaving={calendarLayer.leaving}
+            onClose={() => {
+              setCalendarOpen(false)
+              closeSheet('calendar')
+            }}
+          />
         ) : null}
         {driveOpen ? (
           <DriveMode
             onClose={() => {
+              driveCloseGenRef.current += 1
               closeDrive()
               setDriveOpen(false)
+              closeSheet('drive')
             }}
             onCommand={(text) => sendVoiceTurn(text)}
           />
@@ -1466,9 +1681,21 @@ function App() {
           </div>
         </div>
 
-        {geminiOn && healthOk ? (
+        {geminiOn && healthOk && !(settings?.gemini_banner_dismissed || liveHud.gemini_banner_dismissed) ? (
           <div className="fallback-banner">
-            Gemini (Google) — Nachrichten gehen ins Netz.
+            <span>Gemini (Google) — Nachrichten gehen ins Netz.</span>
+            <button
+              type="button"
+              className="ghost-btn"
+              onClick={() => void patchSetting({ gemini_banner_dismissed: true })}
+            >
+              Verstanden
+            </button>
+          </div>
+        ) : null}
+        {debugRunning ? (
+          <div className="fallback-banner">
+            Debug-Lauf im Hintergrund. Settings → Debug: Stop oder Download. Chat bleibt nutzbar.
           </div>
         ) : null}
 
@@ -1496,7 +1723,7 @@ function App() {
                   <i />
                 </div>
                 <h3>{liveHud.face === 'friday' ? 'Friday' : 'Jarvis'}</h3>
-                <p>Ein Feld antippen — oder selbst schreiben. {geminiOn ? 'Gemini (Google), nicht privat.' : 'Lokal, ohne Cloud-Hirn.'}</p>
+                <p>Ein Feld antippen — oder selbst schreiben. {geminiOn && !(settings?.gemini_banner_dismissed || liveHud.gemini_banner_dismissed) ? 'Gemini (Google), nicht privat.' : geminiOn ? 'Gemini ist an.' : 'Lokal, ohne Cloud-Hirn.'}</p>
               </div>
             ) : null}
 
@@ -1572,6 +1799,7 @@ function App() {
         </div>
 
         <div className="composer-wrap">
+          <PcLiveDock />
           {statusNote ? <div className="status-note">{statusNote}</div> : null}
           {error ? (
             <div className="error-banner">
@@ -1587,11 +1815,11 @@ function App() {
             <input
               ref={eyeFileRef}
               type="file"
-              accept="image/*"
+              accept="image/*,.pdf,.txt,.md,.csv,.json,application/pdf,text/plain,text/markdown,text/csv,application/json"
               hidden
               onChange={(e) => {
                 const file = e.target.files?.[0]
-                if (file) void onEyeFile(file)
+                if (file) void onDocFile(file)
               }}
             />
             <textarea
@@ -1615,8 +1843,8 @@ function App() {
                 className="icon-btn"
                 disabled={busy}
                 onClick={() => eyeFileRef.current?.click()}
-                aria-label="Foto"
-                title="Foto"
+                aria-label="Datei (Foto, PDF, Text)"
+                title="Datei (Foto, PDF, Text)"
               >
                 <IconCamera />
               </button>
@@ -1664,7 +1892,10 @@ function App() {
             if (t === 'gedaechtnis') void refreshMemory(memoryFilter)
             if (t === 'wecker') void refreshReminders()
           }}
-          onClose={() => setSettingsPanelOpen(false)}
+          onClose={() => {
+            setSettingsPanelOpen(false)
+            closeSheet('settings')
+          }}
           settings={settings}
           settingsBusy={settingsBusy}
           patchSetting={patchSetting}
@@ -1740,7 +1971,7 @@ function App() {
           }}
           onDeleteMemory={(id) => void onDeleteMemory(id)}
           onClearMemory={() => void onClearMemory()}
-          onDebugSend={(text) => sendMessage(text)}
+          onDebugSend={(text, conversationId) => sendMessage(text, { conversationId, source: 'debug' })}
           onDebugStart={(title) => startDebugChat(title)}
           debugBusy={busy}
         />

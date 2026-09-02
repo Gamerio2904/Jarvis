@@ -1,4 +1,5 @@
 import { loadSettings, saveSettings } from './store'
+import { packVerified } from './action-fsm.ts'
 import {
   tvDiscoverNative,
   tvFireKeyNative,
@@ -13,6 +14,14 @@ import {
 } from '../native/tv'
 import { TV_APP_IDS, TV_APP_LABEL, type TvAppId } from './tv-apps.ts'
 import {
+  deviceCanLaunch,
+  loadTvRegistry,
+  pickTvDevice,
+  tvLaunchVerified,
+  upsertTvDevice,
+  type TvDeviceRec,
+} from './tv-registry.ts'
+import {
   FIRE_ANCHOR,
   TV_ANCHOR,
   TV_FOLLOWUP_MS,
@@ -23,6 +32,7 @@ import {
   type TvWatchIntent,
 } from './tv-parse.ts'
 import { lookupWatch, youtubeDeepLink, youtubeSearch, youtubeSearchLink, youtubeVideoId, type WatchHit, type WatchOffer } from './tv-watch.ts'
+import type { ToolMeta } from './tools.ts'
 
 export { parseTvIntent, parseTvWatch } from './tv-parse.ts'
 export type { TvAction, TvIntent, TvWatchIntent } from './tv-parse.ts'
@@ -178,6 +188,17 @@ export async function pairTv(body: {
     tv_token: res.token || s.tv_token,
     tv_paired: true,
   })
+  upsertTvDevice({
+    id: 'tizen-default',
+    name,
+    kind: 'tizen',
+    host,
+    mac: body.mac || s.tv_mac,
+    port: res.port || port,
+    token: res.token || s.tv_token,
+    paired: true,
+    enabled: true,
+  })
   return { ok: true, message: res.message || 'Gekoppelt. Token liegt auf dem Handy.' }
 }
 
@@ -232,6 +253,21 @@ export async function testTv(): Promise<{ ok: boolean; reply: string }> {
     }
   }
   return { ok: true, reply: res.message || `Erreichbar: ${s.tv_name || s.tv_host}` }
+}
+
+function tvPack(ok: boolean, reply: string, action: string, label = 'Fernseher') {
+  const packed = packVerified({
+    domain: 'tv',
+    intent: action,
+    plan: action,
+    label,
+    preOk: true,
+    observation: { nativeOk: ok },
+    verify: (obs) => obs.nativeOk === true,
+    successReply: reply,
+    failReply: reply,
+  })
+  return { handled: true as const, reply: packed.reply, tool: packed.tool, lastTool: 'tv' as const }
 }
 
 async function sendOrExplain(action: TvAction, count = 1): Promise<string> {
@@ -320,11 +356,17 @@ async function applyVolume(intent: { action: TvAction; steps?: number; level?: n
   return sendOrExplain(intent.action)
 }
 
-export async function handleTv(text: string): Promise<{ handled: boolean; reply?: string }> {
+function tvNativeOk(reply: string): boolean {
+  return !/nicht angekommen|nicht erreichbar|fehlgeschlagen|nicht genommen|Fire TV: IP|so nicht\.|aus \(Einstellungen|nicht hinterlegt|nicht gekoppelt|Keine MAC|nicht gestartet/i.test(
+    reply,
+  )
+}
+
+export async function handleTv(text: string): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const watch =
     parseTvWatch(text) ||
     (recentTv() ? parseTvWatch(text, { followUp: true, lastApp: lastWatchApp }) : null)
-  if (watch) return handleTvWatch(watch)
+  if (watch) return handleTvWatch(watch, text)
 
   const follow = isTvFollowUp(text)
   let intent = parseTvIntent(text, follow)
@@ -346,7 +388,18 @@ export async function handleTv(text: string): Promise<{ handled: boolean; reply?
     return { handled: false }
   }
   if (!s.tv_enabled) {
-    return { handled: true, reply: 'Fernseher ist aus (Einstellungen → Fernseher).' }
+    const packed = packVerified({
+      domain: 'tv',
+      intent: intent.action,
+      plan: intent.action,
+      label: 'Fernseher',
+      preOk: false,
+      preError: 'Fernseher aus.',
+      observation: null,
+      successReply: 'Fernseher ist aus (Einstellungen → Fernseher).',
+      failReply: 'Fernseher ist aus (Einstellungen → Fernseher).',
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'tv' }
   }
 
   const fire = intent.via === 'fire'
@@ -367,11 +420,23 @@ export async function handleTv(text: string): Promise<{ handled: boolean; reply?
       bits.push(await sendFire(intent.action))
     }
     markTvTurn('fire')
-    return { handled: true, reply: bits.filter(Boolean).join(' ') }
+    const joined = bits.filter(Boolean).join(' ')
+    return tvPack(tvNativeOk(joined), joined, intent.action)
   }
 
   if (!s.tv_host) {
-    return { handled: true, reply: 'Kein TV hinterlegt. Unter Einstellungen suchen und koppeln.' }
+    const packed = packVerified({
+      domain: 'tv',
+      intent: intent.action,
+      plan: intent.action,
+      label: 'Fernseher',
+      preOk: false,
+      preError: 'Kein Host.',
+      observation: null,
+      successReply: 'Kein TV hinterlegt. Unter Einstellungen suchen und koppeln.',
+      failReply: 'Kein TV hinterlegt. Unter Einstellungen suchen und koppeln.',
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'tv' }
   }
 
   if (intent.action === 'on') {
@@ -384,30 +449,38 @@ export async function handleTv(text: string): Promise<{ handled: boolean; reply?
     const wol = await tvWakeNative(s.tv_mac)
     markTvTurn(intent.via || 'tv')
     if (!wol.ok) {
-      return {
-        handled: true,
-        reply:
-          wol.message ||
+      return tvPack(
+        false,
+        wol.message ||
           'WOL fehlgeschlagen. Magic-Packet braucht die Android-App, MAC und oft WOL am TV.',
-      }
+        'on',
+      )
     }
-    return {
-      handled: true,
-      reply:
-        'Magic-Packet gesendet. Wacht er nicht auf: WOL am TV prüfen, gleiches WLAN, kein Gastnetz.',
-    }
+    return tvPack(
+      true,
+      'Magic-Packet gesendet. Wacht er nicht auf: WOL am TV prüfen, gleiches WLAN, kein Gastnetz.',
+      'on',
+    )
   }
 
   if (!s.tv_paired || !s.tv_token) {
-    return {
-      handled: true,
-      reply: 'TV noch nicht gekoppelt. Unter Einstellungen koppeln und am Fernseher erlauben.',
-    }
+    const packed = packVerified({
+      domain: 'tv',
+      intent: intent.action,
+      plan: intent.action,
+      label: 'Fernseher',
+      preOk: false,
+      preError: 'Nicht gekoppelt.',
+      observation: null,
+      successReply: 'TV noch nicht gekoppelt. Unter Einstellungen koppeln und am Fernseher erlauben.',
+      failReply: 'TV noch nicht gekoppelt. Unter Einstellungen koppeln und am Fernseher erlauben.',
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'tv' }
   }
 
   const reply = vol ? await applyVolume(intent) : await sendOrExplain(intent.action)
   markTvTurn()
-  return { handled: true, reply }
+  return tvPack(tvNativeOk(reply), reply, intent.action)
 }
 
 function sleep(ms: number): Promise<void> {
@@ -416,47 +489,57 @@ function sleep(ms: number): Promise<void> {
   })
 }
 
-function gateTv(): { ok: true; host: string; port: number; token?: string; mac: string } | { ok: false; reply: string } {
+function gateTv(
+  text = '',
+  via?: 'tv' | 'fire',
+): { ok: true; device: TvDeviceRec } | { ok: false; reply: string } {
   const s = loadSettings()
   if (!s.tv_enabled) return { ok: false, reply: 'Fernseher ist aus (Einstellungen → Fernseher).' }
-  if (!s.tv_host) return { ok: false, reply: 'Kein TV hinterlegt. Unter Einstellungen suchen und koppeln.' }
-  if (!s.tv_paired || !s.tv_token) {
+  const devices = loadTvRegistry()
+  const device = pickTvDevice(devices, text, via)
+  if (!device) return { ok: false, reply: 'Kein TV in der Registry. Unter Einstellungen suchen und koppeln.' }
+  if (device.kind === 'tizen' && (!device.paired || !device.token)) {
     return { ok: false, reply: 'TV noch nicht gekoppelt. Unter Einstellungen koppeln und am Fernseher erlauben.' }
   }
-  return {
-    ok: true,
-    host: s.tv_host,
-    port: s.tv_port || 8002,
-    token: s.tv_token || undefined,
-    mac: s.tv_mac || '',
-  }
+  return { ok: true, device }
 }
 
-async function launchSamsungApp(app: TvAppId, meta?: string): Promise<{ ok: boolean; message: string }> {
-  const gate = gateTv()
-  if (!gate.ok) return { ok: false, message: gate.reply }
+async function launchSamsungApp(
+  device: TvDeviceRec,
+  app: TvAppId,
+  meta?: string,
+): Promise<{ ok: boolean; message: string; appId?: string }> {
+  if (!deviceCanLaunch(device, app)) {
+    return {
+      ok: false,
+      message:
+        device.kind === 'fire'
+          ? 'Fire TV startet hier keine Apps. Samsung oder HDMI.'
+          : `${TV_APP_LABEL[app]} steht nicht in der Registry für ${device.name}.`,
+    }
+  }
   const tryOnce = async () => {
     let last = 'App nicht gestartet.'
     for (const appId of TV_APP_IDS[app]) {
       const res = await tvLaunchAppNative({
-        host: gate.host,
-        port: gate.port,
-        token: gate.token,
+        host: device.host,
+        port: device.port,
+        token: device.token || undefined,
         appId,
         meta,
       })
-      if (res.ok) return { ok: true, message: res.message || 'App gestartet.' }
+      if (res.ok) return { ok: true, message: res.message || 'Start angekommen.', appId }
       last = res.message || last
     }
     return { ok: false, message: last }
   }
   let res = await tryOnce()
   if (res.ok) return res
-  if (gate.mac) {
-    await tvWakeNative(gate.mac)
+  if (device.mac) {
+    await tvWakeNative(device.mac)
     await sleep(5000)
     res = await tryOnce()
-    if (res.ok) return { ok: true, message: 'Fernseher geweckt. ' + (res.message || 'App gestartet.') }
+    if (res.ok) return { ok: true, message: 'Fernseher geweckt. ' + (res.message || 'Start angekommen.'), appId: res.appId }
     return {
       ok: false,
       message:
@@ -467,7 +550,7 @@ async function launchSamsungApp(app: TvAppId, meta?: string): Promise<{ ok: bool
   return res
 }
 
-function watchReply(hit: WatchHit, launched: boolean, namedApp?: TvAppId): string {
+function watchReply(hit: WatchHit, launched: boolean, namedApp?: TvAppId, deviceName = 'Fernseher'): string {
   const label = (app: TvAppId) => TV_APP_LABEL[app]
   const title = hit.title
   const elsewhere = (hit.freeWhere || [])
@@ -477,26 +560,27 @@ function watchReply(hit: WatchHit, launched: boolean, namedApp?: TvAppId): strin
   const extra = extraNames.length
     ? ` Kostenlos außerdem: ${extraNames.join(', ')} — die starte ich nicht, außer YouTube/Netflix/Disney+/Prime.`
     : ''
+  const seen = ` Den Schirm an ${deviceName} sehe ich nicht.`
   if (!launched) {
     return hit.target
-      ? `${title} wäre bei ${hit.target.provider}, aber die App ist nicht aufgegangen.`
+      ? `${title} wäre bei ${hit.target.provider}, aber der Start ist nicht angekommen.`
       : `${title} finde ich in DE nicht kostenlos bei YouTube, Netflix, Disney+ oder Prime.${extra}`
   }
   const t = hit.target
-  if (!t) return `${label(namedApp || 'youtube')} ist offen.`
+  if (!t) return `${label(namedApp || 'youtube')} — Start angekommen am ${deviceName}.${seen}`
   if (t.app === 'youtube' && (t.monetization === 'free' || t.monetization === 'ads')) {
     const unsure = t.url ? ' Nicht sicher, ob das der ganze Film ist.' : ''
-    return `${title} — auf YouTube.${unsure}`
+    return `${title} — Start angekommen, YouTube am ${deviceName}.${unsure}${seen}`
   }
-  if (t.monetization === 'free') return `${title} — kostenlos auf ${label(t.app)}.`
-  if (t.monetization === 'ads') return `${title} — mit Werbung auf ${label(t.app)}.`
+  if (t.monetization === 'free') return `${title} — Start angekommen, kostenlos auf ${label(t.app)}.${seen}`
+  if (t.monetization === 'ads') return `${title} — Start angekommen, mit Werbung auf ${label(t.app)}.${seen}`
   if (t.monetization === 'flatrate') {
-    return `${title} ist nicht gratis, aber im Abo auf ${label(t.app)}. App ist offen.`
+    return `${title} ist nicht gratis, aber im Abo auf ${label(t.app)}. Start angekommen am ${deviceName}.${seen}`
   }
   if (t.monetization === 'rent' || t.monetization === 'buy') {
-    return `${label(t.app)} ist offen. ${title} ist dort zum Leihen oder Kaufen, nicht gratis.`
+    return `Start angekommen am ${deviceName}. ${title} ist dort zum Leihen oder Kaufen, nicht gratis.${seen}`
   }
-  return `${label(t.app)} ist offen. Suchen Sie dort nach ${title}.${extra}`
+  return `Start angekommen am ${deviceName}. Suchen Sie dort nach ${title}.${extra}${seen}`
 }
 
 function deepLinkFor(offer: WatchOffer | null): string | undefined {
@@ -505,31 +589,88 @@ function deepLinkFor(offer: WatchOffer | null): string | undefined {
   return offer.url
 }
 
-async function handleTvWatch(intent: TvWatchIntent): Promise<{ handled: boolean; reply?: string }> {
-  const gate = gateTv()
-  if (!gate.ok) return { handled: true, reply: gate.reply }
+function launchObs(device: TvDeviceRec, app: TvAppId, res: { ok: boolean; appId?: string }) {
+  return {
+    launched: Boolean(res.ok && res.appId),
+    deviceId: device.id,
+    paired: device.paired,
+    kind: device.kind,
+    app,
+    appId: res.appId || '',
+    apps: device.apps,
+  }
+}
+
+function packLaunch(
+  device: TvDeviceRec,
+  app: TvAppId,
+  res: { ok: boolean; message: string; appId?: string },
+  successReply: string,
+  failReply: string,
+  action: string,
+) {
+  const packed = packVerified({
+    domain: 'tv',
+    intent: `launch:${app}`,
+    plan: action,
+    label: TV_APP_LABEL[app],
+    observation: launchObs(device, app, res),
+    verify: (obs) => tvLaunchVerified(obs),
+    successReply,
+    failReply,
+    extra: { device: device.name, app },
+  })
+  return { handled: true as const, reply: packed.reply, tool: packed.tool, lastTool: 'tv' as const }
+}
+
+async function handleTvWatch(
+  intent: TvWatchIntent,
+  spoken = '',
+): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
+  const gate = gateTv(spoken)
+  if (!gate.ok) {
+    const packed = packVerified({
+      domain: 'tv',
+      intent: intent.kind,
+      plan: 'watch',
+      label: 'Fernseher',
+      preOk: false,
+      preError: gate.reply,
+      observation: null,
+      successReply: gate.reply,
+      failReply: gate.reply,
+    })
+    return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'tv' }
+  }
+  const device = gate.device
 
   if (intent.kind === 'open') {
-    const res = await launchSamsungApp(intent.app)
+    const res = await launchSamsungApp(device, intent.app)
     markTvTurn('tv', intent.app)
-    if (!res.ok) return { handled: true, reply: res.message }
     const hint =
       intent.app === 'youtube'
-        ? ' Ich sehe den Bildschirm nicht. Anmelden: „OK“. Video: „Spiel … auf YouTube“. Treffer: „das zweite“.'
-        : ' Ich sehe den Bildschirm nicht. „OK“ bestätigt, „das zweite“ wählt den zweiten Eintrag.'
-    return { handled: true, reply: `${TV_APP_LABEL[intent.app]} ist offen.${hint}` }
+        ? ' Anmelden: „OK“. Video: „Spiel … auf YouTube“. Treffer: „das zweite“.'
+        : ' „OK“ bestätigt, „das zweite“ wählt den zweiten Eintrag.'
+    return packLaunch(
+      device,
+      intent.app,
+      res,
+      `${TV_APP_LABEL[intent.app]} — Start angekommen am ${device.name}. Den Schirm sehe ich nicht.${hint}`,
+      res.message || 'Start nicht angekommen.',
+      'open',
+    )
   }
 
   if (intent.content === 'video' || (intent.app === 'youtube' && intent.content !== 'movie' && intent.content !== 'show')) {
     const found = await youtubeSearch(intent.title, 'video')
     const url = found || youtubeSearchLink(intent.title)
-    const res = await launchSamsungApp('youtube', youtubeDeepLink(url) || url)
+    const res = await launchSamsungApp(device, 'youtube', youtubeDeepLink(url) || url)
     markTvTurn('tv', 'youtube')
-    if (!res.ok) return { handled: true, reply: res.message }
-    if (found && youtubeVideoId(found)) {
-      return { handled: true, reply: `YouTube: ${intent.title}. Ich sehe den Schirm nicht. Anmelden: „OK“. Andere Treffer: „das zweite“.` }
-    }
-    return { handled: true, reply: `YouTube sucht nach ${intent.title}. Ich sehe den Schirm nicht. „OK“ oder „das zweite“.` }
+    const okLine =
+      found && youtubeVideoId(found)
+        ? `YouTube: ${intent.title}. Start angekommen am ${device.name}. Den Schirm sehe ich nicht. Anmelden: „OK“. Andere Treffer: „das zweite“.`
+        : `YouTube sucht nach ${intent.title}. Start angekommen am ${device.name}. Den Schirm sehe ich nicht.`
+    return packLaunch(device, 'youtube', res, okLine, res.message || 'Start nicht angekommen.', 'play')
   }
 
   const hit = await lookupWatch(intent.title, {
@@ -539,12 +680,18 @@ async function handleTvWatch(intent: TvWatchIntent): Promise<{ handled: boolean;
   const app = hit.target?.app || intent.app
   if (!app) {
     markTvTurn()
-    return { handled: true, reply: watchReply(hit, false) }
+    return { handled: true, reply: watchReply(hit, false, undefined, device.name) }
   }
-  const res = await launchSamsungApp(app, deepLinkFor(hit.target))
+  const res = await launchSamsungApp(device, app, deepLinkFor(hit.target))
   markTvTurn('tv', app)
-  const spoken = watchReply(hit, res.ok, app)
-  return { handled: true, reply: res.ok ? spoken : `${spoken} ${res.message}` }
+  return packLaunch(
+    device,
+    app,
+    res,
+    watchReply(hit, true, app, device.name),
+    `${watchReply(hit, false, app, device.name)} ${res.message || ''}`.trim(),
+    'play',
+  )
 }
 
 export type { TvDevice, TvResult }

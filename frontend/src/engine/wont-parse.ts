@@ -1,5 +1,8 @@
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
+import { gazetteerHit, type PlaceFix } from './globe-geo.ts'
+import { CITY_FLY_ZOOM } from './globe-gibs.ts'
+import { saveSettings } from './store.ts'
 
 export type WontReason =
   | 'captcha'
@@ -19,6 +22,8 @@ export type WontReason =
   | 'foreign_wake'
 
 export type WontIntent = { reason: WontReason }
+
+export const WONT_LABEL = 'Geht nicht'
 
 const REPLY: Record<WontReason, string> = {
   captcha: 'Captchas klicke ich nicht. Kein Bypass.',
@@ -101,15 +106,51 @@ export function parseWontIntent(text: string): WontIntent | null {
   return null
 }
 
+/** Gazetteer after stripping Street-View-Füllwörter — „Zeig Street View von London“ → London. */
+export function streetViewPlace(text: string): PlaceFix | null {
+  const stripped = (text || '')
+    .replace(/\bstreet\s*view\b/gi, ' ')
+    .replace(/\bstraßen(?:blick|ansicht)\b/gi, ' ')
+    .replace(/\bstrassen(?:blick|ansicht)\b/gi, ' ')
+    .replace(/\bzeig(?:e)?(?:\s+(?:mir|uns))?\b/gi, ' ')
+    .replace(/\bvon\b/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return gazetteerHit(stripped)
+}
+
+function flyGlobe(place: PlaceFix): void {
+  try {
+    const focus = JSON.stringify({ name: place.name, lat: place.lat, lon: place.lon, zoom: CITY_FLY_ZOOM })
+    saveSettings({
+      hud_view: 'globe',
+      hud_force: true,
+      hud_hidden: false,
+      last_globe_focus: focus,
+      last_globe_look: JSON.stringify({ lat: place.lat, lon: place.lon, zoom: CITY_FLY_ZOOM }),
+    })
+  } catch {
+    /* localStorage fehlt in manchen Tests */
+  }
+}
+
 export function handleWont(
   text: string,
 ): { handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string } {
   const intent = parseWontIntent(text)
   if (!intent) return { handled: false }
+  let reply = REPLY[intent.reason]
+  if (intent.reason === 'street') {
+    const hit = streetViewPlace(text)
+    if (hit) {
+      flyGlobe(hit)
+      reply = `${hit.name} steht auf der Kugel. Street View habe ich nicht — nur Lexikon-Orte, kein Straßenblick.`
+    }
+  }
   return {
     handled: true,
-    reply: REPLY[intent.reason],
-    tool: { tool_status: 'executed', tool: 'wont', action: intent.reason, label: 'Won’t' },
+    reply,
+    tool: { tool_status: 'executed', tool: 'wont', action: intent.reason, label: WONT_LABEL },
     lastTool: 'wont',
   }
 }

@@ -3,11 +3,11 @@ import { beginDriveTo } from './drive'
 import { haversineM, reversePlace } from './geo-lookup'
 import { getJson } from './http-json'
 import { formatHoursSpeech, hoursOpenNow } from './opening-hours'
-import { parsePoiIntent, poiLabel, type PoiKind } from './poi-parse'
+import { parsePoiIntent, poiLabel, looksLikeGroceryList, type PoiKind } from './poi-parse'
 import { loadSettings, persistLastList, saveSettings } from './store'
 import type { ToolMeta } from './tools'
 
-export { parsePoiIntent, poiLabel } from './poi-parse'
+export { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList } from './poi-parse'
 export type { PoiIntent, PoiKind } from './poi-parse'
 
 type PoiHit = {
@@ -68,7 +68,7 @@ export async function handlePoi(_conversationId: string, text: string): Promise<
   if (last && last.kind !== intent.kind) {
     saveSettings({ last_poi_json: '' })
   }
-  return searchAndReply(intent.kind, intent.hours, intent.nav !== false)
+  return searchAndReply(intent.kind, intent.hours, intent.nav !== false, intent.brand)
 }
 
 export async function handlePoiOrdinal(index: number): Promise<PoiHit> {
@@ -93,7 +93,7 @@ export async function handlePoiOrdinal(index: number): Promise<PoiHit> {
   return driveTo(last.kind, hit, last.hits, last.hits[0]?.place || '')
 }
 
-async function searchAndReply(kind: PoiKind, hoursOnly: boolean, nav: boolean): Promise<PoiHit> {
+async function searchAndReply(kind: PoiKind, hoursOnly: boolean, nav: boolean, brand?: string): Promise<PoiHit> {
   const here = await resolveHere()
   if (!here.ok) {
     return {
@@ -103,28 +103,29 @@ async function searchAndReply(kind: PoiKind, hoursOnly: boolean, nav: boolean): 
       lastTool: 'poi',
     }
   }
-  const found = await lookupPoi(kind, here.lat, here.lon)
+  const found = await lookupPoi(kind, here.lat, here.lon, brand)
   if (!found.ok) {
     return {
       handled: true,
       reply: found.message,
-      tool: poiTool('error', poiLabel(kind)),
+      tool: poiTool('error', brand ? brandLabel(brand) : poiLabel(kind)),
       lastTool: 'poi',
     }
   }
   remember(kind, found.hits)
   const city = cityOf(await reversePlace(here.lat, here.lon), found.hits)
-  if (hoursOnly) return hoursReply(kind, found.hits[0], found.hits, city)
-  if (!nav) return listReply(kind, found.hits, city)
-  return driveTo(kind, found.hits[0], found.hits, city)
+  const title = brand ? brandLabel(brand) : poiLabel(kind)
+  if (hoursOnly) return hoursReply(kind, found.hits[0], found.hits, city, title)
+  if (!nav) return listReply(kind, found.hits, city, title)
+  return driveTo(kind, found.hits[0], found.hits, city, title)
 }
 
-async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[], city = ''): Promise<PoiHit> {
+async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[], city = '', title = poiLabel(kind)): Promise<PoiHit> {
   const label = placeLabel(chosen, kind)
-  const { route, tool } = await beginDriveTo(label, chosen.lat, chosen.lon)
+  const { route, tool, hereOk, rideOk } = await beginDriveTo(label, chosen.lat, chosen.lon)
   const extra = all.length > 1 ? ` Zweites: ${placeLabel(all[1], kind)}.` : ''
   const eta =
-    route.minutes > 0
+    rideOk && route.minutes > 0
       ? ` Etwa ${route.minutes} Min.`
       : route.hint
         ? ` ${route.hint}`
@@ -132,39 +133,39 @@ async function driveTo(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[], city = 
   const where = city ? ` in ${city}` : ''
   return {
     handled: true,
-    reply: `Nächste ${poiLabel(kind)}${where}: ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}${extra}${eta}`
+    reply: `Nächster ${title}${where}: ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}${extra}${eta}`
       .replace(/\s+/g, ' ')
       .trim(),
     tool: {
       ...tool,
       tool: 'poi',
-      action: 'nav',
-      label: poiLabel(kind),
+      action: hereOk && rideOk ? 'nav' : 'ask',
+      label: title,
       preview: label,
     },
     lastTool: 'poi',
   }
 }
 
-function listReply(kind: PoiKind, hits: PoiPlace[], city = ''): PoiHit {
+function listReply(kind: PoiKind, hits: PoiPlace[], city = '', title = poiLabel(kind)): PoiHit {
   const top = hits.slice(0, 3)
   const lines = top.map((h, i) => `${i + 1}. ${placeLabel(h, kind)}, ${distSpeech(h)}`).join(' ')
   const where = city ? ` in ${city}` : ' in der Nähe'
   return {
     handled: true,
-    reply: `${poiLabel(kind)}${where}: ${lines} Nummer oder „Gib mir eine Route“.`.replace(/\s+/g, ' ').trim(),
-    tool: poiTool('list', poiLabel(kind)),
+    reply: `${title}${where}: ${lines} Nummer oder „Gib mir eine Route“.`.replace(/\s+/g, ' ').trim(),
+    tool: poiTool('list', title),
     lastTool: 'poi',
   }
 }
 
-function hoursReply(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[], city = ''): PoiHit {
+function hoursReply(kind: PoiKind, chosen: PoiPlace, all: PoiPlace[], city = '', title = poiLabel(kind)): PoiHit {
   const label = placeLabel(chosen, kind)
   const where = city ? ` in ${city}` : ''
   return {
     handled: true,
-    reply: `${poiLabel(kind)}${where} ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}`.replace(/\s+/g, ' ').trim(),
-    tool: poiTool('hours', poiLabel(kind)),
+    reply: `${title}${where} ${label}, ${distSpeech(chosen)}. ${hoursLine(kind, chosen, all)}`.replace(/\s+/g, ' ').trim(),
+    tool: poiTool('hours', title),
     lastTool: 'poi',
   }
 }
@@ -209,9 +210,19 @@ function readLastPoi(): LastPoi | null {
 }
 
 function placeLabel(p: PoiPlace, kind: PoiKind): string {
-  const name = p.name.trim() || poiLabel(kind)
+  const name = looksLikeGroceryList(p.name) ? poiLabel(kind) : p.name.trim() || poiLabel(kind)
   const where = [p.street, p.place].filter(Boolean).join(', ')
   return where ? `${name}, ${where}` : name
+}
+
+function brandLabel(brand: string): string {
+  return brand.charAt(0).toUpperCase() + brand.slice(1)
+}
+
+function matchesBrand(p: PoiPlace, brand?: string): boolean {
+  if (!brand) return true
+  const blob = `${p.name}`.toLowerCase()
+  return blob.includes(brand.toLowerCase())
 }
 
 async function resolveHere(): Promise<{ ok: true; lat: number; lon: number } | { ok: false; message: string }> {
@@ -238,19 +249,22 @@ async function lookupPoi(
   kind: PoiKind,
   lat: number,
   lon: number,
+  brand?: string,
 ): Promise<{ ok: true; hits: PoiPlace[] } | { ok: false; message: string }> {
-  const radii = kind === 'cafe' || kind === 'bar' ? [3, 8] : [8, 20]
-  const capKm = kind === 'cafe' || kind === 'bar' ? 8 : 20
+  const radii = kind === 'cafe' || kind === 'bar' ? [3, 8] : brand ? [8, 20, 35] : [8, 20]
+  const capKm = kind === 'cafe' || kind === 'bar' ? 8 : brand ? 35 : 20
   for (const radKm of radii) {
     const once = await osmOnce(kind, lat, lon, radKm)
     if (!once.ok) {
       if (radKm === radii[radii.length - 1]) return once
       continue
     }
-    const hits = once.hits.filter((h) => h.distKm <= capKm)
+    const branded = brand ? once.hits.filter((h) => matchesBrand(h, brand)) : once.hits
+    const hits = branded.filter((h) => h.distKm <= capKm)
     if (hits.length) return { ok: true, hits }
   }
-  return { ok: false, message: `Keine ${poiLabel(kind)} in der Nähe. Ich erfinde keine.` }
+  const label = brand ? brandLabel(brand) : poiLabel(kind)
+  return { ok: false, message: `Keine ${label} in der Nähe. Ich erfinde keine.` }
 }
 
 async function osmOnce(
@@ -283,7 +297,7 @@ async function osmOnce(
         const tags = (el.tags && typeof el.tags === 'object' ? el.tags : {}) as Record<string, unknown>
         const distM = haversineM(here, { lat: slat, lon: slon })
         hits.push({
-          name: String(tags.name || tags.brand || '').trim(),
+          name: osmDisplayName(tags, kind),
           street: String(tags['addr:street'] || '').trim(),
           place: String(tags['addr:city'] || tags['addr:place'] || '').trim(),
           lat: slat,
@@ -315,6 +329,13 @@ function cityOf(hereLabel: string | null, hits: PoiPlace[]): string {
     .map((s) => s.trim())
     .filter(Boolean)
   return parts[parts.length - 1] || ''
+}
+
+function osmDisplayName(tags: Record<string, unknown>, kind: PoiKind): string {
+  const brand = String(tags.brand || '').trim()
+  const name = String(tags.name || '').trim()
+  if (looksLikeGroceryList(name)) return brand || poiLabel(kind)
+  return name || brand
 }
 
 function num(v: unknown): number | null {

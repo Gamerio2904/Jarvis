@@ -7,7 +7,7 @@ import { ensureDeviceLocation } from './native/geo'
 import { DebugPanel } from './DebugPanel'
 import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
 import { TTS_VOICES } from './engine/tts'
-import { sanitizePcHost } from './engine/pc-host'
+import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from './engine/pc-host'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -22,6 +22,7 @@ import {
   type BackupPreview,
 } from './engine/backup'
 import { filterTopics, SETTINGS_GROUPS, TOPIC_FACE, type SettingsTopic } from './engine/settings-ia'
+import { PROBE_COPY_GROUPS } from './engine/test-copy'
 
 export type { SettingsTopic }
 
@@ -123,7 +124,7 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
-  onDebugSend: (text: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
+  onDebugSend: (text: string, conversationId: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
   onDebugStart: (title: string) => Promise<string>
   debugBusy: boolean
 }
@@ -397,9 +398,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
-                    type="text"
+                    type="password"
                     inputMode="text"
-                    autoComplete="off"
+                    autoComplete="new-password"
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
@@ -424,9 +425,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
-                    type="text"
+                    type="password"
                     inputMode="text"
-                    autoComplete="off"
+                    autoComplete="new-password"
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
@@ -454,9 +455,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
-                    type="text"
+                    type="password"
                     inputMode="text"
-                    autoComplete="off"
+                    autoComplete="new-password"
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
@@ -479,9 +480,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <label className="settings-field">
                   <span>API-Key</span>
                   <input
-                    type="text"
+                    type="password"
                     inputMode="text"
-                    autoComplete="off"
+                    autoComplete="new-password"
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
@@ -961,7 +962,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </p>
               <p className="settings-hint">
                 Gleiches WLAN, kein Gäste-Netz, kein VPN. IP ohne http:// und ohne Port. Firewall im PC-Fenster
-                erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja.
+                erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja. „PC live“ zeigt
+                LAN-Einzelbilder — WebRTC nur wenn ein Peer steht.
               </p>
               <label className="settings-toggle">
                 <span>PC-Steuerung an</span>
@@ -985,6 +987,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     const v = sanitizePcHost(pcHost)
                     setPcHost(v)
                     void p.patchSetting({ pc_host: v })
+                    if (v && !isAllowedPcHost(v)) {
+                      setPcMsgOk(false)
+                      setPcMsg(PC_HOST_HINT)
+                    }
                   }}
                 />
               </label>
@@ -1006,10 +1012,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <label className="settings-field">
                 <span>Token</span>
                 <input
+                  type="password"
                   value={pcToken}
                   disabled={busy || pcBusy}
                   placeholder="aus dem PC-Fenster"
-                  autoComplete="off"
+                  autoComplete="new-password"
                   onChange={(e) => setPcToken(e.target.value)}
                   onBlur={() => {
                     const v = pcToken.trim()
@@ -1026,6 +1033,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   onClick={() => {
                     const host = sanitizePcHost(pcHost)
                     setPcHost(host)
+                    if (host && !isAllowedPcHost(host)) {
+                      setPcMsgOk(false)
+                      setPcMsg(PC_HOST_HINT)
+                      return
+                    }
                     setPcBusy(true)
                     setPcMsg('Prüfe PC…')
                     void p.patchSetting({
@@ -1840,6 +1852,24 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   Alles löschen
                 </button>
               ) : null}
+            </section>
+          ) : null}
+
+          {p.topic === 'probe' ? (
+            <section className="settings-card">
+              <h3>Probe V1–V9</h3>
+              <p className="settings-lead">
+                Jeder Prompt einzeln kopieren, ins Chatfeld einfügen. PC und TV brauchen das Gerät. V4 braucht eine
+                Datei oder ein Foto. V9 Inject darf nicht gehorchen.
+              </p>
+              {PROBE_COPY_GROUPS.map((g) => (
+                <div key={g.title} className="probe-group">
+                  <h4 className="copy-block-title">{g.title}</h4>
+                  {g.items.map((item) => (
+                    <CopyField key={`${g.title}·${item.label}`} label={`${g.title} · ${item.label}`} value={item.text} />
+                  ))}
+                </div>
+              ))}
             </section>
           ) : null}
 

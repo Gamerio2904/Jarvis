@@ -1,3 +1,5 @@
+import { acceptResearchPending, expireResearchPending, parseResearchPending } from './research-pending.ts'
+
 export type LastStep = {
   last_step_tool?: string
   last_step_title?: string
@@ -5,12 +7,14 @@ export type LastStep = {
   last_step_utterance?: string
   last_medium?: string
   globe_tour_on?: boolean
+  last_research_json?: string
 }
 
 const FOLLOW_UP =
   /^(und\s+)?(lösch(e|en)?(\s+das)?|das\s+löschen|vergiss?\s+das|und\s+um\s+\d{1,2}([:.]\d{2})?(\s+uhr)?|und\s+morgen\??|morgen\s+auch|stattdessen\s+um\s+\d{1,2}|in\s+\d+\s+(?:minuten?|stunden?)|morgen\s+\d{1,2}(?:[:.]\d{2})?)\s*[.?!]?$/i
 
-const CONFIRM = /^(ja|jo|yes|ok|okay|mach(?:\s+es|\s+mal)?|bitte|passt)\s*[.!?]?$/i
+const CONFIRM = /^(ja(?:\s+bitte)?|jo|yes|ok|okay|mach(?:\s+es|\s+mal)?|bitte|passt)\s*[.!?]?$/i
+const RESEARCH_YES = /^(?:ja\s+bitte(?:\s+(?:suchen|recherchieren))?|bitte\s+suchen|such(?:e)?(?:\s+bitte)?)\s*[.!?]?$/i
 
 const HALT = /^(?:stopp(?:e)?(?:\s+das)?|halt|pause)\s*[.!?]?$/i
 
@@ -37,11 +41,12 @@ const TV_PAD_MAP: Record<string, string> = {
 
 export function isFollowUpPhrase(text: string): boolean {
   const raw = text.trim()
-  return FOLLOW_UP.test(raw) || CONFIRM.test(raw) || HALT.test(raw) || VOL.test(raw)
+  return FOLLOW_UP.test(raw) || CONFIRM.test(raw) || RESEARCH_YES.test(raw) || HALT.test(raw) || VOL.test(raw)
 }
 
 export function isConfirmPhrase(text: string): boolean {
-  return CONFIRM.test(text.trim())
+  const raw = text.trim()
+  return CONFIRM.test(raw) || RESEARCH_YES.test(raw)
 }
 
 /** Wetter-Nachfragen bleiben im Wetter-Handler (`rewrite` → null). */
@@ -81,9 +86,19 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     return null
   }
 
-  if (CONFIRM.test(raw)) {
-    if (!tool || tool === 'todo' || tool === 'notes' || tool === 'weather') return null
-    if (utterance && !CONFIRM.test(utterance) && !HALT.test(utterance)) return utterance
+  if (CONFIRM.test(raw) || RESEARCH_YES.test(raw)) {
+    const pending = expireResearchPending(parseResearchPending(step?.last_research_json))
+    if (tool === 'research_offer' || tool === 'research' || !tool) {
+      const accepted = acceptResearchPending(raw, pending)
+      if (accepted) return accepted.utterance
+    }
+    if (tool === 'research_offer') {
+      if (pending && pending.status !== 'waiting') return null
+      const q = (utterance || title).trim()
+      if (q && !CONFIRM.test(q) && !RESEARCH_YES.test(q)) return q
+    }
+    if (!tool || tool === 'todo' || tool === 'notes' || tool === 'weather' || tool === 'research') return null
+    if (utterance && !CONFIRM.test(utterance) && !HALT.test(utterance) && !RESEARCH_YES.test(utterance)) return utterance
     return null
   }
 

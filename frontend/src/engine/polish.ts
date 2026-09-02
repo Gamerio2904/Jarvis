@@ -1,7 +1,7 @@
 import { brainKind, completeBrain } from './brain.ts'
-import { guardPolish } from './polish-guard.ts'
+import { guardPolish, looksTruncated } from './polish-guard.ts'
 
-export { guardPolish }
+export { guardPolish, looksTruncated }
 
 export async function polishToolLine(canned: string, facts = canned): Promise<string> {
   const kind = brainKind()
@@ -17,9 +17,11 @@ export async function polishToolLine(canned: string, facts = canned): Promise<st
         { role: 'user', content: facts },
       ],
       undefined,
-      { maxOutputTokens: 120, timeoutMs: 4000 },
+      { maxOutputTokens: 300, timeoutMs: 4000 },
     )
-    return guardPolish(facts, r.text)
+    const polished = guardPolish(facts, r.text)
+    if (looksTruncated(polished)) return canned
+    return polished
   } catch {
     return canned
   }

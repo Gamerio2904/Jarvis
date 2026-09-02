@@ -21,15 +21,23 @@ export type WeatherLast = {
   focus: WeatherFocus
 }
 
+const SOCIAL =
+  /\b(wie\s+geht(?:'s|s|es)?|guten\s+(?:morgen|abend|tag|nacht)|hallo|hi\b|hey\b|was\s+machst|na\s+du)\b/i
+
 export function parseWeatherFollowup(text: string, last: WeatherLast | null): WeatherIntent | null {
   if (!last) return null
   const t = text.trim().replace(/[?.!]+$/, '')
   if (!t || t.length > 80) return null
+  if (SOCIAL.test(t)) return null
   const rest = t.replace(/^und\s+/i, '').trim()
+  const timeOnly =
+    /^(heute|morgen|übermorgen|wochenende|jetzt)(\s+(früh|abend|nacht|mittag|nacht))?\s*$/i.test(rest)
   const weatherish =
-    /\b(morgen|übermorgen|heute|wochenende|schirm|anziehen|luft|pollen|sonnenaufgang|sonnenuntergang|regen|jacke|pulli|feinstaub|aqi)\b/i.test(
+    timeOnly ||
+    /\b(morgen|übermorgen|wochenende|schirm|anziehen|luft|pollen|sonnenaufgang|sonnenuntergang|regen|jacke|pulli|feinstaub|aqi)\b/i.test(
       rest,
-    ) || /^(in|für|aus|bei)\s+\S/i.test(rest)
+    ) ||
+    /^(in|für|aus|bei)\s+\S/i.test(rest)
   if (!weatherish) return null
   if (!rest) return last.kind === 'place' && last.place
     ? { kind: 'place', place: last.place, when: last.when, focus: last.focus }
@@ -59,6 +67,7 @@ export function parseWeatherFollowup(text: string, last: WeatherLast | null): We
 export function parseWeatherIntent(text: string): WeatherIntent | null {
   const t = text.trim()
   if (!t || t.length > 160) return null
+  if (SOCIAL.test(t)) return null
   if (/\b(wetterstatistik|lage[- ]?kachel|\bkacheln?\b)\b/i.test(t)) return null
   const air = AIR.test(t)
   const sun = SUN.test(t)
