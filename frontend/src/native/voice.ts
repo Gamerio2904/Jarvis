@@ -1,8 +1,10 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { synthesizeGemini, ttsNativeRaceMs, wantGeminiVoice } from '../engine/tts'
+import { edgeFirstTimeoutMs, firstBlobWins, synthesizeEdge, synthesizeGtts } from '../engine/edge-tts'
+import { synthesizeGemini, wantGeminiVoice, wantNeuralMouth } from '../engine/tts'
 import { pickHeard } from '../engine/heard.ts'
 import { loadFace } from '../engine/face.ts'
 import { markFirstAudio } from '../engine/latency.ts'
+import { loadSettings } from '../engine/store.ts'
 import { BARGE_IGNORE_TTS_MS, BARGE_ONSET_MS, silenceMsFor, turnLooksComplete } from '../engine/turn-detect.ts'
 import { createEnergyVad, rmsFromByteTimeDomain } from '../engine/vad.ts'
 
@@ -23,6 +25,11 @@ type NativeVoice = {
   wakeStatus(): Promise<{ running: boolean; wanted?: boolean }>
   requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }>
   setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
+  synthEdge(opts: { text: string; voice: string; timeoutMs?: number }): Promise<{
+    ok: boolean
+    audio?: string
+    message?: string
+  }>
   streamSse(opts: {
     url: string
     body: string
@@ -283,41 +290,60 @@ export async function streamSseLines(
 }
 
 type SpeakJob = { text: string; ready: Promise<Blob | 'native'> }
+type MouthLane = 'gemini' | 'edge' | 'native'
+
+async function freeNeural(text: string, timeoutMs: number): Promise<Blob | null> {
+  return (await synthesizeEdge(text, { timeoutMs })) || (await synthesizeGtts(text))
+}
 
 export function createSpeakPipeline() {
   const q: SpeakJob[] = []
   const heard: string[] = []
   let running = false
   let stopped = false
-  let lane: 'gemini' | 'native' | null = null
+  let lane: MouthLane | null = null
 
   function prepare(text: string): Promise<Blob | 'native'> {
     return (async () => {
-      if (!wantGeminiVoice() || lane === 'native') {
+      if (!wantNeuralMouth() || lane === 'native') {
         lane = 'native'
         return 'native'
       }
-      const first = lane === null
-      const race = first ? ttsNativeRaceMs() || 480 : ttsNativeRaceMs()
-      if (race <= 0) {
+      if (lane === 'gemini') {
         const blob = await synthesizeGemini(text)
-        if (blob) {
+        return blob || 'native'
+      }
+      if (lane === 'edge') {
+        const blob = await freeNeural(text, 4000)
+        return blob || 'native'
+      }
+      if (loadSettings().voice_tts === 'gemini') {
+        const gem = await synthesizeGemini(text)
+        if (gem) {
           lane = 'gemini'
-          return blob
+          return gem
+        }
+        const edge = await freeNeural(text, 2500)
+        if (edge) {
+          lane = 'edge'
+          return edge
         }
         lane = 'native'
         return 'native'
       }
-      const gemini = synthesizeGemini(text)
-      const raced = await Promise.race([
-        gemini,
-        new Promise<null>((resolve) => {
-          globalThis.setTimeout(() => resolve(null), race)
-        }),
-      ])
-      if (raced) {
-        lane = 'gemini'
-        return raced
+      const jobs: Array<{ lane: 'gemini' | 'edge'; run: Promise<Blob | null> }> = [
+        { lane: 'edge', run: synthesizeEdge(text, { timeoutMs: edgeFirstTimeoutMs() }) },
+      ]
+      if (wantGeminiVoice()) jobs.push({ lane: 'gemini', run: synthesizeGemini(text) })
+      const hit = await firstBlobWins(jobs)
+      if (hit) {
+        lane = hit.lane
+        return hit.blob
+      }
+      const gtts = await synthesizeGtts(text)
+      if (gtts) {
+        lane = 'edge'
+        return gtts
       }
       lane = 'native'
       return 'native'
@@ -379,18 +405,10 @@ export function speakCueFast(text: string): Promise<void> {
 export async function speakText(text: string): Promise<void> {
   const clean = text.replace(/[#*_`]+/g, '').replace(/\s+/g, ' ').trim()
   if (!clean) return
-  if (wantGeminiVoice()) {
-    const blob = await synthesizeGemini(clean)
-    if (blob) {
-      await playBlob(blob)
-      return
-    }
-  }
-  if (native) {
-    await native.speak({ text: clean })
-    return
-  }
-  await webSpeak(clean)
+  const pipe = createSpeakPipeline()
+  pipe.push(clean)
+  await pipe.flush()
+  pipe.stop()
 }
 
 export async function stopSpeak(): Promise<void> {

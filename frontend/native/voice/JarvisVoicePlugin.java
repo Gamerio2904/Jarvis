@@ -32,11 +32,21 @@ import com.getcapacitor.annotation.PermissionCallback;
 
 import android.speech.tts.Voice;
 
+import android.util.Base64;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +57,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
 
 @CapacitorPlugin(
         name = "JarvisVoice",
@@ -795,5 +808,151 @@ public class JarvisVoicePlugin extends Plugin {
         r.put("running", JarvisWakeService.isRunning());
         r.put("wanted", JarvisWakeService.wantEnabled(getContext()));
         call.resolve(r);
+    }
+
+    private static final String EDGE_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
+    private static final String EDGE_GEC_VER = "1-143.0.3650.75";
+    private static final String EDGE_UA =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0";
+
+    @PluginMethod
+    public void synthEdge(PluginCall call) {
+        String text = call.getString("text", "");
+        String voice = call.getString("voice", "de-DE-ConradNeural");
+        Integer timeout = call.getInt("timeoutMs");
+        int ms = timeout == null ? 4000 : Math.max(400, Math.min(12_000, timeout));
+        if (text == null || text.trim().isEmpty()) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "leer");
+            call.resolve(r);
+            return;
+        }
+        final String spoken = text.trim();
+        final String voiceName = voice == null || voice.isEmpty() ? "de-DE-ConradNeural" : voice;
+        call.setKeepAlive(true);
+        io.execute(() -> {
+            JSObject r = new JSObject();
+            try {
+                byte[] mp3 = edgeMp3(spoken, voiceName, ms);
+                if (mp3 == null || mp3.length == 0) {
+                    r.put("ok", false);
+                    r.put("message", "kein audio");
+                } else {
+                    r.put("ok", true);
+                    r.put("audio", Base64.encodeToString(mp3, Base64.NO_WRAP));
+                }
+            } catch (Exception e) {
+                r.put("ok", false);
+                r.put("message", e.getMessage() == null ? "edge" : e.getMessage());
+            }
+            call.resolve(r);
+        });
+    }
+
+    private byte[] edgeMp3(String text, String voice, int timeoutMs) throws Exception {
+        String gec = edgeGec();
+        String conn = uuidHex();
+        String muid = uuidHex();
+        String url = "wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1"
+                + "?TrustedClientToken=" + EDGE_TOKEN
+                + "&Sec-MS-GEC=" + gec
+                + "&Sec-MS-GEC-Version=" + EDGE_GEC_VER
+                + "&ConnectionId=" + conn;
+        CountDownLatch done = new CountDownLatch(1);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        OkHttpClient client = http.newBuilder()
+                .connectTimeout(4, TimeUnit.SECONDS)
+                .readTimeout(timeoutMs, TimeUnit.MILLISECONDS)
+                .build();
+        Request req = new Request.Builder()
+                .url(url)
+                .header("Pragma", "no-cache")
+                .header("Cache-Control", "no-cache")
+                .header("Origin", "chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold")
+                .header("User-Agent", EDGE_UA)
+                .header("Cookie", "muid=" + muid + ";")
+                .build();
+        WebSocket ws = client.newWebSocket(req, new WebSocketListener() {
+            @Override
+            public void onOpen(WebSocket webSocket, Response response) {
+                String ts = edgeDate();
+                webSocket.send("X-Timestamp:" + ts
+                        + "\r\nContent-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n"
+                        + "{\"context\":{\"synthesis\":{\"audio\":{\"metadataoptions\":"
+                        + "{\"sentenceBoundaryEnabled\":\"false\",\"wordBoundaryEnabled\":\"false\"},"
+                        + "\"outputFormat\":\"audio-24khz-48kbitrate-mono-mp3\"}}}}\r\n");
+                String ssml = "<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>"
+                        + "<voice name='" + voice + "'><prosody pitch='+0Hz' rate='+0%' volume='+0%'>"
+                        + edgeSsmlEscape(text) + "</prosody></voice></speak>";
+                webSocket.send("X-RequestId:" + uuidHex()
+                        + "\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:" + ts
+                        + "Z\r\nPath:ssml\r\n\r\n" + ssml);
+            }
+
+            @Override
+            public void onMessage(WebSocket webSocket, String textMsg) {
+                if (textMsg != null && textMsg.contains("Path:turn.end")) {
+                    webSocket.close(1000, "ok");
+                    done.countDown();
+                }
+            }
+
+            @Override
+            public void onMessage(WebSocket webSocket, ByteString bytes) {
+                byte[] data = bytes.toByteArray();
+                if (data.length < 2) return;
+                int headerLen = ((data[0] & 0xff) << 8) | (data[1] & 0xff);
+                if (headerLen < 0 || headerLen + 2 > data.length) return;
+                String header = new String(data, 2, headerLen, StandardCharsets.UTF_8);
+                if (!header.contains("Path:audio")) return;
+                int start = headerLen + 2;
+                if (start >= data.length) return;
+                synchronized (out) {
+                    out.write(data, start, data.length - start);
+                }
+            }
+
+            @Override
+            public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+                done.countDown();
+            }
+
+            @Override
+            public void onClosed(WebSocket webSocket, int code, String reason) {
+                done.countDown();
+            }
+        });
+        boolean finished = done.await(timeoutMs, TimeUnit.MILLISECONDS);
+        ws.cancel();
+        if (!finished) return null;
+        if (out.size() == 0) return null;
+        return out.toByteArray();
+    }
+
+    private static String edgeGec() throws Exception {
+        double ticks = System.currentTimeMillis() / 1000.0 + 11_644_473_600.0;
+        ticks -= ticks % 300.0;
+        ticks *= 10_000_000.0;
+        String payload = String.format(Locale.US, "%.0f", ticks) + EDGE_TOKEN;
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hash = md.digest(payload.getBytes(StandardCharsets.US_ASCII));
+        StringBuilder sb = new StringBuilder(hash.length * 2);
+        for (byte b : hash) sb.append(String.format(Locale.US, "%02X", b));
+        return sb.toString();
+    }
+
+    private static String edgeDate() {
+        SimpleDateFormat fmt = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss", Locale.US);
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return fmt.format(new Date()) + " GMT+0000 (Coordinated Universal Time)";
+    }
+
+    private static String uuidHex() {
+        return UUID.randomUUID().toString().replace("-", "").toUpperCase(Locale.US);
+    }
+
+    private static String edgeSsmlEscape(String text) {
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
     }
 }

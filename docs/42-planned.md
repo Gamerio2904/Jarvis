@@ -10,7 +10,7 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 
 1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
 2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` / `9.3` / `9.9` **CODE** — vor Alltag-Execute
-3. **Latenz / Qualität** [`52-research-latency-quality.md`](./52-research-latency-quality.md) Prefix-Cache + Groq-Stream + SLO **CODE**; Smart Turn / Piper nächste Stimme
+3. **Latenz / Qualität** [`52-research-latency-quality.md`](./52-research-latency-quality.md) Prefix-Cache + Groq-Stream + SLO + Edge-Neural First-Audio **CODE**; Smart Turn / Piper-offline Could
 4. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`, Session `6.91`)
 5. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
 6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn

@@ -17,7 +17,7 @@ Recherche [`52-research-latency-quality.md`](./52-research-latency-quality.md). 
 - **Warmup:** TLS/DNS gegen Google/Groq beim App-Start, ohne Key in der URL.
 - **Turn-Taking:** Fertiger Satz → 220 ms Stille, unfertig („und …“) → 800 ms. Android-Recognizer startet bei unfertigem Partial neu.
 - **Barge-in:** Mic während Denken/Sprechen. Backchannel (`mhm`) zählt nicht. Gespeichert wird nur, was schon gesprochen war.
-- **First-Audio:** Erster Chunk Standing Native-Race 480 ms; Rest bleibt bei derselben Stimme.
+- **First-Audio:** Kein 480-ms-System-TTS mehr. Auto rennt Microsoft Edge Neural (Conrad/Katja, frei) gegen Gemini Algieba; eine Stimme pro Antwort. Groq-TTS spricht kein Deutsch. System-TTS nur wenn beide Neural-Wege fehlen.
 
 ### `9.9.0` — V9 Hardening — *CODE*
 

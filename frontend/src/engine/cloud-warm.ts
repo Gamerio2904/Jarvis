@@ -8,7 +8,7 @@ export function warmCloud(): void {
   if (warmed) return
   warmed = true
   const s = loadSettings()
-  const hits: string[] = []
+  const hits: string[] = ['https://speech.platform.bing.com/']
   if (s.gemini_api_key.trim()) hits.push('https://generativelanguage.googleapis.com/')
   if (s.groq_api_key.trim()) hits.push('https://api.groq.com/')
   for (const url of hits) {

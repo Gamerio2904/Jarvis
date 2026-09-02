@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts, formatAllTestCopy, PROBE_COPY_GROUPS, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
@@ -38,7 +39,16 @@ import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
 import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
-import { spokenForGemini, ttsBudgetMs, ttsGeminiPrimary, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE } from '../src/engine/tts.ts'
+import { spokenForGemini, ttsBudgetMs, ttsGeminiPrimary, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE, firstAudioUsesSystemRace, wantNeuralMouth } from '../src/engine/tts.ts'
+import {
+  EDGE_VOICE_FRIDAY,
+  EDGE_VOICE_JARVIS,
+  edgeFirstTimeoutMs,
+  firstBlobWins,
+  secMsGec,
+  ssmlEscape,
+  windowsFileTimeTicks,
+} from '../src/engine/edge-tts.ts'
 import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, isConfirmPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
@@ -1045,6 +1055,44 @@ assert.equal(ttsNativeRaceMs(false), 0)
 assert.equal(ttsNativeRaceMs(true), 400)
 assert.equal(ttsGeminiPrimary(false), true)
 assert.equal(ttsGeminiPrimary(true), false)
+assert.equal(firstAudioUsesSystemRace(), false)
+assert.equal(wantNeuralMouth(), true)
+assert.equal(EDGE_VOICE_JARVIS, 'de-DE-ConradNeural')
+assert.equal(EDGE_VOICE_FRIDAY, 'de-DE-KatjaNeural')
+assert.equal(edgeFirstTimeoutMs(false), 1600)
+assert.equal(edgeFirstTimeoutMs(true), 900)
+assert.equal(ssmlEscape('A & B <C> "x"'), 'A &amp; B &lt;C&gt; &quot;x&quot;')
+assert.equal(windowsFileTimeTicks(0), '116444736000000000')
+assert.match(windowsFileTimeTicks(1_756_800_000), /^\d+$/)
+{
+  const gec = await secMsGec(0)
+  assert.equal(gec.length, 64)
+  assert.match(gec, /^[0-9A-F]{64}$/)
+}
+{
+  const fast = Promise.resolve(new Blob([new Uint8Array([1, 2, 3])]))
+  const slow = new Promise((resolve) => {
+    globalThis.setTimeout(() => resolve(new Blob([new Uint8Array([9])])), 80)
+  })
+  const hit = await firstBlobWins([
+    { lane: 'gemini', run: slow },
+    { lane: 'edge', run: fast },
+  ])
+  assert.equal(hit?.lane, 'edge')
+  assert.equal(hit?.blob.size, 3)
+}
+{
+  const miss = await firstBlobWins([
+    { lane: 'edge', run: Promise.resolve(null) },
+    { lane: 'gemini', run: Promise.resolve(null) },
+  ])
+  assert.equal(miss, null)
+}
+{
+  const voiceSrc = readFileSync(new URL('../src/native/voice.ts', import.meta.url), 'utf8')
+  assert.doesNotMatch(voiceSrc, /ttsNativeRaceMs\(\)\s*\|\|\s*480/)
+  assert.doesNotMatch(voiceSrc, /setTimeout\(\s*\(\)\s*=>\s*resolve\(null\),\s*race/)
+}
 assert.ok(ttsBudgetMs(false) >= 2000)
 assert.ok(ttsBudgetMs(true) <= 900)
 assert.equal(spokenForGemini('  **Hallo** Welt  '), 'Hallo Welt')

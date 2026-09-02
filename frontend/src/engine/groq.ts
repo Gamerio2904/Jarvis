@@ -18,6 +18,8 @@ export function groqReady(): boolean {
   return Boolean(groqKey())
 }
 
+/** Groq speech (PlayAI/Orpheus) is English/Arabic only — mouth stays Edge/Gemini. */
+
 function textFrom(json: GroqResponse): string {
   return (json.choices?.[0]?.message?.content || '').trim()
 }

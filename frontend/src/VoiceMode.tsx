@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { wantGeminiVoice } from './engine/tts'
+import { wantNeuralMouth } from './engine/tts'
 import { setChatSpeaking } from './engine/speak-lock'
 import { dispatchVoiceAmp, prefersReducedMotion } from './engine/motion'
 import {
@@ -50,7 +50,7 @@ export function VoiceMode({
   onTurnRef.current = onTurn
   const onTruncateRef = useRef(onTruncate)
   onTruncateRef.current = onTruncate
-  const neural = wantGeminiVoice()
+  const neural = wantNeuralMouth()
   const reduced = prefersReducedMotion()
 
   useEffect(() => {
@@ -308,8 +308,8 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Dazwischenreden unterbricht. Erste Silbe lokal, Rest Algieba wenn sie rechtzeitig da ist.'
-                : 'Dazwischenreden unterbricht. Gemini-Key = natürliche Stimme, sonst System.'}
+                ? 'Dazwischenreden unterbricht. Erste Silbe Edge Neural oder Algieba, eine Stimme pro Antwort.'
+                : 'Dazwischenreden unterbricht. Stimme auf System = Geräte-TTS, sonst Edge Neural.'}
             </p>
           </div>
           <button type="button" className="ghost-btn voice-close" onClick={onClose}>

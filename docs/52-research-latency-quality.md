@@ -2,7 +2,7 @@
 
 PO 2026-09-02: nicht der Alltag-Zettel (`8.32` / `5.12`), sondern **was Industrie, Hugging Face, GitHub und Papers** für Voice-/Assistenten tun — und was davon in **unseren** TypeScript/Capacitor-Stack passt.
 
-**Ist:** Code **`9.9.0`**. Parser zuerst, Hirn Gemini → Groq → 0,5B. Stimme: Android-STT + Gemini-TTS (Algieba) mit Satz-Tap (`speak-tap.ts`) und Speak-Pipeline. Barge-in nur per Orb-Tipp, nicht aus dem Mikrofon. Prompt = Persona **plus** Memory/Retrieve/Working **in einem** `system_instruction`. Groq ohne Token-Stream. Kein ONNX-VAD.
+**Ist:** Code **`9.9.0`**. Parser zuerst, Hirn Gemini → Groq → 0,5B. Mund: Edge Neural (Conrad/Katja, frei) im Rennen mit Gemini Algieba, eine Lane pro Antwort. Barge-in aus dem Mic. Prompt-Prefix split (`prompt-split.ts`). Groq SSE.
 
 **Diese Runde CODE (Loop, nicht neuer Stack):** Prompt-Prefix splitten (`prompt-split.ts`), Groq SSE, Latenz-SLO (`latency.ts`), TLS-Warmup. Rest bleibt Vorschlag.
 
@@ -51,6 +51,7 @@ Softcery/Deepgram: Endpointing (Stille abwarten) ist oft **150–400+ ms** — g
 | Home Assistant + Wyoming | Whisper/Piper/openWakeWord als Sockets | Modular: STT/TTS/Wake austauschbar. Unser Parser ist das Analogon zu Intents. | Container auf dem NAS. Handy bleibt Hirn. |
 | Rhasspy / open-jarvis | Wake + faster-whisper + Piper | Satz-Streaming in TTS, WebRTC-Barge-in als Zielbild. | Porcupine-Key, Rust-Bridge. |
 | Groq Prompt Caching | exakter Prefix | Statisches System vorn, Variables hinten. 50 % weniger Prefill bei Hit. | Semantic Redis-Cache (falsche Antworten auf „wie spät“). |
+| [rany2/edge-tts](https://github.com/rany2/edge-tts) | Microsoft Edge read-aloud, `de-DE-ConradNeural` | **CODE** First-Audio. Kein Extra-Key. Groq-TTS kann kein Deutsch. | Azure-Key, ElevenLabs |
 
 OpenAI Realtime / Gemini Live: `semantic_vad` + `conversation.item.truncate(audio_end_ms)`. Das ist der professionelle Vertrag: **History = was der Nutzer gehört hat**, nicht was das Modell erzeugt hat. Bei uns nach Barge-in noch nicht.
 
@@ -77,7 +78,7 @@ OpenAI Realtime / Gemini Live: `semantic_vad` + `conversation.item.truncate(audi
 | Barge-in | `VoiceMode` Orb → `__barge_in__` | Tipp, Echo-sicher | VAD während TTS + Truncate |
 | LLM-TTFT | `streamGemini` SSE, `completeGroq` **blocking** | Groq wartet aufs ganze JSON | Stream + erster Satz in TTS |
 | Prompt-Cache | Persona+Memory+Working in **einem** System | Jeder Turn busted den Prefix | Statisch vorn |
-| First audio | `createSentenceTap(true)` + `createSpeakPipeline` | Satzweise, aber Gemini-TTS ist Blob | Piper/Flux first-byte ~80–200 ms |
+| First audio | `createSpeakPipeline` | Edge Neural vs Gemini, eine Lane | Piper/Flux first-byte ~80–200 ms |
 | Observability | Debug-Turn `ms` gesamt | Kein TTFT / First-Audio | Spans: VAD, STT, TTFT, TTS-Flush |
 | Recall | `retrieve.ts` RRF, Keyword | Gut für Hunderte Zeilen | e5-small erst wenn messbar falsch |
 
@@ -98,7 +99,7 @@ Parser-first bleibt der größte Latenzgewinn, den wir schon haben: Timer/Wetter
 
 5. **Silero-VAD + Smart Turn v3** — **CODE Loop** in `turn-detect.ts` / `vad.ts` / Native-Listen. Endpoint 200 ms wenn der Satz fertig klingt, 800 ms bei „und …“. ONNX-Gewichte (8 MB Smart Turn, Silero) bleiben Could wenn Energie+Transkript im Auto knirscht.
 6. **Barge-in aus dem Mic** + Truncate — **CODE**. `watchBargeIn` (Web echoCancellation, Android `AudioRecord` + AEC). History = Gesprochenes (`truncateSpoken` + `patchMessage`).
-7. **First-Audio eine Stimme** — **CODE**. Erster Chunk Standing 480 ms Native-Race (System-TTS = Piper, wenn die Engine so heißt). Rest derselben Lane, kein Mix Algieba/Pico. sherpa-onnx nicht gebündelt (APK-Gewicht); Piper-Engine-APK vom System nutzbar.
+7. **First-Audio eine Stimme** — **CODE**. Auto: Edge Neural (`de-DE-ConradNeural` / `Katja`, rany2/edge-tts, kein Extra-Key) **rennt** gegen Gemini Algieba. Wer zuerst einen Blob hat, bleibt die Lane. Groq-TTS (PlayAI) ist EN/AR, nicht verdrahtet. gTTS nur wenn Edge+Gemini fehlen. System-TTS letzter Fallback, kein 480-ms-Timer. sherpa-onnx nicht gebündelt.
 8. **Groq specdec / kleinste Chat-Modelle** nur als Backup-Label, wenn TTFT-Messung Groq langsamer als Gemini zeigt.
 
 ### Could (Qualität / Profession)
@@ -123,7 +124,7 @@ Parser-first bleibt der größte Latenzgewinn, den wir schon haben: Timer/Wetter
 | TLS-Warm | `cloud-warm.ts`, `App.tsx` | winzig | no-cors, kein Key in der URL |
 | Smart Turn | `turn-detect.ts`, Native-Listen | **CODE** Loop (ONNX Could) | Echo / unfertige Sätze |
 | Mic-Barge-in | `VoiceMode.tsx`, `JarvisVoicePlugin` | **CODE** | False-Stop im Auto — Drive ohne Mic-Barge |
-| First-Audio | `createSpeakPipeline` Lane | **CODE** | Eine Stimme pro Turn |
+| First-Audio | `createSpeakPipeline`, `edge-tts.ts` | **CODE** | Edge+Gemini, eine Stimme pro Turn |
 | e5 Rerank | `retrieve.ts` | Won’t bis RRF knirscht | 120 MB, nie Router |
 
 ---

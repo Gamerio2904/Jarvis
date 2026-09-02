@@ -38,7 +38,12 @@ export async function fetchBodySnap(opts: { busy: boolean; conversationId: strin
         ? `Zuletzt: ${write}.`
         : 'Noch keine Schreib-Aktion.'
   const earLine = s.wake_word ? 'Wake an.' : 'Wake aus.'
-  const mouthLine = s.voice_tts === 'native' ? 'Mund: Native-TTS.' : `Mund: ${s.face === 'friday' ? 'Kore' : 'Algieba'} wenn Gemini-TTS da ist.`
+  const mouthLine =
+    s.voice_tts === 'system' || s.voice_tts === 'native'
+      ? 'Mund: System-TTS.'
+      : s.voice_tts === 'gemini'
+        ? `Mund: ${s.face === 'friday' ? 'Kore' : 'Algieba'} (Gemini), Edge wenn Gemini fehlt.`
+        : `Mund: Edge ${s.face === 'friday' ? 'Katja' : 'Conrad'} im Rennen mit ${s.face === 'friday' ? 'Kore' : 'Algieba'}.`
   const memLine = `${mem.length} gemerkt` + (nextRem ? ` · nächste Erinnerung ${nextRem.title || ''}`.trim() : '.')
   const pcEye = pcOn ? 'PC verbunden. Screenshot auf Nachfrage.' : 'PC nicht verbunden.'
   const pcHand = pcOn ? 'PC-Hand bereit (Klick, FIFA, Ordner).' : 'PC nicht verbunden.'
