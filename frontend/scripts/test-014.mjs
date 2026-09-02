@@ -44,6 +44,16 @@ import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, isConfirmPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
+import { attachVariable, splitCloudPrompt } from '../src/engine/prompt-split.ts'
+import {
+  finishLatency,
+  formatLatency,
+  lastLatency,
+  latencyBand,
+  markFirstAudio,
+  markFirstToken,
+  startLatency,
+} from '../src/engine/latency.ts'
 import { parseFanIntent } from '../src/engine/fan-parse.ts'
 import { parsePlugIntent } from '../src/engine/plug-parse.ts'
 import { lanIpHint } from '../src/engine/plug-net.ts'
@@ -2467,5 +2477,43 @@ assert.equal(
 assert.match(scrubReply('Netflix ist offen.'), /Schirm|angekommen|nicht/)
 assert.doesNotMatch(scrubReply('Netflix ist offen.'), /Netflix ist offen/)
 assert.equal(pickRoute('Öffne Netflix'), 'tv')
+
+{
+  const a = splitCloudPrompt({ persona: GEMINI_PERSONA, memory: 'Langzeitgedächtnis: Name Tim' })
+  const b = splitCloudPrompt({ persona: GEMINI_PERSONA, memory: 'Langzeitgedächtnis: Name Ada' })
+  assert.equal(a.system, b.system)
+  assert.notEqual(a.variable, b.variable)
+  assert.ok(a.system.includes('Du bist Jarvis'))
+  assert.ok(!a.system.includes('Name Tim'))
+  assert.ok(a.variable.includes('Name Tim'))
+  const voiced = splitCloudPrompt({ persona: GEMINI_PERSONA, voice: true })
+  assert.ok(voiced.system.includes(VOICE_HINT.slice(0, 24)))
+  const searched = splitCloudPrompt({ persona: GEMINI_PERSONA, search: true, memory: 'x' })
+  assert.ok(searched.variable.includes('Google plus Links'))
+  assert.ok(!searched.system.includes('Google plus Links'))
+  const msgs = attachVariable(
+    [
+      { role: 'system', content: a.system },
+      { role: 'user', content: 'Hallo.' },
+    ],
+    a.variable,
+  )
+  assert.equal(msgs[0].content, a.system)
+  assert.match(msgs[1].content, /^Hallo\./)
+  assert.ok(msgs[1].content.includes(a.variable))
+}
+
+startLatency('parser')
+markFirstToken()
+markFirstAudio()
+const slo = finishLatency()
+assert.equal(slo?.path, 'parser')
+assert.equal(lastLatency()?.path, 'parser')
+assert.ok((slo?.msTotal ?? -1) >= 0)
+assert.equal(latencyBand(200), 'gut')
+assert.equal(latencyBand(500), 'ok')
+assert.equal(latencyBand(900), 'langsam')
+assert.match(formatLatency(slo), /Parser/)
+assert.match(formatLatency(slo), /Hirn/)
 
 console.log('ok 0.14 parsers')

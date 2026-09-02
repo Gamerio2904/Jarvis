@@ -7,6 +7,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 App-Version im Code: **`9.9.0`**. Sideload zuletzt: **`9.9.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
+### Qualität / Latenz (in `9.9.0`) — *CODE*
+
+Recherche [`52-research-latency-quality.md`](./52-research-latency-quality.md). Loop aus Gemini/Groq Prompt-Cache, Pipecat/Twilio-SLOs, Groq-SSE. Kein neuer Stack.
+
+- **Prefix-Cache:** Persona (± Sprach-Hint) bleibt `system_instruction`. Memory, Working, Last-Step, Suche, Digest hängen am letzten User-Turn (`prompt-split.ts`).
+- **Groq:** Token-Stream (SSE, Bearer), Fallback JSON. Native SSE kann Bearer.
+- **SLO:** `latency.ts` markiert Hirn / erste Stimme / gesamt. Tests-Reiter und Debug-Dock zeigen die letzte Zeile.
+- **Warmup:** TLS/DNS gegen Google/Groq beim App-Start, ohne Key in der URL.
+
 ### `9.9.0` — V9 Hardening — *CODE*
 
 Sprints 163–165. Regression, LAN-only PC, Secret-Redact. Sideload **`9.9.0`** (versionCode `90900`). Alltag Won’t.

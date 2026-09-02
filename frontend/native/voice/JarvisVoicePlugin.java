@@ -435,7 +435,12 @@ public class JarvisVoicePlugin extends Plugin {
                     .addHeader("Content-Type", "application/json")
                     .addHeader("Accept", "text/event-stream");
             if (apiKey != null && !apiKey.isEmpty()) {
-                b.addHeader("x-goog-api-key", apiKey);
+                String auth = call.getString("auth", "google");
+                if ("bearer".equalsIgnoreCase(auth)) {
+                    b.addHeader("Authorization", "Bearer " + apiKey);
+                } else {
+                    b.addHeader("x-goog-api-key", apiKey);
+                }
             }
             Call httpCall = client.newCall(b.build());
             try (Response res = httpCall.execute()) {

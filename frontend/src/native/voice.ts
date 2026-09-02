@@ -2,6 +2,7 @@ import { Capacitor, registerPlugin } from '@capacitor/core'
 import { synthesizeGemini, ttsNativeRaceMs, wantGeminiVoice } from '../engine/tts'
 import { pickHeard } from '../engine/heard.ts'
 import { loadFace } from '../engine/face.ts'
+import { markFirstAudio } from '../engine/latency.ts'
 
 export { createSentenceTap } from '../engine/speak-tap'
 
@@ -25,6 +26,7 @@ type NativeVoice = {
     body: string
     apiKey: string
     timeoutMs?: number
+    auth?: string
   }): Promise<{ ok: boolean; status?: number; message?: string }>
   addListener(
     event: 'partial' | 'sse' | 'wake',
@@ -141,10 +143,11 @@ function playBlob(blob: Blob): Promise<void> {
 }
 
 export async function streamSseLines(
-  opts: { url: string; body: unknown; apiKey: string; timeoutMs?: number },
+  opts: { url: string; body: unknown; apiKey: string; timeoutMs?: number; auth?: 'google' | 'bearer' },
   onData: (json: Record<string, unknown>) => void,
 ): Promise<{ ok: boolean; message?: string }> {
   const timeoutMs = opts.timeoutMs && opts.timeoutMs > 0 ? opts.timeoutMs : 8_000
+  const bearer = opts.auth === 'bearer'
   if (native) {
     const handle = await native.addListener('sse', (ev) => {
       if (!ev.data) return
@@ -160,6 +163,7 @@ export async function streamSseLines(
         body: JSON.stringify(opts.body),
         apiKey: opts.apiKey,
         timeoutMs,
+        auth: bearer ? 'bearer' : 'google',
       })
       return { ok: Boolean(res.ok), message: res.message }
     } finally {
@@ -167,13 +171,17 @@ export async function streamSseLines(
     }
   }
   try {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    }
+    if (opts.apiKey) {
+      if (bearer) headers.Authorization = `Bearer ${opts.apiKey}`
+      else headers['x-goog-api-key'] = opts.apiKey
+    }
     const res = await fetch(opts.url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'text/event-stream',
-        'x-goog-api-key': opts.apiKey,
-      },
+      headers,
       body: JSON.stringify(opts.body),
       signal: AbortSignal.timeout(timeoutMs),
     })
@@ -241,6 +249,7 @@ export function createSpeakPipeline() {
       if (!job) continue
       const audio = await job.ready
       if (stopped) break
+      markFirstAudio()
       if (audio instanceof Blob) await playBlob(audio)
       else await speakNative(job.text)
     }

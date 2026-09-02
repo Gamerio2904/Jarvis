@@ -20,7 +20,7 @@ import {
 } from './research-pending.ts'
 import { promoteSplitPart, splitIntents } from './split-intents'
 import { normalizeUtterance } from './utterance.ts'
-import { SEARCH_ON_HINT, VOICE_HINT, personaPack } from './persona'
+import { VOICE_HINT, personaPack } from './persona'
 import { loadFace } from './face.ts'
 import {
   formatResearchReply,
@@ -76,6 +76,8 @@ import { handlePoiOrdinal } from './poi'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
 import { type ToolMeta } from './tools'
 import { routeRegistry, type RouteHit } from './registry'
+import { attachVariable, splitCloudPrompt } from './prompt-split.ts'
+import { finishLatency, markFirstToken, setLatencyPath, startLatency } from './latency.ts'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -437,6 +439,11 @@ async function attachResearchAudit(research: ResearchMeta | undefined, query: st
   return { ...research, audit_id: audit.id }
 }
 
+function emitToken(handlers: StreamHandlers, piece: string) {
+  markFirstToken()
+  handlers.onToken?.(piece)
+}
+
 export async function streamChat(
   conversationId: string,
   content: string,
@@ -445,6 +452,7 @@ export async function streamChat(
 ): Promise<void> {
   const conv = await storeGet<Conversation>('conversations', conversationId)
   if (!conv) throw new Error('Gespräch nicht gefunden.')
+  startLatency('none')
 
   noteTurn('user', content)
   const userMessage = await addMessage(conversationId, 'user', content)
@@ -479,9 +487,11 @@ export async function streamChat(
     if (!deviceBusy && declineResearchPending(content, researchPending) && settingsNow.last_step_tool === 'research_offer') {
       persistResearchDone('cancelled')
       const reply = 'Suche nicht.'
-      handlers.onToken?.(reply)
+      setLatencyPath('parser')
+      emitToken(handlers, reply)
       const assistant = await addMessage(conversationId, 'assistant', reply)
       const updated = (await touchConversation(conversationId)) || convAfterUser
+      finishLatency()
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
     }
@@ -503,12 +513,14 @@ export async function streamChat(
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
       const joined = replies.join('\n\n')
-      handlers.onToken?.(joined)
+      setLatencyPath('parser')
+      emitToken(handlers, joined)
       const assistant = await addMessage(conversationId, 'assistant', joined, {
         tool: last.tool,
         research,
       })
       const updated = (await touchConversation(conversationId)) || convAfterUser
+      finishLatency()
       handlers.onDone?.({
         assistant_message: assistant,
         conversation: updated,
@@ -521,9 +533,11 @@ export async function streamChat(
     if (opts?.voice && kind === 'none') {
       const reply =
         'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
-      handlers.onToken?.(reply)
+      setLatencyPath('parser')
+      emitToken(handlers, reply)
       const assistant = await addMessage(conversationId, 'assistant', reply)
       const updated = (await touchConversation(conversationId)) || convAfterUser
+      finishLatency()
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
     }
@@ -536,10 +550,12 @@ export async function streamChat(
     const discount = Boolean(s.shop_discount)
     const live = isLiveLookup(ask, discount) || Boolean(accepted)
     if ((live || accepted) && !geminiReady()) {
+      setLatencyPath('parser')
       if (!s.research_opt_in && !accepted) {
         persistResearchOffer(ask, researchQuery(ask))
         const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
         const updated = (await touchConversation(conversationId)) || convAfterUser
+        finishLatency()
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
         return
       }
@@ -555,9 +571,11 @@ export async function streamChat(
           isProductLookup(ask, discount),
           discount,
         )
+        emitToken(handlers, reply)
         handlers.onReplace?.(reply)
         const assistant = await addMessage(conversationId, 'assistant', reply, { research })
         const updated = (await touchConversation(conversationId)) || convAfterUser
+        finishLatency()
         handlers.onDone?.({
           assistant_message: assistant,
           conversation: updated,
@@ -567,9 +585,11 @@ export async function streamChat(
         return
       }
       const empty = RESEARCH_EMPTY
+      emitToken(handlers, empty)
       handlers.onReplace?.(empty)
       const assistant = await addMessage(conversationId, 'assistant', empty, { research })
       const updated = (await touchConversation(conversationId)) || convAfterUser
+      finishLatency()
       handlers.onDone?.({
         assistant_message: assistant,
         conversation: updated,
@@ -595,13 +615,23 @@ export async function streamChat(
       const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
       const pack = personaPack(loadFace())
       const cloud = kind === 'gemini' || kind === 'groq'
-      const system = cloud
-        ? [pack.gemini, wantSearch ? SEARCH_ON_HINT : '', opts?.voice ? VOICE_HINT : '', memoryBlock(mem, ask, hits), workingBlock(), lastStepHint()]
-            .filter(Boolean)
-            .join('\n\n')
-        : [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, ask, hits), workingBlock(), lastStepHint()].filter(Boolean).join('\n\n')
-      const llmMessages = [
-        { role: 'system', content: system },
+      const split = cloud
+        ? splitCloudPrompt({
+            persona: pack.gemini,
+            voice: opts?.voice,
+            search: wantSearch,
+            memory: memoryBlock(mem, ask, hits),
+            working: workingBlock(),
+            lastStep: lastStepHint(),
+          })
+        : {
+            system: [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, ask, hits), workingBlock(), lastStepHint()]
+              .filter(Boolean)
+              .join('\n\n'),
+            variable: '',
+          }
+      let llmMessages = [
+        { role: 'system', content: split.system },
         ...history.slice(cloud || opts?.voice ? -8 : -4).map((m) => ({
           role: m.role === 'assistant' ? 'assistant' : 'user',
           content: m.content,
@@ -611,21 +641,21 @@ export async function streamChat(
       if (lastUser && lastUser.role === 'user' && ask && ask !== content) {
         lastUser.content = ask
       }
+      llmMessages = attachVariable(llmMessages, split.variable)
       if (digest) {
-        if (lastUser && lastUser.role === 'user') {
-          lastUser.content = `${lastUser.content}\n\nTreffer (für die Antwort, nicht vorlesen):\n${digest}`
-        }
+        llmMessages = attachVariable(llmMessages, `Treffer (für die Antwort, nicht vorlesen):\n${digest}`)
       }
 
       acc = ''
       raw = ''
+      setLatencyPath(kind === 'gemini' ? 'gemini' : kind === 'groq' ? 'groq' : 'local')
       try {
         raw = kind === 'gemini'
           ? await (opts?.voice || !wantSearch ? streamGemini : completeGemini)(
               llmMessages,
               (_piece, full) => {
                 acc = full
-                handlers.onToken?.(_piece)
+                emitToken(handlers, _piece)
               },
               {
                 search: wantSearch,
@@ -647,7 +677,7 @@ export async function streamChat(
                 llmMessages,
                 (_piece, full) => {
                   acc = full
-                  handlers.onToken?.(_piece)
+                  emitToken(handlers, _piece)
                 },
                 {
                   search: wantSearch,
@@ -722,6 +752,7 @@ export async function streamChat(
     const nSources = (research?.sources || []).filter((x) => x.url).length
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || convAfterUser
+    finishLatency()
     handlers.onDone?.({
       assistant_message: assistant,
       conversation: updated,
@@ -732,6 +763,7 @@ export async function streamChat(
   } catch (err) {
     const raw = err instanceof Error ? err.message : 'Chat fehlgeschlagen'
     const detail = kind === 'gemini' || kind === 'groq' ? userFacingCloudError(raw, groqReady()) : raw
+    finishLatency()
     handlers.onError?.(detail)
     throw new Error(detail)
   }

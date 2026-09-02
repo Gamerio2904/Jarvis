@@ -10,6 +10,7 @@ import {
   subscribeDebug,
   type DebugSendResult,
 } from './engine/debug-session'
+import { formatLatency, lastLatency, subscribeLatency } from './engine/latency'
 
 const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
 
@@ -27,7 +28,9 @@ export function DebugPanel({
   busy: boolean
 }) {
   const [snap, setSnap] = useState(debugSnapshot)
+  const [lag, setLag] = useState(lastLatency)
   useEffect(() => subscribeDebug((s) => setSnap(s)), [])
+  useEffect(() => subscribeLatency(() => setLag(lastLatency())), [])
 
   const items = useMemo(() => {
     const want = new Set(snap.picked)
@@ -106,6 +109,11 @@ export function DebugPanel({
         </button>
       </div>
       {snap.progress ? <p className="debug-progress">{snap.progress}</p> : null}
+      {lag ? (
+        <p className="settings-hint" data-testid="latency-slo">
+          Letzter Turn: {formatLatency(lag)}
+        </p>
+      ) : null}
       {snap.error ? <p className="settings-hint setup-error">{snap.error}</p> : null}
       {snap.turns.length ? (
         <pre className="debug-log">

@@ -56,6 +56,7 @@ import { useOverlay } from './overlay'
 import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm'
 import { closeDrive, subscribeDrive } from './engine/drive'
 import { loadSettings } from './engine/store'
+import { warmCloud } from './engine/cloud-warm'
 import { syncGlance } from './engine/glance'
 import { tickOutlookWatch } from './engine/outlook-watch'
 import { tickWatchdog } from './engine/watchdog'
@@ -472,6 +473,10 @@ function App() {
     apply()
     mq.addEventListener('change', apply)
     return () => mq.removeEventListener('change', apply)
+  }, [])
+
+  useEffect(() => {
+    warmCloud()
   }, [])
 
   useEffect(() => {
