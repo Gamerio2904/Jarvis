@@ -37,9 +37,17 @@ const SECRET_PAT =
 function secretExtras(): string[] {
   try {
     const s = loadSettings()
-    return [s.gemini_api_key, s.groq_api_key, s.tankerkoenig_api_key, s.omdb_api_key, s.pc_token, s.tv_token].filter(
-      (x) => typeof x === 'string' && x.trim().length >= 6,
-    )
+    return [
+      s.gemini_api_key,
+      s.groq_api_key,
+      s.tankerkoenig_api_key,
+      s.omdb_api_key,
+      s.outlook_fred_key,
+      s.carto_api_key,
+      s.spotify_client_id,
+      s.pc_token,
+      s.tv_token,
+    ].filter((x) => typeof x === 'string' && x.trim().length >= 6)
   } catch {
     return []
   }

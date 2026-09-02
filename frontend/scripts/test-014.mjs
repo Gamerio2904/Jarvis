@@ -136,6 +136,7 @@ import { parseGreeting, greetingReply, dayPartAt } from '../src/engine/greeting.
 import { reduceOverlay, overlayTop, overlayHidesDrive, OVERLAY_INIT } from '../src/engine/overlay-fsm.ts'
 import { OUTLOOK_WATCH_ALARM } from '../src/engine/outlook-watch.ts'
 import { parseAppIntent } from '../src/engine/app-parse.ts'
+import { resolveTopic, SETTINGS_TABS } from '../src/engine/settings-ia.ts'
 import { acceptWake, WAKE_DEBOUNCE_MS } from '../src/engine/wake-gate.ts'
 import { ACTION_INIT, packVerified, reduceAction, toolStatusOf } from '../src/engine/action-fsm.ts'
 import {
@@ -333,6 +334,7 @@ assert.equal(dirFromManeuver('turn', 'slight left'), 'slight_left')
   assert.equal(wrapTile(3, -1), 7)
   assert.ok(tileUrl(16, 1, 2, true).includes('cartocdn.com'))
   assert.ok(!tileUrl(16, 1, 2, true).includes('rotate'))
+  assert.ok(tileUrl(16, 1, 2, true, 'abc').includes('key=abc'))
   const home = { lat: 48.78, lon: 9.18, zoom: 16 }
   const west = panCam(home, 256, 0)
   assert.ok(west.lon < home.lon)
@@ -2004,10 +2006,17 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /Stabilität Screenshots/i.test(g.title))
 }
 
 assert.equal(parseAppIntent('Öffne Einstellungen')?.kind, 'settings')
+assert.equal(parseAppIntent('Öffne Einstellungen')?.topic, 'keys')
 assert.equal(parseAppIntent('Öffne Debug')?.topic, 'debug')
 assert.equal(parseAppIntent('Öffne Probe')?.topic, 'probe')
 assert.equal(parseAppIntent('Zeig Probe V1')?.topic, 'probe')
 assert.equal(parseAppIntent('Zeig das Gedächtnis')?.topic, 'gedaechtnis')
+assert.equal(SETTINGS_TABS.length, 8)
+assert.equal(resolveTopic('cloud'), 'keys')
+assert.equal(resolveTopic('probe'), 'tests')
+assert.equal(resolveTopic('debug'), 'tests')
+assert.equal(resolveTopic('allgemein'), 'lage')
+assert.equal(resolveTopic('tv'), 'geraete')
 assert.equal(parseAppIntent('Sprachmodus')?.kind, 'voice')
 assert.equal(parseAppIntent('Theme orange')?.accent, 'amber')
 assert.equal(parseAppIntent('Was weißt du über mich'), null)

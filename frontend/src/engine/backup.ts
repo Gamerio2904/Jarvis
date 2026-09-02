@@ -68,6 +68,7 @@ const KEY_FIELDS: Array<keyof Settings> = [
   'groq_api_key',
   'tankerkoenig_api_key',
   'omdb_api_key',
+  'carto_api_key',
   'pc_token',
   'spotify_access',
   'spotify_refresh',

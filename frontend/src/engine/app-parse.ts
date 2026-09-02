@@ -10,7 +10,7 @@ const TOPIC_WORD: Array<{ re: RegExp; topic: SettingsTopic }> = [
   { re: /\b(debug|tests?)\b/i, topic: 'debug' },
   { re: /\bprobe\b/i, topic: 'probe' },
   { re: /\bged[aä]chtnis\b/i, topic: 'gedaechtnis' },
-  { re: /\b(gemini|groq|cloud|key)\b/i, topic: 'cloud' },
+  { re: /\b(gemini|groq|cloud|key|api[- ]?keys?)\b/i, topic: 'cloud' },
   { re: /\b(fernseh|\btv\b)\b/i, topic: 'tv' },
   { re: /\b(haus|steckdose|ventilator)\b/i, topic: 'haus' },
   { re: /\b(musik|spotify)\b/i, topic: 'musik' },
@@ -29,7 +29,7 @@ function topicFrom(t: string): SettingsTopic {
   for (const row of TOPIC_WORD) {
     if (row.re.test(t)) return row.topic
   }
-  return 'allgemein'
+  return 'keys'
 }
 
 /** Interne App-Flächen. Kein Fake-Klick, kein WLAN/TV-Gerät. */

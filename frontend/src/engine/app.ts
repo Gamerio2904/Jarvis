@@ -1,6 +1,6 @@
 import { saveSettings } from './store.ts'
 import { parseAppIntent } from './app-parse.ts'
-import { TOPIC_FACE } from './settings-ia.ts'
+import { resolveTopic, TOPIC_FACE } from './settings-ia.ts'
 import { packVerified } from './action-fsm.ts'
 import type { ToolMeta } from './tools.ts'
 
@@ -43,8 +43,9 @@ export async function handleApp(
     return { handled: true, reply: packed.reply, tool: packed.tool, lastTool: 'app' }
   }
   const topic = intent.topic
-  const face = TOPIC_FACE[topic]
-  const action = topic === 'debug' ? 'debug' : topic === 'gedaechtnis' ? 'memory' : 'settings'
+  const tab = resolveTopic(topic)
+  const face = TOPIC_FACE[tab]
+  const action = topic === 'debug' || topic === 'tests' || topic === 'probe' ? 'debug' : topic === 'gedaechtnis' ? 'memory' : 'settings'
   const packed = packVerified({
     domain: 'app',
     intent: `open:${topic}`,
