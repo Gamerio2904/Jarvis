@@ -608,6 +608,11 @@ textarea {
   border-color: rgba(30, 215, 96, 0.7);
 }
 
+/* Punkte statt Klartext, aber type=text — sonst Android-Passwort-Tastatur ohne Einfügen. */
+.settings-field input.secret-field {
+  -webkit-text-security: disc;
+}
+
 .copy-field-row {
   display: flex;
   gap: 8px;
