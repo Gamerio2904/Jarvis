@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type InputHTMLAttributes } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
 import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
 import type { Plug } from './api'
@@ -60,6 +60,25 @@ function memLabel(f: (typeof MEM_FILTERS)[number]): string {
 
 function KeyMark({ on }: { on: boolean }) {
   return <em className={`key-mark ${on ? 'is-on' : ''}`}>{on ? 'liegt' : 'fehlt'}</em>
+}
+
+/** Text-Feld mit Punkten — normale Tastatur, Einfügen erlaubt. type=password sperrt das auf Android. */
+function SecretField(props: InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      className={['secret-field', props.className].filter(Boolean).join(' ')}
+      type="text"
+      inputMode="text"
+      autoComplete="off"
+      autoCapitalize="none"
+      autoCorrect="off"
+      spellCheck={false}
+      data-1p-ignore="true"
+      data-lpignore="true"
+      data-form-type="other"
+    />
+  )
 }
 
 function CopyField({ label, value }: { label: string; value: string }) {
@@ -414,7 +433,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <section className="settings-card keys-overview">
                 <h3>Alle Schlüssel</h3>
                 <p className="settings-lead">
-                  Hier liegen alle Keys der App. Nichts davon teilen, nicht in den Chat, nicht nach Git.
+                  Hier liegen alle Keys der App. Einfügen geht — die Zeichen bleiben Punkte. Nichts davon teilen,
+                  nicht in den Chat, nicht nach Git.
                 </p>
                 <ul className="key-index">
                   <li>
@@ -447,13 +467,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <p className="settings-hint">Hauptweg. aistudio.google.com/apikey — nicht teilen.</p>
                 <label className="settings-field">
                   <span>API-Key</span>
-                  <input
-                    type="password"
-                    inputMode="text"
-                    autoComplete="new-password"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
+                  <SecretField
                     key={`gemini-key-${s?.gemini_api_key ? 'set' : 'empty'}`}
                     defaultValue={s?.gemini_api_key || ''}
                     disabled={busy}
@@ -475,13 +489,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <p className="settings-hint">Backup wenn Gemini fehlt. console.groq.com/keys</p>
                 <label className="settings-field">
                   <span>API-Key</span>
-                  <input
-                    type="password"
-                    inputMode="text"
-                    autoComplete="new-password"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
+                  <SecretField
                     key={`groq-key-${s?.groq_api_key ? 'set' : 'empty'}`}
                     defaultValue={s?.groq_api_key || ''}
                     disabled={busy}
@@ -505,13 +513,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </p>
                 <label className="settings-field">
                   <span>API-Key</span>
-                  <input
-                    type="password"
-                    inputMode="text"
-                    autoComplete="new-password"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
+                  <SecretField
                     key={`tanker-key-${s?.tankerkoenig_api_key ? 'set' : 'empty'}`}
                     defaultValue={s?.tankerkoenig_api_key || ''}
                     disabled={busy}
@@ -527,13 +529,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <p className="settings-hint">IMDb und Rotten Tomatoes nur wenn OMDb sie liefert. omdbapi.com/apikey.aspx</p>
                 <label className="settings-field">
                   <span>API-Key</span>
-                  <input
-                    type="password"
-                    inputMode="text"
-                    autoComplete="new-password"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
+                  <SecretField
                     key={`omdb-key-${s?.omdb_api_key ? 'set' : 'empty'}`}
                     defaultValue={s?.omdb_api_key || ''}
                     disabled={busy}
@@ -549,13 +545,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <p className="settings-hint">Optionale Rohöl-Zahl für die Weltlage. Serie DCOILBRENTEU. fred.stlouisfed.org</p>
                 <label className="settings-field">
                   <span>API-Key</span>
-                  <input
-                    type="password"
-                    inputMode="text"
-                    autoComplete="new-password"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
+                  <SecretField
                     key={`fred-key-${s?.outlook_fred_key ? 'set' : 'empty'}`}
                     defaultValue={s?.outlook_fred_key || ''}
                     disabled={busy}
@@ -575,11 +565,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </p>
                 <label className="settings-field">
                   <span>Client-ID</span>
-                  <input
-                    type="password"
-                    autoComplete="new-password"
-                    autoCapitalize="none"
-                    spellCheck={false}
+                  <SecretField
                     key={`sp-id-${s?.spotify_client_id ? 'set' : 'empty'}`}
                     defaultValue={s?.spotify_client_id || ''}
                     disabled={busy}
@@ -598,13 +584,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </p>
                 <label className="settings-field">
                   <span>API-Key</span>
-                  <input
-                    type="password"
-                    inputMode="text"
-                    autoComplete="new-password"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    spellCheck={false}
+                  <SecretField
                     key={`carto-key-${s?.carto_api_key ? 'set' : 'empty'}`}
                     defaultValue={s?.carto_api_key || ''}
                     disabled={busy}
@@ -1129,12 +1109,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
               </label>
               <label className="settings-field">
                 <span>Token</span>
-                <input
-                  type="password"
+                <SecretField
                   value={pcToken}
                   disabled={busy || pcBusy}
                   placeholder="aus dem PC-Fenster"
-                  autoComplete="new-password"
                   onChange={(e) => setPcToken(e.target.value)}
                   onBlur={() => {
                     const v = pcToken.trim()
