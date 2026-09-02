@@ -102,7 +102,7 @@ import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
-import { gazetteerHit, pinForTag, composePlaceBrief } from '../src/engine/globe-geo.ts'
+import { gazetteerHit, pinForTag, composePlaceBrief, lookLatLon, viewXYZ, yawPitchFor } from '../src/engine/globe-geo.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
 import { parseTraceIntent } from '../src/engine/trace-parse.ts'
 import { parseDigestIntent } from '../src/engine/digest-parse.ts'
@@ -1610,6 +1610,25 @@ assert.equal(parseHudIntent('mach den Körper an')?.view, 'body')
 assert.equal(parseHudIntent('Körper bitte an')?.view, 'body')
 assert.equal(parseHudIntent('zeig mal die Erde')?.view, 'globe')
 assert.equal(parseHudIntent('mach die Kugel aus')?.view, 'tiles')
+{
+  const ing = { lat: 49.08, lon: 9.18 }
+  const aim = yawPitchFor(ing.lat, ing.lon)
+  const back = lookLatLon(aim.yaw, aim.pitch)
+  assert.ok(Math.abs(back.lat - ing.lat) < 0.2)
+  assert.ok(Math.abs(back.lon - ing.lon) < 0.2)
+  const here = viewXYZ(ing.lat, ing.lon, aim.yaw, aim.pitch)
+  const ru = viewXYZ(61.52, 105.32, aim.yaw, aim.pitch)
+  assert.ok(here.z > 0.9)
+  assert.ok(Math.hypot(here.x, here.y) < 0.04)
+  assert.ok(Math.hypot(ru.x, ru.y) > Math.hypot(here.x, here.y) + 0.4)
+  const berlin = viewXYZ(52.52, 13.41, aim.yaw, aim.pitch)
+  const moscow = viewXYZ(55.76, 37.62, aim.yaw, aim.pitch)
+  assert.ok(Math.hypot(berlin.x, berlin.y) < Math.hypot(moscow.x, moscow.y))
+  assert.ok(moscow.x > berlin.x)
+  const west = yawPitchFor(38.9, -77.04)
+  const westLook = lookLatLon(west.yaw, west.pitch)
+  assert.ok(Math.abs(westLook.lon + 77.04) < 0.2)
+}
 assert.equal(parseHudIntent('Zeig PC Auge')?.id, 'pc_eye')
 assert.equal(parseHudIntent('Wo liegt Berlin')?.kind, 'pin')
 assert.equal(parseHudIntent('Wo liegt Berlin')?.name, 'Berlin')
