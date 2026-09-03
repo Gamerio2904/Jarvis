@@ -191,11 +191,19 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   {
     title: 'Flächen-12',
     items: [
+      { label: 'Hilfe Version', text: '/hilfe', expect: { tool: 'help' } },
+      { label: 'F7 Pin schreiben', text: 'Ich trinke gerne Mate.' },
+      { label: 'F7 Pin lesen', text: 'Was trinke ich?', expect: { tool: 'memory' } },
+      { label: 'F2 Lage an', text: 'Lage an', expect: { tool: 'hud' } },
+      { label: 'Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
       { label: 'F6 Tisch ohne Frame', text: 'Schau auf den Tisch', expect: { tool: 'desk' } },
+      { label: 'Tisch an', text: 'Tisch an', expect: { tool: 'desk' } },
       { label: 'Tisch aus', text: 'Tisch aus', expect: { tool: 'desk' } },
-      { label: 'Handy', text: 'Was trinke ich?', expect: { tool: 'memory' } },
-      { label: 'Tablet-Lage', text: 'Lage an', expect: { tool: 'hud' } },
-      { label: 'PC-Viewer', text: 'PC testen', expect: { tool: 'pc' } },
+      { label: 'Schreibtisch an', text: 'Schreibtisch an', expect: { tool: 'desk' } },
+      { label: 'Nicht Tisch', text: 'Wetter Hotel Stuttgart', expect: { tool: 'weather' } },
+      { label: 'F5 PC ohne BAT', text: 'PC testen', expect: { tool: 'pc' } },
+      { label: 'PC live', text: 'PC live', expect: { tool: 'pc' } },
+      { label: 'Friday Gesicht', text: 'Friday', expect: { tool: 'face' } },
     ],
   },
   {
@@ -649,6 +657,21 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
  * hängt von der Antwort auf den vorigen ab.
  */
 export const STORYLINE_GROUPS: TestCopyGroup[] = [
+  {
+    title: '🟢 Flächen-12 durchspielen',
+    items: [
+      { label: '1 – Version', text: '/hilfe', expect: { tool: 'help' } },
+      { label: '2 – Pin schreiben', text: 'Ich trinke gerne Mate.' },
+      { label: '3 – ↳ Pin lesen', text: 'Was trinke ich?', expect: { tool: 'memory' } },
+      { label: '4 – Lage an', text: 'Lage an', expect: { tool: 'hud' } },
+      { label: '5 – Tisch ohne Foto', text: 'Schau auf den Tisch', expect: { tool: 'desk' } },
+      { label: '6 – Tisch aus', text: 'Tisch aus', expect: { tool: 'desk' } },
+      { label: '7 – Nicht Tisch', text: 'Wetter Hotel Stuttgart', expect: { tool: 'weather' } },
+      { label: '8 – PC ohne BAT', text: 'PC testen', expect: { tool: 'pc' } },
+      { label: '9 – Friday', text: 'Friday', expect: { tool: 'face' } },
+      { label: '10 – Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
+    ],
+  },
   {
     title: '🟢 Morgen-Routine',
     items: [
