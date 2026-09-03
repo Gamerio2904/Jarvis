@@ -212,8 +212,16 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 206 | [`sprint-206.md`](./sprint-206.md) | `11.40.0` | Settings / Hausstand Packs | **PLAN** Should |
 | 207 | [`sprint-207.md`](./sprint-207.md) | `11.50.0` | Gold T1–T6 + Copy | **PLAN** Must |
 | 208 | [`sprint-208.md`](./sprint-208.md) | `11.60.0` | Pack-REVISE / Lab-Notiz | **PLAN** Should |
+| 209 | [`sprint-209.md`](./sprint-209.md) | `12.0.0` | Flächen-Leit + Rollen | **PLAN** Must |
+| 210 | [`sprint-210.md`](./sprint-210.md) | `12.10.0` | Tablet-Kommandozentrale | **PLAN** Must |
+| 211 | [`sprint-211.md`](./sprint-211.md) | `12.20.0` | Presence-Token + QR | **PLAN** Must |
+| 212 | [`sprint-212.md`](./sprint-212.md) | `12.30.0` | Hirn `/v1/presence` | **PLAN** Must |
+| 213 | [`sprint-213.md`](./sprint-213.md) | `12.40.0` | PC-Viewer | **PLAN** Must |
+| 214 | [`sprint-214.md`](./sprint-214.md) | `12.50.0` | Desk-Blick | **PLAN** Should |
+| 215 | [`sprint-215.md`](./sprint-215.md) | `12.60.0` | Gold drei Flächen | **PLAN** Must |
+| 216 | [`sprint-216.md`](./sprint-216.md) | `12.70.0` | LAN-Drop; VR Parking | **PLAN** Could |
 
-**Aktuell:** Code **`10.60.2`**. Sideload `10.60.2`. Gerät-PO [`55-next.md`](../55-next.md). Semantisches Gedächtnis [`56-next.md`](../56-next.md) **CODE** `10.0`. Intensiv-Befund [`57-next.md`](../57-next.md) **PLAN**. Fachwissen [`58-next.md`](../58-next.md) **PLAN** `11.0`. Rest final [`54-next.md`](../54-next.md) **CODE** (168–177). Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag [`50-next.md`](../50-next.md) **CODE**. Recall [`49-next.md`](../49-next.md) **CODE**. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`10.60.2`**. Sideload `10.60.2`. Gerät-PO [`55-next.md`](../55-next.md). Semantisches Gedächtnis [`56-next.md`](../56-next.md) **CODE** `10.0`. Intensiv-Befund [`57-next.md`](../57-next.md) **PLAN**. Fachwissen [`58-next.md`](../58-next.md) **PLAN** `11.0`. Flächen [`59-next.md`](../59-next.md) **PLAN** `12.0`. Rest final [`54-next.md`](../54-next.md) **CODE** (168–177). Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag [`50-next.md`](../50-next.md) **CODE**. Recall [`49-next.md`](../49-next.md) **CODE**. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

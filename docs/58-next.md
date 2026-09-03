@@ -285,4 +285,6 @@ Kopierprompts Settings → Tests, Gruppe **Fachwissen-11** (wie Memory-10). Reel
 - [x] Sprints 202–208, Versionen `11.0`–`11.60`, kein Diebstahl von `10.61`.
 - [x] Kein Execute, kein APK-Bump.
 
+Nächste Flächen-Schiene: [`59-next.md`](./59-next.md) `12.0` **PLAN**.
+
 Index: [`42-planned.md`](./42-planned.md). Memory-10: [`56-next.md`](./56-next.md). Intensiv: [`57-next.md`](./57-next.md). Versionen: [`09-versioning.md`](./09-versioning.md).

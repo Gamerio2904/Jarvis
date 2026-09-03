@@ -12,10 +12,11 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 2. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot
 3. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
 4. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could
-5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Quest/WebXR
 6. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
 7. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — Alias, G5-Echo, memoryBlock; Execute 196+
 8. **`11.0` PLAN** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research; Execute 202+; kein Diebstahl von `10.61`
+9. **`12.0` PLAN** [`59-next.md`](./59-next.md) — Handy/Tablet/PC, ein Hirn; Execute 209+; kein Quest-Must
 
 Industry-Track V1–V9, Latenz-Loop, Screenshot-Fixes, Rest-final Execute, Alltag-Router, Parser-Härte 179, FGS-Härte 180, Docs 182: **CODE**.
 
@@ -68,7 +69,7 @@ Schalter CODE. Silero/Piper/Kokoro/e5 **nicht** in der APK. Sprint **181** Freez
 Router + Parser-Härte **CODE**. Gerät-Tore Sprint **185** PO.
 
 ### Parking
-Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed. Qdrant/Qwen-Embed/ColPali/Multi-Agent — [`56-next.md`](./56-next.md) Won’t.
+Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed, Quest/WebXR. Qdrant/Qwen-Embed/ColPali/Multi-Agent — [`56-next.md`](./56-next.md) Won’t. VR-HUD Parking in [`59-next.md`](./59-next.md).
 
 ### `10.0` Semantisches Gedächtnis (CODE `10.60.0`)
 Schema, Gate, Retrieve-2, Graph light, Gold G1–G6, Experience **CODE**. 195 e5 **FREEZE** (G2/G3 grün ohne Encoder). Gerät-Protokoll Sprint **193** PO. Sideload bleibt `9.10.0`. [`56-next.md`](./56-next.md).
@@ -77,5 +78,8 @@ Intensiv-Befund: [`57-next.md`](./57-next.md) **PLAN** (Sprints 196–201). G5 l
 
 ### `11.0` Fachwissen + Deep Research (PLAN)
 Getrennt von Cap-80-Prefs. Teach nur nach „lern das“. Deep = mehr Queries, kein 12-h-Crawl. Instagram-Reel ist **kein** Ingest. [`58-next.md`](./58-next.md) Sprints 202–208.
+
+### `12.0` Drei Flächen, ein Hirn (PLAN)
+Handy = Hirn. Tablet = Lage-Fenster oder Allein-Hirn. PC = Werkzeug + optional Viewer. LAN-Token, kein zweites IndexedDB, kein Quest-Must. [`59-next.md`](./59-next.md) Sprints 209–216.
 
 Nächste Schiene Gerät: [`55-next.md`](./55-next.md) (178) plus Memory-Gerät 193.

@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Jetzt:** Code **`10.60.2`**. Sideload **`10.60.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser zuerst. Cloud-Prompt: Persona vorn (Cache), Memory am User-Turn [`52-research-latency-quality.md`](./52-research-latency-quality.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md). Screenshot-Fixes [`53-next.md`](./53-next.md). Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag-Router [`50-next.md`](./50-next.md) **CODE**. Memory-10 [`56-next.md`](./56-next.md) **CODE**. Intensiv [`57-next.md`](./57-next.md) **PLAN**. Fachwissen [`58-next.md`](./58-next.md) **PLAN**. Gerät-PO [`55-next.md`](./55-next.md).
+> **Jetzt:** Code **`10.60.2`**. Sideload **`10.60.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser zuerst. Cloud-Prompt: Persona vorn (Cache), Memory am User-Turn [`52-research-latency-quality.md`](./52-research-latency-quality.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md). Screenshot-Fixes [`53-next.md`](./53-next.md). Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag-Router [`50-next.md`](./50-next.md) **CODE**. Memory-10 [`56-next.md`](./56-next.md) **CODE**. Intensiv [`57-next.md`](./57-next.md) **PLAN**. Fachwissen [`58-next.md`](./58-next.md) **PLAN**. Flächen [`59-next.md`](./59-next.md) **PLAN**. Gerät-PO [`55-next.md`](./55-next.md).
 
 ## Leitentscheidung
 

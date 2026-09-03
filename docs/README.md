@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`10.60.2`**. Sideload **`10.60.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **PLAN**. Fachwissen [`58-next.md`](./58-next.md) **PLAN** `11.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`10.60.2`**. Sideload **`10.60.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **PLAN**. Fachwissen [`58-next.md`](./58-next.md) **PLAN** `11.0`. Flächen [`59-next.md`](./59-next.md) **PLAN** `12.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -64,6 +64,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 56 | [Jarvis 10.0](./56-next.md) | **CODE** `10.60.0` — Schema, Gate, Retrieve 2, Graph light, Gold G1–G6; 195 Freeze; Gerät 193 PO |
 | 57 | [Memory-10 Intensiv](./57-next.md) | **PLAN** — Befund nach Execute; Sprints 196–201 |
 | 58 | [Fachwissen 11.0](./58-next.md) | **PLAN** — Deep Research + Teach-Packs; Sprints 202–208; kein Execute |
+| 59 | [Drei Flächen 12.0](./59-next.md) | **PLAN** — Handy/Tablet/PC, ein Hirn; Sprints 209–216; kein Execute |
 | — | [APK](./apk.md) | Sideload `10.60.2`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -232,5 +233,13 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 206 | `11.40.0` | **PLAN** Should (Settings / Hausstand) |
 | 207 | `11.50.0` | **PLAN** Must (Gold T1–T6) |
 | 208 | `11.60.0` | **PLAN** Should (Pack-REVISE / Lab-Notiz) |
+| 209 | `12.0.0` | **PLAN** Must (Flächen-Leit + Rollen) |
+| 210 | `12.10.0` | **PLAN** Must (Tablet-Kommandozentrale) |
+| 211 | `12.20.0` | **PLAN** Must (Presence-Token) |
+| 212 | `12.30.0` | **PLAN** Must (Hirn `/v1/presence`) |
+| 213 | `12.40.0` | **PLAN** Must (PC-Viewer) |
+| 214 | `12.50.0` | **PLAN** Should (Desk-Blick) |
+| 215 | `12.60.0` | **PLAN** Must (Gold drei Flächen) |
+| 216 | `12.70.0` | **PLAN** Could (LAN-Drop; VR Parking) |
 
-**Aktuell:** Code **`10.60.2`**. Sideload `10.60.2`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv-Befund [`57-next.md`](./57-next.md) **PLAN**. Fachwissen [`58-next.md`](./58-next.md) **PLAN** `11.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`10.60.2`**. Sideload `10.60.2`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv-Befund [`57-next.md`](./57-next.md) **PLAN**. Fachwissen [`58-next.md`](./58-next.md) **PLAN** `11.0`. Flächen [`59-next.md`](./59-next.md) **PLAN** `12.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
