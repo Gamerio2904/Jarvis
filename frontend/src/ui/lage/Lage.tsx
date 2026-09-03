@@ -13,6 +13,8 @@ import { ChessBoard } from './ChessBoard'
 import { BodySchema } from './BodySchema'
 import { GlobeView, type GlobeFocus } from './GlobeView'
 import { fetchBodySnap, type BodySnap } from '../../engine/body-snap'
+import { loadBodyGraph, type BodyGraph } from '../../engine/body-graph'
+import { BodyTree } from './BodyTree'
 import { loadGlobePins } from '../../engine/globe-pins'
 import type { GeoFix } from '../../engine/globe-geo'
 import { CITY_FLY_ZOOM } from '../../engine/globe-gibs'
@@ -47,6 +49,7 @@ export function Lage({
 }) {
   const [snap, setSnap] = useState<HudSnap>({})
   const [body, setBody] = useState<BodySnap | null>(null)
+  const [graph, setGraph] = useState<BodyGraph | null>(null)
   const [pins, setPins] = useState<GeoFix[]>([])
   const [pin, setPin] = useState<GeoFix | null>(null)
   const [pinCard, setPinCard] = useState<GeoFix | null>(null)
@@ -70,7 +73,11 @@ export function Lage({
       if (isDocumentHidden()) return
       if (view === 'body') {
         const next = await fetchBodySnap({ busy, conversationId })
-        if (live) setBody(next)
+        const tree = await loadBodyGraph(organ, next, recent[recent.length - 1]?.content || '')
+        if (live) {
+          setBody(next)
+          setGraph(tree)
+        }
         return
       }
       if (view === 'globe') {
@@ -91,7 +98,7 @@ export function Lage({
       window.clearInterval(id)
       off()
     }
-  }, [view, modules.join(','), spotifyOn, busy, conversationId, globeTick])
+  }, [view, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, recent.length])
 
   useEffect(() => {
     if (view !== 'globe') return
@@ -195,7 +202,7 @@ export function Lage({
           {view === 'globe'
             ? 'Dunkle Erde, grüne Grenzen. Drehen und zoomen.'
             : view === 'body'
-              ? 'Organe — Antippen startet kein Gerät.'
+              ? 'Eingang antippen — Baum zeigt Skills und Wissen. Startet kein Gerät.'
               : 'Wetter, Musik, Gerät.'}
         </p>
       </header>
@@ -218,7 +225,10 @@ export function Lage({
             onSelect={selectOrgan}
             reduced={reduced}
           />
-          <TextTile title={organLabel(organ)} body={body?.[organ]?.line || '—'} live />
+          <div className="body-side">
+            <TextTile title={organLabel(organ)} body={body?.[organ]?.line || '—'} live />
+            {graph ? <BodyTree graph={graph} onPrompt={onSend} /> : null}
+          </div>
           {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
         </div>
       ) : view === 'globe' ? (

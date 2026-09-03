@@ -503,6 +503,17 @@ Ein Hirn, drei Fenster. Presence LAN-Token. Kein zweites IndexedDB, kein Quest-M
 | `12.60.0` | Gold F1–F7 | 215 CODE in `12.70.0` |
 | `12.70.0` | LAN-Drop / VR Parking | 216 CODE |
 
+### `13.0` — Körper-Wissensbaum [`60-next.md`](./60-next.md) **CODE** `13.30.0`
+
+Organ = Eingang. Skill-Knoten = Register. Wissen = Pack/Pin/Termin. Token-Cluster, e5 Freeze.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `13.0.0` | Leit | 217 CODE in `13.30.0` |
+| `13.10.0` | body-graph | 218 CODE in `13.30.0` |
+| `13.20.0` | BodyTree | 219 CODE in `13.30.0` |
+| `13.30.0` | Kalender-Härte + Gold | 220 CODE |
+
 ### Weitere Beispiele
 
 | Version | Bedeutung (Beispiel) |

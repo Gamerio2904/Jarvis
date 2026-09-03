@@ -17,6 +17,14 @@ const LIST_DAY = new RegExp(
   `^\\s*(?:was\\s+habe\\s+ich|termine?|kalender|was\\s+steht)\\s+(?:so\\s+)?(?:am\\s+)?(heute|morgen|übermorgen|${WEEKDAYS})(?:\\s+so)?(?:\\s+an)?\\s*\\??\\s*$`,
   'i',
 )
+const LIST_NEXT = new RegExp(
+  `^\\s*(?:was\\s+steht|termine?|kalender)\\s+(?:so\\s+)?(?:am\\s+)?nächste(?:n)?\\s+(${WEEKDAYS})(?:\\s+an)?\\s*\\??\\s*$`,
+  'i',
+)
+const LIST_CAL_DAY = new RegExp(
+  `^\\s*(?:zeig(?:e)?\\s+(?:mir\\s+)?)?(?:den\\s+)?kalender\\s+(heute|morgen|übermorgen|${WEEKDAYS})\\s*$`,
+  'i',
+)
 const LIST_WEEK =
   /^\s*was\s+steht\s+(?:so\s+)?diese\s+woche(?:\s+so)?(?:\s+an)?\s*\??\s*$/i
 const LIST_DAYS =
@@ -54,6 +62,13 @@ export function dayFromWord(word: string, now = new Date()): Date {
   if (want === undefined) return d
   const add = (want - d.getDay() + 7) % 7
   d.setDate(d.getDate() + add)
+  return d
+}
+
+/** „nächsten Freitag“: wenn heute Freitag ist, +7. */
+export function nextNamedDay(word: string, now = new Date()): Date {
+  const d = dayFromWord(word, now)
+  if (startOfDay(d).getTime() === startOfDay(now).getTime()) d.setDate(d.getDate() + 7)
   return d
 }
 
@@ -120,6 +135,13 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
     until.setDate(until.getDate() + n)
     return { kind: 'list', day: from, until, label: `die nächsten ${n} Tage` }
   }
+  const nxt = LIST_NEXT.exec(t)
+  if (nxt) {
+    const day = nextNamedDay(nxt[1], now)
+    return { kind: 'list', day, label: `nächsten ${nxt[1]}` }
+  }
+  const calDay = LIST_CAL_DAY.exec(t)
+  if (calDay) return { kind: 'list', day: dayFromWord(calDay[1], now) }
   const day = LIST_DAY.exec(t)
   if (day) return { kind: 'list', day: dayFromWord(day[1], now) }
   if (DELETE_LAST.test(t)) return { kind: 'delete_last' }

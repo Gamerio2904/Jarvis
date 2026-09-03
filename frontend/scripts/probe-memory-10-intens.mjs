@@ -55,7 +55,7 @@ function check(id, ok, detail) {
   rows.push({ id, ok: Boolean(ok), detail: String(detail) })
 }
 
-check('APP 12.70.0', APP_VERSION === '12.70.0', APP_VERSION)
+check('APP 13.30.0', APP_VERSION === '13.30.0', APP_VERSION)
 
 // --- Live write keys (Merk → notiz), not Gold-synthetic keys ---
 const g1facts = parseMemoryFacts('Ich trinke gerne Mate.')

@@ -189,6 +189,16 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'Körper-13',
+    items: [
+      { label: 'Körper an', text: 'Körper an', expect: { tool: 'hud' } },
+      { label: 'Zeig Auge', text: 'Zeig Auge', expect: { tool: 'hud' } },
+      { label: 'Kalender heute', text: 'Kalender heute', expect: { tool: 'calendar' } },
+      { label: 'Nächsten Freitag', text: 'Was steht nächsten Freitag an?', expect: { tool: 'calendar' } },
+      { label: 'Fachwissen', text: 'Fachwissen FritzBox', expect: { tool: 'pack' } },
+    ],
+  },
+  {
     title: 'Flächen-12',
     items: [
       { label: 'Hilfe Version', text: '/hilfe', expect: { tool: 'help' } },

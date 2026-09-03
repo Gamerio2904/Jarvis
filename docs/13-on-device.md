@@ -1,6 +1,6 @@
 # 13 — On-Device (Handy)
 
-> **Jetzt:** Code **`12.70.0`**. Sideload **`12.70.0`**. Die App **ist** Jarvis. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser und Speicher on-device. Drei Flächen [`59-next.md`](./59-next.md) **CODE**. Debug-FGS **CODE**.
+> **Jetzt:** Code **`13.30.0`**. Sideload **`12.70.0`**. Die App **ist** Jarvis. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser und Speicher on-device. Drei Flächen [`59-next.md`](./59-next.md) **CODE**. Debug-FGS **CODE**.
 
 PO 2026-08-14: Jarvis läuft **vollständig auf dem Handy**. DS218 kann kein LLM. PC/NAS/Docker entfallen.
 

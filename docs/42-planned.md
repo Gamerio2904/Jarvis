@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`12.70.0`**. Sideload **`12.70.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`13.30.0`**. Sideload **`12.70.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
@@ -17,6 +17,7 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 7. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
 8. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
 9. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
+10. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
 
 Industry-Track V1–V9, Latenz-Loop, Screenshot-Fixes, Rest-final Execute, Alltag-Router, Parser-Härte 179, FGS-Härte 180, Docs 182: **CODE**.
 
@@ -81,5 +82,8 @@ Getrennt von Cap-80-Prefs. Teach nur nach „lern das“. Deep = mehr Queries, k
 
 ### `12.0` Drei Flächen (CODE `12.70.0`)
 Handy = Hirn. Tablet = Lage+Chat ab 900 px oder Fenster. PC = Werkzeug `:18790` + Viewer `:18791`. Presence Default aus. VR Parking. Native Bind auf der Sideload-APK fehlt — Handler ist CODE, Schalter bleibt ehrlich. [`59-next.md`](./59-next.md) Sprints 209–216 **CODE**.
+
+### `13.0` Körper-Wissensbaum (CODE `13.30.0`)
+Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein Vektorindex. [`60-next.md`](./60-next.md) Sprints 217–220 **CODE**.
 
 Nächste Schiene Gerät: [`55-next.md`](./55-next.md) (178) plus Memory-Gerät 193.

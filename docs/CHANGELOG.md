@@ -5,7 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-- **Drei Flächen 12.0:** Code **`12.70.0`**. Tablet-Lage+Chat, Presence-Token, `/v1/presence`, PC-Viewer, Desk-Blick, LAN-Drop.
+- **Körper-Wissensbaum 13.0:** Code **`13.30.0`**. Eingang → Skill → Wissen. Sideload bleibt `12.70.0`.
+
+## `13.30.0` — Körper-Wissensbaum — *CODE*
+
+Sprints **217–220**. e5 bleibt Freeze. Sideload unverändert `12.70.0`.
+
+- **Eingang:** Organ (Auge, Ohr, Hirn, …) wählt Skills.
+- **Baum:** Skill-Knoten Kalender / Internet / Deep Research / Gedächtnis, darunter Packs, Pins, Termine.
+- **Cluster:** Topic-Token, linear, Cap. Kein Qdrant, kein e5-Router.
+- **Kalender:** `nächsten Freitag`, `Kalender heute`.
 
 ## `12.70.0` — Drei Flächen, ein Hirn — *CODE*
 

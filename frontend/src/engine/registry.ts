@@ -356,7 +356,7 @@ function makeCatalog(): Capability[] {
       id: 'calendar',
       label: 'Kalender',
       sideEffect: 'write',
-      parse: (ctx) => (parseCalendarIntent(ctx.text) ? score(ctx.text, 0.04) : null),
+      parse: (ctx) => (parseCalendarIntent(ctx.text) ? score(ctx.text, 0.12) : null),
       execute: async (ctx) => fromHandler('calendar', await handleCalendar(ctx.conversationId, ctx.text)),
     },
     {

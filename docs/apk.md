@@ -1,6 +1,6 @@
 # Android-APK — Sideload `12.70.0`
 
-App-Code **`12.70.0`**. Sideload-APK **`12.70.0`**. LocateAnything-Gewichte nicht in der APK.
+App-Code **`13.30.0`**. Sideload-APK zuletzt **`12.70.0`**. LocateAnything-Gewichte nicht in der APK.
 
 **Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback.
 
