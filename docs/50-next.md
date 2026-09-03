@@ -1,6 +1,6 @@
 # 50 — Alltag vom Zettel (`8.0`) **CODE** (Router, kein neues Sideload)
 
-**App-Stand:** Code und Sideload **`9.9.2`**. Dieser Zettel (`8.0`) bleibt **PLAN** — Execute der Alltagspunkte ist nicht der Sideload.
+**App-Stand:** Code und Sideload **`9.9.2`**. Execute der Alltagspunkte ist **CODE**. Gerät-Phasen 2–4 (Debug-Lauf auf dem Handy) und Katalog 168 bleiben PO. Kein Downgrade auf Versionsnummer `8.0.0`.
 
 PO 2026-08-29: alte Notizen gefunden. Einplanen, was **nicht** schon Code oder Plan ist. Nicht neu erfinden, was `6.90` schon kann.
 
@@ -415,7 +415,7 @@ Execute: **`8.32`** Lage. **`8.33`** Research-Aktuell. Lag-Messung der übrigen 
 
 | Version | Inhalt | Status |
 |---------|--------|--------|
-| **`8.0.0`** | Leitentscheidung | **PLAN** |
+| **`8.0.0`** | Leitentscheidung | **CODE** |
 | **`8.1.0`** | Research Blitzer/Baustelle | **CODE** OSM-only v1, mobil leer |
 | **`8.2.0`** | Research Steuer-Stimme + Lag | **CODE** in `8.20`/`8.30` |
 | **`8.3.0`** | Research Musik / Ordner / Preis | **CODE** Amazon=Intent, Ordner, Preiswache |

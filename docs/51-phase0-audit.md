@@ -547,7 +547,7 @@ Zusätzlich zu `03-agile-process.md`:
 
 ### Beta Ready (PO)
 
-`9.9` schließt **V9** (163–165). Industry-Track V1–V9 ist **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Sideload **`9.9.2`** — das ist kein Store-Release. Alltag `8.0` und Debug-Hintergrund `5.12` bleiben PLAN.
+`9.9` schließt **V9** (163–165). Industry-Track V1–V9 ist **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Sideload **`9.9.2`** — das ist kein Store-Release. Alltag `8.0` **CODE** (Gerät PO). Debug-Hintergrund `5.12` v2 bleibt PLAN.
 
 ---
 

@@ -130,6 +130,10 @@ import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
+import { parseBlitzerIntent } from '../src/engine/blitzer-parse.ts'
+import { parseAmazonMusicIntent } from '../src/engine/amazon-parse.ts'
+import { parseFolderIntent } from '../src/engine/folder-parse.ts'
+import { parseWatchPriceIntent } from '../src/engine/watch-price-parse.ts'
 import { parseHudIntent, patchForHudView } from '../src/engine/hud-parse.ts'
 import { hideToolChip } from '../src/ui/tool-chip.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
@@ -2601,6 +2605,36 @@ assert.equal(
 assert.match(scrubReply('Netflix ist offen.'), /Schirm|angekommen|nicht/)
 assert.doesNotMatch(scrubReply('Netflix ist offen.'), /Netflix ist offen/)
 assert.equal(pickRoute('Öffne Netflix'), 'tv')
+
+{
+  const skipTools = new Set(['smalltalk'])
+  const followUp = /^(ja bitte|nein|mach du das an)\s*[.!?]*$/i
+  for (const g of TEST_COPY_GROUPS.filter((x) => /Alltag/i.test(x.title))) {
+    for (const i of g.items) {
+      const want = i.expect?.tool
+      if (!want || i.expect?.skipIf || skipTools.has(want) || followUp.test(i.text.trim())) continue
+      const text = i.text
+      if (want === 'research') {
+        assert.equal(isLiveLookup(text), true, i.label)
+        const id = pickRoute(text)
+        assert.ok(!id || id === 'research', `${i.label}: ${id}`)
+        continue
+      }
+      assert.equal(pickRoute(text), want, `${g.title} / ${i.label}`)
+    }
+  }
+  assert.equal(parseBlitzerIntent('Gibt es Blitzer?')?.want, 'camera')
+  assert.equal(parseBlitzerIntent('Baustellen auf der Strecke')?.want, 'works')
+  assert.equal(parseAmazonMusicIntent('Spiel Amazon Music'), true)
+  assert.equal(parseAmazonMusicIntent('Spiel Amazon Prime'), false)
+  assert.equal(parseFolderIntent('Leg den Chat in Arbeit')?.folder, 'arbeit')
+  assert.equal(parseFolderIntent('Chat nach Privat legen')?.folder, 'privat')
+  assert.equal(parseWatchPriceIntent('Preiswache aus')?.kind, 'off')
+  assert.equal(pickRoute('Gibt es Blitzer?'), 'blitzer')
+  assert.equal(pickRoute('Spiel Amazon Music'), 'amazon')
+  assert.equal(pickRoute('Instanudeln'), 'watch-price')
+  assert.equal(pickRoute('Wo ist London'), 'hud')
+}
 
 {
   const a = splitCloudPrompt({ persona: GEMINI_PERSONA, memory: 'Langzeitgedächtnis: Name Tim' })

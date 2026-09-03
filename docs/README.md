@@ -55,8 +55,8 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 47 | [Split, Identität, Sideload](./47-next.md) | **`6.60` CODE** |
 | 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` CODE** — Retrieve/RRF nach `6.90` |
-| 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` PLAN** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache |
-| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`9.9` V1–V9 CODE** — Audit bis Hardening; Alltag `8.0` PLAN |
+| 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` CODE** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache (Gerät PO) |
+| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`9.9` V1–V9 CODE** — Audit bis Hardening; Alltag `8.0` CODE |
 | 52 | [Latenz, Qualität, Profession](./52-research-latency-quality.md) | Recherche HF/GitHub/Papers; Prefix-Cache, Groq-Stream, SLO **CODE**; Smart Turn/Piper nächste Stimme |
 | 53 | [Screenshot-Bugs](./53-next.md) | **`9.9.2` CODE** — Kugel, Standort, Greeting, News, TV, Stimme |
 | — | [APK](./apk.md) | Sideload `9.9.2`; Deinstall löscht Keys — erst Hausstand-Export |
@@ -159,7 +159,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 138 | `7.0.0` | **CODE** (Retrieve + Quelle, in `7.0.0`) |
 | 139 | `7.0.0` | **CODE** (Working Memory + Write-Verify, in `7.0.0`) |
 | 140 | `7.0.0` | **CODE** (Sleep-Prune) |
-| 141 | `8.0.0` | **PLAN** (Alltag vom Zettel) |
+| 141 | `9.9.2` | **CODE** (Alltag vom Zettel, Gerät PO) |
 | 142 | `6.91.0` | **CODE** (Stabilität Kern — Audit + Parser + Debug-Session) |
 | 143 | `6.92.0` | **CODE** (Overlay-FSM & Weltlage, in `6.93.0`) |
 | 144 | `6.93.0` | **CODE** (Gemini-Abbruch, `ja bitte`, Tweets, Siezen) |

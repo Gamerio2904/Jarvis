@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Code `9.9.2`. Sideload `9.9.2`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
+> Historisch (MVP `0.1`). **Jetzt:** Code `9.9.2`. Sideload `9.9.2`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
 
 ## MVP v0.1 — Definition
 

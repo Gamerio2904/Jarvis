@@ -12,7 +12,7 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` / `9.3` / `9.9` **CODE** — vor Alltag-Execute
 3. **Latenz / Qualität** [`52-research-latency-quality.md`](./52-research-latency-quality.md) Prefix-Cache + Groq-Stream + SLO + Edge-Neural First-Audio **CODE**; Smart Turn / Piper-offline Could
 4. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`, Session `6.91`)
-5. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
+5. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **CODE** — unabhängig von Recall und 3060; Handy-Katalog PO
 6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
 Bereits **CODE** in `9.9.2`: Screenshot-Fixes (Kugel, Greeting, News, TV, Stimme). In `9.9.1`: Handy-Lage chat-first. In `9.9.0`: V9 Hardening. V8 Live Signaling + Verify. V7 PC Capability-Levels + Confirm. V6 TV Registry + Verify Launch. V5 Hierarchical Memory. V4 Datei/PDF/OCR. V3 Action-FSM. V2 TTS/App/Wake. V1 Overlay/Weltlage.
@@ -56,7 +56,8 @@ Parser CODE. Gewichte erst nach 3060-GO. Ohne Sidecar: ehrlich aus.
 Lauf in der App ist CODE. Dienst im Hintergrund PLAN.
 
 ### Alltag vom Zettel (`8.0`) · Sprint 141 · [`50-next.md`](./50-next.md)
-Alte Notizen: Blitzer+Baustelle, **Stimme `8.20`**, GUI-Härte, **Lage** `8.32`, **Netz** `8.33`, **Test-Tore** nach Bündeln, Settings `8.35`, Amazon/Ordner/Preis. Nach Recall: **Dauer-Zuhören `8.95`**. Nicht mit Recall-Nummern mischen.
+
+**CODE** in `9.9.2`: Blitzer OSM-Korridor (mobil/Beamte leer), Stimme `8.20`, Lage `8.32`, Netz `8.33`, Settings `8.35` (8 Reiter), Amazon-Intent, Chat-Ordner, Preiswache opt-in, Wake `8.95`. Intensive Parser-Tests: `npm run test:alltag`. Gerät-Tore Sprint 168 bleiben PO. LocateAnything-Gewichte und FGS `5.12` v2 bleiben aus.
 
 ### Parking
 Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.

@@ -139,7 +139,10 @@ export function filterTopics(q: string): SettingsTab[] {
   if (/lösch|gefahr|hausstand|export/.test(n) && !hits.includes('daten')) hits.push('daten')
   if (/wake|hören|stimme/.test(n) && !hits.includes('stimme')) hits.push('stimme')
   if (/preis|research|netz|suche/.test(n) && !hits.includes('hirn')) hits.push('hirn')
-  if (/wecker|wetter|ort|weltlage/.test(n) && !hits.includes('alltag')) hits.push('alltag')
+  if (/wecker|wetter|ort|weltlage|blitzer|baustelle|radar|ordner|preiswache|instanudeln/.test(n) && !hits.includes('alltag')) {
+    hits.push('alltag')
+  }
+  if (/\bamazon\b/.test(n) && !hits.includes('geraete')) hits.push('geraete')
   if (/lage|kugel|körper|ton/.test(n) && !hits.includes('lage')) hits.push('lage')
   if (/debug|test|probe|kopier|v[1-9]/.test(n) && !hits.includes('tests')) hits.push('tests')
   return hits

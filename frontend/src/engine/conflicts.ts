@@ -80,7 +80,10 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'blitzer', 0.22)
   }
 
-  if (/\bamazon\s*(music|musik)\b/.test(t) || (/\bamazon\b/.test(t) && /\b(spiel|musik)\b/.test(t))) {
+  const amazonMusic =
+    /\bamazon\s*(music|musik)\b/.test(t) ||
+    (/\bamazon\b/.test(t) && /\b(spiel|musik)\b/.test(t) && !/\bprime\b/.test(t))
+  if (amazonMusic) {
     out = drop(out, 'tv')
     out = drop(out, 'drive')
     out = boost(out, 'amazon', 0.2)

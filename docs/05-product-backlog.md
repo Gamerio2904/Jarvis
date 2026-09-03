@@ -45,7 +45,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E47 | Split / Overlay / Sideload `6.60` | 5+ | Live-Split, Identität, Overlay Gemini zuerst, APK — [`47-next.md`](./47-next.md) **CODE** |
 | E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **CODE** |
 | E49 | Agentic Recall `7.0` | 5+ | Retrieve/RRF nach `6.90` — [`49-next.md`](./49-next.md) **PLAN** |
-| E50 | Alltag vom Zettel `8.0` | 5+ | Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache — [`50-next.md`](./50-next.md) **PLAN** |
+| E50 | Alltag vom Zettel `8.0` | 5+ | Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache — [`50-next.md`](./50-next.md) **CODE** |
 
 ---
 
@@ -506,19 +506,19 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S50.0 | Leitentscheidung Notizen vs Ist | Must | ready | [`50-next.md`](./50-next.md) PLAN |
-| S50.1 | Blitzer + mobile Baustelle auf der Route | Must | idea | Quelle + Stand, kein Live-Beamter |
-| S50.2 | Stimme: Mic/Wake hören, dann Execute, dann TTS | Must | ready | `8.20`, ein Erkenner, kein stilles Mic |
-| S50.3 | GUI/Lag-Härte bestehender Surfaces | Should | idea | 30 fps, kein neues Framework |
-| S50.4 | Amazon Musik als Spotify-Fallback | Could | idea | nur nach Research-GO |
-| S50.5 | Chats in Ordner | Must | idea | IDB + Hausstand |
-| S50.6 | Preiswache (Instanudeln zuerst) | Must | idea | opt-in, € nur aus Treffer |
+| S50.0 | Leitentscheidung Notizen vs Ist | Must | done | [`50-next.md`](./50-next.md) CODE |
+| S50.1 | Blitzer + mobile Baustelle auf der Route | Must | done | OSM-Korridor; mobil/Beamte ehrlich leer |
+| S50.2 | Stimme: Mic/Wake hören, dann Execute, dann TTS | Must | done | `8.20`, ein Erkenner, kein stilles Mic |
+| S50.3 | GUI/Lag-Härte bestehender Surfaces | Should | done | 30 fps, kein neues Framework |
+| S50.4 | Amazon Musik als Spotify-Fallback | Could | done | Intent; ehrlich wenn App fehlt |
+| S50.5 | Chats in Ordner | Must | done | IDB + Hausstand |
+| S50.6 | Preiswache (Instanudeln zuerst) | Must | done | opt-in, € nur aus Treffer |
 | S50.7 | Scraping / Preise erfinden / Auto-Kauf | Won’t | parked | |
-| S50.8 | Einstellungen: Gruppen, deutsche Karten, bessere GUI | Must | ready | `8.35`, Keys gleich, Deep-Links halten |
-| S50.9 | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper/Kacheln | Must | ready | `8.32`, ganze Kugel, kein 0/0-Sie, hud vor places |
-| S50.10 | Netz-Antwort: Jarvis-Ton, Fakten vom jetzt | Must | ready | `8.33`, Venedig aktuell frei, kein Google-Essay |
-| S50.11 | Test-Tore nach Execute-Bündeln | Must | ready | vier Phasen, `5.11`, nicht nach Research allein |
-| S50.12 | Dauer-Zuhören härten | Must | ready | `8.95` nach Recall, Wake opt-in, internes CarPlay |
+| S50.8 | Einstellungen: Gruppen, deutsche Karten, bessere GUI | Must | done | `8.35`, Keys gleich, Deep-Links halten |
+| S50.9 | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper/Kacheln | Must | done | `8.32`, ganze Kugel, kein 0/0-Sie, hud vor places |
+| S50.10 | Netz-Antwort: Jarvis-Ton, Fakten vom jetzt | Must | done | `8.33`, Venedig aktuell frei, kein Google-Essay |
+| S50.11 | Test-Tore nach Execute-Bündeln | Must | done | Router + `test:alltag`; Gerät Sprint 168 PO |
+| S50.12 | Dauer-Zuhören härten | Must | done | `8.95` nach Recall, Wake opt-in, internes CarPlay |
 
 ---
 
@@ -526,7 +526,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 1. LocateAnything-Sidecar nach 3060-GO [`41-next.md`](./41-next.md) — Parser schon CODE
 2. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
-3. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` — unabhängig von Recall
+3. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **CODE** — Gerät PO
 4. Agentic Recall [`49-next.md`](./49-next.md) `7.0`
 5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 

@@ -5,7 +5,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Nichts offenes hinter **`9.9.2`**. Nächster Stand erst nach dem nächsten Sideload.
+Alltag-Härte auf **`9.9.2`** (kein Sideload-Bump): Amazon ≠ Prime-Video, Chat „nach Privat legen“, Settings-Suche trifft 8 Reiter (`keys`/`geraete`/`daten`/`alltag`). `npm run test:alltag` — 31 Katalog-Prompts plus Parser-Matrizen. Sprint 141 **CODE**.
 
 ## `9.9.2` — Screenshot-Bugs / Kugel+Stimme — *CODE*
 

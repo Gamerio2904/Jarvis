@@ -144,7 +144,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 138 | [`sprint-138.md`](./sprint-138.md) | `7.0.0` | Retrieve + Quelle | **CODE** (in `7.0.0`) |
 | 139 | [`sprint-139.md`](./sprint-139.md) | `7.0.0` | Working Memory + Write-Verify | **CODE** (in `7.0.0`) |
 | 140 | [`sprint-140.md`](./sprint-140.md) | `7.0.0` | Sleep-Prune | **CODE** |
-| 141 | [`sprint-141.md`](./sprint-141.md) | `8.0.0` | Alltag vom Zettel | **PLAN** |
+| 141 | [`sprint-141.md`](./sprint-141.md) | `9.9.2` | Alltag vom Zettel | **CODE** |
 | 142 | [`sprint-142.md`](./sprint-142.md) | `6.91.0` | Stabilität Kern | **CODE** |
 | 143 | [`sprint-143.md`](./sprint-143.md) | `6.92.0` | Overlay-FSM & Weltlage | **CODE** (in `6.93.0`) |
 | 144 | [`sprint-144.md`](./sprint-144.md) | `6.93.0` | Gemini-Abbruch & Research-Pending | **CODE** |
@@ -173,7 +173,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 167 | [`sprint-167.md`](./sprint-167.md) | `9.9.2` | Greeting News TV Stimme | **CODE** |
 | 168 | [`sprint-168.md`](./sprint-168.md) | `9.9.2` | Ausführlicher Geräte-Test | **KATALOG** |
 
-**Aktuell:** Code **`9.9.2`**. Sideload `9.9.2`. Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall [`49-next.md`](../49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`9.9.2`**. Sideload `9.9.2`. Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag [`50-next.md`](../50-next.md) **CODE** (Gerät PO). Recall [`49-next.md`](../49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
