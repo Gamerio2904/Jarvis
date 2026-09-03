@@ -130,10 +130,6 @@ import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
-import { parseBlitzerIntent } from '../src/engine/blitzer-parse.ts'
-import { parseAmazonMusicIntent } from '../src/engine/amazon-parse.ts'
-import { parseFolderIntent } from '../src/engine/folder-parse.ts'
-import { parseWatchPriceIntent } from '../src/engine/watch-price-parse.ts'
 import { parseHudIntent, patchForHudView } from '../src/engine/hud-parse.ts'
 import { hideToolChip } from '../src/ui/tool-chip.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
@@ -175,6 +171,7 @@ import { filterTopics, resolveTopic, SETTINGS_TABS, settingsTabForQuery, visible
 import { parseAmazonMusicIntent } from '../src/engine/amazon-parse.ts'
 import { parseFolderIntent } from '../src/engine/folder-parse.ts'
 import { parseBlitzerIntent } from '../src/engine/blitzer-parse.ts'
+import { parseWatchPriceIntent } from '../src/engine/watch-price-parse.ts'
 import { hazardsInCorridor, sampleRouteCoords } from '../src/engine/blitzer-geo.ts'
 import { acceptWake, WAKE_DEBOUNCE_MS } from '../src/engine/wake-gate.ts'
 import { ACTION_INIT, packVerified, reduceAction, toolStatusOf } from '../src/engine/action-fsm.ts'
@@ -2638,6 +2635,8 @@ assert.equal(pickRoute('Öffne Netflix'), 'tv')
   assert.equal(pickRoute('Spiel Amazon Music'), 'amazon')
   assert.equal(pickRoute('Instanudeln'), 'watch-price')
   assert.equal(pickRoute('Wo ist London'), 'hud')
+  assert.equal(parseAmazonMusicIntent('öffne Prime Video'), false)
+  assert.equal(parseBlitzerIntent('wo ist der nächste Blitzer')?.want, 'camera')
 }
 
 {
