@@ -511,6 +511,14 @@ $allBtn.Add_Click({
   $script:LastAction = 'Alle Prompts kopiert.'
 })
 $panel.Controls.Add($allBtn)
+$winBtn = New-Object Windows.Forms.Button
+$winBtn.SetBounds(8, ($y + 36), 448, 32)
+$winBtn.Text = 'Jarvis-Fenster'
+$winBtn.Add_Click({
+  $page = Join-Path $PSScriptRoot 'jarvis-window.html'
+  if (Test-Path $page) { Start-Process $page } else { $script:LastAction = 'jarvis-window.html fehlt.' }
+})
+$panel.Controls.Add($winBtn)
 
 $status = New-Object Windows.Forms.Label
 $status.SetBounds(16, 604, 460, 48)

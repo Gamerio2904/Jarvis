@@ -32,6 +32,7 @@ export function Lage({
   conversationId = null,
   onHudChange,
   compact = false,
+  hideChatTile = false,
 }: {
   onSend: (text: string) => void
   draft: string
@@ -42,6 +43,7 @@ export function Lage({
   conversationId?: string | null
   onHudChange?: () => void
   compact?: boolean
+  hideChatTile?: boolean
 }) {
   const [snap, setSnap] = useState<HudSnap>({})
   const [body, setBody] = useState<BodySnap | null>(null)
@@ -148,7 +150,7 @@ export function Lage({
 
   const globeCaption = decodeHtml(pin?.line || s.last_globe_brief || '')
   const globeTitle = pin?.name || globeFocus()?.name || 'Erde'
-  const showChatTile = !compact && modules.includes('chat')
+  const showChatTile = !hideChatTile && !compact && modules.includes('chat')
 
   return (
     <section className={`lage ${amber ? 'is-amber' : ''}${compact ? ' is-compact' : ''}`} aria-label="Lage">

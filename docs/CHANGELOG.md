@@ -5,7 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-- **Fachwissen 11.0:** Code **`11.60.0`**. Packs, Teach, knowledgeBlock, Deep Research + Offer, Settings, Gold T1–T6, Pack-REVISE.
+- **Drei Flächen 12.0:** Code **`12.70.0`**. Tablet-Lage+Chat, Presence-Token, `/v1/presence`, PC-Viewer, Desk-Blick, LAN-Drop.
+
+## `12.70.0` — Drei Flächen, ein Hirn — *CODE*
+
+Sprints **209–216**. e5 bleibt Freeze. Sideload unverändert `10.60.2`.
+
+- **Rollen:** Settings Gerät — Hirn vs Fenster vs Werkzeug. Tablet allein = Hirn.
+- **Tablet ≥900 px:** Lage + Verlauf + Composer. Handy-Lage: Chat weicht (kein Bug).
+- **Presence:** Token ≠ PC-Token, Port 18791, LAN-Guard. Aus = kein Schreib.
+- **Viewer:** `desktop/jarvis-window.html` + BAT-Knopf. Ohne Hirn ehrlich tot.
+- **Tisch:** Parser an/aus, Frame nur Auge/PC-JPEG.
+- **Drop:** `POST /v1/presence/drop`. VR bleibt Parking.
 
 ## `11.60.0` — Fachwissen + Deep Research — *CODE*
 

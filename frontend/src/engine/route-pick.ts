@@ -58,6 +58,7 @@ import { parseRecallIntent } from './recall-parse.ts'
 import { parseAppIntent } from './app-parse.ts'
 import { parseTeachIntent } from './teach-parse.ts'
 import { parsePackAsk, parsePackForget, parsePackRevise } from './pack-parse.ts'
+import { parseDeskIntent } from './desk-parse.ts'
 import { applyConflicts } from './conflicts.ts'
 import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
@@ -138,6 +139,11 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'timer', sideEffect: 'write', parse: (ctx) => (parseTimerIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
   { id: 'reminder', sideEffect: 'write', parse: (ctx) => (parseReminderIntent(ctx.text) ? score(ctx.text) : null) },
   { id: 'todo', sideEffect: 'write', parse: (ctx) => (parseToolIntent(ctx.text) ? score(ctx.text) : null) },
+  {
+    id: 'desk',
+    sideEffect: 'read',
+    parse: (ctx) => (parseDeskIntent(ctx.text) ? score(ctx.text, 0.22) : null),
+  },
   {
     id: 'eye',
     sideEffect: 'read',

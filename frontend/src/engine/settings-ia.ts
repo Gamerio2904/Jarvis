@@ -50,10 +50,10 @@ export const SETTINGS_TABS: Array<{
   { id: 'hirn', label: 'Hirn', hint: 'Wer denkt, ob gesucht wird, e5' },
   { id: 'stimme', label: 'Stimme', hint: 'Hören, wecken, vorlesen, ONNX' },
   { id: 'alltag', label: 'Alltag', hint: 'Wecker, Ort, Weltlage' },
-  { id: 'geraete', label: 'Geräte', hint: 'TV, PC, Haus, Musik' },
-  { id: 'lage', label: 'Lage', hint: 'Kugel, Körper, Töne' },
+  { id: 'geraete', label: 'Geräte', hint: 'TV, PC, Presence, Haus, Musik' },
+  { id: 'lage', label: 'Lage', hint: 'Kugel, Körper, Lage immer, Töne' },
   { id: 'daten', label: 'Daten', hint: 'Merken, sichern, Fachwissen, löschen' },
-  { id: 'tests', label: 'Tests', hint: 'Memory-10, Fachwissen-11 und Probe V1–V9, Debug-Lauf', workshop: true },
+  { id: 'tests', label: 'Tests', hint: 'Memory-10, Fachwissen-11, Flächen-12 und Probe V1–V9, Debug-Lauf', workshop: true },
 ]
 
 /** @deprecated Gruppen = Reiter. Bleibt für alte Imports. */
@@ -135,7 +135,9 @@ export function filterTopics(q: string): SettingsTab[] {
   if (/key|gemini|groq|fred|omdb|tanke|spotify|aiza|gsk|carto|karte|carplay/.test(n) && !hits.includes('keys')) {
     hits.unshift('keys')
   }
-  if (/steck|dose|tv|pc|ventilator/.test(n) && !hits.includes('geraete')) hits.push('geraete')
+  if (/steck|dose|tv|pc|ventilator|presence|fenster|hirn-gerät|qr/.test(n) && !hits.includes('geraete')) {
+    hits.push('geraete')
+  }
   if (/lösch|gefahr|hausstand|export|fachwissen|pack/.test(n) && !hits.includes('daten')) hits.push('daten')
   if (/wake|hören|stimme|piper|vad|onnx|kokoro/.test(n) && !hits.includes('stimme')) hits.push('stimme')
   if (/preis|research|netz|suche|e5|rerank/.test(n) && !hits.includes('hirn')) hits.push('hirn')
@@ -143,7 +145,7 @@ export function filterTopics(q: string): SettingsTab[] {
     hits.push('alltag')
   }
   if (/\bamazon\b/.test(n) && !hits.includes('geraete')) hits.push('geraete')
-  if (/lage|kugel|körper|ton/.test(n) && !hits.includes('lage')) hits.push('lage')
+  if (/lage|kugel|körper|ton|lage immer/.test(n) && !hits.includes('lage')) hits.push('lage')
   if (/debug|test|probe|kopier|v[1-9]/.test(n) && !hits.includes('tests')) hits.push('tests')
   return hits
 }

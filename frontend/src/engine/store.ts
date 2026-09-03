@@ -2,7 +2,7 @@ import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 
-export const APP_VERSION = '11.60.0'
+export const APP_VERSION = '12.70.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -243,6 +243,14 @@ export type Settings = {
   piper_offline: boolean
   kokoro_tts: boolean
   e5_rerank: boolean
+  presence_enabled: boolean
+  presence_token: string
+  presence_port: number
+  presence_role: 'brain' | 'window'
+  presence_peer_host: string
+  last_eye_frame: boolean
+  last_pc_frame: boolean
+  last_desk_on: boolean
 }
 
 const SETTINGS_KEY = 'jarvis_settings_v13'
@@ -381,6 +389,14 @@ export const DEFAULT_SETTINGS: Settings = {
   piper_offline: false,
   kokoro_tts: false,
   e5_rerank: false,
+  presence_enabled: false,
+  presence_token: '',
+  presence_port: 18791,
+  presence_role: 'brain',
+  presence_peer_host: '',
+  last_eye_frame: false,
+  last_pc_frame: false,
+  last_desk_on: false,
 }
 
 function nowIso(): string {

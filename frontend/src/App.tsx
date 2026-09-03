@@ -1036,6 +1036,39 @@ function App() {
     let lastError: string | undefined
     const showUi = () => conversationId === activeIdRef.current
     try {
+      if (loadSettings().presence_role === 'window') {
+        const { postPresenceLine } = await import('./engine/presence.ts')
+        const remote = await postPresenceLine(content)
+        lastReply = remote.reply
+        lastError = remote.ok ? undefined : remote.reply
+        if (showUi()) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `win-u-${Date.now()}`,
+              conversation_id: conversationId,
+              role: 'user',
+              content,
+              created_at: new Date().toISOString(),
+            },
+            {
+              id: `win-a-${Date.now()}`,
+              conversation_id: conversationId,
+              role: 'assistant',
+              content: remote.reply,
+              created_at: new Date().toISOString(),
+            },
+          ])
+        }
+        if (source !== 'debug') {
+          setBusy(false)
+          busyRef.current = false
+          setStatusNote(null)
+          setStreamingText(null)
+        }
+        endTurn({ source, conversationId })
+        return { reply: remote.reply, error: lastError }
+      }
       const optimistic: Message = {
         id: `tmp-${Date.now()}`,
         conversation_id: conversationId,
@@ -1662,6 +1695,7 @@ function App() {
             conversationId={activeId}
             onHudChange={() => void refreshSettings()}
             compact={!lageWide}
+            hideChatTile={lageWide}
           />
         ) : null}
         <div className="messages" ref={messagesRef} onScroll={onMessagesScroll} hidden={lageScene}>

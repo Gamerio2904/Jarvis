@@ -660,6 +660,16 @@ textarea {
   font-size: 0.95rem;
 }
 
+.presence-qr {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  font-size: 0.78rem;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
 .probe-group + .probe-group {
   margin-top: 8px;
   padding-top: 4px;
@@ -3437,6 +3447,8 @@ button.linkish {
   }
   .main.is-lage .composer-wrap {
     grid-row: 4;
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    z-index: 3;
   }
   .lage-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));

@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jarvis-Fenster</title>
+  <style>
+    body { font: 16px/1.4 system-ui, sans-serif; background: #111; color: #eee; margin: 0; padding: 16px; }
+    label { display: block; margin: 8px 0 4px; }
+    input { width: 100%; max-width: 420px; padding: 8px; background: #222; color: #eee; border: 1px solid #444; }
+    button { margin-top: 8px; padding: 8px 12px; }
+    #log { white-space: pre-wrap; margin-top: 16px; min-height: 40vh; border-top: 1px solid #333; padding-top: 12px; }
+    .err { color: #f5a }
+  </style>
+</head>
+<body>
+  <h1>Jarvis-Fenster</h1>
+  <p>Werkzeug bleibt <code>:18790</code>. Dieses Fenster spricht mit dem Handy-Hirn <code>:18791</code>. Kein zweites Gedächtnis.</p>
+  <label>Hirn-IP <input id="host" placeholder="192.168.1.10" autocomplete="off" /></label>
+  <label>Token <input id="token" placeholder="Presence-Token, nicht PC-Token" autocomplete="off" /></label>
+  <button type="button" id="ping">Hirn prüfen</button>
+  <label>Zeile <input id="line" placeholder="Was trinke ich?" /></label>
+  <button type="button" id="send">Senden</button>
+  <div id="log"></div>
+  <script>
+    const log = (t, err) => {
+      const el = document.getElementById('log')
+      el.textContent = t
+      el.className = err ? 'err' : ''
+    }
+    const url = () => {
+      const h = document.getElementById('host').value.trim()
+      return 'http://' + h + ':18791/v1/presence'
+    }
+    const headers = () => {
+      const t = document.getElementById('token').value.trim()
+      return { 'Content-Type': 'application/json', Accept: 'application/json', 'X-Jarvis-Token': t, Authorization: 'Bearer ' + t }
+    }
+    document.getElementById('ping').onclick = async () => {
+      try {
+        const r = await fetch(url(), { headers: headers() })
+        const j = await r.json()
+        if (!j.ok) return log(j.error || 'Hirn nicht im WLAN / Presence aus.', true)
+        const lines = (j.messages || []).map((m) => (m.role === 'user' ? 'Sie: ' : 'Jarvis: ') + m.content).join('\n')
+        log(lines || 'Hirn erreicht. Noch kein Verlauf.')
+      } catch (e) {
+        log('Handy nicht im WLAN / Presence aus. Kein Fake-Smalltalk.', true)
+      }
+    }
+    document.getElementById('send').onclick = async () => {
+      const text = document.getElementById('line').value.trim()
+      if (!text) return
+      try {
+        const r = await fetch(url(), { method: 'POST', headers: headers(), body: JSON.stringify({ text }) })
+        const j = await r.json()
+        if (!j.ok) return log(j.error || 'Hirn nicht erreicht.', true)
+        log('Jarvis: ' + (j.reply || ''))
+      } catch (e) {
+        log('Handy nicht im WLAN / Presence aus. Kein Fake-Smalltalk.', true)
+      }
+    }
+  </script>
+</body>
+</html>

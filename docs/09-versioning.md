@@ -488,6 +488,21 @@ Thematische Packs, nicht Cap-80-Prefs. Teach nur explizit. Deep = mehr Queries i
 | `11.50.0` | Gold T1–T6 | 207 CODE in `11.60.0` |
 | `11.60.0` | Pack-REVISE / Lab-Notiz | 208 CODE |
 
+### `12.0` — Drei Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`
+
+Ein Hirn, drei Fenster. Presence LAN-Token. Kein zweites IndexedDB, kein Quest-Must.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `12.0.0` | Leit + Settings-Rollen | 209 CODE in `12.70.0` |
+| `12.10.0` | Tablet-Kommandozentrale | 210 CODE in `12.70.0` |
+| `12.20.0` | Presence-Token + QR | 211 CODE in `12.70.0` |
+| `12.30.0` | `/v1/presence` | 212 CODE in `12.70.0` |
+| `12.40.0` | PC-Viewer | 213 CODE in `12.70.0` |
+| `12.50.0` | Desk-Blick | 214 CODE in `12.70.0` |
+| `12.60.0` | Gold F1–F7 | 215 CODE in `12.70.0` |
+| `12.70.0` | LAN-Drop / VR Parking | 216 CODE |
+
 ### Weitere Beispiele
 
 | Version | Bedeutung (Beispiel) |

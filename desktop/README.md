@@ -1,6 +1,13 @@
 # Jarvis PC — was Sie am Rechner tun
 
-Das Handy denkt. Der PC ist nur ein Werkzeug. **Das Fenster `JarvisPC.bat` muss offen bleiben**, solange Jarvis den Rechner steuern soll.
+Das Handy denkt. Der PC ist nur ein Werkzeug **oder ein Fenster**. **Das Fenster `JarvisPC.bat` muss offen bleiben**, solange Jarvis den Rechner steuern soll.
+
+| Schicht | Port | Rolle |
+|---------|------|--------|
+| **Werkzeug** | `:18790` | Screenshot, Klick, Launch. Unverändert. |
+| **Fenster** | Handy `:18791` | Verlauf lesen, Zeile senden. Knopf **Jarvis-Fenster** öffnet `jarvis-window.html`. |
+
+Ohne laufendes Handy-Hirn: „Handy nicht im WLAN / Presence aus“ — kein Fake-Chat. Kein zweites Gedächtnis auf Disk.
 
 ## Einmal einrichten
 

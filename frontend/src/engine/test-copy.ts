@@ -189,6 +189,16 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'Flächen-12',
+    items: [
+      { label: 'F6 Tisch ohne Frame', text: 'Schau auf den Tisch', expect: { tool: 'desk' } },
+      { label: 'Tisch aus', text: 'Tisch aus', expect: { tool: 'desk' } },
+      { label: 'Handy', text: 'Was trinke ich?', expect: { tool: 'memory' } },
+      { label: 'Tablet-Lage', text: 'Lage an', expect: { tool: 'hud' } },
+      { label: 'PC-Viewer', text: 'PC testen', expect: { tool: 'pc' } },
+    ],
+  },
+  {
     title: 'Einkauf',
     items: [
       { label: 'Milch drauf', text: 'Milch auf die Einkaufsliste' },
@@ -764,6 +774,7 @@ const PROBE_SOURCES: Array<{ title: string; source: string }> = [
   { title: 'V8 Live', source: 'V8 Live' },
   { title: 'V9 Hardening', source: 'V9 Hardening' },
   { title: 'Fachwissen-11', source: 'Fachwissen-11' },
+  { title: 'Flächen-12', source: 'Flächen-12' },
 ]
 
 export const PROBE_COPY_GROUPS: TestCopyGroup[] = PROBE_SOURCES.map((row) => {

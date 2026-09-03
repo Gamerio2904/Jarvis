@@ -24,6 +24,7 @@ import {
   formatPinnedMemory,
 } from './memory-parse'
 import type { ToolMeta } from './tools.ts'
+import { isPresenceWindow } from './presence.ts'
 
 export { isMemoryRecall, isMemoryWrite, parseMemoryFacts, formatPinnedMemory } from './memory-parse'
 export type { MemoryFact } from './memory-parse'
@@ -40,6 +41,14 @@ function packed(
 }
 
 export async function handleMemory(conversationId: string, text: string): Promise<MemHit> {
+  if (isPresenceWindow()) {
+    return {
+      handled: true,
+      reply: 'Dieses Gerät ist Fenster. Pins liegen auf dem Hirn — kein zweites IndexedDB.',
+      tool: { tool_status: 'executed', tool: 'memory', action: 'ask', label: 'Gedächtnis' },
+      lastTool: 'memory',
+    }
+  }
   if (isUtilityCorrection(text)) {
     const n = await markLastRecallNotUseful()
     return packed({

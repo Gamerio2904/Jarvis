@@ -311,6 +311,12 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'eye', 0.25)
   }
 
+  if (/\b(?:tisch|schreibtisch|desk\s+view)\b/.test(t) && !/\b(?:wetter|hotel)\b/.test(t)) {
+    out = drop(out, 'weather')
+    out = drop(out, 'here')
+    out = boost(out, 'desk', 0.24)
+  }
+
   if (parseDocIntent(text)) {
     out = drop(out, 'eye')
     out = boost(out, 'doc', 0.28)

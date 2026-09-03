@@ -104,6 +104,8 @@ import { parseAppIntent } from './app-parse.ts'
 import { handleApp } from './app.ts'
 import { parseTeachIntent, parsePackAsk, parsePackForget, parsePackRevise } from './knowledge.ts'
 import { handleTeach, handlePack } from './knowledge.ts'
+import { parseDeskIntent } from './desk-parse.ts'
+import { handleDesk } from './desk.ts'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -384,6 +386,13 @@ function makeCatalog(): Capability[] {
       sideEffect: 'write',
       parse: (ctx) => (parseToolIntent(ctx.text) ? score(ctx.text) : null),
       execute: async (ctx) => fromHandler('todo', await handleTools(ctx.conversationId, ctx.text)),
+    },
+    {
+      id: 'desk',
+      label: 'Tisch',
+      sideEffect: 'read',
+      parse: (ctx) => (parseDeskIntent(ctx.text) ? score(ctx.text, 0.22) : null),
+      execute: async (ctx) => fromHandler('desk', await handleDesk(ctx.conversationId, ctx.text)),
     },
     {
       id: 'eye',

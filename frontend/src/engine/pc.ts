@@ -1,6 +1,7 @@
 import { completeGeminiVision, geminiReady } from './gemini'
 import { getJson, postJson } from './http-json'
 import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from './pc-host'
+import { markPcFrame } from './desk.ts'
 import { parsePcIntent, type PcIntent } from './pc-parse'
 import {
   CAP_OFFLINE,
@@ -570,6 +571,7 @@ async function seeScreen(): Promise<PcHit> {
   if (!('caps' in gated)) return gated
   const res = await callPc('/v1/screenshot', {}, 20_000)
   const image = shotFrom(res)
+  if (image) markPcFrame()
   if (!res.ok || !image) {
     return packPc({
       action: 'screen',

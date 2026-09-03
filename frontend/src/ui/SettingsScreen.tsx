@@ -32,6 +32,16 @@ import {
 } from '../engine/settings-ia'
 import { loadSettings } from '../engine/store'
 import {
+  ROLE_COPY,
+  VR_PARKING,
+  WONT_COPY,
+  bindStatusLine,
+  newPresenceToken,
+  pingPresencePeer,
+  presenceUrl,
+  sanitizePresenceHost,
+} from '../engine/presence.ts'
+import {
   clearKnowledgePacks,
   deleteKnowledgePack,
   listKnowledgePacks,
@@ -262,6 +272,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [pcBusy, setPcBusy] = useState(false)
   const [pcMsg, setPcMsg] = useState<string | null>(null)
   const [pcMsgOk, setPcMsgOk] = useState<boolean | null>(null)
+  const [presenceHost, setPresenceHost] = useState(s?.presence_peer_host || '')
+  const [presenceToken, setPresenceToken] = useState(s?.presence_token || '')
+  const [presenceBusy, setPresenceBusy] = useState(false)
+  const [presenceMsg, setPresenceMsg] = useState<string | null>(null)
+  const [presenceMsgOk, setPresenceMsgOk] = useState<boolean | null>(null)
   const [fanBusy, setFanBusy] = useState(false)
   const [fanMsg, setFanMsg] = useState<string | null>(null)
   const [fanMsgOk, setFanMsgOk] = useState<boolean | null>(null)
@@ -411,8 +426,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Tablet-Lage</h3>
               <p className="settings-lead">
-                Am Handy füllen Kugel oder Körper den Bereich über dem Composer. Lage aus holt den Chat zurück.
-                Ab 900 px: Kacheln neben dem Chat. Composer und Mic bleiben. Oder hier immer an.
+                Am Handy füllen Kugel oder Körper den Bereich über dem Composer — der Chat weicht (kein Bug).
+                Ab 900 px: Lage, Verlauf und Composer gleichzeitig. Composer und Mic bleiben. Oder hier immer an.
               </p>
               <label className="settings-toggle">
                 <input
@@ -1197,6 +1212,29 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
           {tab === 'geraete' ? (
             <section className="settings-card">
+              <h3>Drei Flächen, ein Hirn</h3>
+              <p className="settings-lead">{ROLE_COPY}</p>
+              <p className="settings-hint">{WONT_COPY}</p>
+              <p className="settings-hint">{VR_PARKING}</p>
+              <label className="settings-toggle">
+                <span>Ich bin das Hirn</span>
+                <input
+                  type="checkbox"
+                  checked={s?.presence_role !== 'window'}
+                  disabled={busy}
+                  onChange={(e) =>
+                    void p.patchSetting({ presence_role: e.target.checked ? 'brain' : 'window' })
+                  }
+                />
+              </label>
+              <p className="settings-hint">
+                Schalter aus = Fenster. Dann IP + Token des Handy-Hirns eintragen. Tablet allein bleibt Hirn.
+              </p>
+            </section>
+          ) : null}
+
+          {tab === 'geraete' ? (
+            <section className="settings-card">
               <h3>PC im WLAN</h3>
               <p className="settings-lead">
                 Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> doppelklicken. Das graue Fenster offen
@@ -1303,6 +1341,98 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <CopyField label="PC-IP" value={pcHost.trim()} />
               <CopyField label="Port" value={pcPort.trim() || '18790'} />
               <CopyField label="Token" value={pcToken.trim()} />
+            </section>
+          ) : null}
+
+          {tab === 'geraete' ? (
+            <section className="settings-card">
+              <h3>Presence — Fenster koppeln</h3>
+              <p className="settings-lead">
+                Schalter Default aus. Token ist nicht der PC-Token. Port 18791, nur LAN. Ohne Native-Bind
+                bleibt der Server aus — kein Fake-Chat.
+              </p>
+              <label className="settings-toggle">
+                <span>Presence an (Hirn lauscht)</span>
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.presence_enabled)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ presence_enabled: e.target.checked })}
+                />
+              </label>
+              <p className="settings-hint">{bindStatusLine(Boolean(s?.presence_enabled))}</p>
+              <label className="settings-field">
+                <span>Fenster: Hirn-IP</span>
+                <input
+                  value={presenceHost}
+                  disabled={busy || presenceBusy}
+                  placeholder="192.168.1.10"
+                  inputMode="decimal"
+                  autoComplete="off"
+                  onChange={(e) => setPresenceHost(e.target.value)}
+                  onBlur={() => {
+                    const v = sanitizePresenceHost(presenceHost)
+                    setPresenceHost(v)
+                    void p.patchSetting({ presence_peer_host: v })
+                  }}
+                />
+              </label>
+              <label className="settings-field">
+                <span>Presence-Token</span>
+                <SecretField
+                  value={presenceToken}
+                  disabled={busy || presenceBusy}
+                  placeholder="eigenes Token, nicht PC"
+                  onChange={(e) => setPresenceToken(e.target.value)}
+                  onBlur={() => {
+                    const v = presenceToken.trim()
+                    setPresenceToken(v)
+                    void p.patchSetting({ presence_token: v })
+                  }}
+                />
+              </label>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy}
+                  onClick={() => {
+                    const t = newPresenceToken()
+                    setPresenceToken(t)
+                    void p.patchSetting({ presence_token: t })
+                  }}
+                >
+                  Token erzeugen
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || presenceBusy}
+                  onClick={() => {
+                    setPresenceBusy(true)
+                    void pingPresencePeer(presenceHost, presenceToken).then((r) => {
+                      setPresenceMsgOk(r.ok)
+                      setPresenceMsg(r.reply)
+                      setPresenceBusy(false)
+                    })
+                  }}
+                >
+                  {presenceBusy ? 'Prüfe…' : 'Hirn-Ping'}
+                </button>
+              </div>
+              {presenceMsg ? <p className={`tv-test-msg${presenceMsgOk === false ? ' warn' : ''}`}>{presenceMsg}</p> : null}
+              <h3 className="copy-block-title">QR / Klartext</h3>
+              <p className="settings-hint">
+                URL und Token abtippen oder scannen. Nur 192.168 / 10, nicht 172, nicht Internet.
+              </p>
+              <CopyField
+                label="Presence-URL"
+                value={presenceUrl(presenceHost || '192.168.0.1', s?.presence_port || 18791, presenceToken)}
+              />
+              <CopyField label="Presence-Token" value={presenceToken.trim()} />
+              <pre className="presence-qr" aria-label="Klartext-Karte">
+                {presenceUrl(presenceHost || '192.168.0.1', s?.presence_port || 18791, presenceToken)}
+              </pre>
             </section>
           ) : null}
 
@@ -2095,9 +2225,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
           {tab === 'tests' ? (
             <section className="settings-card">
-              <h3>Probe Memory-10 + V1–V9</h3>
+              <h3>Probe Memory-10 + V1–V9 + Flächen-12</h3>
               <p className="settings-lead">
-                Jeder Prompt in einem eigenen Feld — Kopieren, ins Chatfeld einfügen. Memory-10 und Fachwissen-11 stehen oben.
+                Jeder Prompt in einem eigenen Feld — Kopieren, ins Chatfeld einfügen. Memory-10, Fachwissen-11 und Flächen-12 stehen oben.
                 PC und TV brauchen das Gerät. V4 braucht eine Datei oder ein Foto. V9 Inject darf nicht gehorchen.
               </p>
               <h4 className="copy-block-title" style={{ marginTop: 12 }}>Storylines — realistische Gespräche</h4>
@@ -2113,7 +2243,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   ))}
                 </div>
               ))}
-              <h4 className="copy-block-title" style={{ marginTop: 24 }}>Einzel-Prompts (Memory-10 + V1–V9)</h4>
+              <h4 className="copy-block-title" style={{ marginTop: 24 }}>Einzel-Prompts (Memory-10 + V1–V9 + Flächen-12)</h4>
               {PROBE_COPY_GROUPS.map((g) => (
                 <div key={g.title} className="probe-group">
                   <h4 className="copy-block-title">{g.title}</h4>
