@@ -198,9 +198,9 @@ export function tourGlowPins(): GeoFix[] {
 
 export function overviewLine(stops: GlobeTourStop[]): string {
   if (!stops.length) {
-    return 'In Tagesschau und DW steht gerade keine weltpolitische Lage, die ich einem Land zuordnen kann. Kein Geheim-Feed, nichts erfunden.'
+    return 'Keine Länder-Tour aus den Meldungen. Die Schlagzeilen nenne ich trotzdem, ohne etwas zu erfinden.'
   }
-  return `Auf der Kugel leuchten ${stops.map((s) => s.name).join(', ')}. Nacheinander, Stopp bricht ab. Quellen Tagesschau und DW, kein Live.`
+  return `Auf der Kugel leuchten ${stops.map((s) => s.name).join(', ')}. Nacheinander, Stopp bricht ab.`
 }
 
 export function tourChatReply(stops: GlobeTourStop[]): string {

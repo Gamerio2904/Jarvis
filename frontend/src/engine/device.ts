@@ -1,5 +1,5 @@
 import { formatClockReply, parseDeviceIntent } from './device-parse'
-import { openDevicePage, readBattery, readNetwork, setTorch } from '../native/device'
+import { listBluetooth, nudgeVolume, openDevicePage, readBattery, readNetwork, setTorch } from '../native/device'
 import type { ToolMeta } from './tools'
 
 export { formatClockReply, parseDeviceIntent } from './device-parse'
@@ -24,7 +24,7 @@ export async function handleDevice(_conversationId: string, text: string): Promi
     return {
       handled: true,
       reply:
-        'Was anstoßen — Taschenlampe, WLAN, Bluetooth oder Nicht stören? Schalter lege ich nicht selbst um, ich öffne die Android-Seite.',
+        'Was anstoßen — Taschenlampe, WLAN, Bluetooth, Standort, Lautstärke oder Nicht stören? Schalter lege ich nicht selbst um, ich öffne die Android-Seite. Gekoppelte Bluetooth-Geräte nenne ich auf Zuruf.',
       tool: deviceTool('ask', 'System'),
       lastTool: 'device',
     }
@@ -98,12 +98,56 @@ export async function handleDevice(_conversationId: string, text: string): Promi
     }
   }
 
+  if (intent.kind === 'volume') {
+    const hit = await nudgeVolume(intent.dir)
+    if (!hit.ok) {
+      return {
+        handled: true,
+        reply: hit.message || 'Lautstärke nicht geändert. Nur auf dem Handy, Medienlautstärke.',
+        tool: deviceTool('error', 'Lautstärke'),
+        lastTool: 'device',
+      }
+    }
+    return {
+      handled: true,
+      reply: intent.dir === 'up' ? 'Medienlautstärke hoch.' : 'Medienlautstärke runter.',
+      tool: deviceTool(intent.dir, 'Lautstärke'),
+      lastTool: 'device',
+    }
+  }
+
+  if (intent.kind === 'bt_list') {
+    const list = await listBluetooth()
+    await openDevicePage('bluetooth')
+    if (!list.ok) {
+      return {
+        handled: true,
+        reply: `${list.message || 'Bluetooth-Geräte nicht lesbar.'} Bluetooth-Einstellungen sind offen. Koppeln müssen Sie selbst.`,
+        tool: deviceTool('open', 'Bluetooth'),
+        lastTool: 'device',
+      }
+    }
+    const names = (list.devices || []).filter(Boolean).slice(0, 8)
+    const on = list.on ? 'an' : 'aus'
+    const roster = names.length ? names.join(', ') : 'keine gekoppelten Namen lesbar'
+    return {
+      handled: true,
+      reply: `Bluetooth ist ${on}. Gekoppelt: ${roster}. Einstellungen sind offen — verbinden Sie dort. Ich koppeln nicht selbst.`,
+      tool: deviceTool('list', 'Bluetooth'),
+      lastTool: 'device',
+    }
+  }
+
   if (intent.kind !== 'page') return { handled: false }
 
   const labels: Record<typeof intent.page, string> = {
     wifi: 'WLAN',
     bluetooth: 'Bluetooth',
     dnd: 'Nicht stören',
+    location: 'Standort',
+    sound: 'Ton',
+    display: 'Display',
+    battery: 'Akku',
   }
   const opened = await openDevicePage(intent.page)
   if (!opened.ok) {

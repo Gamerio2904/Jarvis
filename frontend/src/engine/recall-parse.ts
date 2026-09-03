@@ -21,5 +21,11 @@ export function parseRecallIntent(text: string): string | null {
   if (/\b(?:japan|tokyo|reise)/i.test(t) && /\b(?:wollte\s+ich|welche\s+reisen|plane\s+ich)\b/i.test(t)) {
     return t.replace(/[.!?]+$/g, '').trim()
   }
+  const when = /^\s*wann\s+(?:war|ist)\s+(?:nochmal\s+)?(?:der\s+|die\s+|das\s+)?(.+?)\s*$/i.exec(t)
+  if (when) {
+    const q = when[1].replace(/[.!?]+$/g, '').replace(/\s+den\s+ich\s+.+$/i, '').trim()
+    if (q.length >= 3) return q
+  }
+  if (/^\s*(?:basierend\s+auf|was\s+du\s+über\s+mich\s+weißt)/i.test(t)) return 'Profil'
   return null
 }

@@ -28,7 +28,7 @@ const ABOUT3 =
 function cleanTitle(raw: string): string | null {
   let t = (raw || '')
     .replace(/[.!?]+$/g, '')
-    .replace(/\b(?:kostenlos|gratis|umsonst|free|schauen|sehen|streamen|gucken|laufen)\b/gi, ' ')
+    .replace(/\b(?:kostenlos|gratis|umsonst|free|schauen|sehen|streamen|gucken|laufen|bewertet?|imdb|rotten\s*tomatoes?)\b/gi, ' ')
     .replace(/\b(?:der|die|das|dem|den|ein|eine|einen|film|filme|serie|serien)\b/gi, ' ')
     .replace(/\s+/g, ' ')
     .trim()

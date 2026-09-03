@@ -19,6 +19,11 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.media.AudioManager;
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
@@ -38,7 +43,8 @@ import java.util.ArrayList;
         permissions = {
                 @Permission(alias = "camera", strings = {Manifest.permission.CAMERA}),
                 @Permission(alias = "phone", strings = {Manifest.permission.CALL_PHONE}),
-                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS})
+                @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS}),
+                @Permission(alias = "bluetooth", strings = {Manifest.permission.BLUETOOTH_CONNECT})
         }
 )
 public class JarvisDevicePlugin extends Plugin {
@@ -166,6 +172,17 @@ public class JarvisDevicePlugin extends Plugin {
                 if (i.resolveActivity(getContext().getPackageManager()) == null) {
                     i = new Intent(Settings.ACTION_SOUND_SETTINGS);
                 }
+            } else if ("location".equals(page)) {
+                i = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            } else if ("sound".equals(page)) {
+                i = new Intent(Settings.ACTION_SOUND_SETTINGS);
+            } else if ("display".equals(page)) {
+                i = new Intent(Settings.ACTION_DISPLAY_SETTINGS);
+            } else if ("battery".equals(page)) {
+                i = new Intent(Intent.ACTION_POWER_USAGE_SUMMARY);
+                if (i.resolveActivity(getContext().getPackageManager()) == null) {
+                    i = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);
+                }
             } else {
                 i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 i.setData(Uri.fromParts("package", getContext().getPackageName(), null));
@@ -175,6 +192,76 @@ public class JarvisDevicePlugin extends Plugin {
         } catch (Exception e) {
             r.put("ok", false);
             r.put("message", "Einstellungen nicht geöffnet.");
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void listBluetooth(PluginCall call) {
+        if (Build.VERSION.SDK_INT >= 31 && getPermissionState("bluetooth") != PermissionState.GRANTED) {
+            call.setKeepAlive(true);
+            requestPermissionForAlias("bluetooth", call, "onBtPerm");
+            return;
+        }
+        emitBonded(call);
+    }
+
+    @PermissionCallback
+    private void onBtPerm(PluginCall call) {
+        emitBonded(call);
+    }
+
+    private void emitBonded(PluginCall call) {
+        JSObject r = new JSObject();
+        try {
+            BluetoothManager bm = (BluetoothManager) getContext().getSystemService(Context.BLUETOOTH_SERVICE);
+            BluetoothAdapter ad = bm != null ? bm.getAdapter() : BluetoothAdapter.getDefaultAdapter();
+            if (ad == null) {
+                r.put("ok", false);
+                r.put("message", "Kein Bluetooth am Gerät.");
+                call.resolve(r);
+                return;
+            }
+            JSArray names = new JSArray();
+            java.util.Set<BluetoothDevice> bonded = ad.getBondedDevices();
+            if (bonded != null) {
+                for (BluetoothDevice d : bonded) {
+                    String n = d.getName();
+                    if (n != null && !n.isEmpty()) names.put(n);
+                }
+            }
+            r.put("ok", true);
+            r.put("on", ad.isEnabled());
+            r.put("devices", names);
+        } catch (SecurityException e) {
+            r.put("ok", false);
+            r.put("needPerm", true);
+            r.put("message", "Bluetooth-Recht fehlt. In den App-Einstellungen erlauben.");
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Bluetooth-Geräte nicht lesbar.");
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void volume(PluginCall call) {
+        String dir = call.getString("dir", "up");
+        JSObject r = new JSObject();
+        try {
+            AudioManager am = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
+            if (am == null) {
+                r.put("ok", false);
+                r.put("message", "Lautstärke nicht erreichbar.");
+                call.resolve(r);
+                return;
+            }
+            int adj = "down".equals(dir) ? AudioManager.ADJUST_LOWER : AudioManager.ADJUST_RAISE;
+            am.adjustStreamVolume(AudioManager.STREAM_MUSIC, adj, AudioManager.FLAG_SHOW_UI);
+            r.put("ok", true);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Lautstärke nicht geändert.");
         }
         call.resolve(r);
     }

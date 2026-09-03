@@ -11,7 +11,6 @@ const AIR =
   /\b(luftqualität|luftqualitaet|feinstaub|pollen(?:flug|werte)?|luftverschmutzung|aqi|wie\s+ist\s+die\s+luft|luft\s+hier)\b/i
 const SUN =
   /\b(sonnenaufgang|sonnenuntergang|wann\s+geht\s+die\s+sonne|sonne\s+(?:auf|unter)(?:geht)?)\b/i
-const PLACE = /\b(?:in|für|aus|bei)\s+(?:der\s+|dem\s+|den\s+)?([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-]{1,32})\b/i
 const TRAVEL_CITY = /\bnach\s+([A-ZÄÖÜ][\wÄÖÜäöüß.\-]{2,32})\b/
 const NOT_PLACE =
   /^(hier|heute|jetzt|draußen|morgen|übermorgen|wochenende|hotel|unterkunft|innenstadt|nächte|nacht|der|die|das|einem|einer|einem|zwei)$/i
@@ -90,9 +89,21 @@ export function parseWeatherIntent(text: string): WeatherIntent | null {
   }
   const when = parseWhen(t)
   const focus = air ? 'air' : sun ? 'sun' : parseFocus(t)
-  const named = cleanPlace(PLACE.exec(t)?.[1]) || cleanPlace(TRAVEL_CITY.exec(t)?.[1])
+  const named = pickPlace(t)
   if (named) return { kind: 'place', place: named, when, focus }
   return { kind: 'here', when, focus }
+}
+
+function pickPlace(text: string): string | null {
+  const re =
+    /\b(?:in|für|aus|bei)\s+(?:der\s+|dem\s+|den\s+)?([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-]{1,32})\b/gi
+  let last: string | null = null
+  let m: RegExpExecArray | null
+  while ((m = re.exec(text))) {
+    const name = cleanPlace(m[1])
+    if (name) last = name
+  }
+  return last || cleanPlace(TRAVEL_CITY.exec(text)?.[1] || '')
 }
 
 function cleanPlace(raw?: string): string | null {

@@ -180,6 +180,9 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Taschenlampe an', text: 'Taschenlampe an' },
       { label: 'Taschenlampe aus', text: 'Taschenlampe aus' },
       { label: 'WLAN öffnen', text: 'Öffne WLAN' },
+      { label: 'Bluetooth-Geräte', text: 'Kopfhörer verbinden' },
+      { label: 'Handy lauter', text: 'Handy lauter' },
+      { label: 'Display', text: 'Öffne Display-Einstellungen' },
     ],
   },
   {

@@ -59,5 +59,5 @@ export function greetingReply(part: DayPart | 'echo', now = new Date(), asked = 
     }
   }
   if (/wie\s+geht/i.test(asked)) return `${line} Gut, danke. Und Ihnen?`
-  return `${line} Was steht an?`
+  return `${line} Ich höre.`
 }

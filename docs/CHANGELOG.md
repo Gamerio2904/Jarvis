@@ -7,6 +7,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 - **Intensiv-Befund Memory-10:** [`57-next.md`](./57-next.md) **PLAN**. G5 live Echo, Alias zu breit, memoryBlock ohne Memory-Hits. Sprints 196–201. Execute nicht in diesem Commit.
 
+## `10.60.2` — Multi-Intent, Film, Weltlage, Handy-Kontrolle — *CODE*
+
+Sideload **`10.60.2`**. Screenshot-Fixes vom 3.9. Abend.
+
+- **Drei Befehle in einem Satz:** Wetter Stuttgart + Timer Pasta + Zahnarzt Freitag werden getrennt ausgeführt. Ort ist Stuttgart, nicht „morgen in Stuttgart“.
+- **Gedächtnis:** „was du über mich weißt / fass das zusammen“ ist Recall, nicht Gemerkt. Zahnarzt-Frage sucht den Termin.
+- **Film:** Bewertung ohne englischen Plot-Abriss. **Benzinpreis** löst Suche aus. **Weltlage** ohne Hamburger Lokal-RSS, ohne „Geheim-Feed“.
+- **Plaudern:** Begrüßung „Ich höre.“ Persona erlaubt freies Reden ohne Tool.
+- **Handy:** gekoppelte Bluetooth-Geräte nennen + BT-Seite; Medienlautstärke; Display/Standort/Ton/Akku-Einstellungen. Schalter legt Jarvis nicht selbst um.
+- **Kalender:** Safe-Area, Titel nicht unter der Uhr.
+
 ## `10.60.1` — Screenshot-Fixes Kugel / Bundesliga / Research — *CODE*
 
 Sideload **`10.60.1`** (versionCode `106001`).

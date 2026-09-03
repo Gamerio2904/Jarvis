@@ -121,6 +121,8 @@ const perms = [
   'android.permission.FLASHLIGHT',
   'android.permission.CALL_PHONE',
   'android.permission.SEND_SMS',
+  'android.permission.BLUETOOTH',
+  'android.permission.BLUETOOTH_CONNECT',
 ]
 for (const perm of perms) {
   if (!manifest.includes(perm)) {

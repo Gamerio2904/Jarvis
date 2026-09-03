@@ -12,6 +12,8 @@ type NativeDevice = {
   }>
   torch(opts: { on: boolean }): Promise<{ ok: boolean; on?: boolean; message?: string }>
   openPage(opts: { page: string }): Promise<{ ok: boolean; message?: string }>
+  listBluetooth(): Promise<{ ok: boolean; on?: boolean; devices?: string[]; needPerm?: boolean; message?: string }>
+  volume(opts: { dir: string }): Promise<{ ok: boolean; message?: string }>
   openApp(opts: { pkg?: string; uri?: string }): Promise<{ ok: boolean; message?: string }>
   dial(opts: { number: string }): Promise<{ ok: boolean; message?: string }>
   sms(opts: { number: string; body?: string }): Promise<{ ok: boolean; message?: string }>
@@ -110,7 +112,7 @@ export async function openAmazonMusic(): Promise<{ ok: boolean; message?: string
 }
 
 export async function openDevicePage(
-  page: 'wifi' | 'bluetooth' | 'dnd' | 'app',
+  page: 'wifi' | 'bluetooth' | 'dnd' | 'app' | 'location' | 'sound' | 'display' | 'battery',
 ): Promise<{ ok: boolean; message?: string }> {
   if (native) {
     try {
@@ -123,6 +125,45 @@ export async function openDevicePage(
     }
   }
   return { ok: false, message: 'Einstellungen nur auf dem Handy.' }
+}
+
+export async function listBluetooth(): Promise<{
+  ok: boolean
+  on?: boolean
+  devices?: string[]
+  needPerm?: boolean
+  message?: string
+}> {
+  if (native && native.listBluetooth) {
+    try {
+      const hit = await withTimeout(native.listBluetooth(), 12_000, {
+        ok: false,
+        message: 'Bluetooth-Geräte nicht lesbar.',
+      })
+      const raw = hit as { devices?: unknown }
+      const devices = Array.isArray(raw.devices)
+        ? raw.devices.map((n) => String(n || '').trim()).filter(Boolean)
+        : []
+      return { ...hit, devices }
+    } catch {
+      return { ok: false, message: 'Bluetooth-Geräte nicht lesbar.' }
+    }
+  }
+  return { ok: false, message: 'Bluetooth-Liste nur auf dem Handy.' }
+}
+
+export async function nudgeVolume(dir: 'up' | 'down'): Promise<{ ok: boolean; message?: string }> {
+  if (native && native.volume) {
+    try {
+      return await withTimeout(native.volume({ dir }), 6_000, {
+        ok: false,
+        message: 'Lautstärke nicht geändert.',
+      })
+    } catch {
+      return { ok: false, message: 'Lautstärke nicht geändert.' }
+    }
+  }
+  return { ok: false, message: 'Medienlautstärke nur auf dem Handy.' }
 }
 
 export async function openExternal(url: string): Promise<{ ok: boolean; message?: string }> {

@@ -2303,7 +2303,7 @@ button.linkish {
   background: var(--bg);
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 16px 18px 28px;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 18px calc(28px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 14px;

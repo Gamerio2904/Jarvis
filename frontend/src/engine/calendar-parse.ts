@@ -146,6 +146,11 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
 
   const created = CREATE.exec(t)
   if (created) return createFromInner(created[1], now)
+  const merk = /^\s*merk(?:e)?\s*dir\s+(?:bitte\s*)?(?:dass\s+)?(.+)$/is.exec(t)
+  if (merk && /\b(?:zahnarzt|arzt|termin|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag|morgen)\b/i.test(merk[1])) {
+    const inner = merk[1].replace(/^ich\s+/i, '').replace(/\s+habe\.?$/i, '').trim()
+    return createFromInner(inner, now)
+  }
   return null
 }
 

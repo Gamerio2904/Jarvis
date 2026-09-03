@@ -159,6 +159,25 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   }
 
   if (
+    /\bwas\s+du\s+über\s+mich\s+weißt\b/.test(t) ||
+    /\bbasierend\s+auf\s+(?:dem\s+)?was\s+du\b/.test(t) ||
+    (/\b(?:wo\s+wohne|wo\s+arbeite|was\s+trinke)\s+ich\b/.test(t) && /\b(?:zusammen|fass)\b/.test(t))
+  ) {
+    out = drop(out, 'memory')
+    out = boost(out, 'recall', 0.28)
+  }
+
+  if (/\bmerk(?:e)?\s*dir\b/.test(t) && /\b(?:freitag|montag|dienstag|mittwoch|donnerstag|samstag|sonntag|zahnarzt|termin)\b/.test(t)) {
+    out = drop(out, 'memory')
+    out = boost(out, 'calendar', 0.25)
+  }
+
+  if (/\b(?:benzinpreis|spritpreis|e10)\b/.test(t) && !/\b(?:teurer|billiger|wird|ausblick|prognose|tanke)\b/.test(t)) {
+    out = drop(out, 'outlook')
+    out = drop(out, 'fuel')
+  }
+
+  if (
     /weltlage|lage\s+welt|ölpreis|rohöL|brent|\bwti\b|opec|hormus|hormuz/.test(t) ||
     (/\b(benzin|e10|sprit)\b/.test(t) && /\b(teurer|billiger|ausblick|prognose|wird)\b/.test(t)) ||
     (/(^|[^a-zäöüß])öl([^a-zäöüß]|$)/.test(t) && /\b(warum|teuer|steigt|fällt|preis|ausblick)\b/.test(t)) ||

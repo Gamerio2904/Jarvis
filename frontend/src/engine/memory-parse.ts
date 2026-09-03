@@ -6,7 +6,7 @@ export const VERGISS_ALL =
   /^\s*(?:vergiss|lösch(?:e)?)\s+(?:bitte\s+)?(alles(?:\s+über\s+mich)?|meine\s+erinnerungen)\s*[.!]?\s*$/is
 export const VERGISS = /^\s*(?:vergiss|lösch(?:e)?\s*(?:die\s*)?erinnerung(?:\s*an)?)\s*[:-]?\s*(.+)$/is
 export const RECALL_ALL =
-  /^\s*(?:was\s+weißt\s+du\s+über\s+mich|was\s+hast\s+du\s+dir\s+gemerkt|erinnerst\s+du\s+dich(?:\s+an\s+mich)?|was\s+liegt\s+über\s+mich)\s*[?]?\s*$/is
+  /^\s*(?:was\s+weißt\s+du\s+über\s+mich|was\s+hast\s+du\s+dir\s+gemerkt|erinnerst\s+du\s+dich(?:\s+an\s+mich)?|was\s+liegt\s+über\s+mich|basierend\s+auf\s+(?:dem\s+)?was\s+du\s+über\s+mich\s+weißt)\b/is
 export const RECALL_NAME =
   /^\s*(?:wie\s+heiß(?:e|t)\s+ich|wie\s+ist\s+mein\s+name|wer\s+bin\s+ich|mein\s+name\??)\s*[?]?\s*$/is
 export const RECALL_DRINK =
@@ -44,7 +44,9 @@ export function parseMemoryFacts(text: string): MemoryFact[] {
   )
   if (name) push('name', name[1], 'fact')
 
+  const drinkAsk = /^\s*was\s+trinke\s+ich\b/i.test(text)
   const drink =
+    !drinkAsk &&
     /(?:trinke?\s+(?:gerne\s+)?|lieblingsgetränk\s+ist\s+|getränk\s+ist\s+)(.+?)(?=\s+\bund\b|[,.!?]|$)/i.exec(
       text,
     )
@@ -73,9 +75,21 @@ function isPrefValue(raw: string): boolean {
 export function isMemoryWrite(text: string): boolean {
   if (isMemoryRecall(text)) return false
   if (/^\s*was\b/i.test(text) && /[?]/.test(text)) return false
+  if (/\bbasierend\s+auf\s+(?:dem\s+)?was\s+du\b/i.test(text)) return false
+  if (/\b(?:wo\s+wohne\s+ich|wo\s+arbeite\s+ich|was\s+trinke\s+ich|fass\s+das\s+in\s+einem\s+satz)\b/i.test(text)) {
+    return false
+  }
   if (CONTRADICTION.test(text) && !/\b(termin|wecker|timer|todo)\b/i.test(text)) return true
   if (isUtilityCorrection(text)) return true
-  if (MERK.test(text)) return true
+  if (MERK.test(text)) {
+    if (
+      /\b(?:zahnarzt|arzttermin|termin)\b/i.test(text) &&
+      /\b(?:montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag|morgen|heute)\b/i.test(text)
+    ) {
+      return false
+    }
+    return true
+  }
   if (/(?:ich\s+heiß(?:e|t)|mein\s+name\s+ist|nenn(?:e)?\s+mich)\b/i.test(text)) return true
   if (/\b(?:trinke?\s+(?:gerne)?|lieblingsgetränk|esse\s+(?:gerne)?|lieblingsessen)\b/i.test(text)) {
     return parseMemoryFacts(text).length > 0

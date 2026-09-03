@@ -73,7 +73,7 @@ export function formatFilmReply(opts: {
   const free = freeLine(opts.watch)
   const paid = paidLine(opts.watch)
   if (opts.kind === 'rate') {
-    return [head, scores, opts.omdb?.plot ? opts.omdb.plot.slice(0, 180) : '', free].filter(Boolean).join(' ')
+    return [head, scores].filter(Boolean).join(' ')
   }
   if (opts.kind === 'where') {
     return [head, free, paid, scores].filter(Boolean).join(' ')

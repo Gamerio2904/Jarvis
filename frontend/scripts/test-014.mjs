@@ -650,6 +650,32 @@ const munichHotel =
   'Ich fahre nächste Woche nach München, brauche ein Hotel in der Innenstadt für 2 Nächte, was kostet das ungefähr und wie wird das Wetter dort?'
 assert.equal(parseWeatherIntent(munichHotel), null)
 assert.notEqual(pickRoute(munichHotel), 'weather')
+assert.equal(parseWeatherIntent('Sag mir das Wetter für morgen in Stuttgart')?.place, 'Stuttgart')
+assert.equal(parseWeatherIntent('Sag mir das Wetter für morgen in Stuttgart')?.when, 'tomorrow')
+const multi =
+  'Sag mir das Wetter für morgen in Stuttgart, erstell einen Timer für 10 Minuten Pasta und merk dir dass ich am Freitag den Zahnarzt habe.'
+assert.equal(splitIntents(multi).length, 3)
+assert.ok(parseTimerIntent('erstell einen Timer für 10 Minuten Pasta', frozen))
+assert.equal(parseCalendarIntent('merk dir dass ich am Freitag den Zahnarzt habe', frozen)?.kind, 'create')
+assert.equal(
+  isMemoryWrite(
+    'Basierend auf dem was du über mich weißt: Wo wohne ich, wo arbeite ich und was trinke ich — fass das in einem Satz zusammen.',
+  ),
+  false,
+)
+assert.equal(
+  isMemoryRecall(
+    'Basierend auf dem was du über mich weißt: Wo wohne ich, wo arbeite ich und was trinke ich — fass das in einem Satz zusammen.',
+  ),
+  true,
+)
+assert.equal(parseRecallIntent('Wann war nochmal der Zahnarzt den ich gerade erwähnt habe?'), 'Zahnarzt')
+assert.equal(parseFilmIntent('Wie gut ist Dune bewertet?')?.title, 'Dune')
+assert.equal(parseFilmIntent('Wie gut ist Dune bewertet?')?.kind, 'rate')
+assert.ok(isLiveLookup('Wie hoch ist der aktuelle Benzinpreis in Deutschland?'))
+assert.equal(parseDeviceIntent('Kopfhörer verbinden')?.kind, 'bt_list')
+assert.equal(parseDeviceIntent('Handy lauter')?.kind, 'volume')
+assert.equal(parseDeviceIntent('Öffne Display-Einstellungen')?.page, 'display')
 const airFollow = parseWeatherFollowup('und die Luft', { kind: 'here', when: 'today', focus: 'general' })
 assert.equal(airFollow?.focus, 'air')
 assert.match(
@@ -1197,7 +1223,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /10\.60\.1/)
+assert.match(HELP_TEXT, /10\.60\.2/)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
 assert.match(HELP_TEXT, /Keys nicht im Chat/)

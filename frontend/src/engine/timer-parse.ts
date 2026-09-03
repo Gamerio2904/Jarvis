@@ -35,12 +35,12 @@ export function parseTimerIntent(text: string, now = new Date()): TimerIntent | 
     return { kind: 'list' }
   }
   const a = new RegExp(
-    `^(?:stell(?:e)?\\s+(?:einen\\s+|den\\s+)?timer\\s+(?:auf\\s+|für\\s+)?|timer\\s+(?:auf\\s+|für\\s+)?)(\\d+)\\s+(${UNIT})(?:\\s+(?:für\\s+)?(.+))?$`,
+    `^(?:(?:erstell(?:e)?|stell(?:e)?)\\s+(?:einen\\s+|den\\s+)?timer\\s+(?:auf\\s+|für\\s+)?|timer\\s+(?:auf\\s+|für\\s+)?)(\\d+)\\s+(${UNIT})(?:\\s+(?:für\\s+)?(.+))?$`,
     'i',
   ).exec(t)
   const b = new RegExp(`^(\\d+)\\s+(${UNIT})\\s+timer(?:\\s+(?:für\\s+)?(.+))?$`, 'i').exec(t)
   const c = new RegExp(
-    `^(?:stell(?:e)?\\s+(?:einen\\s+|den\\s+)?)?timer\\s+für\\s+(.+?)\\s+(\\d+)\\s+(${UNIT})$`,
+    `^(?:(?:erstell(?:e)?|stell(?:e)?)\\s+(?:einen\\s+|den\\s+)?)?timer\\s+für\\s+(.+?)\\s+(\\d+)\\s+(${UNIT})$`,
     'i',
   ).exec(t)
   const m = a || b

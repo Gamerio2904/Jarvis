@@ -149,7 +149,7 @@ export async function handleOutlook(
   if (intent.kind === 'world') {
     const stops = buildTourStops(snap.news)
     startTour(stops)
-    reply = tourChatReply(stops)
+    if (stops.length) reply = tourChatReply(stops)
   }
   const sources = intent.kind === 'world' ? sourcesFromSnap(snap, true) : sourcesFromSnap(snap)
   persistLastList('outlook', snap.news.map((n) => n.title).slice(0, 8))
@@ -262,17 +262,21 @@ function sourcesFromSnap(snap: OutlookSnap, newsOnly = false): ResearchSource[] 
 }
 
 async function ingestNews(kind: OutlookKind | 'watch'): Promise<OutlookNews[]> {
+  if (kind === 'world' || kind === 'watch') {
+    const dw = await dwRss()
+    const taggedDw = dw.filter((n) => n.tags.length)
+    const ts = await tagesschauSearch('Ukraine Weltpolitik Krieg Nahost')
+    const taggedTs = ts.filter((n) => n.tags.length)
+    const pick = dedupeNews([...taggedDw, ...taggedTs]).slice(0, 5)
+    if (pick.length) return pick
+    if (taggedDw.length) return taggedDw.slice(0, 5)
+    return dw.slice(0, 5)
+  }
   const home = await tagesschauHome()
-  const extra =
-    kind === 'oil_why' || kind === 'fuel_outlook'
-      ? await tagesschauSearch('Ölpreis')
-      : kind === 'world' || kind === 'watch'
-        ? await dwRss()
-        : []
+  const extra = kind === 'oil_why' || kind === 'fuel_outlook' ? await tagesschauSearch('Ölpreis') : []
   const merged = dedupeNews([...home, ...extra])
   const tagged = merged.filter((n) => n.tags.length)
-  const pick = (tagged.length ? tagged : merged).slice(0, 5)
-  return pick
+  return (tagged.length ? tagged : merged).slice(0, 5)
 }
 
 async function tagesschauHome(): Promise<OutlookNews[]> {

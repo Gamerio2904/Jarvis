@@ -36,6 +36,9 @@ export function isLiveLookup(text: string, discount = false): boolean {
   if (/\b(?:eintritt|zugangsgebühr|city[- ]?tax|touristenabgabe|contributo)\b/i.test(t)) return true
   if (/\bmuss\s+man\b/i.test(t) && /\b(?:zahl|gebühr|eintritt|beitrag)\b/i.test(t)) return true
   if (/\b(?:tweet|tweets|twitter|getweetet|gepostet)\b/i.test(t)) return true
+  if (/\b(?:benzin(?:preis)?|sprit(?:preis)?|diesel(?:preis)?|tankpreis|e10)\b/i.test(t) && /\b(?:aktuell|hoch|preis|deutschland|heute)\b/i.test(t)) {
+    return true
+  }
   if (/\bauf\s+x\b/i.test(t) && /\b(?:post|geschrieben|gesagt|zuletzt|letztes)\b/i.test(t)) return true
   if (/\bwas\s+hat\s+\S.{0,40}\s+(?:als\s+letztes\s+)?(?:getweetet|gepostet|getwittert)\b/i.test(t)) return true
   if (isTableAsk(t) && /\b(?:bip|gdp|deutschland|zahlen|statistik|daten|wirtschaft|vergleich|vor-?\s*und\s*nachteile|vs\.?|gegenüber|e-?auto|verbrenner)\b/i.test(t)) return true
