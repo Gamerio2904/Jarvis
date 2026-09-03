@@ -158,6 +158,7 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Bühne & Hirn `6.0` — **PLAN** [`45-next.md`](./45-next.md)
 - Agentic Recall `6.60` — **PLAN** [`46-next.md`](./46-next.md)
 - Alltag vom Zettel `8.0` — **PLAN** [`50-next.md`](./50-next.md)
+- Rest final `9.10` — **PLAN** [`54-next.md`](./54-next.md) (Gerät, Debug-FGS, 3060, Could)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---

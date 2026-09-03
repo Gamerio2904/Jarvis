@@ -8,12 +8,13 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 
 ## Pull-Reihenfolge
 
-1. LocateAnything-Sidecar nach `4.77` GO (Parser schon CODE, Vision ehrlich aus)
-2. **Stabilität Industry-Track** [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` / `9.3` / `9.9` **CODE** — vor Alltag-Execute
-3. **Latenz / Qualität** [`52-research-latency-quality.md`](./52-research-latency-quality.md) Prefix-Cache + Groq-Stream + SLO + Edge-Neural First-Audio **CODE**; Smart Turn / Piper-offline Could
-4. Debug-Hintergrund `5.12` — PLAN (Lauf v1 ist CODE `5.11`, Session `6.91`)
-5. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
-6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+1. **Geräte-Katalog** Sprint [`168`](./sprints/sprint-168.md) — Parser CODE, Gerät PO ([`54-next.md`](./54-next.md))
+2. **Debug-Hintergrund** `5.12`/`5.17` — Spike 169, FGS oder Freeze 170 (Lauf v1 ist CODE)
+3. **LocateAnything** `4.77` — Messung 171, Sidecar oder Freeze 172 (Parser CODE, Vision ehrlich aus)
+4. **Qualität-Could** `9.10` — Leit 173, Silero/Smart Turn 174, Piper 175, Kokoro+e5 176, Gold 177
+5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+
+Industry-Track V1–V9, Latenz-Loop (Prefix/Groq/SLO/Edge), Screenshot-Fixes: **CODE**. Alltag [`50-next.md`](./50-next.md) unabhängig; Execute nicht dieser Serie.
 
 Bereits **CODE** in `9.9.2`: Screenshot-Fixes (Kugel, Greeting, News, TV, Stimme). In `9.9.1`: Handy-Lage chat-first. In `9.9.0`: V9 Hardening. V8 Live Signaling + Verify. V7 PC Capability-Levels + Confirm. V6 TV Registry + Verify Launch. V5 Hierarchical Memory. V4 Datei/PDF/OCR. V3 Action-FSM. V2 TTS/App/Wake. V1 Overlay/Weltlage.
 
@@ -49,14 +50,22 @@ Bereits **CODE** in `9.9.2`: Screenshot-Fixes (Kugel, Greeting, News, TV, Stimme
 
 ## Offen
 
-### LocateAnything Sidecar (`4.77`)
-Parser CODE. Gewichte erst nach 3060-GO. Ohne Sidecar: ehrlich aus.
+Serie [`54-next.md`](./54-next.md) **PLAN** (Sprints 168–177).
 
-### Debug-Hintergrund (`5.12`)
-Lauf in der App ist CODE. Dienst im Hintergrund PLAN.
+### Geräte-Katalog (Sprint 168)
+Parser CODE. PO auf dem Handy: Probe V1–V9 + Screenshot-Bugs.
+
+### Debug-Hintergrund (`5.12` / `5.17`) · 169–170
+Lauf in der App ist CODE. Spike, dann FGS **oder** Banner-Freeze.
+
+### LocateAnything (`4.77`) · 171–172
+Parser CODE. Gewichte erst nach 3060-Messung. NO-GO → Sehen aus.
+
+### Qualität-Could (`9.10`) · 173–177
+Silero + Smart Turn, Piper, Kokoro-Spike, e5-Rerank. Opt-in, nie Router. Gold 177.
 
 ### Alltag vom Zettel (`8.0`) · Sprint 141 · [`50-next.md`](./50-next.md)
-Alte Notizen: Blitzer+Baustelle, **Stimme `8.20`**, GUI-Härte, **Lage** `8.32`, **Netz** `8.33`, **Test-Tore** nach Bündeln, Settings `8.35`, Amazon/Ordner/Preis. Nach Recall: **Dauer-Zuhören `8.95`**. Nicht mit Recall-Nummern mischen.
+Eigene Schiene, nicht 54. Nicht mit Recall-Nummern mischen.
 
 ### Parking
 Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.

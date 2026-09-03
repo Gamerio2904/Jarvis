@@ -6,7 +6,7 @@ App-Code und Sideload stehen auf **`9.9.2`**. LocateAnything-Gewichte nicht in d
 
 **Deinstall** (andere Signatur): WebView-Daten weg — Keys, Nummern, Erinnerungen. Hausstand-Export ist **CODE** ([`38-next.md`](./38-next.md)): vor Neuinstall Einstellungen → Hausstand → Exportieren. GGUF ebenfalls neu laden.
 
-**9.9.2:** Kugel-Steuerung, GPS-Pin, Greeting/News/TV-Parser, schnellere Stimme. Katalog: [`sprints/sprint-168.md`](./sprints/sprint-168.md).
+**9.9.2:** Kugel-Steuerung, GPS-Pin, Greeting/News/TV-Parser, schnellere Stimme. Nächste Serie: [`54-next.md`](./54-next.md). Katalog: [`sprints/sprint-168.md`](./sprints/sprint-168.md).
 
 **9.9.1:** Handy-Lage chat-first.
 

@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`, Alltag [`50-next.md`](./50-next.md) `8.0`.
+> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Nächste Schiene: [`54-next.md`](./54-next.md) Gerät / Debug / 3060 / Could.
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
@@ -46,6 +46,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **CODE** |
 | E49 | Agentic Recall `7.0` | 5+ | Retrieve/RRF nach `6.90` — [`49-next.md`](./49-next.md) **PLAN** |
 | E50 | Alltag vom Zettel `8.0` | 5+ | Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache — [`50-next.md`](./50-next.md) **PLAN** |
+| E54 | Rest final `9.10` | 5+ | Gerät, Debug-FGS, LocateAnything-3060, Qualität-Could — [`54-next.md`](./54-next.md) **PLAN** |
 
 ---
 
@@ -520,14 +521,29 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S50.11 | Test-Tore nach Execute-Bündeln | Must | ready | vier Phasen, `5.11`, nicht nach Research allein |
 | S50.12 | Dauer-Zuhören härten | Must | ready | `8.95` nach Recall, Wake opt-in, internes CarPlay |
 
+### E54 — Rest final `9.10`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S54.0 | Leitentscheidung Rest-Serie | Must | ready | [`54-next.md`](./54-next.md) PLAN |
+| S54.1 | Geräte-Katalog auf dem Handy | Must | ready | Sprint 168 A–H, Probe V1–V9 |
+| S54.2 | Debug-Lauf überlebt Home oder ehrliches Banner | Should | ready | Spike 169, FGS oder Freeze 170 |
+| S54.3 | LocateAnything nach 3060-Messung | Must | ready | 171 GO/NO-GO, 172 Sidecar oder Sehen aus |
+| S54.4 | Silero + Smart Turn ONNX | Could | ready | 174 opt-in, nie dauernd, Drive default aus |
+| S54.5 | Piper offline TTS | Could | ready | 175 Lane extra, Edge/Algieba bleiben Lane-1 |
+| S54.6 | Kokoro-Spike | Could | ready | 176 messen, nicht mit Piper default |
+| S54.7 | e5-small nur Retrieve-Rerank | Could | ready | 176 nie Router, nur bei messbaren RRF-Fehlern |
+| S54.8 | Rest-Gold, Default = 9.9.2 | Must | ready | Sprint 177 |
+| S54.9 | Pipecat/Whisper/Cesium/Moshi/Embeddings-Router | Won’t | parked | |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. LocateAnything-Sidecar nach 3060-GO [`41-next.md`](./41-next.md) — Parser schon CODE
-2. Debug-Hintergrund `5.12` — Lauf v1 ist CODE `5.11`
-3. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` — unabhängig von Recall
-4. Agentic Recall [`49-next.md`](./49-next.md) `7.0`
+1. Geräte-Katalog Sprint 168 — PO Handy [`54-next.md`](./54-next.md)
+2. Debug-Hintergrund Spike 169 → FGS oder Freeze 170
+3. LocateAnything 3060-Messung 171 → Sidecar oder Freeze 172
+4. Qualität-Could 173–177 (opt-in, nie Must für 1–3)
 5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Sideload **`6.90.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing sind **CODE**.

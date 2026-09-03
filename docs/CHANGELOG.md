@@ -5,7 +5,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Nichts offenes hinter **`9.9.2`**. Nächster Stand erst nach dem nächsten Sideload.
+Docs: Rest final [`54-next.md`](./54-next.md) **PLAN** — Sprints 168–177 (Gerät, Debug-FGS, LocateAnything-3060, Silero/Piper/Kokoro/e5 Could). Sideload bleibt **`9.9.2`**.
 
 ## `9.9.2` — Screenshot-Bugs / Kugel+Stimme — *CODE*
 

@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Code `9.9.2`. Sideload `9.9.2`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
+> Historisch (MVP `0.1`). **Jetzt:** Code `9.9.2`. Sideload `9.9.2`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Rest final [`54-next.md`](./54-next.md) **PLAN**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0`. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
 
 ## MVP v0.1 — Definition
 
@@ -532,6 +532,7 @@ Listen-Scope, UI-Confirm, Aufräumen.
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
 | 34–39 | NAS 24/7 Compose | **`0.10.0`–`0.10.5`** — **Parking** |
+| 168–177 | Rest final: Gerät, Debug-FGS, 3060, Could | **`9.9.2` / `5.17` / `4.77` / `9.10`** — [`54-next.md`](./54-next.md) **PLAN** |
 | 40–42 | Samsung-TV lokal (Tizen) | **`0.11.0`–`0.11.2`** |
 | 43 | NAS native + Reverse-Proxy + Sideload-APK | **`0.12.0`** |
 | — | TTS-Vorlesen | nach PO-Go |

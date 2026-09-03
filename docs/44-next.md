@@ -176,7 +176,7 @@ Dieses Dokument. **Done wenn:** Mehrfachwahl, neues Gespräch, Expect+Export, Wr
 | **`5.14.0`** | UI: Boxen, Alle/keine, Sequenz, Stop | **CODE** |
 | **`5.15.0`** | Neue Gruppen + `expect` | **CODE** |
 | **`5.16.0`** | JSON+TXT Download, Verdict | **CODE** |
-| **`5.17.0`** | WakeLock oder Service laut `5.12`; Gold | WakeLock-Versuch **CODE**; Service geplant |
+| **`5.17.0`** | WakeLock oder Service laut `5.12`; Gold | WakeLock-Versuch **CODE**; Service **PLAN** Sprint 170 |
 | **`5.18.0`** | Sideload nach Hausstand | **CODE** als `6.60.0` |
 
 ## Chat / Settings (Ziel)
