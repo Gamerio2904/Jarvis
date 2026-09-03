@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. `6.50` = Gemini Hauptweg. Stabilität V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Rest final [`54-next.md`](./54-next.md) **PLAN**. Alltag [`50-next.md`](./50-next.md) `8.0`.
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. `6.50` = Gemini Hauptweg. Stabilität V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0`.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -118,11 +118,10 @@ MAJOR.MINOR.PATCH
 | `9.9.1` | **Handy-Lage chat-first** | Beta-Polish |
 | `9.9.2` | **Screenshot-Bugs** — Kugel, Greeting, News, TV, Stimme | Sprint 166–168 |
 | `9.9.3` | **Geräte-Findings** — nur wenn 168 rot | nach 168 |
-| `9.10.0` | **Qualität-Could Leit** — opt-in, nie Router | Sprint 173 |
-| `9.10.1` | Silero + Smart Turn ONNX | Sprint 174 |
-| `9.10.2` | Piper offline | Sprint 175 |
-| `9.10.3` | Kokoro + e5 Spike | Sprint 176 |
-| `9.10.9` | Rest-Gold | Sprint 177 |
+| `9.10.0` | **Rest final** — Debug-FGS, Sehen-Freeze, Could-Schalter | Sprint 169–177 |
+| `9.10.1` | Silero + Smart Turn ONNX | Sprint 174 Freeze |
+| `9.10.2` | Piper offline | Sprint 175 Freeze |
+| `9.10.3` | Kokoro + e5 Spike | Sprint 176 Freeze |
 | `7.0.0` | **V5 Hierarchical Memory** — Quelle, Confidence, Bereinigung | Sprint 137–140 |
 | `8.0.0` | **Alltag vom Zettel** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache | Sprint 141 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
@@ -336,15 +335,15 @@ Lage-Sicht auf vorhandene Organe. Handy ist Hirn. PC nur PC-Auge/PC-Hand. Kein C
 | `4.70.0`–`4.74.0` | HUD-Sicht, 3D + Kacheln, Gold | nach Research |
 | `4.75.0` | Sideload nach Hausstand | nach `4.52` |
 
-### `4.76+` — Lokales Sehen / LocateAnything [`41-next.md`](./41-next.md) **PLAN** (Parser CODE)
+### `4.76+` — Lokales Sehen / LocateAnything [`41-next.md`](./41-next.md) **FREEZE** (Parser CODE)
 
-PC-Sidecar, nicht Handy-WASM. `4.66`–`4.75` bleiben Körper. 3060/Windows = GO/NO-GO vor Execute. Sprints [`54-next.md`](./54-next.md) 171–172.
+PC-Sidecar, nicht Handy-WASM. `4.66`–`4.75` bleiben Körper. 3060 fehlt → NO-GO. Sprints [`54-next.md`](./54-next.md) 171–172.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `4.76.0` | Leitentscheidung (Docs) | 116 **CODE** |
-| `4.77.0` | 3060-Messung GO/NO-GO | **171** PLAN |
-| `4.78.0`–`4.80.0` | Sidecar / Klick / Foto oder Freeze | **172** PLAN |
+| `4.77.0` | 3060-Messung GO/NO-GO | **171** NO-GO |
+| `4.78.0`–`4.80.0` | Sidecar / Klick / Foto oder Freeze | **172** Freeze CODE |
 | `4.81.0`–`4.86.0` | Ground, Click mit Box, Overlay, Foto, Crop, Fallback | nach GO |
 | `4.87.0`–`4.93.0` | Zeig, Zählen, Tippen, Delta, Beleg, Termin, TV-Foto | 117 Parser **CODE** |
 | `4.94.0`–`4.99.0` | Schreibtisch, Waschlabel, EAN, zwei Schritte, Gold, Sideload | 118 Parser **CODE** |
@@ -353,18 +352,18 @@ PC-Sidecar, nicht Handy-WASM. `4.66`–`4.75` bleiben Körper. 3060/Windows = GO
 
 `5.0`–`5.10` sind die Lage-Sicht Erde (PR #58). Nicht mit Debug mischen.
 
-### `5.11+` — Debug-Lauf [`44-next.md`](./44-next.md) **CODE** (v2 PLAN)
+### `5.11+` — Debug-Lauf [`44-next.md`](./44-next.md) **CODE** (v2 CODE)
 
 Upgrade des Settings-Debug `3.19`. Mehrere Kategorien, neues Gespräch, JSON-Export. Hintergrund-Service: [`54-next.md`](./54-next.md) Sprints 169–170.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `5.11.0` | Leitentscheidung (Docs) | 120 **CODE** |
-| `5.12.0` | Spike: stirbt der Lauf bei Home? | **169** PLAN |
+| `5.12.0` | Spike: stirbt der Lauf bei Home? | **169** CODE GO |
 | `5.13.0` | Research Export + eine Prompt-Quelle | **CODE** |
 | `5.14.0`–`5.16.0` | UI, Katalog, JSON+TXT | **CODE** |
-| `5.17.0` | FGS v2 oder Freeze-Banner | **170** PLAN |
-| `5.18.0` | Sideload nach Hausstand | nach Gold 177 |
+| `5.17.0` | FGS v2 | **170** CODE |
+| `5.18.0` | Sideload nach Hausstand | `9.10.0` |
 
 ### `6.0+` — Bühne & Hirn [`45-next.md`](./45-next.md) **CODE** in `6.50`/`6.60`
 
@@ -437,21 +436,20 @@ Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitze
 | `8.90.0` | Gold, Debug-Gruppe | nach Execute + Tore |
 | `8.95.0` | Dauer-Zuhören härten (Wake, App/CarPlay auf) | nach Recall `7.31` |
 
-### `9.10+` — Rest final / Qualität-Could [`54-next.md`](./54-next.md) **PLAN**
+### `9.10+` — Rest final / Qualität-Could [`54-next.md`](./54-next.md) **CODE**
 
-Nach Sideload `9.9.2`. Gerät 168, Debug 169–170, Sehen 171–172, Could 173–177. ONNX opt-in, nie Router. Sideload nur nach Gold wenn Default sich ändert.
+Nach Sideload `9.9.2`. Gerät 168 KATALOG, Debug 169–170 FGS, Sehen 171–172 Freeze, Could 173–177 ohne Gewichte. ONNX opt-in, nie Router.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `9.9.2` | Geräte-Katalog (PO) | 168 |
 | `9.9.3` | Findings 168, nur wenn rot | nach 168 |
-| `5.12.0` / `5.17.0` | Debug Spike / FGS oder Freeze | 169 / 170 |
-| `4.77.0` / `4.78.0` | 3060 GO/NO-GO / Sidecar oder Freeze | 171 / 172 |
-| `9.10.0` | Could-Leit | 173 |
-| `9.10.1` | Silero + Smart Turn | 174 |
-| `9.10.2` | Piper offline | 175 |
-| `9.10.3` | Kokoro + e5 Spike | 176 |
-| `9.10.9` | Rest-Gold | 177 |
+| `5.12.0` / `5.17.0` | Debug Spike GO / FGS | 169 / 170 |
+| `4.77.0` / `4.78.0` | 3060 NO-GO / Freeze | 171 / 172 |
+| `9.10.0` | Could-Leit + Gold ohne Bundle | 173 / 177 |
+| `9.10.1` | Silero + Smart Turn | 174 Freeze |
+| `9.10.2` | Piper offline | 175 Freeze |
+| `9.10.3` | Kokoro + e5 Spike | 176 Freeze |
 
 ### Weitere Beispiele
 

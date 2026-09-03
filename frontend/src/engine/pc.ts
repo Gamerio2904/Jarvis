@@ -43,7 +43,7 @@ type PendingPc =
 type PendingGround = { kind: 'two_step'; a: string; b: string; phase: 'ask1' | 'ask2' }
 
 const VISION_OFF =
-  'Sehen am PC ist aus. LocateAnything (JarvisSee auf der RTX) läuft nicht. Nichts eingezeichnet, nichts angeklickt. Gemini-Auge bleibt Opt-in — das Bild ginge dann zu Google.'
+  'Sehen am PC ist aus. LocateAnything-Gewichte sind eingefroren (keine RTX-3060-Messung). JarvisSee läuft nicht. Nichts eingezeichnet, nichts angeklickt. Gemini-Auge bleibt Opt-in — das Bild ginge dann zu Google.'
 
 function packPc(opts: {
   action: string

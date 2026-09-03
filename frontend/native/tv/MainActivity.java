@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowManager;
+import android.webkit.WebView;
 
 import com.getcapacitor.BridgeActivity;
 
@@ -12,6 +13,7 @@ import app.jarvis.geo.JarvisGeoPlugin;
 import app.jarvis.home.JarvisHomePlugin;
 import app.jarvis.notify.JarvisNotifyPlugin;
 import app.jarvis.tv.JarvisTvPlugin;
+import app.jarvis.voice.JarvisDebugService;
 import app.jarvis.voice.JarvisVoicePlugin;
 
 public class MainActivity extends BridgeActivity {
@@ -35,6 +37,28 @@ public class MainActivity extends BridgeActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         applyVoiceLaunch(intent);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        keepWebViewIfDebug();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        keepWebViewIfDebug();
+    }
+
+    /** FGS alone does not keep JS. Resume timers while the debug run is open. */
+    private void keepWebViewIfDebug() {
+        if (!JarvisDebugService.isRunning()) return;
+        if (getBridge() == null) return;
+        WebView w = getBridge().getWebView();
+        if (w == null) return;
+        w.resumeTimers();
+        w.onResume();
     }
 
     private void applyVoiceLaunch(Intent intent) {

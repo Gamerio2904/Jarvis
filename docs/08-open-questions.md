@@ -1,6 +1,6 @@
 # 08 — Offene Fragen
 
-> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Rest-Serie [`54-next.md`](./54-next.md): Gerät 168, Debug `5.12`, LocateAnything `4.77`, Qualität-Could `9.10`. At-rest-Encryption Parking.
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Rest-Serie [`54-next.md`](./54-next.md) **CODE**. At-rest-Encryption Parking.
 
 Alles, was die Planung noch **lückig** macht.  
 Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
@@ -25,9 +25,9 @@ Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 | Phase 2+3 NAS/APK | **superseded** (`0.13` On-Device; [`13-on-device.md`](./13-on-device.md)) |
 | Sprint-1-Blocker | **keine offenen P0** |
 | Hirn-Kaskade | **entschieden** (`6.50`): Gemini Hauptweg, Groq Backup, 0,5B zuletzt |
-| LocateAnything-Gewichte | **PLAN** — Sprint 171–172 [`54-next.md`](./54-next.md) |
-| Debug-Hintergrund | **PLAN** `5.12`/`5.17` — Sprint 169–170 |
-| Qualität-Could | **PLAN** `9.10` — Sprint 173–177 |
+| LocateAnything-Gewichte | **FREEZE** — Sprint 171 NO-GO, 172 Freeze [`54-next.md`](./54-next.md) |
+| Debug-Hintergrund | **CODE** `5.17` — Sprint 169–170 |
+| Qualität-Could | **CODE** Leit / **FREEZE** Gewichte — Sprint 173–177 |
 | Globus-Briefing | **CODE** `6.90` — [`48-next.md`](./48-next.md) |
 
 Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Hausstand-Export ist **CODE**.

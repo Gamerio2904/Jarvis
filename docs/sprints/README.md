@@ -172,17 +172,17 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 166 | [`sprint-166.md`](./sprint-166.md) | `9.9.2` | Kugel Lag / Invert / GPS | **CODE** |
 | 167 | [`sprint-167.md`](./sprint-167.md) | `9.9.2` | Greeting News TV Stimme | **CODE** |
 | 168 | [`sprint-168.md`](./sprint-168.md) | `9.9.2` | Ausführlicher Geräte-Test | **KATALOG** |
-| 169 | [`sprint-169.md`](./sprint-169.md) | `5.12.0` | Debug-Hintergrund Spike | **PLAN** |
-| 170 | [`sprint-170.md`](./sprint-170.md) | `5.17.0` | Debug FGS v2 oder Freeze | **PLAN** |
-| 171 | [`sprint-171.md`](./sprint-171.md) | `4.77.0` | LocateAnything 3060 GO/NO-GO | **PLAN** |
-| 172 | [`sprint-172.md`](./sprint-172.md) | `4.78.0` | LocateAnything Sidecar oder Freeze | **PLAN** |
-| 173 | [`sprint-173.md`](./sprint-173.md) | `9.10.0` | Qualität-Could Leitentscheidung | **PLAN** |
-| 174 | [`sprint-174.md`](./sprint-174.md) | `9.10.1` | Silero + Smart Turn ONNX | **PLAN** Could |
-| 175 | [`sprint-175.md`](./sprint-175.md) | `9.10.2` | Piper offline TTS | **PLAN** Could |
-| 176 | [`sprint-176.md`](./sprint-176.md) | `9.10.3` | Kokoro-Spike + e5-Rerank | **PLAN** Could |
-| 177 | [`sprint-177.md`](./sprint-177.md) | `9.10.9` | Rest-Gold | **PLAN** |
+| 169 | [`sprint-169.md`](./sprint-169.md) | `5.12.0` | Debug-Hintergrund Spike | **CODE** |
+| 170 | [`sprint-170.md`](./sprint-170.md) | `5.17.0` | Debug FGS v2 | **CODE** |
+| 171 | [`sprint-171.md`](./sprint-171.md) | `4.77.0` | LocateAnything 3060 GO/NO-GO | **NO-GO** |
+| 172 | [`sprint-172.md`](./sprint-172.md) | `4.78.0` | LocateAnything Freeze | **CODE** |
+| 173 | [`sprint-173.md`](./sprint-173.md) | `9.10.0` | Qualität-Could Leitentscheidung | **CODE** |
+| 174 | [`sprint-174.md`](./sprint-174.md) | `9.10.1` | Silero + Smart Turn ONNX | **FREEZE** Could |
+| 175 | [`sprint-175.md`](./sprint-175.md) | `9.10.2` | Piper offline TTS | **FREEZE** Could |
+| 176 | [`sprint-176.md`](./sprint-176.md) | `9.10.3` | Kokoro-Spike + e5-Rerank | **FREEZE** Could |
+| 177 | [`sprint-177.md`](./sprint-177.md) | `9.10.0` | Rest-Gold | **CODE** |
 
-**Aktuell:** Code **`9.9.2`**. Sideload `9.9.2`. Rest final [`54-next.md`](../54-next.md) **PLAN** (168–177). Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall [`49-next.md`](../49-next.md) **CODE**. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`9.10.0`**. Sideload `9.10.0`. Rest final [`54-next.md`](../54-next.md) **CODE** (168–177). Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall [`49-next.md`](../49-next.md) **CODE**. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

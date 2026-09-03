@@ -23,6 +23,9 @@ type NativeVoice = {
   startWake(): Promise<{ ok: boolean; message?: string }>
   stopWake(): Promise<{ ok: boolean }>
   wakeStatus(): Promise<{ running: boolean; wanted?: boolean }>
+  startDebugFg(): Promise<{ ok: boolean }>
+  stopDebugFg(): Promise<{ ok: boolean }>
+  debugFgStatus(): Promise<{ running: boolean }>
   requestBatteryUnrestricted(): Promise<{ ok: boolean; message?: string }>
   setKeepScreenOn(opts: { on: boolean }): Promise<{ ok: boolean }>
   synthEdge(opts: { text: string; voice: string; timeoutMs?: number }): Promise<{
@@ -40,7 +43,7 @@ type NativeVoice = {
   startBargeWatch(): Promise<{ ok: boolean }>
   stopBargeWatch(): Promise<{ ok: boolean }>
   addListener(
-    event: 'partial' | 'sse' | 'wake' | 'barge',
+    event: 'partial' | 'sse' | 'wake' | 'barge' | 'debugStop',
     cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string }) => void,
   ): Promise<{ remove: () => void }>
 }
@@ -462,6 +465,35 @@ export async function setKeepScreenOn(on: boolean): Promise<void> {
     await native.setKeepScreenOn({ on })
   } catch {
     /* ignore */
+  }
+}
+
+export async function startDebugFg(): Promise<void> {
+  if (!native) return
+  try {
+    await native.startDebugFg()
+  } catch {
+    /* ignore */
+  }
+}
+
+export async function stopDebugFg(): Promise<void> {
+  if (!native) return
+  try {
+    await native.stopDebugFg()
+  } catch {
+    /* ignore */
+  }
+}
+
+export function onDebugStop(cb: () => void): () => void {
+  if (!native) return () => undefined
+  let handle: { remove: () => void } | undefined
+  void native.addListener('debugStop', () => cb()).then((h) => {
+    handle = h
+  })
+  return () => {
+    handle?.remove()
   }
 }
 

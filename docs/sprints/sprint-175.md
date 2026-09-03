@@ -1,32 +1,21 @@
-# Sprint 175 — Piper offline TTS (`9.10.2`) **PLAN** · Could
+# Sprint 175 — Piper offline TTS (`9.10.2`) **FREEZE** · Could
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
-| Ziel-Version | `9.10.2` |
+| Status | **FREEZE** (Schalter tot ohne Datei) |
+| Ziel-Version | Wunsch `9.10.2` |
 | Quelle | [`54-next.md`](../54-next.md) · Sprint 173 |
-| Pflicht | **Could** — Skip wenn APK-Delta oder Qualität NO-GO |
+| Pflicht | **Could** — Skip: keine First-Audio-Messung, APK-Delta unbekannt |
 
 ## Ziel
 
-Piper `de_DE-thorsten` (oder miro/kerstin) über **sherpa-onnx**. First-Audio lokal, ohne Gemini-Budget. **Lane-1 bleibt Edge Neural vs Algieba.** Piper ist Offline-/Fallback-Lane, opt-in.
+Piper über sherpa-onnx. **Lane-1 bleibt Edge Neural vs Algieba.** Piper wäre Offline-Lane, opt-in.
 
-## Must (wenn Execute)
+## Votum
 
-| ID | Inhalt |
-|----|--------|
-| P1 | Eine deutsche Stimme, Siezen, kein Marvel-Timbre-Zwang |
-| P2 | First-Audio messen vs Edge auf demselben Gerät |
-| P3 | APK-Delta genannt. >40 MB ohne Gewinn = NO-GO |
-| P4 | Default aus. Netz tot → opt-in Piper darf sprechen |
-| P5 | `firstBlobWins` / eine Lane pro Turn bleibt |
-
-## Won’t
-
-Piper **und** Kokoro als Default. ElevenLabs. gTTS als Lane-1. Wyoming-NAS.
+**NO-GO bundeln.** >40 MB ohne gemessenen Gewinn wäre NO-GO; ohne Messung kein Bundle. `piper_offline` merkt den Wunsch. Fehlt `/onnx/de_DE-thorsten.onnx` → Edge/Algieba.
 
 ## DoD
 
-- [ ] Zahlen: Größe, First-Audio, Satzverständlichkeit PO
-- [ ] GO opt-in **oder** Freeze ohne Bundle
-- [ ] `test:014` TTS-Pipeline ohne Piper grün
+- [x] Freeze ohne Bundle
+- [x] TTS-Pipeline ohne Piper grün (`firstBlobWins`)

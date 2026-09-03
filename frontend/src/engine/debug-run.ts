@@ -2,6 +2,7 @@ import { APP_VERSION, loadSettings } from './store.ts'
 import { geminiReady } from './gemini.ts'
 import type { TestCopyGroup, TestCopyItem, TestExpect } from './test-copy.ts'
 import { judgeTurn, type DebugVerdict } from './debug-judge.ts'
+import { formatLatency, lastLatency, latencyP95, type LatencyTurn } from './latency.ts'
 
 export { judgeTurn }
 export type { DebugVerdict }
@@ -27,6 +28,13 @@ export type DebugReport = {
   categories: string[]
   stopped: boolean
   turns: DebugTurn[]
+  latency?: {
+    last: LatencyTurn | null
+    last_line: string
+    p95_total: number | null
+    p95_first_token: number | null
+    p95_first_audio: number | null
+  }
 }
 
 export function buildReport(opts: {
@@ -44,6 +52,13 @@ export function buildReport(opts: {
     categories: opts.categories,
     stopped: opts.stopped,
     turns: opts.turns,
+    latency: {
+      last: lastLatency(),
+      last_line: formatLatency(),
+      p95_total: latencyP95('msTotal'),
+      p95_first_token: latencyP95('msFirstToken'),
+      p95_first_audio: latencyP95('msFirstAudio'),
+    },
   }
 }
 
@@ -54,6 +69,12 @@ export function reportToText(rep: DebugReport): string {
     `Hirn ${rep.brain} · Face ${rep.face} · Gemini ${rep.gemini ? 'an' : 'aus'}`,
     `Kategorien: ${rep.categories.join(', ') || '—'}`,
     rep.stopped ? 'Abgebrochen.' : 'Durchgelaufen.',
+    rep.latency?.last_line
+      ? `Latenz letzter Turn: ${rep.latency.last_line}`
+      : 'Latenz: keine Spanne.',
+    rep.latency
+      ? `P95 gesamt ${rep.latency.p95_total ?? '—'} ms · Hirn ${rep.latency.p95_first_token ?? '—'} ms · Stimme ${rep.latency.p95_first_audio ?? '—'} ms`
+      : '',
     '',
   ]
   for (const t of rep.turns) {

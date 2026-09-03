@@ -76,6 +76,14 @@ export function lastLatency(): LatencyTurn | null {
   return last
 }
 
+export function latencyP95(field: 'msTotal' | 'msFirstToken' | 'msFirstAudio' = 'msTotal'): number | null {
+  const vals = log.map((t) => t[field]).filter((n): n is number => n != null)
+  if (!vals.length) return null
+  const s = [...vals].sort((a, b) => a - b)
+  const i = Math.min(s.length - 1, Math.max(0, Math.ceil(0.95 * s.length) - 1))
+  return s[i]
+}
+
 export function latencyLog(): LatencyTurn[] {
   return [...log]
 }

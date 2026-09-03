@@ -5,7 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Docs: Rest final [`54-next.md`](./54-next.md) **PLAN** — Sprints 168–177 (Gerät, Debug-FGS, LocateAnything-3060, Silero/Piper/Kokoro/e5 Could). Sideload bleibt **`9.9.2`**.
+## `9.10.0` — Rest final — *CODE*
+
+App-Version und Sideload **`9.10.0`** (versionCode `91000`). Default-Lane wie `9.9.2`. Vor Neuinstall Hausstand exportieren.
+
+- **Debug `5.17`:** Foreground-Service „Jarvis testet…“ (Notification 73, `specialUse`), WebView-Keep-alive bei Home. App schließen bleibt tot. Wake-FGS unverändert.
+- **Sehen:** 3060 **NO-GO**. Chat *Sehen am PC ist aus* (Freeze). Keine Gewichte, keine Dummy-Boxen.
+- **Could:** Settings Stimme/Hirn: ONNX-VAD, Piper, Kokoro, e5 — Default aus. Fehlt die Datei, ehrlicher Satz. e5 nie Router. Debug-Export: TTFT / First-Audio / P95.
+- **168** bleibt Geräte-**KATALOG** / PO.
+
+Sideload **`releases/Jarvis.apk`**. Über `9.9.2` installieren nach Hausstand-Export.
 
 ## `9.9.2` — Screenshot-Bugs / Kugel+Stimme — *CODE*
 

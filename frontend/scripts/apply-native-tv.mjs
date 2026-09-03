@@ -67,6 +67,7 @@ const voiceDest = join(android, 'app/src/main/java/app/jarvis/voice')
 mkdirSync(voiceDest, { recursive: true })
 copyFileSync(join(voiceSrc, 'JarvisVoicePlugin.java'), join(voiceDest, 'JarvisVoicePlugin.java'))
 copyFileSync(join(voiceSrc, 'JarvisWakeService.java'), join(voiceDest, 'JarvisWakeService.java'))
+copyFileSync(join(voiceSrc, 'JarvisDebugService.java'), join(voiceDest, 'JarvisDebugService.java'))
 mkdirSync(join(android, 'app/src/main/res/xml'), { recursive: true })
 copyFileSync(join(voiceSrc, 'shortcuts.xml'), join(android, 'app/src/main/res/xml/shortcuts.xml'))
 copyFileSync(join(voiceSrc, 'jarvis_strings.xml'), join(android, 'app/src/main/res/values/jarvis_strings.xml'))
@@ -192,6 +193,14 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmActivity')) {
             android:name="app.jarvis.voice.JarvisWakeService"
             android:exported="false"
             android:foregroundServiceType="microphone" />
+        <service
+            android:name="app.jarvis.voice.JarvisDebugService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Debug-Lauf offen halten" />
+        </service>
 </application>`,
   )
 }
@@ -223,6 +232,20 @@ if (
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Wecker-Klingeln" />
         </service>`,
+  )
+}
+if (!manifest.includes('app.jarvis.voice.JarvisDebugService')) {
+  manifest = manifest.replace(
+    '</application>',
+    `        <service
+            android:name="app.jarvis.voice.JarvisDebugService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Debug-Lauf offen halten" />
+        </service>
+</application>`,
   )
 }
 if (!manifest.includes('android.app.shortcuts')) {

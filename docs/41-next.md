@@ -6,7 +6,7 @@ https://www.instagram.com/reel/DaJuh6euSLq/?igsi=MWt1dDhkdXBsbnUybg==
 
 **Nicht** [`40-next.md`](./40-next.md): dort ist `4.66` **Körper** (3D-Schema, Darstellung). LocateAnything macht PC-Auge/PC-Hand **treffsicher**, es ersetzt den Körper nicht.
 
-> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. Parser für Zeig/Zählen/Tippen **CODE**. Vision/Gewichte **aus** bis 3060-GO. Auge und PC-Klick ohne Sidecar weiter über Gemini (`eye.ts`, `pc.ts`).
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Parser für Zeig/Zählen/Tippen **CODE**. Vision/Gewichte **Freeze** (keine 3060). Auge und PC-Klick ohne Sidecar weiter über Gemini (`eye.ts`, `pc.ts`).
 
 **Warum `4.76`, nicht `4.66`:** `4.66`–`4.75` = Körper, Sprint 115. Diese Schiene beginnt **danach**. Handy-WASM trägt kein 3B-VLM.
 
@@ -105,7 +105,7 @@ Messen: Fit in 12 GB bei 1280 px, WSL2 vs. nativ, Latenz, Lizenzzeile. **GO/NO-G
 | Version | Inhalt | Sprint |
 |---------|--------|--------|
 | **`4.76.0`** | Leitentscheidung + Parser `ground-parse` + `/v1/ground` Client | 116 **CODE** in `5.11.0` |
-| **`4.77.0`–`4.80.0`** | Research 3060 / Sidecar / Klick / Foto | **`4.77` NO-GO** ohne 3060-Messung; Sidecar fehlt |
+| **`4.77.0`–`4.80.0`** | Research 3060 / Sidecar / Klick / Foto | **`4.77` NO-GO**; **172 Freeze CODE** — Chat Sehen aus |
 | **`4.81.0`** | `/v1/ground` + Status | **CODE** Client; Sidecar fehlt → ehrlich aus |
 | **`4.82.0`** | **Reel-Kern:** `doClick` versucht Box, unsicher = kein Klick | **CODE** Fallback Gemini nur mit Satz |
 | **`4.83.0`** | Overlay ohne Klick (`Wo ist Speichern`) | **CODE** Parser + ehrliche Antwort |
@@ -114,7 +114,7 @@ Messen: Fit in 12 GB bei 1280 px, WSL2 vs. nativ, Latenz, Lizenzzeile. **GO/NO-G
 | **`4.94.0`–`4.97.0`** | Schreibtisch, Waschlabel, EAN, zwei Schritte | 118 Parser **CODE** |
 | **`4.98.0`–`4.99.0`** | Gold, Sideload nach Hausstand | Gold **CODE**, Sideload geplant |
 
-NO-GO in `4.77` bleibt: Gewichte nicht in der APK, keine erfundenen Boxen. Ohne JarvisSee sagt der Chat **Sehen am PC ist aus**.
+NO-GO in `4.77` bleibt: Gewichte nicht in der APK, keine erfundenen Boxen. Ohne JarvisSee sagt der Chat **Sehen am PC ist aus** (3060-Freeze, Sprint 172).
 
 ## Chat (Ziel)
 

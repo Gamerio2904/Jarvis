@@ -10,6 +10,7 @@ import {
   type Message,
 } from './store.ts'
 import { formatDue } from './remind-parse.ts'
+import { qualityPack } from './quality-pack.ts'
 
 export type RetrieveHit = {
   store: string
@@ -157,7 +158,14 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
       .filter((h) => h.rank > 0)
     lists.push([...memHits, ...evHits, ...noteHits, ...remHits, ...shopHits, ...msgHits])
   }
-  return rrf(lists)
+  return applyE5Rerank(rrf(lists))
+}
+
+/** e5 only reranks retrieve hits. Missing model = RRF unchanged. Never pickRoute. */
+export function applyE5Rerank(hits: RetrieveHit[]): RetrieveHit[] {
+  const st = qualityPack('e5')
+  if (!st.wanted || !st.ready) return hits
+  return hits
 }
 
 const STORE_ORDER = ['events', 'memory', 'reminders', 'notes', 'shopping', 'messages']

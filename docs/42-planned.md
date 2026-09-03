@@ -1,29 +1,30 @@
-# 42 — Alles geplant (Stand Code `9.9.2`)
+# 42 — Alles geplant (Stand Code `9.10.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`9.9.2`**. Sideload **`9.9.2`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`9.10.0`**. Sideload **`9.10.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
-1. **Geräte-Katalog** Sprint [`168`](./sprints/sprint-168.md) — Parser CODE, Gerät PO ([`54-next.md`](./54-next.md))
-2. **Debug-Hintergrund** `5.12`/`5.17` — Spike 169, FGS oder Freeze 170 (Lauf v1 ist CODE)
-3. **LocateAnything** `4.77` — Messung 171, Sidecar oder Freeze 172 (Parser CODE, Vision ehrlich aus)
-4. **Qualität-Could** `9.10` — Leit 173, Silero/Smart Turn 174, Piper 175, Kokoro+e5 176, Gold 177
+1. **Geräte-Katalog** Sprint [`168`](./sprints/sprint-168.md) — Parser CODE, Gerät **PO**
+2. **Debug-Hintergrund** `5.17` — FGS **CODE** (169 Spike GO, 170 Service)
+3. **LocateAnything** — 171 **NO-GO**, 172 **Freeze CODE** (Parser CODE, Vision ehrlich aus)
+4. **Qualität-Could** `9.10.0` — Leit CODE, ONNX **Freeze**, Gold 177 CODE
 5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
-Industry-Track V1–V9, Latenz-Loop (Prefix/Groq/SLO/Edge), Screenshot-Fixes: **CODE**. Alltag [`50-next.md`](./50-next.md) unabhängig; Execute nicht dieser Serie.
+Industry-Track V1–V9, Latenz-Loop (Prefix/Groq/SLO/Edge), Screenshot-Fixes, Rest-final Execute: **CODE**. Alltag [`50-next.md`](./50-next.md) unabhängig.
 
-Bereits **CODE** in `9.9.2`: Screenshot-Fixes (Kugel, Greeting, News, TV, Stimme). In `9.9.1`: Handy-Lage chat-first. In `9.9.0`: V9 Hardening. V8 Live Signaling + Verify. V7 PC Capability-Levels + Confirm. V6 TV Registry + Verify Launch. V5 Hierarchical Memory. V4 Datei/PDF/OCR. V3 Action-FSM. V2 TTS/App/Wake. V1 Overlay/Weltlage.
+Bereits **CODE** in `9.10.0`: Debug-FGS, Sehen-Freeze-Satz, Could-Schalter ohne Gewichte. In `9.9.2`: Screenshot-Fixes. In `9.9.1`: Handy-Lage chat-first. In `9.9.0`: V9 Hardening.
 
 ---
 
-## CODE auf diesem Stand (`9.9.2`)
+## CODE auf diesem Stand (`9.10.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
+| Rest final | `9.10.0` | Debug-FGS, 3060-Freeze, Could-Schalter tot, Debug-P95 |
 | Weltlage | `4.0` | `outlook.ts` — Tagesschau/DW, Serie, Szenario, kein Orakel |
 | Alltagskette | `4.19` | Bar-POI, SMS-Note, Taxi nach Ja, nie „bestellt“ |
 | Stimme/Steuer | `4.33` | TTS Algieba, HUD-Interrupt, Watchdog opt-in |
@@ -32,7 +33,7 @@ Bereits **CODE** in `9.9.2`: Screenshot-Fixes (Kugel, Greeting, News, TV, Stimme
 | Körper | `4.66` | Lage-Sicht Körper, Canvas-Schema, Organ-Kachel, kein Tool-Start |
 | Sehen-Parser | `4.76`–`4.97` | `ground-parse`, `/v1/ground` Client, zwei Confirms; **keine** 3B-Gewichte |
 | Weltkugel | `5.0` / `6.20` | Lage-Sicht Kugel, Terminator, GIBS beim Zoom, Pins ISS/GPS/DWD/outlook-Lexikon |
-| Debug-Lauf | `5.11` | Klickboxen, neues Gespräch, JSON+TXT mit Verdict |
+| Debug-Lauf | `5.11` / `5.17` | Klickboxen, FGS „Jarvis testet…“, JSON+TXT mit Verdict + Latenz |
 | Bühne & Hirn | `6.50` | Gemini zuerst, Motion 30 fps, Globus, HUD, Sprach-Orb |
 | Parser | `6.51` | Wont/Help/HUD-Skip nach Prompt-Test |
 | Split / Overlay / APK | `6.60` | Live-Split, Identität canned, Overlay Gemini zuerst, `releases/Jarvis.apk` |
@@ -50,22 +51,17 @@ Bereits **CODE** in `9.9.2`: Screenshot-Fixes (Kugel, Greeting, News, TV, Stimme
 
 ## Offen
 
-Serie [`54-next.md`](./54-next.md) **PLAN** (Sprints 168–177).
-
 ### Geräte-Katalog (Sprint 168)
-Parser CODE. PO auf dem Handy: Probe V1–V9 + Screenshot-Bugs.
+Parser CODE. **PO** auf dem Handy: Probe V1–V9 + Screenshot-Bugs.
 
-### Debug-Hintergrund (`5.12` / `5.17`) · 169–170
-Lauf in der App ist CODE. Spike, dann FGS **oder** Banner-Freeze.
+### LocateAnything (`4.77`)
+Parser CODE. Gewichte **Freeze**, bis eine RTX 3060 misst.
 
-### LocateAnything (`4.77`) · 171–172
-Parser CODE. Gewichte erst nach 3060-Messung. NO-GO → Sehen aus.
-
-### Qualität-Could (`9.10`) · 173–177
-Silero + Smart Turn, Piper, Kokoro-Spike, e5-Rerank. Opt-in, nie Router. Gold 177.
+### Qualität-Could (Gewichte)
+Schalter CODE. Silero/Piper/Kokoro/e5 **nicht** in der APK.
 
 ### Alltag vom Zettel (`8.0`) · Sprint 141 · [`50-next.md`](./50-next.md)
-Eigene Schiene, nicht 54. Nicht mit Recall-Nummern mischen.
+Eigene Schiene, nicht 54.
 
 ### Parking
 Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.

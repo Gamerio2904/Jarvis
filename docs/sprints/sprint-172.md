@@ -1,39 +1,30 @@
-# Sprint 172 — LocateAnything Sidecar oder Freeze (`4.78`) **PLAN**
+# Sprint 172 — LocateAnything Freeze (`4.78`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
-| Ziel-Version | `4.78.0`–`4.80.0` bei GO; sonst Freeze ohne Versionsbump |
-| Quelle | [`54-next.md`](../54-next.md) · Sprint 171 |
-| Vorher | **171** GO oder NO-GO |
+| Status | **CODE** (Freeze) |
+| Ziel-Version | Freeze ohne eigenen Sideload-Bump; Satz in App `9.10.0` |
+| Quelle | [`54-next.md`](../54-next.md) · Sprint 171 **NO-GO** |
+| Vorher | **171** NO-GO |
 
 ## Ziel
 
-**GO:** `JarvisSee` localhost, JarvisPC proxyt `/v1/ground`, Status `off|loading|ready|error`. Unsicher = kein Klick. Overlay `Wo ist Speichern` ohne Maus.
-
-**NO-GO:** Freeze. Chat bleibt *Sehen am PC ist aus*. Parser CODE. Keine Dummy-Boxen.
-
-## Must (GO)
-
-| ID | Inhalt |
-|----|--------|
-| S1 | Sidecar-Status im PC-Cap / Chat ehrlich |
-| S2 | `doClick` nur mit Box über Schwelle |
-| S3 | `Lies das Foto` bleibt `eye`; `Körper an` bleibt HUD |
-| S4 | CI-Stub ohne GPU: Status error, keine Lüge |
+**NO-GO:** Freeze. Chat bleibt *Sehen am PC ist aus*. Parser CODE. Keine Dummy-Boxen. Kein Sidecar.
 
 ## Must (NO-GO)
 
-| ID | Inhalt |
-|----|--------|
-| N1 | Ein Satz, den der Nutzer hört: Sehen aus, Parser bleibt |
-| N2 | Kein totes `ready` |
+| ID | Inhalt | Stand |
+|----|--------|-------|
+| N1 | Ein Satz, den der Nutzer hört: Sehen aus, Parser bleibt | `capMissingReply('ground')` + `pc.ts` nennen 3060-Freeze |
+| N2 | Kein totes `ready` | `pcActionVerified` vision ≠ ready |
+
+Parser `ground-parse` / `/v1/ground` unverändert.
 
 ## Won’t
 
-3B im WASM. APK-Gewichte. FastAPI-Hirn. Beleg → Bank.
+3B im WASM. APK-Gewichte. FastAPI-Hirn. Beleg → Bank. JarvisSee ohne 3060.
 
 ## DoD
 
-- [ ] 171-Votum umgesetzt
-- [ ] `test:014` Ground-Konflikte grün
+- [x] 171-Votum umgesetzt (Freeze)
+- [x] Ground-Konflikte / `test:014` / `test:rest-final` grün

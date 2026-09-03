@@ -2,7 +2,7 @@
 
 PO 2026-09-02: nicht der Alltag-Zettel (`8.32` / `5.12`), sondern **was Industrie, Hugging Face, GitHub und Papers** für Voice-/Assistenten tun — und was davon in **unseren** TypeScript/Capacitor-Stack passt.
 
-**Ist:** Code **`9.9.2`**. Parser zuerst, Hirn Gemini → Groq → 0,5B. Mund: Edge Neural (Conrad/Katja, frei) im Rennen mit Gemini Algieba, eine Lane pro Antwort. Barge-in aus dem Mic. Prompt-Prefix split (`prompt-split.ts`). Groq SSE. Screenshot-Fixes [`53-next.md`](./53-next.md).
+**Ist:** Code **`9.10.0`**. Parser zuerst, Hirn Gemini → Groq → 0,5B. Mund: Edge Neural (Conrad/Katja, frei) im Rennen mit Gemini Algieba, eine Lane pro Antwort. Barge-in aus dem Mic. Prompt-Prefix split (`prompt-split.ts`). Groq SSE. Could-ONNX opt-in ohne Dateien [`54-next.md`](./54-next.md). Screenshot-Fixes [`53-next.md`](./53-next.md).
 
 **Diese Runde CODE (Loop, nicht neuer Stack):** Prompt-Prefix splitten (`prompt-split.ts`), Groq SSE, Latenz-SLO (`latency.ts`), TLS-Warmup. Rest bleibt Vorschlag.
 

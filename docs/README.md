@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **PLAN**. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -48,7 +48,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Code `9.9.2` + offene Pläne |
+| 42 | [Alles geplant](./42-planned.md) | Index Code `9.10.0` + Parking |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -59,8 +59,8 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`9.9` V1–V9 CODE** — Audit bis Hardening; Alltag `8.0` PLAN |
 | 52 | [Latenz, Qualität, Profession](./52-research-latency-quality.md) | Recherche HF/GitHub/Papers; Prefix-Cache, Groq-Stream, SLO **CODE**; Smart Turn/Piper nächste Stimme |
 | 53 | [Screenshot-Bugs](./53-next.md) | **`9.9.2` CODE** — Kugel, Standort, Greeting, News, TV, Stimme |
-| 54 | [Rest final](./54-next.md) | **`9.10` PLAN** — Gerät 168, Debug `5.12`, LocateAnything `4.77`, Qualität-Could |
-| — | [APK](./apk.md) | Sideload `9.9.2`; Deinstall löscht Keys — erst Hausstand-Export |
+| 54 | [Rest final](./54-next.md) | **`9.10.0` CODE** — FGS, Sehen-Freeze, Could-Schalter |
+| — | [APK](./apk.md) | Sideload `9.10.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -188,14 +188,14 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 166 | `9.9.2` | **CODE** (Kugel Lag / Invert / GPS) |
 | 167 | `9.9.2` | **CODE** (Greeting News TV Stimme) |
 | 168 | `9.9.2` | **KATALOG** (Geräte-Test, PO) |
-| 169 | `5.12.0` | **PLAN** (Debug-Hintergrund Spike) |
-| 170 | `5.17.0` | **PLAN** (Debug FGS v2 oder Freeze) |
-| 171 | `4.77.0` | **PLAN** (LocateAnything 3060 GO/NO-GO) |
-| 172 | `4.78.0` | **PLAN** (LocateAnything Sidecar oder Freeze) |
-| 173 | `9.10.0` | **PLAN** (Qualität-Could Leit) |
-| 174 | `9.10.1` | **PLAN** Could (Silero + Smart Turn) |
-| 175 | `9.10.2` | **PLAN** Could (Piper offline) |
-| 176 | `9.10.3` | **PLAN** Could (Kokoro + e5 Spike) |
-| 177 | `9.10.9` | **PLAN** (Rest-Gold) |
+| 169 | `5.12.0` | **CODE** (Debug-Hintergrund Spike, GO v2) |
+| 170 | `5.17.0` | **CODE** (Debug FGS v2) |
+| 171 | `4.77.0` | **NO-GO** (LocateAnything 3060) |
+| 172 | `4.78.0` | **CODE** (LocateAnything Freeze) |
+| 173 | `9.10.0` | **CODE** (Qualität-Could Leit) |
+| 174 | `9.10.1` | **FREEZE** Could (Silero + Smart Turn) |
+| 175 | `9.10.2` | **FREEZE** Could (Piper offline) |
+| 176 | `9.10.3` | **FREEZE** Could (Kokoro + e5 Spike) |
+| 177 | `9.10.0` | **CODE** (Rest-Gold) |
 
-**Aktuell:** Code **`9.9.2`**. Sideload `9.9.2`. Rest final [`54-next.md`](./54-next.md) **PLAN**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`9.10.0`**. Sideload `9.10.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
