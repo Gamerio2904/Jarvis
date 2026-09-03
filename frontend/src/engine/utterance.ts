@@ -38,6 +38,14 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\brotren\s+tomato(?:es|s)?\b/gi, 'Rotten Tomatoes'],
   [/\brotten\s+tomato(?:es|s)?\b/gi, 'Rotten Tomatoes'],
   [/\bnaviga(?:tion|iere?n?)\b/gi, 'navigiere'],
+  [/\bgersde\b/gi, 'gerade'],
+  [/\bgerate\b/gi, 'gerade'],
+  [/\bgeradde\b/gi, 'gerade'],
+  [/\bfernseheren\b/gi, 'Fernseher'],
+  [/\bfernsehern\b/gi, 'Fernseher'],
+  [/\bwo\s+bin\s+isch\b/gi, 'wo bin ich'],
+  [/\bnachrichte(?:n)?\b/gi, 'Nachrichten'],
+  [/\bweltkugl\b/gi, 'Weltkugel'],
   [/\bkuegel\b/gi, 'Kugel'],
   [/\bkörpern\b/gi, 'Körper'],
   [/\bkrper\b/gi, 'Körper'],
@@ -80,6 +88,7 @@ export function normalizeUtterance(text: string): string {
     const rest = raw.slice(fill[0].length).trim()
     if (rest && COMMAND_START.test(rest)) raw = rest
   }
+  raw = raw.replace(/^(?:ähm+|äh+|hm+)\s+/i, '').trim()
   for (;;) {
     const lead = /^(?:ja|bitte|mal|ähm+|also)\s+/i.exec(raw)
     if (!lead) break

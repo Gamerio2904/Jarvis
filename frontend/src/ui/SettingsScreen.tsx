@@ -1,26 +1,26 @@
 import { useEffect, useState, type InputHTMLAttributes } from 'react'
-import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from './api'
-import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from './api'
-import type { Plug } from './api'
-import { copyText } from './copy-text'
-import { ensureDeviceLocation } from './native/geo'
+import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from '../api'
+import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from '../api'
+import type { Plug } from '../api'
+import { copyText } from '../copy-text'
+import { ensureDeviceLocation } from '../native/geo'
 import { DebugPanel } from './DebugPanel'
-import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from './engine/hud-parse'
-import { TTS_VOICES } from './engine/tts'
-import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from './engine/pc-host'
+import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from '../engine/hud-parse'
+import { TTS_VOICES } from '../engine/tts'
+import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from '../engine/pc-host'
 import {
   spotifyLoggedIn,
   spotifyLogout,
   spotifyRedirect,
   startSpotifyLogin,
-} from './engine/spotify'
+} from '../engine/spotify'
 import {
   applyBackup,
   asBackup,
   previewBackup,
   shareOrDownloadBackup,
   type BackupPreview,
-} from './engine/backup'
+} from '../engine/backup'
 import {
   filterTopics,
   resolveTopic,
@@ -29,9 +29,9 @@ import {
   visibleSettingsTabs,
   type SettingsTab,
   type SettingsTopic,
-} from './engine/settings-ia'
-import { loadSettings } from './engine/store'
-import { PROBE_COPY_GROUPS } from './engine/test-copy'
+} from '../engine/settings-ia'
+import { loadSettings } from '../engine/store'
+import { PROBE_COPY_GROUPS } from '../engine/test-copy'
 
 export type { SettingsTopic }
 
@@ -326,7 +326,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
           {tab === 'lage' ? (
             <section className="settings-card">
               <h3>Tablet-Lage</h3>
-              <p className="settings-lead">Ab 900 px Breite: Kacheln neben dem Chat. Composer und Mic bleiben. Oder hier immer an.</p>
+              <p className="settings-lead">
+                Am Handy füllen Kugel oder Körper den Bereich über dem Composer. Lage aus holt den Chat zurück.
+                Ab 900 px: Kacheln neben dem Chat. Composer und Mic bleiben. Oder hier immer an.
+              </p>
               <label className="settings-toggle">
                 <input
                   type="checkbox"

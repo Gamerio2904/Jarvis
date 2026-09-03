@@ -46,12 +46,14 @@ import {
 import { researchStatusLabel } from './engine/research-parse'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
-import { CalendarView } from './Calendar'
-import { VoiceMode } from './VoiceMode'
-import { SettingsScreen, type SettingsTopic } from './SettingsScreen'
-import { DriveMode } from './DriveMode'
-import { Lage } from './Lage'
-import { WakeBubble } from './WakeBubble'
+import { CalendarView } from './ui/Calendar'
+import { VoiceMode } from './ui/VoiceMode'
+import { SettingsScreen, type SettingsTopic } from './ui/SettingsScreen'
+import { DriveMode } from './ui/DriveMode'
+import { Lage } from './ui/lage/Lage'
+import { WakeBubble } from './ui/WakeBubble'
+import { ToolChip } from './ui/ToolChip'
+import { hideToolChip } from './ui/tool-chip'
 import { useOverlay } from './overlay'
 import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm'
 import { closeDrive, subscribeDrive } from './engine/drive'
@@ -71,115 +73,14 @@ import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestri
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate'
-import { DebugChatDock } from './DebugChatDock'
+import { DebugChatDock } from './ui/DebugChatDock'
 import { debugSnapshot, subscribeDebug } from './engine/debug-session'
 import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate'
-
-function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
-  const raw = tool.result
-  if (!raw) return []
-  const listed = raw.routes
-  if (Array.isArray(listed)) {
-    return listed
-      .map((row) => {
-        const r = row as { title?: string; url?: string }
-        return r.url ? { title: r.title || 'Route', url: r.url } : null
-      })
-      .filter((r): r is { title: string; url: string } => Boolean(r))
-  }
-  if (typeof raw.url === 'string' && raw.url) {
-    return [{ title: String(raw.destination || tool.preview || 'Route'), url: raw.url }]
-  }
-  return []
-}
 
 function opensDriveOverlay(tool?: ToolMeta | null): boolean {
   if (!tool) return false
   if (tool.tool === 'drive') return true
   return tool.action === 'nav' && (tool.tool === 'poi' || tool.tool === 'fuel')
-}
-
-function ToolChip({
-  tool,
-  onConfirm,
-}: {
-  tool: ToolMeta
-  onConfirm?: (text: string) => void
-}) {
-  const status = tool.tool_status || ''
-  const label =
-    tool.label ||
-    ({
-      pending: 'Tool bereit — Confirm?',
-      executed: 'Tool ausgeführt',
-      aborted: 'Tool abgelehnt',
-      duplicate: 'Todo schon offen',
-      error: 'Tool-Fehler',
-      timeout: 'Confirm abgelaufen',
-      parse_miss: 'Tool unklar',
-    } as Record<string, string>)[status] ||
-    (status ? `Tool: ${status}` : 'Tool')
-  return (
-    <span className="tool-chip-wrap">
-      <span className={`tool-chip tool-chip--${status || 'unknown'}`} data-status={status}>
-        {label}
-      </span>
-      {status === 'pending' && onConfirm ? (
-        <span className="confirm-row">
-          <button type="button" className="confirm-btn yes" onClick={() => onConfirm('Ja')}>
-            Ja
-          </button>
-          <button type="button" className="confirm-btn no" onClick={() => onConfirm('Nein')}>
-            Nein
-          </button>
-        </span>
-      ) : null}
-      {tool.tool === 'maps'
-        ? mapsRoutes(tool).map((r) => (
-            <a
-              key={r.url}
-              className="maps-btn"
-              href={r.url}
-              target="_blank"
-              rel="noreferrer"
-              onClick={(e) => {
-                e.preventDefault()
-                window.open(r.url, '_blank', 'noopener,noreferrer')
-              }}
-            >
-              Route in Google Maps{r.title ? ` · ${r.title}` : ''}
-            </a>
-          ))
-        : null}
-      {typeof tool.result?.tel === 'string' && tool.result.tel ? (
-        <a
-          className="maps-btn"
-          href={String(tool.result.tel)}
-          onClick={(e) => {
-            e.preventDefault()
-            window.open(String(tool.result?.tel), '_self')
-          }}
-        >
-          Anrufen{tool.result.name ? ` · ${String(tool.result.name)}` : ''}
-        </a>
-      ) : null}
-      {typeof tool.result?.sms === 'string' && tool.result.sms ? (
-        <a
-          className="maps-btn"
-          href={String(tool.result.sms)}
-          onClick={(e) => {
-            e.preventDefault()
-            window.open(String(tool.result?.sms), '_self')
-          }}
-        >
-          SMS{tool.result.name ? ` · ${String(tool.result.name)}` : ''}
-        </a>
-      ) : null}
-      {typeof tool.result?.image === 'string' && String(tool.result.image).startsWith('data:image/') ? (
-        <img className="pc-shot" alt="PC-Bildschirm" src={String(tool.result.image)} />
-      ) : null}
-    </span>
-  )
 }
 
 function PcLiveDock() {
@@ -1473,6 +1374,7 @@ function App() {
   const voiceLayer = useOverlay(voiceOpen)
   const liveHud = settings || loadSettings()
   const lageOn = Boolean(liveHud.hud_force) || (lageWide && !liveHud.hud_hidden)
+  const lageScene = lageOn && !lageWide
   const lageAmber = liveHud.hud_accent === 'amber'
 
   return (
@@ -1657,7 +1559,7 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
+      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${lageScene ? ' is-lage-scene' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
         {voiceLayer.shown ? (
           <VoiceMode
             leaving={voiceLayer.leaving}
@@ -1758,11 +1660,10 @@ function App() {
             streaming={streamingText}
             conversationId={activeId}
             onHudChange={() => void refreshSettings()}
+            compact={!lageWide}
           />
         ) : null}
-        {true ? (
-          <>
-          <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
+        <div className="messages" ref={messagesRef} onScroll={onMessagesScroll} hidden={lageScene}>
           <div className="messages-inner thread-slide" key={threadKey}>
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
@@ -1776,10 +1677,11 @@ function App() {
               </div>
             ) : null}
 
-            {messages.slice(-80).map((m) => {
+            {messages.slice(-80).map((m, i, list) => {
               const enter =
                 enterIds[m.id] &&
                 (m.role === 'user' ? 'enter-user' : 'enter-assistant')
+              const tool = m.role === 'assistant' ? (m.meta?.tool as ToolMeta | undefined) : undefined
               return (
                 <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
                   {m.role === 'assistant' ? (
@@ -1789,9 +1691,9 @@ function App() {
                   ) : null}
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
-                    {m.role === 'assistant' && m.meta?.tool ? (
+                    {tool && !hideToolChip(list[i - 1], tool) ? (
                       <ToolChip
-                        tool={m.meta.tool}
+                        tool={tool}
                         onConfirm={(text) => void sendMessage(text)}
                       />
                     ) : null}
@@ -1927,8 +1829,6 @@ function App() {
             />
           ) : null}
         </div>
-          </>
-        ) : null}
       </main>
 
       {settingsLayer.shown ? (

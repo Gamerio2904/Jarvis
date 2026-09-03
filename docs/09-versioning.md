@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`9.9.0`**. Sideload **`9.9.0`**. `6.50` = Gemini Hauptweg. Stabilität V1 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.93` **CODE**. V2 Voice & App `6.94`–`6.96` **CODE**. V3 Verified Actions `6.97`–`6.99` **CODE**. V4 Dokumente `9.0` **CODE**. V5 Hierarchical Memory `7.0` **CODE**. V6 TV `9.1` **CODE**. V7 PC `9.2` **CODE**. V8 Live `9.3` **CODE**. V9 Hardening `9.9` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
+> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. `6.50` = Gemini Hauptweg. Stabilität V1 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.93` **CODE**. V2 Voice & App `6.94`–`6.96` **CODE**. V3 Verified Actions `6.97`–`6.99` **CODE**. V4 Dokumente `9.0` **CODE**. V5 Hierarchical Memory `7.0` **CODE**. V6 TV `9.1` **CODE**. V7 PC `9.2` **CODE**. V8 Live `9.3` **CODE**. V9 Hardening `9.9` **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md) `9.9.2` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -115,6 +115,8 @@ MAJOR.MINOR.PATCH
 | `9.2.0` | **V7 PC Beta** — Capability-Levels, Confirm, Verify | Sprint 157–159 |
 | `9.3.0` | **V8 Live-Stream** — WebRTC-Signaling, LAN-JPEG, Verify Peer | Sprint 160–162 |
 | `9.9.0` | **V9 Hardening** — Regression, LAN-only PC, Secret-Redact | Sprint 163–165 |
+| `9.9.1` | **Handy-Lage chat-first** | Beta-Polish |
+| `9.9.2` | **Screenshot-Bugs** — Kugel, Greeting, News, TV, Stimme | Sprint 166–168 |
 | `7.0.0` | **V5 Hierarchical Memory** — Quelle, Confidence, Bereinigung | Sprint 137–140 |
 | `8.0.0` | **Alltag vom Zettel** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache | Sprint 141 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |

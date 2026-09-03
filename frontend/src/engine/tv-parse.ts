@@ -1,4 +1,5 @@
 import { type TvAppId } from './tv-apps.ts'
+import { normalizeUtterance } from './utterance.ts'
 
 export type TvAction =
   | 'on'
@@ -195,11 +196,23 @@ export function parseTvIntent(text: string, followUp = false): TvIntent | null {
 
   if (/\b(aus(?:schalten)?|ausmachen|standby)\b/i.test(t)) return { action: 'off' }
   if (/\b(an(?:schalten)?|anmachen|ein(?:schalten)?|wecken|aufwecken)\b/i.test(t)) {
-    return { action: 'on' }
+    const researchish = followUp && !hasAnchor && /\b(das|du|es)\b/i.test(t)
+    if (!researchish) return { action: 'on' }
   }
   return null
 }
 
 export function isFollowUpPhrase(text: string): boolean {
   return TV_FOLLOWUP_ONLY.test(text)
+}
+
+/** „Suche nach Fernseher“ is pairing, not internet research. */
+export function isTvDiscover(text: string): boolean {
+  const t = normalizeUtterance(text.trim())
+  if (!t || t.length > 80) return false
+  return (
+    /^(?:such(?:e)?|find(?:e)?)\s+(?:mal\s+)?(?:nach\s+)?(?:dem\s+|den\s+|die\s+)?(?:fernseher|fernsehern|tvs?)\s*[.!?]*$/i.test(
+      t,
+    ) || /^(?:fernseher|tv)\s+(?:suchen|finden|koppeln)\s*[.!?]*$/i.test(t)
+  )
 }

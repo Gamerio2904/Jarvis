@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
-import { getDriveHazards, getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from './engine/drive'
-import { haversineM } from './engine/geo-lookup'
-import { loadSettings } from './engine/store'
-import { readInterrupt, subscribeInterrupt } from './engine/interrupt'
+import { getDriveHazards, getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from '../engine/drive'
+import { haversineM } from '../engine/geo-lookup'
+import { loadSettings } from '../engine/store'
+import { readInterrupt, subscribeInterrupt } from '../engine/interrupt'
 import {
   TILE_SIZE,
   clampMapZoom,
@@ -20,10 +20,10 @@ import {
   zoomToInclude,
   type MapCam,
   type MapFix,
-} from './engine/drive-map'
-import { formatNavBanner, nextManeuver } from './engine/nav-speak'
-import { isDocumentHidden, onVisibility, prefersReducedMotion } from './engine/motion'
-import { watchDeviceLocation } from './native/geo'
+} from '../engine/drive-map'
+import { formatNavBanner, nextManeuver } from '../engine/nav-speak'
+import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../engine/motion'
+import { watchDeviceLocation } from '../native/geo'
 import {
   beginVoiceSession,
   endVoiceSession,
@@ -34,10 +34,10 @@ import {
   speakText,
   stopListen,
   stopSpeak,
-} from './native/voice'
-import { isChatSpeaking } from './engine/speak-lock'
-import { parseFuelIntent } from './engine/fuel-parse'
-import { parsePoiIntent } from './engine/poi-parse'
+} from '../native/voice'
+import { isChatSpeaking } from '../engine/speak-lock'
+import { parseFuelIntent } from '../engine/fuel-parse'
+import { parsePoiIntent } from '../engine/poi-parse'
 import {
   activateSpotifyElement,
   ensureInternalPlayer,
@@ -56,7 +56,7 @@ import {
   subscribeSpotify,
   type SpotifyNow,
   type SpotifyPlayerStatus,
-} from './engine/spotify'
+} from '../engine/spotify'
 
 function FollowMap({
   destLat,

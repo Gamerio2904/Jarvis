@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts, formatAllTestCopy, PROBE_COPY_GROUPS, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
-import { parseTvIntent, parseTvWatch } from '../src/engine/tv-parse.ts'
+import { parseTvIntent, parseTvWatch, isTvDiscover } from '../src/engine/tv-parse.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand, finishReply, HELP_TEXT, redactSecrets } from '../src/engine/guards.ts'
@@ -131,6 +131,7 @@ import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
 import { parseHudIntent, patchForHudView } from '../src/engine/hud-parse.ts'
+import { hideToolChip } from '../src/ui/tool-chip.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
 import { gazetteerHit, pinForTag, composePlaceBrief, lookLatLon, viewXYZ, yawPitchFor } from '../src/engine/globe-geo.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
@@ -183,6 +184,7 @@ import {
   acceptResearchPending,
   declineResearchPending,
   expireResearchPending,
+  isResearchConfirm,
   isResearchPendingWaiting,
   offerResearchPending,
   parseResearchPending,
@@ -276,7 +278,7 @@ assert.equal(parseDriveIntent('Ich will nach Heilbronn')?.dest, 'Heilbronn')
 assert.equal(parseDriveIntent('Nach dem Wetter'), null)
 assert.equal(normalizeUtterance('Kannst du nach Heilbronn fahren'), 'nach Heilbronn fahren')
 assert.equal(normalizeUtterance('nach heilbron'), 'nach Heilbronn')
-assert.equal(pickHeard('nach heilbron', ['nach Heilbronn']), 'nach Heilbronn')
+assert.equal(pickHeard('Was passiert Gersde in der Welt', ['Wetter heute']), 'Was passiert gerade in der Welt')
 assert.equal(pickHeard('ähm fahr nach heilbron', ['Fahr nach Heilbronn']), 'fahr nach Heilbronn')
 assert.equal(parseDriveIntent(pickHeard('ähm fahr nach heilbron', ['xyz']))?.dest, 'Heilbronn')
 assert.equal(parseSpotifyIntent('Spiel Hotel California')?.kind, 'play')
@@ -1059,7 +1061,7 @@ assert.equal(firstAudioUsesSystemRace(), false)
 assert.equal(wantNeuralMouth(), true)
 assert.equal(EDGE_VOICE_JARVIS, 'de-DE-ConradNeural')
 assert.equal(EDGE_VOICE_FRIDAY, 'de-DE-KatjaNeural')
-assert.equal(edgeFirstTimeoutMs(false), 1600)
+assert.equal(edgeFirstTimeoutMs(false), 1100)
 assert.equal(edgeFirstTimeoutMs(true), 900)
 assert.equal(ssmlEscape('A & B <C> "x"'), 'A &amp; B &lt;C&gt; &quot;x&quot;')
 assert.equal(windowsFileTimeTicks(0), '116444736000000000')
@@ -1098,6 +1100,12 @@ assert.ok(ttsBudgetMs(true) <= 900)
 assert.equal(spokenForGemini('  **Hallo** Welt  '), 'Hallo Welt')
 assert.equal(spokenForGemini('Calm, low German').includes('Read only'), false)
 assert.ok(!spokenForGemini('Die Zeit ist um.').includes('Calm'))
+{
+  const longSpoken = `${'Satz eins steht. '.repeat(40)}Ende.`
+  const cut = spokenForGemini(longSpoken)
+  assert.ok(cut.length <= 720)
+  assert.match(cut, /[.!?]$/)
+}
 const two = pullReady('Ja. Der Termin ist morgen um 15 Uhr.')
 assert.equal(two.parts.length, 1)
 assert.match(two.parts[0], /Ja\./)
@@ -1141,7 +1149,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /9\.9\.0/)
+assert.match(HELP_TEXT, /9\.9\.\d/)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
 assert.match(HELP_TEXT, /Keys nicht im Chat/)
@@ -1681,6 +1689,22 @@ assert.equal(parseHudIntent('mach die Kugel aus')?.view, 'tiles')
 assert.deepEqual(patchForHudView('globe'), { hud_view: 'globe', hud_force: true, hud_hidden: false })
 assert.deepEqual(patchForHudView('tiles'), { hud_view: 'tiles', hud_force: false, hud_hidden: true })
 assert.deepEqual(patchForHudView('body'), { hud_view: 'body', hud_force: true, hud_hidden: false })
+assert.equal(hideToolChip(undefined, { tool: 'hud', action: 'layout', label: 'Lage' }), true)
+assert.equal(hideToolChip(undefined, { tool: 'timer', action: 'set', label: 'Timer' }), false)
+assert.equal(
+  hideToolChip(
+    { role: 'assistant', meta: { tool: { tool: 'timer', action: 'set', label: 'Timer' } } },
+    { tool: 'timer', action: 'set', label: 'Timer' },
+  ),
+  true,
+)
+assert.equal(
+  hideToolChip(
+    { role: 'assistant', meta: { tool: { tool: 'hud', action: 'layout', label: 'Lage' } } },
+    { tool: 'smalltalk', action: 'greeting', label: 'Jarvis' },
+  ),
+  false,
+)
 {
   const ing = { lat: 49.08, lon: 9.18 }
   const aim = yawPitchFor(ing.lat, ing.lon)
@@ -1803,6 +1827,24 @@ assert.equal(parseOutlookIntent('Wetterstatistik an'), null)
 assert.equal(parseOutlookIntent('Was ist der bip in Deutschland'), null)
 assert.equal(parseOutlookIntent('Olivenöl Rezept'), null)
 assert.equal(parseOutlookIntent('und Benzin?', 'outlook')?.kind, 'fuel_outlook')
+assert.equal(parseOutlookIntent('Was passiert gerade in der Welt')?.kind, 'world')
+assert.equal(parseOutlookIntent('Nein was gerade in der Welt passiert habe ich gefragt')?.kind, 'world')
+assert.equal(parseOutlookIntent(normalizeUtterance('Was passiert Gersde in der Welt'))?.kind, 'world')
+assert.equal(parseNewsIntent(normalizeUtterance('Was passiert Gersde in der Welt')), null)
+assert.equal(parseTvIntent('Mach du das an', true), null)
+assert.equal(parseTvIntent('Fernseher an')?.action, 'on')
+assert.equal(isTvDiscover(normalizeUtterance('Suche nach Fernseheren')), true)
+assert.equal(pickRoute(normalizeUtterance('Suche nach Fernseheren')), 'tv')
+assert.equal(parseGreeting('hallo wie geht es dir'), 'echo')
+assert.equal(parseGreeting('ähm ja ich bin auf Arbeit und wie gehts dir'), null)
+assert.match(greetingReply('echo', new Date('2026-09-03T12:00:00'), 'hallo wie geht es dir'), /Gut, danke/)
+assert.doesNotMatch(greetingReply('echo', new Date('2026-09-03T12:00:00'), 'Guten Tag'), /Gut, danke/)
+assert.equal(finishReply('Bietigheim-').endsWith('-'), true)
+assert.equal(looksTruncated(finishReply('Bietigheim-')), true)
+assert.equal(isResearchConfirm('Mach du das an'), true)
+assert.equal(pickRoute('Was passiert gerade in der Welt'), 'outlook')
+assert.equal(pickRoute(normalizeUtterance('Was passiert Gersde in der Welt')), 'outlook')
+assert.equal(pickRoute('Wo bin ich'), 'here')
 assert.equal(pickRoute('Was ist die Weltlage?'), 'outlook')
 assert.equal(pickRoute('Warum steigt der Ölpreis?'), 'outlook')
 assert.equal(pickRoute('Wird Benzin teurer?'), 'outlook')
@@ -2107,6 +2149,7 @@ assert.doesNotMatch(scrubReply('Guten Tag, Timon. Wie geht es Ihnen?', { names: 
 assert.match(REPLY_TRUNCATED, /abgebrochen/)
 assert.equal(OUTLOOK_WATCH_ALARM, false)
 assert.ok(TEST_COPY_GROUPS.some((g) => /Stabilität Screenshots/i.test(g.title)))
+assert.ok(TEST_COPY_GROUPS.some((g) => /Screenshot-Bugs/i.test(g.title)))
 {
   let s = OVERLAY_INIT
   s = reduceOverlay(s, { type: 'ensure', id: 'drive' })

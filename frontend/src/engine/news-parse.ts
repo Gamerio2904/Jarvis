@@ -3,7 +3,7 @@ import { normalizeUtterance } from './utterance.ts'
 export type NewsIntent = { kind: 'national' } | { kind: 'place'; place: string }
 
 const SKIP =
-  /^(heute|jetzt|hier|los|news|nachrichten|tagesschau|passiert)$/i
+  /^(heute|jetzt|hier|los|news|nachrichten|tagesschau|passiert|gerade|gersde)$/i
 
 export function parseNewsIntent(text: string): NewsIntent | null {
   const t = normalizeUtterance(text.trim())

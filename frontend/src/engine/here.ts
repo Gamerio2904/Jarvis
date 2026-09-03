@@ -79,12 +79,11 @@ async function speakPlace(lat: number, lon: number): Promise<HereHit> {
 }
 
 async function rememberFix(lat: number, lon: number) {
-  const place = loadSettings().last_place || ''
   saveSettings({
     last_lat: String(lat),
     last_lon: String(lon),
     last_fix_at: new Date().toISOString(),
-    last_place: place,
+    last_place: '',
   })
 }
 

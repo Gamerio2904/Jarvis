@@ -1220,7 +1220,7 @@ textarea {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  animation: titleSlide var(--motion-med) var(--ease-out) both;
+  animation: titleSlide var(--motion-med) var(--ease-out);
 }
 
 .messages {
@@ -3513,7 +3513,7 @@ button.linkish {
 
 .lage-cell {
   min-width: 0;
-  animation: tileIn 0.52s var(--ease-out) both;
+  animation: tileIn 0.52s var(--ease-out);
   animation-delay: calc(var(--i, 0) * 55ms);
 }
 
@@ -3912,11 +3912,24 @@ button.linkish {
   .lage-chat {
     display: none;
   }
-  .body-schema,
-  .globe-wrap {
-    max-height: 42vh;
-    width: min(100%, 42vh);
+  .main.is-lage .lage {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .main.is-lage-scene .messages {
+    display: none;
+  }
+  .lage.is-compact .lage-split {
+    grid-template-columns: 1fr;
+  }
+  .lage.is-compact .body-schema,
+  .lage.is-compact .globe-wrap {
+    max-height: min(58vh, calc(100dvh - 220px));
+    width: min(100%, 58vh);
     align-self: center;
+  }
+  .lage.is-compact .lage-tile {
+    min-height: 0;
   }
 }
 

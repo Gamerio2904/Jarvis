@@ -1,8 +1,8 @@
-# 42 — Alles geplant (Stand Code `9.9.0`)
+# 42 — Alles geplant (Stand Code `9.9.2`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`9.9.0`**. Sideload **`9.9.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`9.9.2`**. Sideload **`9.9.2`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
@@ -15,11 +15,11 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 5. Alltag vom Zettel [`50-next.md`](./50-next.md) `8.0` **PLAN** — unabhängig von Recall und 3060, **nach V1**
 6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
-Bereits **CODE** in `9.9.0`: V9 Hardening. V8 Live Signaling + Verify. V7 PC Capability-Levels + Confirm. V6 TV Registry + Verify Launch. V5 Hierarchical Memory. V4 Datei/PDF/OCR. V3 Action-FSM. V2 TTS/App/Wake. V1 Overlay/Weltlage.
+Bereits **CODE** in `9.9.2`: Screenshot-Fixes (Kugel, Greeting, News, TV, Stimme). In `9.9.1`: Handy-Lage chat-first. In `9.9.0`: V9 Hardening. V8 Live Signaling + Verify. V7 PC Capability-Levels + Confirm. V6 TV Registry + Verify Launch. V5 Hierarchical Memory. V4 Datei/PDF/OCR. V3 Action-FSM. V2 TTS/App/Wake. V1 Overlay/Weltlage.
 
 ---
 
-## CODE auf diesem Stand (`9.9.0`)
+## CODE auf diesem Stand (`9.9.2`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|

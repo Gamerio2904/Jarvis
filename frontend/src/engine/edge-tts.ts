@@ -9,7 +9,7 @@ export const EDGE_CHROMIUM = '143.0.3650.75'
 export const EDGE_GEC_VERSION = `1-${EDGE_CHROMIUM}`
 export const EDGE_VOICE_JARVIS = 'de-DE-ConradNeural'
 export const EDGE_VOICE_FRIDAY = 'de-DE-KatjaNeural'
-export const EDGE_FIRST_MS_STANDING = 1600
+export const EDGE_FIRST_MS_STANDING = 1100
 export const EDGE_FIRST_MS_DRIVE = 900
 
 const WIN_EPOCH = 11_644_473_600

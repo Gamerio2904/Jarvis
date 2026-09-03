@@ -43,7 +43,7 @@ export async function fetchBodySnap(opts: { busy: boolean; conversationId: strin
       ? 'Mund: System-TTS.'
       : s.voice_tts === 'gemini'
         ? `Mund: ${s.face === 'friday' ? 'Kore' : 'Algieba'} (Gemini), Edge wenn Gemini fehlt.`
-        : `Mund: Edge ${s.face === 'friday' ? 'Katja' : 'Conrad'} im Rennen mit ${s.face === 'friday' ? 'Kore' : 'Algieba'}.`
+        : `Mund: Edge ${s.face === 'friday' ? 'Katja' : 'Conrad'}, Gemini ${s.face === 'friday' ? 'Kore' : 'Algieba'} als Reserve.`
   const memLine = `${mem.length} gemerkt` + (nextRem ? ` · nächste Erinnerung ${nextRem.title || ''}`.trim() : '.')
   const pcEye = pcOn ? 'PC verbunden. Screenshot auf Nachfrage.' : 'PC nicht verbunden.'
   const pcHand = pcOn ? 'PC-Hand bereit (Klick, FIFA, Ordner).' : 'PC nicht verbunden.'

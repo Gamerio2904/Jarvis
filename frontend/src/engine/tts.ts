@@ -56,11 +56,14 @@ export function wantGeminiVoice(): boolean {
 
 /** German body only — English style prefixes are spoken aloud by Gemini TTS. */
 export function spokenForGemini(text: string): string {
-  return text
+  const spoken = text
     .replace(/[`#*]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
-    .slice(0, 720)
+  if (spoken.length <= 720) return spoken
+  const cut = spoken.slice(0, 720)
+  const last = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '))
+  return last > 80 ? cut.slice(0, last + 1).trim() : cut.trim()
 }
 
 export function ttsModelsToTry(cached?: string, skipRaw?: string): string[] {

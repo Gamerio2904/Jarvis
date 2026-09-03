@@ -1,4 +1,4 @@
-import { parseTvIntent, parseTvWatch } from './tv-parse.ts'
+import { parseTvIntent, parseTvWatch, isTvDiscover } from './tv-parse.ts'
 import { parseFilmIntent } from './film-parse.ts'
 import { parseFanIntent } from './fan-parse.ts'
 import { parsePlugIntent } from './plug-parse.ts'
@@ -71,7 +71,7 @@ type Parser = (ctx: RouteCtx) => number | null
 const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
   { id: 'wont', sideEffect: 'read', parse: (ctx) => (parseWontIntent(ctx.text) ? score(ctx.text, 0.4) : null) },
   { id: 'identity', sideEffect: 'read', parse: (ctx) => (isPersonaAsk(ctx.text) ? score(ctx.text, 0.45) : null) },
-  { id: 'tv', sideEffect: 'device', parse: (ctx) => (parseTvWatch(ctx.text) || parseTvIntent(ctx.text, ctx.lastTool === 'tv') ? score(ctx.text, 0.06) : null) },
+  { id: 'tv', sideEffect: 'device', parse: (ctx) => (parseTvWatch(ctx.text) || parseTvIntent(ctx.text, ctx.lastTool === 'tv') || isTvDiscover(ctx.text) ? score(ctx.text, 0.06) : null) },
   { id: 'film', sideEffect: 'read', parse: (ctx) => (parseFilmIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
   { id: 'fan', sideEffect: 'device', parse: (ctx) => (parseFanIntent(ctx.text, ctx.lastTool === 'fan') ? score(ctx.text, 0.05) : null) },
   {

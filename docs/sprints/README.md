@@ -169,8 +169,11 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 163 | [`sprint-163.md`](./sprint-163.md) | `9.9.0` | Regression-Katalog | **CODE** (in `9.9.0`) |
 | 164 | [`sprint-164.md`](./sprint-164.md) | `9.9.0` | Security hart | **CODE** (in `9.9.0`) |
 | 165 | [`sprint-165.md`](./sprint-165.md) | `9.9.0` | UX + Industry-DoD | **CODE** |
+| 166 | [`sprint-166.md`](./sprint-166.md) | `9.9.2` | Kugel Lag / Invert / GPS | **CODE** |
+| 167 | [`sprint-167.md`](./sprint-167.md) | `9.9.2` | Greeting News TV Stimme | **CODE** |
+| 168 | [`sprint-168.md`](./sprint-168.md) | `9.9.2` | Ausführlicher Geräte-Test | **KATALOG** |
 
-**Aktuell:** Code **`9.9.0`**. Sideload `9.9.0`. Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall [`49-next.md`](../49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`9.9.2`**. Sideload `9.9.2`. Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag-Plan [`50-next.md`](../50-next.md). Recall [`49-next.md`](../49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

@@ -7,19 +7,20 @@ import {
   organLabel,
   type HudSnap,
   type HudView,
-} from './engine/hud'
-import { BODY_ORGANS, type BodyOrgan } from './engine/hud-parse'
+} from '../../engine/hud'
+import { BODY_ORGANS, type BodyOrgan } from '../../engine/hud-parse'
 import { ChessBoard } from './ChessBoard'
 import { BodySchema } from './BodySchema'
 import { GlobeView, type GlobeFocus } from './GlobeView'
-import { fetchBodySnap, type BodySnap } from './engine/body-snap'
-import { loadGlobePins } from './engine/globe-pins'
-import type { GeoFix } from './engine/globe-geo'
-import { CITY_FLY_ZOOM } from './engine/globe-gibs'
-import { isDocumentHidden, onVisibility, prefersReducedMotion } from './engine/motion'
-import { loadSettings, saveSettings, type Message } from './engine/store'
-import { advanceTour, selectTourStop, stopTour } from './engine/globe-tour'
-import { decodeHtml } from './engine/html-text'
+import { fetchBodySnap, type BodySnap } from '../../engine/body-snap'
+import { loadGlobePins } from '../../engine/globe-pins'
+import type { GeoFix } from '../../engine/globe-geo'
+import { CITY_FLY_ZOOM } from '../../engine/globe-gibs'
+import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion'
+import { loadSettings, saveSettings, type Message } from '../../engine/store'
+import { ensureDeviceLocation } from '../../native/geo'
+import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour'
+import { decodeHtml } from '../../engine/html-text'
 
 export function Lage({
   onSend,
@@ -30,6 +31,7 @@ export function Lage({
   streaming = null,
   conversationId = null,
   onHudChange,
+  compact = false,
 }: {
   onSend: (text: string) => void
   draft: string
@@ -39,6 +41,7 @@ export function Lage({
   streaming?: string | null
   conversationId?: string | null
   onHudChange?: () => void
+  compact?: boolean
 }) {
   const [snap, setSnap] = useState<HudSnap>({})
   const [body, setBody] = useState<BodySnap | null>(null)
@@ -89,6 +92,21 @@ export function Lage({
   }, [view, modules.join(','), spotifyOn, busy, conversationId, globeTick])
 
   useEffect(() => {
+    if (view !== 'globe') return
+    let live = true
+    void ensureDeviceLocation({ openSettingsIfDenied: false }).then((loc) => {
+      if (!live || !loc.ok) return
+      void loadGlobePins().then((next) => {
+        if (live) setPins(next)
+        onHudChange?.()
+      })
+    })
+    return () => {
+      live = false
+    }
+  }, [view, onHudChange])
+
+  useEffect(() => {
     if (view !== 'globe' || !tourOn || reduced) return
     const id = window.setInterval(() => {
       if (isDocumentHidden() || !loadSettings().globe_tour_on) return
@@ -128,8 +146,12 @@ export function Lage({
     onHudChange?.()
   }
 
+  const globeCaption = decodeHtml(pin?.line || s.last_globe_brief || '')
+  const globeTitle = pin?.name || globeFocus()?.name || 'Erde'
+  const showChatTile = !compact && modules.includes('chat')
+
   return (
-    <section className={`lage ${amber ? 'is-amber' : ''}`} aria-label="Lage">
+    <section className={`lage ${amber ? 'is-amber' : ''}${compact ? ' is-compact' : ''}`} aria-label="Lage">
       <header className="lage-head">
         <div className="lage-head-row">
           <span className="lage-brand">{face}</span>
@@ -195,7 +217,7 @@ export function Lage({
             reduced={reduced}
           />
           <TextTile title={organLabel(organ)} body={body?.[organ]?.line || '—'} live />
-          {modules.includes('chat') ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
+          {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
         </div>
       ) : view === 'globe' ? (
         <div className="lage-split">
@@ -231,15 +253,8 @@ export function Lage({
             focus={globeFocus()}
             onLook={onLook}
           />
-          <TextTile
-            title={pin?.name || globeFocus()?.name || 'Erde'}
-            body={decodeHtml(
-              pin?.line ||
-                s.last_globe_brief ||
-                'Drehen, zoomen, Satellitenfoto wenn nah genug. „Zeig mir London“ dreht in das NASA-Foto. „Was ist heute so auf der Welt passiert“ startet die Tour. Kein Live-Video.',
-            )}
-          />
-          {modules.includes('chat') ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
+          {globeCaption ? <TextTile title={globeTitle} body={globeCaption} /> : null}
+          {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
           {pinCard ? (
             <div className="pin-bubble" role="dialog" aria-labelledby="pin-bubble-title">
               <h3 id="pin-bubble-title">{pinCard.name}</h3>
@@ -278,6 +293,7 @@ export function Lage({
             if (id === 'device') return cell(<DeviceTile data={snap.device} />)
             if (id === 'brief') return cell(<TextTile title="Tageslage" body={snap.brief?.line || '—'} />)
             if (id === 'chat') {
+              if (!showChatTile) return null
               return cell(<ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} />)
             }
             if (id === 'plugs') {

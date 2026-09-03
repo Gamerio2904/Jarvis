@@ -39,6 +39,19 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'Screenshot-Bugs',
+    items: [
+      { label: 'Hallo wie gehts', text: 'hallo wie geht es dir', expect: { tool: 'smalltalk' } },
+      { label: 'Arbeit und wie gehts', text: 'ähm ja ich bin auf Arbeit und wie gehts dir' },
+      { label: 'Gersde Welt', text: 'Was passiert Gersde in der Welt', expect: { tool: 'outlook' } },
+      { label: 'Gerade Welt', text: 'Was passiert gerade in der Welt', expect: { tool: 'outlook' } },
+      { label: 'Wo bin ich', text: 'Wo bin ich', expect: { tool: 'here' } },
+      { label: 'Mach du das an', text: 'Mach du das an' },
+      { label: 'Fernseheren suchen', text: 'Suche nach Fernseheren', expect: { tool: 'tv' } },
+      { label: 'Ja Fernseher aus', text: 'Ja Fernseher aus', expect: { tool: 'tv' } },
+    ],
+  },
+  {
     title: 'V2 Voice & App',
     items: [
       { label: 'Einstellungen', text: 'Öffne Einstellungen', expect: { tool: 'app' } },

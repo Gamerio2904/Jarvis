@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`9.9.0`**. Sideload **`9.9.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` / `9.3` / `9.9` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.99` / `9.0` / `7.0` / `9.1` / `9.2` / `9.3` / `9.9` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Parser [`46-next.md`](./46-next.md) `6.51` · Split/Identität/Overlay/APK [`47-next.md`](./47-next.md) `6.60`. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -48,17 +48,18 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Code `6.90` + offene Pläne |
+| 42 | [Alles geplant](./42-planned.md) | Index Code `9.9.2` + offene Pläne |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
 | 47 | [Split, Identität, Sideload](./47-next.md) | **`6.60` CODE** |
 | 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
-| 49 | [Agentic Recall](./49-next.md) | **`7.0` PLAN** — Retrieve/RRF nach `6.90` |
+| 49 | [Agentic Recall](./49-next.md) | **`7.0` CODE** — Retrieve/RRF nach `6.90` |
 | 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` PLAN** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache |
 | 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`9.9` V1–V9 CODE** — Audit bis Hardening; Alltag `8.0` PLAN |
 | 52 | [Latenz, Qualität, Profession](./52-research-latency-quality.md) | Recherche HF/GitHub/Papers; Prefix-Cache, Groq-Stream, SLO **CODE**; Smart Turn/Piper nächste Stimme |
-| — | [APK](./apk.md) | Sideload `9.9.0`; Deinstall löscht Keys — erst Hausstand-Export |
+| 53 | [Screenshot-Bugs](./53-next.md) | **`9.9.2` CODE** — Kugel, Standort, Greeting, News, TV, Stimme |
+| — | [APK](./apk.md) | Sideload `9.9.2`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -184,4 +185,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 164 | `9.9.0` | **CODE** (Security hart, in `9.9.0`) |
 | 165 | `9.9.0` | **CODE** (UX + Industry-DoD) |
 
-**Aktuell:** Code **`9.9.0`**. Sideload zuletzt `9.9.0`. Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall [`49-next.md`](./49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`9.9.2`**. Sideload `9.9.2`. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall [`49-next.md`](./49-next.md) **CODE**. LocateAnything-Sidecar nach 3060-GO. Index: [`42-planned.md`](./42-planned.md).

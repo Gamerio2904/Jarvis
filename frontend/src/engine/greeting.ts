@@ -23,6 +23,8 @@ export function parseGreeting(text: string): DayPart | 'echo' | null {
     return /nacht/i.test(t) ? 'night' : 'evening'
   }
   if (/wie\s+geht(?:'|\u2019)?s?(?:\s+es)?\s+(?:dir|ihnen)\b/i.test(t) || /^\s*ach\b.{0,40}\bgeht/i.test(t)) {
+    if (/\b(arbeit|nachricht|welt|valeo|nachrichten)\b/i.test(t)) return null
+    if ((/\b(und|aber|weil)\b/i.test(t) || t.length > 48) && t.split(/\s+/).length >= 8) return null
     if (/\babend\b/i.test(t)) return 'evening'
     if (/\bnacht\b/i.test(t)) return 'night'
     if (/\bmorgen\b/i.test(t)) return 'morning'
@@ -40,7 +42,7 @@ function partFromWord(w: string): DayPart {
   return 'day'
 }
 
-export function greetingReply(part: DayPart | 'echo', now = new Date()): string {
+export function greetingReply(part: DayPart | 'echo', now = new Date(), asked = ''): string {
   const clock = dayPartAt(now)
   const want = part === 'echo' ? clock : part
   const line =
@@ -56,5 +58,6 @@ export function greetingReply(part: DayPart | 'echo', now = new Date()): string 
       return `${line} Hier ist Mitternacht vorbei — ich bleibe beim Abend, wenn Sie so kommen.`
     }
   }
+  if (/wie\s+geht/i.test(asked)) return `${line} Gut, danke. Und Ihnen?`
   return `${line} Was steht an?`
 }
