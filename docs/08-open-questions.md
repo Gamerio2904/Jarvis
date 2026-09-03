@@ -1,6 +1,6 @@
 # 08 — Offene Fragen
 
-> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Offen: LocateAnything-Gewichte (`4.77` 3060-GO), Debug-Hintergrund `5.12`, At-rest-Encryption.
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Rest-Serie [`54-next.md`](./54-next.md) **CODE**. At-rest-Encryption Parking.
 
 Alles, was die Planung noch **lückig** macht.  
 Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
@@ -25,9 +25,10 @@ Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 | Phase 2+3 NAS/APK | **superseded** (`0.13` On-Device; [`13-on-device.md`](./13-on-device.md)) |
 | Sprint-1-Blocker | **keine offenen P0** |
 | Hirn-Kaskade | **entschieden** (`6.50`): Gemini Hauptweg, Groq Backup, 0,5B zuletzt |
-| LocateAnything-Gewichte | **offen** — Parser CODE, Vision nach 3060-GO |
-| Debug-Hintergrund | **offen** `5.12` — Lauf v1 ist CODE `5.11` |
-| Globus-Briefing | **PLAN** `6.70` — [`48-next.md`](./48-next.md) |
+| LocateAnything-Gewichte | **FREEZE** — Sprint 171 NO-GO, 172 Freeze [`54-next.md`](./54-next.md) |
+| Debug-Hintergrund | **CODE** `5.17` — Sprint 169–170 |
+| Qualität-Could | **CODE** Leit / **FREEZE** Gewichte — Sprint 173–177 |
+| Globus-Briefing | **CODE** `6.90` — [`48-next.md`](./48-next.md) |
 
 Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Hausstand-Export ist **CODE**.
 
@@ -60,11 +61,12 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Ha
 
 ## Nächster Schritt
 
-1. **Vor Deinstall:** Hausstand — [`38-next.md`](./38-next.md) (noch PLAN; bis CODE Keys notieren).
-2. Code `3.19.0` auf `main`. Sideload noch `3.18.1` [`apk.md`](./apk.md). PC-BAT: [`../desktop/README.md`](../desktop/README.md).
-3. Alltagskette / Weltlage / Stimme: [`36-next.md`](./36-next.md) [`35-next.md`](./35-next.md) [`37-next.md`](./37-next.md).
-4. Faces + Tablet: [`39-next.md`](./39-next.md).
+1. Sprint **168** Gerät — [`sprints/sprint-168.md`](./sprints/sprint-168.md) · Serie [`54-next.md`](./54-next.md).
+2. Debug Spike **169** → FGS oder Freeze **170**.
+3. LocateAnything **171** (3060 am Tisch) → **172**.
+4. Qualität-Could **173**–**177** (kein Must).
 5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
+6. Vor Neuinstall: Hausstand exportieren.
 
 ---
 

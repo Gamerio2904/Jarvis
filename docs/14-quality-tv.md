@@ -1,6 +1,6 @@
 # 14 — Update `0.14`: Bestehendes härten + TV live
 
-> Historisch Sprint 47–48. **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)). TV bleibt nativ in der APK.
+> Historisch Sprint 47–48. **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)). TV bleibt nativ in der APK.
 
 PO 2026-08-15: **Nichts Neues** (für *diese* Etappe). Kein größeres Modell, kein Research, kein TTS, keine neuen Tool-Typen.  
 Ziel damals: was schon da ist, **schneller, klüger, zuverlässiger** — und die **geparkte Fernseher-Steuerung** wirklich verbinden und bedienen.

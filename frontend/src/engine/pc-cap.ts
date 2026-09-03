@@ -186,7 +186,7 @@ export function pcActionVerified(obs: PcActionObs): { ok: boolean; error?: strin
   }
 
   if (action === 'ground') {
-    if (obs.vision !== 'ready') return { ok: false, error: 'Sehen am PC ist aus.' }
+    if (obs.vision !== 'ready') return { ok: false, error: 'Sehen am PC ist aus. LocateAnything-Gewichte sind eingefroren (keine RTX-3060-Messung).' }
     return { ok: true }
   }
 
@@ -207,7 +207,7 @@ export const CAP_OFFLINE = 'PC nicht erreicht. JarvisPC.bat muss laufen.'
 
 export function capMissingReply(action: PcCap): string {
   if (action === 'ground') {
-    return 'Sehen am PC ist aus. LocateAnything (JarvisSee auf der RTX) läuft nicht. Nichts eingezeichnet, nichts angeklickt.'
+    return 'Sehen am PC ist aus. LocateAnything-Gewichte sind eingefroren (keine RTX-3060-Messung). JarvisSee läuft nicht. Nichts eingezeichnet, nichts angeklickt.'
   }
   if (action === 'screen') return 'Kein JPEG. JarvisPC.bat muss laufen.'
   if (action === 'launch') return 'Der Agent startet hier keine Programme. JarvisPC.bat muss laufen.'

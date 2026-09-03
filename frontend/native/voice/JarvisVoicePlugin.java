@@ -662,6 +662,37 @@ public class JarvisVoicePlugin extends Plugin {
         p.notifyListeners("wake", ev);
     }
 
+    public static void emitDebugStop() {
+        JarvisVoicePlugin p = self;
+        if (p == null) return;
+        JSObject ev = new JSObject();
+        ev.put("hit", true);
+        p.notifyListeners("debugStop", ev);
+    }
+
+    @PluginMethod
+    public void startDebugFg(PluginCall call) {
+        JarvisDebugService.start(getContext());
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void stopDebugFg(PluginCall call) {
+        JarvisDebugService.stop(getContext());
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void debugFgStatus(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("running", JarvisDebugService.isRunning());
+        call.resolve(r);
+    }
+
     @PluginMethod
     public void consumeLaunch(PluginCall call) {
         Activity a = getActivity();

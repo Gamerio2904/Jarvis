@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. `6.50` = Gemini Hauptweg. Stabilität V1 [`51-phase0-audit.md`](./51-phase0-audit.md) `6.91`–`6.93` **CODE**. V2 Voice & App `6.94`–`6.96` **CODE**. V3 Verified Actions `6.97`–`6.99` **CODE**. V4 Dokumente `9.0` **CODE**. V5 Hierarchical Memory `7.0` **CODE**. V6 TV `9.1` **CODE**. V7 PC `9.2` **CODE**. V8 Live `9.3` **CODE**. V9 Hardening `9.9` **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md) `9.9.2` **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**.
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. `6.50` = Gemini Hauptweg. Stabilität V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Nächste Schiene [`55-next.md`](./55-next.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -117,6 +117,11 @@ MAJOR.MINOR.PATCH
 | `9.9.0` | **V9 Hardening** — Regression, LAN-only PC, Secret-Redact | Sprint 163–165 |
 | `9.9.1` | **Handy-Lage chat-first** | Beta-Polish |
 | `9.9.2` | **Screenshot-Bugs** — Kugel, Greeting, News, TV, Stimme | Sprint 166–168 |
+| `9.9.3` | **Geräte-Findings** — nur wenn 168 rot | nach 168 |
+| `9.10.0` | **Rest final** — Debug-FGS, Sehen-Freeze, Could-Schalter | Sprint 169–177 |
+| `9.10.1` | Silero + Smart Turn ONNX | Sprint 174 Freeze |
+| `9.10.2` | Piper offline | Sprint 175 Freeze |
+| `9.10.3` | Kokoro + e5 Spike | Sprint 176 Freeze |
 | `7.0.0` | **V5 Hierarchical Memory** — Quelle, Confidence, Bereinigung | Sprint 137–140 |
 | `8.0.0` | **Alltag vom Zettel** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache | Sprint 141 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
@@ -330,32 +335,35 @@ Lage-Sicht auf vorhandene Organe. Handy ist Hirn. PC nur PC-Auge/PC-Hand. Kein C
 | `4.70.0`–`4.74.0` | HUD-Sicht, 3D + Kacheln, Gold | nach Research |
 | `4.75.0` | Sideload nach Hausstand | nach `4.52` |
 
-### `4.76+` — Lokales Sehen / LocateAnything [`41-next.md`](./41-next.md) **PLAN**
+### `4.76+` — Lokales Sehen / LocateAnything [`41-next.md`](./41-next.md) **FREEZE** (Parser CODE)
 
-PC-Sidecar, nicht Handy-WASM. `4.66`–`4.75` bleiben Körper. 3060/Windows = GO/NO-GO vor Execute.
+PC-Sidecar, nicht Handy-WASM. `4.66`–`4.75` bleiben Körper. 3060 fehlt → NO-GO. Sprints [`54-next.md`](./54-next.md) 171–172.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `4.76.0` | Leitentscheidung (Docs) | 116 |
-| `4.77.0`–`4.80.0` | Research: 3060, Sidecar, Klick vs Gemini, Foto/OCR | nach 116 |
+| `4.76.0` | Leitentscheidung (Docs) | 116 **CODE** |
+| `4.77.0` | 3060-Messung GO/NO-GO | **171** NO-GO |
+| `4.78.0`–`4.80.0` | Sidecar / Klick / Foto oder Freeze | **172** Freeze CODE |
 | `4.81.0`–`4.86.0` | Ground, Click mit Box, Overlay, Foto, Crop, Fallback | nach GO |
-| `4.87.0`–`4.93.0` | Zeig, Zählen, Tippen, Delta, Beleg, Termin, TV-Foto | 117 |
-| `4.94.0`–`4.99.0` | Schreibtisch, Waschlabel, EAN, zwei Schritte, Gold, Sideload | 118 |
+| `4.87.0`–`4.93.0` | Zeig, Zählen, Tippen, Delta, Beleg, Termin, TV-Foto | 117 Parser **CODE** |
+| `4.94.0`–`4.99.0` | Schreibtisch, Waschlabel, EAN, zwei Schritte, Gold, Sideload | 118 Parser **CODE** |
 
 ### `5.0` — Weltkugel (andere Schiene)
 
 `5.0`–`5.10` sind die Lage-Sicht Erde (PR #58). Nicht mit Debug mischen.
 
-### `5.11+` — Debug-Lauf [`44-next.md`](./44-next.md) **PLAN**
+### `5.11+` — Debug-Lauf [`44-next.md`](./44-next.md) **CODE** (v2 CODE)
 
-Upgrade des Settings-Debug `3.19`. Mehrere Kategorien, neues Gespräch, JSON-Export.
+Upgrade des Settings-Debug `3.19`. Mehrere Kategorien, neues Gespräch, JSON-Export. Hintergrund-Service: [`54-next.md`](./54-next.md) Sprints 169–170.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `5.11.0` | Leitentscheidung (Docs) | 120 |
-| `5.12.0`–`5.13.0` | Research: Hintergrund/Writes, Export-Schema | nach 120 |
-| `5.14.0`–`5.17.0` | UI, Katalog+Expect, JSON+TXT, WakeLock/Service | nach Research |
-| `5.18.0` | Sideload nach Hausstand | nach `4.52` |
+| `5.11.0` | Leitentscheidung (Docs) | 120 **CODE** |
+| `5.12.0` | Spike: stirbt der Lauf bei Home? | **169** CODE GO |
+| `5.13.0` | Research Export + eine Prompt-Quelle | **CODE** |
+| `5.14.0`–`5.16.0` | UI, Katalog, JSON+TXT | **CODE** |
+| `5.17.0` | FGS v2 | **170** CODE |
+| `5.18.0` | Sideload nach Hausstand | `9.10.0` |
 
 ### `6.0+` — Bühne & Hirn [`45-next.md`](./45-next.md) **CODE** in `6.50`/`6.60`
 
@@ -400,12 +408,12 @@ Nach `6.50`. NVIDIA-Loop über IndexedDB, MemAgent-Panel, LightMem-Sleep. Kein L
 | `6.61.0`–`6.65.0` | retrieve, Search, Memory-Recall, memoryBlock, Prompt | 128 |
 | `6.70.0`–`6.71.0` | Working Memory, Digest | 129 |
 | `6.80.0`–`6.82.0` | Sleep, Register `recall`, Gold | 130 |
-| `6.83.0` | Could: e5-small nur Rank | später |
+| `6.83.0` | Could: e5-small nur Rank | Sprint **176** (in `9.10.3`) |
 | `6.84.0` | Sideload nach Hausstand | nach `4.52` |
 
-### `8.0+` — Alltag vom Zettel [`50-next.md`](./50-next.md) **CODE**
+### `8.0+` — Alltag vom Zettel [`50-next.md`](./50-next.md) **PLAN**
 
-Nach `6.90`. Geschwister zu Recall `7.0`. Execute in App **`9.9.2`**. Blitzer OSM-only. Amazon = Intent. Settings 8 Reiter. Lage `8.32`. Netz `8.33`. Test-Tore: Router **CODE**, Handy Sprint 168 PO. Dauer-Zuhören `8.95`. Sideload bleibt **`9.9.2`**.
+Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitzer nur mit erlaubter Quelle. Amazon Musik nur nach Research-GO. Settings `8.35`: Gruppen statt 17 Peers. Lage `8.32`. Netz `8.33`. Test-Tore nach Execute-Bündeln. Dauer-Zuhören `8.95` nach Recall. Sideload bleibt **`6.90.0`** bis Hausstand + Gold.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -427,6 +435,21 @@ Nach `6.90`. Geschwister zu Recall `7.0`. Execute in App **`9.9.2`**. Blitzer OS
 | `8.61.0` | Test-Tor Alltag-Rest | nach `8.40`–`8.60` |
 | `8.90.0` | Gold, Debug-Gruppe | nach Execute + Tore |
 | `8.95.0` | Dauer-Zuhören härten (Wake, App/CarPlay auf) | nach Recall `7.31` |
+
+### `9.10+` — Rest final / Qualität-Could [`54-next.md`](./54-next.md) **CODE**
+
+Nach Sideload `9.10.0`. Gerät 168/178 PO, Debug 169–170/180 FGS, Sehen 171–172 Freeze, Could 173–177/181 ohne Gewichte. ONNX opt-in, nie Router. Nächste Schiene [`55-next.md`](./55-next.md).
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `9.9.2` | Geräte-Katalog (PO) | 168 |
+| `9.9.3` | Findings 168, nur wenn rot | 186 |
+| `5.12.0` / `5.17.0` | Debug Spike GO / FGS | 169 / 170 |
+| `4.77.0` / `4.78.0` | 3060 NO-GO / Freeze | 171 / 172 |
+| `9.10.0` | Could-Leit + Gold ohne Bundle + Parser-Härte + FGS-Härte | 173 / 177 / 179 / 180 / 182 |
+| `9.10.1` | Silero + Smart Turn | 174 Freeze / 181 |
+| `9.10.2` | Piper offline | 175 Freeze / 181 |
+| `9.10.3` | Kokoro + e5 Spike | 176 Freeze / 181 |
 
 ### Weitere Beispiele
 

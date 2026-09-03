@@ -31,6 +31,7 @@ import {
   type SettingsTopic,
 } from '../engine/settings-ia'
 import { loadSettings } from '../engine/store'
+import { qualityPack } from '../engine/quality-pack'
 import { PROBE_COPY_GROUPS } from '../engine/test-copy'
 
 export type { SettingsTopic }
@@ -680,6 +681,50 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 Sagen Sie laut „Jarvis“. Es muss eine Meldung „Jarvis hört auf den Namen“ oben
                 stehen. Bildschirm aus und andere Apps: nur der Name. Beenden: Schalter oder die
                 Meldung. Akku: nicht optimieren.
+              </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.vad_onnx)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ vad_onnx: e.target.checked })}
+                />
+                <span>ONNX-VAD / Smart Turn (opt-in)</span>
+              </label>
+              <p className="settings-hint">{qualityPack('smart_turn', s || loadSettings()).reason}</p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.piper_offline)}
+                  disabled={busy}
+                  onChange={(e) =>
+                    void p.patchSetting({
+                      piper_offline: e.target.checked,
+                      kokoro_tts: e.target.checked ? false : Boolean(s?.kokoro_tts),
+                    })
+                  }
+                />
+                <span>Piper offline (opt-in)</span>
+              </label>
+              <p className="settings-hint">{qualityPack('piper', s || loadSettings()).reason}</p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.kokoro_tts)}
+                  disabled={busy}
+                  onChange={(e) =>
+                    void p.patchSetting({
+                      kokoro_tts: e.target.checked,
+                      piper_offline: e.target.checked ? false : Boolean(s?.piper_offline),
+                    })
+                  }
+                />
+                <span>Kokoro-82M (opt-in, Spike)</span>
+              </label>
+              <p className="settings-hint">{qualityPack('kokoro', s || loadSettings()).reason}</p>
+              <p className="settings-hint">
+                Keine Gewichte in der APK. Schalter merken den Wunsch; fehlt die Datei, bleibt die heutige Lane.
+                Eine Extra-TTS maximal. Am Steuer bleibt ONNX aus, bis eine Auto-Messung vorliegt.
               </p>
               <label className="settings-field">
                 <span>Am Steuer stören</span>
@@ -1724,6 +1769,16 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 An = extra Gutscheine (mydealz, Sparwelt) bei Produktsuche. Research muss an sein.
                 Keine erfundenen Codes. Stimme: „Rabatt-Suche an“.
               </p>
+              <label className="settings-toggle">
+                <input
+                  type="checkbox"
+                  checked={Boolean(s?.e5_rerank)}
+                  disabled={busy}
+                  onChange={(e) => void p.patchSetting({ e5_rerank: e.target.checked })}
+                />
+                <span>e5-small Rerank (nur Retrieve)</span>
+              </label>
+              <p className="settings-hint">{qualityPack('e5', s || loadSettings()).reason}</p>
               <button type="button" className={`audit-toggle ${p.auditOpen ? 'active' : ''}`} onClick={p.onToggleAudit}>
                 Research-Audit
               </button>

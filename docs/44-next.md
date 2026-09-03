@@ -4,9 +4,9 @@ PO 2026-08-27: Debug-Button, Fenster mit **allen** eingebauten Themen als Klickb
 
 **Ist `5.11` (mitgeliefert in `6.60`):** Settings → Debug: Klickboxen, neues Gespräch, JSON+TXT mit Route/`tool_status`/Verdict. Katalog: `test-copy.ts`. CI: `test-prompts.ts`. Parser-Gruppen `6.51` drin.
 
-**Lücke:** Debug-Hintergrund `5.12` (App schließen = Lauf tot). Kein Auto-Ja.
+**Lücke:** App schließen = Lauf tot (Won’t). Home hält der FGS `5.17`.
 
-**Live:** Code **`6.60.0`**. Sideload **`6.60.0`**. Körper, LocateAnything-Parser, Weltkugel, Bühne sind **CODE**. Diese Nummer: **`5.11`**, nicht `5.0`.
+**Live:** Code **`9.10.0`**. Sideload **`9.10.0`**. Debug-FGS **CODE**. LocateAnything-Gewichte Freeze.
 
 Research `5.12` vor Hintergrund-Service. Hausstand vor Neuinstall.
 
@@ -171,12 +171,12 @@ Dieses Dokument. **Done wenn:** Mehrfachwahl, neues Gespräch, Expect+Export, Wr
 | Version | Inhalt | Status |
 |---------|--------|--------|
 | **`5.11.0`** | Leitentscheidung + Boxen, neues Gespräch, Expect, JSON+TXT | **CODE** |
-| **`5.12.0`** | Research Hintergrund / Writes | **CODE** v1: App offen + Screen-WakeLock; Home killt WebView. Kein zweiter FGS. Service bleibt `5.17` |
+| **`5.12.0`** | Research Hintergrund / Writes | **CODE** Spike: Home killt WebView ohne FGS. Votum GO v2 |
 | **`5.13.0`** | Research Export + eine Prompt-Quelle | **CODE** (`test-copy.ts` + `test-prompts.ts`) |
 | **`5.14.0`** | UI: Boxen, Alle/keine, Sequenz, Stop | **CODE** |
 | **`5.15.0`** | Neue Gruppen + `expect` | **CODE** |
 | **`5.16.0`** | JSON+TXT Download, Verdict | **CODE** |
-| **`5.17.0`** | WakeLock oder Service laut `5.12`; Gold | WakeLock-Versuch **CODE**; Service geplant |
+| **`5.17.0`** | FGS „Jarvis testet…“ + WebView-Keep-alive | **CODE** (`JarvisDebugService`, Sprint 170) |
 | **`5.18.0`** | Sideload nach Hausstand | **CODE** als `6.60.0` |
 
 ## Chat / Settings (Ziel)

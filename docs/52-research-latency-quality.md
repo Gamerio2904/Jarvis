@@ -2,7 +2,7 @@
 
 PO 2026-09-02: nicht der Alltag-Zettel (`8.32` / `5.12`), sondern **was Industrie, Hugging Face, GitHub und Papers** für Voice-/Assistenten tun — und was davon in **unseren** TypeScript/Capacitor-Stack passt.
 
-**Ist:** Code **`9.9.2`**. Parser zuerst, Hirn Gemini → Groq → 0,5B. Mund: Edge Neural (Conrad/Katja, frei) im Rennen mit Gemini Algieba, eine Lane pro Antwort. Barge-in aus dem Mic. Prompt-Prefix split (`prompt-split.ts`). Groq SSE. Screenshot-Fixes [`53-next.md`](./53-next.md).
+**Ist:** Code **`9.10.0`**. Parser zuerst, Hirn Gemini → Groq → 0,5B. Mund: Edge Neural (Conrad/Katja, frei) im Rennen mit Gemini Algieba, eine Lane pro Antwort. Barge-in aus dem Mic. Prompt-Prefix split (`prompt-split.ts`). Groq SSE. Could-ONNX opt-in ohne Dateien [`54-next.md`](./54-next.md). Screenshot-Fixes [`53-next.md`](./53-next.md).
 
 **Diese Runde CODE (Loop, nicht neuer Stack):** Prompt-Prefix splitten (`prompt-split.ts`), Groq SSE, Latenz-SLO (`latency.ts`), TLS-Warmup. Rest bleibt Vorschlag.
 
@@ -97,16 +97,18 @@ Parser-first bleibt der größte Latenzgewinn, den wir schon haben: Timer/Wetter
 
 ### Als Nächstes (Stimme, eigene Sprints, nicht Alltag-Execute)
 
-5. **Silero-VAD + Smart Turn v3** — **CODE Loop** in `turn-detect.ts` / `vad.ts` / Native-Listen. Endpoint 200 ms wenn der Satz fertig klingt, 800 ms bei „und …“. ONNX-Gewichte (8 MB Smart Turn, Silero) bleiben Could wenn Energie+Transkript im Auto knirscht.
+5. **Silero-VAD + Smart Turn v3** — Loop in `turn-detect.ts` **CODE**. ONNX-Gewichte: Sprint **174** Could.
 6. **Barge-in aus dem Mic** + Truncate — **CODE**. `watchBargeIn` (Web echoCancellation, Android `AudioRecord` + AEC). History = Gesprochenes (`truncateSpoken` + `patchMessage`).
 7. **First-Audio eine Stimme** — **CODE**. Auto: Edge Neural (`de-DE-ConradNeural` / `Katja`, rany2/edge-tts, kein Extra-Key) **rennt** gegen Gemini Algieba. Wer zuerst einen Blob hat, bleibt die Lane. Groq-TTS (PlayAI) ist EN/AR, nicht verdrahtet. gTTS nur wenn Edge+Gemini fehlen. System-TTS letzter Fallback, kein 480-ms-Timer. sherpa-onnx nicht gebündelt.
 8. **Groq specdec / kleinste Chat-Modelle** nur als Backup-Label, wenn TTFT-Messung Groq langsamer als Gemini zeigt.
 
-### Could (Qualität / Profession)
+### Could (Qualität / Profession) — Sprints 173–176 [`54-next.md`](./54-next.md)
 
-9. **e5-small ONNX** nur Rerank von `retrieve.ts`. Spike wenn Keyword-RRF messbar daneben liegt.
-10. **Eval-Spans im Debug-Export** — TTFT, First-Audio, Pfad, Cache-Hit (`usage.total_cached_tokens` von Gemini). P95 über den Lauf, nicht nur Mittel.
-11. **Antwort-Cache L1** nur für identische Smalltalk-Utterances ohne Retrieve-Hits und ohne Uhr/Wetter. Sonst lügen wir bei der Uhr.
+9. **e5-small ONNX** nur Rerank von `retrieve.ts`. Spike wenn Keyword-RRF messbar daneben liegt. Sprint **176**.
+10. **Eval-Spans im Debug-Export** — TTFT, First-Audio, Pfad, Cache-Hit. P95 über den Lauf. Sprint **177**.
+11. **Antwort-Cache L1** nur für identische Smalltalk-Utterances ohne Retrieve-Hits und ohne Uhr/Wetter. Sprint **177**.
+
+Silero + Smart Turn: Sprint **174**. Piper: Sprint **175**. Kokoro: Sprint **176**. Leit: Sprint **173**.
 
 ### Won’t (weiterhin)
 

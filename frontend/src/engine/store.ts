@@ -1,6 +1,6 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 
-export const APP_VERSION = '9.9.2'
+export const APP_VERSION = '9.10.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -226,6 +226,10 @@ export type Settings = {
   last_debug_json: string
   last_research_json: string
   last_doc_json: string
+  vad_onnx: boolean
+  piper_offline: boolean
+  kokoro_tts: boolean
+  e5_rerank: boolean
 }
 
 const SETTINGS_KEY = 'jarvis_settings_v13'
@@ -358,6 +362,10 @@ export const DEFAULT_SETTINGS: Settings = {
   last_debug_json: '',
   last_research_json: '',
   last_doc_json: '',
+  vad_onnx: false,
+  piper_offline: false,
+  kokoro_tts: false,
+  e5_rerank: false,
 }
 
 function nowIso(): string {

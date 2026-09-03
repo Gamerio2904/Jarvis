@@ -5,7 +5,20 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Alltag-Härte auf **`9.9.2`** (kein Sideload-Bump): Amazon ≠ Prime-Video, Chat „nach Privat legen“, Settings-Suche trifft 8 Reiter (`keys`/`geraete`/`daten`/`alltag`). `npm run test:alltag` — 31 Katalog-Prompts plus Parser-Matrizen. Sprint 141 **CODE**.
+- **Konsole:** Cloud-Warmup nutzt `preconnect` statt GET auf `speech.platform.bing.com/` (HTTP 400). `lastLatency` bleibt Export; Debug-Dock initialisiert mit `lastLatency()`.
+
+## `9.10.0` — Rest final — *CODE*
+
+App-Version und Sideload **`9.10.0`** (versionCode `91000`). Default-Lane wie `9.9.2`. Vor Neuinstall Hausstand exportieren.
+
+- **Debug `5.17`:** Foreground-Service „Jarvis testet…“ (Notification 73, `specialUse`), WebView-Keep-alive bei Home (`resumeTimers` nur). Notify-Tap öffnet die App, nicht den Sprachmodus. WakeLock 30 min. App schließen bleibt tot. Wake-FGS unverändert.
+- **Sehen:** 3060 **NO-GO**. Chat *Sehen am PC ist aus* (Freeze). Keine Gewichte, keine Dummy-Boxen.
+- **Could:** Settings Stimme/Hirn: ONNX-VAD, Piper, Kokoro, e5 — Default aus. Fehlt die Datei, ehrlicher Satz. e5 nie Router. Debug-Export: TTFT / First-Audio / P95.
+- **Alltag-Parser (179):** Amazon Music ≠ Prime, `Chat nach Privat legen`, Settings-Suche Blitzer/Amazon, Blitzer-Korridor ohne Overpass (`test:alltag`).
+- **168** bleibt Geräte-**KATALOG** / PO (Sprint **178**).
+- **Docs (182):** Live-Header und Backlog = Code `9.10.0`. Nächste Schiene [`55-next.md`](./55-next.md).
+
+Sideload **`releases/Jarvis.apk`**. Über `9.9.2` installieren nach Hausstand-Export.
 
 ## `9.9.2` — Screenshot-Bugs / Kugel+Stimme — *CODE*
 

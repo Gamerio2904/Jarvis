@@ -28,7 +28,7 @@ export function DebugPanel({
   busy: boolean
 }) {
   const [snap, setSnap] = useState(debugSnapshot)
-  const [lag, setLag] = useState(lastLatency)
+  const [lag, setLag] = useState(lastLatency())
   useEffect(() => subscribeDebug((s) => setSnap(s)), [])
   useEffect(() => subscribeLatency(() => setLag(lastLatency())), [])
 
@@ -59,7 +59,8 @@ export function DebugPanel({
       <h3>Debug</h3>
       <p className="settings-lead">
         Kategorien wählen, Start öffnet ein neues Gespräch und schließt die Einstellungen. Der Lauf bleibt als
-        Dock über Chat, CarPlay und Overlays sichtbar. Zurück zu Tests und Download. Stop bricht zwischen den
+        Dock über Chat, CarPlay und Overlays sichtbar. Home: Meldung „Jarvis testet…“ hält den Lauf. App
+        schließen oder Stop in der Meldung beendet ihn. Zurück zu Tests und Download. Stop bricht zwischen den
         Turns ab. Ein einzelner Timeout zerstört nicht den Rest. Einzelne V1–V9-Prompts: Thema Probe.
       </p>
       <div className="debug-box-bar">

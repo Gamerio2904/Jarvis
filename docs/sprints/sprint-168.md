@@ -1,5 +1,7 @@
 # Sprint 168 — Ausführlicher Geräte-Test (`9.9.2`) **PLAN + Katalog**
 
+Erster Sprint der Rest-Serie [`54-next.md`](../54-next.md). Danach Debug `169`–`170`, Sehen `171`–`172`, Qualität-Could `173`–`177`.
+
 | Feld | Wert |
 |------|------|
 | Status | **KATALOG** (Parser **CODE**, Gerät PO) |

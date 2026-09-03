@@ -19,7 +19,7 @@ Phase 4  Realistisches Vorlesen (TTS)   ← nur auf PO-Kommando
 Phase 5+ Echter Assistent (stärkeres Gedächtnis, Tools)
 ```
 
-**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **Jetzt:** Code **`6.60.0`**, Sideload **`6.60.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md), Stimme [`37-next.md`](./37-next.md), Hausstand [`38-next.md`](./38-next.md) (Export vor Deinstall), Gesichter + Tablet [`39-next.md`](./39-next.md), Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md), Debug-Lauf [`44-next.md`](./44-next.md) — alles **CODE**. TTS `1.5`+.
+**Hinweis:** Ab `0.13.0` läuft Jarvis on-device auf dem Handy. NAS/Docker/PC-Ollama sind entfallen. **Jetzt:** Code **`9.10.0`**, Sideload **`9.10.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md), Stimme [`37-next.md`](./37-next.md), Hausstand [`38-next.md`](./38-next.md) (Export vor Deinstall), Gesichter + Tablet [`39-next.md`](./39-next.md), Körper [`40-next.md`](./40-next.md), Globus [`43-next.md`](./43-next.md)/[`45-next.md`](./45-next.md), Debug-Lauf [`44-next.md`](./44-next.md) plus FGS [`54-next.md`](./54-next.md) — alles **CODE**. Nächste Schiene [`55-next.md`](./55-next.md). TTS `1.5`+.
 
 ## Phase 0 — Persona & Qualitätsmaßstab
 
@@ -157,7 +157,8 @@ Vorlesen fühlt sich zum etablierten Text-Charakter stimmig an.
 - Debug-Lauf `5.11` — **CODE** [`44-next.md`](./44-next.md)
 - Bühne & Hirn `6.0` — **PLAN** [`45-next.md`](./45-next.md)
 - Agentic Recall `6.60` — **PLAN** [`46-next.md`](./46-next.md)
-- Alltag vom Zettel `8.0` — **CODE** [`50-next.md`](./50-next.md)
+- Alltag vom Zettel `8.0` — **PLAN** [`50-next.md`](./50-next.md)
+- Rest final `9.10` — **PLAN** [`54-next.md`](./54-next.md) (Gerät, Debug-FGS, 3060, Could)
 
 **Hinweis Research:** „100 % verlässlich“ heißt Engineering-DoD (Quellen, Opt-in, kein Raten) — nicht epistemische Allwissenheit.
 ---

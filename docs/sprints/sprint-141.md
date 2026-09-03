@@ -1,37 +1,33 @@
-# Sprint 141 — Alltag vom Zettel **CODE**
+# Sprint 141 — Alltag vom Zettel **CODE** (Leit + Router; Gerät PO)
 
 | Feld | Wert |
 |------|------|
-| Status | **CODE** (Router in `9.9.2`; Gerät-Phasen 2–4 bleiben PO) |
-| Priorität | unabhängig von Recall `7.0` und LocateAnything-3060 |
-| Ziel-Version | `8.0` gebündelt in App **`9.9.2`** (kein Downgrade auf `8.0.0`) |
+| Status | **CODE** (Leit, Router, Parser-Härte 179). Gerät-Tore **PO** (178/185) |
+| Priorität | unabhängig von LocateAnything-3060 |
+| Ziel-Version | `8.0` in Sideload **`9.10.0`** |
 | Quelle | PO: alte Notizen + Einstellungen unübersichtlich |
-| Plan | [`50-next.md`](../50-next.md) |
+| Plan | [`50-next.md`](../50-next.md) · Härte [`sprint-179.md`](./sprint-179.md) |
 
 ## Ziel
 
-Alltag vom Zettel ausführen: Blitzer OSM-only, Steuer-Stimme, Settings-IA (8 Reiter), Amazon-Intent, Chat-Ordner, Preiswache, Lage `8.32`, Netz `8.33`, Wake `8.95`. Kein 3060, kein Apple CarPlay, kein Live-Beamter.
+Festschreiben: was von den Notizen schon `6.90` ist, was neu ist, warum **MAJOR `8.0`** (nicht `7.x` Recall). Kein App-Execute in diesem Sprint.
 
 ## Must
 
-| ID | Inhalt | Stand |
-|----|--------|--------|
-| Z1 | Ist-Tabelle vs Code | **CODE** |
-| Z2 | Blitzer OSM-Korridor; mobil/Beamte ehrlich leer | **CODE** |
-| Z3 | Stimme `8.20`: hören, dann Execute, dann TTS / nur vorlesen | **CODE** |
-| Z4 | Amazon Musik = Android-Intent, ehrlich wenn App fehlt | **CODE** |
-| Z5 | Chat-Ordner lokal; Preiswache opt-in, € nur aus Treffer | **CODE** |
-| Z6 | Won’t: Scraping, Preise erfinden, 60-fps, Recall-Nummern | gilt |
-| Z7 | Settings: 8 Reiter, deutsche Wozu-Sätze, Deep-Links | **CODE** |
-| Z8 | Lage-Overlay `8.32` | **CODE** (`9.9.1`/`9.9.2`) |
-| Z9 | Netz-Antwort `8.33` (Venedig: aktuell nicht fünf Euro) | **CODE** |
-| Z10 | Test-Tore Router + `npm run test:alltag` | **CODE**; Handy-Katalog Sprint 168 PO |
-| Z11 | Dauer-Zuhören `8.95` | **CODE** Wake aus = still |
+| ID | Inhalt |
+|----|--------|
+| Z1 | Ist-Tabelle: DWD ≠ Blitzer, CarPlay intern CODE, Spotify CODE, keine Chat-Ordner, keine Preiswache |
+| Z2 | Blitzer nur mit erlaubter Quelle + Stand; kein Live-Beamter |
+| Z3 | Stimme `8.20`: Mic/Wake hören (ein Erkenner), dann Execute, dann Native-TTS / nur vorlesen — kein Apple CarPlay |
+| Z4 | Amazon Musik nur nach Research-GO (vermutlich Intent) |
+| Z5 | Chat-Ordner lokal + Hausstand; Preiswache opt-in, € nur aus Treffer |
+| Z6 | Won’t: Scraping, Preise erfinden, 60-fps, Recall-Nummern |
+| Z7 | Settings: 5–6 Gruppen, deutsche Wozu-Sätze, `8.35` — Keys bleiben |
+| Z8 | Lage-Overlay `8.32`: Phone-Pane nicht clippen, Pins ohne 0/0, `wo ist London` → Gazetteer-Flug, Idle-Pause, Kacheln/Körper/Kugel |
+| Z9 | Netz-Antwort `8.33`: Jarvis-Ton, aktueller Stand (Venedig: nicht fünf Euro als Jetzt) |
+| Z10 | Test-Tore nach Execute-Bündeln (`8.34`/`8.12`/`8.36`/`8.61`/`8.90`/`7.31`): vier Phasen, Debug-Lauf |
+| Z11 | Dauer-Zuhören `8.95` nach Recall: Wake härten, Wetter + internes CarPlay |
 
 ## Won’t (dieser Sprint)
 
-LocateAnything-Gewichte. Whisper/Cesium/Pipecat. Android FGS `5.12` v2. Apple CarPlay. Live-Jagd auf Beamte. Sideload-Bump nur für Alltag-Härte.
-
-## Tests
-
-`frontend/scripts/test-alltag.mjs` — Katalog Alltag/Recall (31 Prompts), Parser-Matrizen, Settings-Suche auf 8 Reitern, OSM-Korridor ohne Netz, ehrliche Blitzer-Leere.
+App-Code. Sideload. Neue APIs ohne Research.

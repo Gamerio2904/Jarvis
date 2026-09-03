@@ -8,7 +8,7 @@ import {
   type DebugTurn,
 } from './debug-run'
 import { loadSettings, saveSettings } from './store'
-import { setKeepScreenOn } from '../native/voice'
+import { setKeepScreenOn, startDebugFg, stopDebugFg, onDebugStop } from '../native/voice'
 import type { ToolMeta } from './tools'
 
 export type DebugPhase = 'idle' | 'starting' | 'running' | 'stopping'
@@ -35,6 +35,9 @@ const DEBUG_EVENT = 'jarvis-debug'
 const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
 const TURN_TIMEOUT_MS = 90_000
 const PERSIST_KEY_TURNS = 80
+
+export const DEBUG_START_WARN =
+  'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings gehen zu — der Debug-Chat bleibt als Dock über CarPlay und Overlays. Home lässt den Lauf in der Meldung „Jarvis testet…“ weiterlaufen. App schließen oder Stop in der Meldung beendet ihn. Nochmal Start bestätigt.'
 
 type Persist = {
   phase: DebugPhase
@@ -171,6 +174,8 @@ export function requestDebugStop() {
   emit()
 }
 
+onDebugStop(() => requestDebugStop())
+
 export function debugTitle(at = new Date()): string {
   const p = (n: number) => String(n).padStart(2, '0')
   return `Debug ${at.getFullYear()}-${p(at.getMonth() + 1)}-${p(at.getDate())} ${p(at.getHours())}:${p(at.getMinutes())}`
@@ -188,8 +193,7 @@ export async function startDebugRun(opts: {
   }
   if (!warned) {
     warned = true
-    progress =
-      'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings gehen zu — der Debug-Chat bleibt als Dock über CarPlay und Overlays. Home kann den Lauf killen. Nochmal Start bestätigt.'
+    progress = DEBUG_START_WARN
     emit()
     return
   }
@@ -208,6 +212,7 @@ export async function startDebugRun(opts: {
     /* optional */
   }
   void setKeepScreenOn(true)
+  void startDebugFg()
   try {
     conversationId = await opts.onStartChat(debugTitle())
     if (token !== runToken) return
@@ -239,6 +244,7 @@ export async function startDebugRun(opts: {
     progress = `Abbruch: ${error}. Bisherige Turns bleiben zum Download.`
     emit()
   } finally {
+    void stopDebugFg()
     void setKeepScreenOn(false)
   }
 }
