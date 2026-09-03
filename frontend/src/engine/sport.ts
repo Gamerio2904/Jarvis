@@ -42,7 +42,7 @@ const LEAGUES: Record<string, string> = {
   champions: 'cl',
 }
 
-export type SportIntent = { league: string; team?: string }
+export type SportIntent = { league: string; team?: string; table?: boolean }
 
 export function parseSportIntent(text: string): SportIntent | null {
   const t = normalizeUtterance(text.trim())
@@ -51,7 +51,7 @@ export function parseSportIntent(text: string): SportIntent | null {
     /\b(bundesliga|spielstand|spielergebnis|wie\s+hat\s+(?:der|die)\s+|ergebnis\s+|dfb[\s-]*pokal|zweite\s+liga)\b/i.test(
       t,
     ) ||
-    /\b(vfb|bayern|bvb|dortmund)\b/i.test(t) && /\b(gespielt|gewonnen|ergebnis|spiel)\b/i.test(t)
+    (/\b(vfb|bayern|bvb|dortmund)\b/i.test(t) && /\b(gespielt|gewonnen|ergebnis|spiel)\b/i.test(t))
   if (!sportish) return null
   if (/\b(wetter|wecker|timer|fernseh)\b/i.test(t)) return null
   let league = 'bl1'
@@ -66,7 +66,9 @@ export function parseSportIntent(text: string): SportIntent | null {
       break
     }
   }
-  return { league, team }
+  const matchAsk = /\b(gespielt|gewonnen|verloren|ergebnis|spielstand|spielergebnis)\b/i.test(t)
+  const tableAsk = /\b(steht|tabelle|tabellenstand|punkte|platzierung|rangfolge)\b/i.test(t)
+  return { league, team, table: tableAsk && !matchAsk }
 }
 
 export async function handleSport(
@@ -74,6 +76,19 @@ export async function handleSport(
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const intent = parseSportIntent(text)
   if (!intent) return { handled: false }
+  if (intent.table && !intent.team) {
+    const rows = await loadTable(intent.league)
+    if (rows.length) {
+      const line = formatTable(rows)
+      saveSettings({ last_sport_line: line.slice(0, 220) })
+      return {
+        handled: true,
+        reply: `${line} OpenLigaDB Tabelle, kein Tipp.`,
+        tool: { tool_status: 'executed', tool: 'sport', action: 'table', label: 'Sport' },
+        lastTool: 'sport',
+      }
+    }
+  }
   const matches = await loadMatches(intent.league)
   if (!matches.length) {
     return {
@@ -106,6 +121,57 @@ export async function handleSport(
 }
 
 type Match = { home: string; away: string; hs: number; as: number; done: boolean }
+
+type TableRow = { rank: number; name: string; points: number; gf: number; ga: number; played: number }
+
+export function formatTable(rows: TableRow[]): string {
+  return rows
+    .map((r) => `${r.rank}. ${r.name} ${r.points} Pkt ${r.gf}:${r.ga}`)
+    .join('. ')
+    .concat('. ')
+}
+
+async function loadTable(league: string): Promise<TableRow[]> {
+  const year = new Date().getFullYear()
+  for (const y of [year, year - 1]) {
+    const rows = await fetchTable(league, y)
+    if (rows.length) return rows
+  }
+  return []
+}
+
+async function fetchTable(league: string, year: number): Promise<TableRow[]> {
+  const url = `https://api.openligadb.de/getbltable/${league}/${year}`
+  try {
+    const { status, text } = await getText(url, UA)
+    if (status < 200 || status >= 300 || !text) return []
+    const data = JSON.parse(text) as unknown
+    const arr = Array.isArray(data) ? data : []
+    const rows: TableRow[] = []
+    for (let i = 0; i < arr.length; i++) {
+      const row = arr[i]
+      if (!row || typeof row !== 'object') continue
+      const o = row as Record<string, unknown>
+      const name = String(o.teamName || o.shortName || '').trim()
+      if (!name) continue
+      const points = Number(o.points)
+      const gf = Number(o.goals)
+      const ga = Number(o.opponentGoals)
+      const played = Number(o.matches)
+      rows.push({
+        rank: i + 1,
+        name,
+        points: Number.isFinite(points) ? points : 0,
+        gf: Number.isFinite(gf) ? gf : 0,
+        ga: Number.isFinite(ga) ? ga : 0,
+        played: Number.isFinite(played) ? played : 0,
+      })
+    }
+    return rows
+  } catch {
+    return []
+  }
+}
 
 async function loadMatches(league: string): Promise<Match[]> {
   const year = new Date().getFullYear()

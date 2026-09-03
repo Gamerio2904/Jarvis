@@ -6,12 +6,11 @@ import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/mo
 
 const HOME = { lat: 50.1, lon: 10.4 }
 const ZOOM_MIN = 1
-const ZOOM_MAX = 3.35
+const ZOOM_MAX = 4.4
 const FRONT = 0.04
 
 function clampZoom(z: number): number {
   if (!Number.isFinite(z) || z <= 0) return 1.12
-  if (z >= 3.8) return 2.55
   return Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, z))
 }
 
@@ -68,21 +67,23 @@ export function GlobeView({
 
   useEffect(() => {
     if (!focusKey || !focus) return
-    if (storedFocusKey.current === null) {
-      storedFocusKey.current = focusKey
-      return
-    }
-    if (focusKey === storedFocusKey.current) return
-    if (focusKey === lastFocus.current) return
-    lastFocus.current = focusKey
     const aim = yawPitchFor(focus.lat, focus.lon)
-    const z = clampZoom(Number(focus.zoom) || zoom.current)
+    const z = clampZoom(Number(focus.zoom) || 2.8)
+    const already =
+      storedFocusKey.current === focusKey &&
+      Math.abs(shortest(yaw.current, aim.yaw)) < 0.05 &&
+      Math.abs(pitch.current - aim.pitch) < 0.05 &&
+      Math.abs(zoom.current - z) < 0.15
+    if (already) return
+    storedFocusKey.current = focusKey
+    lastFocus.current = focusKey
     onLookRef.current?.({ lat: focus.lat, lon: focus.lon, zoom: z, date: '' })
     if (reduced) {
       yaw.current = aim.yaw
       pitch.current = Math.max(-1.35, Math.min(1.35, aim.pitch))
       zoom.current = z
       fly.current = null
+      kickRef.current()
       return
     }
     fly.current = { yaw: aim.yaw, pitch: aim.pitch, zoom: z, t: 0 }
@@ -91,6 +92,7 @@ export function GlobeView({
 
   useEffect(() => {
     if (homedHere.current) return
+    if (focus) return
     const here = pins.find((p) => p.kind === 'here')
     if (!here || !Number.isFinite(here.lat) || !Number.isFinite(here.lon)) return
     homedHere.current = true
@@ -104,7 +106,7 @@ export function GlobeView({
     }
     fly.current = { yaw: aim.yaw, pitch: aim.pitch, zoom: 1.42, t: 0 }
     kickRef.current()
-  }, [pins, reduced])
+  }, [pins, reduced, focus])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -117,7 +119,7 @@ export function GlobeView({
     let last = 0
 
     function resize() {
-      const dpr = Math.min(2, window.devicePixelRatio || 1)
+      const dpr = Math.min(1.5, window.devicePixelRatio || 1)
       surface.width = Math.max(1, Math.round(surface.clientWidth * dpr))
       surface.height = Math.max(1, Math.round(surface.clientHeight * dpr))
       pen.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -207,10 +209,12 @@ export function GlobeView({
     }
 
     function strokeRings() {
+      const step = zoom.current < 1.55 ? 6 : zoom.current < 2.4 ? 4 : 2
       for (const ring of WORLD_RINGS) {
+        if (ring.length < 8) continue
         let drawing = false
         pen.beginPath()
-        for (let i = 0; i < ring.length - 1; i += 2) {
+        for (let i = 0; i < ring.length - 1; i += step) {
           const q = project(ring[i + 1], ring[i])
           if (q.z < FRONT) {
             if (drawing) {

@@ -142,7 +142,7 @@ import { parseFerienIntent } from '../src/engine/ferien.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
 import { parseSkyIntent } from '../src/engine/sky.ts'
 import { parseChessIntent } from '../src/engine/chess.ts'
-import { parseSportIntent } from '../src/engine/sport.ts'
+import { parseSportIntent, formatTable } from '../src/engine/sport.ts'
 import { parseFoodIntent } from '../src/engine/food.ts'
 import { parseLibraryIntent } from '../src/engine/library.ts'
 import { parseLawIntent } from '../src/engine/law.ts'
@@ -480,6 +480,45 @@ assert.ok(isLiveLookup('Was ist der bip in Deutschland'))
 assert.ok(isLiveLookup('Kannst du den bip von Deutschland in einer Tabelle darstellen?'))
 assert.ok(isTableAsk('Kannst du den bip von Deutschland in einer Tabelle darstellen?'))
 assert.ok(!isLiveLookup('Kannst du ihn erklären'))
+assert.ok(
+  isLiveLookup(
+    'Vergleiche mal die Vor- und Nachteile von E-Auto vs. Verbrenner für jemanden der 30.000 km im Jahr fährt und auf dem Land wohnt, schreib das als Tabelle.',
+  ),
+)
+assert.ok(
+  isLiveLookup(
+    'Erkläre mir in einfachen Worten wie ein Quantencomputer funktioniert, warum er schneller ist als normale Computer und wo man ihn heute schon einsetzt. Mindestens 5 Sätze.',
+  ),
+)
+assert.ok(
+  isLiveLookup(
+    'Ich fahre nächste Woche nach München, brauche ein Hotel in der Innenstadt für 2 Nächte, was kostet das ungefähr und wie wird das Wetter dort?',
+  ),
+)
+assert.ok(
+  isKnowledgeGap(
+    'Leider liegen mir keine konkreten Daten zu den Vor- und Nachteilen von Elektro- und Verbrennungsmotoren für Ihre spezifische Situation vor. Ich kann daher keine Tabelle erstellen.',
+  ),
+)
+assert.ok(isKnowledgeGap('Leider liegen mir keine Daten zu Quantencomputern vor.'))
+assert.ok(
+  shouldRetrySearch(
+    'Erkläre mir in einfachen Worten wie ein Quantencomputer funktioniert, warum er schneller ist als normale Computer und wo man ihn heute schon einsetzt. Mindestens 5 Sätze.',
+    'Leider liegen mir keine Daten zu Quantencomputern vor.',
+  ),
+)
+assert.equal(
+  sourcesFromHtml(
+    '<a class="result__a" href="https://www.hellofresh.de/stories/kochtipps/spaghetti-carbonara-rezept">Cremige Carbonara zu Hause machen - so gelingt&#x27;s | HelloFresh</a>',
+  )[0]?.title.includes("gelingt's"),
+  true,
+)
+assert.equal(
+  sourcesFromHtml(
+    '<a class="result__a" href="https://www.hellofresh.de/stories/kochtipps/spaghetti-carbonara-rezept">Cremige Carbonara zu Hause machen - so gelingt&#x27;s | HelloFresh</a>',
+  )[0]?.title.includes('&#x27;'),
+  false,
+)
 assert.ok(isSearchRefusal('Zu den aktuellen Wirtschaftsdaten liegen mir im Moment keine verifizierten Zahlen vor, Timon.'))
 assert.ok(isSearchRefusal('Tabellen kann ich in diesem Format leider nicht ausgeben, Timon.'))
 assert.ok(isKnowledgeGap('Die exakte Uhrzeit liegt mir im Moment nicht vor, Timon, da mir kein entsprechender Systemzugriff auf die Uhrzeit vorliegt.'))
@@ -607,6 +646,10 @@ assert.equal(parseWeatherIntent('Wetter heute')?.focus, 'general')
 assert.equal(parseWeatherIntent('Wie ist die Luft?')?.focus, 'air')
 assert.equal(parseWeatherIntent('Wann Sonnenaufgang?')?.focus, 'sun')
 assert.equal(parseWeatherIntent('Pollen in Stuttgart')?.focus, 'air')
+const munichHotel =
+  'Ich fahre nächste Woche nach München, brauche ein Hotel in der Innenstadt für 2 Nächte, was kostet das ungefähr und wie wird das Wetter dort?'
+assert.equal(parseWeatherIntent(munichHotel), null)
+assert.notEqual(pickRoute(munichHotel), 'weather')
 const airFollow = parseWeatherFollowup('und die Luft', { kind: 'here', when: 'today', focus: 'general' })
 assert.equal(airFollow?.focus, 'air')
 assert.match(
@@ -1154,7 +1197,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /10\.60\.0/)
+assert.match(HELP_TEXT, /10\.60\.1/)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
 assert.match(HELP_TEXT, /Keys nicht im Chat/)
@@ -1653,6 +1696,13 @@ assert.equal(parseSkyIntent('Mondphase')?.kind, 'moon')
 assert.equal(parseChessIntent('Schach neu')?.kind, 'new')
 assert.equal(parseChessIntent('schach e2e4')?.kind, 'move')
 assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.team, 'Stuttgart')
+assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.table, true)
+assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.league, 'bl1')
+assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.table, false)
+assert.match(
+  formatTable([{ rank: 1, name: 'Bayern', points: 12, gf: 15, ga: 4, played: 4 }]),
+  /1\. Bayern 12 Pkt 15:4/,
+)
 assert.equal(parseFoodIntent('Was ist das für ein Produkt Nutella')?.query.toLowerCase().includes('nutella'), true)
 assert.equal(parseLibraryIntent('Was ist das für ein Buch Der Prozess')?.query.toLowerCase().includes('prozess'), true)
 assert.ok(parseLawIntent('Kündigungsfrist Wohnung'))
@@ -1733,6 +1783,9 @@ assert.equal(parseHudIntent('Zeig PC Auge')?.id, 'pc_eye')
 assert.equal(parseHudIntent('Wo liegt Berlin')?.kind, 'pin')
 assert.equal(parseHudIntent('Wo liegt Berlin')?.name, 'Berlin')
 assert.equal(parseHudIntent('Zeig mir London')?.kind, 'pin')
+assert.equal(parseHudIntent('Flieg nach Tokyo')?.kind, 'pin')
+assert.equal(parseHudIntent('Flieg nach Tokyo')?.name, 'Tokio')
+assert.equal(parseHudIntent('Flieg nach Tokio')?.name, 'Tokio')
 assert.equal(parseHudIntent('Was ist das für eine Stadt')?.kind, 'look')
 assert.equal(pickRoute('Körper an'), 'hud')
 assert.equal(pickRoute('zeig mal den körper'), 'hud')

@@ -1,4 +1,5 @@
 import { normalizeUtterance } from './utterance.ts'
+import { decodeHtml } from './html-text.ts'
 
 export type ResearchSource = {
   title: string
@@ -37,7 +38,10 @@ export function isLiveLookup(text: string, discount = false): boolean {
   if (/\b(?:tweet|tweets|twitter|getweetet|gepostet)\b/i.test(t)) return true
   if (/\bauf\s+x\b/i.test(t) && /\b(?:post|geschrieben|gesagt|zuletzt|letztes)\b/i.test(t)) return true
   if (/\bwas\s+hat\s+\S.{0,40}\s+(?:als\s+letztes\s+)?(?:getweetet|gepostet|getwittert)\b/i.test(t)) return true
-  if (isTableAsk(t) && /\b(?:bip|gdp|deutschland|zahlen|statistik|daten|wirtschaft)\b/i.test(t)) return true
+  if (isTableAsk(t) && /\b(?:bip|gdp|deutschland|zahlen|statistik|daten|wirtschaft|vergleich|vor-?\s*und\s*nachteile|vs\.?|gegenüber|e-?auto|verbrenner)\b/i.test(t)) return true
+  if (/\berklär/i.test(t) && t.length >= 50 && /\b(?:wie|warum|weshalb|funktioniert|quanten|computer)\b/i.test(t)) {
+    return true
+  }
   if (isProductLookup(t, discount)) return true
   if (isFactLookup(t)) return true
   return false
@@ -117,7 +121,7 @@ export function isSearchRefusal(text: string): boolean {
 /** Modell sagt, es wisse Live-Fakten nicht — dann selbst suchen. */
 export function isKnowledgeGap(text: string): boolean {
   if (isSearchRefusal(text)) return true
-  return /liegen mir im moment keine|liegt mir im moment nicht vor|kein entsprechender systemzugriff|zu den aktuellen .{0,48}liegen mir|dazu (?:liegen|gibt es) (?:mir )?keine|weiß ich (?:leider )?nicht|keine aktuellen (?:zahlen|daten|werte)|keine belegten zahlen/i.test(
+  return /liegen mir im moment keine|liegt mir im moment nicht vor|liegen mir keine|keine (?:konkreten |aktuellen )?(?:zahlen|daten|werte)(?:\s+zu)?|kann daher keine tabelle|keine tabelle erstellen|kein entsprechender systemzugriff|zu den aktuellen .{0,48}liegen mir|dazu (?:liegen|gibt es) (?:mir )?keine|weiß ich (?:leider )?nicht|keine belegten zahlen/i.test(
     text,
   )
 }
@@ -129,13 +133,18 @@ export function isAutoResearchAsk(text: string, discount = false): boolean {
   if (!t || t.length < 8 || t.length > 240) return false
   if (/^\s*(?:hallo|hi|hey|guten\s+(?:morgen|abend|tag)|wie\s+geht)/i.test(t)) return false
   if (/\b(?:wer\s+bist\s+du|was\s+machst\s+du|was\s+sie\s+tun)\b/i.test(t)) return false
+  if (/\berklär(?:e)?\s+mir\b/i.test(t)) {
+    return /\b(?:was\s+ist|wie\s+viel|wie\s+hoch|wie\s+groß|wer\s+ist|wann\s+(?:war|ist)|erklär|tabelle|statistik|zahlen|quote|kurs|vergleich|vor-?\s*und\s*nachteile)\b/i.test(
+      t,
+    )
+  }
   if (
     /\b(?:ich|wir|mich|uns|meine?|meiner|meinen|unser)\b/i.test(t) &&
     !/\b(?:deutschland|europa|bip|gdp|welt)\b/i.test(t)
   ) {
     return false
   }
-  return /\b(?:was\s+ist|wie\s+viel|wie\s+hoch|wie\s+groß|wer\s+ist|wann\s+(?:war|ist)|erklär|tabelle|statistik|zahlen|quote|kurs)\b/i.test(
+  return /\b(?:was\s+ist|wie\s+viel|wie\s+hoch|wie\s+groß|wer\s+ist|wann\s+(?:war|ist)|erklär|tabelle|statistik|zahlen|quote|kurs|vergleich|vor-?\s*und\s*nachteile)\b/i.test(
     t,
   )
 }
@@ -322,7 +331,7 @@ function cleanUrl(raw: string): string {
 }
 
 function stripTags(html: string): string {
-  return html.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\s+/g, ' ')
+  return decodeHtml(html.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ')
 }
 
 export function hostOf(url: string): string {

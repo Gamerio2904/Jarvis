@@ -2,9 +2,11 @@
 
 PO 2026-09-03: Execute 187–194 liegt in Code **`10.60.0`**. Diese Datei ist der **ehrliche** Lauf danach — Parser, Gold, Chat, Settings. Kein Execute.
 
-**App-Stand:** Code **`10.60.0`**. Sideload **`10.60.0`**. 195 **FREEZE**. 193 Gerät **PO**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Plan [`56-next.md`](./56-next.md) **CODE**.
+**App-Stand:** Code **`10.60.1`**. Sideload **`10.60.1`**. 195 **FREEZE**. 193 Gerät **PO**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Plan [`56-next.md`](./56-next.md) **CODE**.
 
-Probe: `npm run test:memory-10-intens` (Audit, kein Gate). Gold: `test:memory-10`. Chat/Settings: Vite `10.60.0`.
+Probe: `npm run test:memory-10-intens` (Audit, kein Gate). Gold: `test:memory-10`. Chat/Settings: Vite `10.60.1`.
+
+**10.60.1 Screenshot-Fixes (Gerät 2026-09-03):** Kugel fliegt auf Tokio; Bundesliga-Tabelle; Research bei Vergleich/Erklärung; Hotel-Satz nicht als Wetter-Ort. Memory-10 Befund darunter unverändert.
 
 ---
 

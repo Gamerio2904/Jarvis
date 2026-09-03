@@ -68,7 +68,11 @@ export async function handleDigest(
       line = ''
     }
   }
-  if (!line) line = localDigest(slice.map((m) => m.content))
+  if (!line) {
+    line = localDigest(
+      slice.filter((m) => !/als notiz gelegt|kein sales-coach/i.test(m.content)),
+    )
+  }
   await addNote(line, conversationId)
   return {
     handled: true,
@@ -86,8 +90,16 @@ async function lastUserLine(conversationId: string): Promise<string> {
   return ''
 }
 
-function localDigest(parts: string[]): string {
-  const text = parts.join(' ').replace(/\s+/g, ' ').trim()
-  const cut = text.slice(0, 280)
-  return cut ? `${cut}${text.length > 280 ? '…' : ''}` : 'Nichts Greifbares.'
+function localDigest(msgs: { role: string; content: string }[]): string {
+  const topics: string[] = []
+  for (const m of msgs) {
+    if (m.role !== 'user') continue
+    if (parseDigestIntent(m.content)) continue
+    const q = m.content.replace(/\s+/g, ' ').trim().replace(/[.!?]+$/, '')
+    if (q.length < 4) continue
+    topics.push(q.length > 72 ? `${q.slice(0, 70)}…` : q)
+  }
+  if (!topics.length) return 'Nichts Greifbares.'
+  const uniq = [...new Set(topics)].slice(-5)
+  return `Themen: ${uniq.join(' · ')}.`
 }

@@ -44,6 +44,7 @@ import {
   APP_VERSION,
 } from './api'
 import { researchStatusLabel } from './engine/research-parse'
+import { decodeHtml } from './engine/html-text'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
 import { CalendarView } from './ui/Calendar'
@@ -151,10 +152,10 @@ function SourcesBlock({
                   window.open(s.url, '_blank', 'noopener,noreferrer')
                 }}
               >
-                [{i + 1}] {s.title}
+                [{i + 1}] {decodeHtml(s.title)}
               </a>
               {s.url ? <p className="sources-url">{s.url}</p> : null}
-              {s.snippet ? <p className="sources-snippet">{s.snippet}</p> : null}
+              {s.snippet ? <p className="sources-snippet">{decodeHtml(s.snippet)}</p> : null}
             </li>
           ))}
         </ul>

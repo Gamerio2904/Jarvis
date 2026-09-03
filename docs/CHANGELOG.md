@@ -7,6 +7,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 - **Intensiv-Befund Memory-10:** [`57-next.md`](./57-next.md) **PLAN**. G5 live Echo, Alias zu breit, memoryBlock ohne Memory-Hits. Sprints 196–201. Execute nicht in diesem Commit.
 
+## `10.60.1` — Screenshot-Fixes Kugel / Bundesliga / Research — *CODE*
+
+Sideload **`10.60.1`** (versionCode `106001`).
+
+- **Kugel:** Fly-to läuft beim ersten Fokus (Tokio). GPS-„Sie“ überschreibt Stadt-Fly nicht. Zoom bis 4.4. Küstenlinien halbiert + LOD beim Drehen. DPR 1.5.
+- **Bundesliga:** `Wie steht die Bundesliga?` lädt `getbltable` (Platz, Verein, Punkte, Tore:Gegentore), nicht drei Paarungen ohne Stand.
+- **Research:** Vergleich/Tabelle und lange Erklär-Fragen gehen ins Netz. Knowledge-Gap erkennt „liegen mir keine Daten“.
+- **Wetter-Parser:** `ein Hotel in der Innenstadt` ist kein Ort. Hotel+Preis+Wetter bleibt Research.
+- **Quellen:** `&#x27;` wird zum Apostroph. Digest lokal listet Themen, klebt nicht Tokio+ISS+Rezept zusammen.
+
 ## `10.60.0` — Semantisches Gedächtnis — *CODE*
 
 App-Code **`10.60.0`**. Sideload **`10.60.0`** (versionCode `106000`). Sprints 187–194. 195 Freeze.
