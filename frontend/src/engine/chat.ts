@@ -175,7 +175,7 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   const greet = parseGreeting(content) || parseGreeting(normalizeUtterance(content))
   if (greet) {
     return {
-      reply: greetingReply(greet),
+      reply: greetingReply(greet, new Date(), content),
       lastTool: 'smalltalk',
       tool: { tool_status: 'executed', tool: 'smalltalk', action: 'greeting', label: 'Jarvis' },
     }
@@ -401,7 +401,7 @@ async function rememberToolFromStore(tool: string): Promise<void> {
 
 async function rememberHit(hit: RouteHit, utterance = ''): Promise<void> {
   const tool = hit.lastTool
-  if (!tool || tool === 'help' || tool === 'memory') return
+  if (!tool || tool === 'help' || tool === 'memory' || tool === 'smalltalk' || tool === 'identity') return
   const preview = (hit.tool?.preview || '').trim()
   const medium =
     tool === 'tv'
@@ -659,7 +659,7 @@ export async function streamChat(
               },
               {
                 search: wantSearch,
-                maxOutputTokens: opts?.voice ? 420 : wantSearch ? 900 : 420,
+                maxOutputTokens: opts?.voice ? 240 : wantSearch ? 900 : 420,
                 timeoutMs: wantSearch ? 12_000 : 8_000,
               },
             ).then((r) => {
@@ -681,7 +681,7 @@ export async function streamChat(
                 },
                 {
                   search: wantSearch,
-                  maxOutputTokens: opts?.voice ? 420 : 420,
+                  maxOutputTokens: opts?.voice ? 240 : 420,
                   timeoutMs: 8_000,
                   voice: opts?.voice,
                 },

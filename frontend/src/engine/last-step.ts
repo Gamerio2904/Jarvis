@@ -13,7 +13,7 @@ export type LastStep = {
 const FOLLOW_UP =
   /^(und\s+)?(lösch(e|en)?(\s+das)?|das\s+löschen|vergiss?\s+das|und\s+um\s+\d{1,2}([:.]\d{2})?(\s+uhr)?|und\s+morgen\??|morgen\s+auch|stattdessen\s+um\s+\d{1,2}|in\s+\d+\s+(?:minuten?|stunden?)|morgen\s+\d{1,2}(?:[:.]\d{2})?)\s*[.?!]?$/i
 
-const CONFIRM = /^(ja(?:\s+bitte)?|jo|yes|ok|okay|mach(?:\s+es|\s+mal)?|bitte|passt)\s*[.!?]?$/i
+const CONFIRM = /^(ja(?:\s+bitte)?|jo|yes|ok|okay|mach(?:\s+es|\s+mal)?|bitte|passt|mach(?:st)?\s+(?:du\s+)?(?:das|es)\s+an)\s*[.!?]?$/i
 const RESEARCH_YES = /^(?:ja\s+bitte(?:\s+(?:suchen|recherchieren))?|bitte\s+suchen|such(?:e)?(?:\s+bitte)?)\s*[.!?]?$/i
 
 const HALT = /^(?:stopp(?:e)?(?:\s+das)?|halt|pause)\s*[.!?]?$/i
@@ -57,6 +57,8 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
   const when = (step?.last_step_when ?? '').trim()
   const medium = (step?.last_medium ?? '').trim()
   const utterance = (step?.last_step_utterance ?? '').trim()
+
+  if (tool === 'smalltalk' || tool === 'identity') return null
 
   if (/^(?:call_confirm|sms_confirm|sms_body_ask|sms_ask|phone_ask|pc_confirm|taxi|chain_ask|interrupt)$/.test(tool)) return null
 

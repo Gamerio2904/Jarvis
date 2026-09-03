@@ -200,9 +200,6 @@ export function GlobeView({
       pen.lineJoin = 'round'
       pen.lineCap = 'round'
       const hair = Math.max(0.65, Math.min(1.45, R / 210))
-      pen.strokeStyle = 'rgba(46, 214, 130, 0.18)'
-      pen.lineWidth = hair * 2.4
-      strokeRings()
       pen.strokeStyle = 'rgba(168, 242, 196, 0.92)'
       pen.lineWidth = hair
       strokeRings()
@@ -303,7 +300,7 @@ export function GlobeView({
       raf = 0
       if (isDocumentHidden()) return
       if (ts - last < MOTION_FRAME_MS) {
-        kick()
+        if (drag.current || pinch.current || fly.current || inertia.current.yaw || inertia.current.pitch) kick()
         return
       }
       const dt = Math.min(0.05, (ts - last) / 1000 || 1 / 30)
@@ -332,12 +329,10 @@ export function GlobeView({
         inertia.current.pitch *= 0.92
         if (Math.abs(inertia.current.yaw) < 0.00015) inertia.current.yaw = 0
         if (Math.abs(inertia.current.pitch) < 0.00015) inertia.current.pitch = 0
-        if (!inertia.current.yaw && !homedHere.current && !lastFocus.current) {
-          yaw.current += dt * 0.045
-        }
       }
       draw()
-      kick()
+      const spinning = Boolean(drag.current || pinch.current || fly.current || inertia.current.yaw || inertia.current.pitch)
+      if (spinning) kick()
     }
     draw()
     kick()
@@ -373,16 +368,19 @@ export function GlobeView({
         const [a, b] = [...pts.current.values()]
         const d = Math.max(24, dist(a, b))
         zoom.current = clampZoom(pinch.current.zoom * (d / pinch.current.dist))
+        kick()
         return
       }
       if (!drag.current || reduced) return
-      const dyaw = (p.x - drag.current.x) * 0.0085
-      const dpitch = (p.y - drag.current.y) * 0.0065
+      // Surface follows the finger (Google Earth / maps), not camera-look invert.
+      const dyaw = -(p.x - drag.current.x) * 0.0085
+      const dpitch = -(p.y - drag.current.y) * 0.0065
       yaw.current += dyaw
       pitch.current = Math.max(-1.35, Math.min(1.35, pitch.current + dpitch))
       inertia.current.yaw = dyaw
       inertia.current.pitch = dpitch
       drag.current = p
+      kick()
     }
     const up = (ev: PointerEvent) => {
       const start = drag.current
@@ -414,6 +412,7 @@ export function GlobeView({
       if (reduced) return
       zoom.current = clampZoom(zoom.current * (ev.deltaY > 0 ? 0.94 : 1.06))
       if (!fly.current) emitLook()
+      kick()
     }
     surface.addEventListener('pointerdown', down)
     surface.addEventListener('pointermove', move)

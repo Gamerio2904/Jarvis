@@ -18,6 +18,7 @@ import type { GeoFix } from '../../engine/globe-geo'
 import { CITY_FLY_ZOOM } from '../../engine/globe-gibs'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion'
 import { loadSettings, saveSettings, type Message } from '../../engine/store'
+import { ensureDeviceLocation } from '../../native/geo'
 import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour'
 import { decodeHtml } from '../../engine/html-text'
 
@@ -89,6 +90,21 @@ export function Lage({
       off()
     }
   }, [view, modules.join(','), spotifyOn, busy, conversationId, globeTick])
+
+  useEffect(() => {
+    if (view !== 'globe') return
+    let live = true
+    void ensureDeviceLocation({ openSettingsIfDenied: false }).then((loc) => {
+      if (!live || !loc.ok) return
+      void loadGlobePins().then((next) => {
+        if (live) setPins(next)
+        onHudChange?.()
+      })
+    })
+    return () => {
+      live = false
+    }
+  }, [view, onHudChange])
 
   useEffect(() => {
     if (view !== 'globe' || !tourOn || reduced) return

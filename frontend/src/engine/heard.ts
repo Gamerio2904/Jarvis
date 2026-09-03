@@ -8,6 +8,8 @@ import { parsePlaceNav } from './places-parse.ts'
 import { parsePoiIntent } from './poi-parse.ts'
 import { parseSpotifyIntent } from './spotify-parse.ts'
 import { parseTvIntent, parseTvWatch } from './tv-parse.ts'
+import { parseOutlookIntent } from './outlook-parse.ts'
+import { parseNewsIntent } from './news-parse.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 function commandScore(text: string): number {
@@ -23,6 +25,8 @@ function commandScore(text: string): number {
   if (parseDriveIntent(t, false)) n += 5
   if (parseDeviceIntent(t)) n += 5
   if (parsePcIntent(t)) n += 6
+  if (parseOutlookIntent(t)) n += 6
+  if (parseNewsIntent(t)) n += 4
   if (parsePlaceNav(t)) n += 3
   return n + Math.min(t.length, 48) / 48
 }

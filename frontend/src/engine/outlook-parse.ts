@@ -37,7 +37,8 @@ export function parseOutlookIntent(text: string, lastTool = ''): OutlookIntent |
 
   if (
     /\b(weltlage|lage\s+welt|weltbrief)\b/i.test(t) ||
-    /\bwas\s+passiert\s+(?:in|auf)\s+der\s+welt\b/i.test(t) ||
+    /\bwas\s+passiert\s+(?:gerade\s+|jetzt\s+)?(?:so\s+)?(?:in|auf)\s+der\s+welt\b/i.test(t) ||
+    /\bwas\s+(?:gerade\s+|jetzt\s+)?(?:so\s+)?in\s+der\s+welt\s+passiert\b/i.test(t) ||
     /\bwas\s+ist\s+(?:die\s+)?weltlage\b/i.test(t) ||
     /\bwas\s+ist\s+die\s+lage\s+(?:in\s+der\s+welt|weltweit)\b/i.test(t) ||
     /\bwas\s+ist\s+heute\s+so\s+auf\s+der\s+welt\b/i.test(t) ||

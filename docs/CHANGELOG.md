@@ -5,9 +5,20 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`9.9.1`**. Sideload zuletzt: **`9.9.1`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`9.9.2`**. Sideload zuletzt: **`9.9.1`** bis neue APK. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
-Sideload **`releases/Jarvis.apk`** (versionCode `90901`) enthält Handy-Lage-Polish. Probe V1–V9: Einstellungen → Tests. Über `9.9.0` installieren.
+Probe V1–V9 plus Gruppe **Screenshot-Bugs**: Einstellungen → Tests. Über `9.9.1` installieren.
+
+### Screenshot-Bugs / Kugel+Stimme — *CODE* (`9.9.2`)
+
+Sprints 166–168. Recherche [`53-next.md`](./53-next.md).
+
+- **Kugel:** Erde folgt dem Finger; Idle ohne Dauerdrehen; eine Küstenlinie; GPS-Pin frisch, kein 0/0-Focus.
+- **Greeting:** „wie geht’s“ in einem Arbeitssatz ist kein Loop; Mood-Antwort; Smalltalk nicht als last-step.
+- **Weltlage:** „gerade“ / STT „Gersde“; News behandelt das nicht als Ort.
+- **TV vs Research:** „Mach du das an“ bestätigt Suche; „Suche nach Fernseher“ koppelt, googelt nicht.
+- **Truncation:** `Bietigheim-` bleibt erkennbar abgeschnitten.
+- **Stimme:** Edge-First 1100 ms, TTS an Satzgrenze, 240 Tokens, STT 8 Alternativen, mehr Repairs.
 
 ### Handy-Lage / Beta-Polish — *CODE* (`9.9.1`)
 

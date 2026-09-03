@@ -11,7 +11,7 @@ export type ResearchPending = {
   status: ResearchPendingStatus
 }
 
-const CONFIRM = /^(ja(?:\s+bitte)?|jo|yes|ok|okay|mach(?:\s+es|\s+mal)?|bitte|passt)\s*[.!?]?$/i
+const CONFIRM = /^(ja(?:\s+bitte)?|jo|yes|ok|okay|mach(?:\s+es|\s+mal)?|bitte|passt|mach(?:st)?\s+(?:du\s+)?(?:das|es)\s+an)\s*[.!?]?$/i
 const RESEARCH_YES = /^(?:ja\s+bitte(?:\s+(?:suchen|recherchieren))?|bitte\s+suchen|such(?:e)?(?:\s+bitte)?)\s*[.!?]?$/i
 const DECLINE = /^(nein|no|abbrechen|stopp|lass(?:\s+es)?|nicht\s+suchen)\s*[.!?]?$/i
 

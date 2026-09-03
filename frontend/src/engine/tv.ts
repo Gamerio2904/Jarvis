@@ -28,13 +28,14 @@ import {
   isFollowUpPhrase,
   parseTvIntent,
   parseTvWatch,
+  isTvDiscover,
   type TvAction,
   type TvWatchIntent,
 } from './tv-parse.ts'
 import { lookupWatch, youtubeDeepLink, youtubeSearch, youtubeSearchLink, youtubeVideoId, type WatchHit, type WatchOffer } from './tv-watch.ts'
 import type { ToolMeta } from './tools.ts'
 
-export { parseTvIntent, parseTvWatch } from './tv-parse.ts'
+export { parseTvIntent, parseTvWatch, isTvDiscover } from './tv-parse.ts'
 export type { TvAction, TvIntent, TvWatchIntent } from './tv-parse.ts'
 
 let lastTvAt = 0
@@ -363,6 +364,28 @@ function tvNativeOk(reply: string): boolean {
 }
 
 export async function handleTv(text: string): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
+  if (isTvDiscover(text)) {
+    const found = await discoverTvs()
+    const names = found.items
+      .map((d) => d.name || d.host)
+      .filter(Boolean)
+      .slice(0, 4)
+    const reply = names.length
+      ? `Gefunden: ${names.join(', ')}. Unter Einstellungen koppeln.`
+      : found.message || 'Kein TV gefunden. Unter Einstellungen suchen und koppeln.'
+    return {
+      handled: true,
+      reply,
+      tool: {
+        tool_status: names.length ? 'executed' : 'error',
+        tool: 'tv',
+        action: 'discover',
+        label: 'Fernseher',
+      },
+      lastTool: 'tv',
+    }
+  }
+
   const watch =
     parseTvWatch(text) ||
     (recentTv() ? parseTvWatch(text, { followUp: true, lastApp: lastWatchApp }) : null)

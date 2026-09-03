@@ -152,9 +152,14 @@ export function finishReply(text: string): string {
   out = out.replace(/\*\*/g, '').replace(/__/g, '').replace(/(^|\s)\*+\s*/g, '$1').replace(/\s+\*+$/g, '')
   out = out.replace(/\s+/g, ' ').trim()
   if (!out) return out
-  out = out.replace(/[,;:\-–—]+$/g, '').trim()
+  out = out.replace(/[,;:]+$/g, '').trim()
+  if (/[-–—]$/.test(out) && !/[A-Za-zÄÖÜäöüß][-–—]$/.test(out)) {
+    out = out.replace(/[-–—]+$/g, '').trim()
+  }
   out = out.replace(/\s+[A-Za-zÄÖÜäöüß]{1,2}$/g, '').trim()
   if (!out) return 'Einen Moment. Noch einmal?'
+  // Mid-word cut ("Bietigheim-") stays truncated so looksTruncated can retry — do not hide it with a period.
+  if (/[A-Za-zÄÖÜäöüß][-–—]$/.test(out)) return out
   if (!/[.!?…]$/.test(out) && (out.split(/\s+/).length >= 2 || out.length >= 12)) out = `${out}.`
   return out
 }
