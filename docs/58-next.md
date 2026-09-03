@@ -2,7 +2,7 @@
 
 PO 2026-09-03: Reel [maninalabs / DajByXpSQb4](https://www.instagram.com/reel/DajByXpSQb4/) — „I Asked J.A.R.V.I.S. To Redesign The Suit's Power Source“. Auftrag: **so** umsetzen, dass Jarvis tief recherchiert **und** das **anlernt**, später andere Fächer ergänzt und dann **Fachwissen nutzt**. Dieser Text ist Research in Code **und** Netz — kein Execute.
 
-**App-Stand:** Code **`10.60.2`**. Sideload **`10.60.2`**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Memory-10 [`56-next.md`](./56-next.md) **CODE**. Intensiv 196–201 [`57-next.md`](./57-next.md) **PLAN** (eigene Versionen `10.61`–`10.66`). 195 e5 **FREEZE**. Gerät 193 **PO**.
+**App-Stand:** Code **`10.60.2`**. Sideload **`10.60.2`**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Memory-10 [`56-next.md`](./56-next.md) **CODE**. Intensiv 196–201 [`57-next.md`](./57-next.md) **CODE** `10.66.0`. 195 e5 **FREEZE**. Gerät 193 **PO**.
 
 `11.0` ist die nächste **Intelligenz-Schiene nach dem persönlichen Gedächtnis**: nicht Mate/WLAN (Cap 80), sondern **thematische Packs**, die der Nutzer bewusst lehrt. Kein zweites Hirn, kein Qdrant, kein Training auf dem Handy, keine Instagram-ASR.
 

@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`10.60.2`**. Sideload **`10.60.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **PLAN**. Fachwissen [`58-next.md`](./58-next.md) **PLAN** `11.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`10.66.0`**. Sideload **`10.60.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **PLAN** `11.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -62,7 +62,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 54 | [Rest final](./54-next.md) | **`9.10.0` CODE** — FGS, Sehen-Freeze, Could-Schalter |
 | 55 | [Nach Rest-final](./55-next.md) | Befund + Sprints **178–186** — PO-Gerät, Parser-Härte, OEM, Cache |
 | 56 | [Jarvis 10.0](./56-next.md) | **CODE** `10.60.0` — Schema, Gate, Retrieve 2, Graph light, Gold G1–G6; 195 Freeze; Gerät 193 PO |
-| 57 | [Memory-10 Intensiv](./57-next.md) | **PLAN** — Befund nach Execute; Sprints 196–201 |
+| 57 | [Memory-10 Intensiv](./57-next.md) | **CODE** `10.66.0` — Sprints 196–201 |
 | 58 | [Fachwissen 11.0](./58-next.md) | **PLAN** — Deep Research + Teach-Packs; Sprints 202–208; kein Execute |
 | — | [APK](./apk.md) | Sideload `10.60.2`; Deinstall löscht Keys — erst Hausstand-Export |
 
@@ -219,12 +219,12 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 193 | `10.51.0` | **CODE** / PO (Test-Tor Memory Gerät) |
 | 194 | `10.60.0` | **CODE** Should (Experience / Utility-Prune) |
 | 195 | `10.70.0` | **FREEZE** Could (e5-Rerank — G2/G3 grün ohne Encoder) |
-| 196 | `10.61.0` | **PLAN** (Alias-Lexikon härten) |
-| 197 | `10.62.0` | **PLAN** (Recall leer ohne Gespräch-Echo) |
-| 198 | `10.63.0` | **PLAN** (memoryBlock Retrieve-Memory) |
-| 199 | `10.64.0` | **PLAN** Should (parent_key nur Reise) |
-| 200 | `10.65.0` | **PLAN** Should (Gold = Live-Pfad) |
-| 201 | `10.66.0` | **PLAN** Should (Mag-ich-Parser ohne Hirn) |
+| 196 | `10.61.0` | **CODE** in `10.66.0` (Alias-Lexikon härten) |
+| 197 | `10.62.0` | **CODE** in `10.66.0` (Recall leer ohne Gespräch-Echo) |
+| 198 | `10.63.0` | **CODE** in `10.66.0` (memoryBlock Retrieve-Memory) |
+| 199 | `10.64.0` | **CODE** in `10.66.0` (parent_key nur Reise) |
+| 200 | `10.65.0` | **CODE** in `10.66.0` (Gold = Live-Pfad) |
+| 201 | `10.66.0` | **CODE** (Mag-ich-Parser ohne Hirn) |
 | 202 | `11.0.0` | **PLAN** Must (Fachwissen Store) |
 | 203 | `11.10.0` | **PLAN** Must (Teach-Parser) |
 | 204 | `11.20.0` | **PLAN** Must (knowledgeBlock) |
@@ -233,4 +233,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 207 | `11.50.0` | **PLAN** Must (Gold T1–T6) |
 | 208 | `11.60.0` | **PLAN** Should (Pack-REVISE / Lab-Notiz) |
 
-**Aktuell:** Code **`10.60.2`**. Sideload `10.60.2`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv-Befund [`57-next.md`](./57-next.md) **PLAN**. Fachwissen [`58-next.md`](./58-next.md) **PLAN** `11.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`10.66.0`**. Sideload `10.60.2`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **PLAN** `11.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).

@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Should |
+| Status | **CODE** Should |
 | Ziel-Version | **`10.66.0`** |
 | Quelle | [`57-next.md`](../57-next.md) |
 | Vorher | Memory-Tool G1 `Was trinke ich?` CODE. `Mag ich Döner?` fällt aufs LLM |

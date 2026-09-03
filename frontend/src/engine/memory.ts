@@ -20,6 +20,7 @@ import {
   isMemoryRecall,
   isMemoryWrite,
   parseMemoryFacts,
+  parsePrefItemAsk,
   formatPinnedMemory,
 } from './memory-parse'
 import type { ToolMeta } from './tools.ts'
@@ -133,6 +134,29 @@ export async function handleMemory(conversationId: string, text: string): Promis
   }
   if (isMemoryRecall(text)) {
     const items = await listMemory()
+    const prefItem = parsePrefItemAsk(text)
+    if (prefItem) {
+      const n = prefItem.toLowerCase().replace(/ö/g, 'oe').replace(/ä/g, 'ae').replace(/ü/g, 'ue')
+      const hit = items.find((m) => {
+        if (m.key !== 'essen' && m.key !== 'getränk') return false
+        const v = m.value.toLowerCase().replace(/ö/g, 'oe').replace(/ä/g, 'ae').replace(/ü/g, 'ue')
+        return v.includes(n) || n.includes(v)
+      })
+      if (hit) {
+        return {
+          handled: true,
+          reply: hit.key === 'getränk' ? `Sie trinken ${hit.value}.` : `Sie essen ${hit.value}.`,
+          lastTool: 'memory',
+        }
+      }
+      return {
+        handled: true,
+        reply: items.some((m) => m.key === 'essen' || m.key === 'getränk')
+          ? `Nichts Belegtes zu „${prefItem}“.`
+          : 'Kein Essen gespeichert.',
+        lastTool: 'memory',
+      }
+    }
     if (RECALL_DRINK.test(text)) {
       const d = items.find((m) => m.key === 'getränk')
       return {

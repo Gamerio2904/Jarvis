@@ -1,11 +1,13 @@
-/** Alltag-Aliase für Retrieve 2. Kein Embedding, keine Synonym-ML. */
+/** Alltag-Aliase für Retrieve 2. Enge Paare — kein passwort/essen/termin als Anker. */
 
 export const ALIAS_GROUPS: string[][] = [
-  ['wlan', 'wifi', 'fritzbox', 'router', 'passwort'],
+  ['wlan', 'wifi', 'fritzbox', 'router'],
   ['japan', 'tokyo', 'kyoto', 'reise'],
-  ['zahnarzt', 'arzt', 'termin', 'kalender'],
-  ['döner', 'doener', 'essen'],
+  ['zahnarzt'],
+  ['döner', 'doener'],
 ]
+
+export const TRAVEL_MARKERS = ['japan', 'tokyo', 'tokio', 'kyoto', 'reise', 'urlaub']
 
 function norm(s: string): string {
   return s.toLowerCase().replace(/ö/g, 'oe').replace(/ä/g, 'ae').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
@@ -14,9 +16,22 @@ function norm(s: string): string {
 export function aliasMembers(token: string): string[] {
   const n = norm(token)
   for (const g of ALIAS_GROUPS) {
-    if (g.some((x) => norm(x) === n || n.includes(norm(x)) || norm(x).includes(n))) return g
+    if (g.some((x) => norm(x) === n)) return g
   }
   return [token.toLowerCase()]
+}
+
+/** parent_key=reise nur bei Reise-Goals, nicht bei jedem Goal. */
+export function inferParentKey(
+  kind: string | undefined,
+  key: string,
+  value: string,
+  entities: string[] = [],
+): string | null {
+  if (kind !== 'goal') return null
+  const blob = `${key} ${value} ${entities.join(' ')}`.toLowerCase()
+  if (TRAVEL_MARKERS.some((m) => blob.includes(m))) return 'reise'
+  return null
 }
 
 /** If blob contains any group member, append the whole group. */
@@ -73,7 +88,9 @@ export function extractEntities(key: string, value: string): string[] {
   for (const g of ALIAS_GROUPS) {
     if (g.some((x) => blob.includes(x))) out.push(...g)
   }
-  if (/\bfritzbox\b/.test(blob) || key.toLowerCase() === 'fritzbox') out.push('fritzbox', 'wlan', 'router')
-  if (/\b(?:tokyo|japan|kyoto)\b/.test(blob) || key.toLowerCase() === 'reise') out.push('japan', 'tokyo', 'reise')
+  if (/\bfritzbox\b/.test(blob) || key.toLowerCase() === 'fritzbox') out.push('fritzbox', 'wlan', 'wifi', 'router')
+  if (/\b(?:tokyo|tokio|japan|kyoto)\b/.test(blob) || key.toLowerCase() === 'reise') {
+    out.push('japan', 'tokyo', 'reise')
+  }
   return [...new Set(out)]
 }

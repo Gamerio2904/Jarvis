@@ -9,7 +9,7 @@ import {
   type MemoryOrigin,
   type MemoryTense,
 } from './memory-layer.ts'
-import { extractEntities } from './memory-alias.ts'
+import { extractEntities, inferParentKey } from './memory-alias.ts'
 import {
   listMemory,
   pruneStaleAfterWrite,
@@ -111,7 +111,7 @@ export async function writeMemory(input: WriteMemoryInput): Promise<{
   const kind = input.kind || inferKind(input.key, input.value, input.category, input.spoken)
   const entities = input.entities || extractEntities(input.key, input.value)
   const tense = input.tense || inferTense(`${input.key} ${input.value} ${input.spoken || ''}`)
-  const parent_key = input.parent_key ?? (kind === 'goal' ? 'reise' : null)
+  const parent_key = input.parent_key ?? inferParentKey(kind, input.key, input.value, entities)
   const opts: MemoryWriteOpts = {
     origin: input.origin || 'user',
     confidence: input.confidence,

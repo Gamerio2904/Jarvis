@@ -1,5 +1,5 @@
 import { parseRecallIntent } from './recall-parse.ts'
-import { formatRecallReply, retrieve } from './retrieve.ts'
+import { formatRecallReply, pickRecallHits, retrieve } from './retrieve.ts'
 import { packVerified } from './action-fsm.ts'
 import { memoryRecallVerified } from './memory-layer.ts'
 import type { ToolMeta } from './tools.ts'
@@ -13,16 +13,17 @@ export async function handleRecall(
   if (!q) return { handled: false }
   const hits = await retrieve(q)
   const reply = formatRecallReply(q, hits)
-  const cited = hits.length > 0 && !/^Nichts Belegtes/.test(reply)
+  const used = pickRecallHits(q, hits)
+  const cited = used.length > 0 && !/^Nichts Belegtes/.test(reply)
   const packed = packVerified({
     domain: 'memory',
     intent: `recall:${q}`,
     plan: 'recall',
     label: 'Gedächtnis',
     observation: {
-      hits: hits.length,
+      hits: used.length,
       cited,
-      stores: [...new Set(hits.map((h) => h.store))],
+      stores: [...new Set(used.map((h) => h.store))],
       key: q,
     },
     verify: (obs) => memoryRecallVerified(obs),

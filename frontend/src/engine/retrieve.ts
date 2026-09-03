@@ -19,6 +19,16 @@ import { aliasQueries, expandBlob, utteranceHints } from './memory-alias.ts'
 import { rowKind } from './memory-layer.ts'
 import { rememberRecallHits } from './memory-experience.ts'
 
+function normQuery(s: string): string {
+  return (s || '').toLowerCase().replace(/[.?!…]+/g, '').replace(/\s+/g, ' ').trim()
+}
+
+function isQueryEcho(query: string, content: string): boolean {
+  const q = normQuery(query)
+  const c = normQuery(content)
+  return Boolean(q) && (c === q || c.startsWith(`${q} `))
+}
+
 export type RetrieveHit = {
   store: string
   title: string
@@ -105,7 +115,7 @@ export function structuredMemoryPool(text: string, memory: MemoryItem[]): Memory
     }
     return true
   })
-  if (hints.kind === 'goal') return filtered
+  if (hints.kind) return filtered
   return filtered.length ? filtered : null
 }
 
@@ -184,6 +194,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
       .filter((m) => {
         if (m.content.length >= 400) return false
         if (m.role === 'assistant' && isDumpLine(m.content)) return false
+        if (isQueryEcho(text, m.content)) return false
         const conv = convs.find((c) => c.id === m.conversation_id)
         if (isDebugConversation(conv)) return false
         return true
@@ -262,9 +273,11 @@ export function applyE5Rerank(hits: RetrieveHit[]): RetrieveHit[] {
 
 const STORE_ORDER = ['events', 'memory', 'reminders', 'notes', 'shopping', 'messages']
 
-function pickRecallHits(hits: RetrieveHit[]): RetrieveHit[] {
+export function pickRecallHits(query: string, hits: RetrieveHit[]): RetrieveHit[] {
+  const hints = utteranceHints(query)
+  const memHits = hits.filter((h) => h.store === 'memory')
   const hard = hits.filter((h) => h.store !== 'messages')
-  const msgs = hits.filter((h) => h.store === 'messages')
+  const msgs = hits.filter((h) => h.store === 'messages' && !isQueryEcho(query, h.body))
   const sort = (xs: RetrieveHit[]) =>
     [...xs].sort((a, b) => {
       const da = STORE_ORDER.indexOf(a.store)
@@ -274,6 +287,10 @@ function pickRecallHits(hits: RetrieveHit[]): RetrieveHit[] {
       if (ia !== ib) return ia - ib
       return b.rank - a.rank
     })
+  if (hints.kind === 'goal' && !memHits.length) {
+    const other = sort(hard.filter((h) => h.store !== 'memory')).slice(0, 3)
+    return other
+  }
   const primary = sort(hard).slice(0, 3)
   if (primary.length) return primary
   return msgs.slice(0, 2)
@@ -309,8 +326,9 @@ function formatOneHit(h: RetrieveHit): string {
 }
 
 export function formatRecallReply(query: string, hits: RetrieveHit[]): string {
-  if (!hits.length) return `Nichts Belegtes zu „${query}“ in den lokalen Speichern.`
-  const lines = pickRecallHits(hits).map(formatOneHit).filter(Boolean)
+  const picked = pickRecallHits(query, hits)
+  if (!picked.length) return `Nichts Belegtes zu „${query}“ in den lokalen Speichern.`
+  const lines = picked.map(formatOneHit).filter(Boolean)
   if (!lines.length) return `Nichts Belegtes zu „${query}“ in den lokalen Speichern.`
   return lines.join(' ')
 }

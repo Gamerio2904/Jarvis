@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
 import { decideGate } from '../src/engine/memory-gate.ts'
 import { dumpLikeValue, inferKind, pruneMemoryItems } from '../src/engine/memory-layer.ts'
-import { extractEntities, utteranceHints } from '../src/engine/memory-alias.ts'
-import { retrieveFromCorpus, isDumpLine, applyE5Rerank } from '../src/engine/retrieve.ts'
+import { extractEntities, inferParentKey, utteranceHints } from '../src/engine/memory-alias.ts'
+import { retrieveFromCorpus, isDumpLine, applyE5Rerank, formatRecallReply } from '../src/engine/retrieve.ts'
 import { parseRecallIntent } from '../src/engine/recall-parse.ts'
-import { isUtilityCorrection } from '../src/engine/memory-parse.ts'
+import { CONTRADICTION, isMemoryRecall, isUtilityCorrection, parseMemoryFacts, parsePrefItemAsk } from '../src/engine/memory-parse.ts'
+import { memoryBlock } from '../src/engine/memory-block.ts'
 import { TEST_COPY_GROUPS, PROBE_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { qualityPack, resetPackExistsProbe } from '../src/engine/quality-pack.ts'
 import { DEFAULT_SETTINGS } from '../src/engine/store.ts'
@@ -37,59 +38,86 @@ function pin(partial) {
   assert.ok(hits.some((h) => /Mate/i.test(h.body)), 'G1 Mate in Top 6')
 }
 
-// G2 WLAN-Alias ohne e5
+// G2 WLAN-Alias ohne e5 — live Merk-Key ist notiz
 {
+  const facts = parseMemoryFacts('Merk dir: FritzBox-Passwort ist Blau12')
+  assert.equal(facts[0]?.key, 'notiz')
   const mem = [
     pin({
       id: 'fb',
-      key: 'fritzbox',
-      value: 'Blau12',
+      key: facts[0].key,
+      value: facts[0].value,
       kind: 'fact',
-      entities: extractEntities('fritzbox', 'Blau12'),
+      entities: extractEntities(facts[0].key, facts[0].value),
     }),
   ]
   const hits = retrieveFromCorpus('Was ist mein WLAN-Passwort?', { memory: mem })
-  assert.ok(hits.some((h) => h.id === 'fb' || /Blau12/.test(h.body)), 'G2 FritzBox via WLAN-Alias')
+  assert.ok(hits.some((h) => /Blau12/.test(h.body)), 'G2 FritzBox via WLAN-Alias (notiz)')
   assert.ok(parseRecallIntent('Was ist mein WLAN-Passwort?'))
+  const block = memoryBlock(mem, 'Was ist mein WLAN-Passwort?', hits)
+  assert.match(block, /Blau12/)
 }
 
-// G3 Japan-Goal
+// G3 Japan-Goal — live Merk-Key ist notiz
 {
+  const facts = parseMemoryFacts('Merk dir: Ich will 2027 nach Tokyo.')
+  assert.equal(facts[0]?.key, 'notiz')
+  const ents = extractEntities(facts[0].key, facts[0].value)
+  const kind = inferKind(facts[0].key, facts[0].value, facts[0].category, 'Merk dir: Ich will 2027 nach Tokyo.')
   const mem = [
     pin({
       id: 'jp',
-      key: 'reise',
-      value: 'Tokyo 2027',
-      kind: 'goal',
+      key: facts[0].key,
+      value: facts[0].value,
+      kind,
       tense: 'future',
-      entities: ['japan', 'tokyo', 'reise'],
-      parent_key: 'reise',
+      entities: ents,
+      parent_key: inferParentKey(kind, facts[0].key, facts[0].value, ents),
     }),
   ]
+  assert.equal(mem[0].parent_key, 'reise')
   const hits = retrieveFromCorpus('Was wollte ich in Japan machen?', { memory: mem })
-  assert.ok(hits.some((h) => h.id === 'jp' || /Tokyo/.test(h.body)), 'G3 Tokyo-Goal')
+  assert.ok(hits.some((h) => /Tokyo/.test(h.body)), 'G3 Tokyo-Goal')
   assert.equal(utteranceHints('Was wollte ich in Japan machen?').kind, 'goal')
   assert.equal(inferKind('reise', 'Tokyo 2027', 'fact', 'Ich will 2027 nach Tokyo.'), 'goal')
+  const carKind = inferKind('notiz', 'Ich will ein neues Auto.', 'fact', 'Merk dir: Ich will ein neues Auto.')
+  assert.equal(inferParentKey(carKind, 'notiz', 'Ich will ein neues Auto.', extractEntities('notiz', 'Ich will ein neues Auto.')), null)
 }
 
-// G4 REVISE Döner
+// G4 live = Contradiction-Delete; Gate-REVISE bleibt für gleichen Key
 {
   const existing = [pin({ id: 'ess', key: 'essen', value: 'Döner', category: 'pref', kind: 'pref' })]
   const d = decideGate({ key: 'essen', value: 'kein Döner', category: 'pref' }, existing)
   assert.equal(d.action, 'REVISE')
-  const after = retrieveFromCorpus('Mag ich Döner?', {
-    memory: [pin({ id: 'ess', key: 'essen', value: 'kein Döner', category: 'pref', kind: 'pref' })],
-  })
+  const live = CONTRADICTION.exec('kein Döner mehr')
+  assert.ok(live && /döner/i.test(live[1]))
+  const after = retrieveFromCorpus('Mag ich Döner?', { memory: [] })
   assert.ok(!after.some((h) => h.body === 'Döner'), 'G4 alter Döner-Pin weg')
+  assert.equal(isMemoryRecall('Mag ich noch Döner?'), true)
+  assert.equal(parsePrefItemAsk('Mag ich Döner?'), 'Döner')
+  assert.equal(parsePrefItemAsk('Mag ich diese Serie'), null)
 }
 
-// G5 keine Reise erfinden
+// G5 keine Reise erfinden — inkl. User-Message-Echo
 {
   const hits = retrieveFromCorpus('Welche Reisen plane ich?', {
     memory: [pin({ key: 'essen', value: 'Döner', category: 'pref', kind: 'pref' })],
+    messages: [
+      {
+        id: 'm1',
+        conversation_id: 'c1',
+        role: 'user',
+        content: 'Welche Reisen plane ich?',
+        created_at: '2026-09-01T00:00:00Z',
+      },
+    ],
+    convs: [{ id: 'c1', title: 'Chat', created_at: '', updated_at: '' }],
   })
   assert.ok(!hits.some((h) => /Döner/i.test(h.body)), 'G5 kein Döner als Reise')
   assert.equal(hits.filter((h) => h.store === 'memory').length, 0)
+  const reply = formatRecallReply('Welche Reisen plane ich?', hits)
+  assert.match(reply, /Nichts Belegtes/)
+  assert.ok(!/Gespräch:/.test(reply), 'G5 kein Gespräch-Echo')
 }
 
 // G6 Dump raus

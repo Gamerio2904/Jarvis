@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Ziel-Version | **`10.62.0`** |
 | Quelle | [`57-next.md`](../57-next.md) |
 | Vorher | 190/192 CODE. Live G5 rot |

@@ -1223,7 +1223,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /10\.60\.2/)
+assert.match(HELP_TEXT, /10\.66\.0/)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
 assert.match(HELP_TEXT, /Keys nicht im Chat/)
@@ -2614,6 +2614,8 @@ assert.equal(memoryRecallVerified({ hits: 0, cited: false }).ok, true)
 assert.equal(pickRoute('kein Kaffee mehr'), 'memory')
 assert.equal(pickRoute('Was weißt du über den Zahnarzt'), 'recall')
 assert.equal(pickRoute('Was weißt du über mich'), 'memory')
+assert.equal(pickRoute('Mag ich Döner?'), 'memory')
+assert.equal(pickRoute('Mag ich noch Döner?'), 'memory')
 
 {
   const seeded = seedTvDevices({

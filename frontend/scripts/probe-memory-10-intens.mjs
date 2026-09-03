@@ -1,9 +1,9 @@
 import { decideGate } from '../src/engine/memory-gate.ts'
 import { dumpLikeValue, inferKind, inferTense, pruneMemoryItems } from '../src/engine/memory-layer.ts'
-import { extractEntities, utteranceHints, aliasQueries } from '../src/engine/memory-alias.ts'
+import { extractEntities, inferParentKey, utteranceHints, aliasQueries } from '../src/engine/memory-alias.ts'
 import { retrieveFromCorpus, isDumpLine, applyE5Rerank, subQueries, formatRecallReply } from '../src/engine/retrieve.ts'
 import { parseRecallIntent } from '../src/engine/recall-parse.ts'
-import { isUtilityCorrection, isMemoryWrite, parseMemoryFacts, CONTRADICTION } from '../src/engine/memory-parse.ts'
+import { isUtilityCorrection, isMemoryRecall, isMemoryWrite, parseMemoryFacts, parsePrefItemAsk, CONTRADICTION } from '../src/engine/memory-parse.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
 import { PROBE_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { qualityPack, resetPackExistsProbe } from '../src/engine/quality-pack.ts'
@@ -36,7 +36,7 @@ function fromMerk(text) {
     const kind = inferKind(f.key, f.value, f.category, spoken)
     const entities = extractEntities(f.key, f.value)
     const tense = inferTense(`${f.key} ${f.value} ${spoken}`)
-    const parent_key = kind === 'goal' ? 'reise' : null
+    const parent_key = inferParentKey(kind, f.key, f.value, entities)
     return pin({
       id: f.key,
       key: f.key,
@@ -55,7 +55,7 @@ function check(id, ok, detail) {
   rows.push({ id, ok: Boolean(ok), detail: String(detail) })
 }
 
-check('APP 10.60.2', APP_VERSION === '10.60.2', APP_VERSION)
+check('APP 10.66.0', APP_VERSION === '10.66.0', APP_VERSION)
 
 // --- Live write keys (Merk → notiz), not Gold-synthetic keys ---
 const g1facts = parseMemoryFacts('Ich trinke gerne Mate.')
@@ -235,6 +235,10 @@ check('G5 formatRecall ehrlich leer', /Nichts Belegtes/.test(formatRecallReply('
 const g2reply = formatRecallReply('Was ist mein WLAN-Passwort?', retrieveFromCorpus('Was ist mein WLAN-Passwort?', { memory: g2pins }))
 check('R2 formatRecall Blau12', /Blau12/.test(g2reply), g2reply)
 
+check('Q1 Mag ich Döner Parser', isMemoryRecall('Mag ich Döner?') && parsePrefItemAsk('Mag ich Döner?') === 'Döner', String(parsePrefItemAsk('Mag ich Döner?')))
+check('Q2 Mag ich noch', isMemoryRecall('Mag ich noch Döner?'), '')
+check('Q3 Serie nicht Pref', parsePrefItemAsk('Mag ich diese Serie') === null, String(parsePrefItemAsk('Mag ich diese Serie')))
+
 // subQueries cap
 check('SQ max 5', subQueries('Was ist mein WLAN-Passwort und FritzBox Router Wifi').length <= 5, JSON.stringify(subQueries('Was ist mein WLAN-Passwort und FritzBox Router Wifi')))
 
@@ -248,5 +252,6 @@ console.log(`\nGrün ${green.length} / Rot ${red.length} / ${rows.length}`)
 if (red.length) {
   console.log('ROT:')
   for (const r of red) console.log(`- ${r.id}: ${r.detail.slice(0, 240)}`)
+  process.exit(1)
 }
 process.exit(0)

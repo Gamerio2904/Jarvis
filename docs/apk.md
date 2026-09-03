@@ -1,10 +1,12 @@
 # Android-APK — Sideload `10.60.2`
 
-App-Code und Sideload stehen auf **`10.60.2`**. LocateAnything-Gewichte nicht in der APK.
+App-Code **`10.66.0`**. Sideload-APK zuletzt **`10.60.2`**. LocateAnything-Gewichte nicht in der APK.
 
 **Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback.
 
 **Deinstall** (andere Signatur): WebView-Daten weg. Vor Neuinstall Hausstand exportieren.
+
+**10.66.0:** Memory-10 Intensiv (196–201): enge Aliase, Recall ohne Gespräch-Echo, memoryBlock sieht Pins, `Mag ich Döner?` ohne Hirn.
 
 **10.60.2:** Drei Befehle in einem Satz. Recall statt Gemerkt. Film-Bewertung ohne englischen Plot. Benzinpreis-Suche. Weltlage ohne Lokal-RSS. Bluetooth-Geräte + Handy-Lautstärke + Display/Standort. Kalender unter der Statusleiste.
 

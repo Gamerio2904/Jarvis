@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** |
 | Ziel-Version | **`10.63.0`** |
 | Quelle | [`57-next.md`](../57-next.md) |
 | Vorher | 190 Retrieve 2 CODE. `memory-block.ts` filtert `store === 'memory'` weg |

@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Should |
+| Status | **CODE** Should |
 | Ziel-Version | **`10.65.0`** |
 | Quelle | [`57-next.md`](../57-next.md) |
 | Vorher | 192 Gold CODE. Intensiv-Probe existiert |

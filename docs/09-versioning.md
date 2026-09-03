@@ -466,12 +466,12 @@ Schema und Gate vor jedem Encoder. Corpus bleibt IndexedDB (Cap 80). Live-Code *
 | `10.50.0` | Memory-Gold Eval | 192 CODE |
 | `10.51.0` | Test-Tor Memory Gerät | 193 CODE/PO |
 | `10.60.0` | Experience / Utility-Prune | 194 CODE |
-| `10.61.0` | Alias-Lexikon härten | 196 PLAN |
-| `10.62.0` | Recall leer ohne Gespräch-Echo | 197 PLAN |
-| `10.63.0` | memoryBlock Retrieve-Memory | 198 PLAN |
-| `10.64.0` | parent_key nur Reise | 199 PLAN |
-| `10.65.0` | Gold = Live-Pfad | 200 PLAN |
-| `10.66.0` | Mag-ich-Parser ohne Hirn | 201 PLAN |
+| `10.61.0` | Alias-Lexikon härten | 196 CODE in `10.66.0` |
+| `10.62.0` | Recall leer ohne Gespräch-Echo | 197 CODE in `10.66.0` |
+| `10.63.0` | memoryBlock Retrieve-Memory | 198 CODE in `10.66.0` |
+| `10.64.0` | parent_key nur Reise | 199 CODE in `10.66.0` |
+| `10.65.0` | Gold = Live-Pfad | 200 CODE in `10.66.0` |
+| `10.66.0` | Mag-ich-Parser + Intensiv-Bündel | 201 CODE |
 | `10.70.0` | e5-Rerank nur wenn 192 rot | 195 FREEZE |
 
 ### `11.0` — Fachwissen + Deep Research [`58-next.md`](./58-next.md) **PLAN**

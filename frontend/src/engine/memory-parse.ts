@@ -14,6 +14,19 @@ export const RECALL_DRINK =
 export const RECALL_FOOD =
   /^\s*(?:was\s+esse\s+ich(?:\s+gerne)?|was\s+mag\s+ich\s+(?:zu\s+)?essen|mein\s+essen\??)\s*[?]?\s*$/is
 export const RECALL_VAGUE = /^\s*(?:was\s+mag\s+ich)\s*[?]?\s*$/is
+export const RECALL_PREF_ITEM = /^\s*mag\s+ich(?:\s+noch)?\s+(.+?)\s*[?]?\s*$/is
+
+const PREF_SKIP =
+  /\b(?:film|filme|serie|lied|song|musik|album|künstler|kuenstler|band|spotify|netflix|folge)\b/i
+
+export function parsePrefItemAsk(text: string): string | null {
+  const m = RECALL_PREF_ITEM.exec(text.trim())
+  if (!m) return null
+  const item = m[1].replace(/[.!?]+$/g, '').trim()
+  if (!item || item.length < 2 || item.length > 40) return null
+  if (PREF_SKIP.test(item)) return null
+  return item
+}
 export const CONTRADICTION =
   /^\s*(?:ich\s+(?:trinke|esse)\s+)?kein(?:en?|e)?\s+(.+?)\s+mehr\s*[.!]?\s*$/is
 export const UTILITY_NO =
@@ -130,6 +143,7 @@ export function isMemoryRecall(text: string): boolean {
     RECALL_NAME.test(text) ||
     RECALL_DRINK.test(text) ||
     RECALL_FOOD.test(text) ||
-    RECALL_VAGUE.test(text)
+    RECALL_VAGUE.test(text) ||
+    Boolean(parsePrefItemAsk(text))
   )
 }
