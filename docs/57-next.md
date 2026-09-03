@@ -97,4 +97,6 @@ Qdrant, Qwen-Embed, e5 als Router, stilles Gemini-Sleep, Goal-Write ohne Merk/Pa
 - [x] Sprints 196–201 plus 193/195.
 - [x] Kein Execute in diesem Dokument-Sprint.
 
+Nächste Intelligenz-Schiene (nicht Alias-Fix): [`58-next.md`](./58-next.md) Fachwissen `11.0` **PLAN**.
+
 Index: [`42-planned.md`](./42-planned.md). Execute-Ist: [`56-next.md`](./56-next.md).

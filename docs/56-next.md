@@ -354,4 +354,4 @@ Parser: `test:014`, `test:rest-final`, `test:alltag` weiter. Sideload unverände
 - [x] Sprints 187–194 CODE, 193 Gerät PO, 195 FREEZE.
 - [x] Execute im Code `10.60.0`; Docs = Code.
 
-Index: [`42-planned.md`](./42-planned.md). Versionen: [`09-versioning.md`](./09-versioning.md). Recall-Ist: [`49-next.md`](./49-next.md). Could-e5: [`52-research-latency-quality.md`](./52-research-latency-quality.md). Intensiv-Befund: [`57-next.md`](./57-next.md).
+Index: [`42-planned.md`](./42-planned.md). Versionen: [`09-versioning.md`](./09-versioning.md). Recall-Ist: [`49-next.md`](./49-next.md). Could-e5: [`52-research-latency-quality.md`](./52-research-latency-quality.md). Intensiv-Befund: [`57-next.md`](./57-next.md). Fachwissen: [`58-next.md`](./58-next.md) **PLAN**.

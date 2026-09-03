@@ -474,6 +474,20 @@ Schema und Gate vor jedem Encoder. Corpus bleibt IndexedDB (Cap 80). Live-Code *
 | `10.66.0` | Mag-ich-Parser ohne Hirn | 201 PLAN |
 | `10.70.0` | e5-Rerank nur wenn 192 rot | 195 FREEZE |
 
+### `11.0` — Fachwissen + Deep Research [`58-next.md`](./58-next.md) **PLAN**
+
+Thematische Packs, nicht Cap-80-Prefs. Teach nur explizit. Deep = mehr Queries im bestehenden Loop. Kein Fine-Tune, kein Qdrant, kein Instagram-Ingest.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `11.0.0` | Leit + Store `knowledge_packs` | 202 PLAN |
+| `11.10.0` | Teach-Parser + Harvest | 203 PLAN |
+| `11.20.0` | knowledgeBlock Topic-Match | 204 PLAN |
+| `11.30.0` | Deep Research + Teach-Offer | 205 PLAN |
+| `11.40.0` | Settings / Hausstand | 206 PLAN |
+| `11.50.0` | Gold T1–T6 | 207 PLAN |
+| `11.60.0` | Pack-REVISE / Lab-Notiz | 208 PLAN |
+
 ### Weitere Beispiele
 
 | Version | Bedeutung (Beispiel) |

@@ -5,6 +5,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+- **Fachwissen 11.0:** [`58-next.md`](./58-next.md) **PLAN**. Deep Research + Teach-Packs (Sprints 202–208). Getrennt von Cap-80-Prefs. Kein Execute, kein APK-Bump, kein Diebstahl von `10.61`.
 - **Intensiv-Befund Memory-10:** [`57-next.md`](./57-next.md) **PLAN**. G5 live Echo, Alias zu breit, memoryBlock ohne Memory-Hits. Sprints 196–201. Execute nicht in diesem Commit.
 
 ## `10.60.2` — Multi-Intent, Film, Weltlage, Handy-Kontrolle — *CODE*
