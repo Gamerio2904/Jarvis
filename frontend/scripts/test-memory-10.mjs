@@ -190,6 +190,7 @@ assert.equal(isUtilityCorrection('Hallo'), false)
 assert.ok(TEST_COPY_GROUPS.some((g) => g.title === 'Memory-10'))
 assert.ok(PROBE_COPY_GROUPS.some((g) => g.title === 'Memory-10'))
 assert.equal(PROBE_COPY_GROUPS.length, 10)
+assert.equal(PROBE_COPY_GROUPS[0].title, 'Memory-10')
 
 const e5 = applyE5Rerank([{ store: 'memory', title: 'x', body: 'y', rank: 1 }])
 assert.equal(e5[0].rank, 1)

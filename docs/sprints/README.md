@@ -206,7 +206,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 200 | [`sprint-200.md`](./sprint-200.md) | `10.65.0` | Gold = Live-Pfad | **PLAN** Should |
 | 201 | [`sprint-201.md`](./sprint-201.md) | `10.66.0` | Mag-ich-Parser ohne Hirn | **PLAN** Should |
 
-**Aktuell:** Code **`10.60.0`**. Sideload `9.10.0`. Gerät-PO [`55-next.md`](../55-next.md). Semantisches Gedächtnis [`56-next.md`](../56-next.md) **CODE** `10.0`. Intensiv-Befund [`57-next.md`](../57-next.md) **PLAN**. Rest final [`54-next.md`](../54-next.md) **CODE** (168–177). Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag [`50-next.md`](../50-next.md) **CODE**. Recall [`49-next.md`](../49-next.md) **CODE**. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`10.60.0`**. Sideload `10.60.0`. Gerät-PO [`55-next.md`](../55-next.md). Semantisches Gedächtnis [`56-next.md`](../56-next.md) **CODE** `10.0`. Intensiv-Befund [`57-next.md`](../57-next.md) **PLAN**. Rest final [`54-next.md`](../54-next.md) **CODE** (168–177). Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag [`50-next.md`](../50-next.md) **CODE**. Recall [`49-next.md`](../49-next.md) **CODE**. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

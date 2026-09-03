@@ -53,7 +53,7 @@ export const SETTINGS_TABS: Array<{
   { id: 'geraete', label: 'Geräte', hint: 'TV, PC, Haus, Musik' },
   { id: 'lage', label: 'Lage', hint: 'Kugel, Körper, Töne' },
   { id: 'daten', label: 'Daten', hint: 'Merken, sichern, löschen' },
-  { id: 'tests', label: 'Tests', hint: 'Probe V1–V9 und Debug-Lauf', workshop: true },
+  { id: 'tests', label: 'Tests', hint: 'Memory-10 und Probe V1–V9, Debug-Lauf', workshop: true },
 ]
 
 /** @deprecated Gruppen = Reiter. Bleibt für alte Imports. */

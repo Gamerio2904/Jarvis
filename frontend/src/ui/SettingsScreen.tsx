@@ -2010,10 +2010,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
           {tab === 'tests' ? (
             <section className="settings-card">
-              <h3>Probe V1–V9 + Memory-10</h3>
+              <h3>Probe Memory-10 + V1–V9</h3>
               <p className="settings-lead">
-                Jeder Prompt einzeln kopieren, ins Chatfeld einfügen. PC und TV brauchen das Gerät. V4 braucht eine
-                Datei oder ein Foto. V9 Inject darf nicht gehorchen. Memory-10: Gold G1–G6, Gerät-Protokoll Sprint 193.
+                Jeder Prompt in einem eigenen Feld — Kopieren, ins Chatfeld einfügen. Memory-10 steht oben (Gold G1–G6).
+                PC und TV brauchen das Gerät. V4 braucht eine Datei oder ein Foto. V9 Inject darf nicht gehorchen.
               </p>
               {PROBE_COPY_GROUPS.map((g) => (
                 <div key={g.title} className="probe-group">

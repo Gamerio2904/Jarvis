@@ -2,7 +2,7 @@
 
 PO 2026-09-03: Research zu Embeddings, Clustern, multimodalem RAG und Self-Evolving Agents in einen **ehrlichen** Jarvis-Plan gießen. Quelle: ChatGPT-Share (HF / GitHub / Papers). Dieser Text ist **kritisch** gegenüber dem Input — nicht eine Abschrift.
 
-**App-Stand:** Code **`10.60.0`**. Sideload **`9.10.0`**. Execute 187–194 **CODE**. 195 **FREEZE** (G2/G3 grün ohne e5). 193 Gerät-Protokoll bleibt **PO**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO bleibt [`55-next.md`](./55-next.md) Sprint **178**. Recall `7.0` [`49-next.md`](./49-next.md) **CODE**. Alltag `8.0` [`50-next.md`](./50-next.md) **CODE**.
+**App-Stand:** Code und Sideload **`10.60.0`**. Execute 187–194 **CODE**. 195 **FREEZE** (G2/G3 grün ohne e5). 193 Gerät-Protokoll bleibt **PO**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO bleibt [`55-next.md`](./55-next.md) Sprint **178**. Recall `7.0` [`49-next.md`](./49-next.md) **CODE**. Alltag `8.0` [`50-next.md`](./50-next.md) **CODE**.
 
 `10.0` ist die nächste **Intelligenz-Schiene**, kein zweites Hirn, kein Qdrant, kein Training auf dem Handy.
 

@@ -591,8 +591,9 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
   },
 ]
 
-/** V1–V9 für Einstellungen → Probe: ein CopyField pro Prompt. */
+/** V1–V9 für Einstellungen → Probe: ein CopyField pro Prompt. Memory-10 zuerst zum Gerätetest. */
 const PROBE_SOURCES: Array<{ title: string; source: string }> = [
+  { title: 'Memory-10', source: 'Memory-10' },
   { title: 'V1 Stabilität', source: 'Stabilität Screenshots' },
   { title: 'V2 Voice & App', source: 'V2 Voice & App' },
   { title: 'V3 Verified Actions', source: 'V3 Verified Actions' },
@@ -602,7 +603,6 @@ const PROBE_SOURCES: Array<{ title: string; source: string }> = [
   { title: 'V7 PC', source: 'V7 PC' },
   { title: 'V8 Live', source: 'V8 Live' },
   { title: 'V9 Hardening', source: 'V9 Hardening' },
-  { title: 'Memory-10', source: 'Memory-10' },
 ]
 
 export const PROBE_COPY_GROUPS: TestCopyGroup[] = PROBE_SOURCES.map((row) => {

@@ -9,7 +9,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## `10.60.0` — Semantisches Gedächtnis — *CODE*
 
-App-Code **`10.60.0`**. Sideload bleibt **`9.10.0`** (kein Memory-APK-Bump). Sprints 187–194. 195 Freeze.
+App-Code **`10.60.0`**. Sideload **`10.60.0`** (versionCode `106000`). Sprints 187–194. 195 Freeze.
 
 - **Schema:** optionale Felder `kind` / `tense` / `entities` / `related_ids` / `importance` / `parent_key` / `not_useful`. Alter Hausstand importiert ohne Verlust.
 - **Gate:** STORE / MERGE / IGNORE / REVISE (`memory-gate.ts`). Dump/Smalltalk/zu kurz/Alltagsmahlzeit → IGNORE. Gleicher Key → REVISE.
@@ -17,7 +17,8 @@ App-Code **`10.60.0`**. Sideload bleibt **`9.10.0`** (kein Memory-APK-Bump). Spr
 - **Graph light:** `related_ids` bidirektional, Retrieve 1-Hop max 2 Nachbarn.
 - **Gold:** `npm run test:memory-10` G1–G6 grün **ohne e5**.
 - **Experience:** `not_useful` + `last_recall_json`; `vergiss` / „stimmt nicht“ markiert den letzten Hit. Prune sortiert `confidence - not_useful*0.15`.
-- **Settings:** Gedächtnis zeigt Kind/Entities. Tests-Reiter Gruppe Memory-10.
+- **Settings:** Gedächtnis zeigt Kind/Entities. Tests-Reiter: Memory-10 zuerst, jedes Prompt ein Kopierfeld.
+- **Sideload:** `releases/Jarvis.apk` versionName `10.60.0` · versionCode `106000`.
 - **Won’t gehalten:** Qdrant, Qwen-Embedding, e5 als `pickRoute`, stilles Gemini-Sleep, APK-Gewichte. `applyE5Rerank` bleibt Identität.
 
 ## `9.10.0` — Rest final — *CODE*

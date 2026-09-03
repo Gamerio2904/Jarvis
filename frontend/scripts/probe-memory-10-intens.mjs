@@ -198,7 +198,7 @@ check('U2 falsch gemerkt', isUtilityCorrection('falsch gemerkt'))
 check('U3 Hallo nicht', !isUtilityCorrection('Hallo'))
 check('E5 default aus', qualityPack('e5', DEFAULT_SETTINGS).wanted === false, '')
 check('E5 identity', applyE5Rerank([{ store: 'memory', title: 'x', body: 'y', rank: 1 }])[0].rank === 1, '')
-check('Copy Memory-10', PROBE_COPY_GROUPS.some((g) => g.title === 'Memory-10') && PROBE_COPY_GROUPS.length === 10, String(PROBE_COPY_GROUPS.length))
+check('Copy Memory-10', PROBE_COPY_GROUPS[0]?.title === 'Memory-10' && PROBE_COPY_GROUPS.length === 10, String(PROBE_COPY_GROUPS.length))
 
 // --- Gold synthetic still ---
 check('Gold G1 Mate', retrieveFromCorpus('Was trinke ich?', { memory: [mate] }).some((h) => /Mate/.test(h.body)))
