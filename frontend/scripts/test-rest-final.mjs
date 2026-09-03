@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { DEFAULT_SETTINGS } from '../src/engine/store.ts'
+import { APP_VERSION, DEFAULT_SETTINGS } from '../src/engine/store.ts'
+import { warmOrigins } from '../src/engine/cloud-warm.ts'
 import {
   qualityPack,
   qualityPacks,
@@ -22,7 +23,6 @@ import {
 } from '../src/engine/latency.ts'
 import { canCacheSmalltalk, clearSmalltalkCache, lookupSmalltalk, rememberSmalltalk } from '../src/engine/smalltalk-cache.ts'
 import { settingsTabForQuery } from '../src/engine/settings-ia.ts'
-import { APP_VERSION } from '../src/engine/store.ts'
 
 resetPackExistsProbe()
 clearSmalltalkCache()
@@ -144,5 +144,17 @@ assert.doesNotMatch(chat, /lookupSmalltalk/)
 const retrieveSrc = readFileSync(new URL('../src/engine/retrieve.ts', import.meta.url), 'utf8')
 assert.match(retrieveSrc, /applyE5Rerank/)
 assert.doesNotMatch(retrieveSrc, /parseToolIntent|function pickRoute/)
+
+{
+  const origins = warmOrigins(DEFAULT_SETTINGS)
+  assert.ok(origins.includes('https://speech.platform.bing.com'))
+  assert.equal(origins.some((o) => o.endsWith('/')), false)
+  const warmSrc = readFileSync(new URL('../src/engine/cloud-warm.ts', import.meta.url), 'utf8')
+  assert.match(warmSrc, /preconnect/)
+  assert.doesNotMatch(warmSrc, /fetch\(/)
+  const dock = readFileSync(new URL('../src/ui/DebugChatDock.tsx', import.meta.url), 'utf8')
+  assert.match(dock, /lastLatency\(\)/)
+  assert.doesNotMatch(dock, /useState\(lastLatency\)/)
+}
 
 console.log('test-rest-final ok')

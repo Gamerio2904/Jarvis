@@ -18,7 +18,7 @@ export function DebugChatDock({
   onOpen: () => void
 }) {
   const [snap, setSnap] = useState(debugSnapshot)
-  const [lag, setLag] = useState(lastLatency)
+  const [lag, setLag] = useState(lastLatency())
   useEffect(() => subscribeDebug((s) => setSnap(s)), [])
   useEffect(() => subscribeLatency(() => setLag(lastLatency())), [])
   if (!snap.running && !(snap.live && snap.turns.length)) return null

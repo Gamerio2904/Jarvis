@@ -5,6 +5,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+- **Konsole:** Cloud-Warmup nutzt `preconnect` statt GET auf `speech.platform.bing.com/` (HTTP 400). `lastLatency` bleibt Export; Debug-Dock initialisiert mit `lastLatency()`.
+
 ## `9.10.0` — Rest final — *CODE*
 
 App-Version und Sideload **`9.10.0`** (versionCode `91000`). Default-Lane wie `9.9.2`. Vor Neuinstall Hausstand exportieren.

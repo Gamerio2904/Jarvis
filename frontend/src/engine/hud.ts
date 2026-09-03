@@ -230,7 +230,7 @@ async function weekWeather(): Promise<HudSnap['weather']> {
   const s = loadSettings()
   const lat = Number(s.last_lat)
   const lon = Number(s.last_lon)
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || !String(s.last_lat).trim() || !String(s.last_lon).trim()) {
     return { temp: NaN, label: s.last_weather_line || 'Ort einmal erlauben.', days: [] }
   }
   try {

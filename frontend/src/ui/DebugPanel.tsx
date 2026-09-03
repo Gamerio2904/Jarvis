@@ -28,7 +28,7 @@ export function DebugPanel({
   busy: boolean
 }) {
   const [snap, setSnap] = useState(debugSnapshot)
-  const [lag, setLag] = useState(lastLatency)
+  const [lag, setLag] = useState(lastLatency())
   useEffect(() => subscribeDebug((s) => setSnap(s)), [])
   useEffect(() => subscribeLatency(() => setLag(lastLatency())), [])
 
