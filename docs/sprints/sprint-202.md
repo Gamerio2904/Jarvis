@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`11.0.0`** |
 | Quelle | [`58-next.md`](../58-next.md) |
 | Vorher | Memory-10 CODE `10.60.0`. Intensiv 196–201 eigene Schiene |

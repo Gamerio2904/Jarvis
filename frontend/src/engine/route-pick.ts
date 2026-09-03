@@ -56,6 +56,8 @@ import { parseWatchPriceIntent } from './watch-price-parse.ts'
 import { parseAmazonMusicIntent } from './amazon-parse.ts'
 import { parseRecallIntent } from './recall-parse.ts'
 import { parseAppIntent } from './app-parse.ts'
+import { parseTeachIntent } from './teach-parse.ts'
+import { parsePackAsk, parsePackForget, parsePackRevise } from './pack-parse.ts'
 import { applyConflicts } from './conflicts.ts'
 import { isFollowish, parserScore, pickPolicy, withCost, withPrior } from './policy.ts'
 import type { Candidate, RouteCtx, SideEffect } from './route-types.ts'
@@ -101,6 +103,19 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
     sideEffect: 'read',
     parse: (ctx) =>
       parsePlaceWrite(ctx.text) || parsePlaceRecall(ctx.text) || parsePlaceNav(ctx.text) ? score(ctx.text) : null,
+  },
+  {
+    id: 'teach',
+    sideEffect: 'write',
+    parse: (ctx) => (parseTeachIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.2) : null),
+  },
+  {
+    id: 'pack',
+    sideEffect: 'read',
+    parse: (ctx) =>
+      parsePackAsk(ctx.text) || parsePackForget(ctx.text) || parsePackRevise(ctx.text, ctx.lastTool)
+        ? score(ctx.text, 0.18)
+        : null,
   },
   {
     id: 'memory',

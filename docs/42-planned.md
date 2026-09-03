@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`10.66.0`**. Sideload **`10.60.2`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`11.60.0`**. Sideload **`10.60.2`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
@@ -15,7 +15,7 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 6. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
 7. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
-8. **`11.0` PLAN** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research; Execute 202+; kein Diebstahl von `10.61`
+8. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
 
 Industry-Track V1–V9, Latenz-Loop, Screenshot-Fixes, Rest-final Execute, Alltag-Router, Parser-Härte 179, FGS-Härte 180, Docs 182: **CODE**.
 
@@ -75,7 +75,7 @@ Schema, Gate, Retrieve-2, Graph light, Gold G1–G6, Experience **CODE**. 195 e5
 
 Intensiv 196–201: [`57-next.md`](./57-next.md) **CODE** `10.66.0`.
 
-### `11.0` Fachwissen + Deep Research (PLAN)
-Getrennt von Cap-80-Prefs. Teach nur nach „lern das“. Deep = mehr Queries, kein 12-h-Crawl. Instagram-Reel ist **kein** Ingest. [`58-next.md`](./58-next.md) Sprints 202–208.
+### `11.0` Fachwissen + Deep Research (CODE `11.60.0`)
+Getrennt von Cap-80-Prefs. Teach nur nach „lern das“. Deep = mehr Queries, kein 12-h-Crawl. Instagram-Reel ist **kein** Ingest. [`58-next.md`](./58-next.md) Sprints 202–208 **CODE**.
 
 Nächste Schiene Gerät: [`55-next.md`](./55-next.md) (178) plus Memory-Gerät 193.

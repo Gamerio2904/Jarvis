@@ -7,6 +7,7 @@ import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } 
 import { greetingReply, parseGreeting } from './greeting.ts'
 import { memoryBlock } from './memory'
 import { retrieve } from './retrieve.ts'
+import { harvestFromResearch, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
 import { rewriteFollowUp } from './last-step'
 import {
@@ -25,6 +26,7 @@ import { loadFace } from './face.ts'
 import {
   formatResearchReply,
   guardResearchReply,
+  isDeepResearch,
   isKnowledgeGap,
   isLiveLookup,
   isProductLookup,
@@ -322,6 +324,17 @@ function persistResearchOffer(utterance: string, query: string): void {
   })
 }
 
+function persistTeachOffer(utterance: string, answer: string, sources: NonNullable<ResearchMeta['sources']>): void {
+  const h = harvestFromResearch(utterance, answer, sources)
+  persistKnowledgeHarvest(h)
+  persistLastStep('teach_offer', h.title, '', utterance)
+}
+
+function teachOfferLine(utterance: string): string {
+  const h = harvestFromResearch(utterance, '', [])
+  return ` Soll ich das als Fachwissen «${h.title}» merken?`
+}
+
 function persistResearchDone(status: 'success' | 'failed' | 'cancelled' | 'running'): void {
   const prev = parseResearchPending(loadSettings().last_research_json)
   const next = markResearchPending(prev, status)
@@ -565,12 +578,16 @@ export async function streamChat(
       persistLastStep('research', researchQuery(ask), '', ask)
       persistResearchDone(n > 0 ? 'success' : 'failed')
       if (researchHasSources(research)) {
-        const reply = formatResearchReply(
+        let reply = formatResearchReply(
           researchQuery(ask),
           research.sources || [],
           isProductLookup(ask, discount),
           discount,
         )
+        if (isDeepResearch(ask)) {
+          persistTeachOffer(ask, reply, research.sources || [])
+          reply += teachOfferLine(ask)
+        }
         emitToken(handlers, reply)
         handlers.onReplace?.(reply)
         const assistant = await addMessage(conversationId, 'assistant', reply, { research })
@@ -602,6 +619,8 @@ export async function streamChat(
     const history = await listMessages(conversationId)
     const mem = await listMemory()
     const hits = await retrieve(ask)
+    const packs = await listKnowledgePacks().catch(() => [])
+    const know = knowledgeBlock(packs, ask)
     let wantSearch = Boolean((geminiReady() && live) || accepted)
     let research: ResearchMeta | undefined
     let acc = ''
@@ -620,12 +639,12 @@ export async function streamChat(
             persona: pack.gemini,
             voice: opts?.voice,
             search: wantSearch,
-            memory: memoryBlock(mem, ask, hits),
+            memory: [memoryBlock(mem, ask, hits), know].filter(Boolean).join('\n\n'),
             working: workingBlock(),
             lastStep: lastStepHint(),
           })
         : {
-            system: [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, ask, hits), workingBlock(), lastStepHint()]
+            system: [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, ask, hits), know, workingBlock(), lastStepHint()]
               .filter(Boolean)
               .join('\n\n'),
             variable: '',
@@ -659,7 +678,7 @@ export async function streamChat(
               },
               {
                 search: wantSearch,
-                maxOutputTokens: opts?.voice ? 240 : wantSearch ? 900 : 420,
+                maxOutputTokens: opts?.voice ? 240 : wantSearch ? (isDeepResearch(ask) ? 1200 : 900) : 420,
                 timeoutMs: wantSearch ? 12_000 : 8_000,
               },
             ).then((r) => {
@@ -742,7 +761,7 @@ export async function streamChat(
       handlers.onReplace?.(text)
     }
     const name = mem.find((m) => m.key === 'name')?.value
-    const final = scrubReply(text, {
+    let final = scrubReply(text, {
       searched: Boolean(researchHasSources(research) || wantSearch),
       names: name ? [name] : [],
     })
@@ -750,6 +769,13 @@ export async function streamChat(
     if (research && !research.audit_id) research = await attachResearchAudit(research, ask)
     if (isLiveLookup(ask, discount) && !wantSearch) persistResearchOffer(ask, researchQuery(ask))
     const nSources = (research?.sources || []).filter((x) => x.url).length
+    if (isDeepResearch(ask) && nSources > 0) {
+      persistTeachOffer(ask, final, research?.sources || [])
+      if (!/Soll ich das als Fachwissen/.test(final)) {
+        final = `${final.replace(/\s+$/, '')}${teachOfferLine(ask)}`
+        handlers.onReplace?.(final)
+      }
+    }
     const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || convAfterUser
     finishLatency()

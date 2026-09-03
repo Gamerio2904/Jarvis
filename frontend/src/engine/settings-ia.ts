@@ -52,8 +52,8 @@ export const SETTINGS_TABS: Array<{
   { id: 'alltag', label: 'Alltag', hint: 'Wecker, Ort, Weltlage' },
   { id: 'geraete', label: 'Geräte', hint: 'TV, PC, Haus, Musik' },
   { id: 'lage', label: 'Lage', hint: 'Kugel, Körper, Töne' },
-  { id: 'daten', label: 'Daten', hint: 'Merken, sichern, löschen' },
-  { id: 'tests', label: 'Tests', hint: 'Memory-10 und Probe V1–V9, Debug-Lauf', workshop: true },
+  { id: 'daten', label: 'Daten', hint: 'Merken, sichern, Fachwissen, löschen' },
+  { id: 'tests', label: 'Tests', hint: 'Memory-10, Fachwissen-11 und Probe V1–V9, Debug-Lauf', workshop: true },
 ]
 
 /** @deprecated Gruppen = Reiter. Bleibt für alte Imports. */
@@ -136,7 +136,7 @@ export function filterTopics(q: string): SettingsTab[] {
     hits.unshift('keys')
   }
   if (/steck|dose|tv|pc|ventilator/.test(n) && !hits.includes('geraete')) hits.push('geraete')
-  if (/lösch|gefahr|hausstand|export/.test(n) && !hits.includes('daten')) hits.push('daten')
+  if (/lösch|gefahr|hausstand|export|fachwissen|pack/.test(n) && !hits.includes('daten')) hits.push('daten')
   if (/wake|hören|stimme|piper|vad|onnx|kokoro/.test(n) && !hits.includes('stimme')) hits.push('stimme')
   if (/preis|research|netz|suche|e5|rerank/.test(n) && !hits.includes('hirn')) hits.push('hirn')
   if (/wecker|wetter|ort|weltlage|blitzer|baustelle|radar|ordner|preiswache|instanudeln/.test(n) && !hits.includes('alltag')) {

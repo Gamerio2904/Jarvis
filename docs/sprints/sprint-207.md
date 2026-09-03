@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`11.50.0`** |
 | Quelle | [`58-next.md`](../58-next.md) |
 | Vorher | 203–205 mindestens T1–T3/T6. 206 optional |

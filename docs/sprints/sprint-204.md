@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`11.20.0`** |
 | Quelle | [`58-next.md`](../58-next.md) |
 | Vorher | 203 Teach |

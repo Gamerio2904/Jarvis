@@ -169,7 +169,20 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
 
   if (/\bmerk(?:e)?\s*dir\b/.test(t) && /\b(?:freitag|montag|dienstag|mittwoch|donnerstag|samstag|sonntag|zahnarzt|termin)\b/.test(t)) {
     out = drop(out, 'memory')
+    out = drop(out, 'teach')
     out = boost(out, 'calendar', 0.25)
+  }
+
+  if (/\bfachwissen\b/.test(t) || /^\s*lern(?:e)?\s+das\b/.test(t) || /\bmerk(?:e)?\s*dir\s+als\s+fachwissen\b/.test(t)) {
+    out = drop(out, 'memory')
+    out = drop(out, 'fan')
+    out = drop(out, 'recall')
+    if (/\bvergiss\s+fachwissen\b/.test(t) || /\bwas\s+steht\s+bei\s+uns\b/.test(t) || /^\s*fachwissen\b/.test(t)) {
+      out = boost(out, 'pack', 0.28)
+      out = drop(out, 'teach')
+    } else {
+      out = boost(out, 'teach', 0.28)
+    }
   }
 
   if (/\b(?:benzinpreis|spritpreis|e10)\b/.test(t) && !/\b(?:teurer|billiger|wird|ausblick|prognose|tanke)\b/.test(t)) {

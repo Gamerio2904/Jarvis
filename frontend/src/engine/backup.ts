@@ -25,6 +25,7 @@ import {
 } from './store.ts'
 import type { ToolMeta } from './tools.ts'
 import { Capacitor } from '@capacitor/core'
+import { listKnowledgePacks, type KnowledgePack } from './knowledge-store.ts'
 
 export const BACKUP_VERSION = 1
 
@@ -39,6 +40,7 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_debug_json',
   'last_recall_json',
   'last_research_json',
+  'last_knowledge_json',
   'last_doc_json',
   'last_taxi_json',
   'last_interrupt_json',
@@ -103,6 +105,7 @@ export type HausBackup = {
   todos: Todo[]
   shopping: ShoppingItem[]
   price_watches?: PriceWatch[]
+  knowledge_packs?: KnowledgePack[]
   conversations?: Conversation[]
   messages?: Message[]
 }
@@ -187,6 +190,7 @@ export function asBackup(raw: unknown): HausBackup | null {
     todos: arr(o.todos),
     shopping: arr(o.shopping),
     price_watches: o.price_watches ? arr(o.price_watches) : undefined,
+    knowledge_packs: o.knowledge_packs ? arr(o.knowledge_packs) : undefined,
     conversations: o.conversations ? arr(o.conversations) : undefined,
     messages: o.messages ? arr(o.messages) : undefined,
   }
@@ -218,6 +222,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     todos: await listTodos(),
     shopping: await listShopping(),
     price_watches: await listPriceWatches(),
+    knowledge_packs: await listKnowledgePacks(),
     conversations,
     messages,
   }
@@ -236,6 +241,7 @@ export async function applyBackup(data: HausBackup): Promise<string> {
   await replaceStore('todos', data.todos || [])
   await replaceStore('shopping', data.shopping || [])
   if (data.price_watches) await replaceStore('price_watches', data.price_watches)
+  if (data.knowledge_packs) await replaceStore('knowledge_packs', data.knowledge_packs)
   if (data.conversations) {
     await replaceStore('conversations', data.conversations)
     await replaceStore('messages', data.messages || [])

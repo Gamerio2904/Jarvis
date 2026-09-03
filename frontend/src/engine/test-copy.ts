@@ -150,6 +150,45 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'Fachwissen-11',
+    items: [
+      {
+        label: 'T1 Antriebsquelle lehren',
+        text: 'Lern das als Fachwissen Antriebsquelle: Palladium ist knapp, Integration ist das Engpass.',
+        expect: { tool: 'teach' },
+      },
+      {
+        label: 'T2 Bei uns fragen',
+        text: 'Was steht bei uns zur Antriebsquelle?',
+        expect: { tool: 'pack' },
+      },
+      { label: 'T3 Mate nicht Pack', text: 'Was trinke ich?', expect: { tool: 'memory' } },
+      {
+        label: 'T4 Steuer lehren',
+        text: 'Lern das als Fachwissen Steuer 2026: Der Grundfreibetrag steigt 2026.',
+        expect: { tool: 'teach' },
+      },
+      {
+        label: 'T5 Vergiss Antriebsquelle',
+        text: 'Vergiss Fachwissen Antriebsquelle',
+        expect: { tool: 'pack' },
+      },
+      {
+        label: 'T6 Deep Research',
+        text: 'Recherchiere tief: Anzugs-Energiequelle ehrlich, ohne Marvel-Magie. Entwirf Constraints und Stand der Technik.',
+      },
+      {
+        label: 'Reel ohne Magie',
+        text: 'Recherchiere tief und entwirf eine ehrliche Anzugs-Energiequelle. Keine Marvel-Magie, nur belegte Constraints.',
+      },
+      {
+        label: 'Alltagsfach FritzBox',
+        text: 'Lern das als Fachwissen FritzBox-Doku: Das WLAN-Passwort steht unter dem Router, nicht im Chat.',
+        expect: { tool: 'teach' },
+      },
+    ],
+  },
+  {
     title: 'Einkauf',
     items: [
       { label: 'Milch drauf', text: 'Milch auf die Einkaufsliste' },
@@ -724,6 +763,7 @@ const PROBE_SOURCES: Array<{ title: string; source: string }> = [
   { title: 'V7 PC', source: 'V7 PC' },
   { title: 'V8 Live', source: 'V8 Live' },
   { title: 'V9 Hardening', source: 'V9 Hardening' },
+  { title: 'Fachwissen-11', source: 'Fachwissen-11' },
 ]
 
 export const PROBE_COPY_GROUPS: TestCopyGroup[] = PROBE_SOURCES.map((row) => {

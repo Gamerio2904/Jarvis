@@ -2,6 +2,8 @@ import { getJson, getText } from './http-json'
 import {
   compareDiscountSources,
   compareShopSources,
+  deepResearchQueries,
+  isDeepResearch,
   isFactLookup,
   isProductLookup,
   mergeResearchSources,
@@ -17,11 +19,27 @@ import { loadSettings } from './store'
 const UA = 'Jarvis/2.2.0 (local.jarvis.app)'
 const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.2.0'
 
+export async function fillDeepResearchLinks(
+  queryText: string,
+  answer: string,
+  research?: ResearchMeta,
+): Promise<ResearchMeta> {
+  const queries = deepResearchQueries(queryText)
+  const extra: ResearchSource[] = [...sourcesFromText(answer), ...(research?.sources || [])]
+  const found = await Promise.all(queries.map((q) => duckDuckGo(q)))
+  extra.push(...found.flat())
+  if (extra.filter((s) => s.url).length < 2) {
+    extra.push(...(await wikipedia(queries[0] || queryText)))
+  }
+  return mergeResearchSources(research, extra, queries[0] || researchQuery(queryText))
+}
+
 export async function fillResearchLinks(
   queryText: string,
   answer: string,
   research?: ResearchMeta,
 ): Promise<ResearchMeta> {
+  if (isDeepResearch(queryText)) return fillDeepResearchLinks(queryText, answer, research)
   const query = researchQuery(research?.query || queryText)
   const discount = Boolean(loadSettings().shop_discount)
   const product = isProductLookup(queryText, discount) || isProductLookup(query, discount)

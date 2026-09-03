@@ -5,7 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-- **Memory-10 Intensiv 196–201:** Code **`10.66.0`**. Alias eng, Recall ohne Gespräch-Echo, memoryBlock sieht Pins, `parent_key` nur Reise, Gold = Live-Pfad, `Mag ich Döner?` ohne Hirn.
+- **Fachwissen 11.0:** Code **`11.60.0`**. Packs, Teach, knowledgeBlock, Deep Research + Offer, Settings, Gold T1–T6, Pack-REVISE.
+
+## `11.60.0` — Fachwissen + Deep Research — *CODE*
+
+Sprints **202–208**. e5 bleibt Freeze. Sideload unverändert `10.60.2`.
+
+- **Store:** `knowledge_packs` (DB v8), Cap 12 / 24 Claims, Hausstand-Feld.
+- **Teach:** `lern das` / `als Fachwissen X`. Harvest Paste → Research → Doc → Notiz.
+- **Ask:** `bei uns` / `Fachwissen …` → Pack-Antwort. Mate/Reisen ohne Pack-Leak.
+- **Deep:** 3–5 Queries, Offer „Soll ich das merken?“. Kein stiller Write.
+- **Settings Daten:** Liste, Löschen, Export. Copy-Gruppe Fachwissen-11.
 
 ## `10.66.0` — Memory-10 Intensiv — *CODE*
 

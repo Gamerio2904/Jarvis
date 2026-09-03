@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`11.30.0`** |
 | Quelle | [`58-next.md`](../58-next.md) |
 | Vorher | 204 Retrieve (Offer kann 203 schon speichern; Deep macht die Ernte besser) |

@@ -102,6 +102,8 @@ import { parseRecallIntent } from './recall-parse.ts'
 import { handleRecall } from './recall.ts'
 import { parseAppIntent } from './app-parse.ts'
 import { handleApp } from './app.ts'
+import { parseTeachIntent, parsePackAsk, parsePackForget, parsePackRevise } from './knowledge.ts'
+import { handleTeach, handlePack } from './knowledge.ts'
 
 export type { RouteCtx, SideEffect } from './route-types'
 
@@ -275,6 +277,23 @@ function makeCatalog(): Capability[] {
           ? score(ctx.text)
           : null,
       execute: async (ctx) => fromHandler('maps', await handlePlaces(ctx.conversationId, ctx.text)),
+    },
+    {
+      id: 'teach',
+      label: 'Fachwissen',
+      sideEffect: 'write',
+      parse: (ctx) => (parseTeachIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.2) : null),
+      execute: async (ctx) => fromHandler('teach', await handleTeach(ctx.conversationId, ctx.text)),
+    },
+    {
+      id: 'pack',
+      label: 'Fachwissen',
+      sideEffect: 'read',
+      parse: (ctx) =>
+        parsePackAsk(ctx.text) || parsePackForget(ctx.text) || parsePackRevise(ctx.text, ctx.lastTool)
+          ? score(ctx.text, 0.18)
+          : null,
+      execute: async (ctx) => fromHandler('pack', await handlePack(ctx.conversationId, ctx.text)),
     },
     {
       id: 'memory',

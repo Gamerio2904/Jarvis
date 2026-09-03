@@ -2,7 +2,7 @@
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Should |
+| Status | **CODE** Should |
 | Ziel-Version | **`11.60.0`** |
 | Quelle | [`58-next.md`](../58-next.md) |
 | Vorher | 203–204. Analog Memory-Gate, **nicht** in `memory-gate.ts` |

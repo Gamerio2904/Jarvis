@@ -1,8 +1,10 @@
-# 58 — Jarvis 11.0 Fachwissen + Deep Research **PLAN**
+# 58 — Jarvis 11.0 Fachwissen + Deep Research **CODE** `11.60.0`
 
-PO 2026-09-03: Reel [maninalabs / DajByXpSQb4](https://www.instagram.com/reel/DajByXpSQb4/) — „I Asked J.A.R.V.I.S. To Redesign The Suit's Power Source“. Auftrag: **so** umsetzen, dass Jarvis tief recherchiert **und** das **anlernt**, später andere Fächer ergänzt und dann **Fachwissen nutzt**. Dieser Text ist Research in Code **und** Netz — kein Execute.
+PO 2026-09-03: Execute 202–208. Reel-Idee bleibt: Recherche → **lern das** → Pack nutzen. 195 e5 **FREEZE**. Gerät 193 **PO**.
 
-**App-Stand:** Code **`10.60.2`**. Sideload **`10.60.2`**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Memory-10 [`56-next.md`](./56-next.md) **CODE**. Intensiv 196–201 [`57-next.md`](./57-next.md) **CODE** `10.66.0`. 195 e5 **FREEZE**. Gerät 193 **PO**.
+**App-Stand:** Code **`11.60.0`**. Sideload **`10.60.2`**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Memory-10 [`56-next.md`](./56-next.md) **CODE**. Intensiv 196–201 [`57-next.md`](./57-next.md) **CODE** `10.66.0`.
+
+Gold: `npm run test:knowledge-11`. Memory-Gold unverändert.
 
 `11.0` ist die nächste **Intelligenz-Schiene nach dem persönlichen Gedächtnis**: nicht Mate/WLAN (Cap 80), sondern **thematische Packs**, die der Nutzer bewusst lehrt. Kein zweites Hirn, kein Qdrant, kein Training auf dem Handy, keine Instagram-ASR.
 
@@ -211,15 +213,15 @@ Reihenfolge = Lieferreihenfolge. Intensiv **196–201** und e5 **195** nicht ste
 
 | Sprint | Version | Thema | Must? | Stand |
 |--------|---------|-------|-------|-------|
-| **202** | `11.0.0` | Typen, Store, Cap, Hausstand-Feld, Won’t | Must | **PLAN** |
-| **203** | `11.10.0` | Teach-Parser + Harvest (last research / Notiz / Doc / Paste) | Must | **PLAN** |
-| **204** | `11.20.0` | Retrieve Pack + `knowledgeBlock` (nur Topic-Match) | Must | **PLAN** |
-| **205** | `11.30.0` | Deep-Research-Queries + Teach-Offer | Must | **PLAN** |
-| **206** | `11.40.0` | Settings Daten: Liste / Löschen / Export | Should | **PLAN** |
-| **207** | `11.50.0` | Gold T1–T6 + Kopierprompts (Reel + zweites Fach) | Must | **PLAN** |
-| **208** | `11.60.0` | Pack-REVISE / Lab-Notiz / „stimmt nicht“ im Pack | Should | **PLAN** |
+| **202** | `11.0.0` | Typen, Store, Cap, Hausstand-Feld, Won’t | Must | **CODE** |
+| **203** | `11.10.0` | Teach-Parser + Harvest (last research / Notiz / Doc / Paste) | Must | **CODE** |
+| **204** | `11.20.0` | Retrieve Pack + `knowledgeBlock` (nur Topic-Match) | Must | **CODE** |
+| **205** | `11.30.0` | Deep-Research-Queries + Teach-Offer | Must | **CODE** |
+| **206** | `11.40.0` | Settings Daten: Liste / Löschen / Export | Should | **CODE** |
+| **207** | `11.50.0` | Gold T1–T6 + Kopierprompts (Reel + zweites Fach) | Must | **CODE** |
+| **208** | `11.60.0` | Pack-REVISE / Lab-Notiz / „stimmt nicht“ im Pack | Should | **CODE** |
 
-Execute erst nach PO-Go. Dieser Docs-Sprint ist **kein** Versionsbump der APK.
+Gebündelt in Code **`11.60.0`**. Sideload-APK unverändert `10.60.2`.
 
 ### Abhängigkeit zu Memory-10
 
@@ -283,6 +285,6 @@ Kopierprompts Settings → Tests, Gruppe **Fachwissen-11** (wie Memory-10). Reel
 - [x] Code-Ist (Suche, Memory, Notes, Docs, Retrieve, Prompt) ehrlich.
 - [x] Netz-Ist: Claims+Review+IndexedDB, nicht GraphRAG-Server.
 - [x] Sprints 202–208, Versionen `11.0`–`11.60`, kein Diebstahl von `10.61`.
-- [x] Kein Execute, kein APK-Bump.
+- [x] Execute 202–208 in `11.60.0`. Kein APK-Bump.
 
 Index: [`42-planned.md`](./42-planned.md). Memory-10: [`56-next.md`](./56-next.md). Intensiv: [`57-next.md`](./57-next.md). Versionen: [`09-versioning.md`](./09-versioning.md).

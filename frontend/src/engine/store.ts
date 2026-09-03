@@ -2,7 +2,7 @@ import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 
-export const APP_VERSION = '10.66.0'
+export const APP_VERSION = '11.60.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -237,6 +237,7 @@ export type Settings = {
   last_debug_json: string
   last_recall_json: string
   last_research_json: string
+  last_knowledge_json: string
   last_doc_json: string
   vad_onnx: boolean
   piper_offline: boolean
@@ -374,6 +375,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_debug_json: '',
   last_recall_json: '',
   last_research_json: '',
+  last_knowledge_json: '',
   last_doc_json: '',
   vad_onnx: false,
   piper_offline: false,
@@ -451,7 +453,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 7)
+    const req = indexedDB.open('jarvis-ondevice', 8)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -467,6 +469,7 @@ function openDb(): Promise<IDBDatabase> {
         'shopping',
         'price_watches',
         'docs',
+        'knowledge_packs',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'

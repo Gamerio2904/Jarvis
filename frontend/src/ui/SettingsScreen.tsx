@@ -31,6 +31,12 @@ import {
   type SettingsTopic,
 } from '../engine/settings-ia'
 import { loadSettings } from '../engine/store'
+import {
+  clearKnowledgePacks,
+  deleteKnowledgePack,
+  listKnowledgePacks,
+  type KnowledgePack,
+} from '../engine/knowledge.ts'
 import { qualityPack } from '../engine/quality-pack'
 import { PROBE_COPY_GROUPS, STORYLINE_GROUPS } from '../engine/test-copy'
 
@@ -107,6 +113,83 @@ function CopyField({ label, value }: { label: string; value: string }) {
         </button>
       </div>
     </label>
+  )
+}
+
+function FachwissenCard() {
+  const [packs, setPacks] = useState<KnowledgePack[]>([])
+  const [busy, setBusy] = useState(false)
+  const [confirmAll, setConfirmAll] = useState(false)
+
+  const refresh = () => {
+    void listKnowledgePacks()
+      .then(setPacks)
+      .catch(() => setPacks([]))
+  }
+
+  useEffect(() => {
+    refresh()
+  }, [])
+
+  return (
+    <section className="settings-card">
+      <h3>Fachwissen</h3>
+      {packs.length === 0 ? (
+        <p className="memory-empty">Noch kein Fachwissen. Nach einer Recherche «lern das» sagen.</p>
+      ) : (
+        <ul className="memory-list">
+          {packs.map((p) => (
+            <li key={p.id} className="memory-item">
+              <div className="memory-meta">
+                <span className="memory-cat">{p.topic}</span>
+                <span className="memory-key">{p.claims.length} Sätze</span>
+                <span className="memory-entities">{p.updated_at.slice(0, 10)}</span>
+              </div>
+              <div className="memory-value">{p.title}</div>
+              <button
+                type="button"
+                className="memory-del"
+                disabled={busy}
+                onClick={() => {
+                  setBusy(true)
+                  void deleteKnowledgePack(p.id)
+                    .then(refresh)
+                    .finally(() => setBusy(false))
+                }}
+                aria-label={`Fachwissen ${p.title} löschen`}
+              >
+                Löschen
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {packs.length > 0 ? (
+        confirmAll ? (
+          <button
+            type="button"
+            className="memory-clear"
+            disabled={busy}
+            onClick={() => {
+              setBusy(true)
+              void clearKnowledgePacks()
+                .then(() => {
+                  setConfirmAll(false)
+                  refresh()
+                })
+                .finally(() => setBusy(false))
+            }}
+          >
+            Alle Packs wirklich löschen
+          </button>
+        ) : (
+          <button type="button" className="memory-clear" disabled={busy} onClick={() => setConfirmAll(true)}>
+            Alle Packs löschen
+          </button>
+        )
+      ) : null}
+      <p className="settings-hint">Prefs (Mate, WLAN) bleiben beim Löschen der Packs. Hausstand exportiert Packs mit.</p>
+    </section>
   )
 }
 
@@ -1952,6 +2035,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
             </section>
           ) : null}
 
+          {tab === 'daten' ? <FachwissenCard /> : null}
+
           {tab === 'daten' ? (
             <section className="settings-card">
               <h3>Was Jarvis über Sie weiß</h3>
@@ -2012,7 +2097,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Probe Memory-10 + V1–V9</h3>
               <p className="settings-lead">
-                Jeder Prompt in einem eigenen Feld — Kopieren, ins Chatfeld einfügen. Memory-10 steht oben (Gold G1–G6).
+                Jeder Prompt in einem eigenen Feld — Kopieren, ins Chatfeld einfügen. Memory-10 und Fachwissen-11 stehen oben.
                 PC und TV brauchen das Gerät. V4 braucht eine Datei oder ein Foto. V9 Inject darf nicht gehorchen.
               </p>
               <h4 className="copy-block-title" style={{ marginTop: 12 }}>Storylines — realistische Gespräche</h4>

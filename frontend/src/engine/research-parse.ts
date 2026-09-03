@@ -23,9 +23,38 @@ export type ResearchMeta = {
   network_attempted?: boolean
 }
 
+/** Mehrere Fach-Queries. Bloßes „recherchier Benzinpreis“ bleibt normal. */
+export function isDeepResearch(text: string): boolean {
+  const t = text.trim()
+  if (!t || t.length > 400) return false
+  if (/\bdeep\s*research\b/i.test(t)) return true
+  if (/\brecherchier(?:e|en)?\s+tief\b/i.test(t)) return true
+  if (/\bsystematisch\b/i.test(t) && /\b(?:paper|papers|recherch)/i.test(t)) return true
+  if (/\bentwirf\b/i.test(t) && t.length >= 24) return true
+  if (/\bpapers?\b/i.test(t) && /\b(?:recherch|suche|systemat)/i.test(t)) return true
+  return false
+}
+
+export function deepResearchQueries(text: string): string[] {
+  const raw = researchQuery(text)
+  const thema = raw
+    .replace(/^(?:recherchiere?\s+tief:?\s*|deep\s*research:?\s*|entwirf\s+)/i, '')
+    .trim() || raw
+  const q = thema.slice(0, 120)
+  return [
+    q,
+    `${q} constraints materials energy density`,
+    `${q} vergleich vorteile nachteile`,
+    `${q} site:arxiv.org OR site:wikipedia.org`,
+    `${q} Stand der Technik`,
+  ]
+}
+
 export function isLiveLookup(text: string, discount = false): boolean {
   const t = text.trim()
-  if (!t || t.length > 240) return false
+  if (!t) return false
+  if (isDeepResearch(t)) return true
+  if (t.length > 240) return false
   if (/\b(suche|recherchier(?:e|en)?|google(?:n)?|im internet|im netz|schau(?:e)? nach)\b/i.test(t)) {
     return true
   }
