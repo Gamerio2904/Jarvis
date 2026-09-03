@@ -32,7 +32,7 @@ import {
 } from '../engine/settings-ia'
 import { loadSettings } from '../engine/store'
 import { qualityPack } from '../engine/quality-pack'
-import { PROBE_COPY_GROUPS } from '../engine/test-copy'
+import { PROBE_COPY_GROUPS, STORYLINE_GROUPS } from '../engine/test-copy'
 
 export type { SettingsTopic }
 
@@ -2015,6 +2015,20 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 Jeder Prompt in einem eigenen Feld — Kopieren, ins Chatfeld einfügen. Memory-10 steht oben (Gold G1–G6).
                 PC und TV brauchen das Gerät. V4 braucht eine Datei oder ein Foto. V9 Inject darf nicht gehorchen.
               </p>
+              <h4 className="copy-block-title" style={{ marginTop: 12 }}>Storylines — realistische Gespräche</h4>
+              <p className="settings-hint">
+                Prompts der Reihe nach kopieren und abschicken. Jede Storyline baut aufeinander auf —
+                von Smalltalk über Research bis zu langen, verschachtelten Aufträgen. ↳ = hängt von der vorigen Antwort ab.
+              </p>
+              {STORYLINE_GROUPS.map((g) => (
+                <div key={g.title} className="probe-group">
+                  <h4 className="copy-block-title">{g.title}</h4>
+                  {g.items.map((item) => (
+                    <CopyField key={`${g.title}·${item.label}`} label={item.label} value={item.text} />
+                  ))}
+                </div>
+              ))}
+              <h4 className="copy-block-title" style={{ marginTop: 24 }}>Einzel-Prompts (Memory-10 + V1–V9)</h4>
               {PROBE_COPY_GROUPS.map((g) => (
                 <div key={g.title} className="probe-group">
                   <h4 className="copy-block-title">{g.title}</h4>
