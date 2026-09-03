@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`6.90.0`**. Sideload **`6.90.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`, Alltag [`50-next.md`](./50-next.md) `8.0`, Recall [`49-next.md`](./49-next.md) `7.0`.
+> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Offen: LocateAnything-Gewichte, Debug-Hintergrund `5.12`, Alltag [`50-next.md`](./50-next.md) `8.0`.
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 

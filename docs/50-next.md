@@ -1,8 +1,10 @@
 # 50 — Alltag vom Zettel (`8.0`) **CODE** (Router, kein neues Sideload)
 
+**App-Stand:** Code und Sideload **`9.9.2`**. Dieser Zettel (`8.0`) bleibt **PLAN** — Execute der Alltagspunkte ist nicht der Sideload.
+
 PO 2026-08-29: alte Notizen gefunden. Einplanen, was **nicht** schon Code oder Plan ist. Nicht neu erfinden, was `6.90` schon kann.
 
-**Live:** Code **`6.90.0`**. Sideload **`6.90.0`**. Blitzer OSM, Settings-IA, Amazon-Intent, Ordner, Preiswache, Recall-Loop und Wake-Härte sind **CODE**. LocateAnything-Gewichte: [`41-next.md`](./41-next.md) **`4.77` NO-GO**. Debug-Hintergrund: `5.12` v1 (App offen + WakeLock).
+**Zettel-Ist damals:** Code **`6.90.0`**. Blitzer OSM, Settings-IA, Amazon-Intent, Ordner, Preiswache, Recall-Loop und Wake-Härte sind **CODE**. LocateAnything-Gewichte: [`41-next.md`](./41-next.md) **`4.77` NO-GO**. Debug-Hintergrund: `5.12` v1 (App offen + WakeLock).
 
 **Warum `8.0`, nicht `7.x`:** `7.0`–`7.30` sind Agentic Recall (Sprints 137–140). Alltag vom Zettel ist **Geschwister**, kein zweites Recall, kein 3060. Execute **darf vor Recall**, wenn der PO Alltag zuerst will.
 

@@ -5,9 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`9.9.2`**. Sideload zuletzt: **`9.9.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+Nichts offenes hinter **`9.9.2`**. Nächster Stand erst nach dem nächsten Sideload.
 
-Sideload **`releases/Jarvis.apk`** (versionCode `90902`) über `9.9.1` installieren. Probe V1–V9 plus Gruppe **Screenshot-Bugs**: Einstellungen → Tests.
+## `9.9.2` — Screenshot-Bugs / Kugel+Stimme — *CODE*
+
+App-Version und Sideload **`9.9.2`** (versionCode `90902`). **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+
+Sideload **`releases/Jarvis.apk`**. Über `9.9.1` oder `9.9.0` installieren. Probe V1–V9 plus Gruppe **Screenshot-Bugs**: Einstellungen → Tests.
 
 ### Screenshot-Bugs / Kugel+Stimme — *CODE* (`9.9.2`)
 

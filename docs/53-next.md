@@ -2,7 +2,7 @@
 
 PO 2026-09-03: acht Handy-Fotos. Deep Research im Code und in der Industrie (Google Earth / Maps Drag, Canvas-rAF, Android SpeechRecognizer, Pipecat First-Audio). Loop im bestehenden Stack, kein neuer 3D- oder STT-Stack.
 
-**Ist:** Code **`9.9.2`**. Sideload folgt nach APK. Parser zuerst. Hirn Gemini → Groq → 0,5B. Lage chat-first aus `9.9.1`.
+**Ist:** Code **`9.9.2`**. Sideload **`9.9.2`**. Parser zuerst. Hirn Gemini → Groq → 0,5B. Lage chat-first aus `9.9.1`.
 
 ---
 

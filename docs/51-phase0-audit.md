@@ -1,6 +1,6 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`9.9.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`, V7 PC `9.2`, V8 Live `9.3`, V9 Hardening `9.9`). Sideload **`9.9.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag `8.0` bleibt geplant, **läuft nicht vor Stabilität**.
+> **Jetzt:** Code **`9.9.2`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`, V7 PC `9.2`, V8 Live `9.3`, V9 Hardening `9.9`, Screenshot-Fixes `9.9.2`). Sideload **`9.9.2`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag `8.0` bleibt geplant, **läuft nicht vor Stabilität**.
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
@@ -547,7 +547,7 @@ Zusätzlich zu `03-agile-process.md`:
 
 ### Beta Ready (PO)
 
-`9.9` schließt **V9** (163–165). Industry-Track V1–V9 ist **CODE**. Sideload **`9.9.0`** — das ist kein Store-Release. Alltag `8.0` und Debug-Hintergrund `5.12` bleiben PLAN.
+`9.9` schließt **V9** (163–165). Industry-Track V1–V9 ist **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Sideload **`9.9.2`** — das ist kein Store-Release. Alltag `8.0` und Debug-Hintergrund `5.12` bleiben PLAN.
 
 ---
 

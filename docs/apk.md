@@ -14,8 +14,10 @@ App-Code und Sideload stehen auf **`9.9.2`**. LocateAnything-Gewichte nicht in d
 
 ## Download
 
-**APK `9.9.2`:**  
-`releases/Jarvis.apk` im Repo.
+**Fertige APK `9.9.2`:**  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Datei im Repo: `releases/Jarvis.apk`.
 
 - Dateiname: `Jarvis.apk`
 - versionName `9.9.2` · versionCode `90902`

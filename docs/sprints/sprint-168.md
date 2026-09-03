@@ -115,7 +115,7 @@ Nur mit Gemini-Key (sonst Groq / ehrlich 0,5B).
 - [ ] C1–C7
 - [ ] D–F
 - [ ] V1–V9 unverändert grün
-- [ ] Hausstand vorher exportieren, Sideload `9.9.2` über `9.9.1`
+- [ ] Hausstand vorher exportieren, Sideload `9.9.2` über `9.9.1` oder `9.9.0`
 
 Parser-DoD:
 
