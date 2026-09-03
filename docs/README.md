@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`12.70.0`**. Sideload **`10.60.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`12.70.0`**. Sideload **`12.70.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -65,7 +65,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 57 | [Memory-10 Intensiv](./57-next.md) | **CODE** `10.66.0` — Sprints 196–201 |
 | 58 | [Fachwissen 11.0](./58-next.md) | **CODE** `11.60.0` — Deep Research + Teach-Packs; Sprints 202–208 |
 | 59 | [Drei Flächen 12.0](./59-next.md) | **CODE** `12.70.0` — Tablet + Presence + PC-Viewer; Sprints 209–216 |
-| — | [APK](./apk.md) | Sideload `10.60.2`; Deinstall löscht Keys — erst Hausstand-Export |
+| — | [APK](./apk.md) | Sideload `12.70.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 

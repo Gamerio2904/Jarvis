@@ -9,7 +9,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## `12.70.0` — Drei Flächen, ein Hirn — *CODE*
 
-Sprints **209–216**. e5 bleibt Freeze. Sideload unverändert `10.60.2`.
+Sprints **209–216**. e5 bleibt Freeze. Sideload **`12.70.0`** (versionCode `127000`).
 
 - **Rollen:** Settings Gerät — Hirn vs Fenster vs Werkzeug. Tablet allein = Hirn.
 - **Tablet ≥900 px:** Lage + Verlauf + Composer. Handy-Lage: Chat weicht (kein Bug).

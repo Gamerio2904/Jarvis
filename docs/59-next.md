@@ -2,7 +2,7 @@
 
 PO 2026-09-03: Execute 209–216. Ein Hirn, drei Fenster. 195 e5 **FREEZE**. Gerät 178/193 **PO**.
 
-**App-Stand:** Code **`12.70.0`**. Sideload **`10.60.2`**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Handy = Hirn. PC = Werkzeug (`:18790`) + Fenster (`:18791`). Tablet = dieselbe APK, Lage+Chat ab 900 px.
+**App-Stand:** Code **`12.70.0`**. Sideload **`12.70.0`**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Handy = Hirn. PC = Werkzeug (`:18790`) + Fenster (`:18791`). Tablet = dieselbe APK, Lage+Chat ab 900 px.
 
 Gold: `npm run test:presence-12`.
 
@@ -196,7 +196,7 @@ Eigene Schiene `12.x`. Kein Diebstahl von `10.61` (Intensiv) oder `11.0` (Fachwi
 | **215** | `12.60.0` | Gold drei Flächen + Copy | Must | **CODE** |
 | **216** | `12.70.0` | LAN-Datei-Drop (DropVR-light); VR Parking | Could | **CODE** |
 
-Gebündelt in Code **`12.70.0`**. Sideload unverändert `10.60.2`. Native Bind auf dem Handy: Presence-Handler ist CODE; ohne Native-Listen bleibt der Schalter ehrlich „Server aus“.
+Gebündelt in Code **`12.70.0`**. Sideload **`12.70.0`**. Native Bind auf dem Handy: Presence-Handler ist CODE; ohne Native-Listen bleibt der Schalter ehrlich „Server aus“.
 
 ### Reihenfolge-Begründung
 
@@ -256,6 +256,6 @@ Kein MTEB. Kein Quest-Fixture. e5 bleibt Freeze.
 - [x] Ist Handy/Tablet/PC mit Dateien ehrlich.
 - [x] Leit: ein Hirn, drei Fenster, LAN-Token.
 - [x] Sprints 209–216, Versionen `12.0`–`12.70`, kein Diebstahl von `10.61`/`11.0`.
-- [x] Execute 209–216 in `12.70.0`. Kein APK-Bump.
+- [x] Execute 209–216 in `12.70.0`. Sideload `12.70.0`.
 
 Index: [`42-planned.md`](./42-planned.md). Tablet-Ist: [`33-next.md`](./33-next.md), [`39-next.md`](./39-next.md). PC-Ist: [`desktop/README.md`](../desktop/README.md). On-Device: [`13-on-device.md`](./13-on-device.md). Fachwissen bleibt [`58-next.md`](./58-next.md).

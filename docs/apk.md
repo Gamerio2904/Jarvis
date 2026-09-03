@@ -1,12 +1,12 @@
-# Android-APK — Sideload `10.60.2`
+# Android-APK — Sideload `12.70.0`
 
-App-Code **`12.70.0`**. Sideload-APK zuletzt **`10.60.2`**. LocateAnything-Gewichte nicht in der APK.
+App-Code **`12.70.0`**. Sideload-APK **`12.70.0`**. LocateAnything-Gewichte nicht in der APK.
 
 **Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback.
 
 **Deinstall** (andere Signatur): WebView-Daten weg. Vor Neuinstall Hausstand exportieren.
 
-**12.70.0:** Drei Flächen (209–216). Presence :18791. Sideload bleibt `10.60.2`.
+**12.70.0:** Drei Flächen (209–216). Presence :18791. Intensiv 196–201 und Fachwissen 202–208 liegen in derselben APK.
 
 **11.60.0:** Fachwissen-Packs + Deep Research (202–208). Teach nur nach «lern das». Sideload bleibt `10.60.2`.
 
@@ -18,11 +18,11 @@ App-Code **`12.70.0`**. Sideload-APK zuletzt **`10.60.2`**. LocateAnything-Gewic
 
 ## Download
 
-**Fertige APK `10.60.2`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/plan-10-semantic-memory-7d74/releases/Jarvis.apk
+**Fertige APK `12.70.0`:**  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `10.60.2` · versionCode `106002`
+- versionName `12.70.0` · versionCode `127000`
 - App-ID `local.jarvis.app`
 
 1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).
