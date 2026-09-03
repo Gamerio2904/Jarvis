@@ -3,7 +3,7 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**. Tools und Speicher bleiben on-device. Smalltalk-Hirn ist Gemini (Key), nicht das 0,5B.
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Parser wählen Tools. Gemini formuliert. 0,5B wählt keine Tools. e5 nie Router.
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Parser wählen Tools. Gemini formuliert. 0,5B wählt keine Tools. e5 nie Router. Nächste Intelligenz [`56-next.md`](./56-next.md) **PLAN** `10.0` (Schema vor Encoder).
 
 ### Live `6.90.0` (Code)
 

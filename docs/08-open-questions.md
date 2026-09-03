@@ -61,10 +61,10 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Ha
 
 ## Nächster Schritt
 
-1. Sprint **168** Gerät — [`sprints/sprint-168.md`](./sprints/sprint-168.md) · Serie [`54-next.md`](./54-next.md).
-2. Debug Spike **169** → FGS oder Freeze **170**.
-3. LocateAnything **171** (3060 am Tisch) → **172**.
-4. Qualität-Could **173**–**177** (kein Must).
+1. Sprint **178** PO Handy — [`55-next.md`](./55-next.md).
+2. `10.0` Plan abnehmen — [`56-next.md`](./56-next.md); Execute 187+ erst danach.
+3. LocateAnything-Gewichte bleiben Freeze (`4.77`).
+4. Qualität-Could-Gewichte bleiben Freeze (181).
 5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
 6. Vor Neuinstall: Hausstand exportieren.
 

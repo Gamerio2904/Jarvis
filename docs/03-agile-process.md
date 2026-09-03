@@ -2,7 +2,7 @@
 
 Jarvis wird **agil** geplant. Klassisches Scrum für große Teams wird auf ein **Scrum-lite** für Solo-Produkt + AI-Umsetzung zugeschnitten.
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Hirn Gemini zuerst. Sprints numerisch in [`sprints/README.md`](./sprints/README.md). Nächste Schiene [`55-next.md`](./55-next.md).
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Hirn Gemini zuerst. Sprints numerisch in [`sprints/README.md`](./sprints/README.md). Gerät-PO [`55-next.md`](./55-next.md). `10.0` PLAN [`56-next.md`](./56-next.md).
 
 ## Rollen
 

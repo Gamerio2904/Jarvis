@@ -128,4 +128,4 @@ Alte 1.x/2.x-PRs auf `main`. Pipecat. Whisper-Server. Cesium. Moshi. Embeddings-
 3. Docs-Header **Jetzt `9.10.0`**.  
 4. `test:014` + `test:rest-final` + `test:alltag` grün.
 
-Index: [`42-planned.md`](./42-planned.md). Rest: [`54-next.md`](./54-next.md). Alltag: [`50-next.md`](./50-next.md).
+Index: [`42-planned.md`](./42-planned.md). Rest: [`54-next.md`](./54-next.md). Alltag: [`50-next.md`](./50-next.md). Nächste Intelligenz (PLAN, kein Gerät-Ersatz): [`56-next.md`](./56-next.md) `10.0`.

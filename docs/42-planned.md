@@ -13,6 +13,7 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 3. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
 4. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could
 5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+6. **`10.0` PLAN** [`56-next.md`](./56-next.md) — Semantisches Gedächtnis nach PO-Abnahme des Plans; Execute nicht vor 187
 
 Industry-Track V1–V9, Latenz-Loop, Screenshot-Fixes, Rest-final Execute, Alltag-Router, Parser-Härte 179, FGS-Härte 180, Docs 182: **CODE**.
 
@@ -64,6 +65,9 @@ Schalter CODE. Silero/Piper/Kokoro/e5 **nicht** in der APK. Sprint **181** Freez
 Router + Parser-Härte **CODE**. Gerät-Tore Sprint **185** PO.
 
 ### Parking
-Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.
+Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed. Qdrant/Qwen-Embed/ColPali/Multi-Agent — [`56-next.md`](./56-next.md) Won’t.
 
-Nächste Schiene: [`55-next.md`](./55-next.md).
+### `10.0` Semantisches Gedächtnis (PLAN)
+Schema, Gate, Retrieve-2, Graph light, Eval. Embeddings Could. Sprints **187–195**. Execute erst nach PO-Abnahme von [`56-next.md`](./56-next.md).
+
+Nächste Schiene Gerät: [`55-next.md`](./55-next.md). Nächste Intelligenz: [`56-next.md`](./56-next.md).

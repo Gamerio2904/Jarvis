@@ -6,6 +6,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 ## Unreleased
 
 - **Konsole:** Cloud-Warmup nutzt `preconnect` statt GET auf `speech.platform.bing.com/` (HTTP 400). `lastLatency` bleibt Export; Debug-Dock initialisiert mit `lastLatency()`.
+- **Plan `10.0`:** Semantisches Gedächtnis (Schema, Gate, Retrieve 2, Graph light, Eval). Execute erst nach PO-Abnahme. [`56-next.md`](./56-next.md). Code/Sideload bleiben `9.10.0`.
 
 ## `9.10.0` — Rest final — *CODE*
 

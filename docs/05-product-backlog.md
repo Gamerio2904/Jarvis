@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug-FGS/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Nächste Schiene: [`55-next.md`](./55-next.md) PO-Gerät / OEM / Could-Freeze.
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug-FGS/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO: [`55-next.md`](./55-next.md). Nächste Intelligenz: [`56-next.md`](./56-next.md) **PLAN** `10.0`.
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
@@ -48,6 +48,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E50 | Alltag vom Zettel `8.0` | 5+ | Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache — [`50-next.md`](./50-next.md) **CODE** (Gerät-Tore PO) |
 | E54 | Rest final `9.10` | 5+ | Gerät-Katalog PO, Debug-FGS, LocateAnything-Freeze, Qualität-Could — [`54-next.md`](./54-next.md) **CODE** |
 | E55 | Nach Rest-final | 5+ | PO-Gerät, OEM, Could-Freeze, Docs — [`55-next.md`](./55-next.md) |
+| E56 | Semantisches Gedächtnis `10.0` | 5+ | Schema, Gate, Retrieve 2, Graph light, Eval; Embeddings Could — [`56-next.md`](./56-next.md) **PLAN** |
 
 ---
 
@@ -552,6 +553,21 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S54.8 | Rest-Gold, Default = 9.9.2 + FGS + tote Could | Must | done | Sprint 177 |
 | S54.9 | Pipecat/Whisper/Cesium/Moshi/Embeddings-Router | Won’t | parked | |
 
+### E56 — Semantisches Gedächtnis `10.0`
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S56.0 | Plan abnehmen: Schema vor Encoder, HF-Stack Won’t | Must | ready | [`56-next.md`](./56-next.md) PLAN |
+| S56.1 | Memory-Schema + Hausstand rund | Must | idea | Sprint 188 |
+| S56.2 | Gate STORE/MERGE/IGNORE/REVISE | Must | idea | Sprint 189 |
+| S56.3 | Retrieve 2 Alias/Filter/Boost | Must | idea | Sprint 190; WLAN trifft FritzBox |
+| S56.4 | Graph light 1-Hop | Must | idea | Sprint 191 |
+| S56.5 | Gold-Eval G1–G6 | Must | idea | Sprint 192; kein MTEB |
+| S56.6 | Test-Tor Gerät | Should | idea | Sprint 193 PO |
+| S56.7 | Experience / Utility-Prune | Should | idea | Sprint 194 |
+| S56.8 | e5-Rerank | Could | parked | Sprint 195 nur wenn 192 rot |
+| S56.9 | Qdrant/Qwen-Embed/ColPali/Multi-Agent/Training | Won’t | parked | [`56-next.md`](./56-next.md) §14 |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
@@ -560,9 +576,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 2. OEM-Akku 183, nur wenn 178 den FGS tot zeigt
 3. `9.9.3` / Sprint 186 nur wenn 168 rot
 4. Could-ONNX 181 Freeze bis Messung; Smalltalk-Cache 184 Could
-5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+5. `10.0` PLAN abnehmen — [`56-next.md`](./56-next.md); Execute 187+ danach
+6. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
-Sideload **`9.10.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing, Debug-FGS sind **CODE**. Alte 1.x/2.x-PRs nicht mergen.
+Sideload **`9.10.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing, Debug-FGS sind **CODE**. Alte 1.x/2.x-PRs nicht mergen. `10.0` ist PLAN, kein Code-Bump.
 
 Komplette Liste: [`42-planned.md`](./42-planned.md).
 
