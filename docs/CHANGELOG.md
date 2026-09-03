@@ -5,11 +5,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-App-Version im Code: **`9.9.0`**. Sideload zuletzt: **`9.9.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
+App-Version im Code: **`9.9.1`**. Sideload zuletzt: **`9.9.1`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Vor Neuinstall Hausstand exportieren.
 
-Sideload **`releases/Jarvis.apk`** (versionCode `90900`) enthält Anzeige-Fix + Latenz/Edge-Neural. Probe V1–V9: Einstellungen → Tests.
+Sideload **`releases/Jarvis.apk`** (versionCode `90901`) enthält Handy-Lage-Polish. Probe V1–V9: Einstellungen → Tests. Über `9.9.0` installieren.
 
-### Handy-Lage / Beta-Polish — *CODE*
+### Handy-Lage / Beta-Polish — *CODE* (`9.9.1`)
 
 - Screens unter `frontend/src/ui/` (Lage, Stimme, Settings, Fahrt, Kalender, Debug). Engine bleibt `frontend/src/engine/`.
 - Handy: Kugel, Körper und Kacheln füllen den Bereich über dem Composer. Der Chat-Verlauf liegt nicht mehr darunter gequetscht. **Lage aus** gibt den Chat frei.
