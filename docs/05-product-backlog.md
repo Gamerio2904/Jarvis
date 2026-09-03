@@ -49,6 +49,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E54 | Rest final `9.10` | 5+ | Gerät-Katalog PO, Debug-FGS, LocateAnything-Freeze, Qualität-Could — [`54-next.md`](./54-next.md) **CODE** |
 | E55 | Nach Rest-final | 5+ | PO-Gerät, OEM, Could-Freeze, Docs — [`55-next.md`](./55-next.md) |
 | E56 | Semantisches Gedächtnis `10.0` | 5+ | Schema, Gate, Retrieve 2, Graph light, Gold; e5 Freeze — [`56-next.md`](./56-next.md) **CODE** `10.60.0` |
+| E57 | Memory-10 Intensiv | 5+ | Alias, G5-Echo, memoryBlock — [`57-next.md`](./57-next.md) **PLAN** |
 
 ---
 
@@ -568,6 +569,18 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S56.8 | e5-Rerank | Could | parked | Sprint 195 FREEZE — 192 nicht rot |
 | S56.9 | Qdrant/Qwen-Embed/ColPali/Multi-Agent/Training | Won’t | parked | [`56-next.md`](./56-next.md) §14 |
 
+### E57 — Memory-10 Intensiv [`57-next.md`](./57-next.md)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S57.1 | Alias-Lexikon härten | Must | ready | Sprint 196; Pizza ≠ Döner, Bank ≠ WLAN |
+| S57.2 | Recall leer ohne Gespräch-Echo | Must | ready | Sprint 197; G5 live *Nichts Belegtes* |
+| S57.3 | memoryBlock Retrieve-Memory | Must | ready | Sprint 198 |
+| S57.4 | parent_key nur Reise | Should | idea | Sprint 199 |
+| S57.5 | Gold = Live-Pfad | Should | idea | Sprint 200 |
+| S57.6 | Mag-ich-Parser ohne Hirn | Should | idea | Sprint 201 |
+
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
@@ -576,8 +589,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 2. OEM-Akku 183, nur wenn 178 den FGS tot zeigt
 3. `9.9.3` / Sprint 186 nur wenn 168 rot
 4. Could-ONNX 181 Freeze bis Messung; Smalltalk-Cache 184 Could
-5. Gerät Memory-Tor 193 PO; Handy-PO 178 bleibt Must
-6. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+5. Memory-10 Intensiv 196–198 Must — Alias, G5-Echo, memoryBlock [`57-next.md`](./57-next.md)
+6. Gerät Memory-Tor 193 PO; Handy-PO 178 bleibt Must
+7. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Sideload **`9.10.0`**, Code **`10.60.0`**. Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing, Debug-FGS, Memory-10 sind **CODE**. Alte 1.x/2.x-PRs nicht mergen. 195 e5 Freeze.
 

@@ -62,6 +62,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 54 | [Rest final](./54-next.md) | **`9.10.0` CODE** — FGS, Sehen-Freeze, Could-Schalter |
 | 55 | [Nach Rest-final](./55-next.md) | Befund + Sprints **178–186** — PO-Gerät, Parser-Härte, OEM, Cache |
 | 56 | [Jarvis 10.0](./56-next.md) | **CODE** `10.60.0` — Schema, Gate, Retrieve 2, Graph light, Gold G1–G6; 195 Freeze; Gerät 193 PO |
+| 57 | [Memory-10 Intensiv](./57-next.md) | **PLAN** — Befund nach Execute; Sprints 196–201 |
 | — | [APK](./apk.md) | Sideload `9.10.0` (Code `10.60.0` noch nicht in der APK); Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -217,5 +218,11 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 193 | `10.51.0` | **CODE** / PO (Test-Tor Memory Gerät) |
 | 194 | `10.60.0` | **CODE** Should (Experience / Utility-Prune) |
 | 195 | `10.70.0` | **FREEZE** Could (e5-Rerank — G2/G3 grün ohne Encoder) |
+| 196 | `10.61.0` | **PLAN** (Alias-Lexikon härten) |
+| 197 | `10.62.0` | **PLAN** (Recall leer ohne Gespräch-Echo) |
+| 198 | `10.63.0` | **PLAN** (memoryBlock Retrieve-Memory) |
+| 199 | `10.64.0` | **PLAN** Should (parent_key nur Reise) |
+| 200 | `10.65.0` | **PLAN** Should (Gold = Live-Pfad) |
+| 201 | `10.66.0` | **PLAN** Should (Mag-ich-Parser ohne Hirn) |
 
-**Aktuell:** Code **`10.60.0`**. Sideload `9.10.0`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`10.60.0`**. Sideload `9.10.0`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv-Befund [`57-next.md`](./57-next.md) **PLAN**. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).

@@ -535,6 +535,7 @@ Listen-Scope, UI-Confirm, Aufräumen.
 | 168–177 | Rest final: Gerät, Debug-FGS, 3060, Could | **`9.10.0` / `5.17` / `4.77`** — [`54-next.md`](./54-next.md) **CODE** |
 | 178–186 | Nach Rest-final: PO-Gerät, Parser-Härte, FGS-Härte, Docs, OEM, Cache | **`9.10.0`** — [`55-next.md`](./55-next.md) |
 | 187–195 | Semantisches Gedächtnis: Schema, Gate, Retrieve 2, Graph, Gold, Experience; e5 Freeze | **`10.60.0`** — [`56-next.md`](./56-next.md) **CODE** |
+| 196–201 | Memory-10 Intensiv: Alias, G5-Echo, memoryBlock, Gold-Live, Mag-ich | **`10.61`–`10.66` PLAN** — [`57-next.md`](./57-next.md) |
 | 40–42 | Samsung-TV lokal (Tizen) | **`0.11.0`–`0.11.2`** |
 | 43 | NAS native + Reverse-Proxy + Sideload-APK | **`0.12.0`** |
 | — | TTS-Vorlesen | nach PO-Go |

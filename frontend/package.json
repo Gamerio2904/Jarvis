@@ -16,6 +16,7 @@
     "test:650": "node --experimental-strip-types scripts/test-650.mjs",
     "test:matrix": "node --experimental-strip-types scripts/test-650-matrix.mjs",
     "test:memory-10": "node --experimental-strip-types scripts/test-memory-10.mjs",
+    "test:memory-10-intens": "node --experimental-strip-types scripts/probe-memory-10-intens.mjs",
     "test:rest-final": "node --experimental-strip-types scripts/test-rest-final.mjs",
     "smoke": "node --experimental-strip-types scripts/smoke-prompt.mts",
     "smoke:browser": "node scripts/browser-smoke.mjs"

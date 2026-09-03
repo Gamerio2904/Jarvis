@@ -5,6 +5,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+- **Intensiv-Befund Memory-10:** [`57-next.md`](./57-next.md) **PLAN**. G5 live Echo, Alias zu breit, memoryBlock ohne Memory-Hits. Sprints 196–201. Execute nicht in diesem Commit.
+
 ## `10.60.0` — Semantisches Gedächtnis — *CODE*
 
 App-Code **`10.60.0`**. Sideload bleibt **`9.10.0`** (kein Memory-APK-Bump). Sprints 187–194. 195 Freeze.

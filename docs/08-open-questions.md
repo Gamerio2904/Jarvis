@@ -62,11 +62,12 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Ha
 ## Nächster Schritt
 
 1. Sprint **178** PO Handy — [`55-next.md`](./55-next.md).
-2. Sprint **193** Memory-Gerät G1–G6 — Kopierprompts CODE, Protokoll offen.
-3. LocateAnything-Gewichte bleiben Freeze (`4.77`).
-4. Qualität-Could-Gewichte bleiben Freeze (181); e5-Rerank 195 Freeze (G2/G3 grün).
-5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
-6. Vor Neuinstall: Hausstand exportieren.
+2. Memory-10 Intensiv 196–198 — [`57-next.md`](./57-next.md) (Alias, G5-Echo, memoryBlock).
+3. Sprint **193** Memory-Gerät G1–G6 — Kopierprompts CODE, Protokoll offen.
+4. LocateAnything-Gewichte bleiben Freeze (`4.77`).
+5. Qualität-Could-Gewichte bleiben Freeze (181); e5-Rerank 195 Freeze (G2/G3 grün).
+6. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
+7. Vor Neuinstall: Hausstand exportieren.
 
 ---
 
