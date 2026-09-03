@@ -58,7 +58,6 @@ public class MainActivity extends BridgeActivity {
         WebView w = getBridge().getWebView();
         if (w == null) return;
         w.resumeTimers();
-        w.onResume();
     }
 
     private void applyVoiceLaunch(Intent intent) {

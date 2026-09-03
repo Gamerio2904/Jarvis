@@ -69,4 +69,4 @@ Apple CarPlay. Live-Beamte. 3B im Handy. Gewichte ohne Messung. Zweites Hirn. Em
 3. 172: „Sehen aus“, keine Boxen.  
 4. 177: Default ohne Could-Gewichte. `test:014` + `test:rest-final` grün.
 
-Sprints: [`sprints/sprint-168.md`](./sprints/sprint-168.md)–[`sprints/sprint-177.md`](./sprints/sprint-177.md). Sehen: [`41-next.md`](./41-next.md). Debug: [`44-next.md`](./44-next.md). Stimme: [`52-research-latency-quality.md`](./52-research-latency-quality.md). Index: [`42-planned.md`](./42-planned.md).
+Sprints: [`sprints/sprint-168.md`](./sprints/sprint-168.md)–[`sprints/sprint-177.md`](./sprints/sprint-177.md). Danach: [`55-next.md`](./55-next.md). Sehen: [`41-next.md`](./41-next.md). Debug: [`44-next.md`](./44-next.md). Stimme: [`52-research-latency-quality.md`](./52-research-latency-quality.md). Index: [`42-planned.md`](./42-planned.md).

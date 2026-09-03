@@ -1,6 +1,6 @@
 # 02 — Architektur
 
-> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser zuerst. Cloud-Prompt: Persona vorn (Cache), Memory am User-Turn [`52-research-latency-quality.md`](./52-research-latency-quality.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md). Screenshot-Fixes [`53-next.md`](./53-next.md). Alltag [`50-next.md`](./50-next.md) `8.0` **PLAN**.
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser zuerst. Cloud-Prompt: Persona vorn (Cache), Memory am User-Turn [`52-research-latency-quality.md`](./52-research-latency-quality.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md). Screenshot-Fixes [`53-next.md`](./53-next.md). Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag-Router [`50-next.md`](./50-next.md) **CODE**. Nächste Schiene [`55-next.md`](./55-next.md).
 
 ## Leitentscheidung
 

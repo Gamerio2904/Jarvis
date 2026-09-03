@@ -1,6 +1,6 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`9.9.2`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`, V7 PC `9.2`, V8 Live `9.3`, V9 Hardening `9.9`, Screenshot-Fixes `9.9.2`). Sideload **`9.9.2`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag `8.0` bleibt geplant, **läuft nicht vor Stabilität**.
+> **Jetzt:** Code **`9.10.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`, V7 PC `9.2`, V8 Live `9.3`, V9 Hardening `9.9`, Screenshot-Fixes `9.9.2`, Rest final `9.10.0`). Sideload **`9.10.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag-Router `8.0` **CODE**; Gerät-Tore PO [`55-next.md`](./55-next.md).
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 
@@ -530,7 +530,7 @@ Live-Dock ohne Session kein HTTP. Industry-DoD abgehakt.
 
 ### Danach
 
-Alltag `8.0`, Debug-Hintergrund `5.12`. Kein Major ohne Verification-Schicht.
+Alltag `8.0` Router **CODE**; Debug-Hintergrund `5.17` FGS **CODE**. Gerät-Tore PO [`55-next.md`](./55-next.md). Kein Major ohne Verification-Schicht.
 
 ---
 
@@ -547,7 +547,7 @@ Zusätzlich zu `03-agile-process.md`:
 
 ### Beta Ready (PO)
 
-`9.9` schließt **V9** (163–165). Industry-Track V1–V9 ist **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Sideload **`9.9.2`** — das ist kein Store-Release. Alltag `8.0` und Debug-Hintergrund `5.12` bleiben PLAN.
+`9.9` schließt **V9** (163–165). Industry-Track V1–V9 ist **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Rest final `9.10.0` **CODE** (FGS, Sehen-Freeze, Could-Schalter). Sideload **`9.10.0`** — das ist kein Store-Release. Alltag-Router `8.0` **CODE**. Gerät-Katalog 168 und Home-FGS 30 s bleiben **PO**.
 
 ---
 
@@ -579,7 +579,7 @@ Failure Simulation: Tool Timeout, Success-ohne-Wirkung, Netz weg, große Uploads
 
 | Risiko | Wirkung | Gegenmaßnahme |
 |--------|---------|----------------|
-| Home killt WebView | Debug tot trotz Session | `5.12` Foreground-Service; bis dahin Banner |
+| Home killt WebView | Debug tot trotz Session | `5.17` Foreground-Service CODE; Gerät PO 178 |
 | Overpass/OSRM down | POI/Navi leer | ehrliche Fehler, kein Fake |
 | Gemini MAX_TOKENS | Satzstümpfe | Sprint 144 |
 | Parser vs. Hirn | zu wenig Smalltalk | Score-Margin; Screenshot-Fälle als Wont/Skip |

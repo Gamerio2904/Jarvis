@@ -29,7 +29,7 @@ Lauf ohne offene APK. Auto-Ja. Zweiter permanenter FGS. iOS. Wake-Dienst als Deb
 
 - `frontend/native/voice/JarvisDebugService.java`
 - `JarvisVoicePlugin` `startDebugFg` / `stopDebugFg` / `debugFgStatus` / `emitDebugStop`
-- `MainActivity.keepWebViewIfDebug` (`resumeTimers` / `onResume` bei Home)
+- `MainActivity.keepWebViewIfDebug` nur `resumeTimers` (kein `WebView.onResume` aus `onPause`/`onStop`)
 - `debug-session.ts` koppelt Start/Stop
 - `apply-native-tv.mjs` kopiert Service + Manifest `FOREGROUND_SERVICE_SPECIAL_USE`
 

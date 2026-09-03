@@ -8,7 +8,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -72,7 +71,7 @@ public class JarvisDebugService extends Service {
         if (pm == null) return;
         cpuLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "jarvis:debug");
         cpuLock.setReferenceCounted(false);
-        cpuLock.acquire();
+        cpuLock.acquire(30 * 60 * 1000L);
     }
 
     private Notification note() {
@@ -84,10 +83,6 @@ public class JarvisDebugService extends Service {
             }
         }
         Intent open = getPackageManager().getLaunchIntentForPackage(getPackageName());
-        if (open != null) {
-            open.setAction(Intent.ACTION_VIEW);
-            open.setData(Uri.parse("jarvis://voice"));
-        }
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) flags |= PendingIntent.FLAG_IMMUTABLE;
         PendingIntent pi = open == null ? null : PendingIntent.getActivity(this, NOTE_ID, open, flags);

@@ -1,6 +1,6 @@
-# 50 — Alltag vom Zettel (`8.0`) **CODE** (Router, kein neues Sideload)
+# 50 — Alltag vom Zettel (`8.0`) **CODE** (Router + Parser-Härte)
 
-**App-Stand:** Code und Sideload **`9.9.2`**. Dieser Zettel (`8.0`) bleibt **PLAN** — Execute der Alltagspunkte ist nicht der Sideload.
+**App-Stand:** Code und Sideload **`9.10.0`**. Router und Parser-Härte (Sprint **179**) sind **CODE**. Gerät-Tore (Mic, Wake, OSM live) bleiben **PO** — [`55-next.md`](./55-next.md) 178/185.
 
 PO 2026-08-29: alte Notizen gefunden. Einplanen, was **nicht** schon Code oder Plan ist. Nicht neu erfinden, was `6.90` schon kann.
 
@@ -8,7 +8,7 @@ PO 2026-08-29: alte Notizen gefunden. Einplanen, was **nicht** schon Code oder P
 
 **Warum `8.0`, nicht `7.x`:** `7.0`–`7.30` sind Agentic Recall (Sprints 137–140). Alltag vom Zettel ist **Geschwister**, kein zweites Recall, kein 3060. Execute **darf vor Recall**, wenn der PO Alltag zuerst will.
 
-Execute der Zettel-Punkte ist **CODE**. Sideload bleibt **`6.90.0`**. Hausstand vor nächster APK. Gerät-Phasen 2–4 (Debug-Lauf auf dem Handy) bleiben PO.
+Execute der Zettel-Punkte ist **CODE**. Sideload **`9.10.0`**. Hausstand vor nächster APK. Gerät-Phasen 2–4 (Debug-Lauf auf dem Handy) bleiben PO — Sprint **178** / **185**.
 
 ---
 

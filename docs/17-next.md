@@ -2,7 +2,7 @@
 
 PO 2026-08-15: Erinnerungen, Ort/Wetter, Kalender-GUI, Sound-Fix, Research-Quellen, danach **Sprachmodus** wie ChatGPT. Wake-Word extra klären.
 
-> Historisch `1.1`–`1.6` **CODE**. **Jetzt:** Code **`6.60.0`**. Sideload **`6.60.0`**. Hirn Gemini zuerst.
+> Historisch `1.1`–`1.6` **CODE**. **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Hirn Gemini zuerst.
 
 Kein Alles-in-einem-Wurf. Jede Stufe ist sideloadbar.
 

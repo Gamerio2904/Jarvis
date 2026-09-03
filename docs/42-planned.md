@@ -8,15 +8,15 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 
 ## Pull-Reihenfolge
 
-1. **Geräte-Katalog** Sprint [`168`](./sprints/sprint-168.md) — Parser CODE, Gerät **PO**
-2. **Debug-Hintergrund** `5.17` — FGS **CODE** (169 Spike GO, 170 Service)
-3. **LocateAnything** — 171 **NO-GO**, 172 **Freeze CODE** (Parser CODE, Vision ehrlich aus)
-4. **Qualität-Could** `9.10.0` — Leit CODE, ONNX **Freeze**, Gold 177 CODE
+1. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s
+2. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot
+3. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
+4. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could
 5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
 
-Industry-Track V1–V9, Latenz-Loop (Prefix/Groq/SLO/Edge), Screenshot-Fixes, Rest-final Execute: **CODE**. Alltag [`50-next.md`](./50-next.md) unabhängig.
+Industry-Track V1–V9, Latenz-Loop, Screenshot-Fixes, Rest-final Execute, Alltag-Router, Parser-Härte 179, FGS-Härte 180, Docs 182: **CODE**.
 
-Bereits **CODE** in `9.10.0`: Debug-FGS, Sehen-Freeze-Satz, Could-Schalter ohne Gewichte. In `9.9.2`: Screenshot-Fixes. In `9.9.1`: Handy-Lage chat-first. In `9.9.0`: V9 Hardening.
+Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Freeze-Satz, Could-Schalter ohne Gewichte, Alltag-Parser-Härte. In `9.9.2`: Screenshot-Fixes. In `9.9.1`: Handy-Lage chat-first. In `9.9.0`: V9 Hardening.
 
 ---
 
@@ -24,7 +24,7 @@ Bereits **CODE** in `9.10.0`: Debug-FGS, Sehen-Freeze-Satz, Could-Schalter ohne 
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
-| Rest final | `9.10.0` | Debug-FGS, 3060-Freeze, Could-Schalter tot, Debug-P95 |
+| Rest final | `9.10.0` | Debug-FGS (Härte 180), 3060-Freeze, Could-Schalter tot, Debug-P95, Alltag-Parser-Härte 179 |
 | Weltlage | `4.0` | `outlook.ts` — Tagesschau/DW, Serie, Szenario, kein Orakel |
 | Alltagskette | `4.19` | Bar-POI, SMS-Note, Taxi nach Ja, nie „bestellt“ |
 | Stimme/Steuer | `4.33` | TTS Algieba, HUD-Interrupt, Watchdog opt-in |
@@ -51,17 +51,19 @@ Bereits **CODE** in `9.10.0`: Debug-FGS, Sehen-Freeze-Satz, Could-Schalter ohne 
 
 ## Offen
 
-### Geräte-Katalog (Sprint 168)
-Parser CODE. **PO** auf dem Handy: Probe V1–V9 + Screenshot-Bugs.
+### PO Handy (Sprint 178)
+Parser CODE. **PO** auf dem Handy: Probe V1–V9 + Screenshot-Bugs + Home-FGS 30 s.
 
 ### LocateAnything (`4.77`)
 Parser CODE. Gewichte **Freeze**, bis eine RTX 3060 misst.
 
 ### Qualität-Could (Gewichte)
-Schalter CODE. Silero/Piper/Kokoro/e5 **nicht** in der APK.
+Schalter CODE. Silero/Piper/Kokoro/e5 **nicht** in der APK. Sprint **181** Freeze.
 
-### Alltag vom Zettel (`8.0`) · Sprint 141 · [`50-next.md`](./50-next.md)
-Eigene Schiene, nicht 54.
+### Alltag vom Zettel (`8.0`)
+Router + Parser-Härte **CODE**. Gerät-Tore Sprint **185** PO.
 
 ### Parking
 Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed.
+
+Nächste Schiene: [`55-next.md`](./55-next.md).

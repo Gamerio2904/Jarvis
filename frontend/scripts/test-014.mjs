@@ -167,7 +167,11 @@ import { parseGreeting, greetingReply, dayPartAt } from '../src/engine/greeting.
 import { reduceOverlay, overlayTop, overlayHidesDrive, OVERLAY_INIT } from '../src/engine/overlay-fsm.ts'
 import { OUTLOOK_WATCH_ALARM } from '../src/engine/outlook-watch.ts'
 import { parseAppIntent } from '../src/engine/app-parse.ts'
-import { resolveTopic, SETTINGS_TABS, settingsTabForQuery, visibleSettingsTabs } from '../src/engine/settings-ia.ts'
+import { filterTopics, resolveTopic, SETTINGS_TABS, settingsTabForQuery, visibleSettingsTabs } from '../src/engine/settings-ia.ts'
+import { parseAmazonMusicIntent } from '../src/engine/amazon-parse.ts'
+import { parseFolderIntent } from '../src/engine/folder-parse.ts'
+import { parseBlitzerIntent } from '../src/engine/blitzer-parse.ts'
+import { hazardsInCorridor, sampleRouteCoords } from '../src/engine/blitzer-geo.ts'
 import { acceptWake, WAKE_DEBOUNCE_MS } from '../src/engine/wake-gate.ts'
 import { ACTION_INIT, packVerified, reduceAction, toolStatusOf } from '../src/engine/action-fsm.ts'
 import {
@@ -2649,6 +2653,26 @@ assert.equal(isBackchannel('mhm'), true)
 assert.equal(isBackchannel('Mach das Licht an'), false)
 assert.equal(isBargeInText('mhm'), false)
 assert.equal(isBargeInText('Stopp das'), true)
+assert.equal(parseAmazonMusicIntent('Spiel Amazon Music'), true)
+assert.equal(parseAmazonMusicIntent('Spiel Amazon Prime'), false)
+assert.equal(parseFolderIntent('Chat nach Privat legen')?.folder, 'privat')
+assert.equal(parseFolderIntent('Leg den Chat in Arbeit')?.folder, 'arbeit')
+assert.equal(parseBlitzerIntent('Gibt es Blitzer?')?.want, 'camera')
+assert.equal(parseBlitzerIntent('Gibt es Unwetter?'), null)
+assert.ok(filterTopics('Blitzer').includes('alltag'))
+assert.ok(filterTopics('Amazon').includes('geraete'))
+{
+  const line = [
+    [9.18, 48.96],
+    [9.181, 48.961],
+    [9.22, 49.14],
+  ]
+  const sampled = sampleRouteCoords(line)
+  assert.equal(sampled[0][0], 9.18)
+  assert.equal(sampled.at(-1)?.[0], 9.22)
+  assert.equal(hazardsInCorridor([{ lat: 48.96, lon: 9.18, kind: 'camera', line: 'Säule' }], line).length, 1)
+  assert.equal(hazardsInCorridor([{ lat: 52.5, lon: 13.4, kind: 'camera', line: 'Berlin' }], line).length, 0)
+}
 assert.equal(truncateSpoken('Guten Abend. Der Termin ist um drei.', 'Guten Abend.'), 'Guten Abend.')
 assert.equal(truncateSpoken('Hallo.', ''), '')
 {

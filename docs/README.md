@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Nächste Schiene [`55-next.md`](./55-next.md). Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -55,11 +55,12 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 47 | [Split, Identität, Sideload](./47-next.md) | **`6.60` CODE** |
 | 48 | [Globus-Briefing](./48-next.md) | **`6.90` CODE** — Stadt-Satellit + Welt-Tour |
 | 49 | [Agentic Recall](./49-next.md) | **`7.0` CODE** — Retrieve/RRF nach `6.90` |
-| 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` PLAN** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache |
-| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`9.9` V1–V9 CODE** — Audit bis Hardening; Alltag `8.0` PLAN |
-| 52 | [Latenz, Qualität, Profession](./52-research-latency-quality.md) | Recherche HF/GitHub/Papers; Prefix-Cache, Groq-Stream, SLO **CODE**; Smart Turn/Piper nächste Stimme |
+| 50 | [Alltag vom Zettel](./50-next.md) | **`8.0` CODE** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache; Gerät PO |
+| 51 | [Phase-0-Audit / Industry-Track](./51-phase0-audit.md) | **`9.9` V1–V9 CODE** — Audit bis Hardening; Alltag-Router CODE |
+| 52 | [Latenz, Qualität, Profession](./52-research-latency-quality.md) | Recherche HF/GitHub/Papers; Prefix-Cache, Groq-Stream, SLO **CODE**; Smart Turn/Piper Freeze |
 | 53 | [Screenshot-Bugs](./53-next.md) | **`9.9.2` CODE** — Kugel, Standort, Greeting, News, TV, Stimme |
 | 54 | [Rest final](./54-next.md) | **`9.10.0` CODE** — FGS, Sehen-Freeze, Could-Schalter |
+| 55 | [Nach Rest-final](./55-next.md) | Befund + Sprints **178–186** — PO-Gerät, Parser-Härte, OEM, Cache |
 | — | [APK](./apk.md) | Sideload `9.10.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -160,7 +161,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 138 | `7.0.0` | **CODE** (Retrieve + Quelle, in `7.0.0`) |
 | 139 | `7.0.0` | **CODE** (Working Memory + Write-Verify, in `7.0.0`) |
 | 140 | `7.0.0` | **CODE** (Sleep-Prune) |
-| 141 | `8.0.0` | **PLAN** (Alltag vom Zettel) |
+| 141 | `8.0.0` | **CODE** (Alltag vom Zettel; Gerät PO) |
 | 142 | `6.91.0` | **CODE** (Stabilität Kern — Audit + Parser + Debug-Session) |
 | 143 | `6.92.0` | **CODE** (Overlay-FSM & Weltlage, in `6.93.0`) |
 | 144 | `6.93.0` | **CODE** (Gemini-Abbruch, `ja bitte`, Tweets, Siezen) |
@@ -197,5 +198,14 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 175 | `9.10.2` | **FREEZE** Could (Piper offline) |
 | 176 | `9.10.3` | **FREEZE** Could (Kokoro + e5 Spike) |
 | 177 | `9.10.0` | **CODE** (Rest-Gold) |
+| 178 | `9.10.0` | **PLAN** (PO Handy: Katalog + Home-FGS 30 s) |
+| 179 | `9.10.0` | **CODE** (Alltag Parser-Härte) |
+| 180 | `9.10.0` | **CODE** (FGS Native-Härte) |
+| 181 | `9.10.1`–`9.10.3` | **FREEZE** (Could-ONNX bis Messung) |
+| 182 | `9.10.0` | **CODE** (Docs = Code) |
+| 183 | nach 178 | **PLAN** (OEM-Akku) |
+| 184 | nach Messung | **PLAN** Could (Smalltalk-Cache verdrahten) |
+| 185 | `8.0` Gerät | **PLAN** / PO (Alltag-Tore live) |
+| 186 | `9.9.3` | **PLAN** (Findings 168, nur wenn rot) |
 
-**Aktuell:** Code **`9.10.0`**. Sideload `9.10.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag-Plan [`50-next.md`](./50-next.md). Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`9.10.0`**. Sideload `9.10.0`. Nächste Schiene [`55-next.md`](./55-next.md). Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).

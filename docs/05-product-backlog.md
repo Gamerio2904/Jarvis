@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`9.9.2`**. Sideload **`9.9.2`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Nächste Schiene: [`54-next.md`](./54-next.md) Gerät / Debug / 3060 / Could.
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug-FGS/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Nächste Schiene: [`55-next.md`](./55-next.md) PO-Gerät / OEM / Could-Freeze.
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
@@ -44,9 +44,10 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E45 | Bühne & Hirn `6.50` | 5+ | Gemini Hauptweg, Globus, Motion, Stimme — [`45-next.md`](./45-next.md) **CODE** |
 | E47 | Split / Overlay / Sideload `6.60` | 5+ | Live-Split, Identität, Overlay Gemini zuerst, APK — [`47-next.md`](./47-next.md) **CODE** |
 | E48 | Globus-Briefing `6.70` | 5+ | Stadt-Satellit + Welt-Tour — [`48-next.md`](./48-next.md) **CODE** |
-| E49 | Agentic Recall `7.0` | 5+ | Retrieve/RRF nach `6.90` — [`49-next.md`](./49-next.md) **PLAN** |
-| E50 | Alltag vom Zettel `8.0` | 5+ | Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache — [`50-next.md`](./50-next.md) **PLAN** |
-| E54 | Rest final `9.10` | 5+ | Gerät, Debug-FGS, LocateAnything-3060, Qualität-Could — [`54-next.md`](./54-next.md) **PLAN** |
+| E49 | Agentic Recall `7.0` | 5+ | Retrieve/RRF nach `6.90` — [`49-next.md`](./49-next.md) **CODE** |
+| E50 | Alltag vom Zettel `8.0` | 5+ | Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache — [`50-next.md`](./50-next.md) **CODE** (Gerät-Tore PO) |
+| E54 | Rest final `9.10` | 5+ | Gerät-Katalog PO, Debug-FGS, LocateAnything-Freeze, Qualität-Could — [`54-next.md`](./54-next.md) **CODE** |
+| E55 | Nach Rest-final | 5+ | PO-Gerät, OEM, Could-Freeze, Docs — [`55-next.md`](./55-next.md) |
 
 ---
 
@@ -507,46 +508,61 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S50.0 | Leitentscheidung Notizen vs Ist | Must | ready | [`50-next.md`](./50-next.md) PLAN |
-| S50.1 | Blitzer + mobile Baustelle auf der Route | Must | idea | Quelle + Stand, kein Live-Beamter |
-| S50.2 | Stimme: Mic/Wake hören, dann Execute, dann TTS | Must | ready | `8.20`, ein Erkenner, kein stilles Mic |
-| S50.3 | GUI/Lag-Härte bestehender Surfaces | Should | idea | 30 fps, kein neues Framework |
-| S50.4 | Amazon Musik als Spotify-Fallback | Could | idea | nur nach Research-GO |
-| S50.5 | Chats in Ordner | Must | idea | IDB + Hausstand |
-| S50.6 | Preiswache (Instanudeln zuerst) | Must | idea | opt-in, € nur aus Treffer |
+| S50.0 | Leitentscheidung Notizen vs Ist | Must | done | [`50-next.md`](./50-next.md) CODE |
+| S50.1 | Blitzer + mobile Baustelle auf der Route | Must | done | OSM-Korridor CODE; mobil leer; Gerät PO |
+| S50.2 | Stimme: Mic/Wake hören, dann Execute, dann TTS | Must | done | `8.20` CODE; Gerät PO 185 |
+| S50.3 | GUI/Lag-Härte bestehender Surfaces | Should | done | 30 fps CODE |
+| S50.4 | Amazon Musik als Spotify-Fallback | Could | done | Intent CODE; Prime ≠ Music (179) |
+| S50.5 | Chats in Ordner | Must | done | IDB + Parser-Härte 179 |
+| S50.6 | Preiswache (Instanudeln zuerst) | Must | done | opt-in CODE |
 | S50.7 | Scraping / Preise erfinden / Auto-Kauf | Won’t | parked | |
-| S50.8 | Einstellungen: Gruppen, deutsche Karten, bessere GUI | Must | ready | `8.35`, Keys gleich, Deep-Links halten |
-| S50.9 | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper/Kacheln | Must | ready | `8.32`, ganze Kugel, kein 0/0-Sie, hud vor places |
-| S50.10 | Netz-Antwort: Jarvis-Ton, Fakten vom jetzt | Must | ready | `8.33`, Venedig aktuell frei, kein Google-Essay |
-| S50.11 | Test-Tore nach Execute-Bündeln | Must | ready | vier Phasen, `5.11`, nicht nach Research allein |
-| S50.12 | Dauer-Zuhören härten | Must | ready | `8.95` nach Recall, Wake opt-in, internes CarPlay |
+| S50.8 | Einstellungen: Gruppen, deutsche Karten, bessere GUI | Must | done | acht Reiter CODE |
+| S50.9 | Lage-Overlay: Clip, Pins, `Wo ist London`, Körper/Kacheln | Must | done | `8.32` / `9.9.1`–`9.9.2` |
+| S50.10 | Netz-Antwort: Jarvis-Ton, Fakten vom jetzt | Must | done | `8.33` CODE |
+| S50.11 | Test-Tore nach Execute-Bündeln | Must | done | Parser `test:alltag`; Gerät PO 178/185 |
+| S50.12 | Dauer-Zuhören härten | Must | done | Wake CODE; Gerät PO |
+
+### E55 — Nach Rest-final
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S55.0 | Intensiv-Befund + Sprint-Plan 178–186 | Must | done | [`55-next.md`](./55-next.md) |
+| S55.1 | PO Handy Katalog + Home-FGS 30 s | Must | ready | Sprint 178 |
+| S55.2 | Alltag Parser-Härte | Should | done | Sprint 179 |
+| S55.3 | FGS Native-Härte | Should | done | Sprint 180 |
+| S55.4 | Could-ONNX Freeze bis Messung | Could | parked | Sprint 181 |
+| S55.5 | Docs = Code `9.10.0` | Must | done | Sprint 182 |
+| S55.6 | OEM-Akku | Should | ready | Sprint 183 nach 178 |
+| S55.7 | Smalltalk-Cache verdrahten | Could | ready | Sprint 184 nach Messung |
+| S55.8 | Alltag-Tore Gerät | Should | ready | Sprint 185 |
+| S55.9 | Findings 168 | Must | ready | Sprint 186 nur wenn rot |
 
 ### E54 — Rest final `9.10`
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S54.0 | Leitentscheidung Rest-Serie | Must | ready | [`54-next.md`](./54-next.md) PLAN |
-| S54.1 | Geräte-Katalog auf dem Handy | Must | ready | Sprint 168 A–H, Probe V1–V9 |
-| S54.2 | Debug-Lauf überlebt Home oder ehrliches Banner | Should | ready | Spike 169, FGS oder Freeze 170 |
-| S54.3 | LocateAnything nach 3060-Messung | Must | ready | 171 GO/NO-GO, 172 Sidecar oder Sehen aus |
-| S54.4 | Silero + Smart Turn ONNX | Could | ready | 174 opt-in, nie dauernd, Drive default aus |
-| S54.5 | Piper offline TTS | Could | ready | 175 Lane extra, Edge/Algieba bleiben Lane-1 |
-| S54.6 | Kokoro-Spike | Could | ready | 176 messen, nicht mit Piper default |
-| S54.7 | e5-small nur Retrieve-Rerank | Could | ready | 176 nie Router, nur bei messbaren RRF-Fehlern |
-| S54.8 | Rest-Gold, Default = 9.9.2 | Must | ready | Sprint 177 |
+| S54.0 | Leitentscheidung Rest-Serie | Must | done | [`54-next.md`](./54-next.md) CODE |
+| S54.1 | Geräte-Katalog auf dem Handy | Must | ready | Sprint 168 A–H; PO 178 |
+| S54.2 | Debug-Lauf überlebt Home oder ehrliches Banner | Should | done | FGS 170/180 CODE; Gerät PO 178 |
+| S54.3 | LocateAnything nach 3060-Messung | Must | done | 171 NO-GO, 172 Freeze |
+| S54.4 | Silero + Smart Turn ONNX | Could | parked | 174 Freeze, keine Datei |
+| S54.5 | Piper offline TTS | Could | parked | 175 Freeze |
+| S54.6 | Kokoro-Spike | Could | parked | 176 Freeze |
+| S54.7 | e5-small nur Retrieve-Rerank | Could | parked | 176 nie Router; Identität ohne Datei |
+| S54.8 | Rest-Gold, Default = 9.9.2 + FGS + tote Could | Must | done | Sprint 177 |
 | S54.9 | Pipecat/Whisper/Cesium/Moshi/Embeddings-Router | Won’t | parked | |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. Geräte-Katalog Sprint 168 — PO Handy [`54-next.md`](./54-next.md)
-2. Debug-Hintergrund Spike 169 → FGS oder Freeze 170
-3. LocateAnything 3060-Messung 171 → Sidecar oder Freeze 172
-4. Qualität-Could 173–177 (opt-in, nie Must für 1–3)
+1. PO Handy Sprint 178 — Katalog 168 + Home-FGS 30 s [`55-next.md`](./55-next.md)
+2. OEM-Akku 183, nur wenn 178 den FGS tot zeigt
+3. `9.9.3` / Sprint 186 nur wenn 168 rot
+4. Could-ONNX 181 Freeze bis Messung; Smalltalk-Cache 184 Could
 5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
-Sideload **`6.90.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing sind **CODE**.
+Sideload **`9.10.0`**, Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing, Debug-FGS sind **CODE**. Alte 1.x/2.x-PRs nicht mergen.
 
 Komplette Liste: [`42-planned.md`](./42-planned.md).
 

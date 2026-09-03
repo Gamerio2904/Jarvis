@@ -532,7 +532,8 @@ Listen-Scope, UI-Confirm, Aufräumen.
 | Sprint | Zielrichtung | Version |
 |--------|--------------|---------|
 | 34–39 | NAS 24/7 Compose | **`0.10.0`–`0.10.5`** — **Parking** |
-| 168–177 | Rest final: Gerät, Debug-FGS, 3060, Could | **`9.9.2` / `5.17` / `4.77` / `9.10`** — [`54-next.md`](./54-next.md) **PLAN** |
+| 168–177 | Rest final: Gerät, Debug-FGS, 3060, Could | **`9.10.0` / `5.17` / `4.77`** — [`54-next.md`](./54-next.md) **CODE** |
+| 178–186 | Nach Rest-final: PO-Gerät, Parser-Härte, FGS-Härte, Docs, OEM, Cache | **`9.10.0`** — [`55-next.md`](./55-next.md) |
 | 40–42 | Samsung-TV lokal (Tizen) | **`0.11.0`–`0.11.2`** |
 | 43 | NAS native + Reverse-Proxy + Sideload-APK | **`0.12.0`** |
 | — | TTS-Vorlesen | nach PO-Go |

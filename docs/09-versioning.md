@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. `6.50` = Gemini Hauptweg. Stabilität V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0`.
+> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. `6.50` = Gemini Hauptweg. Stabilität V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Nächste Schiene [`55-next.md`](./55-next.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -438,18 +438,18 @@ Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitze
 
 ### `9.10+` — Rest final / Qualität-Could [`54-next.md`](./54-next.md) **CODE**
 
-Nach Sideload `9.9.2`. Gerät 168 KATALOG, Debug 169–170 FGS, Sehen 171–172 Freeze, Could 173–177 ohne Gewichte. ONNX opt-in, nie Router.
+Nach Sideload `9.10.0`. Gerät 168/178 PO, Debug 169–170/180 FGS, Sehen 171–172 Freeze, Could 173–177/181 ohne Gewichte. ONNX opt-in, nie Router. Nächste Schiene [`55-next.md`](./55-next.md).
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `9.9.2` | Geräte-Katalog (PO) | 168 |
-| `9.9.3` | Findings 168, nur wenn rot | nach 168 |
+| `9.9.3` | Findings 168, nur wenn rot | 186 |
 | `5.12.0` / `5.17.0` | Debug Spike GO / FGS | 169 / 170 |
 | `4.77.0` / `4.78.0` | 3060 NO-GO / Freeze | 171 / 172 |
-| `9.10.0` | Could-Leit + Gold ohne Bundle | 173 / 177 |
-| `9.10.1` | Silero + Smart Turn | 174 Freeze |
-| `9.10.2` | Piper offline | 175 Freeze |
-| `9.10.3` | Kokoro + e5 Spike | 176 Freeze |
+| `9.10.0` | Could-Leit + Gold ohne Bundle + Parser-Härte + FGS-Härte | 173 / 177 / 179 / 180 / 182 |
+| `9.10.1` | Silero + Smart Turn | 174 Freeze / 181 |
+| `9.10.2` | Piper offline | 175 Freeze / 181 |
+| `9.10.3` | Kokoro + e5 Spike | 176 Freeze / 181 |
 
 ### Weitere Beispiele
 

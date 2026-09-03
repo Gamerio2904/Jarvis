@@ -8,7 +8,7 @@ App-Code und Sideload stehen auf **`9.10.0`**. LocateAnything-Gewichte nicht in 
 
 **Vor dem Überspielen von `9.9.2`:** Hausstand exportieren. Debug-Lauf hält bei Home (Meldung „Jarvis testet…“). App schließen beendet den Lauf.
 
-**9.10.0:** Debug-FGS, Sehen-Freeze, Could-Schalter ohne ONNX. Serie: [`54-next.md`](./54-next.md). Katalog: [`sprints/sprint-168.md`](./sprints/sprint-168.md).
+**9.10.0:** Debug-FGS (Tap öffnet die App, nicht Stimme; WakeLock 30 min; nur `resumeTimers`), Sehen-Freeze, Could-Schalter ohne ONNX, Alltag-Parser-Härte. Serie: [`54-next.md`](./54-next.md). Danach: [`55-next.md`](./55-next.md). Katalog: [`sprints/sprint-168.md`](./sprints/sprint-168.md).
 
 **9.9.2:** Kugel-Steuerung, GPS-Pin, Greeting/News/TV-Parser, schnellere Stimme.
 

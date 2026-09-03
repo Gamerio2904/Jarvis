@@ -28,7 +28,8 @@ export function parseFolderIntent(text: string): FolderIntent | null {
   const move =
     /^\s*(?:leg(?:e)?|pack(?:e)?|sortier(?:e)?|schieb(?:e)?)\s+(?:den\s+)?(?:chat|gespräch)\s+(?:nach|in(?:to)?|zu)\s+(.+?)\s*$/i.exec(
       t,
-    )
+    ) ||
+    /^\s*(?:den\s+)?(?:chat|gespräch)\s+(?:nach|in)\s+(.+?)\s+(?:legen|packen|sortieren)\s*$/i.exec(t)
   if (move) {
     const folder = normalizeFolder(move[1])
     if (folder) return { kind: 'move', folder }

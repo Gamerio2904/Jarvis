@@ -1,12 +1,12 @@
-# Sprint 141 — Alltag vom Zettel **PLAN**
+# Sprint 141 — Alltag vom Zettel **CODE** (Leit + Router; Gerät PO)
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
-| Priorität | unabhängig von Recall `7.0` und LocateAnything-3060; Alltag darf zuerst |
-| Ziel-Version | `8.0.0` (bündelt Research `8.1`–`8.4`, Bau `8.10`+) |
+| Status | **CODE** (Leit, Router, Parser-Härte 179). Gerät-Tore **PO** (178/185) |
+| Priorität | unabhängig von LocateAnything-3060 |
+| Ziel-Version | `8.0` in Sideload **`9.10.0`** |
 | Quelle | PO: alte Notizen + Einstellungen unübersichtlich |
-| Plan | [`50-next.md`](../50-next.md) |
+| Plan | [`50-next.md`](../50-next.md) · Härte [`sprint-179.md`](./sprint-179.md) |
 
 ## Ziel
 
