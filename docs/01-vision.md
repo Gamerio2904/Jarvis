@@ -1,6 +1,6 @@
 # 01 — Vision & Produktziele
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser wählen Tools. Körper, Globus, Debug-FGS, Hausstand-Export **CODE**. Globus-Briefing `6.90` **CODE**. Live-Ton: **Siezen**. Offen: Gerät-PO [`55-next.md`](./55-next.md) 178, LocateAnything-Gewichte Freeze [`41-next.md`](./41-next.md).
+> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Parser wählen Tools. Körper, Globus, Debug-FGS, Hausstand-Export, Memory-10 **CODE**. Globus-Briefing `6.90` **CODE**. Live-Ton: **Siezen**. Offen: Gerät-PO [`55-next.md`](./55-next.md) 178, Memory-Gerät 193, LocateAnything-Gewichte Freeze [`41-next.md`](./41-next.md).
 
 ## Vision
 

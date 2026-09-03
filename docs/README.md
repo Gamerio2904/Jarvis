@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Nächste Intelligenz [`56-next.md`](./56-next.md) **PLAN** `10.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -48,7 +48,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Code `9.10.0` + Parking |
+| 42 | [Alles geplant](./42-planned.md) | Index Code `10.60.0` + Parking |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -61,8 +61,8 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 53 | [Screenshot-Bugs](./53-next.md) | **`9.9.2` CODE** — Kugel, Standort, Greeting, News, TV, Stimme |
 | 54 | [Rest final](./54-next.md) | **`9.10.0` CODE** — FGS, Sehen-Freeze, Could-Schalter |
 | 55 | [Nach Rest-final](./55-next.md) | Befund + Sprints **178–186** — PO-Gerät, Parser-Härte, OEM, Cache |
-| 56 | [Jarvis 10.0](./56-next.md) | **PLAN** — Semantisches Gedächtnis: Schema, Gate, Retrieve 2, Graph light, Eval; Embeddings Could |
-| — | [APK](./apk.md) | Sideload `9.10.0`; Deinstall löscht Keys — erst Hausstand-Export |
+| 56 | [Jarvis 10.0](./56-next.md) | **CODE** `10.60.0` — Schema, Gate, Retrieve 2, Graph light, Gold G1–G6; 195 Freeze; Gerät 193 PO |
+| — | [APK](./apk.md) | Sideload `9.10.0` (Code `10.60.0` noch nicht in der APK); Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -208,14 +208,14 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 184 | nach Messung | **PLAN** Could (Smalltalk-Cache verdrahten) |
 | 185 | `8.0` Gerät | **PLAN** / PO (Alltag-Tore live) |
 | 186 | `9.9.3` | **PLAN** (Findings 168, nur wenn rot) |
-| 187 | `10.0.0` | **PLAN** (Semantisches Gedächtnis Leit) |
-| 188 | `10.10.0` | **PLAN** (Memory-Schema + Hausstand) |
-| 189 | `10.20.0` | **PLAN** (Memory Gate) |
-| 190 | `10.30.0` | **PLAN** (Retrieve 2 Alias/Filter/Boost) |
-| 191 | `10.40.0` | **PLAN** (Graph light) |
-| 192 | `10.50.0` | **PLAN** (Memory-Gold Eval) |
-| 193 | `10.51.0` | **PLAN** / PO (Test-Tor Memory Gerät) |
-| 194 | `10.60.0` | **PLAN** Should (Experience / Utility-Prune) |
-| 195 | `10.70.0` | **PLAN** Could (e5-Rerank nur wenn 192 rot) |
+| 187 | `10.0.0` | **CODE** (Semantisches Gedächtnis Leit) |
+| 188 | `10.10.0` | **CODE** (Memory-Schema + Hausstand) |
+| 189 | `10.20.0` | **CODE** (Memory Gate) |
+| 190 | `10.30.0` | **CODE** (Retrieve 2 Alias/Filter/Boost) |
+| 191 | `10.40.0` | **CODE** (Graph light) |
+| 192 | `10.50.0` | **CODE** (Memory-Gold Eval G1–G6) |
+| 193 | `10.51.0` | **CODE** / PO (Test-Tor Memory Gerät) |
+| 194 | `10.60.0` | **CODE** Should (Experience / Utility-Prune) |
+| 195 | `10.70.0` | **FREEZE** Could (e5-Rerank — G2/G3 grün ohne Encoder) |
 
-**Aktuell:** Code **`9.10.0`**. Sideload `9.10.0`. Gerät-PO [`55-next.md`](./55-next.md). Nächste Intelligenz [`56-next.md`](./56-next.md) **PLAN** `10.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`10.60.0`**. Sideload `9.10.0`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).

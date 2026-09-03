@@ -1,8 +1,8 @@
-# 42 — Alles geplant (Stand Code `9.10.0`)
+# 42 — Alles geplant (Stand Code `10.60.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`9.10.0`**. Sideload **`9.10.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`10.60.0`**. Sideload **`9.10.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
@@ -13,7 +13,7 @@ Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **rein
 3. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
 4. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could
 5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-6. **`10.0` PLAN** [`56-next.md`](./56-next.md) — Semantisches Gedächtnis nach PO-Abnahme des Plans; Execute nicht vor 187
+6. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
 
 Industry-Track V1–V9, Latenz-Loop, Screenshot-Fixes, Rest-final Execute, Alltag-Router, Parser-Härte 179, FGS-Härte 180, Docs 182: **CODE**.
 
@@ -21,7 +21,7 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 
 ---
 
-## CODE auf diesem Stand (`9.10.0`)
+## CODE auf diesem Stand (`10.60.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -44,6 +44,7 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 | Verified Actions V3 | `6.97`–`6.99` | Action-FSM, Navi-Replace verifiziert, Research-Pending hart |
 | Dokumente V4 | `9.0` | Datei-Knopf PDF/Text/Foto, Parser, OCR, Verify Upload |
 | Memory V5 | `7.0` | Hierarchical Memory: Quelle, Confidence, Contradiction, Prune |
+| Memory `10.0` | `10.60.0` | Schema kind/tense/entities, Gate, Retrieve 2 (Alias/Boost), 1-Hop, Gold G1–G6, Utility-Prune; e5 Freeze |
 | TV V6 | `9.1` | Device-Registry, Verify Launch, kein SmartThings |
 | PC V7 | `9.2` | Capability-Levels, Confirm, Verify Launch/Klick |
 | Live V8 | `9.3` | `/v1/webrtc` Signaling, LAN-JPEG-Dock, WebRTC nur mit Peer |
@@ -67,7 +68,7 @@ Router + Parser-Härte **CODE**. Gerät-Tore Sprint **185** PO.
 ### Parking
 Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed. Qdrant/Qwen-Embed/ColPali/Multi-Agent — [`56-next.md`](./56-next.md) Won’t.
 
-### `10.0` Semantisches Gedächtnis (PLAN)
-Schema, Gate, Retrieve-2, Graph light, Eval. Embeddings Could. Sprints **187–195**. Execute erst nach PO-Abnahme von [`56-next.md`](./56-next.md).
+### `10.0` Semantisches Gedächtnis (CODE `10.60.0`)
+Schema, Gate, Retrieve-2, Graph light, Gold G1–G6, Experience **CODE**. 195 e5 **FREEZE** (G2/G3 grün ohne Encoder). Gerät-Protokoll Sprint **193** PO. Sideload bleibt `9.10.0`. [`56-next.md`](./56-next.md).
 
-Nächste Schiene Gerät: [`55-next.md`](./55-next.md). Nächste Intelligenz: [`56-next.md`](./56-next.md).
+Nächste Schiene Gerät: [`55-next.md`](./55-next.md) (178) plus Memory-Gerät 193.

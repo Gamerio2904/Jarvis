@@ -6,7 +6,7 @@ PO 2026-08-27: Debug-Button, Fenster mit **allen** eingebauten Themen als Klickb
 
 **Lücke:** App schließen = Lauf tot (Won’t). Home hält der FGS `5.17`.
 
-**Live:** Code **`9.10.0`**. Sideload **`9.10.0`**. Debug-FGS **CODE**. LocateAnything-Gewichte Freeze.
+**Live:** Code **`10.60.0`**. Sideload **`9.10.0`**. Debug-FGS **CODE**. LocateAnything-Gewichte Freeze.
 
 Research `5.12` vor Hintergrund-Service. Hausstand vor Neuinstall.
 

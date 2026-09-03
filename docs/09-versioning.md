@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. `6.50` = Gemini Hauptweg. Stabilität V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Nächste Intelligenz [`56-next.md`](./56-next.md) **PLAN** `10.0`.
+> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. `6.50` = Gemini Hauptweg. Stabilität V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -122,7 +122,7 @@ MAJOR.MINOR.PATCH
 | `9.10.1` | Silero + Smart Turn ONNX | Sprint 174 Freeze |
 | `9.10.2` | Piper offline | Sprint 175 Freeze |
 | `9.10.3` | Kokoro + e5 Spike | Sprint 176 Freeze |
-| `10.0.0` | **Semantisches Gedächtnis Leit** — Schema vor Encoder | Sprint 187 PLAN |
+| `10.0.0` | **Semantisches Gedächtnis Leit** — Schema vor Encoder | Sprint 187 CODE |
 | `7.0.0` | **V5 Hierarchical Memory** — Quelle, Confidence, Bereinigung | Sprint 137–140 |
 | `8.0.0` | **Alltag vom Zettel** — Blitzer, Steuer-Stimme, Settings-IA, Musik-Fallback, Chat-Ordner, Preiswache | Sprint 141 |
 | `1.1.0` | Sound + Research-Quellen | Sprint 51 |
@@ -439,7 +439,7 @@ Nach `6.90`. Geschwister zu Recall `7.0`, nicht dieselben Sprint-Nummern. Blitze
 
 ### `9.10+` — Rest final / Qualität-Could [`54-next.md`](./54-next.md) **CODE**
 
-Nach Sideload `9.10.0`. Gerät 168/178 PO, Debug 169–170/180 FGS, Sehen 171–172 Freeze, Could 173–177/181 ohne Gewichte. ONNX opt-in, nie Router. Gerät-PO [`55-next.md`](./55-next.md). Nächste Intelligenz [`56-next.md`](./56-next.md) **PLAN**.
+Nach Sideload `9.10.0`. Gerät 168/178 PO, Debug 169–170/180 FGS, Sehen 171–172 Freeze, Could 173–177/181 ohne Gewichte. ONNX opt-in, nie Router. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE**.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -452,21 +452,21 @@ Nach Sideload `9.10.0`. Gerät 168/178 PO, Debug 169–170/180 FGS, Sehen 171–
 | `9.10.2` | Piper offline | 175 Freeze / 181 |
 | `9.10.3` | Kokoro + e5 Spike | 176 Freeze / 181 |
 
-### `10.0` — Semantisches Gedächtnis [`56-next.md`](./56-next.md) **PLAN**
+### `10.0` — Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE**
 
-Schema und Gate vor jedem Encoder. Corpus bleibt IndexedDB (Cap 80). e5 nur Rank, nie Router, nur wenn Gold `10.50` rot.
+Schema und Gate vor jedem Encoder. Corpus bleibt IndexedDB (Cap 80). Live-Code **`10.60.0`**. e5 nur Rank, nie Router; 195 Freeze weil Gold `10.50` G2/G3 grün.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `10.0.0` | Leitentscheidung (Typen, Won’t) | 187 |
-| `10.10.0` | Schema-Felder + Hausstand | 188 |
-| `10.20.0` | Gate STORE/MERGE/IGNORE/REVISE | 189 |
-| `10.30.0` | Retrieve 2: Alias, Filter, Boost | 190 |
-| `10.40.0` | Graph light (related_ids, 1-Hop) | 191 |
-| `10.50.0` | Memory-Gold Eval | 192 |
-| `10.51.0` | Test-Tor Memory Gerät | 193 |
-| `10.60.0` | Experience / Utility-Prune | 194 Should |
-| `10.70.0` | e5-Rerank nur wenn 192 rot | 195 Could |
+| `10.0.0` | Leitentscheidung (Typen, Won’t) | 187 CODE |
+| `10.10.0` | Schema-Felder + Hausstand | 188 CODE |
+| `10.20.0` | Gate STORE/MERGE/IGNORE/REVISE | 189 CODE |
+| `10.30.0` | Retrieve 2: Alias, Filter, Boost | 190 CODE |
+| `10.40.0` | Graph light (related_ids, 1-Hop) | 191 CODE |
+| `10.50.0` | Memory-Gold Eval | 192 CODE |
+| `10.51.0` | Test-Tor Memory Gerät | 193 CODE/PO |
+| `10.60.0` | Experience / Utility-Prune | 194 CODE |
+| `10.70.0` | e5-Rerank nur wenn 192 rot | 195 FREEZE |
 
 ### Weitere Beispiele
 

@@ -1,8 +1,8 @@
-# Sprint 194 — Experience / Utility-Prune (`10.60.0`) **PLAN**
+# Sprint 194 — Experience / Utility-Prune (`10.60.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Should |
+| Status | **CODE** Should |
 | Ziel-Version | **`10.60.0`** |
 | Quelle | [`56-next.md`](../56-next.md) §11 |
 | Vorher | Sprint 192 (Eval da, sonst Utility blind) |
@@ -25,5 +25,5 @@ Fine-Tune. Hard-Negative-Datensatz. Nachts `w_entity` ändern. Skill-Codegen.
 
 ## DoD
 
-- [ ] Nach REVISE/Forget: Gold G1–G6 nicht regressiv
-- [ ] Hausstand rund
+- [x] Nach REVISE/Forget: Gold G1–G6 nicht regressiv (`test:memory-10`; `vergiss` markiert `not_useful`)
+- [x] Hausstand rund (`not_useful` / `last_recall_json` im Backup, `last_recall_json` ephemeral)

@@ -6,7 +6,7 @@ https://www.instagram.com/reel/DaJuh6euSLq/?igsi=MWt1dDhkdXBsbnUybg==
 
 **Nicht** [`40-next.md`](./40-next.md): dort ist `4.66` **Körper** (3D-Schema, Darstellung). LocateAnything macht PC-Auge/PC-Hand **treffsicher**, es ersetzt den Körper nicht.
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Parser für Zeig/Zählen/Tippen **CODE**. Vision/Gewichte **Freeze** (keine 3060). Auge und PC-Klick ohne Sidecar weiter über Gemini (`eye.ts`, `pc.ts`).
+> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. Parser für Zeig/Zählen/Tippen **CODE**. Vision/Gewichte **Freeze** (keine 3060). Auge und PC-Klick ohne Sidecar weiter über Gemini (`eye.ts`, `pc.ts`).
 
 **Warum `4.76`, nicht `4.66`:** `4.66`–`4.75` = Körper, Sprint 115. Diese Schiene beginnt **danach**. Handy-WASM trägt kein 3B-VLM.
 

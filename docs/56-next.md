@@ -1,8 +1,8 @@
-# 56 — Jarvis 10.0 Semantisches Gedächtnis **PLAN**
+# 56 — Jarvis 10.0 Semantisches Gedächtnis **CODE**
 
 PO 2026-09-03: Research zu Embeddings, Clustern, multimodalem RAG und Self-Evolving Agents in einen **ehrlichen** Jarvis-Plan gießen. Quelle: ChatGPT-Share (HF / GitHub / Papers). Dieser Text ist **kritisch** gegenüber dem Input — nicht eine Abschrift.
 
-**App-Stand:** Code und Sideload **`9.10.0`**. Diese Datei ist **PLAN**, kein Execute. Hirn Gemini → Groq → 0,5B. Parser zuerst. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO bleibt [`55-next.md`](./55-next.md) Sprint **178**. Recall `7.0` [`49-next.md`](./49-next.md) **CODE**. Alltag `8.0` [`50-next.md`](./50-next.md) **CODE**.
+**App-Stand:** Code **`10.60.0`**. Sideload **`9.10.0`**. Execute 187–194 **CODE**. 195 **FREEZE** (G2/G3 grün ohne e5). 193 Gerät-Protokoll bleibt **PO**. Hirn Gemini → Groq → 0,5B. Parser zuerst. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO bleibt [`55-next.md`](./55-next.md) Sprint **178**. Recall `7.0` [`49-next.md`](./49-next.md) **CODE**. Alltag `8.0` [`50-next.md`](./50-next.md) **CODE**.
 
 `10.0` ist die nächste **Intelligenz-Schiene**, kein zweites Hirn, kein Qdrant, kein Training auf dem Handy.
 
@@ -14,7 +14,7 @@ PO 2026-09-03: Research zu Embeddings, Clustern, multimodalem RAG und Self-Evolv
 
 Das ist ein Produktsprung (MAJOR), kein Patch auf Could-e5.
 
-Execute braucht **kein** 3060, kein NAS, keine neuen Gewichte in der APK. Gerät-PO **178** bleibt Must für `9.10` — es blockiert das *Planen* nicht. Execute von `10.0` startet erst, wenn der PO **diese Datei** abnimmt.
+Execute braucht **kein** 3060, kein NAS, keine neuen Gewichte in der APK. Gerät-PO **178** bleibt Must für `9.10` — es blockiert `10.0` Parser-Execute nicht. Sideload bleibt `9.10.0` bis ein Memory-Sideload bewusst gebaut wird.
 
 ---
 
@@ -272,15 +272,15 @@ Reihenfolge = Lieferreihenfolge. Could blockiert Must nicht. Research-GO ist **d
 
 | Sprint | Version | Thema | Must? | Stand |
 |--------|---------|-------|-------|-------|
-| **187** | `10.0.0` | Leitentscheidung im Code (Typen + Won’t-Kommentare, Retrieve unverändert) | Must | **PLAN** |
-| **188** | `10.10.0` | Schema-Felder + Hausstand rund | Must | **PLAN** |
-| **189** | `10.20.0` | Gate STORE/MERGE/IGNORE/REVISE | Must | **PLAN** |
-| **190** | `10.30.0` | Retrieve 2: Alias + Filter + Boost | Must | **PLAN** |
-| **191** | `10.40.0` | Graph light: related_ids, 1-Hop | Must | **PLAN** |
-| **192** | `10.50.0` | Gold-Eval `test:memory-10` | Must | **PLAN** |
-| **193** | `10.51.0` | Test-Tor Memory Gerät (vier Phasen) | Should / PO | **PLAN** |
-| **194** | `10.60.0` | Experience / Utility-Prune | Should | **PLAN** |
-| **195** | `10.70.0` | e5-Rerank nur wenn 192 rot | Could | **PLAN** / Freeze |
+| **187** | `10.0.0` | Leitentscheidung im Code (Typen + Won’t-Kommentare) | Must | **CODE** |
+| **188** | `10.10.0` | Schema-Felder + Hausstand rund | Must | **CODE** |
+| **189** | `10.20.0` | Gate STORE/MERGE/IGNORE/REVISE | Must | **CODE** |
+| **190** | `10.30.0` | Retrieve 2: Alias + Filter + Boost | Must | **CODE** |
+| **191** | `10.40.0` | Graph light: related_ids, 1-Hop | Must | **CODE** |
+| **192** | `10.50.0` | Gold-Eval `test:memory-10` | Must | **CODE** (G1–G6 grün ohne e5) |
+| **193** | `10.51.0` | Test-Tor Memory Gerät (vier Phasen) | Should / PO | **CODE** Kopierprompts / **PO** Gerät |
+| **194** | `10.60.0` | Experience / Utility-Prune | Should | **CODE** |
+| **195** | `10.70.0` | e5-Rerank nur wenn 192 rot | Could | **FREEZE** |
 
 Sprint-Dateien: [`sprint-187.md`](./sprints/sprint-187.md)–[`sprint-195.md`](./sprints/sprint-195.md).
 
@@ -311,10 +311,9 @@ Sideload 9.10.0
     → 183 OEM nur wenn 178 rot
     → 185 Alltag-Gerät PO
     → 181 ONNX Freeze bleibt
-10.0 Execute (187–192)  — Parser/IDB, kein 3060
-    → 193 Gerät Memory-Tor
-    → 194 Should
-    → 195 nur bei Eval-Rot
+10.0 Execute (187–192, 194) CODE  — Parser/IDB, kein 3060; App `10.60.0`
+    → 193 Gerät Memory-Tor bleibt PO
+    → 195 FREEZE (G2/G3 grün ohne e5)
 ```
 
 Kein Downgrade. `10.0` ersetzt `7.0` nicht — es **füllt** Retrieve/Schema.
@@ -332,12 +331,27 @@ Kein Downgrade. `10.0` ersetzt `7.0` nicht — es **füllt** Retrieve/Schema.
 
 ---
 
-## 17. Abnahme dieser Datei (Plan fertig)
+## 17. Execute-Befund (`10.60.0`)
+
+Gold `npm run test:memory-10`: **G1–G6 grün ohne e5**. Deshalb 195 nicht verdrahtet.
+
+| ID | Ergebnis |
+|----|----------|
+| G1 Getränk Mate | Top 6 |
+| G2 WLAN → FritzBox Blau12 | Alias, kein Encoder |
+| G3 Japan/Tokyo Goal | kind/tense/entity |
+| G4 REVISE Döner | alter Wert weg |
+| G5 Reisen ohne Goal-Pin | keine Memory-Hits, kein Döner |
+| G6 Dump | nicht in Top 6 |
+
+Parser: `test:014`, `test:rest-final`, `test:alltag` weiter. Sideload unverändert `9.10.0`. `applyE5Rerank` Identität. `pickRoute` unangetastet. Cap 80. Qdrant/Qwen-Embed Won’t.
+
+## 18. Abnahme
 
 - [x] Kritik am HF-Input steht, nicht nur eine Wunschliste.
 - [x] Ist `7.0`/`9.10` ehrlich (Sleep-Gemini-Return, e5-Identität, Cap 80).
 - [x] Leitentscheidung: Schema → Gate → Retrieve2 → Graph → Eval; Embeddings zuletzt.
-- [x] Sprints 187–195 plus Won’t plus Verhältnis zu 178/181.
-- [x] Kein Execute in diesem Dokument-Sprint.
+- [x] Sprints 187–194 CODE, 193 Gerät PO, 195 FREEZE.
+- [x] Execute im Code `10.60.0`; Docs = Code.
 
 Index: [`42-planned.md`](./42-planned.md). Versionen: [`09-versioning.md`](./09-versioning.md). Recall-Ist: [`49-next.md`](./49-next.md). Could-e5: [`52-research-latency-quality.md`](./52-research-latency-quality.md).

@@ -16,6 +16,12 @@ export const RECALL_FOOD =
 export const RECALL_VAGUE = /^\s*(?:was\s+mag\s+ich)\s*[?]?\s*$/is
 export const CONTRADICTION =
   /^\s*(?:ich\s+(?:trinke|esse)\s+)?kein(?:en?|e)?\s+(.+?)\s+mehr\s*[.!]?\s*$/is
+export const UTILITY_NO =
+  /^\s*(?:das\s+)?(?:stimmt\s+nicht|ist\s+falsch|falsch(?:\s+gemerkt)?)\s*[.!]?\s*$/is
+
+export function isUtilityCorrection(text: string): boolean {
+  return UTILITY_NO.test(text)
+}
 
 export function isIdentityAsk(text: string): boolean {
   const t = text.trim()
@@ -68,6 +74,7 @@ export function isMemoryWrite(text: string): boolean {
   if (isMemoryRecall(text)) return false
   if (/^\s*was\b/i.test(text) && /[?]/.test(text)) return false
   if (CONTRADICTION.test(text) && !/\b(termin|wecker|timer|todo)\b/i.test(text)) return true
+  if (isUtilityCorrection(text)) return true
   if (MERK.test(text)) return true
   if (/(?:ich\s+heiß(?:e|t)|mein\s+name\s+ist|nenn(?:e)?\s+mich)\b/i.test(text)) return true
   if (/\b(?:trinke?\s+(?:gerne)?|lieblingsgetränk|esse\s+(?:gerne)?|lieblingsessen)\b/i.test(text)) {

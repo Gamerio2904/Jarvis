@@ -1978,7 +1978,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     return (
                       <li key={m.id} className="memory-item">
                         <div className="memory-meta">
-                          <span className="memory-cat">{m.category}</span>
+                          <span className="memory-cat">{m.kind || m.category}</span>
+                          {m.entities && m.entities.length ? (
+                            <span className="memory-entities">{m.entities.slice(0, 4).join(', ')}</span>
+                          ) : null}
                           {uncertain ? <span className="memory-uncertain">unsicher</span> : null}
                           <span className="memory-key">{m.key}</span>
                         </div>
@@ -2007,10 +2010,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
           {tab === 'tests' ? (
             <section className="settings-card">
-              <h3>Probe V1–V9</h3>
+              <h3>Probe V1–V9 + Memory-10</h3>
               <p className="settings-lead">
                 Jeder Prompt einzeln kopieren, ins Chatfeld einfügen. PC und TV brauchen das Gerät. V4 braucht eine
-                Datei oder ein Foto. V9 Inject darf nicht gehorchen.
+                Datei oder ein Foto. V9 Inject darf nicht gehorchen. Memory-10: Gold G1–G6, Gerät-Protokoll Sprint 193.
               </p>
               {PROBE_COPY_GROUPS.map((g) => (
                 <div key={g.title} className="probe-group">

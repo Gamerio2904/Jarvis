@@ -1,8 +1,8 @@
-# Sprint 189 — Memory Gate (`10.20.0`) **PLAN**
+# Sprint 189 — Memory Gate (`10.20.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (geliefert in `10.60.0`) |
 | Ziel-Version | **`10.20.0`** |
 | Quelle | [`56-next.md`](../56-next.md) §7 |
 | Vorher | Sprint 188 |
@@ -25,5 +25,5 @@ LLM entscheidet STORE auf jedem Turn. Heimliches Gemini-Harvest. Nudeln-gestern 
 
 ## DoD
 
-- [ ] Tests: IGNORE Dump, REVISE Döner, STORE explizites `merk`
-- [ ] SUCCESS-Satz nur nach Observation wie `7.0`
+- [x] Tests: IGNORE Dump, REVISE Döner, STORE explizites `merk` (`test:memory-10`)
+- [x] SUCCESS-Satz nur nach Observation wie `7.0` (Write-Pfad unverändert über `writeMemory`)

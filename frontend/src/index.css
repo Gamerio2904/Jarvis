@@ -1052,6 +1052,15 @@ textarea {
   color: var(--accent);
 }
 
+.memory-entities {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40%;
+}
+
 .memory-key {
   font-size: 0.72rem;
   color: var(--text-muted);

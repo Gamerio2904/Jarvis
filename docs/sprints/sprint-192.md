@@ -1,8 +1,8 @@
-# Sprint 192 — Memory-Gold Eval (`10.50.0`) **PLAN**
+# Sprint 192 — Memory-Gold Eval (`10.50.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (geliefert in `10.60.0`) |
 | Ziel-Version | **`10.50.0`** |
 | Quelle | [`56-next.md`](../56-next.md) §10 |
 | Vorher | Sprint 191 |
@@ -25,5 +25,7 @@ HuggingFace-Leaderboard als DoD. 1000 synthetische Chats als Must (Could später
 
 ## DoD
 
-- [ ] Suite lokal grün oder schriftlich welche Gold-ID rot
-- [ ] Kein Sideload-Zwang
+- [x] Suite lokal grün: G1–G6 ohne e5 (`npm run test:memory-10`)
+- [x] Kein Sideload-Zwang
+
+G2/G3 grün ohne Encoder → Sprint **195 bleibt FREEZE**.

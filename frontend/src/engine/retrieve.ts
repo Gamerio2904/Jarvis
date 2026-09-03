@@ -5,22 +5,31 @@ import {
   listNotes,
   listReminders,
   listShopping,
+  type CalendarEvent,
   type Conversation,
   type MemoryItem,
   type Message,
+  type Note,
+  type Reminder,
+  type ShoppingItem,
 } from './store.ts'
 import { formatDue } from './remind-parse.ts'
 import { qualityPack } from './quality-pack.ts'
+import { aliasQueries, expandBlob, utteranceHints } from './memory-alias.ts'
+import { rowKind } from './memory-layer.ts'
+import { rememberRecallHits } from './memory-experience.ts'
 
 export type RetrieveHit = {
   store: string
   title: string
   body: string
   rank: number
+  id?: string
 }
 
+/** Token+RRF retrieve. e5 never pickRoute. HNSW/Qdrant Won’t — linear scan of IndexedDB. */
 const STOP = new Set(
-  'der die das den dem des ein eine einer einem einen und oder aber mit von zu im in am auf aus für fürs als wie was wer wo wann warum dass ist sind war hat habe ich wir sie du mir mich uns ihr eure mein meine dein keine kein noch nur auch schon mal bitte doch über uber weißt weisst weiß weiss stand hatte gerade ohne kennst kennt davon dazu darüber darueber sagst gesagt liegt geben'.split(
+  'der die das den dem des ein eine einer einem einen und oder aber mit von zu im in am auf aus für fürs als wie was wer wo wann warum dass ist sind war hat habe ich wir sie du mir mich uns ihr eure mein meine dein keine kein noch nur auch schon mal bitte doch über uber weißt weisst weiß weiss stand hatte gerade ohne kennst kennt davon dazu darüber darueber sagst gesagt liegt geben welche wollte machen'.split(
     ' ',
   ),
 )
@@ -38,7 +47,8 @@ export function subQueries(text: string): string[] {
   if (uniq.length > 1) out.push(uniq.slice(1, 3).join(' '))
   if (/\b(?:termin|zahnarzt|arzt|kalender)\b/i.test(t) && !out.includes('termin')) out.push('termin')
   if (/\b(?:milch|einkauf|liste)\b/i.test(t) && !out.includes('milch')) out.push('einkauf')
-  return [...new Set(out.filter(Boolean))].slice(0, 3)
+  for (const a of aliasQueries(t)) out.push(a)
+  return [...new Set(out.filter(Boolean))].slice(0, 5)
 }
 
 export function isDumpLine(content: string): boolean {
@@ -65,41 +75,107 @@ function scoreBlob(q: string, blob: string): number {
   return parts.filter((p) => b.includes(p)).length
 }
 
+function memoryBlob(m: MemoryItem): string {
+  return expandBlob([m.key, m.value, ...(m.entities || []), m.parent_key || '', m.kind || ''].join(' '))
+}
+
+export function boostMemoryRank(text: string, m: MemoryItem, rank: number): number {
+  const hints = utteranceHints(text)
+  let r = rank
+  const ents = (m.entities || []).map((e) => e.toLowerCase())
+  const blob = `${m.key} ${m.value}`.toLowerCase()
+  if (hints.entities.length && hints.entities.some((e) => ents.includes(e) || blob.includes(e))) r += 0.4
+  if (hints.kind && rowKind(m) === hints.kind) r += 0.3
+  if (hints.tense && hints.tense !== 'unknown' && m.tense === hints.tense) r += 0.3
+  return r
+}
+
+export function structuredMemoryPool(text: string, memory: MemoryItem[]): MemoryItem[] | null {
+  const hints = utteranceHints(text)
+  if (!hints.kind && !hints.entities.length) return null
+  const filtered = memory.filter((m) => {
+    if (hints.kind && rowKind(m) !== hints.kind) return false
+    if (hints.tense && hints.tense !== 'unknown' && m.tense && m.tense !== 'unknown' && m.tense !== hints.tense) {
+      return false
+    }
+    if (hints.entities.length) {
+      const blob = memoryBlob(m).toLowerCase()
+      const ents = (m.entities || []).map((e) => e.toLowerCase())
+      if (!hints.entities.some((e) => blob.includes(e) || ents.includes(e))) return false
+    }
+    return true
+  })
+  if (hints.kind === 'goal') return filtered
+  return filtered.length ? filtered : null
+}
+
 function rrf(lists: RetrieveHit[][]): RetrieveHit[] {
   const k = 60
   const acc = new Map<string, RetrieveHit>()
   for (const list of lists) {
     list.forEach((hit, i) => {
-      const key = `${hit.store}:${hit.title}:${hit.body.slice(0, 40)}`
+      const key = `${hit.store}:${hit.id || hit.title}:${hit.body.slice(0, 40)}`
       const add = 1 / (k + i + 1)
       const prev = acc.get(key)
       if (prev) prev.rank += add
       else acc.set(key, { ...hit, rank: add })
     })
   }
-  return [...acc.values()].sort((a, b) => b.rank - a.rank).slice(0, 6)
+  return [...acc.values()].sort((a, b) => b.rank - a.rank)
 }
 
-export async function retrieve(text: string): Promise<RetrieveHit[]> {
+function expandHops(hits: RetrieveHit[], memory: MemoryItem[]): RetrieveHit[] {
+  const have = new Set(hits.filter((h) => h.store === 'memory').map((h) => h.id || `${h.title}:${h.body.slice(0, 40)}`))
+  const extra: RetrieveHit[] = []
+  for (const h of hits) {
+    if (h.store !== 'memory' || extra.length >= 2) continue
+    const row = memory.find((m) => m.id === h.id || (m.key === h.title && m.value === h.body))
+    if (!row?.related_ids?.length) continue
+    for (const id of row.related_ids) {
+      if (extra.length >= 2) break
+      const n = memory.find((m) => m.id === id)
+      if (!n) continue
+      const key = n.id
+      if (have.has(key)) continue
+      have.add(key)
+      extra.push({ store: 'memory', title: n.key, body: n.value, rank: h.rank * 0.5, id: n.id })
+    }
+  }
+  if (!extra.length) return hits
+  return [...hits, ...extra]
+}
+
+export type RetrieveCorpus = {
+  memory: MemoryItem[]
+  messages?: Message[]
+  convs?: Conversation[]
+  events?: CalendarEvent[]
+  notes?: Note[]
+  reminders?: Reminder[]
+  shopping?: ShoppingItem[]
+}
+
+export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): RetrieveHit[] {
   const qs = subQueries(text)
   if (!qs.length) return []
-  const [memory, messages, convs, events, notes, reminders, shopping] = await Promise.all([
-    listMemory(),
-    getAll<Message>('messages'),
-    getAll<Conversation>('conversations'),
-    listEvents(),
-    listNotes(),
-    listReminders(),
-    listShopping(),
-  ])
+  const memory = corpus.memory || []
+  const messages = corpus.messages || []
+  const convs = corpus.convs || []
+  const events = corpus.events || []
+  const notes = corpus.notes || []
+  const reminders = corpus.reminders || []
+  const shopping = corpus.shopping || []
+  const pool = structuredMemoryPool(text, memory)
+  const memSource = pool === null ? memory : pool
   const lists: RetrieveHit[][] = []
   for (const q of qs) {
-    const memHits = memory
+    const memHits = memSource
       .map((m: MemoryItem) => ({
         store: 'memory',
         title: m.key,
         body: m.value,
-        rank: scoreBlob(q, `${m.key} ${m.value}`) + 1.5,
+        id: m.id,
+        rank: boostMemoryRank(text, m, scoreBlob(q, memoryBlob(m)) + 1.5),
       }))
       .filter((h) => h.rank > 1.5)
       .sort((a, b) => b.rank - a.rank)
@@ -158,10 +234,26 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
       .filter((h) => h.rank > 0)
     lists.push([...memHits, ...evHits, ...noteHits, ...remHits, ...shopHits, ...msgHits])
   }
-  return applyE5Rerank(rrf(lists))
+  const fused = expandHops(rrf(lists), memory).sort((a, b) => b.rank - a.rank).slice(0, 6)
+  return applyE5Rerank(fused)
 }
 
-/** e5 only reranks retrieve hits. Missing model = RRF unchanged. Never pickRoute. */
+export async function retrieve(text: string): Promise<RetrieveHit[]> {
+  const [memory, messages, convs, events, notes, reminders, shopping] = await Promise.all([
+    listMemory(),
+    getAll<Message>('messages'),
+    getAll<Conversation>('conversations'),
+    listEvents(),
+    listNotes(),
+    listReminders(),
+    listShopping(),
+  ])
+  const hits = retrieveFromCorpus(text, { memory, messages, convs, events, notes, reminders, shopping })
+  rememberRecallHits(hits)
+  return hits
+}
+
+/** e5 only reranks retrieve hits. Missing model = RRF unchanged. Never pickRoute. HNSW/Qdrant Won’t. */
 export function applyE5Rerank(hits: RetrieveHit[]): RetrieveHit[] {
   const st = qualityPack('e5')
   if (!st.wanted || !st.ready) return hits

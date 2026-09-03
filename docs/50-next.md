@@ -1,6 +1,6 @@
 # 50 — Alltag vom Zettel (`8.0`) **CODE** (Router + Parser-Härte)
 
-**App-Stand:** Code und Sideload **`9.10.0`**. Router und Parser-Härte (Sprint **179**) sind **CODE**. Gerät-Tore (Mic, Wake, OSM live) bleiben **PO** — [`55-next.md`](./55-next.md) 178/185.
+**App-Stand:** Historisch Code/Sideload **`9.10.0`**. Live-Code danach **`10.60.0`**. Router und Parser-Härte (Sprint **179**) sind **CODE**. Gerät-Tore (Mic, Wake, OSM live) bleiben **PO** — [`55-next.md`](./55-next.md) 178/185.
 
 PO 2026-08-29: alte Notizen gefunden. Einplanen, was **nicht** schon Code oder Plan ist. Nicht neu erfinden, was `6.90` schon kann.
 

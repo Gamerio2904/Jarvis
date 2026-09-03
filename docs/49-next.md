@@ -10,7 +10,7 @@ Sprint-Nummern **127–130** und Version **`6.60`** sind vergeben (Parser, Overl
 | Sprint 130 / Sleep-Time + Recall-Tool | Sprint **140** / **`7.30.0`** |
 | — | **`7.31.0`** Test-Tor Recall (vier Phasen, nach `7.30`) |
 
-Retrieve, Working Memory, Sleep-Regel, Tool `recall` und Test-Tor-Router sind **CODE**. Sideload bleibt **`6.90.0`**. Alltag vom Zettel: [`50-next.md`](./50-next.md) `8.0`. Nach `7.31`: Dauer-Zuhören [`50-next.md`](./50-next.md) `8.95`. Nächste Intelligenz nach diesem Loop: [`56-next.md`](./56-next.md) `10.0` **PLAN** (Schema/Gate/Retrieve-2, nicht Qdrant).
+Retrieve, Working Memory, Sleep-Regel, Tool `recall` und Test-Tor-Router sind **CODE**. Sideload bleibt **`6.90.0`**. Alltag vom Zettel: [`50-next.md`](./50-next.md) `8.0`. Nach `7.31`: Dauer-Zuhören [`50-next.md`](./50-next.md) `8.95`. Semantisches Gedächtnis danach: [`56-next.md`](./56-next.md) `10.0` **CODE** (Schema/Gate/Retrieve-2, nicht Qdrant; Live `10.60.0`).
 
 ---
 

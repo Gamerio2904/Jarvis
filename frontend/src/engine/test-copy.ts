@@ -134,6 +134,22 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
     ],
   },
   {
+    title: 'Memory-10',
+    items: [
+      { label: 'G1 Getränk merken', text: 'Ich trinke gerne Mate.' },
+      { label: 'G1 Getränk fragen', text: 'Was trinke ich?', expect: { tool: 'memory' } },
+      { label: 'G2 FritzBox merken', text: 'Merk dir: FritzBox-Passwort ist Blau12' },
+      { label: 'G2 WLAN', text: 'Was ist mein WLAN-Passwort?', expect: { tool: 'recall' } },
+      { label: 'G3 Japan Goal', text: 'Merk dir: Ich will 2027 nach Tokyo.' },
+      { label: 'G3 Japan fragen', text: 'Was wollte ich in Japan machen?', expect: { tool: 'recall' } },
+      { label: 'G4 Döner merken', text: 'Ich esse gerne Döner.' },
+      { label: 'G4 Döner revide', text: 'kein Döner mehr', expect: { tool: 'memory' } },
+      { label: 'G4 Döner fragen', text: 'Mag ich noch Döner?' },
+      { label: 'G5 Reisen leer', text: 'Welche Reisen plane ich?', expect: { tool: 'recall' } },
+      { label: 'G6 Utility', text: 'Das stimmt nicht', expect: { tool: 'memory' } },
+    ],
+  },
+  {
     title: 'Einkauf',
     items: [
       { label: 'Milch drauf', text: 'Milch auf die Einkaufsliste' },
@@ -586,6 +602,7 @@ const PROBE_SOURCES: Array<{ title: string; source: string }> = [
   { title: 'V7 PC', source: 'V7 PC' },
   { title: 'V8 Live', source: 'V8 Live' },
   { title: 'V9 Hardening', source: 'V9 Hardening' },
+  { title: 'Memory-10', source: 'Memory-10' },
 ]
 
 export const PROBE_COPY_GROUPS: TestCopyGroup[] = PROBE_SOURCES.map((row) => {

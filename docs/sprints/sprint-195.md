@@ -1,8 +1,8 @@
-# Sprint 195 — e5-Rerank nur nach Eval-Rot (`10.70.0`) **PLAN** Could
+# Sprint 195 — e5-Rerank nur nach Eval-Rot (`10.70.0`) **FREEZE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** / **FREEZE** bis 192 rot auf G2/G3 |
+| Status | **FREEZE** — 192 G2/G3 grün ohne e5 |
 | Ziel-Version | **`10.70.0`** |
 | Quelle | [`56-next.md`](../56-next.md) §12 · [`sprint-181.md`](./sprint-181.md) · [`sprint-176.md`](./sprint-176.md) |
 | Vorher | 192 schriftlich rot. Sonst diesen Sprint **nicht** ausführen |
@@ -25,5 +25,7 @@ Encoder in der Sideload ohne Gold. e5 als Router. 0,6B Qwen3-Embedding. Training
 
 ## DoD
 
-- [ ] Entweder Freeze gehalten (192 grün) **oder** Messung + G2/G3 grün mit opt-in
-- [ ] `pickRoute` diff leer
+- [x] Freeze gehalten (192 G1–G6 grün, G2/G3 ohne Encoder)
+- [x] `pickRoute` unangetastet; `applyE5Rerank` bleibt Identität
+
+Kein Encoder in der Sideload. Qwen/Jina/BGE Won’t. Tauwetter nur wenn G2/G3 später rot.

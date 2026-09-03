@@ -1,6 +1,7 @@
-import { isGeminiConfigured, listMemory, upsertMemory, deleteMemory } from './store.ts'
+import { isGeminiConfigured, listMemory, deleteMemory } from './store.ts'
 import { loadWorkingMemory } from './working-memory.ts'
 import { confidenceFor, expiresFor, pruneMemoryItems } from './memory-layer.ts'
+import { writeMemory } from './memory-gate.ts'
 
 let lastSleep = 0
 let lastPrune = 0
@@ -36,7 +37,10 @@ export async function tickSleepMemory(opts?: { drive?: boolean; voice?: boolean 
   for (const row of loadWorkingMemory()) {
     const fact = safeFact(row.line)
     if (!fact || keys.has(fact.key)) continue
-    await upsertMemory(fact.key, fact.value, 'fact', undefined, {
+    await writeMemory({
+      key: fact.key,
+      value: fact.value,
+      category: 'fact',
       origin: 'sleep',
       confidence: confidenceFor('sleep', 'fact'),
       expires_at: expiresFor('sleep', 'fact', now),

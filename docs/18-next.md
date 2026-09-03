@@ -2,7 +2,7 @@
 
 PO 2026-08-15: Timer der **klingelt** (Bildschirm aus, Akku an), wiederkehrende Erinnerungen, Wetter-Nachfragen, Homescreen-Widget, Wake-Word.
 
-> Historisch `1.7`–`1.13` **CODE**. **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**.
+> Historisch `1.7`–`1.13` **CODE**. **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**.
 
 Kein Alles-in-einem-Wurf. Jede Stufe ist sideloadbar. Reihenfolge ist fest: erst Alarm-Infrastruktur, dann alles was darauf aufbaut.
 

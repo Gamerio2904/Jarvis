@@ -1,6 +1,6 @@
 # Android-APK — Sideload `9.10.0`
 
-App-Code und Sideload stehen auf **`9.10.0`**. LocateAnything-Gewichte nicht in der APK.
+App-Code steht auf **`10.60.0`** (Memory-10). Die Sideload-APK in `releases/Jarvis.apk` ist weiter **`9.10.0`**. LocateAnything-Gewichte nicht in der APK. Memory-10 braucht kein neues Sideload für Parser-Gold; Gerät-Protokoll Sprint 193 bleibt PO.
 
 **Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback — nicht nötig für Timer, Kugel, Wetter.
 

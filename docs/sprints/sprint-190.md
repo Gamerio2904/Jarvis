@@ -1,8 +1,8 @@
-# Sprint 190 — Retrieve 2 (`10.30.0`) **PLAN**
+# Sprint 190 — Retrieve 2 (`10.30.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (geliefert in `10.60.0`) |
 | Ziel-Version | **`10.30.0`** |
 | Quelle | [`56-next.md`](../56-next.md) §8 |
 | Vorher | Sprint 189 |
@@ -26,5 +26,5 @@ BM25-Lib. Query-Embedding. ColBERT. Zweites Retrieve-Modul.
 
 ## DoD
 
-- [ ] `WLAN-Passwort` trifft FritzBox-Pin in Unit/Gold (auch ohne e5)
-- [ ] `test:014` / bestehende Recall-Fälle nicht regressiv
+- [x] `WLAN-Passwort` trifft FritzBox-Pin in Unit/Gold (auch ohne e5) — G2 grün
+- [x] `test:014` / bestehende Recall-Fälle nicht regressiv

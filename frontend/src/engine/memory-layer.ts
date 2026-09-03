@@ -1,7 +1,11 @@
-/** Hierarchical Memory: Quelle, Confidence, Bereinigung. Kein Lance, kein Embedding-Router. */
+/** Hierarchical Memory: Quelle, Confidence, Bereinigung. Kein Lance, kein Embedding-Router. Kein HNSW/Qdrant. */
 
 export type MemoryLayer = 'sensory' | 'working' | 'episodic' | 'semantic'
 export type MemoryOrigin = 'user' | 'sleep' | 'tool'
+export type MemoryKind = 'pref' | 'fact' | 'goal' | 'event' | 'open_loop' | 'boundary'
+export type MemoryTense = 'past' | 'present' | 'future' | 'unknown'
+export type MemoryGateAction = 'STORE' | 'MERGE' | 'IGNORE' | 'REVISE'
+export type MemoryEdge = 'same_entity' | 'parent' | 'contradicts'
 
 export const MEMORY_PIN_MIN = 0.55
 export const MEMORY_PRUNE_CONF = 0.35
@@ -30,6 +34,47 @@ export type MemoryRow = {
   updated_at: string
   expires_at?: string | null
   origin?: MemoryOrigin
+  kind?: MemoryKind
+  entities?: string[]
+  event_time?: string | null
+  tense?: MemoryTense
+  related_ids?: string[]
+  related_edge?: MemoryEdge[]
+  importance?: number
+  parent_key?: string | null
+  not_useful?: number
+}
+
+export function kindFromCategory(category = ''): MemoryKind {
+  if (category === 'pref') return 'pref'
+  if (category === 'boundary') return 'boundary'
+  if (category === 'open_loop') return 'open_loop'
+  return 'fact'
+}
+
+export function inferTense(text: string): MemoryTense {
+  const t = (text || '').toLowerCase()
+  if (/\b(?:will|möchte|plane|nächstes?\s+jahr|20[2-9]\d)\b/.test(t) && !/\b(?:war|gewesen|hatte)\b/.test(t)) {
+    return 'future'
+  }
+  if (/\b(?:war|gewesen|hatte|gestern)\b/.test(t)) return 'past'
+  if (/\b(?:bin|ist|sind|mag|trinke|esse)\b/.test(t)) return 'present'
+  return 'unknown'
+}
+
+export function inferKind(key: string, value: string, category = '', spoken = ''): MemoryKind {
+  const blob = `${key} ${value} ${spoken}`.toLowerCase()
+  if (category === 'pref' || key === 'essen' || key === 'getränk') return 'pref'
+  if (category === 'boundary') return 'boundary'
+  if (category === 'open_loop') return 'open_loop'
+  if (/\b(?:will|möchte|plane|ziel|reise)\b/.test(blob) && inferTense(blob) === 'future') return 'goal'
+  if (inferTense(blob) === 'past' && /\b(?:war|termin|event)\b/.test(blob)) return 'event'
+  return kindFromCategory(category)
+}
+
+export function rowKind(row: { kind?: MemoryKind; category?: string; key?: string; value?: string }): MemoryKind {
+  if (row.kind) return row.kind
+  return inferKind(row.key || '', row.value || '', row.category || '')
 }
 
 export function effectiveConfidence(row: { confidence?: number; origin?: MemoryOrigin }): number {
@@ -74,8 +119,12 @@ export function pruneMemoryItems(items: MemoryRow[], now = Date.now()): { keep: 
   const rest = keep
     .filter((r) => !isPinnedKey(r.key, r.category))
     .sort((a, b) => {
-      const dc = effectiveConfidence(b) - effectiveConfidence(a)
-      if (dc) return dc
+      const ua = Number(a.not_useful || 0)
+      const ub = Number(b.not_useful || 0)
+      const sa = effectiveConfidence(a) - ua * 0.15
+      const sb = effectiveConfidence(b) - ub * 0.15
+      if (sb !== sa) return sb - sa
+      if (ub !== ua) return ua - ub
       return (b.updated_at || '').localeCompare(a.updated_at || '')
     })
   const room = Math.max(0, MEMORY_LTM_CAP - pinned.length)

@@ -5,8 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-- **Konsole:** Cloud-Warmup nutzt `preconnect` statt GET auf `speech.platform.bing.com/` (HTTP 400). `lastLatency` bleibt Export; Debug-Dock initialisiert mit `lastLatency()`.
-- **Plan `10.0`:** Semantisches Gedächtnis (Schema, Gate, Retrieve 2, Graph light, Eval). Execute erst nach PO-Abnahme. [`56-next.md`](./56-next.md). Code/Sideload bleiben `9.10.0`.
+## `10.60.0` — Semantisches Gedächtnis — *CODE*
+
+App-Code **`10.60.0`**. Sideload bleibt **`9.10.0`** (kein Memory-APK-Bump). Sprints 187–194. 195 Freeze.
+
+- **Schema:** optionale Felder `kind` / `tense` / `entities` / `related_ids` / `importance` / `parent_key` / `not_useful`. Alter Hausstand importiert ohne Verlust.
+- **Gate:** STORE / MERGE / IGNORE / REVISE (`memory-gate.ts`). Dump/Smalltalk/zu kurz/Alltagsmahlzeit → IGNORE. Gleicher Key → REVISE.
+- **Retrieve 2:** Alias (WLAN/FritzBox, Japan/Tokyo, …), kind/entity/tense-Filter, Boosts +0.4/+0.3/+0.3. Goal-Query ohne Goal-Pin liefert keine Prefs (G5).
+- **Graph light:** `related_ids` bidirektional, Retrieve 1-Hop max 2 Nachbarn.
+- **Gold:** `npm run test:memory-10` G1–G6 grün **ohne e5**.
+- **Experience:** `not_useful` + `last_recall_json`; `vergiss` / „stimmt nicht“ markiert den letzten Hit. Prune sortiert `confidence - not_useful*0.15`.
+- **Settings:** Gedächtnis zeigt Kind/Entities. Tests-Reiter Gruppe Memory-10.
+- **Won’t gehalten:** Qdrant, Qwen-Embedding, e5 als `pickRoute`, stilles Gemini-Sleep, APK-Gewichte. `applyE5Rerank` bleibt Identität.
 
 ## `9.10.0` — Rest final — *CODE*
 

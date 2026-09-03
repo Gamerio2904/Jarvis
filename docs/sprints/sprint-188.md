@@ -1,8 +1,8 @@
-# Sprint 188 — Memory-Schema + Hausstand (`10.10.0`) **PLAN**
+# Sprint 188 — Memory-Schema + Hausstand (`10.10.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (geliefert in `10.60.0`) |
 | Ziel-Version | **`10.10.0`** |
 | Quelle | [`56-next.md`](../56-next.md) §6 |
 | Vorher | Sprint 187 |
@@ -25,5 +25,5 @@ Embedding-Spalte. Pflichtfelder die alte Pins ungültig machen. Graph-GUI.
 
 ## DoD
 
-- [ ] Export → Wipe → Import: alte Pins da, neue Keys leer ok
-- [ ] `test:014` Memory-Write/Recall weiter grün
+- [x] Export → Wipe → Import: alte Pins da, neue Keys leer ok (`backup.ts` Defaults; optionale Schema-Felder)
+- [x] `test:014` Memory-Write/Recall weiter grün

@@ -1,6 +1,6 @@
 # 55 — Nach Rest-final (`9.10.0`) — Intensiv-Befund + nächste Sprints
 
-**App-Stand:** Code und Sideload **`9.10.0`**. Parser-first. Hirn Gemini → Groq → 0,5B. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag-Router [`50-next.md`](./50-next.md) **CODE**. V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**.
+**App-Stand dieser Serie:** Code und Sideload **`9.10.0`**. Live-Code danach **`10.60.0`** (Memory-10, [`56-next.md`](./56-next.md) **CODE**); Sideload bleibt `9.10.0`. Parser-first. Hirn Gemini → Groq → 0,5B. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag-Router [`50-next.md`](./50-next.md) **CODE**. V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**.
 
 Diese Datei ist der Befund nach intensivem Parser-/Native-/Docs-Lauf **und** der Sprint-Plan danach. Gerät-Zeilen bleiben **PO** — kein Erfolgssatz ohne Handy.
 
@@ -128,4 +128,4 @@ Alte 1.x/2.x-PRs auf `main`. Pipecat. Whisper-Server. Cesium. Moshi. Embeddings-
 3. Docs-Header **Jetzt `9.10.0`**.  
 4. `test:014` + `test:rest-final` + `test:alltag` grün.
 
-Index: [`42-planned.md`](./42-planned.md). Rest: [`54-next.md`](./54-next.md). Alltag: [`50-next.md`](./50-next.md). Nächste Intelligenz (PLAN, kein Gerät-Ersatz): [`56-next.md`](./56-next.md) `10.0`.
+Index: [`42-planned.md`](./42-planned.md). Rest: [`54-next.md`](./54-next.md). Alltag: [`50-next.md`](./50-next.md). Semantisches Gedächtnis: [`56-next.md`](./56-next.md) `10.0` **CODE** (`10.60.0`; Gerät 193 PO).

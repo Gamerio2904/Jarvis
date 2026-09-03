@@ -1,6 +1,6 @@
 # 51 — Phase-0-Audit, Screenshot-Review, Industry-Track
 
-> **Jetzt:** Code **`9.10.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, V6 TV `9.1`, V7 PC `9.2`, V8 Live `9.3`, V9 Hardening `9.9`, Screenshot-Fixes `9.9.2`, Rest final `9.10.0`). Sideload **`9.10.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag-Router `8.0` **CODE**; Gerät-Tore PO [`55-next.md`](./55-next.md).
+> **Jetzt:** Code **`10.60.0`** (V1–V3 `6.91`–`6.99`, V4 Dateien `9.0`, V5 Memory `7.0`, Memory-10 `10.60`, V6 TV `9.1`, V7 PC `9.2`, V8 Live `9.3`, V9 Hardening `9.9`, Screenshot-Fixes `9.9.2`, Rest final `9.10.0`). Sideload **`9.10.0`**. Dieses Dokument ist das vollständige Audit vor dem Industry-Track. Alltag-Router `8.0` **CODE**; Gerät-Tore PO [`55-next.md`](./55-next.md).
 
 PO-Auftrag: vollständiges Audit, Root Causes statt Symptom-Patches, dann Versionen/Sprints. Screenshots sind reale Fehlerfälle, nicht Mockups.
 

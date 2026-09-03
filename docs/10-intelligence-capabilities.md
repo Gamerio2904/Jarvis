@@ -3,7 +3,11 @@
 Ziel: Jarvis wird **professioneller und scharfsinniger**. Tools und Speicher bleiben on-device. Smalltalk-Hirn ist Gemini (Key), nicht das 0,5B.
 Umsetzung erfolgt **gestuft** über Versionen/Sprints — nicht alles auf einmal.
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Parser wählen Tools. Gemini formuliert. 0,5B wählt keine Tools. e5 nie Router. Nächste Intelligenz [`56-next.md`](./56-next.md) **PLAN** `10.0` (Schema vor Encoder).
+> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. Parser wählen Tools. Gemini formuliert. 0,5B wählt keine Tools. e5 nie Router. Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0` (Schema vor Encoder; 195 Freeze).
+
+### Live `10.60.0` (Code)
+
+Memory-Pins tragen optionales `kind`/`tense`/`entities`/`related_ids`. Write geht durch STORE/MERGE/IGNORE/REVISE. Retrieve expandiert Aliase, filtert Goal/Entity/Tense, boostet fest, hängt max 2 Nachbarn (1 Hop). Gold G1–G6 ohne Encoder. `applyE5Rerank` bleibt Identität. Cap 80. Qdrant/Qwen-Embed Won’t.
 
 ### Live `6.90.0` (Code)
 

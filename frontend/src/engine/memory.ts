@@ -1,4 +1,4 @@
-import { listMemory, upsertMemory, clearMemory, deleteMemory, type MemoryItem } from './store'
+import { listMemory, clearMemory, deleteMemory, type MemoryItem } from './store'
 import { packVerified } from './action-fsm.ts'
 import {
   confidenceFor,
@@ -6,6 +6,8 @@ import {
   memoryForgetVerified,
   memoryWriteVerified,
 } from './memory-layer.ts'
+import { writeMemory } from './memory-gate.ts'
+import { isUtilityCorrection, markLastRecallNotUseful } from './memory-experience.ts'
 import {
   RECALL_DRINK,
   RECALL_FOOD,
@@ -37,6 +39,19 @@ function packed(
 }
 
 export async function handleMemory(conversationId: string, text: string): Promise<MemHit> {
+  if (isUtilityCorrection(text)) {
+    const n = await markLastRecallNotUseful()
+    return packed({
+      domain: 'memory',
+      intent: 'utility:not_useful',
+      plan: 'revise',
+      label: 'Gedächtnis',
+      observation: { stored: false, removed: false, hits: n, key: 'last_recall' },
+      verify: () => ({ ok: true }),
+      successReply: n ? 'Danke, das lasse ich weg.' : 'Dazu lag kein letzter Treffer.',
+      failReply: 'Dazu lag kein letzter Treffer.',
+    })
+  }
   if (VERGISS_ALL.test(text)) {
     await clearMemory()
     const remaining = (await listMemory()).length
@@ -57,6 +72,7 @@ export async function handleMemory(conversationId: string, text: string): Promis
     const items = await listMemory()
     const hit = items.find((m) => m.key.toLowerCase() === q || m.value.toLowerCase().includes(q))
     if (hit) {
+      await markLastRecallNotUseful()
       await deleteMemory(hit.id)
       const gone = !(await listMemory()).some((m) => m.id === hit.id)
       return packed({
@@ -159,16 +175,22 @@ export async function handleMemory(conversationId: string, text: string): Promis
     const facts = parseMemoryFacts(text)
     if (facts.length) {
       const saved: MemoryItem[] = []
+      let stored = true
       for (const f of facts) {
-        saved.push(
-          await upsertMemory(f.key, f.value, f.category, conversationId, {
-            origin: 'user',
-            confidence: confidenceFor('user', f.category),
-          }),
-        )
+        const w = await writeMemory({
+          key: f.key,
+          value: f.value,
+          category: f.category,
+          conversationId,
+          origin: 'user',
+          confidence: confidenceFor('user', f.category),
+          spoken: text,
+        })
+        if (w.item && w.stored) saved.push(w.item)
+        else stored = false
       }
       const now = await listMemory()
-      const ok = saved.every((s) => now.some((m) => m.id === s.id && m.value === s.value))
+      const ok = stored && saved.every((s) => now.some((m) => m.id === s.id && m.value === s.value))
       const bits = saved.map((s) => s.value).join(', ')
       const success =
         saved.length === 1 && saved[0].key === 'name' ? `Name gemerkt: ${saved[0].value}.` : `Gemerkt: ${bits}.`

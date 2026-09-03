@@ -1,8 +1,8 @@
-# Sprint 191 — Graph light (`10.40.0`) **PLAN**
+# Sprint 191 — Graph light (`10.40.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** |
+| Status | **CODE** (geliefert in `10.60.0`) |
 | Ziel-Version | **`10.40.0`** |
 | Quelle | [`56-next.md`](../56-next.md) §9 |
 | Vorher | Sprint 190 |
@@ -25,5 +25,5 @@ Graph-DB. Community-Detection. LLM-Cluster-Namen auf jedem Write. Graph-Plot.
 
 ## DoD
 
-- [ ] Tokyo-Goal und Japan-Pref: Recall „Japan“ sieht den Goal-Pin als Nachbar oder direkt
-- [ ] Memory-Block wächst nicht über das `7.0`-Limit
+- [x] Tokyo-Goal und Japan-Pref: Recall „Japan“ sieht den Goal-Pin als Nachbar oder direkt (G3 + 1-Hop in `test:memory-10`)
+- [x] Memory-Block wächst nicht über das `7.0`-Limit (1-Hop max 2 extra Hits)

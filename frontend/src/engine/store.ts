@@ -1,6 +1,8 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
+import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
+import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 
-export const APP_VERSION = '9.10.0'
+export const APP_VERSION = '10.60.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -37,7 +39,16 @@ export type MemoryItem = {
   source_conversation_id?: string | null
   updated_at: string
   expires_at?: string | null
-  origin?: 'user' | 'sleep' | 'tool'
+  origin?: MemoryOrigin
+  kind?: MemoryKind
+  entities?: string[]
+  event_time?: string | null
+  tense?: MemoryTense
+  related_ids?: string[]
+  related_edge?: MemoryEdge[]
+  importance?: number
+  parent_key?: string | null
+  not_useful?: number
 }
 
 export type Note = {
@@ -224,6 +235,7 @@ export type Settings = {
   last_price_watch_at: string
   working_memory_json: string
   last_debug_json: string
+  last_recall_json: string
   last_research_json: string
   last_doc_json: string
   vad_onnx: boolean
@@ -360,6 +372,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_price_watch_at: '',
   working_memory_json: '',
   last_debug_json: '',
+  last_recall_json: '',
   last_research_json: '',
   last_doc_json: '',
   vad_onnx: false,
@@ -608,30 +621,61 @@ export async function listMemory(category?: string | null): Promise<MemoryItem[]
   return filtered.sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
 }
 
+export type MemoryWriteOpts = {
+  confidence?: number
+  origin?: MemoryItem['origin']
+  expires_at?: string | null
+  kind?: MemoryKind
+  entities?: string[]
+  event_time?: string | null
+  tense?: MemoryTense
+  related_ids?: string[]
+  related_edge?: MemoryEdge[]
+  importance?: number
+  parent_key?: string | null
+  not_useful?: number
+}
+
 export async function upsertMemory(
   key: string,
   value: string,
   category: string,
   conversationId?: string,
-  opts?: { confidence?: number; origin?: MemoryItem['origin']; expires_at?: string | null },
+  opts?: MemoryWriteOpts,
 ): Promise<MemoryItem> {
   const existing = (await getAll<MemoryItem>('memory')).find(
     (m) => m.key === key && m.category === category,
   )
-  const origin = opts?.origin || 'user'
+  const origin = opts?.origin || existing?.origin || 'user'
   const row: MemoryItem = {
     id: existing?.id || newId(),
     key,
     value,
     category,
-    confidence: opts?.confidence ?? (origin === 'sleep' ? 0.4 : origin === 'tool' ? 0.8 : category === 'pref' ? 0.9 : 0.95),
+    confidence: opts?.confidence ?? existing?.confidence ?? (origin === 'sleep' ? 0.4 : origin === 'tool' ? 0.8 : category === 'pref' ? 0.9 : 0.95),
     source_conversation_id: conversationId || existing?.source_conversation_id || null,
     updated_at: nowIso(),
     expires_at: opts?.expires_at === undefined ? existing?.expires_at || null : opts.expires_at,
     origin,
+    kind: opts?.kind || existing?.kind || kindFromCategory(category),
+    entities: opts?.entities || existing?.entities,
+    event_time: opts?.event_time === undefined ? existing?.event_time || null : opts.event_time,
+    tense: opts?.tense || existing?.tense,
+    related_ids: opts?.related_ids || existing?.related_ids,
+    related_edge: opts?.related_edge || existing?.related_edge,
+    importance: opts?.importance ?? existing?.importance,
+    parent_key: opts?.parent_key === undefined ? existing?.parent_key ?? null : opts.parent_key,
+    not_useful: opts?.not_useful ?? existing?.not_useful,
   }
   await put('memory', row)
   return row
+}
+
+export async function pruneStaleAfterWrite(now = Date.now()): Promise<number> {
+  const items = await getAll<MemoryItem>('memory')
+  const { drop } = pruneMemoryItems(items, now)
+  for (const row of drop) await del('memory', row.id)
+  return drop.length
 }
 
 export async function deleteMemory(id: string): Promise<void> {

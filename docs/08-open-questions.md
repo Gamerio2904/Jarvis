@@ -1,6 +1,6 @@
 # 08 — Offene Fragen
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Rest-Serie [`54-next.md`](./54-next.md) **CODE**. At-rest-Encryption Parking.
+> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Rest-Serie [`54-next.md`](./54-next.md) **CODE**. At-rest-Encryption Parking.
 
 Alles, was die Planung noch **lückig** macht.  
 Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
@@ -62,9 +62,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Ha
 ## Nächster Schritt
 
 1. Sprint **178** PO Handy — [`55-next.md`](./55-next.md).
-2. `10.0` Plan abnehmen — [`56-next.md`](./56-next.md); Execute 187+ erst danach.
+2. Sprint **193** Memory-Gerät G1–G6 — Kopierprompts CODE, Protokoll offen.
 3. LocateAnything-Gewichte bleiben Freeze (`4.77`).
-4. Qualität-Could-Gewichte bleiben Freeze (181).
+4. Qualität-Could-Gewichte bleiben Freeze (181); e5-Rerank 195 Freeze (G2/G3 grün).
 5. Mail / Cloud-Kalender / Alexa / Play Store / iOS — Parking.
 6. Vor Neuinstall: Hausstand exportieren.
 

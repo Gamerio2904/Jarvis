@@ -1,6 +1,6 @@
 # 16 — Gemini (Hauptweg)
 
-> **Jetzt:** Code **`9.10.0`**. Sideload **`9.10.0`**. Gemini mit Key ist der **normale Weg**. Groq ist Backup. Das lokale 0,5B ist **reiner letzter Fallback**, nie ChatGPT/Claude. Overlay: „Gemini zuerst“.
+> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. Gemini mit Key ist der **normale Weg**. Groq ist Backup. Das lokale 0,5B ist **reiner letzter Fallback**, nie ChatGPT/Claude. Overlay: „Gemini zuerst“.
 
 PO 2026-08-15: **Gemini-API**, weil das lokale 0.5B kein ChatGPT-Niveau erreicht.  
 PO 2026-08-28: Reihenfolge umgedreht — Gemini **Hauptweg**, nicht Opt-in-Zusatz.
