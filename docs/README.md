@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`13.31.0`**. Sideload **`13.31.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`13.31.1`**. Sideload **`13.31.1`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -66,7 +66,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 58 | [Fachwissen 11.0](./58-next.md) | **CODE** `11.60.0` — Deep Research + Teach-Packs; Sprints 202–208 |
 | 59 | [Drei Flächen 12.0](./59-next.md) | **CODE** `12.70.0` — Tablet + Presence + PC-Viewer; Sprints 209–216 |
 | 60 | [Körper-Wissensbaum 13.0](./60-next.md) | **CODE** `13.30.0` — Eingang → Skill → Wissen; Sprints 217–220 |
-| — | [APK](./apk.md) | Sideload `13.31.0`; Deinstall löscht Keys — erst Hausstand-Export |
+| — | [APK](./apk.md) | Sideload `13.31.1`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -247,4 +247,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 219 | `13.20.0` | **CODE** in `13.30.0` (BodyTree) |
 | 220 | `13.30.0` | **CODE** (Kalender-Härte / Gold) |
 
-**Aktuell:** Code **`13.31.0`**. Sideload `13.31.0`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`13.31.1`**. Sideload `13.31.1`. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
