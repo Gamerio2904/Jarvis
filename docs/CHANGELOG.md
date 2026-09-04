@@ -990,6 +990,15 @@ Eine Sideload-Stufe, Inhalt aus [`19-next.md`](./19-next.md) und [`20-next.md`](
 - Abbruch nach 45s ohne erstes Token; Status zeigt Wartezeit
 - [`sprints/sprint-46.md`](./sprints/sprint-46.md)
 
+### Docs / Guard — Alexa-Kauf (Q32) + Echo Show (Q33)
+
+- Q32: Jarvis kauft **nicht** über Alexa/Echo/Fire TV (Amazon-Cloud, keine lokale API).
+- Q33: Jarvis läuft **nicht** auf Echo Show 5 (3. Gen.); kein Anzeigen auf dem Amazon-Bildschirm (kein Sideload, kein APL-Skill). Werksreset/Knacken/Aufschrauben sind kein Weg.
+- Alternativen: Handy / Android-Tablet (gleiche APK), Todo, später Samsung-TV lokal — kein Fire-Tablet.
+- Q34: Alexa-artig = festes Android-Display + später TTS/STT, nicht Echo/Nest.
+- Chat: ehrliche Ablehnung bei Kauf- und Echo-Show-/Bildschirm-Fragen; `/hilfe` nennt kein Echo Show.
+- Parking bleibt: `S7.8`, `08` Q32/Q33.
+
 ### `0.13.1` — Modell-Download Hotfix — *CODE*
 
 - First-Run lädt die GGUF direkt (OPFS/IndexedDB), nicht über wllama-OPFS-Metadaten
