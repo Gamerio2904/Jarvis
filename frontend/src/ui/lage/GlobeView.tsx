@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { GeoFix } from '../../engine/globe-geo'
-import { lookLatLon, viewXYZ, yawPitchFor } from '../../engine/globe-geo'
+import { globeFocusKey, lookLatLon, shouldApplyGlobeFocus, viewXYZ, yawPitchFor } from '../../engine/globe-geo'
 import { WORLD_RINGS } from '../../engine/world-rings'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion'
 
@@ -21,7 +21,7 @@ function shortest(from: number, to: number) {
   return d
 }
 
-export type GlobeFocus = { name: string; lat: number; lon: number; zoom?: number }
+export type GlobeFocus = { name: string; lat: number; lon: number; zoom?: number; at?: number }
 
 export function GlobeView({
   pins,
@@ -60,24 +60,16 @@ export function GlobeView({
   const homedHere = useRef(false)
   const pulse = useRef(0)
   const kickRef = useRef<() => void>(() => {})
-  const storedFocusKey = useRef<string | null>(null)
-  const focusKey = focus && Number.isFinite(focus.lat) && Number.isFinite(focus.lon)
-    ? `${focus.name}:${focus.lat}:${focus.lon}:${focus.zoom || ''}`
-    : ''
+  const storedFocusKey = useRef('')
+  const focusKey = globeFocusKey(focus)
 
   useEffect(() => {
     if (!focusKey || !focus) return
+    if (!shouldApplyGlobeFocus(storedFocusKey.current, focusKey)) return
+    storedFocusKey.current = focusKey
     const aim = yawPitchFor(focus.lat, focus.lon)
     const z = clampZoom(Number(focus.zoom) || 2.8)
-    const already =
-      storedFocusKey.current === focusKey &&
-      Math.abs(shortest(yaw.current, aim.yaw)) < 0.05 &&
-      Math.abs(pitch.current - aim.pitch) < 0.05 &&
-      Math.abs(zoom.current - z) < 0.15
-    if (already) return
-    storedFocusKey.current = focusKey
     lastFocus.current = focusKey
-    onLookRef.current?.({ lat: focus.lat, lon: focus.lon, zoom: z, date: '' })
     if (reduced) {
       yaw.current = aim.yaw
       pitch.current = Math.max(-1.35, Math.min(1.35, aim.pitch))
@@ -88,7 +80,7 @@ export function GlobeView({
     }
     fly.current = { yaw: aim.yaw, pitch: aim.pitch, zoom: z, t: 0 }
     kickRef.current()
-  }, [focus, focusKey, reduced])
+  }, [focusKey, reduced, focus])
 
   useEffect(() => {
     if (homedHere.current) return

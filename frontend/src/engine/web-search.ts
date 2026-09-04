@@ -3,10 +3,12 @@ import {
   compareDiscountSources,
   compareShopSources,
   deepResearchQueries,
+  deepResearchTopic,
   isDeepResearch,
   isFactLookup,
   isProductLookup,
   mergeResearchSources,
+  rankDeepSources,
   researchQuery,
   shopRank,
   sourcesFromHtml,
@@ -24,14 +26,16 @@ export async function fillDeepResearchLinks(
   answer: string,
   research?: ResearchMeta,
 ): Promise<ResearchMeta> {
+  const topic = deepResearchTopic(queryText)
   const queries = deepResearchQueries(queryText)
   const extra: ResearchSource[] = [...sourcesFromText(answer), ...(research?.sources || [])]
   const found = await Promise.all(queries.map((q) => duckDuckGo(q)))
   extra.push(...found.flat())
-  if (extra.filter((s) => s.url).length < 2) {
-    extra.push(...(await wikipedia(queries[0] || queryText)))
-  }
-  return mergeResearchSources(research, extra, queries[0] || researchQuery(queryText))
+  extra.push(...(await wikipedia(topic)))
+  if (/stalingrad/i.test(topic)) extra.push(...(await wikipedia('Schlacht von Stalingrad')))
+  const ranked = rankDeepSources(topic, extra)
+  const keep = ranked.length ? ranked : extra.filter((s) => s.url)
+  return mergeResearchSources(research, keep, queries[0] || researchQuery(queryText))
 }
 
 export async function fillResearchLinks(
@@ -147,7 +151,7 @@ async function wikipedia(query: string): Promise<ResearchSource[]> {
       const href = String(urls[i] || '')
       if (!href) continue
       const title = String(titles[i] || 'Wikipedia')
-      const snippet = await wikiExtract(title)
+      const snippet = await wikiExtract(title, 700)
       out.push({
         title,
         url: href,
@@ -172,7 +176,7 @@ function companyHint(q: string): string {
   return q
 }
 
-async function wikiExtract(title: string): Promise<string> {
+async function wikiExtract(title: string, max = 400): Promise<string> {
   const q = encodeURIComponent(title.slice(0, 80))
   const url = `https://de.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=${q}&format=json`
   try {
@@ -187,7 +191,7 @@ async function wikiExtract(title: string): Promise<string> {
       const extract = String(page?.extract || '')
         .replace(/\s+/g, ' ')
         .trim()
-      if (extract) return extract.slice(0, 400)
+      if (extract) return extract.slice(0, max)
     }
   } catch {
     /* Extract ist optional */

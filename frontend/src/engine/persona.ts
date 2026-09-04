@@ -61,3 +61,9 @@ export const SEARCH_ON_HINT = `Suche ist AN (Google plus Links). Antworten nur a
 Verboten: „Leider kann ich keine Live-Suche“, „keine verifizierten Zahlen“ trotz Treffer, Browser-Verweis, Zahlen oder Stückzahlen, die nicht wörtlich in den Treffern stehen. Keine Umrechnung (Jahr→Tag, „umgerechnet entspricht das“), außer die Quelle nennt genau diese Einheit.
 Pflicht: 1–3 ganze Sätze, ruhig, Understatement. Zuerst der Stand JETZT. Eine Zukunftszeile nur wenn die Treffer sie nennen. Wörter wie aktuell / keine Gebühr / Testphase beendet gelten vor älteren Euro-Beträgen. Fünf Euro oder 30–50 Euro nicht als heutigen Tarif, wenn neuere Treffer frei sagen. Kein Markdown, keine Listen, keine Überschriften.
 Fehlt die gefragte Zahl: das sagen und die belegte Einheit nennen (z. B. Jahr statt Tag). Reihen (BIP, Jahre): Texttabelle mit Spatien, eine Kopfzeile, dann Werte — kein Markdown, keine Absage „Tabellen kann ich nicht“. Produkte: € nur aus Snippets; sonst Idealo/Geizhals, keine erfundenen Beträge. Gutscheine nur aus Treffern.`
+
+export const DEEP_SEARCH_HINT = `Deep Research ist AN. Der Digest darunter sind Ihre einzigen Quellen — Wikipedia und Webtreffer, schon geladen.
+Schreiben Sie einen sachlichen Bericht auf Deutsch, Siezen, 8–14 ganze Sätze. Keine Marvel-Magie, keine erfundenen Zahlen.
+Absätze nacheinander, ohne Markdown-Sterne: (1) Worum geht es und was steht fest. (2) Ablauf, Ursachen oder Constraints. (3) Stand der Technik, Folgen oder Prüfungswissen. (4) Was im Digest fehlt — ehrlich, ein Satz.
+Geschichte, Kriege, Prüfungen: schulisch und nüchtern, wenn der Digest es hergibt. Verboten: „Ich kann Ihnen zu diesem Thema keine Auskünfte geben“, Browser-Verweis, Safety-Floskeln, Schnipsel-Listen ohne Satz.
+Zahlen nur wörtlich aus dem Digest.`

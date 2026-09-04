@@ -5,7 +5,7 @@ import { parseCalendarIntent, nextNamedDay } from '../src/engine/calendar-parse.
 import { pickRoute } from '../src/engine/route-pick.ts'
 import { TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 
-assert.equal(APP_VERSION, '13.30.0')
+assert.equal(APP_VERSION, '13.31.0')
 assert.ok(SKILL_CATALOG.some((s) => s.id === 'calendar'))
 assert.ok(SKILL_CATALOG.some((s) => s.id === 'research'))
 assert.ok(SKILL_CATALOG.some((s) => s.id === 'teach'))

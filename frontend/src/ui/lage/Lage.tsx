@@ -140,7 +140,14 @@ export function Lage({
       if (!raw) return null
       const f = JSON.parse(raw) as GlobeFocus
       if (!f.name || !Number.isFinite(Number(f.lat))) return null
-      return { name: f.name, lat: Number(f.lat), lon: Number(f.lon), zoom: Number(f.zoom) || CITY_FLY_ZOOM }
+      const at = Number(f.at)
+      return {
+        name: f.name,
+        lat: Number(f.lat),
+        lon: Number(f.lon),
+        zoom: Number(f.zoom) || CITY_FLY_ZOOM,
+        at: Number.isFinite(at) && at > 0 ? at : undefined,
+      }
     } catch {
       return null
     }
@@ -249,6 +256,7 @@ export function Lage({
                   lat: next.lat,
                   lon: next.lon,
                   zoom: CITY_FLY_ZOOM,
+                  at: Date.now(),
                 }),
                 last_globe_look: JSON.stringify({ lat: next.lat, lon: next.lon, zoom: CITY_FLY_ZOOM }),
               })

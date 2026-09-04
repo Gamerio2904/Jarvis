@@ -24,6 +24,7 @@ import { normalizeUtterance } from './utterance.ts'
 import { VOICE_HINT, personaPack } from './persona'
 import { loadFace } from './face.ts'
 import {
+  formatDeepResearchReply,
   formatResearchReply,
   guardResearchReply,
   isDeepResearch,
@@ -562,6 +563,7 @@ export async function streamChat(
     const s = loadSettings()
     const discount = Boolean(s.shop_discount)
     const live = isLiveLookup(ask, discount) || Boolean(accepted)
+    const deep = isDeepResearch(ask)
     if ((live || accepted) && !geminiReady()) {
       setLatencyPath('parser')
       if (!s.research_opt_in && !accepted) {
@@ -578,12 +580,14 @@ export async function streamChat(
       persistLastStep('research', researchQuery(ask), '', ask)
       persistResearchDone(n > 0 ? 'success' : 'failed')
       if (researchHasSources(research)) {
-        let reply = formatResearchReply(
-          researchQuery(ask),
-          research.sources || [],
-          isProductLookup(ask, discount),
-          discount,
-        )
+        let reply = isDeepResearch(ask)
+          ? formatDeepResearchReply(ask, research.sources || [])
+          : formatResearchReply(
+              researchQuery(ask),
+              research.sources || [],
+              isProductLookup(ask, discount),
+              discount,
+            )
         if (isDeepResearch(ask)) {
           persistTeachOffer(ask, reply, research.sources || [])
           reply += teachOfferLine(ask)
@@ -631,7 +635,7 @@ export async function streamChat(
       if (wantSearch && !researchHasSources(research)) {
         research = await fillResearchLinks(ask, '', research)
       }
-      const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || []) : ''
+      const digest = wantSearch && researchHasSources(research) ? sourceDigest(research?.sources || [], deep ? 8 : 6) : ''
       const pack = personaPack(loadFace())
       const cloud = kind === 'gemini' || kind === 'groq'
       const split = cloud
@@ -639,6 +643,7 @@ export async function streamChat(
             persona: pack.gemini,
             voice: opts?.voice,
             search: wantSearch,
+            deep,
             memory: [memoryBlock(mem, ask, hits), know].filter(Boolean).join('\n\n'),
             working: workingBlock(),
             lastStep: lastStepHint(),
@@ -677,9 +682,9 @@ export async function streamChat(
                 emitToken(handlers, _piece)
               },
               {
-                search: wantSearch,
-                maxOutputTokens: opts?.voice ? 240 : wantSearch ? (isDeepResearch(ask) ? 1200 : 900) : 420,
-                timeoutMs: wantSearch ? 12_000 : 8_000,
+                search: wantSearch && !deep,
+                maxOutputTokens: opts?.voice ? 240 : wantSearch ? (deep ? 1800 : 900) : 420,
+                timeoutMs: wantSearch ? (deep ? 20_000 : 12_000) : 8_000,
               },
             ).then((r) => {
               if (r.research?.sources?.length) {
@@ -725,7 +730,9 @@ export async function streamChat(
           text = RESEARCH_EMPTY
           handlers.onReplace?.(text)
         } else if (weak) {
-          text = formatResearchReply(researchQuery(ask), sources, product, discount)
+          text = deep
+            ? formatDeepResearchReply(ask, sources)
+            : formatResearchReply(researchQuery(ask), sources, product, discount)
           handlers.onReplace?.(text)
         } else if (product && text && !parseEuroPrices(text).length) {
           const extra = formatResearchReply(researchQuery(ask), sources, true, discount)

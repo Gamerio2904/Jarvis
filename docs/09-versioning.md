@@ -513,6 +513,7 @@ Organ = Eingang. Skill-Knoten = Register. Wissen = Pack/Pin/Termin. Token-Cluste
 | `13.10.0` | body-graph | 218 CODE in `13.30.0` |
 | `13.20.0` | BodyTree | 219 CODE in `13.30.0` |
 | `13.30.0` | Kalender-Härte + Gold | 220 CODE |
+| `13.31.0` | Kugel-Pan-Fix + Deep-Bericht | Patch |
 
 ### Weitere Beispiele
 

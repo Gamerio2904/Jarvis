@@ -182,6 +182,10 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
         text: 'Recherchiere tief und entwirf eine ehrliche Anzugs-Energiequelle. Keine Marvel-Magie, nur belegte Constraints.',
       },
       {
+        label: 'Deep Researche Stalingrad',
+        text: 'Deep Researche was im 2 Weltkrieg in Stalingrad passiert ist für meine Abi Prüfung',
+      },
+      {
         label: 'Alltagsfach FritzBox',
         text: 'Lern das als Fachwissen FritzBox-Doku: Das WLAN-Passwort steht unter dem Router, nicht im Chat.',
         expect: { tool: 'teach' },

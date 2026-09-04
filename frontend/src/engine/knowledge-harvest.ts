@@ -3,6 +3,7 @@ import type { ResearchSource } from './research-parse.ts'
 import type { KnowledgeHarvest } from './knowledge-types.ts'
 import type { TeachIntent } from './teach-parse.ts'
 import { slugTopic, titleFromTopic } from './teach-parse.ts'
+import { deepResearchTopic, harvestDeepTitle } from './research-parse.ts'
 
 export function persistKnowledgeHarvest(h: KnowledgeHarvest): void {
   try {
@@ -25,7 +26,7 @@ export function readKnowledgeHarvest(): KnowledgeHarvest | null {
 }
 
 export function harvestFromResearch(query: string, answer: string, sources: ResearchSource[]): KnowledgeHarvest {
-  const topic = slugTopic(query.replace(/^(?:recherchiere?\s+tief:?\s*|deep\s*research:?\s*|entwirf\s+)/i, '')) || 'recherche'
+  const topic = slugTopic(deepResearchTopic(query)) || 'recherche'
   const snips = sources
     .map((s) => (s.snippet || s.title || '').trim())
     .filter((s) => s.length >= 12)
@@ -33,7 +34,7 @@ export function harvestFromResearch(query: string, answer: string, sources: Rese
   const text = [answer.trim(), ...snips].filter(Boolean).join(' ')
   return {
     topic,
-    title: titleFromTopic(topic),
+    title: harvestDeepTitle(query),
     text: text.slice(0, 2400),
     sources,
     at: Date.now(),

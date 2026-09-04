@@ -1,10 +1,12 @@
 # Android-APK — Sideload `13.30.0`
 
-App-Code **`13.30.0`**. Sideload-APK **`13.30.0`**. LocateAnything-Gewichte nicht in der APK.
+App-Code **`13.31.0`**. Sideload-APK **`13.30.0`**. LocateAnything-Gewichte nicht in der APK.
 
 **Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback.
 
 **Deinstall** (andere Signatur): WebView-Daten weg. Vor Neuinstall Hausstand exportieren.
+
+**13.31.0:** Kugel bleibt nach Fly-to drehbar. Deep Research schreibt Bericht aus Wikipedia, nicht Schnipsel; Stalingrad nicht mehr „keine Auskünfte“.
 
 **13.30.0:** Körper-Wissensbaum (217–220). Organ = Eingang, Skill- und Wissensknoten. Kalender: nächsten Freitag / Kalender heute.
 

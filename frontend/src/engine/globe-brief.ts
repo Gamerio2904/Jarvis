@@ -23,7 +23,7 @@ const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/6.90.0 (local.jar
 export type PlaceBrief = { name: string; lat: number; lon: number; blurb: string }
 
 export function focusJson(place: PlaceBrief, zoom = CITY_FLY_ZOOM): string {
-  return JSON.stringify({ name: place.name, lat: place.lat, lon: place.lon, zoom })
+  return JSON.stringify({ name: place.name, lat: place.lat, lon: place.lon, zoom, at: Date.now() })
 }
 
 export async function briefPlace(place: PlaceBrief): Promise<string> {

@@ -23,11 +23,15 @@ export type ResearchMeta = {
   network_attempted?: boolean
 }
 
-/** Mehrere Fach-Queries. Bloßes „recherchier Benzinpreis“ bleibt normal. */
+/** Mehrere Fach-Queries. Bloßes „recherchier Benzinpreis“ bleibt normal. Tippfehler „Deep Researche“ zählt. */
+const DEEP_PREFIX =
+  /^(?:recherchiere?\s+tief:?\s*|deep\s*resear+ch[e]?:?\s*|deep[- ]?recherche:?\s*|entwirf\s+)/i
+
 export function isDeepResearch(text: string): boolean {
   const t = text.trim()
-  if (!t || t.length > 400) return false
-  if (/\bdeep\s*research\b/i.test(t)) return true
+  if (!t || t.length > 600) return false
+  if (/\bdeep\s*resear+ch[e]?\b/i.test(t)) return true
+  if (/\bdeep[- ]?recherche\b/i.test(t)) return true
   if (/\brecherchier(?:e|en)?\s+tief\b/i.test(t)) return true
   if (/\bsystematisch\b/i.test(t) && /\b(?:paper|papers|recherch)/i.test(t)) return true
   if (/\bentwirf\b/i.test(t) && t.length >= 24) return true
@@ -35,19 +39,41 @@ export function isDeepResearch(text: string): boolean {
   return false
 }
 
+export function deepResearchTopic(text: string): string {
+  let t = text.trim().replace(/[.!?]+$/g, '')
+  t = t.replace(DEEP_PREFIX, '').trim()
+  t = t.replace(/^tief:?\s+/i, '').trim()
+  t = researchQuery(t)
+  t = t.replace(/^tief:?\s+/i, '').trim()
+  t = t.replace(/\s+für\s+(?:meine?|unsere?|die)\s+.{0,80}$/i, '').trim()
+  t = t.replace(/\s*,?\s*ohne\s+marvel[- ]?magie\.?/i, ' realistisch')
+  t = t.replace(/\s+/g, ' ').trim()
+  return (t || researchQuery(text)).slice(0, 160)
+}
+
 export function deepResearchQueries(text: string): string[] {
-  const raw = researchQuery(text)
-  const thema = raw
-    .replace(/^(?:recherchiere?\s+tief:?\s*|deep\s*research:?\s*|entwirf\s+)/i, '')
-    .trim() || raw
-  const q = thema.slice(0, 120)
-  return [
-    q,
-    `${q} constraints materials energy density`,
-    `${q} vergleich vorteile nachteile`,
-    `${q} site:arxiv.org OR site:wikipedia.org`,
-    `${q} Stand der Technik`,
-  ]
+  const thema = deepResearchTopic(text)
+  const seen = new Set<string>()
+  const out: string[] = []
+  const add = (q: string) => {
+    const s = q.replace(/\s+/g, ' ').trim()
+    if (!s || seen.has(s.toLowerCase())) return
+    seen.add(s.toLowerCase())
+    out.push(s.slice(0, 120))
+  }
+  add(thema)
+  add(`${thema} Wikipedia`)
+  add(`${thema} Stand der Technik`)
+  if (/energie|energy|antrieb|exoskelett|anzug/i.test(thema)) {
+    add('Energiequelle Exoskelett Batterie Brennstoffzelle Constraints')
+    add('powered exoskeleton energy source battery fuel cell limits')
+  }
+  if (/stalingrad|weltkrieg|schlacht/i.test(thema)) {
+    add('Schlacht von Stalingrad')
+    add('Battle of Stalingrad 1942 1943')
+  }
+  add(`${thema} site:wikipedia.org`)
+  return out.slice(0, 5)
 }
 
 export function isLiveLookup(text: string, discount = false): boolean {
@@ -150,9 +176,16 @@ export function isSearchRefusal(text: string): boolean {
   )
 }
 
+/** Modell verweigert den Inhalt (Safety), obwohl Quellen da sind. */
+export function isLlmRefusal(text: string): boolean {
+  return /keine ausk[uü]nfte|keine auskunft geben|kann ihnen zu diesem thema|kann (?:ihnen|dir) dazu keine|i cannot (?:give|provide)|i'?m unable to (?:help|provide)|nicht (?:darüber|dazu) (?:sprechen|auskunft)|dazu keine auskunft|google hat die antwort blockiert|antwort blockiert|als ki darf ich/i.test(
+    text,
+  )
+}
+
 /** Modell sagt, es wisse Live-Fakten nicht — dann selbst suchen. */
 export function isKnowledgeGap(text: string): boolean {
-  if (isSearchRefusal(text)) return true
+  if (isSearchRefusal(text) || isLlmRefusal(text)) return true
   return /liegen mir im moment keine|liegt mir im moment nicht vor|liegen mir keine|keine (?:konkreten |aktuellen )?(?:zahlen|daten|werte)(?:\s+zu)?|kann daher keine tabelle|keine tabelle erstellen|kein entsprechender systemzugriff|zu den aktuellen .{0,48}liegen mir|dazu (?:liegen|gibt es) (?:mir )?keine|weiß ich (?:leider )?nicht|keine belegten zahlen/i.test(
     text,
   )
@@ -481,6 +514,144 @@ export function formatResearchReply(
     return `${query}: in den Treffern keine belegte Tageszahl. ${titles}. Links unten prüfen, ich rechne nichts um.`
   }
   return `${query}: ${titles}. Links unten, tippen prüft.`
+}
+
+const DEEP_STOP = new Set([
+  'ohne',
+  'eine',
+  'einer',
+  'eines',
+  'einem',
+  'oder',
+  'und',
+  'das',
+  'der',
+  'die',
+  'ist',
+  'im',
+  'in',
+  'von',
+  'fuer',
+  'für',
+  'mit',
+  'den',
+  'dem',
+  'des',
+  'auf',
+  'aus',
+  'als',
+  'bei',
+  'nach',
+  'zum',
+  'zur',
+  'was',
+  'wie',
+  'wer',
+  'wo',
+  'wann',
+  'the',
+  'and',
+  'for',
+  'that',
+  'this',
+  'passiert',
+  'meine',
+  'abi',
+  'pruefung',
+  'prüfung',
+  'ehrlich',
+  'entwirf',
+  'constraints',
+  'realistisch',
+  'wikipedia',
+  'stand',
+  'technik',
+  'tief',
+  'deep',
+  'research',
+  'recherche',
+  'recherchiere',
+])
+
+function foldDe(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+}
+
+function deepTokens(text: string): string[] {
+  return foldDe(text)
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w.length >= 4 && !DEEP_STOP.has(w))
+}
+
+export function deepSourceScore(topic: string, source: ResearchSource): number {
+  const tokens = deepTokens(topic)
+  const hay = foldDe(`${source.title} ${source.snippet} ${source.url}`)
+  let n = 0
+  for (const t of tokens) {
+    if (tokenInHay(hay, t)) n += 2
+    else if (t.length >= 7 && hay.includes(t.slice(0, 6))) n += 1
+  }
+  if (source.provider === 'wikipedia') n += 3
+  if ((source.snippet || '').length > 80) n += 1
+  return n
+}
+
+function tokenInHay(hay: string, t: string): boolean {
+  if (t.length >= 6) return hay.includes(t)
+  return new RegExp(`(?:^|[^a-z0-9])${t}(?:[^a-z0-9]|$)`).test(hay)
+}
+
+export function rankDeepSources(topic: string, sources: ResearchSource[]): ResearchSource[] {
+  const scored = sources
+    .filter((s) => s.url)
+    .map((s) => ({ s, n: deepSourceScore(topic, s) }))
+  const kept = scored.filter((x) => {
+    const wiki = x.s.provider === 'wikipedia'
+    if (wiki) return x.n >= 4
+    return x.n >= 2
+  })
+  const ranked = (kept.length ? kept : scored.filter((x) => x.n > 0)).sort((a, b) => b.n - a.n)
+  return ranked.map((x) => x.s)
+}
+
+export function harvestDeepTitle(query: string): string {
+  const words = deepResearchTopic(query)
+    .split(/\s+/)
+    .map((w) => w.replace(/[.,;:]+$/g, ''))
+    .filter((w) => w.length > 2 && !DEEP_STOP.has(foldDe(w)))
+    .slice(0, 3)
+  if (!words.length) return 'Recherche'
+  return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
+/** Bericht aus Treffern, kein Schnipsel-Dump. */
+export function formatDeepResearchReply(query: string, sources: ResearchSource[]): string {
+  const topic = deepResearchTopic(query)
+  const ranked = rankDeepSources(topic, sources)
+  const live = (ranked.length ? ranked : sources.filter((s) => s.url)).slice(0, 8)
+  if (!live.length) {
+    return 'Netz hat nicht geantwortet. Ich rate keine Prüfung und keine Fakten aus dem Kopf.'
+  }
+  const extracts = live
+    .map((s) => (s.snippet || '').replace(/\s+/g, ' ').trim())
+    .filter((s) => s.length >= 60)
+  const body = extracts
+    .slice(0, 3)
+    .map((s) => s.slice(0, 480))
+    .join(' ')
+  const titles = live
+    .slice(0, 4)
+    .map((s) => s.title.replace(/\s+/g, ' ').slice(0, 72))
+    .join('; ')
+  if (body.length >= 80) {
+    return `${topic}. ${body} Das steht in den Treffern (${titles}). Was darin fehlt, ergänze ich nicht. Links unten.`
+  }
+  return `${topic}: ${titles}. Die Snippets sind dünn — Links unten prüfen, ich erfinde den Bericht nicht.`
 }
 
 export function asksDailyFigure(text: string): boolean {

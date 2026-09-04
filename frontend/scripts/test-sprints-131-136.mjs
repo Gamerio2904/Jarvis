@@ -12,6 +12,7 @@ import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { pickRoute } from '../src/engine/route-pick.ts'
 import { rewriteFollowUp } from '../src/engine/last-step.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
+import { globeFocusKey, shouldApplyGlobeFocus } from '../src/engine/globe-geo.ts'
 import { parseWontIntent } from '../src/engine/wont-parse.ts'
 
 assert.ok(CITY_FLY_ZOOM >= GIBS_ZOOM_IN, 'Fly-to muss in GIBS landen')
@@ -60,6 +61,13 @@ assert.equal(rewriteFollowUp('Stopp', { last_step_tool: 'outlook' }), 'Tour aus'
 assert.equal(rewriteFollowUp('Stopp', { last_medium: 'spotify' }), 'Spotify Pause')
 assert.equal(parseOutlookIntent('Tour aus')?.kind, 'tour_stop')
 assert.equal(parseHudIntent('Was ist das für eine Stadt?')?.kind, 'look')
+{
+  const tokyo = { name: 'Tokio', lat: 35.68, lon: 139.69, zoom: CITY_FLY_ZOOM, at: 100 }
+  const key = globeFocusKey(tokyo)
+  assert.equal(shouldApplyGlobeFocus('', key), true)
+  assert.equal(shouldApplyGlobeFocus(key, key), false)
+  assert.equal(shouldApplyGlobeFocus(key, globeFocusKey({ ...tokyo, at: 200 })), true)
+}
 assert.equal(matchCountry('Prozess in Den Haag, Srebrenica')?.id, 'ba')
 assert.equal(matchCountry('Trump im Weißen Haus')?.id, 'us')
 assert.equal(placeInHeadline('London', 'Anschlag in London', ''), true)

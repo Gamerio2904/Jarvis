@@ -8,14 +8,19 @@ import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand, finishReply, HELP_TEXT, redactSecrets } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
 import {
+  formatDeepResearchReply,
   formatResearchReply,
   guardResearchReply,
+  harvestDeepTitle,
+  isDeepResearch,
   isFactLookup,
   isKnowledgeGap,
   isLiveLookup,
+  isLlmRefusal,
   isProductLookup,
   isSearchRefusal,
   isTableAsk,
+  rankDeepSources,
   shouldRetrySearch,
   parseEuroPrices,
   parseShopDiscountIntent,
@@ -49,7 +54,7 @@ import {
   ssmlEscape,
   windowsFileTimeTicks,
 } from '../src/engine/edge-tts.ts'
-import { GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
+import { DEEP_SEARCH_HINT, GEMINI_PERSONA, PERSONA, SEARCH_ON_HINT, VOICE_HINT } from '../src/engine/persona.ts'
 import { splitIntents } from '../src/engine/split-intents.ts'
 import { isFollowUpPhrase, isConfirmPhrase, rewriteFollowUp } from '../src/engine/last-step.ts'
 import { shouldRefreshTitle, titleFromUser } from '../src/engine/chat-title.ts'
@@ -460,6 +465,48 @@ assert.match(PERSONA, /Telegramm/)
 assert.match(GEMINI_PERSONA, /Satzbildung/)
 assert.match(GEMINI_PERSONA, /Uhrzeit/)
 assert.match(SEARCH_ON_HINT, /Tabellen kann ich nicht/)
+assert.match(DEEP_SEARCH_HINT, /Deep Research ist AN/)
+assert.match(DEEP_SEARCH_HINT, /keine Auskünfte geben/)
+assert.equal(isDeepResearch('Deep Researche was im 2 Weltkrieg in Stalingrad passiert ist für meine Abi Prüfung'), true)
+assert.equal(isLlmRefusal('Ich kann Ihnen zu diesem Thema keine Auskünfte geben.'), true)
+assert.equal(isKnowledgeGap('Ich kann Ihnen zu diesem Thema keine Auskünfte geben.'), true)
+{
+  const geo = {
+    title: 'Tiefengeothermie: Tief unter Wien',
+    url: 'https://example.com/wien',
+    snippet: 'Ultra-Tiefen-Geothermie unter Wien.',
+    provider: 'duckduckgo',
+    retrieved_at: '2026-09-04T00:00:00Z',
+  }
+  const wiki = {
+    title: 'Schlacht von Stalingrad',
+    url: 'https://de.wikipedia.org/wiki/Schlacht_von_Stalingrad',
+    snippet: 'Die Schlacht von Stalingrad war eine der entscheidenden Schlachten des Zweiten Weltkriegs am Don und in Stalingrad.',
+    provider: 'wikipedia',
+    retrieved_at: '2026-09-04T00:00:00Z',
+  }
+  const exo = {
+    title: 'Exoskelett',
+    url: 'https://de.wikipedia.org/wiki/Exoskelett',
+    snippet: 'Ein Exoskelett braucht eine tragbare Energiequelle. Batterie und Brennstoffzelle setzen Constraints, Marvel-Reaktoren gibt es nicht.',
+    provider: 'wikipedia',
+    retrieved_at: '2026-09-04T00:00:00Z',
+  }
+  const ranked = rankDeepSources('Stalingrad Weltkrieg', [geo, wiki])
+  assert.equal(ranked.some((s) => /Wien|Geothermie/i.test(s.title)), false)
+  assert.ok(ranked.some((s) => /Stalingrad/i.test(s.title)))
+  const report = formatDeepResearchReply('Deep Researche Stalingrad', [geo, wiki])
+  assert.match(report, /Stalingrad/)
+  assert.doesNotMatch(report, /Geothermie|Wien/)
+  const suit = formatDeepResearchReply(
+    'Recherchiere tief: Anzugs-Energiequelle ehrlich, ohne Marvel-Magie. Entwirf Constraints.',
+    [geo, exo],
+  )
+  assert.match(suit, /Exoskelett|Batterie|Energiequelle/)
+  assert.doesNotMatch(suit, /Geothermie|Wien/)
+  assert.match(harvestDeepTitle('Deep Researche was im 2 Weltkrieg in Stalingrad passiert ist für meine Abi Prüfung'), /Stalingrad|Weltkrieg/)
+  assert.doesNotMatch(harvestDeepTitle('Recherchiere tief: Anzugs-Energiequelle ehrlich, ohne Marvel-Magie.'), /Marvel Magie E/i)
+}
 assert.equal(
   scrubReply('Ich habe das Internet nach Kuchenrezepten durchsucht. Zucker und Mehl reichen.').includes(
     'durchsucht',
@@ -1223,7 +1270,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /13\.30\.0/)
+assert.match(HELP_TEXT, /13\.31\.0/)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
 assert.match(HELP_TEXT, /Keys nicht im Chat/)
@@ -2734,6 +2781,9 @@ assert.equal(pickRoute('Öffne Netflix'), 'tv')
   const searched = splitCloudPrompt({ persona: GEMINI_PERSONA, search: true, memory: 'x' })
   assert.ok(searched.variable.includes('Google plus Links'))
   assert.ok(!searched.system.includes('Google plus Links'))
+  const deep = splitCloudPrompt({ persona: GEMINI_PERSONA, search: true, deep: true, memory: 'x' })
+  assert.ok(deep.variable.includes('Deep Research ist AN'))
+  assert.ok(!deep.variable.includes('1–3 ganze Sätze'))
   const msgs = attachVariable(
     [
       { role: 'system', content: a.system },

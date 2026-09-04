@@ -25,7 +25,7 @@ import {
   PACK_CAP,
 } from '../src/engine/knowledge.ts'
 
-assert.equal(APP_VERSION, '13.30.0')
+assert.equal(APP_VERSION, '13.31.0')
 resetKnowledgeMem()
 
 // T1 Teach-Paste
@@ -96,8 +96,13 @@ resetKnowledgeMem()
 {
   assert.equal(isDeepResearch('Recherchiere tief: Anzugs-Energiequelle ehrlich. Entwirf Constraints.'), true)
   assert.equal(isDeepResearch('recherchier Benzinpreis'), false)
+  assert.equal(
+    isDeepResearch('Deep Researche was im 2 Weltkrieg in Stalingrad passiert ist für meine Abi Prüfung'),
+    true,
+  )
   const qs = deepResearchQueries('Recherchiere tief: Anzugs-Energiequelle ehrlich, ohne Marvel-Magie. Entwirf Constraints.')
   assert.ok(qs.length >= 3)
+  assert.ok(!qs.some((q) => /energy density/i.test(q)))
 }
 
 // Parser conflicts

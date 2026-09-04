@@ -214,3 +214,18 @@ export function viewXYZ(
   const z2 = p.y * sp + z1 * cp
   return { x: x1, y: y1, z: z2 }
 }
+
+export type GlobeFocusCmd = { name: string; lat: number; lon: number; zoom?: number; at?: number }
+
+/** Stable key for one Fly-to. `at` distinguishes „nochmal Tokio“ from a leftover pin. */
+export function globeFocusKey(focus: GlobeFocusCmd | null | undefined): string {
+  if (!focus || !Number.isFinite(focus.lat) || !Number.isFinite(focus.lon)) return ''
+  const at = Number(focus.at)
+  const stamp = Number.isFinite(at) && at > 0 ? String(at) : ''
+  return `${focus.name}:${focus.lat}:${focus.lon}:${focus.zoom || ''}:${stamp}`
+}
+
+/** Same leftover focus must not re-fly after pan/zoom. */
+export function shouldApplyGlobeFocus(prevKey: string, nextKey: string): boolean {
+  return Boolean(nextKey) && prevKey !== nextKey
+}

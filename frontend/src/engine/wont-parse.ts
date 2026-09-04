@@ -121,7 +121,13 @@ export function streetViewPlace(text: string): PlaceFix | null {
 
 function flyGlobe(place: PlaceFix): void {
   try {
-    const focus = JSON.stringify({ name: place.name, lat: place.lat, lon: place.lon, zoom: CITY_FLY_ZOOM })
+    const focus = JSON.stringify({
+      name: place.name,
+      lat: place.lat,
+      lon: place.lon,
+      zoom: CITY_FLY_ZOOM,
+      at: Date.now(),
+    })
     saveSettings({
       hud_view: 'globe',
       hud_force: true,
