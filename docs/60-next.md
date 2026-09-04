@@ -2,7 +2,7 @@
 
 PO 2026-09-03: Körper nimmt den **Eingang** (Auge, Ohr, …), entscheidet welche **Wissens- und Skill-Knoten** sichtbar sind, als tiefer werdender Baum. 195 e5 **FREEZE**. Kein Qdrant.
 
-**App-Stand:** Code **`13.30.0`**. Sideload **`12.70.0`**. Hirn Gemini → Groq → 0,5B. Parser zuerst.
+**App-Stand:** Code **`13.30.0`**. Sideload **`13.30.0`**. Hirn Gemini → Groq → 0,5B. Parser zuerst.
 
 Gold: `npm run test:body-13`.
 
@@ -68,7 +68,7 @@ Eigene Schiene `13.x`. Kein Diebstahl von `12.71`.
 | **219** | `13.20.0` | `BodyTree` in der Lage | Must | **CODE** in `13.30.0` |
 | **220** | `13.30.0` | Kalender-Härte + Gold | Must | **CODE** |
 
-Sideload bleibt `12.70.0` bis APK-Bump extra.
+Sideload **`13.30.0`**.
 
 ---
 

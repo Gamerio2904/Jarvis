@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`13.30.0`**. Sideload **`12.70.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`13.30.0`**. Sideload **`13.30.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 

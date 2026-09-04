@@ -9,7 +9,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## `13.30.0` — Körper-Wissensbaum — *CODE*
 
-Sprints **217–220**. e5 bleibt Freeze. Sideload unverändert `12.70.0`.
+Sprints **217–220**. e5 bleibt Freeze. Sideload **`13.30.0`** (versionCode `133000`).
 
 - **Eingang:** Organ (Auge, Ohr, Hirn, …) wählt Skills.
 - **Baum:** Skill-Knoten Kalender / Internet / Deep Research / Gedächtnis, darunter Packs, Pins, Termine.
