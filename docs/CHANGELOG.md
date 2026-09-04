@@ -9,6 +9,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 - **Sport:** Eine Zeile pro Verein, Kurznamen, Platz/Pkt/Tore. Kein Satz-Klumpen.
 - **Follow-up:** „Das ganze Übersichtlicher“ holt die Tabelle neu.
+- Sideload **`13.31.1`** (versionCode `133101`).
 
 ## `13.31.0` — Kugel-Pan + Deep Research — *CODE*
 
