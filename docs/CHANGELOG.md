@@ -8,7 +8,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 ## `13.31.0` — Kugel-Pan + Deep Research — *CODE*
 
 - **Kugel:** Fly-to Tokio einmal. Zoom und Drehen bleiben, kein Snap zurück. Neuer Befehl fliegt neu (`at`).
-- **Deep Research:** Tippfehler „Deep Researche“, Wikipedia-Bericht statt Schnipsel-Dump, Geothermie-Treffer fliegen bei Anzug raus. Safety-Verweigerung (Stalingrad) fällt auf den Digest zurück. Gemini googelt Deep nicht nochmal oben drauf.
+- **Deep Research:** Tippfehler „Deep Researche“, Wikipedia-Bericht statt Schnipsel-Dump, Geothermie-Treffer fliegen bei Anzug raus. Safety-Verweigerung (Stalingrad) fällt auf den Digest zurück.
+- Sideload **`13.31.0`** (versionCode `133100`).
 
 ## `13.30.0` — Körper-Wissensbaum — *CODE*
 

@@ -1,6 +1,6 @@
-# Android-APK — Sideload `13.30.0`
+# Android-APK — Sideload `13.31.0`
 
-App-Code **`13.31.0`**. Sideload-APK **`13.30.0`**. LocateAnything-Gewichte nicht in der APK.
+App-Code **`13.31.0`**. Sideload-APK **`13.31.0`**. LocateAnything-Gewichte nicht in der APK.
 
 **Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback.
 
@@ -22,11 +22,11 @@ App-Code **`13.31.0`**. Sideload-APK **`13.30.0`**. LocateAnything-Gewichte nich
 
 ## Download
 
-**Fertige APK `13.30.0`:**  
+**Fertige APK `13.31.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `13.30.0` · versionCode `133000`
+- versionName `13.31.0` · versionCode `133100`
 - App-ID `local.jarvis.app`
 
 1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).
