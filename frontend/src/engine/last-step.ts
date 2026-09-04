@@ -20,6 +20,13 @@ const HALT = /^(?:stopp(?:e)?(?:\s+das)?|halt|pause)\s*[.!?]?$/i
 
 const VOL = /^(?:und\s+)?(?:das\s+)?(lauter|leiser)\s*[.!?]?$/i
 
+const SPORT_OVERVIEW =
+  /^(?:das\s+ganze\s+|bitte\s+|noch\s+(?:mal\s+)?)?(?:übersichtlicher|übersicht|klarer|lesbarer|als\s+tabelle|untereinander)\s*[.!?]*$/i
+
+export function isSportOverviewAsk(text: string): boolean {
+  return SPORT_OVERVIEW.test(text.trim())
+}
+
 /** Nach TV: OK/D-Pad, nicht „ok“ als Wiederholung des letzten App-Starts. */
 const TV_PAD =
   /^(ok|okay|enter|bestätigen|runter|hoch|oben|unten|links|rechts|home|zurück)\s*[.!?]?$/i
@@ -106,6 +113,12 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
 
   if (/^(?:noch\s*mal(?:s)?|wieder|erneut)(?:\s+bitte)?[.!?]*$/i.test(raw)) {
     return utterance || null
+  }
+
+  if (tool === 'sport' && isSportOverviewAsk(raw)) {
+    return utterance && /\b(bundesliga|tabelle|liga|spielstand)\b/i.test(utterance)
+      ? utterance
+      : 'Wie steht die Bundesliga?'
   }
 
   if (!FOLLOW_UP.test(raw)) return null

@@ -473,6 +473,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Mond', text: 'Wie ist der Mond heute?', expect: { tool: 'sky' } },
       { label: 'Flüge', text: 'Was fliegt da über uns?', expect: { tool: 'flights' } },
       { label: 'Bundesliga', text: 'Wie steht die Bundesliga?', expect: { tool: 'sport' } },
+      { label: 'Tabelle klar', text: 'Das ganze Übersichtlicher' },
       { label: 'Schach öffnen', text: 'Schach', expect: { tool: 'chess' } },
       { label: 'Lebensmittel', text: 'Zutaten von Nutella', expect: { tool: 'food' } },
       { label: 'Buch', text: 'Wer schrieb Der Prozess?', expect: { tool: 'library' } },

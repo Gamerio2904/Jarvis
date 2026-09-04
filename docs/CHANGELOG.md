@@ -5,6 +5,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `13.31.1` — Bundesliga-Tabelle lesbar — *CODE*
+
+- **Sport:** Eine Zeile pro Verein, Kurznamen, Platz/Pkt/Tore. Kein Satz-Klumpen.
+- **Follow-up:** „Das ganze Übersichtlicher“ holt die Tabelle neu.
+
 ## `13.31.0` — Kugel-Pan + Deep Research — *CODE*
 
 - **Kugel:** Fly-to Tokio einmal. Zoom und Drehen bleiben, kein Snap zurück. Neuer Befehl fliegt neu (`at`).

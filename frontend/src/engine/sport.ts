@@ -80,10 +80,10 @@ export async function handleSport(
     const rows = await loadTable(intent.league)
     if (rows.length) {
       const line = formatTable(rows)
-      saveSettings({ last_sport_line: line.slice(0, 220) })
+      saveSettings({ last_sport_line: formatTableHud(rows).slice(0, 220) })
       return {
         handled: true,
-        reply: `${line} OpenLigaDB Tabelle, kein Tipp.`,
+        reply: `${line}\nOpenLigaDB, kein Tipp.`,
         tool: { tool_status: 'executed', tool: 'sport', action: 'table', label: 'Sport' },
         lastTool: 'sport',
       }
@@ -110,11 +110,11 @@ export async function handleSport(
     .map((m) =>
       m.done ? `${m.home} ${m.hs}:${m.as} ${m.away}` : `${m.home} gegen ${m.away}, noch kein Stand`,
     )
-    .join('. ')
+    .join('\n')
   saveSettings({ last_sport_line: line.slice(0, 220) })
   return {
     handled: true,
-    reply: `${line}. OpenLigaDB, kein Tipp.`,
+    reply: `${line}\nOpenLigaDB, kein Tipp.`,
     tool: { tool_status: 'executed', tool: 'sport', action: 'score', label: 'Sport' },
     lastTool: 'sport',
   }
@@ -124,11 +124,57 @@ type Match = { home: string; away: string; hs: number; as: number; done: boolean
 
 type TableRow = { rank: number; name: string; points: number; gf: number; ga: number; played: number }
 
+/** Kurznamen, damit 18 Zeilen auf dem Handy lesbar bleiben. */
+export function shortClub(name: string): string {
+  const n = name.trim()
+  const known: Array<[RegExp, string]> = [
+    [/bayern/i, 'Bayern'],
+    [/freiburg/i, 'Freiburg'],
+    [/augsburg/i, 'Augsburg'],
+    [/leipzig/i, 'Leipzig'],
+    [/dortmund/i, 'Dortmund'],
+    [/k[oö]ln|koeln/i, 'Köln'],
+    [/elversberg/i, 'Elversberg'],
+    [/union/i, 'Union'],
+    [/frankfurt/i, 'Frankfurt'],
+    [/mainz/i, 'Mainz'],
+    [/paderborn/i, 'Paderborn'],
+    [/leverkusen/i, 'Leverkusen'],
+    [/hoffenheim/i, 'Hoffenheim'],
+    [/hamburger|hsv\b/i, 'HSV'],
+    [/werder|bremen/i, 'Bremen'],
+    [/gladbach|mönchengladbach|moenchengladbach/i, 'Gladbach'],
+    [/schalke/i, 'Schalke'],
+    [/stuttgart|vfb/i, 'Stuttgart'],
+    [/heidenheim/i, 'Heidenheim'],
+    [/st\.?\s*pauli/i, 'St. Pauli'],
+    [/wolfsburg/i, 'Wolfsburg'],
+  ]
+  for (const [re, short] of known) {
+    if (re.test(n)) return short
+  }
+  return n
+    .replace(/^(?:1\.\s*)?(?:fc|sc|sv|tsv|tsg|rb|bayer)\s+/i, '')
+    .replace(/\s+\d{2}$/g, '')
+    .trim()
+    .slice(0, 16) || n.slice(0, 16)
+}
+
 export function formatTable(rows: TableRow[]): string {
+  const body = rows.map((r) => {
+    const rank = String(r.rank).padStart(2, ' ')
+    const club = shortClub(r.name).padEnd(12, ' ')
+    const pts = String(r.points).padStart(2, ' ')
+    return `${rank}  ${club} ${pts}   ${r.gf}:${r.ga}`
+  })
+  return ['Platz Verein       Pkt  Tore', ...body].join('\n')
+}
+
+export function formatTableHud(rows: TableRow[]): string {
   return rows
-    .map((r) => `${r.rank}. ${r.name} ${r.points} Pkt ${r.gf}:${r.ga}`)
-    .join('. ')
-    .concat('. ')
+    .slice(0, 3)
+    .map((r) => `${r.rank}. ${shortClub(r.name)} ${r.points}`)
+    .join(' · ')
 }
 
 async function loadTable(league: string): Promise<TableRow[]> {

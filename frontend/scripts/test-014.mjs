@@ -1270,7 +1270,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /13\.31\.0/)
+assert.match(HELP_TEXT, /13\.31\.1/)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
 assert.match(HELP_TEXT, /Keys nicht im Chat/)
@@ -1773,8 +1773,26 @@ assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.table, true)
 assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.league, 'bl1')
 assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.table, false)
 assert.match(
-  formatTable([{ rank: 1, name: 'Bayern', points: 12, gf: 15, ga: 4, played: 4 }]),
-  /1\. Bayern 12 Pkt 15:4/,
+  formatTable([{ rank: 1, name: 'FC Bayern München', points: 12, gf: 15, ga: 4, played: 4 }]),
+  /Bayern/,
+)
+assert.match(
+  formatTable([{ rank: 1, name: 'FC Bayern München', points: 12, gf: 15, ga: 4, played: 4 }]),
+  /\n/,
+)
+assert.doesNotMatch(
+  formatTable([
+    { rank: 1, name: 'Bayern', points: 3, gf: 5, ga: 1, played: 1 },
+    { rank: 2, name: 'Freiburg', points: 3, gf: 4, ga: 1, played: 1 },
+  ]),
+  /1\. Bayern 3 Pkt.*2\. Freiburg/,
+)
+assert.equal(
+  rewriteFollowUp('Das ganze Übersichtlicher', {
+    last_step_tool: 'sport',
+    last_step_utterance: 'Wie steht die Bundesliga?',
+  }),
+  'Wie steht die Bundesliga?',
 )
 assert.equal(parseFoodIntent('Was ist das für ein Produkt Nutella')?.query.toLowerCase().includes('nutella'), true)
 assert.equal(parseLibraryIntent('Was ist das für ein Buch Der Prozess')?.query.toLowerCase().includes('prozess'), true)
