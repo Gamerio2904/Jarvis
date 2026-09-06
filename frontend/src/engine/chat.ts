@@ -545,16 +545,20 @@ export async function streamChat(
     }
 
     if (kind === 'none') {
-      const reply = opts?.voice
-        ? 'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
-        : noBrainLine()
-      setLatencyPath('parser')
-      emitToken(handlers, reply)
-      const assistant = await addMessage(conversationId, 'assistant', reply)
-      const updated = (await touchConversation(conversationId)) || convAfterUser
-      finishLatency()
-      handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
-      return
+      const peek = loadSettings()
+      const livePeek = isLiveLookup(ask, Boolean(peek.shop_discount)) || Boolean(accepted)
+      if (!livePeek) {
+        const reply = opts?.voice
+          ? 'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
+          : noBrainLine()
+        setLatencyPath('parser')
+        emitToken(handlers, reply)
+        const assistant = await addMessage(conversationId, 'assistant', reply)
+        const updated = (await touchConversation(conversationId)) || convAfterUser
+        finishLatency()
+        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+        return
+      }
     }
 
     const s = loadSettings()

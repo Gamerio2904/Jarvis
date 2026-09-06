@@ -254,6 +254,20 @@ const follow = route('und morgen?', {
 })
 assert.equal(follow, 'weather', 'und morgen? nach Wetter-Kontext')
 assert.equal(route('und die Luft', { weatherLast: { kind: 'here', when: 'today', focus: 'general' } }), 'weather')
+assert.equal(
+  route('in 20 Minuten Milch', {
+    weatherLast: { kind: 'place', place: 'München', when: 'today', focus: 'general' },
+  }),
+  'reminder',
+  'Erinnerung nach Wetter nicht als Orts-Wetter',
+)
+assert.equal(
+  route('Termin morgen 15 Uhr Zahnarzt', {
+    weatherLast: { kind: 'here', when: 'today', focus: 'general' },
+  }),
+  'calendar',
+  'Termin nach Wetter nicht als Wetter-Nachfrage',
+)
 assert.equal(route('nächste Bahn nach Heilbronn'), 'transit')
 assert.equal(route('Tagesschau'), 'news')
 assert.equal(route('nächster Feiertag'), 'holiday')

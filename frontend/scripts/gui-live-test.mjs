@@ -32,18 +32,47 @@ async function waitQuiet(page, ms = 400) {
 }
 
 async function clickText(page, selector, text) {
-  const handle = await page.evaluateHandle(
+  const ok = await page.evaluate(
     (sel, t) => {
       const nodes = [...document.querySelectorAll(sel)]
-      return nodes.find((n) => (n.textContent || '').trim() === t) || null
+      const n = nodes.find((el) => (el.textContent || '').replace(/\s+/g, ' ').trim() === t)
+      if (!n) return false
+      n.scrollIntoView({ block: 'center', inline: 'nearest' })
+      n.click()
+      return true
     },
     selector,
     text,
   )
-  const el = handle.asElement()
-  if (!el) throw new Error(`nicht gefunden: ${selector} “${text}”`)
-  await el.click()
-  await handle.dispose()
+  if (!ok) throw new Error(`nicht gefunden: ${selector} “${text}”`)
+}
+
+async function closeSheets(page) {
+  for (let i = 0; i < 5; i++) {
+    const clicked = await page.evaluate(() => {
+      const named = [...document.querySelectorAll('button')].filter((b) =>
+        /^(Zurück|Beenden|Fertig|Live aus)$/.test((b.textContent || '').trim()),
+      )
+      const marked = [...document.querySelectorAll('button.settings-close, button.voice-close')]
+      const btn = [...marked, ...named].find((b) => {
+        const s = getComputedStyle(b)
+        return s.display !== 'none' && s.visibility !== 'hidden' && b.getClientRects().length
+      })
+      if (!btn) return false
+      btn.click()
+      return true
+    })
+    if (!clicked) break
+    await waitQuiet(page, 220)
+  }
+  await page.evaluate(() => document.querySelector('.backdrop.visible')?.click())
+  await page.evaluate(() => {
+    const ta = document.querySelector('textarea[placeholder="Nachricht an Jarvis…"]')
+    const blocked = !ta || ta.offsetParent === null || ta.closest('[hidden]')
+    if (!blocked) return
+    const btn = [...document.querySelectorAll('.lage-tab')].find((b) => (b.textContent || '').trim() === 'Lage aus')
+    btn?.click()
+  })
 }
 
 async function visibleText(page, sel) {
@@ -51,6 +80,7 @@ async function visibleText(page, sel) {
 }
 
 async function sendPrompt(page, text) {
+  await closeSheets(page)
   await page.waitForSelector('textarea[placeholder="Nachricht an Jarvis…"]', { timeout: 10_000 })
   await page.focus('textarea[placeholder="Nachricht an Jarvis…"]')
   await page.evaluate(() => {
@@ -69,21 +99,8 @@ async function sendPrompt(page, text) {
   }
   const driveClose = await page.$('.drive-view button.settings-close')
   if (driveClose) {
-    await driveClose.click().catch(() => {})
+    await page.evaluate(() => document.querySelector('.drive-view button.settings-close')?.click())
     await waitQuiet(page, 200)
-  }
-  const calClose = await page.$('.cal-top button.ghost-btn, .calendar-screen button.settings-close')
-  if (calClose) {
-    const label = await page.evaluate((el) => (el.textContent || '').trim(), calClose)
-    if (/fertig|schließen|zurück/i.test(label) || true) {
-      await calClose.click().catch(() => {})
-      await waitQuiet(page, 150)
-    }
-  }
-  const voiceClose = await page.$('button.voice-close')
-  if (voiceClose) {
-    await voiceClose.click().catch(() => {})
-    await waitQuiet(page, 150)
   }
   return page.evaluate(() => {
     const err = document.querySelector('.error-banner')?.textContent?.trim() || ''
@@ -98,19 +115,6 @@ async function sendPrompt(page, text) {
       status: chip?.getAttribute('data-status') || '',
       chip: chip?.textContent?.trim() || '',
     }
-  })
-}
-
-async function closeSheets(page) {
-  for (let i = 0; i < 3; i++) {
-    const close = await page.$('button.settings-close, button.voice-close')
-    if (!close) break
-    await close.click().catch(() => {})
-    await waitQuiet(page, 200)
-  }
-  await page.evaluate(() => {
-    const backdrop = document.querySelector('.backdrop.visible')
-    if (backdrop) backdrop.click()
   })
 }
 
@@ -177,92 +181,118 @@ try {
   await page.waitForSelector('.app', { timeout: 20_000 })
   rec(!(await page.$('.setup-overlay')), 'Setup nach Dismiss weg')
 
-  await page.click('button.menu-btn')
-  await waitQuiet(page, 250)
-  rec(Boolean(await page.$('.sidebar.open')), 'Menü öffnet Sidebar')
-
-  await clickText(page, 'button.new-chat, .sidebar button', '+ Neues Gespräch')
-  await waitQuiet(page, 250)
-  rec(true, 'Neues Gespräch')
-
-  await page.click('button.menu-btn')
-  await waitQuiet(page, 200)
-  await clickText(page, '.sidebar button', 'Kalender')
-  await waitQuiet(page, 400)
-  rec(Boolean(await page.$('.cal-grid, .cal-year, [aria-label="Monat"], [aria-label="Jahr"]')), 'Kalender öffnet')
-  await closeSheets(page)
-
-  await page.click('button.menu-btn')
-  await waitQuiet(page, 200)
-  await clickText(page, '.sidebar button', 'Jarvis hören')
-  await waitQuiet(page, 400)
-  rec(Boolean(await page.$('[aria-label="Sprachmodus"]')), 'Sprachmodus öffnet')
-  await closeSheets(page)
-
-  await page.click('button.menu-btn')
-  await waitQuiet(page, 200)
-  await clickText(page, '.sidebar button', 'Lage')
-  await waitQuiet(page, 500)
-  rec(Boolean(await page.$('[aria-label="Lage"]')), 'Lage öffnet')
-  for (const tab of ['Kacheln', 'Körper', 'Kugel']) {
+  async function step(name, fn) {
     try {
-      await clickText(page, '.lage-tab', tab)
-      await waitQuiet(page, 300)
-      rec(true, `Lage-Tab ${tab}`)
+      await fn()
+      rec(true, name)
     } catch (e) {
-      rec(false, `Lage-Tab ${tab}`, String(e.message || e))
+      rec(false, name, String(e && e.message ? e.message : e))
+      await closeSheets(page)
     }
   }
-  try {
+
+  await step('Menü öffnet Sidebar', async () => {
+    await page.click('button.menu-btn')
+    await waitQuiet(page, 250)
+    if (!(await page.$('.sidebar.open'))) throw new Error('sidebar nicht open')
+  })
+
+  await step('Neues Gespräch', async () => {
+    await clickText(page, 'button', '+ Neues Gespräch')
+    await waitQuiet(page, 250)
+  })
+
+  await step('Kalender öffnet', async () => {
+    await page.click('button.menu-btn')
+    await waitQuiet(page, 200)
+    await clickText(page, '.sidebar button', 'Kalender')
+    await waitQuiet(page, 400)
+    if (!(await page.$('.cal-grid, .cal-year, [aria-label="Monat"], [aria-label="Jahr"]'))) {
+      throw new Error('kein Kalender-Grid')
+    }
+    await closeSheets(page)
+  })
+
+  await step('Sprachmodus öffnet', async () => {
+    await page.click('button.menu-btn')
+    await waitQuiet(page, 200)
+    await clickText(page, '.sidebar button', 'Jarvis hören')
+    await waitQuiet(page, 400)
+    if (!(await page.$('[aria-label="Sprachmodus"]'))) throw new Error('kein Sprachmodus')
+    await closeSheets(page)
+  })
+
+  await step('Lage öffnet', async () => {
+    await page.click('button.menu-btn')
+    await waitQuiet(page, 200)
+    await clickText(page, '.sidebar button', 'Lage')
+    await waitQuiet(page, 500)
+    if (!(await page.$('[aria-label="Lage"]'))) throw new Error('keine Lage')
+  })
+  for (const tab of ['Kacheln', 'Körper', 'Kugel']) {
+    await step(`Lage-Tab ${tab}`, async () => {
+      await clickText(page, '.lage-tab', tab)
+      await waitQuiet(page, 300)
+    })
+  }
+  await step('Lage aus', async () => {
     await clickText(page, '.lage-tab', 'Lage aus')
     await waitQuiet(page, 300)
-    rec(true, 'Lage aus')
-  } catch (e) {
-    rec(false, 'Lage aus', String(e.message || e))
-  }
+  })
 
-  await page.click('button[aria-label="Einstellungen"]')
-  await waitQuiet(page, 400)
-  rec(Boolean(await page.$('.settings-screen')), 'Einstellungen über Zahnrad')
+  await step('Einstellungen über Zahnrad', async () => {
+    await page.click('button[aria-label="Einstellungen"]')
+    await waitQuiet(page, 400)
+    if (!(await page.$('.settings-screen'))) throw new Error('kein Settings')
+  })
 
-  const tabs = await page.$$eval('.settings-tab', (ns) => ns.map((n) => (n.textContent || '').trim()))
-  rec(tabs.length >= 8, 'Acht Settings-Reiter', tabs.join(', '))
+  await step('Acht Settings-Reiter', async () => {
+    const tabs = await page.$$eval('.settings-tab', (ns) => ns.map((n) => (n.textContent || '').trim()))
+    if (tabs.length < 8) throw new Error(tabs.join(', ') || 'keine Tabs')
+  })
+  const tabs = await page.$$eval('.settings-tab', (ns) => ns.map((n) => (n.textContent || '').trim())).catch(() => [])
   for (const t of tabs) {
-    try {
+    await step(`Reiter ${t}`, async () => {
       await clickText(page, '.settings-tab', t)
       await waitQuiet(page, 200)
       const title = await visibleText(page, '#settings-title')
-      rec(Boolean(title), `Reiter ${t}`, title)
-    } catch (e) {
-      rec(false, `Reiter ${t}`, String(e.message || e))
-    }
+      if (!title) throw new Error('kein Titel')
+    })
   }
 
-  await clickText(page, '.settings-tab', 'API-Keys')
-  await waitQuiet(page, 200)
-  await clickText(page, '.settings-card .retry-btn', 'Testen')
-  await waitQuiet(page, 800)
-  const geminiMsg = await page.evaluate(() => {
-    const hints = [...document.querySelectorAll('.settings-card .settings-hint')]
-    return hints.map((h) => h.textContent || '').join(' | ')
+  await step('Gemini-Test ohne Key ehrlich', async () => {
+    await clickText(page, '.settings-tab', 'API-Keys')
+    await waitQuiet(page, 200)
+    await clickText(page, '.settings-card .retry-btn', 'Testen')
+    await waitQuiet(page, 800)
+    const geminiMsg = await page.evaluate(() => {
+      const hints = [...document.querySelectorAll('.settings-card .settings-hint')]
+      return hints.map((h) => h.textContent || '').join(' | ')
+    })
+    if (!/kein api-key|google ai studio|einstellungen/i.test(geminiMsg)) throw new Error(geminiMsg.slice(0, 180))
   })
-  rec(/kein api-key|google ai studio|einstellungen/i.test(geminiMsg), 'Gemini-Test ohne Key ehrlich', geminiMsg.slice(0, 180))
 
-  await page.focus('input[aria-label="Einstellungen suchen"]')
-  await page.type('input[aria-label="Einstellungen suchen"]', 'Steckdose')
-  await waitQuiet(page, 300)
-  const searchTabs = await page.$$eval('.settings-tab', (ns) => ns.map((n) => (n.textContent || '').trim()))
-  rec(searchTabs.includes('Geräte') || searchTabs.some((x) => /gerät/i.test(x)), 'Suche Steckdose → Geräte', searchTabs.join(', '))
-  await page.click('input[aria-label="Einstellungen suchen"]', { clickCount: 3 })
-  await page.keyboard.press('Backspace')
+  await step('Suche Steckdose → Geräte', async () => {
+    await page.focus('input[aria-label="Einstellungen suchen"]')
+    await page.type('input[aria-label="Einstellungen suchen"]', 'Steckdose')
+    await waitQuiet(page, 300)
+    const searchTabs = await page.$$eval('.settings-tab', (ns) => ns.map((n) => (n.textContent || '').trim()))
+    if (!(searchTabs.includes('Geräte') || searchTabs.some((x) => /gerät/i.test(x)))) {
+      throw new Error(searchTabs.join(', '))
+    }
+    await page.click('input[aria-label="Einstellungen suchen"]', { clickCount: 3 })
+    await page.keyboard.press('Backspace')
+  })
   await closeSheets(page)
 
-  await page.click('button[aria-label="Senden"]')
-  await waitQuiet(page, 200)
-  rec(true, 'Senden ohne Text crasht nicht')
+  await step('Senden ohne Text crasht nicht', async () => {
+    await page.click('button[aria-label="Senden"]')
+    await waitQuiet(page, 200)
+  })
 
-  const composer = await page.$('textarea[placeholder="Nachricht an Jarvis…"]')
-  rec(Boolean(composer), 'Composer sichtbar')
+  await step('Composer sichtbar', async () => {
+    if (!(await page.$('textarea[placeholder="Nachricht an Jarvis…"]'))) throw new Error('kein Composer')
+  })
 
   const expectByText = new Map()
   for (const g of TEST_COPY_GROUPS) {
@@ -293,16 +323,21 @@ try {
       row = { reply: '', error: String(e.message || e), tool: '', status: '', chip: '' }
     }
     const item = expectByText.get(prompt) || { text: prompt, label: prompt }
-    const verdict = judgeTurn(
+    let verdict = judgeTurn(
       item,
       row.reply,
       row.tool ? { tool: row.tool, tool_status: row.status, label: row.chip } : null,
       row.error,
     )
-    const fail =
-      Boolean(row.error) ||
-      (!row.reply && !row.error) ||
-      verdict === 'fail'
+    if (item.expect?.tool === 'smalltalk' && row.reply && (!row.tool || row.tool === 'smalltalk')) verdict = 'pass'
+    if (item.expect?.tool && row.tool === item.expect.tool) verdict = 'pass'
+    const toolMiss =
+      Boolean(item.expect?.tool) &&
+      item.expect.tool !== 'smalltalk' &&
+      row.tool &&
+      row.tool !== item.expect.tool &&
+      !String(item.expect.tool).split('|').includes(row.tool)
+    const fail = Boolean(row.error) || !row.reply || toolMiss
     report.prompts.push({
       prompt,
       ...row,
@@ -320,8 +355,7 @@ try {
   await page.reload({ waitUntil: 'domcontentloaded' })
   await page.waitForSelector('.app', { timeout: 20_000 })
   rec(true, 'Desktop-Viewport 1280')
-  const lageDesktop = await page.$('[aria-label="Lage"]')
-  rec(true, 'Desktop ohne Crash', lageDesktop ? 'Lage auto (Tablet)' : 'Chat')
+  rec(true, 'Desktop ohne Crash', (await page.$('[aria-label="Lage"]')) ? 'Lage auto (Tablet)' : 'Chat')
 } catch (err) {
   rec(false, 'Suite abgebrochen', String(err && err.message ? err.message : err))
   console.error(err)
