@@ -40,7 +40,7 @@ export function ToolChip({
     (status ? `Tool: ${status}` : 'Tool')
   return (
     <span className="tool-chip-wrap">
-      <span className={`tool-chip tool-chip--${status || 'unknown'}`} data-status={status}>
+      <span className={`tool-chip tool-chip--${status || 'unknown'}`} data-status={status} data-tool={tool.tool || ''}>
         {label}
       </span>
       {status === 'pending' && onConfirm ? (

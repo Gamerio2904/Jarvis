@@ -46,4 +46,33 @@ assert.ok(germanQuotaHint(false).includes('console.groq.com'))
 
 assert.equal(userFacingCloudError('Gemini-Key ungültig. In Google AI Studio einen neuen Key holen.', false).includes('ungültig'), true)
 
+const mem = Object.create(null)
+globalThis.localStorage = {
+  getItem: (k) => (k in mem ? mem[k] : null),
+  setItem: (k, v) => {
+    mem[k] = String(v)
+  },
+  removeItem: (k) => {
+    delete mem[k]
+  },
+  clear: () => {
+    for (const k of Object.keys(mem)) delete mem[k]
+  },
+}
+
+const { saveSettings, loadSettings, isGeminiConfigured } = await import('../src/engine/store.ts')
+
+saveSettings({ gemini_api_key: 'AIzaSyDummyKeyForTests123456' })
+assert.equal(loadSettings().gemini_enabled, true, 'Key eintragen schaltet Gemini an')
+assert.equal(isGeminiConfigured(), true)
+
+saveSettings({ gemini_enabled: false })
+assert.equal(isGeminiConfigured(), false, 'Schalter bleibt aus wenn explizit')
+
+saveSettings({ gemini_api_key: 'AIzaSyDummyKeyForTests123456', gemini_enabled: false })
+assert.equal(loadSettings().gemini_enabled, false, 'explizites aus gewinnt über Key-Patch')
+
+saveSettings({ gemini_api_key: '', gemini_enabled: true })
+assert.equal(isGeminiConfigured(), false)
+
 console.log('ok gemini fallback cascade')

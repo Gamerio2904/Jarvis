@@ -2,7 +2,7 @@ import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 
-export const APP_VERSION = '13.31.1'
+export const APP_VERSION = '13.31.2'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -423,7 +423,15 @@ export function isGeminiConfigured(s = loadSettings()): boolean {
 
 export function saveSettings(patch: Partial<Settings>): Settings {
   const next = { ...loadSettings(), ...patch, version: APP_VERSION }
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(next))
+  // Key eintragen = Opt-in. Explizites gemini_enabled: false bleibt aus.
+  if (patch.gemini_api_key !== undefined && patch.gemini_enabled === undefined && next.gemini_api_key.trim()) {
+    next.gemini_enabled = true
+  }
+  try {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(next))
+  } catch {
+    /* node tests */
+  }
   return next
 }
 

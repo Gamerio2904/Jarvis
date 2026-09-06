@@ -1387,7 +1387,8 @@ function App() {
     const t = reply || ''
     if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
     else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t)) openSettings('haus')
-    else if (/Gemini an, aber kein/i.test(t)) openSettings('keys')
+    else if (/Gemini-Key liegt, aber Gemini ist aus/i.test(t)) openSettings('hirn')
+    else if (/Gemini(?: ist)? an, aber kein/i.test(t)) openSettings('keys')
     else if (/Einstellungen\s*→\s*Musik|Spotify anmelden/i.test(t)) openSettings('musik')
   }
 

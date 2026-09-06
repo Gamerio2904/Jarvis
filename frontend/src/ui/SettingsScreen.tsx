@@ -578,7 +578,16 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <h3>
                   Gemini (Google) <KeyMark on={Boolean(s?.gemini_api_key?.trim())} />
                 </h3>
-                <p className="settings-hint">Hauptweg. aistudio.google.com/apikey — nicht teilen.</p>
+                <p className="settings-hint">Hauptweg. aistudio.google.com/apikey — nicht teilen. Key eintragen schaltet Gemini an.</p>
+                <label className="settings-toggle">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(s?.gemini_enabled)}
+                    disabled={busy}
+                    onChange={(e) => void p.patchSetting({ gemini_enabled: e.target.checked })}
+                  />
+                  <span>Gemini zuerst</span>
+                </label>
                 <label className="settings-field">
                   <span>API-Key</span>
                   <SecretField
@@ -586,7 +595,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     defaultValue={s?.gemini_api_key || ''}
                     disabled={busy}
                     placeholder="AIza… hier einfügen"
-                    onBlur={(e) => void p.patchSetting({ gemini_api_key: e.target.value.trim() })}
+                    onBlur={(e) => {
+                      const key = e.target.value.trim()
+                      void p.patchSetting(key ? { gemini_api_key: key, gemini_enabled: true } : { gemini_api_key: '' })
+                    }}
                   />
                 </label>
                 <div className="settings-actions">

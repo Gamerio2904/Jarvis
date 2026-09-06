@@ -544,9 +544,10 @@ export async function streamChat(
       return
     }
 
-    if (opts?.voice && kind === 'none') {
-      const reply =
-        'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
+    if (kind === 'none') {
+      const reply = opts?.voice
+        ? 'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
+        : noBrainLine()
       setLatencyPath('parser')
       emitToken(handlers, reply)
       const assistant = await addMessage(conversationId, 'assistant', reply)
@@ -554,10 +555,6 @@ export async function streamChat(
       finishLatency()
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
-    }
-
-    if (kind === 'none') {
-      throw new Error(noBrainLine())
     }
 
     const s = loadSettings()

@@ -5,6 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `13.31.2` — Gemini-Key schaltet Hirn an — *CODE*
+
+- **Keys:** Gemini-Key eintragen schaltet Gemini an (Opt-in). Explizites Aus bleibt aus.
+- **Chat:** Ohne Hirn keine Fehler-Banner mehr — Jarvis antwortet im Chat, Tools laufen weiter.
+- **Keys-Tab:** Schalter „Gemini zuerst“ liegt neben dem Key.
+
 ## `13.31.1` — Bundesliga-Tabelle lesbar — *CODE*
 
 - **Sport:** Eine Zeile pro Verein, Kurznamen, Platz/Pkt/Tore. Kein Satz-Klumpen.
