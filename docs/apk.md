@@ -1,12 +1,12 @@
-# Android-APK — Sideload `13.31.6`
+# Android-APK — Sideload `13.31.7`
 
-App-Code **`13.31.7`**. Sideload-APK **`13.31.6`**. LocateAnything-Gewichte nicht in der APK.
+App-Code **`13.31.7`**. Sideload-APK **`13.31.7`**. LocateAnything-Gewichte nicht in der APK.
 
 **Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback.
 
 **Deinstall** (andere Signatur): WebView-Daten weg. Vor Neuinstall Hausstand exportieren.
 
-**13.31.7:** Download-Button Liquid-Fill (Hausstand/Debug). Sideload bleibt `13.31.6`.
+**13.31.7:** Download-Button Liquid-Fill (Hausstand/Debug).
 
 **13.31.6:** Navigation-Island, gleitender Tab-Kreis (Chat/Lage/Hören/Kalender/Mehr).
 
@@ -30,11 +30,11 @@ App-Code **`13.31.7`**. Sideload-APK **`13.31.6`**. LocateAnything-Gewichte nich
 
 ## Download
 
-**Fertige APK `13.31.6`:**  
+**Fertige APK `13.31.7`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `13.31.6` · versionCode `133106`
+- versionName `13.31.7` · versionCode `133107`
 - App-ID `local.jarvis.app`
 
 1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).

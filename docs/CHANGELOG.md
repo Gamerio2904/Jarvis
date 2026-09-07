@@ -8,7 +8,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 ## `13.31.7` — Download-Button Liquid-Fill — *CODE*
 
 - **GUI:** Hausstand **Exportieren** und Debug **Chat herunterladen**: dunkles Gefäß, Welle steigt, Haken von oben. Jarvis-Grün, kein Blau aus dem Reel.
-- **Sideload:** bleibt `13.31.6`.
+- **Sideload:** `13.31.7` (versionCode `133107`).
 
 ## `13.31.6` — Navigation-Island, gleitender Tab-Kreis — *CODE*
 
