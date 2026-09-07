@@ -5,14 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-## `13.40` — Sprachmodus — *PLAN*
+## `13.44.0` — Sprachmodus — *CODE*
 
-Sprints **221–225**. Execute noch nicht. Sideload bleibt `13.31.7` bis Sprint 225.
+Sprints **221–225**. Sideload **`13.44.0`** (versionCode `133400`).
 
-- **TV-Stimme:** „Fernseher an“ aus dem Mic (Alts + Wörterbuch), sonst ehrlich Settings.
-- **Hören:** Autokorrektur über `fernseheren` hinaus, `pickHeard` bevorzugt Geräte-Alts.
-- **Antworten:** 1–2 Sätze, Tool zuerst, schneller First-Token.
-- **Mund:** eine TTS-Lane, flüssig vorlesen, kein Pico-Sprung.
+- **TV-Stimme:** „Fernseher an“, „TV an“, „Mach den Fernseher an“, „Fernseher einschalten“ treffen `handleTv`. Ohne `tv_enabled` ehrlich Settings.
+- **Hören:** Autokorrektur `fanseher` / `fernseha` / `t v` / `fernseheren`; `pickHeard` bevorzugt TV-Alts (on/off +10).
+- **Antworten:** `VOICE_HINT` 1–2 Sätze, Tool zuerst, 240 Tokens. Mund ohne Markdown (`spokenForGemini`).
+- **Mund:** eine TTS-Lane (`firstBlobWins` + Lock), Rate 1.0, Standing ohne Pico-Race.
 - **Won’t:** Whisper, Piper-ONNX, Pipecat, Gemini Live.
 
 Quelle: [`61-next.md`](./61-next.md).

@@ -2,7 +2,7 @@
 
 PO 2026-09-03: Körper nimmt den **Eingang** (Auge, Ohr, …), entscheidet welche **Wissens- und Skill-Knoten** sichtbar sind, als tiefer werdender Baum. 195 e5 **FREEZE**. Kein Qdrant.
 
-**App-Stand:** Historisch Code **`13.30.0`**. Live **`13.31.7`**. Hirn Gemini → Groq → 0,5B. Parser zuerst.
+**App-Stand:** Historisch Code **`13.30.0`**. Live **`13.44.0`**. Hirn Gemini → Groq → 0,5B. Parser zuerst.
 
 Gold: `npm run test:body-13`.
 

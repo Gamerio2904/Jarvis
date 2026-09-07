@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`13.31.7`**. Sideload **`13.31.7`**. `6.50` = Gemini Hauptweg. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Sprachmodus [`61-next.md`](./61-next.md) **PLAN** `13.40`. Stabilität V1–V9 **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`.
+> **Jetzt:** Code **`13.44.0`**. Sideload **`13.44.0`**. `6.50` = Gemini Hauptweg. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Stabilität V1–V9 **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -522,17 +522,17 @@ Organ = Eingang. Skill-Knoten = Register. Wissen = Pack/Pin/Termin. Token-Cluste
 | `13.31.6` | Navigation-Island, gleitender Tab-Kreis | Patch |
 | `13.31.7` | Download-Button Liquid-Fill (Hausstand/Debug) | Patch |
 
-### `13.40` — Sprachmodus [`61-next.md`](./61-next.md) **PLAN**
+### `13.40` — Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`
 
 Hören, TV-Stimme, Antworten, Mund. Kein Whisper, kein Piper-ONNX.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `13.40.0` | Leit + Won’t | 221 PLAN |
-| `13.41.0` | TV-Stimme: Fernseher an | 222 PLAN |
-| `13.42.0` | Hören + Autokorrektur | 223 PLAN |
-| `13.43.0` | Antworten + Tempo | 224 PLAN |
-| `13.44.0` | Mund flüssig + Gold + Sideload | 225 PLAN |
+| `13.40.0` | Leit + Won’t | 221 CODE in `13.44.0` |
+| `13.41.0` | TV-Stimme: Fernseher an | 222 CODE in `13.44.0` |
+| `13.42.0` | Hören + Autokorrektur | 223 CODE in `13.44.0` |
+| `13.43.0` | Antworten + Tempo | 224 CODE in `13.44.0` |
+| `13.44.0` | Mund flüssig + Gold + Sideload | 225 CODE |
 
 ### Weitere Beispiele
 

@@ -1,9 +1,9 @@
-# Sprint 223 — Hören + Autokorrektur (`13.42.0`) **PLAN**
+# Sprint 223 — Hören + Autokorrektur (`13.42.0`) **CODE** in `13.44.0`
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
-| Ziel-Version | **`13.42.0`** |
+| Status | **CODE** Must |
+| Ziel-Version | **`13.42.0`** (geliefert in `13.44.0`) |
 | Quelle | [`61-next.md`](../61-next.md) |
 
 ## Ziel
@@ -12,6 +12,6 @@ STT-Tippfehler werden Wörterbuch + Alt-Wahl, nicht „nochmal sagen“. Native 
 
 ## DoD
 
-- [ ] `repairSpeech` kennt weitere TV-Formen (`fanseher`, `t v an`, …)
-- [ ] Gold S1/S4 in `test-014`
-- [ ] Kein Whisper
+- [x] `repairSpeech` kennt weitere TV-Formen (`fanseher`, `t v an`, …)
+- [x] Gold S1/S4 in `test-014`
+- [x] Kein Whisper

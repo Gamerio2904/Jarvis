@@ -32,7 +32,7 @@ export type TvWatchIntent =
   | { kind: 'open'; app: TvAppId }
   | { kind: 'play'; title: string; app?: TvAppId; content?: 'movie' | 'show' | 'video' }
 
-export const TV_ANCHOR = /\b(fernseher|fernseh|\btv\b|tizen|samsung)\b/i
+export const TV_ANCHOR = /\b(fernseher|fernsehen|fernseh|\btv\b|tizen|samsung)\b/i
 export const FIRE_ANCHOR =
   /\b(?:fire[\s-]*tv|fire[\s-]*stick|amazon[\s-]*fire(?:[\s-]*tv|[\s-]*stick)?|amazon[\s-]*stick)\b/i
 export const TV_FOLLOWUP_MS = 120_000

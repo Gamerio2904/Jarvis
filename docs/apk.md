@@ -1,10 +1,12 @@
-# Android-APK — Sideload `13.31.7`
+# Android-APK — Sideload `13.44.0`
 
-App-Code **`13.31.7`**. Sideload-APK **`13.31.7`**. LocateAnything-Gewichte nicht in der APK.
+App-Code **`13.44.0`**. Sideload-APK **`13.44.0`**. LocateAnything-Gewichte nicht in der APK.
 
 **Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback.
 
 **Deinstall** (andere Signatur): WebView-Daten weg. Vor Neuinstall Hausstand exportieren.
+
+**13.44.0:** Sprachmodus: TV-Stimme aus dem Mic, Autokorrektur (`fanseher` / `t v`), 1–2 Sätze, eine TTS-Lane. Kein Whisper, kein Piper-ONNX.
 
 **13.31.7:** Download-Button Liquid-Fill (Hausstand/Debug).
 
@@ -30,11 +32,11 @@ App-Code **`13.31.7`**. Sideload-APK **`13.31.7`**. LocateAnything-Gewichte nich
 
 ## Download
 
-**Fertige APK `13.31.7`:**  
+**Fertige APK `13.44.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `13.31.7` · versionCode `133107`
+- versionName `13.44.0` · versionCode `133400`
 - App-ID `local.jarvis.app`
 
 1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).

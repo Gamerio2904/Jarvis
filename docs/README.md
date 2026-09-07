@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`13.31.7`**. Sideload **`13.31.7`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprachmodus [`61-next.md`](./61-next.md) **PLAN** `13.40`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`13.44.0`**. Sideload **`13.44.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -66,8 +66,8 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 58 | [Fachwissen 11.0](./58-next.md) | **CODE** `11.60.0` — Deep Research + Teach-Packs; Sprints 202–208 |
 | 59 | [Drei Flächen 12.0](./59-next.md) | **CODE** `12.70.0` — Tablet + Presence + PC-Viewer; Sprints 209–216 |
 | 60 | [Körper-Wissensbaum 13.0](./60-next.md) | **CODE** `13.30.0` — Eingang → Skill → Wissen; Sprints 217–220 |
-| 61 | [Sprachmodus 13.40](./61-next.md) | **PLAN** `13.40` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
-| — | [APK](./apk.md) | Sideload `13.31.7`; Deinstall löscht Keys — erst Hausstand-Export |
+| 61 | [Sprachmodus 13.40](./61-next.md) | **CODE** `13.44.0` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
+| — | [APK](./apk.md) | Sideload `13.44.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -247,10 +247,10 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 218 | `13.10.0` | **CODE** in `13.30.0` (body-graph) |
 | 219 | `13.20.0` | **CODE** in `13.30.0` (BodyTree) |
 | 220 | `13.30.0` | **CODE** (Kalender-Härte / Gold) |
-| 221 | `13.40.0` | **PLAN** (Sprachmodus Leit) |
-| 222 | `13.41.0` | **PLAN** (TV-Stimme Fernseher an) |
-| 223 | `13.42.0` | **PLAN** (Hören + Autokorrektur) |
-| 224 | `13.43.0` | **PLAN** (Antworten + Tempo) |
-| 225 | `13.44.0` | **PLAN** (Mund flüssig + Gold) |
+| 221 | `13.40.0` | **CODE** in `13.44.0` (Sprachmodus Leit) |
+| 222 | `13.41.0` | **CODE** in `13.44.0` (TV-Stimme Fernseher an) |
+| 223 | `13.42.0` | **CODE** in `13.44.0` (Hören + Autokorrektur) |
+| 224 | `13.43.0` | **CODE** in `13.44.0` (Antworten + Tempo) |
+| 225 | `13.44.0` | **CODE** (Mund flüssig + Gold) |
 
-**Aktuell:** Code **`13.31.7`**. Sideload `13.31.7`. Nächste Execute-Schiene Sprachmodus [`61-next.md`](./61-next.md) **PLAN** 221–225. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`13.44.0`**. Sideload `13.44.0`. Sprachmodus [`61-next.md`](./61-next.md) **CODE** 221–225. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).

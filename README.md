@@ -4,7 +4,7 @@
   <img src="frontend/native/brand/cover.png" alt="Jarvis" width="920" />
 </p>
 
-Privater Assistant. Läuft **auf dem Handy**. App-Code **`13.31.7`**. Sideload **`13.31.7`**. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen.
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`13.44.0`**. Sideload **`13.44.0`**. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen.
 
 **Hirn:** Gemini (API-Key in Einstellungen → Cloud) ist der **Hauptweg**. Groq ist Backup. Das lokale 0,5B-Qwen ist **reiner letzter Fallback**, kein ChatGPT. Parser wählen die Geräte; das Modell formuliert. Tools, Speicher und Keys bleiben auf dem Gerät.
 
@@ -20,7 +20,7 @@ Browser: http://localhost:5173 — Overlay **Gemini zuerst**. Gemini-Key eintrag
 
 ## Android-APK
 
-Sideload **`Jarvis.apk` `13.31.7`** (versionCode `133107`):  
+Sideload **`Jarvis.apk` `13.44.0`** (versionCode `133400`):  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ```bat
