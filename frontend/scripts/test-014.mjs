@@ -150,7 +150,7 @@ import { parseChessIntent } from '../src/engine/chess.ts'
 import { parseSportIntent, formatTable } from '../src/engine/sport.ts'
 import { parseFoodIntent } from '../src/engine/food.ts'
 import { parseLibraryIntent } from '../src/engine/library.ts'
-import { parseLawIntent, isLawWikiTitle, lawWikiQuery } from '../src/engine/law.ts'
+import { parseLawIntent, isLawWikiTitle, lawWikiQuery, lawWikiTitleScore } from '../src/engine/law.ts'
 import { parseHaushaltIntent } from '../src/engine/haushalt.ts'
 import { parseSensorsIntent } from '../src/engine/sensors.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
@@ -2240,6 +2240,9 @@ assert.equal(isImportJunkMemory({ key: 'getränk', value: 'ich — fass das in e
 assert.equal(isImportJunkMemory({ key: 'name', value: 'Timon' }), false)
 assert.equal(isLawWikiTitle('Darf ich bitten?', 'Schlagerstar Vincent Gross'), false)
 assert.equal(isLawWikiTitle('Grillverbot', 'In Parks oft durch Grünanlagenverordnung'), true)
+assert.equal(isLawWikiTitle('Grillen', 'Grillverbot in Parks'), true)
+assert.equal(isLawWikiTitle('Liste der Straßen und Plätze in Berlin-Nikolassee', 'Grillverbot im Park'), false)
+assert.ok(lawWikiTitleScore('Grillen', 'Grillverbot') > lawWikiTitleScore('Salzgittersee', 'Park Grillverbot'))
 assert.equal(lawWikiQuery('Darf ich im Park grillen?'), 'Grillverbot')
 {
   const line = formatRecallReply('Zahnarzt', [

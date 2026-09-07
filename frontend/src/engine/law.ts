@@ -36,9 +36,12 @@ export async function handleLaw(
       lastTool: 'law',
     }
   }
+  const extra = /\bpark\b/i.test(intent.query)
+    ? ' Ob Grillen im Park erlaubt ist, steht in der örtlichen Grünanlagenverordnung, nicht in einem Bundesgesetz.'
+    : ''
   return {
     handled: true,
-    reply: `${wiki.extract} ${wiki.url} Gesetzestexte: ${link} Das ist kein Anwaltsrat.`,
+    reply: `${wiki.extract}${extra} ${wiki.url} Gesetzestexte: ${link} Das ist kein Anwaltsrat.`,
     tool: { tool_status: 'executed', tool: 'law', action: 'lookup', label: 'Recht' },
     lastTool: 'law',
     research: {
@@ -61,8 +64,9 @@ export async function handleLaw(
 
 const LAW_SKIP_TITLE =
   /\b(darf ich bitten|casting|talentshow|schlager|sat\.1|rtl|prosieben|castingshow)\b/i
+const LAW_SKIP_PAGE = /^(liste der|westpark|mainz-|covid-19)/i
 const LAW_KEEP =
-  /\b(grill|park|verbot|gesetz|ordnung|vorschrift|bußgeld|bussgeld|ordnungsamt|grünfläche|gruenflaeche|waldgesetz)\b/i
+  /\b(grill(?:en|verbot)?|park|verbot|gesetz|ordnung|vorschrift|bußgeld|bussgeld|ordnungsamt|grünfläche|gruenflaeche|waldgesetz)\b/i
 
 export function lawWikiQuery(q: string): string {
   if (/\bgrillen\b/i.test(q) || /\bgrillverbot\b/i.test(q)) return 'Grillverbot'
@@ -70,10 +74,41 @@ export function lawWikiQuery(q: string): string {
 }
 
 export function isLawWikiTitle(title: string, snippet = ''): boolean {
+  if (LAW_SKIP_PAGE.test(title) || /straßen und plätze/i.test(title)) return false
   const blob = `${title} ${snippet}`
   if (LAW_SKIP_TITLE.test(blob)) return false
   if (LAW_KEEP.test(blob)) return true
   return /gesetz|verordnung|ordnung|verbot/i.test(title)
+}
+
+export function lawWikiTitleScore(title: string, snippet = ''): number {
+  if (!isLawWikiTitle(title, snippet)) return -1
+  const t = title.toLowerCase()
+  if (t === 'grillverbot' || t === 'grillen') return 10
+  if (/grillverbot|grünanlagenverordnung|gruenanlagenverordnung/.test(t)) return 8
+  if (/gesetz|verordnung|verbot/.test(t)) return 6
+  return 3
+}
+
+function wikiPageUrl(title: string): string {
+  return `https://de.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`
+}
+
+function cleanWikiSnippet(raw: string): string {
+  return raw.replace(/<[^>]+>/g, '').replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim()
+}
+
+async function wikiExtract(title: string): Promise<string> {
+  const url = `https://de.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=1&explaintext=1&redirects=1&titles=${encodeURIComponent(title)}&utf8=&format=json`
+  try {
+    const { status, text } = await getText(url, { Accept: 'application/json', 'User-Agent': UA['User-Agent'] })
+    if (status < 200 || status >= 300 || !text) return ''
+    const data = JSON.parse(text) as { query?: { pages?: Record<string, { extract?: string }> } }
+    const page = Object.values(data.query?.pages || {})[0]
+    return String(page?.extract || '').replace(/\s+/g, ' ').trim()
+  } catch {
+    return ''
+  }
 }
 
 async function wikiHit(q: string): Promise<{ title: string; extract: string; url: string } | null> {
@@ -82,18 +117,21 @@ async function wikiHit(q: string): Promise<{ title: string; extract: string; url
     const { status, text } = await getText(url, { Accept: 'application/json', 'User-Agent': UA['User-Agent'] })
     if (status < 200 || status >= 300 || !text) return null
     const data = JSON.parse(text) as { query?: { search?: Array<{ title?: string; snippet?: string }> } }
-    const rows = data.query?.search || []
-    const row = rows.find((r) => isLawWikiTitle(String(r.title || ''), String(r.snippet || '')))
-    const title = String(row?.title || '').trim()
-    if (!title) return null
-    const snippet = String(row?.snippet || '')
-      .replace(/<[^>]+>/g, '')
-      .replace(/&quot;/g, '"')
-      .trim()
+    const rows = (data.query?.search || [])
+      .map((r) => ({
+        title: String(r.title || '').trim(),
+        snippet: cleanWikiSnippet(String(r.snippet || '')),
+        score: lawWikiTitleScore(String(r.title || ''), String(r.snippet || '')),
+      }))
+      .filter((r) => r.title && r.score >= 0)
+      .sort((a, b) => b.score - a.score)
+    const row = rows[0]
+    if (!row) return null
+    const extract = (await wikiExtract(row.title)) || row.snippet || row.title
     return {
-      title,
-      extract: snippet.slice(0, 220) || title,
-      url: `https://de.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`,
+      title: row.title,
+      extract: extract.slice(0, 280),
+      url: wikiPageUrl(row.title),
     }
   } catch {
     return null
