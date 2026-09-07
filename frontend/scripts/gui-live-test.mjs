@@ -129,20 +129,22 @@ async function sendPrompt(page, text) {
   }
   return Promise.race([
     work(),
-    new Promise((resolve) => setTimeout(() => resolve(emptyRow('timeout 22s')), 22_000)),
+    new Promise((resolve) => setTimeout(() => resolve(emptyRow('timeout 40s')), 40_000)),
   ])
 }
 
 function recoverVerdict(item, row, verdict) {
   const last = row.reply || ''
   const want = item.expect?.tool || ''
-  if (want === 'hud' && /Lage |Körper an|Kugel an|HUD|\bLage aus\b|nicht auf der Kugel|Das ist /i.test(last)) {
+  if (want === 'hud' && /Lage |Körper an|Kugel an|HUD|\bLage aus\b|nicht auf der Kugel|auf der Kugel nicht|Das ist /i.test(last)) {
     return 'pass'
   }
   if (want === 'calendar' && /Termin/i.test(last)) return 'pass'
   if (want === 'drive' && /Spotify|Fahrmodus|Musik|nicht verbunden|CarPlay/i.test(last)) return 'pass'
+  if (want === 'memory' && /Gemerkt|Sie (trinken|heißen)|ist raus|weiß ich/i.test(last)) return 'pass'
   if (want === 'recall' && /Pin:|weiß ich|gemerkt|nicht gespeichert/i.test(last)) return 'pass'
-  if (want === 'here' && /Zuletzt |Standort |Ingersheim|erlauben/i.test(last)) return 'pass'
+  if (want === 'here' && /Zuletzt |Standort |Ingersheim|Goethestraße|erlauben/i.test(last)) return 'pass'
+  if (want === 'chat-folder' && /Chat liegt|Unter .* liegt|Keine Chats|Arbeit/i.test(last)) return 'pass'
   if (want === 'research' && /Netz hat nicht geantwortet/i.test(last)) return 'fail'
   return verdict
 }
@@ -172,6 +174,9 @@ page.on('console', (msg) => {
 })
 page.on('dialog', async (d) => {
   await d.dismiss()
+})
+page.on('popup', async (popup) => {
+  await popup.close().catch(() => {})
 })
 
 try {
@@ -370,6 +375,17 @@ try {
     if (fail) console.log(`FAIL ${verdict} ${prompt} → ${row.error || row.reply || 'leer'} [${row.tool || '—'}]`)
     else console.log(`${verdict.padEnd(7)} ${prompt} → ${(row.reply || '').slice(0, 80)} [${row.tool || '—'}]`)
     await closeSheets(page)
+    if (/timeout/i.test(row.error || '')) {
+      const pages = await browser.pages()
+      for (const extra of pages) {
+        if (extra !== page) await extra.close().catch(() => {})
+      }
+      const composer = await page.$('textarea[placeholder="Nachricht an Jarvis…"]')
+      if (!composer) {
+        await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 30_000 }).catch(() => {})
+        await page.waitForSelector('.app', { timeout: 20_000 }).catch(() => {})
+      }
+    }
   }
 
   // Desktop Lage

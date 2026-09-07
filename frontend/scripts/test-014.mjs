@@ -1937,6 +1937,13 @@ assert.equal(
   judgeTurn({ label: 't', text: 'x', expect: { tool: 'help' } }, 'Jarvis auf diesem Handy', { tool: 'help', tool_status: 'executed' }),
   'pass',
 )
+assert.equal(
+  judgeTurn(
+    { label: 't', text: 'x', expect: { tool: 'eye', skipIf: 'no_gemini' } },
+    'Dafür Gemini an. Dann Foto-Knopf — das Bild geht zu Google, nicht lokal.',
+  ),
+  'skip',
+)
 assert.equal(parseTraceIntent('Was ist traceroute?')?.kind, 'explain')
 assert.equal(parseTraceIntent('Welche Route nimmt google.de')?.kind, 'run')
 assert.equal(parseDigestIntent('Fass das Gespräch zusammen')?.kind, 'summary')
