@@ -518,6 +518,7 @@ Organ = Eingang. Skill-Knoten = Register. Wissen = Pack/Pin/Termin. Token-Cluste
 | `13.31.2` | Gemini-Key schaltet Hirn an; kein Fehler-Banner ohne Hirn | Patch |
 | `13.31.3` | Browser-Suche ohne CORS-Leere; Spiele Musik ohne Hirn-Banner | Patch |
 | `13.31.4` | Hausstand-Import schaltet Gemini; Recall Fachwissen; Law-Wiki | Patch |
+| `13.31.5` | PC-QR koppelt Handy; Token 401 | Patch |
 
 ### Weitere Beispiele
 

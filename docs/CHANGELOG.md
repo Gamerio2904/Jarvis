@@ -5,11 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `13.31.5` — PC per QR koppeln — *CODE*
+
+- **PC:** Im Jarvis-PC-Fenster **QR-Code öffnen**, auf dem Handy **QR scannen** — IP, Port und Token kommen allein, dann Status-Ping.
+- **Chat:** „PC QR scannen“ / „PC koppeln“ öffnet den Scanner. Falsches Token liefert HTTP 401.
+- **Token:** Neue PC-Tokens sind 8 Zeichen (kein 6-stelliger Zufall mehr). Alte Codes bleiben gültig.
+
 ## `13.31.4` — Hausstand-Import schaltet Gemini, Recall trifft Fachwissen — *CODE*
 
 - **Import:** Gemini-Key im Hausstand schaltet Gemini an (alte Exporte hatten den Schalter aus).
 - **Gedächtnis:** Befehlstext wie „fass das in einem Satz“ wird nicht als Getränk importiert.
-- **Recht:** Wikipedia-Shows („Darf ich bitten?“) und Straßenlisten zählen nicht; Grill-Fragen nehmen den Grillen-Extract.
+- **Recht:** Wikipedia-Shows und Straßenlisten raus; Grill im Park: Grillen-Extract plus Hinweis auf die kommunale Grünanlagenverordnung.
 - **Suche:** „BIP in einer Tabelle“ sucht Bruttoinlandsprodukt Deutschland, nicht den Artikel Tabelle.
 - **Recall:** Fachwissen-Packs (Steuer 2026) und Kalender vor Chat-Dumps; die Frage selbst zählt nicht als Treffer.
 - **Groq:** aktuelle Modelle zuerst (Qwen 3.8 / gpt-oss); Llama-3.1 und Gemma2 sind tot.

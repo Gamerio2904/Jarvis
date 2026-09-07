@@ -10,10 +10,12 @@ export const PC_COPY_PROMPTS = [
   'Maus nach rechts',
   'Zeig Ordner Downloads',
   'PC testen',
+  'PC QR scannen',
 ] as const
 
 export type PcIntent =
   | { kind: 'status' }
+  | { kind: 'pair_scan' }
   | { kind: 'screen' }
   | { kind: 'stream' }
   | { kind: 'stream_stop' }
@@ -66,7 +68,14 @@ export function parsePcIntent(text: string): PcIntent | null {
   if (/\b(banking|überweis|ueberweis|iban)\b/i.test(t)) return null
 
   if (
-    /^\s*(?:pc|rechner)\s+(?:testen|da|erreichbar|koppeln|prüfen)\s*[.!?]*$/i.test(t) ||
+    /^\s*(?:pc|rechner)\s+(?:qr(?:[\s-]*code)?(?:\s*(?:scannen|scan))?|koppeln)\s*[.!?]*$/i.test(t) ||
+    /^\s*(?:qr(?:[\s-]*code)?)\s*(?:scannen|scan)\s+(?:am\s+)?(?:pc|rechner)\s*[.!?]*$/i.test(t)
+  ) {
+    return { kind: 'pair_scan' }
+  }
+
+  if (
+    /^\s*(?:pc|rechner)\s+(?:testen|da|erreichbar|prüfen)\s*[.!?]*$/i.test(t) ||
     /^\s*(?:ist\s+der\s+)?(?:pc|rechner)\s+(?:da|an|erreichbar)\s*[.!?]*$/i.test(t)
   ) {
     return { kind: 'status' }

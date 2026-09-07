@@ -1,6 +1,6 @@
 import { loadSettings, persistLastList, saveSettings } from './store.ts'
 import { getJson, postJson } from './http-json.ts'
-import { sanitizePcHost } from './pc-host.ts'
+import { isAllowedPcHost, sanitizePcHost } from './pc-host.ts'
 import type { ToolMeta } from './tools.ts'
 import { parseTraceIntent } from './trace-parse.ts'
 
@@ -49,6 +49,9 @@ async function runTrace(host: string): Promise<{ ok: true; lines: string[] } | {
       message:
         'Vom Handy kein Traceroute — Android gibt kein ICMP. Am Windows-PC JarvisPC starten, dann: Welche Route nimmt google.de.',
     }
+  }
+  if (!isAllowedPcHost(pcHost)) {
+    return { ok: false, message: 'PC-IP nur 192.168… oder 10…. Nicht 172 (WSL), nicht Internet.' }
   }
   const port = s.pc_port > 0 ? s.pc_port : 18790
   const url = `http://${pcHost}:${port}/v1/trace`

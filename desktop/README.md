@@ -9,24 +9,19 @@ Das Handy denkt. Der PC ist nur ein Werkzeug **oder ein Fenster**. **Das Fenster
 
 Ohne laufendes Handy-Hirn: „Handy nicht im WLAN / Presence aus“ — kein Fake-Chat. Kein zweites Gedächtnis auf Disk.
 
-## Einmal einrichten
+## Einmal einrichten — QR
 
 1. Im Jarvis-Ordner `desktop\JarvisPC.bat` **doppelklicken**. Ein Fenster „Jarvis PC“ bleibt stehen. Die schwarze Konsole darf zu, das **graue Fenster** nicht.
-2. Im Fenster steht **IP (WLAN/LAN)** — die mit `192.168.…` oder `10.…`. **Nicht** `172.…` (oft WSL/Hyper-V) und nicht `127.0.0.1`.
-3. **Token** daneben kopieren (ein Klick).
-4. Windows: WLAN-Profil **Privat** (nicht Öffentlich). Beim gelben Firewall-Hinweis **Zulassen**. Oder im Jarvis-PC-Fenster **Firewall erlauben**.
+2. Im grauen Fenster **QR-Code öffnen**. Es geht ein weißes Quadrat im Browser auf.
+3. Handy: Jarvis → Einstellungen → **Geräte** → **QR scannen**. Kamera auf den Code. Fertig wenn das Handy „PC-App erreicht“ sagt **und** im PC-Fenster kurz „Handy …“ / „Anfrage von …“ steht.
+4. Windows: WLAN-Profil **Privat**. Beim gelben Firewall-Hinweis **Zulassen**, oder im Jarvis-PC-Fenster **Firewall erlauben**.
 5. Handy und PC im **gleichen WLAN**, nicht Gäste-WLAN, nicht Mobilfunk.
-6. Handy: Jarvis → Einstellungen → **PC**
-   - Schalter **PC-Steuerung an**
-   - IP einfügen (nur die Zahl, ohne `http://`, ohne Port)
-   - Port `18790` lassen
-   - Token einfügen
-   - **PC testen**
 
-Fertig wenn das Handy sagt „PC-App erreicht“ **und** im PC-Fenster kurz „Handy …“ steht.
+Ohne Kamera: IP (192.168… oder 10…), Port `18790` und Token aus dem grauen Fenster von Hand eintragen, dann **PC testen**.
 
 ## Testen (Chat)
 
+- `PC QR scannen` — öffnet den Scanner
 - `PC testen`
 - `PC live` / `Live aus` (LAN-Einzelbilder; WebRTC nur wenn der Peer steht)
 - `Was siehst du auf dem PC` (Screenshot; Vorlesen braucht Gemini; lokal geplant [`docs/41-next.md`](../docs/41-next.md))
@@ -43,8 +38,8 @@ Dann kommt das Handy nicht durch — nicht weil die BAT „falsch ausgefüllt“
 
 | Check | Richtig |
 |-------|---------|
-| Richtige IP | Die **empfohlene** im PC-Fenster, meist `192.168…` oder `10…`. **Nicht** `172…` (WSL) und nicht Internet. |
-| Schalter | Einstellungen → PC → **an** |
+| QR / IP | **QR-Code öffnen** oder die **empfohlene** IP im PC-Fenster, meist `192.168…` oder `10…`. **Nicht** `172…` (WSL) und nicht Internet. |
+| Schalter | Einstellungen → PC → **an** (Scan schaltet an) |
 | Gleiches Netz | PC-WLAN = Handy-WLAN, kein VPN auf einem der beiden |
 | Firewall | „Firewall erlauben“ im Fenster, oder Windows-Abfrage zulassen |
 | Port | 18790, nicht in die IP-Zeile (`192.168.0.10:18790` gehört nicht ins IP-Feld) |
@@ -55,3 +50,4 @@ Im PC-Fenster: bei einem Test muss **„Anfrage von …“** erscheinen. Bleibt 
 ## Won’t
 
 Kein NAS, kein Python-Backend, kein erfundener Bildschirm wenn die App zu ist.
+

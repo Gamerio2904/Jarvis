@@ -21,6 +21,7 @@ import { handleDrive } from './drive'
 import { parseDeviceIntent } from './device-parse'
 import { handleDevice } from './device'
 import { parsePcIntent } from './pc-parse'
+import { parsePcPairPayload } from './pc-pair.ts'
 import { handlePc } from './pc'
 import { isPcGround, isEyeGround, parseGroundIntent } from './ground-parse'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from './places-parse'
@@ -267,7 +268,9 @@ function makeCatalog(): Capability[] {
       label: 'PC',
       sideEffect: 'device',
       parse: (ctx) =>
-        parsePcIntent(ctx.text) || isPcGround(parseGroundIntent(ctx.text)) ? score(ctx.text, 0.05) : null,
+        parsePcIntent(ctx.text) || parsePcPairPayload(ctx.text) || isPcGround(parseGroundIntent(ctx.text))
+          ? score(ctx.text, 0.05)
+          : null,
       execute: async (ctx) => fromHandler('pc', await handlePc(ctx.conversationId, ctx.text)),
     },
     {

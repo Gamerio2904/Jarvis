@@ -310,6 +310,7 @@ export async function testPc(opts?: { host?: string; token?: string; port?: numb
 }
 
 export { pullRtcFrame, stopRtcLive, readRtcLive }
+export { applyPcPair, parsePcPairPayload } from './engine/pc'
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
   return engineTestGemini()

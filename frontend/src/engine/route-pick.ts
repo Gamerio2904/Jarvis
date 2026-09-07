@@ -10,6 +10,7 @@ import { parseDriveIntent } from './drive-parse.ts'
 import { parseSpotifyIntent } from './spotify-parse.ts'
 import { parseDeviceIntent } from './device-parse.ts'
 import { parsePcIntent } from './pc-parse.ts'
+import { parsePcPairPayload } from './pc-pair.ts'
 import { isEyeGround, isPcGround, parseGroundIntent } from './ground-parse.ts'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from './places-parse.ts'
 import { isIdentityAsk, isMemoryRecall, isMemoryWrite, VERGISS, VERGISS_ALL } from './memory-parse.ts'
@@ -97,7 +98,9 @@ const PARSERS: Array<{ id: string; sideEffect: SideEffect; parse: Parser }> = [
     id: 'pc',
     sideEffect: 'device',
     parse: (ctx) =>
-      parsePcIntent(ctx.text) || isPcGround(parseGroundIntent(ctx.text)) ? score(ctx.text, 0.05) : null,
+      parsePcIntent(ctx.text) || parsePcPairPayload(ctx.text) || isPcGround(parseGroundIntent(ctx.text))
+        ? score(ctx.text, 0.05)
+        : null,
   },
   {
     id: 'maps',

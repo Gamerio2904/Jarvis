@@ -8,6 +8,7 @@ import { DebugPanel } from './DebugPanel'
 import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from '../engine/hud-parse'
 import { TTS_VOICES } from '../engine/tts'
 import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from '../engine/pc-host'
+import { PcPairScan } from './PcPairScan'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -272,6 +273,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [pcBusy, setPcBusy] = useState(false)
   const [pcMsg, setPcMsg] = useState<string | null>(null)
   const [pcMsgOk, setPcMsgOk] = useState<boolean | null>(null)
+  const [pcScanOpen, setPcScanOpen] = useState(false)
   const [presenceHost, setPresenceHost] = useState(s?.presence_peer_host || '')
   const [presenceToken, setPresenceToken] = useState(s?.presence_token || '')
   const [presenceBusy, setPresenceBusy] = useState(false)
@@ -331,12 +333,35 @@ export function SettingsScreen(p: SettingsScreenProps) {
   }, [s?.pc_token])
 
   useEffect(() => {
+    const openIfFlagged = () => {
+      if (tab !== 'geraete') return
+      try {
+        if (sessionStorage.getItem('jarvis_pc_qr_scan') === '1') {
+          sessionStorage.removeItem('jarvis_pc_qr_scan')
+          setPcScanOpen(true)
+        }
+      } catch {
+        /* */
+      }
+    }
+    openIfFlagged()
+    window.addEventListener('jarvis-pc-qr-scan', openIfFlagged)
+    return () => window.removeEventListener('jarvis-pc-qr-scan', openIfFlagged)
+  }, [tab])
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') p.onClose()
+      if (e.key !== 'Escape') return
+      if (pcScanOpen) {
+        e.stopPropagation()
+        setPcScanOpen(false)
+        return
+      }
+      p.onClose()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [p.onClose])
+  }, [p.onClose, pcScanOpen])
 
   useEffect(() => {
     const current = resolveTopic(p.topic)
@@ -1249,13 +1274,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>PC im WLAN</h3>
               <p className="settings-lead">
-                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> doppelklicken. Das graue Fenster offen
-                lassen. IP mit <strong>192.168</strong> oder <strong>10.</strong> — nicht 172 (WSL). Schalter an, dann
-                PC testen.
+                Auf dem Windows-Rechner <code>desktop/JarvisPC.bat</code> doppelklicken. Im Fenster{' '}
+                <strong>QR-Code öffnen</strong>, dann hier scannen — IP und Token kommen allein. Sonst IP mit{' '}
+                <strong>192.168</strong> oder <strong>10.</strong> eintippen (nicht 172/WSL).
               </p>
               <p className="settings-hint">
-                Gleiches WLAN, kein Gäste-Netz, kein VPN. IP ohne http:// und ohne Port. Firewall im PC-Fenster
-                erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja. „PC live“ zeigt
+                Gleiches WLAN, kein Gäste-Netz, kein VPN. QR nur aus dem grauen Jarvis-PC-Fenster. Firewall im
+                PC-Fenster erlauben. Ohne laufende App: nichts behaupten. Löschen nur nach Ja. „PC live“ zeigt
                 LAN-Einzelbilder — WebRTC nur wenn ein Peer steht.
               </p>
               <label className="settings-toggle">
@@ -1321,6 +1346,14 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   type="button"
                   className="retry-btn"
                   disabled={busy || pcBusy}
+                  onClick={() => setPcScanOpen(true)}
+                >
+                  QR scannen
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || pcBusy}
                   onClick={() => {
                     const host = sanitizePcHost(pcHost)
                     setPcHost(host)
@@ -1349,6 +1382,20 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </button>
               </div>
               {pcMsg ? <p className={`tv-test-msg${pcMsgOk === false ? ' warn' : ''}`}>{pcMsg}</p> : null}
+              <PcPairScan
+                open={pcScanOpen}
+                onClose={() => setPcScanOpen(false)}
+                onPaired={(ok, reply) => {
+                  setPcMsgOk(ok)
+                  setPcMsg(reply)
+                  if (ok) {
+                    const next = loadSettings()
+                    setPcHost(next.pc_host || '')
+                    setPcPort(String(next.pc_port || 18790))
+                    setPcToken(next.pc_token || '')
+                  }
+                }}
+              />
               <h3 className="copy-block-title">Ein Klick kopieren</h3>
               <CopyField label="PC-IP" value={pcHost.trim()} />
               <CopyField label="Port" value={pcPort.trim() || '18790'} />

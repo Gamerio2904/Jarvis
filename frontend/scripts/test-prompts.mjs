@@ -284,6 +284,8 @@ assert.equal(browserFetchUrl('https://de.wikipedia.org/w/api.php'), 'https://de.
 assert.equal(shouldProxyWebHost('html.duckduckgo.com'), true)
 assert.equal(shouldProxyWebHost('evil.example'), false)
 assert.equal(wikiCompanyHint('Kannst du den bip von Deutschland in einer Tabelle darstellen?'), 'Bruttoinlandsprodukt Deutschland')
+assert.equal(route('PC QR scannen'), 'pc')
+assert.equal(route('PC koppeln'), 'pc')
 assert.equal(route('nächste Bahn nach Heilbronn'), 'transit')
 assert.equal(route('Tagesschau'), 'news')
 assert.equal(route('nächster Feiertag'), 'holiday')

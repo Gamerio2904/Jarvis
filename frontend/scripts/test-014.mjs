@@ -106,6 +106,7 @@ import {
 import { createEnergyVad, rmsFromPcm16 } from '../src/engine/vad.ts'
 import { parseDeviceIntent, formatClockReply } from '../src/engine/device-parse.ts'
 import { parsePcIntent, PC_COPY_PROMPTS } from '../src/engine/pc-parse.ts'
+import { parsePcPairPayload, formatPcPairPayload, pcPairRejectReason } from '../src/engine/pc-pair.ts'
 import { isAllowedPcHost, sanitizePcHost } from '../src/engine/pc-host.ts'
 import {
   needsLaunchConfirm,
@@ -1273,9 +1274,10 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /13\.31\.4/)
+assert.match(HELP_TEXT, /13\.31\.5/)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
+assert.match(HELP_TEXT, /QR aus dem Fenster scannen/)
 assert.match(HELP_TEXT, /Keys nicht im Chat/)
 assert.match(HELP_TEXT, /Datei-Knopf/)
 assert.match(HELP_TEXT, /Quelle nennen/)
@@ -1530,7 +1532,27 @@ assert.equal(parsePcIntent('Maus nach rechts')?.kind, 'move')
 assert.equal(parsePcIntent('Zeig Ordner Downloads')?.kind, 'files')
 assert.equal(parsePcIntent('Lösche den Ordner Test auf dem Desktop')?.kind, 'files')
 assert.equal(parsePcIntent('PC testen')?.kind, 'status')
+assert.equal(parsePcIntent('PC QR scannen')?.kind, 'pair_scan')
+assert.equal(parsePcIntent('PC koppeln')?.kind, 'pair_scan')
 assert.equal(parsePcIntent('Öffne Netflix'), null)
+{
+  const p = parsePcPairPayload('jarvis-pc:v1|192.168.1.20|18790|AB12CD34')
+  assert.equal(p?.host, '192.168.1.20')
+  assert.equal(p?.port, 18790)
+  assert.equal(p?.token, 'AB12CD34')
+  assert.equal(formatPcPairPayload('192.168.1.20', 18790, 'AB12CD34'), 'jarvis-pc:v1|192.168.1.20|18790|AB12CD34')
+  assert.equal(parsePcPairPayload('http://192.168.0.10:18790/?t=654321')?.host, '192.168.0.10')
+  assert.equal(parsePcPairPayload('jarvis-pc:v1|8.8.8.8|18790|AB12CD34'), null)
+  assert.equal(parsePcPairPayload('jarvis-pc:v1|172.22.0.1|18790|AB12CD34'), null)
+  assert.equal(
+    parsePcPairPayload(
+      JSON.stringify({ app: 'JarvisPC', host: '10.0.0.8', port: 18790, token: 'ZZ99AA11' }),
+    )?.host,
+    '10.0.0.8',
+  )
+  assert.match(pcPairRejectReason('jarvis-pc:v1|8.8.8.8|18790|AB12CD34'), /192\.168/)
+  assert.match(pcPairRejectReason('http://172.22.0.1:18790/?t=abcde'), /192\.168/)
+}
 assert.equal(parsePcIntent('Bro anrufen'), null)
 assert.equal(sanitizePcHost('http://192.168.1.10:18790'), '192.168.1.10')
 assert.equal(isAllowedPcHost('http://192.168.1.10:18790'), true)

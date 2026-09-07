@@ -1390,6 +1390,15 @@ function App() {
     else if (/Gemini-Key liegt, aber Gemini ist aus/i.test(t)) openSettings('hirn')
     else if (/Gemini(?: ist)? an, aber kein/i.test(t)) openSettings('keys')
     else if (/Einstellungen\s*→\s*Musik|Spotify anmelden/i.test(t)) openSettings('musik')
+    else if (/Einstellungen\s*→\s*(?:PC|Geräte)/i.test(t)) {
+      try {
+        sessionStorage.setItem('jarvis_pc_qr_scan', '1')
+        window.dispatchEvent(new Event('jarvis-pc-qr-scan'))
+      } catch {
+        /* */
+      }
+      openSettings('pc')
+    }
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {

@@ -3,6 +3,7 @@ import { getJson, postJson } from './http-json'
 import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from './pc-host'
 import { markPcFrame } from './desk.ts'
 import { parsePcIntent, type PcIntent } from './pc-parse'
+import { parsePcPairPayload, pcPairRejectReason } from './pc-pair.ts'
 import {
   CAP_OFFLINE,
   CLICK_SENT,
@@ -33,6 +34,8 @@ import type { ToolMeta } from './tools'
 export { sanitizePcHost, isAllowedPcHost, PC_HOST_HINT } from './pc-host'
 export { parsePcIntent, PC_COPY_PROMPTS } from './pc-parse'
 export type { PcIntent } from './pc-parse'
+export { parsePcPairPayload, formatPcPairPayload, pcPairRejectReason } from './pc-pair.ts'
+export type { PcPair } from './pc-pair.ts'
 export { parsePcCaps, pcCan, pcActionVerified, needsLaunchConfirm } from './pc-cap.ts'
 export { parseRtcSession, rtcStreamVerified } from './pc-rtc.ts'
 
@@ -216,7 +219,10 @@ async function callPc(
     if (!json || typeof json !== 'object') {
       return { ok: false, message: 'PC-App hat nichts Verständliches geliefert.' }
     }
-    if (status === 401 || json.ok === false) {
+    if (status === 401) {
+      return { ok: false, message: 'PC-Token falsch. QR nochmal scannen oder Token aus dem Fenster.' }
+    }
+    if (json.ok === false) {
       return {
         ok: false,
         message: String(json.message || 'PC nicht erreicht. Gleiches WLAN, App-Fenster offen, Token prüfen.'),
@@ -281,6 +287,12 @@ export async function testPc(opts?: { host?: string; token?: string; port?: numb
   }
   const res = await callPc('/v1/status', {}, 8_000)
   return statusReply(res, parsePcCaps(res))
+}
+
+export async function applyPcPair(raw: string): Promise<{ ok: boolean; reply: string }> {
+  const pair = parsePcPairPayload(raw)
+  if (!pair) return { ok: false, reply: pcPairRejectReason(raw) }
+  return testPc(pair)
 }
 
 export async function handlePc(_conversationId: string, text: string): Promise<PcHit> {
@@ -365,12 +377,32 @@ export async function handlePc(_conversationId: string, text: string): Promise<P
 
   const intent = parsePcIntent(text)
   if (intent) return runIntent(intent)
+  const pasted = parsePcPairPayload(text)
+  if (pasted) {
+    const r = await applyPcPair(text)
+    return packPc({
+      action: 'pair',
+      obs: { action: 'pair', reached: r.ok, ok: r.ok, can: r.ok },
+      success: r.reply,
+      fail: r.reply,
+      lastTool: 'pc',
+    })
+  }
   const g = parseGroundIntent(text)
   if (isPcGround(g)) return runGround(g)
   return { handled: false }
 }
 
 async function runIntent(intent: PcIntent): Promise<PcHit> {
+  if (intent.kind === 'pair_scan') {
+    return {
+      handled: true,
+      reply: 'Kamera auf den QR im grauen Jarvis-PC-Fenster. Einstellungen → Geräte → QR scannen.',
+      tool: { tool_status: 'executed', tool: 'pc', action: 'pair_scan', label: 'PC-QR' },
+      lastTool: 'pc',
+    }
+  }
+
   if (intent.kind === 'status') {
     const res = await callPc('/v1/status', {}, 8_000)
     const caps = parsePcCaps(res)

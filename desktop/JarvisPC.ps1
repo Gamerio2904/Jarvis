@@ -22,8 +22,12 @@ $TokenFile = Join-Path $DataDir 'token.txt'
 $Token = ''
 if (Test-Path $TokenFile) { $Token = (Get-Content -Raw $TokenFile).Trim().Trim([char]0xFEFF) }
 if ($Token.Length -lt 6) {
-  $Token = Get-Random -Minimum 100000 -Maximum 999999
-  $Token = $Token.ToString()
+  $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  $bytes = New-Object byte[] 8
+  [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+  $sb = New-Object Text.StringBuilder 8
+  foreach ($b in $bytes) { [void]$sb.Append($alphabet[$b % $alphabet.Length]) }
+  $Token = $sb.ToString()
   Set-Content -Path $TokenFile -Value $Token -Encoding ASCII
 }
 
@@ -394,10 +398,11 @@ function Invoke-Trace([string]$target) {
   }
 }
 
-function Write-Http($client, $obj) {
+function Write-Http($client, $obj, [int]$code = 200) {
   $json = $obj | ConvertTo-Json -Compress -Depth 8
   $bytes = [Text.Encoding]::UTF8.GetBytes($json)
-  $head = "HTTP/1.1 200 OK`r`nContent-Type: application/json; charset=utf-8`r`nAccess-Control-Allow-Origin: *`r`nAccess-Control-Allow-Headers: *`r`nAccess-Control-Allow-Methods: GET, POST, OPTIONS`r`nContent-Length: $($bytes.Length)`r`nConnection: close`r`n`r`n"
+  $reason = if ($code -eq 401) { 'Unauthorized' } else { 'OK' }
+  $head = "HTTP/1.1 $code $reason`r`nContent-Type: application/json; charset=utf-8`r`nAccess-Control-Allow-Origin: *`r`nAccess-Control-Allow-Headers: *`r`nAccess-Control-Allow-Methods: GET, POST, OPTIONS`r`nContent-Length: $($bytes.Length)`r`nConnection: close`r`n`r`n"
   $stream = $client.GetStream()
   $hb = [Text.Encoding]::ASCII.GetBytes($head)
   $stream.Write($hb, 0, $hb.Length)
@@ -451,6 +456,7 @@ foreach ($cand in $ips) {
   if (Test-LikelyLan $cand) { $copyIp = $cand; break }
 }
 if (-not $copyIp -and $ips.Count) { $copyIp = $ips[0] }
+$script:CopyIp = $copyIp
 $otherIps = @($ips | Where-Object { $_ -ne $copyIp })
 
 $panel = New-Object Windows.Forms.Panel
@@ -461,7 +467,7 @@ $form.Controls.Add($panel)
 $y = 4
 $head = New-Object Windows.Forms.Label
 $head.SetBounds(8, $y, 440, 48)
-$head.Text = "Bereit auf Port $Port. Gelbe IP ins Handy (192.168 oder 10, nicht 172/WSL). Fenster offen lassen."
+$head.Text = "Bereit auf Port $Port. QR-Code öffnen und mit der Handy-App scannen. Gelbe IP nur 192.168 oder 10, nicht 172/WSL. Fenster offen lassen."
 $panel.Controls.Add($head)
 $y = 54
 $y = Add-CopyRow $panel $y 'IP ins Handy (WLAN/LAN)' $copyIp
@@ -485,6 +491,36 @@ $fw.Add_Click({
 })
 $panel.Controls.Add($fw)
 $y += 40
+$qrBtn = New-Object Windows.Forms.Button
+$qrBtn.SetBounds(8, $y, 448, 36)
+$qrBtn.Text = 'QR-Code öffnen'
+$qrBtn.Add_Click({
+  $ip = [string]$script:CopyIp
+  if (-not $ip) {
+    $script:LastAction = 'Keine WLAN-IP. Netz prüfen, dann die BAT neu starten.'
+    return
+  }
+  if (-not (Test-LikelyLan $ip)) {
+    $script:LastAction = 'QR nur mit 192.168… oder 10…. Nicht 172/WSL. Anderes WLAN wählen, BAT neu starten.'
+    return
+  }
+  $payload = "jarvis-pc:v1|$ip|$Port|$Token"
+  $srcJs = Join-Path $PSScriptRoot 'qrcode.min.js'
+  $srcHtml = Join-Path $PSScriptRoot 'pair.html'
+  if (-not (Test-Path $srcJs) -or -not (Test-Path $srcHtml)) {
+    $script:LastAction = 'pair.html oder qrcode.min.js fehlt neben JarvisPC.bat.'
+    return
+  }
+  Copy-Item $srcJs (Join-Path $DataDir 'qrcode.min.js') -Force
+  $escaped = $payload.Replace('\', '\\').Replace("'", "\'")
+  $html = (Get-Content -Raw -Encoding UTF8 $srcHtml).Replace('%%PAYLOAD%%', $escaped)
+  $out = Join-Path $DataDir 'pair.html'
+  Set-Content -Path $out -Value $html -Encoding UTF8
+  Start-Process $out
+  $script:LastAction = 'QR ist offen. Mit der Handy-App scannen.'
+})
+$panel.Controls.Add($qrBtn)
+$y += 44
 $sub = New-Object Windows.Forms.Label
 $sub.SetBounds(8, $y, 440, 20)
 $sub.Text = 'Prompts — kopieren, im Handy-Chat einfügen'
@@ -499,7 +535,8 @@ $prompts = @(
   'Züge anklicken',
   'Maus nach rechts',
   'Zeig Ordner Downloads',
-  'PC testen'
+  'PC testen',
+  'PC QR scannen'
 )
 foreach ($p in $prompts) { $y = Add-CopyRow $panel $y 'Prompt' $p }
 $allBtn = New-Object Windows.Forms.Button
@@ -562,7 +599,7 @@ $serveTimer.Add_Tick({
         elseif ($raw -match '(?im)^Authorization:\s*Bearer\s+(\S+)') { $auth = $Matches[1].Trim() }
         if ($auth -ne $Token) {
           $script:LastAction = "Token falsch von $from"
-          Write-Http $client @{ ok = $false; message = 'Token falsch. Den Code aus diesem Fenster eintragen.' }
+          Write-Http $client @{ ok = $false; message = 'Token falsch. Den Code aus diesem Fenster eintragen.' } 401
           $client.Close(); continue
         }
         $bodyRaw = ''

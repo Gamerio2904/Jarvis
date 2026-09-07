@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Jarvis PC — QR scannen</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #111;
+        color: #eee;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        text-align: center;
+      }
+      main {
+        padding: 28px 16px 40px;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0 0 8px;
+      }
+      p {
+        margin: 8px auto;
+        max-width: 36rem;
+        line-height: 1.45;
+        color: #c8c8c8;
+      }
+      #qr {
+        display: inline-block;
+        background: #fff;
+        padding: 18px;
+        border-radius: 12px;
+        margin: 18px 0;
+      }
+      #qr table {
+        margin: 0 auto;
+      }
+      .meta {
+        font-size: 18px;
+        color: #fff;
+      }
+      code {
+        font-size: 1.05em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Mit der Handy-App scannen</h1>
+      <p>Jarvis → Einstellungen → Geräte → <strong>QR scannen</strong>. Gleiches WLAN. Das graue Jarvis-PC-Fenster bleibt offen.</p>
+      <div id="qr" aria-label="QR-Code für die Handy-App"></div>
+      <p class="meta">IP <code id="host">—</code> · Port <code id="port">18790</code></p>
+      <p>Kein Scanner? Token und IP stehen im grauen Fenster — kopieren und auf dem Handy einfügen.</p>
+    </main>
+    <script src="qrcode.min.js"></script>
+    <script>
+      const PAYLOAD = '%%PAYLOAD%%'
+      function parsePayload(raw) {
+        const m = /^jarvis-pc:v1\|([^|]+)\|(\d{2,5})\|(.+)$/.exec(String(raw || ''))
+        return m ? { host: m[1], port: m[2], token: m[3] } : null
+      }
+      const pair = parsePayload(PAYLOAD)
+      if (pair) {
+        document.getElementById('host').textContent = pair.host
+        document.getElementById('port').textContent = pair.port
+      }
+      if (!pair || String(PAYLOAD).indexOf('%%') === 0) {
+        document.getElementById('qr').textContent =
+          'Kein Code. Im grauen Jarvis-PC-Fenster „QR-Code öffnen“ drücken, nicht diese Datei direkt.'
+      } else {
+        try {
+          const qr = qrcode(0, 'M')
+          qr.addData(PAYLOAD, 'Byte')
+          qr.make()
+          document.getElementById('qr').innerHTML = qr.createSvgTag(8, 4)
+        } catch (err) {
+          document.getElementById('qr').textContent = 'QR nicht gebaut. Code im grauen Fenster kopieren.'
+        }
+      }
+    </script>
+  </body>
+</html>

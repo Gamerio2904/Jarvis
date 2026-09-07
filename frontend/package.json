@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "13.31.4",
+  "version": "13.31.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -32,6 +32,7 @@
     "@capacitor/filesystem": "^8.1.2",
     "@wllama/wllama": "^3.5.1",
     "@wllama/wllama-compat": "^3.5.1",
+    "jsqr": "^1.4.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

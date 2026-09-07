@@ -859,6 +859,40 @@ textarea {
   min-width: 28%;
 }
 
+.pc-scan-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+}
+
+.pc-scan-card {
+  width: min(420px, 100%);
+  background: var(--card, #1c1c1c);
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 12px 12px;
+  padding: 16px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pc-scan-card h3 {
+  margin: 0;
+}
+
+.pc-scan-video {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  background: #000;
+  border-radius: 10px;
+}
+
 .tv-found {
   list-style: none;
   margin: 0;

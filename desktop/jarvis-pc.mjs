@@ -41,9 +41,9 @@ export function startJarvisPcServer(opts = {}) {
     })
   }
 
-  function send(res, obj) {
+  function send(res, obj, status = 200) {
     const buf = Buffer.from(JSON.stringify(obj))
-    res.writeHead(200, {
+    res.writeHead(status, {
       'Content-Type': 'application/json; charset=utf-8',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': '*',
@@ -175,7 +175,7 @@ export function startJarvisPcServer(opts = {}) {
     }
     const path = String(req.url || '/').split('?')[0]
     if (!auth(req)) {
-      send(res, { ok: false, message: 'Token falsch. Den Code aus dem Jarvis-PC-Fenster eintragen.' })
+      send(res, { ok: false, message: 'Token falsch. Den Code aus dem Jarvis-PC-Fenster eintragen.' }, 401)
       return
     }
     const body = req.method === 'POST' ? await readBody(req) : {}
