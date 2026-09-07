@@ -1,6 +1,6 @@
 # 06 — MVP & Sprint-Plan
 
-> Historisch (MVP `0.1`). **Jetzt:** Code `10.60.0`. Sideload `9.10.0`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Rest final [`54-next.md`](./54-next.md) **CODE**. Memory-10 [`56-next.md`](./56-next.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0`. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
+> Historisch (MVP `0.1`). **Jetzt:** Code `13.31.7`. Sideload `13.31.7`. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Sprachmodus [`61-next.md`](./61-next.md) **PLAN**. Körper-Baum [`60-next.md`](./60-next.md) **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Memory-10 [`56-next.md`](./56-next.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0`. [`47-next.md`](./47-next.md). Parser [`46-next.md`](./46-next.md). Bühne [`45-next.md`](./45-next.md).
 
 ## MVP v0.1 — Definition
 

@@ -5,6 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `13.40` — Sprachmodus — *PLAN*
+
+Sprints **221–225**. Execute noch nicht. Sideload bleibt `13.31.7` bis Sprint 225.
+
+- **TV-Stimme:** „Fernseher an“ aus dem Mic (Alts + Wörterbuch), sonst ehrlich Settings.
+- **Hören:** Autokorrektur über `fernseheren` hinaus, `pickHeard` bevorzugt Geräte-Alts.
+- **Antworten:** 1–2 Sätze, Tool zuerst, schneller First-Token.
+- **Mund:** eine TTS-Lane, flüssig vorlesen, kein Pico-Sprung.
+- **Won’t:** Whisper, Piper-ONNX, Pipecat, Gemini Live.
+
+Quelle: [`61-next.md`](./61-next.md).
+
 ## `13.31.7` — Download-Button Liquid-Fill — *CODE*
 
 - **GUI:** Hausstand **Exportieren** und Debug **Chat herunterladen**: dunkles Gefäß, Welle steigt, Haken von oben. Jarvis-Grün, kein Blau aus dem Reel.

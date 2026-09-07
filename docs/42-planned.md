@@ -1,23 +1,24 @@
-# 42 — Alles geplant (Stand Code `10.60.0`)
+# 42 — Alles geplant (Stand Code `13.31.7`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`13.30.0`**. Sideload **`13.30.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`13.31.7`**. Sideload **`13.31.7`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Gemini Hauptweg** (Key). Groq Backup. 0,5B **reiner letzter Fallback**. Parser wählen Tools.
 
 ## Pull-Reihenfolge
 
-1. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s
-2. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot
-3. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
-4. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could
-5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-6. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
-7. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
-8. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
-9. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
-10. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
+1. **Sprachmodus `13.40`** [`61-next.md`](./61-next.md) — Sprints 221–225 Execute (TV-Stimme, Hören, Antworten, Mund)
+2. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s
+3. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot
+4. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
+5. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could
+6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+7. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
+8. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
+9. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
+10. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
+11. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
 
 Industry-Track V1–V9, Latenz-Loop, Screenshot-Fixes, Rest-final Execute, Alltag-Router, Parser-Härte 179, FGS-Härte 180, Docs 182: **CODE**.
 
@@ -25,7 +26,7 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 
 ---
 
-## CODE auf diesem Stand (`10.60.0`)
+## CODE auf diesem Stand (`13.31.7`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
@@ -53,9 +54,14 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 | PC V7 | `9.2` | Capability-Levels, Confirm, Verify Launch/Klick |
 | Live V8 | `9.3` | `/v1/webrtc` Signaling, LAN-JPEG-Dock, WebRTC nur mit Peer |
 | Hardening V9 | `9.9` | Regression-Katalog, LAN-only PC, Secret-Redact, Password-Felder |
+| Körper-Baum | `13.30.0` | Organ-Eingang, BodyTree, Kalender nächsten Freitag |
+| Live-Patches | `13.31.7` | Navigation-Island, PC-QR, Liquid-Download, Gemini-Key-Opt-in |
 | Davor | `3.19`–`3.0` / `1.x` | Kalender-Fenster, Register, Auge=Gemini, PC-Screenshot |
 
 ## Offen
+
+### Sprachmodus (`13.40`) **PLAN**
+Mic trifft oft nicht `parseTvIntent`. Execute: [`61-next.md`](./61-next.md) Sprints **221–225**. Sideload bleibt `13.31.7` bis 225.
 
 ### PO Handy (Sprint 178)
 Parser CODE. **PO** auf dem Handy: Probe V1–V9 + Screenshot-Bugs + Home-FGS 30 s.
@@ -73,7 +79,7 @@ Router + Parser-Härte **CODE**. Gerät-Tore Sprint **185** PO.
 Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn, Welt-Geocoder, Live-Sat, Geheim-Nachrichten-Feed. Qdrant/Qwen-Embed/ColPali/Multi-Agent — [`56-next.md`](./56-next.md) Won’t.
 
 ### `10.0` Semantisches Gedächtnis (CODE `10.60.0`)
-Schema, Gate, Retrieve-2, Graph light, Gold G1–G6, Experience **CODE**. 195 e5 **FREEZE** (G2/G3 grün ohne Encoder). Gerät-Protokoll Sprint **193** PO. Sideload bleibt `9.10.0`. [`56-next.md`](./56-next.md).
+Schema, Gate, Retrieve-2, Graph light, Gold G1–G6, Experience **CODE**. 195 e5 **FREEZE** (G2/G3 grün ohne Encoder). Gerät-Protokoll Sprint **193** PO. Sideload damals `9.10.0`, Live `13.31.7`. [`56-next.md`](./56-next.md).
 
 Intensiv 196–201: [`57-next.md`](./57-next.md) **CODE** `10.66.0`.
 
@@ -86,4 +92,7 @@ Handy = Hirn. Tablet = Lage+Chat ab 900 px oder Fenster. PC = Werkzeug `:18790` 
 ### `13.0` Körper-Wissensbaum (CODE `13.30.0`)
 Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein Vektorindex. [`60-next.md`](./60-next.md) Sprints 217–220 **CODE**.
 
-Nächste Schiene Gerät: [`55-next.md`](./55-next.md) (178) plus Memory-Gerät 193.
+### `13.40` Sprachmodus (PLAN)
+„Fernseher an“ aus dem Mic, Autokorrektur, schnellere 1–2-Satz-Antworten, flüssiger Mund. Kein Whisper, kein Piper-ONNX. [`61-next.md`](./61-next.md) Sprints 221–225 **PLAN**. Sideload bleibt `13.31.7` bis Execute.
+
+Nächste Schiene Execute: [`61-next.md`](./61-next.md). Gerät-PO bleibt [`55-next.md`](./55-next.md) (178) plus Memory-Gerät 193.
