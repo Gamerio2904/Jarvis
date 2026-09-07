@@ -142,10 +142,18 @@ export function wikiCompanyHint(q: string): string {
   const skip =
     /^(wie|was|wer|wo|wann|wieso|weshalb|viele|viel|am|tag|pro|der|die|das|ein|eine|tabelle|tabellarisch|darstellen|statistik|geschäftsbericht)$/i
   const words = q.split(/\s+/)
+  let cap = ''
   for (let i = words.length - 1; i >= 0; i -= 1) {
     const w = words[i].replace(/[?.!,]/g, '')
-    if (w.length >= 3 && !skip.test(w) && /^[A-ZÄÖÜ]/.test(w)) return w
+    if (w.length >= 3 && !skip.test(w) && /^[A-ZÄÖÜ]/.test(w)) {
+      cap = w
+      break
+    }
   }
+  if (/\b(?:bip|b\.i\.p\.|gdp|bruttoinlandsprodukt)\b/i.test(q)) {
+    return cap ? `Bruttoinlandsprodukt ${cap}` : 'Bruttoinlandsprodukt'
+  }
+  if (cap) return cap
   return q.replace(/\b(in\s+einer\s+)?tabelle\b/gi, ' ').replace(/\s+/g, ' ').trim() || q
 }
 

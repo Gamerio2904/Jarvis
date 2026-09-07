@@ -65,7 +65,7 @@ const LAW_KEEP =
   /\b(grill|park|verbot|gesetz|ordnung|vorschrift|bußgeld|bussgeld|ordnungsamt|grünfläche|gruenflaeche|waldgesetz)\b/i
 
 export function lawWikiQuery(q: string): string {
-  if (/\bgrillen\b/i.test(q) || /\bgrillverbot\b/i.test(q)) return 'Grillverbot Park Grünanlage Ordnung'
+  if (/\bgrillen\b/i.test(q) || /\bgrillverbot\b/i.test(q)) return 'Grillverbot'
   return q
 }
 

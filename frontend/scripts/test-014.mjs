@@ -2240,7 +2240,7 @@ assert.equal(isImportJunkMemory({ key: 'getränk', value: 'ich — fass das in e
 assert.equal(isImportJunkMemory({ key: 'name', value: 'Timon' }), false)
 assert.equal(isLawWikiTitle('Darf ich bitten?', 'Schlagerstar Vincent Gross'), false)
 assert.equal(isLawWikiTitle('Grillverbot', 'In Parks oft durch Grünanlagenverordnung'), true)
-assert.match(lawWikiQuery('Darf ich im Park grillen?'), /Grillverbot/)
+assert.equal(lawWikiQuery('Darf ich im Park grillen?'), 'Grillverbot')
 {
   const line = formatRecallReply('Zahnarzt', [
     { store: 'events', title: 'Zahnarzt', body: '2026-09-05T15:00:00', rank: 1 },
@@ -2283,6 +2283,23 @@ assert.match(lawWikiQuery('Darf ich im Park grillen?'), /Grillverbot/)
   const line = formatRecallReply('Steuer', hits)
   assert.match(line, /Fachwissen|Grundfreibetrag/)
   assert.doesNotMatch(line, /Termine diese Woche/)
+}
+{
+  const hits = retrieveFromCorpus('Zahnarzt', {
+    memory: [],
+    messages: [
+      {
+        id: 'm2',
+        conversation_id: 'c1',
+        role: 'user',
+        content: 'Was weißt du über den Zahnarzt',
+        created_at: '2026-09-07T00:00:00Z',
+      },
+    ],
+    convs: [{ id: 'c1', title: 'Chat', created_at: '2026-09-07T00:00:00Z', updated_at: '2026-09-07T00:00:00Z' }],
+  })
+  assert.equal(hits.filter((h) => h.store === 'messages').length, 0)
+  assert.match(formatRecallReply('Zahnarzt', hits), /Nichts Belegtes/)
 }
 {
   const line = formatRecallReply('Steuer', [

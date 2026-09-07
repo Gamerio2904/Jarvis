@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   GEMINI_MODELS_BEST_FIRST,
+  GROQ_MODELS_BEST_FIRST,
   germanQuotaHint,
   geminiModelOrder,
   isFatalAuth,
@@ -14,6 +15,9 @@ import {
 
 assert.equal(GEMINI_MODELS_BEST_FIRST[0], 'gemini-2.5-flash')
 assert.ok(GEMINI_MODELS_BEST_FIRST.includes('gemini-2.5-flash-lite'))
+assert.equal(GROQ_MODELS_BEST_FIRST[0], 'qwen/qwen3.8-27b')
+assert.ok(GROQ_MODELS_BEST_FIRST.includes('openai/gpt-oss-20b'))
+assert.equal(GROQ_MODELS_BEST_FIRST.includes('gemma2-9b-it'), false)
 
 const order = geminiModelOrder('')
 assert.equal(order[0], 'gemini-2.5-flash')

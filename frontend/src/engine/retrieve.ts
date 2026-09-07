@@ -27,7 +27,13 @@ function normQuery(s: string): string {
 function isQueryEcho(query: string, content: string): boolean {
   const q = normQuery(query)
   const c = normQuery(content)
-  return Boolean(q) && (c === q || c.startsWith(`${q} `))
+  if (!q || !c) return false
+  if (c === q || c.startsWith(`${q} `)) return true
+  // Recall verkürzt aufs Thema („Zahnarzt“), die User-Zeile bleibt die volle Frage.
+  if (c.includes(q) && /^(was weißt du|wo stand das|erinnerst du dich|wann (?:war|ist)|was ist mein)\b/.test(c)) {
+    return true
+  }
+  return false
 }
 
 export type RetrieveHit = {
