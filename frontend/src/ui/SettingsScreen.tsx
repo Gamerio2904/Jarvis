@@ -1,4 +1,4 @@
-import { useEffect, useState, type InputHTMLAttributes } from 'react'
+import { useEffect, useRef, useState, type InputHTMLAttributes } from 'react'
 import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from '../api'
 import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from '../api'
 import type { Plug } from '../api'
@@ -9,6 +9,7 @@ import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from '../engine/hud-parse'
 import { TTS_VOICES } from '../engine/tts'
 import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from '../engine/pc-host'
 import { PcPairScan } from './PcPairScan'
+import { useSlidingThumb } from './SlidingThumb'
 import {
   spotifyLoggedIn,
   spotifyLogout,
@@ -371,6 +372,15 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
   const tabList: SettingsTab[] = visibleSettingsTabs(railQuery)
   const searchMiss = Boolean(railQuery.trim()) && filterTopics(railQuery).length === 0
+  const tabThumb = useSlidingThumb(tab)
+  const prevTab = useRef(tab)
+  const tabDir = useRef(1)
+  if (prevTab.current !== tab) {
+    const a = tabList.indexOf(prevTab.current)
+    const b = tabList.indexOf(tab)
+    tabDir.current = b >= a ? 1 : -1
+    prevTab.current = tab
+  }
 
   return (
     <div
@@ -401,7 +411,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
             aria-label="Einstellungen suchen"
           />
         </label>
-        <nav className="settings-tabs" aria-label="Reiter">
+        <nav ref={tabThumb.hostRef} className="settings-tabs pill-tabs" aria-label="Reiter">
+          <span ref={tabThumb.thumbRef} className="pill-tabs-thumb" aria-hidden />
           {tabList.map((id) => {
             const t = TOPIC_FACE[id]
             return (
@@ -409,6 +420,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 key={id}
                 type="button"
                 role="tab"
+                data-nav={id}
                 aria-selected={tab === id}
                 className={`settings-tab ${tab === id ? 'active' : ''}${id === 'daten' ? ' is-danger' : ''}`}
                 onClick={() => p.onTopic(id)}
@@ -425,7 +437,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
       <div className="settings-pane">
         <div className="settings-pane-body">
-          <div key={tab} className="settings-topic-slide">
+          <div key={tab} className={`settings-topic-slide ${tabDir.current < 0 ? 'from-left' : 'from-right'}`}>
           {tab === 'hirn' ? (
             <section className="settings-card">
               <h3>Dieses Handy</h3>

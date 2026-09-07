@@ -75,6 +75,14 @@ import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate'
 import { DebugChatDock } from './ui/DebugChatDock'
+import {
+  IconCal,
+  IconGearMini,
+  IconGlobe,
+  IconHome,
+  IconMic,
+  NavIsland,
+} from './ui/NavIsland'
 import { debugSnapshot, subscribeDebug } from './engine/debug-session'
 import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate'
 
@@ -1420,9 +1428,60 @@ function App() {
   const lageOn = Boolean(liveHud.hud_force) || (lageWide && !liveHud.hud_hidden)
   const lageScene = lageOn && !lageWide
   const lageAmber = liveHud.hud_accent === 'amber'
+  const dockId = settingsPanelOpen
+    ? 'settings'
+    : calendarOpen
+      ? 'calendar'
+      : voiceOpen
+        ? 'voice'
+        : lageOn
+          ? 'lage'
+          : 'chat'
+  const dockItems = [
+    { id: 'chat', label: 'Chat', icon: <IconHome /> },
+    { id: 'lage', label: 'Lage', icon: <IconGlobe /> },
+    { id: 'voice', label: 'Hören', icon: <IconMic /> },
+    { id: 'calendar', label: 'Kalender', icon: <IconCal /> },
+    { id: 'settings', label: 'Mehr', icon: <IconGearMini /> },
+  ]
+  function goDock(id: string) {
+    setSidebarOpen(false)
+    if (id === 'chat') {
+      setSettingsPanelOpen(false)
+      setCalendarOpen(false)
+      setVoiceOpen(false)
+      closeSheet('settings')
+      closeSheet('calendar')
+      closeSheet('voice')
+      return
+    }
+    if (id === 'lage') {
+      setSettingsPanelOpen(false)
+      setCalendarOpen(false)
+      setVoiceOpen(false)
+      closeSheet('settings')
+      closeSheet('calendar')
+      closeSheet('voice')
+      void patchSettings({ hud_force: true, hud_hidden: false }).then((s) => setSettings(s))
+      return
+    }
+    if (id === 'voice') {
+      openVoiceMode()
+      return
+    }
+    if (id === 'calendar') {
+      setCalendarOpen(true)
+      setSettingsPanelOpen(false)
+      setVoiceOpen(false)
+      openSheet('calendar')
+      wakeGateRef.current = closeWake(wakeGateRef.current)
+      return
+    }
+    openSettings('keys')
+  }
 
   return (
-    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}`} ref={appRef}>
+    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen ? '' : ' has-nav-dock'}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1516,50 +1575,13 @@ function App() {
         <button className="new-chat" type="button" onClick={() => void onNewChat()}>
           + Neues Gespräch
         </button>
-        <button
-          type="button"
-          className={`memory-toggle ${calendarOpen ? 'active' : ''}`}
-          onClick={() => {
-            setCalendarOpen(true)
-            setSettingsPanelOpen(false)
-            setVoiceOpen(false)
-            setSidebarOpen(false)
-            openSheet('calendar')
-            wakeGateRef.current = closeWake(wakeGateRef.current)
-          }}
-        >
-          Kalender
-        </button>
-        <button
-          type="button"
-          className={`memory-toggle ${voiceOpen ? 'active' : ''}`}
-          onClick={() => {
-            openVoiceMode()
-            setSidebarOpen(false)
-          }}
-        >
-          Jarvis hören
-        </button>
-
-        <button
-          type="button"
-          className={`memory-toggle ${lageOn ? 'active' : ''}`}
-          onClick={() => {
-            const next = !loadSettings().hud_force
-            void patchSettings({ hud_force: next, hud_hidden: !next }).then((s) => setSettings(s))
-            setSidebarOpen(false)
-          }}
-        >
-          Lage
-        </button>
-
-        <button
-          type="button"
-          className={`memory-toggle ${settingsPanelOpen ? 'active' : ''}`}
-          onClick={() => openSettings('keys')}
-        >
-          Einstellungen
-        </button>
+        <NavIsland
+          className="nav-island-side"
+          ariaLabel="Bereiche"
+          items={dockItems}
+          value={dockId}
+          onChange={goDock}
+        />
 
         <div className="chat-list">
           {FOLDER_IDS.map((fid) => {
@@ -1983,6 +2005,15 @@ function App() {
         activeConversationId={activeId}
         onOpen={() => openSettings('tests')}
       />
+      {!driveOpen ? (
+        <NavIsland
+          className="nav-dock"
+          ariaLabel="Hauptnavigation"
+          items={dockItems}
+          value={dockId}
+          onChange={goDock}
+        />
+      ) : null}
     </div>
   )
 }

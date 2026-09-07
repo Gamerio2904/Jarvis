@@ -5,6 +5,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `13.31.6` — Navigation-Island, gleitender Tab-Kreis — *CODE*
+
+- **GUI:** Einstellungen-Reiter und Hauptnavigation als schwebende Pills. Der aktive Kreis gleitet mit Spring, das Icon poppt — Jarvis-Grün/Gold bleiben.
+- **Handy:** unten eine Island (Chat, Lage, Hören, Kalender, Mehr).
+
 ## `13.31.5` — PC per QR koppeln — *CODE*
 
 - **PC:** Im Jarvis-PC-Fenster **QR-Code öffnen**, auf dem Handy **QR scannen** — IP, Port und Token kommen allein, dann Status-Ping.
