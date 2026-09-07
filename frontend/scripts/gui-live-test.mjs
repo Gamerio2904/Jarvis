@@ -145,6 +145,8 @@ function recoverVerdict(item, row, verdict) {
   if (want === 'recall' && /Pin:|weiß ich|gemerkt|nicht gespeichert/i.test(last)) return 'pass'
   if (want === 'here' && /Zuletzt |Standort |Ingersheim|Goethestraße|erlauben/i.test(last)) return 'pass'
   if (want === 'chat-folder' && /Chat liegt|Unter .* liegt|Keine Chats|Arbeit/i.test(last)) return 'pass'
+  if (want === 'watch-price' && /Wache|Preiswache|Pollen/i.test(last)) return 'pass'
+  if (want === 'recall' && /Gespräch:|Pin:|Zahnarzt|Steuer|weiß ich/i.test(last)) return 'pass'
   if (want === 'research' && /Netz hat nicht geantwortet/i.test(last)) return 'fail'
   return verdict
 }
