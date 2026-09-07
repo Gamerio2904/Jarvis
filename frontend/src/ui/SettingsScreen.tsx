@@ -9,6 +9,7 @@ import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from '../engine/hud-parse'
 import { TTS_VOICES } from '../engine/tts'
 import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from '../engine/pc-host'
 import { PcPairScan } from './PcPairScan'
+import { DownloadBtn } from './DownloadBtn'
 import { useSlidingThumb } from './SlidingThumb'
 import {
   spotifyLoggedIn,
@@ -2154,21 +2155,23 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 <span>Chats mitexportieren (kann groß werden)</span>
               </label>
               <div className="settings-actions">
-                <button
-                  type="button"
-                  className="retry-btn"
-                  disabled={busy || backupBusy}
-                  onClick={() => {
+                <DownloadBtn
+                  idle="Exportieren"
+                  work="Speichern…"
+                  done="Gespeichert"
+                  disabled={busy}
+                  onRun={async () => {
                     setBackupBusy(true)
                     setBackupMsg(null)
-                    void shareOrDownloadBackup(backupChats)
-                      .then((msg) => setBackupMsg(msg))
-                      .catch((err) => setBackupMsg(err instanceof Error ? err.message : 'Export fehlgeschlagen'))
-                      .finally(() => setBackupBusy(false))
+                    try {
+                      const msg = await shareOrDownloadBackup(backupChats)
+                      setBackupMsg(msg)
+                    } finally {
+                      setBackupBusy(false)
+                    }
                   }}
-                >
-                  Exportieren
-                </button>
+                  onError={(message) => setBackupMsg(message)}
+                />
                 <label className="retry-btn" style={{ display: 'inline-flex', alignItems: 'center' }}>
                   Datei wählen
                   <input

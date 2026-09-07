@@ -2318,6 +2318,190 @@ button.linkish {
   transform: scale(0.97);
 }
 
+.dl-btn {
+  --p: 0;
+  appearance: none;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 16px;
+  font: inherit;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  color: #04140a;
+  background: var(--accent);
+  transform: translate(var(--mx, 0px), var(--my, 0px));
+  transition:
+    background var(--motion-fast) ease,
+    color 280ms ease,
+    transform var(--motion-fast) var(--ease-spring),
+    filter var(--motion-fast) ease;
+}
+
+.dl-btn:hover:not(:disabled):not(.is-work):not(.is-done) {
+  filter: brightness(1.06);
+}
+
+.dl-btn:active:not(:disabled):not(.is-work):not(.is-done) {
+  transform: scale(0.97);
+}
+
+.dl-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+}
+
+.dl-btn.is-work,
+.dl-btn.is-done {
+  cursor: default;
+  background: #07140c;
+}
+
+.dl-btn.is-work {
+  color: var(--text);
+}
+
+.dl-btn.is-done {
+  color: #04140a;
+}
+
+.dl-liquid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--accent);
+  transform: translateY(calc((1 - var(--p, 0)) * 100%));
+  transition: transform 90ms linear;
+}
+
+.dl-wave {
+  position: absolute;
+  left: -20%;
+  top: -14px;
+  width: 140%;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 16' preserveAspectRatio='none'%3E%3Cpath fill='%231ed760' d='M0 8 Q20 0 40 8 T80 8 V16 H0 Z'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-size: 80px 16px;
+  animation: dlWave 1.05s linear infinite;
+}
+
+.dl-btn.is-done .dl-wave {
+  opacity: 0;
+}
+
+.dl-stream {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: 1;
+  width: 3px;
+  height: 0;
+  pointer-events: none;
+  border-radius: 2px;
+  opacity: 0;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(30, 215, 96, 0), var(--accent) 35%, var(--accent));
+}
+
+.dl-btn.is-work .dl-stream {
+  opacity: 0.9;
+  height: calc((1 - var(--p, 0)) * 72% + 10%);
+  animation: dlPour 0.5s ease-in-out infinite;
+}
+
+.dl-face {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dl-ico {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  overflow: hidden;
+  flex: none;
+}
+
+.dl-arrow,
+.dl-check {
+  position: absolute;
+  inset: 0;
+  width: 18px;
+  height: 18px;
+  transition:
+    transform 320ms var(--ease-out),
+    opacity 220ms ease;
+}
+
+.dl-check {
+  transform: translateY(-22px);
+  opacity: 0;
+}
+
+.dl-btn.is-work .dl-arrow,
+.dl-btn.is-done .dl-arrow {
+  transform: translateY(22px);
+  opacity: 0;
+}
+
+.dl-btn.is-done .dl-check {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.dl-lab {
+  white-space: nowrap;
+}
+
+.settings-actions .dl-btn {
+  flex: 1;
+  min-width: 28%;
+}
+
+.debug-actions .dl-btn {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+@keyframes dlWave {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-80px);
+  }
+}
+
+@keyframes dlPour {
+  0%,
+  100% {
+    opacity: 0.45;
+    width: 2px;
+  }
+  50% {
+    opacity: 1;
+    width: 3.5px;
+  }
+}
+
 .typing {
   display: inline-flex;
   gap: 5px;
@@ -3599,6 +3783,17 @@ button.linkish {
   .stream-caret {
     animation: none;
     opacity: 1;
+  }
+
+  .dl-wave,
+  .dl-stream {
+    display: none;
+  }
+
+  .dl-arrow,
+  .dl-check,
+  .dl-liquid {
+    transition: none;
   }
 
   .ambient,

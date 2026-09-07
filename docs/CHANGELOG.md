@@ -5,6 +5,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `13.31.7` — Download-Button Liquid-Fill — *CODE*
+
+- **GUI:** Hausstand **Exportieren** und Debug **Chat herunterladen**: dunkles Gefäß, Welle steigt, Haken von oben. Jarvis-Grün, kein Blau aus dem Reel.
+- **Sideload:** bleibt `13.31.6`.
+
 ## `13.31.6` — Navigation-Island, gleitender Tab-Kreis — *CODE*
 
 - **GUI:** Einstellungen-Reiter und Hauptnavigation als schwebende Pills. Der aktive Kreis gleitet mit Spring, das Icon poppt — Jarvis-Grün/Gold bleiben.
