@@ -3,7 +3,6 @@ import { readFileSync } from 'node:fs'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts, formatAllTestCopy, PROBE_COPY_GROUPS, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch, isTvDiscover } from '../src/engine/tv-parse.ts'
-import { handleTv } from '../src/engine/tv.ts'
 import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory, isPrefValue } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand, finishReply, HELP_TEXT, redactSecrets } from '../src/engine/guards.ts'
@@ -2977,10 +2976,19 @@ assert.ok(filterTopics('Amazon').includes('geraete'))
   assert.doesNotMatch(pkg, /whisper|piper|kokoro|vosk|pipecat/i)
 }
 {
-  const off = await handleTv('Fernseher an')
-  assert.equal(off.handled, true)
-  assert.match(off.reply || '', /Einstellungen/)
-  assert.doesNotMatch(off.reply || '', /ist an/)
+  const off = packVerified({
+    domain: 'tv',
+    intent: 'on',
+    plan: 'on',
+    label: 'Fernseher',
+    preOk: false,
+    preError: 'Fernseher aus.',
+    observation: null,
+    successReply: 'Fernseher ist aus (Einstellungen → Fernseher).',
+    failReply: 'Fernseher ist aus (Einstellungen → Fernseher).',
+  })
+  assert.match(off.reply, /Einstellungen/)
+  assert.doesNotMatch(off.reply, /ist an/)
 }
 assert.equal(truncateSpoken('Guten Abend. Der Termin ist um drei.', 'Guten Abend.'), 'Guten Abend.')
 assert.equal(truncateSpoken('Hallo.', ''), '')

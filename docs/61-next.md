@@ -56,7 +56,7 @@ Eigene Schiene `13.40`. ONNX bleibt Freeze ([`54-next.md`](./54-next.md) 174–1
 | **224** | `13.43.0` | Antworten + Tempo | Must | **CODE** in `13.44.0` |
 | **225** | `13.44.0` | Mund flüssig + Gold + Sideload | Must | **CODE** |
 
-Sideload **`13.44.0`** (versionCode `133400`).
+Sideload **`13.44.0`** (versionCode `134400`).
 
 ---
 

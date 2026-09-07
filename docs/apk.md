@@ -36,7 +36,7 @@ App-Code **`13.44.0`**. Sideload-APK **`13.44.0`**. LocateAnything-Gewichte nich
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `13.44.0` · versionCode `133400`
+- versionName `13.44.0` · versionCode `134400`
 - App-ID `local.jarvis.app`
 
 1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).

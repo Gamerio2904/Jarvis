@@ -7,7 +7,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## `13.44.0` — Sprachmodus — *CODE*
 
-Sprints **221–225**. Sideload **`13.44.0`** (versionCode `133400`).
+Sprints **221–225**. Sideload **`13.44.0`** (versionCode `134400`).
 
 - **TV-Stimme:** „Fernseher an“, „TV an“, „Mach den Fernseher an“, „Fernseher einschalten“ treffen `handleTv`. Ohne `tv_enabled` ehrlich Settings.
 - **Hören:** Autokorrektur `fanseher` / `fernseha` / `t v` / `fernseheren`; `pickHeard` bevorzugt TV-Alts (on/off +10).

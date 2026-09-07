@@ -20,7 +20,7 @@ Browser: http://localhost:5173 — Overlay **Gemini zuerst**. Gemini-Key eintrag
 
 ## Android-APK
 
-Sideload **`Jarvis.apk` `13.44.0`** (versionCode `133400`):  
+Sideload **`Jarvis.apk` `13.44.0`** (versionCode `134400`):  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ```bat
