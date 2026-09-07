@@ -21,7 +21,7 @@ Browser: http://localhost:5173 — Overlay **Gemini zuerst**. Gemini-Key eintrag
 ## Android-APK
 
 Sideload **`Jarvis.apk` `13.31.1`** (versionCode `133101`):  
-`releases/Jarvis.apk` in diesem Repo.
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ```bat
 build-apk.bat

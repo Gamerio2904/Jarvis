@@ -25,7 +25,7 @@ App-Code **`13.31.1`**. Sideload-APK **`13.31.1`**. LocateAnything-Gewichte nich
 ## Download
 
 **Fertige APK `13.31.1`:**  
-https://github.com/Gamerio2904/Jarvis/raw/cursor/globe-deep-research-7d74/releases/Jarvis.apk
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
 - versionName `13.31.1` · versionCode `133101`
