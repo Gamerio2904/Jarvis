@@ -47,6 +47,8 @@ async function activate(lastTool: string): Promise<HereHit> {
 async function locate(openSettings: boolean): Promise<HereHit> {
   const loc = await ensureDeviceLocation({ openSettingsIfDenied: openSettings })
   if (!loc.ok || loc.lat == null || loc.lon == null) {
+    const stale = staleHere()
+    if (stale) return stale
     return {
       handled: true,
       reply: loc.message || 'Kein Standort. Die Lage rate ich nicht.',
@@ -56,6 +58,34 @@ async function locate(openSettings: boolean): Promise<HereHit> {
   }
   await rememberFix(loc.lat, loc.lon)
   return speakPlace(loc.lat, loc.lon)
+}
+
+function staleHere(): HereHit | null {
+  const s = loadSettings()
+  const place = (s.last_place || '').trim()
+  if (place) {
+    return {
+      handled: true,
+      reply: `Zuletzt ${place}. Aktuellen Standort hat das Gerät nicht gegeben.`,
+      tool: { tool_status: 'executed', tool: 'here', action: 'stale', label: 'Standort', preview: place },
+      lastTool: 'here',
+    }
+  }
+  const lat = Number(s.last_lat)
+  const lon = Number(s.last_lon)
+  if (!Number.isFinite(lat) || !Number.isFinite(lon) || (lat === 0 && lon === 0)) return null
+  return {
+    handled: true,
+    reply: `Zuletzt ungefähr ${lat.toFixed(4)}° N, ${lon.toFixed(4)}° O. Aktuellen Standort hat das Gerät nicht gegeben.`,
+    tool: {
+      tool_status: 'executed',
+      tool: 'here',
+      action: 'stale',
+      label: 'Standort',
+      preview: `${lat.toFixed(3)},${lon.toFixed(3)}`,
+    },
+    lastTool: 'here',
+  }
 }
 
 async function speakPlace(lat: number, lon: number): Promise<HereHit> {

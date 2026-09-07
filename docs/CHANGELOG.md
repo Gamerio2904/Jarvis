@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `13.31.3` — Suche im Browser, Musik ohne Hirn — *CODE*
+
+- **Suche:** Wikipedia/DuckDuckGo/Frankfurter im Vite-Browser über Proxy, ohne CORS-Leere („Netz hat nicht geantwortet“). Fetch ohne verbotenes User-Agent, mit Timeout.
+- **Musik:** „Spiele Musik“ geht an Spotify/Fahrmodus, nicht mehr ins „Kein Hirn bereit“.
+- **Standort:** Gespeicherter Ort bleibt ehrlich als „Zuletzt …“, wenn GPS verweigert.
+- **Kalender:** Listen-Chip auch bei „keine Termine“.
+
 ## `13.31.2` — Gemini-Key schaltet Hirn an — *CODE*
 
 - **Keys:** Gemini-Key eintragen schaltet Gemini an (Opt-in). Explizites Aus bleibt aus.

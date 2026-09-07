@@ -1,9 +1,39 @@
 import { Capacitor, CapacitorHttp } from '@capacitor/core'
+import { shouldProxyWebHost, WEB_PROXY_PATH } from './web-proxy.ts'
+
+const WEB_GET_MS = 12_000
 
 function abortAfter(ms: number): AbortSignal {
   const ac = new AbortController()
   globalThis.setTimeout(() => ac.abort(), ms)
   return ac.signal
+}
+
+/** Browser darf User-Agent nicht setzen — das löst Preflight aus und killt Wikipedia/Frankfurter. */
+export function browserSafeHeaders(headers: Record<string, string> = {}): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (const [k, v] of Object.entries(headers)) {
+    if (/^user-agent$/i.test(k)) continue
+    out[k] = v
+  }
+  return out
+}
+
+/** Vite-Dev: relative Proxy-URL. Native und Node bleiben bei der Original-URL. */
+export function browserFetchUrl(url: string): string {
+  if (Capacitor.isNativePlatform()) return url
+  if (typeof window === 'undefined') return url
+  if (!/^https:/i.test(url)) return url
+  let host = ''
+  try {
+    host = new URL(url).hostname
+  } catch {
+    return url
+  }
+  if (!shouldProxyWebHost(host)) return url
+  const loc = window.location
+  if (!loc || (loc.hostname !== 'localhost' && loc.hostname !== '127.0.0.1')) return url
+  return `${WEB_PROXY_PATH}?url=${encodeURIComponent(url)}`
 }
 
 export async function postJson(
@@ -33,9 +63,9 @@ export async function postJson(
     }
     return { status: res.status, json }
   }
-  const res = await fetch(url, {
+  const res = await fetch(browserFetchUrl(url), {
     method: 'POST',
-    headers,
+    headers: browserSafeHeaders(headers),
     body: JSON.stringify(body),
     signal: timeoutMs && timeoutMs > 0 ? abortAfter(timeoutMs) : undefined,
   })
@@ -66,7 +96,10 @@ export async function getJson(
     }
     return { status: res.status, json }
   }
-  const res = await fetch(url, { headers })
+  const res = await fetch(browserFetchUrl(url), {
+    headers: browserSafeHeaders(headers),
+    signal: abortAfter(WEB_GET_MS),
+  })
   const parsed: unknown = await res.json().catch(() => ({}))
   const json = (
     Array.isArray(parsed) ? parsed : parsed && typeof parsed === 'object' ? parsed : {}
@@ -89,7 +122,10 @@ export async function getText(
     const text = typeof res.data === 'string' ? res.data : res.data == null ? '' : JSON.stringify(res.data)
     return { status: res.status, text }
   }
-  const res = await fetch(url, { headers })
+  const res = await fetch(browserFetchUrl(url), {
+    headers: browserSafeHeaders(headers),
+    signal: abortAfter(WEB_GET_MS),
+  })
   return { status: res.status, text: await res.text() }
 }
 
@@ -120,8 +156,8 @@ export async function getBinary(
     const bytes: Uint8Array = typeof data === 'string' && data ? bytesFromBase64(data) : new Uint8Array(0)
     return { status: res.status, bytes }
   }
-  const res = await fetch(url, {
-    headers,
+  const res = await fetch(browserFetchUrl(url), {
+    headers: browserSafeHeaders(headers),
     signal: abortAfter(read),
   })
   const buf = await res.arrayBuffer()

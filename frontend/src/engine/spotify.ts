@@ -610,6 +610,9 @@ export async function handleSpotifyCommand(intent: SpotifyIntent): Promise<{
   handled: true
   reply: string
 }> {
+  if (!spotifyLoggedIn()) {
+    return { handled: true, reply: 'Spotify nicht verbunden. Einstellungen → Musik: Client-ID, dann anmelden.' }
+  }
   if (intent.kind === 'pause') return { handled: true, reply: await pauseSpotify() }
   if (intent.kind === 'resume') return { handled: true, reply: await resumeSpotify() }
   if (intent.kind === 'next') return { handled: true, reply: await nextSpotify() }

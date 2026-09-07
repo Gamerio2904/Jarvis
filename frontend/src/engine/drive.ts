@@ -529,7 +529,8 @@ export async function handleDrive(
   const volish =
     music?.kind === 'volume_set' || music?.kind === 'volume_up' || music?.kind === 'volume_down'
   const lastMusic = s.last_medium === 'spotify' || s.last_medium === 'drive'
-  if (music && (s.drive_mode || namesSpotify || (volish && lastMusic))) {
+  const wantsPlay = music?.kind === 'play' || music?.kind === 'resume'
+  if (music && (s.drive_mode || namesSpotify || lastMusic || wantsPlay || (volish && lastMusic))) {
     const showTab =
       /\boverlay\b/i.test(text) ||
       music.kind === 'play' ||
