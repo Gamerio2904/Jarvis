@@ -316,11 +316,8 @@ export async function handlePc(_conversationId: string, text: string): Promise<P
     const next = parsePcIntent(text)
     if (next) writePending(null)
     else {
-      const ask =
-        pending.kind === 'launch_confirm'
-          ? `„${pending.query}“ auf dem PC starten? Ja oder nein.`
-          : `Ordner/Datei ${pending.path} wirklich löschen? Ja oder nein.`
-      return packWait(pending.kind === 'launch_confirm' ? 'launch' : 'files', ask)
+      writePending(null)
+      return { handled: false }
     }
   }
 

@@ -515,6 +515,8 @@ Organ = Eingang. Skill-Knoten = Register. Wissen = Pack/Pin/Termin. Token-Cluste
 | `13.30.0` | Kalender-Härte + Gold | 220 CODE |
 | `13.31.0` | Kugel-Pan-Fix + Deep-Bericht | Patch |
 | `13.31.1` | Bundesliga-Tabelle Zeilen | Patch |
+| `13.31.2` | Gemini-Key schaltet Hirn an; kein Fehler-Banner ohne Hirn | Patch |
+| `13.31.3` | Browser-Suche ohne CORS-Leere; Spiele Musik ohne Hirn-Banner | Patch |
 
 ### Weitere Beispiele
 

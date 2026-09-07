@@ -72,15 +72,17 @@ export async function handleCalendar(
       : intent.day
         ? intent.day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })
         : 'kommend'
+    const calTool: ToolMeta = { tool_status: 'executed', tool: 'calendar', action: 'list', label: 'Kalender' }
     if (!rows.length) {
       return {
         handled: true,
         reply: intent.until || intent.day ? `Keine Termine ${span}.` : 'Keine Termine.',
+        tool: calTool,
       }
     }
     const lines = rows.map((e, i) => `${i + 1}. ${e.title}${e.place ? ` · ${e.place}` : ''} — ${formatDue(new Date(e.start_at))}`)
     persistLastList('calendar', rows.map((e) => e.title))
-    return { handled: true, reply: `Termine ${span}:\n${lines.join('\n')}` }
+    return { handled: true, reply: `Termine ${span}:\n${lines.join('\n')}`, tool: calTool }
   }
 
   if (intent.kind === 'delete_last') {

@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "13.31.1",
+  "version": "13.31.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,7 +22,8 @@
     "test:body-13": "node --experimental-strip-types scripts/test-body-13.mjs",
     "test:rest-final": "node --experimental-strip-types scripts/test-rest-final.mjs",
     "smoke": "node --experimental-strip-types scripts/smoke-prompt.mts",
-    "smoke:browser": "node scripts/browser-smoke.mjs"
+    "smoke:browser": "node scripts/browser-smoke.mjs",
+    "test:gui-live": "node --experimental-strip-types scripts/gui-live-test.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

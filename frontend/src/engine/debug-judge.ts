@@ -26,7 +26,8 @@ export function judgeTurn(item: TestCopyItem, reply: string, tool?: ToolMeta | n
   if (expect.skipIf === 'no_pc' && /pc nicht|nicht verbunden|aus\.|locateanything|jarvissee|sehen am pc ist aus/i.test(reply))
     return 'skip'
   if (expect.skipIf === 'no_tv' && /tv|fernseh|ungepaart|nicht gekoppelt/i.test(reply)) return 'skip'
-  if (expect.skipIf === 'no_gemini' && /gemini/i.test(reply) && /aus|anmachen|opt-in/i.test(reply)) return 'skip'
+  if (expect.skipIf === 'no_gemini' && /gemini/i.test(reply) && /aus|anmachen|opt-in|\ban\b|key|kein hirn|foto-knopf/i.test(reply))
+    return 'skip'
   if (expect.skipIf === 'no_gps' && /standort|lage rate/i.test(reply)) return 'skip'
   if (expect.tool) {
     const got = tool?.tool || ''

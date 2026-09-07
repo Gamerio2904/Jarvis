@@ -25,7 +25,7 @@ import {
   PACK_CAP,
 } from '../src/engine/knowledge.ts'
 
-assert.equal(APP_VERSION, '13.31.1')
+assert.equal(APP_VERSION, '13.31.3')
 resetKnowledgeMem()
 
 // T1 Teach-Paste

@@ -36,6 +36,13 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     if (has(out, 'brief')) out = drop(out, 'calendar')
   }
 
+  if (
+    /\b(in\s+\d+\s+(?:minuten?|stunden?)|termin\b|wecker\b|timer\b)\b/.test(t) &&
+    !/\b(wetter|regen|schirm|temperatur|anziehen)\b/.test(t)
+  ) {
+    out = drop(out, 'weather')
+  }
+
   if (/\berinner/.test(t) && !/\b(termin|kalender)\b/.test(t)) {
     out = drop(out, 'calendar')
     out = drop(out, 'todo')

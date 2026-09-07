@@ -73,6 +73,7 @@ import { handleTaxi } from './taxi'
 import { handleInterrupt } from './interrupt'
 import { clearChain, partitionChain, popChain, writeChain } from './chain'
 import { isCommNo, isCommYes } from './places-parse'
+import { pendingYields } from './pending-yield.ts'
 import { handleTvOrdinal, tvStatusFromSettings } from './tv'
 import { handleFuelOrdinal } from './fuel'
 import { handlePoiOrdinal } from './poi'
@@ -185,12 +186,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   }
 
   if (loadSettings().last_comm_json) {
-    const pendingHit = await handlePlaces(conversationId, content)
-    if (pendingHit.handled && pendingHit.reply) {
-      return {
-        reply: pendingHit.reply,
-        tool: pendingHit.tool,
-        lastTool: pendingHit.lastTool || 'maps',
+    if (pendingYields(content, ['maps', 'phone_ask'])) {
+      saveSettings({ last_comm_json: '' })
+    } else {
+      const pendingHit = await handlePlaces(conversationId, content)
+      if (pendingHit.handled && pendingHit.reply) {
+        return {
+          reply: pendingHit.reply,
+          tool: pendingHit.tool,
+          lastTool: pendingHit.lastTool || 'maps',
+        }
       }
     }
   }
@@ -207,23 +212,31 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   }
 
   if (loadSettings().last_taxi_json) {
-    const taxiPending = await handleTaxi(conversationId, content)
-    if (taxiPending.handled && taxiPending.reply) {
-      return {
-        reply: taxiPending.reply,
-        tool: taxiPending.tool,
-        lastTool: taxiPending.lastTool || 'taxi',
+    if (pendingYields(content, 'taxi')) {
+      saveSettings({ last_taxi_json: '' })
+    } else {
+      const taxiPending = await handleTaxi(conversationId, content)
+      if (taxiPending.handled && taxiPending.reply) {
+        return {
+          reply: taxiPending.reply,
+          tool: taxiPending.tool,
+          lastTool: taxiPending.lastTool || 'taxi',
+        }
       }
     }
   }
 
   if (loadSettings().last_interrupt_json) {
-    const interruptHit = await handleInterrupt(conversationId, content)
-    if (interruptHit.handled && interruptHit.reply) {
-      return {
-        reply: interruptHit.reply,
-        tool: interruptHit.tool,
-        lastTool: interruptHit.lastTool || 'interrupt',
+    if (pendingYields(content, ['drive', 'fuel', 'poi'])) {
+      saveSettings({ last_interrupt_json: '' })
+    } else {
+      const interruptHit = await handleInterrupt(conversationId, content)
+      if (interruptHit.handled && interruptHit.reply) {
+        return {
+          reply: interruptHit.reply,
+          tool: interruptHit.tool,
+          lastTool: interruptHit.lastTool || 'interrupt',
+        }
       }
     }
   }
@@ -544,20 +557,21 @@ export async function streamChat(
       return
     }
 
-    if (opts?.voice && kind === 'none') {
-      const reply =
-        'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
-      setLatencyPath('parser')
-      emitToken(handlers, reply)
-      const assistant = await addMessage(conversationId, 'assistant', reply)
-      const updated = (await touchConversation(conversationId)) || convAfterUser
-      finishLatency()
-      handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
-      return
-    }
-
     if (kind === 'none') {
-      throw new Error(noBrainLine())
+      const peek = loadSettings()
+      const livePeek = isLiveLookup(ask, Boolean(peek.shop_discount)) || Boolean(accepted)
+      if (!livePeek) {
+        const reply = opts?.voice
+          ? 'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
+          : noBrainLine()
+        setLatencyPath('parser')
+        emitToken(handlers, reply)
+        const assistant = await addMessage(conversationId, 'assistant', reply)
+        const updated = (await touchConversation(conversationId)) || convAfterUser
+        finishLatency()
+        handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
+        return
+      }
     }
 
     const s = loadSettings()

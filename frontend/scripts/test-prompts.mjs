@@ -22,9 +22,13 @@ import { filterTopics } from '../src/engine/settings-ia.ts'
 import { parseBlitzerIntent } from '../src/engine/blitzer-parse.ts'
 import { parseAmazonMusicIntent } from '../src/engine/amazon-parse.ts'
 import { parseFolderIntent } from '../src/engine/folder-parse.ts'
+import { parseSpotifyIntent } from '../src/engine/spotify-parse.ts'
 import { parseWatchPriceIntent } from '../src/engine/watch-price-parse.ts'
 import { parseRecallIntent } from '../src/engine/recall-parse.ts'
 import { subQueries } from '../src/engine/retrieve.ts'
+import { pendingYields } from '../src/engine/pending-yield.ts'
+import { browserSafeHeaders, browserFetchUrl } from '../src/engine/http-json.ts'
+import { shouldProxyWebHost } from '../src/engine/web-proxy.ts'
 
 /** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'blitzer'|'chat-folder'|'watch-price'|'amazon'|'recall'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
 
@@ -254,6 +258,30 @@ const follow = route('und morgen?', {
 })
 assert.equal(follow, 'weather', 'und morgen? nach Wetter-Kontext')
 assert.equal(route('und die Luft', { weatherLast: { kind: 'here', when: 'today', focus: 'general' } }), 'weather')
+assert.equal(
+  route('in 20 Minuten Milch', {
+    weatherLast: { kind: 'place', place: 'München', when: 'today', focus: 'general' },
+  }),
+  'reminder',
+  'Erinnerung nach Wetter nicht als Orts-Wetter',
+)
+assert.equal(
+  route('Termin morgen 15 Uhr Zahnarzt', {
+    weatherLast: { kind: 'here', when: 'today', focus: 'general' },
+  }),
+  'calendar',
+  'Termin nach Wetter nicht als Wetter-Nachfrage',
+)
+assert.equal(pendingYields('ja', 'taxi'), false)
+assert.equal(pendingYields('nein', 'maps'), false)
+assert.equal(pendingYields('Wo ist die ISS?', 'taxi'), true, 'Taxi-Nachfrage gibt an ISS ab')
+assert.equal(pendingYields('FIFA starten', 'maps'), true, 'Nummer-Frage gibt an PC ab')
+assert.equal(pendingYields('Todo: Testdebug Milch', 'taxi'), true)
+assert.equal(parseSpotifyIntent('Spiele Musik')?.kind, 'resume')
+assert.deepEqual(browserSafeHeaders({ 'User-Agent': 'Jarvis', Accept: 'application/json' }), { Accept: 'application/json' })
+assert.equal(browserFetchUrl('https://de.wikipedia.org/w/api.php'), 'https://de.wikipedia.org/w/api.php')
+assert.equal(shouldProxyWebHost('html.duckduckgo.com'), true)
+assert.equal(shouldProxyWebHost('evil.example'), false)
 assert.equal(route('nächste Bahn nach Heilbronn'), 'transit')
 assert.equal(route('Tagesschau'), 'news')
 assert.equal(route('nächster Feiertag'), 'holiday')
