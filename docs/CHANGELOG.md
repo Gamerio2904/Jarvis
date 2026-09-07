@@ -5,6 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `13.31.4` — Hausstand-Import schaltet Gemini, Recall trifft Fachwissen — *CODE*
+
+- **Import:** Gemini-Key im Hausstand schaltet Gemini an (alte Exporte hatten den Schalter aus).
+- **Gedächtnis:** Befehlstext wie „fass das in einem Satz“ wird nicht als Getränk importiert.
+- **Recht:** Wikipedia-Shows („Darf ich bitten?“) zählen nicht als Gesetz.
+- **Suche:** „BIP in einer Tabelle“ sucht Deutschland, nicht den Artikel Tabelle.
+- **Recall:** Fachwissen-Packs (Steuer 2026) und Kalender vor Chat-Dumps.
+
 ## `13.31.3` — Suche im Browser, Musik ohne Hirn — *CODE*
 
 - **Suche:** Wikipedia/DuckDuckGo/Frankfurter im Vite-Browser über Proxy, ohne CORS-Leere („Netz hat nicht geantwortet“). Fetch ohne verbotenes User-Agent, mit Timeout.

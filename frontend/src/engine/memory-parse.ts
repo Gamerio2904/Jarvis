@@ -79,10 +79,13 @@ export function parseMemoryFacts(text: string): MemoryFact[] {
   return out
 }
 
-function isPrefValue(raw: string): boolean {
+export function isPrefValue(raw: string): boolean {
   const v = raw.replace(/[.!?,;:]+$/g, '').trim()
-  if (v.length < 2) return false
-  return !/^(ich|du|er|sie|es|wir|ihr|man|mich|mir|dir|uns)(?:\s+gerne)?$/i.test(v)
+  if (v.length < 2 || v.length > 48) return false
+  if (/^(ich|du|er|sie|es|wir|ihr|man|mich|mir|dir|uns)(?:\s+gerne)?$/i.test(v)) return false
+  if (/\b(fass(?:e)?\s+das|zusammenfassen|in\s+einem\s+satz|basierend\s+auf)\b/i.test(v)) return false
+  if (/^[—–-]|[—–-]/.test(v) && /\b(ich|was|wo)\b/i.test(v)) return false
+  return true
 }
 
 export function isMemoryWrite(text: string): boolean {

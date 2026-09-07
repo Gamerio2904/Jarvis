@@ -13,6 +13,7 @@ import {
   shopRank,
   sourcesFromHtml,
   sourcesFromText,
+  wikiCompanyHint,
   type ResearchMeta,
   type ResearchSource,
 } from './research-parse'
@@ -47,13 +48,13 @@ export async function fillResearchLinks(
   const query = researchQuery(research?.query || queryText)
   const discount = Boolean(loadSettings().shop_discount)
   const product = isProductLookup(queryText, discount) || isProductLookup(query, discount)
-  const   extra: ResearchSource[] = [
+  const extra: ResearchSource[] = [
     ...sourcesFromText(answer),
     ...(research?.sources || []),
   ]
   const fact = isFactLookup(queryText) || isFactLookup(query)
   if (fact) {
-    extra.push(...(await wikipedia(companyHint(query))))
+    extra.push(...(await wikipedia(wikiCompanyHint(query))))
     extra.push(...(await duckDuckGo(`${query} site:destatis.de`)))
   }
   const need = product ? 3 : fact ? 3 : 2
@@ -72,7 +73,7 @@ export async function fillResearchLinks(
     extra.push(...(await duckInstant(query)))
   }
   if (extra.filter((s) => s.url).length < 2 || (fact && extra.filter((s) => (s.snippet || '').length > 40).length < 1)) {
-    extra.push(...(await wikipedia(fact ? companyHint(query) : query)))
+    extra.push(...(await wikipedia(fact ? wikiCompanyHint(query) : query)))
   }
   if (product) extra.push(...compareShopSources(query))
   if (product && discount) extra.push(...compareDiscountSources(query))
@@ -164,16 +165,6 @@ async function wikipedia(query: string): Promise<ResearchSource[]> {
   } catch {
     return []
   }
-}
-
-function companyHint(q: string): string {
-  const skip = /^(wie|was|wer|wo|wann|wieso|weshalb|viele|viel|am|tag|pro|der|die|das|ein|eine)$/i
-  const words = q.split(/\s+/)
-  for (let i = words.length - 1; i >= 0; i -= 1) {
-    const w = words[i].replace(/[?.!,]/g, '')
-    if (w.length >= 3 && !skip.test(w) && /^[A-ZÄÖÜ]/.test(w)) return w
-  }
-  return q
 }
 
 async function wikiExtract(title: string, max = 400): Promise<string> {

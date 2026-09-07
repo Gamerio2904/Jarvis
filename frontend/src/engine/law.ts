@@ -59,13 +59,31 @@ export async function handleLaw(
   }
 }
 
+const LAW_SKIP_TITLE =
+  /\b(darf ich bitten|casting|talentshow|schlager|sat\.1|rtl|prosieben|castingshow)\b/i
+const LAW_KEEP =
+  /\b(grill|park|verbot|gesetz|ordnung|vorschrift|bußgeld|bussgeld|ordnungsamt|grünfläche|gruenflaeche|waldgesetz)\b/i
+
+export function lawWikiQuery(q: string): string {
+  if (/\bgrillen\b/i.test(q) || /\bgrillverbot\b/i.test(q)) return 'Grillverbot Park Grünanlage Ordnung'
+  return q
+}
+
+export function isLawWikiTitle(title: string, snippet = ''): boolean {
+  const blob = `${title} ${snippet}`
+  if (LAW_SKIP_TITLE.test(blob)) return false
+  if (LAW_KEEP.test(blob)) return true
+  return /gesetz|verordnung|ordnung|verbot/i.test(title)
+}
+
 async function wikiHit(q: string): Promise<{ title: string; extract: string; url: string } | null> {
-  const url = `https://de.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(q)}&utf8=&format=json`
+  const url = `https://de.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(lawWikiQuery(q))}&utf8=&format=json`
   try {
     const { status, text } = await getText(url, { Accept: 'application/json', 'User-Agent': UA['User-Agent'] })
     if (status < 200 || status >= 300 || !text) return null
     const data = JSON.parse(text) as { query?: { search?: Array<{ title?: string; snippet?: string }> } }
-    const row = data.query?.search?.[0]
+    const rows = data.query?.search || []
+    const row = rows.find((r) => isLawWikiTitle(String(r.title || ''), String(r.snippet || '')))
     const title = String(row?.title || '').trim()
     if (!title) return null
     const snippet = String(row?.snippet || '')

@@ -18,6 +18,7 @@ import { qualityPack } from './quality-pack.ts'
 import { aliasQueries, expandBlob, utteranceHints } from './memory-alias.ts'
 import { rowKind } from './memory-layer.ts'
 import { rememberRecallHits } from './memory-experience.ts'
+import { listKnowledgePacks, type KnowledgePack } from './knowledge-store.ts'
 
 function normQuery(s: string): string {
   return (s || '').toLowerCase().replace(/[.?!…]+/g, '').replace(/\s+/g, ' ').trim()
@@ -66,6 +67,9 @@ export function isDumpLine(content: string): boolean {
   if (!t) return true
   if (/^\s*gefunden:/i.test(t)) return true
   if (/(?:zeig mir london|fahr mich zu einer tanke)\s*:/i.test(t)) return true
+  if (/^\s*(?:termine|kalender|keine termine|pc-steuerung aus|fahrmodus an|spotify nicht verbunden)\b/i.test(t)) {
+    return true
+  }
   const colons = (t.match(/:\s/g) || []).length
   if (colons >= 3 && /(?:^|\s)•\s/.test(content)) return true
   if (colons >= 4 && t.length > 100) return true
@@ -163,6 +167,7 @@ export type RetrieveCorpus = {
   notes?: Note[]
   reminders?: Reminder[]
   shopping?: ShoppingItem[]
+  knowledge?: KnowledgePack[]
 }
 
 export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): RetrieveHit[] {
@@ -175,6 +180,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
   const notes = corpus.notes || []
   const reminders = corpus.reminders || []
   const shopping = corpus.shopping || []
+  const knowledge = corpus.knowledge || []
   const pool = structuredMemoryPool(text, memory)
   const memSource = pool === null ? memory : pool
   const lists: RetrieveHit[][] = []
@@ -243,14 +249,26 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
         rank: scoreBlob(q, s.title),
       }))
       .filter((h) => h.rank > 0)
-    lists.push([...memHits, ...evHits, ...noteHits, ...remHits, ...shopHits, ...msgHits])
+    const knowHits = knowledge
+      .map((p) => {
+        const blob = `${p.topic} ${p.title} ${(p.aliases || []).join(' ')} ${p.summary} ${(p.claims || []).map((c) => c.text).join(' ')}`
+        return {
+          store: 'knowledge',
+          title: p.title,
+          body: p.summary || (p.claims || [])[0]?.text || p.title,
+          id: p.id,
+          rank: scoreBlob(q, blob) + 2.2,
+        }
+      })
+      .filter((h) => h.rank > 2.2)
+    lists.push([...memHits, ...evHits, ...noteHits, ...remHits, ...shopHits, ...knowHits, ...msgHits])
   }
   const fused = expandHops(rrf(lists), memory).sort((a, b) => b.rank - a.rank).slice(0, 6)
   return applyE5Rerank(fused)
 }
 
 export async function retrieve(text: string): Promise<RetrieveHit[]> {
-  const [memory, messages, convs, events, notes, reminders, shopping] = await Promise.all([
+  const [memory, messages, convs, events, notes, reminders, shopping, knowledge] = await Promise.all([
     listMemory(),
     getAll<Message>('messages'),
     getAll<Conversation>('conversations'),
@@ -258,8 +276,9 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
     listNotes(),
     listReminders(),
     listShopping(),
+    listKnowledgePacks(),
   ])
-  const hits = retrieveFromCorpus(text, { memory, messages, convs, events, notes, reminders, shopping })
+  const hits = retrieveFromCorpus(text, { memory, messages, convs, events, notes, reminders, shopping, knowledge })
   rememberRecallHits(hits)
   return hits
 }
@@ -271,7 +290,7 @@ export function applyE5Rerank(hits: RetrieveHit[]): RetrieveHit[] {
   return hits
 }
 
-const STORE_ORDER = ['events', 'memory', 'reminders', 'notes', 'shopping', 'messages']
+const STORE_ORDER = ['knowledge', 'events', 'memory', 'reminders', 'notes', 'shopping', 'messages']
 
 export function pickRecallHits(query: string, hits: RetrieveHit[]): RetrieveHit[] {
   const hints = utteranceHints(query)
@@ -321,6 +340,7 @@ function formatOneHit(h: RetrieveHit): string {
     return `Pin: ${h.body}.`
   }
   if (h.store === 'shopping') return `Einkauf: ${h.title}.`
+  if (h.store === 'knowledge') return `Fachwissen: ${h.title} — ${h.body}${/[.!?]$/.test(h.body) ? '' : '.'}`
   if (h.store === 'notes') return `Notiz: ${h.body}${/[.!?]$/.test(h.body) ? '' : '.'}`
   return `Gespräch: ${h.body.replace(/\s+/g, ' ').trim()}`
 }

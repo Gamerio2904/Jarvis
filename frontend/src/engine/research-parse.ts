@@ -137,6 +137,18 @@ export function isFactLookup(text: string): boolean {
   return false
 }
 
+/** Wikipedia-Suche: nicht den letzten Funktionswort-Treffer (Tabelle, Darstellen). */
+export function wikiCompanyHint(q: string): string {
+  const skip =
+    /^(wie|was|wer|wo|wann|wieso|weshalb|viele|viel|am|tag|pro|der|die|das|ein|eine|tabelle|tabellarisch|darstellen|statistik|geschäftsbericht)$/i
+  const words = q.split(/\s+/)
+  for (let i = words.length - 1; i >= 0; i -= 1) {
+    const w = words[i].replace(/[?.!,]/g, '')
+    if (w.length >= 3 && !skip.test(w) && /^[A-ZÄÖÜ]/.test(w)) return w
+  }
+  return q.replace(/\b(in\s+einer\s+)?tabelle\b/gi, ' ').replace(/\s+/g, ' ').trim() || q
+}
+
 /** Reihen oder Vergleich als Texttabelle, kein Markdown. */
 export function isTableAsk(text: string): boolean {
   return /\b(?:tabelle|tabellarisch|als\s+tabelle|in\s+einer\s+tabelle)\b/i.test(text)

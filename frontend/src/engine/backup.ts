@@ -23,11 +23,21 @@ import {
   type ShoppingItem,
   type Todo,
 } from './store.ts'
+import { isPrefValue } from './memory-parse.ts'
 import type { ToolMeta } from './tools.ts'
 import { Capacitor } from '@capacitor/core'
 import { listKnowledgePacks, type KnowledgePack } from './knowledge-store.ts'
 
 export const BACKUP_VERSION = 1
+
+/** Alte Exporte speichern Befehle als Getränk/Notiz. Nicht wieder einspielen. */
+export function isImportJunkMemory(row: { key?: string; value?: string }): boolean {
+  const v = String(row.value || '').trim()
+  if (!v) return true
+  if (row.key === 'getränk' && !isPrefValue(v)) return true
+  if (/\b(fass(?:e)?\s+das|in\s+einem\s+satz\s+zusammen)\b/i.test(v)) return true
+  return false
+}
 
 /** Nur Lauf-Cache, keine dauerhaften Einstellungen. Keys, Hosts, HUD, Stecker bleiben. */
 const EPHEMERAL: Array<keyof Settings> = [
@@ -233,8 +243,11 @@ export async function applyBackup(data: HausBackup): Promise<string> {
     ...DEFAULT_SETTINGS,
     ...stripSettings({ ...data.settings }),
   }
+  const geminiWasOff = Boolean(next.gemini_api_key.trim()) && !next.gemini_enabled
+  if (next.gemini_api_key.trim()) next.gemini_enabled = true
   saveSettings(next)
-  await replaceStore('memory', data.memory || [])
+  const memory = (data.memory || []).filter((row) => !isImportJunkMemory(row))
+  await replaceStore('memory', memory)
   await replaceStore('reminders', data.reminders || [])
   await replaceStore('events', data.events || [])
   await replaceStore('notes', data.notes || [])
@@ -269,7 +282,9 @@ export async function applyBackup(data: HausBackup): Promise<string> {
     /* */
   }
   saveSettings({ last_backup_at: new Date().toISOString() })
-  return 'Hausstand liegt. Erinnerungen neu gesetzt. Keys sind in der Datei — nicht teilen.'
+  return geminiWasOff
+    ? 'Hausstand liegt. Gemini-Key war aus — jetzt an. Erinnerungen neu gesetzt. Keys sind in der Datei — nicht teilen.'
+    : 'Hausstand liegt. Erinnerungen neu gesetzt. Keys sind in der Datei — nicht teilen.'
 }
 
 export async function shareOrDownloadBackup(includeChats: boolean): Promise<string> {

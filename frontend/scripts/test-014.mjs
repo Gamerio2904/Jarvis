@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
 import { allTestCopyTexts, formatAllTestCopy, PROBE_COPY_GROUPS, TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { parseTvIntent, parseTvWatch, isTvDiscover } from '../src/engine/tv-parse.ts'
-import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory } from '../src/engine/memory-parse.ts'
+import { CONTRADICTION, parseMemoryFacts, isMemoryWrite, isMemoryRecall, formatPinnedMemory, isPrefValue } from '../src/engine/memory-parse.ts'
 import { parseToolIntent } from '../src/engine/tools-parse.ts'
 import { scrubReply, isHelpCommand, finishReply, HELP_TEXT, redactSecrets } from '../src/engine/guards.ts'
 import { isIdentityAsk } from '../src/engine/memory-parse.ts'
@@ -150,7 +150,7 @@ import { parseChessIntent } from '../src/engine/chess.ts'
 import { parseSportIntent, formatTable } from '../src/engine/sport.ts'
 import { parseFoodIntent } from '../src/engine/food.ts'
 import { parseLibraryIntent } from '../src/engine/library.ts'
-import { parseLawIntent } from '../src/engine/law.ts'
+import { parseLawIntent, isLawWikiTitle, lawWikiQuery } from '../src/engine/law.ts'
 import { parseHaushaltIntent } from '../src/engine/haushalt.ts'
 import { parseSensorsIntent } from '../src/engine/sensors.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
@@ -159,13 +159,13 @@ import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
 import { parseTaxiIntent } from '../src/engine/taxi-parse.ts'
 import { shouldCallSecondPhone } from '../src/engine/interrupt.ts'
 import { overlappingEvents } from '../src/engine/watchdog.ts'
-import { backupFilename, countSetKeys, previewBackup, stripSettings, parseBackupIntent } from '../src/engine/backup.ts'
+import { backupFilename, countSetKeys, previewBackup, stripSettings, parseBackupIntent, isImportJunkMemory } from '../src/engine/backup.ts'
 import { parseFaceIntent } from '../src/engine/face-parse.ts'
 import { formatOutlookReply, hasForbiddenClaim, parseRssItems } from '../src/engine/outlook.ts'
 import { analogPct, pickAnalog } from '../src/engine/outlook-series.ts'
 import { tagNewsText } from '../src/engine/outlook-tags.ts'
 import { parseRecallIntent } from '../src/engine/recall-parse.ts'
-import { formatRecallReply, isDumpLine, subQueries } from '../src/engine/retrieve.ts'
+import { formatRecallReply, isDumpLine, subQueries, retrieveFromCorpus } from '../src/engine/retrieve.ts'
 import { handleWont, parseWontIntent, streetViewPlace, WONT_LABEL } from '../src/engine/wont-parse.ts'
 import { looksTruncated } from '../src/engine/polish-guard.ts'
 import { parseGreeting, greetingReply, dayPartAt } from '../src/engine/greeting.ts'
@@ -1273,7 +1273,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /13\.31\.3/)
+assert.match(HELP_TEXT, /13\.31\.4/)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
 assert.match(HELP_TEXT, /Keys nicht im Chat/)
@@ -1939,10 +1939,11 @@ assert.equal(
 )
 assert.equal(
   judgeTurn(
-    { label: 't', text: 'x', expect: { tool: 'eye', skipIf: 'no_gemini' } },
-    'Dafür Gemini an. Dann Foto-Knopf — das Bild geht zu Google, nicht lokal.',
+    { label: 't', text: 'x', expect: { tool: 'recall' } },
+    'Fachwissen: Steuer 2026 — Der Grundfreibetrag steigt 2026.',
+    { tool: 'recall', tool_status: 'executed' },
   ),
-  'skip',
+  'pass',
 )
 assert.equal(parseTraceIntent('Was ist traceroute?')?.kind, 'explain')
 assert.equal(parseTraceIntent('Welche Route nimmt google.de')?.kind, 'run')
@@ -2231,6 +2232,15 @@ assert.equal(isMemoryRecall('Was weißt du über mich'), true)
 assert.equal(isDumpLine('Zeig mir London: Termine diese Woche: 1. Zahnarzt'), true)
 assert.equal(isDumpLine('Gefunden: • Wann hatte ich das mit der Steuer?'), true)
 assert.equal(isDumpLine('London ist die Hauptstadt des Vereinigten Königreichs.'), false)
+assert.equal(isDumpLine('Termine diese Woche: 1. Zahnarzt — morgen 15:00'), true)
+assert.equal(isDumpLine('PC-Steuerung aus. Unter Einstellungen → PC anschalten.'), true)
+assert.equal(isPrefValue('Kaffee'), true)
+assert.equal(isPrefValue('ich — fass das in einem Satz zusammen'), false)
+assert.equal(isImportJunkMemory({ key: 'getränk', value: 'ich — fass das in einem Satz zusammen' }), true)
+assert.equal(isImportJunkMemory({ key: 'name', value: 'Timon' }), false)
+assert.equal(isLawWikiTitle('Darf ich bitten?', 'Schlagerstar Vincent Gross'), false)
+assert.equal(isLawWikiTitle('Grillverbot', 'In Parks oft durch Grünanlagenverordnung'), true)
+assert.match(lawWikiQuery('Darf ich im Park grillen?'), /Grillverbot/)
 {
   const line = formatRecallReply('Zahnarzt', [
     { store: 'events', title: 'Zahnarzt', body: '2026-09-05T15:00:00', rank: 1 },
@@ -2239,6 +2249,40 @@ assert.equal(isDumpLine('London ist die Hauptstadt des Vereinigten Königreichs.
   assert.match(line, /Zahnarzt/)
   assert.doesNotMatch(line, /Zeig mir London:/)
   assert.doesNotMatch(line, /Fahr mich zu einer Tanke:/)
+}
+{
+  const hits = retrieveFromCorpus('Wo stand das mit der Steuer', {
+    memory: [],
+    messages: [
+      {
+        id: 'm1',
+        conversation_id: 'c1',
+        role: 'assistant',
+        content: 'Termine diese Woche: 1. Zahnarzt — morgen 15:00',
+        created_at: '2026-09-07T00:00:00Z',
+      },
+    ],
+    convs: [{ id: 'c1', title: 'Chat', created_at: '2026-09-07T00:00:00Z', updated_at: '2026-09-07T00:00:00Z' }],
+    knowledge: [
+      {
+        id: 'steuer-2026',
+        topic: 'steuer-2026',
+        title: 'Steuer 2026',
+        aliases: ['steuer'],
+        summary: 'Der Grundfreibetrag steigt 2026',
+        claims: [{ id: '1', text: 'Der Grundfreibetrag steigt 2026', source_urls: [], user_ok: true }],
+        sources: [],
+        origin: 'paste',
+        taught_at: '2026-09-04T08:39:08.241Z',
+        updated_at: '2026-09-04T08:39:08.241Z',
+        user_ok: true,
+      },
+    ],
+  })
+  assert.ok(hits.some((h) => h.store === 'knowledge' && /Steuer/.test(h.title)))
+  const line = formatRecallReply('Steuer', hits)
+  assert.match(line, /Fachwissen|Grundfreibetrag/)
+  assert.doesNotMatch(line, /Termine diese Woche/)
 }
 {
   const line = formatRecallReply('Steuer', [

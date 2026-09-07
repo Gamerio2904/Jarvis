@@ -8,7 +8,9 @@ import {
   isLiveLookup,
   isStaleFeeNow,
   parseShopDiscountIntent,
+  wikiCompanyHint,
 } from '../src/engine/research-parse.ts'
+import { shouldProxyWebHost } from '../src/engine/web-proxy.ts'
 import { parsePlaceRecall } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
 import { isHelpCommand } from '../src/engine/guards.ts'
@@ -28,7 +30,6 @@ import { parseRecallIntent } from '../src/engine/recall-parse.ts'
 import { subQueries } from '../src/engine/retrieve.ts'
 import { pendingYields } from '../src/engine/pending-yield.ts'
 import { browserSafeHeaders, browserFetchUrl } from '../src/engine/http-json.ts'
-import { shouldProxyWebHost } from '../src/engine/web-proxy.ts'
 
 /** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'blitzer'|'chat-folder'|'watch-price'|'amazon'|'recall'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
 
@@ -282,6 +283,7 @@ assert.deepEqual(browserSafeHeaders({ 'User-Agent': 'Jarvis', Accept: 'applicati
 assert.equal(browserFetchUrl('https://de.wikipedia.org/w/api.php'), 'https://de.wikipedia.org/w/api.php')
 assert.equal(shouldProxyWebHost('html.duckduckgo.com'), true)
 assert.equal(shouldProxyWebHost('evil.example'), false)
+assert.equal(wikiCompanyHint('Kannst du den bip von Deutschland in einer Tabelle darstellen?'), 'Deutschland')
 assert.equal(route('nächste Bahn nach Heilbronn'), 'transit')
 assert.equal(route('Tagesschau'), 'news')
 assert.equal(route('nächster Feiertag'), 'holiday')
