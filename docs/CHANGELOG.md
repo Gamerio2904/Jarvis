@@ -9,6 +9,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 - **GUI:** Einstellungen-Reiter und Hauptnavigation als schwebende Pills. Der aktive Kreis gleitet mit Spring, das Icon poppt — Jarvis-Grün/Gold bleiben.
 - **Handy:** unten eine Island (Chat, Lage, Hören, Kalender, Mehr).
+- **Sideload:** `13.31.6` (versionCode `133106`).
 
 ## `13.31.5` — PC per QR koppeln — *CODE*
 

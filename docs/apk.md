@@ -1,10 +1,14 @@
-# Android-APK — Sideload `13.31.1`
+# Android-APK — Sideload `13.31.6`
 
-App-Code **`13.31.1`**. Sideload-APK **`13.31.1`**. LocateAnything-Gewichte nicht in der APK.
+App-Code **`13.31.6`**. Sideload-APK **`13.31.6`**. LocateAnything-Gewichte nicht in der APK.
 
 **Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback.
 
 **Deinstall** (andere Signatur): WebView-Daten weg. Vor Neuinstall Hausstand exportieren.
+
+**13.31.6:** Navigation-Island, gleitender Tab-Kreis (Chat/Lage/Hören/Kalender/Mehr).
+
+**13.31.5:** PC per QR koppeln.
 
 **13.31.1:** Bundesliga eine Zeile pro Verein.
 
@@ -24,11 +28,11 @@ App-Code **`13.31.1`**. Sideload-APK **`13.31.1`**. LocateAnything-Gewichte nich
 
 ## Download
 
-**Fertige APK `13.31.1`:**  
+**Fertige APK `13.31.6`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `13.31.1` · versionCode `133101`
+- versionName `13.31.6` · versionCode `133106`
 - App-ID `local.jarvis.app`
 
 1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).
