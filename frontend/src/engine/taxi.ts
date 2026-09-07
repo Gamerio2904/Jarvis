@@ -34,7 +34,9 @@ export async function handleTaxi(conversationId: string, text: string): Promise<
       return packAsk('Taxi abgebrochen. Bestellt habe ich nicht.')
     }
     if (isCommYes(text, 'call')) return finishTaxi(conversationId, pending)
-    return packAsk('Taxi: Ja öffnet Anruf oder App. Bestellt und bezahlt habe ich nicht.')
+    if (parseTaxiIntent(text)) return packAsk(confirmLine((loadSettings().taxi_app || 'call') as TaxiApp, pending))
+    writeTaxi(null)
+    return { handled: false }
   }
 
   const intent = parseTaxiIntent(text)

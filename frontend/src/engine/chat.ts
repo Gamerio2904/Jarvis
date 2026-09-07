@@ -73,6 +73,7 @@ import { handleTaxi } from './taxi'
 import { handleInterrupt } from './interrupt'
 import { clearChain, partitionChain, popChain, writeChain } from './chain'
 import { isCommNo, isCommYes } from './places-parse'
+import { pendingYields } from './pending-yield.ts'
 import { handleTvOrdinal, tvStatusFromSettings } from './tv'
 import { handleFuelOrdinal } from './fuel'
 import { handlePoiOrdinal } from './poi'
@@ -185,12 +186,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   }
 
   if (loadSettings().last_comm_json) {
-    const pendingHit = await handlePlaces(conversationId, content)
-    if (pendingHit.handled && pendingHit.reply) {
-      return {
-        reply: pendingHit.reply,
-        tool: pendingHit.tool,
-        lastTool: pendingHit.lastTool || 'maps',
+    if (pendingYields(content, ['maps', 'phone_ask'])) {
+      saveSettings({ last_comm_json: '' })
+    } else {
+      const pendingHit = await handlePlaces(conversationId, content)
+      if (pendingHit.handled && pendingHit.reply) {
+        return {
+          reply: pendingHit.reply,
+          tool: pendingHit.tool,
+          lastTool: pendingHit.lastTool || 'maps',
+        }
       }
     }
   }
@@ -207,23 +212,31 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   }
 
   if (loadSettings().last_taxi_json) {
-    const taxiPending = await handleTaxi(conversationId, content)
-    if (taxiPending.handled && taxiPending.reply) {
-      return {
-        reply: taxiPending.reply,
-        tool: taxiPending.tool,
-        lastTool: taxiPending.lastTool || 'taxi',
+    if (pendingYields(content, 'taxi')) {
+      saveSettings({ last_taxi_json: '' })
+    } else {
+      const taxiPending = await handleTaxi(conversationId, content)
+      if (taxiPending.handled && taxiPending.reply) {
+        return {
+          reply: taxiPending.reply,
+          tool: taxiPending.tool,
+          lastTool: taxiPending.lastTool || 'taxi',
+        }
       }
     }
   }
 
   if (loadSettings().last_interrupt_json) {
-    const interruptHit = await handleInterrupt(conversationId, content)
-    if (interruptHit.handled && interruptHit.reply) {
-      return {
-        reply: interruptHit.reply,
-        tool: interruptHit.tool,
-        lastTool: interruptHit.lastTool || 'interrupt',
+    if (pendingYields(content, ['drive', 'fuel', 'poi'])) {
+      saveSettings({ last_interrupt_json: '' })
+    } else {
+      const interruptHit = await handleInterrupt(conversationId, content)
+      if (interruptHit.handled && interruptHit.reply) {
+        return {
+          reply: interruptHit.reply,
+          tool: interruptHit.tool,
+          lastTool: interruptHit.lastTool || 'interrupt',
+        }
       }
     }
   }

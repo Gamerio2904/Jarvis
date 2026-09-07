@@ -25,6 +25,7 @@ import { parseFolderIntent } from '../src/engine/folder-parse.ts'
 import { parseWatchPriceIntent } from '../src/engine/watch-price-parse.ts'
 import { parseRecallIntent } from '../src/engine/recall-parse.ts'
 import { subQueries } from '../src/engine/retrieve.ts'
+import { pendingYields } from '../src/engine/pending-yield.ts'
 
 /** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'blitzer'|'chat-folder'|'watch-price'|'amazon'|'recall'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
 
@@ -268,6 +269,11 @@ assert.equal(
   'calendar',
   'Termin nach Wetter nicht als Wetter-Nachfrage',
 )
+assert.equal(pendingYields('ja', 'taxi'), false)
+assert.equal(pendingYields('nein', 'maps'), false)
+assert.equal(pendingYields('Wo ist die ISS?', 'taxi'), true, 'Taxi-Nachfrage gibt an ISS ab')
+assert.equal(pendingYields('FIFA starten', 'maps'), true, 'Nummer-Frage gibt an PC ab')
+assert.equal(pendingYields('Todo: Testdebug Milch', 'taxi'), true)
 assert.equal(route('nächste Bahn nach Heilbronn'), 'transit')
 assert.equal(route('Tagesschau'), 'news')
 assert.equal(route('nächster Feiertag'), 'holiday')

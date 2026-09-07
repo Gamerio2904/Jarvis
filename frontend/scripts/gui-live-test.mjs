@@ -306,13 +306,6 @@ try {
     seen.add(p)
     unique.push(p)
   }
-  for (const g of TEST_COPY_GROUPS) {
-    for (const item of g.items) {
-      if (seen.has(item.text)) continue
-      seen.add(item.text)
-      unique.push(item.text)
-    }
-  }
 
   console.log(`\n=== ${unique.length} Prompts ===\n`)
   for (const prompt of unique) {

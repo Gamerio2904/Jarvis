@@ -8,7 +8,9 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 ## `13.31.2` — Gemini-Key schaltet Hirn an — *CODE*
 
 - **Keys:** Gemini-Key eintragen schaltet Gemini an (Opt-in). Explizites Aus bleibt aus.
-- **Chat:** Ohne Hirn keine Fehler-Banner mehr — Jarvis antwortet im Chat, Tools laufen weiter.
+- **Chat:** Ohne Hirn keine Fehler-Banner mehr — Jarvis antwortet im Chat, Tools laufen weiter. Suche ohne Gemini geht weiter über Parser + Links, nicht ins Banner.
+- **Wetter:** „in 20 Minuten Milch“ und „Termin morgen …“ nach einem Wetter-Turn bleiben Erinnerung/Kalender, kein Orts-Wetter.
+- **Nachfrage:** Offenes Taxi-/Anruf-Ja schluckt keine späteren Befehle (ISS, Timer, FIFA). Ja/Nein gelten weiter.
 - **Keys-Tab:** Schalter „Gemini zuerst“ liegt neben dem Key.
 
 ## `13.31.1` — Bundesliga-Tabelle lesbar — *CODE*
