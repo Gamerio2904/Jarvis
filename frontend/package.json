@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "13.44.0",
+  "version": "15.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,6 +14,7 @@
     "test:pc": "node --experimental-strip-types scripts/test-pc.mjs",
     "test:prompts": "node --experimental-strip-types scripts/test-prompts.mjs",
     "test:agents": "node --experimental-strip-types scripts/test-agents.mjs",
+    "test:brain-orchestrator": "node --experimental-strip-types scripts/test-brain-orchestrator.mjs",
     "test:650": "node --experimental-strip-types scripts/test-650.mjs",
     "test:matrix": "node --experimental-strip-types scripts/test-650-matrix.mjs",
     "test:memory-10": "node --experimental-strip-types scripts/test-memory-10.mjs",

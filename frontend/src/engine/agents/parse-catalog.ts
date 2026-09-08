@@ -64,6 +64,7 @@ import { isPersonaAsk } from '../guards.ts'
 import { parserScore } from '../policy.ts'
 import type { RouteCtx, SideEffect } from '../route-types.ts'
 import { metaFor } from './meta.ts'
+import { PROMPT_SLICES } from './prompt-slices.ts'
 import type { AgentSpec } from './types.ts'
 
 function score(text: string, extra = 0): number {
@@ -89,6 +90,8 @@ function finish(raw: RawParse[]): AgentSpec[] {
       autonomy: m.autonomy,
       sideEffect: entry.sideEffect,
       parse: entry.parse,
+      promptSlice: PROMPT_SLICES[entry.id]?.promptSlice,
+      goldPrompts: PROMPT_SLICES[entry.id]?.goldPrompts,
     }
   })
 }

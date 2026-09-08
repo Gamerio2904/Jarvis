@@ -54,6 +54,8 @@ export type AgentResult = {
   userFacts?: string
   reply?: string
   tool?: ToolMeta
+  research?: ResearchMeta
   lastTool?: string
+  retry?: RouteHit['retry']
   internal?: AgentTrace[]
 }

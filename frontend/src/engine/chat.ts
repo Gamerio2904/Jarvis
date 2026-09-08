@@ -80,8 +80,13 @@ import { handlePoiOrdinal } from './poi'
 import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
 import { type ToolMeta } from './tools'
 import { routeRegistry, type RouteHit } from './registry'
+import { runDirectorTurn } from './director.ts'
+import { runBrainOrchestrator } from './brain-orchestrator.ts'
+import { getLastUserFacts, getPolicyAsk } from './agents/trace-store.ts'
+import type { TurnBrainCtx } from './brain-tasks.ts'
 import { attachVariable, splitCloudPrompt } from './prompt-split.ts'
 import { finishLatency, markFirstToken, setLatencyPath, startLatency } from './latency.ts'
+import { askReply } from './policy.ts'
 
 export type StreamHandlers = {
   onMeta?: (meta: {
@@ -317,7 +322,9 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     return { reply: `Das ${label}: ${title}.`, lastTool: loadSettings().last_step_tool || 'ordinal' }
   }
 
-  return routeRegistry(conversationId, content)
+  return loadSettings().agent_network_v2
+    ? (await runDirectorTurn(conversationId, content)).hit
+    : routeRegistry(conversationId, content)
 }
 
 function lastStepHint(): string {
@@ -466,6 +473,32 @@ async function attachResearchAudit(research: ResearchMeta | undefined, query: st
   return { ...research, audit_id: audit.id }
 }
 
+function turnBrainCtx(overrides: Partial<TurnBrainCtx> = {}): TurnBrainCtx {
+  return {
+    needsLlm: true,
+    vision: false,
+    deepResearch: false,
+    liveLookup: false,
+    policyAsk: getPolicyAsk(),
+    userFacts: getLastUserFacts(),
+    acceptedResearch: false,
+    ...overrides,
+  }
+}
+
+async function maybeMicroMergeReply(reply: string, settings: Settings): Promise<string> {
+  if (!settings.brain_v2 || !settings.brain_micro_llm_merge || !reply.trim()) return reply
+  try {
+    const out = await runBrainOrchestrator({
+      messages: [],
+      turn: turnBrainCtx({ needsLlm: false, userFacts: getLastUserFacts() || reply }),
+    })
+    return out.text.trim() || reply
+  } catch {
+    return reply
+  }
+}
+
 function emitToken(handlers: StreamHandlers, piece: string) {
   markFirstToken()
   handlers.onToken?.(piece)
@@ -539,7 +572,8 @@ export async function streamChat(
       const last = found[found.length - 1]
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
-      const joined = replies.join('\n\n')
+      let joined = replies.join('\n\n')
+      if (found.length === 1) joined = await maybeMicroMergeReply(joined, loadSettings())
       setLatencyPath('parser')
       emitToken(handlers, joined)
       const assistant = await addMessage(conversationId, 'assistant', joined, {
@@ -554,6 +588,25 @@ export async function streamChat(
         research: research || null,
         tool: last.tool || null,
       })
+      return
+    }
+
+    const routeSettings = loadSettings()
+    const policyAsk = getPolicyAsk()
+    if (!found.length && policyAsk?.kind === 'ask' && routeSettings.brain_v2 && routeSettings.brain_micro_llm_clarify) {
+      const out = await runBrainOrchestrator({
+        messages: [],
+        turn: turnBrainCtx({ needsLlm: false, policyAsk }),
+      })
+      const reply = out.text.trim() || askReply(policyAsk.a, policyAsk.b)
+      setLatencyPath('groq')
+      emitToken(handlers, reply)
+      const assistant = await addMessage(conversationId, 'assistant', reply, {
+        tool: { tool_status: 'executed', tool: 'clarify', action: 'ask', label: 'Rückfrage' },
+      })
+      const updated = (await touchConversation(conversationId)) || convAfterUser
+      finishLatency()
+      handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
       return
     }
 
@@ -686,45 +739,74 @@ export async function streamChat(
 
       acc = ''
       raw = ''
-      setLatencyPath(kind === 'gemini' ? 'gemini' : kind === 'groq' ? 'groq' : 'local')
+      const brainSettings = loadSettings()
       try {
-        raw = kind === 'gemini'
-          ? await (opts?.voice || !wantSearch ? streamGemini : completeGemini)(
-              llmMessages,
-              (_piece, full) => {
-                acc = full
-                emitToken(handlers, _piece)
-              },
-              {
-                search: wantSearch && !deep,
-                maxOutputTokens: opts?.voice ? 240 : wantSearch ? (deep ? 1800 : 900) : 420,
-                timeoutMs: wantSearch ? (deep ? 20_000 : 12_000) : 8_000,
-              },
-            ).then((r) => {
-              if (r.research?.sources?.length) {
-                research = {
-                  ...(research || r.research),
-                  ...r.research,
-                  sources: [...(research?.sources || []), ...r.research.sources],
-                }
-              }
-              return r.text
-            })
-          : (
-              await completeBrain(
-                llmMessages,
-                (_piece, full) => {
-                  acc = full
-                  emitToken(handlers, _piece)
-                },
-                {
-                  search: wantSearch,
-                  maxOutputTokens: opts?.voice ? 240 : 420,
-                  timeoutMs: 8_000,
-                  voice: opts?.voice,
-                },
-              )
-            ).text
+        if (brainSettings.brain_v2) {
+          const out = await runBrainOrchestrator({
+            messages: llmMessages,
+            turn: turnBrainCtx({
+              needsLlm: true,
+              deepResearch: deep,
+              liveLookup: live,
+              acceptedResearch: Boolean(accepted),
+            }),
+            onToken: (_piece, full) => {
+              acc = full
+              emitToken(handlers, _piece)
+            },
+            voice: opts?.voice,
+            wantSearch,
+          })
+          raw = out.text
+          setLatencyPath(out.via === 'gemini' ? 'gemini' : out.via === 'groq' ? 'groq' : 'local')
+          if (out.research?.sources?.length) {
+            research = {
+              ...(research || out.research),
+              ...out.research,
+              sources: [...(research?.sources || []), ...(out.research.sources || [])],
+            }
+          }
+        } else {
+          setLatencyPath(kind === 'gemini' ? 'gemini' : kind === 'groq' ? 'groq' : 'local')
+          raw =
+            kind === 'gemini'
+              ? await (opts?.voice || !wantSearch ? streamGemini : completeGemini)(
+                  llmMessages,
+                  (_piece, full) => {
+                    acc = full
+                    emitToken(handlers, _piece)
+                  },
+                  {
+                    search: wantSearch && !deep,
+                    maxOutputTokens: opts?.voice ? 240 : wantSearch ? (deep ? 1800 : 900) : 420,
+                    timeoutMs: wantSearch ? (deep ? 20_000 : 12_000) : 8_000,
+                  },
+                ).then((r) => {
+                  if (r.research?.sources?.length) {
+                    research = {
+                      ...(research || r.research),
+                      ...r.research,
+                      sources: [...(research?.sources || []), ...r.research.sources],
+                    }
+                  }
+                  return r.text
+                })
+              : (
+                  await completeBrain(
+                    llmMessages,
+                    (_piece, full) => {
+                      acc = full
+                      emitToken(handlers, _piece)
+                    },
+                    {
+                      search: wantSearch,
+                      maxOutputTokens: opts?.voice ? 240 : 420,
+                      timeoutMs: 8_000,
+                      voice: opts?.voice,
+                    },
+                  )
+                ).text
+        }
       } catch (err) {
         if (!wantSearch || !researchHasSources(research)) throw err
         raw = ''

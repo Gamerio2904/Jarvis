@@ -11,6 +11,10 @@ import {
 import { BODY_ORGANS, type BodyOrgan } from '../../engine/hud-parse'
 import { ChessBoard } from './ChessBoard'
 import { BodySchema } from './BodySchema'
+import { AgentMapCanvas } from './AgentMapCanvas'
+import { AgentTree } from './AgentTree'
+import { buildAgentGraph, type AgentGraph } from '../../engine/agent-graph'
+import type { DepartmentId } from '../../engine/agents/types'
 import { GlobeView, type GlobeFocus } from './GlobeView'
 import { fetchBodySnap, type BodySnap } from '../../engine/body-snap'
 import { loadBodyGraph, type BodyGraph } from '../../engine/body-graph'
@@ -50,6 +54,8 @@ export function Lage({
   const [snap, setSnap] = useState<HudSnap>({})
   const [body, setBody] = useState<BodySnap | null>(null)
   const [graph, setGraph] = useState<BodyGraph | null>(null)
+  const [agentGraph, setAgentGraph] = useState<AgentGraph | null>(null)
+  const [agentDept, setAgentDept] = useState<string>('brain')
   const [pins, setPins] = useState<GeoFix[]>([])
   const [pin, setPin] = useState<GeoFix | null>(null)
   const [pinCard, setPinCard] = useState<GeoFix | null>(null)
@@ -63,6 +69,7 @@ export function Lage({
   const face = s.face === 'friday' ? 'FRIDAY' : 'JARVIS'
   const spotifyOn = modules.includes('spotify')
   const reduced = prefersReducedMotion()
+  const bodyView = s.body_view === 'classic' ? 'classic' : 'agents'
   const bat = snap.device?.battery
   const amber = s.hud_accent === 'amber'
   const tourOn = Boolean(s.globe_tour_on)
@@ -72,6 +79,13 @@ export function Lage({
     async function tick() {
       if (isDocumentHidden()) return
       if (view === 'body') {
+        if (bodyView === 'agents') {
+          const tree = buildAgentGraph(
+            agentDept === 'brain' ? 'brain' : (agentDept as DepartmentId),
+          )
+          if (live) setAgentGraph(tree)
+          return
+        }
         const next = await fetchBodySnap({ busy, conversationId })
         const tree = await loadBodyGraph(organ, next, recent[recent.length - 1]?.content || '')
         if (live) {
@@ -98,7 +112,7 @@ export function Lage({
       window.clearInterval(id)
       off()
     }
-  }, [view, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, recent.length])
+  }, [view, bodyView, agentDept, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, recent.length])
 
   useEffect(() => {
     if (view !== 'globe') return
@@ -209,11 +223,29 @@ export function Lage({
           {view === 'globe'
             ? 'Dunkle Erde, grüne Grenzen. Drehen und zoomen.'
             : view === 'body'
-              ? 'Eingang antippen — Baum zeigt Skills und Wissen. Startet kein Gerät.'
+              ? bodyView === 'agents'
+                ? 'Sieben Cluster um Haus-Gehirn — Agent antippen startet kein Gerät.'
+                : 'Eingang antippen — Baum zeigt Skills und Wissen. Startet kein Gerät.'
               : 'Wetter, Musik, Gerät.'}
         </p>
       </header>
       {view === 'body' ? (
+        bodyView === 'agents' ? (
+          <div className="lage-split">
+            <AgentMapCanvas
+              reduced={reduced}
+              selectedDept={agentDept}
+              onSelectDept={(id) => {
+                setAgentDept(id)
+                if (id !== 'brain') saveSettings({ last_agent_id: '' })
+              }}
+            />
+            <div className="body-side">
+              {agentGraph ? <AgentTree graph={agentGraph} onPrompt={onSend} /> : null}
+            </div>
+            {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
+          </div>
+        ) : (
         <div className="lage-split">
           <BodySchema
             snap={
@@ -238,6 +270,7 @@ export function Lage({
           </div>
           {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
         </div>
+        )
       ) : view === 'globe' ? (
         <div className="lage-split">
           <GlobeView
