@@ -204,7 +204,7 @@ function playBlob(blob: Blob): Promise<void> {
     currentUrl = url
     const audio = new Audio(url)
     currentAudio = audio
-    audio.playbackRate = 0.97
+    audio.playbackRate = 1
     audio.onended = () => {
       stopHtmlAudio()
       resolve()
@@ -340,6 +340,7 @@ export function createSpeakPipeline() {
       if (wantGeminiVoice()) jobs.push({ lane: 'gemini', run: synthesizeGemini(text) })
       const hit = await firstBlobWins(jobs)
       if (hit) {
+        // Lock the winning lane for the rest of this reply — no Pico jump mid-sentence.
         lane = hit.lane
         return hit.blob
       }
@@ -662,7 +663,7 @@ function webSpeak(text: string): Promise<void> {
   return new Promise((resolve) => {
     const u = new SpeechSynthesisUtterance(text)
     u.lang = 'de-DE'
-    u.rate = 0.96
+    u.rate = 1
     u.pitch = 0.92
     u.onend = () => resolve()
     u.onerror = () => resolve()

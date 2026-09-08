@@ -1,3 +1,4 @@
+import { getBrainSlots, getTurnTraces } from './agents/trace-store.ts'
 import { APP_VERSION, loadSettings } from './store.ts'
 import { geminiReady } from './gemini.ts'
 import type { TestCopyGroup, TestCopyItem, TestExpect } from './test-copy.ts'
@@ -28,6 +29,8 @@ export type DebugReport = {
   categories: string[]
   stopped: boolean
   turns: DebugTurn[]
+  agent_traces?: ReturnType<typeof getTurnTraces>
+  brain_slots?: ReturnType<typeof getBrainSlots>
   latency?: {
     last: LatencyTurn | null
     last_line: string
@@ -52,6 +55,8 @@ export function buildReport(opts: {
     categories: opts.categories,
     stopped: opts.stopped,
     turns: opts.turns,
+    agent_traces: getTurnTraces(),
+    brain_slots: getBrainSlots(),
     latency: {
       last: lastLatency(),
       last_line: formatLatency(),

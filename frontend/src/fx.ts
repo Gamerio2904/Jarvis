@@ -2,7 +2,7 @@ import { prefersReducedMotion } from './engine/motion'
 export { prefersReducedMotion }
 
 const MAGNET_SEL =
-  'button, .chat-item, .prompt-chip, .cal-cell, .memory-item, .voice-orb, .confirm-btn, .memory-toggle, .settings-rail-item, .lage-tile, .lage-btn'
+  'button, .chat-item, .prompt-chip, .cal-cell, .memory-item, .voice-orb, .confirm-btn, .memory-toggle, .settings-rail-item, .lage-tile, .lage-btn, .nav-island-item, .settings-tab'
 
 export function bindChromeFx(root: HTMLElement): () => void {
   if (prefersReducedMotion()) return () => {}

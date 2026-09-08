@@ -2,7 +2,7 @@ import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 
-export const APP_VERSION = '13.31.5'
+export const APP_VERSION = '15.1.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -251,6 +251,18 @@ export type Settings = {
   last_eye_frame: boolean
   last_pc_frame: boolean
   last_desk_on: boolean
+  agent_network_v2: boolean
+  body_view: 'classic' | 'agents'
+  show_agent_network: boolean
+  brain_v2: boolean
+  brain_primary: 'groq' | 'gemini' | 'local'
+  brain_gemini_roles_vision: boolean
+  brain_gemini_roles_grounding: boolean
+  brain_gemini_roles_tts: boolean
+  brain_micro_llm_clarify: boolean
+  brain_micro_llm_merge: boolean
+  brain_shadow_mode: boolean
+  last_agent_id: string
 }
 
 const SETTINGS_KEY = 'jarvis_settings_v13'
@@ -397,6 +409,18 @@ export const DEFAULT_SETTINGS: Settings = {
   last_eye_frame: false,
   last_pc_frame: false,
   last_desk_on: false,
+  agent_network_v2: true,
+  body_view: 'agents',
+  show_agent_network: false,
+  brain_v2: true,
+  brain_primary: 'groq',
+  brain_gemini_roles_vision: true,
+  brain_gemini_roles_grounding: true,
+  brain_gemini_roles_tts: true,
+  brain_micro_llm_clarify: true,
+  brain_micro_llm_merge: true,
+  brain_shadow_mode: false,
+  last_agent_id: '',
 }
 
 function nowIso(): string {

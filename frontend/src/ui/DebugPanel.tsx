@@ -11,6 +11,7 @@ import {
   type DebugSendResult,
 } from '../engine/debug-session'
 import { formatLatency, lastLatency, subscribeLatency } from '../engine/latency'
+import { DownloadBtn } from './DownloadBtn'
 
 const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
 
@@ -105,9 +106,15 @@ export function DebugPanel({
         <button type="button" className="ghost-btn" disabled={!running} onClick={requestDebugStop}>
           Stop
         </button>
-        <button type="button" className="ghost-btn" disabled={!snap.turns.length} onClick={downloadDebug}>
-          Chat herunterladen
-        </button>
+        <DownloadBtn
+          idle="Chat herunterladen"
+          work="Lädt…"
+          done="Gespeichert"
+          disabled={!snap.turns.length}
+          onRun={async () => {
+            downloadDebug()
+          }}
+        />
       </div>
       {snap.progress ? <p className="debug-progress">{snap.progress}</p> : null}
       {lag ? (

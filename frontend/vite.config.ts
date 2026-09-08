@@ -1,15 +1,15 @@
 import { copyFileSync, mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Plugin, ViteDevServer } from 'vite'
+import type { Plugin, PreviewServer, ViteDevServer } from 'vite'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { shouldProxyWebHost, WEB_PROXY_PATH } from './src/engine/web-proxy.ts'
 
 const root = dirname(fileURLToPath(import.meta.url))
-const PROXY_UA = 'Jarvis/13.31.5 (local.jarvis.app)'
+const PROXY_UA = 'Jarvis/15.1.0 (local.jarvis.app)'
 
-function attachJarvisProxy(server: ViteDevServer) {
+function attachJarvisProxy(server: ViteDevServer | PreviewServer) {
   server.middlewares.use(async (req, res, next) => {
     const raw = req.url || ''
     if (!raw.startsWith(`${WEB_PROXY_PATH}?`)) {
