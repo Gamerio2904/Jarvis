@@ -14,5 +14,5 @@ In-Process Bus: `agentBus.dispatch(id, ctx)`. `AgentRunner` wrappt `handleX` →
 
 - [x] `agents/bus.ts`, `agents/runner.ts`
 - [x] Traces in Debug-Export (JSON)
-- [x] Feature-Flag `agent_network_v2` (default aus)
+- [x] Feature-Flag `agent_network_v2` (default **an** — Rollback `false` → routeRegistry)
 - [x] `test:014` grün

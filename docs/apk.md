@@ -1,10 +1,14 @@
-# Android-APK — Sideload `13.44.0`
+# Android-APK — Sideload `15.1.0`
 
-App-Code **`13.44.0`**. Sideload-APK **`13.44.0`**. LocateAnything-Gewichte nicht in der APK.
+App-Code **`15.1.0`**. Sideload-APK **`15.1.0`**. LocateAnything-Gewichte nicht in der APK.
 
-**Hirn:** Overlay **Gemini zuerst**. Einstellungen → Cloud: Gemini-Key (Toggle an). Groq Backup. Lokales 0,5B nur letzter Fallback.
+**Hirn (ab 15.1):** **Groq primär** (Key in Einstellungen). **Gemini Spezialist** (Vision, Deep Research/Grounding, optional TTS). Lokales 0,5B nur Fallback. Rollback: `brain_v2: false` → Gemini zuerst wie `13.44`.
+
+**Agenten-Netzwerk:** Director + 60 Domänen-Agenten, Curator für Memory-Writes, Agenten-Karte in Lage (`body_view=agents`). Rollback: `agent_network_v2: false` → flaches `routeRegistry`.
 
 **Deinstall** (andere Signatur): WebView-Daten weg. Vor Neuinstall Hausstand exportieren.
+
+**15.1.0:** Agenten-Netzwerk (228–235) + Dual Brain (236–237): `brain-orchestrator`, micro-clarify/merge/research-lite, Debug-Export mit `agent_traces` / `brain_slots`.
 
 **13.44.0:** Sprachmodus: TV-Stimme aus dem Mic, Autokorrektur (`fanseher` / `t v`), 1–2 Sätze, eine TTS-Lane. Kein Whisper, kein Piper-ONNX.
 
@@ -14,31 +18,23 @@ App-Code **`13.44.0`**. Sideload-APK **`13.44.0`**. LocateAnything-Gewichte nich
 
 **13.31.5:** PC per QR koppeln.
 
-**13.31.1:** Bundesliga eine Zeile pro Verein.
-
-**13.31.0:** Kugel bleibt nach Fly-to drehbar. Deep Research schreibt Bericht aus Wikipedia, nicht Schnipsel; Stalingrad nicht mehr „keine Auskünfte“.
-
-**13.30.0:** Körper-Wissensbaum (217–220). Organ = Eingang, Skill- und Wissensknoten. Kalender: nächsten Freitag / Kalender heute.
-
-**12.70.0:** Drei Flächen (209–216). Presence :18791. Intensiv 196–201 und Fachwissen 202–208.
-
-**11.60.0:** Fachwissen-Packs + Deep Research (202–208). Teach nur nach «lern das». Sideload bleibt `10.60.2`.
-
-**10.66.0:** Memory-10 Intensiv (196–201): enge Aliase, Recall ohne Gespräch-Echo, memoryBlock sieht Pins, `Mag ich Döner?` ohne Hirn.
-
-**10.60.2:** Drei Befehle in einem Satz. Recall statt Gemerkt. Film-Bewertung ohne englischen Plot. Benzinpreis-Suche. Weltlage ohne Lokal-RSS. Bluetooth-Geräte + Handy-Lautstärke + Display/Standort. Kalender unter der Statusleiste.
-
-**10.60.1:** Fly-to Tokio, Bundesliga-Tabelle, Research Vergleich/Erklärung.
-
 ## Download
 
-**Fertige APK `13.44.0`:**  
+**Fertige APK `15.1.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 - Dateiname: `Jarvis.apk`
-- versionName `13.44.0` · versionCode `134400`
+- versionName `15.1.0` · versionCode `150100`
 - App-ID `local.jarvis.app`
 
 1. Über die vorherige Sideload-APK installieren (oder nach Hausstand-Export neu).
-2. Gemini-Key unter API-Keys (Research, Benzinpreis, freie Erklärungen).
-3. Tests: Einstellungen → Tests.
+2. **Groq-Key** unter Einstellungen → API-Keys (Smalltalk primär). **Gemini-Key** für Vision/Deep Research.
+3. Tests: Einstellungen → Tests oder siehe [`TEST-15.1.0.md`](./TEST-15.1.0.md).
+
+## Build lokal
+
+```bash
+./build-apk.sh
+```
+
+Ausgabe: `releases/Jarvis.apk`, `frontend/dist-apk/jarvis-debug.apk`.

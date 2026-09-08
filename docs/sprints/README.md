@@ -229,21 +229,21 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 223 | [`sprint-223.md`](./sprint-223.md) | `13.42.0` | Hören + Autokorrektur | **CODE** in `13.44.0` Must |
 | 224 | [`sprint-224.md`](./sprint-224.md) | `13.43.0` | Antworten + Tempo | **CODE** in `13.44.0` Must |
 | 225 | [`sprint-225.md`](./sprint-225.md) | `13.44.0` | Mund flüssig + Gold | **CODE** Must |
-| 226 | [`sprint-226.md`](./sprint-226.md) | `14.0.0` | Agenten-Netzwerk Leit | **PLAN** Must |
-| 227 | [`sprint-227.md`](./sprint-227.md) | `14.1.0` | Unified Catalog | **PLAN** Must |
-| 228 | [`sprint-228.md`](./sprint-228.md) | `14.2.0` | AgentBus | **PLAN** Must |
-| 229 | [`sprint-229.md`](./sprint-229.md) | `14.3.0` | Director | **PLAN** Must |
-| 230 | [`sprint-230.md`](./sprint-230.md) | `14.4.0` | Curator | **PLAN** Must |
-| 231 | [`sprint-231.md`](./sprint-231.md) | `14.5.0` | Domänen A | **PLAN** Must |
-| 232 | [`sprint-232.md`](./sprint-232.md) | `14.6.0` | Domänen B | **PLAN** Must |
-| 233 | [`sprint-233.md`](./sprint-233.md) | `14.7.0` | Domänen C | **PLAN** Must |
-| 234 | [`sprint-234.md`](./sprint-234.md) | `14.8.0` | Agenten-Karte UI | **PLAN** Must |
-| 235 | [`sprint-235.md`](./sprint-235.md) | `14.9.0` | Gold + Sideload | **PLAN** Must |
-| 236 | [`sprint-236.md`](./sprint-236.md) | `15.0.0` | Groq primär + BrainOrchestrator | **PLAN** Must |
-| 237 | [`sprint-237.md`](./sprint-237.md) | `15.1.0` | Micro-LLM + research-lite | **PLAN** Must |
+| 226 | [`sprint-226.md`](./sprint-226.md) | `14.0.0` | Agenten-Netzwerk Leit | **PLAN** Must (Leit; Execute ab 227) |
+| 227 | [`sprint-227.md`](./sprint-227.md) | `14.1.0` | Unified Catalog | **CODE** in `15.1.0` Must |
+| 228 | [`sprint-228.md`](./sprint-228.md) | `14.2.0` | AgentBus | **CODE** in `15.1.0` Must |
+| 229 | [`sprint-229.md`](./sprint-229.md) | `14.3.0` | Director | **CODE** in `15.1.0` Must |
+| 230 | [`sprint-230.md`](./sprint-230.md) | `14.4.0` | Curator | **CODE** in `15.1.0` Must |
+| 231 | [`sprint-231.md`](./sprint-231.md) | `14.5.0` | Domänen A | **CODE** in `15.1.0` Must |
+| 232 | [`sprint-232.md`](./sprint-232.md) | `14.6.0` | Domänen B | **CODE** in `15.1.0` Must |
+| 233 | [`sprint-233.md`](./sprint-233.md) | `14.7.0` | Domänen C | **CODE** in `15.1.0` Must |
+| 234 | [`sprint-234.md`](./sprint-234.md) | `14.8.0` | Agenten-Karte UI | **CODE** in `15.1.0` Must |
+| 235 | [`sprint-235.md`](./sprint-235.md) | `15.1.0` | Gold + Sideload | **CODE** in `15.1.0` Must |
+| 236 | [`sprint-236.md`](./sprint-236.md) | `15.1.0` | Groq primär + BrainOrchestrator | **CODE** Must |
+| 237 | [`sprint-237.md`](./sprint-237.md) | `15.1.0` | Micro-LLM + research-lite | **CODE** Must |
 | 238 | [`sprint-238.md`](./sprint-238.md) | `15.2.0` | Dual Brain Gold + Sideload | **PLAN** Must |
 
-**Aktuell:** Code **`13.44.0`**. Sideload `13.44.0`. Execute: Agenten-Netzwerk [`62-next.md`](../62-next.md) 226–235, danach Dual Brain [`63-next.md`](../63-next.md) 236–238. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`15.1.0`**. Sideload `15.1.0`. Execute 227–237 **CODE**; Sprint 238 **PLAN**. Test: [`TEST-15.1.0.md`](../TEST-15.1.0.md). Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

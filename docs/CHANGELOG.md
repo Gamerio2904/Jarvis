@@ -5,30 +5,50 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-## `15.0` — Dual Brain (Groq primär, Gemini Spezialist) — *PLAN*
+## `15.1.0` — Agenten-Netzwerk + Dual Brain (237) — *CODE*
 
-Sprints **236–238**. Execute nach Agenten-Netzwerk **229 Director**. Sideload bleibt `13.44.0` / `14.9.0` bis Sprint 238.
+Sprints **227–237** in einem Pass. Sideload **`15.1.0`** (versionCode `150100`).
+
+### Agenten-Netzwerk (14.x)
+- **227:** Unified `AgentSpec`-Catalog (parse + execute + metadata, 60 Agenten).
+- **228–229:** `AgentBus`, `AgentRunner`, `director.ts` → `chat.ts` (`agent_network_v2`).
+- **230:** `curator.ts`, `brain-api.ts` — Memory-Writes über Curator-Gate + Traces.
+- **231–233:** `prompt-slices.ts` pro Domäne.
+- **234:** Agenten-Karte in Lage (`body_view=agents`, `AgentMapCanvas`, `AgentTree`).
+- **235:** Gold `test:prompts` 181/181, `test:agents`, Debug-Export `agent_traces`.
+
+### Dual Brain (15.x)
+- **236:** `brain-orchestrator.ts`, Groq primär, Gemini Spezialist (`brain_v2`).
+- **237:** micro-clarify, micro-merge, research-lite; `brain_shadow_mode` (Messung, PO-Gates offen).
+
+**Defaults:** `agent_network_v2: true`, `brain_v2: true`, `brain_primary: groq`, `body_view: agents`.
+
+**Rollback:** `agent_network_v2: false` → `routeRegistry`; `brain_v2: false` → Gemini-first wie `13.44`.
+
+Quellen: [`62-next.md`](./62-next.md), [`63-next.md`](./63-next.md), Test: [`TEST-15.1.0.md`](./TEST-15.1.0.md).
+
+## `15.0` — Dual Brain (Groq primär, Gemini Spezialist) — *CODE in 15.1.0*
+
+Sprints **236–238**. Execute **236–237** in `15.1.0`. Sprint **238** (Gold-SLO + Ship) noch **PLAN**.
 
 - **Groq primär:** Standard-Chat, Formulierung, Digest — schneller, Free-Tier.
 - **Gemini Spezialist:** Vision (Auge/Doc/PC), Deep Research + Grounding, optional TTS.
-- **Micro-LLM:** clarify (Gleichstand), merge (Agent-Fakten), research-lite (Groq + DDG/Wiki) — nur mit Shadow-Grün.
-- **Regel:** Latenz und/oder Qualität **≥ Baseline**, niemals schlechter; max. ein voller Chat-Call pro Turn.
+- **Micro-LLM:** clarify (Gleichstand), merge (Agent-Fakten), research-lite (Groq + DDG/Wiki).
 - **Rollback:** `brain_v2: false` → Hirn wie `13.44`.
 
 Quelle: [`63-next.md`](./63-next.md).
 
-## `14.0` — Agenten-Netzwerk — *PLAN*
+## `14.0` — Agenten-Netzwerk — *CODE in 15.1.0*
 
-Sprints **226–235**. Execute noch nicht. Sideload bleibt `13.44.0` bis Sprint 235.
+Sprints **226–235**. Execute **227–235** in `15.1.0`.
 
-- **Konzept:** Reel-Analog — Haus-Gehirn Mitte, 7 Cluster, ~52 Domänen-Agenten, 12 interne.
+- **Konzept:** Haus-Gehirn Mitte, 7 Cluster, ~60 Domänen-Agenten.
 - **Director:** koordiniert; nur Jarvis/Friday sprechen mit dem User.
-- **Curator:** Wissensmeister (Gate, Prune, Harvest) — nie User-Chat.
-- **Karte:** Körper-View → klickbare Agenten-Karte mit aktivem Pfad.
-- **Parity:** alle Route-IDs aus 13.44 bleiben; `test:prompts` Pflicht.
-- **Won’t:** 137× LLM, Cloud-Schwarm, Embedding-Router.
+- **Curator:** Wissensmeister (Gate, Prune) — nie User-Chat.
+- **Karte:** Agenten-Karte in Lage mit aktivem Pfad.
+- **Parity:** alle Route-IDs aus 13.44 bleiben; `test:prompts` 181/181.
 
-Quelle: [`62-next.md`](./62-next.md), Katalog: [`62-agent-catalog.md`](./62-agent-catalog.md).
+Quelle: [`62-next.md`](./62-next.md).
 
 ## `13.44.0` — Sprachmodus — *CODE*
 

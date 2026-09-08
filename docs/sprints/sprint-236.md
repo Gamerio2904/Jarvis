@@ -18,7 +18,7 @@
 - [x] Settings: `brain_primary` (default `groq`), `brain_gemini_roles`
 - [x] `chat.ts` / Director: kein festes `kind === 'gemini'` für Smalltalk
 - [x] `llm.ts`: lokales 0,5B **nicht** blockieren wenn nur Gemini-TTS an (Groq primary)
-- [x] Feature-Flag `brain_v2` (default **aus**)
+- [x] Feature-Flag `brain_v2` (default **an** — Rollback `false` → 13.44)
 - [x] Latenz-Spur: `groq-chat`, `gemini-vision`, `gemini-deep`
 
 ## DoD

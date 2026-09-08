@@ -1,16 +1,15 @@
-# 42 — Alles geplant (Stand Code `13.44.0`)
+# 42 — Alles geplant (Stand Code `15.1.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`13.44.0`**. Sideload **`13.44.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`15.1.0`**. Sideload **`15.1.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
-Hirn = Handy. PC = Werkzeug. **Heute:** Gemini Hauptweg → Groq Backup → 0,5B. **Ziel `15.2`:** Groq primär, Gemini Spezialist ([`63-next.md`](./63-next.md)). Parser wählen Tools.
+Hirn = Handy. PC = Werkzeug. **Heute (`15.1.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten.
 
 ## Pull-Reihenfolge
 
-1. **Agenten-Netzwerk `14.0`** [`62-next.md`](./62-next.md) — Sprints 226–235 Execute (Spezial-Agenten, Haus-Gehirn, Karte)
-2. **Dual Brain `15.0`** [`63-next.md`](./63-next.md) — Sprints 236–238 (Groq primär, Gemini Spezialist, Micro-LLM)
-3. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s
+1. **Dual Brain Sprint 238** [`63-next.md`](./63-next.md) — SLO-Gates, Shadow-Sign-off, Ship `15.2.0`
+2. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s
 4. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot
 5. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
 6. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could
@@ -28,11 +27,13 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 
 ---
 
-## CODE auf diesem Stand (`13.44.0`)
+## CODE auf diesem Stand (`15.1.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
-| Rest final | `9.10.0` | Debug-FGS (Härte 180), 3060-Freeze, Could-Schalter tot, Debug-P95, Alltag-Parser-Härte 179 |
+| Agenten-Netzwerk | `15.1.0` | Catalog, Bus, Director, Curator, Agenten-Karte, 60 Agenten, Debug-Traces |
+| Dual Brain | `15.1.0` | Groq primär, `brain-orchestrator`, micro-clarify/merge/research-lite |
+| Sprachmodus | `13.44.0` | TV-Stimme, Hören, 1–2 Sätze, eine TTS-Lane; kein Whisper |
 | Weltlage | `4.0` | `outlook.ts` — Tagesschau/DW, Serie, Szenario, kein Orakel |
 | Alltagskette | `4.19` | Bar-POI, SMS-Note, Taxi nach Ja, nie „bestellt“ |
 | Stimme/Steuer | `4.33` | TTS Algieba, HUD-Interrupt, Watchdog opt-in |
@@ -42,7 +43,7 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 | Sehen-Parser | `4.76`–`4.97` | `ground-parse`, `/v1/ground` Client, zwei Confirms; **keine** 3B-Gewichte |
 | Weltkugel | `5.0` / `6.20` | Lage-Sicht Kugel, Terminator, GIBS beim Zoom, Pins ISS/GPS/DWD/outlook-Lexikon |
 | Debug-Lauf | `5.11` / `5.17` | Klickboxen, FGS „Jarvis testet…“, JSON+TXT mit Verdict + Latenz |
-| Bühne & Hirn | `6.50` | Gemini zuerst, Motion 30 fps, Globus, HUD, Sprach-Orb |
+| Bühne & Hirn | `6.50` / `15.1.0` | Ab 15.1: Groq primär via `brain-orchestrator`; Gemini Spezialist |
 | Parser | `6.51` | Wont/Help/HUD-Skip nach Prompt-Test |
 | Split / Overlay / APK | `6.60` | Live-Split, Identität canned, Overlay Gemini zuerst, `releases/Jarvis.apk` |
 | Globus-Briefing | `6.90` | Fly-to 4.4, Stadt-Briefing, Welt-Tour Glow, Debug-Gruppe |
@@ -63,8 +64,8 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 
 ## Offen
 
-### Agenten-Netzwerk (`14.0`) **PLAN**
-Von einer KI zu spezialisierten Agenten + Haus-Gehirn + klickbarer Karte (Reel-Analog). Execute: [`62-next.md`](./62-next.md) Sprints **226–235**. Alle 52 Routen bleiben. Sideload bleibt `13.44.0` bis 235.
+### Dual Brain Sprint 238 **PLAN**
+SLO-Gates, Shadow-Sign-off, Ship `15.2.0`. [`63-next.md`](./63-next.md).
 
 ### PO Handy (Sprint 178)
 Parser CODE. **PO** auf dem Handy: Probe V1–V9 + Screenshot-Bugs + Home-FGS 30 s.
@@ -96,6 +97,6 @@ Handy = Hirn. Tablet = Lage+Chat ab 900 px oder Fenster. PC = Werkzeug `:18790` 
 Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein Vektorindex. [`60-next.md`](./60-next.md) Sprints 217–220 **CODE**.
 
 ### `13.40` Sprachmodus (CODE `13.44.0`)
-„Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. Kein Whisper, kein Piper-ONNX. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**. Sideload `13.44.0`.
+„Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**.
 
-Nächste Schiene: Gerät-PO [`55-next.md`](./55-next.md) (178) plus Memory-Gerät 193.
+Nächste Schiene: Dual Brain **238** [`63-next.md`](./63-next.md), dann Gerät-PO [`55-next.md`](./55-next.md) (178).

@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`13.44.0`**. Sideload **`13.44.0`**. Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN** `14.0`. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Stabilität V1–V9 **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`.
+> **Jetzt:** Code **`15.1.0`**. Sideload **`15.1.0`**. Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE**. Dual Brain [`63-next.md`](./63-next.md) **CODE** 236–237, Sprint 238 **PLAN**. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 

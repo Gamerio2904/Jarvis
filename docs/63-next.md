@@ -1,10 +1,10 @@
-# 63 — Dual Brain: Groq primär, Gemini Spezialist **PLAN**
+# 63 — Dual Brain: Groq primär, Gemini Spezialist **CODE** (`15.1.0`)
 
 PO 2026-09-08: **Groq als Standard-Hirn** (Latenz + Free-Tier), **Gemini nur dort, wo es messbar besser ist** (Vision, Grounding, Deep Research). **Mehr LLM** nur an klar definierten Stellen — mit harter Regel: **Latenz und/oder Qualität müssen besser werden, niemals schlechter.**
 
-**App-Stand:** Code **`13.44.0`**. Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN** 226–235. Diese Schiene startet **nach 229 (Director)** oder parallel ab 236 — baut auf **einem Brain-Call pro Turn** auf.
+**App-Stand:** Code **`15.1.0`**. Execute Sprints **236–237** **CODE**. Sprint **238** (Gold-SLO) **PLAN**. Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** 227–235.
 
-Gold später: `test:prompts` + `test:014` + `test:brain-orchestrator.mjs` + Latenz-Budget aus [`44-next.md`](./44-next.md).
+Gold: `test:prompts` + `test:014` + `test:brain-orchestrator.mjs` + Latenz-Budget aus [`44-next.md`](./44-next.md).
 
 ---
 

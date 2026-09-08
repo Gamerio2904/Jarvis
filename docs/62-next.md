@@ -1,10 +1,8 @@
-# 62 — Jarvis 14.0 Agenten-Netzwerk **PLAN**
+# 62 — Jarvis 14.0 Agenten-Netzwerk **CODE** (`15.1.0`)
 
 PO 2026-09-08: Reel [DbYh2P-MQnj](https://www.instagram.com/reel/DbYh2P-MQnj/) (alassafi.ai) — **137 Agenten**, **7 Abteilungen**, **live Karte**, **zentrales Firmen-Gehirn** als gemeinsame Wissensbasis. Jarvis soll von „eine KI mit Parsern“ zu einem **Netzwerk spezialisierter Agenten** werden — sichtbar in der **Körper-/Agenten-Karte**, ohne Funktionsverlust.
 
-**App-Stand:** Code und Sideload **`13.44.0`**. Hirn heute Gemini → Groq → 0,5B; Ziel ab **`15.2`**: **Groq primär, Gemini Spezialist** — [`63-next.md`](./63-next.md) Sprints 236–238. Parser zuerst. TypeScript **ist** heute der eine Agent (`chat.ts` + `registry.ts`). [`56-next.md`](./56-next.md) sagte Multi-Agent bisher **Won’t** — diese Schiene **hebt das architektonisch auf**, behält aber **eine Nutzer-Stimme** und **kein LLM-Chaos**.
-
-Gold später: `npm run test:prompts` + `test:014` + neues `test:agents.mjs`.
+**App-Stand:** Code und Sideload **`15.1.0`**. Execute Sprints **227–235** **CODE**. Hirn: Groq primär ([`63-next.md`](./63-next.md)). Parser zuerst. TypeScript **war** der eine Agent (`chat.ts` + `registry.ts`); ab **229** koordiniert **`director.ts`** das Netzwerk.
 
 ---
 
@@ -31,7 +29,7 @@ Gold später: `npm run test:prompts` + `test:014` + neues `test:agents.mjs`.
 
 ---
 
-## 1. Ist (Code `13.44.0`)
+## 1. Ist (Code `15.1.0`)
 
 ### 1.1 Nachrichtenfluss heute
 
@@ -41,11 +39,12 @@ Chat / VoiceMode
   → normalizeUtterance + splitIntents
   → chat.routeDeterministic
        → pending FSMs (maps, pc, taxi, …)
-       → routeRegistry (registry.ts)
-            → route-pick.propose (52 Parser, Score)
-            → policy.pickPolicy (Schwelle, Margin, Kosten)
-            → cap.execute → handleX (tv.ts, weather.ts, …)
-  → bei Miss: streamChat → Gemini/Groq/0,5B + memoryBlock + knowledgeBlock
+       → runDirectorTurn (director.ts) wenn agent_network_v2
+            → curatorPreflight
+            → route-pick.propose + policy.pickPolicy
+            → runAgent → handleX
+       → sonst routeRegistry (Legacy)
+  → bei Miss: streamChat → brain-orchestrator (brain_v2) oder Legacy Gemini/Groq/0,5B
   → eine Antwort, eine Stimme (Jarvis/Friday)
 ```
 
