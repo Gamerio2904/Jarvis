@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`13.44.0`**. Sideload **`13.44.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. **Nächste Schiene:** Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN** `14.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`13.44.0`**. Sideload **`13.44.0`**. **Hirn heute:** Gemini → Groq → 0,5B. **Ziel `15.2`:** Groq primär, Gemini Spezialist ([`63-next.md`](./63-next.md)). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. **Nächste Schienen:** Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN** `14.0` (226–235), Dual Brain [`63-next.md`](./63-next.md) **PLAN** `15.0` (236–238).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 

@@ -1,6 +1,11 @@
-# 16 — Gemini (Hauptweg)
+# 16 — Gemini (Hauptweg → Spezialist ab `15.2`)
 
-> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. Gemini mit Key ist der **normale Weg**. Groq ist Backup. Das lokale 0,5B ist **reiner letzter Fallback**, nie ChatGPT/Claude. Overlay: „Gemini zuerst“.
+> **Jetzt (`13.44`–`14.9`):** Gemini mit Key ist der **normale Chat-Weg**. Groq Backup. 0,5B **letzter Fallback**.  
+> **Geplant (`15.2`, [`63-next.md`](./63-next.md)):** **Groq primär** für Chat/Formulierung; **Gemini nur Spezialist** (Vision, Deep Research/Grounding, optional TTS). Rollback per `brain_v2`.
+
+PO 2026-08-15: **Gemini-API**, weil das lokale 0.5B kein ChatGPT-Niveau erreicht.  
+PO 2026-08-28: Reihenfolge umgedreht — Gemini **Hauptweg**, nicht Opt-in-Zusatz.  
+PO 2026-09-08: Dual Brain — Gemini **entlasten**, nicht entfernen ([`63-next.md`](./63-next.md)).
 
 PO 2026-08-15: **Gemini-API**, weil das lokale 0.5B kein ChatGPT-Niveau erreicht.  
 PO 2026-08-28: Reihenfolge umgedreht — Gemini **Hauptweg**, nicht Opt-in-Zusatz.

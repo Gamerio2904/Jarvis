@@ -239,8 +239,11 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 233 | [`sprint-233.md`](./sprint-233.md) | `14.7.0` | Domänen C | **PLAN** Must |
 | 234 | [`sprint-234.md`](./sprint-234.md) | `14.8.0` | Agenten-Karte UI | **PLAN** Must |
 | 235 | [`sprint-235.md`](./sprint-235.md) | `14.9.0` | Gold + Sideload | **PLAN** Must |
+| 236 | [`sprint-236.md`](./sprint-236.md) | `15.0.0` | Groq primär + BrainOrchestrator | **PLAN** Must |
+| 237 | [`sprint-237.md`](./sprint-237.md) | `15.1.0` | Micro-LLM + research-lite | **PLAN** Must |
+| 238 | [`sprint-238.md`](./sprint-238.md) | `15.2.0` | Dual Brain Gold + Sideload | **PLAN** Must |
 
-**Aktuell:** Code **`13.44.0`**. Sideload `13.44.0`. Nächste Execute-Schiene Agenten-Netzwerk [`62-next.md`](../62-next.md) **PLAN** 226–235. Sprachmodus [`61-next.md`](../61-next.md) **CODE**. Gerät-PO [`55-next.md`](../55-next.md). Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`13.44.0`**. Sideload `13.44.0`. Execute: Agenten-Netzwerk [`62-next.md`](../62-next.md) 226–235, danach Dual Brain [`63-next.md`](../63-next.md) 236–238. Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

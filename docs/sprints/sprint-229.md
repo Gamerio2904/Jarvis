@@ -8,11 +8,12 @@
 
 ## Ziel
 
-`director.ts` ersetzt `routeRegistry`-Aufruf in `chat.ts`. Turn-Flow: preflight → router → execute → verify → merge → front. Legacy-Pfad hinter Flag.
+`director.ts` ersetzt `routeRegistry`-Aufruf in `chat.ts`. Turn-Flow: preflight → router → execute → verify → merge → **brain-orchestrator (ab 236)** → front. Legacy-Pfad hinter Flag.
 
 ## DoD
 
 - [ ] `chat.routeDeterministic` delegiert an Director wenn Flag an
 - [ ] Nur Front-Agent ruft `addMessage(assistant)`
 - [ ] Device/Write weiter Parser-first
+- [ ] `merge` liefert `userFacts` für späteren **micro-merge** Slot (63-next)
 - [ ] `test:prompts` 181/181 mit Flag an

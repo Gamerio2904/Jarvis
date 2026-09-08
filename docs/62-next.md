@@ -2,7 +2,7 @@
 
 PO 2026-09-08: Reel [DbYh2P-MQnj](https://www.instagram.com/reel/DbYh2P-MQnj/) (alassafi.ai) — **137 Agenten**, **7 Abteilungen**, **live Karte**, **zentrales Firmen-Gehirn** als gemeinsame Wissensbasis. Jarvis soll von „eine KI mit Parsern“ zu einem **Netzwerk spezialisierter Agenten** werden — sichtbar in der **Körper-/Agenten-Karte**, ohne Funktionsverlust.
 
-**App-Stand:** Code und Sideload **`13.44.0`**. Hirn Gemini → Groq → 0,5B. Parser zuerst. TypeScript **ist** heute der eine Agent (`chat.ts` + `registry.ts`). [`56-next.md`](./56-next.md) sagte Multi-Agent bisher **Won’t** — diese Schiene **hebt das architektonisch auf**, behält aber **eine Nutzer-Stimme** und **kein LLM-Chaos**.
+**App-Stand:** Code und Sideload **`13.44.0`**. Hirn heute Gemini → Groq → 0,5B; Ziel ab **`15.2`**: **Groq primär, Gemini Spezialist** — [`63-next.md`](./63-next.md) Sprints 236–238. Parser zuerst. TypeScript **ist** heute der eine Agent (`chat.ts` + `registry.ts`). [`56-next.md`](./56-next.md) sagte Multi-Agent bisher **Won’t** — diese Schiene **hebt das architektonisch auf**, behält aber **eine Nutzer-Stimme** und **kein LLM-Chaos**.
 
 Gold später: `npm run test:prompts` + `test:014` + neues `test:agents.mjs`.
 
@@ -173,7 +173,7 @@ Sieben **Cluster** (Reel-Analog), ~**52 Domänen-Agenten** + **12 interne**.
 | `recall-engine` | `retrieve.ts` | RRF, Alias, 1-Hop — **kein** pickRoute |
 | `verify` | `action-fsm.ts` | Verified Actions, kein Fake-Execute |
 | `turn-gate` | `turn-gate.ts` | Mutex, Dedup |
-| `brain-picker` | `brain-pick.ts`, `brain.ts` | Gemini → Groq → 0,5B |
+| `brain-picker` | `brain-pick.ts`, `brain.ts` | Heute: Gemini → Groq → 0,5B; ab **15.0**: [`BrainOrchestrator`](./63-next.md) Groq primär, Gemini Spezialist |
 | `chain` | `chain.ts` | Multi-Intent Read/Write-Partition |
 | `latency` | `latency.ts` | SLO, First-Token/Audio |
 | `body-snap` | `body-snap.ts` | Organ-Status für Karte |
@@ -256,7 +256,7 @@ director.runTurn(utterance) → { traces, merged, speak }
 6. parallel nur bei read-only + explizit erlaubt; sonst sequential
 7. verify.wrap (device/write)
 8. merge AgentResults → userFacts
-9. wenn LLM nötig: brain einmal mit variablem Block + Domänen-slices
+9. wenn LLM nötig: brain **einmal** mit variablem Block + Domänen-slices — ab **15.0** [`BrainOrchestrator`](./63-next.md) (Groq chat, Gemini nur vision/deep)
 10. front.formatReply (Jarvis-Stimme, 1–3 Sätze)
 11. traces → Agent Map + Debug
 ```
@@ -373,7 +373,21 @@ Eigene Schiene **`14.0`**. Kein Diebstahl von `13.44`. Rückschritte erlaubt in 
 | **234** | `14.8.0` | **Agenten-Karte** (Körper-UI) | Must | UI — sichtbar |
 | **235** | `14.9.0` | Gold Parity + Sideload `14.9.0` | Must | APK |
 
-Detail je Sprint: [`sprints/sprint-226.md`](./sprints/sprint-226.md) … [`sprint-235.md`](./sprints/sprint-235.md).
+Detail Agenten-Netzwerk: [`sprints/sprint-226.md`](./sprints/sprint-226.md) … [`sprint-235.md`](./sprints/sprint-235.md).
+
+### 7.0 Folgeschien **Dual Brain** (15.0)
+
+Nach **229 Director** — baut auf **einem Brain-Call** + `AgentResult.userFacts` auf. Vollständig: [`63-next.md`](./63-next.md).
+
+| Sprint | Version | Thema | Must? |
+|--------|---------|-------|-------|
+| **236** | `15.0.0` | Groq primär + `brain-orchestrator` | Must |
+| **237** | `15.1.0` | Micro-LLM (clarify, merge, research-lite) + Shadow | Must |
+| **238** | `15.2.0` | Gold Latenz/Qualität + Sideload `15.2.0` | Must |
+
+Detail: [`sprint-236.md`](./sprints/sprint-236.md) … [`sprint-238.md`](./sprints/sprint-238.md).
+
+**Pull-Reihenfolge:** 226–235 (Agenten-Netzwerk) → **236–238 (Dual Brain)**. PO Handy 178 parallel möglich.
 
 ### 7.1 Phasen-Logik
 
@@ -437,5 +451,7 @@ PO Handy (178) bleibt **parallel** — Agenten-Netzwerk ersetzt nicht Gerät-PO.
 - Körper: [`60-next.md`](./60-next.md), `BodySchema.tsx`, `body-graph.ts`
 - Alter Won’t: [`56-next.md`](./56-next.md) §1 — wird in 14.0 durch **§6** ersetzt, nicht gelöscht (Historie)
 - Agent-Katalog: [`62-agent-catalog.md`](./62-agent-catalog.md)
+- Dual Brain: [`63-next.md`](./63-next.md)
 
-Sprints: [`sprints/sprint-226.md`](./sprints/sprint-226.md)–[`sprint-235.md`](./sprints/sprint-235.md).
+Sprints Agenten-Netzwerk: [`sprints/sprint-226.md`](./sprints/sprint-226.md)–[`sprint-235.md`](./sprints/sprint-235.md).  
+Sprints Dual Brain: [`sprints/sprint-236.md`](./sprints/sprint-236.md)–[`sprint-238.md`](./sprints/sprint-238.md).

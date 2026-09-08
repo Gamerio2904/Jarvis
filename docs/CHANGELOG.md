@@ -5,6 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `15.0` — Dual Brain (Groq primär, Gemini Spezialist) — *PLAN*
+
+Sprints **236–238**. Execute nach Agenten-Netzwerk **229 Director**. Sideload bleibt `13.44.0` / `14.9.0` bis Sprint 238.
+
+- **Groq primär:** Standard-Chat, Formulierung, Digest — schneller, Free-Tier.
+- **Gemini Spezialist:** Vision (Auge/Doc/PC), Deep Research + Grounding, optional TTS.
+- **Micro-LLM:** clarify (Gleichstand), merge (Agent-Fakten), research-lite (Groq + DDG/Wiki) — nur mit Shadow-Grün.
+- **Regel:** Latenz und/oder Qualität **≥ Baseline**, niemals schlechter; max. ein voller Chat-Call pro Turn.
+- **Rollback:** `brain_v2: false` → Hirn wie `13.44`.
+
+Quelle: [`63-next.md`](./63-next.md).
+
 ## `14.0` — Agenten-Netzwerk — *PLAN*
 
 Sprints **226–235**. Execute noch nicht. Sideload bleibt `13.44.0` bis Sprint 235.
