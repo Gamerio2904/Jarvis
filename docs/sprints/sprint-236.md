@@ -1,9 +1,9 @@
-# Sprint 236 — Groq primär + BrainOrchestrator (`15.0.0`) **PLAN**
+# Sprint 236 — Groq primär + BrainOrchestrator (`15.0.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
-| Ziel-Version | **`15.0.0`** |
+| Status | **CODE** Must |
+| Ziel-Version | **`15.1.0`** (kombiniert mit Sprint 235 + 237) |
 | Quelle | [`63-next.md`](../63-next.md) |
 | Voraussetzung | Sprint **229** Director (Flag ok), **227** Catalog |
 
@@ -13,22 +13,22 @@
 
 ## Lieferumfang
 
-- [ ] `brain-orchestrator.ts`, `brain-tasks.ts`
-- [ ] `brain-pick.ts` v2: `planBrainSlots(turnCtx)`
-- [ ] Settings: `brain_primary` (default `groq`), `brain_gemini_roles`
-- [ ] `chat.ts` / Director: kein festes `kind === 'gemini'` für Smalltalk
-- [ ] `llm.ts`: lokales 0,5B **nicht** blockieren wenn nur Gemini-TTS an (Groq primary)
-- [ ] Feature-Flag `brain_v2` (default **aus**)
-- [ ] Latenz-Spur: `groq-chat`, `gemini-vision`, `gemini-deep`
+- [x] `brain-orchestrator.ts`, `brain-tasks.ts`
+- [x] `brain-pick.ts` v2: `planBrainSlots(turnCtx)`
+- [x] Settings: `brain_primary` (default `groq`), `brain_gemini_roles`
+- [x] `chat.ts` / Director: kein festes `kind === 'gemini'` für Smalltalk
+- [x] `llm.ts`: lokales 0,5B **nicht** blockieren wenn nur Gemini-TTS an (Groq primary)
+- [x] Feature-Flag `brain_v2` (default **aus**)
+- [x] Latenz-Spur: `groq-chat`, `gemini-vision`, `gemini-deep`
 
 ## DoD
 
-- [ ] Smalltalk mit Groq-Key: **kein** Gemini-Call
-- [ ] Vision/Doc/PC: weiter **nur** Gemini
-- [ ] Deep Research: Gemini + Grounding
-- [ ] `brain_v2` aus → Verhalten wie `13.44` (Gemini first)
-- [ ] `test:prompts` + `test:014` grün
-- [ ] `test:brain-orchestrator.mjs` — Slot-Matrix Smoke
+- [x] Smalltalk mit Groq-Key: **kein** Gemini-Call
+- [x] Vision/Doc/PC: weiter **nur** Gemini
+- [x] Deep Research: Gemini + Grounding
+- [x] `brain_v2` aus → Verhalten wie `13.44` (Gemini first)
+- [x] `test:prompts` + `test:014` grün
+- [x] `test:brain-orchestrator.mjs` — Slot-Matrix Smoke
 
 ## Risiko
 

@@ -1,8 +1,8 @@
-# Sprint 231 — Domänen Batch A (`14.5.0`) **PLAN**
+# Sprint 231 — Domänen Batch A (`14.5.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`14.5.0`** |
 | Quelle | [`62-next.md`](../62-next.md) |
 
@@ -12,6 +12,6 @@ AgentSpec vollständig für **Geräte + Medien**: tv, fan, plug, device, amazon,
 
 ## DoD
 
-- [ ] 7 Agenten mit Gold-Prompts in Catalog
-- [ ] TV/Fernseher/Steckdose Chips grün
-- [ ] Traces zeigen korrekten Agent-ID
+- [x] 7 Agenten mit Gold-Prompts in Catalog
+- [x] TV/Fernseher/Steckdose Chips grün
+- [x] Traces zeigen korrekten Agent-ID

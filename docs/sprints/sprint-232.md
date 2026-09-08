@@ -1,8 +1,8 @@
-# Sprint 232 — Domänen Batch B (`14.6.0`) **PLAN**
+# Sprint 232 — Domänen Batch B (`14.6.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`14.6.0`** |
 | Quelle | [`62-next.md`](../62-next.md) |
 
@@ -12,6 +12,6 @@
 
 ## DoD
 
-- [ ] Batch B im Catalog
-- [ ] Kalender/Wecker/Route Chips grün
-- [ ] Chain-Multi-Intent über Director
+- [x] Batch B im Catalog
+- [x] Kalender/Wecker/Route Chips grün
+- [x] Chain-Multi-Intent über Director

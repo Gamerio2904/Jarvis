@@ -1,8 +1,8 @@
-# Sprint 234 — Agenten-Karte UI (`14.8.0`) **PLAN**
+# Sprint 234 — Agenten-Karte UI (`14.8.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`14.8.0`** |
 | Quelle | [`62-next.md`](../62-next.md) |
 
@@ -12,8 +12,8 @@ Körper-View → **Agenten-Karte** (Reel-like): Haus-Gehirn Mitte, 7 Cluster, Do
 
 ## DoD
 
-- [ ] `BodySchema` Cluster-Layout + Pulse entlang Pfad
-- [ ] `BodyTree` Cluster → Agent → Wissen
-- [ ] Klick Agent → Chat-Prompt / Status
-- [ ] Interne Agenten nur im Debug sichtbar
-- [ ] Reduced motion respektiert
+- [x] `BodySchema` Cluster-Layout + Pulse entlang Pfad
+- [x] `BodyTree` Cluster → Agent → Wissen
+- [x] Klick Agent → Chat-Prompt / Status
+- [x] Interne Agenten nur im Debug sichtbar
+- [x] Reduced motion respektiert

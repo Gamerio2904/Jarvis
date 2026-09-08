@@ -1,8 +1,8 @@
-# Sprint 233 — Domänen Batch C (`14.7.0`) **PLAN**
+# Sprint 233 — Domänen Batch C (`14.7.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`14.7.0`** |
 | Quelle | [`62-next.md`](../62-next.md) |
 
@@ -12,6 +12,6 @@ Rest: **Information + Werkstatt + Wissen + System** — weather, outlook, resear
 
 ## DoD
 
-- [ ] Alle 52 Domänen in AgentSpec
-- [ ] `test:agents.mjs` Smoke pro ID
-- [ ] `test:prompts` + `test:014` grün
+- [x] Alle 52 Domänen in AgentSpec
+- [x] `test:agents.mjs` Smoke pro ID
+- [x] `test:prompts` + `test:014` grün

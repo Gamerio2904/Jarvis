@@ -1,8 +1,8 @@
-# Sprint 228 — AgentBus + Runner (`14.2.0`) **PLAN**
+# Sprint 228 — AgentBus + Runner (`14.2.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`14.2.0`** |
 | Quelle | [`62-next.md`](../62-next.md) |
 
@@ -12,7 +12,7 @@ In-Process Bus: `agentBus.dispatch(id, ctx)`. `AgentRunner` wrappt `handleX` →
 
 ## DoD
 
-- [ ] `agents/bus.ts`, `agents/runner.ts`
-- [ ] Traces in Debug-Export (JSON)
-- [ ] Feature-Flag `agent_network_v2` (default aus)
-- [ ] `test:014` grün
+- [x] `agents/bus.ts`, `agents/runner.ts`
+- [x] Traces in Debug-Export (JSON)
+- [x] Feature-Flag `agent_network_v2` (default aus)
+- [x] `test:014` grün

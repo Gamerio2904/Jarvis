@@ -1,8 +1,8 @@
-# Sprint 230 — Curator-Agent (`14.4.0`) **PLAN**
+# Sprint 230 — Curator-Agent (`14.4.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`14.4.0`** |
 | Quelle | [`62-next.md`](../62-next.md) |
 
@@ -12,6 +12,6 @@ Expliziter **Wissensmeister**: Memory-Gate, Prune, Contradiction, Pack-Harvest, 
 
 ## DoD
 
-- [ ] `agents/curator.ts` — ein Einstieg für alle Writes
-- [ ] Memory-Turn Trace: `curator → memory-agent`
-- [ ] Kein Verhalten-Regression (`test:memory-10-intens` grün)
+- [x] `agents/curator.ts` — ein Einstieg für alle Writes
+- [x] Memory-Turn Trace: `curator → memory-agent`
+- [x] Kein Verhalten-Regression (`test:memory-10-intens` grün)

@@ -1,8 +1,8 @@
-# Sprint 229 — Director (`14.3.0`) **PLAN**
+# Sprint 229 — Director (`14.3.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must |
 | Ziel-Version | **`14.3.0`** |
 | Quelle | [`62-next.md`](../62-next.md) |
 
@@ -12,8 +12,8 @@
 
 ## DoD
 
-- [ ] `chat.routeDeterministic` delegiert an Director wenn Flag an
-- [ ] Nur Front-Agent ruft `addMessage(assistant)`
-- [ ] Device/Write weiter Parser-first
-- [ ] `merge` liefert `userFacts` für späteren **micro-merge** Slot (63-next)
-- [ ] `test:prompts` 181/181 mit Flag an
+- [x] `chat.routeDeterministic` delegiert an Director wenn Flag an
+- [x] Nur Front-Agent ruft `addMessage(assistant)`
+- [x] Device/Write weiter Parser-first
+- [x] `merge` liefert `userFacts` für späteren **micro-merge** Slot (63-next)
+- [x] `test:prompts` 181/181 mit Flag an
