@@ -5,6 +5,19 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `14.0` — Agenten-Netzwerk — *PLAN*
+
+Sprints **226–235**. Execute noch nicht. Sideload bleibt `13.44.0` bis Sprint 235.
+
+- **Konzept:** Reel-Analog — Haus-Gehirn Mitte, 7 Cluster, ~52 Domänen-Agenten, 12 interne.
+- **Director:** koordiniert; nur Jarvis/Friday sprechen mit dem User.
+- **Curator:** Wissensmeister (Gate, Prune, Harvest) — nie User-Chat.
+- **Karte:** Körper-View → klickbare Agenten-Karte mit aktivem Pfad.
+- **Parity:** alle Route-IDs aus 13.44 bleiben; `test:prompts` Pflicht.
+- **Won’t:** 137× LLM, Cloud-Schwarm, Embedding-Router.
+
+Quelle: [`62-next.md`](./62-next.md), Katalog: [`62-agent-catalog.md`](./62-agent-catalog.md).
+
 ## `13.44.0` — Sprachmodus — *CODE*
 
 Sprints **221–225**. Sideload **`13.44.0`** (versionCode `134400`).

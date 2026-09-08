@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`13.44.0`**. Sideload **`13.44.0`**. `6.50` = Gemini Hauptweg. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Stabilität V1–V9 **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`.
+> **Jetzt:** Code **`13.44.0`**. Sideload **`13.44.0`**. Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN** `14.0`. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Stabilität V1–V9 **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) `8.0` **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -533,6 +533,23 @@ Hören, TV-Stimme, Antworten, Mund. Kein Whisper, kein Piper-ONNX.
 | `13.42.0` | Hören + Autokorrektur | 223 CODE in `13.44.0` |
 | `13.43.0` | Antworten + Tempo | 224 CODE in `13.44.0` |
 | `13.44.0` | Mund flüssig + Gold + Sideload | 225 CODE |
+
+### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN**
+
+Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `14.0.0` | Leit + Katalog | 226 PLAN |
+| `14.1.0` | Unified Catalog | 227 PLAN |
+| `14.2.0` | AgentBus | 228 PLAN |
+| `14.3.0` | Director | 229 PLAN |
+| `14.4.0` | Curator | 230 PLAN |
+| `14.5.0` | Domänen Geräte/Medien | 231 PLAN |
+| `14.6.0` | Domänen Alltag/Nav | 232 PLAN |
+| `14.7.0` | Domänen Rest | 233 PLAN |
+| `14.8.0` | Agenten-Karte UI | 234 PLAN |
+| `14.9.0` | Gold Parity + Sideload | 235 PLAN |
 
 ### Weitere Beispiele
 

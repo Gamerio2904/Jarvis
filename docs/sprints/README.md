@@ -229,8 +229,18 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 223 | [`sprint-223.md`](./sprint-223.md) | `13.42.0` | Hören + Autokorrektur | **CODE** in `13.44.0` Must |
 | 224 | [`sprint-224.md`](./sprint-224.md) | `13.43.0` | Antworten + Tempo | **CODE** in `13.44.0` Must |
 | 225 | [`sprint-225.md`](./sprint-225.md) | `13.44.0` | Mund flüssig + Gold | **CODE** Must |
+| 226 | [`sprint-226.md`](./sprint-226.md) | `14.0.0` | Agenten-Netzwerk Leit | **PLAN** Must |
+| 227 | [`sprint-227.md`](./sprint-227.md) | `14.1.0` | Unified Catalog | **PLAN** Must |
+| 228 | [`sprint-228.md`](./sprint-228.md) | `14.2.0` | AgentBus | **PLAN** Must |
+| 229 | [`sprint-229.md`](./sprint-229.md) | `14.3.0` | Director | **PLAN** Must |
+| 230 | [`sprint-230.md`](./sprint-230.md) | `14.4.0` | Curator | **PLAN** Must |
+| 231 | [`sprint-231.md`](./sprint-231.md) | `14.5.0` | Domänen A | **PLAN** Must |
+| 232 | [`sprint-232.md`](./sprint-232.md) | `14.6.0` | Domänen B | **PLAN** Must |
+| 233 | [`sprint-233.md`](./sprint-233.md) | `14.7.0` | Domänen C | **PLAN** Must |
+| 234 | [`sprint-234.md`](./sprint-234.md) | `14.8.0` | Agenten-Karte UI | **PLAN** Must |
+| 235 | [`sprint-235.md`](./sprint-235.md) | `14.9.0` | Gold + Sideload | **PLAN** Must |
 
-**Aktuell:** Code **`13.44.0`**. Sideload `13.44.0`. Sprachmodus [`61-next.md`](../61-next.md) **CODE** 221–225. Gerät-PO [`55-next.md`](../55-next.md). Semantisches Gedächtnis [`56-next.md`](../56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](../57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](../58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](../59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](../60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](../54-next.md) **CODE** (168–177). Screenshot-Fixes [`53-next.md`](../53-next.md). Audit [`51-phase0-audit.md`](../51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](../48-next.md) **CODE**. Alltag [`50-next.md`](../50-next.md) **CODE**. Recall [`49-next.md`](../49-next.md) **CODE**. Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`13.44.0`**. Sideload `13.44.0`. Nächste Execute-Schiene Agenten-Netzwerk [`62-next.md`](../62-next.md) **PLAN** 226–235. Sprachmodus [`61-next.md`](../61-next.md) **CODE**. Gerät-PO [`55-next.md`](../55-next.md). Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
