@@ -36,6 +36,18 @@ export function AgentMapCanvas({
     let last = 0
     let pulseT = 0
 
+    function syncActive() {
+      activeRef.current = activeAgentId()
+      traceRef.current = activeTracePath()
+    }
+
+    function needsMotion() {
+      if (reduced) return false
+      syncActive()
+      if (activeRef.current) return true
+      return DEPARTMENT_NODES.some((d) => departmentLive(d.id))
+    }
+
     function resize() {
       const dpr = Math.min(1.5, window.devicePixelRatio || 1)
       const w = surface.clientWidth
@@ -47,11 +59,16 @@ export function AgentMapCanvas({
     resize()
     const ro = new ResizeObserver(() => {
       resize()
-      draw()
+      kick()
     })
     ro.observe(canvas)
     const offVis = onVisibility(() => {
-      if (!isDocumentHidden()) draw()
+      if (isDocumentHidden()) {
+        cancelAnimationFrame(raf)
+        raf = 0
+        return
+      }
+      kick()
     })
 
     function project(x: number, y: number) {
@@ -63,6 +80,7 @@ export function AgentMapCanvas({
 
     function draw() {
       if (isDocumentHidden()) return
+      syncActive()
       const w = surface.clientWidth
       const h = surface.clientHeight
       g.clearRect(0, 0, w, h)
@@ -127,17 +145,28 @@ export function AgentMapCanvas({
       g.fillText(BRAIN_CENTER.label, center.x, center.y + center.r + 18)
     }
 
+    function kick() {
+      if (raf || isDocumentHidden()) return
+      if (!needsMotion()) {
+        draw()
+        return
+      }
+      raf = requestAnimationFrame(loop)
+    }
+
     function loop(ts: number) {
+      raf = 0
+      if (isDocumentHidden()) return
       if (ts - last < MOTION_FRAME_MS) {
-        raf = requestAnimationFrame(loop)
+        if (needsMotion()) kick()
         return
       }
       last = ts
       pulseT = ts
       draw()
-      raf = requestAnimationFrame(loop)
+      if (needsMotion()) kick()
     }
-    raf = requestAnimationFrame(loop)
+    kick()
 
     function hitTest(clientX: number, clientY: number): string | null {
       const rect = surface.getBoundingClientRect()

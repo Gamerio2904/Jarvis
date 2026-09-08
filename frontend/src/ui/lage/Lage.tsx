@@ -12,6 +12,7 @@ import { BODY_ORGANS, type BodyOrgan } from '../../engine/hud-parse'
 import { ChessBoard } from './ChessBoard'
 import { BodySchema } from './BodySchema'
 import { AgentMapCanvas } from './AgentMapCanvas'
+import { AgentStatusBar } from './AgentStatusBar'
 import { AgentTree } from './AgentTree'
 import { buildAgentGraph, type AgentGraph } from '../../engine/agent-graph'
 import type { DepartmentId } from '../../engine/agents/types'
@@ -178,7 +179,7 @@ export function Lage({
 
   const globeCaption = decodeHtml(pin?.line || s.last_globe_brief || '')
   const globeTitle = pin?.name || globeFocus()?.name || 'Erde'
-  const showChatTile = !hideChatTile && !compact && modules.includes('chat')
+  const showChatTile = !hideChatTile && modules.includes('chat')
 
   return (
     <section className={`lage ${amber ? 'is-amber' : ''}${compact ? ' is-compact' : ''}`} aria-label="Lage">
@@ -219,6 +220,7 @@ export function Lage({
             </button>
           ))}
         </div>
+        <AgentStatusBar busy={busy} />
         <p className="lage-hint">
           {view === 'globe'
             ? 'Dunkle Erde, grüne Grenzen. Drehen und zoomen.'

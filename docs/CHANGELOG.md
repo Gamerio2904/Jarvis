@@ -5,6 +5,19 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `15.2.0` — Flüssige Lage-GUI + Kalender — *CODE*
+
+Sprint **239**. Sideload **`15.2.0`** (versionCode `150200`).
+
+### GUI
+- **AgentStatusBar:** zeigt aktiven Agent, Domäne, Trace-Pfad und Hirn-Slot während Turns.
+- **Overlays:** Composer/WakeBubble aus bei Lage-Szene, Kalender, Einstellungen, Sprache — kein Überdecken des Kalender-Grids oder Agent-Baums.
+- **Performance:** `AgentMapCanvas` und `GlobeView` stoppen rAF im Idle; Kugel-Ringe decimiert, Sphere-Gradient gecacht.
+- **Kugel:** vertikales Wischen folgt der Erdoberfläche (nicht mehr invertiert).
+- **Kalender:** höherer z-index, grüner „Anlegen“-Button, quadratische Tage, Mobile-Formular.
+
+Quelle: [`64-next.md`](./64-next.md), Sprint [`sprints/sprint-239.md`](./sprints/sprint-239.md).
+
 ## `15.1.0` — Agenten-Netzwerk + Dual Brain (237) — *CODE*
 
 Sprints **227–237** in einem Pass. Sideload **`15.1.0`** (versionCode `150100`).

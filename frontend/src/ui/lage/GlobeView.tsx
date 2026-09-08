@@ -115,6 +115,7 @@ export function GlobeView({
       surface.width = Math.max(1, Math.round(surface.clientWidth * dpr))
       surface.height = Math.max(1, Math.round(surface.clientHeight * dpr))
       pen.setTransform(dpr, 0, 0, dpr, 0, 0)
+      sphereGradients = null
     }
     resize()
     const ro = new ResizeObserver(() => {
@@ -150,33 +151,39 @@ export function GlobeView({
       onLookRef.current?.({ lat: look.lat, lon: look.lon, zoom: zoom.current, date: '' })
     }
 
-    function drawSphere(cx: number, cy: number, R: number) {
+    let sphereGradients: { fill: CanvasGradient; rim: CanvasGradient; sheen: CanvasGradient } | null = null
+
+    function cacheSphereGradients(cx: number, cy: number, R: number) {
       const fill = pen.createRadialGradient(cx - R * 0.28, cy - R * 0.34, R * 0.06, cx, cy, R)
       fill.addColorStop(0, '#1a3a58')
       fill.addColorStop(0.38, '#0d2238')
       fill.addColorStop(0.78, '#081422')
       fill.addColorStop(1, '#040910')
-      pen.beginPath()
-      pen.arc(cx, cy, R, 0, Math.PI * 2)
-      pen.fillStyle = fill
-      pen.fill()
-
       const rim = pen.createRadialGradient(cx, cy, R * 0.86, cx, cy, R * 1.04)
       rim.addColorStop(0, 'rgba(30, 215, 96, 0)')
       rim.addColorStop(0.72, 'rgba(40, 120, 140, 0.06)')
       rim.addColorStop(1, 'rgba(80, 200, 170, 0.22)')
-      pen.beginPath()
-      pen.arc(cx, cy, R, 0, Math.PI * 2)
-      pen.fillStyle = rim
-      pen.fill()
-
       const sheen = pen.createRadialGradient(cx - R * 0.32, cy - R * 0.4, 0, cx - R * 0.18, cy - R * 0.28, R * 0.62)
       sheen.addColorStop(0, 'rgba(186, 214, 236, 0.16)')
       sheen.addColorStop(0.45, 'rgba(120, 170, 210, 0.05)')
       sheen.addColorStop(1, 'rgba(10, 20, 32, 0)')
+      sphereGradients = { fill, rim, sheen }
+    }
+
+    function drawSphere(cx: number, cy: number, R: number) {
+      if (!sphereGradients) cacheSphereGradients(cx, cy, R)
+      const g = sphereGradients!
       pen.beginPath()
       pen.arc(cx, cy, R, 0, Math.PI * 2)
-      pen.fillStyle = sheen
+      pen.fillStyle = g.fill
+      pen.fill()
+      pen.beginPath()
+      pen.arc(cx, cy, R, 0, Math.PI * 2)
+      pen.fillStyle = g.rim
+      pen.fill()
+      pen.beginPath()
+      pen.arc(cx, cy, R, 0, Math.PI * 2)
+      pen.fillStyle = g.sheen
       pen.fill()
 
       pen.beginPath()
@@ -201,7 +208,7 @@ export function GlobeView({
     }
 
     function strokeRings() {
-      const step = zoom.current < 1.55 ? 6 : zoom.current < 2.4 ? 4 : 2
+      const step = zoom.current < 1.55 ? 8 : zoom.current < 2.4 ? 5 : 3
       for (const ring of WORLD_RINGS) {
         if (ring.length < 8) continue
         let drawing = false
@@ -370,7 +377,7 @@ export function GlobeView({
       if (!drag.current || reduced) return
       // Surface follows the finger (Google Earth / maps), not camera-look invert.
       const dyaw = -(p.x - drag.current.x) * 0.0085
-      const dpitch = -(p.y - drag.current.y) * 0.0065
+      const dpitch = (p.y - drag.current.y) * 0.0065
       yaw.current += dyaw
       pitch.current = Math.max(-1.35, Math.min(1.35, pitch.current + dpitch))
       inertia.current.yaw = dyaw

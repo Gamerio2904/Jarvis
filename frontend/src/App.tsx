@@ -1806,6 +1806,7 @@ function App() {
           </div>
         </div>
 
+        {!lageScene && !calendarOpen && !settingsLayer.shown && !voiceOpen ? (
         <div className="composer-wrap">
           <PcLiveDock />
           {statusNote ? <div className="status-note">{statusNote}</div> : null}
@@ -1886,6 +1887,7 @@ function App() {
             />
           ) : null}
         </div>
+        ) : null}
       </main>
 
       {settingsLayer.shown ? (

@@ -108,10 +108,10 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           <p>Nur auf diesem Handy. Kein Google-Login.</p>
         </div>
         <div className="cal-head-actions">
-          <button type="button" className="ghost-btn" onClick={() => setYearView((v) => !v)}>
+          <button type="button" className="ghost-btn cal-toolbar-btn" onClick={() => setYearView((v) => !v)}>
             {yearView ? 'Monat' : 'Jahr'}
           </button>
-          <button type="button" className="ghost-btn" onClick={onClose}>
+          <button type="button" className="ghost-btn cal-toolbar-btn" onClick={onClose}>
             Zurück
           </button>
         </div>
@@ -120,15 +120,19 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       <div className="cal-nav">
         <button
           type="button"
+          className="cal-nav-btn"
+          aria-label={yearView ? 'Vorheriges Jahr' : 'Vorheriger Monat'}
           onClick={() =>
             setCursor(yearView ? new Date(year - 1, month, 1) : new Date(year, month - 1, 1))
           }
         >
           ←
         </button>
-        <strong>{yearView ? String(year) : label}</strong>
+        <strong className="cal-nav-label">{yearView ? String(year) : label}</strong>
         <button
           type="button"
+          className="cal-nav-btn"
+          aria-label={yearView ? 'Nächstes Jahr' : 'Nächster Monat'}
           onClick={() =>
             setCursor(yearView ? new Date(year + 1, month, 1) : new Date(year, month + 1, 1))
           }
@@ -237,7 +241,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             disabled={busy}
           />
           <input type="time" value={time} onChange={(e) => setTime(e.target.value)} disabled={busy} />
-          <button type="submit" className="retry-btn" disabled={busy || !title.trim()}>
+          <button type="submit" className="cal-add-btn" disabled={busy || !title.trim()}>
             Anlegen
           </button>
         </form>

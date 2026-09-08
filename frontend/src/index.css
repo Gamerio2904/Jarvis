@@ -2661,7 +2661,7 @@ button.linkish {
 .cal-view {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  z-index: 14;
   background: var(--bg);
   overflow: auto;
   overscroll-behavior: contain;
@@ -2669,6 +2669,7 @@ button.linkish {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  isolation: isolate;
 }
 
 .cal-view.fx-in {
@@ -3201,6 +3202,37 @@ button.linkish {
   flex-wrap: wrap;
 }
 
+.cal-toolbar-btn {
+  border-color: rgba(29, 185, 84, 0.42);
+  color: var(--text);
+  background: rgba(29, 185, 84, 0.1);
+  font-weight: 600;
+}
+
+.cal-nav-label {
+  flex: 1;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.cal-nav-btn {
+  appearance: none;
+  border: 1px solid rgba(29, 185, 84, 0.35);
+  background: rgba(29, 185, 84, 0.12);
+  color: var(--text);
+  border-radius: 12px;
+  width: 44px;
+  height: 40px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cal-nav-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(29, 185, 84, 0.2);
+}
+
 .cal-year {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -3265,7 +3297,8 @@ button.linkish {
   background: var(--bg-elevated);
   color: var(--text);
   border-radius: 10px;
-  min-height: 42px;
+  aspect-ratio: 1;
+  min-height: 0;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -3318,6 +3351,45 @@ button.linkish {
   grid-template-columns: 1fr 96px auto;
   gap: 8px;
   margin-top: 12px;
+}
+
+.cal-add-btn {
+  appearance: none;
+  border: 0;
+  background: linear-gradient(180deg, #24d866, var(--accent));
+  color: #04140a;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 10px 18px;
+  min-width: 92px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(29, 185, 84, 0.35);
+}
+
+.cal-add-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.cal-add-btn:not(:disabled):hover {
+  filter: brightness(1.06);
+}
+
+@media (max-width: 520px) {
+  .cal-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cal-form input:first-of-type {
+    grid-column: 1 / -1;
+  }
+
+  .cal-add-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-height: 44px;
+  }
 }
 
 .cal-form input {
@@ -4129,6 +4201,52 @@ button.linkish {
   color: var(--accent);
 }
 
+.agent-status-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 6px 0 2px;
+  padding: 8px 12px;
+  border: 1px solid rgba(29, 185, 84, 0.28);
+  border-radius: 12px;
+  background: rgba(5, 12, 8, 0.72);
+}
+
+.agent-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 4px;
+  background: rgba(180, 180, 180, 0.5);
+  flex-shrink: 0;
+}
+
+.agent-status-dot.is-live {
+  background: var(--accent);
+  box-shadow: 0 0 10px rgba(29, 185, 84, 0.65);
+  animation: brandPulse 1.6s ease infinite;
+}
+
+.agent-status-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agent-status-copy strong {
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.agent-status-copy span {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .agent-map-canvas {
   width: 100%;
   height: 100%;
@@ -4150,6 +4268,7 @@ button.linkish {
   flex: 1;
   min-height: 0;
   align-items: stretch;
+  overflow: hidden;
 }
 
 .pin-bubble {
@@ -4436,6 +4555,21 @@ button.linkish {
     flex: 1 1 auto;
     min-height: 0;
   }
+  .main.is-lage-scene {
+    overflow: hidden;
+  }
+  .main.is-lage-scene .lage {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .main.is-lage-scene .lage-split {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
   .main.is-lage-scene .messages {
     display: none;
   }
@@ -4443,8 +4577,9 @@ button.linkish {
     grid-template-columns: 1fr;
   }
   .lage.is-compact .body-schema,
-  .lage.is-compact .globe-wrap {
-    max-height: min(58vh, calc(100dvh - 220px));
+  .lage.is-compact .globe-wrap,
+  .lage.is-compact .agent-map-canvas {
+    max-height: min(52vh, calc(100dvh - 280px));
     width: min(100%, 58vh);
     align-self: center;
   }
