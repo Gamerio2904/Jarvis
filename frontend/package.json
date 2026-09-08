@@ -13,6 +13,7 @@
     "test:sprint": "node --experimental-strip-types scripts/test-sprint-prompts.mjs && node --experimental-strip-types scripts/test-sprints-131-136.mjs && node --experimental-strip-types scripts/test-alltag.mjs",
     "test:pc": "node --experimental-strip-types scripts/test-pc.mjs",
     "test:prompts": "node --experimental-strip-types scripts/test-prompts.mjs",
+    "test:agents": "node --experimental-strip-types scripts/test-agents.mjs",
     "test:650": "node --experimental-strip-types scripts/test-650.mjs",
     "test:matrix": "node --experimental-strip-types scripts/test-650-matrix.mjs",
     "test:memory-10": "node --experimental-strip-types scripts/test-memory-10.mjs",

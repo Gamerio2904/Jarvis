@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`13.44.0`**. Sideload **`13.44.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
+**Jetzt:** Code **`13.44.0`**. Sideload **`13.44.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. **Nächste Schiene:** Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN** `14.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Screenshot-Fixes [`53-next.md`](./53-next.md). Stabilität V1–V9 [`51-phase0-audit.md`](./51-phase0-audit.md) **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) `6.90` **CODE**. Index: [`42-planned.md`](./42-planned.md). Vor Neuinstall Hausstand exportieren.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -67,6 +67,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 59 | [Drei Flächen 12.0](./59-next.md) | **CODE** `12.70.0` — Tablet + Presence + PC-Viewer; Sprints 209–216 |
 | 60 | [Körper-Wissensbaum 13.0](./60-next.md) | **CODE** `13.30.0` — Eingang → Skill → Wissen; Sprints 217–220 |
 | 61 | [Sprachmodus 13.40](./61-next.md) | **CODE** `13.44.0` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
+| 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **PLAN** — Spezial-Agenten, Haus-Gehirn, Karte; Sprints 226–235 |
 | — | [APK](./apk.md) | Sideload `13.44.0`; Deinstall löscht Keys — erst Hausstand-Export |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -252,5 +253,15 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 223 | `13.42.0` | **CODE** in `13.44.0` (Hören + Autokorrektur) |
 | 224 | `13.43.0` | **CODE** in `13.44.0` (Antworten + Tempo) |
 | 225 | `13.44.0` | **CODE** (Mund flüssig + Gold) |
+| 226 | `14.0.0` | **PLAN** (Agenten-Netzwerk Leit) |
+| 227 | `14.1.0` | **PLAN** (Unified Catalog) |
+| 228 | `14.2.0` | **PLAN** (AgentBus) |
+| 229 | `14.3.0` | **PLAN** (Director) |
+| 230 | `14.4.0` | **PLAN** (Curator) |
+| 231 | `14.5.0` | **PLAN** (Domänen A) |
+| 232 | `14.6.0` | **PLAN** (Domänen B) |
+| 233 | `14.7.0` | **PLAN** (Domänen C) |
+| 234 | `14.8.0` | **PLAN** (Agenten-Karte UI) |
+| 235 | `14.9.0` | **PLAN** (Gold + Sideload) |
 
-**Aktuell:** Code **`13.44.0`**. Sideload `13.44.0`. Sprachmodus [`61-next.md`](./61-next.md) **CODE** 221–225. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`13.44.0`**. Sideload `13.44.0`. Nächste Execute-Schiene Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN** 226–235. Sprachmodus [`61-next.md`](./61-next.md) **CODE**. Gerät-PO [`55-next.md`](./55-next.md). Semantisches Gedächtnis [`56-next.md`](./56-next.md) **CODE** `10.0`. Intensiv [`57-next.md`](./57-next.md) **CODE** 196–201. Fachwissen [`58-next.md`](./58-next.md) **CODE** `11.60.0`. Flächen [`59-next.md`](./59-next.md) **CODE** `12.70.0`. Körper-Baum [`60-next.md`](./60-next.md) **CODE** `13.30.0`. Rest final [`54-next.md`](./54-next.md) **CODE**. Screenshot-Fixes [`53-next.md`](./53-next.md). Audit [`51-phase0-audit.md`](./51-phase0-audit.md) V1–V9 **CODE**. Globus-Briefing [`48-next.md`](./48-next.md) **CODE**. Alltag [`50-next.md`](./50-next.md) **CODE**. Recall [`49-next.md`](./49-next.md) **CODE**. Index: [`42-planned.md`](./42-planned.md).
