@@ -242,8 +242,18 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 236 | [`sprint-236.md`](./sprint-236.md) | `15.1.0` | Groq primär + BrainOrchestrator | **CODE** Must |
 | 237 | [`sprint-237.md`](./sprint-237.md) | `15.1.0` | Micro-LLM + research-lite | **CODE** Must |
 | 238 | [`sprint-238.md`](./sprint-238.md) | `15.2.0` | Dual Brain Gold + Sideload | **PLAN** Must |
+| 239 | [`sprint-239.md`](./sprint-239.md) | `15.2.0` | Flüssige Lage-GUI + Kalender + Agent-Status | **CODE** |
+| 240 | [`sprint-240.md`](./sprint-240.md) | `15.3.0` | PC-Dashboard + PcActionStream | **CODE** |
+| 241 | [`sprint-241.md`](./sprint-241.md) | `15.3.0` | Lage Phase-2 Härtung | **CODE** |
+| 242 | [`sprint-242.md`](./sprint-242.md) | `15.3.2` | Lage Handy Hotfix + Quick Fixes | **PLAN** Must |
+| 243 | [`sprint-243.md`](./sprint-243.md) | `15.4.0` | Reel-Schalter JarvisSwitch | **PLAN** |
+| 244 | [`sprint-244.md`](./sprint-244.md) | `15.5.0` | Light/Dark + Reel-Transition | **PLAN** |
+| 245 | [`sprint-245.md`](./sprint-245.md) | `15.6.0` | Kalender Reel-UI + Workflow | **PLAN** |
+| 246 | [`sprint-246.md`](./sprint-246.md) | `15.7.0` | Sprachmodus STT/TTS | **PLAN** |
+| 247 | [`sprint-247.md`](./sprint-247.md) | `15.8.0` | Antwort-Qualität | **PLAN** |
+| 248 | [`sprint-248.md`](./sprint-248.md) | `16.0.0` | Einstellungs-Suche v2 | **PLAN** Must |
 
-**Aktuell:** Code **`15.1.0`**. Sideload `15.1.0`. Execute 227–237 **CODE**; Sprint 238 **PLAN**. Test: [`TEST-15.1.0.md`](../TEST-15.1.0.md). Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`15.3.1`**. Sideload `15.3.1`. Execute 239–241 **CODE**; Reel-UI 242–248 **PLAN** [`65-next.md`](../65-next.md). Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
