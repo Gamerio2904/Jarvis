@@ -245,8 +245,21 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 239 | — | `15.2.0` | GUI-Politur | **CODE** Must |
 | 240–241 | [`../64-next.md`](../64-next.md) | `15.3.0` | PC-Dashboard | **CODE** Must |
 | 242–248 | [`../65-next.md`](../65-next.md) | `16.0.0` | Reel-UI, Kalender, Lage, Einstellungs-Suche | **CODE** Must |
+| 249 | [`sprint-249.md`](./sprint-249.md) | `16.2.0` | Eval-Rahmen: `node:test`, eine Korpus-Quelle | **PLAN** Must |
+| 250 | [`sprint-250.md`](./sprint-250.md) | `16.3.0` | Eval-Kennzahlen + Baseline | **PLAN** Must |
+| 251 | [`sprint-251.md`](./sprint-251.md) | `16.4.0` | Sicherungsschalter + Agenten-Reste | **PLAN** Must |
+| 252 | [`sprint-252.md`](./sprint-252.md) | `16.5.0` | Lage-Entscheidung + Wecker-Nummer | **PLAN** Must (PO) |
+| 253 | [`sprint-253.md`](./sprint-253.md) | `16.6.0` | Abbruch bis in die Handler (`AbortSignal`) | **PLAN** Must |
+| 254 | [`sprint-254.md`](./sprint-254.md) | `16.7.0` | VAD statt Stillezähler (Stufe 1) | **PLAN** Must |
+| 255 | [`sprint-255.md`](./sprint-255.md) | `16.8.0` | Semantisches Satzende + Barge-in | **PLAN** Must |
+| 256 | [`sprint-256.md`](./sprint-256.md) | `16.9.0` | Einstellungen aufteilen, `zod`, Migration | **PLAN** Must |
+| 257 | [`sprint-257.md`](./sprint-257.md) | `16.10.0` | Intent-Embeddings statt Konflikt-Tisch | **PLAN** Must |
+| 258 | [`sprint-258.md`](./sprint-258.md) | `16.11.0` | Werkzeug-Vertrag für das Modell | **PLAN** Should |
+| 259 | [`sprint-259.md`](./sprint-259.md) | **`17.0.0`** | Telemetrie + **Meilenstein** | **PLAN** Must |
 
-**Aktuell:** Code **`16.1.1`**. Sideload `16.1.1`, versionCode `160101`. Execute 227–248 **CODE**. Router-, Timer- und Agenten-Härtung: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-16.1.0.md`](../TEST-16.1.0.md). Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`16.1.1`**. Sideload `16.1.1`, versionCode `160101`. Execute 227–248 **CODE**. Router-, Timer- und Agenten-Härtung: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-16.1.0.md`](../TEST-16.1.0.md).
+
+**Nächste Schiene:** 249–259 → [`../68-next.md`](../68-next.md), Ziel `17.0.0` („messbar und unterbrechbar"). Grundlage: [`../67-upgrades.md`](../67-upgrades.md). Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

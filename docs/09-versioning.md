@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`16.1.1`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`16.1.1`**, versionCode `160101`. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. GUI Sprint 239 **CODE** `15.2.0`. Reels/QA Sprints 242–248 **CODE** `16.0.0`; Router- und Agenten-Härtung **CODE** `16.1.0`, Wecker und Konflikt-Tisch **CODE** `16.1.1` → [`66-agents-ist.md`](./66-agents-ist.md).
+> **Jetzt:** Code **`16.1.1`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`16.1.1`**, versionCode `160101`. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. GUI Sprint 239 **CODE** `15.2.0`. Reels/QA Sprints 242–248 **CODE** `16.0.0`; Router- und Agenten-Härtung **CODE** `16.1.0`, Wecker und Konflikt-Tisch **CODE** `16.1.1` → [`66-agents-ist.md`](./66-agents-ist.md). **Nächste Schiene:** `17.0.0`, Sprints 249–259 → [`68-next.md`](./68-next.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -533,6 +533,29 @@ Hören, TV-Stimme, Antworten, Mund. Kein Whisper, kein Piper-ONNX.
 | `13.42.0` | Hören + Autokorrektur | 223 CODE in `13.44.0` |
 | `13.43.0` | Antworten + Tempo | 224 CODE in `13.44.0` |
 | `13.44.0` | Mund flüssig + Gold + Sideload | 225 CODE |
+
+### `17.0` — Messbar und unterbrechbar [`68-next.md`](./68-next.md) **PLAN**
+
+Jarvis kann sich selbst messen und lässt sich unterbrechen. Geplant aus
+[`67-upgrades.md`](./67-upgrades.md); erst messen, dann umbauen.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `16.2.0` | Eval-Rahmen: `node:test`, eine Korpus-Quelle | 249 PLAN |
+| `16.3.0` | Eval-Kennzahlen + Baseline | 250 PLAN |
+| `16.4.0` | Sicherungsschalter + Agenten-Reste | 251 PLAN |
+| `16.5.0` | Lage-Entscheidung (PO) + Wecker-Nummer | 252 PLAN |
+| `16.6.0` | Abbruch bis in die Handler | 253 PLAN |
+| `16.7.0` | VAD statt Stillezähler | 254 PLAN |
+| `16.8.0` | Semantisches Satzende + Barge-in | 255 PLAN |
+| `16.9.0` | Einstellungen aufteilen, `zod`, Migration | 256 PLAN |
+| `16.10.0` | Intent-Embeddings statt Konflikt-Tisch | 257 PLAN |
+| `16.11.0` | Werkzeug-Vertrag für das Modell | 258 PLAN |
+| **`17.0.0`** | Telemetrie + **Meilenstein**, Sideload | 259 PLAN |
+
+Der MAJOR-Sprung steht am Ende der Schiene, nicht am Anfang: `17.0.0` ist
+erreicht, wenn alle elf Sprints liegen — so wie `16.0.0` die Reel-Schiene
+242–248 abgeschlossen hat.
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN**
 
