@@ -220,7 +220,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'news')
     out = drop(out, 'fuel')
     out = drop(out, 'fx')
-    out = drop(out, 'research')
+    out = drop(out, 'search')
     out = boost(out, 'outlook', 0.28)
   }
 
@@ -272,7 +272,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   }
 
   if (/\b(hausstand|einstellungen\s+export|backup\s+export)\b/.test(t)) {
-    out = drop(out, 'research')
+    out = drop(out, 'search')
     out = boost(out, 'backup', 0.3)
   }
 

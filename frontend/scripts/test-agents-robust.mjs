@@ -3,6 +3,7 @@
  * Deckt die Invarianten ab, die vorher niemand geprüft hat.
  */
 import assert from 'node:assert/strict'
+import { readFile } from 'node:fs/promises'
 import { AgentTimeout, withBudget } from '../src/engine/agents/budget.ts'
 import {
   beginAgentTurn,
@@ -111,6 +112,17 @@ for (const agent of catalog) {
   if (agent.id === 'identity') continue
   assert.ok(agent.execute, `${agent.id} braucht einen Executor`)
 }
+
+// --- Konflikt-Tisch -------------------------------------------------------
+// `drop('research')` lief jahrelang ins Leere, weil kein Agent so heißt. Ein
+// Tippfehler im Konflikt-Tisch fällt sonst nirgends auf: die Regel greift
+// scheinbar, verändert aber nichts.
+const src = await readFile(new URL('../src/engine/conflicts.ts', import.meta.url), 'utf8')
+const known = new Set(catalog.map((a) => a.id))
+const referenced = [...src.matchAll(/\b(?:drop|boost)\(\s*out\s*,\s*'([^']+)'/g)].map((m) => m[1])
+assert.ok(referenced.length > 50, `Konflikt-Tisch gelesen (${referenced.length} Verweise)`)
+const unknown = [...new Set(referenced.filter((id) => !known.has(id)))]
+assert.deepEqual(unknown, [], `conflicts.ts nennt unbekannte Agenten: ${unknown.join(', ')}`)
 
 console.log(
   `test:agents-robust ok — Budget, ${getTurnTraces().length} Traces begrenzt, ${catalog.length} Agenten`,
