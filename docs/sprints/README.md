@@ -246,7 +246,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 240–241 | [`../64-next.md`](../64-next.md) | `15.3.0` | PC-Dashboard | **CODE** Must |
 | 242–248 | [`../65-next.md`](../65-next.md) | `16.0.0` | Reel-UI, Kalender, Lage, Einstellungs-Suche | **CODE** Must |
 
-**Aktuell:** Code **`16.1.0`**. Sideload `16.1.0`, versionCode `160100`. Execute 227–248 **CODE**. Router-, Timer- und Agenten-Härtung: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-16.1.0.md`](../TEST-16.1.0.md). Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`16.1.1`**. Sideload `16.1.1`, versionCode `160101`. Execute 227–248 **CODE**. Router-, Timer- und Agenten-Härtung: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-16.1.0.md`](../TEST-16.1.0.md). Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

@@ -1,6 +1,6 @@
 # 16 — Gemini (Spezialist ab `15.1`)
 
-> **Jetzt (`16.1.0`):** **Groq primär** für Chat/Formulierung ([`63-next.md`](./63-next.md) **CODE** seit `15.1.0`). **Gemini Spezialist** (Vision, Deep Research/Grounding, optional TTS). Rollback: `brain_v2: false` → Gemini zuerst wie `13.44`.
+> **Jetzt (`16.1.1`):** **Groq primär** für Chat/Formulierung ([`63-next.md`](./63-next.md) **CODE** seit `15.1.0`). **Gemini Spezialist** (Vision, Deep Research/Grounding, optional TTS). Rollback: `brain_v2: false` → Gemini zuerst wie `13.44`.
 
 PO 2026-08-15: **Gemini-API**, weil das lokale 0.5B kein ChatGPT-Niveau erreicht.  
 PO 2026-08-28: Reihenfolge umgedreht — Gemini **Hauptweg**, nicht Opt-in-Zusatz.  

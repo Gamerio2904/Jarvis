@@ -7,7 +7,7 @@ import { formatClock } from '../src/engine/remind-parse.ts'
 import { retrievePacks } from '../src/engine/knowledge-retrieve.ts'
 import { APP_VERSION } from '../src/engine/store.ts'
 
-assert.equal(APP_VERSION, '16.1.0')
+assert.equal(APP_VERSION, '16.1.1')
 
 const globe = parseHudIntent('Öffne die Weltkugel')
 assert.equal(globe?.kind, 'view')

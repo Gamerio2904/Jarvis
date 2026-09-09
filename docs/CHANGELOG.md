@@ -67,7 +67,29 @@ wandelte eine Rückfrage still in „nimm die erste Seite" um, `runDirectorTurn`
 - `agentById` über eine Map; `orphanExecutorIds()` deckt unerreichbare
   Executoren auf.
 
+### Tests und Bundle
+
+- **`test:turn-e2e`** — der erste echte Zug durch den Director. Prüft, dass der
+  Timer wirklich in der Liste steht (nicht nur angesagt wird), die Kugel aufgeht
+  und die Fehlerpfade greifen.
+- **`test:agents-robust`** — Budget, Timer-Aufräumen, verworfene Traces,
+  Trace-Grenze, Kosten-Rang, Vorfahrt, `EXECUTOR_IDS` gegen `execute-map`.
+- 418 relative Importe auf `.ts` normalisiert: Node lädt jetzt die komplette
+  Engine, vorher waren Integrationstests unmöglich. `fake-indexeddb` als
+  devDependency.
+- Das WASM des lokalen Modells wird erst beim ersten Laden geholt — **167 kB
+  raus aus dem Start-Bundle**.
+- Veraltete Assertions nachgezogen: HELP_TEXT-Version gegen `APP_VERSION`,
+  TTS-Erstchunk `1800 ms`.
+
+## `16.1.1` — Wecker, Konflikt-Tisch, Docs-Abgleich — *CODE*
+
+Sideload **`16.1.1`** (versionCode `160101`).
+
 ### Wecker und Timer — derselbe Alarm klingelte zweimal
+
+Wer eine abgelaufene Frist schließt, war nirgends festgelegt — Beschreibung des
+Ergebnisses in [`66-agents-ist.md`](./66-agents-ist.md) §6.
 
 - **`jarvis-timer-fire` hatte keinen Zuhörer.** Das Ereignis wurde geworfen,
   aber niemand schrieb den Ablauf in den Speicher. Die Zeile blieb `open`, der
@@ -94,21 +116,12 @@ sahen aus wie Regeln, änderten aber nichts. `test:agents-robust` vergleicht
 jetzt jeden Namen im Konflikt-Tisch gegen den Katalog — ein Tippfehler dort
 fällt sonst nirgends auf.
 
-### Tests und Bundle
+### Tests
 
-- **`test:turn-e2e`** — der erste echte Zug durch den Director. Prüft, dass der
-  Timer wirklich in der Liste steht (nicht nur angesagt wird), die Kugel aufgeht
-  und die Fehlerpfade greifen.
-- **`test:agents-robust`** — Budget, Timer-Aufräumen, verworfene Traces,
-  Trace-Grenze, Kosten-Rang, Vorfahrt, `EXECUTOR_IDS` gegen `execute-map`,
-  Konflikt-Tisch gegen Katalog.
-- 418 relative Importe auf `.ts` normalisiert: Node lädt jetzt die komplette
-  Engine, vorher waren Integrationstests unmöglich. `fake-indexeddb` als
-  devDependency.
-- Das WASM des lokalen Modells wird erst beim ersten Laden geholt — **167 kB
-  raus aus dem Start-Bundle**.
-- Veraltete Assertions nachgezogen: HELP_TEXT-Version gegen `APP_VERSION`,
-  TTS-Erstchunk `1800 ms`.
+- `test:turn-e2e` deckt die abgelaufene Frist ab: Schließen über das Ereignis,
+  fremde Notify-Nummer trifft nichts, kein Nachholen für eine erledigte Zeile,
+  und eine wiederkehrende Frist rückt mit **gehaltener Uhrzeit** vor.
+- `test:agents-robust` prüft den Konflikt-Tisch gegen den Katalog.
 
 ### Docs gegen den Code geprüft
 

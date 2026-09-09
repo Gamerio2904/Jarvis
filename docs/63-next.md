@@ -2,7 +2,7 @@
 
 PO 2026-09-08: **Groq als Standard-Hirn** (Latenz + Free-Tier), **Gemini nur dort, wo es messbar besser ist** (Vision, Grounding, Deep Research). **Mehr LLM** nur an klar definierten Stellen — mit harter Regel: **Latenz und/oder Qualität müssen besser werden, niemals schlechter.**
 
-**App-Stand:** Code **`16.1.0`**. Execute Sprints **236–237** **CODE** (`15.1.0`), Sprint **238** **CODE** (`15.2.0`). Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** 227–235.
+**App-Stand:** Code **`16.1.1`**. Execute Sprints **236–237** **CODE** (`15.1.0`), Sprint **238** **CODE** (`15.2.0`). Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** 227–235.
 
 > **Planungsprotokoll, kein Ist-Stand.** Geschrieben für `15.0`. Drei Stellen weichen inzwischen vom Code ab, absichtlich nicht rückdatiert:
 > - **Flags sind flach, nicht verschachtelt.** §7.1 zeigt `brain_micro_llm: { clarify, merge }`; im Hausstand-JSON heißen die Felder `brain_micro_llm_clarify` und `brain_micro_llm_merge` (`store.ts`). Wer nach dem Doku-Schema exportiert, schreibt Felder, die niemand liest.

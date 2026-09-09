@@ -27,7 +27,7 @@ import { settingsTabForQuery } from '../src/engine/settings-ia.ts'
 resetPackExistsProbe()
 clearSmalltalkCache()
 
-assert.equal(APP_VERSION, '16.1.0')
+assert.equal(APP_VERSION, '16.1.1')
 
 const off = qualityPacks(DEFAULT_SETTINGS)
 assert.equal(off.length, 4)

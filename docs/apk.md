@@ -1,6 +1,8 @@
-# Android-APK — Sideload `16.1.0`
+# Android-APK — Sideload `16.1.1`
 
-App-Code **`16.1.0`**. Sideload-APK **`16.1.0`**.
+App-Code **`16.1.1`**. Sideload-APK **`16.1.1`**, versionCode `160101`.
+
+**16.1.1:** Derselbe Wecker klingelt nicht mehr zweimal, wiederkehrende Alarme bleiben auf ihrer Uhrzeit.
 
 **16.1.0:** Router fragt nicht mehr statt zu handeln, Timer feuert auch im Browser, Agenten mit Budget.
 

@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`16.1.0`**. Sideload **`16.1.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Offen: Dual Brain Sprint **238** (Gold-SLO).
+**Jetzt:** Code **`16.1.1`**. Sideload **`16.1.1`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Offen: die Upgrades in [`67-upgrades.md`](./67-upgrades.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -71,7 +71,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 63 | [Dual Brain 15.0](./63-next.md) | **CODE** — Groq primär, BrainOrchestrator; Sprints 236–237 in `15.1.0`, 238 in `15.2.0`. Planungsprotokoll, Flag-Namen dort veraltet |
 | 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `16.1.0` — Routing-Rechnung, Budgets, Traces, Grenzen |
 | 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN** — Abbruch, Sprechpause, Router-Embedding, Eval, Werkzeug-Vertrag |
-| — | [APK](./apk.md) | Sideload `16.1.0`; Test: [`TEST-16.1.0.md`](./TEST-16.1.0.md) |
+| — | [APK](./apk.md) | Sideload `16.1.1`; Test: [`TEST-16.1.0.md`](./TEST-16.1.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -273,4 +273,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 240–241 | `15.3.0` | **CODE** (PC-Dashboard) |
 | 242–248 | `16.0.0` | **CODE** (Reel-UI, Kalender, Lage, Einstellungs-Suche) |
 
-**Aktuell:** Code **`16.1.0`**. Sideload `16.1.0`, versionCode `160100`. Execute: Sprints bis 248 **CODE**; Router-, Timer- und Agenten-Härtung in `16.1.0` ([`66-agents-ist.md`](./66-agents-ist.md)). Nächster Schritt: [`67-upgrades.md`](./67-upgrades.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`16.1.1`**. Sideload `16.1.1`, versionCode `160101`. Execute: Sprints bis 248 **CODE**; Router- und Agenten-Härtung in `16.1.0`, Wecker und Konflikt-Tisch in `16.1.1` ([`66-agents-ist.md`](./66-agents-ist.md)). Nächster Schritt: [`67-upgrades.md`](./67-upgrades.md). Index: [`42-planned.md`](./42-planned.md).
