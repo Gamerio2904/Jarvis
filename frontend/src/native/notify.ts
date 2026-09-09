@@ -36,6 +36,15 @@ function inAppWindowMs(): number {
   return native ? 15 * 60_000 : MAX_TIMEOUT_MS
 }
 
+/**
+ * Android hält Alarme im System, auch wenn die App tot ist. Der Browser kann das
+ * nicht — dort stirbt jede Frist mit dem Tab. Wer eine verpasste Frist nachholen
+ * will, muss diesen Unterschied kennen, sonst klingelt der Alarm zweimal.
+ */
+export function hasNativeAlarms(): boolean {
+  return native !== null
+}
+
 function clearInApp(id: number): void {
   const handle = browserTimers.get(id)
   if (handle !== undefined) clearTimeout(handle)

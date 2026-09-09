@@ -169,7 +169,7 @@ export async function listReminders() {
   return storeListReminders()
 }
 
-export { removeReminder, syncReminderAlarms } from './engine/reminders.ts'
+export { markFiredByNotifyId, removeReminder, syncReminderAlarms } from './engine/reminders.ts'
 export { readEyeImage, fileToJpegDataUrl } from './engine/eye.ts'
 export { ingestDocFile } from './engine/doc.ts'
 export { checkHomeFence } from './engine/home.ts'

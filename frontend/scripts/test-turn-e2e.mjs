@@ -63,6 +63,61 @@ const stop = await turn('Timer stopp')
 assert.equal(stop.hit?.lastTool, 'timer')
 assert.equal((await openTimers()).length, 0, 'nach dem Stoppen läuft kein Timer mehr')
 
+// --- Ein abgelaufener Timer klingelt nicht zweimal -----------------------
+// `jarvis-timer-fire` wurde geworfen, aber niemand hörte zu. Die Zeile blieb
+// `open`, und der nächste Start hielt sie für verpasst und holte den Alarm
+// nach — derselbe Timer klingelte ein zweites Mal.
+const { markFiredByNotifyId, syncReminderAlarms } = await import('../src/engine/reminders.ts')
+const { putReminder, listReminders } = await import('../src/engine/store.ts')
+const { notifyIdFromKey } = await import('../src/native/notify.ts')
+
+const ranOut = {
+  id: 'e2e-timer-ab',
+  kind: 'timer',
+  title: 'Nudeln',
+  due_at: new Date(Date.now() - 30_000).toISOString(),
+  status: 'open',
+  created_at: new Date().toISOString(),
+}
+await putReminder(ranOut)
+
+const closed = await markFiredByNotifyId(notifyIdFromKey(ranOut.id))
+assert.equal(closed?.status, 'fired', 'das Ereignis schließt die Zeile')
+const rows = await listReminders()
+assert.equal(rows.find((r) => r.id === ranOut.id)?.status, 'fired', 'und zwar im Speicher')
+
+await syncReminderAlarms()
+const afterSync = await listReminders()
+assert.equal(
+  afterSync.find((r) => r.id === ranOut.id)?.status,
+  'fired',
+  'der nächste Start holt einen erledigten Timer nicht nach',
+)
+
+// Eine unbekannte Nummer darf nichts anfassen.
+assert.equal(await markFiredByNotifyId(424_242_424), null, 'fremde Nummer trifft keine Zeile')
+
+// Wiederkehrende Fristen rücken vor, statt zu schließen.
+const daily = {
+  id: 'e2e-weckruf',
+  kind: 'alarm',
+  title: 'Aufstehen',
+  due_at: new Date(Date.now() - 60_000).toISOString(),
+  status: 'open',
+  recur: 'daily',
+  created_at: new Date().toISOString(),
+}
+await putReminder(daily)
+const rolled = await markFiredByNotifyId(notifyIdFromKey(daily.id))
+assert.equal(rolled?.status, 'open', 'der Wecker bleibt offen')
+const nextAt = new Date(rolled.due_at)
+assert.ok(nextAt.getTime() > Date.now(), 'und steht in der Zukunft')
+assert.equal(
+  nextAt.getHours(),
+  new Date(daily.due_at).getHours(),
+  'die Uhrzeit bleibt — vom geplanten Schlag gerechnet, nicht vom tatsächlichen',
+)
+
 // --- Lage: die Kugel muss auch aufgehen ----------------------------------
 saveSettings({ hud_force: false, hud_view: 'tiles', hud_hidden: true })
 const lage = await turn('Öffne die Weltkugel')

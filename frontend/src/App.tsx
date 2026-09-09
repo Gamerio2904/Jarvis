@@ -11,6 +11,7 @@ import {
   listMemory,
   listResearchAudits,
   listReminders,
+  markFiredByNotifyId,
   patchSettings,
   removeReminder,
   streamChat,
@@ -522,6 +523,14 @@ function App() {
       }
     }
     document.addEventListener('visibilitychange', vis)
+    // Läuft ein Timer ab, während die App vorne steht, muss die Zeile aus
+    // `open` heraus. Sonst hielt der nächste Start sie für verpasst.
+    const onTimerFire = (e: Event) => {
+      const nid = (e as CustomEvent<{ id?: number }>).detail?.id
+      if (typeof nid !== 'number') return
+      void markFiredByNotifyId(nid).then(() => refreshReminders())
+    }
+    window.addEventListener('jarvis-timer-fire', onTimerFire)
     void tickOutlookWatch()
     void tickWatchdog()
     void tickPriceWatch()
@@ -531,6 +540,7 @@ function App() {
       window.clearInterval(outlook)
       window.clearInterval(watchdog)
       document.removeEventListener('visibilitychange', vis)
+      window.removeEventListener('jarvis-timer-fire', onTimerFire)
     }
   }, [])
 
