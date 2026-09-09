@@ -70,6 +70,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **PLAN-Protokoll** — Zielbild 14.0; Ist siehe 66 |
 | 63 | [Dual Brain 15.0](./63-next.md) | **CODE** `15.1.0` — Groq primär, BrainOrchestrator; Sprints 236–237; 238 PLAN |
 | 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `16.1.0` — Routing-Rechnung, Budgets, Traces, Grenzen |
+| 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN** — Abbruch, Sprechpause, Router-Embedding, Eval, Werkzeug-Vertrag |
 | — | [APK](./apk.md) | Sideload `16.1.0`; Test: [`TEST-16.1.0.md`](./TEST-16.1.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
