@@ -175,7 +175,13 @@ export function parseHudIntent(text: string): HudIntent | null {
   const isThat = /^\s*ist\s+das\s+(.+?)\s*\??\s*$/i.exec(t)
   if (isThat && gazetteerHit(isThat[1].trim())) return { kind: 'look' }
 
-  const where = /^\s*(?:wo\s+(?:liegt|ist)|zeig(?:e)?(?:\s+mir)?(?:\s+die\s+stadt)?|flieg(?:e)?\s+nach|zoom(?:e)?\s+auf)\s+(.+?)\s*$/i.exec(
+  const globusOnly =
+    /^\s*(?:zeig(?:e)?(?:\s+(?:mir|es|das))?\s+(?:auf\s+(?:dem\s+)?globus|auf\s+der\s+(?:kugel|weltkugel|erde)|mir\s+(?:auf\s+)?(?:dem\s+)?globus)|(?:auf\s+(?:dem\s+)?globus|auf\s+der\s+kugel)\s+zeigen?)\s*[.!?]*$/i.test(
+      t,
+    )
+  if (globusOnly) return { kind: 'look' }
+
+  const where = /^\s*(?:wo\s+(?:liegt|ist)|zeig(?:e)?(?:\s+mir)?(?:\s+(?:auf\s+(?:dem\s+)?globus|auf\s+der\s+(?:kugel|erde)))?(?:\s+die\s+stadt)?|flieg(?:e)?\s+nach|zoom(?:e)?\s+auf)\s+(.+?)\s*$/i.exec(
     t,
   )
   if (where) {

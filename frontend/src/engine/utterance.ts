@@ -61,6 +61,9 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\bkörpern\b/gi, 'Körper'],
   [/\bkrper\b/gi, 'Körper'],
   [/\bkoerper\b/gi, 'Körper'],
+  [/\b(\d+)\s*inuten\b/gi, '$1 Minuten'],
+  [/\binuten\b/gi, 'Minuten'],
+  [/\bminute\b/gi, 'Minute'],
 ]
 
 export function repairSpeech(text: string): string {

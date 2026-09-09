@@ -18,7 +18,8 @@ export function parseGreeting(text: string): DayPart | 'echo' | null {
   if (/\b(wetter|timer|wecker|termin|fahr|zeig|suche)\b/i.test(t)) return null
   const named = /^\s*(?:guten\s+|gute\s+)(morgen|tag|abend|nacht)\b/i.exec(t)
   if (named) return partFromWord(named[1])
-  if (/^\s*(?:hallo|hi|hey|na)(?:\s+jarvis)?\s*[.!?]*$/i.test(t)) return 'echo'
+  if (/^\s*(?:hallo|hi|hey|na|naja)(?:\s+jarvis)?\s*[.!?]*$/i.test(t)) return 'echo'
+  if (/^\s*naja\b.{0,32}\b(?:wie\s+)?geht/i.test(t)) return 'echo'
   if (/^\s*(?:schönen?\s+abend|gute\s+nacht)\s*[.!?]*$/i.test(t)) {
     return /nacht/i.test(t) ? 'night' : 'evening'
   }

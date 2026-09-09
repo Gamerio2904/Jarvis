@@ -10,6 +10,7 @@ const BACKCHANNEL =
 
 export const SILENCE_COMPLETE_MS = 220
 export const SILENCE_HOLD_MS = 800
+export const SILENCE_HOLD_VOICE_MS = 1100
 export const BARGE_ONSET_MS = 180
 export const BARGE_IGNORE_TTS_MS = 400
 
@@ -24,8 +25,9 @@ export function turnLooksComplete(text: string): boolean {
   return t.length >= 24
 }
 
-export function silenceMsFor(text: string): number {
-  return turnLooksComplete(text) ? SILENCE_COMPLETE_MS : SILENCE_HOLD_MS
+export function silenceMsFor(text: string, voiceMode = false): number {
+  if (turnLooksComplete(text)) return SILENCE_COMPLETE_MS
+  return voiceMode ? SILENCE_HOLD_VOICE_MS : SILENCE_HOLD_MS
 }
 
 export function isBackchannel(text: string): boolean {

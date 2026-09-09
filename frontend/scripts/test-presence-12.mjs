@@ -19,7 +19,7 @@ import {
 import { TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { filterTopics } from '../src/engine/settings-ia.ts'
 
-assert.equal(APP_VERSION, '15.3.1')
+assert.equal(APP_VERSION, '16.0.0')
 assert.equal(PRESENCE_PORT, 18791)
 
 // F1 Tablet
@@ -36,18 +36,18 @@ assert.equal(PRESENCE_PORT, 18791)
   assert.equal(lageSceneOf(900, true), false)
 }
 
-// F2 Handy-Portrait + Lage
+// F2 Handy-Portrait + Lage (chat-first)
 {
   const f2 = tabletCommandCenter({
     width: 390,
     lageOn: true,
     lageWide: false,
-    messagesHidden: true,
+    messagesHidden: false,
     composerVisible: true,
   })
   assert.equal(f2.ok, true)
-  assert.equal(f2.mode, 'phone-scene')
-  assert.ok(/weicht/.test(f2.detail))
+  assert.equal(f2.mode, 'phone-lage')
+  assert.ok(/Composer/.test(f2.detail))
 }
 
 // F3 Presence aus = kein Schreib
@@ -193,6 +193,7 @@ assert.equal(PRESENCE_PORT, 18791)
 }
 
 assert.ok(filterTopics('Presence').includes('geraete'))
+assert.ok(filterTopics('Fernseher').includes('geraete'))
 assert.ok(filterTopics('Lage immer').includes('lage'))
 assert.ok(TEST_COPY_GROUPS.some((g) => g.title === 'Flächen-12'))
 assert.ok(ROLE_COPY.includes('Fenster braucht Token'))

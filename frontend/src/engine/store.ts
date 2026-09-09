@@ -2,7 +2,7 @@ import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 
-export const APP_VERSION = '15.3.1'
+export const APP_VERSION = '16.0.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -166,6 +166,7 @@ export type Settings = {
   hud_force: boolean
   hud_hidden: boolean
   hud_accent: 'green' | 'amber'
+  ui_theme: 'dark' | 'light' | 'system'
   hud_modules_json: string
   hud_view: 'tiles' | 'body' | 'globe'
   last_body_organ: string
@@ -326,6 +327,7 @@ export const DEFAULT_SETTINGS: Settings = {
   hud_force: false,
   hud_hidden: false,
   hud_accent: 'green',
+  ui_theme: 'dark',
   hud_modules_json: '',
   hud_view: 'tiles',
   last_body_organ: 'brain',

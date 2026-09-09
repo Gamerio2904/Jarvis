@@ -27,6 +27,8 @@ import {
 import {
   filterTopics,
   resolveTopic,
+  settingsHighlightField,
+  settingsSearchSuggestions,
   settingsTabForQuery,
   TOPIC_FACE,
   visibleSettingsTabs,
@@ -34,6 +36,9 @@ import {
   type SettingsTopic,
 } from '../engine/settings-ia'
 import { loadSettings } from '../engine/store'
+import { setLageSession } from '../engine/lage-session'
+import { JarvisSwitch } from './JarvisSwitch'
+import { resolveUiTheme, runThemeTransition } from '../fx/theme-transition'
 import {
   ROLE_COPY,
   VR_PARKING,
@@ -371,8 +376,23 @@ export function SettingsScreen(p: SettingsScreenProps) {
     if (next !== current) p.onTopic(next)
   }, [railQuery, p.topic])
 
+  useEffect(() => {
+    const q = railQuery.trim()
+    if (!q) return
+    const hit = settingsHighlightField(q)
+    if (!hit) return
+    window.setTimeout(() => {
+      const el = document.getElementById(hit.elementId)
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el?.classList.add('settings-field-hit')
+      window.setTimeout(() => el?.classList.remove('settings-field-hit'), 2200)
+    }, 120)
+  }, [railQuery, tab])
+
   const tabList: SettingsTab[] = visibleSettingsTabs(railQuery)
-  const searchMiss = Boolean(railQuery.trim()) && filterTopics(railQuery).length === 0
+  const fieldHits = railQuery.trim() ? settingsHighlightField(railQuery) : null
+  const searchMiss = Boolean(railQuery.trim()) && filterTopics(railQuery).length === 0 && !fieldHits
+  const searchSuggest = searchMiss ? settingsSearchSuggestions(railQuery) : []
   const tabThumb = useSlidingThumb(tab)
   const prevTab = useRef(tab)
   const tabDir = useRef(1)
@@ -432,7 +452,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
           })}
         </nav>
         {searchMiss ? (
-          <p className="settings-hint">Nichts zu „{railQuery.trim()}“. Reiter bleiben, Pane unverändert.</p>
+          <p className="settings-hint">
+            Nichts zu „{railQuery.trim()}“.
+            {searchSuggest.length ? ` Meinten Sie ${searchSuggest.join(' oder ')}?` : ' Reiter bleiben, Pane unverändert.'}
+          </p>
         ) : null}
       </header>
 
@@ -462,30 +485,47 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
           {tab === 'lage' ? (
             <section className="settings-card">
-              <h3>Tablet-Lage</h3>
+              <h3>Tablet-Lage & Design</h3>
               <p className="settings-lead">
-                Am Handy füllen Kugel oder Körper den Bereich über dem Composer — der Chat weicht (kein Bug).
-                Ab 900 px: Lage, Verlauf und Composer gleichzeitig. Composer und Mic bleiben. Oder hier immer an.
+                Am Handy: Lage-Panel über dem Chat, Composer bleibt. Ab 900 px: Lage, Verlauf und Composer
+                gleichzeitig.
               </p>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={Boolean(s?.hud_force)}
+              <JarvisSwitch
+                id="sf-hud-force"
+                checked={Boolean(s?.hud_force)}
+                disabled={busy}
+                label="Lage immer"
+                onChange={(on) => {
+                  if (on) setLageSession(true)
+                  else setLageSession(false)
+                  void p.patchSetting({ hud_force: on, hud_hidden: !on })
+                }}
+              />
+              <JarvisSwitch
+                id="sf-hud-accent"
+                checked={s?.hud_accent === 'amber'}
+                disabled={busy}
+                label="Akzent orange"
+                onChange={(on) => void p.patchSetting({ hud_accent: on ? 'amber' : 'green' })}
+              />
+              <label className="settings-inline" id="sf-ui-theme">
+                <span>Design</span>
+                <select
+                  value={s?.ui_theme || 'dark'}
                   disabled={busy}
-                  onChange={(e) =>
-                    void p.patchSetting({ hud_force: e.target.checked, hud_hidden: !e.target.checked })
-                  }
-                />
-                <span>Lage immer</span>
-              </label>
-              <label className="settings-toggle">
-                <input
-                  type="checkbox"
-                  checked={s?.hud_accent === 'amber'}
-                  disabled={busy}
-                  onChange={(e) => void p.patchSetting({ hud_accent: e.target.checked ? 'amber' : 'green' })}
-                />
-                <span>Akzent orange</span>
+                  onChange={(e) => {
+                    const ui_theme = e.target.value as 'dark' | 'light' | 'system'
+                    const prev = resolveUiTheme(s?.ui_theme)
+                    const next = resolveUiTheme(ui_theme)
+                    runThemeTransition(next, document.documentElement)
+                    void p.patchSetting({ ui_theme })
+                    if (prev !== next) document.documentElement.dataset.theme = next
+                  }}
+                >
+                  <option value="dark">Dunkel</option>
+                  <option value="light">Hell</option>
+                  <option value="system">System</option>
+                </select>
               </label>
               <label className="settings-inline">
                 <span>Sicht</span>
@@ -1102,7 +1142,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
           {tab === 'geraete' ? (
             <>
-            <section className="settings-card">
+            <section className="settings-card" id="sf-tv">
               <h3>Samsung Tizen</h3>
               <label className="settings-toggle">
                 <input

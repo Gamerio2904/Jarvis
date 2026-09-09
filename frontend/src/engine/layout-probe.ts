@@ -16,7 +16,7 @@ export function lageSceneOf(width: number, lageOn: boolean): boolean {
 
 export function tabletCommandCenter(p: LayoutProbe): {
   ok: boolean
-  mode: 'tablet' | 'phone-scene' | 'chat'
+  mode: 'tablet' | 'phone-scene' | 'phone-lage' | 'chat'
   detail: string
 } {
   const wide = p.width >= TABLET_BP
@@ -32,9 +32,9 @@ export function tabletCommandCenter(p: LayoutProbe): {
   }
   if (!wide && p.lageOn) {
     return {
-      ok: p.messagesHidden && p.composerVisible,
-      mode: 'phone-scene',
-      detail: 'Handy-Portrait + Lage: Chat weicht — erlaubt, kein Bug',
+      ok: p.composerVisible && !p.messagesHidden,
+      mode: 'phone-lage',
+      detail: 'Handy: Lage-Panel + Chat + Composer sichtbar',
     }
   }
   return { ok: p.composerVisible, mode: 'chat', detail: 'Nur Chat' }

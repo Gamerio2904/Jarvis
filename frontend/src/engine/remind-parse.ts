@@ -45,12 +45,18 @@ export function startOfDay(d: Date): Date {
 }
 
 export function formatDue(d: Date, now = new Date()): string {
-  const time = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+  const time = formatClock(d)
   const diff = Math.round((startOfDay(d).getTime() - startOfDay(now).getTime()) / 86_400_000)
   if (diff === 0) return `heute ${time}`
   if (diff === 1) return `morgen ${time}`
   if (diff === 2) return `übermorgen ${time}`
   return `${d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })} ${time}`
+}
+
+export function formatClock(d: Date): string {
+  const h = d.getHours()
+  const m = d.getMinutes()
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
 function atHours(base: Date, h: number, m: number): Date {

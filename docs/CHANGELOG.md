@@ -5,6 +5,35 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `16.0.0` — Reel-UI Meilenstein (Sprints 242–248) — *CODE*
+
+Sideload **`16.0.0`** (versionCode `160000`).
+
+### 242 — Lage Hotfix
+- Handy **chat-first**: Composer immer sichtbar, kein `lageScene`-Blackscreen.
+- Suche **Fernseher** → Tab Geräte; Globe **Niederlande** via Country-Gazetteer.
+- Chat-Padding unter floating Composer.
+
+### 243 — JarvisSwitch
+- Reel-Schalter: `JarvisSwitch` + Slide-Style für alle Settings-Toggles.
+
+### 244 — Light/Dark Theme
+- `ui_theme`: dark | light | system; Arc-Wipe-Transition.
+
+### 245 — Kalender Reel
+- Monats-Swipe, FAB „＋ Termin“, Bottom-Sheet, Tages-Vorschau.
+
+### 246 — Sprachmodus
+- STT Silence 1100 ms (Voice); `inuten`→Minuten; Edge Timeout 1800 ms.
+
+### 247 — Antwort-Qualität
+- Smalltalk „naja wie gehts“; Timer-Format `HH:MM` ohne Leerzeichen.
+
+### 248 — Einstellungs-Suche v2
+- Feld-Index, Synonyme, Tab-Sprung + Highlight-Ring.
+
+Quelle: [`65-next.md`](./65-next.md), [`TEST-16.0.0.md`](./TEST-16.0.0.md).
+
 ## `15.3.1` — Blackscreen nach Kugel — *CODE*
 
 - **Ursache:** `hud_force` blieb nach Kugel/Lage gespeichert; Handy versteckte Chat + Composer dauerhaft.

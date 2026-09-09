@@ -76,6 +76,7 @@ import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate'
 import { lageSessionActive, setLageSession } from './engine/lage-session'
+import { resolveUiTheme } from './fx/theme-transition'
 import { DebugChatDock } from './ui/DebugChatDock'
 import {
   IconCal,
@@ -383,6 +384,11 @@ function App() {
   useEffect(() => {
     warmCloud()
   }, [])
+
+  useEffect(() => {
+    const s = settings || loadSettings()
+    document.documentElement.dataset.theme = resolveUiTheme(s.ui_theme)
+  }, [settings?.ui_theme])
 
   useEffect(() => {
     const unlock = () => {
@@ -1420,7 +1426,7 @@ function App() {
   const lageOn = lageWide
     ? !liveHud.hud_hidden
     : Boolean(liveHud.hud_force) && lageSessionActive()
-  const lageScene = lageOn && !lageWide
+  const lageScene = false
   const lageAmber = liveHud.hud_accent === 'amber'
   const dockId = settingsPanelOpen
     ? 'settings'

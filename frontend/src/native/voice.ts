@@ -586,7 +586,7 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
     const arm = (text: string) => {
       window.clearTimeout(timer)
       if (!text.trim()) return
-      timer = window.setTimeout(() => settle(text), silenceMsFor(text))
+      timer = window.setTimeout(() => settle(text), silenceMsFor(text, true))
     }
     const settle = (text: string) => {
       if (settled) return

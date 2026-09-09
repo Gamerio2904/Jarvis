@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
 import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar'
 import { formatDue, startOfDay } from '../engine/remind-parse'
 import { listEvents, listReminders, type CalendarEvent, type Reminder } from '../engine/store'
@@ -17,6 +17,11 @@ function monthCells(year: number, month: number): Array<Date | null> {
   return cells
 }
 
+function previewForDay(events: CalendarEvent[], day: Date): string {
+  const hit = events.find((e) => sameDay(new Date(e.start_at), day))
+  return hit ? hit.title.slice(0, 12) : ''
+}
+
 export function CalendarView({ onClose, leaving }: { onClose: () => void; leaving?: boolean }) {
   const today = startOfDay(new Date())
   const [cursor, setCursor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1))
@@ -30,6 +35,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [err, setErr] = useState<string | null>(null)
   const [yearView, setYearView] = useState(false)
   const [yearMarks, setYearMarks] = useState<Set<string>>(new Set())
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const swipeRef = useRef<{ x: number; y: number } | null>(null)
 
   const year = cursor.getFullYear()
   const month = cursor.getMonth()
@@ -68,6 +75,24 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const dayEvents = events.filter((e) => sameDay(new Date(e.start_at), selected))
   const dayRems = reminders.filter((r) => sameDay(new Date(r.due_at), selected))
 
+  function shiftMonth(delta: number) {
+    setCursor(new Date(year, month + delta, 1))
+  }
+
+  function onGridPointerDown(e: PointerEvent) {
+    swipeRef.current = { x: e.clientX, y: e.clientY }
+  }
+
+  function onGridPointerUp(e: PointerEvent) {
+    const start = swipeRef.current
+    swipeRef.current = null
+    if (!start || yearView) return
+    const dx = e.clientX - start.x
+    const dy = e.clientY - start.y
+    if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return
+    shiftMonth(dx < 0 ? 1 : -1)
+  }
+
   async function onAdd() {
     const name = title.trim()
     if (!name || busy) return
@@ -79,6 +104,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       start.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0)
       await createEventFromGui({ title: name, start })
       setTitle('')
+      setSheetOpen(false)
       await reload()
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Termin fehlgeschlagen')
@@ -105,7 +131,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       <header className="cal-head">
         <div>
           <h2>Kalender</h2>
-          <p>Nur auf diesem Handy. Kein Google-Login.</p>
+          <p>Wischen = Monat · FAB = Termin</p>
         </div>
         <div className="cal-head-actions">
           <button type="button" className="ghost-btn cal-toolbar-btn" onClick={() => setYearView((v) => !v)}>
@@ -171,30 +197,41 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           ))}
         </div>
       ) : (
-      <div className="cal-grid" role="grid" aria-label="Monat">
-        {WEEK.map((w) => (
-          <div key={w} className="cal-dow">
-            {w}
-          </div>
-        ))}
-        {cells.map((d, i) => {
-          if (!d) return <div key={`e-${i}`} className="cal-cell empty" />
-          const key = isoDay(d)
-          const isSel = sameDay(d, selected)
-          const isToday = sameDay(d, today)
-          return (
-            <button
-              key={key}
-              type="button"
-              className={`cal-cell${isSel ? ' sel' : ''}${isToday ? ' today' : ''}`}
-              onClick={() => setSelected(d)}
-            >
-              <span>{d.getDate()}</span>
-              {marks.has(key) ? <i className="cal-dot" /> : null}
-            </button>
-          )
-        })}
-      </div>
+        <div
+          className="cal-grid cal-grid-swipe"
+          role="grid"
+          aria-label="Monat"
+          onPointerDown={onGridPointerDown}
+          onPointerUp={onGridPointerUp}
+          onPointerCancel={() => {
+            swipeRef.current = null
+          }}
+        >
+          {WEEK.map((w) => (
+            <div key={w} className="cal-dow">
+              {w}
+            </div>
+          ))}
+          {cells.map((d, i) => {
+            if (!d) return <div key={`e-${i}`} className="cal-cell empty" />
+            const key = isoDay(d)
+            const isSel = sameDay(d, selected)
+            const isToday = sameDay(d, today)
+            const preview = previewForDay(events, d)
+            return (
+              <button
+                key={key}
+                type="button"
+                className={`cal-cell${isSel ? ' sel' : ''}${isToday ? ' today' : ''}${marks.has(key) ? ' has-mark' : ''}`}
+                onClick={() => setSelected(d)}
+              >
+                <span className="cal-day-num">{d.getDate()}</span>
+                {marks.has(key) ? <i className="cal-dot" /> : null}
+                {preview ? <span className="cal-preview">{preview}</span> : null}
+              </button>
+            )
+          })}
+        </div>
       )}
 
       <section className="cal-day">
@@ -226,7 +263,23 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             ))}
           </ul>
         )}
+        <p className="settings-hint">Oder im Chat: „Termin morgen 15 Uhr Zahnarzt“.</p>
+      </section>
 
+      <button
+        type="button"
+        className="cal-fab"
+        aria-label="Termin anlegen"
+        onClick={() => setSheetOpen(true)}
+      >
+        ＋ Termin
+      </button>
+
+      {sheetOpen ? (
+        <div className="cal-sheet-backdrop" onClick={() => setSheetOpen(false)} aria-hidden />
+      ) : null}
+      <div className={`cal-sheet${sheetOpen ? ' is-open' : ''}`} role="dialog" aria-label="Termin anlegen">
+        <h3>Termin anlegen</h3>
         <form
           className="cal-form"
           onSubmit={(e) => {
@@ -237,17 +290,22 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Neuer Termin"
+            placeholder="Titel"
             disabled={busy}
+            autoFocus
           />
           <input type="time" value={time} onChange={(e) => setTime(e.target.value)} disabled={busy} />
-          <button type="submit" className="cal-add-btn" disabled={busy || !title.trim()}>
-            Anlegen
-          </button>
+          <div className="cal-sheet-actions">
+            <button type="button" className="ghost-btn" disabled={busy} onClick={() => setSheetOpen(false)}>
+              Abbrechen
+            </button>
+            <button type="submit" className="cal-add-btn" disabled={busy || !title.trim()}>
+              Speichern
+            </button>
+          </div>
         </form>
         {err ? <p className="settings-hint">{err}</p> : null}
-        <p className="settings-hint">Oder im Chat: „Termin morgen 15 Uhr Zahnarzt“ / „erstell einen Termin für den 5.9. 2026, 15:00 Uhr Zahnarzt“.</p>
-      </section>
+      </div>
     </div>
   )
 }

@@ -1,3 +1,5 @@
+import { searchSettingsFields, searchSuggestions, type SettingsSearchHit } from './settings-search-index.ts'
+
 /** Acht Reiter. Alte Topic-IDs bleiben Deep-Links und landen auf dem neuen Tab. */
 
 export type SettingsTab =
@@ -135,9 +137,11 @@ export function filterTopics(q: string): SettingsTab[] {
   if (/key|gemini|groq|fred|omdb|tanke|spotify|aiza|gsk|carto|karte|carplay/.test(n) && !hits.includes('keys')) {
     hits.unshift('keys')
   }
-  if (/steck|dose|tv|pc|ventilator|presence|fenster|hirn-gerät|qr/.test(n) && !hits.includes('geraete')) {
+  if (/steck|dose|tv|fernseh|samsung|tizen|hollywood|pc|ventilator|presence|fenster|hirn-gerät|qr/.test(n) && !hits.includes('geraete')) {
     hits.push('geraete')
   }
+  if (/kalender|termin/.test(n) && !hits.includes('alltag')) hits.push('alltag')
+  if (/timer|wecker/.test(n) && !hits.includes('alltag')) hits.push('alltag')
   if (/lösch|gefahr|hausstand|export|fachwissen|pack/.test(n) && !hits.includes('daten')) hits.push('daten')
   if (/wake|hören|stimme|piper|vad|onnx|kokoro/.test(n) && !hits.includes('stimme')) hits.push('stimme')
   if (/preis|research|netz|suche|e5|rerank/.test(n) && !hits.includes('hirn')) hits.push('hirn')
@@ -147,5 +151,22 @@ export function filterTopics(q: string): SettingsTab[] {
   if (/\bamazon\b/.test(n) && !hits.includes('geraete')) hits.push('geraete')
   if (/lage|kugel|körper|ton|lage immer/.test(n) && !hits.includes('lage')) hits.push('lage')
   if (/debug|test|probe|kopier|v[1-9]/.test(n) && !hits.includes('tests')) hits.push('tests')
+  if (/hell|dunkel|dark|light|theme|modus/.test(n) && !hits.includes('lage')) hits.push('lage')
+  for (const row of searchSettingsFields(q)) {
+    if (!hits.includes(row.tab)) hits.push(row.tab)
+  }
   return hits
+}
+
+export function settingsSearchHits(q: string): SettingsSearchHit[] {
+  return searchSettingsFields(q)
+}
+
+export function settingsSearchSuggestions(q: string): string[] {
+  return searchSuggestions(q)
+}
+
+export function settingsHighlightField(q: string): SettingsSearchHit | null {
+  const hits = searchSettingsFields(q)
+  return hits[0] || null
 }
