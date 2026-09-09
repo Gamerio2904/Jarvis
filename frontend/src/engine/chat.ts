@@ -8,8 +8,6 @@ import { greetingReply, parseGreeting } from './greeting.ts'
 import { memoryBlock } from './memory.ts'
 import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
-import { parseHudIntent } from './hud-parse.ts'
-import { parseTimerIntent } from './timer-parse.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
 import { rewriteFollowUp } from './last-step.ts'
 import {
@@ -83,6 +81,7 @@ import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal.ts'
 import { type ToolMeta } from './tools.ts'
 import { routeRegistry, type RouteHit } from './registry.ts'
 import { runDirectorTurn } from './director.ts'
+import { pickRouteFromCtx } from './route-pick.ts'
 import { runBrainOrchestrator } from './brain-orchestrator.ts'
 import { getLastUserFacts, getPolicyAsk } from './agents/trace-store.ts'
 import type { TurnBrainCtx } from './brain-tasks.ts'
@@ -328,6 +327,19 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   return loadSettings().agent_network_v2
     ? (await runDirectorTurn(conversationId, content)).hit
     : routeRegistry(conversationId, content)
+}
+
+/** Gibt es für diese Äußerung überhaupt einen Agenten? */
+function deterministicRoute(ask: string): string | null {
+  const s = loadSettings()
+  return pickRouteFromCtx({
+    conversationId: 'know',
+    text: ask,
+    lastTool: (s.last_step_tool || '').trim(),
+    lastMedium: (s.last_medium || '').trim(),
+    inDrive: Boolean(s.drive_mode),
+    lastPlace: s.last_place || '',
+  })
 }
 
 function lastStepHint(): string {
@@ -694,8 +706,12 @@ export async function streamChat(
     const mem = await listMemory()
     const hits = await retrieve(ask)
     const packs = await listKnowledgePacks().catch(() => [])
-    const skipKnow = Boolean(parseHudIntent(ask) || parseTimerIntent(ask) || /^\s*(?:lage|wo\s+ist|öffne)/i.test(ask))
-    const know = skipKnow ? '' : knowledgeBlock(packs, ask)
+    // Fachwissen gehört nur in eine Frage, für die es keinen Agenten gibt.
+    // Erreicht eine Äußerung mit klarem Parser-Treffer trotzdem das Modell,
+    // hat der Agent abgelehnt — dann ist Fachwissen erst recht die falsche
+    // Antwort. Vorher stand hier eine Liste einzelner Muster; die musste bei
+    // jedem neuen Agenten nachgezogen werden.
+    const know = deterministicRoute(ask) ? '' : knowledgeBlock(packs, ask)
     let wantSearch = Boolean((geminiReady() && live) || accepted)
     let research: ResearchMeta | undefined
     let acc = ''

@@ -109,4 +109,45 @@ try {
   news.execute = realNews
 }
 
+// --- Fachwissen sickert nicht in fremde Fragen --------------------------
+// Gemeldet war „die Antworten ergeben keinen Sinn": ein Fachwissen-Paket
+// landete im Prompt für Kugel-, Timer- und Lautstärke-Fragen. Die Sperre ist
+// jetzt strukturell — gibt es einen Agenten, gibt es kein Fachwissen.
+const { retrievePacks } = await import('../src/engine/knowledge-retrieve.ts')
+
+const pack = {
+  id: 'p1',
+  topic: 'tokio-buero',
+  title: 'Büro Tokio',
+  aliases: ['Tokio', 'Chefin'],
+  summary: 'Das Büro in Tokio.',
+  claims: [
+    { id: 'c1', text: 'Sabine Busse leitet das Büro in Tokio.', source_urls: [], user_ok: true },
+    { id: 'c2', text: 'Das Büro hat 40 Plätze.', source_urls: [], user_ok: true },
+  ],
+  sources: [],
+  origin: 'user',
+  taught_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  user_ok: true,
+}
+
+const { pickRoute } = await import('../src/engine/route-pick.ts')
+const { knowledgeBlock } = await import('../src/engine/knowledge.ts')
+
+// Direkt gefragt darf das Paket kommen — sonst wäre Fachwissen nutzlos.
+assert.equal(retrievePacks('Was steht bei uns zu Tokio?', [pack]).length, 1)
+assert.ok(knowledgeBlock([pack], 'Was steht bei uns zu Tokio?').includes('Tokio'))
+assert.equal(pickRoute('Was steht bei uns zu Tokio?'), 'pack', 'und landet beim Fachwissen-Agenten')
+
+// Die Sperre in chat.ts lautet: gibt es einen Agenten, gibt es kein
+// Fachwissen im Prompt. Diese Befehle müssen also alle einen Agenten haben.
+for (const ask of ['Öffne die Weltkugel', 'Timer 5 Minuten', 'Lage an', 'Wo liegt Tokio', 'Lautstärke 50']) {
+  assert.ok(pickRoute(ask), `${JSON.stringify(ask)} braucht einen Agenten, sonst greift die Sperre nicht`)
+}
+
+// Ein Paket aus einem älteren Schema darf den Prompt-Bau nicht werfen.
+const legacy = { ...pack, claims: undefined }
+assert.equal(knowledgeBlock([legacy], 'Was steht bei uns zu Tokio?'), '', 'altes Paket wirft nicht')
+
 console.log(`test:turn-e2e ok — Timer steht, Kugel offen, Lautstärke ohne Rückfrage (${APP_VERSION})`)
