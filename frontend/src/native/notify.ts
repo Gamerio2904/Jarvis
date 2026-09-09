@@ -21,20 +21,44 @@ type NativeNotify = {
 
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeNotify>('JarvisNotify') : null
 
-const browserTimers = new Map<number, number>()
+const browserTimers = new Map<number, ReturnType<typeof setTimeout>>()
 const firedIds = new Set<number>()
 
-function armJsFallback(id: number, atMs: number, title: string, body: string): void {
-  if (typeof window === 'undefined') return
+/** setTimeout kippt jenseits von ~24 Tagen in einen sofortigen Lauf. */
+const MAX_TIMEOUT_MS = 2_147_000_000
+
+/**
+ * Auf Android ist der native Alarm die Wahrheit; der In-App-Timer deckt nur die
+ * Minuten ab, in denen die App vorne steht. Im Browser gibt es nichts anderes,
+ * dort trägt er die ganze Frist.
+ */
+function inAppWindowMs(): number {
+  return native ? 15 * 60_000 : MAX_TIMEOUT_MS
+}
+
+function clearInApp(id: number): void {
+  const handle = browserTimers.get(id)
+  if (handle !== undefined) clearTimeout(handle)
+  browserTimers.delete(id)
+}
+
+/**
+ * Ein Timer im laufenden Fenster. Er weckt `jarvis-timer-fire`, damit der Chip
+ * im Composer reagiert — vorher überschrieb der Web-Zweig diesen Timer sofort
+ * mit einem stillen zweiten, und das Ereignis kam dort nie an.
+ */
+function armInAppTimer(id: number, atMs: number, title: string, body: string): void {
   const wait = atMs - Date.now()
-  if (wait < 800 || wait > 15 * 60_000) return
-  if (browserTimers.has(id)) window.clearTimeout(browserTimers.get(id))
-  const handle = window.setTimeout(() => {
+  if (wait < 800 || wait > inAppWindowMs()) return
+  clearInApp(id)
+  const handle = setTimeout(() => {
     browserTimers.delete(id)
     if (firedIds.has(id)) return
     firedIds.add(id)
     void fireNow(title, body)
-    window.dispatchEvent(new CustomEvent('jarvis-timer-fire', { detail: { id, title, body } }))
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('jarvis-timer-fire', { detail: { id, title, body } }))
+    }
   }, wait)
   browserTimers.set(id, handle)
 }
@@ -77,7 +101,9 @@ export async function scheduleNotify(opts: {
   say?: string
 }): Promise<{ ok: boolean; message?: string }> {
   const atMs = opts.at.getTime()
-  armJsFallback(opts.id, atMs, opts.title, opts.body)
+  if (!Number.isFinite(atMs)) return { ok: false, message: 'Ungültige Zeit.' }
+  firedIds.delete(opts.id)
+  armInAppTimer(opts.id, atMs, opts.title, opts.body)
   if (native) {
     try {
       return await native.schedule({
@@ -96,31 +122,22 @@ export async function scheduleNotify(opts: {
     }
   }
   if (atMs <= Date.now() + 5_000) {
+    firedIds.add(opts.id)
     return fireNow(opts.title, opts.body)
   }
-  if (browserTimers.has(opts.id)) window.clearTimeout(browserTimers.get(opts.id))
-  const wait = Math.min(atMs - Date.now(), 2_147_000_000)
-  const handle = window.setTimeout(() => {
-    browserTimers.delete(opts.id)
-    void fireNow(opts.title, opts.body)
-  }, wait)
-  browserTimers.set(opts.id, handle)
-  return { ok: true }
+  // `armInAppTimer` hat die Frist schon übernommen.
+  return { ok: browserTimers.has(opts.id), message: browserTimers.has(opts.id) ? undefined : 'Frist zu lang für die App.' }
 }
 
 export async function cancelNotify(id: number): Promise<void> {
-  if (native) {
-    try {
-      await native.cancel({ id })
-    } catch {
-      /* ignore */
-    }
-    return
-  }
-  const handle = browserTimers.get(id)
-  if (handle) {
-    window.clearTimeout(handle)
-    browserTimers.delete(id)
+  // Immer aufräumen: auf Android laufen nativer Alarm und In-App-Timer parallel.
+  clearInApp(id)
+  firedIds.delete(id)
+  if (!native) return
+  try {
+    await native.cancel({ id })
+  } catch {
+    /* ignore */
   }
 }
 

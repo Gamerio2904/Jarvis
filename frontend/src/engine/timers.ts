@@ -27,14 +27,27 @@ export async function handleTimers(
       conversationId,
       kind: 'timer',
     })
-    const perm = await requestNotifyPermission()
-    const scheduled = await scheduleNotify({
-      id: notifyIdFromKey(row.id),
-      ...timerAlarmFields(row.title),
-      at: intent.due,
-      alarm: true,
-    })
-    await syncGlance()
+    // Der Timer steht bereits in der Liste. Ein Fehler in der Benachrichtigung
+    // darf die Bestätigung nicht verschlucken — sonst antwortet am Ende das
+    // Modell, und der Nutzer erfährt nie, dass der Timer läuft.
+    let perm = false
+    let scheduled: { ok: boolean } = { ok: false }
+    try {
+      perm = await requestNotifyPermission()
+      scheduled = await scheduleNotify({
+        id: notifyIdFromKey(row.id),
+        ...timerAlarmFields(row.title),
+        at: intent.due,
+        alarm: true,
+      })
+    } catch {
+      scheduled = { ok: false }
+    }
+    try {
+      await syncGlance()
+    } catch {
+      /* Glance ist Zierde, kein Timer */
+    }
     const until = formatClock(intent.due)
     const ping = perm && scheduled.ok
       ? ''
