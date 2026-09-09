@@ -39,6 +39,9 @@ Verbliebene Punkte sind bewusst später oder optional (Encryption, VPN, …). Ha
 | ID | Frage | Prio | Status | Entscheidung |
 |----|-------|------|--------|--------------|
 | Q1–Q4, Q6–Q8, Q30–Q31 | Persona-Kern | P0/P1 | entschieden | `07-persona.md` |
+| Q32 | Jarvis über Alexa einkaufen lassen? | P3 | entschieden | **Nein.** Amazon-Cloud, keine lokale Kauf-API. Parking. Siehe Entscheidungsprotokoll. |
+| Q33 | Jarvis auf Echo Show 5 (3. Gen.) / Amazon-Bildschirm? | P3 | entschieden | **Nein.** Keine APK-Laufzeit, kein Jarvis-Display. Parking. Siehe Entscheidungsprotokoll. |
+| Q34 | Alexa-artige Alternative (ohne Amazon)? | P3 | entschieden | **Ja, später lokal.** Festes Android-Display + Stimme (TTS, dann STT/Weckwort). Nicht Echo, nicht Nest. Siehe Entscheidungsprotokoll. |
 | Q5 | Stil-Beispiele | P0 | entschieden | Optionen gewählt; **grobe Vorgabe**, Anti-Template Pflicht |
 
 ## B. Privatsphäre & Sicherheit
