@@ -75,6 +75,7 @@ import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestri
 import { bindChromeFx, prefersReducedMotion } from './fx'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
 import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate'
+import { lageSessionActive, setLageSession } from './engine/lage-session'
 import { DebugChatDock } from './ui/DebugChatDock'
 import {
   IconCal,
@@ -1416,7 +1417,9 @@ function App() {
   const calendarLayer = useOverlay(calendarOpen)
   const voiceLayer = useOverlay(voiceOpen)
   const liveHud = settings || loadSettings()
-  const lageOn = Boolean(liveHud.hud_force) || (lageWide && !liveHud.hud_hidden)
+  const lageOn = lageWide
+    ? !liveHud.hud_hidden
+    : Boolean(liveHud.hud_force) && lageSessionActive()
   const lageScene = lageOn && !lageWide
   const lageAmber = liveHud.hud_accent === 'amber'
   const dockId = settingsPanelOpen
@@ -1444,6 +1447,8 @@ function App() {
       closeSheet('settings')
       closeSheet('calendar')
       closeSheet('voice')
+      setLageSession(false)
+      void patchSettings({ hud_force: false, hud_hidden: true }).then((s) => setSettings(s))
       return
     }
     if (id === 'lage') {
@@ -1453,6 +1458,7 @@ function App() {
       closeSheet('settings')
       closeSheet('calendar')
       closeSheet('voice')
+      setLageSession(true)
       void patchSettings({ hud_force: true, hud_hidden: false }).then((s) => setSettings(s))
       return
     }

@@ -2,7 +2,7 @@ import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 
-export const APP_VERSION = '15.3.0'
+export const APP_VERSION = '15.3.1'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -439,7 +439,14 @@ export function loadSettings(): Settings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY)
     if (!raw) return { ...DEFAULT_SETTINGS }
-    return { ...DEFAULT_SETTINGS, ...JSON.parse(raw), version: APP_VERSION }
+    const prev = JSON.parse(raw) as Partial<Settings>
+    const next = { ...DEFAULT_SETTINGS, ...prev, version: APP_VERSION }
+    // 15.3.1: Kugel/Lage trap — hud_force without session left phone on black Chat-less screen
+    if (prev.version !== APP_VERSION && prev.hud_force) {
+      next.hud_force = false
+      next.hud_hidden = true
+    }
+    return next
   } catch {
     return { ...DEFAULT_SETTINGS }
   }

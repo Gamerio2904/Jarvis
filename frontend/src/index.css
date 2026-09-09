@@ -4703,11 +4703,20 @@ button.linkish {
     min-height: 0;
     overflow: hidden;
   }
+  .main.is-lage-scene .lage.is-compact .globe-wrap {
+    flex: 1 1 auto;
+    min-height: min(52vh, calc(100dvh - 260px));
+    max-height: none;
+    width: 100%;
+    align-self: stretch;
+  }
   .main.is-lage-scene .messages {
     display: none;
   }
   .lage.is-compact .lage-split {
     grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
   }
   .lage.is-compact .body-schema,
   .lage.is-compact .globe-wrap,

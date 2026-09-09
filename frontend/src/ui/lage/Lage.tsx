@@ -28,6 +28,7 @@ import { CITY_FLY_ZOOM } from '../../engine/globe-gibs'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion'
 import { loadSettings, saveSettings, type Message } from '../../engine/store'
 import { ensureDeviceLocation } from '../../native/geo'
+import { setLageSession } from '../../engine/lage-session'
 import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour'
 import { decodeHtml } from '../../engine/html-text'
 
@@ -150,6 +151,7 @@ export function Lage({
   }, [view, tourOn, reduced, onHudChange])
 
   function setView(next: HudView) {
+    setLageSession(true)
     saveSettings({ hud_view: next, hud_force: true, hud_hidden: false })
     onHudChange?.()
   }
@@ -200,6 +202,7 @@ export function Lage({
             type="button"
             className="lage-tab"
             onClick={() => {
+              setLageSession(false)
               saveSettings({ hud_force: false, hud_hidden: true })
               onHudChange?.()
             }}

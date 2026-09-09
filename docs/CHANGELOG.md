@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `15.3.1` — Blackscreen nach Kugel — *CODE*
+
+- **Ursache:** `hud_force` blieb nach Kugel/Lage gespeichert; Handy versteckte Chat + Composer dauerhaft.
+- **Fix:** Lage auf dem Handy nur in der Session (`lage-session.ts`); Neustart → Chat.
+- **Chat-Tab** setzt `hud_force` zurück.
+- **Migration:** Update von 15.3.0 setzt hängendes `hud_force` zurück.
+
 ## `15.3.0` — PC-Dashboard + Lage Phase-2 — *CODE*
 
 Sprints **240–241**. Sideload **`15.3.0`** (versionCode `150300`).
