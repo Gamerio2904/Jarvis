@@ -109,6 +109,22 @@ try {
   news.execute = realNews
 }
 
+// --- Kaputte Einstellungen werden nicht still überschrieben --------------
+{
+  const key = 'jarvis_settings_v13'
+  const good = mem.get(key)
+  mem.set(key, '{kaputt')
+  const fallback = loadSettings()
+  assert.equal(fallback.last_place, '', 'kaputter Eintrag liest die Defaults')
+  assert.equal(mem.get(`${key}.broken`), '{kaputt', 'die Rohdaten sind zur Seite gelegt')
+  mem.delete(`${key}.broken`)
+  // Ein Array ist auch kein gültiges Objekt.
+  mem.set(key, '["a"]')
+  assert.equal(loadSettings().last_place, '')
+  assert.equal(mem.get(`${key}.broken`), '["a"]')
+  mem.set(key, good)
+}
+
 // --- Fachwissen sickert nicht in fremde Fragen --------------------------
 // Gemeldet war „die Antworten ergeben keinen Sinn": ein Fachwissen-Paket
 // landete im Prompt für Kugel-, Timer- und Lautstärke-Fragen. Die Sperre ist
