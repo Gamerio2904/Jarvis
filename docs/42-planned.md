@@ -9,32 +9,34 @@ Hirn = Handy. PC = Werkzeug. **Heute (`16.1.1`):** Groq primär → Gemini Spezi
 ## Pull-Reihenfolge
 
 1. **`17.0.0` messbar und unterbrechbar** [`68-next.md`](./68-next.md) — Sprints **249–259**, geplant aus [`67-upgrades.md`](./67-upgrades.md). Reihenfolge: erst messen (249–250), dann das Billige (251–252), dann Sprache (253–255), dann Struktur (256–259)
-2. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s
-4. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot
-5. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
-6. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could
-7. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-8. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
-9. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
-10. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
-11. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
-12. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
-13. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
+2. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
+3. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
+4. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
+5. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
+6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+7. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
+8. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
+9. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
+10. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
+11. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
+12. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
+
+**⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `16.1.1` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
 
 ## PLAN — Schiene `17.0.0` (Sprints 249–259)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
 | `16.2.0` | [249](./sprints/sprint-249.md) | Eval-Rahmen: `node:test`, eine Korpus-Quelle |
-| `16.3.0` | [250](./sprints/sprint-250.md) | Eval-Kennzahlen + Baseline |
-| `16.4.0` | [251](./sprints/sprint-251.md) | Sicherungsschalter + Agenten-Reste |
+| `16.3.0` | [250](./sprints/sprint-250.md) | Eval-Kennzahlen + Baseline, Prompt-Tokens, Sprach-A/B |
+| `16.4.0` | [251](./sprints/sprint-251.md) | Sicherungsschalter + **Kontingent** + Agenten-Reste |
 | `16.5.0` | [252](./sprints/sprint-252.md) | Lage-Entscheidung (PO) + Wecker-Nummer |
 | `16.6.0` | [253](./sprints/sprint-253.md) | Abbruch bis in die Handler |
 | `16.7.0` | [254](./sprints/sprint-254.md) | VAD statt Stillezähler |
 | `16.8.0` | [255](./sprints/sprint-255.md) | Satzende + Barge-in |
 | `16.9.0` | [256](./sprints/sprint-256.md) | Einstellungen aufteilen |
-| `16.10.0` | [257](./sprints/sprint-257.md) | Intent-Embeddings |
-| `16.11.0` | [258](./sprints/sprint-258.md) | Werkzeug-Vertrag |
+| `16.10.0` | [257](./sprints/sprint-257.md) | Intent-Embeddings (Trennschärfe-Tor zuerst) |
+| `16.11.0` | [258](./sprints/sprint-258.md) | Werkzeug-Vertrag, erzwungenes JSON, Schemas englisch |
 | **`17.0.0`** | [259](./sprints/sprint-259.md) | Telemetrie + **Meilenstein** |
 
 Frei kombinierbar: 251, 252, 256. Harte Ketten: 250 → 257, 253 + 254 → 255.

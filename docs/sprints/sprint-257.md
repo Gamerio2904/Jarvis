@@ -75,6 +75,26 @@ sprachlich dicht beieinander („mach das Licht an" / „mach den Fernseher an")
 und genau dort muss die Trennung sitzen. Diesen Ausgang vorher zu kennen kostet
 einen Nachmittag; ihn nachher zu merken kostet einen Sprint.
 
+## Verhältnis zum eingefrorenen `e5`-Paket
+
+`quality-pack.ts` führt bereits ein Could-Paket `e5` mit der Einstellung
+`e5_rerank` und der Datei `/onnx/e5-small.onnx`, eingefroren über
+[`sprint-176.md`](./sprint-176.md) und [`sprint-195.md`](./sprint-195.md). Das
+ist **nicht** dieser Sprint, und die beiden dürfen nicht vermischt werden:
+
+| | eingefrorenes `e5`-Paket | dieser Sprint |
+|---|---|---|
+| Zweck | Retrieve-Ergebnisse umsortieren | Absicht erkennen |
+| Berührt | `retrieve.ts` | `policy.ts` |
+| Regel dort | „nie der Tool-Router" | genau der Tool-Router |
+
+Der Satz „e5 nie der Tool-Router" aus `quality-pack.ts` bezieht sich auf das
+**Rerank**-Paket und ist eine Aussage über Retrieve, nicht über Intent. Dieser
+Sprint stellt die Frage neu — aber er muss sie neu stellen und darf sich nicht
+auf ein Paket berufen, dessen Won’t genau das Gegenteil sagt. Praktisch heißt
+das: eigene Einstellung, eigener Zentroid-Pfad, `e5_rerank` bleibt unberührt.
+Der Lademechanismus aus `quality-pack.ts` wird geteilt, die Semantik nicht.
+
 ## S257-10 — Die Präfixe sind nicht optional
 
 `multilingual-e5-small` ist mit `query: ` und `passage: ` als Präfix trainiert.

@@ -45,15 +45,15 @@ dann Sprache (253–255), dann Struktur (256–259).
 | Version | Sprint | Thema | Warum hier |
 |---------|--------|-------|------------|
 | `16.2.0` | 249 | Eval-Rahmen: `node:test`, eine Korpus-Quelle | Alle Fehler sichtbar statt nur der erste |
-| `16.3.0` | 250 | Eval-Kennzahlen + Baseline | Ohne Messwert ist 257 nicht bewertbar |
-| `16.4.0` | 251 | Sicherungsschalter + Agenten-Reste | 20 Zeilen, ohne Netz sofort spürbar |
+| `16.3.0` | 250 | Eval-Kennzahlen, Prompt-Tokens, Sprach-A/B | Ohne Messwert ist 257 nicht bewertbar |
+| `16.4.0` | 251 | Sicherungsschalter + Kontingent + Agenten-Reste | 20 Zeilen, ohne Netz und ohne Budget sofort spürbar |
 | `16.5.0` | 252 | Lage-Entscheidung + Wecker-Nummer | Zwei bekannte Reste, klein und abgeschlossen |
 | `16.6.0` | 253 | Abbruch bis in die Handler (`AbortSignal`) | Voraussetzung für Barge-in in 255 |
 | `16.7.0` | 254 | VAD statt Stillezähler (Stufe 1) | Die offene Beschwerde: abgehacktes Aufnehmen |
 | `16.8.0` | 255 | Semantisches Satzende + Barge-in (Stufe 2) | Baut auf 253 und 254 |
 | `16.9.0` | 256 | Einstellungen aufteilen, `zod`, Migration | Datenverlust-Risiko, unabhängig machbar |
-| `16.10.0` | 257 | Intent-Embeddings statt Konflikt-Tisch | Braucht 250 als Netz |
-| `16.11.0` | 258 | Werkzeug-Vertrag für das Modell | Größte Reichweite, größter Eingriff |
+| `16.10.0` | 257 | Intent-Embeddings, Trennschärfe-Tor zuerst | Braucht 250 als Netz |
+| `16.11.0` | 258 | Werkzeug-Vertrag, erzwungenes JSON, Schemas englisch | Größte Reichweite, größter Eingriff |
 | **`17.0.0`** | 259 | Traces als Telemetrie + **Meilenstein** | Abschluss; Sideload |
 
 `17.0.0` bedeutet: **Jarvis kann sich selbst messen und lässt sich
@@ -121,11 +121,14 @@ Markdown-Tabelle in die PR.
 
 Details: [`sprints/sprint-250.md`](./sprints/sprint-250.md)
 
-## 6. Sprint 251 — Sicherungsschalter + Agenten-Reste (`16.4.0`)
+## 6. Sprint 251 — Sicherungsschalter + Kontingent (`16.4.0`)
 
-Drei Fehlschläge in Folge → 60 s ehrliche Absage statt volles Budget. Dazu die
-zwei Agenten-Reste aus dem Audit: `identity` ohne Executor, und ein `verify`,
-das acht Module selbst machen und der Director nur im Kommentar behauptet.
+Drei Fehlschläge in Folge → 60 s ehrliche Absage statt volles Budget. Derselbe
+Schalter mit zweitem Auslöser für das **Kontingent** (§18): unter der Schwelle
+antwortet das lokale 0,5B, statt in `429` zu laufen. Dazu die zwei Agenten-Reste
+aus dem Audit — `identity` ohne Executor, und ein `verify`, das acht Module
+selbst machen und der Director nur im Kommentar behauptet — plus drei Funde am
+Groq-Pfad, die heute Requests verbrennen.
 
 Details: [`sprints/sprint-251.md`](./sprints/sprint-251.md)
 

@@ -181,15 +181,15 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 175 | [`sprint-175.md`](./sprint-175.md) | `9.10.2` | Piper offline TTS | **FREEZE** Could |
 | 176 | [`sprint-176.md`](./sprint-176.md) | `9.10.3` | Kokoro-Spike + e5-Rerank | **FREEZE** Could |
 | 177 | [`sprint-177.md`](./sprint-177.md) | `9.10.0` | Rest-Gold | **CODE** |
-| 178 | [`sprint-178.md`](./sprint-178.md) | `9.10.0` | PO Handy: Katalog + Home-FGS | **PLAN** |
+| 178 | [`sprint-178.md`](./sprint-178.md) | `9.10.0` ⚠︎ | PO Handy: Katalog + Home-FGS | **PLAN** — Anker veraltet |
 | 179 | [`sprint-179.md`](./sprint-179.md) | `9.10.0` | Alltag Parser-Härte | **CODE** |
 | 180 | [`sprint-180.md`](./sprint-180.md) | `9.10.0` | FGS Native-Härte | **CODE** |
 | 181 | [`sprint-181.md`](./sprint-181.md) | `9.10.1`–`9.10.3` | Could-ONNX Freeze | **FREEZE** |
 | 182 | [`sprint-182.md`](./sprint-182.md) | `9.10.0` | Docs = Code | **CODE** |
-| 183 | [`sprint-183.md`](./sprint-183.md) | nach 178 | OEM-Akku | **PLAN** |
-| 184 | [`sprint-184.md`](./sprint-184.md) | nach Messung | Smalltalk-Cache verdrahten | **PLAN** Could |
-| 185 | [`sprint-185.md`](./sprint-185.md) | `8.0` Gerät | Alltag-Tore live | **PLAN** / PO |
-| 186 | [`sprint-186.md`](./sprint-186.md) | `9.9.3` | Findings 168 nur wenn rot | **PLAN** |
+| 183 | [`sprint-183.md`](./sprint-183.md) | nach 178 | OEM-Akku | **PLAN** — Anker veraltet |
+| 184 | [`sprint-184.md`](./sprint-184.md) | nach Messung | Smalltalk-Cache verdrahten | **PLAN** Could — Anker veraltet |
+| 185 | [`sprint-185.md`](./sprint-185.md) | `8.0` Gerät ⚠︎ | Alltag-Tore live | **PLAN** / PO — Anker veraltet |
+| 186 | [`sprint-186.md`](./sprint-186.md) | `9.9.3` ⚠︎ | Findings 168 nur wenn rot | **PLAN** — Anker veraltet |
 | 187 | [`sprint-187.md`](./sprint-187.md) | `10.0.0` | Semantisches Gedächtnis Leit | **CODE** |
 | 188 | [`sprint-188.md`](./sprint-188.md) | `10.10.0` | Memory-Schema + Hausstand | **CODE** |
 | 189 | [`sprint-189.md`](./sprint-189.md) | `10.20.0` | Memory Gate | **CODE** |
@@ -229,7 +229,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 223 | [`sprint-223.md`](./sprint-223.md) | `13.42.0` | Hören + Autokorrektur | **CODE** in `13.44.0` Must |
 | 224 | [`sprint-224.md`](./sprint-224.md) | `13.43.0` | Antworten + Tempo | **CODE** in `13.44.0` Must |
 | 225 | [`sprint-225.md`](./sprint-225.md) | `13.44.0` | Mund flüssig + Gold | **CODE** Must |
-| 226 | [`sprint-226.md`](./sprint-226.md) | `14.0.0` | Agenten-Netzwerk Leit | **PLAN** Must (Leit; Execute ab 227) |
+| 226 | [`sprint-226.md`](./sprint-226.md) | `14.0.0` | Agenten-Netzwerk Leit | **ÜBERHOLT** — Leit-Sprint ohne Code; die Schiene lief als 227–248, Ist-Stand in [`../66-agents-ist.md`](../66-agents-ist.md) |
 | 227 | [`sprint-227.md`](./sprint-227.md) | `14.1.0` | Unified Catalog | **CODE** in `15.1.0` Must |
 | 228 | [`sprint-228.md`](./sprint-228.md) | `14.2.0` | AgentBus | **CODE** in `15.1.0` Must |
 | 229 | [`sprint-229.md`](./sprint-229.md) | `14.3.0` | Director | **CODE** in `15.1.0` Must |
@@ -246,18 +246,20 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 240–241 | [`../64-next.md`](../64-next.md) | `15.3.0` | PC-Dashboard | **CODE** Must |
 | 242–248 | [`../65-next.md`](../65-next.md) | `16.0.0` | Reel-UI, Kalender, Lage, Einstellungs-Suche | **CODE** Must |
 | 249 | [`sprint-249.md`](./sprint-249.md) | `16.2.0` | Eval-Rahmen: `node:test`, eine Korpus-Quelle | **PLAN** Must |
-| 250 | [`sprint-250.md`](./sprint-250.md) | `16.3.0` | Eval-Kennzahlen + Baseline | **PLAN** Must |
-| 251 | [`sprint-251.md`](./sprint-251.md) | `16.4.0` | Sicherungsschalter + Agenten-Reste | **PLAN** Must |
+| 250 | [`sprint-250.md`](./sprint-250.md) | `16.3.0` | Eval-Kennzahlen + Baseline, Prompt-Tokens, Sprach-A/B | **PLAN** Must |
+| 251 | [`sprint-251.md`](./sprint-251.md) | `16.4.0` | Sicherungsschalter + **Kontingent** + Agenten-Reste | **PLAN** Must |
 | 252 | [`sprint-252.md`](./sprint-252.md) | `16.5.0` | Lage-Entscheidung + Wecker-Nummer | **PLAN** Must (PO) |
 | 253 | [`sprint-253.md`](./sprint-253.md) | `16.6.0` | Abbruch bis in die Handler (`AbortSignal`) | **PLAN** Must |
 | 254 | [`sprint-254.md`](./sprint-254.md) | `16.7.0` | VAD statt Stillezähler (Stufe 1) | **PLAN** Must |
 | 255 | [`sprint-255.md`](./sprint-255.md) | `16.8.0` | Semantisches Satzende + Barge-in | **PLAN** Must |
 | 256 | [`sprint-256.md`](./sprint-256.md) | `16.9.0` | Einstellungen aufteilen, `zod`, Migration | **PLAN** Must |
-| 257 | [`sprint-257.md`](./sprint-257.md) | `16.10.0` | Intent-Embeddings statt Konflikt-Tisch | **PLAN** Must |
-| 258 | [`sprint-258.md`](./sprint-258.md) | `16.11.0` | Werkzeug-Vertrag für das Modell | **PLAN** Should |
+| 257 | [`sprint-257.md`](./sprint-257.md) | `16.10.0` | Intent-Embeddings statt Konflikt-Tisch (Trennschärfe-Tor zuerst) | **PLAN** Must |
+| 258 | [`sprint-258.md`](./sprint-258.md) | `16.11.0` | Werkzeug-Vertrag, erzwungenes JSON, Schemas englisch | **PLAN** Should |
 | 259 | [`sprint-259.md`](./sprint-259.md) | **`17.0.0`** | Telemetrie + **Meilenstein** | **PLAN** Must |
 
 **Aktuell:** Code **`16.1.1`**. Sideload `16.1.1`, versionCode `160101`. Execute 227–248 **CODE**. Router-, Timer- und Agenten-Härtung: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-16.1.0.md`](../TEST-16.1.0.md).
+
+**⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `16.1.1`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `16.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
 **Nächste Schiene:** 249–259 → [`../68-next.md`](../68-next.md), Ziel `17.0.0` („messbar und unterbrechbar"). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen und Sprachentscheidung: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
 

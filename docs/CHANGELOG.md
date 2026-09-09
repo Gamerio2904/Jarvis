@@ -18,15 +18,15 @@ trotzdem kaputt — solange ein Korpus nur Ja/Nein ausgibt, ist Sprint 257
 | Version | Sprint | Thema |
 |---------|--------|-------|
 | `16.2.0` | 249 | Eval-Rahmen: `node:test`, eine Korpus-Quelle |
-| `16.3.0` | 250 | Eval-Kennzahlen + Baseline |
-| `16.4.0` | 251 | Sicherungsschalter + Agenten-Reste (`identity`, `verify`) |
+| `16.3.0` | 250 | Eval-Kennzahlen + Baseline, Prompt-Tokens, Sprach-A/B |
+| `16.4.0` | 251 | Sicherungsschalter + **Kontingent** + Agenten-Reste (`identity`, `verify`) |
 | `16.5.0` | 252 | Lage-Entscheidung (PO) + Wecker-Nummer gespeichert statt gehasht |
 | `16.6.0` | 253 | Abbruch bis in die Handler (`AbortSignal`) |
 | `16.7.0` | 254 | VAD statt Stillezähler (Silero, `onnxruntime-web`) |
 | `16.8.0` | 255 | Semantisches Satzende + Barge-in |
 | `16.9.0` | 256 | Einstellungen aufteilen, `zod`, benannte Migration |
-| `16.10.0` | 257 | Intent-Embeddings statt Konflikt-Tisch |
-| `16.11.0` | 258 | Werkzeug-Vertrag: Modell schlägt vor, Parser vollzieht |
+| `16.10.0` | 257 | Intent-Embeddings statt Konflikt-Tisch (Trennschärfe-Tor zuerst) |
+| `16.11.0` | 258 | Werkzeug-Vertrag: Modell schlägt vor, Parser vollzieht; JSON erzwungen |
 | **`17.0.0`** | 259 | Traces als Telemetrie + **Meilenstein**, Sideload |
 
 Frei kombinierbar: 251, 252, 256. Harte Ketten: 250 → 257, 253 + 254 → 255.
@@ -85,6 +85,39 @@ die verschiedener Agenten? Fällt er negativ aus — bei `tv` gegen `home` gut
 möglich — wird der Sprint geschlossen statt gebaut, mit dem Messwert als
 Begründung. Dazu S257-10: die `query:` / `passage:`-Präfixe von e5 sind nicht
 optional, und ihr Fehlen ist stumm.
+
+**Zwei Sprints griffen an bestehender Mechanik vorbei.** `quality-pack.ts`
+existiert und ist genau für opt-in-ONNX-Pakete gebaut: vier Could-Pakete
+(`smart_turn`, `piper`, `kokoro`, `e5`), je mit Wunsch-Einstellung,
+Datei-Prüfung und ehrlichem Text für „gewünscht, aber Datei fehlt".
+
+- **254** wollte Silero nach `public/vad/` legen und einen Schalter anlegen.
+  Beides gibt es schon: der Pfad ist `/onnx/`, und `vad_onnx` steht seit
+  Sprint 174 in `store.ts` und ist in `SettingsScreen.tsx` bedienbar. Jetzt
+  S254-9 bis S254-11: bestehenden Schalter verdrahten, über `quality-pack.ts`
+  laden, `PACK_FILES.smart_turn` auf die eine Silero-Datei kürzen (255 löst das
+  semantische Ende ohne `smart_turn_v3.onnx`, sonst meldet das Paket dauerhaft
+  „fehlt"). Wichtiger noch: **254 dreht ein dokumentiertes NO-GO um.**
+  Sprint 174 hat Silero abgelehnt, mit zwei Gründen — „keine Messung" ist durch
+  249/250 behoben, „keine 10 MB in der APK" gilt weiter und wird durch
+  Nachladen statt Bündeln beantwortet. Das steht jetzt im Sprint, statt
+  stillschweigend übergangen zu werden.
+- **257** benutzt e5, und ein eingefrorenes `e5`-Paket existiert bereits
+  (`e5_rerank`, Sprints 176/195) — mit dem Won’t „nie der Tool-Router", also
+  genau dem, was 257 vorhat. Der Satz gilt für **Rerank** in `retrieve.ts`, nicht
+  für Intent in `policy.ts`. Jetzt als Abgrenzungstabelle im Sprint: Ladeweg
+  geteilt, Semantik getrennt, `e5_rerank` bleibt unberührt.
+
+**Statuskorrekturen in der Sprint-Liste.** Beim Zusammenstellen aller offenen
+Sprints fielen zwei Falschangaben auf. Sprint **226** stand als offener
+`PLAN Must`, obwohl er ein reiner Leit-Sprint ohne Code war und seine
+Execute-Sprints 227–248 alle **CODE** sind — jetzt **ÜBERHOLT**, mit Verweis auf
+den Ist-Stand in `66-agents-ist.md` und dem Hinweis, dass die geplanten
+52 + 12 Agenten tatsächlich 60 wurden. Und **178, 183, 184, 185, 186** sind
+sachlich offen, nennen als Ziel aber `8.0` bis `9.10.0`, während der Code bei
+`16.1.1` steht; sie sind jetzt als „Anker veraltet" markiert und müssen vor dem
+Ziehen neu verankert werden — sonst prüft der PO eine App, die es nicht mehr
+gibt. Nebenbei sprang die Pull-Reihenfolge in `42-planned.md` von 2 auf 4.
 
 Kleinere Ergänzungen: **249** nimmt echte STT-Verhörer als eigenen Tag auf
 (S249-9) — der Korpus besteht heute aus getipptem Text, im Sprachmodus kommt
