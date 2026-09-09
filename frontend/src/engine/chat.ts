@@ -8,6 +8,8 @@ import { greetingReply, parseGreeting } from './greeting.ts'
 import { memoryBlock } from './memory'
 import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
+import { parseHudIntent } from './hud-parse.ts'
+import { parseTimerIntent } from './timer-parse.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
 import { rewriteFollowUp } from './last-step'
 import {
@@ -86,6 +88,7 @@ import { getLastUserFacts, getPolicyAsk } from './agents/trace-store.ts'
 import type { TurnBrainCtx } from './brain-tasks.ts'
 import { attachVariable, splitCloudPrompt } from './prompt-split.ts'
 import { finishLatency, markFirstToken, setLatencyPath, startLatency } from './latency.ts'
+import { formatClock } from './remind-parse.ts'
 import { askReply } from './policy.ts'
 
 export type StreamHandlers = {
@@ -397,7 +400,7 @@ function clockOf(iso?: string): string {
   if (!iso) return ''
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return iso
-  return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+  return formatClock(d)
 }
 
 async function rememberToolFromStore(tool: string): Promise<void> {
@@ -691,7 +694,8 @@ export async function streamChat(
     const mem = await listMemory()
     const hits = await retrieve(ask)
     const packs = await listKnowledgePacks().catch(() => [])
-    const know = knowledgeBlock(packs, ask)
+    const skipKnow = Boolean(parseHudIntent(ask) || parseTimerIntent(ask) || /^\s*(?:lage|wo\s+ist|öffne)/i.test(ask))
+    const know = skipKnow ? '' : knowledgeBlock(packs, ask)
     let wantSearch = Boolean((geminiReady() && live) || accepted)
     let research: ResearchMeta | undefined
     let acc = ''

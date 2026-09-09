@@ -1,17 +1,18 @@
 import { cleanTimerTitle } from './timer-announce.ts'
 import { expandZahlenworte } from './zahlenworte.ts'
+import { normalizeUtterance } from './utterance.ts'
 
 export type TimerIntent =
   | { kind: 'create'; title: string; due: Date; whenLabel: string; ms: number }
   | { kind: 'stop' }
   | { kind: 'list' }
 
-const UNIT = 'sekunden?|minuten?|stunden?'
+const UNIT = 'sekunden?|minuten?|inuten|stunden?'
 
 function relMs(n: number, unit: string): number {
   const u = unit.toLowerCase()
   if (u.startsWith('sek')) return n * 1000
-  if (u.startsWith('min')) return n * 60_000
+  if (u.startsWith('min') || u.startsWith('inu')) return n * 60_000
   return n * 3_600_000
 }
 
@@ -26,21 +27,25 @@ function titleOf(raw: string | undefined): string {
 }
 
 export function parseTimerIntent(text: string, now = new Date()): TimerIntent | null {
-  const t = expandZahlenworte(text.trim())
+  const t = normalizeUtterance(expandZahlenworte(text.trim()))
   if (!t || t.length > 160) return null
   if (/^(?:timer\s+(?:aus|stopp|stop|abbrechen)|stopp(?:e)?\s+(?:den\s+)?timer|timer\s+löschen)$/i.test(t)) {
     return { kind: 'stop' }
   }
-  if (/^(?:zeig(?:e)?\s+(?:mir\s+)?(?:den\s+|die\s+)?)?timer(?:s)?\s*\??$/i.test(t)) {
+  if (
+    /^(?:zeig(?:e)?\s+(?:mir\s+)?(?:den\s+|die\s+)?)?timer(?:s)?\s*\??$/i.test(t) ||
+    /^\s*wann\s+l[aä]uft\s+(?:der\s+)?timer(?:\s+ab)?\s*\??$/i.test(t) ||
+    /^\s*wie\s+lange\s+(?:l[aä]uft\s+)?(?:der\s+)?timer\s*\??$/i.test(t)
+  ) {
     return { kind: 'list' }
   }
   const a = new RegExp(
-    `^(?:(?:erstell(?:e)?|stell(?:e)?)\\s+(?:einen\\s+|den\\s+)?timer\\s+(?:auf\\s+|für\\s+)?|timer\\s+(?:auf\\s+|für\\s+)?)(\\d+)\\s+(${UNIT})(?:\\s+(?:für\\s+)?(.+))?$`,
+    `^(?:(?:erstell(?:e)?|stell(?:e)?)\\s+(?:einen\\s+|den\\s+)?timer\\s+(?:auf\\s+|für\\s+)?|timer\\s+(?:auf\\s+|für\\s+)?)(\\d+)\\s*(${UNIT})(?:\\s+(?:für\\s+)?(.+))?$`,
     'i',
   ).exec(t)
-  const b = new RegExp(`^(\\d+)\\s+(${UNIT})\\s+timer(?:\\s+(?:für\\s+)?(.+))?$`, 'i').exec(t)
+  const b = new RegExp(`^(\\d+)\\s*(${UNIT})\\s+timer(?:\\s+(?:für\\s+)?(.+))?$`, 'i').exec(t)
   const c = new RegExp(
-    `^(?:(?:erstell(?:e)?|stell(?:e)?)\\s+(?:einen\\s+|den\\s+)?)?timer\\s+für\\s+(.+?)\\s+(\\d+)\\s+(${UNIT})$`,
+    `^(?:(?:erstell(?:e)?|stell(?:e)?)\\s+(?:einen\\s+|den\\s+)?)?timer\\s+für\\s+(.+?)\\s+(\\d+)\\s*(${UNIT})$`,
     'i',
   ).exec(t)
   const m = a || b

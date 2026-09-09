@@ -3,7 +3,8 @@ import { loadPlugs } from './plug.ts'
 import { getDriveRoute } from './drive.ts'
 import { getSpotifyNow, pauseSpotify, resumeSpotify, spotifyLoggedIn } from './spotify.ts'
 import { readBattery } from '../native/device.ts'
-import { listEvents, listReminders, loadSettings, persistLastList, saveSettings } from './store.ts'
+import { listEvents, listReminders, loadSettings, persistLastList, saveSettings, type Settings } from './store.ts'
+import { setLageSession } from './lage-session.ts'
 import { formatDue } from './remind-parse.ts'
 import { loadFen } from './chess.ts'
 import type { ToolMeta } from './tools.ts'
@@ -46,14 +47,20 @@ export function setHudModule(id: HudId, on: boolean): HudId[] {
   return ordered
 }
 
+function openLagePatch(patch: Partial<Settings>): void {
+  saveSettings(patch)
+  const s = loadSettings()
+  setLageSession(Boolean(s.hud_force) && !s.hud_hidden)
+}
+
 export async function handleHud(
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const intent = parseHudIntent(text)
   if (!intent) return { handled: false }
   if (intent.kind === 'lage') {
-    saveSettings({ hud_force: intent.on, hud_hidden: !intent.on })
-    return pack(intent.on ? 'Lage an.' : 'Lage aus. Chat wieder voll.')
+    openLagePatch({ hud_force: intent.on, hud_hidden: !intent.on, hud_view: intent.on ? 'globe' : 'tiles' })
+    return pack(intent.on ? 'Lage an. Kugel ist offen.' : 'Lage aus. Chat wieder voll.')
   }
   if (intent.kind === 'accent') {
     saveSettings({ hud_accent: intent.amber ? 'amber' : 'green' })
@@ -69,14 +76,14 @@ export async function handleHud(
     return pack(`Kacheln: ${line}.`)
   }
   if (intent.kind === 'view') {
-    saveSettings(patchForHudView(intent.view))
+    openLagePatch(patchForHudView(intent.view))
     if (intent.view === 'tiles') clearTour()
     if (intent.view === 'body') return pack('Körper an. Schema in der Lage, Chat bleibt. Antippen startet kein Tool.')
     if (intent.view === 'globe') return pack('Kugel an. Erde in der Lage. Kein Live-Satellitenvideo.')
     return pack('Kugel aus. Lage zu, Chat wieder voll.')
   }
   if (intent.kind === 'organ') {
-    saveSettings({
+    openLagePatch({
       hud_view: 'body',
       hud_force: true,
       hud_hidden: false,
@@ -85,11 +92,11 @@ export async function handleHud(
     return pack(`${organLabel(intent.id)} in der Lage. Kein Tool gestartet.`)
   }
   if (intent.kind === 'unknown_place') {
-    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false })
     return pack(unknownPlaceLine(intent.asked))
   }
   if (intent.kind === 'look') {
-    saveSettings({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false })
     const s = loadSettings()
     const at = resolveLookTarget(s.last_globe_look || '', s.last_globe_focus || '')
     const lat = at?.lat ?? NaN
@@ -116,6 +123,7 @@ export async function handleHud(
       last_globe_focus: focusJson(place, CITY_FLY_ZOOM),
       last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: CITY_FLY_ZOOM }),
     })
+    setLageSession(true)
     const reply = await briefPlace(place)
     saveSettings({ last_globe_brief: reply.slice(0, 500) })
     return pack(reply)

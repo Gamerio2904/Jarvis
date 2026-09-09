@@ -1,6 +1,11 @@
 import { slugTopic } from './teach-parse.ts'
 import type { KnowledgePack } from './knowledge-types.ts'
 
+const PACK_STOP = new Set([
+  'ist', 'an', 'aus', 'die', 'der', 'das', 'den', 'dem', 'ein', 'eine',
+  'wo', 'wie', 'was', 'und', 'lage', 'welt', 'mir', 'dir', 'ich',
+])
+
 function tokens(s: string): string[] {
   return s
     .toLowerCase()
@@ -9,7 +14,7 @@ function tokens(s: string): string[] {
     .replace(/ü/g, 'ue')
     .replace(/ß/g, 'ss')
     .split(/[^a-z0-9]+/)
-    .filter((w) => w.length > 2)
+    .filter((w) => w.length > 3 && !PACK_STOP.has(w))
 }
 
 function packBlob(p: KnowledgePack): string {
@@ -30,8 +35,10 @@ export function packScore(ask: string, pack: KnowledgePack): number {
   return hit / Math.max(qt.length, 1)
 }
 
-/** Linear, Top 1 — selten 2 wenn beide matchen. */
 export function retrievePacks(ask: string, packs: KnowledgePack[]): KnowledgePack[] {
+  if (/^\s*(?:lage|tablet|hud)\s+(?:an|aus|ein|weg)\s*$/i.test(ask)) return []
+  if (/^\s*(?:wo\s+(?:liegt|ist)|öffne\s+(?:die\s+)?(?:weltkugel|kugel|globus))/i.test(ask)) return []
+  if (/\btimer\b/i.test(ask)) return []
   const pref = /(?:was\s+(?:trinke?|esse)\s+ich|welche\s+reisen|mag\s+ich)\b/i.test(ask)
   if (pref) return []
   const ranked = packs

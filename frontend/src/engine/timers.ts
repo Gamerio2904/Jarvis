@@ -8,6 +8,7 @@ import {
 } from './store'
 import { parseTimerIntent } from './timer-parse'
 import { timerAlarmFields, timerListLabel, timerSetLine, timerStopLine } from './timer-announce'
+import { formatClock } from './remind-parse'
 import type { ToolMeta } from './tools'
 
 export { parseTimerIntent } from './timer-parse'
@@ -34,12 +35,13 @@ export async function handleTimers(
       alarm: true,
     })
     await syncGlance()
+    const until = formatClock(intent.due)
     const ping = perm && scheduled.ok
       ? ''
-      : ' Benachrichtigung erlauben, sonst kein Hinweis.'
+      : ' Benachrichtigung erlauben, sonst kein Hinweis — der Timer läuft in der App trotzdem.'
     return {
       handled: true,
-      reply: `${timerSetLine(row.title, intent.whenLabel)}${ping}`,
+      reply: `${timerSetLine(row.title, intent.whenLabel)} Bis ${until} Uhr.${ping}`,
       tool: {
         tool_status: 'executed',
         tool: 'timer',

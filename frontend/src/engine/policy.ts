@@ -30,7 +30,7 @@ export function pickPolicy(cands: Candidate[]): PolicyPick {
 export function withCost(cands: Candidate[]): Candidate[] {
   return cands.map((c) => ({
     ...c,
-    score: Math.max(0, c.score - (COST[c.sideEffect] || 0)),
+    score: Math.max(SCORE_MIN, c.score - (COST[c.sideEffect] || 0)),
   }))
 }
 

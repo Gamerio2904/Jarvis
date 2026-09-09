@@ -48,6 +48,7 @@ import { decodeHtml } from './engine/html-text'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
 import { CalendarView } from './ui/Calendar'
+import { TimerChip } from './ui/TimerChip'
 import { PcDashboard } from './ui/PcDashboard'
 import { VoiceMode } from './ui/VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './ui/SettingsScreen'
@@ -371,6 +372,23 @@ function App() {
     if (action === 'settings') {
       openSettings(topic || 'allgemein')
     }
+  }
+
+  function applyHudTool(tool?: ToolMeta | null) {
+    if (!tool || tool.tool !== 'hud') return
+    const s = loadSettings()
+    if (s.hud_force && !s.hud_hidden) {
+      setLageSession(true)
+      setCalendarOpen(false)
+      setSettingsPanelOpen(false)
+      setVoiceOpen(false)
+      closeSheet('calendar')
+      closeSheet('settings')
+      closeSheet('voice')
+    } else {
+      setLageSession(false)
+    }
+    void refreshSettings()
   }
 
   useEffect(() => {
@@ -1171,6 +1189,7 @@ function App() {
             }
           }
           applyAppTool(payload.tool)
+          applyHudTool(payload.tool)
           if (driveCloseGenRef.current === closeGen) {
             if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
               if (payload.tool?.action === 'close') {
@@ -1356,6 +1375,7 @@ function App() {
             }
             maybeOpenSettingsFromReply(contentOut)
             applyAppTool(payload.tool)
+            applyHudTool(payload.tool)
           },
           onError: (detail) => {
             if (showUi()) setError(detail)
@@ -1465,7 +1485,7 @@ function App() {
       closeSheet('calendar')
       closeSheet('voice')
       setLageSession(true)
-      void patchSettings({ hud_force: true, hud_hidden: false }).then((s) => setSettings(s))
+      void patchSettings({ hud_force: true, hud_hidden: false, hud_view: 'globe' }).then((s) => setSettings(s))
       return
     }
     if (id === 'voice') {
@@ -1821,6 +1841,7 @@ function App() {
 
         {!lageScene && !calendarOpen && !settingsLayer.shown && !voiceOpen ? (
         <div className="composer-wrap">
+          <TimerChip />
           <PcDashboard busy={busy} />
           <PcLiveDock />
           {statusNote ? <div className="status-note">{statusNote}</div> : null}

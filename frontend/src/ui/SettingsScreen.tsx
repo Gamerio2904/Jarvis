@@ -36,6 +36,7 @@ import {
   type SettingsTopic,
 } from '../engine/settings-ia'
 import { loadSettings } from '../engine/store'
+import { repairSpeech } from '../engine/utterance'
 import { setLageSession } from '../engine/lage-session'
 import { JarvisSwitch } from './JarvisSwitch'
 import { resolveUiTheme, runThemeTransition } from '../fx/theme-transition'
@@ -267,9 +268,12 @@ export type SettingsScreenProps = {
 export function SettingsScreen(p: SettingsScreenProps) {
   const s = (p.settings || loadSettings()) as Settings
   const busy = p.settingsBusy
-  const tab = resolveTopic(p.topic)
-  const face = TOPIC_FACE[tab]
   const [railQuery, setRailQuery] = useState('')
+  const searchQ = repairSpeech(railQuery)
+  const tab = searchQ.trim()
+    ? settingsTabForQuery(searchQ, resolveTopic(p.topic))
+    : resolveTopic(p.topic)
+  const face = TOPIC_FACE[tab]
   const [spotifyMsg, setSpotifyMsg] = useState<string | null>(null)
   const [fireHost, setFireHost] = useState(s?.tv_fire_host || '')
   const [firePort, setFirePort] = useState(String(s?.tv_fire_port || 5555))
@@ -372,9 +376,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
 
   useEffect(() => {
     const current = resolveTopic(p.topic)
-    const next = settingsTabForQuery(railQuery, current)
+    const next = settingsTabForQuery(searchQ, current)
     if (next !== current) p.onTopic(next)
-  }, [railQuery, p.topic])
+  }, [searchQ, p.topic])
 
   useEffect(() => {
     const q = railQuery.trim()
@@ -387,12 +391,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
       el?.classList.add('settings-field-hit')
       window.setTimeout(() => el?.classList.remove('settings-field-hit'), 2200)
     }, 120)
-  }, [railQuery, tab])
+  }, [searchQ, tab])
 
-  const tabList: SettingsTab[] = visibleSettingsTabs(railQuery)
-  const fieldHits = railQuery.trim() ? settingsHighlightField(railQuery) : null
-  const searchMiss = Boolean(railQuery.trim()) && filterTopics(railQuery).length === 0 && !fieldHits
-  const searchSuggest = searchMiss ? settingsSearchSuggestions(railQuery) : []
+  const tabList: SettingsTab[] = visibleSettingsTabs(searchQ)
+  const fieldHits = searchQ.trim() ? settingsHighlightField(searchQ) : null
+  const searchMiss = Boolean(searchQ.trim()) && filterTopics(searchQ).length === 0 && !fieldHits
+  const searchSuggest = searchMiss ? settingsSearchSuggestions(searchQ) : []
   const tabThumb = useSlidingThumb(tab)
   const prevTab = useRef(tab)
   const tabDir = useRef(1)

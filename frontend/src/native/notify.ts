@@ -22,6 +22,22 @@ type NativeNotify = {
 const native = Capacitor.isNativePlatform() ? registerPlugin<NativeNotify>('JarvisNotify') : null
 
 const browserTimers = new Map<number, number>()
+const firedIds = new Set<number>()
+
+function armJsFallback(id: number, atMs: number, title: string, body: string): void {
+  if (typeof window === 'undefined') return
+  const wait = atMs - Date.now()
+  if (wait < 800 || wait > 15 * 60_000) return
+  if (browserTimers.has(id)) window.clearTimeout(browserTimers.get(id))
+  const handle = window.setTimeout(() => {
+    browserTimers.delete(id)
+    if (firedIds.has(id)) return
+    firedIds.add(id)
+    void fireNow(title, body)
+    window.dispatchEvent(new CustomEvent('jarvis-timer-fire', { detail: { id, title, body } }))
+  }, wait)
+  browserTimers.set(id, handle)
+}
 
 export function notifyIdFromKey(key: string): number {
   let h = 0
@@ -61,6 +77,7 @@ export async function scheduleNotify(opts: {
   say?: string
 }): Promise<{ ok: boolean; message?: string }> {
   const atMs = opts.at.getTime()
+  armJsFallback(opts.id, atMs, opts.title, opts.body)
   if (native) {
     try {
       return await native.schedule({

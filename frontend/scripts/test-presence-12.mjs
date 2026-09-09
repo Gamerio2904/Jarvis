@@ -19,7 +19,7 @@ import {
 import { TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { filterTopics } from '../src/engine/settings-ia.ts'
 
-assert.equal(APP_VERSION, '16.0.0')
+assert.equal(APP_VERSION, '16.0.1')
 assert.equal(PRESENCE_PORT, 18791)
 
 // F1 Tablet

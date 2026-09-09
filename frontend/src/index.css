@@ -4728,8 +4728,15 @@ button.linkish {
     display: none;
   }
   .main.is-lage .lage {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
+    max-height: 46vh;
     min-height: 0;
+    overflow: auto;
+  }
+  .main.is-lage .messages {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 16vh;
   }
   .main.is-lage-scene {
     overflow: hidden;
@@ -4983,8 +4990,19 @@ html.theme-wipe-dark::before {
   max-width: 100%;
 }
 
-.cal-day-num {
-  font-weight: 700;
+.timer-chip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: var(--accent);
+  padding: 0 4px 6px;
+}
+.timer-chip span {
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-elevated));
 }
 
 .cal-cell.today .cal-day-num {

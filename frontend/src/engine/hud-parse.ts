@@ -151,9 +151,10 @@ export function parseHudIntent(text: string): HudIntent | null {
   if (
     /^\s*(?:mach(?:e)?\s+)?(?:die\s+)?(?:kugel|weltkugel|erde)\s+(an|ein|auf|anzeigen|zeigen)\s*$/i.test(t) ||
     /^\s*zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?(?:erde|kugel|weltkugel)\s*$/i.test(t) ||
+    /^\s*(?:öffne[n]?|open)\s+(?:die\s+|das\s+|den\s+)?(?:weltkugel|kugel|erde|globus|weltkarte)\s*$/i.test(t) ||
     /^\s*weltkugel\s*$/i.test(t) ||
     /^\s*die\s+(?:erde|kugel|weltkugel)\s*$/i.test(t) ||
-    /^\s*(?:erde|kugel|weltkugel)\s+(?:anzeigen|zeigen)\s*$/i.test(t)
+    /^\s*(?:erde|kugel|weltkugel)\s+(?:anzeigen|zeigen|[oö]ffnen)\s*$/i.test(t)
   ) {
     return { kind: 'view', view: 'globe' }
   }

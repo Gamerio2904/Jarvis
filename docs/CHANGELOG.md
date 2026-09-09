@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `16.0.1` — Lage, Timer, Routing — *CODE*
+
+Sideload **`16.0.1`** (versionCode `160001`).
+
+- **Lage:** „Öffne die Weltkugel“ / „Lage an“ öffnen die Kugel wirklich (`setLageSession` + UI-Switch). Handy: Kugel max. 46vh, kein Vollbild-Schwarz.
+- **Timer:** STT `inuten` → Minuten; Timer wird gespeichert + Alarm + In-App-Chip mit Countdown; Uhr ohne Leerzeichen (`20:48`).
+- **Antworten:** Fachwissen nicht mehr bei Lage/Timer/„Wo ist …“; HUD/Timer-Routing härter.
+- **Suche:** „Fernseher“ springt sofort auf Geräte.
+
 ## `16.0.0` — Reel-UI Meilenstein (Sprints 242–248) — *CODE*
 
 Sideload **`16.0.0`** (versionCode `160000`).
