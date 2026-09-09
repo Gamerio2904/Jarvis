@@ -951,8 +951,16 @@ export async function deleteEvent(id: string): Promise<void> {
   await del('events', id)
 }
 
+/** Ohne Deckel wächst der Speicher endlos, und jedes Lesen holt alles herauf. */
+const AUDIT_KEEP = 200
+
 export async function addResearchAudit(row: ResearchAudit): Promise<ResearchAudit> {
   await put('research_audits', row)
+  const rows = await getAll<ResearchAudit>('research_audits')
+  if (rows.length > AUDIT_KEEP) {
+    const old = rows.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)).slice(AUDIT_KEEP)
+    for (const o of old) await del('research_audits', o.id)
+  }
   return row
 }
 
