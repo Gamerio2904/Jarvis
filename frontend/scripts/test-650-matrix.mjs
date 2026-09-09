@@ -2,7 +2,7 @@
  * Prompt-Matrix 6.60: Gold lockt. Gaps müssen 0 sein.
  */
 import assert from 'node:assert/strict'
-import { pickRouteFromCtx } from '../src/engine/route-pick.ts'
+import { decideRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { isHelpCommand, isPersonaAsk } from '../src/engine/guards.ts'
 import { isLiveLookup, parseShopDiscountIntent } from '../src/engine/research-parse.ts'
@@ -77,6 +77,23 @@ for (const [prompt, want, hudKind] of LOCK) {
   if (!ok) fail += 1
   console.log(
     `${ok ? 'ok  ' : 'FAIL'} want=${want.padEnd(8)} got=${String(got).padEnd(8)} hud=${String(hud?.kind || '-').padEnd(14)} wont=${parseWontIntent(prompt)?.reason || '-'} ← ${JSON.stringify(prompt)}`,
+  )
+}
+
+/** Gold darf nie in einer Rückfrage landen. */
+for (const [prompt, want] of LOCK) {
+  if (want === 'help' || want === 'llm') continue
+  const pick = decideRoute({
+    conversationId: 'test',
+    text: normalizeUtterance(prompt),
+    lastTool: '',
+    lastMedium: '',
+    inDrive: false,
+  })
+  assert.notEqual(
+    pick.kind,
+    'ask',
+    `Rückfrage statt Antwort: ${JSON.stringify(prompt)} → ${pick.kind === 'ask' ? `${pick.a}/${pick.b}` : ''}`,
   )
 }
 

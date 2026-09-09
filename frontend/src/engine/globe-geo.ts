@@ -99,6 +99,13 @@ function countryAsPlace(blob: string): PlaceFix | null {
   }
 }
 
+/** Nur Ortsname plus Füllwörter zählt als Treffer — „Street View von London“ ist keiner. */
+function onlyFillerLeft(text: string, matched: string): boolean {
+  const leftover = text.replace(matched, ' ').replace(/\s+/g, ' ').trim()
+  if (!leftover) return true
+  return leftover.split(' ').every((w) => GAZETTEER_FILLER.test(w))
+}
+
 export function gazetteerHit(blob: string): PlaceFix | null {
   const t = (blob || '')
     .replace(/\s+auf\s+der\s+(?:weltkugel|kugel|erde|globus)\s*$/i, '')
@@ -108,10 +115,13 @@ export function gazetteerHit(blob: string): PlaceFix | null {
   for (const p of PLACES) {
     const m = t.match(p.re)
     if (!m) continue
-    const leftover = t.replace(m[0], ' ').replace(/\s+/g, ' ').trim()
-    if (leftover && leftover.split(' ').some((w) => !GAZETTEER_FILLER.test(w))) continue
+    if (!onlyFillerLeft(t, m[0])) continue
     return p
   }
+  const c = matchCountry(t)
+  if (!c) return null
+  const cm = t.match(c.re)
+  if (!cm || !onlyFillerLeft(t, cm[0])) return null
   return countryAsPlace(t)
 }
 

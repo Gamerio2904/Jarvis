@@ -17,4 +17,6 @@ export type Candidate = {
   id: string
   score: number
   sideEffect: SideEffect
+  /** Parse-Score vor Kosten. Entscheidet die Schwelle, `score` nur die Reihenfolge. */
+  base?: number
 }

@@ -5,8 +5,8 @@ import { handleFuel } from './fuel.ts'
 import { handlePoi } from './poi.ts'
 import { handleTransit } from './transit.ts'
 import { handleWeather } from './weather.ts'
-import { askReply, pickPolicy, type PolicyPick } from './policy.ts'
-import { propose } from './route-pick.ts'
+import { askReply, type PolicyPick } from './policy.ts'
+import { decideRouteFromCtx } from './route-pick.ts'
 import { fromHandler, weatherLast } from './agents/catalog.ts'
 import { runAgent } from './agents/runner.ts'
 import { curatorPreflight } from './agents/curator.ts'
@@ -63,16 +63,15 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
 
   const ctx = makeDirectorCtx(conversationId, text)
   const t0 = performance.now()
-  const raw = propose(ctx)
+  const { pick, candidates: raw } = decideRouteFromCtx(ctx)
   pushAgentTrace({
     agentId: 'router',
     phase: 'parse',
     ms: Math.round(performance.now() - t0),
     ok: raw.length > 0,
-    detail: `${raw.length} candidates`,
+    detail: `${raw.length} candidates → ${pick.kind === 'run' ? pick.id : pick.kind}`,
   })
 
-  const pick = pickPolicy(raw)
   if (pick.kind === 'none') return { hit: null }
   if (pick.kind === 'ask') {
     const s = loadSettings()

@@ -3,7 +3,7 @@
  * Nur Parser/Router, kein Registry-Import.
  */
 import assert from 'node:assert/strict'
-import { pickRoute } from '../src/engine/route-pick.ts'
+import { decideRoute, pickRoute } from '../src/engine/route-pick.ts'
 import { isHelpCommand, isPersonaAsk } from '../src/engine/guards.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseOutlookIntent } from '../src/engine/outlook-parse.ts'
@@ -192,6 +192,21 @@ for (const r of rows) {
     `${r.ok ? 'ok  ' : 'FAIL'} want=${String(r.want).padEnd(10)} got=${String(r.got).padEnd(10)} ← ${JSON.stringify(r.prompt)}`,
   )
 }
+
+/** Ein erwarteter Agent darf nie als Rückfrage enden — die App fragt sonst wirklich. */
+const spurious = []
+for (const [prompt, want] of [...GOLD, ...EVERYDAY, ...BROKEN]) {
+  if (!want || want === 'help') continue
+  const pick = decideRoute({
+    conversationId: 'test',
+    text: prompt,
+    lastTool: '',
+    lastMedium: '',
+    inDrive: false,
+  })
+  if (pick.kind === 'ask') spurious.push(`${JSON.stringify(prompt)} → ${pick.a} oder ${pick.b}`)
+}
+assert.equal(spurious.length, 0, `Router fragt statt zu handeln:\n  ${spurious.join('\n  ')}`)
 
 assert.equal(parseHudIntent('zeig mal den körper')?.view, 'body')
 assert.equal(parseHudIntent('mach den Körper an')?.view, 'body')
