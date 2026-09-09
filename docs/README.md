@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`15.1.0`**. Sideload **`15.1.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk** [`62-next.md`](./62-next.md) **CODE** 227–235. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Offen: Dual Brain Sprint **238** (Gold-SLO).
+**Jetzt:** Code **`16.1.0`**. Sideload **`16.1.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Offen: Dual Brain Sprint **238** (Gold-SLO).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -67,9 +67,10 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 59 | [Drei Flächen 12.0](./59-next.md) | **CODE** `12.70.0` — Tablet + Presence + PC-Viewer; Sprints 209–216 |
 | 60 | [Körper-Wissensbaum 13.0](./60-next.md) | **CODE** `13.30.0` — Eingang → Skill → Wissen; Sprints 217–220 |
 | 61 | [Sprachmodus 13.40](./61-next.md) | **CODE** `13.44.0` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
-| 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **CODE** `15.1.0` — Director, Curator, Agenten-Karte; Sprints 227–235 |
+| 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **PLAN-Protokoll** — Zielbild 14.0; Ist siehe 66 |
 | 63 | [Dual Brain 15.0](./63-next.md) | **CODE** `15.1.0` — Groq primär, BrainOrchestrator; Sprints 236–237; 238 PLAN |
-| — | [APK](./apk.md) | Sideload `15.1.0`; Test: [`TEST-15.1.0.md`](./TEST-15.1.0.md) |
+| 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `16.1.0` — Routing-Rechnung, Budgets, Traces, Grenzen |
+| — | [APK](./apk.md) | Sideload `16.1.0`; Test: [`TEST-16.1.0.md`](./TEST-16.1.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 

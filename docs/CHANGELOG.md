@@ -5,6 +5,83 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `16.1.0` — Router-Bugs, Agenten-Härtung — *CODE*
+
+Ist-Beschreibung des Agenten-Systems: [`66-agents-ist.md`](./66-agents-ist.md).
+PO-Checkliste: [`TEST-16.1.0.md`](./TEST-16.1.0.md).
+
+### Router — acht Prompts endeten in einer Rückfrage statt in einer Antwort
+
+Tests und App liefen über **zwei verschiedene Pfade**: `pickRouteFromCtx` (Tests)
+wandelte eine Rückfrage still in „nimm die erste Seite" um, `runDirectorTurn`
+(App) fragte wirklich zurück. Kein Test konnte das sehen.
+
+- `decideRoute` ist jetzt die gemeinsame Entscheidung. Drei Korpora
+  (`test:prompts`, `test:sprint`, `test:matrix`) sperren neue Rückfragen.
+- **Kosten erzeugten Gleichstände:** `withCost` klemmte auf `SCORE_MIN`, und
+  `parserScore` hat denselben Boden — Kandidaten wurden dadurch exakt gleich.
+  Die Schwelle prüft jetzt den Parse-Score (`base`), die Kosten verschieben nur
+  den Rang.
+- **Kosten entschieden nie:** höchstens `0.05` gegen `SCORE_MARGIN` von `0.12`.
+  Jede Kosten-Differenz war eine Rückfrage. Jetzt entscheidet sie fürs
+  günstigere Lesen.
+- **Konflikt-Boosts sättigten bei `0.99`:** ein gewollter Vorsprung von `+0.25`
+  schrumpfte auf `+0.11` und fiel unter die Marge. `SCORE_CEIL = 4`.
+- Feste Vorfahrt (`TIE_ORDER`) bei exaktem Gleichstand statt Katalog-Zufall.
+- Betroffen waren `Lautstärke 50`, `lauter um 10`, `Spiel Dune Film`,
+  `Was steht an?`, `Wo ist Norden?`, `Termin aus dem Zettel`,
+  `Wo ist die Apotheke`, `Spiele ein YouTube Video auf dem Fernseher`.
+
+### Regex-Fehler
+
+- `/\b(fernseh|…)\b/` traf **„Fernseher" nie** — das `\b` stand hinter dem
+  Präfix. Die Fernseher-Konfliktregel war damit tot.
+- `gazetteerHit` pinnte **Großbritannien** für „Zeig Street View von London":
+  der Länder-Fallback prüfte die Restwörter nicht, anders als der Städte-Zweig.
+
+### Timer
+
+- `scheduleNotify` löschte im **Web-Zweig den eigenen In-App-Timer** sofort
+  wieder und stellte einen stillen zweiten. `jarvis-timer-fire` kam dort nie an,
+  der Chip im Composer blieb stumm. Jetzt trägt ein Timer die Frist: nativ
+  15 min (der Alarm ist die Wahrheit), im Browser die ganze Frist.
+- `window` wurde ungeschützt benutzt. Der Wurf traf `handleTimers` **nach** dem
+  Speichern — der Timer stand, aber die Bestätigung ging verloren und am Ende
+  antwortete das Modell. Benachrichtigung und Glance können den Zug nicht mehr
+  kippen.
+- `cancelNotify` räumt auch nativ den In-App-Timer und `firedIds` auf; vorher
+  wuchs `firedIds` unbegrenzt.
+
+### Agenten-Konzept
+
+- **Budget pro Agent:** Lesen 25 s, Gerät 15 s, Schreiben 8 s. Vorher hing ein
+  Zug unbegrenzt am stillen Socket.
+- **Ein Wiederholversuch nur für Lesen.** Schreiben nie — sonst landen Termine
+  doppelt.
+- **Scheitern ≠ Ablehnen:** `AgentResult.failed`. Ein gescheiterter Schreib-
+  oder Geräte-Agent antwortet ehrlich („Ich habe nichts geändert"), statt ans
+  Modell zu fallen, das einen Erfolg behaupten könnte.
+- Kurator-Preflight bekommt 2,5 s — es ist Pflege, keine Antwort.
+- Traces tragen die **Zug-Nummer**; ein abgebrochener Zug schreibt nicht mehr in
+  den neuen. Auf 200 Einträge gedeckelt.
+- `agentById` über eine Map; `orphanExecutorIds()` deckt unerreichbare
+  Executoren auf.
+
+### Tests und Bundle
+
+- **`test:turn-e2e`** — der erste echte Zug durch den Director. Prüft, dass der
+  Timer wirklich in der Liste steht (nicht nur angesagt wird), die Kugel aufgeht
+  und die Fehlerpfade greifen.
+- **`test:agents-robust`** — Budget, Timer-Aufräumen, verworfene Traces,
+  Trace-Grenze, Kosten-Rang, Vorfahrt, `EXECUTOR_IDS` gegen `execute-map`.
+- 418 relative Importe auf `.ts` normalisiert: Node lädt jetzt die komplette
+  Engine, vorher waren Integrationstests unmöglich. `fake-indexeddb` als
+  devDependency.
+- Das WASM des lokalen Modells wird erst beim ersten Laden geholt — **167 kB
+  raus aus dem Start-Bundle**.
+- Veraltete Assertions nachgezogen: HELP_TEXT-Version gegen `APP_VERSION`,
+  TTS-Erstchunk `1800 ms`.
+
 ## `16.0.1` — Lage, Timer, Routing — *CODE*
 
 Sideload **`16.0.1`** (versionCode `160001`).

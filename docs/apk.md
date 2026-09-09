@@ -1,6 +1,8 @@
-# Android-APK — Sideload `16.0.1`
+# Android-APK — Sideload `16.1.0`
 
-App-Code **`16.0.1`**. Sideload-APK **`16.0.1`**.
+App-Code **`16.1.0`**. Sideload-APK **`16.1.0`**.
+
+**16.1.0:** Router fragt nicht mehr statt zu handeln, Timer feuert auch im Browser, Agenten mit Budget.
 
 **16.0.1:** Lage öffnet wirklich, Timer läuft (Chip + Alarm), Routing ohne Halluzination.
 
@@ -8,10 +10,10 @@ App-Code **`16.0.1`**. Sideload-APK **`16.0.1`**.
 
 ## Download
 
-**Fertige APK `16.0.1`:**  
+**Fertige APK `16.1.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `16.0.1` · versionCode `160001`
+- versionName `16.1.0` · versionCode `160100`
 
 ## Build lokal
 
