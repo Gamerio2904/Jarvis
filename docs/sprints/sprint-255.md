@@ -1,73 +1,82 @@
-# Sprint 255 — Semantisches Satzende + Barge-in
+# Sprint 255 — Semantisches Satzende + Barge-in **AUFGELÖST**
 
-**Version:** `16.8.0` (versionCode `160800`) — **PLAN**
-**Plan:** [`68-next.md`](../68-next.md) §10 · Upgrade **B** Stufe 2 aus [`67-upgrades.md`](../67-upgrades.md)
-**Voraussetzung:** Sprint **253** (Abbruch) und **254** (VAD)
+**Status:** **AUFGELÖST** — nicht abgesagt, sondern aufgeteilt. Der Inhalt steckt
+in [`253`](./sprint-253.md) und [`254`](./sprint-254.md).
+**Plan:** [`68-next.md`](../68-next.md) §10
+**Grund:** Beide Hälften existieren im Code bereits; der geplante Zusatz hätte
+Latenz und Kontingent gekostet, ohne einen offenen Fall zu lösen.
 
-## Ziel
+## Warum aufgelöst
 
-Jarvis erkennt, ob der Satz **inhaltlich** fertig ist — und lässt sich mitten in
-der Antwort unterbrechen.
+Dieser Sprint hatte zwei Hälften. Beide gibt es schon.
 
-## Warum
+### Barge-in ist gebaut
 
-Stufe 1 (Sprint 254) erkennt, *ob* gesprochen wird. Sie erkennt nicht, ob der
-Satz zu Ende ist. „Erinnere mich in fünf …" ist nach 1,5 s Stille nicht fertig,
-egal wie sicher das VAD ist, dass gerade niemand spricht. Umgekehrt ist „Licht
-aus" nach 300 ms fertig und jedes weitere Warten ist verlorene Zeit.
+`native/voice.ts` hat `watchBargeIn()` — nativ über `startBargeWatch` und den
+`barge`-Listener, im Browser über `createEnergyVad` mit `BARGE_ONSET_MS = 180`.
+`ui/VoiceMode.tsx` verdrahtet es an zwei Stellen (während des Streams und
+während des Abspielens), bricht die Stimme über `cutIn(pipe)` ab und verwirft
+den Zug über `abortTurn`.
 
-Barge-in ist die zweite Hälfte desselben Gefühls: ein Assistent, den man nicht
-unterbrechen kann, zwingt zum Zuhören. Technisch braucht das den Durchstich aus
-Sprint **253** — sonst bricht man nur die Stimme ab, während der Zug im
-Hintergrund weiterläuft und am Ende Zustand schreibt.
+Auch der Selbstschutz, der als S255-6 geplant war, ist da:
+`BARGE_IGNORE_TTS_MS = 400` und `isBargeInText()` filtert Backchannels („mhm",
+„aha", „ok"), damit ein Zuhörgeräusch die Antwort nicht abbricht.
 
-## Heute vs. Ziel
+**Was wirklich fehlt** ist genau eine Sache: der abgebrochene Zug läuft im
+Hintergrund weiter, weil die Handler kein `AbortSignal` bekommen. Das ist
+Sprint **253** und stand dort schon.
 
-| Heute | Ziel |
-|-------|------|
-| Stille = Satzende | Stille **plus** inhaltliche Prüfung |
-| „Erinnere mich in fünf …" wird abgeschickt | wartet weiter, weil unvollständig |
-| „Licht aus" wartet 1100 ms | geht nach ~300 ms |
-| Reden schneidet die TTS ab, der Zug läuft weiter | Reden bricht Stimme **und** Zug ab |
+### Semantisches Satzende ist gebaut
 
-## Lieferumfang
+`turnLooksComplete()` in `turn-detect.ts` prüft das Transkript inhaltlich:
+`INCOMPLETE_TAIL` fängt „…und", „…weil", „…für" ab, `COMPLETE_END` erkennt
+Satzzeichen. `silenceMsFor()` verrechnet das Ergebnis zu 220 ms oder 1100 ms.
+Das ist genau die Idee dieses Sprints, nur als Regex statt als Modell.
 
-| ID | Task | Datei | Status |
-|----|------|-------|--------|
-| S255-1 | Label-Set aus dem Eval-Korpus: vollständig / unvollständig | `engine/eval/corpus.ts` | PLAN |
-| S255-2 | Klassifikator Satzende, klein und lokal | `engine/turn-end.ts` | PLAN |
-| S255-3 | Verrechnung: VAD-Stille × Satzende-Sicherheit → Halten | `engine/turn-detect.ts` | PLAN |
-| S255-4 | Barge-in: Sprache während der Ausgabe bricht TTS ab | `engine/edge-tts.ts`, `ui/VoiceMode.tsx` | PLAN |
-| S255-5 | Barge-in bricht den laufenden Zug ab (nutzt 253) | `director.ts` | PLAN |
-| S255-6 | Eigene Stimme zählt nicht als Unterbrechung | `engine/turn-detect.ts` | PLAN |
-| S255-7 | Rückfallebene: ohne Klassifikator gilt Stufe 1 | `engine/turn-detect.ts` | PLAN |
-| S255-8 | Tests + Messung | `scripts/`, docs | PLAN |
+Diese Regex hat einen echten Fehler — Länge gilt als Vollständigkeitsbeleg —
+aber der wird in **254 Stufe A** behoben, kostenlos.
 
-## Referenz
+## Warum der geplante Klassifikator gestrichen ist
 
-Der Turn-Detector der [LiveKit Agents](https://github.com/livekit/agents)
-(Apache-2.0) als Vorbild für Stufe 2 — dort entscheidet ein kleines Modell auf
-dem Transkript-Präfix, nicht auf dem Audio.
+S255-2 wollte einen Klassifikator fürs Satzende. Gegen die vier Prioritäten
+gerechnet:
 
-## Abbruchkriterium
+| Priorität | Wirkung |
+|-----------|---------|
+| Antwortqualität | **unklar.** Die Regex löst die belegten Fälle; offen ist nur, was sie zusätzlich fängt |
+| Alles funktioniert | **schlechter.** Ein Modell im Aufnahmepfad ist ein neuer Fehlerweg an der empfindlichsten Stelle |
+| Latenz | **schlechter.** Ein Aufruf pro Transkript-Änderung, also mehrfach je Äußerung — und zwar genau in dem Moment, in dem der Nutzer auf das Ende wartet |
+| Kostenlos / nutzbar | **schlechter.** Bei einem Cloud-Klassifikator mehrere Requests pro Satz auf 1.000 am Tag; bei einem lokalen zusätzliche CPU während der Aufnahme |
 
-**Barge-in schneidet die eigene Frage ab.** Wenn der Lautsprecher die eigene
-Ausgabe als Unterbrechung erkennt, redet sich Jarvis selbst tot. S255-6 ist
-deshalb kein Komfort, sondern Bedingung.
+Drei Kategorien schlechter, eine unklar. Nach der Regel „nur ändern, wenn Nutzen
+ohne Verlust in einer anderen Kategorie" fällt das raus.
 
-Zweites Kriterium: unvollständige Sätze werden häufiger abgeschickt als nach
-Sprint 254.
+Der Vollständigkeit halber: das Vorbild — der Turn-Detector der
+[LiveKit Agents](https://github.com/livekit/agents) — läuft dort auf einem
+Server mit Dauerbetrieb, nicht auf einem Handy mit Tageslimit. Die Idee ist gut,
+die Umgebung ist eine andere.
 
-## Tests
+## Wohin die Tasks gegangen sind
 
-```bash
-cd frontend
-npm run test:014
-npm run test:turn-e2e         # Abbruch schreibt keinen Zustand
-npm run eval:report
-npx tsc -b && npm run lint
-```
+| War | Ist |
+|-----|-----|
+| S255-1 Label-Set vollständig/unvollständig | **S249-9** — als `stt`-Tag im Korpus, speist S254-5 |
+| S255-2 Klassifikator Satzende | **gestrichen**, Begründung oben |
+| S255-3 Verrechnung Stille × Sicherheit | **S254-4** — Mittelstufe ~600 ms, ohne Modell |
+| S255-4 Barge-in bricht TTS ab | **existiert** — `watchBargeIn` + `cutIn` |
+| S255-5 Barge-in bricht den Zug ab | **S253** — der einzige echte Rest |
+| S255-6 eigene Stimme zählt nicht | **existiert** — `BARGE_IGNORE_TTS_MS`, `isBargeInText` |
+| S255-7 Rückfallebene | entfällt mit dem Klassifikator |
+| S255-8 Tests + Messung | **S254-6** |
 
-Manuell: dieselben zwanzig Sätze wie in Sprint 254, plus zehn Unterbrechungen
-mitten in der Antwort. Gezählt wird, ob Jarvis stoppt, ob er den alten Zug
-verwirft, und ob er auf sich selbst hereinfällt.
+## Was das für die Schiene bedeutet
+
+Ein Sprint weniger, und der verbleibende Teil wird billiger und prüfbarer:
+Stufe A von 254 ist eine reine Funktion auf einem String und braucht kein
+Mikrofon im Test. Der Sprachmodus wird dadurch **nicht** schlechter — die
+Beschwerde „abgehackt" wird in 254 an ihrer tatsächlichen Ursache behoben statt
+an der vermuteten.
+
+Sollte die Messung aus S254-6 zeigen, dass nach Stufe A und Stufe B immer noch
+Sätze am **Inhalt** scheitern, wird dieser Sprint neu aufgemacht — dann aber mit
+einem belegten Fall statt mit einer Vermutung.

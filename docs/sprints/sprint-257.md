@@ -1,6 +1,6 @@
 # Sprint 257 — Intent-Embeddings statt Konflikt-Tisch
 
-**Version:** `16.10.0` (versionCode `161000`) — **PLAN**
+**Version:** `16.9.0` (versionCode `160900`) — **PLAN**
 **Plan:** [`68-next.md`](../68-next.md) §12 · Upgrade **C** aus [`67-upgrades.md`](../67-upgrades.md)
 **Voraussetzung:** Sprint **250** (Kennzahlen als Netz)
 
@@ -42,7 +42,7 @@ die `drop`/`boost`-Regeln sind zusätzlich reihenfolgeabhängig.
 | S257-1 | Intent-Datensatz aus dem Eval-Korpus (250+ Äußerungen) | `engine/eval/corpus.ts` | PLAN |
 | S257-2 | `multilingual-e5-small` in `onnxruntime-web`, lazy | `engine/embed.ts` | PLAN |
 | S257-3 | Zentroid je Agent, zur Bauzeit berechnet und mitgeliefert | `engine/intent-centroids.json` | PLAN |
-| S257-4 | Ähnlichkeit als Summand zu `parserScore` | `engine/policy.ts` | PLAN |
+| S257-4 | Ähnlichkeit **nur** bei mehreren gleich starken Kandidaten, nicht bei jedem Zug | `engine/policy.ts` | PLAN |
 | S257-5 | `conflicts.ts` zurückbauen auf harte Regeln (`wont`, Gerät vs. Lesen) | `engine/conflicts.ts` | PLAN |
 | S257-6 | Rückfallebene: ohne Modell gilt der heutige Tisch | `engine/policy.ts` | PLAN |
 | S257-7 | Eval-Vergleich gegen die Baseline aus 250 | `scripts/eval/report.mjs` | PLAN |
@@ -124,6 +124,40 @@ Zwei Auflagen, beide aus dem Kontingent (§3.2 dort):
 Ergebnis ohne Netz oder bei leerem Kontingent: die Rückfrage von heute. Die
 bleibt als Boden erhalten.
 
+## Die Latenz-Schranke: nur auf dem ambigen Pfad
+
+Der ursprüngliche Entwurf hätte die Ähnlichkeit als Summanden zu `parserScore`
+addiert — also **bei jedem Zug** ein Embedding gerechnet. Das ist gegen die
+Latenz-Priorität nicht zu halten:
+
+Heute ist der deterministische Pfad eine Handvoll regulärer Ausdrücke, also
+Mikrosekunden. Ein e5-Durchlauf in `onnxruntime-web` liegt bei mehreren
+Dutzend Millisekunden, plus einmalig Modell-Ladezeit. Für „Licht an" wäre das
+ein Rückschritt in genau der Kategorie, die am meisten zählt — bei einem
+Kurzbefehl, den die Parser schon sicher erkennen.
+
+Deshalb die Schranke:
+
+```text
+Parser klar vorne        →  entscheiden wie heute, kein Embedding
+mehrere gleich stark     →  Embedding rechnen, Reihenfolge entscheiden
+kein Kandidat            →  wie heute weiter (258)
+```
+
+Das dreht die Rechnung um. Das Embedding läuft nur dort, wo Jarvis heute eine
+**Rückfrage** stellt — und eine Rückfrage kostet den Nutzer mehrere Sekunden
+plus einen zweiten Satz. Gegen 50 ms Embedding ist das kein Vergleich.
+
+| Priorität | Wirkung mit Schranke |
+|-----------|----------------------|
+| Antwortqualität | besser, wo es heute klemmt (ambige Fälle) |
+| Alles funktioniert | Rückfallebene bleibt der heutige Tisch |
+| Latenz | **unverändert** auf dem schnellen Pfad, besser statt Rückfrage |
+| Kostenlos / nutzbar | unverändert, das Modell läuft lokal |
+
+Nebenwirkung, die den Ausschlag gibt: das Modell wird nur geladen, wenn zum
+ersten Mal ein ambiger Fall auftritt. Wer nur Geräte schaltet, lädt es nie.
+
 ## Die Grenze, die bleibt
 
 Das Embedding entscheidet die **Reihenfolge**, nie die **Ausführung**.
@@ -143,6 +177,11 @@ deshalb ist 250 harte Voraussetzung, nicht Empfehlung.
 
 Zweites Kriterium: das Start-Bundle wächst. Modell und Zentroide gehören hinter
 einen `import()`.
+
+Drittes: **die Latenz des schnellen Pfads steigt messbar.** „Licht an" darf nach
+diesem Sprint nicht langsamer sein als vorher. `latency.ts` misst das schon
+(`msFirstToken`, `latencyP95`) — die Zahl vor und nach dem Sprint gehört in die
+PR.
 
 Drittes, und es greift zuerst: **der Trennschärfe-Test aus S257-9 scheitert.**
 Dann wird dieser Sprint nicht gebaut, sondern geschlossen — mit dem Messwert als

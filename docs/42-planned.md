@@ -31,15 +31,17 @@ Hirn = Handy. PC = Werkzeug. **Heute (`16.1.1`):** Groq primär → Gemini Spezi
 | `16.3.0` | [250](./sprints/sprint-250.md) | Eval-Kennzahlen + Baseline, Prompt-Tokens, Sprach-A/B |
 | `16.4.0` | [251](./sprints/sprint-251.md) | Sicherungsschalter + **Kontingent** + Agenten-Reste |
 | `16.5.0` | [252](./sprints/sprint-252.md) | Lage-Entscheidung (PO) + Wecker-Nummer |
-| `16.6.0` | [253](./sprints/sprint-253.md) | Abbruch bis in die Handler |
-| `16.7.0` | [254](./sprints/sprint-254.md) | VAD statt Stillezähler |
-| `16.8.0` | [255](./sprints/sprint-255.md) | Satzende + Barge-in |
-| `16.9.0` | [256](./sprints/sprint-256.md) | Einstellungen aufteilen |
-| `16.10.0` | [257](./sprints/sprint-257.md) | Intent-Embeddings (Trennschärfe-Tor zuerst) |
-| `16.11.0` | [258](./sprints/sprint-258.md) | Werkzeug-Vertrag, erzwungenes JSON, Schemas englisch |
-| **`17.0.0`** | [259](./sprints/sprint-259.md) | Telemetrie + **Meilenstein** |
+| `16.6.0` | [253](./sprints/sprint-253.md) | Abbruch bis in die Handler + Barge-in verdrahten |
+| `16.7.0` | [254](./sprints/sprint-254.md) | Satzende-Heuristik (A) + Silero opt-in (B) |
+| — | [255](./sprints/sprint-255.md) | **AUFGELÖST** — existiert im Code; Rest in 253 und 254 A |
+| `16.8.0` | [256](./sprints/sprint-256.md) | Feldschutz + Migrationsschritte (verkleinert) |
+| `16.9.0` | [257](./sprints/sprint-257.md) | Intent-Embeddings, nur bei Gleichstand |
+| `16.10.0` | [258](./sprints/sprint-258.md) | Werkzeug-Vertrag, erzwungenes JSON, ein Modellaufruf |
+| **`17.0.0`** | [259](./sprints/sprint-259.md) | Historie im Speicher + **Meilenstein** (verkleinert) |
 
-Frei kombinierbar: 251, 252, 256. Harte Ketten: 250 → 257, 253 + 254 → 255.
+Frei kombinierbar: 251, 252, 253, 254 A, 256. Harte Ketten: 250 → 257, 254 A → 254 B.
+
+**Gegen die PO-Prioritäten geprüft.** Vorgaben: hohe Antwortqualität, alles funktioniert, wenig Latenz, kostenlos und viel nutzbar — und nur ändern, wenn es einer Kategorie nutzt, ohne einer anderen zu schaden. Ergebnis: **255 aufgelöst** (Barge-in und Satzende existieren; ein Klassifikator hätte Latenz und Kontingent gekostet), **256 und 259 verkleinert** (Aufteilung und IndexedDB-Ring gestrichen), **257 und 258 mit Latenz-Schranke** (Embedding nur bei Gleichstand, ein Modellaufruf je Zug). Rechnung je Sprint: [`68-next.md`](./68-next.md) §3b.
 
 **Zwei Entscheidungen aus der Planungsrunde** ([`69-modell-grundlagen.md`](./69-modell-grundlagen.md)):
 

@@ -1,59 +1,67 @@
-# Sprint 259 — Telemetrie + Meilenstein `17.0.0`
+# Sprint 259 — Historie im Speicher + Meilenstein `17.0.0`
 
-**Version:** `17.0.0` (versionCode `170000`) — **PLAN**, **Meilenstein**
+**Version:** `17.0.0` (versionCode `170000`) — **PLAN**, **Meilenstein**, verkleinert
 **Plan:** [`68-next.md`](../68-next.md) §14 · Upgrade **F** aus [`67-upgrades.md`](../67-upgrades.md)
 **Voraussetzung:** Sprints **249–258**
 
 ## Ziel
 
-Ein Fehler von gestern lässt sich zeigen. Und die Schiene wird als `17.0.0`
+Ein Fehler von vorhin lässt sich zeigen. Und die Schiene wird als `17.0.0`
 ausgeliefert.
 
-## Warum
+## Was aus diesem Sprint gestrichen wurde
 
-`agents/trace-store.ts` hält die Traces eines Zugs im Speicher — seit `16.1.0`
-mit Zugnummer und auf 200 gedeckelt, aber weiterhin flüchtig. Sie überleben
-keinen Neustart. Wenn der PO morgens sagt „gestern Abend hat er Unsinn geredet",
-gibt es nichts zu sehen.
+Geplant war ein **Ring-Puffer der letzten 50 Züge in IndexedDB** plus
+Umbenennung auf die GenAI-Konventionen von OpenTelemetry. Beides fällt weg oder
+schrumpft, und zwar aus zwei Gründen.
 
-Genau dieses Loch hat die ganze `16.1.x`-Runde teuer gemacht: die Fehlerberichte
-kamen als Screenshots und Videos, weil die App selbst nichts festhält.
+**Erstens gibt es die Hälfte schon.** `engine/latency.ts` hält bereits einen
+Ring-Log über 24 Züge mit Pfad (`parser` / `gemini` / `groq` / `local`), Zeit bis
+zum ersten Token, Zeit bis zum ersten Ton, Gesamtzeit — und rechnet `latencyP95`
+selbst. `agents/trace-store.ts` hält die Traces auf 200 gedeckelt mit Zugnummer.
+Was fehlte, war nicht die Erfassung, sondern das **Durchblättern**.
+
+**Zweitens kostet IndexedDB pro Zug Latenz und Akku.** Ein Schreibvorgang je Zug
+auf die Platte ist genau die Art Nebenwirkung, die dieser Planung
+widerspricht — ein Debug-Werkzeug, das den Normalbetrieb verlangsamt, bezahlt
+Qualität mit Latenz. Und `addResearchAudit` hat in `16.1.1` gezeigt, wohin
+unbegrenzte Protokolle auf der Platte führen.
+
+Also: **im Speicher bleiben, auf Anforderung exportieren.** Die Historie
+überlebt keinen Neustart — das ist der Preis, und er ist vertretbar, weil ein
+Fehlerbericht ohnehin in derselben Sitzung entsteht („er hat gerade Unsinn
+geredet"). Für den Fall „gestern Abend" bleibt der Export, den der Nutzer
+auslöst.
+
+Die OTel-Umbenennung entfällt ganz: sie bringt Anschlussfähigkeit an einen
+Collector, den es hier nicht gibt und nicht geben soll („kein Server"). Etiketten
+zu ändern, ohne dass etwas daran hängt, ist Aufwand ohne Wirkung in allen vier
+Kategorien.
 
 ## Heute vs. Ziel
 
 | Heute | Ziel |
 |-------|------|
-| Traces nur im Speicher, ein Zug | Ring-Puffer der letzten ~50 Züge in IndexedDB |
-| eigene Attributnamen | GenAI-Konventionen von OpenTelemetry |
-| Debug-Export nur für den aktuellen Zug | Export über die Historie |
-| kein Deckel auf der Platte | Ring-Puffer, feste Obergrenze |
+| `latency.ts` 24 Züge, `trace-store.ts` 200 Traces — beides unsichtbar | eine Ansicht, die beides durchblättert |
+| Debug-Export nur für den aktuellen Zug | Export über die Historie der Sitzung |
+| Traces und Zeiten getrennt | ein Zug zeigt Route, Agenten und Zeiten zusammen |
 
 ## Lieferumfang
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S259-1 | `agent_traces` als Store, Ring-Puffer 50 Züge | `engine/store.ts` | PLAN |
-| S259-2 | Attribute nach GenAI-Konventionen benennen | `agents/trace-store.ts` | PLAN |
-| S259-3 | Schreiben ohne den Zug zu bremsen (nach der Antwort) | `agents/trace-store.ts` | PLAN |
-| S259-4 | Debug-Export über die Historie, nicht nur den aktuellen Zug | `engine/debug-export.ts` | PLAN |
-| S259-5 | Ältesten Zug verdrängen, harte Obergrenze | `engine/store.ts` | PLAN |
-| S259-6 | Lage-Ansicht: letzte Züge durchblättern | `ui/lage/AgentTree.tsx` | PLAN |
+| S259-1 | `latency.ts` von 24 auf ~50 Züge, Zug-ID mit `trace-store` teilen | `engine/latency.ts` | PLAN |
+| S259-2 | Traces und Zeiten je Zug zusammenführen, im Speicher | `agents/trace-store.ts` | PLAN |
+| S259-3 | Kein Schreiben im Zug — Zusammenführen erst nach der Antwort | `agents/trace-store.ts` | PLAN |
+| S259-4 | Debug-Export über die Sitzungs-Historie, vom Nutzer ausgelöst | `engine/debug-export.ts` | PLAN |
+| S259-5 | Lage-Ansicht: letzte Züge durchblättern | `ui/lage/AgentTree.tsx` | PLAN |
+| S259-6 | Kontingent-Stand je Zug mitschreiben (aus S251-9) | `engine/latency.ts` | PLAN |
 | S259-7 | Docs: `66-agents-ist.md` §4 neu, CHANGELOG `17.0.0` | docs | PLAN |
 | S259-8 | Meilenstein: APK `17.0.0`, versionCode `170000` | `package.json`, `store.ts` | PLAN |
 
-## Attributnamen
-
-Die GenAI-Konventionen von OpenTelemetry, auch ohne Collector:
-
-| Heute | Nachher |
-|-------|---------|
-| `model` | `gen_ai.request.model` |
-| `tokens` | `gen_ai.usage.input_tokens` / `output_tokens` |
-| `phase` | `gen_ai.operation.name` |
-
-Der Nutzen ist nicht das Etikett, sondern die Anschlussfähigkeit: ein späterer
-Export läuft ohne Umbau, und der Debug-Bogen ist mit dem vergleichbar, was in
-der Industrie üblich ist.
+S259-6 ist neu und ergibt sich aus 251: wenn der Kontingent-Stand pro Zug
+mitläuft, ist im Nachhinein erklärbar, warum eine Antwort vom lokalen Modell
+kam. Ohne diese Zahl wirkt der Wechsel wie ein Fehler.
 
 ## Meilenstein `17.0.0`
 
@@ -64,21 +72,22 @@ unterbrechen.**
 |---------------------------|---------------|
 | Routing messen statt raten | 249, 250 |
 | Kaputte Dienste abschalten | 251 |
+| Leeres Kontingent überleben statt abzusagen | 251 |
 | Einen Zug wirklich abbrechen | 253 |
-| Sprache erkennen statt Stille zählen | 254, 255 |
-| Einstellungen migrieren ohne Verlust | 256 |
-| Router lernen statt stimmen | 257 |
-| Werkzeuge vorschlagen lassen | 258 |
-| Einen Fehler von gestern zeigen | 259 |
+| Sätze nicht mehr abschneiden | 254 |
+| Ein kaputtes Feld nicht auf alle ausweiten | 256 |
+| Bei Gleichstand entscheiden statt zurückfragen | 257 |
+| Zusammengesetzte Sätze ausführen | 258 |
+| Einen Fehler von vorhin zeigen | 259 |
 
 ## Abbruchkriterium
 
-Der Ring-Puffer wächst über seine Grenze. Ein Debug-Werkzeug, das die Platte
-füllt, ist schlimmer als keins — dieselbe Lehre wie bei den
-Forschungs-Protokollen in `16.1.1`.
+**Das Zusammenführen bremst die Antwort.** Telemetrie darf nie im Weg stehen;
+S259-3 ist deshalb Bedingung, nicht Reihenfolge-Empfehlung.
 
-Zweites Kriterium: das Schreiben bremst die Antwort. Telemetrie darf nie im
-Weg stehen.
+Zweites Kriterium: der Speicherverbrauch wächst über den Deckel. 50 Züge mit
+Traces sind ein paar hundert Kilobyte — wenn daraus Megabyte werden, ist zu viel
+je Zug drin.
 
 ## Tests
 

@@ -1,6 +1,6 @@
-# Sprint 256 — Einstellungen aufteilen
+# Sprint 256 — Einstellungen: Feldschutz und Migrationsschritte
 
-**Version:** `16.9.0` (versionCode `160900`) — **PLAN**
+**Version:** `16.8.0` (versionCode `160800`) — **PLAN**, verkleinert
 **Plan:** [`68-next.md`](../68-next.md) §11 · Upgrade **G** aus [`67-upgrades.md`](../67-upgrades.md)
 
 ## Ziel
@@ -8,60 +8,70 @@
 Ein kaputtes Feld kostet dieses Feld — nicht die ganze Einrichtung. Und ein
 umbenanntes Feld verliert seinen Wert nicht mehr still.
 
-## Warum
+## Was aus diesem Sprint gestrichen wurde
 
-`Settings` ist ein Objekt mit über 250 Feldern in **einem** localStorage-Eintrag.
-`saveSettings(patch)` liest alles, mischt, schreibt alles zurück. Daraus folgen
-drei Dinge:
+Geplant war die **Aufteilung in drei Bereiche** (`secrets`, `prefs`, `session`)
+plus Backup-Umbau. Gegen die vier Prioritäten gerechnet, trägt das nicht:
 
-- **Jedes Feld hat dasselbe Risiko.** Der Gemini-Key liegt neben `hud_view`. Bis
-  `16.1.0` setzte ein einzelnes falsches Zeichen die komplette Einrichtung auf
-  Werk zurück — der Fix parkt die Rohdaten jetzt zur Seite, aber die Ursache
-  (alles oder nichts) steht noch.
-- **Es gibt keine Migrationsschritte.** Nur `{...DEFAULT_SETTINGS, ...prev}`. Wer
-  ein Feld umbenennt, verliert den alten Wert lautlos: das alte Feld ist nicht
-  mehr im Default, das neue hat noch keinen Wert.
-- **Das Backup nimmt alles mit.** Auch `hud_view` und andere Sitzungsreste, die
-  auf einem neuen Gerät nichts zu suchen haben.
+| Priorität | Wirkung der Aufteilung |
+|-----------|------------------------|
+| Antwortqualität | keine |
+| Alles funktioniert | **Risiko statt Gewinn.** Über 250 Felder umziehen, jedes Lesen und Schreiben in der App anfassen — der akute Datenverlust ist seit `16.1.1` bereits abgefangen |
+| Latenz | keine (drei Lesevorgänge statt einem, im Rauschen) |
+| Kostenlos / nutzbar | keine |
+
+Der Auslöser war der Datenverlust bei kaputtem JSON. Der ist behoben:
+`parkBrokenSettings` in `store.ts` legt korrupte Rohdaten seit `16.1.1` unter
+einem `.broken`-Schlüssel ab, statt auf Werk zurückzufallen. Damit ist der
+Schaden von „alles weg" auf „einmal neu einrichten, Daten liegen noch da"
+gesunken.
+
+Was **bleibt**, sind zwei Dinge, die für sich stehen und klein sind:
+
+- **Feldweiser Rückfall.** Heute ist es alles oder nichts. Ein einzelnes
+  kaputtes Feld sollte dieses Feld kosten, nicht den Eintrag. Das ist ein Gewinn
+  bei „alles funktioniert", ohne Umzug.
+- **Benannte Migrationsschritte.** Es gibt nur `{...DEFAULT_SETTINGS, ...prev}`.
+  Wer ein Feld umbenennt, verliert den alten Wert lautlos. Das ist **jetzt**
+  wichtiger als vorher, weil die Sprints 249–259 neue Felder anlegen — ohne
+  Migrationsschritte ist jeder davon ein stiller Kandidat für Datenverlust.
+
+Die Bereichsaufteilung ist damit nicht verworfen, sondern **Could** ohne Version.
+Sie kommt, wenn es einen belegten Anlass gibt — etwa wenn Backups tatsächlich
+Sitzungsreste auf ein neues Gerät tragen und das jemandem auffällt.
 
 ## Heute vs. Ziel
 
 | Heute | Ziel |
 |-------|------|
-| ein Eintrag, 250+ Felder | drei Bereiche: `secrets`, `prefs`, `session` |
 | kaputtes JSON → alles auf Default (Rohdaten geparkt) | kaputtes **Feld** → dieses Feld auf Default |
-| `{...DEFAULT, ...prev}` als Migration | benannte Schritte `v13 → v14` |
-| Backup nimmt alles | Backup nimmt `prefs` + `secrets` |
+| `{...DEFAULT, ...prev}` als Migration | benannte Schritte mit Versionsnummer |
+| Umbenennen verliert den Wert still | Umbenennen ist ein Schritt mit Test |
 
 ## Lieferumfang
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S256-1 | `zod`-Schema für die drei Bereiche | `engine/settings-schema.ts` | PLAN |
+| S256-1 | `zod`-Schema für `Settings`, feldweise validiert | `engine/settings-schema.ts` | PLAN |
 | S256-2 | Feldweiser Rückfall auf Default statt Totalverlust | `engine/store.ts` | PLAN |
 | S256-3 | Benannte Migrationsschritte mit Versionsnummer | `engine/settings-migrate.ts` | PLAN |
-| S256-4 | Aufteilen: `secrets` (Keys), `prefs` (Wahl), `session` (flüchtig) | `engine/store.ts` | PLAN |
-| S256-5 | Migration der bestehenden Einträge auf die Bereiche | `engine/settings-migrate.ts` | PLAN |
-| S256-6 | Backup nimmt nur `prefs` + `secrets` | `engine/backup.ts` | PLAN |
-| S256-7 | `session` überlebt keinen Neustart (bewusst) | `engine/store.ts` | PLAN |
-| S256-8 | Tests: jede Migration einzeln, kein Feld verloren | `scripts/test-settings-migrate.mjs` | PLAN |
+| S256-4 | Tests: jede Migration einzeln, kein Feld verloren | `scripts/test-settings-migrate.mjs` | PLAN |
+| S256-5 | `parkBrokenSettings` bleibt als letzte Ebene erhalten | `engine/store.ts` | PLAN |
 
-## Bereiche
-
-| Bereich | Beispiel | Backup | Lebensdauer |
-|---------|----------|--------|-------------|
-| `secrets` | Groq-Key, Gemini-Key, Spotify-Token | ja | bis der Nutzer sie ändert |
-| `prefs` | Stimme, Theme, TV-Adresse, Heimatort | ja | dauerhaft |
-| `session` | `hud_view`, `hud_force`, `last_place`, `last_step_tool` | nein | bis zum Neustart |
-
-Die Trennung ist der eigentliche Gewinn: erst wenn `session` als flüchtig
-markiert ist, kann ein Backup sauber sein.
+Fünf Tasks statt acht, kein Umzug. `parkBrokenSettings` wird ausdrücklich
+**nicht** ersetzt: der Feldschutz greift bei einem kaputten Feld, das Parken bei
+einem kaputten Eintrag. Zwei Ebenen, beide billig.
 
 ## Abbruchkriterium
 
 Eine Migration verliert ein Feld. Der Test dafür ist keine Formsache: für jeden
 Schritt wird ein echter alter Hausstand eingespielt und Feld für Feld
 verglichen.
+
+Zweites Kriterium: die feldweise Prüfung kostet messbar Startzeit. `zod` über
+250 Felder bei jedem `loadSettings()` wäre ein Latenzverlust für einen
+Robustheitsgewinn — dann wird nur beim **Laden** validiert, nicht bei jedem
+Lesen, und das Ergebnis gecacht.
 
 ## Tests
 
@@ -75,4 +85,4 @@ npx tsc -b && npm run lint
 
 Manuell: Hausstand aus `16.1.1` exportieren, in den neuen Stand importieren,
 alle Keys und Vorlieben prüfen. Dann ein Feld im JSON absichtlich zerstören —
-nur dieses Feld darf auf Default fallen.
+nur dieses Feld darf auf Default fallen, alles andere muss stehen bleiben.

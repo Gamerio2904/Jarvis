@@ -1,6 +1,6 @@
 # Sprint 258 — Werkzeug-Vertrag für das Modell
 
-**Version:** `16.11.0` (versionCode `161100`) — **PLAN**
+**Version:** `16.10.0` (versionCode `161000`) — **PLAN**
 **Plan:** [`68-next.md`](../68-next.md) §13 · Upgrade **E** aus [`67-upgrades.md`](../67-upgrades.md)
 **Voraussetzung:** Sprint **250** (Kennzahlen), **257** (Bewertungsschicht steht)
 
@@ -47,6 +47,8 @@ vom **Vollzug** zu trennen.
 | S258-9 | `response_format: json_schema` mit `strict` bei Groq nutzen | `engine/groq.ts` | PLAN |
 | S258-10 | Schema **nicht** doppelt in den Prompt schreiben | `engine/tool-schema.ts` | PLAN |
 | S258-11 | Rückfallebene ohne erzwungenes JSON: Vorschlagsweg abschalten, nicht raten | `engine/tool-propose.ts` | PLAN |
+| S258-12 | Ein Modellaufruf je Zug — Vorlagen für `device`/`write`, kein zweiter Aufruf | `director.ts` | PLAN |
+| S258-13 | Latenz vorher/nachher auf dem `none`-Pfad, `latencyP95` in die PR | `engine/latency.ts` | PLAN |
 
 ## Erzwungenes JSON statt erbetenes (S258-9)
 
@@ -90,6 +92,28 @@ maschinenseitig, erreicht nie den Nutzer   →  englisch
 wird gesprochen oder angezeigt             →  deutsch
 ```
 
+## Ein Aufruf, nicht zwei
+
+Der Vorschlagsweg darf die Runde **nicht teurer machen**. Heute gilt bei
+`none`: ein Modellaufruf, das Modell redet. Naiv umgesetzt würde daraus: ein
+Aufruf für den Vorschlag, dann ausführen, dann ein zweiter Aufruf fürs
+Formulieren — doppelte Latenz und doppeltes Kontingent für denselben Zug.
+
+Deshalb als Bedingung, nicht als Optimierung:
+
+| Fall | Antwort kommt von | Modellaufrufe |
+|------|-------------------|---------------|
+| `device` / `write` bestätigt und ausgeführt | Vorlage wie heute bei Parser-Treffern | **1** |
+| `read` mit prüfbarem Ergebnis | Vorlage plus Ergebnis | **1** |
+| Vorschlag verworfen (Schema oder Parser) | Rückfall auf den freien Text desselben Aufrufs | **1** |
+
+Der Trick ist der letzte Fall: der Vorschlag und die Prosa-Antwort kommen aus
+**einem** Aufruf, weil `device`- und `write`-Antworten in Jarvis ohnehin aus
+Vorlagen bestehen und kein Modell brauchen. Nur wenn ein `read`-Agent ein
+Ergebnis liefert, das sprachlich eingebettet werden muss, ist ein zweiter Aufruf
+überhaupt eine Frage — und dann entscheidet die Messung aus 250, nicht das
+Gefühl.
+
 ## Die vier Schranken
 
 ```text
@@ -114,6 +138,10 @@ Fernseher. Findet der Test einen Weg daran vorbei, wird der Sprint zurückgezoge
 
 Zweites Kriterium: die Fehlgriffe steigen. Ein Vorschlag, der öfter falsch als
 hilfreich ist, macht die App unberechenbar.
+
+Drittes: **der `none`-Pfad wird langsamer oder teurer.** Ein zusätzlicher
+Modellaufruf pro Zug wäre bei 1.000 Requests am Tag eine Halbierung der
+Nutzbarkeit. S258-12 ist deshalb Bedingung, nicht Feinschliff.
 
 ## Tests
 

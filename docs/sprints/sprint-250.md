@@ -38,7 +38,7 @@ handeln". Das ist eine **Quote**, kein Ja/Nein.
 | S250-2 | Verwechslungspaare: erwartet ≠ gewählt, nach Häufigkeit | `scripts/eval/metrics.mjs` | PLAN |
 | S250-3 | Baseline schreiben und lesen | `scripts/eval/baseline.json` | PLAN |
 | S250-4 | Differenz-Ausgabe als Markdown-Tabelle | `scripts/eval/report.mjs` | PLAN |
-| S250-5 | Laufzeit je Fall, p50 / p95 | `scripts/eval/metrics.mjs` | PLAN |
+| S250-5 | Laufzeit je Fall, p50 / p95 — `latencyP95` aus `latency.ts` nutzen, nicht neu bauen | `scripts/eval/metrics.mjs` | PLAN |
 | S250-6 | Schwellen als harte Grenze im Lauf | `scripts/eval/report.mjs` | PLAN |
 | S250-7 | `npm run eval:report` | `package.json` | PLAN |
 | S250-8 | Docs: Kennzahlen erklärt in `66-agents-ist.md` | docs | PLAN |
@@ -104,3 +104,16 @@ npx tsc -b && npm run lint
 Gegenprobe: denselben Stand zweimal messen — die Zahlen müssen identisch sein.
 Eine Regel in `conflicts.ts` absichtlich entfernen und prüfen, dass die
 Trefferquote **sichtbar** fällt.
+
+## Was schon existiert und nicht neu gebaut wird
+
+`engine/latency.ts` hält bereits einen Ring-Log über die letzten Züge mit Pfad
+(`parser` / `gemini` / `groq` / `local`), Zeit bis zum ersten Token, Zeit bis zum
+ersten Ton und Gesamtzeit — und rechnet `latencyP95()` selbst, inklusive Bänder
+(`gut` ≤ 350 ms, `ok` ≤ 800 ms). Dieser Sprint **benutzt** das für die
+Laufzeitzahlen und ergänzt nur, was der Eval-Korpus zusätzlich braucht:
+Trefferquote, Rückfrage-Quote, Verwechslungen, Prompt-Tokens.
+
+Wichtig für die Abgrenzung: `latency.ts` misst den **echten Zug** auf dem Gerät,
+die Eval misst die **Routing-Entscheidung** offline. Beide Zahlen heißen „p95"
+und bedeuten Verschiedenes; im Bericht müssen sie getrennt benannt sein.

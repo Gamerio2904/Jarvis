@@ -46,18 +46,21 @@ dann Sprache (253–255), dann Struktur (256–259).
 |---------|--------|-------|------------|
 | `16.2.0` | 249 | Eval-Rahmen: `node:test`, eine Korpus-Quelle | Alle Fehler sichtbar statt nur der erste |
 | `16.3.0` | 250 | Eval-Kennzahlen, Prompt-Tokens, Sprach-A/B | Ohne Messwert ist 257 nicht bewertbar |
-| `16.4.0` | 251 | Sicherungsschalter + Kontingent + Agenten-Reste | 20 Zeilen, ohne Netz und ohne Budget sofort spürbar |
+| `16.4.0` | 251 | Sicherungsschalter + Kontingent + Agenten-Reste | Trägt in allen vier Kategorien; hängt an nichts |
 | `16.5.0` | 252 | Lage-Entscheidung + Wecker-Nummer | Zwei bekannte Reste, klein und abgeschlossen |
-| `16.6.0` | 253 | Abbruch bis in die Handler (`AbortSignal`) | Voraussetzung für Barge-in in 255 |
-| `16.7.0` | 254 | VAD statt Stillezähler (Stufe 1) | Die offene Beschwerde: abgehacktes Aufnehmen |
-| `16.8.0` | 255 | Semantisches Satzende + Barge-in (Stufe 2) | Baut auf 253 und 254 |
-| `16.9.0` | 256 | Einstellungen aufteilen, `zod`, Migration | Datenverlust-Risiko, unabhängig machbar |
-| `16.10.0` | 257 | Intent-Embeddings, Trennschärfe-Tor zuerst | Braucht 250 als Netz |
-| `16.11.0` | 258 | Werkzeug-Vertrag, erzwungenes JSON, Schemas englisch | Größte Reichweite, größter Eingriff |
-| **`17.0.0`** | 259 | Traces als Telemetrie + **Meilenstein** | Abschluss; Sideload |
+| `16.6.0` | 253 | Abbruch bis in die Handler + Barge-in verdrahten | Spart Akku, Kontingent und verwaisten Zustand |
+| `16.7.0` | 254 | Satzende-Heuristik (Stufe A), Silero opt-in (Stufe B) | Die offene Beschwerde, an der tatsächlichen Ursache |
+| `16.8.0` | 256 | Feldschutz + Migrationsschritte | Netz für alle Sprints, die Felder anlegen |
+| `16.9.0` | 257 | Intent-Embeddings, nur auf dem ambigen Pfad | Braucht 250 als Netz |
+| `16.10.0` | 258 | Werkzeug-Vertrag, erzwungenes JSON, Schemas englisch | Größte Reichweite, größter Eingriff |
+| **`17.0.0`** | 259 | Historie im Speicher + **Meilenstein** | Abschluss; Sideload |
 
-`17.0.0` bedeutet: **Jarvis kann sich selbst messen und lässt sich
-unterbrechen.** Beides fehlt heute vollständig.
+**Aufgelöst:** Sprint **255** — beide Hälften existieren im Code
+([`sprints/sprint-255.md`](./sprints/sprint-255.md)). Der Rest steckt in 253
+(S253-9) und 254 (Stufe A).
+
+`17.0.0` bedeutet: **Jarvis kann sich selbst messen, lässt sich unterbrechen und
+überlebt ein leeres Kontingent.**
 
 ---
 
@@ -67,16 +70,20 @@ unterbrechen.** Beides fehlt heute vollständig.
 249 Eval-Rahmen
  └─ 250 Kennzahlen ────────────────┐
                                    ├─ 257 Intent-Embeddings ─ 258 Werkzeug-Vertrag
-251 Sicherungsschalter             │
+251 Sicherungsschalter + Kontingent│
 252 Lage + Wecker-Nummer           │
-253 Abbruch ─┬─ 255 Barge-in       │
-254 VAD ─────┘                     │
-256 Einstellungen ─────────────────┘
-                                    └─ 259 Telemetrie + Meilenstein
+253 Abbruch + Barge-in             │
+254 Satzende (A) → Silero (B)      │
+256 Feldschutz ────────────────────┘
+                                    └─ 259 Historie + Meilenstein
 ```
 
-Frei kombinierbar: **251**, **252**, **256** hängen an nichts.
-Harte Ketten: **250 → 257**, **253 + 254 → 255**, alles → **259**.
+Frei kombinierbar: **251**, **252**, **253**, **254 Stufe A** und **256** hängen
+an nichts. Harte Ketten: **250 → 257**, **254 A → 254 B**, alles → **259**.
+
+Das ist der Unterschied zur vorigen Fassung: durch das Auflösen von 255 hängt
+der ganze Sprachmodus-Block an nichts mehr. **254 Stufe A** kann sofort und
+allein ausgeliefert werden.
 
 ---
 
@@ -101,6 +108,46 @@ Harte Ketten: **250 → 257**, **253 + 254 → 255**, alles → **259**.
   und Tokens sind laut §18 knapp. Bei einem Sprachassistenten kostet es
   zusätzlich das, was am meisten zählt: Antwortzeit.
 - **Keine Umstellung der Persona auf Englisch.** Begründung in §17.
+
+---
+
+## 3b. Der Prioritätentest
+
+Vier Vorgaben des PO, in dieser Reihenfolge: **hohe Antwortqualität**, **alles
+funktioniert**, **wenig Latenz**, **kostenlos und so viel wie möglich nutzbar**.
+Dazu die Regel: *nur ändern, wenn es einer Kategorie nutzt, ohne einer anderen zu
+schaden.*
+
+Jeder Sprint dieser Schiene ist danach durchgerechnet. Was blieb:
+
+| Sprint | Qualität | Funktioniert | Latenz | Kostenlos | Urteil |
+|--------|----------|--------------|--------|-----------|--------|
+| 249 Eval-Rahmen | mittelbar | **+** | — | — | bleibt |
+| 250 Kennzahlen | mittelbar | **+** | **+** messbar | **+** Cache | bleibt |
+| 251 Schalter + Kontingent | **+** ehrlich statt erfunden | **+** | **+** kein 25-s-Warten | **+** | bleibt, stärkster Sprint |
+| 252 Lage + Wecker | — | **+** | — | — | bleibt, klein |
+| 253 Abbruch + Barge-in | — | **+** kein Fremdzustand | **+** | **+** kein verwaister Abruf | bleibt |
+| 254 A Satzende | **+** kein Abschneiden | **+** | **+** kein 1100-ms-Warten | — | bleibt, **vorgezogen** |
+| 254 B Silero | **+** bei Störgeräusch | ~ Risiko | ~ Inferenz | — | bleibt **opt-in** |
+| 256 Feldschutz | — | **+** | — | — | **verkleinert** |
+| 257 Embeddings | **+** bei Gleichstand | ~ | **−→0** mit Schranke | — | bleibt **mit Schranke** |
+| 258 Werkzeug-Vertrag | **+** Reichweite | ~ | 0 mit S258-12 | 0 mit S258-12 | bleibt **mit Bedingung** |
+| 259 Historie | — | **+** | 0 im Speicher | — | **verkleinert** |
+
+Was **nicht** blieb, und warum:
+
+| Gestrichen | Kategorie, in der es geschadet hätte |
+|------------|--------------------------------------|
+| Sprint 255, Klassifikator fürs Satzende | Latenz (Aufruf pro Transkript-Änderung) und Kontingent — bei einer Regex, die den Fall schon löst |
+| Sprint 255, Barge-in | nichts gewonnen: existiert bereits vollständig |
+| 256, Aufteilung in drei Bereiche | „alles funktioniert": 250 Felder umziehen, während der akute Verlust seit `16.1.1` abgefangen ist |
+| 259, Ring-Puffer in IndexedDB | Latenz und Akku: ein Schreibvorgang je Zug für ein Debug-Werkzeug |
+| 259, OTel-Attributnamen | keine Wirkung in allen vier — es gibt keinen Collector und soll keinen geben |
+| 257, Embedding bei jedem Zug | Latenz auf dem schnellen Pfad, wo Parser in Mikrosekunden entscheiden |
+| 258, zweiter Modellaufruf je Zug | Latenz **und** Kontingent, bei 1.000 Requests am Tag die Hälfte |
+
+Der Prüfstein war in jedem Fall dieselbe Frage: **liegt der Nutzen im Code oder
+in der Annahme?** Fünfmal lag er in der Annahme, und der Code konnte es schon.
 
 ---
 
@@ -140,50 +187,65 @@ CSS-Zweig `.is-lage-scene` tot. **Braucht eine PO-Entscheidung**, weil die
 
 Details: [`sprints/sprint-252.md`](./sprints/sprint-252.md)
 
-## 8. Sprint 253 — Abbruch bis in die Handler (`16.6.0`)
+## 8. Sprint 253 — Abbruch bis in die Handler + Barge-in (`16.6.0`)
 
 `budget.ts` schneidet nur das Warten ab; der Handler läuft weiter und kann noch
-`saveSettings` schreiben, nachdem sein Ergebnis verworfen wurde.
+`saveSettings` schreiben, nachdem sein Ergebnis verworfen wurde. Dazu S253-9:
+das **bestehende** Barge-in an den Controller hängen — es bricht heute nur die
+Stimme ab, nicht die Arbeit.
 
 Details: [`sprints/sprint-253.md`](./sprints/sprint-253.md)
 
-## 9. Sprint 254 — VAD statt Stillezähler (`16.7.0`)
+## 9. Sprint 254 — Satzende-Heuristik, dann Silero (`16.7.0`)
 
-`SILENCE_HOLD_VOICE_MS = 1100` kann nicht beides: wer Luft holt, wird
-abgeschnitten; wer schnell spricht, wartet. Silero VAD als ONNX im WebView.
+Die alte Begründung war falsch: `silenceMsFor` hält bereits dynamisch (220 ms
+oder 1100 ms). Der Fehler sitzt in `turnLooksComplete`, wo Länge als
+Vollständigkeitsbeleg gilt — „Licht an" wartet 1100 ms, „Erinnere mich morgen
+früh um acht" wird nach 220 ms abgeschnitten. **Stufe A** korrigiert das ohne
+Modell. **Stufe B** holt Silero nach, opt-in, nur gegen Störgeräusch.
 
 Details: [`sprints/sprint-254.md`](./sprints/sprint-254.md)
 
-## 10. Sprint 255 — Satzende + Barge-in (`16.8.0`)
+## 10. Sprint 255 — **aufgelöst**
 
-„Erinnere mich in fünf …" ist nach 1,5 s Stille nicht fertig. Ein Klassifikator
-entscheidet inhaltlich. Barge-in bricht TTS **und** den laufenden Zug ab.
+Barge-in existiert (`watchBargeIn`, `cutIn`, `BARGE_IGNORE_TTS_MS`), das
+semantische Satzende existiert als Regex (`turnLooksComplete`). Der geplante
+Klassifikator hätte Latenz und Kontingent gekostet, ohne einen offenen Fall zu
+lösen. Rest: S253-9 und 254 Stufe A.
 
 Details: [`sprints/sprint-255.md`](./sprints/sprint-255.md)
 
-## 11. Sprint 256 — Einstellungen aufteilen (`16.9.0`)
+## 11. Sprint 256 — Feldschutz + Migrationsschritte (`16.8.0`)
 
-Über 250 Felder in einem localStorage-Eintrag, ohne Migrationsschritte. Der
-Gemini-Key liegt neben `hud_view`.
+Ein kaputtes Feld soll dieses Feld kosten, nicht den Eintrag — und ein
+umbenanntes Feld nicht still seinen Wert. Die geplante Aufteilung in drei
+Bereiche ist gestrichen: der akute Datenverlust ist seit `16.1.1` durch
+`parkBrokenSettings` abgefangen, und 250 Felder umzuziehen wäre Risiko ohne
+Gewinn.
 
 Details: [`sprints/sprint-256.md`](./sprints/sprint-256.md)
 
-## 12. Sprint 257 — Intent-Embeddings (`16.10.0`)
+## 12. Sprint 257 — Intent-Embeddings (`16.9.0`)
 
-Die Bewertungsschicht wird gelernt statt handgestimmt. Die Parser bleiben.
+Die Bewertungsschicht wird gelernt statt handgestimmt, aber **nur bei
+Gleichstand**. Auf dem schnellen Pfad entscheiden weiter die Parser, damit
+„Licht an" nicht langsamer wird. Die Parser bleiben.
 
 Details: [`sprints/sprint-257.md`](./sprints/sprint-257.md)
 
-## 13. Sprint 258 — Werkzeug-Vertrag (`16.11.0`)
+## 13. Sprint 258 — Werkzeug-Vertrag (`16.10.0`)
 
-Der Vorschlag darf vom Modell kommen, die Ausführung nicht.
+Der Vorschlag darf vom Modell kommen, die Ausführung nicht — und das Ganze in
+**einem** Modellaufruf, sonst kostet die Reichweite Latenz und Kontingent.
 
 Details: [`sprints/sprint-258.md`](./sprints/sprint-258.md)
 
-## 14. Sprint 259 — Telemetrie + Meilenstein `17.0.0`
+## 14. Sprint 259 — Historie im Speicher + Meilenstein `17.0.0`
 
-Ring-Puffer der letzten 50 Züge in IndexedDB, benannt nach den GenAI-Konventionen
-von OpenTelemetry. Danach Sideload `17.0.0`.
+`latency.ts` hält schon 24 Züge mit Zeiten und Pfad, `trace-store.ts` 200
+Traces. Was fehlt, ist das Durchblättern — nicht die Erfassung. Der geplante
+IndexedDB-Ring entfällt, weil ein Schreibvorgang je Zug den Normalbetrieb
+bremst. Danach Sideload `17.0.0`.
 
 Details: [`sprints/sprint-259.md`](./sprints/sprint-259.md)
 
@@ -197,24 +259,31 @@ Jeder Sprint hat eine Bedingung, unter der er **nicht** ausgeliefert wird:
 |--------|-----------|
 | 249 | ein Prompt aus dem alten Korpus fehlt in der neuen Quelle |
 | 250 | die Kennzahlen des Vorlaufs lassen sich nicht reproduzieren |
-| 251 | der Schalter hält einen gesunden Agenten zurück |
+| 251 | der Schalter hält einen gesunden Agenten zurück, oder die Kontingent-Schwelle greift zu früh |
 | 252 | der Blackscreen kommt zurück |
 | 253 | ein abgebrochener Zug schreibt weiter in den Speicher |
-| 254 | mehr abgeschnittene Sätze als mit der Konstante |
-| 255 | Barge-in schneidet die eigene Frage ab |
-| 256 | eine Migration verliert ein Feld |
-| 257 | der Trennschärfe-Test scheitert, oder Trefferquote sinkt gegenüber der Baseline |
-| 258 | ein Modellvorschlag erreicht ein Gerät ohne Bestätigung |
-| 259 | der Ring-Puffer wächst über seine Grenze |
+| 254 A | mehr abgeschnittene Sätze **oder** längeres Warten bei Kurzbefehlen |
+| 254 B | Start-Bundle wächst, oder Akkuverbrauch im Sprachmodus steigt messbar |
+| 256 | eine Migration verliert ein Feld, oder `zod` kostet Startzeit |
+| 257 | der Trennschärfe-Test scheitert, Trefferquote sinkt, oder der schnelle Pfad wird langsamer |
+| 258 | ein Modellvorschlag erreicht ein Gerät ohne Bestätigung, oder der `none`-Pfad braucht zwei Aufrufe |
+| 259 | das Zusammenführen bremst die Antwort |
 
-Neu bei **257**: der Trennschärfe-Test (`eval:separability`) läuft **vor** der
-Umsetzung und kann den Sprint schließen, bevor er beginnt. Näheres in
-[`sprints/sprint-257.md`](./sprints/sprint-257.md) §S257-9.
+Zwei Kriterien sind neu und folgen direkt aus den PO-Prioritäten. Bei **254 A**
+zählt nicht nur, ob weniger abgeschnitten wird — auch längeres Warten ist ein
+Rückschritt, sonst tauscht man ein Ärgernis gegen ein anderes. Bei **257** und
+**258** ist die Latenz des jeweiligen Pfads ein hartes Kriterium, gemessen mit
+`latencyP95` aus `latency.ts` vorher und nachher.
 
 ## 16. PO-Testreihenfolge
 
 Nach **252** die erste APK dieser Schiene (die Lage-Entscheidung ist sichtbar),
-nach **255** die zweite (Sprachmodus), nach **259** das Meilenstein-Sideload.
+nach **254 Stufe A** die zweite (Sprachmodus — und die kann früh kommen, weil
+Stufe A an nichts hängt), nach **259** das Meilenstein-Sideload.
+
+Wenn der PO nur **eine** Sache früh auf dem Gerät sehen will, dann **254 Stufe
+A**: es ist die einzige Änderung dieser Schiene, die die lauteste Beschwerde
+behebt, in Node prüfbar ist und weder Download noch Netz braucht.
 
 ---
 

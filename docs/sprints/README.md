@@ -249,19 +249,21 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 250 | [`sprint-250.md`](./sprint-250.md) | `16.3.0` | Eval-Kennzahlen + Baseline, Prompt-Tokens, Sprach-A/B | **PLAN** Must |
 | 251 | [`sprint-251.md`](./sprint-251.md) | `16.4.0` | Sicherungsschalter + **Kontingent** + Agenten-Reste | **PLAN** Must |
 | 252 | [`sprint-252.md`](./sprint-252.md) | `16.5.0` | Lage-Entscheidung + Wecker-Nummer | **PLAN** Must (PO) |
-| 253 | [`sprint-253.md`](./sprint-253.md) | `16.6.0` | Abbruch bis in die Handler (`AbortSignal`) | **PLAN** Must |
-| 254 | [`sprint-254.md`](./sprint-254.md) | `16.7.0` | VAD statt Stillezähler (Stufe 1) | **PLAN** Must |
-| 255 | [`sprint-255.md`](./sprint-255.md) | `16.8.0` | Semantisches Satzende + Barge-in | **PLAN** Must |
-| 256 | [`sprint-256.md`](./sprint-256.md) | `16.9.0` | Einstellungen aufteilen, `zod`, Migration | **PLAN** Must |
-| 257 | [`sprint-257.md`](./sprint-257.md) | `16.10.0` | Intent-Embeddings statt Konflikt-Tisch (Trennschärfe-Tor zuerst) | **PLAN** Must |
-| 258 | [`sprint-258.md`](./sprint-258.md) | `16.11.0` | Werkzeug-Vertrag, erzwungenes JSON, Schemas englisch | **PLAN** Should |
-| 259 | [`sprint-259.md`](./sprint-259.md) | **`17.0.0`** | Telemetrie + **Meilenstein** | **PLAN** Must |
+| 253 | [`sprint-253.md`](./sprint-253.md) | `16.6.0` | Abbruch bis in die Handler + Barge-in verdrahten | **PLAN** Must |
+| 254 | [`sprint-254.md`](./sprint-254.md) | `16.7.0` | Satzende-Heuristik (A, ohne Modell) + Silero (B, opt-in) | **PLAN** Must |
+| 255 | [`sprint-255.md`](./sprint-255.md) | — | Satzende + Barge-in | **AUFGELÖST** — existiert im Code; Rest in 253 (S253-9) und 254 A |
+| 256 | [`sprint-256.md`](./sprint-256.md) | `16.8.0` | Feldschutz + Migrationsschritte (Aufteilung gestrichen) | **PLAN** Must, verkleinert |
+| 257 | [`sprint-257.md`](./sprint-257.md) | `16.9.0` | Intent-Embeddings, nur bei Gleichstand (Trennschärfe-Tor zuerst) | **PLAN** Must |
+| 258 | [`sprint-258.md`](./sprint-258.md) | `16.10.0` | Werkzeug-Vertrag, erzwungenes JSON, ein Modellaufruf | **PLAN** Should |
+| 259 | [`sprint-259.md`](./sprint-259.md) | **`17.0.0`** | Historie im Speicher + **Meilenstein** | **PLAN** Must, verkleinert |
 
 **Aktuell:** Code **`16.1.1`**. Sideload `16.1.1`, versionCode `160101`. Execute 227–248 **CODE**. Router-, Timer- und Agenten-Härtung: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-16.1.0.md`](../TEST-16.1.0.md).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `16.1.1`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `16.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
 **Nächste Schiene:** 249–259 → [`../68-next.md`](../68-next.md), Ziel `17.0.0` („messbar und unterbrechbar"). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen und Sprachentscheidung: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
+
+**Gegen die PO-Prioritäten geprüft** (Qualität, funktioniert, Latenz, kostenlos — nur ändern, wenn Nutzen ohne Verlust): 255 aufgelöst, 256 und 259 verkleinert, 257 und 258 mit Latenz-Schranke. Die Rechnung je Sprint steht in [`../68-next.md`](../68-next.md) §3b.
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

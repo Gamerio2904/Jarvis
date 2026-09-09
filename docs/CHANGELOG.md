@@ -21,13 +21,13 @@ trotzdem kaputt — solange ein Korpus nur Ja/Nein ausgibt, ist Sprint 257
 | `16.3.0` | 250 | Eval-Kennzahlen + Baseline, Prompt-Tokens, Sprach-A/B |
 | `16.4.0` | 251 | Sicherungsschalter + **Kontingent** + Agenten-Reste (`identity`, `verify`) |
 | `16.5.0` | 252 | Lage-Entscheidung (PO) + Wecker-Nummer gespeichert statt gehasht |
-| `16.6.0` | 253 | Abbruch bis in die Handler (`AbortSignal`) |
-| `16.7.0` | 254 | VAD statt Stillezähler (Silero, `onnxruntime-web`) |
-| `16.8.0` | 255 | Semantisches Satzende + Barge-in |
-| `16.9.0` | 256 | Einstellungen aufteilen, `zod`, benannte Migration |
-| `16.10.0` | 257 | Intent-Embeddings statt Konflikt-Tisch (Trennschärfe-Tor zuerst) |
-| `16.11.0` | 258 | Werkzeug-Vertrag: Modell schlägt vor, Parser vollzieht; JSON erzwungen |
-| **`17.0.0`** | 259 | Traces als Telemetrie + **Meilenstein**, Sideload |
+| `16.6.0` | 253 | Abbruch bis in die Handler (`AbortSignal`) + Barge-in verdrahten |
+| `16.7.0` | 254 | Satzende-Heuristik (Stufe A, ohne Modell) + Silero (Stufe B, opt-in) |
+| — | 255 | **AUFGELÖST** — existiert im Code; Rest in 253 und 254 A |
+| `16.8.0` | 256 | Feldschutz + benannte Migration (Aufteilung gestrichen) |
+| `16.9.0` | 257 | Intent-Embeddings, nur bei Gleichstand (Trennschärfe-Tor zuerst) |
+| `16.10.0` | 258 | Werkzeug-Vertrag: Modell schlägt vor, Parser vollzieht; ein Modellaufruf |
+| **`17.0.0`** | 259 | Historie im Speicher + **Meilenstein**, Sideload |
 
 Frei kombinierbar: 251, 252, 256. Harte Ketten: 250 → 257, 253 + 254 → 255.
 Jeder Sprint hat ein Abbruchkriterium; für 258 ist es hart — erreicht ein
@@ -85,6 +85,75 @@ die verschiedener Agenten? Fällt er negativ aus — bei `tv` gegen `home` gut
 möglich — wird der Sprint geschlossen statt gebaut, mit dem Messwert als
 Begründung. Dazu S257-10: die `query:` / `passage:`-Präfixe von e5 sind nicht
 optional, und ihr Fehlen ist stumm.
+
+#### Nachtrag: gegen die PO-Prioritäten geprüft
+
+Vorgaben: **hohe Antwortqualität, alles funktioniert, wenig Latenz, kostenlos und
+so viel wie möglich nutzbar** — und nur ändern, wenn es einer Kategorie nutzt,
+ohne einer anderen zu schaden. Jeder Sprint der Schiene ist danach
+durchgerechnet ([`68-next.md`](./68-next.md) §3b). Fünf Ergebnisse:
+
+**Sprint 255 ist aufgelöst, weil beide Hälften schon existieren.** Barge-in ist
+gebaut: `watchBargeIn()` in `native/voice.ts` (nativ plus Web-Fallback über
+`createEnergyVad`), in `ui/VoiceMode.tsx` an zwei Stellen verdrahtet, bricht die
+Stimme über `cutIn(pipe)` ab und verwirft den Zug über `abortTurn` — samt
+Selbstschutz (`BARGE_IGNORE_TTS_MS = 400`, `isBargeInText()` filtert „mhm" und
+„aha"). Das semantische Satzende ist ebenfalls gebaut, als Regex:
+`turnLooksComplete()` prüft `INCOMPLETE_TAIL` („…und", „…weil") und Satzzeichen,
+`silenceMsFor()` verrechnet das zu 220 ms oder 1100 ms. Der geplante
+Klassifikator hätte einen Aufruf pro Transkript-Änderung gekostet, also mehrere
+je Äußerung, genau während der Nutzer aufs Ende wartet — Verlust bei Latenz,
+Kontingent und Fehlerwegen, für einen Fall, den die Regex schon löst. Bleibt
+genau ein echter Rest, jetzt **S253-9**: `abortTurn` verwirft nur das Ergebnis,
+die Handler laufen weiter.
+
+**Sprint 254 hatte eine falsche Begründung.** Es hieß dort, `SILENCE_HOLD_VOICE_MS
+= 1100` sei eine feste Konstante, die „nicht beides kann". Das Halten ist längst
+dynamisch. Der Fehler steckt in zwei Zeilen von `turnLooksComplete`, die Länge
+mit Vollständigkeit verwechseln — `words.length >= 6` und `t.length >= 24`. Das
+dreht das Verhalten in **beide** Richtungen falsch: „Licht an" (2 Wörter) gilt
+als unvollständig und wartet **1100 ms**, während „Erinnere mich morgen früh um
+acht" (6 Wörter) als fertig gilt und nach **220 ms** abgeschickt wird — das
+„…an den Zahnarzt" fällt weg. Genau die Beschwerde „er nimmt meine Sätze
+abgehackt auf", und gleichzeitig verlorene Zeit beim häufigsten Kurzbefehl. Der
+Sprint ist jetzt zweistufig: **Stufe A** korrigiert die Heuristik ohne Modell,
+ohne Download, ohne Netz und ist als reine Funktion in Node prüfbar. **Stufe B**
+holt Silero nach, opt-in und nur gegen Störgeräusch, das eine Regex nicht
+erkennen kann.
+
+**Sprint 256 ist verkleinert.** Die Aufteilung in `secrets` / `prefs` /
+`session` ist gestrichen: über 250 Felder umziehen und jeden Zugriff anfassen
+wäre ein Risiko für „alles funktioniert", während der auslösende Datenverlust
+seit `16.1.1` durch `parkBrokenSettings` abgefangen ist. Es bleiben der
+feldweise Rückfall und benannte Migrationsschritte — letztere sind jetzt
+wichtiger als zuvor, weil die Sprints 249–259 neue Felder anlegen.
+
+**Sprint 259 ist verkleinert.** `engine/latency.ts` hält bereits einen Ring-Log
+über 24 Züge mit Pfad, Zeit bis zum ersten Token, Zeit bis zum ersten Ton und
+Gesamtzeit — und rechnet `latencyP95()` selbst. Gefehlt hat nicht die Erfassung,
+sondern das Durchblättern. Der geplante IndexedDB-Ring entfällt: ein
+Schreibvorgang je Zug bremst den Normalbetrieb und kostet Akku, also Latenz für
+ein Debug-Werkzeug. Die OTel-Attributnamen entfallen ganz — sie bringen
+Anschluss an einen Collector, den es hier nicht gibt und nicht geben soll.
+
+**Sprints 257 und 258 haben eine Latenz-Schranke bekommen.** 257 sollte die
+Embedding-Ähnlichkeit zu `parserScore` addieren, also bei **jedem** Zug ein
+Modell rechnen. Auf dem deterministischen Pfad entscheiden heute reguläre
+Ausdrücke in Mikrosekunden; für „Licht an" wäre das ein Rückschritt. Jetzt läuft
+das Embedding **nur bei mehreren gleich starken Kandidaten** — also dort, wo
+Jarvis heute zurückfragt, was den Nutzer Sekunden kostet. Nebeneffekt: wer nur
+Geräte schaltet, lädt das Modell nie. Bei 258 gilt **ein Modellaufruf je Zug**
+(S258-12): naiv umgesetzt hätte der Vorschlagsweg einen Aufruf fürs Vorschlagen
+und einen fürs Formulieren gebraucht, also doppelte Latenz und doppeltes
+Kontingent. Da `device`- und `write`-Antworten aus Vorlagen bestehen, ist der
+zweite Aufruf nicht nötig.
+
+Was **nicht** geändert wurde, obwohl geprüft: `prompt-split.ts` ist bereits
+cache-freundlich (statische Persona im `system`, Wechselndes am letzten
+User-Turn), und der Sprechpfad streamt bereits satzweise über
+`createSentenceTap` und `createSpeakPipeline` — die Stimme beginnt beim ersten
+fertigen Satz, nicht bei der fertigen Antwort. Beides ist genau so, wie es für
+Latenz sein soll.
 
 **Zwei Sprints griffen an bestehender Mechanik vorbei.** `quality-pack.ts`
 existiert und ist genau für opt-in-ONNX-Pakete gebaut: vier Could-Pakete

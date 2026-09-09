@@ -1,6 +1,6 @@
 # Sprint 253 — Abbruch bis in die Handler
 
-**Version:** `16.6.0` (versionCode `160600`) — **PLAN**
+**Version:** `16.6.0` (versionCode `160600`) — **PLAN**, erweitert um den Barge-in-Rest aus 255
 **Plan:** [`68-next.md`](../68-next.md) §8 · Upgrade **A** aus [`67-upgrades.md`](../67-upgrades.md)
 
 ## Ziel
@@ -46,6 +46,24 @@ Drei Folgen:
 | S253-6 | Executoren durchreichen (mechanisch, ~59) | `agents/execute-map.ts` + Module | PLAN |
 | S253-7 | Schreibsperre: `saveSettings` aus einem abgebrochenen Zug wird verworfen | `engine/store.ts` | PLAN |
 | S253-8 | Tests | `scripts/test-agents-robust.mjs`, `test-turn-e2e.mjs` | PLAN |
+| S253-9 | Bestehendes Barge-in an den Controller hängen (aus 255) | `ui/VoiceMode.tsx` | PLAN |
+
+## S253-9 — der einzige echte Rest aus Sprint 255
+
+Barge-in ist **gebaut**: `watchBargeIn()` in `native/voice.ts` (nativ plus
+Web-Fallback), in `ui/VoiceMode.tsx` an zwei Stellen verdrahtet, bricht die
+Stimme über `cutIn(pipe)` ab und verwirft den Zug über `abortTurn`. Auch der
+Selbstschutz ist da: `BARGE_IGNORE_TTS_MS = 400` und `isBargeInText()` filtert
+„mhm" und „aha" heraus.
+
+Was fehlt, ist genau eine Verbindung: `abortTurn` verwirft heute nur das
+**Ergebnis**. Die Handler laufen weiter, holen Feeds und können danach noch
+schreiben. Sobald S253-2 den Controller hat, wird `abortTurn` daran gehängt —
+dann bricht Reden nicht nur die Stimme ab, sondern auch die Arbeit.
+
+Das ist der Grund, warum Sprint 255 aufgelöst wurde: sein Barge-in-Teil ist
+diese eine Zeile, und sein Satzende-Teil existiert als Regex in
+`turn-detect.ts`. Details in [`sprint-255.md`](./sprint-255.md).
 
 ## Signal-Kette
 
