@@ -211,6 +211,63 @@ export async function fetchHudSnap(): Promise<HudSnap> {
   return snap
 }
 
+export async function fetchHudModule(id: HudId): Promise<Partial<HudSnap>> {
+  const s = loadSettings()
+  if (id === 'weather') return { weather: await weekWeather() }
+  if (id === 'spotify') {
+    const now = getSpotifyNow()
+    return {
+      spotify: {
+        title: now?.name || '',
+        artist: now?.artist || '',
+        playing: Boolean(now?.playing),
+        loggedIn: spotifyLoggedIn(s),
+      },
+    }
+  }
+  if (id === 'device') {
+    const now = Date.now()
+    if (!batteryCache || now - batteryAt > 60_000) {
+      batteryAt = now
+      const bat = await readBattery()
+      batteryCache = {
+        clock: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+        battery: bat.ok ? bat.percent : undefined,
+        charging: bat.charging,
+      }
+    }
+    return {
+      device: {
+        ...batteryCache,
+        clock: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      },
+    }
+  }
+  if (id === 'brief') return { brief: { line: await briefLine() } }
+  if (id === 'plugs') return { plugs: { names: loadPlugs().map((p) => p.name) } }
+  if (id === 'tv') return { tv: { name: s.tv_name || 'Fernseher', on: Boolean(s.tv_enabled && s.tv_paired) } }
+  if (id === 'news') return { news: { line: s.last_news_line || 'Nachrichten im Chat fragen.' } }
+  if (id === 'drive') {
+    const r = getDriveRoute()
+    return { drive: r ? { dest: r.dest, minutes: r.minutes, meters: r.meters } : null }
+  }
+  if (id === 'warn') return { warn: { line: s.last_warn_line || 'Unwetter im Chat fragen.' } }
+  if (id === 'fx') return { fx: { line: s.last_fx_line || 'Kurs im Chat fragen.' } }
+  if (id === 'sport') return { sport: { line: s.last_sport_line || 'Sport im Chat fragen.' } }
+  if (id === 'chess') return { chess: { fen: loadFen() } }
+  if (id === 'trace') {
+    let hops: string[] = []
+    try {
+      hops = s.last_hops_json ? (JSON.parse(s.last_hops_json) as string[]) : []
+    } catch {
+      hops = []
+    }
+    return { trace: { host: s.last_trace_host || '', hops } }
+  }
+  if (id === 'world') return { world: { line: s.last_outlook_line || 'Weltlage im Chat fragen.' } }
+  return {}
+}
+
 async function briefLine(): Promise<string> {
   const now = Date.now()
   const ev = (await listEvents())

@@ -2,7 +2,7 @@
 
 PO 2026-09-08: Instagram-Reel [Dc_qazGKcQ8](https://www.instagram.com/reel/Dc_qazGKcQ8/) — Jarvis am PC installiert/updated Spiele per Sprache, Iron-Man-Ästhetik, Community-Plugin geplant. Ziel: **gleiche Fluidität auf dem PC-Doc** wie im Reel, plus **sichtbar welcher Agent gerade arbeitet** (Körper/Lage).
 
-**App-Stand:** Sprint **239** (`15.2.0`) liefert GUI-Fixes (Overlays, Kalender, Kugel, Agent-Status). Dieses Doc plant **PC-Erweiterung** + Feinschliff Lage.
+**App-Stand:** Sprint **239–241** (`15.3.0`). GUI-Fixes **CODE**. PC-Dashboard **CODE** 240. Lage Phase-2 **CODE** 241.
 
 Gold: `test:prompts` + `test:pc` + `npm run build` + manuell Lage/Kalender/Kugel auf Handy.
 

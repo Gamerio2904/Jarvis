@@ -67,6 +67,16 @@ export function BodySchema({
     let last = 0
     let pulseT = 0
 
+    function needsMotion() {
+      if (reduced) return false
+      if (drag.current) return true
+      const aim = aimFor(selRef.current)
+      const moving =
+        Math.abs(aim.yaw - yaw.current) > 0.003 || Math.abs(aim.pitch - pitch.current) > 0.003
+      const anyLive = Object.values(snapRef.current).some((n) => n.live) || ampRef.current > 0.02
+      return anyLive || moving
+    }
+
     function resize() {
       const dpr = Math.min(1.5, window.devicePixelRatio || 1)
       const w = surface.clientWidth
@@ -78,11 +88,16 @@ export function BodySchema({
     resize()
     const ro = new ResizeObserver(() => {
       resize()
-      draw()
+      kick()
     })
     ro.observe(canvas)
     const offVis = onVisibility(() => {
-      if (!isDocumentHidden()) draw()
+      if (isDocumentHidden()) {
+        cancelAnimationFrame(raf)
+        raf = 0
+        return
+      }
+      kick()
     })
 
     function project(x: number, y: number, z: number) {
@@ -144,9 +159,20 @@ export function BodySchema({
       }
     }
 
+    function kick() {
+      if (raf || isDocumentHidden()) return
+      if (!needsMotion()) {
+        draw()
+        return
+      }
+      raf = requestAnimationFrame(loop)
+    }
+
     function loop(ts: number) {
+      raf = 0
+      if (isDocumentHidden()) return
       if (ts - last < MOTION_FRAME_MS) {
-        raf = requestAnimationFrame(loop)
+        if (needsMotion()) kick()
         return
       }
       last = ts
@@ -155,15 +181,11 @@ export function BodySchema({
         const aim = aimFor(selRef.current)
         yaw.current += (aim.yaw - yaw.current) * 0.08
         pitch.current += (aim.pitch - pitch.current) * 0.08
-        const moving =
-          Math.abs(aim.yaw - yaw.current) > 0.003 || Math.abs(aim.pitch - pitch.current) > 0.003 || Boolean(drag.current)
-        const anyLive = Object.values(snapRef.current).some((n) => n.live) || ampRef.current > 0.02
-        if (anyLive || moving) draw()
       }
-      raf = requestAnimationFrame(loop)
+      draw()
+      if (needsMotion()) kick()
     }
-    draw()
-    raf = requestAnimationFrame(loop)
+    kick()
 
     function pos(ev: PointerEvent) {
       const r = surface.getBoundingClientRect()
@@ -193,7 +215,7 @@ export function BodySchema({
       yaw.current += (p.x - drag.current.x) * 0.01
       pitch.current = Math.max(-0.8, Math.min(0.8, pitch.current + (p.y - drag.current.y) * 0.008))
       drag.current = p
-      draw()
+      kick()
     }
     const up = (ev: PointerEvent) => {
       const start = drag.current

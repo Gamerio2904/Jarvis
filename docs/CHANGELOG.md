@@ -5,6 +5,21 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `15.3.0` — PC-Dashboard + Lage Phase-2 — *CODE*
+
+Sprints **240–241**. Sideload **`15.3.0`** (versionCode `150300`).
+
+### PC-Dashboard (240)
+- **`PcDashboard`:** Agent-Karte + `AgentStatusBar` + `PcActionStream` (Desktop auto wenn PC gepairt).
+- **`pc-events.ts`:** strukturierte PC-Aktionen; `pc.ts` pusht launch/confirm/done.
+
+### Lage Phase-2 (241)
+- **Lazy Kacheln:** `fetchHudModule` + IntersectionObserver — nur sichtbare Module laden.
+- **`BodySchema`:** idle rAF wie AgentMap.
+- **Kugel:** auto-lite bei p95 >16 ms; `globe_webgl` erzwingt Lite-Pfad.
+
+Quelle: [`64-next.md`](./64-next.md), [`sprints/sprint-240.md`](./sprints/sprint-240.md), [`sprints/sprint-241.md`](./sprints/sprint-241.md).
+
 ## `15.2.0` — Flüssige Lage-GUI + Kalender — *CODE*
 
 Sprint **239**. Sideload **`15.2.0`** (versionCode `150200`).

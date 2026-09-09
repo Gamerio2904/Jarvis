@@ -2,7 +2,7 @@ import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 
-export const APP_VERSION = '15.2.0'
+export const APP_VERSION = '15.3.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -263,6 +263,8 @@ export type Settings = {
   brain_micro_llm_merge: boolean
   brain_shadow_mode: boolean
   last_agent_id: string
+  pc_dashboard_v2: boolean | null
+  globe_webgl: boolean
 }
 
 const SETTINGS_KEY = 'jarvis_settings_v13'
@@ -421,6 +423,8 @@ export const DEFAULT_SETTINGS: Settings = {
   brain_micro_llm_merge: true,
   brain_shadow_mode: false,
   last_agent_id: '',
+  pc_dashboard_v2: null,
+  globe_webgl: false,
 }
 
 function nowIso(): string {

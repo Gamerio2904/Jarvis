@@ -3,6 +3,7 @@ import type { GeoFix } from '../../engine/globe-geo'
 import { globeFocusKey, lookLatLon, shouldApplyGlobeFocus, viewXYZ, yawPitchFor } from '../../engine/globe-geo'
 import { WORLD_RINGS } from '../../engine/world-rings'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion'
+import { loadSettings } from '../../engine/store'
 
 const HOME = { lat: 50.1, lon: 10.4 }
 const ZOOM_MIN = 1
@@ -109,6 +110,15 @@ export function GlobeView({
     const pen = ctx
     let raf = 0
     let last = 0
+    let frameTimes: number[] = []
+    let lite = loadSettings().globe_webgl
+
+    function ringStep() {
+      if (lite) return 12
+      if (zoom.current < 1.55) return 8
+      if (zoom.current < 2.4) return 5
+      return 3
+    }
 
     function resize() {
       const dpr = Math.min(1.5, window.devicePixelRatio || 1)
@@ -181,10 +191,12 @@ export function GlobeView({
       pen.arc(cx, cy, R, 0, Math.PI * 2)
       pen.fillStyle = g.rim
       pen.fill()
-      pen.beginPath()
-      pen.arc(cx, cy, R, 0, Math.PI * 2)
-      pen.fillStyle = g.sheen
-      pen.fill()
+      if (!lite) {
+        pen.beginPath()
+        pen.arc(cx, cy, R, 0, Math.PI * 2)
+        pen.fillStyle = g.sheen
+        pen.fill()
+      }
 
       pen.beginPath()
       pen.arc(cx, cy, R, 0, Math.PI * 2)
@@ -208,7 +220,7 @@ export function GlobeView({
     }
 
     function strokeRings() {
-      const step = zoom.current < 1.55 ? 8 : zoom.current < 2.4 ? 5 : 3
+      const step = ringStep()
       for (const ring of WORLD_RINGS) {
         if (ring.length < 8) continue
         let drawing = false
@@ -274,9 +286,11 @@ export function GlobeView({
           pen.fill()
         }
         pen.fillStyle = 'rgba(230, 240, 236, 0.82)'
-        pen.font = '10px Inter, system-ui, sans-serif'
-        pen.textAlign = 'left'
-        pen.fillText(pin.name, q.x + 8, q.y + 3)
+        if (!lite || pin.kind === 'here') {
+          pen.font = '10px Inter, system-ui, sans-serif'
+          pen.textAlign = 'left'
+          pen.fillText(pin.name, q.x + 8, q.y + 3)
+        }
       }
     }
 
@@ -307,8 +321,17 @@ export function GlobeView({
         return
       }
       const dt = Math.min(0.05, (ts - last) / 1000 || 1 / 30)
+      const frameMs = ts - last
       last = ts
       pulse.current += dt * 2.4
+      if (!lite && frameTimes.length >= 8) {
+        const sorted = [...frameTimes].sort((a, b) => a - b)
+        const p95 = sorted[Math.floor(sorted.length * 0.95)] || 0
+        if (p95 > 16) {
+          lite = true
+          sphereGradients = null
+        }
+      }
       const f = fly.current
       if (f && !reduced) {
         f.t += dt * 1.35
@@ -334,6 +357,10 @@ export function GlobeView({
         if (Math.abs(inertia.current.pitch) < 0.00015) inertia.current.pitch = 0
       }
       draw()
+      if (frameMs > 0) {
+        frameTimes.push(frameMs)
+        if (frameTimes.length > 24) frameTimes.shift()
+      }
       const spinning = Boolean(drag.current || pinch.current || fly.current || inertia.current.yaw || inertia.current.pitch)
       if (spinning) kick()
     }

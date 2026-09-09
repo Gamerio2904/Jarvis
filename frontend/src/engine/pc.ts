@@ -29,6 +29,7 @@ import { isPcGround, parseGroundIntent, type GroundIntent } from './ground-parse
 import { loadSettings, saveSettings } from './store'
 import { scrubReply } from './guards'
 import { packVerified } from './action-fsm.ts'
+import { pushPcEvent } from './pc-events.ts'
 import type { ToolMeta } from './tools'
 
 export { sanitizePcHost, isAllowedPcHost, PC_HOST_HINT } from './pc-host'
@@ -61,6 +62,9 @@ function packPc(opts: {
   preError?: string
   lastTool?: string
 }): PcHit {
+  const phase = opts.waiting ? 'confirm' : opts.cancelled ? 'fail' : opts.preOk === false ? 'fail' : 'done'
+  const detail = (opts.waiting ? opts.success : opts.preOk === false ? opts.fail : opts.success).slice(0, 120)
+  pushPcEvent({ phase, agentId: 'pc', action: opts.action, detail })
   const packed = packVerified({
     domain: 'pc',
     intent: opts.action,
@@ -581,6 +585,7 @@ async function stopLive(): Promise<PcHit> {
 }
 
 async function doLaunch(query: string): Promise<PcHit> {
+  pushPcEvent({ phase: 'execute', agentId: 'pc', action: 'launch', detail: query })
   const gated = await requireCap('launch')
   if (!('caps' in gated)) return gated
   const res = await callPc('/v1/launch', { query }, 15_000)

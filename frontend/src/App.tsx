@@ -48,6 +48,7 @@ import { decodeHtml } from './engine/html-text'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds'
 import { CalendarView } from './ui/Calendar'
+import { PcDashboard } from './ui/PcDashboard'
 import { VoiceMode } from './ui/VoiceMode'
 import { SettingsScreen, type SettingsTopic } from './ui/SettingsScreen'
 import { DriveMode } from './ui/DriveMode'
@@ -1808,6 +1809,7 @@ function App() {
 
         {!lageScene && !calendarOpen && !settingsLayer.shown && !voiceOpen ? (
         <div className="composer-wrap">
+          <PcDashboard busy={busy} />
           <PcLiveDock />
           {statusNote ? <div className="status-note">{statusNote}</div> : null}
           {error ? (

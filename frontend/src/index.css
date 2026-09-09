@@ -1623,6 +1623,139 @@ textarea {
   margin: 0 0 8px;
 }
 
+.pc-dashboard {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(29, 185, 84, 0.28);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(8, 14, 11, 0.92), rgba(5, 6, 5, 0.96));
+  contain: layout paint;
+}
+
+.pc-dashboard-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pc-dashboard-brand {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pc-dashboard-host {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  max-width: 42%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pc-dashboard-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 10px;
+  min-height: 0;
+}
+
+.pc-dashboard-map {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.pc-dashboard-map .agent-map-canvas {
+  min-height: 160px;
+  max-height: 220px;
+}
+
+.pc-action-stream {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  min-height: 160px;
+  overflow: auto;
+}
+
+.pc-action-stream h4 {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.pc-action-stream.is-empty p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.pc-action-stream ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pc-action-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.pc-action-phase {
+  flex: 0 0 auto;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: rgba(29, 185, 84, 0.16);
+  color: var(--accent);
+}
+
+.pc-action-row.is-fail .pc-action-phase {
+  background: rgba(241, 94, 108, 0.16);
+  color: #ffb4bc;
+}
+
+.pc-action-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pc-action-copy strong {
+  font-size: 0.78rem;
+}
+
+.pc-action-copy span,
+.pc-action-copy em {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 720px) {
+  .pc-dashboard-split {
+    grid-template-columns: 1fr;
+  }
+
+  .pc-dashboard-map .agent-map-canvas {
+    max-height: 180px;
+  }
+}
+
 .pc-live-frame {
   display: block;
   width: 100%;

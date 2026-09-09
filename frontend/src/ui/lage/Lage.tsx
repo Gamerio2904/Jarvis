@@ -1,5 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
+  fetchHudModule,
   fetchHudSnap,
   HUD_CATALOG,
   hudSpotifyToggle,
@@ -7,6 +8,7 @@ import {
   organLabel,
   type HudSnap,
   type HudView,
+  type HudId,
 } from '../../engine/hud'
 import { BODY_ORGANS, type BodyOrgan } from '../../engine/hud-parse'
 import { ChessBoard } from './ChessBoard'
@@ -100,17 +102,20 @@ export function Lage({
         if (live) setPins(next)
         return
       }
+      if (view !== 'tiles') return
       const next = await fetchHudSnap()
       if (live) setSnap(next)
     }
     void tick()
-    const id = window.setInterval(() => void tick(), view === 'globe' ? 30_000 : spotifyOn ? 8_000 : 20_000)
+    const intervalMs =
+      view === 'globe' ? 30_000 : view === 'tiles' ? 0 : spotifyOn ? 8_000 : 20_000
+    const id = intervalMs > 0 ? window.setInterval(() => void tick(), intervalMs) : 0
     const off = onVisibility(() => {
       if (!isDocumentHidden()) void tick()
     })
     return () => {
       live = false
-      window.clearInterval(id)
+      if (id) window.clearInterval(id)
       off()
     }
   }, [view, bodyView, agentDept, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, recent.length])
@@ -223,12 +228,12 @@ export function Lage({
         <AgentStatusBar busy={busy} />
         <p className="lage-hint">
           {view === 'globe'
-            ? 'Dunkle Erde, grüne Grenzen. Drehen und zoomen.'
+            ? 'Erde drehen und zoomen — grüne Grenzen.'
             : view === 'body'
               ? bodyView === 'agents'
-                ? 'Sieben Cluster um Haus-Gehirn — Agent antippen startet kein Gerät.'
-                : 'Eingang antippen — Baum zeigt Skills und Wissen. Startet kein Gerät.'
-              : 'Wetter, Musik, Gerät.'}
+                ? 'Sieben Cluster — antippen zeigt Baum, startet kein Gerät.'
+                : 'Organ antippen — Baum rechts, kein Gerät.'
+              : 'Kacheln laden sichtbar — Wetter, Musik, Gerät.'}
         </p>
       </header>
       {view === 'body' ? (
@@ -337,66 +342,18 @@ export function Lage({
         </div>
       ) : (
         <div className="lage-grid">
-          {modules.map((id, i) => {
-            const cell = (node: ReactNode) => (
-              <div key={id} className="lage-cell" style={{ ['--i' as string]: i }}>
-                {node}
-              </div>
-            )
-            if (id === 'weather') return cell(<WeatherTile data={snap.weather} />)
-            if (id === 'spotify') return cell(<SpotifyTile data={snap.spotify} />)
-            if (id === 'device') return cell(<DeviceTile data={snap.device} />)
-            if (id === 'brief') return cell(<TextTile title="Tageslage" body={snap.brief?.line || '—'} />)
-            if (id === 'chat') {
-              if (!showChatTile) return null
-              return cell(<ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} />)
-            }
-            if (id === 'plugs') {
-              const names = snap.plugs?.names || []
-              return cell(<TextTile title="Steckdosen" body={names.length ? names.join(', ') : 'Keine gepaart.'} />)
-            }
-            if (id === 'tv') {
-              return cell(
-                <TextTile
-                  title="Fernseher"
-                  body={snap.tv?.on ? `${snap.tv.name} gekoppelt.` : 'TV aus oder ungepaart.'}
-                />,
-              )
-            }
-            if (id === 'news') return cell(<TextTile title="Nachrichten" body={snap.news?.line || '—'} />)
-            if (id === 'drive') {
-              const d = snap.drive
-              return cell(
-                <TextTile
-                  title="Restweg"
-                  body={d ? `${d.dest}: ${d.minutes} min, ${Math.round(d.meters / 100) / 10} km.` : 'Kein Fahrmodus.'}
-                />,
-              )
-            }
-            if (id === 'warn') return cell(<TextTile title="Unwetter" body={snap.warn?.line || '—'} />)
-            if (id === 'fx') return cell(<TextTile title="Kurs" body={snap.fx?.line || '—'} />)
-            if (id === 'sport') return cell(<TextTile title="Sport" body={snap.sport?.line || '—'} />)
-            if (id === 'chess') {
-              return cell(
-                <article className="lage-tile">
-                  <h3>Schach</h3>
-                  <ChessBoard fen={snap.chess?.fen || ''} />
-                </article>,
-              )
-            }
-            if (id === 'trace') {
-              const hops = snap.trace?.hops || []
-              return cell(
-                <TextTile
-                  title={snap.trace?.host ? `Route ${snap.trace.host}` : 'Route'}
-                  body={hops.length ? hops.slice(0, 8).join('\n') : 'Noch kein Traceroute.'}
-                />,
-              )
-            }
-            if (id === 'world') return cell(<TextTile title="Welt" body={snap.world?.line || '—'} />)
-            const label = HUD_CATALOG.find((c) => c.id === id)?.label || id
-            return cell(<TextTile title={label} body="" />)
-          })}
+          {modules.map((id, i) => (
+            <LazyHudCell
+              key={id}
+              id={id}
+              index={i}
+              snap={snap}
+              onSnap={(partial) => setSnap((prev) => ({ ...prev, ...partial }))}
+              spotifyOn={spotifyOn}
+              showChatTile={showChatTile}
+              chatProps={{ onSend, draft, setDraft, busy, recent, streaming }}
+            />
+          ))}
         </div>
       )}
     </section>
@@ -420,6 +377,119 @@ function LageClock() {
     }
   }, [])
   return <span>{clock}</span>
+}
+
+function LazyHudCell({
+  id,
+  index,
+  snap,
+  onSnap,
+  spotifyOn,
+  showChatTile,
+  chatProps,
+}: {
+  id: HudId
+  index: number
+  snap: HudSnap
+  onSnap: (partial: Partial<HudSnap>) => void
+  spotifyOn: boolean
+  showChatTile: boolean
+  chatProps: {
+    onSend: (text: string) => void
+    draft: string
+    setDraft: (v: string) => void
+    busy: boolean
+    recent: Message[]
+    streaming: string | null
+  }
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(id === 'chat')
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) setVisible(true)
+      },
+      { rootMargin: '100px 0px', threshold: 0.08 },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!visible || id === 'chat') return
+    let live = true
+    async function load() {
+      const partial = await fetchHudModule(id)
+      if (live) onSnap(partial)
+    }
+    void load()
+    const ms = id === 'spotify' && spotifyOn ? 8_000 : 20_000
+    const timer = window.setInterval(() => void load(), ms)
+    return () => {
+      live = false
+      window.clearInterval(timer)
+    }
+  }, [visible, id, spotifyOn, onSnap])
+
+  if (id === 'chat' && !showChatTile) return null
+
+  const cell = (node: ReactNode) => (
+    <div ref={ref} className="lage-cell" style={{ ['--i' as string]: index }}>
+      {node}
+    </div>
+  )
+
+  if (id === 'weather') return cell(<WeatherTile data={snap.weather} />)
+  if (id === 'spotify') return cell(<SpotifyTile data={snap.spotify} />)
+  if (id === 'device') return cell(<DeviceTile data={snap.device} />)
+  if (id === 'brief') return cell(<TextTile title="Tageslage" body={snap.brief?.line || '—'} />)
+  if (id === 'chat') return cell(<ChatTile {...chatProps} />)
+  if (id === 'plugs') {
+    const names = snap.plugs?.names || []
+    return cell(<TextTile title="Steckdosen" body={names.length ? names.join(', ') : 'Keine gepaart.'} />)
+  }
+  if (id === 'tv') {
+    return cell(
+      <TextTile title="Fernseher" body={snap.tv?.on ? `${snap.tv.name} gekoppelt.` : 'TV aus oder ungepaart.'} />,
+    )
+  }
+  if (id === 'news') return cell(<TextTile title="Nachrichten" body={snap.news?.line || '—'} />)
+  if (id === 'drive') {
+    const d = snap.drive
+    return cell(
+      <TextTile
+        title="Restweg"
+        body={d ? `${d.dest}: ${d.minutes} min, ${Math.round(d.meters / 100) / 10} km.` : 'Kein Fahrmodus.'}
+      />,
+    )
+  }
+  if (id === 'warn') return cell(<TextTile title="Unwetter" body={snap.warn?.line || '—'} />)
+  if (id === 'fx') return cell(<TextTile title="Kurs" body={snap.fx?.line || '—'} />)
+  if (id === 'sport') return cell(<TextTile title="Sport" body={snap.sport?.line || '—'} />)
+  if (id === 'chess') {
+    return cell(
+      <article className="lage-tile">
+        <h3>Schach</h3>
+        <ChessBoard fen={snap.chess?.fen || ''} />
+      </article>,
+    )
+  }
+  if (id === 'trace') {
+    const hops = snap.trace?.hops || []
+    return cell(
+      <TextTile
+        title={snap.trace?.host ? `Route ${snap.trace.host}` : 'Route'}
+        body={hops.length ? hops.slice(0, 8).join('\n') : 'Noch kein Traceroute.'}
+      />,
+    )
+  }
+  if (id === 'world') return cell(<TextTile title="Welt" body={snap.world?.line || '—'} />)
+  const label = HUD_CATALOG.find((c) => c.id === id)?.label || id
+  return cell(<TextTile title={label} body="" />)
 }
 
 function ChatTile({
