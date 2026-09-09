@@ -5,6 +5,262 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `17.0.0` — Messbar und unterbrechbar (Sprints 249–259) — *PLAN*
+
+Planung: [`68-next.md`](./68-next.md), Grundlage [`67-upgrades.md`](./67-upgrades.md).
+
+Elf Sprints in vier Blöcken. Die Reihenfolge weicht bewusst von der Sortierung
+in `67-upgrades.md` ab: dort steht die Sprechpause vorn, hier die Eval. Grund
+sind vier Vorfälle in `16.1.x`, bei denen die Tests grün waren und die App
+trotzdem kaputt — solange ein Korpus nur Ja/Nein ausgibt, ist Sprint 257
+(gelernter Router) ein Tausch gegen Ungewissheit.
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `16.2.0` | 249 | Eval-Rahmen: `node:test`, eine Korpus-Quelle |
+| `16.3.0` | 250 | Eval-Kennzahlen + Baseline, Prompt-Tokens, Sprach-A/B |
+| `16.4.0` | 251 | Sicherungsschalter + **Kontingent** + Agenten-Reste (`identity`, `verify`) |
+| `16.5.0` | 252 | Lage-Entscheidung (PO) + Wecker-Nummer gespeichert statt gehasht |
+| `16.6.0` | 253 | Abbruch bis in die Handler (`AbortSignal`) + Barge-in verdrahten |
+| `16.7.0` | 254 | Satzende-Heuristik (Stufe A, ohne Modell) + Silero (Stufe B, opt-in) |
+| — | 255 | **AUFGELÖST** — existiert im Code; Rest in 253 und 254 A |
+| `16.8.0` | 256 | Feldschutz + benannte Migration (Aufteilung gestrichen) |
+| `16.9.0` | 257 | Intent-Embeddings, nur bei Gleichstand (Trennschärfe-Tor zuerst) |
+| `16.10.0` | 258 | Werkzeug-Vertrag: Modell schlägt vor, Parser vollzieht; ein Modellaufruf |
+| **`17.0.0`** | 259 | Historie im Speicher + **Meilenstein**, Sideload |
+
+Frei kombinierbar: 251, 252, 256. Harte Ketten: 250 → 257, 253 + 254 → 255.
+Jeder Sprint hat ein Abbruchkriterium; für 258 ist es hart — erreicht ein
+Modellvorschlag ein Gerät ohne Bestätigung, wird der Sprint zurückgezogen.
+
+#### Nachtrag: Grundlagen, interne Sprache, Kontingent
+
+Neu: [`69-modell-grundlagen.md`](./69-modell-grundlagen.md) — Referenz, kein
+Sprint. Ordnet die Modell-Begriffe nach **Trainingszeit** (für dieses Projekt
+nicht verfügbar) und **Inferenzzeit** (Jarvis' ganzer Hebel), korrigiert vier
+verbreitete Fehlvorstellungen und begründet damit den Schnitt der Sprints. Der
+folgenreichste Punkt: Test-Time-Reasoning ist **kein** Reinforcement Learning
+zur Laufzeit — zur Inferenz ändert sich kein Gewicht. Das trennt eine unmögliche
+Aufgabe von einer, die 20 Zeilen kostet.
+
+**Interne Sprache — entschieden, ohne Migration.** Persona, Ton, Siezen und
+Beispielantworten bleiben **deutsch**: sie *demonstrieren* das Verhalten und
+sind damit faktisch Few-Shot-Beispiele, und Beispiele in der falschen Sprache
+kosten 15–20 % Genauigkeit. Ein englischer Persona-Text würde zusätzlich
+Sprachwechsel provozieren — hier wird das vorgelesen. Nur Maschinenseitiges
+(Werkzeug-Schemas, Feldnamen, Intent-Labels) wird neu **englisch** geschrieben,
+in Sprint 258. Ob sich sogar die Persona lohnt, misst Sprint 250 als A/B
+(S250-10) statt es zu behaupten.
+
+**Free Tier: kostenlos ja, unbegrenzt nein.** Die Chat-Modelle haben **1.000
+Requests und 200.000 Tokens am Tag**, pro Organisation und nicht pro Schlüssel —
+bei rund 2.500 Tokens pro Zug etwa **80 Züge am Tag**. Daraus folgen drei
+Ergänzungen:
+
+- **Sprint 251** bekommt einen zweiten Auslöser (S251-9 … S251-15):
+  `x-ratelimit-remaining-*` lesen und *vor* der Grenze auf das lokale 0,5B
+  gehen, statt in `429` zu laufen. Dabei zwei Funde am Groq-Pfad, die heute
+  Kontingent verbrennen: `groq.ts` hat kein Skip-Gedächtnis (anders als
+  `gemini.ts` mit `markSkip`) und versucht pro Modell erst Streaming, dann
+  Non-Streaming — ein totes Modell an Position 1 kostet zwei Requests pro Zug.
+  `GROQ_MODELS_BEST_FIRST[0]` ist `qwen/qwen3.8-27b`, Groqs Liste führt
+  `qwen/qwen3.6-27b`; das gehört geprüft. Warum das unbemerkt blieb, hat zwei
+  Gründe: `scripts/test-gemini-fallback.mjs` ist das **einzige** Testskript ohne
+  Eintrag in `package.json` und läuft nie (S251-16) — und es würde auch nichts
+  finden, weil seine Assertion die Konstante gegen sich selbst prüft und damit
+  nur Änderungen, nie falsche Werte bemerkt (S251-17). Außerdem verspricht
+  `germanQuotaHint()` „hoher Free-Tier"; 1.000 RPD ist nicht hoch.
+- **Sprint 250** misst Prompt-Tokens und Cache-Trefferquote (S250-9). Gecachte
+  Eingabe-Tokens zählen **nicht** auf die Limits an; ein guter Prompt-Schnitt
+  kauft also Tagesbudget, und ohne Messung merkt niemand, wenn ein Sprint den
+  Cache entwertet.
+- **Sprint 257** bekommt Mehrfach-Sampling als Ebene *vor* der Rückfrage
+  (S257-11) — aber auf `llama-3.1-8b-instant` mit 14.400 statt 1.000 Requests am
+  Tag, und nur wenn die in 250 gemessene Rückfrage-Quote den Aufschlag
+  rechtfertigt.
+
+**Sprint 257 bekommt ein Tor vor die Tür.** Der Trennschärfe-Test (S257-9) läuft
+**vor** der Umsetzung: liegen Äußerungen desselben Agenten näher beieinander als
+die verschiedener Agenten? Fällt er negativ aus — bei `tv` gegen `home` gut
+möglich — wird der Sprint geschlossen statt gebaut, mit dem Messwert als
+Begründung. Dazu S257-10: die `query:` / `passage:`-Präfixe von e5 sind nicht
+optional, und ihr Fehlen ist stumm.
+
+#### Nachtrag: gegen die PO-Prioritäten geprüft
+
+Vorgaben: **hohe Antwortqualität, alles funktioniert, wenig Latenz, kostenlos und
+so viel wie möglich nutzbar** — und nur ändern, wenn es einer Kategorie nutzt,
+ohne einer anderen zu schaden. Jeder Sprint der Schiene ist danach
+durchgerechnet ([`68-next.md`](./68-next.md) §3b). Fünf Ergebnisse:
+
+**Sprint 255 ist aufgelöst, weil beide Hälften schon existieren.** Barge-in ist
+gebaut: `watchBargeIn()` in `native/voice.ts` (nativ plus Web-Fallback über
+`createEnergyVad`), in `ui/VoiceMode.tsx` an zwei Stellen verdrahtet, bricht die
+Stimme über `cutIn(pipe)` ab und verwirft den Zug über `abortTurn` — samt
+Selbstschutz (`BARGE_IGNORE_TTS_MS = 400`, `isBargeInText()` filtert „mhm" und
+„aha"). Das semantische Satzende ist ebenfalls gebaut, als Regex:
+`turnLooksComplete()` prüft `INCOMPLETE_TAIL` („…und", „…weil") und Satzzeichen,
+`silenceMsFor()` verrechnet das zu 220 ms oder 1100 ms. Der geplante
+Klassifikator hätte einen Aufruf pro Transkript-Änderung gekostet, also mehrere
+je Äußerung, genau während der Nutzer aufs Ende wartet — Verlust bei Latenz,
+Kontingent und Fehlerwegen, für einen Fall, den die Regex schon löst. Bleibt
+genau ein echter Rest, jetzt **S253-9**: `abortTurn` verwirft nur das Ergebnis,
+die Handler laufen weiter.
+
+**Sprint 254 hatte eine falsche Begründung.** Es hieß dort, `SILENCE_HOLD_VOICE_MS
+= 1100` sei eine feste Konstante, die „nicht beides kann". Das Halten ist längst
+dynamisch. Der Fehler steckt in zwei Zeilen von `turnLooksComplete`, die Länge
+mit Vollständigkeit verwechseln — `words.length >= 6` und `t.length >= 24`. Das
+dreht das Verhalten in **beide** Richtungen falsch: „Licht an" (2 Wörter) gilt
+als unvollständig und wartet **1100 ms**, während „Erinnere mich morgen früh um
+acht" (6 Wörter) als fertig gilt und nach **220 ms** abgeschickt wird — das
+„…an den Zahnarzt" fällt weg. Genau die Beschwerde „er nimmt meine Sätze
+abgehackt auf", und gleichzeitig verlorene Zeit beim häufigsten Kurzbefehl. Der
+Sprint ist jetzt zweistufig: **Stufe A** korrigiert die Heuristik ohne Modell,
+ohne Download, ohne Netz und ist als reine Funktion in Node prüfbar. **Stufe B**
+holt Silero nach, opt-in und nur gegen Störgeräusch, das eine Regex nicht
+erkennen kann.
+
+**Sprint 256 ist verkleinert.** Die Aufteilung in `secrets` / `prefs` /
+`session` ist gestrichen: über 250 Felder umziehen und jeden Zugriff anfassen
+wäre ein Risiko für „alles funktioniert", während der auslösende Datenverlust
+seit `16.1.1` durch `parkBrokenSettings` abgefangen ist. Es bleiben der
+feldweise Rückfall und benannte Migrationsschritte — letztere sind jetzt
+wichtiger als zuvor, weil die Sprints 249–259 neue Felder anlegen.
+
+**Sprint 259 ist verkleinert.** `engine/latency.ts` hält bereits einen Ring-Log
+über 24 Züge mit Pfad, Zeit bis zum ersten Token, Zeit bis zum ersten Ton und
+Gesamtzeit — und rechnet `latencyP95()` selbst. Gefehlt hat nicht die Erfassung,
+sondern das Durchblättern. Der geplante IndexedDB-Ring entfällt: ein
+Schreibvorgang je Zug bremst den Normalbetrieb und kostet Akku, also Latenz für
+ein Debug-Werkzeug. Die OTel-Attributnamen entfallen ganz — sie bringen
+Anschluss an einen Collector, den es hier nicht gibt und nicht geben soll.
+
+**Sprints 257 und 258 haben eine Latenz-Schranke bekommen.** 257 sollte die
+Embedding-Ähnlichkeit zu `parserScore` addieren, also bei **jedem** Zug ein
+Modell rechnen. Auf dem deterministischen Pfad entscheiden heute reguläre
+Ausdrücke in Mikrosekunden; für „Licht an" wäre das ein Rückschritt. Jetzt läuft
+das Embedding **nur bei mehreren gleich starken Kandidaten** — also dort, wo
+Jarvis heute zurückfragt, was den Nutzer Sekunden kostet. Nebeneffekt: wer nur
+Geräte schaltet, lädt das Modell nie. Bei 258 gilt **ein Modellaufruf je Zug**
+(S258-12): naiv umgesetzt hätte der Vorschlagsweg einen Aufruf fürs Vorschlagen
+und einen fürs Formulieren gebraucht, also doppelte Latenz und doppeltes
+Kontingent. Da `device`- und `write`-Antworten aus Vorlagen bestehen, ist der
+zweite Aufruf nicht nötig.
+
+Was **nicht** geändert wurde, obwohl geprüft: `prompt-split.ts` ist bereits
+cache-freundlich (statische Persona im `system`, Wechselndes am letzten
+User-Turn), und der Sprechpfad streamt bereits satzweise über
+`createSentenceTap` und `createSpeakPipeline` — die Stimme beginnt beim ersten
+fertigen Satz, nicht bei der fertigen Antwort. Beides ist genau so, wie es für
+Latenz sein soll.
+
+**Zwei Sprints griffen an bestehender Mechanik vorbei.** `quality-pack.ts`
+existiert und ist genau für opt-in-ONNX-Pakete gebaut: vier Could-Pakete
+(`smart_turn`, `piper`, `kokoro`, `e5`), je mit Wunsch-Einstellung,
+Datei-Prüfung und ehrlichem Text für „gewünscht, aber Datei fehlt".
+
+- **254** wollte Silero nach `public/vad/` legen und einen Schalter anlegen.
+  Beides gibt es schon: der Pfad ist `/onnx/`, und `vad_onnx` steht seit
+  Sprint 174 in `store.ts` und ist in `SettingsScreen.tsx` bedienbar. Jetzt
+  S254-9 bis S254-11: bestehenden Schalter verdrahten, über `quality-pack.ts`
+  laden, `PACK_FILES.smart_turn` auf die eine Silero-Datei kürzen (255 löst das
+  semantische Ende ohne `smart_turn_v3.onnx`, sonst meldet das Paket dauerhaft
+  „fehlt"). Wichtiger noch: **254 dreht ein dokumentiertes NO-GO um.**
+  Sprint 174 hat Silero abgelehnt, mit zwei Gründen — „keine Messung" ist durch
+  249/250 behoben, „keine 10 MB in der APK" gilt weiter und wird durch
+  Nachladen statt Bündeln beantwortet. Das steht jetzt im Sprint, statt
+  stillschweigend übergangen zu werden.
+- **257** benutzt e5, und ein eingefrorenes `e5`-Paket existiert bereits
+  (`e5_rerank`, Sprints 176/195) — mit dem Won’t „nie der Tool-Router", also
+  genau dem, was 257 vorhat. Der Satz gilt für **Rerank** in `retrieve.ts`, nicht
+  für Intent in `policy.ts`. Jetzt als Abgrenzungstabelle im Sprint: Ladeweg
+  geteilt, Semantik getrennt, `e5_rerank` bleibt unberührt.
+
+**Statuskorrekturen in der Sprint-Liste.** Beim Zusammenstellen aller offenen
+Sprints fielen zwei Falschangaben auf. Sprint **226** stand als offener
+`PLAN Must`, obwohl er ein reiner Leit-Sprint ohne Code war und seine
+Execute-Sprints 227–248 alle **CODE** sind — jetzt **ÜBERHOLT**, mit Verweis auf
+den Ist-Stand in `66-agents-ist.md` und dem Hinweis, dass die geplanten
+52 + 12 Agenten tatsächlich 60 wurden. Und **178, 183, 184, 185, 186** sind
+sachlich offen, nennen als Ziel aber `8.0` bis `9.10.0`, während der Code bei
+`16.1.1` steht; sie sind jetzt als „Anker veraltet" markiert und müssen vor dem
+Ziehen neu verankert werden — sonst prüft der PO eine App, die es nicht mehr
+gibt. Nebenbei sprang die Pull-Reihenfolge in `42-planned.md` von 2 auf 4.
+
+Kleinere Ergänzungen: **249** nimmt echte STT-Verhörer als eigenen Tag auf
+(S249-9) — der Korpus besteht heute aus getipptem Text, im Sprachmodus kommt
+aber an, was Whisper verstanden hat. **258** erzwingt JSON über
+`response_format: json_schema` mit `strict` statt es zu erbitten und per Regex
+zu retten (S258-9 … S258-11); ohne diese Möglichkeit wird der Vorschlagsweg
+abgeschaltet, nicht mit Regex nachgebaut.
+
+## `16.1.1` — Wecker, Konflikt-Tisch, Docs-Abgleich — *CODE*
+
+Sideload **`16.1.1`** (versionCode `160101`).
+
+### Wecker und Timer — derselbe Alarm klingelte zweimal
+
+Wer eine abgelaufene Frist schließt, war nirgends festgelegt — Beschreibung des
+Ergebnisses in [`66-agents-ist.md`](./66-agents-ist.md) §6.
+
+- **`jarvis-timer-fire` hatte keinen Zuhörer.** Das Ereignis wurde geworfen,
+  aber niemand schrieb den Ablauf in den Speicher. Die Zeile blieb `open`, der
+  nächste Start hielt sie für verpasst und holte den Alarm nach — derselbe Timer
+  klingelte ein zweites Mal. Neu: `markFiredByNotifyId` schließt die Zeile
+  (wiederkehrende rücken vor) und `App.tsx` hört zu.
+- **Nachholen nur im Browser.** `syncReminderAlarms` hat jede Frist der letzten
+  zwei Stunden neu geklingelt. Auf Android hatte das System sie längst
+  ausgelöst. `hasNativeAlarms()` trennt beides: der Browser holt nach, weil dort
+  jede Frist mit dem Tab stirbt; Android nicht.
+- **Wiederkehrende Alarme wanderten.** Das Plugin rechnete den nächsten Termin
+  vom **tatsächlichen** Schlag (`System.currentTimeMillis() + 7 Tage`). Jede
+  Doze-Verzögerung schob den 7-Uhr-Wecker dauerhaft nach hinten, und die feste
+  Millisekundenzahl ignorierte die Zeitumstellung. `nextRecurAt` rechnet über
+  `Calendar` vom **geplanten** Schlag — wie `nextRecurDue` in der Engine.
+- **Forschungs-Protokolle wuchsen endlos.** `addResearchAudit` hat nie
+  aufgeräumt, und jedes Lesen holte alle Zeilen herauf. Deckel: 200.
+
+### Konflikt-Tisch — zwei Regeln liefen ins Leere
+
+`drop(out, 'research')` traf nichts: es gibt keinen Agenten dieses Namens (der
+Suchagent heißt `search`). Die Regeln für Börsen-Ausblick und Hausstand-Export
+sahen aus wie Regeln, änderten aber nichts. `test:agents-robust` vergleicht
+jetzt jeden Namen im Konflikt-Tisch gegen den Katalog — ein Tippfehler dort
+fällt sonst nirgends auf.
+
+### Tests
+
+- `test:turn-e2e` deckt die abgelaufene Frist ab: Schließen über das Ereignis,
+  fremde Notify-Nummer trifft nichts, kein Nachholen für eine erledigte Zeile,
+  und eine wiederkehrende Frist rückt mit **gehaltener Uhrzeit** vor.
+- `test:agents-robust` prüft den Konflikt-Tisch gegen den Katalog.
+
+### Docs gegen den Code geprüft
+
+Ein Audit hat jede Behauptung über Version, Status und Architektur gegen die
+Quelle gestellt. Korrigiert:
+
+- **Versionsstand** in `README.md`, `09-versioning.md`, `42-planned.md`,
+  `16-gemini.md`, `sprints/README.md` — dort stand `15.1.0`–`15.3.1`.
+- **Sprint 238 galt als PLAN**, ist aber seit `15.2.0` **CODE**: `brain_v2` und
+  die Micro-LLM-Schalter stehen auf `true`. Ebenso 239–248.
+- **Rückfrage-Regel:** `32-intelligence.md` und `63-next.md` beschrieben
+  „knapp → Rückfrage" bzw. `margin < 0.08`. Beides trifft nicht mehr zu; die
+  Schwelle ist `0.12` auf dem Basis-Score und Kosten sowie `tieRank` entscheiden
+  danach.
+- **Routing-Pfad:** `32-intelligence.md` nannte `routeRegistry` als Standardweg.
+  Der Standard ist `runDirectorTurn` (`agent_network_v2: true`).
+- **Agentenzahl 52 → 60** in `62-agent-catalog.md` und `sprint-233.md`; 59 davon
+  mit Executor.
+- **Sprint 247** verortete den Smalltalk-Fix in `director.ts`; er liegt in
+  `chat.ts` / `greeting.ts`, noch **vor** dem Director.
+- **`npm run test:settings-search`** in `sprint-248.md` gibt es nicht — die
+  Einstellungs-Suche hängt an `test:qa-16`.
+- `63-next.md` und `65-next.md` sind als Planungsprotokolle markiert; die dort
+  gezeigten **verschachtelten** Flag-Namen (`brain_micro_llm: { clarify }`)
+  existieren nicht, die Felder im Hausstand-JSON sind flach.
+
 ## `16.1.0` — Router-Bugs, Agenten-Härtung — *CODE*
 
 Ist-Beschreibung des Agenten-Systems: [`66-agents-ist.md`](./66-agents-ist.md).
@@ -81,72 +337,6 @@ wandelte eine Rückfrage still in „nimm die erste Seite" um, `runDirectorTurn`
   raus aus dem Start-Bundle**.
 - Veraltete Assertions nachgezogen: HELP_TEXT-Version gegen `APP_VERSION`,
   TTS-Erstchunk `1800 ms`.
-
-## `16.1.1` — Wecker, Konflikt-Tisch, Docs-Abgleich — *CODE*
-
-Sideload **`16.1.1`** (versionCode `160101`).
-
-### Wecker und Timer — derselbe Alarm klingelte zweimal
-
-Wer eine abgelaufene Frist schließt, war nirgends festgelegt — Beschreibung des
-Ergebnisses in [`66-agents-ist.md`](./66-agents-ist.md) §6.
-
-- **`jarvis-timer-fire` hatte keinen Zuhörer.** Das Ereignis wurde geworfen,
-  aber niemand schrieb den Ablauf in den Speicher. Die Zeile blieb `open`, der
-  nächste Start hielt sie für verpasst und holte den Alarm nach — derselbe Timer
-  klingelte ein zweites Mal. Neu: `markFiredByNotifyId` schließt die Zeile
-  (wiederkehrende rücken vor) und `App.tsx` hört zu.
-- **Nachholen nur im Browser.** `syncReminderAlarms` hat jede Frist der letzten
-  zwei Stunden neu geklingelt. Auf Android hatte das System sie längst
-  ausgelöst. `hasNativeAlarms()` trennt beides: der Browser holt nach, weil dort
-  jede Frist mit dem Tab stirbt; Android nicht.
-- **Wiederkehrende Alarme wanderten.** Das Plugin rechnete den nächsten Termin
-  vom **tatsächlichen** Schlag (`System.currentTimeMillis() + 7 Tage`). Jede
-  Doze-Verzögerung schob den 7-Uhr-Wecker dauerhaft nach hinten, und die feste
-  Millisekundenzahl ignorierte die Zeitumstellung. `nextRecurAt` rechnet über
-  `Calendar` vom **geplanten** Schlag — wie `nextRecurDue` in der Engine.
-- **Forschungs-Protokolle wuchsen endlos.** `addResearchAudit` hat nie
-  aufgeräumt, und jedes Lesen holte alle Zeilen herauf. Deckel: 200.
-
-### Konflikt-Tisch — zwei Regeln liefen ins Leere
-
-`drop(out, 'research')` traf nichts: es gibt keinen Agenten dieses Namens (der
-Suchagent heißt `search`). Die Regeln für Börsen-Ausblick und Hausstand-Export
-sahen aus wie Regeln, änderten aber nichts. `test:agents-robust` vergleicht
-jetzt jeden Namen im Konflikt-Tisch gegen den Katalog — ein Tippfehler dort
-fällt sonst nirgends auf.
-
-### Tests
-
-- `test:turn-e2e` deckt die abgelaufene Frist ab: Schließen über das Ereignis,
-  fremde Notify-Nummer trifft nichts, kein Nachholen für eine erledigte Zeile,
-  und eine wiederkehrende Frist rückt mit **gehaltener Uhrzeit** vor.
-- `test:agents-robust` prüft den Konflikt-Tisch gegen den Katalog.
-
-### Docs gegen den Code geprüft
-
-Ein Audit hat jede Behauptung über Version, Status und Architektur gegen die
-Quelle gestellt. Korrigiert:
-
-- **Versionsstand** in `README.md`, `09-versioning.md`, `42-planned.md`,
-  `16-gemini.md`, `sprints/README.md` — dort stand `15.1.0`–`15.3.1`.
-- **Sprint 238 galt als PLAN**, ist aber seit `15.2.0` **CODE**: `brain_v2` und
-  die Micro-LLM-Schalter stehen auf `true`. Ebenso 239–248.
-- **Rückfrage-Regel:** `32-intelligence.md` und `63-next.md` beschrieben
-  „knapp → Rückfrage" bzw. `margin < 0.08`. Beides trifft nicht mehr zu; die
-  Schwelle ist `0.12` auf dem Basis-Score und Kosten sowie `tieRank` entscheiden
-  danach.
-- **Routing-Pfad:** `32-intelligence.md` nannte `routeRegistry` als Standardweg.
-  Der Standard ist `runDirectorTurn` (`agent_network_v2: true`).
-- **Agentenzahl 52 → 60** in `62-agent-catalog.md` und `sprint-233.md`; 59 davon
-  mit Executor.
-- **Sprint 247** verortete den Smalltalk-Fix in `director.ts`; er liegt in
-  `chat.ts` / `greeting.ts`, noch **vor** dem Director.
-- **`npm run test:settings-search`** in `sprint-248.md` gibt es nicht — die
-  Einstellungs-Suche hängt an `test:qa-16`.
-- `63-next.md` und `65-next.md` sind als Planungsprotokolle markiert; die dort
-  gezeigten **verschachtelten** Flag-Namen (`brain_micro_llm: { clarify }`)
-  existieren nicht, die Felder im Hausstand-JSON sind flach.
 
 ## `16.0.1` — Lage, Timer, Routing — *CODE*
 
