@@ -67,13 +67,41 @@ wandelte eine Rückfrage still in „nimm die erste Seite" um, `runDirectorTurn`
 - `agentById` über eine Map; `orphanExecutorIds()` deckt unerreichbare
   Executoren auf.
 
+### Wecker und Timer — derselbe Alarm klingelte zweimal
+
+- **`jarvis-timer-fire` hatte keinen Zuhörer.** Das Ereignis wurde geworfen,
+  aber niemand schrieb den Ablauf in den Speicher. Die Zeile blieb `open`, der
+  nächste Start hielt sie für verpasst und holte den Alarm nach — derselbe Timer
+  klingelte ein zweites Mal. Neu: `markFiredByNotifyId` schließt die Zeile
+  (wiederkehrende rücken vor) und `App.tsx` hört zu.
+- **Nachholen nur im Browser.** `syncReminderAlarms` hat jede Frist der letzten
+  zwei Stunden neu geklingelt. Auf Android hatte das System sie längst
+  ausgelöst. `hasNativeAlarms()` trennt beides: der Browser holt nach, weil dort
+  jede Frist mit dem Tab stirbt; Android nicht.
+- **Wiederkehrende Alarme wanderten.** Das Plugin rechnete den nächsten Termin
+  vom **tatsächlichen** Schlag (`System.currentTimeMillis() + 7 Tage`). Jede
+  Doze-Verzögerung schob den 7-Uhr-Wecker dauerhaft nach hinten, und die feste
+  Millisekundenzahl ignorierte die Zeitumstellung. `nextRecurAt` rechnet über
+  `Calendar` vom **geplanten** Schlag — wie `nextRecurDue` in der Engine.
+- **Forschungs-Protokolle wuchsen endlos.** `addResearchAudit` hat nie
+  aufgeräumt, und jedes Lesen holte alle Zeilen herauf. Deckel: 200.
+
+### Konflikt-Tisch — zwei Regeln liefen ins Leere
+
+`drop(out, 'research')` traf nichts: es gibt keinen Agenten dieses Namens (der
+Suchagent heißt `search`). Die Regeln für Börsen-Ausblick und Hausstand-Export
+sahen aus wie Regeln, änderten aber nichts. `test:agents-robust` vergleicht
+jetzt jeden Namen im Konflikt-Tisch gegen den Katalog — ein Tippfehler dort
+fällt sonst nirgends auf.
+
 ### Tests und Bundle
 
 - **`test:turn-e2e`** — der erste echte Zug durch den Director. Prüft, dass der
   Timer wirklich in der Liste steht (nicht nur angesagt wird), die Kugel aufgeht
   und die Fehlerpfade greifen.
 - **`test:agents-robust`** — Budget, Timer-Aufräumen, verworfene Traces,
-  Trace-Grenze, Kosten-Rang, Vorfahrt, `EXECUTOR_IDS` gegen `execute-map`.
+  Trace-Grenze, Kosten-Rang, Vorfahrt, `EXECUTOR_IDS` gegen `execute-map`,
+  Konflikt-Tisch gegen Katalog.
 - 418 relative Importe auf `.ts` normalisiert: Node lädt jetzt die komplette
   Engine, vorher waren Integrationstests unmöglich. `fake-indexeddb` als
   devDependency.
@@ -81,6 +109,31 @@ wandelte eine Rückfrage still in „nimm die erste Seite" um, `runDirectorTurn`
   raus aus dem Start-Bundle**.
 - Veraltete Assertions nachgezogen: HELP_TEXT-Version gegen `APP_VERSION`,
   TTS-Erstchunk `1800 ms`.
+
+### Docs gegen den Code geprüft
+
+Ein Audit hat jede Behauptung über Version, Status und Architektur gegen die
+Quelle gestellt. Korrigiert:
+
+- **Versionsstand** in `README.md`, `09-versioning.md`, `42-planned.md`,
+  `16-gemini.md`, `sprints/README.md` — dort stand `15.1.0`–`15.3.1`.
+- **Sprint 238 galt als PLAN**, ist aber seit `15.2.0` **CODE**: `brain_v2` und
+  die Micro-LLM-Schalter stehen auf `true`. Ebenso 239–248.
+- **Rückfrage-Regel:** `32-intelligence.md` und `63-next.md` beschrieben
+  „knapp → Rückfrage" bzw. `margin < 0.08`. Beides trifft nicht mehr zu; die
+  Schwelle ist `0.12` auf dem Basis-Score und Kosten sowie `tieRank` entscheiden
+  danach.
+- **Routing-Pfad:** `32-intelligence.md` nannte `routeRegistry` als Standardweg.
+  Der Standard ist `runDirectorTurn` (`agent_network_v2: true`).
+- **Agentenzahl 52 → 60** in `62-agent-catalog.md` und `sprint-233.md`; 59 davon
+  mit Executor.
+- **Sprint 247** verortete den Smalltalk-Fix in `director.ts`; er liegt in
+  `chat.ts` / `greeting.ts`, noch **vor** dem Director.
+- **`npm run test:settings-search`** in `sprint-248.md` gibt es nicht — die
+  Einstellungs-Suche hängt an `test:qa-16`.
+- `63-next.md` und `65-next.md` sind als Planungsprotokolle markiert; die dort
+  gezeigten **verschachtelten** Flag-Namen (`brain_micro_llm: { clarify }`)
+  existieren nicht, die Felder im Hausstand-JSON sind flach.
 
 ## `16.0.1` — Lage, Timer, Routing — *CODE*
 

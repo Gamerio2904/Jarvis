@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`15.3.0`**. Sideload **`15.3.0`**. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. GUI Sprint 239 **CODE** `15.2.0`.
+> **Jetzt:** Code **`16.1.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`16.1.0`**, versionCode `160100`. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. GUI Sprint 239 **CODE** `15.2.0`. Reels/QA Sprints 242–248 **CODE** `16.0.0`; Router-, Timer- und Agenten-Härtung **CODE** `16.1.0` → [`66-agents-ist.md`](./66-agents-ist.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 

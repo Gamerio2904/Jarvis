@@ -241,9 +241,12 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 235 | [`sprint-235.md`](./sprint-235.md) | `15.1.0` | Gold + Sideload | **CODE** in `15.1.0` Must |
 | 236 | [`sprint-236.md`](./sprint-236.md) | `15.1.0` | Groq primär + BrainOrchestrator | **CODE** Must |
 | 237 | [`sprint-237.md`](./sprint-237.md) | `15.1.0` | Micro-LLM + research-lite | **CODE** Must |
-| 238 | [`sprint-238.md`](./sprint-238.md) | `15.2.0` | Dual Brain Gold + Sideload | **PLAN** Must |
+| 238 | [`sprint-238.md`](./sprint-238.md) | `15.2.0` | Dual Brain Gold + Sideload | **CODE** Must |
+| 239 | — | `15.2.0` | GUI-Politur | **CODE** Must |
+| 240–241 | [`../64-next.md`](../64-next.md) | `15.3.0` | PC-Dashboard | **CODE** Must |
+| 242–248 | [`../65-next.md`](../65-next.md) | `16.0.0` | Reel-UI, Kalender, Lage, Einstellungs-Suche | **CODE** Must |
 
-**Aktuell:** Code **`15.1.0`**. Sideload `15.1.0`. Execute 227–237 **CODE**; Sprint 238 **PLAN**. Test: [`TEST-15.1.0.md`](../TEST-15.1.0.md). Index: [`42-planned.md`](../42-planned.md).
+**Aktuell:** Code **`16.1.0`**. Sideload `16.1.0`, versionCode `160100`. Execute 227–248 **CODE**. Router-, Timer- und Agenten-Härtung: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-16.1.0.md`](../TEST-16.1.0.md). Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)

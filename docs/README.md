@@ -68,7 +68,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 60 | [Körper-Wissensbaum 13.0](./60-next.md) | **CODE** `13.30.0` — Eingang → Skill → Wissen; Sprints 217–220 |
 | 61 | [Sprachmodus 13.40](./61-next.md) | **CODE** `13.44.0` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
 | 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **PLAN-Protokoll** — Zielbild 14.0; Ist siehe 66 |
-| 63 | [Dual Brain 15.0](./63-next.md) | **CODE** `15.1.0` — Groq primär, BrainOrchestrator; Sprints 236–237; 238 PLAN |
+| 63 | [Dual Brain 15.0](./63-next.md) | **CODE** — Groq primär, BrainOrchestrator; Sprints 236–237 in `15.1.0`, 238 in `15.2.0`. Planungsprotokoll, Flag-Namen dort veraltet |
 | 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `16.1.0` — Routing-Rechnung, Budgets, Traces, Grenzen |
 | 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN** — Abbruch, Sprechpause, Router-Embedding, Eval, Werkzeug-Vertrag |
 | — | [APK](./apk.md) | Sideload `16.1.0`; Test: [`TEST-16.1.0.md`](./TEST-16.1.0.md) |
@@ -268,6 +268,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 235 | `14.9.0` | **CODE** in `15.1.0` (Gold; Runtime 15.1.0) |
 | 236 | `15.0.0` | **CODE** in `15.1.0` (Groq primär + BrainOrchestrator) |
 | 237 | `15.1.0` | **CODE** (Micro-LLM + research-lite) |
-| 238 | `15.2.0` | **PLAN** (Dual Brain Gold + SLO) |
+| 238 | `15.2.0` | **CODE** (Dual Brain Gold + SLO) |
+| 239 | `15.2.0` | **CODE** (GUI-Politur) |
+| 240–241 | `15.3.0` | **CODE** (PC-Dashboard) |
+| 242–248 | `16.0.0` | **CODE** (Reel-UI, Kalender, Lage, Einstellungs-Suche) |
 
-**Aktuell:** Code **`15.1.0`**. Sideload `15.1.0`. Execute: Agenten-Netzwerk + Dual Brain bis 237 **CODE**; Sprint 238 **PLAN**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`16.1.0`**. Sideload `16.1.0`, versionCode `160100`. Execute: Sprints bis 248 **CODE**; Router-, Timer- und Agenten-Härtung in `16.1.0` ([`66-agents-ist.md`](./66-agents-ist.md)). Nächster Schritt: [`67-upgrades.md`](./67-upgrades.md). Index: [`42-planned.md`](./42-planned.md).

@@ -139,7 +139,41 @@ Budget ist **nicht** dasselbe wie „der Handler passt nicht":
 für immer unerreichbar. `test:agents-robust` prüft, dass `EXECUTOR_IDS` sich
 mit `execute-map.ts` deckt.
 
-## 6. Tests
+Der Konflikt-Tisch nennt Agenten über Zeichenketten, und ein Name, den es nicht
+gibt, fällt nirgends auf: die Regel greift scheinbar, ändert aber nichts.
+`drop(out, 'research')` lief so zwei Regeln lang ins Leere — der Suchagent heißt
+`search`. Seit `16.1.0` vergleicht `test:agents-robust` jeden Namen aus
+`conflicts.ts` gegen den Katalog.
+
+## 6. Wer eine abgelaufene Frist schließt
+
+Ein Timer hat zwei Uhren: den Alarm im Android-System und einen `setTimeout` in
+der laufenden App. Beide klingeln, aber nur eine kann den Speicher anfassen —
+und lange tat es keine. `jarvis-timer-fire` wurde geworfen, ohne dass jemand
+zuhörte, also blieb die Zeile `status: 'open'`.
+
+Das fiel erst beim nächsten Start auf: `syncReminderAlarms` hält jede offene
+Frist der letzten zwei Stunden für **verpasst** und holt den Alarm nach.
+Derselbe Timer klingelte ein zweites Mal.
+
+| Weg | Wer schließt die Zeile |
+|-----|------------------------|
+| App steht vorne | `jarvis-timer-fire` → `markFiredByNotifyId` (`App.tsx`) |
+| App zu, Android | System-Alarm klingelt; `syncReminderAlarms` schließt beim Start nach, **ohne** nachzuklingeln |
+| App zu, Browser | Frist starb mit dem Tab — `syncReminderAlarms` holt sie nach |
+
+`hasNativeAlarms()` trennt die letzten beiden Fälle. Das Nachholen ist im
+Browser richtig und auf Android falsch, und vorher tat der Code beides gleich.
+
+`markFiredByNotifyId` rechnet über die offenen Zeilen zurück, weil
+`notifyIdFromKey` eine Einbahnstraße ist: das Ereignis kennt nur seine
+Notify-Nummer, nicht die Erinnerung dahinter. Wiederkehrende Fristen rücken
+dabei vor statt zu schließen — vom **geplanten** Schlag gerechnet, nicht vom
+tatsächlichen, sonst wandert ein 7-Uhr-Wecker mit jeder Doze-Verzögerung nach
+hinten. Das Android-Plugin rechnet seit `16.1.0` genauso (`nextRecurAt` über
+`Calendar`, damit die Uhrzeit die Zeitumstellung übersteht).
+
+## 7. Tests
 
 | Skript | Deckt ab |
 |--------|----------|
@@ -147,15 +181,15 @@ mit `execute-map.ts` deckt.
 | `test:sprint` | Gold, Alltag, kaputte Absicht + Rückfrage-Sperre |
 | `test:matrix` | Lock 6.60 + Rückfrage-Sperre |
 | `test:agents` | Katalog-Metadaten, Executor-IDs |
-| `test:agents-robust` | Budget, Timer-Aufräumen, Traces, Kosten-Rang, Vorfahrt |
-| `test:turn-e2e` | echter Zug: Timer steht, Kugel offen, Fehlerpfade |
+| `test:agents-robust` | Budget, Timer-Aufräumen, Traces, Kosten-Rang, Vorfahrt, Konflikt-Namen |
+| `test:turn-e2e` | echter Zug: Timer steht, Kugel offen, Fehlerpfade, abgelaufene Frist |
 
 `test:turn-e2e` fährt `runDirectorTurn` in Node. Möglich wurde das durch zwei
 Dinge: alle relativen Importe tragen `.ts` (Node löst extensionslos nicht auf),
 und `fake-indexeddb` plus ein `localStorage`-Shim machen den Store sichtbar.
 Ohne Shim schluckt der Store jeden Fehler und liest ewig die Defaults.
 
-## 7. Grenzen
+## 8. Grenzen
 
 - **Kein Parallellauf.** Ein Zug führt genau einen Agenten aus. Ketten laufen
   sequentiell über `chain.ts`.

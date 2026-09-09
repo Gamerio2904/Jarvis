@@ -1,14 +1,14 @@
-# 42 — Alles geplant (Stand Code `15.1.0`)
+# 42 — Alles geplant (Stand Code `16.1.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`15.1.0`**. Sideload **`15.1.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`16.1.0`**. Sideload **`16.1.0`**, versionCode `160100`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
-Hirn = Handy. PC = Werkzeug. **Heute (`15.1.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten.
+Hirn = Handy. PC = Werkzeug. **Heute (`16.1.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-1. **Dual Brain Sprint 238** [`63-next.md`](./63-next.md) — SLO-Gates, Shadow-Sign-off, Ship `15.2.0`
+1. **Upgrades Industriestand** [`67-upgrades.md`](./67-upgrades.md) — Abbruch per `AbortSignal`, VAD statt Stillezähler, Intent-Embeddings statt Konflikt-Tisch, Eval-Harness
 2. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s
 4. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot
 5. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
@@ -27,10 +27,12 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 
 ---
 
-## CODE auf diesem Stand (`15.1.0`)
+## CODE auf diesem Stand (`16.1.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
+| Agenten-Härtung | `16.1.0` | Budget je Nebenwirkung, Wiederholung nur beim Lesen, ehrlicher Fehler statt Modell-Fallback, Traces mit Zugnummer |
+| Reels & QA | `16.0.0` | Theme-Blende, Kalender-Umbau, Schalter statt Kästchen, Lage ohne Blackscreen, Einstellungs-Suche |
 | Agenten-Netzwerk | `15.1.0` | Catalog, Bus, Director, Curator, Agenten-Karte, 60 Agenten, Debug-Traces |
 | Dual Brain | `15.1.0` | Groq primär, `brain-orchestrator`, micro-clarify/merge/research-lite |
 | Sprachmodus | `13.44.0` | TV-Stimme, Hören, 1–2 Sätze, eine TTS-Lane; kein Whisper |

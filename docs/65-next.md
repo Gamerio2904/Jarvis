@@ -1,6 +1,8 @@
-# 65 — Reel-UI, Sprache, Lage, Kalender, Antwort-Qualität **PLAN** (`16.0.0`)
+# 65 — Reel-UI, Sprache, Lage, Kalender, Antwort-Qualität **CODE** (`16.0.0`)
 
-PO 2026-09-09: Drei Instagram-Reels als Design-Vorbild + Screenshots aus dem Feld. Code-Stand **`15.3.1`**.
+PO 2026-09-09: Drei Instagram-Reels als Design-Vorbild + Screenshots aus dem Feld. Code-Stand bei der Planung: **`15.3.1`**.
+
+> **Geplant als `15.4.0`–`15.8.0`, ausgeliefert gebündelt als `16.0.0`.** Die Versionsspalten unten tragen die Planungsnummern; im Code gibt es sie nicht. Sprints 242–248 sind **CODE** — siehe [`CHANGELOG.md`](./CHANGELOG.md) `16.0.0`. Die Router- und Timer-Nacharbeit dazu ist `16.1.0` ([`66-agents-ist.md`](./66-agents-ist.md)).
 
 | Reel | Inhalt (Jarvis-Ziel) |
 |------|----------------------|
@@ -166,7 +168,7 @@ messages hidden={lageScene}
 
 | Problem | Fix |
 |---------|-----|
-| Smalltalk → Fachwissen-Antwort | Director: `identity`/`chat` vor `search`; Knowledge-Block leer → nicht in Prompt |
+| Smalltalk → Fachwissen-Antwort | `parseGreeting` vor dem Director (`chat.ts`, `greeting.ts`); Knowledge-Block leer → nicht in Prompt |
 | Wetter „Hauptstraße 5“ immer | `last_place` aus GPS; Antwort „bei Ihnen“ wenn Fix frisch |
 | Timer Format „20: 48“ | `formatDue` / `timerSetLine` ohne Leerzeichen nach `:` |
 | Research bricht ab | `.messages` padding-bottom = composer height |

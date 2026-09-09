@@ -130,5 +130,5 @@ Legende: **Int** = interner Agent (kein User-Chat). **Front** = Jarvis/Friday on
 | `body-snap` | Körper-Snap | `body-snap.ts` |
 | `research-guard` | Quellen-Gate | `research-parse.ts` |
 
-**Summe Domänen:** 52 Routen in `route-pick.ts` / `registry.ts`.  
+**Summe Domänen:** **60** Einträge in `agents/parse-catalog.ts` (die Tabelle oben zählt den Planungsstand 52). Davon haben **59** einen Executor; `identity` parst nur und wird vor dem Director in `chat.ts` beantwortet. Gegenprobe: `npm run test:agents-robust` vergleicht Katalog, `EXECUTOR_IDS` und die Namen im Konflikt-Tisch.  
 **Summe intern:** 11 (plus `director` = 12).
