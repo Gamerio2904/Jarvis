@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`15.3.0`**. Sideload **`15.3.0`**. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. GUI Sprint 239 **CODE** `15.2.0`.
+> **Jetzt:** Code **`15.3.1`**. Sideload **`15.3.1`**. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. Reel-UI [`65-next.md`](./65-next.md) **PLAN** 242–248 → `16.0.0`.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 

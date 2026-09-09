@@ -1,8 +1,8 @@
-# 42 — Alles geplant (Stand Code `15.1.0`)
+# 42 — Alles geplant (Stand Code `15.3.1`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`15.1.0`**. Sideload **`15.1.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`15.3.1`**. Sideload **`15.3.1`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
 
 Hirn = Handy. PC = Werkzeug. **Heute (`15.1.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten.
 
@@ -99,4 +99,17 @@ Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein
 ### `13.40` Sprachmodus (CODE `13.44.0`)
 „Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**.
 
-Nächste Schiene: Dual Brain **238** [`63-next.md`](./63-next.md), dann Gerät-PO [`55-next.md`](./55-next.md) (178).
+### Reel-UI + Sprache + Lage (`16.0.0`) **PLAN**
+Drei Instagram-Reels + Screenshot-Bugs. Sprints **242–248**, [`65-next.md`](./65-next.md).
+
+| Version | Sprint | Fokus |
+|---------|--------|-------|
+| `15.3.2` | 242 | Lage Handy chat-first, Suche Fernseher, Globe-NL, Chat-Padding |
+| `15.4.0` | 243 | Reel-Schalter `JarvisSwitch` |
+| `15.5.0` | 244 | Light/Dark + Reel-Transition |
+| `15.6.0` | 245 | Kalender Reel-UI + Workflow |
+| `15.7.0` | 246 | Sprachmodus STT/TTS |
+| `15.8.0` | 247 | Antwort-Qualität (Routing, Timer, Smalltalk) |
+| `16.0.0` | 248 | Einstellungs-Suche v2 |
+
+Nächste Schiene: **242** Hotfix APK, dann 243–248 Execute. Dual Brain **238** [`63-next.md`](./63-next.md) parallel wenn SLO rot.
