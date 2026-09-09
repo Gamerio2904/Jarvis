@@ -1,4 +1,4 @@
-import { getJson, getText } from './http-json'
+import { getJson, getText } from './http-json.ts'
 import {
   compareDiscountSources,
   compareShopSources,
@@ -16,8 +16,8 @@ import {
   wikiCompanyHint,
   type ResearchMeta,
   type ResearchSource,
-} from './research-parse'
-import { loadSettings } from './store'
+} from './research-parse.ts'
+import { loadSettings } from './store.ts'
 
 const UA = 'Jarvis/2.2.0 (local.jarvis.app)'
 const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.2.0'

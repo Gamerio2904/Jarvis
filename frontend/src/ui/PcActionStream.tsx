@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { AGENT_META } from '../engine/agents/meta'
-import { getTurnTraces } from '../engine/agents/trace-store'
-import { departmentLabel } from '../engine/agent-map'
-import { getPcEvents, type PcEvent } from '../engine/pc-events'
+import { AGENT_META } from '../engine/agents/meta.ts'
+import { getTurnTraces } from '../engine/agents/trace-store.ts'
+import { departmentLabel } from '../engine/agent-map.ts'
+import { getPcEvents, type PcEvent } from '../engine/pc-events.ts'
 
 function labelFor(ev: PcEvent): string {
   const meta = AGENT_META[ev.agentId]

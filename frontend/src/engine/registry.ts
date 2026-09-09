@@ -1,23 +1,23 @@
-import { getPending, loadSettings } from './store'
-import { loadPlugs } from './plug'
-import { handleFuel } from './fuel'
-import { handlePoi } from './poi'
-import { handleTransit } from './transit'
-import { handleTools } from './tools'
-import { handleWeather } from './weather'
-import { askReply, pickPolicy } from './policy'
-import { propose } from './route-pick'
-import type { RouteCtx } from './route-types'
+import { getPending, loadSettings } from './store.ts'
+import { loadPlugs } from './plug.ts'
+import { handleFuel } from './fuel.ts'
+import { handlePoi } from './poi.ts'
+import { handleTransit } from './transit.ts'
+import { handleTools } from './tools.ts'
+import { handleWeather } from './weather.ts'
+import { askReply, pickPolicy } from './policy.ts'
+import { propose } from './route-pick.ts'
+import type { RouteCtx } from './route-types.ts'
 import { agentById, executableAgents, fromHandler, weatherLast } from './agents/catalog.ts'
 
-export type { RouteCtx, SideEffect } from './route-types'
+export type { RouteCtx, SideEffect } from './route-types.ts'
 export type { RouteHit } from './agents/types.ts'
 
 /** @deprecated use AgentSpec from agents/catalog — kept for callers expecting Capability shape */
 export type Capability = {
   id: string
   label: string
-  sideEffect: import('./route-types').SideEffect
+  sideEffect: import('./route-types.ts').SideEffect
   parse: (ctx: RouteCtx) => number | null
   execute: (ctx: RouteCtx) => Promise<import('./agents/types.ts').RouteHit | null>
 }
@@ -46,7 +46,7 @@ export function makeCtx(conversationId: string, text: string): RouteCtx {
   }
 }
 
-export { pickRoute, pickRouteFromCtx, propose } from './route-pick'
+export { pickRoute, pickRouteFromCtx, propose } from './route-pick.ts'
 
 export async function routeRegistry(conversationId: string, text: string) {
   const pending = await getPending(conversationId)

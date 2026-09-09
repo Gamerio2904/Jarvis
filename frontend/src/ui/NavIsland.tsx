@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useSlidingThumb } from './SlidingThumb'
+import { useSlidingThumb } from './SlidingThumb.tsx'
 
 export type NavIslandItem = {
   id: string

@@ -1,11 +1,11 @@
-import { getJson } from './http-json'
-import { fillResearchLinks } from './web-search'
-import { formatResearchReply, researchHasSources, type ResearchMeta, type ResearchSource } from './research-parse'
-import { parseNewsIntent, placeInHeadline } from './news-parse'
-import type { ToolMeta } from './tools'
-import { saveSettings } from './store'
+import { getJson } from './http-json.ts'
+import { fillResearchLinks } from './web-search.ts'
+import { formatResearchReply, researchHasSources, type ResearchMeta, type ResearchSource } from './research-parse.ts'
+import { parseNewsIntent, placeInHeadline } from './news-parse.ts'
+import type { ToolMeta } from './tools.ts'
+import { saveSettings } from './store.ts'
 
-export { parseNewsIntent, placeInHeadline } from './news-parse'
+export { parseNewsIntent, placeInHeadline } from './news-parse.ts'
 
 const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.1.0 (local.jarvis.app)' }
 const TS = 'https://www.tagesschau.de/api2u'

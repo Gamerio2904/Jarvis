@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { TEST_COPY_GROUPS } from '../engine/test-copy'
+import { TEST_COPY_GROUPS } from '../engine/test-copy.ts'
 import {
   debugSnapshot,
   downloadDebug,
@@ -9,9 +9,9 @@ import {
   startDebugRun,
   subscribeDebug,
   type DebugSendResult,
-} from '../engine/debug-session'
-import { formatLatency, lastLatency, subscribeLatency } from '../engine/latency'
-import { DownloadBtn } from './DownloadBtn'
+} from '../engine/debug-session.ts'
+import { formatLatency, lastLatency, subscribeLatency } from '../engine/latency.ts'
+import { DownloadBtn } from './DownloadBtn.tsx'
 
 const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
 

@@ -2,7 +2,7 @@ import { Wllama } from '@wllama/wllama/esm/index.js'
 import wasmUrl from '@wllama/wllama/esm/wasm/wllama.wasm?url'
 import compatWasmUrl from '@wllama/wllama-compat/wasm/wllama.wasm?url'
 import compatWorkerCode from '@wllama/wllama-compat/wasm/wllama.js?raw'
-import { formatQwenChat, QWEN_STOP } from './engine/prompt'
+import { formatQwenChat, QWEN_STOP } from './engine/prompt.ts'
 
 const out = document.getElementById('out')!
 

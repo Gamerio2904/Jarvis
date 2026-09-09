@@ -1,4 +1,5 @@
 import type { Candidate, RouteCtx } from './route-types.ts'
+import { SCORE_CEIL } from './policy.ts'
 import { gazetteerHit } from './globe-geo.ts'
 import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
@@ -8,7 +9,7 @@ function drop(cands: Candidate[], id: string): Candidate[] {
 }
 
 function boost(cands: Candidate[], id: string, n: number): Candidate[] {
-  return cands.map((c) => (c.id === id ? { ...c, score: Math.min(0.99, c.score + n) } : c))
+  return cands.map((c) => (c.id === id ? { ...c, score: Math.min(SCORE_CEIL, c.score + n) } : c))
 }
 
 function has(cands: Candidate[], id: string): boolean {
@@ -24,8 +25,8 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     if (ctx.lastMedium === 'spotify' || ctx.lastTool === 'drive' || ctx.inDrive) {
       out = drop(out, 'tv')
       out = boost(out, 'drive', 0.2)
-    }
-    if (ctx.lastMedium === 'tv' || ctx.lastTool === 'tv') {
+    } else {
+      // Ohne laufendes Medium ist der Fernseher gesetzt — nie eine Rückfrage.
       out = drop(out, 'drive')
       out = boost(out, 'tv', 0.2)
     }
@@ -33,7 +34,11 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
 
   if (/\b(was\s+steht|was\s+liegt|was\s+kommt\s+heute|guten\s+morgen)\b/.test(t) && !/\b(wetter|regen|schirm|temperatur)\b/.test(t)) {
     out = drop(out, 'weather')
-    if (has(out, 'brief')) out = drop(out, 'calendar')
+    if (has(out, 'brief')) {
+      out = drop(out, 'calendar')
+      out = drop(out, 'reminder')
+      out = drop(out, 'todo')
+    }
   }
 
   if (
@@ -65,8 +70,16 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'film', 0.15)
   }
 
-  if (/\b(fernseh|fire\s*tv|\bhdmi\b|tizen)\b/.test(t)) {
+  // `fernseh` bleibt Präfix — ein `\b` dahinter würde „Fernseher“ verpassen.
+  if (/\bfernseh|\bfire\s*tv\b|\bhdmi\b|\btizen\b/.test(t)) {
     out = drop(out, 'film')
+    out = drop(out, 'drive')
+    out = boost(out, 'tv', 0.12)
+  }
+
+  // „Spiel … Film“ ist der Fernseher, nicht Spotify.
+  if (/^\s*spiel(?:e)?\b/.test(t) && /\bfilm\b/.test(t)) {
+    out = drop(out, 'drive')
     out = boost(out, 'tv', 0.12)
   }
 
@@ -207,7 +220,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'news')
     out = drop(out, 'fuel')
     out = drop(out, 'fx')
-    out = drop(out, 'research')
+    out = drop(out, 'search')
     out = boost(out, 'outlook', 0.28)
   }
 
@@ -259,7 +272,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   }
 
   if (/\b(hausstand|einstellungen\s+export|backup\s+export)\b/.test(t)) {
-    out = drop(out, 'research')
+    out = drop(out, 'search')
     out = boost(out, 'backup', 0.3)
   }
 
@@ -301,6 +314,13 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'pc')
     out = drop(out, 'here')
     out = boost(out, 'sky', 0.3)
+  }
+
+  // Himmelsrichtung ist der Kompass, kein gespeicherter Ort.
+  if (/\b(norden|süden|sueden|osten|westen|himmelsrichtung|kompass)\b/.test(t)) {
+    out = drop(out, 'maps')
+    out = drop(out, 'here')
+    out = boost(out, 'sensors', 0.25)
   }
 
   if (/\bwie\s+viele\s+(fenster|icons?|schaltflächen)\b/.test(t)) {

@@ -169,6 +169,7 @@ import { parseRecallIntent } from '../src/engine/recall-parse.ts'
 import { formatRecallReply, isDumpLine, subQueries, retrieveFromCorpus } from '../src/engine/retrieve.ts'
 import { handleWont, parseWontIntent, streetViewPlace, WONT_LABEL } from '../src/engine/wont-parse.ts'
 import { looksTruncated } from '../src/engine/polish-guard.ts'
+import { APP_VERSION } from '../src/engine/store.ts'
 import { parseGreeting, greetingReply, dayPartAt } from '../src/engine/greeting.ts'
 import { reduceOverlay, overlayTop, overlayHidesDrive, OVERLAY_INIT } from '../src/engine/overlay-fsm.ts'
 import { OUTLOOK_WATCH_ALARM } from '../src/engine/outlook-watch.ts'
@@ -1197,7 +1198,7 @@ assert.equal(firstAudioUsesSystemRace(), false)
 assert.equal(wantNeuralMouth(), true)
 assert.equal(EDGE_VOICE_JARVIS, 'de-DE-ConradNeural')
 assert.equal(EDGE_VOICE_FRIDAY, 'de-DE-KatjaNeural')
-assert.equal(edgeFirstTimeoutMs(false), 1100)
+assert.equal(edgeFirstTimeoutMs(false), 1800)
 assert.equal(edgeFirstTimeoutMs(true), 900)
 assert.equal(ssmlEscape('A & B <C> "x"'), 'A &amp; B &lt;C&gt; &quot;x&quot;')
 assert.equal(windowsFileTimeTicks(0), '116444736000000000')
@@ -1290,7 +1291,7 @@ assert.match(memoryBlock([{ key: 'name', value: 'Max' }, { key: 'getränk', valu
 assert.equal(isBwHoliday(new Date(2026, 3, 3)), true)
 assert.equal(isBwHoliday(new Date(2028, 0, 1)), true)
 assert.match(HELP_TEXT, /Wake an\/aus/)
-assert.match(HELP_TEXT, /15\.1\.0/)
+assert.ok(HELP_TEXT.includes(APP_VERSION), `HELP_TEXT nennt ${APP_VERSION}`)
 assert.match(HELP_TEXT, /Capability-Levels/)
 assert.match(HELP_TEXT, /WebRTC nur wenn der Peer steht/)
 assert.match(HELP_TEXT, /QR aus dem Fenster scannen/)

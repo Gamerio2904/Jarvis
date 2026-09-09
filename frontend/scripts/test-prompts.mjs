@@ -29,6 +29,7 @@ import { parseWatchPriceIntent } from '../src/engine/watch-price-parse.ts'
 import { parseRecallIntent } from '../src/engine/recall-parse.ts'
 import { subQueries } from '../src/engine/retrieve.ts'
 import { pendingYields } from '../src/engine/pending-yield.ts'
+import { decideRoute } from '../src/engine/route-pick.ts'
 import { browserSafeHeaders, browserFetchUrl } from '../src/engine/http-json.ts'
 
 /** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'blitzer'|'chat-folder'|'watch-price'|'amazon'|'recall'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
@@ -253,6 +254,27 @@ for (const prompt of TEST_PROMPTS) {
   rows.push({ prompt, got, want })
   if (got !== want) fail += 1
 }
+
+/**
+ * Der Router darf einen dokumentierten Prompt nicht mit einer Rückfrage
+ * beantworten. `pickRouteFromCtx` verdeckt das (es nimmt die erste Seite),
+ * die App fragt aber wirklich zurück — deshalb hier die Entscheidung selbst.
+ */
+const PRE_ROUTER = new Set(['help', 'discount', 'ordinal', 'llm', 'research'])
+const spurious = []
+for (const prompt of TEST_PROMPTS) {
+  if (PRE_ROUTER.has(EXPECT[prompt])) continue
+  const pick = decideRoute({
+    conversationId: 'test',
+    text: normalizeUtterance(prompt),
+    lastTool: '',
+    lastMedium: '',
+    inDrive: false,
+    weatherLast: null,
+  })
+  if (pick.kind === 'ask') spurious.push(`${JSON.stringify(prompt)} → ${pick.a} oder ${pick.b}`)
+}
+assert.equal(spurious.length, 0, `Router fragt statt zu handeln:\n  ${spurious.join('\n  ')}`)
 
 const follow = route('und morgen?', {
   weatherLast: { kind: 'place', place: 'München', when: 'today', focus: 'general' },

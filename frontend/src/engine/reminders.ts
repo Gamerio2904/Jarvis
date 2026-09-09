@@ -1,6 +1,12 @@
-import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify'
-import { syncGlance } from './glance'
-import { formatDue, parseReminderIntent } from './remind-parse'
+import {
+  cancelNotify,
+  hasNativeAlarms,
+  notifyIdFromKey,
+  requestNotifyPermission,
+  scheduleNotify,
+} from '../native/notify.ts'
+import { syncGlance } from './glance.ts'
+import { formatDue, parseReminderIntent } from './remind-parse.ts'
 import {
   addReminder,
   deleteReminder,
@@ -12,11 +18,11 @@ import {
   putReminder,
   setReminderStatus,
   type Reminder,
-} from './store'
-import { timerAlarmFields } from './timer-announce'
-import type { ToolMeta } from './tools'
+} from './store.ts'
+import { timerAlarmFields } from './timer-announce.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseReminderIntent } from './remind-parse'
+export { parseReminderIntent } from './remind-parse.ts'
 export { formatDue }
 
 export async function handleReminders(
@@ -246,6 +252,13 @@ export async function syncReminderAlarms(): Promise<void> {
         })
         continue
       }
+      // Auf Android hat das System die Frist schon geklingelt, während die App
+      // zu war. Ein Nachholen wäre der zweite Alarm für denselben Timer.
+      if (hasNativeAlarms()) {
+        await cancelNotify(notifyIdFromKey(r.id))
+        await setReminderStatus(r.id, 'fired')
+        continue
+      }
       if (r.kind === 'timer') {
         await scheduleNotify({
           id: notifyIdFromKey(r.id),
@@ -287,6 +300,28 @@ export async function syncReminderAlarms(): Promise<void> {
     })
   }
   await syncGlance()
+}
+
+/**
+ * Der In-App-Timer kennt nur seine Notify-Nummer, nicht die Erinnerung dahinter
+ * — `notifyIdFromKey` ist eine Einbahnstraße. Also über die offenen Zeilen
+ * zurückrechnen. Ohne diesen Schritt blieb ein abgelaufener Timer `open` und
+ * tauchte beim nächsten Start als Nachhol-Alarm wieder auf.
+ */
+export async function markFiredByNotifyId(nid: number): Promise<Reminder | null> {
+  const rows = await listReminders()
+  const hit = rows.find((r) => r.status === 'open' && notifyIdFromKey(r.id) === nid)
+  if (!hit) return null
+  if (hit.recur === 'daily' || hit.recur === 'weekly') {
+    const next = nextRecurDue(new Date(hit.due_at), hit.recur)
+    const rolled = { ...hit, due_at: next.toISOString(), status: 'open' as const }
+    await putReminder(rolled)
+    await syncGlance()
+    return rolled
+  }
+  await setReminderStatus(hit.id, 'fired')
+  await syncGlance()
+  return { ...hit, status: 'fired' }
 }
 
 export function nextRecurDue(from: Date, recur: 'daily' | 'weekly'): Date {

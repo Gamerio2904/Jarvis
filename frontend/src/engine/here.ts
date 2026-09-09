@@ -1,11 +1,11 @@
-import { ensureDeviceLocation } from '../native/geo'
-import { reversePlace } from './geo-lookup'
-import { formatHereReply, parseHereIntent } from './here-parse'
-import { loadSettings, saveSettings } from './store'
-import type { ToolMeta } from './tools'
+import { ensureDeviceLocation } from '../native/geo.ts'
+import { reversePlace } from './geo-lookup.ts'
+import { formatHereReply, parseHereIntent } from './here-parse.ts'
+import { loadSettings, saveSettings } from './store.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { formatHereReply, parseHereIntent } from './here-parse'
-export type { HereIntent } from './here-parse'
+export { formatHereReply, parseHereIntent } from './here-parse.ts'
+export type { HereIntent } from './here-parse.ts'
 
 type HereHit = {
   handled: boolean

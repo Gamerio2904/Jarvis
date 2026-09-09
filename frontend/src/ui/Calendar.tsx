@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
-import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar'
-import { formatDue, startOfDay } from '../engine/remind-parse'
-import { listEvents, listReminders, type CalendarEvent, type Reminder } from '../engine/store'
+import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar.ts'
+import { formatDue, startOfDay } from '../engine/remind-parse.ts'
+import { listEvents, listReminders, type CalendarEvent, type Reminder } from '../engine/store.ts'
 
 const WEEK = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 const MONTHS = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']

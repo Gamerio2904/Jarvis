@@ -1,9 +1,9 @@
-import { getJson } from './http-json'
-import { loadSettings } from './store'
-import { parseHolidayIntent } from './holiday-parse'
-import type { ToolMeta } from './tools'
+import { getJson } from './http-json.ts'
+import { loadSettings } from './store.ts'
+import { parseHolidayIntent } from './holiday-parse.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseHolidayIntent } from './holiday-parse'
+export { parseHolidayIntent } from './holiday-parse.ts'
 
 const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.1.0 (local.jarvis.app)' }
 

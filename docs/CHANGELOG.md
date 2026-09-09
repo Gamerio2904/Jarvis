@@ -5,6 +5,149 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+## `16.1.0` — Router-Bugs, Agenten-Härtung — *CODE*
+
+Ist-Beschreibung des Agenten-Systems: [`66-agents-ist.md`](./66-agents-ist.md).
+PO-Checkliste: [`TEST-16.1.0.md`](./TEST-16.1.0.md).
+
+### Router — acht Prompts endeten in einer Rückfrage statt in einer Antwort
+
+Tests und App liefen über **zwei verschiedene Pfade**: `pickRouteFromCtx` (Tests)
+wandelte eine Rückfrage still in „nimm die erste Seite" um, `runDirectorTurn`
+(App) fragte wirklich zurück. Kein Test konnte das sehen.
+
+- `decideRoute` ist jetzt die gemeinsame Entscheidung. Drei Korpora
+  (`test:prompts`, `test:sprint`, `test:matrix`) sperren neue Rückfragen.
+- **Kosten erzeugten Gleichstände:** `withCost` klemmte auf `SCORE_MIN`, und
+  `parserScore` hat denselben Boden — Kandidaten wurden dadurch exakt gleich.
+  Die Schwelle prüft jetzt den Parse-Score (`base`), die Kosten verschieben nur
+  den Rang.
+- **Kosten entschieden nie:** höchstens `0.05` gegen `SCORE_MARGIN` von `0.12`.
+  Jede Kosten-Differenz war eine Rückfrage. Jetzt entscheidet sie fürs
+  günstigere Lesen.
+- **Konflikt-Boosts sättigten bei `0.99`:** ein gewollter Vorsprung von `+0.25`
+  schrumpfte auf `+0.11` und fiel unter die Marge. `SCORE_CEIL = 4`.
+- Feste Vorfahrt (`TIE_ORDER`) bei exaktem Gleichstand statt Katalog-Zufall.
+- Betroffen waren `Lautstärke 50`, `lauter um 10`, `Spiel Dune Film`,
+  `Was steht an?`, `Wo ist Norden?`, `Termin aus dem Zettel`,
+  `Wo ist die Apotheke`, `Spiele ein YouTube Video auf dem Fernseher`.
+
+### Regex-Fehler
+
+- `/\b(fernseh|…)\b/` traf **„Fernseher" nie** — das `\b` stand hinter dem
+  Präfix. Die Fernseher-Konfliktregel war damit tot.
+- `gazetteerHit` pinnte **Großbritannien** für „Zeig Street View von London":
+  der Länder-Fallback prüfte die Restwörter nicht, anders als der Städte-Zweig.
+
+### Timer
+
+- `scheduleNotify` löschte im **Web-Zweig den eigenen In-App-Timer** sofort
+  wieder und stellte einen stillen zweiten. `jarvis-timer-fire` kam dort nie an,
+  der Chip im Composer blieb stumm. Jetzt trägt ein Timer die Frist: nativ
+  15 min (der Alarm ist die Wahrheit), im Browser die ganze Frist.
+- `window` wurde ungeschützt benutzt. Der Wurf traf `handleTimers` **nach** dem
+  Speichern — der Timer stand, aber die Bestätigung ging verloren und am Ende
+  antwortete das Modell. Benachrichtigung und Glance können den Zug nicht mehr
+  kippen.
+- `cancelNotify` räumt auch nativ den In-App-Timer und `firedIds` auf; vorher
+  wuchs `firedIds` unbegrenzt.
+
+### Agenten-Konzept
+
+- **Budget pro Agent:** Lesen 25 s, Gerät 15 s, Schreiben 8 s. Vorher hing ein
+  Zug unbegrenzt am stillen Socket.
+- **Ein Wiederholversuch nur für Lesen.** Schreiben nie — sonst landen Termine
+  doppelt.
+- **Scheitern ≠ Ablehnen:** `AgentResult.failed`. Ein gescheiterter Schreib-
+  oder Geräte-Agent antwortet ehrlich („Ich habe nichts geändert"), statt ans
+  Modell zu fallen, das einen Erfolg behaupten könnte.
+- Kurator-Preflight bekommt 2,5 s — es ist Pflege, keine Antwort.
+- Traces tragen die **Zug-Nummer**; ein abgebrochener Zug schreibt nicht mehr in
+  den neuen. Auf 200 Einträge gedeckelt.
+- `agentById` über eine Map; `orphanExecutorIds()` deckt unerreichbare
+  Executoren auf.
+
+### Tests und Bundle
+
+- **`test:turn-e2e`** — der erste echte Zug durch den Director. Prüft, dass der
+  Timer wirklich in der Liste steht (nicht nur angesagt wird), die Kugel aufgeht
+  und die Fehlerpfade greifen.
+- **`test:agents-robust`** — Budget, Timer-Aufräumen, verworfene Traces,
+  Trace-Grenze, Kosten-Rang, Vorfahrt, `EXECUTOR_IDS` gegen `execute-map`.
+- 418 relative Importe auf `.ts` normalisiert: Node lädt jetzt die komplette
+  Engine, vorher waren Integrationstests unmöglich. `fake-indexeddb` als
+  devDependency.
+- Das WASM des lokalen Modells wird erst beim ersten Laden geholt — **167 kB
+  raus aus dem Start-Bundle**.
+- Veraltete Assertions nachgezogen: HELP_TEXT-Version gegen `APP_VERSION`,
+  TTS-Erstchunk `1800 ms`.
+
+## `16.1.1` — Wecker, Konflikt-Tisch, Docs-Abgleich — *CODE*
+
+Sideload **`16.1.1`** (versionCode `160101`).
+
+### Wecker und Timer — derselbe Alarm klingelte zweimal
+
+Wer eine abgelaufene Frist schließt, war nirgends festgelegt — Beschreibung des
+Ergebnisses in [`66-agents-ist.md`](./66-agents-ist.md) §6.
+
+- **`jarvis-timer-fire` hatte keinen Zuhörer.** Das Ereignis wurde geworfen,
+  aber niemand schrieb den Ablauf in den Speicher. Die Zeile blieb `open`, der
+  nächste Start hielt sie für verpasst und holte den Alarm nach — derselbe Timer
+  klingelte ein zweites Mal. Neu: `markFiredByNotifyId` schließt die Zeile
+  (wiederkehrende rücken vor) und `App.tsx` hört zu.
+- **Nachholen nur im Browser.** `syncReminderAlarms` hat jede Frist der letzten
+  zwei Stunden neu geklingelt. Auf Android hatte das System sie längst
+  ausgelöst. `hasNativeAlarms()` trennt beides: der Browser holt nach, weil dort
+  jede Frist mit dem Tab stirbt; Android nicht.
+- **Wiederkehrende Alarme wanderten.** Das Plugin rechnete den nächsten Termin
+  vom **tatsächlichen** Schlag (`System.currentTimeMillis() + 7 Tage`). Jede
+  Doze-Verzögerung schob den 7-Uhr-Wecker dauerhaft nach hinten, und die feste
+  Millisekundenzahl ignorierte die Zeitumstellung. `nextRecurAt` rechnet über
+  `Calendar` vom **geplanten** Schlag — wie `nextRecurDue` in der Engine.
+- **Forschungs-Protokolle wuchsen endlos.** `addResearchAudit` hat nie
+  aufgeräumt, und jedes Lesen holte alle Zeilen herauf. Deckel: 200.
+
+### Konflikt-Tisch — zwei Regeln liefen ins Leere
+
+`drop(out, 'research')` traf nichts: es gibt keinen Agenten dieses Namens (der
+Suchagent heißt `search`). Die Regeln für Börsen-Ausblick und Hausstand-Export
+sahen aus wie Regeln, änderten aber nichts. `test:agents-robust` vergleicht
+jetzt jeden Namen im Konflikt-Tisch gegen den Katalog — ein Tippfehler dort
+fällt sonst nirgends auf.
+
+### Tests
+
+- `test:turn-e2e` deckt die abgelaufene Frist ab: Schließen über das Ereignis,
+  fremde Notify-Nummer trifft nichts, kein Nachholen für eine erledigte Zeile,
+  und eine wiederkehrende Frist rückt mit **gehaltener Uhrzeit** vor.
+- `test:agents-robust` prüft den Konflikt-Tisch gegen den Katalog.
+
+### Docs gegen den Code geprüft
+
+Ein Audit hat jede Behauptung über Version, Status und Architektur gegen die
+Quelle gestellt. Korrigiert:
+
+- **Versionsstand** in `README.md`, `09-versioning.md`, `42-planned.md`,
+  `16-gemini.md`, `sprints/README.md` — dort stand `15.1.0`–`15.3.1`.
+- **Sprint 238 galt als PLAN**, ist aber seit `15.2.0` **CODE**: `brain_v2` und
+  die Micro-LLM-Schalter stehen auf `true`. Ebenso 239–248.
+- **Rückfrage-Regel:** `32-intelligence.md` und `63-next.md` beschrieben
+  „knapp → Rückfrage" bzw. `margin < 0.08`. Beides trifft nicht mehr zu; die
+  Schwelle ist `0.12` auf dem Basis-Score und Kosten sowie `tieRank` entscheiden
+  danach.
+- **Routing-Pfad:** `32-intelligence.md` nannte `routeRegistry` als Standardweg.
+  Der Standard ist `runDirectorTurn` (`agent_network_v2: true`).
+- **Agentenzahl 52 → 60** in `62-agent-catalog.md` und `sprint-233.md`; 59 davon
+  mit Executor.
+- **Sprint 247** verortete den Smalltalk-Fix in `director.ts`; er liegt in
+  `chat.ts` / `greeting.ts`, noch **vor** dem Director.
+- **`npm run test:settings-search`** in `sprint-248.md` gibt es nicht — die
+  Einstellungs-Suche hängt an `test:qa-16`.
+- `63-next.md` und `65-next.md` sind als Planungsprotokolle markiert; die dort
+  gezeigten **verschachtelten** Flag-Namen (`brain_micro_llm: { clarify }`)
+  existieren nicht, die Felder im Hausstand-JSON sind flach.
+
 ## `16.0.1` — Lage, Timer, Routing — *CODE*
 
 Sideload **`16.0.1`** (versionCode `160001`).

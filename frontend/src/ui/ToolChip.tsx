@@ -1,4 +1,4 @@
-import type { ToolMeta } from '../engine/tools'
+import type { ToolMeta } from '../engine/tools.ts'
 
 function mapsRoutes(tool: ToolMeta): Array<{ title: string; url: string }> {
   const raw = tool.result

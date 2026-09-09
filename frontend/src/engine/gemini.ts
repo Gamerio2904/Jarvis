@@ -1,4 +1,4 @@
-import { hostOf, sourcesFromText, type ResearchMeta, type ResearchSource } from './research-parse'
+import { hostOf, sourcesFromText, type ResearchMeta, type ResearchSource } from './research-parse.ts'
 import {
   germanAuthError,
   germanNetworkError,
@@ -9,12 +9,12 @@ import {
   isUnknownModel,
   markSkip,
   userFacingCloudError,
-} from './cloud-errors'
-import { completeGroq, groqReady } from './groq'
-import { postJson } from './http-json'
-import { streamSseLines } from '../native/voice'
-import { GEMINI_PERSONA } from './persona'
-import { isGeminiConfigured, loadSettings, saveSettings } from './store'
+} from './cloud-errors.ts'
+import { completeGroq, groqReady } from './groq.ts'
+import { postJson } from './http-json.ts'
+import { streamSseLines } from '../native/voice.ts'
+import { GEMINI_PERSONA } from './persona.ts'
+import { isGeminiConfigured, loadSettings, saveSettings } from './store.ts'
 
 export const GEMINI_LABEL = 'Gemini Flash (Google)'
 

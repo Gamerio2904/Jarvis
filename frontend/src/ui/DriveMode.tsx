@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
-import { getDriveHazards, getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from '../engine/drive'
-import { haversineM } from '../engine/geo-lookup'
-import { loadSettings } from '../engine/store'
-import { readInterrupt, subscribeInterrupt } from '../engine/interrupt'
+import { getDriveHazards, getDriveRoute, getDriveTab, refreshDriveRoute, setDriveTab, snapDriveFix, subscribeDrive, type DriveRoute, type DriveTab } from '../engine/drive.ts'
+import { haversineM } from '../engine/geo-lookup.ts'
+import { loadSettings } from '../engine/store.ts'
+import { readInterrupt, subscribeInterrupt } from '../engine/interrupt.ts'
 import {
   TILE_SIZE,
   clampMapZoom,
@@ -20,10 +20,10 @@ import {
   zoomToInclude,
   type MapCam,
   type MapFix,
-} from '../engine/drive-map'
-import { formatNavBanner, nextManeuver } from '../engine/nav-speak'
-import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../engine/motion'
-import { watchDeviceLocation } from '../native/geo'
+} from '../engine/drive-map.ts'
+import { formatNavBanner, nextManeuver } from '../engine/nav-speak.ts'
+import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../engine/motion.ts'
+import { watchDeviceLocation } from '../native/geo.ts'
 import {
   beginVoiceSession,
   endVoiceSession,
@@ -34,10 +34,10 @@ import {
   speakText,
   stopListen,
   stopSpeak,
-} from '../native/voice'
-import { isChatSpeaking } from '../engine/speak-lock'
-import { parseFuelIntent } from '../engine/fuel-parse'
-import { parsePoiIntent } from '../engine/poi-parse'
+} from '../native/voice.ts'
+import { isChatSpeaking } from '../engine/speak-lock.ts'
+import { parseFuelIntent } from '../engine/fuel-parse.ts'
+import { parsePoiIntent } from '../engine/poi-parse.ts'
 import {
   activateSpotifyElement,
   ensureInternalPlayer,
@@ -56,7 +56,7 @@ import {
   subscribeSpotify,
   type SpotifyNow,
   type SpotifyPlayerStatus,
-} from '../engine/spotify'
+} from '../engine/spotify.ts'
 
 function FollowMap({
   destLat,

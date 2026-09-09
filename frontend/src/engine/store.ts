@@ -2,7 +2,7 @@ import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 
-export const APP_VERSION = '16.0.1'
+export const APP_VERSION = '16.1.1'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -437,21 +437,44 @@ export function newId(): string {
   return crypto.randomUUID()
 }
 
-export function loadSettings(): Settings {
+/**
+ * Ein kaputter Eintrag darf nicht still alles auf Werkseinstellung setzen. Der
+ * nächste `saveSettings` würde ihn sonst überschreiben — samt Gemini-Key und
+ * allem, was der Nutzer eingestellt hat. Die Rohdaten wandern zur Seite,
+ * damit sie von Hand zu retten sind.
+ */
+function parkBrokenSettings(raw: string): void {
   try {
-    const raw = localStorage.getItem(SETTINGS_KEY)
-    if (!raw) return { ...DEFAULT_SETTINGS }
-    const prev = JSON.parse(raw) as Partial<Settings>
-    const next = { ...DEFAULT_SETTINGS, ...prev, version: APP_VERSION }
-    // 15.3.1: Kugel/Lage trap — hud_force without session left phone on black Chat-less screen
-    if (prev.version !== APP_VERSION && prev.hud_force) {
-      next.hud_force = false
-      next.hud_hidden = true
-    }
-    return next
+    localStorage.setItem(`${SETTINGS_KEY}.broken`, raw)
+  } catch {
+    /* Speicher voll oder gesperrt — dann ist auch nichts zu retten */
+  }
+}
+
+export function loadSettings(): Settings {
+  let raw: string | null = null
+  try {
+    raw = localStorage.getItem(SETTINGS_KEY)
   } catch {
     return { ...DEFAULT_SETTINGS }
   }
+  if (!raw) return { ...DEFAULT_SETTINGS }
+  let prev: Partial<Settings>
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('kein Objekt')
+    prev = parsed as Partial<Settings>
+  } catch {
+    parkBrokenSettings(raw)
+    return { ...DEFAULT_SETTINGS }
+  }
+  const next = { ...DEFAULT_SETTINGS, ...prev, version: APP_VERSION }
+  // 15.3.1: Kugel/Lage trap — hud_force without session left phone on black Chat-less screen
+  if (prev.version !== APP_VERSION && prev.hud_force) {
+    next.hud_force = false
+    next.hud_hidden = true
+  }
+  return next
 }
 
 export function isGeminiConfigured(s = loadSettings()): boolean {
@@ -928,8 +951,16 @@ export async function deleteEvent(id: string): Promise<void> {
   await del('events', id)
 }
 
+/** Ohne Deckel wächst der Speicher endlos, und jedes Lesen holt alles herauf. */
+const AUDIT_KEEP = 200
+
 export async function addResearchAudit(row: ResearchAudit): Promise<ResearchAudit> {
   await put('research_audits', row)
+  const rows = await getAll<ResearchAudit>('research_audits')
+  if (rows.length > AUDIT_KEEP) {
+    const old = rows.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)).slice(AUDIT_KEEP)
+    for (const o of old) await del('research_audits', o.id)
+  }
   return row
 }
 

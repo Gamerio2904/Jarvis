@@ -1,4 +1,4 @@
-import { TEST_COPY_GROUPS, type TestCopyItem } from './test-copy'
+import { TEST_COPY_GROUPS, type TestCopyItem } from './test-copy.ts'
 import {
   buildReport,
   judgeTurn,
@@ -6,10 +6,10 @@ import {
   selectedItems,
   stampFilename,
   type DebugTurn,
-} from './debug-run'
-import { loadSettings, saveSettings } from './store'
-import { setKeepScreenOn, startDebugFg, stopDebugFg, onDebugStop } from '../native/voice'
-import type { ToolMeta } from './tools'
+} from './debug-run.ts'
+import { loadSettings, saveSettings } from './store.ts'
+import { setKeepScreenOn, startDebugFg, stopDebugFg, onDebugStop } from '../native/voice.ts'
+import type { ToolMeta } from './tools.ts'
 
 export type DebugPhase = 'idle' | 'starting' | 'running' | 'stopping'
 export type OverlayPhase = 'closed' | 'opening' | 'open' | 'closing'

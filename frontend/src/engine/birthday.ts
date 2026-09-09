@@ -1,10 +1,10 @@
-import { nextBirthday, parseBirthdayIntent } from './birthday-parse'
-import { addReminder, listReminders, persistLastList, upsertMemory } from './store'
-import { requestNotifyPermission, scheduleNotify, notifyIdFromKey } from '../native/notify'
-import { formatDue } from './remind-parse'
-import type { ToolMeta } from './tools'
+import { nextBirthday, parseBirthdayIntent } from './birthday-parse.ts'
+import { addReminder, listReminders, persistLastList, upsertMemory } from './store.ts'
+import { requestNotifyPermission, scheduleNotify, notifyIdFromKey } from '../native/notify.ts'
+import { formatDue } from './remind-parse.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseBirthdayIntent } from './birthday-parse'
+export { parseBirthdayIntent } from './birthday-parse.ts'
 
 export async function handleBirthday(
   conversationId: string,

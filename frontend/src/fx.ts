@@ -1,4 +1,4 @@
-import { prefersReducedMotion } from './engine/motion'
+import { prefersReducedMotion } from './engine/motion.ts'
 export { prefersReducedMotion }
 
 const MAGNET_SEL =

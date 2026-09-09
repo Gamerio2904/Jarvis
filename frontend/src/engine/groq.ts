@@ -1,8 +1,8 @@
-import { GEMINI_PERSONA } from './persona'
-import { GROQ_MODELS_BEST_FIRST, isFatalAuth, isRetryableCloud, isUnknownModel } from './cloud-errors'
-import { postJson } from './http-json'
-import { streamSseLines } from '../native/voice'
-import { loadSettings } from './store'
+import { GEMINI_PERSONA } from './persona.ts'
+import { GROQ_MODELS_BEST_FIRST, isFatalAuth, isRetryableCloud, isUnknownModel } from './cloud-errors.ts'
+import { postJson } from './http-json.ts'
+import { streamSseLines } from '../native/voice.ts'
+import { loadSettings } from './store.ts'
 
 type GroqChoice = { message?: { content?: string }; delta?: { content?: string } }
 type GroqResponse = {

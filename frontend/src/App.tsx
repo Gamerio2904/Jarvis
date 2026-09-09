@@ -11,6 +11,7 @@ import {
   listMemory,
   listResearchAudits,
   listReminders,
+  markFiredByNotifyId,
   patchSettings,
   removeReminder,
   streamChat,
@@ -42,43 +43,43 @@ import {
   type Settings,
   type ToolMeta,
   APP_VERSION,
-} from './api'
-import { researchStatusLabel } from './engine/research-parse'
-import { decodeHtml } from './engine/html-text'
+} from './api.ts'
+import { researchStatusLabel } from './engine/research-parse.ts'
+import { decodeHtml } from './engine/html-text.ts'
 import './index.css'
-import { playUiSound, unlockUiAudio } from './sounds'
-import { CalendarView } from './ui/Calendar'
-import { TimerChip } from './ui/TimerChip'
-import { PcDashboard } from './ui/PcDashboard'
-import { VoiceMode } from './ui/VoiceMode'
-import { SettingsScreen, type SettingsTopic } from './ui/SettingsScreen'
-import { DriveMode } from './ui/DriveMode'
-import { Lage } from './ui/lage/Lage'
-import { WakeBubble } from './ui/WakeBubble'
-import { ToolChip } from './ui/ToolChip'
-import { hideToolChip } from './ui/tool-chip'
-import { useOverlay } from './overlay'
-import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm'
-import { closeDrive, subscribeDrive } from './engine/drive'
-import { deleteMessage, loadSettings, patchMessage } from './engine/store'
-import { truncateSpoken } from './engine/turn-detect'
-import { warmCloud } from './engine/cloud-warm'
-import { syncGlance } from './engine/glance'
-import { tickOutlookWatch } from './engine/outlook-watch'
-import { tickWatchdog } from './engine/watchdog'
-import { tickPriceWatch } from './engine/watch-price'
-import { tickSleepMemory } from './engine/sleep-memory'
-import { displayFolder } from './engine/folders'
-import { FOLDER_IDS } from './engine/folder-parse'
-import { setHeardNames } from './engine/heard'
-import { pickAlarmTone } from './native/notify'
-import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice'
-import { bindChromeFx, prefersReducedMotion } from './fx'
-import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify'
-import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate'
-import { lageSessionActive, setLageSession } from './engine/lage-session'
-import { resolveUiTheme } from './fx/theme-transition'
-import { DebugChatDock } from './ui/DebugChatDock'
+import { playUiSound, unlockUiAudio } from './sounds.ts'
+import { CalendarView } from './ui/Calendar.tsx'
+import { TimerChip } from './ui/TimerChip.tsx'
+import { PcDashboard } from './ui/PcDashboard.tsx'
+import { VoiceMode } from './ui/VoiceMode.tsx'
+import { SettingsScreen, type SettingsTopic } from './ui/SettingsScreen.tsx'
+import { DriveMode } from './ui/DriveMode.tsx'
+import { Lage } from './ui/lage/Lage.tsx'
+import { WakeBubble } from './ui/WakeBubble.tsx'
+import { ToolChip } from './ui/ToolChip.tsx'
+import { hideToolChip } from './ui/tool-chip.ts'
+import { useOverlay } from './overlay.ts'
+import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm.ts'
+import { closeDrive, subscribeDrive } from './engine/drive.ts'
+import { deleteMessage, loadSettings, patchMessage } from './engine/store.ts'
+import { truncateSpoken } from './engine/turn-detect.ts'
+import { warmCloud } from './engine/cloud-warm.ts'
+import { syncGlance } from './engine/glance.ts'
+import { tickOutlookWatch } from './engine/outlook-watch.ts'
+import { tickWatchdog } from './engine/watchdog.ts'
+import { tickPriceWatch } from './engine/watch-price.ts'
+import { tickSleepMemory } from './engine/sleep-memory.ts'
+import { displayFolder } from './engine/folders.ts'
+import { FOLDER_IDS } from './engine/folder-parse.ts'
+import { setHeardNames } from './engine/heard.ts'
+import { pickAlarmTone } from './native/notify.ts'
+import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice.ts'
+import { bindChromeFx, prefersReducedMotion } from './fx.ts'
+import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify.ts'
+import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate.ts'
+import { lageSessionActive, setLageSession } from './engine/lage-session.ts'
+import { resolveUiTheme } from './fx/theme-transition.ts'
+import { DebugChatDock } from './ui/DebugChatDock.tsx'
 import {
   IconCal,
   IconGearMini,
@@ -86,9 +87,9 @@ import {
   IconHome,
   IconMic,
   NavIsland,
-} from './ui/NavIsland'
-import { debugSnapshot, subscribeDebug } from './engine/debug-session'
-import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate'
+} from './ui/NavIsland.tsx'
+import { debugSnapshot, subscribeDebug } from './engine/debug-session.ts'
+import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate.ts'
 
 function opensDriveOverlay(tool?: ToolMeta | null): boolean {
   if (!tool) return false
@@ -522,6 +523,14 @@ function App() {
       }
     }
     document.addEventListener('visibilitychange', vis)
+    // Läuft ein Timer ab, während die App vorne steht, muss die Zeile aus
+    // `open` heraus. Sonst hielt der nächste Start sie für verpasst.
+    const onTimerFire = (e: Event) => {
+      const nid = (e as CustomEvent<{ id?: number }>).detail?.id
+      if (typeof nid !== 'number') return
+      void markFiredByNotifyId(nid).then(() => refreshReminders())
+    }
+    window.addEventListener('jarvis-timer-fire', onTimerFire)
     void tickOutlookWatch()
     void tickWatchdog()
     void tickPriceWatch()
@@ -531,6 +540,7 @@ function App() {
       window.clearInterval(outlook)
       window.clearInterval(watchdog)
       document.removeEventListener('visibilitychange', vis)
+      window.removeEventListener('jarvis-timer-fire', onTimerFire)
     }
   }, [])
 

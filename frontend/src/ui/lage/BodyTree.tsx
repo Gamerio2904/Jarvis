@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { childrenOf, type BodyGraph, type BodyTreeNode } from '../../engine/body-graph'
+import { childrenOf, type BodyGraph, type BodyTreeNode } from '../../engine/body-graph.ts'
 
 export function BodyTree({
   graph,

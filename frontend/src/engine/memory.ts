@@ -1,4 +1,4 @@
-import { listMemory, clearMemory, deleteMemory, type MemoryItem } from './store'
+import { listMemory, clearMemory, deleteMemory, type MemoryItem } from './store.ts'
 import { packVerified } from './action-fsm.ts'
 import {
   confidenceFor,
@@ -22,13 +22,13 @@ import {
   parseMemoryFacts,
   parsePrefItemAsk,
   formatPinnedMemory,
-} from './memory-parse'
+} from './memory-parse.ts'
 import type { ToolMeta } from './tools.ts'
 import { isPresenceWindow } from './presence.ts'
 
-export { isMemoryRecall, isMemoryWrite, parseMemoryFacts, formatPinnedMemory } from './memory-parse'
-export type { MemoryFact } from './memory-parse'
-export { memoryBlock } from './memory-block'
+export { isMemoryRecall, isMemoryWrite, parseMemoryFacts, formatPinnedMemory } from './memory-parse.ts'
+export type { MemoryFact } from './memory-parse.ts'
+export { memoryBlock } from './memory-block.ts'
 
 type MemHit = { handled: boolean; reply?: string; items?: MemoryItem[]; tool?: ToolMeta; lastTool?: string }
 

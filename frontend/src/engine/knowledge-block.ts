@@ -8,10 +8,15 @@ export function knowledgeBlock(packs: KnowledgePack[], ask: string): string {
   const lines: string[] = []
   for (const p of hits.slice(0, 2)) {
     lines.push(`Fachwissen «${p.title}»`)
-    const claims = p.claims.filter((c) => c.user_ok).slice(0, KNOWLEDGE_BLOCK_CLAIMS)
+    // Pakete liegen versionsübergreifend in IndexedDB. Ein Datensatz aus einem
+    // älteren Schema darf den Prompt-Bau nicht werfen — sonst stirbt der ganze
+    // Zug an einem alten Eintrag.
+    const claims = (Array.isArray(p.claims) ? p.claims : [])
+      .filter((c) => c && c.user_ok && c.text)
+      .slice(0, KNOWLEDGE_BLOCK_CLAIMS)
     for (const c of claims) {
-      const src = c.source_urls[0] ? ` (${c.source_urls[0]})` : ''
-      lines.push(`- ${c.text}${src}`)
+      const url = Array.isArray(c.source_urls) ? c.source_urls[0] : ''
+      lines.push(`- ${c.text}${url ? ` (${url})` : ''}`)
     }
   }
   if (lines.length < 2) return ''

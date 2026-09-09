@@ -1,11 +1,11 @@
-import { parseLeaveIntent } from './leave-parse'
-import { geocodePlace, routeMinutes } from './geo-lookup'
-import { looksLikeBareStreet, mapsDirUrl, normalizePlaceName } from './places-parse'
-import { readDeviceLocation, requestLocationPermission } from '../native/geo'
-import { listEvents, listMemory, loadSettings, saveSettings } from './store'
-import type { ToolMeta } from './tools'
+import { parseLeaveIntent } from './leave-parse.ts'
+import { geocodePlace, routeMinutes } from './geo-lookup.ts'
+import { looksLikeBareStreet, mapsDirUrl, normalizePlaceName } from './places-parse.ts'
+import { readDeviceLocation, requestLocationPermission } from '../native/geo.ts'
+import { listEvents, listMemory, loadSettings, saveSettings } from './store.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseLeaveIntent } from './leave-parse'
+export { parseLeaveIntent } from './leave-parse.ts'
 
 function mapsTool(url: string, dest: string): ToolMeta {
   return {

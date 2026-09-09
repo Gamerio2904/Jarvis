@@ -1,17 +1,15 @@
-import { ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm'
-import { completeGemini, geminiReady, streamGemini, testGemini } from './gemini'
-import { groqReady, testGroq } from './groq'
-import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain'
-import { userFacingCloudError } from './cloud-errors'
-import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards'
+import { ensureModel, getDownloadProgress, getLlmError, hasCachedModel, isModelReady, releaseModel } from './llm.ts'
+import { completeGemini, geminiReady, streamGemini, testGemini } from './gemini.ts'
+import { groqReady, testGroq } from './groq.ts'
+import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain.ts'
+import { userFacingCloudError } from './cloud-errors.ts'
+import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards.ts'
 import { greetingReply, parseGreeting } from './greeting.ts'
-import { memoryBlock } from './memory'
+import { memoryBlock } from './memory.ts'
 import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
-import { parseHudIntent } from './hud-parse.ts'
-import { parseTimerIntent } from './timer-parse.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
-import { rewriteFollowUp } from './last-step'
+import { rewriteFollowUp } from './last-step.ts'
 import {
   acceptResearchPending,
   declineResearchPending,
@@ -21,9 +19,9 @@ import {
   researchSourcesOk,
   serializeResearchPending,
 } from './research-pending.ts'
-import { promoteSplitPart, splitIntents } from './split-intents'
+import { promoteSplitPart, splitIntents } from './split-intents.ts'
 import { normalizeUtterance } from './utterance.ts'
-import { VOICE_HINT, personaPack } from './persona'
+import { VOICE_HINT, personaPack } from './persona.ts'
 import { loadFace } from './face.ts'
 import {
   formatDeepResearchReply,
@@ -44,9 +42,9 @@ import {
   sourceDigest,
   isSearchRefusal,
   type ResearchMeta,
-} from './research-parse'
+} from './research-parse.ts'
 import { looksTruncated } from './polish-guard.ts'
-import { fillResearchLinks } from './web-search'
+import { fillResearchLinks } from './web-search.ts'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
@@ -68,21 +66,22 @@ import {
   type Conversation,
   type Message,
   type Settings,
-} from './store'
-import { handlePlaces } from './places'
-import { handlePc } from './pc'
-import { handleTaxi } from './taxi'
-import { handleInterrupt } from './interrupt'
-import { clearChain, partitionChain, popChain, writeChain } from './chain'
-import { isCommNo, isCommYes } from './places-parse'
+} from './store.ts'
+import { handlePlaces } from './places.ts'
+import { handlePc } from './pc.ts'
+import { handleTaxi } from './taxi.ts'
+import { handleInterrupt } from './interrupt.ts'
+import { clearChain, partitionChain, popChain, writeChain } from './chain.ts'
+import { isCommNo, isCommYes } from './places-parse.ts'
 import { pendingYields } from './pending-yield.ts'
-import { handleTvOrdinal, tvStatusFromSettings } from './tv'
-import { handleFuelOrdinal } from './fuel'
-import { handlePoiOrdinal } from './poi'
-import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal'
-import { type ToolMeta } from './tools'
-import { routeRegistry, type RouteHit } from './registry'
+import { handleTvOrdinal, tvStatusFromSettings } from './tv.ts'
+import { handleFuelOrdinal } from './fuel.ts'
+import { handlePoiOrdinal } from './poi.ts'
+import { parseOrdinalFollowUp, rewriteOrdinal } from './ordinal.ts'
+import { type ToolMeta } from './tools.ts'
+import { routeRegistry, type RouteHit } from './registry.ts'
 import { runDirectorTurn } from './director.ts'
+import { pickRouteFromCtx } from './route-pick.ts'
 import { runBrainOrchestrator } from './brain-orchestrator.ts'
 import { getLastUserFacts, getPolicyAsk } from './agents/trace-store.ts'
 import type { TurnBrainCtx } from './brain-tasks.ts'
@@ -328,6 +327,19 @@ async function routeDeterministic(conversationId: string, content: string): Prom
   return loadSettings().agent_network_v2
     ? (await runDirectorTurn(conversationId, content)).hit
     : routeRegistry(conversationId, content)
+}
+
+/** Gibt es für diese Äußerung überhaupt einen Agenten? */
+function deterministicRoute(ask: string): string | null {
+  const s = loadSettings()
+  return pickRouteFromCtx({
+    conversationId: 'know',
+    text: ask,
+    lastTool: (s.last_step_tool || '').trim(),
+    lastMedium: (s.last_medium || '').trim(),
+    inDrive: Boolean(s.drive_mode),
+    lastPlace: s.last_place || '',
+  })
 }
 
 function lastStepHint(): string {
@@ -694,8 +706,12 @@ export async function streamChat(
     const mem = await listMemory()
     const hits = await retrieve(ask)
     const packs = await listKnowledgePacks().catch(() => [])
-    const skipKnow = Boolean(parseHudIntent(ask) || parseTimerIntent(ask) || /^\s*(?:lage|wo\s+ist|öffne)/i.test(ask))
-    const know = skipKnow ? '' : knowledgeBlock(packs, ask)
+    // Fachwissen gehört nur in eine Frage, für die es keinen Agenten gibt.
+    // Erreicht eine Äußerung mit klarem Parser-Treffer trotzdem das Modell,
+    // hat der Agent abgelehnt — dann ist Fachwissen erst recht die falsche
+    // Antwort. Vorher stand hier eine Liste einzelner Muster; die musste bei
+    // jedem neuen Agenten nachgezogen werden.
+    const know = deterministicRoute(ask) ? '' : knowledgeBlock(packs, ask)
     let wantSearch = Boolean((geminiReady() && live) || accepted)
     let research: ResearchMeta | undefined
     let acc = ''

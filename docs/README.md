@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`15.1.0`**. Sideload **`15.1.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk** [`62-next.md`](./62-next.md) **CODE** 227–235. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Offen: Dual Brain Sprint **238** (Gold-SLO).
+**Jetzt:** Code **`16.1.1`**. Sideload **`16.1.1`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Offen: die Upgrades in [`67-upgrades.md`](./67-upgrades.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -67,9 +67,11 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 59 | [Drei Flächen 12.0](./59-next.md) | **CODE** `12.70.0` — Tablet + Presence + PC-Viewer; Sprints 209–216 |
 | 60 | [Körper-Wissensbaum 13.0](./60-next.md) | **CODE** `13.30.0` — Eingang → Skill → Wissen; Sprints 217–220 |
 | 61 | [Sprachmodus 13.40](./61-next.md) | **CODE** `13.44.0` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
-| 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **CODE** `15.1.0` — Director, Curator, Agenten-Karte; Sprints 227–235 |
-| 63 | [Dual Brain 15.0](./63-next.md) | **CODE** `15.1.0` — Groq primär, BrainOrchestrator; Sprints 236–237; 238 PLAN |
-| — | [APK](./apk.md) | Sideload `15.1.0`; Test: [`TEST-15.1.0.md`](./TEST-15.1.0.md) |
+| 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **PLAN-Protokoll** — Zielbild 14.0; Ist siehe 66 |
+| 63 | [Dual Brain 15.0](./63-next.md) | **CODE** — Groq primär, BrainOrchestrator; Sprints 236–237 in `15.1.0`, 238 in `15.2.0`. Planungsprotokoll, Flag-Namen dort veraltet |
+| 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `16.1.0` — Routing-Rechnung, Budgets, Traces, Grenzen |
+| 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN** — Abbruch, Sprechpause, Router-Embedding, Eval, Werkzeug-Vertrag |
+| — | [APK](./apk.md) | Sideload `16.1.1`; Test: [`TEST-16.1.0.md`](./TEST-16.1.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -266,6 +268,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 235 | `14.9.0` | **CODE** in `15.1.0` (Gold; Runtime 15.1.0) |
 | 236 | `15.0.0` | **CODE** in `15.1.0` (Groq primär + BrainOrchestrator) |
 | 237 | `15.1.0` | **CODE** (Micro-LLM + research-lite) |
-| 238 | `15.2.0` | **PLAN** (Dual Brain Gold + SLO) |
+| 238 | `15.2.0` | **CODE** (Dual Brain Gold + SLO) |
+| 239 | `15.2.0` | **CODE** (GUI-Politur) |
+| 240–241 | `15.3.0` | **CODE** (PC-Dashboard) |
+| 242–248 | `16.0.0` | **CODE** (Reel-UI, Kalender, Lage, Einstellungs-Suche) |
 
-**Aktuell:** Code **`15.1.0`**. Sideload `15.1.0`. Execute: Agenten-Netzwerk + Dual Brain bis 237 **CODE**; Sprint 238 **PLAN**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`16.1.1`**. Sideload `16.1.1`, versionCode `160101`. Execute: Sprints bis 248 **CODE**; Router- und Agenten-Härtung in `16.1.0`, Wecker und Konflikt-Tisch in `16.1.1` ([`66-agents-ist.md`](./66-agents-ist.md)). Nächster Schritt: [`67-upgrades.md`](./67-upgrades.md). Index: [`42-planned.md`](./42-planned.md).

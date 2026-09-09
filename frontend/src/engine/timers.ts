@@ -1,17 +1,17 @@
-import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify'
-import { syncGlance } from './glance'
+import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
+import { syncGlance } from './glance.ts'
 import {
   addReminder,
   deleteReminder,
   listReminders,
   type Reminder,
-} from './store'
-import { parseTimerIntent } from './timer-parse'
-import { timerAlarmFields, timerListLabel, timerSetLine, timerStopLine } from './timer-announce'
-import { formatClock } from './remind-parse'
-import type { ToolMeta } from './tools'
+} from './store.ts'
+import { parseTimerIntent } from './timer-parse.ts'
+import { timerAlarmFields, timerListLabel, timerSetLine, timerStopLine } from './timer-announce.ts'
+import { formatClock } from './remind-parse.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseTimerIntent } from './timer-parse'
+export { parseTimerIntent } from './timer-parse.ts'
 
 export async function handleTimers(
   conversationId: string,
@@ -27,14 +27,27 @@ export async function handleTimers(
       conversationId,
       kind: 'timer',
     })
-    const perm = await requestNotifyPermission()
-    const scheduled = await scheduleNotify({
-      id: notifyIdFromKey(row.id),
-      ...timerAlarmFields(row.title),
-      at: intent.due,
-      alarm: true,
-    })
-    await syncGlance()
+    // Der Timer steht bereits in der Liste. Ein Fehler in der Benachrichtigung
+    // darf die Bestätigung nicht verschlucken — sonst antwortet am Ende das
+    // Modell, und der Nutzer erfährt nie, dass der Timer läuft.
+    let perm = false
+    let scheduled: { ok: boolean } = { ok: false }
+    try {
+      perm = await requestNotifyPermission()
+      scheduled = await scheduleNotify({
+        id: notifyIdFromKey(row.id),
+        ...timerAlarmFields(row.title),
+        at: intent.due,
+        alarm: true,
+      })
+    } catch {
+      scheduled = { ok: false }
+    }
+    try {
+      await syncGlance()
+    } catch {
+      /* Glance ist Zierde, kein Timer */
+    }
     const until = formatClock(intent.due)
     const ping = perm && scheduled.ok
       ? ''

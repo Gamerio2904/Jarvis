@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
-import { DEFAULT_MODEL } from './store'
+import { DEFAULT_MODEL } from './store.ts'
 
 const OPFS_NAME = DEFAULT_MODEL.file
 const IDB_NAME = 'jarvis-gguf'

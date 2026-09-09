@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react'
-import type { GeoFix } from '../../engine/globe-geo'
-import { globeFocusKey, lookLatLon, shouldApplyGlobeFocus, viewXYZ, yawPitchFor } from '../../engine/globe-geo'
-import { WORLD_RINGS } from '../../engine/world-rings'
-import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion'
-import { loadSettings } from '../../engine/store'
+import type { GeoFix } from '../../engine/globe-geo.ts'
+import { globeFocusKey, lookLatLon, shouldApplyGlobeFocus, viewXYZ, yawPitchFor } from '../../engine/globe-geo.ts'
+import { WORLD_RINGS } from '../../engine/world-rings.ts'
+import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
+import { loadSettings } from '../../engine/store.ts'
 
 const HOME = { lat: 50.1, lon: 10.4 }
 const ZOOM_MIN = 1
