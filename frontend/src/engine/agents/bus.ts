@@ -50,6 +50,7 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
   const budget = BUDGET_MS[agent.sideEffect] ?? BUDGET_MS.read
   const attempts = agent.sideEffect === 'read' ? 2 : 1
   let lastTrace: AgentTrace | null = null
+  let lastReason = 'Fehler'
 
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
@@ -67,13 +68,19 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
         internal: [t],
       }
     } catch (err) {
+      lastReason = err instanceof AgentTimeout ? 'timeout' : messageOf(err)
       lastTrace = trace(false, messageOf(err), attempt)
       if (attempt >= attempts || !mayRetry(agent.sideEffect, err)) break
       await new Promise((r) => setTimeout(r, RETRY_DELAY_MS))
     }
   }
 
-  return { handled: false, internal: lastTrace ? [lastTrace] : [] }
+  return {
+    handled: false,
+    failed: true,
+    failReason: lastReason,
+    internal: lastTrace ? [lastTrace] : [],
+  }
 }
 
 export type { RouteHit }

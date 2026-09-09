@@ -5,13 +5,13 @@ import { handleFuel } from './fuel.ts'
 import { handlePoi } from './poi.ts'
 import { handleTransit } from './transit.ts'
 import { handleWeather } from './weather.ts'
-import { askReply, type PolicyPick } from './policy.ts'
+import { askReply, TOOL_LABEL, type PolicyPick } from './policy.ts'
 import { decideRouteFromCtx } from './route-pick.ts'
-import { fromHandler, weatherLast } from './agents/catalog.ts'
+import { agentById, fromHandler, weatherLast } from './agents/catalog.ts'
 import { runAgent } from './agents/runner.ts'
 import { curatorPreflight } from './agents/curator.ts'
 import { beginAgentTurn, pushAgentTrace, setLastUserFacts, setPolicyAsk } from './agents/trace-store.ts'
-import type { RouteHit } from './agents/types.ts'
+import type { AgentResult, RouteHit } from './agents/types.ts'
 import type { RouteCtx } from './route-types.ts'
 
 export type DirectorTurn = {
@@ -42,6 +42,21 @@ async function applyRetry(hit: RouteHit, conversationId: string, text: string): 
   if (hit.retry === 'poi') return (await fromHandler('poi', await handlePoi(conversationId, utterance))) || hit
   if (hit.retry === 'transit') return (await fromHandler('transit', await handleTransit(conversationId, utterance))) || hit
   return hit
+}
+
+/**
+ * Ein gescheiterter Schreib- oder Geräte-Agent darf nicht ans Modell
+ * durchfallen — das könnte einen Erfolg behaupten, den es nie gab. Lesende
+ * Agenten dürfen weiterfallen: dort gibt es nichts zu behaupten.
+ */
+function failureReply(id: string, result: AgentResult): string {
+  if (!result.failed) return ''
+  const agent = agentById(id)
+  if (!agent || agent.sideEffect === 'read') return ''
+  const label = TOOL_LABEL[id] || agent.label || id
+  return result.failReason === 'timeout'
+    ? `${label} hat nicht geantwortet. Ich habe nichts geändert — bitte nochmal.`
+    : `${label} hat nicht funktioniert. Ich habe nichts geändert — bitte nochmal.`
 }
 
 /** Sprint 229 — Turn: preflight → router → execute → verify → merge */
@@ -86,7 +101,12 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
 
   saveSettings({ last_agent_id: pick.id })
   const result = await runAgent(pick.id, ctx)
-  if (!result.handled) return { hit: null }
+  if (!result.handled) {
+    const honest = failureReply(pick.id, result)
+    if (!honest) return { hit: null }
+    setLastUserFacts(honest)
+    return { hit: { reply: honest, lastTool: pick.id }, userFacts: honest }
+  }
 
   let hit: RouteHit = {
     reply: result.reply || '',

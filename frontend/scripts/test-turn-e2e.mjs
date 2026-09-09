@@ -79,4 +79,34 @@ const vol = await turn('Lautstärke 50')
 assert.notEqual(vol.hit?.lastTool, 'clarify', 'Lautstärke fragt nicht zurück')
 assert.equal(vol.policyAsk ?? null, null, 'und landet auch nicht im Rückfrage-Pfad')
 
+// --- Gescheiterter Schreib-Agent sagt es, statt ans Modell zu fallen -----
+const { agentById } = await import('../src/engine/agents/catalog.ts')
+const calendar = agentById('calendar')
+const realExecute = calendar.execute
+try {
+  calendar.execute = async () => {
+    throw new Error('Kalender kaputt')
+  }
+  const broken = await turn('Termin morgen 10 Uhr Zahnarzt')
+  assert.ok(broken.hit?.reply, 'ein gescheiterter Schreib-Agent antwortet trotzdem')
+  assert.match(broken.hit.reply, /nichts geändert/i, 'und sagt, dass nichts passiert ist')
+  assert.equal(broken.hit.lastTool, 'calendar')
+} finally {
+  calendar.execute = realExecute
+}
+
+// Ein lesender Agent darf weiter ans Modell fallen — dort gibt es nichts zu
+// behaupten, und das Modell kann die Frage noch beantworten.
+const news = agentById('news')
+const realNews = news.execute
+try {
+  news.execute = async () => {
+    throw new Error('Netz weg')
+  }
+  const read = await turn('Zeig mir die Nachrichten')
+  assert.equal(read.hit, null, 'Lesen fällt weiter durch')
+} finally {
+  news.execute = realNews
+}
+
 console.log(`test:turn-e2e ok — Timer steht, Kugel offen, Lautstärke ohne Rückfrage (${APP_VERSION})`)
