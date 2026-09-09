@@ -84,6 +84,17 @@ function eligible(c: Candidate): boolean {
   return (c.base ?? c.score) >= SCORE_MIN
 }
 
+function baseOf(c: Candidate): number {
+  return c.base ?? c.score
+}
+
+/**
+ * Gefragt wird erst, wenn nichts mehr trennt: nicht der Parse-Score, nicht die
+ * Kosten und nicht die feste Vorfahrt. Vorher entschied schon ein Abstand
+ * unter `SCORE_MARGIN` auf Rückfrage — und weil die Kosten (höchstens 0.05)
+ * diesen Abstand nie überschreiten konnten, war jede Kosten-Differenz eine
+ * Rückfrage statt einer Entscheidung.
+ */
 export function pickPolicy(cands: Candidate[]): PolicyPick {
   const ranked = cands
     .filter(eligible)
@@ -91,12 +102,12 @@ export function pickPolicy(cands: Candidate[]): PolicyPick {
   if (!ranked.length) return { kind: 'none' }
   const top = ranked[0]
   const second = ranked[1]
-  if (second && top.id !== second.id && top.score - second.score < SCORE_MARGIN) {
-    const exactTie = top.score - second.score < TIE_EPS
-    const ranksDiffer = tieRank(top.id) !== tieRank(second.id)
-    if (!exactTie || !ranksDiffer) return { kind: 'ask', a: top.id, b: second.id }
-  }
-  return { kind: 'run', id: top.id, score: top.score }
+  const run = { kind: 'run', id: top.id, score: top.score } as const
+  if (!second || top.id === second.id) return run
+  if (baseOf(top) - baseOf(second) >= SCORE_MARGIN) return run
+  if (Math.abs(top.score - second.score) > TIE_EPS) return run
+  if (tieRank(top.id) !== tieRank(second.id)) return run
+  return { kind: 'ask', a: top.id, b: second.id }
 }
 
 export function withCost(cands: Candidate[]): Candidate[] {
