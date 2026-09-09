@@ -21,13 +21,13 @@ PO-Blocker aus Screenshots sofort beheben: Lage auf dem Handy darf keinen schwar
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S242-1 | Handy chat-first: `lageScene` nur Tablet/Wide | `App.tsx`, `layout-probe.ts` | PLAN |
-| S242-2 | Composer nie aus bei Dock `lage` auf Phone | `App.tsx` | PLAN |
-| S242-3 | `.messages` padding-bottom = composer height | `index.css`, `App.tsx` | PLAN |
-| S242-4 | Suche: `fernseh|samsung|tizen`, `kalender|termin`, `timer|wecker` | `settings-ia.ts` | PLAN |
-| S242-5 | Globe: NL-Pin aus Chat „zeig auf Globus“ | `globe-geo.ts`, `hud-parse.ts`, `store.ts` | PLAN |
-| S242-6 | Gold: `layout-probe.ts` + `test:rest-final` version `15.3.2` | tests | PLAN |
-| S242-7 | APK `releases/Jarvis.apk`, `apk.md`, CHANGELOG | docs | PLAN |
+| S242-1 | Handy chat-first: `lageScene` nur Tablet/Wide | `App.tsx`, `layout-probe.ts` | CODE |
+| S242-2 | Composer nie aus bei Dock `lage` auf Phone | `App.tsx` | CODE |
+| S242-3 | `.messages` padding-bottom = composer height | `index.css`, `App.tsx` | CODE |
+| S242-4 | Suche: `fernseh|samsung|tizen`, `kalender|termin`, `timer|wecker` | `settings-ia.ts` | CODE |
+| S242-5 | Globe: NL-Pin aus Chat „zeig auf Globus“ | `globe-geo.ts`, `hud-parse.ts`, `store.ts` | CODE |
+| S242-6 | Gold: `layout-probe.ts` + `test:rest-final` version `15.3.2` | tests | CODE |
+| S242-7 | APK `releases/Jarvis.apk`, `apk.md`, CHANGELOG | docs | CODE |
 
 ## Code-Hinweis (heute)
 
