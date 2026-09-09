@@ -47,6 +47,62 @@ die `drop`/`boost`-Regeln sind zusätzlich reihenfolgeabhängig.
 | S257-6 | Rückfallebene: ohne Modell gilt der heutige Tisch | `engine/policy.ts` | PLAN |
 | S257-7 | Eval-Vergleich gegen die Baseline aus 250 | `scripts/eval/report.mjs` | PLAN |
 | S257-8 | Docs: `66-agents-ist.md` §2 neu schreiben | docs | PLAN |
+| S257-9 | **Trennschärfe-Test vor allem anderen** — Abbruch, wenn er scheitert | `scripts/eval/separability.mjs` | PLAN |
+| S257-10 | `query:` / `passage:` Präfixe von e5 korrekt setzen | `engine/embed.ts` | PLAN |
+| S257-11 | Mehrfach-Sampling als letzte Ebene statt Rückfrage, auf dem 8B | `engine/policy.ts` | PLAN |
+
+## S257-9 — Der Test, der vor der Arbeit kommt
+
+Die Research, aus der dieser Sprint stammt, begründete Embeddings mit
+`König − Mann + Frau = Königin`. Diese Analogie ist ein schlechter Beleg
+([`69-modell-grundlagen.md`](../69-modell-grundlagen.md) §1.2) und sagt über
+diesen Sprint gar nichts. Was zählt, ist eine einzige, viel langweiligere Frage:
+
+> Liegen Äußerungen desselben Agenten näher beieinander als Äußerungen
+> verschiedener Agenten?
+
+Das ist in einem Nachmittag messbar, **bevor** eine Zeile `policy.ts` angefasst
+wird: Korpus einbetten, Zentroide bilden, je Fall den nächsten Zentroid nehmen.
+
+| Ergebnis | Konsequenz |
+|----------|------------|
+| Nächster Zentroid trifft klar besser als der Zufall | Sprint läuft wie geplant |
+| Trifft, aber schwach | nur als kleiner Summand, `conflicts.ts` bleibt führend |
+| Trifft nicht | **Sprint abgebrochen**, S257-2 bis S257-8 entfallen |
+
+Der dritte Fall ist nicht unwahrscheinlich. Agenten wie `tv` und `home` liegen
+sprachlich dicht beieinander („mach das Licht an" / „mach den Fernseher an"),
+und genau dort muss die Trennung sitzen. Diesen Ausgang vorher zu kennen kostet
+einen Nachmittag; ihn nachher zu merken kostet einen Sprint.
+
+## S257-10 — Die Präfixe sind nicht optional
+
+`multilingual-e5-small` ist mit `query: ` und `passage: ` als Präfix trainiert.
+Ohne sie sinkt die Qualität messbar, und der Fehler ist stumm — die Vektoren
+sehen normal aus. Für diesen Anwendungsfall gilt: Nutzeräußerung als `query:`,
+Katalog-Beispiele als `passage:`. Gehört in den Trennschärfe-Test aus S257-9,
+sonst misst der die falsche Sache.
+
+## S257-11 — Mehrfach fragen statt zurückfragen
+
+Wenn nach allem noch zwei Kandidaten gleich stehen, fragt Jarvis heute zurück.
+Genau darüber hat sich der PO beschwert. Die billige Alternative aus der
+Research — dort fälschlich als „RL zur Laufzeit" beschrieben, tatsächlich nur
+Sampling ([`69-modell-grundlagen.md`](../69-modell-grundlagen.md) §1.1) — ist
+dreimal dieselbe Entscheidung mit Temperatur und Mehrheitsentscheid.
+
+Zwei Auflagen, beide aus dem Kontingent (§3.2 dort):
+
+- **Auf `llama-3.1-8b-instant`, nicht auf dem großen Modell.** Das 8B hat
+  **14.400 statt 1.000** Requests am Tag. „Welcher dieser zwei Agenten" ist eine
+  triviale Aufgabe; das große Kontingent bleibt den Antworten.
+- **Nur wenn sich das rechnet.** Dreifaches Sampling verdreifacht die Requests
+  an dieser Stelle. Die Rückfrage-Quote aus Sprint 250 entscheidet: bei wenigen
+  Prozent ist der Aufschlag Rauschen, bei zwanzig Prozent ist er ein Viertel des
+  Tagesbudgets. Ohne diese Zahl wird S257-11 **nicht** gebaut.
+
+Ergebnis ohne Netz oder bei leerem Kontingent: die Rückfrage von heute. Die
+bleibt als Boden erhalten.
 
 ## Die Grenze, die bleibt
 
@@ -68,10 +124,16 @@ deshalb ist 250 harte Voraussetzung, nicht Empfehlung.
 Zweites Kriterium: das Start-Bundle wächst. Modell und Zentroide gehören hinter
 einen `import()`.
 
+Drittes, und es greift zuerst: **der Trennschärfe-Test aus S257-9 scheitert.**
+Dann wird dieser Sprint nicht gebaut, sondern geschlossen — mit dem Messwert als
+Begründung im CHANGELOG, damit die Idee nicht in einem Jahr erneut vorgeschlagen
+wird.
+
 ## Tests
 
 ```bash
 cd frontend
+npm run eval:separability     # zuerst — entscheidet, ob der Rest gebaut wird
 npm run eval:report           # gegen Baseline, Differenz muss positiv sein
 npm run test:prompts
 npm run test:sprint

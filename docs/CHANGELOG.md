@@ -33,6 +33,66 @@ Frei kombinierbar: 251, 252, 256. Harte Ketten: 250 → 257, 253 + 254 → 255.
 Jeder Sprint hat ein Abbruchkriterium; für 258 ist es hart — erreicht ein
 Modellvorschlag ein Gerät ohne Bestätigung, wird der Sprint zurückgezogen.
 
+#### Nachtrag: Grundlagen, interne Sprache, Kontingent
+
+Neu: [`69-modell-grundlagen.md`](./69-modell-grundlagen.md) — Referenz, kein
+Sprint. Ordnet die Modell-Begriffe nach **Trainingszeit** (für dieses Projekt
+nicht verfügbar) und **Inferenzzeit** (Jarvis' ganzer Hebel), korrigiert vier
+verbreitete Fehlvorstellungen und begründet damit den Schnitt der Sprints. Der
+folgenreichste Punkt: Test-Time-Reasoning ist **kein** Reinforcement Learning
+zur Laufzeit — zur Inferenz ändert sich kein Gewicht. Das trennt eine unmögliche
+Aufgabe von einer, die 20 Zeilen kostet.
+
+**Interne Sprache — entschieden, ohne Migration.** Persona, Ton, Siezen und
+Beispielantworten bleiben **deutsch**: sie *demonstrieren* das Verhalten und
+sind damit faktisch Few-Shot-Beispiele, und Beispiele in der falschen Sprache
+kosten 15–20 % Genauigkeit. Ein englischer Persona-Text würde zusätzlich
+Sprachwechsel provozieren — hier wird das vorgelesen. Nur Maschinenseitiges
+(Werkzeug-Schemas, Feldnamen, Intent-Labels) wird neu **englisch** geschrieben,
+in Sprint 258. Ob sich sogar die Persona lohnt, misst Sprint 250 als A/B
+(S250-10) statt es zu behaupten.
+
+**Free Tier: kostenlos ja, unbegrenzt nein.** Die Chat-Modelle haben **1.000
+Requests und 200.000 Tokens am Tag**, pro Organisation und nicht pro Schlüssel —
+bei rund 2.500 Tokens pro Zug etwa **80 Züge am Tag**. Daraus folgen drei
+Ergänzungen:
+
+- **Sprint 251** bekommt einen zweiten Auslöser (S251-9 … S251-15):
+  `x-ratelimit-remaining-*` lesen und *vor* der Grenze auf das lokale 0,5B
+  gehen, statt in `429` zu laufen. Dabei zwei Funde am Groq-Pfad, die heute
+  Kontingent verbrennen: `groq.ts` hat kein Skip-Gedächtnis (anders als
+  `gemini.ts` mit `markSkip`) und versucht pro Modell erst Streaming, dann
+  Non-Streaming — ein totes Modell an Position 1 kostet zwei Requests pro Zug.
+  `GROQ_MODELS_BEST_FIRST[0]` ist `qwen/qwen3.8-27b`, Groqs Liste führt
+  `qwen/qwen3.6-27b`; das gehört geprüft. Warum das unbemerkt blieb, hat zwei
+  Gründe: `scripts/test-gemini-fallback.mjs` ist das **einzige** Testskript ohne
+  Eintrag in `package.json` und läuft nie (S251-16) — und es würde auch nichts
+  finden, weil seine Assertion die Konstante gegen sich selbst prüft und damit
+  nur Änderungen, nie falsche Werte bemerkt (S251-17). Außerdem verspricht
+  `germanQuotaHint()` „hoher Free-Tier"; 1.000 RPD ist nicht hoch.
+- **Sprint 250** misst Prompt-Tokens und Cache-Trefferquote (S250-9). Gecachte
+  Eingabe-Tokens zählen **nicht** auf die Limits an; ein guter Prompt-Schnitt
+  kauft also Tagesbudget, und ohne Messung merkt niemand, wenn ein Sprint den
+  Cache entwertet.
+- **Sprint 257** bekommt Mehrfach-Sampling als Ebene *vor* der Rückfrage
+  (S257-11) — aber auf `llama-3.1-8b-instant` mit 14.400 statt 1.000 Requests am
+  Tag, und nur wenn die in 250 gemessene Rückfrage-Quote den Aufschlag
+  rechtfertigt.
+
+**Sprint 257 bekommt ein Tor vor die Tür.** Der Trennschärfe-Test (S257-9) läuft
+**vor** der Umsetzung: liegen Äußerungen desselben Agenten näher beieinander als
+die verschiedener Agenten? Fällt er negativ aus — bei `tv` gegen `home` gut
+möglich — wird der Sprint geschlossen statt gebaut, mit dem Messwert als
+Begründung. Dazu S257-10: die `query:` / `passage:`-Präfixe von e5 sind nicht
+optional, und ihr Fehlen ist stumm.
+
+Kleinere Ergänzungen: **249** nimmt echte STT-Verhörer als eigenen Tag auf
+(S249-9) — der Korpus besteht heute aus getipptem Text, im Sprachmodus kommt
+aber an, was Whisper verstanden hat. **258** erzwingt JSON über
+`response_format: json_schema` mit `strict` statt es zu erbitten und per Regex
+zu retten (S258-9 … S258-11); ohne diese Möglichkeit wird der Vorschlagsweg
+abgeschaltet, nicht mit Regex nachgebaut.
+
 ## `16.1.1` — Wecker, Konflikt-Tisch, Docs-Abgleich — *CODE*
 
 Sideload **`16.1.1`** (versionCode `160101`).

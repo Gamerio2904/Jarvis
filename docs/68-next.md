@@ -7,6 +7,12 @@ Lieferreihenfolge.
 Die Leitentscheidung bleibt: **Parser wählen Geräte, das Modell formuliert.**
 Kein Sprint hier gibt einem Modell die Hand am Fernseher.
 
+Die Begründungen, warum die Sprints so geschnitten sind — und welche Ideen
+bewusst nicht vorkommen — stehen in
+[`69-modell-grundlagen.md`](./69-modell-grundlagen.md). Zwei Entscheidungen
+daraus greifen in diese Planung ein und stehen unten als §17 (Sprache) und §18
+(Kontingent).
+
 ---
 
 ## 0. Warum diese Reihenfolge
@@ -85,6 +91,16 @@ Harte Ketten: **250 → 257**, **253 + 254 → 255**, alles → **259**.
   `cockatiel`.
 - **Kein Umbau der Parser.** 257 ersetzt die *Bewertungsschicht*, nicht die
   deterministische Bahn.
+- **Kein Training, in keiner Form.** Kein Fine-Tuning, kein SFT, kein DPO. Ohne
+  GPU und Trainingsstrecke ist das nicht machbar, und es würde das Problem nicht
+  treffen: Fine-Tuning prägt Form, nicht Wissen
+  ([`69-modell-grundlagen.md`](./69-modell-grundlagen.md) §1.5). Der Rohstoff —
+  Äußerung plus erwartete Absicht — entsteht in 249/250 trotzdem und trägt dort
+  schon ohne Training.
+- **Kein Reasoning-Modus.** „Länger nachdenken lassen" wird in Tokens bezahlt,
+  und Tokens sind laut §18 knapp. Bei einem Sprachassistenten kostet es
+  zusätzlich das, was am meisten zählt: Antwortzeit.
+- **Keine Umstellung der Persona auf Englisch.** Begründung in §17.
 
 ---
 
@@ -184,11 +200,88 @@ Jeder Sprint hat eine Bedingung, unter der er **nicht** ausgeliefert wird:
 | 254 | mehr abgeschnittene Sätze als mit der Konstante |
 | 255 | Barge-in schneidet die eigene Frage ab |
 | 256 | eine Migration verliert ein Feld |
-| 257 | Trefferquote sinkt oder Rückfrage-Quote steigt gegenüber der Baseline |
+| 257 | der Trennschärfe-Test scheitert, oder Trefferquote sinkt gegenüber der Baseline |
 | 258 | ein Modellvorschlag erreicht ein Gerät ohne Bestätigung |
 | 259 | der Ring-Puffer wächst über seine Grenze |
+
+Neu bei **257**: der Trennschärfe-Test (`eval:separability`) läuft **vor** der
+Umsetzung und kann den Sprint schließen, bevor er beginnt. Näheres in
+[`sprints/sprint-257.md`](./sprints/sprint-257.md) §S257-9.
 
 ## 16. PO-Testreihenfolge
 
 Nach **252** die erste APK dieser Schiene (die Lage-Entscheidung ist sichtbar),
 nach **255** die zweite (Sprachmodus), nach **259** das Meilenstein-Sideload.
+
+---
+
+## 17. Interne Sprache: Deutsch bleibt, Maschinenseitiges wird englisch
+
+PO-Frage aus der Planungsrunde. Kurzfassung; ausführlich mit Quellen in
+[`69-modell-grundlagen.md`](./69-modell-grundlagen.md) §2.
+
+Der Forschungskonsens ist nicht „Englisch ist besser", sondern **nach
+Bestandteil trennen**. Für Jarvis heißt das:
+
+| Bestandteil | Sprache | Sprint |
+|-------------|---------|--------|
+| Persona, Ton, Siezen, Beispielantworten | **Deutsch, unverändert** | — |
+| Werkzeug-Beschreibungen, JSON-Schema, Feldnamen, Intent-Labels | **Englisch** | 258 |
+| Code-Kommentare, `docs/` | **Deutsch, unverändert** | — |
+
+Drei Gründe, die Persona nicht anzufassen:
+
+1. Sie **demonstriert** Ton und Siezen und ist damit faktisch ein
+   Few-Shot-Beispiel. Beispiele in der falschen Sprache kosten 15–20 %
+   Genauigkeit.
+2. Ein englischer Persona-Text provoziert **Sprachwechsel in der Ausgabe**. Im
+   Textchat wäre das ein Schönheitsfehler; hier wird es vorgelesen.
+3. Deutsch ist eine Hochressourcen-Sprache. Der erwartete Gewinn ist klein und
+   modellabhängig — dieselbe Studie findet für Llama-3.1-8B das Gegenteil wie
+   für andere Modelle.
+
+**Das kostet keine Migration.** Alles Maschinenseitige entsteht in 258 ohnehin
+neu; es wird nur von Anfang an englisch geschrieben. Ob sich sogar die Persona
+lohnt, wird in **250** als A/B gemessen (S250-10) statt diskutiert.
+
+---
+
+## 18. Kostenlos ja, unendlich nein
+
+Die zweite PO-Frage, und sie greift in die Architektur ein.
+
+**Kostenlos: ja** — kein Zahlungsmittel, kein Monatsbudget. **Unendlich: nein**
+und war es nie. Das Free Tier begrenzt über *Raten*, pro Organisation und nicht
+pro Schlüssel:
+
+| Modell | RPM | Requests/Tag | Tokens/Tag |
+|--------|-----|--------------|------------|
+| `qwen3-27b`, `gpt-oss-20b`, `gpt-oss-120b` | 30 | **1.000** | 200.000 |
+| `llama-3.1-8b-instant` | 30 | **14.400** | 500.000 |
+| `groq/compound-mini` | 30 | **250** | — |
+| `whisper-large-v3` | 20 | 2.000 | — |
+
+Zuerst reißen die **Tages-Tokens**, nicht die Requests: bei rund 2.500 Tokens
+pro Zug erlauben 200.000 TPD etwa **80 Züge am Tag**. Im Alltag reicht das; ein
+Debug-Nachmittag mit hundert Prompts ist der ganze Tag.
+
+Drei Eingriffe in diese Planung:
+
+| Was | Wohin | Warum |
+|-----|-------|-------|
+| Kontingent-Auslöser am Sicherungsschalter, `x-ratelimit-remaining-*` lesen, vor der Grenze auf das lokale 0,5B | **251** (S251-9 … S251-15) | Aus „Jarvis sagt ab" wird „Jarvis wird schlichter" |
+| Prompt-Tokens und Cache-Trefferquote als Kennzahl | **250** (S250-9) | Gecachte Tokens zählen **nicht** auf die Limits an — der Prompt-Schnitt kauft Tagesbudget |
+| Mehrfach-Sampling nur auf dem 8B und nur bei belegtem Nutzen | **257** (S257-11) | 14.400 statt 1.000 Requests am Tag; das große Kontingent bleibt den Antworten |
+
+Dabei sind zwei Funde am Groq-Pfad aufgefallen, die heute Kontingent verbrennen
+und in 251 mitlaufen: `groq.ts` hat **kein Skip-Gedächtnis** (anders als
+`gemini.ts` mit `markSkip`) und versucht pro Modell **erst Streaming, dann
+Non-Streaming** — ein totes Modell an Position 1 kostet damit zwei Requests pro
+Zug, jeden Zug. Und `GROQ_MODELS_BEST_FIRST[0]` ist `qwen/qwen3.8-27b`, während
+Groqs Liste `qwen/qwen3.6-27b` führt. Das gehört nachgesehen, bevor irgendetwas
+anderes am Kontingent optimiert wird.
+
+Das lokale `qwen2.5-0.5b-instruct` ist die einzige wirklich unbegrenzte Ebene.
+Damit ist es nicht nur Notnagel, sondern die Antwort auf ein leeres Kontingent —
+vorausgesetzt, die Umschaltung passiert *vor* dem Fehler. Genau das ist
+S251-10.

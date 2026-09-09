@@ -39,6 +39,17 @@ Hirn = Handy. PC = Werkzeug. **Heute (`16.1.1`):** Groq primär → Gemini Spezi
 
 Frei kombinierbar: 251, 252, 256. Harte Ketten: 250 → 257, 253 + 254 → 255.
 
+**Zwei Entscheidungen aus der Planungsrunde** ([`69-modell-grundlagen.md`](./69-modell-grundlagen.md)):
+
+- **Interne Sprache:** Persona, Ton und Beispiele bleiben **deutsch** (sie sind
+  faktisch Few-Shot-Beispiele; ein Sprachwechsel würde vorgelesen). Nur
+  Maschinenseitiges — Werkzeug-Schemas, Feldnamen, Intent-Labels — wird neu auf
+  **englisch** geschrieben, in Sprint 258. Keine Migration. A/B-Messung in 250.
+- **Free Tier ist kostenlos, aber nicht unbegrenzt:** 1.000 Requests und
+  200.000 Tokens am Tag für die Chat-Modelle, pro Organisation. Das sind rund
+  **80 Züge am Tag**. Sprint 251 schaltet deshalb *vor* der Grenze auf das
+  lokale 0,5B, statt in `429` zu laufen.
+
 ---
 
 Industry-Track V1–V9, Latenz-Loop, Screenshot-Fixes, Rest-final Execute, Alltag-Router, Parser-Härte 179, FGS-Härte 180, Docs 182: **CODE**.

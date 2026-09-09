@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`16.1.1`**. Sideload **`16.1.1`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. **Nächste Schiene:** `17.0.0` „messbar und unterbrechbar", Sprints 249–259 → [`68-next.md`](./68-next.md).
+**Jetzt:** Code **`16.1.1`**. Sideload **`16.1.1`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. **Nächste Schiene:** `17.0.0` „messbar und unterbrechbar", Sprints 249–259 → [`68-next.md`](./68-next.md). **Grundlagen und Grenzen** (interne Sprache, Free-Tier-Kontingent) → [`69-modell-grundlagen.md`](./69-modell-grundlagen.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -72,6 +72,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `16.1.0` — Routing-Rechnung, Budgets, Traces, Grenzen |
 | 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN** — Abbruch, Sprechpause, Router-Embedding, Eval, Werkzeug-Vertrag |
 | 68 | [Messbar und unterbrechbar 17.0](./68-next.md) | **PLAN** `17.0.0` — Sprints 249–259, Reihenfolge und Abbruchkriterien |
+| 69 | [Modell-Grundlagen](./69-modell-grundlagen.md) | **REFERENZ** — Trainings- vs. Inferenzzeit, interne Sprache (Deutsch bleibt), Free-Tier-Grenzen |
 | — | [APK](./apk.md) | Sideload `16.1.1`; Test: [`TEST-16.1.0.md`](./TEST-16.1.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)

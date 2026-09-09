@@ -30,6 +30,7 @@ vom **Vollzug** zu trennen.
 | kein Schema je Agent | `zod`-Schema je `AgentSpec` |
 | zusammengesetzte Sätze scheitern | Modell zerlegt, Parser bestätigt |
 | — | `device`/`write` bleiben bestätigungspflichtig |
+| JSON per Prompt erbeten, per Regex gerettet | Grammatik erzwingt es im Decoder |
 
 ## Lieferumfang
 
@@ -43,6 +44,51 @@ vom **Vollzug** zu trennen.
 | S258-6 | `device`/`write`: Bestätigung Pflicht (V9-Hardening) | `director.ts` | PLAN |
 | S258-7 | Nur wenn der Router `none` liefert — kein Zweitweg für klare Fälle | `director.ts` | PLAN |
 | S258-8 | Eval: `none`-Quote sinkt, Fehlgriffe steigen nicht | `scripts/eval/report.mjs` | PLAN |
+| S258-9 | `response_format: json_schema` mit `strict` bei Groq nutzen | `engine/groq.ts` | PLAN |
+| S258-10 | Schema **nicht** doppelt in den Prompt schreiben | `engine/tool-schema.ts` | PLAN |
+| S258-11 | Rückfallebene ohne erzwungenes JSON: Vorschlagsweg abschalten, nicht raten | `engine/tool-propose.ts` | PLAN |
+
+## Erzwungenes JSON statt erbetenes (S258-9)
+
+Ein Modell zu **bitten**, JSON zu liefern, und die Antwort dann per Regex zu
+retten, ist der übliche und der falsche Weg. Groq unterstützt
+`response_format: { type: 'json_schema', strict: true }`: die Grammatik wird im
+Decoder erzwungen, ungültige Tokens sind nicht mehr wählbar. Ein Feldname kann
+dann nicht mehr falsch geschrieben sein, weil er nicht falsch geschrieben
+*werden* kann.
+
+Das ist kein Aufschlag auf das Kontingent — nur ein Parameter. Es spart sogar
+Tokens, weil das Schema nicht mehr im Prompt wiederholt und in der Antwort nicht
+mehr um Prosa herumgeschnitten werden muss. Daher S258-10: **einmal** als
+`response_format`, nicht zusätzlich als Prompt-Text.
+
+Zwei Grenzen, die dokumentiert bleiben müssen:
+
+- **Nur auf der Cloud-Ebene.** Das lokale `wllama` kann GBNF grundsätzlich, aber
+  der Weg ist hier nicht gebaut. Ohne erzwungenes JSON wird der Vorschlagsweg
+  **abgeschaltet** (S258-11), nicht mit Regex nachgebaut. Der Router von heute
+  ist dann der ganze Weg — schlechter, aber vorhersagbar.
+- **`strict` verbietet Konstrukte.** Kein `oneOf` an der Wurzel, alle Felder
+  `required`, keine offenen Maps. Die `zod`-Schemas aus S258-1 müssen darauf hin
+  entworfen werden; optionale Argumente werden `nullable`, nicht `optional`.
+
+## Sprache der Werkzeug-Beschreibungen
+
+Alles, was in diesem Sprint neu entsteht — Werkzeugnamen, Feldnamen,
+`description`-Texte, Aufzählungswerte — wird **englisch** geschrieben. Begründung
+in [`69-modell-grundlagen.md`](../69-modell-grundlagen.md) §2.2: Struktur- und
+Formatanweisungen werden auf Englisch zuverlässiger befolgt, und diese Texte
+erreichen den Nutzer nie.
+
+Die Persona in `persona.ts` bleibt **deutsch und unangetastet**. Sie demonstriert
+Ton und Siezen, ist damit faktisch ein Few-Shot-Beispiel, und Beispiele in der
+falschen Sprache kosten 15–20 % Genauigkeit. Es gibt hier also keine Migration,
+nur eine Regel für Neues:
+
+```text
+maschinenseitig, erreicht nie den Nutzer   →  englisch
+wird gesprochen oder angezeigt             →  deutsch
+```
 
 ## Die vier Schranken
 

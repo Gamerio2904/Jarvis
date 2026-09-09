@@ -259,7 +259,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 
 **Aktuell:** Code **`16.1.1`**. Sideload `16.1.1`, versionCode `160101`. Execute 227–248 **CODE**. Router-, Timer- und Agenten-Härtung: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-16.1.0.md`](../TEST-16.1.0.md).
 
-**Nächste Schiene:** 249–259 → [`../68-next.md`](../68-next.md), Ziel `17.0.0` („messbar und unterbrechbar"). Grundlage: [`../67-upgrades.md`](../67-upgrades.md). Index: [`42-planned.md`](../42-planned.md).
+**Nächste Schiene:** 249–259 → [`../68-next.md`](../68-next.md), Ziel `17.0.0` („messbar und unterbrechbar"). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen und Sprachentscheidung: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
 
 Überblick: [`../06-mvp-sprint-plan.md`](../06-mvp-sprint-plan.md) · Versionen: [`../09-versioning.md`](../09-versioning.md)  
 Intelligence: [`../10-intelligence-capabilities.md`](../10-intelligence-capabilities.md) · Delight: [`../11-delight-and-settings.md`](../11-delight-and-settings.md)
