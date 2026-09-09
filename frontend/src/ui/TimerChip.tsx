@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { openTimers } from '../engine/timers'
-import { timerListLabel } from '../engine/timer-announce'
-import type { Reminder } from '../engine/store'
+import { openTimers } from '../engine/timers.ts'
+import { timerListLabel } from '../engine/timer-announce.ts'
+import type { Reminder } from '../engine/store.ts'
 
 function left(iso: string): string {
   const ms = new Date(iso).getTime() - Date.now()

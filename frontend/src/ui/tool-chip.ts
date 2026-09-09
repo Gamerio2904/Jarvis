@@ -1,4 +1,4 @@
-import type { ToolMeta } from '../engine/tools'
+import type { ToolMeta } from '../engine/tools.ts'
 
 type ChipMessage = {
   role?: string

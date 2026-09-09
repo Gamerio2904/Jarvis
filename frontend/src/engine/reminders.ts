@@ -1,6 +1,6 @@
-import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify'
-import { syncGlance } from './glance'
-import { formatDue, parseReminderIntent } from './remind-parse'
+import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
+import { syncGlance } from './glance.ts'
+import { formatDue, parseReminderIntent } from './remind-parse.ts'
 import {
   addReminder,
   deleteReminder,
@@ -12,11 +12,11 @@ import {
   putReminder,
   setReminderStatus,
   type Reminder,
-} from './store'
-import { timerAlarmFields } from './timer-announce'
-import type { ToolMeta } from './tools'
+} from './store.ts'
+import { timerAlarmFields } from './timer-announce.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseReminderIntent } from './remind-parse'
+export { parseReminderIntent } from './remind-parse.ts'
 export { formatDue }
 
 export async function handleReminders(

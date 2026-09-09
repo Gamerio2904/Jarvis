@@ -1,29 +1,29 @@
 import { useEffect, useRef, useState, type InputHTMLAttributes } from 'react'
-import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from '../api'
-import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from '../api'
-import type { Plug } from '../api'
-import { copyText } from '../copy-text'
-import { ensureDeviceLocation } from '../native/geo'
-import { DebugPanel } from './DebugPanel'
-import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from '../engine/hud-parse'
-import { TTS_VOICES } from '../engine/tts'
-import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from '../engine/pc-host'
-import { PcPairScan } from './PcPairScan'
-import { DownloadBtn } from './DownloadBtn'
-import { useSlidingThumb } from './SlidingThumb'
+import type { Health, MemoryCategory, MemoryItem, Reminder, ResearchAudit, Settings } from '../api.ts'
+import { fanDiscover, fanLearn, fanPick, fanTest, plugDiscover, plugProbe, plugTest, loadPlugs, upsertPlug, removePlug, emptyPlug, testPc } from '../api.ts'
+import type { Plug } from '../api.ts'
+import { copyText } from '../copy-text.ts'
+import { ensureDeviceLocation } from '../native/geo.ts'
+import { DebugPanel } from './DebugPanel.tsx'
+import { HUD_CATALOG, HUD_DEFAULT_ON, type HudId } from '../engine/hud-parse.ts'
+import { TTS_VOICES } from '../engine/tts.ts'
+import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from '../engine/pc-host.ts'
+import { PcPairScan } from './PcPairScan.tsx'
+import { DownloadBtn } from './DownloadBtn.tsx'
+import { useSlidingThumb } from './SlidingThumb.tsx'
 import {
   spotifyLoggedIn,
   spotifyLogout,
   spotifyRedirect,
   startSpotifyLogin,
-} from '../engine/spotify'
+} from '../engine/spotify.ts'
 import {
   applyBackup,
   asBackup,
   previewBackup,
   shareOrDownloadBackup,
   type BackupPreview,
-} from '../engine/backup'
+} from '../engine/backup.ts'
 import {
   filterTopics,
   resolveTopic,
@@ -34,12 +34,12 @@ import {
   visibleSettingsTabs,
   type SettingsTab,
   type SettingsTopic,
-} from '../engine/settings-ia'
-import { loadSettings } from '../engine/store'
-import { repairSpeech } from '../engine/utterance'
-import { setLageSession } from '../engine/lage-session'
-import { JarvisSwitch } from './JarvisSwitch'
-import { resolveUiTheme, runThemeTransition } from '../fx/theme-transition'
+} from '../engine/settings-ia.ts'
+import { loadSettings } from '../engine/store.ts'
+import { repairSpeech } from '../engine/utterance.ts'
+import { setLageSession } from '../engine/lage-session.ts'
+import { JarvisSwitch } from './JarvisSwitch.tsx'
+import { resolveUiTheme, runThemeTransition } from '../fx/theme-transition.ts'
 import {
   ROLE_COPY,
   VR_PARKING,
@@ -56,8 +56,8 @@ import {
   listKnowledgePacks,
   type KnowledgePack,
 } from '../engine/knowledge.ts'
-import { qualityPack } from '../engine/quality-pack'
-import { PROBE_COPY_GROUPS, STORYLINE_GROUPS } from '../engine/test-copy'
+import { qualityPack } from '../engine/quality-pack.ts'
+import { PROBE_COPY_GROUPS, STORYLINE_GROUPS } from '../engine/test-copy.ts'
 
 export type { SettingsTopic }
 
@@ -259,7 +259,7 @@ export type SettingsScreenProps = {
   onMemoryFilter: (f: MemoryCategory | 'all') => void
   onDeleteMemory: (id: string) => void
   onClearMemory: () => void
-  onDebugSend: (text: string, conversationId: string) => Promise<import('./DebugPanel').DebugSendResult | string | void>
+  onDebugSend: (text: string, conversationId: string) => Promise<import('./DebugPanel.tsx').DebugSendResult | string | void>
   onDebugStart: (title: string) => Promise<string>
   onDebugBegin: () => void
   debugBusy: boolean

@@ -1,9 +1,9 @@
-import { parseChatSearch } from './search-chat-parse'
-import { persistLastList } from './store'
+import { parseChatSearch } from './search-chat-parse.ts'
+import { persistLastList } from './store.ts'
 import { formatRecallReply, retrieve } from './retrieve.ts'
-import type { ToolMeta } from './tools'
+import type { ToolMeta } from './tools.ts'
 
-export { parseChatSearch } from './search-chat-parse'
+export { parseChatSearch } from './search-chat-parse.ts'
 
 export async function handleChatSearch(
   text: string,

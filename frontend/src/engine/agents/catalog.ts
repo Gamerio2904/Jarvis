@@ -7,6 +7,7 @@ export { fromHandler, weatherLast } from './execute-map.ts'
 export { parseCatalog, routingAgents } from './parse-catalog.ts'
 
 let _catalog: AgentSpec[] | null = null
+let _byId: Map<string, AgentSpec> | null = null
 
 /** Full catalog: parse metadata + execute handlers merged once. */
 export function agentCatalog(): AgentSpec[] {
@@ -15,6 +16,7 @@ export function agentCatalog(): AgentSpec[] {
     ...agent,
     execute: AGENT_EXECUTORS[agent.id],
   }))
+  _byId = new Map(_catalog.map((a) => [a.id, a]))
   return _catalog
 }
 
@@ -23,5 +25,12 @@ export function executableAgents(): AgentSpec[] {
 }
 
 export function agentById(id: string): AgentSpec | undefined {
-  return agentCatalog().find((a) => a.id === id)
+  agentCatalog()
+  return _byId?.get(id)
+}
+
+/** Ein Executor ohne Katalog-Eintrag wäre für immer unerreichbar. */
+export function orphanExecutorIds(): string[] {
+  const known = new Set(agentCatalog().map((a) => a.id))
+  return Object.keys(AGENT_EXECUTORS).filter((id) => !known.has(id))
 }

@@ -1,7 +1,7 @@
-import { parseHomeIntent } from './home-parse'
-import { geocodePlace, haversineM } from './geo-lookup'
-import { readDeviceLocation, hasLocationPermission } from '../native/geo'
-import { scheduleNotify, notifyIdFromKey, requestNotifyPermission } from '../native/notify'
+import { parseHomeIntent } from './home-parse.ts'
+import { geocodePlace, haversineM } from './geo-lookup.ts'
+import { readDeviceLocation, hasLocationPermission } from '../native/geo.ts'
+import { scheduleNotify, notifyIdFromKey, requestNotifyPermission } from '../native/notify.ts'
 import {
   addReminder,
   listMemory,
@@ -10,11 +10,11 @@ import {
   saveSettings,
   setReminderStatus,
   upsertMemory,
-} from './store'
+} from './store.ts'
 import { packVerified } from './action-fsm.ts'
-import type { ToolMeta } from './tools'
+import type { ToolMeta } from './tools.ts'
 
-export { parseHomeIntent } from './home-parse'
+export { parseHomeIntent } from './home-parse.ts'
 
 async function ensureHomeFix(): Promise<{ ok: boolean; message?: string }> {
   const s = loadSettings()

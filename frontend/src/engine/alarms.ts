@@ -1,16 +1,16 @@
-import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify'
-import { parseAlarmIntent } from './alarm-parse'
-import { syncGlance } from './glance'
+import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
+import { parseAlarmIntent } from './alarm-parse.ts'
+import { syncGlance } from './glance.ts'
 import {
   addReminder,
   deleteReminder,
   listReminders,
   loadSettings,
   type Reminder,
-} from './store'
-import type { ToolMeta } from './tools'
+} from './store.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseAlarmIntent } from './alarm-parse'
+export { parseAlarmIntent } from './alarm-parse.ts'
 
 export async function handleAlarms(
   conversationId: string,

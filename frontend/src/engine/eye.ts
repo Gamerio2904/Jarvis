@@ -1,10 +1,10 @@
-import { completeGeminiVision, geminiReady } from './gemini'
-import { addMessage, loadSettings, saveSettings } from './store'
-import { scrubReply } from './guards'
-import { parseGroundIntent } from './ground-parse'
-import type { ToolMeta } from './tools'
+import { completeGeminiVision, geminiReady } from './gemini.ts'
+import { addMessage, loadSettings, saveSettings } from './store.ts'
+import { scrubReply } from './guards.ts'
+import { parseGroundIntent } from './ground-parse.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseEyeIntent } from './eye-parse'
+export { parseEyeIntent } from './eye-parse.ts'
 
 export async function fileToJpegDataUrl(file: File): Promise<{ dataUrl: string } | { error: string }> {
   const type = (file.type || '').toLowerCase()

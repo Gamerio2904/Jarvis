@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import jsQR from 'jsqr'
-import { applyPcPair } from '../engine/pc'
+import { applyPcPair } from '../engine/pc.ts'
 
 type Props = {
   open: boolean

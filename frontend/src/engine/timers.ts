@@ -1,17 +1,17 @@
-import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify'
-import { syncGlance } from './glance'
+import { cancelNotify, notifyIdFromKey, requestNotifyPermission, scheduleNotify } from '../native/notify.ts'
+import { syncGlance } from './glance.ts'
 import {
   addReminder,
   deleteReminder,
   listReminders,
   type Reminder,
-} from './store'
-import { parseTimerIntent } from './timer-parse'
-import { timerAlarmFields, timerListLabel, timerSetLine, timerStopLine } from './timer-announce'
-import { formatClock } from './remind-parse'
-import type { ToolMeta } from './tools'
+} from './store.ts'
+import { parseTimerIntent } from './timer-parse.ts'
+import { timerAlarmFields, timerListLabel, timerSetLine, timerStopLine } from './timer-announce.ts'
+import { formatClock } from './remind-parse.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseTimerIntent } from './timer-parse'
+export { parseTimerIntent } from './timer-parse.ts'
 
 export async function handleTimers(
   conversationId: string,
