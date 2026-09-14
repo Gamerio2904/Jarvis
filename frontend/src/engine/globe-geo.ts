@@ -1,7 +1,7 @@
 import { matchCountry } from './globe-countries.ts'
 import type { OutlookTag } from './outlook-tags.ts'
 
-export type GeoPinKind = 'here' | 'iss' | 'flight' | 'warn' | 'news' | 'outlook' | 'glow'
+export type GeoPinKind = 'here' | 'iss' | 'flight' | 'warn' | 'news' | 'outlook' | 'glow' | 'quake' | 'fire'
 
 export type GeoFix = { name: string; lat: number; lon: number; kind: GeoPinKind; line?: string; hot?: boolean }
 

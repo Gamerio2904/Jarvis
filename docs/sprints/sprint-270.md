@@ -1,5 +1,9 @@
 # Sprint 270 — Freeze: `globe.gl` nur nach Messung
 
+**Status:** **NICHT GEZOGEN.** Keine Framezeit-Messung auf einem Gerät, das 17.0.0
+noch flüssig hatte. `package.json` ohne `globe.gl` / Three.js. Canvas 2D bleibt.
+Sprint 271 geht ohne diesen Renderer.
+
 **Schiene:** 18.0 Sicht + Schach. **Kein eigener SemVer-Schritt**, solange der Freeze **nicht** gezogen wird. Wenn gezogen: Patch auf `17.10.0` oder mit Sprint 271 als `18.0.0` — PO entscheidet nach Messung. **Davor:** Sprint 269. **Danach:** Sprint 271 (`18.0.0`).
 
 **Einstieg:** [`70-next.md`](../70-next.md) §0c. **API, die bleiben muss:** `GlobeView.tsx` Props (Kamera, Pins, Schichten, Lite).

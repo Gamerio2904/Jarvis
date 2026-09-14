@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`17.0.0`**. Sideload **`17.0.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). **Nächste Schiene:** `18.0.0` „zeigen und spielen", Sprints 260–271 → [`70-next.md`](./70-next.md). Schiene `17.0.0` **CODE** → [`68-next.md`](./68-next.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).
+**Jetzt:** Code **`18.0.0`**. Sideload **`18.0.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). **Kugel 268–269 CODE.** Schach-Schiene 260–267 bleibt PLAN → [`70-next.md`](./70-next.md). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -284,8 +284,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 256–258 | `16.8.0`–`16.10.0` | **CODE** in `17.0.0` (Feldschutz, Alltagsdeutsch, Werkzeug-Vertrag) |
 | 259 | **`17.0.0`** | **CODE** (Historie + Meilenstein) |
 | 260–267 | `17.1.0`–`17.8.0` | **PLAN** (Fixes, Blöcke, Tabelle, Bild, Schach) |
-| 268–269 | `17.9.0`–`17.10.0` | **PLAN** (Kugel Tag/Nacht, Schichten auf Zuruf) |
-| 270 | — | **PLAN** Freeze (`globe.gl` nur nach Messung) |
-| 271 | **`18.0.0`** | **PLAN** (Meilenstein zeigen und spielen) |
+| 268–269 | `18.0.0` | **CODE** (Kugel Tag/Nacht, Schichten) |
+| 270 | — | **NICHT GEZOGEN** (`globe.gl`) |
+| 271 | **`18.0.0`** | **CODE** (Meilenstein Kugel) |
 
-**Aktuell:** Code **`17.0.0`**. Sideload `17.0.0`, versionCode `170000`. Execute: Sprints bis 259 **CODE**. Nächste Schiene: **260–271** → [`70-next.md`](./70-next.md). Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`18.0.0`**. Sideload `18.0.0`, versionCode `180000`. Execute: Sprints bis 259 **CODE**. Kugel 268–269 **CODE**. 260–267 **PLAN**. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).

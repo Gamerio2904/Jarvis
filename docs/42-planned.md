@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`17.0.0`**. Sideload **`17.0.0`**, versionCode `170000`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).
+**Live:** App-Code **`18.0.0`**. Sideload **`18.0.0`**, versionCode `180000`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -35,10 +35,10 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 | `17.6.0` | [265](./sprints/sprint-265.md) | Schach-Modus |
 | `17.7.0` | [266](./sprints/sprint-266.md) | Stockfish opt-in |
 | `17.8.0` | [267](./sprints/sprint-267.md) | Coach selten, aus der Bewertung |
-| `17.9.0` | [268](./sprints/sprint-268.md) | Kugel: Tag/Nacht + ISS-Bahn |
-| `17.10.0` | [269](./sprints/sprint-269.md) | Kugel: Schichten auf Zuruf |
-| — | [270](./sprints/sprint-270.md) | Freeze `globe.gl` nur nach Messung |
-| **`18.0.0`** | [271](./sprints/sprint-271.md) | **Meilenstein** |
+| `17.9.0` | [268](./sprints/sprint-268.md) | Kugel: Tag/Nacht + ISS-Bahn — **CODE** in `18.0.0` |
+| `17.10.0` | [269](./sprints/sprint-269.md) | Kugel: Schichten auf Zuruf — **CODE** in `18.0.0` |
+| — | [270](./sprints/sprint-270.md) | Freeze `globe.gl` — **NICHT GEZOGEN** |
+| **`18.0.0`** | [271](./sprints/sprint-271.md) | **Meilenstein** Kugel |
 
 Harte Ketten: 260 → alles; 261 → 262/263/265; 264 → 265 → 266 → 267; 268 → 269.
 Kein LLM spielt Schach. Kein GPL-Brett. Kein Bild ohne Parser. Kein LLM-Organizer.

@@ -6,7 +6,7 @@ https://www.instagram.com/reel/DcgfA4ojF7a/
 
 Caption dort: „Kommentiere Jarvis wenn du das auch willst. **Andere werden beobachtet. Ich werde gebrieft.**“ Hashtags claude / ki / jarvis / ironmantri. Derselbe Autor wie Körper-Reel (`moritz.maaker`).
 
-**Live:** Code **`6.60.0`**. Sideload **`6.60.0`**. Weltlage `outlook` ist **CODE**. ISS/Mond `sky`, OpenSky `flights`, Tagesschau `news`, DWD `warn`, GPS `here` sind **CODE**. Körper-3D **CODE** [`40-next.md`](./40-next.md). Kugel + GIBS-Zoom **CODE** in `6.50`. LocateAnything-Parser **CODE**, Gewichte [`41-next.md`](./41-next.md).
+**Live:** Code **`18.0.0`**. Sideload **`18.0.0`**. Weltlage `outlook` ist **CODE**. ISS/Mond `sky`, OpenSky `flights` mit Kugel-Pins, Tagesschau `news`, DWD `warn`, GPS `here` sind **CODE**. Körper-3D **CODE** [`40-next.md`](./40-next.md). Kugel + GIBS-Zoom **CODE** in `6.50`. Terminator + ISS-Bahn + Schichten **CODE** in `18.0.0`.
 
 **Warum `5.0`, nicht `4.100`:** In [`09-versioning.md`](./09-versioning.md) sind `4.66`–`4.75` Körper und `4.76`–`4.99` LocateAnything. Nächster Produktsprung nach `4.99` ist **MAJOR `5.0`**. Kein zweites `4.66`.
 
@@ -17,7 +17,7 @@ Schiene gelandet in `5.11`; Globus-Zoom/GIBS in `6.20`/`6.50`; Sideload `6.60`. 
 | Aus dem Video | Bei uns | Votum |
 |---------------|---------|-------|
 | 3D-Kugel, drehbar | Lage-Sicht **Kugel**, dieselbe WebView wie Körper | **ja** |
-| Satelliten-Look | Default: NASA Blue Marble (statisch). Tag/Nacht-Terminator war Zielbild — **im Code `17.0.0` nicht gezeichnet**, Nachzug Sprint 268 [`70-next.md`](./70-next.md) | **teilweise** |
+| Satelliten-Look | Default: NASA Blue Marble (statisch) + Tag/Nacht-Terminator auf Canvas (`sun.ts`, Sprint 268 in `18.0.0`) | **ja** |
 | „Live“-Erde | Optional NASA **GIBS** MODIS True Color, Stand **stundenweise**, Zeitstempel sichtbar | **ja**, ehrlich |
 | Briefing beim Antippen | Pin öffnet den **bestehenden** Tool-Satz (outlook/news/ISS/…), TTS wie heute | **ja** |
 | Nachrichten auf der Kugel | Pins aus `outlook`/`news` + kleines Ortslexikon, keine erfundenen Koordinaten | **ja** |

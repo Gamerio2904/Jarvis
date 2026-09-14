@@ -23,6 +23,7 @@ export const ENUM_FIELDS = {
   presence_role: ['brain', 'window'],
   body_view: ['classic', 'agents'],
   brain_primary: ['groq', 'gemini', 'local'],
+  globe_layer: ['', 'quakes', 'fires', 'overhead'],
 } as const satisfies Partial<Record<keyof Settings, readonly string[]>>
 
 /** Felder, deren Default `null` ist und die daneben einen Bool tragen dürfen. */

@@ -1,8 +1,8 @@
 # Sprint 269 — Kugel: Schichten auf Zuruf
 
-**Schiene:** 18.0 Sicht + Schach. **Version nach diesem Sprint:** `17.10.0`. **Davor:** Sprint 268 (`17.9.0` Terminator). **Danach:** Sprint 270 (Freeze `globe.gl`). **Meilenstein:** Sprint 271 (`18.0.0`).
+**Schiene:** 18.0 Sicht + Schach. **Version nach diesem Sprint:** in `18.0.0` mitgeliefert. **Status:** **CODE**.
 
-**Einstieg:** [`70-next.md`](../70-next.md) §0c. **Quellen:** USGS, NASA EONET — siehe [`48-next.md`](../48-next.md). **Parser:** `frontend/src/engine/parser.ts`.
+**Einstieg:** [`70-next.md`](../70-next.md) §0c. **Quellen:** USGS, NASA EONET — siehe [`48-next.md`](../48-next.md). **Parser:** `frontend/src/engine/hud-parse.ts` (Schichten) und `flights.ts` (Über-uns).
 
 ## Ziel
 

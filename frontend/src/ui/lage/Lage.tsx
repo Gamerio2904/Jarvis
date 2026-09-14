@@ -23,7 +23,7 @@ import { GlobeView, type GlobeFocus } from './GlobeView.tsx'
 import { fetchBodySnap, type BodySnap } from '../../engine/body-snap.ts'
 import { loadBodyGraph, type BodyGraph } from '../../engine/body-graph.ts'
 import { BodyTree } from './BodyTree.tsx'
-import { loadGlobePins } from '../../engine/globe-pins.ts'
+import { loadGlobePins, loadIssTrail } from '../../engine/globe-pins.ts'
 import type { GeoFix } from '../../engine/globe-geo.ts'
 import { CITY_FLY_ZOOM } from '../../engine/globe-gibs.ts'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion.ts'
@@ -62,6 +62,7 @@ export function Lage({
   const [agentGraph, setAgentGraph] = useState<AgentGraph | null>(null)
   const [agentDept, setAgentDept] = useState<string>('brain')
   const [pins, setPins] = useState<GeoFix[]>([])
+  const [issTrail, setIssTrail] = useState<{ lat: number; lon: number }[]>([])
   const [pin, setPin] = useState<GeoFix | null>(null)
   const [pinCard, setPinCard] = useState<GeoFix | null>(null)
   const [globeTick, setGlobeTick] = useState(0)
@@ -78,6 +79,7 @@ export function Lage({
   const bat = snap.device?.battery
   const amber = s.hud_accent === 'amber'
   const tourOn = Boolean(s.globe_tour_on)
+  const globeLayer = s.globe_layer
 
   useEffect(() => {
     let live = true
@@ -100,8 +102,11 @@ export function Lage({
         return
       }
       if (view === 'globe') {
-        const next = await loadGlobePins()
-        if (live) setPins(next)
+        const [next, trail] = await Promise.all([loadGlobePins(), loadIssTrail()])
+        if (live) {
+          setPins(next)
+          setIssTrail(trail)
+        }
         return
       }
       if (view !== 'tiles') return
@@ -120,7 +125,7 @@ export function Lage({
       if (id) window.clearInterval(id)
       off()
     }
-  }, [view, bodyView, agentDept, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, recent.length])
+  }, [view, bodyView, agentDept, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, recent.length, globeLayer])
 
   useEffect(() => {
     if (view !== 'globe') return
@@ -130,6 +135,9 @@ export function Lage({
       void loadGlobePins().then((next) => {
         if (live) setPins(next)
         onHudChange?.()
+      })
+      void loadIssTrail().then((trail) => {
+        if (live) setIssTrail(trail)
       })
     })
     return () => {
@@ -287,6 +295,7 @@ export function Lage({
         <div className="lage-split">
           <GlobeView
             pins={pins}
+            issTrail={issTrail}
             onPin={(next) => {
               setPin(next)
               if (next.kind === 'glow') {

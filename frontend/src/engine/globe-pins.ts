@@ -1,11 +1,13 @@
-import { getJson } from './http-json.ts'
+import { getJson, getText } from './http-json.ts'
 import { isFreshHereFix, parseCoord } from './location-keep.ts'
 import { loadSettings } from './store.ts'
 import { pinForTag, pinForText, type GeoFix } from './globe-geo.ts'
 import type { OutlookSnap } from './outlook.ts'
 import { tourGlowPins } from './globe-tour.ts'
+import { pinsForActiveLayer } from './globe-layers.ts'
+import { APP_VERSION } from './store.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/6.90.0 (local.jarvis.app)' }
+const UA = { Accept: 'application/json', 'User-Agent': `Jarvis/${APP_VERSION} (local.jarvis.app)` }
 
 export async function loadGlobePins(): Promise<GeoFix[]> {
   const s = loadSettings()
@@ -34,6 +36,7 @@ export async function loadGlobePins(): Promise<GeoFix[]> {
   if (here) add({ name: 'Sie', lat: here.lat, lon: here.lon, kind: 'here', line: s.last_place || 'GPS' })
   const iss = await loadIss()
   if (iss) add({ name: 'ISS', lat: iss.lat, lon: iss.lon, kind: 'iss', line: 'Where The ISS At' })
+  for (const p of pinsForActiveLayer()) add(p)
   if (s.last_warn_line && here) {
     add({
       name: 'Unwetter',
@@ -66,11 +69,47 @@ export async function fetchIssNow(): Promise<{ lat: number; lon: number } | null
   return loadIss()
 }
 
+export async function loadIssTrail(): Promise<{ lat: number; lon: number }[]> {
+  await loadIss()
+  return trailCache?.trail || []
+}
+
 const ISS_TTL_MS = 30_000
 let issCache: { at: number; pos: { lat: number; lon: number } } | null = null
+let trailCache: { at: number; trail: { lat: number; lon: number }[]; pos: { lat: number; lon: number } } | null = null
 
 async function loadIss(): Promise<{ lat: number; lon: number } | null> {
+  if (trailCache && Date.now() - trailCache.at < ISS_TTL_MS) return trailCache.pos
   if (issCache && Date.now() - issCache.at < ISS_TTL_MS) return issCache.pos
+  const now = Math.floor(Date.now() / 1000)
+  const stamps: number[] = []
+  for (let i = -4; i <= 12; i += 1) stamps.push(now + i * 300)
+  try {
+    const { status, text } = await getText(
+      `https://api.wheretheiss.at/v1/satellites/25544/positions?timestamps=${stamps.join(',')}`,
+      UA,
+    )
+    if (status >= 200 && status < 300 && text) {
+      const rows = JSON.parse(text) as unknown
+      const list = Array.isArray(rows) ? rows : []
+      const trail: { lat: number; lon: number }[] = []
+      for (const row of list) {
+        if (!row || typeof row !== 'object') continue
+        const lat = Number((row as { latitude?: unknown }).latitude)
+        const lon = Number((row as { longitude?: unknown }).longitude)
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
+        trail.push({ lat, lon })
+      }
+      if (trail.length) {
+        const mid = trail[Math.min(4, trail.length - 1)]
+        trailCache = { at: Date.now(), trail, pos: mid }
+        issCache = { at: Date.now(), pos: mid }
+        return mid
+      }
+    }
+  } catch {
+    /* single-point fallback */
+  }
   try {
     const { status, json } = await getJson('https://api.wheretheiss.at/v1/satellites/25544', UA)
     if (status < 200 || status >= 300) return issCache?.pos || null

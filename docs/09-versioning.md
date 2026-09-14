@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`17.0.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`17.0.0`**, versionCode `170000`. **Nächste Schiene:** `18.0.0` zeigen und spielen, Sprints 260–271 → [`70-next.md`](./70-next.md). PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. Reels/QA **CODE** `16.0.0`. Schiene 249–259 **CODE** in `17.0.0` → [`66-agents-ist.md`](./66-agents-ist.md), Test [`TEST-17.0.0.md`](./TEST-17.0.0.md).
+> **Jetzt:** Code **`18.0.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`18.0.0`**, versionCode `180000`. Kugel 268–269 **CODE**. Schach 260–267 **PLAN** → [`70-next.md`](./70-next.md). Test [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -574,10 +574,10 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | `17.6.0` | Schach-Modus | 265 PLAN |
 | `17.7.0` | Stockfish opt-in | 266 PLAN |
 | `17.8.0` | Coach selten | 267 PLAN |
-| `17.9.0` | Kugel Tag/Nacht + ISS-Bahn | 268 PLAN |
-| `17.10.0` | Kugel-Schichten auf Zuruf | 269 PLAN |
-| — | `globe.gl` nur nach Messung | 270 FREEZE |
-| **`18.0.0`** | **Meilenstein**, Sideload | 271 PLAN |
+| `17.9.0` | Kugel Tag/Nacht + ISS-Bahn | 268 **CODE** in `18.0.0` |
+| `17.10.0` | Kugel-Schichten auf Zuruf | 269 **CODE** in `18.0.0` |
+| — | `globe.gl` nur nach Messung | 270 **NICHT GEZOGEN** |
+| **`18.0.0`** | **Meilenstein** Kugel, Sideload | 271 **CODE** |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

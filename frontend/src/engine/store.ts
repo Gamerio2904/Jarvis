@@ -5,7 +5,7 @@ import { migrateSettings, SETTINGS_REV } from './settings-migrate.ts'
 import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
 
-export const APP_VERSION = '17.0.0'
+export const APP_VERSION = '18.0.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -186,6 +186,8 @@ export type Settings = {
   last_globe_tour_json: string
   last_globe_brief: string
   globe_tour_on: boolean
+  /** Schicht auf der Kugel. Leer = nur ISS/GPS wie 17.0. */
+  globe_layer: '' | 'quakes' | 'fires' | 'overhead'
   last_eye_line: string
   last_ground_json: string
   last_hops_json: string
@@ -351,6 +353,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_globe_tour_json: '',
   last_globe_brief: '',
   globe_tour_on: false,
+  globe_layer: '',
   last_eye_line: '',
   last_ground_json: '',
   last_hops_json: '',

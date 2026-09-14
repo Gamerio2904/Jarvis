@@ -1,6 +1,6 @@
 # Sprint 268 — Kugel: Tag/Nacht und ISS-Bahn
 
-**Schiene:** 18.0 Sicht + Schach. **Version nach diesem Sprint:** `17.9.0`. **Davor:** Sprint 267 (`17.8.0` Coach). **Danach:** Sprint 269 (`17.10.0` Schichten). **Meilenstein:** Sprint 271 (`18.0.0`).
+**Schiene:** 18.0 Sicht + Schach. **Version nach diesem Sprint:** in `18.0.0` mitgeliefert. **Status:** **CODE**.
 
 **Einstieg:** [`70-next.md`](../70-next.md) §0c. **Lage heute:** `frontend/src/ui/lage/GlobeView.tsx`, `globe-gibs.ts`. **Ist-Zielbild (überclaimt Terminator):** [`43-next.md`](../43-next.md); Briefing: [`48-next.md`](../48-next.md).
 

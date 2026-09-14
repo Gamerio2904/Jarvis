@@ -1,10 +1,8 @@
 # Sprint 271 — Meilenstein `18.0.0`
 
-**Version:** `18.0.0` (versionCode `180000`) — **PLAN** Must, Meilenstein
+**Version:** `18.0.0` (versionCode `180000`) — **CODE** Must, Meilenstein Kugel
 **Plan:** [`70-next.md`](../70-next.md)
-**Voraussetzung:** Sprints **260–267** (267 Should: wenn rot, Meilenstein
-ohne Coach, dann `17.8.0` überspringen und 267 nachziehen). **268–269**
-(Kugel). **270** nur wenn die Messung ihn zieht, sonst überspringen.
+**Mitgeliefert:** 268–269. **270** nicht gezogen. **260–267** (Schach/Blöcke) bleiben PLAN.
 
 ## Ziel
 

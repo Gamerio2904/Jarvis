@@ -5,7 +5,23 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.0.0` — Zeigen und spielen (Sprints 260–271) — *PLAN*
+### `18.0.0` — Kugel Tag/Nacht, Bahn, Schichten — *CODE*
+
+Sideload **`18.0.0`** (versionCode `180000`). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+
+Sprints **268–269** plus Meilenstein **271**. Sprint **270** (`globe.gl`) **nicht
+gezogen** — keine Messung, Canvas 2D bleibt.
+
+- **Terminator:** Nachtseite auf der Canvas-Kugel aus Sonnenposition (`sun.ts`). Kein „Live“.
+- **ISS-Bahn:** Where The ISS At Positions, Bogen plus Punkt.
+- **Schichten aus, nur auf Satz:** USGS Beben, NASA EONET Feuer, OpenSky um den Standort (sonst Deutschland-Mitte). Quelle und Alter im Text.
+- HUD-Skip: `Erdbeben` / `Waldbrände` sind keine `unknown_place`.
+- Schach-Modus, Chat-Blöcke, Screenshot-Fixes **260–267** bleiben PLAN.
+
+### `18.0.0` — Zeigen und spielen (Sprints 260–271) — *PLAN* (Rest)
+
+Chat-Blöcke und Schach-Modus (260–267) sind weiter geplant. Die Kugel-Hälfte
+ist oben **CODE**.
 
 Planung: [`70-next.md`](./70-next.md). Anlass: Screenshots (Schach ans Modell,
 Wahl ohne Suche, abgebrochener Satz) plus Chat, der Tabellen und Bilder nur
