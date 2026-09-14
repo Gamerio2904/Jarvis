@@ -1,6 +1,8 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
+import { migrateSettings, SETTINGS_REV } from './settings-migrate.ts'
+import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
 
 export const APP_VERSION = '16.1.1'
@@ -236,9 +238,10 @@ export type Settings = {
   gemini_banner_dismissed: boolean
   model_default: string
   fallback_model: string
-  routing_mode: string
   setup_dismissed: boolean
   version: string
+  /** Wie weit dieser Hausstand durch `MIGRATIONS` gewandert ist. */
+  settings_rev: number
   last_blitzer_json: string
   drive_speak: 'after' | 'only'
   price_watch_on: boolean
@@ -268,7 +271,6 @@ export type Settings = {
   brain_primary: 'groq' | 'gemini' | 'local'
   brain_gemini_roles_vision: boolean
   brain_gemini_roles_grounding: boolean
-  brain_gemini_roles_tts: boolean
   brain_micro_llm_clarify: boolean
   brain_micro_llm_merge: boolean
   brain_shadow_mode: boolean
@@ -398,9 +400,9 @@ export const DEFAULT_SETTINGS: Settings = {
   gemini_banner_dismissed: false,
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
-  routing_mode: 'on-device',
   setup_dismissed: false,
   version: APP_VERSION,
+  settings_rev: SETTINGS_REV,
   last_blitzer_json: '',
   drive_speak: 'after',
   price_watch_on: false,
@@ -430,7 +432,6 @@ export const DEFAULT_SETTINGS: Settings = {
   brain_primary: 'groq',
   brain_gemini_roles_vision: true,
   brain_gemini_roles_grounding: true,
-  brain_gemini_roles_tts: true,
   brain_micro_llm_clarify: true,
   brain_micro_llm_merge: true,
   brain_shadow_mode: false,
@@ -461,6 +462,10 @@ function parkBrokenSettings(raw: string): void {
   }
 }
 
+/**
+ * Zwei Ebenen, beide billig: der Feldschutz greift bei einem kaputten Feld,
+ * das Parken bei einem kaputten Eintrag.
+ */
 export function loadSettings(): Settings {
   let raw: string | null = null
   try {
@@ -469,18 +474,20 @@ export function loadSettings(): Settings {
     return { ...DEFAULT_SETTINGS }
   }
   if (!raw) return { ...DEFAULT_SETTINGS }
-  let prev: Partial<Settings>
+  let stored: Record<string, unknown>
   try {
     const parsed: unknown = JSON.parse(raw)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('kein Objekt')
-    prev = parsed as Partial<Settings>
+    stored = parsed as Record<string, unknown>
   } catch {
     parkBrokenSettings(raw)
     return { ...DEFAULT_SETTINGS }
   }
-  const next = { ...DEFAULT_SETTINGS, ...prev, version: APP_VERSION }
+  const migrated = migrateSettings(stored)
+  const prev = coerceSettings(migrated.value, DEFAULT_SETTINGS).value
+  const next = { ...prev, version: APP_VERSION }
   // 15.3.1: Kugel/Lage trap — hud_force without session left phone on black Chat-less screen
-  if (prev.version !== APP_VERSION && prev.hud_force) {
+  if (stored.version !== APP_VERSION && prev.hud_force) {
     next.hud_force = false
     next.hud_hidden = true
   }

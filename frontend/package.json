@@ -34,7 +34,8 @@
     "test:turn-detect": "node --experimental-strip-types scripts/test-turn-detect.mjs",
     "test:gemini-fallback": "node --experimental-strip-types scripts/test-gemini-fallback.mjs",
     "test:agents-robust": "node --experimental-strip-types scripts/test-agents-robust.mjs",
-    "test:turn-e2e": "node --experimental-strip-types scripts/test-turn-e2e.mjs"
+    "test:turn-e2e": "node --experimental-strip-types scripts/test-turn-e2e.mjs",
+    "test:settings-migrate": "node --experimental-strip-types scripts/test-settings-migrate.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

@@ -1,6 +1,6 @@
 # Sprint 256 — Einstellungen: Feldschutz und Migrationsschritte
 
-**Version:** `16.8.0` (versionCode `160800`) — **PLAN**, verkleinert
+**Version:** `16.8.0` (versionCode `160800`) — **CODE**, verkleinert (ausgeliefert in `17.0.0`)
 **Plan:** [`68-next.md`](../68-next.md) §11 · Upgrade **G** aus [`67-upgrades.md`](../67-upgrades.md)
 
 ## Ziel
@@ -52,15 +52,48 @@ Sitzungsreste auf ein neues Gerät tragen und das jemandem auffällt.
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S256-1 | `zod`-Schema für `Settings`, feldweise validiert | `engine/settings-schema.ts` | PLAN |
-| S256-2 | Feldweiser Rückfall auf Default statt Totalverlust | `engine/store.ts` | PLAN |
-| S256-3 | Benannte Migrationsschritte mit Versionsnummer | `engine/settings-migrate.ts` | PLAN |
-| S256-4 | Tests: jede Migration einzeln, kein Feld verloren | `scripts/test-settings-migrate.mjs` | PLAN |
-| S256-5 | `parkBrokenSettings` bleibt als letzte Ebene erhalten | `engine/store.ts` | PLAN |
+| S256-1 | Schema für `Settings`, feldweise validiert — **von Hand statt `zod`** | `engine/settings-schema.ts` | CODE |
+| S256-2 | Feldweiser Rückfall auf Default statt Totalverlust | `engine/store.ts` | CODE |
+| S256-3 | Benannte Migrationsschritte mit `settings_rev` | `engine/settings-migrate.ts` | CODE |
+| S256-4 | Tests: jede Migration einzeln, kein Feld verloren | `scripts/test-settings-migrate.mjs` | CODE |
+| S256-5 | `parkBrokenSettings` bleibt als letzte Ebene erhalten | `engine/store.ts` | CODE |
 
 Fünf Tasks statt acht, kein Umzug. `parkBrokenSettings` wird ausdrücklich
 **nicht** ersetzt: der Feldschutz greift bei einem kaputten Feld, das Parken bei
 einem kaputten Eintrag. Zwei Ebenen, beide billig.
+
+## Ergebnis
+
+**`zod` ist nicht eingezogen.** Das Abbruchkriterium unten nennt die Startzeit,
+und die Rechnung geht nicht auf: alle 156 Felder sind flach — Text, Zahl,
+Wahrheitswert, sieben mit festem Wertevorrat. Was `zod` dafür kann, sind
+dreißig Zeilen in `settings-schema.ts`; was es kostet, ist ein Paket im Bundle
+für einen Aufruf je `loadSettings()`. Die Prüfung läuft jetzt genau dort: beim
+Laden, nicht bei jedem Lesen.
+
+Über `typeof` hinaus prüft sie den **Wertevorrat** der sieben Auswahlfelder
+(`hud_view`, `ui_theme`, `hud_accent`, `drive_speak`, `presence_role`,
+`body_view`, `brain_primary`). Das war die eigentliche Lücke: ein
+`hud_view: 'kugel'` aus einer alten Fassung ist eine gültige Zeichenkette und
+hätte die Oberfläche leer gelassen — genau die Art Fehler, die als „Blackscreen"
+gemeldet wird.
+
+Unbekannte Schlüssel bleiben **erhalten** statt weggeworfen zu werden. Wer eine
+ältere APK einspielt und danach wieder die neue, findet seine Felder wieder.
+Absichtlich entfernte Felder räumt stattdessen ein Migrationsschritt weg — das
+ist der Unterschied zwischen „kenne ich nicht" und „soll weg".
+
+Der erste Schritt (`001-tote-felder-entfernen`) ist kein Platzhalter, sondern
+ein echter Fund: `routing_mode` und `brain_gemini_roles_tts` standen seit dem
+Umbau auf die Agenten-Auswahl bzw. `brain_primary` ohne einen einzigen
+Lesezugriff im Datensatz. `renameField` liegt getestet daneben, damit der
+nächste Umzug eines Feldes kein Datenverlust ist: ein gesetztes Zielfeld
+gewinnt, ein fehlendes Altfeld legt kein leeres Neufeld an, `false` wird als
+Wert behandelt und nicht als Nichts.
+
+`settings_rev` merkt sich den Stand. Ein **höherer** Stand als der eigene wird
+nicht zurückgedreht — sonst liefe die Migration nach einem Downgrade ein
+zweites Mal.
 
 ## Abbruchkriterium
 
@@ -82,6 +115,12 @@ npm run test:rest-final
 npm run test:qa-16
 npx tsc -b && npm run lint
 ```
+
+`test:settings-migrate` spielt einen vollständigen Hausstand ein — für **jedes**
+der 156 Felder ein vom Default abweichender Wert — und vergleicht nach dem Laden
+Feld für Feld. Ein verlorenes Feld nennt der Fehler beim Namen. Danach wird
+derselbe Hausstand mit sechs kaputten Feldern geladen: nur diese sechs dürfen
+fallen, Gemini-Key und Nachbarfelder müssen stehen bleiben.
 
 Manuell: Hausstand aus `16.1.1` exportieren, in den neuen Stand importieren,
 alle Keys und Vorlieben prüfen. Dann ein Feld im JSON absichtlich zerstören —
