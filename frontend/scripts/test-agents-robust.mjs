@@ -4,6 +4,15 @@
  */
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import {
+  BREAKER_OPEN_MS,
+  breakerAllows,
+  breakerFailure,
+  breakerSnapshot,
+  breakerState,
+  breakerSuccess,
+  resetBreakers,
+} from '../src/engine/agents/breaker.ts'
 import { AgentTimeout, withBudget } from '../src/engine/agents/budget.ts'
 import {
   beginAgentTurn,
@@ -108,8 +117,10 @@ const catalog = agentCatalog()
 const withExecute = catalog.filter((a) => a.execute).map((a) => a.id).sort()
 assert.deepEqual(withExecute, [...EXECUTOR_IDS].sort(), 'EXECUTOR_IDS deckt sich mit execute-map')
 
+// `identity` war der letzte Agent ohne Executor. Das fiel nicht auf, weil
+// chat.ts die Frage vorher abfängt — wird dieser Weg umgangen, scheiterte
+// runAgent stumm und die Antwort kam vom Modell.
 for (const agent of catalog) {
-  if (agent.id === 'identity') continue
   assert.ok(agent.execute, `${agent.id} braucht einen Executor`)
 }
 
@@ -124,6 +135,46 @@ assert.ok(referenced.length > 50, `Konflikt-Tisch gelesen (${referenced.length} 
 const unknown = [...new Set(referenced.filter((id) => !known.has(id)))]
 assert.deepEqual(unknown, [], `conflicts.ts nennt unbekannte Agenten: ${unknown.join(', ')}`)
 
+// --- Sicherungsschalter ---------------------------------------------------
+resetBreakers()
+const T0 = 1_000_000
+
+assert.equal(breakerState('tv', T0), 'zu', 'ein unbelasteter Agent ist frei')
+assert.equal(breakerAllows('tv', T0), true)
+
+breakerFailure('tv', T0)
+breakerFailure('tv', T0)
+assert.equal(breakerState('tv', T0), 'zu', 'zwei Fehlschläge sperren noch nicht')
+assert.equal(breakerAllows('tv', T0), true)
+
+breakerFailure('tv', T0)
+assert.equal(breakerState('tv', T0), 'offen', 'der dritte sperrt')
+assert.equal(breakerAllows('tv', T0), false, 'gesperrt heißt: gar nicht erst warten')
+assert.equal(breakerAllows('tv', T0 + BREAKER_OPEN_MS - 1), false)
+
+// Nach 60 s genau ein Versuch — ein zweiter gleichzeitiger Zug rennt nicht mit.
+const half = T0 + BREAKER_OPEN_MS
+assert.equal(breakerState('tv', half), 'halb')
+assert.equal(breakerAllows('tv', half), true, 'der eine Versuch')
+assert.equal(breakerAllows('tv', half), false, 'und nur der eine')
+
+// Fehler im Halbmond: wieder 60 s zu.
+breakerFailure('tv', half)
+assert.equal(breakerAllows('tv', half + 1), false)
+
+// Erfolg löscht die Geschichte vollständig.
+breakerSuccess('tv')
+assert.equal(breakerState('tv', half), 'zu')
+assert.equal(breakerAllows('tv', half), true)
+assert.deepEqual(breakerSnapshot(half), [], 'ein gesunder Agent steht nicht im Bogen')
+
+// Ein anderer Agent ist davon unberührt — sonst sperrt ein kaputter Dienst alles.
+resetBreakers()
+for (let i = 0; i < 3; i += 1) breakerFailure('pc', T0)
+assert.equal(breakerAllows('pc', T0), false)
+assert.equal(breakerAllows('weather', T0), true, 'Sicherungen gelten je Agent')
+resetBreakers()
+
 console.log(
-  `test:agents-robust ok — Budget, ${getTurnTraces().length} Traces begrenzt, ${catalog.length} Agenten`,
+  `test:agents-robust ok — Budget, Sicherung, ${getTurnTraces().length} Traces begrenzt, ${catalog.length} Agenten`,
 )

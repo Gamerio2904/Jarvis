@@ -36,7 +36,8 @@ const routing = routingAgents()
 assert.equal(routing.length, catalog.filter((a) => a.parse).length)
 
 assert.ok(routing.some((a) => a.id === 'identity'), 'identity routes')
-assert.ok(!EXECUTOR_IDS.includes('identity'), 'identity has no execute')
+/** Bis 16.4.0 war `identity` der einzige Agent ohne Executor. */
+assert.ok(EXECUTOR_IDS.includes('identity'), 'identity braucht einen Executor')
 
 for (const agent of routing) {
   const score = agent.parse(EMPTY_CTX)

@@ -147,6 +147,8 @@ export type Settings = {
   pc_token: string
   gemini_model: string
   gemini_skip_until: string
+  /** Welches Groq-Modell gerade nicht geht, bis wann. Wie bei Gemini. */
+  groq_skip_until: string
   groq_api_key: string
   last_lat: string
   last_lon: string
@@ -308,6 +310,7 @@ export const DEFAULT_SETTINGS: Settings = {
   pc_token: '',
   gemini_model: '',
   gemini_skip_until: '',
+  groq_skip_until: '',
   groq_api_key: '',
   last_lat: '',
   last_lon: '',

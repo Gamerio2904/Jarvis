@@ -12,6 +12,7 @@ import {
 } from './cloud-errors.ts'
 import { completeGroq, groqReady } from './groq.ts'
 import { postJson } from './http-json.ts'
+import { noteQuotaExhausted } from './quota.ts'
 import { streamSseLines } from '../native/voice.ts'
 import { GEMINI_PERSONA } from './persona.ts'
 import { isGeminiConfigured, loadSettings, saveSettings } from './store.ts'
@@ -292,6 +293,8 @@ export async function completeGemini(
         }
         if (isRetryableCloud(status, message, errStatus)) {
           rememberSkip(model)
+          /** Ein `429` heißt Tageslimit, nicht Ausfall — der nächste Zug soll gar nicht erst fragen. */
+          if (status === 429) noteQuotaExhausted('gemini')
           last = germanQuotaHint(groqOn)
           modelRetryable = true
           break

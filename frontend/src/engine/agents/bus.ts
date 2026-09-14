@@ -1,4 +1,5 @@
 import { agentById } from './catalog.ts'
+import { breakerAllows, breakerFailure, breakerSuccess } from './breaker.ts'
 import { AgentTimeout, withBudget } from './budget.ts'
 import { currentAgentTurn, pushAgentTrace } from './trace-store.ts'
 import type { RouteCtx, SideEffect } from '../route-types.ts'
@@ -47,6 +48,19 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
     return { handled: false, internal: [trace(false, 'no execute')] }
   }
 
+  /**
+   * Vor dem Budget, nicht danach: der Sinn des Schalters ist, die 25 s gar
+   * nicht erst zu warten.
+   */
+  if (!breakerAllows(id)) {
+    return {
+      handled: false,
+      failed: true,
+      failReason: 'breaker',
+      internal: [trace(false, 'Sicherung offen')],
+    }
+  }
+
   const budget = BUDGET_MS[agent.sideEffect] ?? BUDGET_MS.read
   const attempts = agent.sideEffect === 'read' ? 2 : 1
   let lastTrace: AgentTrace | null = null
@@ -55,6 +69,8 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
       const hit = await withBudget(Promise.resolve(agent.execute(ctx)), budget)
+      /** Kein Wurf heißt: der Dienst lebt. „Nicht zuständig" ist kein Fehlschlag. */
+      breakerSuccess(id)
       const t = trace(Boolean(hit?.reply), hit?.lastTool || id, attempt)
       if (!hit?.reply && !hit?.retry) return { handled: false, internal: [t] }
       return {
@@ -75,6 +91,8 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
     }
   }
 
+  /** Ein Dispatch zählt einmal, nicht je Versuch. */
+  breakerFailure(id)
   return {
     handled: false,
     failed: true,

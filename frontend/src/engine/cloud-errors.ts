@@ -20,6 +20,29 @@ export const GROQ_MODELS_BEST_FIRST = [
   'openai/gpt-oss-120b',
 ] as const
 
+/**
+ * Von Groq veröffentlichte Modell-Kennungen, abgeglichen mit
+ * console.groq.com/docs/models. Der Test stellt `GROQ_MODELS_BEST_FIRST`
+ * hiergegen — vorher prüfte er die Konstante gegen sich selbst und hätte
+ * einen falschen Wert nie bemerkt.
+ *
+ * `qwen/qwen3.8-27b` steht bei Groq unter **Preview**: „may be discontinued
+ * at short notice". Es bleibt an Position 1, weil es das beste der Liste ist;
+ * das Risiko trägt jetzt das Skip-Gedächtnis, nicht der Nutzer.
+ */
+export const GROQ_KNOWN_MODEL_IDS = [
+  'llama-3.1-8b-instant',
+  'llama-3.3-70b-versatile',
+  'openai/gpt-oss-120b',
+  'openai/gpt-oss-20b',
+  'openai/gpt-oss-safeguard-20b',
+  'groq/compound',
+  'groq/compound-mini',
+  'qwen/qwen3.6-27b',
+  'qwen/qwen3.8-27b',
+  'minimaxai/minimax-m2.7',
+] as const
+
 const SKIP_MS = 12 * 60 * 1000
 
 export function parseSkipMap(raw: string | undefined | null): Record<string, number> {
@@ -43,13 +66,26 @@ export function markSkip(raw: string | undefined | null, model: string, now = Da
   return JSON.stringify(map)
 }
 
-export function geminiModelOrder(skipRaw: string | undefined | null, missing: Iterable<string> = []): string[] {
+function order(all: readonly string[], skipRaw: string | undefined | null, missing: Iterable<string>): string[] {
   const skip = parseSkipMap(skipRaw)
   const gone = new Set(missing)
-  const all = GEMINI_MODELS_BEST_FIRST.filter((m) => !gone.has(m))
-  const ready = all.filter((m) => !skip[m])
-  const later = all.filter((m) => skip[m])
+  const live = all.filter((m) => !gone.has(m))
+  const ready = live.filter((m) => !skip[m])
+  const later = live.filter((m) => skip[m])
   return [...ready, ...later]
+}
+
+export function geminiModelOrder(skipRaw: string | undefined | null, missing: Iterable<string> = []): string[] {
+  return order(GEMINI_MODELS_BEST_FIRST, skipRaw, missing)
+}
+
+/**
+ * Groq lief bisher bei **jedem** Aufruf von vorne durch die Liste. Ein totes
+ * Modell an Position 1 kostete damit in jedem Zug Anfragen aus einem
+ * Tagesbudget von 1.000.
+ */
+export function groqModelOrder(skipRaw: string | undefined | null, missing: Iterable<string> = []): string[] {
+  return order(GROQ_MODELS_BEST_FIRST, skipRaw, missing)
 }
 
 function blob(status: number, message: string, errorStatus = ''): string {
@@ -123,7 +159,12 @@ export function germanQuotaHint(groqConfigured: boolean): string {
   if (groqConfigured) {
     return 'Google und Groq antworten gerade nicht. Später erneut senden.'
   }
-  return 'Google ist überlastet oder das Tageslimit ist leer. Optional Groq-Schlüssel unter Einstellungen (console.groq.com/keys) — hoher Free-Tier. Oder später erneut senden.'
+  /**
+   * „Hoher Free-Tier" stand hier und stimmte nicht: rund 1.000 Anfragen am
+   * Tag sind etwa 80 Züge. Eine Zusage, die der Anbieter nicht hält, ist
+   * schlimmer als keine.
+   */
+  return 'Google ist überlastet oder das Tageslimit ist leer. Optional ein Groq-Schlüssel unter Einstellungen (console.groq.com/keys) als zweiter Weg — auch der ist am Tag begrenzt. Oder später erneut senden.'
 }
 
 export function germanNetworkError(): string {

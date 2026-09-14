@@ -1,8 +1,34 @@
 import { GEMINI_PERSONA } from './persona.ts'
-import { GROQ_MODELS_BEST_FIRST, isFatalAuth, isRetryableCloud, isUnknownModel } from './cloud-errors.ts'
+import {
+  groqModelOrder,
+  isFatalAuth,
+  isRetryableCloud,
+  isUnknownModel,
+  markSkip,
+  parseSkipMap,
+} from './cloud-errors.ts'
 import { postJson } from './http-json.ts'
 import { streamSseLines } from '../native/voice.ts'
-import { loadSettings } from './store.ts'
+import { loadSettings, saveSettings } from './store.ts'
+import { noteQuotaExhausted, noteQuotaHeaders } from './quota.ts'
+
+/**
+ * Gemini merkt sich über `markSkip`, welches Modell gerade nicht geht. Groq
+ * lief bei jedem Aufruf von vorne durch dieselbe tote Liste — dasselbe
+ * Gedächtnis, nur bisher nicht angeschlossen.
+ */
+function skipGroqModel(model: string): void {
+  saveSettings({ groq_skip_until: markSkip(loadSettings().groq_skip_until, model) })
+}
+
+/** Ein Modell, das wieder antwortet, gehört sofort zurück nach vorne. */
+function groqUnskip(model: string): void {
+  const raw = loadSettings().groq_skip_until
+  const map = parseSkipMap(raw)
+  if (!map[model]) return
+  delete map[model]
+  saveSettings({ groq_skip_until: JSON.stringify(map) })
+}
 
 type GroqChoice = { message?: { content?: string }; delta?: { content?: string } }
 type GroqResponse = {
@@ -45,13 +71,26 @@ export async function completeGroq(
     max_tokens: 420,
   }
   let last = 'Groq antwortet nicht.'
-  for (const model of GROQ_MODELS_BEST_FIRST) {
+  for (const model of groqModelOrder(loadSettings().groq_skip_until)) {
     const streamed = await streamGroq({ ...body, stream: true, model }, key, onToken)
     if (streamed.fatal) throw new Error(streamed.last)
-    if (streamed.text) return streamed.text
+    if (streamed.text) {
+      groqUnskip(model)
+      return streamed.text
+    }
     if (streamed.last) last = streamed.last
+    /**
+     * Ein Modell, das es nicht gibt, hat es auch beim zweiten Anlauf nicht.
+     * Vorher kostete genau dieser Fall **zwei** Anfragen pro Zug — bei 1.000
+     * am Tag und einem toten Modell an Position 1 die Hälfte des Budgets.
+     */
+    if (isUnknownModel(0, streamed.last)) {
+      skipGroqModel(model)
+      last = 'Groq-Modell nicht verfügbar.'
+      continue
+    }
     try {
-      const { status, json } = await postJson(
+      const { status, json, headers } = await postJson(
         'https://api.groq.com/openai/v1/chat/completions',
         {
           'Content-Type': 'application/json',
@@ -60,6 +99,7 @@ export async function completeGroq(
         { ...body, model, stream: false },
         10_000,
       )
+      noteQuotaHeaders('groq', headers)
       const parsed = json as GroqResponse
       const errMsg = parsed.error?.message || ''
       const errCode = String(parsed.error?.code || parsed.error?.type || '')
@@ -67,7 +107,13 @@ export async function completeGroq(
         throw new Error('Groq-Key ungültig. Unter console.groq.com/keys einen neuen holen.')
       }
       if (isUnknownModel(status, errMsg, errCode) || status === 400) {
+        skipGroqModel(model)
         last = 'Groq-Modell nicht verfügbar.'
+        continue
+      }
+      if (status === 429) {
+        noteQuotaExhausted('groq', headers)
+        last = 'Groq-Tageslimit erreicht.'
         continue
       }
       if (isRetryableCloud(status, errMsg, errCode) || status < 200 || status >= 300) {
@@ -79,6 +125,7 @@ export async function completeGroq(
         last = 'Groq lieferte keinen Text.'
         continue
       }
+      groqUnskip(model)
       onToken?.(text, text)
       return text
     } catch (err) {

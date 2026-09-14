@@ -4,11 +4,30 @@ import { completeChat, isModelReady } from './llm.ts'
 import { DEFAULT_MODEL, loadSettings } from './store.ts'
 import { pickBrain, type BrainKind } from './brain-pick.ts'
 import { primaryChatModel } from './brain-tasks.ts'
+import { quotaBlocked, quotaHint } from './quota.ts'
 
 export type { BrainKind }
 export { pickBrain }
 
+/**
+ * Ein fast leeres Tageslimit ist kein Fehler, sondern ein erwarteter Zustand
+ * des Free Tiers. Vorher lief Jarvis erst in den `429` und sagte dann ab;
+ * jetzt wird er vorher schlichter, statt später stumm.
+ *
+ * Nur wenn das lokale Modell wirklich bereit ist — sonst wäre die Absage mit
+ * Erklärung immer noch besser als gar keine Antwort.
+ */
+function demoteOnQuota(kind: BrainKind): BrainKind {
+  if (kind !== 'gemini' && kind !== 'groq') return kind
+  if (!quotaBlocked(kind)) return kind
+  return isModelReady() ? 'local' : kind
+}
+
 export function brainKind(): BrainKind {
+  return demoteOnQuota(chosenBrain())
+}
+
+function chosenBrain(): BrainKind {
   const s = loadSettings()
   if (s.brain_v2) {
     const model = primaryChatModel({
@@ -30,8 +49,22 @@ export function brainLabel(kind = brainKind()): string {
   const s = loadSettings()
   if (kind === 'gemini') return s.brain_v2 ? `${GEMINI_LABEL} (Spezialist)` : GEMINI_LABEL
   if (kind === 'groq') return s.brain_v2 ? 'Groq (primär)' : 'Groq (Backup)'
-  if (kind === 'local') return DEFAULT_MODEL.label
+  if (kind === 'local') {
+    const chosen = chosenBrain()
+    return chosen === 'local' ? DEFAULT_MODEL.label : `${DEFAULT_MODEL.label} (Tageslimit)`
+  }
   return 'kein Hirn'
+}
+
+/**
+ * Was der Nutzer hören soll, wenn die Cloud wegen des Kontingents übersprungen
+ * wird: ein Hinweis, keine Fehlermeldung.
+ */
+export function brainQuotaNote(): string {
+  const chosen = chosenBrain()
+  if (chosen !== 'gemini' && chosen !== 'groq') return ''
+  if (demoteOnQuota(chosen) === chosen) return ''
+  return quotaHint(chosen)
 }
 
 export function noBrainLine(): string {

@@ -41,7 +41,7 @@ export async function postJson(
   headers: Record<string, string>,
   body: unknown,
   timeoutMs?: number,
-): Promise<{ status: number; json: Record<string, unknown> }> {
+): Promise<{ status: number; json: Record<string, unknown>; headers: Record<string, string> }> {
   const read = timeoutMs && timeoutMs > 0 ? timeoutMs : 60_000
   const connect = Math.min(8_000, Math.max(400, Math.min(read, Math.floor(read * 0.5))))
   if (Capacitor.isNativePlatform()) {
@@ -61,7 +61,7 @@ export async function postJson(
     } catch {
       json = { error: { message: String(res.data || 'Ungültige Antwort') } }
     }
-    return { status: res.status, json }
+    return { status: res.status, json, headers: lowerKeys(res.headers) }
   }
   const res = await fetch(browserFetchUrl(url), {
     method: 'POST',
@@ -70,7 +70,19 @@ export async function postJson(
     signal: timeoutMs && timeoutMs > 0 ? abortAfter(timeoutMs) : undefined,
   })
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
-  return { status: res.status, json }
+  const out: Record<string, string> = {}
+  res.headers.forEach((v, k) => {
+    out[k.toLowerCase()] = v
+  })
+  return { status: res.status, json, headers: out }
+}
+
+/** Kopfzeilen kommen je nach Brücke unterschiedlich groß geschrieben. */
+function lowerKeys(raw: unknown): Record<string, string> {
+  const out: Record<string, string> = {}
+  if (!raw || typeof raw !== 'object') return out
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) out[k.toLowerCase()] = String(v)
+  return out
 }
 
 export async function getJson(

@@ -1,6 +1,6 @@
 # Sprint 251 — Sicherungsschalter + Agenten-Reste
 
-**Version:** `16.4.0` (versionCode `160400`) — **PLAN**
+**Version:** `16.4.0` — **CODE** (ausgeliefert in `17.0.0`)
 **Plan:** [`68-next.md`](../68-next.md) §6 · Upgrade **H** aus [`67-upgrades.md`](../67-upgrades.md)
 
 ## Ziel
@@ -77,23 +77,23 @@ Zwei konkrete Funde am Groq-Pfad, die direkt Kontingent kosten:
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S251-1 | Fehlschlag-Zähler je Agent, Rücksetzen bei Erfolg | `agents/breaker.ts` | PLAN |
-| S251-2 | Halbmond: nach 60 s **ein** Versuch, dann offen oder zu | `agents/breaker.ts` | PLAN |
-| S251-3 | Einhängen in `agentDispatch` vor dem Budget | `agents/bus.ts` | PLAN |
-| S251-4 | Absage-Text: „… ist gerade nicht erreichbar", kein stiller Fall ans Modell für `write`/`device` | `director.ts` | PLAN |
-| S251-5 | `identity`-Executor (canned, wie `chat.ts` heute antwortet) | `agents/execute-map.ts` | PLAN |
-| S251-6 | `verify` entscheiden: Director-Schritt für `device`/`write`, oder Kommentar + `phase`-Typ bereinigen | `director.ts`, `agents/types.ts` | PLAN |
-| S251-7 | Trace zeigt den Schalter-Zustand im Debug-Bogen | `agents/trace-store.ts` | PLAN |
-| S251-8 | Tests | `scripts/test-agents-robust.mjs` | PLAN |
-| S251-9 | `x-ratelimit-remaining-*` lesen und ablegen | `engine/groq.ts`, `engine/quota.ts` | PLAN |
-| S251-10 | Kontingent-Auslöser: unter Schwelle → lokales 0,5B statt Cloud | `engine/llm.ts` | PLAN |
-| S251-11 | Skip-Gedächtnis für Groq wie `markSkip` bei Gemini | `engine/groq.ts` | PLAN |
-| S251-12 | Bei `404` kein zweiter Non-Streaming-Versuch aufs selbe Modell | `engine/groq.ts` | PLAN |
-| S251-13 | Modell-IDs gegen Groqs Liste prüfen, Assertion nachziehen | `engine/cloud-errors.ts`, `scripts/test-gemini-fallback.mjs` | PLAN |
-| S251-14 | `germanQuotaHint()`: „hoher Free-Tier" streichen — 1.000 RPD ist nicht hoch | `engine/cloud-errors.ts` | PLAN |
-| S251-15 | Restkontingent im Debug-Bogen sichtbar | `ui/DebugPanel.tsx` | PLAN |
-| S251-16 | `test:gemini-fallback` in `package.json` eintragen — läuft heute nie | `package.json` | PLAN |
-| S251-17 | Modell-Liste gegen eine geprüfte Referenzliste stellen, nicht gegen sich selbst | `scripts/test-gemini-fallback.mjs` | PLAN |
+| S251-1 | Fehlschlag-Zähler je Agent, Rücksetzen bei Erfolg | `agents/breaker.ts` | CODE |
+| S251-2 | Halbmond: nach 60 s **ein** Versuch, dann offen oder zu | `agents/breaker.ts` | CODE |
+| S251-3 | Einhängen in `agentDispatch` vor dem Budget | `agents/bus.ts` | CODE |
+| S251-4 | Absage-Text: „… ist gerade nicht erreichbar", kein stiller Fall ans Modell für `write`/`device` | `director.ts` | CODE |
+| S251-5 | `identity`-Executor (canned, wie `chat.ts` heute antwortet) | `agents/execute-map.ts` | CODE |
+| S251-6 | `verify` entscheiden: Director-Schritt für `device`/`write`, oder Kommentar + `phase`-Typ bereinigen | `director.ts`, `agents/types.ts` | CODE |
+| S251-7 | Trace zeigt den Schalter-Zustand im Debug-Bogen | `agents/trace-store.ts` | CODE |
+| S251-8 | Tests | `scripts/test-agents-robust.mjs` | CODE |
+| S251-9 | `x-ratelimit-remaining-*` lesen und ablegen | `engine/groq.ts`, `engine/quota.ts` | CODE |
+| S251-10 | Kontingent-Auslöser: unter Schwelle → lokales 0,5B statt Cloud | `engine/llm.ts` | CODE |
+| S251-11 | Skip-Gedächtnis für Groq wie `markSkip` bei Gemini | `engine/groq.ts` | CODE |
+| S251-12 | Bei `404` kein zweiter Non-Streaming-Versuch aufs selbe Modell | `engine/groq.ts` | CODE |
+| S251-13 | Modell-IDs gegen Groqs Liste prüfen, Assertion nachziehen | `engine/cloud-errors.ts`, `scripts/test-gemini-fallback.mjs` | CODE |
+| S251-14 | `germanQuotaHint()`: „hoher Free-Tier" streichen — 1.000 RPD ist nicht hoch | `engine/cloud-errors.ts` | CODE |
+| S251-15 | Restkontingent im Debug-Bogen sichtbar | `ui/DebugPanel.tsx` | CODE |
+| S251-16 | `test:gemini-fallback` in `package.json` eintragen — läuft heute nie | `package.json` | CODE |
+| S251-17 | Modell-Liste gegen eine geprüfte Referenzliste stellen, nicht gegen sich selbst | `scripts/test-gemini-fallback.mjs` | CODE |
 
 ## Schalter-Regel
 
@@ -127,6 +127,41 @@ Wichtig für den Ton: Das lokale Modell ist schlechter, nicht kaputt. Der Nutzer
 soll das **wissen** („Ich antworte gerade offline, das Tageslimit ist fast
 leer"), aber keine Absage bekommen. Ein leeres Kontingent ist kein Fehler,
 sondern ein erwarteter Zustand des Free Tiers.
+
+## Ergebnis
+
+### Der Verdacht gegen die Modell-ID war falsch
+
+`qwen/qwen3.8-27b` **gibt es** — nachgesehen auf console.groq.com/docs/models,
+nicht geraten. Der Befund ist ein anderer und schlechter: das Modell steht
+unter **Preview**, „may be discontinued at short notice", und es stand an
+Position 1 ohne jedes Netz darunter. Es bleibt vorne, weil es das beste der
+Liste ist; das Risiko trägt jetzt das Skip-Gedächtnis.
+
+Die Liste `GROQ_KNOWN_MODEL_IDS` hält den abgeglichenen Stand fest, und der
+Test stellt die Reihenfolge dagegen statt gegen sich selbst.
+
+### Verify ist kein Director-Schritt geworden
+
+Der Kommentar versprach „preflight → router → execute → **verify** → merge".
+Statt den Schritt zu bauen, ist der Kommentar jetzt wahr: geprüft wird dort,
+wo es etwas zu prüfen gibt — die Module mit echter Wirkung packen ihre
+Antwort durch `packVerified`, und **von dort** kommt jetzt die Phase `verify`
+in den Debug-Bogen. Der Typ `AgentTrace.phase` kannte `'verify'`, niemand
+sendete es; das ist behoben.
+
+Ein generischer Schritt wäre ein Rückschritt gewesen: er müsste nach jeder
+Aktion ein zweites Mal nachsehen, kostet Zeit und Kontingent und wüsste
+nichts, was das Modul nicht schon weiß.
+
+### Was der Nutzer merkt
+
+| Lage | vorher | jetzt |
+|------|--------|-------|
+| Dienst dauerhaft tot | jedes Mal 25 s + Wiederholung | nach 3 Fehlschlägen sofort „ist gerade nicht erreichbar" |
+| totes Groq-Modell | 2 Anfragen je Zug, jeden Zug | 1 Anfrage, dann 12 Minuten übersprungen |
+| Tageslimit fast leer | `429`, dann Absage | vorher aufs lokale Modell, mit Hinweis statt Fehler |
+| Tageslimit-Hinweis | „hoher Free-Tier" | „auch der ist am Tag begrenzt" |
 
 ## Abbruchkriterium
 

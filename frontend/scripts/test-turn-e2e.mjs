@@ -221,4 +221,24 @@ for (const ask of ['Öffne die Weltkugel', 'Timer 5 Minuten', 'Lage an', 'Wo lie
 const legacy = { ...pack, claims: undefined }
 assert.equal(knowledgeBlock([legacy], 'Was steht bei uns zu Tokio?'), '', 'altes Paket wirft nicht')
 
+// --- Sicherung: ehrliche Absage statt stillem Fall ans Modell --------------
+// Ein gescheiterter Schreib- oder Geräte-Agent darf nicht durchfallen: das
+// Modell könnte einen Erfolg behaupten, den es nie gab.
+{
+  const { failureReply } = await import('../src/engine/director.ts')
+  const open = { handled: false, failed: true, failReason: 'breaker', internal: [] }
+  assert.match(failureReply('tv', open), /nicht erreichbar/)
+  assert.match(failureReply('tv', open), /nichts geändert/)
+  assert.match(
+    failureReply('tv', { handled: false, failed: true, failReason: 'timeout', internal: [] }),
+    /nicht geantwortet/,
+  )
+  assert.equal(
+    failureReply('weather', open),
+    '',
+    'lesende Agenten dürfen weiterfallen — dort gibt es nichts zu behaupten',
+  )
+  assert.equal(failureReply('tv', { handled: false, internal: [] }), '', 'kein Fehlschlag, kein Text')
+}
+
 console.log(`test:turn-e2e ok — Timer steht, Kugel offen, Lautstärke ohne Rückfrage (${APP_VERSION})`)

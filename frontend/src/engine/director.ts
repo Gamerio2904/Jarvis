@@ -49,17 +49,29 @@ async function applyRetry(hit: RouteHit, conversationId: string, text: string): 
  * durchfallen — das könnte einen Erfolg behaupten, den es nie gab. Lesende
  * Agenten dürfen weiterfallen: dort gibt es nichts zu behaupten.
  */
-function failureReply(id: string, result: AgentResult): string {
+export function failureReply(id: string, result: AgentResult): string {
   if (!result.failed) return ''
   const agent = agentById(id)
   if (!agent || agent.sideEffect === 'read') return ''
   const label = TOOL_LABEL[id] || agent.label || id
+  if (result.failReason === 'breaker') {
+    return `${label} ist gerade nicht erreichbar. Ich habe nichts geändert — in einer Minute nochmal.`
+  }
   return result.failReason === 'timeout'
     ? `${label} hat nicht geantwortet. Ich habe nichts geändert — bitte nochmal.`
     : `${label} hat nicht funktioniert. Ich habe nichts geändert — bitte nochmal.`
 }
 
-/** Sprint 229 — Turn: preflight → router → execute → verify → merge */
+/**
+ * Ein Zug: preflight → router → execute → merge.
+ *
+ * Einen eigenen Verify-Schritt hat der Director **nicht**, und das ist eine
+ * Entscheidung, keine Lücke. Geprüft wird dort, wo es etwas zu prüfen gibt:
+ * die Module mit echter Wirkung packen ihre Antwort durch `packVerified` und
+ * senden von dort die Phase `verify`. Ein generischer Schritt müsste nach
+ * jeder Aktion ein zweites Mal nachsehen — das kostet Zeit und Kontingent und
+ * wüsste nichts, was das Modul nicht schon weiß.
+ */
 export async function runDirectorTurn(conversationId: string, text: string): Promise<DirectorTurn> {
   beginAgentTurn()
   await curatorPreflight(conversationId, text)
