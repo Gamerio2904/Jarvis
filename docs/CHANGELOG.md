@@ -9,8 +9,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Sideload **`18.0.1`** (versionCode `180001`). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
-- **Ursache:** Nachtseite als ~1000 `fillRect` plus `clip()` hat die Android-WebView beim Lage-Tab (Kugel) eingefroren — schwarzer Schirm, nichts mehr antippen.
-- **Fix:** ein Halbkreis-Fill, Gradient nicht bei Radius 0, Canvas-Fehler fangen die Kugel nicht die App. Lage-Kopf, Chat und Composer bleiben über der Kugel (`z-index`).
+- **Ursache:** Nachtseite als ~1000 `fillRect` plus `clip()` hat die Android-WebView beim Lage-Tab (Kugel) eingefroren — schwarzer Schirm, nichts mehr antippen. Dazu: `resize()` schrieb `sphereGradients`, bevor die Variable existierte — die Kugel stürzte beim Öffnen ab.
+- **Fix:** ein Halbkreis-Fill, Gradient nicht bei Radius 0, Variable vor dem ersten `resize()`, Canvas-Fehler fangen die Kugel nicht die App. Lage-Kopf, Chat und Composer bleiben über der Kugel (`z-index`).
 
 ### `18.0.0` — Kugel Tag/Nacht, Bahn, Schichten — *CODE*
 
