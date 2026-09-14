@@ -613,7 +613,7 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
       const text = pickHeard(alts[0] || '', alts.slice(1))
       hold = text
       onPartial?.(text)
-      if (last?.isFinal && turnLooksComplete(text) && text) settle(text)
+      if (last?.isFinal && turnLooksComplete(text, { isFinal: true }) && text) settle(text)
       else arm(text)
     }
     rec.onerror = (ev) => {

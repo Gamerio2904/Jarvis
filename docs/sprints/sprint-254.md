@@ -1,6 +1,6 @@
 # Sprint 254 — Satzende-Heuristik zuerst, VAD danach
 
-**Version:** `16.7.0` (versionCode `160700`) — **PLAN**
+**Version:** `16.7.0` — **Stufe A: CODE** (ausgeliefert in `17.0.0`) · **Stufe B: bleibt FREEZE**
 **Plan:** [`68-next.md`](../68-next.md) §9 · Upgrade **B** aus [`67-upgrades.md`](../67-upgrades.md)
 
 ## Ziel
@@ -69,12 +69,12 @@ Bedarf und opt-in.
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S254-1 | `words.length >= 6` und `t.length >= 24` als Vollständigkeits-Belege **entfernen** | `engine/turn-detect.ts` | PLAN |
-| S254-2 | Vollständigkeit nur aus Satzzeichen, `isFinal` der STT und fehlendem `INCOMPLETE_TAIL` | `engine/turn-detect.ts` | PLAN |
-| S254-3 | Kurze, eindeutige Befehle („Licht an") über Parser-Treffer sofort schließen statt 1100 ms | `engine/turn-detect.ts` | PLAN |
-| S254-4 | Mittelstufe einführen: unklar → ~600 ms statt der Wahl zwischen 220 und 1100 | `engine/turn-detect.ts` | PLAN |
-| S254-5 | `INCOMPLETE_TAIL` um belegte Fälle aus dem `stt`-Tag (S249-9) erweitern | `engine/turn-detect.ts` | PLAN |
-| S254-6 | Messung: dieselben 20 Sätze vorher/nachher, abgeschnitten und Wartezeit gezählt | `docs/` | PLAN |
+| S254-1 | `words.length >= 6` und `t.length >= 24` als Vollständigkeits-Belege **entfernen** | `engine/turn-detect.ts` | CODE |
+| S254-2 | Vollständigkeit nur aus Satzzeichen, `isFinal` der STT und fehlendem `INCOMPLETE_TAIL` | `engine/turn-detect.ts` | CODE |
+| S254-3 | Kurze, eindeutige Befehle („Licht an") über Parser-Treffer sofort schließen statt 1100 ms | `engine/turn-detect.ts` | CODE |
+| S254-4 | Mittelstufe einführen: unklar → ~600 ms statt der Wahl zwischen 220 und 1100 | `engine/turn-detect.ts` | CODE |
+| S254-5 | `INCOMPLETE_TAIL` um belegte Fälle aus dem `stt`-Tag (S249-9) erweitern | `engine/turn-detect.ts` | CODE |
+| S254-6 | Messung: dieselben 20 Sätze vorher/nachher, abgeschnitten und Wartezeit gezählt | `docs/` | CODE |
 
 **Stufe A wird allein ausgeliefert und gemessen.** Erst wenn die Messung zeigt,
 dass Nebengeräusch der verbleibende Grund für Fehlschnitte ist, kommt Stufe B.
@@ -83,13 +83,13 @@ dass Nebengeräusch der verbleibende Grund für Fehlschnitte ist, kommt Stufe B.
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S254-7 | `onnxruntime-web` lazy; Silero (~1,8 MB) über `quality-pack.ts` nachgeladen | `package.json`, `engine/quality-pack.ts` | PLAN |
-| S254-8 | `PACK_FILES.smart_turn` auf die eine Silero-Datei kürzen (255 entfällt) | `engine/quality-pack.ts` | PLAN |
-| S254-9 | Bestehenden Schalter `vad_onnx` verdrahten, Default bleibt **aus** | `engine/store.ts` | PLAN |
-| S254-10 | Sprachwahrscheinlichkeit hinter die Schnittstelle von `createEnergyVad` legen | `engine/vad.ts` | PLAN |
-| S254-11 | Barge-in nutzt dieselbe Quelle — ein VAD, nicht zwei | `native/voice.ts` | PLAN |
-| S254-12 | Start-Bundle wächst **nicht**; Rückfallebene auf Energie-VAD | `scripts/` | PLAN |
-| S254-13 | Sprint 174 nach Erfolg von FREEZE auf abgelöst setzen | `docs/sprints/` | PLAN |
+| S254-7 | `onnxruntime-web` lazy; Silero (~1,8 MB) über `quality-pack.ts` nachgeladen | `package.json`, `engine/quality-pack.ts` | FREEZE |
+| S254-8 | `PACK_FILES.smart_turn` auf die eine Silero-Datei kürzen (255 entfällt) | `engine/quality-pack.ts` | CODE |
+| S254-9 | Bestehenden Schalter `vad_onnx` verdrahten, Default bleibt **aus** | `engine/store.ts` | FREEZE |
+| S254-10 | Sprachwahrscheinlichkeit hinter die Schnittstelle von `createEnergyVad` legen | `engine/vad.ts` | FREEZE |
+| S254-11 | Barge-in nutzt dieselbe Quelle — ein VAD, nicht zwei | `native/voice.ts` | FREEZE |
+| S254-12 | Start-Bundle wächst **nicht**; Rückfallebene auf Energie-VAD | `scripts/` | FREEZE |
+| S254-13 | Sprint 174 nach Erfolg von FREEZE auf abgelöst setzen | `docs/sprints/` | FREEZE |
 
 S254-10 ist der Grund, warum Stufe B überhaupt vertretbar ist: `createEnergyVad`
 existiert als Schnittstelle, Silero wird dahinter getauscht statt daneben
@@ -136,6 +136,57 @@ Drei Konsequenzen für den Lieferumfang:
 Verwandt und weiter eingefroren: [`sprint-175.md`](./sprint-175.md) (Piper
 offline TTS) und [`sprint-176.md`](./sprint-176.md) (Kokoro + e5-Rerank). Beide
 bleiben unberührt; dieser Sprint holt **nur** das VAD aus dem Freeze.
+
+## Ergebnis
+
+### Stufe A, gemessen im Test
+
+`npm run test:turn-detect` hält die Tabelle aus diesem Sprint als Testfälle und
+rechnet den Vergleich selbst — die alte Regel steht im Test nachgebaut, damit
+das „vorher" nicht in einer Notiz verfällt:
+
+| Zahl | vorher | jetzt |
+|------|-------:|------:|
+| Wartezeit kurzer Befehle (Mittel aus 5) | 1100 ms | **220 ms** |
+| Fehlschnitte bei langen Sätzen (von 5) | 3 | **0** |
+
+Beide Zahlen verbessern sich. Genau das war die Bedingung: eine Verschiebung
+von „schneidet ab" zu „wartet lang" wäre ein Tausch, kein Fortschritt.
+
+Drei Stufen statt zwei: `SILENCE_UNSURE_MS = 600` fängt den unklaren Fall auf.
+Vorher kostete jede Fehlentscheidung das Maximum in die falsche Richtung, weil
+es nur 220 oder 1100 gab.
+
+### Warum kein Parser-Treffer als Beleg dient
+
+S254-3 wollte kurze Befehle „über Parser-Treffer" schließen. So gebaut wäre es
+falsch geworden: „Erinnere mich morgen" trifft einen Parser und ist
+offensichtlich nicht fertig. Ein Parser-Treffer belegt eine **erkannte
+Absicht**, keine **abgeschlossene Äußerung**.
+
+Stattdessen `CLOSED_COMMAND`: Gerät plus Schaltwort, und das Schaltwort steht
+am Satzende. Die Grammatik kann nicht weitergehen, also wartet auch nichts.
+Eine kleine Liste, aber eine beweisbar richtige.
+
+Ein zweiter Fund derselben Art: ein hängendes Satzende gewinnt jetzt auch
+gegen `isFinal`. Die Erkennung meldet „ich brauche noch" durchaus als
+abgeschlossen — sie hört ja nichts mehr. Fertig ist der Satz damit nicht.
+
+### Stufe B bleibt im Freeze
+
+Nach der Regel dieses Sprints: „Stufe A wird allein ausgeliefert und gemessen.
+Erst wenn die Messung zeigt, dass Nebengeräusch der verbleibende Grund für
+Fehlschnitte ist, kommt Stufe B." Diese Messung braucht ein Mikrofon, einen
+laufenden Fernseher und ein Gerät — sie steht noch aus. 1,8 MB Download und
+Inferenz pro Frame ohne belegten Bedarf wären genau der Tausch, den die
+Prioritätenliste verbietet.
+
+S254-8 ist trotzdem umgesetzt, weil es unabhängig davon eine Unwahrheit war:
+`PACK_FILES.smart_turn` erwartete `smart_turn_v3.onnx`, eine Datei, die es nie
+geben wird. Das Paket meldete dauerhaft „fehlt". Jetzt erwartet es nur Silero.
+
+**Sprint 174 bleibt FREEZE** — sein VAD-Teil ist nicht abgelöst, sondern
+weiterhin unbelegt.
 
 ## Abbruchkriterium
 

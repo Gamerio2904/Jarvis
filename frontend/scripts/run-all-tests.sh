@@ -6,7 +6,7 @@ FAIL=0
 for t in eval eval:migrate test:014 test:alltag test:sprint test:pc test:prompts \
          test:agents test:brain-orchestrator test:650 test:matrix test:memory-10 \
          test:memory-10-intens test:knowledge-11 test:presence-12 test:body-13 \
-         test:rest-final test:qa-16 test:gemini-fallback test:agents-robust test:turn-e2e; do
+         test:rest-final test:qa-16 test:turn-detect test:gemini-fallback test:agents-robust test:turn-e2e; do
   if out=$(npm run --silent "$t" 2>&1); then
     printf 'ok   %s\n' "$t"
   else
