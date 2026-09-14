@@ -137,6 +137,71 @@ export async function completeGroq(
   throw new Error(last)
 }
 
+/**
+ * Ein Aufruf, dessen Antwort **muss** dem Schema entsprechen: Groq erzwingt
+ * die Grammatik im Decoder (`response_format: json_schema, strict`). Ein
+ * Feldname kann damit nicht falsch geschrieben sein, weil er nicht falsch
+ * geschrieben *werden* kann — kein Regex-Rettungsversuch nötig.
+ *
+ * Wirft nie. Wer hier nichts bekommt, geht den Weg von vorher.
+ */
+export async function completeGroqJson(opts: {
+  system: string
+  user: string
+  name: string
+  schema: Record<string, unknown>
+  timeoutMs?: number
+}): Promise<unknown | null> {
+  const key = groqKey()
+  if (!key) return null
+  const body = {
+    messages: [
+      { role: 'system', content: opts.system },
+      { role: 'user', content: opts.user },
+    ],
+    temperature: 0,
+    max_tokens: 200,
+    response_format: {
+      type: 'json_schema',
+      json_schema: { name: opts.name, strict: true, schema: opts.schema },
+    },
+  }
+  /**
+   * Das 8B hat 14.400 Requests am Tag statt 1.000. „Welches Werkzeug passt"
+   * ist eine triviale Aufgabe; das große Kontingent bleibt den Antworten.
+   */
+  const order = groqModelOrder(loadSettings().groq_skip_until)
+  const models = ['llama-3.1-8b-instant', ...order.filter((m) => m !== 'llama-3.1-8b-instant')].slice(0, 2)
+  for (const model of models) {
+    try {
+      const { status, json, headers } = await postJson(
+        'https://api.groq.com/openai/v1/chat/completions',
+        { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+        { ...body, model },
+        opts.timeoutMs ?? 6_000,
+      )
+      noteQuotaHeaders('groq', headers)
+      if (status === 429) {
+        noteQuotaExhausted('groq', headers)
+        return null
+      }
+      const parsed = json as GroqResponse
+      if (isUnknownModel(status, parsed.error?.message || '', String(parsed.error?.code || ''))) {
+        skipGroqModel(model)
+        continue
+      }
+      if (status < 200 || status >= 300) continue
+      const text = textFrom(parsed)
+      if (!text) continue
+      groqUnskip(model)
+      return JSON.parse(text) as unknown
+    } catch {
+      /* Netz weg, Zeit um oder kein JSON — dann eben kein Vorschlag */
+    }
+  }
+  return null
+}
+
 async function streamGroq(
   body: unknown,
   key: string,

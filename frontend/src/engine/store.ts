@@ -275,6 +275,8 @@ export type Settings = {
   brain_micro_llm_merge: boolean
   brain_shadow_mode: boolean
   last_agent_id: string
+  /** Darf das Modell ein Werkzeug **vorschlagen**, wenn kein Parser greift? */
+  tool_propose: boolean
   pc_dashboard_v2: boolean | null
   globe_webgl: boolean
 }
@@ -436,6 +438,7 @@ export const DEFAULT_SETTINGS: Settings = {
   brain_micro_llm_merge: true,
   brain_shadow_mode: false,
   last_agent_id: '',
+  tool_propose: true,
   pc_dashboard_v2: null,
   globe_webgl: false,
 }

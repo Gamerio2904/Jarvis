@@ -37,6 +37,7 @@
     "test:turn-e2e": "node --experimental-strip-types scripts/test-turn-e2e.mjs",
     "test:settings-migrate": "node --experimental-strip-types scripts/test-settings-migrate.mjs",
     "test:verb-front": "node --experimental-strip-types scripts/test-verb-front.mjs",
+    "test:tool-propose": "node --experimental-strip-types scripts/test-tool-propose.mjs",
     "eval:separability": "node --experimental-strip-types scripts/eval/separability.mjs"
   },
   "dependencies": {
