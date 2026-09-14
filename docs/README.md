@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`17.0.0`**. Sideload **`17.0.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Schiene `17.0.0` „messbar und unterbrechbar", Sprints 249–259 **CODE** → [`68-next.md`](./68-next.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). **Grundlagen und Grenzen** (interne Sprache, Free-Tier-Kontingent) → [`69-modell-grundlagen.md`](./69-modell-grundlagen.md).
+**Jetzt:** Code **`17.0.0`**. Sideload **`17.0.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). **Nächste Schiene:** `18.0.0` „zeigen und spielen", Sprints 260–268 → [`70-next.md`](./70-next.md). Schiene `17.0.0` **CODE** → [`68-next.md`](./68-next.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -73,6 +73,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN-Protokoll** — Grundlage der Schiene 249–259 |
 | 68 | [Messbar und unterbrechbar 17.0](./68-next.md) | **CODE** `17.0.0` — Sprints 249–259 ausgeliefert |
 | 69 | [Modell-Grundlagen](./69-modell-grundlagen.md) | **REFERENZ** — Trainings- vs. Inferenzzeit, interne Sprache (Deutsch bleibt), Free-Tier-Grenzen |
+| 70 | [Zeigen und spielen 18.0](./70-next.md) | **PLAN** `18.0.0` — Chat-Blöcke, Bundesliga-Karte, Schach-Modus, Sprints 260–268 |
 | — | [APK](./apk.md) | Sideload `17.0.0`; Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -280,5 +281,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 255 | — | **AUFGELÖST** (Inhalt in 253 und 254 A) |
 | 256–258 | `16.8.0`–`16.10.0` | **CODE** in `17.0.0` (Feldschutz, Alltagsdeutsch, Werkzeug-Vertrag) |
 | 259 | **`17.0.0`** | **CODE** (Historie + Meilenstein) |
+| 260–267 | `17.1.0`–`17.8.0` | **PLAN** (Fixes, Blöcke, Tabelle, Bild, Schach) |
+| 268 | **`18.0.0`** | **PLAN** (Meilenstein zeigen und spielen) |
 
-**Aktuell:** Code **`17.0.0`**. Sideload `17.0.0`, versionCode `170000`. Execute: Sprints bis 259 **CODE**. Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`17.0.0`**. Sideload `17.0.0`, versionCode `170000`. Execute: Sprints bis 259 **CODE**. Nächste Schiene: **260–268** → [`70-next.md`](./70-next.md). Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). Index: [`42-planned.md`](./42-planned.md).

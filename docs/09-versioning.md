@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`17.0.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`17.0.0`**, versionCode `170000`. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. GUI Sprint 239 **CODE** `15.2.0`. Reels/QA Sprints 242–248 **CODE** `16.0.0`; Router- und Agenten-Härtung **CODE** `16.1.0`, Wecker **CODE** `16.1.1`. Schiene 249–259 **CODE** in `17.0.0` → [`66-agents-ist.md`](./66-agents-ist.md), Test [`TEST-17.0.0.md`](./TEST-17.0.0.md).
+> **Jetzt:** Code **`17.0.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`17.0.0`**, versionCode `170000`. **Nächste Schiene:** `18.0.0` zeigen und spielen, Sprints 260–268 → [`70-next.md`](./70-next.md). PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. Reels/QA **CODE** `16.0.0`. Schiene 249–259 **CODE** in `17.0.0` → [`66-agents-ist.md`](./66-agents-ist.md), Test [`TEST-17.0.0.md`](./TEST-17.0.0.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -556,6 +556,24 @@ Jarvis kann sich selbst messen und lässt sich unterbrechen. Geplant aus
 Der MAJOR-Sprung steht am Ende der Schiene, nicht am Anfang: `17.0.0` ist
 erreicht, wenn alle elf Sprints liegen — so wie `16.0.0` die Reel-Schiene
 242–248 abgeschlossen hat.
+
+### `18.0` — Zeigen und spielen [`70-next.md`](./70-next.md) **PLAN**
+
+Chat zeigt Tabellen und Bilder. Schach ist ein Modus mit Regeln, nicht
+Smalltalk. Geplant aus den Screenshots vom 14.9.2026 und einer Reel-Triage
+(nur Muster, die ohne Verlust nützen).
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `17.1.0` | Screenshot-Fixes | 260 PLAN |
+| `17.2.0` | Chat-Blöcke | 261 PLAN |
+| `17.3.0` | Bundesliga-Karte | 262 PLAN |
+| `17.4.0` | Bilder auf Verlangen | 263 PLAN |
+| `17.5.0` | `chess.js` | 264 PLAN |
+| `17.6.0` | Schach-Modus | 265 PLAN |
+| `17.7.0` | Stockfish opt-in | 266 PLAN |
+| `17.8.0` | Coach selten | 267 PLAN |
+| **`18.0.0`** | **Meilenstein**, Sideload | 268 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN**
 

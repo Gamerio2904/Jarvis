@@ -3,6 +3,30 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
+## Unreleased
+
+### `18.0.0` — Zeigen und spielen (Sprints 260–268) — *PLAN*
+
+Planung: [`70-next.md`](./70-next.md). Anlass: Screenshots (Schach ans Modell,
+Wahl ohne Suche, abgebrochener Satz) plus Chat, der Tabellen und Bilder nur
+als Text kennt.
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `17.1.0` | 260 | Screenshot-Fixes |
+| `17.2.0` | 261 | Chat-Blöcke, fail-closed |
+| `17.3.0` | 262 | Bundesliga-Karte (OpenLigaDB bleibt) |
+| `17.4.0` | 263 | Bilder nur auf Verlangen |
+| `17.5.0` | 264 | `chess.js` statt Haus-`legal()` |
+| `17.6.0` | 265 | Schach-Modus |
+| `17.7.0` | 266 | Stockfish-Worker opt-in |
+| `17.8.0` | 267 | Coach aus Centipawn, selten |
+| **`18.0.0`** | 268 | Meilenstein |
+
+Reel/GitHub: Instagram war nicht lesbar. Übernommen wird das Muster
+getippter Chat-Teile und `chess.js` — nicht browser-use, Composio, mem0,
+DeepAgents, chessground (GPL).
+
 ## `17.0.0` — Messbar und unterbrechbar (Sprints 249–259) — *CODE*
 
 Sideload **`17.0.0`** (versionCode `170000`). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).

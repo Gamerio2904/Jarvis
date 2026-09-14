@@ -8,19 +8,39 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 
 ## Pull-Reihenfolge
 
-1. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
-2. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
-3. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
-4. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
-5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-6. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
-7. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
-8. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
-9. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
-10. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
-11. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
+1. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–268**. Erst Screenshot-Fixes (260), dann Chat-Blöcke (261), Tabelle/Bild (262–263), dann Schach-Modus (264–267)
+2. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
+3. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
+4. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
+5. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
+6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+7. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
+8. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
+9. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
+10. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
+11. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
+12. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
 
 **⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `17.0.0` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
+
+## PLAN — Schiene `18.0.0` (Sprints 260–268)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `17.1.0` | [260](./sprints/sprint-260.md) | Screenshot-Fixes: Schach-Route, Wahl-Live, Satzabbruch |
+| `17.2.0` | [261](./sprints/sprint-261.md) | Chat-Blöcke, fail-closed |
+| `17.3.0` | [262](./sprints/sprint-262.md) | Bundesliga-Tabelle als Karte |
+| `17.4.0` | [263](./sprints/sprint-263.md) | Bilder nur auf Verlangen |
+| `17.5.0` | [264](./sprints/sprint-264.md) | `chess.js`, deutsche Züge |
+| `17.6.0` | [265](./sprints/sprint-265.md) | Schach-Modus |
+| `17.7.0` | [266](./sprints/sprint-266.md) | Stockfish opt-in |
+| `17.8.0` | [267](./sprints/sprint-267.md) | Coach selten, aus der Bewertung |
+| **`18.0.0`** | [268](./sprints/sprint-268.md) | **Meilenstein** |
+
+Harte Ketten: 260 → alles; 261 → 262/263/265; 264 → 265 → 266 → 267.
+Kein LLM spielt Schach. Kein GPL-Brett. Kein Bild ohne Parser.
+
+Begründung und Reel-Triage: [`70-next.md`](./70-next.md).
 
 ## CODE — Schiene `17.0.0` (Sprints 249–259)
 
