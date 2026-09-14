@@ -50,7 +50,7 @@ export async function handleReminders(
     })
     const perm = await requestNotifyPermission()
     const scheduled = await scheduleNotify({
-      id: notifyIdFromKey(row.id),
+      id: notifyIdOf(row),
       title: intent.recur ? 'Erinnerung' : 'Jarvis',
       body: row.title,
       at: intent.due,
@@ -101,7 +101,7 @@ export async function handleReminders(
     )
     const hit = [...rows].sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0]
     if (!hit) return { handled: true, reply: 'Keine offene Erinnerung zum Löschen.' }
-    await cancelNotify(notifyIdFromKey(hit.id))
+    await cancelNotify(notifyIdOf(hit))
     await deleteReminder(hit.id)
     await syncGlance()
     return {
@@ -123,7 +123,7 @@ export async function handleReminders(
   if (!hit) {
     return { handled: true, reply: `Keine Erinnerung zu „${intent.query}“.` }
   }
-  await cancelNotify(notifyIdFromKey(hit.id))
+  await cancelNotify(notifyIdOf(hit))
   await deleteReminder(hit.id)
   await syncGlance()
   return {
@@ -198,7 +198,8 @@ function recurTag(r: Reminder): string {
 }
 
 export async function removeReminder(id: string): Promise<void> {
-  await cancelNotify(notifyIdFromKey(id))
+  const row = (await listReminders()).find((r) => r.id === id)
+  await cancelNotify(row ? notifyIdOf(row) : notifyIdFromKey(id))
   await deleteReminder(id)
   await syncGlance()
 }
@@ -206,6 +207,7 @@ export async function removeReminder(id: string): Promise<void> {
 export async function syncReminderAlarms(): Promise<void> {
   const rows = await listReminders()
   const now = Date.now()
+  await adoptNotifyIds(rows)
   for (const r of rows) {
     if (r.status !== 'open') continue
     const due = new Date(r.due_at).getTime()
@@ -215,7 +217,7 @@ export async function syncReminderAlarms(): Promise<void> {
         const next = rollBirthday(new Date(r.due_at), now)
         await putReminder({ ...r, due_at: next.toISOString(), status: 'open' })
         await scheduleNotify({
-          id: notifyIdFromKey(r.id),
+          id: notifyIdOf(r),
           title: 'Geburtstag',
           body: r.title,
           at: next,
@@ -223,7 +225,7 @@ export async function syncReminderAlarms(): Promise<void> {
         continue
       }
       await setReminderStatus(r.id, 'missed')
-      await cancelNotify(notifyIdFromKey(r.id))
+      await cancelNotify(notifyIdOf(r))
       continue
     }
     if (due <= now) {
@@ -231,7 +233,7 @@ export async function syncReminderAlarms(): Promise<void> {
         const next = rollBirthday(new Date(r.due_at), now)
         await putReminder({ ...r, due_at: next.toISOString(), status: 'open' })
         await scheduleNotify({
-          id: notifyIdFromKey(r.id),
+          id: notifyIdOf(r),
           title: 'Geburtstag',
           body: r.title,
           at: next,
@@ -242,7 +244,7 @@ export async function syncReminderAlarms(): Promise<void> {
         const next = nextRecurDue(new Date(r.due_at), r.recur)
         await putReminder({ ...r, due_at: next.toISOString(), status: 'open' })
         await scheduleNotify({
-          id: notifyIdFromKey(r.id),
+          id: notifyIdOf(r),
           title: r.kind === 'alarm' ? 'Wecker' : 'Erinnerung',
           body: r.title,
           at: next,
@@ -255,13 +257,13 @@ export async function syncReminderAlarms(): Promise<void> {
       // Auf Android hat das System die Frist schon geklingelt, während die App
       // zu war. Ein Nachholen wäre der zweite Alarm für denselben Timer.
       if (hasNativeAlarms()) {
-        await cancelNotify(notifyIdFromKey(r.id))
+        await cancelNotify(notifyIdOf(r))
         await setReminderStatus(r.id, 'fired')
         continue
       }
       if (r.kind === 'timer') {
         await scheduleNotify({
-          id: notifyIdFromKey(r.id),
+          id: notifyIdOf(r),
           ...timerAlarmFields(r.title),
           at: new Date(now + 1_500),
           alarm: true,
@@ -270,7 +272,7 @@ export async function syncReminderAlarms(): Promise<void> {
         continue
       }
       await scheduleNotify({
-        id: notifyIdFromKey(r.id),
+        id: notifyIdOf(r),
         title: r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
         body: r.title,
         at: new Date(now + 1_500),
@@ -282,7 +284,7 @@ export async function syncReminderAlarms(): Promise<void> {
     }
     if (r.kind === 'timer') {
       await scheduleNotify({
-        id: notifyIdFromKey(r.id),
+        id: notifyIdOf(r),
         ...timerAlarmFields(r.title),
         at: new Date(r.due_at),
         alarm: true,
@@ -290,7 +292,7 @@ export async function syncReminderAlarms(): Promise<void> {
       continue
     }
     await scheduleNotify({
-      id: notifyIdFromKey(r.id),
+      id: notifyIdOf(r),
       title: r.kind === 'alarm' ? 'Wecker' : 'Jarvis',
       body: r.title,
       at: new Date(r.due_at),
@@ -310,7 +312,7 @@ export async function syncReminderAlarms(): Promise<void> {
  */
 export async function markFiredByNotifyId(nid: number): Promise<Reminder | null> {
   const rows = await listReminders()
-  const hit = rows.find((r) => r.status === 'open' && notifyIdFromKey(r.id) === nid)
+  const hit = rows.find((r) => r.status === 'open' && notifyIdOf(r) === nid)
   if (!hit) return null
   if (hit.recur === 'daily' || hit.recur === 'weekly') {
     const next = nextRecurDue(new Date(hit.due_at), hit.recur)
@@ -322,6 +324,24 @@ export async function markFiredByNotifyId(nid: number): Promise<Reminder | null>
   await setReminderStatus(hit.id, 'fired')
   await syncGlance()
   return { ...hit, status: 'fired' }
+}
+
+/** Gespeicherte Nummer, sonst die alte gerechnete — bestehende Zeilen behalten ihren Alarm. */
+export function notifyIdOf(row: Reminder): number {
+  return row.notify_id ?? notifyIdFromKey(row.id)
+}
+
+/**
+ * Migration: Zeilen von vor 16.5.0 bekommen ihren **heutigen** Hash als festen
+ * Wert. Damit bleibt der bereits gestellte Android-Alarm gültig und das Feld
+ * wird ab sofort die einzige Quelle.
+ */
+export async function adoptNotifyIds(rows: Reminder[]): Promise<void> {
+  for (const r of rows) {
+    if (typeof r.notify_id === 'number') continue
+    r.notify_id = notifyIdFromKey(r.id)
+    await putReminder(r)
+  }
 }
 
 export function nextRecurDue(from: Date, recur: 'daily' | 'weekly'): Date {

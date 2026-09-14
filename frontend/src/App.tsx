@@ -1456,7 +1456,6 @@ function App() {
   const lageOn = lageWide
     ? !liveHud.hud_hidden
     : Boolean(liveHud.hud_force) && lageSessionActive()
-  const lageScene = false
   const lageAmber = liveHud.hud_accent === 'amber'
   const dockId = settingsPanelOpen
     ? 'settings'
@@ -1658,7 +1657,7 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${lageScene ? ' is-lage-scene' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
+      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
         {voiceLayer.shown ? (
           <VoiceMode
             leaving={voiceLayer.leaving}
@@ -1763,7 +1762,7 @@ function App() {
             hideChatTile={lageWide}
           />
         ) : null}
-        <div className="messages" ref={messagesRef} onScroll={onMessagesScroll} hidden={lageScene}>
+        <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
           <div className="messages-inner thread-slide" key={threadKey}>
             {messages.length === 0 && !busy && streamingText === null ? (
               <div className="empty">
@@ -1849,7 +1848,7 @@ function App() {
           </div>
         </div>
 
-        {!lageScene && !calendarOpen && !settingsLayer.shown && !voiceOpen ? (
+        {!calendarOpen && !settingsLayer.shown && !voiceOpen ? (
         <div className="composer-wrap">
           <TimerChip />
           <PcDashboard busy={busy} />

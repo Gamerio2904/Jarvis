@@ -241,4 +241,28 @@ assert.equal(knowledgeBlock([legacy], 'Was steht bei uns zu Tokio?'), '', 'altes
   assert.equal(failureReply('tv', { handled: false, internal: [] }), '', 'kein Fehlschlag, kein Text')
 }
 
+// --- Wecker-Nummer: gespeichert statt gerechnet ----------------------------
+{
+  const { allocNotifyId, NOTIFY_ID_BASE } = await import('../src/engine/store.ts')
+  const { notifyIdOf } = await import('../src/engine/reminders.ts')
+  const { notifyIdFromKey } = await import('../src/native/notify.ts')
+
+  assert.equal(allocNotifyId([]), NOTIFY_ID_BASE)
+  assert.equal(
+    allocNotifyId([{ notify_id: NOTIFY_ID_BASE }, { notify_id: NOTIFY_ID_BASE + 1 }]),
+    NOTIFY_ID_BASE + 2,
+    'vergebene Nummern werden nicht doppelt ausgegeben',
+  )
+
+  // Eine Zeile von vorher behält ihren Hash — sonst verlöre sie ihren Alarm.
+  const legacy = { id: 'alt-1' }
+  assert.equal(notifyIdOf(legacy), notifyIdFromKey('alt-1'))
+  assert.equal(notifyIdOf({ id: 'alt-1', notify_id: NOTIFY_ID_BASE }), NOTIFY_ID_BASE)
+
+  // Der Hash kann das neue Band nie treffen. Das ist der ganze Punkt.
+  for (const key of ['a', 'reminder-1', 'evt-42', 'x'.repeat(40), String(Date.now())]) {
+    assert.ok(notifyIdFromKey(key) < NOTIFY_ID_BASE, `Hash im reservierten Band: ${key}`)
+  }
+}
+
 console.log(`test:turn-e2e ok — Timer steht, Kugel offen, Lautstärke ohne Rückfrage (${APP_VERSION})`)

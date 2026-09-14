@@ -98,6 +98,12 @@ export type Reminder = {
   kind?: 'once' | 'timer' | 'recur' | 'alarm' | 'home' | 'birthday'
   recur?: 'daily' | 'weekly' | null
   weekday?: number | null
+  /**
+   * Die Nummer, unter der Android diese Erinnerung kennt. Vorher wurde sie
+   * aus der Id gehasht und beim Klingeln zurückgerechnet — eine stille
+   * Kollision hätte die **falsche** Erinnerung geschlossen.
+   */
+  notify_id?: number
 }
 
 export type ToolPending = {
@@ -857,9 +863,11 @@ export async function addReminder(opts: {
   kind?: Reminder['kind']
   recur?: Reminder['recur']
   weekday?: number | null
+  notify_id?: number
 }): Promise<Reminder> {
   const row: Reminder = {
     id: newId(),
+    notify_id: opts.notify_id ?? allocNotifyId(await listReminders()),
     title: opts.title,
     due_at: opts.due_at,
     status: 'open',
@@ -872,6 +880,22 @@ export async function addReminder(opts: {
   }
   await put('reminders', row)
   return row
+}
+
+/**
+ * `notifyIdFromKey` kann nur 1 … 1.999.999.999 liefern. Neue Nummern kommen
+ * deshalb aus dem Band darüber: eine Kollision mit einer gehashten Nummer ist
+ * dadurch ausgeschlossen, nicht nur unwahrscheinlich. Bestehende Zeilen
+ * behalten ihren Hash und damit ihren Alarm.
+ */
+export const NOTIFY_ID_BASE = 2_000_000_000
+
+export function allocNotifyId(rows: Reminder[]): number {
+  const used = new Set<number>()
+  for (const r of rows) if (typeof r.notify_id === 'number') used.add(r.notify_id)
+  let n = NOTIFY_ID_BASE
+  while (used.has(n)) n += 1
+  return n
 }
 
 export async function putReminder(row: Reminder): Promise<void> {

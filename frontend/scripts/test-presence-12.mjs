@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { APP_VERSION } from '../src/engine/store.ts'
-import { tabletCommandCenter, TABLET_BP, lageSceneOf } from '../src/engine/layout-probe.ts'
+import { tabletCommandCenter, TABLET_BP } from '../src/engine/layout-probe.ts'
 import { parseDeskIntent } from '../src/engine/desk-parse.ts'
 import { handleDesk } from '../src/engine/desk.ts'
 import {
@@ -33,7 +33,6 @@ assert.equal(PRESENCE_PORT, 18791)
   })
   assert.equal(f1.ok, true)
   assert.equal(f1.mode, 'tablet')
-  assert.equal(lageSceneOf(900, true), false)
 }
 
 // F2 Handy-Portrait + Lage (chat-first)

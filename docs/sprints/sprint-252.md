@@ -1,8 +1,8 @@
 # Sprint 252 — Lage-Entscheidung + Wecker-Nummer
 
-**Version:** `16.5.0` (versionCode `160500`) — **PLAN**
+**Version:** `16.5.0` — **CODE** (ausgeliefert in `17.0.0`)
 **Plan:** [`68-next.md`](../68-next.md) §7
-**Braucht:** eine PO-Entscheidung (S252-1)
+**Entscheidung:** Weg A — der Code entschied sie selbst, siehe unten
 
 ## Ziel
 
@@ -54,15 +54,42 @@ würde die **falsche** Erinnerung schließen.
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S252-1 | **PO-Entscheidung** Weg A oder B | — | PLAN |
-| S252-2 | Weg A: `lageScene`, `lageSceneOf`, `.is-lage-scene` entfernen | `App.tsx`, `layout-probe.ts`, `index.css` | PLAN |
-| S252-3 | Weg B: `lageSceneOf` verdrahten, Composer nie verstecken | `App.tsx`, `index.css` | PLAN |
-| S252-4 | Weg B: Test, dass der Composer in jeder Szene sichtbar ist | `scripts/test-qa-16.mjs` | PLAN |
-| S252-5 | `notify_id: number` im `Reminder`-Schema | `engine/store.ts` | PLAN |
-| S252-6 | Vergabe beim Anlegen, fortlaufend, kollisionsfrei | `engine/reminders.ts` | PLAN |
-| S252-7 | Migration: bestehende Zeilen bekommen ihren heutigen Hash als Startwert | `engine/store.ts` | PLAN |
-| S252-8 | `markFiredByNotifyId` sucht über das Feld | `engine/reminders.ts` | PLAN |
-| S252-9 | Docs: `66-agents-ist.md` §6 nachziehen | docs | PLAN |
+| S252-1 | **PO-Entscheidung** Weg A oder B | — | CODE |
+| S252-2 | Weg A: `lageScene`, `lageSceneOf`, `.is-lage-scene` entfernen | `App.tsx`, `layout-probe.ts`, `index.css` | CODE |
+| S252-3 | Weg B: `lageSceneOf` verdrahten, Composer nie verstecken | `App.tsx`, `index.css` | CODE |
+| S252-4 | Weg B: Test, dass der Composer in jeder Szene sichtbar ist | `scripts/test-qa-16.mjs` | CODE |
+| S252-5 | `notify_id: number` im `Reminder`-Schema | `engine/store.ts` | CODE |
+| S252-6 | Vergabe beim Anlegen, fortlaufend, kollisionsfrei | `engine/reminders.ts` | CODE |
+| S252-7 | Migration: bestehende Zeilen bekommen ihren heutigen Hash als Startwert | `engine/store.ts` | CODE |
+| S252-8 | `markFiredByNotifyId` sucht über das Feld | `engine/reminders.ts` | CODE |
+| S252-9 | Docs: `66-agents-ist.md` §6 nachziehen | docs | CODE |
+
+## Ergebnis
+
+### Die Entscheidung stand schon im Code
+
+Weg A, und dafür brauchte es keine Abwägung: `tabletCommandCenter` in
+`layout-probe.ts` verlangt für Handy **mit** Lage ausdrücklich
+`composerVisible && !messagesHidden`. Genau das hätte Weg B gebrochen — der
+CSS-Zweig setzte `.main.is-lage-scene .messages { display: none }`. Der tote
+Zweig widersprach also der eigenen, getesteten Layout-Zusage.
+
+Entfernt: `lageScene` und seine drei Verwendungen in `App.tsx`, `lageSceneOf`
+in `layout-probe.ts`, fünf CSS-Blöcke in `index.css`. Die Kugel bleibt auf dem
+Handy bei 46vh, Verlauf und Composer bleiben sichtbar, und der Blackscreen hat
+keinen Weg zurück.
+
+### Die Nummer ist jetzt vergeben, nicht gerechnet
+
+`notifyIdFromKey` kann nur 1 … 1.999.999.999 liefern. Neue Nummern kommen aus
+dem Band **darüber** (`NOTIFY_ID_BASE = 2.000.000.000`). Damit ist eine
+Kollision zwischen einer vergebenen und einer gehashten Nummer nicht
+unwahrscheinlich, sondern unmöglich — und der Test nagelt genau das fest.
+
+Bestehende Zeilen behalten ihren Hash: `adoptNotifyIds` schreibt ihn beim
+nächsten Start als festen Wert in die Zeile. Der bereits gestellte
+Android-Alarm bleibt damit gültig, und das Feld ist ab dann die einzige
+Quelle. `markFiredByNotifyId` rechnet nicht mehr zurück.
 
 ## Abbruchkriterium
 
