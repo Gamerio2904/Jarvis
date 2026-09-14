@@ -7,15 +7,11 @@ import {
   guardResearchReply,
   isLiveLookup,
   isStaleFeeNow,
-  parseShopDiscountIntent,
   wikiCompanyHint,
 } from '../src/engine/research-parse.ts'
 import { shouldProxyWebHost } from '../src/engine/web-proxy.ts'
 import { parsePlaceRecall } from '../src/engine/places-parse.ts'
 import { normalizeUtterance } from '../src/engine/utterance.ts'
-import { isHelpCommand } from '../src/engine/guards.ts'
-import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
-import { pickRouteFromCtx } from '../src/engine/route-pick.ts'
 import { parseHereIntent } from '../src/engine/here-parse.ts'
 import { parseDeviceIntent } from '../src/engine/device-parse.ts'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
@@ -29,215 +25,20 @@ import { parseWatchPriceIntent } from '../src/engine/watch-price-parse.ts'
 import { parseRecallIntent } from '../src/engine/recall-parse.ts'
 import { subQueries } from '../src/engine/retrieve.ts'
 import { pendingYields } from '../src/engine/pending-yield.ts'
-import { decideRoute } from '../src/engine/route-pick.ts'
 import { browserSafeHeaders, browserFetchUrl } from '../src/engine/http-json.ts'
+import { GOLD_EXPECT } from '../src/engine/eval/corpus.ts'
+import { decisionForEval, PRE_ROUTER, routeForEval } from '../src/engine/eval/route-eval.ts'
 
 /** @typedef {'help'|'discount'|'ordinal'|'tv'|'film'|'fan'|'plug'|'here'|'fuel'|'poi'|'transit'|'drive'|'device'|'pc'|'maps'|'memory'|'shopping'|'birthday'|'home'|'leave'|'brief'|'holiday'|'calendar'|'alarm'|'timer'|'reminder'|'tools'|'eye'|'weather'|'news'|'research'|'search'|'llm'|'warn'|'blitzer'|'chat-folder'|'watch-price'|'amazon'|'recall'|'ferien'|'fx'|'sport'|'sky'|'chess'|'hud'|'trace'|'digest'|'outlook'|'taxi'|'wont'|'identity'} Route */
 
 /** @param {string} text @param {{ weatherLast?: import('../src/engine/weather-parse.ts').WeatherLast | null }} [ctx] */
 function route(text, ctx = {}) {
-  text = normalizeUtterance(text)
-  if (isHelpCommand(text)) return 'help'
-  if (parseShopDiscountIntent(text)) return 'discount'
-  if (parseOrdinalFollowUp(text)) return 'ordinal'
-  const id = pickRouteFromCtx({
-    conversationId: 'test',
-    text,
-    lastTool: '',
-    lastMedium: '',
-    inDrive: false,
-    weatherLast: ctx.weatherLast ?? null,
-  })
-  if (id === 'todo') return 'tools'
-  if (id) return id
-  if (isLiveLookup(text)) return 'research'
-  return 'llm'
+  return routeForEval(text, ctx)
 }
 
+/** Erwartungen kommen aus der einen Korpus-Quelle (Sprint 249). */
 /** @type {Record<string, Route>} */
-const EXPECT = {
-  'Hallo Jarvis.': 'llm',
-  'Wer bist du und wer bin ich?': 'memory',
-  'Ich heiße Max und trinke gerne Kaffee.': 'memory',
-  'Was trinke ich?': 'memory',
-  'Was trinke ich gerne?': 'memory',
-  'Wie ist mein Name?': 'memory',
-  'Milch auf die Einkaufsliste': 'shopping',
-  'auch Brot': 'shopping',
-  'was fehlt?': 'shopping',
-  'Milch hab ich': 'shopping',
-  'Milch kaufen': 'shopping',
-  'Was steht an?': 'brief',
-  'Guten Morgen': 'brief',
-  '/hilfe': 'help',
-  'Fernseher an': 'tv',
-  'Fire TV': 'tv',
-  'Öffne Netflix': 'tv',
-  'Spiel Dune Film': 'tv',
-  'Spiele ein YouTube Video auf dem Fernseher': 'tv',
-  'Ventilator an': 'fan',
-  'Sag Hallo und duze mich.': 'llm',
-  'Erklären Sie in einem Satz, was Sie tun.': 'llm',
-  'Notiz: WLAN steht am Router': 'tools',
-  'Zeige Notizen': 'tools',
-  'Suche im Internet nach Kuchenrezepten': 'research',
-  'Suche nach Küchengeräte': 'research',
-  'Beste Preise Staubsauger': 'research',
-  'Öffnen CarPlay': 'drive',
-  'in 20 Minuten Milch': 'reminder',
-  'in 20 Minuten Milch holen': 'reminder',
-  'morgen 8 Uhr Steuer': 'reminder',
-  'Wetter heute': 'weather',
-  'Wetter morgen in München': 'weather',
-  'und morgen?': 'llm',
-  'Brauche ich einen Schirm?': 'weather',
-  'Was soll ich anziehen?': 'weather',
-  'Timer 8 Minuten Nudeln': 'timer',
-  'Wecker 7 Uhr': 'alarm',
-  'Wecker 7 Uhr jeden Tag': 'alarm',
-  'jeden Tag 8 Uhr Tabletten': 'reminder',
-  'Temperatur hier': 'weather',
-  'Termin morgen 15 Uhr Zahnarzt': 'calendar',
-  'Termin morgen 15 Uhr Zahnarzt Bahnhofstraße': 'calendar',
-  'erstell einen Termin für den 5.9. 2026, 15:00 Uhr Zahnarzt': 'calendar',
-  'was steht heute so an?': 'calendar',
-  'was steht diese Woche an?': 'calendar',
-  'was steht die nächsten 3 Tage an?': 'calendar',
-  'Wann muss ich zum Zahnarzt los?': 'leave',
-  Kalender: 'calendar',
-  'Freundin wohnt in Heilbronn': 'maps',
-  'Nach Heilbronn': 'drive',
-  'Fahr mich zur Freundin': 'drive',
-  'Freundin, Tel 01711234567': 'maps',
-  'Ruf die Freundin an': 'maps',
-  'Lauf zur Freundin': 'maps',
-  'Wenn ich zuhause bin Müll raus': 'home',
-  'Ich bin zuhause': 'home',
-  'Lies das Foto': 'eye',
-  'Aktiviere Fahrmodus': 'drive',
-  'Zeig Spotify': 'drive',
-  'Spiel das auf Spotify': 'drive',
-  'Lautstärke 50': 'tv',
-  'lauter um 10': 'tv',
-  'Fahrmodus aus': 'drive',
-  'Mama hat am 3. März Geburtstag': 'birthday',
-  'Jeden Dienstag Müll': 'reminder',
-  'was kommt diese Woche raus?': 'reminder',
-  'das zweite': 'ordinal',
-  'Wann hatte ich das mit der Steuer?': 'search',
-  'Was kommt heute?': 'brief',
-  'Milch fehlt': 'shopping',
-  'Ventilator Stufe zwei': 'fan',
-  'Timer acht Minuten Nudeln': 'timer',
-  'Spiel mal was Nettes': 'llm',
-  'Ich fahre gerne Auto': 'llm',
-  'kein Kaffee mehr': 'memory',
-  'Netflix an': 'tv',
-  'Fahr mich zu einer Tanke': 'fuel',
-  'Wo bin ich gerade?': 'here',
-  Carplay: 'drive',
-  'Öffne das overlay': 'drive',
-  'Aktiviere das overlay': 'drive',
-  'Gib mir ne Route': 'drive',
-  'wo könnte ich jetzt frühstücken': 'poi',
-  'Wie weit noch': 'drive',
-  'nächste Apotheke': 'poi',
-  'nächster pol': 'poi',
-  'Fahr zur Arbeit': 'drive',
-  'Ich arbeite in Stuttgart': 'maps',
-  'Wie voll ist der Akku': 'device',
-  'Ruf mal die Freundin': 'maps',
-  'Schreib der Freundin ich bin in 10 Minuten': 'maps',
-  'Wo läuft Dune kostenlos': 'film',
-  'Wie gut ist Dune': 'film',
-  'IMDb Dune': 'film',
-  'Rabatt-Suche an': 'discount',
-  'Hat die Apotheke auf': 'poi',
-  'nächster Laden': 'poi',
-  'Bro anrufen': 'maps',
-  'Nachricht an Bro ich bin da': 'maps',
-  'FIFA starten': 'pc',
-  'Was siehst du auf dem PC': 'pc',
-  'Züge anklicken': 'pc',
-  'Wie ist die Luft?': 'weather',
-  'Wann Sonnenaufgang?': 'weather',
-  'Mit der Bahn nach Heilbronn': 'transit',
-  Nachrichten: 'news',
-  'Was ist heute in Ingesheim passiert': 'news',
-  'Ist heute Feiertag?': 'holiday',
-  'Wie viele Scheibenwischer verkauft Valeo am tag': 'research',
-  'Steckdose an': 'plug',
-  'alle Steckdosen aus': 'plug',
-  'Wie spät ist es?': 'device',
-  'weißt du wie viel Uhr es ist': 'device',
-  'weißt du wo ich bin': 'here',
-  'wo könnte ich denn sein': 'here',
-  'Was ist der bip in Deutschland': 'research',
-  'Kannst du den bip von Deutschland in einer Tabelle darstellen?': 'research',
-  'Taschenlampe an': 'device',
-  'ohne meine Adresse nachzugucken weißt du wo ich bin': 'here',
-  'Nach Ingersheim': 'drive',
-  'Was ist die Weltlage?': 'outlook',
-  'Was ist heute so auf der Welt passiert': 'outlook',
-  'Warum steigt der Ölpreis?': 'outlook',
-  'Wird Benzin teurer?': 'outlook',
-  'Fällt der Dollar?': 'outlook',
-  'Fällt SAP morgen?': 'outlook',
-  'Was ist der Dollar?': 'fx',
-  'Bar in der Nähe': 'poi',
-  'nächste Kneipe': 'poi',
-  'bestell ein Taxi': 'taxi',
-  'Sprachnachricht an Mama ich bin in 10 Minuten': 'maps',
-  'Todo: Testdebug Milch': 'tools',
-  'Gibt es Unwetter?': 'warn',
-  'Wo ist die ISS?': 'sky',
-  'Körper an': 'hud',
-  'zeig mal den körper': 'hud',
-  'Kugel an': 'hud',
-  'Wo liegt Berlin': 'hud',
-  'klick das Captcha': 'wont',
-  Friday: 'face',
-  'Was steht am Freitag an?': 'calendar',
-  'Darf ich im Park grillen?': 'law',
-  'Wo ist Speichern': 'pc',
-  'Lage an': 'hud',
-  'Zeig mir London': 'hud',
-  'Was ist das für eine Stadt?': 'hud',
-  'Was sehe ich?': 'hud',
-  'Zeig mir Atlantis': 'hud',
-  'zoom auf Tokio': 'hud',
-  'Was kannst du?': 'help',
-  'Bist du ChatGPT?': 'identity',
-  'Kannst du Bilder malen?': 'wont',
-  'Spiele Musik': 'drive',
-  'Schreib mir eine E-Mail': 'wont',
-  'Zeig mir die Nachrichten': 'news',
-  'Überweise 200 Euro': 'wont',
-  'Zeig Street View von London': 'wont',
-  Hilfe: 'help',
-  'Rufe 112': 'wont',
-  'mach die weltkugel an': 'hud',
-  'Zeig New York': 'hud',
-  'Was is das für ne Stadt': 'hud',
-  'Körper an und Zeig London': 'hud',
-  'Mach Live-Satellitenvideo an': 'wont',
-  'Wo ist London': 'hud',
-  'Lage aus': 'hud',
-  'Muss man Eintritt zahlen für Venedig': 'research',
-  'Wo liegt Kiew': 'hud',
-  'Gibt es Blitzer?': 'blitzer',
-  'Baustellen auf der Strecke': 'blitzer',
-  'Spiel Amazon Music': 'amazon',
-  'Leg den Chat in Arbeit': 'chat-folder',
-  'Chat-Ordner': 'chat-folder',
-  'Sag Bescheid wenn Instanudeln im Angebot sind': 'watch-price',
-  Instanudeln: 'watch-price',
-  'Preiswache aus': 'watch-price',
-  'Was weißt du über den Zahnarzt': 'recall',
-  'Wo stand das mit der Steuer': 'recall',
-  'Wie wird das Wetter?': 'weather',
-  'Öffne CarPlay': 'drive',
-}
+const EXPECT = GOLD_EXPECT
 
 const missing = TEST_PROMPTS.filter((p) => !(p in EXPECT))
 assert.equal(missing.length, 0, `neue Chips ohne Erwartung: ${missing.join(' | ')}`)
@@ -260,18 +61,10 @@ for (const prompt of TEST_PROMPTS) {
  * beantworten. `pickRouteFromCtx` verdeckt das (es nimmt die erste Seite),
  * die App fragt aber wirklich zurück — deshalb hier die Entscheidung selbst.
  */
-const PRE_ROUTER = new Set(['help', 'discount', 'ordinal', 'llm', 'research'])
 const spurious = []
 for (const prompt of TEST_PROMPTS) {
   if (PRE_ROUTER.has(EXPECT[prompt])) continue
-  const pick = decideRoute({
-    conversationId: 'test',
-    text: normalizeUtterance(prompt),
-    lastTool: '',
-    lastMedium: '',
-    inDrive: false,
-    weatherLast: null,
-  })
+  const pick = decisionForEval(prompt)
   if (pick.kind === 'ask') spurious.push(`${JSON.stringify(prompt)} → ${pick.a} oder ${pick.b}`)
 }
 assert.equal(spurious.length, 0, `Router fragt statt zu handeln:\n  ${spurious.join('\n  ')}`)

@@ -1,6 +1,6 @@
 # Sprint 249 — Eval-Rahmen: alle Fehler sichtbar
 
-**Version:** `16.2.0` (versionCode `160200`) — **PLAN**
+**Version:** `16.2.0` — **CODE** (ausgeliefert in `17.0.0`)
 **Plan:** [`68-next.md`](../68-next.md) §4 · Upgrade **D** aus [`67-upgrades.md`](../67-upgrades.md)
 
 ## Ziel
@@ -33,15 +33,15 @@ auseinanderlaufen, merkt niemand.
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S249-1 | `EvalCase` Typ: `{ text, expect, tags, source }` | `engine/eval/types.ts` | PLAN |
-| S249-2 | Korpus-Quelle: Gold, Sprint, Lock zusammengeführt | `engine/eval/corpus.ts` | PLAN |
-| S249-3 | Dedupe + Selbstprüfung: kein Prompt zweimal, jeder `expect` im Katalog | `engine/eval/corpus.ts` | PLAN |
-| S249-4 | `node:test`-Lauf über den Korpus, ein `test()` je Fall | `scripts/eval/route.test.mjs` | PLAN |
-| S249-5 | `test-prompts`, `test-sprint`, `test-650-matrix` lesen aus der Quelle | `scripts/*.mjs` | PLAN |
-| S249-6 | `npm run eval` mit `--test-reporter=spec` | `package.json` | PLAN |
-| S249-7 | Migrationsprüfung: alter Korpus ⊆ neuer Korpus | `scripts/eval/migrate-check.mjs` | PLAN |
-| S249-8 | Docs: `66-agents-ist.md` §7, CHANGELOG | docs | PLAN |
-| S249-9 | Tag `stt`: echte Verhörer aus dem Sprachmodus als Fälle | `engine/eval/corpus.ts` | PLAN |
+| S249-1 | `EvalCase` Typ: `{ text, expect, tags, source }` | `engine/eval/types.ts` | CODE |
+| S249-2 | Korpus-Quelle: Gold, Sprint, Lock zusammengeführt | `engine/eval/corpus.ts` | CODE |
+| S249-3 | Dedupe + Selbstprüfung: kein Prompt zweimal, jeder `expect` im Katalog | `engine/eval/corpus.ts` | CODE |
+| S249-4 | `node:test`-Lauf über den Korpus, ein `test()` je Fall | `scripts/eval/route.test.mjs` | CODE |
+| S249-5 | `test-prompts`, `test-sprint`, `test-650-matrix` lesen aus der Quelle | `scripts/*.mjs` | CODE |
+| S249-6 | `npm run eval` mit `--test-reporter=spec` | `package.json` | CODE |
+| S249-7 | Migrationsprüfung: alter Korpus ⊆ neuer Korpus | `scripts/eval/migrate-check.mjs` | CODE |
+| S249-8 | Docs: `66-agents-ist.md` §7, CHANGELOG | docs | CODE |
+| S249-9 | Tag `stt`: echte Verhörer aus dem Sprachmodus als Fälle | `engine/eval/corpus.ts` | CODE |
 
 ## S249-9 — Der Korpus muss klingen wie das Mikrofon
 
@@ -77,6 +77,18 @@ type EvalCase = {
   source: string
 }
 ```
+
+## Ergebnis
+
+Der Korpus zählt **307 Fälle**: 181 `gold`, 36 `lock`, 134 `regress`, 20 `stt`
+(Überschneidungen sind entdoppelt). `npm run eval` fährt daraus **543 Tests**
+und nennt jeden Fehler einzeln.
+
+Der erste Fund kam sofort aus der neuen Gruppe `stt`: vier von zwanzig
+Verhörern landeten beim Modell statt beim Agenten — „lautstärke fünfzig",
+„weck mich morgen um acht", „milch auf die einkaufsliste bitte", „was weiß ich
+über den zahnarzt". Getippt funktionieren alle vier. Gemessen wurde das erst,
+als der Korpus klang wie das Mikrofon.
 
 ## Abbruchkriterium
 
