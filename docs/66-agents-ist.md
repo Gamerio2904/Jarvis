@@ -31,6 +31,35 @@ Neu seit `17.0.0` sind die Schritte **4** (`decideTurn` statt
 `decideRouteFromCtx`, siehe §2) und **7** (Werkzeug-Vorschlag, siehe §9), sowie
 das Öffnen und Versiegeln des Zuges für die Historie (§4).
 
+## 1b. Wer organisiert — und wer nicht
+
+Es gibt **keinen** Katalog-Agenten, der andere Agenten per Prompt ein- und
+ausschaltet. Die Organisation ist absichtlich auf vier **deterministische**
+Teile plus einen Kurzschluss verteilt. Begründung und Won’t: [`70-next.md`](./70-next.md) §0b.
+
+| Wer | Wann er greift | Was er darf | Was er nicht darf |
+|-----|----------------|-------------|-------------------|
+| `chat.routeDeterministic` | **vor** dem Director | Hilfe, Identität, Begrüßung, offene Geräte-Rückfragen (Maps/PC/Taxi), Ketten-Nachlauf | keinen Katalog-Score, keine Geräte ohne Pending |
+| **Director** `runDirectorTurn` | Default (`agent_network_v2`) | einen Agenten pro Zug wählen und ausführen, Vorschlag einschleusen, Schreiben/Geräte bei Fehler **nicht** ans Modell geben | parallele Agenten, freie Modell-Tools |
+| **Router** `decideTurn` | im Director Schritt 4 | Parser-Score, Konflikte, Kosten, Verb-nach-vorn | LLM-Tiebreak (das war Sprint 257, Tor hat gehalten) |
+| **Bus** `agentDispatch` | im Director Schritt 5 | Budget, eine Wiederholung nur beim Lesen, Sicherungsschalter | Zustand schreiben nach Abbruch (Signal in `turn-abort.ts`) |
+| **Curator** | Director Schritt 2 | Gedächtnis pflegen (2,5 s), Writes über `decideGate` | Routing, Geräte |
+| **BrainOrchestrator** | nur wenn Director `hit == null` | Groq / Gemini / 0,5B wählen | Agenten starten, Tools ausführen |
+| **Werkzeug-Vertrag** | Director Schritt 7, nur `looksCommandish` | ein JSON-Schema vorschlagen | ausführen — das tut der Parser am kanonischen Satz |
+
+`identity` hat seit `17.0.0` einen Executor **und** den Kurzschluss in
+`chat.ts`. Der Kurzschluss gewinnt. Das ist kein toter Executor: wenn der
+Flag-Pfad `agent_network_v2: false` den Registry-Weg nimmt, antwortet der
+Katalog. Zusammenlegen nur, wenn ein Bug aus der Doppelung kommt — heute
+keiner.
+
+Intern (`router`, `curator`, `propose`) erscheinen in Traces und in der
+Agenten-Karte, sind aber **keine** `AgentSpec`-Zeilen. Die Karte liest
+`parseCatalog()` (60 Domänen).
+
+**Nicht bauen:** ein fünfter LLM-Organizer, AgentGrid-Rollen, parallele
+Domänen-Agenten in einem Zug.
+
 ## 2. Routing-Rechnung
 
 Eine Entscheidung entsteht in vier Schritten, alle in `route-pick.ts:propose`:

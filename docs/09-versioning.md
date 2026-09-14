@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`17.0.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`17.0.0`**, versionCode `170000`. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. GUI Sprint 239 **CODE** `15.2.0`. Reels/QA Sprints 242–248 **CODE** `16.0.0`; Router- und Agenten-Härtung **CODE** `16.1.0`, Wecker **CODE** `16.1.1`. Schiene 249–259 **CODE** in `17.0.0` → [`66-agents-ist.md`](./66-agents-ist.md), Test [`TEST-17.0.0.md`](./TEST-17.0.0.md).
+> **Jetzt:** Code **`18.0.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`18.0.0`**, versionCode `180000`. Kugel 268–269 **CODE**. Schach 260–267 **PLAN** → [`70-next.md`](./70-next.md). Test [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -534,7 +534,7 @@ Hören, TV-Stimme, Antworten, Mund. Kein Whisper, kein Piper-ONNX.
 | `13.43.0` | Antworten + Tempo | 224 CODE in `13.44.0` |
 | `13.44.0` | Mund flüssig + Gold + Sideload | 225 CODE |
 
-### `17.0` — Messbar und unterbrechbar [`68-next.md`](./68-next.md) **PLAN**
+### `17.0` — Messbar und unterbrechbar [`68-next.md`](./68-next.md) **CODE**
 
 Jarvis kann sich selbst messen und lässt sich unterbrechen. Geplant aus
 [`67-upgrades.md`](./67-upgrades.md); erst messen, dann umbauen.
@@ -557,22 +557,46 @@ Der MAJOR-Sprung steht am Ende der Schiene, nicht am Anfang: `17.0.0` ist
 erreicht, wenn alle elf Sprints liegen — so wie `16.0.0` die Reel-Schiene
 242–248 abgeschlossen hat.
 
-### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **PLAN**
+### `18.0` — Zeigen und spielen [`70-next.md`](./70-next.md) **PLAN**
 
-Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.
+Chat zeigt Tabellen und Bilder. Schach ist ein Modus mit Regeln, nicht
+Smalltalk. Die Kugel bekommt Tag/Nacht und Schichten auf Zuruf. Geplant aus
+den Screenshots vom 14.9.2026 und zwei Reel-Triagen (nur Muster, die ohne
+Verlust nützen). Kein LLM-Organizer — Director existiert.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `14.0.0` | Leit + Katalog | 226 PLAN |
-| `14.1.0` | Unified Catalog | 227 PLAN |
-| `14.2.0` | AgentBus | 228 PLAN |
-| `14.3.0` | Director | 229 PLAN |
-| `14.4.0` | Curator | 230 PLAN |
-| `14.5.0` | Domänen Geräte/Medien | 231 PLAN |
-| `14.6.0` | Domänen Alltag/Nav | 232 PLAN |
-| `14.7.0` | Domänen Rest | 233 PLAN |
-| `14.8.0` | Agenten-Karte UI | 234 PLAN |
-| `14.9.0` | Gold Parity + Sideload | 235 PLAN |
+| `17.1.0` | Screenshot-Fixes | 260 PLAN |
+| `17.2.0` | Chat-Blöcke | 261 PLAN |
+| `17.3.0` | Bundesliga-Karte | 262 PLAN |
+| `17.4.0` | Bilder auf Verlangen | 263 PLAN |
+| `17.5.0` | `chess.js` | 264 PLAN |
+| `17.6.0` | Schach-Modus | 265 PLAN |
+| `17.7.0` | Stockfish opt-in | 266 PLAN |
+| `17.8.0` | Coach selten | 267 PLAN |
+| `17.9.0` | Kugel Tag/Nacht + ISS-Bahn | 268 **CODE** in `18.0.0` |
+| `17.10.0` | Kugel-Schichten auf Zuruf | 269 **CODE** in `18.0.0` |
+| — | `globe.gl` nur nach Messung | 270 **NICHT GEZOGEN** |
+| **`18.0.0`** | **Meilenstein** Kugel, Sideload | 271 **CODE** |
+
+### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
+
+Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.
+Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md) (60 Parser, 60 Executoren).
+Die Tabelle unten ist das damalige Schnittmuster; gelandet in `15.1.0`–`16.0.0`.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `14.0.0` | Leit + Katalog | 226 **ÜBERHOLT** (Protokoll) |
+| `14.1.0` | Unified Catalog | 227 CODE in `15.1.0` |
+| `14.2.0` | AgentBus | 228 CODE in `15.1.0` |
+| `14.3.0` | Director | 229 CODE in `15.1.0` |
+| `14.4.0` | Curator | 230 CODE in `15.1.0` |
+| `14.5.0` | Domänen Geräte/Medien | 231 CODE in `15.1.0` |
+| `14.6.0` | Domänen Alltag/Nav | 232 CODE in `15.1.0` |
+| `14.7.0` | Domänen Rest | 233 CODE in `15.1.0` |
+| `14.8.0` | Agenten-Karte UI | 234 CODE in `15.1.0` |
+| `14.9.0` | Gold Parity + Sideload | 235 CODE in `15.1.0` |
 
 ### Weitere Beispiele
 

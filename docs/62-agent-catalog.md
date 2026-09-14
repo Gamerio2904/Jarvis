@@ -1,6 +1,8 @@
 # 62 — Agenten-Katalog (Route → Agent → Cluster)
 
-Stand: Plan **`14.0`**. Jede Zeile = **eine** Domänen-Fähigkeit, die in 14.9 als `AgentSpec` existieren **muss**. Route-ID bleibt stabil (Parser-Tests, Hausstand, Debug).
+Stand: **CODE `17.0.0`**. Entstanden als Plan `14.0`; wo Zahlen oder Executor-Hinweise
+hier von der Umsetzung abweichen, gilt [`66-agents-ist.md`](./66-agents-ist.md).
+Route-ID bleibt stabil (Parser-Tests, Hausstand, Debug).
 
 Legende: **Int** = interner Agent (kein User-Chat). **Front** = Jarvis/Friday only.
 
@@ -130,5 +132,9 @@ Legende: **Int** = interner Agent (kein User-Chat). **Front** = Jarvis/Friday on
 | `body-snap` | Körper-Snap | `body-snap.ts` |
 | `research-guard` | Quellen-Gate | `research-parse.ts` |
 
-**Summe Domänen:** **60** Einträge in `agents/parse-catalog.ts` (die Tabelle oben zählt den Planungsstand 52). Davon haben **59** einen Executor; `identity` parst nur und wird vor dem Director in `chat.ts` beantwortet. Gegenprobe: `npm run test:agents-robust` vergleicht Katalog, `EXECUTOR_IDS` und die Namen im Konflikt-Tisch.  
-**Summe intern:** 11 (plus `director` = 12).
+**Summe Domänen:** **60** Einträge in `agents/parse-catalog.ts`, **60** Executoren in
+`execute-map.ts` (inkl. `identity` / `PERSONA_ASK_TEXT` seit `17.0.0`). Der
+Chat-Kurzschluss in `chat.ts` beantwortet Identität **vor** dem Director;
+der Executor bleibt für den Registry-Pfad. Gegenprobe: `npm run test:agents-robust`
+vergleicht Katalog, `EXECUTOR_IDS` und die Namen im Konflikt-Tisch.
+**Summe intern:** 11 (plus `director` = 12) — Trace/Infra, keine `AgentSpec`.

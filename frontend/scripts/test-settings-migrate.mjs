@@ -106,8 +106,12 @@ put(hausstand)
 const geladen = loadSettings()
 for (const key of Object.keys(DEFAULT_SETTINGS)) {
   if (key === 'settings_rev' || key === 'version') continue
+  // Sideload-Sprung: Lage-Falle aus 15.3.1. hud_force ohne Session = Blackscreen.
+  if (key === 'hud_force' || key === 'hud_hidden') continue
   assert.deepEqual(geladen[key], hausstand[key], `Migration hat ${key} verloren`)
 }
+assert.equal(geladen.hud_force, false, 'Lage-Falle: hud_force nach Versionsprung aus')
+assert.equal(geladen.hud_hidden, true, 'Lage-Falle: hud_hidden nach Versionsprung zu')
 assert.equal(geladen.version, APP_VERSION, 'die Fassung wird gestempelt')
 assert.equal(geladen.settings_rev, SETTINGS_REV)
 assert.equal('routing_mode' in geladen, false, 'totes Feld ist weg')

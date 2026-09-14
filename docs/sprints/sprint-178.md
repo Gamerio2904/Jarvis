@@ -1,5 +1,9 @@
 # Sprint 178 — PO Handy: Katalog + Home-FGS (`9.10.0`) **PLAN**
 
+> ⚠︎ **Anker veraltet.** Dieser Sprint ist sachlich offen, nennt aber Sideload
+> `9.10.0`. Der Code steht bei **`17.0.0`**. Vor dem Ziehen neu verankern:
+> [`TEST-17.0.0.md`](../TEST-17.0.0.md), nicht die APK aus `9.x`.
+
 | Feld | Wert |
 |------|------|
 | Status | **PLAN** |

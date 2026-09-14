@@ -1,5 +1,7 @@
 # Sprint 186 — Findings aus 168 (`9.9.3`) **PLAN** (nur wenn rot)
 
+> ⚠︎ **Anker veraltet.** Ziel `9.9.3` existiert so nicht mehr. Nur ziehen nach neuem Gerät-Protokoll auf **`17.0.0`**.
+
 | Feld | Wert |
 |------|------|
 | Status | **PLAN** |

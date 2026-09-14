@@ -1,23 +1,17 @@
-# Android-APK — Sideload `17.0.0`
+# Android-APK — Sideload `18.0.0`
 
-App-Code **`17.0.0`**. Sideload-APK **`17.0.0`**, versionCode `170000`.
+App-Code **`18.0.0`**. Sideload-APK **`18.0.0`**, versionCode `180000`.
+
+**18.0.0:** Kugel Tag/Nacht, ISS-Bahn, Schichten auf Zuruf (USGS / EONET / OpenSky). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 **17.0.0:** Messbar und unterbrechbar — Eval, Abbruch, Alltagsdeutsch, Werkzeug-Vorschlag, Historie. Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).
 
-**16.1.1:** Derselbe Wecker klingelt nicht mehr zweimal, wiederkehrende Alarme bleiben auf ihrer Uhrzeit.
-
-**16.1.0:** Router fragt nicht mehr statt zu handeln, Timer feuert auch im Browser, Agenten mit Budget.
-
-**16.0.1:** Lage öffnet wirklich, Timer läuft (Chip + Alarm), Routing ohne Halluzination.
-
-**16.0.0:** Reel-UI Sprints 242–248.
-
 ## Download
 
-**Fertige APK `17.0.0`:**  
+**Fertige APK `18.0.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `17.0.0` · versionCode `170000`
+- versionName `18.0.0` · versionCode `180000`
 
 ## Build lokal
 

@@ -6,7 +6,7 @@ https://www.instagram.com/reel/DcgfA4ojF7a/
 
 Caption dort: „Kommentiere Jarvis wenn du das auch willst. **Andere werden beobachtet. Ich werde gebrieft.**“ Hashtags claude / ki / jarvis / ironmantri. Derselbe Autor wie Körper-Reel (`moritz.maaker`).
 
-**Live:** Code **`6.60.0`**. Sideload **`6.60.0`**. Weltlage `outlook` ist **CODE**. ISS/Mond `sky`, OpenSky `flights`, Tagesschau `news`, DWD `warn`, GPS `here` sind **CODE**. Körper-3D **CODE** [`40-next.md`](./40-next.md). Kugel + GIBS-Zoom **CODE** in `6.50`. LocateAnything-Parser **CODE**, Gewichte [`41-next.md`](./41-next.md).
+**Live:** Code **`18.0.0`**. Sideload **`18.0.0`**. Weltlage `outlook` ist **CODE**. ISS/Mond `sky`, OpenSky `flights` mit Kugel-Pins, Tagesschau `news`, DWD `warn`, GPS `here` sind **CODE**. Körper-3D **CODE** [`40-next.md`](./40-next.md). Kugel + GIBS-Zoom **CODE** in `6.50`. Terminator + ISS-Bahn + Schichten **CODE** in `18.0.0`.
 
 **Warum `5.0`, nicht `4.100`:** In [`09-versioning.md`](./09-versioning.md) sind `4.66`–`4.75` Körper und `4.76`–`4.99` LocateAnything. Nächster Produktsprung nach `4.99` ist **MAJOR `5.0`**. Kein zweites `4.66`.
 
@@ -17,7 +17,7 @@ Schiene gelandet in `5.11`; Globus-Zoom/GIBS in `6.20`/`6.50`; Sideload `6.60`. 
 | Aus dem Video | Bei uns | Votum |
 |---------------|---------|-------|
 | 3D-Kugel, drehbar | Lage-Sicht **Kugel**, dieselbe WebView wie Körper | **ja** |
-| Satelliten-Look | Default: NASA Blue Marble (statisch) + **errechneter** Tag/Nacht-Terminator | **ja** |
+| Satelliten-Look | Default: NASA Blue Marble (statisch) + Tag/Nacht-Terminator auf Canvas (`sun.ts`, Sprint 268 in `18.0.0`) | **ja** |
 | „Live“-Erde | Optional NASA **GIBS** MODIS True Color, Stand **stundenweise**, Zeitstempel sichtbar | **ja**, ehrlich |
 | Briefing beim Antippen | Pin öffnet den **bestehenden** Tool-Satz (outlook/news/ISS/…), TTS wie heute | **ja** |
 | Nachrichten auf der Kugel | Pins aus `outlook`/`news` + kleines Ortslexikon, keine erfundenen Koordinaten | **ja** |
@@ -57,7 +57,7 @@ Default-Textur bleibt **Blue Marble** (weit raus, eine Datei). **GIBS True Color
 | Wetter | Open-Meteo | `weather` / HUD |
 | 3D in der APK | **CODE** Körper-Schema + Kugel | [`40-next.md`](./40-next.md), Lage-Sicht Kugel |
 
-Kugel **CODE**: Sicht, Pins, Terminator, Zoom, GIBS nah, `Zeig London`, `Was ist das für eine Stadt?`. Weltlage-Textkachel bleibt daneben.
+Kugel **CODE** `17.0.0`: Sicht Canvas 2D, Pins, Zoom, GIBS nah, `Zeig London`, `Was ist das für eine Stadt?`. **Kein** Terminator, ISS als Punkt nicht Bahn. Nachzug: [`70-next.md`](./70-next.md) Sprints 268–270. Weltlage-Textkachel bleibt daneben.
 
 ## Leitentscheidung
 
@@ -66,7 +66,7 @@ Kugel **CODE**: Sicht, Pins, Terminator, Zoom, GIBS nah, `Zeig London`, `Was ist
 | Produkt | **Eine** Lage-Sicht **Kugel**, Geschwister von Körper und Wetterstatistik. Chat bleibt. |
 | Ort | APK-WebView. Kein Unity, kein EarthOS-Klon, kein PC-Pflicht-Fenster. |
 | Daten | Nur Pins aus vorhandenen Tools + festem Ortslexikon. Fehlt Koordinate → **kein Pin**, Satz in der Kachel. |
-| Textur v1 | Blue Marble + Terminator aus Uhrzeit/Lon. Kein „Live“-Label. |
+| Textur v1 | Blue Marble. Terminator aus Uhrzeit/Lon war die Leitentscheidung — **nicht** in `GlobeView.tsx` `17.0.0`. Nachzug Sprint 268. Kein „Live“-Label. |
 | Textur v2 | GIBS True Color, Label **„Stand YYYY-MM-DD, oft Stunden alt“**. **CODE** beim Zoom (`6.20`/`6.50`). |
 | Tap | Pin füllt die mittlere Karte **und** darf denselben Handler rufen wie der Chat (`outlook`, `news`, `sky`, …). Das ist **kein** neues LLM. 0,5B wählt das nicht. |
 | Körper vs Kugel | Zwei Sichten, **ein** WebGL-Budget. Spike `4.67` gilt auch hier. Nicht zwei Three.js-Welten gleichzeitig rendern. |

@@ -4,6 +4,7 @@ import { globeFocusKey, lookLatLon, shouldApplyGlobeFocus, viewXYZ, yawPitchFor 
 import { WORLD_RINGS } from '../../engine/world-rings.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 import { loadSettings } from '../../engine/store.ts'
+import { isNight, subsolar } from '../../engine/sun.ts'
 
 const HOME = { lat: 50.1, lon: 10.4 }
 const ZOOM_MIN = 1
@@ -26,6 +27,7 @@ export type GlobeFocus = { name: string; lat: number; lon: number; zoom?: number
 
 export function GlobeView({
   pins,
+  issTrail = [],
   onPin,
   onEmpty,
   reduced,
@@ -33,6 +35,7 @@ export function GlobeView({
   onLook,
 }: {
   pins: GeoFix[]
+  issTrail?: { lat: number; lon: number }[]
   onPin: (pin: GeoFix) => void
   onEmpty?: () => void
   reduced: boolean
@@ -50,6 +53,8 @@ export function GlobeView({
   const inertia = useRef({ yaw: 0, pitch: 0 })
   const pinsRef = useRef(pins)
   pinsRef.current = pins
+  const trailRef = useRef(issTrail)
+  trailRef.current = issTrail
   const onPinRef = useRef(onPin)
   onPinRef.current = onPin
   const onEmptyRef = useRef(onEmpty)
@@ -111,7 +116,7 @@ export function GlobeView({
     let raf = 0
     let last = 0
     let frameTimes: number[] = []
-    let lite = loadSettings().globe_webgl
+    let lite = loadSettings().globe_webgl // Flag-Name lügt: true = Lite-Canvas, nicht WebGL
 
     function ringStep() {
       if (lite) return 12
@@ -244,6 +249,50 @@ export function GlobeView({
       }
     }
 
+    function drawNight(cx: number, cy: number, R: number) {
+      const sun = subsolar()
+      const step = lite ? 14 : 8
+      pen.save()
+      pen.beginPath()
+      pen.arc(cx, cy, R, 0, Math.PI * 2)
+      pen.clip()
+      pen.fillStyle = 'rgba(2, 6, 18, 0.42)'
+      for (let lat = -80; lat <= 80; lat += step) {
+        for (let lon = -180; lon < 180; lon += step) {
+          if (!isNight(lat, lon, sun)) continue
+          const q = project(lat, lon)
+          if (q.z < FRONT) continue
+          pen.fillRect(q.x - 3, q.y - 3, 7, 7)
+        }
+      }
+      pen.restore()
+    }
+
+    function drawIssTrail() {
+      const trail = trailRef.current
+      if (trail.length < 2) return
+      let drawing = false
+      pen.beginPath()
+      pen.strokeStyle = 'rgba(220, 235, 255, 0.55)'
+      pen.lineWidth = lite ? 1.1 : 1.6
+      for (const p of trail) {
+        const q = project(p.lat, p.lon)
+        if (q.z < FRONT) {
+          if (drawing) {
+            pen.stroke()
+            pen.beginPath()
+            drawing = false
+          }
+          continue
+        }
+        if (!drawing) {
+          pen.moveTo(q.x, q.y)
+          drawing = true
+        } else pen.lineTo(q.x, q.y)
+      }
+      if (drawing) pen.stroke()
+    }
+
     function drawPins() {
       const shown = pinsRef.current
         .map((pin) => ({ pin, q: project(pin.lat, pin.lon) }))
@@ -272,6 +321,12 @@ export function GlobeView({
               ? '#1ed760'
               : pin.kind === 'warn'
                 ? '#e8b84a'
+                : pin.kind === 'quake'
+                  ? '#f0a060'
+                  : pin.kind === 'fire'
+                    ? '#e07050'
+                    : pin.kind === 'flight'
+                      ? '#9ecbff'
                 : pin.kind === 'glow'
                   ? pin.hot
                     ? '#e8f8ee'
@@ -303,7 +358,9 @@ export function GlobeView({
       const cy = h / 2
       const R = sphereR()
       drawSphere(cx, cy, R)
+      drawNight(cx, cy, R)
       drawOutlines(cx, cy, R)
+      drawIssTrail()
       drawPins()
     }
 

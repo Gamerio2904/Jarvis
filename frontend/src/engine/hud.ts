@@ -21,6 +21,7 @@ import {
 } from './hud-parse.ts'
 import { nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from './globe-geo.ts'
 import { briefPlace, CITY_FLY_ZOOM, focusJson, fromPlaceFix } from './globe-brief.ts'
+import { fetchLayer, replyFor, type GlobeLayer } from './globe-layers.ts'
 import { clearTour } from './globe-tour.ts'
 
 export { HUD_CATALOG, parseHudIntent, organLabel }
@@ -76,11 +77,14 @@ export async function handleHud(
     return pack(`Kacheln: ${line}.`)
   }
   if (intent.kind === 'view') {
-    openLagePatch(patchForHudView(intent.view))
+    openLagePatch({ ...patchForHudView(intent.view), globe_layer: '' })
     if (intent.view === 'tiles') clearTour()
     if (intent.view === 'body') return pack('Körper an. Schema in der Lage, Chat bleibt. Antippen startet kein Tool.')
-    if (intent.view === 'globe') return pack('Kugel an. Erde in der Lage. Kein Live-Satellitenvideo.')
+    if (intent.view === 'globe') return pack('Kugel an. Tag und Nacht, ISS als Bahn. Kein Live-Satellitenvideo.')
     return pack('Kugel aus. Lage zu, Chat wieder voll.')
+  }
+  if (intent.kind === 'layer') {
+    return applyGlobeLayer(intent.layer)
   }
   if (intent.kind === 'organ') {
     openLagePatch({
@@ -131,6 +135,12 @@ export async function handleHud(
   const next = setHudModule(intent.id, intent.on)
   const label = HUD_CATALOG.find((c) => c.id === intent.id)?.label || intent.id
   return pack(intent.on ? `${label} an.` : `${label} aus.`, next)
+}
+
+async function applyGlobeLayer(layer: GlobeLayer) {
+  const got = await fetchLayer(layer)
+  openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false, globe_layer: layer })
+  return pack(replyFor(got))
 }
 
 function pack(reply: string, ids?: HudId[]) {

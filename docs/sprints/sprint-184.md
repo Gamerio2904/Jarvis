@@ -1,5 +1,7 @@
 # Sprint 184 — L1-Smalltalk-Cache verdrahten **PLAN** (Could)
 
+> ⚠︎ **Anker veraltet.** Default-Lane nennt `9.10.0`. Live-Code **`17.0.0`**. Vor dem Ziehen messen, nicht an der alten Sideload.
+
 | Feld | Wert |
 |------|------|
 | Status | **PLAN** |

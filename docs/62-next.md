@@ -4,7 +4,8 @@
 > Pipeline in Abschnitt 4 sind Skizzen und weichen von der Umsetzung ab
 > (`agentBus.dispatch` heißt `agentDispatch`, `director.runTurn` heißt
 > `runDirectorTurn`, und der Director führt keinen Parallellauf aus).
-> Der Ist-Stand steht in [`66-agents-ist.md`](./66-agents-ist.md).
+> Der Ist-Stand steht in [`66-agents-ist.md`](./66-agents-ist.md) §1b
+> (wer organisiert). Ein zweiter LLM-Organizer ist Won’t: [`70-next.md`](./70-next.md) §0b.
 
 PO 2026-09-08: Reel [DbYh2P-MQnj](https://www.instagram.com/reel/DbYh2P-MQnj/) (alassafi.ai) — **137 Agenten**, **7 Abteilungen**, **live Karte**, **zentrales Firmen-Gehirn** als gemeinsame Wissensbasis. Jarvis soll von „eine KI mit Parsern“ zu einem **Netzwerk spezialisierter Agenten** werden — sichtbar in der **Körper-/Agenten-Karte**, ohne Funktionsverlust.
 
