@@ -39,6 +39,9 @@ export const TV_FOLLOWUP_MS = 120_000
 export const TV_FOLLOWUP_ONLY =
   /^\s*(lauter|leiser|stumm|aus|an|hdmi\s*\d|quelle\s*\d|nochmal|noch\s*mal|lautstärke\s*(?:auf\s*)?\d{1,3}|lauter\s+um\s+\d{1,3}|leiser\s+um\s+\d{1,3}|\d{1,3}|pause|play|weiter|zurück|home|ok|enter|bestätigen|runter|hoch|oben|unten|links|rechts)\s*[.!?]*$/i
 
+/** Verben, deren „an" zum Verb gehört: „schau dir **das an**". */
+const LOOK_VERB = /\b(schau|schaue|sieh|siehe|seh|guck|gucke|zeig|zeige|hör|höre|hoer|lies|lese|such|suche|find|finde|erklär|erkläre)\b/i
+
 const VOL_WORD = /\b(lautstärke|volume)\b/i
 const RELATIVE = /\b(?:lauter|leiser)\s+um\s+\d{1,3}\b/i
 
@@ -196,8 +199,15 @@ export function parseTvIntent(text: string, followUp = false): TvIntent | null {
 
   if (/\b(aus(?:schalten)?|ausmachen|standby)\b/i.test(t)) return { action: 'off' }
   if (/\b(an(?:schalten)?|anmachen|ein(?:schalten)?|wecken|aufwecken)\b/i.test(t)) {
-    const researchish = followUp && !hasAnchor && /\b(das|du|es)\b/i.test(t)
-    if (!researchish) return { action: 'on' }
+    /**
+     * „Schau dir das an" ist kein Einschalten — das „an" gehört zum Verb. Und
+     * „mach **du** das an" bestätigt eine angebotene Suche (`isResearchConfirm`).
+     *
+     * Vorher stand hier `das|du|es`, und damit fiel „mach das an" mit heraus,
+     * während „mach das aus" durchging: dieselbe Geste, zwei Ergebnisse.
+     */
+    const notThePower = followUp && !hasAnchor && (LOOK_VERB.test(t) || /\bdu\b/i.test(t))
+    if (!notThePower) return { action: 'on' }
   }
   return null
 }

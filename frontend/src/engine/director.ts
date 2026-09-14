@@ -6,7 +6,7 @@ import { handlePoi } from './poi.ts'
 import { handleTransit } from './transit.ts'
 import { handleWeather } from './weather.ts'
 import { askReply, TOOL_LABEL, type PolicyPick } from './policy.ts'
-import { decideRouteFromCtx } from './route-pick.ts'
+import { decideTurn } from './route-pick.ts'
 import { agentById, fromHandler, weatherLast } from './agents/catalog.ts'
 import { runAgent } from './agents/runner.ts'
 import { curatorPreflight } from './agents/curator.ts'
@@ -88,9 +88,8 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
     }
   }
 
-  const ctx = makeDirectorCtx(conversationId, text)
   const t0 = performance.now()
-  const { pick, candidates: raw } = decideRouteFromCtx(ctx)
+  const { pick, candidates: raw, ctx } = decideTurn(makeDirectorCtx(conversationId, text))
   pushAgentTrace({
     agentId: 'router',
     phase: 'parse',

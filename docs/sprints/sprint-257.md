@@ -1,6 +1,8 @@
 # Sprint 257 — Intent-Embeddings statt Konflikt-Tisch
 
-**Version:** `16.9.0` (versionCode `160900`) — **PLAN**
+**Version:** `16.9.0` (versionCode `160900`) — **Embeddings: ABGEBROCHEN am
+eigenen Tor (S257-9).** Was stattdessen ausgeliefert wurde, steht unter
+[Ergebnis](#ergebnis-das-tor-hat-gehalten).
 **Plan:** [`68-next.md`](../68-next.md) §12 · Upgrade **C** aus [`67-upgrades.md`](../67-upgrades.md)
 **Voraussetzung:** Sprint **250** (Kennzahlen als Netz)
 
@@ -39,17 +41,28 @@ die `drop`/`boost`-Regeln sind zusätzlich reihenfolgeabhängig.
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S257-1 | Intent-Datensatz aus dem Eval-Korpus (250+ Äußerungen) | `engine/eval/corpus.ts` | PLAN |
-| S257-2 | `multilingual-e5-small` in `onnxruntime-web`, lazy | `engine/embed.ts` | PLAN |
-| S257-3 | Zentroid je Agent, zur Bauzeit berechnet und mitgeliefert | `engine/intent-centroids.json` | PLAN |
-| S257-4 | Ähnlichkeit **nur** bei mehreren gleich starken Kandidaten, nicht bei jedem Zug | `engine/policy.ts` | PLAN |
-| S257-5 | `conflicts.ts` zurückbauen auf harte Regeln (`wont`, Gerät vs. Lesen) | `engine/conflicts.ts` | PLAN |
-| S257-6 | Rückfallebene: ohne Modell gilt der heutige Tisch | `engine/policy.ts` | PLAN |
-| S257-7 | Eval-Vergleich gegen die Baseline aus 250 | `scripts/eval/report.mjs` | PLAN |
-| S257-8 | Docs: `66-agents-ist.md` §2 neu schreiben | docs | PLAN |
-| S257-9 | **Trennschärfe-Test vor allem anderen** — Abbruch, wenn er scheitert | `scripts/eval/separability.mjs` | PLAN |
-| S257-10 | `query:` / `passage:` Präfixe von e5 korrekt setzen | `engine/embed.ts` | PLAN |
-| S257-11 | Mehrfach-Sampling als letzte Ebene statt Rückfrage, auf dem 8B | `engine/policy.ts` | PLAN |
+| S257-9 | **Trennschärfe-Test vor allem anderen** — Abbruch, wenn er scheitert | `scripts/eval/separability.mjs` | **CODE** |
+| S257-1 | Intent-Datensatz aus dem Eval-Korpus (250+ Äußerungen) | `engine/eval/corpus.ts` | entfällt |
+| S257-2 | `multilingual-e5-small` in `onnxruntime-web`, lazy | `engine/embed.ts` | entfällt |
+| S257-3 | Zentroid je Agent, zur Bauzeit berechnet und mitgeliefert | `engine/intent-centroids.json` | entfällt |
+| S257-4 | Ähnlichkeit **nur** bei mehreren gleich starken Kandidaten | `engine/policy.ts` | entfällt |
+| S257-5 | `conflicts.ts` zurückbauen auf harte Regeln | `engine/conflicts.ts` | entfällt |
+| S257-6 | Rückfallebene: ohne Modell gilt der heutige Tisch | `engine/policy.ts` | entfällt |
+| S257-7 | Eval-Vergleich gegen die Baseline aus 250 | `scripts/eval/report.mjs` | CODE (250) |
+| S257-8 | Docs: `66-agents-ist.md` §2 neu schreiben | docs | entfällt |
+| S257-10 | `query:` / `passage:` Präfixe von e5 korrekt setzen | `engine/embed.ts` | entfällt |
+| S257-11 | Mehrfach-Sampling als letzte Ebene statt Rückfrage, auf dem 8B | `engine/policy.ts` | entfällt |
+
+Was stattdessen gebaut wurde, weil die Messung dorthin zeigte:
+
+| ID | Task | Datei | Status |
+|----|------|-------|--------|
+| S257-12 | Verbletzte Sätze umstellen — **nur wenn sonst kein Kandidat** | `engine/verb-front.ts` | CODE |
+| S257-13 | Die Umstellung bis zum Handler durchreichen, nicht nur zum Router | `engine/route-pick.ts`, `engine/director.ts` | CODE |
+| S257-14 | Zahlwörter auch mitten im Satz: „um acht **an den Zahnarzt**" | `engine/zahlenworte.ts` | CODE |
+| S257-15 | „mach das an" nach einem TV-Zug wie „mach das aus" behandeln | `engine/tv-parse.ts` | CODE |
+| S257-16 | Neun Alltagssätze im Korpus festgenagelt | `engine/eval/corpus.ts` | CODE |
+| S257-17 | Tests für Umstellung, Zahlwörter, Pro-Formen | `scripts/test-verb-front.mjs` | CODE |
 
 ## S257-9 — Der Test, der vor der Arbeit kommt
 
@@ -74,6 +87,106 @@ Der dritte Fall ist nicht unwahrscheinlich. Agenten wie `tv` und `home` liegen
 sprachlich dicht beieinander („mach das Licht an" / „mach den Fernseher an"),
 und genau dort muss die Trennung sitzen. Diesen Ausgang vorher zu kennen kostet
 einen Nachmittag; ihn nachher zu merken kostet einen Sprint.
+
+## Ergebnis: das Tor hat gehalten
+
+`npm run eval:separability`, 341 Sätze — 317 aus dem Korpus, 24 absichtlich
+mehrdeutige Sonden (`engine/eval/ambig-probes.ts`, „mach das an", „spiel was",
+„was ist mit dem Termin und dem Wetter"):
+
+| Satzmenge | Fälle | Rückfrage | knapper Vorsprung | exakter Gleichstand | ohne Agenten |
+|-----------|------:|----------:|------------------:|--------------------:|-------------:|
+| Eval-Korpus | 317 | **0** | 1 | 1 | 20 (6,3 %) |
+| Ambig-Sonden | 24 | **0** | 0 | 0 | 15 (62,5 %) |
+
+**Der Pfad, den dieser Sprint verbessern sollte, wird kein einziges Mal
+erreicht.** Eine Ähnlichkeit, die laut eigener Latenz-Schranke nur bei
+Gleichstand rechnen darf, rechnet damit nie. Der einzige knappe Fall im ganzen
+Korpus ist „Wo ist die Apotheke" (`poi` gegen `maps`, Abstand 0,000), und den
+entscheidet `TIE_ORDER` seit Sprint 240 richtig.
+
+Die Trennschärfe selbst wurde trotzdem gemessen, mit einer **lexikalischen**
+Einbettung (Zeichen-Trigramme und Wörter, TF-IDF, Kosinus) als Untergrenze:
+
+| Verfahren | Trefferquote |
+|-----------|-------------:|
+| Zufall (28 Klassen) | 3,6 % |
+| nächster Zentroid, lexikalisch | 69,3 % |
+| Parser von heute | **100,0 %** |
+
+Kosinus zum eigenen Zentroid 0,272, zum nächsten fremden 0,170 — ein Abstand
+von 0,101. Die Idee funktioniert also im Prinzip (69 % gegen 3,6 % Zufall ist
+kein Rauschen), aber sie funktioniert **schlechter als das, was da ist**, und
+sie würde an der einzigen Stelle helfen, die es nicht gibt. Ein echtes
+`multilingual-e5-small` läge über 69 %; es müsste über 100 % liegen, um hier
+etwas beizutragen.
+
+Die Verwechslungen der lexikalischen Messung sind zusätzlich lehrreich: `hud →
+eye` (5), `reminder → alarm` (3), `calendar ↔ brief` (je 2). Das sind genau die
+Paare, bei denen auch ein besseres Modell schwimmt — semantisch benachbarte
+Agenten mit unterschiedlicher Wirkung. Dort **will** man keine Ähnlichkeit
+entscheiden lassen.
+
+**Damit ist S257-2 bis S257-8 und S257-10 geschlossen.** Die Idee ist nicht
+„später nochmal", sondern beantwortet: sie braucht einen Gleichstand, und den
+produziert dieser Router nicht.
+
+S257-11 (Mehrfach-Sampling statt Rückfrage) fällt mit derselben Zahl: bei einer
+Rückfrage-Quote von 0,0 % gibt es nichts zu ersetzen. Die Auflage aus dem Plan
+— „ohne die Rückfrage-Quote aus Sprint 250 wird S257-11 nicht gebaut" — ist
+damit erfüllt, und zwar negativ.
+
+## Was die Messung stattdessen gefunden hat
+
+Der Zensus hat eine zweite Spalte: **ohne Agenten**. 62,5 % der Sonden und
+6,3 % des Korpus erreichen keinen einzigen Kandidaten und fallen ans Modell.
+Dort fehlt kein Rangkriterium, dort fehlt ein Kandidat — und eine Ähnlichkeit,
+die laut der Grenze unten „keinen Agenten erfinden" darf, kann das nicht heben.
+
+Drei Ursachen, alle deterministisch behebbar, alle gefunden statt geraten:
+
+**1. Verbletzte Sätze.** „Stell einen Timer für zehn Minuten" verstehen die
+Parser. „Einen Timer für zehn Minuten stellen" nicht. Dieselbe Bitte, deutsche
+Wortstellung — und gesprochen die häufigere, besonders mit Höflichkeitsform
+(„Kannst du mir … stellen"). `engine/verb-front.ts` dreht solche Sätze um,
+**aber nur, wenn die Vorlage keinen Kandidaten hat**. Auf dem schnellen Pfad
+wird die Funktion nie berührt, und sie kann keinen Treffer verdrängen — an der
+Stelle, wo sie läuft, gibt es keinen.
+
+Wichtig ist die zweite Hälfte: die gedrehte Fassung geht **auch an den
+Handler**. `decideTurn` gibt die Entscheidung samt der Fassung zurück, auf die
+sie sich bezieht. Ohne das hätte der Router richtig geroutet und der Parser des
+Agenten wäre danach an der ursprünglichen Wortstellung gescheitert — ein
+Fehler, der als „er sagt, er macht es, und macht nichts" ankommt.
+
+**2. Zahlwörter mitten im Satz.** „Erinnere mich morgen um **8** an den
+Zahnarzt" kam an, „um **acht**" nicht. Die Umschrift von Sprint 250 verlangte,
+dass die Zahl den Satz beendet oder eine Tageszeit folgt — genau der Anlass
+(„an den Zahnarzt") schloss sie aus. Jetzt zählt auch ein angeschlossener
+Anlass (`an`, `am`, `zum`, `zur`, `wegen`), und „auf sieben" folgt derselben
+Regel („Stell den Wecker auf sieben"). „Kümmere dich um drei Sachen" bleibt
+unangetastet — das ist der Grund, warum die Regel überhaupt eine Bedingung hat.
+
+**3. Eine Ausnahme, die zu breit war.** Nach einem Fernseh-Zug schaltete „mach
+das **aus**" ab, „mach das **an**" nicht. Ursache war eine Ausnahme auf
+`das|du|es` aus `16.0.x`, gedacht gegen „mach **du** das an" als Bestätigung
+einer angebotenen Suche. Sie traf die halbe Pro-Form-Familie mit. Jetzt greift
+sie nur noch bei `du` und bei Verben, deren „an" zum Verb gehört („schau dir
+das an"). Der alte Testfall bleibt grün.
+
+### Wirkung
+
+| Priorität | Wirkung |
+|-----------|---------|
+| Antwortqualität | besser: neun bisher unverstandene Alltagssätze werden ausgeführt statt beredet |
+| Alles funktioniert | besser: Router und Handler sehen dieselbe Fassung |
+| Latenz | **unverändert** — die Umstellung läuft nur, wo vorher das Modell übernahm, also vor einem Netzaufruf |
+| Kostenlos / nutzbar | besser: jeder deterministisch erledigte Zug ist ein Modellaufruf weniger |
+
+Und das ist der eigentliche Punkt gegen die ursprüngliche Planung: die
+Embedding-Variante hätte 120 MB Modell, `onnxruntime-web` im Bundle und einen
+zweiten Ladepfad gekostet — für einen Fall, den es nicht gibt. Die drei
+Korrekturen kosten 70 Zeilen und keine Millisekunde auf dem schnellen Pfad.
 
 ## Verhältnis zum eingefrorenen `e5`-Paket
 
@@ -192,8 +305,10 @@ wird.
 
 ```bash
 cd frontend
-npm run eval:separability     # zuerst — entscheidet, ob der Rest gebaut wird
-npm run eval:report           # gegen Baseline, Differenz muss positiv sein
+npm run eval:separability     # zuerst — hat entschieden, dass der Rest entfällt
+npm run eval:report           # gegen Baseline, Differenz darf nicht negativ sein
+npm run test:verb-front       # neu: Umstellung, Zahlwörter, Pro-Formen
+npm run eval
 npm run test:prompts
 npm run test:sprint
 npm run test:matrix
@@ -203,3 +318,8 @@ npx tsc -b && npm run lint
 
 Der entscheidende Nachweis ist die Tabelle aus `eval:report`, nicht ein grüner
 Lauf. Ein grüner Lauf war schon dreimal irreführend.
+
+Gemessen nach dem Sprint: Trefferquote 100,0 % bei 317 statt 308 Fällen (neun
+Alltagssätze dazu, keiner davon verloren), ohne Kandidat 11,0 % → 10,7 %,
+Entscheidungszeit p50 0,53 ms — unverändert, weil der neue Pfad nur dort läuft,
+wo vorher nichts lief.

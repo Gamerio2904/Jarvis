@@ -3,6 +3,7 @@ import { applyConflicts } from './conflicts.ts'
 import { isFollowish, pickPolicy, withCost, withPrior, type PolicyPick } from './policy.ts'
 import type { Candidate, RouteCtx } from './route-types.ts'
 import { promoteSplitPart, splitIntents } from './split-intents.ts'
+import { frontVerb } from './verb-front.ts'
 
 export function propose(ctx: RouteCtx): Candidate[] {
   const raw: Candidate[] = []
@@ -48,7 +49,26 @@ export function decideRoute(ctx: RouteCtx): PolicyPick {
     }
     if (last) return last
   }
-  return whole
+  if (leadOf(whole)) return whole
+  return decideTurn(ctx).pick
+}
+
+/**
+ * Entscheidung **samt der Fassung, auf die sie sich bezieht.** Wird der Satz
+ * umgestellt, muss der Handler dieselbe Fassung sehen — sonst routet der
+ * Router richtig und der Parser des Agenten scheitert danach an der Vorlage.
+ *
+ * Der zweite Versuch läuft nur, wenn der erste keinen Kandidaten hat. Auf dem
+ * schnellen Pfad kostet er nichts und kann keinen Treffer verdrängen.
+ */
+export function decideTurn(ctx: RouteCtx): RouteDecision & { ctx: RouteCtx } {
+  const first = decideRouteFromCtx(ctx)
+  if (leadOf(first.pick)) return { ...first, ctx }
+  const fronted = frontVerb(ctx.text)
+  if (!fronted || fronted === ctx.text) return { ...first, ctx }
+  const next = { ...ctx, text: fronted }
+  const retry = decideRouteFromCtx(next)
+  return leadOf(retry.pick) ? { ...retry, ctx: next } : { ...first, ctx }
 }
 
 export function pickRouteFromCtx(ctx: RouteCtx): string | null {

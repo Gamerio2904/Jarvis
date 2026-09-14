@@ -35,7 +35,9 @@
     "test:gemini-fallback": "node --experimental-strip-types scripts/test-gemini-fallback.mjs",
     "test:agents-robust": "node --experimental-strip-types scripts/test-agents-robust.mjs",
     "test:turn-e2e": "node --experimental-strip-types scripts/test-turn-e2e.mjs",
-    "test:settings-migrate": "node --experimental-strip-types scripts/test-settings-migrate.mjs"
+    "test:settings-migrate": "node --experimental-strip-types scripts/test-settings-migrate.mjs",
+    "test:verb-front": "node --experimental-strip-types scripts/test-verb-front.mjs",
+    "eval:separability": "node --experimental-strip-types scripts/eval/separability.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

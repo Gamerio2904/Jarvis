@@ -49,6 +49,13 @@ const BEFORE = 'lautstärke|lautstaerke|lauter\\s+um|leiser\\s+um|kanal|stufe'
 /** Tageszeiten, die eine Uhrzeit ohne „Uhr" abschließen: „um acht abends". */
 const AFTER_TIME = 'uhr|morgens|vormittags|mittags|nachmittags|abends|nachts'
 
+/**
+ * Wörter, die nach einer Uhrzeit den Anlass anschließen: „um acht **an** den
+ * Zahnarzt". Sie leiten kein Gezähltes ein — anders als in „um drei Dinge",
+ * das eine Zahl bleiben muss.
+ */
+const AFTER_CAUSE = 'an|am|zum|zur|wegen|damit|dass'
+
 export function expandZahlenworte(text: string): string {
   let t = text.replace(/\s+/g, ' ').trim()
   t = t.replace(/\b(?:einer?\s+)?viertel\s*stunden?\b/gi, '15 Minuten')
@@ -67,11 +74,18 @@ export function expandZahlenworte(text: string): string {
   )
   /**
    * „um acht" ist eine Uhrzeit, „um drei Dinge" nicht. Deshalb nur, wenn die
-   * Zahl den Satz beendet oder eine Tageszeit folgt.
+   * Zahl den Satz beendet, eine Tageszeit folgt oder der Anlass angeschlossen
+   * wird. Ohne den Anlass-Fall blieb „erinnere mich morgen um acht an den
+   * Zahnarzt" ungeparst, während dieselbe Bitte mit „um 8" ankam.
+   *
+   * „auf sieben" folgt derselben Regel: „stell den Wecker auf sieben".
    */
   t = t.replace(
-    new RegExp(`\\bum\\s+(${WORD_RE})(?=\\s*[.!?]*$|\\s+(?:${AFTER_TIME})\\b)`, 'gi'),
-    (_m, w: string) => `um ${WORD[w.toLowerCase()] ?? w}`,
+    new RegExp(
+      `\\b(um|auf)\\s+(${WORD_RE})(?=\\s*[.!?]*$|\\s+(?:${AFTER_TIME})\\b|\\s+(?:${AFTER_CAUSE})\\b)`,
+      'gi',
+    ),
+    (_m, lead: string, w: string) => `${lead} ${WORD[w.toLowerCase()] ?? w}`,
   )
   return t.replace(/\s+/g, ' ').trim()
 }

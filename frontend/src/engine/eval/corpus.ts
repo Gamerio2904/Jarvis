@@ -424,6 +424,23 @@ export const REGRESS_EXPECT: Record<string, string> = {
   'Zeig mir': 'wont',
 }
 
+/**
+ * Sprint 257 — verbletzte Sätze und Zahlwörter mitten im Satz. Alle vier
+ * Fälle gingen vorher ans Modell, weil **kein** Parser ansprang; keiner davon
+ * war mehrdeutig. Deshalb stehen sie hier und nicht in einem Zentroid.
+ */
+export const ALLTAG_EXPECT: Record<string, string> = {
+  'Einen Timer für zehn Minuten stellen': 'timer',
+  'Kannst du mir einen Timer für zehn Minuten stellen': 'timer',
+  'Milch auf die Einkaufsliste setzen': 'shopping',
+  'Ich möchte Butter auf die Liste setzen': 'shopping',
+  'Stell den Wecker auf sieben': 'alarm',
+  'Erinnere mich morgen um acht an den Zahnarzt': 'reminder',
+  'Erinnere mich morgen um acht am Zahnarzt': 'reminder',
+  'Den Fernseher anmachen': 'tv',
+  'Kannst du bitte den Fernseher ausmachen': 'tv',
+}
+
 function push(
   out: Map<string, EvalCase>,
   text: string,
@@ -456,6 +473,7 @@ export function evalCases(): EvalCase[] {
   for (const [text, expect] of Object.entries(GOLD_EXPECT)) push(out, text, expect, 'gold', 'test-prompts')
   for (const [text, expect] of Object.entries(LOCK_EXPECT)) push(out, text, expect, 'lock', 'matrix-6.60')
   for (const [text, expect] of Object.entries(REGRESS_EXPECT)) push(out, text, expect, 'regress', 'sprints-115-120')
+  for (const [text, expect] of Object.entries(ALLTAG_EXPECT)) push(out, text, expect, 'regress', 'sprint-257')
   for (const [text, expect] of Object.entries(STT_EXPECT)) push(out, text, expect, 'stt', 'sprachmodus')
   cache = [...out.values()]
   return cache
