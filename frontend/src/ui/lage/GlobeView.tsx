@@ -131,6 +131,7 @@ export function GlobeView({
     let last = 0
     let frameTimes: number[] = []
     let lite = loadSettings().globe_webgl // Flag-Name lügt: true = Lite-Canvas, nicht WebGL
+    let sphereGradients: { fill: CanvasGradient; rim: CanvasGradient; sheen: CanvasGradient } | null = null
 
     function ringStep() {
       if (lite) return 12
@@ -179,8 +180,6 @@ export function GlobeView({
       const look = lookLatLon(yaw.current, pitch.current)
       onLookRef.current?.({ lat: look.lat, lon: look.lon, zoom: zoom.current, date: '' })
     }
-
-    let sphereGradients: { fill: CanvasGradient; rim: CanvasGradient; sheen: CanvasGradient } | null = null
 
     function cacheSphereGradients(cx: number, cy: number, R: number) {
       if (!(R > 2)) {
