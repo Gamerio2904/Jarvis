@@ -1,8 +1,8 @@
-# Sprint 238 — Dual Brain Gold + Sideload (`15.2.0`) **PLAN**
+# Sprint 238 — Dual Brain Gold + Sideload (`15.2.0`) **CODE**
 
 | Feld | Wert |
 |------|------|
-| Status | **PLAN** Must |
+| Status | **CODE** Must — Defaults `brain_v2`, `brain_micro_llm_clarify`, `brain_micro_llm_merge` stehen auf `true` (`store.ts`) |
 | Ziel-Version | **`15.2.0`** |
 | Quelle | [`63-next.md`](../63-next.md) |
 | Voraussetzung | Sprint **237** Shadow grün (B1, B5, B6) |

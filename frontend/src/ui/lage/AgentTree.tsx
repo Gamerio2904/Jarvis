@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { childrenOf, type AgentGraph, type AgentTreeNode } from '../../engine/agent-graph'
+import { childrenOf, type AgentGraph, type AgentTreeNode } from '../../engine/agent-graph.ts'
 
 export function AgentTree({
   graph,

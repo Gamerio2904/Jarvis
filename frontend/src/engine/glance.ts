@@ -1,6 +1,6 @@
-import { publishGlance } from '../native/notify'
-import { formatDue } from './remind-parse'
-import { listEvents, listMemory, listReminders, listShopping, loadSettings } from './store'
+import { publishGlance } from '../native/notify.ts'
+import { formatDue } from './remind-parse.ts'
+import { listEvents, listMemory, listReminders, listShopping, loadSettings } from './store.ts'
 
 export async function syncGlance(): Promise<void> {
   try {

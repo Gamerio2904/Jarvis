@@ -1,7 +1,7 @@
-import { loadSettings, saveSettings } from './store'
-import type { SpotifyIntent, SpotifySource } from './spotify-parse'
+import { loadSettings, saveSettings } from './store.ts'
+import type { SpotifyIntent, SpotifySource } from './spotify-parse.ts'
 
-export { parseSpotifyIntent, spotifySourceLabel } from './spotify-parse'
+export { parseSpotifyIntent, spotifySourceLabel } from './spotify-parse.ts'
 export type { SpotifyIntent, SpotifySource }
 
 const SCOPES = [

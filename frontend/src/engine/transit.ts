@@ -1,12 +1,12 @@
-import { getJson } from './http-json'
-import { geocodePlace } from './geo-lookup'
-import { mapsDirUrl } from './places-parse'
-import { parseTransitIntent } from './transit-parse'
-import { resolveWeatherHere } from './weather'
-import type { ResearchMeta, ResearchSource } from './research-parse'
-import type { ToolMeta } from './tools'
+import { getJson } from './http-json.ts'
+import { geocodePlace } from './geo-lookup.ts'
+import { mapsDirUrl } from './places-parse.ts'
+import { parseTransitIntent } from './transit-parse.ts'
+import { resolveWeatherHere } from './weather.ts'
+import type { ResearchMeta, ResearchSource } from './research-parse.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseTransitIntent } from './transit-parse'
+export { parseTransitIntent } from './transit-parse.ts'
 
 const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.1.0 (local.jarvis.app)' }
 const REST = 'https://v6.db.transport.rest'

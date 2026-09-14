@@ -10,10 +10,6 @@ export type LayoutProbe = {
   composerVisible: boolean
 }
 
-export function lageSceneOf(width: number, lageOn: boolean): boolean {
-  return lageOn && width < TABLET_BP
-}
-
 export function tabletCommandCenter(p: LayoutProbe): {
   ok: boolean
   mode: 'tablet' | 'phone-scene' | 'phone-lage' | 'chat'

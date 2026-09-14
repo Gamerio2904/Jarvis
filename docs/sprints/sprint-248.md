@@ -54,7 +54,7 @@ type SettingsSearchHit = {
 
 ```bash
 cd frontend && npm run build
-npm run test:settings-search   # neu
+npm run test:qa-16             # deckt die Einstellungs-Suche ab
 npm run test:prompts
 npm run test:rest-final
 ```

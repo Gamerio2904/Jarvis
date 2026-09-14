@@ -1,6 +1,7 @@
 /** Verified Actions: kein Erfolgssatz ohne Observation + Verification. */
 
 import type { ToolMeta } from './tools.ts'
+import { pushAgentTrace } from './agents/trace-store.ts'
 
 export type ActionDomain = 'tv' | 'pc' | 'app' | 'navi' | 'home' | 'doc' | 'memory'
 
@@ -229,6 +230,18 @@ export function packVerified(opts: {
   if (opts.observation) s = reduceAction(s, { type: 'observe', observation: opts.observation })
   const checked = opts.observation && opts.verify ? asVerify(opts.verify(opts.observation)) : { ok: false, error: 'Keine Observation.' }
   s = reduceAction(s, { type: 'verify', ok: checked.ok, error: checked.error })
+  /**
+   * `AgentTrace.phase` kennt `'verify'`, aber niemand sendete es — im
+   * Debug-Bogen fehlte damit genau der Schritt, der eine behauptete Aktion
+   * von einer belegten unterscheidet.
+   */
+  pushAgentTrace({
+    agentId: opts.domain,
+    phase: 'verify',
+    ms: 0,
+    ok: checked.ok,
+    detail: checked.ok ? opts.intent : checked.error || 'nicht bestätigt',
+  })
   const reply = s.phase === 'success' ? opts.successReply : opts.failReply
   s = reduceAction(s, { type: 'respond', reply })
   return { state: s, tool: actionTool(s, opts.label, opts.extra), reply: s.reply }

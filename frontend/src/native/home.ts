@@ -1,5 +1,5 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { withTimeout } from './with-timeout'
+import { withTimeout } from './with-timeout.ts'
 
 export type HomeDevice = {
   host: string

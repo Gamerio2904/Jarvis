@@ -1,19 +1,19 @@
-import { parseDriveIntent, type DriveTab } from './drive-parse'
-import { isFuelPlace } from './fuel-parse'
-import { handleSpotifyCommand, parseSpotifyIntent } from './spotify'
-import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup'
-import { compactCoords, isRoadTrack, simplifyTrack, snapToTrack } from './drive-map'
-import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse'
-import { readDeviceLocation, requestLocationPermission } from '../native/geo'
-import { listMemory, loadSettings, saveSettings } from './store'
-import type { ToolMeta } from './tools'
+import { parseDriveIntent, type DriveTab } from './drive-parse.ts'
+import { isFuelPlace } from './fuel-parse.ts'
+import { handleSpotifyCommand, parseSpotifyIntent } from './spotify.ts'
+import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup.ts'
+import { compactCoords, isRoadTrack, simplifyTrack, snapToTrack } from './drive-map.ts'
+import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse.ts'
+import { readDeviceLocation, requestLocationPermission } from '../native/geo.ts'
+import { listMemory, loadSettings, saveSettings } from './store.ts'
+import type { ToolMeta } from './tools.ts'
 import {
   formatNavBanner,
   formatNavCue,
   navPhase,
   nextManeuver,
   type NavStep,
-} from './nav-speak'
+} from './nav-speak.ts'
 import { packVerified } from './action-fsm.ts'
 import {
   destMatches,
@@ -24,8 +24,8 @@ import {
   type NaviState,
 } from './navi-fsm.ts'
 
-export { parseDriveIntent } from './drive-parse'
-export type { DriveTab } from './drive-parse'
+export { parseDriveIntent } from './drive-parse.ts'
+export type { DriveTab } from './drive-parse.ts'
 
 export type DriveRoute = {
   dest: string

@@ -52,6 +52,7 @@ import { handleTaxi } from '../taxi.ts'
 import { handleBackup } from '../backup.ts'
 import { handleFace } from '../face.ts'
 import { handleWont } from '../wont-parse.ts'
+import { PERSONA_ASK_TEXT } from '../guards.ts'
 import { handleBlitzer } from '../blitzer.ts'
 import { handleFolder } from '../folders.ts'
 import { handleWatchPrice } from '../watch-price.ts'
@@ -114,6 +115,16 @@ export type AgentExecutor = (ctx: RouteCtx) => Promise<RouteHit | null>
 
 export const AGENT_EXECUTORS: Record<string, AgentExecutor> = {
   wont: async (ctx) => fromHandler('wont', handleWont(ctx.text)),
+  /**
+   * `chat.ts` fängt die Identitätsfrage heute vorher ab, deshalb fiel es nie
+   * auf. Wird dieser Weg je umgangen, scheiterte `runAgent` stumm und die
+   * Antwort kam vom Modell — also genau das, was die Frage verhindern soll.
+   */
+  identity: async () => ({
+    reply: PERSONA_ASK_TEXT,
+    lastTool: 'identity',
+    tool: { tool_status: 'executed', tool: 'identity', action: 'who', label: 'Jarvis' },
+  }),
   tv: async (ctx) => fromHandler('tv', await handleTv(ctx.text)),
   film: async (ctx) => fromHandler('film', await handleFilm(ctx.conversationId, ctx.text)),
   fan: async (ctx) => fromHandler('fan', await handleFan(ctx.text)),

@@ -1,6 +1,6 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { forgetStoredFix, rememberStoredFix } from '../engine/location-keep'
-import { withTimeout } from './with-timeout'
+import { forgetStoredFix, rememberStoredFix } from '../engine/location-keep.ts'
+import { withTimeout } from './with-timeout.ts'
 
 type NativeGeo = {
   hasPermission(): Promise<{ granted: boolean }>

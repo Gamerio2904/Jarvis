@@ -1,15 +1,15 @@
-import { readDeviceLocation, requestLocationPermission, hasLocationPermission } from '../native/geo'
-import { geocodePlace, reversePlace } from './geo-lookup'
-import { getJson } from './http-json'
-import type { ResearchMeta, ResearchSource } from './research-parse'
-import { syncGlance } from './glance'
-import { loadSettings, saveSettings } from './store'
-import type { ToolMeta } from './tools'
-import { formatWeatherBrief, wmoLabel, type WeatherDay, type WeatherSnapshot } from './weather-brief'
-import { parseWeatherFollowup, parseWeatherIntent, type WeatherLast } from './weather-parse'
+import { readDeviceLocation, requestLocationPermission, hasLocationPermission } from '../native/geo.ts'
+import { geocodePlace, reversePlace } from './geo-lookup.ts'
+import { getJson } from './http-json.ts'
+import type { ResearchMeta, ResearchSource } from './research-parse.ts'
+import { syncGlance } from './glance.ts'
+import { loadSettings, saveSettings } from './store.ts'
+import type { ToolMeta } from './tools.ts'
+import { formatWeatherBrief, wmoLabel, type WeatherDay, type WeatherSnapshot } from './weather-brief.ts'
+import { parseWeatherFollowup, parseWeatherIntent, type WeatherLast } from './weather-parse.ts'
 
-export { parseWeatherIntent } from './weather-parse'
-export { formatWeatherBrief } from './weather-brief'
+export { parseWeatherIntent } from './weather-parse.ts'
+export { formatWeatherBrief } from './weather-brief.ts'
 
 type Fix = { lat: number; lon: number; place: string }
 

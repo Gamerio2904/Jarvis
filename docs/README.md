@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`15.1.0`**. Sideload **`15.1.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk** [`62-next.md`](./62-next.md) **CODE** 227–235. Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Offen: Dual Brain Sprint **238** (Gold-SLO).
+**Jetzt:** Code **`17.0.0`**. Sideload **`17.0.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Schiene `17.0.0` „messbar und unterbrechbar", Sprints 249–259 **CODE** → [`68-next.md`](./68-next.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). **Grundlagen und Grenzen** (interne Sprache, Free-Tier-Kontingent) → [`69-modell-grundlagen.md`](./69-modell-grundlagen.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -67,9 +67,13 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 59 | [Drei Flächen 12.0](./59-next.md) | **CODE** `12.70.0` — Tablet + Presence + PC-Viewer; Sprints 209–216 |
 | 60 | [Körper-Wissensbaum 13.0](./60-next.md) | **CODE** `13.30.0` — Eingang → Skill → Wissen; Sprints 217–220 |
 | 61 | [Sprachmodus 13.40](./61-next.md) | **CODE** `13.44.0` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
-| 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **CODE** `15.1.0` — Director, Curator, Agenten-Karte; Sprints 227–235 |
-| 63 | [Dual Brain 15.0](./63-next.md) | **CODE** `15.1.0` — Groq primär, BrainOrchestrator; Sprints 236–237; 238 PLAN |
-| — | [APK](./apk.md) | Sideload `15.1.0`; Test: [`TEST-15.1.0.md`](./TEST-15.1.0.md) |
+| 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **PLAN-Protokoll** — Zielbild 14.0; Ist siehe 66 |
+| 63 | [Dual Brain 15.0](./63-next.md) | **CODE** — Groq primär, BrainOrchestrator; Sprints 236–237 in `15.1.0`, 238 in `15.2.0`. Planungsprotokoll, Flag-Namen dort veraltet |
+| 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `17.0.0` — Routing, Abbruch, Historie, Werkzeug-Vorschlag |
+| 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN-Protokoll** — Grundlage der Schiene 249–259 |
+| 68 | [Messbar und unterbrechbar 17.0](./68-next.md) | **CODE** `17.0.0` — Sprints 249–259 ausgeliefert |
+| 69 | [Modell-Grundlagen](./69-modell-grundlagen.md) | **REFERENZ** — Trainings- vs. Inferenzzeit, interne Sprache (Deutsch bleibt), Free-Tier-Grenzen |
+| — | [APK](./apk.md) | Sideload `17.0.0`; Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -266,6 +270,15 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 235 | `14.9.0` | **CODE** in `15.1.0` (Gold; Runtime 15.1.0) |
 | 236 | `15.0.0` | **CODE** in `15.1.0` (Groq primär + BrainOrchestrator) |
 | 237 | `15.1.0` | **CODE** (Micro-LLM + research-lite) |
-| 238 | `15.2.0` | **PLAN** (Dual Brain Gold + SLO) |
+| 238 | `15.2.0` | **CODE** (Dual Brain Gold + SLO) |
+| 239 | `15.2.0` | **CODE** (GUI-Politur) |
+| 240–241 | `15.3.0` | **CODE** (PC-Dashboard) |
+| 242–248 | `16.0.0` | **CODE** (Reel-UI, Kalender, Lage, Einstellungs-Suche) |
+| 249–250 | `16.2.0`–`16.3.0` | **CODE** in `17.0.0` (Eval-Rahmen + Kennzahlen) |
+| 251–252 | `16.4.0`–`16.5.0` | **CODE** in `17.0.0` (Sicherungsschalter, Lage, Wecker-Nummer) |
+| 253–254 | `16.6.0`–`16.7.0` | **CODE** in `17.0.0` (Abbruch, Satzende A; Silero B opt-in) |
+| 255 | — | **AUFGELÖST** (Inhalt in 253 und 254 A) |
+| 256–258 | `16.8.0`–`16.10.0` | **CODE** in `17.0.0` (Feldschutz, Alltagsdeutsch, Werkzeug-Vertrag) |
+| 259 | **`17.0.0`** | **CODE** (Historie + Meilenstein) |
 
-**Aktuell:** Code **`15.1.0`**. Sideload `15.1.0`. Execute: Agenten-Netzwerk + Dual Brain bis 237 **CODE**; Sprint 238 **PLAN**. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`17.0.0`**. Sideload `17.0.0`, versionCode `170000`. Execute: Sprints bis 259 **CODE**. Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). Index: [`42-planned.md`](./42-planned.md).

@@ -1,8 +1,11 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
+import { migrateSettings, SETTINGS_REV } from './settings-migrate.ts'
+import { coerceSettings } from './settings-schema.ts'
+import { isTurnAborted } from './turn-abort.ts'
 
-export const APP_VERSION = '16.0.1'
+export const APP_VERSION = '17.0.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -98,6 +101,12 @@ export type Reminder = {
   kind?: 'once' | 'timer' | 'recur' | 'alarm' | 'home' | 'birthday'
   recur?: 'daily' | 'weekly' | null
   weekday?: number | null
+  /**
+   * Die Nummer, unter der Android diese Erinnerung kennt. Vorher wurde sie
+   * aus der Id gehasht und beim Klingeln zurückgerechnet — eine stille
+   * Kollision hätte die **falsche** Erinnerung geschlossen.
+   */
+  notify_id?: number
 }
 
 export type ToolPending = {
@@ -147,6 +156,8 @@ export type Settings = {
   pc_token: string
   gemini_model: string
   gemini_skip_until: string
+  /** Welches Groq-Modell gerade nicht geht, bis wann. Wie bei Gemini. */
+  groq_skip_until: string
   groq_api_key: string
   last_lat: string
   last_lon: string
@@ -227,9 +238,10 @@ export type Settings = {
   gemini_banner_dismissed: boolean
   model_default: string
   fallback_model: string
-  routing_mode: string
   setup_dismissed: boolean
   version: string
+  /** Wie weit dieser Hausstand durch `MIGRATIONS` gewandert ist. */
+  settings_rev: number
   last_blitzer_json: string
   drive_speak: 'after' | 'only'
   price_watch_on: boolean
@@ -259,11 +271,12 @@ export type Settings = {
   brain_primary: 'groq' | 'gemini' | 'local'
   brain_gemini_roles_vision: boolean
   brain_gemini_roles_grounding: boolean
-  brain_gemini_roles_tts: boolean
   brain_micro_llm_clarify: boolean
   brain_micro_llm_merge: boolean
   brain_shadow_mode: boolean
   last_agent_id: string
+  /** Darf das Modell ein Werkzeug **vorschlagen**, wenn kein Parser greift? */
+  tool_propose: boolean
   pc_dashboard_v2: boolean | null
   globe_webgl: boolean
 }
@@ -308,6 +321,7 @@ export const DEFAULT_SETTINGS: Settings = {
   pc_token: '',
   gemini_model: '',
   gemini_skip_until: '',
+  groq_skip_until: '',
   groq_api_key: '',
   last_lat: '',
   last_lon: '',
@@ -388,9 +402,9 @@ export const DEFAULT_SETTINGS: Settings = {
   gemini_banner_dismissed: false,
   model_default: DEFAULT_MODEL.label,
   fallback_model: DEFAULT_MODEL.label,
-  routing_mode: 'on-device',
   setup_dismissed: false,
   version: APP_VERSION,
+  settings_rev: SETTINGS_REV,
   last_blitzer_json: '',
   drive_speak: 'after',
   price_watch_on: false,
@@ -420,11 +434,11 @@ export const DEFAULT_SETTINGS: Settings = {
   brain_primary: 'groq',
   brain_gemini_roles_vision: true,
   brain_gemini_roles_grounding: true,
-  brain_gemini_roles_tts: true,
   brain_micro_llm_clarify: true,
   brain_micro_llm_merge: true,
   brain_shadow_mode: false,
   last_agent_id: '',
+  tool_propose: true,
   pc_dashboard_v2: null,
   globe_webgl: false,
 }
@@ -437,31 +451,88 @@ export function newId(): string {
   return crypto.randomUUID()
 }
 
-export function loadSettings(): Settings {
+/**
+ * Ein kaputter Eintrag darf nicht still alles auf Werkseinstellung setzen. Der
+ * nächste `saveSettings` würde ihn sonst überschreiben — samt Gemini-Key und
+ * allem, was der Nutzer eingestellt hat. Die Rohdaten wandern zur Seite,
+ * damit sie von Hand zu retten sind.
+ */
+function parkBrokenSettings(raw: string): void {
   try {
-    const raw = localStorage.getItem(SETTINGS_KEY)
-    if (!raw) return { ...DEFAULT_SETTINGS }
-    const prev = JSON.parse(raw) as Partial<Settings>
-    const next = { ...DEFAULT_SETTINGS, ...prev, version: APP_VERSION }
-    // 15.3.1: Kugel/Lage trap — hud_force without session left phone on black Chat-less screen
-    if (prev.version !== APP_VERSION && prev.hud_force) {
-      next.hud_force = false
-      next.hud_hidden = true
-    }
-    return next
+    localStorage.setItem(`${SETTINGS_KEY}.broken`, raw)
+  } catch {
+    /* Speicher voll oder gesperrt — dann ist auch nichts zu retten */
+  }
+}
+
+/**
+ * Zwei Ebenen, beide billig: der Feldschutz greift bei einem kaputten Feld,
+ * das Parken bei einem kaputten Eintrag.
+ */
+export function loadSettings(): Settings {
+  let raw: string | null = null
+  try {
+    raw = localStorage.getItem(SETTINGS_KEY)
   } catch {
     return { ...DEFAULT_SETTINGS }
   }
+  if (!raw) return { ...DEFAULT_SETTINGS }
+  let stored: Record<string, unknown>
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('kein Objekt')
+    stored = parsed as Record<string, unknown>
+  } catch {
+    parkBrokenSettings(raw)
+    return { ...DEFAULT_SETTINGS }
+  }
+  const migrated = migrateSettings(stored)
+  const prev = coerceSettings(migrated.value, DEFAULT_SETTINGS).value
+  const next = { ...prev, version: APP_VERSION }
+  // 15.3.1: Kugel/Lage trap — hud_force without session left phone on black Chat-less screen
+  if (stored.version !== APP_VERSION && prev.hud_force) {
+    next.hud_force = false
+    next.hud_hidden = true
+  }
+  return next
 }
 
 export function isGeminiConfigured(s = loadSettings()): boolean {
   return Boolean(s.gemini_enabled && s.gemini_api_key.trim())
 }
 
+/**
+ * Felder, die nur ein laufender Zug schreibt. Sie sind der Grund, warum ein
+ * abgebrochener Zug gefährlich war: sein Handler lief weiter und schrieb dem
+ * **neuen** Zug seinen Nachlauf-Zustand unter.
+ *
+ * Die Sperre gilt bewusst nur für diese Felder. Ein pauschales Verbot würde
+ * die Einstellungen aussperren, sobald zuletzt ein Zug abgebrochen wurde.
+ */
+const TURN_SCOPED_KEYS = [
+  'last_step_tool',
+  'last_step_utterance',
+  'last_medium',
+  'last_place',
+  'last_agent_id',
+] as const satisfies ReadonlyArray<keyof Settings>
+
 export function saveSettings(patch: Partial<Settings>): Settings {
-  const next = { ...loadSettings(), ...patch, version: APP_VERSION }
+  let effective = patch
+  if (isTurnAborted()) {
+    const kept: Partial<Settings> = { ...patch }
+    let dropped = false
+    for (const key of TURN_SCOPED_KEYS) {
+      if (key in kept) {
+        delete kept[key]
+        dropped = true
+      }
+    }
+    if (dropped) effective = kept
+  }
+  const next = { ...loadSettings(), ...effective, version: APP_VERSION }
   // Key eintragen = Opt-in. Explizites gemini_enabled: false bleibt aus.
-  if (patch.gemini_api_key !== undefined && patch.gemini_enabled === undefined && next.gemini_api_key.trim()) {
+  if (effective.gemini_api_key !== undefined && effective.gemini_enabled === undefined && next.gemini_api_key.trim()) {
     next.gemini_enabled = true
   }
   try {
@@ -831,9 +902,11 @@ export async function addReminder(opts: {
   kind?: Reminder['kind']
   recur?: Reminder['recur']
   weekday?: number | null
+  notify_id?: number
 }): Promise<Reminder> {
   const row: Reminder = {
     id: newId(),
+    notify_id: opts.notify_id ?? allocNotifyId(await listReminders()),
     title: opts.title,
     due_at: opts.due_at,
     status: 'open',
@@ -846,6 +919,22 @@ export async function addReminder(opts: {
   }
   await put('reminders', row)
   return row
+}
+
+/**
+ * `notifyIdFromKey` kann nur 1 … 1.999.999.999 liefern. Neue Nummern kommen
+ * deshalb aus dem Band darüber: eine Kollision mit einer gehashten Nummer ist
+ * dadurch ausgeschlossen, nicht nur unwahrscheinlich. Bestehende Zeilen
+ * behalten ihren Hash und damit ihren Alarm.
+ */
+export const NOTIFY_ID_BASE = 2_000_000_000
+
+export function allocNotifyId(rows: Reminder[]): number {
+  const used = new Set<number>()
+  for (const r of rows) if (typeof r.notify_id === 'number') used.add(r.notify_id)
+  let n = NOTIFY_ID_BASE
+  while (used.has(n)) n += 1
+  return n
 }
 
 export async function putReminder(row: Reminder): Promise<void> {
@@ -928,8 +1017,16 @@ export async function deleteEvent(id: string): Promise<void> {
   await del('events', id)
 }
 
+/** Ohne Deckel wächst der Speicher endlos, und jedes Lesen holt alles herauf. */
+const AUDIT_KEEP = 200
+
 export async function addResearchAudit(row: ResearchAudit): Promise<ResearchAudit> {
   await put('research_audits', row)
+  const rows = await getAll<ResearchAudit>('research_audits')
+  if (rows.length > AUDIT_KEEP) {
+    const old = rows.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)).slice(AUDIT_KEEP)
+    for (const o of old) await del('research_audits', o.id)
+  }
   return row
 }
 

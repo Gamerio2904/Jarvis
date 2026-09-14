@@ -11,11 +11,11 @@ import {
   setPending,
   setTodoStatus,
   type ToolPending,
-} from './store'
-import { parseToolIntent } from './tools-parse'
+} from './store.ts'
+import { parseToolIntent } from './tools-parse.ts'
 
-export type { ToolIntent } from './tools-parse'
-export { parseToolIntent } from './tools-parse'
+export type { ToolIntent } from './tools-parse.ts'
+export { parseToolIntent } from './tools-parse.ts'
 
 export type ToolMeta = {
   tool_status?: string

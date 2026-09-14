@@ -5,8 +5,8 @@ import {
   BRAIN_CENTER,
   DEPARTMENT_NODES,
   departmentLive,
-} from '../../engine/agent-map'
-import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion'
+} from '../../engine/agent-map.ts'
+import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 
 export function AgentMapCanvas({
   reduced,

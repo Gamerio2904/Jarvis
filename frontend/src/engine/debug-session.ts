@@ -1,4 +1,4 @@
-import { TEST_COPY_GROUPS, type TestCopyItem } from './test-copy'
+import { TEST_COPY_GROUPS, type TestCopyItem } from './test-copy.ts'
 import {
   buildReport,
   judgeTurn,
@@ -6,10 +6,11 @@ import {
   selectedItems,
   stampFilename,
   type DebugTurn,
-} from './debug-run'
-import { loadSettings, saveSettings } from './store'
-import { setKeepScreenOn, startDebugFg, stopDebugFg, onDebugStop } from '../native/voice'
-import type { ToolMeta } from './tools'
+} from './debug-run.ts'
+import { historyExport } from './history.ts'
+import { loadSettings, saveSettings } from './store.ts'
+import { setKeepScreenOn, startDebugFg, stopDebugFg, onDebugStop } from '../native/voice.ts'
+import type { ToolMeta } from './tools.ts'
 
 export type DebugPhase = 'idle' | 'starting' | 'running' | 'stopping'
 export type OverlayPhase = 'closed' | 'opening' | 'open' | 'closing'
@@ -255,6 +256,15 @@ export function downloadDebug() {
   const stamp = stampFilename()
   saveBlob(`${stamp}.json`, JSON.stringify(rep, null, 2), 'application/json')
   saveBlob(`${stamp}.txt`, reportToText(rep), 'text/plain;charset=utf-8')
+}
+
+/**
+ * Die Sitzungs-Historie als Datei — gedacht für „er hat vorhin Unsinn
+ * geredet". Läuft nur auf Knopfdruck, damit ein Debug-Werkzeug keinen Zug
+ * verlangsamt.
+ */
+export function downloadHistory() {
+  saveBlob(`${stampFilename()}-historie.json`, historyExport(), 'application/json')
 }
 
 async function oneTurn(

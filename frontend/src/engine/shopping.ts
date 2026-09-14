@@ -1,4 +1,4 @@
-import { parseShopIntent } from './shopping-parse'
+import { parseShopIntent } from './shopping-parse.ts'
 import {
   addShopping,
   clearGotShopping,
@@ -6,11 +6,11 @@ import {
   loadSettings,
   markShoppingGot,
   persistLastList,
-} from './store'
-import { syncGlance } from './glance'
-import type { ToolMeta } from './tools'
+} from './store.ts'
+import { syncGlance } from './glance.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseShopIntent } from './shopping-parse'
+export { parseShopIntent } from './shopping-parse.ts'
 
 function rememberList(titles: string[]): void {
   persistLastList('shopping', titles)

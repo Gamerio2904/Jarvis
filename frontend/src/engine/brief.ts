@@ -1,9 +1,9 @@
-import { formatAgenda, upcomingReminders } from './reminders'
-import { listShopping, listEvents, listReminders, loadSettings } from './store'
-import { handleWeather } from './weather'
-import type { ToolMeta } from './tools'
+import { formatAgenda, upcomingReminders } from './reminders.ts'
+import { listShopping, listEvents, listReminders, loadSettings } from './store.ts'
+import { handleWeather } from './weather.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { isBriefAsk } from './brief-parse'
+export { isBriefAsk } from './brief-parse.ts'
 
 export async function handleBrief(): Promise<{
   handled: boolean

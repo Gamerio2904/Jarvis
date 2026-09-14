@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { prefersReducedMotion } from '../engine/motion'
+import { prefersReducedMotion } from '../engine/motion.ts'
 
 type Phase = 'idle' | 'work' | 'done'
 

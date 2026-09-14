@@ -21,7 +21,7 @@ Screenshot-Bugs in Antwortlogik beheben: Smalltalk bekommt Fachwissen-Antwort, T
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S247-1 | Director: `identity`/`chat` vor `search` bei Smalltalk | `director.ts` | CODE |
+| S247-1 | Smalltalk vor `search`: `parseGreeting` greift in `routeDeterministic`, also **vor** dem Director | `chat.ts`, `greeting.ts` | CODE |
 | S247-2 | Knowledge-Block leer → nicht in LLM-Prompt | `chat.ts`, `persona.ts` | CODE |
 | S247-3 | Timer Format ohne `: ` Leerzeichen | `timer-announce.ts` | CODE |
 | S247-4 | Wetter: frischer GPS → „bei Ihnen“ | `weather` / `briefPlace` | CODE |
@@ -32,7 +32,7 @@ Screenshot-Bugs in Antwortlogik beheben: Smalltalk bekommt Fachwissen-Antwort, T
 ## Gold
 
 ```bash
-npm run test:prompts   # 181+ grün, neue Cases
+npm run test:prompts   # 181 Chips grün
 npm run test:rest-final
 ```
 

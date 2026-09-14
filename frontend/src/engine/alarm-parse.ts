@@ -62,9 +62,15 @@ function nextClock(now: Date, h: number, m: number, dayWord: string | null): Dat
   return due
 }
 
+/** „weck mich um acht" ist ein Wecker. Eine Spanne ist es nicht — das ist ein Timer. */
+const WAKE_ME = /\bweck(?:e)?\s+mich\b/i
+const SPAN = /\bin\s+\d{1,3}\s*(?:sekunden?|minuten?|stunden?)\b/i
+
 export function parseAlarmIntent(text: string, now = new Date()): AlarmIntent | null {
   const raw = text.trim()
-  if (!raw || raw.length > 180 || !/\bwecker\b/i.test(raw)) return null
+  if (!raw || raw.length > 180) return null
+  const spoken = WAKE_ME.test(raw) && !SPAN.test(raw)
+  if (!/\bwecker\b/i.test(raw) && !spoken) return null
   if (/^(?:wecker\s+(?:aus|stopp|stop|abbrechen)|stopp(?:e)?\s+(?:den\s+)?wecker)$/i.test(raw)) {
     return { kind: 'stop' }
   }
@@ -77,6 +83,7 @@ export function parseAlarmIntent(text: string, now = new Date()): AlarmIntent | 
   let t = raw
     .replace(/stell(?:e)?\s+(?:einen\s+|den\s+)?wecker\s+(?:auf\s+|für\s+)?/i, 'wecker ')
     .replace(/^wecker\s+/i, '')
+    .replace(/^weck(?:e)?\s+mich\s*/i, '')
     .trim()
 
   let recur: 'daily' | 'weekly' | undefined

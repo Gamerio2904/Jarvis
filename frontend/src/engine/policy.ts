@@ -3,10 +3,68 @@ import type { Candidate } from './route-types.ts'
 export const SCORE_MIN = 0.45
 export const SCORE_MARGIN = 0.12
 
+/**
+ * Scores sind Rangwerte, keine Wahrscheinlichkeiten. Die Decke liegt deutlich
+ * über dem Parser-Band, damit eine gewollte Konflikt-Vorfahrt nicht wegsättigt
+ * und der Abstand zum Zweiten erhalten bleibt.
+ */
+export const SCORE_CEIL = 4
+
 const COST: Record<string, number> = {
   device: 0.05,
   write: 0.02,
   read: 0,
+}
+
+/**
+ * Feste Vorfahrt bei exaktem Gleichstand — engster Auslöser zuerst, breitester
+ * zuletzt. Nicht gelistete Agenten sind gleichrangig und fragen weiter zurück.
+ */
+const TIE_ORDER = [
+  'wont',
+  'identity',
+  'hud',
+  'app',
+  'face',
+  'backup',
+  'trace',
+  'doc',
+  'desk',
+  'pack',
+  'teach',
+  'blitzer',
+  'taxi',
+  'chat-folder',
+  'watch-price',
+  'amazon',
+  'digest',
+  'recall',
+  'timer',
+  'alarm',
+  'calendar',
+  'reminder',
+  'brief',
+  'outlook',
+  'ferien',
+  'holiday',
+  'fuel',
+  'transit',
+  'poi',
+  'warn',
+  'fx',
+  'sport',
+  'tv',
+  'film',
+  'drive',
+  'maps',
+]
+
+const TIE_RANK: Record<string, number> = Object.fromEntries(TIE_ORDER.map((id, i) => [id, i]))
+
+/** Kleiner ist Vorfahrt. Unbekannte Agenten teilen den letzten Rang. */
+export function tieRank(id: string): number {
+  const n = TIE_RANK[id]
+  return n == null ? TIE_ORDER.length : n
 }
 
 export type PolicyPick =
@@ -14,29 +72,55 @@ export type PolicyPick =
   | { kind: 'ask'; a: string; b: string }
   | { kind: 'none' }
 
+/**
+ * Gleichstand darf keine Rückfrage werden. Ein Parser-Treffer ist deterministisch,
+ * also entscheidet bei identischem Score die feste Reihenfolge — nicht der Zufall
+ * der Katalog-Position. Nur echte Gleichrangigkeit fragt zurück.
+ */
+const TIE_EPS = 1e-6
+
+/** Schwelle zählt den Parse-Score, Kosten verschieben nur die Reihenfolge. */
+function eligible(c: Candidate): boolean {
+  return (c.base ?? c.score) >= SCORE_MIN
+}
+
+function baseOf(c: Candidate): number {
+  return c.base ?? c.score
+}
+
+/**
+ * Gefragt wird erst, wenn nichts mehr trennt: nicht der Parse-Score, nicht die
+ * Kosten und nicht die feste Vorfahrt. Vorher entschied schon ein Abstand
+ * unter `SCORE_MARGIN` auf Rückfrage — und weil die Kosten (höchstens 0.05)
+ * diesen Abstand nie überschreiten konnten, war jede Kosten-Differenz eine
+ * Rückfrage statt einer Entscheidung.
+ */
 export function pickPolicy(cands: Candidate[]): PolicyPick {
-  const ranked = [...cands]
-    .filter((c) => c.score >= SCORE_MIN)
-    .sort((a, b) => b.score - a.score)
+  const ranked = cands
+    .filter(eligible)
+    .sort((a, b) => b.score - a.score || tieRank(a.id) - tieRank(b.id) || a.id.localeCompare(b.id))
   if (!ranked.length) return { kind: 'none' }
   const top = ranked[0]
   const second = ranked[1]
-  if (second && top.score - second.score < SCORE_MARGIN && top.id !== second.id) {
-    return { kind: 'ask', a: top.id, b: second.id }
-  }
-  return { kind: 'run', id: top.id, score: top.score }
+  const run = { kind: 'run', id: top.id, score: top.score } as const
+  if (!second || top.id === second.id) return run
+  if (baseOf(top) - baseOf(second) >= SCORE_MARGIN) return run
+  if (Math.abs(top.score - second.score) > TIE_EPS) return run
+  if (tieRank(top.id) !== tieRank(second.id)) return run
+  return { kind: 'ask', a: top.id, b: second.id }
 }
 
 export function withCost(cands: Candidate[]): Candidate[] {
   return cands.map((c) => ({
     ...c,
-    score: Math.max(SCORE_MIN, c.score - (COST[c.sideEffect] || 0)),
+    base: c.base ?? c.score,
+    score: c.score - (COST[c.sideEffect] || 0),
   }))
 }
 
 export function withPrior(cands: Candidate[], lastTool: string, followish: boolean): Candidate[] {
   if (!lastTool || !followish) return cands
-  return cands.map((c) => (c.id === lastTool ? { ...c, score: Math.min(0.99, c.score + 0.14) } : c))
+  return cands.map((c) => (c.id === lastTool ? { ...c, score: Math.min(SCORE_CEIL, c.score + 0.14) } : c))
 }
 
 export function parserScore(text: string, extra = 0): number {

@@ -1,20 +1,20 @@
-import { loadSettings, saveSettings } from './store'
+import { loadSettings, saveSettings } from './store.ts'
 import {
   homeDiscoverNative,
   homeLearnNative,
   homeSendNative,
   homeTestNative,
   type HomeDevice,
-} from '../native/home'
+} from '../native/home.ts'
 import {
   FAN_FOLLOWUP_MS,
   isFanFollowUpPhrase,
   parseFanIntent,
   type FanAction,
   type FanIntent,
-} from './fan-parse'
+} from './fan-parse.ts'
 
-export { parseFanIntent } from './fan-parse'
+export { parseFanIntent } from './fan-parse.ts'
 
 let lastFanAt = 0
 let lastSpeed = 2

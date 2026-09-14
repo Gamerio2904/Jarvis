@@ -1,6 +1,6 @@
-import { notifyIdFromKey, requestNotifyPermission, scheduleNotify, cancelNotify } from '../native/notify'
-import { formatDue, startOfDay } from './remind-parse'
-import { parseCalendarIntent } from './calendar-parse'
+import { notifyIdFromKey, requestNotifyPermission, scheduleNotify, cancelNotify } from '../native/notify.ts'
+import { formatDue, startOfDay } from './remind-parse.ts'
+import { parseCalendarIntent } from './calendar-parse.ts'
 import {
   addEvent,
   deleteEvent,
@@ -8,10 +8,10 @@ import {
   listReminders,
   persistLastList,
   type CalendarEvent,
-} from './store'
-import type { ToolMeta } from './tools'
+} from './store.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parseCalendarIntent } from './calendar-parse'
+export { parseCalendarIntent } from './calendar-parse.ts'
 
 export async function handleCalendar(
   conversationId: string,

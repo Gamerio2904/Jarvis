@@ -12,7 +12,7 @@ import {
   testGroq as engineTestGroq,
   releaseModel as engineReleaseModel,
   type StreamHandlers,
-} from './engine/chat'
+} from './engine/chat.ts'
 import {
   APP_VERSION,
   addMessage,
@@ -30,14 +30,14 @@ import {
   type MemoryItem,
   type Message,
   type Settings as EngineSettings,
-} from './engine/store'
-import { discoverTvs, pairTv, testFireTv, testTv, tvStatusFromSettings } from './engine/tv'
+} from './engine/store.ts'
+import { discoverTvs, pairTv, testFireTv, testTv, tvStatusFromSettings } from './engine/tv.ts'
 import {
   discoverFan,
   learnFan,
   pickFan,
   testFan,
-} from './engine/fan'
+} from './engine/fan.ts'
 import {
   discoverPlugs,
   probePlug,
@@ -47,9 +47,9 @@ import {
   removePlug,
   emptyPlug,
   type Plug,
-} from './engine/plug'
-import { testPc as engineTestPc, pullRtcFrame, stopRtcLive, readRtcLive } from './engine/pc'
-import type { ResearchMeta, ResearchSource } from './engine/research-parse'
+} from './engine/plug.ts'
+import { testPc as engineTestPc, pullRtcFrame, stopRtcLive, readRtcLive } from './engine/pc.ts'
+import type { ResearchMeta, ResearchSource } from './engine/research-parse.ts'
 
 export type { Conversation, MemoryCategory, MemoryItem, Message, Reminder, StreamHandlers, ResearchMeta, ResearchSource }
 export { APP_VERSION, ensureModel, getDownloadProgress, hasCachedModel, isModelReady, isGeminiConfigured }
@@ -169,10 +169,10 @@ export async function listReminders() {
   return storeListReminders()
 }
 
-export { removeReminder, syncReminderAlarms } from './engine/reminders'
-export { readEyeImage, fileToJpegDataUrl } from './engine/eye'
+export { markFiredByNotifyId, removeReminder, syncReminderAlarms } from './engine/reminders.ts'
+export { readEyeImage, fileToJpegDataUrl } from './engine/eye.ts'
 export { ingestDocFile } from './engine/doc.ts'
-export { checkHomeFence } from './engine/home'
+export { checkHomeFence } from './engine/home.ts'
 
 export async function listResearchAudits(limit = 30): Promise<ResearchAudit[]> {
   const rows = await storeListAudits(limit)
@@ -310,7 +310,7 @@ export async function testPc(opts?: { host?: string; token?: string; port?: numb
 }
 
 export { pullRtcFrame, stopRtcLive, readRtcLive }
-export { applyPcPair, parsePcPairPayload } from './engine/pc'
+export { applyPcPair, parsePcPairPayload } from './engine/pc.ts'
 
 export async function testGemini(): Promise<{ ok: boolean; reply: string }> {
   return engineTestGemini()

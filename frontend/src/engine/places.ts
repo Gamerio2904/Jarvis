@@ -1,5 +1,5 @@
-import { openDevicePage, openExternal, placeCall, sendSmsNow } from '../native/device'
-import { hasChain, popChain } from './chain'
+import { openDevicePage, openExternal, placeCall, sendSmsNow } from '../native/device.ts'
+import { hasChain, popChain } from './chain.ts'
 import {
   displayPlaceName,
   extractPhone,
@@ -15,16 +15,16 @@ import {
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
-} from './places-parse'
-import { addReminder, listMemory, loadSettings, persistLastList, saveSettings, upsertMemory } from './store'
-import type { ToolMeta } from './tools'
+} from './places-parse.ts'
+import { addReminder, listMemory, loadSettings, persistLastList, saveSettings, upsertMemory } from './store.ts'
+import type { ToolMeta } from './tools.ts'
 
 export {
   mapsDirUrl,
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
-} from './places-parse'
+} from './places-parse.ts'
 
 export type MapsRoute = { title: string; url: string; destination: string }
 

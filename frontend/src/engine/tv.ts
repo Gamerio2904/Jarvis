@@ -11,7 +11,7 @@ import {
   tvWakeNative,
   type TvDevice,
   type TvResult,
-} from '../native/tv'
+} from '../native/tv.ts'
 import { TV_APP_IDS, TV_APP_LABEL, type TvAppId } from './tv-apps.ts'
 import {
   deviceCanLaunch,

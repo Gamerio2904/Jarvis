@@ -1,21 +1,49 @@
 import { useEffect, useMemo, useState } from 'react'
-import { TEST_COPY_GROUPS } from '../engine/test-copy'
+import { TEST_COPY_GROUPS } from '../engine/test-copy.ts'
 import {
   debugSnapshot,
   downloadDebug,
+  downloadHistory,
   markDebugWarned,
   requestDebugStop,
   setDebugPicked,
   startDebugRun,
   subscribeDebug,
   type DebugSendResult,
-} from '../engine/debug-session'
-import { formatLatency, lastLatency, subscribeLatency } from '../engine/latency'
-import { DownloadBtn } from './DownloadBtn'
+} from '../engine/debug-session.ts'
+import { formatLatency, lastLatency, subscribeLatency } from '../engine/latency.ts'
+import { historyTurns } from '../engine/history.ts'
+import { breakerSnapshot } from '../engine/agents/breaker.ts'
+import { quotaSnapshot } from '../engine/quota.ts'
+import { DownloadBtn } from './DownloadBtn.tsx'
 
 const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
 
 export type { DebugSendResult }
+
+/**
+ * Zwei Zustände, die vorher nur im Verhalten sichtbar waren: welcher Agent
+ * gerade gesperrt ist und wie viel Tageskontingent die Cloud noch hat.
+ * Steht nichts an, steht hier nichts.
+ */
+function HealthLine() {
+  const breakers = breakerSnapshot()
+  const quota = quotaSnapshot().filter((q) => q.remainingRequests != null || q.blockedUntil > Date.now())
+  if (!breakers.length && !quota.length) return null
+  return (
+    <p className="settings-hint">
+      {breakers.map((b) => `${b.id}: Sicherung ${b.state} (${b.fails}×)`).join(' · ')}
+      {breakers.length && quota.length ? ' · ' : ''}
+      {quota
+        .map((q) =>
+          q.blockedUntil > Date.now()
+            ? `${q.provider}: Limit bis ${new Date(q.blockedUntil).toLocaleTimeString('de-DE')}`
+            : `${q.provider}: noch ${q.remainingRequests} Anfragen`,
+        )
+        .join(' · ')}
+    </p>
+  )
+}
 
 export function DebugPanel({
   onSend,
@@ -115,6 +143,15 @@ export function DebugPanel({
             downloadDebug()
           }}
         />
+        <DownloadBtn
+          idle="Historie herunterladen"
+          work="Lädt…"
+          done="Gespeichert"
+          disabled={!historyTurns().length}
+          onRun={async () => {
+            downloadHistory()
+          }}
+        />
       </div>
       {snap.progress ? <p className="debug-progress">{snap.progress}</p> : null}
       {lag ? (
@@ -122,6 +159,7 @@ export function DebugPanel({
           Letzter Turn: {formatLatency(lag)}
         </p>
       ) : null}
+      <HealthLine />
       {snap.error ? <p className="settings-hint setup-error">{snap.error}</p> : null}
       {snap.turns.length ? (
         <pre className="debug-log">

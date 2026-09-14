@@ -1,8 +1,34 @@
-import { GEMINI_PERSONA } from './persona'
-import { GROQ_MODELS_BEST_FIRST, isFatalAuth, isRetryableCloud, isUnknownModel } from './cloud-errors'
-import { postJson } from './http-json'
-import { streamSseLines } from '../native/voice'
-import { loadSettings } from './store'
+import { GEMINI_PERSONA } from './persona.ts'
+import {
+  groqModelOrder,
+  isFatalAuth,
+  isRetryableCloud,
+  isUnknownModel,
+  markSkip,
+  parseSkipMap,
+} from './cloud-errors.ts'
+import { postJson } from './http-json.ts'
+import { streamSseLines } from '../native/voice.ts'
+import { loadSettings, saveSettings } from './store.ts'
+import { noteQuotaExhausted, noteQuotaHeaders } from './quota.ts'
+
+/**
+ * Gemini merkt sich über `markSkip`, welches Modell gerade nicht geht. Groq
+ * lief bei jedem Aufruf von vorne durch dieselbe tote Liste — dasselbe
+ * Gedächtnis, nur bisher nicht angeschlossen.
+ */
+function skipGroqModel(model: string): void {
+  saveSettings({ groq_skip_until: markSkip(loadSettings().groq_skip_until, model) })
+}
+
+/** Ein Modell, das wieder antwortet, gehört sofort zurück nach vorne. */
+function groqUnskip(model: string): void {
+  const raw = loadSettings().groq_skip_until
+  const map = parseSkipMap(raw)
+  if (!map[model]) return
+  delete map[model]
+  saveSettings({ groq_skip_until: JSON.stringify(map) })
+}
 
 type GroqChoice = { message?: { content?: string }; delta?: { content?: string } }
 type GroqResponse = {
@@ -45,13 +71,26 @@ export async function completeGroq(
     max_tokens: 420,
   }
   let last = 'Groq antwortet nicht.'
-  for (const model of GROQ_MODELS_BEST_FIRST) {
+  for (const model of groqModelOrder(loadSettings().groq_skip_until)) {
     const streamed = await streamGroq({ ...body, stream: true, model }, key, onToken)
     if (streamed.fatal) throw new Error(streamed.last)
-    if (streamed.text) return streamed.text
+    if (streamed.text) {
+      groqUnskip(model)
+      return streamed.text
+    }
     if (streamed.last) last = streamed.last
+    /**
+     * Ein Modell, das es nicht gibt, hat es auch beim zweiten Anlauf nicht.
+     * Vorher kostete genau dieser Fall **zwei** Anfragen pro Zug — bei 1.000
+     * am Tag und einem toten Modell an Position 1 die Hälfte des Budgets.
+     */
+    if (isUnknownModel(0, streamed.last)) {
+      skipGroqModel(model)
+      last = 'Groq-Modell nicht verfügbar.'
+      continue
+    }
     try {
-      const { status, json } = await postJson(
+      const { status, json, headers } = await postJson(
         'https://api.groq.com/openai/v1/chat/completions',
         {
           'Content-Type': 'application/json',
@@ -60,6 +99,7 @@ export async function completeGroq(
         { ...body, model, stream: false },
         10_000,
       )
+      noteQuotaHeaders('groq', headers)
       const parsed = json as GroqResponse
       const errMsg = parsed.error?.message || ''
       const errCode = String(parsed.error?.code || parsed.error?.type || '')
@@ -67,7 +107,13 @@ export async function completeGroq(
         throw new Error('Groq-Key ungültig. Unter console.groq.com/keys einen neuen holen.')
       }
       if (isUnknownModel(status, errMsg, errCode) || status === 400) {
+        skipGroqModel(model)
         last = 'Groq-Modell nicht verfügbar.'
+        continue
+      }
+      if (status === 429) {
+        noteQuotaExhausted('groq', headers)
+        last = 'Groq-Tageslimit erreicht.'
         continue
       }
       if (isRetryableCloud(status, errMsg, errCode) || status < 200 || status >= 300) {
@@ -79,6 +125,7 @@ export async function completeGroq(
         last = 'Groq lieferte keinen Text.'
         continue
       }
+      groqUnskip(model)
       onToken?.(text, text)
       return text
     } catch (err) {
@@ -88,6 +135,71 @@ export async function completeGroq(
     }
   }
   throw new Error(last)
+}
+
+/**
+ * Ein Aufruf, dessen Antwort **muss** dem Schema entsprechen: Groq erzwingt
+ * die Grammatik im Decoder (`response_format: json_schema, strict`). Ein
+ * Feldname kann damit nicht falsch geschrieben sein, weil er nicht falsch
+ * geschrieben *werden* kann — kein Regex-Rettungsversuch nötig.
+ *
+ * Wirft nie. Wer hier nichts bekommt, geht den Weg von vorher.
+ */
+export async function completeGroqJson(opts: {
+  system: string
+  user: string
+  name: string
+  schema: Record<string, unknown>
+  timeoutMs?: number
+}): Promise<unknown | null> {
+  const key = groqKey()
+  if (!key) return null
+  const body = {
+    messages: [
+      { role: 'system', content: opts.system },
+      { role: 'user', content: opts.user },
+    ],
+    temperature: 0,
+    max_tokens: 200,
+    response_format: {
+      type: 'json_schema',
+      json_schema: { name: opts.name, strict: true, schema: opts.schema },
+    },
+  }
+  /**
+   * Das 8B hat 14.400 Requests am Tag statt 1.000. „Welches Werkzeug passt"
+   * ist eine triviale Aufgabe; das große Kontingent bleibt den Antworten.
+   */
+  const order = groqModelOrder(loadSettings().groq_skip_until)
+  const models = ['llama-3.1-8b-instant', ...order.filter((m) => m !== 'llama-3.1-8b-instant')].slice(0, 2)
+  for (const model of models) {
+    try {
+      const { status, json, headers } = await postJson(
+        'https://api.groq.com/openai/v1/chat/completions',
+        { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+        { ...body, model },
+        opts.timeoutMs ?? 6_000,
+      )
+      noteQuotaHeaders('groq', headers)
+      if (status === 429) {
+        noteQuotaExhausted('groq', headers)
+        return null
+      }
+      const parsed = json as GroqResponse
+      if (isUnknownModel(status, parsed.error?.message || '', String(parsed.error?.code || ''))) {
+        skipGroqModel(model)
+        continue
+      }
+      if (status < 200 || status >= 300) continue
+      const text = textFrom(parsed)
+      if (!text) continue
+      groqUnskip(model)
+      return JSON.parse(text) as unknown
+    } catch {
+      /* Netz weg, Zeit um oder kein JSON — dann eben kein Vorschlag */
+    }
+  }
+  return null
 }
 
 async function streamGroq(

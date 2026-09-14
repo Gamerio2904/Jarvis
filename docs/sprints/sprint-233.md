@@ -12,6 +12,6 @@ Rest: **Information + Werkstatt + Wissen + System** — weather, outlook, resear
 
 ## DoD
 
-- [x] Alle 52 Domänen in AgentSpec
+- [x] Alle Domänen in AgentSpec — inzwischen **60** Einträge in `agents/parse-catalog.ts` (Planungszahl war 52)
 - [x] `test:agents.mjs` Smoke pro ID
 - [x] `test:prompts` + `test:014` grün

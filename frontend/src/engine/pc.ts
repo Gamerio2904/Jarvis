@@ -1,8 +1,8 @@
-import { completeGeminiVision, geminiReady } from './gemini'
-import { getJson, postJson } from './http-json'
-import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from './pc-host'
+import { completeGeminiVision, geminiReady } from './gemini.ts'
+import { getJson, postJson } from './http-json.ts'
+import { isAllowedPcHost, PC_HOST_HINT, sanitizePcHost } from './pc-host.ts'
 import { markPcFrame } from './desk.ts'
-import { parsePcIntent, type PcIntent } from './pc-parse'
+import { parsePcIntent, type PcIntent } from './pc-parse.ts'
 import { parsePcPairPayload, pcPairRejectReason } from './pc-pair.ts'
 import {
   CAP_OFFLINE,
@@ -24,17 +24,17 @@ import {
   parseRtcSession,
   rtcSuccessReply,
 } from './pc-rtc.ts'
-import { isCommNo, isCommYes } from './places-parse'
-import { isPcGround, parseGroundIntent, type GroundIntent } from './ground-parse'
-import { loadSettings, saveSettings } from './store'
-import { scrubReply } from './guards'
+import { isCommNo, isCommYes } from './places-parse.ts'
+import { isPcGround, parseGroundIntent, type GroundIntent } from './ground-parse.ts'
+import { loadSettings, saveSettings } from './store.ts'
+import { scrubReply } from './guards.ts'
 import { packVerified } from './action-fsm.ts'
 import { pushPcEvent } from './pc-events.ts'
-import type { ToolMeta } from './tools'
+import type { ToolMeta } from './tools.ts'
 
-export { sanitizePcHost, isAllowedPcHost, PC_HOST_HINT } from './pc-host'
-export { parsePcIntent, PC_COPY_PROMPTS } from './pc-parse'
-export type { PcIntent } from './pc-parse'
+export { sanitizePcHost, isAllowedPcHost, PC_HOST_HINT } from './pc-host.ts'
+export { parsePcIntent, PC_COPY_PROMPTS } from './pc-parse.ts'
+export type { PcIntent } from './pc-parse.ts'
 export { parsePcPairPayload, formatPcPairPayload, pcPairRejectReason } from './pc-pair.ts'
 export type { PcPair } from './pc-pair.ts'
 export { parsePcCaps, pcCan, pcActionVerified, needsLaunchConfirm } from './pc-cap.ts'

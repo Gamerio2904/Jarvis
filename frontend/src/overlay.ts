@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { prefersReducedMotion } from './fx'
+import { prefersReducedMotion } from './fx.ts'
 
 export const LEAVE_MS = 320
 

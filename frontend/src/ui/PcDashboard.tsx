@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { readRtcLive } from '../api'
-import { pcDashboardEnabled } from '../engine/pc-events'
-import { prefersReducedMotion } from '../engine/motion'
-import { loadSettings } from '../engine/store'
-import { AgentMapCanvas } from './lage/AgentMapCanvas'
-import { AgentStatusBar } from './lage/AgentStatusBar'
-import { PcActionStream } from './PcActionStream'
+import { readRtcLive } from '../api.ts'
+import { pcDashboardEnabled } from '../engine/pc-events.ts'
+import { prefersReducedMotion } from '../engine/motion.ts'
+import { loadSettings } from '../engine/store.ts'
+import { AgentMapCanvas } from './lage/AgentMapCanvas.tsx'
+import { AgentStatusBar } from './lage/AgentStatusBar.tsx'
+import { PcActionStream } from './PcActionStream.tsx'
 
 export function PcDashboard({ busy }: { busy?: boolean }) {
   const s = loadSettings()

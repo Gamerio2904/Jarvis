@@ -12,7 +12,7 @@ Reihe davor: [`30-next.md`](./30-next.md) (`2.2.2`). App-Code damals: **`3.0.0`*
 |-------|----------------|
 | Major | `3.0.0` = Intelligenz. Fokus: besser verstehen, welches Tool gilt. |
 | Register | Katalog + Vertrag. Parse vor Execute. |
-| Wahl | Score-Policy mit Prior, Kosten, Konflikttabelle. Bei Gleichstand eine Rückfrage. |
+| Wahl | Score-Policy mit Prior, Kosten, Konflikttabelle. Rückfrage nur, wenn auch Kosten und Rangfolge nichts trennen (seit `16.1.0`). |
 | 0,5B | Wählt keine Tools. LLM nur Sprache. |
 | Neue Tools | Nur Register-Eintrag, kein `if` in `chat.ts`. |
 | Welt | `3.1`–`3.17` Inhalte **CODE**, mitgeliefert in `3.0.0`. |
@@ -28,6 +28,12 @@ Reihe davor: [`30-next.md`](./30-next.md) (`2.2.2`). App-Code damals: **`3.0.0`*
        knapp    → eine Rückfrage
        niemand  → LLM
 ```
+
+Ab `16.1.0` ist Schicht 2 dreistufig, und „knapp“ allein löst keine Rückfrage mehr
+aus. `pickPolicy` fragt erst, wenn **Basis-Score** (Marge unter `SCORE_MARGIN`),
+**kostenbereinigter Score** und **`tieRank`** nacheinander alle nichts trennen.
+Der Standardweg ist außerdem `runDirectorTurn`, nicht `routeRegistry` —
+`agent_network_v2` steht auf `true`. Ist-Beschreibung: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Versionen
 
@@ -63,7 +69,7 @@ Sprint: [`sprint-106.md`](./sprints/sprint-106.md). Welt-Details: [`31-next.md`]
 | `policy.ts` | Schwellen, Kosten, Nachfrage |
 | `conflicts.ts` | Überschneidungen |
 | `registry.ts` | Execute + Gates Pending |
-| `chat.ts` | Gates, dann `routeRegistry` |
+| `chat.ts` | Gates, dann `runDirectorTurn`; `routeRegistry` nur mit `agent_network_v2: false` |
 
 ## Probe
 

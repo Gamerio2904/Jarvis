@@ -257,7 +257,7 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   const recur = parseRecur(t, now)
   if (recur) return recur
 
-  const callMe = /^\s*ruf(?:e)?\s+mich(?:\s+bitte)?\s+in\s+(\d+)\s+(minuten?|stunden?|tage(?:n)?|tag)(?:\s+an)?\s*$/i.exec(t)
+  const callMe = /^\s*(?:ruf(?:e)?|weck(?:e)?)\s+mich(?:\s+bitte)?\s+in\s+(\d+)\s+(minuten?|stunden?|tage(?:n)?|tag)(?:\s+an)?\s*$/i.exec(t)
   if (callMe) {
     const n = Number(callMe[1])
     if (Number.isFinite(n) && n > 0) {

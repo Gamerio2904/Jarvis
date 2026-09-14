@@ -51,6 +51,15 @@ export type AgentTrace = {
 
 export type AgentResult = {
   handled: boolean
+  /**
+   * Der Handler ist gescheitert (Wurf oder Budget), er hat nicht bloß
+   * abgelehnt. Ein Durchfallen ans Modell wäre hier gefährlich: es könnte
+   * einen Erfolg behaupten, den es nie gab.
+   */
+  failed?: boolean
+  failReason?: string
+  /** Nicht gescheitert, sondern nicht mehr gewollt — kein Fehlertext, keine Sicherung. */
+  aborted?: boolean
   userFacts?: string
   reply?: string
   tool?: ToolMeta

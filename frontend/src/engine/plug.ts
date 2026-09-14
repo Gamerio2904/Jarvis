@@ -1,15 +1,15 @@
-import { loadSettings, saveSettings, newId } from './store'
-import { plugDiscoverNative, plugProbeNative, plugSetNative, type HomeDevice } from '../native/home'
-import { lanIpHint } from './plug-net'
+import { loadSettings, saveSettings, newId } from './store.ts'
+import { plugDiscoverNative, plugProbeNative, plugSetNative, type HomeDevice } from '../native/home.ts'
+import { lanIpHint } from './plug-net.ts'
 import {
   PLUG_FOLLOWUP_MS,
   isPlugFollowUpPhrase,
   parsePlugIntent,
   type PlugAction,
   type PlugIntent,
-} from './plug-parse'
+} from './plug-parse.ts'
 
-export { parsePlugIntent } from './plug-parse'
+export { parsePlugIntent } from './plug-parse.ts'
 
 export type PlugKind = 'auto' | 'shelly' | 'tasmota' | 'tuya' | 'http' | 'broadlink'
 

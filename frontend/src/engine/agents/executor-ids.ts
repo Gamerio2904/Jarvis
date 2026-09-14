@@ -1,5 +1,6 @@
 /** IDs with execute handlers — keep in sync with execute-map.ts */
 export const EXECUTOR_IDS = [
+  "identity",
   "wont",
   "tv",
   "film",

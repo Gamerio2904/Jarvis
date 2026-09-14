@@ -103,6 +103,13 @@ export function normalizeUtterance(text: string): string {
     if (rest && COMMAND_START.test(rest)) raw = rest
   }
   raw = raw.replace(/^(?:ähm+|äh+|hm+)\s+/i, '').trim()
+  /**
+   * Höflichkeit am Satzende. Gesprochen hängt sie fast immer dran, und
+   * Parser, die auf Satzende prüfen (`… auf die Einkaufsliste$`), scheitern
+   * daran — getippt fällt das nie auf.
+   */
+  const polite = /^(.*\S)\s+(?:bitte|danke)\s*([.!?]*)$/i.exec(raw)
+  if (polite && polite[1].split(/\s+/).length >= 2) raw = `${polite[1]}${polite[2]}`
   for (;;) {
     const lead = /^(?:ja|bitte|mal|ähm+|also)\s+/i.exec(raw)
     if (!lead) break

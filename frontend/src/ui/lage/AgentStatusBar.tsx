@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { activeAgentId, activeTracePath, departmentLabel } from '../../engine/agent-map'
-import { AGENT_META } from '../../engine/agents/meta'
-import { getBrainSlots, getTurnTraces } from '../../engine/agents/trace-store'
+import { activeAgentId, activeTracePath, departmentLabel } from '../../engine/agent-map.ts'
+import { AGENT_META } from '../../engine/agents/meta.ts'
+import { getBrainSlots, getTurnTraces } from '../../engine/agents/trace-store.ts'
 
 function statusLine(busy: boolean): { main: string; path: string } {
   const agentId = activeAgentId()

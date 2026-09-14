@@ -1,4 +1,4 @@
-import type { WeatherFocus, WeatherWhen } from './weather-parse'
+import type { WeatherFocus, WeatherWhen } from './weather-parse.ts'
 
 export type WeatherDay = {
   date: string

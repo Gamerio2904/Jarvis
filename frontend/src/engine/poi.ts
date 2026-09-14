@@ -1,14 +1,14 @@
-import { ensureDeviceLocation } from '../native/geo'
-import { beginDriveTo } from './drive'
-import { haversineM, reversePlace } from './geo-lookup'
-import { getJson } from './http-json'
-import { formatHoursSpeech, hoursOpenNow } from './opening-hours'
-import { parsePoiIntent, poiLabel, looksLikeGroceryList, type PoiKind } from './poi-parse'
-import { loadSettings, persistLastList, saveSettings } from './store'
-import type { ToolMeta } from './tools'
+import { ensureDeviceLocation } from '../native/geo.ts'
+import { beginDriveTo } from './drive.ts'
+import { haversineM, reversePlace } from './geo-lookup.ts'
+import { getJson } from './http-json.ts'
+import { formatHoursSpeech, hoursOpenNow } from './opening-hours.ts'
+import { parsePoiIntent, poiLabel, looksLikeGroceryList, type PoiKind } from './poi-parse.ts'
+import { loadSettings, persistLastList, saveSettings } from './store.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList } from './poi-parse'
-export type { PoiIntent, PoiKind } from './poi-parse'
+export { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList } from './poi-parse.ts'
+export type { PoiIntent, PoiKind } from './poi-parse.ts'
 
 type PoiHit = {
   handled: boolean

@@ -1,8 +1,14 @@
-# 62 — Jarvis 14.0 Agenten-Netzwerk **CODE** (`15.1.0`)
+# 62 — Jarvis 14.0 Agenten-Netzwerk — **Planungsprotokoll**
+
+> **Dies ist das Zielbild von 14.0, nicht der Code.** Die Namen und die
+> Pipeline in Abschnitt 4 sind Skizzen und weichen von der Umsetzung ab
+> (`agentBus.dispatch` heißt `agentDispatch`, `director.runTurn` heißt
+> `runDirectorTurn`, und der Director führt keinen Parallellauf aus).
+> Der Ist-Stand steht in [`66-agents-ist.md`](./66-agents-ist.md).
 
 PO 2026-09-08: Reel [DbYh2P-MQnj](https://www.instagram.com/reel/DbYh2P-MQnj/) (alassafi.ai) — **137 Agenten**, **7 Abteilungen**, **live Karte**, **zentrales Firmen-Gehirn** als gemeinsame Wissensbasis. Jarvis soll von „eine KI mit Parsern“ zu einem **Netzwerk spezialisierter Agenten** werden — sichtbar in der **Körper-/Agenten-Karte**, ohne Funktionsverlust.
 
-**App-Stand:** Code und Sideload **`15.1.0`**. Execute Sprints **227–235** **CODE**. Hirn: Groq primär ([`63-next.md`](./63-next.md)). Parser zuerst. TypeScript **war** der eine Agent (`chat.ts` + `registry.ts`); ab **229** koordiniert **`director.ts`** das Netzwerk.
+**App-Stand bei Verfassung:** Code und Sideload **`15.1.0`**. Execute Sprints **227–235** **CODE**. Hirn: Groq primär ([`63-next.md`](./63-next.md)). Parser zuerst. TypeScript **war** der eine Agent (`chat.ts` + `registry.ts`); ab **229** koordiniert **`director.ts`** das Netzwerk.
 
 ---
 

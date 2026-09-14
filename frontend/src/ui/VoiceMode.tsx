@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { wantNeuralMouth } from '../engine/tts'
-import { setChatSpeaking } from '../engine/speak-lock'
-import { dispatchVoiceAmp, prefersReducedMotion } from '../engine/motion'
+import { wantNeuralMouth } from '../engine/tts.ts'
+import { setChatSpeaking } from '../engine/speak-lock.ts'
+import { dispatchVoiceAmp, prefersReducedMotion } from '../engine/motion.ts'
 import {
   beginVoiceSession,
   createSentenceTap,
@@ -14,7 +14,8 @@ import {
   stopListen,
   stopSpeak,
   watchBargeIn,
-} from '../native/voice'
+} from '../native/voice.ts'
+import { abortCurrentTurn } from '../engine/turn-abort.ts'
 
 type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
 
@@ -221,7 +222,15 @@ export function VoiceMode({
           { preempt },
         ),
         new Promise<string>((_, reject) => {
-          abortTurn.current = () => reject(new Error('__barge_in__'))
+          /**
+           * Vorher verwarf das nur das **Ergebnis** — die Handler liefen
+           * weiter, holten Feeds und konnten danach noch schreiben. Jetzt
+           * bricht Reden auch die Arbeit ab.
+           */
+          abortTurn.current = () => {
+            abortCurrentTurn('Barge-in')
+            reject(new Error('__barge_in__'))
+          }
         }),
       ])
     } catch (e) {

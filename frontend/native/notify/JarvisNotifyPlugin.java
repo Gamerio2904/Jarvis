@@ -32,6 +32,8 @@ import com.getcapacitor.annotation.PermissionCallback;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Calendar;
+
 @CapacitorPlugin(
         name = "JarvisNotify",
         permissions = {
@@ -359,6 +361,34 @@ public class JarvisNotifyPlugin extends Plugin {
         }
     }
 
+    static long storedAt(Context ctx, int id) {
+        try {
+            JSONArray arr = load(ctx);
+            for (int i = 0; i < arr.length(); i++) {
+                JSONObject o = arr.optJSONObject(i);
+                if (o != null && o.optInt("id") == id) return o.optLong("atMs", 0L);
+            }
+        } catch (Exception ignored) {
+        }
+        return 0L;
+    }
+
+    /**
+     * Der nächste Termin zählt vom geplanten Schlag, nicht vom tatsächlichen.
+     * Sonst wandert ein 7-Uhr-Wecker mit jeder Doze-Verzögerung nach hinten.
+     * Calendar statt fester Millisekunden, damit die Uhrzeit die Zeitumstellung
+     * übersteht — so rechnet auch nextRecurDue in reminders.ts.
+     */
+    static long nextRecurAt(long scheduledAt, String recur, long now) {
+        int step = "weekly".equals(recur) ? 7 : 1;
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(scheduledAt > 0 ? scheduledAt : now);
+        do {
+            c.add(Calendar.DAY_OF_MONTH, step);
+        } while (c.getTimeInMillis() <= now);
+        return c.getTimeInMillis();
+    }
+
     static void removeStored(Context ctx, int id) {
         try {
             JSONArray arr = load(ctx);
@@ -445,8 +475,7 @@ public class JarvisNotifyPlugin extends Plugin {
         if (!alarm) {
             showQuiet(ctx, id, title, body);
             if ("daily".equals(recur) || "weekly".equals(recur)) {
-                long step = "weekly".equals(recur) ? 7L * 86_400_000L : 86_400_000L;
-                long next = System.currentTimeMillis() + step;
+                long next = nextRecurAt(storedAt(ctx, id), recur, System.currentTimeMillis());
                 persist(ctx, id, title, body, next, false, recur, "", "", "");
                 arm(ctx, id, title, body, next, false, recur, "", "", "");
             } else {
@@ -477,8 +506,7 @@ public class JarvisNotifyPlugin extends Plugin {
         } catch (Exception ignored) {
         }
         if ("daily".equals(recur) || "weekly".equals(recur)) {
-            long step = "weekly".equals(recur) ? 7L * 86_400_000L : 86_400_000L;
-            long next = System.currentTimeMillis() + step;
+            long next = nextRecurAt(storedAt(ctx, id), recur, System.currentTimeMillis());
             persist(ctx, id, title, body, next, true, recur, play, mode, say);
             arm(ctx, id, title, body, next, true, recur, play, mode, say);
         } else {

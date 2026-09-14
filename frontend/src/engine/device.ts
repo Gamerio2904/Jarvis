@@ -1,9 +1,9 @@
-import { formatClockReply, parseDeviceIntent } from './device-parse'
-import { listBluetooth, nudgeVolume, openDevicePage, readBattery, readNetwork, setTorch } from '../native/device'
-import type { ToolMeta } from './tools'
+import { formatClockReply, parseDeviceIntent } from './device-parse.ts'
+import { listBluetooth, nudgeVolume, openDevicePage, readBattery, readNetwork, setTorch } from '../native/device.ts'
+import type { ToolMeta } from './tools.ts'
 
-export { formatClockReply, parseDeviceIntent } from './device-parse'
-export type { DeviceIntent } from './device-parse'
+export { formatClockReply, parseDeviceIntent } from './device-parse.ts'
+export type { DeviceIntent } from './device-parse.ts'
 
 type DeviceHit = {
   handled: boolean

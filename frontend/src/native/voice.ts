@@ -1,6 +1,6 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
-import { edgeFirstTimeoutMs, firstBlobWins, synthesizeEdge, synthesizeGtts } from '../engine/edge-tts'
-import { synthesizeGemini, wantGeminiVoice, wantNeuralMouth } from '../engine/tts'
+import { edgeFirstTimeoutMs, firstBlobWins, synthesizeEdge, synthesizeGtts } from '../engine/edge-tts.ts'
+import { synthesizeGemini, wantGeminiVoice, wantNeuralMouth } from '../engine/tts.ts'
 import { pickHeard } from '../engine/heard.ts'
 import { loadFace } from '../engine/face.ts'
 import { markFirstAudio } from '../engine/latency.ts'
@@ -8,7 +8,7 @@ import { loadSettings } from '../engine/store.ts'
 import { BARGE_IGNORE_TTS_MS, BARGE_ONSET_MS, silenceMsFor, turnLooksComplete } from '../engine/turn-detect.ts'
 import { createEnergyVad, rmsFromByteTimeDomain } from '../engine/vad.ts'
 
-export { createSentenceTap } from '../engine/speak-tap'
+export { createSentenceTap } from '../engine/speak-tap.ts'
 
 type NativeVoice = {
   requestPermission(): Promise<{ granted: boolean }>
@@ -613,7 +613,7 @@ function webListen(onPartial?: (text: string) => void): Promise<{ ok: boolean; t
       const text = pickHeard(alts[0] || '', alts.slice(1))
       hold = text
       onPartial?.(text)
-      if (last?.isFinal && turnLooksComplete(text) && text) settle(text)
+      if (last?.isFinal && turnLooksComplete(text, { isFinal: true }) && text) settle(text)
       else arm(text)
     }
     rec.onerror = (ev) => {

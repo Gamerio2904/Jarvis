@@ -1,25 +1,59 @@
-# 42 — Alles geplant (Stand Code `15.1.0`)
+# 42 — Alles geplant (Stand Code `17.0.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`15.1.0`**. Sideload **`15.1.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg).
+**Live:** App-Code **`17.0.0`**. Sideload **`17.0.0`**, versionCode `170000`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).
 
-Hirn = Handy. PC = Werkzeug. **Heute (`15.1.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten.
+Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-1. **Dual Brain Sprint 238** [`63-next.md`](./63-next.md) — SLO-Gates, Shadow-Sign-off, Ship `15.2.0`
-2. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s
-4. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot
-5. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot
-6. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could
-7. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-8. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
-9. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
-10. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
-11. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
-12. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
-13. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
+1. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
+2. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
+3. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
+4. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
+5. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+6. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
+7. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
+8. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
+9. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
+10. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
+11. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
+
+**⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `17.0.0` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
+
+## CODE — Schiene `17.0.0` (Sprints 249–259)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `16.2.0` | [249](./sprints/sprint-249.md) | Eval-Rahmen: `node:test`, eine Korpus-Quelle |
+| `16.3.0` | [250](./sprints/sprint-250.md) | Eval-Kennzahlen + Baseline, Prompt-Tokens, Sprach-A/B |
+| `16.4.0` | [251](./sprints/sprint-251.md) | Sicherungsschalter + **Kontingent** + Agenten-Reste |
+| `16.5.0` | [252](./sprints/sprint-252.md) | Lage-Entscheidung (PO) + Wecker-Nummer |
+| `16.6.0` | [253](./sprints/sprint-253.md) | Abbruch bis in die Handler + Barge-in verdrahten |
+| `16.7.0` | [254](./sprints/sprint-254.md) | Satzende-Heuristik (A) + Silero opt-in (B) |
+| — | [255](./sprints/sprint-255.md) | **AUFGELÖST** — existiert im Code; Rest in 253 und 254 A |
+| `16.8.0` | [256](./sprints/sprint-256.md) | Feldschutz + Migrationsschritte (verkleinert) |
+| `16.9.0` | [257](./sprints/sprint-257.md) | Intent-Embeddings, nur bei Gleichstand |
+| `16.10.0` | [258](./sprints/sprint-258.md) | Werkzeug-Vertrag, erzwungenes JSON, ein Modellaufruf |
+| **`17.0.0`** | [259](./sprints/sprint-259.md) | Historie im Speicher + **Meilenstein** (verkleinert) |
+
+Frei kombinierbar: 251, 252, 253, 254 A, 256. Harte Ketten: 250 → 257, 254 A → 254 B.
+
+**Gegen die PO-Prioritäten geprüft.** Vorgaben: hohe Antwortqualität, alles funktioniert, wenig Latenz, kostenlos und viel nutzbar — und nur ändern, wenn es einer Kategorie nutzt, ohne einer anderen zu schaden. Ergebnis: **255 aufgelöst** (Barge-in und Satzende existieren; ein Klassifikator hätte Latenz und Kontingent gekostet), **256 und 259 verkleinert** (Aufteilung und IndexedDB-Ring gestrichen), **257 und 258 mit Latenz-Schranke** (Embedding nur bei Gleichstand, ein Modellaufruf je Zug). Rechnung je Sprint: [`68-next.md`](./68-next.md) §3b.
+
+**Zwei Entscheidungen aus der Planungsrunde** ([`69-modell-grundlagen.md`](./69-modell-grundlagen.md)):
+
+- **Interne Sprache:** Persona, Ton und Beispiele bleiben **deutsch** (sie sind
+  faktisch Few-Shot-Beispiele; ein Sprachwechsel würde vorgelesen). Nur
+  Maschinenseitiges — Werkzeug-Schemas, Feldnamen, Intent-Labels — wird neu auf
+  **englisch** geschrieben, in Sprint 258. Keine Migration. A/B-Messung in 250.
+- **Free Tier ist kostenlos, aber nicht unbegrenzt:** 1.000 Requests und
+  200.000 Tokens am Tag für die Chat-Modelle, pro Organisation. Das sind rund
+  **80 Züge am Tag**. Sprint 251 schaltet deshalb *vor* der Grenze auf das
+  lokale 0,5B, statt in `429` zu laufen.
+
+---
 
 Industry-Track V1–V9, Latenz-Loop, Screenshot-Fixes, Rest-final Execute, Alltag-Router, Parser-Härte 179, FGS-Härte 180, Docs 182: **CODE**.
 
@@ -27,10 +61,14 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 
 ---
 
-## CODE auf diesem Stand (`15.1.0`)
+## CODE auf diesem Stand (`17.0.0`)
 
 | Schiene | Version | Was im Code ist |
 |---------|---------|-----------------|
+| Messbar und unterbrechbar | `17.0.0` | Eval, Abbruch, Alltagsdeutsch, Werkzeug-Vorschlag, Historie der letzten 50 Züge |
+| Wecker | `16.1.1` | Abgelaufene Frist wird geschlossen, Nachholen nur im Browser, wiederkehrende Alarme halten ihre Uhrzeit |
+| Agenten-Härtung | `16.1.0` | Budget je Nebenwirkung, Wiederholung nur beim Lesen, ehrlicher Fehler statt Modell-Fallback, Traces mit Zugnummer |
+| Reels & QA | `16.0.0` | Theme-Blende, Kalender-Umbau, Schalter statt Kästchen, Lage ohne Blackscreen, Einstellungs-Suche |
 | Agenten-Netzwerk | `15.1.0` | Catalog, Bus, Director, Curator, Agenten-Karte, 60 Agenten, Debug-Traces |
 | Dual Brain | `15.1.0` | Groq primär, `brain-orchestrator`, micro-clarify/merge/research-lite |
 | Sprachmodus | `13.44.0` | TV-Stimme, Hören, 1–2 Sätze, eine TTS-Lane; kein Whisper |

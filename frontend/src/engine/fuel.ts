@@ -1,5 +1,5 @@
-import { ensureDeviceLocation } from '../native/geo'
-import { beginDriveTo } from './drive'
+import { ensureDeviceLocation } from '../native/geo.ts'
+import { beginDriveTo } from './drive.ts'
 import {
   formatE10Price,
   formatFuelSpeech,
@@ -7,23 +7,23 @@ import {
   stationLabel,
   type FuelPair,
   type FuelStation,
-} from './fuel-format'
+} from './fuel-format.ts'
 import {
   parseFuelFollowUp,
   parseFuelIntent,
   type FuelPrefer,
-} from './fuel-parse'
-import { haversineM } from './geo-lookup'
-import { getJson } from './http-json'
-import type { ResearchMeta, ResearchSource } from './research-parse'
-import { loadSettings, persistLastList, saveSettings } from './store'
+} from './fuel-parse.ts'
+import { haversineM } from './geo-lookup.ts'
+import { getJson } from './http-json.ts'
+import type { ResearchMeta, ResearchSource } from './research-parse.ts'
+import { loadSettings, persistLastList, saveSettings } from './store.ts'
 import { rememberE10Spot } from './outlook-series.ts'
-import type { ToolMeta } from './tools'
+import type { ToolMeta } from './tools.ts'
 
-export { parseFuelFollowUp, parseFuelIntent } from './fuel-parse'
-export type { FuelIntent, FuelPrefer } from './fuel-parse'
-export { formatE10Price, formatFuelSpeech, pickFuelPair, stationLabel } from './fuel-format'
-export type { FuelPair, FuelStation } from './fuel-format'
+export { parseFuelFollowUp, parseFuelIntent } from './fuel-parse.ts'
+export type { FuelIntent, FuelPrefer } from './fuel-parse.ts'
+export { formatE10Price, formatFuelSpeech, pickFuelPair, stationLabel } from './fuel-format.ts'
+export type { FuelPair, FuelStation } from './fuel-format.ts'
 
 type LastFuel = {
   at: string

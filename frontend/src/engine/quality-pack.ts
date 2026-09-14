@@ -11,7 +11,13 @@ export type QualityPackStatus = {
 }
 
 const PACK_FILES: Record<QualityPackId, string[]> = {
-  smart_turn: ['/onnx/silero_vad.onnx', '/onnx/smart_turn_v3.onnx'],
+  /**
+   * Nur noch Silero. `smart_turn_v3.onnx` stand hier, weil Sprint 174 ein
+   * zweites ONNX-Modell fürs semantische Satzende vorsah. Das löst seit
+   * 16.7.0 die Heuristik in `turn-detect.ts` — die Datei kommt nie, und das
+   * Paket meldete deshalb dauerhaft „fehlt".
+   */
+  smart_turn: ['/onnx/silero_vad.onnx'],
   piper: ['/onnx/de_DE-thorsten.onnx'],
   kokoro: ['/onnx/kokoro-82m.onnx'],
   e5: ['/onnx/e5-small.onnx'],
@@ -25,7 +31,8 @@ const SETTING: Record<QualityPackId, keyof Settings> = {
 }
 
 const OFF: Record<QualityPackId, string> = {
-  smart_turn: 'ONNX-VAD ist aus. Energie-VAD und Smart-Turn-Loop bleiben (220 ms fertig, 800 ms „und …“).',
+  smart_turn:
+    'ONNX-VAD ist aus. Energie-VAD und die Satzende-Heuristik bleiben (220 ms fertig, 600 ms unklar, 1100 ms „und …“).',
   piper: 'Piper ist aus. Lane-1 bleibt Edge Neural gegen Algieba.',
   kokoro: 'Kokoro ist nicht gebündelt. Kein Extra-Studio-TTS.',
   e5: 'e5-Rerank ist aus. Keyword-RRF bleibt. Nie der Tool-Router.',
@@ -33,7 +40,7 @@ const OFF: Record<QualityPackId, string> = {
 
 const MISSING: Record<QualityPackId, string> = {
   smart_turn:
-    'Silero/Smart-Turn-ONNX fehlt in der APK. Energie-VAD bleibt (220 ms fertig, 800 ms „und …“). Am Steuer bleibt ONNX aus.',
+    'Silero-VAD fehlt in der APK. Energie-VAD bleibt (220 ms fertig, 600 ms unklar, 1100 ms „und …“). Am Steuer bleibt ONNX aus.',
   piper: 'Piper-Gewichte fehlen. Edge Neural gegen Algieba bleibt Lane-1.',
   kokoro: 'Kokoro-82M fehlt in der APK. Nicht gebündelt — Edge/Algieba bleiben.',
   e5: 'e5-small fehlt. Retrieve bleibt Keyword-RRF, nie der Router.',

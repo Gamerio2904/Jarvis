@@ -1,10 +1,7 @@
-import { Wllama } from '@wllama/wllama/esm/index.js'
-import wasmUrl from '@wllama/wllama/esm/wasm/wllama.wasm?url'
-import compatWasmUrl from '@wllama/wllama-compat/wasm/wllama.wasm?url'
-import compatWorkerCode from '@wllama/wllama-compat/wasm/wllama.js?raw'
-import { DEFAULT_MODEL, isGeminiConfigured, loadSettings } from './store'
-import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel } from './model-cache'
-import { formatQwenChat, QWEN_STOP, toChatRole } from './prompt'
+import type { Wllama } from '@wllama/wllama/esm/index.js'
+import { DEFAULT_MODEL, isGeminiConfigured, loadSettings } from './store.ts'
+import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel } from './model-cache.ts'
+import { formatQwenChat, QWEN_STOP, toChatRole } from './prompt.ts'
 
 export type DownloadProgress = {
   loaded: number
@@ -179,11 +176,21 @@ async function downloadModelBlob(onProgress?: (p: DownloadProgress) => void): Pr
   throw last instanceof Error ? last : new Error('Modell-Download fehlgeschlagen')
 }
 
+/**
+ * Laufzeit erst beim ersten Laden holen. Statisch würde das WASM im
+ * Start-Bundle landen, obwohl die meisten Züge über Gemini oder Groq gehen.
+ */
 async function createRuntime(): Promise<Wllama> {
-  const wllama = new Wllama({ default: assetUrl(wasmUrl) })
+  const [{ Wllama: Runtime }, wasm, compatWasm, compatWorker] = await Promise.all([
+    import('@wllama/wllama/esm/index.js'),
+    import('@wllama/wllama/esm/wasm/wllama.wasm?url'),
+    import('@wllama/wllama-compat/wasm/wllama.wasm?url'),
+    import('@wllama/wllama-compat/wasm/wllama.js?raw'),
+  ])
+  const wllama = new Runtime({ default: assetUrl(wasm.default) })
   wllama.setCompat({
-    wasm: assetUrl(compatWasmUrl),
-    worker: { code: compatWorkerCode },
+    wasm: assetUrl(compatWasm.default),
+    worker: { code: compatWorker.default },
   })
   return wllama
 }
