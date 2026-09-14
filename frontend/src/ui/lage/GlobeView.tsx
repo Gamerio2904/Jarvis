@@ -1,10 +1,24 @@
-import { useEffect, useRef } from 'react'
+import { Component, useEffect, useRef, type ReactNode } from 'react'
 import type { GeoFix } from '../../engine/globe-geo.ts'
 import { globeFocusKey, lookLatLon, shouldApplyGlobeFocus, viewXYZ, yawPitchFor } from '../../engine/globe-geo.ts'
 import { WORLD_RINGS } from '../../engine/world-rings.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 import { loadSettings } from '../../engine/store.ts'
-import { isNight, subsolar } from '../../engine/sun.ts'
+import { nightCover, subsolar } from '../../engine/sun.ts'
+
+/** Canvas-Fehler dürfen nicht die ganze App unmounten (schwarzer Handy-Schirm). */
+export class GlobeGuard extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false }
+  static getDerivedStateFromError(): { failed: boolean } {
+    return { failed: true }
+  }
+  render() {
+    if (this.state.failed) {
+      return <p className="lage-hint">Kugel kurz nicht da. Chat und Lage aus bleiben.</p>
+    }
+    return this.props.children
+  }
+}
 
 const HOME = { lat: 50.1, lon: 10.4 }
 const ZOOM_MIN = 1
@@ -117,6 +131,7 @@ export function GlobeView({
     let last = 0
     let frameTimes: number[] = []
     let lite = loadSettings().globe_webgl // Flag-Name lügt: true = Lite-Canvas, nicht WebGL
+    let sphereGradients: { fill: CanvasGradient; rim: CanvasGradient; sheen: CanvasGradient } | null = null
 
     function ringStep() {
       if (lite) return 12
@@ -166,10 +181,12 @@ export function GlobeView({
       onLookRef.current?.({ lat: look.lat, lon: look.lon, zoom: zoom.current, date: '' })
     }
 
-    let sphereGradients: { fill: CanvasGradient; rim: CanvasGradient; sheen: CanvasGradient } | null = null
-
     function cacheSphereGradients(cx: number, cy: number, R: number) {
-      const fill = pen.createRadialGradient(cx - R * 0.28, cy - R * 0.34, R * 0.06, cx, cy, R)
+      if (!(R > 2)) {
+        sphereGradients = null
+        return
+      }
+      const fill = pen.createRadialGradient(cx - R * 0.28, cy - R * 0.34, Math.max(0.5, R * 0.06), cx, cy, R)
       fill.addColorStop(0, '#1a3a58')
       fill.addColorStop(0.38, '#0d2238')
       fill.addColorStop(0.78, '#081422')
@@ -186,8 +203,16 @@ export function GlobeView({
     }
 
     function drawSphere(cx: number, cy: number, R: number) {
+      if (!(R > 2)) return
       if (!sphereGradients) cacheSphereGradients(cx, cy, R)
-      const g = sphereGradients!
+      const g = sphereGradients
+      if (!g) {
+        pen.beginPath()
+        pen.arc(cx, cy, R, 0, Math.PI * 2)
+        pen.fillStyle = '#0d2238'
+        pen.fill()
+        return
+      }
       pen.beginPath()
       pen.arc(cx, cy, R, 0, Math.PI * 2)
       pen.fillStyle = g.fill
@@ -250,22 +275,25 @@ export function GlobeView({
     }
 
     function drawNight(cx: number, cy: number, R: number) {
+      if (!(R > 8)) return
       const sun = subsolar()
-      const step = lite ? 14 : 8
-      pen.save()
-      pen.beginPath()
-      pen.arc(cx, cy, R, 0, Math.PI * 2)
-      pen.clip()
-      pen.fillStyle = 'rgba(2, 6, 18, 0.42)'
-      for (let lat = -80; lat <= 80; lat += step) {
-        for (let lon = -180; lon < 180; lon += step) {
-          if (!isNight(lat, lon, sun)) continue
-          const q = project(lat, lon)
-          if (q.z < FRONT) continue
-          pen.fillRect(q.x - 3, q.y - 3, 7, 7)
-        }
+      const v = viewXYZ(sun.lat, sun.lon, yaw.current, pitch.current)
+      const mag = Math.hypot(v.x, v.y)
+      const cover = nightCover(v.z, mag)
+      if (cover === 'none') return
+      pen.fillStyle = 'rgba(2, 6, 18, 0.46)'
+      if (cover === 'all') {
+        pen.beginPath()
+        pen.arc(cx, cy, R, 0, Math.PI * 2)
+        pen.fill()
+        return
       }
-      pen.restore()
+      const angle = Math.atan2(-v.y, v.x)
+      pen.beginPath()
+      pen.moveTo(cx, cy)
+      pen.arc(cx, cy, R, angle + Math.PI / 2, angle + (3 * Math.PI) / 2, false)
+      pen.closePath()
+      pen.fill()
     }
 
     function drawIssTrail() {
@@ -351,17 +379,23 @@ export function GlobeView({
 
     function draw() {
       if (isDocumentHidden()) return
-      const w = surface.clientWidth
-      const h = surface.clientHeight
-      pen.clearRect(0, 0, w, h)
-      const cx = w / 2
-      const cy = h / 2
-      const R = sphereR()
-      drawSphere(cx, cy, R)
-      drawNight(cx, cy, R)
-      drawOutlines(cx, cy, R)
-      drawIssTrail()
-      drawPins()
+      try {
+        const w = surface.clientWidth
+        const h = surface.clientHeight
+        if (!(w > 2 && h > 2)) return
+        pen.clearRect(0, 0, w, h)
+        const cx = w / 2
+        const cy = h / 2
+        const R = sphereR()
+        drawSphere(cx, cy, R)
+        drawNight(cx, cy, R)
+        drawOutlines(cx, cy, R)
+        drawIssTrail()
+        drawPins()
+      } catch {
+        lite = true
+        sphereGradients = null
+      }
     }
 
     function kick() {

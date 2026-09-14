@@ -8,7 +8,7 @@ import { setLageSession } from './lage-session.ts'
 export function parseFlightsIntent(text: string): boolean {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 140) return false
-  return /\b(was\s+fliegt\s+(?:da\s+)?über(?:m)?\s+(?:uns|deutschland|dem\s+haus)|was\s+ist\s+über(?:m)?\s+(?:uns|deutschland)|flugzeuge?\s+über(?:m)?\s+(?:uns|dem\s+haus)|opensky|überflug)\b/i.test(
+  return /\b(was\s+fliegt\s+da|was\s+fliegt\s+(?:da\s+)?über(?:m)?\s+(?:uns|deutschland|dem\s+haus)|was\s+ist\s+über(?:m)?\s+(?:uns|deutschland)|flugzeuge?\s+über(?:m)?\s+(?:uns|dem\s+haus)|opensky|überflug)\b/i.test(
     t,
   )
 }

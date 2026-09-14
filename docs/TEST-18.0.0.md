@@ -1,12 +1,13 @@
-# PO-Checkliste `18.0.0`
+# PO-Checkliste `18.0.0` / Sideload `18.0.1`
 
 Download: https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-versionName **`18.0.0`**, versionCode **`180000`**.
+versionName **`18.0.1`**, versionCode **`180001`**.
 
 Altes zuerst deinstallieren. Hausstand vorher exportieren (Einstellungen → Export).
 
-Diese APK liefert die **Kugel** (Sprints 268–269). `globe.gl` (Sprint 270) ist
+Diese APK liefert die **Kugel** (Sprints 268–269) plus den Lage-Tab-Fix:
+Kugel darf den Schirm nicht schwarz einfrieren. `globe.gl` (Sprint 270) ist
 **nicht** gezogen. Schach-Modus, Chat-Blöcke und Screenshot-Fixes 260–267
 bleiben PLAN — die Kästen unten, die das verlangen, sind bewusst als
 „noch nicht“ markiert.
@@ -23,7 +24,10 @@ bleiben PLAN — die Kästen unten, die das verlangen, sind bewusst als
 Was kannst du?
 ```
 
-In der Antwort muss **`18.0.0`** stehen.
+In der Antwort muss **`18.0.1`** stehen.
+
+Lage-Tab antippen: Kugel sichtbar, **kein** schwarzer Vollschirm. Chat, Composer
+und **Lage aus** bleiben erreichbar.
 
 ---
 

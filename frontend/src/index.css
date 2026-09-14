@@ -4155,6 +4155,9 @@ button.linkish {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
 .lage-head-row {
@@ -4654,6 +4657,9 @@ button.linkish {
 .globe-wrap {
   position: relative;
   overflow: hidden;
+  z-index: 0;
+  isolation: isolate;
+  max-width: 100%;
 }
 
 .globe-wrap .globe-view {
@@ -4820,6 +4826,20 @@ button.linkish {
     max-height: 46vh;
     min-height: 0;
     overflow: auto;
+    position: relative;
+    z-index: 1;
+  }
+  .main.is-lage .lage-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--bg);
+    padding-bottom: 4px;
+  }
+  .main.is-lage .messages,
+  .main.is-lage .composer-wrap {
+    position: relative;
+    z-index: 3;
   }
   .main.is-lage .messages {
     display: flex;
@@ -4834,8 +4854,8 @@ button.linkish {
   .lage.is-compact .body-schema,
   .lage.is-compact .globe-wrap,
   .lage.is-compact .agent-map-canvas {
-    max-height: min(52vh, calc(100dvh - 280px));
-    width: min(100%, 58vh);
+    max-height: min(38vh, calc(100dvh - 320px));
+    width: min(100%, 52vh);
     align-self: center;
   }
   .lage.is-compact .lage-tile {

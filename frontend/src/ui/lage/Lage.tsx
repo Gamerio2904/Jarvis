@@ -19,7 +19,7 @@ import { AgentTree } from './AgentTree.tsx'
 import { TurnHistory } from './TurnHistory.tsx'
 import { buildAgentGraph, type AgentGraph } from '../../engine/agent-graph.ts'
 import type { DepartmentId } from '../../engine/agents/types.ts'
-import { GlobeView, type GlobeFocus } from './GlobeView.tsx'
+import { GlobeGuard, GlobeView, type GlobeFocus } from './GlobeView.tsx'
 import { fetchBodySnap, type BodySnap } from '../../engine/body-snap.ts'
 import { loadBodyGraph, type BodyGraph } from '../../engine/body-graph.ts'
 import { BodyTree } from './BodyTree.tsx'
@@ -293,6 +293,7 @@ export function Lage({
         )
       ) : view === 'globe' ? (
         <div className="lage-split">
+          <GlobeGuard>
           <GlobeView
             pins={pins}
             issTrail={issTrail}
@@ -327,6 +328,7 @@ export function Lage({
             focus={globeFocus()}
             onLook={onLook}
           />
+          </GlobeGuard>
           {globeCaption ? <TextTile title={globeTitle} body={globeCaption} /> : null}
           {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
           {pinCard ? (
