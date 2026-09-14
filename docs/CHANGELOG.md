@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.0.1` — Lage-Klick bleibt bedienbar — *CODE*
+
+Sideload **`18.0.1`** (versionCode `180001`). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+
+- **Ursache:** Nachtseite als ~1000 `fillRect` plus `clip()` hat die Android-WebView beim Lage-Tab (Kugel) eingefroren — schwarzer Schirm, nichts mehr antippen.
+- **Fix:** ein Halbkreis-Fill, Gradient nicht bei Radius 0, Canvas-Fehler fangen die Kugel nicht die App. Lage-Kopf, Chat und Composer bleiben über der Kugel (`z-index`).
+
 ### `18.0.0` — Kugel Tag/Nacht, Bahn, Schichten — *CODE*
 
 Sideload **`18.0.0`** (versionCode `180000`). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).

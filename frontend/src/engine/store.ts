@@ -5,7 +5,7 @@ import { migrateSettings, SETTINGS_REV } from './settings-migrate.ts'
 import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
 
-export const APP_VERSION = '18.0.0'
+export const APP_VERSION = '18.0.1'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',

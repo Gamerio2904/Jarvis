@@ -46,3 +46,14 @@ export function sunCosine(lat: number, lon: number, sun: LatLon): number {
 export function isNight(lat: number, lon: number, sun: LatLon): boolean {
   return sunCosine(lat, lon, sun) < 0
 }
+
+/**
+ * Was die sichtbare Scheibe als Nacht bekommt.
+ * `sunZ` zur Kamera, `sunXY` projizierte Sonnenlage in der Scheibe.
+ * Ein Half-Disk, kein Raster — sonst friert die Android-WebView ein.
+ */
+export function nightCover(sunZ: number, sunXY: number): 'none' | 'all' | 'half' {
+  if (!(Number.isFinite(sunZ) && Number.isFinite(sunXY))) return 'none'
+  if (sunXY < 0.08) return sunZ < 0 ? 'all' : 'none'
+  return 'half'
+}
