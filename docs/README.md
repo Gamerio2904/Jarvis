@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`16.1.1`**. Sideload **`16.1.1`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. **Nächste Schiene:** `17.0.0` „messbar und unterbrechbar", Sprints 249–259 → [`68-next.md`](./68-next.md). **Grundlagen und Grenzen** (interne Sprache, Free-Tier-Kontingent) → [`69-modell-grundlagen.md`](./69-modell-grundlagen.md).
+**Jetzt:** Code **`17.0.0`**. Sideload **`17.0.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B ([`63-next.md`](./63-next.md) **CODE** 236–237). **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md), Planung in [`62-next.md`](./62-next.md). Sprachmodus [`61-next.md`](./61-next.md) **CODE** `13.44.0`. Schiene `17.0.0` „messbar und unterbrechbar", Sprints 249–259 **CODE** → [`68-next.md`](./68-next.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). **Grundlagen und Grenzen** (interne Sprache, Free-Tier-Kontingent) → [`69-modell-grundlagen.md`](./69-modell-grundlagen.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -69,11 +69,11 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 61 | [Sprachmodus 13.40](./61-next.md) | **CODE** `13.44.0` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
 | 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **PLAN-Protokoll** — Zielbild 14.0; Ist siehe 66 |
 | 63 | [Dual Brain 15.0](./63-next.md) | **CODE** — Groq primär, BrainOrchestrator; Sprints 236–237 in `15.1.0`, 238 in `15.2.0`. Planungsprotokoll, Flag-Namen dort veraltet |
-| 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `16.1.0` — Routing-Rechnung, Budgets, Traces, Grenzen |
-| 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN** — Abbruch, Sprechpause, Router-Embedding, Eval, Werkzeug-Vertrag |
-| 68 | [Messbar und unterbrechbar 17.0](./68-next.md) | **PLAN** `17.0.0` — Sprints 249–259, Reihenfolge und Abbruchkriterien |
+| 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `17.0.0` — Routing, Abbruch, Historie, Werkzeug-Vorschlag |
+| 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN-Protokoll** — Grundlage der Schiene 249–259 |
+| 68 | [Messbar und unterbrechbar 17.0](./68-next.md) | **CODE** `17.0.0` — Sprints 249–259 ausgeliefert |
 | 69 | [Modell-Grundlagen](./69-modell-grundlagen.md) | **REFERENZ** — Trainings- vs. Inferenzzeit, interne Sprache (Deutsch bleibt), Free-Tier-Grenzen |
-| — | [APK](./apk.md) | Sideload `16.1.1`; Test: [`TEST-16.1.0.md`](./TEST-16.1.0.md) |
+| — | [APK](./apk.md) | Sideload `17.0.0`; Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -274,10 +274,11 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 239 | `15.2.0` | **CODE** (GUI-Politur) |
 | 240–241 | `15.3.0` | **CODE** (PC-Dashboard) |
 | 242–248 | `16.0.0` | **CODE** (Reel-UI, Kalender, Lage, Einstellungs-Suche) |
-| 249–250 | `16.2.0`–`16.3.0` | **PLAN** (Eval-Rahmen + Kennzahlen) |
-| 251–252 | `16.4.0`–`16.5.0` | **PLAN** (Sicherungsschalter, Lage-Entscheidung, Wecker-Nummer) |
-| 253–255 | `16.6.0`–`16.8.0` | **PLAN** (Abbruch, VAD, Satzende + Barge-in) |
-| 256–258 | `16.9.0`–`16.11.0` | **PLAN** (Einstellungen, Intent-Embeddings, Werkzeug-Vertrag) |
-| 259 | **`17.0.0`** | **PLAN** (Telemetrie + Meilenstein) |
+| 249–250 | `16.2.0`–`16.3.0` | **CODE** in `17.0.0` (Eval-Rahmen + Kennzahlen) |
+| 251–252 | `16.4.0`–`16.5.0` | **CODE** in `17.0.0` (Sicherungsschalter, Lage, Wecker-Nummer) |
+| 253–254 | `16.6.0`–`16.7.0` | **CODE** in `17.0.0` (Abbruch, Satzende A; Silero B opt-in) |
+| 255 | — | **AUFGELÖST** (Inhalt in 253 und 254 A) |
+| 256–258 | `16.8.0`–`16.10.0` | **CODE** in `17.0.0` (Feldschutz, Alltagsdeutsch, Werkzeug-Vertrag) |
+| 259 | **`17.0.0`** | **CODE** (Historie + Meilenstein) |
 
-**Aktuell:** Code **`16.1.1`**. Sideload `16.1.1`, versionCode `160101`. Execute: Sprints bis 248 **CODE**; Router- und Agenten-Härtung in `16.1.0`, Wecker und Konflikt-Tisch in `16.1.1` ([`66-agents-ist.md`](./66-agents-ist.md)). Nächste Schiene: Sprints **249–259** → [`68-next.md`](./68-next.md), Ziel `17.0.0`. Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`17.0.0`**. Sideload `17.0.0`, versionCode `170000`. Execute: Sprints bis 259 **CODE**. Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). Index: [`42-planned.md`](./42-planned.md).

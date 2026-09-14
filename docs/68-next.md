@@ -1,4 +1,4 @@
-# 68 — Messbar und unterbrechbar **PLAN** (`17.0.0`)
+# 68 — Messbar und unterbrechbar **CODE** (`17.0.0`)
 
 Ausgangspunkt: Code `16.1.1`. Die acht Upgrades aus [`67-upgrades.md`](./67-upgrades.md)
 plus die vier Reste, die beim Audit für `16.1.x` offen blieben, als

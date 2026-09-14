@@ -87,6 +87,7 @@ import { getLastUserFacts, getPolicyAsk } from './agents/trace-store.ts'
 import type { TurnBrainCtx } from './brain-tasks.ts'
 import { attachVariable, splitCloudPrompt } from './prompt-split.ts'
 import { finishLatency, markFirstToken, setLatencyPath, startLatency } from './latency.ts'
+import { noteHistoryReply, openHistoryTurn } from './history.ts'
 import { formatClock } from './remind-parse.ts'
 import { askReply } from './policy.ts'
 
@@ -519,6 +520,19 @@ function emitToken(handlers: StreamHandlers, piece: string) {
   handlers.onToken?.(piece)
 }
 
+/**
+ * Jede Antwort geht über diesen Weg, damit die Historie sie sieht — sonst
+ * fehlt bei einem der neun Ausgänge genau der Zug, den der Nutzer zeigen will.
+ */
+async function sayAssistant(
+  conversationId: string,
+  text: string,
+  meta?: Record<string, unknown> | null,
+): Promise<Message> {
+  noteHistoryReply(text)
+  return addMessage(conversationId, 'assistant', text, meta)
+}
+
 export async function streamChat(
   conversationId: string,
   content: string,
@@ -528,6 +542,7 @@ export async function streamChat(
   const conv = await storeGet<Conversation>('conversations', conversationId)
   if (!conv) throw new Error('Gespräch nicht gefunden.')
   startLatency('none')
+  openHistoryTurn(content)
 
   noteTurn('user', content)
   const userMessage = await addMessage(conversationId, 'user', content)
@@ -564,7 +579,7 @@ export async function streamChat(
       const reply = 'Suche nicht.'
       setLatencyPath('parser')
       emitToken(handlers, reply)
-      const assistant = await addMessage(conversationId, 'assistant', reply)
+      const assistant = await sayAssistant(conversationId, reply)
       const updated = (await touchConversation(conversationId)) || convAfterUser
       finishLatency()
       handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
@@ -591,7 +606,7 @@ export async function streamChat(
       if (found.length === 1) joined = await maybeMicroMergeReply(joined, loadSettings())
       setLatencyPath('parser')
       emitToken(handlers, joined)
-      const assistant = await addMessage(conversationId, 'assistant', joined, {
+      const assistant = await sayAssistant(conversationId, joined, {
         tool: last.tool,
         research,
       })
@@ -616,7 +631,7 @@ export async function streamChat(
       const reply = out.text.trim() || askReply(policyAsk.a, policyAsk.b)
       setLatencyPath('groq')
       emitToken(handlers, reply)
-      const assistant = await addMessage(conversationId, 'assistant', reply, {
+      const assistant = await sayAssistant(conversationId, reply, {
         tool: { tool_status: 'executed', tool: 'clarify', action: 'ask', label: 'Rückfrage' },
       })
       const updated = (await touchConversation(conversationId)) || convAfterUser
@@ -634,7 +649,7 @@ export async function streamChat(
           : noBrainLine()
         setLatencyPath('parser')
         emitToken(handlers, reply)
-        const assistant = await addMessage(conversationId, 'assistant', reply)
+        const assistant = await sayAssistant(conversationId, reply)
         const updated = (await touchConversation(conversationId)) || convAfterUser
         finishLatency()
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
@@ -650,7 +665,7 @@ export async function streamChat(
       setLatencyPath('parser')
       if (!s.research_opt_in && !accepted) {
         persistResearchOffer(ask, researchQuery(ask))
-        const assistant = await addMessage(conversationId, 'assistant', RESEARCH_OFF_REPLY)
+        const assistant = await sayAssistant(conversationId, RESEARCH_OFF_REPLY)
         const updated = (await touchConversation(conversationId)) || convAfterUser
         finishLatency()
         handlers.onDone?.({ assistant_message: assistant, conversation: updated, tool: null })
@@ -676,7 +691,7 @@ export async function streamChat(
         }
         emitToken(handlers, reply)
         handlers.onReplace?.(reply)
-        const assistant = await addMessage(conversationId, 'assistant', reply, { research })
+        const assistant = await sayAssistant(conversationId, reply, { research })
         const updated = (await touchConversation(conversationId)) || convAfterUser
         finishLatency()
         handlers.onDone?.({
@@ -690,7 +705,7 @@ export async function streamChat(
       const empty = RESEARCH_EMPTY
       emitToken(handlers, empty)
       handlers.onReplace?.(empty)
-      const assistant = await addMessage(conversationId, 'assistant', empty, { research })
+      const assistant = await sayAssistant(conversationId, empty, { research })
       const updated = (await touchConversation(conversationId)) || convAfterUser
       finishLatency()
       handlers.onDone?.({
@@ -899,7 +914,7 @@ export async function streamChat(
         handlers.onReplace?.(final)
       }
     }
-    const assistant = await addMessage(conversationId, 'assistant', final, research ? { research } : undefined)
+    const assistant = await sayAssistant(conversationId, final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || convAfterUser
     finishLatency()
     handlers.onDone?.({

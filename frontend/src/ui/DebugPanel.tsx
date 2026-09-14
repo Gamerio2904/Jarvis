@@ -3,6 +3,7 @@ import { TEST_COPY_GROUPS } from '../engine/test-copy.ts'
 import {
   debugSnapshot,
   downloadDebug,
+  downloadHistory,
   markDebugWarned,
   requestDebugStop,
   setDebugPicked,
@@ -11,6 +12,7 @@ import {
   type DebugSendResult,
 } from '../engine/debug-session.ts'
 import { formatLatency, lastLatency, subscribeLatency } from '../engine/latency.ts'
+import { historyTurns } from '../engine/history.ts'
 import { breakerSnapshot } from '../engine/agents/breaker.ts'
 import { quotaSnapshot } from '../engine/quota.ts'
 import { DownloadBtn } from './DownloadBtn.tsx'
@@ -139,6 +141,15 @@ export function DebugPanel({
           disabled={!snap.turns.length}
           onRun={async () => {
             downloadDebug()
+          }}
+        />
+        <DownloadBtn
+          idle="Historie herunterladen"
+          work="Lädt…"
+          done="Gespeichert"
+          disabled={!historyTurns().length}
+          onRun={async () => {
+            downloadHistory()
           }}
         />
       </div>

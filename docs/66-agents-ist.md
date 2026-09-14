@@ -1,4 +1,4 @@
-# 66 — Agenten-Netzwerk: Ist-Stand (Code `16.1.1`)
+# 66 — Agenten-Netzwerk: Ist-Stand (Code `17.0.0`)
 
 > Dieses Dokument beschreibt, **was der Code tut** — nicht was geplant war.
 > [`62-next.md`](./62-next.md) ist das Planungsdokument zu 14.0; wo die Namen
@@ -8,20 +8,28 @@
 
 ```text
 chat.streamChat
+  → startLatency() + openHistoryTurn(text)     (Zeit und Historie öffnen)
   → normalizeUtterance + splitIntents          (chat.ts, mehrteilige Sätze)
   → routeDeterministic
   → runDirectorTurn(conversationId, text)      (director.ts)
-       1. beginAgentTurn()                     Zug-Nummer, Traces leer
+       1. beginAgentTurn()                     Zug-Nummer, Traces leer,
+                                               alter Zug wird abgebrochen
        2. curatorPreflight()                   Gedächtnis-Pflege, Budget 2,5 s
        3. getPending()                         offene Rückfrage schlägt alles
-       4. decideRouteFromCtx(ctx)              → { pick, candidates }
-       5. runAgent(pick.id, ctx)               Budget + Wiederholung
+       4. decideTurn(ctx)                      → { pick, candidates, ctx }
+       5. runAgent(pick.id, ctx)               Budget + Wiederholung + Schalter
        6. applyRetry(hit)                      fuel/weather/poi/transit
+       7. rescueByProposal(ctx)                nur wenn Schritt 4 nichts fand
   → wenn kein Treffer: BrainOrchestrator (Groq → Gemini → 0,5 B)
+  → sayAssistant() + finishLatency()           Antwort, Zeit, Zug versiegelt
 ```
 
 Der Director sieht **immer einen einzelnen Intent**. Das Aufteilen mehrteiliger
 Sätze passiert vorher in `chat.ts` (`splitIntents` + `partitionChain`).
+
+Neu seit `17.0.0` sind die Schritte **4** (`decideTurn` statt
+`decideRouteFromCtx`, siehe §2) und **7** (Werkzeug-Vorschlag, siehe §9), sowie
+das Öffnen und Versiegeln des Zuges für die Historie (§4).
 
 ## 2. Routing-Rechnung
 
@@ -91,6 +99,28 @@ um, `runDirectorTurn` (App) fragte wirklich zurück. Kein Test konnte deshalb
 eine Rückfrage sehen. Heute prüfen drei Korpora auf `ask`:
 `test:prompts`, `test:sprint`, `test:matrix`.
 
+### `decideTurn`: Verb nach vorn, dann noch einmal
+
+Deutsch stellt den Infinitiv ans Ende („einen Timer stellen"). Die Parser
+suchen ihn vorn. `decideTurn` in `route-pick.ts` versucht zuerst den Originaltext;
+findet er niemanden, schreibt `frontVerb` den Satz um („stell einen Timer") und
+entscheidet **noch einmal**. Der Handler bekommt den umgeschriebenen Text, nicht
+das Original — sonst würde der Parser ihn ein zweites Mal ablehnen.
+
+Das greift nur, wenn Schritt 1 leer bleibt. Ein Treffer auf dem Original wird
+nicht überschrieben.
+
+### Alltagsdeutsch seit `17.0.0`
+
+Sprint 257 sollte Embeddings bei Gleichstand rechnen. Das Trennschärfe-Tor
+(`eval:separability`) hat den Fall nicht gefunden: der Korpus hat **0 %
+Rückfrage** und einen hohen Anteil „kein Kandidat". Die Kapazität ging in drei
+Parser-Lücken:
+
+- Zahlwörter vor Ursache: „erinnere mich um acht an den Zahnarzt"
+- Verb-final, siehe oben
+- `mach das an` im Nachlauf (TV), analog zu `mach das aus`
+
 ## 3. Agenten-Bus
 
 `agents/bus.ts:agentDispatch(id, ctx)` — nicht `agentBus.dispatch` wie in
@@ -103,8 +133,18 @@ eine Rückfrage sehen. Heute prüfen drei Korpora auf `ask`:
 | `write` | 8 s | keine |
 
 **Warum nur Lesen wiederholt wird:** ein zweiter Schreib-Lauf legt Termine
-doppelt an. Ein Handler ohne eigenes Abbruchsignal läuft nach dem Budget
-weiter — wir warten nur nicht mehr auf ihn (`agents/budget.ts`).
+doppelt an.
+
+Seit `17.0.0` (Sprint 253) trägt jeder Zug ein `AbortSignal`
+(`engine/turn-abort.ts`). `beginAgentTurn()` bricht den alten Zug ab, bevor
+der neue zählt. `withBudget` und `http-json` hören darauf — ein zweiter
+Versuch nach einem Abbruch startet nicht mehr. Ein Handler, der das Signal
+ignoriert, läuft weiter; wir warten nur nicht auf ihn.
+
+Ein dauerhaft kaputter Agent wird vom Sicherungsschalter
+(`agents/breaker.ts`) nach drei Fehlern für 60 s stillgelegt. Lesen fällt
+dann ans Modell, Schreiben und Geräte antworten ehrlich, dass der Dienst
+gerade nicht geht.
 
 ### Scheitern ist nicht Ablehnen
 
@@ -116,9 +156,9 @@ Budget ist **nicht** dasselbe wie „der Handler passt nicht":
   habe nichts geändert." Ein Durchfallen wäre gefährlich, weil das Modell einen
   Erfolg behaupten könnte, den es nie gab.
 
-## 4. Traces
+## 4. Traces und Historie
 
-`agents/trace-store.ts` hält die Traces eines Zugs im Modul-Zustand.
+`agents/trace-store.ts` hält die Traces **des laufenden** Zugs im Modul-Zustand.
 
 - Jeder Eintrag trägt die **Zug-Nummer**. Ein abgebrochener Zug, dessen Handler
   noch läuft, schreibt nicht mehr in den neuen.
@@ -126,13 +166,27 @@ Budget ist **nicht** dasselbe wie „der Handler passt nicht":
 - `beginAgentTurn()` zählt hoch und leert Traces, Brain-Slots, `lastUserFacts`
   und `lastPolicyAsk`.
 
+`engine/history.ts` hält die **letzten 50 Züge** dieser Sitzung — Äußerung,
+Antwort, Pfad, Zeiten, Agenten-Schritte, Hirn-Plätze und Kontingent-Stand.
+
+- Zusammengeführt wird **nach** der Antwort: `finishLatency()` ruft seine
+  Zuhörer, `history.ts` siegelt dann. Im Zug wird nichts kopiert.
+- `latency.ts` deckt dieselben 50 Züge ab (`MAX_LOG = 50`).
+- Texte über 200 Zeichen werden gekürzt.
+- Ein Neustart löscht die Historie. Der Export (`downloadHistory` in den
+  Einstellungen, Knopf „Export" in der Lage) schreibt nur auf Knopfdruck.
+- Durchblättern: Lage → Körper → Agenten, Liste unter dem Baum. Antippen
+  klappt den Zug auf. Nichts davon startet ein Gerät.
+
 ## 5. Katalog
 
 | Zahl | Wert | Quelle |
 |------|------|--------|
 | Agenten mit `parse` | 60 | `agents/parse-catalog.ts` |
-| Agenten mit `execute` | 59 | `agents/execute-map.ts` |
-| ohne `execute` | `identity` | wird in `chat.ts` direkt beantwortet |
+| Agenten mit `execute` | 60 | `agents/execute-map.ts` |
+
+`identity` hat seit `17.0.0` einen Executor (`PERSONA_ASK_TEXT`). Vorher fing
+`chat.ts` die Frage ab; der Umweg durch `runAgent` fiel stumm ans Modell.
 
 `agentById` läuft über eine Map, nicht über eine lineare Suche.
 `orphanExecutorIds()` deckt Executoren ohne Katalog-Eintrag auf — die wären
@@ -177,25 +231,52 @@ hinten. Das Android-Plugin rechnet seit `16.1.0` genauso (`nextRecurAt` über
 
 | Skript | Deckt ab |
 |--------|----------|
+| `eval` | ein Korpus, jeder Fehler einzeln (`node:test`) |
+| `eval:report` | Genauigkeit, Ask-Rate, Tokens, p50/p95 |
+| `eval:separability` | Trennschärfe-Tor (S257-9) |
 | `test:prompts` | 181 Chips + Rückfrage-Sperre |
 | `test:sprint` | Gold, Alltag, kaputte Absicht + Rückfrage-Sperre |
 | `test:matrix` | Lock 6.60 + Rückfrage-Sperre |
 | `test:agents` | Katalog-Metadaten, Executor-IDs |
-| `test:agents-robust` | Budget, Timer-Aufräumen, Traces, Kosten-Rang, Vorfahrt, Konflikt-Namen |
+| `test:agents-robust` | Budget, Timer-Aufräumen, Traces, Kosten-Rang, Vorfahrt, Konflikt-Namen, Schalter |
 | `test:turn-e2e` | echter Zug: Timer steht, Kugel offen, Fehlerpfade, abgelaufene Frist |
+| `test:turn-detect` | Satzende-Heuristik ohne Länge-als-Beweis |
+| `test:settings-migrate` | Feldschutz, benannte Migration |
+| `test:verb-front` | Verb-final, Zahlwort, TV-an/aus |
+| `test:tool-propose` | Vertrag, Schema, Bestätigung, Einschleusen |
+| `test:history` | Ringpuffer, Kürzung, kein leerer Zug, Export |
 
 `test:turn-e2e` fährt `runDirectorTurn` in Node. Möglich wurde das durch zwei
 Dinge: alle relativen Importe tragen `.ts` (Node löst extensionslos nicht auf),
 und `fake-indexeddb` plus ein `localStorage`-Shim machen den Store sichtbar.
 Ohne Shim schluckt der Store jeden Fehler und liest ewig die Defaults.
 
+`scripts/run-all-tests.sh` zählt statt abzubrechen — der blinde Fleck aus
+Sprint 249, als `test:014` nach der ersten Assertion den Rest verdeckte.
+
 ## 8. Grenzen
 
 - **Kein Parallellauf.** Ein Zug führt genau einen Agenten aus. Ketten laufen
   sequentiell über `chain.ts`.
-- **Kein Abbruchsignal bis in die Handler.** Das Budget schneidet das Warten ab,
-  nicht die Arbeit. Ein echtes `AbortSignal` bräuchte einen Durchstich bis in
-  `http-json.ts`.
-- **Kein Sicherungsschalter.** Ein dauerhaft kaputter Dienst wird bei jedem Zug
-  neu versucht.
-- **Traces sind flüchtig.** Sie überleben keinen Neustart.
+- **Historie überlebt keinen Neustart.** Sie liegt im Speicher, nicht auf der
+  Platte. Für „gestern Abend" bleibt der Export, den der Nutzer auslöst.
+- **Ein Vorschlag ist kein Befehl.** Das Modell darf ein Werkzeug vorschlagen;
+  ausgeführt wird nur, was der Parser am kanonischen Satz bestätigt. Siehe §9.
+- **Silero bleibt opt-in.** Stufe B von Sprint 254 lädt die Datei nach, bündelt
+  sie nicht in die APK.
+
+## 9. Werkzeug-Vorschlag
+
+Wenn kein Parser greift und die Äußerung nach einem Befehl klingt
+(`looksCommandish`), darf Groq **ein** Werkzeug vorschlagen
+(`completeGroqJson`, `response_format: json_schema`, `strict: true`).
+
+Der Vorschlag wird **nicht** ausgeführt. `render` macht daraus einen
+kanonischen deutschen Satz („stell einen Timer für 12 Minuten"), der durch
+dieselbe Pipeline läuft wie ein Tipp. `confirmedUtterance` prüft, dass der
+Router denselben Agenten wählt, den der Vertrag nennt — ein Titel
+„mach den Fernseher an" in einer Erinnerung startet den Fernseher nicht.
+
+Geräte und Schreibvorgänge fragen vorher „ja/nein". Lesen läuft ohne Nachfrage.
+Schlägt der Vorschlag fehl, fällt der Zug ins Modell — ein zweiter Aufruf,
+bewusst, damit Gedächtnis und Research nicht verloren gehen.

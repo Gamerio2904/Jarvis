@@ -16,6 +16,7 @@ import { BodySchema } from './BodySchema.tsx'
 import { AgentMapCanvas } from './AgentMapCanvas.tsx'
 import { AgentStatusBar } from './AgentStatusBar.tsx'
 import { AgentTree } from './AgentTree.tsx'
+import { TurnHistory } from './TurnHistory.tsx'
 import { buildAgentGraph, type AgentGraph } from '../../engine/agent-graph.ts'
 import type { DepartmentId } from '../../engine/agents/types.ts'
 import { GlobeView, type GlobeFocus } from './GlobeView.tsx'
@@ -252,6 +253,7 @@ export function Lage({
             />
             <div className="body-side">
               {agentGraph ? <AgentTree graph={agentGraph} onPrompt={onSend} /> : null}
+              <TurnHistory />
             </div>
             {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
           </div>

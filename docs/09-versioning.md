@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`16.1.1`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`16.1.1`**, versionCode `160101`. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. GUI Sprint 239 **CODE** `15.2.0`. Reels/QA Sprints 242–248 **CODE** `16.0.0`; Router- und Agenten-Härtung **CODE** `16.1.0`, Wecker und Konflikt-Tisch **CODE** `16.1.1` → [`66-agents-ist.md`](./66-agents-ist.md). **Nächste Schiene:** `17.0.0`, Sprints 249–259 → [`68-next.md`](./68-next.md).
+> **Jetzt:** Code **`17.0.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`17.0.0`**, versionCode `170000`. PC-Dashboard [`64-next.md`](./64-next.md) **CODE** 240–241. GUI Sprint 239 **CODE** `15.2.0`. Reels/QA Sprints 242–248 **CODE** `16.0.0`; Router- und Agenten-Härtung **CODE** `16.1.0`, Wecker **CODE** `16.1.1`. Schiene 249–259 **CODE** in `17.0.0` → [`66-agents-ist.md`](./66-agents-ist.md), Test [`TEST-17.0.0.md`](./TEST-17.0.0.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -541,17 +541,17 @@ Jarvis kann sich selbst messen und lässt sich unterbrechen. Geplant aus
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `16.2.0` | Eval-Rahmen: `node:test`, eine Korpus-Quelle | 249 PLAN |
-| `16.3.0` | Eval-Kennzahlen + Baseline | 250 PLAN |
-| `16.4.0` | Sicherungsschalter + Agenten-Reste | 251 PLAN |
-| `16.5.0` | Lage-Entscheidung (PO) + Wecker-Nummer | 252 PLAN |
-| `16.6.0` | Abbruch bis in die Handler | 253 PLAN |
-| `16.7.0` | VAD statt Stillezähler | 254 PLAN |
-| `16.8.0` | Semantisches Satzende + Barge-in | 255 PLAN |
-| `16.9.0` | Einstellungen aufteilen, `zod`, Migration | 256 PLAN |
-| `16.10.0` | Intent-Embeddings statt Konflikt-Tisch | 257 PLAN |
-| `16.11.0` | Werkzeug-Vertrag für das Modell | 258 PLAN |
-| **`17.0.0`** | Telemetrie + **Meilenstein**, Sideload | 259 PLAN |
+| `16.2.0` | Eval-Rahmen: `node:test`, eine Korpus-Quelle | 249 CODE |
+| `16.3.0` | Eval-Kennzahlen + Baseline | 250 CODE |
+| `16.4.0` | Sicherungsschalter + Kontingent + Agenten-Reste | 251 CODE |
+| `16.5.0` | Lage-Entscheidung (PO) + Wecker-Nummer | 252 CODE |
+| `16.6.0` | Abbruch bis in die Handler | 253 CODE |
+| `16.7.0` | Satzende-Heuristik (A); Silero opt-in (B) | 254 CODE / B FREEZE |
+| — | aufgelöst in 253 und 254 A | 255 |
+| `16.8.0` | Feldschutz + benannte Migration | 256 CODE |
+| `16.9.0` | Trennschärfe-Tor; Alltagsdeutsch statt Embeddings | 257 CODE |
+| `16.10.0` | Werkzeug-Vertrag für das Modell | 258 CODE |
+| **`17.0.0`** | Historie im Speicher + **Meilenstein**, Sideload | 259 CODE |
 
 Der MAJOR-Sprung steht am Ende der Schiene, nicht am Anfang: `17.0.0` ist
 erreicht, wenn alle elf Sprints liegen — so wie `16.0.0` die Reel-Schiene

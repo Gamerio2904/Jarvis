@@ -18,7 +18,8 @@ type OpenTurn = {
   firstAudio?: number
 }
 
-const MAX_LOG = 24
+/** Deckungsgleich mit `MAX_HISTORY`: p95 und Durchblättern sehen dieselben Züge. */
+const MAX_LOG = 50
 
 let open: OpenTurn | null = null
 let last: LatencyTurn | null = null

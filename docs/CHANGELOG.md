@@ -3,9 +3,9 @@
 Versionen folgen [`09-versioning.md`](./09-versioning.md).  
 Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/README.md)).
 
-## Unreleased
+## `17.0.0` — Messbar und unterbrechbar (Sprints 249–259) — *CODE*
 
-### `17.0.0` — Messbar und unterbrechbar (Sprints 249–259) — *PLAN*
+Sideload **`17.0.0`** (versionCode `170000`). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).
 
 Planung: [`68-next.md`](./68-next.md), Grundlage [`67-upgrades.md`](./67-upgrades.md).
 
@@ -25,9 +25,28 @@ trotzdem kaputt — solange ein Korpus nur Ja/Nein ausgibt, ist Sprint 257
 | `16.7.0` | 254 | Satzende-Heuristik (Stufe A, ohne Modell) + Silero (Stufe B, opt-in) |
 | — | 255 | **AUFGELÖST** — existiert im Code; Rest in 253 und 254 A |
 | `16.8.0` | 256 | Feldschutz + benannte Migration (Aufteilung gestrichen) |
-| `16.9.0` | 257 | Intent-Embeddings, nur bei Gleichstand (Trennschärfe-Tor zuerst) |
+| `16.9.0` | 257 | Trennschärfe-Tor gehalten; Alltagsdeutsch statt Embeddings |
 | `16.10.0` | 258 | Werkzeug-Vertrag: Modell schlägt vor, Parser vollzieht; ein Modellaufruf |
 | **`17.0.0`** | 259 | Historie im Speicher + **Meilenstein**, Sideload |
+
+#### Was gebaut wurde
+
+- **249–250:** ein Korpus (`eval/corpus.ts`), `node:test` bricht nicht ab,
+  Kennzahlen (Genauigkeit, Ask-Rate, Tokens, p50/p95), Sprach-A/B.
+- **251:** Sicherungsschalter je Agent, Kontingent-Vorsicht vor `429`,
+  `identity` hat einen Executor.
+- **252:** Lage-Szene ohne toten Zweig, `notify_id` vergeben statt gehasht.
+- **253:** `AbortSignal` bis `http-json`, Barge-in bricht den Zug.
+- **254 A:** Satzende ohne „Länge = fertig". Stufe B (Silero) bleibt opt-in.
+- **255:** aufgelöst, Inhalt steckt in 253 und 254 A.
+- **256:** ein kaputtes Feld fällt auf den Default, benannte Migration
+  (`settings_rev`), tote Felder entfernt.
+- **257:** Embeddings abgebrochen am eigenen Tor (`eval:separability`, 0 %
+  Gleichstand). Stattdessen Zahlwort, Verb-final, TV `an`/`aus`.
+- **258:** Groq darf ein Werkzeug vorschlagen; ausgeführt wird nur, was der
+  Parser am kanonischen Satz bestätigt. Einschleusen fällt zu.
+- **259:** letzte 50 Züge im Speicher, durchblättern in der Lage, Export auf
+  Knopfdruck. `APP_VERSION 17.0.0`.
 
 Frei kombinierbar: 251, 252, 256. Harte Ketten: 250 → 257, 253 + 254 → 255.
 Jeder Sprint hat ein Abbruchkriterium; für 258 ist es hart — erreicht ein

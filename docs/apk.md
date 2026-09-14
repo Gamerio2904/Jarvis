@@ -1,6 +1,8 @@
-# Android-APK — Sideload `16.1.1`
+# Android-APK — Sideload `17.0.0`
 
-App-Code **`16.1.1`**. Sideload-APK **`16.1.1`**, versionCode `160101`.
+App-Code **`17.0.0`**. Sideload-APK **`17.0.0`**, versionCode `170000`.
+
+**17.0.0:** Messbar und unterbrechbar — Eval, Abbruch, Alltagsdeutsch, Werkzeug-Vorschlag, Historie. Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).
 
 **16.1.1:** Derselbe Wecker klingelt nicht mehr zweimal, wiederkehrende Alarme bleiben auf ihrer Uhrzeit.
 
@@ -12,10 +14,10 @@ App-Code **`16.1.1`**. Sideload-APK **`16.1.1`**, versionCode `160101`.
 
 ## Download
 
-**Fertige APK `16.1.0`:**  
+**Fertige APK `17.0.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `16.1.0` · versionCode `160100`
+- versionName `17.0.0` · versionCode `170000`
 
 ## Build lokal
 

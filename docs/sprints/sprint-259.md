@@ -1,6 +1,6 @@
 # Sprint 259 — Historie im Speicher + Meilenstein `17.0.0`
 
-**Version:** `17.0.0` (versionCode `170000`) — **PLAN**, **Meilenstein**, verkleinert
+**Version:** `17.0.0` (versionCode `170000`) — **CODE**, **Meilenstein**, verkleinert
 **Plan:** [`68-next.md`](../68-next.md) §14 · Upgrade **F** aus [`67-upgrades.md`](../67-upgrades.md)
 **Voraussetzung:** Sprints **249–258**
 
@@ -50,25 +50,51 @@ Kategorien.
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S259-1 | `latency.ts` von 24 auf ~50 Züge, Zug-ID mit `trace-store` teilen | `engine/latency.ts` | PLAN |
-| S259-2 | Traces und Zeiten je Zug zusammenführen, im Speicher | `agents/trace-store.ts` | PLAN |
-| S259-3 | Kein Schreiben im Zug — Zusammenführen erst nach der Antwort | `agents/trace-store.ts` | PLAN |
-| S259-4 | Debug-Export über die Sitzungs-Historie, vom Nutzer ausgelöst | `engine/debug-export.ts` | PLAN |
-| S259-5 | Lage-Ansicht: letzte Züge durchblättern | `ui/lage/AgentTree.tsx` | PLAN |
-| S259-6 | Kontingent-Stand je Zug mitschreiben (aus S251-9) | `engine/latency.ts` | PLAN |
-| S259-7 | Docs: `66-agents-ist.md` §4 neu, CHANGELOG `17.0.0` | docs | PLAN |
-| S259-8 | Meilenstein: APK `17.0.0`, versionCode `170000` | `package.json`, `store.ts` | PLAN |
+| S259-1 | `latency.ts` von 24 auf 50 Züge, deckungsgleich mit `MAX_HISTORY` | `engine/latency.ts` | CODE |
+| S259-2 | Traces und Zeiten je Zug zusammenführen, im Speicher | `engine/history.ts` | CODE |
+| S259-3 | Kein Schreiben im Zug — Zusammenführen erst nach der Antwort | `engine/history.ts` | CODE |
+| S259-4 | Debug-Export über die Sitzungs-Historie, vom Nutzer ausgelöst | `engine/debug-session.ts` | CODE |
+| S259-5 | Lage-Ansicht: letzte Züge durchblättern | `ui/lage/TurnHistory.tsx` | CODE |
+| S259-6 | Kontingent-Stand je Zug mitschreiben (aus S251-9) | `engine/history.ts` | CODE |
+| S259-7 | Docs: `66-agents-ist.md` §4 neu, CHANGELOG `17.0.0` | docs | CODE |
+| S259-8 | Meilenstein: APK `17.0.0`, versionCode `170000` | `package.json`, `store.ts` | CODE |
 
 S259-6 ist neu und ergibt sich aus 251: wenn der Kontingent-Stand pro Zug
 mitläuft, ist im Nachhinein erklärbar, warum eine Antwort vom lokalen Modell
 kam. Ohne diese Zahl wirkt der Wechsel wie ein Fehler.
+
+### Was beim Bauen anders kam
+
+**Der Zusammenbau sitzt nicht in `trace-store.ts`, sondern in einer eigenen
+Datei.** Geplant war S259-2/-3 dort, wo die Traces liegen. Das hätte
+`trace-store.ts` von `latency.ts` und `quota.ts` abhängig gemacht — ein Modul,
+das heute nur sammelt, hätte angefangen zu lesen. `engine/history.ts` hängt
+stattdessen an allen dreien und ist selbst von nichts abhängig, was im Zug
+läuft.
+
+**Ausgelöst wird über `subscribeLatency`, nicht über einen Aufruf im Zug.**
+`finishLatency()` ruft seine Zuhörer, wenn die Zeit steht. Damit ist S259-3
+nicht Disziplin, sondern Bauart: es gibt keine Stelle im Zug, an der etwas
+kopiert oder serialisiert würde.
+
+**Neun Ausgänge, ein Weg.** `streamChat` beantwortet einen Zug an neun
+verschiedenen Stellen (Parser-Treffer, Rückfrage, kein Hirn, Research abgelehnt,
+Modell-Antwort …). Jede davon rief `addMessage(…, 'assistant', …)` direkt. Ein
+Zug wäre verlässlich durchgerutscht, deshalb geht jetzt jede Antwort über
+`sayAssistant()`. Der Zug selbst wird einmal in `streamChat` geöffnet.
+
+**Das Durchblättern hängt an der Agenten-Lage, nicht am Agenten-Baum.** S259-5
+nannte `AgentTree.tsx`; dort steht der Katalog, nicht der Verlauf. Die Liste
+steht jetzt als eigene Komponente unter dem Baum in derselben Spalte —
+antippen klappt Äußerung, Antwort, Pfad, Schritte, Hirn-Plätze und knappes
+Kontingent auf. Nichts davon startet ein Gerät.
 
 ## Meilenstein `17.0.0`
 
 `17.0.0` bedeutet: **Jarvis kann sich selbst messen und lässt sich
 unterbrechen.**
 
-| Was `16.1.1` nicht konnte | Wo es dazukam |
+| Was `16.1.1` nicht konnte | Wo es dazukam (alles **CODE**) |
 |---------------------------|---------------|
 | Routing messen statt raten | 249, 250 |
 | Kaputte Dienste abschalten | 251 |
@@ -91,15 +117,19 @@ je Zug drin.
 
 ## Tests
 
+`test:history` prüft die drei Dinge, die am Handy weh tun: geht ein Zug
+verloren, wächst der Puffer über den Deckel, und landet ein abgebrochener Zug
+in der Liste. Dazu die Kürzung langer Texte, die Abmeldung von Zuhörern und
+dass ein kaputter Zuhörer die Historie nicht kippt.
+
 ```bash
 cd frontend
+./scripts/run-all-tests.sh    # 26 Suiten, zählt statt abzubrechen
 npm run eval:report           # Endstand der Schiene, gegen 16.1.1
-npm run test:turn-e2e
-npm run test:agents-robust
-npm run test:rest-final
 npx tsc -b && npm run lint
-./build-apk.sh                # versionCode 170000
+cd .. && ./build-apk.sh       # versionCode 170000
 ```
 
-Vor dem Sideload: alle 17+ Skripte und die Eval grün, `versionName 17.0.0` im
-gebauten APK verifiziert, PO-Checkliste `TEST-17.0.0.md` abgearbeitet.
+Vor dem Sideload: alle 26 Skripte und die Eval grün, `versionName 17.0.0` im
+gebauten APK verifiziert, PO-Checkliste [`TEST-17.0.0.md`](../TEST-17.0.0.md)
+abgearbeitet.
