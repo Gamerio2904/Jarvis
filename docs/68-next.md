@@ -31,9 +31,9 @@ Versionen, nicht in einer Vorliebe:
 
 Vier Mal dasselbe Muster: **grün heißt nicht heil.** Solange ein Prompt-Korpus
 ein Ja/Nein ausgibt, lässt sich weder belegen, dass eine Router-Änderung besser
-ist, noch sehen, was sie kaputt macht. Sprint **257** (Intent-Embeddings) tauscht
-ein handgestimmtes System gegen ein gelerntes — das ohne Messung zu tun wäre ein
-Tausch gegen Ungewissheit.
+ist, noch sehen, was sie kaputt macht. Sprint **257** sollte Intent-Embeddings
+bei Gleichstand rechnen. Das Tor hat gehalten (0 % Rückfrage) — ausgeliefert
+wurde Alltagsdeutsch (Zahlwort, Verb-final, TV-an), **keine** Embeddings.
 
 Deshalb: erst messen (249–250), dann das Billige und sofort Spürbare (251–252),
 dann Sprache (253–255), dann Struktur (256–259).
@@ -51,7 +51,7 @@ dann Sprache (253–255), dann Struktur (256–259).
 | `16.6.0` | 253 | Abbruch bis in die Handler + Barge-in verdrahten | Spart Akku, Kontingent und verwaisten Zustand |
 | `16.7.0` | 254 | Satzende-Heuristik (Stufe A), Silero opt-in (Stufe B) | Die offene Beschwerde, an der tatsächlichen Ursache |
 | `16.8.0` | 256 | Feldschutz + Migrationsschritte | Netz für alle Sprints, die Felder anlegen |
-| `16.9.0` | 257 | Intent-Embeddings, nur auf dem ambigen Pfad | Braucht 250 als Netz |
+| `16.9.0` | 257 | Trennschärfe-Tor; Alltagsdeutsch statt Embeddings | Braucht 250 als Netz |
 | `16.10.0` | 258 | Werkzeug-Vertrag, erzwungenes JSON, Schemas englisch | Größte Reichweite, größter Eingriff |
 | **`17.0.0`** | 259 | Historie im Speicher + **Meilenstein** | Abschluss; Sideload |
 
@@ -69,7 +69,7 @@ dann Sprache (253–255), dann Struktur (256–259).
 ```text
 249 Eval-Rahmen
  └─ 250 Kennzahlen ────────────────┐
-                                   ├─ 257 Intent-Embeddings ─ 258 Werkzeug-Vertrag
+                                   ├─ 257 Alltagsdeutsch ─ 258 Werkzeug-Vertrag
 251 Sicherungsschalter + Kontingent│
 252 Lage + Wecker-Nummer           │
 253 Abbruch + Barge-in             │
@@ -225,11 +225,12 @@ Gewinn.
 
 Details: [`sprints/sprint-256.md`](./sprints/sprint-256.md)
 
-## 12. Sprint 257 — Intent-Embeddings (`16.9.0`)
+## 12. Sprint 257 — Trennschärfe-Tor; Alltagsdeutsch (`16.9.0`)
 
-Die Bewertungsschicht wird gelernt statt handgestimmt, aber **nur bei
-Gleichstand**. Auf dem schnellen Pfad entscheiden weiter die Parser, damit
-„Licht an" nicht langsamer wird. Die Parser bleiben.
+Embeddings bei Gleichstand waren der Plan. Das Tor (`eval:separability`) hat
+**0 % Rückfrage** gemessen — es gab keinen Gleichstand zum Lernen. Stattdessen
+drei Parser-Lücken (Zahlwort, Verb-final, `mach das an`). Embeddings wurden
+**nicht** eingebaut.
 
 Details: [`sprints/sprint-257.md`](./sprints/sprint-257.md)
 

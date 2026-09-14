@@ -6,23 +6,20 @@ PO 2026-08-15: **Gemini-API**, weil das lokale 0.5B kein ChatGPT-Niveau erreicht
 PO 2026-08-28: Reihenfolge umgedreht — Gemini **Hauptweg**, nicht Opt-in-Zusatz.  
 PO 2026-09-08: Dual Brain — Gemini **entlasten**, nicht entfernen ([`63-next.md`](./63-next.md)).
 
-PO 2026-08-15: **Gemini-API**, weil das lokale 0.5B kein ChatGPT-Niveau erreicht.  
-PO 2026-08-28: Reihenfolge umgedreht — Gemini **Hauptweg**, nicht Opt-in-Zusatz.
-
 Key bleibt **dein** Key. Nichts in der APK. Ohne Key: Parser-Tools laufen trotzdem; Smalltalk ist klein oder ehrlich aus.
 
-## Heute (`6.50`+, Overlay `6.53` in `6.60`)
+## Heute (`17.0.0`, Dual Brain seit `15.1`)
 
-Kaskade in `pickBrain` (`brain-pick.ts`):
+Kaskade in `brain-orchestrator.ts` / Settings `brain_primary`:
 
-1. **Gemini** — Settings → Cloud: Toggle **an** + API-Key (`geminiReady` / `isGeminiConfigured`)
-2. **Groq** — eigener Key (`console.groq.com/keys`), wenn Gemini fehlt oder ausfällt
-3. **0,5B Qwen** — nur wenn beide Clouds tot oder bewusst lokal geladen
-4. sonst: Tools ohne Modell (Overlay „Fertig — Tools ohne Modell“)
+1. **Groq** — primär für Chat/Formulierung (`brain_primary: 'groq'`)
+2. **Gemini** — Spezialist: Vision, Grounding/Deep Research, optional TTS
+3. **0,5B Qwen** — wenn beide Clouds tot, Kontingent leer, oder bewusst lokal
+4. sonst: Tools ohne Modell
 
-Overlay-Reihenfolge: Gemini-Key eintragen → Fertig ohne Download → 0,5B zuletzt („nur Backup“).
+Rollback: `brain_v2: false` → Gemini zuerst wie `13.44`.
 
-Parser wählen Geräte. Gemini darf denselben Tool-Satz in 1–3 Sätzen sagen — Guard streicht neue Zahlen/Orte. Banner: Chat geht zu Google, wenn Gemini an ist.
+Parser wählen Geräte. Das Modell formuliert denselben Tool-Satz in 1–3 Sätzen — Guard streicht neue Zahlen/Orte.
 
 Key Gemini: [aistudio.google.com/apikey](https://aistudio.google.com/apikey)  
 Key Groq: [console.groq.com/keys](https://console.groq.com/keys)
@@ -30,9 +27,9 @@ Key Groq: [console.groq.com/keys](https://console.groq.com/keys)
 ## Won’t
 
 - Key in der APK einbacken
-- 0,5B oder Groq als gleichwertiges Hirn verkaufen
+- 0,5B als gleichwertiges Hirn verkaufen
 - 1,5B/3B on-device
-- Research-Netz, TTS, anderes Cloud-Produkt als Gemini + optional Groq
+- Research-Netz oder anderes Cloud-Produkt als Gemini + Groq
 
 ## Historisch `0.16` — Opt-in
 

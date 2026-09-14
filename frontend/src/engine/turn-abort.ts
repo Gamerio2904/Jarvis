@@ -6,7 +6,7 @@
  * den der neue Zug dann erbte. Hier hängt alles an einem Controller, den
  * `beginAgentTurn()` beim Start des nächsten Zuges auslöst.
  *
- * Bewusst als Umgebungszustand und nicht als Parameter durch 59 Executoren:
+ * Bewusst als Umgebungszustand und nicht als Parameter durch 60 Executoren:
  * Die Kette reißt sonst an der ersten Stelle, die das Durchreichen vergisst,
  * und das merkt niemand. Ein Modul, das `postJson` benutzt, ist so
  * automatisch abbrechbar.

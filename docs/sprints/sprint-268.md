@@ -1,62 +1,57 @@
-# Sprint 268 — Meilenstein `18.0.0`
+# Sprint 268 — Kugel: Tag/Nacht und ISS-Bahn
 
-**Version:** `18.0.0` (versionCode `180000`) — **PLAN** Must, Meilenstein
-**Plan:** [`70-next.md`](../70-next.md)
-**Voraussetzung:** Sprints **260–267** (267 Should: wenn rot, Meilenstein
-ohne Coach, dann `17.8.0` überspringen und 267 nachziehen)
+**Schiene:** 18.0 Sicht + Schach. **Version nach diesem Sprint:** `17.9.0`. **Davor:** Sprint 267 (`17.8.0` Coach). **Danach:** Sprint 269 (`17.10.0` Schichten). **Meilenstein:** Sprint 271 (`18.0.0`).
+
+**Einstieg:** [`70-next.md`](../70-next.md) §0c. **Lage heute:** `frontend/src/ui/lage/GlobeView.tsx`, `globe-gibs.ts`. **Ist-Zielbild (überclaimt Terminator):** [`43-next.md`](../43-next.md); Briefing: [`48-next.md`](../48-next.md).
 
 ## Ziel
 
-Sideload, an dem der PO sieht: Screenshot-Bugs tot, Tabelle und Bild im Chat,
-Schach ist ein Spiel.
+Die Kugel bleibt **Canvas 2D**. Zwei Dinge, die das Reel **sichtbar** machen, ohne 60 fps und ohne 100 000 Objekte:
 
-## Lieferumfang
+1. **Tag/Nacht-Grenze** (Terminator) — Sonne auf einer Seite, Dunkelheit auf der anderen. Das ist der Effekt, den Reels als „live“ verkaufen.
+2. **ISS-Bahn** — nicht nur ein Punkt. Ein Bogen der nächsten Umläufe aus den vorhandenen ISS-Positionen.
 
-| ID | Task | Datei | Anleitung |
-|----|------|-------|-----------|
-| S268-1 | Version | `store.ts` `APP_VERSION`, `package.json`, Tests die die Version asserten | `18.0.0`, versionCode über `apply-native-tv.mjs` |
-| S268-2 | Docs | `66-agents-ist.md` Chat-Blöcke + Schach-Modus; `CHANGELOG`; `apk.md` | Ist nicht Plan |
-| S268-3 | PO-Liste | `TEST-18.0.0.md` | Die Sätze unten, ein Prompt = ein Kasten |
-| S268-4 | APK | `./build-apk.sh` | `aapt dump badging` → versionName `18.0.0` versionCode `180000` |
-| S268-5 | Eval | `npm run eval` + `run-all-tests.sh` | Muss grün, inklusive neuer Skripte 261/264/266/267 |
+Kein neues npm. Kein Three.js. Kein Cesium. Kein EarthOS.
 
-## PO-Kern (wird `TEST-18.0.0.md`)
+## Warum das zuerst
 
-```
-Lass uns Schach spielen
-```
+Ohne Terminator wirkt die Kugel wie ein Foto. Ohne Bahn wirkt die ISS wie ein zufälliger Punkt. Beides ist mit vorhandenem Canvas und vorhandenem `loadIss()` machbar. Schichten (Erdbeben, Feuer) kommen in 269, weil sie Netz und Parser brauchen.
 
-Modus auf, Startstellung, **nicht** „App geöffnet“.
+## Aufgaben
 
-```
-Bauer e2 e4
-```
+| # | Aufgabe | Datei | Anleitung |
+|---|---------|-------|-----------|
+| 1 | Sonnenposition | `frontend/src/engine/sun.ts` (neu) | Reine Funktion: UTC → Subsolar-Punkt (Länge/Breite). Kein npm. Formel dokumentieren. Tests: Mittag am Äquator ungefähr 0° Breite; Länge folgt UTC. |
+| 2 | Terminator zeichnen | `GlobeView.tsx` | Nach der Textur ein Halbtransparentes Nacht-Overlay entlang der Tag/Nacht-Grenze. Nicht schwarz-undurchsichtig — Sterne/Textur sollen durchscheinen. |
+| 3 | ISS-Bahn | `globe-gibs.ts` / `GlobeView.tsx` | Aus mehreren ISS-Positionen (vorhandenes `wheretheiss.at` oder vorhandene Prognose) eine Linie auf die Kugel. Maximal wenige Dutzend Punkte. Ein Punkt bleibt der aktuelle Standort. |
+| 4 | Kein „Live“ | `GlobeView.tsx` / HUD-Text | Kein Label „Live“. Alter der GIBS-Kachel bleibt ehrlich. ISS: „Position vor X Minuten“, nicht „live verfolgen“. |
+| 5 | Budget | `GlobeView.tsx` | 30 fps-Deckel, Pause wenn Lage nicht sichtbar, Lite-Modus (`globe_webgl` = weniger Ringe) bleibt. Terminator + Bahn dürfen das nicht sprengen. Messung in der Konsole reicht für diesen Sprint. |
+| 6 | Docs | `docs/43-next.md`, `docs/CHANGELOG.md` | Zwei Sätze: Terminator und Bahn sind da. EarthOS ist nicht da. `43-next.md` darf Terminator erst dann als CODE führen. |
 
-Bauer auf e4, Jarvis zieht **legal**, nicht Läufer c8-f5.
+## Tests
 
 ```
-Zeig mir das Schachbrett
+npx tsc --noEmit -p frontend
+npx vite build --config frontend/vite.config.ts
 ```
 
-Modus/Brett, **keine** Kugel.
+Gerät:
 
-```
-Wie steht die Bundesliga?
-```
+1. Lage öffnen: Tag- und Nachtseite erkennbar (nicht die ganze Kugel gleich hell).
+2. ISS-Punkt plus Bahn sichtbar.
+3. Kein Text „Live“.
+4. Lage verlassen: Animation pausiert (kein Dauer-Timer).
+5. `globe_webgl` an: weniger Ringe, Kugel bleibt Canvas.
 
-Tabelle als Karte, kurze Sprachzeile.
+## Abbruch
 
-```
-Hast du die Wahlergebnisse aus Sachsen-Anhalt mitbekommen?
-```
+- FPS p95 über 40 ms auf Mittelklasse **ohne** neue Schichten → nicht „dann Three.js in diesem Sprint“. Messen, in Sprint 270 entscheiden.
+- EarthOS / Cesium / `globe.gl` in `package.json` → raus.
+- NASA-GIBS-ToS verletzt (Kacheln cachen über den erlaubten Rahmen) → zurück auf Blue Marble ohne GIBS.
 
-Suche oder ehrliches Research-Angebot — **kein** „ohne Websuche kann ich
-keine Zahlen nennen“ aus dem Modell, während Research aus ist, ohne den
-Schalter zu erklären.
+## PO-Prüfung
 
-Ein absichtlich abgebrochener Modell-Satz darf nicht als Fließtext mit
-`volatil. bis eine` stehenbleiben.
-
-## Abbruchkriterium
-
-Einer der Screenshot-Sätze verhält sich wie am 14.9.2026.
+1. Sieht die Kugel **klarer** aus als 17.0.0? (Tag/Nacht)
+2. Ist die ISS **eine Bahn**, nicht nur ein Punkt?
+3. Ist irgendwo „Live“ gelogen? → Muss weg.
+4. Wurde die APK größer durch npm? → Muss nein sein.

@@ -5,11 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.0.0` — Zeigen und spielen (Sprints 260–268) — *PLAN*
+### `18.0.0` — Zeigen und spielen (Sprints 260–271) — *PLAN*
 
 Planung: [`70-next.md`](./70-next.md). Anlass: Screenshots (Schach ans Modell,
 Wahl ohne Suche, abgebrochener Satz) plus Chat, der Tabellen und Bilder nur
-als Text kennt.
+als Text kennt. Dazu: Kugel ohne Tag/Nacht, Reel-Klasse EarthOS nicht klonen,
+kein zweiter LLM-Organizer (Director existiert, [`66-agents-ist.md`](./66-agents-ist.md) §1b).
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -21,11 +22,18 @@ als Text kennt.
 | `17.6.0` | 265 | Schach-Modus |
 | `17.7.0` | 266 | Stockfish-Worker opt-in |
 | `17.8.0` | 267 | Coach aus Centipawn, selten |
-| **`18.0.0`** | 268 | Meilenstein |
+| `17.9.0` | 268 | Kugel: Tag/Nacht + ISS-Bahn |
+| `17.10.0` | 269 | Kugel: Schichten auf Zuruf |
+| — | 270 | Freeze `globe.gl` nur nach Messung |
+| **`18.0.0`** | 271 | Meilenstein |
 
-Reel/GitHub: Instagram war nicht lesbar. Übernommen wird das Muster
-getippter Chat-Teile und `chess.js` — nicht browser-use, Composio, mem0,
-DeepAgents, chessground (GPL).
+Reel/GitHub (`DdGJbzuur2I`): Instagram war nicht lesbar. Übernommen wird das
+Muster getippter Chat-Teile und `chess.js` — nicht browser-use, Composio,
+mem0, DeepAgents, AgentGrid-Rollen, chessground (GPL). Die Organizer-Idee
+ist schon der Director.
+
+Reel Erde: Terminator + Bahn + Schichten auf Zuruf. Nicht EarthOS, nicht
+Cesium, kein „Live“.
 
 ## `17.0.0` — Messbar und unterbrechbar (Sprints 249–259) — *CODE*
 
@@ -227,7 +235,7 @@ Execute-Sprints 227–248 alle **CODE** sind — jetzt **ÜBERHOLT**, mit Verwei
 den Ist-Stand in `66-agents-ist.md` und dem Hinweis, dass die geplanten
 52 + 12 Agenten tatsächlich 60 wurden. Und **178, 183, 184, 185, 186** sind
 sachlich offen, nennen als Ziel aber `8.0` bis `9.10.0`, während der Code bei
-`16.1.1` steht; sie sind jetzt als „Anker veraltet" markiert und müssen vor dem
+`17.0.0` steht; sie sind jetzt als „Anker veraltet" markiert und müssen vor dem
 Ziehen neu verankert werden — sonst prüft der PO eine App, die es nicht mehr
 gibt. Nebenbei sprang die Pull-Reihenfolge in `42-planned.md` von 2 auf 4.
 
@@ -294,8 +302,8 @@ Quelle gestellt. Korrigiert:
   danach.
 - **Routing-Pfad:** `32-intelligence.md` nannte `routeRegistry` als Standardweg.
   Der Standard ist `runDirectorTurn` (`agent_network_v2: true`).
-- **Agentenzahl 52 → 60** in `62-agent-catalog.md` und `sprint-233.md`; 59 davon
-  mit Executor.
+- **Agentenzahl 52 → 60** in `62-agent-catalog.md` und `sprint-233.md`; **60**
+  Executoren inkl. `identity` seit `17.0.0`.
 - **Sprint 247** verortete den Smalltalk-Fix in `director.ts`; er liegt in
   `chat.ts` / `greeting.ts`, noch **vor** dem Director.
 - **`npm run test:settings-search`** in `sprint-248.md` gibt es nicht — die
@@ -605,9 +613,12 @@ Sprints **196–201**. e5 bleibt Freeze.
 - **Mag ich Döner?** Memory-Parser, auch ohne Gemini-Key.
 - **Tests:** `test:memory-10` Live-Keys; `test:memory-10-intens` ist Gate.
 
-## Unreleased (Pläne)
+## Unreleased (Pläne) — *historisch, nicht mehr der Kopf*
 
-- **Fachwissen 11.0:** [`58-next.md`](./58-next.md) **PLAN**. Deep Research + Teach-Packs (Sprints 202–208). Getrennt von Cap-80-Prefs. Kein Execute, kein APK-Bump.
+Der lebende Unreleased-Block steht **oben** (`18.0.0`, Sprints 260–271).
+Dieser Absatz blieb aus der Zeit, als 11.0 als Nächstes galt:
+
+- **Fachwissen 11.0:** [`58-next.md`](./58-next.md) **CODE** in `11.60.0` (Sprints 202–208).
 
 ## `10.60.2` — Multi-Intent, Film, Weltlage, Handy-Kontrolle — *CODE*
 

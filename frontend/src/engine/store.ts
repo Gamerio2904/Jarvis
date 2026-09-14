@@ -278,6 +278,7 @@ export type Settings = {
   /** Darf das Modell ein Werkzeug **vorschlagen**, wenn kein Parser greift? */
   tool_propose: boolean
   pc_dashboard_v2: boolean | null
+  /** Name historisch. `true` = Lite-Canvas (weniger Ringe), **kein** WebGL. */
   globe_webgl: boolean
 }
 

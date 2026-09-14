@@ -1,5 +1,7 @@
 # Sprint 185 — Alltag-Tore auf dem Gerät **PLAN** / PO
 
+> ⚠︎ **Anker veraltet.** Gerät gegen Sideload `9.10.0` ist falsch. Live **`17.0.0`**, Test [`TEST-17.0.0.md`](../TEST-17.0.0.md).
+
 | Feld | Wert |
 |------|------|
 | Status | **PLAN** |

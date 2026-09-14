@@ -1,4 +1,4 @@
-# 64 — PC-Dashboard (Reel-Stil) + flüssige Lage-GUI **PLAN** (`15.3.0`)
+# 64 — PC-Dashboard (Reel-Stil) + flüssige Lage-GUI **CODE** (`15.3.0`)
 
 PO 2026-09-08: Instagram-Reel [Dc_qazGKcQ8](https://www.instagram.com/reel/Dc_qazGKcQ8/) — Jarvis am PC installiert/updated Spiele per Sprache, Iron-Man-Ästhetik, Community-Plugin geplant. Ziel: **gleiche Fluidität auf dem PC-Doc** wie im Reel, plus **sichtbar welcher Agent gerade arbeitet** (Körper/Lage).
 
@@ -69,7 +69,7 @@ Gold: `test:prompts` + `test:pc` + `npm run build` + manuell Lage/Kalender/Kugel
 
 - **Kacheln:** lazy `fetchHudSnap` pro sichtbarer Zelle (IntersectionObserver).
 - **Körper classic:** `BodySchema` idle rAF (wie AgentMap).
-- **Kugel:** optional WebGL-Fallback wenn Canvas p95 >16 ms (Flag `globe_webgl`).
+- **Kugel:** auto-lite bei p95 >16 ms; Flag `globe_webgl` **erzwingt Lite** (weniger Ringe), es ist **kein** WebGL-Renderer. Umbenennen in `globe_lite` nur mit Settings-Migration — Sprint 268 rührt das Flag nicht an, außer die Docs.
 - **Copy:** Lage-Hints kurz, ein Satz pro Tab.
 
 ---

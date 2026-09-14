@@ -8,7 +8,7 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 
 ## Pull-Reihenfolge
 
-1. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–268**. Erst Screenshot-Fixes (260), dann Chat-Blöcke (261), Tabelle/Bild (262–263), dann Schach-Modus (264–267)
+1. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Erst Screenshot-Fixes (260), dann Chat-Blöcke (261), Tabelle/Bild (262–263), dann Schach-Modus (264–267), dann Kugel Tag/Nacht + Schichten (268–269). Kein LLM-Organizer (§0b)
 2. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
 3. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
 4. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
@@ -23,7 +23,7 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 
 **⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `17.0.0` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
 
-## PLAN — Schiene `18.0.0` (Sprints 260–268)
+## PLAN — Schiene `18.0.0` (Sprints 260–271)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -35,10 +35,14 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 | `17.6.0` | [265](./sprints/sprint-265.md) | Schach-Modus |
 | `17.7.0` | [266](./sprints/sprint-266.md) | Stockfish opt-in |
 | `17.8.0` | [267](./sprints/sprint-267.md) | Coach selten, aus der Bewertung |
-| **`18.0.0`** | [268](./sprints/sprint-268.md) | **Meilenstein** |
+| `17.9.0` | [268](./sprints/sprint-268.md) | Kugel: Tag/Nacht + ISS-Bahn |
+| `17.10.0` | [269](./sprints/sprint-269.md) | Kugel: Schichten auf Zuruf |
+| — | [270](./sprints/sprint-270.md) | Freeze `globe.gl` nur nach Messung |
+| **`18.0.0`** | [271](./sprints/sprint-271.md) | **Meilenstein** |
 
-Harte Ketten: 260 → alles; 261 → 262/263/265; 264 → 265 → 266 → 267.
-Kein LLM spielt Schach. Kein GPL-Brett. Kein Bild ohne Parser.
+Harte Ketten: 260 → alles; 261 → 262/263/265; 264 → 265 → 266 → 267; 268 → 269.
+Kein LLM spielt Schach. Kein GPL-Brett. Kein Bild ohne Parser. Kein LLM-Organizer.
+Kein EarthOS. `globe.gl` nur nach Framezeit.
 
 Begründung und Reel-Triage: [`70-next.md`](./70-next.md).
 
@@ -54,7 +58,7 @@ Begründung und Reel-Triage: [`70-next.md`](./70-next.md).
 | `16.7.0` | [254](./sprints/sprint-254.md) | Satzende-Heuristik (A) + Silero opt-in (B) |
 | — | [255](./sprints/sprint-255.md) | **AUFGELÖST** — existiert im Code; Rest in 253 und 254 A |
 | `16.8.0` | [256](./sprints/sprint-256.md) | Feldschutz + Migrationsschritte (verkleinert) |
-| `16.9.0` | [257](./sprints/sprint-257.md) | Intent-Embeddings, nur bei Gleichstand |
+| `16.9.0` | [257](./sprints/sprint-257.md) | Trennschärfe-Tor; Alltagsdeutsch statt Embeddings |
 | `16.10.0` | [258](./sprints/sprint-258.md) | Werkzeug-Vertrag, erzwungenes JSON, ein Modellaufruf |
 | **`17.0.0`** | [259](./sprints/sprint-259.md) | Historie im Speicher + **Meilenstein** (verkleinert) |
 
@@ -99,7 +103,7 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 | Friday + Tablet | `4.53` | Face Jarvis/Friday, Lage **neben** Chat |
 | Körper | `4.66` | Lage-Sicht Körper, Canvas-Schema, Organ-Kachel, kein Tool-Start |
 | Sehen-Parser | `4.76`–`4.97` | `ground-parse`, `/v1/ground` Client, zwei Confirms; **keine** 3B-Gewichte |
-| Weltkugel | `5.0` / `6.20` | Lage-Sicht Kugel, Terminator, GIBS beim Zoom, Pins ISS/GPS/DWD/outlook-Lexikon |
+| Weltkugel | `5.0` / `6.20` | Lage-Sicht Kugel Canvas 2D, GIBS beim Zoom, Pins ISS-Punkt/GPS/DWD/outlook-Lexikon. **Kein** Terminator im Code `17.0.0` — Nachzug Sprint 268 |
 | Debug-Lauf | `5.11` / `5.17` | Klickboxen, FGS „Jarvis testet…“, JSON+TXT mit Verdict + Latenz |
 | Bühne & Hirn | `6.50` / `15.1.0` | Ab 15.1: Groq primär via `brain-orchestrator`; Gemini Spezialist |
 | Parser | `6.51` | Wont/Help/HUD-Skip nach Prompt-Test |
@@ -122,8 +126,8 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 
 ## Offen
 
-### Dual Brain Sprint 238 **PLAN**
-SLO-Gates, Shadow-Sign-off, Ship `15.2.0`. [`63-next.md`](./63-next.md).
+### Dual Brain Sprint 238 **CODE** (`15.2.0`)
+SLO-Gates, Shadow, Ship. [`63-next.md`](./63-next.md). Ist-Hirn: Groq primär.
 
 ### PO Handy (Sprint 178)
 Parser CODE. **PO** auf dem Handy: Probe V1–V9 + Screenshot-Bugs + Home-FGS 30 s.
@@ -157,4 +161,4 @@ Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein
 ### `13.40` Sprachmodus (CODE `13.44.0`)
 „Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**.
 
-Nächste Schiene: Dual Brain **238** [`63-next.md`](./63-next.md), dann Gerät-PO [`55-next.md`](./55-next.md) (178).
+Nächste Schiene: **`18.0.0`** [`70-next.md`](./70-next.md) Sprints 260–271. Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.

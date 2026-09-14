@@ -264,13 +264,16 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 265 | [`sprint-265.md`](./sprint-265.md) | `17.6.0` | Schach-Modus (chess.com-Funktionen, Jarvis-Look) | **PLAN** Must |
 | 266 | [`sprint-266.md`](./sprint-266.md) | `17.7.0` | Stockfish-Worker opt-in, kein LLM-Zug | **PLAN** Must |
 | 267 | [`sprint-267.md`](./sprint-267.md) | `17.8.0` | Coach-Kommentare aus der Bewertung, selten | **PLAN** Should |
-| 268 | [`sprint-268.md`](./sprint-268.md) | **`18.0.0`** | Meilenstein Sideload | **PLAN** Must |
+| 268 | [`sprint-268.md`](./sprint-268.md) | `17.9.0` | Kugel: Tag/Nacht + ISS-Bahn | **PLAN** Must |
+| 269 | [`sprint-269.md`](./sprint-269.md) | `17.10.0` | Kugel: Schichten auf Zuruf | **PLAN** Must |
+| 270 | [`sprint-270.md`](./sprint-270.md) | — | Freeze `globe.gl` nur nach Messung | **PLAN** Freeze |
+| 271 | [`sprint-271.md`](./sprint-271.md) | **`18.0.0`** | Meilenstein Sideload | **PLAN** Must |
 
-**Aktuell:** Code **`17.0.0`**. Sideload `17.0.0`, versionCode `170000`. Execute 227–259 **CODE**. Nächste Schiene: 260–268 → [`../70-next.md`](../70-next.md), Ziel `18.0.0`. Ist-Stand: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-17.0.0.md`](../TEST-17.0.0.md).
+**Aktuell:** Code **`17.0.0`**. Sideload `17.0.0`, versionCode `170000`. Execute 227–259 **CODE**. Nächste Schiene: 260–271 → [`../70-next.md`](../70-next.md), Ziel `18.0.0`. Ist-Stand: [`../66-agents-ist.md`](../66-agents-ist.md), Test: [`../TEST-17.0.0.md`](../TEST-17.0.0.md).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
-**Schiene `17.0.0` liegt.** 249–259 → [`../68-next.md`](../68-next.md). **Nächste Schiene:** 260–268 → [`../70-next.md`](../70-next.md), Ziel `18.0.0` („zeigen und spielen"). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
+**Schiene `17.0.0` liegt.** 249–259 → [`../68-next.md`](../68-next.md). **Nächste Schiene:** 260–271 → [`../70-next.md`](../70-next.md), Ziel `18.0.0` („zeigen und spielen"). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
 
 **Gegen die PO-Prioritäten geprüft** (Qualität, funktioniert, Latenz, kostenlos — nur ändern, wenn Nutzen ohne Verlust): 255 aufgelöst, 256 und 259 verkleinert, 257 und 258 mit Latenz-Schranke. Die Rechnung je Sprint steht in [`../68-next.md`](../68-next.md) §3b.
 

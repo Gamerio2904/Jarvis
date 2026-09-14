@@ -1,6 +1,10 @@
 # 55 — Nach Rest-final (`9.10.0`) — Intensiv-Befund + nächste Sprints
 
-**App-Stand dieser Serie:** Code und Sideload **`9.10.0`**. Live-Code danach **`10.60.0`** (Memory-10, [`56-next.md`](./56-next.md) **CODE**); Sideload bleibt `9.10.0`. Parser-first. Hirn Gemini → Groq → 0,5B. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag-Router [`50-next.md`](./50-next.md) **CODE**. V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**.
+> ⚠︎ **Protokoll.** Diese Datei beschreibt den Stand **`9.10.0`**. Live-Code ist
+> **`17.0.0`**. Die offenen Gerät-Sprints 178, 183–186 müssen vor dem Ziehen
+> neu verankert werden ([`TEST-17.0.0.md`](./TEST-17.0.0.md)).
+
+**App-Stand dieser Serie:** Code und Sideload waren **`9.10.0`**. Live danach Memory-10 [`56-next.md`](./56-next.md) **CODE**, Dual Brain, Reel-UI, **`17.0.0`**. Parser-first. Hirn heute Groq primär → Gemini Spezialist → 0,5B. Rest final [`54-next.md`](./54-next.md) **CODE**. Alltag-Router [`50-next.md`](./50-next.md) **CODE**. V1–V9 **CODE**. Screenshot-Fixes `9.9.2` **CODE**.
 
 Diese Datei ist der Befund nach intensivem Parser-/Native-/Docs-Lauf **und** der Sprint-Plan danach. Gerät-Zeilen bleiben **PO** — kein Erfolgssatz ohne Handy.
 

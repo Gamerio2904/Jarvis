@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`17.0.0`**. Sideload **`17.0.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). **Nächste Schiene:** `18.0.0` „zeigen und spielen", Sprints 260–268 → [`70-next.md`](./70-next.md). Schiene `17.0.0` **CODE** → [`68-next.md`](./68-next.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).
+**Jetzt:** Code **`17.0.0`**. Sideload **`17.0.0`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). **Nächste Schiene:** `18.0.0` „zeigen und spielen", Sprints 260–271 → [`70-next.md`](./70-next.md). Schiene `17.0.0` **CODE** → [`68-next.md`](./68-next.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -20,9 +20,9 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 10 | [Intelligence Capabilities](./10-intelligence-capabilities.md) | Memory, Router, Eval, Research |
 | 11 | [Delight & Settings](./11-delight-and-settings.md) | Momente, Jokes, Sound, Eggs, Settings-UX |
 | 12 | [NAS & APK](./12-nas-apk.md) | historisch / superseded |
-| 13 | [On-Device](./13-on-device.md) | Handy: Parser + Speicher lokal; Hirn Gemini zuerst |
+| 13 | [On-Device](./13-on-device.md) | Handy: Parser + Speicher lokal; Hirn Groq primär |
 | 14 | [Qualität & TV](./14-quality-tv.md) | **`0.14.1`** — härten + Tizen live |
-| 16 | [Gemini](./16-gemini.md) | **Hauptweg** (Key); historisch `0.16` Opt-in |
+| 16 | [Gemini](./16-gemini.md) | Spezialist (Vision/Grounding); Chat **Groq primär** seit `15.1` |
 | 17 | [Nächste Versionen](./17-next.md) | **`1.1`–`1.6`** — Erinnerung, Wetter, Kalender, Sprache — **CODE** |
 | 18 | [Timer bis GUI](./18-next.md) | **`1.7`–`1.13.2`** — Wecker, Widget, Wake-Word, Motion, Ton — **CODE** |
 | 19 | [Alltag & Kontext](./19-next.md) | **`1.14`–`1.20` CODE** (in `1.24.0`) |
@@ -48,7 +48,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Code `10.60.0` + Parking |
+| 42 | [Alles geplant](./42-planned.md) | Index Code **`17.0.0`**, nächste Schiene `18.0.0` |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -69,11 +69,13 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 61 | [Sprachmodus 13.40](./61-next.md) | **CODE** `13.44.0` — TV-Stimme, Hören, Antworten, Mund; Sprints 221–225 |
 | 62 | [Agenten-Netzwerk 14.0](./62-next.md) | **PLAN-Protokoll** — Zielbild 14.0; Ist siehe 66 |
 | 63 | [Dual Brain 15.0](./63-next.md) | **CODE** — Groq primär, BrainOrchestrator; Sprints 236–237 in `15.1.0`, 238 in `15.2.0`. Planungsprotokoll, Flag-Namen dort veraltet |
-| 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `17.0.0` — Routing, Abbruch, Historie, Werkzeug-Vorschlag |
+| 64 | [PC-Dashboard](./64-next.md) | **CODE** `15.3.0` — Sprints 239–241; Community-Plugin bleibt PLAN |
+| 65 | [Reel-UI](./65-next.md) | **CODE** `16.0.0` — Sprints 242–248 |
+| 66 | [Agenten-Netzwerk Ist](./66-agents-ist.md) | **CODE** `17.0.0` — Routing, Director, Organizer-Rollen §1b |
 | 67 | [Upgrade-Vorschläge](./67-upgrades.md) | **PLAN-Protokoll** — Grundlage der Schiene 249–259 |
 | 68 | [Messbar und unterbrechbar 17.0](./68-next.md) | **CODE** `17.0.0` — Sprints 249–259 ausgeliefert |
 | 69 | [Modell-Grundlagen](./69-modell-grundlagen.md) | **REFERENZ** — Trainings- vs. Inferenzzeit, interne Sprache (Deutsch bleibt), Free-Tier-Grenzen |
-| 70 | [Zeigen und spielen 18.0](./70-next.md) | **PLAN** `18.0.0` — Chat-Blöcke, Bundesliga-Karte, Schach-Modus, Sprints 260–268 |
+| 70 | [Zeigen und spielen 18.0](./70-next.md) | **PLAN** `18.0.0` — Chat-Blöcke, Schach-Modus, Kugel Tag/Nacht, Sprints 260–271 |
 | — | [APK](./apk.md) | Sideload `17.0.0`; Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -282,6 +284,8 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 256–258 | `16.8.0`–`16.10.0` | **CODE** in `17.0.0` (Feldschutz, Alltagsdeutsch, Werkzeug-Vertrag) |
 | 259 | **`17.0.0`** | **CODE** (Historie + Meilenstein) |
 | 260–267 | `17.1.0`–`17.8.0` | **PLAN** (Fixes, Blöcke, Tabelle, Bild, Schach) |
-| 268 | **`18.0.0`** | **PLAN** (Meilenstein zeigen und spielen) |
+| 268–269 | `17.9.0`–`17.10.0` | **PLAN** (Kugel Tag/Nacht, Schichten auf Zuruf) |
+| 270 | — | **PLAN** Freeze (`globe.gl` nur nach Messung) |
+| 271 | **`18.0.0`** | **PLAN** (Meilenstein zeigen und spielen) |
 
-**Aktuell:** Code **`17.0.0`**. Sideload `17.0.0`, versionCode `170000`. Execute: Sprints bis 259 **CODE**. Nächste Schiene: **260–268** → [`70-next.md`](./70-next.md). Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`17.0.0`**. Sideload `17.0.0`, versionCode `170000`. Execute: Sprints bis 259 **CODE**. Nächste Schiene: **260–271** → [`70-next.md`](./70-next.md). Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md). Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md). Index: [`42-planned.md`](./42-planned.md).

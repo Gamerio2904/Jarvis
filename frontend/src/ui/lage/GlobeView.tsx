@@ -111,7 +111,7 @@ export function GlobeView({
     let raf = 0
     let last = 0
     let frameTimes: number[] = []
-    let lite = loadSettings().globe_webgl
+    let lite = loadSettings().globe_webgl // Flag-Name lügt: true = Lite-Canvas, nicht WebGL
 
     function ringStep() {
       if (lite) return 12
