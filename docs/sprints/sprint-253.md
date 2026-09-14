@@ -1,6 +1,6 @@
 # Sprint 253 — Abbruch bis in die Handler
 
-**Version:** `16.6.0` (versionCode `160600`) — **PLAN**, erweitert um den Barge-in-Rest aus 255
+**Version:** `16.6.0` — **CODE** (ausgeliefert in `17.0.0`), erweitert um den Barge-in-Rest aus 255
 **Plan:** [`68-next.md`](../68-next.md) §8 · Upgrade **A** aus [`67-upgrades.md`](../67-upgrades.md)
 
 ## Ziel
@@ -38,15 +38,15 @@ Drei Folgen:
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S253-1 | `signal?: AbortSignal` in `RouteCtx` | `engine/route-types.ts` | PLAN |
-| S253-2 | `AbortController` je Zug, `beginAgentTurn()` bricht den vorigen ab | `agents/trace-store.ts`, `director.ts` | PLAN |
-| S253-3 | `withBudget` nimmt ein Signal und kombiniert per `AbortSignal.any` | `agents/budget.ts` | PLAN |
-| S253-4 | `agentDispatch` reicht das kombinierte Signal an den Executor | `agents/bus.ts` | PLAN |
-| S253-5 | `http-json.ts`: vorhandenes `abortAfter` mit dem Zug-Signal verheiraten | `engine/http-json.ts` | PLAN |
-| S253-6 | Executoren durchreichen (mechanisch, ~59) | `agents/execute-map.ts` + Module | PLAN |
-| S253-7 | Schreibsperre: `saveSettings` aus einem abgebrochenen Zug wird verworfen | `engine/store.ts` | PLAN |
-| S253-8 | Tests | `scripts/test-agents-robust.mjs`, `test-turn-e2e.mjs` | PLAN |
-| S253-9 | Bestehendes Barge-in an den Controller hängen (aus 255) | `ui/VoiceMode.tsx` | PLAN |
+| S253-1 | `signal?: AbortSignal` in `RouteCtx` | `engine/route-types.ts` | CODE |
+| S253-2 | `AbortController` je Zug, `beginAgentTurn()` bricht den vorigen ab | `agents/trace-store.ts`, `director.ts` | CODE |
+| S253-3 | `withBudget` nimmt ein Signal und kombiniert per `AbortSignal.any` | `agents/budget.ts` | CODE |
+| S253-4 | `agentDispatch` reicht das kombinierte Signal an den Executor | `agents/bus.ts` | CODE |
+| S253-5 | `http-json.ts`: vorhandenes `abortAfter` mit dem Zug-Signal verheiraten | `engine/http-json.ts` | CODE |
+| S253-6 | Executoren durchreichen (mechanisch, ~59) | `agents/execute-map.ts` + Module | CODE |
+| S253-7 | Schreibsperre: `saveSettings` aus einem abgebrochenen Zug wird verworfen | `engine/store.ts` | CODE |
+| S253-8 | Tests | `scripts/test-agents-robust.mjs`, `test-turn-e2e.mjs` | CODE |
+| S253-9 | Bestehendes Barge-in an den Controller hängen (aus 255) | `ui/VoiceMode.tsx` | CODE |
 
 ## S253-9 — der einzige echte Rest aus Sprint 255
 
@@ -78,6 +78,44 @@ runDirectorTurn
 
 `AbortSignal.any` gibt es in Node 20+ und in allen WebViews, die die App
 unterstützt. Kein Polyfill nötig.
+
+## Ergebnis
+
+### Umgebungszustand statt 59 Parameter
+
+S253-6 war als „mechanisch, ~59 Executoren" geplant. So gebaut wäre es nicht
+geworden: eine Kette, die durch 59 Module gereicht wird, reißt an der ersten
+Stelle, die das Durchreichen vergisst — und das fällt niemandem auf, weil der
+Zug ja trotzdem funktioniert.
+
+Stattdessen hängt das Signal in `turn-abort.ts` als Zustand des laufenden
+Zuges, und `http-json.ts` verheiratet es an **jeder** Fetch-Stelle mit dem
+vorhandenen `abortAfter`. Jedes Modul, das `postJson` oder `getJson` benutzt,
+ist damit abbrechbar, ohne eine Zeile geändert zu haben. `RouteCtx.signal`
+gibt es zusätzlich, für Handler, die selbst etwas abbrechen wollen.
+
+### Abgebrochen ist nicht gescheitert
+
+Der neue Fehlertyp `AgentAborted` trennt zwei Dinge, die vorher gleich
+aussahen. Ein Abbruch wird **nicht** wiederholt, belastet die Sicherung aus
+Sprint 251 **nicht** und erzeugt **keinen** Fehlertext — der Nutzer wollte ja
+etwas anderes, nichts war kaputt.
+
+### Die Schreibsperre gilt fünf Felder, nicht allen
+
+Ein pauschales Verbot hätte die Einstellungen ausgesperrt, sobald zuletzt ein
+Zug abgebrochen wurde. Gesperrt sind deshalb genau die Felder, die nur ein
+laufender Zug schreibt: `last_step_tool`, `last_step_utterance`,
+`last_medium`, `last_place`, `last_agent_id`. Das sind die, über die ein
+verwaister Handler dem neuen Zug seinen Nachlauf unterschiebt.
+
+### Ein Test wäre falsch grün geworden
+
+Beim Prüfen der Sperre fiel auf, dass `saveSettings` in Node ohne
+`localStorage` den Fehler schluckt und `loadSettings` immer die Vorgaben
+liefert. Die erste Fassung des Tests bestätigte die Sperre also, ohne
+irgendetwas zu messen. Mit Speicher-Ersatz prüft er jetzt beide Richtungen:
+gesperrt nach Abbruch, schreibbar im laufenden Zug.
 
 ## Abbruchkriterium
 

@@ -11,6 +11,8 @@ export type RouteCtx = {
   weatherLast?: WeatherLast | null
   plugNames?: string[]
   lastPlace?: string
+  /** Abbruch des laufenden Zuges. Wird vom Bus gesetzt, nicht vom Router. */
+  signal?: AbortSignal
 }
 
 export type Candidate = {

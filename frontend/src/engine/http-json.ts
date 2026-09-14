@@ -1,5 +1,6 @@
 import { Capacitor, CapacitorHttp } from '@capacitor/core'
 import { shouldProxyWebHost, WEB_PROXY_PATH } from './web-proxy.ts'
+import { withTurnSignal } from './turn-abort.ts'
 
 const WEB_GET_MS = 12_000
 
@@ -67,7 +68,7 @@ export async function postJson(
     method: 'POST',
     headers: browserSafeHeaders(headers),
     body: JSON.stringify(body),
-    signal: timeoutMs && timeoutMs > 0 ? abortAfter(timeoutMs) : undefined,
+    signal: withTurnSignal(timeoutMs && timeoutMs > 0 ? abortAfter(timeoutMs) : undefined),
   })
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
   const out: Record<string, string> = {}
@@ -110,7 +111,7 @@ export async function getJson(
   }
   const res = await fetch(browserFetchUrl(url), {
     headers: browserSafeHeaders(headers),
-    signal: abortAfter(WEB_GET_MS),
+    signal: withTurnSignal(abortAfter(WEB_GET_MS)),
   })
   const parsed: unknown = await res.json().catch(() => ({}))
   const json = (
@@ -136,7 +137,7 @@ export async function getText(
   }
   const res = await fetch(browserFetchUrl(url), {
     headers: browserSafeHeaders(headers),
-    signal: abortAfter(WEB_GET_MS),
+    signal: withTurnSignal(abortAfter(WEB_GET_MS)),
   })
   return { status: res.status, text: await res.text() }
 }
@@ -170,7 +171,7 @@ export async function getBinary(
   }
   const res = await fetch(browserFetchUrl(url), {
     headers: browserSafeHeaders(headers),
-    signal: abortAfter(read),
+    signal: withTurnSignal(abortAfter(read)),
   })
   const buf = await res.arrayBuffer()
   return { status: res.status, bytes: new Uint8Array(buf) }

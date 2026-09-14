@@ -58,6 +58,8 @@ export type AgentResult = {
    */
   failed?: boolean
   failReason?: string
+  /** Nicht gescheitert, sondern nicht mehr gewollt — kein Fehlertext, keine Sicherung. */
+  aborted?: boolean
   userFacts?: string
   reply?: string
   tool?: ToolMeta

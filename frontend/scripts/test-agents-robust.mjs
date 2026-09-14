@@ -175,6 +175,85 @@ assert.equal(breakerAllows('pc', T0), false)
 assert.equal(breakerAllows('weather', T0), true, 'Sicherungen gelten je Agent')
 resetBreakers()
 
+// --- Abbruch bis in den Handler -------------------------------------------
+// withBudget schnitt vorher nur das Warten ab: der Handler lief weiter, sein
+// fetch lief weiter, und danach konnte er noch Zustand schreiben.
+{
+  const { AgentAborted, withBudget } = await import('../src/engine/agents/budget.ts')
+  const {
+    abortCurrentTurn,
+    beginTurnAbort,
+    currentTurnSignal,
+    isTurnAborted,
+    resetTurnAbort,
+    withTurnSignal,
+  } = await import('../src/engine/turn-abort.ts')
+
+  resetTurnAbort()
+  assert.equal(currentTurnSignal(), undefined, 'ohne Zug kein Signal')
+  assert.equal(isTurnAborted(), false)
+  assert.equal(withTurnSignal(undefined), undefined)
+
+  const first = beginTurnAbort()
+  assert.equal(first.aborted, false)
+  // Ein neuer Zug bricht den alten wirklich ab.
+  const second = beginTurnAbort()
+  assert.equal(first.aborted, true, 'der vorige Zug ist abgebrochen')
+  assert.equal(second.aborted, false)
+  assert.equal(isTurnAborted(), false)
+
+  // Der Handler bekommt das Signal und sieht den Abbruch.
+  const seen = []
+  const slow = new Promise((resolve) => setTimeout(() => resolve('zu spät'), 5_000))
+  const signal = withTurnSignal()
+  signal.addEventListener('abort', () => seen.push('abort'))
+  const race = withBudget(slow, 60_000, signal)
+  abortCurrentTurn('Barge-in')
+  await assert.rejects(race, (e) => e instanceof AgentAborted, 'Abbruch, nicht Timeout')
+  assert.deepEqual(seen, ['abort'], 'das Signal erreicht den Handler')
+  assert.equal(isTurnAborted(), true)
+
+  // Ein bereits abgebrochenes Signal wartet nicht erst auf das Budget.
+  await assert.rejects(withBudget(slow, 60_000, withTurnSignal()), (e) => e instanceof AgentAborted)
+
+  // Ein abgebrochener Zug schreibt keinen Nachlauf-Zustand mehr.
+  // Ohne Speicher-Ersatz waere die Pruefung falsch gruen: saveSettings
+  // schluckt den Fehler und loadSettings liefert immer die Vorgaben.
+  const mem = Object.create(null)
+  globalThis.localStorage = {
+    getItem: (k) => (k in mem ? mem[k] : null),
+    setItem: (k, v) => {
+      mem[k] = String(v)
+    },
+    removeItem: (k) => {
+      delete mem[k]
+    },
+    clear: () => {
+      for (const k of Object.keys(mem)) delete mem[k]
+    },
+  }
+  const store = await import('../src/engine/store.ts')
+  resetTurnAbort()
+  store.saveSettings({ last_step_tool: 'alt', last_medium: 'alt' })
+  assert.equal(store.loadSettings().last_step_tool, 'alt', 'Speicher-Ersatz greift')
+
+  beginTurnAbort()
+  abortCurrentTurn('Test')
+  assert.equal(isTurnAborted(), true)
+  store.saveSettings({ last_step_tool: 'tv', last_medium: 'voice' })
+  assert.equal(store.loadSettings().last_step_tool, 'alt', 'Nachlauf-Feld bleibt unberuehrt')
+  assert.equal(store.loadSettings().last_medium, 'alt')
+  // Einstellungen bleiben schreibbar - eine pauschale Sperre waere schlimmer.
+  store.saveSettings({ alarm_tone_uri: 'content://test' })
+  assert.equal(store.loadSettings().alarm_tone_uri, 'content://test')
+
+  beginTurnAbort()
+  store.saveSettings({ last_step_tool: 'tv' })
+  assert.equal(store.loadSettings().last_step_tool, 'tv', 'im laufenden Zug wird geschrieben')
+  resetTurnAbort()
+  store.saveSettings({ last_step_tool: '', last_medium: '', alarm_tone_uri: '' })
+}
+
 console.log(
   `test:agents-robust ok — Budget, Sicherung, ${getTurnTraces().length} Traces begrenzt, ${catalog.length} Agenten`,
 )

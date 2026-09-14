@@ -1,7 +1,8 @@
 import { agentById } from './catalog.ts'
 import { breakerAllows, breakerFailure, breakerSuccess } from './breaker.ts'
-import { AgentTimeout, withBudget } from './budget.ts'
+import { AgentAborted, AgentTimeout, withBudget } from './budget.ts'
 import { currentAgentTurn, pushAgentTrace } from './trace-store.ts'
+import { withTurnSignal } from '../turn-abort.ts'
 import type { RouteCtx, SideEffect } from '../route-types.ts'
 import type { AgentResult, AgentTrace, RouteHit } from './types.ts'
 
@@ -24,6 +25,7 @@ function messageOf(err: unknown): string {
 
 /** Nur Lesen darf wiederholt werden — ein zweiter Schreib-Lauf legt Termine doppelt an. */
 function mayRetry(sideEffect: SideEffect, err: unknown): boolean {
+  if (err instanceof AgentAborted) return false
   if (sideEffect !== 'read') return false
   return err instanceof AgentTimeout || err instanceof Error
 }
@@ -66,9 +68,11 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
   let lastTrace: AgentTrace | null = null
   let lastReason = 'Fehler'
 
+  const signal = withTurnSignal(ctx.signal)
+
   for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      const hit = await withBudget(Promise.resolve(agent.execute(ctx)), budget)
+      const hit = await withBudget(Promise.resolve(agent.execute({ ...ctx, signal })), budget, signal)
       /** Kein Wurf heißt: der Dienst lebt. „Nicht zuständig" ist kein Fehlschlag. */
       breakerSuccess(id)
       const t = trace(Boolean(hit?.reply), hit?.lastTool || id, attempt)
@@ -84,6 +88,9 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
         internal: [t],
       }
     } catch (err) {
+      if (err instanceof AgentAborted) {
+        return { handled: false, aborted: true, internal: [trace(false, 'abgebrochen', attempt)] }
+      }
       lastReason = err instanceof AgentTimeout ? 'timeout' : messageOf(err)
       lastTrace = trace(false, messageOf(err), attempt)
       if (attempt >= attempts || !mayRetry(agent.sideEffect, err)) break
@@ -91,7 +98,7 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
     }
   }
 
-  /** Ein Dispatch zählt einmal, nicht je Versuch. */
+  /** Ein Dispatch zählt einmal, nicht je Versuch. Ein Abbruch zählt nie. */
   breakerFailure(id)
   return {
     handled: false,

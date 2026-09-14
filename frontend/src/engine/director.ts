@@ -113,6 +113,8 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
 
   saveSettings({ last_agent_id: pick.id })
   const result = await runAgent(pick.id, ctx)
+  /** Abgebrochen heißt: der Nutzer wollte etwas anderes. Kein Fehlertext. */
+  if (result.aborted) return { hit: null }
   if (!result.handled) {
     const honest = failureReply(pick.id, result)
     if (!honest) return { hit: null }

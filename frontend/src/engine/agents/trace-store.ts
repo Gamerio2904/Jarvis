@@ -1,5 +1,6 @@
 import type { AgentTrace } from './types.ts'
 import type { PolicyPick } from '../policy.ts'
+import { beginTurnAbort } from '../turn-abort.ts'
 
 export type BrainSlotTrace = {
   slot: string
@@ -23,6 +24,8 @@ let lastPolicyAsk: PolicyPick | null = null
 const MAX_TRACES = 200
 
 export function beginAgentTurn(): number {
+  /** Ein neuer Zug bricht den alten wirklich ab, nicht nur das Warten darauf. */
+  beginTurnAbort()
   turn += 1
   turnTraces = []
   brainSlots = []

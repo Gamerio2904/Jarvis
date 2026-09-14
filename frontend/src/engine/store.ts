@@ -1,6 +1,7 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
 import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
+import { isTurnAborted } from './turn-abort.ts'
 
 export const APP_VERSION = '16.1.1'
 
@@ -490,10 +491,38 @@ export function isGeminiConfigured(s = loadSettings()): boolean {
   return Boolean(s.gemini_enabled && s.gemini_api_key.trim())
 }
 
+/**
+ * Felder, die nur ein laufender Zug schreibt. Sie sind der Grund, warum ein
+ * abgebrochener Zug gefährlich war: sein Handler lief weiter und schrieb dem
+ * **neuen** Zug seinen Nachlauf-Zustand unter.
+ *
+ * Die Sperre gilt bewusst nur für diese Felder. Ein pauschales Verbot würde
+ * die Einstellungen aussperren, sobald zuletzt ein Zug abgebrochen wurde.
+ */
+const TURN_SCOPED_KEYS = [
+  'last_step_tool',
+  'last_step_utterance',
+  'last_medium',
+  'last_place',
+  'last_agent_id',
+] as const satisfies ReadonlyArray<keyof Settings>
+
 export function saveSettings(patch: Partial<Settings>): Settings {
-  const next = { ...loadSettings(), ...patch, version: APP_VERSION }
+  let effective = patch
+  if (isTurnAborted()) {
+    const kept: Partial<Settings> = { ...patch }
+    let dropped = false
+    for (const key of TURN_SCOPED_KEYS) {
+      if (key in kept) {
+        delete kept[key]
+        dropped = true
+      }
+    }
+    if (dropped) effective = kept
+  }
+  const next = { ...loadSettings(), ...effective, version: APP_VERSION }
   // Key eintragen = Opt-in. Explizites gemini_enabled: false bleibt aus.
-  if (patch.gemini_api_key !== undefined && patch.gemini_enabled === undefined && next.gemini_api_key.trim()) {
+  if (effective.gemini_api_key !== undefined && effective.gemini_enabled === undefined && next.gemini_api_key.trim()) {
     next.gemini_enabled = true
   }
   try {
