@@ -951,7 +951,8 @@ assert.equal(rewriteFollowUp('ja', { last_step_tool: 'todo' }), null)
 assert.equal(shouldRefreshTitle('Kuchenrezepte suchen bitte'), true)
 assert.equal(shouldRefreshTitle('und morgen?'), false)
 assert.equal(shouldRefreshTitle('ja'), false)
-assert.equal(titleFromUser('Kuchenrezepte suchen bitte'), 'Kuchenrezepte suchen bitte')
+/** Höflichkeit am Satzende fällt beim Normalisieren weg — auch im Titel. */
+assert.equal(titleFromUser('Kuchenrezepte suchen bitte'), 'Kuchenrezepte suchen')
 assert.ok(shouldRefreshTitle('Timer 8 Minuten Nudeln'))
 
 const named = memoryBlock([{ key: 'name', value: 'Max' }])

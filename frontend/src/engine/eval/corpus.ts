@@ -280,6 +280,7 @@ export const STT_EXPECT: Record<string, string> = {
   'fahr mich nach heilbronn': 'drive',
   'was weiß ich über den zahnarzt': 'recall',
   'gibt es blitzer auf der strecke': 'blitzer',
+  'weck mich in zehn minuten': 'reminder',
 }
 
 /**

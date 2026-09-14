@@ -1,4 +1,5 @@
 /** Mouth-to-ear marks. Bands from voice-agent research (~200 ms human gap). */
+import { percentile } from './percentile.ts'
 
 export type LatencyPath = 'parser' | 'gemini' | 'groq' | 'local' | 'none'
 
@@ -77,11 +78,10 @@ export function lastLatency(): LatencyTurn | null {
 }
 
 export function latencyP95(field: 'msTotal' | 'msFirstToken' | 'msFirstAudio' = 'msTotal'): number | null {
-  const vals = log.map((t) => t[field]).filter((n): n is number => n != null)
-  if (!vals.length) return null
-  const s = [...vals].sort((a, b) => a - b)
-  const i = Math.min(s.length - 1, Math.max(0, Math.ceil(0.95 * s.length) - 1))
-  return s[i]
+  return percentile(
+    log.map((t) => t[field]).filter((n): n is number => n != null),
+    0.95,
+  )
 }
 
 export function latencyLog(): LatencyTurn[] {

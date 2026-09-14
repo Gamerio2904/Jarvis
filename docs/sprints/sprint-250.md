@@ -1,6 +1,6 @@
 # Sprint 250 — Eval-Kennzahlen: Routing wird messbar
 
-**Version:** `16.3.0` (versionCode `160300`) — **PLAN**
+**Version:** `16.3.0` — **CODE** (ausgeliefert in `17.0.0`)
 **Plan:** [`68-next.md`](../68-next.md) §5 · Upgrade **D** aus [`67-upgrades.md`](../67-upgrades.md)
 **Voraussetzung:** Sprint **249** (eine Korpus-Quelle)
 
@@ -34,16 +34,16 @@ handeln". Das ist eine **Quote**, kein Ja/Nein.
 
 | ID | Task | Datei | Status |
 |----|------|-------|--------|
-| S250-1 | Kennzahlen aus einem Lauf sammeln | `scripts/eval/metrics.mjs` | PLAN |
-| S250-2 | Verwechslungspaare: erwartet ≠ gewählt, nach Häufigkeit | `scripts/eval/metrics.mjs` | PLAN |
-| S250-3 | Baseline schreiben und lesen | `scripts/eval/baseline.json` | PLAN |
-| S250-4 | Differenz-Ausgabe als Markdown-Tabelle | `scripts/eval/report.mjs` | PLAN |
-| S250-5 | Laufzeit je Fall, p50 / p95 — `latencyP95` aus `latency.ts` nutzen, nicht neu bauen | `scripts/eval/metrics.mjs` | PLAN |
-| S250-6 | Schwellen als harte Grenze im Lauf | `scripts/eval/report.mjs` | PLAN |
-| S250-7 | `npm run eval:report` | `package.json` | PLAN |
-| S250-8 | Docs: Kennzahlen erklärt in `66-agents-ist.md` | docs | PLAN |
-| S250-9 | Prompt-Tokens zählen; `cached_tokens` aus der Antwort mitschreiben | `scripts/eval/metrics.mjs` | PLAN |
-| S250-10 | Sprach-A/B: deutscher vs. englischer Anweisungsblock, gleicher Korpus | `scripts/eval/lang-ab.mjs` | PLAN |
+| S250-1 | Kennzahlen aus einem Lauf sammeln | `scripts/eval/metrics.mjs` | CODE |
+| S250-2 | Verwechslungspaare: erwartet ≠ gewählt, nach Häufigkeit | `scripts/eval/metrics.mjs` | CODE |
+| S250-3 | Baseline schreiben und lesen | `scripts/eval/baseline.json` | CODE |
+| S250-4 | Differenz-Ausgabe als Markdown-Tabelle | `scripts/eval/report.mjs` | CODE |
+| S250-5 | Laufzeit je Fall, p50 / p95 — `latencyP95` aus `latency.ts` nutzen, nicht neu bauen | `scripts/eval/metrics.mjs` | CODE |
+| S250-6 | Schwellen als harte Grenze im Lauf | `scripts/eval/report.mjs` | CODE |
+| S250-7 | `npm run eval:report` | `package.json` | CODE |
+| S250-8 | Docs: Kennzahlen erklärt in `66-agents-ist.md` | docs | CODE |
+| S250-9 | Prompt-Tokens zählen; `cached_tokens` aus der Antwort mitschreiben | `scripts/eval/metrics.mjs` | CODE |
+| S250-10 | Sprach-A/B: deutscher vs. englischer Anweisungsblock, gleicher Korpus | `scripts/eval/lang-ab.mjs` | CODE |
 
 ## Kennzahlen
 
@@ -85,6 +85,35 @@ ist. Deutsch ist eine Hochressourcen-Sprache; der erwartete Gewinn ist klein und
 rechtfertigt kein Risiko an der Stimme. Beispiele bleiben in **beiden** Armen
 deutsch — Beispiele in der falschen Sprache kosten 15–20 % Genauigkeit
 (§2.1) und wären ein garantierter Rückschritt.
+
+## Ergebnis
+
+`npm run eval:report` stellt die Tabelle gegen `scripts/eval/baseline.json`
+und beendet den Lauf mit Fehlercode, sobald eine Zahl schlechter wird.
+
+Der erste Lauf fand vier Verwechslungen, alle in der neuen Gruppe `stt`. Alle
+vier waren echte Router-Lücken, keine Testfehler:
+
+| Äußerung | war | Ursache |
+|----------|-----|---------|
+| „lautstärke fünfzig" | `llm` | Zahlwörter wurden nur vor einer Einheit aufgelöst |
+| „weck mich morgen um acht" | `llm` | der Wecker verlangte das Wort „Wecker" |
+| „milch auf die einkaufsliste bitte" | `llm` | Parser prüfen auf Satzende, gesprochen hängt „bitte" dran |
+| „was weiß ich über den zahnarzt" | `llm` | Gedächtnis kannte die Frage nur als „was weißt du über …" |
+
+Behoben in `zahlenworte.ts`, `alarm-parse.ts`, `utterance.ts`, `recall-parse.ts`.
+Danach: **100 %** in allen vier Gruppen, Rückfrage-Quote 0 %, p95 der
+Entscheidung 1,3 ms. Ein Nebenfund fiel dabei mit ab: „weck mich in zehn
+Minuten" landete beim Modell, weil nur „ruf mich in …" als Spanne galt.
+
+### Sprach-A/B
+
+Der englische Anweisungsblock ist **33 Tokens kürzer** (255 statt 288) und
+senkt den cachebaren Anteil minimal (94,8 % statt 95,4 %). Beides ist
+belanglos: der Vorspann ist der **gecachte** Teil, und gecachte Tokens zählen
+ohnehin nicht aufs Kontingent. Ein Wechsel kauft also nichts und riskiert die
+Stimme. **Arm A bleibt.** Die Sprachtreue lässt sich ohne Schlüssel nicht
+messen; das Skript sagt das, statt eine Zahl zu erfinden.
 
 ## Abbruchkriterium
 

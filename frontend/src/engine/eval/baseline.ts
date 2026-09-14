@@ -6,4 +6,4 @@
  */
 
 /** Anteil der Verhörer-Fälle, die der Router richtig zuordnet. */
-export const STT_FLOOR = 0.8
+export const STT_FLOOR = 1

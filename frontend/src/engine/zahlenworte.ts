@@ -43,6 +43,12 @@ const WORD_RE = Object.keys(WORD)
 
 const UNIT = 'sekunden?|minuten?|stunden?|uhr|stufen?'
 
+/** Wörter, nach denen eine nackte Zahl gesprochen wird: „Lautstärke fünfzig". */
+const BEFORE = 'lautstärke|lautstaerke|lauter\\s+um|leiser\\s+um|kanal|stufe'
+
+/** Tageszeiten, die eine Uhrzeit ohne „Uhr" abschließen: „um acht abends". */
+const AFTER_TIME = 'uhr|morgens|vormittags|mittags|nachmittags|abends|nachts'
+
 export function expandZahlenworte(text: string): string {
   let t = text.replace(/\s+/g, ' ').trim()
   t = t.replace(/\b(?:einer?\s+)?viertel\s*stunden?\b/gi, '15 Minuten')
@@ -54,6 +60,18 @@ export function expandZahlenworte(text: string): string {
   t = t.replace(
     new RegExp(`\\bstufe\\s+(${WORD_RE})\\b`, 'gi'),
     (_m, w: string) => `Stufe ${WORD[w.toLowerCase()] ?? w}`,
+  )
+  t = t.replace(
+    new RegExp(`\\b(${BEFORE})\\s+(${WORD_RE})\\b`, 'gi'),
+    (_m, lead: string, w: string) => `${lead} ${WORD[w.toLowerCase()] ?? w}`,
+  )
+  /**
+   * „um acht" ist eine Uhrzeit, „um drei Dinge" nicht. Deshalb nur, wenn die
+   * Zahl den Satz beendet oder eine Tageszeit folgt.
+   */
+  t = t.replace(
+    new RegExp(`\\bum\\s+(${WORD_RE})(?=\\s*[.!?]*$|\\s+(?:${AFTER_TIME})\\b)`, 'gi'),
+    (_m, w: string) => `um ${WORD[w.toLowerCase()] ?? w}`,
   )
   return t.replace(/\s+/g, ' ').trim()
 }

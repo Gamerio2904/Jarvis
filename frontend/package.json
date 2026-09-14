@@ -29,6 +29,8 @@
     "test:gui-live": "node --experimental-strip-types scripts/gui-live-test.mjs",
     "eval": "node --experimental-strip-types --test --test-reporter=spec scripts/eval/route.test.mjs",
     "eval:migrate": "node --experimental-strip-types scripts/eval/migrate-check.mjs",
+    "eval:report": "node --experimental-strip-types scripts/eval/report.mjs",
+    "eval:lang-ab": "node --experimental-strip-types scripts/eval/lang-ab.mjs",
     "test:agents-robust": "node --experimental-strip-types scripts/test-agents-robust.mjs",
     "test:turn-e2e": "node --experimental-strip-types scripts/test-turn-e2e.mjs"
   },
