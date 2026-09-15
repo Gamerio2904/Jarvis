@@ -1,8 +1,10 @@
-# Android-APK — Sideload `18.0.3`
+# Android-APK — Sideload `18.0.2`
 
-App-Code **`18.0.3`**. Sideload-APK **`18.0.3`**, versionCode `180003`.
+App-Code **`18.0.3`**. Sideload-APK **`18.0.2`**, versionCode `180002`.
 
-**18.0.3:** Lidl in der Nähe statt Lidlovy Dvory. Schach-Sätze nicht Spotify/Maps. Bundesliga als Tabelle. Sprachmodus liest die ganze Antwort.
+**18.0.3 ist Code, noch keine APK.** Die Fixes liegen im Repo, `releases/Jarvis.apk` ist noch `18.0.2`. Wer sie auf dem Handy will, baut mit `./build-apk.sh` — das legt die neue APK an dieselbe Stelle.
+
+**18.0.3 (Code):** Lidl in der Nähe statt Lidlovy Dvory. Schach-Sätze nicht Spotify/Maps. Bundesliga als Tabelle. Sprachmodus liest die ganze Antwort.
 
 **18.0.2:** Lage Vollbild auf dem Handy. Küstenlinien als Kontinente. Körper zeigt jeden Agenten, leuchtet, Neuronen, Blitzkugel, Hirn in der Mitte.
 
@@ -12,10 +14,11 @@ App-Code **`18.0.3`**. Sideload-APK **`18.0.3`**, versionCode `180003`.
 
 ## Download
 
-**Fertige APK `18.0.3`:**  
+**Fertige APK `18.0.2`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.0.3` · versionCode `180003`
+- versionName `18.0.2` · versionCode `180002`
+- `18.0.3` selbst bauen: `./build-apk.sh` (setzt versionCode `180003`)
 
 ## Build lokal
 

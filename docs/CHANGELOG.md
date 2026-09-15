@@ -7,7 +7,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ### `18.0.3` — Screenshot-Fixes: Lidl, Schach, Tabelle, Stimme — *CODE*
 
-Sideload **`18.0.3`** (versionCode `180003`). Die Aufnahmen vom 15.9.2026.
+Code **`18.0.3`**, Sideload-APK bleibt `18.0.2` — die APK für `18.0.3` ist noch nicht gebaut (`./build-apk.sh` setzt versionCode `180003`). Die Aufnahmen vom 15.9.2026.
 
 - **CarPlay Lidl:** „Lidl“ ist die Kette, nicht der tschechische Ort Lidlovy Dvory. Nächster Markt über OSM in der Nähe, Geocoder darf den Markennamen nicht als Dorf nehmen.
 - **Schach:** „Lass uns Schach spielen“, „Bauer e2 e4“, „Zeig mir das Schachbrett“ gehen an den Schach-Parser. Spotify und Karte greifen nicht. Brett als Chat-Block (Director reicht `blocks` durch), TTS liest nur den Satz. Im Fahrmodus bleibt die Navi-Karte zu, wenn Schach antwortet.
