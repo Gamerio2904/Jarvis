@@ -8,8 +8,10 @@ const KEY = 'jarvis_chess_fen'
 
 const PIECE = '(?:bauer|springer|pferd|l[aä]ufer|turm|dame|k[oö]nig(?:in)?)'
 const SQ = '([a-h])\\s*([1-8])'
-const FROM_TO = new RegExp(`${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ}([qrbn])?`, 'i')
-const PIECE_MOVE = new RegExp(`(?:${PIECE}\\s+)${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ}([qrbn])?`, 'i')
+/** Ziel darf 9 sein — sonst fällt „Läufer e8 f9“ ans Modell statt auf illegal. */
+const SQ_ANY = '([a-h])\\s*(\\d+)'
+const FROM_TO = new RegExp(`${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ_ANY}([qrbn])?`, 'i')
+const PIECE_MOVE = new RegExp(`(?:${PIECE}\\s+)${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ_ANY}([qrbn])?`, 'i')
 const PLAY =
   /\b(?:lass(?:t)?\s+(?:uns|mich)|wollen\s+wir|spiel(?:en)?\s+wir)\s+schach\b|\bschach\s+spiel(?:en)?\b|^\s*(?:spiel(?:e)?(?:\s+mal)?|play)\s+schach\b/i
 
@@ -72,8 +74,9 @@ export async function handleChess(
 }
 
 function prettyMove(uci: string): string {
-  if (!/^[a-h][1-8][a-h][1-8]/.test(uci)) return uci
-  return `${uci.slice(0, 2)}–${uci.slice(2, 4)}`
+  const m = /^([a-h][1-8])([a-h]\d+)/.exec(uci)
+  if (!m) return uci
+  return `${m[1]}–${m[2]}`
 }
 
 function pack(line: string, fen: string) {

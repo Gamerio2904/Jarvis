@@ -4937,6 +4937,7 @@ button.linkish {
 .chess-board {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
   width: 100%;
   max-width: 280px;
   aspect-ratio: 1;
@@ -5035,6 +5036,8 @@ button.linkish {
   place-items: center;
   font-size: 1.05rem;
   line-height: 1;
+  min-height: 0;
+  aspect-ratio: 1;
 }
 
 .chess-sq.light {
@@ -5047,6 +5050,11 @@ button.linkish {
   color: #f6f3ea;
 }
 
+.chess-sq.b {
+  color: #111814;
+  filter: drop-shadow(0 0 1px #e8efe9);
+}
+
 .chess-sq.w {
   color: #f6f3ea;
   filter: drop-shadow(0 1px 0 #111);
@@ -5055,6 +5063,11 @@ button.linkish {
 .chess-sq.light.w {
   color: #132018;
   filter: none;
+}
+
+.chess-sq.dark.b {
+  color: #0c100e;
+  filter: drop-shadow(0 0 1.4px #e8efe9);
 }
 
 /* —— Sprint 242–248: Switch, Theme, Kalender —— */

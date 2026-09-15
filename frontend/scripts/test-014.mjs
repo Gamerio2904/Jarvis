@@ -1821,6 +1821,9 @@ assert.equal(parseChessIntent('Schach spielen')?.kind, 'new')
 assert.equal(parseChessIntent('Zeig mir das Schachbrett')?.kind, 'show')
 assert.equal(parseChessIntent('Bauer e2 e4')?.move, 'e2e4')
 assert.equal(parseChessIntent('e2 e4', true)?.move, 'e2e4')
+assert.equal(parseChessIntent('Läufer e8 f9')?.kind, 'move')
+assert.equal(parseChessIntent('Läufer e8 f9')?.move, 'e8f9')
+assert.equal(pickRoute('Läufer e8 f9'), 'chess')
 {
   const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
   const hit = await fromHandler('chess', {
