@@ -227,12 +227,13 @@ export function BodySchema({
         if (id) onSelectRef.current(id)
       }
     }
+    const cancel = () => {
+      drag.current = null
+    }
     surface.addEventListener('pointerdown', down)
     surface.addEventListener('pointermove', move)
     surface.addEventListener('pointerup', up)
-    surface.addEventListener('pointercancel', () => {
-      drag.current = null
-    })
+    surface.addEventListener('pointercancel', cancel)
     return () => {
       cancelAnimationFrame(raf)
       ro.disconnect()
@@ -240,6 +241,7 @@ export function BodySchema({
       surface.removeEventListener('pointerdown', down)
       surface.removeEventListener('pointermove', move)
       surface.removeEventListener('pointerup', up)
+      surface.removeEventListener('pointercancel', cancel)
     }
   }, [reduced])
 

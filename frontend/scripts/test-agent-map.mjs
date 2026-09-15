@@ -74,4 +74,23 @@ assert.equal(zoomMagnify(20), 2)
 assert.equal(labelsVisible(1), false)
 assert.equal(labelsVisible(1.6), true)
 
+const { nearestHit } = await import('../src/engine/agent-zoom.ts')
+// Der erste in der Liste darf nicht gewinnen, wenn ein späterer näher liegt.
+assert.equal(
+  nearestHit(10, 10, [
+    { id: 'fan', x: 0, y: 0, r: 14 },
+    { id: 'tv', x: 10, y: 10, r: 14 },
+  ]),
+  'tv',
+)
+assert.equal(nearestHit(0, 0, [{ id: 'a', x: 40, y: 0, r: 14 }]), null)
+// Bei gleichem Abstand gewinnt die vordere Halbkugel (kleineres z).
+assert.equal(
+  nearestHit(0, 0, [
+    { id: 'back', x: 0, y: 0, r: 14, z: 0.8 },
+    { id: 'front', x: 0, y: 0, r: 14, z: -0.4 },
+  ]),
+  'front',
+)
+
 console.log('test:agent-map ok')

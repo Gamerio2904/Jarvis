@@ -4,18 +4,24 @@ import { loadSettings } from './store.ts'
 import { pinForTag, pinForText, type GeoFix } from './globe-geo.ts'
 import type { OutlookSnap } from './outlook.ts'
 import { tourGlowPins } from './globe-tour.ts'
-import { pinsForActiveLayer } from './globe-layers.ts'
+import { cachedLayer, fetchLayer, pinsForActiveLayer } from './globe-layers.ts'
 import { jsonUA } from './ua.ts'
 
 const UA = jsonUA
 
 export async function loadGlobePins(): Promise<GeoFix[]> {
   const s = loadSettings()
+  const layer = s.globe_layer
+  if (layer) {
+    const got = cachedLayer()
+    if (!got || got.layer !== layer) await fetchLayer(layer)
+  }
   const pins: GeoFix[] = []
   const seen = new Set<string>()
   const add = (p: GeoFix) => {
-    if (seen.has(p.name)) return
-    seen.add(p.name)
+    const key = `${p.kind}:${p.lat.toFixed(3)}:${p.lon.toFixed(3)}:${p.name}`
+    if (seen.has(key)) return
+    seen.add(key)
     pins.push(p)
   }
   for (const g of tourGlowPins()) add(g)

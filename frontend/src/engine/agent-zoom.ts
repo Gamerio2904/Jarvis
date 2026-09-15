@@ -23,3 +23,25 @@ export function zoomMagnify(zoom: number): number {
 export function labelsVisible(zoom: number): boolean {
   return clampZoom(zoom) >= 1.6
 }
+
+export type HitCandidate = { id: string; x: number; y: number; r: number; z?: number }
+
+/**
+ * Der nächste Punkt im Radius gewinnt, nicht der erste in der Liste.
+ * Vorher lag der Treffer am Layout: `fan` kam vor `tv`, also traf ein Tipp
+ * auf den Fernseher immer den Ventilator. `z` bricht Gleichstand zugunsten
+ * der vorderen Kugelhalbkugel.
+ */
+export function nearestHit(x: number, y: number, candidates: HitCandidate[]): string | null {
+  let best: { id: string; d: number; z: number } | null = null
+  for (const c of candidates) {
+    const d = (x - c.x) ** 2 + (y - c.y) ** 2
+    const r = Number.isFinite(c.r) ? c.r : 0
+    if (!(r > 0) || d > r * r) continue
+    const z = Number.isFinite(c.z) ? (c.z as number) : 0
+    if (!best || d < best.d - 0.25 || (Math.abs(d - best.d) <= 0.25 && z < best.z)) {
+      best = { id: c.id, d, z }
+    }
+  }
+  return best?.id ?? null
+}

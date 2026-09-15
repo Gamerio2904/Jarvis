@@ -93,6 +93,7 @@ export function Lage({
   const bat = snap.device?.battery
   const amber = s.hud_accent === 'amber'
   const tourOn = Boolean(s.globe_tour_on)
+  const lastLine = recent[recent.length - 1]?.content || ''
   const globeLayer = s.globe_layer
 
   useEffect(() => {
@@ -109,7 +110,7 @@ export function Lage({
           return
         }
         const next = await fetchBodySnap({ busy, conversationId })
-        const tree = await loadBodyGraph(organ, next, recent[recent.length - 1]?.content || '')
+        const tree = await loadBodyGraph(organ, next, lastLine)
         if (live) {
           setBody(next)
           setGraph(tree)
@@ -140,7 +141,7 @@ export function Lage({
       if (id) window.clearInterval(id)
       off()
     }
-  }, [view, bodyView, agentDept, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, recent.length, globeLayer])
+  }, [view, bodyView, agentDept, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, lastLine, globeLayer])
 
   useEffect(() => {
     if (view !== 'globe') return
