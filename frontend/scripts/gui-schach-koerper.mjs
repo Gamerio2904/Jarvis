@@ -155,6 +155,40 @@ try {
   const turn = await page.$eval('.chess-mode-bar p', (n) => n.textContent.trim()).catch(() => '')
   rec(/Weiß am Zug/.test(turn), 'nach Jarvis-Zug wieder Weiß', turn)
   await page.screenshot({ path: `${SHOTS}/schach-nach-zug.png` })
+
+  // Rochade: der häufigste Zug der Eröffnung galt vorher als „nicht legal“.
+  // Erst über den Satz, dann über den Tipp aufs Zielfeld.
+  await page.evaluate(() => {
+    localStorage.setItem('jarvis_chess_fen', 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1')
+  })
+  const roch = await send('Rochade')
+  rec(/Kurze Rochade/.test(roch) && !/nicht/.test(roch), 'Rochade als Satz zieht', roch.slice(0, 70))
+  const rochFen = await page.evaluate(() => localStorage.getItem('jarvis_chess_fen') || '')
+  rec(/R4RK1/.test(rochFen.split(' ')[0]), 'Turm steht nach der Rochade auf f1', rochFen.split(' ')[0])
+  rec(!/K/.test(rochFen.split(' ')[2] || ''), 'Rochaderecht ist verbraucht', rochFen.split(' ')[2] || '')
+
+  // Erst schließen: ein offenes Overlay liest die Stellung nicht neu, und der
+  // Test tippte sonst auf ein e1, auf dem längst niemand mehr stand.
+  await closeChess()
+  await page.evaluate(() => {
+    localStorage.setItem('jarvis_chess_fen', 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1')
+    document.querySelector('.chat-chess')?.click()
+  })
+  await new Promise((r) => setTimeout(r, 400))
+  const rochLit = await page.evaluate(async () => {
+    const pick = (sq) => document.querySelector(`.chess-mode .chess-sq[aria-label="${sq}"]`)
+    pick('e1')?.click()
+    await new Promise((r) => setTimeout(r, 150))
+    const lit = [...document.querySelectorAll('.chess-mode .chess-sq.is-tgt')].map((n) => n.getAttribute('aria-label'))
+    pick('g1')?.click()
+    return lit
+  })
+  rec(rochLit.includes('g1') && rochLit.includes('c1'), 'Overlay leuchtet g1 und c1 für die Rochade', rochLit.join(','))
+  await new Promise((r) => setTimeout(r, 1400))
+  const clickFen = await page.evaluate(() => localStorage.getItem('jarvis_chess_fen') || '')
+  rec(/R4RK1/.test(clickFen.split(' ')[0]), 'Rochade auch per Tipp aufs Feld', clickFen.split(' ')[0])
+  await page.screenshot({ path: `${SHOTS}/schach-rochade.png` })
+  await closeChess()
   await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => b.textContent.trim() === 'Fertig')?.click())
   await new Promise((r) => setTimeout(r, 300))
 
