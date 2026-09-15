@@ -97,7 +97,7 @@ export async function handleChess(
   if (!intent) return { handled: false }
   if (intent.kind === 'new') {
     saveFen(START)
-    return pack('Neues Spiel. Du bist Weiß, ich Schwarz (ohne Engine). Züge wie Bauer e2 e4.', START)
+    return pack('Neues Spiel. Du bist Weiß, ich Schwarz. Züge wie Bauer e2 e4.', START)
   }
   const fen = loadFen()
   if (intent.kind === 'show') {
@@ -178,7 +178,14 @@ export function loadFen(): string {
   }
 }
 
+/** Stellungen dieser Partie, damit Jarvis nicht dieselbe Figur hin und her schiebt. */
+const seen: string[] = []
+
 export function saveFen(fen: string): void {
+  const place = fen.split(' ')[0] || ''
+  if (fen === START) seen.length = 0
+  seen.push(place)
+  if (seen.length > 24) seen.shift()
   try {
     localStorage.setItem(KEY, fen)
   } catch {
@@ -200,15 +207,24 @@ export function subscribeChess(fn: () => void): () => void {
   }
 }
 
-function turnLine(fen: string): string {
-  const side = fen.split(' ')[1] === 'b' ? 'Schwarz' : 'Weiß'
-  return `${side} am Zug.`
+function sideName(fen: string): string {
+  return fen.split(' ')[1] === 'b' ? 'Schwarz' : 'Weiß'
 }
 
+function turnLine(fen: string): string {
+  const check = inCheck(fen) ? ' Schach!' : ''
+  return `${sideName(fen)} am Zug.${check}`
+}
+
+/**
+ * Ohne Königsprüfung endete jede Partie im Nichts: „keinen Zug“ stand auch
+ * unter einem Matt. Jetzt sagt die Zeile, was auf dem Brett steht.
+ */
 function endLine(fen: string): string {
   if (allLegalUci(fen).length) return turnLine(fen)
-  const side = fen.split(' ')[1] === 'b' ? 'Schwarz' : 'Weiß'
-  return `${side} hat keinen Zug.`
+  const side = sideName(fen)
+  if (inCheck(fen)) return `Schachmatt — ${side} steht matt.`
+  return `Patt — ${side} hat keinen Zug.`
 }
 
 /** Jarvis ist Schwarz. Zieht nach, wenn Schwarz am Zug ist. */
@@ -216,7 +232,7 @@ export function applyEngineIfBlack(fen: string): { fen: string; reply: string | 
   if (sideToMoveWhite(fen)) return { fen, reply: null }
   const moves = allLegalUci(fen)
   if (!moves.length) return { fen, reply: null }
-  const reply = pickReplyMove(fen)
+  const reply = pickReplyMove(fen, new Set(seen.slice(-8)))
   if (!reply) return { fen, reply: null }
   const next = applyMove(fen, reply)
   if (!next) return { fen, reply: null }
@@ -309,8 +325,82 @@ export function applyMove(fen: string, uci: string): string | null {
     const promo = uci[4] || 'q'
     grid[tr][tf] = { p: promo, white: piece.white }
   }
+  // Ein Zug, der den eigenen König im Schach lässt, ist keiner. Vorher durfte
+  // jede Seite den König stehen lassen — und Jarvis zog ins Matt hinein.
+  if (kingAttacked(grid, white)) return null
   const rest = fen.split(' ').slice(1).join(' ')
   return fenOf(grid, !white, rest)
+}
+
+/** Greift die Gegenseite das Feld an? Pseudo-Züge, ohne Königsprüfung. */
+function attacks(grid: Sq[][], tf: number, tr: number, byWhite: boolean): boolean {
+  const dest = grid[tr]?.[tf] || null
+  for (let fr = 0; fr < 8; fr++) {
+    for (let ff = 0; ff < 8; ff++) {
+      const piece = grid[fr]?.[ff]
+      if (!piece || piece.white !== byWhite) continue
+      if (fr === tr && ff === tf) continue
+      if (legal(grid, piece, ff, fr, tf, tr, tf - ff, tr - fr, dest)) return true
+    }
+  }
+  return false
+}
+
+function kingAttacked(grid: Sq[][], white: boolean): boolean {
+  for (let fr = 0; fr < 8; fr++) {
+    for (let ff = 0; ff < 8; ff++) {
+      const piece = grid[fr]?.[ff]
+      if (piece && piece.p === 'k' && piece.white === white) return attacks(grid, ff, fr, !white)
+    }
+  }
+  return false
+}
+
+/** Steht die Seite am Zug im Schach? */
+export function inCheck(fen: string): boolean {
+  const { grid, white } = parseBoard(fen)
+  return kingAttacked(grid, white)
+}
+
+const CAPTURE_VALUE: Record<string, number> = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 }
+
+function cheapestAttacker(grid: Sq[][], tf: number, tr: number, byWhite: boolean): number {
+  const dest = grid[tr]?.[tf] || null
+  let best = -1
+  for (let fr = 0; fr < 8; fr++) {
+    for (let ff = 0; ff < 8; ff++) {
+      const piece = grid[fr]?.[ff]
+      if (!piece || piece.white !== byWhite) continue
+      if (fr === tr && ff === tf) continue
+      if (!legal(grid, piece, ff, fr, tf, tr, tf - ff, tr - fr, dest)) continue
+      const worth = CAPTURE_VALUE[piece.p] || 0
+      if (best < 0 || worth < best) best = worth
+    }
+  }
+  return best
+}
+
+/**
+ * Was die Seite am Zug im nächsten Halbzug an Material gewinnt, wenn der
+ * Gegner zurückschlägt. Grobe Schätzung, aber sie erkennt hängende Figuren —
+ * ohne sie verschenkte Jarvis nach jedem Materialgriff die eigene Dame.
+ */
+export function threatValue(fen: string): number {
+  const { grid, white } = parseBoard(fen)
+  let best = 0
+  for (let tr = 0; tr < 8; tr++) {
+    for (let tf = 0; tf < 8; tf++) {
+      const dest = grid[tr]?.[tf]
+      if (!dest || dest.white === white) continue
+      const worth = CAPTURE_VALUE[dest.p] || 0
+      if (worth <= best) continue
+      const attacker = cheapestAttacker(grid, tf, tr, white)
+      if (attacker < 0) continue
+      const gain = attacks(grid, tf, tr, !white) ? worth - attacker : worth
+      if (gain > best) best = gain
+    }
+  }
+  return best
 }
 
 function legal(

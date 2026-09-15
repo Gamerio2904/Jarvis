@@ -38,12 +38,12 @@ export function ChessBoard({
         while (cells.length < 8) cells.push('')
         return cells.slice(0, 8).map((p, x) => {
           const dark = (x + y) % 2 === 1
-          const white = p === p.toUpperCase() && p !== ''
+          const white = p !== '' && p === p.toUpperCase()
           const sq = `${FILES[x]}${RANKS[y]}`
           const cls = [
             'chess-sq',
             dark ? 'dark' : 'light',
-            white ? 'w' : 'b',
+            p ? (white ? 'w' : 'b') : '',
             selected === sq ? 'is-sel' : '',
             hit.has(sq) ? 'is-tgt' : '',
             onSquare ? 'can-click' : '',
