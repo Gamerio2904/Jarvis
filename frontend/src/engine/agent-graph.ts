@@ -1,4 +1,5 @@
-import { agentsInDepartment, departmentLabel, visibleAgents } from './agent-map.ts'
+import { activeAgentId, agentsInDepartment, departmentLabel, visibleAgents } from './agent-map.ts'
+import { usedAgentIds } from './agent-session.ts'
 import type { DepartmentId } from './agents/types.ts'
 import { loadSettings } from './store.ts'
 
@@ -21,13 +22,19 @@ export type AgentGraph = {
 }
 
 export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain'): AgentGraph {
-  const activeId = (loadSettings().last_agent_id || '').trim()
+  const activeId = activeAgentId()
+  let used: Set<string> | null = usedAgentIds()
+  try {
+    if (typeof sessionStorage === 'undefined') used = null
+  } catch {
+    used = null
+  }
   const nodes: AgentTreeNode[] = [
     {
       id: 'brain',
       kind: 'brain',
       label: 'Haus-Gehirn',
-      line: activeId ? `Letzter Agent: ${activeId}` : 'Kein aktiver Agent.',
+      line: used && used.size ? `${used.size} Agenten in dieser Sitzung.` : used ? 'Noch kein Agent in dieser Sitzung.' : (activeId ? `Letzter Agent: ${activeId}` : 'Kein aktiver Agent.'),
       parent: null,
       depth: 0,
       live: Boolean(activeId),
@@ -40,17 +47,19 @@ export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain'):
       : [selectedDept]
 
   for (const dept of clusters) {
+    const agents = agentsInDepartment(dept).filter((a) => !used || used.has(a.id))
+    if (used && !agents.length) continue
     const clusterId = `cluster:${dept}`
     nodes.push({
       id: clusterId,
       kind: 'cluster',
       label: departmentLabel(dept),
-      line: `${agentsInDepartment(dept).length} Agenten`,
+      line: `${agents.length} Agenten`,
       parent: 'brain',
       depth: 1,
-      live: agentsInDepartment(dept).some((a) => a.id === activeId),
+      live: agents.some((a) => a.id === activeId),
     })
-    for (const agent of agentsInDepartment(dept)) {
+    for (const agent of agents) {
       nodes.push({
         id: `agent:${agent.id}`,
         kind: 'agent',

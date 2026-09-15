@@ -2,7 +2,10 @@ import { completeGeminiVision, geminiReady } from './gemini.ts'
 import { addMessage, loadSettings, saveSettings } from './store.ts'
 import { scrubReply } from './guards.ts'
 import { parseGroundIntent } from './ground-parse.ts'
+import { isShowEyeImage } from './eye-parse.ts'
+import { readLastEyeImage, saveLastEyeImage } from './agent-session.ts'
 import type { ToolMeta } from './tools.ts'
+import type { ChatBlock } from './chat-blocks.ts'
 
 export { parseEyeIntent } from './eye-parse.ts'
 
@@ -39,7 +42,26 @@ export async function handleEyeAsk(text = ''): Promise<{
   reply?: string
   tool?: ToolMeta
   lastTool?: string
+  blocks?: ChatBlock[]
 }> {
+  if (isShowEyeImage(text)) {
+    const src = readLastEyeImage()
+    if (!src) {
+      return {
+        handled: true,
+        reply: 'Kein Foto in diesem Gespräch. Unten auf die Kamera tippen.',
+        tool: { tool_status: 'executed', tool: 'eye', action: 'ask', label: 'Auge' },
+        lastTool: 'eye',
+      }
+    }
+    return {
+      handled: true,
+      reply: 'Das letzte Foto.',
+      tool: { tool_status: 'executed', tool: 'eye', action: 'show', label: 'Auge' },
+      lastTool: 'eye',
+      blocks: [{ kind: 'image', src, alt: 'Letztes Foto', source: 'Kamera' }],
+    }
+  }
   const slip = parseGroundIntent(text)
   const topic = slip?.kind === 'slip' ? slip.topic : null
   const lines: Record<string, string> = {
@@ -95,6 +117,7 @@ export async function readEyeImage(
     })
     return { reply }
   }
+  saveLastEyeImage(dataUrl)
   try {
     const tv = loadSettings().last_step_tool === 'tv'
     const prompt = tv
@@ -102,9 +125,11 @@ export async function readEyeImage(
       : 'Lesen Sie nur, was auf dem Bild steht. Deutsch, Siezen, 1–3 Sätze. Nichts erfinden, was nicht zu sehen ist.'
     const text = await completeGeminiVision(prompt, m[2], m[1])
     const reply = scrubReply(text || 'Nichts Lesbares auf dem Bild.')
+    saveLastEyeImage(dataUrl)
     saveSettings({ last_eye_line: reply, last_step_tool: 'eye', last_eye_frame: true })
     await addMessage(conversationId, 'assistant', reply, {
-      tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'Auge' },
+      tool: { tool_status: 'executed', tool: 'eye', action: 'read', label: 'OCR' },
+      blocks: [{ kind: 'image', src: dataUrl, alt: 'Foto', source: 'Kamera' }],
     })
     return { reply }
   } catch (err) {

@@ -78,7 +78,7 @@ export async function readNetwork(): Promise<{
   }
 }
 
-export async function setTorch(on: boolean): Promise<{ ok: boolean; message?: string }> {
+export async function setTorch(on: boolean): Promise<{ ok: boolean; on?: boolean; message?: string }> {
   if (native) {
     try {
       return await withTimeout(native.torch({ on }), 12_000, {

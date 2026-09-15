@@ -54,6 +54,7 @@ import { PcDashboard } from './ui/PcDashboard.tsx'
 import { VoiceMode } from './ui/VoiceMode.tsx'
 import { SettingsScreen, type SettingsTopic } from './ui/SettingsScreen.tsx'
 import { DriveMode } from './ui/DriveMode.tsx'
+import { ChessMode } from './ui/ChessMode.tsx'
 import { Lage } from './ui/lage/Lage.tsx'
 import { WakeBubble } from './ui/WakeBubble.tsx'
 import { ToolChip } from './ui/ToolChip.tsx'
@@ -103,6 +104,10 @@ function opensDriveOverlay(tool?: ToolMeta | null): boolean {
 function hidesDriveOverlay(tool?: ToolMeta | null): boolean {
   const id = tool?.tool || ''
   return id === 'chess' || id === 'sport' || id === 'research' || id === 'calendar'
+}
+
+function opensChessOverlay(tool?: ToolMeta | null): boolean {
+  return tool?.tool === 'chess'
 }
 
 function PcLiveDock() {
@@ -280,6 +285,7 @@ function App() {
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
+  const [chessOpen, setChessOpen] = useState(false)
   const [overlay, setOverlay] = useState(OVERLAY_INIT)
   const voiceOpenRef = useRef(false)
   const driveOpenRef = useRef(false)
@@ -467,7 +473,7 @@ function App() {
   }, [debugRunning])
 
   useEffect(() => {
-    const overlayOpen = settingsPanelOpen || calendarOpen || voiceOpen || driveOpen
+    const overlayOpen = settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen
     if (!overlayOpen) return
     window.history.pushState({ jarvisOverlay: true }, '')
     const onPop = () => {
@@ -490,11 +496,15 @@ function App() {
         closeDrive()
         setDriveOpen(false)
         closeSheet('drive')
+        return
+      }
+      if (chessOpen) {
+        setChessOpen(false)
       }
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen])
+  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen])
 
   useEffect(() => {
     const el = appRef.current
@@ -924,7 +934,7 @@ function App() {
       /* browser ohne Deep-Link */
     }
     const s = await getSettings()
-    if (s.drive_mode) {
+    if (s.drive_mode && s.last_drive_json) {
       setDriveOpen(true)
       patchOverlay({ type: 'ensure', id: 'drive' })
     }
@@ -1225,13 +1235,18 @@ function App() {
           applyAppTool(payload.tool)
           applyHudTool(payload.tool)
           if (driveCloseGenRef.current === closeGen) {
-            if (payload.tool?.action === 'close' || hidesDriveOverlay(payload.tool)) {
+            if (opensChessOverlay(payload.tool)) {
+              setChessOpen(true)
               setDriveOpen(false)
               closeSheet('drive')
-            } else if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+            } else if (payload.tool?.action === 'close' || hidesDriveOverlay(payload.tool)) {
+              setDriveOpen(false)
+              closeSheet('drive')
+            } else if (opensDriveOverlay(payload.tool)) {
               setDriveOpen(true)
               setCalendarOpen(false)
               setSidebarOpen(false)
+              setChessOpen(false)
               patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'ensure', id: 'drive' })
             }
           }
@@ -1395,11 +1410,16 @@ function App() {
             })
             if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
             if (driveCloseGenRef.current === closeGen) {
-              if (payload.tool?.action === 'close' || hidesDriveOverlay(payload.tool)) {
+              if (opensChessOverlay(payload.tool)) {
+                setChessOpen(true)
                 setDriveOpen(false)
                 closeSheet('drive')
-              } else if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+              } else if (payload.tool?.action === 'close' || hidesDriveOverlay(payload.tool)) {
+                setDriveOpen(false)
+                closeSheet('drive')
+              } else if (opensDriveOverlay(payload.tool)) {
                 setDriveOpen(true)
+                setChessOpen(false)
                 patchOverlay({ type: 'ensure', id: 'drive' })
               }
             }
@@ -1529,7 +1549,7 @@ function App() {
   }
 
   return (
-    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen ? '' : ' has-nav-dock'}`} ref={appRef}>
+    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1589,17 +1609,27 @@ function App() {
             </button>
             <button
               type="button"
-              className="ghost-btn"
+              className={`dl-btn${downloadBusy && downloadPhase !== 'load' && !hasLocalModel ? ' is-work' : ''}${downloadBusy && (downloadPhase === 'load' || hasLocalModel) ? ' is-done' : ''}`}
+              style={{ ['--p' as string]: String(Math.max(0, Math.min(1, downloadPct / 100)) ) }}
               disabled={downloadBusy}
+              aria-busy={downloadBusy}
               onClick={() => void downloadModel()}
             >
-              {downloadBusy
-                ? downloadPhase === 'load' || hasLocalModel
-                  ? 'Modell starten…'
-                  : `Laden ${downloadPct}%`
-                : hasLocalModel
-                  ? 'Modell starten (Backup)'
-                  : 'Lokales 0,5B laden (nur Backup)'}
+              <span className="dl-stream" aria-hidden />
+              <span className="dl-liquid" aria-hidden>
+                <span className="dl-wave" />
+              </span>
+              <span className="dl-face">
+                <span className="dl-lab">
+                  {downloadBusy
+                    ? downloadPhase === 'load' || hasLocalModel
+                      ? 'Modell starten…'
+                      : `Laden ${downloadPct}%`
+                    : hasLocalModel
+                      ? 'Modell starten (Backup)'
+                      : 'Lokales 0,5B laden (nur Backup)'}
+                </span>
+              </span>
             </button>
             <p className="settings-hint">Gemini: Chat geht zu Google. Key von aistudio.google.com</p>
           </div>
@@ -1673,7 +1703,7 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
+      <main className={`main${driveOpen || chessOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
         {voiceLayer.shown ? (
           <VoiceMode
             leaving={voiceLayer.leaving}
@@ -1703,6 +1733,12 @@ function App() {
               setDriveOpen(false)
               closeSheet('drive')
             }}
+            onCommand={(text) => sendVoiceTurn(text)}
+          />
+        ) : null}
+        {chessOpen ? (
+          <ChessMode
+            onClose={() => setChessOpen(false)}
             onCommand={(text) => sendVoiceTurn(text)}
           />
         ) : null}
@@ -1759,7 +1795,7 @@ function App() {
           </div>
         ) : null}
 
-        {lageOn && !voiceOpen && !calendarOpen && !driveOpen && !settingsLayer.shown ? (
+        {lageOn && !voiceOpen && !calendarOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (
           <Lage
             onSend={(text) => void sendMessage(text)}
             draft={draft}
@@ -2048,13 +2084,13 @@ function App() {
       ) : null}
 
       <DebugChatDock
-        overlayOpen={driveOpen || voiceOpen || calendarOpen || settingsPanelOpen}
+        overlayOpen={driveOpen || chessOpen || voiceOpen || calendarOpen || settingsPanelOpen}
         messages={messages}
         streaming={streamingText}
         activeConversationId={activeId}
         onOpen={() => openSettings('tests')}
       />
-      {!driveOpen ? (
+      {!driveOpen && !chessOpen ? (
         <NavIsland
           className="nav-dock"
           ariaLabel="Hauptnavigation"

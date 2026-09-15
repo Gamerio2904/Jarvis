@@ -224,7 +224,9 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Turm a1 a8': 'chess',
   'König e1 e2': 'chess',
   'e2 e4': 'chess',
+  'E2 e4': 'chess',
   'Spiel Schach': 'chess',
+  'Las uns Schach spielen': 'chess',
   'wollen wir Schach spielen': 'chess',
   'Schachbrett': 'chess',
   'neues Schach': 'chess',
@@ -387,6 +389,7 @@ export const STT_EXPECT: Record<string, string> = {
   'weck mich in zehn minuten': 'reminder',
   // 18.0.3 so wie das Mikrofon liefert, nicht wie jemand tippt.
   'lass uns schach spielen': 'chess',
+  'las uns schach spielen': 'chess',
   'nächster lidl': 'poi',
   'fahr zum lidl': 'poi',
   'wie steht die zweite bundesliga': 'sport',

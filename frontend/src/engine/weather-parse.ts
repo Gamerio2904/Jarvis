@@ -98,6 +98,14 @@ export function parseWeatherIntent(text: string): WeatherIntent | null {
 }
 
 function pickPlace(text: string): string | null {
+  const hotel =
+    /\b(?:wetter|temperatur)\s+(?:(?:im|in|für|am)\s+)?(?:hotel\s+)?([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-]{2,32})\b/i.exec(
+      text,
+    )
+  if (hotel) {
+    const name = cleanPlace(hotel[1])
+    if (name) return name
+  }
   const re =
     /\b(?:in|für|aus|bei)\s+(?:der\s+|dem\s+|den\s+)?([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.\-]{1,32})\b/gi
   let last: string | null = null

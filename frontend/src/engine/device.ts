@@ -1,5 +1,7 @@
 import { formatClockReply, parseDeviceIntent } from './device-parse.ts'
 import { listBluetooth, nudgeVolume, openDevicePage, readBattery, readNetwork, setTorch } from '../native/device.ts'
+import { readTorchOn, saveTorchOn } from './agent-session.ts'
+import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 
 export { formatClockReply, parseDeviceIntent } from './device-parse.ts'
@@ -81,19 +83,28 @@ export async function handleDevice(_conversationId: string, text: string): Promi
   }
 
   if (intent.kind === 'torch') {
-    const hit = await setTorch(intent.on)
-    if (!hit.ok) {
+    const bare = /^\s*(?:die\s+)?(?:taschenlampe|handylicht|blitzlicht)\s*[.!?]*$/i.test(
+      normalizeUtterance(text),
+    )
+    const want = bare ? !readTorchOn() : intent.on
+    const hit = await setTorch(want)
+    const actual = typeof hit.on === 'boolean' ? hit.on : hit.ok ? want : readTorchOn()
+    if (!hit.ok || actual !== want) {
+      saveTorchOn(actual)
       return {
         handled: true,
-        reply: hit.message || 'Taschenlampe nicht geschaltet.',
+        reply:
+          hit.message ||
+          (want ? 'Taschenlampe ging nicht an.' : 'Taschenlampe ist noch an. Ich behaupte das Licht nicht aus.'),
         tool: deviceTool('error', 'Taschenlampe'),
         lastTool: 'device',
       }
     }
+    saveTorchOn(actual)
     return {
       handled: true,
-      reply: intent.on ? 'Taschenlampe an.' : 'Taschenlampe aus.',
-      tool: deviceTool(intent.on ? 'on' : 'off', 'Taschenlampe'),
+      reply: actual ? 'Taschenlampe an.' : 'Taschenlampe aus.',
+      tool: deviceTool(actual ? 'on' : 'off', 'Taschenlampe'),
       lastTool: 'device',
     }
   }

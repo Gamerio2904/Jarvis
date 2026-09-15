@@ -1,7 +1,7 @@
+import { usedAgentIds } from './agent-session.ts'
 import { parseCatalog } from './agents/parse-catalog.ts'
 import { getTurnTraces } from './agents/trace-store.ts'
 import type { AgentSpec, DepartmentId } from './agents/types.ts'
-import { loadSettings } from './store.ts'
 
 export type DepartmentNode = {
   id: DepartmentId
@@ -36,8 +36,14 @@ export function agentsInDepartment(dept: DepartmentId, showInternal = false): Ag
   return visibleAgents(showInternal).filter((a) => a.department === dept)
 }
 
+/** Nur der Agent, der gerade läuft — nicht der letzte aus einer alten Sitzung. */
 export function activeAgentId(): string {
-  return (loadSettings().last_agent_id || '').trim()
+  const traces = getTurnTraces()
+  for (let i = traces.length - 1; i >= 0; i--) {
+    const id = traces[i]?.agentId || ''
+    if (id && id !== 'router' && id !== 'curator') return id
+  }
+  return ''
 }
 
 export function activeTracePath(): string[] {
@@ -72,10 +78,21 @@ export function agentTask(agent: { label: string; promptSlice?: string; goldProm
   return `${agent.label} — Im Chat ansprechen.`
 }
 
+function sessionUsedAgents(): Set<string> | null {
+  try {
+    if (typeof sessionStorage === 'undefined') return null
+    return usedAgentIds()
+  } catch {
+    return null
+  }
+}
+
 /** Einzelne sichtbare Agenten, in Büscheln um die sieben Cluster. */
 export function layoutAgentDots(): AgentDot[] {
+  const used = sessionUsedAgents()
+  const shown = used ? visibleAgents().filter((a) => used.has(a.id)) : visibleAgents()
   const byDept = new Map<DepartmentId, ReturnType<typeof visibleAgents>>()
-  for (const a of visibleAgents()) {
+  for (const a of shown) {
     const list = byDept.get(a.department) || []
     list.push(a)
     byDept.set(a.department, list)
@@ -121,13 +138,14 @@ export function layoutAgentDots(): AgentDot[] {
 
 export function synapses(dots: AgentDot[]): Synapse[] {
   const edges: Synapse[] = []
-  for (const d of DEPARTMENT_NODES) {
+  const liveDepts = DEPARTMENT_NODES.filter((d) => dots.some((a) => a.department === d.id))
+  for (const d of liveDepts) {
     edges.push({ from: 'brain', to: `dept:${d.id}` })
   }
-  for (let i = 0; i < DEPARTMENT_NODES.length; i++) {
-    const a = DEPARTMENT_NODES[i]
-    const b = DEPARTMENT_NODES[(i + 1) % DEPARTMENT_NODES.length]
-    edges.push({ from: `dept:${a.id}`, to: `dept:${b.id}` })
+  for (let i = 0; i < liveDepts.length; i++) {
+    const a = liveDepts[i]
+    const b = liveDepts[(i + 1) % liveDepts.length]
+    if (a && b && liveDepts.length > 1) edges.push({ from: `dept:${a.id}`, to: `dept:${b.id}` })
   }
   const byDept = new Map<DepartmentId, AgentDot[]>()
   for (const dot of dots) {

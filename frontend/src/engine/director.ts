@@ -1,3 +1,4 @@
+import { markUsedAgent } from './agent-session.ts'
 import { clearPending, getPending, loadSettings, saveSettings, setPending, type ToolPending } from './store.ts'
 import { loadPlugs } from './plug.ts'
 import { handleTools } from './tools.ts'
@@ -208,6 +209,7 @@ async function runPicked(
   text: string,
 ): Promise<DirectorTurn> {
   saveSettings({ last_agent_id: id })
+  markUsedAgent(id)
   const result = await runAgent(id, ctx)
   /** Abgebrochen heißt: der Nutzer wollte etwas anderes. Kein Fehlertext. */
   if (result.aborted) return { hit: null }

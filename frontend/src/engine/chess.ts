@@ -47,12 +47,12 @@ const SQ_ANY = '([a-h])\\s*(\\d+)'
 const FROM_TO = new RegExp(`${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ_ANY}([qrbn])?`, 'i')
 const PIECE_MOVE = new RegExp(`${PIECE}\\s+${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ_ANY}([qrbn])?`, 'i')
 const PLAY =
-  /\b(?:lass(?:t)?\s+(?:uns|mich)|wollen\s+wir|spiel(?:en)?\s+wir)\s+schach\b|\bschach\s+spiel(?:en)?\b|^\s*(?:spiel(?:e)?(?:\s+mal)?|play)\s+schach\b/i
+  /\b(?:lass(?:t)?\s+(?:uns|mich)|las\s+uns|wollen\s+wir|spiel(?:en)?\s+wir)\s+schach\b|\bschach\s+spiel(?:en)?\b|^\s*(?:spiel(?:e)?(?:\s+mal)?|play)\s+schach\b/i
 
 export type ChessIntent = { kind: 'new' | 'show' | 'move'; move?: string; piece?: string }
 
 export function parseChessIntent(text: string, follow = false): ChessIntent | null {
-  const t = normalizeUtterance(text.trim())
+  const t = normalizeUtterance(text.trim()).toLowerCase()
   if (!t || t.length > 120) return null
   if (/\b(spotify|musik|song|lied|titel)\b/i.test(t)) return null
   if (/^\s*schach\s*(?:neu|reset|von\s+vorn)\s*$/i.test(t) || /^\s*neues\s+schach\s*$/i.test(t)) {
@@ -147,6 +147,10 @@ function pack(line: string, fen: string) {
   }
 }
 
+export const START_FEN = START
+
+const chessListeners = new Set<() => void>()
+
 export function loadFen(): string {
   try {
     return localStorage.getItem(KEY) || START
@@ -155,11 +159,25 @@ export function loadFen(): string {
   }
 }
 
-function saveFen(fen: string): void {
+export function saveFen(fen: string): void {
   try {
     localStorage.setItem(KEY, fen)
   } catch {
     /* ignore */
+  }
+  for (const fn of [...chessListeners]) {
+    try {
+      fn()
+    } catch {
+      /* listener */
+    }
+  }
+}
+
+export function subscribeChess(fn: () => void): () => void {
+  chessListeners.add(fn)
+  return () => {
+    chessListeners.delete(fn)
   }
 }
 
@@ -168,12 +186,16 @@ function turnLine(fen: string): string {
   return `${side} am Zug.`
 }
 
+export function turnLabel(fen: string): string {
+  return turnLine(fen)
+}
+
 type Sq = { p: string; white: boolean } | null
 
 function parseBoard(fen: string): { grid: Sq[][]; white: boolean } {
   const [place, stm] = fen.split(' ')
   const grid: Sq[][] = []
-  for (const row of place.split('/')) {
+  for (const row of (place || '').split('/')) {
     const line: Sq[] = []
     for (const ch of row) {
       if (/\d/.test(ch)) {
@@ -186,6 +208,18 @@ function parseBoard(fen: string): { grid: Sq[][]; white: boolean } {
     grid.push(line.slice(0, 8))
   }
   return { grid, white: stm !== 'b' }
+}
+
+export function pieceAt(fen: string, sq: string): { p: string; white: boolean } | null {
+  if (!/^[a-h][1-8]$/.test(sq)) return null
+  const { grid } = parseBoard(fen)
+  const ff = sq.charCodeAt(0) - 97
+  const fr = 8 - Number(sq[1])
+  return grid[fr]?.[ff] || null
+}
+
+export function sideToMoveWhite(fen: string): boolean {
+  return parseBoard(fen).white
 }
 
 function fenOf(grid: Sq[][], white: boolean, rest: string): string {
@@ -211,7 +245,7 @@ function fenOf(grid: Sq[][], white: boolean, rest: string): string {
   return `${rows.join('/')} ${bits.join(' ')}`
 }
 
-function applyMove(fen: string, uci: string): string | null {
+export function applyMove(fen: string, uci: string): string | null {
   if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci)) return null
   const { grid, white } = parseBoard(fen)
   const ff = uci.charCodeAt(0) - 97
@@ -278,4 +312,17 @@ function clear(grid: Sq[][], ff: number, fr: number, tf: number, tr: number): bo
     r += sr
   }
   return true
+}
+
+export function legalMovesFrom(fen: string, from: string): string[] {
+  if (!/^[a-h][1-8]$/.test(from)) return []
+  const out: string[] = []
+  for (let f = 0; f < 8; f++) {
+    for (let r = 1; r <= 8; r++) {
+      const to = `${String.fromCharCode(97 + f)}${r}`
+      if (to === from) continue
+      if (applyMove(fen, from + to)) out.push(to)
+    }
+  }
+  return out
 }

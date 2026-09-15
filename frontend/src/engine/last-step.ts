@@ -126,6 +126,18 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
       : 'Wie steht die Bundesliga?'
   }
 
+  if (tool === 'sport' && /^(?:und\s+)?(?:die\s+)?2\.?\s*(?:liga|bundesliga)?\s*\??$/i.test(raw)) {
+    return 'Wie steht die 2. Bundesliga?'
+  }
+
+  if (
+    tool === 'device' &&
+    /taschenlampe|handylicht|blitzlicht/i.test(`${title} ${utterance}`) &&
+    /^(?:aus|ab|an|ein)\s*[.!?]*$/i.test(raw)
+  ) {
+    return /^(?:an|ein)/i.test(raw) ? 'Taschenlampe an' : 'Taschenlampe aus'
+  }
+
   if (!FOLLOW_UP.test(raw)) return null
   if (!tool || tool === 'weather') return null
 

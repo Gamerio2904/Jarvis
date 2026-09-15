@@ -26,7 +26,10 @@ export async function loadGlobePins(): Promise<GeoFix[]> {
       const lat = parseCoord(String(focus.lat ?? ''))
       const lon = parseCoord(String(focus.lon ?? ''))
       if (focus.name && lat != null && lon != null && !(lat === 0 && lon === 0)) {
-        add({ name: focus.name, lat, lon, kind: 'outlook', line: s.last_globe_brief || 'Gazetteer' })
+        const name = String(focus.name)
+        if (!/^iss$/i.test(name)) {
+          add({ name, lat, lon, kind: 'outlook', line: s.last_globe_brief || 'Gazetteer' })
+        }
       }
     }
   } catch {

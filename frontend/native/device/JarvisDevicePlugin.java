@@ -16,6 +16,10 @@ import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import android.provider.MediaStore;
 import android.provider.Settings;
 
@@ -125,9 +129,46 @@ public class JarvisDevicePlugin extends Plugin {
                 call.resolve(r);
                 return;
             }
+            final boolean[] heard = { false };
+            final boolean[] actual = { on };
+            Handler handler = new Handler(Looper.getMainLooper());
+            CountDownLatch latch = new CountDownLatch(1);
+            CameraManager.TorchCallback wait = new CameraManager.TorchCallback() {
+                @Override
+                public void onTorchModeChanged(String cameraId, boolean enabled) {
+                    if (id.equals(cameraId)) {
+                        actual[0] = enabled;
+                        heard[0] = true;
+                        latch.countDown();
+                    }
+                }
+            };
+            cm.registerTorchCallback(wait, handler);
             cm.setTorchMode(id, on);
-            r.put("ok", true);
-            r.put("on", on);
+            if (!on) {
+                try {
+                    Thread.sleep(40);
+                    cm.setTorchMode(id, false);
+                } catch (Exception ignored) {
+                    /* second off is best-effort */
+                }
+            }
+            try {
+                latch.await(450, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            }
+            try {
+                cm.unregisterTorchCallback(wait);
+            } catch (Exception ignored) {
+                /* already gone */
+            }
+            boolean ok = !heard[0] || actual[0] == on;
+            r.put("ok", ok);
+            r.put("on", heard[0] ? actual[0] : on);
+            if (!ok) {
+                r.put("message", on ? "Taschenlampe ging nicht an." : "Taschenlampe ist noch an.");
+            }
         } catch (Exception e) {
             r.put("ok", false);
             r.put("message", "Taschenlampe nicht geschaltet.");

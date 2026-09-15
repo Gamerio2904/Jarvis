@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.0.3`**. Sideload-APK **`18.0.3`**, versionCode `180003`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Screenshot-Fixes Lidl/Schach/Tabelle/Stimme. Schach-Modus 264–267 bleibt PLAN → [`70-next.md`](./70-next.md). Code-Audit vom 15.9.2026 → [`71-audit.md`](./71-audit.md). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+**Jetzt:** Code **`18.0.4`**. Sideload-APK **`18.0.4`**, versionCode `180004`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach-Overlay mit Klick-Zügen. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -289,4 +289,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 270 | — | **NICHT GEZOGEN** (`globe.gl`) |
 | 271 | **`18.0.0`** | **CODE** (Meilenstein Kugel) |
 
-**Aktuell:** Code **`18.0.3`**. Sideload-APK `18.0.3`, versionCode `180003`. Screenshot-Fixes (Lidl, Schach, Tabelle, Stimme). 264–267 **PLAN**. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`18.0.4`**. Sideload-APK `18.0.4`, versionCode `180004`. Schach-Overlay mit Koordinaten und Klick-Zügen. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).

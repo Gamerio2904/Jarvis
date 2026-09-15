@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.0.4` — Lage, Kalender, Schach-Overlay, Taschenlampe — *CODE + APK*
+
+Sideload **`18.0.4`** (versionCode `180004`):  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Erststart-Download füllt von unten wie Hausstand. Kalender ragt nicht mehr unter die Navigation. Körper dreht sich per Ziehen und zeigt nur Agenten dieser Sitzung — kein dauerhaft leuchtender Fahrmodus. Kugel öffnet kein ISS-Overlay mehr über der Erde. Schach hat Koordinaten, ein eigenes Overlay, und Figuren lassen sich antippen (erlaubte Felder leuchten). `E2 e4` und `Las uns Schach` landen im Parser. Taschenlampe: `Aus` nach `Taschenlampe` schaltet wirklich, und die App behauptet das Licht nicht aus, wenn der Blitz noch an ist. `Wetter Hotel Stuttgart` ist Stuttgart, nicht der letzte GPS-Ort. `Und die 2.?` holt die 2. Bundesliga.
+
 ### `18.0.3` — Sideload-APK und Testchips 181 → 284 — *CODE + APK*
 
 Sideload **`18.0.3`** (versionCode `180003`):  

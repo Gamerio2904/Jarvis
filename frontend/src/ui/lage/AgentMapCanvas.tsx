@@ -21,6 +21,7 @@ export function AgentMapCanvas({
   busy = false,
   selectedAgent = '',
   liveAgent = '',
+  usedKey = '',
 }: {
   reduced: boolean
   onSelectDept: (id: string) => void
@@ -28,6 +29,7 @@ export function AgentMapCanvas({
   busy?: boolean
   selectedAgent?: string
   liveAgent?: string
+  usedKey?: string
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const selDeptRef = useRef(selectedDept)
@@ -91,11 +93,25 @@ export function AgentMapCanvas({
       kick()
     })
 
+    const rot = { x: 0.18, y: -0.42 }
+    let dragging = false
+    let lastPtr = { x: 0, y: 0 }
+    let moved = 0
+
     function project(x: number, y: number): Screen {
+      const cy = Math.cos(rot.y)
+      const sy = Math.sin(rot.y)
+      const cx = Math.cos(rot.x)
+      const sx = Math.sin(rot.x)
+      const x1 = x * cy
+      const z1 = x * sy
+      const y1 = y * cx - z1 * sx
+      const z2 = y * sx + z1 * cx
+      const persp = 1 / (1.85 + z2 * 0.42)
       const w = surface.clientWidth
       const h = surface.clientHeight
-      const s = Math.min(w, h) * 0.38
-      return { x: w / 2 + x * s, y: h / 2 - y * s }
+      const s = Math.min(w, h) * 0.4 * persp
+      return { x: w / 2 + x1 * s, y: h / 2 - y1 * s }
     }
 
     const points = new Map<string, Screen>()
@@ -244,7 +260,9 @@ export function AgentMapCanvas({
 
       drawBrain(brain, Boolean(liveId) || s.busy, pulseT)
 
+      const liveDepts = new Set(dots.map((a) => a.department))
       for (const d of DEPARTMENT_NODES) {
+        if (!liveDepts.has(d.id) && s.selDept !== d.id) continue
         const p = at.get(`dept:${d.id}`)
         if (!p) continue
         const live = departmentLive(d.id) || s.selDept === d.id
@@ -333,19 +351,49 @@ export function AgentMapCanvas({
       return null
     }
 
-    function onClick(ev: MouseEvent) {
+    function onPointerDown(ev: PointerEvent) {
+      if (ev.pointerType === 'mouse' && ev.button !== 0) return
+      surface.setPointerCapture(ev.pointerId)
+      dragging = true
+      moved = 0
+      lastPtr = { x: ev.clientX, y: ev.clientY }
+    }
+    function onPointerMove(ev: PointerEvent) {
+      if (!dragging) return
+      const dx = ev.clientX - lastPtr.x
+      const dy = ev.clientY - lastPtr.y
+      lastPtr = { x: ev.clientX, y: ev.clientY }
+      moved += Math.hypot(dx, dy)
+      rot.y += dx * 0.008
+      rot.x = Math.max(-0.9, Math.min(0.9, rot.x + dy * 0.008))
+      kick()
+    }
+    function onPointerUp(ev: PointerEvent) {
+      dragging = false
+      try {
+        surface.releasePointerCapture(ev.pointerId)
+      } catch {
+        /* already released */
+      }
+      if (moved > 10) return
       const id = hitTest(ev.clientX, ev.clientY)
       if (id) onSelectDept(id)
     }
-    surface.addEventListener('click', onClick)
+    surface.addEventListener('pointerdown', onPointerDown)
+    surface.addEventListener('pointermove', onPointerMove)
+    surface.addEventListener('pointerup', onPointerUp)
+    surface.addEventListener('pointercancel', onPointerUp)
 
     return () => {
       cancelAnimationFrame(raf)
       ro.disconnect()
       offVis()
-      surface.removeEventListener('click', onClick)
+      surface.removeEventListener('pointerdown', onPointerDown)
+      surface.removeEventListener('pointermove', onPointerMove)
+      surface.removeEventListener('pointerup', onPointerUp)
+      surface.removeEventListener('pointercancel', onPointerUp)
     }
-  }, [onSelectDept, reduced, busy, selectedAgent, liveAgent, selectedDept])
+  }, [onSelectDept, reduced, busy, selectedAgent, liveAgent, selectedDept, usedKey])
 
   return <canvas ref={canvasRef} className="agent-map-canvas" aria-label="Agenten-Netz" />
 }

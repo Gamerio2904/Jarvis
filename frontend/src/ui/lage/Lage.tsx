@@ -21,6 +21,7 @@ import { TurnHistory } from './TurnHistory.tsx'
 import { buildAgentGraph, type AgentGraph } from '../../engine/agent-graph.ts'
 import type { DepartmentId } from '../../engine/agents/types.ts'
 import { agentTask, DEPARTMENT_NODES, visibleAgents } from '../../engine/agent-map.ts'
+import { usedAgentIds, usedAgentsKey } from '../../engine/agent-session.ts'
 import { GlobeGuard, GlobeView, type GlobeFocus } from './GlobeView.tsx'
 import { fetchBodySnap, type BodySnap } from '../../engine/body-snap.ts'
 import { loadBodyGraph, type BodyGraph } from '../../engine/body-graph.ts'
@@ -174,6 +175,10 @@ export function Lage({
 
   function setView(next: HudView) {
     setLageSession(true)
+    if (next === 'globe') {
+      setPin(null)
+      setPinCard(null)
+    }
     saveSettings({ hud_view: next, hud_force: true, hud_hidden: false })
     onHudChange?.()
   }
@@ -206,9 +211,14 @@ export function Lage({
     onHudChange?.()
   }
 
-  const globeCaption = decodeHtml(pin?.line || s.last_globe_brief || '')
-  const globeTitle = pin?.name || globeFocus()?.name || 'Erde'
+  const globeCaption =
+    pin && pin.kind !== 'iss' && pin.kind !== 'here' && pin.kind !== 'warn'
+      ? decodeHtml(pin.line || '')
+      : ''
+  const globeTitle = pin && pin.kind !== 'iss' && pin.kind !== 'here' && pin.kind !== 'warn' ? pin.name : ''
   const showChatTile = !hideChatTile && modules.includes('chat')
+  const usedKey = usedAgentsKey()
+  const liveAgent = busy ? s.last_agent_id : ''
 
   return (
     <section className={`lage ${amber ? 'is-amber' : ''}${compact ? ' is-compact' : ''}`} aria-label="Lage">
@@ -256,7 +266,7 @@ export function Lage({
             ? 'Erde drehen und zoomen — grüne Grenzen.'
             : view === 'body'
               ? bodyView === 'agents'
-                ? 'Jeder Punkt ist ein Agent. Antippen zeigt die Aufgabe. Kreis leuchtet, wenn er arbeitet.'
+                ? 'Ziehen dreht den Körper. Nur Agenten, die in dieser Sitzung gelaufen sind.'
                 : 'Organ antippen — Baum rechts, kein Gerät.'
               : 'Kacheln laden sichtbar — Wetter, Musik, Gerät.'}
         </p>
@@ -268,7 +278,8 @@ export function Lage({
               reduced={reduced}
               selectedDept={agentDept}
               selectedAgent={pickedAgent}
-              liveAgent={s.last_agent_id}
+              liveAgent={liveAgent}
+              usedKey={usedKey}
               busy={busy}
               onSelectDept={(id) => {
                 if (id === 'brain' || DEPARTMENT_NODES.some((d) => d.id === id)) {
@@ -281,8 +292,11 @@ export function Lage({
                 if (hit) setAgentDept(hit.department)
               }}
             />
+            {usedAgentIds().size === 0 ? (
+              <p className="lage-agent-task">Noch kein Agent in dieser Sitzung. Im Chat etwas tun.</p>
+            ) : null}
             {(() => {
-              const focus = visibleAgents().find((a) => a.id === (pickedAgent || s.last_agent_id || ''))
+              const focus = visibleAgents().find((a) => a.id === (pickedAgent || liveAgent || ''))
               if (!focus) return null
               return <p className="lage-agent-task">{agentTask(focus)}</p>
             })()}
@@ -325,6 +339,11 @@ export function Lage({
             pins={pins}
             issTrail={issTrail}
             onPin={(next) => {
+              if (next.kind === 'iss' || next.kind === 'here' || next.kind === 'warn') {
+                setPin(null)
+                setPinCard(null)
+                return
+              }
               setPin(next)
               if (next.kind === 'glow') {
                 selectTourStop(next.name)
@@ -342,7 +361,6 @@ export function Lage({
                 }),
                 last_globe_look: JSON.stringify({ lat: next.lat, lon: next.lon, zoom: CITY_FLY_ZOOM }),
               })
-              if (next.kind === 'iss' || next.kind === 'here' || next.kind === 'warn') return
               setPinCard(next)
             }}
             onEmpty={() => {
@@ -356,7 +374,7 @@ export function Lage({
             onLook={onLook}
           />
           </GlobeGuard>
-          {globeCaption ? <TextTile title={globeTitle} body={globeCaption} /> : null}
+          {globeCaption && globeTitle ? <TextTile title={globeTitle} body={globeCaption} /> : null}
           {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
           {pinCard ? (
             <div className="pin-bubble" role="dialog" aria-labelledby="pin-bubble-title">

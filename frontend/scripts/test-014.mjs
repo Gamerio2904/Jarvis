@@ -147,7 +147,7 @@ import { parseWarnIntent } from '../src/engine/warn.ts'
 import { parseFerienIntent } from '../src/engine/ferien.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
 import { parseSkyIntent } from '../src/engine/sky.ts'
-import { parseChessIntent, piecePhrase } from '../src/engine/chess.ts'
+import { parseChessIntent, piecePhrase, legalMovesFrom } from '../src/engine/chess.ts'
 import { fromHandler } from '../src/engine/agents/execute-map.ts'
 import { skipMicroMerge, parseChatBlocks } from '../src/engine/chat-blocks.ts'
 import { parseSportIntent, formatTable, seasonYears, shortClub, tableBlock } from '../src/engine/sport.ts'
@@ -1316,6 +1316,8 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /Naive Fragen/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /Kaputt 6\.50/i.test(g.title)))
 assert.ok(TEST_COPY_GROUPS.some((g) => /18\.0\.3 Screenshot/i.test(g.title)))
 assert.ok(copyTexts.includes('Lass uns Schach spielen'))
+assert.ok(copyTexts.includes('E2 e4'))
+assert.ok(copyTexts.includes('Las uns Schach spielen'))
 assert.ok(copyTexts.includes('Wie steht die 2. Bundesliga?'))
 assert.ok(copyTexts.includes('Was kostet E10 an der nächsten Tankstelle'))
 assert.match(formatAllTestCopy(), /Wie spät ist es\?/)
@@ -1824,7 +1826,17 @@ assert.equal(parseChessIntent('Lass uns Schach spielen')?.kind, 'new')
 assert.equal(parseChessIntent('Schach spielen')?.kind, 'new')
 assert.equal(parseChessIntent('Zeig mir das Schachbrett')?.kind, 'show')
 assert.equal(parseChessIntent('Bauer e2 e4')?.move, 'e2e4')
-assert.equal(parseChessIntent('e2 e4', true)?.move, 'e2e4')
+assert.equal(parseChessIntent('E2 e4', true)?.move, 'e2e4')
+assert.equal(parseChessIntent('E2 e4')?.move, 'e2e4')
+assert.equal(parseChessIntent('Las uns Schach spielen')?.kind, 'new')
+assert.equal(pickRoute('E2 e4'), 'chess')
+assert.equal(pickRoute('Las uns Schach spielen'), 'chess')
+{
+  const start = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+  const legal = legalMovesFrom(start, 'e2')
+  assert.ok(legal.includes('e4'))
+  assert.ok(legal.includes('e3'))
+}
 assert.equal(parseChessIntent('Läufer e8 f9')?.kind, 'move')
 assert.equal(parseChessIntent('Läufer e8 f9')?.move, 'e8f9')
 assert.equal(pickRoute('Läufer e8 f9'), 'chess')
@@ -1936,6 +1948,25 @@ assert.equal(
   }),
   'Wie steht die Bundesliga?',
 )
+assert.equal(
+  rewriteFollowUp('Und die 2.?', {
+    last_step_tool: 'sport',
+    last_step_utterance: 'Wie steht die Bundesliga?',
+  }),
+  'Wie steht die 2. Bundesliga?',
+)
+assert.equal(
+  rewriteFollowUp('Aus', {
+    last_step_tool: 'device',
+    last_step_title: 'Taschenlampe',
+    last_step_utterance: 'Taschenlampe',
+  }),
+  'Taschenlampe aus',
+)
+assert.equal(parseWeatherIntent('Wetter Hotel Stuttgart')?.place, 'Stuttgart')
+assert.equal(pickRoute('Wetter Hotel Stuttgart'), 'weather')
+assert.equal(parseEyeIntent('Zeige das Bild an um Chat'), true)
+assert.equal(parseEyeIntent('zeig das Bild im Chat'), true)
 assert.equal(parseFoodIntent('Was ist das für ein Produkt Nutella')?.query.toLowerCase().includes('nutella'), true)
 assert.equal(parseLibraryIntent('Was ist das für ein Buch Der Prozess')?.query.toLowerCase().includes('prozess'), true)
 assert.ok(parseLawIntent('Kündigungsfrist Wohnung'))

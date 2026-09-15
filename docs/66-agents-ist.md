@@ -263,7 +263,7 @@ hinten. Das Android-Plugin rechnet seit `16.1.0` genauso (`nextRecurAt` über
 | `eval` | ein Korpus, jeder Fehler einzeln (`node:test`) |
 | `eval:report` | Genauigkeit, Ask-Rate, Tokens, p50/p95 |
 | `eval:separability` | Trennschärfe-Tor (S257-9) |
-| `test:prompts` | 284 Chips + Rückfrage-Sperre |
+| `test:prompts` | 286 Chips + Rückfrage-Sperre |
 | `test:sprint` | Gold, Alltag, kaputte Absicht + Rückfrage-Sperre |
 | `test:matrix` | Lock 6.60 + Rückfrage-Sperre |
 | `test:agents` | Katalog-Metadaten, Executor-IDs |

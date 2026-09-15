@@ -198,7 +198,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         </div>
       ) : (
         <div
-          className="cal-grid cal-grid-swipe"
+          key={`${year}-${month}`}
+          className="cal-grid cal-grid-swipe cal-month-in"
           role="grid"
           aria-label="Monat"
           onPointerDown={onGridPointerDown}

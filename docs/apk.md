@@ -1,6 +1,8 @@
-# Android-APK — Sideload `18.0.3`
+# Android-APK — Sideload `18.0.4`
 
-App-Code **`18.0.3`**. Sideload-APK **`18.0.3`**, versionCode `180003`.
+App-Code **`18.0.4`**. Sideload-APK **`18.0.4`**, versionCode `180004`.
+
+**18.0.4:** Erststart-Download von unten. Kalender über der Navigation. Körper nur genutzte Agenten, drehbar. Kugel ohne ISS-Karte. Schach-Overlay mit Koordinaten und Klick-Zügen. Taschenlampe folgt `Aus`. Wetter `Hotel Stuttgart` ist der Ort.
 
 **18.0.3:** Lidl in der Nähe statt Lidlovy Dvory. Schach-Sätze nicht Spotify/Maps; genannte Figur wird geprüft. Bundesliga als Tabelle, Zweitliga-Kurznamen an der Wortgrenze. Sprachmodus liest die ganze Antwort. Interne Testchips 181 → 284.
 
@@ -12,10 +14,10 @@ App-Code **`18.0.3`**. Sideload-APK **`18.0.3`**, versionCode `180003`.
 
 ## Download
 
-**Fertige APK `18.0.3`:**  
+**Fertige APK `18.0.4`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.0.3` · versionCode `180003`
+- versionName `18.0.4` · versionCode `180004`
 
 ## Build lokal
 
