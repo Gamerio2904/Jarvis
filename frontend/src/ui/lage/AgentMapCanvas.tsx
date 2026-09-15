@@ -132,9 +132,9 @@ export function AgentMapCanvas({
       g.fillStyle = live ? '#8a5a58' : '#5a4040'
       g.fill()
       g.beginPath()
-      g.ellipse(-r * 0.3, -r * 0.06, r * 0.62, r * 0.84, -0.16, 0, Math.PI * 2)
-      g.ellipse(r * 0.3, -r * 0.06, r * 0.62, r * 0.84, 0.16, 0, Math.PI * 2)
-      g.ellipse(0, r * 0.58, r * 0.46, r * 0.3, 0, 0, Math.PI * 2)
+      g.ellipse(-r * 0.4, -r * 0.08, r * 0.56, r * 0.84, -0.28, 0, Math.PI * 2)
+      g.ellipse(r * 0.4, -r * 0.08, r * 0.56, r * 0.84, 0.28, 0, Math.PI * 2)
+      g.ellipse(0, r * 0.62, r * 0.4, r * 0.26, 0, 0, Math.PI * 2)
       const fill = g.createRadialGradient(-r * 0.22, -r * 0.38, r * 0.08, 0, r * 0.1, r * 1.15)
       fill.addColorStop(0, live ? '#f0c8bc' : '#d2b0a4')
       fill.addColorStop(0.35, live ? '#c98678' : '#a8786c')
@@ -145,11 +145,11 @@ export function AgentMapCanvas({
       g.strokeStyle = live ? 'rgba(30, 215, 96, 0.75)' : 'rgba(255,220,210,0.3)'
       g.lineWidth = live ? 2.1 : 1.05
       g.stroke()
-      g.strokeStyle = 'rgba(62, 28, 28, 0.5)'
-      g.lineWidth = 1
+      g.strokeStyle = 'rgba(48, 18, 18, 0.72)'
+      g.lineWidth = 2.2
       g.beginPath()
       g.moveTo(0, -r * 0.78)
-      g.bezierCurveTo(0, -r * 0.18, 0, r * 0.12, 0, r * 0.42)
+      g.bezierCurveTo(0, -r * 0.12, 0, r * 0.18, 0, r * 0.4)
       g.stroke()
       for (const side of [-1, 1]) {
         for (const fold of [
@@ -267,7 +267,7 @@ export function AgentMapCanvas({
         if (!p) continue
         const live = a.id === liveId
         const hot = a.id === s.selAgent
-        const inDept = s.selDept === a.department || (s.selDept === 'brain' && a.department === 'system')
+        const inDept = s.selDept === a.department
         const r = live ? 5.6 : 3.5
         if (live) {
           g.beginPath()
@@ -287,7 +287,7 @@ export function AgentMapCanvas({
         }
       }
 
-      if (!reduced && path.length > 1) drawSpark(path, at, pulseT)
+      if (path.length > 1) drawSpark(path, at, reduced ? 480 : pulseT)
     }
 
     function kick() {

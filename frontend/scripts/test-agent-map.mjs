@@ -28,6 +28,7 @@ assert.equal(
 )
 
 assert.match(agentTask({ label: 'Timer', goldPrompts: ['Stell einen Timer'] }), /Timer/)
+assert.match(agentTask({ label: 'Geburtstag', promptSlice: 'Domäne birthday: Parser-Fakten only.' }), /Im Chat/)
 assert.equal(sparkPath('timer', ['router', 'timer']).join('>'), 'brain>dept:alltag>timer')
 assert.equal(sparkPath('identity', []).join('>'), 'brain>identity')
 assert.deepEqual(sparkPath('', []), [])

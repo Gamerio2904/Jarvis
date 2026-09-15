@@ -65,9 +65,11 @@ export type Synapse = { from: string; to: string }
 export function agentTask(agent: { label: string; promptSlice?: string; goldPrompts?: string[] }): string {
   const gold = (agent.goldPrompts || []).find((g) => String(g).trim())
   if (gold) return `${agent.label} — ${gold}`
-  const slice = String(agent.promptSlice || '').trim()
-  if (slice && !/^Domäne /i.test(slice)) return `${agent.label} — ${slice}`
-  return agent.label
+  const slice = String(agent.promptSlice || '')
+    .replace(/^Domäne \w+:\s*/i, '')
+    .trim()
+  if (slice && !/^Parser-Fakten/i.test(slice)) return `${agent.label} — ${slice}`
+  return `${agent.label} — Im Chat ansprechen.`
 }
 
 /** Einzelne sichtbare Agenten, in Büscheln um die sieben Cluster. */
@@ -110,8 +112,8 @@ export function layoutAgentDots(): AgentDot[] {
       label: a.label,
       task: agentTask(a),
       department: a.department,
-      x: Math.cos(ang) * 0.3,
-      y: Math.sin(ang) * 0.3,
+      x: Math.cos(ang) * 0.44,
+      y: Math.sin(ang) * 0.44,
     })
   })
   return dots

@@ -4904,7 +4904,13 @@ button.linkish {
     background: rgba(5, 10, 8, 0.86);
   }
   .lage.is-compact .lage-agent-task {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    z-index: 4;
     flex-shrink: 0;
+    pointer-events: none;
   }
 }
 
