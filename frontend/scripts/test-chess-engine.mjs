@@ -98,10 +98,33 @@ assert.equal(css.includes('.chess-sq.light.w'), false)
 assert.equal(css.includes('.chess-sq.dark.b'), false)
 const white = /\.chess-sq\.w \{([^}]*)\}/.exec(css)?.[1] || ''
 const black = /\.chess-sq\.b \{([^}]*)\}/.exec(css)?.[1] || ''
-assert.match(white, /color: #fcfdf9/)
-assert.match(white, /-webkit-text-stroke/)
-assert.match(black, /color: #0d130f/)
-assert.match(black, /-webkit-text-stroke/)
+
+/** 0 (schwarz) bis 1 (weiß). Feste Hex-Werte in Tests brechen bei jedem Farbdreh. */
+function brightness(hex) {
+  const h = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim())?.[1]
+  assert.ok(h, `kein Hex: ${hex}`)
+  const [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(h.slice(i, i + 2), 16) / 255)
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+/** Die erste Farbe der Regel ist die Füllung, der Rest ist die Kontur. */
+function fillAndOutline(rule) {
+  const fill = /color:\s*(#[0-9a-f]{3,8})/i.exec(rule)?.[1] || ''
+  const outline = /text-shadow:\s*[^;]*?(#[0-9a-f]{6})/i.exec(rule)?.[1] || ''
+  return [fill, outline]
+}
+
+const [wFill, wEdge] = fillAndOutline(white)
+const [bFill, bEdge] = fillAndOutline(black)
+// Weiß muss hell sein und schwarz dunkel, sonst wirken weiße Figuren schwarz.
+assert.ok(brightness(wFill) > 0.9, `weiße Figur zu dunkel: ${wFill}`)
+assert.ok(brightness(bFill) < 0.1, `schwarze Figur zu hell: ${bFill}`)
+// Die Kontur trägt den Gegenton, damit die Figur auf jedem Feld ablesbar bleibt.
+assert.ok(brightness(wEdge) < 0.2, `weiße Kontur zu hell: ${wEdge}`)
+assert.ok(brightness(bEdge) > 0.8, `schwarze Kontur zu dunkel: ${bEdge}`)
+// Als Konturlinie fraß die Kontur die dünnen Glyphenstellen auf.
+assert.equal(white.includes('-webkit-text-stroke'), false)
+assert.equal(black.includes('-webkit-text-stroke'), false)
 
 // Leere Felder tragen keine Figurenfarbe.
 const board = await readFile(new URL('../src/ui/lage/ChessBoard.tsx', import.meta.url), 'utf8')
