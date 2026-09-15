@@ -85,6 +85,7 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
         research: hit.research,
         lastTool: hit.lastTool || id,
         retry: hit.retry,
+        blocks: hit.blocks,
         internal: [t],
       }
     } catch (err) {

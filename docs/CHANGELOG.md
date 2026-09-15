@@ -10,7 +10,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 Sideload **`18.0.3`** (versionCode `180003`). Die Aufnahmen vom 15.9.2026.
 
 - **CarPlay Lidl:** „Lidl“ ist die Kette, nicht der tschechische Ort Lidlovy Dvory. Nächster Markt über OSM in der Nähe, Geocoder darf den Markennamen nicht als Dorf nehmen.
-- **Schach:** „Lass uns Schach spielen“, „Bauer e2 e4“, „Zeig mir das Schachbrett“ gehen an den Schach-Parser. Spotify und Karte greifen nicht. Brett als Chat-Block, TTS liest nur den Satz.
+- **Schach:** „Lass uns Schach spielen“, „Bauer e2 e4“, „Zeig mir das Schachbrett“ gehen an den Schach-Parser. Spotify und Karte greifen nicht. Brett als Chat-Block (Director reicht `blocks` durch), TTS liest nur den Satz. Im Fahrmodus bleibt die Navi-Karte zu, wenn Schach antwortet.
 - **Ja nach Recherche:** Offene Websuche sticht die letzte Route. „Ja“ nach Wahlergebnissen startet nicht nochmal Lidl.
 - **Bundesliga:** Kicker-artige Tabelle im Chat und in der Lage-Kachel. Micro-Merge darf die Tabelle nicht zu zwei Sätzen machen.
 - **Sprachmodus:** TTS-Echo bricht die Antwort nicht nach dem ersten Satz ab. Barge-in erst beim Sprechen, längeres Ignore, Native überspringt System-TTS.

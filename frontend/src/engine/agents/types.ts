@@ -68,5 +68,6 @@ export type AgentResult = {
   research?: ResearchMeta
   lastTool?: string
   retry?: RouteHit['retry']
+  blocks?: ChatBlock[]
   internal?: AgentTrace[]
 }

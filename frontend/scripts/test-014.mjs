@@ -148,6 +148,7 @@ import { parseFerienIntent } from '../src/engine/ferien.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
 import { parseSkyIntent } from '../src/engine/sky.ts'
 import { parseChessIntent } from '../src/engine/chess.ts'
+import { fromHandler } from '../src/engine/agents/execute-map.ts'
 import { skipMicroMerge, parseChatBlocks } from '../src/engine/chat-blocks.ts'
 import { parseSportIntent, formatTable, tableBlock } from '../src/engine/sport.ts'
 import { parseFoodIntent } from '../src/engine/food.ts'
@@ -1820,6 +1821,17 @@ assert.equal(parseChessIntent('Schach spielen')?.kind, 'new')
 assert.equal(parseChessIntent('Zeig mir das Schachbrett')?.kind, 'show')
 assert.equal(parseChessIntent('Bauer e2 e4')?.move, 'e2e4')
 assert.equal(parseChessIntent('e2 e4', true)?.move, 'e2e4')
+{
+  const fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+  const hit = await fromHandler('chess', {
+    handled: true,
+    reply: 'Neues Spiel.',
+    blocks: [{ kind: 'chess', fen }],
+  })
+  assert.equal(hit?.blocks?.[0].kind, 'chess')
+}
+assert.match(readFileSync(new URL('../src/engine/agents/bus.ts', import.meta.url), 'utf8'), /blocks: hit\.blocks/)
+assert.match(readFileSync(new URL('../src/engine/director.ts', import.meta.url), 'utf8'), /blocks: result\.blocks/)
 assert.equal(parseSpotifyIntent('spiel Lass uns Schach'), null)
 assert.equal(pickRoute('Lass uns Schach spielen'), 'chess')
 assert.equal(pickRoute('Zeig mir das Schachbrett'), 'chess')

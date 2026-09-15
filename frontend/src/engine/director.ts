@@ -224,6 +224,7 @@ async function runPicked(
     research: result.research,
     lastTool: result.lastTool || id,
     retry: result.retry,
+    blocks: result.blocks,
   }
 
   hit = await applyRetry(hit, conversationId, text)
