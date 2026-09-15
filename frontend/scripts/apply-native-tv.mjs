@@ -295,7 +295,15 @@ writeFileSync(manifestPath, manifest)
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 const versionName = String(pkg.version || '1.0.0')
 const parts = versionName.split('.').map((p) => Number.parseInt(String(p).replace(/\D/g, ''), 10) || 0)
-const versionCode = Math.max((parts[0] || 0) * 10000 + (parts[1] || 0) * 100 + (parts[2] || 0), 10000)
+const [major = 0, minor = 0, patch = 0] = parts
+// Zwei Stellen je Feld. Dieses Projekt zaehlt Minor weit hoch (6.90, 10.66,
+// 13.44) — bei 100 liefe der Code in die naechste Hauptversion und Android
+// verweigert das Update wortlos, weil versionCode nur steigen darf.
+if (minor > 99 || patch > 99) {
+  console.error(`[apply-native-tv] ${versionName}: Minor/Patch ueber 99 sprengt den versionCode. Schema erweitern.`)
+  process.exit(1)
+}
+const versionCode = Math.max(major * 10000 + minor * 100 + patch, 10000)
 
 const gradlePath = join(android, 'app/build.gradle')
 let gradle = readFileSync(gradlePath, 'utf8')
