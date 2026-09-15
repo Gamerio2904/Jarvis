@@ -1,4 +1,5 @@
 import { acceptResearchPending, expireResearchPending, parseResearchPending } from './research-pending.ts'
+import { isUtilityCorrection } from './memory-parse.ts'
 
 export type LastStep = {
   last_step_tool?: string
@@ -8,6 +9,35 @@ export type LastStep = {
   last_medium?: string
   globe_tour_on?: boolean
   last_research_json?: string
+}
+
+/** Letzter Zug, bei dem ein Widerspruch eine Suche auf den vorherigen Satz zieht. */
+const SEARCHABLE_LAST = new Set(['research', 'research_offer', 'news', 'outlook', 'llm'])
+
+export function isSearchableLastTool(tool: string | undefined): boolean {
+  return SEARCHABLE_LAST.has((tool || '').trim())
+}
+
+/**
+ * „Stimmt nicht“ / „nicht der Fall“ — nur der Satzkern, nicht jedes „falsch“ im Smalltalk.
+ */
+export function looksFactualContradiction(text: string): boolean {
+  const t = (text || '').trim()
+  if (!t || t.length > 240) return false
+  if (isUtilityCorrection(t)) return true
+  return /\b(?:nicht\s+der\s+fall|stimmt\s+(?:so\s+)?nicht|das\s+stimmt\s+nicht|(?:ist|wäre)\s+(?:so\s+)?falsch)\b/i.test(t)
+}
+
+/**
+ * Widerspruch nach Recherche/LLM: die vorherige Nutzerfrage suchen, nicht den Widerspruch.
+ * Nach Gedächtnis bleibt der Satz beim Memory-Agenten.
+ */
+export function contradictionSearchAsk(text: string, step?: LastStep | null): string | null {
+  if (!looksFactualContradiction(text)) return null
+  if (!isSearchableLastTool(step?.last_step_tool)) return null
+  const prev = (step?.last_step_utterance || '').trim()
+  if (!prev || prev === text.trim()) return null
+  return prev
 }
 
 const FOLLOW_UP =

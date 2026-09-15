@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 const res = await fetch('http://127.0.0.1:9222/json')
 const list = await res.json()
 console.log('targets', list.map((t) => ({ type: t.type, title: t.title, url: t.url })))

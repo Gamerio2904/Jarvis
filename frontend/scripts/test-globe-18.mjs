@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 import assert from 'node:assert/strict'
 import { commandClause, parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'

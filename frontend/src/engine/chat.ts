@@ -9,7 +9,7 @@ import { memoryBlock } from './memory.ts'
 import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
-import { rewriteFollowUp } from './last-step.ts'
+import { contradictionSearchAsk, rewriteFollowUp } from './last-step.ts'
 import { skipMicroMerge, type ChatBlock } from './chat-blocks.ts'
 import {
   acceptResearchPending,
@@ -452,7 +452,11 @@ async function rememberToolFromStore(tool: string): Promise<void> {
 
 async function rememberHit(hit: RouteHit, utterance = ''): Promise<void> {
   const tool = hit.lastTool
-  if (!tool || tool === 'help' || tool === 'memory' || tool === 'smalltalk' || tool === 'identity') return
+  if (!tool || tool === 'help' || tool === 'smalltalk' || tool === 'identity') return
+  if (tool === 'memory' || tool === 'recall') {
+    persistLastStep(tool, '', '', utterance)
+    return
+  }
   const preview = (hit.tool?.preview || '').trim()
   const medium =
     tool === 'tv'
@@ -575,7 +579,9 @@ export async function streamChat(
     const texts = queue.map((p) => rewriteFollowUp(p, settingsNow) ?? p)
     const rewritten = texts[0] || content
     const accepted = !deviceBusy ? acceptResearchPending(content, researchPending) : null
-    const ask = accepted?.utterance || rewritten
+    let ask = accepted?.utterance || rewritten
+    const contradictionAsk = contradictionSearchAsk(content, settingsNow)
+    if (contradictionAsk) ask = contradictionAsk
     const routeTexts = accepted ? [ask] : texts
     if (!deviceBusy && declineResearchPending(content, researchPending) && settingsNow.last_step_tool === 'research_offer') {
       persistResearchDone('cancelled')
@@ -646,7 +652,7 @@ export async function streamChat(
 
     if (kind === 'none') {
       const peek = loadSettings()
-      const livePeek = isLiveLookup(ask, Boolean(peek.shop_discount)) || Boolean(accepted)
+      const livePeek = isLiveLookup(ask, Boolean(peek.shop_discount)) || Boolean(accepted) || Boolean(contradictionAsk)
       if (!livePeek) {
         const reply = opts?.voice
           ? 'Befehl nicht erkannt. Smalltalk braucht Gemini, Groq oder das lokale Modell. Wetter, Timer, Route, Einkauf gehen ohne.'
@@ -663,7 +669,7 @@ export async function streamChat(
 
     const s = loadSettings()
     const discount = Boolean(s.shop_discount)
-    const live = isLiveLookup(ask, discount) || Boolean(accepted)
+    const live = isLiveLookup(ask, discount) || Boolean(accepted) || Boolean(contradictionAsk)
     const deep = isDeepResearch(ask)
     if ((live || accepted) && !geminiReady()) {
       setLatencyPath('parser')
@@ -731,7 +737,7 @@ export async function streamChat(
     // Antwort. Vorher stand hier eine Liste einzelner Muster; die musste bei
     // jedem neuen Agenten nachgezogen werden.
     const know = deterministicRoute(ask) ? '' : knowledgeBlock(packs, ask)
-    let wantSearch = Boolean((geminiReady() && live) || accepted)
+    let wantSearch = Boolean((geminiReady() && live) || accepted || contradictionAsk)
     let research: ResearchMeta | undefined
     let acc = ''
     let raw = ''
@@ -915,6 +921,7 @@ export async function streamChat(
     if (final !== text) handlers.onReplace?.(final)
     if (research && !research.audit_id) research = await attachResearchAudit(research, ask)
     if (isLiveLookup(ask, discount) && !wantSearch) persistResearchOffer(ask, researchQuery(ask))
+    if (!wantSearch) persistLastStep('llm', '', '', content)
     const nSources = (research?.sources || []).filter((x) => x.url).length
     if (isDeepResearch(ask) && nSources > 0) {
       persistTeachOffer(ask, final, research?.sources || [])

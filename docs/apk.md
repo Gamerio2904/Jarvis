@@ -1,6 +1,8 @@
 # Android-APK — Sideload `18.0.7`
 
-App-Code **`18.0.8`**. Sideload-APK **`18.0.7`**, versionCode `180007`.
+App-Code **`18.1.0`**. Sideload-APK **`18.0.7`**, versionCode `180007`.
+
+**18.1.0 (Code, noch ohne neue Sideload-APK):** Faktenagenten sagen ab statt zu raten. Tanke/POI ohne doppelte Navi. SMS erst nach Funk-Annahme. Fahrmodus räumt auf. Widerspruch nach Recherche sucht. Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
 
 **18.0.8 (Code, noch ohne neue Sideload-APK):** „Zeig mir das auf der Karte“ öffnet die Lage. Pin-Text gehört zum Pin. CarPlay heading-up, weicher nachgeführt. „weißt du auch wo?“ ist Standort.
 

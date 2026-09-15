@@ -97,6 +97,7 @@ export function Lage({
   const lastLine = recent[recent.length - 1]?.content || ''
   const globeLayer = s.globe_layer
   const withChat = s.body_with_chat !== false
+  const moduleKey = modules.join(',')
 
   useEffect(() => {
     let live = true
@@ -143,7 +144,7 @@ export function Lage({
       if (id) window.clearInterval(id)
       off()
     }
-  }, [view, bodyView, agentDept, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, lastLine, globeLayer])
+  }, [view, bodyView, agentDept, moduleKey, spotifyOn, busy, conversationId, globeTick, organ, lastLine, globeLayer])
 
   useEffect(() => {
     if (view !== 'globe') return

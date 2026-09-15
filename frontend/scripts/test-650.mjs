@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 import assert from 'node:assert/strict'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { cityLine, gazetteerHit, nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from '../src/engine/globe-geo.ts'

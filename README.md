@@ -1,4 +1,4 @@
-Privater Assistant. Läuft **auf dem Handy**. App-Code **`18.0.8`**. Sideload-APK **`18.0.7`**. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen.
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`18.1.0`**. Sideload-APK **`18.0.7`**. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen.
 
 **Hirn:** **Groq primär** (API-Key). **Gemini Spezialist** (Vision, Deep Research). Lokales 0,5B **Fallback**. Agenten-Netzwerk: Director + 60 Domänen-Agenten, Agenten-Karte in Lage. Parser wählen Geräte; Groq/Gemini formuliert Smalltalk.
 
@@ -23,7 +23,7 @@ build-apk.bat
 
 Linux: `./build-apk.sh`
 
-Testanleitung: [`docs/TEST-18.0.0.md`](docs/TEST-18.0.0.md) · Versionen: [`docs/apk.md`](docs/apk.md)
+Testanleitung: [`docs/TEST-18.1.0.md`](docs/TEST-18.1.0.md) · Versionen: [`docs/apk.md`](docs/apk.md)
 
 1. Installieren (unbekannte Quellen). Vor Neuinstall: Einstellungen → Hausstand → Exportieren — Deinstall löscht Keys.
 2. **Groq-Key** eintragen (Smalltalk). Optional **Gemini** (Vision/Research).

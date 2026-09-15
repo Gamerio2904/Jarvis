@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Migrationsprüfung: der alte Korpus muss vollständig im neuen stecken.
  *

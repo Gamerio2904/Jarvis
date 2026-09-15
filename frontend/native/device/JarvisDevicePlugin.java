@@ -3,6 +3,8 @@ package app.jarvis.device;
 import android.telephony.SmsManager;
 import android.Manifest;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +43,7 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @CapacitorPlugin(
         name = "JarvisDevice",
@@ -51,6 +54,9 @@ import java.util.ArrayList;
         }
 )
 public class JarvisDevicePlugin extends Plugin {
+
+    private static final String SMS_SENT = "app.jarvis.device.SMS_SENT";
+    private int smsSeq = 0;
 
     @PluginMethod
     public void battery(PluginCall call) {
@@ -449,32 +455,92 @@ public class JarvisDevicePlugin extends Plugin {
             call.resolve(r);
             return;
         }
-        try {
-            SmsManager sm;
-            if (android.os.Build.VERSION.SDK_INT >= 31) {
-                sm = getContext().getSystemService(SmsManager.class);
-            } else {
-                sm = SmsManager.getDefault();
-            }
-            if (sm == null) {
-                r.put("ok", false);
-                r.put("message", "SMS nicht gesendet.");
-                call.resolve(r);
-                return;
-            }
-            String text = body.trim();
-            ArrayList<String> parts = sm.divideMessage(text);
-            if (parts != null && parts.size() > 1) {
-                sm.sendMultipartTextMessage(number, null, parts, null, null);
-            } else {
-                sm.sendTextMessage(number, null, text, null, null);
-            }
-            r.put("ok", true);
-        } catch (Exception e) {
+        SmsManager sm;
+        if (Build.VERSION.SDK_INT >= 31) {
+            sm = getContext().getSystemService(SmsManager.class);
+        } else {
+            sm = SmsManager.getDefault();
+        }
+        if (sm == null) {
             r.put("ok", false);
             r.put("message", "SMS nicht gesendet.");
+            call.resolve(r);
+            return;
         }
-        call.resolve(r);
+        String text = body.trim();
+        ArrayList<String> parts = sm.divideMessage(text);
+        smsSeq += 1;
+        final int token = smsSeq;
+        final String action = SMS_SENT + "." + token;
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= 23) flags |= PendingIntent.FLAG_IMMUTABLE;
+        Intent sent = new Intent(action);
+        sent.setPackage(getContext().getPackageName());
+        PendingIntent sentPi = PendingIntent.getBroadcast(getContext(), token, sent, flags);
+        final AtomicBoolean done = new AtomicBoolean(false);
+        call.setKeepAlive(true);
+        BroadcastReceiver once =
+                new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        if (!done.compareAndSet(false, true)) return;
+                        try {
+                            getContext().unregisterReceiver(this);
+                        } catch (Exception ignored) {
+                        }
+                        JSObject out = new JSObject();
+                        int rc = getResultCode();
+                        if (rc == Activity.RESULT_OK) {
+                            out.put("ok", true);
+                        } else {
+                            out.put("ok", false);
+                            out.put(
+                                    "message",
+                                    rc == SmsManager.RESULT_ERROR_NO_SERVICE
+                                            ? "Kein Mobilfunk. SMS nicht angenommen."
+                                            : "Funk hat die SMS nicht angenommen.");
+                        }
+                        call.resolve(out);
+                    }
+                };
+        IntentFilter filter = new IntentFilter(action);
+        if (Build.VERSION.SDK_INT >= 33) {
+            getContext().registerReceiver(once, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            getContext().registerReceiver(once, filter);
+        }
+        new Handler(Looper.getMainLooper())
+                .postDelayed(
+                        () -> {
+                            if (!done.compareAndSet(false, true)) return;
+                            try {
+                                getContext().unregisterReceiver(once);
+                            } catch (Exception ignored) {
+                            }
+                            JSObject out = new JSObject();
+                            out.put("ok", false);
+                            out.put("message", "Funk hat nicht bestätigt.");
+                            call.resolve(out);
+                        },
+                        10_000);
+        try {
+            if (parts != null && parts.size() > 1) {
+                ArrayList<PendingIntent> sentList = new ArrayList<>();
+                for (int i = 0; i < parts.size(); i += 1) sentList.add(sentPi);
+                sm.sendMultipartTextMessage(number, null, parts, sentList, null);
+            } else {
+                sm.sendTextMessage(number, null, text, sentPi, null);
+            }
+        } catch (Exception e) {
+            if (!done.compareAndSet(false, true)) return;
+            try {
+                getContext().unregisterReceiver(once);
+            } catch (Exception ignored) {
+            }
+            r.put("ok", false);
+            r.put("message", "SMS nicht gesendet.");
+            call.resolve(r);
+        }
     }
 
     @PluginMethod

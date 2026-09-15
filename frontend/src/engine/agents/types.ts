@@ -37,6 +37,11 @@ export type AgentSpec = {
   visibility: AgentVisibility
   sideEffect: SideEffect
   autonomy: AgentAutonomy
+  /**
+   * Lesender Agent, dessen Scheitern eine ehrliche Absage verdient — kein
+   * Durchfallen ans Modell, das Zahlen erfinden würde.
+   */
+  factual?: boolean
   parse?: (ctx: RouteCtx) => number | null
   execute?: (ctx: RouteCtx) => Promise<RouteHit | null>
   promptSlice?: string

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
 import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar.ts'
 import { formatDue, startOfDay } from '../engine/remind-parse.ts'
 import { listEvents, listReminders, type CalendarEvent, type Reminder } from '../engine/store.ts'
@@ -37,25 +37,31 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [yearMarks, setYearMarks] = useState<Set<string>>(new Set())
   const [sheetOpen, setSheetOpen] = useState(false)
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
+  const titleRef = useRef<HTMLInputElement>(null)
 
   const year = cursor.getFullYear()
   const month = cursor.getMonth()
   const cells = useMemo(() => monthCells(year, month), [year, month])
 
-  async function reload() {
-    const [ev, rem, m] = await Promise.all([
+  const reload = useCallback(async () => {
+    const [ev, rem, mk] = await Promise.all([
       listEvents(),
       listReminders(),
       marksForMonth(year, month),
     ])
     setEvents(ev)
     setReminders(rem.filter((r) => r.status === 'open'))
-    setMarks(m)
-  }
+    setMarks(mk)
+  }, [year, month])
 
   useEffect(() => {
     void reload()
-  }, [year, month])
+  }, [reload])
+
+  useEffect(() => {
+    if (!sheetOpen) return
+    titleRef.current?.focus()
+  }, [sheetOpen])
 
   useEffect(() => {
     if (!yearView) return
@@ -289,11 +295,11 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           }}
         >
           <input
+            ref={titleRef}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Titel"
             disabled={busy}
-            autoFocus
           />
           <input type="time" value={time} onChange={(e) => setTime(e.target.value)} disabled={busy} />
           <div className="cal-sheet-actions">

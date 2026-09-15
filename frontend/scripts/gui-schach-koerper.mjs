@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Sichtprüfung am Dev-Server: Figurenfarben am Brett, Zoom im Körper.
  * `HAUS=<pfad-zur-hausstand.json>` spielt einen echten Hausstand ein; ohne

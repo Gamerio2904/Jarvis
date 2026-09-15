@@ -208,17 +208,20 @@ bei `18.0.3`. Unverändert gültig, hier nur bestätigt.
 
 | Version | Sprint | Thema | Priorität |
 |---------|--------|-------|-----------|
-| `18.0.4` | 272 | **Auf einem Gerät prüfen, was hier nicht baubar war:** die 11 Java-Änderungen aus §2b — Wecker nach Update, Geisteralarm, Sprachmodus am Lautsprecher, Ansage im Fahrmodus | Must |
-| `18.0.4` | 273 | Gescheiterte Faktenagenten sagen ab statt ans Modell zu fallen: Marke `factual` an `fuel`, `weather`, `poi`, `sport` | Must |
-| `18.0.4` | 274 | `fuel` und `poi` aus `read` lösen, damit eine Zeitüberschreitung die Navigation nicht zweimal startet | Must |
-| `18.0.5` | 275 | `sendSms` mit `sentIntent`: melden, wenn der Mobilfunk annimmt, nicht wenn das System übernimmt | Should |
-| `18.0.5` | 276 | Fahrmodus räumt beim Verlassen auf (Sprachausgabe, Mikrofon), Kalender lässt den Eingabefokus | Should |
-| `18.0.4` | 277 | Widerspruch zieht Suche (S260-6), an `last_step_tool` gebunden | Should |
-| `18.0.4` | 278 | `looksTruncated` zweite Form **mit** Abkürzungsliste (S260-7) | Should |
-| `18.1.0` | 279 | `scripts/` unter `tsc`: eigenes `tsconfig.scripts.json`, `lint`-Schritt im Testlauf | Must |
-| `18.1.0` | 280 | Die sechs offenen `exhaustive-deps` einzeln entscheiden: Fehler beheben, Absicht dokumentieren | Should |
-| `18.1.0` | 281 | Toten Code räumen (54 Namen, 4 Schlüssel, 13 CSS-Klassen, 10 Skripte) — **mit** einem Test, der neue Leichen findet | Could |
+| **`18.1.0` CODE** | 272 | **Auf einem Gerät prüfen, was hier nicht baubar war:** die 11 Java-Änderungen aus §2b — Wecker nach Update, Geisteralarm, Sprachmodus am Lautsprecher, Ansage im Fahrmodus. Hier: statischer Test + [`TEST-18.1.0.md`](./TEST-18.1.0.md) | Must |
+| **`18.1.0` CODE** | 273 | Gescheiterte Faktenagenten sagen ab statt ans Modell zu fallen: Marke `factual` an `fuel`, `weather`, `poi`, `sport` | Must |
+| **`18.1.0` CODE** | 274 | `fuel` und `poi` aus `read` lösen, damit eine Zeitüberschreitung die Navigation nicht zweimal startet | Must |
+| **`18.1.0` CODE** | 275 | `sendSms` mit `sentIntent`: melden, wenn der Mobilfunk annimmt, nicht wenn das System übernimmt | Should |
+| **`18.1.0` CODE** | 276 | Fahrmodus räumt beim Verlassen auf (Sprachausgabe, Mikrofon), Kalender lässt den Eingabefokus | Should |
+| **`18.1.0` CODE** | 277 | Widerspruch zieht Suche (S260-6), an `last_step_tool` gebunden | Should |
+| **`18.1.0` CODE** | 278 | `looksTruncated` zweite Form **mit** Abkürzungsliste (S260-7) | Should |
+| **`18.1.0` CODE** | 279 | `scripts/` unter `tsc`: eigenes `tsconfig.scripts.json`, `lint`-Schritt im Testlauf | Must |
+| **`18.1.0` CODE** | 280 | Die sechs offenen `exhaustive-deps` einzeln entscheiden: Fehler beheben, Absicht dokumentieren | Should |
+| **`18.1.0` CODE** | 281 | Toten Code räumen (Settings/CSS/Skripte **mit** Test). 54 ungenutzte Exporte bleiben — blindes Löschen trifft dynamische Importe | Could |
 | — | 282 | **Freeze:** `versionCode`-Schema auf drei Stellen je Feld — nur wenn eine Version `x.100` erreicht | Freeze |
+
+Die Anker `18.0.4`/`18.0.5` galten gegen Code `18.0.3`. Live war `18.0.8`,
+deshalb ein Bündel **`18.1.0`**. 290 (Overlay) rückt auf `18.1.1`.
 
 Ketten: 272 zuerst und allein — solange die Java-Änderungen nicht auf einem
 Gerät liefen, ist alles andere in dieser Schicht Spekulation. 273 vor 274 (wer

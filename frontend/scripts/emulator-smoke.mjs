@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 const CDP = 'http://127.0.0.1:9222'
 
 async function getPageWs() {

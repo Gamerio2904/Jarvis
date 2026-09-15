@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { TEST_PROMPTS } from '../src/engine/test-prompts.ts'
@@ -2559,6 +2560,10 @@ assert.match(pinLineFor('London', 'Zur Lage in London: Themse.'), /London/)
 }
 assert.equal(looksTruncated('Die Tagesschau erwähnt die Stadt derzeit nicht, und Lokalnachrichten sollten nicht'), true)
 assert.equal(looksTruncated('London liegt an der Themse.'), false)
+assert.equal(looksTruncated('Die Lage ist volatil. bis eine Entscheidung fällt.'), true)
+assert.equal(looksTruncated('ca. drei Kilometer.'), false)
+assert.equal(looksTruncated('ggf. der Zug fährt.'), false)
+assert.equal(looksTruncated('z. B. das Wetter.'), false)
 
 assert.equal(isBriefAsk('Guten Morgen'), true)
 assert.equal(parseGreeting('Guten Morgen'), null)

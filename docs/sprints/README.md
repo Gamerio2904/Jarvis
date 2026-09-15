@@ -268,15 +268,25 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 269 | [`sprint-269.md`](./sprint-269.md) | `18.0.0` | Kugel: Schichten auf Zuruf | **CODE** in `18.0.0` Must |
 | 270 | [`sprint-270.md`](./sprint-270.md) | — | Freeze `globe.gl` nur nach Messung | **NICHT GEZOGEN** |
 | 271 | [`sprint-271.md`](./sprint-271.md) | **`18.0.0`** | Meilenstein Sideload (Kugel) | **CODE** Must |
-| 272–282 | [`../71-audit.md`](../71-audit.md) | `18.0.4`–`18.1.0` | Audit-Reste (Gerät, Fakten, Skripte) | **PLAN** — Zahlen in 71, keine Einzeldateien |
+| 272 | [`sprint-272.md`](./sprint-272.md) | **`18.1.0`** | Java-11 Quelltext + PO-Gerät | **CODE** Must |
+| 273 | [`sprint-273.md`](./sprint-273.md) | `18.1.0` | Fakten-Absage (`factual`) | **CODE** Must |
+| 274 | [`sprint-274.md`](./sprint-274.md) | `18.1.0` | fuel/poi ohne Zweitversuch | **CODE** Must |
+| 275 | [`sprint-275.md`](./sprint-275.md) | `18.1.0` | SMS sentIntent | **CODE** Should |
+| 276 | [`sprint-276.md`](./sprint-276.md) | `18.1.0` | Fahrmodus-Cleanup, Kalender-Fokus | **CODE** Should |
+| 277 | [`sprint-277.md`](./sprint-277.md) | `18.1.0` | Widerspruch → Suche | **CODE** Should |
+| 278 | [`sprint-278.md`](./sprint-278.md) | `18.1.0` | looksTruncated mit Abkürzungen | **CODE** Should |
+| 279 | [`sprint-279.md`](./sprint-279.md) | `18.1.0` | scripts/ unter tsc | **CODE** Must |
+| 280 | [`sprint-280.md`](./sprint-280.md) | `18.1.0` | exhaustive-deps einzeln | **CODE** Should |
+| 281 | [`sprint-281.md`](./sprint-281.md) | `18.1.0` | Leichen-Test | **CODE** Could |
+| 282 | [`../71-audit.md`](../71-audit.md) | — | Freeze versionCode-Schema | **PLAN** Freeze |
 | 283 | [`sprint-283.md`](./sprint-283.md) | `18.2.0` | Idee festhalten | **PLAN** Must |
 | 284 | [`sprint-284.md`](./sprint-284.md) | `18.2.1` | Ideen-Überblick | **PLAN** Must |
 | 285 | [`sprint-285.md`](./sprint-285.md) | `18.2.2` | Sprintplan-Vorlage im Code | **PLAN** Must |
 | 286 | [`sprint-286.md`](./sprint-286.md) | `18.2.3` | Plan auf Zuruf füllen, Custom erlaubt | **PLAN** Should |
 | 287 | [`sprint-287.md`](./sprint-287.md) | `18.2.4` | Ergänzen, Custom nach Satz, Erinnerung | **PLAN** Should |
-| 288–290 | [`../73-next.md`](../73-next.md) | `18.0.9`–`18.1.0` | Karten-Reste (Ort ohne Netz, Mikrofon, Overlay) | **PLAN** — Zahlen in 73, keine Einzeldateien |
+| 288–290 | [`../73-next.md`](../73-next.md) | `18.0.9`–`18.1.1` | Karten-Reste (Ort ohne Netz, Mikrofon, Overlay) | **PLAN** — Zahlen in 73, keine Einzeldateien |
 
-**Aktuell:** Code **`18.0.8`**. Sideload-APK `18.0.7`, versionCode `180007`. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`. Schach-Overlay **CODE** in `18.0.4`. Schach-Gegner und Kugel-Pin **CODE** in `18.0.5`. Figurenfarbe und Körper-Zoom **CODE** in `18.0.6`. Körper mit Chat **CODE** in `18.0.7`. Karte öffnet / Pin-Text / CarPlay heading-up **CODE** in `18.0.8`. 270 nicht gezogen. Audit-Reste 272–282 **PLAN** in [`../71-audit.md`](../71-audit.md). Ideen halten 283–287 **PLAN** in [`../72-next.md`](../72-next.md). Karten-Reste 288–290 **PLAN** in [`../73-next.md`](../73-next.md).
+**Aktuell:** Code **`18.1.0`**. Sideload-APK `18.0.7`, versionCode `180007`. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`. Schach-Overlay **CODE** in `18.0.4`. Schach-Gegner und Kugel-Pin **CODE** in `18.0.5`. Figurenfarbe und Körper-Zoom **CODE** in `18.0.6`. Körper mit Chat **CODE** in `18.0.7`. Karte öffnet / Pin-Text / CarPlay heading-up **CODE** in `18.0.8`. Audit-Reste 272–281 **CODE** in `18.1.0`. 270 nicht gezogen. 282 Freeze. Ideen halten 283–287 **PLAN** in [`../72-next.md`](../72-next.md). Karten-Reste 288–290 **PLAN** in [`../73-next.md`](../73-next.md).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

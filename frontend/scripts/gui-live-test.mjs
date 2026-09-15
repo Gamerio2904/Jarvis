@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Live GUI + Prompt-Durchlauf gegen den Vite-Dev-Server.
  * Schreibt JSON nach /tmp/jarvis-gui-live.json

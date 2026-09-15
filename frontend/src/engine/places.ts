@@ -551,7 +551,7 @@ async function doSms(conversationId: string, name: string, number: string, body:
     }
   }
   let reply = res.ok
-    ? `SMS an ${displayPlaceName(name)} ist raus. Zustellung prüfe ich nicht.`
+    ? `SMS an ${displayPlaceName(name)} hat der Funk angenommen. Ob sie ankommt, prüfe ich nicht.`
     : res.message || `SMS an ${displayPlaceName(name)} nicht gesendet.`
   const extra = await runNextInChain(conversationId)
   if (extra) reply = `${reply}\n\n${extra}`

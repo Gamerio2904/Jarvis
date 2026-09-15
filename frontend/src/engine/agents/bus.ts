@@ -23,6 +23,14 @@ function messageOf(err: unknown): string {
   return err instanceof Error ? err.message : 'Fehler'
 }
 
+/**
+ * Lesen darf einmal wiederholt werden. Tanke/POI sind `device` (Sprint 274):
+ * ein zweiter Versuch startet die Navigation doppelt.
+ */
+export function dispatchAttempts(sideEffect: SideEffect): number {
+  return sideEffect === 'read' ? 2 : 1
+}
+
 /** Nur Lesen darf wiederholt werden — ein zweiter Schreib-Lauf legt Termine doppelt an. */
 function mayRetry(sideEffect: SideEffect, err: unknown): boolean {
   if (err instanceof AgentAborted) return false
@@ -64,7 +72,7 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
   }
 
   const budget = BUDGET_MS[agent.sideEffect] ?? BUDGET_MS.read
-  const attempts = agent.sideEffect === 'read' ? 2 : 1
+  const attempts = dispatchAttempts(agent.sideEffect)
   let lastTrace: AgentTrace | null = null
   let lastReason = 'Fehler'
 

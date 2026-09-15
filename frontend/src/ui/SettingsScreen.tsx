@@ -372,13 +372,17 @@ export function SettingsScreen(p: SettingsScreenProps) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
+    // p als Ganzes würde bei jedem Render neu — nur onClose zählt.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p.onClose, pcScanOpen])
 
   useEffect(() => {
     const current = resolveTopic(p.topic)
     const next = settingsTabForQuery(searchQ, current)
     if (next !== current) p.onTopic(next)
-  }, [searchQ, p.topic])
+    // p als Ganzes nicht: nur topic/onTopic, sonst springt die Suche.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQ, p.topic, p.onTopic])
 
   useEffect(() => {
     const q = railQuery.trim()
@@ -391,7 +395,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
       el?.classList.add('settings-field-hit')
       window.setTimeout(() => el?.classList.remove('settings-field-hit'), 2200)
     }, 120)
-  }, [searchQ, tab])
+  }, [searchQ, tab, railQuery])
 
   const tabList: SettingsTab[] = visibleSettingsTabs(searchQ)
   const fieldHits = searchQ.trim() ? settingsHighlightField(searchQ) : null

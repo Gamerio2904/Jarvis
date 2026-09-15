@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Routes every TEST_PROMPT via Register-Score (route-pick), plus Gates.
  */

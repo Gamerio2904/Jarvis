@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Prompt-Matrix 6.60: Gold lockt. Gaps müssen 0 sein.
  * Die Liste selbst steht im Korpus (Sprint 249), nicht mehr hier.

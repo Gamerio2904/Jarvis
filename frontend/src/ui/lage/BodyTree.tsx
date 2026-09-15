@@ -12,9 +12,12 @@ export function BodyTree({
   const [open, setOpen] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(graph.nodes.filter((n) => n.depth <= 1).map((n) => [n.id, true])),
   )
+  const nodeSig = graph.nodes.map((n) => n.id).join('\0')
   useEffect(() => {
     setOpen(Object.fromEntries(graph.nodes.filter((n) => n.depth <= 1).map((n) => [n.id, true])))
-  }, [graph.organ, graph.query, graph.nodes.length])
+    // graph.nodes ist jedes Render ein neues Array — nodeSig (Ids) reicht, sonst klappt der Baum zu.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [graph.organ, graph.query, nodeSig])
 
   function toggle(id: string) {
     setOpen((s) => ({ ...s, [id]: !s[id] }))

@@ -535,6 +535,8 @@ export function DriveMode({
     return () => {
       listenLock.current = false
       void stopListen()
+      void stopSpeak()
+      void endVoiceSession()
       void setKeepScreenOn(false)
     }
   }, [])
@@ -624,7 +626,11 @@ export function DriveMode({
 
   function hear() {
     if (hearing || listenLock.current) {
+      listenLock.current = false
+      setHearing(false)
+      setHearMsg(null)
       void stopListen()
+      void endVoiceSession()
       return
     }
     listenLock.current = true

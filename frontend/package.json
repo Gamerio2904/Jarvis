@@ -1,12 +1,16 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "18.0.8",
+  "version": "18.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
+    "tsc:scripts": "tsc -p tsconfig.scripts.json --pretty false",
+    "test:sprints-272": "node --experimental-strip-types scripts/test-sprints-272-281.mjs",
+    "test:java-audit": "node --experimental-strip-types scripts/test-java-audit.mjs",
+    "test:dead-code": "node --experimental-strip-types scripts/test-dead-code.mjs",
     "preview": "vite preview",
     "test:014": "node --experimental-strip-types scripts/test-014.mjs",
     "test:alltag": "node --experimental-strip-types scripts/test-alltag.mjs",

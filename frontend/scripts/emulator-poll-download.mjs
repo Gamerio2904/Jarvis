@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 const started = Date.now()
 while (Date.now() - started < 15 * 60 * 1000) {
   const res = await fetch('http://127.0.0.1:9222/json')

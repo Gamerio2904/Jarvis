@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Härtung des Agenten-Busses: Budget, Wiederholung, Traces, Policy-Ränge.
  * Deckt die Invarianten ab, die vorher niemand geprüft hat.

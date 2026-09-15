@@ -137,6 +137,8 @@ export function VoiceMode({
       void endVoiceSession()
       void setKeepScreenOn(false)
     }
+    // startLoop nur beim Öffnen — ein Re-Run würde die Hörschleife doppelt starten.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function startLoop() {

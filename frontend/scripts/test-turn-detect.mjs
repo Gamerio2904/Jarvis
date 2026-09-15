@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Satzende-Erkennung als Tabelle. Reine Funktionen auf einem String — genau
  * deshalb kommt Stufe A vor dem Modell: das hier braucht kein Mikrofon.

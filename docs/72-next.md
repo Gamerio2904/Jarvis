@@ -12,8 +12,9 @@ andere Agenten oder eine zweite Datenbank.
 ergänzen und Custom-Sprints anlegen, wenn die Idee das braucht. Er führt
 den Plan nicht aus und schreibt keine Dateien nach `docs/sprints/`.
 
-Sprints **272–282** sind vergeben — Audit-Reste in
-[`71-audit.md`](./71-audit.md) §4. Diese Schiene beginnt bei **283**.
+Sprints **272–281** sind **CODE** in `18.1.0`. **282** bleibt Freeze in
+[`71-audit.md`](./71-audit.md). Diese Schiene beginnt bei **283**.
+**288–290** sind Karten-Reste in [`73-next.md`](./73-next.md).
 
 ---
 

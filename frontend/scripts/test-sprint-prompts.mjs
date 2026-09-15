@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Prompt-Batterie für Sprints 115–120: Gold, Alltag, Absicht kaputt.
  * Nur Parser/Router, kein Registry-Import.

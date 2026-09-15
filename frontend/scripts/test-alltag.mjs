@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Intensive Alltag-8.0 tests: Katalog-Router, Parser-Matrizen, Settings-Suche, ehrliche Leere.
  */

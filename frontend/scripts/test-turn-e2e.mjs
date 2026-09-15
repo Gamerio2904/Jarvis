@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Ein echter Zug durch den Director — Timer, Lage und Lautstärke.
  * Das sind die Funktionen, die der PO als „geht nicht" gemeldet hat.
@@ -233,10 +234,15 @@ assert.equal(knowledgeBlock([legacy], 'Was steht bei uns zu Tokio?'), '', 'altes
     failureReply('tv', { handled: false, failed: true, failReason: 'timeout', internal: [] }),
     /nicht geantwortet/,
   )
-  assert.equal(
+  assert.match(
     failureReply('weather', open),
+    /rate nicht/,
+    'Faktenagenten sagen ab statt ans Modell zu fallen',
+  )
+  assert.equal(
+    failureReply('news', open),
     '',
-    'lesende Agenten dürfen weiterfallen — dort gibt es nichts zu behaupten',
+    'lesende Agenten ohne factual dürfen weiterfallen',
   )
   assert.equal(failureReply('tv', { handled: false, internal: [] }), '', 'kein Fehlschlag, kein Text')
 }

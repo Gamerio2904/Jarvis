@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 import { decideGate } from '../src/engine/memory-gate.ts'
 import { dumpLikeValue, inferKind, inferTense, pruneMemoryItems } from '../src/engine/memory-layer.ts'
 import { extractEntities, inferParentKey, utteranceHints, aliasQueries } from '../src/engine/memory-alias.ts'

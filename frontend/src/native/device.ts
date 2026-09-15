@@ -253,9 +253,9 @@ export async function sendSmsNow(
   if (text.length < 1) return { ok: false, message: 'Kein Text.' }
   if (native) {
     try {
-      return await withTimeout(native.sendSms({ number: n, body: text }), 20_000, {
+      return await withTimeout(native.sendSms({ number: n, body: text }), 15_000, {
         ok: false,
-        message: 'SMS nicht gesendet.',
+        message: 'Funk hat nicht bestätigt.',
       })
     } catch {
       return { ok: false, message: 'SMS nicht gesendet.' }

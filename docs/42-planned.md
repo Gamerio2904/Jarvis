@@ -2,15 +2,15 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`18.0.8`**. Sideload **`18.0.7`**, versionCode `180007`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+**Live:** App-Code **`18.1.0`**. Sideload **`18.0.7`**, versionCode `180007`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
 1. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
-2. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–282**. 272 zuerst (Java auf dem Gerät). Zielversionen in 71 (`18.0.4`/`18.0.5`) sind Anker — Code steht bei `18.0.8`, vor dem Ziehen neu verankern
-3. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290**. Unbekannter Ort ohne Netz, Mikrofon-Absage, Overlay/Gespräch
+2. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
+3. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290**. Unbekannter Ort ohne Netz, Mikrofon-Absage, Overlay/Gespräch. 290 Ziel `18.1.1`
 4. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287**. Festhalten, Überblick, **feste Sprint-Vorlage**, Jarvis füllt auf Zuruf und darf Custom-Sprints anlegen. Kein Architect-Organizer, kein RICE, kein Notion, Plan wird nicht ausgeführt
 5. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
 6. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
@@ -72,9 +72,28 @@ Begründung: [`72-next.md`](./72-next.md). Audit-Zahlen 272–282 bleiben
 |---------|--------|-------|
 | `18.0.9` | 288 | Unbekannter Ort ohne Netz |
 | `18.0.9` | 289 | Mikrofon-Absage sichtbar |
-| `18.1.0` | 290 | Overlay-Zurück vs. Gesprächswechsel |
+| `18.1.1` | 290 | Overlay-Zurück vs. Gesprächswechsel |
 
 Begründung: [`73-next.md`](./73-next.md).
+
+## CODE — Audit-Reste `18.1.0` (Sprints 272–281)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `18.1.0` | [272](./sprints/sprint-272.md) | Java-11 im Quelltext + PO-Gerät |
+| `18.1.0` | [273](./sprints/sprint-273.md) | `factual` + ehrliche Absage |
+| `18.1.0` | [274](./sprints/sprint-274.md) | fuel/poi `device`, ein Versuch |
+| `18.1.0` | [275](./sprints/sprint-275.md) | SMS `sentIntent` |
+| `18.1.0` | [276](./sprints/sprint-276.md) | Fahrmodus-Cleanup, Kalender-Fokus |
+| `18.1.0` | [277](./sprints/sprint-277.md) | Widerspruch → Suche an `last_step_tool` |
+| `18.1.0` | [278](./sprints/sprint-278.md) | `looksTruncated` mit Abkürzungen |
+| `18.1.0` | [279](./sprints/sprint-279.md) | `scripts/` unter tsc |
+| `18.1.0` | [280](./sprints/sprint-280.md) | exhaustive-deps einzeln |
+| `18.1.0` | [281](./sprints/sprint-281.md) | Leichen-Test |
+| — | 282 | Freeze versionCode-Schema |
+
+Anker in 71 waren `18.0.4`/`18.0.5`/`18.1.0`; live war schon `18.0.8`, deshalb
+ein Bündel **`18.1.0`**. 290 rückt auf `18.1.1`.
 
 ## CODE — Schiene `17.0.0` (Sprints 249–259)
 

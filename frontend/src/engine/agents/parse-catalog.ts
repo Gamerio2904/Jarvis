@@ -13,7 +13,8 @@ import { parsePcIntent } from '../pc-parse.ts'
 import { parsePcPairPayload } from '../pc-pair.ts'
 import { isEyeGround, isPcGround, parseGroundIntent } from '../ground-parse.ts'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from '../places-parse.ts'
-import { isIdentityAsk, isMemoryRecall, isMemoryWrite, VERGISS, VERGISS_ALL } from '../memory-parse.ts'
+import { isIdentityAsk, isMemoryRecall, isMemoryWrite, isUtilityCorrection, VERGISS, VERGISS_ALL } from '../memory-parse.ts'
+import { isSearchableLastTool } from '../last-step.ts'
 import { parseShopIntent } from '../shopping-parse.ts'
 import { parseBirthdayIntent } from '../birthday-parse.ts'
 import { parseHomeIntent } from '../home-parse.ts'
@@ -76,6 +77,7 @@ type RawParse = {
   sideEffect: SideEffect
   parse: (ctx: RouteCtx) => number | null
   label?: string
+  factual?: boolean
 }
 
 function finish(raw: RawParse[]): AgentSpec[] {
@@ -89,6 +91,7 @@ function finish(raw: RawParse[]): AgentSpec[] {
       visibility: m.visibility,
       autonomy: m.autonomy,
       sideEffect: entry.sideEffect,
+      factual: entry.factual,
       parse: entry.parse,
       promptSlice: PROMPT_SLICES[entry.id]?.promptSlice,
       goldPrompts: PROMPT_SLICES[entry.id]?.goldPrompts,
@@ -119,8 +122,8 @@ function buildParseCatalog(): AgentSpec[] {
         parsePlugIntent(ctx.text, ctx.plugNames || [], ctx.lastTool === 'plug') ? score(ctx.text, 0.05) : null,
     },
     { id: 'here', sideEffect: 'read', parse: (ctx) => (parseHereIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.05) : null) },
-    { id: 'fuel', sideEffect: 'read', parse: (ctx) => (parseFuelIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
-    { id: 'poi', sideEffect: 'read', parse: (ctx) => (parsePoiIntent(ctx.text) ? score(ctx.text) : null) },
+    { id: 'fuel', sideEffect: 'device', factual: true, parse: (ctx) => (parseFuelIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
+    { id: 'poi', sideEffect: 'device', factual: true, parse: (ctx) => (parsePoiIntent(ctx.text) ? score(ctx.text) : null) },
     { id: 'transit', sideEffect: 'read', parse: (ctx) => (parseTransitIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
     {
       id: 'drive',
@@ -156,6 +159,7 @@ function buildParseCatalog(): AgentSpec[] {
       sideEffect: 'write',
       parse: (ctx) => {
         const t = ctx.text
+        if (isUtilityCorrection(t) && isSearchableLastTool(ctx.lastTool)) return null
         return VERGISS_ALL.test(t) || VERGISS.test(t) || isMemoryWrite(t) || isMemoryRecall(t) || isIdentityAsk(t)
           ? score(t, 0.04)
           : null
@@ -182,6 +186,7 @@ function buildParseCatalog(): AgentSpec[] {
     {
       id: 'weather',
       sideEffect: 'read',
+      factual: true,
       parse: (ctx) =>
         parseWeatherIntent(ctx.text) || parseWeatherFollowup(ctx.text, ctx.weatherLast ?? null)
           ? score(ctx.text, 0.05)
@@ -199,7 +204,7 @@ function buildParseCatalog(): AgentSpec[] {
     { id: 'fx', sideEffect: 'read', parse: (ctx) => (parseFxIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
     { id: 'food', sideEffect: 'read', parse: (ctx) => (parseFoodIntent(ctx.text) ? score(ctx.text, 0.06) : null) },
     { id: 'library', sideEffect: 'read', parse: (ctx) => (parseLibraryIntent(ctx.text) ? score(ctx.text, 0.06) : null) },
-    { id: 'sport', sideEffect: 'read', parse: (ctx) => (parseSportIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
+    { id: 'sport', sideEffect: 'read', factual: true, parse: (ctx) => (parseSportIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
     { id: 'sky', sideEffect: 'read', parse: (ctx) => (parseSkyIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
     { id: 'nature', sideEffect: 'read', parse: (ctx) => (parseNatureIntent(ctx.text) ? score(ctx.text, 0.06) : null) },
     { id: 'flights', sideEffect: 'read', parse: (ctx) => (parseFlightsIntent(ctx.text) ? score(ctx.text, 0.06) : null) },

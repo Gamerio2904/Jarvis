@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 import assert from 'node:assert/strict'
 import { APP_VERSION } from '../src/engine/store.ts'
 import { PKG_VERSION } from './app-version.mjs'

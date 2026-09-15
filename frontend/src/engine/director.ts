@@ -50,13 +50,24 @@ async function applyRetry(hit: RouteHit, conversationId: string, text: string): 
 /**
  * Ein gescheiterter Schreib- oder Geräte-Agent darf nicht ans Modell
  * durchfallen — das könnte einen Erfolg behaupten, den es nie gab. Lesende
- * Agenten dürfen weiterfallen: dort gibt es nichts zu behaupten.
+ * Agenten ohne `factual` dürfen weiterfallen. Faktenagenten (Tanke, Wetter,
+ * POI, Sport) sagen ab: sonst erfindet das Modell Preise und Tabellen.
  */
 export function failureReply(id: string, result: AgentResult): string {
   if (!result.failed) return ''
   const agent = agentById(id)
-  if (!agent || agent.sideEffect === 'read') return ''
+  if (!agent) return ''
+  const factual = Boolean(agent.factual)
+  if (agent.sideEffect === 'read' && !factual) return ''
   const label = TOOL_LABEL[id] || agent.label || id
+  if (factual) {
+    if (result.failReason === 'breaker') {
+      return `${label} ist gerade nicht erreichbar. Ich rate nicht.`
+    }
+    return result.failReason === 'timeout'
+      ? `${label} hat nicht geantwortet. Ich rate nicht.`
+      : `${label} hat keine Daten geliefert. Ich rate nicht.`
+  }
   if (result.failReason === 'breaker') {
     return `${label} ist gerade nicht erreichbar. Ich habe nichts geändert — in einer Minute nochmal.`
   }

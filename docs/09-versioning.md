@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`18.0.8`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload-APK **`18.0.7`**, versionCode `180007`. Karte öffnet aus dem Chat, Pin-Text passt zum Ort, CarPlay heading-up. Test [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+> **Jetzt:** Code **`18.1.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload-APK **`18.0.7`**, versionCode `180007`. Audit-Reste 272–281 (Fakten-Absage, SMS-Funk, Fahrmodus). Test [`TEST-18.1.0.md`](./TEST-18.1.0.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -586,13 +586,14 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | `18.0.6` | Figurenfarbe, Rochade/En passant, Körper-Zoom auf Agenten | Patch **CODE** + Sideload |
 | `18.0.7` | Körper live, Chat darunter oder Vollbild | Patch **CODE** + Sideload |
 | `18.0.8` | Karte öffnet, Pin-Text passt, CarPlay heading-up | Patch **CODE** |
+| **`18.1.0`** | Audit-Reste: Fakten-Absage, Tanke/POI einmal, SMS-Funk, Skripte/tsc | 272–281 **CODE** |
 
 ### `18.2` — Ideen halten [`72-next.md`](./72-next.md) **PLAN**
 
 Ideen festhalten und wiederfinden. **Eine Sprint-Vorlage**, Jarvis füllt
 sie auf Zuruf und darf Custom-Sprints anlegen. Kein Project-Architect-
 Organizer, kein RICE, kein Notion, Plan wird nicht ausgeführt.
-Sprints 272–282 bleiben Audit-Reste in [`71-audit.md`](./71-audit.md).
+Sprints 272–281 sind **CODE** in `18.1.0`. 282 bleibt Freeze in [`71-audit.md`](./71-audit.md).
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|

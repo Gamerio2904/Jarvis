@@ -1,3 +1,4 @@
+// @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 /**
  * Smoke: AgentSpec metadata + parse catalog; executor IDs match domain agents.
  */
