@@ -5,6 +5,27 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.0.3` — Tiefenprüfung: Sprachmodus, Wecker, erfundene Zahlen — *CODE*
+
+Vier getrennte Durchgänge (Motor, Oberfläche, Android, toter Code) lasen den
+Code selbst. Befunde und Plan: [`71-audit.md`](./71-audit.md) §2b.
+
+- **Sprachmodus, die eigentliche Ursache:** Der Wächter für „dazwischenreden“ sah nur die *System*-Stimme. Die Standardspur ist Edge/Gemini als MP3 im WebView — dort war er blind, und der Lautsprecher redete Jarvis die eigene Antwort als Unterbrechung ins Mikrofon. Deshalb kam nach dem ersten Satz Stille. Beide Spuren melden jetzt, wenn die App spricht, plus 400 ms Nachhall. Der Preis: während Jarvis spricht, unterbricht ein Antippen, kein Zuruf — der Hinweistext sagt das auch so.
+- **Sprachmodus, zwei Sackgassen:** Ein Fehler aus dem Mikrofon beendete die Hörschleife, ohne sie zu schließen — „Ich höre…“ für immer, ohne zu hören. Und vier Wege aus dem Sprachmodus ließen das Wake-Tor offen: danach ging er bis zum App-Neustart gar nicht mehr auf.
+- **Lage:** Zwei Rückrufe steckten als Pfeilfunktion im JSX und waren bei jedem Render neu. Die Kacheln luden endlos nach, die Globus-Ansicht holte in Dauerschleife GPS und Pins. Nebenwirkung: der Globus-Rundgang zog jetzt auch wirklich weiter.
+- **Erfundene Spritpreise:** „Was kostet E10 an der nächsten Tankstelle“ warf den Tank-Agenten ab und ließ nur den Ausblick stehen, den dieselbe Regel darüber ebenfalls abwirft. Niemand war zuständig, das Modell erfand Preise.
+- **„Regnet es gleich?“** las die Vorhersage ab Mitternacht: `current.time` steht auf der Viertelstunde, die Stundenreihe auf der Stunde, der Vergleich traf nie. Live gegen Open-Meteo nachgemessen.
+- **Bundesliga von Januar bis Juli:** OpenLigaDB schlüsselt nach Startjahr — Jarvis fragte eine Saison ab, die erst im August beginnt, und sagte „keine Spiele“. Dazu landete „2. Bundesliga“ in der ersten Liga und „2. Liga“ galt gar nicht als Sportfrage.
+- **Spotify log:** „Nächster.“, „Pause.“ und „Lautstärke 40.“ kamen ohne Blick auf die Antwort — ohne aktives Gerät oder ohne Premium lief die Musik unverändert weiter.
+- **Schach:** „Dame e2 e4“ zog den Bauern auf e2 und meldete Erfolg. Die genannte Figur wird jetzt geprüft.
+- **Android, Abstürze:** Das Wake-Wort startete einen Mikrofon-Dienst aus dem Hintergrund — unter Android 14 gesperrt, unter Android 15 beim Systemstart verboten. Die Ausnahme nahm die App mit: „Jarvis wurde beendet“ nach jedem Neustart, Absturz beim Tippen aufs Widget. Dessen Schaltaktion stand außerdem im exportierten Filter, wo jede fremde App das Dauerzuhören einschalten konnte.
+- **Android, Wecker:** Ein Geisteralarm klingelte Stunden nach dem Abstellen los (`START_STICKY` plus Neustart mit leerem Auftrag). Ein verpasster Wecker klingelte unbegrenzt weiter (jetzt zehn Minuten). Ein gesprochener Timer ließ Meldung und Wake-Lock stehen. Und **jeder Wecker war nach einem App-Update still weg** — gehorcht wurde nur dem Systemstart, nicht dem Paketwechsel.
+- **Android, Ansage:** Ein zweiter `speak()`-Ruf verwaiste den ersten, dessen Versprechen nie einlöste — der Fahrmodus blieb auf „beschäftigt“ und sagte für den Rest der Fahrt nichts mehr.
+- **Android, kleinere Lügen:** „Fernseher testen“ rief eine Methode, die es nicht gab, und meldete ein WLAN-Problem. Die Taschenlampe verlangte die Kamera, die sie nicht braucht (`CAMERA` ist jetzt auch aus dem Manifest). Das GPS lief nach dem Schließen weiter. `openApp` fand seit Android 11 keine installierte App mehr.
+
+Die 11 Java-Änderungen sind hier **nicht baubar** (kein Android-SDK) und
+entsprechend ungetestet — Sprint 272 prüft sie auf einem Gerät.
+
 ### `18.0.3` — Code-Audit: was trotz grünem Lauf falsch war — *CODE*
 
 Befund und Plan: [`71-audit.md`](./71-audit.md). Lint, `tsc -b` und alle 28
