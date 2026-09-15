@@ -69,6 +69,7 @@ export function Lage({
   const [pins, setPins] = useState<GeoFix[]>([])
   const [issTrail, setIssTrail] = useState<{ lat: number; lon: number }[]>([])
   const [pinCard, setPinCard] = useState<GeoFix | null>(null)
+  const pinClosedAt = useRef(0)
   const [globeTick, setGlobeTick] = useState(0)
   /**
    * Als Pfeilfunktion im JSX war das bei jedem Render ein neuer Wert. Der
@@ -213,12 +214,36 @@ export function Lage({
 
   function closePin() {
     setPinCard(null)
+    pinClosedAt.current = Date.now()
     if (loadSettings().globe_tour_on) {
       stopTour()
       setGlobeTick((n) => n + 1)
       onHudChange?.()
     }
   }
+
+  useEffect(() => {
+    if (view !== 'globe') return
+    try {
+      const raw = s.last_globe_focus
+      if (!raw) return
+      const f = JSON.parse(raw) as { name?: string; lat?: unknown; lon?: unknown; at?: unknown }
+      const name = String(f.name || '')
+      const lat = Number(f.lat)
+      const lon = Number(f.lon)
+      const at = Number(f.at) || 0
+      if (!name || /^iss$/i.test(name) || !Number.isFinite(lat) || at <= pinClosedAt.current) return
+      setPinCard({
+        name,
+        lat,
+        lon,
+        kind: 'outlook',
+        line: s.last_globe_brief || '',
+      })
+    } catch {
+      /* ignore */
+    }
+  }, [view, s.last_globe_focus, s.last_globe_brief])
 
   const showChatTile = !hideChatTile && modules.includes('chat')
 
