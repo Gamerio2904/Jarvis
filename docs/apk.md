@@ -1,6 +1,8 @@
-# Android-APK — Sideload `18.0.4`
+# Android-APK — Sideload `18.0.5`
 
-App-Code **`18.0.4`**. Sideload-APK **`18.0.4`**, versionCode `180004`.
+App-Code **`18.0.5`**. Sideload-APK **`18.0.5`**, versionCode `180005`.
+
+**18.0.5:** Schach-Gegner (Jarvis zieht Schwarz, ohne Engine). Mini-Brett öffnet den Modus. Kugel-Pin mit Schließen. Körper zeigt alle Agenten, leuchtet nur beim laufenden Zug.
 
 **18.0.4:** Erststart-Download von unten. Kalender über der Navigation. Körper nur genutzte Agenten, drehbar. Kugel ohne ISS-Karte. Schach-Overlay mit Koordinaten und Klick-Zügen. Taschenlampe folgt `Aus`. Wetter `Hotel Stuttgart` ist der Ort.
 
@@ -14,10 +16,10 @@ App-Code **`18.0.4`**. Sideload-APK **`18.0.4`**, versionCode `180004`.
 
 ## Download
 
-**Fertige APK `18.0.4`:**  
+**Fertige APK `18.0.5`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.0.4` · versionCode `180004`
+- versionName `18.0.5` · versionCode `180005`
 
 ## Build lokal
 

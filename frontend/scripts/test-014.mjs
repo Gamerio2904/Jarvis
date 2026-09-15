@@ -147,7 +147,7 @@ import { parseWarnIntent } from '../src/engine/warn.ts'
 import { parseFerienIntent } from '../src/engine/ferien.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
 import { parseSkyIntent } from '../src/engine/sky.ts'
-import { parseChessIntent, piecePhrase, legalMovesFrom } from '../src/engine/chess.ts'
+import { parseChessIntent, piecePhrase, legalMovesFrom, handleChess, loadFen, START_FEN } from '../src/engine/chess.ts'
 import { fromHandler } from '../src/engine/agents/execute-map.ts'
 import { skipMicroMerge, parseChatBlocks } from '../src/engine/chat-blocks.ts'
 import { parseSportIntent, formatTable, seasonYears, shortClub, tableBlock } from '../src/engine/sport.ts'
@@ -1848,6 +1848,34 @@ assert.equal(pickRoute('Läufer e8 f9'), 'chess')
     blocks: [{ kind: 'chess', fen }],
   })
   assert.equal(hit?.blocks?.[0].kind, 'chess')
+}
+{
+  const prevLs = globalThis.localStorage
+  const store = Object.create(null)
+  globalThis.localStorage = {
+    getItem: (k) => (k in store ? store[k] : null),
+    setItem: (k, v) => {
+      store[k] = String(v)
+    },
+    removeItem: (k) => {
+      delete store[k]
+    },
+    clear: () => {
+      for (const k of Object.keys(store)) delete store[k]
+    },
+  }
+  try {
+    await handleChess('Schach neu')
+    const moved = await handleChess('Bauer e2 e4')
+    assert.match(moved.reply || '', /Ich spiele/)
+    assert.match(moved.reply || '', /Weiß am Zug/)
+    assert.doesNotMatch(moved.reply || '', /c8f5|c8–f5/)
+    assert.equal(loadFen().split(' ')[1], 'w')
+    assert.notEqual(loadFen().split(' ')[0], START_FEN.split(' ')[0])
+  } finally {
+    if (prevLs) globalThis.localStorage = prevLs
+    else delete globalThis.localStorage
+  }
 }
 assert.match(readFileSync(new URL('../src/engine/agents/bus.ts', import.meta.url), 'utf8'), /blocks: hit\.blocks/)
 assert.match(readFileSync(new URL('../src/engine/director.ts', import.meta.url), 'utf8'), /blocks: result\.blocks/)

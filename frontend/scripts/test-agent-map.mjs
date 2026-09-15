@@ -7,6 +7,7 @@ import {
   synapses,
   visibleAgents,
 } from '../src/engine/agent-map.ts'
+import { buildAgentGraph } from '../src/engine/agent-graph.ts'
 
 const agents = visibleAgents()
 assert.ok(agents.length >= 40, `zu wenige Agenten: ${agents.length}`)
@@ -41,5 +42,12 @@ assert.deepEqual(sparkLoop(['brain', 'dept:alltag', 'timer']), [
 ])
 assert.ok(dots.some((d) => d.department === 'system'))
 assert.ok(edges.some((e) => e.from.startsWith('dept:') && e.to.startsWith('dept:')))
+
+const idle = buildAgentGraph('brain', false)
+assert.ok(idle.nodes.filter((n) => n.kind === 'agent').length >= 40)
+assert.equal(idle.nodes.some((n) => n.live), false)
+assert.match(idle.nodes[0]?.line || '', /Agenten/)
+const busy = buildAgentGraph('brain', true)
+assert.equal(busy.busy, true)
 
 console.log('test:agent-map ok')

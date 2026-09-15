@@ -21,7 +21,6 @@ export function AgentMapCanvas({
   busy = false,
   selectedAgent = '',
   liveAgent = '',
-  usedKey = '',
 }: {
   reduced: boolean
   onSelectDept: (id: string) => void
@@ -29,7 +28,6 @@ export function AgentMapCanvas({
   busy?: boolean
   selectedAgent?: string
   liveAgent?: string
-  usedKey?: string
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const selDeptRef = useRef(selectedDept)
@@ -55,10 +53,11 @@ export function AgentMapCanvas({
     const edges = synapses(dots)
 
     function sync() {
+      const running = busyRef.current
       return {
-        active: liveRef.current || activeAgentId(),
-        traces: activeTracePath(),
-        busy: busyRef.current,
+        active: running ? liveRef.current || activeAgentId() : '',
+        traces: running ? activeTracePath() : [],
+        busy: running,
         selDept: selDeptRef.current,
         selAgent: selAgentRef.current,
       }
@@ -66,8 +65,7 @@ export function AgentMapCanvas({
 
     function needsMotion() {
       if (reduced) return false
-      const s = sync()
-      return s.busy || Boolean(s.active) || sparkPath(s.active, s.traces).length > 1
+      return busyRef.current
     }
 
     function resize() {
@@ -258,14 +256,14 @@ export function AgentMapCanvas({
         g.stroke()
       }
 
-      drawBrain(brain, Boolean(liveId) || s.busy, pulseT)
+      drawBrain(brain, s.busy && Boolean(liveId), pulseT)
 
       const liveDepts = new Set(dots.map((a) => a.department))
       for (const d of DEPARTMENT_NODES) {
         if (!liveDepts.has(d.id) && s.selDept !== d.id) continue
         const p = at.get(`dept:${d.id}`)
         if (!p) continue
-        const live = departmentLive(d.id) || s.selDept === d.id
+        const live = Boolean(s.busy && departmentLive(d.id))
         const glow = live ? 1 + 0.08 * (0.5 + 0.5 * Math.sin(pulseT * 0.006)) : 1
         g.beginPath()
         g.fillStyle = live ? 'rgba(30, 215, 96, 0.92)' : 'rgba(90, 110, 100, 0.55)'
@@ -393,7 +391,7 @@ export function AgentMapCanvas({
       surface.removeEventListener('pointerup', onPointerUp)
       surface.removeEventListener('pointercancel', onPointerUp)
     }
-  }, [onSelectDept, reduced, busy, selectedAgent, liveAgent, selectedDept, usedKey])
+  }, [onSelectDept, reduced, busy, selectedAgent, liveAgent, selectedDept])
 
   return <canvas ref={canvasRef} className="agent-map-canvas" aria-label="Agenten-Netz" />
 }

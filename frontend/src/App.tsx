@@ -1807,6 +1807,7 @@ function App() {
             onHudChange={onHudChange}
             compact={!lageWide}
             hideChatTile
+            onOpenChess={() => setChessOpen(true)}
           />
         ) : null}
         <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>
@@ -1838,7 +1839,7 @@ function App() {
                   ) : null}
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
-                    {blocks.length ? <ChatBlocks blocks={blocks} /> : null}
+                    {blocks.length ? <ChatBlocks blocks={blocks} onChessClick={() => setChessOpen(true)} /> : null}
                     {tool && !hideToolChip(list[i - 1], tool) ? (
                       <ToolChip
                         tool={tool}

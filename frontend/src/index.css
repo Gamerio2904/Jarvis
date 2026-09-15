@@ -4506,18 +4506,30 @@ button.linkish {
   overflow: hidden;
 }
 
+.pin-bubble-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 48;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(0, 0, 0, 0.42);
+  cursor: pointer;
+}
+
 .pin-bubble {
-  position: absolute;
+  position: fixed;
   left: 12px;
   right: 12px;
   bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  z-index: 8;
+  z-index: 50;
   max-width: 360px;
+  margin: 0 auto;
   padding: 14px 16px 12px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(8, 12, 10, 0.94), rgba(5, 6, 5, 0.98));
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(180deg, rgba(8, 12, 10, 0.96), rgba(5, 6, 5, 0.99));
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
   pointer-events: auto;
 }
 
@@ -4525,9 +4537,31 @@ button.linkish {
   bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 
+.pin-bubble-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .pin-bubble h3 {
   margin: 0 0 6px;
   font-size: 1.05rem;
+}
+
+.pin-bubble-x {
+  appearance: none;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  margin: -6px -8px 0 0;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .pin-bubble-swipe {
@@ -4540,7 +4574,13 @@ button.linkish {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 4px;
+  margin-top: 10px;
+}
+
+.pin-bubble-actions .lage-btn {
+  min-height: 40px;
+  padding: 8px 14px;
+  font-weight: 700;
 }
 
 .body-side {
@@ -5141,8 +5181,28 @@ button.linkish {
   margin-top: 10px;
 }
 
+.chat-chess {
+  appearance: none;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 .chat-chess .chess-board {
   max-width: 220px;
+}
+
+.chat-chess:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 8px;
 }
 
 .chat-image {

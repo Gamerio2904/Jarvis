@@ -3,6 +3,7 @@ import {
   legalMovesFrom,
   loadFen,
   pieceAt,
+  playEngineIfBlack,
   sideToMoveWhite,
   subscribeChess,
   turnLabel,
@@ -23,6 +24,8 @@ export function ChessMode({
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
+    playEngineIfBlack()
+    setFen(loadFen())
     return subscribeChess(() => {
       setFen(loadFen())
       setSelected(null)
@@ -45,8 +48,7 @@ export function ChessMode({
       return
     }
     const piece = pieceAt(fen, sq)
-    const white = sideToMoveWhite(fen)
-    if (!piece || piece.white !== white) {
+    if (!piece || !piece.white || !sideToMoveWhite(fen)) {
       setSelected(null)
       setTargets([])
       return
@@ -73,7 +75,7 @@ export function ChessMode({
       <header className="chess-mode-bar">
         <div>
           <h2 id="chess-title">Schach</h2>
-          <p>{turnLabel(fen)}</p>
+          <p>{turnLabel(fen)} Du Weiß, Jarvis Schwarz.</p>
         </div>
         <div className="drive-bar-actions">
           <button type="button" className="settings-close" onClick={onClose}>
@@ -84,7 +86,9 @@ export function ChessMode({
       <div className="chess-mode-board">
         <ChessBoard fen={fen} selected={selected} targets={targets} onSquare={pick} />
       </div>
-      <p className="chess-mode-hint">Figur antippen — erlaubte Felder leuchten. Feld antippen setzt den Zug.</p>
+      <p className="chess-mode-hint">
+        Weiße Figur antippen — erlaubte Felder leuchten. Jarvis zieht Schwarz danach (ohne Engine).
+      </p>
       <form
         className="chess-mode-form"
         onSubmit={(e) => {

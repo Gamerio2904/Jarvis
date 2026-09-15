@@ -50,8 +50,9 @@ async function clickText(page, selector, text) {
 async function closeSheets(page) {
   for (let i = 0; i < 5; i++) {
     const clicked = await page.evaluate(() => {
-      const named = [...document.querySelectorAll('button')].filter((b) =>
-        /^(Zurück|Beenden|Fertig|Live aus)$/.test((b.textContent || '').trim()),
+      const named = [
+        ...document.querySelectorAll('button')].filter((b) =>
+        /^(Zurück|Beenden|Fertig|Live aus|Schließen)$/.test((b.textContent || '').trim()),
       )
       const marked = [
         ...document.querySelectorAll(

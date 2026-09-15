@@ -1,4 +1,5 @@
 import type { ChatBlock } from './chat-blocks.ts'
+import { pickReplyMove } from './chess-engine.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 
@@ -96,11 +97,14 @@ export async function handleChess(
   if (!intent) return { handled: false }
   if (intent.kind === 'new') {
     saveFen(START)
-    return pack('Neues Spiel. Weiß am Zug. Züge wie Bauer e2 e4.', START)
+    return pack('Neues Spiel. Du bist Weiß, ich Schwarz (ohne Engine). Züge wie Bauer e2 e4.', START)
   }
   const fen = loadFen()
   if (intent.kind === 'show') {
-    return pack(turnLine(fen), fen)
+    const after = applyEngineIfBlack(fen)
+    const note = after.reply ? `Ich spiele ${prettyMove(after.reply)}. ${endLine(after.fen)}` : endLine(after.fen)
+    if (after.fen !== fen) saveFen(after.fen)
+    return pack(note, after.fen)
   }
   const move = intent.move || ''
   /**
@@ -111,16 +115,31 @@ export async function handleChess(
   const named = intent.piece ? standsOn(fen, move) : ''
   if (intent.piece && named && named !== intent.piece) {
     return pack(
-      `Auf ${move.slice(0, 2)} steht ${piecePhrase(intent.piece, true)}, sondern ${piecePhrase(named, false)}. ${turnLine(fen)}`,
+      `Auf ${move.slice(0, 2)} steht ${piecePhrase(intent.piece, true)}, sondern ${piecePhrase(named, false)}. ${endLine(fen)}`,
       fen,
+    )
+  }
+  if (!sideToMoveWhite(fen)) {
+    const after = applyEngineIfBlack(fen)
+    if (after.reply && after.fen !== fen) saveFen(after.fen)
+    return pack(
+      after.reply
+        ? `Ich bin am Zug. Ich spiele ${prettyMove(after.reply)}. ${endLine(after.fen)}`
+        : endLine(after.fen),
+      after.fen,
     )
   }
   const next = applyMove(fen, move)
   if (!next) {
-    return pack(`Zug ${prettyMove(move)} ist nicht legal. ${turnLine(fen)}`, fen)
+    return pack(`Zug ${prettyMove(move)} ist nicht legal. ${endLine(fen)}`, fen)
   }
-  saveFen(next)
-  return pack(`${prettyMove(move)}. ${turnLine(next)}`, next)
+  const engine = applyEngineIfBlack(next)
+  saveFen(engine.fen)
+  const userLine = prettyMove(move)
+  if (!engine.reply) {
+    return pack(`${userLine}. ${endLine(engine.fen)}`, engine.fen)
+  }
+  return pack(`${userLine}. Ich spiele ${prettyMove(engine.reply)}. ${endLine(engine.fen)}`, engine.fen)
 }
 
 /** Welche Figur steht auf dem Startfeld des Zugs? Leer, wenn das Feld frei ist. */
@@ -184,6 +203,31 @@ export function subscribeChess(fn: () => void): () => void {
 function turnLine(fen: string): string {
   const side = fen.split(' ')[1] === 'b' ? 'Schwarz' : 'Weiß'
   return `${side} am Zug.`
+}
+
+function endLine(fen: string): string {
+  if (allLegalUci(fen).length) return turnLine(fen)
+  const side = fen.split(' ')[1] === 'b' ? 'Schwarz' : 'Weiß'
+  return `${side} hat keinen Zug.`
+}
+
+/** Jarvis ist Schwarz. Zieht nach, wenn Schwarz am Zug ist. */
+export function applyEngineIfBlack(fen: string): { fen: string; reply: string | null } {
+  if (sideToMoveWhite(fen)) return { fen, reply: null }
+  const moves = allLegalUci(fen)
+  if (!moves.length) return { fen, reply: null }
+  const reply = pickReplyMove(fen)
+  if (!reply) return { fen, reply: null }
+  const next = applyMove(fen, reply)
+  if (!next) return { fen, reply: null }
+  return { fen: next, reply }
+}
+
+export function playEngineIfBlack(): string | null {
+  const fen = loadFen()
+  const after = applyEngineIfBlack(fen)
+  if (after.fen !== fen) saveFen(after.fen)
+  return after.reply
 }
 
 export function turnLabel(fen: string): string {
@@ -325,4 +369,24 @@ export function legalMovesFrom(fen: string, from: string): string[] {
     }
   }
   return out
+}
+
+export function allLegalUci(fen: string): string[] {
+  const { grid, white } = parseBoard(fen)
+  const out: string[] = []
+  for (let fr = 0; fr < 8; fr++) {
+    for (let ff = 0; ff < 8; ff++) {
+      const piece = grid[fr]?.[ff]
+      if (!piece || piece.white !== white) continue
+      const from = `${String.fromCharCode(97 + ff)}${8 - fr}`
+      for (let tr = 0; tr < 8; tr++) {
+        for (let tf = 0; tf < 8; tf++) {
+          if (tr === fr && tf === ff) continue
+          const to = `${String.fromCharCode(97 + tf)}${8 - tr}`
+          if (applyMove(fen, from + to)) out.push(from + to)
+        }
+      }
+    }
+  }
+  return out.sort()
 }

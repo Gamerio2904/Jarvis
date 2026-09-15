@@ -1,13 +1,26 @@
 import type { ChatBlock } from '../engine/chat-blocks.ts'
 import { ChessBoard } from './lage/ChessBoard.tsx'
 
-export function ChatBlocks({ blocks }: { blocks: ChatBlock[] }) {
+export function ChatBlocks({
+  blocks,
+  onChessClick,
+}: {
+  blocks: ChatBlock[]
+  onChessClick?: () => void
+}) {
   if (!blocks.length) return null
   return (
     <div className="chat-blocks">
       {blocks.map((b, i) => {
         if (b.kind === 'table') return <SportTableBlock key={i} block={b} />
         if (b.kind === 'chess') {
+          if (onChessClick) {
+            return (
+              <button key={i} type="button" className="chat-chess" onClick={onChessClick} aria-label="Schachmodus öffnen">
+                <ChessBoard fen={b.fen} />
+              </button>
+            )
+          }
           return (
             <div key={i} className="chat-chess">
               <ChessBoard fen={b.fen} />

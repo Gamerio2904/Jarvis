@@ -1,5 +1,4 @@
 import { activeAgentId, agentsInDepartment, departmentLabel, visibleAgents } from './agent-map.ts'
-import { usedAgentIds } from './agent-session.ts'
 import type { DepartmentId } from './agents/types.ts'
 import { loadSettings } from './store.ts'
 
@@ -17,27 +16,23 @@ export type AgentTreeNode = {
 export type AgentGraph = {
   selectedDept: DepartmentId | 'brain'
   activeId: string
+  busy: boolean
   nodes: AgentTreeNode[]
   empty: boolean
 }
 
-export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain'): AgentGraph {
-  const activeId = activeAgentId()
-  let used: Set<string> | null = usedAgentIds()
-  try {
-    if (typeof sessionStorage === 'undefined') used = null
-  } catch {
-    used = null
-  }
+export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain', busy = false): AgentGraph {
+  const activeId = busy ? activeAgentId() : ''
+  const catalog = visibleAgents()
   const nodes: AgentTreeNode[] = [
     {
       id: 'brain',
       kind: 'brain',
       label: 'Haus-Gehirn',
-      line: used && used.size ? `${used.size} Agenten in dieser Sitzung.` : used ? 'Noch kein Agent in dieser Sitzung.' : (activeId ? `Letzter Agent: ${activeId}` : 'Kein aktiver Agent.'),
+      line: `${catalog.length} Agenten.`,
       parent: null,
       depth: 0,
-      live: Boolean(activeId),
+      live: Boolean(busy && activeId),
     },
   ]
 
@@ -47,8 +42,7 @@ export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain'):
       : [selectedDept]
 
   for (const dept of clusters) {
-    const agents = agentsInDepartment(dept).filter((a) => !used || used.has(a.id))
-    if (used && !agents.length) continue
+    const agents = agentsInDepartment(dept)
     const clusterId = `cluster:${dept}`
     nodes.push({
       id: clusterId,
@@ -57,7 +51,7 @@ export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain'):
       line: `${agents.length} Agenten`,
       parent: 'brain',
       depth: 1,
-      live: agents.some((a) => a.id === activeId),
+      live: Boolean(busy && agents.some((a) => a.id === activeId)),
     })
     for (const agent of agents) {
       nodes.push({
@@ -67,7 +61,7 @@ export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain'):
         line: agent.promptSlice || agent.autonomy,
         parent: clusterId,
         depth: 2,
-        live: agent.id === activeId,
+        live: Boolean(busy && agent.id === activeId),
         prompt: agent.goldPrompts?.[0] || `Was kann ${agent.label}?`,
       })
       if (agent.promptSlice) {
@@ -93,7 +87,7 @@ export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain'):
         line: 'intern',
         parent: 'brain',
         depth: 1,
-        live: agent.id === activeId,
+        live: Boolean(busy && agent.id === activeId),
       })
     }
   }
@@ -101,6 +95,7 @@ export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain'):
   return {
     selectedDept,
     activeId,
+    busy,
     nodes,
     empty: nodes.length <= 1,
   }

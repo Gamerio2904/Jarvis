@@ -59,9 +59,9 @@ export function AgentTree({
       <p className="lage-hint">
         {graph.empty
           ? 'Keine Agenten geladen.'
-          : graph.activeId
+          : graph.busy && graph.activeId
             ? `Aktiv: ${graph.activeId}`
-            : 'Cluster antippen — kein Gerät startet.'}
+            : 'Alle Agenten. Nur laufende leuchten.'}
       </p>
       <ul className="body-tree-root">{root ? <Row node={root} /> : null}</ul>
     </nav>

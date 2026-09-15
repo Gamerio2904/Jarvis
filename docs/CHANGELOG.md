@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.0.5` — Schach-Gegner, Kugel schließen, Körper-Leuchten — *CODE + APK*
+
+Sideload **`18.0.5`** (versionCode `180005`):  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Im Schachmodus zieht Jarvis nach dem weißen Zug Schwarz — nicht mehr beide Seiten der Nutzer. Das Mini-Brett im Chat öffnet den Modus wieder. Kugel-Pins (London & Co.) haben Schließen und ×, die Karte liegt nicht mehr unter der Navigation. Der Körper zeigt dauerhaft alle Agenten; leuchten tun nur die, die gerade wirklich laufen.
+
 ### `18.0.4` — Lage, Kalender, Schach-Overlay, Taschenlampe — *CODE + APK*
 
 Sideload **`18.0.4`** (versionCode `180004`):  

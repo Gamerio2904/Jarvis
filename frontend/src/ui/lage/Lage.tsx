@@ -21,7 +21,6 @@ import { TurnHistory } from './TurnHistory.tsx'
 import { buildAgentGraph, type AgentGraph } from '../../engine/agent-graph.ts'
 import type { DepartmentId } from '../../engine/agents/types.ts'
 import { agentTask, DEPARTMENT_NODES, visibleAgents } from '../../engine/agent-map.ts'
-import { usedAgentIds, usedAgentsKey } from '../../engine/agent-session.ts'
 import { GlobeGuard, GlobeView, type GlobeFocus } from './GlobeView.tsx'
 import { fetchBodySnap, type BodySnap } from '../../engine/body-snap.ts'
 import { loadBodyGraph, type BodyGraph } from '../../engine/body-graph.ts'
@@ -47,6 +46,7 @@ export function Lage({
   onHudChange,
   compact = false,
   hideChatTile = false,
+  onOpenChess,
 }: {
   onSend: (text: string) => void
   draft: string
@@ -58,6 +58,7 @@ export function Lage({
   onHudChange?: () => void
   compact?: boolean
   hideChatTile?: boolean
+  onOpenChess?: () => void
 }) {
   const [snap, setSnap] = useState<HudSnap>({})
   const [body, setBody] = useState<BodySnap | null>(null)
@@ -67,7 +68,6 @@ export function Lage({
   const [pickedAgent, setPickedAgent] = useState('')
   const [pins, setPins] = useState<GeoFix[]>([])
   const [issTrail, setIssTrail] = useState<{ lat: number; lon: number }[]>([])
-  const [pin, setPin] = useState<GeoFix | null>(null)
   const [pinCard, setPinCard] = useState<GeoFix | null>(null)
   const [globeTick, setGlobeTick] = useState(0)
   /**
@@ -102,6 +102,7 @@ export function Lage({
         if (bodyView === 'agents') {
           const tree = buildAgentGraph(
             agentDept === 'brain' ? 'brain' : (agentDept as DepartmentId),
+            busy,
           )
           if (live) setAgentGraph(tree)
           return
@@ -165,7 +166,7 @@ export function Lage({
       if (isDocumentHidden() || !loadSettings().globe_tour_on) return
       const stop = advanceTour()
       if (stop) {
-        setPin({ name: stop.name, lat: stop.lat, lon: stop.lon, kind: 'glow', line: stop.line, hot: true })
+        setPinCard({ name: stop.name, lat: stop.lat, lon: stop.lon, kind: 'glow', line: stop.line, hot: true })
         setGlobeTick((n) => n + 1)
         onHudChange?.()
       }
@@ -176,7 +177,6 @@ export function Lage({
   function setView(next: HudView) {
     setLageSession(true)
     if (next === 'globe') {
-      setPin(null)
       setPinCard(null)
     }
     saveSettings({ hud_view: next, hud_force: true, hud_hidden: false })
@@ -211,14 +211,16 @@ export function Lage({
     onHudChange?.()
   }
 
-  const globeCaption =
-    pin && pin.kind !== 'iss' && pin.kind !== 'here' && pin.kind !== 'warn'
-      ? decodeHtml(pin.line || '')
-      : ''
-  const globeTitle = pin && pin.kind !== 'iss' && pin.kind !== 'here' && pin.kind !== 'warn' ? pin.name : ''
+  function closePin() {
+    setPinCard(null)
+    if (loadSettings().globe_tour_on) {
+      stopTour()
+      setGlobeTick((n) => n + 1)
+      onHudChange?.()
+    }
+  }
+
   const showChatTile = !hideChatTile && modules.includes('chat')
-  const usedKey = usedAgentsKey()
-  const liveAgent = busy ? s.last_agent_id : ''
 
   return (
     <section className={`lage ${amber ? 'is-amber' : ''}${compact ? ' is-compact' : ''}`} aria-label="Lage">
@@ -266,7 +268,7 @@ export function Lage({
             ? 'Erde drehen und zoomen — grüne Grenzen.'
             : view === 'body'
               ? bodyView === 'agents'
-                ? 'Ziehen dreht den Körper. Nur Agenten, die in dieser Sitzung gelaufen sind.'
+                ? 'Ziehen dreht den Körper. Alle Agenten sind da — nur laufende leuchten.'
                 : 'Organ antippen — Baum rechts, kein Gerät.'
               : 'Kacheln laden sichtbar — Wetter, Musik, Gerät.'}
         </p>
@@ -278,8 +280,6 @@ export function Lage({
               reduced={reduced}
               selectedDept={agentDept}
               selectedAgent={pickedAgent}
-              liveAgent={liveAgent}
-              usedKey={usedKey}
               busy={busy}
               onSelectDept={(id) => {
                 if (id === 'brain' || DEPARTMENT_NODES.some((d) => d.id === id)) {
@@ -292,11 +292,8 @@ export function Lage({
                 if (hit) setAgentDept(hit.department)
               }}
             />
-            {usedAgentIds().size === 0 ? (
-              <p className="lage-agent-task">Noch kein Agent in dieser Sitzung. Im Chat etwas tun.</p>
-            ) : null}
             {(() => {
-              const focus = visibleAgents().find((a) => a.id === (pickedAgent || liveAgent || ''))
+              const focus = visibleAgents().find((a) => a.id === pickedAgent)
               if (!focus) return null
               return <p className="lage-agent-task">{agentTask(focus)}</p>
             })()}
@@ -340,11 +337,10 @@ export function Lage({
             issTrail={issTrail}
             onPin={(next) => {
               if (next.kind === 'iss' || next.kind === 'here' || next.kind === 'warn') {
-                setPin(null)
-                setPinCard(null)
+                closePin()
                 return
               }
-              setPin(next)
+              setPinCard(next)
               if (next.kind === 'glow') {
                 selectTourStop(next.name)
                 setGlobeTick((n) => n + 1)
@@ -361,9 +357,9 @@ export function Lage({
                 }),
                 last_globe_look: JSON.stringify({ lat: next.lat, lon: next.lon, zoom: CITY_FLY_ZOOM }),
               })
-              setPinCard(next)
             }}
             onEmpty={() => {
+              closePin()
               if (!loadSettings().globe_tour_on) return
               stopTour()
               setGlobeTick((n) => n + 1)
@@ -374,31 +370,38 @@ export function Lage({
             onLook={onLook}
           />
           </GlobeGuard>
-          {globeCaption && globeTitle ? <TextTile title={globeTitle} body={globeCaption} /> : null}
           {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
           {pinCard ? (
-            <div className="pin-bubble" role="dialog" aria-labelledby="pin-bubble-title">
-              <h3 id="pin-bubble-title">{pinCard.name}</h3>
-              <p className="lage-body">
-                {decodeHtml(pinCard.line || s.last_globe_brief || 'Keine Kurzlage zu diesem Ort.')}
-              </p>
-              <p className="pin-bubble-swipe">Keine Bilder — nur Lage-Text.</p>
-              <div className="pin-bubble-actions">
-                <button type="button" className="lage-btn" onClick={() => setPinCard(null)}>
-                  Schließen
-                </button>
-                <button
-                  type="button"
-                  className="lage-btn"
-                  onClick={() => {
-                    onSend(`Zeig ${pinCard.name}`)
-                    setPinCard(null)
-                  }}
-                >
-                  Im Chat
-                </button>
+            <>
+              <button type="button" className="pin-bubble-backdrop" aria-label="Karte schließen" onClick={closePin} />
+              <div className="pin-bubble" role="dialog" aria-labelledby="pin-bubble-title" aria-modal="true">
+                <div className="pin-bubble-head">
+                  <h3 id="pin-bubble-title">{pinCard.name}</h3>
+                  <button type="button" className="pin-bubble-x" onClick={closePin} aria-label="Schließen">
+                    ×
+                  </button>
+                </div>
+                <p className="lage-body">
+                  {decodeHtml(pinCard.line || s.last_globe_brief || 'Keine Kurzlage zu diesem Ort.')}
+                </p>
+                <p className="pin-bubble-swipe">Keine Bilder — nur Lage-Text.</p>
+                <div className="pin-bubble-actions">
+                  <button type="button" className="lage-btn" onClick={closePin}>
+                    Schließen
+                  </button>
+                  <button
+                    type="button"
+                    className="lage-btn"
+                    onClick={() => {
+                      onSend(`Zeig ${pinCard.name}`)
+                      closePin()
+                    }}
+                  >
+                    Im Chat
+                  </button>
+                </div>
               </div>
-            </div>
+            </>
           ) : null}
         </div>
       ) : (
@@ -413,6 +416,7 @@ export function Lage({
               spotifyOn={spotifyOn}
               showChatTile={showChatTile}
               chatProps={{ onSend, draft, setDraft, busy, recent, streaming }}
+              onOpenChess={onOpenChess}
             />
           ))}
         </div>
@@ -448,6 +452,7 @@ function LazyHudCell({
   spotifyOn,
   showChatTile,
   chatProps,
+  onOpenChess,
 }: {
   id: HudId
   index: number
@@ -463,6 +468,7 @@ function LazyHudCell({
     recent: Message[]
     streaming: string | null
   }
+  onOpenChess?: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(id === 'chat')
@@ -535,7 +541,13 @@ function LazyHudCell({
     return cell(
       <article className="lage-tile">
         <h3>Schach</h3>
-        <ChessBoard fen={snap.chess?.fen || ''} />
+        {onOpenChess ? (
+          <button type="button" className="chat-chess" onClick={onOpenChess} aria-label="Schachmodus öffnen">
+            <ChessBoard fen={snap.chess?.fen || ''} />
+          </button>
+        ) : (
+          <ChessBoard fen={snap.chess?.fen || ''} />
+        )}
       </article>,
     )
   }

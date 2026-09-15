@@ -1,4 +1,3 @@
-import { usedAgentIds } from './agent-session.ts'
 import { parseCatalog } from './agents/parse-catalog.ts'
 import { getTurnTraces } from './agents/trace-store.ts'
 import type { AgentSpec, DepartmentId } from './agents/types.ts'
@@ -78,19 +77,9 @@ export function agentTask(agent: { label: string; promptSlice?: string; goldProm
   return `${agent.label} — Im Chat ansprechen.`
 }
 
-function sessionUsedAgents(): Set<string> | null {
-  try {
-    if (typeof sessionStorage === 'undefined') return null
-    return usedAgentIds()
-  } catch {
-    return null
-  }
-}
-
 /** Einzelne sichtbare Agenten, in Büscheln um die sieben Cluster. */
 export function layoutAgentDots(): AgentDot[] {
-  const used = sessionUsedAgents()
-  const shown = used ? visibleAgents().filter((a) => used.has(a.id)) : visibleAgents()
+  const shown = visibleAgents()
   const byDept = new Map<DepartmentId, ReturnType<typeof visibleAgents>>()
   for (const a of shown) {
     const list = byDept.get(a.department) || []
