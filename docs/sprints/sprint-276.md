@@ -12,8 +12,8 @@ den Fokus erst, wenn das Terminblatt offen ist.
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S276-1 | Unmount | `DriveMode.tsx` | Cleanup: `stopListen`, `stopSpeak`, `endVoiceSession`, Bildschirm nicht wach halten. `hear()` schaltet das Mikrofon wieder aus |
-| S276-2 | Fokus | `Calendar.tsx` | Kein Autofokus beim Öffnen. `titleRef.focus()` nur bei `sheetOpen` |
+| S276-1 | Unmount | `DriveMode.tsx` | Cleanup: `stopListen`, `stopSpeak`, `endVoiceSession`. Mic-Knopf bleibt klickbar und bricht ab (`hearGen`), nicht `disabled` während des Hörens |
+| S276-2 | Fokus | `Calendar.tsx` | `titleRef.focus()` nur bei `sheetOpen`. Blatt `inert` + `pointer-events: none` wenn zu — sonst fokussiert WebView das versteckte Titel-Feld |
 
 ## Abbruchkriterium
 

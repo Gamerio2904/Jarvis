@@ -2564,6 +2564,8 @@ assert.equal(looksTruncated('Die Lage ist volatil. bis eine Entscheidung fällt.
 assert.equal(looksTruncated('ca. drei Kilometer.'), false)
 assert.equal(looksTruncated('ggf. der Zug fährt.'), false)
 assert.equal(looksTruncated('z. B. das Wetter.'), false)
+assert.equal(looksTruncated('Dr. Meier kommt später.'), false)
+assert.equal(looksTruncated('usw. mehr folgt hier.'), false)
 
 assert.equal(isBriefAsk('Guten Morgen'), true)
 assert.equal(parseGreeting('Guten Morgen'), null)

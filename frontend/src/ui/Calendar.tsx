@@ -285,7 +285,13 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       {sheetOpen ? (
         <div className="cal-sheet-backdrop" onClick={() => setSheetOpen(false)} aria-hidden />
       ) : null}
-      <div className={`cal-sheet${sheetOpen ? ' is-open' : ''}`} role="dialog" aria-label="Termin anlegen">
+      <div
+        className={`cal-sheet${sheetOpen ? ' is-open' : ''}`}
+        role="dialog"
+        aria-label="Termin anlegen"
+        aria-hidden={!sheetOpen}
+        inert={!sheetOpen}
+      >
         <h3>Termin anlegen</h3>
         <form
           className="cal-form"
@@ -299,9 +305,16 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Titel"
-            disabled={busy}
+            disabled={busy || !sheetOpen}
+            tabIndex={sheetOpen ? 0 : -1}
           />
-          <input type="time" value={time} onChange={(e) => setTime(e.target.value)} disabled={busy} />
+          <input
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            disabled={busy || !sheetOpen}
+            tabIndex={sheetOpen ? 0 : -1}
+          />
           <div className="cal-sheet-actions">
             <button type="button" className="ghost-btn" disabled={busy} onClick={() => setSheetOpen(false)}>
               Abbrechen

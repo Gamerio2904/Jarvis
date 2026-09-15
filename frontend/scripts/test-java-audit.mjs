@@ -39,7 +39,7 @@ assert.match(device, /setTorchMode/)
 assert.doesNotMatch(device, /Manifest\.permission\.CAMERA/, 'Taschenlampe ohne Kamera-Recht')
 assert.match(device, /SMS_SENT/, 'sentIntent für SMS')
 assert.match(device, /getResultCode\(\)/, 'Funk-Ergebnis, nicht nur Übergabe an das System')
-assert.match(device, /10_000/, 'SMS-Timeout 10 s')
+assert.match(device, /parts\.size\(\) - 1/, 'Multipart: sentIntent nur am letzten Teil')
 
 const widget = read('notify/JarvisGlanceWidget.java')
 assert.match(widget, /PendingIntent\.getBroadcast\(ctx, 44, toggle/, 'Widget-Toggle an die eigene Klasse')

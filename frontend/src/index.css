@@ -5548,10 +5548,12 @@ html.theme-wipe-dark::before {
   border-top: 1px solid var(--border);
   border-radius: 20px 20px 0 0;
   padding: 18px 16px calc(96px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
 }
 
 .cal-sheet.is-open {
   transform: translateY(0);
+  pointer-events: auto;
 }
 
 .cal-sheet-actions {

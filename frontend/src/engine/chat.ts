@@ -596,8 +596,11 @@ export async function streamChat(
     }
     if (accepted) persistResearchDone('running')
     const routed: Array<RouteHit | null> = []
-    for (const text of routeTexts) {
-      routed.push(await routeDeterministic(conversationId, text))
+    /** Widerspruch nach Recherche/LLM nicht erst durch den Parser jagen — der würde suchen verhindern. */
+    if (!contradictionAsk) {
+      for (const text of routeTexts) {
+        routed.push(await routeDeterministic(conversationId, text))
+      }
     }
     const found = routed.filter((h): h is RouteHit => Boolean(h))
     if (found.length && (found.length === routed.length || routed.length > 1)) {

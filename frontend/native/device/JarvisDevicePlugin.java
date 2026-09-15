@@ -526,7 +526,9 @@ public class JarvisDevicePlugin extends Plugin {
         try {
             if (parts != null && parts.size() > 1) {
                 ArrayList<PendingIntent> sentList = new ArrayList<>();
-                for (int i = 0; i < parts.size(); i += 1) sentList.add(sentPi);
+                for (int i = 0; i < parts.size(); i += 1) {
+                    sentList.add(i == parts.size() - 1 ? sentPi : null);
+                }
                 sm.sendMultipartTextMessage(number, null, parts, sentList, null);
             } else {
                 sm.sendTextMessage(number, null, text, sentPi, null);

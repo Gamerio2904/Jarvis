@@ -487,6 +487,7 @@ export function DriveMode({
   const [ask, setAsk] = useState(() => readInterrupt())
   const navBusy = useRef(false)
   const listenLock = useRef(false)
+  const hearGen = useRef(0)
   const spokenHaz = useRef(new Set<string>())
   const loggedIn = spotifyLoggedIn()
   const configured = spotifyConfigured()
@@ -533,6 +534,7 @@ export function DriveMode({
   useEffect(() => {
     void setKeepScreenOn(true)
     return () => {
+      hearGen.current += 1
       listenLock.current = false
       void stopListen()
       void stopSpeak()
@@ -626,28 +628,38 @@ export function DriveMode({
 
   function hear() {
     if (hearing || listenLock.current) {
+      hearGen.current += 1
       listenLock.current = false
       setHearing(false)
       setHearMsg(null)
       void stopListen()
+      void stopSpeak()
       void endVoiceSession()
       return
     }
+    const gen = ++hearGen.current
     listenLock.current = true
     setHearing(true)
     setHearMsg('Ich höre…')
     void (async () => {
+      const stale = () => gen !== hearGen.current
       try {
         await beginVoiceSession()
+        if (stale()) return
         await stopSpeak()
         await stopListen()
         await new Promise((r) => window.setTimeout(r, 180))
+        if (stale()) return
         const ok = await requestMicPermission()
+        if (stale()) return
         if (!ok) {
           setHearMsg('Mikrofon erlauben — sonst höre ich hier nichts.')
           return
         }
-        const res = await listenOnce((partial) => setHearMsg(partial || 'Ich höre…'))
+        const res = await listenOnce((partial) => {
+          if (!stale()) setHearMsg(partial || 'Ich höre…')
+        })
+        if (stale()) return
         const text = (res.text || '').trim()
         if (!text) {
           setHearMsg(res.message || 'Nichts gehört. Nochmal Mic.')
@@ -655,6 +667,7 @@ export function DriveMode({
         }
         setHearMsg(text)
         const reply = (await onCommand?.(text)) || ''
+        if (stale()) return
         const line = reply.trim()
         if (line) {
           setHearMsg(line)
@@ -663,12 +676,16 @@ export function DriveMode({
           setHearMsg('Verstanden.')
         }
       } catch (err) {
-        setHearMsg(err instanceof Error ? err.message : 'Zuhören fehlgeschlagen.')
+        if (!stale()) setHearMsg(err instanceof Error ? err.message : 'Zuhören fehlgeschlagen.')
       } finally {
-        await endVoiceSession()
-        listenLock.current = false
-        setHearing(false)
-        window.setTimeout(() => setHearMsg(null), 5_200)
+        if (!stale()) {
+          await endVoiceSession()
+          listenLock.current = false
+          setHearing(false)
+          window.setTimeout(() => {
+            if (!stale()) setHearMsg(null)
+          }, 5_200)
+        }
       }
     })()
   }
@@ -845,8 +862,8 @@ export function DriveMode({
           type="button"
           className={`drive-mic${hearing ? ' is-hot' : ''}`}
           onClick={hear}
-          aria-label="Hören"
-          disabled={hearing}
+          aria-label={hearing ? 'Hören abbrechen' : 'Hören'}
+          aria-pressed={hearing}
         >
           Mic
         </button>
