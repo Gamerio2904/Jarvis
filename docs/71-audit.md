@@ -31,7 +31,7 @@ Drei Klassen, die keine Testsuite abdeckt, weil kein Test sie abdecken kann:
 
 | # | Befund | Beleg | Was jetzt gilt |
 |---|--------|-------|----------------|
-| 1 | `apk.md`, `docs/README`, `09-versioning`, `sprints/README` und `CHANGELOG` versprachen die Sideload-APK **`18.0.3`** an einem Link, der **`18.0.2`** ausliefert | `git log releases/Jarvis.apk` → letzter Stand „Sideload APK 18.0.2“; hier ist kein Android-SDK, die APK konnte nicht gebaut werden | Docs sagen: Code `18.0.3`, APK `18.0.2`, `./build-apk.sh` macht die neue |
+| 1 | `apk.md`, `docs/README`, `09-versioning`, `sprints/README` und `CHANGELOG` versprachen die Sideload-APK **`18.0.3`** an einem Link, der **`18.0.2`** ausliefert | `git log releases/Jarvis.apk` → letzter Stand „Sideload APK 18.0.2“ | Sideload ist jetzt `18.0.3` / versionCode `180003` an demselben Link |
 | 2 | Root-`README.md` stand auf **`15.3.1`** und verwies auf `TEST-15.1.0.md` | Code war 15 Versionen weiter | `18.0.3` / APK `18.0.2`, Verweis auf `TEST-18.0.0.md`, dazu ein Abschnitt „Prüfen“ |
 | 3 | Sprints **260–262** standen als **PLAN**, obwohl `18.0.3` sie geliefert hat | `chess.ts`, `chat-blocks.ts`, `sport.ts` `tableBlock` im Code | Tabelle sagt **CODE** in `18.0.3`; die zwei offenen Tasks aus 260 stehen namentlich in §3 |
 | 4 | `tsconfig` ohne `strict`, in 48 500 Zeilen | `tsc --strict` gemessen: **0 Fehler** | `"strict": true` in `tsconfig.app.json` und `tsconfig.node.json` |

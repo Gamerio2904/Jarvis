@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.0.3` — Sideload-APK und Testchips 181 → 284 — *CODE + APK*
+
+Sideload **`18.0.3`** (versionCode `180003`):  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Die internen Testprompts (Einstellungen → Debug, Gold-Chips, Probe) decken jetzt die Screenshot-Bugs mit ab. Vorher waren 181 Chips grün, während „Lidl“, „Lass uns Schach spielen“ und „2. Bundesliga“ in keiner Gold-Liste standen. 103 neue Chips, jeder gegen den Router gemessen, plus 15 Verhörer-Sätze so wie das Mikrofon sie liefert, plus eine Storyline, die die Bugs der Reihe nach durchspielt. `npm run test:prompts` sagt `ok 284 chips`.
+
 ### `18.0.3` — Tiefenprüfung: Sprachmodus, Wecker, erfundene Zahlen — *CODE*
 
 Vier getrennte Durchgänge (Motor, Oberfläche, Android, toter Code) lasen den
@@ -44,7 +51,7 @@ Testläufe waren vorher grün — diese Dinge sah keiner davon.
 
 ### `18.0.3` — Screenshot-Fixes: Lidl, Schach, Tabelle, Stimme — *CODE*
 
-Code **`18.0.3`**, Sideload-APK bleibt `18.0.2` — die APK für `18.0.3` ist noch nicht gebaut (`./build-apk.sh` setzt versionCode `180003`). Die Aufnahmen vom 15.9.2026.
+Code **`18.0.3`**, Sideload-APK **`18.0.3`** (versionCode `180003`). Die Aufnahmen vom 15.9.2026.
 
 - **CarPlay Lidl:** „Lidl“ ist die Kette, nicht der tschechische Ort Lidlovy Dvory. Nächster Markt über OSM in der Nähe, Geocoder darf den Markennamen nicht als Dorf nehmen.
 - **Schach:** „Lass uns Schach spielen“, „Bauer e2 e4“, „Zeig mir das Schachbrett“ gehen an den Schach-Parser. Spotify und Karte greifen nicht. Brett als Chat-Block (Director reicht `blocks` durch), TTS liest nur den Satz. Im Fahrmodus bleibt die Navi-Karte zu, wenn Schach antwortet.
