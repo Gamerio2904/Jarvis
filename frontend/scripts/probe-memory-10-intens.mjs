@@ -8,6 +8,7 @@ import { memoryBlock } from '../src/engine/memory-block.ts'
 import { PROBE_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { qualityPack, resetPackExistsProbe } from '../src/engine/quality-pack.ts'
 import { DEFAULT_SETTINGS, APP_VERSION } from '../src/engine/store.ts'
+import { PKG_VERSION } from './app-version.mjs'
 
 resetPackExistsProbe()
 
@@ -55,7 +56,7 @@ function check(id, ok, detail) {
   rows.push({ id, ok: Boolean(ok), detail: String(detail) })
 }
 
-check('APP 18.0.3', APP_VERSION === '18.0.3', APP_VERSION)
+check('APP = package.json', APP_VERSION === PKG_VERSION, `${APP_VERSION} / ${PKG_VERSION}`)
 
 // --- Live write keys (Merk → notiz), not Gold-synthetic keys ---
 const g1facts = parseMemoryFacts('Ich trinke gerne Mate.')

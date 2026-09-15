@@ -6,8 +6,9 @@ import { pickRoute } from '../src/engine/route-pick.ts'
 import { formatClock } from '../src/engine/remind-parse.ts'
 import { retrievePacks } from '../src/engine/knowledge-retrieve.ts'
 import { APP_VERSION } from '../src/engine/store.ts'
+import { PKG_VERSION } from './app-version.mjs'
 
-assert.equal(APP_VERSION, '18.0.3')
+assert.equal(APP_VERSION, PKG_VERSION)
 
 const globe = parseHudIntent('Öffne die Weltkugel')
 assert.equal(globe?.kind, 'view')
