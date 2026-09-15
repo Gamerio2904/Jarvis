@@ -13,7 +13,7 @@ und Gedächtnis bleiben, was sie sind.
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S283-1 | Typ + Store | `store.ts` | `Idea`: `id`, `title`, `body`, `status: 'open'\|'parked'\|'done'`, `source_conversation_id`, `created_at`, `updated_at`. `listIdeas`, `addIdea`, `putIdea`. IndexedDB-Store `ideas`, Migration wie `notes` |
+| S283-1 | Typ + Store | `store.ts` | `Idea`: `id`, `title`, `body`, `status: 'open'\|'parked'\|'done'`, `plan: IdeaPlan \| null` (in 283 immer `null`; Schema kommt in 285), `source_conversation_id`, `created_at`, `updated_at`. `listIdeas`, `addIdea`, `putIdea`. IndexedDB-Store `ideas`, Migration wie `notes` |
 | S283-2 | Parser | `engine/idea-parse.ts` **neu** | `idee[:\s](.+)`, `neue idee\s+(.+)`, `merk(?:e)? dir die idee\s+(.+)`, `ich hab(?:e)?(?:\s+da)?(?:\s+ne\|\s+eine)? idee[:\s]+(.+)`. Titel = erster Satz oder bis 80 Zeichen, Rest = `body`. Rückgabe `{ kind:'create', title, body }` |
 | S283-3 | Abgrenzung | `idea-parse.ts` + Tests | `Notiz Milch`, `Todo Milch`, `ich muss Milch`, `merk dir ich mag Milch`, `lern das` → **kein** Treffer. `Idee: Schach gegen den Körper halten` → Treffer |
 | S283-4 | Agent | `parse-catalog.ts` | Ein Eintrag `idea`, `sideEffect: 'write'`, `autonomy: 'parser'`. Kein `promptSlice`, der andere Agenten startet. Deutsch in der Karte: **Idee** |
@@ -25,6 +25,7 @@ und Gedächtnis bleiben, was sie sind.
 
 - RICE/ICE, Prioritätszahl, Domänen-Tag-Pflicht.
 - Stilles Ernten aus dem Chat.
+- Sprintplan beim Festhalten anlegen (das ist 285/286).
 - Notion/Obsidian.
 - Neuer Organizer-Agent.
 

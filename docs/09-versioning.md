@@ -588,17 +588,18 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 
 ### `18.2` — Ideen halten [`72-next.md`](./72-next.md) **PLAN**
 
-Ideen festhalten und wiederfinden. Widerspruch und nächster Schritt nur
-auf Zuruf. Kein Project-Architect-Organizer, kein RICE, kein Notion.
+Ideen festhalten und wiederfinden. **Eine Sprint-Vorlage**, Jarvis füllt
+sie auf Zuruf und darf Custom-Sprints anlegen. Kein Project-Architect-
+Organizer, kein RICE, kein Notion, Plan wird nicht ausgeführt.
 Sprints 272–282 bleiben Audit-Reste in [`71-audit.md`](./71-audit.md).
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `18.2.0` | Idee festhalten | 283 PLAN |
 | `18.2.1` | Überblick | 284 PLAN |
-| `18.2.2` | Erinnerung an Idee, nur auf Auftrag | 285 PLAN |
-| `18.2.3` | Widerspruch auf Zuruf | 286 PLAN |
-| `18.2.4` | Ein nächster Schritt auf Zuruf | 287 PLAN |
+| `18.2.2` | Sprintplan-Vorlage im Code | 285 PLAN |
+| `18.2.3` | Plan auf Zuruf füllen, Custom erlaubt | 286 PLAN |
+| `18.2.4` | Ergänzen, Custom nach Satz, Erinnerung | 287 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

@@ -10,7 +10,7 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 
 1. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.7`. Kein LLM-Organizer (§0b)
 2. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–282**. 272 zuerst (Java auf dem Gerät). Zielversionen in 71 (`18.0.4`/`18.0.5`) sind Anker — Code steht bei `18.0.7`, vor dem Ziehen neu verankern
-3. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287**. Festhalten, Überblick, Erinnerung auf Auftrag, Widerspruch und nächster Schritt auf Zuruf. Kein Architect-Organizer, kein RICE, kein Notion
+3. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287**. Festhalten, Überblick, **feste Sprint-Vorlage**, Jarvis füllt auf Zuruf und darf Custom-Sprints anlegen. Kein Architect-Organizer, kein RICE, kein Notion, Plan wird nicht ausgeführt
 4. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
 5. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
 6. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
@@ -54,12 +54,12 @@ Begründung und Reel-Triage: [`70-next.md`](./70-next.md).
 |---------|--------|-------|
 | `18.2.0` | [283](./sprints/sprint-283.md) | Idee festhalten |
 | `18.2.1` | [284](./sprints/sprint-284.md) | Überblick: Liste, Parken, Erledigt |
-| `18.2.2` | [285](./sprints/sprint-285.md) | Erinnerung an eine Idee, nur auf Auftrag |
-| `18.2.3` | [286](./sprints/sprint-286.md) | Widerspruch auf Zuruf |
-| `18.2.4` | [287](./sprints/sprint-287.md) | Ein nächster Schritt auf Zuruf |
+| `18.2.2` | [285](./sprints/sprint-285.md) | Sprintplan-Vorlage im Code |
+| `18.2.3` | [286](./sprints/sprint-286.md) | Plan auf Zuruf füllen, Custom erlaubt |
+| `18.2.4` | [287](./sprints/sprint-287.md) | Ergänzen, Custom nach Satz, Erinnerung |
 
-Harte Kette: 283 → 284. 285/286/287 brauchen 283 und 284, sind sonst frei.
-Kein Architect-Organizer. Kein RICE. Kein Notion. Kein stilles Ticket.
+Harte Kette: 283 → 284 → 285. 286 braucht das Schema. 287 braucht die Vorlage.
+Kein Architect-Organizer. Kein RICE. Kein Notion. Plan wird nicht ausgeführt.
 
 Begründung: [`72-next.md`](./72-next.md). Audit-Zahlen 272–282 bleiben
 [`71-audit.md`](./71-audit.md).

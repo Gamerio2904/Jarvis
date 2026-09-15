@@ -9,8 +9,9 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Analyse der Gemini-Skizze *Project Architect / Idea Curator* und Sprints
 283–287: [`72-next.md`](./72-next.md). Kein Code. Gut: festhalten, Überblick,
-Erinnerung und Denk-Hilfe auf Zuruf. Won’t: Organizer-Herzstück, RICE,
-Notion, Auto-Roadmap, stille Tickets. Zahlen 272–282 bleiben Audit-Reste.
+**feste Sprint-Vorlage**, Jarvis füllt auf Zuruf und darf Custom-Sprints
+anlegen. Won’t: Organizer-Herzstück, RICE, Notion, Auto-Roadmap, Plan
+ausführen. Zahlen 272–282 bleiben Audit-Reste.
 
 ### `18.0.7` — Körper live, Chat darunter oder Vollbild — *CODE + APK*
 

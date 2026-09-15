@@ -41,4 +41,4 @@ Park Idee 1
 ```
 
 Die erste Zeile verschwindet aus der offenen Liste, bleibt unter
-`alle Ideen` als geparkt.
+`alle Ideen` als geparkt. Den Sprintplan zeigt 285.

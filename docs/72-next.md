@@ -1,70 +1,99 @@
 # 72 — Ideen halten **PLAN** (`18.2`)
 
-Ausgangspunkt: Code `18.0.7`. Anlass ist keine Lücke im Schach oder in der
-Lage, sondern eine Gemini-Skizze *Project Architect / Idea Curator*: Jarvis
-soll Ideen sortieren und den Überblick behalten.
+Ausgangspunkt: Code `18.0.7`. Anlass ist eine Gemini-Skizze *Project
+Architect / Idea Curator*: Jarvis soll Ideen sortieren und den Überblick
+behalten.
 
 Die Leitentscheidung bleibt: **Parser wählen, ein Agent pro Zug, das Modell
 formuliert nur auf Zuruf.** Kein Sprint hier gibt einem Modell die Regie über
-andere Agenten, eine zweite Datenbank oder eine selbst gebaute Roadmap.
+andere Agenten oder eine zweite Datenbank.
+
+**Der Sprintplan ist eine Vorlage.** Jarvis füllt sie aus. Er darf Zeilen
+ergänzen und Custom-Sprints anlegen, wenn die Idee das braucht. Er führt
+den Plan nicht aus und schreibt keine Dateien nach `docs/sprints/`.
 
 Sprints **272–282** sind vergeben — Audit-Reste in
 [`71-audit.md`](./71-audit.md) §4. Diese Schiene beginnt bei **283**.
 
 ---
 
-## 0. Was die Skizze will
+## 0. Was die Skizze will — und was wir davon nehmen
 
-Die Aufnahmen zeigen einen englisch benannten Agenten als **Herzstück**:
-Ideen einsammeln, bewerten (RICE/ICE), über Domänen hinweg zuordnen,
-selbst Meilensteine und Tickets schreiben, wöchentlich nachhaken, auf
-Wunsch den Anwalt des Teufels spielen. Dahinter sitzen oft Notion oder
-Obsidian als zweites Gedächtnis und ein Netz aus Coder-/Research-Rollen.
+Die Aufnahmen zeigen einen englisch benannten Agenten als Herzstück:
+Ideen bewerten (RICE/ICE), selbst Meilensteine und Tickets schreiben,
+wöchentlich nachhaken. Notion oder Obsidian daneben.
 
-Der **Bedarf** darunter ist echt und deutsch: *Ich habe Ideen, sie
-verlaufen, ich will sie wiederfinden, und manchmal will ich Widerspruch
-oder den einen nächsten Schritt.* Das ist kein Organizer-Problem. Das ist
-eine **Liste mit Absicht**, plus zwei optionale Denk-Hilfen auf Zuruf.
+Der Bedarf darunter: *Ich habe Ideen, sie verlaufen, ich will sie
+wiederfinden, und ich will daraus einen Plan — in der Form, die Jarvis
+schon für sich selbst nutzt.*
 
-Jarvis hat die Teile schon: Notizen, Todos, Erinnerungen, Memory-Gate,
-Teach-Packs, Research, Director, Curator. Neu ist nur der **Typ Idee** —
-nicht still, nicht Fachwissen, nicht Einkauf — und die Sätze, die ihn
-treffen.
+Jarvis hat Notizen, Todos, Erinnerungen, Director, Curator. Neu ist der
+**Typ Idee** plus **ein Sprintplan-Schema**. Das Schema kommt aus dem
+Code (285), nicht aus dem Modell. Das Modell füllt Felder (286) und darf
+Custom-Sprints anhängen (286/287).
 
 ---
 
-## 1. Was gut ist
+## 1. Die Vorlage (hart, nicht verhandelbar)
 
-| Wunsch | Warum das zu Jarvis passt | Wohin |
-|--------|---------------------------|--------|
-| „Idee X“ bewusst festhalten | Wie Notiz, aber mit Titel und Status. Kein stilles Mitschreiben | **283** |
-| Überblick: was liegt | Chat-Liste, lokal, Hausstand nimmt sie mit | **284** |
-| Erinnern, wenn etwas liegt — **nach Auftrag** | Erinnerungen (Sprint 52) existieren. `in N Wochen` fehlt noch | **285** |
-| Widerspruch auf Zuruf | Ein Hirn-Zug, deutsch, kurz. Qualität ohne Dauerfeuer | **286** |
-| Ein nächster Schritt auf Zuruf | Ein Satz, optional ein Todo nach Ja. Kein Planer | **287** |
+Jedes ausgefüllte Plan-Objekt folgt **genau** diesen drei Kern-Sprints.
+Titel der Kerne sind fest. Inhalt (Ziel, Lieferumfang, Won’t, Abbruch,
+Manuell) füllt Jarvis.
 
-Das trifft die PO-Achsen: die Antwort wird nützlicher, die Funktion bleibt
-lokal und kostenlos, Latenz entsteht nur wenn jemand widersprechen oder
-den nächsten Schritt **verlangt**.
+```
+# {Idee.title} — PLAN
+
+Sprint 1 — Kern     was zuerst wahr sein muss
+Sprint 2 — Härten   Abgrenzung, Tests, was schiefgehen darf
+Sprint 3 — Probe    woran man es merkt (ein bis drei Sätze zum Ausprobieren)
+```
+
+Jede Karte hat dieselben Felder wie ein Jarvis-Sprint:
+
+| Feld | Pflicht | Inhalt |
+|------|---------|--------|
+| `n` | ja | `1` / `2` / `3` oder `C1` / `C2` / … |
+| `kind` | ja | `core` oder `custom` |
+| `title` | ja | Kern: fest (`Kern`, `Härten`, `Probe`). Custom: frei, deutsch |
+| `ziel` | ja | Ein kurzer Absatz. Leer nur wenn `entfällt: {grund}` |
+| `lieferumfang` | ja | Liste `{ id, task, anleitung }`. Darf leer sein, wenn entfällt |
+| `wont` | ja | Liste, mindestens ein Satz oder `—` |
+| `abbruch` | ja | Ein Satz |
+| `manuell` | nein | Probe-Sätze, vor allem Sprint 3 |
+
+**Ergänzen (erlaubt, ohne neues Sprint-Objekt):** zusätzliche Zeilen in
+`lieferumfang` eines Kern-Sprints. Beispiel: Kern bekommt nicht nur
+„Parser“, sondern auch „Hausstand-Zähler“.
+
+**Custom-Sprint (erlaubt, neues Objekt `kind: 'custom'`):** nur wenn die
+Arbeit in 1–3 nicht passt. Typische Gründe, die Jarvis nennen **muss**
+im `ziel`: Gerät, Sideload, Parser-Konflikt mit einem bestehenden
+Agenten, Risiko/Widerspruch, Erinnerung/Auftrag. Nummer `C1`, `C2`, …
+hinter Sprint 3. Kein Custom darf die Kerne ersetzen.
+
+**Entfällt:** ein Kern-Sprint darf leer bleiben, wenn die Idee ihn nicht
+braucht. Dann `ziel = "entfällt: …"` und leerer Lieferumfang. Die Karte
+bleibt stehen, damit die Vorlage erkennbar ist.
+
+Das Schema liegt in `engine/idea-plan.ts` (Sprint 285). Das Modell
+erfindet **keine** anderen Feldnamen, keine RICE-Spalte, keine Daten,
+keine Version `18.x` der App.
 
 ---
 
-## 2. Was nicht gut ist
+## 2. Was gut ist / was nicht
 
-| Vorschlag aus der Skizze | Urteil | Warum |
-|--------------------------|--------|-------|
-| *Project Architect* / *Idea Curator* als Herzstück | **Won’t** | Englische Rollen-Namen, fünfter Organizer. Director und Curator existieren ([`66-agents-ist.md`](./66-agents-ist.md) §1b, [`70-next.md`](./70-next.md) §0b) |
-| RICE / ICE als Produkt | **Won’t** | Scores ohne Marktdaten sind Theater. Jarvis bewertet keine Ideen, er hält sie |
-| Notion / Obsidian als zweite DB | **Won’t** | Zweites Gedächtnis driftet. Hausstand + IndexedDB sind die eine Quelle |
-| Auto-Roadmap, Meilensteine, Quartalsplan | **Won’t** | Halluzinierte Termine. Kalender bleibt Kalender |
-| Stille Tickets an Coder / Research | **Won’t** | Ein Agent pro Zug. Research nur auf Zuruf, Coder gibt es nicht |
-| Querschnitt-Matcher über Domänen | **Won’t** | Embedding-Router ist Freeze. Falsche Verknüpfungen kosten Vertrauen |
-| Wöchentliches Nachhaken ohne Auftrag | **Won’t** | Unerbetene Pings. Erinnerung nur nach Satz |
-| Ideen still aus jedem Chat ernten | **Won’t** | Teach ist bewusst (`lern das`). Memory-Gate bleibt für Vorlieben |
-| LLM wählt, welcher Agent eine Idee „weiterbaut“ | **Won’t** | Genau der Organizer, den §0b verbietet |
-
-Gut ist der **Nutzerwille**. Schlecht ist, daraus ein zweites Produkt zu
-machen.
+| Wunsch | Urteil | Wohin |
+|--------|--------|-------|
+| Idee bewusst festhalten | **Ja** | 283 |
+| Überblick | **Ja** | 284 |
+| Feste Sprint-Vorlage, Jarvis füllt | **Ja** | 285 + 286 |
+| Zeilen ergänzen, Custom-Sprints wenn nötig | **Ja** | 286, 287 |
+| Erinnerung an Idee oder Sprint, nach Auftrag | **Ja** | 287 |
+| Architect als Herzstück / LLM-Organizer | **Won’t** | — |
+| RICE/ICE, Notion, Auto-Roadmap, stille Tickets | **Won’t** | — |
+| Plan selbst ausführen (Coder, Research starten) | **Won’t** | — |
+| `docs/sprints/sprint-NNN.md` ins Repo schreiben | **Won’t** | Plan lebt an der Idee im Hausstand |
 
 ---
 
@@ -72,18 +101,14 @@ machen.
 
 | Baustein | Datei | Rolle in `18.2` |
 |----------|-------|-----------------|
-| Notiz | `tools-parse.ts` `note_create` / `note_list`, `store.addNote` | **Nicht** umbiegen. „Notiz Milch“ bleibt Notiz |
-| Todo | `tools-parse.ts`, `store.addTodo` | 287 darf **nach Ja** ein Todo anlegen, nie still |
-| Erinnerung | `remind-parse.ts`, `store.addReminder` | 285 hängt `idea_id` an den Titel oder an `args`, erweitert `REL_UNIT` um Wochen |
-| Memory / Curator | `memory-parse.ts`, `agents/curator.ts` | Unangetastet. Idee ≠ Vorliebe |
-| Teach / Pack | `knowledge.ts`, Sprint 203 | Unangetastet. Idee ≠ Fachwissen |
-| Research | `research-parse.ts` | Nur wenn 286/287 explizit „recherchier“ hören |
-| Director / Katalog | `director.ts`, `parse-catalog.ts` | Ein neuer Parser-Agent `idea`, `autonomy: 'parser'` |
-| Hausstand | `backup.ts` | Neue Store-Tabelle `ideas` mitexportieren |
-| Chat-Liste | `persistLastList` in `tools.ts` | 284 listet wie Todos |
+| Notiz / Todo | `tools-parse.ts`, `store.ts` | Nicht umbiegen. Todo aus einem Plan-Schritt nur nach Ja (287) |
+| Erinnerung | `remind-parse.ts` | 287, `REL_UNIT` plus `wochen?` |
+| Director / Katalog | `director.ts`, `parse-catalog.ts` | Ein Parser-Agent `idea` |
+| Werkzeug-Vertrag | `tool-contract.ts` | 286 liefert JSON am Schema, nicht freien Fließtext als Wahrheit |
+| Hausstand | `backup.ts` | `ideas` inklusive `plan` |
+| Chat-Liste | `persistLastList` | 284 |
 
-Kein neues Overlay, keine zweite Lage-Sicht, kein englischer Agentenname
-in der UI. Katalog-Id darf `idea` heißen, Antworten bleiben deutsch.
+Kein Overlay, keine zweite Lage-Sicht. Katalog-Id `idea`, UI deutsch.
 
 ---
 
@@ -93,62 +118,54 @@ in der UI. Katalog-Id darf `idea` heißen, Antworten bleiben deutsch.
 |---------|--------|-------|-----------|
 | `18.2.0` | [283](./sprints/sprint-283.md) | Idee festhalten (Store + Parser + Hausstand) | Must |
 | `18.2.1` | [284](./sprints/sprint-284.md) | Überblick: Liste, Parken, Erledigt | Must |
-| `18.2.2` | [285](./sprints/sprint-285.md) | Erinnerung an eine Idee, nur auf Auftrag | Should |
-| `18.2.3` | [286](./sprints/sprint-286.md) | Widerspruch auf Zuruf (ein Hirn-Zug) | Should |
-| `18.2.4` | [287](./sprints/sprint-287.md) | Ein nächster Schritt auf Zuruf | Should |
+| `18.2.2` | [285](./sprints/sprint-285.md) | Vorlage im Code, leerer Plan sichtbar | Must |
+| `18.2.3` | [286](./sprints/sprint-286.md) | Plan auf Zuruf füllen, Custom erlaubt | Should |
+| `18.2.4` | [287](./sprints/sprint-287.md) | Ergänzen, Custom nach Satz, Erinnerung | Should |
 
-Kette: **283 → 284**. 285/286/287 brauchen 283 (eine Idee muss existieren)
-und 284 (Auswahl per Nummer aus der letzten Liste). 286 und 287 sind frei
-zueinander. 285 ist frei von 286/287.
-
-Kein Meilenstein-Sprint. `18.2.4` ist das Ende der Schiene.
+Kette: **283 → 284 → 285**. 286 braucht 285 (Schema). 287 braucht 285;
+Füllen (286) ist keine harte Voraussetzung für ein handgeschriebenes
+Custom, aber die Vorlage muss stehen.
 
 ---
 
 ## 5. Gegen die PO-Prioritäten
 
-Vorgaben unverändert: hohe Antwortqualität, alles funktioniert, wenig
-Latenz, kostenlos und viel nutzbar — nur ändern, wenn Nutzen ohne Verlust.
-
 | Sprint | Qualität | Funktion | Latenz | Free |
 |--------|----------|----------|--------|------|
-| 283 | Idee bleibt Idee, nicht Notiz | Festhalten und Wiederfinden | Parser, 0 Tokens | lokal |
-| 284 | Überblick ohne Halluzination | Liste / Parken / Weg | Parser | lokal |
-| 285 | Nachhaken nur nach Satz | nutzt AlarmManager | wie Erinnerung | unverändert |
-| 286 | ehrlicher Widerspruch statt Lob | auf Zuruf | **ein** Cloud-Zug | ein Request |
-| 287 | ein Schritt, kein Roman | auf Zuruf, Todo nur nach Ja | **ein** Cloud-Zug | ein Request |
+| 283 | Idee bleibt Idee | Festhalten | Parser | lokal |
+| 284 | Überblick ohne Halluzination | Liste | Parser | lokal |
+| 285 | Vorlage fest, nicht vom Modell | leerer Plan lesbar | 0 Tokens | lokal |
+| 286 | Plan in Jarvis-Form, Custom begründet | auf Zuruf | **ein** Cloud-Zug | ein Request |
+| 287 | Nachziehen ohne Neu-Generieren | Parser + optional ein Zug | Parser oder ein Zug | lokal / ein Request |
 
-283 und 284 sind der Gewinn. 286 und 287 dürfen das Kontingent nur
-anfassen, wenn der Satz sie verlangt — sonst bleiben sie stumm.
+283–285 sind der Gewinn ohne Kontingent. 286 darf das Kontingent nur
+anfassen, wenn jemand „mach einen Sprintplan“ (oder gleichwertig) sagt.
 
 ---
 
 ## 6. Won’t (hart)
 
-- Katalog-Agent `architect` / `curator` / `organizer` / `meta` mit
-  `promptSlice`, der andere Agenten startet.
-- RICE, ICE, MoSCoW, Auto-Score, „Priorität 72/100“.
-- Notion, Obsidian, mem0, zweite JSON-Datei neben dem Hausstand.
-- Auto-Roadmap, Meilensteine, Gantt, Quartalsplan.
-- Stille Weitergabe an Research, Coder oder den Curator.
-- Querschnitt-Matcher, Embedding-Cluster, „passt zu deiner anderen Idee“.
-- Wöchentlicher Digest oder Notification ohne Auftrag.
-- Englische Rollen in der UI (*Project Architect*, *Idea Curator*).
-- Ideen aus jedem Chat still ernten.
-- Neues Overlay oder eine zweite Körper-Sicht nur für Ideen.
+- Katalog-Agent `architect` / `organizer` / `meta`, der andere Agenten startet.
+- RICE, ICE, Auto-Score, Quartalsplan, Gantt, erfundene Daten.
+- Notion, Obsidian, mem0, zweite Datei neben dem Hausstand.
+- Plan still beim Festhalten oder Listen erzeugen.
+- Plan als `docs/sprints/*.md` ins Git schreiben.
+- Research/Coder still aus einem gefüllten Plan anstoßen.
+- Custom-Sprint ohne Begründung im `ziel`.
+- Englische Rollen in der UI.
 
 ---
 
 ## 7. Abbruchkriterien
 
 - Ein zweiter LLM-Organizer steht im Katalog.
-- „Notiz Milch“ oder „Todo Milch“ wird eine Idee.
-- Eine Idee erscheint, die niemand festgehalten hat.
-- Jarvis schreibt von allein eine Roadmap oder ein Ticket.
-- Eine Erinnerung an eine Idee kommt, ohne dass jemand sie bestellt hat.
-- 286 oder 287 laufen ohne Zuruf (beim Festhalten oder beim Listen).
-- Hausstand-Export ohne `ideas`, nachdem 283 CODE ist.
-- RICE/ICE-Zahlen in einer Antwort.
+- „Notiz Milch“ wird eine Idee.
+- Ein Plan entsteht ohne Zuruf.
+- Jarvis startet Research oder legt Todos an, nur weil ein Plan existiert.
+- Ein Custom-Sprint hat kein `ziel` mit Grund.
+- Das Modell liefert andere Felder als das Schema — und der Code nimmt sie an.
+- RICE/ICE oder eine App-Version `18.x` in einem Ideen-Plan.
+- Hausstand ohne `ideas` / ohne `plan`-Feld, nachdem 285 CODE ist.
 
 Index: [`sprints/README.md`](./sprints/README.md) · Versionen:
 [`09-versioning.md`](./09-versioning.md) · Vorherige Schiene:

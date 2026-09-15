@@ -271,9 +271,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 272–282 | [`../71-audit.md`](../71-audit.md) | `18.0.4`–`18.1.0` | Audit-Reste (Gerät, Fakten, Skripte) | **PLAN** — Zahlen in 71, keine Einzeldateien |
 | 283 | [`sprint-283.md`](./sprint-283.md) | `18.2.0` | Idee festhalten | **PLAN** Must |
 | 284 | [`sprint-284.md`](./sprint-284.md) | `18.2.1` | Ideen-Überblick | **PLAN** Must |
-| 285 | [`sprint-285.md`](./sprint-285.md) | `18.2.2` | Erinnerung an Idee, nur auf Auftrag | **PLAN** Should |
-| 286 | [`sprint-286.md`](./sprint-286.md) | `18.2.3` | Widerspruch auf Zuruf | **PLAN** Should |
-| 287 | [`sprint-287.md`](./sprint-287.md) | `18.2.4` | Ein nächster Schritt auf Zuruf | **PLAN** Should |
+| 285 | [`sprint-285.md`](./sprint-285.md) | `18.2.2` | Sprintplan-Vorlage im Code | **PLAN** Must |
+| 286 | [`sprint-286.md`](./sprint-286.md) | `18.2.3` | Plan auf Zuruf füllen, Custom erlaubt | **PLAN** Should |
+| 287 | [`sprint-287.md`](./sprint-287.md) | `18.2.4` | Ergänzen, Custom nach Satz, Erinnerung | **PLAN** Should |
 
 **Aktuell:** Code **`18.0.7`**. Sideload-APK `18.0.7`, versionCode `180007`. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`. Schach-Overlay **CODE** in `18.0.4`. Schach-Gegner und Kugel-Pin **CODE** in `18.0.5`. Figurenfarbe und Körper-Zoom **CODE** in `18.0.6`. Körper mit Chat **CODE** in `18.0.7`. 270 nicht gezogen. Audit-Reste 272–282 **PLAN** in [`../71-audit.md`](../71-audit.md). Ideen halten 283–287 **PLAN** in [`../72-next.md`](../72-next.md).
 

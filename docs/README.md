@@ -77,7 +77,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 69 | [Modell-Grundlagen](./69-modell-grundlagen.md) | **REFERENZ** — Trainings- vs. Inferenzzeit, interne Sprache (Deutsch bleibt), Free-Tier-Grenzen |
 | 70 | [Zeigen und spielen 18.0](./70-next.md) | **PLAN** `18.0.0` — Chat-Blöcke, Schach-Modus, Kugel Tag/Nacht, Sprints 260–271 |
 | 71 | [Code-Audit 18.0.3](./71-audit.md) | **BEFUND + PLAN** — 12 Befunde behoben, Sprints 272–282 |
-| 72 | [Ideen halten 18.2](./72-next.md) | **PLAN** `18.2` — Idee festhalten, Überblick, Erinnerung/Widerspruch/Schritt auf Zuruf, Sprints 283–287 |
+| 72 | [Ideen halten 18.2](./72-next.md) | **PLAN** `18.2` — Idee, Überblick, Sprint-Vorlage die Jarvis füllt + Custom, Sprints 283–287 |
 | — | [APK](./apk.md) | Sideload `18.0.7`; Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
