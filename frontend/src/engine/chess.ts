@@ -50,7 +50,19 @@ const PIECE_MOVE = new RegExp(`${PIECE}\\s+${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*
 const PLAY =
   /\b(?:lass(?:t)?\s+(?:uns|mich)|las\s+uns|wollen\s+wir|spiel(?:en)?\s+wir)\s+schach\b|\bschach\s+spiel(?:en)?\b|^\s*(?:spiel(?:e)?(?:\s+mal)?|play)\s+schach\b/i
 
-export type ChessIntent = { kind: 'new' | 'show' | 'move'; move?: string; piece?: string }
+export type ChessIntent = {
+  kind: 'new' | 'show' | 'move' | 'castle'
+  move?: string
+  piece?: string
+  side?: 'short' | 'long'
+}
+
+/**
+ * Am Brett sagt niemand „König e1 g1“, sondern „Rochade“. Ohne diese Zeilen
+ * fiel der häufigste Zug der Eröffnung durch den Parser.
+ */
+const CASTLE = /\brochade\b|\broch(?:ier|ieren|iere|iert)\b|\b0\s*-\s*0(?:\s*-\s*0)?\b|\bo\s*-\s*o(?:\s*-\s*o)?\b/i
+const CASTLE_LONG = /\b(?:lang|lange|langen|gro(?:ss|ß)e?n?|damenseite|damenflügel)\b|0\s*-\s*0\s*-\s*0|o\s*-\s*o\s*-\s*o/i
 
 export function parseChessIntent(text: string, follow = false): ChessIntent | null {
   const t = normalizeUtterance(text.trim()).toLowerCase()
@@ -66,6 +78,7 @@ export function parseChessIntent(text: string, follow = false): ChessIntent | nu
   ) {
     return { kind: 'show' }
   }
+  if (CASTLE.test(t)) return { kind: 'castle', side: CASTLE_LONG.test(t) ? 'long' : 'short' }
   const piece = PIECE_MOVE.exec(t)
   if (piece) {
     return {
@@ -106,7 +119,7 @@ export async function handleChess(
     if (after.fen !== fen) saveFen(after.fen)
     return pack(note, after.fen)
   }
-  const move = intent.move || ''
+  const move = intent.kind === 'castle' ? castleUci(fen, intent.side === 'long') : intent.move || ''
   /**
    * Die genannte Figur wurde vorher nur zum Erkennen gelesen und dann
    * weggeworfen: „Dame e2 e4“ zog den Bauern auf e2 und meldete Erfolg. Wer
@@ -129,17 +142,28 @@ export async function handleChess(
       after.fen,
     )
   }
+  // Wer „Rochade“ gesagt hat, versteht „Zug e1–g1 ist nicht legal“ nicht.
+  const spoken = intent.kind === 'castle' ? `${intent.side === 'long' ? 'Lange' : 'Kurze'} Rochade` : ''
   const next = applyMove(fen, move)
   if (!next) {
-    return pack(`Zug ${prettyMove(move)} ist nicht legal. ${endLine(fen)}`, fen)
+    return pack(
+      spoken ? `${spoken} geht hier nicht. ${endLine(fen)}` : `Zug ${prettyMove(move)} ist nicht legal. ${endLine(fen)}`,
+      fen,
+    )
   }
   const engine = applyEngineIfBlack(next)
   saveFen(engine.fen)
-  const userLine = prettyMove(move)
+  const userLine = spoken ? `${spoken} ${prettyMove(move)}` : prettyMove(move)
   if (!engine.reply) {
     return pack(`${userLine}. ${endLine(engine.fen)}`, engine.fen)
   }
   return pack(`${userLine}. Ich spiele ${prettyMove(engine.reply)}. ${endLine(engine.fen)}`, engine.fen)
+}
+
+/** „Rochade“ als Zug der Seite, die am Zug ist. */
+function castleUci(fen: string, long: boolean): string {
+  const rank = sideToMoveWhite(fen) ? '1' : '8'
+  return `e${rank}${long ? 'c' : 'g'}${rank}`
 }
 
 /** Welche Figur steht auf dem Startfeld des Zugs? Leer, wenn das Feld frei ist. */
@@ -282,7 +306,25 @@ export function sideToMoveWhite(fen: string): boolean {
   return parseBoard(fen).white
 }
 
-function fenOf(grid: Sq[][], white: boolean, rest: string): string {
+/** Die Felder hinter der Stellung: Rochaderechte, En-passant-Feld, Zähler. */
+type State = { castle: string; ep: string; half: number; full: number }
+
+function parseState(fen: string): State {
+  const bits = fen.split(' ')
+  return {
+    castle: bits[2] && bits[2] !== '-' ? bits[2] : '',
+    ep: bits[3] && bits[3] !== '-' ? bits[3] : '',
+    half: Number.parseInt(bits[4] || '0', 10) || 0,
+    full: Number.parseInt(bits[5] || '1', 10) || 1,
+  }
+}
+
+/** Verlorene Rochaderechte streichen. */
+function dropRights(castle: string, letters: string): string {
+  return [...castle].filter((c) => !letters.includes(c)).join('')
+}
+
+function fenOf(grid: Sq[][], white: boolean, tail: string): string {
   const rows = grid.map((row) => {
     let s = ''
     let z = 0
@@ -300,14 +342,13 @@ function fenOf(grid: Sq[][], white: boolean, rest: string): string {
     if (z) s += String(z)
     return s
   })
-  const bits = rest.split(' ')
-  bits[0] = white ? 'w' : 'b'
-  return `${rows.join('/')} ${bits.join(' ')}`
+  return `${rows.join('/')} ${white ? 'w' : 'b'} ${tail}`
 }
 
 export function applyMove(fen: string, uci: string): string | null {
   if (!/^[a-h][1-8][a-h][1-8][qrbn]?$/.test(uci)) return null
   const { grid, white } = parseBoard(fen)
+  const st = parseState(fen)
   const ff = uci.charCodeAt(0) - 97
   const fr = 8 - Number(uci[1])
   const tf = uci.charCodeAt(2) - 97
@@ -318,9 +359,43 @@ export function applyMove(fen: string, uci: string): string | null {
   if (dest && dest.white === white) return null
   const df = tf - ff
   const dr = tr - fr
-  if (!legal(grid, piece, ff, fr, tf, tr, df, dr, dest)) return null
+  const dir = piece.white ? -1 : 1
+  const home = white ? 7 : 0
+  let capture = Boolean(dest)
+  let rookFrom = -1
+
+  if (piece.p === 'k' && dr === 0 && Math.abs(df) === 2) {
+    // Rochade: der König springt zwei Felder, der Turm setzt sich daneben.
+    if (fr !== home || ff !== 4) return null
+    const short = df > 0
+    if (!st.castle.includes(white ? (short ? 'K' : 'Q') : short ? 'k' : 'q')) return null
+    rookFrom = short ? 7 : 0
+    const tower = grid[home]?.[rookFrom]
+    if (!tower || tower.p !== 'r' || tower.white !== white) return null
+    const step = short ? 1 : -1
+    for (let f = 4 + step; f !== rookFrom; f += step) {
+      if (grid[home][f]) return null
+    }
+    // Nicht aus dem Schach, nicht durchs Schach. Das Zielfeld prüft die
+    // Königsprüfung weiter unten.
+    if (kingAttacked(grid, white)) return null
+    if (attacks(grid, 4 + step, home, !white)) return null
+  } else if (piece.p === 'p' && Math.abs(df) === 1 && dr === dir && !dest && st.ep === square(tf, tr)) {
+    // En passant: der geschlagene Bauer steht neben dem Zielfeld, nicht darauf.
+    const victim = grid[fr]?.[tf]
+    if (!victim || victim.p !== 'p' || victim.white === white) return null
+    grid[fr][tf] = null
+    capture = true
+  } else if (!legal(grid, piece, ff, fr, tf, tr, df, dr, dest)) {
+    return null
+  }
+
   grid[tr][tf] = piece
   grid[fr][ff] = null
+  if (rookFrom >= 0) {
+    grid[home][ff + (df > 0 ? 1 : -1)] = grid[home][rookFrom]
+    grid[home][rookFrom] = null
+  }
   if (piece.p === 'p' && (tr === 0 || tr === 7)) {
     const promo = uci[4] || 'q'
     grid[tr][tf] = { p: promo, white: piece.white }
@@ -328,13 +403,36 @@ export function applyMove(fen: string, uci: string): string | null {
   // Ein Zug, der den eigenen König im Schach lässt, ist keiner. Vorher durfte
   // jede Seite den König stehen lassen — und Jarvis zog ins Matt hinein.
   if (kingAttacked(grid, white)) return null
-  const rest = fen.split(' ').slice(1).join(' ')
-  return fenOf(grid, !white, rest)
+
+  // Rechte und Zähler mitschreiben: sonst bleibt `KQkq` stehen, nachdem der
+  // König gezogen ist, und das En-passant-Feld gilt die ganze Partie.
+  let castle = st.castle
+  if (piece.p === 'k') castle = dropRights(castle, white ? 'KQ' : 'kq')
+  if (piece.p === 'r' && fr === home) {
+    if (ff === 0) castle = dropRights(castle, white ? 'Q' : 'q')
+    if (ff === 7) castle = dropRights(castle, white ? 'K' : 'k')
+  }
+  // Ein in der Ecke geschlagener Turm nimmt das Recht des Gegners mit.
+  if (tr === (white ? 0 : 7) && (tf === 0 || tf === 7)) {
+    castle = dropRights(castle, white ? (tf === 0 ? 'q' : 'k') : tf === 0 ? 'Q' : 'K')
+  }
+  const ep = piece.p === 'p' && dr === 2 * dir ? square(ff, fr + dir) : ''
+  const half = capture || piece.p === 'p' ? 0 : st.half + 1
+  const full = white ? st.full : st.full + 1
+  return fenOf(grid, !white, `${castle || '-'} ${ep || '-'} ${half} ${full}`)
+}
+
+function square(file: number, rank: number): string {
+  return `${String.fromCharCode(97 + file)}${8 - rank}`
 }
 
 /** Greift die Gegenseite das Feld an? Pseudo-Züge, ohne Königsprüfung. */
 function attacks(grid: Sq[][], tf: number, tr: number, byWhite: boolean): boolean {
-  const dest = grid[tr]?.[tf] || null
+  // Auf einem leeren Feld steht ein gedachter Gegner: der Bauer schlägt nur
+  // diagonal auf ein besetztes Feld, und ohne diesen Platzhalter hielte die
+  // Rochade ein von einem Bauern gedecktes Durchgangsfeld für frei. Für alle
+  // anderen Figuren ändert der Platzhalter nichts.
+  const dest = grid[tr]?.[tf] || { p: 'p', white: !byWhite }
   for (let fr = 0; fr < 8; fr++) {
     for (let ff = 0; ff < 8; ff++) {
       const piece = grid[fr]?.[ff]

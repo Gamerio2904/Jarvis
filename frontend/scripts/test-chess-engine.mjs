@@ -21,7 +21,9 @@ const {
   applyMove,
   handleChess,
   inCheck,
+  legalMovesFrom,
   loadFen,
+  parseChessIntent,
   saveFen,
   sideToMoveWhite,
   threatValue,
@@ -84,6 +86,63 @@ assert.deepEqual(allLegalUci(stale), [])
 saveFen('7k/8/5K2/8/8/8/8/6Q1 w - - 0 1')
 const mated = await handleChess('Dame g1 g7')
 assert.match(mated.reply || '', /Schachmatt/)
+
+/**
+ * Rochade und En passant fehlten ganz: `Koenig e1 g1` hieß „nicht legal“, und
+ * in einer normalen Partie rochiert man immer. Dazu schrieb `applyMove` die
+ * Felder hinter der Stellung nie mit — `KQkq` blieb stehen, nachdem der König
+ * gezogen war, und das En-passant-Feld galt bis zum Schluss.
+ */
+function tail(fen) {
+  const bits = String(fen).split(' ')
+  return { castle: bits[2] === '-' ? '' : bits[2], ep: bits[3] === '-' ? '' : bits[3], half: Number(bits[4]), full: Number(bits[5]) }
+}
+const castleFen = '4k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1'
+assert.equal(applyMove(castleFen, 'e1g1'), '4k2r/8/8/8/8/8/8/R4RK1 b kq - 1 1')
+assert.equal(applyMove(castleFen, 'e1c1'), '4k2r/8/8/8/8/8/8/2KR3R b kq - 1 1')
+assert.equal(applyMove('4k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1', 'e8g8'), '5rk1/8/8/8/8/8/8/R3K2R w KQ - 1 2')
+assert.equal(applyMove('4k2r/8/8/8/8/8/8/R3K2R w kq - 0 1', 'e1g1'), null)
+assert.equal(applyMove('4k2r/8/8/8/8/8/8/R3K1NR w KQkq - 0 1', 'e1g1'), null)
+assert.equal(applyMove('4k3/4r3/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1g1'), null)
+assert.equal(applyMove('4k3/5r2/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1g1'), null)
+assert.equal(applyMove('4k3/6r1/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1g1'), null)
+// Der Turm darf angegriffen sein, der König nicht.
+assert.ok(applyMove('4k3/7r/8/8/8/8/8/R3K2R w KQ - 0 1', 'e1g1'))
+assert.ok(applyMove('4k3/1r6/8/8/8/8/8/R3K3 w Q - 0 1', 'e1c1'))
+// Ein Bauer deckt f1 diagonal, auch wenn dort niemand steht.
+assert.equal(applyMove('4k3/8/8/8/8/8/6p1/R3K2R w KQ - 0 1', 'e1g1'), null)
+assert.equal(tail(applyMove(castleFen, 'e1e2')).castle, 'kq')
+assert.equal(tail(applyMove(castleFen, 'h1h2')).castle, 'Qkq')
+assert.equal(tail(applyMove(castleFen, 'a1a2')).castle, 'Kkq')
+assert.equal(tail(applyMove('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1', 'a1a8')).castle, 'Kk')
+assert.ok(allLegalUci(castleFen).includes('e1g1'))
+assert.ok(legalMovesFrom(castleFen, 'e1').includes('g1'))
+
+// Am Brett sagt niemand „König e1 g1“.
+assert.equal(parseChessIntent('Rochade', true)?.kind, 'castle')
+assert.equal(parseChessIntent('Rochade', true)?.side, 'short')
+assert.equal(parseChessIntent('lange Rochade', true)?.side, 'long')
+assert.equal(parseChessIntent('große Rochade', true)?.side, 'long')
+assert.equal(parseChessIntent('0-0', true)?.side, 'short')
+assert.equal(parseChessIntent('0-0-0', true)?.side, 'long')
+saveFen('r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1')
+const rochade = await handleChess('Rochade')
+assert.match(rochade.reply || '', /Kurze Rochade e1–g1/)
+assert.match(loadFen(), /R4RK1/)
+saveFen(start)
+assert.match((await handleChess('lange Rochade')).reply || '', /Lange Rochade geht hier nicht/)
+
+const epFen = '4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1'
+assert.equal(applyMove(epFen, 'e5d6'), '4k3/8/3P4/8/8/8/8/4K3 b - - 0 1')
+assert.equal(applyMove('4k3/8/8/3pP3/8/8/8/4K3 w - - 0 1', 'e5d6'), null)
+assert.equal(applyMove('8/8/8/K2pP2q/8/8/8/4k3 w - d6 0 1', 'e5d6'), null)
+assert.ok(allLegalUci(epFen).includes('e5d6'))
+assert.equal(tail(applyMove(start, 'e2e4')).ep, 'e3')
+assert.equal(tail(applyMove(applyMove(start, 'e2e4'), 'e7e5')).ep, 'e6')
+assert.equal(tail(applyMove(applyMove(start, 'e2e4'), 'g8f6')).ep, '')
+assert.equal(tail(applyMove(castleFen, 'e1e2')).half, 1)
+assert.equal(tail(applyMove(start, 'e2e4')).half, 0)
+assert.equal(tail(applyMove(applyMove(start, 'e2e4'), 'e7e5')).full, 2)
 
 // Hängende Figuren erkennen, damit Jarvis keine Dame verschenkt.
 assert.equal(threatValue('k7/8/8/8/3q4/2P5/8/K7 w - - 0 1'), 900)
