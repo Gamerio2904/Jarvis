@@ -156,22 +156,35 @@ export function VoiceMode({
 
   async function loop() {
     while (live.current) {
-      setPhase('listening')
-      setHeard('')
-      setChatSpeaking(false)
-      const heardRes = await listenOnce((partial) => {
-        if (live.current) setHeard(partial)
-      })
-      if (!live.current) return
-      const text = heardRes.text.trim()
-      if (!text) {
-        if (heardRes.message) {
-          setErr(heardRes.message)
-          await new Promise((r) => setTimeout(r, 600))
+      /**
+       * Ungeschützt beendete ein einziger Fehler aus dem Mikrofon oder einer
+       * Antwort die Schleife für immer: `live.current` blieb wahr, also wurde
+       * nichts geschlossen, und der Sprachmodus stand endlos auf „Ich höre…",
+       * ohne zu hören. Ein Durchlauf darf scheitern, die Schleife nicht.
+       */
+      try {
+        setPhase('listening')
+        setHeard('')
+        setChatSpeaking(false)
+        const heardRes = await listenOnce((partial) => {
+          if (live.current) setHeard(partial)
+        })
+        if (!live.current) return
+        const text = heardRes.text.trim()
+        if (!text) {
+          if (heardRes.message) {
+            setErr(heardRes.message)
+            await new Promise((r) => setTimeout(r, 600))
+          }
+          continue
         }
-        continue
+        await runTurn(text)
+      } catch (e) {
+        if (!live.current) return
+        setErr(e instanceof Error ? e.message : 'Sprachmodus stolperte — ich höre weiter.')
+        setChatSpeaking(false)
+        await new Promise((r) => setTimeout(r, 800))
       }
-      await runTurn(text)
     }
   }
 
@@ -198,6 +211,25 @@ export function VoiceMode({
     let started = false
     let answer = ''
     let barged = false
+    /**
+     * Der Wächter stand vorher erst **nach** dem Stream. Gesprochen wird aber
+     * schon ab dem ersten fertigen Satz — bei einer langen Antwort hörte
+     * Jarvis also minutenlang niemandem zu, obwohl unten „unterbrechen" stand.
+     */
+    const barge: { stop: (() => void) | null } = { stop: null }
+    const armBarge = () => {
+      if (barge.stop) return
+      barge.stop = watchBargeIn(() => {
+        barged = true
+        cutIn(pipe)
+      })
+    }
+    const beginSpeaking = () => {
+      started = true
+      setPhase('speaking')
+      setChatSpeaking(true)
+      armBarge()
+    }
     try {
       answer = await Promise.race([
         onTurnRef.current(
@@ -207,11 +239,7 @@ export function VoiceMode({
             setReply(full)
             const ready = tap.feed(full)
             if (ready.length) {
-              if (!started) {
-                started = true
-                setPhase('speaking')
-                setChatSpeaking(true)
-              }
+              if (!started) beginSpeaking()
               for (const s of ready) pipe.push(s)
             }
           },
@@ -231,6 +259,7 @@ export function VoiceMode({
       ])
     } catch (e) {
       pipe.stop()
+      barge.stop?.()
       setChatSpeaking(false)
       if (e instanceof Error && e.message === '__barge_in__') return
       setErr(e instanceof Error ? e.message : 'Antwort fehlgeschlagen')
@@ -240,31 +269,23 @@ export function VoiceMode({
     }
     if (!live.current || turnGen.current !== gen || barged) {
       pipe.stop()
+      barge.stop?.()
       setChatSpeaking(false)
       return
     }
     setReply(answer)
     for (const s of tap.flush()) {
-      if (!started) {
-        started = true
-        setPhase('speaking')
-        setChatSpeaking(true)
-      }
+      if (!started) beginSpeaking()
       pipe.push(s)
     }
     if (!started && answer.trim()) {
-      setPhase('speaking')
-      setChatSpeaking(true)
+      beginSpeaking()
       pipe.push(answer)
     }
-    const stopBargePlay = watchBargeIn(() => {
-      barged = true
-      cutIn(pipe)
-    })
     try {
       await pipe.flush()
     } finally {
-      stopBargePlay()
+      barge.stop?.()
     }
     setChatSpeaking(false)
   }
@@ -293,7 +314,7 @@ export function VoiceMode({
       : phase === 'thinking'
         ? 'Antwort kommt…'
         : phase === 'speaking'
-          ? 'Jarvis spricht — einfach dazwischenreden.'
+          ? 'Jarvis spricht — zum Unterbrechen antippen.'
           : 'Bereit.'
 
   return (

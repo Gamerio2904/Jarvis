@@ -79,6 +79,15 @@ public class JarvisVoicePlugin extends Plugin {
     private String listenHold = "";
     private int listenExtend = 0;
     private volatile boolean bargeWatch = false;
+    /**
+     * Spricht die App gerade selbst? Deckt beide Spuren ab — die System-Stimme
+     * und das neuronale MP3 im WebView. `tts.isSpeaking()` allein sah nur die
+     * erste, deshalb hielt der Wächter die eigene Antwort für eine
+     * Unterbrechung und schnitt sie nach dem ersten Satz ab.
+     */
+    private volatile boolean appTalking = false;
+    /** Nachhall im Raum, nachdem der Lautsprecher verstummt ist. */
+    private volatile long bargeIgnoreUntil = 0;
     private Intent listenIntent;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newCachedThreadPool();
@@ -509,9 +518,22 @@ public class JarvisVoicePlugin extends Plugin {
         call.resolve(r);
     }
 
+    /** Die JS-Seite meldet, wenn sie Audio abspielt — egal über welche Spur. */
+    @PluginMethod
+    public void bargeMute(PluginCall call) {
+        boolean on = Boolean.TRUE.equals(call.getBoolean("on", false));
+        appTalking = on;
+        bargeIgnoreUntil = on ? 0 : System.currentTimeMillis() + 400;
+        JSObject r = new JSObject();
+        r.put("ok", true);
+        call.resolve(r);
+    }
+
     @PluginMethod
     public void stopBargeWatch(PluginCall call) {
         bargeWatch = false;
+        appTalking = false;
+        bargeIgnoreUntil = 0;
         JSObject r = new JSObject();
         r.put("ok", true);
         call.resolve(r);
@@ -548,8 +570,9 @@ public class JarvisVoicePlugin extends Plugin {
             while (bargeWatch) {
                 int n = rec.read(buf, 0, buf.length);
                 if (n <= 0) continue;
-                if (System.currentTimeMillis() - started < 2000) continue;
-                if (tts != null && tts.isSpeaking()) {
+                long now = System.currentTimeMillis();
+                if (now - started < 2000) continue;
+                if (appTalking || now < bargeIgnoreUntil || (tts != null && tts.isSpeaking())) {
                     hot = 0;
                     continue;
                 }

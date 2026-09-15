@@ -51,6 +51,13 @@ export const BARGE_ONSET_MS = 180
 /** Ignore window starts when TTS starts, not when thinking starts. Echo of the first sentence must not cut the rest. */
 export const BARGE_IGNORE_TTS_MS = 2000
 
+/**
+ * Nachhall. Wenn die eigene Stimme aus dem Lautsprecher verstummt, steht sie
+ * noch im Raum — ohne diese Pause zählt der Rest des letzten Wortes als
+ * Unterbrechung.
+ */
+export const TALK_TAIL_MS = 400
+
 export type TurnHints = {
   /** Die Erkennung hat den Satz selbst als abgeschlossen gemeldet. */
   isFinal?: boolean

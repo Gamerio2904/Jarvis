@@ -5,7 +5,7 @@ import { pickHeard } from '../engine/heard.ts'
 import { loadFace } from '../engine/face.ts'
 import { markFirstAudio } from '../engine/latency.ts'
 import { loadSettings } from '../engine/store.ts'
-import { BARGE_IGNORE_TTS_MS, BARGE_ONSET_MS, silenceMsFor, turnLooksComplete } from '../engine/turn-detect.ts'
+import { BARGE_IGNORE_TTS_MS, BARGE_ONSET_MS, TALK_TAIL_MS, silenceMsFor, turnLooksComplete } from '../engine/turn-detect.ts'
 import { createEnergyVad, rmsFromByteTimeDomain } from '../engine/vad.ts'
 
 export { createSentenceTap } from '../engine/speak-tap.ts'
@@ -42,6 +42,8 @@ type NativeVoice = {
   }): Promise<{ ok: boolean; status?: number; message?: string }>
   startBargeWatch(): Promise<{ ok: boolean }>
   stopBargeWatch(): Promise<{ ok: boolean }>
+  /** Optional: älteren APKs fehlt die Methode, der Aufruf scheitert dann leise. */
+  bargeMute?(opts: { on: boolean }): Promise<{ ok: boolean }>
   addListener(
     event: 'partial' | 'sse' | 'wake' | 'barge' | 'debugStop',
     cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string }) => void,
@@ -52,6 +54,34 @@ const native = Capacitor.isNativePlatform() ? registerPlugin<NativeVoice>('Jarvi
 
 export function isNativeVoice(): boolean {
   return Boolean(native)
+}
+
+/**
+ * Solange Jarvis selbst spricht, darf das Mikrofon nicht mitzählen.
+ *
+ * Das war die eigentliche Ursache dafür, dass der Sprachmodus nach dem ersten
+ * Satz abbrach: der Barge-Wächter im Plugin hörte nur auf `tts.isSpeaking()`,
+ * also auf die **System**-Stimme. Die Standardspur ist aber Edge/Gemini als
+ * MP3 in einem `<audio>`-Element — dort ist `tts` still, der Wächter also
+ * blind, und der Lautsprecher redete ihm die eigene Antwort als
+ * „dazwischengeredet" ins Mikrofon. Ein längeres Zeitfenster hat das nur
+ * verschoben, nicht behoben.
+ *
+ * Preis dieser Entscheidung: während Jarvis spricht, unterbricht ein Antippen,
+ * nicht ein Zuruf. Ohne Echo-Kompensation für die Medienspur ist das die
+ * ehrliche Seite des Tauschs — die ganze Antwort zu hören wiegt mehr.
+ */
+let appTalking = false
+let talkTailUntil = 0
+
+export function appIsTalking(): boolean {
+  return appTalking || Date.now() < talkTailUntil
+}
+
+function setAppTalking(on: boolean): void {
+  appTalking = on
+  talkTailUntil = on ? 0 : Date.now() + TALK_TAIL_MS
+  if (native?.bargeMute) void native.bargeMute({ on }).catch(() => undefined)
 }
 
 export async function requestMicPermission(): Promise<boolean> {
@@ -157,7 +187,7 @@ export function watchBargeIn(onHit: () => void): () => void {
       const loop = () => {
         if (dead) return
         an.getByteTimeDomainData(data)
-        if (Date.now() - t0 < BARGE_IGNORE_TTS_MS) {
+        if (Date.now() - t0 < BARGE_IGNORE_TTS_MS || appIsTalking()) {
           raf = requestAnimationFrame(loop)
           return
         }
@@ -199,24 +229,21 @@ function stopHtmlAudio() {
 
 function playBlob(blob: Blob): Promise<void> {
   stopHtmlAudio()
+  setAppTalking(true)
   return new Promise((resolve) => {
+    const done = () => {
+      stopHtmlAudio()
+      setAppTalking(false)
+      resolve()
+    }
     const url = URL.createObjectURL(blob)
     currentUrl = url
     const audio = new Audio(url)
     currentAudio = audio
     audio.playbackRate = 1
-    audio.onended = () => {
-      stopHtmlAudio()
-      resolve()
-    }
-    audio.onerror = () => {
-      stopHtmlAudio()
-      resolve()
-    }
-    void audio.play().catch(() => {
-      stopHtmlAudio()
-      resolve()
-    })
+    audio.onended = done
+    audio.onerror = done
+    void audio.play().catch(done)
   })
 }
 
@@ -397,8 +424,15 @@ function speakNative(text: string): Promise<void> {
   const clean = text.replace(/[#*_`]+/g, ' ').replace(/\s+/g, ' ').trim()
   if (!clean) return Promise.resolve()
   const gender = loadFace() === 'friday' ? 'female' : 'male'
-  if (native) return native.speak({ text: clean, gender }).then(() => undefined)
-  return webSpeak(clean)
+  setAppTalking(true)
+  const done = () => setAppTalking(false)
+  if (native) {
+    return native
+      .speak({ text: clean, gender })
+      .then(done)
+      .catch(done)
+  }
+  return webSpeak(clean).then(done, done)
 }
 
 /** Fast system TTS — for turn-by-turn, never wait on Gemini. */
@@ -417,6 +451,7 @@ export async function speakText(text: string): Promise<void> {
 
 export async function stopSpeak(): Promise<void> {
   stopHtmlAudio()
+  setAppTalking(false)
   if (native) {
     try {
       await native.stopSpeak()
