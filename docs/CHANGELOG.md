@@ -5,6 +5,30 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.2` — Ideen halten — *PLAN*
+
+Analyse der Gemini-Skizze *Project Architect / Idea Curator* und Sprints
+283–287: [`72-next.md`](./72-next.md). Kein Code. Gut: festhalten, Überblick,
+Erinnerung und Denk-Hilfe auf Zuruf. Won’t: Organizer-Herzstück, RICE,
+Notion, Auto-Roadmap, stille Tickets. Zahlen 272–282 bleiben Audit-Reste.
+
+### `18.0.7` — Körper live, Chat darunter oder Vollbild — *CODE + APK*
+
+Sideload **`18.0.7`** (versionCode `180007`):  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Körper leuchtet mit dem laufenden Zug (`subscribeAgentTraces`). Auf dem
+Handy sitzt der Körper über dem Chat; **Vollbild** nimmt den ganzen Schirm
+wie bisher.
+
+### `18.0.6` — Figurenfarbe, Rochade, Körper-Zoom — *CODE + APK*
+
+Sideload **`18.0.6`** (versionCode `180006`):  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Weiße Figuren bleiben weiß (Kontur als Schatten). Rochade, En passant,
+Matt/Patt. Körper zoomt auf einzelne Agenten.
+
 ### `18.0.5` — Schach-Gegner, Kugel schließen, Körper-Leuchten — *CODE + APK*
 
 Sideload **`18.0.5`** (versionCode `180005`):  

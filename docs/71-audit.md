@@ -310,4 +310,5 @@ und 11 kosten zur Laufzeit nichts.
 
 Index: [`sprints/README.md`](./sprints/README.md) · Versionen:
 [`09-versioning.md`](./09-versioning.md) · Vorherige Schiene:
-[`70-next.md`](./70-next.md)
+[`70-next.md`](./70-next.md) · Nächste Produktschiene (Ideen, 283–287):
+[`72-next.md`](./72-next.md) — Zahlen 272–282 bleiben diese Audit-Reste.

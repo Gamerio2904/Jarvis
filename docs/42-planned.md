@@ -2,24 +2,26 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`18.0.2`**. Sideload **`18.0.2`**, versionCode `180002`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+**Live:** App-Code **`18.0.7`**. Sideload **`18.0.7`**, versionCode `180007`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-1. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Erst Screenshot-Fixes (260), dann Chat-Blöcke (261), Tabelle/Bild (262–263), dann Schach-Modus (264–267), dann Kugel Tag/Nacht + Schichten (268–269). Kein LLM-Organizer (§0b)
-2. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
-3. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
-4. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
-5. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
-6. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-7. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
-8. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
-9. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
-10. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
-11. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
-12. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
+1. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.7`. Kein LLM-Organizer (§0b)
+2. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–282**. 272 zuerst (Java auf dem Gerät). Zielversionen in 71 (`18.0.4`/`18.0.5`) sind Anker — Code steht bei `18.0.7`, vor dem Ziehen neu verankern
+3. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287**. Festhalten, Überblick, Erinnerung auf Auftrag, Widerspruch und nächster Schritt auf Zuruf. Kein Architect-Organizer, kein RICE, kein Notion
+4. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
+5. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
+6. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
+7. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
+8. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+9. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
+10. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
+11. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
+12. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
+13. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
+14. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
 
 **⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `17.0.0` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
 
@@ -45,6 +47,22 @@ Kein LLM spielt Schach. Kein GPL-Brett. Kein Bild ohne Parser. Kein LLM-Organize
 Kein EarthOS. `globe.gl` nur nach Framezeit.
 
 Begründung und Reel-Triage: [`70-next.md`](./70-next.md).
+
+## PLAN — Schiene `18.2` (Sprints 283–287)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `18.2.0` | [283](./sprints/sprint-283.md) | Idee festhalten |
+| `18.2.1` | [284](./sprints/sprint-284.md) | Überblick: Liste, Parken, Erledigt |
+| `18.2.2` | [285](./sprints/sprint-285.md) | Erinnerung an eine Idee, nur auf Auftrag |
+| `18.2.3` | [286](./sprints/sprint-286.md) | Widerspruch auf Zuruf |
+| `18.2.4` | [287](./sprints/sprint-287.md) | Ein nächster Schritt auf Zuruf |
+
+Harte Kette: 283 → 284. 285/286/287 brauchen 283 und 284, sind sonst frei.
+Kein Architect-Organizer. Kein RICE. Kein Notion. Kein stilles Ticket.
+
+Begründung: [`72-next.md`](./72-next.md). Audit-Zahlen 272–282 bleiben
+[`71-audit.md`](./71-audit.md).
 
 ## CODE — Schiene `17.0.0` (Sprints 249–259)
 
@@ -161,4 +179,4 @@ Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein
 ### `13.40` Sprachmodus (CODE `13.44.0`)
 „Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**.
 
-Nächste Schiene: **`18.0.0`** [`70-next.md`](./70-next.md) Sprints 260–271. Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.
+Nächste Produktschiene: **`18.2`** [`72-next.md`](./72-next.md) Sprints 283–287. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.

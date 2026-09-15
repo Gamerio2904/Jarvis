@@ -586,6 +586,20 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | `18.0.6` | Figurenfarbe, Rochade/En passant, Körper-Zoom auf Agenten | Patch **CODE** + Sideload |
 | `18.0.7` | Körper live, Chat darunter oder Vollbild | Patch **CODE** + Sideload |
 
+### `18.2` — Ideen halten [`72-next.md`](./72-next.md) **PLAN**
+
+Ideen festhalten und wiederfinden. Widerspruch und nächster Schritt nur
+auf Zuruf. Kein Project-Architect-Organizer, kein RICE, kein Notion.
+Sprints 272–282 bleiben Audit-Reste in [`71-audit.md`](./71-audit.md).
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.2.0` | Idee festhalten | 283 PLAN |
+| `18.2.1` | Überblick | 284 PLAN |
+| `18.2.2` | Erinnerung an Idee, nur auf Auftrag | 285 PLAN |
+| `18.2.3` | Widerspruch auf Zuruf | 286 PLAN |
+| `18.2.4` | Ein nächster Schritt auf Zuruf | 287 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.

@@ -48,7 +48,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Code **`17.0.0`**, nächste Schiene `18.0.0` |
+| 42 | [Alles geplant](./42-planned.md) | Index Live **`18.0.7`**, nächste Produktschiene `18.2` |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -76,8 +76,9 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 68 | [Messbar und unterbrechbar 17.0](./68-next.md) | **CODE** `17.0.0` — Sprints 249–259 ausgeliefert |
 | 69 | [Modell-Grundlagen](./69-modell-grundlagen.md) | **REFERENZ** — Trainings- vs. Inferenzzeit, interne Sprache (Deutsch bleibt), Free-Tier-Grenzen |
 | 70 | [Zeigen und spielen 18.0](./70-next.md) | **PLAN** `18.0.0` — Chat-Blöcke, Schach-Modus, Kugel Tag/Nacht, Sprints 260–271 |
-| 71 | [Code-Audit 18.0.3](./71-audit.md) | **BEFUND + PLAN** — 12 Befunde behoben, Sprints 272–276 |
-| — | [APK](./apk.md) | Sideload `17.0.0`; Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md) |
+| 71 | [Code-Audit 18.0.3](./71-audit.md) | **BEFUND + PLAN** — 12 Befunde behoben, Sprints 272–282 |
+| 72 | [Ideen halten 18.2](./72-next.md) | **PLAN** `18.2` — Idee festhalten, Überblick, Erinnerung/Widerspruch/Schritt auf Zuruf, Sprints 283–287 |
+| — | [APK](./apk.md) | Sideload `18.0.7`; Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -288,5 +289,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 268–269 | `18.0.0` | **CODE** (Kugel Tag/Nacht, Schichten) |
 | 270 | — | **NICHT GEZOGEN** (`globe.gl`) |
 | 271 | **`18.0.0`** | **CODE** (Meilenstein Kugel) |
+| 272–282 | `18.0.4`–`18.1.0` | **PLAN** (Audit-Reste in [`71-audit.md`](./71-audit.md)) |
+| 283–287 | `18.2.0`–`18.2.4` | **PLAN** (Ideen halten, [`72-next.md`](./72-next.md)) |
 
-**Aktuell:** Code **`18.0.7`**. Sideload-APK `18.0.7`, versionCode `180007`. Körper live, Chat darunter oder Vollbild. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`18.0.7`**. Sideload-APK `18.0.7`, versionCode `180007`. Körper live, Chat darunter oder Vollbild. Nächste Produktschiene `18.2` Ideen halten. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).
