@@ -1,4 +1,5 @@
 import { getJson, getText } from './http-json.ts'
+import { USER_AGENT } from './ua.ts'
 import {
   compareDiscountSources,
   compareShopSources,
@@ -19,8 +20,9 @@ import {
 } from './research-parse.ts'
 import { loadSettings } from './store.ts'
 
-const UA = 'Jarvis/2.2.0 (local.jarvis.app)'
-const DDG_UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/2.2.0'
+const UA = USER_AGENT
+/** DuckDuckGo liefert der HTML-Fassade nur mit Browser-Kennung — daher der Mozilla-Kopf. */
+const DDG_UA = `Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 ${USER_AGENT}`
 
 export async function fillDeepResearchLinks(
   queryText: string,

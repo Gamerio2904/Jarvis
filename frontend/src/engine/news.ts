@@ -1,4 +1,5 @@
 import { getJson } from './http-json.ts'
+import { jsonUA } from './ua.ts'
 import { fillResearchLinks } from './web-search.ts'
 import { formatResearchReply, researchHasSources, type ResearchMeta, type ResearchSource } from './research-parse.ts'
 import { parseNewsIntent, placeInHeadline } from './news-parse.ts'
@@ -7,7 +8,7 @@ import { saveSettings } from './store.ts'
 
 export { parseNewsIntent, placeInHeadline } from './news-parse.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.1.0 (local.jarvis.app)' }
+const UA = jsonUA
 const TS = 'https://www.tagesschau.de/api2u'
 
 export async function handleNews(

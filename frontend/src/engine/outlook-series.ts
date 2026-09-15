@@ -1,7 +1,8 @@
 import { getJson } from './http-json.ts'
+import { jsonUA } from './ua.ts'
 import { loadSettings, saveSettings } from './store.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/4.0.0 (local.jarvis.app)' }
+const UA = jsonUA
 const TTL_MS = 20 * 60_000
 
 export type SeriesPoint = { date: string; value: number }

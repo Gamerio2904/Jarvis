@@ -1,4 +1,5 @@
 import { getJson } from './http-json.ts'
+import { USER_AGENT } from './ua.ts'
 import { looksLikeBareStreet } from './places-parse.ts'
 import { isStoreBrandQuery, detectBrand } from './poi-parse.ts'
 import { asLonLat, compactCoords, decodePolyline, isRoadTrack, simplifyTrack } from './drive-map.ts'
@@ -6,7 +7,7 @@ import { asLonLat, compactCoords, decodePolyline, isRoadTrack, simplifyTrack } f
 export type Fix = { lat: number; lon: number; place: string }
 
 const STREET_FAR_M = 80_000
-const UA = 'Jarvis/2.1.0 (local.jarvis.app)'
+const UA = USER_AGENT
 const DACH = { latMin: 47.2, latMax: 55.2, lonMin: 5.7, lonMax: 15.2 }
 
 function cityAsk(street: string): string {

@@ -1,8 +1,9 @@
 import { getJson, getText } from './http-json.ts'
-import { APP_VERSION, loadSettings } from './store.ts'
+import { loadSettings } from './store.ts'
+import { jsonUA } from './ua.ts'
 import type { GeoFix } from './globe-geo.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': `Jarvis/${APP_VERSION} (local.jarvis.app)` }
+const UA = jsonUA
 
 export type GlobeLayer = 'quakes' | 'fires' | 'overhead'
 

@@ -5,9 +5,9 @@ import { pinForTag, pinForText, type GeoFix } from './globe-geo.ts'
 import type { OutlookSnap } from './outlook.ts'
 import { tourGlowPins } from './globe-tour.ts'
 import { pinsForActiveLayer } from './globe-layers.ts'
-import { APP_VERSION } from './store.ts'
+import { jsonUA } from './ua.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': `Jarvis/${APP_VERSION} (local.jarvis.app)` }
+const UA = jsonUA
 
 export async function loadGlobePins(): Promise<GeoFix[]> {
   const s = loadSettings()

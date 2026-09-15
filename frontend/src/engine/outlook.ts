@@ -1,4 +1,5 @@
 import { getJson, getText } from './http-json.ts'
+import { jsonUA } from './ua.ts'
 import { type ResearchMeta, type ResearchSource } from './research-parse.ts'
 import type { ToolMeta } from './tools.ts'
 import { loadSettings, persistLastList, saveSettings } from './store.ts'
@@ -21,7 +22,7 @@ import { decodeHtml } from './html-text.ts'
 export { parseOutlookIntent, parseOutlookFollowUp } from './outlook-parse.ts'
 export type { OutlookIntent, OutlookKind }
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/4.0.0 (local.jarvis.app)' }
+const UA = jsonUA
 const TS = 'https://www.tagesschau.de/api2u'
 const DW_RSS = 'https://rss.dw.com/xml/rss-de-all'
 

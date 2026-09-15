@@ -1,4 +1,5 @@
 import { getJson } from './http-json.ts'
+import { jsonUA } from './ua.ts'
 import { geocodePlace } from './geo-lookup.ts'
 import { mapsDirUrl } from './places-parse.ts'
 import { parseTransitIntent } from './transit-parse.ts'
@@ -8,7 +9,7 @@ import type { ToolMeta } from './tools.ts'
 
 export { parseTransitIntent } from './transit-parse.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/2.1.0 (local.jarvis.app)' }
+const UA = jsonUA
 const REST = 'https://v6.db.transport.rest'
 
 type Stop = { id: string; name: string; lat: number; lon: number }

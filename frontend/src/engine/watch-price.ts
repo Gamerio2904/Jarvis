@@ -1,5 +1,6 @@
 import { parseEuroPrices, compareShopSources, hostOf } from './research-parse.ts'
 import { getText } from './http-json.ts'
+import { htmlUA } from './ua.ts'
 import { parseWatchPriceIntent } from './watch-price-parse.ts'
 import {
   addPriceWatch,
@@ -14,7 +15,7 @@ import type { ToolMeta } from './tools.ts'
 
 export { parseWatchPriceIntent }
 
-const UA = { Accept: 'text/html', 'User-Agent': 'Jarvis/6.90.0 (local.jarvis.app)' }
+const UA = htmlUA
 
 async function peekPrice(query: string): Promise<{ price: string; source: string; url: string }> {
   const shops = compareShopSources(query)

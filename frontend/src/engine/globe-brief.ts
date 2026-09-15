@@ -1,6 +1,7 @@
 /** Stadt-Briefing: Lexikon + Tagesschau + Markt-Kette + Anomalie + Ihr Plan. Fehlendes weglassen. */
 
 import { CITY_FLY_ZOOM } from './globe-gibs.ts'
+import { jsonUA } from './ua.ts'
 import { haversineKm, composePlaceBrief, type PlaceFix } from './globe-geo.ts'
 import { isGermanPlace, marketKindForPlace } from './globe-countries.ts'
 import { tagesschauSearch } from './news.ts'
@@ -18,7 +19,7 @@ export { CITY_FLY_ZOOM, composePlaceBrief }
 
 const ISS_VIEW_KM = 2200
 const EONET_KM = 420
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/6.90.0 (local.jarvis.app)' }
+const UA = jsonUA
 
 export type PlaceBrief = { name: string; lat: number; lon: number; blurb: string }
 

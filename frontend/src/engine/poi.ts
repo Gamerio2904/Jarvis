@@ -1,4 +1,5 @@
 import { ensureDeviceLocation } from '../native/geo.ts'
+import { jsonUA } from './ua.ts'
 import { beginDriveTo } from './drive.ts'
 import { haversineM, reversePlace } from './geo-lookup.ts'
 import { getJson } from './http-json.ts'
@@ -279,10 +280,7 @@ async function osmOnce(
   const query = `[out:json][timeout:12];(${body});out center tags;`
   for (const base of OVERPASS) {
     try {
-      const { status, json } = await getJson(`${base}?data=${encodeURIComponent(query)}`, {
-        Accept: 'application/json',
-        'User-Agent': 'Jarvis/2.1.0 (local.jarvis.app)',
-      })
+      const { status, json } = await getJson(`${base}?data=${encodeURIComponent(query)}`, jsonUA)
       if (status < 200 || status >= 300) continue
       const elements = Array.isArray(json.elements) ? (json.elements as Array<Record<string, unknown>>) : []
       const here = { lat, lon, place: '' }

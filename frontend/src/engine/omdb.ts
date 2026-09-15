@@ -1,4 +1,5 @@
 import { getJson } from './http-json.ts'
+import { jsonUA } from './ua.ts'
 import { loadSettings } from './store.ts'
 
 export type OmdbHit = {
@@ -34,10 +35,7 @@ export async function lookupOmdb(
   })
   if (year && year > 1900 && year < 2100) q.set('y', String(year))
   try {
-    const { status, json } = await getJson(`https://www.omdbapi.com/?${q}`, {
-      Accept: 'application/json',
-      'User-Agent': 'Jarvis/2.1.0 (local.jarvis.app)',
-    })
+    const { status, json } = await getJson(`https://www.omdbapi.com/?${q}`, jsonUA)
     if (status === 401 || status === 403) {
       return { ok: false, needKey: true, message: 'OMDb-Schlüssel ungültig. In den Einstellungen prüfen.' }
     }

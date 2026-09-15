@@ -1,8 +1,10 @@
 import { getText, postJson } from './http-json.ts'
 import { sourcesFromHtml } from './research-parse.ts'
 import { TV_APP_LABEL, tvAppFromPackage, type TvAppId } from './tv-apps.ts'
+import { USER_AGENT } from './ua.ts'
 
-const UA = 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Jarvis/1.32'
+/** JustWatch antwortet nur mit Browser-Kennung — daher der Mozilla-Kopf. */
+const UA = `Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 ${USER_AGENT}`
 const JW_URL = 'https://apis.justwatch.com/graphql'
 const JW_QUERY = `query GetSearchTitles($searchTitlesFilter: TitleFilter!, $country: Country!, $language: Language!, $first: Int!, $filter: OfferFilter!) {
   popularTitles(country: $country, filter: $searchTitlesFilter, first: $first, sortBy: POPULAR) {

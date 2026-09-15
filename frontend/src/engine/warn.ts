@@ -1,9 +1,10 @@
 import { getJson } from './http-json.ts'
+import { jsonUA } from './ua.ts'
 import { loadSettings, saveSettings } from './store.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.19.0 (local.jarvis.app)' }
+const UA = jsonUA
 const WARN_URL = 'https://www.dwd.de/DWD/warnungen/opendata/Warnungen_Gemeinden_V2.json'
 
 export type WarnIntent = { kind: 'ask'; place?: string }

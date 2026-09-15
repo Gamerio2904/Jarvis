@@ -2,13 +2,14 @@ import { getText } from './http-json.ts'
 import { parseBlitzerIntent, BLITZER_NO_ROUTE } from './blitzer-parse.ts'
 import { AROUND_M, hazardsInCorridor, sampleRouteCoords } from './blitzer-geo.ts'
 import { getDriveRoute, setDriveHazards, type DriveHazard } from './drive.ts'
-import { APP_VERSION, loadSettings, saveSettings } from './store.ts'
+import { loadSettings, saveSettings } from './store.ts'
+import { jsonUA } from './ua.ts'
 import type { ToolMeta } from './tools.ts'
 
 export { parseBlitzerIntent, BLITZER_NO_ROUTE }
 export { hazardsInCorridor, sampleRouteCoords } from './blitzer-geo.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': `Jarvis/${APP_VERSION} (local.jarvis.app)` }
+const UA = jsonUA
 
 export type BlitzerSnap = {
   at: string

@@ -1,10 +1,11 @@
 import { getText } from './http-json.ts'
+import { jsonUA } from './ua.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ChatBlock } from './chat-blocks.ts'
 import type { ToolMeta } from './tools.ts'
 import { saveSettings } from './store.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.19.0 (local.jarvis.app)' }
+const UA = jsonUA
 
 const TEAMS: Record<string, string> = {
   vfb: 'Stuttgart',

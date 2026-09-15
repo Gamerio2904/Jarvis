@@ -1,9 +1,10 @@
 import { getText } from './http-json.ts'
+import { htmlUA } from './ua.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 import type { ResearchMeta } from './research-parse.ts'
 
-const UA = { Accept: 'text/html', 'User-Agent': 'Jarvis/3.19.0 (local.jarvis.app)' }
+const UA = htmlUA
 
 export type LawIntent = { query: string }
 

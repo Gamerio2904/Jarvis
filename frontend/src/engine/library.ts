@@ -1,8 +1,9 @@
 import { getJson } from './http-json.ts'
+import { jsonUA } from './ua.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 
-const UA = { Accept: 'application/json', 'User-Agent': 'Jarvis/3.19.0 (local.jarvis.app)' }
+const UA = jsonUA
 
 export type LibraryIntent = { query: string }
 
