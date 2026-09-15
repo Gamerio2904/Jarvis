@@ -212,7 +212,7 @@ export function parseHudIntent(text: string): HudIntent | null {
     if (hit) return { kind: 'pin', name: hit.name, lat: hit.lat, lon: hit.lon, blurb: hit.blurb }
     const hadArt = /^(?:der|die|das|dem|den|mein|meine|meiner|meinen)\s+/i.test(rawRest)
     const skip =
-      /\b(körper|koerper|kugel|erde|weltkugel|hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|wetter|spotify|lage|kachel|modul|mond|iss|sonne|himmel|foto|beleg|bild|speichern|fenster|nachrichten|news|street|satellit|notizen|notiz|instagram|pizza|email|e-mail|erdbeben|beben|waldbrand|waldbrände|waldbraende|brände|braende|feuer)\b/i.test(
+      /\b(körper|koerper|kugel|erde|weltkugel|hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|wetter|spotify|lage|kachel|modul|mond|iss|sonne|himmel|foto|beleg|bild|speichern|fenster|nachrichten|news|street|satellit|notizen|notiz|instagram|pizza|email|e-mail|erdbeben|beben|waldbrand|waldbrände|waldbraende|brände|braende|feuer|schachbrett|schach)\b/i.test(
         rest,
       )
     if (

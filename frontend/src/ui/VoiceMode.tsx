@@ -198,10 +198,6 @@ export function VoiceMode({
     let started = false
     let answer = ''
     let barged = false
-    const stopBarge = watchBargeIn(() => {
-      barged = true
-      cutIn(pipe)
-    })
     try {
       answer = await Promise.race([
         onTurnRef.current(
@@ -240,7 +236,6 @@ export function VoiceMode({
       setErr(e instanceof Error ? e.message : 'Antwort fehlgeschlagen')
       return
     } finally {
-      stopBarge()
       if (abortTurn.current) abortTurn.current = null
     }
     if (!live.current || turnGen.current !== gen || barged) {

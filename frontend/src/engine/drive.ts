@@ -1,5 +1,7 @@
 import { parseDriveIntent, type DriveTab } from './drive-parse.ts'
+import { parseChessIntent } from './chess.ts'
 import { isFuelPlace } from './fuel-parse.ts'
+import { isStoreBrandQuery } from './poi-parse.ts'
 import { handleSpotifyCommand, parseSpotifyIntent } from './spotify.ts'
 import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-lookup.ts'
 import { compactCoords, isRoadTrack, simplifyTrack, snapToTrack } from './drive-map.ts'
@@ -524,6 +526,7 @@ export async function handleDrive(
   text: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const s = loadSettings()
+  if (parseChessIntent(text, s.last_step_tool === 'chess')) return { handled: false }
   const music = parseSpotifyIntent(text)
   const namesSpotify = /\bspotify\b/i.test(text)
   const volish =
@@ -657,7 +660,7 @@ export async function handleDrive(
   if (!s.drive_mode && intent?.kind !== 'dest') return { handled: false }
 
   if (intent?.kind === 'dest' && intent.query) {
-    if (isFuelPlace(intent.query)) return { handled: false }
+    if (isFuelPlace(intent.query) || isStoreBrandQuery(intent.query)) return { handled: false }
     openDrive()
     const got = await destOrAsk(intent.query)
     if ('handled' in got) return got

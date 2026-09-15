@@ -12,6 +12,7 @@ import {
 } from '../../engine/hud.ts'
 import { BODY_ORGANS, type BodyOrgan } from '../../engine/hud-parse.ts'
 import { ChessBoard } from './ChessBoard.tsx'
+import { SportTable } from './SportTable.tsx'
 import { BodySchema } from './BodySchema.tsx'
 import { AgentMapCanvas } from './AgentMapCanvas.tsx'
 import { AgentStatusBar } from './AgentStatusBar.tsx'
@@ -501,7 +502,7 @@ function LazyHudCell({
   }
   if (id === 'warn') return cell(<TextTile title="Unwetter" body={snap.warn?.line || '—'} />)
   if (id === 'fx') return cell(<TextTile title="Kurs" body={snap.fx?.line || '—'} />)
-  if (id === 'sport') return cell(<TextTile title="Sport" body={snap.sport?.line || '—'} />)
+  if (id === 'sport') return cell(<SportTable json={snap.sport?.json} fallback={snap.sport?.line || '—'} />)
   if (id === 'chess') {
     return cell(
       <article className="lage-tile">

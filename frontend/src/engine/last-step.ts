@@ -97,8 +97,12 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
 
   if (CONFIRM.test(raw) || RESEARCH_YES.test(raw)) {
     const pending = expireResearchPending(parseResearchPending(step?.last_research_json))
+    const accepted = acceptResearchPending(raw, pending)
+    /** Offene Suche sticht eine alte Route — sonst wird „Ja“ zu Lidlovy Dvory. */
+    if (accepted && (tool === 'research_offer' || tool === 'research' || !tool || tool === 'drive' || tool === 'poi' || tool === 'fuel' || tool === 'hud' || tool === 'sport' || tool === 'chess')) {
+      return accepted.utterance
+    }
     if (tool === 'research_offer' || tool === 'research' || !tool) {
-      const accepted = acceptResearchPending(raw, pending)
       if (accepted) return accepted.utterance
     }
     if (tool === 'research_offer') {
@@ -107,6 +111,7 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
       if (q && !CONFIRM.test(q) && !RESEARCH_YES.test(q)) return q
     }
     if (!tool || tool === 'todo' || tool === 'notes' || tool === 'weather' || tool === 'research') return null
+    if (tool === 'drive' || tool === 'poi' || tool === 'fuel') return null
     if (utterance && !CONFIRM.test(utterance) && !HALT.test(utterance) && !RESEARCH_YES.test(utterance)) return utterance
     return null
   }

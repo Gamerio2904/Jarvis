@@ -58,6 +58,8 @@ import { Lage } from './ui/lage/Lage.tsx'
 import { WakeBubble } from './ui/WakeBubble.tsx'
 import { ToolChip } from './ui/ToolChip.tsx'
 import { hideToolChip } from './ui/tool-chip.ts'
+import { ChatBlocks } from './ui/ChatBlocks.tsx'
+import { parseChatBlocks } from './engine/chat-blocks.ts'
 import { useOverlay } from './overlay.ts'
 import { overlayHidesDrive, reduceOverlay, OVERLAY_INIT, type OverlayId } from './engine/overlay-fsm.ts'
 import { closeDrive, subscribeDrive } from './engine/drive.ts'
@@ -95,6 +97,12 @@ function opensDriveOverlay(tool?: ToolMeta | null): boolean {
   if (!tool) return false
   if (tool.tool === 'drive') return true
   return tool.action === 'nav' && (tool.tool === 'poi' || tool.tool === 'fuel')
+}
+
+/** Schach/Sport/Suche sollen die Navi-Karte nicht wieder nach vorne holen. */
+function hidesDriveOverlay(tool?: ToolMeta | null): boolean {
+  const id = tool?.tool || ''
+  return id === 'chess' || id === 'sport' || id === 'research' || id === 'calendar'
 }
 
 function PcLiveDock() {
@@ -1201,16 +1209,14 @@ function App() {
           applyAppTool(payload.tool)
           applyHudTool(payload.tool)
           if (driveCloseGenRef.current === closeGen) {
-            if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
-              if (payload.tool?.action === 'close') {
-                setDriveOpen(false)
-                closeSheet('drive')
-              } else {
-                setDriveOpen(true)
-                setCalendarOpen(false)
-                setSidebarOpen(false)
-                patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'ensure', id: 'drive' })
-              }
+            if (payload.tool?.action === 'close' || hidesDriveOverlay(payload.tool)) {
+              setDriveOpen(false)
+              closeSheet('drive')
+            } else if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+              setDriveOpen(true)
+              setCalendarOpen(false)
+              setSidebarOpen(false)
+              patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'ensure', id: 'drive' })
             }
           }
           maybeOpenSettingsFromReply(payload.assistant_message.content)
@@ -1373,14 +1379,12 @@ function App() {
             })
             if (payload.tool?.tool === 'reminder' || payload.tool?.tool === 'timer' || payload.tool?.tool === 'alarm') void refreshReminders()
             if (driveCloseGenRef.current === closeGen) {
-              if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
-                if (payload.tool?.action === 'close') {
-                  setDriveOpen(false)
-                  closeSheet('drive')
-                } else {
-                  setDriveOpen(true)
-                  patchOverlay({ type: 'ensure', id: 'drive' })
-                }
+              if (payload.tool?.action === 'close' || hidesDriveOverlay(payload.tool)) {
+                setDriveOpen(false)
+                closeSheet('drive')
+              } else if (opensDriveOverlay(payload.tool) || loadSettings().drive_mode) {
+                setDriveOpen(true)
+                patchOverlay({ type: 'ensure', id: 'drive' })
               }
             }
             maybeOpenSettingsFromReply(contentOut)
@@ -1781,6 +1785,7 @@ function App() {
                 enterIds[m.id] &&
                 (m.role === 'user' ? 'enter-user' : 'enter-assistant')
               const tool = m.role === 'assistant' ? (m.meta?.tool as ToolMeta | undefined) : undefined
+              const blocks = m.role === 'assistant' ? parseChatBlocks(m.meta?.blocks) : []
               return (
                 <div key={m.id} className={`row ${m.role}${enter ? ` ${enter}` : ''}`}>
                   {m.role === 'assistant' ? (
@@ -1790,6 +1795,7 @@ function App() {
                   ) : null}
                   <div className="bubble">
                     <div className="bubble-text">{m.content}</div>
+                    {blocks.length ? <ChatBlocks blocks={blocks} /> : null}
                     {tool && !hideToolChip(list[i - 1], tool) ? (
                       <ToolChip
                         tool={tool}

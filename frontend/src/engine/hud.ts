@@ -163,7 +163,7 @@ export type HudSnap = {
   drive?: { dest: string; minutes: number; meters: number } | null
   warn?: { line: string }
   fx?: { line: string }
-  sport?: { line: string }
+  sport?: { line: string; json?: string }
   chess?: { fen: string }
   trace?: { host: string; hops: string[] }
   world?: { line: string }
@@ -214,7 +214,7 @@ export async function fetchHudSnap(): Promise<HudSnap> {
   }
   if (on.includes('warn')) snap.warn = { line: s.last_warn_line || 'Unwetter im Chat fragen.' }
   if (on.includes('fx')) snap.fx = { line: s.last_fx_line || 'Kurs im Chat fragen.' }
-  if (on.includes('sport')) snap.sport = { line: s.last_sport_line || 'Sport im Chat fragen.' }
+  if (on.includes('sport')) snap.sport = { line: s.last_sport_line || 'Sport im Chat fragen.', json: s.last_sport_json || '' }
   if (on.includes('chess')) snap.chess = { fen: loadFen() }
   if (on.includes('trace')) {
     let hops: string[] = []
@@ -271,7 +271,7 @@ export async function fetchHudModule(id: HudId): Promise<Partial<HudSnap>> {
   }
   if (id === 'warn') return { warn: { line: s.last_warn_line || 'Unwetter im Chat fragen.' } }
   if (id === 'fx') return { fx: { line: s.last_fx_line || 'Kurs im Chat fragen.' } }
-  if (id === 'sport') return { sport: { line: s.last_sport_line || 'Sport im Chat fragen.' } }
+  if (id === 'sport') return { sport: { line: s.last_sport_line || 'Sport im Chat fragen.', json: s.last_sport_json || '' } }
   if (id === 'chess') return { chess: { fen: loadFen() } }
   if (id === 'trace') {
     let hops: string[] = []

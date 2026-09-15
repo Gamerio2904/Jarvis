@@ -5,7 +5,7 @@ import { migrateSettings, SETTINGS_REV } from './settings-migrate.ts'
 import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
 
-export const APP_VERSION = '18.0.2'
+export const APP_VERSION = '18.0.3'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -196,6 +196,7 @@ export type Settings = {
   last_warn_line: string
   last_fx_line: string
   last_sport_line: string
+  last_sport_json: string
   last_outlook_line: string
   last_outlook_json: string
   last_outlook_notified: string
@@ -362,6 +363,7 @@ export const DEFAULT_SETTINGS: Settings = {
   last_warn_line: '',
   last_fx_line: '',
   last_sport_line: '',
+  last_sport_json: '',
   last_outlook_line: '',
   last_outlook_json: '',
   last_outlook_notified: '',

@@ -21,7 +21,7 @@ const KINDS: Array<{ kind: PoiKind; re: RegExp }> = [
   { kind: 'pharmacy', re: /\bapotheke(?:n)?\b/i },
   { kind: 'bakery', re: /\bb(?:ä|ae|a)cker(?:ei)?\b/i },
   { kind: 'parking', re: /\bpark(?:platz|plätze|haus|häuser|en)\b/i },
-  { kind: 'supermarket', re: /\b(?:supermarkt|discounter|aldi|lidl|rewe|edeka)\b/i },
+  { kind: 'supermarket', re: /\b(?:supermarkt|discounter|aldi|lidl|rewe|edeka|netto|penny|kaufland)\b/i },
   { kind: 'chemist', re: /\b(?:drogerie|dm|rossmann)\b/i },
   { kind: 'shop', re: /\b(?:laden|geschäft|kiosk|spät[ie]|späti)\b/i },
   { kind: 'cafe', re: /(?<!\p{L})(?:cafés?|cafes?|kaffeehaus|kaffeehäuser)(?!\p{L})/iu },
@@ -48,7 +48,8 @@ export function parsePoiIntent(text: string, lastKind?: PoiKind | null): PoiInte
     }
   }
   if (typed) {
-    if (near || GO.test(t) || /^\s*(?:zur|zum)\s+\S+/i.test(t)) {
+    const brandOnly = Boolean(brand && looksLikeBrandQuery(t, brand))
+    if (near || GO.test(t) || /^\s*(?:zur|zum)\s+\S+/i.test(t) || /\b(?:nach|zu(?:r|m)?)\s+(aldi|lidl|rewe|edeka|netto|penny|kaufland|dm|rossmann)\b/i.test(t) || brandOnly) {
       return { kind: typed, hours: false, nav: true, brand }
     }
     if (hours) return { kind: typed, hours: true, nav: false, brand }
@@ -85,9 +86,28 @@ function detectKind(t: string): PoiKind | null {
   return null
 }
 
+const STORE_BRAND = /\b(aldi|lidl|rewe|edeka|netto|penny|kaufland|dm|rossmann)\b/i
+
 export function detectBrand(t: string): string | undefined {
-  const m = /\b(aldi|lidl|rewe|edeka)\b/i.exec(t)
+  const m = STORE_BRAND.exec(t)
   return m ? m[1].toLowerCase() : undefined
+}
+
+/** Kette, kein Ortsname — „Lidl“ ist der Discounter, nicht Lidlovy Dvory. */
+export function isStoreBrandQuery(text: string): boolean {
+  const t = text.trim().replace(/[.!?]+$/g, '')
+  if (!t) return false
+  const brand = detectBrand(t)
+  if (!brand) return false
+  return looksLikeBrandQuery(t, brand)
+}
+
+function looksLikeBrandQuery(t: string, brand: string): boolean {
+  const stripped = t
+    .replace(/^(?:nach|zu(?:r|m)?|fahr(?:e)?(?:\s+mich)?|bring(?:e)?(?:\s+mich)?|navigier(?:e)?)\s+/i, '')
+    .replace(/\s+(?:fahren|navigieren|losfahren|los)$/i, '')
+    .trim()
+  return new RegExp(`^(?:der\\s+|die\\s+|das\\s+|nächste[nrs]?\\s+)?${brand}\\s*$`, 'i').test(stripped)
 }
 
 export function looksLikeGroceryList(name: string): boolean {

@@ -1,5 +1,6 @@
 import { getText } from './http-json.ts'
 import { normalizeUtterance } from './utterance.ts'
+import type { ChatBlock } from './chat-blocks.ts'
 import type { ToolMeta } from './tools.ts'
 import { saveSettings } from './store.ts'
 
@@ -73,19 +74,23 @@ export function parseSportIntent(text: string): SportIntent | null {
 
 export async function handleSport(
   text: string,
-): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
+): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string; blocks?: ChatBlock[] }> {
   const intent = parseSportIntent(text)
   if (!intent) return { handled: false }
   if (intent.table && !intent.team) {
     const rows = await loadTable(intent.league)
     if (rows.length) {
-      const line = formatTable(rows)
-      saveSettings({ last_sport_line: formatTableHud(rows).slice(0, 220) })
+      const block = tableBlock(rows, leagueCaption(intent.league))
+      saveSettings({
+        last_sport_line: formatTableHud(rows).slice(0, 220),
+        last_sport_json: JSON.stringify([block]),
+      })
       return {
         handled: true,
-        reply: `${line}\nOpenLigaDB, kein Tipp.`,
+        reply: `${speakTable(rows)} OpenLigaDB, kein Tipp.`,
         tool: { tool_status: 'executed', tool: 'sport', action: 'table', label: 'Sport' },
         lastTool: 'sport',
+        blocks: [block],
       }
     }
   }
@@ -175,6 +180,35 @@ export function formatTableHud(rows: TableRow[]): string {
     .slice(0, 3)
     .map((r) => `${r.rank}. ${shortClub(r.name)} ${r.points}`)
     .join(' · ')
+}
+
+export function tableBlock(rows: TableRow[], caption = 'Bundesliga'): ChatBlock {
+  return {
+    kind: 'table',
+    caption,
+    columns: ['Pl', 'Verein', 'Sp', 'Tore', 'Pkt'],
+    rows: rows.map((r) => [
+      String(r.rank),
+      shortClub(r.name),
+      String(r.played),
+      `${r.gf}:${r.ga}`,
+      String(r.points),
+    ]),
+    source: 'OpenLigaDB',
+  }
+}
+
+function leagueCaption(league: string): string {
+  if (league === 'bl2') return '2. Bundesliga'
+  if (league === 'dfb') return 'DFB-Pokal'
+  if (league === 'cl') return 'Champions League'
+  return 'Bundesliga'
+}
+
+function speakTable(rows: TableRow[]): string {
+  if (!rows.length) return 'Keine Tabelle.'
+  const lead = rows.slice(0, 2).map((r) => `${r.rank}. ${shortClub(r.name)} ${r.points}`)
+  return `Aktuelle Tabelle: ${lead.join(', ')}.`
 }
 
 async function loadTable(league: string): Promise<TableRow[]> {

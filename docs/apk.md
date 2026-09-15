@@ -1,6 +1,8 @@
-# Android-APK — Sideload `18.0.2`
+# Android-APK — Sideload `18.0.3`
 
-App-Code **`18.0.2`**. Sideload-APK **`18.0.2`**, versionCode `180002`.
+App-Code **`18.0.3`**. Sideload-APK **`18.0.3`**, versionCode `180003`.
+
+**18.0.3:** Lidl in der Nähe statt Lidlovy Dvory. Schach-Sätze nicht Spotify/Maps. Bundesliga als Tabelle. Sprachmodus liest die ganze Antwort.
 
 **18.0.2:** Lage Vollbild auf dem Handy. Küstenlinien als Kontinente. Körper zeigt jeden Agenten, leuchtet, Neuronen, Blitzkugel, Hirn in der Mitte.
 
@@ -10,10 +12,10 @@ App-Code **`18.0.2`**. Sideload-APK **`18.0.2`**, versionCode `180002`.
 
 ## Download
 
-**Fertige APK `18.0.2`:**  
+**Fertige APK `18.0.3`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.0.2` · versionCode `180002`
+- versionName `18.0.3` · versionCode `180003`
 
 ## Build lokal
 

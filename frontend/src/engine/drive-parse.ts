@@ -1,4 +1,5 @@
 import { isFuelPlace } from './fuel-parse.ts'
+import { isStoreBrandQuery } from './poi-parse.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export type DriveTab = 'map' | 'spotify'
@@ -32,6 +33,7 @@ function destOf(raw?: string): string | undefined {
   if (DEST_VERB.test(t)) return undefined
   if (/^(hause|heim|zuhause|zu\s*hause)$/i.test(t)) return 'zuhause'
   if (isFuelPlace(t)) return undefined
+  if (isStoreBrandQuery(t)) return undefined
   return t
 }
 

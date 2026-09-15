@@ -370,6 +370,8 @@ export const REGRESS_EXPECT: Record<string, string> = {
   'Zeig Waldbrände': 'hud',
   'Wie steht die Bundesliga?': 'sport',
   Schach: 'chess',
+  'Lass uns Schach spielen': 'chess',
+  Lidl: 'poi',
   'Fass das Gespräch zusammen': 'digest',
   'Welche Route nimmt google.de': 'trace',
   'Wann sind die Schulferien in Baden-Württemberg?': 'ferien',

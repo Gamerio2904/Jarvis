@@ -64,6 +64,7 @@ export function parseSpotifyIntent(text: string): SpotifyIntent | null {
       return null
     }
     if (/^amazon\s+(?:music|musik)\b/i.test(query)) return null
+    if (/\bschach(?:brett)?\b/i.test(query) || /\bschach(?:brett)?\b/i.test(text)) return null
     return { kind: 'play', query }
   }
   return null

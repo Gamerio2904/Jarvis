@@ -115,7 +115,7 @@ import {
   pcCan,
 } from '../src/engine/pc-cap.ts'
 import { isLanIce, parseRtcSession, rtcStreamVerified } from '../src/engine/pc-rtc.ts'
-import { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList } from '../src/engine/poi-parse.ts'
+import { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList, isStoreBrandQuery } from '../src/engine/poi-parse.ts'
 import { formatHoursSpeech, hoursOpenNow, isBwHoliday, isOpenAt, parseOpeningHours } from '../src/engine/opening-hours.ts'
 import { formatE10Price, formatFuelSpeech, pickFuelPair } from '../src/engine/fuel-format.ts'
 import { isFuelPlace, parseFuelFollowUp, parseFuelIntent } from '../src/engine/fuel-parse.ts'
@@ -148,7 +148,8 @@ import { parseFerienIntent } from '../src/engine/ferien.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
 import { parseSkyIntent } from '../src/engine/sky.ts'
 import { parseChessIntent } from '../src/engine/chess.ts'
-import { parseSportIntent, formatTable } from '../src/engine/sport.ts'
+import { skipMicroMerge, parseChatBlocks } from '../src/engine/chat-blocks.ts'
+import { parseSportIntent, formatTable, tableBlock } from '../src/engine/sport.ts'
 import { parseFoodIntent } from '../src/engine/food.ts'
 import { parseLibraryIntent } from '../src/engine/library.ts'
 import { parseLawIntent, isLawWikiTitle, lawWikiQuery, lawWikiTitleScore } from '../src/engine/law.ts'
@@ -1814,6 +1815,45 @@ assert.equal(parseSkyIntent('Wann fliegt die ISS?')?.kind, 'iss')
 assert.equal(parseSkyIntent('Mondphase')?.kind, 'moon')
 assert.equal(parseChessIntent('Schach neu')?.kind, 'new')
 assert.equal(parseChessIntent('schach e2e4')?.kind, 'move')
+assert.equal(parseChessIntent('Lass uns Schach spielen')?.kind, 'new')
+assert.equal(parseChessIntent('Schach spielen')?.kind, 'new')
+assert.equal(parseChessIntent('Zeig mir das Schachbrett')?.kind, 'show')
+assert.equal(parseChessIntent('Bauer e2 e4')?.move, 'e2e4')
+assert.equal(parseChessIntent('e2 e4', true)?.move, 'e2e4')
+assert.equal(parseSpotifyIntent('spiel Lass uns Schach'), null)
+assert.equal(pickRoute('Lass uns Schach spielen'), 'chess')
+assert.equal(pickRoute('Zeig mir das Schachbrett'), 'chess')
+assert.equal(parseHudIntent('Zeig mir das Schachbrett'), null)
+assert.equal(parsePoiIntent('Lidl')?.kind, 'supermarket')
+assert.equal(parsePoiIntent('Lidl')?.brand, 'lidl')
+assert.equal(parsePoiIntent('Lidl')?.nav, true)
+assert.equal(parsePoiIntent('nach Lidl')?.brand, 'lidl')
+assert.equal(isStoreBrandQuery('Lidl'), true)
+assert.equal(isStoreBrandQuery('Heilbronn'), false)
+assert.equal(parseDriveIntent('nach Lidl'), null)
+assert.equal(parsePlaceNav('fahr mich nach Lidl'), null)
+assert.equal(parsePlaceNav('fahr mich nach Heilbronn')?.kind, 'navigate')
+assert.equal(pickRoute('Lidl'), 'poi')
+assert.equal(pickRoute('nach Lidl'), 'poi')
+assert.ok(isLiveLookup('Hast du die Wahlergebnisse aus Sachsen-Anhalt mitbekommen?'))
+assert.equal(
+  rewriteFollowUp('Ja', {
+    last_step_tool: 'drive',
+    last_step_utterance: 'nach Lidl',
+    last_research_json: serializeResearchPending(
+      offerResearchPending('Hast du die Wahlergebnisse aus Sachsen-Anhalt mitbekommen?', 'Wahl Sachsen-Anhalt'),
+    ),
+  }),
+  'Hast du die Wahlergebnisse aus Sachsen-Anhalt mitbekommen?',
+)
+assert.equal(rewriteFollowUp('Ja', { last_step_tool: 'drive', last_step_utterance: 'nach Lidl' }), null)
+{
+  const block = tableBlock([{ rank: 1, name: 'FC Bayern München', points: 12, gf: 15, ga: 4, played: 4 }])
+  assert.equal(block.kind, 'table')
+  assert.equal(block.rows[0][1], 'Bayern')
+  assert.equal(skipMicroMerge('Aktuelle Tabelle: 1. Bayern 12.', [block]), true)
+  assert.equal(parseChatBlocks([block]).length, 1)
+}
 assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.team, 'Stuttgart')
 assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.table, true)
 assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.league, 'bl1')

@@ -7,7 +7,7 @@ import { parsePoiIntent, poiLabel, looksLikeGroceryList, type PoiKind } from './
 import { loadSettings, persistLastList, saveSettings } from './store.ts'
 import type { ToolMeta } from './tools.ts'
 
-export { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList } from './poi-parse.ts'
+export { parsePoiIntent, poiLabel, detectBrand, looksLikeGroceryList, isStoreBrandQuery } from './poi-parse.ts'
 export type { PoiIntent, PoiKind } from './poi-parse.ts'
 
 type PoiHit = {

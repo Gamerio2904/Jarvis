@@ -548,16 +548,20 @@ public class JarvisVoicePlugin extends Plugin {
             while (bargeWatch) {
                 int n = rec.read(buf, 0, buf.length);
                 if (n <= 0) continue;
-                if (System.currentTimeMillis() - started < 400) continue;
+                if (System.currentTimeMillis() - started < 2000) continue;
+                if (tts != null && tts.isSpeaking()) {
+                    hot = 0;
+                    continue;
+                }
                 double sum = 0;
                 for (int i = 0; i < n; i += 1) {
                     double v = buf[i] / 32768.0;
                     sum += v * v;
                 }
                 double rms = Math.sqrt(sum / n);
-                if (rms >= 0.055) hot += 1;
+                if (rms >= 0.12) hot += 1;
                 else hot = Math.max(0, hot - 2);
-                if (hot >= 6) {
+                if (hot >= 8) {
                     bargeWatch = false;
                     main.post(() -> {
                         JSObject ev = new JSObject();

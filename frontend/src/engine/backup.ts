@@ -65,6 +65,7 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_warn_line',
   'last_fx_line',
   'last_sport_line',
+  'last_sport_json',
   'chain_json',
   'last_watchdog_fp',
   'last_blitzer_json',

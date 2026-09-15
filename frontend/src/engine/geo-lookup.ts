@@ -1,5 +1,6 @@
 import { getJson } from './http-json.ts'
 import { looksLikeBareStreet } from './places-parse.ts'
+import { isStoreBrandQuery, detectBrand } from './poi-parse.ts'
 import { asLonLat, compactCoords, decodePolyline, isRoadTrack, simplifyTrack } from './drive-map.ts'
 
 export type Fix = { lat: number; lon: number; place: string }
@@ -18,6 +19,11 @@ export async function geocodePlace(
 ): Promise<{ ok: true; fix: Fix } | { ok: false; message: string }> {
   const q = name.trim()
   if (!q) return { ok: false, message: 'Welcher Ort?' }
+  if (isStoreBrandQuery(q)) {
+    const brand = detectBrand(q) || q
+    const label = brand.charAt(0).toUpperCase() + brand.slice(1)
+    return { ok: false, message: `„${label}“ ist eine Kette. Nächster ${label} über die Karte in der Nähe, nicht als Ortsname.` }
+  }
   if (looksLikeBareStreet(q)) {
     if (!near) return { ok: false, message: cityAsk(q) }
     const street = await geocodeNominatim(q, near)

@@ -4943,6 +4943,93 @@ button.linkish {
   border: 1px solid var(--border);
 }
 
+.chat-blocks {
+  margin-top: 10px;
+}
+
+.chat-chess .chess-board {
+  max-width: 220px;
+}
+
+.kicker-table-wrap {
+  margin-top: 8px;
+  overflow-x: auto;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+.kicker-caption {
+  margin: 0;
+  padding: 8px 10px 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.kicker-source {
+  margin: 0;
+  padding: 4px 10px 8px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.kicker-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.88rem;
+}
+
+.kicker-table th,
+.kicker-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.kicker-table th {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.kicker-table td.num,
+.kicker-table th:first-child,
+.kicker-table th:not(:nth-child(2)) {
+  text-align: right;
+  font-weight: 600;
+}
+
+.kicker-table td.club {
+  text-align: left;
+  font-weight: 650;
+}
+
+.kicker-table tbody tr.is-cl td:first-child {
+  color: var(--accent);
+}
+
+.kicker-table tbody tr.is-releg td:first-child {
+  color: #f0a0a0;
+}
+
+.kicker-table--compact {
+  font-size: 0.78rem;
+}
+
+.kicker-table--compact th,
+.kicker-table--compact td {
+  padding: 3px 5px;
+}
+
+.lage-sport .kicker-table {
+  margin-top: 6px;
+}
+
 .chess-sq {
   display: grid;
   place-items: center;

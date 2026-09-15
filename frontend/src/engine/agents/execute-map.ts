@@ -61,6 +61,7 @@ import { handleRecall } from '../recall.ts'
 import { handleApp } from '../app.ts'
 import { handleTeach, handlePack } from '../knowledge.ts'
 import { handleDesk } from '../desk.ts'
+import type { ChatBlock } from '../chat-blocks.ts'
 import type { RouteHit } from './types.ts'
 
 function weatherLast(): WeatherLast | null {
@@ -90,6 +91,7 @@ export async function fromHandler(
     research?: ResearchMeta
     lastTool?: string
     retry?: 'fuel' | 'weather' | 'poi' | 'transit'
+    blocks?: ChatBlock[]
   },
 ): Promise<RouteHit | null> {
   if (res.retry) {
@@ -98,6 +100,7 @@ export async function fromHandler(
       tool: res.tool,
       lastTool: res.lastTool || id,
       retry: res.retry,
+      blocks: res.blocks,
     }
   }
   if (!res.handled || !res.reply) return null
@@ -106,6 +109,7 @@ export async function fromHandler(
     tool: res.tool,
     research: res.research,
     lastTool: res.lastTool || id,
+    blocks: res.blocks,
   }
 }
 

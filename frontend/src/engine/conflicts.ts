@@ -53,7 +53,7 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'todo')
   }
 
-  if (/\bfahr(?:e|en)?\s+mich\b/.test(t) && !/\b(tanke|tankstelle)\b/.test(t)) {
+  if (/\bfahr(?:e|en)?\s+mich\b/.test(t) && !/\b(tanke|tankstelle|aldi|lidl|rewe|edeka|netto|penny|kaufland)\b/.test(t)) {
     out = drop(out, 'maps')
     out = drop(out, 'poi')
     out = boost(out, 'drive', 0.2)
@@ -147,6 +147,18 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
 
   if (ctx.lastTool === 'chess' && /^\s*(?:schach\s+)?[a-h][1-8][a-h][1-8]\s*$/i.test(text.trim())) {
     out = boost(out, 'chess', 0.3)
+  }
+
+  if (/\bschach(?:brett)?\b/.test(t)) {
+    out = drop(out, 'drive')
+    out = drop(out, 'hud')
+    out = boost(out, 'chess', 0.32)
+  }
+
+  if (/\b(aldi|lidl|rewe|edeka|netto|penny|kaufland)\b/.test(t) && !/\b(wetter|wecker|timer)\b/.test(t)) {
+    out = drop(out, 'drive')
+    out = drop(out, 'maps')
+    out = boost(out, 'poi', 0.28)
   }
 
   if (/\b(wetterstatistik|lage[- ]?kachel|\bkacheln?\b|tablet[- ]?lage)\b/.test(t) || /^\s*lage\s+(an|aus)\s*$/i.test(t)) {

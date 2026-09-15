@@ -2,6 +2,7 @@ import type { BodyOrgan } from '../hud-parse.ts'
 import type { ResearchMeta } from '../research-parse.ts'
 import type { ToolMeta } from '../tools.ts'
 import type { RouteCtx, SideEffect } from '../route-types.ts'
+import type { ChatBlock } from '../chat-blocks.ts'
 
 export type { RouteCtx, SideEffect } from '../route-types.ts'
 
@@ -24,6 +25,7 @@ export type RouteHit = {
   research?: ResearchMeta
   lastTool?: string
   retry?: 'fuel' | 'weather' | 'poi' | 'transit'
+  blocks?: ChatBlock[]
 }
 
 /** Single source: parse + execute + cluster metadata for one route/agent. */

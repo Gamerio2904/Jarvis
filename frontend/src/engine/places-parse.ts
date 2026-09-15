@@ -1,5 +1,6 @@
 import { isFuelPlace } from './fuel-parse.ts'
 import { gazetteerHit } from './globe-geo.ts'
+import { isStoreBrandQuery } from './poi-parse.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export type PlaceWrite = { name: string; place: string }
@@ -188,6 +189,7 @@ export function parsePlaceNav(text: string): PlaceNav | null {
   if (!query) return null
   if (PEOPLE_LIST.test(query)) return { kind: 'list' }
   if (isFuelPlace(query) || isFuelPlace(nav[3])) return null
+  if (isStoreBrandQuery(query) || isStoreBrandQuery(nav[3])) return null
   return { kind: 'navigate', query, via }
 }
 

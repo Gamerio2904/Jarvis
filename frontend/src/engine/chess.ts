@@ -1,3 +1,4 @@
+import type { ChatBlock } from './chat-blocks.ts'
 import { normalizeUtterance } from './utterance.ts'
 import type { ToolMeta } from './tools.ts'
 
@@ -5,17 +6,42 @@ const START =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 const KEY = 'jarvis_chess_fen'
 
+const PIECE = '(?:bauer|springer|pferd|l[aä]ufer|turm|dame|k[oö]nig(?:in)?)'
+const SQ = '([a-h])\\s*([1-8])'
+const FROM_TO = new RegExp(`${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ}([qrbn])?`, 'i')
+const PIECE_MOVE = new RegExp(`(?:${PIECE}\\s+)${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ}([qrbn])?`, 'i')
+const PLAY =
+  /\b(?:lass(?:t)?\s+(?:uns|mich)|wollen\s+wir|spiel(?:en)?\s+wir)\s+schach\b|\bschach\s+spiel(?:en)?\b|^\s*(?:spiel(?:e)?(?:\s+mal)?|play)\s+schach\b/i
+
 export type ChessIntent = { kind: 'new' | 'show' | 'move'; move?: string }
 
 export function parseChessIntent(text: string, follow = false): ChessIntent | null {
   const t = normalizeUtterance(text.trim())
-  if (!t || t.length > 80) return null
+  if (!t || t.length > 120) return null
+  if (/\b(spotify|musik|song|lied|titel)\b/i.test(t)) return null
   if (/^\s*schach\s*(?:neu|reset|von\s+vorn)\s*$/i.test(t) || /^\s*neues\s+schach\s*$/i.test(t)) {
     return { kind: 'new' }
   }
-  if (/^\s*schach\s*$/i.test(t) || /^\s*schachbrett\s*$/i.test(t)) return { kind: 'show' }
+  if (PLAY.test(t)) return { kind: 'new' }
+  if (
+    /^\s*(?:das\s+)?schach(?:brett)?\s*$/i.test(t) ||
+    /\bzeig(?:e)?(?:\s+mir)?(?:\s+(?:mal\s+)?)?(?:das\s+|ein\s+)?schachbrett\b/i.test(t)
+  ) {
+    return { kind: 'show' }
+  }
+  const piece = PIECE_MOVE.exec(t)
+  if (piece) {
+    return { kind: 'move', move: `${piece[1]}${piece[2]}${piece[3]}${piece[4]}${piece[5] || ''}`.toLowerCase() }
+  }
+  const spaced = FROM_TO.exec(t)
+  if (
+    spaced &&
+    (/\bschach\b/i.test(t) || follow || PIECE_MOVE.test(t) || /^\s*[a-h]\s*[1-8]\s/.test(t))
+  ) {
+    return { kind: 'move', move: `${spaced[1]}${spaced[2]}${spaced[3]}${spaced[4]}${spaced[5] || ''}`.toLowerCase() }
+  }
   const m = /(?:schach\s+)?([a-h][1-8][a-h][1-8][qrbn]?)|([a-h][1-8]-[a-h][1-8])/i.exec(t)
-  if (m && (/^\s*schach\b/i.test(t) || follow || /^\s*[a-h][1-8][a-h][1-8]/.test(t))) {
+  if (m && (/\bschach\b/i.test(t) || follow || /^\s*[a-h][1-8][a-h][1-8]/.test(t))) {
     const raw = (m[1] || m[2] || '').replace('-', '')
     return { kind: 'move', move: raw.toLowerCase() }
   }
@@ -24,33 +50,39 @@ export function parseChessIntent(text: string, follow = false): ChessIntent | nu
 
 export async function handleChess(
   text: string,
-): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
+): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string; blocks?: ChatBlock[] }> {
   const follow = loadFen() !== START
   const intent = parseChessIntent(text, follow)
   if (!intent) return { handled: false }
   if (intent.kind === 'new') {
     saveFen(START)
-    return pack('Neues Spiel. Weiß am Zug.', boardText(START))
+    return pack('Neues Spiel. Weiß am Zug. Züge wie Bauer e2 e4.', START)
   }
   const fen = loadFen()
   if (intent.kind === 'show') {
-    return pack(turnLine(fen), boardText(fen))
+    return pack(turnLine(fen), fen)
   }
   const move = intent.move || ''
   const next = applyMove(fen, move)
   if (!next) {
-    return pack(`Zug ${move} ist nicht legal. ${turnLine(fen)}`, boardText(fen))
+    return pack(`Zug ${prettyMove(move)} ist nicht legal. ${turnLine(fen)}`, fen)
   }
   saveFen(next)
-  return pack(`${move}. ${turnLine(next)}`, boardText(next))
+  return pack(`${prettyMove(move)}. ${turnLine(next)}`, next)
 }
 
-function pack(line: string, board: string) {
+function prettyMove(uci: string): string {
+  if (!/^[a-h][1-8][a-h][1-8]/.test(uci)) return uci
+  return `${uci.slice(0, 2)}–${uci.slice(2, 4)}`
+}
+
+function pack(line: string, fen: string) {
   return {
     handled: true,
-    reply: `${line}\n${board}`,
+    reply: line,
     tool: { tool_status: 'executed', tool: 'chess', action: 'move', label: 'Schach' } as ToolMeta,
     lastTool: 'chess',
+    blocks: [{ kind: 'chess' as const, fen }],
   }
 }
 
@@ -73,18 +105,6 @@ function saveFen(fen: string): void {
 function turnLine(fen: string): string {
   const side = fen.split(' ')[1] === 'b' ? 'Schwarz' : 'Weiß'
   return `${side} am Zug.`
-}
-
-function boardText(fen: string): string {
-  const rows = fen.split(' ')[0].split('/')
-  return rows
-    .map((row) =>
-      row
-        .replace(/(\d)/g, (n) => '.'.repeat(Number(n)))
-        .split('')
-        .join(' '),
-    )
-    .join('\n')
 }
 
 type Sq = { p: string; white: boolean } | null

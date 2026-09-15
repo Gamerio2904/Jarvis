@@ -204,7 +204,11 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   },
   "chess": {
     "promptSlice": "Domäne chess: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Lass uns Schach spielen",
+      "Schach",
+      "Bauer e2 e4"
+    ]
   },
   "digest": {
     "promptSlice": "Domäne digest: Parser-Fakten only.",

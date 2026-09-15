@@ -10,6 +10,7 @@ import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
 import { rewriteFollowUp } from './last-step.ts'
+import { skipMicroMerge, type ChatBlock } from './chat-blocks.ts'
 import {
   acceptResearchPending,
   declineResearchPending,
@@ -502,7 +503,8 @@ function turnBrainCtx(overrides: Partial<TurnBrainCtx> = {}): TurnBrainCtx {
   }
 }
 
-async function maybeMicroMergeReply(reply: string, settings: Settings): Promise<string> {
+async function maybeMicroMergeReply(reply: string, settings: Settings, blocks?: ChatBlock[] | null): Promise<string> {
+  if (skipMicroMerge(reply, blocks)) return reply
   if (!settings.brain_v2 || !settings.brain_micro_llm_merge || !reply.trim()) return reply
   try {
     const out = await runBrainOrchestrator({
@@ -574,6 +576,7 @@ export async function streamChat(
     const rewritten = texts[0] || content
     const accepted = !deviceBusy ? acceptResearchPending(content, researchPending) : null
     const ask = accepted?.utterance || rewritten
+    const routeTexts = accepted ? [ask] : texts
     if (!deviceBusy && declineResearchPending(content, researchPending) && settingsNow.last_step_tool === 'research_offer') {
       persistResearchDone('cancelled')
       const reply = 'Suche nicht.'
@@ -587,7 +590,7 @@ export async function streamChat(
     }
     if (accepted) persistResearchDone('running')
     const routed: Array<RouteHit | null> = []
-    for (const text of texts) {
+    for (const text of routeTexts) {
       routed.push(await routeDeterministic(conversationId, text))
     }
     const found = routed.filter((h): h is RouteHit => Boolean(h))
@@ -603,12 +606,13 @@ export async function streamChat(
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
       let joined = replies.join('\n\n')
-      if (found.length === 1) joined = await maybeMicroMergeReply(joined, loadSettings())
+      if (found.length === 1) joined = await maybeMicroMergeReply(joined, loadSettings(), last.blocks)
       setLatencyPath('parser')
       emitToken(handlers, joined)
       const assistant = await sayAssistant(conversationId, joined, {
         tool: last.tool,
         research,
+        blocks: last.blocks,
       })
       const updated = (await touchConversation(conversationId)) || convAfterUser
       finishLatency()
