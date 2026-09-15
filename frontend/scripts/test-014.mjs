@@ -1875,6 +1875,14 @@ assert.equal(rewriteFollowUp('Ja', { last_step_tool: 'drive', last_step_utteranc
     'image',
   )
 }
+// Die genannte Figur wurde gelesen und weggeworfen: „Dame e2 e4“ zog den Bauern.
+assert.equal(parseChessIntent('Bauer e2 e4', true)?.piece, 'p')
+assert.equal(parseChessIntent('Dame e2 e4', true)?.piece, 'q')
+assert.equal(parseChessIntent('Läufer e8 f9', true)?.piece, 'b')
+assert.equal(parseChessIntent('Springer g1 f3', true)?.piece, 'n')
+assert.equal(parseChessIntent('Bauer e2 e4', true)?.move, 'e2e4')
+assert.equal(parseChessIntent('Königin d1 h5', true)?.piece, 'q')
+assert.equal(parseChessIntent('König e1 e2', true)?.piece, 'k')
 assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.team, 'Stuttgart')
 assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.table, true)
 assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.league, 'bl1')

@@ -6,16 +6,43 @@ const START =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 const KEY = 'jarvis_chess_fen'
 
-const PIECE = '(?:bauer|springer|pferd|l[aä]ufer|turm|dame|k[oö]nig(?:in)?)'
+const PIECE = '(bauer|springer|pferd|l[aä]ufer|turm|dame|k[oö]nig(?:in)?)'
+
+/** Genannte Figur → FEN-Buchstabe. „Königin“ ist die Dame, nicht der König. */
+const PIECE_LETTER: Array<[RegExp, string]> = [
+  [/^bauer$/i, 'p'],
+  [/^(?:springer|pferd)$/i, 'n'],
+  [/^l[aä]ufer$/i, 'b'],
+  [/^turm$/i, 'r'],
+  [/^(?:dame|k[oö]nigin)$/i, 'q'],
+  [/^k[oö]nig$/i, 'k'],
+]
+
+const PIECE_NAME: Record<string, string> = {
+  p: 'Bauer',
+  n: 'Springer',
+  b: 'Läufer',
+  r: 'Turm',
+  q: 'Dame',
+  k: 'König',
+}
+
+function pieceLetter(word: string): string {
+  const w = (word || '').trim()
+  for (const [re, letter] of PIECE_LETTER) {
+    if (re.test(w)) return letter
+  }
+  return ''
+}
 const SQ = '([a-h])\\s*([1-8])'
 /** Ziel darf 9 sein — sonst fällt „Läufer e8 f9“ ans Modell statt auf illegal. */
 const SQ_ANY = '([a-h])\\s*(\\d+)'
 const FROM_TO = new RegExp(`${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ_ANY}([qrbn])?`, 'i')
-const PIECE_MOVE = new RegExp(`(?:${PIECE}\\s+)${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ_ANY}([qrbn])?`, 'i')
+const PIECE_MOVE = new RegExp(`${PIECE}\\s+${SQ}\\s*(?:[-–]|nach|auf|bis)?\\s*${SQ_ANY}([qrbn])?`, 'i')
 const PLAY =
   /\b(?:lass(?:t)?\s+(?:uns|mich)|wollen\s+wir|spiel(?:en)?\s+wir)\s+schach\b|\bschach\s+spiel(?:en)?\b|^\s*(?:spiel(?:e)?(?:\s+mal)?|play)\s+schach\b/i
 
-export type ChessIntent = { kind: 'new' | 'show' | 'move'; move?: string }
+export type ChessIntent = { kind: 'new' | 'show' | 'move'; move?: string; piece?: string }
 
 export function parseChessIntent(text: string, follow = false): ChessIntent | null {
   const t = normalizeUtterance(text.trim())
@@ -33,7 +60,11 @@ export function parseChessIntent(text: string, follow = false): ChessIntent | nu
   }
   const piece = PIECE_MOVE.exec(t)
   if (piece) {
-    return { kind: 'move', move: `${piece[1]}${piece[2]}${piece[3]}${piece[4]}${piece[5] || ''}`.toLowerCase() }
+    return {
+      kind: 'move',
+      move: `${piece[2]}${piece[3]}${piece[4]}${piece[5]}${piece[6] || ''}`.toLowerCase(),
+      piece: pieceLetter(piece[1]),
+    }
   }
   const spaced = FROM_TO.exec(t)
   if (
@@ -65,12 +96,32 @@ export async function handleChess(
     return pack(turnLine(fen), fen)
   }
   const move = intent.move || ''
+  /**
+   * Die genannte Figur wurde vorher nur zum Erkennen gelesen und dann
+   * weggeworfen: „Dame e2 e4“ zog den Bauern auf e2 und meldete Erfolg. Wer
+   * eine Figur benennt, meint sie auch.
+   */
+  const named = intent.piece ? standsOn(fen, move) : ''
+  if (intent.piece && named && named !== intent.piece) {
+    return pack(
+      `Auf ${move.slice(0, 2)} steht kein ${PIECE_NAME[intent.piece]}, sondern ein ${PIECE_NAME[named]}. ${turnLine(fen)}`,
+      fen,
+    )
+  }
   const next = applyMove(fen, move)
   if (!next) {
     return pack(`Zug ${prettyMove(move)} ist nicht legal. ${turnLine(fen)}`, fen)
   }
   saveFen(next)
   return pack(`${prettyMove(move)}. ${turnLine(next)}`, next)
+}
+
+/** Welche Figur steht auf dem Startfeld des Zugs? Leer, wenn das Feld frei ist. */
+function standsOn(fen: string, uci: string): string {
+  if (!/^[a-h][1-8]/.test(uci)) return ''
+  const { grid } = parseBoard(fen)
+  const sq = grid[8 - Number(uci[1])]?.[uci.charCodeAt(0) - 97]
+  return sq ? sq.p : ''
 }
 
 function prettyMove(uci: string): string {
