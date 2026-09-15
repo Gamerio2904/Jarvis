@@ -5,6 +5,21 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.0.3` — Code-Audit: was trotz grünem Lauf falsch war — *CODE*
+
+Befund und Plan: [`71-audit.md`](./71-audit.md). Lint, `tsc -b` und alle 28
+Testläufe waren vorher grün — diese Dinge sah keiner davon.
+
+- **Abgebrochene Antwort:** Der Retry hing an Gemini, Standard-Hirn ist Groq — genau dort blieb der Satz stehen. Jetzt ein Versuch für jedes Cloud-Hirn; das lokale 0,5B bleibt außen vor, dort kostet ein zweiter Lauf mehr als er bringt.
+- **Lage-Schalter:** Der Notausgang aus `15.3.1` nahm `hud_force` bei *jedem* Update weg, stumm. Die Ursache ist seit `18.0.1` weg, also löst ihn jetzt der einmalige Migrationsschritt `002` — mit Test, dass der Schalter das nächste Update überlebt.
+- **Sideload-Wahrheit:** Fünf Dokumente versprachen eine APK `18.0.3` an einem Link, der `18.0.2` ausliefert. Root-`README` stand noch auf `15.3.1`.
+- **Ein User-Agent:** Nominatim bekam `Jarvis/2.1.0`, OpenLigaDB `Jarvis/3.19.0`, NASA `Jarvis/6.90.0` — 21 eingefrorene Nummern, jetzt eine Quelle aus `APP_VERSION`.
+- **`strict` an:** `tsc --strict` meldete auf `src/` null Fehler, der Schalter fehlte nur. Ab jetzt kann kein neuer null-Zugriff unbemerkt hereinlaufen.
+- **Emulator-Smoke:** Im Backtick-String wurde `\b` zum Backspace und `\d` zum Buchstaben `d`; der Browser bekam `/⌫([1-9]d?)%/` und erkannte nie einen Prozentwert.
+- **Bild-Blöcke:** ohne Quelle verworfen statt quellenlos gezeigt, und `.chat-image` hatte gar kein CSS.
+- **`versionCode`:** bricht den Build ab, bevor Minor 100 in die nächste Hauptversion läuft und Android das Update wortlos ablehnt.
+- **Aufgeräumt:** 7 Debug-APKs (127 MB) aus dem Arbeitsbaum, die kein Dokument und kein Skript verlinkt; zwei tote Importe in Testskripten. Sprints 260–262 stehen nicht mehr als PLAN da, obwohl `18.0.3` sie geliefert hat.
+
 ### `18.0.3` — Screenshot-Fixes: Lidl, Schach, Tabelle, Stimme — *CODE*
 
 Code **`18.0.3`**, Sideload-APK bleibt `18.0.2` — die APK für `18.0.3` ist noch nicht gebaut (`./build-apk.sh` setzt versionCode `180003`). Die Aufnahmen vom 15.9.2026.

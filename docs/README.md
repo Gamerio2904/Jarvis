@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.0.3`**. Sideload-APK **`18.0.2`** (`18.0.3` ist Code, noch nicht gebaut). **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Screenshot-Fixes Lidl/Schach/Tabelle/Stimme. Schach-Modus 264–267 bleibt PLAN → [`70-next.md`](./70-next.md). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+**Jetzt:** Code **`18.0.3`**. Sideload-APK **`18.0.2`** (`18.0.3` ist Code, noch nicht gebaut). **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Screenshot-Fixes Lidl/Schach/Tabelle/Stimme. Schach-Modus 264–267 bleibt PLAN → [`70-next.md`](./70-next.md). Code-Audit vom 15.9.2026 → [`71-audit.md`](./71-audit.md). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -76,6 +76,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 68 | [Messbar und unterbrechbar 17.0](./68-next.md) | **CODE** `17.0.0` — Sprints 249–259 ausgeliefert |
 | 69 | [Modell-Grundlagen](./69-modell-grundlagen.md) | **REFERENZ** — Trainings- vs. Inferenzzeit, interne Sprache (Deutsch bleibt), Free-Tier-Grenzen |
 | 70 | [Zeigen und spielen 18.0](./70-next.md) | **PLAN** `18.0.0` — Chat-Blöcke, Schach-Modus, Kugel Tag/Nacht, Sprints 260–271 |
+| 71 | [Code-Audit 18.0.3](./71-audit.md) | **BEFUND + PLAN** — 12 Befunde behoben, Sprints 272–276 |
 | — | [APK](./apk.md) | Sideload `17.0.0`; Test: [`TEST-17.0.0.md`](./TEST-17.0.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)

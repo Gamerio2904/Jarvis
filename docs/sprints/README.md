@@ -256,9 +256,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 257 | [`sprint-257.md`](./sprint-257.md) | `16.9.0` | Trennschärfe-Tor gehalten; Alltagsdeutsch statt Embeddings | **CODE** in `17.0.0` Must |
 | 258 | [`sprint-258.md`](./sprint-258.md) | `16.10.0` | Werkzeug-Vertrag, erzwungenes JSON, ein Modellaufruf | **CODE** in `17.0.0` Should |
 | 259 | [`sprint-259.md`](./sprint-259.md) | **`17.0.0`** | Historie im Speicher + **Meilenstein** | **CODE** Must, verkleinert |
-| 260 | [`sprint-260.md`](./sprint-260.md) | `17.1.0` | Screenshot-Fixes: Schach-Route, Wahl-Live, Satzabbruch | **PLAN** Must |
-| 261 | [`sprint-261.md`](./sprint-261.md) | `17.2.0` | Chat-Blöcke (Tabelle/Bild/Mini-Brett), fail-closed | **PLAN** Must |
-| 262 | [`sprint-262.md`](./sprint-262.md) | `17.3.0` | Bundesliga-Tabelle als Karte (OpenLigaDB) | **PLAN** Must |
+| 260 | [`sprint-260.md`](./sprint-260.md) | `18.0.3` | Screenshot-Fixes: Schach-Route, Wahl-Live, Satzabbruch | **CODE** in `18.0.3` Must, **S260-6 und S260-7 offen** → [`../71-audit.md`](../71-audit.md) |
+| 261 | [`sprint-261.md`](./sprint-261.md) | `18.0.3` | Chat-Blöcke (Tabelle/Bild/Mini-Brett), fail-closed | **CODE** in `18.0.3` Must; Bild-Block hat noch keinen Erzeuger (263) |
+| 262 | [`sprint-262.md`](./sprint-262.md) | `18.0.3` | Bundesliga-Tabelle als Karte (OpenLigaDB) | **CODE** in `18.0.3` Must |
 | 263 | [`sprint-263.md`](./sprint-263.md) | `17.4.0` | Bilder im Chat, nur auf Verlangen | **PLAN** Must |
 | 264 | [`sprint-264.md`](./sprint-264.md) | `17.5.0` | Schach-Regeln `chess.js`, Alltagssätze | **PLAN** Must |
 | 265 | [`sprint-265.md`](./sprint-265.md) | `17.6.0` | Schach-Modus (chess.com-Funktionen, Jarvis-Look) | **PLAN** Must |
@@ -269,7 +269,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 270 | [`sprint-270.md`](./sprint-270.md) | — | Freeze `globe.gl` nur nach Messung | **NICHT GEZOGEN** |
 | 271 | [`sprint-271.md`](./sprint-271.md) | **`18.0.0`** | Meilenstein Sideload (Kugel) | **CODE** Must |
 
-**Aktuell:** Code **`18.0.3`**. Sideload-APK `18.0.2`, versionCode `180002` — `18.0.3` ist Code, noch nicht gebaut. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes in `18.0.3`. 264–267 (Schach-Modus) **PLAN**. 270 nicht gezogen.
+**Aktuell:** Code **`18.0.3`**. Sideload-APK `18.0.2`, versionCode `180002` — `18.0.3` ist Code, noch nicht gebaut. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`, zwei Tasks aus 260 offen. 263–267 (Bild-Block, Schach-Modus) **PLAN**. 270 nicht gezogen. Code-Audit vom 15.9.2026 mit Sprints 272–276 → [`../71-audit.md`](../71-audit.md).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
