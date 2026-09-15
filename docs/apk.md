@@ -1,6 +1,8 @@
-# Android-APK — Sideload `18.0.6`
+# Android-APK — Sideload `18.0.7`
 
-App-Code **`18.0.6`**. Sideload-APK **`18.0.6`**, versionCode `180006`.
+App-Code **`18.0.7`**. Sideload-APK **`18.0.7`**, versionCode `180007`.
+
+**18.0.7:** Körper leuchtet mit dem laufenden Zug. Auf dem Handy sitzt der Körper über dem Chat; **Vollbild** nimmt den ganzen Schirm wie bisher.
 
 **18.0.6:** Weiße Figuren bleiben weiß, die Kontur liegt als Schatten darunter. Jarvis prüft König, Schach, Matt und Patt und wiederholt sich nicht. Rochade („Rochade“, „lange Rochade“, `0-0`) und En passant gelten. Körper zoomt auf einzelne Agenten (zwei Finger, Rad, Doppeltipp) und behält die Drehung beim Antippen.
 
@@ -18,10 +20,10 @@ App-Code **`18.0.6`**. Sideload-APK **`18.0.6`**, versionCode `180006`.
 
 ## Download
 
-**Fertige APK `18.0.6`:**  
+**Fertige APK `18.0.7`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.0.6` · versionCode `180006`
+- versionName `18.0.7` · versionCode `180007`
 
 ## Build lokal
 

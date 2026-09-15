@@ -93,4 +93,21 @@ assert.equal(
   'front',
 )
 
+const { beginAgentTurn, pushAgentTrace, subscribeAgentTraces } = await import(
+  '../src/engine/agents/trace-store.ts'
+)
+let kicks = 0
+const off = subscribeAgentTraces(() => {
+  kicks += 1
+})
+beginAgentTurn()
+pushAgentTrace({
+  agentId: 'tv',
+  phase: 'execute',
+  ok: true,
+  ms: 1,
+})
+off()
+assert.ok(kicks >= 2, `Körper muss bei jedem Trace neu zeichnen, nicht erst beim Poll: ${kicks}`)
+
 console.log('test:agent-map ok')

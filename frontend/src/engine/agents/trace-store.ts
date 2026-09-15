@@ -22,6 +22,25 @@ let lastPolicyAsk: PolicyPick | null = null
 
 /** Debug-Ansicht bleibt lesbar, ein Amoklauf frisst nicht den Speicher. */
 const MAX_TRACES = 200
+const listeners = new Set<() => void>()
+
+function emitTraces(): void {
+  for (const fn of [...listeners]) {
+    try {
+      fn()
+    } catch {
+      /* listener */
+    }
+  }
+}
+
+/** Körper und Statusleiste hören hier, statt auf den nächsten Poll zu warten. */
+export function subscribeAgentTraces(fn: () => void): () => void {
+  listeners.add(fn)
+  return () => {
+    listeners.delete(fn)
+  }
+}
 
 export function beginAgentTurn(): number {
   /** Ein neuer Zug bricht den alten wirklich ab, nicht nur das Warten darauf. */
@@ -31,6 +50,7 @@ export function beginAgentTurn(): number {
   brainSlots = []
   lastUserFacts = ''
   lastPolicyAsk = null
+  emitTraces()
   return turn
 }
 
@@ -42,12 +62,14 @@ export function pushAgentTrace(trace: AgentTrace, forTurn = turn): void {
   if (forTurn !== turn) return
   if (turnTraces.length >= MAX_TRACES) return
   turnTraces.push(trace)
+  emitTraces()
 }
 
 export function pushBrainSlot(slot: BrainSlotTrace, forTurn = turn): void {
   if (forTurn !== turn) return
   if (brainSlots.length >= MAX_TRACES) return
   brainSlots.push(slot)
+  emitTraces()
 }
 
 export function setLastUserFacts(facts: string): void {

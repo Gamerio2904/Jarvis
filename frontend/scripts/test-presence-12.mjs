@@ -50,6 +50,32 @@ assert.equal(PRESENCE_PORT, 18791)
   assert.ok(/Vollbild/.test(f2.detail))
 }
 
+// Körper auf dem Handy lässt den Chat stehen, Vollbild auf Zuruf.
+{
+  const split = tabletCommandCenter({
+    width: 390,
+    lageOn: true,
+    lageWide: false,
+    messagesHidden: false,
+    composerVisible: true,
+    hudView: 'body',
+    bodyWithChat: true,
+  })
+  assert.equal(split.ok, true)
+  assert.equal(split.mode, 'phone-lage-chat')
+  const full = tabletCommandCenter({
+    width: 390,
+    lageOn: true,
+    lageWide: false,
+    messagesHidden: true,
+    composerVisible: false,
+    hudView: 'body',
+    bodyWithChat: false,
+  })
+  assert.equal(full.ok, true)
+  assert.equal(full.mode, 'phone-lage')
+}
+
 // F3 Presence aus = kein Schreib
 {
   const off = presenceWriteAllowed({

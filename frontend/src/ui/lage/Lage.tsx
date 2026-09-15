@@ -95,6 +95,7 @@ export function Lage({
   const tourOn = Boolean(s.globe_tour_on)
   const lastLine = recent[recent.length - 1]?.content || ''
   const globeLayer = s.globe_layer
+  const withChat = s.body_with_chat !== false
 
   useEffect(() => {
     let live = true
@@ -269,6 +270,18 @@ export function Lage({
           >
             Lage aus
           </button>
+          {view === 'body' && compact ? (
+            <button
+              type="button"
+              className="lage-tab"
+              onClick={() => {
+                saveSettings({ body_with_chat: !withChat })
+                onHudChange?.()
+              }}
+            >
+              {withChat ? 'Vollbild' : 'Chat dazu'}
+            </button>
+          ) : null}
         </div>
         <div className="lage-tabs" role="tablist" aria-label="Lage-Sicht">
           {(
@@ -294,7 +307,9 @@ export function Lage({
             ? 'Erde drehen und zoomen — grüne Grenzen.'
             : view === 'body'
               ? bodyView === 'agents'
-                ? 'Ziehen dreht, zwei Finger zoomen, Doppeltipp holt einen Agenten heran.'
+                ? withChat && compact
+                  ? 'Körper oben, Chat darunter. Vollbild nimmt den ganzen Schirm.'
+                  : 'Ziehen dreht, zwei Finger zoomen, Doppeltipp holt einen Agenten heran.'
                 : 'Organ antippen — Baum rechts, kein Gerät.'
               : 'Kacheln laden sichtbar — Wetter, Musik, Gerät.'}
         </p>

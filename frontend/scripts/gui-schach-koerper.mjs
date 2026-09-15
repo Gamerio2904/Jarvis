@@ -207,6 +207,21 @@ try {
   await new Promise((r) => setTimeout(r, 600))
   rec(Boolean(await page.$('.agent-map-shell')), 'Körper hat Zoom-Rahmen')
   rec(Boolean(await page.$('.agent-map-zoom')), 'Zoom-Leiste sichtbar')
+  const composerOn = () =>
+    page.evaluate(() => {
+      const el = document.querySelector('textarea[placeholder="Nachricht an Jarvis…"]')
+      const wrap = el?.closest('.composer-wrap')
+      if (!wrap) return false
+      const s = getComputedStyle(wrap)
+      return s.display !== 'none' && s.visibility !== 'hidden'
+    })
+  rec(await composerOn(), 'Körper lässt den Composer stehen')
+  await page.evaluate(() => {
+    const b = [...document.querySelectorAll('.lage-tab')].find((n) => n.textContent.trim() === 'Vollbild')
+    b?.click()
+  })
+  await new Promise((r) => setTimeout(r, 400))
+  rec(!(await composerOn()), 'Vollbild nimmt den Chat weg')
   await page.screenshot({ path: `${SHOTS}/koerper-1x.png` })
 
   const zoomVal = () => page.$eval('.agent-map-zoom-val', (n) => n.textContent.trim())
@@ -384,6 +399,14 @@ try {
     return b ? !b.disabled : false
   })
   rec(agentBtn, 'Agent-Knopf aktiv bei Auswahl')
+
+  await page.evaluate(() => {
+    const b = [...document.querySelectorAll('.lage-tab')].find((n) => n.textContent.trim() === 'Chat dazu')
+    b?.click()
+  })
+  await new Promise((r) => setTimeout(r, 400))
+  rec(await composerOn(), 'Chat dazu holt den Composer zurück')
+  await page.screenshot({ path: `${SHOTS}/koerper-mit-chat.png` })
 
   // Kugel-Pin schließen (Regression aus 18.0.5)
   await page.evaluate(() => {

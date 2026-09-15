@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { activeAgentId, activeTracePath, departmentLabel } from '../../engine/agent-map.ts'
 import { AGENT_META } from '../../engine/agents/meta.ts'
-import { getBrainSlots, getTurnTraces } from '../../engine/agents/trace-store.ts'
+import { getBrainSlots, getTurnTraces, subscribeAgentTraces } from '../../engine/agents/trace-store.ts'
 
 function statusLine(busy: boolean): { main: string; path: string } {
   if (!busy) return { main: 'Haus-Gehirn · bereit', path: '' }
@@ -28,9 +28,14 @@ function statusLine(busy: boolean): { main: string; path: string } {
 export function AgentStatusBar({ busy }: { busy?: boolean }) {
   const [, tick] = useState(0)
   useEffect(() => {
+    const bump = () => tick((n) => n + 1)
+    const off = subscribeAgentTraces(bump)
     const ms = busy ? 350 : 1800
-    const id = window.setInterval(() => tick((n) => n + 1), ms)
-    return () => window.clearInterval(id)
+    const id = window.setInterval(bump, ms)
+    return () => {
+      off()
+      window.clearInterval(id)
+    }
   }, [busy])
 
   const { main, path } = statusLine(Boolean(busy))

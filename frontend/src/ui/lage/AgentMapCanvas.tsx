@@ -20,6 +20,7 @@ import {
   type HitCandidate,
 } from '../../engine/agent-zoom.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
+import { subscribeAgentTraces } from '../../engine/agents/trace-store.ts'
 
 type Screen = { x: number; y: number; z?: number }
 
@@ -437,6 +438,7 @@ export function AgentMapCanvas({
     }
     kickRef.current = kick
     kick()
+    const offTraces = subscribeAgentTraces(() => kick())
 
     function hitTest(clientX: number, clientY: number): string | null {
       const rect = surface.getBoundingClientRect()
@@ -613,6 +615,7 @@ export function AgentMapCanvas({
       cancelAnimationFrame(raf)
       ro.disconnect()
       offVis()
+      offTraces()
       surface.removeEventListener('pointerdown', onPointerDown)
       surface.removeEventListener('pointermove', onPointerMove)
       surface.removeEventListener('pointerup', onPointerUp)
