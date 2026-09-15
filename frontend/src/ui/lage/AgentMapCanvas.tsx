@@ -337,14 +337,21 @@ export function AgentMapCanvas({
       function label(text: string, x: number, y: number, size: number, fill: string): void {
         g.font = `${size}px Inter, system-ui, sans-serif`
         g.textAlign = 'center'
-        const w = g.measureText(text).width + 4
-        const box = { x: x - w / 2, y: y - size, w, h: size + 4 }
+        // Wessen Punkt aus dem Bild geschwenkt ist, bekommt keinen Namen am
+        // Rand — sonst klebt dort ein Name ohne Punkt.
+        if (x < -8 || x > w + 8 || y < -8 || y > h + 8) return
+        const tw = g.measureText(text).width + 4
+        // Am Rand rutscht der Name nach innen, statt abgeschnitten zu werden:
+        // im Zoom stand rechts „Film / Streamir“ statt „Film / Streaming“.
+        const cx = Math.max(tw / 2 + 2, Math.min(w - tw / 2 - 2, x))
+        const cy = Math.max(size + 2, Math.min(h - 3, y))
+        const box = { x: cx - tw / 2, y: cy - size, w: tw, h: size + 4 }
         for (const t of taken) {
           if (box.x < t.x + t.w && t.x < box.x + box.w && box.y < t.y + t.h && t.y < box.y + box.h) return
         }
         taken.push(box)
         g.fillStyle = fill
-        g.fillText(text, x, y)
+        g.fillText(text, cx, cy)
       }
 
       const liveDepts = new Set(dots.map((a) => a.department))
