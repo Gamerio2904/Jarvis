@@ -2,7 +2,7 @@
 
 App-Code **`18.0.6`**. Sideload-APK **`18.0.6`**, versionCode `180006`.
 
-**18.0.6:** Weiße Figuren bleiben weiß, die Kontur liegt als Schatten darunter. Jarvis prüft König, Schach, Matt und Patt und wiederholt sich nicht. Körper zoomt auf einzelne Agenten (zwei Finger, Rad, Doppeltipp) und behält die Drehung beim Antippen.
+**18.0.6:** Weiße Figuren bleiben weiß, die Kontur liegt als Schatten darunter. Jarvis prüft König, Schach, Matt und Patt und wiederholt sich nicht. Rochade („Rochade“, „lange Rochade“, `0-0`) und En passant gelten. Körper zoomt auf einzelne Agenten (zwei Finger, Rad, Doppeltipp) und behält die Drehung beim Antippen.
 
 **18.0.5:** Schach-Gegner (Jarvis zieht Schwarz, ohne Engine). Mini-Brett öffnet den Modus. Kugel-Pin mit Schließen. Körper zeigt alle Agenten, leuchtet nur beim laufenden Zug.
 

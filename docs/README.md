@@ -289,4 +289,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 270 | — | **NICHT GEZOGEN** (`globe.gl`) |
 | 271 | **`18.0.0`** | **CODE** (Meilenstein Kugel) |
 
-**Aktuell:** Code **`18.0.6`**. Sideload-APK `18.0.6`, versionCode `180006`. Figurenfarbe, Schach/Matt/Patt, Körper-Zoom auf Agenten. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`18.0.6`**. Sideload-APK `18.0.6`, versionCode `180006`. Figurenfarbe, Rochade/En passant, Körper-Zoom auf Agenten. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).
