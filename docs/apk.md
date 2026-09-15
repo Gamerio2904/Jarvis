@@ -1,6 +1,8 @@
-# Android-APK — Sideload `18.0.5`
+# Android-APK — Sideload `18.0.6`
 
-App-Code **`18.0.5`**. Sideload-APK **`18.0.5`**, versionCode `180005`.
+App-Code **`18.0.6`**. Sideload-APK **`18.0.6`**, versionCode `180006`.
+
+**18.0.6:** Weiße Figuren bleiben weiß, die Kontur liegt als Schatten darunter. Jarvis prüft König, Schach, Matt und Patt und wiederholt sich nicht. Körper zoomt auf einzelne Agenten (zwei Finger, Rad, Doppeltipp) und behält die Drehung beim Antippen.
 
 **18.0.5:** Schach-Gegner (Jarvis zieht Schwarz, ohne Engine). Mini-Brett öffnet den Modus. Kugel-Pin mit Schließen. Körper zeigt alle Agenten, leuchtet nur beim laufenden Zug.
 
@@ -16,10 +18,10 @@ App-Code **`18.0.5`**. Sideload-APK **`18.0.5`**, versionCode `180005`.
 
 ## Download
 
-**Fertige APK `18.0.5`:**  
+**Fertige APK `18.0.6`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.0.5` · versionCode `180005`
+- versionName `18.0.6` · versionCode `180006`
 
 ## Build lokal
 

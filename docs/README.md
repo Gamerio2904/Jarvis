@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.0.5`**. Sideload-APK **`18.0.5`**, versionCode `180005`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+**Jetzt:** Code **`18.0.6`**. Sideload-APK **`18.0.6`**, versionCode `180006`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -289,4 +289,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 270 | — | **NICHT GEZOGEN** (`globe.gl`) |
 | 271 | **`18.0.0`** | **CODE** (Meilenstein Kugel) |
 
-**Aktuell:** Code **`18.0.5`**. Sideload-APK `18.0.5`, versionCode `180005`. Schach-Gegner, Kugel-Pin schließen, Körper alle Agenten. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`18.0.6`**. Sideload-APK `18.0.6`, versionCode `180006`. Figurenfarbe, Schach/Matt/Patt, Körper-Zoom auf Agenten. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).
