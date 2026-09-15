@@ -61,8 +61,10 @@ export type ChessIntent = {
  * Am Brett sagt niemand „König e1 g1“, sondern „Rochade“. Ohne diese Zeilen
  * fiel der häufigste Zug der Eröffnung durch den Parser.
  */
-const CASTLE = /\brochade\b|\broch(?:ier|ieren|iere|iert)\b|\b0\s*-\s*0(?:\s*-\s*0)?\b|\bo\s*-\s*o(?:\s*-\s*o)?\b/i
-const CASTLE_LONG = /\b(?:lang|lange|langen|gro(?:ss|ß)e?n?|damenseite|damenflügel)\b|0\s*-\s*0\s*-\s*0|o\s*-\s*o\s*-\s*o/i
+const CASTLE = /\brochade\b|\broch(?:ier|ieren|iere|iert)\b/i
+/** `0-0` ist auch ein Fußballstand — die Kurzform gilt nur am Brett. */
+const CASTLE_SHORT_HAND = /\b0\s*-\s*0(?:\s*-\s*0)?\b|\bo\s*-\s*o(?:\s*-\s*o)?\b/i
+const CASTLE_LONG = /\b(?:lang|lange|langen|gro(?:ss|ß)e?n?|damenseite|damenfl[uü]gel)\b|0\s*-\s*0\s*-\s*0|o\s*-\s*o\s*-\s*o/i
 
 export function parseChessIntent(text: string, follow = false): ChessIntent | null {
   const t = normalizeUtterance(text.trim()).toLowerCase()
@@ -78,7 +80,9 @@ export function parseChessIntent(text: string, follow = false): ChessIntent | nu
   ) {
     return { kind: 'show' }
   }
-  if (CASTLE.test(t)) return { kind: 'castle', side: CASTLE_LONG.test(t) ? 'long' : 'short' }
+  if (CASTLE.test(t) || ((follow || /\bschach\b/i.test(t)) && CASTLE_SHORT_HAND.test(t))) {
+    return { kind: 'castle', side: CASTLE_LONG.test(t) ? 'long' : 'short' }
+  }
   const piece = PIECE_MOVE.exec(t)
   if (piece) {
     return {

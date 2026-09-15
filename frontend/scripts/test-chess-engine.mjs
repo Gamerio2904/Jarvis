@@ -125,6 +125,11 @@ assert.equal(parseChessIntent('lange Rochade', true)?.side, 'long')
 assert.equal(parseChessIntent('große Rochade', true)?.side, 'long')
 assert.equal(parseChessIntent('0-0', true)?.side, 'short')
 assert.equal(parseChessIntent('0-0-0', true)?.side, 'long')
+// `0-0` ist auch ein Fußballstand: die Kurzform darf nur am Brett greifen,
+// denn ein Schach-Treffer nimmt der Bundesliga-Antwort den Zug.
+assert.equal(parseChessIntent('Bayern gegen Dortmund 0-0'), null)
+assert.equal(parseChessIntent('0-0'), null)
+assert.equal(parseChessIntent('schach 0-0')?.kind, 'castle')
 saveFen('r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1')
 const rochade = await handleChess('Rochade')
 assert.match(rochade.reply || '', /Kurze Rochade e1–g1/)
