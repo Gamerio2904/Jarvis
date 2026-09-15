@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   fetchHudModule,
   fetchHudSnap,
@@ -69,6 +69,15 @@ export function Lage({
   const [pin, setPin] = useState<GeoFix | null>(null)
   const [pinCard, setPinCard] = useState<GeoFix | null>(null)
   const [globeTick, setGlobeTick] = useState(0)
+  /**
+   * Als Pfeilfunktion im JSX war das bei jedem Render ein neuer Wert. Der
+   * Ladeeffekt in `LazyHudCell` hängt daran, holte also neu, schrieb `snap`,
+   * löste den nächsten Render aus — eine Schleife, die die Kacheln endlos
+   * nachladen ließ und das WebView lahmlegte.
+   */
+  const applySnap = useCallback((partial: Partial<HudSnap>) => {
+    setSnap((prev) => ({ ...prev, ...partial }))
+  }, [])
   const s = loadSettings()
   const view: HudView = s.hud_view === 'body' || s.hud_view === 'globe' ? s.hud_view : 'tiles'
   const organ = (BODY_ORGANS as readonly string[]).includes(s.last_body_organ)
@@ -136,7 +145,8 @@ export function Lage({
     void ensureDeviceLocation({ openSettingsIfDenied: false }).then((loc) => {
       if (!live || !loc.ok) return
       void loadGlobePins().then((next) => {
-        if (live) setPins(next)
+        if (!live) return
+        setPins(next)
         onHudChange?.()
       })
       void loadIssTrail().then((trail) => {
@@ -381,7 +391,7 @@ export function Lage({
               id={id}
               index={i}
               snap={snap}
-              onSnap={(partial) => setSnap((prev) => ({ ...prev, ...partial }))}
+              onSnap={applySnap}
               spotifyOn={spotifyOn}
               showChatTile={showChatTile}
               chatProps={{ onSend, draft, setDraft, busy, recent, streaming }}

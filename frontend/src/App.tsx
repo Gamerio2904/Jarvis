@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import {
   clearMemory,
   createConversation,
@@ -349,6 +349,19 @@ function App() {
     patchOverlay({ type: 'drop', id })
   }
 
+  /**
+   * Jeder Weg aus dem Sprachmodus muss hier durch. Vorher setzten vier Pfade
+   * nur `voiceOpen` zurück und ließen das Wake-Tor offen — `acceptWake` gab
+   * danach für immer `null` zurück, der Sprachmodus war bis zum Neustart der
+   * App nicht mehr aufzuwecken.
+   */
+  function closeVoice(clearSeed = false) {
+    setVoiceOpen(false)
+    if (clearSeed) setVoiceSeed('')
+    closeSheet('voice')
+    wakeGateRef.current = closeWake(wakeGateRef.current)
+  }
+
   function openVoiceMode(seed = '') {
     const next = acceptWake(wakeGateRef.current, seed, Date.now())
     if (!next) return
@@ -390,10 +403,9 @@ function App() {
       setLageSession(true)
       setCalendarOpen(false)
       setSettingsPanelOpen(false)
-      setVoiceOpen(false)
       closeSheet('calendar')
       closeSheet('settings')
-      closeSheet('voice')
+      closeVoice()
     } else {
       setLageSession(false)
     }
@@ -470,9 +482,7 @@ function App() {
         return
       }
       if (voiceOpen) {
-        setVoiceOpen(false)
-        closeSheet('voice')
-        wakeGateRef.current = closeWake(wakeGateRef.current)
+        closeVoice()
         return
       }
       if (driveOpen) {
@@ -580,11 +590,7 @@ function App() {
       if (document.hidden) {
         // WebView flickers hidden during widget/shortcut resume; don't kill VoiceMode.
         hideTimer = window.setTimeout(() => {
-          if (document.hidden && Date.now() >= voiceHoldUntilRef.current) {
-            setVoiceOpen(false)
-            closeSheet('voice')
-            wakeGateRef.current = closeWake(wakeGateRef.current)
-          }
+          if (document.hidden && Date.now() >= voiceHoldUntilRef.current) closeVoice()
         }, 400)
         return
       }
@@ -671,6 +677,16 @@ function App() {
       /* ignore */
     }
   }
+
+  /**
+   * Stabil, weil `Lage` Effekte daran hängt. Inline war es bei jedem Render neu:
+   * GPS holen → Pins laden → hierher melden → Settings neu setzen → Render →
+   * von vorn. Das lief endlos und zog den Akku leer.
+   */
+  const onHudChange = useCallback(() => {
+    void refreshSettings()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function refreshReminders() {
     try {
@@ -1201,8 +1217,8 @@ function App() {
             if (payload.tool.action === 'open') {
               setCalendarOpen(true)
               setSettingsPanelOpen(false)
-              setVoiceOpen(false)
               setSidebarOpen(false)
+              closeVoice()
               openSheet('calendar')
             }
           }
@@ -1411,12 +1427,11 @@ function App() {
 
   function openSettings(topic: SettingsTopic = 'keys') {
     setSettingsTopic(topic)
-    setVoiceOpen(false)
     setCalendarOpen(false)
     setSettingsPanelOpen(true)
     setSidebarOpen(false)
+    closeVoice()
     openSheet('settings')
-    wakeGateRef.current = closeWake(wakeGateRef.current)
     void refreshReminders()
     void refreshMemory(memoryFilter)
     if (topic === 'forschung') void refreshAudits()
@@ -1482,10 +1497,9 @@ function App() {
     if (id === 'chat') {
       setSettingsPanelOpen(false)
       setCalendarOpen(false)
-      setVoiceOpen(false)
       closeSheet('settings')
       closeSheet('calendar')
-      closeSheet('voice')
+      closeVoice()
       setLageSession(false)
       void patchSettings({ hud_force: false, hud_hidden: true }).then((s) => setSettings(s))
       return
@@ -1493,10 +1507,9 @@ function App() {
     if (id === 'lage') {
       setSettingsPanelOpen(false)
       setCalendarOpen(false)
-      setVoiceOpen(false)
       closeSheet('settings')
       closeSheet('calendar')
-      closeSheet('voice')
+      closeVoice()
       setLageSession(true)
       void patchSettings({ hud_force: true, hud_hidden: false, hud_view: 'globe' }).then((s) => setSettings(s))
       return
@@ -1508,9 +1521,8 @@ function App() {
     if (id === 'calendar') {
       setCalendarOpen(true)
       setSettingsPanelOpen(false)
-      setVoiceOpen(false)
+      closeVoice()
       openSheet('calendar')
-      wakeGateRef.current = closeWake(wakeGateRef.current)
       return
     }
     openSettings('keys')
@@ -1665,12 +1677,7 @@ function App() {
         {voiceLayer.shown ? (
           <VoiceMode
             leaving={voiceLayer.leaving}
-            onClose={() => {
-              setVoiceOpen(false)
-              setVoiceSeed('')
-              closeSheet('voice')
-              wakeGateRef.current = closeWake(wakeGateRef.current)
-            }}
+            onClose={() => closeVoice(true)}
             onTurn={(text, onTok, opts) => sendVoiceTurn(text, onTok, opts)}
             onTruncate={(spoken) => {
               const id = voiceReqRef.current
@@ -1761,7 +1768,7 @@ function App() {
             recent={messages.slice(-4)}
             streaming={streamingText}
             conversationId={activeId}
-            onHudChange={() => void refreshSettings()}
+            onHudChange={onHudChange}
             compact={!lageWide}
             hideChatTile
           />
