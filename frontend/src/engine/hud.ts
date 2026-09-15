@@ -23,6 +23,7 @@ import { nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } f
 import { briefPlace, CITY_FLY_ZOOM, focusJson, fromPlaceFix } from './globe-brief.ts'
 import { fetchLayer, replyFor, type GlobeLayer } from './globe-layers.ts'
 import { clearTour } from './globe-tour.ts'
+import { resolveShowPlace } from './hud-show.ts'
 
 export { HUD_CATALOG, parseHudIntent, organLabel }
 export type { HudId, HudIntent, HudView, BodyOrgan }
@@ -56,6 +57,7 @@ function openLagePatch(patch: Partial<Settings>): void {
 
 export async function handleHud(
   text: string,
+  conversationId?: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
   const intent = parseHudIntent(text)
   if (!intent) return { handled: false }
@@ -96,8 +98,10 @@ export async function handleHud(
     return pack(`${organLabel(intent.id)} in der Lage. Kein Tool gestartet.`)
   }
   if (intent.kind === 'unknown_place') {
-    openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false })
-    return pack(unknownPlaceLine(intent.asked))
+    return flyAsked(intent.asked, conversationId)
+  }
+  if (intent.kind === 'show_map') {
+    return flyAsked(intent.asked, conversationId)
   }
   if (intent.kind === 'look') {
     openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false })
@@ -118,23 +122,35 @@ export async function handleHud(
     return pack(noCityInViewLine())
   }
   if (intent.kind === 'pin') {
-    clearTour()
-    const place = { name: intent.name, lat: intent.lat, lon: intent.lon, blurb: intent.blurb }
-    saveSettings({
-      hud_view: 'globe',
-      hud_force: true,
-      hud_hidden: false,
-      last_globe_focus: focusJson(place, CITY_FLY_ZOOM),
-      last_globe_look: JSON.stringify({ lat: intent.lat, lon: intent.lon, zoom: CITY_FLY_ZOOM }),
-    })
-    setLageSession(true)
-    const reply = await briefPlace(place)
-    saveSettings({ last_globe_brief: reply.slice(0, 500) })
-    return pack(reply)
+    return flyPlace({ name: intent.name, lat: intent.lat, lon: intent.lon, blurb: intent.blurb })
   }
   const next = setHudModule(intent.id, intent.on)
   const label = HUD_CATALOG.find((c) => c.id === intent.id)?.label || intent.id
   return pack(intent.on ? `${label} an.` : `${label} aus.`, next)
+}
+
+async function flyAsked(asked: string, conversationId?: string) {
+  const place = await resolveShowPlace(asked, conversationId)
+  if (!place) {
+    openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    return pack(asked ? unknownPlaceLine(asked) : 'Welchen Ort soll die Kugel zeigen?')
+  }
+  return flyPlace(place)
+}
+
+async function flyPlace(place: { name: string; lat: number; lon: number; blurb: string }) {
+  clearTour()
+  saveSettings({
+    hud_view: 'globe',
+    hud_force: true,
+    hud_hidden: false,
+    last_globe_focus: focusJson(place, CITY_FLY_ZOOM),
+    last_globe_look: JSON.stringify({ lat: place.lat, lon: place.lon, zoom: CITY_FLY_ZOOM }),
+  })
+  setLageSession(true)
+  const reply = await briefPlace(place)
+  saveSettings({ last_globe_brief: reply.slice(0, 500) })
+  return pack(`Kugel mit ${place.name}. ${reply}`)
 }
 
 async function applyGlobeLayer(layer: GlobeLayer) {

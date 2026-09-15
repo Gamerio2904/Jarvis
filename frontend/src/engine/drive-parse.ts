@@ -93,7 +93,7 @@ export function parseDriveIntent(text: string, inMode = false): DriveIntent | nu
     return { kind: 'tab', tab: 'spotify' }
   }
   if (overlay === 'map') return inMode ? { kind: 'tab', tab: 'map' } : { kind: 'on' }
-  if (TAB_MAP.test(t) || (inMode && BARE_MAP.test(t))) return { kind: 'tab', tab: 'map' }
+  if (inMode && (TAB_MAP.test(t) || BARE_MAP.test(t))) return { kind: 'tab', tab: 'map' }
   if (/\bspotify\b/i.test(t) && /^\s*(?:spiel(?:e)?|play)\b/i.test(t)) return { kind: 'tab', tab: 'spotify' }
   if (/^\s*(?:spiel(?:e)?(?:\s+mal)?|play)\s+musik\s*[.!?]*$/i.test(t) && !/\bamazon\b/i.test(t)) {
     return { kind: 'tab', tab: 'spotify' }

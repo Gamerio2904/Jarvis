@@ -1,6 +1,8 @@
 # Android-APK — Sideload `18.0.7`
 
-App-Code **`18.0.7`**. Sideload-APK **`18.0.7`**, versionCode `180007`.
+App-Code **`18.0.8`**. Sideload-APK **`18.0.7`**, versionCode `180007`.
+
+**18.0.8 (Code, noch ohne neue Sideload-APK):** „Zeig mir das auf der Karte“ öffnet die Lage. Pin-Text gehört zum Pin. CarPlay heading-up, weicher nachgeführt. „weißt du auch wo?“ ist Standort.
 
 **18.0.7:** Körper leuchtet mit dem laufenden Zug. Auf dem Handy sitzt der Körper über dem Chat; **Vollbild** nimmt den ganzen Schirm wie bisher.
 

@@ -5,6 +5,7 @@ import { jsonUA } from './ua.ts'
 import { haversineKm, composePlaceBrief, type PlaceFix } from './globe-geo.ts'
 import { isGermanPlace, marketKindForPlace } from './globe-countries.ts'
 import { tagesschauSearch } from './news.ts'
+import { placeInHeadline } from './news-parse.ts'
 import { loadOutlookSnap } from './outlook.ts'
 import { chainSentences } from './outlook-tags.ts'
 import { dwdLineForPlace } from './warn.ts'
@@ -46,7 +47,7 @@ export async function briefPlace(place: PlaceBrief): Promise<string> {
 async function newsLine(name: string): Promise<string | null> {
   try {
     const local = await tagesschauSearch(name)
-    const hit = local.hits.find((h) => !TOUR_SKIP.test(h))
+    const hit = local.hits.find((h) => !TOUR_SKIP.test(h) && placeInHeadline(name, h, h))
     if (!hit) return null
     return `Zur Lage in ${name}: ${hit}`
   } catch {

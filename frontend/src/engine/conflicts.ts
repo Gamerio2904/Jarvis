@@ -310,8 +310,10 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   if (
     /\b(körper|koerper|weltkugel|\bkugel\b)\b/.test(t) ||
     /^\s*zeig(?:e)?\s+(?:die\s+)?(?:erde|hirn|körper|koerper)\s*$/.test(t) ||
+    /\bauf\s+der\s+(?:karte|kugel|erde|weltkugel)\b/.test(t) ||
     (gazetteerHit(t) && /^\s*wo\s+(?:liegt|ist)\s+/.test(t))
   ) {
+    if (!ctx.inDrive) out = drop(out, 'drive')
     out = drop(out, 'pc')
     out = drop(out, 'eye')
     out = drop(out, 'here')

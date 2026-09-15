@@ -111,8 +111,21 @@ export type HudIntent =
   | { kind: 'organ'; id: BodyOrgan }
   | { kind: 'pin'; name: string; lat: number; lon: number; blurb: string }
   | { kind: 'look' }
+  | { kind: 'show_map'; asked: string }
   | { kind: 'unknown_place'; asked: string }
   | { kind: 'layer'; layer: GlobeLayer }
+
+/** Letzter Befehl im Satz — „Ah sehr schön. Zeig mir das auf der Karte“. */
+export function commandClause(text: string): string {
+  const t = (text || '').trim()
+  if (!t) return t
+  const re = /(?:zeig(?:e)?|flieg(?:e)?|zoom(?:e)?|wo\s+(?:liegt|ist)|öffne[n]?)\b/gi
+  let last = -1
+  let m: RegExpExecArray | null
+  while ((m = re.exec(t))) last = m.index
+  if (last <= 0) return t
+  return t.slice(last).trim() || t
+}
 
 function hudText(raw: string): string {
   return normalizeUtterance(raw.trim())
@@ -122,8 +135,10 @@ function hudText(raw: string): string {
 }
 
 export function parseHudIntent(text: string): HudIntent | null {
-  const t = hudText(text)
-  if (!t || t.length > 80) return null
+  const full = hudText(text)
+  if (!full) return null
+  const t = commandClause(full)
+  if (!t || t.length > 120) return null
   if (/^\s*(?:lage|tablet(?:[- ]?lage)?|hud)\s+(an|ein|auf|zeig(?:e)?)\s*$/i.test(t)) {
     return { kind: 'lage', on: true }
   }
@@ -153,7 +168,7 @@ export function parseHudIntent(text: string): HudIntent | null {
   if (
     /^\s*(?:mach(?:e)?\s+)?(?:die\s+)?(?:kugel|weltkugel|erde)\s+(an|ein|auf|anzeigen|zeigen)\s*$/i.test(t) ||
     /^\s*zeig(?:e)?\s+(?:mir\s+)?(?:die\s+)?(?:erde|kugel|weltkugel)\s*$/i.test(t) ||
-    /^\s*(?:öffne[n]?|open)\s+(?:die\s+|das\s+|den\s+)?(?:weltkugel|kugel|erde|globus|weltkarte)\s*$/i.test(t) ||
+    /^\s*(?:öffne[n]?|open)\s+(?:die\s+|das\s+|den\s+)?(?:weltkugel|kugel|erde|globus|weltkarte|karte)\s*$/i.test(t) ||
     /^\s*weltkugel\s*$/i.test(t) ||
     /^\s*die\s+(?:erde|kugel|weltkugel)\s*$/i.test(t) ||
     /^\s*(?:erde|kugel|weltkugel)\s+(?:anzeigen|zeigen|[oö]ffnen)\s*$/i.test(t)
@@ -178,6 +193,20 @@ export function parseHudIntent(text: string): HudIntent | null {
   const isThat = /^\s*ist\s+das\s+(.+?)\s*\??\s*$/i.exec(t)
   if (isThat && gazetteerHit(isThat[1].trim())) return { kind: 'look' }
 
+  const showMap =
+    /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+(?:es|das|dies(?:es|e|en)?))?\s+auf\s+der\s+(?:karte|kugel|weltkugel|erde)|(?:auf\s+der\s+(?:karte|kugel|weltkugel|erde))\s+zeigen?)\s*[.!?]*$/i
+  if (showMap.test(t)) return { kind: 'show_map', asked: '' }
+
+  const showNamed =
+    /^\s*zeig(?:e)?(?:\s+mir)?\s+(.+?)\s+auf\s+der\s+(?:karte|kugel|weltkugel|erde|weltkarte)\s*$/i.exec(t)
+  if (showNamed) {
+    const asked = showNamed[1].replace(/^(?:die\s+|das\s+|den\s+|stadt\s+)/i, '').trim()
+    if (!asked || /^(?:es|das|dies(?:es|e|en)?|mir|uns)$/i.test(asked)) return { kind: 'show_map', asked: '' }
+    const hit = gazetteerHit(asked)
+    if (hit) return { kind: 'pin', name: hit.name, lat: hit.lat, lon: hit.lon, blurb: hit.blurb }
+    return { kind: 'show_map', asked }
+  }
+
   const globusOnly =
     /^\s*(?:zeig(?:e)?(?:\s+(?:mir|es|das))?\s+(?:auf\s+(?:dem\s+)?globus|auf\s+der\s+(?:kugel|weltkugel|erde)|mir\s+(?:auf\s+)?(?:dem\s+)?globus)|(?:auf\s+(?:dem\s+)?globus|auf\s+der\s+kugel)\s+zeigen?)\s*[.!?]*$/i.test(
       t,
@@ -201,7 +230,7 @@ export function parseHudIntent(text: string): HudIntent | null {
     return { kind: 'layer', layer: 'fires' }
   }
 
-  const where = /^\s*(?:wo\s+(?:liegt|ist)|zeig(?:e)?(?:\s+mir)?(?:\s+(?:auf\s+(?:dem\s+)?globus|auf\s+der\s+(?:kugel|erde)))?(?:\s+die\s+stadt)?|flieg(?:e)?\s+nach|zoom(?:e)?\s+auf)\s+(.+?)\s*$/i.exec(
+  const where = /^\s*(?:wo\s+(?:liegt|ist)|zeig(?:e)?(?:\s+mir)?(?:\s+(?:auf\s+(?:dem\s+)?globus|auf\s+der\s+(?:karte|kugel|erde)))?(?:\s+die\s+stadt)?|flieg(?:e)?\s+nach|zoom(?:e)?\s+auf)\s+(.+?)\s*$/i.exec(
     t,
   )
   if (where) {

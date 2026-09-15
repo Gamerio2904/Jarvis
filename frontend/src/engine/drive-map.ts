@@ -85,7 +85,13 @@ export function latLonFromWorld(x: number, y: number, zoom: number, tile = TILE_
   return { lat: Math.max(-85, Math.min(85, lat)), lon }
 }
 
-/** Finger nach rechts → Karte nach rechts, Kamera nach Westen. */
+/** Bildschirm-Delta in Karten-Pan, wenn die Karte mit `bearing` nach oben steht. */
+export function screenPanToMap(dx: number, dy: number, bearingDeg: number): { dx: number; dy: number } {
+  const r = ((bearingDeg || 0) * Math.PI) / 180
+  const c = Math.cos(r)
+  const s = Math.sin(r)
+  return { dx: dx * c + dy * s, dy: -dx * s + dy * c }
+}
 export function panCam(cam: MapCam, dxPx: number, dyPx: number): MapCam {
   const p = worldPixels(cam.lat, cam.lon, cam.zoom)
   const next = latLonFromWorld(p.x - dxPx, p.y - dyPx, cam.zoom)

@@ -1,7 +1,7 @@
 import { getJson, getText } from './http-json.ts'
 import { isFreshHereFix, parseCoord } from './location-keep.ts'
 import { loadSettings } from './store.ts'
-import { pinForTag, pinForText, type GeoFix } from './globe-geo.ts'
+import { pinForTag, pinForText, pinLineFor, type GeoFix } from './globe-geo.ts'
 import type { OutlookSnap } from './outlook.ts'
 import { tourGlowPins } from './globe-tour.ts'
 import { cachedLayer, fetchLayer, pinsForActiveLayer } from './globe-layers.ts'
@@ -34,7 +34,7 @@ export async function loadGlobePins(): Promise<GeoFix[]> {
       if (focus.name && lat != null && lon != null && !(lat === 0 && lon === 0)) {
         const name = String(focus.name)
         if (!/^iss$/i.test(name)) {
-          add({ name, lat, lon, kind: 'outlook', line: s.last_globe_brief || 'Gazetteer' })
+          add({ name, lat, lon, kind: 'outlook', line: pinLineFor(name, s.last_globe_brief) })
         }
       }
     }

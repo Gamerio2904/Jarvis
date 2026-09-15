@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.0.8` — Karte öffnet, Pin-Text passt, CarPlay heading-up — *CODE*
+
+Lage aus „Zeig mir das auf der Karte“ (auch nach einem Satz davor). Pin
+zeigt nicht mehr den Brief eines anderen Orts. „weißt du auch wo?“ ist
+Standort. Fahrmodus-Karte heading-up, weicher nachgeführt. Sideload bleibt
+**`18.0.7`**, bis die nächste APK gebaut ist.
+
 ### `18.2` — Ideen halten — *PLAN*
 
 Analyse der Gemini-Skizze *Project Architect / Idea Curator* und Sprints

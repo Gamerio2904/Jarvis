@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`18.0.7`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload-APK **`18.0.7`**, versionCode `180007`. Körper live, Chat darunter oder Vollbild. Test [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+> **Jetzt:** Code **`18.0.8`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload-APK **`18.0.7`**, versionCode `180007`. Karte öffnet aus dem Chat, Pin-Text passt zum Ort, CarPlay heading-up. Test [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -585,6 +585,7 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | `18.0.5` | Schach-Gegner, Kugel-Pin schließen, Körper alle Agenten | Patch **CODE** + Sideload |
 | `18.0.6` | Figurenfarbe, Rochade/En passant, Körper-Zoom auf Agenten | Patch **CODE** + Sideload |
 | `18.0.7` | Körper live, Chat darunter oder Vollbild | Patch **CODE** + Sideload |
+| `18.0.8` | Karte öffnet, Pin-Text passt, CarPlay heading-up | Patch **CODE** |
 
 ### `18.2` — Ideen halten [`72-next.md`](./72-next.md) **PLAN**
 

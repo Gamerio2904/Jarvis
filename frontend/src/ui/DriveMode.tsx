@@ -8,6 +8,7 @@ import {
   clampMapZoom,
   dayTiles,
   panCam,
+  screenPanToMap,
   prefetchTile,
   projectOnTiles,
   readLastMapFix,
@@ -153,11 +154,13 @@ function FollowMap({
         const dy = p.y - lastPan.y
         if (Math.abs(dx) + Math.abs(dy) > 7) moved = true
         if (moved) {
+          const headingUp = followRef.current
           if (followRef.current) {
             followRef.current = false
             setBrowsing(true)
           }
-          cam.current = panCam(cam.current, dx, dy)
+          const pan = headingUp ? screenPanToMap(dx, dy, headingRef.current) : { dx, dy }
+          cam.current = panCam(cam.current, pan.dx, pan.dy)
           lastDraw = 0
         }
         lastPan = p
@@ -190,6 +193,23 @@ function FollowMap({
     wrap.addEventListener('pointermove', onMove)
     wrap.addEventListener('pointerup', onUp)
     wrap.addEventListener('pointercancel', onUp)
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const r = wrap.getBoundingClientRect()
+      const x = e.clientX - r.left
+      const y = e.clientY - r.top
+      const w = wrap.clientWidth
+      const h = wrap.clientHeight
+      const step = e.deltaY > 0 ? -0.35 : 0.35
+      userZoomRef.current = true
+      if (followRef.current) {
+        cam.current = { ...cam.current, zoom: clampMapZoom(cam.current.zoom + step) }
+      } else {
+        cam.current = zoomAround(cam.current, cam.current.zoom + step, x, y, w * 0.5, h * 0.58)
+      }
+      lastDraw = 0
+    }
+    wrap.addEventListener('wheel', onWheel, { passive: false })
 
     const paint = (now: number) => {
       const box = wrapRef.current
@@ -205,13 +225,15 @@ function FollowMap({
       const here = live.current
 
       if (followRef.current && pts.size === 0) {
+        const dt = Math.min(48, Math.max(8, now - (lastDraw || now)))
+        const a = 1 - Math.exp(-dt / 120)
         const jump = Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) > 0.05
         if (jump) {
           cam.current.lat = here.lat
           cam.current.lon = here.lon
         } else {
-          cam.current.lat += (here.lat - cam.current.lat) * 0.18
-          cam.current.lon += (here.lon - cam.current.lon) * 0.18
+          cam.current.lat += (here.lat - cam.current.lat) * a
+          cam.current.lon += (here.lon - cam.current.lon) * a
         }
         if (!userZoomRef.current) {
           const dest = destRef.current
@@ -240,7 +262,7 @@ function FollowMap({
         (followRef.current
           ? Math.abs(here.lat - cam.current.lat) + Math.abs(here.lon - cam.current.lon) < 4e-7
           : true)
-      if (still && now - lastDraw < 180) return
+      if (still && now - lastDraw < 90) return
       lastDraw = now
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2.5)
@@ -258,19 +280,34 @@ function FollowMap({
       const size = TILE_SIZE * 2 ** (z - zInt)
       const day = dayTiles()
       const camM = webMercator(cam.current.lat, cam.current.lon, zInt)
-      const x0 = Math.floor(camM.x - cx / size) - 1
-      const y0 = Math.floor(camM.y - cy / size) - 1
-      const x1 = Math.ceil(camM.x + (cssW - cx) / size) + 1
-      const y1 = Math.ceil(camM.y + (cssH - cy) / size) + 1
+      const pad = followRef.current ? 2 : 1
+      const x0 = Math.floor(camM.x - cx / size) - pad
+      const y0 = Math.floor(camM.y - cy / size) - pad
+      const x1 = Math.ceil(camM.x + (cssW - cx) / size) + pad
+      const y1 = Math.ceil(camM.y + (cssH - cy) / size) + pad
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.imageSmoothingEnabled = true
-      ctx.fillStyle = day ? '#e4e0d4' : '#0b100e'
+      ctx.fillStyle = day ? '#d9e4d4' : '#0b100e'
       ctx.fillRect(0, 0, cssW, cssH)
+
+      const heading = here.bearing != null && Number.isFinite(here.bearing) ? here.bearing : headingRef.current
+      const delta = ((heading - headingRef.current + 540) % 360) - 180
+      headingRef.current += delta * 0.22
+      const headingUp = followRef.current
+      const you = projectOnTiles(here.lat, here.lon, camM, zInt, size, cx, cy)
 
       const ready = () => {
         lastDraw = 0
       }
+
+      ctx.save()
+      if (headingUp && Number.isFinite(you.x) && Number.isFinite(you.y)) {
+        ctx.translate(you.x, you.y)
+        ctx.rotate((-headingRef.current * Math.PI) / 180)
+        ctx.translate(-you.x, -you.y)
+      }
+
       for (let ty = y0; ty <= y1; ty += 1) {
         for (let tx = x0; tx <= x1; tx += 1) {
           const img = prefetchTile(tileUrl(zInt, tx, ty, day), ready)
@@ -304,11 +341,14 @@ function FollowMap({
         if (started) {
           ctx.lineJoin = 'round'
           ctx.lineCap = 'round'
-          ctx.strokeStyle = '#070908'
-          ctx.lineWidth = 8
+          ctx.strokeStyle = 'rgba(7,9,8,0.92)'
+          ctx.lineWidth = 10
           ctx.stroke()
           ctx.strokeStyle = '#1ed760'
-          ctx.lineWidth = 4
+          ctx.lineWidth = 5
+          ctx.stroke()
+          ctx.strokeStyle = '#d4ffe3'
+          ctx.lineWidth = 1.4
           ctx.stroke()
         }
       }
@@ -328,22 +368,20 @@ function FollowMap({
       const pinPt = projectOnTiles(dest.lat, dest.lon, camM, zInt, size, cx, cy)
       if (Number.isFinite(pinPt.x) && Number.isFinite(pinPt.y)) {
         ctx.beginPath()
-        ctx.arc(pinPt.x, pinPt.y, 7, 0, Math.PI * 2)
+        ctx.arc(pinPt.x, pinPt.y, 8, 0, Math.PI * 2)
         ctx.fillStyle = '#f15e6c'
         ctx.fill()
         ctx.lineWidth = 3
         ctx.strokeStyle = '#070908'
         ctx.stroke()
       }
+      ctx.restore()
 
-      const you = projectOnTiles(here.lat, here.lon, camM, zInt, size, cx, cy)
-      const heading = here.bearing != null && Number.isFinite(here.bearing) ? here.bearing : headingRef.current
-      const delta = ((heading - headingRef.current + 540) % 360) - 180
-      headingRef.current += delta * 0.42
       if (pin) {
         const on = you.x > -40 && you.x < cssW + 40 && you.y > -40 && you.y < cssH + 40
         pin.style.opacity = on ? '1' : '0'
-        pin.style.transform = `translate(${you.x - 14}px, ${you.y - 16}px) rotate(${headingRef.current}deg)`
+        const rot = headingUp ? 0 : headingRef.current
+        pin.style.transform = `translate(${you.x - 14}px, ${you.y - 16}px) rotate(${rot}deg)`
       }
     }
 
@@ -368,6 +406,7 @@ function FollowMap({
       wrap.removeEventListener('pointermove', onMove)
       wrap.removeEventListener('pointerup', onUp)
       wrap.removeEventListener('pointercancel', onUp)
+      wrap.removeEventListener('wheel', onWheel)
     }
   }, [live])
 

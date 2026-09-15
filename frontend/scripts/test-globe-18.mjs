@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict'
-import { parseHudIntent } from '../src/engine/hud-parse.ts'
+import { commandClause, parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
 import { dayOfYear, isNight, nightCover, subsolar, wrapLon } from '../src/engine/sun.ts'
-import { alongCoast } from '../src/engine/globe-geo.ts'
+import { alongCoast, briefFitsPlace, pinLineFor } from '../src/engine/globe-geo.ts'
 import { ageLine } from '../src/engine/globe-layers.ts'
+import { screenPanToMap } from '../src/engine/drive-map.ts'
+import { parseHereIntent } from '../src/engine/here-parse.ts'
 
 const june = new Date(Date.UTC(2026, 5, 21, 12, 0, 0))
 const sun = subsolar(june)
@@ -30,6 +32,19 @@ assert.notEqual(parseHudIntent('Zeig Erdbeben')?.kind, 'unknown_place')
 assert.notEqual(parseHudIntent('Zeig Waldbrände')?.kind, 'unknown_place')
 assert.equal(parseHudIntent('Zeig die Erde')?.view, 'globe')
 assert.equal(parseHudIntent('Zeig mir London')?.kind, 'pin')
+assert.equal(parseHudIntent('Ah sehr schön. Zeig mir das auf der Karte')?.kind, 'show_map')
+assert.equal(parseHudIntent('Zeig mir Bibione auf der Karte')?.kind, 'show_map')
+assert.equal(parseHudIntent('öffne die Karte')?.view, 'globe')
+assert.equal(commandClause('Ah sehr schön. Zeig mir das auf der Karte'), 'Zeig mir das auf der Karte')
+assert.equal(briefFitsPlace('Kiew', 'Zur Lage in London: Themse.'), false)
+assert.match(pinLineFor('Kiew', 'Zur Lage in London: Themse.'), /Kiew/)
+assert.doesNotMatch(pinLineFor('Kiew', 'Zur Lage in London: Themse.'), /London/)
+assert.equal(parseHereIntent('weißt du auch wo?')?.kind, 'locate')
+{
+  const east = screenPanToMap(10, 0, 90)
+  assert.ok(Math.abs(east.dx) < 1e-9)
+  assert.ok(Math.abs(east.dy + 10) < 1e-9)
+}
 
 assert.equal(parseFlightsIntent('Was fliegt über uns'), true)
 assert.equal(parseFlightsIntent('was ist über uns'), true)

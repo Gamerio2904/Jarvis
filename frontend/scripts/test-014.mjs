@@ -126,7 +126,7 @@ import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { formatFilmReply } from '../src/engine/film.ts'
 import { tvAppFromPackage } from '../src/engine/tv-apps.ts'
 import { dirFromManeuver, formatNavCue, navPhase, nextManeuver } from '../src/engine/nav-speak.ts'
-import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, panCam, projectOnTiles, projectToView, settleZoom, simplifyTrack, snapToTrack, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
+import { compactCoords, decodePolyline, asLonLat, isRoadTrack, latLonFromWorld, lonLatPath, panCam, projectOnTiles, projectToView, screenPanToMap, settleZoom, simplifyTrack, snapToTrack, tilesForView, tileUrl, webMercator, worldPixels, wrapTile, zoomAround, zoomForSpeedMps, zoomToInclude } from '../src/engine/drive-map.ts'
 import { pickGeoHits } from '../src/engine/geo-lookup.ts'
 import { isBriefAsk } from '../src/engine/brief-parse.ts'
 import { parseEyeIntent } from '../src/engine/eye-parse.ts'
@@ -136,10 +136,10 @@ import { parseChatSearch } from '../src/engine/search-chat-parse.ts'
 import { parseOrdinalFollowUp } from '../src/engine/ordinal.ts'
 import { splitTitlePlace } from '../src/engine/calendar-parse.ts'
 import { pickRoute, pickRouteFromCtx } from '../src/engine/route-pick.ts'
-import { parseHudIntent, patchForHudView } from '../src/engine/hud-parse.ts'
+import { commandClause, parseHudIntent, patchForHudView } from '../src/engine/hud-parse.ts'
 import { hideToolChip } from '../src/ui/tool-chip.ts'
 import { parseGroundIntent } from '../src/engine/ground-parse.ts'
-import { gazetteerHit, pinForTag, composePlaceBrief, lookLatLon, viewXYZ, yawPitchFor } from '../src/engine/globe-geo.ts'
+import { briefFitsPlace, gazetteerHit, pinForTag, pinLineFor, composePlaceBrief, lookLatLon, viewXYZ, yawPitchFor } from '../src/engine/globe-geo.ts'
 import { judgeTurn } from '../src/engine/debug-judge.ts'
 import { parseTraceIntent } from '../src/engine/trace-parse.ts'
 import { parseDigestIntent } from '../src/engine/digest-parse.ts'
@@ -325,7 +325,8 @@ assert.equal(parseTvIntent('Fernseher lautstärke 50')?.action, 'volume_set')
 assert.equal(parseDriveIntent('Zeig Spotify'), null)
 assert.equal(parseDriveIntent('Zeig Spotify', true)?.tab, 'spotify')
 assert.equal(parseDriveIntent('Öffne das Spotify overlay')?.tab, 'spotify')
-assert.equal(parseDriveIntent('öffne Karte')?.kind === 'tab' && parseDriveIntent('öffne Karte')?.tab, 'map')
+assert.equal(parseDriveIntent('öffne Karte'), null)
+assert.equal(parseDriveIntent('öffne Karte', true)?.tab, 'map')
 assert.equal(parseDriveIntent('Karte'), null)
 assert.equal(parseDriveIntent('Karte', true)?.tab, 'map')
 assert.equal(parseDriveIntent('Spotify', true)?.tab, 'spotify')
@@ -1402,6 +1403,8 @@ assert.equal(parseHereIntent('Wo bin ich gerade?')?.kind, 'locate')
 assert.equal(parseHereIntent('wo stehe ich')?.kind, 'locate')
 assert.equal(parseHereIntent('mein Standort')?.kind, 'locate')
 assert.equal(parseHereIntent('weißt du wo ich bin')?.kind, 'locate')
+assert.equal(parseHereIntent('weißt du auch wo?')?.kind, 'locate')
+assert.equal(parseHereIntent('weißt du auch wo ich bin')?.kind, 'locate')
 assert.equal(parseHereIntent('ohne meine Adresse nachzugucken weißt du wo ich bin')?.kind, 'locate')
 assert.equal(parseHereIntent('es ist 06:30 Uhr wo könnte ich denn sein')?.kind, 'locate')
 assert.equal(parseHereIntent('wo könnte ich jetzt frühstücken'), null)
@@ -2075,6 +2078,14 @@ assert.equal(parseHudIntent('Zeig PC Auge')?.id, 'pc_eye')
 assert.equal(parseHudIntent('Wo liegt Berlin')?.kind, 'pin')
 assert.equal(parseHudIntent('Wo liegt Berlin')?.name, 'Berlin')
 assert.equal(parseHudIntent('Zeig mir London')?.kind, 'pin')
+assert.equal(parseHudIntent('Ah sehr schön. Zeig mir das auf der Karte')?.kind, 'show_map')
+assert.equal(parseHudIntent('Zeig mir das auf der Karte')?.kind, 'show_map')
+assert.equal(parseHudIntent('Zeig mir London auf der Karte')?.kind, 'pin')
+assert.equal(parseHudIntent('Zeig mir London auf der Karte')?.name, 'London')
+assert.equal(parseHudIntent('öffne die Karte')?.view, 'globe')
+assert.equal(commandClause('Ah sehr schön. Zeig mir das auf der Karte'), 'Zeig mir das auf der Karte')
+assert.equal(pickRoute('Zeig mir das auf der Karte'), 'hud')
+assert.equal(pickRoute('Ah sehr schön. Zeig mir das auf der Karte'), 'hud')
 assert.equal(parseHudIntent('Flieg nach Tokyo')?.kind, 'pin')
 assert.equal(parseHudIntent('Flieg nach Tokyo')?.name, 'Tokio')
 assert.equal(parseHudIntent('Flieg nach Tokio')?.name, 'Tokio')
@@ -2531,6 +2542,20 @@ assert.equal(parseHudIntent('Wo ist London')?.kind, 'pin')
   assert.match(brief, /London/)
   assert.doesNotMatch(brief, /Tagesschau/)
   assert.doesNotMatch(brief, /Lokalnachricht/)
+}
+assert.equal(briefFitsPlace('Kiew', 'Zur Lage in London: …'), false)
+assert.equal(briefFitsPlace('London', 'Zur Lage in London: Themse.'), true)
+assert.match(pinLineFor('Kiew', 'Zur Lage in London: Themse.'), /Kiew/)
+assert.doesNotMatch(pinLineFor('Kiew', 'Zur Lage in London: Themse.'), /London/)
+assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzlage zu diesem Ort.')
+assert.match(pinLineFor('London', 'Zur Lage in London: Themse.'), /London/)
+{
+  const north = screenPanToMap(10, 0, 0)
+  assert.equal(north.dx, 10)
+  assert.ok(Math.abs(north.dy) < 1e-9)
+  const east = screenPanToMap(10, 0, 90)
+  assert.ok(Math.abs(east.dx) < 1e-9)
+  assert.ok(Math.abs(east.dy + 10) < 1e-9)
 }
 assert.equal(looksTruncated('Die Tagesschau erwähnt die Stadt derzeit nicht, und Lokalnachrichten sollten nicht'), true)
 assert.equal(looksTruncated('London liegt an der Themse.'), false)

@@ -27,6 +27,7 @@ import { loadBodyGraph, type BodyGraph } from '../../engine/body-graph.ts'
 import { BodyTree } from './BodyTree.tsx'
 import { loadGlobePins, loadIssTrail } from '../../engine/globe-pins.ts'
 import type { GeoFix } from '../../engine/globe-geo.ts'
+import { pinLineFor } from '../../engine/globe-geo.ts'
 import { CITY_FLY_ZOOM } from '../../engine/globe-gibs.ts'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion.ts'
 import { loadSettings, saveSettings, type Message } from '../../engine/store.ts'
@@ -240,7 +241,7 @@ export function Lage({
         lat,
         lon,
         kind: 'outlook',
-        line: s.last_globe_brief || '',
+        line: pinLineFor(name, s.last_globe_brief),
       })
     } catch {
       /* ignore */
@@ -424,7 +425,7 @@ export function Lage({
                   </button>
                 </div>
                 <p className="lage-body">
-                  {decodeHtml(pinCard.line || s.last_globe_brief || 'Keine Kurzlage zu diesem Ort.')}
+                  {decodeHtml(pinLineFor(pinCard.name, pinCard.line || '', s.last_globe_brief))}
                 </p>
                 <p className="pin-bubble-swipe">Keine Bilder — nur Lage-Text.</p>
                 <div className="pin-bubble-actions">

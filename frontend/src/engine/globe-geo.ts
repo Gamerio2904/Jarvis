@@ -108,7 +108,7 @@ function onlyFillerLeft(text: string, matched: string): boolean {
 
 export function gazetteerHit(blob: string): PlaceFix | null {
   const t = (blob || '')
-    .replace(/\s+auf\s+der\s+(?:weltkugel|kugel|erde|globus)\s*$/i, '')
+    .replace(/\s+auf\s+der\s+(?:weltkugel|kugel|erde|globus|karte|weltkarte)\s*$/i, '')
     .replace(/\s+auf\s+dem\s+globus\s*$/i, '')
     .trim()
   if (!t || /\bund\b/i.test(t)) return null
@@ -160,6 +160,24 @@ export function nearestPlace(lat: number, lon: number, maxKm = CITY_HIT_KM): Pla
 
 export function cityLine(place: Pick<PlaceFix, 'name' | 'blurb'>): string {
   return `Das ist ${place.name}, ${place.blurb}`.replace(/\s+/g, ' ').trim()
+}
+
+/** Pin-Text nur, wenn er zu diesem Ort gehört — sonst bleibt London auf Kiew. */
+export function briefFitsPlace(name: string, brief: string): boolean {
+  const n = (name || '').trim()
+  const b = (brief || '').trim()
+  if (!n || !b) return false
+  const esc = n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(`\\b${esc}\\b`, 'i').test(b)
+}
+
+export function pinLineFor(name: string, brief: string, fallback?: string): string {
+  if (briefFitsPlace(name, brief)) return brief.trim()
+  const hit = gazetteerHit(name)
+  if (hit?.blurb) return cityLine(hit)
+  const fb = (fallback || '').trim()
+  if (fb && briefFitsPlace(name, fb)) return fb
+  return 'Keine Kurzlage zu diesem Ort.'
 }
 
 export function composePlaceBrief(place: Pick<PlaceFix, 'name' | 'blurb'>, extras: string[] = []): string {
