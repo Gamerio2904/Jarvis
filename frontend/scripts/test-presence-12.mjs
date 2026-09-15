@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { APP_VERSION } from '../src/engine/store.ts'
-import { tabletCommandCenter, TABLET_BP } from '../src/engine/layout-probe.ts'
+import { tabletCommandCenter } from '../src/engine/layout-probe.ts'
 import { parseDeskIntent } from '../src/engine/desk-parse.ts'
 import { handleDesk } from '../src/engine/desk.ts'
 import {

@@ -16,7 +16,6 @@ import {
   claimsFromText,
   mergeClaims,
   normalizePack,
-  prunePackList,
   putKnowledgePack,
   listKnowledgePacks,
   deleteKnowledgePack,

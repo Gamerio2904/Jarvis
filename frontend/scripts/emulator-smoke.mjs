@@ -175,7 +175,7 @@ const download = await cdp.evaluate(`(async () => {
     const btn = document.querySelector('.setup-card button')?.textContent || ''
     const hint = [...document.querySelectorAll('.setup-card .settings-hint')].map((el) => el.textContent).join(' ')
     if (/file not found/i.test(err)) return 'ERR ' + err
-    if (/\b([1-9]\d?)%/.test(btn + ' ' + hint) || /Download läuft/.test(hint) || /starten/.test(btn)) {
+    if (/\\b([1-9]\\d?)%/.test(btn + ' ' + hint) || /Download läuft/.test(hint) || /starten/.test(btn)) {
       return 'PROGRESS ' + btn + ' | ' + hint
     }
     await new Promise((r) => setTimeout(r, 400))
