@@ -41,7 +41,6 @@ import java.util.ArrayList;
 @CapacitorPlugin(
         name = "JarvisDevice",
         permissions = {
-                @Permission(alias = "camera", strings = {Manifest.permission.CAMERA}),
                 @Permission(alias = "phone", strings = {Manifest.permission.CALL_PHONE}),
                 @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS}),
                 @Permission(alias = "bluetooth", strings = {Manifest.permission.BLUETOOTH_CONNECT})
@@ -98,26 +97,14 @@ public class JarvisDevicePlugin extends Plugin {
         call.resolve(r);
     }
 
+    /**
+     * `setTorchMode` braucht seit API 23 kein Kamera-Recht. Die Abfrage stand
+     * trotzdem davor: „Taschenlampe an" öffnete einen Kamera-Dialog, und wer
+     * ablehnte — für eine Taschenlampe naheliegend — bekam für immer
+     * „Kamera-Recht fehlt", obwohl das Licht angehen würde.
+     */
     @PluginMethod
     public void torch(PluginCall call) {
-        Boolean on = call.getBoolean("on", true);
-        if (getPermissionState("camera") != PermissionState.GRANTED) {
-            call.setKeepAlive(true);
-            requestPermissionForAlias("camera", call, "onCamPerm");
-            return;
-        }
-        applyTorch(call, Boolean.TRUE.equals(on));
-    }
-
-    @PermissionCallback
-    private void onCamPerm(PluginCall call) {
-        if (getPermissionState("camera") != PermissionState.GRANTED) {
-            JSObject r = new JSObject();
-            r.put("ok", false);
-            r.put("message", "Kamera-Recht fehlt. Sagen Sie „aktivieren“ in den App-Einstellungen, oder Taschenlampe hier erlauben.");
-            call.resolve(r);
-            return;
-        }
         applyTorch(call, Boolean.TRUE.equals(call.getBoolean("on", true)));
     }
 

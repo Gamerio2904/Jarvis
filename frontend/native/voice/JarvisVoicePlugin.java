@@ -209,6 +209,14 @@ public class JarvisVoicePlugin extends Plugin {
         main.post(() -> {
             if (listenCall != null) {
                 finishListen("", false, "schon am Zuhören", null);
+                /**
+                 * Der alte Ruf wurde beantwortet, die Erkennung lief aber
+                 * weiter: der neue Anlauf lief in ERROR_RECOGNIZER_BUSY und der
+                 * Sprachmodus meldete „Zuhören unterbrochen".
+                 */
+                if (recognizer != null) {
+                    try { recognizer.cancel(); } catch (Exception ignored) {}
+                }
             }
             JarvisWakeService.pauseListen();
             listenCall = call;
@@ -426,6 +434,21 @@ public class JarvisVoicePlugin extends Plugin {
             return;
         }
         call.setKeepAlive(true);
+        /**
+         * Der vorige Aufruf wurde vorher einfach überschrieben. Er hatte
+         * setKeepAlive(true), sein Versprechen in JS wurde damit nie eingelöst
+         * — der DriveMode wartet in .finally() darauf, um navBusy zurückzusetzen,
+         * und blieb für den Rest der Fahrt auf „beschäftigt". Ab dem ersten
+         * überlappenden Hinweis kam keine Ansage mehr.
+         */
+        PluginCall prev = speakCall;
+        speakCall = null;
+        if (prev != null && prev != call) {
+            JSObject over = new JSObject();
+            over.put("ok", false);
+            over.put("message", "überholt");
+            prev.resolve(over);
+        }
         speakCall = call;
         final int gen = ++speakGen;
         final String gender = call.getString("gender", "");
@@ -460,9 +483,15 @@ public class JarvisVoicePlugin extends Plugin {
                 finishSpeak(false);
                 return;
             }
+            /**
+             * Die Notbremse meldete „fertig", obwohl noch gesprochen wurde:
+             * eine Antwort über 20 Sekunden schnitt sich damit selbst ab, weil
+             * die Warteschlange den nächsten Satz mit QUEUE_FLUSH nachschob.
+             * Sie sagt jetzt die Wahrheit und greift nur für ihren eigenen Ruf.
+             */
             main.postDelayed(() -> {
-                if (speakGen != gen) return;
-                finishSpeak(true);
+                if (speakGen != gen || speakCall != call) return;
+                finishSpeak(false);
             }, 20_000);
         });
     }

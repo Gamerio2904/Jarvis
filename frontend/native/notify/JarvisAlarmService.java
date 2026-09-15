@@ -14,7 +14,9 @@ import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.PowerManager;
 
 import androidx.core.app.NotificationCompat;
@@ -27,6 +29,8 @@ public class JarvisAlarmService extends Service {
     static final int NOTE_ID = 72;
     private static final String CHANNEL = "jarvis_alarms_v4";
     private static final String TIMER_CHANNEL = "jarvis_timer_speak_v1";
+
+    private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
     private PowerManager.WakeLock cpuLock;
     private MediaSession session;
@@ -76,17 +80,28 @@ public class JarvisAlarmService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && ACTION_STOP.equals(intent.getAction())) {
+        /**
+         * Ohne Intent ist nichts zu tun. Der Dienst lief vorher als
+         * START_STICKY, wurde nach einem Speicherengpass mit null neu gestartet
+         * und klingelte dann Stunden später mit den Standardwerten los — ein
+         * Wecker, den nie jemand gestellt hatte. Die Quelle der Wahrheit ist
+         * der AlarmManager, hier gibt es keinen Zustand zu retten.
+         */
+        if (intent == null) {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+        if (ACTION_STOP.equals(intent.getAction())) {
             JarvisAlarmPlayer.stop();
             JarvisTimerVoice.stop();
             stopSelf();
             return START_NOT_STICKY;
         }
-        String title = intent != null ? intent.getStringExtra("title") : null;
-        String body = intent != null ? intent.getStringExtra("body") : null;
-        String tone = intent != null ? intent.getStringExtra("tone") : null;
-        String mode = intent != null ? intent.getStringExtra("mode") : null;
-        String say = intent != null ? intent.getStringExtra("say") : null;
+        String title = intent.getStringExtra("title");
+        String body = intent.getStringExtra("body");
+        String tone = intent.getStringExtra("tone");
+        String mode = intent.getStringExtra("mode");
+        String say = intent.getStringExtra("say");
         if (title == null || title.isEmpty()) title = "Jarvis";
         if (body == null) body = "";
         boolean speak = JarvisNotifyPlugin.isTimerSpeak(mode, title);
@@ -100,11 +115,18 @@ public class JarvisAlarmService extends Service {
         holdSession();
         JarvisWakeService.pauseListen();
         if (speak) {
-            JarvisTimerVoice.speak(this, say);
+            /**
+             * Nach dem gesprochenen Satz blieb der Dienst stehen: Meldung nicht
+             * wegwischbar, Wake-Lock bis zum 30-Minuten-Timeout. Jetzt beendet
+             * er sich selbst — mit Rückfallfrist, falls die Sprachausgabe nie
+             * „fertig" meldet.
+             */
+            JarvisTimerVoice.speak(this, say, this::stopSelf);
+            MAIN.postDelayed(this::stopSelf, 20_000L);
         } else {
             JarvisAlarmPlayer.start(this, tone);
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private void startFg(String title, String body, String tone, String mode, String say, boolean speak) {
@@ -124,20 +146,23 @@ public class JarvisAlarmService extends Service {
         Intent halt = new Intent(this, JarvisAlarmService.class);
         halt.setAction(ACTION_STOP);
         PendingIntent stopPi = PendingIntent.getService(this, 72_002, halt, flags);
-        Notification n = new NotificationCompat.Builder(this, speak ? TIMER_CHANNEL : CHANNEL)
+        NotificationCompat.Builder b = new NotificationCompat.Builder(this, speak ? TIMER_CHANNEL : CHANNEL)
                 .setSmallIcon(android.R.drawable.ic_lock_idle_alarm)
                 .setContentTitle(speak && body != null && !body.isEmpty() && !"Timer".equalsIgnoreCase(body) ? body : title)
                 .setContentText(speak && say != null && !say.isEmpty() ? say : body)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setOngoing(true)
-                .setAutoCancel(false)
+                // Ein gesprochener Timer ist nach dem Satz vorbei — die Meldung
+                // muss sich wegwischen lassen, statt in der Leiste zu kleben.
+                .setOngoing(!speak)
+                .setAutoCancel(speak)
                 .setSilent(true)
                 .setFullScreenIntent(fullPi, true)
                 .setContentIntent(fullPi)
-                .addAction(0, "Aus", stopPi)
-                .build();
+                .addAction(0, "Aus", stopPi);
+        if (speak) b.setTimeoutAfter(60_000L);
+        Notification n = b.build();
         try {
             if (Build.VERSION.SDK_INT >= 34) {
                 startForeground(
@@ -161,6 +186,15 @@ public class JarvisAlarmService extends Service {
                 try {
                     startForeground(NOTE_ID, n);
                 } catch (Exception ignored2) {
+                    /**
+                     * Ein mit startForegroundService gestarteter Dienst, der es
+                     * nie in den Vordergrund schafft, wird nach etwa fünf
+                     * Sekunden mit einer RemoteServiceException erschlagen — das
+                     * reißt die App mit. Lieber gleich geordnet aufhören.
+                     */
+                    JarvisAlarmPlayer.stop();
+                    JarvisTimerVoice.stop();
+                    stopSelf();
                 }
             }
         }
@@ -227,6 +261,7 @@ public class JarvisAlarmService extends Service {
 
     @Override
     public void onDestroy() {
+        MAIN.removeCallbacksAndMessages(null);
         if (session != null) {
             try {
                 session.setActive(false);

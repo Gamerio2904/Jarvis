@@ -271,7 +271,10 @@ export async function tvTestNative(opts: {
 }): Promise<TvResult> {
   if (native) {
     try {
-      return await withTimeout(native.test(opts), 20_000, nativeFail('Test'))
+      return await withTimeout(native.test(opts), 20_000, nativeFail('Test'), (err) => ({
+        ok: false,
+        message: err instanceof Error ? `Test: ${err.message}` : nativeFail('Test').message,
+      }))
     } catch (err) {
       return { ok: false, message: err instanceof Error ? err.message : 'Test fehlgeschlagen' }
     }

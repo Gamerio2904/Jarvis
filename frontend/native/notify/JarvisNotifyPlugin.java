@@ -52,6 +52,22 @@ public class JarvisNotifyPlugin extends Plugin {
     static final String KEY_TONE = "alarm_tone";
     static final String KEY_TONE_NAME = "alarm_tone_name";
 
+    /**
+     * Doppelter Boden zum Empfänger: gespeicherte Wecker und Erinnerungen
+     * werden bei jedem App-Start neu beim AlarmManager angemeldet. Fällt eine
+     * Systemmeldung aus — ein Hersteller, der MY_PACKAGE_REPLACED nicht
+     * ausliefert —, ist der Wecker trotzdem wieder scharf.
+     */
+    @Override
+    public void load() {
+        super.load();
+        try {
+            restoreAll(getContext());
+        } catch (Exception ignored) {
+            /* ignore */
+        }
+    }
+
     @PluginMethod
     public void requestPermission(PluginCall call) {
         if (Build.VERSION.SDK_INT < 33) {

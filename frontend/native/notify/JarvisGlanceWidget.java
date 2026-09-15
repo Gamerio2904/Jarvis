@@ -27,12 +27,24 @@ public class JarvisGlanceWidget extends AppWidgetProvider {
     @Override
     public void onReceive(Context context, Intent intent) {
         super.onReceive(context, intent);
-        if (intent != null && ACTION_TOGGLE_VOICE.equals(intent.getAction())) {
-            boolean on = JarvisWakeService.wantEnabled(context);
-            if (on) JarvisWakeService.stop(context);
-            else JarvisWakeService.start(context);
+        if (intent == null || !ACTION_TOGGLE_VOICE.equals(intent.getAction())) return;
+        if (JarvisWakeService.wantEnabled(context)) {
+            JarvisWakeService.stop(context);
             paint(context);
+            return;
         }
+        /**
+         * Anschalten geht von hier nicht: ein Mikrofon-Dienst aus dem
+         * Hintergrund ist ab Android 14 gesperrt, der Griff danach hat die App
+         * erschlagen. Der Wunsch wird vermerkt und die App geöffnet — sichtbar
+         * darf sie den Dienst scharf machen, und genau das tut sie beim Start.
+         */
+        JarvisWakeService.setWantEnabled(context, true);
+        try {
+            context.startActivity(homeIntent(context));
+        } catch (Exception ignored) {
+        }
+        paint(context);
     }
 
     public static void paint(Context ctx) {
@@ -59,6 +71,16 @@ public class JarvisGlanceWidget extends AppWidgetProvider {
             views.setOnClickPendingIntent(R.id.jarvis_widget_voice, togglePi);
             mgr.updateAppWidget(id, views);
         }
+    }
+
+    /** Nur öffnen, ohne Sprachmodus — für das Scharfmachen des Wake-Words. */
+    static Intent homeIntent(Context ctx) {
+        Intent i = new Intent(ctx, MainActivity.class);
+        i.setAction(Intent.ACTION_MAIN);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        return i;
     }
 
     /** Körper und Mikro: derselbe Deep-Link wie Shortcut und Wake-Word — zuhören und antworten. */

@@ -48,6 +48,21 @@ public final class JarvisAlarmPlayer {
 
     private static final Runnable WATCHDOG = () -> recover();
 
+    /**
+     * Ein Wecker, den niemand ausmacht — Handy zu Hause, Besitzer im anderen
+     * Zimmer — klingelte und vibrierte vorher unbegrenzt weiter. Der Ton läuft
+     * in Schleife, die Vibration wiederholt ab Index 0, und der Wake-Mode des
+     * MediaPlayers hält dabei die CPU wach: bis zum Abend war der Akku leer.
+     * Nach zehn Minuten ist die Sache erledigt.
+     */
+    static final long MAX_RING_MS = 10 * 60_000L;
+
+    private static final Runnable GIVE_UP = () -> {
+        Context ctx = app;
+        stop();
+        if (ctx != null) JarvisAlarmService.stop(ctx);
+    };
+
     private JarvisAlarmPlayer() {}
 
     public static synchronized void start(Context ctx, String tone) {
@@ -57,6 +72,7 @@ public final class JarvisAlarmPlayer {
         releaseQuiet();
         MAIN.removeCallbacks(WATCHDOG);
         MAIN.removeCallbacks(BEEP);
+        MAIN.removeCallbacks(GIVE_UP);
         ensureAlarmVolume(app);
         requestFocus(app);
         Uri custom = parseTone(app, tone);
@@ -69,6 +85,7 @@ public final class JarvisAlarmPlayer {
         if (!ok) startBeepLoop();
         vibrate(app);
         MAIN.postDelayed(WATCHDOG, 600);
+        MAIN.postDelayed(GIVE_UP, MAX_RING_MS);
     }
 
     private static synchronized void recover() {
@@ -83,6 +100,7 @@ public final class JarvisAlarmPlayer {
         wanted = false;
         MAIN.removeCallbacks(WATCHDOG);
         MAIN.removeCallbacks(BEEP);
+        MAIN.removeCallbacks(GIVE_UP);
         releaseQuiet();
         try {
             if (audio != null) {
@@ -153,6 +171,19 @@ public final class JarvisAlarmPlayer {
         try {
             if (audio == null) audio = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
             if (audio == null) return;
+            /**
+             * Ein Wecker startet den Spieler aus drei Richtungen (Plugin,
+             * Dienst, Vollbild-Aktivität). Jeder Anlauf legte eine neue Anfrage
+             * über die alte, `stop()` gab nur die letzte zurück — die anderen
+             * blieben stehen, und Spotify durfte danach nicht weiterspielen.
+             */
+            if (Build.VERSION.SDK_INT >= 26 && focusReq != null) {
+                try {
+                    audio.abandonAudioFocusRequest(focusReq);
+                } catch (Exception ignored) {
+                }
+                focusReq = null;
+            }
             if (Build.VERSION.SDK_INT >= 26) {
                 focusReq = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
                         .setAudioAttributes(alarmAttrs())

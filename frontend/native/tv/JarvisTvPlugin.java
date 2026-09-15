@@ -76,6 +76,23 @@ public class JarvisTvPlugin extends Plugin {
         });
     }
 
+    /**
+     * Die JS-Seite ruft `test` seit je, das Plugin kannte die Methode nicht.
+     * Capacitor wies den Ruf ab, `withTimeout` machte daraus den Rückfalltext —
+     * „Test: TV antwortet nicht. Gleiches WLAN?" — und schickte die Nutzer auf
+     * die Suche nach einem Netzproblem, das es nicht gab. Ein Test ist eine
+     * Kopplung mit kurzer Geduld.
+     */
+    @PluginMethod
+    public void test(PluginCall call) {
+        runBg(call, () -> {
+            String host = call.getString("host", "");
+            Integer port = call.getInt("port");
+            String token = call.getString("token", "");
+            resolve(call, doPair(host, port, "Jarvis", token == null ? "" : token, 12));
+        });
+    }
+
     @PluginMethod
     public void sendKey(PluginCall call) {
         runBg(call, () -> {

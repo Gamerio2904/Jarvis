@@ -21,21 +21,29 @@ public final class JarvisTimerVoice {
     private static AudioManager audio;
     private static AudioFocusRequest focusReq;
     private static boolean ready;
+    /** Der Dienst hängt hier dran, um sich nach dem Satz selbst zu beenden. */
+    private static Runnable finish;
 
     private JarvisTimerVoice() {}
 
     public static void speak(Context ctx, String text) {
+        speak(ctx, text, null);
+    }
+
+    public static void speak(Context ctx, String text, Runnable onDone) {
         if (ctx == null) return;
         String line = text == null ? "" : text.trim();
         if (line.isEmpty()) line = "Die Zeit ist um.";
         final String spoken = line;
         pending = spoken;
+        finish = onDone;
         Context app = ctx.getApplicationContext();
         MAIN.post(() -> startOnMain(app, spoken));
     }
 
     public static void stop() {
         pending = null;
+        finish = null;
         MAIN.post(() -> {
             try {
                 if (tts != null) tts.stop();
@@ -72,10 +80,10 @@ public final class JarvisTimerVoice {
                 tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                     @Override public void onStart(String utteranceId) {}
                     @Override public void onDone(String utteranceId) {
-                        MAIN.postDelayed(JarvisTimerVoice::dropFocus, 400);
+                        MAIN.postDelayed(JarvisTimerVoice::settle, 400);
                     }
                     @Override public void onError(String utteranceId) {
-                        MAIN.postDelayed(JarvisTimerVoice::dropFocus, 400);
+                        MAIN.postDelayed(JarvisTimerVoice::settle, 400);
                     }
                 });
                 ready = true;
@@ -143,6 +151,14 @@ public final class JarvisTimerVoice {
             }
         } catch (Exception ignored) {
         }
+    }
+
+    /** Gesprochen, Fokus zurück — und der Dienst darf sich beenden. */
+    private static void settle() {
+        dropFocus();
+        Runnable r = finish;
+        finish = null;
+        if (r != null) r.run();
     }
 
     private static void dropFocus() {

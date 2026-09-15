@@ -255,6 +255,23 @@ public class JarvisGeoPlugin extends Plugin {
         call.resolve(r);
     }
 
+    /**
+     * Ohne diesen Haken lief das GPS weiter, wenn die Activity starb, ohne dass
+     * JS noch aufräumen konnte: der LocationManager gehört dem Prozess und hielt
+     * den alten Listener — Standortsymbol in der Leiste, Akku leer, und beim
+     * Neuaufbau kam ein zweiter Satz Abfragen obendrauf.
+     */
+    @Override
+    protected void handleOnDestroy() {
+        try {
+            LocationManager lm = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+            if (lm != null) stopWatchLocked(lm);
+        } catch (Exception ignored) {
+            /* ignore */
+        }
+        super.handleOnDestroy();
+    }
+
     private void stopWatchLocked(LocationManager lm) {
         if (watchListener != null) {
             try {

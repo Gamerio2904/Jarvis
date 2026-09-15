@@ -84,7 +84,12 @@ public class JarvisWakeService extends Service {
         paused = false;
         inst = this;
         setWantEnabled(this, true);
-        startFg();
+        if (!startFg()) {
+            running = false;
+            inst = null;
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         holdCpu();
         armed = true;
         main.removeCallbacksAndMessages(null);
@@ -92,12 +97,25 @@ public class JarvisWakeService extends Service {
         return START_STICKY;
     }
 
-    private void startFg() {
-        Notification n = note();
-        if (Build.VERSION.SDK_INT >= 29) {
-            startForeground(71, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
-        } else {
-            startForeground(71, n);
+    /**
+     * Ein Mikrofon-Dienst darf nur laufen, wenn die App sichtbar ist. Aus dem
+     * Hintergrund wirft Android 14 eine SecurityException, Android 15 beim
+     * Systemstart eine ForegroundServiceStartNotAllowedException — und eine
+     * Ausnahme aus onStartCommand erschlägt den ganzen Prozess. Genau so
+     * verabschiedete sich die App nach einem Neustart und beim Tippen auf das
+     * Widget. Jetzt gibt der Dienst nur auf, statt die App mitzunehmen.
+     */
+    private boolean startFg() {
+        try {
+            Notification n = note();
+            if (Build.VERSION.SDK_INT >= 29) {
+                startForeground(71, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
+            } else {
+                startForeground(71, n);
+            }
+            return true;
+        } catch (Exception denied) {
+            return false;
         }
     }
 
@@ -315,8 +333,12 @@ public class JarvisWakeService extends Service {
         setWantEnabled(ctx, true);
         Intent i = new Intent(ctx, JarvisWakeService.class);
         i.setAction(ACTION_START);
-        if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i);
-        else ctx.startService(i);
+        try {
+            if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i);
+            else ctx.startService(i);
+        } catch (Exception ignored) {
+            /* Aus dem Hintergrund verboten — beim nächsten Öffnen der App erneut. */
+        }
         JarvisGlanceWidget.paint(ctx);
     }
 
@@ -324,7 +346,11 @@ public class JarvisWakeService extends Service {
         setWantEnabled(ctx, false);
         Intent i = new Intent(ctx, JarvisWakeService.class);
         i.setAction(ACTION_STOP);
-        ctx.startService(i);
+        try {
+            ctx.startService(i);
+        } catch (Exception ignored) {
+            /* Läuft gar nicht mehr — der Wunsch ist oben schon vermerkt. */
+        }
         JarvisGlanceWidget.paint(ctx);
     }
 }

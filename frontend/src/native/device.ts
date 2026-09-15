@@ -95,7 +95,9 @@ export async function setTorch(on: boolean): Promise<{ ok: boolean; message?: st
 export async function openAmazonMusic(): Promise<{ ok: boolean; message?: string }> {
   if (native) {
     try {
-      return await withTimeout(native.openApp({ pkg: 'com.amazon.mp3', uri: 'amzn://apps/android?p=com.amazon.mp3' }), 8_000, {
+      // amzn:// gibt es nur mit Amazon Appstore — auf einem Play-Gerät führte
+      // der Rückfallweg ins Leere. market:// bietet stattdessen das Installieren an.
+      return await withTimeout(native.openApp({ pkg: 'com.amazon.mp3', uri: 'market://details?id=com.amazon.mp3' }), 8_000, {
         ok: false,
         message: 'Amazon-Music-App fehlt. Spotify bleibt der Weg in Jarvis.',
       })

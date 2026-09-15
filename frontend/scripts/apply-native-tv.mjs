@@ -117,7 +117,9 @@ const perms = [
   'android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS',
   'android.permission.READ_MEDIA_AUDIO',
   'android.permission.MODIFY_AUDIO_SETTINGS',
-  'android.permission.CAMERA',
+  // CAMERA stand hier für die Taschenlampe. `setTorchMode` braucht es seit
+  // API 23 nicht, und nichts sonst in der App greift auf die Kamera zu — das
+  // Recht anzufragen war ein Schrecken ohne Gegenwert.
   'android.permission.FLASHLIGHT',
   'android.permission.CALL_PHONE',
   'android.permission.SEND_SMS',
@@ -154,6 +156,8 @@ if (!manifest.includes('app.jarvis.notify.JarvisNotifyReceiver')) {
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
         </receiver>
 </application>`,
@@ -183,9 +187,15 @@ if (!manifest.includes('app.jarvis.notify.JarvisAlarmActivity')) {
             android:name="app.jarvis.notify.JarvisGlanceWidget"
             android:exported="true"
             android:label="Jarvis">
+            <!--
+              TOGGLE_VOICE stand hier mit im Filter. Der Empfänger muss für
+              APPWIDGET_UPDATE exportiert sein, damit war die eigene Schaltaktion
+              für jede installierte App erreichbar — ein Fremdaufruf hätte das
+              Dauerzuhören einschalten können. Der PendingIntent des Widgets
+              nennt die Komponente direkt und braucht den Filter nicht.
+            -->
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="app.jarvis.notify.TOGGLE_VOICE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -285,6 +295,15 @@ if (!manifest.includes('<queries>')) {
         <intent>
             <action android:name="android.intent.action.SENDTO" />
             <data android:scheme="smsto" />
+        </intent>
+        <!--
+          Ohne diese Anfrage gibt getLaunchIntentForPackage seit Android 11
+          immer null zurück: „mach Amazon Music auf" antwortete „App nicht
+          installiert", obwohl sie auf dem Startbildschirm lag.
+        -->
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
         </intent>
     </queries>
 </manifest>`,
