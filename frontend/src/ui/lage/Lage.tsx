@@ -93,7 +93,9 @@ export function Lage({
   const bat = snap.device?.battery
   const amber = s.hud_accent === 'amber'
   const tourOn = Boolean(s.globe_tour_on)
+  const lastLine = recent[recent.length - 1]?.content || ''
   const globeLayer = s.globe_layer
+  const withChat = s.body_with_chat !== false
 
   useEffect(() => {
     let live = true
@@ -109,7 +111,7 @@ export function Lage({
           return
         }
         const next = await fetchBodySnap({ busy, conversationId })
-        const tree = await loadBodyGraph(organ, next, recent[recent.length - 1]?.content || '')
+        const tree = await loadBodyGraph(organ, next, lastLine)
         if (live) {
           setBody(next)
           setGraph(tree)
@@ -140,7 +142,7 @@ export function Lage({
       if (id) window.clearInterval(id)
       off()
     }
-  }, [view, bodyView, agentDept, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, recent.length, globeLayer])
+  }, [view, bodyView, agentDept, modules.join(','), spotifyOn, busy, conversationId, globeTick, organ, lastLine, globeLayer])
 
   useEffect(() => {
     if (view !== 'globe') return
@@ -268,6 +270,18 @@ export function Lage({
           >
             Lage aus
           </button>
+          {view === 'body' && compact ? (
+            <button
+              type="button"
+              className="lage-tab"
+              onClick={() => {
+                saveSettings({ body_with_chat: !withChat })
+                onHudChange?.()
+              }}
+            >
+              {withChat ? 'Vollbild' : 'Chat dazu'}
+            </button>
+          ) : null}
         </div>
         <div className="lage-tabs" role="tablist" aria-label="Lage-Sicht">
           {(
@@ -293,7 +307,9 @@ export function Lage({
             ? 'Erde drehen und zoomen — grüne Grenzen.'
             : view === 'body'
               ? bodyView === 'agents'
-                ? 'Ziehen dreht den Körper. Alle Agenten sind da — nur laufende leuchten.'
+                ? withChat && compact
+                  ? 'Körper oben, Chat darunter. Vollbild nimmt den ganzen Schirm.'
+                  : 'Ziehen dreht, zwei Finger zoomen, Doppeltipp holt einen Agenten heran.'
                 : 'Organ antippen — Baum rechts, kein Gerät.'
               : 'Kacheln laden sichtbar — Wetter, Musik, Gerät.'}
         </p>
@@ -303,6 +319,7 @@ export function Lage({
           <div className="lage-split">
             <AgentMapCanvas
               reduced={reduced}
+              zoomable
               selectedDept={agentDept}
               selectedAgent={pickedAgent}
               busy={busy}

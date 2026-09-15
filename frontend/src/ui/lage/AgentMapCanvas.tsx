@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   activeAgentId,
   activeTracePath,
@@ -10,9 +10,19 @@ import {
   sparkPath,
   synapses,
 } from '../../engine/agent-map.ts'
+import {
+  clampPan,
+  clampZoom,
+  labelsVisible,
+  MAP_ZOOM_MIN,
+  nearestHit,
+  zoomMagnify,
+  type HitCandidate,
+} from '../../engine/agent-zoom.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
+import { subscribeAgentTraces } from '../../engine/agents/trace-store.ts'
 
-type Screen = { x: number; y: number }
+type Screen = { x: number; y: number; z?: number }
 
 export function AgentMapCanvas({
   reduced,
@@ -21,6 +31,7 @@ export function AgentMapCanvas({
   busy = false,
   selectedAgent = '',
   liveAgent = '',
+  zoomable = false,
 }: {
   reduced: boolean
   onSelectDept: (id: string) => void
@@ -28,16 +39,33 @@ export function AgentMapCanvas({
   busy?: boolean
   selectedAgent?: string
   liveAgent?: string
+  zoomable?: boolean
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const selDeptRef = useRef(selectedDept)
   const selAgentRef = useRef(selectedAgent)
   const busyRef = useRef(busy)
   const liveRef = useRef(liveAgent)
+  const camRef = useRef({ zoom: 1, panX: 0, panY: 0 })
+  const rotRef = useRef({ x: 0.18, y: -0.42 })
+  const kickRef = useRef<() => void>(() => {})
+  const focusRef = useRef<(id: string) => void>(() => {})
+  const selectRef = useRef(onSelectDept)
+  const [zoom, setZoom] = useState(1)
   selDeptRef.current = selectedDept
   selAgentRef.current = selectedAgent
   busyRef.current = busy
   liveRef.current = liveAgent
+  selectRef.current = onSelectDept
+
+  /**
+   * Auswahl und Betrieb liegen in Refs, damit der Aufbau nicht an ihnen hängt:
+   * `onSelectDept` kommt als Pfeilfunktion und war bei jedem Render neu — der
+   * Effekt lief mit, riss die Zeiger ab und stellte die Drehung auf Anfang.
+   */
+  useEffect(() => {
+    kickRef.current()
+  }, [selectedDept, selectedAgent, busy, liveAgent])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -49,6 +77,7 @@ export function AgentMapCanvas({
     let raf = 0
     let last = 0
     let pulseT = 0
+    let live = true
     const dots = layoutAgentDots()
     const edges = synapses(dots)
 
@@ -79,6 +108,7 @@ export function AgentMapCanvas({
     resize()
     const ro = new ResizeObserver(() => {
       resize()
+      fixPan()
       kick()
     })
     ro.observe(canvas)
@@ -91,10 +121,15 @@ export function AgentMapCanvas({
       kick()
     })
 
-    const rot = { x: 0.18, y: -0.42 }
+    const rot = rotRef.current
+    const cam = camRef.current
     let dragging = false
     let lastPtr = { x: 0, y: 0 }
     let moved = 0
+    const touches = new Map<number, Screen>()
+    let pinchSpan = 0
+    let pinchMid: Screen | null = null
+    let lastTap = { id: '', at: 0 }
 
     function project(x: number, y: number): Screen {
       const cy = Math.cos(rot.y)
@@ -108,9 +143,52 @@ export function AgentMapCanvas({
       const persp = 1 / (1.85 + z2 * 0.42)
       const w = surface.clientWidth
       const h = surface.clientHeight
-      const s = Math.min(w, h) * 0.4 * persp
-      return { x: w / 2 + x1 * s, y: h / 2 - y1 * s }
+      const s = Math.min(w, h) * 0.4 * persp * cam.zoom
+      return { x: w / 2 + x1 * s + cam.panX, y: h / 2 - y1 * s + cam.panY, z: z2 }
     }
+
+    function fixPan() {
+      cam.panX = clampPan(cam.panX, surface.clientWidth, cam.zoom)
+      cam.panY = clampPan(cam.panY, surface.clientHeight, cam.zoom)
+      if (cam.zoom <= MAP_ZOOM_MIN + 0.001) {
+        cam.panX = 0
+        cam.panY = 0
+      }
+    }
+
+    /** Zoom um einen Bildpunkt — der Punkt bleibt unter dem Finger. */
+    function zoomAt(next: number, at: Screen) {
+      const before = cam.zoom
+      const after = clampZoom(next)
+      if (Math.abs(after - before) >= 0.0005) {
+        const w = surface.clientWidth
+        const h = surface.clientHeight
+        const k = after / before
+        cam.panX = (cam.panX + w / 2 - at.x) * k - w / 2 + at.x
+        cam.panY = (cam.panY + h / 2 - at.y) * k - h / 2 + at.y
+        cam.zoom = after
+        if (live) setZoom(after)
+      }
+      // Auch ohne Zoom-Schritt: reines Schwenken mit zwei Fingern muss zeichnen.
+      fixPan()
+      kick()
+    }
+
+    function focusNode(id: string) {
+      const at = locate().get(id)
+      if (!at) return
+      const target = clampZoom(Math.max(cam.zoom, 2.4))
+      const k = target / cam.zoom
+      const w = surface.clientWidth
+      const h = surface.clientHeight
+      cam.panX = (cam.panX + w / 2 - at.x) * k
+      cam.panY = (cam.panY + h / 2 - at.y) * k
+      cam.zoom = target
+      fixPan()
+      if (live) setZoom(target)
+      kick()
+    }
+    focusRef.current = focusNode
 
     const points = new Map<string, Screen>()
     function locate(): Map<string, Screen> {
@@ -258,7 +336,32 @@ export function AgentMapCanvas({
 
       drawBrain(brain, s.busy && Boolean(liveId), pulseT)
 
+      const mag = zoomMagnify(cam.zoom)
+      // Namen in der Reihenfolge ihrer Wichtigkeit setzen; wer nicht mehr frei
+      // steht, bleibt stumm. Sonst lagen im Zoom fünf Namen übereinander.
+      const taken: { x: number; y: number; w: number; h: number }[] = []
+      function label(text: string, x: number, y: number, size: number, fill: string): void {
+        g.font = `${size}px Inter, system-ui, sans-serif`
+        g.textAlign = 'center'
+        // Wessen Punkt aus dem Bild geschwenkt ist, bekommt keinen Namen am
+        // Rand — sonst klebt dort ein Name ohne Punkt.
+        if (x < -8 || x > w + 8 || y < -8 || y > h + 8) return
+        const tw = g.measureText(text).width + 4
+        // Am Rand rutscht der Name nach innen, statt abgeschnitten zu werden:
+        // im Zoom stand rechts „Film / Streamir“ statt „Film / Streaming“.
+        const cx = Math.max(tw / 2 + 2, Math.min(w - tw / 2 - 2, x))
+        const cy = Math.max(size + 2, Math.min(h - 3, y))
+        const box = { x: cx - tw / 2, y: cy - size, w: tw, h: size + 4 }
+        for (const t of taken) {
+          if (box.x < t.x + t.w && t.x < box.x + box.w && box.y < t.y + t.h && t.y < box.y + box.h) return
+        }
+        taken.push(box)
+        g.fillStyle = fill
+        g.fillText(text, cx, cy)
+      }
+
       const liveDepts = new Set(dots.map((a) => a.department))
+      const depts: { p: Screen; text: string; size: number }[] = []
       for (const d of DEPARTMENT_NODES) {
         if (!liveDepts.has(d.id) && s.selDept !== d.id) continue
         const p = at.get(`dept:${d.id}`)
@@ -269,39 +372,45 @@ export function AgentMapCanvas({
         g.fillStyle = live ? 'rgba(30, 215, 96, 0.92)' : 'rgba(90, 110, 100, 0.55)'
         g.strokeStyle = s.selDept === d.id ? '#fff' : 'rgba(255,255,255,0.2)'
         g.lineWidth = s.selDept === d.id ? 2 : 1
-        g.arc(p.x, p.y, 7.5 * glow, 0, Math.PI * 2)
+        g.arc(p.x, p.y, 7.5 * glow * mag, 0, Math.PI * 2)
         g.fill()
         g.stroke()
-        g.fillStyle = 'rgba(230, 240, 236, 0.78)'
-        g.font = '10px Inter, system-ui, sans-serif'
-        g.textAlign = 'center'
-        g.fillText(d.label, p.x, p.y + 18)
+        depts.push({ p: { x: p.x, y: p.y + 18 * mag }, text: d.label, size: Math.round(10 * mag) })
       }
 
+      const near = labelsVisible(cam.zoom)
+      const names: { p: Screen; text: string; size: number; fill: string; rank: number }[] = []
       for (const a of dots) {
         const p = at.get(a.id)
         if (!p) continue
         const live = a.id === liveId
         const hot = a.id === s.selAgent
         const inDept = s.selDept === a.department
-        const r = live ? 5.6 : 3.5
+        const r = (live ? 5.6 : 3.5) * mag
         if (live) {
           g.beginPath()
           g.fillStyle = `rgba(30, 215, 96, ${0.24 + 0.14 * Math.sin(pulseT * 0.008)})`
-          g.arc(p.x, p.y, r + 8, 0, Math.PI * 2)
+          g.arc(p.x, p.y, r + 8 * mag, 0, Math.PI * 2)
           g.fill()
         }
         g.beginPath()
         g.fillStyle = live ? '#7dffb0' : hot ? '#d8f0e0' : 'rgba(190, 210, 200, 0.58)'
         g.arc(p.x, p.y, r, 0, Math.PI * 2)
         g.fill()
-        if (live || hot || inDept) {
-          g.fillStyle = live || hot ? 'rgba(245, 250, 246, 0.94)' : 'rgba(220, 230, 224, 0.62)'
-          g.font = `${live || hot ? 10 : 8}px Inter, system-ui, sans-serif`
-          g.textAlign = 'center'
-          g.fillText(a.label, p.x, p.y - (live ? 12 : 9))
+        if (live || hot || inDept || near) {
+          const loud = live || hot
+          names.push({
+            p: { x: p.x, y: p.y - (live ? 12 : 9) * mag },
+            text: a.label,
+            size: Math.round((loud ? 10 : 8) * mag),
+            fill: loud ? 'rgba(245, 250, 246, 0.94)' : 'rgba(220, 230, 224, 0.66)',
+            rank: live ? 0 : hot ? 1 : inDept ? 2 : 3,
+          })
         }
       }
+      for (const d of depts) label(d.text, d.p.x, d.p.y, d.size, 'rgba(230, 240, 236, 0.78)')
+      names.sort((a, b) => a.rank - b.rank)
+      for (const n of names) label(n.text, n.p.x, n.p.y, n.size, n.fill)
 
       if (path.length > 1) drawSpark(path, at, reduced ? 480 : pulseT)
     }
@@ -327,71 +436,251 @@ export function AgentMapCanvas({
       draw()
       if (needsMotion()) kick()
     }
+    kickRef.current = kick
     kick()
+    const offTraces = subscribeAgentTraces(() => kick())
 
     function hitTest(clientX: number, clientY: number): string | null {
       const rect = surface.getBoundingClientRect()
       const x = clientX - rect.left
       const y = clientY - rect.top
       const at = locate()
+      const hits: HitCandidate[] = []
       for (const a of dots) {
         const p = at.get(a.id)
         if (!p) continue
-        if ((x - p.x) ** 2 + (y - p.y) ** 2 <= 14 ** 2) return a.id
+        hits.push({ id: a.id, x: p.x, y: p.y, r: 14, z: p.z })
       }
       for (const d of DEPARTMENT_NODES) {
         const p = at.get(`dept:${d.id}`)
         if (!p) continue
-        if ((x - p.x) ** 2 + (y - p.y) ** 2 <= 16 ** 2) return d.id
+        hits.push({ id: d.id, x: p.x, y: p.y, r: 16, z: p.z })
       }
       const c = at.get('brain')
-      if (c && (x - c.x) ** 2 + (y - c.y) ** 2 <= 28 ** 2) return 'brain'
-      return null
+      if (c) hits.push({ id: 'brain', x: c.x, y: c.y, r: 28, z: c.z })
+      return nearestHit(x, y, hits)
+    }
+
+    function local(ev: { clientX: number; clientY: number }): Screen {
+      const rect = surface.getBoundingClientRect()
+      return { x: ev.clientX - rect.left, y: ev.clientY - rect.top }
+    }
+
+    function pinchState(): { span: number; mid: Screen } | null {
+      const pts = [...touches.values()]
+      if (pts.length < 2) return null
+      return {
+        span: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+        mid: { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 },
+      }
     }
 
     function onPointerDown(ev: PointerEvent) {
       if (ev.pointerType === 'mouse' && ev.button !== 0) return
-      surface.setPointerCapture(ev.pointerId)
+      try {
+        surface.setPointerCapture(ev.pointerId)
+      } catch {
+        /* Zeiger schon weg */
+      }
+      touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY })
+      const pinch = pinchState()
+      if (pinch) {
+        dragging = false
+        pinchSpan = pinch.span
+        pinchMid = pinch.mid
+        moved = 99
+        return
+      }
       dragging = true
       moved = 0
       lastPtr = { x: ev.clientX, y: ev.clientY }
     }
     function onPointerMove(ev: PointerEvent) {
+      if (touches.has(ev.pointerId)) touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY })
+      const pinch = pinchState()
+      if (pinch) {
+        const rect = surface.getBoundingClientRect()
+        const mid = { x: pinch.mid.x - rect.left, y: pinch.mid.y - rect.top }
+        if (pinchSpan > 8 && pinch.span > 8) {
+          if (pinchMid) {
+            cam.panX += mid.x - (pinchMid.x - rect.left)
+            cam.panY += mid.y - (pinchMid.y - rect.top)
+          }
+          zoomAt(cam.zoom * (pinch.span / pinchSpan), mid)
+        }
+        pinchSpan = pinch.span
+        pinchMid = pinch.mid
+        moved = 99
+        return
+      }
       if (!dragging) return
       const dx = ev.clientX - lastPtr.x
       const dy = ev.clientY - lastPtr.y
       lastPtr = { x: ev.clientX, y: ev.clientY }
       moved += Math.hypot(dx, dy)
+      if (cam.zoom > MAP_ZOOM_MIN + 0.001 && (ev.pointerType !== 'mouse' || ev.shiftKey)) {
+        cam.panX += dx
+        cam.panY += dy
+        fixPan()
+        kick()
+        return
+      }
       rot.y += dx * 0.008
       rot.x = Math.max(-0.9, Math.min(0.9, rot.x + dy * 0.008))
       kick()
     }
     function onPointerUp(ev: PointerEvent) {
-      dragging = false
+      touches.delete(ev.pointerId)
       try {
         surface.releasePointerCapture(ev.pointerId)
       } catch {
         /* already released */
       }
-      if (moved > 10) return
+      const pinch = pinchState()
+      if (pinch) {
+        // Drei Finger, einer weg: das Paar wechselt — Distanz neu nehmen,
+        // sonst springt der Zoom um den Faktor der alten zur neuen Spanne.
+        pinchSpan = pinch.span
+        pinchMid = pinch.mid
+        dragging = false
+        return
+      }
+      pinchSpan = 0
+      pinchMid = null
+      if (touches.size === 1) {
+        const leftover = [...touches.values()][0]
+        dragging = true
+        moved = 99
+        lastPtr = { x: leftover.x, y: leftover.y }
+        return
+      }
+      const wasDragging = dragging
+      dragging = false
+      if (!wasDragging || moved > 10) return
       const id = hitTest(ev.clientX, ev.clientY)
-      if (id) onSelectDept(id)
+      if (!id) {
+        lastTap = { id: '', at: 0 }
+        return
+      }
+      const now = Date.now()
+      if (zoomable && lastTap.id === id && now - lastTap.at < 400) {
+        lastTap = { id: '', at: 0 }
+        focusNode(id)
+        selectRef.current(id)
+        return
+      }
+      lastTap = { id, at: now }
+      selectRef.current(id)
+    }
+    function onPointerCancel(ev: PointerEvent) {
+      touches.delete(ev.pointerId)
+      try {
+        surface.releasePointerCapture(ev.pointerId)
+      } catch {
+        /* already released */
+      }
+      lastTap = { id: '', at: 0 }
+      const pinch = pinchState()
+      if (pinch) {
+        pinchSpan = pinch.span
+        pinchMid = pinch.mid
+        dragging = false
+        return
+      }
+      pinchSpan = 0
+      pinchMid = null
+      if (touches.size === 1) {
+        const leftover = [...touches.values()][0]
+        dragging = true
+        moved = 99
+        lastPtr = { x: leftover.x, y: leftover.y }
+        return
+      }
+      dragging = false
+    }
+    function onWheel(ev: WheelEvent) {
+      if (!zoomable) return
+      ev.preventDefault()
+      const step = Math.exp(-ev.deltaY * 0.0016)
+      zoomAt(cam.zoom * step, local(ev))
     }
     surface.addEventListener('pointerdown', onPointerDown)
     surface.addEventListener('pointermove', onPointerMove)
     surface.addEventListener('pointerup', onPointerUp)
-    surface.addEventListener('pointercancel', onPointerUp)
+    surface.addEventListener('pointercancel', onPointerCancel)
+    surface.addEventListener('wheel', onWheel, { passive: false })
 
     return () => {
+      live = false
       cancelAnimationFrame(raf)
       ro.disconnect()
       offVis()
+      offTraces()
       surface.removeEventListener('pointerdown', onPointerDown)
       surface.removeEventListener('pointermove', onPointerMove)
       surface.removeEventListener('pointerup', onPointerUp)
-      surface.removeEventListener('pointercancel', onPointerUp)
+      surface.removeEventListener('pointercancel', onPointerCancel)
+      surface.removeEventListener('wheel', onWheel)
     }
-  }, [onSelectDept, reduced, busy, selectedAgent, liveAgent, selectedDept])
+  }, [reduced, zoomable])
 
-  return <canvas ref={canvasRef} className="agent-map-canvas" aria-label="Agenten-Netz" />
+  const step = useCallback((factor: number) => {
+    const cam = camRef.current
+    const next = clampZoom(cam.zoom * factor)
+    const k = cam.zoom ? next / cam.zoom : 1
+    cam.panX *= k
+    cam.panY *= k
+    cam.zoom = next
+    const surface = canvasRef.current
+    if (surface) {
+      cam.panX = clampPan(cam.panX, surface.clientWidth, cam.zoom)
+      cam.panY = clampPan(cam.panY, surface.clientHeight, cam.zoom)
+    }
+    if (next <= MAP_ZOOM_MIN + 0.001) {
+      cam.panX = 0
+      cam.panY = 0
+    }
+    setZoom(next)
+    kickRef.current()
+  }, [])
+
+  const reset = useCallback(() => {
+    const cam = camRef.current
+    cam.zoom = 1
+    cam.panX = 0
+    cam.panY = 0
+    setZoom(1)
+    kickRef.current()
+  }, [])
+
+  const canvas = <canvas ref={canvasRef} className="agent-map-canvas" aria-label="Agenten-Netz" />
+  if (!zoomable) return canvas
+  return (
+    <div className="agent-map-shell">
+      {canvas}
+      <div className="agent-map-zoom" role="group" aria-label="Netz-Zoom">
+        <button type="button" className="lage-btn" onClick={() => step(1 / 1.35)} aria-label="Herauszoomen">
+          −
+        </button>
+        <span className="agent-map-zoom-val" aria-live="polite">
+          {zoom.toFixed(1)}×
+        </span>
+        <button type="button" className="lage-btn" onClick={() => step(1.35)} aria-label="Heranzoomen">
+          +
+        </button>
+        <button
+          type="button"
+          className="lage-btn"
+          disabled={!selectedAgent}
+          onClick={() => focusRef.current(selectedAgent)}
+          aria-label="Auf gewählten Agenten zoomen"
+        >
+          Agent
+        </button>
+        <button type="button" className="lage-btn" onClick={reset} aria-label="Zoom zurücksetzen">
+          Ganz
+        </button>
+      </div>
+    </div>
+  )
 }

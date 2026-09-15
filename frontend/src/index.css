@@ -4491,6 +4491,53 @@ button.linkish {
   touch-action: none;
 }
 
+/* Zoom-Leiste über dem Netz. */
+.agent-map-shell {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 220px;
+  min-width: 0;
+}
+
+.agent-map-shell .agent-map-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.agent-map-zoom {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 5px;
+  border-radius: 999px;
+  background: rgba(5, 12, 8, 0.72);
+  border: 1px solid var(--border);
+}
+
+.agent-map-zoom .lage-btn {
+  min-width: 28px;
+  padding: 2px 7px;
+  font-size: 0.7rem;
+}
+
+.agent-map-zoom .lage-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.agent-map-zoom-val {
+  min-width: 30px;
+  text-align: center;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
 .agent-tree .body-tree-item.is-cluster > .body-tree-row strong {
   color: var(--accent);
 }
@@ -4922,10 +4969,10 @@ button.linkish {
   .lage-chat {
     display: none;
   }
-  .main.is-lage .topbar,
-  .main.is-lage .fallback-banner,
-  .main.is-lage .messages,
-  .main.is-lage .composer-wrap {
+  .main.is-lage:not(.is-lage-chat) .topbar,
+  .main.is-lage:not(.is-lage-chat) .fallback-banner,
+  .main.is-lage:not(.is-lage-chat) .messages,
+  .main.is-lage:not(.is-lage-chat) .composer-wrap {
     display: none !important;
   }
   .main.is-lage {
@@ -4933,7 +4980,7 @@ button.linkish {
     flex-direction: column;
     min-height: 0;
   }
-  .main.is-lage .lage {
+  .main.is-lage:not(.is-lage-chat) .lage {
     flex: 1 1 auto;
     max-height: none;
     min-height: 0;
@@ -4942,6 +4989,38 @@ button.linkish {
     z-index: 1;
     display: flex;
     flex-direction: column;
+  }
+  /* Körper + Chat: Netz oben, Verlauf und Composer darunter. */
+  .main.is-lage.is-lage-chat .topbar,
+  .main.is-lage.is-lage-chat .fallback-banner {
+    display: none !important;
+  }
+  .main.is-lage.is-lage-chat .lage {
+    flex: 0 0 44vh;
+    height: 44vh;
+    max-height: 44vh;
+    min-height: 260px;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .main.is-lage.is-lage-chat .lage-hint {
+    display: none;
+  }
+  .main.is-lage.is-lage-chat .agent-map-shell,
+  .main.is-lage.is-lage-chat .agent-map-canvas {
+    min-height: 168px;
+  }
+  .main.is-lage.is-lage-chat .messages {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 72px;
+  }
+  .main.is-lage.is-lage-chat .composer-wrap {
+    display: block;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
   }
   .main.is-lage .lage-head {
     position: relative;
@@ -4962,6 +5041,7 @@ button.linkish {
   }
   .lage.is-compact .body-schema,
   .lage.is-compact .globe-wrap,
+  .lage.is-compact .agent-map-shell,
   .lage.is-compact .agent-map-canvas {
     max-height: none;
     width: 100%;
@@ -4970,6 +5050,10 @@ button.linkish {
     min-height: 0;
     aspect-ratio: auto;
     align-self: stretch;
+  }
+  .main.is-lage.is-lage-chat .lage.is-compact .agent-map-shell,
+  .main.is-lage.is-lage-chat .lage.is-compact .agent-map-canvas {
+    min-height: 168px;
   }
   .lage.is-compact {
     padding: 8px 10px 6px;
@@ -5040,6 +5124,7 @@ button.linkish {
   width: 100%;
   aspect-ratio: 1;
   border: 1px solid var(--border);
+  container-type: inline-size;
 }
 
 .chess-ranks,
@@ -5080,6 +5165,13 @@ button.linkish {
   aspect-ratio: 1;
   color: inherit;
   background: transparent;
+}
+
+/* Figur füllt das Feld, egal ob Mini-Brett im Chat oder Overlay. */
+@supports (font-size: 1cqw) {
+  .chess-sq {
+    font-size: 8.4cqw;
+  }
 }
 
 .chess-sq.can-click {
@@ -5303,43 +5395,29 @@ button.linkish {
   margin-top: 6px;
 }
 
-.chess-sq {
-  display: grid;
-  place-items: center;
-  font-size: 1.05rem;
-  line-height: 1;
-  min-height: 0;
-  aspect-ratio: 1;
-}
-
 .chess-sq.light {
   background: #c5d0c8;
-  color: #132018;
 }
 
 .chess-sq.dark {
   background: #2a3a32;
-  color: #f6f3ea;
+}
+
+/*
+ * Figurenfarbe hängt an der Figur, nie am Feld. Die Kontur liegt als Schatten
+ * hinter der Figur — als Konturlinie fraß sie die dünnen Stellen der kleinen
+ * Glyphen auf, und weiß und schwarz sahen gleich aus.
+ */
+.chess-sq.w {
+  color: #fbfcf7;
+  text-shadow: -1px 0 0 #0b0f0c, 1px 0 0 #0b0f0c, 0 -1px 0 #0b0f0c, 0 1px 0 #0b0f0c,
+    0 2px 3px rgba(4, 8, 5, 0.6);
 }
 
 .chess-sq.b {
-  color: #111814;
-  filter: drop-shadow(0 0 1px #e8efe9);
-}
-
-.chess-sq.w {
-  color: #f6f3ea;
-  filter: drop-shadow(0 1px 0 #111);
-}
-
-.chess-sq.light.w {
-  color: #132018;
-  filter: none;
-}
-
-.chess-sq.dark.b {
-  color: #0c100e;
-  filter: drop-shadow(0 0 1.4px #e8efe9);
+  color: #0b0f0c;
+  text-shadow: -1px 0 0 #eef3ea, 1px 0 0 #eef3ea, 0 -1px 0 #eef3ea, 0 1px 0 #eef3ea,
+    0 2px 3px rgba(4, 8, 5, 0.45);
 }
 
 /* —— Sprint 242–248: Switch, Theme, Kalender —— */

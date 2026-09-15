@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`18.0.5`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload-APK **`18.0.5`**, versionCode `180005`. Schach-Gegner, Kugel-Pin schließen, Körper-Leuchten. Test [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+> **Jetzt:** Code **`18.0.7`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload-APK **`18.0.7`**, versionCode `180007`. Körper live, Chat darunter oder Vollbild. Test [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -583,6 +583,8 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | `18.0.3` | Lidl-POI, Schach-Sätze, Bundesliga-Tabelle, TTS ganzer Text | Patch **CODE** + Sideload |
 | `18.0.4` | Lage/Kalender/Schach-Overlay, Taschenlampe, Wetter-Ort | Patch **CODE** + Sideload |
 | `18.0.5` | Schach-Gegner, Kugel-Pin schließen, Körper alle Agenten | Patch **CODE** + Sideload |
+| `18.0.6` | Figurenfarbe, Rochade/En passant, Körper-Zoom auf Agenten | Patch **CODE** + Sideload |
+| `18.0.7` | Körper live, Chat darunter oder Vollbild | Patch **CODE** + Sideload |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

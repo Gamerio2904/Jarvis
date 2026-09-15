@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
 import { APP_VERSION } from '../src/engine/store.ts'
+import { PKG_VERSION } from './app-version.mjs'
 import { buildBodyGraph, SKILL_CATALOG, skillsForOrgan } from '../src/engine/body-graph.ts'
 import { parseCalendarIntent, nextNamedDay } from '../src/engine/calendar-parse.ts'
 import { pickRoute } from '../src/engine/route-pick.ts'
 import { TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 
-assert.equal(APP_VERSION, '18.0.3')
+assert.equal(APP_VERSION, PKG_VERSION)
 assert.ok(SKILL_CATALOG.some((s) => s.id === 'calendar'))
 assert.ok(SKILL_CATALOG.some((s) => s.id === 'research'))
 assert.ok(SKILL_CATALOG.some((s) => s.id === 'teach'))

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { APP_VERSION } from '../src/engine/store.ts'
+import { PKG_VERSION } from './app-version.mjs'
 import { parseTeachIntent } from '../src/engine/teach-parse.ts'
 import { parsePackAsk, parsePackForget, parsePackRevise } from '../src/engine/pack-parse.ts'
 import { isMemoryWrite, isMemoryRecall } from '../src/engine/memory-parse.ts'
@@ -24,7 +25,7 @@ import {
   PACK_CAP,
 } from '../src/engine/knowledge.ts'
 
-assert.equal(APP_VERSION, '18.0.3')
+assert.equal(APP_VERSION, PKG_VERSION)
 resetKnowledgeMem()
 
 // T1 Teach-Paste

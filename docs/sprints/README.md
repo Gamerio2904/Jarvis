@@ -269,7 +269,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 270 | [`sprint-270.md`](./sprint-270.md) | — | Freeze `globe.gl` nur nach Messung | **NICHT GEZOGEN** |
 | 271 | [`sprint-271.md`](./sprint-271.md) | **`18.0.0`** | Meilenstein Sideload (Kugel) | **CODE** Must |
 
-**Aktuell:** Code **`18.0.5`**. Sideload-APK `18.0.5`, versionCode `180005`. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`. Schach-Overlay **CODE** in `18.0.4`. Schach-Gegner und Kugel-Pin **CODE** in `18.0.5`. 270 nicht gezogen.
+**Aktuell:** Code **`18.0.7`**. Sideload-APK `18.0.7`, versionCode `180007`. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`. Schach-Overlay **CODE** in `18.0.4`. Schach-Gegner und Kugel-Pin **CODE** in `18.0.5`. Figurenfarbe und Körper-Zoom **CODE** in `18.0.6`. Körper mit Chat **CODE** in `18.0.7`. 270 nicht gezogen.
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

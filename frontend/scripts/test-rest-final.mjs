@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { APP_VERSION, DEFAULT_SETTINGS } from '../src/engine/store.ts'
+import { PKG_VERSION } from './app-version.mjs'
 import { warmOrigins } from '../src/engine/cloud-warm.ts'
 import {
   qualityPack,
@@ -27,7 +28,7 @@ import { settingsTabForQuery } from '../src/engine/settings-ia.ts'
 resetPackExistsProbe()
 clearSmalltalkCache()
 
-assert.equal(APP_VERSION, '18.0.3')
+assert.equal(APP_VERSION, PKG_VERSION)
 
 const off = qualityPacks(DEFAULT_SETTINGS)
 assert.equal(off.length, 4)

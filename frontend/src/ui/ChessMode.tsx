@@ -87,7 +87,7 @@ export function ChessMode({
         <ChessBoard fen={fen} selected={selected} targets={targets} onSquare={pick} />
       </div>
       <p className="chess-mode-hint">
-        Weiße Figur antippen — erlaubte Felder leuchten. Jarvis zieht Schwarz danach (ohne Engine).
+        Weiße Figur antippen — erlaubte Felder leuchten. Jarvis zieht danach Schwarz.
       </p>
       <form
         className="chess-mode-form"

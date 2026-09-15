@@ -8,11 +8,13 @@ export type LayoutProbe = {
   lageWide: boolean
   messagesHidden: boolean
   composerVisible: boolean
+  hudView?: 'tiles' | 'body' | 'globe'
+  bodyWithChat?: boolean
 }
 
 export function tabletCommandCenter(p: LayoutProbe): {
   ok: boolean
-  mode: 'tablet' | 'phone-scene' | 'phone-lage' | 'chat'
+  mode: 'tablet' | 'phone-scene' | 'phone-lage' | 'phone-lage-chat' | 'chat'
   detail: string
 } {
   const wide = p.width >= TABLET_BP
@@ -27,6 +29,14 @@ export function tabletCommandCenter(p: LayoutProbe): {
     }
   }
   if (!wide && p.lageOn) {
+    const bodyChat = p.hudView === 'body' && p.bodyWithChat !== false
+    if (bodyChat) {
+      return {
+        ok: p.composerVisible && !p.messagesHidden,
+        mode: 'phone-lage-chat',
+        detail: 'Handy: Körper und Chat gleichzeitig, Vollbild auf Zuruf',
+      }
+    }
     return {
       ok: p.messagesHidden && !p.composerVisible,
       mode: 'phone-lage',

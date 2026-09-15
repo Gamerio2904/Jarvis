@@ -26,7 +26,12 @@ export function PcDashboard({ busy }: { busy?: boolean }) {
       <div className="pc-dashboard-split">
         <div className="pc-dashboard-map">
           <AgentStatusBar busy={busy} />
-          <AgentMapCanvas reduced={prefersReducedMotion()} selectedDept={dept} onSelectDept={setDept} />
+          <AgentMapCanvas
+            reduced={prefersReducedMotion()}
+            selectedDept={dept}
+            onSelectDept={setDept}
+            busy={busy}
+          />
         </div>
         <PcActionStream />
       </div>

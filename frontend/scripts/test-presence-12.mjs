@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { APP_VERSION } from '../src/engine/store.ts'
+import { PKG_VERSION } from './app-version.mjs'
 import { tabletCommandCenter } from '../src/engine/layout-probe.ts'
 import { parseDeskIntent } from '../src/engine/desk-parse.ts'
 import { handleDesk } from '../src/engine/desk.ts'
@@ -19,7 +20,7 @@ import {
 import { TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { filterTopics } from '../src/engine/settings-ia.ts'
 
-assert.equal(APP_VERSION, '18.0.3')
+assert.equal(APP_VERSION, PKG_VERSION)
 assert.equal(PRESENCE_PORT, 18791)
 
 // F1 Tablet
@@ -47,6 +48,32 @@ assert.equal(PRESENCE_PORT, 18791)
   assert.equal(f2.ok, true)
   assert.equal(f2.mode, 'phone-lage')
   assert.ok(/Vollbild/.test(f2.detail))
+}
+
+// Körper auf dem Handy lässt den Chat stehen, Vollbild auf Zuruf.
+{
+  const split = tabletCommandCenter({
+    width: 390,
+    lageOn: true,
+    lageWide: false,
+    messagesHidden: false,
+    composerVisible: true,
+    hudView: 'body',
+    bodyWithChat: true,
+  })
+  assert.equal(split.ok, true)
+  assert.equal(split.mode, 'phone-lage-chat')
+  const full = tabletCommandCenter({
+    width: 390,
+    lageOn: true,
+    lageWide: false,
+    messagesHidden: true,
+    composerVisible: false,
+    hudView: 'body',
+    bodyWithChat: false,
+  })
+  assert.equal(full.ok, true)
+  assert.equal(full.mode, 'phone-lage')
 }
 
 // F3 Presence aus = kein Schreib

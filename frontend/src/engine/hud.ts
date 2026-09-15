@@ -79,7 +79,7 @@ export async function handleHud(
   if (intent.kind === 'view') {
     openLagePatch({ ...patchForHudView(intent.view), globe_layer: '' })
     if (intent.view === 'tiles') clearTour()
-    if (intent.view === 'body') return pack('Körper an. Schema in der Lage, Chat bleibt. Antippen startet kein Tool.')
+    if (intent.view === 'body') return pack('Körper an. Netz oben, Chat darunter. Vollbild auf Zuruf.')
     if (intent.view === 'globe') return pack('Kugel an. Tag und Nacht, ISS als Bahn. Kein Live-Satellitenvideo.')
     return pack('Kugel aus. Lage zu, Chat wieder voll.')
   }

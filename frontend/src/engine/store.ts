@@ -5,7 +5,7 @@ import { migrateSettings, SETTINGS_REV } from './settings-migrate.ts'
 import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
 
-export const APP_VERSION = '18.0.5'
+export const APP_VERSION = '18.0.7'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -180,6 +180,8 @@ export type Settings = {
   ui_theme: 'dark' | 'light' | 'system'
   hud_modules_json: string
   hud_view: 'tiles' | 'body' | 'globe'
+  /** Körper teilt sich den Schirm mit dem Chat. Aus = Vollbild wie die Kugel. */
+  body_with_chat: boolean
   last_body_organ: string
   last_globe_focus: string
   last_globe_look: string
@@ -348,6 +350,7 @@ export const DEFAULT_SETTINGS: Settings = {
   ui_theme: 'dark',
   hud_modules_json: '',
   hud_view: 'tiles',
+  body_with_chat: true,
   last_body_organ: 'brain',
   last_globe_focus: '',
   last_globe_look: '',

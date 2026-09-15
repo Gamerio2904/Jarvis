@@ -1495,6 +1495,7 @@ function App() {
   const lageOn = lageWide
     ? !liveHud.hud_hidden
     : Boolean(liveHud.hud_force) && lageSessionActive()
+  const lageChat = lageOn && liveHud.hud_view === 'body' && liveHud.body_with_chat !== false
   const lageAmber = liveHud.hud_accent === 'amber'
   const dockId = settingsPanelOpen
     ? 'settings'
@@ -1549,7 +1550,7 @@ function App() {
   }
 
   return (
-    <div className={`app${lageOn ? ' is-lage' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}`} ref={appRef}>
+    <div className={`app${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1703,7 +1704,7 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen || chessOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
+      <main className={`main${driveOpen || chessOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
         {voiceLayer.shown ? (
           <VoiceMode
             leaving={voiceLayer.leaving}
