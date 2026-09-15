@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
 import { dayOfYear, isNight, nightCover, subsolar, wrapLon } from '../src/engine/sun.ts'
+import { alongCoast } from '../src/engine/globe-geo.ts'
 import { ageLine } from '../src/engine/globe-layers.ts'
 
 const june = new Date(Date.UTC(2026, 5, 21, 12, 0, 0))
@@ -15,6 +16,9 @@ assert.equal(isNight(0, 180, { lat: 0, lon: 0 }), true)
 assert.equal(nightCover(1, 0), 'none')
 assert.equal(nightCover(-1, 0), 'all')
 assert.equal(nightCover(0, 0.5), 'half')
+assert.equal(alongCoast(20, 1).every((i) => i % 2 === 0), true)
+assert.equal(alongCoast(20, 2)[1], 4)
+assert.equal(alongCoast(7, 1).at(-1), 4)
 
 assert.equal(parseHudIntent('Zeig Erdbeben')?.kind, 'layer')
 assert.equal(parseHudIntent('Zeig Erdbeben')?.layer, 'quakes')

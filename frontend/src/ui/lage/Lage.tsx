@@ -19,6 +19,7 @@ import { AgentTree } from './AgentTree.tsx'
 import { TurnHistory } from './TurnHistory.tsx'
 import { buildAgentGraph, type AgentGraph } from '../../engine/agent-graph.ts'
 import type { DepartmentId } from '../../engine/agents/types.ts'
+import { agentTask, DEPARTMENT_NODES, visibleAgents } from '../../engine/agent-map.ts'
 import { GlobeGuard, GlobeView, type GlobeFocus } from './GlobeView.tsx'
 import { fetchBodySnap, type BodySnap } from '../../engine/body-snap.ts'
 import { loadBodyGraph, type BodyGraph } from '../../engine/body-graph.ts'
@@ -61,6 +62,7 @@ export function Lage({
   const [graph, setGraph] = useState<BodyGraph | null>(null)
   const [agentGraph, setAgentGraph] = useState<AgentGraph | null>(null)
   const [agentDept, setAgentDept] = useState<string>('brain')
+  const [pickedAgent, setPickedAgent] = useState('')
   const [pins, setPins] = useState<GeoFix[]>([])
   const [issTrail, setIssTrail] = useState<{ lat: number; lon: number }[]>([])
   const [pin, setPin] = useState<GeoFix | null>(null)
@@ -243,7 +245,7 @@ export function Lage({
             ? 'Erde drehen und zoomen — grüne Grenzen.'
             : view === 'body'
               ? bodyView === 'agents'
-                ? 'Sieben Cluster — antippen zeigt Baum, startet kein Gerät.'
+                ? 'Jeder Punkt ist ein Agent. Antippen zeigt die Aufgabe. Kreis leuchtet, wenn er arbeitet.'
                 : 'Organ antippen — Baum rechts, kein Gerät.'
               : 'Kacheln laden sichtbar — Wetter, Musik, Gerät.'}
         </p>
@@ -254,11 +256,25 @@ export function Lage({
             <AgentMapCanvas
               reduced={reduced}
               selectedDept={agentDept}
+              selectedAgent={pickedAgent}
+              liveAgent={s.last_agent_id}
+              busy={busy}
               onSelectDept={(id) => {
-                setAgentDept(id)
-                if (id !== 'brain') saveSettings({ last_agent_id: '' })
+                if (id === 'brain' || DEPARTMENT_NODES.some((d) => d.id === id)) {
+                  setAgentDept(id)
+                  if (id === 'brain') setPickedAgent('')
+                  return
+                }
+                setPickedAgent(id)
+                const hit = visibleAgents().find((a) => a.id === id)
+                if (hit) setAgentDept(hit.department)
               }}
             />
+            {(() => {
+              const focus = visibleAgents().find((a) => a.id === (pickedAgent || s.last_agent_id || ''))
+              if (!focus) return null
+              return <p className="lage-agent-task">{agentTask(focus)}</p>
+            })()}
             <div className="body-side">
               {agentGraph ? <AgentTree graph={agentGraph} onPrompt={onSend} /> : null}
               <TurnHistory />

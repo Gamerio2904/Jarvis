@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "18.0.1",
+  "version": "18.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -40,6 +40,7 @@
     "test:tool-propose": "node --experimental-strip-types scripts/test-tool-propose.mjs",
     "test:history": "node --experimental-strip-types scripts/test-history.mjs",
     "test:globe-18": "node --experimental-strip-types scripts/test-globe-18.mjs",
+    "test:agent-map": "node --experimental-strip-types scripts/test-agent-map.mjs",
     "eval:separability": "node --experimental-strip-types scripts/eval/separability.mjs"
   },
   "dependencies": {

@@ -5,25 +5,39 @@ import {
   BRAIN_CENTER,
   DEPARTMENT_NODES,
   departmentLive,
+  layoutAgentDots,
+  sparkLoop,
+  sparkPath,
+  synapses,
 } from '../../engine/agent-map.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
+
+type Screen = { x: number; y: number }
 
 export function AgentMapCanvas({
   reduced,
   onSelectDept,
   selectedDept,
+  busy = false,
+  selectedAgent = '',
+  liveAgent = '',
 }: {
   reduced: boolean
   onSelectDept: (id: string) => void
   selectedDept: string
+  busy?: boolean
+  selectedAgent?: string
+  liveAgent?: string
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const activeRef = useRef(activeAgentId())
-  const traceRef = useRef(activeTracePath())
-  const selRef = useRef(selectedDept)
-  selRef.current = selectedDept
-  activeRef.current = activeAgentId()
-  traceRef.current = activeTracePath()
+  const selDeptRef = useRef(selectedDept)
+  const selAgentRef = useRef(selectedAgent)
+  const busyRef = useRef(busy)
+  const liveRef = useRef(liveAgent)
+  selDeptRef.current = selectedDept
+  selAgentRef.current = selectedAgent
+  busyRef.current = busy
+  liveRef.current = liveAgent
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -35,17 +49,23 @@ export function AgentMapCanvas({
     let raf = 0
     let last = 0
     let pulseT = 0
+    const dots = layoutAgentDots()
+    const edges = synapses(dots)
 
-    function syncActive() {
-      activeRef.current = activeAgentId()
-      traceRef.current = activeTracePath()
+    function sync() {
+      return {
+        active: liveRef.current || activeAgentId(),
+        traces: activeTracePath(),
+        busy: busyRef.current,
+        selDept: selDeptRef.current,
+        selAgent: selAgentRef.current,
+      }
     }
 
     function needsMotion() {
       if (reduced) return false
-      syncActive()
-      if (activeRef.current) return true
-      return DEPARTMENT_NODES.some((d) => departmentLive(d.id))
+      const s = sync()
+      return s.busy || Boolean(s.active) || sparkPath(s.active, s.traces).length > 1
     }
 
     function resize() {
@@ -71,78 +91,203 @@ export function AgentMapCanvas({
       kick()
     })
 
-    function project(x: number, y: number) {
+    function project(x: number, y: number): Screen {
       const w = surface.clientWidth
       const h = surface.clientHeight
-      const s = Math.min(w, h) * 0.34
-      return { x: w / 2 + x * s, y: h / 2 - y * s, r: 12 }
+      const s = Math.min(w, h) * 0.38
+      return { x: w / 2 + x * s, y: h / 2 - y * s }
+    }
+
+    const points = new Map<string, Screen>()
+    function locate(): Map<string, Screen> {
+      points.clear()
+      points.set('brain', project(BRAIN_CENTER.x, BRAIN_CENTER.y))
+      for (const d of DEPARTMENT_NODES) points.set(`dept:${d.id}`, project(d.x, d.y))
+      for (const a of dots) points.set(a.id, project(a.x, a.y))
+      return points
+    }
+
+    function drawBrain(c: Screen, live: boolean, t: number) {
+      const r = Math.min(surface.clientWidth, surface.clientHeight) * 0.092
+      if (!(r > 6)) {
+        g.beginPath()
+        g.fillStyle = live ? '#d4a090' : '#6a4a48'
+        g.arc(c.x, c.y, 10, 0, Math.PI * 2)
+        g.fill()
+        return
+      }
+      g.save()
+      g.translate(c.x, c.y)
+      if (live) {
+        g.beginPath()
+        g.fillStyle = `rgba(30, 215, 96, ${0.16 + 0.1 * Math.sin(t * 0.005)})`
+        g.arc(0, 0, r * 1.62, 0, Math.PI * 2)
+        g.fill()
+      }
+      g.beginPath()
+      g.moveTo(0, r * 0.92)
+      g.quadraticCurveTo(r * 0.16, r * 0.72, r * 0.12, r * 0.52)
+      g.lineTo(-r * 0.12, r * 0.52)
+      g.quadraticCurveTo(-r * 0.16, r * 0.72, 0, r * 0.92)
+      g.fillStyle = live ? '#8a5a58' : '#5a4040'
+      g.fill()
+      g.beginPath()
+      g.ellipse(-r * 0.3, -r * 0.06, r * 0.62, r * 0.84, -0.16, 0, Math.PI * 2)
+      g.ellipse(r * 0.3, -r * 0.06, r * 0.62, r * 0.84, 0.16, 0, Math.PI * 2)
+      g.ellipse(0, r * 0.58, r * 0.46, r * 0.3, 0, 0, Math.PI * 2)
+      const fill = g.createRadialGradient(-r * 0.22, -r * 0.38, r * 0.08, 0, r * 0.1, r * 1.15)
+      fill.addColorStop(0, live ? '#f0c8bc' : '#d2b0a4')
+      fill.addColorStop(0.35, live ? '#c98678' : '#a8786c')
+      fill.addColorStop(0.75, live ? '#8e4e48' : '#6e4844')
+      fill.addColorStop(1, live ? '#4a2a28' : '#3a2828')
+      g.fillStyle = fill
+      g.fill()
+      g.strokeStyle = live ? 'rgba(30, 215, 96, 0.75)' : 'rgba(255,220,210,0.3)'
+      g.lineWidth = live ? 2.1 : 1.05
+      g.stroke()
+      g.strokeStyle = 'rgba(62, 28, 28, 0.5)'
+      g.lineWidth = 1
+      g.beginPath()
+      g.moveTo(0, -r * 0.78)
+      g.bezierCurveTo(0, -r * 0.18, 0, r * 0.12, 0, r * 0.42)
+      g.stroke()
+      for (const side of [-1, 1]) {
+        for (const fold of [
+          [0.1, -0.58, 0.48, -0.46, 0.56, -0.08, 0.24, 0.2],
+          [0.14, -0.28, 0.44, -0.04, 0.4, 0.22, 0.12, 0.34],
+          [0.08, 0.02, 0.36, 0.18, 0.3, 0.4, 0.06, 0.46],
+          [0.18, -0.7, 0.52, -0.62, 0.58, -0.28, 0.32, -0.1],
+        ] as const) {
+          g.beginPath()
+          g.moveTo(side * r * fold[0], r * fold[1])
+          g.bezierCurveTo(side * r * fold[2], r * fold[3], side * r * fold[4], r * fold[5], side * r * fold[6], r * fold[7])
+          g.stroke()
+        }
+      }
+      g.restore()
+    }
+
+    function drawSpark(pathIds: string[], at: Map<string, Screen>, t: number) {
+      const loop = sparkLoop(pathIds)
+      const pts = loop.map((id) => at.get(id)).filter(Boolean) as Screen[]
+      if (pts.length < 2) return
+      const segs: { a: Screen; b: Screen; len: number }[] = []
+      let total = 0
+      for (let i = 0; i < pts.length - 1; i++) {
+        const len = Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y)
+        segs.push({ a: pts[i], b: pts[i + 1], len })
+        total += len
+      }
+      if (total < 4) return
+      let dist = ((t * 0.22) % total + total) % total
+      let p = pts[0]
+      let dir = { x: 1, y: 0 }
+      for (const seg of segs) {
+        if (dist <= seg.len) {
+          const k = seg.len ? dist / seg.len : 0
+          p = { x: seg.a.x + (seg.b.x - seg.a.x) * k, y: seg.a.y + (seg.b.y - seg.a.y) * k }
+          dir = { x: seg.b.x - seg.a.x, y: seg.b.y - seg.a.y }
+          break
+        }
+        dist -= seg.len
+      }
+      const mag = Math.hypot(dir.x, dir.y) || 1
+      const nx = -dir.y / mag
+      const ny = dir.x / mag
+      g.beginPath()
+      g.strokeStyle = 'rgba(180, 255, 210, 0.85)'
+      g.lineWidth = 1.4
+      g.moveTo(p.x - nx * 5, p.y - ny * 5)
+      g.lineTo(p.x + nx * 2.2, p.y + ny * 2.2)
+      g.lineTo(p.x - nx * 1.2 + dir.x / mag * 6, p.y - ny * 1.2 + dir.y / mag * 6)
+      g.stroke()
+      g.beginPath()
+      g.fillStyle = 'rgba(180, 255, 210, 0.28)'
+      g.arc(p.x, p.y, 9, 0, Math.PI * 2)
+      g.fill()
+      g.beginPath()
+      g.fillStyle = '#f4fff8'
+      g.shadowColor = '#1ed760'
+      g.shadowBlur = 14
+      g.arc(p.x, p.y, 3.5, 0, Math.PI * 2)
+      g.fill()
+      g.shadowBlur = 0
     }
 
     function draw() {
       if (isDocumentHidden()) return
-      syncActive()
       const w = surface.clientWidth
       const h = surface.clientHeight
+      if (!(w > 4 && h > 4)) return
       g.clearRect(0, 0, w, h)
-      const center = project(BRAIN_CENTER.x, BRAIN_CENTER.y)
-      const nodes = DEPARTMENT_NODES.map((d) => ({ ...d, p: project(d.x, d.y) }))
-      const active = activeRef.current
-      const trace = traceRef.current
+      const at = locate()
+      const s = sync()
+      const liveId = s.active
+      const path = sparkPath(liveId, s.traces)
+      const brain = at.get('brain')
+      if (!brain) return
 
-      g.strokeStyle = 'rgba(29,185,84,0.22)'
-      g.lineWidth = 1.2
-      for (const n of nodes) {
+      g.lineCap = 'round'
+      g.lineJoin = 'round'
+      for (const e of edges) {
+        const a = at.get(e.from)
+        const b = at.get(e.to)
+        if (!a || !b) continue
+        const hot = path.includes(e.from) && path.includes(e.to)
         g.beginPath()
-        g.moveTo(center.x, center.y)
-        g.lineTo(n.p.x, n.p.y)
+        g.strokeStyle = hot ? 'rgba(30, 215, 96, 0.55)' : 'rgba(120, 170, 140, 0.18)'
+        g.lineWidth = hot ? 1.8 : 0.85
+        g.moveTo(a.x, a.y)
+        g.lineTo(b.x, b.y)
         g.stroke()
       }
 
-      if (!reduced && active && trace.length) {
-        const dept = DEPARTMENT_NODES.find((d) => departmentLive(d.id))
-        if (dept) {
-          const target = nodes.find((n) => n.id === dept.id)?.p
-          if (target) {
-            const t = pulseT * 0.004
-            const px = center.x + (target.x - center.x) * (0.35 + 0.25 * Math.sin(t))
-            const py = center.y + (target.y - center.y) * (0.35 + 0.25 * Math.sin(t))
-            g.beginPath()
-            g.fillStyle = 'rgba(29,185,84,0.85)'
-            g.arc(px, py, 5, 0, Math.PI * 2)
-            g.fill()
-          }
+      drawBrain(brain, Boolean(liveId) || s.busy, pulseT)
+
+      for (const d of DEPARTMENT_NODES) {
+        const p = at.get(`dept:${d.id}`)
+        if (!p) continue
+        const live = departmentLive(d.id) || s.selDept === d.id
+        const glow = live ? 1 + 0.08 * (0.5 + 0.5 * Math.sin(pulseT * 0.006)) : 1
+        g.beginPath()
+        g.fillStyle = live ? 'rgba(30, 215, 96, 0.92)' : 'rgba(90, 110, 100, 0.55)'
+        g.strokeStyle = s.selDept === d.id ? '#fff' : 'rgba(255,255,255,0.2)'
+        g.lineWidth = s.selDept === d.id ? 2 : 1
+        g.arc(p.x, p.y, 7.5 * glow, 0, Math.PI * 2)
+        g.fill()
+        g.stroke()
+        g.fillStyle = 'rgba(230, 240, 236, 0.78)'
+        g.font = '10px Inter, system-ui, sans-serif'
+        g.textAlign = 'center'
+        g.fillText(d.label, p.x, p.y + 18)
+      }
+
+      for (const a of dots) {
+        const p = at.get(a.id)
+        if (!p) continue
+        const live = a.id === liveId
+        const hot = a.id === s.selAgent
+        const inDept = s.selDept === a.department || (s.selDept === 'brain' && a.department === 'system')
+        const r = live ? 5.6 : 3.5
+        if (live) {
+          g.beginPath()
+          g.fillStyle = `rgba(30, 215, 96, ${0.24 + 0.14 * Math.sin(pulseT * 0.008)})`
+          g.arc(p.x, p.y, r + 8, 0, Math.PI * 2)
+          g.fill()
+        }
+        g.beginPath()
+        g.fillStyle = live ? '#7dffb0' : hot ? '#d8f0e0' : 'rgba(190, 210, 200, 0.58)'
+        g.arc(p.x, p.y, r, 0, Math.PI * 2)
+        g.fill()
+        if (live || hot || inDept) {
+          g.fillStyle = live || hot ? 'rgba(245, 250, 246, 0.94)' : 'rgba(220, 230, 224, 0.62)'
+          g.font = `${live || hot ? 10 : 8}px Inter, system-ui, sans-serif`
+          g.textAlign = 'center'
+          g.fillText(a.label, p.x, p.y - (live ? 12 : 9))
         }
       }
 
-      for (const n of nodes) {
-        const live = departmentLive(n.id) || selRef.current === n.id
-        const hot = selRef.current === n.id
-        let extra = 0
-        if (!reduced && live) extra += 0.08 * (0.5 + 0.5 * Math.sin(pulseT * 0.006))
-        g.beginPath()
-        g.fillStyle = live ? '#1db954' : 'rgba(180,180,180,0.35)'
-        g.strokeStyle = hot ? '#fff' : 'rgba(255,255,255,0.2)'
-        g.lineWidth = hot ? 2.2 : 1
-        g.arc(n.p.x, n.p.y, n.p.r * (1 + extra), 0, Math.PI * 2)
-        g.fill()
-        g.stroke()
-        g.fillStyle = 'rgba(255,255,255,0.82)'
-        g.font = '11px Inter, system-ui, sans-serif'
-        g.textAlign = 'center'
-        g.fillText(n.label, n.p.x, n.p.y + n.p.r + 14)
-      }
-
-      const brainLive = Boolean(active)
-      g.beginPath()
-      g.fillStyle = brainLive ? '#1db954' : 'rgba(120,120,120,0.5)'
-      g.strokeStyle = 'rgba(255,255,255,0.35)'
-      g.lineWidth = 2
-      g.arc(center.x, center.y, center.r * 1.35, 0, Math.PI * 2)
-      g.fill()
-      g.stroke()
-      g.fillStyle = 'rgba(255,255,255,0.9)'
-      g.font = '12px Inter, system-ui, sans-serif'
-      g.fillText(BRAIN_CENTER.label, center.x, center.y + center.r + 18)
+      if (!reduced && path.length > 1) drawSpark(path, at, pulseT)
     }
 
     function kick() {
@@ -172,16 +317,19 @@ export function AgentMapCanvas({
       const rect = surface.getBoundingClientRect()
       const x = clientX - rect.left
       const y = clientY - rect.top
-      for (const n of DEPARTMENT_NODES) {
-        const p = project(n.x, n.y)
-        const dx = x - p.x
-        const dy = y - p.y
-        if (dx * dx + dy * dy <= (p.r + 8) ** 2) return n.id
+      const at = locate()
+      for (const a of dots) {
+        const p = at.get(a.id)
+        if (!p) continue
+        if ((x - p.x) ** 2 + (y - p.y) ** 2 <= 14 ** 2) return a.id
       }
-      const c = project(BRAIN_CENTER.x, BRAIN_CENTER.y)
-      const dx = x - c.x
-      const dy = y - c.y
-      if (dx * dx + dy * dy <= (c.r + 10) ** 2) return 'brain'
+      for (const d of DEPARTMENT_NODES) {
+        const p = at.get(`dept:${d.id}`)
+        if (!p) continue
+        if ((x - p.x) ** 2 + (y - p.y) ** 2 <= 16 ** 2) return d.id
+      }
+      const c = at.get('brain')
+      if (c && (x - c.x) ** 2 + (y - c.y) ** 2 <= 28 ** 2) return 'brain'
       return null
     }
 
@@ -197,7 +345,7 @@ export function AgentMapCanvas({
       offVis()
       surface.removeEventListener('click', onClick)
     }
-  }, [onSelectDept, reduced])
+  }, [onSelectDept, reduced, busy, selectedAgent, liveAgent, selectedDept])
 
-  return <canvas ref={canvasRef} className="agent-map-canvas" aria-label="Agenten-Karte" />
+  return <canvas ref={canvasRef} className="agent-map-canvas" aria-label="Agenten-Netz" />
 }

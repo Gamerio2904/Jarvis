@@ -1759,7 +1759,7 @@ function App() {
             conversationId={activeId}
             onHudChange={() => void refreshSettings()}
             compact={!lageWide}
-            hideChatTile={lageWide}
+            hideChatTile
           />
         ) : null}
         <div className="messages" ref={messagesRef} onScroll={onMessagesScroll}>

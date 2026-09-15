@@ -5,6 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.0.2` — Lage Vollbild, Küste, Agenten-Netz — *CODE*
+
+Sideload **`18.0.2`** (versionCode `180002`). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+
+- **Lage auf dem Handy:** Vollbild. Chat und Composer sind weg. Zurück: **Lage aus** oder Nav **Chat**. Das ist kein 15.3.1-Blackscreen — die Kugel zeichnet, die Insel bleibt.
+- **Küstenlinien:** Ringe sind `[lon, lat, …]`. Der alte Schritt landete auf ungeraden Indizes und malte Scherben. Jetzt Paare plus Abstand, kein Sehnen-Sprung über die Scheibe.
+- **Körper:** jeder sichtbare Agent als Punkt, Cluster verbunden wie Neuronen, Kreis leuchtet am aktiven Agenten, Blitzkugel entlang Hirn → Cluster → Agent. Hirn in der Mitte als zwei Hemisphären, nicht als grauer Klecks.
+
 ### `18.0.1` — Lage-Klick bleibt bedienbar — *CODE*
 
 Sideload **`18.0.1`** (versionCode `180001`). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).

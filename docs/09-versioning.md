@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`18.0.1`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`18.0.1`**, versionCode `180001`. Kugel 268–269 **CODE**. Lage-Tab Blackscreen-Fix. Schach 260–267 **PLAN** → [`70-next.md`](./70-next.md). Test [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+> **Jetzt:** Code **`18.0.2`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload **`18.0.2`**, versionCode `180002`. Lage Vollbild, Agenten-Netz, Küste. Schach 260–267 **PLAN** → [`70-next.md`](./70-next.md). Test [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -579,6 +579,7 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | — | `globe.gl` nur nach Messung | 270 **NICHT GEZOGEN** |
 | **`18.0.0`** | **Meilenstein** Kugel, Sideload | 271 **CODE** |
 | `18.0.1` | Lage-Tab: Kugel ohne WebView-Freeze | Patch **CODE** |
+| `18.0.2` | Lage Vollbild, Küste, Agenten-Netz | Patch **CODE** |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

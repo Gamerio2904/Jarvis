@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.0.1`**. Sideload **`18.0.1`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). **Kugel 268–269 CODE.** Lage-Tab Blackscreen-Fix. Schach-Schiene 260–267 bleibt PLAN → [`70-next.md`](./70-next.md). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
+**Jetzt:** Code **`18.0.2`**. Sideload **`18.0.2`**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). **Kugel 268–269 CODE.** Lage Vollbild, Küste, Agenten-Netz. Schach-Schiene 260–267 bleibt PLAN → [`70-next.md`](./70-next.md). Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -288,4 +288,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 270 | — | **NICHT GEZOGEN** (`globe.gl`) |
 | 271 | **`18.0.0`** | **CODE** (Meilenstein Kugel) |
 
-**Aktuell:** Code **`18.0.1`**. Sideload `18.0.1`, versionCode `180001`. Execute: Sprints bis 259 **CODE**. Kugel 268–269 **CODE**. 260–267 **PLAN**. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`18.0.2`**. Sideload `18.0.2`, versionCode `180002`. Execute: Sprints bis 259 **CODE**. Kugel 268–269 **CODE**. Lage Vollbild in `18.0.2`. 260–267 **PLAN**. Test: [`TEST-18.0.0.md`](./TEST-18.0.0.md). Index: [`42-planned.md`](./42-planned.md).

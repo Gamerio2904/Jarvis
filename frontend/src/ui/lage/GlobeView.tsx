@@ -1,6 +1,6 @@
 import { Component, useEffect, useRef, type ReactNode } from 'react'
 import type { GeoFix } from '../../engine/globe-geo.ts'
-import { globeFocusKey, lookLatLon, shouldApplyGlobeFocus, viewXYZ, yawPitchFor } from '../../engine/globe-geo.ts'
+import { globeFocusKey, lookLatLon, shouldApplyGlobeFocus, viewXYZ, yawPitchFor, alongCoast } from '../../engine/globe-geo.ts'
 import { WORLD_RINGS } from '../../engine/world-rings.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 import { loadSettings } from '../../engine/store.ts'
@@ -133,11 +133,10 @@ export function GlobeView({
     let lite = loadSettings().globe_webgl // Flag-Name lügt: true = Lite-Canvas, nicht WebGL
     let sphereGradients: { fill: CanvasGradient; rim: CanvasGradient; sheen: CanvasGradient } | null = null
 
-    function ringStep() {
-      if (lite) return 12
-      if (zoom.current < 1.55) return 8
-      if (zoom.current < 2.4) return 5
-      return 3
+    function ringPairSkip() {
+      if (lite) return 2
+      if (zoom.current < 1.55) return 2
+      return 1
     }
 
     function resize() {
@@ -250,26 +249,48 @@ export function GlobeView({
     }
 
     function strokeRings() {
-      const step = ringStep()
+      const pairSkip = ringPairSkip()
+      const jump = sphereR() * 0.85
       for (const ring of WORLD_RINGS) {
         if (ring.length < 8) continue
         let drawing = false
+        let broken = false
+        let first: { x: number; y: number } | null = null
+        let prev: { x: number; y: number } | null = null
         pen.beginPath()
-        for (let i = 0; i < ring.length - 1; i += step) {
-          const q = project(ring[i + 1], ring[i])
+        for (const i of alongCoast(ring.length, pairSkip)) {
+          const lon = ring[i]
+          const lat = ring[i + 1]
+          if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
+          const q = project(lat, lon)
           if (q.z < FRONT) {
             if (drawing) {
               pen.stroke()
               pen.beginPath()
               drawing = false
             }
+            broken = true
+            prev = null
+            continue
+          }
+          if (prev && Math.hypot(q.x - prev.x, q.y - prev.y) > jump) {
+            if (drawing) {
+              pen.stroke()
+              pen.beginPath()
+              drawing = false
+            }
+            broken = true
+            prev = q
             continue
           }
           if (!drawing) {
             pen.moveTo(q.x, q.y)
             drawing = true
+            if (!first) first = q
           } else pen.lineTo(q.x, q.y)
+          prev = q
         }
+        if (drawing && first && !broken) pen.lineTo(first.x, first.y)
         if (drawing) pen.stroke()
       }
     }

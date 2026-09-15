@@ -19,7 +19,7 @@ import {
 import { TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { filterTopics } from '../src/engine/settings-ia.ts'
 
-assert.equal(APP_VERSION, '18.0.1')
+assert.equal(APP_VERSION, '18.0.2')
 assert.equal(PRESENCE_PORT, 18791)
 
 // F1 Tablet
@@ -35,18 +35,18 @@ assert.equal(PRESENCE_PORT, 18791)
   assert.equal(f1.mode, 'tablet')
 }
 
-// F2 Handy-Portrait + Lage (chat-first)
+// F2 Handy-Portrait + Lage (Vollbild, Chat weg)
 {
   const f2 = tabletCommandCenter({
     width: 390,
     lageOn: true,
     lageWide: false,
-    messagesHidden: false,
-    composerVisible: true,
+    messagesHidden: true,
+    composerVisible: false,
   })
   assert.equal(f2.ok, true)
   assert.equal(f2.mode, 'phone-lage')
-  assert.ok(/Composer/.test(f2.detail))
+  assert.ok(/Vollbild/.test(f2.detail))
 }
 
 // F3 Presence aus = kein Schreib

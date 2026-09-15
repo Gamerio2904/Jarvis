@@ -28,9 +28,9 @@ export function tabletCommandCenter(p: LayoutProbe): {
   }
   if (!wide && p.lageOn) {
     return {
-      ok: p.composerVisible && !p.messagesHidden,
+      ok: p.messagesHidden && !p.composerVisible,
       mode: 'phone-lage',
-      detail: 'Handy: Lage-Panel + Chat + Composer sichtbar',
+      detail: 'Handy: Lage Vollbild, Chat und Composer weg, Nav bleibt',
     }
   }
   return { ok: p.composerVisible, mode: 'chat', detail: 'Nur Chat' }

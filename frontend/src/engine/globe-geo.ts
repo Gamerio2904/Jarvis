@@ -253,3 +253,15 @@ export function globeFocusKey(focus: GlobeFocusCmd | null | undefined): string {
 export function shouldApplyGlobeFocus(prevKey: string, nextKey: string): boolean {
   return Boolean(nextKey) && prevKey !== nextKey
 }
+
+/**
+ * Küstenringe sind `[lon, lat, lon, lat, …]`.
+ * Schritt in Paaren — ungerade Indizes verdrehen Länge und Breite
+ * und machen aus Kontinenten Scherben (Lage-Kugel 18.0.0).
+ */
+export function alongCoast(len: number, pairSkip: number): number[] {
+  const skip = Math.max(1, pairSkip) * 2
+  const idx: number[] = []
+  for (let i = 0; i + 1 < len; i += skip) idx.push(i)
+  return idx
+}
