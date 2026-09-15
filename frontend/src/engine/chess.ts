@@ -27,6 +27,13 @@ const PIECE_NAME: Record<string, string> = {
   k: 'König',
 }
 
+/** Die Dame ist die einzige weibliche Figur — „kein Dame“ liest sich wie ein Fehler. */
+export function piecePhrase(letter: string, negated: boolean): string {
+  const name = PIECE_NAME[letter] || 'Figur'
+  const female = letter === 'q'
+  return `${negated ? 'kein' : 'ein'}${female ? 'e' : ''} ${name}`
+}
+
 function pieceLetter(word: string): string {
   const w = (word || '').trim()
   for (const [re, letter] of PIECE_LETTER) {
@@ -104,7 +111,7 @@ export async function handleChess(
   const named = intent.piece ? standsOn(fen, move) : ''
   if (intent.piece && named && named !== intent.piece) {
     return pack(
-      `Auf ${move.slice(0, 2)} steht kein ${PIECE_NAME[intent.piece]}, sondern ein ${PIECE_NAME[named]}. ${turnLine(fen)}`,
+      `Auf ${move.slice(0, 2)} steht ${piecePhrase(intent.piece, true)}, sondern ${piecePhrase(named, false)}. ${turnLine(fen)}`,
       fen,
     )
   }

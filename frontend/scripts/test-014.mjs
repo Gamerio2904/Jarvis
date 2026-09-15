@@ -147,7 +147,7 @@ import { parseWarnIntent } from '../src/engine/warn.ts'
 import { parseFerienIntent } from '../src/engine/ferien.ts'
 import { parseFxIntent } from '../src/engine/fx.ts'
 import { parseSkyIntent } from '../src/engine/sky.ts'
-import { parseChessIntent } from '../src/engine/chess.ts'
+import { parseChessIntent, piecePhrase } from '../src/engine/chess.ts'
 import { fromHandler } from '../src/engine/agents/execute-map.ts'
 import { skipMicroMerge, parseChatBlocks } from '../src/engine/chat-blocks.ts'
 import { parseSportIntent, formatTable, seasonYears, shortClub, tableBlock } from '../src/engine/sport.ts'
@@ -1882,6 +1882,11 @@ assert.equal(parseChessIntent('Läufer e8 f9', true)?.piece, 'b')
 assert.equal(parseChessIntent('Springer g1 f3', true)?.piece, 'n')
 assert.equal(parseChessIntent('Bauer e2 e4', true)?.move, 'e2e4')
 assert.equal(parseChessIntent('Königin d1 h5', true)?.piece, 'q')
+// Die Absage nannte „kein Dame“ — die Dame ist die einzige weibliche Figur.
+assert.equal(piecePhrase('q', true), 'keine Dame')
+assert.equal(piecePhrase('q', false), 'eine Dame')
+assert.equal(piecePhrase('p', true), 'kein Bauer')
+assert.equal(piecePhrase('n', false), 'ein Springer')
 assert.equal(parseChessIntent('König e1 e2', true)?.piece, 'k')
 assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.team, 'Stuttgart')
 assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.table, true)
