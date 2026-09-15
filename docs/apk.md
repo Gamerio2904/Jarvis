@@ -1,10 +1,10 @@
-# Android-APK — Sideload `18.0.7`
+# Android-APK — Sideload `18.1.0`
 
-App-Code **`18.1.0`**. Sideload-APK **`18.0.7`**, versionCode `180007`.
+App-Code **`18.1.0`**. Sideload-APK **`18.1.0`**, versionCode `180100`.
 
-**18.1.0 (Code, noch ohne neue Sideload-APK):** Faktenagenten sagen ab statt zu raten. Tanke/POI ohne doppelte Navi. SMS erst nach Funk-Annahme. Fahrmodus räumt auf. Widerspruch nach Recherche sucht. Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
+**18.1.0:** Faktenagenten sagen ab statt zu raten. Tanke/POI ohne doppelte Navi. SMS erst nach Funk-Annahme. Fahrmodus räumt auf, Mic bricht ab. Kalender ohne Autofokus. Widerspruch nach Recherche sucht. Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
 
-**18.0.8 (Code, noch ohne neue Sideload-APK):** „Zeig mir das auf der Karte“ öffnet die Lage. Pin-Text gehört zum Pin. CarPlay heading-up, weicher nachgeführt. „weißt du auch wo?“ ist Standort.
+**18.0.8 (Code in dieser APK mitgeliefert):** „Zeig mir das auf der Karte“ öffnet die Lage. Pin-Text gehört zum Pin. CarPlay heading-up. „weißt du auch wo?“ ist Standort.
 
 **18.0.7:** Körper leuchtet mit dem laufenden Zug. Auf dem Handy sitzt der Körper über dem Chat; **Vollbild** nimmt den ganzen Schirm wie bisher.
 
@@ -24,10 +24,10 @@ App-Code **`18.1.0`**. Sideload-APK **`18.0.7`**, versionCode `180007`.
 
 ## Download
 
-**Fertige APK `18.0.7`:**  
+**Fertige APK `18.1.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.0.7` · versionCode `180007`
+- versionName `18.1.0` · versionCode `180100`
 
 ## Build lokal
 

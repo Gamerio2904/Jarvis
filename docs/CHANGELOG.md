@@ -5,25 +5,27 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.1.0` — Audit-Reste 272–281 — *CODE*
+### `18.1.0` — Audit-Reste 272–281 — *CODE + APK*
+
+Sideload **`18.1.0`** (versionCode `180100`):  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Faktenagenten (Tanke, Wetter, POI, Sport) sagen ab statt ans Modell zu
 fallen. Tanke/POI ohne Zweitversuch, sonst startet die Navi doppelt. SMS
 wartet auf Funk-Annahme (`sentIntent`). Fahrmodus räumt Stimme und Mikrofon
-beim Verlassen. Kalender ohne Autofokus. Widerspruch nach Recherche sucht
-den vorherigen Satz; isoliertes „Das stimmt nicht“ bleibt Gedächtnis.
-`looksTruncated` kennt Abkürzungen (`ca.`, `z. B.`). Skripte unter `tsc`.
-Hook-Deps einzeln. Leichen-Test. Java der 11 Audit-Änderungen plus SMS im
-Quelltext geprüft; Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
-Sideload bleibt **`18.0.7`**, bis die nächste APK gebaut ist.
+beim Verlassen; Mic-Knopf bricht ab. Kalenderblatt ohne Autofokus.
+Widerspruch nach Recherche sucht den vorherigen Satz; isoliertes „Das
+stimmt nicht“ bleibt Gedächtnis. `looksTruncated` kennt Abkürzungen
+(`ca.`, `z. B.`). Skripte unter `tsc`. Hook-Deps einzeln. Leichen-Test.
+Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
 Sprint 282 (versionCode-Freeze) bleibt liegen. 290 rückt auf `18.1.1`.
 
 ### `18.0.8` — Karte öffnet, Pin-Text passt, CarPlay heading-up — *CODE*
 
 Lage aus „Zeig mir das auf der Karte“ (auch nach einem Satz davor). Pin
 zeigt nicht mehr den Brief eines anderen Orts. „weißt du auch wo?“ ist
-Standort. Fahrmodus-Karte heading-up, weicher nachgeführt. Sideload bleibt
-**`18.0.7`**, bis die nächste APK gebaut ist.
+Standort. Fahrmodus-Karte heading-up, weicher nachgeführt. War CODE-only;
+Sideload folgt in `18.1.0`.
 
 ### `18.2` — Ideen halten — *PLAN*
 

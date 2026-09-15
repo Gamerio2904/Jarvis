@@ -1,10 +1,9 @@
 # PO-Checkliste `18.1.0` — Audit-Reste 272–281
 
-App-Code **`18.1.0`**. Sideload bleibt **`18.0.7`**, bis die nächste APK gebaut
-ist (versionCode dann `180100`). Download der aktuellen APK:
+App-Code **`18.1.0`**. Sideload **`18.1.0`**, versionCode **`180100`**.  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-Hausstand vorher exportieren.
+Altes zuerst deinstallieren. Hausstand vorher exportieren.
 
 Diese Liste prüft, was der Rechner hier nicht messen kann: Java auf dem
 Gerät, Fakten-Absage, Navigation einmal, SMS-Funk, Fahrmodus, Kalender,
@@ -18,8 +17,7 @@ Widerspruch, Abkürzungen.
 Was kannst du?
 ```
 
-In der Antwort muss **`18.1.0`** stehen — sobald die Sideload-APK diese
-Fassung trägt. Bis dahin gilt der Code auf dem Dev-Build.
+In der Antwort muss **`18.1.0`** stehen.
 
 ---
 

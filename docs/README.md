@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.1.0`**. Sideload-APK **`18.0.7`**, versionCode `180007`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
+**Jetzt:** Code **`18.1.0`**. Sideload-APK **`18.1.0`**, versionCode `180100`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -79,7 +79,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 71 | [Code-Audit 18.0.3](./71-audit.md) | **BEFUND + PLAN** — 12 Befunde behoben; 272–281 **CODE** in `18.1.0`; 282 Freeze |
 | 72 | [Ideen halten 18.2](./72-next.md) | **PLAN** `18.2` — Idee, Überblick, Sprint-Vorlage die Jarvis füllt + Custom, Sprints 283–287 |
 | 73 | [Karte/CarPlay nach 18.0.8](./73-next.md) | **BEFUND + PLAN** — 18.0.8 CODE; Reste 288–290 |
-| — | [APK](./apk.md) | Sideload `18.0.7`; Code `18.1.0`; Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md) |
+| — | [APK](./apk.md) | Sideload `18.1.0`; Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -295,4 +295,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 283–287 | `18.2.0`–`18.2.4` | **PLAN** (Ideen halten, [`72-next.md`](./72-next.md)) |
 | 288–290 | `18.0.9`–`18.1.1` | **PLAN** (Karten-Reste in [`73-next.md`](./73-next.md)) |
 
-**Aktuell:** Code **`18.1.0`**. Sideload-APK `18.0.7`, versionCode `180007`. Faktenagenten sagen ab statt zu raten. Nächste Produktschiene `18.2` Ideen halten. Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`18.1.0`**. Sideload-APK `18.1.0`, versionCode `180100`. Faktenagenten sagen ab statt zu raten. Nächste Produktschiene `18.2` Ideen halten. Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md). Index: [`42-planned.md`](./42-planned.md).

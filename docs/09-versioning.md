@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`18.1.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload-APK **`18.0.7`**, versionCode `180007`. Audit-Reste 272–281 (Fakten-Absage, SMS-Funk, Fahrmodus). Test [`TEST-18.1.0.md`](./TEST-18.1.0.md).
+> **Jetzt:** Code **`18.1.0`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload-APK **`18.1.0`**, versionCode `180100`. Audit-Reste 272–281 (Fakten-Absage, SMS-Funk, Fahrmodus). Test [`TEST-18.1.0.md`](./TEST-18.1.0.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -586,7 +586,7 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | `18.0.6` | Figurenfarbe, Rochade/En passant, Körper-Zoom auf Agenten | Patch **CODE** + Sideload |
 | `18.0.7` | Körper live, Chat darunter oder Vollbild | Patch **CODE** + Sideload |
 | `18.0.8` | Karte öffnet, Pin-Text passt, CarPlay heading-up | Patch **CODE** |
-| **`18.1.0`** | Audit-Reste: Fakten-Absage, Tanke/POI einmal, SMS-Funk, Skripte/tsc | 272–281 **CODE** |
+| **`18.1.0`** | Audit-Reste: Fakten-Absage, Tanke/POI einmal, SMS-Funk, Skripte/tsc | 272–281 **CODE + APK** |
 
 ### `18.2` — Ideen halten [`72-next.md`](./72-next.md) **PLAN**
 
