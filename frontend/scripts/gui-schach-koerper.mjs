@@ -29,6 +29,17 @@ const browser = await puppeteer.launch({
   defaultViewport: { width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
 })
 const page = await browser.newPage()
+// Doppelte React-Keys mit Stapel festhalten — die Warnung allein sagt nicht, wer.
+await page.evaluateOnNewDocument(() => {
+  window.__dup = []
+  const orig = console.error
+  console.error = (...args) => {
+    if (String(args[0] || '').includes('same key')) {
+      window.__dup.push({ key: String(args[1]), stack: (new Error().stack || '').split('\n').slice(1, 14).join('\n') })
+    }
+    orig(...args)
+  }
+})
 const pageErrors = []
 page.on('pageerror', (e) => pageErrors.push(e.message))
 page.on('console', (m) => {
@@ -244,6 +255,96 @@ try {
   rec(Number.parseFloat(afterTap) >= 2.4, 'Doppeltipp holt Agenten heran', afterTap)
   await page.screenshot({ path: `${SHOTS}/koerper-agent-zoom.png` })
 
+  // Drehung darf beim Antippen nicht auf Anfang springen: zwei Bilder derselben
+  // Lage dürfen sich nur um die Markierung unterscheiden.
+  await page.evaluate(() => document.querySelector('[aria-label="Zoom zurücksetzen"]')?.click())
+  await new Promise((r) => setTimeout(r, 200))
+  await page.mouse.move(rect.left + rect.w * 0.5, rect.top + rect.h * 0.5)
+  await page.mouse.down()
+  await page.mouse.move(rect.left + rect.w * 0.5 + 70, rect.top + rect.h * 0.5 + 20, { steps: 6 })
+  await page.mouse.up()
+  await new Promise((r) => setTimeout(r, 250))
+  // Das Hirn in der Mitte hebt die Auswahl auf — sonst liest man beim nächsten
+  // Tipper den alten Namen und hält einen Fehlschlag für einen Treffer.
+  const unzoom = async () => {
+    if ((await zoomVal()) === '1.0×') return
+    await page.evaluate(() => document.querySelector('[aria-label="Zoom zurücksetzen"]')?.click())
+    await new Promise((r) => setTimeout(r, 150))
+  }
+  const clearSel = async () => {
+    await page.mouse.click(rect.left + rect.w / 2, rect.top + rect.h / 2)
+    await new Promise((r) => setTimeout(r, 200))
+    await unzoom()
+  }
+  // Ein Doppeltipp im Raster würde selbst heranzoomen — danach wieder auf Ganz.
+  const tapTask = async (x, y) => {
+    await page.mouse.click(x, y)
+    await new Promise((r) => setTimeout(r, 200))
+    await unzoom()
+    return page.$eval('.lage-agent-task', (n) => n.textContent.trim()).catch(() => '')
+  }
+  // Zwei verschiedene Agenten suchen …
+  const spots = []
+  await clearSel()
+  for (let gy = 1; gy < 12 && spots.length < 2; gy++) {
+    for (let gx = 1; gx < 12 && spots.length < 2; gx++) {
+      const x = rect.left + (rect.w * gx) / 12
+      const y = rect.top + (rect.h * gy) / 12
+      const task = await tapTask(x, y)
+      if (task && !spots.some((s) => s.task === task)) spots.push({ x, y, task })
+    }
+  }
+  // … und beide nach einem Umweg noch einmal treffen.
+  const hits = []
+  for (const s of [spots[0], spots[1], spots[0]]) {
+    if (!s) break
+    await clearSel()
+    const got = await tapTask(s.x, s.y)
+    hits.push({ ok: got === s.task, want: s.task.split(' —')[0], got: got.split(' —')[0] || 'nichts' })
+  }
+  rec(
+    spots.length === 2 && hits.length === 3 && hits.every((h) => h.ok),
+    'derselbe Punkt trifft denselben Agenten',
+    hits.map((h) => `${h.want}→${h.got}`).join(' · '),
+  )
+
+  // Klein drehen, damit der alte Punkt noch trifft, und die Bildpunkte außen
+  // vergleichen: sprang die Drehung beim Antippen zurück, wandert das Netz.
+  const ink = () =>
+    page.evaluate(() => {
+      const c = document.querySelector('.agent-map-canvas')
+      const g = c.getContext('2d')
+      const w = c.width
+      const h = c.height
+      const d = g.getImageData(0, 0, w, h).data
+      const cx = w / 2
+      const cy = h / 2
+      const rr = (Math.min(w, h) * 0.17) ** 2
+      const set = []
+      for (let y = 0; y < h; y += 2) {
+        for (let x = 0; x < w; x += 2) {
+          if ((x - cx) ** 2 + (y - cy) ** 2 < rr) continue
+          const i = (y * w + x) * 4
+          if (d[i] + d[i + 1] + d[i + 2] > 150) set.push(y * w + x)
+        }
+      }
+      return set
+    })
+  await clearSel()
+  await page.mouse.move(rect.left + rect.w * 0.5, rect.top + rect.h * 0.35)
+  await page.mouse.down()
+  await page.mouse.move(rect.left + rect.w * 0.5 + 12, rect.top + rect.h * 0.35 + 4, { steps: 4 })
+  await page.mouse.up()
+  await new Promise((r) => setTimeout(r, 300))
+  const inkA = new Set(await ink())
+  await page.mouse.click(spots[0].x, spots[0].y)
+  await new Promise((r) => setTimeout(r, 350))
+  const inkB = await ink()
+  const both = inkB.filter((i) => inkA.has(i)).length
+  const union = new Set([...inkA, ...inkB]).size
+  const overlap = union ? both / union : 0
+  rec(overlap > 0.8, 'Antippen dreht das Netz nicht zurück', `Deckung ${(overlap * 100).toFixed(0)} %`)
+
   const agentBtn = await page.evaluate(() => {
     const b = document.querySelector('[aria-label="Auf gewählten Agenten zoomen"]')
     return b ? !b.disabled : false
@@ -258,6 +359,10 @@ try {
   await new Promise((r) => setTimeout(r, 800))
   rec(Boolean(await page.$('.globe-wrap, canvas[aria-label*="Erde"]')), 'Kugel zeichnet')
   await page.screenshot({ path: `${SHOTS}/kugel.png` })
+
+  const dups = await page.evaluate(() => window.__dup || [])
+  rec(dups.length === 0, 'keine doppelten React-Keys', dups.length ? `${dups.length}× ${dups[0].key}` : '')
+  if (dups.length) console.log(dups[0].stack)
 } catch (err) {
   rec(false, 'Suite abgebrochen', String(err?.message || err))
   console.error(err)

@@ -44,13 +44,25 @@ export function AgentMapCanvas({
   const busyRef = useRef(busy)
   const liveRef = useRef(liveAgent)
   const camRef = useRef({ zoom: 1, panX: 0, panY: 0 })
+  const rotRef = useRef({ x: 0.18, y: -0.42 })
   const kickRef = useRef<() => void>(() => {})
   const focusRef = useRef<(id: string) => void>(() => {})
+  const selectRef = useRef(onSelectDept)
   const [zoom, setZoom] = useState(1)
   selDeptRef.current = selectedDept
   selAgentRef.current = selectedAgent
   busyRef.current = busy
   liveRef.current = liveAgent
+  selectRef.current = onSelectDept
+
+  /**
+   * Auswahl und Betrieb liegen in Refs, damit der Aufbau nicht an ihnen hängt:
+   * `onSelectDept` kommt als Pfeilfunktion und war bei jedem Render neu — der
+   * Effekt lief mit, riss die Zeiger ab und stellte die Drehung auf Anfang.
+   */
+  useEffect(() => {
+    kickRef.current()
+  }, [selectedDept, selectedAgent, busy, liveAgent])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -105,7 +117,7 @@ export function AgentMapCanvas({
       kick()
     })
 
-    const rot = { x: 0.18, y: -0.42 }
+    const rot = rotRef.current
     const cam = camRef.current
     let dragging = false
     let lastPtr = { x: 0, y: 0 }
@@ -525,11 +537,11 @@ export function AgentMapCanvas({
       if (zoomable && lastTap.id === id && now - lastTap.at < 400) {
         lastTap = { id: '', at: 0 }
         focusNode(id)
-        onSelectDept(id)
+        selectRef.current(id)
         return
       }
       lastTap = { id, at: now }
-      onSelectDept(id)
+      selectRef.current(id)
     }
     function onWheel(ev: WheelEvent) {
       if (!zoomable) return
@@ -553,7 +565,7 @@ export function AgentMapCanvas({
       surface.removeEventListener('pointercancel', onPointerUp)
       surface.removeEventListener('wheel', onWheel)
     }
-  }, [onSelectDept, reduced, busy, selectedAgent, liveAgent, selectedDept, zoomable])
+  }, [reduced, zoomable])
 
   const step = useCallback((factor: number) => {
     const cam = camRef.current
