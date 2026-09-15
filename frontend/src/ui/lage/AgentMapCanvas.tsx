@@ -319,7 +319,24 @@ export function AgentMapCanvas({
       drawBrain(brain, s.busy && Boolean(liveId), pulseT)
 
       const mag = zoomMagnify(cam.zoom)
+      // Namen in der Reihenfolge ihrer Wichtigkeit setzen; wer nicht mehr frei
+      // steht, bleibt stumm. Sonst lagen im Zoom fünf Namen übereinander.
+      const taken: { x: number; y: number; w: number; h: number }[] = []
+      function label(text: string, x: number, y: number, size: number, fill: string): void {
+        g.font = `${size}px Inter, system-ui, sans-serif`
+        g.textAlign = 'center'
+        const w = g.measureText(text).width + 4
+        const box = { x: x - w / 2, y: y - size, w, h: size + 4 }
+        for (const t of taken) {
+          if (box.x < t.x + t.w && t.x < box.x + box.w && box.y < t.y + t.h && t.y < box.y + box.h) return
+        }
+        taken.push(box)
+        g.fillStyle = fill
+        g.fillText(text, x, y)
+      }
+
       const liveDepts = new Set(dots.map((a) => a.department))
+      const depts: { p: Screen; text: string; size: number }[] = []
       for (const d of DEPARTMENT_NODES) {
         if (!liveDepts.has(d.id) && s.selDept !== d.id) continue
         const p = at.get(`dept:${d.id}`)
@@ -333,13 +350,11 @@ export function AgentMapCanvas({
         g.arc(p.x, p.y, 7.5 * glow * mag, 0, Math.PI * 2)
         g.fill()
         g.stroke()
-        g.fillStyle = 'rgba(230, 240, 236, 0.78)'
-        g.font = `${Math.round(10 * mag)}px Inter, system-ui, sans-serif`
-        g.textAlign = 'center'
-        g.fillText(d.label, p.x, p.y + 18 * mag)
+        depts.push({ p: { x: p.x, y: p.y + 18 * mag }, text: d.label, size: Math.round(10 * mag) })
       }
 
       const near = labelsVisible(cam.zoom)
+      const names: { p: Screen; text: string; size: number; fill: string; rank: number }[] = []
       for (const a of dots) {
         const p = at.get(a.id)
         if (!p) continue
@@ -359,12 +374,18 @@ export function AgentMapCanvas({
         g.fill()
         if (live || hot || inDept || near) {
           const loud = live || hot
-          g.fillStyle = loud ? 'rgba(245, 250, 246, 0.94)' : 'rgba(220, 230, 224, 0.66)'
-          g.font = `${Math.round((loud ? 10 : 8) * mag)}px Inter, system-ui, sans-serif`
-          g.textAlign = 'center'
-          g.fillText(a.label, p.x, p.y - (live ? 12 : 9) * mag)
+          names.push({
+            p: { x: p.x, y: p.y - (live ? 12 : 9) * mag },
+            text: a.label,
+            size: Math.round((loud ? 10 : 8) * mag),
+            fill: loud ? 'rgba(245, 250, 246, 0.94)' : 'rgba(220, 230, 224, 0.66)',
+            rank: live ? 0 : hot ? 1 : inDept ? 2 : 3,
+          })
         }
       }
+      for (const d of depts) label(d.text, d.p.x, d.p.y, d.size, 'rgba(230, 240, 236, 0.78)')
+      names.sort((a, b) => a.rank - b.rank)
+      for (const n of names) label(n.text, n.p.x, n.p.y, n.size, n.fill)
 
       if (path.length > 1) drawSpark(path, at, reduced ? 480 : pulseT)
     }
@@ -430,7 +451,11 @@ export function AgentMapCanvas({
 
     function onPointerDown(ev: PointerEvent) {
       if (ev.pointerType === 'mouse' && ev.button !== 0) return
-      surface.setPointerCapture(ev.pointerId)
+      try {
+        surface.setPointerCapture(ev.pointerId)
+      } catch {
+        /* Zeiger schon weg */
+      }
       touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY })
       const pinch = pinchState()
       if (pinch) {

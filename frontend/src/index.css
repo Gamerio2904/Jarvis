@@ -5088,6 +5088,7 @@ button.linkish {
   width: 100%;
   aspect-ratio: 1;
   border: 1px solid var(--border);
+  container-type: inline-size;
 }
 
 .chess-ranks,
@@ -5128,6 +5129,13 @@ button.linkish {
   aspect-ratio: 1;
   color: inherit;
   background: transparent;
+}
+
+/* Figur füllt das Feld, egal ob Mini-Brett im Chat oder Overlay. */
+@supports (font-size: 1cqw) {
+  .chess-sq {
+    font-size: 8.4cqw;
+  }
 }
 
 .chess-sq.can-click {
@@ -5359,17 +5367,21 @@ button.linkish {
   background: #2a3a32;
 }
 
-/* Figurenfarbe hängt an der Figur, nie am Feld. */
+/*
+ * Figurenfarbe hängt an der Figur, nie am Feld. Die Kontur liegt als Schatten
+ * hinter der Figur — als Konturlinie fraß sie die dünnen Stellen der kleinen
+ * Glyphen auf, und weiß und schwarz sahen gleich aus.
+ */
 .chess-sq.w {
-  color: #fcfdf9;
-  -webkit-text-stroke: 0.9px #0d130f;
-  text-shadow: 0 1px 1px rgba(8, 14, 10, 0.55);
+  color: #fbfcf7;
+  text-shadow: -1px 0 0 #0b0f0c, 1px 0 0 #0b0f0c, 0 -1px 0 #0b0f0c, 0 1px 0 #0b0f0c,
+    0 2px 3px rgba(4, 8, 5, 0.6);
 }
 
 .chess-sq.b {
-  color: #0d130f;
-  -webkit-text-stroke: 0.9px #eef3ea;
-  text-shadow: 0 1px 1px rgba(240, 246, 238, 0.35);
+  color: #0b0f0c;
+  text-shadow: -1px 0 0 #eef3ea, 1px 0 0 #eef3ea, 0 -1px 0 #eef3ea, 0 1px 0 #eef3ea,
+    0 2px 3px rgba(4, 8, 5, 0.45);
 }
 
 /* —— Sprint 242–248: Switch, Theme, Kalender —— */
