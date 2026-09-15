@@ -8,6 +8,14 @@ import {
   visibleAgents,
 } from '../src/engine/agent-map.ts'
 import { buildAgentGraph } from '../src/engine/agent-graph.ts'
+import {
+  clampPan,
+  clampZoom,
+  labelsVisible,
+  MAP_ZOOM_MAX,
+  MAP_ZOOM_MIN,
+  zoomMagnify,
+} from '../src/engine/agent-zoom.ts'
 
 const agents = visibleAgents()
 assert.ok(agents.length >= 40, `zu wenige Agenten: ${agents.length}`)
@@ -49,5 +57,21 @@ assert.equal(idle.nodes.some((n) => n.live), false)
 assert.match(idle.nodes[0]?.line || '', /Agenten/)
 const busy = buildAgentGraph('brain', true)
 assert.equal(busy.busy, true)
+
+// Zoom: Grenzen halten, Schwenken bleibt im Bild, Namen erst nah.
+assert.equal(clampZoom(0.2), MAP_ZOOM_MIN)
+assert.equal(clampZoom(99), MAP_ZOOM_MAX)
+assert.equal(clampZoom(Number.NaN), MAP_ZOOM_MIN)
+assert.equal(clampZoom(2.4), 2.4)
+assert.equal(clampPan(9999, 300, 1), 40)
+assert.equal(clampPan(-9999, 300, 1), -40)
+assert.equal(clampPan(0, 300, 3), 0)
+assert.equal(clampPan(9999, 300, 3), 340)
+assert.equal(clampPan(Number.NaN, 300, 3), 0)
+assert.equal(zoomMagnify(1), 1)
+assert.ok(zoomMagnify(2.4) > 1.5)
+assert.equal(zoomMagnify(20), 2)
+assert.equal(labelsVisible(1), false)
+assert.equal(labelsVisible(1.6), true)
 
 console.log('test:agent-map ok')

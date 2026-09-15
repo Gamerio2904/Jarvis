@@ -293,7 +293,7 @@ export function Lage({
             ? 'Erde drehen und zoomen — grüne Grenzen.'
             : view === 'body'
               ? bodyView === 'agents'
-                ? 'Ziehen dreht den Körper. Alle Agenten sind da — nur laufende leuchten.'
+                ? 'Ziehen dreht, zwei Finger zoomen, Doppeltipp holt einen Agenten heran.'
                 : 'Organ antippen — Baum rechts, kein Gerät.'
               : 'Kacheln laden sichtbar — Wetter, Musik, Gerät.'}
         </p>
@@ -303,6 +303,7 @@ export function Lage({
           <div className="lage-split">
             <AgentMapCanvas
               reduced={reduced}
+              zoomable
               selectedDept={agentDept}
               selectedAgent={pickedAgent}
               busy={busy}

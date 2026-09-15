@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   activeAgentId,
   activeTracePath,
@@ -10,6 +10,13 @@ import {
   sparkPath,
   synapses,
 } from '../../engine/agent-map.ts'
+import {
+  clampPan,
+  clampZoom,
+  labelsVisible,
+  MAP_ZOOM_MIN,
+  zoomMagnify,
+} from '../../engine/agent-zoom.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 
 type Screen = { x: number; y: number }
@@ -21,6 +28,7 @@ export function AgentMapCanvas({
   busy = false,
   selectedAgent = '',
   liveAgent = '',
+  zoomable = false,
 }: {
   reduced: boolean
   onSelectDept: (id: string) => void
@@ -28,12 +36,17 @@ export function AgentMapCanvas({
   busy?: boolean
   selectedAgent?: string
   liveAgent?: string
+  zoomable?: boolean
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const selDeptRef = useRef(selectedDept)
   const selAgentRef = useRef(selectedAgent)
   const busyRef = useRef(busy)
   const liveRef = useRef(liveAgent)
+  const camRef = useRef({ zoom: 1, panX: 0, panY: 0 })
+  const kickRef = useRef<() => void>(() => {})
+  const focusRef = useRef<(id: string) => void>(() => {})
+  const [zoom, setZoom] = useState(1)
   selDeptRef.current = selectedDept
   selAgentRef.current = selectedAgent
   busyRef.current = busy
@@ -79,6 +92,7 @@ export function AgentMapCanvas({
     resize()
     const ro = new ResizeObserver(() => {
       resize()
+      fixPan()
       kick()
     })
     ro.observe(canvas)
@@ -92,9 +106,14 @@ export function AgentMapCanvas({
     })
 
     const rot = { x: 0.18, y: -0.42 }
+    const cam = camRef.current
     let dragging = false
     let lastPtr = { x: 0, y: 0 }
     let moved = 0
+    const touches = new Map<number, Screen>()
+    let pinchSpan = 0
+    let pinchMid: Screen | null = null
+    let lastTap = { id: '', at: 0 }
 
     function project(x: number, y: number): Screen {
       const cy = Math.cos(rot.y)
@@ -108,9 +127,50 @@ export function AgentMapCanvas({
       const persp = 1 / (1.85 + z2 * 0.42)
       const w = surface.clientWidth
       const h = surface.clientHeight
-      const s = Math.min(w, h) * 0.4 * persp
-      return { x: w / 2 + x1 * s, y: h / 2 - y1 * s }
+      const s = Math.min(w, h) * 0.4 * persp * cam.zoom
+      return { x: w / 2 + x1 * s + cam.panX, y: h / 2 - y1 * s + cam.panY }
     }
+
+    function fixPan() {
+      cam.panX = clampPan(cam.panX, surface.clientWidth, cam.zoom)
+      cam.panY = clampPan(cam.panY, surface.clientHeight, cam.zoom)
+      if (cam.zoom <= MAP_ZOOM_MIN + 0.001) {
+        cam.panX = 0
+        cam.panY = 0
+      }
+    }
+
+    /** Zoom um einen Bildpunkt — der Punkt bleibt unter dem Finger. */
+    function zoomAt(next: number, at: Screen) {
+      const before = cam.zoom
+      const after = clampZoom(next)
+      if (Math.abs(after - before) < 0.0005) return
+      const w = surface.clientWidth
+      const h = surface.clientHeight
+      const k = after / before
+      cam.panX = (cam.panX + w / 2 - at.x) * k - w / 2 + at.x
+      cam.panY = (cam.panY + h / 2 - at.y) * k - h / 2 + at.y
+      cam.zoom = after
+      fixPan()
+      setZoom(after)
+      kick()
+    }
+
+    function focusNode(id: string) {
+      const at = locate().get(id)
+      if (!at) return
+      const target = clampZoom(Math.max(cam.zoom, 2.4))
+      const k = target / cam.zoom
+      const w = surface.clientWidth
+      const h = surface.clientHeight
+      cam.panX = (cam.panX + w / 2 - at.x) * k
+      cam.panY = (cam.panY + h / 2 - at.y) * k
+      cam.zoom = target
+      fixPan()
+      setZoom(target)
+      kick()
+    }
+    focusRef.current = focusNode
 
     const points = new Map<string, Screen>()
     function locate(): Map<string, Screen> {
@@ -258,6 +318,7 @@ export function AgentMapCanvas({
 
       drawBrain(brain, s.busy && Boolean(liveId), pulseT)
 
+      const mag = zoomMagnify(cam.zoom)
       const liveDepts = new Set(dots.map((a) => a.department))
       for (const d of DEPARTMENT_NODES) {
         if (!liveDepts.has(d.id) && s.selDept !== d.id) continue
@@ -269,37 +330,39 @@ export function AgentMapCanvas({
         g.fillStyle = live ? 'rgba(30, 215, 96, 0.92)' : 'rgba(90, 110, 100, 0.55)'
         g.strokeStyle = s.selDept === d.id ? '#fff' : 'rgba(255,255,255,0.2)'
         g.lineWidth = s.selDept === d.id ? 2 : 1
-        g.arc(p.x, p.y, 7.5 * glow, 0, Math.PI * 2)
+        g.arc(p.x, p.y, 7.5 * glow * mag, 0, Math.PI * 2)
         g.fill()
         g.stroke()
         g.fillStyle = 'rgba(230, 240, 236, 0.78)'
-        g.font = '10px Inter, system-ui, sans-serif'
+        g.font = `${Math.round(10 * mag)}px Inter, system-ui, sans-serif`
         g.textAlign = 'center'
-        g.fillText(d.label, p.x, p.y + 18)
+        g.fillText(d.label, p.x, p.y + 18 * mag)
       }
 
+      const near = labelsVisible(cam.zoom)
       for (const a of dots) {
         const p = at.get(a.id)
         if (!p) continue
         const live = a.id === liveId
         const hot = a.id === s.selAgent
         const inDept = s.selDept === a.department
-        const r = live ? 5.6 : 3.5
+        const r = (live ? 5.6 : 3.5) * mag
         if (live) {
           g.beginPath()
           g.fillStyle = `rgba(30, 215, 96, ${0.24 + 0.14 * Math.sin(pulseT * 0.008)})`
-          g.arc(p.x, p.y, r + 8, 0, Math.PI * 2)
+          g.arc(p.x, p.y, r + 8 * mag, 0, Math.PI * 2)
           g.fill()
         }
         g.beginPath()
         g.fillStyle = live ? '#7dffb0' : hot ? '#d8f0e0' : 'rgba(190, 210, 200, 0.58)'
         g.arc(p.x, p.y, r, 0, Math.PI * 2)
         g.fill()
-        if (live || hot || inDept) {
-          g.fillStyle = live || hot ? 'rgba(245, 250, 246, 0.94)' : 'rgba(220, 230, 224, 0.62)'
-          g.font = `${live || hot ? 10 : 8}px Inter, system-ui, sans-serif`
+        if (live || hot || inDept || near) {
+          const loud = live || hot
+          g.fillStyle = loud ? 'rgba(245, 250, 246, 0.94)' : 'rgba(220, 230, 224, 0.66)'
+          g.font = `${Math.round((loud ? 10 : 8) * mag)}px Inter, system-ui, sans-serif`
           g.textAlign = 'center'
-          g.fillText(a.label, p.x, p.y - (live ? 12 : 9))
+          g.fillText(a.label, p.x, p.y - (live ? 12 : 9) * mag)
         }
       }
 
@@ -327,6 +390,7 @@ export function AgentMapCanvas({
       draw()
       if (needsMotion()) kick()
     }
+    kickRef.current = kick
     kick()
 
     function hitTest(clientX: number, clientY: number): string | null {
@@ -334,53 +398,125 @@ export function AgentMapCanvas({
       const x = clientX - rect.left
       const y = clientY - rect.top
       const at = locate()
+      const grow = Math.min(2, cam.zoom)
       for (const a of dots) {
         const p = at.get(a.id)
         if (!p) continue
-        if ((x - p.x) ** 2 + (y - p.y) ** 2 <= 14 ** 2) return a.id
+        if ((x - p.x) ** 2 + (y - p.y) ** 2 <= (14 * grow) ** 2) return a.id
       }
       for (const d of DEPARTMENT_NODES) {
         const p = at.get(`dept:${d.id}`)
         if (!p) continue
-        if ((x - p.x) ** 2 + (y - p.y) ** 2 <= 16 ** 2) return d.id
+        if ((x - p.x) ** 2 + (y - p.y) ** 2 <= (16 * grow) ** 2) return d.id
       }
       const c = at.get('brain')
-      if (c && (x - c.x) ** 2 + (y - c.y) ** 2 <= 28 ** 2) return 'brain'
+      if (c && (x - c.x) ** 2 + (y - c.y) ** 2 <= (28 * grow) ** 2) return 'brain'
       return null
+    }
+
+    function local(ev: { clientX: number; clientY: number }): Screen {
+      const rect = surface.getBoundingClientRect()
+      return { x: ev.clientX - rect.left, y: ev.clientY - rect.top }
+    }
+
+    function pinchState(): { span: number; mid: Screen } | null {
+      const pts = [...touches.values()]
+      if (pts.length < 2) return null
+      return {
+        span: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+        mid: { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 },
+      }
     }
 
     function onPointerDown(ev: PointerEvent) {
       if (ev.pointerType === 'mouse' && ev.button !== 0) return
       surface.setPointerCapture(ev.pointerId)
+      touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY })
+      const pinch = pinchState()
+      if (pinch) {
+        dragging = false
+        pinchSpan = pinch.span
+        pinchMid = pinch.mid
+        return
+      }
       dragging = true
       moved = 0
       lastPtr = { x: ev.clientX, y: ev.clientY }
     }
     function onPointerMove(ev: PointerEvent) {
+      if (touches.has(ev.pointerId)) touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY })
+      const pinch = pinchState()
+      if (pinch) {
+        const rect = surface.getBoundingClientRect()
+        const mid = { x: pinch.mid.x - rect.left, y: pinch.mid.y - rect.top }
+        if (pinchSpan > 8 && pinch.span > 8) {
+          if (pinchMid) {
+            cam.panX += mid.x - (pinchMid.x - rect.left)
+            cam.panY += mid.y - (pinchMid.y - rect.top)
+          }
+          zoomAt(cam.zoom * (pinch.span / pinchSpan), mid)
+        }
+        pinchSpan = pinch.span
+        pinchMid = pinch.mid
+        moved = 99
+        return
+      }
       if (!dragging) return
       const dx = ev.clientX - lastPtr.x
       const dy = ev.clientY - lastPtr.y
       lastPtr = { x: ev.clientX, y: ev.clientY }
       moved += Math.hypot(dx, dy)
+      if (cam.zoom > MAP_ZOOM_MIN + 0.001 && ev.shiftKey) {
+        cam.panX += dx
+        cam.panY += dy
+        fixPan()
+        kick()
+        return
+      }
       rot.y += dx * 0.008
       rot.x = Math.max(-0.9, Math.min(0.9, rot.x + dy * 0.008))
       kick()
     }
     function onPointerUp(ev: PointerEvent) {
+      touches.delete(ev.pointerId)
+      if (touches.size < 2) {
+        pinchSpan = 0
+        pinchMid = null
+      }
+      const wasDragging = dragging
       dragging = false
       try {
         surface.releasePointerCapture(ev.pointerId)
       } catch {
         /* already released */
       }
-      if (moved > 10) return
+      if (!wasDragging || moved > 10) return
       const id = hitTest(ev.clientX, ev.clientY)
-      if (id) onSelectDept(id)
+      if (!id) {
+        lastTap = { id: '', at: 0 }
+        return
+      }
+      const now = Date.now()
+      if (zoomable && lastTap.id === id && now - lastTap.at < 400) {
+        lastTap = { id: '', at: 0 }
+        focusNode(id)
+        onSelectDept(id)
+        return
+      }
+      lastTap = { id, at: now }
+      onSelectDept(id)
+    }
+    function onWheel(ev: WheelEvent) {
+      if (!zoomable) return
+      ev.preventDefault()
+      const step = Math.exp(-ev.deltaY * 0.0016)
+      zoomAt(cam.zoom * step, local(ev))
     }
     surface.addEventListener('pointerdown', onPointerDown)
     surface.addEventListener('pointermove', onPointerMove)
     surface.addEventListener('pointerup', onPointerUp)
     surface.addEventListener('pointercancel', onPointerUp)
+    surface.addEventListener('wheel', onWheel, { passive: false })
 
     return () => {
       cancelAnimationFrame(raf)
@@ -390,8 +526,62 @@ export function AgentMapCanvas({
       surface.removeEventListener('pointermove', onPointerMove)
       surface.removeEventListener('pointerup', onPointerUp)
       surface.removeEventListener('pointercancel', onPointerUp)
+      surface.removeEventListener('wheel', onWheel)
     }
-  }, [onSelectDept, reduced, busy, selectedAgent, liveAgent, selectedDept])
+  }, [onSelectDept, reduced, busy, selectedAgent, liveAgent, selectedDept, zoomable])
 
-  return <canvas ref={canvasRef} className="agent-map-canvas" aria-label="Agenten-Netz" />
+  const step = useCallback((factor: number) => {
+    const cam = camRef.current
+    const next = clampZoom(cam.zoom * factor)
+    const k = next / cam.zoom
+    cam.panX *= k
+    cam.panY *= k
+    cam.zoom = next
+    if (next <= MAP_ZOOM_MIN + 0.001) {
+      cam.panX = 0
+      cam.panY = 0
+    }
+    setZoom(next)
+    kickRef.current()
+  }, [])
+
+  const reset = useCallback(() => {
+    const cam = camRef.current
+    cam.zoom = 1
+    cam.panX = 0
+    cam.panY = 0
+    setZoom(1)
+    kickRef.current()
+  }, [])
+
+  const canvas = <canvas ref={canvasRef} className="agent-map-canvas" aria-label="Agenten-Netz" />
+  if (!zoomable) return canvas
+  return (
+    <div className="agent-map-shell">
+      {canvas}
+      <div className="agent-map-zoom" role="group" aria-label="Netz-Zoom">
+        <button type="button" className="lage-btn" onClick={() => step(1 / 1.35)} aria-label="Herauszoomen">
+          −
+        </button>
+        <span className="agent-map-zoom-val" aria-live="polite">
+          {zoom.toFixed(1)}×
+        </span>
+        <button type="button" className="lage-btn" onClick={() => step(1.35)} aria-label="Heranzoomen">
+          +
+        </button>
+        <button
+          type="button"
+          className="lage-btn"
+          disabled={!selectedAgent}
+          onClick={() => focusRef.current(selectedAgent)}
+          aria-label="Auf gewählten Agenten zoomen"
+        >
+          Agent
+        </button>
+        <button type="button" className="lage-btn" onClick={reset} aria-label="Zoom zurücksetzen">
+          Ganz
+        </button>
+      </div>
+    </div>
+  )
 }

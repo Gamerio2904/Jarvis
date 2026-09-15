@@ -4491,6 +4491,53 @@ button.linkish {
   touch-action: none;
 }
 
+/* Zoom-Leiste über dem Netz. */
+.agent-map-shell {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 220px;
+  min-width: 0;
+}
+
+.agent-map-shell .agent-map-canvas {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.agent-map-zoom {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 5px;
+  border-radius: 999px;
+  background: rgba(5, 12, 8, 0.72);
+  border: 1px solid var(--border);
+}
+
+.agent-map-zoom .lage-btn {
+  min-width: 28px;
+  padding: 2px 7px;
+  font-size: 0.7rem;
+}
+
+.agent-map-zoom .lage-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.agent-map-zoom-val {
+  min-width: 30px;
+  text-align: center;
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
 .agent-tree .body-tree-item.is-cluster > .body-tree-row strong {
   color: var(--accent);
 }
@@ -4962,6 +5009,7 @@ button.linkish {
   }
   .lage.is-compact .body-schema,
   .lage.is-compact .globe-wrap,
+  .lage.is-compact .agent-map-shell,
   .lage.is-compact .agent-map-canvas {
     max-height: none;
     width: 100%;
