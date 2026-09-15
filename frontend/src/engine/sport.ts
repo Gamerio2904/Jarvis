@@ -50,7 +50,7 @@ export function parseSportIntent(text: string): SportIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 160) return null
   const sportish =
-    /\b(bundesliga|spielstand|spielergebnis|wie\s+hat\s+(?:der|die)\s+|ergebnis\s+|dfb[\s-]*pokal|zweite\s+liga)\b/i.test(
+    /\b(bundesliga|spielstand|spielergebnis|wie\s+hat\s+(?:der|die)\s+|ergebnis\s+|dfb[\s-]*pokal|zweite\s+liga|2\.?\s*liga)\b/i.test(
       t,
     ) ||
     (/\b(vfb|bayern|bvb|dortmund)\b/i.test(t) && /\b(gespielt|gewonnen|ergebnis|spiel)\b/i.test(t))
@@ -60,6 +60,11 @@ export function parseSportIntent(text: string): SportIntent | null {
   for (const [k, v] of Object.entries(LEAGUES)) {
     if (t.toLowerCase().includes(k)) league = v
   }
+  /**
+   * „2. Bundesliga" enthält „bundesliga" und landete deshalb in der ersten
+   * Liga — die Schlüsselliste kennt nur „2. liga" und „zweite".
+   */
+  if (/\b(?:2\.?\s*bundesliga|zweite\s+bundesliga)\b/i.test(t)) league = 'bl2'
   let team: string | undefined
   const low = t.toLowerCase()
   for (const [k, v] of Object.entries(TEAMS)) {
@@ -212,9 +217,20 @@ function speakTable(rows: TableRow[]): string {
   return `Aktuelle Tabelle: ${lead.join(', ')}.`
 }
 
+/**
+ * OpenLigaDB schlüsselt Saisons nach ihrem **Startjahr**: die Spielzeit 2025/26
+ * heißt dort 2025 — auch noch im Mai 2026. Vor August gehört das laufende Jahr
+ * also zur Saison des Vorjahres. Ohne diese Rechnung fragte Jarvis von Januar
+ * bis Juli die erst im August beginnende Saison ab und antwortete auf jede
+ * Ergebnisfrage mit „keine Spiele".
+ */
+export function seasonYears(now = new Date()): number[] {
+  const start = now.getMonth() < 7 ? now.getFullYear() - 1 : now.getFullYear()
+  return [start, start - 1]
+}
+
 async function loadTable(league: string): Promise<TableRow[]> {
-  const year = new Date().getFullYear()
-  for (const y of [year, year - 1]) {
+  for (const y of seasonYears()) {
     const rows = await fetchTable(league, y)
     if (rows.length) return rows
   }
@@ -255,7 +271,15 @@ async function fetchTable(league: string, year: number): Promise<TableRow[]> {
 }
 
 async function loadMatches(league: string): Promise<Match[]> {
-  const year = new Date().getFullYear()
+  for (const y of seasonYears()) {
+    const rows = await fetchMatches(league, y)
+    if (rows.some((m) => m.done)) return rows
+    if (rows.length) return rows
+  }
+  return []
+}
+
+async function fetchMatches(league: string, year: number): Promise<Match[]> {
   const url = `https://api.openligadb.de/getmatchdata/${league}/${year}`
   try {
     const { status, text } = await getText(url, UA)

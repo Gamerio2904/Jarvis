@@ -25,6 +25,7 @@ import {
 import { pickPolicy, SCORE_CEIL, SCORE_MIN, tieRank, withCost, withPrior } from '../src/engine/policy.ts'
 import { agentCatalog, orphanExecutorIds } from '../src/engine/agents/catalog.ts'
 import { EXECUTOR_IDS } from '../src/engine/agents/executor-ids.ts'
+import { applyConflicts } from '../src/engine/conflicts.ts'
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
@@ -134,6 +135,19 @@ const referenced = [...src.matchAll(/\b(?:drop|boost)\(\s*out\s*,\s*'([^']+)'/g)
 assert.ok(referenced.length > 50, `Konflikt-Tisch gelesen (${referenced.length} Verweise)`)
 const unknown = [...new Set(referenced.filter((id) => !known.has(id)))]
 assert.deepEqual(unknown, [], `conflicts.ts nennt unbekannte Agenten: ${unknown.join(', ')}`)
+
+// Eine Preisfrage an der Tanke darf den Tank-Agenten nicht abwerfen — sonst
+// ist niemand zuständig und das Modell erfindet Spritpreise.
+{
+  const ctx = { lastTool: '', lastMedium: '', inDrive: false }
+  const cands = [
+    { id: 'fuel', score: 0.6 },
+    { id: 'outlook', score: 0.5 },
+  ]
+  const kept = applyConflicts(cands, 'Was kostet E10 an der nächsten Tankstelle?', ctx).map((c) => c.id)
+  assert.ok(kept.includes('fuel'), 'fuel bleibt zuständig')
+  assert.ok(!kept.includes('outlook'), 'der Ausblick fliegt — eine Preisfrage ist keine Prognose')
+}
 
 // --- Sicherungsschalter ---------------------------------------------------
 resetBreakers()

@@ -150,7 +150,7 @@ import { parseSkyIntent } from '../src/engine/sky.ts'
 import { parseChessIntent } from '../src/engine/chess.ts'
 import { fromHandler } from '../src/engine/agents/execute-map.ts'
 import { skipMicroMerge, parseChatBlocks } from '../src/engine/chat-blocks.ts'
-import { parseSportIntent, formatTable, tableBlock } from '../src/engine/sport.ts'
+import { parseSportIntent, formatTable, seasonYears, tableBlock } from '../src/engine/sport.ts'
 import { parseFoodIntent } from '../src/engine/food.ts'
 import { parseLibraryIntent } from '../src/engine/library.ts'
 import { parseLawIntent, isLawWikiTitle, lawWikiQuery, lawWikiTitleScore } from '../src/engine/law.ts'
@@ -1879,6 +1879,15 @@ assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.team, 'Stuttgart')
 assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.table, true)
 assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.league, 'bl1')
 assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.table, false)
+// „2. Bundesliga“ enthält „bundesliga“ und landete deshalb in der ersten Liga.
+assert.equal(parseSportIntent('Wie steht die 2. Bundesliga?')?.league, 'bl2')
+assert.equal(parseSportIntent('Wie steht die zweite Bundesliga?')?.league, 'bl2')
+assert.equal(parseSportIntent('Wie steht die 2. Liga?')?.league, 'bl2')
+// OpenLigaDB schlüsselt nach Startjahr: im Frühjahr läuft noch die Vorjahressaison.
+assert.deepEqual(seasonYears(new Date('2026-03-14T12:00:00Z')), [2025, 2024])
+assert.deepEqual(seasonYears(new Date('2026-07-31T12:00:00Z')), [2025, 2024])
+assert.deepEqual(seasonYears(new Date('2026-08-01T12:00:00Z')), [2026, 2025])
+assert.deepEqual(seasonYears(new Date('2026-12-24T12:00:00Z')), [2026, 2025])
 assert.match(
   formatTable([{ rank: 1, name: 'FC Bayern München', points: 12, gf: 15, ga: 4, played: 4 }]),
   /Bayern/,

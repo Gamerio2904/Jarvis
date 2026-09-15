@@ -352,7 +352,14 @@ function readSoon(
   const hourly = json.hourly as Record<string, unknown> | undefined
   const times = (hourly?.time as string[] | undefined) || []
   const probs = (hourly?.precipitation_probability as number[] | undefined) || []
-  let start = times.findIndex((t) => t === currentTime)
+  /**
+   * Open-Meteo liefert `current.time` auf die Viertelstunde („T08:15"), die
+   * Stundenreihe aber auf die Stunde („T08:00"). Ein Vergleich auf Gleichheit
+   * fand deshalb nie etwas, fiel auf Index 0 zurück und beantwortete „regnet es
+   * gleich?" mit dem Wetter ab Mitternacht. Auf die Stunde gekürzt passt es.
+   */
+  const hour = currentTime.slice(0, 13)
+  let start = hour ? times.findIndex((t) => t.slice(0, 13) === hour) : -1
   if (start < 0) start = 0
   let max = -1
   for (let i = start; i < times.length && i < start + 7; i += 1) {

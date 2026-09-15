@@ -218,8 +218,12 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   }
 
   if (/\b(?:benzinpreis|spritpreis|e10)\b/.test(t) && !/\b(?:teurer|billiger|wird|ausblick|prognose|tanke)\b/.test(t)) {
+    /**
+     * Nur der Ausblick fliegt: eine Preisfrage ist keine Prognose. `fuel` flog
+     * hier mit — bei „was kostet E10 an der nächsten Tankstelle" blieb damit
+     * niemand zuständig, und das Modell erfand Preise.
+     */
     out = drop(out, 'outlook')
-    out = drop(out, 'fuel')
   }
 
   if (

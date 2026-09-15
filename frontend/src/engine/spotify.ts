@@ -500,17 +500,32 @@ export async function playQuery(query: string): Promise<string> {
   return playTrack(found.tracks[0])
 }
 
+/**
+ * 200, 202 und 204 heißen „ausgeführt". Alles andere — 404 ohne aktives Gerät,
+ * 403 ohne Premium, 401 mit abgelaufenem Token — hat nichts bewegt. Diese
+ * Befehle meldeten trotzdem „Nächster." und „Pause.", während die Musik
+ * unverändert weiterlief.
+ */
+function moved(status: number): boolean {
+  return status === 200 || status === 202 || status === 204
+}
+
+const NO_DEVICE = 'Kein aktives Spotify-Gerät. Einmal in der Spotify-App abspielen, dann nochmal.'
+
 export async function pauseSpotify(): Promise<string> {
   stopPreview()
   if (sdkPlayer && deviceId) {
     try {
       await sdkPlayer.pause()
+      if (lastNow) lastNow = { ...lastNow, playing: false }
+      emit()
+      return 'Pause.'
     } catch {
-      await api('PUT', '/me/player/pause')
+      /* Connect-API */
     }
-  } else {
-    await api('PUT', '/me/player/pause')
   }
+  const { status } = await api('PUT', '/me/player/pause')
+  if (!moved(status)) return status === 404 ? 'Es läuft gerade nichts.' : NO_DEVICE
   if (lastNow) lastNow = { ...lastNow, playing: false }
   emit()
   return 'Pause.'
@@ -530,7 +545,7 @@ export async function resumeSpotify(): Promise<string> {
   }
   const qs = deviceId ? `?device_id=${encodeURIComponent(deviceId)}` : ''
   const { status } = await api('PUT', `/me/player/play${qs}`)
-  if (status === 204 || status === 202 || status === 200) {
+  if (moved(status)) {
     if (lastNow) lastNow = { ...lastNow, playing: true, source: deviceId ? 'internal' : 'connect' }
     emit()
     return 'Weiter.'
@@ -542,15 +557,17 @@ export async function setSpotifyVolume(level: number): Promise<string> {
   const pct = Math.max(1, Math.min(100, Math.round(level)))
   spotifyVol = pct / 100
   if (preview) preview.volume = spotifyVol
+  if (preview) return `Lautstärke ${pct}.`
   if (sdkPlayer?.setVolume) {
     try {
       await sdkPlayer.setVolume(spotifyVol)
+      return `Lautstärke ${pct}.`
     } catch {
-      /* Connect */
+      /* Connect-API */
     }
   }
-  await api('PUT', `/me/player/volume?volume_percent=${pct}`)
-  return `Lautstärke ${pct}.`
+  const { status } = await api('PUT', `/me/player/volume?volume_percent=${pct}`)
+  return moved(status) ? `Lautstärke ${pct}.` : NO_DEVICE
 }
 
 export async function nudgeSpotifyVolume(delta: number): Promise<string> {
@@ -568,8 +585,8 @@ export async function nextSpotify(): Promise<string> {
       /* Connect-API */
     }
   }
-  await api('POST', '/me/player/next')
-  return 'Nächster.'
+  const { status } = await api('POST', '/me/player/next')
+  return moved(status) ? 'Nächster.' : NO_DEVICE
 }
 
 export async function prevSpotify(): Promise<string> {
@@ -582,8 +599,8 @@ export async function prevSpotify(): Promise<string> {
       /* Connect-API */
     }
   }
-  await api('POST', '/me/player/previous')
-  return 'Zurück.'
+  const { status } = await api('POST', '/me/player/previous')
+  return moved(status) ? 'Zurück.' : NO_DEVICE
 }
 
 export async function refreshNow(): Promise<SpotifyNow | null> {
