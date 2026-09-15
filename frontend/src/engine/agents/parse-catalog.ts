@@ -123,7 +123,7 @@ function buildParseCatalog(): AgentSpec[] {
     },
     { id: 'here', sideEffect: 'read', parse: (ctx) => (parseHereIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.05) : null) },
     { id: 'fuel', sideEffect: 'device', factual: true, parse: (ctx) => (parseFuelIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
-    { id: 'poi', sideEffect: 'device', factual: true, parse: (ctx) => (parsePoiIntent(ctx.text) ? score(ctx.text) : null) },
+    { id: 'poi', sideEffect: 'device', factual: true, parse: (ctx) => (parsePoiIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
     { id: 'transit', sideEffect: 'read', parse: (ctx) => (parseTransitIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
     {
       id: 'drive',

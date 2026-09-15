@@ -85,4 +85,9 @@ function pick(text, lastTool = '') {
   assert.equal(pick('Das stimmt nicht', 'research'), null)
 }
 
+{
+  assert.equal(pick('Wo ist die Apotheke'), 'poi', 'device-Kosten dürfen POI nicht an Maps verlieren')
+  assert.equal(pick('nächste Tankstelle'), 'fuel')
+}
+
 console.log('test:sprints-272-281 ok')

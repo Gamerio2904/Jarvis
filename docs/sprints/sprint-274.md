@@ -17,6 +17,8 @@ die Navigation nicht zweimal.
 | S274-2 | Bus | `bus.ts` `dispatchAttempts` | `read` = 2, sonst 1 |
 
 Wetter und Sport bleiben `read` und dürfen einmal wiederholen.
+POI behält Parser-Extra `0.08` wie Tanke — sonst gewinnt Maps, weil
+`device` in der Policy 0,05 kostet.
 
 ## Abbruchkriterium
 
