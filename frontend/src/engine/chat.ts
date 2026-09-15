@@ -888,7 +888,12 @@ export async function streamChat(
         wantSearch = true
         continue
       }
-      if (pass === 0 && looksTruncated(text) && kind === 'gemini') {
+      // Groq ist das Standard-Hirn, und genau dort blieb der abgebrochene Satz
+      // stehen („volatil. bis eine“) — der Retry hing vorher an Gemini allein.
+      // Das lokale 0,5B bleibt außen vor: es bricht oft ab und braucht Sekunden,
+      // ein zweiter Lauf kostet dort mehr Zeit als er Qualität bringt. Die
+      // Schleife lässt ohnehin nur `pass` 0 und 1 zu.
+      if (pass === 0 && looksTruncated(text) && kind !== 'local') {
         continue
       }
       if (pass === 1 && text) handlers.onReplace?.(text)

@@ -25,12 +25,14 @@ export function parseChatBlocks(raw: unknown): ChatBlock[] {
       out.push({ kind: 'chess', fen: o.fen.trim() })
       continue
     }
-    if (o.kind === 'image' && typeof o.src === 'string' && o.src.trim()) {
+    // Ein Bild ohne Quelle wird verworfen, nicht quellenlos gezeigt: das ist
+    // das Abbruchkriterium aus `70-next.md` §7, hier fail-closed umgesetzt.
+    if (o.kind === 'image' && typeof o.src === 'string' && o.src.trim() && String(o.source || '').trim()) {
       out.push({
         kind: 'image',
         src: o.src.trim(),
         alt: String(o.alt || ''),
-        source: String(o.source || ''),
+        source: String(o.source).trim(),
       })
     }
   }

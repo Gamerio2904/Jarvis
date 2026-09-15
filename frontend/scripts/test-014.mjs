@@ -1868,6 +1868,12 @@ assert.equal(rewriteFollowUp('Ja', { last_step_tool: 'drive', last_step_utteranc
   assert.equal(block.rows[0][1], 'Bayern')
   assert.equal(skipMicroMerge('Aktuelle Tabelle: 1. Bayern 12.', [block]), true)
   assert.equal(parseChatBlocks([block]).length, 1)
+  // Bild ohne Quelle fliegt raus, statt quellenlos im Chat zu stehen.
+  assert.equal(parseChatBlocks([{ kind: 'image', src: 'https://x/y.png', alt: 'a', source: '' }]).length, 0)
+  assert.equal(
+    parseChatBlocks([{ kind: 'image', src: 'https://x/y.png', alt: 'a', source: 'Wikipedia' }])[0].kind,
+    'image',
+  )
 }
 assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.team, 'Stuttgart')
 assert.equal(parseSportIntent('Wie steht die Bundesliga?')?.table, true)

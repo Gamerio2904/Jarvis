@@ -4952,6 +4952,25 @@ button.linkish {
   max-width: 220px;
 }
 
+.chat-image {
+  margin: 8px 0 0;
+}
+
+.chat-image img {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.chat-image figcaption {
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
 .kicker-table-wrap {
   margin-top: 8px;
   overflow-x: auto;
