@@ -123,7 +123,15 @@ export async function handleChess(
     if (after.fen !== fen) saveFen(after.fen)
     return pack(note, after.fen)
   }
-  const move = intent.kind === 'castle' ? castleUci(fen, intent.side === 'long') : intent.move || ''
+  // Nach Matt/Patt/Remis verschluckte jeder weitere Zug die Stellung und
+  // wiederholte nur die Schlusszeile, ohne zu sagen, wie es weitergeht.
+  if (gameOver(fen)) {
+    return pack(endLine(fen), fen)
+  }
+  let move = intent.kind === 'castle' ? castleUci(fen, intent.side === 'long') : intent.move || ''
+  if ((/^[a-h]7[a-h]8$/.test(move) || /^[a-h]2[a-h]1$/.test(move)) && standsOn(fen, move) === 'p') {
+    move += 'q'
+  }
   /**
    * Die genannte Figur wurde vorher nur zum Erkennen gelesen und dann
    * weggeworfen: „Dame e2 e4“ zog den Bauern auf e2 und meldete Erfolg. Wer
@@ -179,9 +187,10 @@ function standsOn(fen: string, uci: string): string {
 }
 
 function prettyMove(uci: string): string {
-  const m = /^([a-h][1-8])([a-h]\d+)/.exec(uci)
+  const m = /^([a-h][1-8])([a-h]\d+)([qrbn])?/.exec(uci)
   if (!m) return uci
-  return `${m[1]}–${m[2]}`
+  const promo = m[3] ? `=${PIECE_NAME[m[3]]}` : ''
+  return `${m[1]}–${m[2]}${promo}`
 }
 
 function pack(line: string, fen: string) {
@@ -249,10 +258,35 @@ function turnLine(fen: string): string {
  * unter einem Matt. Jetzt sagt die Zeile, was auf dem Brett steht.
  */
 function endLine(fen: string): string {
+  const draw = drawWhy(fen)
+  if (draw) return `${draw} Sag „Schach neu“ für ein neues Spiel.`
   if (allLegalUci(fen).length) return turnLine(fen)
   const side = sideName(fen)
-  if (inCheck(fen)) return `Schachmatt — ${side} steht matt.`
-  return `Patt — ${side} hat keinen Zug.`
+  if (inCheck(fen)) return `Schachmatt — ${side} steht matt. Sag „Schach neu“ für ein neues Spiel.`
+  return `Patt — ${side} hat keinen Zug. Sag „Schach neu“ für ein neues Spiel.`
+}
+
+function gameOver(fen: string): boolean {
+  return Boolean(drawWhy(fen)) || allLegalUci(fen).length === 0
+}
+
+/** Material, 50-Züge, dreimal dieselbe Stellung. */
+function drawWhy(fen: string): string | null {
+  if (insufficient(fen)) return 'Remis — kein Matt mehr möglich.'
+  const st = parseState(fen)
+  if (st.half >= 100) return 'Remis — 50 Züge ohne Schlag und ohne Bauer.'
+  const place = fen.split(' ')[0]
+  let n = 0
+  for (const s of seen) if (s === place) n += 1
+  if (n >= 3) return 'Remis — dreimal dieselbe Stellung.'
+  return null
+}
+
+/** König gegen König, oder eine Leichtfigur extra — Matt geht nicht mehr. */
+function insufficient(fen: string): boolean {
+  const letters = [...(fen.split(' ')[0] || '')].filter((c) => /[pnbrqk]/i.test(c))
+  if (letters.some((c) => /[pqr]/i.test(c))) return false
+  return letters.filter((c) => /[nb]/i.test(c)).length <= 1
 }
 
 /** Jarvis ist Schwarz. Zieht nach, wenn Schwarz am Zug ist. */
@@ -575,7 +609,14 @@ export function allLegalUci(fen: string): string[] {
         for (let tf = 0; tf < 8; tf++) {
           if (tr === fr && tf === ff) continue
           const to = `${String.fromCharCode(97 + tf)}${8 - tr}`
-          if (applyMove(fen, from + to)) out.push(from + to)
+          const dest = from + to
+          if (piece.p === 'p' && (tr === 0 || tr === 7)) {
+            for (const promo of ['q', 'r', 'b', 'n'] as const) {
+              if (applyMove(fen, dest + promo)) out.push(dest + promo)
+            }
+          } else if (applyMove(fen, dest)) {
+            out.push(dest)
+          }
         }
       }
     }

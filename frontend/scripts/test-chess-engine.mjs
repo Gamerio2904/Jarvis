@@ -86,6 +86,19 @@ assert.deepEqual(allLegalUci(stale), [])
 saveFen('7k/8/5K2/8/8/8/8/6Q1 w - - 0 1')
 const mated = await handleChess('Dame g1 g7')
 assert.match(mated.reply || '', /Schachmatt/)
+assert.match(mated.reply || '', /Schach neu/)
+const afterMate = await handleChess('Bauer a2 a4')
+assert.match(afterMate.reply || '', /Schachmatt/)
+assert.match(afterMate.reply || '', /Schach neu/)
+assert.doesNotMatch(afterMate.reply || '', /nicht legal|Ich spiele/)
+
+saveFen('7k/8/8/8/8/8/8/7K w - - 0 1')
+assert.match((await handleChess('zeig mir das Schachbrett')).reply || '', /Remis/)
+
+saveFen('7k/P7/8/8/8/8/8/7K w - - 0 1')
+const promo = await handleChess('a7 a8')
+assert.match(promo.reply || '', /a7–a8=Dame/)
+assert.ok(allLegalUci('7k/P7/8/8/8/8/8/7K w - - 0 1').includes('a7a8n'))
 
 /**
  * Rochade und En passant fehlten ganz: `Koenig e1 g1` hieß „nicht legal“, und
