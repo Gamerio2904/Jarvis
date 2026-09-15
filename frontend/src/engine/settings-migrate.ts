@@ -50,10 +50,27 @@ export function dropFields(raw: Household, keys: readonly string[]): Household {
  */
 const DEAD_FIELDS = ['routing_mode', 'brain_gemini_roles_tts'] as const
 
+/**
+ * `hud_force` ohne laufende Lage-Sitzung liess das Handy auf einem schwarzen
+ * Schirm ohne Chat stehen (die Falle aus `15.3.1`). Der Notausgang dagegen hing
+ * in `loadSettings` an „Version hat sich geändert" — er schlug also bei **jedem**
+ * Update wieder zu und drehte dem Nutzer seinen Schalter zurück, ohne ein Wort.
+ * Die Ursache ist seit `18.0.1` weg (`lageSessionActive()` in `App.tsx`), also
+ * löst der Schritt die Falle genau einmal und ist dann Geschichte.
+ */
+function releaseLageTrap(raw: Household): Household {
+  if (!raw.hud_force) return raw
+  return { ...raw, hud_force: false, hud_hidden: true }
+}
+
 export const MIGRATIONS: MigrationStep[] = [
   {
     id: '001-tote-felder-entfernen',
     apply: (raw) => dropFields(raw, DEAD_FIELDS),
+  },
+  {
+    id: '002-lage-falle-einmalig-loesen',
+    apply: releaseLageTrap,
   },
 ]
 

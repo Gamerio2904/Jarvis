@@ -106,16 +106,26 @@ put(hausstand)
 const geladen = loadSettings()
 for (const key of Object.keys(DEFAULT_SETTINGS)) {
   if (key === 'settings_rev' || key === 'version') continue
-  // Sideload-Sprung: Lage-Falle aus 15.3.1. hud_force ohne Session = Blackscreen.
+  // Lage-Falle aus 15.3.1: hud_force ohne Session = Blackscreen. Schritt 002.
   if (key === 'hud_force' || key === 'hud_hidden') continue
   assert.deepEqual(geladen[key], hausstand[key], `Migration hat ${key} verloren`)
 }
-assert.equal(geladen.hud_force, false, 'Lage-Falle: hud_force nach Versionsprung aus')
-assert.equal(geladen.hud_hidden, true, 'Lage-Falle: hud_hidden nach Versionsprung zu')
+assert.equal(geladen.hud_force, false, 'Lage-Falle: hud_force einmalig aus')
+assert.equal(geladen.hud_hidden, true, 'Lage-Falle: hud_hidden einmalig zu')
 assert.equal(geladen.version, APP_VERSION, 'die Fassung wird gestempelt')
 assert.equal(geladen.settings_rev, SETTINGS_REV)
 assert.equal('routing_mode' in geladen, false, 'totes Feld ist weg')
 assert.equal('brain_gemini_roles_tts' in geladen, false)
+
+// Wer die Lage danach wieder aufspannt, behaelt sie auch ueber ein Update.
+// Vorher hing der Notausgang an „Version hat sich geaendert" und drehte den
+// Schalter bei jedem Sideload zurueck, ohne ein Wort.
+saveSettings({ hud_force: true, hud_hidden: false })
+put({ ...JSON.parse(localStorage.getItem(SETTINGS_KEY)), version: '17.0.0' })
+const nachUpdate = loadSettings()
+assert.equal(nachUpdate.hud_force, true, 'der Schalter des Nutzers ueberlebt den Versionsprung')
+assert.equal(nachUpdate.hud_hidden, false)
+assert.equal(nachUpdate.version, APP_VERSION)
 
 // Der gewanderte Stand wird auch geschrieben, sonst laeuft die Migration ewig.
 saveSettings({})

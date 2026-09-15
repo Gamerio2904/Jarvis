@@ -494,13 +494,9 @@ export function loadSettings(): Settings {
   }
   const migrated = migrateSettings(stored)
   const prev = coerceSettings(migrated.value, DEFAULT_SETTINGS).value
-  const next = { ...prev, version: APP_VERSION }
-  // 15.3.1: Kugel/Lage trap — hud_force without session left phone on black Chat-less screen
-  if (stored.version !== APP_VERSION && prev.hud_force) {
-    next.hud_force = false
-    next.hud_hidden = true
-  }
-  return next
+  // Die Lage-Falle aus 15.3.1 löst jetzt der Migrationsschritt
+  // `002-lage-falle-einmalig-loesen` — einmal, statt bei jedem Versionswechsel.
+  return { ...prev, version: APP_VERSION }
 }
 
 export function isGeminiConfigured(s = loadSettings()): boolean {
