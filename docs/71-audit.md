@@ -51,7 +51,9 @@ Alle 28 Testläufe, `tsc -b` und `lint` sind nach jedem dieser Schritte grün.
 Nach dem Dokumenten- und Aufräumteil lasen vier getrennte Durchgänge den Code
 selbst — Motor, Oberfläche, Android-Schicht, toter Code. Sie fanden 22 Dinge,
 die im laufenden Betrieb schiefgehen und die kein Test bemerkt, weil kein Test
-ein Mikrofon, einen Weckerdienst oder einen Render-Zyklus hat.
+ein Mikrofon, einen Weckerdienst oder einen Render-Zyklus hat. Nummer 35 kam
+erst beim Abfilmen der Belege dazu — auch das ist ein Befund über Tests: die
+Zweitliga-Tabelle war rechnerisch richtig und trotzdem unlesbar.
 
 **Der wichtigste Befund betrifft den Bug aus den Screenshots.** Der
 Sprachmodus las weiter nur den Anfang vor. Der Wächter für „dazwischenreden“
@@ -87,6 +89,7 @@ Durchgang hat den Abbruch also nur verschoben.
 | 32 | Die Taschenlampe verlangte das Kamera-Recht, das `setTorchMode` seit API 23 nicht braucht. Wer ablehnte — für eine Taschenlampe naheliegend — bekam für immer „Kamera-Recht fehlt“ | Kein Dialog mehr; `CAMERA` ist auch aus dem Manifest raus, nichts sonst greift auf die Kamera zu |
 | 33 | Das GPS lief weiter, wenn die Activity starb, ohne dass JS aufräumen konnte. Beim Neuaufbau kam ein zweiter Satz Abfragen obendrauf | `handleOnDestroy` meldet die Ortung ab |
 | 34 | `openApp` konnte seit Android 11 **keine** installierte App finden (Sichtbarkeitsfilter), und der Rückfallweg zeigte auf eine Amazon-Appstore-URL, die es auf einem Play-Gerät nicht gibt | `<queries>` mit `MAIN`/`LAUNCHER`, Rückfall auf `market://` |
+| 35 | In der Beleg-Aufnahme der neuen Zweitliga-Tabelle fiel es auf: `shortClub` kannte nur Erstliga-Vereine und schnitt alles andere nach 16 Zeichen hart ab — „SpVgg Greuther F“, „Eintracht Brauns“, „DSC Arminia Biel“ | 19 Zweitliga-Vereine mit Kurznamen, und was danach noch zu lang ist, bricht an der Wortgrenze statt im Wort. Mit Test |
 
 Nebenbei geschlossen: zwei `listen()`-Rufe kurz hintereinander brachen die
 Erkennung nicht ab und liefen in `ERROR_RECOGNIZER_BUSY`; ein Wecker forderte

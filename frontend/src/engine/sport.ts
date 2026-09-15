@@ -160,15 +160,44 @@ export function shortClub(name: string): string {
     [/heidenheim/i, 'Heidenheim'],
     [/st\.?\s*pauli/i, 'St. Pauli'],
     [/wolfsburg/i, 'Wolfsburg'],
+    // Zweite Liga. Ohne diese Zeilen griff unten der harte Schnitt und aus
+    // „SpVgg Greuther Fürth“ wurde „SpVgg Greuther F“.
+    [/hertha/i, 'Hertha'],
+    [/n[uü]rnberg/i, 'Nürnberg'],
+    [/magdeburg/i, 'Magdeburg'],
+    [/kaiserslautern/i, 'Lautern'],
+    [/cottbus/i, 'Cottbus'],
+    [/bochum/i, 'Bochum'],
+    [/osnabr[uü]ck/i, 'Osnabrück'],
+    [/f[uü]rth/i, 'Fürth'],
+    [/karlsruhe|ksc\b/i, 'Karlsruhe'],
+    [/braunschweig/i, 'Braunschweig'],
+    [/bielefeld/i, 'Bielefeld'],
+    [/hannover/i, 'Hannover'],
+    [/darmstadt/i, 'Darmstadt'],
+    [/dresden/i, 'Dresden'],
+    [/kiel/i, 'Kiel'],
+    [/m[uü]nster/i, 'Münster'],
+    [/saarbr[uü]cken/i, 'Saarbrücken'],
+    [/regensburg/i, 'Regensburg'],
+    [/\bulm\b/i, 'Ulm'],
   ]
   for (const [re, short] of known) {
     if (re.test(n)) return short
   }
-  return n
-    .replace(/^(?:1\.\s*)?(?:fc|sc|sv|tsv|tsg|rb|bayer)\s+/i, '')
+  const plain = n
+    .replace(/^(?:1\.\s*)?(?:fc|sc|sv|tsv|tsg|rb|bayer|spvgg|dsc)\s+/i, '')
     .replace(/\s+\d{2}$/g, '')
     .trim()
-    .slice(0, 16) || n.slice(0, 16)
+  return clip(plain) || clip(n)
+}
+
+/** Kürzen an der Wortgrenze — ein Schnitt mitten im Wort liest sich wie ein Fehler. */
+function clip(name: string, max = 16): string {
+  if (name.length <= max) return name
+  const cut = name.slice(0, max)
+  const space = cut.lastIndexOf(' ')
+  return (space > 6 ? cut.slice(0, space) : cut).trim()
 }
 
 export function formatTable(rows: TableRow[]): string {

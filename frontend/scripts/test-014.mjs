@@ -150,7 +150,7 @@ import { parseSkyIntent } from '../src/engine/sky.ts'
 import { parseChessIntent } from '../src/engine/chess.ts'
 import { fromHandler } from '../src/engine/agents/execute-map.ts'
 import { skipMicroMerge, parseChatBlocks } from '../src/engine/chat-blocks.ts'
-import { parseSportIntent, formatTable, seasonYears, tableBlock } from '../src/engine/sport.ts'
+import { parseSportIntent, formatTable, seasonYears, shortClub, tableBlock } from '../src/engine/sport.ts'
 import { parseFoodIntent } from '../src/engine/food.ts'
 import { parseLibraryIntent } from '../src/engine/library.ts'
 import { parseLawIntent, isLawWikiTitle, lawWikiQuery, lawWikiTitleScore } from '../src/engine/law.ts'
@@ -1891,6 +1891,15 @@ assert.equal(parseSportIntent('Wie hat der VfB gespielt?')?.table, false)
 assert.equal(parseSportIntent('Wie steht die 2. Bundesliga?')?.league, 'bl2')
 assert.equal(parseSportIntent('Wie steht die zweite Bundesliga?')?.league, 'bl2')
 assert.equal(parseSportIntent('Wie steht die 2. Liga?')?.league, 'bl2')
+// Vereinsnamen wurden mitten im Wort abgeschnitten („SpVgg Greuther F“).
+assert.equal(shortClub('SpVgg Greuther Fürth'), 'Fürth')
+assert.equal(shortClub('Eintracht Braunschweig'), 'Braunschweig')
+assert.equal(shortClub('DSC Arminia Bielefeld'), 'Bielefeld')
+assert.equal(shortClub('1. FC Kaiserslautern'), 'Lautern')
+assert.equal(shortClub('Hertha BSC'), 'Hertha')
+// Unbekannte lange Namen brechen an der Wortgrenze, nicht im Wort.
+assert.equal(shortClub('Sportfreunde Irgendwo'), 'Sportfreunde')
+assert.doesNotMatch(shortClub('Sportfreunde Irgendwo'), /\s$/)
 // OpenLigaDB schlüsselt nach Startjahr: im Frühjahr läuft noch die Vorjahressaison.
 assert.deepEqual(seasonYears(new Date('2026-03-14T12:00:00Z')), [2025, 2024])
 assert.deepEqual(seasonYears(new Date('2026-07-31T12:00:00Z')), [2025, 2024])
