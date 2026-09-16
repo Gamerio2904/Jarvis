@@ -56,7 +56,7 @@ export const BARGE_IGNORE_TTS_MS = 2000
  * noch im Raum — ohne diese Pause zählt der Rest des letzten Wortes als
  * Unterbrechung.
  */
-export const TALK_TAIL_MS = 400
+export const TALK_TAIL_MS = 900
 
 export type TurnHints = {
   /** Die Erkennung hat den Satz selbst als abgeschlossen gemeldet. */

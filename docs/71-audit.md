@@ -221,7 +221,7 @@ bei `18.0.3`. Unverändert gültig, hier nur bestätigt.
 | — | 282 | **Freeze:** `versionCode`-Schema auf drei Stellen je Feld — nur wenn eine Version `x.100` erreicht | Freeze |
 
 Die Anker `18.0.4`/`18.0.5` galten gegen Code `18.0.3`. Live war `18.0.8`,
-deshalb ein Bündel **`18.1.0`**. 290 (Overlay) rückt auf `18.1.1`.
+deshalb ein Bündel **`18.1.0`**. 290 (Overlay) rückt auf `18.1.2`.
 
 Ketten: 272 zuerst und allein — solange die Java-Änderungen nicht auf einem
 Gerät liefen, ist alles andere in dieser Schicht Spekulation. 273 vor 274 (wer

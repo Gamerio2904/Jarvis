@@ -13,7 +13,6 @@ import {
   setKeepScreenOn,
   stopListen,
   stopSpeak,
-  watchBargeIn,
 } from '../native/voice.ts'
 import { abortCurrentTurn } from '../engine/turn-abort.ts'
 
@@ -207,30 +206,15 @@ export function VoiceMode({
     setHeard(text)
     setErr(null)
     setPhase('thinking')
-    const tap = createSentenceTap(true)
+    const tap = createSentenceTap(true, { holdRest: true })
     const pipe = createSpeakPipeline()
     pipelineRef.current = pipe
     let started = false
     let answer = ''
-    let barged = false
-    /**
-     * Der Wächter stand vorher erst **nach** dem Stream. Gesprochen wird aber
-     * schon ab dem ersten fertigen Satz — bei einer langen Antwort hörte
-     * Jarvis also minutenlang niemandem zu, obwohl unten „unterbrechen" stand.
-     */
-    const barge: { stop: (() => void) | null } = { stop: null }
-    const armBarge = () => {
-      if (barge.stop) return
-      barge.stop = watchBargeIn(() => {
-        barged = true
-        cutIn(pipe)
-      })
-    }
     const beginSpeaking = () => {
       started = true
       setPhase('speaking')
       setChatSpeaking(true)
-      armBarge()
     }
     try {
       answer = await Promise.race([
@@ -261,7 +245,6 @@ export function VoiceMode({
       ])
     } catch (e) {
       pipe.stop()
-      barge.stop?.()
       setChatSpeaking(false)
       if (e instanceof Error && e.message === '__barge_in__') return
       setErr(e instanceof Error ? e.message : 'Antwort fehlgeschlagen')
@@ -269,9 +252,8 @@ export function VoiceMode({
     } finally {
       if (abortTurn.current) abortTurn.current = null
     }
-    if (!live.current || turnGen.current !== gen || barged) {
+    if (!live.current || turnGen.current !== gen) {
       pipe.stop()
-      barge.stop?.()
       setChatSpeaking(false)
       return
     }
@@ -284,11 +266,7 @@ export function VoiceMode({
       beginSpeaking()
       pipe.push(answer)
     }
-    try {
-      await pipe.flush()
-    } finally {
-      barge.stop?.()
-    }
+    await pipe.flush()
     setChatSpeaking(false)
   }
 
@@ -335,8 +313,8 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Dazwischenreden unterbricht. Erste Silbe Edge Neural oder Algieba, eine Stimme pro Antwort.'
-                : 'Dazwischenreden unterbricht. Stimme auf System = Geräte-TTS, sonst Edge Neural.'}
+                ? 'Unterbrechen per Antippen. Erste Silbe sofort, danach die ganze Antwort in einem Stück.'
+                : 'Unterbrechen per Antippen. Stimme auf System = Geräte-TTS, sonst Edge Neural.'}
             </p>
           </div>
           <button type="button" className="ghost-btn voice-close" onClick={onClose}>

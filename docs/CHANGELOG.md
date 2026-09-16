@@ -5,6 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.1.1` — Sprachmodus liest die ganze Antwort — *CODE + APK*
+
+Sideload **`18.1.1`** (versionCode `180101`):  
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Nach dem ersten Satz fiel die Stummschaltung, das Mikrofon hörte das Echo
+und schnitt den Rest. Mute gilt jetzt für die ganze Antwort, der Rest nach
+dem ersten Satz kommt in einem Stück, Unterbrechen nur per Antippen.
+Gerät-PO: [`TEST-18.1.1.md`](./TEST-18.1.1.md). 290 rückt auf `18.1.2`.
+
 ### `18.1.0` — Audit-Reste 272–281 — *CODE + APK*
 
 Sideload **`18.1.0`** (versionCode `180100`):  
@@ -18,7 +28,7 @@ Widerspruch nach Recherche sucht den vorherigen Satz; isoliertes „Das
 stimmt nicht“ bleibt Gedächtnis. `looksTruncated` kennt Abkürzungen
 (`ca.`, `z. B.`). Skripte unter `tsc`. Hook-Deps einzeln. Leichen-Test.
 Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
-Sprint 282 (versionCode-Freeze) bleibt liegen. 290 rückt auf `18.1.1`.
+Sprint 282 (versionCode-Freeze) bleibt liegen. 290 rückt auf `18.1.2`.
 
 ### `18.0.8` — Karte öffnet, Pin-Text passt, CarPlay heading-up — *CODE*
 

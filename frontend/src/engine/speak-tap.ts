@@ -48,16 +48,28 @@ export function pullReady(hold: string, eager = false): { parts: string[]; rest:
   return { parts, rest }
 }
 
-export function createSentenceTap(eager = false) {
+export function createSentenceTap(eager = false, opts?: { holdRest?: boolean }) {
   let emitted = 0
   let hold = ''
+  let started = false
+  const holdRest = Boolean(opts?.holdRest)
   return {
     feed(full: string): string[] {
       const add = full.slice(emitted)
       emitted = full.length
       hold += add
+      // First sentence starts audio; the rest waits for flush so TTS is one clip.
+      if (started && holdRest) return []
       const { parts, rest } = pullReady(hold, eager)
       hold = rest
+      if (!parts.length) return []
+      if (holdRest) {
+        started = true
+        const [first, ...later] = parts
+        hold = [later.join(' '), hold].filter(Boolean).join(' ')
+        return first ? [first] : []
+      }
+      started = true
       return parts
     },
     flush(): string[] {

@@ -43,7 +43,7 @@ type NativeVoice = {
   startBargeWatch(): Promise<{ ok: boolean }>
   stopBargeWatch(): Promise<{ ok: boolean }>
   /** Optional: älteren APKs fehlt die Methode, der Aufruf scheitert dann leise. */
-  bargeMute?(opts: { on: boolean }): Promise<{ ok: boolean }>
+  bargeMute?(opts: { on: boolean; seq?: number }): Promise<{ ok: boolean }>
   addListener(
     event: 'partial' | 'sse' | 'wake' | 'barge' | 'debugStop',
     cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string }) => void,
@@ -71,17 +71,42 @@ export function isNativeVoice(): boolean {
  * nicht ein Zuruf. Ohne Echo-Kompensation für die Medienspur ist das die
  * ehrliche Seite des Tauschs — die ganze Antwort zu hören wiegt mehr.
  */
-let appTalking = false
+let talkHold = 0
 let talkTailUntil = 0
+let muteSeq = 0
 
 export function appIsTalking(): boolean {
-  return appTalking || Date.now() < talkTailUntil
+  return talkHold > 0 || Date.now() < talkTailUntil
+}
+
+function notifyBargeMute(on: boolean): void {
+  const seq = ++muteSeq
+  if (native?.bargeMute) void native.bargeMute({ on, seq }).catch(() => undefined)
+}
+
+function acquireTalk(): void {
+  talkHold += 1
+  talkTailUntil = 0
+  notifyBargeMute(true)
+}
+
+function releaseTalk(): void {
+  talkHold = Math.max(0, talkHold - 1)
+  if (talkHold === 0) {
+    talkTailUntil = Date.now() + TALK_TAIL_MS
+    notifyBargeMute(false)
+  }
+}
+
+function resetTalk(): void {
+  talkHold = 0
+  talkTailUntil = Date.now() + TALK_TAIL_MS
+  notifyBargeMute(false)
 }
 
 function setAppTalking(on: boolean): void {
-  appTalking = on
-  talkTailUntil = on ? 0 : Date.now() + TALK_TAIL_MS
-  if (native?.bargeMute) void native.bargeMute({ on }).catch(() => undefined)
+  if (on) acquireTalk()
+  else releaseTalk()
 }
 
 export async function requestMicPermission(): Promise<boolean> {
@@ -331,6 +356,7 @@ export function createSpeakPipeline() {
   const heard: string[] = []
   let running = false
   let stopped = false
+  let open = false
   let lane: MouthLane | null = null
 
   function prepare(text: string): Promise<Blob | 'native'> {
@@ -401,6 +427,10 @@ export function createSpeakPipeline() {
     push(text: string) {
       const clean = text.replace(/\s+/g, ' ').trim()
       if (stopped || !clean) return
+      if (!open) {
+        open = true
+        acquireTalk()
+      }
       q.push({ text: clean, ready: prepare(clean) })
       void pump()
     },
@@ -411,9 +441,14 @@ export function createSpeakPipeline() {
       while (!stopped && (running || q.length)) {
         await new Promise((r) => setTimeout(r, 30))
       }
+      if (open) {
+        open = false
+        releaseTalk()
+      }
     },
     stop() {
       stopped = true
+      open = false
       q.length = 0
       void stopSpeak()
     },
@@ -451,7 +486,7 @@ export async function speakText(text: string): Promise<void> {
 
 export async function stopSpeak(): Promise<void> {
   stopHtmlAudio()
-  setAppTalking(false)
+  resetTalk()
   if (native) {
     try {
       await native.stopSpeak()

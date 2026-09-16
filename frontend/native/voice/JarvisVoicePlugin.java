@@ -88,6 +88,7 @@ public class JarvisVoicePlugin extends Plugin {
     private volatile boolean appTalking = false;
     /** Nachhall im Raum, nachdem der Lautsprecher verstummt ist. */
     private volatile long bargeIgnoreUntil = 0;
+    private volatile int bargeMuteSeq = 0;
     private Intent listenIntent;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final ExecutorService io = Executors.newCachedThreadPool();
@@ -550,9 +551,18 @@ public class JarvisVoicePlugin extends Plugin {
     /** Die JS-Seite meldet, wenn sie Audio abspielt — egal über welche Spur. */
     @PluginMethod
     public void bargeMute(PluginCall call) {
+        Integer seqObj = call.getInt("seq");
+        int seq = seqObj == null ? 0 : seqObj.intValue();
+        if (seq > 0 && seq < bargeMuteSeq) {
+            JSObject skip = new JSObject();
+            skip.put("ok", true);
+            call.resolve(skip);
+            return;
+        }
+        if (seq > 0) bargeMuteSeq = seq;
         boolean on = Boolean.TRUE.equals(call.getBoolean("on", false));
         appTalking = on;
-        bargeIgnoreUntil = on ? 0 : System.currentTimeMillis() + 400;
+        bargeIgnoreUntil = on ? 0 : System.currentTimeMillis() + 900;
         JSObject r = new JSObject();
         r.put("ok", true);
         call.resolve(r);
@@ -561,8 +571,11 @@ public class JarvisVoicePlugin extends Plugin {
     @PluginMethod
     public void stopBargeWatch(PluginCall call) {
         bargeWatch = false;
-        appTalking = false;
-        bargeIgnoreUntil = 0;
+        /**
+         * JS hält `appTalking` über Satzgrenzen. Hier zurückzusetzen öffnete
+         * das Mikrofon in der Pause nach dem ersten Satz — Echo schnitt den Rest.
+         */
+        bargeIgnoreUntil = System.currentTimeMillis() + 900;
         JSObject r = new JSObject();
         r.put("ok", true);
         call.resolve(r);

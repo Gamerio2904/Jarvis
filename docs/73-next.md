@@ -36,7 +36,7 @@ Keine Einzeldateien — wie 272–282 in 71.
 |---------|--------|-------|-----------|
 | `18.0.9` | 288 | Unbekannter Ort ohne Netz: ehrliche Absage, Kugel trotzdem auf | Should |
 | `18.0.9` | 289 | Mikrofon-Absage im Chat, nicht still | Should |
-| `18.1.1` | 290 | Overlay-Zurück und Gesprächswechsel nicht in denselben Zug | Could |
+| `18.1.2` | 290 | Overlay-Zurück und Gesprächswechsel nicht in denselben Zug | Could |
 
 Ketten: 288 frei. 289 frei. 290 nach beobachtetem Fehlgriff, nicht spekulativ.
 

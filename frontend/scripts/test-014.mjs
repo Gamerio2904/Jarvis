@@ -1239,6 +1239,11 @@ assert.match(windowsFileTimeTicks(1_756_800_000), /^\d+$/)
   assert.match(voiceSrc, /playbackRate = 1/)
   assert.doesNotMatch(voiceSrc, /playbackRate = 0\.97/)
   assert.match(voiceSrc, /Lock the winning lane/)
+  assert.match(voiceSrc, /acquireTalk/)
+  assert.match(voiceSrc, /muteSeq/)
+  const modeSrc = readFileSync(new URL('../src/ui/VoiceMode.tsx', import.meta.url), 'utf8')
+  assert.doesNotMatch(modeSrc, /watchBargeIn/)
+  assert.match(modeSrc, /holdRest:\s*true/)
 }
 assert.ok(ttsBudgetMs(false) >= 2000)
 assert.ok(ttsBudgetMs(true) <= 900)
@@ -1810,6 +1815,26 @@ const got = tap2.feed('Eins. Zwei kommt jetzt wirklich.')
 assert.equal(got.length, 1)
 assert.match(got[0], /Eins/)
 assert.match(got[0], /Zwei/)
+
+{
+  const rest = createSentenceTap(true, { holdRest: true })
+  const first = rest.feed(
+    'Das klingt nach einer sehr guten Entwicklung. Italien ist ein passender Ort, um den Takt zu verlangsamen.',
+  )
+  assert.equal(first.length, 1)
+  assert.match(first[0], /Entwicklung/)
+  assert.doesNotMatch(first[0], /Italien/)
+  assert.deepEqual(
+    rest.feed(
+      'Das klingt nach einer sehr guten Entwicklung. Italien ist ein passender Ort, um den Takt zu verlangsamen. Noch ein Satz.',
+    ),
+    [],
+  )
+  const leftover = rest.flush()
+  assert.equal(leftover.length, 1)
+  assert.match(leftover[0], /Italien/)
+  assert.match(leftover[0], /Noch ein Satz/)
+}
 
 assert.equal(pickRoute('Wetter heute'), 'weather')
 assert.equal(pickRoute('Termin morgen 15 Uhr Zahnarzt'), 'calendar')
