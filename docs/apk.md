@@ -1,8 +1,10 @@
-# Android-APK — Sideload `18.1.1`
+# Android-APK — Sideload `18.1.2`
 
-App-Code **`18.1.1`**. Sideload-APK **`18.1.1`**, versionCode `180101`.
+App-Code **`18.1.2`**. Sideload-APK **`18.1.2`**, versionCode `180102`.
 
-**18.1.1:** Sprachmodus liest die ganze Antwort, nicht nur den ersten Satz. Unterbrechen per Antippen. Test: [`TEST-18.1.1.md`](./TEST-18.1.1.md).
+**18.1.2:** Sprachmodus liest die ganze Antwort in einem Stück, nativer MediaPlayer. Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md).
+
+**18.1.1:** Erster Versuch gegen Echo-Abbruch. Test: [`TEST-18.1.1.md`](./TEST-18.1.1.md).
 
 **18.1.0:** Faktenagenten sagen ab statt zu raten. Tanke/POI ohne doppelte Navi. SMS erst nach Funk-Annahme. Fahrmodus räumt auf, Mic bricht ab. Kalender ohne Autofokus. Widerspruch nach Recherche sucht. Test: [`TEST-18.1.0.md`](./TEST-18.1.0.md).
 
@@ -26,10 +28,10 @@ App-Code **`18.1.1`**. Sideload-APK **`18.1.1`**, versionCode `180101`.
 
 ## Download
 
-**Fertige APK `18.1.1`:**  
+**Fertige APK `18.1.2`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.1.1` · versionCode `180101`
+- versionName `18.1.2` · versionCode `180102`
 
 ## Build lokal
 

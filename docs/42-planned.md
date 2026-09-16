@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`18.1.1`**. Sideload **`18.1.1`**, versionCode `180101`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.1.1.md`](./TEST-18.1.1.md).
+**Live:** App-Code **`18.1.2`**. Sideload **`18.1.2`**, versionCode `180102`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -10,7 +10,7 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 
 1. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
 2. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
-3. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290**. Unbekannter Ort ohne Netz, Mikrofon-Absage, Overlay/Gespräch. 290 Ziel `18.1.2`
+3. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290**. Unbekannter Ort ohne Netz, Mikrofon-Absage, Overlay/Gespräch. 290 Ziel `18.1.3`
 4. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287**. Festhalten, Überblick, **feste Sprint-Vorlage**, Jarvis füllt auf Zuruf und darf Custom-Sprints anlegen. Kein Architect-Organizer, kein RICE, kein Notion, Plan wird nicht ausgeführt
 5. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
 6. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
@@ -72,7 +72,7 @@ Begründung: [`72-next.md`](./72-next.md). Audit-Zahlen 272–282 bleiben
 |---------|--------|-------|
 | `18.0.9` | 288 | Unbekannter Ort ohne Netz |
 | `18.0.9` | 289 | Mikrofon-Absage sichtbar |
-| `18.1.2` | 290 | Overlay-Zurück vs. Gesprächswechsel |
+| `18.1.3` | 290 | Overlay-Zurück vs. Gesprächswechsel |
 
 Begründung: [`73-next.md`](./73-next.md).
 
@@ -93,7 +93,7 @@ Begründung: [`73-next.md`](./73-next.md).
 | — | 282 | Freeze versionCode-Schema |
 
 Anker in 71 waren `18.0.4`/`18.0.5`/`18.1.0`; live war schon `18.0.8`, deshalb
-ein Bündel **`18.1.0`**. 290 rückt auf `18.1.2`.
+ein Bündel **`18.1.0`**. 290 rückt auf `18.1.3`.
 
 ## CODE — Schiene `17.0.0` (Sprints 249–259)
 

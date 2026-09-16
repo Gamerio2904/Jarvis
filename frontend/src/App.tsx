@@ -1382,6 +1382,10 @@ function App() {
             acc += piece
             onToken?.(piece, acc)
           },
+          onReplace: (text) => {
+            acc = text
+            onToken?.('', text)
+          },
           onDone: (payload) => {
             markEnter(payload.assistant_message.id)
             let contentOut = payload.assistant_message.content

@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.1.1`**. Sideload-APK **`18.1.1`**, versionCode `180101`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.1.1.md`](./TEST-18.1.1.md).
+**Jetzt:** Code **`18.1.2`**. Sideload-APK **`18.1.2`**, versionCode `180102`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -48,7 +48,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Live **`18.1.1`**, nächste Produktschiene `18.2` |
+| 42 | [Alles geplant](./42-planned.md) | Index Live **`18.1.2`**, nächste Produktschiene `18.2` |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -293,6 +293,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 272–281 | **`18.1.0`** | **CODE** (Audit-Reste, [`71-audit.md`](./71-audit.md), [`TEST-18.1.0.md`](./TEST-18.1.0.md)) |
 | 282 | — | **PLAN** Freeze (versionCode-Schema) |
 | 283–287 | `18.2.0`–`18.2.4` | **PLAN** (Ideen halten, [`72-next.md`](./72-next.md)) |
-| 288–290 | `18.0.9`–`18.1.2` | **PLAN** (Karten-Reste in [`73-next.md`](./73-next.md)) |
+| 288–290 | `18.0.9`–`18.1.3` | **PLAN** (Karten-Reste in [`73-next.md`](./73-next.md)) |
 
-**Aktuell:** Code **`18.1.1`**. Sideload-APK `18.1.1`, versionCode `180101`. Sprachmodus liest die ganze Antwort. Nächste Produktschiene `18.2` Ideen halten. Test: [`TEST-18.1.1.md`](./TEST-18.1.1.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`18.1.2`**. Sideload-APK `18.1.2`, versionCode `180102`. Sprachmodus liest die ganze Antwort in einem Stück. Nächste Produktschiene `18.2` Ideen halten. Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md). Index: [`42-planned.md`](./42-planned.md).

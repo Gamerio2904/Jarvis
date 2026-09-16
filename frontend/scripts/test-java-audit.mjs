@@ -30,6 +30,8 @@ assert.match(wake, /START_NOT_STICKY/, 'Wake-Dienst stürzt den Prozess nicht')
 const voice = read('voice/JarvisVoicePlugin.java')
 assert.match(voice, /bargeMute/, 'beide Sprachspuren melden Sprechen')
 assert.match(voice, /getInt\("seq"\)/, 'veraltetes Mute-Aus darf den nächsten Satz nicht öffnen')
+assert.match(voice, /playMp3/, 'neuronales MP3 über MediaPlayer, nicht WebView-Audio')
+assert.match(voice, /waitUntilTtsQuiet/, 'System-TTS wartet bis isSpeaking false')
 {
   const stopWatch = voice.slice(voice.indexOf('public void stopBargeWatch'), voice.indexOf('private void runBargeWatch'))
   assert.doesNotMatch(stopWatch, /appTalking = false/, 'stopBargeWatch lässt JS-Mute über Satzgrenzen')

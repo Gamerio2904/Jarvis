@@ -4,7 +4,6 @@ import { setChatSpeaking } from '../engine/speak-lock.ts'
 import { dispatchVoiceAmp, prefersReducedMotion } from '../engine/motion.ts'
 import {
   beginVoiceSession,
-  createSentenceTap,
   createSpeakPipeline,
   endVoiceSession,
   isNativeVoice,
@@ -206,7 +205,6 @@ export function VoiceMode({
     setHeard(text)
     setErr(null)
     setPhase('thinking')
-    const tap = createSentenceTap(true, { holdRest: true })
     const pipe = createSpeakPipeline()
     pipelineRef.current = pipe
     let started = false
@@ -223,11 +221,6 @@ export function VoiceMode({
           (_piece, full) => {
             if (!live.current || turnGen.current !== gen) return
             setReply(full)
-            const ready = tap.feed(full)
-            if (ready.length) {
-              if (!started) beginSpeaking()
-              for (const s of ready) pipe.push(s)
-            }
           },
           { preempt },
         ),
@@ -257,14 +250,11 @@ export function VoiceMode({
       setChatSpeaking(false)
       return
     }
-    setReply(answer)
-    for (const s of tap.flush()) {
+    const spoken = (answer || '').replace(/\s+/g, ' ').trim()
+    setReply(spoken)
+    if (spoken) {
       if (!started) beginSpeaking()
-      pipe.push(s)
-    }
-    if (!started && answer.trim()) {
-      beginSpeaking()
-      pipe.push(answer)
+      pipe.push(spoken)
     }
     await pipe.flush()
     setChatSpeaking(false)
@@ -302,10 +292,6 @@ export function VoiceMode({
       className={`voice-mode${leaving ? ' is-leaving' : ''}`}
       role="dialog"
       aria-label="Sprachmodus"
-      onPointerDown={(e) => {
-        if ((e.target as HTMLElement).closest('.voice-close')) return
-        if (phaseRef.current === 'speaking' || phaseRef.current === 'thinking') void onOrb()
-      }}
     >
       <div className="voice-sheet">
         <header className="voice-head">
@@ -313,7 +299,7 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Unterbrechen per Antippen. Erste Silbe sofort, danach die ganze Antwort in einem Stück.'
+                ? 'Unterbrechen per Antippen. Die ganze Antwort wird in einem Stück vorgelesen.'
                 : 'Unterbrechen per Antippen. Stimme auf System = Geräte-TTS, sonst Edge Neural.'}
             </p>
           </div>

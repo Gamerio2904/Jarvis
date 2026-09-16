@@ -44,7 +44,7 @@ import { expandZahlenworte } from '../src/engine/zahlenworte.ts'
 import { parseAlarmIntent } from '../src/engine/alarm-parse.ts'
 import { clothingTip, formatWeatherBrief } from '../src/engine/weather-brief.ts'
 import { parseCalendarIntent } from '../src/engine/calendar-parse.ts'
-import { createSentenceTap, pullReady } from '../src/engine/speak-tap.ts'
+import { createSentenceTap, pullReady, unspokenTail, preferEdgeForReply } from '../src/engine/speak-tap.ts'
 import { spokenForGemini, ttsBudgetMs, ttsGeminiPrimary, ttsModelsToTry, ttsNativeRaceMs, TTS_VOICE, firstAudioUsesSystemRace, wantNeuralMouth } from '../src/engine/tts.ts'
 import {
   EDGE_VOICE_FRIDAY,
@@ -1241,9 +1241,12 @@ assert.match(windowsFileTimeTicks(1_756_800_000), /^\d+$/)
   assert.match(voiceSrc, /Lock the winning lane/)
   assert.match(voiceSrc, /acquireTalk/)
   assert.match(voiceSrc, /muteSeq/)
+  assert.match(voiceSrc, /playMp3/)
+  assert.match(voiceSrc, /preferEdgeForReply/)
   const modeSrc = readFileSync(new URL('../src/ui/VoiceMode.tsx', import.meta.url), 'utf8')
   assert.doesNotMatch(modeSrc, /watchBargeIn/)
-  assert.match(modeSrc, /holdRest:\s*true/)
+  assert.doesNotMatch(modeSrc, /createSentenceTap/)
+  assert.match(modeSrc, /pipe\.push\(spoken\)/)
 }
 assert.ok(ttsBudgetMs(false) >= 2000)
 assert.ok(ttsBudgetMs(true) <= 900)
@@ -1835,6 +1838,18 @@ assert.match(got[0], /Zwei/)
   assert.match(leftover[0], /Italien/)
   assert.match(leftover[0], /Noch ein Satz/)
 }
+
+assert.equal(
+  unspokenTail(
+    'Das klingt nach einer sehr guten Entwicklung. Italien ist ein passender Ort.',
+    'Das klingt nach einer sehr guten Entwicklung.',
+  ),
+  'Italien ist ein passender Ort.',
+)
+assert.equal(unspokenTail('Hallo Welt.', ''), 'Hallo Welt.')
+assert.equal(unspokenTail('Hallo Welt.', 'Hallo Welt.'), '')
+assert.equal(preferEdgeForReply('Das klingt nach einer sehr guten Entwicklung. Italien ist ein passender Ort.'), true)
+assert.equal(preferEdgeForReply('Alles klar.'), false)
 
 assert.equal(pickRoute('Wetter heute'), 'weather')
 assert.equal(pickRoute('Termin morgen 15 Uhr Zahnarzt'), 'calendar')

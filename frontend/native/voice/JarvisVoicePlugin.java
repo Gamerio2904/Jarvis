@@ -7,8 +7,10 @@ import android.content.pm.ShortcutInfo;
 import android.content.pm.ShortcutManager;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +38,8 @@ import android.util.Base64;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -73,8 +77,11 @@ public class JarvisVoicePlugin extends Plugin {
     private boolean ttsReady = false;
     private PluginCall listenCall;
     private PluginCall speakCall;
+    private PluginCall playCall;
     private int listenGen = 0;
     private int speakGen = 0;
+    private int playGen = 0;
+    private MediaPlayer mp3Player;
     private String lastPartial = "";
     private String listenHold = "";
     private int listenExtend = 0;
@@ -132,6 +139,7 @@ public class JarvisVoicePlugin extends Plugin {
                 tts = null;
             }
             bargeWatch = false;
+            stopMp3Player();
         });
     }
 
@@ -474,12 +482,15 @@ public class JarvisVoicePlugin extends Plugin {
             }
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override public void onStart(String utteranceId) {}
-                @Override public void onDone(String utteranceId) { finishSpeak(true); }
+                @Override public void onDone(String utteranceId) {
+                    main.post(() -> waitUntilTtsQuiet(call, gen));
+                }
                 @Override public void onError(String utteranceId) { finishSpeak(false); }
             });
             applyVoiceGender(gender);
             Bundle params = new Bundle();
-            int queued = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, "jarvis-voice");
+            String utterId = "jarvis-voice-" + gen;
+            int queued = tts.speak(text, TextToSpeech.QUEUE_FLUSH, params, utterId);
             if (queued == TextToSpeech.ERROR) {
                 finishSpeak(false);
                 return;
@@ -495,6 +506,15 @@ public class JarvisVoicePlugin extends Plugin {
                 finishSpeak(false);
             }, 20_000);
         });
+    }
+
+    private void waitUntilTtsQuiet(PluginCall call, int gen) {
+        if (speakGen != gen || speakCall != call) return;
+        if (tts != null && tts.isSpeaking()) {
+            main.postDelayed(() -> waitUntilTtsQuiet(call, gen), 120);
+            return;
+        }
+        finishSpeak(true);
     }
 
     private void finishSpeak(boolean ok) {
@@ -532,11 +552,102 @@ public class JarvisVoicePlugin extends Plugin {
     public void stopSpeak(PluginCall call) {
         main.post(() -> {
             if (tts != null) tts.stop();
+            stopMp3Player();
             finishSpeak(true);
+            finishPlay(true);
         });
         JSObject r = new JSObject();
         r.put("ok", true);
         call.resolve(r);
+    }
+
+    @PluginMethod
+    public void playMp3(PluginCall call) {
+        String b64 = call.getString("audio", "");
+        if (b64 == null || b64.isEmpty()) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("message", "leer");
+            call.resolve(r);
+            return;
+        }
+        call.setKeepAlive(true);
+        PluginCall prev = playCall;
+        playCall = null;
+        if (prev != null && prev != call) {
+            JSObject over = new JSObject();
+            over.put("ok", false);
+            over.put("message", "überholt");
+            prev.resolve(over);
+        }
+        playCall = call;
+        final int gen = ++playGen;
+        final String encoded = b64;
+        io.execute(() -> {
+            try {
+                byte[] data = Base64.decode(encoded, Base64.DEFAULT);
+                File f = new File(getContext().getCacheDir(), "jarvis-speak-" + gen + ".mp3");
+                FileOutputStream fos = new FileOutputStream(f);
+                fos.write(data);
+                fos.close();
+                main.post(() -> startMp3(call, f, gen));
+            } catch (Exception e) {
+                main.post(() -> finishPlay(false));
+            }
+        });
+    }
+
+    private void startMp3(PluginCall call, File f, int gen) {
+        if (playGen != gen || playCall != call) {
+            f.delete();
+            return;
+        }
+        stopMp3Player();
+        if (tts != null) {
+            try { tts.stop(); } catch (Exception ignored) {}
+        }
+        try {
+            MediaPlayer mp = new MediaPlayer();
+            mp3Player = mp;
+            mp.setAudioAttributes(new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build());
+            mp.setDataSource(f.getAbsolutePath());
+            mp.setOnCompletionListener(p -> {
+                f.delete();
+                finishPlay(true);
+            });
+            mp.setOnErrorListener((p, what, extra) -> {
+                f.delete();
+                finishPlay(false);
+                return true;
+            });
+            mp.prepare();
+            mp.start();
+            appTalking = true;
+        } catch (Exception e) {
+            f.delete();
+            finishPlay(false);
+        }
+    }
+
+    private void stopMp3Player() {
+        MediaPlayer mp = mp3Player;
+        mp3Player = null;
+        if (mp == null) return;
+        try { mp.stop(); } catch (Exception ignored) {}
+        try { mp.release(); } catch (Exception ignored) {}
+    }
+
+    private void finishPlay(boolean ok) {
+        PluginCall c = playCall;
+        playCall = null;
+        stopMp3Player();
+        if (c == null) return;
+        JSObject r = new JSObject();
+        r.put("ok", ok);
+        c.resolve(r);
     }
 
     @PluginMethod

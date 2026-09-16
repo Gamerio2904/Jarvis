@@ -1,6 +1,6 @@
 # PO-Checkliste `18.1.1` — Sprachmodus liest zu Ende
 
-App-Code **`18.1.1`**. Sideload **`18.1.1`**, versionCode **`180101`**.  
+App-Code **`18.1.2`**. Sideload **`18.1.2`**, versionCode **`180102`**.  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Altes zuerst deinstallieren. Hausstand vorher exportieren.
@@ -11,7 +11,7 @@ Altes zuerst deinstallieren. Hausstand vorher exportieren.
 Was kannst du?
 ```
 
-In der Antwort muss **`18.1.1`** stehen.
+In der Antwort muss **`18.1.2`** stehen.
 
 ## 2. Ganze Antwort
 

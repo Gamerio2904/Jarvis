@@ -1,9 +1,9 @@
 # PO-Checkliste `18.1.0` — Audit-Reste 272–281
 
-App-Code **`18.1.1`**. Sideload **`18.1.1`**, versionCode **`180101`**.  
+App-Code **`18.1.2`**. Sideload **`18.1.2`**, versionCode **`180102`**.  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-Diese Liste prüft die Audit-Reste 272–281. Sprachmodus ganze Antwort: [`TEST-18.1.1.md`](./TEST-18.1.1.md).
+Diese Liste prüft die Audit-Reste 272–281. Sprachmodus ganze Antwort: [`TEST-18.1.2.md`](./TEST-18.1.2.md).
 
 Altes zuerst deinstallieren. Hausstand vorher exportieren.
 

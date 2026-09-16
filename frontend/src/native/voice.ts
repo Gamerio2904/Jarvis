@@ -7,6 +7,7 @@ import { markFirstAudio } from '../engine/latency.ts'
 import { loadSettings } from '../engine/store.ts'
 import { BARGE_IGNORE_TTS_MS, BARGE_ONSET_MS, TALK_TAIL_MS, silenceMsFor, turnLooksComplete } from '../engine/turn-detect.ts'
 import { createEnergyVad, rmsFromByteTimeDomain } from '../engine/vad.ts'
+import { preferEdgeForReply } from '../engine/speak-tap.ts'
 
 export { createSentenceTap } from '../engine/speak-tap.ts'
 
@@ -44,6 +45,7 @@ type NativeVoice = {
   stopBargeWatch(): Promise<{ ok: boolean }>
   /** Optional: älteren APKs fehlt die Methode, der Aufruf scheitert dann leise. */
   bargeMute?(opts: { on: boolean; seq?: number }): Promise<{ ok: boolean }>
+  playMp3?(opts: { audio: string }): Promise<{ ok: boolean; message?: string }>
   addListener(
     event: 'partial' | 'sse' | 'wake' | 'barge' | 'debugStop',
     cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string }) => void,
@@ -252,9 +254,27 @@ function stopHtmlAudio() {
   }
 }
 
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const s = String(reader.result || '')
+      const comma = s.indexOf(',')
+      resolve(comma >= 0 ? s.slice(comma + 1) : s)
+    }
+    reader.onerror = () => reject(reader.error || new Error('audio lesen'))
+    reader.readAsDataURL(blob)
+  })
+}
+
 function playBlob(blob: Blob): Promise<void> {
   stopHtmlAudio()
   setAppTalking(true)
+  if (native?.playMp3) {
+    return blobToBase64(blob)
+      .then((audio) => native.playMp3!({ audio }))
+      .then(() => setAppTalking(false), () => setAppTalking(false))
+  }
   return new Promise((resolve) => {
     const done = () => {
       stopHtmlAudio()
@@ -364,6 +384,13 @@ export function createSpeakPipeline() {
       if (!wantNeuralMouth() || lane === 'native') {
         lane = 'native'
         return 'native'
+      }
+      if (preferEdgeForReply(text) && lane !== 'gemini') {
+        const edge = await freeNeural(text, 8000)
+        if (edge) {
+          lane = 'edge'
+          return edge
+        }
       }
       if (lane === 'gemini') {
         const blob = await synthesizeGemini(text)

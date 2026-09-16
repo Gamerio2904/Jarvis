@@ -79,3 +79,23 @@ export function createSentenceTap(eager = false, opts?: { holdRest?: boolean }) 
     },
   }
 }
+
+/** Text that TTS has not spoken yet — final reply minus what the pipeline already played. */
+export function unspokenTail(full: string, spoken: string): string {
+  const f = (full || '').replace(/\s+/g, ' ').trim()
+  const s = (spoken || '').replace(/\s+/g, ' ').trim()
+  if (!f) return ''
+  if (!s) return f
+  if (f === s) return ''
+  if (f.startsWith(s)) return f.slice(s.length).trim()
+  return f
+}
+
+/** Two-or-more sentences: Edge speaks the whole SSML; Gemini TTS often stops at the first period. */
+export function preferEdgeForReply(text: string): boolean {
+  const parts = (text || '')
+    .split(/[.!?…]+/)
+    .map((x) => x.trim())
+    .filter((x) => x.length >= 8)
+  return parts.length >= 2
+}
