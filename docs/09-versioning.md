@@ -616,7 +616,7 @@ Kein Sideload `18.3.x` ohne APK.
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `18.3.0` | Store + Parser, beide Listen, Hausstand | 291 PLAN |
-| `18.3.1` | Overlay, Slides, Animation | 292 PLAN |
+| `18.3.1` | Overlay für Watchliste und Lieblinge | 292 PLAN |
 | `18.3.2` | Poster, Kritiker + Publikum über OMDb | 293 PLAN |
 | `18.3.3` | Konflikte, reduced-motion, Probe | 294 PLAN |
 

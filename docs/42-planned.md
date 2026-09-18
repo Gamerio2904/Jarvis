@@ -82,7 +82,7 @@ Begründung: [`73-next.md`](./73-next.md).
 | Version | Sprint | Thema |
 |---------|--------|-------|
 | `18.3.0` | [291](./sprints/sprint-291.md) | Watchliste + Lieblinge festhalten |
-| `18.3.1` | [292](./sprints/sprint-292.md) | Overlay, Slides, Animation |
+| `18.3.1` | [292](./sprints/sprint-292.md) | Overlay für Watchliste und Lieblinge |
 | `18.3.2` | [293](./sprints/sprint-293.md) | Poster, Kritiker + Publikum über OMDb |
 | `18.3.3` | [294](./sprints/sprint-294.md) | Konflikte, reduced-motion, Probe |
 

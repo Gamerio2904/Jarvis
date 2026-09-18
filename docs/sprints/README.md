@@ -286,9 +286,9 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 287 | [`sprint-287.md`](./sprint-287.md) | `18.2.4` | Ergänzen, Custom nach Satz, Erinnerung | **PLAN** Should |
 | 288–290 | [`../73-next.md`](../73-next.md) | `18.0.9`–`18.1.3` | Karten-Reste (Ort ohne Netz, Mikrofon, Overlay) | **PLAN** — Zahlen in 73, keine Einzeldateien |
 | 291 | [`sprint-291.md`](./sprint-291.md) | `18.3.0` | Watchliste + Lieblinge festhalten | **PLAN** Must |
-| 292 | [`sprint-292.md`](./sprint-292.md) | `18.3.1` | Overlay, Slides, Animation | **PLAN** Must |
+| 292 | [`sprint-292.md`](./sprint-292.md) | `18.3.1` | Overlay für Watchliste und Lieblinge | **PLAN** Must |
 | 293 | [`sprint-293.md`](./sprint-293.md) | `18.3.2` | Poster, Kritiker + Publikum über OMDb | **PLAN** Must |
-| 294 | [`sprint-294.md`](./sprint-294.md) | `18.3.3` | Konflikte, reduced-motion, Probe | **PLAN** Must |
+| 294 | [`sprint-294.md`](./sprint-294.md) | `18.3.3` | Watchliste und Lieblinge härten | **PLAN** Must |
 
 **Aktuell:** Code **`18.1.2`**. Sideload-APK `18.1.2`, versionCode `180102`. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`. Schach-Overlay **CODE** in `18.0.4`. Schach-Gegner und Kugel-Pin **CODE** in `18.0.5`. Figurenfarbe und Körper-Zoom **CODE** in `18.0.6`. Körper mit Chat **CODE** in `18.0.7`. Karte öffnet / Pin-Text / CarPlay heading-up **CODE** in `18.0.8`. Audit-Reste 272–281 **CODE** in `18.1.0`. Sprachmodus ganze Antwort **CODE** in `18.1.2`. 270 nicht gezogen. 282 Freeze. Ideen halten 283–287 **PLAN** in [`../72-next.md`](../72-next.md). Karten-Reste 288–290 **PLAN** in [`../73-next.md`](../73-next.md). Watchliste 291–294 **PLAN** in [`../74-next.md`](../74-next.md).
 

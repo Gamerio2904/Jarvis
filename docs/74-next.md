@@ -21,14 +21,16 @@ Sprints **272–281** sind **CODE** in `18.1.0`. **282** Freeze in
 
 ## 0. Was der Wunsch will — und was wir davon nehmen
 
-Zwei Listen, ein Overlay:
+Zwei Listen, **dieselbe** Fläche. Lieblinge sind kein Anhängsel:
+derselbe Parser-Schnitt, dieselben Folien, dieselben Noten.
 
 | Wunsch | Urteil | Wohin |
 |--------|--------|-------|
 | Film auf die Watchliste | **Ja** | 291 |
-| Film auf die Lieblingsliste | **Ja** | 291 (derselbe Store) |
-| Overlay öffnen, Slides, Poster | **Ja** | 292 |
-| Kritiker- und Publikumswert | **Ja, über OMDb** | 293 |
+| Film auf die Lieblingsliste | **Ja, gleichwertig** | 291 |
+| Overlay Watchliste: Slides, Poster | **Ja** | 292 |
+| Overlay Lieblinge: dieselben Slides | **Ja** | 292 (Fokus `favorite`) |
+| Kritiker- und Publikumswert auf beiden | **Ja, über OMDb** | 293 |
 | Offizielle Rotten-Tomatoes-API | **Won’t** | Partner-only; Sprint 97 |
 | Film im Overlay abspielen | **Won’t** | TV bleibt `Spiel … Film` |
 | Serien in v1 | **Won’t** | OMDb `type=movie` |
@@ -47,11 +49,11 @@ Vier Sprints, Kern zuerst. Overlay und Noten sind eigene Sprints, weil
 ohne Store nichts zu zeigen ist und ohne OMDb-Felder die Folien lügen.
 
 ```
-# Watchliste — PLAN
+# Watchliste und Lieblinge — PLAN
 
-Sprint 1 — Kern     Store + Parser, beide Listen, Hausstand
-Sprint 2 — Overlay  Slides, Animation, Poster-Platz
-Sprint 3 — Noten    OMDb Kritiker + Publikum + Poster-URL
+Sprint 1 — Kern     Store + Parser, Watchliste und Lieblinge, Hausstand
+Sprint 2 — Overlay  dieselben Slides für beide Listen
+Sprint 3 — Noten    OMDb Kritiker + Publikum + Poster auf jeder Folie
 Sprint 4 — Härten   Konflikte, reduced-motion, Tests, Probe
 ```
 
@@ -71,11 +73,12 @@ Lieferumfang, Won’t, Abbruch, Manuell).
 | Leave | `overlay.ts` `useOverlay`, `LEAVE_MS` 320 | Enter/Leave, `is-leaving` |
 | Motion | `motion.ts` | 30 fps, Pause wenn versteckt, `prefersReducedMotion` gewinnt |
 | Store | `store.ts` Notiz/Todo | IndexedDB-Store, Migration wie `notes` |
-| Hausstand | `backup.ts` | `watch_movies` exportieren |
-| Chat-Liste | `persistLastList` | Nummern „Watchliste 1 weg“ |
+| Hausstand | `backup.ts` | `watch_movies` exportieren; Zähler **Watchliste** und **Lieblinge** getrennt |
+| Chat-Liste | `persistLastList` | zwei Schlüssel, sonst kollidieren die Nummern |
 
-Katalog-Id `watchlist`, UI deutsch. Ein Agent, zwei Listen im Feld
-`lists`. Kein zweiter Organizer, kein Memory-Write beim Hinzufügen.
+Katalog-Id `watchlist`, Karten-Titel deutsch: **Watchliste / Lieblinge**.
+Ein Agent, zwei Listen im Feld `lists`. Kein zweiter Agent `favorites`.
+Kein Memory-Write beim Hinzufügen.
 
 ---
 
@@ -103,7 +106,8 @@ gleicher Titel+Jahr case-insensitive. Zweites Hinzufügen **merged**
 `lists`, legt keine zweite Zeile an.
 
 Hausstand-Feld `watch_movies`. Alte Backups ohne Feld bleiben gültig
-(`arr(o.watch_movies)`).
+(`arr(o.watch_movies)`). Zusammenfassung zählt `lists` inkl. `watch`
+und inkl. `favorite` getrennt (ein Film auf beiden zählt in beiden).
 
 Scores und Poster schreibt **293**, nicht 291. In 291 bleiben die Felder
 `null`. Overlay 292 zeigt dann Platzhalter, keine erfundenen Zahlen.
@@ -117,10 +121,17 @@ Agent `watchlist`, `sideEffect: 'write'`, `autonomy: 'parser'`.
 | Intent | Beispiele | `kind` / `list` |
 |--------|-----------|-----------------|
 | Auf Watchliste | `Watchliste: Dune`, `Dune auf die Watchliste`, `merk Dune zum Schauen` | `add` / `watch` |
-| Auf Lieblinge | `Lieblingsfilm: Dune`, `Dune zu meinen Lieblingsfilmen`, `auf die Lieblingsliste Dune` | `add` / `favorite` |
-| Liste | `Zeig meine Watchliste`, `meine Lieblingsfilme` | `list` / jeweilige Liste |
-| Overlay | `Öffne Watchliste`, `Öffne Lieblingsfilme` | `show` / Fokus-Liste |
-| Weg | `von der Watchliste Dune`, `Watchliste 1 weg`, `Lieblingsfilm Dune weg` | `remove` |
+| Auf Lieblinge | `Lieblingsfilm: Dune`, `Lieblingsliste: Dune`, `Dune zu meinen Lieblingsfilmen`, `auf die Lieblingsliste Dune` | `add` / `favorite` |
+| Liste Watch | `Zeig meine Watchliste`, `meine Watchliste` | `list` / `watch` |
+| Liste Lieblinge | `Zeig meine Lieblingsfilme`, `meine Lieblingsliste`, `zeig Lieblinge` | `list` / `favorite` |
+| Overlay Watch | `Öffne Watchliste` | `show` / `watch` |
+| Overlay Lieblinge | `Öffne Lieblingsfilme`, `Öffne Lieblingsliste`, `Öffne Lieblinge` | `show` / `favorite` |
+| Weg Watch | `von der Watchliste Dune`, `Watchliste 1 weg` | `remove` / `watch` |
+| Weg Lieblinge | `von der Lieblingsliste Dune`, `Lieblingsfilm Dune weg`, `Lieblingsliste 1 weg` | `remove` / `favorite` |
+
+Nummern lösen über die **letzte Liste derselben Sorte**.
+`persistLastList('watch-watch', …)` und `persistLastList('watch-favorite', …)`.
+„Lieblingsliste 1 weg“ darf nicht den ersten Watchliste-Eintrag treffen.
 
 Kein Treffer (bleiben andere Agenten):
 
@@ -136,11 +147,16 @@ Kein Treffer (bleiben andere Agenten):
 
 ## 5. Overlay und Animation (292)
 
-Eine Fläche oben, Overlay-Id `watchlist`. Fokus-Liste aus dem Satz
-(Watchliste oder Lieblinge); Umschalter zwischen beiden.
+Eine Fläche oben, Overlay-Id `watchlist`. **Eine** Komponente, zwei
+Kollektionen. `Öffne Lieblingsfilme` ist nicht die Watchliste mit anderem
+Titel: Fokus `favorite`, Überschrift **Lieblinge**, Folien nur aus
+`lists` inkl. `favorite`. Umschalter **Watchliste** / **Lieblinge**
+wechselt die Kollektion, nicht das Overlay.
 
-**Slides:** horizontales `scroll-snap`, eine Karte pro Viewport, Nachbarn
-leicht sichtbar. Wischen oder Tasten. Leere Liste: ein Satz, kein Fake-Poster.
+**Slides (identisch für beide Listen):** horizontales `scroll-snap`, eine
+Karte pro Viewport, Nachbarn leicht sichtbar. Wischen oder Tasten.
+Leere Watchliste: `Noch nichts auf der Watchliste.` Leere Lieblinge:
+`Noch keine Lieblingsfilme.` Kein Fake-Poster.
 
 **Animation (CSS, Budget 30 fps):**
 
@@ -155,8 +171,10 @@ leicht sichtbar. Wischen oder Tasten. Leere Liste: ein Satz, kein Fake-Poster.
 Keine neue Bibliothek. Kein RT-Splat. Zahlen als Text. Poster nur aus
 OMDb-URL oder neutrale Fläche.
 
-292 darf das Overlay mit Titeln aus 291 zeigen. Poster/Noten kommen in
-293 nach; bis dahin Platzhalter, nicht Stock-Fotos.
+292 darf das Overlay mit Titeln aus 291 zeigen — **auch** nach
+`Öffne Lieblingsfilme`. Poster/Noten kommen in 293 nach; bis dahin
+Platzhalter, nicht Stock-Fotos. Dieselbe Karten-Vorlage, kein zweites
+Layout nur für Lieblinge.
 
 ---
 
@@ -176,7 +194,8 @@ auf OMDb-Key, Satz „Rotten Tomatoes hat keine eigene öffentliche API“.
 
 Nach erstem Treffer Felder auf `WatchMovie` legen (`scoresAt`). Overlay
 liest den Store; Nachladen nur wenn `scoresAt` fehlt oder älter als ein
-Tag — ein Request pro Film, nicht pro Slide-Frame.
+Tag — ein Request pro Film, nicht pro Slide-Frame. Lieblings-Folien
+nutzen dieselben Felder; kein zweiter Lookup-Pfad.
 
 Film-Chat (`Wie gut ist Dune`) darf Publikum mitnutzen, sobald das Feld
 da ist. Satz: `Kritiker 87 %. Publikum 65 %. (Rotten Tomatoes über OMDb).`
@@ -187,8 +206,8 @@ da ist. Satz: `Kritiker 87 %. Publikum 65 %. (Rotten Tomatoes über OMDb).`
 
 | Version | Sprint | Thema | Priorität |
 |---------|--------|-------|-----------|
-| `18.3.0` | [291](./sprints/sprint-291.md) | Kern: Store, Parser add/list/remove, beide Listen, Hausstand | Must |
-| `18.3.1` | [292](./sprints/sprint-292.md) | Overlay, Slides, Animation | Must |
+| `18.3.0` | [291](./sprints/sprint-291.md) | Kern: Store, Parser, Watchliste und Lieblinge, Hausstand | Must |
+| `18.3.1` | [292](./sprints/sprint-292.md) | Overlay: dieselben Slides für beide Listen | Must |
 | `18.3.2` | [293](./sprints/sprint-293.md) | OMDb Kritiker + Publikum + Poster | Must |
 | `18.3.3` | [294](./sprints/sprint-294.md) | Konflikte, reduced-motion, Tests, Probe | Must |
 
@@ -221,7 +240,8 @@ Pull nach **18.2** (283–287). Zahlen 288–290 nicht anfassen. 282 Freeze.
 - RT-Splat, Certified-Fresh-Icon, Framer, Lottie, GSAP.
 - Zweiter Katalog-Agent `favorites` / `movies`.
 - Memory- oder Teach-Write beim Hinzufügen.
-- `Spiel … Film` auf die Watchliste umbiegen.
+- `Spiel … Film` auf die Watchliste oder die Lieblinge umbiegen.
+- Lieblinge als bloße Chat-Liste, während die Watchliste Folien bekommt.
 - Sideload-Text `18.3.x`, solange `releases/Jarvis.apk` `18.1.2` ist.
 
 ---
@@ -231,6 +251,7 @@ Pull nach **18.2** (283–287). Zahlen 288–290 nicht anfassen. 282 Freeze.
 - Ein Prozent steht da, das nicht aus OMDb kam.
 - Die UI behauptet eine Rotten-Tomatoes-API.
 - `Spiel Dune Film` landet in `watch_movies` oder startet kein TV.
+- `Öffne Lieblingsfilme` zeigt Watchliste-only-Titel oder die Watchliste-Überschrift.
 - `merk dir ich mag Dune` wird ein Lieblingsfilm.
 - „Notiz Milch“ oder eine Idee landet in `watch_movies`.
 - Overlay ohne `prefersReducedMotion`-Pfad (Daueranimation trotz Reduce).
