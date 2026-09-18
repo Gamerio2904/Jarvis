@@ -171,4 +171,6 @@ anfassen, wenn jemand „mach einen Sprintplan“ (oder gleichwertig) sagt.
 Index: [`sprints/README.md`](./sprints/README.md) · Versionen:
 [`09-versioning.md`](./09-versioning.md) · Vorherige Schiene:
 [`71-audit.md`](./71-audit.md) · Organizer-Won’t:
-[`70-next.md`](./70-next.md) §0b
+[`70-next.md`](./70-next.md) §0b · Karten-Reste:
+[`73-next.md`](./73-next.md) · Watchliste danach:
+[`74-next.md`](./74-next.md)

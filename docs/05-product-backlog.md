@@ -50,6 +50,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E55 | Nach Rest-final | 5+ | PO-Gerät, OEM, Could-Freeze, Docs — [`55-next.md`](./55-next.md) |
 | E56 | Semantisches Gedächtnis `10.0` | 5+ | Schema, Gate, Retrieve 2, Graph light, Gold; e5 Freeze — [`56-next.md`](./56-next.md) **CODE** `10.60.0` |
 | E57 | Memory-10 Intensiv | 5+ | Alias, G5-Echo, memoryBlock — [`57-next.md`](./57-next.md) **PLAN** |
+| E58 | Watchliste `18.3` | 5+ | Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten — [`74-next.md`](./74-next.md) **PLAN** |
 
 ---
 
@@ -580,6 +581,14 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S57.5 | Gold = Live-Pfad | Should | idea | Sprint 200 |
 | S57.6 | Mag-ich-Parser ohne Hirn | Should | idea | Sprint 201 |
 
+### E58 — Watchliste `18.3` [`74-next.md`](./74-next.md)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S58.1 | Als Nutzer will ich Filme auf eine Watchliste setzen und wiedersehen. | Must | idea | Sprint 291; Parser, Store, Hausstand |
+| S58.2 | Als Nutzer will ich dieselben Folien für Lieblingsfilme. | Must | idea | 291 gleicher Store, `lists` enthält `favorite` |
+| S58.3 | Als Nutzer will ich ein Overlay mit Slides und Poster. | Must | idea | Sprint 292; CSS-Motion, reduced-motion |
+| S58.4 | Als Nutzer will ich Kritiker- und Publikumswert sehen. | Must | idea | Sprint 293; OMDb, keine RT-API, keine erfundenen % |
 
 ---
 

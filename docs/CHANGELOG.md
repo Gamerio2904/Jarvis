@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.3` — Watchliste und Lieblinge — *PLAN*
+
+Sprints 291–294: [`74-next.md`](./74-next.md). Filme auf die Watchliste
+oder zu den Lieblingen. Overlay mit Slides, Poster, Kritiker- und
+Publikumswert über OMDb (keine Rotten-Tomatoes-API). Kein Code, keine
+APK `18.3`. Live bleibt `18.1.2`.
+
 ### `18.1.2` — Sprachmodus: eine Wiedergabe, nativer Player — *CODE + APK*
 
 Sideload **`18.1.2`** (versionCode `180102`):  

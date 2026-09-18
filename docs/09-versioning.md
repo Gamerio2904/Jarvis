@@ -605,6 +605,21 @@ Sprints 272–281 sind **CODE** in `18.1.0`. 282 bleibt Freeze in [`71-audit.md`
 | `18.2.3` | Plan auf Zuruf füllen, Custom erlaubt | 286 PLAN |
 | `18.2.4` | Ergänzen, Custom nach Satz, Erinnerung | 287 PLAN |
 
+### `18.3` — Watchliste [`74-next.md`](./74-next.md) **PLAN**
+
+Filme merken (Watchliste) und mögen (Lieblinge). Overlay mit Slides,
+Poster, Kritiker- und Publikumswert. Zahlen nur über OMDb
+(`tomatoes=true`); Rotten Tomatoes hat keine öffentliche API.
+Sprints 283–287 bleiben `18.2`. 288–290 bleiben Karten-Reste. 282 Freeze.
+Kein Sideload `18.3.x` ohne APK.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.3.0` | Store + Parser, beide Listen, Hausstand | 291 PLAN |
+| `18.3.1` | Overlay, Slides, Animation | 292 PLAN |
+| `18.3.2` | Poster, Kritiker + Publikum über OMDb | 293 PLAN |
+| `18.3.3` | Konflikte, reduced-motion, Probe | 294 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.
