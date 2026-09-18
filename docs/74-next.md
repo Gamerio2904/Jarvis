@@ -326,4 +326,5 @@ Pull nach **18.2** (283–287). Zahlen 288–290 nicht anfassen. 282 Freeze.
 Index: [`sprints/README.md`](./sprints/README.md) · Versionen:
 [`09-versioning.md`](./09-versioning.md) · Vorher:
 [`73-next.md`](./73-next.md) · Film-Noten:
-[`sprints/sprint-97.md`](./sprints/sprint-97.md)
+[`sprints/sprint-97.md`](./sprints/sprint-97.md) · Danach Körper/Wissen:
+[`75-next.md`](./75-next.md)

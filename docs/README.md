@@ -48,7 +48,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Live **`18.1.2`**, nächste Schienen `18.2` dann `18.3` |
+| 42 | [Alles geplant](./42-planned.md) | Index Live **`18.1.2`**, nächste Schienen `18.2` dann `18.3` dann `18.4` |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -80,6 +80,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 72 | [Ideen halten 18.2](./72-next.md) | **PLAN** `18.2` — Idee, Überblick, Sprint-Vorlage die Jarvis füllt + Custom, Sprints 283–287 |
 | 73 | [Karte/CarPlay nach 18.0.8](./73-next.md) | **BEFUND + PLAN** — 18.0.8 CODE; Reste 288–290 |
 | 74 | [Watchliste 18.3](./74-next.md) | **PLAN** `18.3` — Watchliste + Lieblinge, Overlay, OMDb, Gesehen intern, Tipp, Sprints 291–296 |
+| 75 | [Körper/Wissen 18.4](./75-next.md) | **PLAN** `18.4` — Katalog am Körper, Agent↔Pack, Pack-Links + 1-Hop, Sprints 297–300 |
 | — | [APK](./apk.md) | Sideload `18.1.2`; Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -296,5 +297,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 283–287 | `18.2.0`–`18.2.4` | **PLAN** (Ideen halten, [`72-next.md`](./72-next.md)) |
 | 288–290 | `18.0.9`–`18.1.3` | **PLAN** (Karten-Reste in [`73-next.md`](./73-next.md)) |
 | 291–296 | `18.3.0`–`18.3.5` | **PLAN** (Watchliste, Lieblinge, Gesehen, Tipp, [`74-next.md`](./74-next.md)) |
+| 297–300 | `18.4.0`–`18.4.3` | **PLAN** (Körper, Agent↔Pack, 1-Hop, [`75-next.md`](./75-next.md)) |
 
-**Aktuell:** Code **`18.1.2`**. Sideload-APK `18.1.2`, versionCode `180102`. Sprachmodus liest die ganze Antwort in einem Stück. Nächste Produktschienen `18.2` Ideen halten, dann `18.3` Watchliste. Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** Code **`18.1.2`**. Sideload-APK `18.1.2`, versionCode `180102`. Sprachmodus liest die ganze Antwort in einem Stück. Nächste Produktschienen `18.2` Ideen halten, dann `18.3` Watchliste, dann `18.4` Körper/Wissen. Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md). Index: [`42-planned.md`](./42-planned.md).

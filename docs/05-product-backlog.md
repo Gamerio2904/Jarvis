@@ -51,6 +51,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E56 | Semantisches Gedächtnis `10.0` | 5+ | Schema, Gate, Retrieve 2, Graph light, Gold; e5 Freeze — [`56-next.md`](./56-next.md) **CODE** `10.60.0` |
 | E57 | Memory-10 Intensiv | 5+ | Alias, G5-Echo, memoryBlock — [`57-next.md`](./57-next.md) **PLAN** |
 | E58 | Watchliste `18.3` | 5+ | Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten — [`74-next.md`](./74-next.md) **PLAN** |
+| E59 | Körper/Wissen `18.4` | 4 | Katalog am Körper, Agent↔Pack, Pack-Links — [`75-next.md`](./75-next.md) **PLAN** |
 
 ---
 
@@ -591,6 +592,15 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S58.4 | Als Nutzer will ich Kritiker- und Publikumswert sehen. | Must | idea | Sprint 293; OMDb, keine RT-API, keine erfundenen % |
 | S58.5 | Als Nutzer will ich geschaute Watchliste-Filme intern ablegen. | Must | idea | Sprint 295; Wissenszentrum, kein Overlay |
 | S58.6 | Als Nutzer will ich Filmtipps aus Lieblingen (schwer) und Gesehenem. | Must | idea | Sprint 296; `film-taste.ts`; keine erfundenen Titel |
+
+### E59 — Körper und Wissenszentrum `18.4` [`75-next.md`](./75-next.md)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S59.1 | Als Nutzer will ich am Classic-Körper die Agenten sehen, die es gibt. | Must | idea | Sprint 297; Katalog + `organs`, Cap 5 |
+| S59.2 | Als Nutzer will ich, dass Fachwissen am Agenten hängt, der es braucht. | Must | idea | Sprint 298; Allowlist, nicht Tanke/TV |
+| S59.3 | Als Nutzer will ich verwandtes Wissen über Pack-Links finden. | Must | idea | Sprint 299; Token-Overlap, 1-Hop, Cap 3 |
+| S59.4 | Als Nutzer will ich, dass Karte und Classic denselben Pack zeigen. | Must | idea | Sprint 300; Reduce, keine Graph-Lib |
 
 ---
 

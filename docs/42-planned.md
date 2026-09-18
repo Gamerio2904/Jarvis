@@ -13,17 +13,18 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 3. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290**. Unbekannter Ort ohne Netz, Mikrofon-Absage, Overlay/Gespräch. 290 Ziel `18.1.3`
 4. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287**. Festhalten, Überblick, **feste Sprint-Vorlage**, Jarvis füllt auf Zuruf und darf Custom-Sprints anlegen. Kein Architect-Organizer, kein RICE, kein Notion, Plan wird nicht ausgeführt
 5. **`18.3` Watchliste** [`74-next.md`](./74-next.md) — Sprints **291–296**. Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten, Gesehen intern, Tipp (Lieblinge schwer). Nach 18.2
-6. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
-7. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
-8. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
-9. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
-10. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-11. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
-12. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
-13. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
-14. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
-15. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
-16. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
+6. **`18.4` Körper/Wissen** [`75-next.md`](./75-next.md) — Sprints **297–300**. Katalog am Körper, Agent↔Pack, Pack-Links + 1-Hop. Nach 18.3
+7. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
+8. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
+9. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
+10. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
+11. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+12. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
+13. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
+14. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
+15. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
+16. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
+17. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
 
 **⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `17.0.0` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
 
@@ -77,7 +78,7 @@ Begründung: [`72-next.md`](./72-next.md). Audit-Zahlen 272–282 bleiben
 
 Begründung: [`73-next.md`](./73-next.md).
 
-## PLAN — Schiene `18.3` (Sprints 291–294)
+## PLAN — Schiene `18.3` (Sprints 291–296)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -94,6 +95,21 @@ Kein RT-Scrape. Keine erfundenen Prozent. `Spiel … Film` bleibt TV.
 Kein Sideload `18.3.x` solange die APK `18.1.2` ist.
 
 Begründung: [`74-next.md`](./74-next.md).
+
+## PLAN — Schiene `18.4` (Sprints 297–300)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `18.4.0` | [297](./sprints/sprint-297.md) | Knoten: Organ-Baum aus dem Katalog |
+| `18.4.1` | [298](./sprints/sprint-298.md) | Kanten: Agent↔Pack, Broadcast-Allowlist |
+| `18.4.2` | [299](./sprints/sprint-299.md) | Zentrum: Pack-Links + 1-Hop Retrieve |
+| `18.4.3` | [300](./sprints/sprint-300.md) | Härten, Probe, Motion |
+
+Harte Kette: 297 → 298 → 299. 300 braucht 297 und 298.
+Kein Qdrant, kein LLM-Organizer, kein Graphiti/cognee, keine neue Graph-Lib.
+Kein Sideload `18.4.x` solange die APK `18.1.2` ist.
+
+Begründung: [`75-next.md`](./75-next.md).
 
 ## CODE — Audit-Reste `18.1.0` (Sprints 272–281)
 

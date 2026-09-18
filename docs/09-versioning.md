@@ -621,6 +621,19 @@ Tipp aus Lieblingen (Gewicht 3) und Gesehenem (Gewicht 1). Zahlen nur
 | `18.3.4` | Gesehen intern, Wissenszentrum | 295 PLAN |
 | `18.3.5` | Filmtipp, Lieblinge schwer | 296 PLAN |
 
+### `18.4` — Körper und Wissenszentrum [`75-next.md`](./75-next.md) **PLAN**
+
+Knoten aus dem Katalog, Kanten Agent↔Pack (GWT-Broadcast Allowlist),
+Pack-Links per Token-Overlap und 1-Hop Retrieve. Kein Qdrant, kein
+LLM-Organizer, keine Graph-Lib. Kein Sideload `18.4.x` ohne APK.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.4.0` | Organ-Baum aus dem Katalog, Live aus der Trace | 297 PLAN |
+| `18.4.1` | Agent↔Pack, Claims im Blob, Allowlist-Broadcast | 298 PLAN |
+| `18.4.2` | Pack-Links, 1-Hop, Körper-Query aus Äußerung | 299 PLAN |
+| `18.4.3` | Zwei Sichten eine Wahrheit, Motion, Probe | 300 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.

@@ -55,4 +55,5 @@ Stockfish-WASM (266 bleibt liegen), fünfter LLM-Organizer.
 
 Index: [`sprints/README.md`](./sprints/README.md) · Vorher:
 [`72-next.md`](./72-next.md) · Audit: [`71-audit.md`](./71-audit.md) ·
-Danach Watchliste: [`74-next.md`](./74-next.md)
+Danach Watchliste: [`74-next.md`](./74-next.md) · Körper/Wissen:
+[`75-next.md`](./75-next.md)

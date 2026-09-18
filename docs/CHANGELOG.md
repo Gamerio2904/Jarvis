@@ -5,6 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.4` — Körper, Agenten, Wissenszentrum — *PLAN*
+
+Sprints 297–300: [`75-next.md`](./75-next.md). Classic-Baum aus dem Katalog,
+Kanten Agent↔Pack, Claims im Retrieve, Pack-Links + 1-Hop. Tanke bleibt
+ohne Fachwissen. Keine APK `18.4`. Live bleibt `18.1.2`.
+
 ### `18.3` — Watchliste und Lieblinge — *PLAN*
 
 Sprints 291–296: [`74-next.md`](./74-next.md). Zwei gleichwertige Listen:
