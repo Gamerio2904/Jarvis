@@ -23,7 +23,7 @@
     "test:matrix": "node --experimental-strip-types scripts/test-650-matrix.mjs",
     "test:memory-10": "node --experimental-strip-types scripts/test-memory-10.mjs",
     "test:memory-10-intens": "node --experimental-strip-types scripts/probe-memory-10-intens.mjs",
-    "test:knowledge-11": "node --experimental-strip-types scripts/test-knowledge-11.mjs",
+    "test:film-taste": "node --experimental-strip-types scripts/test-film-taste.mjs",
     "test:presence-12": "node --experimental-strip-types scripts/test-presence-12.mjs",
     "test:body-13": "node --experimental-strip-types scripts/test-body-13.mjs",
     "test:rest-final": "node --experimental-strip-types scripts/test-rest-final.mjs",

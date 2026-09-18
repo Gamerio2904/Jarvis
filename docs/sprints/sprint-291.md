@@ -14,7 +14,7 @@ kommen in 292/293.
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S291-1 | Typ + Store | `store.ts` | `WatchMovie` wie [`74-next.md`](../74-next.md) §3. `lists: ('watch'\|'favorite')[]`. `listWatchMovies(list?)`, `addWatchMovie(title, list)`, `removeWatchMovie`. IndexedDB `watch_movies`, Migration wie `notes`. Merge bei gleichem `imdbId` oder Titel+Jahr |
+| S291-1 | Typ + Store | `store.ts` | `WatchMovie` wie [`74-next.md`](../74-next.md) §3. `lists: ('watch'\|'favorite')[]`. `genres?` leer bis 293. `listWatchMovies(list?)`, `addWatchMovie(title, list)`, `removeWatchMovie`. IndexedDB `watch_movies`, Migration wie `notes`. Merge bei gleichem `imdbId` oder Titel+Jahr |
 | S291-2 | Parser | `engine/watchlist-parse.ts` **neu** | Add Watch: `watchliste[:\s](.+)`, `(.+)\s+auf (?:die )?watchliste`, `merk(?:e)?(?:\s+dir)?(?:\s+den film)?\s+(.+)\s+zum schauen`. Add Liebling: `lieblingsfilm(?:e)?[:\s](.+)`, `lieblingsliste[:\s](.+)`, `(.+)\s+zu meinen lieblingsfilmen`, `auf (?:die )?lieblingsliste\s+(.+)`. List/Show/Remove **vollständig** wie [`74-next.md`](../74-next.md) §4 inkl. `Öffne Lieblinge`, `von der Lieblingsliste`, `Lieblingsliste 1 weg`. Titel `cleanTitle` wie Film, 2–80 Zeichen |
 | S291-3 | Abgrenzung | `watchlist-parse.ts` + Tests | `Spiel Dune Film`, `Wie gut ist Dune`, `IMDb Dune`, `Notiz Dune`, `Todo Dune`, `Idee: Dune`, `merk dir ich mag Dune` → **kein** Treffer |
 | S291-4 | Agent | `parse-catalog.ts` | Ein Eintrag `watchlist`, `sideEffect: 'write'`, `autonomy: 'parser'`. Deutsch in der Karte: **Watchliste / Lieblinge**. Kein zweites `favorites` |

@@ -31,6 +31,8 @@ derselbe Parser-Schnitt, dieselben Folien, dieselben Noten.
 | Overlay Watchliste: Slides, Poster | **Ja** | 292 |
 | Overlay Lieblinge: dieselben Slides | **Ja** | 292 (Fokus `favorite`) |
 | Kritiker- und Publikumswert auf beiden | **Ja, über OMDb** | 293 |
+| „Ich habe Dune geschaut“ → intern gesehen | **Ja** | 295 |
+| Empfehlung aus Lieblingen (schwer) + Gesehen | **Ja** | 296, Algo `film-taste.ts` |
 | Offizielle Rotten-Tomatoes-API | **Won’t** | Partner-only; Sprint 97 |
 | Film im Overlay abspielen | **Won’t** | TV bleibt `Spiel … Film` |
 | Serien in v1 | **Won’t** | OMDb `type=movie` |
@@ -55,6 +57,8 @@ Sprint 1 — Kern     Store + Parser, Watchliste und Lieblinge, Hausstand
 Sprint 2 — Overlay  dieselben Slides für beide Listen
 Sprint 3 — Noten    OMDb Kritiker + Publikum + Poster auf jeder Folie
 Sprint 4 — Härten   Konflikte, reduced-motion, Tests, Probe
+Sprint 5 — Gesehen  Watchliste → internes Wissenszentrum
+Sprint 6 — Tipp     Empfehlung, Lieblinge schwer, keine erfundenen Titel
 ```
 
 Jede Karte hat dieselben Felder wie ein Jarvis-Sprint (`n`, Ziel,
@@ -91,6 +95,7 @@ WatchMovie {
   year?: string
   imdbId?: string
   lists: ('watch' | 'favorite')[]   // mindestens eins
+  genres?: string[]                 // 293 aus OMDb Genre; Keys wie horror
   poster?: string | null            // OMDb Poster; null = kein Bild
   critic?: string | null            // tomatoMeter, z. B. "87%"
   audience?: string | null          // tomatoUserMeter
@@ -111,6 +116,23 @@ und inkl. `favorite` getrennt (ein Film auf beiden zählt in beiden).
 
 Scores und Poster schreibt **293**, nicht 291. In 291 bleiben die Felder
 `null`. Overlay 292 zeigt dann Platzhalter, keine erfundenen Zahlen.
+
+**Gesehen (intern, kein Overlay):**
+
+```
+WatchedMovie {
+  id, title, year?, imdbId?, genres?, watched_at, from_watchlist: true,
+  source_conversation_id?
+}
+```
+
+IndexedDB `watched_movies`. Nur wer **auf der Watchliste stand** und
+„geschaut“ gesagt wird. Lieblinge bleiben. `watch` fliegt aus `lists`.
+Hausstand-Feld `watched_movies`. Overlay-Id gibt es **nicht**.
+
+Wissenszentrum: Pack `filme-gesehen` (`buildWatchedPack` in
+`film-taste.ts`). Retrieve und Körper-Baum sehen es. Kein
+„Zeig meine gesehenen Filme“ in v1.
 
 ---
 
@@ -202,17 +224,50 @@ da ist. Satz: `Kritiker 87 %. Publikum 65 %. (Rotten Tomatoes über OMDb).`
 
 ---
 
-## 7. Schnitt — Sprints 291–294
+## 6b. Empfehlungs-Algorithmus (`film-taste.ts`, CODE)
+
+Parser und Ranking liegen im Tree, Tests: `npm run test:film-taste`.
+Verdrahten (Store, Katalog, Pack schreiben) ist **295/296**.
+
+Gewichte, hart:
+
+| Signal | Gewicht | Rolle |
+|--------|---------|-------|
+| Genre eines **Lieblingsfilms** | **3** | Profil |
+| Genre eines **gesehenen** Films | **1** | Profil, leichter |
+| Gefragtes Genre (Horror …) | **2** | Filter: ohne Match raus |
+| Kandidat von der Watchliste | 0,25 | Warteschlange |
+| plus Filmabend | 1,5 | heute anschauen |
+
+Gesehenes **nie** vorschlagen. Lieblinge bauen das Profil, stehen nicht
+als Tipp auf der Liste (außer sie liegen noch auf der Watchliste).
+
+Kandidaten v1: **nur die Watchliste**, nach Geschmack sortiert.
+Keine JustWatch-Popular-Liste, kein LLM-Titel. Leer ehrlich:
+„Auf der Watchliste ist kein Horror. Ich erfinde keine Titel.“
+
+`Nenn mir Horrorfilme für Filmabend` → Genre `horror`, Occasion `night`.
+
+`Ich habe Dune geschaut` nur wenn Dune auf der Watchliste ist →
+`watched_movies` + Pack `filme-gesehen`. Sonst: *Der steht nicht auf
+der Watchliste.*
+
+---
+
+## 7. Schnitt — Sprints 291–296
 
 | Version | Sprint | Thema | Priorität |
 |---------|--------|-------|-----------|
 | `18.3.0` | [291](./sprints/sprint-291.md) | Kern: Store, Parser, Watchliste und Lieblinge, Hausstand | Must |
 | `18.3.1` | [292](./sprints/sprint-292.md) | Overlay: dieselben Slides für beide Listen | Must |
-| `18.3.2` | [293](./sprints/sprint-293.md) | OMDb Kritiker + Publikum + Poster | Must |
+| `18.3.2` | [293](./sprints/sprint-293.md) | OMDb Kritiker + Publikum + Poster + Genre | Must |
 | `18.3.3` | [294](./sprints/sprint-294.md) | Konflikte, reduced-motion, Tests, Probe | Must |
+| `18.3.4` | [295](./sprints/sprint-295.md) | Gesehen intern, Wissenszentrum | Must |
+| `18.3.5` | [296](./sprints/sprint-296.md) | Empfehlung verdrahten | Must |
 
-Kette: **291 → 292 → 293**. 294 braucht 291 (Parser) und 292 (Motion);
-293 vor der Probe der Zahlen.
+Kette: **291 → 292 → 293**. 294 braucht 291 und 292. **295 braucht 291**.
+**296 braucht 291 + 295**; Genre aus 293 ist Should (ohne Genre nur
+Watchlisten-Basis).
 
 Pull nach **18.2** (283–287). Zahlen 288–290 nicht anfassen. 282 Freeze.
 
@@ -226,20 +281,24 @@ Pull nach **18.2** (283–287). Zahlen 288–290 nicht anfassen. 282 Freeze.
 | 292 | Motion im Budget | Ansehen | 0 Tokens | lokal |
 | 293 | ehrliche Noten | Poster + zwei Zahlen | **ein** OMDb je Film | OMDb-Free-Key |
 | 294 | keine fremden Agenten | Härte | Parser | lokal |
+| 295 | Gesehen nur intern | Wissenszentrum | Parser | lokal |
+| 296 | keine erfundenen Tipps | Filmabend | lokal | lokal |
 
-291/292 ohne Kontingent. 293 nur OMDb, nicht Groq/Gemini.
+291/292/295/296 ohne Kontingent. 293 nur OMDb, nicht Groq/Gemini.
 
 ---
 
 ## 9. Won’t (hart)
 
 - Rotten-Tomatoes scrapen oder Partner-API.
-- Erfundene Prozent, erfundene Poster, Stock-Bilder als Filmplakat.
+- Erfundene Prozent, erfundene Poster, **erfundene Filmtitel**.
 - Film oder Trailer im Overlay abspielen.
 - Serien, Staffeln, „weiterschauen“ in v1.
 - RT-Splat, Certified-Fresh-Icon, Framer, Lottie, GSAP.
 - Zweiter Katalog-Agent `favorites` / `movies`.
-- Memory- oder Teach-Write beim Hinzufügen.
+- Overlay oder Chat-Liste „meine gesehenen Filme“.
+- LLM würfelt Horrorfilme.
+- Memory- oder Teach-Write beim Hinzufügen zur Watchliste.
 - `Spiel … Film` auf die Watchliste oder die Lieblinge umbiegen.
 - Lieblinge als bloße Chat-Liste, während die Watchliste Folien bekommt.
 - Sideload-Text `18.3.x`, solange `releases/Jarvis.apk` `18.1.2` ist.
@@ -250,6 +309,11 @@ Pull nach **18.2** (283–287). Zahlen 288–290 nicht anfassen. 282 Freeze.
 
 - Ein Prozent steht da, das nicht aus OMDb kam.
 - Die UI behauptet eine Rotten-Tomatoes-API.
+- Ein Tipp-Titel, der nicht auf der Watchliste (oder später einer
+  belegten Quelle) stand.
+- Lieblinge-Gewicht ≤ Gesehen-Gewicht im Code.
+- `Ich habe Dune geschaut` schreibt Gesehen, obwohl Dune nicht auf der
+  Watchliste war — oder schreibt kein Pack `filme-gesehen`.
 - `Spiel Dune Film` landet in `watch_movies` oder startet kein TV.
 - `Öffne Lieblingsfilme` zeigt Watchliste-only-Titel oder die Watchliste-Überschrift.
 - `merk dir ich mag Dune` wird ein Lieblingsfilm.

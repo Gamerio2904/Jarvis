@@ -12,7 +12,7 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 2. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
 3. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290**. Unbekannter Ort ohne Netz, Mikrofon-Absage, Overlay/Gespräch. 290 Ziel `18.1.3`
 4. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287**. Festhalten, Überblick, **feste Sprint-Vorlage**, Jarvis füllt auf Zuruf und darf Custom-Sprints anlegen. Kein Architect-Organizer, kein RICE, kein Notion, Plan wird nicht ausgeführt
-5. **`18.3` Watchliste** [`74-next.md`](./74-next.md) — Sprints **291–294**. Watchliste + Lieblinge, Overlay-Slides, Poster, Kritiker/Publikum über OMDb (keine RT-API). Nach 18.2
+5. **`18.3` Watchliste** [`74-next.md`](./74-next.md) — Sprints **291–296**. Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten, Gesehen intern, Tipp (Lieblinge schwer). Nach 18.2
 6. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
 7. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
 8. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
@@ -85,8 +85,11 @@ Begründung: [`73-next.md`](./73-next.md).
 | `18.3.1` | [292](./sprints/sprint-292.md) | Overlay für Watchliste und Lieblinge |
 | `18.3.2` | [293](./sprints/sprint-293.md) | Poster, Kritiker + Publikum über OMDb |
 | `18.3.3` | [294](./sprints/sprint-294.md) | Konflikte, reduced-motion, Probe |
+| `18.3.4` | [295](./sprints/sprint-295.md) | Gesehen intern, Wissenszentrum |
+| `18.3.5` | [296](./sprints/sprint-296.md) | Filmtipp aus Lieblingen |
 
 Harte Kette: 291 → 292 → 293. 294 braucht Parser und Overlay.
+295 braucht 291. 296 braucht 291 + 295.
 Kein RT-Scrape. Keine erfundenen Prozent. `Spiel … Film` bleibt TV.
 Kein Sideload `18.3.x` solange die APK `18.1.2` ist.
 

@@ -7,10 +7,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ### `18.3` — Watchliste und Lieblinge — *PLAN*
 
-Sprints 291–294: [`74-next.md`](./74-next.md). Zwei gleichwertige Listen:
-Watchliste und Lieblingsfilme. Dieselben Overlay-Slides, Poster,
-Kritiker- und Publikumswert über OMDb (keine Rotten-Tomatoes-API).
-Kein Code, keine APK `18.3`. Live bleibt `18.1.2`.
+Sprints 291–296: [`74-next.md`](./74-next.md). Zwei gleichwertige Listen:
+Watchliste und Lieblingsfilme. Gesehen intern im Wissenszentrum.
+Tipp: Lieblinge Gewicht 3, Gesehen Gewicht 1, keine erfundenen Titel.
+Algorithmus CODE in `film-taste.ts`. Keine APK `18.3`. Live bleibt `18.1.2`.
 
 ### `18.1.2` — Sprachmodus: eine Wiedergabe, nativer Player — *CODE + APK*
 

@@ -79,7 +79,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 71 | [Code-Audit 18.0.3](./71-audit.md) | **BEFUND + PLAN** — 12 Befunde behoben; 272–281 **CODE** in `18.1.0`; 282 Freeze |
 | 72 | [Ideen halten 18.2](./72-next.md) | **PLAN** `18.2` — Idee, Überblick, Sprint-Vorlage die Jarvis füllt + Custom, Sprints 283–287 |
 | 73 | [Karte/CarPlay nach 18.0.8](./73-next.md) | **BEFUND + PLAN** — 18.0.8 CODE; Reste 288–290 |
-| 74 | [Watchliste 18.3](./74-next.md) | **PLAN** `18.3` — Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten, Sprints 291–294 |
+| 74 | [Watchliste 18.3](./74-next.md) | **PLAN** `18.3` — Watchliste + Lieblinge, Overlay, OMDb, Gesehen intern, Tipp, Sprints 291–296 |
 | — | [APK](./apk.md) | Sideload `18.1.2`; Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -295,6 +295,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 282 | — | **PLAN** Freeze (versionCode-Schema) |
 | 283–287 | `18.2.0`–`18.2.4` | **PLAN** (Ideen halten, [`72-next.md`](./72-next.md)) |
 | 288–290 | `18.0.9`–`18.1.3` | **PLAN** (Karten-Reste in [`73-next.md`](./73-next.md)) |
-| 291–294 | `18.3.0`–`18.3.3` | **PLAN** (Watchliste + Lieblinge, [`74-next.md`](./74-next.md)) |
+| 291–296 | `18.3.0`–`18.3.5` | **PLAN** (Watchliste, Lieblinge, Gesehen, Tipp, [`74-next.md`](./74-next.md)) |
 
 **Aktuell:** Code **`18.1.2`**. Sideload-APK `18.1.2`, versionCode `180102`. Sprachmodus liest die ganze Antwort in einem Stück. Nächste Produktschienen `18.2` Ideen halten, dann `18.3` Watchliste. Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md). Index: [`42-planned.md`](./42-planned.md).

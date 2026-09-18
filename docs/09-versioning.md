@@ -608,10 +608,9 @@ Sprints 272–281 sind **CODE** in `18.1.0`. 282 bleibt Freeze in [`71-audit.md`
 ### `18.3` — Watchliste [`74-next.md`](./74-next.md) **PLAN**
 
 Filme merken (Watchliste) und mögen (Lieblinge). Overlay mit Slides,
-Poster, Kritiker- und Publikumswert. Zahlen nur über OMDb
-(`tomatoes=true`); Rotten Tomatoes hat keine öffentliche API.
-Sprints 283–287 bleiben `18.2`. 288–290 bleiben Karten-Reste. 282 Freeze.
-Kein Sideload `18.3.x` ohne APK.
+Poster, Kritiker- und Publikumswert. Gesehen intern im Wissenszentrum.
+Tipp aus Lieblingen (Gewicht 3) und Gesehenem (Gewicht 1). Zahlen nur
+über OMDb. Kein Sideload `18.3.x` ohne APK.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -619,6 +618,8 @@ Kein Sideload `18.3.x` ohne APK.
 | `18.3.1` | Overlay für Watchliste und Lieblinge | 292 PLAN |
 | `18.3.2` | Poster, Kritiker + Publikum über OMDb | 293 PLAN |
 | `18.3.3` | Konflikte, reduced-motion, Probe | 294 PLAN |
+| `18.3.4` | Gesehen intern, Wissenszentrum | 295 PLAN |
+| `18.3.5` | Filmtipp, Lieblinge schwer | 296 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

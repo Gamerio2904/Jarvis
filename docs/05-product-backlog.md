@@ -589,6 +589,8 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S58.2 | Als Nutzer will ich dieselben Folien für Lieblingsfilme. | Must | idea | 291 gleicher Store; 292 gleicher Overlay-Fokus `favorite`; 293 dieselben Noten |
 | S58.3 | Als Nutzer will ich ein Overlay mit Slides und Poster. | Must | idea | Sprint 292; CSS-Motion, reduced-motion |
 | S58.4 | Als Nutzer will ich Kritiker- und Publikumswert sehen. | Must | idea | Sprint 293; OMDb, keine RT-API, keine erfundenen % |
+| S58.5 | Als Nutzer will ich geschaute Watchliste-Filme intern ablegen. | Must | idea | Sprint 295; Wissenszentrum, kein Overlay |
+| S58.6 | Als Nutzer will ich Filmtipps aus Lieblingen (schwer) und Gesehenem. | Must | idea | Sprint 296; `film-taste.ts`; keine erfundenen Titel |
 
 ---
 
