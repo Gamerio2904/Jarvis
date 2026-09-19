@@ -27,6 +27,9 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --kb: 0px;
+  --kb-lift: 0px;
+  --kb-dock: 0px;
 }
 
 html[data-theme='light'] {
@@ -52,7 +55,7 @@ body,
 #root {
   margin: 0;
   height: 100%;
-  max-height: 100dvh;
+  max-height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
   background: var(--bg);
@@ -69,12 +72,15 @@ textarea {
   display: grid;
   grid-template-columns: 280px 1fr;
   height: 100%;
-  max-height: 100dvh;
+  max-height: 100%;
   overflow: hidden;
   position: relative;
   isolation: isolate;
   --lux-x: 72%;
   --lux-y: 16%;
+  --kb: 0px;
+  --kb-lift: 0px;
+  --kb-dock: 0px;
 }
 
 .sidebar {
@@ -86,7 +92,7 @@ textarea {
   gap: 12px;
   min-height: 0;
   height: 100%;
-  max-height: 100dvh;
+  max-height: 100%;
   overflow: hidden;
   z-index: 2;
   transition: transform var(--motion-slow) var(--ease-out), box-shadow var(--motion-med) ease;
@@ -266,6 +272,7 @@ textarea {
 .settings-screen {
   position: fixed;
   inset: 0;
+  bottom: var(--kb);
   z-index: 30;
   display: flex;
   flex-direction: column;
@@ -1420,7 +1427,7 @@ textarea {
   min-width: 0;
   min-height: 0;
   height: 100%;
-  max-height: 100dvh;
+  max-height: 100%;
   overflow: hidden;
   position: relative;
   isolation: isolate;
@@ -1448,8 +1455,8 @@ textarea {
   gap: 12px;
   padding: calc(14px + env(safe-area-inset-top, 0px)) 20px 14px;
   border-bottom: 1px solid var(--border);
-  background: rgba(7, 9, 8, 0.72);
-  backdrop-filter: blur(16px) saturate(1.2);
+  background: linear-gradient(180deg, rgba(8, 10, 9, 0.88), rgba(7, 9, 8, 0.62));
+  backdrop-filter: blur(18px) saturate(1.2);
   flex-shrink: 0;
 }
 
@@ -1472,7 +1479,7 @@ textarea {
   min-height: 0;
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 24px 16px calc(168px + env(safe-area-inset-bottom, 0px)) 16px;
+  padding: 24px 16px 20px 16px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
@@ -1986,6 +1993,7 @@ button.linkish {
   z-index: 11;
   padding: 12px 16px 20px;
   flex-shrink: 0;
+  background: linear-gradient(180deg, transparent, rgba(5, 7, 6, 0.72) 36%);
 }
 
 .main.is-drive .composer-wrap {
@@ -2052,15 +2060,19 @@ button.linkish {
 .composer {
   width: min(820px, 100%);
   margin: 0 auto;
-  background: rgba(22, 27, 24, 0.92);
+  background: linear-gradient(180deg, rgba(18, 22, 20, 0.94), rgba(10, 12, 11, 0.96));
   border: 1px solid var(--border);
-  border-radius: 24px;
+  border-radius: 28px;
   padding: 10px 12px 10px 16px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   align-items: stretch;
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(30, 215, 96, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(18px) saturate(1.15);
   position: relative;
   overflow: hidden;
   transition:
@@ -2090,6 +2102,11 @@ button.linkish {
     0 0 32px rgba(228, 195, 106, 0.16),
     0 14px 36px rgba(0, 0, 0, 0.5);
   transform: translateY(-4px);
+}
+
+.app.is-kb .composer:focus-within,
+.app.is-kb .composer.is-focused {
+  transform: none;
 }
 
 .composer:focus-within::after,
@@ -2225,7 +2242,7 @@ button.linkish {
   position: absolute;
   top: 0;
   right: 0;
-  bottom: 0;
+  bottom: var(--kb);
   left: 0;
   z-index: 16;
   background: rgba(5, 8, 6, 0.48);
@@ -2841,8 +2858,12 @@ button.linkish {
 .cal-view {
   position: absolute;
   inset: 0;
+  bottom: var(--kb);
   z-index: 14;
-  background: var(--bg);
+  background:
+    linear-gradient(180deg, rgba(8, 12, 10, 0.94), rgba(5, 6, 5, 0.98)),
+    var(--bg);
+  backdrop-filter: blur(18px) saturate(1.15);
   overflow: auto;
   overscroll-behavior: contain;
   padding: calc(16px + env(safe-area-inset-top, 0px)) 18px calc(28px + env(safe-area-inset-bottom, 0px));
@@ -2864,8 +2885,12 @@ button.linkish {
 .watch-overlay {
   position: absolute;
   inset: 0;
+  bottom: var(--kb);
   z-index: 14;
-  background: var(--bg);
+  background:
+    linear-gradient(180deg, rgba(8, 12, 10, 0.94), rgba(5, 6, 5, 0.98)),
+    var(--bg);
+  backdrop-filter: blur(18px) saturate(1.15);
   overflow: hidden;
   overscroll-behavior: contain;
   padding: calc(16px + env(safe-area-inset-top, 0px)) 18px calc(28px + env(safe-area-inset-bottom, 0px));
@@ -2893,6 +2918,7 @@ button.linkish {
 
 .watch-head h2 {
   margin: 0;
+  font-family: var(--font-display);
   font-size: 1.35rem;
 }
 
@@ -2905,21 +2931,34 @@ button.linkish {
 }
 
 .watch-tabs {
+  position: relative;
   display: flex;
-  gap: 8px;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(8, 10, 9, 0.72);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .watch-tab {
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  appearance: none;
+  flex: 1 1 0;
+  border: 0;
   background: transparent;
-  color: inherit;
+  color: var(--text-muted);
   border-radius: 999px;
   padding: 8px 14px;
+  font-weight: 650;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  transition: color 280ms var(--ease-out);
 }
 
 .watch-tab.is-on {
-  background: rgba(30, 215, 96, 0.18);
-  border-color: rgba(30, 215, 96, 0.55);
+  color: #04140a;
+  animation: navPop 420ms var(--ease-spring);
 }
 
 .watch-track {
@@ -2935,12 +2974,16 @@ button.linkish {
 .watch-card {
   flex: 0 0 76%;
   scroll-snap-align: center;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(18, 22, 20, 0.92), rgba(10, 12, 11, 0.96));
+  border: 1px solid var(--border);
+  border-radius: 22px;
   padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .watch-poster-wrap {
@@ -3475,14 +3518,18 @@ button.linkish {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  padding: 4px;
+  border-radius: 16px;
+  background: rgba(8, 10, 9, 0.55);
+  border: 1px solid var(--border);
 }
 
 .cal-nav button {
   appearance: none;
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--text);
-  border-radius: 10px;
+  border-radius: 12px;
   width: 40px;
   height: 36px;
   cursor: pointer;
@@ -3529,8 +3576,8 @@ button.linkish {
 
 .cal-nav-btn {
   appearance: none;
-  border: 1px solid rgba(29, 185, 84, 0.35);
-  background: rgba(29, 185, 84, 0.12);
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--text);
   border-radius: 12px;
   width: 44px;
@@ -3538,6 +3585,7 @@ button.linkish {
   font-size: 1.1rem;
   cursor: pointer;
   flex-shrink: 0;
+  transition: background var(--motion-fast) ease, border-color var(--motion-fast) ease;
 }
 
 .cal-nav-btn:hover:not(:disabled) {
@@ -4099,8 +4147,8 @@ button.linkish {
     position: fixed;
     inset: 0 auto 0 0;
     width: min(86vw, 300px);
-    height: 100dvh;
-    max-height: 100dvh;
+    height: 100%;
+    max-height: 100%;
     z-index: 20;
     transform: translateX(-105%);
     box-shadow: none;
@@ -4138,7 +4186,7 @@ button.linkish {
     display: flex;
     position: fixed;
     left: 50%;
-    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px) + var(--kb-dock));
     transform: translateX(-50%);
     width: min(440px, calc(100vw - 20px));
     z-index: 45;
@@ -4149,7 +4197,11 @@ button.linkish {
   }
 
   .app.has-nav-dock .main {
-    padding-bottom: 82px;
+    padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app.has-nav-dock.is-kb .main {
+    padding-bottom: var(--kb);
   }
 
   .app.has-nav-dock .settings-screen,
@@ -4157,6 +4209,18 @@ button.linkish {
   .app.has-nav-dock .cal-view,
   .app.has-nav-dock .watch-overlay {
     padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .app.has-nav-dock.is-kb .settings-screen,
+  .app.has-nav-dock.is-kb .voice-mode,
+  .app.has-nav-dock.is-kb .cal-view,
+  .app.has-nav-dock.is-kb .watch-overlay {
+    padding-bottom: 16px;
+  }
+
+  .app.is-kb .settings-screen,
+  .app.is-kb .voice-mode {
+    bottom: var(--kb);
   }
 
   .app.has-nav-dock .composer-wrap,
@@ -4346,6 +4410,16 @@ button.linkish {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.lage-chip {
+  padding: 4px 10px;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 650;
+  flex-shrink: 0;
 }
 
 .lage-hint {
@@ -4358,13 +4432,15 @@ button.linkish {
 
 .lage-agent-task {
   margin: 0;
-  padding: 8px 10px;
+  padding: 8px 12px;
   font-size: 0.82rem;
   line-height: 1.35;
   color: var(--text);
-  background: rgba(8, 16, 12, 0.65);
+  background: linear-gradient(180deg, rgba(8, 12, 10, 0.9), rgba(5, 8, 6, 0.94));
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(14px);
 }
 
 .lage-brand {
@@ -4551,26 +4627,51 @@ button.linkish {
 }
 
 .lage-tabs {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  flex-wrap: nowrap;
+  gap: 2px;
   margin-left: 0;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(8, 10, 9, 0.72);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .lage-tab {
+  appearance: none;
+  flex: 1 1 0;
   background: transparent;
-  border: 1px solid var(--border);
+  border: 0;
   color: var(--text-muted);
   border-radius: 999px;
-  padding: 2px 8px;
+  padding: 6px 10px;
   font-size: 0.68rem;
-  letter-spacing: 0.04em;
+  font-weight: 650;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+  transition: color 280ms var(--ease-out);
 }
 
 .lage-tab.is-on {
-  border-color: var(--accent);
-  color: var(--accent);
+  color: #04140a;
+  animation: navPop 420ms var(--ease-spring);
+}
+
+.turn-history-head .lage-tab {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+}
+
+.turn-history-head .lage-tab.is-on,
+.turn-history-head .lage-tab {
+  color: var(--text-muted);
+  animation: none;
 }
 
 .agent-status-bar {
@@ -4579,9 +4680,13 @@ button.linkish {
   gap: 10px;
   margin: 6px 0 2px;
   padding: 8px 12px;
-  border: 1px solid rgba(29, 185, 84, 0.28);
-  border-radius: 12px;
-  background: rgba(5, 12, 8, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(18, 22, 20, 0.88), rgba(8, 12, 10, 0.9));
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(14px);
 }
 
 .agent-status-dot {
@@ -4719,6 +4824,11 @@ button.linkish {
 
 .app.has-nav-dock .pin-bubble {
   bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+.app.is-kb .pin-bubble,
+.app.has-nav-dock.is-kb .pin-bubble {
+  bottom: calc(12px + var(--kb));
 }
 
 .pin-bubble-head {
@@ -5127,19 +5237,31 @@ button.linkish {
     display: flex;
     flex-direction: column;
   }
-  /* Körper + Chat: Netz oben, Verlauf und Composer darunter. */
+  /* Körper + Chat: Netz und Verlauf teilen den sichtbaren Schirm, kein Überlappen. */
   .main.is-lage.is-lage-chat .topbar,
   .main.is-lage.is-lage-chat .fallback-banner {
     display: none !important;
   }
+  .main.is-lage.is-lage-chat {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 0.92fr) minmax(0, 1.08fr) auto;
+    min-height: 0;
+    height: 100%;
+  }
+  .app.is-kb .main.is-lage.is-lage-chat {
+    grid-template-rows: minmax(0, 0.58fr) minmax(0, 1fr) auto;
+  }
   .main.is-lage.is-lage-chat .lage {
-    flex: 0 0 44vh;
-    height: 44vh;
-    max-height: 44vh;
-    min-height: 260px;
+    grid-row: 1;
+    min-height: 0;
+    max-height: none;
+    height: auto;
     overflow: hidden;
     position: relative;
     z-index: 1;
+    isolation: isolate;
+    background: var(--bg);
     display: flex;
     flex-direction: column;
   }
@@ -5148,23 +5270,38 @@ button.linkish {
   }
   .main.is-lage.is-lage-chat .agent-map-shell,
   .main.is-lage.is-lage-chat .agent-map-canvas {
-    min-height: 168px;
+    min-height: 0;
+  }
+  .main.is-lage.is-lage-chat .lage-tile {
+    min-height: 0;
   }
   .main.is-lage.is-lage-chat .messages {
+    grid-row: 2;
     display: flex;
-    flex: 1 1 auto;
-    min-height: 72px;
+    flex-direction: column;
+    min-height: 0;
+    z-index: 2;
+    isolation: isolate;
+    background: linear-gradient(180deg, rgba(8, 12, 10, 0.97), rgba(5, 7, 6, 0.99));
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -16px 32px rgba(0, 0, 0, 0.35);
+    padding: 12px 14px 10px;
   }
   .main.is-lage.is-lage-chat .composer-wrap {
+    grid-row: 3;
     display: block;
-    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    z-index: 3;
+    padding: 8px 12px 10px;
+    background: linear-gradient(180deg, rgba(5, 7, 6, 0), rgba(5, 7, 6, 0.94) 28%);
   }
   .main.is-lage .lage-head {
     position: relative;
     z-index: 2;
     flex-shrink: 0;
-    background: var(--bg);
-    padding-bottom: 4px;
+    background: linear-gradient(180deg, rgba(8, 10, 9, 0.92), rgba(5, 7, 6, 0.78));
+    backdrop-filter: blur(16px) saturate(1.15);
+    padding: 8px 2px 8px;
+    border-bottom: 1px solid rgba(42, 53, 48, 0.7);
   }
   .lage.is-compact .lage-split {
     grid-template-columns: 1fr;
@@ -5190,7 +5327,7 @@ button.linkish {
   }
   .main.is-lage.is-lage-chat .lage.is-compact .agent-map-shell,
   .main.is-lage.is-lage-chat .lage.is-compact .agent-map-canvas {
-    min-height: 168px;
+    min-height: 0;
   }
   .lage.is-compact {
     padding: 8px 10px 6px;
@@ -5212,7 +5349,11 @@ button.linkish {
     z-index: 3;
     margin: 0;
     min-height: 0;
-    background: rgba(5, 10, 8, 0.86);
+    max-height: min(38%, 132px);
+    overflow: auto;
+    background: linear-gradient(180deg, rgba(8, 12, 10, 0.9), rgba(5, 8, 6, 0.94));
+    backdrop-filter: blur(16px) saturate(1.15);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
   }
   .lage.is-compact .lage-agent-task {
     position: absolute;
@@ -5222,6 +5363,8 @@ button.linkish {
     z-index: 4;
     flex-shrink: 0;
     pointer-events: none;
+    max-height: min(38%, 120px);
+    overflow: auto;
   }
 }
 
@@ -5666,6 +5809,10 @@ html.theme-wipe-dark::before {
   animation: calFabIn 420ms var(--ease-out);
 }
 
+.app.is-kb .cal-fab {
+  bottom: calc(18px + var(--kb));
+}
+
 .cal-sheet-backdrop {
   position: fixed;
   inset: 0;
@@ -5677,15 +5824,21 @@ html.theme-wipe-dark::before {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: var(--kb);
   z-index: 25;
   transform: translateY(110%);
   transition: transform var(--motion-med) var(--ease-out);
-  background: var(--bg-elevated);
+  background: linear-gradient(180deg, rgba(18, 22, 20, 0.96), rgba(10, 12, 11, 0.98));
   border-top: 1px solid var(--border);
   border-radius: 20px 20px 0 0;
   padding: 18px 16px calc(96px + env(safe-area-inset-bottom, 0px));
   pointer-events: none;
+  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(18px) saturate(1.15);
+}
+
+.app.is-kb .cal-sheet {
+  padding-bottom: 18px;
 }
 
 .cal-sheet.is-open {

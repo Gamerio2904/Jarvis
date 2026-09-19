@@ -33,6 +33,7 @@ import { pinLineFor } from '../../engine/globe-geo.ts'
 import { CITY_FLY_ZOOM } from '../../engine/globe-gibs.ts'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion.ts'
 import { loadSettings, saveSettings, type Message } from '../../engine/store.ts'
+import { useSlidingThumb } from '../SlidingThumb.tsx'
 import { ensureDeviceLocation } from '../../native/geo.ts'
 import { setLageSession } from '../../engine/lage-session.ts'
 import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour.ts'
@@ -100,6 +101,7 @@ export function Lage({
   const lastLine = recent[recent.length - 1]?.content || ''
   const globeLayer = s.globe_layer
   const withChat = s.body_with_chat !== false
+  const tabThumb = useSlidingThumb(view)
   const moduleKey = modules.join(',')
 
   useEffect(() => {
@@ -271,7 +273,7 @@ export function Lage({
           {typeof bat === 'number' ? <span className="lage-bat">{bat} %</span> : null}
           <button
             type="button"
-            className="lage-tab"
+            className="ghost-btn lage-chip"
             onClick={() => {
               setLageSession(false)
               saveSettings({ hud_force: false, hud_hidden: true })
@@ -283,7 +285,7 @@ export function Lage({
           {view === 'body' && compact ? (
             <button
               type="button"
-              className="lage-tab"
+              className="ghost-btn lage-chip"
               onClick={() => {
                 saveSettings({ body_with_chat: !withChat })
                 onHudChange?.()
@@ -293,7 +295,8 @@ export function Lage({
             </button>
           ) : null}
         </div>
-        <div className="lage-tabs" role="tablist" aria-label="Lage-Sicht">
+        <div ref={tabThumb.hostRef} className="lage-tabs pill-tabs" role="tablist" aria-label="Lage-Sicht">
+          <span ref={tabThumb.thumbRef} className="pill-tabs-thumb" aria-hidden />
           {(
             [
               ['tiles', 'Kacheln'],
@@ -304,6 +307,9 @@ export function Lage({
             <button
               key={id}
               type="button"
+              role="tab"
+              data-nav={id}
+              aria-selected={view === id}
               className={`lage-tab${view === id ? ' is-on' : ''}`}
               onClick={() => setView(id)}
             >

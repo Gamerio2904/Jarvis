@@ -79,6 +79,7 @@ import { setHeardNames } from './engine/heard.ts'
 import { pickAlarmTone } from './native/notify.ts'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice.ts'
 import { bindChromeFx, prefersReducedMotion } from './fx.ts'
+import { bindKeyboardInset } from './engine/keyboard-inset.ts'
 import { completeSpotifyLogin, pendingSpotifyCode } from './engine/spotify.ts'
 import { beginTurn, endTurn, type TurnSource } from './engine/turn-gate.ts'
 import { lageSessionActive, setLageSession } from './engine/lage-session.ts'
@@ -542,7 +543,12 @@ function App() {
   useEffect(() => {
     const el = appRef.current
     if (!el) return
-    return bindChromeFx(el)
+    const unfx = bindChromeFx(el)
+    const unkb = bindKeyboardInset(el)
+    return () => {
+      unfx()
+      unkb()
+    }
   }, [])
 
   useEffect(() => {

@@ -50,6 +50,7 @@
     "test:globe-18": "node --experimental-strip-types scripts/test-globe-18.mjs",
     "test:agent-map": "node --experimental-strip-types scripts/test-agent-map.mjs",
     "test:chess-engine": "node --experimental-strip-types scripts/test-chess-engine.mjs",
+    "test:keyboard-inset": "node --experimental-strip-types scripts/test-keyboard-inset.mjs",
     "eval:separability": "node --experimental-strip-types scripts/eval/separability.mjs"
   },
   "dependencies": {

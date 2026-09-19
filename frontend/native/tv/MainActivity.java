@@ -26,6 +26,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(JarvisHomePlugin.class);
         registerPlugin(JarvisDevicePlugin.class);
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         if (getBridge() != null && getBridge().getWebView() != null) {
             getBridge().getWebView().setBackgroundColor(android.graphics.Color.parseColor("#121212"));
         }

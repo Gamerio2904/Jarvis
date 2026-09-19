@@ -94,6 +94,19 @@ if (!wroteMain) {
 
 const manifestPath = join(android, 'app/src/main/AndroidManifest.xml')
 let manifest = readFileSync(manifestPath, 'utf8')
+if (!manifest.includes('android:windowSoftInputMode="adjustNothing"')) {
+  if (/android:windowSoftInputMode="[^"]*"/.test(manifest)) {
+    manifest = manifest.replace(
+      /android:windowSoftInputMode="[^"]*"/,
+      'android:windowSoftInputMode="adjustNothing"',
+    )
+  } else {
+    manifest = manifest.replace(
+      /<activity\b([^>]*\bandroid:name="[^"]*MainActivity"[^>]*)>/,
+      '<activity$1 android:windowSoftInputMode="adjustNothing">',
+    )
+  }
+}
 const perms = [
   'android.permission.INTERNET',
   'android.permission.ACCESS_NETWORK_STATE',

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../engine/motion.ts'
 import { listWatchMovies, type WatchListKind, type WatchMovie } from '../engine/store.ts'
+import { useSlidingThumb } from './SlidingThumb.tsx'
 
 export function WatchlistOverlay({
   onClose,
@@ -16,6 +17,7 @@ export function WatchlistOverlay({
   const [rows, setRows] = useState<WatchMovie[]>([])
   const [hidden, setHidden] = useState(() => isDocumentHidden())
   const reduced = prefersReducedMotion()
+  const tabThumb = useSlidingThumb(focus)
 
   useEffect(() => {
     let live = true
@@ -47,10 +49,12 @@ export function WatchlistOverlay({
           </button>
         </div>
       </header>
-      <div className="watch-tabs" role="tablist">
+      <div ref={tabThumb.hostRef} className="watch-tabs pill-tabs" role="tablist">
+        <span ref={tabThumb.thumbRef} className="pill-tabs-thumb" aria-hidden />
         <button
           type="button"
           role="tab"
+          data-nav="watch"
           aria-selected={focus === 'watch'}
           className={`watch-tab${focus === 'watch' ? ' is-on' : ''}`}
           onClick={() => onFocus('watch')}
@@ -60,6 +64,7 @@ export function WatchlistOverlay({
         <button
           type="button"
           role="tab"
+          data-nav="favorite"
           aria-selected={focus === 'favorite'}
           className={`watch-tab${focus === 'favorite' ? ' is-on' : ''}`}
           onClick={() => onFocus('favorite')}

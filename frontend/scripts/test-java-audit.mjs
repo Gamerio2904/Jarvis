@@ -60,6 +60,10 @@ assert.match(player, /MAX_RING_MS = 10 \* 60_000L/, 'verpasster Wecker endet nac
 const applyNative = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'apply-native-tv.mjs'), 'utf8')
 assert.match(applyNative, /<queries>/, 'openApp sieht installierte Apps')
 assert.match(applyNative, /LAUNCHER/)
+assert.match(applyNative, /windowSoftInputMode="adjustNothing"/, 'Tastatur überdeckt die Leiste')
+
+const mainActivity = read('tv/MainActivity.java')
+assert.match(mainActivity, /SOFT_INPUT_ADJUST_NOTHING/, 'WebView schrumpft nicht mit der IME')
 
 const tv = read('tv/JarvisTvPlugin.java')
 assert.match(tv, /public void test\(/, 'Fernseher testen ruft eine echte Methode')

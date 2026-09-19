@@ -5,6 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+Lage, Overlay und Composer teilen den Schirm ohne Überlappung. Die
+untere Leiste bleibt am physischen Boden; die Tastatur öffnet darüber
+(`interactive-widget=overlays-content`, `adjustNothing`). Composer,
+Lage-Reiter, Watchliste und Kalender-Sheet nutzen dieselbe Glas-/Thumb-
+Bewegung wie Dock und Einstellungen.
+
 ### `18.4.3` — Ideen, Watchliste, Körper/Wissen — *CODE + APK*
 
 Sprints **283–300** im App-Code `18.4.3`. Sideload **`18.4.3`**
