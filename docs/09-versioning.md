@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.4.3`**. Sideload-APK **`18.4.3`**, versionCode `180403`. Sprints 283–300 CODE + APK. Test [`TEST-18.4.3.md`](./TEST-18.4.3.md).
+> **Jetzt:** App-Code **`18.4.4`**. Sideload-APK **`18.4.4`**, versionCode `180404`. Lage/Overlay/Tastatur. Test [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -590,6 +590,7 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | `18.1.1` | Sprachmodus liest die ganze Antwort, nicht nur den ersten Satz | Patch **CODE + APK** |
 | `18.1.2` | Eine TTS-Wiedergabe, MediaPlayer statt WebView-Audio | Patch **CODE + APK** |
 | `18.4.3` | Ideen 283–287, Karten 288–290, Watchliste 291–296, Körper 297–300 | Bundle **CODE + APK** `180403` |
+| `18.4.4` | Lage/Overlay ohne Überlappung, Tastatur über der Leiste | Patch **CODE + APK** `180404` |
 
 ### `18.2` — Ideen halten [`72-next.md`](./72-next.md) **CODE** in `18.4.3`
 

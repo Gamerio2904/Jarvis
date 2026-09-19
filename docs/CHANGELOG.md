@@ -5,8 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Lage, Overlay und Composer teilen den Schirm ohne Überlappung. Die
-untere Leiste bleibt am physischen Boden; die Tastatur öffnet darüber
+### `18.4.4` — Lage, Overlay, Tastatur — *CODE + APK*
+
+Sideload **`18.4.4`** (versionCode `180404`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+Lage und Overlay teilen den Schirm ohne Überlappung. Die untere Leiste
+bleibt am physischen Boden; die Tastatur öffnet darüber
 (`interactive-widget=overlays-content`, `adjustNothing`). Composer,
 Lage-Reiter, Watchliste und Kalender-Sheet nutzen dieselbe Glas-/Thumb-
 Bewegung wie Dock und Einstellungen.

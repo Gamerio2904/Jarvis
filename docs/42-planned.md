@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.4.3`**, versionCode `180403`. App-Code **`18.4.3`** (Sprints 283–300). Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md).
+**Live-APK:** **`18.4.4`**, versionCode `180404`. App-Code **`18.4.4`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 

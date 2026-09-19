@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.4.3`**. Sideload-APK **`18.4.3`**, versionCode `180403`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md).
+**Jetzt:** Code **`18.4.4`**. Sideload-APK **`18.4.4`**, versionCode `180404`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -81,7 +81,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 73 | [Karte/CarPlay nach 18.0.8](./73-next.md) | **CODE + APK** — 18.0.8 plus Reste 288–290 |
 | 74 | [Watchliste 18.3](./74-next.md) | **CODE + APK** `18.3` in `18.4.3` — Watchliste + Lieblinge, Overlay, OMDb, Gesehen, Tipp |
 | 75 | [Körper/Wissen 18.4](./75-next.md) | **CODE + APK** `18.4` in `18.4.3` — Katalog am Körper, Agent↔Pack, 1-Hop |
-| — | [APK](./apk.md) | Sideload `18.4.3`; Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md) |
+| — | [APK](./apk.md) | Sideload `18.4.4`; Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -299,4 +299,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 291–296 | `18.3.0`–`18.3.5` | **CODE + APK** in `18.4.3` (Watchliste, [`74-next.md`](./74-next.md)) |
 | 297–300 | `18.4.0`–`18.4.3` | **CODE + APK** in `18.4.3` (Körper/Wissen, [`75-next.md`](./75-next.md)) |
 
-**Aktuell:** App-Code **`18.4.3`**. Sideload-APK **`18.4.3`**, versionCode `180403`. Sprints 283–300 **CODE + APK**. Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.4.4`**. Sideload-APK **`18.4.4`**, versionCode `180404`. Sprints 283–300 **CODE + APK**. Lage/Overlay/Tastatur in `18.4.4`. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Index: [`42-planned.md`](./42-planned.md).

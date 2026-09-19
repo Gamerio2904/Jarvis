@@ -1,6 +1,6 @@
 # PO-Checkliste `18.4.3` — Ideen, Watchliste, Körper
 
-App-Code **`18.4.3`**. Sideload **`18.4.3`**, versionCode **`180403`**.  
+App-Code **`18.4.3`**. Features in Sideload **`18.4.4`**.  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Altes zuerst deinstallieren. Hausstand vorher exportieren.
@@ -11,7 +11,7 @@ Altes zuerst deinstallieren. Hausstand vorher exportieren.
 Was kannst du?
 ```
 
-In der Antwort muss **`18.4.3`** stehen.
+In der Antwort muss **`18.4.4`** stehen.
 
 ## 2. Idee
 

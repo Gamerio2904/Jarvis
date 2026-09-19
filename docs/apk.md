@@ -1,6 +1,8 @@
-# Android-APK — Sideload `18.4.3`
+# Android-APK — Sideload `18.4.4`
 
-App-Code **`18.4.3`**. Sideload-APK **`18.4.3`**, versionCode `180403`.
+App-Code **`18.4.4`**. Sideload-APK **`18.4.4`**, versionCode `180404`.
+
+**18.4.4:** Lage und Overlay ohne Überlappung. Tastatur öffnet über der Leiste. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
 **18.4.3:** Ideen halten, Watchliste/Lieblinge, Karten-Reste, Körper/Wissen. Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md).
 
@@ -30,10 +32,10 @@ App-Code **`18.4.3`**. Sideload-APK **`18.4.3`**, versionCode `180403`.
 
 ## Download
 
-**Fertige APK `18.4.3`:**  
+**Fertige APK `18.4.4`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.4.3` · versionCode `180403`
+- versionName `18.4.4` · versionCode `180404`
 
 ## Build lokal
 

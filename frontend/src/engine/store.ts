@@ -6,7 +6,7 @@ import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 
-export const APP_VERSION = '18.4.3'
+export const APP_VERSION = '18.4.4'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
