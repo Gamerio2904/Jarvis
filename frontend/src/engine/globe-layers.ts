@@ -79,7 +79,7 @@ export async function fetchQuakes(): Promise<LayerCache> {
         lat,
         lon,
         kind: 'quake',
-        line: place,
+        line: `USGS · ${place}`,
       })
       if (pins.length >= MAX_FULL) break
     }
