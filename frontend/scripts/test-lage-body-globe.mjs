@@ -16,7 +16,9 @@ assert.match(
   /\.main\.is-lage\.is-lage-chat \{[\s\S]{0,180}grid-template-rows:\s*minmax\(240px,\s*1\.55fr\)/,
   'Körper-Zeile braucht eine Mindest-Höhe, sonst wird das Netz zerquetscht',
 )
-assert.match(css, /\.main\.is-lage\.is-lage-chat:has\(\.empty\) \{[\s\S]{0,120}minmax\(280px/)
+assert.match(css, /\.main\.is-lage\.is-lage-chat:has\(\.empty\) \{[\s\S]{0,120}minmax\(320px/)
+assert.match(css, /\.main\.is-lage\.is-lage-chat \.lage-brand[\s\S]{0,280}display:\s*none/)
+assert.match(css, /\.lage\.is-compact \.lage-title[\s\S]{0,80}display:\s*none/)
 assert.match(
   css,
   /\.main\.is-lage\.is-lage-chat \.lage\.is-compact \.agent-map-canvas \{[\s\S]{0,80}min-height:\s*160px/,
@@ -28,16 +30,19 @@ assert.match(css, /\.app\.is-kb \.main\.is-lage\.is-lage-chat \.lage\.is-compact
 assert.doesNotMatch(css, /\.main\.is-lage\.is-lage-chat \{[\s\S]{0,220}minmax\(0,\s*0\.92fr\)/)
 
 assert.match(lage, /Waldbrände aus/)
+assert.match(lage, /className="lage-title"/)
 assert.match(lage, /isGlobeLayerPin\(next\.kind\)/)
 assert.doesNotMatch(lage, /pin-bubble-backdrop/)
 assert.doesNotMatch(lage, /<>[\s\S]{0,80}pin-bubble[\s\S]{0,400}<\/>/)
 
 assert.match(globe, /pickTappedPin/)
 assert.match(globe, /kickRef\.current\(\)[\s\S]{0,40}\[pins, issTrail\]/)
-assert.match(globe, /pin\.kind === 'fire' \|\| pin\.kind === 'quake'[\s\S]{0,40}5\.5/)
+assert.match(globe, /pin\.kind === 'fire' \|\| pin\.kind === 'quake'\s*\?\s*5\.5/)
+assert.match(globe, /pen\.arc\(q\.x, q\.y, 10/)
 assert.match(globe, /Math\.hypot\(p\.x - start\.x, p\.y - start\.y\) > 22/)
 
-assert.match(app, /id === 'lage'[\s\S]{0,500}globe_layer: ''/)
+assert.match(app, /id === 'lage'[\s\S]{0,800}globe_layer: ''/)
+assert.match(app, /cur === 'body' \|\| cur === 'globe'/)
 assert.match(hud, /intent\.kind === 'lage'[\s\S]{0,220}globe_layer: ''/)
 assert.match(hud, /intent\.kind === 'view'[\s\S]{0,180}globe_layer: ''/)
 assert.match(layers, /USGS · \$\{place\}/)

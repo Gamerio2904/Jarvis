@@ -267,7 +267,7 @@ export function Lage({
         <div className="lage-head-row">
           <span className="lage-brand">{face}</span>
           <span className="lage-sep">&gt;</span>
-          <span>Lage</span>
+          <span className="lage-title">Lage</span>
           <span className="lage-spacer" />
           <LageClock />
           {typeof bat === 'number' ? <span className="lage-bat">{bat} %</span> : null}

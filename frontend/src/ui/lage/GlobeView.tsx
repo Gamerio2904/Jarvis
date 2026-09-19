@@ -366,6 +366,13 @@ export function GlobeView({
           pen.arc(q.x, q.y, wave, 0, Math.PI * 2)
           pen.stroke()
         }
+        if (pin.kind === 'fire' || pin.kind === 'quake') {
+          pen.beginPath()
+          pen.strokeStyle = pin.kind === 'fire' ? 'rgba(224, 112, 80, 0.55)' : 'rgba(240, 160, 96, 0.5)'
+          pen.lineWidth = 1.6
+          pen.arc(q.x, q.y, 10, 0, Math.PI * 2)
+          pen.stroke()
+        }
         pen.beginPath()
         pen.fillStyle =
           pin.kind === 'iss'

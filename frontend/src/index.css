@@ -5250,7 +5250,7 @@ button.linkish {
     height: 100%;
   }
   .main.is-lage.is-lage-chat:has(.empty) {
-    grid-template-rows: minmax(280px, 1.85fr) minmax(0, 0.72fr) auto;
+    grid-template-rows: minmax(320px, 2.15fr) minmax(0, 0.55fr) auto;
   }
   .app.is-kb .main.is-lage.is-lage-chat,
   .app.is-kb .main.is-lage.is-lage-chat:has(.empty) {
@@ -5276,6 +5276,9 @@ button.linkish {
   .main.is-lage.is-lage-chat .lage-hint,
   .main.is-lage.is-lage-chat .lage-clock,
   .main.is-lage.is-lage-chat .lage-bat,
+  .main.is-lage.is-lage-chat .lage-brand,
+  .main.is-lage.is-lage-chat .lage-sep,
+  .main.is-lage.is-lage-chat .lage-title,
   .main.is-lage.is-lage-chat .agent-status-bar,
   .main.is-lage.is-lage-chat .wake-bubble {
     display: none;
@@ -5377,6 +5380,15 @@ button.linkish {
   .lage.is-compact {
     padding: 8px 10px 6px;
     gap: 6px;
+  }
+  .lage.is-compact .lage-hint,
+  .lage.is-compact .lage-clock,
+  .lage.is-compact .lage-bat,
+  .lage.is-compact .lage-brand,
+  .lage.is-compact .lage-sep,
+  .lage.is-compact .lage-title,
+  .lage.is-compact .agent-status-bar {
+    display: none;
   }
   .lage.is-compact .globe-wrap {
     aspect-ratio: auto;

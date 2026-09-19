@@ -107,6 +107,7 @@ try {
     const halo = document.querySelector('.empty-halo')
     const wake = document.querySelector('.wake-bubble')
     const status = document.querySelector('.agent-status-bar')
+    const brand = document.querySelector('.lage-brand')
     const lage = document.querySelector('.lage')
     const empty = document.querySelector('.empty')
     const cs = (el) => (el ? getComputedStyle(el) : null)
@@ -118,6 +119,7 @@ try {
       halo: halo ? cs(halo).display : 'missing',
       wake: wake ? cs(wake).display : 'missing',
       status: status ? cs(status).display : 'missing',
+      brand: brand ? cs(brand).display : 'missing',
       emptyPad: empty ? cs(empty).paddingTop : '',
     }
   })
@@ -125,7 +127,12 @@ try {
   rec(layout.halo === 'none' || layout.halo === 'missing', 'leerer Halo aus', layout.halo)
   rec(layout.wake === 'none' || layout.wake === 'missing', 'Wake-Bubble aus', layout.wake)
   rec(layout.status === 'none' || layout.status === 'missing', 'Statusleiste im Split aus', layout.status)
+  rec(layout.brand === 'none' || layout.brand === 'missing', 'Marke im Split aus', layout.brand)
   await page.screenshot({ path: `${SHOTS}/lage_body_chat.png` })
+
+  await page.click('.nav-dock button[aria-label="Lage"]')
+  await sleep(400)
+  rec(Boolean(await page.$('.agent-map-canvas')), 'Dock lässt Körper stehen')
 
   await page.evaluate(() => {
     const b = [...document.querySelectorAll('.lage-tab')].find((n) => n.textContent.trim() === 'Kugel')
