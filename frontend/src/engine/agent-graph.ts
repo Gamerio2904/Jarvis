@@ -1,6 +1,7 @@
 import { activeAgentId, agentsInDepartment, departmentLabel, visibleAgents } from './agent-map.ts'
 import type { DepartmentId } from './agents/types.ts'
 import { loadSettings } from './store.ts'
+import type { KnowledgePack } from './knowledge-types.ts'
 
 export type AgentTreeNode = {
   id: string
@@ -21,7 +22,12 @@ export type AgentGraph = {
   empty: boolean
 }
 
-export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain', busy = false): AgentGraph {
+export function buildAgentGraph(
+  selectedDept: DepartmentId | 'brain' = 'brain',
+  busy = false,
+  packs: KnowledgePack[] = [],
+  selectedAgent = '',
+): AgentGraph {
   const activeId = busy ? activeAgentId() : ''
   const catalog = visibleAgents()
   const nodes: AgentTreeNode[] = [
@@ -64,6 +70,19 @@ export function buildAgentGraph(selectedDept: DepartmentId | 'brain' = 'brain', 
         live: Boolean(busy && agent.id === activeId),
         prompt: agent.goldPrompts?.[0] || `Was kann ${agent.label}?`,
       })
+      if (agent.id === activeId || agent.id === selectedAgent) {
+        for (const p of packs.filter((x) => x.user_ok).slice(0, 3)) {
+          const claim = p.claims.find((c) => c.user_ok)?.text || p.summary
+          nodes.push({
+            id: `pack:${agent.id}:${p.topic}`,
+            kind: 'slice',
+            label: p.title || p.topic,
+            line: (claim || p.topic).slice(0, 120),
+            parent: `agent:${agent.id}`,
+            depth: 3,
+          })
+        }
+      }
       if (agent.promptSlice) {
         nodes.push({
           id: `slice:${agent.id}`,

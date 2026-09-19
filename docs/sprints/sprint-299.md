@@ -1,6 +1,6 @@
 # Sprint 299 — Wissenszentrum: Links und 1-Hop
 
-**Version:** `18.4.2` — **PLAN** Must
+**Version:** `18.4.2` — **CODE** Must
 **Plan:** [`75-next.md`](../75-next.md)
 **Voraussetzung:** Sprint **298**
 

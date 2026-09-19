@@ -2861,6 +2861,138 @@ button.linkish {
   pointer-events: none;
 }
 
+.watch-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  background: var(--bg);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 18px calc(28px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  isolation: isolate;
+}
+
+.watch-overlay.fx-in {
+  animation: sheetUp var(--motion-slow) var(--ease-out);
+}
+
+.watch-overlay.is-leaving {
+  animation: sheetDown 320ms var(--ease-out) forwards;
+  pointer-events: none;
+}
+
+.watch-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.watch-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.watch-head p,
+.watch-source,
+.watch-empty {
+  margin: 0;
+  opacity: 0.72;
+  font-size: 0.92rem;
+}
+
+.watch-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.watch-tab {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+
+.watch-tab.is-on {
+  background: rgba(30, 215, 96, 0.18);
+  border-color: rgba(30, 215, 96, 0.55);
+}
+
+.watch-track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 8px 2px 18px;
+  flex: 1;
+}
+
+.watch-card {
+  flex: 0 0 76%;
+  scroll-snap-align: center;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.watch-poster-wrap {
+  aspect-ratio: 2 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.watch-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+  animation: watchKen 8s ease-in-out infinite alternate;
+}
+
+.watch-poster.is-paused {
+  animation-play-state: paused;
+}
+
+.watch-poster-empty {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.2));
+}
+
+.watch-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.watch-scores {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+@keyframes watchKen {
+  from { transform: scale(1); }
+  to { transform: scale(1.03); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .watch-poster {
+    animation: none;
+  }
+  .watch-track {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+  }
+}
+
 .drive-view {
   position: absolute;
   inset: 0;
@@ -4022,7 +4154,8 @@ button.linkish {
 
   .app.has-nav-dock .settings-screen,
   .app.has-nav-dock .voice-mode,
-  .app.has-nav-dock .cal-view {
+  .app.has-nav-dock .cal-view,
+  .app.has-nav-dock .watch-overlay {
     padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
   }
 
@@ -4064,7 +4197,11 @@ button.linkish {
   .voice-mode.is-leaving,
   .voice-mode.is-leaving .voice-sheet,
   .cal-view.is-leaving,
+  .watch-overlay.is-leaving,
   .messages-inner.thread-slide,
+  .watch-overlay,
+  .watch-overlay.fx-in,
+  .watch-overlay.is-leaving,
   .lage,
   .lage-cell {
     animation: none;

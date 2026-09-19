@@ -191,6 +191,11 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
         text: 'Lern das als Fachwissen FritzBox-Doku: Das WLAN-Passwort steht unter dem Router, nicht im Chat.',
         expect: { tool: 'teach' },
       },
+      {
+        label: 'Lichtbogen',
+        text: 'Lern das als Fachwissen Lichtbogen: Palladium ist knapp.',
+        expect: { tool: 'teach' },
+      },
     ],
   },
   {
@@ -201,6 +206,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Kalender heute', text: 'Kalender heute', expect: { tool: 'calendar' } },
       { label: 'Nächsten Freitag', text: 'Was steht nächsten Freitag an?', expect: { tool: 'calendar' } },
       { label: 'Fachwissen', text: 'Fachwissen FritzBox', expect: { tool: 'pack' } },
+      { label: 'Idee festhalten', text: 'Idee: Körper und Chat gleichzeitig', expect: { tool: 'idea' } },
+      { label: 'Watchliste', text: 'Watchliste: Dune', expect: { tool: 'watchlist' } },
     ],
   },
   {

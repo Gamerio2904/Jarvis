@@ -49,6 +49,7 @@ import { decodeHtml } from './engine/html-text.ts'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds.ts'
 import { CalendarView } from './ui/Calendar.tsx'
+import { WatchlistOverlay } from './ui/WatchlistOverlay.tsx'
 import { TimerChip } from './ui/TimerChip.tsx'
 import { PcDashboard } from './ui/PcDashboard.tsx'
 import { VoiceMode } from './ui/VoiceMode.tsx'
@@ -283,6 +284,9 @@ function App() {
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [remindBusy, setRemindBusy] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
+  const [watchlistOpen, setWatchlistOpen] = useState(false)
+  const [watchlistFocus, setWatchlistFocus] = useState<'watch' | 'favorite'>('watch')
+  const overlayHistRef = useRef(false)
   const [voiceOpen, setVoiceOpen] = useState(false)
   const [driveOpen, setDriveOpen] = useState(false)
   const [chessOpen, setChessOpen] = useState(false)
@@ -355,6 +359,18 @@ function App() {
     patchOverlay({ type: 'drop', id })
   }
 
+  function dropOverlayHistory() {
+    if (!overlayHistRef.current) return
+    overlayHistRef.current = false
+    window.history.back()
+  }
+
+  function closeWatchlist() {
+    setWatchlistOpen(false)
+    closeSheet('watchlist')
+    dropOverlayHistory()
+  }
+
   /**
    * Jeder Weg aus dem Sprachmodus muss hier durch. Vorher setzten vier Pfade
    * nur `voiceOpen` zurück und ließen das Wake-Tor offen — `acceptWake` gab
@@ -376,6 +392,7 @@ function App() {
     if (seed) setVoiceSeed(seed)
     setSettingsPanelOpen(false)
     setCalendarOpen(false)
+    setWatchlistOpen(false)
     setVoiceOpen(true)
     openSheet('voice')
   }
@@ -408,8 +425,10 @@ function App() {
     if (s.hud_force && !s.hud_hidden) {
       setLageSession(true)
       setCalendarOpen(false)
+      setWatchlistOpen(false)
       setSettingsPanelOpen(false)
       closeSheet('calendar')
+      closeSheet('watchlist')
       closeSheet('settings')
       closeVoice()
     } else {
@@ -453,8 +472,9 @@ function App() {
       setDriveOpen(on)
       if (on) {
         setCalendarOpen(false)
+        setWatchlistOpen(false)
         setSidebarOpen(false)
-        patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'ensure', id: 'drive' })
+        patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'drop', id: 'watchlist' }, { type: 'ensure', id: 'drive' })
       } else {
         patchOverlay({ type: 'drop', id: 'drive' })
       }
@@ -473,13 +493,22 @@ function App() {
   }, [debugRunning])
 
   useEffect(() => {
-    const overlayOpen = settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen
+    const overlayOpen = settingsPanelOpen || calendarOpen || voiceOpen || driveOpen || chessOpen || watchlistOpen
     if (!overlayOpen) return
-    window.history.pushState({ jarvisOverlay: true }, '')
+    if (!overlayHistRef.current) {
+      window.history.pushState({ jarvisOverlay: true }, '')
+      overlayHistRef.current = true
+    }
     const onPop = () => {
+      overlayHistRef.current = false
       if (settingsPanelOpen) {
         setSettingsPanelOpen(false)
         closeSheet('settings')
+        return
+      }
+      if (watchlistOpen) {
+        setWatchlistOpen(false)
+        closeSheet('watchlist')
         return
       }
       if (calendarOpen) {
@@ -504,7 +533,7 @@ function App() {
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
-  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen])
+  }, [settingsPanelOpen, calendarOpen, voiceOpen, driveOpen, chessOpen, watchlistOpen])
 
   useEffect(() => {
     const el = appRef.current
@@ -1226,11 +1255,22 @@ function App() {
           if (payload.tool?.tool === 'calendar') {
             if (payload.tool.action === 'open') {
               setCalendarOpen(true)
+              setWatchlistOpen(false)
               setSettingsPanelOpen(false)
               setSidebarOpen(false)
               closeVoice()
               openSheet('calendar')
             }
+          }
+          if (payload.tool?.tool === 'watchlist' && payload.tool.action === 'open') {
+            const focus = String(payload.tool.result?.focus || '') === 'favorite' ? 'favorite' : 'watch'
+            setWatchlistFocus(focus)
+            setWatchlistOpen(true)
+            setCalendarOpen(false)
+            setSettingsPanelOpen(false)
+            setSidebarOpen(false)
+            closeVoice()
+            openSheet('watchlist')
           }
           applyAppTool(payload.tool)
           applyHudTool(payload.tool)
@@ -1245,9 +1285,10 @@ function App() {
             } else if (opensDriveOverlay(payload.tool)) {
               setDriveOpen(true)
               setCalendarOpen(false)
+              setWatchlistOpen(false)
               setSidebarOpen(false)
               setChessOpen(false)
-              patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'ensure', id: 'drive' })
+              patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'drop', id: 'watchlist' }, { type: 'ensure', id: 'drive' })
             }
           }
           maybeOpenSettingsFromReply(payload.assistant_message.content)
@@ -1494,6 +1535,7 @@ function App() {
   const geminiOn = Boolean(settings?.gemini_enabled && settings.gemini_api_key?.trim())
   const settingsLayer = useOverlay(settingsPanelOpen)
   const calendarLayer = useOverlay(calendarOpen)
+  const watchlistLayer = useOverlay(watchlistOpen)
   const voiceLayer = useOverlay(voiceOpen)
   const liveHud = settings || loadSettings()
   const lageOn = lageWide
@@ -1522,8 +1564,10 @@ function App() {
     if (id === 'chat') {
       setSettingsPanelOpen(false)
       setCalendarOpen(false)
+      setWatchlistOpen(false)
       closeSheet('settings')
       closeSheet('calendar')
+      closeSheet('watchlist')
       closeVoice()
       setLageSession(false)
       void patchSettings({ hud_force: false, hud_hidden: true }).then((s) => setSettings(s))
@@ -1532,8 +1576,10 @@ function App() {
     if (id === 'lage') {
       setSettingsPanelOpen(false)
       setCalendarOpen(false)
+      setWatchlistOpen(false)
       closeSheet('settings')
       closeSheet('calendar')
+      closeSheet('watchlist')
       closeVoice()
       setLageSession(true)
       void patchSettings({ hud_force: true, hud_hidden: false, hud_view: 'globe' }).then((s) => setSettings(s))
@@ -1545,6 +1591,7 @@ function App() {
     }
     if (id === 'calendar') {
       setCalendarOpen(true)
+      setWatchlistOpen(false)
       setSettingsPanelOpen(false)
       closeVoice()
       openSheet('calendar')
@@ -1718,6 +1765,18 @@ function App() {
               const id = voiceReqRef.current
               if (id) voiceCutsRef.current.set(id, spoken)
             }}
+            onMicDenied={() => {
+              void (async () => {
+                const id = await ensureConversation()
+                const { addMessage } = await import('./engine/store.ts')
+                const msg = await addMessage(
+                  id,
+                  'assistant',
+                  'Mikrofon abgelehnt — ohne Mikrofon kein Sprachmodus.',
+                )
+                if (id === activeIdRef.current) setMessages((prev) => [...prev, msg])
+              })()
+            }}
             initialUtterance={voiceSeed}
           />
         ) : null}
@@ -1727,7 +1786,16 @@ function App() {
             onClose={() => {
               setCalendarOpen(false)
               closeSheet('calendar')
+              dropOverlayHistory()
             }}
+          />
+        ) : null}
+        {watchlistLayer.shown ? (
+          <WatchlistOverlay
+            leaving={watchlistLayer.leaving}
+            focus={watchlistFocus}
+            onFocus={setWatchlistFocus}
+            onClose={closeWatchlist}
           />
         ) : null}
         {driveOpen ? (
@@ -1800,7 +1868,7 @@ function App() {
           </div>
         ) : null}
 
-        {lageOn && !voiceOpen && !calendarOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (
+        {lageOn && !voiceOpen && !calendarOpen && !watchlistOpen && !driveOpen && !chessOpen && !settingsLayer.shown ? (
           <Lage
             onSend={(text) => void sendMessage(text)}
             draft={draft}
@@ -1903,7 +1971,7 @@ function App() {
           </div>
         </div>
 
-        {!calendarOpen && !settingsLayer.shown && !voiceOpen ? (
+        {!calendarOpen && !watchlistOpen && !settingsLayer.shown && !voiceOpen ? (
         <div className="composer-wrap">
           <TimerChip />
           <PcDashboard busy={busy} />
@@ -2090,7 +2158,7 @@ function App() {
       ) : null}
 
       <DebugChatDock
-        overlayOpen={driveOpen || chessOpen || voiceOpen || calendarOpen || settingsPanelOpen}
+        overlayOpen={driveOpen || chessOpen || voiceOpen || calendarOpen || watchlistOpen || settingsPanelOpen}
         messages={messages}
         streaming={streamingText}
         activeConversationId={activeId}

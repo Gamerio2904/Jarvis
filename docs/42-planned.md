@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live:** App-Code **`18.1.2`**. Sideload **`18.1.2`**, versionCode `180102`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md).
+**Live-APK:** **`18.1.2`**, versionCode `180102`. App-Code **`18.4.3`** (Sprints 283–300). Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md). Kein Sideload `18.4`.
 
 Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -10,10 +10,10 @@ Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezi
 
 1. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
 2. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
-3. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290**. Unbekannter Ort ohne Netz, Mikrofon-Absage, Overlay/Gespräch. 290 Ziel `18.1.3`
-4. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287**. Festhalten, Überblick, **feste Sprint-Vorlage**, Jarvis füllt auf Zuruf und darf Custom-Sprints anlegen. Kein Architect-Organizer, kein RICE, kein Notion, Plan wird nicht ausgeführt
-5. **`18.3` Watchliste** [`74-next.md`](./74-next.md) — Sprints **291–296**. Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten, Gesehen intern, Tipp (Lieblinge schwer). Nach 18.2
-6. **`18.4` Körper/Wissen** [`75-next.md`](./75-next.md) — Sprints **297–300**. Katalog am Körper, Agent↔Pack, Pack-Links + 1-Hop. Nach 18.3
+3. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290 CODE** in `18.4.3`
+4. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287 CODE** in `18.4.3`
+5. **`18.3` Watchliste** [`74-next.md`](./74-next.md) — Sprints **291–296 CODE** in `18.4.3`
+6. **`18.4` Körper/Wissen** [`75-next.md`](./75-next.md) — Sprints **297–300 CODE** in `18.4.3`
 7. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
 8. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
 9. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
@@ -51,7 +51,7 @@ Kein EarthOS. `globe.gl` nur nach Framezeit.
 
 Begründung und Reel-Triage: [`70-next.md`](./70-next.md).
 
-## PLAN — Schiene `18.2` (Sprints 283–287)
+## CODE — Schiene `18.2` (Sprints 283–287)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -68,7 +68,7 @@ Begründung: [`72-next.md`](./72-next.md). Audit-Zahlen 272–282 bleiben
 [`71-audit.md`](./71-audit.md). Karten-Nachzug 288–290:
 [`73-next.md`](./73-next.md).
 
-## PLAN — Karten-Reste (Sprints 288–290)
+## CODE — Karten-Reste (Sprints 288–290)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -78,7 +78,7 @@ Begründung: [`72-next.md`](./72-next.md). Audit-Zahlen 272–282 bleiben
 
 Begründung: [`73-next.md`](./73-next.md).
 
-## PLAN — Schiene `18.3` (Sprints 291–296)
+## CODE — Schiene `18.3` (Sprints 291–296)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -96,7 +96,7 @@ Kein Sideload `18.3.x` solange die APK `18.1.2` ist.
 
 Begründung: [`74-next.md`](./74-next.md).
 
-## PLAN — Schiene `18.4` (Sprints 297–300)
+## CODE — Schiene `18.4` (Sprints 297–300)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|

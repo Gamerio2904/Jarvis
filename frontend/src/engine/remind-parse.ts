@@ -28,7 +28,7 @@ const WEEKDAYS: Record<string, number> = {
 const DAY_WORD = 'heute|morgen|übermorgen|montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonnabend|sonntag'
 const TIME =
   '(?:um\\s+)?(\\d{1,2})(?:[:.](\\d{2}))?(?:\\s*uhr)?'
-const REL_UNIT = 'minuten?|stunden?|tage(?:n)?|tag'
+const REL_UNIT = 'minuten?|stunden?|tage(?:n)?|tag|wochen?|woche'
 
 function stripTail(s: string): string {
   return s.replace(/^[,\s.:;-]+/, '').replace(/[.!?]+$/, '').trim()
@@ -135,6 +135,7 @@ function relMs(n: number, unit: string): number {
   const u = unit.toLowerCase()
   if (u.startsWith('min')) return n * 60_000
   if (u.startsWith('stund')) return n * 3_600_000
+  if (u.startsWith('woch')) return n * 7 * 86_400_000
   return n * 86_400_000
 }
 

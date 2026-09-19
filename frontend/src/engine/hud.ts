@@ -19,7 +19,8 @@ import {
   type HudIntent,
   type HudView,
 } from './hud-parse.ts'
-import { nearestPlace, noCityInViewLine, resolveLookTarget, unknownPlaceLine } from './globe-geo.ts'
+import { gazetteerHit, nearestPlace, noCityInViewLine, placeLookupFailedLine, resolveLookTarget } from './globe-geo.ts'
+import { geocodePlace } from './geo-lookup.ts'
 import { briefPlace, CITY_FLY_ZOOM, focusJson, fromPlaceFix } from './globe-brief.ts'
 import { fetchLayer, replyFor, type GlobeLayer } from './globe-layers.ts'
 import { clearTour } from './globe-tour.ts'
@@ -130,10 +131,22 @@ export async function handleHud(
 }
 
 async function flyAsked(asked: string, conversationId?: string) {
+  const q = (asked || '').trim()
+  if (q) {
+    const hit = gazetteerHit(q)
+    if (hit) return flyPlace(fromPlaceFix(hit))
+    const geo = await geocodePlace(q)
+    if (geo.ok) {
+      const name = geo.fix.place.split(',')[0]?.trim() || q
+      return flyPlace({ name, lat: geo.fix.lat, lon: geo.fix.lon, blurb: geo.fix.place })
+    }
+    openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    return pack(placeLookupFailedLine(q, geo.message))
+  }
   const place = await resolveShowPlace(asked, conversationId)
   if (!place) {
     openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false })
-    return pack(asked ? unknownPlaceLine(asked) : 'Welchen Ort soll die Kugel zeigen?')
+    return pack('Welchen Ort soll die Kugel zeigen?')
   }
   return flyPlace(place)
 }

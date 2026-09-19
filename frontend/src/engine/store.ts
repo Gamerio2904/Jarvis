@@ -4,8 +4,9 @@ import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
 import { migrateSettings, SETTINGS_REV } from './settings-migrate.ts'
 import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
+import type { IdeaPlan } from './idea-plan.ts'
 
-export const APP_VERSION = '18.1.2'
+export const APP_VERSION = '18.4.3'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -69,6 +70,48 @@ export type Todo = {
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
+}
+
+export type IdeaStatus = 'open' | 'parked' | 'done'
+
+export type Idea = {
+  id: string
+  title: string
+  body: string
+  status: IdeaStatus
+  plan: IdeaPlan | null
+  source_conversation_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type WatchListKind = 'watch' | 'favorite'
+
+export type WatchMovie = {
+  id: string
+  title: string
+  year?: string
+  imdbId?: string
+  lists: WatchListKind[]
+  genres?: string[]
+  poster?: string | null
+  critic?: string | null
+  audience?: string | null
+  scoresAt?: string | null
+  source_conversation_id?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export type WatchedMovie = {
+  id: string
+  title: string
+  year?: string
+  imdbId?: string
+  genres?: string[]
+  watched_at: string
+  from_watchlist: true
+  source_conversation_id?: string | null
 }
 
 export type CalendarEvent = {
@@ -548,25 +591,49 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   return next
 }
 
+function asTitleList(v: unknown): string[] {
+  return Array.isArray(v)
+    ? v.filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+    : []
+}
+
+function readListMap(raw: string, fallbackTool: string): Record<string, string[]> {
+  if (!raw) return {}
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    if (Array.isArray(parsed)) {
+      return fallbackTool ? { [fallbackTool]: asTitleList(parsed) } : {}
+    }
+    if (parsed && typeof parsed === 'object') {
+      const out: Record<string, string[]> = {}
+      for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
+        out[k] = asTitleList(v)
+      }
+      return out
+    }
+  } catch {
+    /* */
+  }
+  return {}
+}
+
 export function persistLastList(tool: string, titles: string[]): void {
+  const s = loadSettings()
+  const map = readListMap(s.last_list_json, s.last_step_tool)
+  map[tool] = titles.slice(0, 12)
+  const stepTool = tool.startsWith('watch-') ? 'watchlist' : tool
   saveSettings({
-    last_step_tool: tool,
-    last_step_title: titles[0] || loadSettings().last_step_title,
-    last_list_json: JSON.stringify(titles.slice(0, 12)),
+    last_step_tool: stepTool,
+    last_step_title: titles[0] || s.last_step_title,
+    last_list_json: JSON.stringify(map),
   })
 }
 
-export function readLastList(): string[] {
-  try {
-    const raw = loadSettings().last_list_json
-    if (!raw) return []
-    const arr = JSON.parse(raw) as unknown
-    return Array.isArray(arr)
-      ? arr.filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
-      : []
-  } catch {
-    return []
-  }
+export function readLastList(tool?: string): string[] {
+  const s = loadSettings()
+  const map = readListMap(s.last_list_json, s.last_step_tool)
+  const key = tool || s.last_step_tool
+  return (key && map[key]) || []
 }
 
 export type ResearchAudit = {
@@ -590,7 +657,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 8)
+    const req = indexedDB.open('jarvis-ondevice', 9)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -599,6 +666,9 @@ function openDb(): Promise<IDBDatabase> {
         'memory',
         'notes',
         'todos',
+        'ideas',
+        'watch_movies',
+        'watched_movies',
         'pending',
         'research_audits',
         'reminders',
@@ -880,6 +950,129 @@ export async function addNote(body: string, conversationId?: string): Promise<No
     updated_at: nowIso(),
   }
   await put('notes', row)
+  return row
+}
+
+export async function listIdeas(status?: IdeaStatus): Promise<Idea[]> {
+  const rows = await getAll<Idea>('ideas')
+  return rows
+    .filter((r) => !status || r.status === status)
+    .sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
+}
+
+export async function addIdea(title: string, body = '', conversationId?: string): Promise<Idea> {
+  const row: Idea = {
+    id: newId(),
+    title,
+    body,
+    status: 'open',
+    plan: null,
+    source_conversation_id: conversationId || null,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  await put('ideas', row)
+  return row
+}
+
+export async function putIdea(row: Idea): Promise<void> {
+  await put('ideas', { ...row, updated_at: nowIso() })
+}
+
+function movieKeyOf(m: { imdbId?: string; title: string; year?: string }): string {
+  const id = (m.imdbId || '').trim().toLowerCase()
+  if (id) return `id:${id}`
+  const title = (m.title || '').trim().toLowerCase()
+  const year = (m.year || '').trim()
+  return year ? `t:${title}|${year}` : `t:${title}`
+}
+
+export async function listWatchMovies(list?: WatchListKind): Promise<WatchMovie[]> {
+  const rows = await getAll<WatchMovie>('watch_movies')
+  return rows
+    .filter((r) => !list || (r.lists || []).includes(list))
+    .sort((a, b) => (a.updated_at < b.updated_at ? 1 : -1))
+}
+
+export async function addWatchMovie(
+  title: string,
+  list: WatchListKind,
+  extra: Partial<WatchMovie> = {},
+): Promise<WatchMovie> {
+  const rows = await getAll<WatchMovie>('watch_movies')
+  const probe = { title, year: extra.year, imdbId: extra.imdbId }
+  const existing = rows.find((r) => movieKeyOf(r) === movieKeyOf(probe) || r.title.toLowerCase() === title.trim().toLowerCase())
+  if (existing) {
+    const lists = Array.from(new Set([...(existing.lists || []), list])) as WatchListKind[]
+    const next: WatchMovie = {
+      ...existing,
+      ...extra,
+      id: existing.id,
+      title: extra.title || existing.title,
+      lists,
+      created_at: existing.created_at,
+      updated_at: nowIso(),
+    }
+    await put('watch_movies', next)
+    return next
+  }
+  const row: WatchMovie = {
+    id: newId(),
+    title: title.trim(),
+    lists: [list],
+    genres: extra.genres || [],
+    poster: extra.poster ?? null,
+    critic: extra.critic ?? null,
+    audience: extra.audience ?? null,
+    scoresAt: extra.scoresAt ?? null,
+    year: extra.year,
+    imdbId: extra.imdbId,
+    source_conversation_id: extra.source_conversation_id ?? null,
+    created_at: nowIso(),
+    updated_at: nowIso(),
+  }
+  await put('watch_movies', row)
+  return row
+}
+
+export async function removeWatchMovie(id: string, list: WatchListKind): Promise<void> {
+  const row = await get<WatchMovie>('watch_movies', id)
+  if (!row) return
+  const lists = (row.lists || []).filter((x) => x !== list)
+  if (!lists.length) {
+    await del('watch_movies', id)
+    return
+  }
+  await put('watch_movies', { ...row, lists, updated_at: nowIso() })
+}
+
+export async function listWatchedMovies(): Promise<WatchedMovie[]> {
+  const rows = await getAll<WatchedMovie>('watched_movies')
+  return rows.sort((a, b) => (a.watched_at < b.watched_at ? 1 : -1))
+}
+
+export async function addWatchedMovie(partial: {
+  title: string
+  year?: string
+  imdbId?: string
+  genres?: string[]
+  from_watchlist: true
+  source_conversation_id?: string
+}): Promise<WatchedMovie> {
+  const rows = await listWatchedMovies()
+  const existing = rows.find((r) => movieKeyOf(r) === movieKeyOf(partial))
+  if (existing) return existing
+  const row: WatchedMovie = {
+    id: newId(),
+    title: partial.title,
+    year: partial.year,
+    imdbId: partial.imdbId,
+    genres: partial.genres || [],
+    watched_at: nowIso(),
+    from_watchlist: true,
+    source_conversation_id: partial.source_conversation_id || null,
+  }
+  await put('watched_movies', row)
   return row
 }
 

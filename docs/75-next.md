@@ -1,4 +1,4 @@
-# 75 — Körper, Agenten, Wissenszentrum **PLAN** (`18.4`)
+# 75 — Körper, Agenten, Wissenszentrum **CODE** (`18.4`)
 
 Ausgangspunkt: Code `18.1.2`. Anlass: den Körper in der Lage ernst nehmen —
 Knoten (Agenten), Kanten zum Wissenszentrum, das Zentrum selbst.

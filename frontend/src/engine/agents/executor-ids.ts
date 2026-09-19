@@ -59,5 +59,7 @@ export const EXECUTOR_IDS = [
   "watch-price",
   "amazon",
   "recall",
-  "app"
+  "app",
+  "idea",
+  "watchlist",
 ] as const

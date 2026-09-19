@@ -80,6 +80,8 @@ export function normalizePack(partial: Partial<KnowledgePack> & { topic: string;
     taught_at: partial.taught_at || now,
     updated_at: now,
     user_ok: partial.user_ok !== false,
+    source_agent: partial.source_agent,
+    links: [...new Set(partial.links || [])].slice(0, 8),
   }
 }
 
@@ -158,16 +160,30 @@ async function readAll(): Promise<KnowledgePack[]> {
 }
 
 async function writeAll(rows: KnowledgePack[]): Promise<void> {
-  mem.clear()
-  for (const r of rows) mem.set(r.id, r)
-  if (!hasIdb()) return
   const kept = prunePackList(rows)
-  const gone = rows.filter((r) => !kept.some((k) => k.id === r.id))
-  for (const g of gone) {
+  mem.clear()
+  for (const r of kept) mem.set(r.id, r)
+  if (!hasIdb()) return
+  let existing: KnowledgePack[] = []
+  try {
+    existing = await getAll<KnowledgePack>('knowledge_packs')
+  } catch {
+    existing = []
+  }
+  const keepIds = new Set(kept.map((p) => p.id))
+  for (const g of existing) {
+    if (keepIds.has(g.id)) continue
     try {
       await del('knowledge_packs', g.id)
     } catch {
       /* */
+    }
+  }
+  for (const r of kept) {
+    try {
+      await put('knowledge_packs', r)
+    } catch {
+      /* Node / fehlendes Store */
     }
   }
 }
@@ -194,27 +210,52 @@ export async function getByTopic(topic: string): Promise<KnowledgePack | undefin
   )
 }
 
+function packTokens(p: KnowledgePack): Set<string> {
+  const blob = [p.topic, p.title, ...(p.aliases || []), ...(p.claims || []).map((c) => c.text)].join(' ')
+  return new Set(
+    blob
+      .toLowerCase()
+      .replace(/ä/g, 'ae')
+      .replace(/ö/g, 'oe')
+      .replace(/ü/g, 'ue')
+      .replace(/ß/g, 'ss')
+      .split(/[^a-z0-9]+/)
+      .filter((w) => w.length > 2),
+  )
+}
+
+function overlapCount(a: Set<string>, b: Set<string>): number {
+  let n = 0
+  for (const w of a) if (b.has(w)) n += 1
+  return n
+}
+
+function withLinks(rows: KnowledgePack[], fresh: KnowledgePack): KnowledgePack[] {
+  const tokens = packTokens(fresh)
+  const mine = new Set<string>()
+  const out = rows.map((p) => {
+    if (p.id === fresh.id) return p
+    const n = overlapCount(tokens, packTokens(p))
+    if (n < 2) return p
+    mine.add(p.topic)
+    const links = [...new Set([...(p.links || []), fresh.topic])].slice(0, 8)
+    return { ...p, links }
+  })
+  const linked = { ...fresh, links: [...new Set([...(fresh.links || []), ...mine])].slice(0, 8) }
+  return out.map((p) => (p.id === fresh.id ? linked : p))
+}
+
 export async function putKnowledgePack(pack: KnowledgePack): Promise<KnowledgePack> {
   const row = normalizePack(pack)
   mem.set(row.id, row)
-  if (hasIdb()) {
-    try {
-      await put('knowledge_packs', row)
-    } catch {
-      /* Node / fehlendes Store */
-    }
-  }
   const all = await readAll()
-  const next = prunePackList(all.some((p) => p.id === row.id) ? all.map((p) => (p.id === row.id ? row : p)) : [...all, row])
+  const merged = all.some((p) => p.id === row.id) ? all.map((p) => (p.id === row.id ? row : p)) : [...all, row]
+  const linked = withLinks(merged, row)
+  const next = prunePackList(linked)
+  const saved = next.find((p) => p.id === row.id) || row
+  mem.set(saved.id, saved)
   await writeAll(next)
-  if (hasIdb()) {
-    try {
-      await put('knowledge_packs', row)
-    } catch {
-      /* */
-    }
-  }
-  return row
+  return saved
 }
 
 export async function deleteKnowledgePack(id: string): Promise<void> {

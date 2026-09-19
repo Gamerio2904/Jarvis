@@ -18,7 +18,10 @@ function tokens(s: string): string[] {
 }
 
 function packBlob(p: KnowledgePack): string {
-  return [p.topic, p.title, ...p.aliases].join(' ').toLowerCase()
+  const claims = (p.claims || [])
+    .filter((c) => c && c.user_ok && c.text)
+    .map((c) => c.text)
+  return [p.topic, p.title, ...p.aliases, ...claims].join(' ').toLowerCase()
 }
 
 export function packScore(ask: string, pack: KnowledgePack): number {
@@ -41,13 +44,32 @@ export function retrievePacks(ask: string, packs: KnowledgePack[]): KnowledgePac
   if (/\btimer\b/i.test(ask)) return []
   const pref = /(?:was\s+(?:trinke?|esse)\s+ich|welche\s+reisen|mag\s+ich)\b/i.test(ask)
   if (pref) return []
-  const ranked = packs
+  const ok = packs.filter((p) => p.user_ok)
+  const ranked = ok
     .map((p) => ({ p, s: packScore(ask, p) }))
     .filter((x) => x.s >= 0.5)
     .sort((a, b) => b.s - a.s)
   if (!ranked.length) return []
   const top = ranked[0]
   const second = ranked[1]
-  if (second && second.s >= 2 && top.s >= 2) return [top.p, second.p]
-  return [top.p]
+  const primary = second && second.s >= 2 && top.s >= 2 ? [top.p, second.p] : [top.p]
+  const seen = new Set(primary.map((p) => p.topic || p.id))
+  const hopCands: Array<{ p: KnowledgePack; s: number }> = []
+  for (const p of primary) {
+    for (const id of p.links || []) {
+      const n = ok.find((x) => x.topic === id || x.id === id)
+      if (!n || seen.has(n.topic || n.id)) continue
+      hopCands.push({ p: n, s: packScore(ask, n) })
+    }
+  }
+  hopCands.sort((a, b) => b.s - a.s)
+  const hops: KnowledgePack[] = []
+  for (const row of hopCands) {
+    if (hops.length + primary.length >= 3) break
+    const key = row.p.topic || row.p.id
+    if (seen.has(key)) continue
+    seen.add(key)
+    hops.push(row.p)
+  }
+  return [...primary, ...hops].slice(0, 3)
 }

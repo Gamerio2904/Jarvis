@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { commandClause, parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
 import { dayOfYear, isNight, nightCover, subsolar, wrapLon } from '../src/engine/sun.ts'
-import { alongCoast, briefFitsPlace, pinLineFor } from '../src/engine/globe-geo.ts'
+import { alongCoast, briefFitsPlace, pinLineFor, placeLookupFailedLine } from '../src/engine/globe-geo.ts'
 import { ageLine } from '../src/engine/globe-layers.ts'
 import { screenPanToMap } from '../src/engine/drive-map.ts'
 import { parseHereIntent } from '../src/engine/here-parse.ts'
@@ -46,6 +46,9 @@ assert.equal(parseHereIntent('weißt du auch wo?')?.kind, 'locate')
   assert.ok(Math.abs(east.dx) < 1e-9)
   assert.ok(Math.abs(east.dy + 10) < 1e-9)
 }
+
+assert.match(placeLookupFailedLine('Xanadu', 'Ort „Xanadu“ nicht erreichbar.'), /Ohne Netz/)
+assert.match(placeLookupFailedLine('Xanadu', 'Ort „Xanadu“ nicht gefunden.'), /habe ich auf der Kugel nicht/)
 
 assert.equal(parseFlightsIntent('Was fliegt über uns'), true)
 assert.equal(parseFlightsIntent('was ist über uns'), true)

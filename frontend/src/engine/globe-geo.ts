@@ -191,6 +191,20 @@ export function unknownPlaceLine(asked?: string): string {
     : 'Den Ort habe ich auf der Kugel nicht.'
 }
 
+export function offlinePlaceLine(asked?: string): string {
+  const name = (asked || '').trim()
+  return name
+    ? `Ohne Netz finde ich „${name}“ nicht. Die Kugel bleibt auf.`
+    : 'Ohne Netz finde ich den Ort nicht. Die Kugel bleibt auf.'
+}
+
+export function placeLookupFailedLine(asked: string, message = ''): string {
+  const offline =
+    (typeof navigator !== 'undefined' && navigator.onLine === false) ||
+    /nicht erreichbar|offline|failed to fetch|network|netz/i.test(message)
+  return offline ? offlinePlaceLine(asked) : unknownPlaceLine(asked)
+}
+
 export function noCityInViewLine(): string {
   return 'Hier liegt keine Stadt aus meinem Lexikon — Meer oder Land ohne Eintrag.'
 }

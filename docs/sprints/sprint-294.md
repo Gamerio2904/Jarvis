@@ -1,6 +1,6 @@
 # Sprint 294 — Watchliste und Lieblinge härten
 
-**Version:** `18.3.3` — **PLAN** Must
+**Version:** `18.3.3` — **CODE** Must
 **Plan:** [`74-next.md`](../74-next.md)
 **Voraussetzung:** Sprints **291–293**
 

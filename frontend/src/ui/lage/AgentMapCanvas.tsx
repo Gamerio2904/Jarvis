@@ -5,7 +5,9 @@ import {
   BRAIN_CENTER,
   DEPARTMENT_NODES,
   departmentLive,
+  knowledgeSynapses,
   layoutAgentDots,
+  layoutWissenDots,
   sparkLoop,
   sparkPath,
   synapses,
@@ -32,6 +34,7 @@ export function AgentMapCanvas({
   selectedAgent = '',
   liveAgent = '',
   zoomable = false,
+  wissenTopics = [],
 }: {
   reduced: boolean
   onSelectDept: (id: string) => void
@@ -40,12 +43,14 @@ export function AgentMapCanvas({
   selectedAgent?: string
   liveAgent?: string
   zoomable?: boolean
+  wissenTopics?: string[]
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const selDeptRef = useRef(selectedDept)
   const selAgentRef = useRef(selectedAgent)
   const busyRef = useRef(busy)
   const liveRef = useRef(liveAgent)
+  const wissenRef = useRef(wissenTopics)
   const camRef = useRef({ zoom: 1, panX: 0, panY: 0 })
   const rotRef = useRef({ x: 0.18, y: -0.42 })
   const kickRef = useRef<() => void>(() => {})
@@ -56,6 +61,7 @@ export function AgentMapCanvas({
   selAgentRef.current = selectedAgent
   busyRef.current = busy
   liveRef.current = liveAgent
+  wissenRef.current = wissenTopics
   selectRef.current = onSelectDept
 
   /**
@@ -65,7 +71,7 @@ export function AgentMapCanvas({
    */
   useEffect(() => {
     kickRef.current()
-  }, [selectedDept, selectedAgent, busy, liveAgent])
+  }, [selectedDept, selectedAgent, busy, liveAgent, wissenTopics])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -196,6 +202,9 @@ export function AgentMapCanvas({
       points.set('brain', project(BRAIN_CENTER.x, BRAIN_CENTER.y))
       for (const d of DEPARTMENT_NODES) points.set(`dept:${d.id}`, project(d.x, d.y))
       for (const a of dots) points.set(a.id, project(a.x, a.y))
+      const liveId = liveRef.current || (busyRef.current ? activeAgentId() : '')
+      const near = dots.find((d) => d.id === liveId)
+      for (const w of layoutWissenDots(wissenRef.current, near)) points.set(w.id, project(w.x, w.y))
       return points
     }
 
@@ -332,6 +341,30 @@ export function AgentMapCanvas({
         g.moveTo(a.x, a.y)
         g.lineTo(b.x, b.y)
         g.stroke()
+      }
+
+      const wissenEdges = knowledgeSynapses(liveId, wissenRef.current)
+      for (const e of wissenEdges) {
+        const a = at.get(e.from)
+        const b = at.get(e.to)
+        if (!a || !b) continue
+        g.beginPath()
+        g.strokeStyle = reduced ? 'rgba(180, 210, 255, 0.45)' : 'rgba(160, 200, 255, 0.7)'
+        g.lineWidth = 1.4
+        g.moveTo(a.x, a.y)
+        g.lineTo(b.x, b.y)
+        g.stroke()
+        g.beginPath()
+        g.fillStyle = '#c8dcff'
+        g.arc(b.x, b.y, 4.2, 0, Math.PI * 2)
+        g.fill()
+        if (!reduced) {
+          const pulse = 0.35 + 0.2 * Math.sin(pulseT * 0.006)
+          g.beginPath()
+          g.fillStyle = `rgba(180, 210, 255, ${pulse})`
+          g.arc(b.x, b.y, 8, 0, Math.PI * 2)
+          g.fill()
+        }
       }
 
       drawBrain(brain, s.busy && Boolean(liveId), pulseT)

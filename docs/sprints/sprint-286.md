@@ -1,6 +1,6 @@
 # Sprint 286 — Plan auf Zuruf füllen, Custom erlaubt
 
-**Version:** `18.2.3` — **PLAN** Should
+**Version:** `18.2.3` — **CODE** Should
 **Plan:** [`72-next.md`](../72-next.md)
 **Voraussetzung:** Sprint **285** (Schema und `parsePlan`)
 

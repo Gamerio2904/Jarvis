@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** Code **`18.1.2`** (`frontend/src/engine/store.ts` → `APP_VERSION`). Sideload-APK **`18.1.2`**, versionCode `180102`. Sprachmodus liest die ganze Antwort in einem Stück. Test [`TEST-18.1.2.md`](./TEST-18.1.2.md).
+> **Jetzt:** App-Code **`18.4.3`**. Sideload-APK bleibt **`18.1.2`**, versionCode `180102`. Sprints 283–300 CODE. Kein Sideload `18.4`. Test [`TEST-18.1.2.md`](./TEST-18.1.2.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -589,8 +589,9 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | **`18.1.0`** | Audit-Reste: Fakten-Absage, Tanke/POI einmal, SMS-Funk, Skripte/tsc | 272–281 **CODE + APK** |
 | `18.1.1` | Sprachmodus liest die ganze Antwort, nicht nur den ersten Satz | Patch **CODE + APK** |
 | `18.1.2` | Eine TTS-Wiedergabe, MediaPlayer statt WebView-Audio | Patch **CODE + APK** |
+| `18.4.3` | Ideen 283–287, Karten 288–290, Watchliste 291–296, Körper 297–300 | Bundle **CODE**, Sideload bleibt `18.1.2` |
 
-### `18.2` — Ideen halten [`72-next.md`](./72-next.md) **PLAN**
+### `18.2` — Ideen halten [`72-next.md`](./72-next.md) **CODE** in `18.4.3`
 
 Ideen festhalten und wiederfinden. **Eine Sprint-Vorlage**, Jarvis füllt
 sie auf Zuruf und darf Custom-Sprints anlegen. Kein Project-Architect-
@@ -599,13 +600,13 @@ Sprints 272–281 sind **CODE** in `18.1.0`. 282 bleibt Freeze in [`71-audit.md`
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.2.0` | Idee festhalten | 283 PLAN |
-| `18.2.1` | Überblick | 284 PLAN |
-| `18.2.2` | Sprintplan-Vorlage im Code | 285 PLAN |
-| `18.2.3` | Plan auf Zuruf füllen, Custom erlaubt | 286 PLAN |
-| `18.2.4` | Ergänzen, Custom nach Satz, Erinnerung | 287 PLAN |
+| `18.2.0` | Idee festhalten | 283 CODE |
+| `18.2.1` | Überblick | 284 CODE |
+| `18.2.2` | Sprintplan-Vorlage im Code | 285 CODE |
+| `18.2.3` | Plan auf Zuruf füllen, Custom erlaubt | 286 CODE |
+| `18.2.4` | Ergänzen, Custom nach Satz, Erinnerung | 287 CODE |
 
-### `18.3` — Watchliste [`74-next.md`](./74-next.md) **PLAN**
+### `18.3` — Watchliste [`74-next.md`](./74-next.md) **CODE** in `18.4.3`
 
 Filme merken (Watchliste) und mögen (Lieblinge). Overlay mit Slides,
 Poster, Kritiker- und Publikumswert. Gesehen intern im Wissenszentrum.
@@ -614,14 +615,14 @@ Tipp aus Lieblingen (Gewicht 3) und Gesehenem (Gewicht 1). Zahlen nur
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.3.0` | Store + Parser, beide Listen, Hausstand | 291 PLAN |
-| `18.3.1` | Overlay für Watchliste und Lieblinge | 292 PLAN |
-| `18.3.2` | Poster, Kritiker + Publikum über OMDb | 293 PLAN |
-| `18.3.3` | Konflikte, reduced-motion, Probe | 294 PLAN |
-| `18.3.4` | Gesehen intern, Wissenszentrum | 295 PLAN |
-| `18.3.5` | Filmtipp, Lieblinge schwer | 296 PLAN |
+| `18.3.0` | Store + Parser, beide Listen, Hausstand | 291 CODE |
+| `18.3.1` | Overlay für Watchliste und Lieblinge | 292 CODE |
+| `18.3.2` | Poster, Kritiker + Publikum über OMDb | 293 CODE |
+| `18.3.3` | Konflikte, reduced-motion, Probe | 294 CODE |
+| `18.3.4` | Gesehen intern, Wissenszentrum | 295 CODE |
+| `18.3.5` | Filmtipp, Lieblinge schwer | 296 CODE |
 
-### `18.4` — Körper und Wissenszentrum [`75-next.md`](./75-next.md) **PLAN**
+### `18.4` — Körper und Wissenszentrum [`75-next.md`](./75-next.md) **CODE** in `18.4.3`
 
 Knoten aus dem Katalog, Kanten Agent↔Pack (GWT-Broadcast Allowlist),
 Pack-Links per Token-Overlap und 1-Hop Retrieve. Kein Qdrant, kein
@@ -629,10 +630,10 @@ LLM-Organizer, keine Graph-Lib. Kein Sideload `18.4.x` ohne APK.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.4.0` | Organ-Baum aus dem Katalog, Live aus der Trace | 297 PLAN |
-| `18.4.1` | Agent↔Pack, Claims im Blob, Allowlist-Broadcast | 298 PLAN |
-| `18.4.2` | Pack-Links, 1-Hop, Körper-Query aus Äußerung | 299 PLAN |
-| `18.4.3` | Zwei Sichten eine Wahrheit, Motion, Probe | 300 PLAN |
+| `18.4.0` | Organ-Baum aus dem Katalog, Live aus der Trace | 297 CODE |
+| `18.4.1` | Agent↔Pack, Claims im Blob, Allowlist-Broadcast | 298 CODE |
+| `18.4.2` | Pack-Links, 1-Hop, Körper-Query aus Äußerung | 299 CODE |
+| `18.4.3` | Zwei Sichten eine Wahrheit, Motion, Probe | 300 CODE |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

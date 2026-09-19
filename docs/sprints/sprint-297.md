@@ -1,6 +1,6 @@
 # Sprint 297 — Körper-Knoten aus dem Katalog
 
-**Version:** `18.4.0` — **PLAN** Must
+**Version:** `18.4.0` — **CODE** Must
 **Plan:** [`75-next.md`](../75-next.md)
 **Voraussetzung:** keine harte. 18.3 darf PLAN bleiben. Meta-`organs` existieren.
 

@@ -1,6 +1,6 @@
 # Sprint 283 — Idee festhalten
 
-**Version:** `18.2.0` — **PLAN** Must
+**Version:** `18.2.0` — **CODE** Must
 **Plan:** [`72-next.md`](../72-next.md)
 **Voraussetzung:** keine. Audit-Zahlen 272–282 bleiben [`71-audit.md`](../71-audit.md).
 

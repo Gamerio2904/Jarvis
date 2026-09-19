@@ -7,6 +7,7 @@ export type AgentMeta = {
   organs: BodyOrgan[]
   visibility: AgentVisibility
   autonomy: AgentAutonomy
+  knowledge?: boolean
 }
 
 /** Static cluster metadata — parse/execute live in catalog.ts */
@@ -19,7 +20,7 @@ export const AGENT_META: Record<string, AgentMeta> = {
   device: { label: 'Gerät', department: 'geraete', organs: ['hand'], visibility: 'domain', autonomy: 'parser' },
   amazon: { label: 'Amazon Music', department: 'geraete', organs: ['hand'], visibility: 'domain', autonomy: 'parser' },
   app: { label: 'App starten', department: 'geraete', organs: ['hand'], visibility: 'domain', autonomy: 'parser' },
-  film: { label: 'Film / Streaming', department: 'medien', organs: ['mouth', 'eye'], visibility: 'domain', autonomy: 'parser' },
+  film: { label: 'Film / Streaming', department: 'medien', organs: ['mouth', 'eye'], visibility: 'domain', autonomy: 'parser', knowledge: true },
   drive: { label: 'Fahrmodus', department: 'navigation', organs: ['hand', 'eye'], visibility: 'domain', autonomy: 'parser' },
   maps: { label: 'Karten', department: 'navigation', organs: ['hand'], visibility: 'domain', autonomy: 'parser' },
   here: { label: 'Standort', department: 'navigation', organs: ['eye'], visibility: 'domain', autonomy: 'parser' },
@@ -36,6 +37,8 @@ export const AGENT_META: Record<string, AgentMeta> = {
   timer: { label: 'Timer', department: 'alltag', organs: ['mouth', 'hand'], visibility: 'domain', autonomy: 'parser' },
   reminder: { label: 'Erinnerung', department: 'alltag', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
   todo: { label: 'Todos / Notizen', department: 'alltag', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
+  idea: { label: 'Idee', department: 'alltag', organs: ['brain', 'memory'], visibility: 'domain', autonomy: 'parser' },
+  watchlist: { label: 'Watchliste / Lieblinge', department: 'medien', organs: ['eye', 'mouth'], visibility: 'domain', autonomy: 'parser', knowledge: true },
   brief: { label: 'Tageslage', department: 'alltag', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
   birthday: { label: 'Geburtstag', department: 'alltag', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
   holiday: { label: 'Feiertag', department: 'alltag', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
@@ -63,8 +66,8 @@ export const AGENT_META: Record<string, AgentMeta> = {
   digest: { label: 'Gespräch', department: 'information', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },
   memory: { label: 'Gedächtnis', department: 'wissen', organs: ['memory', 'brain'], visibility: 'domain', autonomy: 'parser' },
   recall: { label: 'Recall', department: 'wissen', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
-  teach: { label: 'Fachwissen anlegen', department: 'wissen', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },
-  pack: { label: 'Fachwissen abfragen', department: 'wissen', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },
+  teach: { label: 'Fachwissen anlegen', department: 'wissen', organs: ['brain'], visibility: 'domain', autonomy: 'parser', knowledge: true },
+  pack: { label: 'Fachwissen abfragen', department: 'wissen', organs: ['brain'], visibility: 'domain', autonomy: 'parser', knowledge: true },
   pc: { label: 'PC steuern', department: 'werkstatt', organs: ['pc_hand', 'pc_eye'], visibility: 'domain', autonomy: 'parser' },
   eye: { label: 'Auge / Foto', department: 'werkstatt', organs: ['eye'], visibility: 'domain', autonomy: 'parser' },
   doc: { label: 'Datei', department: 'werkstatt', organs: ['eye', 'hand'], visibility: 'domain', autonomy: 'parser' },

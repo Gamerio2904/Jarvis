@@ -1,6 +1,6 @@
 # Sprint 285 — Sprintplan-Vorlage im Code
 
-**Version:** `18.2.2` — **PLAN** Must
+**Version:** `18.2.2` — **CODE** Must
 **Plan:** [`72-next.md`](../72-next.md)
 **Voraussetzung:** Sprints **283** und **284**
 

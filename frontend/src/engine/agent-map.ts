@@ -189,3 +189,22 @@ export function sparkLoop(path: string[]): string[] {
   if (path.length < 2) return path
   return path.concat(path.slice().reverse().slice(1))
 }
+
+export function knowledgeSynapses(agentId: string, topics: string[]): Synapse[] {
+  if (!agentId) return []
+  return topics.slice(0, 3).map((t) => ({ from: agentId, to: `wissen:${t}` }))
+}
+
+export function layoutWissenDots(topics: string[], near?: { x: number; y: number } | null): AgentDot[] {
+  const hub = DEPARTMENT_NODES.find((d) => d.id === 'wissen') || { x: -0.34, y: -0.88 }
+  const ox = near?.x ?? hub.x
+  const oy = near?.y ?? hub.y
+  return topics.slice(0, 3).map((t, i) => ({
+    id: `wissen:${t}`,
+    label: t,
+    task: `Wissen · ${t}`,
+    department: 'wissen',
+    x: ox + 0.2 + i * 0.07,
+    y: oy - 0.18 - i * 0.05,
+  }))
+}

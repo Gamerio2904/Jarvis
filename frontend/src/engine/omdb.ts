@@ -8,6 +8,9 @@ export type OmdbHit = {
   imdb?: string
   imdbId?: string
   tomatoes?: string
+  audience?: string
+  poster?: string
+  genre?: string
   plot?: string
 }
 
@@ -75,9 +78,20 @@ function fromOmdb(json: Record<string, unknown>): OmdbHit | null {
     imdb: imdb && imdb !== 'N/A' ? imdb : undefined,
     imdbId: String(json.imdbID || '').trim() || undefined,
     tomatoes: tomatoes && tomatoes !== 'N/A' ? tomatoes : undefined,
+    audience: tomatoOf(json.tomatoUserMeter),
+    poster: posterOf(json.Poster),
+    genre: String(json.Genre || '').trim() && String(json.Genre) !== 'N/A' ? String(json.Genre).trim() : undefined,
     plot: String(json.Plot || '').trim() && String(json.Plot) !== 'N/A' ? String(json.Plot).trim() : undefined,
   }
 }
+
+function posterOf(v: unknown): string | undefined {
+  const s = String(v || '').trim()
+  if (!s || s === 'N/A' || !/^https?:\/\//i.test(s)) return undefined
+  return s
+}
+
+export { fromOmdb }
 
 function tomatoOf(v: unknown): string | undefined {
   const s = String(v || '').trim()

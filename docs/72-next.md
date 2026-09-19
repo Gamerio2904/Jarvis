@@ -1,4 +1,4 @@
-# 72 — Ideen halten **PLAN** (`18.2`)
+# 72 — Ideen halten **CODE** (`18.2`)
 
 Ausgangspunkt: Code `18.0.8`. Anlass ist eine Gemini-Skizze *Project
 Architect / Idea Curator*: Jarvis soll Ideen sortieren und den Überblick

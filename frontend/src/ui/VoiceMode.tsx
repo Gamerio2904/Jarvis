@@ -21,6 +21,7 @@ export function VoiceMode({
   onClose,
   onTurn,
   onTruncate,
+  onMicDenied,
   initialUtterance = '',
   leaving = false,
 }: {
@@ -31,6 +32,7 @@ export function VoiceMode({
     opts?: { preempt?: boolean },
   ) => Promise<string>
   onTruncate?: (spoken: string) => void
+  onMicDenied?: () => void
   initialUtterance?: string
   leaving?: boolean
 }) {
@@ -144,6 +146,7 @@ export function VoiceMode({
     if (!ok) {
       setErr('Mikrofon erlauben — sonst kein Sprachmodus.')
       setPhase('idle')
+      onMicDenied?.()
       return
     }
     const seed = initialUtterance.trim()

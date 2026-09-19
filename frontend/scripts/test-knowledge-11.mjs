@@ -13,6 +13,8 @@ import { retrievePacks } from '../src/engine/knowledge-retrieve.ts'
 import { asBackup } from '../src/engine/backup.ts'
 import { TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { filterTopics } from '../src/engine/settings-ia.ts'
+import { AGENT_META } from '../src/engine/agents/meta.ts'
+import { knowledgeSynapses } from '../src/engine/agent-map.ts'
 import {
   CLAIM_CAP,
   claimsFromText,
@@ -192,6 +194,78 @@ resetKnowledgeMem()
   assert.ok(g.items.some((i) => / Palladium /i.test(` ${i.text} `) || /Palladium/.test(i.text)))
   assert.ok(g.items.some((i) => /Steuer 2026|FritzBox/.test(i.text)))
   assert.ok(!g.items.some((i) => /Tony|Jarvis, I need you to redesign/i.test(i.text)))
+}
+
+{
+  resetKnowledgeMem()
+  const generic = await putKnowledgePack(
+    normalizePack({
+      topic: 'allgemein',
+      title: 'Allgemein',
+      aliases: ['fach'],
+      claims: [{ id: 'c-pall', text: 'Palladium ist knapp im Lichtbogen.', source_urls: [], user_ok: true }],
+      sources: [],
+      origin: 'user',
+    }),
+  )
+  const hits = retrievePacks('Was steht zum Palladium?', [generic])
+  assert.ok(hits.some((p) => p.topic === 'allgemein'))
+}
+
+{
+  resetKnowledgeMem()
+  const a = await putKnowledgePack(
+    normalizePack({
+      topic: 'lichtbogen',
+      title: 'Lichtbogen',
+      aliases: ['palladium'],
+      claims: [{ id: 'c1', text: 'Palladium ist knapp.', source_urls: [], user_ok: true }],
+      sources: [],
+      origin: 'user',
+    }),
+  )
+  const b = await putKnowledgePack(
+    normalizePack({
+      topic: 'huelle',
+      title: 'Hülle',
+      aliases: ['palladium', 'mantel'],
+      claims: [{ id: 'c2', text: 'Palladium bleibt knapp in der Hülle.', source_urls: [], user_ok: true }],
+      sources: [],
+      origin: 'user',
+    }),
+  )
+  const c = await putKnowledgePack(
+    normalizePack({
+      topic: 'kaffee',
+      title: 'Kaffee',
+      aliases: ['espresso'],
+      claims: [{ id: 'c3', text: 'Espresso kommt aus der Maschine.', source_urls: [], user_ok: true }],
+      sources: [],
+      origin: 'user',
+    }),
+  )
+  const listed = await listKnowledgePacks()
+  const licht = listed.find((p) => p.topic === 'lichtbogen')
+  const huelle = listed.find((p) => p.topic === 'huelle')
+  assert.ok(licht?.links?.includes('huelle') || huelle?.links?.includes('lichtbogen'))
+  const hop = retrievePacks('Was steht bei uns zum Lichtbogen?', listed)
+  assert.ok(hop.some((p) => p.topic === 'lichtbogen'))
+  assert.ok(hop.some((p) => p.topic === 'huelle'))
+  assert.ok(!hop.some((p) => p.topic === 'kaffee'))
+  await putKnowledgePack({ ...c, user_ok: false })
+  const after = await listKnowledgePacks()
+  assert.ok(!retrievePacks('Espresso Maschine', after).some((p) => p.topic === 'kaffee'))
+  void a
+  void b
+}
+
+assert.equal(AGENT_META.fuel.knowledge, undefined)
+assert.equal(AGENT_META.tv.knowledge, undefined)
+assert.equal(AGENT_META.film.knowledge, true)
+assert.equal(AGENT_META.watchlist.knowledge, true)
+{
+  const edges = knowledgeSynapses('film', ['filme-gesehen'])
+  assert.ok(edges.some((e) => e.to === 'wissen:filme-gesehen'))
 }
 
 console.log('test-knowledge-11 ok')

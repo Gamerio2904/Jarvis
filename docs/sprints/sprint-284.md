@@ -1,6 +1,6 @@
 # Sprint 284 — Ideen-Überblick
 
-**Version:** `18.2.1` — **PLAN** Must
+**Version:** `18.2.1` — **CODE** Must
 **Plan:** [`72-next.md`](../72-next.md)
 **Voraussetzung:** Sprint **283**
 

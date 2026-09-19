@@ -1,6 +1,6 @@
 # Sprint 287 — Ergänzen, Custom nach Satz, Erinnerung
 
-**Version:** `18.2.4` — **PLAN** Should
+**Version:** `18.2.4` — **CODE** Should
 **Plan:** [`72-next.md`](../72-next.md)
 **Voraussetzung:** Sprint **285**. 286 ist keine harte Kette: ein leerer
 Plan darf per Satz ergänzt werden.

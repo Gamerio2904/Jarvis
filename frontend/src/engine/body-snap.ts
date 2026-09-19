@@ -4,8 +4,20 @@ import { groqReady } from './groq.ts'
 import { isModelReady } from './llm.ts'
 import { organLabel, type BodyOrgan } from './hud-parse.ts'
 import { sanitizePcHost } from './pc-host.ts'
+import { activeAgentId } from './agent-map.ts'
+import { metaFor } from './agents/meta.ts'
 
 export type BodySnap = Record<BodyOrgan, { live: boolean; line: string }>
+
+function liveOrgans(): Set<BodyOrgan> {
+  const id = activeAgentId()
+  if (!id) return new Set()
+  try {
+    return new Set(metaFor(id).organs)
+  } catch {
+    return new Set()
+  }
+}
 
 export async function fetchBodySnap(opts: { busy: boolean; conversationId: string | null }): Promise<BodySnap> {
   const s = loadSettings()
@@ -47,15 +59,16 @@ export async function fetchBodySnap(opts: { busy: boolean; conversationId: strin
   const memLine = `${mem.length} gemerkt` + (nextRem ? ` · nächste Erinnerung ${nextRem.title || ''}`.trim() : '.')
   const pcEye = pcOn ? 'PC verbunden. Screenshot auf Nachfrage.' : 'PC nicht verbunden.'
   const pcHand = pcOn ? 'PC-Hand bereit (Klick, FIFA, Ordner).' : 'PC nicht verbunden.'
+  const organs = liveOrgans()
   return {
-    brain: { live: opts.busy || local || gemini || groq, line: brainLine },
-    eye: { live: Boolean(s.last_eye_line), line: eyeLine },
-    hand: { live: Boolean(pending || write), line: handLine },
-    ear: { live: Boolean(s.wake_word), line: earLine },
+    brain: { live: opts.busy || organs.has('brain') || local || gemini || groq, line: brainLine },
+    eye: { live: organs.has('eye') || Boolean(s.last_eye_line), line: eyeLine },
+    hand: { live: organs.has('hand') || Boolean(pending || write), line: handLine },
+    ear: { live: organs.has('ear') || Boolean(s.wake_word), line: earLine },
     mouth: { live: true, line: mouthLine },
-    memory: { live: mem.length > 0, line: memLine },
-    pc_eye: { live: pcOn, line: pcEye },
-    pc_hand: { live: pcOn, line: pcHand },
+    memory: { live: organs.has('memory') || mem.length > 0, line: memLine },
+    pc_eye: { live: organs.has('pc_eye') || pcOn, line: pcEye },
+    pc_hand: { live: organs.has('pc_hand') || pcOn, line: pcHand },
   }
 }
 

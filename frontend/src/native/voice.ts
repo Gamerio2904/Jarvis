@@ -119,8 +119,14 @@ export async function requestMicPermission(): Promise<boolean> {
       return false
     }
   }
-  const w = window as Window & { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown }
-  return Boolean(w.SpeechRecognition || w.webkitSpeechRecognition)
+  if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) return false
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    stream.getTracks().forEach((t) => t.stop())
+    return true
+  } catch {
+    return false
+  }
 }
 
 export async function listenOnce(onPartial?: (text: string) => void): Promise<{ ok: boolean; text: string; message?: string }> {

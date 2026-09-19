@@ -91,6 +91,7 @@ export async function teachFromParts(opts: {
     taught_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     user_ok: true,
+    source_agent: 'teach',
   })
 }
 

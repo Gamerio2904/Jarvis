@@ -1,6 +1,6 @@
 # Sprint 298 — Kanten Agent ↔ Wissenszentrum
 
-**Version:** `18.4.1` — **PLAN** Must
+**Version:** `18.4.1` — **CODE** Must
 **Plan:** [`75-next.md`](../75-next.md)
 **Voraussetzung:** Sprint **297**
 

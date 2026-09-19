@@ -10,8 +10,10 @@ assert.equal(APP_VERSION, PKG_VERSION)
 assert.ok(SKILL_CATALOG.some((s) => s.id === 'calendar'))
 assert.ok(SKILL_CATALOG.some((s) => s.id === 'research'))
 assert.ok(SKILL_CATALOG.some((s) => s.id === 'teach'))
-assert.ok(skillsForOrgan('eye').some((s) => s.id === 'eye'))
+assert.ok(skillsForOrgan('eye').some((s) => s.organs.includes('eye')))
 assert.ok(skillsForOrgan('memory').some((s) => s.id === 'calendar'))
+assert.ok(skillsForOrgan('hand').some((s) => s.id === 'tv') || skillsForOrgan('mouth').some((s) => s.id === 'tv'))
+assert.ok(skillsForOrgan('brain').some((s) => !['calendar', 'research', 'teach', 'memory', 'recall', 'eye', 'desk', 'pc', 'doc'].includes(s.id)))
 
 const emptySnap = {
   brain: { live: false, line: 'Hirn' },
@@ -77,6 +79,7 @@ const emptySnap = {
   assert.ok(g.nodes.some((n) => n.kind === 'cluster'))
   assert.ok(g.nodes.some((n) => n.kind === 'knowledge' && /FritzBox/.test(n.label)))
   assert.ok(g.nodes.some((n) => n.kind === 'claim'))
+  assert.ok(skillsForOrgan('brain').length <= 5)
 }
 
 const frozen = new Date('2026-09-03T10:00:00+02:00')

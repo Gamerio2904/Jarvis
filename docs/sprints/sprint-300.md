@@ -1,6 +1,6 @@
 # Sprint 300 — Körper-Wissen härten
 
-**Version:** `18.4.3` — **PLAN** Must
+**Version:** `18.4.3` — **CODE** Must
 **Plan:** [`75-next.md`](../75-next.md)
 **Voraussetzung:** Sprints **297–299**
 

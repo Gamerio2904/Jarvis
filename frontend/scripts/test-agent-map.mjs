@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   agentTask,
+  knowledgeSynapses,
   layoutAgentDots,
   sparkLoop,
   sparkPath,
@@ -109,5 +110,11 @@ pushAgentTrace({
 })
 off()
 assert.ok(kicks >= 2, `Körper muss bei jedem Trace neu zeichnen, nicht erst beim Poll: ${kicks}`)
+
+{
+  const edges = knowledgeSynapses('watchlist', ['filme-gesehen', 'lichtbogen'])
+  assert.ok(edges.every((e) => e.from === 'watchlist' && e.to.startsWith('wissen:')))
+  assert.equal(edges.length, 2)
+}
 
 console.log('test:agent-map ok')

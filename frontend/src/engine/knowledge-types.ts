@@ -27,6 +27,8 @@ export type KnowledgePack = {
   taught_at: string
   updated_at: string
   user_ok: boolean
+  source_agent?: string
+  links?: string[]
 }
 
 export type KnowledgeHarvest = {

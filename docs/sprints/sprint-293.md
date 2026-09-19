@@ -1,6 +1,6 @@
 # Sprint 293 — Poster und Rotten-Tomatoes-Noten (OMDb)
 
-**Version:** `18.3.2` — **PLAN** Must
+**Version:** `18.3.2` — **CODE** Must
 **Plan:** [`74-next.md`](../74-next.md)
 **Voraussetzung:** Sprints **291** und **292**
 

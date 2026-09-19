@@ -26,6 +26,9 @@ import { parseAlarmIntent } from '../alarm-parse.ts'
 import { parseTimerIntent } from '../timer-parse.ts'
 import { parseReminderIntent } from '../remind-parse.ts'
 import { parseToolIntent } from '../tools-parse.ts'
+import { parseIdeaIntent } from '../idea-parse.ts'
+import { parseWatchlistIntent } from '../watchlist-parse.ts'
+import { parseTasteIntent } from '../film-taste-parse.ts'
 import { parseEyeIntent } from '../eye-parse.ts'
 import { parseDocIntent } from '../doc-parse.ts'
 import { parseWeatherFollowup, parseWeatherIntent } from '../weather-parse.ts'
@@ -92,6 +95,7 @@ function finish(raw: RawParse[]): AgentSpec[] {
       autonomy: m.autonomy,
       sideEffect: entry.sideEffect,
       factual: entry.factual,
+      knowledge: m.knowledge,
       parse: entry.parse,
       promptSlice: PROMPT_SLICES[entry.id]?.promptSlice,
       goldPrompts: PROMPT_SLICES[entry.id]?.goldPrompts,
@@ -114,6 +118,13 @@ function buildParseCatalog(): AgentSpec[] {
           : null,
     },
     { id: 'film', sideEffect: 'read', parse: (ctx) => (parseFilmIntent(ctx.text) ? score(ctx.text, 0.04) : null) },
+    {
+      id: 'watchlist',
+      label: 'Watchliste / Lieblinge',
+      sideEffect: 'write',
+      parse: (ctx) =>
+        parseWatchlistIntent(ctx.text) || parseTasteIntent(ctx.text) ? score(ctx.text, 0.1) : null,
+    },
     { id: 'fan', sideEffect: 'device', parse: (ctx) => (parseFanIntent(ctx.text, ctx.lastTool === 'fan') ? score(ctx.text, 0.05) : null) },
     {
       id: 'plug',
@@ -176,6 +187,7 @@ function buildParseCatalog(): AgentSpec[] {
     { id: 'timer', sideEffect: 'write', parse: (ctx) => (parseTimerIntent(ctx.text) ? score(ctx.text, 0.22) : null) },
     { id: 'reminder', sideEffect: 'write', parse: (ctx) => (parseReminderIntent(ctx.text) ? score(ctx.text) : null) },
     { id: 'todo', sideEffect: 'write', parse: (ctx) => (parseToolIntent(ctx.text) ? score(ctx.text) : null) },
+    { id: 'idea', label: 'Idee', sideEffect: 'write', parse: (ctx) => (parseIdeaIntent(ctx.text) ? score(ctx.text, 0.16) : null) },
     { id: 'desk', sideEffect: 'read', parse: (ctx) => (parseDeskIntent(ctx.text) ? score(ctx.text, 0.22) : null) },
     {
       id: 'eye',

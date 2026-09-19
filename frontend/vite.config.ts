@@ -7,7 +7,7 @@ import react from '@vitejs/plugin-react'
 import { shouldProxyWebHost, WEB_PROXY_PATH } from './src/engine/web-proxy.ts'
 
 const root = dirname(fileURLToPath(import.meta.url))
-const PROXY_UA = 'Jarvis/18.1.2 (local.jarvis.app)'
+const PROXY_UA = 'Jarvis/18.4.3 (local.jarvis.app)'
 
 function attachJarvisProxy(server: ViteDevServer | PreviewServer) {
   server.middlewares.use(async (req, res, next) => {

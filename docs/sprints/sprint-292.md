@@ -1,6 +1,6 @@
 # Sprint 292 — Overlay für Watchliste und Lieblinge
 
-**Version:** `18.3.1` — **PLAN** Must
+**Version:** `18.3.1` — **CODE** Must
 **Plan:** [`74-next.md`](../74-next.md)
 **Voraussetzung:** Sprint **291**
 

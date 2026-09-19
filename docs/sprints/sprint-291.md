@@ -1,6 +1,6 @@
 # Sprint 291 — Watchliste und Lieblinge festhalten
 
-**Version:** `18.3.0` — **PLAN** Must
+**Version:** `18.3.0` — **CODE** Must
 **Plan:** [`74-next.md`](../74-next.md)
 **Voraussetzung:** keine. Ideen 283–287 und Karten 288–290 bleiben liegen.
 

@@ -1,6 +1,8 @@
 import { lookupOmdb, omdbKeyHint, type OmdbHit } from './omdb.ts'
 import { parseFilmIntent } from './film-parse.ts'
 import { lookupWatch, type FreeWhere, type WatchHit } from './tv-watch.ts'
+import { knowledgeBlock } from './knowledge-block.ts'
+import { listKnowledgePacks } from './knowledge-store.ts'
 
 export { parseFilmIntent } from './film-parse.ts'
 export type { FilmIntent } from './film-parse.ts'
@@ -38,9 +40,17 @@ export async function handleFilm(_conversationId: string, text: string): Promise
     omdbNote: omdb.ok ? '' : omdb.message,
     keyMissing,
   })
+  let woven = reply
+  try {
+    const packs = await listKnowledgePacks()
+    const block = knowledgeBlock(packs, text)
+    if (block) woven = `${reply}\n\n${block}`
+  } catch {
+    /* */
+  }
   return {
     handled: true,
-    reply,
+    reply: woven,
     tool: {
       tool_status: 'executed',
       tool: 'film',
@@ -82,11 +92,16 @@ export function formatFilmReply(opts: {
 }
 
 function scoreLine(omdb: OmdbHit | null, keyMissing?: boolean, note?: string): string {
-  if (omdb?.imdb || omdb?.tomatoes) {
+  if (omdb?.imdb || omdb?.tomatoes || omdb?.audience) {
     const bits: string[] = []
     if (omdb.imdb) bits.push(`IMDb ${omdb.imdb.replace('.', ',')}`)
-    if (omdb.tomatoes) bits.push(`Rotten Tomatoes ${omdb.tomatoes} (über OMDb)`)
-    else bits.push('Rotten Tomatoes nicht in der Quelle.')
+    if (omdb.tomatoes && omdb.audience) {
+      bits.push(`Kritiker ${omdb.tomatoes} Publikum ${omdb.audience} (Rotten Tomatoes über OMDb)`)
+    } else if (omdb.tomatoes) {
+      bits.push(`Rotten Tomatoes ${omdb.tomatoes} (über OMDb)`)
+    } else {
+      bits.push('Rotten Tomatoes nicht in der Quelle.')
+    }
     return `${bits.join('. ')}.`
   }
   if (keyMissing) return omdbKeyHint()

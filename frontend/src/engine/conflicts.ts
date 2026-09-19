@@ -80,7 +80,39 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   // „Spiel … Film“ ist der Fernseher, nicht Spotify.
   if (/^\s*spiel(?:e)?\b/.test(t) && /\bfilm\b/.test(t)) {
     out = drop(out, 'drive')
+    out = drop(out, 'watchlist')
+    out = drop(out, 'idea')
     out = boost(out, 'tv', 0.12)
+  }
+
+  if (/\b(wo\s+läuft|wo\s+laeuft|imdb|rotten\s*tomato|wie\s+gut\s+ist)\b/.test(t)) {
+    out = drop(out, 'watchlist')
+    out = drop(out, 'tv')
+    out = boost(out, 'film', 0.15)
+  }
+
+  if (/\b(watchliste|lieblingsfilm|lieblingsfilme|lieblingsliste|lieblinge|zum\s+schauen|filmtipp|nenn\s+mir)\b/.test(t)) {
+    out = drop(out, 'todo')
+    out = drop(out, 'idea')
+    out = drop(out, 'film')
+    out = boost(out, 'watchlist', 0.18)
+  }
+
+  if (/^\s*idee[:\s]/.test(t) || /\bneue\s+idee\b/.test(t) || /\bzeig(?:e)?(?:\s+mir)?(?:\s+meine)?\s+ideen\b/.test(t)) {
+    out = drop(out, 'todo')
+    out = drop(out, 'watchlist')
+    out = drop(out, 'memory')
+    out = boost(out, 'idea', 0.2)
+  }
+
+  if (/\bzeig(?:e)?\s+notizen\b/.test(t)) {
+    out = drop(out, 'idea')
+    out = drop(out, 'watchlist')
+  }
+
+  if (/\b(was\s+steht\s+an)\b/.test(t)) {
+    out = drop(out, 'idea')
+    out = drop(out, 'watchlist')
   }
 
   if (/^\s*kein(?:en?|e)?\s+.+\s+mehr\s*[.!]?\s*$/i.test(text)) {

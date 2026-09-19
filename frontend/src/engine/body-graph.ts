@@ -4,6 +4,9 @@ import type { BodyOrgan } from './hud-parse.ts'
 import type { BodySnap } from './body-snap.ts'
 import type { KnowledgePack } from './knowledge-types.ts'
 import { retrievePacks } from './knowledge-retrieve.ts'
+import { parseCatalog } from './agents/parse-catalog.ts'
+import { metaFor } from './agents/meta.ts'
+import { organLabel } from './hud-parse.ts'
 
 export const BODY_TREE_SKILL_CAP = 5
 export const BODY_TREE_KNOWLEDGE_CAP = 6
@@ -81,11 +84,15 @@ function overlap(a: string, b: string): number {
 }
 
 export function organQuery(input: BodyGraphInput): string {
+  const bits = [input.lastUtterance, input.lastStepTool, organLabel(input.organ)]
+    .map((s) => (s || '').trim())
+    .filter(Boolean)
+  if (bits.length) return bits.join(' ')
   const o = input.organ
   if (o === 'eye') return (input.lastEyeLine || '').trim() || 'auge foto'
-  if (o === 'memory') return (input.lastUtterance || '').trim() || 'gemerkt pin'
-  if (o === 'hand') return (input.lastStepTool || '').trim() || 'hand aktion'
-  if (o === 'brain') return (input.lastUtterance || '').trim() || 'hirn'
+  if (o === 'memory') return 'gemerkt pin'
+  if (o === 'hand') return 'hand aktion'
+  if (o === 'brain') return 'hirn'
   if (o === 'ear') return 'wake ohr'
   if (o === 'mouth') return 'stimme mund'
   if (o === 'pc_eye') return 'pc screenshot'
@@ -94,9 +101,29 @@ export function organQuery(input: BodyGraphInput): string {
 }
 
 export function skillsForOrgan(organ: BodyOrgan, lastStepTool = ''): SkillSpec[] {
-  const hits = SKILL_CATALOG.filter((s) => s.organs.includes(organ))
-  const extra = SKILL_CATALOG.find((s) => s.id === lastStepTool)
-  const out = extra && !hits.some((s) => s.id === extra.id) ? [extra, ...hits] : hits
+  let catalog: SkillSpec[] = []
+  try {
+    catalog = parseCatalog().map((a) => {
+      const m = metaFor(a.id)
+      return {
+        id: a.id,
+        label: a.label,
+        organs: m.organs,
+        prompt: (a.goldPrompts || [])[0] || a.promptSlice || a.label,
+      }
+    })
+  } catch {
+    catalog = SKILL_CATALOG
+  }
+  if (!catalog.length) catalog = SKILL_CATALOG
+  const hits = catalog.filter((s) => s.organs.includes(organ))
+  const preferred = SKILL_CATALOG.filter((s) => s.organs.includes(organ))
+    .map((s) => hits.find((h) => h.id === s.id))
+    .filter((s): s is SkillSpec => Boolean(s))
+  const rest = hits.filter((s) => !preferred.some((p) => p.id === s.id))
+  let out = [...preferred, ...rest]
+  const extra = catalog.find((s) => s.id === lastStepTool)
+  if (extra) out = [extra, ...out.filter((s) => s.id !== extra.id)]
   return out.slice(0, BODY_TREE_SKILL_CAP)
 }
 
@@ -104,6 +131,55 @@ export function clusterKey(pack: KnowledgePack): string {
   const raw = (pack.topic || pack.title || 'wissen').toLowerCase()
   const head = raw.split(/[-_\s]/).filter(Boolean)[0] || 'wissen'
   return head
+}
+
+function packBlobText(p: KnowledgePack): string {
+  return [p.topic, p.title, ...(p.aliases || []), ...(p.claims || []).map((c) => c.text)].join(' ')
+}
+
+function packMatchesSkill(skill: SkillSpec, pack: KnowledgePack): boolean {
+  if (!pack.user_ok) return false
+  if (pack.source_agent && pack.source_agent === skill.id) return true
+  return overlap(`${skill.id} ${skill.label}`, packBlobText(pack)) > 0
+}
+
+function pushPackNodes(
+  nodes: BodyTreeNode[],
+  skill: SkillSpec,
+  parentId: string,
+  packs: KnowledgePack[],
+  claimN: { n: number },
+): void {
+  for (const p of packs) {
+    if (nodes.filter((n) => n.kind === 'knowledge').length >= BODY_TREE_KNOWLEDGE_CAP) break
+    const pid = `pack:${p.id}:${skill.id}`
+    if (nodes.some((n) => n.id === pid)) continue
+    nodes.push({
+      id: pid,
+      kind: 'knowledge',
+      label: p.title || p.topic,
+      line: (p.claims.find((c) => c.user_ok)?.text || p.summary).slice(0, 160) || p.topic,
+      live: Boolean(p.user_ok),
+      parent: parentId,
+      depth: parentId.startsWith('cluster:') ? 3 : 2,
+      skill: skill.id,
+      prompt: `Fachwissen ${p.topic}`,
+    })
+    for (const c of p.claims.filter((x) => x.user_ok).slice(0, 2)) {
+      if (claimN.n >= BODY_TREE_CLAIM_CAP) break
+      claimN.n += 1
+      nodes.push({
+        id: `claim:${c.id}:${skill.id}`,
+        kind: 'claim',
+        label: 'Claim',
+        line: c.text.slice(0, 180),
+        live: true,
+        parent: pid,
+        depth: 3,
+        skill: skill.id,
+      })
+    }
+  }
 }
 
 export function buildBodyGraph(input: BodyGraphInput): BodyGraph {
@@ -183,8 +259,8 @@ export function buildBodyGraph(input: BodyGraphInput): BodyGraph {
       }
     }
 
-    if (skill.id === 'research' || skill.id === 'teach') {
-      let claimN = 0
+    if (skill.id === 'research' || skill.id === 'teach' || skill.id === 'pack') {
+      let claimN = { n: 0 }
       for (const [ck, group] of clusters) {
         if (nodes.filter((n) => n.kind === 'knowledge').length >= BODY_TREE_KNOWLEDGE_CAP) break
         const cid = `cluster:${skill.id}:${ck}`
@@ -198,35 +274,11 @@ export function buildBodyGraph(input: BodyGraphInput): BodyGraph {
           depth: 2,
           skill: skill.id,
         })
-        for (const p of group.slice(0, 2)) {
-          const pid = `pack:${p.id}`
-          nodes.push({
-            id: pid,
-            kind: 'knowledge',
-            label: p.title || p.topic,
-            line: p.summary.slice(0, 160) || p.topic,
-            live: Boolean(p.user_ok),
-            parent: cid,
-            depth: 3,
-            skill: skill.id,
-            prompt: `Fachwissen ${p.topic}`,
-          })
-          for (const c of p.claims.filter((x) => x.user_ok).slice(0, 2)) {
-            if (claimN >= BODY_TREE_CLAIM_CAP) break
-            claimN += 1
-            nodes.push({
-              id: `claim:${c.id}`,
-              kind: 'claim',
-              label: 'Claim',
-              line: c.text.slice(0, 180),
-              live: true,
-              parent: pid,
-              depth: 3,
-              skill: skill.id,
-            })
-          }
-        }
+        pushPackNodes(nodes, skill, cid, group.slice(0, 2), claimN)
       }
+    } else {
+      const mine = packs.filter((p) => packMatchesSkill(skill, p)).slice(0, 3)
+      if (mine.length) pushPackNodes(nodes, skill, sid, mine, { n: 0 })
     }
   }
 

@@ -279,28 +279,28 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 280 | [`sprint-280.md`](./sprint-280.md) | `18.1.0` | exhaustive-deps einzeln | **CODE** Should |
 | 281 | [`sprint-281.md`](./sprint-281.md) | `18.1.0` | Leichen-Test | **CODE** Could |
 | 282 | [`../71-audit.md`](../71-audit.md) | — | Freeze versionCode-Schema | **PLAN** Freeze |
-| 283 | [`sprint-283.md`](./sprint-283.md) | `18.2.0` | Idee festhalten | **PLAN** Must |
-| 284 | [`sprint-284.md`](./sprint-284.md) | `18.2.1` | Ideen-Überblick | **PLAN** Must |
-| 285 | [`sprint-285.md`](./sprint-285.md) | `18.2.2` | Sprintplan-Vorlage im Code | **PLAN** Must |
-| 286 | [`sprint-286.md`](./sprint-286.md) | `18.2.3` | Plan auf Zuruf füllen, Custom erlaubt | **PLAN** Should |
-| 287 | [`sprint-287.md`](./sprint-287.md) | `18.2.4` | Ergänzen, Custom nach Satz, Erinnerung | **PLAN** Should |
-| 288–290 | [`../73-next.md`](../73-next.md) | `18.0.9`–`18.1.3` | Karten-Reste (Ort ohne Netz, Mikrofon, Overlay) | **PLAN** — Zahlen in 73, keine Einzeldateien |
-| 291 | [`sprint-291.md`](./sprint-291.md) | `18.3.0` | Watchliste + Lieblinge festhalten | **PLAN** Must |
-| 292 | [`sprint-292.md`](./sprint-292.md) | `18.3.1` | Overlay für Watchliste und Lieblinge | **PLAN** Must |
-| 293 | [`sprint-293.md`](./sprint-293.md) | `18.3.2` | Poster, Kritiker + Publikum über OMDb | **PLAN** Must |
-| 294 | [`sprint-294.md`](./sprint-294.md) | `18.3.3` | Watchliste und Lieblinge härten | **PLAN** Must |
-| 295 | [`sprint-295.md`](./sprint-295.md) | `18.3.4` | Gesehen intern, Wissenszentrum | **PLAN** Must |
-| 296 | [`sprint-296.md`](./sprint-296.md) | `18.3.5` | Filmtipp aus Lieblingen | **PLAN** Must |
-| 297 | [`sprint-297.md`](./sprint-297.md) | `18.4.0` | Körper-Knoten aus dem Katalog | **PLAN** Must |
-| 298 | [`sprint-298.md`](./sprint-298.md) | `18.4.1` | Kanten Agent ↔ Wissenszentrum | **PLAN** Must |
-| 299 | [`sprint-299.md`](./sprint-299.md) | `18.4.2` | Pack-Links und 1-Hop | **PLAN** Must |
-| 300 | [`sprint-300.md`](./sprint-300.md) | `18.4.3` | Körper-Wissen härten | **PLAN** Must |
+| 283 | [`sprint-283.md`](./sprint-283.md) | `18.2.0` | Idee festhalten | **CODE** Must |
+| 284 | [`sprint-284.md`](./sprint-284.md) | `18.2.1` | Ideen-Überblick | **CODE** Must |
+| 285 | [`sprint-285.md`](./sprint-285.md) | `18.2.2` | Sprintplan-Vorlage im Code | **CODE** Must |
+| 286 | [`sprint-286.md`](./sprint-286.md) | `18.2.3` | Plan auf Zuruf füllen, Custom erlaubt | **CODE** Should |
+| 287 | [`sprint-287.md`](./sprint-287.md) | `18.2.4` | Ergänzen, Custom nach Satz, Erinnerung | **CODE** Should |
+| 288–290 | [`../73-next.md`](../73-next.md) | `18.0.9`–`18.1.3` | Karten-Reste (Ort ohne Netz, Mikrofon, Overlay) | **CODE** in `18.4.3` |
+| 291 | [`sprint-291.md`](./sprint-291.md) | `18.3.0` | Watchliste + Lieblinge festhalten | **CODE** Must |
+| 292 | [`sprint-292.md`](./sprint-292.md) | `18.3.1` | Overlay für Watchliste und Lieblinge | **CODE** Must |
+| 293 | [`sprint-293.md`](./sprint-293.md) | `18.3.2` | Poster, Kritiker + Publikum über OMDb | **CODE** Must |
+| 294 | [`sprint-294.md`](./sprint-294.md) | `18.3.3` | Watchliste und Lieblinge härten | **CODE** Must |
+| 295 | [`sprint-295.md`](./sprint-295.md) | `18.3.4` | Gesehen intern, Wissenszentrum | **CODE** Must |
+| 296 | [`sprint-296.md`](./sprint-296.md) | `18.3.5` | Filmtipp aus Lieblingen | **CODE** Must |
+| 297 | [`sprint-297.md`](./sprint-297.md) | `18.4.0` | Körper-Knoten aus dem Katalog | **CODE** Must |
+| 298 | [`sprint-298.md`](./sprint-298.md) | `18.4.1` | Kanten Agent ↔ Wissenszentrum | **CODE** Must |
+| 299 | [`sprint-299.md`](./sprint-299.md) | `18.4.2` | Pack-Links und 1-Hop | **CODE** Must |
+| 300 | [`sprint-300.md`](./sprint-300.md) | `18.4.3` | Körper-Wissen härten | **CODE** Must |
 
-**Aktuell:** Code **`18.1.2`**. Sideload-APK `18.1.2`, versionCode `180102`. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`. Schach-Overlay **CODE** in `18.0.4`. Schach-Gegner und Kugel-Pin **CODE** in `18.0.5`. Figurenfarbe und Körper-Zoom **CODE** in `18.0.6`. Körper mit Chat **CODE** in `18.0.7`. Karte öffnet / Pin-Text / CarPlay heading-up **CODE** in `18.0.8`. Audit-Reste 272–281 **CODE** in `18.1.0`. Sprachmodus ganze Antwort **CODE** in `18.1.2`. 270 nicht gezogen. 282 Freeze. Ideen halten 283–287 **PLAN** in [`../72-next.md`](../72-next.md). Karten-Reste 288–290 **PLAN** in [`../73-next.md`](../73-next.md). Watchliste 291–296 **PLAN** in [`../74-next.md`](../74-next.md). Algorithmus `film-taste.ts` **CODE** (Tests), verdrahten 295/296. Körper/Wissen 297–300 **PLAN** in [`../75-next.md`](../75-next.md).
+**Aktuell:** App-Code **`18.4.3`**. Sideload-APK bleibt `18.1.2`, versionCode `180102`. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`. Schach-Overlay **CODE** in `18.0.4`. Schach-Gegner und Kugel-Pin **CODE** in `18.0.5`. Figurenfarbe und Körper-Zoom **CODE** in `18.0.6`. Körper mit Chat **CODE** in `18.0.7`. Karte öffnet / Pin-Text / CarPlay heading-up **CODE** in `18.0.8`. Audit-Reste 272–281 **CODE** in `18.1.0`. Sprachmodus ganze Antwort **CODE** in `18.1.2`. 270 nicht gezogen. 282 Freeze. Ideen halten 283–287, Karten-Reste 288–290, Watchliste 291–296, Körper/Wissen 297–300 **CODE** in `18.4.3`. Kein Sideload `18.4`.
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
-**Schiene `17.0.0` liegt.** 249–259 → [`../68-next.md`](../68-next.md). Schiene `18.0.0` → [`../70-next.md`](../70-next.md). Audit-Reste → [`../71-audit.md`](../71-audit.md). Karten-Reste → [`../73-next.md`](../73-next.md). **Nächste Produktschiene:** 283–287 → [`../72-next.md`](../72-next.md), Ziel `18.2` („Ideen halten"). Danach Watchliste 291–296 → [`../74-next.md`](../74-next.md), Ziel `18.3`. Danach Körper/Wissen 297–300 → [`../75-next.md`](../75-next.md), Ziel `18.4`. Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
+**Schiene `17.0.0` liegt.** 249–259 → [`../68-next.md`](../68-next.md). Schiene `18.0.0` → [`../70-next.md`](../70-next.md). Audit-Reste → [`../71-audit.md`](../71-audit.md). **283–300 CODE** in `18.4.3` (Ideen, Karten-Reste, Watchliste, Körper/Wissen). Sideload bleibt `18.1.2`. Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
 
 **Gegen die PO-Prioritäten geprüft** (Qualität, funktioniert, Latenz, kostenlos — nur ändern, wenn Nutzen ohne Verlust): 255 aufgelöst, 256 und 259 verkleinert, 257 und 258 mit Latenz-Schranke. Die Rechnung je Sprint steht in [`../68-next.md`](../68-next.md) §3b.
 

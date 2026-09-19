@@ -1,6 +1,6 @@
 /** Eine Fläche oben. Back und Fertig schließen immer die oberste. Sheets liegen über Drive. */
 
-export type OverlayId = 'settings' | 'voice' | 'drive' | 'calendar' | 'debug'
+export type OverlayId = 'settings' | 'voice' | 'drive' | 'calendar' | 'debug' | 'watchlist'
 export type OverlayPhase = 'closed' | 'opening' | 'open' | 'closing'
 
 export type OverlayState = {
@@ -94,5 +94,5 @@ export function overlayIsOn(state: OverlayState, id: OverlayId): boolean {
 /** Sheets (Settings/Kalender/Stimme/Debug) liegen über Drive; Drive-Modus bleibt. */
 export function overlayHidesDrive(state: OverlayState): boolean {
   const top = overlayTop(state)
-  return top === 'settings' || top === 'calendar' || top === 'voice' || top === 'debug'
+  return top === 'settings' || top === 'calendar' || top === 'voice' || top === 'debug' || top === 'watchlist'
 }

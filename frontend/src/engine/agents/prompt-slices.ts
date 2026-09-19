@@ -106,6 +106,14 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
     "promptSlice": "Domäne todo: Parser-Fakten only.",
     "goldPrompts": []
   },
+  "idea": {
+    "promptSlice": "Idee festhalten, Überblick, Sprintplan auf Zuruf.",
+    "goldPrompts": ["Idee: Körper und Chat gleichzeitig"]
+  },
+  "watchlist": {
+    "promptSlice": "Watchliste und Lieblinge. Keine erfundenen Titel.",
+    "goldPrompts": ["Watchliste: Dune", "Nenn mir Horrorfilme für Filmabend"]
+  },
   "brief": {
     "promptSlice": "Domäne brief: Parser-Fakten only.",
     "goldPrompts": []

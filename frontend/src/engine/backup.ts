@@ -9,6 +9,9 @@ import {
   listReminders,
   listShopping,
   listTodos,
+  listIdeas,
+  listWatchMovies,
+  listWatchedMovies,
   loadSettings,
   replaceStore,
   saveSettings,
@@ -22,6 +25,9 @@ import {
   type Settings,
   type ShoppingItem,
   type Todo,
+  type Idea,
+  type WatchMovie,
+  type WatchedMovie,
 } from './store.ts'
 import { isPrefValue } from './memory-parse.ts'
 import type { ToolMeta } from './tools.ts'
@@ -114,6 +120,9 @@ export type HausBackup = {
   events: CalendarEvent[]
   notes: Note[]
   todos: Todo[]
+  ideas?: Idea[]
+  watch_movies?: WatchMovie[]
+  watched_movies?: WatchedMovie[]
   shopping: ShoppingItem[]
   price_watches?: PriceWatch[]
   knowledge_packs?: KnowledgePack[]
@@ -128,7 +137,11 @@ export type BackupPreview = {
   contacts: number
   reminders: number
   events: number
-  notes: number
+    notes: number
+  ideas: number
+  watch: number
+  favorite: number
+  watched: number
   chats: number
   hasKeys: boolean
 }
@@ -165,6 +178,10 @@ export function previewBackup(raw: unknown): BackupPreview {
       reminders: 0,
       events: 0,
       notes: 0,
+      ideas: 0,
+      watch: 0,
+      favorite: 0,
+      watched: 0,
       chats: 0,
       hasKeys: false,
     }
@@ -173,12 +190,16 @@ export function previewBackup(raw: unknown): BackupPreview {
   const contacts = (data.memory || []).filter((m) => m.category === 'contact').length
   return {
     ok: true,
-    message: `${keys} Keys, ${contacts} Nummern, ${(data.reminders || []).length} Erinnerungen. Datei enthält Geheimnisse — nicht in den Chat, nicht nach Git.`,
+    message: `${keys} Keys, ${contacts} Nummern, ${(data.reminders || []).length} Erinnerungen, ${(data.ideas || []).length} Ideen, Watchliste ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length}, Lieblinge ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length}, Gesehen ${(data.watched_movies || []).length}. Datei enthält Geheimnisse — nicht in den Chat, nicht nach Git.`,
     keys,
     contacts,
     reminders: (data.reminders || []).length,
     events: (data.events || []).length,
     notes: (data.notes || []).length,
+    ideas: (data.ideas || []).length,
+    watch: (data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length,
+    favorite: (data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length,
+    watched: (data.watched_movies || []).length,
     chats: (data.conversations || []).length,
     hasKeys: keys > 0,
   }
@@ -199,6 +220,9 @@ export function asBackup(raw: unknown): HausBackup | null {
     events: arr(o.events),
     notes: arr(o.notes),
     todos: arr(o.todos),
+    ideas: arr(o.ideas),
+    watch_movies: arr(o.watch_movies),
+    watched_movies: arr(o.watched_movies),
     shopping: arr(o.shopping),
     price_watches: o.price_watches ? arr(o.price_watches) : undefined,
     knowledge_packs: o.knowledge_packs ? arr(o.knowledge_packs) : undefined,
@@ -231,6 +255,9 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     events: await listEvents(),
     notes: await listNotes(),
     todos: await listTodos(),
+    ideas: await listIdeas(),
+    watch_movies: await listWatchMovies(),
+    watched_movies: await listWatchedMovies(),
     shopping: await listShopping(),
     price_watches: await listPriceWatches(),
     knowledge_packs: await listKnowledgePacks(),
@@ -253,6 +280,9 @@ export async function applyBackup(data: HausBackup): Promise<string> {
   await replaceStore('events', data.events || [])
   await replaceStore('notes', data.notes || [])
   await replaceStore('todos', data.todos || [])
+  await replaceStore('ideas', data.ideas || [])
+  await replaceStore('watch_movies', data.watch_movies || [])
+  await replaceStore('watched_movies', data.watched_movies || [])
   await replaceStore('shopping', data.shopping || [])
   if (data.price_watches) await replaceStore('price_watches', data.price_watches)
   if (data.knowledge_packs) await replaceStore('knowledge_packs', data.knowledge_packs)

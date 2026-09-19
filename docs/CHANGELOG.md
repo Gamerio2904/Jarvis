@@ -5,18 +5,30 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.4` — Körper, Agenten, Wissenszentrum — *PLAN*
+### `18.4.3` — Ideen, Watchliste, Körper/Wissen — *CODE*
 
-Sprints 297–300: [`75-next.md`](./75-next.md). Classic-Baum aus dem Katalog,
-Kanten Agent↔Pack, Claims im Retrieve, Pack-Links + 1-Hop. Tanke bleibt
-ohne Fachwissen. Keine APK `18.4`. Live bleibt `18.1.2`.
+Sprints **283–300** im App-Code `18.4.3`. Sideload-APK bleibt **`18.1.2`**
+(versionCode `180102`) — kein Download `18.4`.
 
-### `18.3` — Watchliste und Lieblinge — *PLAN*
+**18.2 Ideen:** Festhalten, Liste/Parken, feste Sprint-Vorlage, Füllen
+auf Zuruf, Custom + Erinnerung.
 
-Sprints 291–296: [`74-next.md`](./74-next.md). Zwei gleichwertige Listen:
-Watchliste und Lieblingsfilme. Gesehen intern im Wissenszentrum.
-Tipp: Lieblinge Gewicht 3, Gesehen Gewicht 1, keine erfundenen Titel.
-Algorithmus CODE in `film-taste.ts`. Keine APK `18.3`. Live bleibt `18.1.2`.
+**288–290:** Unbekannter Ort ohne Netz (Kugel bleibt auf), Mikrofon-Absage
+im Chat, Overlay-Zurück ohne Gesprächswechsel.
+
+**18.3 Watchliste:** Watchliste und Lieblinge, Overlay-Folien, OMDb
+Kritiker+Publikum, Gesehen intern (`filme-gesehen`), Tipp aus Lieblingen.
+
+**18.4 Körper:** Katalog am Classic-Baum, Agent↔Pack, Claims im Retrieve,
+Pack-Links + 1-Hop. Tanke ohne Fachwissen.
+
+### `18.4` — Körper, Agenten, Wissenszentrum — *CODE in 18.4.3*
+
+Sprints 297–300: [`75-next.md`](./75-next.md). Keine APK `18.4`. Live bleibt `18.1.2`.
+
+### `18.3` — Watchliste und Lieblinge — *CODE in 18.4.3*
+
+Sprints 291–296: [`74-next.md`](./74-next.md). Keine APK `18.3`. Live bleibt `18.1.2`.
 
 ### `18.1.2` — Sprachmodus: eine Wiedergabe, nativer Player — *CODE + APK*
 

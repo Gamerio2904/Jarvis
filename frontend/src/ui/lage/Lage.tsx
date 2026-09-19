@@ -24,6 +24,8 @@ import { agentTask, DEPARTMENT_NODES, visibleAgents } from '../../engine/agent-m
 import { GlobeGuard, GlobeView, type GlobeFocus } from './GlobeView.tsx'
 import { fetchBodySnap, type BodySnap } from '../../engine/body-snap.ts'
 import { loadBodyGraph, type BodyGraph } from '../../engine/body-graph.ts'
+import { retrievePacks } from '../../engine/knowledge-retrieve.ts'
+import { listKnowledgePacks } from '../../engine/knowledge-store.ts'
 import { BodyTree } from './BodyTree.tsx'
 import { loadGlobePins, loadIssTrail } from '../../engine/globe-pins.ts'
 import type { GeoFix } from '../../engine/globe-geo.ts'
@@ -67,6 +69,7 @@ export function Lage({
   const [agentGraph, setAgentGraph] = useState<AgentGraph | null>(null)
   const [agentDept, setAgentDept] = useState<string>('brain')
   const [pickedAgent, setPickedAgent] = useState('')
+  const [wissenTopics, setWissenTopics] = useState<string[]>([])
   const [pins, setPins] = useState<GeoFix[]>([])
   const [issTrail, setIssTrail] = useState<{ lat: number; lon: number }[]>([])
   const [pinCard, setPinCard] = useState<GeoFix | null>(null)
@@ -104,10 +107,15 @@ export function Lage({
     async function tick() {
       if (isDocumentHidden()) return
       if (view === 'body') {
+        const packs = await listKnowledgePacks().catch(() => [])
+        const hits = retrievePacks(lastLine, packs)
+        if (live) setWissenTopics(hits.map((p) => p.topic))
         if (bodyView === 'agents') {
           const tree = buildAgentGraph(
             agentDept === 'brain' ? 'brain' : (agentDept as DepartmentId),
             busy,
+            hits,
+            pickedAgent,
           )
           if (live) setAgentGraph(tree)
           return
@@ -144,7 +152,7 @@ export function Lage({
       if (id) window.clearInterval(id)
       off()
     }
-  }, [view, bodyView, agentDept, moduleKey, spotifyOn, busy, conversationId, globeTick, organ, lastLine, globeLayer])
+  }, [view, bodyView, agentDept, pickedAgent, moduleKey, spotifyOn, busy, conversationId, globeTick, organ, lastLine, globeLayer])
 
   useEffect(() => {
     if (view !== 'globe') return
@@ -325,6 +333,7 @@ export function Lage({
               selectedDept={agentDept}
               selectedAgent={pickedAgent}
               busy={busy}
+              wissenTopics={wissenTopics}
               onSelectDept={(id) => {
                 if (id === 'brain' || DEPARTMENT_NODES.some((d) => d.id === id)) {
                   setAgentDept(id)

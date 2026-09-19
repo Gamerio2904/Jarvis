@@ -2,6 +2,8 @@ import { currentAgentTurn, pushAgentTrace } from './trace-store.ts'
 import { withBudget } from './budget.ts'
 import { writeMemory, type WriteMemoryInput } from '../memory-gate.ts'
 import { pruneStaleMemory, tickSleepMemory } from '../sleep-memory.ts'
+import { listKnowledgePacks } from '../knowledge-store.ts'
+import { retrievePacks } from '../knowledge-retrieve.ts'
 
 /** Aufräumen darf den Zug nicht aufhalten — es ist Pflege, keine Antwort. */
 const PREFLIGHT_MS = 2_500
@@ -17,12 +19,19 @@ export async function curatorPreflight(_conversationId: string, text: string): P
       })(),
       PREFLIGHT_MS,
     )
+    let packs: string[] = []
+    try {
+      packs = retrievePacks(text, await listKnowledgePacks()).map((p) => p.topic)
+    } catch {
+      packs = []
+    }
     pushAgentTrace({
       agentId: 'curator',
       phase: 'curator',
       ms: Math.round(performance.now() - t0),
       ok: true,
       detail: text.slice(0, 40) || 'preflight',
+      packs,
     }, myTurn)
     return { ok: true }
   } catch (err) {

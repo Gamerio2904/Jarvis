@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "18.1.2",
+  "version": "18.4.3",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -24,6 +24,9 @@
     "test:memory-10": "node --experimental-strip-types scripts/test-memory-10.mjs",
     "test:memory-10-intens": "node --experimental-strip-types scripts/probe-memory-10-intens.mjs",
     "test:film-taste": "node --experimental-strip-types scripts/test-film-taste.mjs",
+    "test:idea": "node --experimental-strip-types scripts/test-idea.mjs",
+    "test:idea-plan": "node --experimental-strip-types scripts/test-idea-plan.mjs",
+    "test:watchlist": "node --experimental-strip-types scripts/test-watchlist.mjs",
     "test:presence-12": "node --experimental-strip-types scripts/test-presence-12.mjs",
     "test:body-13": "node --experimental-strip-types scripts/test-body-13.mjs",
     "test:rest-final": "node --experimental-strip-types scripts/test-rest-final.mjs",

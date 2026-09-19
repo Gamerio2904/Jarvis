@@ -1,6 +1,6 @@
 # Sprint 295 — Gesehen intern (Wissenszentrum)
 
-**Version:** `18.3.4` — **PLAN** Must
+**Version:** `18.3.4` — **CODE** Must
 **Plan:** [`74-next.md`](../74-next.md)
 **Voraussetzung:** Sprint **291**. Overlay 292 ist keine Voraussetzung.
 

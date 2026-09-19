@@ -42,6 +42,7 @@ export type AgentSpec = {
    * Durchfallen ans Modell, das Zahlen erfinden würde.
    */
   factual?: boolean
+  knowledge?: boolean
   parse?: (ctx: RouteCtx) => number | null
   execute?: (ctx: RouteCtx) => Promise<RouteHit | null>
   promptSlice?: string
@@ -54,6 +55,7 @@ export type AgentTrace = {
   ms: number
   ok: boolean
   detail?: string
+  packs?: string[]
 }
 
 export type AgentResult = {

@@ -1,6 +1,6 @@
 # Sprint 296 — Filmtipp aus Lieblingen
 
-**Version:** `18.3.5` — **PLAN** Must
+**Version:** `18.3.5` — **CODE** Must
 **Plan:** [`74-next.md`](../74-next.md)
 **Voraussetzung:** Sprints **291** und **295**. **293** Should (Genre).
 
