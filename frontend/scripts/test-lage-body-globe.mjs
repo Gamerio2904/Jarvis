@@ -54,6 +54,10 @@ globalThis.localStorage = {
   clear: () => {
     for (const k of Object.keys(mem)) delete mem[k]
   },
+  key: (i) => Object.keys(mem)[i] ?? null,
+  get length() {
+    return Object.keys(mem).length
+  },
 }
 
 const { saveSettings, loadSettings } = await import('../src/engine/store.ts')

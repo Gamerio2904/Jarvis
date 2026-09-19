@@ -1,3 +1,4 @@
+// @ts-nocheck — Sichtlauf gegen den Dev-Server, wie die anderen GUI-Skripte.
 /**
  * Sichtprüfung: Körper-Netz hat Höhe, Waldbrände nicht von allein an,
  * Pin-Tap öffnet die Karte. Läuft gegen den Vite-Dev-Server.
@@ -77,7 +78,7 @@ try {
   await page.waitForSelector('.app')
   rec(!(await page.$('.setup-overlay')), 'Setup weg')
 
-  await page.click('button[aria-label="Lage"]')
+  await page.click('.nav-dock button[aria-label="Lage"]')
   await sleep(700)
   rec(Boolean(await page.$('.globe-view')), 'Dock Lage öffnet die Kugel')
   const chip = await page.evaluate(() =>
@@ -167,7 +168,7 @@ try {
   rec(!/Keine Kurzlage/.test(tapped), 'keine leere Kurzlage', tapped.slice(0, 80))
   await page.screenshot({ path: `${SHOTS}/lage_globe_fire_pin.png` })
 
-  await page.click('button[aria-label="Lage"]')
+  await page.click('.nav-dock button[aria-label="Lage"]')
   await sleep(500)
   const afterDock = await page.evaluate(() => {
     try {
