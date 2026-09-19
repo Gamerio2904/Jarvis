@@ -1,6 +1,6 @@
 import { Component, useEffect, useRef, type ReactNode } from 'react'
 import type { GeoFix } from '../../engine/globe-geo.ts'
-import { globeFocusKey, lookLatLon, shouldApplyGlobeFocus, viewXYZ, yawPitchFor, alongCoast } from '../../engine/globe-geo.ts'
+import { globeFocusKey, lookLatLon, pickTappedPin, shouldApplyGlobeFocus, viewXYZ, yawPitchFor, alongCoast } from '../../engine/globe-geo.ts'
 import { WORLD_RINGS } from '../../engine/world-rings.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 import { loadSettings } from '../../engine/store.ts'
@@ -101,6 +101,10 @@ export function GlobeView({
     fly.current = { yaw: aim.yaw, pitch: aim.pitch, zoom: z, t: 0 }
     kickRef.current()
   }, [focusKey, reduced, focus])
+
+  useEffect(() => {
+    kickRef.current()
+  }, [pins, issTrail])
 
   useEffect(() => {
     if (homedHere.current) return
@@ -362,6 +366,13 @@ export function GlobeView({
           pen.arc(q.x, q.y, wave, 0, Math.PI * 2)
           pen.stroke()
         }
+        if (pin.kind === 'fire' || pin.kind === 'quake') {
+          pen.beginPath()
+          pen.strokeStyle = pin.kind === 'fire' ? 'rgba(224, 112, 80, 0.55)' : 'rgba(240, 160, 96, 0.5)'
+          pen.lineWidth = 1.6
+          pen.arc(q.x, q.y, 10, 0, Math.PI * 2)
+          pen.stroke()
+        }
         pen.beginPath()
         pen.fillStyle =
           pin.kind === 'iss'
@@ -381,7 +392,21 @@ export function GlobeView({
                     ? '#e8f8ee'
                     : '#9be0b5'
                   : '#7dd3a0'
-        pen.arc(q.x, q.y, pin.kind === 'iss' ? 3.5 : pin.kind === 'here' ? 5 : pin.kind === 'glow' && pin.hot ? 5 : 4, 0, Math.PI * 2)
+        pen.arc(
+          q.x,
+          q.y,
+          pin.kind === 'iss'
+            ? 3.5
+            : pin.kind === 'here'
+              ? 5
+              : pin.kind === 'fire' || pin.kind === 'quake'
+                ? 5.5
+                : pin.kind === 'glow' && pin.hot
+                  ? 5
+                  : 4,
+          0,
+          Math.PI * 2,
+        )
         pen.fill()
         if (pin.kind === 'here') {
           pen.beginPath()
@@ -390,10 +415,10 @@ export function GlobeView({
           pen.fill()
         }
         pen.fillStyle = 'rgba(230, 240, 236, 0.82)'
-        if (!lite || pin.kind === 'here') {
+        if (!lite || pin.kind === 'here' || pin.kind === 'fire' || pin.kind === 'quake') {
           pen.font = '10px Inter, system-ui, sans-serif'
           pen.textAlign = 'left'
-          pen.fillText(pin.name, q.x + 8, q.y + 3)
+          pen.fillText(pin.name.slice(0, 22), q.x + 8, q.y + 3)
         }
       }
     }
@@ -533,19 +558,12 @@ export function GlobeView({
       if (!fly.current) emitLook()
       if (!start || pts.current.size > 0) return
       const p = pos(ev)
-      if (Math.hypot(p.x - start.x, p.y - start.y) > 10) return
-      let best: GeoFix | null = null
-      let bestD = 18
-      for (const pin of pinsRef.current) {
+      if (Math.hypot(p.x - start.x, p.y - start.y) > 22) return
+      const projected = pinsRef.current.map((pin) => {
         const q = project(pin.lat, pin.lon)
-        if (q.z < -0.02) continue
-        const d = Math.hypot(q.x - p.x, q.y - p.y)
-        const hit = pin.kind === 'glow' ? 26 : pin.kind === 'here' ? 22 : 16
-        if (d < bestD && d < hit) {
-          bestD = d
-          best = pin
-        }
-      }
+        return { pin, x: q.x, y: q.y, z: q.z }
+      })
+      const best = pickTappedPin(projected, p.x, p.y)
       if (best) onPinRef.current(best)
       else onEmptyRef.current?.()
     }

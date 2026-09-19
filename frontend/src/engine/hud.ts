@@ -63,7 +63,12 @@ export async function handleHud(
   const intent = parseHudIntent(text)
   if (!intent) return { handled: false }
   if (intent.kind === 'lage') {
-    openLagePatch({ hud_force: intent.on, hud_hidden: !intent.on, hud_view: intent.on ? 'globe' : 'tiles' })
+    openLagePatch({
+      hud_force: intent.on,
+      hud_hidden: !intent.on,
+      hud_view: intent.on ? 'globe' : 'tiles',
+      globe_layer: '',
+    })
     return pack(intent.on ? 'Lage an. Kugel ist offen.' : 'Lage aus. Chat wieder voll.')
   }
   if (intent.kind === 'accent') {

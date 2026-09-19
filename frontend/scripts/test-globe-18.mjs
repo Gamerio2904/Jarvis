@@ -3,7 +3,15 @@ import assert from 'node:assert/strict'
 import { commandClause, parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
 import { dayOfYear, isNight, nightCover, subsolar, wrapLon } from '../src/engine/sun.ts'
-import { alongCoast, briefFitsPlace, pinLineFor, placeLookupFailedLine } from '../src/engine/globe-geo.ts'
+import {
+  alongCoast,
+  briefFitsPlace,
+  isGlobeLayerPin,
+  pickTappedPin,
+  pinLineFor,
+  pinTapRadius,
+  placeLookupFailedLine,
+} from '../src/engine/globe-geo.ts'
 import { ageLine } from '../src/engine/globe-layers.ts'
 import { screenPanToMap } from '../src/engine/drive-map.ts'
 import { parseHereIntent } from '../src/engine/here-parse.ts'
@@ -56,5 +64,27 @@ assert.equal(parseFlightsIntent('Was ist über Deutschland'), true)
 assert.equal(parseFlightsIntent('Was fliegt da über uns?'), true)
 
 assert.match(ageLine(Date.now() - 12 * 60_000), /12 Minuten/)
+
+assert.equal(isGlobeLayerPin('fire'), true)
+assert.equal(isGlobeLayerPin('quake'), true)
+assert.equal(isGlobeLayerPin('flight'), true)
+assert.equal(isGlobeLayerPin('news'), false)
+assert.equal(pinTapRadius('fire'), 32)
+assert.equal(pinTapRadius('news'), 20)
+{
+  const fire = { name: 'Brand Nord', lat: 40, lon: -120, kind: 'fire', line: 'NASA EONET' }
+  assert.equal(pickTappedPin([{ pin: fire, x: 100, y: 80, z: 0.4 }], 118, 80)?.name, 'Brand Nord')
+  assert.equal(pickTappedPin([{ pin: fire, x: 100, y: 80, z: 0.4 }], 140, 80), null)
+  assert.equal(pickTappedPin([{ pin: fire, x: 100, y: 80, z: -0.4 }], 100, 80), null)
+}
+{
+  const city = { name: 'Berlin', lat: 52.52, lon: 13.41, kind: 'news' }
+  assert.equal(pickTappedPin([{ pin: city, x: 0, y: 0, z: 1 }], 19, 0)?.name, 'Berlin')
+  assert.equal(pickTappedPin([{ pin: city, x: 0, y: 0, z: 1 }], 25, 0), null)
+}
+assert.match(pinLineFor('Brand Nord', 'NASA EONET'), /EONET/)
+assert.match(pinLineFor('M4.8', 'USGS · 10 km S of Ridgecrest'), /USGS/)
+assert.match(pinLineFor('DLH4A', 'OpenSky'), /OpenSky/)
+assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzlage zu diesem Ort.')
 
 console.log('test:globe-18 ok')

@@ -29,7 +29,7 @@ import { listKnowledgePacks } from '../../engine/knowledge-store.ts'
 import { BodyTree } from './BodyTree.tsx'
 import { loadGlobePins, loadIssTrail } from '../../engine/globe-pins.ts'
 import type { GeoFix } from '../../engine/globe-geo.ts'
-import { pinLineFor } from '../../engine/globe-geo.ts'
+import { isGlobeLayerPin, pinLineFor } from '../../engine/globe-geo.ts'
 import { CITY_FLY_ZOOM } from '../../engine/globe-gibs.ts'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion.ts'
 import { loadSettings, saveSettings, type Message } from '../../engine/store.ts'
@@ -267,10 +267,24 @@ export function Lage({
         <div className="lage-head-row">
           <span className="lage-brand">{face}</span>
           <span className="lage-sep">&gt;</span>
-          <span>Lage</span>
+          <span className="lage-title">Lage</span>
           <span className="lage-spacer" />
           <LageClock />
           {typeof bat === 'number' ? <span className="lage-bat">{bat} %</span> : null}
+          {view === 'globe' && globeLayer ? (
+            <button
+              type="button"
+              className="ghost-btn lage-chip"
+              onClick={() => {
+                saveSettings({ globe_layer: '' })
+                setPinCard(null)
+                setGlobeTick((n) => n + 1)
+                onHudChange?.()
+              }}
+            >
+              {globeLayer === 'fires' ? 'Waldbrände aus' : globeLayer === 'quakes' ? 'Beben aus' : 'Flugzeuge aus'}
+            </button>
+          ) : null}
           <button
             type="button"
             className="ghost-btn lage-chip"
@@ -406,6 +420,7 @@ export function Lage({
                 onHudChange?.()
                 return
               }
+              if (isGlobeLayerPin(next.kind)) return
               saveSettings({
                 last_globe_focus: JSON.stringify({
                   name: next.name,
@@ -431,36 +446,33 @@ export function Lage({
           </GlobeGuard>
           {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
           {pinCard ? (
-            <>
-              <button type="button" className="pin-bubble-backdrop" aria-label="Karte schließen" onClick={closePin} />
-              <div className="pin-bubble" role="dialog" aria-labelledby="pin-bubble-title" aria-modal="true">
-                <div className="pin-bubble-head">
-                  <h3 id="pin-bubble-title">{pinCard.name}</h3>
-                  <button type="button" className="pin-bubble-x" onClick={closePin} aria-label="Schließen">
-                    ×
-                  </button>
-                </div>
-                <p className="lage-body">
-                  {decodeHtml(pinLineFor(pinCard.name, pinCard.line || '', s.last_globe_brief))}
-                </p>
-                <p className="pin-bubble-swipe">Keine Bilder — nur Lage-Text.</p>
-                <div className="pin-bubble-actions">
-                  <button type="button" className="lage-btn" onClick={closePin}>
-                    Schließen
-                  </button>
-                  <button
-                    type="button"
-                    className="lage-btn"
-                    onClick={() => {
-                      onSend(`Zeig ${pinCard.name}`)
-                      closePin()
-                    }}
-                  >
-                    Im Chat
-                  </button>
-                </div>
+            <div className="pin-bubble" role="dialog" aria-labelledby="pin-bubble-title" aria-modal="true">
+              <div className="pin-bubble-head">
+                <h3 id="pin-bubble-title">{pinCard.name}</h3>
+                <button type="button" className="pin-bubble-x" onClick={closePin} aria-label="Schließen">
+                  ×
+                </button>
               </div>
-            </>
+              <p className="lage-body">
+                {decodeHtml(pinLineFor(pinCard.name, pinCard.line || '', s.last_globe_brief))}
+              </p>
+              <p className="pin-bubble-swipe">Keine Bilder — nur Lage-Text.</p>
+              <div className="pin-bubble-actions">
+                <button type="button" className="lage-btn" onClick={closePin}>
+                  Schließen
+                </button>
+                <button
+                  type="button"
+                  className="lage-btn"
+                  onClick={() => {
+                    onSend(`Zeig ${pinCard.name}`)
+                    closePin()
+                  }}
+                >
+                  Im Chat
+                </button>
+              </div>
+            </div>
           ) : null}
         </div>
       ) : (
@@ -500,7 +512,7 @@ function LageClock() {
       off()
     }
   }, [])
-  return <span>{clock}</span>
+  return <span className="lage-clock">{clock}</span>
 }
 
 function LazyHudCell({

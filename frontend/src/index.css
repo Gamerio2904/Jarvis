@@ -5237,7 +5237,7 @@ button.linkish {
     display: flex;
     flex-direction: column;
   }
-  /* Körper + Chat: Netz und Verlauf teilen den sichtbaren Schirm, kein Überlappen. */
+  /* Körper + Chat: Netz ist die Hero-Zeile, Verlauf darunter, kein Überlappen. */
   .main.is-lage.is-lage-chat .topbar,
   .main.is-lage.is-lage-chat .fallback-banner {
     display: none !important;
@@ -5245,11 +5245,15 @@ button.linkish {
   .main.is-lage.is-lage-chat {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: minmax(0, 0.92fr) minmax(0, 1.08fr) auto;
+    grid-template-rows: minmax(240px, 1.55fr) minmax(0, 1fr) auto;
     min-height: 0;
     height: 100%;
   }
-  .app.is-kb .main.is-lage.is-lage-chat {
+  .main.is-lage.is-lage-chat:has(.empty) {
+    grid-template-rows: minmax(320px, 2.15fr) minmax(0, 0.55fr) auto;
+  }
+  .app.is-kb .main.is-lage.is-lage-chat,
+  .app.is-kb .main.is-lage.is-lage-chat:has(.empty) {
     grid-template-rows: minmax(0, 0.58fr) minmax(0, 1fr) auto;
   }
   .main.is-lage.is-lage-chat .lage {
@@ -5265,12 +5269,23 @@ button.linkish {
     display: flex;
     flex-direction: column;
   }
-  .main.is-lage.is-lage-chat .lage-hint {
+  .main.is-lage.is-lage-chat .lage.is-compact {
+    padding: 4px 8px 4px;
+    gap: 4px;
+  }
+  .main.is-lage.is-lage-chat .lage-hint,
+  .main.is-lage.is-lage-chat .lage-clock,
+  .main.is-lage.is-lage-chat .lage-bat,
+  .main.is-lage.is-lage-chat .lage-brand,
+  .main.is-lage.is-lage-chat .lage-sep,
+  .main.is-lage.is-lage-chat .lage-title,
+  .main.is-lage.is-lage-chat .agent-status-bar,
+  .main.is-lage.is-lage-chat .wake-bubble {
     display: none;
   }
   .main.is-lage.is-lage-chat .agent-map-shell,
   .main.is-lage.is-lage-chat .agent-map-canvas {
-    min-height: 0;
+    min-height: 160px;
   }
   .main.is-lage.is-lage-chat .lage-tile {
     min-height: 0;
@@ -5289,15 +5304,19 @@ button.linkish {
     padding: 12px 14px 10px;
   }
   .main.is-lage.is-lage-chat .empty {
-    padding: 16px 12px;
+    padding: 8px 12px;
+    margin: 0;
   }
   .main.is-lage.is-lage-chat .empty-halo {
-    width: 88px;
-    height: 88px;
-    margin-bottom: 10px;
+    display: none;
   }
   .main.is-lage.is-lage-chat .empty h3 {
-    font-size: 1.7rem;
+    font-size: 1.15rem;
+    margin: 0 0 4px;
+  }
+  .main.is-lage.is-lage-chat .empty p {
+    font-size: 0.78rem;
+    margin: 0;
   }
   .main.is-lage.is-lage-chat .composer-wrap {
     grid-row: 3;
@@ -5314,6 +5333,17 @@ button.linkish {
     backdrop-filter: blur(16px) saturate(1.15);
     padding: 8px 2px 8px;
     border-bottom: 1px solid rgba(42, 53, 48, 0.7);
+  }
+  .main.is-lage.is-lage-chat .lage-head {
+    padding: 2px 2px 4px;
+    gap: 4px;
+  }
+  .main.is-lage.is-lage-chat .lage-tabs {
+    padding: 2px;
+  }
+  .main.is-lage.is-lage-chat .lage-tab {
+    padding: 4px 8px;
+    font-size: 0.62rem;
   }
   .lage.is-compact .lage-split {
     grid-template-columns: 1fr;
@@ -5339,11 +5369,26 @@ button.linkish {
   }
   .main.is-lage.is-lage-chat .lage.is-compact .agent-map-shell,
   .main.is-lage.is-lage-chat .lage.is-compact .agent-map-canvas {
+    min-height: 160px;
+  }
+  .app.is-kb .main.is-lage.is-lage-chat .agent-map-shell,
+  .app.is-kb .main.is-lage.is-lage-chat .agent-map-canvas,
+  .app.is-kb .main.is-lage.is-lage-chat .lage.is-compact .agent-map-shell,
+  .app.is-kb .main.is-lage.is-lage-chat .lage.is-compact .agent-map-canvas {
     min-height: 0;
   }
   .lage.is-compact {
     padding: 8px 10px 6px;
     gap: 6px;
+  }
+  .lage.is-compact .lage-hint,
+  .lage.is-compact .lage-clock,
+  .lage.is-compact .lage-bat,
+  .lage.is-compact .lage-brand,
+  .lage.is-compact .lage-sep,
+  .lage.is-compact .lage-title,
+  .lage.is-compact .agent-status-bar {
+    display: none;
   }
   .lage.is-compact .globe-wrap {
     aspect-ratio: auto;

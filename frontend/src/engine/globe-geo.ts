@@ -171,10 +171,42 @@ export function briefFitsPlace(name: string, brief: string): boolean {
   return new RegExp(`\\b${esc}\\b`, 'i').test(b)
 }
 
+export function isGlobeLayerPin(kind: GeoPinKind): boolean {
+  return kind === 'fire' || kind === 'quake' || kind === 'flight'
+}
+
+/** Finger-Treffer auf der Kugel: Schicht-Pins größer als Orts-Punkte. */
+export function pinTapRadius(kind: GeoPinKind): number {
+  if (kind === 'glow') return 28
+  if (kind === 'here') return 24
+  if (isGlobeLayerPin(kind)) return 32
+  return 20
+}
+
+export function pickTappedPin(
+  pins: Array<{ pin: GeoFix; x: number; y: number; z: number }>,
+  x: number,
+  y: number,
+): GeoFix | null {
+  let best: GeoFix | null = null
+  let bestD = 40
+  for (const row of pins) {
+    if (row.z < -0.02) continue
+    const d = Math.hypot(row.x - x, row.y - y)
+    if (d < bestD && d < pinTapRadius(row.pin.kind)) {
+      bestD = d
+      best = row.pin
+    }
+  }
+  return best
+}
+
 export function pinLineFor(name: string, brief: string, fallback?: string): string {
   if (briefFitsPlace(name, brief)) return brief.trim()
   const hit = gazetteerHit(name)
   if (hit?.blurb) return cityLine(hit)
+  const source = (brief || fallback || '').trim()
+  if (/EONET|USGS|OpenSky/i.test(source)) return `${name}. ${source}. Kein Live-Bild.`
   const fb = (fallback || '').trim()
   if (fb && briefFitsPlace(name, fb)) return fb
   return 'Keine Kurzlage zu diesem Ort.'

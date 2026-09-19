@@ -51,6 +51,8 @@
     "test:agent-map": "node --experimental-strip-types scripts/test-agent-map.mjs",
     "test:chess-engine": "node --experimental-strip-types scripts/test-chess-engine.mjs",
     "test:keyboard-inset": "node --experimental-strip-types scripts/test-keyboard-inset.mjs",
+    "test:lage-body-globe": "node --experimental-strip-types scripts/test-lage-body-globe.mjs",
+    "gui:lage-body-globe": "node --experimental-strip-types scripts/gui-lage-body-globe.mjs",
     "eval:separability": "node --experimental-strip-types scripts/eval/separability.mjs"
   },
   "dependencies": {

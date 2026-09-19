@@ -1594,7 +1594,9 @@ function App() {
       closeVoice()
       dropOverlayHistory()
       setLageSession(true)
-      void patchSettings({ hud_force: true, hud_hidden: false, hud_view: 'globe' }).then((s) => setSettings(s))
+      const cur = loadSettings().hud_view
+      const hud_view = cur === 'body' || cur === 'globe' ? cur : 'globe'
+      void patchSettings({ hud_force: true, hud_hidden: false, hud_view, globe_layer: '' }).then((s) => setSettings(s))
       return
     }
     if (id === 'voice') {
