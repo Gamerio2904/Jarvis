@@ -27,6 +27,7 @@
     "test:idea": "node --experimental-strip-types scripts/test-idea.mjs",
     "test:idea-plan": "node --experimental-strip-types scripts/test-idea-plan.mjs",
     "test:watchlist": "node --experimental-strip-types scripts/test-watchlist.mjs",
+    "test:knowledge-11": "node --experimental-strip-types scripts/test-knowledge-11.mjs",
     "test:presence-12": "node --experimental-strip-types scripts/test-presence-12.mjs",
     "test:body-13": "node --experimental-strip-types scripts/test-body-13.mjs",
     "test:rest-final": "node --experimental-strip-types scripts/test-rest-final.mjs",

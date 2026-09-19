@@ -73,13 +73,10 @@ zeigt nicht mehr den Brief eines anderen Orts. „weißt du auch wo?“ ist
 Standort. Fahrmodus-Karte heading-up, weicher nachgeführt. War CODE-only;
 Sideload folgt in `18.1.0`.
 
-### `18.2` — Ideen halten — *PLAN*
+### `18.2` — Ideen halten — *CODE in 18.4.3*
 
-Analyse der Gemini-Skizze *Project Architect / Idea Curator* und Sprints
-283–287: [`72-next.md`](./72-next.md). Kein Code. Gut: festhalten, Überblick,
-**feste Sprint-Vorlage**, Jarvis füllt auf Zuruf und darf Custom-Sprints
-anlegen. Won’t: Organizer-Herzstück, RICE, Notion, Auto-Roadmap, Plan
-ausführen. Zahlen 272–282 bleiben Audit-Reste.
+Sprints 283–287: [`72-next.md`](./72-next.md). Keine APK `18.2`. Live bleibt `18.1.2`.
+Won’t: Organizer-Herzstück, RICE, Notion, Auto-Roadmap, Plan ausführen.
 
 ### `18.0.7` — Körper live, Chat darunter oder Vollbild — *CODE + APK*
 

@@ -6,6 +6,7 @@ FAIL=0
 for t in eval eval:migrate test:014 test:alltag test:sprint test:pc test:prompts \
          test:agents test:brain-orchestrator test:650 test:matrix test:memory-10 \
          test:memory-10-intens test:knowledge-11 test:presence-12 test:body-13 \
+         test:film-taste test:idea test:idea-plan test:watchlist \
          test:rest-final test:qa-16 test:turn-detect test:gemini-fallback test:agents-robust test:turn-e2e \
          test:settings-migrate test:verb-front test:tool-propose test:history test:globe-18 test:agent-map \
          test:chess-engine test:sprints-272 test:java-audit test:dead-code tsc:scripts; do

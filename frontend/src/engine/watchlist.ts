@@ -151,7 +151,7 @@ export async function handleWatchlist(
     const watched = (await listWatchedMovies()).map((m) => seedOf(m, 'watched'))
     const candidates = watch.map((m) => seedOf(m, 'watchlist'))
     const result = recommend({ ask: taste.ask, favorites, watched, candidates })
-    const reply = await weave(text, formatRecommendReply(result))
+    const reply = await weave(text, formatRecommendReply(result, taste.ask))
     persistLastList('watch-watch', titles(watch))
     return pack(reply, 'recommend')
   }

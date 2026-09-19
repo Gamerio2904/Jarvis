@@ -85,7 +85,7 @@ assert.equal(pickRoute('Was steht an'), 'brief')
   assert.ok('missing' in miss)
   const seen = applyWatched({
     title: 'Dune',
-    watchlist: [{ title: 'Dune', pool: 'watchlist' }],
+    watchlist: [{ title: 'Dune', genres: /** @type {import('../src/engine/film-taste.ts').GenreKey[]} */ (['sci-fi']), pool: 'watchlist' }],
     watched: [],
   })
   assert.ok('movie' in seen)

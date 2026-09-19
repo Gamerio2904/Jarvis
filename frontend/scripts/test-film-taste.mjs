@@ -15,11 +15,19 @@ import {
 } from '../src/engine/film-taste.ts'
 import { genresFromOmdb, parseTasteIntent } from '../src/engine/film-taste-parse.ts'
 
+/** @typedef {import('../src/engine/film-taste.ts').MovieSeed} MovieSeed */
+
+/** @type {MovieSeed} */
 const dune = { title: 'Dune', year: '2021', genres: ['sci-fi'], pool: 'favorite' }
+/** @type {MovieSeed} */
 const arrival = { title: 'Arrival', year: '2016', genres: ['sci-fi'], pool: 'favorite' }
+/** @type {MovieSeed} */
 const hereditary = { title: 'Hereditary', year: '2018', genres: ['horror'], pool: 'watchlist' }
+/** @type {MovieSeed} */
 const heat = { title: 'Heat', year: '1995', genres: ['crime', 'action'], pool: 'watchlist' }
+/** @type {MovieSeed} */
 const alien = { title: 'Alien', year: '1979', genres: ['horror', 'sci-fi'], pool: 'watchlist' }
+/** @type {MovieSeed} */
 const seenHereditary = { title: 'Hereditary', year: '2018', genres: ['horror'], pool: 'watched' }
 
 {
