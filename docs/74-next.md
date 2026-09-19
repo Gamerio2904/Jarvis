@@ -9,7 +9,7 @@ erfundenen Noten.** Rotten Tomatoes hat **keine öffentliche API**. Die
 Zahlen kommen wie seit Sprint 97 über OMDb (`tomatoes=true`). Die UI
 sagt das.
 
-**Kein Sideload `18.3.x`.** Live-APK bleibt `18.1.2`. Code dieser Schiene ist `18.4.3`.
+**Sideload `18.4.3`.** Code dieser Schiene ist in derselben APK.
 
 Sprints **272–281** sind **CODE** in `18.1.0`. **282** Freeze in
 [`71-audit.md`](./71-audit.md). **283–287** bleiben Ideen halten in

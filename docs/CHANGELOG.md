@@ -5,10 +5,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.4.3` — Ideen, Watchliste, Körper/Wissen — *CODE*
+### `18.4.3` — Ideen, Watchliste, Körper/Wissen — *CODE + APK*
 
-Sprints **283–300** im App-Code `18.4.3`. Sideload-APK bleibt **`18.1.2`**
-(versionCode `180102`) — kein Download `18.4`.
+Sprints **283–300** im App-Code `18.4.3`. Sideload **`18.4.3`**
+(versionCode `180403`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.2 Ideen:** Festhalten, Liste/Parken, feste Sprint-Vorlage, Füllen
 auf Zuruf, Custom + Erinnerung.
@@ -30,11 +31,11 @@ OMDb-Fehlschlag sperrt Noten nicht 24h.
 
 ### `18.4` — Körper, Agenten, Wissenszentrum — *CODE in 18.4.3*
 
-Sprints 297–300: [`75-next.md`](./75-next.md). Keine APK `18.4`. Live bleibt `18.1.2`.
+Sprints 297–300: [`75-next.md`](./75-next.md). Sideload `18.4.3`.
 
 ### `18.3` — Watchliste und Lieblinge — *CODE in 18.4.3*
 
-Sprints 291–296: [`74-next.md`](./74-next.md). Keine APK `18.3`. Live bleibt `18.1.2`.
+Sprints 291–296: [`74-next.md`](./74-next.md). Sideload `18.4.3`.
 
 ### `18.1.2` — Sprachmodus: eine Wiedergabe, nativer Player — *CODE + APK*
 
@@ -81,7 +82,7 @@ Sideload folgt in `18.1.0`.
 
 ### `18.2` — Ideen halten — *CODE in 18.4.3*
 
-Sprints 283–287: [`72-next.md`](./72-next.md). Keine APK `18.2`. Live bleibt `18.1.2`.
+Sprints 283–287: [`72-next.md`](./72-next.md). Sideload `18.4.3`.
 Won’t: Organizer-Herzstück, RICE, Notion, Auto-Roadmap, Plan ausführen.
 
 ### `18.0.7` — Körper live, Chat darunter oder Vollbild — *CODE + APK*

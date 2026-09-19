@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.1.2`**. Sideload-APK **`18.1.2`**, versionCode `180102`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md).
+**Jetzt:** Code **`18.4.3`**. Sideload-APK **`18.4.3`**, versionCode `180403`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -77,11 +77,11 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 69 | [Modell-Grundlagen](./69-modell-grundlagen.md) | **REFERENZ** — Trainings- vs. Inferenzzeit, interne Sprache (Deutsch bleibt), Free-Tier-Grenzen |
 | 70 | [Zeigen und spielen 18.0](./70-next.md) | **PLAN** `18.0.0` — Chat-Blöcke, Schach-Modus, Kugel Tag/Nacht, Sprints 260–271 |
 | 71 | [Code-Audit 18.0.3](./71-audit.md) | **BEFUND + PLAN** — 12 Befunde behoben; 272–281 **CODE** in `18.1.0`; 282 Freeze |
-| 72 | [Ideen halten 18.2](./72-next.md) | **CODE** `18.2` in `18.4.3` — Idee, Überblick, Sprint-Vorlage, Custom. Keine APK `18.2` |
-| 73 | [Karte/CarPlay nach 18.0.8](./73-next.md) | **CODE** — 18.0.8 plus Reste 288–290 |
-| 74 | [Watchliste 18.3](./74-next.md) | **CODE** `18.3` in `18.4.3` — Watchliste + Lieblinge, Overlay, OMDb, Gesehen, Tipp. Keine APK `18.3` |
-| 75 | [Körper/Wissen 18.4](./75-next.md) | **CODE** `18.4` in `18.4.3` — Katalog am Körper, Agent↔Pack, 1-Hop. Keine APK `18.4` |
-| — | [APK](./apk.md) | Sideload `18.1.2`; Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md) |
+| 72 | [Ideen halten 18.2](./72-next.md) | **CODE + APK** `18.2` in `18.4.3` — Idee, Überblick, Sprint-Vorlage, Custom |
+| 73 | [Karte/CarPlay nach 18.0.8](./73-next.md) | **CODE + APK** — 18.0.8 plus Reste 288–290 |
+| 74 | [Watchliste 18.3](./74-next.md) | **CODE + APK** `18.3` in `18.4.3` — Watchliste + Lieblinge, Overlay, OMDb, Gesehen, Tipp |
+| 75 | [Körper/Wissen 18.4](./75-next.md) | **CODE + APK** `18.4` in `18.4.3` — Katalog am Körper, Agent↔Pack, 1-Hop |
+| — | [APK](./apk.md) | Sideload `18.4.3`; Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 
@@ -294,9 +294,9 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 271 | **`18.0.0`** | **CODE** (Meilenstein Kugel) |
 | 272–281 | **`18.1.0`** | **CODE** (Audit-Reste, [`71-audit.md`](./71-audit.md), [`TEST-18.1.0.md`](./TEST-18.1.0.md)) |
 | 282 | — | **PLAN** Freeze (versionCode-Schema) |
-| 283–287 | `18.2.0`–`18.2.4` | **CODE** in `18.4.3` (Ideen halten, [`72-next.md`](./72-next.md)) |
-| 288–290 | `18.0.9`–`18.1.3` | **CODE** in `18.4.3` (Karten-Reste in [`73-next.md`](./73-next.md)) |
-| 291–296 | `18.3.0`–`18.3.5` | **CODE** in `18.4.3` (Watchliste, [`74-next.md`](./74-next.md)) |
-| 297–300 | `18.4.0`–`18.4.3` | **CODE** in `18.4.3` (Körper/Wissen, [`75-next.md`](./75-next.md)) |
+| 283–287 | `18.2.0`–`18.2.4` | **CODE + APK** in `18.4.3` (Ideen halten, [`72-next.md`](./72-next.md)) |
+| 288–290 | `18.0.9`–`18.1.3` | **CODE + APK** in `18.4.3` (Karten-Reste in [`73-next.md`](./73-next.md)) |
+| 291–296 | `18.3.0`–`18.3.5` | **CODE + APK** in `18.4.3` (Watchliste, [`74-next.md`](./74-next.md)) |
+| 297–300 | `18.4.0`–`18.4.3` | **CODE + APK** in `18.4.3` (Körper/Wissen, [`75-next.md`](./75-next.md)) |
 
-**Aktuell:** App-Code **`18.4.3`**. Sideload-APK bleibt `18.1.2`, versionCode `180102`. Sprints 283–300 **CODE**. Kein Sideload `18.2`/`18.3`/`18.4` ohne neue APK. Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.4.3`**. Sideload-APK **`18.4.3`**, versionCode `180403`. Sprints 283–300 **CODE + APK**. Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md). Index: [`42-planned.md`](./42-planned.md).

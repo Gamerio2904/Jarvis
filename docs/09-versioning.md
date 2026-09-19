@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.4.3`**. Sideload-APK bleibt **`18.1.2`**, versionCode `180102`. Sprints 283–300 CODE. Kein Sideload `18.4`. Test [`TEST-18.1.2.md`](./TEST-18.1.2.md).
+> **Jetzt:** App-Code **`18.4.3`**. Sideload-APK **`18.4.3`**, versionCode `180403`. Sprints 283–300 CODE + APK. Test [`TEST-18.4.3.md`](./TEST-18.4.3.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -589,7 +589,7 @@ Verlust nützen). Kein LLM-Organizer — Director existiert.
 | **`18.1.0`** | Audit-Reste: Fakten-Absage, Tanke/POI einmal, SMS-Funk, Skripte/tsc | 272–281 **CODE + APK** |
 | `18.1.1` | Sprachmodus liest die ganze Antwort, nicht nur den ersten Satz | Patch **CODE + APK** |
 | `18.1.2` | Eine TTS-Wiedergabe, MediaPlayer statt WebView-Audio | Patch **CODE + APK** |
-| `18.4.3` | Ideen 283–287, Karten 288–290, Watchliste 291–296, Körper 297–300 | Bundle **CODE**, Sideload bleibt `18.1.2` |
+| `18.4.3` | Ideen 283–287, Karten 288–290, Watchliste 291–296, Körper 297–300 | Bundle **CODE + APK** `180403` |
 
 ### `18.2` — Ideen halten [`72-next.md`](./72-next.md) **CODE** in `18.4.3`
 
@@ -611,7 +611,7 @@ Sprints 272–281 sind **CODE** in `18.1.0`. 282 bleibt Freeze in [`71-audit.md`
 Filme merken (Watchliste) und mögen (Lieblinge). Overlay mit Slides,
 Poster, Kritiker- und Publikumswert. Gesehen intern im Wissenszentrum.
 Tipp aus Lieblingen (Gewicht 3) und Gesehenem (Gewicht 1). Zahlen nur
-über OMDb. Kein Sideload `18.3.x` ohne APK.
+über OMDb. Sideload in `18.4.3`.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -626,7 +626,7 @@ Tipp aus Lieblingen (Gewicht 3) und Gesehenem (Gewicht 1). Zahlen nur
 
 Knoten aus dem Katalog, Kanten Agent↔Pack (GWT-Broadcast Allowlist),
 Pack-Links per Token-Overlap und 1-Hop Retrieve. Kein Qdrant, kein
-LLM-Organizer, keine Graph-Lib. Kein Sideload `18.4.x` ohne APK.
+LLM-Organizer, keine Graph-Lib. Sideload in `18.4.3`.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|

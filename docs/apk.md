@@ -1,6 +1,8 @@
-# Android-APK — Sideload `18.1.2`
+# Android-APK — Sideload `18.4.3`
 
-App-Code **`18.1.2`**. Sideload-APK **`18.1.2`**, versionCode `180102`.
+App-Code **`18.4.3`**. Sideload-APK **`18.4.3`**, versionCode `180403`.
+
+**18.4.3:** Ideen halten, Watchliste/Lieblinge, Karten-Reste, Körper/Wissen. Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md).
 
 **18.1.2:** Sprachmodus liest die ganze Antwort in einem Stück, nativer MediaPlayer. Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md).
 
@@ -28,10 +30,10 @@ App-Code **`18.1.2`**. Sideload-APK **`18.1.2`**, versionCode `180102`.
 
 ## Download
 
-**Fertige APK `18.1.2`:**  
+**Fertige APK `18.4.3`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.1.2` · versionCode `180102`
+- versionName `18.4.3` · versionCode `180403`
 
 ## Build lokal
 

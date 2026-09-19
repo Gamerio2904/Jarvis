@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.1.2`**, versionCode `180102`. App-Code **`18.4.3`** (Sprints 283–300). Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.1.2.md`](./TEST-18.1.2.md). Kein Sideload `18.4`.
+**Live-APK:** **`18.4.3`**, versionCode `180403`. App-Code **`18.4.3`** (Sprints 283–300). Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.4.3.md`](./TEST-18.4.3.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute (`17.0.0`):** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -92,7 +92,7 @@ Begründung: [`73-next.md`](./73-next.md).
 Harte Kette: 291 → 292 → 293. 294 braucht Parser und Overlay.
 295 braucht 291. 296 braucht 291 + 295.
 Kein RT-Scrape. Keine erfundenen Prozent. `Spiel … Film` bleibt TV.
-Kein Sideload `18.3.x` solange die APK `18.1.2` ist.
+Kein Sideload `18.3.x` als eigene Datei — liegt in APK `18.4.3`.
 
 Begründung: [`74-next.md`](./74-next.md).
 
@@ -107,7 +107,7 @@ Begründung: [`74-next.md`](./74-next.md).
 
 Harte Kette: 297 → 298 → 299. 300 braucht 297 und 298.
 Kein Qdrant, kein LLM-Organizer, kein Graphiti/cognee, keine neue Graph-Lib.
-Kein Sideload `18.4.x` solange die APK `18.1.2` ist.
+Kein Sideload `18.4.x` als eigene Datei — liegt in APK `18.4.3`.
 
 Begründung: [`75-next.md`](./75-next.md).
 

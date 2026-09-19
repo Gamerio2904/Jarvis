@@ -8,8 +8,7 @@ Die Leitentscheidung bleibt: **Parser wählen, ein Agent pro Zug, e5 Freeze,
 kein Qdrant, kein LLM-Organizer.** Der Körper **zeigt** und **schaltet um**,
 er startet keine Geräte. Wissen bleibt lokal (IndexedDB).
 
-**Kein Sideload `18.4.x`.** Live bleibt `18.1.2`. 18.3 (Watchliste 291–296)
-kommt in der Pull-Reihenfolge davor.
+**Sideload `18.4.3`.** 18.3 (Watchliste 291–296) ist in derselben APK.
 
 ---
 
