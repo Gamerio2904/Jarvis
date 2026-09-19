@@ -620,8 +620,10 @@ function readListMap(raw: string, fallbackTool: string): Record<string, string[]
 export function persistLastList(tool: string, titles: string[]): void {
   const s = loadSettings()
   const map = readListMap(s.last_list_json, s.last_step_tool)
-  map[tool] = titles.slice(0, 12)
+  const clipped = titles.slice(0, 12)
+  map[tool] = clipped
   const stepTool = tool.startsWith('watch-') ? 'watchlist' : tool
+  if (stepTool !== tool) map[stepTool] = clipped
   saveSettings({
     last_step_tool: stepTool,
     last_step_title: titles[0] || s.last_step_title,

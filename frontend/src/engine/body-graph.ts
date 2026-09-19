@@ -83,6 +83,12 @@ function overlap(a: string, b: string): number {
   return tb.filter((w) => ta.has(w)).length / Math.max(ta.size, 1)
 }
 
+function retrieveAsk(input: BodyGraphInput): string {
+  const said = (input.lastUtterance || '').trim()
+  if (said) return said
+  return organQuery({ ...input, lastStepTool: '' })
+}
+
 export function organQuery(input: BodyGraphInput): string {
   const bits = [input.lastUtterance, input.lastStepTool, organLabel(input.organ)]
     .map((s) => (s || '').trim())
@@ -123,7 +129,9 @@ export function skillsForOrgan(organ: BodyOrgan, lastStepTool = ''): SkillSpec[]
   const rest = hits.filter((s) => !preferred.some((p) => p.id === s.id))
   let out = [...preferred, ...rest]
   const extra = catalog.find((s) => s.id === lastStepTool)
-  if (extra) out = [extra, ...out.filter((s) => s.id !== extra.id)]
+  if (extra && extra.organs.includes(organ)) {
+    out = [extra, ...out.filter((s) => s.id !== extra.id)]
+  }
   return out.slice(0, BODY_TREE_SKILL_CAP)
 }
 
@@ -199,7 +207,7 @@ export function buildBodyGraph(input: BodyGraphInput): BodyGraph {
   ]
 
   const skills = skillsForOrgan(input.organ, input.lastStepTool)
-  const packs = retrievePacks(query, input.packs)
+  const packs = retrievePacks(retrieveAsk(input), input.packs)
   const clusters = new Map<string, KnowledgePack[]>()
   for (const p of packs) {
     const k = clusterKey(p)

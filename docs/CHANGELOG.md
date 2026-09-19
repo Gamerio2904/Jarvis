@@ -22,6 +22,12 @@ Kritiker+Publikum, Gesehen intern (`filme-gesehen`), Tipp aus Lieblingen.
 **18.4 Körper:** Katalog am Classic-Baum, Agent↔Pack, Claims im Retrieve,
 Pack-Links + 1-Hop. Tanke ohne Fachwissen.
 
+Härten: Watchliste-Ordinals (`lösche das zweite`) treffen die letzte Liste.
+Classic und Agenten lesen denselben Retrieve (Timer blockiert Packs nicht).
+Last-Tool nur am passenden Organ. Overlay-Fertig räumt die History.
+Mikrofon-Absage schließt den Sprachmodus und schreibt einmal in den Chat.
+OMDb-Fehlschlag sperrt Noten nicht 24h.
+
 ### `18.4` — Körper, Agenten, Wissenszentrum — *CODE in 18.4.3*
 
 Sprints 297–300: [`75-next.md`](./75-next.md). Keine APK `18.4`. Live bleibt `18.1.2`.

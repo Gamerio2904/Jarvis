@@ -320,10 +320,16 @@ async function routeDeterministic(conversationId: string, content: string): Prom
     if (!title) {
       return { reply: `Es gibt nur ${titles.length} Einträge.`, lastTool: 'ordinal' }
     }
-    const rewritten = rewriteOrdinal(content, loadSettings().last_step_tool, titles)
+    const stepTool = loadSettings().last_step_tool
+    const rewritten = rewriteOrdinal(
+      content,
+      stepTool,
+      titles,
+      stepTool === 'watchlist' ? readLastList('watch-favorite') : undefined,
+    )
     if (rewritten) return routeDeterministic(conversationId, rewritten)
     const label = ord.index === 1 ? 'zweite' : `${ord.index + 1}.`
-    return { reply: `Das ${label}: ${title}.`, lastTool: loadSettings().last_step_tool || 'ordinal' }
+    return { reply: `Das ${label}: ${title}.`, lastTool: stepTool || 'ordinal' }
   }
 
   return loadSettings().agent_network_v2

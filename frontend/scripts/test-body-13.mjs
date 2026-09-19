@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { APP_VERSION } from '../src/engine/store.ts'
 import { PKG_VERSION } from './app-version.mjs'
 import { buildBodyGraph, SKILL_CATALOG, skillsForOrgan } from '../src/engine/body-graph.ts'
+import { retrievePacks } from '../src/engine/knowledge-retrieve.ts'
 import { parseCalendarIntent, nextNamedDay } from '../src/engine/calendar-parse.ts'
 import { pickRoute } from '../src/engine/route-pick.ts'
 import { TEST_COPY_GROUPS } from '../src/engine/test-copy.ts'
@@ -14,6 +15,10 @@ assert.ok(skillsForOrgan('eye').some((s) => s.organs.includes('eye')))
 assert.ok(skillsForOrgan('memory').some((s) => s.id === 'calendar'))
 assert.ok(skillsForOrgan('hand').some((s) => s.id === 'tv') || skillsForOrgan('mouth').some((s) => s.id === 'tv'))
 assert.ok(skillsForOrgan('brain').some((s) => !['calendar', 'research', 'teach', 'memory', 'recall', 'eye', 'desk', 'pc', 'doc'].includes(s.id)))
+assert.ok(!skillsForOrgan('brain', 'watchlist').some((s) => s.id === 'watchlist'))
+assert.equal(skillsForOrgan('eye', 'watchlist')[0]?.id, 'watchlist')
+assert.ok(skillsForOrgan('memory', 'calendar').some((s) => s.id === 'calendar'))
+assert.ok(!skillsForOrgan('brain', 'calendar').some((s) => s.id === 'calendar'))
 
 const emptySnap = {
   brain: { live: false, line: 'Hirn' },
@@ -80,6 +85,36 @@ const emptySnap = {
   assert.ok(g.nodes.some((n) => n.kind === 'knowledge' && /FritzBox/.test(n.label)))
   assert.ok(g.nodes.some((n) => n.kind === 'claim'))
   assert.ok(skillsForOrgan('brain').length <= 5)
+}
+
+{
+  /** @type {import('../src/engine/knowledge-types.ts').KnowledgePack} */
+  const pack = {
+    id: 'lichtbogen',
+    topic: 'lichtbogen',
+    title: 'Lichtbogen',
+    aliases: ['palladium'],
+    summary: 'Palladium ist knapp.',
+    claims: [{ id: 'c1', text: 'Palladium ist knapp.', source_urls: [], user_ok: true }],
+    sources: [],
+    origin: 'user',
+    taught_at: '2026-09-03T00:00:00Z',
+    updated_at: '2026-09-03T00:00:00Z',
+    user_ok: true,
+  }
+  const ask = 'Was steht bei uns zum Lichtbogen?'
+  const agentHits = retrievePacks(ask, [pack])
+  assert.ok(agentHits.some((p) => p.topic === 'lichtbogen'))
+  const g = buildBodyGraph({
+    organ: 'brain',
+    snap: emptySnap,
+    packs: [pack],
+    memory: [],
+    events: [],
+    lastUtterance: ask,
+    lastStepTool: 'timer',
+  })
+  assert.ok(g.nodes.some((n) => n.kind === 'knowledge' && /Lichtbogen/.test(n.label)))
 }
 
 const frozen = new Date('2026-09-03T10:00:00+02:00')

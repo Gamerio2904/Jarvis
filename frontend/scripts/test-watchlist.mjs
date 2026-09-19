@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import 'fake-indexeddb/auto'
 import { parseWatchlistIntent } from '../src/engine/watchlist-parse.ts'
 import { handleWatchlist } from '../src/engine/watchlist.ts'
-import { addWatchMovie, listWatchMovies, listWatchedMovies, persistLastList } from '../src/engine/store.ts'
+import { addWatchMovie, listWatchMovies, listWatchedMovies, loadSettings, persistLastList, readLastList } from '../src/engine/store.ts'
 import { parseTvWatch } from '../src/engine/tv-parse.ts'
 import { parseFilmIntent } from '../src/engine/film-parse.ts'
 import { parseIdeaIntent } from '../src/engine/idea-parse.ts'
@@ -12,6 +12,19 @@ import { pickRoute } from '../src/engine/route-pick.ts'
 import { fromOmdb } from '../src/engine/omdb.ts'
 import { overlayHidesDrive } from '../src/engine/overlay-fsm.ts'
 import { applyWatched, WATCHED_PACK_TOPIC } from '../src/engine/film-taste.ts'
+import { rewriteOrdinal } from '../src/engine/ordinal.ts'
+
+if (!globalThis.localStorage) {
+  const mem = new Map()
+  globalThis.localStorage = {
+    getItem: (k) => (mem.has(k) ? mem.get(k) : null),
+    setItem: (k, v) => { mem.set(String(k), String(v)) },
+    removeItem: (k) => { mem.delete(String(k)) },
+    clear: () => mem.clear(),
+    key: (i) => [...mem.keys()][i] ?? null,
+    get length() { return mem.size },
+  }
+}
 
 assert.equal(parseWatchlistIntent('Watchliste: Dune')?.kind, 'add')
 assert.equal(parseWatchlistIntent('Watchliste: Dune')?.list, 'watch')
@@ -98,6 +111,28 @@ assert.ok(
 
 assert.equal(parseTasteIntent('Ich habe Dune geschaut')?.kind, 'seen')
 assert.equal(parseTasteIntent('Spiel Dune Film'), null)
+
+{
+  persistLastList('watch-watch', ['Heat', 'Alien'])
+  assert.equal(loadSettings().last_step_tool, 'watchlist')
+  assert.deepEqual(readLastList(), ['Heat', 'Alien'])
+  assert.deepEqual(readLastList('watch-watch'), ['Heat', 'Alien'])
+  const del = rewriteOrdinal('lösche das zweite', 'watchlist', readLastList())
+  assert.equal(del, 'Watchliste 2 weg')
+  assert.equal(parseWatchlistIntent(del)?.kind, 'remove')
+  persistLastList('watch-favorite', ['Arrival', 'Dune'])
+  const favDel = rewriteOrdinal(
+    'lösche das erste',
+    'watchlist',
+    readLastList(),
+    readLastList('watch-favorite'),
+  )
+  assert.equal(favDel, 'Lieblingsliste 1 weg')
+  assert.equal(parseWatchlistIntent(favDel)?.kind, 'remove')
+  const ideaDel = rewriteOrdinal('lösche das zweite', 'idea', ['Lidl', 'Schach'])
+  assert.equal(ideaDel, 'Idee 2 weg')
+  assert.equal(parseIdeaIntent(ideaDel)?.kind, 'done')
+}
 
 await handleWatchlist('c2', 'Watchliste: Alien')
 await handleWatchlist('c2', 'Ich habe Alien geschaut')

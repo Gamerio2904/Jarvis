@@ -292,6 +292,7 @@ function App() {
   const [chessOpen, setChessOpen] = useState(false)
   const [overlay, setOverlay] = useState(OVERLAY_INIT)
   const voiceOpenRef = useRef(false)
+  const micDeniedRef = useRef(false)
   const driveOpenRef = useRef(false)
   const wakeGateRef = useRef<WakeGate>({ lastAt: 0, open: false })
   voiceOpenRef.current = voiceOpen
@@ -377,11 +378,13 @@ function App() {
    * danach für immer `null` zurück, der Sprachmodus war bis zum Neustart der
    * App nicht mehr aufzuwecken.
    */
-  function closeVoice(clearSeed = false) {
+  function closeVoice(clearSeed = false, fromPop = false) {
+    const wasOpen = voiceOpenRef.current
     setVoiceOpen(false)
     if (clearSeed) setVoiceSeed('')
     closeSheet('voice')
     wakeGateRef.current = closeWake(wakeGateRef.current)
+    if (wasOpen && !fromPop) dropOverlayHistory()
   }
 
   function openVoiceMode(seed = '') {
@@ -393,6 +396,7 @@ function App() {
     setSettingsPanelOpen(false)
     setCalendarOpen(false)
     setWatchlistOpen(false)
+    micDeniedRef.current = false
     setVoiceOpen(true)
     openSheet('voice')
   }
@@ -517,7 +521,7 @@ function App() {
         return
       }
       if (voiceOpen) {
-        closeVoice()
+        closeVoice(false, true)
         return
       }
       if (driveOpen) {
@@ -1569,6 +1573,7 @@ function App() {
       closeSheet('calendar')
       closeSheet('watchlist')
       closeVoice()
+      dropOverlayHistory()
       setLageSession(false)
       void patchSettings({ hud_force: false, hud_hidden: true }).then((s) => setSettings(s))
       return
@@ -1581,6 +1586,7 @@ function App() {
       closeSheet('calendar')
       closeSheet('watchlist')
       closeVoice()
+      dropOverlayHistory()
       setLageSession(true)
       void patchSettings({ hud_force: true, hud_hidden: false, hud_view: 'globe' }).then((s) => setSettings(s))
       return
@@ -1766,6 +1772,9 @@ function App() {
               if (id) voiceCutsRef.current.set(id, spoken)
             }}
             onMicDenied={() => {
+              if (micDeniedRef.current) return
+              micDeniedRef.current = true
+              closeVoice(true)
               void (async () => {
                 const id = await ensureConversation()
                 const { addMessage } = await import('./engine/store.ts')
@@ -1805,13 +1814,17 @@ function App() {
               closeDrive()
               setDriveOpen(false)
               closeSheet('drive')
+              dropOverlayHistory()
             }}
             onCommand={(text) => sendVoiceTurn(text)}
           />
         ) : null}
         {chessOpen ? (
           <ChessMode
-            onClose={() => setChessOpen(false)}
+            onClose={() => {
+              setChessOpen(false)
+              dropOverlayHistory()
+            }}
             onCommand={(text) => sendVoiceTurn(text)}
           />
         ) : null}
@@ -2070,6 +2083,7 @@ function App() {
           onClose={() => {
             setSettingsPanelOpen(false)
             closeSheet('settings')
+            dropOverlayHistory()
           }}
           settings={settings}
           settingsBusy={settingsBusy}

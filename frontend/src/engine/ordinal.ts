@@ -38,6 +38,7 @@ export function rewriteOrdinal(
   text: string,
   tool: string,
   titles: string[],
+  listHint?: string[],
 ): string | null {
   const hit = parseOrdinalFollowUp(text)
   if (!hit) return null
@@ -50,5 +51,12 @@ export function rewriteOrdinal(
   if (tool === 'reminder') return `lösche Erinnerung ${title}`
   if (tool === 'shopping') return `${title} hab ich`
   if (tool === 'alarm') return `lösche Wecker ${title}`
+  if (tool === 'watchlist') {
+    const n = hit.index + 1
+    const fav = listHint || []
+    const sameFav = fav.length === titles.length && titles.every((t, i) => t === fav[i])
+    return sameFav ? `Lieblingsliste ${n} weg` : `Watchliste ${n} weg`
+  }
+  if (tool === 'idea') return `Idee ${hit.index + 1} weg`
   return null
 }

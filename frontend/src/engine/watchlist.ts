@@ -84,7 +84,6 @@ async function enrich(row: WatchMovie): Promise<WatchMovie> {
       critic: row.critic ?? null,
       audience: row.audience ?? null,
       poster: row.poster ?? null,
-      scoresAt: new Date().toISOString(),
     }
   }
   const hit = res.hit
