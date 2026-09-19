@@ -33,6 +33,7 @@ assert.doesNotMatch(lage, /pin-bubble-backdrop/)
 assert.doesNotMatch(lage, /<>[\s\S]{0,80}pin-bubble[\s\S]{0,400}<\/>/)
 
 assert.match(globe, /pickTappedPin/)
+assert.match(globe, /kickRef\.current\(\)[\s\S]{0,40}\[pins, issTrail\]/)
 assert.match(globe, /pin\.kind === 'fire' \|\| pin\.kind === 'quake'[\s\S]{0,40}5\.5/)
 assert.match(globe, /Math\.hypot\(p\.x - start\.x, p\.y - start\.y\) > 22/)
 

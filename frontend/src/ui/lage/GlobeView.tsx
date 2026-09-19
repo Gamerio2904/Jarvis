@@ -103,6 +103,10 @@ export function GlobeView({
   }, [focusKey, reduced, focus])
 
   useEffect(() => {
+    kickRef.current()
+  }, [pins, issTrail])
+
+  useEffect(() => {
     if (homedHere.current) return
     if (focus) return
     const here = pins.find((p) => p.kind === 'here')
