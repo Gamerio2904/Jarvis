@@ -728,7 +728,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'nächste Tankstelle', text: 'nächste Tankstelle', expect: { tool: 'fuel' } },
       { label: 'Regnet es gleich', text: 'Regnet es gleich?', expect: { tool: 'weather' } },
       { label: 'Wetter 3 Tage', text: 'Wetter die nächsten drei Tage', expect: { tool: 'weather' } },
-      { label: 'Luftqualität', text: 'Luftqualität', expect: { tool: 'weather' } },
+      { label: 'Luftqualität', text: 'Luftqualität', expect: { tool: 'hud' } },
       { label: 'Sonnenuntergang', text: 'Sonnenuntergang', expect: { tool: 'weather' } },
       { label: 'Wie warm wird es', text: 'Wie warm wird es', expect: { tool: 'weather' } },
       { label: 'Taschenlampe aus', text: 'Taschenlampe aus', expect: { tool: 'device' } },

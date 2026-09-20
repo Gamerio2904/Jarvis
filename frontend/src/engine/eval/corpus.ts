@@ -245,7 +245,7 @@ export const GOLD_EXPECT: Record<string, string> = {
   'nächste Tankstelle': 'fuel',
   'Regnet es gleich?': 'weather',
   'Wetter die nächsten drei Tage': 'weather',
-  'Luftqualität': 'weather',
+  'Luftqualität': 'hud',
   'Sonnenuntergang': 'weather',
   'Wie warm wird es': 'weather',
   'Taschenlampe aus': 'device',

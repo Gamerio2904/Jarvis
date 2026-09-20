@@ -3,12 +3,7 @@ import { loadSettings } from './store.ts'
 import { jsonUA } from './ua.ts'
 import { haversineKm, type GeoFix, type GeoPinKind } from './globe-geo.ts'
 import { INFRA_FIXES, SEA_FIXES } from './globe-static.ts'
-import {
-  GLOBE_LAYER_IDS,
-  LAYER_TITLE,
-  isGlobeLayer,
-  type GlobeLayer,
-} from './globe-layer-ids.ts'
+import { LAYER_TITLE, isGlobeLayer, type GlobeLayer } from './globe-layer-ids.ts'
 
 export type { GlobeLayer } from './globe-layer-ids.ts'
 export { GLOBE_LAYER_IDS, LAYER_TITLE, chipOffLabel, isGlobeLayer } from './globe-layer-ids.ts'
@@ -123,7 +118,10 @@ export function parseGlobeLayerPhrase(text: string): LayerPhrase | null {
   if (/^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?)\s+(?:die\s+|das\s+|den\s+)?unwetter\b/i.test(t) || /^\s*wo\s+tobt\s+(?:ein\s+)?sturm\b/i.test(t)) {
     return { kind: 'layer', layer: 'weather' }
   }
-  if (/\bluftqualit[aä]t\b/i.test(t) || /^\s*wie\s+ist\s+die\s+luft(?:\s+hier)?\s*\??\s*$/i.test(t)) {
+  if (
+    /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?)\s+(?:die\s+|das\s+)?luftqualit[aä]t\b/i.test(t) ||
+    /^\s*luftqualit[aä]t\s*$/i.test(t)
+  ) {
     return { kind: 'layer', layer: 'air' }
   }
   if (/\bgps[- ]störung\b/i.test(t) || /\bradar[- ]störung\b/i.test(t) || /^\s*zeig(?:e)?(?:\s+mir)?\s+(?:die\s+)?(?:gps[- ]?|radar[- ]?)störung\b/i.test(t)) {

@@ -187,7 +187,7 @@ Schicht an (Kugel auf, Fetch, Chip):
 | `Wo brennt es` | `fires` (CODE, Quelle darf FIRMS werden) |
 | `Was fliegt über uns` | `overhead` (CODE) |
 | `Zeig Unwetter` / `Wo tobt ein Sturm` | `weather` |
-| `Luftqualität` / `Wie ist die Luft hier` | `air` |
+| `Luftqualität` / `Zeig Luftqualität` | `air` (Frage „Wie ist die Luft?“ bleibt Wetter-AQI) |
 | `GPS-Störung` / `Zeig Radar-Störung` | `radar` |
 | `Zeig Satelliten` / `Was ist im Orbit` | `sats` |
 | `Weltraumwetter` | Text, keine Pin-Wolke |
