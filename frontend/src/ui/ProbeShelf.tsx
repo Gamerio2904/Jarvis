@@ -174,8 +174,8 @@ export function ProbeShelf({
       <section className="settings-card probe-shelf-card" id="sf-debug">
         <h3>Testprompts</h3>
         <p className="settings-lead">
-          Spur wählen, nicht die ganze Liste runterfahren. Senden schließt die Folie und gibt den Satz in den Chat.
-          Kopieren bleibt fürs Handy-Gerät. Tasten 1–8 wechseln die Spur, / sucht.
+          Spur statt Endlosliste. Senden schließt die Folie und schreibt in den Chat. Kopieren bleibt fürs Handy.
+          Tasten 1–8 wechseln die Spur, / sucht.
         </p>
         <div className="probe-shelf">
           <nav ref={laneThumb.hostRef} className="probe-lanes pill-tabs" aria-label="Test-Spuren">
