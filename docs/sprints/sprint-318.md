@@ -1,6 +1,6 @@
 # Sprint 318 — Selbststeuerung der Flächen
 
-**Version:** `18.7.3` — **PLAN** Must
+**Version:** `18.7.3` — **CODE** Must
 **Plan:** [`78-next.md`](../78-next.md)
 **Voraussetzung:** Sprint **315**. Overlay-Close aus 317 darf mitlaufen.
 

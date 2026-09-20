@@ -1,6 +1,6 @@
 # Sprint 319 — Settings-Writes Allowlist
 
-**Version:** `18.7.4` — **PLAN** Must
+**Version:** `18.7.4` — **CODE** Must
 **Plan:** [`78-next.md`](../78-next.md)
 **Voraussetzung:** Sprint **318**. Writes nur nach „Soll ich?“.
 

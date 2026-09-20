@@ -1,6 +1,6 @@
 # Sprint 320 — Propose härten, ehrliches Unknown
 
-**Version:** `18.7.5` — **PLAN** Must
+**Version:** `18.7.5` — **CODE** Must
 **Plan:** [`78-next.md`](../78-next.md)
 **Voraussetzung:** Sprint **315**. Verträge dürfen 317–319 nutzen.
 

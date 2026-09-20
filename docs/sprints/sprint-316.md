@@ -1,6 +1,6 @@
 # Sprint 316 — 6. Dock-Icon Filme
 
-**Version:** `18.7.1` — **PLAN** Must
+**Version:** `18.7.1` — **CODE** Must
 **Plan:** [`78-next.md`](../78-next.md)
 **Voraussetzung:** Sprint **315**. PO: sechs Slots, nicht Chips.
 

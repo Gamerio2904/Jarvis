@@ -53,7 +53,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E58 | Watchliste `18.3` | 5+ | Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten — [`74-next.md`](./74-next.md) **PLAN** |
 | E59 | Körper/Wissen `18.4` | 4 | Katalog am Körper, Agent↔Pack, Pack-Links — [`75-next.md`](./75-next.md) **PLAN** |
 | E60 | Lage-Kugel OSINT `18.6` | 5+ | OSIRIS-Fähigkeiten in der Kugel — [`77-next.md`](./77-next.md) **CODE** `18.6.0` |
-| E61 | Listen-Leiste / Selbststeuerung `18.7` | 5+ | 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb — [`78-next.md`](./78-next.md) **PLAN** |
+| E61 | Listen-Leiste / Selbststeuerung `18.7` | 5+ | 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb — [`78-next.md`](./78-next.md) **CODE** `18.7.0` |
 
 ---
 
@@ -617,18 +617,18 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S61.1 | Als Nutzer will ich Watchliste und Lieblinge unten in der Leiste sehen und per Hand öffnen. | Must | idea | Sprint 316–317; 6. Dock-Icon Filme |
-| S61.2 | Als Nutzer will ich Overlays per Satz und per Hand dieselbe Folie öffnen und schließen. | Must | idea | Sprint 317; FSM eine |
-| S61.3 | Als Nutzer will ich, dass Jarvis Einstellungen, Dock und Folien selbst steuert. | Must | idea | Sprint 318–319; Allowlist + Soll ich? |
-| S61.4 | Als Nutzer will ich bei unklaren Befehlen eine ehrliche Absage statt Fake-Ausführung. | Must | idea | Sprint 320; Nachbarn, kein Smalltalk-Fake |
-| S61.5 | Als Nutzer will ich eine gepunktete Kugel sehen, während Jarvis antwortet. | Must | idea | Sprint 322; Chat + Sprachmodus; Thinking Orbs MIT |
+| S61.1 | Als Nutzer will ich Watchliste und Lieblinge unten in der Leiste sehen und per Hand öffnen. | Must | done | Sprint 316–317; 6. Dock-Icon Filme |
+| S61.2 | Als Nutzer will ich Overlays per Satz und per Hand dieselbe Folie öffnen und schließen. | Must | done | Sprint 317; FSM eine |
+| S61.3 | Als Nutzer will ich, dass Jarvis Einstellungen, Dock und Folien selbst steuert. | Must | done | Sprint 318–319; Allowlist + Soll ich? |
+| S61.4 | Als Nutzer will ich bei unklaren Befehlen eine ehrliche Absage statt Fake-Ausführung. | Must | done | Sprint 320; Nachbarn, kein Smalltalk-Fake |
+| S61.5 | Als Nutzer will ich eine gepunktete Kugel sehen, während Jarvis antwortet. | Must | done | Sprint 322; Chat + Sprachmodus; Thinking Orbs MIT |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **`18.7` Listen-Leiste / Selbststeuerung** 315–322 PLAN [`78-next.md`](./78-next.md)
-2. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md) — nicht parallel zu 18.7
+1. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md) — nicht parallel zu 18.7
+2. **`18.7` Listen-Leiste / Selbststeuerung** 315–322 CODE [`78-next.md`](./78-next.md)
 3. **`18.6` Lage-Kugel OSINT** 307–314 CODE [`77-next.md`](./77-next.md)
 4. PO Handy Sprint 178 — Katalog 168 + Home-FGS 30 s [`55-next.md`](./55-next.md)
 5. OEM-Akku 183, nur wenn 178 den FGS tot zeigt

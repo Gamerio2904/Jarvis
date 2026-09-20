@@ -1,10 +1,25 @@
 import { normalizeUtterance } from './utterance.ts'
 import type { SettingsTopic } from './settings-ia.ts'
+import {
+  flagFromTitle,
+  flagUtterance,
+  type JarvisFlag,
+  type UiDockId,
+  type UiOverlayId,
+} from './ui-action.ts'
+
+export type UiAction =
+  | { id: 'overlay.open'; overlay: UiOverlayId }
+  | { id: 'overlay.close' }
+  | { id: 'settings.tab'; topic: SettingsTopic }
+  | { id: 'settings.set'; flag: JarvisFlag; on: boolean; title: string }
+  | { id: 'dock.go'; dock: UiDockId }
 
 export type AppIntent =
   | { kind: 'settings'; topic: SettingsTopic }
   | { kind: 'voice' }
   | { kind: 'theme'; accent: 'amber' | 'green' }
+  | { kind: 'ui'; action: UiAction }
 
 const TOPIC_WORD: Array<{ re: RegExp; topic: SettingsTopic }> = [
   { re: /\b(debug|tests?)\b/i, topic: 'debug' },
@@ -32,13 +47,48 @@ function topicFrom(t: string): SettingsTopic {
   return 'keys'
 }
 
+function parseFlagSet(t: string): Extract<UiAction, { id: 'settings.set' }> | null {
+  const hit =
+    /^\s*(research|forschung|gemini|werkzeug(?:-|\s*)vorschlag|kugel-lite|tv-schalter)\s+(an|aus|ein|on|off)\s*[.!?]*$/i.exec(
+      t,
+    )
+  if (!hit) return null
+  const flag = flagFromTitle(hit[1])
+  if (!flag) return null
+  const on = /^(an|ein|on)$/i.test(hit[2])
+  return { id: 'settings.set', flag, on, title: flagUtterance(flag, on).split(' ')[0] }
+}
+
 /** Interne App-Flächen. Kein Fake-Klick, kein WLAN/TV-Gerät. */
 export function parseAppIntent(text: string): AppIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 80) return null
   if (/\b(wlan|wifi|bluetooth|nicht\s+st[oö]ren)\b/i.test(t)) return null
+  if (/\b(klick|tipp|speichern|screenshot)\b/i.test(t)) return null
   if (/^\s*(?:was\s+weißt\s+du|was\s+hast\s+du\s+dir|erinnerst\s+du\s+dich)\b/i.test(t)) return null
   if (/\bdann\b/i.test(t)) return null
+
+  if (
+    /^\s*(?:einstellungen|overlay|folie)\s+zu\s*[.!?]*$/i.test(t) ||
+    /^\s*fertig\s*[.!?]*$/i.test(t)
+  ) {
+    return { kind: 'ui', action: { id: 'overlay.close' } }
+  }
+
+  const flag = parseFlagSet(t)
+  if (flag) return { kind: 'ui', action: flag }
+
+  if (
+    /^\s*(?:zur[uü]ck\s+zum\s+chat|zeig(?:e)?\s+(?:den\s+)?chat)\s*[.!?]*$/i.test(t)
+  ) {
+    return { kind: 'ui', action: { id: 'dock.go', dock: 'chat' } }
+  }
+  if (/^\s*(?:zeig(?:e)?|öffne[n]?)\s+(?:die\s+)?lage\s*[.!?]*$/i.test(t)) {
+    return { kind: 'ui', action: { id: 'dock.go', dock: 'lage' } }
+  }
+  if (/^\s*(?:zeig(?:e)?|öffne[n]?)\s+filme\s*[.!?]*$/i.test(t)) {
+    return { kind: 'ui', action: { id: 'dock.go', dock: 'watchlist' } }
+  }
 
   if (
     /^\s*(?:sprachmodus|jarvis\s+h[oö]ren)\s*[.!?]*$/i.test(t) ||
@@ -65,7 +115,7 @@ export function parseAppIntent(text: string): AppIntent | null {
     /^\s*(?:[oö]ffne|zeig(?:e)?)\s+(?:das\s+)?(?:debug|tests?)\s*[.!?]*$/i.test(t) ||
     /^\s*debug(?:[- ]panel)?\s*[.!?]*$/i.test(t)
   ) {
-    return { kind: 'settings', topic: 'debug' }
+    return { kind: 'ui', action: { id: 'overlay.open', overlay: 'debug' } }
   }
 
   if (
@@ -87,7 +137,7 @@ export function parseAppIntent(text: string): AppIntent | null {
     /^\s*einstellungen(?:\s+(.+))?\s*[.!?]*$/i.test(t) ||
     /^\s*settings(?:\s+(.+))?\s*[.!?]*$/i.test(t)
   ) {
-    return { kind: 'settings', topic: topicFrom(t) }
+    return { kind: 'ui', action: { id: 'settings.tab', topic: topicFrom(t) } }
   }
 
   return null

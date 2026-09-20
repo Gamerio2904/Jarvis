@@ -1,15 +1,15 @@
-# 42 — Alles geplant (Stand Code `18.6.0`, PLAN `18.7`)
+# 42 — Alles geplant (Stand Code `18.7.0`, PLAN `18.5`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.4.4`**, versionCode `180404`. App-Code **`18.6.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+**Live-APK:** **`18.4.4`**, versionCode `180404`. App-Code **`18.7.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-1. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 PLAN**. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs wenn Jarvis antwortet. Kein Computer-Use. **Nicht parallel** zu `18.5`.
-2. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu `18.7`.
+1. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu `18.7`.
+2. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 CODE** in `18.7.0`. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs. Kein Computer-Use. Sideload bleibt `18.4.4`.
 3. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 CODE** in `18.6.0`. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner.
 4. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
 5. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
@@ -149,7 +149,7 @@ App-Code `18.6.0`. Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
 
 Begründung: [`77-next.md`](./77-next.md).
 
-## PLAN — Schiene `18.7` (Sprints 315–322)
+## CODE — Schiene `18.7` (Sprints 315–322)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -162,10 +162,9 @@ Begründung: [`77-next.md`](./77-next.md).
 | `18.7.6` | [321](./sprints/sprint-321.md) | Härten, Gold, Meilenstein |
 | `18.7.7` | [322](./sprints/sprint-322.md) | Antwort-Orb (Thinking Orbs), Chat + Sprache |
 
-Harte Kette: 315 → alles. 316 → 317. 319 braucht 318. 320 nach Katalog.
-322 darf neben 316–320. **321 zuletzt** (nach 322). Nicht parallel zu 301–306.
+App-Code `18.7.0`. Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
 Kein 7. Icon, keine Chips, kein Computer-Use, kein LLM-Organizer, e5 nicht in
-`pickRoute`. Sideload bleibt `18.4.4` bis Execute + SDK.
+`pickRoute`.
 
 Begründung: [`78-next.md`](./78-next.md).
 
@@ -303,4 +302,4 @@ Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein
 ### `13.40` Sprachmodus (CODE `13.44.0`)
 „Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**.
 
-Nächste Produktschiene: **`18.7`** [`78-next.md`](./78-next.md) Sprints 315–322 PLAN. Daneben **`18.5`** [`76-next.md`](./76-next.md) 301–306 PLAN, nicht parallel. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.
+Nächste Produktschiene: **`18.5`** [`76-next.md`](./76-next.md) 301–306 PLAN. **`18.7`** [`78-next.md`](./78-next.md) 315–322 **CODE** in `18.7.0`. Nicht parallel. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.

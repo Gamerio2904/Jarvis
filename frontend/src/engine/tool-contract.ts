@@ -13,6 +13,8 @@
  * Alles, was gesprochen oder angezeigt wird, bleibt deutsch.
  */
 
+import { flagFromTitle, flagUtterance } from './ui-action.ts'
+
 /** Ein flacher Beutel, weil `strict` alle Felder verlangt. Fehlt eins: `null`. */
 export type ToolArgs = {
   minutes: string | null
@@ -171,6 +173,47 @@ export const TOOL_CONTRACTS: ToolContract[] = [
       return `mach den Fernseher ${s === 'on' ? 'an' : 'aus'}`
     },
   },
+  {
+    name: 'open_watchlist',
+    agent: 'watchlist',
+    description: 'Open the watchlist overlay. No arguments.',
+    uses: [],
+    render: () => 'Öffne Watchliste',
+  },
+  {
+    name: 'open_favorites',
+    agent: 'watchlist',
+    description: 'Open the favorites tab of the film overlay. No arguments.',
+    uses: [],
+    render: () => 'Öffne Lieblinge',
+  },
+  {
+    name: 'open_settings',
+    agent: 'app',
+    description: 'Open Jarvis settings. No arguments.',
+    uses: [],
+    render: () => 'Öffne Einstellungen',
+  },
+  {
+    name: 'close_overlay',
+    agent: 'app',
+    description: 'Close the top overlay sheet. No arguments.',
+    uses: [],
+    render: () => 'Overlay zu',
+  },
+  {
+    name: 'set_jarvis_flag',
+    agent: 'app',
+    description:
+      'Toggle an allowlisted Jarvis setting. Title is Research, Gemini, Werkzeug-Vorschlag, Lage-Akzent, Fahrt-Stimme, Kugel-Lite or Fernseher. State is on or off.',
+    uses: ['title', 'state'],
+    render: (a) => {
+      const flag = flagFromTitle(a.title)
+      const s = (a.state || '').trim().toLowerCase()
+      if (!flag || (s !== 'on' && s !== 'off')) return null
+      return flagUtterance(flag, s === 'on')
+    },
+  },
 ]
 
 export const TOOL_NAMES = TOOL_CONTRACTS.map((t) => t.name)
@@ -271,14 +314,14 @@ export function confirmedUtterance(p: ParsedProposal, route: (text: string) => s
 }
 
 const DOMAIN =
-  /\b(timer|wecker|erinner\w*|termin|kalender|einkaufs?liste|einkaufen|liste|notiz|todo|aufgabe|fernseher|tv|glotze)\b/i
+  /\b(timer|wecker|erinner\w*|termin|kalender|einkaufs?liste|einkaufen|liste|notiz|todo|aufgabe|fernseher|tv|glotze|watchliste|liebling\w*|overlay|folie|einstellungen|settings|lage|kugel|schicht|debug)\b/i
 
 /** Fragewörter am Anfang: „Was ist ein Timer" ist keine Anweisung. */
 const QUESTION = /^\s*(was|wie|wer|wen|wem|wann|wo|wohin|woher|warum|wieso|weshalb|welche[rnsm]?|gibt|ist|sind|hast|habe|kenn\w*)\b/i
 
 /** Befehlsformen und die höfliche Umschreibung davon. */
 const COMMAND =
-  /^\s*(?:und\s+)?(?:bitte\s+)?(?:stell|setz|mach|schalt|erinner|weck|trag|leg|schreib|füg|lösch|starte?|plan|notier|richte|nimm|pack|kauf|hol|denk)\w*\b/i
+  /^\s*(?:und\s+)?(?:bitte\s+)?(?:öffne|zeig|schließ|wechsel|blende|stell|setz|mach|schalt|erinner|weck|trag|leg|schreib|füg|lösch|starte?|plan|notier|richte|nimm|pack|kauf|hol|denk)\w*\b/i
 const POLITE = /^\s*(?:und\s+)?(?:bitte\s+)?(?:kannst|kannste|könntest|würdest|magst|willst)\s+du\b|^\s*ich\s+(?:will|möchte|muss|brauche)\b/i
 
 /**

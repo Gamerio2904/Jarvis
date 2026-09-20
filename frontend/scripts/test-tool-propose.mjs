@@ -59,6 +59,11 @@ const BEISPIELE = {
   create_calendar_event: bag({ time: '09:00', date: '2026-10-02', title: 'Paket abholen' }),
   add_shopping_item: bag({ title: 'Milch' }),
   switch_tv: bag({ state: 'on' }),
+  open_watchlist: bag(),
+  open_favorites: bag(),
+  open_settings: bag(),
+  close_overlay: bag(),
+  set_jarvis_flag: bag({ title: 'Research', state: 'on' }),
 }
 for (const contract of TOOL_CONTRACTS) {
   const args = BEISPIELE[contract.name]

@@ -14,6 +14,7 @@ import {
   stopSpeak,
 } from '../native/voice.ts'
 import { abortCurrentTurn } from '../engine/turn-abort.ts'
+import { ReplyOrb } from './ReplyOrb.tsx'
 
 type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
 
@@ -312,15 +313,21 @@ export function VoiceMode({
         </header>
         <button
           type="button"
-          className={`voice-orb ${phase}`}
-          style={{ transform: reduced ? undefined : `scale(${(1 + level * 0.55).toFixed(3)})` }}
+          className={`voice-orb ${phase}${phase === 'thinking' ? ' is-reply-orb' : ''}`}
+          style={{ transform: reduced || phase === 'thinking' ? undefined : `scale(${(1 + level * 0.55).toFixed(3)})` }}
           onClick={() => void onOrb()}
           aria-label={label}
         >
-          <i className="orb-ring r1" />
-          <i className="orb-ring r2" />
-          <i className="orb-ring r3" />
-          <span />
+          {phase === 'thinking' ? (
+            <ReplyOrb state="composing" size={64} />
+          ) : (
+            <>
+              <i className="orb-ring r1" />
+              <i className="orb-ring r2" />
+              <i className="orb-ring r3" />
+              <span />
+            </>
+          )}
         </button>
         <p className="voice-status">{label}</p>
         {heard ? <p className="voice-line you">{heard}</p> : null}

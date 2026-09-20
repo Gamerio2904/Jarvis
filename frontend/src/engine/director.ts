@@ -14,6 +14,8 @@ import { curatorPreflight } from './agents/curator.ts'
 import { beginAgentTurn, pushAgentTrace, setLastUserFacts, setPolicyAsk } from './agents/trace-store.ts'
 import { confirmedUtterance, contractOf, looksCommandish } from './tool-contract.ts'
 import { proposeReady, proposeTool } from './tool-propose.ts'
+import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
+import { unknownReplyForCtx } from './command-neighbors.ts'
 import type { AgentResult, RouteHit } from './agents/types.ts'
 import type { RouteCtx } from './route-types.ts'
 
@@ -99,10 +101,39 @@ async function answerProposal(
     return { hit: { reply, lastTool: pending.action || PROPOSAL_TOOL }, userFacts: reply }
   }
   if (!YES.test(text) || !utterance) return null
-  await clearPending(conversationId)
+  const intent = parseAppIntent(utterance)
+  if (intent?.kind === 'ui' && intent.action.id === 'settings.set') {
+    await setPending({
+      conversation_id: conversationId,
+      tool: APP_FLAG_TOOL,
+      action: 'app',
+      args: { flag: intent.action.flag, on: intent.action.on, utterance },
+      preview: utterance,
+      created_at: new Date().toISOString(),
+    })
+  } else {
+    await clearPending(conversationId)
+  }
   const decision = decideTurn(makeDirectorCtx(conversationId, utterance))
   if (decision.pick.kind !== 'run' || decision.pick.id !== pending.action) return null
   return runPicked(decision.pick.id, decision.ctx, conversationId, utterance)
+}
+
+async function answerFlag(
+  conversationId: string,
+  pending: ToolPending,
+  text: string,
+): Promise<DirectorTurn | null> {
+  if (NO.test(text)) {
+    await clearPending(conversationId)
+    const reply = 'Okay, nicht gemacht.'
+    setLastUserFacts(reply)
+    return { hit: { reply, lastTool: pending.action || 'app' }, userFacts: reply }
+  }
+  if (!YES.test(text)) return null
+  const utterance = String(pending.args?.utterance || '')
+  if (!utterance) return null
+  return runPicked('app', makeDirectorCtx(conversationId, utterance), conversationId, utterance)
 }
 
 /**
@@ -176,6 +207,10 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
     const answered = await answerProposal(conversationId, pending, text)
     if (answered) return answered
   }
+  if (pending?.tool === APP_FLAG_TOOL) {
+    const answered = await answerFlag(conversationId, pending, text)
+    if (answered) return answered
+  }
   if (pending) {
     const pendingHit = await handleTools(conversationId, text)
     if (pendingHit.handled && pendingHit.reply) {
@@ -197,7 +232,16 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
     detail: `${raw.length} candidates → ${pick.kind === 'run' ? pick.id : pick.kind}`,
   })
 
-  if (pick.kind === 'none') return (await rescueByProposal(conversationId, ctx)) || { hit: null }
+  if (pick.kind === 'none') {
+    const rescued = await rescueByProposal(conversationId, ctx)
+    if (rescued) return rescued
+    if (looksCommandish(ctx.text)) {
+      const reply = unknownReplyForCtx(ctx)
+      setLastUserFacts(reply)
+      return { hit: { reply, lastTool: 'unknown' }, userFacts: reply }
+    }
+    return { hit: null }
+  }
   if (pick.kind === 'ask') {
     const s = loadSettings()
     if (s.brain_v2 && s.brain_micro_llm_clarify) {

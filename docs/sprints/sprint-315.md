@@ -1,6 +1,6 @@
 # Sprint 315 — 18.7 Leit + UI-Action-Katalog
 
-**Version:** `18.7.0` — **PLAN** Must
+**Version:** `18.7.0` — **CODE** Must
 **Plan:** [`78-next.md`](../78-next.md)
 **Voraussetzung:** App-Code `18.6.0`. Nicht parallel zu `18.5` (301–306).
 

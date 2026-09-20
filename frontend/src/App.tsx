@@ -87,12 +87,14 @@ import { resolveUiTheme } from './fx/theme-transition.ts'
 import { DebugChatDock } from './ui/DebugChatDock.tsx'
 import {
   IconCal,
+  IconFilm,
   IconGearMini,
   IconGlobe,
   IconHome,
   IconMic,
   NavIsland,
 } from './ui/NavIsland.tsx'
+import { ReplyOrb } from './ui/ReplyOrb.tsx'
 import { debugSnapshot, subscribeDebug } from './engine/debug-session.ts'
 import { acceptWake, closeWake, type WakeGate } from './engine/wake-gate.ts'
 
@@ -421,6 +423,26 @@ function App() {
     }
     if (action === 'settings') {
       openSettings(topic || 'allgemein')
+      return
+    }
+    if (action === 'overlay.close') {
+      setSettingsPanelOpen(false)
+      setCalendarOpen(false)
+      setWatchlistOpen(false)
+      closeSheet('settings')
+      closeSheet('calendar')
+      closeSheet('watchlist')
+      closeVoice()
+      dropOverlayHistory()
+      return
+    }
+    if (action === 'dock') {
+      const dock = String(tool.result?.dock || '')
+      if (dock) goDock(dock)
+      return
+    }
+    if (action === 'set') {
+      void refreshSettings()
     }
   }
 
@@ -1274,13 +1296,7 @@ function App() {
           }
           if (payload.tool?.tool === 'watchlist' && payload.tool.action === 'open') {
             const focus = String(payload.tool.result?.focus || '') === 'favorite' ? 'favorite' : 'watch'
-            setWatchlistFocus(focus)
-            setWatchlistOpen(true)
-            setCalendarOpen(false)
-            setSettingsPanelOpen(false)
-            setSidebarOpen(false)
-            closeVoice()
-            openSheet('watchlist')
+            openWatchlistSheet(focus)
           }
           applyAppTool(payload.tool)
           applyHudTool(payload.tool)
@@ -1479,6 +1495,10 @@ function App() {
               }
             }
             maybeOpenSettingsFromReply(contentOut)
+            if (payload.tool?.tool === 'watchlist' && payload.tool.action === 'open') {
+              const focus = String(payload.tool.result?.focus || '') === 'favorite' ? 'favorite' : 'watch'
+              openWatchlistSheet(focus)
+            }
             applyAppTool(payload.tool)
             applyHudTool(payload.tool)
           },
@@ -1555,20 +1575,32 @@ function App() {
   const lageAmber = liveHud.hud_accent === 'amber'
   const dockId = settingsPanelOpen
     ? 'settings'
-    : calendarOpen
-      ? 'calendar'
-      : voiceOpen
-        ? 'voice'
-        : lageOn
-          ? 'lage'
-          : 'chat'
+    : watchlistOpen
+      ? 'watchlist'
+      : calendarOpen
+        ? 'calendar'
+        : voiceOpen
+          ? 'voice'
+          : lageOn
+            ? 'lage'
+            : 'chat'
   const dockItems = [
     { id: 'chat', label: 'Chat', icon: <IconHome /> },
     { id: 'lage', label: 'Lage', icon: <IconGlobe /> },
     { id: 'voice', label: 'Hören', icon: <IconMic /> },
     { id: 'calendar', label: 'Kalender', icon: <IconCal /> },
+    { id: 'watchlist', label: 'Filme', icon: <IconFilm /> },
     { id: 'settings', label: 'Mehr', icon: <IconGearMini /> },
   ]
+  function openWatchlistSheet(focus?: 'watch' | 'favorite') {
+    if (focus) setWatchlistFocus(focus)
+    setWatchlistOpen(true)
+    setCalendarOpen(false)
+    setSettingsPanelOpen(false)
+    setSidebarOpen(false)
+    closeVoice()
+    openSheet('watchlist')
+  }
   function goDock(id: string) {
     setSidebarOpen(false)
     if (id === 'chat') {
@@ -1609,6 +1641,14 @@ function App() {
       setSettingsPanelOpen(false)
       closeVoice()
       openSheet('calendar')
+      return
+    }
+    if (id === 'watchlist') {
+      if (watchlistOpen) {
+        closeWatchlist()
+        return
+      }
+      openWatchlistSheet()
       return
     }
     openSettings('keys')
@@ -1979,11 +2019,7 @@ function App() {
                       ) : null}
                     </>
                   ) : (
-                    <div className="typing" aria-label="Jarvis schreibt">
-                      <span />
-                      <span />
-                      <span />
-                    </div>
+                    <ReplyOrb state={streamResearch ? 'searching' : 'composing'} />
                   )}
                 </div>
               </div>

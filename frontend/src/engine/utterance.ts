@@ -29,6 +29,8 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\bnach\s*hause\b/gi, 'nach Hause'],
   [/\bover\s*lay\b/gi, 'overlay'],
   [/\bwatchlist\b/gi, 'Watchliste'],
+  [/\bfavorites\b/gi, 'Lieblinge'],
+  [/\bsettings\b/gi, 'Einstellungen'],
   [/\bnächster\s+pol\b/gi, 'nächster POI'],
   [/\btaxsi\b/gi, 'Taxi'],
   [/\bkneibe\b/gi, 'Kneipe'],

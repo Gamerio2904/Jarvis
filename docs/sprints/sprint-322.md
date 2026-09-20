@@ -1,6 +1,6 @@
 # Sprint 322 — Antwort-Orb (Thinking Orbs)
 
-**Version:** `18.7.7` — **PLAN** Must
+**Version:** `18.7.7` — **CODE** Must
 **Plan:** [`78-next.md`](../78-next.md)
 **Voraussetzung:** Sideload-Optik `18.4.4` / Code `18.6.0`. Darf neben
 316–320 laufen. **321 zuletzt.**

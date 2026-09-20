@@ -435,7 +435,7 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  padding: 8px 6px 6px;
+  padding: 8px 2px 6px;
   border-radius: 999px;
   cursor: pointer;
   transition: color 280ms var(--ease-out);
@@ -457,10 +457,13 @@ textarea {
 }
 
 .nav-island-label {
-  font-size: 0.62rem;
+  font-size: 0.55rem;
   font-weight: 650;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -2363,6 +2366,26 @@ button.linkish {
 
 .voice-orb.thinking {
   background: #127a38;
+}
+
+.voice-orb.is-reply-orb,
+.voice-orb.thinking.is-reply-orb {
+  display: grid;
+  place-items: center;
+  background: #0a0c0b;
+  box-shadow: 0 0 0 10px rgba(29, 185, 84, 0.1), 0 0 28px rgba(0, 0, 0, 0.35);
+}
+
+.voice-orb.is-reply-orb .orb-ring,
+.voice-orb.is-reply-orb > span {
+  display: none;
+}
+
+.reply-orb {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
 }
 
 .voice-orb.speaking {

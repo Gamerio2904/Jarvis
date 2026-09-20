@@ -1,6 +1,6 @@
 # Sprint 317 — Overlay Hand und Befehl dieselbe FSM
 
-**Version:** `18.7.2` — **PLAN** Must
+**Version:** `18.7.2` — **CODE** Must
 **Plan:** [`78-next.md`](../78-next.md)
 **Voraussetzung:** Sprint **316**. Watchlist-Parser aus `18.6` bleibt.
 

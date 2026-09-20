@@ -1,4 +1,4 @@
-# 78 — Listen-Leiste, Selbststeuerung, flexibler Befehl **PLAN** (`18.7`)
+# 78 — Listen-Leiste, Selbststeuerung, flexibler Befehl **CODE** (`18.7.0`)
 
 PO 2026-09-20: Watchliste und Lieblinge sollen **unten in der Leiste**
 liegen und per Hand **und** Befehl aufgehen. Jarvis soll **sich selbst**
@@ -11,17 +11,14 @@ Chips). Die Ladeanimation aus
 [Reel DdgPH-poGbJ](https://www.instagram.com/reel/DdgPH-poGbJ/?stkn=MWJyc3FvcWhoeDBo)
 kommt, wenn Jarvis antwortet — Chat **und** Sprachmodus.
 
-**Ist:** App-Code **`18.6.0`** auf `main`. Sideload **`18.4.4`**
-(versionCode `180404`) — 18.6 steckt noch nicht in der APK. Overlay-FSM
-hat `watchlist`. Befehle `Öffne Watchliste` / `Öffne das watchlist
-overlay` öffnen die Folie. In der Dock-Leiste fehlt sie. Chat zeigt drei
-Punkte (`.typing`). Sprachmodus färbt den Orb bei `thinking` nur grün.
-`app` öffnet Einstellungen/Stimme/Akzent. `tool-propose` übersetzt nur
-Timer, Wecker, Erinnerung, Termin, Einkauf, Fernseher.
+**Ist:** App-Code **`18.7.0`**. Sideload **`18.4.4`**
+(versionCode `180404`) — 18.7 steckt noch nicht in der APK. Sechs
+Dock-Slots, Folie per Hand und Befehl, Allowlist-Writes mit „Soll ich?“,
+Propose-Unknown, Thinking-Orbs im Chat und im Sprachmodus.
 
-**Dieses Dokument ist PLAN.** Execute: Sprints **315–322**. `18.5`
-(Stimme/TV) bleibt PLAN daneben. **Nicht parallel** — beide treffen
-`App.tsx`, `app-parse.ts`, `director.ts`.
+**Dieses Dokument ist CODE** in App `18.7.0`. Execute: Sprints
+**315–322 CODE**. `18.5` (Stimme/TV) bleibt PLAN daneben. **Nicht
+parallel** — beide treffen `App.tsx`, `app-parse.ts`, `director.ts`.
 
 ---
 
