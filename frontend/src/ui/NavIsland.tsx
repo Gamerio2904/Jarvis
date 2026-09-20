@@ -97,6 +97,21 @@ export function IconCal() {
   )
 }
 
+export function IconFilm() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
+      <rect x="3.5" y="5.2" width="17" height="13.6" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        d="M7 5.2v13.6M17 5.2v13.6M3.5 9.2h3.5M3.5 14.8h3.5M17 9.2h3.5M17 14.8h3.5"
+      />
+    </svg>
+  )
+}
+
 export function IconGearMini() {
   return (
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>

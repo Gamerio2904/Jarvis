@@ -5,6 +5,22 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.7.0` — Listen-Leiste, Selbststeuerung, flexibler Befehl — *CODE*
+
+Sprints **315–322**. Siehe [`78-next.md`](./78-next.md). Watchliste und
+Lieblinge als 6. Dock-Icon **Filme**. Jarvis steuert **eigene Flächen**
+(Overlay, Settings, Dock) — kein Klick auf fremde Buttons. Unklare
+Befehle: Propose oder ehrliche Absage, kein Smalltalk-Fake. Antwort-Orb:
+[thinking-orbs](https://github.com/Jakubantalik/thinking-orbs) (MIT,
+Jakub Antalik), Vorbild [Reel DdgPH-poGbJ](https://www.instagram.com/reel/DdgPH-poGbJ/),
+kein Clip. Kein Computer-Use. Nicht parallel zu `18.5`. Sideload bleibt
+`18.4.4` (versionCode `180404`) bis zum nächsten APK-Bund.
+
+Nach der Probe: `Mach WLAN aus` bleibt Gerät (Seite, kein Schalter).
+`Fernseher ist aus (Einstellungen → …)` springt nicht in die Folie.
+Offene „Soll ich?“-Frage fällt mit dem nächsten Befehl. Film-Overlay
+stiehlt nicht den Fahrmodus.
+
 ### `18.6.0` — Lage-Kugel OSINT + Watchlist-Overlay — *CODE*
 
 Sprints **307–314**. OSIRIS-Fähigkeiten in der Canvas-Kugel: Schicht-Registry,

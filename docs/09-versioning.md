@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.4.4`**. Sideload-APK **`18.4.4`**, versionCode `180404`. Lage/Overlay/Tastatur. Test [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+> **Jetzt:** App-Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste Schiene **`18.5` PLAN**. Test [`TEST-18.4.4.md`](./TEST-18.4.4.md). Neue APK erst mit SDK, nicht aus dieser Cloud-VM.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -666,6 +666,24 @@ MapLibre, kein CCTV, kein Scanner. Feeds direkt, nicht osirisai.live.
 | `18.6.5` | Passive OSINT + Pin | 312 CODE |
 | `18.6.6` | Lage-Briefing | 313 CODE |
 | `18.6.7` | Härten, Meilenstein | 314 CODE |
+
+### `18.7` — Listen-Leiste, Selbststeuerung, flexibler Befehl [`78-next.md`](./78-next.md) **CODE** `18.7.0`
+
+Watchliste und Lieblinge als 6. Dock-Icon **Filme**. Jarvis steuert
+eigene Flächen (Overlay, Settings, Dock). Propose-Unknown statt
+Smalltalk-Fake. Thinking Orbs wenn Jarvis antwortet. Kein Computer-Use.
+Nicht parallel zu `18.5`.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.7.0` | Leit + UI-Action-Katalog | 315 CODE |
+| `18.7.1` | 6. Dock-Icon Filme | 316 CODE |
+| `18.7.2` | Overlay Hand + Befehl | 317 CODE |
+| `18.7.3` | Selbststeuerung Flächen | 318 CODE |
+| `18.7.4` | Settings-Writes Allowlist | 319 CODE |
+| `18.7.5` | Propose härten, Unknown | 320 CODE |
+| `18.7.6` | Härten, Gold, Meilenstein | 321 CODE |
+| `18.7.7` | Antwort-Orb Thinking Orbs | 322 CODE |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

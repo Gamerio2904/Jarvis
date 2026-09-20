@@ -411,7 +411,12 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'maps')
     out = drop(out, 'device')
     out = drop(out, 'memory')
-    if (/\b(einstell|debug|sprachmodus|ged[aä]chtnis|theme|akzent|settings)\b/.test(t)) {
+    if (
+      /\b(einstell|debug|sprachmodus|ged[aä]chtnis|theme|akzent|settings|chat|filme|overlay|folie|watchliste|lieblinge|fertig)\b/.test(
+        t,
+      ) ||
+      /^\s*(?:zeig(?:e)?|öffne[n]?)\s+(?:die\s+)?lage\s*[.!?]*$/.test(t)
+    ) {
       out = drop(out, 'hud')
       out = boost(out, 'app', 0.15)
     }

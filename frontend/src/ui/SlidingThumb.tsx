@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, type RefObject } from 'react'
+import { prefersReducedMotion } from '../engine/motion.ts'
 
 /** FLIP-Thumb: gleitet mit Spring-Kurve hinter das aktive Item — wie Navigation Tabs V2. */
 export function useSlidingThumb(activeId: string | null): {
@@ -31,7 +32,9 @@ export function useSlidingThumb(activeId: string | null): {
       thumb.style.height = `${ir.height}px`
       thumb.style.transform = `translate(${x}px, ${y}px)`
       if (!ready.current) {
-        requestAnimationFrame(() => thumb.classList.add('is-ready'))
+        if (!prefersReducedMotion()) {
+          requestAnimationFrame(() => thumb.classList.add('is-ready'))
+        }
         ready.current = true
       }
     }

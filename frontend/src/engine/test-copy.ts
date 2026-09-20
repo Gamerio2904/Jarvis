@@ -208,6 +208,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Fachwissen', text: 'Fachwissen FritzBox', expect: { tool: 'pack' } },
       { label: 'Idee festhalten', text: 'Idee: Körper und Chat gleichzeitig', expect: { tool: 'idea' } },
       { label: 'Watchliste', text: 'Watchliste: Dune', expect: { tool: 'watchlist' } },
+      { label: 'Watchlist-Overlay', text: 'Öffne das watchlist overlay', expect: { tool: 'watchlist' } },
     ],
   },
   {
@@ -500,6 +501,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Berlin auf der Kugel', text: 'Wo liegt Berlin', expect: { tool: 'hud' } },
       { label: 'Traceroute', text: 'Welche Route nimmt google.de', expect: { tool: 'trace' } },
       { label: 'Gespräch fassen', text: 'Fass das Gespräch zusammen', expect: { tool: 'digest' } },
+      { label: 'WHOIS', text: 'WHOIS example.com', expect: { tool: 'osint' } },
+      { label: 'Kameras Won’t', text: 'Zeig Kameras', expect: { tool: 'wont' } },
     ],
   },
   {

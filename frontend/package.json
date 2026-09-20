@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "18.6.0",
+  "version": "18.7.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -46,6 +46,8 @@
     "test:settings-migrate": "node --experimental-strip-types scripts/test-settings-migrate.mjs",
     "test:verb-front": "node --experimental-strip-types scripts/test-verb-front.mjs",
     "test:tool-propose": "node --experimental-strip-types scripts/test-tool-propose.mjs",
+    "test:app-ui": "node --experimental-strip-types scripts/test-app-ui.mjs",
+    "test:propose-18": "node --experimental-strip-types scripts/test-propose-18.mjs",
     "test:history": "node --experimental-strip-types scripts/test-history.mjs",
     "test:globe-18": "node --experimental-strip-types scripts/test-globe-18.mjs",
     "test:osint-18": "node --experimental-strip-types scripts/test-osint-18.mjs",
@@ -55,6 +57,8 @@
     "test:lage-body-globe": "node --experimental-strip-types scripts/test-lage-body-globe.mjs",
     "gui:lage-body-globe": "node --experimental-strip-types scripts/gui-lage-body-globe.mjs",
     "gui:watchlist-osint-18": "node --experimental-strip-types scripts/gui-watchlist-osint-18.mjs",
+    "gui:18-7-dock": "node --experimental-strip-types scripts/gui-18-7-dock.mjs",
+    "gui:18-7-regress": "node --experimental-strip-types scripts/gui-18-7-regress.mjs",
     "eval:separability": "node --experimental-strip-types scripts/eval/separability.mjs"
   },
   "dependencies": {
@@ -66,7 +70,8 @@
     "@wllama/wllama-compat": "^3.5.1",
     "jsqr": "^1.4.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "thinking-orbs": "^0.3.1"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
