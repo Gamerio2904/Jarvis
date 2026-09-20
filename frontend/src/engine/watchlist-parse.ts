@@ -44,16 +44,11 @@ export function parseWatchlistIntent(text: string): WatchlistIntent | null {
   const idea = parseIdeaIntent(t)
   if (idea && idea.kind === 'create') return null
   if (parseTasteIntent(t)) return null
-  const filmOverlay =
-    /\b(?:overlay|folie)\b/i.test(t) &&
-    /\b(?:filme?s?|watchliste|lieblings(?:filme|liste)?|lieblinge)\b/i.test(t) &&
-    /\b(?:öffne|zeig|mach|auf)\b/i.test(t) &&
-    !/\b(?:zu|schließ|aus)\b/i.test(t)
-  if (!LIST_WORDS.test(t) && !/\b(?:watchliste|lieblings)\b/i.test(t) && !filmOverlay) return null
+  if (!LIST_WORDS.test(t) && !/\b(?:watchliste|lieblings)\b/i.test(t)) return null
 
   const showOpen =
     /^\s*(?:öffne[n]?|zeig(?:e)?(?:\s+mir)?|mach(?:e)?(?:\s+(?:mal\s+)?auf)?)\s+(?:das\s+|die\s+|den\s+|meine\s+)?(?:watchliste|lieblings(?:filme|liste)|lieblinge)(?:\s+(?:overlay|folie|panel|liste))?\s*$/i
-  if (showOpen.test(t) || filmOverlay) {
+  if (showOpen.test(t)) {
     const fav = /\bliebling/i.test(t)
     return { kind: 'show', list: fav ? 'favorite' : 'watch' }
   }
