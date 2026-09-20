@@ -54,6 +54,7 @@
     "test:keyboard-inset": "node --experimental-strip-types scripts/test-keyboard-inset.mjs",
     "test:lage-body-globe": "node --experimental-strip-types scripts/test-lage-body-globe.mjs",
     "gui:lage-body-globe": "node --experimental-strip-types scripts/gui-lage-body-globe.mjs",
+    "gui:watchlist-osint-18": "node --experimental-strip-types scripts/gui-watchlist-osint-18.mjs",
     "eval:separability": "node --experimental-strip-types scripts/eval/separability.mjs"
   },
   "dependencies": {
