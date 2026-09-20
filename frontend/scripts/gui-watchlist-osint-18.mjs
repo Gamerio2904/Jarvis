@@ -26,7 +26,7 @@ const browser = await puppeteer.launch({
 const page = await browser.newPage()
 page.setDefaultTimeout(20_000)
 const pageErrors = []
-page.on('pageerror', (e) => pageErrors.push(e.message))
+page.on('pageerror', (e) => pageErrors.push(e instanceof Error ? e.message : String(e)))
 page.on('dialog', (d) => d.dismiss())
 
 try {
@@ -85,7 +85,7 @@ try {
   await page.focus('textarea[placeholder="Nachricht an Jarvis…"]')
   await page.evaluate(() => {
     const t = document.querySelector('textarea[placeholder="Nachricht an Jarvis…"]')
-    if (t) t.value = ''
+    if (t instanceof HTMLTextAreaElement) t.value = ''
   })
   await page.type('textarea[placeholder="Nachricht an Jarvis…"]', 'Was fährt auf See', { delay: 0 })
   await page.click('button[aria-label="Senden"]')

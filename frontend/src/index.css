@@ -457,14 +457,17 @@ textarea {
 }
 
 .nav-island-label {
-  font-size: 0.55rem;
+  font-size: 0.52rem;
   font-weight: 650;
-  letter-spacing: 0.01em;
-  line-height: 1.15;
+  letter-spacing: 0;
+  line-height: 1.1;
   max-width: 100%;
+  text-align: center;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
 }
 
 .nav-island-side {

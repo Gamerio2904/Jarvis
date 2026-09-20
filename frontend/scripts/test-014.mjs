@@ -2663,9 +2663,14 @@ assert.ok(TEST_COPY_GROUPS.some((g) => /Screenshot-Bugs/i.test(g.title)))
   assert.equal(overlayTop(s), null)
 }
 
-assert.equal(parseAppIntent('Öffne Einstellungen')?.kind, 'settings')
-assert.equal(parseAppIntent('Öffne Einstellungen')?.topic, 'keys')
-assert.equal(parseAppIntent('Öffne Debug')?.topic, 'debug')
+{
+  const open = parseAppIntent('Öffne Einstellungen')
+  assert.equal(open?.kind, 'ui')
+  assert.equal(open?.kind === 'ui' ? open.action.id : '', 'settings.tab')
+  assert.equal(open?.kind === 'ui' && open.action.id === 'settings.tab' ? open.action.topic : '', 'keys')
+}
+assert.equal(parseAppIntent('Öffne Debug')?.kind, 'ui')
+assert.equal(parseAppIntent('Öffne Debug')?.kind === 'ui' ? parseAppIntent('Öffne Debug')?.action.id : '', 'overlay.open')
 assert.equal(parseAppIntent('Öffne Probe')?.topic, 'probe')
 assert.equal(parseAppIntent('Zeig Probe V1')?.topic, 'probe')
 assert.equal(parseAppIntent('Zeig das Gedächtnis')?.topic, 'gedaechtnis')
