@@ -8,8 +8,8 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 
 ## Pull-Reihenfolge
 
-1. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu `18.7`.
-2. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 CODE** in `18.7.0`. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs. Kein Computer-Use. Sideload bleibt `18.4.4`.
+1. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu gelandetem `18.7`.
+2. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 CODE** in `18.7.0` auf `main`. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs. Kein Computer-Use. Sideload bleibt `18.4.4`.
 3. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 CODE** in `18.6.0`. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner.
 4. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
 5. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)

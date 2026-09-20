@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.7.0`**. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste Schiene **`18.5` PLAN**. Test [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+> **Jetzt:** App-Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste Schiene **`18.5` PLAN**. Test [`TEST-18.4.4.md`](./TEST-18.4.4.md). Neue APK erst mit SDK, nicht aus dieser Cloud-VM.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 

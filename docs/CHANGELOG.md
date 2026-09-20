@@ -16,6 +16,11 @@ Jakub Antalik), Vorbild [Reel DdgPH-poGbJ](https://www.instagram.com/reel/DdgPH-
 kein Clip. Kein Computer-Use. Nicht parallel zu `18.5`. Sideload bleibt
 `18.4.4` (versionCode `180404`) bis zum nächsten APK-Bund.
 
+Nach der Probe: `Mach WLAN aus` bleibt Gerät (Seite, kein Schalter).
+`Fernseher ist aus (Einstellungen → …)` springt nicht in die Folie.
+Offene „Soll ich?“-Frage fällt mit dem nächsten Befehl. Film-Overlay
+stiehlt nicht den Fahrmodus.
+
 ### `18.6.0` — Lage-Kugel OSINT + Watchlist-Overlay — *CODE*
 
 Sprints **307–314**. OSIRIS-Fähigkeiten in der Canvas-Kugel: Schicht-Registry,

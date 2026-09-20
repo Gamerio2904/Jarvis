@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.7.0`**. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste Schiene **`18.5` PLAN**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+**Jetzt:** Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste Schiene **`18.5` PLAN**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Neue APK erst mit SDK.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -305,4 +305,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 307–314 | `18.6.0`–`18.6.7` | **CODE** (Lage-Kugel OSINT, [`77-next.md`](./77-next.md)) |
 | 315–322 | `18.7.0`–`18.7.7` | **CODE** (6. Icon Filme, Selbststeuerung, Propose, Antwort-Orb, [`78-next.md`](./78-next.md)) |
 
-**Aktuell:** App-Code **`18.7.0`**. Sideload-APK **`18.4.4`**, versionCode `180404`. Sprints 315–322 **CODE**. Nächste Schiene **18.5 PLAN** (nicht parallel zu 18.7). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`. Sprints 315–322 **CODE**. Nächste Schiene **18.5 PLAN** (nicht parallel zu 18.7). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Index: [`42-planned.md`](./42-planned.md). Neue APK erst mit SDK.

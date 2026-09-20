@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini Hauptweg → Groq Backup → 0,5B zuletzt. Körper/Globus/Debug-FGS/Hausstand **CODE**. Globus-Briefing `6.90` **CODE**. Rest final [`54-next.md`](./54-next.md) **CODE**. Gerät-PO: [`55-next.md`](./55-next.md). Semantisches Gedächtnis: [`56-next.md`](./56-next.md) **CODE** `10.0`.
+> **Jetzt:** Code **`18.7.0`**. Sideload **`18.4.4`**, versionCode `180404`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. Nächste Schiene **`18.5` PLAN**. Index: [`42-planned.md`](./42-planned.md). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
@@ -49,9 +49,9 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E54 | Rest final `9.10` | 5+ | Gerät-Katalog PO, Debug-FGS, LocateAnything-Freeze, Qualität-Could — [`54-next.md`](./54-next.md) **CODE** |
 | E55 | Nach Rest-final | 5+ | PO-Gerät, OEM, Could-Freeze, Docs — [`55-next.md`](./55-next.md) |
 | E56 | Semantisches Gedächtnis `10.0` | 5+ | Schema, Gate, Retrieve 2, Graph light, Gold; e5 Freeze — [`56-next.md`](./56-next.md) **CODE** `10.60.0` |
-| E57 | Memory-10 Intensiv | 5+ | Alias, G5-Echo, memoryBlock — [`57-next.md`](./57-next.md) **PLAN** |
-| E58 | Watchliste `18.3` | 5+ | Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten — [`74-next.md`](./74-next.md) **PLAN** |
-| E59 | Körper/Wissen `18.4` | 4 | Katalog am Körper, Agent↔Pack, Pack-Links — [`75-next.md`](./75-next.md) **PLAN** |
+| E57 | Memory-10 Intensiv | 5+ | Alias, G5-Echo, memoryBlock — [`57-next.md`](./57-next.md) **CODE** |
+| E58 | Watchliste `18.3` | 5+ | Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten — [`74-next.md`](./74-next.md) **CODE** in `18.4.3` |
+| E59 | Körper/Wissen `18.4` | 4 | Katalog am Körper, Agent↔Pack, Pack-Links — [`75-next.md`](./75-next.md) **CODE** in `18.4.3` |
 | E60 | Lage-Kugel OSINT `18.6` | 5+ | OSIRIS-Fähigkeiten in der Kugel — [`77-next.md`](./77-next.md) **CODE** `18.6.0` |
 | E61 | Listen-Leiste / Selbststeuerung `18.7` | 5+ | 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb — [`78-next.md`](./78-next.md) **CODE** `18.7.0` |
 

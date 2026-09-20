@@ -11,10 +11,12 @@ Chips). Die Ladeanimation aus
 [Reel DdgPH-poGbJ](https://www.instagram.com/reel/DdgPH-poGbJ/?stkn=MWJyc3FvcWhoeDBo)
 kommt, wenn Jarvis antwortet — Chat **und** Sprachmodus.
 
-**Ist:** App-Code **`18.7.0`**. Sideload **`18.4.4`**
+**Ist:** App-Code **`18.7.0`** auf `main`. Sideload **`18.4.4`**
 (versionCode `180404`) — 18.7 steckt noch nicht in der APK. Sechs
 Dock-Slots, Folie per Hand und Befehl, Allowlist-Writes mit „Soll ich?“,
-Propose-Unknown, Thinking-Orbs im Chat und im Sprachmodus.
+Propose-Unknown, Thinking-Orbs im Chat und im Sprachmodus. `Mach WLAN aus`
+öffnet die Geräteseite. Offene „Soll ich?“-Fragen fallen mit dem nächsten
+Befehl. Default-Aus-Sätze springen nicht in die Einstellungen.
 
 **Dieses Dokument ist CODE** in App `18.7.0`. Execute: Sprints
 **315–322 CODE**. `18.5` (Stimme/TV) bleibt PLAN daneben. **Nicht
@@ -42,34 +44,33 @@ Jarvis steuert **Jarvis**. Nicht das Betriebssystem, nicht fremde Apps.
 
 ### 1.1 Leiste und Overlay
 
-`App.tsx` `dockItems`: fünf Slots. `goDock` kennt `chat`, `lage`,
-`voice`, `calendar`, `settings`. `watchlist` ist Overlay-Id in
-`overlay-fsm.ts` und öffnet nur über `handleWatchlist` → `action: open`
-oder intern. Kein Dock-Treffer. Kalender und Mehr gehen per Hand;
-Watchliste nicht.
+`App.tsx` `dockItems`: sechs Slots `Chat · Lage · Hören · Kalender · Filme · Mehr`.
+`goDock('watchlist')` öffnet dieselbe Folie wie `Öffne Watchliste` /
+`Öffne Lieblinge`. Zweiter Tap auf Filme schließt. `Fertig`,
+`Einstellungen zu` und Dock-Chat räumen ebenfalls. Labels umbrechen in
+zwei Zeilen (`.nav-island-label`).
 
-`WatchlistOverlay` hat schon Tabs Watchliste / Lieblinge. Befehle `show`
-setzen `focus`. Fehlt: sichtbare Fläche in der unteren Chrome.
-
-`NavIsland` + `useSlidingThumb` nehmen die Item-Liste dynamisch — sechs
-Slots brauchen kein neues Thumb-API, nur schmalere Labels.
+`WatchlistOverlay` Tabs Watchliste / Lieblinge. `show` setzt `focus`.
+`Öffne das watchlist overlay` ist Watchliste, nicht Fahrmodus.
 
 ### 1.2 Selbststeuerung heute
 
-| Fläche | Hand | Befehl | Lücke |
+| Fläche | Hand | Befehl | Stand |
 |--------|------|--------|-------|
-| Einstellungen + Tab | Mehr-Dock | `Öffne Einstellungen [Thema]` (`app`) | Schließen, Tab wechseln, Werte setzen |
-| Sprachmodus | Hören-Dock | `Sprachmodus` | — |
+| Einstellungen + Tab | Mehr-Dock | `Öffne Einstellungen [Thema]`, `Einstellungen zu` | `settings.tab` / `overlay.close` |
+| Settings-Schalter | Mehr | `Research an`, `Gemini aus` | Allowlist + „Soll ich?“ |
+| Sprachmodus | Hören-Dock | `Sprachmodus` | `dock.go` / `voice` |
 | Kalender | Kalender-Dock | Kalender-Parser | — |
-| Watchliste | **nein** | `Öffne Watchliste` | 6. Icon |
-| Lage / Kugel / Körper | Lage-Dock | `hud` | Dock und Befehl nicht ein Katalog |
-| Debug / Gedächtnis | Settings-Deep-Link | `app` | — |
-| Android WLAN/BT | — | `device` öffnet **System**-Seite, legt nicht um | bleibt |
+| Watchliste | **Filme-Dock** | `Öffne Watchliste` / `Öffne Lieblinge` | dieselbe Folie |
+| Lage / Kugel / Körper | Lage-Dock | `hud` (`Zeig Lage`, `Zeig Erdbeben`) | bleibt `hud` |
+| Debug / Gedächtnis | Settings-Deep-Link | `Öffne Debug` | `overlay.open` |
+| Android WLAN/BT | — | `Mach WLAN aus`, `WLAN an` | System-Seite, legt nicht um |
 
-`device.ts`: „Den Schalter lege ich nicht selbst um.“ Das gilt fürs
-**System**. Jarvis-eigene Felder (`hud_accent`, `tv_enabled`,
-`tool_propose`, …) darf er umlegen, wenn der Parser es sagt und Writes
-bestätigt sind.
+`device.ts`: „Den Schalter lege ich nicht selbst um.“ Default-Aus-Sätze
+(`Fernseher ist aus (Einstellungen → Fernseher)`) öffnen die Folie nicht
+von allein. Jarvis-eigene Felder darf er umlegen, wenn der Parser es sagt
+und Writes bestätigt sind. Eine offene „Soll ich?“-Frage fällt mit dem
+nächsten Befehl, der nicht Ja/Nein ist.
 
 ### 1.3 Der Aufnahme-Agent
 
@@ -78,27 +79,23 @@ und `looksCommandish`. Vier Schranken (`tool-propose.ts`,
 `tool-contract.ts`): Schema → deutscher Satz → Parser bestätigt denselben
 Agenten → Write wartet auf „ja“.
 
-Vertrag heute: `set_timer`, `set_alarm`, `create_reminder`,
-`create_calendar_event`, `add_shopping_item`, `switch_tv`.
+Verträge: Timer/Wecker/Erinnerung/Termin/Einkauf/TV plus
+`open_watchlist`, `open_favorites`, `open_settings`, `close_overlay`,
+`set_jarvis_flag`.
 
-`looksCommandish` `DOMAIN` ist
-`timer|wecker|erinner|termin|kalender|einkauf|liste|notiz|todo|fernseher|tv`.
-**Watchliste, Overlay, Einstellungen, Lage, Schicht fehlen.** `COMMAND`
-kennt `stell|setz|mach|…`, aber **nicht** `öffne|zeig|schließ|wechsel`.
-„Öffne irgendwas mit der Watchliste“ zahlt also keinen Vorschlag — auch
-wenn die DOMAIN später wächst — und fällt ins gestreamte Modell, das
-dann so tut, als hätte es etwas getan.
-
-Das ist die Lücke „Befehle, die so nicht eingebaut sind“.
+`looksCommandish` `DOMAIN` enthält
+`watchliste|liebling|overlay|folie|einstellungen|settings|lage|kugel|schicht|debug`.
+`COMMAND` enthält `öffne|zeig|schließ|wechsel|blende`. Unbekannt:
+ehrliche Absage + bis zu drei Nachbarn, kein „habe ich gemacht“.
 
 ### 1.4 Antwort-Laden heute
 
-Chat (`App.tsx`): `streamingText === ''` → drei Punkte `.typing`. Avatar
-pulst (`avatarPulse`). Composer `is-busy`.
+Chat (`App.tsx`): `streamingText === ''` → `ReplyOrb` (`composing` /
+`searching`). Erster Token ersetzt den Orb durch Caret.
 
-Sprachmodus (`VoiceMode.tsx`): Phase `thinking` setzt nur
-`.voice-orb.thinking { background: #127a38 }`. Ringe drehen immer.
-Label „Antwort kommt…“. Kein eigener Loader.
+Sprachmodus (`VoiceMode.tsx`): Phase `thinking` trägt denselben Orb.
+`listening` / `speaking` bleiben der CSS-Orb. `prefers-reduced-motion`
+steht still.
 
 ---
 
