@@ -39,6 +39,10 @@ async function tapNav(id) {
 }
 
 async function send(text) {
+  if (!(await page.$('textarea[placeholder="Nachricht an Jarvis…"]'))) {
+    await tapNav('chat')
+    await sleep(350)
+  }
   await page.waitForSelector('textarea[placeholder="Nachricht an Jarvis…"]')
   await page.evaluate(() => {
     const t = document.querySelector('textarea[placeholder="Nachricht an Jarvis…"]')
@@ -133,8 +137,12 @@ try {
   rec(/Wetter|Grad|Open-Meteo|Regen|Sonne|Wolken|Luft/i.test(wetter), 'Wetter bleibt Wetter', wetter.slice(-180))
 
   await send('Fernseher an')
-  const tv = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
-  rec(/Fernseher|TV|Gerät|koppeln|nicht/i.test(tv), 'Fernseher bleibt TV', tv.slice(-180))
+  const tv = await page.evaluate(() => {
+    const bubbles = [...document.querySelectorAll('.bubble-text, .bubble')]
+    return (bubbles.at(-1)?.textContent || '').replace(/\s+/g, ' ')
+  })
+  rec(/Fernseher/i.test(tv) && !/Spotify anmelden|Client-ID/i.test(tv), 'Fernseher bleibt TV', tv)
+  rec(!(await page.$('.settings-screen')), 'Fernseher an lässt Chat offen')
 
   await send('Öffne Lieblinge')
   rec(Boolean(await page.$('.watch-overlay')), 'Öffne Lieblinge öffnet Folie')

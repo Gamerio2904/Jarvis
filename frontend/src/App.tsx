@@ -1535,8 +1535,11 @@ function App() {
   function maybeOpenSettingsFromReply(reply: string) {
     if (debugRunningRef.current) return
     const t = reply || ''
-    if (/Einstellungen\s*→\s*Fernseher/i.test(t)) openSettings('tv')
-    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t)) openSettings('haus')
+    // „X ist aus (Einstellungen → …)“ ist der Default-Schalter, kein Setup-Sprung.
+    // Sonst verschwindet der Composer nach Fernseher/Ventilator/Steckdose.
+    const switchOff = /ist aus\s*\(/i.test(t)
+    if (/Einstellungen\s*→\s*Fernseher/i.test(t) && !switchOff) openSettings('tv')
+    else if (/Einstellungen\s*→\s*(?:Haus|Ventilator|Steckdose)/i.test(t) && !switchOff) openSettings('haus')
     else if (/Gemini-Key liegt, aber Gemini ist aus/i.test(t)) openSettings('hirn')
     else if (/Gemini(?: ist)? an, aber kein/i.test(t)) openSettings('keys')
     else if (/Einstellungen\s*→\s*Musik|Spotify anmelden/i.test(t)) openSettings('musik')
