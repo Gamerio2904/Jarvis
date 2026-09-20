@@ -8,24 +8,25 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 
 ## Pull-Reihenfolge
 
-1. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`
-2. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
-3. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
-4. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290 CODE** in `18.4.3`
-5. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287 CODE** in `18.4.3`
-6. **`18.3` Watchliste** [`74-next.md`](./74-next.md) — Sprints **291–296 CODE** in `18.4.3`
-7. **`18.4` Körper/Wissen** [`75-next.md`](./75-next.md) — Sprints **297–300 CODE** in `18.4.3`
-8. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
-9. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
-10. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
-11. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
-12. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-13. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
-14. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
-15. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
-16. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
-17. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
-18. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
+1. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 PLAN**. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner. PO 2026-09-20.
+2. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu 18.6 ausführen (gemeinsame HUD-Dateien).
+3. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
+4. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
+5. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290 CODE** in `18.4.3`
+6. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287 CODE** in `18.4.3`
+7. **`18.3` Watchliste** [`74-next.md`](./74-next.md) — Sprints **291–296 CODE** in `18.4.3`
+8. **`18.4` Körper/Wissen** [`75-next.md`](./75-next.md) — Sprints **297–300 CODE** in `18.4.3`
+9. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
+10. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
+11. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
+12. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
+13. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+14. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
+15. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
+16. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
+17. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
+18. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
+19. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
 
 **⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `18.4.4` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
 
@@ -127,6 +128,25 @@ Harte Kette: 301 → 302. 304 braucht 301. 303 frei neben 302. 305 parallel.
 Kein CEC. Kein Mem0/Qdrant/e5-Router. Kein Sideload in diesem PLAN.
 
 Begründung: [`76-next.md`](./76-next.md).
+
+## PLAN — Schiene `18.6` (Sprints 307–314)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `18.6.0` | [307](./sprints/sprint-307.md) | Layer-Registry, Parser-Gerüst, Budget |
+| `18.6.1` | [308](./sprints/sprint-308.md) | Erde + Orbit: Unwetter, Luft, Sats-Subset |
+| `18.6.2` | [309](./sprints/sprint-309.md) | See + Infra: Schiffe-BBox, Anlagen |
+| `18.6.3` | [310](./sprints/sprint-310.md) | Geo + Cyber: Konflikte, GDELT, Malware-Hosts |
+| `18.6.4` | [311](./sprints/sprint-311.md) | Intel-Leiste + Regionsdossier |
+| `18.6.5` | [312](./sprints/sprint-312.md) | Passive OSINT + Pin |
+| `18.6.6` | [313](./sprints/sprint-313.md) | Lage-Briefing aus sichtbaren Fakten |
+| `18.6.7` | [314](./sprints/sprint-314.md) | Härten, Gold, Meilenstein |
+
+Harte Kette: 307 → alles. 311 nach mindestens einer Schicht. 313 braucht 307.
+Kein iframe OSIRIS, kein `globe.gl`, kein CCTV, kein Scanner, kein Live-Label.
+Kein Sideload in diesem PLAN.
+
+Begründung: [`77-next.md`](./77-next.md).
 
 ## CODE — Audit-Reste `18.1.0` (Sprints 272–281)
 

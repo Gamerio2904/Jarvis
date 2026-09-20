@@ -82,6 +82,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 74 | [Watchliste 18.3](./74-next.md) | **CODE + APK** `18.3` in `18.4.3` — Watchliste + Lieblinge, Overlay, OMDb, Gesehen, Tipp |
 | 75 | [Körper/Wissen 18.4](./75-next.md) | **CODE + APK** `18.4` in `18.4.3` — Katalog am Körper, Agent↔Pack, 1-Hop |
 | 76 | [Stimme, TV-Wahrheit, Intelligenz 18.5](./76-next.md) | **PLAN** — Sprints 301–306; Diagnose Fernseher an; Docs-Aufräumen |
+| 77 | [Lage-Kugel OSINT 18.6](./77-next.md) | **PLAN** — Sprints 307–314; OSIRIS-Fähigkeiten in der Kugel, kein iframe |
 | — | [APK](./apk.md) | Sideload `18.4.4`; Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -300,5 +301,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 291–296 | `18.3.0`–`18.3.5` | **CODE + APK** in `18.4.3` (Watchliste, [`74-next.md`](./74-next.md)) |
 | 297–300 | `18.4.0`–`18.4.3` | **CODE + APK** in `18.4.3` (Körper/Wissen, [`75-next.md`](./75-next.md)) |
 | 301–306 | `18.5.0`–`18.5.5` | **PLAN** (Stimme, TV-Wahrheit, Intelligenz, Docs, [`76-next.md`](./76-next.md)) |
+| 307–314 | `18.6.0`–`18.6.7` | **PLAN** (Lage-Kugel OSINT, [`77-next.md`](./77-next.md)) |
 
-**Aktuell:** App-Code **`18.4.4`**. Sideload-APK **`18.4.4`**, versionCode `180404`. Sprints 283–300 **CODE + APK**. Lage/Overlay/Tastatur in `18.4.4`. Nächste Schiene **18.5 PLAN**. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.4.4`**. Sideload-APK **`18.4.4`**, versionCode `180404`. Sprints 283–300 **CODE + APK**. Lage/Overlay/Tastatur in `18.4.4`. Nächste Schienen **18.6 PLAN** (Kugel, PO-Wunsch) und **18.5 PLAN** (Stimme/TV). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Index: [`42-planned.md`](./42-planned.md).

@@ -137,6 +137,10 @@ Ehrlich erreichbar auf dem Handy: grob ein Drittel bis die Hälfte des
 Reel-**Eindrucks** (Terminator + Bahn + Schichten auf Zuruf). Nicht der
 Desktop-GIS-Look.
 
+**Weiter:** OSIRIS-Fähigkeiten (mehr Schichten, Dossier, passive Lookups)
+in derselben Canvas-Kugel — [`77-next.md`](./77-next.md) **PLAN** `18.6`.
+Kein EarthOS-Nachzug.
+
 ---
 
 ## 1. Was die Screenshots wirklich zeigen

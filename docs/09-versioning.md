@@ -636,6 +636,37 @@ LLM-Organizer, keine Graph-Lib. Sideload in `18.4.3`.
 | `18.4.2` | Pack-Links, 1-Hop, Körper-Query aus Äußerung | 299 CODE |
 | `18.4.3` | Zwei Sichten eine Wahrheit, Motion, Probe | 300 CODE |
 
+### `18.5` — Stimme, TV-Wahrheit, Intelligenz [`76-next.md`](./76-next.md) **PLAN**
+
+Fernseher nach WoL beobachten, Hören härten, Edge-TTS zuerst,
+Observe/Working-Memory. Kein CEC, kein Mem0. Nicht parallel zu `18.6`.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.5.0` | TV-Wahrheit: Poll, MAC, kein Fake-An | 301 PLAN |
+| `18.5.1` | Hören: Java-Satzende, Groq-Whisper | 302 PLAN |
+| `18.5.2` | Sprechen: Edge zuerst | 303 PLAN |
+| `18.5.3` | Intelligenz-Gefühl | 304 PLAN |
+| `18.5.4` | Docs + Code aufräumen | 305 PLAN |
+| `18.5.5` | Härten, Gold, Meilenstein | 306 PLAN |
+
+### `18.6` — Lage-Kugel OSINT [`77-next.md`](./77-next.md) **PLAN**
+
+OSIRIS-Fähigkeiten auf der Canvas-Kugel: Schichten auf Zuruf, Dossier,
+passive Lookups, Briefing aus sichtbaren Fakten. Kein iframe, kein
+MapLibre, kein CCTV, kein Scanner. Feeds direkt, nicht osirisai.live.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.6.0` | Layer-Registry | 307 PLAN |
+| `18.6.1` | Erde + Orbit | 308 PLAN |
+| `18.6.2` | See + Infra | 309 PLAN |
+| `18.6.3` | Geo + Cyber | 310 PLAN |
+| `18.6.4` | Intel-Leiste + Dossier | 311 PLAN |
+| `18.6.5` | Passive OSINT + Pin | 312 PLAN |
+| `18.6.6` | Lage-Briefing | 313 PLAN |
+| `18.6.7` | Härten, Meilenstein | 314 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.
