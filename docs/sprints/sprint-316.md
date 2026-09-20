@@ -1,36 +1,35 @@
-# Sprint 316 — Listen-Chips über dem Dock
+# Sprint 316 — 6. Dock-Icon Filme
 
 **Version:** `18.7.1` — **PLAN** Must
 **Plan:** [`78-next.md`](../78-next.md)
-**Voraussetzung:** Sprint **315**. Material: Dock bleibt 5 Ziele.
+**Voraussetzung:** Sprint **315**. PO: sechs Slots, nicht Chips.
 
 ## Ziel
 
-Watchliste und Lieblinge liegen **sichtbar unten**, ohne ein 6. Dock-Icon.
-Zwei Chips über `.nav-dock`. Ein Overlay, Tab = Fokus.
+Watchliste und Lieblinge liegen **sichtbar unten** als ein Dock-Ziel
+**Filme**. Ein Overlay, Tab = Fokus. Kein Chip-Streifen.
 
 ## Lieferumfang
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S316-1 | Chrome | `App.tsx` `index.css` | Leiste `nav-listen` **über** `NavIsland.nav-dock`, nur wenn `!driveOpen && !chessOpen` (gleiche Bedingung wie Dock). Zwei Buttons: Watchliste, Lieblinge. Aktiv wie Dock-Thumb (`is-on` + SlidingThumb oder gleicher Pill) |
-| S316-2 | Hand | `App.tsx` | Chip Watchliste → `handleWatchlist({ action:'open', focus:'watch' })` bzw. bestehendes `setWatchlistOpen` + Fokus. Chip Lieblinge → Fokus `favorite`. Dieselbe FSM wie Befehl. Zweiter Tap auf denselben Chip: Folie zu (wie Dock-Chat schließt) |
-| S316-3 | Aktiv | `App.tsx` | Chip an, wenn `watchlistOpen` und Fokus passt. `dockId` bleibt Chat/Lage/… — Watchliste färbt **nicht** Mehr oder Kalender |
-| S316-4 | Reach | `index.css` | Chips in der Daumen-Zone, nicht unter der Tastatur. `has-nav-dock` Padding um Chip-Höhe erweitern. Overlay/Settings/Kalender sitzen weiter über der Chrome, nicht darunter |
-| S316-5 | Reduce | `prefersReducedMotion` | Kein Wischen-Zwang. Chip-Wechsel ohne Ken-Burns. Leave wie WatchlistOverlay |
+| S316-1 | Item | `App.tsx` `NavIsland.tsx` | `dockItems` um `{ id:'watchlist', label:'Filme', icon:<IconFilm /> }` **vor** Mehr. Mehr bleibt letzter Slot. `IconFilm` gleicher Strich (24er viewBox, stroke 1.8) |
+| S316-2 | Hand | `App.tsx` `goDock` | `watchlist`: Overlay auf, Fokus `watch` wenn neu, sonst letzter Tab. Zweiter Tap auf Filme bei offener Folie → `close`. Drive/Schach: Dock weg wie heute |
+| S316-3 | Aktiv | `App.tsx` | `dockId === 'watchlist'` wenn `watchlistOpen`. Thumb folgt `data-nav="watchlist"`. Färbt nicht Mehr oder Kalender |
+| S316-4 | Enge | `index.css` | Sechs Labels: Schrift auf ~`0.55rem` oder zwei Zeilen, kein Umbruch aus der Insel. Thumb-Spring unverändert (`useSlidingThumb`) |
+| S316-5 | Reduce | `prefersReducedMotion` | Thumb ohne Spring. Overlay-Leave wie WatchlistOverlay |
 
 ## Won’t
 
-- 6. `dockItems`-Eintrag. Drawer statt Dock. Drittes Chip (Gesehen).
-- Neue Motion-Lib. Icons Pflicht — Text-Chips reichen.
+- Chips über dem Dock. 7. Icon (Gesehen / Lieblinge extra).
+- Drawer statt Dock. Neue Motion-Lib.
 
 ## Abbruchkriterium
 
-Sechstes Dock-Icon. Oder Chip öffnet Fahrmodus / Kalender. Oder die
-Leiste verschwindet hinter der Tastatur.
+Fünf Slots bleiben. Oder Filme öffnet Fahrmodus / Kalender. Oder Labels
+laufen aus der Insel.
 
 ## Manuell
 
-Leiste: Chat Lage Hören Kalender Mehr. Darüber zwei Chips. Tap
-Watchliste → Folie Watchliste. Tap Lieblinge → Tab Lieblinge. Drive
-und Schach: Chips weg wie Dock.
+Leiste: Chat Lage Hören Kalender Filme Mehr. Tap Filme → Folie
+Watchliste. Drive und Schach: Dock weg.

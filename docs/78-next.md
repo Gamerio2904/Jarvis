@@ -6,14 +6,20 @@ steuern (Einstellungen, Overlays, Dock). Der Agent, der unklare Befehle
 aufnimmt, soll flexibler werden — auch Sätze, die so nicht eingebaut
 sind, ehrlich weiterführen statt ins Plaudern zu fallen.
 
+Nachzug dieselbe Runde: die Leiste bekommt **ein 6. Dock-Icon** (nicht
+Chips). Die Ladeanimation aus
+[Reel DdgPH-poGbJ](https://www.instagram.com/reel/DdgPH-poGbJ/?stkn=MWJyc3FvcWhoeDBo)
+kommt, wenn Jarvis antwortet — Chat **und** Sprachmodus.
+
 **Ist:** App-Code **`18.6.0`** auf `main`. Sideload **`18.4.4`**
 (versionCode `180404`) — 18.6 steckt noch nicht in der APK. Overlay-FSM
 hat `watchlist`. Befehle `Öffne Watchliste` / `Öffne das watchlist
-overlay` öffnen die Folie. In der Dock-Leiste fehlt sie. `app` öffnet
-Einstellungen/Stimme/Akzent. `tool-propose` übersetzt nur Timer, Wecker,
-Erinnerung, Termin, Einkauf, Fernseher.
+overlay` öffnen die Folie. In der Dock-Leiste fehlt sie. Chat zeigt drei
+Punkte (`.typing`). Sprachmodus färbt den Orb bei `thinking` nur grün.
+`app` öffnet Einstellungen/Stimme/Akzent. `tool-propose` übersetzt nur
+Timer, Wecker, Erinnerung, Termin, Einkauf, Fernseher.
 
-**Dieses Dokument ist PLAN.** Execute: Sprints **315–321**. `18.5`
+**Dieses Dokument ist PLAN.** Execute: Sprints **315–322**. `18.5`
 (Stimme/TV) bleibt PLAN daneben. **Nicht parallel** — beide treffen
 `App.tsx`, `app-parse.ts`, `director.ts`.
 
@@ -23,11 +29,12 @@ Erinnerung, Termin, Einkauf, Fernseher.
 
 | Thema | Entscheidung |
 |-------|----------------|
-| Leiste | **Chips über dem Dock**, nicht ein 6. Dock-Icon. Material: 3–5 Ziele. Dock bleibt Chat / Lage / Hören / Kalender / Mehr. |
-| Listen | Ein Overlay, zwei Chips: Watchliste und Lieblinge. Tab = Fokus. Hand und Befehl dieselbe FSM. |
+| Leiste | **Ein 6. Dock-Icon** `Filme` zwischen Kalender und Mehr. PO überschreibt Material 3–5. Kein 7. Icon, keine Chips darüber. |
+| Listen | Ein Overlay, Tabs Watchliste / Lieblinge. Icon öffnet die Folie; Befehl setzt den Tab. Hand und Befehl dieselbe FSM. |
 | Selbststeuerung | **Eigene Flächen** als Tools: Overlay, Settings-Tab, Dock, Lage-Sicht. Kein Computer-Use, kein Fake-Klick. |
 | Settings schreiben | Allowlist + „Soll ich?“ bei Writes. Android-Systemschalter bleiben Won’t (`device.ts`). |
 | Unklare Befehle | Parser zuerst. Vorschlag nur wenn `looksCommandish`. Ausgeführt wird der **deutsche Satz**, nie JSON. Unbekannt: ehrliche Absage + 3 Nachbarn, kein Smalltalk-Fake. |
+| Antwort-Laden | **Thinking Orbs** (MIT, Canvas 2D) wenn Jarvis antwortet. Chat ersetzt `.typing`. Sprachmodus `thinking` trägt denselben Orb. Kein Reel-Video, kein Lottie, kein WebGL. |
 | Hirn | Groq-JSON nur für den Vertrag. Kein LLM-Organizer, e5 nicht in `pickRoute`, kein Mem0/Qdrant. |
 
 Jarvis steuert **Jarvis**. Nicht das Betriebssystem, nicht fremde Apps.
@@ -41,11 +48,14 @@ Jarvis steuert **Jarvis**. Nicht das Betriebssystem, nicht fremde Apps.
 `App.tsx` `dockItems`: fünf Slots. `goDock` kennt `chat`, `lage`,
 `voice`, `calendar`, `settings`. `watchlist` ist Overlay-Id in
 `overlay-fsm.ts` und öffnet nur über `handleWatchlist` → `action: open`
-oder intern. Kein Chip, kein Dock-Treffer. Kalender und Mehr gehen per
-Hand; Watchliste nicht.
+oder intern. Kein Dock-Treffer. Kalender und Mehr gehen per Hand;
+Watchliste nicht.
 
 `WatchlistOverlay` hat schon Tabs Watchliste / Lieblinge. Befehle `show`
 setzen `focus`. Fehlt: sichtbare Fläche in der unteren Chrome.
+
+`NavIsland` + `useSlidingThumb` nehmen die Item-Liste dynamisch — sechs
+Slots brauchen kein neues Thumb-API, nur schmalere Labels.
 
 ### 1.2 Selbststeuerung heute
 
@@ -54,7 +64,7 @@ setzen `focus`. Fehlt: sichtbare Fläche in der unteren Chrome.
 | Einstellungen + Tab | Mehr-Dock | `Öffne Einstellungen [Thema]` (`app`) | Schließen, Tab wechseln, Werte setzen |
 | Sprachmodus | Hören-Dock | `Sprachmodus` | — |
 | Kalender | Kalender-Dock | Kalender-Parser | — |
-| Watchliste | **nein** | `Öffne Watchliste` | Chip |
+| Watchliste | **nein** | `Öffne Watchliste` | 6. Icon |
 | Lage / Kugel / Körper | Lage-Dock | `hud` | Dock und Befehl nicht ein Katalog |
 | Debug / Gedächtnis | Settings-Deep-Link | `app` | — |
 | Android WLAN/BT | — | `device` öffnet **System**-Seite, legt nicht um | bleibt |
@@ -84,11 +94,20 @@ dann so tut, als hätte es etwas getan.
 
 Das ist die Lücke „Befehle, die so nicht eingebaut sind“.
 
+### 1.4 Antwort-Laden heute
+
+Chat (`App.tsx`): `streamingText === ''` → drei Punkte `.typing`. Avatar
+pulst (`avatarPulse`). Composer `is-busy`.
+
+Sprachmodus (`VoiceMode.tsx`): Phase `thinking` setzt nur
+`.voice-orb.thinking { background: #127a38 }`. Ringe drehen immer.
+Label „Antwort kommt…“. Kein eigener Loader.
+
 ---
 
 ## 2. Forschung (Internet)
 
-Geprüft 2026-09-20. Was wir nehmen, was wir lassen.
+Geprüft 2026-09-20, Reel nachgezogen 2026-09-20.
 
 | Quelle | Kern | Für Jarvis | Nicht |
 |--------|------|------------|-------|
@@ -97,13 +116,15 @@ Geprüft 2026-09-20. Was wir nehmen, was wir lassen.
 | [Tool-call gatekeeper](https://dev.to/hackrs_3352/a-reproducible-tool-call-gatekeeper-for-ai-agents-3icm) | Deny/Allow deterministisch, LLM nur Long-Tail; malformed = escalate | `none` / kaputtes JSON = Absage, nicht raten | Fail-open |
 | [jwalin-shah/personal-assistant](https://github.com/jwalin-shah/personal-assistant) | regex → Heuristik → Parser → LLM-Fallback | Entspricht Propose-Pfad | Plugin-Shell |
 | [self-healing-router](https://github.com/jhammant/self-healing-router) | Graph/Dijkstra statt ReAct-pro-Schritt | Retry bleibt im Modul (`applyRetry`) | Neue Graph-Lib, LLM-Replan |
-| [Material 3 Nav bar](https://m3.material.io/components/navigation-bar/guidelines) | **3–5** Ziele; >5 = Drawer/Tabs, kein 6. Icon. [M3 Expressive 2025](https://m3.material.io/components/navigation-bar): flexible Bar kürzer, immer noch 3–5. [Android Nav-Muster](https://developer.android.com/design/ui/mobile/guides/layout-and-content/layout-and-nav-patterns): sekundär = Tabs/Chips, nicht 6. Icon | Chips über Dock, Dock bleibt 5 | 6./7. Dock-Slot |
+| [Material 3 Nav bar](https://m3.material.io/components/navigation-bar/guidelines) | **3–5** Ziele; >5 = Drawer. [M3 Expressive 2025](https://m3.material.io/components/navigation-bar) bleibt bei 3–5 | Labels enger setzen, Mehr bleibt letzter Slot | 7. Icon, Drawer statt Dock (PO will 6) |
 | [ORB](https://github.com/settylokesh/ORB) / [Sai](https://github.com/GodlyDonuts/sai) / [OpenComputer](https://github.com/andykr1k/OpenComputer) | Screenshot, Klick, Hotkey | Muster: eigene Flächen als Tools, Confirm | Computer-Use, Vision-Klick — bei uns Won’t / Freeze |
+| Reel [DdgPH-poGbJ](https://www.instagram.com/reel/DdgPH-poGbJ/?stkn=MWJyc3FvcWhoeDBo) (@adilet.fndr, 20.9.2026) | „These orb animations are everywhere — somebody just open-sourced them. Thinking Orbs: nine dotted orbs…“ | Zustände und Canvas-2D-Muster | Reel-Video einbetten, Lottie-Kopie |
+| [Jakubantalik/thinking-orbs](https://github.com/Jakubantalik/thinking-orbs) MIT · [npm](https://www.npmjs.com/package/thinking-orbs) · [Demo](https://orbs.jakubantalik.com) | 9 Zustände, Size 64/20, Canvas 2D, kein WebGL, `prefers-reduced-motion` = Standbild, eine Clock, offscreen pause. Theme nur mono | Chat + Voice-Antwort | Framer, Lottie, GSAP, `globe.gl` |
 
-**Urteil:** Der Aufnahme-Agent wird nicht durch ReAct oder Computer-Use
-ersetzt. Er bekommt **mehr Verträge**, eine **weitere DOMAIN**, und
-einen ehrlichen **unknown**-Ausgang. Die Leiste bekommt Chips, keine
-sechste Ikone.
+**Urteil:** Der Aufnahme-Agent bleibt Parser → Propose → Absage. Die
+Leiste bekommt das **6. Icon**, weil der PO das so will — Material bleibt
+Hinweis für Label-Enge, nicht Veto. Die Ladeanimation ist **Thinking
+Orbs**, nicht drei Punkte und nicht das Instagram-Video.
 
 ---
 
@@ -111,15 +132,22 @@ sechste Ikone.
 
 ### 3.1 Listen in der unteren Chrome (Must)
 
-Zwei Chips **über** `.nav-dock`, nur wenn kein Drive/Schach:
+Sechs Dock-Slots, nur wenn kein Drive/Schach:
 
-| Chip | Hand | Befehl (schon da, härten) |
-|------|------|---------------------------|
-| Watchliste | `open` focus `watch` | `Öffne Watchliste`, `Öffne das watchlist overlay` |
-| Lieblinge | `open` focus `favorite` | `Öffne Lieblingsfilme` |
+`Chat · Lage · Hören · Kalender · Filme · Mehr`
 
-Aktiv-Zustand wie Dock-Thumb. `Fertig` und Dock-Chat schließen beide.
-Reduced-motion: kein Wischen-Zwang.
+| Icon | Hand | Befehl |
+|------|------|--------|
+| Filme | `goDock('watchlist')` → Overlay, Fokus zuletzt oder `watch` | `Öffne Watchliste` → Tab Watchliste; `Öffne Lieblinge` → Tab Lieblinge |
+
+Aktiv-Thumb auf Filme, solange die Folie oben ist. Zweiter Tap auf Filme
+schließt (wie Chat die Folien räumt). `Fertig` und Dock-Chat schließen
+ebenfalls. Tabs in der Folie bleiben die Umschaltung Watchliste /
+Lieblinge — **kein** 7. Icon.
+
+Label **Filme** (kurz). Icon: Filmstreifen in `NavIsland.tsx`, gleicher
+Strich wie die anderen. Schrift `.nav-island-label` bei sechs Slots
+engführen (`0.55rem` oder zwei Zeilen), Thumb folgt `data-nav`.
 
 ### 3.2 Selbststeuerung (Must)
 
@@ -131,7 +159,7 @@ Neuer Schnitt `ui-action` **im** Agent `app` (kein zweiter Organizer):
 | `overlay.close` | `Einstellungen zu`, `Overlay zu`, `Fertig` | `close` der obersten Folie |
 | `settings.tab` | `Einstellungen Musik` | Tab, schon teils da |
 | `settings.set` | `Gemini aus`, `Research an` | Allowlist, dann „Soll ich?“ |
-| `dock.go` | `Zeig Chat`, `Zurück zum Chat` | `goDock` |
+| `dock.go` | `Zeig Chat`, `Zurück zum Chat`, `Zeig Filme` | `goDock` |
 | `lage.view` | bleibt `hud` | nicht doppelt bauen |
 
 Allowlist Writes (Start, erweiterbar): `tv_enabled`, `research_opt_in`,
@@ -154,6 +182,30 @@ Allowlist Writes (Start, erweiterbar): `tv_enabled`, `research_opt_in`,
 Should: Synonyme in `utterance.ts` (`settings` → Einstellungen,
 `favorites` → Lieblinge). Kein Embeddings-Router.
 
+### 3.4 Antwort-Orb (Must)
+
+Reel-Quelle ist Thinking Orbs. Jarvis nimmt die **MIT-Bibliothek**, nicht
+das Video.
+
+| Fläche | Wann | State | Size |
+|--------|------|-------|------|
+| Chat-Blase | `busy` und noch kein Stream-Text | `composing` (Antwort) | 64 |
+| Chat-Blase | Research läuft, noch kein Text | `searching` | 64 |
+| Chat-Blase | Werkzeug / Propose wartet | `solving` | 64 |
+| Chat-Blase | erster Token da | Orb **weg**, Caret bleibt | — |
+| Sprachmodus | Phase `thinking` | `composing` (Research → `searching`) | 64, im Orb-Schacht |
+| Sprachmodus | `listening` / `speaking` | bestehender CSS-Orb | — |
+
+Eine Komponente `ui/ReplyOrb.tsx`: Wrapper um `ThinkingOrb`,
+`theme` aus `ui_theme` (`dark`/`light`, system auflösen),
+`aria-label` deutsch („Jarvis antwortet“ / „Jarvis sucht“).
+`prefers-reduced-motion` nutzt das Standbild der Lib. `document.hidden`
+und Offscreen pausieren von allein.
+
+Paket: `thinking-orbs` (MIT, Canvas 2D, keine Runtime-Deps außer React).
+Keine zweite Motion-Lib. Kein WebGL. Kein Grün-Fork — Theme bleibt
+monochrom wie im Reel; Akzent bleibt am Avatar / am Voice-Ring.
+
 ---
 
 ## 4. Sätze (Gold)
@@ -163,7 +215,7 @@ Should: Synonyme in `utterance.ts` (`settings` → Einstellungen,
 Öffne Lieblinge
 ```
 
-Chip-Tap Watchliste / Lieblinge → dieselbe Folie, richtiger Tab.
+Dock-Tap Filme → Folie. `Öffne Lieblinge` → Tab Lieblinge, Thumb auf Filme.
 
 ```
 Einstellungen zu
@@ -189,18 +241,22 @@ Klick auf Speichern
 
 Won’t wie heute (`device` / `wont`). Kein Selbst-Klick.
 
+Antwort-Orb: Satz senden → Orb in der Blase, bis Text kommt. Sprachmodus
+nach dem Hören → Orb statt nur grünem Kreis, bis gesprochen wird.
+
 ---
 
 ## 5. Won’t in `18.7`
 
-- 6. Dock-Icon, Drawer-Ersatz fürs ganze Dock.
+- Chips über dem Dock. 7. Dock-Icon. Drawer-Ersatz fürs ganze Dock.
 - Computer-Use, Screenshot-Klick, LocateAnything-Handy (Freeze).
 - Android-Systemschalter umlegen.
 - Keys/Tokens/MAC per Satz schreiben.
 - LLM führt JSON aus oder spielt Organizer.
 - e5 / Mem0 / Qdrant / Graphiti in `pickRoute`.
 - ReAct-Schleife pro Overlay-Tap.
-- Neue Motion-Lib.
+- Framer Motion, Lottie, GSAP, Reel-MP4, `globe.gl`.
+- Alle neun Orb-Zustände sichtbar umschalten — nur die drei Antwort-Fälle.
 - Sideload in diesem PLAN versprechen — APK erst mit Execute + SDK.
 
 ---
@@ -208,12 +264,15 @@ Won’t wie heute (`device` / `wont`). Kein Selbst-Klick.
 ## 6. Probe (nach 321)
 
 ```
-Leiste: Chat Lage Hören Kalender Mehr. Darüber zwei Chips.
-Chip Watchliste → Folie Watchliste. Chip Lieblinge → Tab Lieblinge.
+Leiste: Chat Lage Hören Kalender Filme Mehr.
+Tap Filme → Folie Watchliste. Öffne Lieblinge → Tab Lieblinge, Thumb Filme.
 Öffne das watchlist overlay → Folie, nicht Fahrmodus.
 Einstellungen zu → Folie weg.
 Research an → Nachfrage, nach Ja Schalter.
 Mach das Film-Overlay auf → Watchliste oder ehrliche Nachfrage.
 Klick Speichern / WLAN aus → Won’t.
 Lage auf → Kugel wie 18.6, keine Schicht von allein.
+Chat-Satz → gepunkteter Orb, bis Text da ist. Dann Caret, kein Orb.
+Sprachmodus nach dem Hören → derselbe Orb, bis Jarvis spricht.
+Reduce-Motion: Orb steht still.
 ```

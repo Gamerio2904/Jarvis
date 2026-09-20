@@ -83,7 +83,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 75 | [Körper/Wissen 18.4](./75-next.md) | **CODE + APK** `18.4` in `18.4.3` — Katalog am Körper, Agent↔Pack, 1-Hop |
 | 76 | [Stimme, TV-Wahrheit, Intelligenz 18.5](./76-next.md) | **PLAN** — Sprints 301–306; Diagnose Fernseher an; Docs-Aufräumen |
 | 77 | [Lage-Kugel OSINT 18.6](./77-next.md) | **CODE** `18.6.0` — Sprints 307–314; OSIRIS-Fähigkeiten in der Kugel, kein iframe |
-| 78 | [Listen-Leiste, Selbststeuerung, flexibler Befehl 18.7](./78-next.md) | **PLAN** — Sprints 315–321; Chips, Jarvis steuert Jarvis, Propose-Unknown |
+| 78 | [Listen-Leiste, Selbststeuerung, flexibler Befehl 18.7](./78-next.md) | **PLAN** — Sprints 315–322; 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb |
 | — | [APK](./apk.md) | Sideload `18.4.4`; Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md) |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
@@ -303,6 +303,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 297–300 | `18.4.0`–`18.4.3` | **CODE + APK** in `18.4.3` (Körper/Wissen, [`75-next.md`](./75-next.md)) |
 | 301–306 | `18.5.0`–`18.5.5` | **PLAN** (Stimme, TV-Wahrheit, Intelligenz, Docs, [`76-next.md`](./76-next.md)) |
 | 307–314 | `18.6.0`–`18.6.7` | **CODE** (Lage-Kugel OSINT, [`77-next.md`](./77-next.md)) |
-| 315–321 | `18.7.0`–`18.7.6` | **PLAN** (Listen-Leiste, Selbststeuerung, Propose, [`78-next.md`](./78-next.md)) |
+| 315–322 | `18.7.0`–`18.7.7` | **PLAN** (6. Icon Filme, Selbststeuerung, Propose, Antwort-Orb, [`78-next.md`](./78-next.md)) |
 
 **Aktuell:** App-Code **`18.6.0`**. Sideload-APK **`18.4.4`**, versionCode `180404`. Sprints 307–314 **CODE**. Nächste Schiene **18.7 PLAN** (nicht parallel zu 18.5). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Index: [`42-planned.md`](./42-planned.md).

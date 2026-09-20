@@ -8,7 +8,7 @@
 
 Die Leitentscheidung steht im Code: Jarvis steuert **Jarvis-Flächen**,
 nicht das Betriebssystem. Ein Schnitt `ui-action` im Agent `app` listet
-die Ids, bevor Chips oder Writes kommen.
+die Ids, bevor Dock-Icon oder Writes kommen.
 
 ## Lieferumfang
 
@@ -21,7 +21,7 @@ die Ids, bevor Chips oder Writes kommen.
 
 ## Won’t
 
-- Chips (316). Overlay-Hand (317). Settings-Writes (319). Propose-DOMAIN (320).
+- 6. Icon (316). Overlay-Hand (317). Settings-Writes (319). Propose-DOMAIN (320). Antwort-Orb (322).
 - LLM wählt die Fläche. e5 in `pickRoute`.
 
 ## Abbruchkriterium

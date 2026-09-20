@@ -39,5 +39,5 @@ Einstellungen zu
 Öffne Watchliste
 ```
 
-Tab Musik sichtbar. Chat räumt die Folie. Watchliste über Chip **oder**
-Satz dieselbe Folie.
+Tab Musik sichtbar. Chat räumt die Folie. Watchliste über Dock-Filme
+**oder** Satz dieselbe Folie.

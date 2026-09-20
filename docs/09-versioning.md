@@ -669,19 +669,21 @@ MapLibre, kein CCTV, kein Scanner. Feeds direkt, nicht osirisai.live.
 
 ### `18.7` — Listen-Leiste, Selbststeuerung, flexibler Befehl [`78-next.md`](./78-next.md) **PLAN**
 
-Watchliste und Lieblinge als Chips über dem 5er-Dock. Jarvis steuert
+Watchliste und Lieblinge als 6. Dock-Icon **Filme**. Jarvis steuert
 eigene Flächen (Overlay, Settings, Dock). Propose-Unknown statt
-Smalltalk-Fake. Kein 6. Icon, kein Computer-Use. Nicht parallel zu `18.5`.
+Smalltalk-Fake. Thinking Orbs wenn Jarvis antwortet. Kein Computer-Use.
+Nicht parallel zu `18.5`.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
 | `18.7.0` | Leit + UI-Action-Katalog | 315 PLAN |
-| `18.7.1` | Listen-Chips über dem Dock | 316 PLAN |
+| `18.7.1` | 6. Dock-Icon Filme | 316 PLAN |
 | `18.7.2` | Overlay Hand + Befehl | 317 PLAN |
 | `18.7.3` | Selbststeuerung Flächen | 318 PLAN |
 | `18.7.4` | Settings-Writes Allowlist | 319 PLAN |
 | `18.7.5` | Propose härten, Unknown | 320 PLAN |
 | `18.7.6` | Härten, Gold, Meilenstein | 321 PLAN |
+| `18.7.7` | Antwort-Orb Thinking Orbs | 322 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
