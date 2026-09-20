@@ -132,6 +132,27 @@ try {
   const shop = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
   rec(/Milch|Liste|Einkauf/i.test(shop), 'Einkaufsliste weiter da', shop.slice(-180))
 
+  await send('auch Brot')
+  const brot = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
+  rec(/Brot/i.test(brot), 'auch Brot hängt an der Liste', brot.slice(-180))
+
+  await send('was fehlt?')
+  const fehlt = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
+  rec(/Milch/i.test(fehlt) && /Brot/i.test(fehlt), 'was fehlt nennt Milch und Brot', fehlt.slice(-180))
+
+  await send('Kalender')
+  rec(Boolean(await page.$('.cal-view, .calendar, [class*="cal-"]')), 'Kalender-Befehl öffnet Kalender')
+  await tapNav('chat')
+  rec(!(await page.$('.cal-view')), 'Chat räumt Kalender-Befehl')
+
+  await send('Zeig Kameras')
+  const cams = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
+  rec(/Kamera|Überwachung|nicht/i.test(cams) && !/habe ich geöffnet/i.test(cams), 'Kameras bleiben Won’t', cams.slice(-160))
+
+  await send('Taschenlampe an')
+  const torch = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
+  rec(/Taschenlampe|Handy/i.test(torch), 'Taschenlampe bleibt Gerät', torch.slice(-160))
+
   await send('Wetter heute')
   const wetter = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
   rec(/Wetter|Grad|Open-Meteo|Regen|Sonne|Wolken|Luft/i.test(wetter), 'Wetter bleibt Wetter', wetter.slice(-180))
@@ -185,6 +206,15 @@ try {
     'WLAN bleibt Gerät statt Modell',
     wlan.slice(-160),
   )
+  const researchStillOff = await page.evaluate(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem('jarvis_settings_v13') || '{}')
+      return s.research_opt_in !== true
+    } catch {
+      return true
+    }
+  })
+  rec(researchStillOff, 'WLAN bestätigt Research nicht')
 
   await send('Zeig Erdbeben')
   await sleep(400)

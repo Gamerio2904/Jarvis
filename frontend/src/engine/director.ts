@@ -206,12 +206,12 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
   if (pending?.tool === PROPOSAL_TOOL) {
     const answered = await answerProposal(conversationId, pending, text)
     if (answered) return answered
-  }
-  if (pending?.tool === APP_FLAG_TOOL) {
+    await clearPending(conversationId)
+  } else if (pending?.tool === APP_FLAG_TOOL) {
     const answered = await answerFlag(conversationId, pending, text)
     if (answered) return answered
-  }
-  if (pending) {
+    await clearPending(conversationId)
+  } else if (pending) {
     const pendingHit = await handleTools(conversationId, text)
     if (pendingHit.handled && pendingHit.reply) {
       const hit = await fromHandler('todo', pendingHit)
