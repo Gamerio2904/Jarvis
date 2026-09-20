@@ -264,10 +264,11 @@ function answerWith(tool, args) {
   })
 }
 
-/** Ohne Vorschlagsweg bleibt der Satz unbeantwortet — so war es vorher. */
+/** Ohne Vorschlagsweg: ehrliche Absage, kein Modell-Fake. */
 store.saveSettings({ tool_propose: false, groq_api_key: 'gsk_test' })
 answerWith('set_timer', bag({ minutes: '12' }))
-assert.equal((await runDirectorTurn(CONV, 'stell mir einen Timer für den Kuchen im Ofen')).hit, null)
+const ohneWeg = await runDirectorTurn(CONV, 'stell mir einen Timer für den Kuchen im Ofen')
+assert.match(ohneWeg.hit?.reply || '', /nicht eingebaut/)
 store.saveSettings({ tool_propose: true })
 
 const vorher = (await openTimers()).length
@@ -315,9 +316,10 @@ assert.match(tvGefragt.hit?.reply || '', /Soll ich\?$/)
 assert.equal((await getPending(CONV))?.action, 'tv')
 await runDirectorTurn(CONV, 'nein')
 
-/** Ein erfundenes Werkzeug erreicht nichts, auch nicht als Frage. */
+/** Ein erfundenes Werkzeug erreicht nichts — Absage statt Fake-Execute. */
 answerWith('launch_missiles', bag({ state: 'on' }))
-assert.equal((await runDirectorTurn(CONV, 'stell mir einen Timer für den Kuchen im Ofen')).hit, null)
+const erfunden = await runDirectorTurn(CONV, 'stell mir einen Timer für den Kuchen im Ofen')
+assert.match(erfunden.hit?.reply || '', /nicht eingebaut/)
 assert.equal(await getPending(CONV), undefined)
 
 /** Und eine Wissensfrage kostet keinen Aufruf — der Vorschlagsweg bleibt aus. */

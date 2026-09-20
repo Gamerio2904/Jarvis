@@ -1,5 +1,5 @@
 import { clearPending, getPending, saveSettings, setPending } from './store.ts'
-import { parseAppIntent, type AppIntent, type UiAction } from './app-parse.ts'
+import { parseAppIntent, type UiAction } from './app-parse.ts'
 import { resolveTopic, TOPIC_FACE, type SettingsTopic } from './settings-ia.ts'
 import { packVerified } from './action-fsm.ts'
 import { flagUtterance } from './ui-action.ts'

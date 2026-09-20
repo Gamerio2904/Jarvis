@@ -62,7 +62,7 @@ const REPLACE_DEST =
 function overlayTab(t: string): DriveTab | null {
   if (!/\boverlay\b/i.test(t)) return null
   if (/\b(?:aus|zu|schließ|beend)\b/i.test(t)) return null
-  if (/\b(?:watchliste|lieblings(?:filme|liste)?|lieblinge)\b/i.test(t)) return null
+  if (/\b(?:watchliste|lieblings(?:filme|liste)?|lieblinge|filme)\b/i.test(t)) return null
   if (/\b(?:spotify|musik)\b/i.test(t)) return 'spotify'
   return 'map'
 }
