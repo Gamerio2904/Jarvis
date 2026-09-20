@@ -5,6 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.7` — Listen-Leiste, Selbststeuerung, flexibler Befehl — *PLAN*
+
+Sprints **315–321**. Siehe [`78-next.md`](./78-next.md). Watchliste und
+Lieblinge als Chips über dem 5er-Dock. Jarvis steuert eigene Flächen
+(Overlay, Settings, Dock). Unklare Befehle: Propose oder ehrliche
+Absage, kein Smalltalk-Fake. Kein 6. Icon, kein Computer-Use.
+Nicht parallel zu `18.5`. Sideload bleibt `18.4.4` bis Execute + SDK.
+
 ### `18.6.0` — Lage-Kugel OSINT + Watchlist-Overlay — *CODE*
 
 Sprints **307–314**. OSIRIS-Fähigkeiten in der Canvas-Kugel: Schicht-Registry,
