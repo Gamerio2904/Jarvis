@@ -91,10 +91,18 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'film', 0.15)
   }
 
+  if (/\b(whois|dns|zertifikat|sanktionsliste|cve-\d{4}|osint)\b/.test(t) || /^\s*scan(?:ne)?\s+/.test(t)) {
+    out = drop(out, 'trace')
+    out = drop(out, 'drive')
+    out = drop(out, 'search')
+    out = boost(out, 'osint', 0.2)
+  }
+
   if (/\b(watchliste|lieblingsfilm|lieblingsfilme|lieblingsliste|lieblinge|zum\s+schauen|filmtipp|nenn\s+mir)\b/.test(t)) {
     out = drop(out, 'todo')
     out = drop(out, 'idea')
     out = drop(out, 'film')
+    out = drop(out, 'drive')
     out = boost(out, 'watchlist', 0.18)
   }
 

@@ -1,7 +1,25 @@
 import { matchCountry } from './globe-countries.ts'
 import type { OutlookTag } from './outlook-tags.ts'
 
-export type GeoPinKind = 'here' | 'iss' | 'flight' | 'warn' | 'news' | 'outlook' | 'glow' | 'quake' | 'fire'
+export type GeoPinKind =
+  | 'here'
+  | 'iss'
+  | 'flight'
+  | 'warn'
+  | 'news'
+  | 'outlook'
+  | 'glow'
+  | 'quake'
+  | 'fire'
+  | 'weather'
+  | 'air'
+  | 'radar'
+  | 'sat'
+  | 'ship'
+  | 'infra'
+  | 'conflict'
+  | 'event'
+  | 'cyber'
 
 export type GeoFix = { name: string; lat: number; lon: number; kind: GeoPinKind; line?: string; hot?: boolean }
 
@@ -171,8 +189,23 @@ export function briefFitsPlace(name: string, brief: string): boolean {
   return new RegExp(`\\b${esc}\\b`, 'i').test(b)
 }
 
+const LAYER_PIN: ReadonlySet<GeoPinKind> = new Set([
+  'fire',
+  'quake',
+  'flight',
+  'weather',
+  'air',
+  'radar',
+  'sat',
+  'ship',
+  'infra',
+  'conflict',
+  'event',
+  'cyber',
+])
+
 export function isGlobeLayerPin(kind: GeoPinKind): boolean {
-  return kind === 'fire' || kind === 'quake' || kind === 'flight'
+  return LAYER_PIN.has(kind)
 }
 
 /** Finger-Treffer auf der Kugel: Schicht-Pins größer als Orts-Punkte. */

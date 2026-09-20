@@ -1,5 +1,5 @@
 import { gazetteerHit } from './globe-geo.ts'
-import type { GlobeLayer } from './globe-layers.ts'
+import { parseGlobeLayerPhrase, LAYER_SKIP, type GlobeLayer } from './globe-layers.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export const HUD_CATALOG = [
@@ -114,6 +114,9 @@ export type HudIntent =
   | { kind: 'show_map'; asked: string }
   | { kind: 'unknown_place'; asked: string }
   | { kind: 'layer'; layer: GlobeLayer }
+  | { kind: 'layer_off' }
+  | { kind: 'lage_brief' }
+  | { kind: 'space_weather' }
 
 /** Letzter Befehl im Satz — „Ah sehr schön. Zeig mir das auf der Karte“. */
 export function commandClause(text: string): string {
@@ -213,22 +216,11 @@ export function parseHudIntent(text: string): HudIntent | null {
     )
   if (globusOnly) return { kind: 'look' }
 
-  if (
-    /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?|wo(?:\s+hat\s+es)?)\s+(?:die\s+|das\s+|den\s+)?(?:erdbeben|beben|erdstöße|erdstoesse)\b/i.test(
-      t,
-    ) ||
-    /^\s*wo\s+hat\s+es\s+gebebt\b/i.test(t)
-  ) {
-    return { kind: 'layer', layer: 'quakes' }
-  }
-  if (
-    /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?|wo)\s+(?:die\s+|das\s+|den\s+)?(?:waldbr[aä]nde?|brände|braende|feuer|waldbrand)\b/i.test(
-      t,
-    ) ||
-    /^\s*wo\s+brennt(?:\s+es)?\b/i.test(t)
-  ) {
-    return { kind: 'layer', layer: 'fires' }
-  }
+  const layerPhrase = parseGlobeLayerPhrase(t)
+  if (layerPhrase?.kind === 'off') return { kind: 'layer_off' }
+  if (layerPhrase?.kind === 'brief') return { kind: 'lage_brief' }
+  if (layerPhrase?.kind === 'space') return { kind: 'space_weather' }
+  if (layerPhrase?.kind === 'layer') return { kind: 'layer', layer: layerPhrase.layer }
 
   const where = /^\s*(?:wo\s+(?:liegt|ist)|zeig(?:e)?(?:\s+mir)?(?:\s+(?:auf\s+(?:dem\s+)?globus|auf\s+der\s+(?:karte|kugel|erde)))?(?:\s+die\s+stadt)?|flieg(?:e)?\s+nach|zoom(?:e)?\s+auf)\s+(.+?)\s*$/i.exec(
     t,
@@ -241,7 +233,8 @@ export function parseHudIntent(text: string): HudIntent | null {
     if (hit) return { kind: 'pin', name: hit.name, lat: hit.lat, lon: hit.lon, blurb: hit.blurb }
     const hadArt = /^(?:der|die|das|dem|den|mein|meine|meiner|meinen)\s+/i.test(rawRest)
     const skip =
-      /\b(körper|koerper|kugel|erde|weltkugel|hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|wetter|spotify|lage|kachel|modul|mond|iss|sonne|himmel|foto|beleg|bild|speichern|fenster|nachrichten|news|street|satellit|notizen|notiz|instagram|pizza|email|e-mail|erdbeben|beben|waldbrand|waldbrände|waldbraende|brände|braende|feuer|schachbrett|schach)\b/i.test(
+      LAYER_SKIP.test(rest) ||
+      /\b(körper|koerper|kugel|erde|weltkugel|hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|wetter|spotify|lage|kachel|modul|mond|iss|sonne|himmel|foto|beleg|bild|speichern|fenster|nachrichten|news|street|notizen|notiz|instagram|pizza|email|e-mail|schachbrett|schach)\b/i.test(
         rest,
       )
     if (

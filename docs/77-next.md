@@ -1,16 +1,16 @@
-# 77 — Lage-Kugel OSINT (OSIRIS-Fähigkeiten) **PLAN** (`18.6`)
+# 77 — Lage-Kugel OSINT (OSIRIS-Fähigkeiten) **CODE** (`18.6.0`)
 
 PO 2026-09-20: Alles, was [OSIRIS](https://osirisai.live) auf der
 Weltkarte kann, soll **in die Lage-Kugel**. Referenz:
 [simplifaisoul/osiris](https://github.com/simplifaisoul/osiris) (MIT),
 Docs: [osirisai.live/docs](https://osirisai.live/docs).
 
-**Ist:** Code **`18.4.4`**. Kugel = Canvas 2D (`GlobeView.tsx`), GIBS,
-Terminator, ISS-Bahn, **eine** Schicht auf Zuruf (`quakes` / `fires` /
-`overhead`, max 40 / 16 Lite). Stadt-Briefing + Welt-Tour **CODE**.
-Kein `globe.gl` (270 nicht gezogen). Kein EarthOS.
+**Ist:** App-Code **`18.6.0`**. Sideload bleibt **`18.4.4`**. Kugel = Canvas 2D
+(`GlobeView.tsx`), GIBS, Terminator, ISS-Bahn, **eine** Schicht auf Zuruf
+(Registry 307–310, max 40 / 16 Lite). Intel-Leiste, Tipp-Dossier, passive
+OSINT, Briefing aus Cache. Kein `globe.gl` (270 nicht gezogen). Kein EarthOS.
 
-**Dieses Dokument ist PLAN, kein Sideload.** Execute: Sprints **307–314**.
+**Dieses Dokument ist CODE** in App `18.6.0`. Execute: Sprints **307–314 CODE**.
 `18.5` (Stimme/TV) bleibt PLAN daneben. **Nicht parallel ausführen** —
 beide Schienen treffen `hud-parse.ts`, `store.ts`, `Lage.tsx`.
 
@@ -172,7 +172,7 @@ irgendeine Schicht. 312 frei neben 311. **314 zuletzt**.
 | `18.6.6` | [313](./sprints/sprint-313.md) | Lage-Briefing: Hirn nur über sichtbare Fakten |
 | `18.6.7` | [314](./sprints/sprint-314.md) | Härten, Gold, Meilenstein |
 
-Kein Versionsbump der Sideload-APK in diesem PLAN. 282 bleibt
+Kein Versionsbump der Sideload-APK in diesem Execute. 282 bleibt
 versionCode-Schema-Freeze.
 
 ---

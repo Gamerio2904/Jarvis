@@ -10,6 +10,7 @@ export type WontReason =
   | 'agent'
   | 'phone_ground'
   | 'street'
+  | 'cctv'
   | 'live_sat'
   | 'watch'
   | 'mail'
@@ -33,6 +34,7 @@ const REPLY: Record<WontReason, string> = {
   phone_ground:
     'LocateAnything liegt auf dem PC, nicht im Handy. Am Telefon: Foto-Knopf, kein GUI-Klick auf Speichern.',
   street: 'Street View habe ich nicht. Nur die Kugel mit Lexikon-Orten, kein Straßenblick.',
+  cctv: 'Öffentliche Kameras und Live-Streams habe ich nicht. Die Kugel zeigt keine Überwachung.',
   live_sat: 'Live-Satellitenvideo gibt es nicht. Die Kugel zeigt Standbilder, oft Stunden alt.',
   watch: 'Leute beobachte ich nicht. Keine Überwachung.',
   mail: 'E-Mail schreibe ich nicht. SMS nach Nachfrage, wenn ein Kontakt da ist.',
@@ -72,6 +74,12 @@ export function parseWontIntent(text: string): WontIntent | null {
     return { reason: 'phone_ground' }
   }
   if (/\bstreet\s*view\b/i.test(t)) return { reason: 'street' }
+  if (
+    /\b(?:cctv|webcam|webcams|überwachungskamera|ueberwachungskamera)\b/i.test(t) ||
+    /^\s*(?:zeig(?:e)?(?:\s+mir)?|öffne[n]?)\s+(?:die\s+|das\s+|den\s+)?kameras?\s*$/i.test(t)
+  ) {
+    return { reason: 'cctv' }
+  }
   if (/\b(live[- ]?satellit(?:en)?(?:video|bild)?|live[- ]?erde)\b/i.test(t)) return { reason: 'live_sat' }
   if (/\bbeobacht(?:e|en)?\b/i.test(t) && /\b(leute|menschen|personen|straße|strasse)\b/i.test(t)) {
     return { reason: 'watch' }

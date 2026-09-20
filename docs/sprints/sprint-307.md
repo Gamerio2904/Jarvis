@@ -1,6 +1,6 @@
 # Sprint 307 — Kugel: Layer-Registry
 
-**Version:** `18.6.0` — **PLAN** Must
+**Version:** `18.6.0` — **CODE** Must
 **Plan:** [`77-next.md`](../77-next.md)
 **Voraussetzung:** Sideload `18.4.4`. Kein `globe.gl`.
 

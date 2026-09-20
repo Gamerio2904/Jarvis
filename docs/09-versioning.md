@@ -650,7 +650,7 @@ Observe/Working-Memory. Kein CEC, kein Mem0. Nicht parallel zu `18.6`.
 | `18.5.4` | Docs + Code aufräumen | 305 PLAN |
 | `18.5.5` | Härten, Gold, Meilenstein | 306 PLAN |
 
-### `18.6` — Lage-Kugel OSINT [`77-next.md`](./77-next.md) **PLAN**
+### `18.6` — Lage-Kugel OSINT [`77-next.md`](./77-next.md) **CODE** `18.6.0`
 
 OSIRIS-Fähigkeiten auf der Canvas-Kugel: Schichten auf Zuruf, Dossier,
 passive Lookups, Briefing aus sichtbaren Fakten. Kein iframe, kein
@@ -658,14 +658,14 @@ MapLibre, kein CCTV, kein Scanner. Feeds direkt, nicht osirisai.live.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.6.0` | Layer-Registry | 307 PLAN |
-| `18.6.1` | Erde + Orbit | 308 PLAN |
-| `18.6.2` | See + Infra | 309 PLAN |
-| `18.6.3` | Geo + Cyber | 310 PLAN |
-| `18.6.4` | Intel-Leiste + Dossier | 311 PLAN |
-| `18.6.5` | Passive OSINT + Pin | 312 PLAN |
-| `18.6.6` | Lage-Briefing | 313 PLAN |
-| `18.6.7` | Härten, Meilenstein | 314 PLAN |
+| `18.6.0` | Layer-Registry | 307 CODE |
+| `18.6.1` | Erde + Orbit | 308 CODE |
+| `18.6.2` | See + Infra | 309 CODE |
+| `18.6.3` | Geo + Cyber | 310 CODE |
+| `18.6.4` | Intel-Leiste + Dossier | 311 CODE |
+| `18.6.5` | Passive OSINT + Pin | 312 CODE |
+| `18.6.6` | Lage-Briefing | 313 CODE |
+| `18.6.7` | Härten, Meilenstein | 314 CODE |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

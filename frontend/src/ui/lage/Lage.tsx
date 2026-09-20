@@ -30,6 +30,7 @@ import { BodyTree } from './BodyTree.tsx'
 import { loadGlobePins, loadIssTrail } from '../../engine/globe-pins.ts'
 import type { GeoFix } from '../../engine/globe-geo.ts'
 import { isGlobeLayerPin, pinLineFor } from '../../engine/globe-geo.ts'
+import { chipOffLabel, dossierNear, frontsForActiveLayer, intelLine } from '../../engine/globe-layers.ts'
 import { CITY_FLY_ZOOM } from '../../engine/globe-gibs.ts'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion.ts'
 import { loadSettings, saveSettings, type Message } from '../../engine/store.ts'
@@ -282,7 +283,7 @@ export function Lage({
                 onHudChange?.()
               }}
             >
-              {globeLayer === 'fires' ? 'Waldbrände aus' : globeLayer === 'quakes' ? 'Beben aus' : 'Flugzeuge aus'}
+              {chipOffLabel(globeLayer)}
             </button>
           ) : null}
           <button
@@ -332,9 +333,10 @@ export function Lage({
           ))}
         </div>
         <AgentStatusBar busy={busy} />
+        {view === 'globe' && intelLine() ? <p className="lage-intel">{intelLine()}</p> : null}
         <p className="lage-hint">
           {view === 'globe'
-            ? 'Erde drehen und zoomen — grüne Grenzen.'
+            ? 'Erde drehen und zoomen — grüne Grenzen. Tipp ins Leere: Sicht.'
             : view === 'body'
               ? bodyView === 'agents'
                 ? withChat && compact
@@ -432,12 +434,31 @@ export function Lage({
                 last_globe_look: JSON.stringify({ lat: next.lat, lon: next.lon, zoom: CITY_FLY_ZOOM }),
               })
             }}
+            fronts={frontsForActiveLayer()}
             onEmpty={() => {
-              closePin()
-              if (!loadSettings().globe_tour_on) return
-              stopTour()
-              setGlobeTick((n) => n + 1)
-              onHudChange?.()
+              if (loadSettings().globe_tour_on) {
+                closePin()
+                stopTour()
+                setGlobeTick((n) => n + 1)
+                onHudChange?.()
+                return
+              }
+              let look: { lat: number; lon: number } | null = null
+              try {
+                const raw = loadSettings().last_globe_look
+                if (raw) look = JSON.parse(raw) as { lat: number; lon: number }
+              } catch {
+                look = null
+              }
+              if (!look || !Number.isFinite(look.lat)) {
+                const here = pins.find((p) => p.kind === 'here')
+                if (here) look = { lat: here.lat, lon: here.lon }
+              }
+              if (!look) {
+                closePin()
+                return
+              }
+              setPinCard(dossierNear(pins, look.lat, look.lon))
             }}
             reduced={reduced}
             focus={globeFocus()}

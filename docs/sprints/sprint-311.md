@@ -1,6 +1,6 @@
 # Sprint 311 — Intel-Leiste und Regionsdossier
 
-**Version:** `18.6.4` — **PLAN** Must
+**Version:** `18.6.4` — **CODE** Must
 **Plan:** [`77-next.md`](../77-next.md)
 **Voraussetzung:** 307; sinnvoll nach 308–310.
 

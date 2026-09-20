@@ -1,6 +1,6 @@
 # Sprint 310 — Kugel: Geo und Cyber
 
-**Version:** `18.6.3` — **PLAN** Must
+**Version:** `18.6.3` — **CODE** Must
 **Plan:** [`77-next.md`](../77-next.md)
 **Voraussetzung:** 307.
 

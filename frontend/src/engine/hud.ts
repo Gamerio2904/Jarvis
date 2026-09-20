@@ -22,9 +22,10 @@ import {
 import { gazetteerHit, nearestPlace, noCityInViewLine, placeLookupFailedLine, resolveLookTarget } from './globe-geo.ts'
 import { geocodePlace } from './geo-lookup.ts'
 import { briefPlace, CITY_FLY_ZOOM, focusJson, fromPlaceFix } from './globe-brief.ts'
-import { fetchLayer, replyFor, type GlobeLayer } from './globe-layers.ts'
+import { briefingFromCache, fetchLayer, fetchSpaceWeather, replyFor, type GlobeLayer } from './globe-layers.ts'
 import { clearTour } from './globe-tour.ts'
 import { resolveShowPlace } from './hud-show.ts'
+import { polishToolLine } from './polish.ts'
 
 export { HUD_CATALOG, parseHudIntent, organLabel }
 export type { HudId, HudIntent, HudView, BodyOrgan }
@@ -93,6 +94,21 @@ export async function handleHud(
   }
   if (intent.kind === 'layer') {
     return applyGlobeLayer(intent.layer)
+  }
+  if (intent.kind === 'layer_off') {
+    openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false, globe_layer: '' })
+    return pack('Schicht aus. Kugel bleibt.')
+  }
+  if (intent.kind === 'lage_brief') {
+    openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    const canned = briefingFromCache()
+    const reply = await polishToolLine(canned, canned)
+    return pack(reply)
+  }
+  if (intent.kind === 'space_weather') {
+    const line = await fetchSpaceWeather()
+    openLagePatch({ hud_view: 'globe', hud_force: true, hud_hidden: false })
+    return pack(line)
   }
   if (intent.kind === 'organ') {
     openLagePatch({

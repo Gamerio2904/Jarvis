@@ -1,15 +1,15 @@
-# 42 — Alles geplant (Stand Code `18.4.4`)
+# 42 — Alles geplant (Stand Code `18.6.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.4.4`**, versionCode `180404`. App-Code **`18.4.4`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+**Live-APK:** **`18.4.4`**, versionCode `180404`. App-Code **`18.6.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-1. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 PLAN**. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner. PO 2026-09-20.
-2. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu 18.6 ausführen (gemeinsame HUD-Dateien).
+1. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`.
+2. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 CODE** in `18.6.0`. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner.
 3. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
 4. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
 5. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290 CODE** in `18.4.3`
@@ -129,7 +129,7 @@ Kein CEC. Kein Mem0/Qdrant/e5-Router. Kein Sideload in diesem PLAN.
 
 Begründung: [`76-next.md`](./76-next.md).
 
-## PLAN — Schiene `18.6` (Sprints 307–314)
+## CODE — Schiene `18.6` (Sprints 307–314)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -144,7 +144,7 @@ Begründung: [`76-next.md`](./76-next.md).
 
 Harte Kette: 307 → alles. 311 nach mindestens einer Schicht. 313 braucht 307.
 Kein iframe OSIRIS, kein `globe.gl`, kein CCTV, kein Scanner, kein Live-Label.
-Kein Sideload in diesem PLAN.
+App-Code `18.6.0`. Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
 
 Begründung: [`77-next.md`](./77-next.md).
 

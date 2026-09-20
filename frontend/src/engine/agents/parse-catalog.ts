@@ -28,6 +28,7 @@ import { parseReminderIntent } from '../remind-parse.ts'
 import { parseToolIntent } from '../tools-parse.ts'
 import { parseIdeaIntent } from '../idea-parse.ts'
 import { parseWatchlistIntent } from '../watchlist-parse.ts'
+import { parseOsintIntent } from '../osint-parse.ts'
 import { parseTasteIntent } from '../film-taste-parse.ts'
 import { parseEyeIntent } from '../eye-parse.ts'
 import { parseDocIntent } from '../doc-parse.ts'
@@ -124,6 +125,12 @@ function buildParseCatalog(): AgentSpec[] {
       sideEffect: 'write',
       parse: (ctx) =>
         parseWatchlistIntent(ctx.text) || parseTasteIntent(ctx.text) ? score(ctx.text, 0.1) : null,
+    },
+    {
+      id: 'osint',
+      label: 'OSINT',
+      sideEffect: 'read',
+      parse: (ctx) => (parseOsintIntent(ctx.text) ? score(ctx.text, 0.22) : null),
     },
     { id: 'fan', sideEffect: 'device', parse: (ctx) => (parseFanIntent(ctx.text, ctx.lastTool === 'fan') ? score(ctx.text, 0.05) : null) },
     {

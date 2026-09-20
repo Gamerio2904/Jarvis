@@ -12,7 +12,7 @@ import {
   pinTapRadius,
   placeLookupFailedLine,
 } from '../src/engine/globe-geo.ts'
-import { ageLine } from '../src/engine/globe-layers.ts'
+import { ageLine, parseGlobeLayerPhrase, briefingFromCache, dossierNear, isGlobeLayer } from '../src/engine/globe-layers.ts'
 import { screenPanToMap } from '../src/engine/drive-map.ts'
 import { parseHereIntent } from '../src/engine/here-parse.ts'
 
@@ -37,6 +37,31 @@ assert.equal(parseHudIntent('Wo hat es gebebt')?.layer, 'quakes')
 assert.equal(parseHudIntent('Zeig mir das Erdbeben')?.layer, 'quakes')
 assert.equal(parseHudIntent('Wo brennt es')?.layer, 'fires')
 assert.equal(parseHudIntent('Zeig Waldbrände')?.layer, 'fires')
+assert.equal(parseHudIntent('Zeig Unwetter')?.layer, 'weather')
+assert.equal(parseHudIntent('Luftqualität')?.layer, 'air')
+assert.equal(parseHudIntent('Zeig Satelliten')?.layer, 'sats')
+assert.equal(parseHudIntent('Was fährt auf See')?.layer, 'ships')
+assert.equal(parseHudIntent('Kernkraft')?.layer, 'infra')
+assert.equal(parseHudIntent('Zeig Konflikte')?.layer, 'conflicts')
+assert.equal(parseHudIntent('Welt-Ereignisse')?.layer, 'events')
+assert.equal(parseHudIntent('Cyber auf der Karte')?.layer, 'cyber')
+assert.equal(parseHudIntent('Schicht aus')?.kind, 'layer_off')
+assert.equal(parseHudIntent('Briefing zur Lage')?.kind, 'lage_brief')
+assert.equal(parseHudIntent('Weltraumwetter')?.kind, 'space_weather')
+assert.notEqual(parseHudIntent('Zeig Satelliten')?.kind, 'unknown_place')
+assert.notEqual(parseHudIntent('Zeig Konflikte')?.kind, 'unknown_place')
+assert.equal(parseGlobeLayerPhrase('Schicht aus')?.kind, 'off')
+assert.equal(isGlobeLayer('quakes'), true)
+assert.equal(isGlobeLayer('nope'), false)
+assert.match(briefingFromCache(), /Nichts auf der Kugel|ISS/)
+{
+  const d = dossierNear(
+    [{ name: 'Hamburg', lat: 53.55, lon: 9.99, kind: 'ship', line: 'Tabelle' }],
+    53.5,
+    10,
+  )
+  assert.match(d.line || '', /Hamburg/)
+}
 assert.notEqual(parseHudIntent('Zeig Erdbeben')?.kind, 'unknown_place')
 assert.notEqual(parseHudIntent('Zeig Waldbrände')?.kind, 'unknown_place')
 assert.equal(parseHudIntent('Zeig die Erde')?.view, 'globe')

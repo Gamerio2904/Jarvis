@@ -1,6 +1,6 @@
 # Sprint 313 — Lage-Briefing aus sichtbaren Fakten
 
-**Version:** `18.6.6` — **PLAN** Must
+**Version:** `18.6.6` — **CODE** Must
 **Plan:** [`77-next.md`](../77-next.md)
 **Voraussetzung:** 307; mindestens eine Schicht 308–310.
 

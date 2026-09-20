@@ -4430,6 +4430,14 @@ button.linkish {
   color: var(--text-muted);
 }
 
+.lage-intel {
+  margin: 0;
+  padding: 0 2px 4px;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--text);
+}
+
 .lage-agent-task {
   margin: 0;
   padding: 8px 12px;

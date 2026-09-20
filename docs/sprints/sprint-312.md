@@ -1,6 +1,6 @@
 # Sprint 312 — Passive OSINT und Kugel-Pin
 
-**Version:** `18.6.5` — **PLAN** Should
+**Version:** `18.6.5` — **CODE** Should
 **Plan:** [`77-next.md`](../77-next.md)
 **Voraussetzung:** 307.
 

@@ -42,6 +42,7 @@ export type GlobeFocus = { name: string; lat: number; lon: number; zoom?: number
 export function GlobeView({
   pins,
   issTrail = [],
+  fronts = [],
   onPin,
   onEmpty,
   reduced,
@@ -50,6 +51,7 @@ export function GlobeView({
 }: {
   pins: GeoFix[]
   issTrail?: { lat: number; lon: number }[]
+  fronts?: { lat: number; lon: number }[][]
   onPin: (pin: GeoFix) => void
   onEmpty?: () => void
   reduced: boolean
@@ -69,6 +71,8 @@ export function GlobeView({
   pinsRef.current = pins
   const trailRef = useRef(issTrail)
   trailRef.current = issTrail
+  const frontsRef = useRef(fronts)
+  frontsRef.current = fronts
   const onPinRef = useRef(onPin)
   onPinRef.current = onPin
   const onEmptyRef = useRef(onEmpty)
@@ -104,7 +108,7 @@ export function GlobeView({
 
   useEffect(() => {
     kickRef.current()
-  }, [pins, issTrail])
+  }, [pins, issTrail, fronts])
 
   useEffect(() => {
     if (homedHere.current) return
@@ -346,6 +350,33 @@ export function GlobeView({
       if (drawing) pen.stroke()
     }
 
+    function drawFronts() {
+      if (lite) return
+      for (const line of frontsRef.current.slice(0, 8)) {
+        if (line.length < 2) continue
+        let drawing = false
+        pen.beginPath()
+        pen.strokeStyle = 'rgba(232, 120, 96, 0.55)'
+        pen.lineWidth = 1.4
+        for (const p of line) {
+          const q = project(p.lat, p.lon)
+          if (q.z < FRONT) {
+            if (drawing) {
+              pen.stroke()
+              pen.beginPath()
+              drawing = false
+            }
+            continue
+          }
+          if (!drawing) {
+            pen.moveTo(q.x, q.y)
+            drawing = true
+          } else pen.lineTo(q.x, q.y)
+        }
+        if (drawing) pen.stroke()
+      }
+    }
+
     function drawPins() {
       const shown = pinsRef.current
         .map((pin) => ({ pin, q: project(pin.lat, pin.lon) }))
@@ -366,7 +397,7 @@ export function GlobeView({
           pen.arc(q.x, q.y, wave, 0, Math.PI * 2)
           pen.stroke()
         }
-        if (pin.kind === 'fire' || pin.kind === 'quake') {
+        if (pin.kind === 'fire' || pin.kind === 'quake' || pin.kind === 'conflict') {
           pen.beginPath()
           pen.strokeStyle = pin.kind === 'fire' ? 'rgba(224, 112, 80, 0.55)' : 'rgba(240, 160, 96, 0.5)'
           pen.lineWidth = 1.6
@@ -375,11 +406,11 @@ export function GlobeView({
         }
         pen.beginPath()
         pen.fillStyle =
-          pin.kind === 'iss'
+          pin.kind === 'iss' || pin.kind === 'sat'
             ? '#f4f7fb'
             : pin.kind === 'here'
               ? '#1ed760'
-              : pin.kind === 'warn'
+              : pin.kind === 'warn' || pin.kind === 'weather'
                 ? '#e8b84a'
                 : pin.kind === 'quake'
                   ? '#f0a060'
@@ -387,11 +418,21 @@ export function GlobeView({
                     ? '#e07050'
                     : pin.kind === 'flight'
                       ? '#9ecbff'
-                : pin.kind === 'glow'
-                  ? pin.hot
-                    ? '#e8f8ee'
-                    : '#9be0b5'
-                  : '#7dd3a0'
+                      : pin.kind === 'ship'
+                        ? '#7ec8e3'
+                        : pin.kind === 'infra'
+                          ? '#d0c4a8'
+                          : pin.kind === 'conflict'
+                            ? '#e07860'
+                            : pin.kind === 'cyber'
+                              ? '#c4a0e8'
+                              : pin.kind === 'air'
+                                ? '#9ad4b8'
+                                : pin.kind === 'glow'
+                                  ? pin.hot
+                                    ? '#e8f8ee'
+                                    : '#9be0b5'
+                                  : '#7dd3a0'
         pen.arc(
           q.x,
           q.y,
@@ -437,6 +478,7 @@ export function GlobeView({
         drawNight(cx, cy, R)
         drawOutlines(cx, cy, R)
         drawIssTrail()
+        drawFronts()
         drawPins()
       } catch {
         lite = true

@@ -1,6 +1,9 @@
 # Android-APK — Sideload `18.4.4`
 
-App-Code **`18.4.4`**. Sideload-APK **`18.4.4`**, versionCode `180404`.
+App-Code **`18.6.0`**. Sideload-APK **`18.4.4`**, versionCode `180404`.
+
+**18.6.0:** Lage-Kugel OSINT (Schichten, Intel-Leiste, Dossier, passive
+Lookups). Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
 
 **18.4.4:** Lage und Overlay ohne Überlappung. Tastatur öffnet über der Leiste. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 

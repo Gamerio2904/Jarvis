@@ -1,6 +1,6 @@
 # Sprint 314 — 18.6 härten
 
-**Version:** `18.6.7` — **PLAN** Must
+**Version:** `18.6.7` — **CODE** Must
 **Plan:** [`77-next.md`](../77-next.md)
 **Voraussetzung:** 307–313 soweit Must.
 

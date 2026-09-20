@@ -1,6 +1,6 @@
 # Sprint 308 — Kugel: Erde und Orbit
 
-**Version:** `18.6.1` — **PLAN** Must
+**Version:** `18.6.1` — **CODE** Must
 **Plan:** [`77-next.md`](../77-next.md)
 **Voraussetzung:** 307.
 
