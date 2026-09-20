@@ -27,9 +27,9 @@ const TORCH_OFF =
   /^\s*(?:(?:mach(?:e)?|schalt(?:e)?)\s+)?(?:die\s+)?(?:taschenlampe|handylicht|blitzlicht)\s+(?:aus|ab|deaktivieren)\s*[.!?]*$/i
 
 const PAGE_WIFI =
-  /\b(?:wlan|wifi|wi-fi)\b.+\b(?:einstell|öffne|zeig|aktivier|anstoß)|(?:öffne|zeig|aktivier|anstoß).+\b(?:wlan|wifi)\b|^\s*(?:wlan|wifi)\s+(?:an|ein|einstellungen)\s*[.!?]*$/i
+  /\b(?:wlan|wifi|wi-fi)\b.+\b(?:einstell|öffne|zeig|aktivier|anstoß|an|aus|ein|off|on)|(?:öffne|zeig|aktivier|anstoß|mach(?:e)?|schalt(?:e)?).+\b(?:wlan|wifi|wi-fi)\b|^\s*(?:wlan|wifi|wi-fi)\s+(?:an|aus|ein|off|on|einstellungen)\s*[.!?]*$/i
 const PAGE_BT =
-  /\bbluetooth\b.+\b(?:einstell|öffne|zeig|aktivier|anstoß)|(?:öffne|zeig|aktivier|anstoß).+\bbluetooth\b|^\s*bluetooth\s+(?:an|ein|einstellungen)\s*[.!?]*$/i
+  /\bbluetooth\b.+\b(?:einstell|öffne|zeig|aktivier|anstoß|an|aus|ein|off|on)|(?:öffne|zeig|aktivier|anstoß|mach(?:e)?|schalt(?:e)?).+\bbluetooth\b|^\s*bluetooth\s+(?:an|aus|ein|off|on|einstellungen)\s*[.!?]*$/i
 const PAGE_DND =
   /\b(?:nicht\s+stören|störung(?:smodus)?|dnd)\b/i
 const PAGE_LOCATION =

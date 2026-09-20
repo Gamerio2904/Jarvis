@@ -128,6 +128,29 @@ try {
   const shop = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
   rec(/Milch|Liste|Einkauf/i.test(shop), 'Einkaufsliste weiter da', shop.slice(-180))
 
+  await send('Wetter heute')
+  const wetter = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
+  rec(/Wetter|Grad|Open-Meteo|Regen|Sonne|Wolken|Luft/i.test(wetter), 'Wetter bleibt Wetter', wetter.slice(-180))
+
+  await send('Fernseher an')
+  const tv = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
+  rec(/Fernseher|TV|Gerät|koppeln|nicht/i.test(tv), 'Fernseher bleibt TV', tv.slice(-180))
+
+  await send('Öffne Lieblinge')
+  rec(Boolean(await page.$('.watch-overlay')), 'Öffne Lieblinge öffnet Folie')
+  const favOn = await page.evaluate(() => {
+    const tab = document.querySelector('.watch-tab.is-on, [aria-selected="true"]')
+    return (tab?.textContent || '').trim()
+  })
+  rec(/Lieblinge/i.test(favOn), 'Lieblinge-Tab aktiv', favOn)
+  rec(!(await page.$('.drive-overlay, .carplay')), 'Lieblinge nicht Fahrmodus')
+  await page.evaluate(() => {
+    const btn = [...document.querySelectorAll('button')].find((b) => (b.textContent || '').trim() === 'Fertig')
+    btn?.click()
+  })
+  await sleep(400)
+  rec(!(await page.$('.watch-overlay')), 'Fertig nach Lieblinge')
+
   await send('Öffne Watchliste')
   rec(Boolean(await page.$('.watch-overlay')), 'Befehl Watchliste öffnet Folie')
   rec(!(await page.$('.drive-overlay, .carplay')), 'Watchliste-Befehl nicht Drive')
@@ -149,6 +172,11 @@ try {
   await send('Mach WLAN aus')
   const wlan = await page.evaluate(() => (document.body.innerText || '').replace(/\s+/g, ' '))
   rec(!/habe ich (gemacht|ausgeschaltet)/i.test(wlan), 'WLAN keine Fake-Ausführung', wlan.slice(-160))
+  rec(
+    /WLAN-Einstellungen|Schalter lege ich nicht|nicht selbst|nur auf dem Handy|nicht geöffnet/i.test(wlan),
+    'WLAN bleibt Gerät statt Modell',
+    wlan.slice(-160),
+  )
 
   await send('Zeig Erdbeben')
   await sleep(400)

@@ -1493,6 +1493,10 @@ assert.equal(
   false,
 )
 assert.equal(parseDeviceIntent('Öffne WLAN')?.kind === 'page' && parseDeviceIntent('Öffne WLAN')?.page, 'wifi')
+assert.equal(parseDeviceIntent('WLAN an')?.page, 'wifi')
+assert.equal(parseDeviceIntent('WLAN aus')?.page, 'wifi')
+assert.equal(parseDeviceIntent('Mach WLAN aus')?.page, 'wifi')
+assert.equal(parseDeviceIntent('Mach Bluetooth aus')?.page, 'bluetooth')
 assert.equal(
   parseDeviceIntent('Bluetooth Einstellungen')?.kind === 'page' &&
     parseDeviceIntent('Bluetooth Einstellungen')?.page,
