@@ -62,4 +62,5 @@ export const EXECUTOR_IDS = [
   "app",
   "idea",
   "watchlist",
+  "osint",
 ] as const

@@ -28,6 +28,7 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\bfähr\s+mich\b/gi, 'fahr mich'],
   [/\bnach\s*hause\b/gi, 'nach Hause'],
   [/\bover\s*lay\b/gi, 'overlay'],
+  [/\bwatchlist\b/gi, 'Watchliste'],
   [/\bnächster\s+pol\b/gi, 'nächster POI'],
   [/\btaxsi\b/gi, 'Taxi'],
   [/\bkneibe\b/gi, 'Kneipe'],

@@ -39,6 +39,7 @@ export const AGENT_META: Record<string, AgentMeta> = {
   todo: { label: 'Todos / Notizen', department: 'alltag', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
   idea: { label: 'Idee', department: 'alltag', organs: ['brain', 'memory'], visibility: 'domain', autonomy: 'parser' },
   watchlist: { label: 'Watchliste / Lieblinge', department: 'medien', organs: ['eye', 'mouth'], visibility: 'domain', autonomy: 'parser', knowledge: true },
+  osint: { label: 'OSINT', department: 'information', organs: ['eye', 'brain'], visibility: 'domain', autonomy: 'parser' },
   brief: { label: 'Tageslage', department: 'alltag', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
   birthday: { label: 'Geburtstag', department: 'alltag', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
   holiday: { label: 'Feiertag', department: 'alltag', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },

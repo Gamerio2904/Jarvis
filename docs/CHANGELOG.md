@@ -5,6 +5,22 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.6.0` — Lage-Kugel OSINT + Watchlist-Overlay — *CODE*
+
+Sprints **307–314**. OSIRIS-Fähigkeiten in der Canvas-Kugel: Schicht-Registry,
+Unwetter/Luft/Satelliten-Subset, Häfen/Anlagen, Konflikte/GDELT/Cyber-Blocklist,
+Intel-Leiste, Tipp-Dossier, passive Lookups, Briefing aus sichtbaren Fakten.
+Kein iframe, kein CCTV, kein Scanner. Muster inspiriert von
+[simplifaisoul/osiris](https://github.com/simplifaisoul/osiris) (MIT),
+kein Copy ihrer App.
+
+**Bug:** `Öffne das watchlist overlay` öffnet die Watchliste, nicht den
+Fahrmodus. `watchlist` gilt als Watchliste.
+
+### `18.5` — Stimme, TV-Wahrheit, Intelligenz — *PLAN*
+
+Sprints **301–306**. Siehe [`76-next.md`](./76-next.md).
+
 ### `18.4.4` — Lage, Overlay, Tastatur — *CODE + APK*
 
 Sideload **`18.4.4`** (versionCode `180404`):

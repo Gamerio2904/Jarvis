@@ -46,10 +46,12 @@ export function parseWatchlistIntent(text: string): WatchlistIntent | null {
   if (parseTasteIntent(t)) return null
   if (!LIST_WORDS.test(t) && !/\b(?:watchliste|lieblings)\b/i.test(t)) return null
 
-  const showFav =
-    /^\s*öffne(?:\s+die)?\s+(?:lieblings(?:filme|liste)|lieblinge)\s*$/i.test(t)
-  if (showFav) return { kind: 'show', list: 'favorite' }
-  if (/^\s*öffne(?:\s+die)?\s+watchliste\s*$/i.test(t)) return { kind: 'show', list: 'watch' }
+  const showOpen =
+    /^\s*(?:öffne[n]?|zeig(?:e)?(?:\s+mir)?|mach(?:e)?(?:\s+(?:mal\s+)?auf)?)\s+(?:das\s+|die\s+|den\s+|meine\s+)?(?:watchliste|lieblings(?:filme|liste)|lieblinge)(?:\s+(?:overlay|folie|panel|liste))?\s*$/i
+  if (showOpen.test(t)) {
+    const fav = /\bliebling/i.test(t)
+    return { kind: 'show', list: fav ? 'favorite' : 'watch' }
+  }
 
   if (
     /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+meine)?|meine)\s+(?:lieblingsfilme|lieblingsliste|lieblinge)\s*$/i.test(t) ||

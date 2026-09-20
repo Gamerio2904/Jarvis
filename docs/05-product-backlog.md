@@ -52,6 +52,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E57 | Memory-10 Intensiv | 5+ | Alias, G5-Echo, memoryBlock — [`57-next.md`](./57-next.md) **PLAN** |
 | E58 | Watchliste `18.3` | 5+ | Watchliste + Lieblinge, Overlay-Slides, OMDb-Noten — [`74-next.md`](./74-next.md) **PLAN** |
 | E59 | Körper/Wissen `18.4` | 4 | Katalog am Körper, Agent↔Pack, Pack-Links — [`75-next.md`](./75-next.md) **PLAN** |
+| E60 | Lage-Kugel OSINT `18.6` | 5+ | OSIRIS-Fähigkeiten in der Kugel — [`77-next.md`](./77-next.md) **CODE** `18.6.0` |
 
 ---
 
@@ -602,17 +603,28 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S59.3 | Als Nutzer will ich verwandtes Wissen über Pack-Links finden. | Must | idea | Sprint 299; Token-Overlap, 1-Hop, Cap 3 |
 | S59.4 | Als Nutzer will ich, dass Karte und Classic denselben Pack zeigen. | Must | idea | Sprint 300; Reduce, keine Graph-Lib |
 
+### E60 — Lage-Kugel OSINT `18.6` [`77-next.md`](./77-next.md)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S60.1 | Als Nutzer will ich neue Welt-Schichten auf Zuruf, ohne dass die Lage sie von allein lädt. | Must | done | Registry 307; Feeds 308–310; Budget 40/16 |
+| S60.2 | Als Nutzer will ich per Tipp sehen, was in der Sicht liegt. | Must | done | Dossier 311; keine erfundenen Events |
+| S60.3 | Als Nutzer will ich öffentliche Lookups mit Pin, ohne Scan. | Should | done | OSINT 312; Sweep/Leaks Won’t |
+| S60.4 | Als Nutzer will ich ein Briefing nur über sichtbare Fakten. | Must | done | 313; nicht osirisai.live/ai |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. PO Handy Sprint 178 — Katalog 168 + Home-FGS 30 s [`55-next.md`](./55-next.md)
-2. OEM-Akku 183, nur wenn 178 den FGS tot zeigt
-3. `9.9.3` / Sprint 186 nur wenn 168 rot
-4. Could-ONNX 181 Freeze bis Messung; Smalltalk-Cache 184 Could
-5. Memory-10 Intensiv 196–198 Must — Alias, G5-Echo, memoryBlock [`57-next.md`](./57-next.md)
-6. Gerät Memory-Tor 193 PO; Handy-PO 178 bleibt Must
-7. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md)
+2. **`18.6` Lage-Kugel OSINT** 307–314 CODE [`77-next.md`](./77-next.md)
+3. PO Handy Sprint 178 — Katalog 168 + Home-FGS 30 s [`55-next.md`](./55-next.md)
+4. OEM-Akku 183, nur wenn 178 den FGS tot zeigt
+5. `9.9.3` / Sprint 186 nur wenn 168 rot
+6. Could-ONNX 181 Freeze bis Messung; Smalltalk-Cache 184 Could
+7. Memory-10 Intensiv 196–198 Must — Alias, G5-Echo, memoryBlock [`57-next.md`](./57-next.md)
+8. Gerät Memory-Tor 193 PO; Handy-PO 178 bleibt Must
+9. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Sideload **`9.10.0`**, Code **`10.60.0`**. Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing, Debug-FGS, Memory-10 sind **CODE**. Alte 1.x/2.x-PRs nicht mergen. 195 e5 Freeze.
 

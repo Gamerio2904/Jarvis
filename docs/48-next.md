@@ -171,7 +171,9 @@ Live-Satellitenvideo. Street-View. Gebäude-Mesh. Überwachung. Starlink-Schwär
 
 ## Reihenfolge vs. Reste
 
-1. Dieses Ziel — Globus-Briefing `6.70`.
-2. LocateAnything-Gewichte nach 3060-GO.
-3. Debug-Service `5.12`.
-4. Parking: Mail, Cloud-Kalender, Play Store, iOS.
+1. Dieses Ziel — Globus-Briefing `6.70` **CODE**.
+2. Kugel-Schichten Terminator/ISS/USGS **CODE** in `18.0` [`70-next.md`](./70-next.md).
+3. OSIRIS-Fähigkeiten in derselben Kugel **PLAN** `18.6` [`77-next.md`](./77-next.md).
+4. LocateAnything-Gewichte nach 3060-GO.
+5. Debug-Service `5.12`.
+6. Parking: Mail, Cloud-Kalender, Play Store, iOS.

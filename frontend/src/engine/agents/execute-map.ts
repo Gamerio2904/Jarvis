@@ -25,6 +25,7 @@ import { handleReminders } from '../reminders.ts'
 import { handleTools, type ToolMeta } from '../tools.ts'
 import { handleIdea } from '../idea.ts'
 import { handleWatchlist } from '../watchlist.ts'
+import { handleOsint } from '../osint.ts'
 import { handleEyeAsk } from '../eye.ts'
 import { handleDoc } from '../doc.ts'
 import type { WeatherLast } from '../weather-parse.ts'
@@ -159,6 +160,7 @@ export const AGENT_EXECUTORS: Record<string, AgentExecutor> = {
   todo: async (ctx) => fromHandler('todo', await handleTools(ctx.conversationId, ctx.text)),
   idea: async (ctx) => fromHandler('idea', await handleIdea(ctx.conversationId, ctx.text)),
   watchlist: async (ctx) => fromHandler('watchlist', await handleWatchlist(ctx.conversationId, ctx.text)),
+  osint: async (ctx) => fromHandler('osint', await handleOsint(ctx.text)),
   desk: async (ctx) => fromHandler('desk', await handleDesk(ctx.conversationId, ctx.text)),
   eye: async (ctx) => fromHandler('eye', await handleEyeAsk(ctx.text)),
   doc: async (ctx) => fromHandler('doc', await handleDoc(ctx.conversationId, ctx.text)),

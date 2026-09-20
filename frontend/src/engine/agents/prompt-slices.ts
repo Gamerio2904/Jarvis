@@ -114,6 +114,10 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
     "promptSlice": "Watchliste und Lieblinge. Keine erfundenen Titel.",
     "goldPrompts": ["Watchliste: Dune", "Nenn mir Horrorfilme für Filmabend"]
   },
+  "osint": {
+    "promptSlice": "Passive Lookups. Kein Scan, keine Leaks.",
+    "goldPrompts": ["WHOIS example.com"]
+  },
   "brief": {
     "promptSlice": "Domäne brief: Parser-Fakten only.",
     "goldPrompts": []

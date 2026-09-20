@@ -10,6 +10,7 @@ const globe = readFileSync(join(here, '../src/ui/lage/GlobeView.tsx'), 'utf8')
 const app = readFileSync(join(here, '../src/App.tsx'), 'utf8')
 const hud = readFileSync(join(here, '../src/engine/hud.ts'), 'utf8')
 const layers = readFileSync(join(here, '../src/engine/globe-layers.ts'), 'utf8')
+const layerIds = readFileSync(join(here, '../src/engine/globe-layer-ids.ts'), 'utf8')
 
 assert.match(
   css,
@@ -29,14 +30,15 @@ assert.match(css, /\.main\.is-lage\.is-lage-chat \.agent-status-bar[\s\S]{0,80}d
 assert.match(css, /\.app\.is-kb \.main\.is-lage\.is-lage-chat \.lage\.is-compact \.agent-map-canvas \{[\s\S]{0,80}min-height:\s*0/)
 assert.doesNotMatch(css, /\.main\.is-lage\.is-lage-chat \{[\s\S]{0,220}minmax\(0,\s*0\.92fr\)/)
 
-assert.match(lage, /Waldbrände aus/)
+assert.match(lage, /chipOffLabel\(globeLayer\)/)
+assert.match(layerIds, /Waldbrände aus/)
 assert.match(lage, /className="lage-title"/)
 assert.match(lage, /isGlobeLayerPin\(next\.kind\)/)
 assert.doesNotMatch(lage, /pin-bubble-backdrop/)
 assert.doesNotMatch(lage, /<>[\s\S]{0,80}pin-bubble[\s\S]{0,400}<\/>/)
 
 assert.match(globe, /pickTappedPin/)
-assert.match(globe, /kickRef\.current\(\)[\s\S]{0,40}\[pins, issTrail\]/)
+assert.match(globe, /kickRef\.current\(\)[\s\S]{0,40}\[pins, issTrail, fronts\]/)
 assert.match(globe, /pin\.kind === 'fire' \|\| pin\.kind === 'quake'\s*\?\s*5\.5/)
 assert.match(globe, /pen\.arc\(q\.x, q\.y, 10/)
 assert.match(globe, /Math\.hypot\(p\.x - start\.x, p\.y - start\.y\) > 22/)

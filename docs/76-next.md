@@ -11,6 +11,8 @@ cognee / Mem0, kein cytoscape. Filme: OMDb, nicht RT-API.** HDMI-CEC
 kann das Handy nicht — An/Aus bleibt Netzwerk.
 
 **Dieses Dokument ist PLAN, kein Sideload.** Execute: Sprints **301–306**.
+Neben [`77-next.md`](./77-next.md) (`18.6` Kugel): nicht parallel
+ausführen, beide treffen HUD/Lage.
 
 ---
 
