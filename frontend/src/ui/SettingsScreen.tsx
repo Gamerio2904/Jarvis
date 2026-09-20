@@ -57,7 +57,7 @@ import {
   type KnowledgePack,
 } from '../engine/knowledge.ts'
 import { qualityPack } from '../engine/quality-pack.ts'
-import { PROBE_COPY_GROUPS, STORYLINE_GROUPS } from '../engine/test-copy.ts'
+import { ProbeShelf } from './ProbeShelf.tsx'
 
 export type { SettingsTopic }
 
@@ -262,6 +262,7 @@ export type SettingsScreenProps = {
   onDebugSend: (text: string, conversationId: string) => Promise<import('./DebugPanel.tsx').DebugSendResult | string | void>
   onDebugStart: (title: string) => Promise<string>
   onDebugBegin: () => void
+  onProbeSend: (text: string) => void
   debugBusy: boolean
 }
 
@@ -2346,43 +2347,17 @@ export function SettingsScreen(p: SettingsScreenProps) {
           ) : null}
 
           {tab === 'tests' ? (
-            <section className="settings-card">
-              <h3>Probe Memory-10 + V1–V9 + Flächen-12</h3>
-              <p className="settings-lead">
-                Jeder Prompt in einem eigenen Feld — Kopieren, ins Chatfeld einfügen. Memory-10, Fachwissen-11 und Flächen-12 stehen oben.
-                PC und TV brauchen das Gerät. V4 braucht eine Datei oder ein Foto. V9 Inject darf nicht gehorchen.
-              </p>
-              <h4 className="copy-block-title" style={{ marginTop: 12 }}>Storylines — realistische Gespräche</h4>
-              <p className="settings-hint">
-                Prompts der Reihe nach kopieren und abschicken. Jede Storyline baut aufeinander auf —
-                von Smalltalk über Research bis zu langen, verschachtelten Aufträgen. ↳ = hängt von der vorigen Antwort ab.
-              </p>
-              {STORYLINE_GROUPS.map((g) => (
-                <div key={g.title} className="probe-group">
-                  <h4 className="copy-block-title">{g.title}</h4>
-                  {g.items.map((item) => (
-                    <CopyField key={`${g.title}·${item.label}`} label={item.label} value={item.text} />
-                  ))}
-                </div>
-              ))}
-              <h4 className="copy-block-title" style={{ marginTop: 24 }}>Einzel-Prompts (Memory-10 + V1–V9 + Flächen-12)</h4>
-              {PROBE_COPY_GROUPS.map((g) => (
-                <div key={g.title} className="probe-group">
-                  <h4 className="copy-block-title">{g.title}</h4>
-                  {g.items.map((item) => (
-                    <CopyField key={`${g.title}·${item.label}`} label={`${g.title} · ${item.label}`} value={item.text} />
-                  ))}
-                </div>
-              ))}
-            </section>
-          ) : null}
-
-          {tab === 'tests' ? (
-            <DebugPanel
-              onSend={p.onDebugSend}
-              onStartChat={p.onDebugStart}
-              onBegin={p.onDebugBegin}
+            <ProbeShelf
               busy={p.debugBusy}
+              onSend={p.onProbeSend}
+              debug={
+                <DebugPanel
+                  onSend={p.onDebugSend}
+                  onStartChat={p.onDebugStart}
+                  onBegin={p.onDebugBegin}
+                  busy={p.debugBusy}
+                />
+              }
             />
           ) : null}
 

@@ -555,6 +555,14 @@ export const REGRESS_EXPECT: Record<string, string> = {
   'Mach Live-Satellitenvideo an': 'wont',
   'Rufe 112': 'wont',
   'Zeig mir': 'wont',
+  'Öffne Watchliste': 'watchlist',
+  'Öffne Lieblinge': 'watchlist',
+  'Zeig Chat': 'app',
+  'Zeig Lage': 'app',
+  'Öffne Einstellungen Musik': 'app',
+  'Einstellungen zu': 'app',
+  'Research an': 'app',
+  'Mach WLAN aus': 'device',
 }
 
 /**

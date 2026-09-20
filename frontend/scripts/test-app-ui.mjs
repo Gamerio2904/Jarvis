@@ -27,6 +27,7 @@ const { loadSettings, saveSettings, getPending, clearPending } = await import('.
 const { runDirectorTurn } = await import('../src/engine/director.ts')
 const { normalizeUtterance } = await import('../src/engine/utterance.ts')
 const { parseWatchlistIntent } = await import('../src/engine/watchlist-parse.ts')
+const { unassignedCopyTitles, groupsForLane, searchProbeGroups, displayGroupTitle, PROBE_LANES } = await import('../src/engine/probe-lanes.ts')
 
 assert.deepEqual([...UI_ACTION_IDS], ['overlay.open', 'overlay.close', 'settings.tab', 'settings.set', 'dock.go'])
 assert.ok(UI_DOCK_IDS.includes('watchlist'))
@@ -124,5 +125,20 @@ assert.match(diverted.hit?.reply || '', /Handy|WLAN|Schalter|nicht geöffnet/)
 assert.equal(await getPending(conv), undefined)
 await runDirectorTurn(conv, 'ja')
 assert.equal(loadSettings().research_opt_in, false, 'ein späteres Ja darf Research nicht nachziehen')
+
+assert.equal(PROBE_LANES.length, 8)
+assert.deepEqual(
+  PROBE_LANES.map((l) => l.id),
+  ['heute', 'gespraech', 'alltag', 'geraet', 'lage', 'probe', 'story', 'lauf'],
+)
+assert.deepEqual(unassignedCopyTitles(), [])
+assert.ok(groupsForLane('heute').some((g) => g.title === '18.7 Fläche'))
+assert.ok(groupsForLane('heute').some((g) => g.title === 'Körper-13'))
+assert.ok(groupsForLane('gespraech').some((g) => g.title === 'Smalltalk'))
+assert.ok(groupsForLane('story').some((g) => /18\.7/.test(g.title)))
+assert.equal(groupsForLane('lauf').length, 0)
+assert.equal(displayGroupTitle('🟢 18.7 Fläche der Reihe nach'), '18.7 Fläche der Reihe nach')
+assert.equal(displayGroupTitle('Randfälle (kommen so kaum vor)'), 'Randfälle')
+assert.ok(searchProbeGroups('Öffne Watchliste').some((g) => g.items.some((i) => i.text === 'Öffne Watchliste')))
 
 console.log('OK test-app-ui')

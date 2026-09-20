@@ -23,7 +23,7 @@ build-apk.bat
 
 Linux: `./build-apk.sh`
 
-Testanleitung: [`docs/TEST-18.4.4.md`](docs/TEST-18.4.4.md) · Versionen: [`docs/apk.md`](docs/apk.md)
+PC-Test: [`docs/TEST-PC.md`](docs/TEST-PC.md) · Gerät 18.4.4: [`docs/TEST-18.4.4.md`](docs/TEST-18.4.4.md) · Versionen: [`docs/apk.md`](docs/apk.md)
 
 1. Installieren (unbekannte Quellen). Vor Neuinstall: Einstellungen → Hausstand → Exportieren — Deinstall löscht Keys.
 2. **Groq-Key** eintragen (Smalltalk). Optional **Gemini** (Vision/Research).

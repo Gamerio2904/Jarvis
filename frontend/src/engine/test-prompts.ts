@@ -291,4 +291,12 @@ export const TEST_PROMPTS = [
   'Wecker aus',
   'Timer stopp',
   'Stopp Timer',
+  'Öffne Watchliste',
+  'Öffne Lieblinge',
+  'Zeig Chat',
+  'Zeig Lage',
+  'Öffne Einstellungen Musik',
+  'Einstellungen zu',
+  'Research an',
+  'Mach WLAN aus',
 ] as const

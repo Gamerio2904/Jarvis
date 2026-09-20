@@ -85,6 +85,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 77 | [Lage-Kugel OSINT 18.6](./77-next.md) | **CODE** `18.6.0` — Sprints 307–314; OSIRIS-Fähigkeiten in der Kugel, kein iframe |
 | 78 | [Listen-Leiste, Selbststeuerung, flexibler Befehl 18.7](./78-next.md) | **CODE** `18.7.0` — Sprints 315–322; 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb |
 | — | [APK](./apk.md) | Sideload `18.4.4`; Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md) |
+| — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 
 Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.md)
 

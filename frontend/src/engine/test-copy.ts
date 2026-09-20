@@ -1,4 +1,4 @@
-/** Prompt-Katalog. In der App: Einstellungen → Debug. */
+/** Prompt-Katalog. In der App: Einstellungen → Tests (Spuren Heute bis Lauf). */
 
 export type TestExpect = {
   tool?: string
@@ -788,6 +788,24 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Stopp Timer', text: 'Stopp Timer', expect: { tool: 'timer' } },
     ],
   },
+  {
+    title: '18.7 Fläche',
+    items: [
+      { label: 'Watchliste auf', text: 'Öffne Watchliste', expect: { tool: 'watchlist' } },
+      { label: 'Lieblinge auf', text: 'Öffne Lieblinge', expect: { tool: 'watchlist' } },
+      { label: 'Watchlist-Overlay', text: 'Öffne das watchlist overlay', expect: { tool: 'watchlist' } },
+      { label: 'Zeig Chat', text: 'Zeig Chat', expect: { tool: 'app' } },
+      { label: 'Zeig Lage', text: 'Zeig Lage', expect: { tool: 'app' } },
+      { label: 'Einstellungen Musik', text: 'Öffne Einstellungen Musik', expect: { tool: 'app' } },
+      { label: 'Einstellungen zu', text: 'Einstellungen zu', expect: { tool: 'app' } },
+      { label: 'Research an', text: 'Research an', expect: { tool: 'app', confirm: true } },
+      { label: 'WLAN aus', text: 'Mach WLAN aus', expect: { tool: 'device' } },
+      { label: 'Kameras', text: 'Zeig Kameras', expect: { tool: 'wont' } },
+      { label: 'Klick Speichern', text: 'Klick auf Speichern', expect: { tool: 'pc' } },
+      { label: 'Film-Overlay', text: 'Mach das Overlay für die Filme auf' },
+      { label: 'Watchliste irgendwas', text: 'Stell irgendwas mit der Watchliste an' },
+    ],
+  },
 ]
 
 /*
@@ -919,6 +937,19 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: '10 – Kochrezept', text: 'Suche im Internet nach einem guten Carbonara-Rezept', expect: { tool: 'research', skipIf: 'no_gemini' } },
       { label: '11 – Timer Pasta', text: 'Timer 12 Minuten Spaghetti' },
       { label: '12 – Abschluss', text: 'Fass das Gespräch zusammen', expect: { tool: 'digest' } },
+    ],
+  },
+  {
+    title: '🟢 18.7 Fläche der Reihe nach',
+    items: [
+      { label: '1 – Filme-Folie', text: 'Öffne Watchliste', expect: { tool: 'watchlist' } },
+      { label: '2 – ↳ Fertig per Satz', text: 'Einstellungen zu', expect: { tool: 'app' } },
+      { label: '3 – Lieblinge', text: 'Öffne Lieblinge', expect: { tool: 'watchlist' } },
+      { label: '4 – Chat', text: 'Zeig Chat', expect: { tool: 'app' } },
+      { label: '5 – Research', text: 'Research an', expect: { tool: 'app', confirm: true } },
+      { label: '6 – ↳ anderer Satz', text: 'Mach WLAN aus', expect: { tool: 'device' } },
+      { label: '7 – ↳ Ja darf nichts nachziehen', text: 'ja' },
+      { label: '8 – Unbekannt ehrlich', text: 'Stell irgendwas mit der Watchliste an' },
     ],
   },
   {

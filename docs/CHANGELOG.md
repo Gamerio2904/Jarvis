@@ -19,7 +19,8 @@ kein Clip. Kein Computer-Use. Nicht parallel zu `18.5`. Sideload bleibt
 Nach der Probe: `Mach WLAN aus` bleibt Gerät (Seite, kein Schalter).
 `Fernseher ist aus (Einstellungen → …)` springt nicht in die Folie.
 Offene „Soll ich?“-Frage fällt mit dem nächsten Befehl. Film-Overlay
-stiehlt nicht den Fahrmodus.
+stiehlt nicht den Fahrmodus. Einstellungen → Tests: Spuren Heute bis Lauf,
+Suche, Senden in den Chat. Anleitung: [`TEST-PC.md`](./TEST-PC.md).
 
 ### `18.6.0` — Lage-Kugel OSINT + Watchlist-Overlay — *CODE*
 
