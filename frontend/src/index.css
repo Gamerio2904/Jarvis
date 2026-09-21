@@ -3908,6 +3908,30 @@ button.linkish {
   padding: 8px 10px;
 }
 
+.cal-remind-chips {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cal-remind-chip {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-input) 80%, transparent);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.cal-remind-chip.is-on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--text);
+}
+
 .ambient {
   position: absolute;
   inset: 0;
@@ -6021,6 +6045,20 @@ html.theme-wipe-dark::before {
   display: flex;
   gap: 10px;
   justify-content: flex-end;
+  grid-column: 1 / -1;
+  align-items: center;
+}
+
+.cal-sheet-actions .ghost-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.cal-sheet-actions .cal-add-btn {
+  grid-column: auto;
+  width: auto;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .cal-grid-swipe {

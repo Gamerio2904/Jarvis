@@ -32,6 +32,8 @@ const LIST_DAYS =
 const DELETE = /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?termin\s+(.+)$/is
 const DELETE_LAST =
   /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?letzten\s+termin\s*$/i
+const CANCEL_LAST =
+  /^\s*(?:(?:den\s+)?(?:letzten\s+)?termin(?:e)?\s+absagen|sag(?:e)?\s+(?:den\s+)?(?:letzten\s+)?termin\s+ab)\s*[.!]?\s*$/i
 
 const DAY_SHIFT: Record<string, number> = {
   heute: 0,
@@ -144,7 +146,7 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
   if (calDay) return { kind: 'list', day: dayFromWord(calDay[1], now) }
   const day = LIST_DAY.exec(t)
   if (day) return { kind: 'list', day: dayFromWord(day[1], now) }
-  if (DELETE_LAST.test(t)) return { kind: 'delete_last' }
+  if (DELETE_LAST.test(t) || CANCEL_LAST.test(t)) return { kind: 'delete_last' }
   const del = DELETE.exec(t)
   if (del) return { kind: 'delete', query: del[1].replace(/[.!?]+$/, '').trim() }
 
@@ -188,4 +190,84 @@ export function splitTitlePlace(raw: string): { title: string; place?: string } 
     return { title: m[1].trim(), place: m[2].trim() }
   }
   return { title: t }
+}
+
+const WORD_NUM: Record<string, number> = {
+  ein: 1,
+  eine: 1,
+  einem: 1,
+  einer: 1,
+  zwei: 2,
+  drei: 3,
+  vier: 4,
+  fünf: 5,
+  sechs: 6,
+  sieben: 7,
+  acht: 8,
+  neun: 9,
+  zehn: 10,
+  elf: 11,
+  zwölf: 12,
+  fünfzehn: 15,
+  zwanzig: 20,
+  vierundzwanzig: 24,
+  dreißig: 30,
+  sechzig: 60,
+}
+
+const OFFSET_TOKEN =
+  /(?:(\d+)|(ein(?:e[mr]?|e)?|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn|elf|zwölf|fünfzehn|zwanzig|vierundzwanzig|dreißig|sechzig))\s*(minuten?|min\.?|stunden?|tag(?:en|e)?)\s*(?:davor|vorher|vor\s+(?:dem\s+)?termin)/gi
+
+const NONE_REMIND =
+  /^\s*(?:keine(?:\s+extra)?\s+erinnerung|nicht\s+erinnern|ohne\s+erinnerung|nein,?\s*nicht\s+erinnern)\s*[.!]?\s*$/i
+const AT_START =
+  /^\s*(?:am\s+termin|zum\s+termin|nur\s+(?:am|zum)\s+(?:termin|start)|nur\s+dann)\s*[.!]?\s*$/i
+
+export type RemindOffsetHit =
+  | { kind: 'offsets'; minutes: number[] }
+  | { kind: 'none' }
+  | { kind: 'at_start' }
+
+function tokenToMinutes(n: number, unit: string): number {
+  const u = unit.toLowerCase()
+  if (u.startsWith('min')) return n
+  if (u.startsWith('stund')) return n * 60
+  return n * 24 * 60
+}
+
+/** Fristen nach „Wann soll ich Sie erinnern?“. Sonst null — dann kein Kalender-Diebstahl. */
+export function parseRemindOffsets(text: string): RemindOffsetHit | null {
+  const raw = text.replace(/\s+/g, ' ').trim()
+  if (!raw) return null
+  if (NONE_REMIND.test(raw)) return { kind: 'none' }
+  if (AT_START.test(raw)) return { kind: 'at_start' }
+  const minutes: number[] = []
+  OFFSET_TOKEN.lastIndex = 0
+  let m: RegExpExecArray | null
+  while ((m = OFFSET_TOKEN.exec(raw))) {
+    const n = m[1] ? Number(m[1]) : WORD_NUM[(m[2] || '').toLowerCase()]
+    if (!Number.isFinite(n) || n <= 0) continue
+    minutes.push(tokenToMinutes(n, m[3] || 'minuten'))
+  }
+  if (!minutes.length) return null
+  const uniq = [...new Set(minutes)].sort((a, b) => b - a).slice(0, 5)
+  return { kind: 'offsets', minutes: uniq }
+}
+
+export function formatRemindOffsets(minutes: number[]): string {
+  if (!minutes.length) return 'keine extra Erinnerung'
+  const parts = minutes.map((m) => {
+    if (m === 0) return 'am Termin'
+    if (m % (24 * 60) === 0) {
+      const d = m / (24 * 60)
+      return d === 1 ? '1 Tag davor' : `${d} Tage davor`
+    }
+    if (m % 60 === 0) {
+      const h = m / 60
+      return h === 1 ? '1 Stunde davor' : `${h} Stunden davor`
+    }
+    return m === 1 ? '1 Minute davor' : `${m} Minuten davor`
+  })
+  if (parts.length === 1) return parts[0]
+  return `${parts.slice(0, -1).join(', ')} und ${parts[parts.length - 1]}`
 }

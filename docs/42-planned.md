@@ -1,35 +1,36 @@
-# 42 — Alles geplant (Stand Code `18.7.0`, PLAN `18.5`)
+# 42 — Alles geplant (Stand Code `18.8.0`, PLAN `18.5`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.4.4`**, versionCode `180404`. App-Code **`18.7.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+**Live-APK:** **`18.8.0`**, versionCode `180800`. App-Code **`18.8.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.8.md`](./TEST-18.8.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-1. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu gelandetem `18.7`.
-2. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 CODE** in `18.7.0` auf `main`. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs. Kein Computer-Use. Sideload bleibt `18.4.4`.
-3. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 CODE** in `18.6.0`. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner.
-4. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
-5. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
-6. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290 CODE** in `18.4.3`
-7. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287 CODE** in `18.4.3`
-8. **`18.3` Watchliste** [`74-next.md`](./74-next.md) — Sprints **291–296 CODE** in `18.4.3`
-9. **`18.4` Körper/Wissen** [`75-next.md`](./75-next.md) — Sprints **297–300 CODE** in `18.4.3`
-10. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
-11. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
-12. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
-13. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
-14. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
-15. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
-16. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
-17. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
-18. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
-19. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
-20. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
+1. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE + APK** in `18.8.0`. Lauf räumt Writes. Termin fragt nach 1–n Fristen. Download am Dock. Prompt-Pakete neu. Nicht parallel zu `18.5`. Sideload **`18.8.0`**.
+2. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu `18.8`.
+3. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 CODE** in `18.7.0`, Sideload in `18.8.0`. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs. Kein Computer-Use.
+4. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 CODE** in `18.6.0`. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner.
+5. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
+6. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
+7. **Karten-Reste** [`73-next.md`](./73-next.md) — Sprints **288–290 CODE** in `18.4.3`
+8. **`18.2` Ideen halten** [`72-next.md`](./72-next.md) — Sprints **283–287 CODE** in `18.4.3`
+9. **`18.3` Watchliste** [`74-next.md`](./74-next.md) — Sprints **291–296 CODE** in `18.4.3`
+10. **`18.4` Körper/Wissen** [`75-next.md`](./75-next.md) — Sprints **297–300 CODE** in `18.4.3`
+11. **PO Handy** Sprint [`178`](./sprints/sprint-178.md) — Katalog 168 + Home-FGS 30 s ⚠︎ Anker veraltet
+12. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
+13. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
+14. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
+15. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+16. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
+17. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
+18. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
+19. **`12.0` CODE** [`59-next.md`](./59-next.md) — Drei Flächen in `12.70.0`; 209–216 Execute; kein Diebstahl von `11.0`
+20. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
+21. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
 
-**⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `18.4.4` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
+**⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `18.8.0` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
 
 ## PLAN — Schiene `18.0.0` (Sprints 260–271)
 
@@ -145,7 +146,7 @@ Begründung: [`76-next.md`](./76-next.md).
 
 Harte Kette: 307 → alles. 311 nach mindestens einer Schicht. 313 braucht 307.
 Kein iframe OSIRIS, kein `globe.gl`, kein CCTV, kein Scanner, kein Live-Label.
-App-Code `18.6.0`. Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
+App-Code `18.6.0`. Sideload in `18.8.0`.
 
 Begründung: [`77-next.md`](./77-next.md).
 
@@ -162,11 +163,30 @@ Begründung: [`77-next.md`](./77-next.md).
 | `18.7.6` | [321](./sprints/sprint-321.md) | Härten, Gold, Meilenstein |
 | `18.7.7` | [322](./sprints/sprint-322.md) | Antwort-Orb (Thinking Orbs), Chat + Sprache |
 
-App-Code `18.7.0`. Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
+App-Code `18.7.0`. Sideload in `18.8.0`.
 Kein 7. Icon, keine Chips, kein Computer-Use, kein LLM-Organizer, e5 nicht in
 `pickRoute`.
 
 Begründung: [`78-next.md`](./78-next.md).
+
+## CODE — Schiene `18.8` (Sprints 323–330)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `18.8.0` | [323](./sprints/sprint-323.md) | Leit + Snapshot/Restore der Haus-Listen |
+| `18.8.1` | [324](./sprints/sprint-324.md) | Debug-Chat Download am Dock, native Save |
+| `18.8.2` | [325](./sprints/sprint-325.md) | Termin: fragen wann erinnern, Parser 1–n |
+| `18.8.3` | [326](./sprints/sprint-326.md) | Offsets persistieren, N Notifies, GUI-Chips |
+| `18.8.4` | [327](./sprints/sprint-327.md) | Debug überspringt die Frage, Rollback deckt Fristen |
+| `18.8.5` | [328](./sprints/sprint-328.md) | Härten, Gold, Meilenstein |
+| `18.8.6` | [329](./sprints/sprint-329.md) | Prompt-Pakete neu schneiden |
+| `18.8.7` | [330](./sprints/sprint-330.md) | Prompts erweitern + Gold |
+
+App-Code `18.8.0`. Sideload **`18.8.0`**, versionCode `180800`.
+Kein Cloud-Kalender. Kein Hausstand-Wipe. Kein Debug-Chat löschen.
+Nicht parallel zu `18.5`.
+
+Begründung: [`79-next.md`](./79-next.md).
 
 ## CODE — Audit-Reste `18.1.0` (Sprints 272–281)
 

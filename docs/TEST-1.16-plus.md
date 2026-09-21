@@ -1,11 +1,11 @@
 # Testanleitung seit `1.16` — Prompts 1:1
 
-App-Code **`18.7.0`**. Sideload-APK **`18.4.4`**.  
+App-Code **`18.8.0`**. Sideload-APK **`18.8.0`**.  
 Einrichten: [`TEST-PC.md`](./TEST-PC.md). In der App: Einstellungen → **Tests** → Spur wählen → **Senden**.
 
 **PC** = Browser reicht. **Handy** = nur auf dem Gerät sinnvoll. **BAT** = `JarvisPC.bat` muss laufen.  
 **Won’t** = Absage ist grün. **↳** = gleicher Chat, hängt am vorigen Satz.  
-18.5 (Stimme/TV-Wahrheit) bleibt PLAN — nicht mitprüfen. 18.7-Fläche nur im Browser/`main`, nicht in der Sideload-APK.
+18.5 (Stimme/TV-Wahrheit) bleibt PLAN — nicht mitprüfen. 18.7-Fläche und 18.8 sind in der Sideload-APK.
 
 Neues Gespräch vor jeder Sitzung, außer ↳. Nach Timern: `Timer stopp`.
 
@@ -19,7 +19,7 @@ In der App: Spur **Story** → **Seit 1.16 der Reihe nach** (Kern). Rest nach Si
 Was kannst du?
 ```
 
-Antwort nennt **`18.7.0`**. In der Sideload-APK darf **`18.4.4`** stehen.
+Antwort nennt **`18.8.0`**.
 
 ```
 Hallo Jarvis.
@@ -699,7 +699,7 @@ Hand Dock **Kalender**: Monat wischen, Folie über der Leiste.
 
 ## K — `18.6`–`18.7` OSINT, Filme-Dock, Selbststeuerung · Spur Heute / Story 18.7
 
-**Nur Code `18.7` (Browser).** Sideload `18.4.4` hat kein 6. Icon Filme.
+Code `18.7`–`18.8`. Sideload `18.8.0` hat das 6. Icon Filme.
 
 Hand: Dock Chat Lage Hören Kalender **Filme** Mehr. Tap Filme → Watchliste. Zweiter Tap zu.
 
@@ -843,14 +843,14 @@ Identität Jarvis.
 |---------|------|--------|
 | A Einkauf / Losgehen | Alltag | Einkauf, Kalender & Losgehen, Haus |
 | B Fahrt / TV | Alltag / Gerät | Fahren & Spotify, Fernseher & Film |
-| C Tanke / Anruf / PC | Alltag / Gerät | Tanke POI Bahn, Leute Anruf SMS, PC Foto Notiz |
+| C Tanke / Anruf / PC | Alltag / Gerät | Tanke POI Bahn, Leute Anruf SMS, PC |
 | D Haus / Uhr | Gerät | Uhr & Gerät, Haus |
 | E Welt 3.x | Lage | Welt & Lage |
-| F 4.x | Lage / Gespräch | Weltlage, Alltagskette, Gesicht & Hausstand |
-| G Kugel | Lage | Bühne & Hirn, Globus-Briefing |
+| F 4.x | Lage / Gespräch | Welt & Lage, Alltagskette, Gesicht & Hausstand |
+| G Kugel | Lage | Welt & Lage, Screenshots |
 | H Memory 10–12 | Gespräch / Probe | Gedächtnis, Memory-10, Fachwissen-11, Flächen-12 |
 | I 13–17 | Heute / Alltag | Körper-13, Timer Wecker Erinnerung |
-| J–K 18.x | Heute / Story | 18.7 Fläche, 18.0.3 Screenshot |
+| J–K 18.x | Heute / Story | 18.8 Debug & Termin, 18.7 Fläche, Screenshots |
 | L Won’t | Gespräch / Lage | Naive Fragen, Randfälle |
 | Kern der Reihe nach | Story | Seit 1.16 der Reihe nach |
 
@@ -862,7 +862,7 @@ Taste **1–8** wechselt die Spur, **/** sucht.
 
 | Rot | Grün |
 |-----|------|
-| Hilfe nennt weder 18.7.0 noch 18.4.4 | Version stimmt zur Fläche |
+| Hilfe nennt nicht 18.8.0 | Version stimmt zur Fläche |
 | Milch braucht Ja | Liste ohne Confirm |
 | `Öffne das overlay` öffnet Filme | Fahrmodus |
 | `Öffne das watchlist overlay` öffnet Fahrt | Watchliste |
@@ -873,6 +873,6 @@ Taste **1–8** wechselt die Spur, **/** sucht.
 | `Mach WLAN aus` danach `ja` schaltet Research | Pending tot |
 | Kameras / Street View / 112 / Captcha gehen | Won’t |
 | Smalltalk duzt nach Inject | Siezen |
-| Sideload als 18.7 verkauft | APK bleibt 18.4.4 |
+| Sideload als 18.4.4 verkauft | APK ist 18.8.0 |
 
 Vollständiger Katalog: Einstellungen → Tests. Automatisch: `cd frontend && bash scripts/run-all-tests.sh`.

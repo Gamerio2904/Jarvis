@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Message } from '../api.ts'
-import { debugSnapshot, requestDebugStop, subscribeDebug } from '../engine/debug-session.ts'
+import { debugSnapshot, downloadDebug, requestDebugStop, subscribeDebug } from '../engine/debug-session.ts'
 import { formatLatency, lastLatency, subscribeLatency } from '../engine/latency.ts'
 
 export function DebugChatDock({
@@ -40,6 +40,14 @@ export function DebugChatDock({
         <div className="debug-chat-dock-actions">
           <button type="button" className="ghost-btn" onClick={onOpen}>
             Tests
+          </button>
+          <button
+            type="button"
+            className="ghost-btn"
+            disabled={!snap.turns.length}
+            onClick={() => void downloadDebug()}
+          >
+            Chat herunterladen
           </button>
           <button type="button" className="ghost-btn" disabled={!snap.running} onClick={requestDebugStop}>
             Stop

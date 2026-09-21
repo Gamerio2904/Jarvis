@@ -69,7 +69,7 @@ export function parseAppIntent(text: string): AppIntent | null {
   if (/\bdann\b/i.test(t)) return null
 
   if (
-    /^\s*(?:einstellungen|overlay|folie)\s+zu\s*[.!?]*$/i.test(t) ||
+    /^\s*(?:einstellungen|overlay|folie|kalender|debug)\s+zu\s*[.!?]*$/i.test(t) ||
     /^\s*fertig\s*[.!?]*$/i.test(t)
   ) {
     return { kind: 'ui', action: { id: 'overlay.close' } }

@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
-import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar.ts'
+import { applyEventOffsets, createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar.ts'
 import { formatDue, startOfDay } from '../engine/remind-parse.ts'
 import { listEvents, listReminders, type CalendarEvent, type Reminder } from '../engine/store.ts'
 
 const WEEK = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 const MONTHS = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
+const REMIND_CHIPS: Array<{ min: number | null; label: string }> = [
+  { min: 1440, label: '24 h' },
+  { min: 120, label: '2 h' },
+  { min: 60, label: '1 h' },
+  { min: 15, label: '15 min' },
+  { min: 0, label: 'am Termin' },
+  { min: null, label: 'keine' },
+]
 
 function monthCells(year: number, month: number): Array<Date | null> {
   const first = new Date(year, month, 1)
@@ -36,6 +44,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [yearView, setYearView] = useState(false)
   const [yearMarks, setYearMarks] = useState<Set<string>>(new Set())
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [remindId, setRemindId] = useState<string | null>(null)
+  const [chipMins, setChipMins] = useState<number[]>([0])
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
   const titleRef = useRef<HTMLInputElement>(null)
 
@@ -108,15 +118,43 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       const [h, m] = time.split(':').map((n) => Number(n))
       const start = new Date(selected)
       start.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0)
-      await createEventFromGui({ title: name, start })
+      const row = await createEventFromGui({ title: name, start })
       setTitle('')
-      setSheetOpen(false)
+      setRemindId(row.id)
+      setChipMins([0])
       await reload()
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Termin fehlgeschlagen')
     } finally {
       setBusy(false)
     }
+  }
+
+  async function onRemindSave() {
+    if (!remindId || busy) return
+    setBusy(true)
+    setErr(null)
+    try {
+      await applyEventOffsets(remindId, chipMins)
+      setRemindId(null)
+      setSheetOpen(false)
+      await reload()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Erinnerung fehlgeschlagen')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function toggleChip(min: number | null) {
+    if (min === null) {
+      setChipMins([])
+      return
+    }
+    setChipMins((cur) => {
+      const next = cur.includes(min) ? cur.filter((x) => x !== min) : [...cur, min]
+      return next.sort((a, b) => b - a).slice(0, 5)
+    })
   }
 
   async function onDelete(id: string) {
@@ -283,7 +321,14 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       </button>
 
       {sheetOpen ? (
-        <div className="cal-sheet-backdrop" onClick={() => setSheetOpen(false)} aria-hidden />
+        <div
+          className="cal-sheet-backdrop"
+          onClick={() => {
+            setSheetOpen(false)
+            setRemindId(null)
+          }}
+          aria-hidden
+        />
       ) : null}
       <div
         className={`cal-sheet${sheetOpen ? ' is-open' : ''}`}
@@ -297,7 +342,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           className="cal-form"
           onSubmit={(e) => {
             e.preventDefault()
-            void onAdd()
+            if (remindId) void onRemindSave()
+            else void onAdd()
           }}
         >
           <input
@@ -305,23 +351,55 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Titel"
-            disabled={busy || !sheetOpen}
+            disabled={busy || !sheetOpen || Boolean(remindId)}
             tabIndex={sheetOpen ? 0 : -1}
           />
           <input
             type="time"
             value={time}
             onChange={(e) => setTime(e.target.value)}
-            disabled={busy || !sheetOpen}
+            disabled={busy || !sheetOpen || Boolean(remindId)}
             tabIndex={sheetOpen ? 0 : -1}
           />
+          {remindId ? (
+            <div className="cal-remind-chips" role="group" aria-label="Erinnerung">
+              {REMIND_CHIPS.map((c) => {
+                const on = c.min === null ? chipMins.length === 0 : chipMins.includes(c.min)
+                return (
+                  <button
+                    key={c.label}
+                    type="button"
+                    className={`cal-remind-chip${on ? ' is-on' : ''}`}
+                    disabled={busy}
+                    onClick={() => toggleChip(c.min)}
+                  >
+                    {c.label}
+                  </button>
+                )
+              })}
+            </div>
+          ) : null}
           <div className="cal-sheet-actions">
-            <button type="button" className="ghost-btn" disabled={busy} onClick={() => setSheetOpen(false)}>
+            <button
+              type="button"
+              className="ghost-btn"
+              disabled={busy}
+              onClick={() => {
+                setSheetOpen(false)
+                setRemindId(null)
+              }}
+            >
               Abbrechen
             </button>
-            <button type="submit" className="cal-add-btn" disabled={busy || !title.trim()}>
-              Speichern
-            </button>
+            {remindId ? (
+              <button type="button" className="cal-add-btn" disabled={busy} onClick={() => void onRemindSave()}>
+                Übernehmen
+              </button>
+            ) : (
+              <button type="submit" className="cal-add-btn" disabled={busy || !title.trim()}>
+                Speichern
+              </button>
+            )}
           </div>
         </form>
         {err ? <p className="settings-hint">{err}</p> : null}
