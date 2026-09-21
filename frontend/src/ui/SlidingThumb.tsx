@@ -17,7 +17,9 @@ export function useSlidingThumb(activeId: string | null): {
 
     const layout = () => {
       const item = activeId
-        ? (host.querySelector(`[data-nav="${activeId}"]`) as HTMLElement | null)
+        ? ([...host.querySelectorAll('[data-nav]')].find((el) => el.getAttribute('data-nav') === activeId) as
+            | HTMLElement
+            | undefined) ?? null
         : null
       if (!item) {
         thumb.style.opacity = '0'

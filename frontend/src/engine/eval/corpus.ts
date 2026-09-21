@@ -300,6 +300,14 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Wecker aus': 'alarm',
   'Timer stopp': 'timer',
   'Stopp Timer': 'timer',
+  'Öffne Watchliste': 'watchlist',
+  'Öffne Lieblinge': 'watchlist',
+  'Zeig Chat': 'app',
+  'Zeig Lage': 'app',
+  'Öffne Einstellungen Musik': 'app',
+  'Einstellungen zu': 'app',
+  'Research an': 'app',
+  'Mach WLAN aus': 'device',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

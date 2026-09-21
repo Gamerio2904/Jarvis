@@ -2214,6 +2214,12 @@ function App() {
             setSidebarOpen(false)
             closeSheet('settings')
           }}
+          onProbeSend={(text) => {
+            setSettingsPanelOpen(false)
+            setSidebarOpen(false)
+            closeSheet('settings')
+            void sendMessage(text)
+          }}
           debugBusy={busy}
         />
       ) : null}

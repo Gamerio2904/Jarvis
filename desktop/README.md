@@ -19,6 +19,8 @@ Ohne laufendes Handy-Hirn: „Handy nicht im WLAN / Presence aus“ — kein Fak
 
 Ohne Kamera: IP (192.168… oder 10…), Port `18790` und Token aus dem grauen Fenster von Hand eintragen, dann **PC testen**.
 
+PC-Gesamtablauf inkl. Browser und Testprompts: [`docs/TEST-PC.md`](../docs/TEST-PC.md).
+
 ## Testen (Chat)
 
 - `PC QR scannen` — öffnet den Scanner

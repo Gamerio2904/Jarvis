@@ -1,4 +1,4 @@
-/** Prompt-Katalog. In der App: Einstellungen → Debug. */
+/** Prompt-Katalog. In der App: Einstellungen → Tests (Spuren Heute bis Lauf). */
 
 export type TestExpect = {
   tool?: string
@@ -788,6 +788,24 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: 'Stopp Timer', text: 'Stopp Timer', expect: { tool: 'timer' } },
     ],
   },
+  {
+    title: '18.7 Fläche',
+    items: [
+      { label: 'Watchliste auf', text: 'Öffne Watchliste', expect: { tool: 'watchlist' } },
+      { label: 'Lieblinge auf', text: 'Öffne Lieblinge', expect: { tool: 'watchlist' } },
+      { label: 'Watchlist-Overlay', text: 'Öffne das watchlist overlay', expect: { tool: 'watchlist' } },
+      { label: 'Zeig Chat', text: 'Zeig Chat', expect: { tool: 'app' } },
+      { label: 'Zeig Lage', text: 'Zeig Lage', expect: { tool: 'app' } },
+      { label: 'Einstellungen Musik', text: 'Öffne Einstellungen Musik', expect: { tool: 'app' } },
+      { label: 'Einstellungen zu', text: 'Einstellungen zu', expect: { tool: 'app' } },
+      { label: 'Research an', text: 'Research an', expect: { tool: 'app', confirm: true } },
+      { label: 'WLAN aus', text: 'Mach WLAN aus', expect: { tool: 'device' } },
+      { label: 'Kameras', text: 'Zeig Kameras', expect: { tool: 'wont' } },
+      { label: 'Klick Speichern', text: 'Klick auf Speichern', expect: { tool: 'pc' } },
+      { label: 'Film-Overlay', text: 'Mach das Overlay für die Filme auf' },
+      { label: 'Watchliste irgendwas', text: 'Stell irgendwas mit der Watchliste an' },
+    ],
+  },
 ]
 
 /*
@@ -796,6 +814,33 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
  * hängt von der Antwort auf den vorigen ab.
  */
 export const STORYLINE_GROUPS: TestCopyGroup[] = [
+  {
+    title: '🟢 Seit 1.16 der Reihe nach',
+    items: [
+      { label: '1 – Version', text: 'Was kannst du?', expect: { tool: 'help' } },
+      { label: '2 – Einkauf', text: 'Milch auf die Einkaufsliste', expect: { tool: 'shopping' } },
+      { label: '3 – ↳ auch Brot', text: 'auch Brot', expect: { tool: 'shopping' } },
+      { label: '4 – ↳ was fehlt', text: 'was fehlt?', expect: { tool: 'shopping' } },
+      { label: '5 – Freundin-Ort', text: 'Freundin wohnt in Heilbronn', expect: { tool: 'maps' } },
+      { label: '6 – Termin+Ort', text: 'Termin morgen 15 Uhr Zahnarzt Bahnhofstraße', expect: { tool: 'calendar' } },
+      { label: '7 – Losgehen', text: 'Wann muss ich zum Zahnarzt los?', expect: { tool: 'leave' } },
+      { label: '8 – Uhr', text: 'Wie spät ist es?', expect: { tool: 'device' } },
+      { label: '9 – Wetter', text: 'Wetter heute', expect: { tool: 'weather' } },
+      { label: '10 – Tanke', text: 'Fahr mich zu einer Tanke', expect: { tool: 'fuel' } },
+      { label: '11 – Lidl DE', text: 'Lidl', expect: { tool: 'poi' } },
+      { label: '12 – Kugel', text: 'Zeig mir London', expect: { tool: 'hud' } },
+      { label: '13 – Weltlage', text: 'Was ist die Weltlage?', expect: { tool: 'outlook' } },
+      { label: '14 – Orakel Won’t', text: 'Fällt SAP morgen?', expect: { tool: 'outlook' } },
+      { label: '15 – Schach', text: 'Lass uns Schach spielen', expect: { tool: 'chess' } },
+      { label: '16 – Memory', text: 'Ich heiße Max und trinke gerne Kaffee.', expect: { tool: 'memory' } },
+      { label: '17 – ↳ Abruf', text: 'Was trinke ich?', expect: { tool: 'memory' } },
+      { label: '18 – Watchliste', text: 'Öffne Watchliste', expect: { tool: 'watchlist' } },
+      { label: '19 – Folie zu', text: 'Einstellungen zu', expect: { tool: 'app' } },
+      { label: '20 – Unbekannt ehrlich', text: 'Stell irgendwas mit der Watchliste an' },
+      { label: '21 – Kameras Won’t', text: 'Zeig Kameras', expect: { tool: 'wont' } },
+      { label: '22 – Street View Won’t', text: 'Zeig Street View von London', expect: { tool: 'wont' } },
+    ],
+  },
   {
     title: '🟢 Flächen-12 durchspielen',
     items: [
@@ -919,6 +964,19 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: '10 – Kochrezept', text: 'Suche im Internet nach einem guten Carbonara-Rezept', expect: { tool: 'research', skipIf: 'no_gemini' } },
       { label: '11 – Timer Pasta', text: 'Timer 12 Minuten Spaghetti' },
       { label: '12 – Abschluss', text: 'Fass das Gespräch zusammen', expect: { tool: 'digest' } },
+    ],
+  },
+  {
+    title: '🟢 18.7 Fläche der Reihe nach',
+    items: [
+      { label: '1 – Filme-Folie', text: 'Öffne Watchliste', expect: { tool: 'watchlist' } },
+      { label: '2 – ↳ Fertig per Satz', text: 'Einstellungen zu', expect: { tool: 'app' } },
+      { label: '3 – Lieblinge', text: 'Öffne Lieblinge', expect: { tool: 'watchlist' } },
+      { label: '4 – Chat', text: 'Zeig Chat', expect: { tool: 'app' } },
+      { label: '5 – Research', text: 'Research an', expect: { tool: 'app', confirm: true } },
+      { label: '6 – ↳ anderer Satz', text: 'Mach WLAN aus', expect: { tool: 'device' } },
+      { label: '7 – ↳ Ja darf nichts nachziehen', text: 'ja' },
+      { label: '8 – Unbekannt ehrlich', text: 'Stell irgendwas mit der Watchliste an' },
     ],
   },
   {
