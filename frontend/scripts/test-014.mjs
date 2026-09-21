@@ -624,6 +624,19 @@ assert.equal(parseReminderIntent('erinner mich an Steuer', frozen)?.kind, 'ask')
 assert.equal(parseReminderIntent('was steht an')?.kind, 'agenda')
 assert.equal(parseReminderIntent('zeige Erinnerungen')?.kind, 'list')
 assert.equal(parseReminderIntent('lösche Erinnerung Milch')?.kind, 'delete')
+{
+  const dayDel = parseReminderIntent('Entferne alle Erinnerungen am 22. September', frozen)
+  assert.equal(dayDel?.kind, 'delete_day')
+  if (dayDel?.kind === 'delete_day') {
+    assert.equal(dayDel.day.getFullYear(), 2026)
+    assert.equal(dayDel.day.getMonth(), 8)
+    assert.equal(dayDel.day.getDate(), 22)
+  }
+  assert.equal(parseReminderIntent('lösche Erinnerungen am 22. September', frozen)?.kind, 'delete_day')
+  assert.equal(parseReminderIntent('Entferne alle Erinnerungen am morgen', frozen)?.kind, 'delete_day')
+  assert.equal(pickRoute('Entferne alle Erinnerungen am 22. September'), 'reminder')
+  assert.notEqual(pickRoute('lösche Erinnerungen am 22. September'), 'memory')
+}
 const daily = parseReminderIntent('jeden Tag 8 Uhr Tabletten', frozen)
 assert.equal(daily?.kind, 'create')
 if (daily?.kind === 'create') {
@@ -1764,7 +1777,8 @@ assert.equal(parseFilmIntent('Tanke E10'), null)
     omdb: { title: 'Dune', year: '2021', imdb: '8.0', tomatoes: '83%' },
   })
   assert.match(film, /IMDb 8,0/)
-  assert.match(film, /Rotten Tomatoes 83%/)
+  assert.match(film, /Kritiker 83%/)
+  assert.match(film, /Rotten Tomatoes/)
   assert.match(film, /ARD Mediathek \(Werbung\)/)
   assert.match(film, /Joyn/)
   assert.match(film, /starte ich nicht/)

@@ -1,6 +1,6 @@
-# PO-Checkliste `18.8.0` — Debug-Rollback, Termin-Fristen, Download
+# PO-Checkliste `18.8.1` — Debug-Rollback, Termin-Fristen, Download
 
-App-Code **`18.8.0`**. Sideload **`18.8.0`**, versionCode **`180800`**.  
+App-Code **`18.8.1`**. Sideload **`18.8.1`**, versionCode **`180801`**.  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Altes zuerst deinstallieren. Hausstand vorher exportieren.
@@ -14,7 +14,7 @@ Prompts: [`TEST-1.16-plus.md`](./TEST-1.16-plus.md). 18.5 bleibt PLAN.
 Was kannst du?
 ```
 
-In der Antwort muss **`18.8.0`** stehen.
+In der Antwort muss **`18.8.1`** stehen.
 
 ## 2. Dock
 
@@ -51,6 +51,33 @@ Download schreibt JSON+TXT in Downloads. Keys unangetastet.
 
 Einstellungen → Tests: Kategorien ohne V2–V9. Spur Probe beginnt mit
 Memory-10, 13 Packs. Suche findet Zahnarzt und Watchliste.
+
+## 6. Watchliste-Noten
+
+Filme → Dune. **Kritiker** aus Rotten Tomatoes, zweite Zahl **IMDb**
+wenn OMDb kein Publikum liefert. Kein Strich hinter Publikum, solange
+IMDb da ist. Keine IMDb-Zahl als „Publikum“ beschriftet.
+
+## 7. Erinnerungen am Tag
+
+Erinnerung auf morgen legen, dann:
+
+```
+Entferne alle Erinnerungen am morgen
+```
+
+Die Erinnerung ist weg. Jarvis sagt das nur, wenn sie wirklich gelöscht
+ist. Termine am selben Tag erwähnt er, löscht sie nicht still.
+
+## 8. Lage / Osiris
+
+Lage → Kugel. Keine leere **Sicht**-Karte. Hinweis: Schicht per Satz.
+
+```
+Zeig Erdbeben
+```
+
+Pins und Intel-Leiste. Chat und wieder Lage: Schicht bleibt.
 
 ---
 

@@ -86,7 +86,10 @@ export async function handleHud(
     return pack(`Kacheln: ${line}.`)
   }
   if (intent.kind === 'view') {
-    openLagePatch({ ...patchForHudView(intent.view), globe_layer: '' })
+    openLagePatch({
+      ...patchForHudView(intent.view),
+      ...(intent.view === 'globe' ? {} : { globe_layer: '' as const }),
+    })
     if (intent.view === 'tiles') clearTour()
     if (intent.view === 'body') return pack('Körper an. Netz oben, Chat darunter. Vollbild auf Zuruf.')
     if (intent.view === 'globe') return pack('Kugel an. Tag und Nacht, ISS als Bahn. Kein Live-Satellitenvideo.')

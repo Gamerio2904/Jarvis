@@ -60,7 +60,8 @@ assert.match(briefingFromCache(), /Nichts auf der Kugel|ISS/)
     53.5,
     10,
   )
-  assert.match(d.line || '', /Hamburg/)
+  assert.match(d?.line || '', /Hamburg/)
+  assert.equal(dossierNear([], 53.5, 10), null)
 }
 assert.notEqual(parseHudIntent('Zeig Erdbeben')?.kind, 'unknown_place')
 assert.notEqual(parseHudIntent('Zeig Waldbrände')?.kind, 'unknown_place')

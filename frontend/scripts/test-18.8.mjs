@@ -127,8 +127,24 @@ assert.equal((await getPending(hangConv))?.action, 'remind_offsets')
 globalThis.Notification = prevNote
 
 const { cancelEventNotifies } = await import('../src/engine/calendar.ts')
-const { notifyIdOf } = await import('../src/engine/reminders.ts')
+const { handleReminders, notifyIdOf } = await import('../src/engine/reminders.ts')
 const { cancelNotify } = await import('../src/native/notify.ts')
+
+{
+  const due = new Date()
+  due.setDate(due.getDate() + 1)
+  due.setHours(10, 0, 0, 0)
+  await addReminder({ title: 'Steuer-Testtag', due_at: due.toISOString(), conversationId: 'rem-day' })
+  const later = new Date(due)
+  later.setDate(later.getDate() + 2)
+  await addReminder({ title: 'Bleibt liegen', due_at: later.toISOString(), conversationId: 'rem-day' })
+  const wiped = await handleReminders('rem-day', 'Entferne alle Erinnerungen am morgen')
+  assert.match(wiped.reply || '', /gelöscht|Keine Erinnerung/)
+  const left = (await listReminders()).filter((r) => r.status === 'open')
+  assert.equal(left.some((r) => r.title === 'Steuer-Testtag'), false, 'Erinnerung am Morgen muss weg')
+  assert.equal(left.some((r) => r.title === 'Bleibt liegen'), true, 'andere Tage bleiben')
+}
+
 for (const e of await listEvents()) await cancelEventNotifies(e)
 for (const r of await listReminders()) await cancelNotify(notifyIdOf(r))
 

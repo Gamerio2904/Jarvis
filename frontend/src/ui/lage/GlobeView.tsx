@@ -600,7 +600,7 @@ export function GlobeView({
       if (!fly.current) emitLook()
       if (!start || pts.current.size > 0) return
       const p = pos(ev)
-      if (Math.hypot(p.x - start.x, p.y - start.y) > 22) return
+      if (Math.hypot(p.x - start.x, p.y - start.y) > 36) return
       const projected = pinsRef.current.map((pin) => {
         const q = project(pin.lat, pin.lon)
         return { pin, x: q.x, y: q.y, z: q.z }

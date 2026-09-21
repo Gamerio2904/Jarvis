@@ -681,6 +681,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Download bleibt am Dock", text: "Zeig Chat", expect: {"tool":"app"} },
       { label: "Debug auf", text: "Öffne Debug", expect: {"tool":"app"} },
       { label: "15 Minuten davor", text: "15 Minuten davor" },
+      { label: "Erinnerungen am Tag weg", text: "Entferne alle Erinnerungen am 22. September", expect: {"tool":"reminder"} },
     ],
   },
 ]

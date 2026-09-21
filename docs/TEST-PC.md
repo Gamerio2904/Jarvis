@@ -1,6 +1,6 @@
 # PC einrichten und 18.8 testen
 
-App-Code **`18.8.0`** auf `main`. Sideload-APK **`18.8.0`**.  
+App-Code **`18.8.1`** auf `main`. Sideload-APK **`18.8.1`**.  
 Diese Anleitung gilt für den **Dev-PC** (Browser) und optional für **Jarvis PC** (Rechner steuern).
 
 Volltest mit Prompts seit `1.16`: [`TEST-1.16-plus.md`](./TEST-1.16-plus.md). In der App: Tests → Story → **Seit 1.16 der Reihe nach**.

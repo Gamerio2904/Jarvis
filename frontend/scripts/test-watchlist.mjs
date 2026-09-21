@@ -9,7 +9,7 @@ import { parseIdeaIntent } from '../src/engine/idea-parse.ts'
 import { parseTasteIntent } from '../src/engine/film-taste-parse.ts'
 import { isMemoryWrite } from '../src/engine/memory-parse.ts'
 import { pickRoute } from '../src/engine/route-pick.ts'
-import { fromOmdb } from '../src/engine/omdb.ts'
+import { fromOmdb, watchScoreLine } from '../src/engine/omdb.ts'
 import { overlayHidesDrive } from '../src/engine/overlay-fsm.ts'
 import { applyWatched, WATCHED_PACK_TOPIC } from '../src/engine/film-taste.ts'
 import { rewriteOrdinal } from '../src/engine/ordinal.ts'
@@ -101,6 +101,31 @@ assert.equal(pickRoute('Was steht an'), 'brief')
   const empty = fromOmdb({ Title: 'X', Response: 'True', tomatoMeter: 'N/A', tomatoUserMeter: 'N/A', Poster: 'N/A' })
   assert.equal(empty?.audience, undefined)
   assert.equal(empty?.poster, undefined)
+  const live = fromOmdb({
+    Title: 'Dune',
+    Year: '1984',
+    Response: 'True',
+    tomatoMeter: 'N/A',
+    tomatoUserMeter: 'N/A',
+    imdbRating: '6.3',
+    Ratings: [
+      { Source: 'Internet Movie Database', Value: '6.3/10' },
+      { Source: 'Rotten Tomatoes', Value: '36%' },
+      { Source: 'Metacritic', Value: '41/100' },
+    ],
+    Poster: 'https://example.com/dune84.jpg',
+  })
+  assert.equal(live?.tomatoes, '36%')
+  assert.equal(live?.audience, undefined)
+  assert.equal(live?.imdb, '6.3')
+  const line = watchScoreLine({ critic: live?.tomatoes, audience: live?.audience, imdbScore: live?.imdb })
+  assert.match(line.scores, /Kritiker 36%/)
+  assert.match(line.scores, /IMDb 6,3/)
+  assert.doesNotMatch(line.scores, /Publikum/)
+  assert.match(line.source, /IMDb/)
+  const both = watchScoreLine({ critic: '83%', audience: '90%', imdbScore: '8.0' })
+  assert.match(both.scores, /Publikum 90%/)
+  assert.doesNotMatch(both.scores, /IMDb/)
 }
 
 {

@@ -14,6 +14,30 @@ export type OmdbHit = {
   plot?: string
 }
 
+/** Karte und Chat: RT-Publikum nur wenn OMDb es liefert, sonst IMDb — nie IMDb als „Publikum“. */
+export function watchScoreLine(m: {
+  critic?: string | null
+  audience?: string | null
+  imdbScore?: string | null
+}): { scores: string; source: string } {
+  const critic = (m.critic || '').trim()
+  const audience = (m.audience || '').trim()
+  const imdb = (m.imdbScore || '').trim()
+  const imdbLabel = imdb ? imdb.replace('.', ',') : ''
+  const criticBit = `Kritiker ${critic || '—'}`
+  let second = 'Publikum —'
+  if (audience) second = `Publikum ${audience}`
+  else if (imdbLabel) second = `IMDb ${imdbLabel}`
+  const sources: string[] = []
+  if (critic || audience) sources.push('Rotten Tomatoes')
+  if (imdbLabel && !audience) sources.push('IMDb')
+  if (!sources.length) sources.push('Rotten Tomatoes')
+  return {
+    scores: `${criticBit} · ${second}`,
+    source: `${[...new Set(sources)].join(', ')} über OMDb`,
+  }
+}
+
 const KEY_HINT =
   'OMDb-Schlüssel unter Einstellungen → Cloud (omdbapi.com, kostenlos). Rotten Tomatoes hat keine eigene öffentliche API — Noten nur wenn OMDb sie liefert. Ich erfinde keine.'
 
@@ -65,13 +89,18 @@ function fromOmdb(json: Record<string, unknown>): OmdbHit | null {
   if (!title) return null
   const ratings = Array.isArray(json.Ratings) ? json.Ratings : []
   let tomatoes = tomatoOf(json.tomatoMeter) || tomatoOf(json.tomatoRating)
+  let imdb = String(json.imdbRating || '').trim()
+  if (!imdb || imdb === 'N/A') imdb = ''
   for (const row of ratings) {
     if (!row || typeof row !== 'object') continue
     const src = String((row as Record<string, unknown>).Source || '')
     const val = String((row as Record<string, unknown>).Value || '').trim()
-    if (/rotten\s*tomatoes/i.test(src) && val) tomatoes = val
+    if (!val || val === 'N/A') continue
+    if (/rotten\s*tomatoes/i.test(src) && !/audience|popcorn/i.test(src)) tomatoes = val
+    if (!imdb && /imdb|internet movie database/i.test(src)) {
+      imdb = val.replace(/\s*\/\s*10\s*$/i, '').trim()
+    }
   }
-  const imdb = String(json.imdbRating || '').trim()
   return {
     title,
     year: String(json.Year || '').trim() || undefined,

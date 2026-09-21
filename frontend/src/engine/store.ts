@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.8.0'
+export const APP_VERSION = '18.8.1'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -98,6 +98,8 @@ export type WatchMovie = {
   poster?: string | null
   critic?: string | null
   audience?: string | null
+  /** IMDb-Note aus OMDb, z. B. "6.3" — nicht die RT-Publikumsnote. */
+  imdbScore?: string | null
   scoresAt?: string | null
   source_conversation_id?: string | null
   created_at: string
@@ -1032,6 +1034,7 @@ export async function addWatchMovie(
     poster: extra.poster ?? null,
     critic: extra.critic ?? null,
     audience: extra.audience ?? null,
+    imdbScore: extra.imdbScore ?? null,
     scoresAt: extra.scoresAt ?? null,
     year: extra.year,
     imdbId: extra.imdbId,

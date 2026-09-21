@@ -4,7 +4,7 @@ export const MERK =
   /^\s*(?:merk(?:e)?\s*dir|denk(?:e)?\s+daran|notier(?:e)?\s+dir|speicher(?:e)?|erinner(?:e)?\s*dich(?:\s*an)?)\s*(?:bitte\s*)?[:-]?\s*(.+)$/is
 export const VERGISS_ALL =
   /^\s*(?:vergiss|lösch(?:e)?)\s+(?:bitte\s+)?(alles(?:\s+über\s+mich)?|meine\s+erinnerungen)\s*[.!]?\s*$/is
-export const VERGISS = /^\s*(?:vergiss|lösch(?:e)?\s*(?:die\s*)?erinnerung(?:\s*an)?)\s*[:-]?\s*(.+)$/is
+export const VERGISS = /^\s*(?:vergiss|lösch(?:e)?\s+(?:die\s+)?erinnerung)\b(?!en\b)(?:\s+an)?\s*[:-]?\s*(.+)$/is
 export const RECALL_ALL =
   /^\s*(?:was\s+weißt\s+du\s+über\s+mich|was\s+hast\s+du\s+dir\s+gemerkt|erinnerst\s+du\s+dich(?:\s+an\s+mich)?|was\s+liegt\s+über\s+mich|basierend\s+auf\s+(?:dem\s+)?was\s+du\s+über\s+mich\s+weißt)\b/is
 export const RECALL_NAME =

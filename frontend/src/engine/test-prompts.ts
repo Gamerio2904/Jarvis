@@ -304,4 +304,5 @@ export const TEST_PROMPTS = [
   'Käse auf die Liste',
   'Zeig Filme',
   'Kalender zu',
+  'Entferne alle Erinnerungen am 22. September',
 ] as const

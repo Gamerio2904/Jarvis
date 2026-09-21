@@ -30,7 +30,7 @@ import { BodyTree } from './BodyTree.tsx'
 import { loadGlobePins, loadIssTrail } from '../../engine/globe-pins.ts'
 import type { GeoFix } from '../../engine/globe-geo.ts'
 import { isGlobeLayerPin, pinLineFor } from '../../engine/globe-geo.ts'
-import { chipOffLabel, dossierNear, frontsForActiveLayer, intelLine } from '../../engine/globe-layers.ts'
+import { chipOffLabel, frontsForActiveLayer, globeIdleHint, intelLine, viewDossier } from '../../engine/globe-layers.ts'
 import { CITY_FLY_ZOOM } from '../../engine/globe-gibs.ts'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion.ts'
 import { loadSettings, saveSettings, type Message } from '../../engine/store.ts'
@@ -248,6 +248,7 @@ export function Lage({
       const lon = Number(f.lon)
       const at = Number(f.at) || 0
       if (!name || /^iss$/i.test(name) || !Number.isFinite(lat) || at <= pinClosedAt.current) return
+      if (Date.now() - at > 12_000) return
       setPinCard({
         name,
         lat,
@@ -333,10 +334,12 @@ export function Lage({
           ))}
         </div>
         <AgentStatusBar busy={busy} />
-        {view === 'globe' && intelLine() ? <p className="lage-intel">{intelLine()}</p> : null}
+        {view === 'globe' && (intelLine() || globeIdleHint()) ? (
+          <p className="lage-intel">{intelLine() || globeIdleHint()}</p>
+        ) : null}
         <p className="lage-hint">
           {view === 'globe'
-            ? 'Erde drehen und zoomen — grüne Grenzen. Tipp ins Leere: Sicht.'
+            ? 'Erde drehen und zoomen. Schicht per Satz — Erdbeben, Waldbrände, See. Tipp auf einen Pin öffnet das Dossier.'
             : view === 'body'
               ? bodyView === 'agents'
                 ? withChat && compact
@@ -458,7 +461,9 @@ export function Lage({
                 closePin()
                 return
               }
-              setPinCard(dossierNear(pins, look.lat, look.lon))
+              const dossier = viewDossier(pins, look.lat, look.lon)
+              if (dossier) setPinCard(dossier)
+              else closePin()
             }}
             reduced={reduced}
             focus={globeFocus()}
