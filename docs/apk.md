@@ -1,7 +1,10 @@
 # Android-APK — Sideload `18.4.4`
 
 App-Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`.
-Diese Umgebung hat kein Android-SDK — ein neuer Bund `18.7` entsteht hier nicht.
+Diese Umgebung hat kein Android-SDK — ein neuer Bund `18.7`/`18.8` entsteht hier nicht.
+
+**18.8 PLAN:** Debug-Rollback, Termin-Erinnerungen, Debug-Download — [`79-next.md`](./79-next.md).
+Kein Sideload in diesem PLAN. Sideload bleibt `18.4.4`.
 
 **18.7.0:** 6. Dock-Icon Filme, Selbststeuerung, Propose-Unknown, Antwort-Orb.
 Sideload bleibt `18.4.4` bis zum nächsten APK-Bund auf einem Rechner mit SDK.

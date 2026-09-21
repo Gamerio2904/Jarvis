@@ -19,8 +19,9 @@ Propose-Unknown, Thinking-Orbs im Chat und im Sprachmodus. `Mach WLAN aus`
 Befehl. Default-Aus-Sätze springen nicht in die Einstellungen.
 
 **Dieses Dokument ist CODE** in App `18.7.0`. Execute: Sprints
-**315–322 CODE**. `18.5` (Stimme/TV) bleibt PLAN daneben. **Nicht
-parallel** — beide treffen `App.tsx`, `app-parse.ts`, `director.ts`.
+**315–322 CODE**. `18.5` (Stimme/TV) und `18.8` (Debug/Termine) bleiben
+PLAN daneben. **Nicht parallel** zu 18.5/18.8 — die treffen `App.tsx`,
+Parser, Notify.
 
 ---
 

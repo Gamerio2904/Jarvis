@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste Schiene **`18.5` PLAN**. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Neue APK erst mit SDK.
+**Jetzt:** Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste Schiene **`18.8` PLAN** (neben `18.5` PLAN, nicht parallel). **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Neue APK erst mit SDK.
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -48,7 +48,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Live **`18.4.4`**, App **`18.7.0`**, nächste Schiene `18.5` PLAN |
+| 42 | [Alles geplant](./42-planned.md) | Index Live **`18.4.4`**, App **`18.7.0`**, nächste Schiene `18.8` PLAN (neben `18.5`) |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -84,6 +84,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 76 | [Stimme, TV-Wahrheit, Intelligenz 18.5](./76-next.md) | **PLAN** — Sprints 301–306; Diagnose Fernseher an; Docs-Aufräumen |
 | 77 | [Lage-Kugel OSINT 18.6](./77-next.md) | **CODE** `18.6.0` — Sprints 307–314; OSIRIS-Fähigkeiten in der Kugel, kein iframe |
 | 78 | [Listen-Leiste, Selbststeuerung, flexibler Befehl 18.7](./78-next.md) | **CODE** `18.7.0` — Sprints 315–322; 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb |
+| 79 | [Debug-Rollback, Termin-Erinnerungen, Debug-Download 18.8](./79-next.md) | **PLAN** — Sprints 323–328; Lauf räumt Writes, Termin fragt nach 1–n Fristen, Download am Dock |
 | — | [APK](./apk.md) | Sideload `18.4.4`; Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md) |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -306,5 +307,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 301–306 | `18.5.0`–`18.5.5` | **PLAN** (Stimme, TV-Wahrheit, Intelligenz, Docs, [`76-next.md`](./76-next.md)) |
 | 307–314 | `18.6.0`–`18.6.7` | **CODE** (Lage-Kugel OSINT, [`77-next.md`](./77-next.md)) |
 | 315–322 | `18.7.0`–`18.7.7` | **CODE** (6. Icon Filme, Selbststeuerung, Propose, Antwort-Orb, [`78-next.md`](./78-next.md)) |
+| 323–328 | `18.8.0`–`18.8.5` | **PLAN** (Debug-Rollback, Termin-Fristen, Debug-Download, [`79-next.md`](./79-next.md)) |
 
-**Aktuell:** App-Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`. Sprints 315–322 **CODE**. Nächste Schiene **18.5 PLAN** (nicht parallel zu 18.7). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Index: [`42-planned.md`](./42-planned.md). Neue APK erst mit SDK.
+**Aktuell:** App-Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`. Sprints 315–322 **CODE**. Nächste Schiene **18.8 PLAN** (nicht parallel zu 18.5). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md). Index: [`42-planned.md`](./42-planned.md). Neue APK erst mit SDK.

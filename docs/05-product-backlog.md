@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`18.7.0`**. Sideload **`18.4.4`**, versionCode `180404`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. Nächste Schiene **`18.5` PLAN**. Index: [`42-planned.md`](./42-planned.md). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+> **Jetzt:** Code **`18.7.0`**. Sideload **`18.4.4`**, versionCode `180404`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. Nächste Schiene **`18.8` PLAN** (neben `18.5` PLAN, nicht parallel). Index: [`42-planned.md`](./42-planned.md). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
@@ -54,6 +54,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E59 | Körper/Wissen `18.4` | 4 | Katalog am Körper, Agent↔Pack, Pack-Links — [`75-next.md`](./75-next.md) **CODE** in `18.4.3` |
 | E60 | Lage-Kugel OSINT `18.6` | 5+ | OSIRIS-Fähigkeiten in der Kugel — [`77-next.md`](./77-next.md) **CODE** `18.6.0` |
 | E61 | Listen-Leiste / Selbststeuerung `18.7` | 5+ | 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb — [`78-next.md`](./78-next.md) **CODE** `18.7.0` |
+| E62 | Debug-Rollback / Termin-Fristen `18.8` | 5+ | Lauf räumt Writes, Termin fragt nach 1–n Erinnerungen, Debug-Download am Dock — [`79-next.md`](./79-next.md) **PLAN** |
 
 ---
 
@@ -623,20 +624,30 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S61.4 | Als Nutzer will ich bei unklaren Befehlen eine ehrliche Absage statt Fake-Ausführung. | Must | done | Sprint 320; Nachbarn, kein Smalltalk-Fake |
 | S61.5 | Als Nutzer will ich eine gepunktete Kugel sehen, während Jarvis antwortet. | Must | done | Sprint 322; Chat + Sprachmodus; Thinking Orbs MIT |
 
+### E62 — Debug-Rollback, Termin-Erinnerungen `18.8` [`79-next.md`](./79-next.md)
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S62.1 | Als Nutzer will ich, dass der automatische Debug-Lauf Timer, Termine und Listen hinterher wieder entfernt. | Must | ready | Sprint 323, 327; Snapshot/Restore, Keys bleiben, Chat bleibt |
+| S62.2 | Als Nutzer will ich den Debug-Chat herunterladen, ohne die Spur Lauf zu suchen. | Must | ready | Sprint 324; Knopf am Dock, native Downloads |
+| S62.3 | Als Nutzer will ich nach einem Termin gefragt werden, wann ich erinnert werde — auch mehrfach (24 h und 2 h davor). | Must | ready | Sprint 325–326; Parser, Cap 5, GUI-Chips |
+| S62.4 | Als Nutzer will ich, dass der Debug-Lauf nicht in der Erinnerungsfrage hängen bleibt. | Must | ready | Sprint 327; Skip + Rollback der Notifies |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md) — nicht parallel zu 18.7
-2. **`18.7` Listen-Leiste / Selbststeuerung** 315–322 CODE [`78-next.md`](./78-next.md)
-3. **`18.6` Lage-Kugel OSINT** 307–314 CODE [`77-next.md`](./77-next.md)
-4. PO Handy Sprint 178 — Katalog 168 + Home-FGS 30 s [`55-next.md`](./55-next.md)
-5. OEM-Akku 183, nur wenn 178 den FGS tot zeigt
-6. `9.9.3` / Sprint 186 nur wenn 168 rot
-7. Could-ONNX 181 Freeze bis Messung; Smalltalk-Cache 184 Could
-8. Memory-10 Intensiv 196–198 Must — Alias, G5-Echo, memoryBlock [`57-next.md`](./57-next.md)
-9. Gerät Memory-Tor 193 PO; Handy-PO 178 bleibt Must
-10. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. **`18.8` Debug-Rollback / Termin-Fristen / Download** 323–328 PLAN [`79-next.md`](./79-next.md) — nicht parallel zu 18.5
+2. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md) — nicht parallel zu 18.8
+3. **`18.7` Listen-Leiste / Selbststeuerung** 315–322 CODE [`78-next.md`](./78-next.md)
+4. **`18.6` Lage-Kugel OSINT** 307–314 CODE [`77-next.md`](./77-next.md)
+5. PO Handy Sprint 178 — Katalog 168 + Home-FGS 30 s [`55-next.md`](./55-next.md)
+6. OEM-Akku 183, nur wenn 178 den FGS tot zeigt
+7. `9.9.3` / Sprint 186 nur wenn 168 rot
+8. Could-ONNX 181 Freeze bis Messung; Smalltalk-Cache 184 Could
+9. Memory-10 Intensiv 196–198 Must — Alias, G5-Echo, memoryBlock [`57-next.md`](./57-next.md)
+10. Gerät Memory-Tor 193 PO; Handy-PO 178 bleibt Must
+11. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Sideload **`9.10.0`**, Code **`10.60.0`**. Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing, Debug-FGS, Memory-10 sind **CODE**. Alte 1.x/2.x-PRs nicht mergen. 195 e5 Freeze.
 
