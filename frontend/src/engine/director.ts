@@ -15,6 +15,7 @@ import { beginAgentTurn, pushAgentTrace, setLastUserFacts, setPolicyAsk } from '
 import { confirmedUtterance, contractOf, looksCommandish } from './tool-contract.ts'
 import { proposeReady, proposeTool } from './tool-propose.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
+import { handleCalendar } from './calendar.ts'
 import { unknownReplyForCtx } from './command-neighbors.ts'
 import type { AgentResult, RouteHit } from './agents/types.ts'
 import type { RouteCtx } from './route-types.ts'
@@ -210,6 +211,16 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
   } else if (pending?.tool === APP_FLAG_TOOL) {
     const answered = await answerFlag(conversationId, pending, text)
     if (answered) return answered
+    await clearPending(conversationId)
+  } else if (pending?.tool === 'calendar' && pending.action === 'remind_offsets') {
+    const answered = await handleCalendar(conversationId, text)
+    if (answered.handled && answered.reply) {
+      const hit = await fromHandler('calendar', answered)
+      if (hit) {
+        setLastUserFacts(hit.reply)
+        return { hit, userFacts: hit.reply }
+      }
+    }
     await clearPending(conversationId)
   } else if (pending) {
     const pendingHit = await handleTools(conversationId, text)

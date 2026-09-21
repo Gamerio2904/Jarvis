@@ -1,6 +1,6 @@
 # Sprint 327 — Debug überspringt die Frage, Rollback deckt Fristen
 
-**Version:** `18.8.4` — **PLAN** Must
+**Version:** `18.8.4` — **CODE** Must
 **Plan:** [`79-next.md`](../79-next.md)
 **Voraussetzung:** 323 + 325 + 326.
 

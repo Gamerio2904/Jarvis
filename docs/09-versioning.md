@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.7.0`** auf `main`. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste Schiene **`18.8` PLAN** (neben `18.5` PLAN, nicht parallel). Test [`TEST-18.4.4.md`](./TEST-18.4.4.md). Neue APK erst mit SDK, nicht aus dieser Cloud-VM.
+> **Jetzt:** App-Code **`18.8.0`** auf Branch 18.8. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste offene Schiene **`18.5` PLAN** (nicht parallel). Test [`TEST-18.4.4.md`](./TEST-18.4.4.md). Neue APK erst mit SDK, nicht aus dieser Cloud-VM.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -685,22 +685,24 @@ Nicht parallel zu `18.5`.
 | `18.7.6` | Härten, Gold, Meilenstein | 321 CODE |
 | `18.7.7` | Antwort-Orb Thinking Orbs | 322 CODE |
 
-### `18.8` — Debug-Rollback, Termin-Erinnerungen, Debug-Download [`79-next.md`](./79-next.md) **PLAN**
+### `18.8` — Debug-Rollback, Termin-Erinnerungen, Debug-Download [`79-next.md`](./79-next.md) **CODE** `18.8.0`
 
 Nach dem automatischen Debug-Lauf räumt Jarvis Timer, Termine und Listen
 weg. Ein Termin fragt nach einer oder mehreren Erinnerungsfristen
 (z. B. 24 h und 2 h davor). Debug-Chat-Download am Dock, native
-Downloads. Kein Cloud-Kalender. Nicht parallel zu `18.5`. Sideload bleibt
-`18.4.4` bis zum nächsten Bund.
+Downloads. Prompt-Pakete neu geschnitten. Kein Cloud-Kalender. Nicht
+parallel zu `18.5`. Sideload bleibt `18.4.4` bis zum nächsten Bund.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.8.0` | Leit + Snapshot/Restore | 323 PLAN |
-| `18.8.1` | Debug-Chat Download am Dock | 324 PLAN |
-| `18.8.2` | Termin: fragen wann erinnern | 325 PLAN |
-| `18.8.3` | Offsets persistieren, N Notifies, GUI | 326 PLAN |
-| `18.8.4` | Debug überspringt die Frage | 327 PLAN |
-| `18.8.5` | Härten, Gold, Meilenstein | 328 PLAN |
+| `18.8.0` | Leit + Snapshot/Restore | 323 CODE |
+| `18.8.1` | Debug-Chat Download am Dock | 324 CODE |
+| `18.8.2` | Termin: fragen wann erinnern | 325 CODE |
+| `18.8.3` | Offsets persistieren, N Notifies, GUI | 326 CODE |
+| `18.8.4` | Debug überspringt die Frage | 327 CODE |
+| `18.8.5` | Härten, Gold, Meilenstein | 328 CODE |
+| `18.8.6` | Prompt-Pakete neu schneiden | 329 CODE |
+| `18.8.7` | Prompts erweitern + Gold | 330 CODE |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

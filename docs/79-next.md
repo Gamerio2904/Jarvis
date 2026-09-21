@@ -1,4 +1,4 @@
-# 79 — Debug-Rollback, Termin-Erinnerungen, Debug-Download **PLAN** (`18.8`)
+# 79 — Debug-Rollback, Termin-Erinnerungen, Debug-Download **CODE** (`18.8`)
 
 PO 2026-09-21, drei Wünsche in einer Schiene:
 
@@ -19,12 +19,11 @@ Download sitzt nur im `DebugPanel` auf der Spur **Lauf**; das Dock hat
 Tests/Stop, kein Download. `saveBlob` klickt ohne `appendChild` — auf
 Android-WebView oft tot.
 
-**Dieses Dokument ist PLAN, kein Sideload.** Execute: Sprints **323–328**.
-`18.5` (Stimme/TV, 301–306) bleibt PLAN daneben. **Nicht parallel** —
-beide treffen `App.tsx`, Parser, Notify. Sideload bleibt `18.4.4` bis
-zum nächsten Bund mit SDK. `TEST_COPY_GROUPS`-Titel nicht umbenennen.
-`GOLD_EXPECT`-Keys = `TEST_PROMPTS`. `PROBE_COPY_GROUPS`.length 13.
-`unassignedCopyTitles()` leer.
+**Dieses Dokument ist CODE** in App `18.8.0`. Sprints **323–330**. `18.5`
+(Stimme/TV, 301–306) bleibt PLAN daneben. **Nicht parallel**. Sideload
+bleibt `18.4.4` bis zum nächsten Bund mit SDK. Prompt-Titel: 329 hat neu
+geschnitten (§7). `GOLD_EXPECT`-Keys = `TEST_PROMPTS`.
+`PROBE_COPY_GROUPS`.length 13. `unassignedCopyTitles()` leer.
 
 ---
 
@@ -265,14 +264,14 @@ Won’t-Sätze bleiben: `Mach WLAN aus`, Anruf/SMS ohne Ja.
 - Frage im Debug-Lauf (blockiert die Sequenz).
 - Auto-Ja auf Anruf/SMS/Taxi im Lauf.
 - TV/Steckdose physisch „zurück“ — nur App-Listen und Taschenlampe.
-- `TEST_COPY_GROUPS`-Titel umbenennen. `PROBE_COPY_GROUPS` auf ≠ 13.
 - Gold-Keys nur in `REGRESS_EXPECT`.
+- Offset-Satz allein in `TEST_PROMPTS` (braucht die Frage davor).
 - Neue APK in diesem PLAN versprechen. `18.5` mitziehen.
 - Computer-Use, LLM-Organizer, e5 in `pickRoute`.
 
 ---
 
-## 6. Probe (nach 328)
+## 6. Probe (nach 330)
 
 ```
 Termin morgen 15 Uhr Zahnarzt
@@ -281,7 +280,7 @@ Termin morgen 15 Uhr Zahnarzt
 → zwei Fristen plus oder statt Start, bestätigt.
 keine Erinnerung
 → nach einem zweiten Termin: keine extra Notify.
-GUI: Speichern → Chips, 2 h + 15 min, Speichern → zwei Notifies.
+GUI: Speichern → Chips, 2 h + 15 min, übernehmen → zwei Notifies.
 
 Debug: Start (Timer + Kalender-Kategorie). Dock sichtbar.
 Nach erstem Turn: Download am Dock aktiv.
@@ -290,6 +289,35 @@ Downloads/). Haus: keine Test-Timer, kein Test-Zahnarzt.
 Stop mittendrin: bisherige Writes weg, Turns bleiben, Download geht.
 Settings → Tests → andere Spur: Dock-Download bleibt, Panel nur auf Lauf.
 
+Einstellungen → Tests: Kategorien ohne V2/V8/8.34. Spur Probe beginnt
+mit Memory-10, 13 Packs. Suche findet Zahnarzt und Watchliste.
+unassignedCopyTitles leer. GOLD_EXPECT-Keys = TEST_PROMPTS.
+
 WLAN aus / Klick Speichern → Won’t wie 18.7.
 18.5-Sätze (Fernseher an Diagnose) unverändert, nicht in dieser Schiene.
 ```
+
+---
+
+## 7. Prompt-Pakete (Must, 329–330)
+
+PO 2026-09-21: Pakete neu räumen, alle Prompts in **sinnvolle
+Kategorien**, erweitern.
+
+**Schnitt** (Debug-Klickboxen = `TEST_COPY_GROUPS`):
+
+| Spur | Gruppen |
+|------|---------|
+| Heute | 18.8 Debug & Termin, 18.7 Fläche, Körper-13, Flächen-12 |
+| Gespräch | Smalltalk, Gedächtnis, Memory-10, Naive Fragen, Gesicht & Hausstand |
+| Alltag | Einkauf, Tag & Hilfe, Timer Wecker Erinnerung, Kalender & Losgehen, Fahren & Spotify, Leute Anruf SMS, Tanke POI Bahn, Alltagskette, Alltag Extra, Randfälle |
+| Gerät | Uhr & Gerät, Einstellungen, Fernseher & Film, Haus, PC, Foto Notiz Dokument, Fachwissen-11 |
+| Lage | Ort, Wetter, Welt & Lage, Research Nachrichten Feiertag, Screenshots |
+| Probe | 13 Packs, Memory-10 zuerst, Alltagsnamen statt V1–V9 |
+| Story | bestehende Storylines plus 18.8 der Reihe nach |
+| Lauf | Debug-Panel, keine Copy-Gruppen |
+
+Versionstitel (V2–V9, Alltag 8.34, Kaputt 6.50, Bühne & Hirn, Screenshot-
+Bugs) gehen in die Domäne. **Jeder bisherige Prompt-Text bleibt** irgendwo
+im Katalog (`allTestCopyTexts`). `PROBE_COPY_GROUPS`.length bleibt 13,
+Titel neu. `GOLD_EXPECT`-Keys = `TEST_PROMPTS`.

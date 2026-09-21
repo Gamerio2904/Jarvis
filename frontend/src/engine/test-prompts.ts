@@ -299,4 +299,9 @@ export const TEST_PROMPTS = [
   'Einstellungen zu',
   'Research an',
   'Mach WLAN aus',
+  'Termin Freitag 10 Uhr Teammeeting',
+  'Timer 1 Minute Tee',
+  'Käse auf die Liste',
+  'Zeig Filme',
+  'Kalender zu',
 ] as const

@@ -1,6 +1,6 @@
 # Sprint 325 — Termin: fragen wann erinnern
 
-**Version:** `18.8.2` — **PLAN** Must
+**Version:** `18.8.2` — **CODE** Must
 **Plan:** [`79-next.md`](../79-next.md)
 **Voraussetzung:** Code `18.7.0`. Darf neben 323/324, braucht 326 für Persist.
 

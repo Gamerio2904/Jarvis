@@ -1,6 +1,6 @@
 # Sprint 326 — Fristen speichern, N Notifies, GUI
 
-**Version:** `18.8.3` — **PLAN** Must
+**Version:** `18.8.3` — **CODE** Must
 **Plan:** [`79-next.md`](../79-next.md)
 **Voraussetzung:** 325 (Parser + Pending).
 

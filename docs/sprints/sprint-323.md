@@ -1,6 +1,6 @@
 # Sprint 323 — Debug-Rollback Leit + Snapshot
 
-**Version:** `18.8.0` — **PLAN** Must
+**Version:** `18.8.0` — **CODE** Must
 **Plan:** [`79-next.md`](../79-next.md)
 **Voraussetzung:** Code `18.7.0`. Nicht parallel zu 301–306.
 

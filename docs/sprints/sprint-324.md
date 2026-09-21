@@ -1,6 +1,6 @@
 # Sprint 324 — Debug-Chat Download sichtbar
 
-**Version:** `18.8.1` — **PLAN** Must
+**Version:** `18.8.1` — **CODE** Must
 **Plan:** [`79-next.md`](../79-next.md)
 **Voraussetzung:** 323 soweit Must (Restore darf den Chat nicht löschen).
 

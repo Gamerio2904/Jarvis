@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`18.7.0`**. Sideload **`18.4.4`**, versionCode `180404`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. Nächste Schiene **`18.8` PLAN** (neben `18.5` PLAN, nicht parallel). Index: [`42-planned.md`](./42-planned.md). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+> **Jetzt:** Code **`18.8.0`**. Sideload **`18.4.4`**, versionCode `180404`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. Nächste Schiene **`18.5` PLAN** (nicht parallel zu 18.8). Index: [`42-planned.md`](./42-planned.md). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
@@ -54,7 +54,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E59 | Körper/Wissen `18.4` | 4 | Katalog am Körper, Agent↔Pack, Pack-Links — [`75-next.md`](./75-next.md) **CODE** in `18.4.3` |
 | E60 | Lage-Kugel OSINT `18.6` | 5+ | OSIRIS-Fähigkeiten in der Kugel — [`77-next.md`](./77-next.md) **CODE** `18.6.0` |
 | E61 | Listen-Leiste / Selbststeuerung `18.7` | 5+ | 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb — [`78-next.md`](./78-next.md) **CODE** `18.7.0` |
-| E62 | Debug-Rollback / Termin-Fristen `18.8` | 5+ | Lauf räumt Writes, Termin fragt nach 1–n Erinnerungen, Debug-Download am Dock — [`79-next.md`](./79-next.md) **PLAN** |
+| E62 | Debug-Rollback / Termin-Fristen `18.8` | 5+ | Lauf räumt Writes, Termin fragt nach 1–n Erinnerungen, Debug-Download am Dock, Prompt-Pakete neu — [`79-next.md`](./79-next.md) **CODE** `18.8.0` |
 
 ---
 
@@ -628,16 +628,17 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S62.1 | Als Nutzer will ich, dass der automatische Debug-Lauf Timer, Termine und Listen hinterher wieder entfernt. | Must | ready | Sprint 323, 327; Snapshot/Restore, Keys bleiben, Chat bleibt |
-| S62.2 | Als Nutzer will ich den Debug-Chat herunterladen, ohne die Spur Lauf zu suchen. | Must | ready | Sprint 324; Knopf am Dock, native Downloads |
-| S62.3 | Als Nutzer will ich nach einem Termin gefragt werden, wann ich erinnert werde — auch mehrfach (24 h und 2 h davor). | Must | ready | Sprint 325–326; Parser, Cap 5, GUI-Chips |
-| S62.4 | Als Nutzer will ich, dass der Debug-Lauf nicht in der Erinnerungsfrage hängen bleibt. | Must | ready | Sprint 327; Skip + Rollback der Notifies |
+| S62.1 | Als Nutzer will ich, dass der automatische Debug-Lauf Timer, Termine und Listen hinterher wieder entfernt. | Must | done | Sprint 323, 327; Snapshot/Restore, Keys bleiben, Chat bleibt |
+| S62.2 | Als Nutzer will ich den Debug-Chat herunterladen, ohne die Spur Lauf zu suchen. | Must | done | Sprint 324; Knopf am Dock, native Downloads |
+| S62.3 | Als Nutzer will ich nach einem Termin gefragt werden, wann ich erinnert werde — auch mehrfach (24 h und 2 h davor). | Must | done | Sprint 325–326; Parser, Cap 5, GUI-Chips |
+| S62.4 | Als Nutzer will ich, dass der Debug-Lauf nicht in der Erinnerungsfrage hängen bleibt. | Must | done | Sprint 327; Skip + Rollback der Notifies |
+| S62.5 | Als Nutzer will ich Testprompts in klaren Kategorien, nicht in Versions-Archiven. | Must | done | Sprint 329–330; 13 Probe-Packs, Gold = TEST_PROMPTS |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **`18.8` Debug-Rollback / Termin-Fristen / Download** 323–328 PLAN [`79-next.md`](./79-next.md) — nicht parallel zu 18.5
+1. **`18.8` Debug-Rollback / Termin-Fristen / Download / Prompts** 323–330 CODE [`79-next.md`](./79-next.md) — nicht parallel zu 18.5
 2. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md) — nicht parallel zu 18.8
 3. **`18.7` Listen-Leiste / Selbststeuerung** 315–322 CODE [`78-next.md`](./78-next.md)
 4. **`18.6` Lage-Kugel OSINT** 307–314 CODE [`77-next.md`](./77-next.md)

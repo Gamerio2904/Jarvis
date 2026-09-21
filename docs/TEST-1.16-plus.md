@@ -843,14 +843,14 @@ Identität Jarvis.
 |---------|------|--------|
 | A Einkauf / Losgehen | Alltag | Einkauf, Kalender & Losgehen, Haus |
 | B Fahrt / TV | Alltag / Gerät | Fahren & Spotify, Fernseher & Film |
-| C Tanke / Anruf / PC | Alltag / Gerät | Tanke POI Bahn, Leute Anruf SMS, PC Foto Notiz |
+| C Tanke / Anruf / PC | Alltag / Gerät | Tanke POI Bahn, Leute Anruf SMS, PC |
 | D Haus / Uhr | Gerät | Uhr & Gerät, Haus |
 | E Welt 3.x | Lage | Welt & Lage |
-| F 4.x | Lage / Gespräch | Weltlage, Alltagskette, Gesicht & Hausstand |
-| G Kugel | Lage | Bühne & Hirn, Globus-Briefing |
+| F 4.x | Lage / Gespräch | Welt & Lage, Alltagskette, Gesicht & Hausstand |
+| G Kugel | Lage | Welt & Lage, Screenshots |
 | H Memory 10–12 | Gespräch / Probe | Gedächtnis, Memory-10, Fachwissen-11, Flächen-12 |
 | I 13–17 | Heute / Alltag | Körper-13, Timer Wecker Erinnerung |
-| J–K 18.x | Heute / Story | 18.7 Fläche, 18.0.3 Screenshot |
+| J–K 18.x | Heute / Story | 18.8 Debug & Termin, 18.7 Fläche, Screenshots |
 | L Won’t | Gespräch / Lage | Naive Fragen, Randfälle |
 | Kern der Reihe nach | Story | Seit 1.16 der Reihe nach |
 

@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.7.0'
+export const APP_VERSION = '18.8.0'
 
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
@@ -120,6 +120,11 @@ export type CalendarEvent = {
   title: string
   start_at: string
   place?: string
+  /**
+   * Minuten vor `start_at`. `undefined` = eine Notify zum Start (18.7).
+   * `[]` = keine Erinnerung. `0` in der Liste = am Termin.
+   */
+  remind_offsets_min?: number[]
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -1162,6 +1167,7 @@ export async function addEvent(opts: {
   start_at: string
   place?: string
   conversationId?: string
+  remind_offsets_min?: number[]
 }): Promise<CalendarEvent> {
   const row: CalendarEvent = {
     id: newId(),
@@ -1172,8 +1178,13 @@ export async function addEvent(opts: {
     created_at: nowIso(),
     updated_at: nowIso(),
   }
+  if (opts.remind_offsets_min) row.remind_offsets_min = opts.remind_offsets_min
   await put('events', row)
   return row
+}
+
+export async function putEvent(row: CalendarEvent): Promise<void> {
+  await put('events', { ...row, updated_at: nowIso() })
 }
 
 export async function listShopping(): Promise<ShoppingItem[]> {

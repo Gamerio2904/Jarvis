@@ -11,6 +11,8 @@ import { historyExport } from './history.ts'
 import { loadSettings, saveSettings } from './store.ts'
 import { setKeepScreenOn, startDebugFg, stopDebugFg, onDebugStop } from '../native/voice.ts'
 import type { ToolMeta } from './tools.ts'
+import { captureHouse, restoreHouse, type HouseSnap } from './debug-house.ts'
+import { setDebugRunActive } from './debug-flag.ts'
 
 export type DebugPhase = 'idle' | 'starting' | 'running' | 'stopping'
 export type OverlayPhase = 'closed' | 'opening' | 'open' | 'closing'
@@ -33,12 +35,12 @@ export type DebugSnapshot = {
 
 const DEBUG_EVENT = 'jarvis-debug'
 
-const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
+const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC'])
 const TURN_TIMEOUT_MS = 90_000
 const PERSIST_KEY_TURNS = 80
 
 export const DEBUG_START_WARN =
-  'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings gehen zu — der Debug-Chat bleibt als Dock über CarPlay und Overlays. Home lässt den Lauf in der Meldung „Jarvis testet…“ weiterlaufen. App schließen oder Stop in der Meldung beendet ihn. Nochmal Start bestätigt.'
+  'Timer, Wecker, Kalender, Einkauf, Steckdose, Taschenlampe laufen wirklich — danach räumt Jarvis sie weg. Anruf, SMS und Taxi warten auf Ja — der Lauf schickt kein automatisches Ja. Settings gehen zu — der Debug-Chat bleibt als Dock über CarPlay und Overlays. Home lässt den Lauf in der Meldung „Jarvis testet…“ weiterlaufen. App schließen oder Stop in der Meldung beendet ihn. Nochmal Start bestätigt.'
 
 type Persist = {
   phase: DebugPhase
@@ -62,6 +64,8 @@ let error: string | null = null
 let stopFlag = false
 let runToken = 0
 let live = false
+let houseSnap: HouseSnap | null = null
+let restoring = false
 const listeners = new Set<() => void>()
 
 restore()
@@ -204,7 +208,9 @@ export async function startDebugRun(opts: {
   error = null
   turns = []
   live = true
+  houseSnap = null
   phase = 'starting'
+  setDebugRunActive(true)
   progress = 'Gespräch…'
   emit()
   try {
@@ -216,6 +222,8 @@ export async function startDebugRun(opts: {
   void startDebugFg()
   try {
     conversationId = await opts.onStartChat(debugTitle())
+    if (token !== runToken) return
+    houseSnap = await captureHouse()
     if (token !== runToken) return
     phase = 'running'
     emit()
@@ -245,17 +253,33 @@ export async function startDebugRun(opts: {
     progress = `Abbruch: ${error}. Bisherige Turns bleiben zum Download.`
     emit()
   } finally {
+    setDebugRunActive(false)
+    if (houseSnap && !restoring) {
+      restoring = true
+      try {
+        await restoreHouse(houseSnap)
+        progress = `${progress} Hausstand zurückgesetzt.`
+        emit()
+      } catch (e) {
+        error = e instanceof Error ? e.message : 'Restore fehlgeschlagen'
+        progress = `${progress} Restore: ${error}`
+        emit()
+      } finally {
+        restoring = false
+        houseSnap = null
+      }
+    }
     void stopDebugFg()
     void setKeepScreenOn(false)
   }
 }
 
-export function downloadDebug() {
+export async function downloadDebug(): Promise<string> {
   const snap = debugSnapshot()
   const rep = buildReport({ categories: snap.picked, turns: snap.turns, stopped: snap.stopped || stopFlag })
   const stamp = stampFilename()
-  saveBlob(`${stamp}.json`, JSON.stringify(rep, null, 2), 'application/json')
-  saveBlob(`${stamp}.txt`, reportToText(rep), 'text/plain;charset=utf-8')
+  await saveReport(`${stamp}.json`, JSON.stringify(rep, null, 2), 'application/json')
+  return saveReport(`${stamp}.txt`, reportToText(rep), 'text/plain;charset=utf-8')
 }
 
 /**
@@ -263,8 +287,8 @@ export function downloadDebug() {
  * geredet". Läuft nur auf Knopfdruck, damit ein Debug-Werkzeug keinen Zug
  * verlangsamt.
  */
-export function downloadHistory() {
-  saveBlob(`${stampFilename()}-historie.json`, historyExport(), 'application/json')
+export async function downloadHistory(): Promise<string> {
+  return saveReport(`${stampFilename()}-historie.json`, historyExport(), 'application/json')
 }
 
 async function oneTurn(
@@ -330,11 +354,23 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   })
 }
 
-function saveBlob(name: string, body: string, type: string) {
+async function saveReport(name: string, body: string, type: string): Promise<string> {
+  try {
+    const { saveToDownloads } = await import('../native/device.ts')
+    const native = await saveToDownloads(name, body)
+    if (native.ok) return `Gespeichert in Downloads/${name}.`
+  } catch {
+    /* browser */
+  }
   const blob = new Blob([body], { type })
+  const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
-  a.href = URL.createObjectURL(blob)
+  a.href = url
   a.download = name
+  a.rel = 'noopener'
+  document.body.appendChild(a)
   a.click()
-  URL.revokeObjectURL(a.href)
+  a.remove()
+  window.setTimeout(() => URL.revokeObjectURL(url), 4000)
+  return `Gespeichert als ${name}.`
 }

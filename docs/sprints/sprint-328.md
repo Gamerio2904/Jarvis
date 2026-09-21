@@ -1,6 +1,6 @@
 # Sprint 328 — 18.8 härten
 
-**Version:** `18.8.5` — **PLAN** Must
+**Version:** `18.8.5` — **CODE** Must
 **Plan:** [`79-next.md`](../79-next.md)
 **Voraussetzung:** 323–327 soweit Must.
 
@@ -24,7 +24,7 @@ versprechen.
 ## Won’t
 
 - 18.5 mitziehen. Neue APK in diesem Doc versprechen.
-- Gruppentitel umbenennen. Cloud-Kalender.
+- Cloud-Kalender. Titel-Schnitt liegt in 329, nicht hier zurückdrehen.
 
 ## Abbruchkriterium
 

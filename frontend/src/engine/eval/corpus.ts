@@ -308,6 +308,11 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Einstellungen zu': 'app',
   'Research an': 'app',
   'Mach WLAN aus': 'device',
+  'Termin Freitag 10 Uhr Teammeeting': 'calendar',
+  'Timer 1 Minute Tee': 'timer',
+  'Käse auf die Liste': 'shopping',
+  'Zeig Filme': 'app',
+  'Kalender zu': 'app',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

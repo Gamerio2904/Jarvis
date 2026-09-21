@@ -17,7 +17,7 @@ import { breakerSnapshot } from '../engine/agents/breaker.ts'
 import { quotaSnapshot } from '../engine/quota.ts'
 import { DownloadBtn } from './DownloadBtn.tsx'
 
-const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC Foto Notiz'])
+const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC'])
 
 export type { DebugSendResult }
 
@@ -90,7 +90,7 @@ export function DebugPanel({
         Kategorien wählen, Start öffnet ein neues Gespräch und schließt die Einstellungen. Der Lauf bleibt als
         Dock über Chat, CarPlay und Overlays sichtbar. Home: Meldung „Jarvis testet…“ hält den Lauf. App
         schließen oder Stop in der Meldung beendet ihn. Zurück zu Tests und Download. Stop bricht zwischen den
-        Turns ab. Ein einzelner Timeout zerstört nicht den Rest. Einzelne V1–V9-Prompts: Thema Probe.
+        Turns ab. Ein einzelner Timeout zerstört nicht den Rest. Einzelne Prompts: Spur Probe.
       </p>
       <div className="debug-box-bar">
         <button type="button" className="ghost-btn" disabled={running} onClick={() => setDebugPicked(TEST_COPY_GROUPS.map((g) => g.title))}>

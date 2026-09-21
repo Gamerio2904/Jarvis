@@ -1,4 +1,4 @@
-# 42 — Alles geplant (Stand Code `18.7.0`, PLAN `18.8` + `18.5`)
+# 42 — Alles geplant (Stand Code `18.8.0`, PLAN `18.5`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
@@ -8,7 +8,7 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 
 ## Pull-Reihenfolge
 
-1. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–328 PLAN**. Lauf räumt Writes. Termin fragt nach 1–n Fristen. Download am Dock. Nicht parallel zu `18.5`. Sideload bleibt `18.4.4`.
+1. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE** in `18.8.0`. Lauf räumt Writes. Termin fragt nach 1–n Fristen. Download am Dock. Prompt-Pakete neu. Nicht parallel zu `18.5`. Sideload bleibt `18.4.4`.
 2. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu `18.8`.
 3. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 CODE** in `18.7.0` auf `main`. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs. Kein Computer-Use. Sideload bleibt `18.4.4`.
 4. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 CODE** in `18.6.0`. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner.
@@ -169,7 +169,7 @@ Kein 7. Icon, keine Chips, kein Computer-Use, kein LLM-Organizer, e5 nicht in
 
 Begründung: [`78-next.md`](./78-next.md).
 
-## PLAN — Schiene `18.8` (Sprints 323–328)
+## CODE — Schiene `18.8` (Sprints 323–330)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -179,11 +179,12 @@ Begründung: [`78-next.md`](./78-next.md).
 | `18.8.3` | [326](./sprints/sprint-326.md) | Offsets persistieren, N Notifies, GUI-Chips |
 | `18.8.4` | [327](./sprints/sprint-327.md) | Debug überspringt die Frage, Rollback deckt Fristen |
 | `18.8.5` | [328](./sprints/sprint-328.md) | Härten, Gold, Meilenstein |
+| `18.8.6` | [329](./sprints/sprint-329.md) | Prompt-Pakete neu schneiden |
+| `18.8.7` | [330](./sprints/sprint-330.md) | Prompts erweitern + Gold |
 
-Harte Kette: 323 → 327. 324 frei neben 323. 325 → 326 → 327. 328 zuletzt.
+App-Code `18.8.0`. Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
 Kein Cloud-Kalender. Kein Hausstand-Wipe. Kein Debug-Chat löschen.
-`TEST_COPY_GROUPS`-Titel bleiben. Nicht parallel zu `18.5`. Sideload bleibt
-`18.4.4` bis zum nächsten APK-Bund.
+Nicht parallel zu `18.5`.
 
 Begründung: [`79-next.md`](./79-next.md).
 
