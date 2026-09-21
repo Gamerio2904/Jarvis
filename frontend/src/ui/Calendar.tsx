@@ -58,7 +58,7 @@ function upcomingGroups(
   end.setDate(end.getDate() + days)
   const fromMs = from.getTime()
   const endMs = end.getTime()
-  const by = new Map<string, { day: Date; events: CalendarEvent[]; rems: Reminder[] }>()
+  const by = new Map<string, { key: string; day: Date; events: CalendarEvent[]; rems: Reminder[] }>()
   const bucket = (iso: string) => {
     const day = startOfDay(new Date(iso))
     const t = day.getTime()
@@ -66,7 +66,7 @@ function upcomingGroups(
     const key = isoDay(day)
     let row = by.get(key)
     if (!row) {
-      row = { day, events: [], rems: [] }
+      row = { key, day, events: [], rems: [] }
       by.set(key, row)
     }
     return row
