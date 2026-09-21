@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.8.1`** auf `main`. Sideload-APK **`18.8.1`**, versionCode `180801`. Nächste offene Schiene **`18.5` PLAN** (nicht parallel). Test [`TEST-18.8.md`](./TEST-18.8.md).
+> **Jetzt:** App-Code **`18.8.2`** auf `main`. Sideload-APK **`18.8.2`**, versionCode `180802`. Nächste offene Schiene **`18.5` PLAN** (nicht parallel). Test [`TEST-18.8.md`](./TEST-18.8.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -691,9 +691,10 @@ Nach dem automatischen Debug-Lauf räumt Jarvis Timer, Termine und Listen
 weg. Ein Termin fragt nach einer oder mehreren Erinnerungsfristen
 (z. B. 24 h und 2 h davor). Debug-Chat-Download am Dock, native
 Downloads. Prompt-Pakete neu geschnitten. Kein Cloud-Kalender. Nicht
-parallel zu `18.5`. Sideload **`18.8.1`**, versionCode `180801`.
+parallel zu `18.5`. Sideload **`18.8.2`**, versionCode `180802`.
 Nachzieher nach Execute: IMDb-Note auf der Folie, Erinnerungen am Tag
-löschen, leere Sicht-Karte bleibt zu.
+löschen, leere Sicht-Karte bleibt zu. Kalender-Themen und sichtbarer
+Debug-Lauf in **`18.8.2`**.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -710,6 +711,10 @@ Nachzieher **`18.8.1`** (APK, versionCode `180801`): Watchliste-IMDb,
 Erinnerungen am Kalendertag, leere Lage-Sicht zu. Die Zeile `18.8.1`
 oben ist die Planungsnummer von Sprint 324; die ausgelieferte App war
 `18.8.0`, dieser Patch ist der Sideload-Nachzieher.
+
+Nachzieher **`18.8.2`** (APK, versionCode `180802`): Kalender mit
+Themenfarben, Debug-Lauf wieder sichtbar. Die Planungszeile `18.8.2`
+oben bleibt Sprint 325 (Termin-Frage, schon in `18.8.0`).
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

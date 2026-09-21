@@ -1,6 +1,6 @@
-# PO-Checkliste `18.8.1` — Debug-Rollback, Termin-Fristen, Download
+# PO-Checkliste `18.8.2` — Debug-Rollback, Termin-Fristen, Kalender-Themen
 
-App-Code **`18.8.1`**. Sideload **`18.8.1`**, versionCode **`180801`**.  
+App-Code **`18.8.2`**. Sideload **`18.8.2`**, versionCode **`180802`**.  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 Altes zuerst deinstallieren. Hausstand vorher exportieren.
@@ -14,7 +14,7 @@ Prompts: [`TEST-1.16-plus.md`](./TEST-1.16-plus.md). 18.5 bleibt PLAN.
 Was kannst du?
 ```
 
-In der Antwort muss **`18.8.1`** stehen.
+In der Antwort muss **`18.8.2`** stehen.
 
 ## 2. Dock
 

@@ -5,20 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### Kalender — Übersicht, Farben, Themen — *CODE*
+### `18.8.2` — Kalender-Themen, Debug-Lauf wieder sichtbar — *CODE + APK*
 
-Monat / Liste / Jahr. Als-Nächstes-Karte. Termine als Karten mit Farbe
-(Arbeit, Uni, Geburtstag, Familie, Arzt, Sport, Reise, Sonstiges).
-Parser liest das Thema aus dem Titel; ohne Treffer fragt Groq nach, wenn
-ein Schlüssel liegt. Anlegen: Titel, Zeit, Thema und Erinnerung in einem
-Sheet.
-
-### `18.8.1` Nachzieher — Automatischer Debug-Lauf wieder sichtbar — *CODE*
-
-Reiter **Tests** und Spur **Lauf** bleiben am rechten Rand kleben, statt
-hinter der unsichtbaren Scroll-Leiste zu verschwinden. Auf den anderen
-Spuren liegt der Knopf **Automatischer Debug-Lauf**. `Öffne Debug` und
-Dock **Tests** öffnen direkt den Lauf mit **Start**.
+Kalender: Monat / Liste / Jahr, farbige Themen (Arbeit, Uni, Geburtstag,
+Familie, Arzt, Sport, Reise, Sonstiges). Parser liest das Thema aus dem
+Titel; unsichere Titel gehen optional über Groq. Anlegen in einem Sheet.
+Debug-Lauf: Reiter **Tests** und Spur **Lauf** bleiben rechts kleben.
+`Öffne Debug` landet auf Start. Sideload **`18.8.2`** (versionCode
+`180802`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.8.1` — Watchliste-Noten, Erinnerungen am Tag, Lage-Sicht — *CODE + APK*
 

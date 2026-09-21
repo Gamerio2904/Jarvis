@@ -1,6 +1,6 @@
 # Testanleitung seit `1.16` — Prompts 1:1
 
-App-Code **`18.8.1`**. Sideload-APK **`18.8.1`**.  
+App-Code **`18.8.2`**. Sideload-APK **`18.8.2`**.  
 Einrichten: [`TEST-PC.md`](./TEST-PC.md). In der App: Einstellungen → **Tests** → Spur wählen → **Senden**.
 
 **PC** = Browser reicht. **Handy** = nur auf dem Gerät sinnvoll. **BAT** = `JarvisPC.bat` muss laufen.  
@@ -19,7 +19,7 @@ In der App: Spur **Story** → **Seit 1.16 der Reihe nach** (Kern). Rest nach Si
 Was kannst du?
 ```
 
-Antwort nennt **`18.8.1`**.
+Antwort nennt **`18.8.2`**.
 
 ```
 Hallo Jarvis.
