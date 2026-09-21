@@ -1,8 +1,8 @@
-# 42 — Alles geplant (Stand Code `18.8.0`, PLAN `18.5`)
+# 42 — Alles geplant (Stand Code `18.8.3`, PLAN `18.5`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.8.2`**, versionCode `180802`. App-Code **`18.8.2`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.8.md`](./TEST-18.8.md).
+**Live-APK:** **`18.8.3`**, versionCode `180803`. App-Code **`18.8.3`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.8.md`](./TEST-18.8.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -182,7 +182,7 @@ Begründung: [`78-next.md`](./78-next.md).
 | `18.8.6` | [329](./sprints/sprint-329.md) | Prompt-Pakete neu schneiden |
 | `18.8.7` | [330](./sprints/sprint-330.md) | Prompts erweitern + Gold |
 
-App-Code `18.8.2`. Sideload **`18.8.2`**, versionCode `180802`.
+App-Code `18.8.3`. Sideload **`18.8.3`**, versionCode `180803`.
 Kein Cloud-Kalender. Kein Hausstand-Wipe. Kein Debug-Chat löschen.
 Nicht parallel zu `18.5`.
 

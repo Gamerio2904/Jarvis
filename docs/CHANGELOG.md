@@ -5,12 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-Kalender-Design: gleitender Reiter (wie Watchliste/Einstellungen),
-Monatswechsel nach links/rechts, Glas-Karten in Themenfarbe, Sheet mit
-Griff und Wisch nach unten. Layout bleibt Monat / Liste / Jahr. Muster
-aus iOS-Kalender, [DayFlow](https://github.com/dayflow-js/calendar) und
-[react-modal-sheet](https://github.com/Temzasse/react-modal-sheet) (MIT),
-kein neues Paket.
+### `18.8.3` — Kalender weicher — *CODE + APK*
+
+Gleitender Reiter, Monatswechsel nach links/rechts, Glas-Karten in
+Themenfarbe, Sheet mit Griff. Layout bleibt Monat / Liste / Jahr.
+Muster aus iOS-Kalender, [DayFlow](https://github.com/dayflow-js/calendar)
+und [react-modal-sheet](https://github.com/Temzasse/react-modal-sheet)
+(MIT), kein neues Paket. Sideload **`18.8.3`** (versionCode `180803`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+`18.5` bleibt PLAN.
 
 ### `18.8.2` — Kalender-Themen, Debug-Lauf wieder sichtbar — *CODE + APK*
 

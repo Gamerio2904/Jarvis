@@ -1,4 +1,4 @@
-Privater Assistant. Läuft **auf dem Handy**. App-Code **`18.8.2`**. Sideload-APK **`18.8.2`**. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen.
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`18.8.3`**. Sideload-APK **`18.8.3`**. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen.
 
 **Hirn:** **Groq primär** (API-Key). **Gemini Spezialist** (Vision, Deep Research). Lokales 0,5B **Fallback**. Agenten-Netzwerk: Director + 60 Domänen-Agenten, Agenten-Karte in Lage. Parser wählen Geräte; Groq/Gemini formuliert Smalltalk.
 
@@ -14,7 +14,7 @@ Browser: http://localhost:5173 — Groq-Key für Smalltalk. Gemini für Vision/D
 
 ## Android-APK
 
-Sideload **`Jarvis.apk` `18.8.2`** (versionCode `180802`):  
+Sideload **`Jarvis.apk` `18.8.3`** (versionCode `180803`):  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ```bat
@@ -23,7 +23,7 @@ build-apk.bat
 
 Linux: `./build-apk.sh`
 
-PC-Test: [`docs/TEST-PC.md`](docs/TEST-PC.md) · Seit 1.16: [`docs/TEST-1.16-plus.md`](docs/TEST-1.16-plus.md) · Gerät 18.8.2: [`docs/TEST-18.8.md`](docs/TEST-18.8.md) · Versionen: [`docs/apk.md`](docs/apk.md)
+PC-Test: [`docs/TEST-PC.md`](docs/TEST-PC.md) · Seit 1.16: [`docs/TEST-1.16-plus.md`](docs/TEST-1.16-plus.md) · Gerät 18.8.3: [`docs/TEST-18.8.md`](docs/TEST-18.8.md) · Versionen: [`docs/apk.md`](docs/apk.md)
 
 1. Installieren (unbekannte Quellen). Vor Neuinstall: Einstellungen → Hausstand → Exportieren — Deinstall löscht Keys.
 2. **Groq-Key** eintragen (Smalltalk). Optional **Gemini** (Vision/Research).
