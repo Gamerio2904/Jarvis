@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.8.0`** auf `main`. Sideload-APK **`18.8.0`**, versionCode `180800`. Nächste offene Schiene **`18.5` PLAN** (nicht parallel). Test [`TEST-18.8.md`](./TEST-18.8.md).
+> **Jetzt:** App-Code **`18.8.1`** auf `main`. Sideload-APK **`18.8.1`**, versionCode `180801`. Nächste offene Schiene **`18.5` PLAN** (nicht parallel). Test [`TEST-18.8.md`](./TEST-18.8.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -691,7 +691,9 @@ Nach dem automatischen Debug-Lauf räumt Jarvis Timer, Termine und Listen
 weg. Ein Termin fragt nach einer oder mehreren Erinnerungsfristen
 (z. B. 24 h und 2 h davor). Debug-Chat-Download am Dock, native
 Downloads. Prompt-Pakete neu geschnitten. Kein Cloud-Kalender. Nicht
-parallel zu `18.5`. Sideload **`18.8.0`**, versionCode `180800`.
+parallel zu `18.5`. Sideload **`18.8.1`**, versionCode `180801`.
+Nachzieher nach Execute: IMDb-Note auf der Folie, Erinnerungen am Tag
+löschen, leere Sicht-Karte bleibt zu.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -703,6 +705,11 @@ parallel zu `18.5`. Sideload **`18.8.0`**, versionCode `180800`.
 | `18.8.5` | Härten, Gold, Meilenstein | 328 CODE |
 | `18.8.6` | Prompt-Pakete neu schneiden | 329 CODE |
 | `18.8.7` | Prompts erweitern + Gold | 330 CODE |
+
+Nachzieher **`18.8.1`** (APK, versionCode `180801`): Watchliste-IMDb,
+Erinnerungen am Kalendertag, leere Lage-Sicht zu. Die Zeile `18.8.1`
+oben ist die Planungsnummer von Sprint 324; die ausgelieferte App war
+`18.8.0`, dieser Patch ist der Sideload-Nachzieher.
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

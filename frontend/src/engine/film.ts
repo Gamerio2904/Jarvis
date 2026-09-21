@@ -1,4 +1,4 @@
-import { lookupOmdb, omdbKeyHint, type OmdbHit } from './omdb.ts'
+import { lookupOmdb, omdbKeyHint, watchScoreLine, type OmdbHit } from './omdb.ts'
 import { parseFilmIntent } from './film-parse.ts'
 import { lookupWatch, type FreeWhere, type WatchHit } from './tv-watch.ts'
 import { knowledgeBlock } from './knowledge-block.ts'
@@ -93,16 +93,12 @@ export function formatFilmReply(opts: {
 
 function scoreLine(omdb: OmdbHit | null, keyMissing?: boolean, note?: string): string {
   if (omdb?.imdb || omdb?.tomatoes || omdb?.audience) {
-    const bits: string[] = []
-    if (omdb.imdb) bits.push(`IMDb ${omdb.imdb.replace('.', ',')}`)
-    if (omdb.tomatoes && omdb.audience) {
-      bits.push(`Kritiker ${omdb.tomatoes} Publikum ${omdb.audience} (Rotten Tomatoes über OMDb)`)
-    } else if (omdb.tomatoes) {
-      bits.push(`Rotten Tomatoes ${omdb.tomatoes} (über OMDb)`)
-    } else {
-      bits.push('Rotten Tomatoes nicht in der Quelle.')
-    }
-    return `${bits.join('. ')}.`
+    const { scores, source } = watchScoreLine({
+      critic: omdb.tomatoes,
+      audience: omdb.audience,
+      imdbScore: omdb.imdb,
+    })
+    return `${scores}. ${source}.`
   }
   if (keyMissing) return omdbKeyHint()
   return note || 'Keine IMDb/RT-Zahl — ich erfinde keine.'

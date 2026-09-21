@@ -313,6 +313,7 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Käse auf die Liste': 'shopping',
   'Zeig Filme': 'app',
   'Kalender zu': 'app',
+  'Entferne alle Erinnerungen am 22. September': 'reminder',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

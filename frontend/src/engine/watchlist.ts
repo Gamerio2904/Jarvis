@@ -75,7 +75,8 @@ function pickFromList(rows: WatchMovie[], list: WatchListKind, title?: string, i
 
 async function enrich(row: WatchMovie): Promise<WatchMovie> {
   const at = row.scoresAt ? Date.parse(row.scoresAt) : 0
-  if (at && Date.now() - at < SCORE_TTL_MS) return row
+  const fresh = Boolean(at && Date.now() - at < SCORE_TTL_MS)
+  if (fresh && row.imdbScore !== undefined) return row
   const year = row.year ? Number(row.year) : undefined
   const res = await lookupOmdb(row.title, Number.isFinite(year) ? year : undefined)
   if (!res.ok) {
@@ -83,6 +84,7 @@ async function enrich(row: WatchMovie): Promise<WatchMovie> {
       ...row,
       critic: row.critic ?? null,
       audience: row.audience ?? null,
+      imdbScore: row.imdbScore ?? null,
       poster: row.poster ?? null,
     }
   }
@@ -94,12 +96,18 @@ async function enrich(row: WatchMovie): Promise<WatchMovie> {
     imdbId: hit.imdbId || row.imdbId,
     critic: hit.tomatoes || null,
     audience: hit.audience || null,
+    imdbScore: hit.imdb || null,
     poster: hit.poster || null,
     genres: hit.genre ? genresFromOmdb(hit.genre) : row.genres,
     scoresAt: new Date().toISOString(),
   }
   await addWatchMovie(next.title, next.lists[0] || 'watch', next)
   return (await listWatchMovies()).find((m) => movieKey(m) === movieKey(next)) || next
+}
+
+export async function enrichWatchlist(list?: WatchListKind): Promise<WatchMovie[]> {
+  const rows = await listWatchMovies(list)
+  return Promise.all(rows.map((r) => enrich(r)))
 }
 
 async function persistWatchedPack(): Promise<void> {

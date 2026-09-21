@@ -5,6 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.8.1` — Watchliste-Noten, Erinnerungen am Tag, Lage-Sicht — *CODE + APK*
+
+Nachzieher nach `18.8.0`. OMDb liefert kein RT-Publikum mehr — die Folie
+zeigt dann **IMDb**, nicht einen Strich unter „Publikum“. „Entferne alle
+Erinnerungen am 22. September“ ist ein Parser, kein LLM-Versprechen.
+Leere **Sicht**-Karte auf der Kugel bleibt zu. Osiris-Schicht bleibt,
+wenn Sie Lage über das Dock wieder öffnen. Schicht per Satz
+(„Zeig Erdbeben“, „Was fährt auf See“). Sideload **`18.8.1`**
+(versionCode `180801`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.8.0` — Debug-Rollback, Termin-Erinnerungen, Prompt-Pakete — *CODE + APK*
 
 Sprints **323–330**. Siehe [`79-next.md`](./79-next.md). Nach dem

@@ -12,6 +12,7 @@ export type ReminderIntent =
   | { kind: 'week' }
   | { kind: 'delete'; query: string }
   | { kind: 'delete_last' }
+  | { kind: 'delete_day'; day: Date; label: string }
   | { kind: 'ask'; title: string }
 
 const WEEKDAYS: Record<string, number> = {
@@ -168,7 +169,57 @@ const WEEK_OUT = /^\s*was\s+kommt\s+diese\s+woche(?:\s+raus)?\s*\??\s*$/i
 const AGENDA =
   /^\s*(?:was\s+steht\s+an|was\s+habe\s+ich\s+(?:heute\s+)?an|termine?\s+heute|was\s+liegt\s+an)\s*\??\s*$/i
 const DELETE =
-  /^\s*(?:lösch(?:e)?|streich(?:e)?|nimm\s+weg)\s+(?:die\s+)?erinnerung(?:en)?\s*(?:an\s+)?(.+)$/is
+  /^\s*(?:lösch(?:e)?|streich(?:e)?|nimm\s+weg|entferne)\s+(?:die\s+)?erinnerung(?:en)?\s*(?:an\s+)?(.+)$/is
+const DELETE_DAY =
+  /^\s*(?:lösch(?:e)?|streich(?:e)?|nimm\s+weg|entferne)\s+(?:bitte\s+)?(?:alle\s+)?erinnerungen\s+(?:am|für(?:\s+den)?)\s+(.+?)\s*[.!]?\s*$/is
+
+const MONTH_NAME: Record<string, number> = {
+  januar: 1,
+  februar: 2,
+  märz: 3,
+  maerz: 3,
+  april: 4,
+  mai: 5,
+  juni: 6,
+  juli: 7,
+  august: 8,
+  september: 9,
+  oktober: 10,
+  november: 11,
+  dezember: 12,
+}
+
+function parseDayStamp(raw: string, now: Date): Date | null {
+  const t = raw.trim().replace(/[.!]+$/g, '').trim()
+  if (!t) return null
+  const lower = t.toLowerCase()
+  if (lower === 'heute') return startOfDay(now)
+  if (lower === 'morgen') {
+    const d = startOfDay(now)
+    d.setDate(d.getDate() + 1)
+    return d
+  }
+  if (lower === 'übermorgen') {
+    const d = startOfDay(now)
+    d.setDate(d.getDate() + 2)
+    return d
+  }
+  const named =
+    /^(\d{1,2})\.?\s*(januar|februar|märz|maerz|april|mai|juni|juli|august|september|oktober|november|dezember)(?:\s+(\d{2,4}))?$/i.exec(
+      t,
+    )
+  if (named) {
+    const month = MONTH_NAME[named[2].toLowerCase()]
+    return dateFromParts(now, named[1], String(month), named[3])
+  }
+  const numeric = /^(\d{1,2})\.(\d{1,2})\.?(\d{2,4})?$/.exec(t)
+  if (numeric) return dateFromParts(now, numeric[1], numeric[2], numeric[3])
+  return null
+}
+
+function formatDayLabel(d: Date): string {
+  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })
+}
 
 function parseRecur(t: string, now: Date): ReminderIntent | null {
   const weekly = new RegExp(
@@ -251,6 +302,11 @@ export function parseReminderIntent(text: string, now = new Date()): ReminderInt
   if (AGENDA.test(t)) return { kind: 'agenda' }
   if (/^(?:lösch(?:e)?\s+(?:die\s+)?letzte\s+erinnerung|erinnerung\s+aus)$/i.test(t)) {
     return { kind: 'delete_last' }
+  }
+  const delDay = DELETE_DAY.exec(t)
+  if (delDay) {
+    const day = parseDayStamp(delDay[1], now)
+    if (day) return { kind: 'delete_day', day: startOfDay(day), label: formatDayLabel(day) }
   }
   const del = DELETE.exec(t)
   if (del) return { kind: 'delete', query: cleanTitle(del[1]) }

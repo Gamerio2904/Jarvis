@@ -321,7 +321,7 @@ const QUESTION = /^\s*(was|wie|wer|wen|wem|wann|wo|wohin|woher|warum|wieso|wesha
 
 /** Befehlsformen und die höfliche Umschreibung davon. */
 const COMMAND =
-  /^\s*(?:und\s+)?(?:bitte\s+)?(?:öffne|zeig|schließ|wechsel|blende|stell|setz|mach|schalt|erinner|weck|trag|leg|schreib|füg|lösch|starte?|plan|notier|richte|nimm|pack|kauf|hol|denk)\w*\b/i
+  /^\s*(?:und\s+)?(?:bitte\s+)?(?:öffne|zeig|schließ|wechsel|blende|stell|setz|mach|schalt|erinner|weck|trag|leg|schreib|füg|lösch|entferne|starte?|plan|notier|richte|nimm|pack|kauf|hol|denk)\w*\b/i
 const POLITE = /^\s*(?:und\s+)?(?:bitte\s+)?(?:kannst|kannste|könntest|würdest|magst|willst)\s+du\b|^\s*ich\s+(?:will|möchte|muss|brauche)\b/i
 
 /**

@@ -6,7 +6,7 @@ import {
   scheduleNotify,
 } from '../native/notify.ts'
 import { syncGlance } from './glance.ts'
-import { formatDue, parseReminderIntent } from './remind-parse.ts'
+import { formatDue, parseReminderIntent, startOfDay } from './remind-parse.ts'
 import {
   addReminder,
   deleteReminder,
@@ -110,6 +110,51 @@ export async function handleReminders(
       tool: { tool_status: 'executed', tool: 'reminder', action: 'delete', label: 'Erinnerung weg' },
     }
   }
+
+  if (intent.kind === 'delete_day') {
+    const start = startOfDay(intent.day).getTime()
+    const end = start + 86_400_000
+    const hits = (await upcomingReminders()).filter((r) => {
+      const t = new Date(r.due_at).getTime()
+      return t >= start && t < end
+    })
+    const events = (await listEvents()).filter((e) => {
+      const t = new Date(e.start_at).getTime()
+      return t >= start && t < end
+    })
+    const extra = events.length
+      ? ` ${events.length === 1 ? 'Ein Termin' : `${events.length} Termine`} im Kalender ${events.length === 1 ? 'bleibt' : 'bleiben'}.`
+      : ''
+    if (!hits.length) {
+      return {
+        handled: true,
+        reply: `Keine Erinnerung am ${intent.label}.${extra}`,
+        tool: { tool_status: 'executed', tool: 'reminder', action: 'delete', label: 'Nichts zu löschen' },
+      }
+    }
+    for (const hit of hits) {
+      await cancelNotify(notifyIdOf(hit))
+      await deleteReminder(hit.id)
+    }
+    await syncGlance()
+    const head =
+      hits.length === 1
+        ? `Eine Erinnerung für den ${intent.label} gelöscht.`
+        : `${hits.length} Erinnerungen für den ${intent.label} gelöscht.`
+    return {
+      handled: true,
+      reply: `${head}${extra}`,
+      tool: {
+        tool_status: 'executed',
+        tool: 'reminder',
+        action: 'delete',
+        label: 'Erinnerungen weg',
+        preview: `${hits.length} · ${intent.label}`,
+      },
+    }
+  }
+
+  if (intent.kind !== 'delete') return { handled: false }
 
   const rows = await upcomingReminders()
   if (!rows.length) {

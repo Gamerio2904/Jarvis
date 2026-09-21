@@ -1,7 +1,7 @@
 import { getJson, getText } from './http-json.ts'
 import { loadSettings } from './store.ts'
 import { jsonUA } from './ua.ts'
-import { haversineKm, type GeoFix, type GeoPinKind } from './globe-geo.ts'
+import { haversineKm, cityLine, isGlobeLayerPin, nearestPlace, type GeoFix, type GeoPinKind } from './globe-geo.ts'
 import { INFRA_FIXES, SEA_FIXES } from './globe-static.ts'
 import { LAYER_TITLE, isGlobeLayer, type GlobeLayer } from './globe-layer-ids.ts'
 
@@ -89,6 +89,12 @@ export function intelLine(): string {
   const n = Math.min(hit.pins.length, layerCap())
   const extra = hit.extra ? ` ${hit.extra}` : ''
   return `${LAYER_TITLE[layer]}: ${n} Punkte, ${hit.source}. ${age}. Kein Live.${extra}`
+}
+
+export function globeIdleHint(): string {
+  const layer = loadSettings().globe_layer
+  if (isGlobeLayer(layer)) return ''
+  return 'Keine Schicht. Sag „Zeig Erdbeben“, „Waldbrände“ oder „Was fährt auf See“.'
 }
 
 export function parseGlobeLayerPhrase(text: string): LayerPhrase | null {
@@ -458,16 +464,31 @@ export function briefingFromCache(): string {
   return `${LAYER_TITLE[layer]}, ${hit.source}, ${age}: ${names.join(', ')}. Kein Live.`
 }
 
-export function dossierNear(pins: GeoFix[], lat: number, lon: number, km = 900): GeoFix {
+export function dossierNear(pins: GeoFix[], lat: number, lon: number, km = 900): GeoFix | null {
   const near = pins
-    .filter((p) => p.kind !== 'here' && Number.isFinite(p.lat))
+    .filter((p) => isGlobeLayerPin(p.kind) && Number.isFinite(p.lat))
     .map((p) => ({ p, d: haversineKm({ lat, lon }, p) }))
     .filter((x) => x.d <= km)
     .sort((a, b) => a.d - b.d)
     .slice(0, 8)
-  if (!near.length) {
-    return { name: 'Sicht', lat, lon, kind: 'outlook', line: 'In der Sicht kein Schicht-Pin. Kein Live.' }
-  }
+  if (!near.length) return null
   const line = near.map((x) => `${x.p.name} (${Math.round(x.d)} km)`).join(' · ')
   return { name: 'Sicht', lat, lon, kind: 'outlook', line: `${line}. Kein Live.` }
+}
+
+/** Tipp ins Leere: Schicht-Dossier, sonst Stadt, sonst nichts — nie eine leere Karte. */
+export function viewDossier(pins: GeoFix[], lat: number, lon: number): GeoFix | null {
+  const near = dossierNear(pins, lat, lon)
+  if (near) return near
+  const city = nearestPlace(lat, lon)
+  if (city) {
+    return {
+      name: city.name,
+      lat: city.lat,
+      lon: city.lon,
+      kind: 'outlook',
+      line: cityLine(city),
+    }
+  }
+  return null
 }
