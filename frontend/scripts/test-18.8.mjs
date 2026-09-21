@@ -111,6 +111,21 @@ assert.ok(!restoreDebugPicked(['V2 Einstellungen']).some((t) => /^V\d/.test(t)))
 assert.deepEqual(restoreDebugPicked([]), [])
 assert.deepEqual(sanitizeDebugPicked([]), [])
 
+await clearPending(conv)
+const hangConv = 'cal-18-8-hang'
+await clearPending(hangConv)
+const prevNote = globalThis.Notification
+globalThis.Notification = {
+  permission: 'default',
+  requestPermission: () => new Promise(() => {}),
+}
+const hangStart = Date.now()
+const hang = await handleCalendar(hangConv, 'Termin morgen 11 Uhr Hangtest')
+assert.ok(Date.now() - hangStart < 2000, 'Permission-Prompt darf Create nicht blockieren')
+assert.match(hang.reply || '', /Wann soll ich Sie erinnern/)
+assert.equal((await getPending(hangConv))?.action, 'remind_offsets')
+globalThis.Notification = prevNote
+
 const { cancelEventNotifies } = await import('../src/engine/calendar.ts')
 const { notifyIdOf } = await import('../src/engine/reminders.ts')
 const { cancelNotify } = await import('../src/native/notify.ts')

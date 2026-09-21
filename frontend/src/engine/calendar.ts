@@ -37,7 +37,7 @@ export async function scheduleEventNotifies(row: CalendarEvent, now = Date.now()
   const skipped: string[] = []
   const list = eventNotifyMinutes(row)
   if (!list.length) return skipped
-  await requestNotifyPermission()
+  void requestNotifyPermission()
   for (const m of list) {
     const at = new Date(start.getTime() - m * 60_000)
     if (at.getTime() <= now) {

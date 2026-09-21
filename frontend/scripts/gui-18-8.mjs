@@ -119,6 +119,7 @@ try {
   await sleep(700)
   const chips = await page.$$eval('.cal-remind-chip', (els) => els.map((e) => (e.textContent || '').trim()))
   rec(chips.includes('24 h') && chips.includes('2 h') && chips.includes('keine'), 'Erinnerungs-Chips', chips.join(' | '))
+  await page.screenshot({ path: `${SHOTS}/calendar_remind_chips_open.png` })
   await page.evaluate(() => {
     const btns = [...document.querySelectorAll('.cal-remind-chip')]
     btns.find((b) => /2 h/.test(b.textContent || ''))?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
