@@ -5,6 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### Kalender — Übersicht, Farben, Themen — *CODE*
+
+Monat / Liste / Jahr. Als-Nächstes-Karte. Termine als Karten mit Farbe
+(Arbeit, Uni, Geburtstag, Familie, Arzt, Sport, Reise, Sonstiges).
+Parser liest das Thema aus dem Titel; ohne Treffer fragt Groq nach, wenn
+ein Schlüssel liegt. Anlegen: Titel, Zeit, Thema und Erinnerung in einem
+Sheet. Sideload bleibt **`18.8.1`**, bis eine neue APK liegt.
+
 ### `18.8.1` — Watchliste-Noten, Erinnerungen am Tag, Lage-Sicht — *CODE + APK*
 
 Nachzieher nach `18.8.0`. OMDb liefert kein RT-Publikum mehr — die Folie

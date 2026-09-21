@@ -127,6 +127,8 @@ export type CalendarEvent = {
    * `[]` = keine Erinnerung. `0` in der Liste = am Termin.
    */
   remind_offsets_min?: number[]
+  /** Arbeit, Uni, Geburtstag … — Parser oder Nutzer. Fehlt = beim Lesen klassifizieren. */
+  theme?: string
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
@@ -1171,6 +1173,7 @@ export async function addEvent(opts: {
   place?: string
   conversationId?: string
   remind_offsets_min?: number[]
+  theme?: string
 }): Promise<CalendarEvent> {
   const row: CalendarEvent = {
     id: newId(),
@@ -1184,6 +1187,7 @@ export async function addEvent(opts: {
   if (opts.remind_offsets_min !== undefined) {
     row.remind_offsets_min = [...new Set(opts.remind_offsets_min)].slice(0, 5)
   }
+  if (opts.theme) row.theme = opts.theme
   await put('events', row)
   return row
 }

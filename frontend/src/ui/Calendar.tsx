@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
-import { applyEventOffsets, createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar.ts'
+import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar.ts'
+import {
+  CAL_THEMES,
+  calThemeOf,
+  classifyEventTheme,
+  eventTheme,
+  themesForDay,
+  type CalThemeId,
+} from '../engine/calendar-theme.ts'
 import { formatDue, startOfDay } from '../engine/remind-parse.ts'
 import { listEvents, listReminders, type CalendarEvent, type Reminder } from '../engine/store.ts'
 
@@ -14,6 +22,8 @@ const REMIND_CHIPS: Array<{ min: number | null; label: string }> = [
   { min: null, label: 'keine' },
 ]
 
+type CalMode = 'month' | 'list' | 'year'
+
 function monthCells(year: number, month: number): Array<Date | null> {
   const first = new Date(year, month, 1)
   const startPad = (first.getDay() + 6) % 7
@@ -25,9 +35,85 @@ function monthCells(year: number, month: number): Array<Date | null> {
   return cells
 }
 
-function previewForDay(events: CalendarEvent[], day: Date): string {
-  const hit = events.find((e) => sameDay(new Date(e.start_at), day))
-  return hit ? hit.title.slice(0, 12) : ''
+function dayHeading(day: Date, today: Date): string {
+  if (sameDay(day, today)) return 'Heute'
+  const morgen = new Date(today)
+  morgen.setDate(morgen.getDate() + 1)
+  if (sameDay(day, morgen)) return 'Morgen'
+  return day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })
+}
+
+function timeLabel(iso: string): string {
+  const d = new Date(iso)
+  return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+}
+
+function upcomingGroups(
+  events: CalendarEvent[],
+  reminders: Reminder[],
+  from: Date,
+  days = 21,
+): Array<{ key: string; day: Date; events: CalendarEvent[]; rems: Reminder[] }> {
+  const end = new Date(from)
+  end.setDate(end.getDate() + days)
+  const fromMs = from.getTime()
+  const endMs = end.getTime()
+  const by = new Map<string, { day: Date; events: CalendarEvent[]; rems: Reminder[] }>()
+  const bucket = (iso: string) => {
+    const day = startOfDay(new Date(iso))
+    const t = day.getTime()
+    if (t < fromMs || t >= endMs) return null
+    const key = isoDay(day)
+    let row = by.get(key)
+    if (!row) {
+      row = { day, events: [], rems: [] }
+      by.set(key, row)
+    }
+    return row
+  }
+  for (const e of events) bucket(e.start_at)?.events.push(e)
+  for (const r of reminders) bucket(r.due_at)?.rems.push(r)
+  return [...by.values()].sort((a, b) => a.day.getTime() - b.day.getTime())
+}
+
+function EventCard({
+  title,
+  when,
+  theme,
+  kind,
+  onDelete,
+  busy,
+}: {
+  title: string
+  when: string
+  theme?: CalThemeId
+  kind?: string
+  onDelete?: () => void
+  busy?: boolean
+}) {
+  const face = theme ? calThemeOf(theme) : null
+  return (
+    <li className="cal-card" data-theme={theme || 'erinnerung'} style={face ? { borderLeftColor: face.color } : undefined}>
+      <div className="cal-card-main">
+        <div className="cal-card-top">
+          {face ? (
+            <span className="cal-theme-pill" style={{ background: face.color }}>
+              {face.label}
+            </span>
+          ) : (
+            <span className="cal-theme-pill is-rem">{kind || 'Erinnerung'}</span>
+          )}
+          <span className="cal-card-time">{when}</span>
+        </div>
+        <div className="cal-card-title">{title}</div>
+      </div>
+      {onDelete ? (
+        <button type="button" className="cal-card-del" disabled={busy} onClick={onDelete} aria-label={`${title} löschen`}>
+          Löschen
+        </button>
+      ) : null}
+    </li>
+  )
 }
 
 export function CalendarView({ onClose, leaving }: { onClose: () => void; leaving?: boolean }) {
@@ -41,24 +127,22 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [time, setTime] = useState('15:00')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
-  const [yearView, setYearView] = useState(false)
+  const [mode, setMode] = useState<CalMode>('month')
   const [yearMarks, setYearMarks] = useState<Set<string>>(new Set())
   const [sheetOpen, setSheetOpen] = useState(false)
-  const [remindId, setRemindId] = useState<string | null>(null)
   const [chipMins, setChipMins] = useState<number[]>([0])
+  const [themePick, setThemePick] = useState<CalThemeId | null>(null)
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
   const titleRef = useRef<HTMLInputElement>(null)
 
   const year = cursor.getFullYear()
   const month = cursor.getMonth()
   const cells = useMemo(() => monthCells(year, month), [year, month])
+  const themeGuess = classifyEventTheme(title)
+  const theme = themePick || themeGuess
 
   const reload = useCallback(async () => {
-    const [ev, rem, mk] = await Promise.all([
-      listEvents(),
-      listReminders(),
-      marksForMonth(year, month),
-    ])
+    const [ev, rem, mk] = await Promise.all([listEvents(), listReminders(), marksForMonth(year, month)])
     setEvents(ev)
     setReminders(rem.filter((r) => r.status === 'open'))
     setMarks(mk)
@@ -74,7 +158,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   }, [sheetOpen])
 
   useEffect(() => {
-    if (!yearView) return
+    if (mode !== 'year') return
     let live = true
     void (async () => {
       const sets = await Promise.all(MONTHS.map((_, i) => marksForMonth(year, i)))
@@ -86,10 +170,21 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     return () => {
       live = false
     }
-  }, [yearView, year])
+  }, [mode, year])
 
-  const dayEvents = events.filter((e) => sameDay(new Date(e.start_at), selected))
+  const dayEvents = events.filter((e) => sameDay(new Date(e.start_at), selected)).sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
   const dayRems = reminders.filter((r) => sameDay(new Date(r.due_at), selected))
+  const groups = useMemo(() => upcomingGroups(events, reminders, today), [events, reminders, today])
+  const nextUp = useMemo(() => {
+    const now = Date.now()
+    return events.find((e) => new Date(e.start_at).getTime() >= now) || null
+  }, [events])
+
+  function goToday() {
+    setCursor(new Date(today.getFullYear(), today.getMonth(), 1))
+    setSelected(new Date(today))
+    setMode('month')
+  }
 
   function shiftMonth(delta: number) {
     setCursor(new Date(year, month + delta, 1))
@@ -102,11 +197,19 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   function onGridPointerUp(e: PointerEvent) {
     const start = swipeRef.current
     swipeRef.current = null
-    if (!start || yearView) return
+    if (!start || mode !== 'month') return
     const dx = e.clientX - start.x
     const dy = e.clientY - start.y
     if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return
     shiftMonth(dx < 0 ? 1 : -1)
+  }
+
+  function closeSheet() {
+    setSheetOpen(false)
+    setThemePick(null)
+    setChipMins([0])
+    setTitle('')
+    setErr(null)
   }
 
   async function onAdd() {
@@ -118,29 +221,11 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       const [h, m] = time.split(':').map((n) => Number(n))
       const start = new Date(selected)
       start.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0)
-      const row = await createEventFromGui({ title: name, start })
-      setTitle('')
-      setRemindId(row.id)
-      setChipMins([0])
+      await createEventFromGui({ title: name, start, theme, remind_offsets_min: chipMins })
+      closeSheet()
       await reload()
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Termin fehlgeschlagen')
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function onRemindSave() {
-    if (!remindId || busy) return
-    setBusy(true)
-    setErr(null)
-    try {
-      await applyEventOffsets(remindId, chipMins)
-      setRemindId(null)
-      setSheetOpen(false)
-      await reload()
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Erinnerung fehlgeschlagen')
     } finally {
       setBusy(false)
     }
@@ -175,11 +260,11 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       <header className="cal-head">
         <div>
           <h2>Kalender</h2>
-          <p>Wischen = Monat · FAB = Termin</p>
+          <p>{nextUp ? `Als Nächstes: ${nextUp.title}` : 'Nichts kommt. FAB legt an.'}</p>
         </div>
         <div className="cal-head-actions">
-          <button type="button" className="ghost-btn cal-toolbar-btn" onClick={() => setYearView((v) => !v)}>
-            {yearView ? 'Monat' : 'Jahr'}
+          <button type="button" className="ghost-btn cal-toolbar-btn" onClick={goToday}>
+            Heute
           </button>
           <button type="button" className="ghost-btn cal-toolbar-btn" onClick={onClose}>
             Zurück
@@ -187,31 +272,68 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         </div>
       </header>
 
-      <div className="cal-nav">
-        <button
-          type="button"
-          className="cal-nav-btn"
-          aria-label={yearView ? 'Vorheriges Jahr' : 'Vorheriger Monat'}
-          onClick={() =>
-            setCursor(yearView ? new Date(year - 1, month, 1) : new Date(year, month - 1, 1))
-          }
-        >
-          ←
-        </button>
-        <strong className="cal-nav-label">{yearView ? String(year) : label}</strong>
-        <button
-          type="button"
-          className="cal-nav-btn"
-          aria-label={yearView ? 'Nächstes Jahr' : 'Nächster Monat'}
-          onClick={() =>
-            setCursor(yearView ? new Date(year + 1, month, 1) : new Date(year, month + 1, 1))
-          }
-        >
-          →
-        </button>
-      </div>
+      <nav className="cal-modes" aria-label="Ansicht">
+        {(
+          [
+            ['month', 'Monat'],
+            ['list', 'Liste'],
+            ['year', 'Jahr'],
+          ] as const
+        ).map(([id, name]) => (
+          <button
+            key={id}
+            type="button"
+            data-nav={id}
+            aria-selected={mode === id}
+            className={`cal-mode${mode === id ? ' is-on' : ''}`}
+            onClick={() => setMode(id)}
+          >
+            {name}
+          </button>
+        ))}
+      </nav>
 
-      {yearView ? (
+      {mode !== 'list' ? (
+        <div className="cal-nav">
+          <button
+            type="button"
+            className="cal-nav-btn"
+            aria-label={mode === 'year' ? 'Vorheriges Jahr' : 'Vorheriger Monat'}
+            onClick={() => setCursor(mode === 'year' ? new Date(year - 1, month, 1) : new Date(year, month - 1, 1))}
+          >
+            ←
+          </button>
+          <strong className="cal-nav-label">{mode === 'year' ? String(year) : label}</strong>
+          <button
+            type="button"
+            className="cal-nav-btn"
+            aria-label={mode === 'year' ? 'Nächstes Jahr' : 'Nächster Monat'}
+            onClick={() => setCursor(mode === 'year' ? new Date(year + 1, month, 1) : new Date(year, month + 1, 1))}
+          >
+            →
+          </button>
+        </div>
+      ) : null}
+
+      {nextUp && mode === 'month' ? (
+        <button
+          type="button"
+          className="cal-next"
+          data-theme={eventTheme(nextUp)}
+          style={{ borderLeftColor: calThemeOf(eventTheme(nextUp)).color }}
+          onClick={() => {
+            const d = new Date(nextUp.start_at)
+            setSelected(startOfDay(d))
+            setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
+          }}
+        >
+          <span className="cal-next-kicker">Als Nächstes · {calThemeOf(eventTheme(nextUp)).label}</span>
+          <strong>{nextUp.title}</strong>
+          <span>{formatDue(new Date(nextUp.start_at))}</span>
+        </button>
+      ) : null}
+
+      {mode === 'year' ? (
         <div className="cal-year" role="grid" aria-label="Jahr">
           {MONTHS.map((name, mi) => (
             <button
@@ -221,7 +343,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
               onClick={() => {
                 setCursor(new Date(year, mi, 1))
                 setSelected(new Date(year, mi, 1))
-                setYearView(false)
+                setMode('month')
               }}
             >
               <strong>{name}</strong>
@@ -229,10 +351,12 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 {monthCells(year, mi).map((d, i) => {
                   if (!d) return <i key={`${name}-e-${i}`} />
                   const key = isoDay(d)
+                  const ids = themesForDay(events, d, sameDay)
                   return (
                     <span
                       key={key}
                       className={`cal-year-day${sameDay(d, today) ? ' today' : ''}${yearMarks.has(key) ? ' mark' : ''}`}
+                      style={ids[0] ? { background: calThemeOf(ids[0]).color } : undefined}
                     />
                   )
                 })}
@@ -240,7 +364,9 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             </button>
           ))}
         </div>
-      ) : (
+      ) : null}
+
+      {mode === 'month' ? (
         <div
           key={`${year}-${month}`}
           className="cal-grid cal-grid-swipe cal-month-in"
@@ -262,7 +388,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             const key = isoDay(d)
             const isSel = sameDay(d, selected)
             const isToday = sameDay(d, today)
-            const preview = previewForDay(events, d)
+            const dots = themesForDay(events, d, sameDay)
+            const hasRem = reminders.some((r) => sameDay(new Date(r.due_at), d))
             return (
               <button
                 key={key}
@@ -271,65 +398,80 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 onClick={() => setSelected(d)}
               >
                 <span className="cal-day-num">{d.getDate()}</span>
-                {marks.has(key) ? <i className="cal-dot" /> : null}
-                {preview ? <span className="cal-preview">{preview}</span> : null}
+                {dots.length || hasRem ? (
+                  <span className="cal-dots">
+                    {dots.map((id) => (
+                      <i key={id} className="cal-dot-theme" style={{ background: calThemeOf(id).color }} />
+                    ))}
+                    {hasRem && !dots.length ? <i className="cal-dot-theme is-rem" /> : null}
+                  </span>
+                ) : null}
               </button>
             )
           })}
         </div>
-      )}
+      ) : null}
 
-      <section className="cal-day">
-        <h3>
-          {selected.toLocaleDateString('de-DE', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-          })}
-        </h3>
-        {dayEvents.length === 0 && dayRems.length === 0 ? (
-          <p className="memory-empty">Nichts an diesem Tag.</p>
-        ) : (
-          <ul className="memory-list">
-            {dayEvents.map((e) => (
-              <li key={e.id} className="memory-item">
-                <div className="memory-value">{e.title}</div>
-                <div className="memory-key">{formatDue(new Date(e.start_at))}</div>
-                <button type="button" className="memory-del" disabled={busy} onClick={() => void onDelete(e.id)}>
-                  Löschen
-                </button>
-              </li>
-            ))}
-            {dayRems.map((r) => (
-              <li key={r.id} className="memory-item">
-                <div className="memory-value">{r.title}</div>
-                <div className="memory-key">Erinnerung · {formatDue(new Date(r.due_at))}</div>
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className="settings-hint">Oder im Chat: „Termin morgen 15 Uhr Zahnarzt“.</p>
-      </section>
+      {mode === 'list' ? (
+        <section className="cal-agenda">
+          {groups.length === 0 ? (
+            <p className="memory-empty">Keine Termine in den nächsten drei Wochen.</p>
+          ) : (
+            groups.map((g) => (
+              <div key={g.key} className="cal-agenda-day">
+                <h3>{dayHeading(g.day, today)}</h3>
+                <ul className="cal-cards">
+                  {g.events.map((e) => (
+                    <EventCard
+                      key={e.id}
+                      title={e.title}
+                      when={timeLabel(e.start_at)}
+                      theme={eventTheme(e)}
+                      busy={busy}
+                      onDelete={() => void onDelete(e.id)}
+                    />
+                  ))}
+                  {g.rems.map((r) => (
+                    <EventCard key={r.id} title={r.title} when={formatDue(new Date(r.due_at))} kind="Erinnerung" />
+                  ))}
+                </ul>
+              </div>
+            ))
+          )}
+        </section>
+      ) : null}
 
-      <button
-        type="button"
-        className="cal-fab"
-        aria-label="Termin anlegen"
-        onClick={() => setSheetOpen(true)}
-      >
+      {mode === 'month' ? (
+        <section className="cal-day">
+          <h3>{dayHeading(selected, today)}</h3>
+          {dayEvents.length === 0 && dayRems.length === 0 ? (
+            <p className="memory-empty">Nichts an diesem Tag.</p>
+          ) : (
+            <ul className="cal-cards">
+              {dayEvents.map((e) => (
+                <EventCard
+                  key={e.id}
+                  title={e.title}
+                  when={timeLabel(e.start_at)}
+                  theme={eventTheme(e)}
+                  busy={busy}
+                  onDelete={() => void onDelete(e.id)}
+                />
+              ))}
+              {dayRems.map((r) => (
+                <EventCard key={r.id} title={r.title} when={formatDue(new Date(r.due_at))} kind="Erinnerung" />
+              ))}
+            </ul>
+          )}
+          <p className="settings-hint">Oder im Chat: „Termin morgen 15 Uhr Zahnarzt“.</p>
+        </section>
+      ) : null}
+
+      <button type="button" className="cal-fab" aria-label="Termin anlegen" onClick={() => setSheetOpen(true)}>
         ＋ Termin
       </button>
 
-      {sheetOpen ? (
-        <div
-          className="cal-sheet-backdrop"
-          onClick={() => {
-            setSheetOpen(false)
-            setRemindId(null)
-          }}
-          aria-hidden
-        />
-      ) : null}
+      {sheetOpen ? <div className="cal-sheet-backdrop" onClick={closeSheet} aria-hidden /> : null}
       <div
         className={`cal-sheet${sheetOpen ? ' is-open' : ''}`}
         role="dialog"
@@ -338,68 +480,67 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         inert={!sheetOpen}
       >
         <h3>Termin anlegen</h3>
+        <p className="settings-hint">Thema kommt aus dem Titel — Sie können es ändern.</p>
         <form
           className="cal-form"
           onSubmit={(e) => {
             e.preventDefault()
-            if (remindId) void onRemindSave()
-            else void onAdd()
+            void onAdd()
           }}
         >
           <input
             ref={titleRef}
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.currentTarget.value)}
             placeholder="Titel"
-            disabled={busy || !sheetOpen || Boolean(remindId)}
+            disabled={busy || !sheetOpen}
             tabIndex={sheetOpen ? 0 : -1}
           />
           <input
             type="time"
             value={time}
-            onChange={(e) => setTime(e.target.value)}
-            disabled={busy || !sheetOpen || Boolean(remindId)}
+            onChange={(e) => setTime(e.currentTarget.value)}
+            disabled={busy || !sheetOpen}
             tabIndex={sheetOpen ? 0 : -1}
           />
-          {remindId ? (
-            <div className="cal-remind-chips" role="group" aria-label="Erinnerung">
-              {REMIND_CHIPS.map((c) => {
-                const on = c.min === null ? chipMins.length === 0 : chipMins.includes(c.min)
-                return (
-                  <button
-                    key={c.label}
-                    type="button"
-                    className={`cal-remind-chip${on ? ' is-on' : ''}`}
-                    disabled={busy}
-                    onClick={() => toggleChip(c.min)}
-                  >
-                    {c.label}
-                  </button>
-                )
-              })}
-            </div>
-          ) : null}
+          <div className="cal-theme-chips" role="group" aria-label="Thema">
+            {CAL_THEMES.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                className={`cal-theme-chip${theme === t.id ? ' is-on' : ''}`}
+                style={theme === t.id ? { borderColor: t.color, background: `${t.color}33` } : undefined}
+                disabled={busy}
+                onClick={() => setThemePick(t.id)}
+              >
+                <i className="cal-theme-swatch" style={{ background: t.color }} />
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <div className="cal-remind-chips" role="group" aria-label="Erinnerung">
+            {REMIND_CHIPS.map((c) => {
+              const on = c.min === null ? chipMins.length === 0 : chipMins.includes(c.min)
+              return (
+                <button
+                  key={c.label}
+                  type="button"
+                  className={`cal-remind-chip${on ? ' is-on' : ''}`}
+                  disabled={busy}
+                  onClick={() => toggleChip(c.min)}
+                >
+                  {c.label}
+                </button>
+              )
+            })}
+          </div>
           <div className="cal-sheet-actions">
-            <button
-              type="button"
-              className="ghost-btn"
-              disabled={busy}
-              onClick={() => {
-                setSheetOpen(false)
-                setRemindId(null)
-              }}
-            >
+            <button type="button" className="ghost-btn" disabled={busy} onClick={closeSheet}>
               Abbrechen
             </button>
-            {remindId ? (
-              <button type="button" className="cal-add-btn" disabled={busy} onClick={() => void onRemindSave()}>
-                Übernehmen
-              </button>
-            ) : (
-              <button type="submit" className="cal-add-btn" disabled={busy || !title.trim()}>
-                Speichern
-              </button>
-            )}
+            <button type="submit" className="cal-add-btn" disabled={busy || !title.trim()}>
+              Speichern
+            </button>
           </div>
         </form>
         {err ? <p className="settings-hint">{err}</p> : null}

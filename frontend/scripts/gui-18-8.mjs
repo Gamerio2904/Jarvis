@@ -113,10 +113,17 @@ try {
   })
   await sleep(400)
   rec(Boolean(await page.$('.cal-sheet.is-open')), 'Termin-Sheet offen')
+  rec(Boolean(await page.$('.cal-modes')), 'Monat Liste Jahr')
   await page.waitForSelector('.cal-form input[placeholder="Titel"]')
   await page.type('.cal-form input[placeholder="Titel"]', 'Teammeeting', { delay: 0 })
-  await page.click('.cal-add-btn')
-  await sleep(700)
+  await sleep(200)
+  const themes = await page.$$eval('.cal-theme-chip', (els) => els.map((e) => (e.textContent || '').trim()))
+  rec(themes.includes('Arbeit') && themes.includes('Uni') && themes.includes('Geburtstag'), 'Themen-Chips', themes.join(' | '))
+  rec(
+    Boolean(await page.$('.cal-theme-chip.is-on')) &&
+      /Arbeit/.test((await page.$eval('.cal-theme-chip.is-on', (el) => el.textContent || '')).trim()),
+    'Teammeeting → Arbeit',
+  )
   const chips = await page.$$eval('.cal-remind-chip', (els) => els.map((e) => (e.textContent || '').trim()))
   rec(chips.includes('24 h') && chips.includes('2 h') && chips.includes('keine'), 'Erinnerungs-Chips', chips.join(' | '))
   await page.screenshot({ path: `${SHOTS}/calendar_remind_chips_open.png` })
@@ -126,10 +133,12 @@ try {
     btns.find((b) => /15 min/.test(b.textContent || ''))?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
   })
   await sleep(200)
-  rec(Boolean(await page.$('.cal-add-btn')), 'Übernehmen nach Chips')
+  rec(Boolean(await page.$('.cal-add-btn')), 'Speichern nach Chips')
   await page.click('.cal-add-btn')
   await sleep(500)
-  rec(!(await page.$('.cal-sheet.is-open')), 'Sheet nach Übernehmen zu')
+  rec(!(await page.$('.cal-sheet.is-open')), 'Sheet nach Speichern zu')
+  rec(Boolean(await page.$('.cal-card')), 'Termin-Karte')
+  rec(/Arbeit/.test((await page.$eval('.cal-theme-pill', (el) => el.textContent || '')).trim()), 'Karte trägt Arbeit')
   await page.screenshot({ path: `${SHOTS}/18-8-kalender-chips.png` })
   await tapNav('chat')
 

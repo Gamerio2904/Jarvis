@@ -3674,6 +3674,192 @@ button.linkish {
   font-weight: 600;
 }
 
+.cal-modes {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(8, 10, 9, 0.62);
+  border: 1px solid var(--border);
+}
+
+.cal-mode {
+  appearance: none;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.cal-mode.is-on {
+  background: linear-gradient(180deg, #3be07a, #1ed760);
+  color: #07110a;
+}
+
+.cal-next {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  background: rgba(12, 16, 14, 0.72);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.cal-next strong {
+  font-size: 1rem;
+}
+
+.cal-next-kicker,
+.cal-next span {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.cal-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  display: flex;
+  gap: 3px;
+  transform: translateX(-50%);
+}
+
+.cal-dot-theme {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.cal-dot-theme.is-rem {
+  background: #94a3b8;
+}
+
+.cal-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cal-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-left-color: #94a3b8;
+  background: rgba(12, 16, 14, 0.72);
+  border-radius: 12px;
+  padding: 10px 10px 10px 12px;
+}
+
+.cal-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.cal-card-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cal-card-title {
+  margin-top: 4px;
+  font-weight: 650;
+}
+
+.cal-card-time {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.cal-card-del {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.cal-theme-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #07110a;
+}
+
+.cal-theme-pill.is-rem {
+  background: #64748b;
+  color: #f8fafc;
+}
+
+.cal-theme-chips {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cal-theme-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-input) 80%, transparent);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.cal-theme-chip.is-on {
+  font-weight: 700;
+}
+
+.cal-theme-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.cal-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cal-agenda-day h3 {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+}
+
 .cal-nav-label {
   flex: 1;
   text-align: center;
@@ -3801,16 +3987,10 @@ button.linkish {
   font-weight: 700;
 }
 
-.cal-dot {
-  position: absolute;
-  left: 50%;
-  bottom: 5px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-  transform: translateX(-50%);
+.cal-cell.sel .cal-dot-theme {
+  box-shadow: 0 0 0 1px #04140a;
 }
+
 
 .cal-day {
   padding-bottom: 88px;
@@ -3855,7 +4035,7 @@ button.linkish {
 
 .cal-form {
   display: grid;
-  grid-template-columns: 1fr 96px auto;
+  grid-template-columns: 1fr 96px;
   gap: 8px;
   margin-top: 12px;
 }
@@ -6065,16 +6245,6 @@ html.theme-wipe-dark::before {
   touch-action: pan-y;
 }
 
-.cal-cell.has-mark .cal-preview,
-.cal-preview {
-  display: block;
-  font-size: 0.58rem;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-}
 
 .timer-chip {
   display: flex;
