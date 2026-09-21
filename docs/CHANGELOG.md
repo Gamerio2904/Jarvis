@@ -5,7 +5,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.8.0` — Debug-Rollback, Termin-Erinnerungen, Prompt-Pakete — *CODE*
+### `18.8.0` — Debug-Rollback, Termin-Erinnerungen, Prompt-Pakete — *CODE + APK*
 
 Sprints **323–330**. Siehe [`79-next.md`](./79-next.md). Nach dem
 automatischen Debug-Lauf stellt Jarvis Timer, Termine, Einkauf und
@@ -13,8 +13,9 @@ Listen wieder her (Keys und Debug-Chat bleiben). Ein Termin fragt nach
 einer oder mehreren Erinnerungen („24 Stunden davor und 2 Stunden
 davor“). Debug-Chat-Download sitzt am Dock und nutzt native Downloads.
 Prompt-Pakete neu geschnitten (ohne V2–V9). Nicht parallel zu `18.5`.
-Sideload bleibt `18.4.4` (versionCode `180404`) bis zum nächsten
-APK-Bund. Kein Cloud-Kalender.
+Sideload **`18.8.0`** (versionCode `180800`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Kein Cloud-Kalender.
 
 ### `18.7.0` — Listen-Leiste, Selbststeuerung, flexibler Befehl — *CODE*
 

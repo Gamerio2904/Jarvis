@@ -1,16 +1,14 @@
-# Android-APK — Sideload `18.4.4`
+# Android-APK — Sideload `18.8.0`
 
-App-Code **`18.8.0`**. Sideload-APK **`18.4.4`**, versionCode `180404`.
-Diese Umgebung hat kein Android-SDK — ein neuer Bund `18.8` entsteht hier nicht.
+App-Code **`18.8.0`**. Sideload-APK **`18.8.0`**, versionCode `180800`.
 
-**18.8.0:** Debug-Rollback, Termin-Erinnerungen, Debug-Download, Prompt-Pakete neu — [`79-next.md`](./79-next.md).
-Sideload bleibt `18.4.4` bis zum nächsten APK-Bund auf einem Rechner mit SDK.
+**18.8.0:** Debug-Rollback, Termin-Erinnerungen, Debug-Download, Prompt-Pakete neu — [`79-next.md`](./79-next.md). Test: [`TEST-18.8.md`](./TEST-18.8.md).
 
 **18.7.0:** 6. Dock-Icon Filme, Selbststeuerung, Propose-Unknown, Antwort-Orb.
-Sideload bleibt `18.4.4` bis zum nächsten APK-Bund auf einem Rechner mit SDK.
+In Sideload `18.8.0`.
 
 **18.6.0:** Lage-Kugel OSINT (Schichten, Intel-Leiste, Dossier, passive
-Lookups). Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
+Lookups). In Sideload `18.8.0`.
 
 **18.4.4:** Lage und Overlay ohne Überlappung. Tastatur öffnet über der Leiste. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
@@ -42,10 +40,10 @@ Lookups). Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
 
 ## Download
 
-**Fertige APK `18.4.4`:**  
+**Fertige APK `18.8.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.4.4` · versionCode `180404`
+- versionName `18.8.0` · versionCode `180800`
 
 ## Build lokal
 

@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`18.8.0`**. Sideload **`18.4.4`**, versionCode `180404`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. Nächste Schiene **`18.5` PLAN** (nicht parallel zu 18.8). Index: [`42-planned.md`](./42-planned.md). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+> **Jetzt:** Code **`18.8.0`**. Sideload **`18.8.0`**, versionCode `180800`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. Nächste Schiene **`18.5` PLAN** (nicht parallel zu 18.8). Index: [`42-planned.md`](./42-planned.md). Test: [`TEST-18.8.md`](./TEST-18.8.md).
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 

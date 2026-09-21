@@ -2,15 +2,15 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.4.4`**, versionCode `180404`. App-Code **`18.7.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
+**Live-APK:** **`18.8.0`**, versionCode `180800`. App-Code **`18.8.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.8.md`](./TEST-18.8.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-1. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE** in `18.8.0`. Lauf räumt Writes. Termin fragt nach 1–n Fristen. Download am Dock. Prompt-Pakete neu. Nicht parallel zu `18.5`. Sideload bleibt `18.4.4`.
+1. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE + APK** in `18.8.0`. Lauf räumt Writes. Termin fragt nach 1–n Fristen. Download am Dock. Prompt-Pakete neu. Nicht parallel zu `18.5`. Sideload **`18.8.0`**.
 2. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu `18.8`.
-3. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 CODE** in `18.7.0` auf `main`. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs. Kein Computer-Use. Sideload bleibt `18.4.4`.
+3. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 CODE** in `18.7.0`, Sideload in `18.8.0`. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs. Kein Computer-Use.
 4. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 CODE** in `18.6.0`. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner.
 5. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
 6. **Audit-Reste** [`71-audit.md`](./71-audit.md) — Sprints **272–281 CODE** in `18.1.0`. **282** Freeze. Gerät-PO: [`TEST-18.1.0.md`](./TEST-18.1.0.md)
@@ -30,7 +30,7 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 20. **`13.0` CODE** [`60-next.md`](./60-next.md) — Körper-Wissensbaum in `13.30.0`; 217–220; kein Qdrant, e5 Freeze
 21. **`13.40` CODE** [`61-next.md`](./61-next.md) — Sprachmodus in `13.44.0`; 221–225
 
-**⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `18.4.4` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
+**⚠︎** Diese vier Einträge (178, 183, 184, 186; dazu 185) sind sachlich offen, nennen als Ziel aber `8.0`–`9.10.0`, während der Code bei `18.8.0` steht. Es sind Geräte- und PO-Sprints plus Bedingte. Vor dem Ziehen **neu verankern**, sonst prüft der PO eine App, die es nicht mehr gibt. Details in [`sprints/README.md`](./sprints/README.md).
 
 ## PLAN — Schiene `18.0.0` (Sprints 260–271)
 
@@ -146,7 +146,7 @@ Begründung: [`76-next.md`](./76-next.md).
 
 Harte Kette: 307 → alles. 311 nach mindestens einer Schicht. 313 braucht 307.
 Kein iframe OSIRIS, kein `globe.gl`, kein CCTV, kein Scanner, kein Live-Label.
-App-Code `18.6.0`. Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
+App-Code `18.6.0`. Sideload in `18.8.0`.
 
 Begründung: [`77-next.md`](./77-next.md).
 
@@ -163,7 +163,7 @@ Begründung: [`77-next.md`](./77-next.md).
 | `18.7.6` | [321](./sprints/sprint-321.md) | Härten, Gold, Meilenstein |
 | `18.7.7` | [322](./sprints/sprint-322.md) | Antwort-Orb (Thinking Orbs), Chat + Sprache |
 
-App-Code `18.7.0`. Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
+App-Code `18.7.0`. Sideload in `18.8.0`.
 Kein 7. Icon, keine Chips, kein Computer-Use, kein LLM-Organizer, e5 nicht in
 `pickRoute`.
 
@@ -182,7 +182,7 @@ Begründung: [`78-next.md`](./78-next.md).
 | `18.8.6` | [329](./sprints/sprint-329.md) | Prompt-Pakete neu schneiden |
 | `18.8.7` | [330](./sprints/sprint-330.md) | Prompts erweitern + Gold |
 
-App-Code `18.8.0`. Sideload bleibt `18.4.4` bis zum nächsten APK-Bund.
+App-Code `18.8.0`. Sideload **`18.8.0`**, versionCode `180800`.
 Kein Cloud-Kalender. Kein Hausstand-Wipe. Kein Debug-Chat löschen.
 Nicht parallel zu `18.5`.
 

@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.8.0`** auf Branch 18.8. Sideload-APK **`18.4.4`**, versionCode `180404`. Nächste offene Schiene **`18.5` PLAN** (nicht parallel). Test [`TEST-18.4.4.md`](./TEST-18.4.4.md). Neue APK erst mit SDK, nicht aus dieser Cloud-VM.
+> **Jetzt:** App-Code **`18.8.0`** auf `main`. Sideload-APK **`18.8.0`**, versionCode `180800`. Nächste offene Schiene **`18.5` PLAN** (nicht parallel). Test [`TEST-18.8.md`](./TEST-18.8.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -685,13 +685,13 @@ Nicht parallel zu `18.5`.
 | `18.7.6` | Härten, Gold, Meilenstein | 321 CODE |
 | `18.7.7` | Antwort-Orb Thinking Orbs | 322 CODE |
 
-### `18.8` — Debug-Rollback, Termin-Erinnerungen, Debug-Download [`79-next.md`](./79-next.md) **CODE** `18.8.0`
+### `18.8` — Debug-Rollback, Termin-Erinnerungen, Debug-Download [`79-next.md`](./79-next.md) **CODE + APK** `18.8.0`
 
 Nach dem automatischen Debug-Lauf räumt Jarvis Timer, Termine und Listen
 weg. Ein Termin fragt nach einer oder mehreren Erinnerungsfristen
 (z. B. 24 h und 2 h davor). Debug-Chat-Download am Dock, native
 Downloads. Prompt-Pakete neu geschnitten. Kein Cloud-Kalender. Nicht
-parallel zu `18.5`. Sideload bleibt `18.4.4` bis zum nächsten Bund.
+parallel zu `18.5`. Sideload **`18.8.0`**, versionCode `180800`.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|

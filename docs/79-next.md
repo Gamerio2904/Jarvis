@@ -1,4 +1,4 @@
-# 79 — Debug-Rollback, Termin-Erinnerungen, Debug-Download **CODE** (`18.8`)
+# 79 — Debug-Rollback, Termin-Erinnerungen, Debug-Download **CODE + APK** (`18.8`)
 
 PO 2026-09-21, drei Wünsche in einer Schiene:
 
@@ -19,9 +19,9 @@ Download sitzt nur im `DebugPanel` auf der Spur **Lauf**; das Dock hat
 Tests/Stop, kein Download. `saveBlob` klickt ohne `appendChild` — auf
 Android-WebView oft tot.
 
-**Dieses Dokument ist CODE** in App `18.8.0`. Sprints **323–330**. `18.5`
-(Stimme/TV, 301–306) bleibt PLAN daneben. **Nicht parallel**. Sideload
-bleibt `18.4.4` bis zum nächsten Bund mit SDK. Prompt-Titel: 329 hat neu
+**Dieses Dokument ist CODE + APK** in App `18.8.0` (versionCode `180800`).
+Sprints **323–330**. `18.5` (Stimme/TV, 301–306) bleibt PLAN daneben.
+**Nicht parallel**. Sideload **`18.8.0`**. Prompt-Titel: 329 hat neu
 geschnitten (§7). `GOLD_EXPECT`-Keys = `TEST_PROMPTS`.
 `PROBE_COPY_GROUPS`.length 13. `unassignedCopyTitles()` leer.
 
