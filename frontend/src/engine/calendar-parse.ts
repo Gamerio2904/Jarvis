@@ -32,6 +32,8 @@ const LIST_DAYS =
 const DELETE = /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?termin\s+(.+)$/is
 const DELETE_LAST =
   /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?letzten\s+termin\s*$/i
+const CANCEL_LAST =
+  /^\s*(?:(?:den\s+)?(?:letzten\s+)?termin(?:e)?\s+absagen|sag(?:e)?\s+(?:den\s+)?(?:letzten\s+)?termin\s+ab)\s*[.!]?\s*$/i
 
 const DAY_SHIFT: Record<string, number> = {
   heute: 0,
@@ -144,7 +146,7 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
   if (calDay) return { kind: 'list', day: dayFromWord(calDay[1], now) }
   const day = LIST_DAY.exec(t)
   if (day) return { kind: 'list', day: dayFromWord(day[1], now) }
-  if (DELETE_LAST.test(t)) return { kind: 'delete_last' }
+  if (DELETE_LAST.test(t) || CANCEL_LAST.test(t)) return { kind: 'delete_last' }
   const del = DELETE.exec(t)
   if (del) return { kind: 'delete', query: del[1].replace(/[.!?]+$/, '').trim() }
 

@@ -1178,7 +1178,9 @@ export async function addEvent(opts: {
     created_at: nowIso(),
     updated_at: nowIso(),
   }
-  if (opts.remind_offsets_min) row.remind_offsets_min = opts.remind_offsets_min
+  if (opts.remind_offsets_min !== undefined) {
+    row.remind_offsets_min = [...new Set(opts.remind_offsets_min)].slice(0, 5)
+  }
   await put('events', row)
   return row
 }

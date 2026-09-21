@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { TEST_COPY_GROUPS } from '../engine/test-copy.ts'
+import { DEBUG_OFF_BY_DEFAULT } from '../engine/debug-picked.ts'
 import {
   debugSnapshot,
   downloadDebug,
@@ -17,7 +18,7 @@ import { breakerSnapshot } from '../engine/agents/breaker.ts'
 import { quotaSnapshot } from '../engine/quota.ts'
 import { DownloadBtn } from './DownloadBtn.tsx'
 
-const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC'])
+const OFF_BY_DEFAULT = DEBUG_OFF_BY_DEFAULT
 
 export type { DebugSendResult }
 

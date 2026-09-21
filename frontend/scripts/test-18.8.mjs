@@ -18,7 +18,7 @@ globalThis.localStorage = {
   },
 }
 
-const { parseRemindOffsets, formatRemindOffsets } = await import('../src/engine/calendar-parse.ts')
+const { parseRemindOffsets, formatRemindOffsets, parseCalendarIntent } = await import('../src/engine/calendar-parse.ts')
 const { handleCalendar, eventNotifyMinutes } = await import('../src/engine/calendar.ts')
 const { addEvent, addReminder, listEvents, listReminders, loadSettings, saveSettings, getPending, clearPending } =
   await import('../src/engine/store.ts')
@@ -28,6 +28,7 @@ const { TEST_COPY_GROUPS, PROBE_COPY_GROUPS, allTestCopyTexts } = await import('
 const { TEST_PROMPTS } = await import('../src/engine/test-prompts.ts')
 const { unassignedCopyTitles, groupsForLane } = await import('../src/engine/probe-lanes.ts')
 const { pickRoute } = await import('../src/engine/route-pick.ts')
+const { sanitizeDebugPicked, restoreDebugPicked } = await import('../src/engine/debug-picked.ts')
 
 assert.deepEqual(parseRemindOffsets('24 Stunden davor und 2 Stunden davor')?.minutes, [1440, 120])
 assert.deepEqual(parseRemindOffsets('eine Stunde davor, 15 Minuten davor')?.minutes, [60, 15])
@@ -85,6 +86,30 @@ assert.equal(pickRoute('Käse auf die Liste'), 'shopping')
 assert.equal(pickRoute('Zeig Filme'), 'app')
 assert.equal(pickRoute('Kalender zu'), 'app')
 assert.equal(pickRoute('in 10 Minuten Milch'), 'reminder')
+assert.equal(parseCalendarIntent('Termin absagen')?.kind, 'delete_last')
+assert.equal(parseCalendarIntent('sag den Termin ab')?.kind, 'delete_last')
+assert.equal(pickRoute('Termin absagen'), 'calendar')
+
+await clearPending(conv)
+const cancelled = await handleCalendar(conv, 'Termin absagen')
+assert.match(cancelled.reply || '', /Termin weg|Kein Termin/)
+assert.doesNotMatch(cancelled.reply || '', /Wann soll ich/)
+assert.equal(await getPending(conv), undefined)
+
+const noneRow = await addEvent({
+  title: 'ohne Erinnerung',
+  start_at: new Date(Date.now() + 86400_000).toISOString(),
+  remind_offsets_min: [],
+})
+assert.deepEqual(noneRow.remind_offsets_min, [])
+assert.deepEqual(eventNotifyMinutes(noneRow), [])
+
+assert.deepEqual(sanitizeDebugPicked(['V2 Einstellungen', 'Memory-10']), ['Memory-10'])
+assert.deepEqual(sanitizeDebugPicked(['V9 Randfälle']), [])
+assert.ok(restoreDebugPicked(['V2 Einstellungen']).includes('Memory-10'))
+assert.ok(!restoreDebugPicked(['V2 Einstellungen']).some((t) => /^V\d/.test(t)))
+assert.deepEqual(restoreDebugPicked([]), [])
+assert.deepEqual(sanitizeDebugPicked([]), [])
 
 const { cancelEventNotifies } = await import('../src/engine/calendar.ts')
 const { notifyIdOf } = await import('../src/engine/reminders.ts')

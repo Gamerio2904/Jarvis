@@ -60,6 +60,7 @@
     "gui:watchlist-osint-18": "node --experimental-strip-types scripts/gui-watchlist-osint-18.mjs",
     "gui:18-7-dock": "node --experimental-strip-types scripts/gui-18-7-dock.mjs",
     "gui:18-7-regress": "node --experimental-strip-types scripts/gui-18-7-regress.mjs",
+    "gui:18-8": "node --experimental-strip-types scripts/gui-18-8.mjs",
     "eval:separability": "node --experimental-strip-types scripts/eval/separability.mjs"
   },
   "dependencies": {

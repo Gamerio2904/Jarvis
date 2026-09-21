@@ -13,6 +13,7 @@ import { setKeepScreenOn, startDebugFg, stopDebugFg, onDebugStop } from '../nati
 import type { ToolMeta } from './tools.ts'
 import { captureHouse, restoreHouse, type HouseSnap } from './debug-house.ts'
 import { setDebugRunActive } from './debug-flag.ts'
+import { defaultDebugPicked, restoreDebugPicked, sanitizeDebugPicked } from './debug-picked.ts'
 
 export type DebugPhase = 'idle' | 'starting' | 'running' | 'stopping'
 export type OverlayPhase = 'closed' | 'opening' | 'open' | 'closing'
@@ -35,7 +36,6 @@ export type DebugSnapshot = {
 
 const DEBUG_EVENT = 'jarvis-debug'
 
-const OFF_BY_DEFAULT = new Set(['Fernseher & Film', 'PC'])
 const TURN_TIMEOUT_MS = 90_000
 const PERSIST_KEY_TURNS = 80
 
@@ -58,7 +58,7 @@ let warned = false
 let stopped = false
 let progress = ''
 let turns: DebugTurn[] = []
-let picked: string[] = TEST_COPY_GROUPS.filter((g) => !OFF_BY_DEFAULT.has(g.title)).map((g) => g.title)
+let picked: string[] = defaultDebugPicked()
 let conversationId: string | null = null
 let error: string | null = null
 let stopFlag = false
@@ -104,7 +104,7 @@ function restore() {
     if (!raw) return
     const p = JSON.parse(raw) as Persist
     if (!p || !Array.isArray(p.turns)) return
-    picked = Array.isArray(p.picked) && p.picked.length ? p.picked : picked
+    picked = restoreDebugPicked(p.picked)
     turns = p.turns
     conversationId = p.conversationId || null
     stopped = Boolean(p.stopped)
@@ -158,8 +158,8 @@ export function debugSnapshot(): DebugSnapshot {
 }
 
 export function setDebugPicked(next: string[]) {
-  if (phase === 'running' || phase === 'starting') return
-  picked = next
+  if (phase === 'running' || phase === 'starting' || restoring) return
+  picked = sanitizeDebugPicked(next)
   emit()
 }
 
@@ -190,7 +190,8 @@ export async function startDebugRun(opts: {
   onStartChat: (title: string) => Promise<string>
   onSend: (text: string, conversationId: string) => Promise<DebugSendResult | string | void>
 }): Promise<void> {
-  if (phase === 'running' || phase === 'starting') return
+  if (phase === 'running' || phase === 'starting' || restoring) return
+  picked = sanitizeDebugPicked(picked)
   if (!picked.length) {
     progress = 'Mindestens eine Kategorie wählen.'
     emit()
@@ -243,18 +244,15 @@ export async function startDebugRun(opts: {
       emit()
     }
     stopped = stopFlag
-    phase = 'idle'
     progress = stopFlag ? `Stop nach ${acc.length} Turns. Download bleibt.` : `Fertig · ${acc.length} Turns.`
     emit()
   } catch (e) {
     error = e instanceof Error ? e.message : 'Debug-Lauf fehlgeschlagen'
-    phase = 'idle'
     stopped = true
     progress = `Abbruch: ${error}. Bisherige Turns bleiben zum Download.`
     emit()
   } finally {
-    setDebugRunActive(false)
-    if (houseSnap && !restoring) {
+    if (houseSnap) {
       restoring = true
       try {
         await restoreHouse(houseSnap)
@@ -264,11 +262,13 @@ export async function startDebugRun(opts: {
         error = e instanceof Error ? e.message : 'Restore fehlgeschlagen'
         progress = `${progress} Restore: ${error}`
         emit()
-      } finally {
-        restoring = false
-        houseSnap = null
       }
+      houseSnap = null
     }
+    setDebugRunActive(false)
+    phase = 'idle'
+    restoring = false
+    emit()
     void stopDebugFg()
     void setKeepScreenOn(false)
   }
