@@ -216,6 +216,10 @@ try {
   await page.waitForSelector('[data-testid="debug-panel"]', { timeout: 12_000 }).catch(() => {})
   rec(Boolean(await page.$('[data-testid="debug-panel"]')), 'Öffne Debug zeigt Debug-Panel')
   rec(Boolean(await page.$('.debug-actions .retry-btn')), 'Öffne Debug hat Start')
+  await page.evaluate(() => {
+    document.querySelector('.debug-actions .retry-btn')?.scrollIntoView({ block: 'center' })
+  })
+  await sleep(250)
   await page.screenshot({ path: `${SHOTS}/18-8-debug-lauf.png` })
 
   rec(pageErrors.length === 0, 'keine pageerror', pageErrors.slice(0, 3).join(' | '))
