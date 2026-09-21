@@ -79,6 +79,15 @@ Zeig Erdbeben
 
 Pins und Intel-Leiste. Chat und wieder Lage: Schicht bleibt.
 
+## 9. Kalender-Themen
+
+Dock Kalender. `Termin morgen 15 Uhr Zahnarzt` → Karte **Arzt**.
+Teammeeting → **Arbeit**. Reiter Monat / Liste / Jahr.
+
+## 10. Debug-Lauf
+
+Einstellungen → Tests: Spur **Lauf** bleibt rechts. `Öffne Debug` zeigt **Start**.
+
 ---
 
 Vorher: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
