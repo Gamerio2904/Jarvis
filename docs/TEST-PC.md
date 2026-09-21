@@ -3,6 +3,8 @@
 App-Code **`18.7.0`** auf `main`. Sideload-APK bleibt **`18.4.4`**.  
 Diese Anleitung gilt für den **Dev-PC** (Browser) und optional für **Jarvis PC** (Rechner steuern).
 
+Volltest mit Prompts seit `1.16`: [`TEST-1.16-plus.md`](./TEST-1.16-plus.md). In der App: Tests → Story → **Seit 1.16 der Reihe nach**.
+
 ---
 
 ## 1. Einmal einrichten (Windows)

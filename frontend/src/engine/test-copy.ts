@@ -815,6 +815,33 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
  */
 export const STORYLINE_GROUPS: TestCopyGroup[] = [
   {
+    title: '🟢 Seit 1.16 der Reihe nach',
+    items: [
+      { label: '1 – Version', text: 'Was kannst du?', expect: { tool: 'help' } },
+      { label: '2 – Einkauf', text: 'Milch auf die Einkaufsliste', expect: { tool: 'shopping' } },
+      { label: '3 – ↳ auch Brot', text: 'auch Brot', expect: { tool: 'shopping' } },
+      { label: '4 – ↳ was fehlt', text: 'was fehlt?', expect: { tool: 'shopping' } },
+      { label: '5 – Freundin-Ort', text: 'Freundin wohnt in Heilbronn', expect: { tool: 'maps' } },
+      { label: '6 – Termin+Ort', text: 'Termin morgen 15 Uhr Zahnarzt Bahnhofstraße', expect: { tool: 'calendar' } },
+      { label: '7 – Losgehen', text: 'Wann muss ich zum Zahnarzt los?', expect: { tool: 'leave' } },
+      { label: '8 – Uhr', text: 'Wie spät ist es?', expect: { tool: 'device' } },
+      { label: '9 – Wetter', text: 'Wetter heute', expect: { tool: 'weather' } },
+      { label: '10 – Tanke', text: 'Fahr mich zu einer Tanke', expect: { tool: 'fuel' } },
+      { label: '11 – Lidl DE', text: 'Lidl', expect: { tool: 'poi' } },
+      { label: '12 – Kugel', text: 'Zeig mir London', expect: { tool: 'hud' } },
+      { label: '13 – Weltlage', text: 'Was ist die Weltlage?', expect: { tool: 'outlook' } },
+      { label: '14 – Orakel Won’t', text: 'Fällt SAP morgen?', expect: { tool: 'outlook' } },
+      { label: '15 – Schach', text: 'Lass uns Schach spielen', expect: { tool: 'chess' } },
+      { label: '16 – Memory', text: 'Ich heiße Max und trinke gerne Kaffee.', expect: { tool: 'memory' } },
+      { label: '17 – ↳ Abruf', text: 'Was trinke ich?', expect: { tool: 'memory' } },
+      { label: '18 – Watchliste', text: 'Öffne Watchliste', expect: { tool: 'watchlist' } },
+      { label: '19 – Folie zu', text: 'Einstellungen zu', expect: { tool: 'app' } },
+      { label: '20 – Unbekannt ehrlich', text: 'Stell irgendwas mit der Watchliste an' },
+      { label: '21 – Kameras Won’t', text: 'Zeig Kameras', expect: { tool: 'wont' } },
+      { label: '22 – Street View Won’t', text: 'Zeig Street View von London', expect: { tool: 'wont' } },
+    ],
+  },
+  {
     title: '🟢 Flächen-12 durchspielen',
     items: [
       { label: '1 – Version', text: '/hilfe', expect: { tool: 'help' } },
