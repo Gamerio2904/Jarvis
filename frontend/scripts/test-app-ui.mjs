@@ -53,12 +53,6 @@ assert.equal(parseAppIntent('Zeig Filme')?.action?.dock, 'watchlist')
 assert.deepEqual(parseAppIntent('Kalender zu'), { kind: 'ui', action: { id: 'overlay.close' } })
 assert.equal(parseAppIntent('Öffne Einstellungen Musik')?.action?.topic, 'musik')
 assert.equal(parseAppIntent('Öffne Debug')?.action?.overlay, 'debug')
-{
-  const opened = await handleApp(conv, 'Öffne Debug')
-  assert.match(opened.reply || '', /Tests ist offen/)
-  assert.equal(opened.tool?.action, 'debug')
-  assert.equal(opened.tool?.result?.topic, 'debug')
-}
 
 const research = parseAppIntent('Research an')
 assert.equal(research?.action?.id, 'settings.set')
@@ -107,6 +101,12 @@ assert.match(normalizeUtterance('open favorites'), /Lieblinge/)
 
 const conv = 'app-ui'
 await clearPending(conv)
+{
+  const opened = await handleApp(conv, 'Öffne Debug')
+  assert.match(opened.reply || '', /Tests ist offen/)
+  assert.equal(opened.tool?.action, 'debug')
+  assert.equal(opened.tool?.result?.topic, 'debug')
+}
 const asked = await handleApp(conv, 'Research an')
 assert.match(asked.reply || '', /Soll ich\?/)
 assert.equal(loadSettings().research_opt_in, false)
