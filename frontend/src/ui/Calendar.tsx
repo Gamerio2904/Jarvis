@@ -179,6 +179,12 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     const now = Date.now()
     return events.find((e) => new Date(e.start_at).getTime() >= now) || null
   }, [events])
+  const todayCount = events.filter((e) => sameDay(new Date(e.start_at), today)).length
+  const headLine = nextUp
+    ? `Als Nächstes: ${nextUp.title}`
+    : todayCount
+      ? `${todayCount} ${todayCount === 1 ? 'Termin' : 'Termine'} heute`
+      : 'Nichts kommt. ＋ legt an.'
 
   function goToday() {
     setCursor(new Date(today.getFullYear(), today.getMonth(), 1))
@@ -260,7 +266,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       <header className="cal-head">
         <div>
           <h2>Kalender</h2>
-          <p>{nextUp ? `Als Nächstes: ${nextUp.title}` : 'Nichts kommt. FAB legt an.'}</p>
+          <p>{headLine}</p>
         </div>
         <div className="cal-head-actions">
           <button type="button" className="ghost-btn cal-toolbar-btn" onClick={goToday}>

@@ -140,6 +140,16 @@ try {
   rec(Boolean(await page.$('.cal-card')), 'Termin-Karte')
   rec(/Arbeit/.test((await page.$eval('.cal-theme-pill', (el) => el.textContent || '')).trim()), 'Karte trägt Arbeit')
   await page.screenshot({ path: `${SHOTS}/18-8-kalender-chips.png` })
+  await page.evaluate(() => {
+    document.querySelector('.cal-mode[data-nav="list"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  })
+  await sleep(350)
+  rec(Boolean(await page.$('.cal-agenda')), 'Listen-Ansicht')
+  await page.screenshot({ path: `${SHOTS}/kalender-liste.png` })
+  await page.evaluate(() => {
+    document.querySelector('.cal-mode[data-nav="month"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  })
+  await sleep(250)
   await tapNav('chat')
 
   await tapNav('settings')

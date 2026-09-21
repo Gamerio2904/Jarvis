@@ -3853,6 +3853,7 @@ button.linkish {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-bottom: 128px;
 }
 
 .cal-agenda-day h3 {
@@ -3993,7 +3994,7 @@ button.linkish {
 
 
 .cal-day {
-  padding-bottom: 88px;
+  padding-bottom: 128px;
 }
 
 .cal-day h3 {
