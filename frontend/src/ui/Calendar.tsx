@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar.ts'
 import {
   CAL_THEMES,
@@ -10,6 +10,7 @@ import {
 } from '../engine/calendar-theme.ts'
 import { formatDue, startOfDay } from '../engine/remind-parse.ts'
 import { listEvents, listReminders, type CalendarEvent, type Reminder } from '../engine/store.ts'
+import { useSlidingThumb } from './SlidingThumb.tsx'
 
 const WEEK = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 const MONTHS = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
@@ -92,8 +93,11 @@ function EventCard({
   busy?: boolean
 }) {
   const face = theme ? calThemeOf(theme) : null
+  const tint = face
+    ? ({ borderLeftColor: face.color, ['--cal-theme']: face.color } as CSSProperties)
+    : undefined
   return (
-    <li className="cal-card" data-theme={theme || 'erinnerung'} style={face ? { borderLeftColor: face.color } : undefined}>
+    <li className="cal-card" data-theme={theme || 'erinnerung'} style={tint}>
       <div className="cal-card-main">
         <div className="cal-card-top">
           {face ? (
@@ -132,8 +136,13 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [sheetOpen, setSheetOpen] = useState(false)
   const [chipMins, setChipMins] = useState<number[]>([0])
   const [themePick, setThemePick] = useState<CalThemeId | null>(null)
+  const [monthDir, setMonthDir] = useState<'left' | 'right' | 'none'>('none')
+  const [sheetDrag, setSheetDrag] = useState(0)
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
+  const sheetStartY = useRef<number | null>(null)
+  const sheetDragRef = useRef(0)
   const titleRef = useRef<HTMLInputElement>(null)
+  const modeThumb = useSlidingThumb(mode)
 
   const year = cursor.getFullYear()
   const month = cursor.getMonth()
@@ -187,13 +196,22 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       : 'Nichts kommt. ＋ legt an.'
 
   function goToday() {
-    setCursor(new Date(today.getFullYear(), today.getMonth(), 1))
+    const next = new Date(today.getFullYear(), today.getMonth(), 1)
+    const cur = new Date(year, month, 1)
+    setMonthDir(next.getTime() === cur.getTime() ? 'none' : next > cur ? 'left' : 'right')
+    setCursor(next)
     setSelected(new Date(today))
     setMode('month')
   }
 
   function shiftMonth(delta: number) {
+    setMonthDir(delta > 0 ? 'left' : 'right')
     setCursor(new Date(year, month + delta, 1))
+  }
+
+  function shiftYear(delta: number) {
+    setMonthDir(delta > 0 ? 'left' : 'right')
+    setCursor(new Date(year + delta, month, 1))
   }
 
   function onGridPointerDown(e: PointerEvent) {
@@ -212,10 +230,35 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
 
   function closeSheet() {
     setSheetOpen(false)
+    setSheetDrag(0)
+    sheetStartY.current = null
     setThemePick(null)
     setChipMins([0])
     setTitle('')
     setErr(null)
+  }
+
+  function onSheetHandleDown(e: PointerEvent<HTMLDivElement>) {
+    sheetStartY.current = e.clientY
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+
+  function onSheetHandleMove(e: PointerEvent<HTMLDivElement>) {
+    if (sheetStartY.current == null) return
+    const dy = Math.max(0, e.clientY - sheetStartY.current)
+    sheetDragRef.current = dy
+    setSheetDrag(dy)
+  }
+
+  function onSheetHandleUp() {
+    const dy = sheetDragRef.current
+    sheetStartY.current = null
+    sheetDragRef.current = 0
+    if (dy > 88) {
+      closeSheet()
+      return
+    }
+    setSheetDrag(0)
   }
 
   async function onAdd() {
@@ -278,7 +321,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         </div>
       </header>
 
-      <nav className="cal-modes" aria-label="Ansicht">
+      <nav ref={modeThumb.hostRef} className="cal-modes pill-tabs" aria-label="Ansicht">
+        <span ref={modeThumb.thumbRef} className="pill-tabs-thumb" aria-hidden />
         {(
           [
             ['month', 'Monat'],
@@ -305,16 +349,18 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             type="button"
             className="cal-nav-btn"
             aria-label={mode === 'year' ? 'Vorheriges Jahr' : 'Vorheriger Monat'}
-            onClick={() => setCursor(mode === 'year' ? new Date(year - 1, month, 1) : new Date(year, month - 1, 1))}
+            onClick={() => (mode === 'year' ? shiftYear(-1) : shiftMonth(-1))}
           >
             ←
           </button>
-          <strong className="cal-nav-label">{mode === 'year' ? String(year) : label}</strong>
+          <strong key={`${mode}-${year}-${month}`} className="cal-nav-label">
+            {mode === 'year' ? String(year) : label}
+          </strong>
           <button
             type="button"
             className="cal-nav-btn"
             aria-label={mode === 'year' ? 'Nächstes Jahr' : 'Nächster Monat'}
-            onClick={() => setCursor(mode === 'year' ? new Date(year + 1, month, 1) : new Date(year, month + 1, 1))}
+            onClick={() => (mode === 'year' ? shiftYear(1) : shiftMonth(1))}
           >
             →
           </button>
@@ -326,7 +372,12 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           type="button"
           className="cal-next"
           data-theme={eventTheme(nextUp)}
-          style={{ borderLeftColor: calThemeOf(eventTheme(nextUp)).color }}
+          style={
+            {
+              borderLeftColor: calThemeOf(eventTheme(nextUp)).color,
+              ['--cal-theme']: calThemeOf(eventTheme(nextUp)).color,
+            } as CSSProperties
+          }
           onClick={() => {
             const d = new Date(nextUp.start_at)
             setSelected(startOfDay(d))
@@ -340,13 +391,15 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       ) : null}
 
       {mode === 'year' ? (
-        <div className="cal-year" role="grid" aria-label="Jahr">
+        <div key={year} className={`cal-year cal-pane-in cal-month-${monthDir}`} role="grid" aria-label="Jahr">
           {MONTHS.map((name, mi) => (
             <button
               key={name}
               type="button"
-              className="cal-year-month"
+              className={`cal-year-month${year === today.getFullYear() && mi === today.getMonth() ? ' is-now' : ''}`}
+              style={{ ['--i']: mi } as CSSProperties}
               onClick={() => {
+                setMonthDir('none')
                 setCursor(new Date(year, mi, 1))
                 setSelected(new Date(year, mi, 1))
                 setMode('month')
@@ -375,7 +428,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       {mode === 'month' ? (
         <div
           key={`${year}-${month}`}
-          className="cal-grid cal-grid-swipe cal-month-in"
+          className={`cal-grid cal-grid-swipe cal-month-in cal-month-${monthDir}`}
           role="grid"
           aria-label="Monat"
           onPointerDown={onGridPointerDown}
@@ -419,7 +472,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       ) : null}
 
       {mode === 'list' ? (
-        <section className="cal-agenda">
+        <section className="cal-agenda cal-pane-in">
           {groups.length === 0 ? (
             <p className="memory-empty">Keine Termine in den nächsten drei Wochen.</p>
           ) : (
@@ -449,11 +502,13 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
 
       {mode === 'month' ? (
         <section className="cal-day">
-          <h3>{dayHeading(selected, today)}</h3>
+          <h3 key={isoDay(selected)} className="cal-day-title">
+            {dayHeading(selected, today)}
+          </h3>
           {dayEvents.length === 0 && dayRems.length === 0 ? (
             <p className="memory-empty">Nichts an diesem Tag.</p>
           ) : (
-            <ul className="cal-cards">
+            <ul key={isoDay(selected)} className="cal-cards">
               {dayEvents.map((e) => (
                 <EventCard
                   key={e.id}
@@ -477,14 +532,27 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         ＋ Termin
       </button>
 
-      {sheetOpen ? <div className="cal-sheet-backdrop" onClick={closeSheet} aria-hidden /> : null}
+      <div
+        className={`cal-sheet-backdrop${sheetOpen ? ' is-on' : ''}`}
+        onClick={closeSheet}
+        aria-hidden
+      />
       <div
         className={`cal-sheet${sheetOpen ? ' is-open' : ''}`}
         role="dialog"
         aria-label="Termin anlegen"
         aria-hidden={!sheetOpen}
         inert={!sheetOpen}
+        style={sheetDrag ? { transform: `translateY(${sheetDrag}px)`, transition: 'none' } : undefined}
       >
+        <div
+          className="cal-sheet-handle"
+          aria-hidden
+          onPointerDown={onSheetHandleDown}
+          onPointerMove={onSheetHandleMove}
+          onPointerUp={onSheetHandleUp}
+          onPointerCancel={onSheetHandleUp}
+        />
         <h3>Termin anlegen</h3>
         <p className="settings-hint">Thema kommt aus dem Titel — Sie können es ändern.</p>
         <form

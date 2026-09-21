@@ -84,6 +84,9 @@ Pins und Intel-Leiste. Chat und wieder Lage: Schicht bleibt.
 Dock Kalender. `Termin morgen 15 Uhr Zahnarzt` → Karte **Arzt**.
 Teammeeting → **Arbeit**. Reiter Monat / Liste / Jahr.
 
+Reiter gleitet. Monat wischen wechselt mit Richtung. Karten tragen die
+Themenfarbe. Sheet hat einen Griff; nach unten wischen schließt.
+
 ## 10. Debug-Lauf
 
 Einstellungen → Tests: Spur **Lauf** bleibt rechts. `Öffne Debug` zeigt **Start**.

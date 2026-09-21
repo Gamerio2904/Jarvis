@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+Kalender-Design: gleitender Reiter (wie Watchliste/Einstellungen),
+Monatswechsel nach links/rechts, Glas-Karten in Themenfarbe, Sheet mit
+Griff und Wisch nach unten. Layout bleibt Monat / Liste / Jahr. Muster
+aus iOS-Kalender, [DayFlow](https://github.com/dayflow-js/calendar) und
+[react-modal-sheet](https://github.com/Temzasse/react-modal-sheet) (MIT),
+kein neues Paket.
+
 ### `18.8.2` — Kalender-Themen, Debug-Lauf wieder sichtbar — *CODE + APK*
 
 Kalender: Monat / Liste / Jahr, farbige Themen (Arbeit, Uni, Geburtstag,
