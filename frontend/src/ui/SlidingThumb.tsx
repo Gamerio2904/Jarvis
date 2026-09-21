@@ -25,6 +25,21 @@ export function useSlidingThumb(activeId: string | null): {
         thumb.style.opacity = '0'
         return
       }
+      let scroller: HTMLElement | null = item.parentElement
+      while (scroller && scroller !== host) {
+        const ox = getComputedStyle(scroller).overflowX
+        if (ox === 'auto' || ox === 'scroll') {
+          const pad = 8
+          const left = item.offsetLeft
+          const right = left + item.offsetWidth
+          if (left < scroller.scrollLeft + pad) scroller.scrollLeft = Math.max(0, left - pad)
+          else if (right > scroller.scrollLeft + scroller.clientWidth - pad) {
+            scroller.scrollLeft = right - scroller.clientWidth + pad
+          }
+          break
+        }
+        scroller = scroller.parentElement
+      }
       const hr = host.getBoundingClientRect()
       const ir = item.getBoundingClientRect()
       const x = ir.left - hr.left + host.scrollLeft
@@ -44,11 +59,11 @@ export function useSlidingThumb(activeId: string | null): {
     layout()
     const ro = new ResizeObserver(layout)
     ro.observe(host)
-    host.addEventListener('scroll', layout, { passive: true })
+    host.addEventListener('scroll', layout, { passive: true, capture: true })
     window.addEventListener('resize', layout)
     return () => {
       ro.disconnect()
-      host.removeEventListener('scroll', layout)
+      host.removeEventListener('scroll', layout, { capture: true })
       window.removeEventListener('resize', layout)
     }
   }, [activeId])

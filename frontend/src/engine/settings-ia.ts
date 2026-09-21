@@ -55,7 +55,7 @@ export const SETTINGS_TABS: Array<{
   { id: 'geraete', label: 'Geräte', hint: 'TV, PC, Presence, Haus, Musik' },
   { id: 'lage', label: 'Lage', hint: 'Kugel, Körper, Lage immer, Töne' },
   { id: 'daten', label: 'Daten', hint: 'Merken, sichern, Fachwissen, löschen' },
-  { id: 'tests', label: 'Tests', hint: 'Spuren Heute bis Lauf, Suche, Senden in den Chat', workshop: true },
+  { id: 'tests', label: 'Tests', hint: 'Automatischer Debug-Lauf, Spuren, Senden in den Chat', workshop: true },
 ]
 
 /** @deprecated Gruppen = Reiter. Bleibt für alte Imports. */

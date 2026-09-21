@@ -87,14 +87,17 @@ Die Leiste oben bleibt kleben. Grüne Pille (wie die Settings-Reiter) markiert d
 | **5** | **Lage** | Kugel, Wetter, Welt |
 | **6** | **Probe** | Memory-10 bis V9 (Gerätetest) |
 | **7** | **Story** | Gespräche der Reihe nach, ↳ = Folge |
-| **8** | **Lauf** | Automatischer Debug-Lauf |
+| **8** | **Lauf** | Automatischer Debug-Lauf (bleibt rechts kleben) |
 
 `/` fokussiert die Suche (über alle Spuren). Escape leert sie.  
 Zweite Pillenreihe filtert die Gruppe in der aktuellen Spur.
 
+Auf jeder Spur außer Lauf sitzt der Knopf **Automatischer Debug-Lauf**.  
+`Öffne Debug` und Dock **Tests** landen direkt auf Spur Lauf mit **Start**.
+
 **Senden** schließt die Folie und gibt den Satz in den Chat (Antwort-Orb). **Kopieren** bleibt fürs echte Handy.
 
-Die letzte Spur merkt sich die Sitzung (Tab schließen setzt auf Heute zurück).
+Die letzte Spur merkt sich die Sitzung (Tab schließen setzt auf Heute zurück). Der Reiter **Tests** bleibt rechts in der Einstellungs-Leiste kleben.
 
 ---
 

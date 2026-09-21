@@ -135,6 +135,7 @@ try {
 
   await tapNav('settings')
   await page.waitForSelector('.settings-screen')
+  rec(Boolean(await page.$('.settings-tab.is-pin')), 'Tests-Reiter bleibt sichtbar')
   await page.evaluate(() => {
     document.querySelector('[data-nav="tests"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
   })
@@ -142,6 +143,17 @@ try {
   await page.waitForSelector('.probe-shelf')
   const lanes = await page.$$eval('.probe-lanes .probe-lane', (els) => els.map((e) => (e.textContent || '').trim()))
   rec(lanes.join(' ') === 'Heute Gespräch Alltag Gerät Lage Probe Story Lauf', 'acht Test-Spuren', lanes.join(' | '))
+  rec(Boolean(await page.$('.probe-lanes .probe-lane.is-pin')), 'Spur Lauf angepinnt')
+  rec(Boolean(await page.$('.probe-lauf-jump')), 'Sprung Automatischer Debug-Lauf')
+  const laufVisible = await page.evaluate(() => {
+    const el = document.querySelector('.probe-lanes [data-nav="lauf"]')
+    const host = document.querySelector('.probe-lanes')
+    if (!(el instanceof HTMLElement) || !(host instanceof HTMLElement)) return false
+    const er = el.getBoundingClientRect()
+    const hr = host.getBoundingClientRect()
+    return er.right <= hr.right + 2 && er.left >= hr.left - 2
+  })
+  rec(laufVisible, 'Lauf ohne horizontales Scrollen sichtbar')
   const heute = await page.$$eval('.probe-groups .probe-lane', (els) => els.map((e) => (e.textContent || '').trim()))
   rec(heute.some((t) => /18\.8/.test(t)), 'Heute hat 18.8', heute.join(' | '))
   rec(!heute.some((t) => /^V\d/.test(t) || /8\.34|Kaputt/.test(t)), 'keine Versions-Titel in Heute')
@@ -188,13 +200,27 @@ try {
     document.querySelector('.probe-lanes [data-nav="lauf"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
   })
   await sleep(400)
-  rec(Boolean(await page.$('.settings-card h3')), 'Spur Lauf zeigt Debug')
+  rec(Boolean(await page.$('[data-testid="debug-panel"]')), 'Spur Lauf zeigt Debug')
+  rec(Boolean(await page.$('.debug-actions .retry-btn')), 'Start-Knopf')
   const titles = await page.$$eval('.debug-box-row', (els) =>
     els.map((el) => el.textContent || '').join('\n'),
   )
   rec(!/^V\d/m.test(titles) && !/\bV2\b/.test(titles), 'Debug-Klickboxen ohne V2')
   rec(/18\.8 Debug/.test(titles), 'Klickbox 18.8 Debug & Termin')
   rec(/Memory-10/.test(titles), 'Klickbox Memory-10')
+
+  await page.click('.settings-close')
+  await sleep(400)
+  await tapNav('chat')
+  await send('Öffne Debug')
+  await page.waitForSelector('[data-testid="debug-panel"]', { timeout: 12_000 }).catch(() => {})
+  rec(Boolean(await page.$('[data-testid="debug-panel"]')), 'Öffne Debug zeigt Debug-Panel')
+  rec(Boolean(await page.$('.debug-actions .retry-btn')), 'Öffne Debug hat Start')
+  await page.evaluate(() => {
+    document.querySelector('.debug-actions .retry-btn')?.scrollIntoView({ block: 'center' })
+  })
+  await sleep(250)
+  await page.screenshot({ path: `${SHOTS}/18-8-debug-lauf.png` })
 
   rec(pageErrors.length === 0, 'keine pageerror', pageErrors.slice(0, 3).join(' | '))
 } catch (e) {
