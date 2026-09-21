@@ -3783,7 +3783,7 @@ button.linkish {
   border: 1px solid color-mix(in srgb, var(--cal-theme, var(--border)) 38%, var(--border));
   border-left-width: 4px;
   background:
-    linear-gradient(100deg, color-mix(in srgb, var(--cal-theme, var(--accent)) 22%, transparent), rgba(12, 16, 14, 0.72) 58%),
+    linear-gradient(100deg, color-mix(in srgb, var(--cal-theme, var(--accent)) 36%, transparent), rgba(12, 16, 14, 0.78) 62%),
     rgba(12, 16, 14, 0.72);
   color: var(--text);
   border-radius: 16px;
@@ -3869,7 +3869,7 @@ button.linkish {
   border-left-width: 4px;
   border-left-color: var(--cal-theme, #94a3b8);
   background:
-    linear-gradient(105deg, color-mix(in srgb, var(--cal-theme, #94a3b8) 18%, transparent), rgba(12, 16, 14, 0.78) 52%),
+    linear-gradient(105deg, color-mix(in srgb, var(--cal-theme, #94a3b8) 32%, transparent), rgba(12, 16, 14, 0.82) 58%),
     rgba(12, 16, 14, 0.72);
   border-radius: 14px;
   padding: 11px 12px 11px 14px;
@@ -3902,7 +3902,7 @@ button.linkish {
 .cal-card-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -4037,6 +4037,7 @@ button.linkish {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
+  padding-bottom: 128px;
 }
 
 .cal-year-month {
@@ -4064,8 +4065,9 @@ button.linkish {
 }
 
 .cal-year-month.is-now {
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
+  background: linear-gradient(180deg, rgba(30, 215, 96, 0.16), rgba(16, 20, 18, 0.45));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
 .cal-year-month strong {
@@ -6511,24 +6513,22 @@ html.theme-wipe-dark::before {
 }
 
 .cal-sheet-handle {
-  width: 44px;
-  height: 22px;
-  margin: 0 auto 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 28px;
+  margin: 0 0 6px;
   cursor: grab;
   touch-action: none;
-  position: relative;
 }
 
-.cal-sheet-handle::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 8px;
-  width: 44px;
+.cal-sheet-handle i {
+  display: block;
+  width: 48px;
   height: 5px;
-  margin-left: -22px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--text) 28%, transparent);
+  background: #9aa49c;
 }
 
 .cal-sheet-handle:active {

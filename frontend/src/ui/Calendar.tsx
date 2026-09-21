@@ -552,7 +552,9 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           onPointerMove={onSheetHandleMove}
           onPointerUp={onSheetHandleUp}
           onPointerCancel={onSheetHandleUp}
-        />
+        >
+          <i />
+        </div>
         <h3>Termin anlegen</h3>
         <p className="settings-hint">Thema kommt aus dem Titel — Sie können es ändern.</p>
         <form
