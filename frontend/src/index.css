@@ -3032,6 +3032,7 @@ button.linkish {
   bottom: var(--kb);
   z-index: 14;
   background:
+    radial-gradient(ellipse 80% 40% at 50% -8%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
     linear-gradient(180deg, rgba(8, 12, 10, 0.94), rgba(5, 6, 5, 0.98)),
     var(--bg);
   backdrop-filter: blur(18px) saturate(1.15);
@@ -3740,12 +3741,14 @@ button.linkish {
 }
 
 .cal-modes {
+  position: relative;
   display: flex;
   gap: 4px;
   padding: 4px;
   border-radius: 999px;
   background: rgba(8, 10, 9, 0.62);
   border: 1px solid var(--border);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .cal-mode {
@@ -3760,10 +3763,12 @@ button.linkish {
   font-size: 0.82rem;
   font-weight: 650;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
+  transition: color 280ms var(--ease-out), transform 280ms var(--ease-spring);
 }
 
 .cal-mode.is-on {
-  background: linear-gradient(180deg, #3be07a, #1ed760);
   color: #07110a;
 }
 
@@ -3775,13 +3780,44 @@ button.linkish {
   gap: 2px;
   width: 100%;
   text-align: left;
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--cal-theme, var(--border)) 38%, var(--border));
   border-left-width: 4px;
-  background: rgba(12, 16, 14, 0.72);
+  background:
+    linear-gradient(100deg, color-mix(in srgb, var(--cal-theme, var(--accent)) 36%, transparent), rgba(12, 16, 14, 0.78) 62%),
+    rgba(12, 16, 14, 0.72);
   color: var(--text);
-  border-radius: 14px;
-  padding: 10px 12px;
+  border-radius: 16px;
+  padding: 12px 14px;
   cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  animation: calCardIn 480ms var(--ease-out);
+  transition:
+    transform var(--motion-fast) var(--ease-spring),
+    box-shadow var(--motion-fast) ease,
+    border-color var(--motion-fast) ease;
+}
+
+.cal-next::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 -40%;
+  width: 36%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  transform: translateX(-120%);
+  animation: calShimmer 2.8s var(--ease-soft) 0.6s infinite;
+  pointer-events: none;
+}
+
+.cal-next:hover,
+.cal-next:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.36);
+}
+
+.cal-next:active {
+  transform: translateY(1px) scale(0.99);
 }
 
 .cal-next strong {
@@ -3804,10 +3840,12 @@ button.linkish {
 }
 
 .cal-dot-theme {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--bg) 40%, transparent), 0 0 8px color-mix(in srgb, currentColor 35%, transparent);
+  animation: calDotIn 420ms var(--ease-spring) both;
 }
 
 .cal-dot-theme.is-rem {
@@ -3827,12 +3865,33 @@ button.linkish {
   display: flex;
   align-items: center;
   gap: 10px;
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--cal-theme, #94a3b8) 28%, var(--border));
   border-left-width: 4px;
-  border-left-color: #94a3b8;
-  background: rgba(12, 16, 14, 0.72);
-  border-radius: 12px;
-  padding: 10px 10px 10px 12px;
+  border-left-color: var(--cal-theme, #94a3b8);
+  background:
+    linear-gradient(105deg, color-mix(in srgb, var(--cal-theme, #94a3b8) 32%, transparent), rgba(12, 16, 14, 0.82) 58%),
+    rgba(12, 16, 14, 0.72);
+  border-radius: 14px;
+  padding: 11px 12px 11px 14px;
+  backdrop-filter: blur(10px) saturate(1.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  animation: calCardIn 420ms var(--ease-out) both;
+  transition:
+    transform var(--motion-fast) var(--ease-spring),
+    box-shadow var(--motion-fast) ease,
+    border-color var(--motion-fast) ease;
+}
+
+.cal-cards .cal-card:nth-child(1) { animation-delay: 0ms; }
+.cal-cards .cal-card:nth-child(2) { animation-delay: 40ms; }
+.cal-cards .cal-card:nth-child(3) { animation-delay: 80ms; }
+.cal-cards .cal-card:nth-child(4) { animation-delay: 120ms; }
+.cal-cards .cal-card:nth-child(5) { animation-delay: 160ms; }
+.cal-cards .cal-card:nth-child(n + 6) { animation-delay: 200ms; }
+
+.cal-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.3);
 }
 
 .cal-card-main {
@@ -3843,7 +3902,7 @@ button.linkish {
 .cal-card-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -3860,12 +3919,24 @@ button.linkish {
 .cal-card-del {
   appearance: none;
   border: 0;
-  background: transparent;
+  background: color-mix(in srgb, var(--text) 6%, transparent);
   color: var(--text-muted);
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   cursor: pointer;
   flex-shrink: 0;
+  border-radius: 999px;
+  padding: 6px 10px;
+  transition: background var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) var(--ease-spring);
+}
+
+.cal-card-del:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  color: var(--text);
+}
+
+.cal-card-del:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 .cal-theme-pill {
@@ -3876,6 +3947,7 @@ button.linkish {
   font-size: 0.68rem;
   font-weight: 700;
   color: #07110a;
+  box-shadow: 0 0 0 1px color-mix(in srgb, #04140a 12%, transparent);
 }
 
 .cal-theme-pill.is-rem {
@@ -3902,10 +3974,15 @@ button.linkish {
   padding: 6px 10px;
   font-size: 0.8rem;
   cursor: pointer;
+  transition:
+    transform var(--motion-fast) var(--ease-spring),
+    border-color var(--motion-fast) ease,
+    background var(--motion-fast) ease;
 }
 
 .cal-theme-chip.is-on {
   font-weight: 700;
+  transform: scale(1.04);
 }
 
 .cal-theme-swatch {
@@ -3930,6 +4007,7 @@ button.linkish {
   flex: 1;
   text-align: center;
   font-size: 0.95rem;
+  animation: calLabelIn 320ms var(--ease-out);
 }
 
 .cal-nav-btn {
@@ -3951,10 +4029,15 @@ button.linkish {
   background: rgba(29, 185, 84, 0.2);
 }
 
+.cal-nav-btn:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
 .cal-year {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
+  padding-bottom: 128px;
 }
 
 .cal-year-month {
@@ -3962,10 +4045,29 @@ button.linkish {
   border: 1px solid var(--border);
   background: linear-gradient(180deg, rgba(30, 215, 96, 0.07), rgba(16, 20, 18, 0.4));
   color: var(--text);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 10px;
   text-align: left;
   cursor: pointer;
+  animation: calCardIn 420ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 28ms);
+  transition:
+    transform var(--motion-fast) var(--ease-spring),
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+
+.cal-year-month:hover,
+.cal-year-month:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28);
+}
+
+.cal-year-month.is-now {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
+  background: linear-gradient(180deg, rgba(30, 215, 96, 0.16), rgba(16, 20, 18, 0.45));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
 .cal-year-month strong {
@@ -4000,8 +4102,19 @@ button.linkish {
   gap: 4px;
 }
 
-.cal-grid.cal-month-in {
+.cal-grid.cal-month-in,
+.cal-pane-in {
   animation: calMonthIn 360ms var(--ease-out);
+}
+
+.cal-grid.cal-month-left,
+.cal-year.cal-month-left {
+  animation: calMonthLeft 380ms var(--ease-out);
+}
+
+.cal-grid.cal-month-right,
+.cal-year.cal-month-right {
+  animation: calMonthRight 380ms var(--ease-out);
 }
 
 .cal-dow {
@@ -4018,7 +4131,7 @@ button.linkish {
   border: 0;
   background: var(--bg-elevated);
   color: var(--text);
-  border-radius: 10px;
+  border-radius: 12px;
   aspect-ratio: 1;
   min-height: 0;
   cursor: pointer;
@@ -4029,12 +4142,18 @@ button.linkish {
   transition:
     transform var(--motion-fast) var(--ease-spring),
     background var(--motion-fast) ease,
-    box-shadow var(--motion-fast) ease;
+    box-shadow var(--motion-fast) ease,
+    color var(--motion-fast) ease;
 }
 
 .cal-cell:hover:not(.empty),
 .cal-cell.is-hot:not(.empty) {
+  transform: translate(var(--mx, 0px), var(--my, 0px)) scale(1.04);
   box-shadow: 0 0 0 1px var(--gold-dim), 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.cal-cell:active:not(.empty) {
+  transform: scale(0.96);
 }
 
 .cal-cell.empty {
@@ -4047,10 +4166,13 @@ button.linkish {
   animation: calTodayPulse 1.8s ease-in-out infinite;
 }
 
-.cal-cell.sel {
-  background: var(--accent);
+.cal-cell.sel,
+.cal-cell.today.sel {
+  background: linear-gradient(180deg, #3be07a, var(--accent));
   color: #04140a;
   font-weight: 700;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 38%, transparent);
+  animation: calSelectPop 420ms var(--ease-spring);
 }
 
 .cal-cell.sel .cal-dot-theme {
@@ -4062,9 +4184,11 @@ button.linkish {
   padding-bottom: 128px;
 }
 
-.cal-day h3 {
+.cal-day h3,
+.cal-day-title {
   margin: 0 0 8px;
   font-size: 0.95rem;
+  animation: calLabelIn 280ms var(--ease-out);
 }
 
 @keyframes calMonthIn {
@@ -4074,6 +4198,80 @@ button.linkish {
   }
   to {
     opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes calMonthLeft {
+  from {
+    opacity: 0.35;
+    transform: translateX(28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes calMonthRight {
+  from {
+    opacity: 0.35;
+    transform: translateX(-28px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes calCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes calLabelIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes calShimmer {
+  0% {
+    transform: translateX(-120%);
+  }
+  55%,
+  100% {
+    transform: translateX(340%);
+  }
+}
+
+@keyframes calDotIn {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes calSelectPop {
+  from {
+    transform: scale(0.92);
+  }
+  to {
     transform: none;
   }
 }
@@ -4117,6 +4315,7 @@ button.linkish {
   min-width: 92px;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(29, 185, 84, 0.35);
+  transition: transform var(--motion-fast) var(--ease-spring), filter var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
 }
 
 .cal-add-btn:disabled {
@@ -4127,6 +4326,11 @@ button.linkish {
 
 .cal-add-btn:not(:disabled):hover {
   filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.cal-add-btn:not(:disabled):active {
+  transform: scale(0.98);
 }
 
 @media (max-width: 520px) {
@@ -4150,8 +4354,15 @@ button.linkish {
   border: 1px solid var(--border);
   background: var(--bg-input);
   color: var(--text);
-  border-radius: 10px;
-  padding: 8px 10px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  transition: border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease;
+}
+
+.cal-form input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 .cal-remind-chips {
@@ -4170,12 +4381,17 @@ button.linkish {
   padding: 6px 12px;
   font-size: 0.82rem;
   cursor: pointer;
+  transition:
+    transform var(--motion-fast) var(--ease-spring),
+    border-color var(--motion-fast) ease,
+    background var(--motion-fast) ease;
 }
 
 .cal-remind-chip.is-on {
   border-color: var(--accent);
   background: color-mix(in srgb, var(--accent) 22%, transparent);
   color: var(--text);
+  transform: scale(1.04);
 }
 
 .ambient {
@@ -6244,10 +6460,20 @@ html.theme-wipe-dark::before {
   border-radius: 999px;
   padding: 14px 20px;
   font-weight: 700;
-  background: var(--accent);
+  background: linear-gradient(180deg, #3be07a, var(--accent));
   color: #041008;
   box-shadow: 0 8px 28px color-mix(in srgb, var(--accent) 45%, transparent);
   animation: calFabIn 420ms var(--ease-out);
+  transition: transform var(--motion-fast) var(--ease-spring), box-shadow var(--motion-fast) ease;
+}
+
+.cal-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.cal-fab:active {
+  transform: scale(0.94);
 }
 
 .app.is-kb .cal-fab {
@@ -6257,8 +6483,16 @@ html.theme-wipe-dark::before {
 .cal-sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 24;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-med) var(--ease-out);
+}
+
+.cal-sheet-backdrop.is-on {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .cal-sheet {
@@ -6268,14 +6502,37 @@ html.theme-wipe-dark::before {
   bottom: var(--kb);
   z-index: 25;
   transform: translateY(110%);
-  transition: transform var(--motion-med) var(--ease-out);
-  background: linear-gradient(180deg, rgba(18, 22, 20, 0.96), rgba(10, 12, 11, 0.98));
-  border-top: 1px solid var(--border);
-  border-radius: 20px 20px 0 0;
-  padding: 18px 16px calc(96px + env(safe-area-inset-bottom, 0px));
+  transition: transform 480ms var(--ease-out);
+  background: linear-gradient(180deg, rgba(22, 26, 24, 0.98), rgba(10, 12, 11, 0.99));
+  border-top: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  border-radius: 24px 24px 0 0;
+  padding: 8px 16px calc(96px + env(safe-area-inset-bottom, 0px));
   pointer-events: none;
-  box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(18px) saturate(1.15);
+  box-shadow: 0 -22px 48px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(22px) saturate(1.2);
+}
+
+.cal-sheet-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 28px;
+  margin: 0 0 6px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.cal-sheet-handle i {
+  display: block;
+  width: 48px;
+  height: 5px;
+  border-radius: 999px;
+  background: #9aa49c;
+}
+
+.cal-sheet-handle:active {
+  cursor: grabbing;
 }
 
 .app.is-kb .cal-sheet {
