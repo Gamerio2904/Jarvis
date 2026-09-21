@@ -1,6 +1,7 @@
 import { notifyIdFromKey, requestNotifyPermission, scheduleNotify, cancelNotify } from '../native/notify.ts'
 import { formatDue, startOfDay } from './remind-parse.ts'
 import { parseCalendarIntent, parseRemindOffsets, formatRemindOffsets } from './calendar-parse.ts'
+import { classifyEventTheme, eventTheme, isCalThemeId, type CalThemeId } from './calendar-theme.ts'
 import { isDebugRunActive } from './debug-flag.ts'
 import {
   addEvent,
@@ -111,13 +112,16 @@ export async function handleCalendar(
   }
 
   if (intent.kind === 'create') {
+    const theme = classifyEventTheme(intent.title, intent.place)
     const row = await addEvent({
       title: intent.title,
       start_at: intent.start.toISOString(),
       place: intent.place,
       conversationId,
+      theme,
     })
     await scheduleEventNotifies(row)
+    void refineThemeLater(row)
     persistLastList('calendar', [row.title])
     const where = row.place ? ` · ${row.place}` : ''
     const running = isDebugRunActive()
@@ -229,14 +233,34 @@ export async function createEventFromGui(opts: {
   title: string
   start: Date
   remind_offsets_min?: number[]
+  theme?: CalThemeId
 }): Promise<CalendarEvent> {
+  const theme = opts.theme && isCalThemeId(opts.theme) ? opts.theme : classifyEventTheme(opts.title)
   const row = await addEvent({
     title: opts.title,
     start_at: opts.start.toISOString(),
     remind_offsets_min: opts.remind_offsets_min,
+    theme,
   })
   await scheduleEventNotifies(row)
+  if (!opts.theme) void refineThemeLater(row)
   return row
+}
+
+async function refineThemeLater(row: CalendarEvent): Promise<void> {
+  if (eventTheme(row) !== 'sonstiges') return
+  if (isDebugRunActive()) return
+  if (typeof window === 'undefined') return
+  try {
+    const { classifyEventThemeSmart } = await import('./calendar-theme-llm.ts')
+    const next = await classifyEventThemeSmart(row.title, row.place)
+    if (next === 'sonstiges' || next === row.theme) return
+    const live = (await listEvents()).find((e) => e.id === row.id)
+    if (!live) return
+    await putEvent({ ...live, theme: next })
+  } catch {
+    /* offline / kein Key */
+  }
 }
 
 export function sameDay(a: Date, b: Date): boolean {

@@ -5,13 +5,20 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### Kalender — Übersicht, Farben, Themen — *CODE*
+
+Monat / Liste / Jahr. Als-Nächstes-Karte. Termine als Karten mit Farbe
+(Arbeit, Uni, Geburtstag, Familie, Arzt, Sport, Reise, Sonstiges).
+Parser liest das Thema aus dem Titel; ohne Treffer fragt Groq nach, wenn
+ein Schlüssel liegt. Anlegen: Titel, Zeit, Thema und Erinnerung in einem
+Sheet.
+
 ### `18.8.1` Nachzieher — Automatischer Debug-Lauf wieder sichtbar — *CODE*
 
 Reiter **Tests** und Spur **Lauf** bleiben am rechten Rand kleben, statt
 hinter der unsichtbaren Scroll-Leiste zu verschwinden. Auf den anderen
 Spuren liegt der Knopf **Automatischer Debug-Lauf**. `Öffne Debug` und
-Dock **Tests** öffnen direkt den Lauf mit **Start**. Sideload bleibt
-**`18.8.1`**, bis eine neue APK liegt.
+Dock **Tests** öffnen direkt den Lauf mit **Start**.
 
 ### `18.8.1` — Watchliste-Noten, Erinnerungen am Tag, Lage-Sicht — *CODE + APK*
 

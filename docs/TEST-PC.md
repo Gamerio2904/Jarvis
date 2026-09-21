@@ -110,6 +110,7 @@ Die letzte Spur merkt sich die Sitzung (Tab schließen setzt auf Heute zurück).
 5. `Stell irgendwas mit der Watchliste an` → ehrliche Absage, drei Nachbarn, kein „habe ich gemacht“.
 6. `Zeig Erdbeben` → Kugel, Schicht, kein Live-Label.
 7. Chat-Satz → Orb, bis Text da ist.
+8. Dock Kalender: Monat / Liste / Jahr. `Termin morgen 15 Uhr Zahnarzt` → Karte **Arzt** (Türkis). Teammeeting → **Arbeit**. FAB: Thema und Erinnerung in einem Sheet.
 
 PC/TV-Sätze ohne Gerät: ehrliche Absage zählt.
 

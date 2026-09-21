@@ -49,6 +49,7 @@ assert.match(reminded.reply || '', /1 Tag|24 Stunden/)
 assert.equal(await getPending(conv), undefined)
 const row = (await listEvents()).find((e) => e.title.includes('Zahnarzt'))
 assert.ok(row)
+assert.equal(row.theme, 'arzt')
 assert.deepEqual(eventNotifyMinutes(row), [1440, 120])
 
 await clearPending(conv)
