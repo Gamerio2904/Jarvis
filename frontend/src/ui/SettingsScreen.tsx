@@ -452,7 +452,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 role="tab"
                 data-nav={id}
                 aria-selected={tab === id}
-                className={`settings-tab ${tab === id ? 'active' : ''}${id === 'daten' ? ' is-danger' : ''}`}
+                className={`settings-tab ${tab === id ? 'active' : ''}${id === 'daten' ? ' is-danger' : ''}${id === 'tests' ? ' is-pin' : ''}`}
                 onClick={() => p.onTopic(id)}
               >
                 {t.label}
@@ -2350,6 +2350,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <ProbeShelf
               busy={p.debugBusy}
               onSend={p.onProbeSend}
+              preferLane={p.topic === 'debug' || fieldHits?.elementId === 'sf-debug-run' ? 'lauf' : undefined}
               debug={
                 <DebugPanel
                   onSend={p.onDebugSend}

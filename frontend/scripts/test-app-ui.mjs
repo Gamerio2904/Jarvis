@@ -27,7 +27,7 @@ const { loadSettings, saveSettings, getPending, clearPending } = await import('.
 const { runDirectorTurn } = await import('../src/engine/director.ts')
 const { normalizeUtterance } = await import('../src/engine/utterance.ts')
 const { parseWatchlistIntent } = await import('../src/engine/watchlist-parse.ts')
-const { unassignedCopyTitles, groupsForLane, searchProbeGroups, displayGroupTitle, PROBE_LANES } = await import('../src/engine/probe-lanes.ts')
+const { unassignedCopyTitles, groupsForLane, searchProbeGroups, displayGroupTitle, PROBE_LANES, PINNED_PROBE_LANE, initialProbeLane } = await import('../src/engine/probe-lanes.ts')
 
 assert.deepEqual([...UI_ACTION_IDS], ['overlay.open', 'overlay.close', 'settings.tab', 'settings.set', 'dock.go'])
 assert.ok(UI_DOCK_IDS.includes('watchlist'))
@@ -53,6 +53,12 @@ assert.equal(parseAppIntent('Zeig Filme')?.action?.dock, 'watchlist')
 assert.deepEqual(parseAppIntent('Kalender zu'), { kind: 'ui', action: { id: 'overlay.close' } })
 assert.equal(parseAppIntent('Öffne Einstellungen Musik')?.action?.topic, 'musik')
 assert.equal(parseAppIntent('Öffne Debug')?.action?.overlay, 'debug')
+{
+  const opened = await handleApp(conv, 'Öffne Debug')
+  assert.match(opened.reply || '', /Tests ist offen/)
+  assert.equal(opened.tool?.action, 'debug')
+  assert.equal(opened.tool?.result?.topic, 'debug')
+}
 
 const research = parseAppIntent('Research an')
 assert.equal(research?.action?.id, 'settings.set')
@@ -135,6 +141,11 @@ assert.deepEqual(
   PROBE_LANES.map((l) => l.id),
   ['heute', 'gespraech', 'alltag', 'geraet', 'lage', 'probe', 'story', 'lauf'],
 )
+assert.equal(PINNED_PROBE_LANE, 'lauf')
+assert.equal(initialProbeLane('lauf', 'heute'), 'lauf')
+assert.equal(initialProbeLane(undefined, 'lage'), 'lage')
+assert.equal(initialProbeLane(undefined, 'v9'), 'heute')
+assert.equal(initialProbeLane(undefined, null), 'heute')
 assert.deepEqual(unassignedCopyTitles(), [])
 assert.ok(groupsForLane('heute').some((g) => g.title === '18.7 Fläche'))
 assert.ok(groupsForLane('heute').some((g) => g.title === '18.8 Debug & Termin'))

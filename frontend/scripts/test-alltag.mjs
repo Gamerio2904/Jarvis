@@ -14,7 +14,7 @@ import { parseWatchPriceIntent } from '../src/engine/watch-price-parse.ts'
 import { parseSpotifyIntent } from '../src/engine/spotify-parse.ts'
 import { parsePlaceRecall } from '../src/engine/places-parse.ts'
 import { isLiveLookup, guardResearchReply, corpusSaysNowFree, isStaleFeeNow } from '../src/engine/research-parse.ts'
-import { filterTopics, resolveTopic, SETTINGS_TABS, visibleSettingsTabs } from '../src/engine/settings-ia.ts'
+import { filterTopics, resolveTopic, SETTINGS_TABS, visibleSettingsTabs, settingsHighlightField } from '../src/engine/settings-ia.ts'
 import { parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseWarnIntent } from '../src/engine/warn.ts'
 
@@ -107,6 +107,9 @@ assert.equal(resolveTopic('cloud'), 'keys')
 assert.equal(resolveTopic('haus'), 'geraete')
 assert.equal(resolveTopic('gefahr'), 'daten')
 assert.equal(resolveTopic('debug'), 'tests')
+assert.equal(settingsHighlightField('debug')?.elementId, 'sf-debug-run')
+assert.equal(settingsHighlightField('automatisch')?.elementId, 'sf-debug-run')
+assert.equal(settingsHighlightField('Probe')?.elementId, 'sf-debug')
 assert.equal(resolveTopic('sprache'), 'stimme')
 assert.equal(SETTINGS_TABS.length, 8)
 assert.equal(visibleSettingsTabs('Key').includes('keys'), true)

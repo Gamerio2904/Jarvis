@@ -380,6 +380,19 @@ textarea {
   animation: navPop 420ms var(--ease-spring);
 }
 
+.settings-tab.is-pin {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: rgba(8, 10, 9, 0.96);
+  box-shadow: -14px 0 16px rgba(8, 10, 9, 0.9);
+}
+
+.settings-tab.is-pin.active {
+  background: transparent;
+  box-shadow: none;
+}
+
 .settings-tab.is-danger.active {
   color: #1a080a;
 }
@@ -901,6 +914,38 @@ textarea {
 
 .probe-lane.is-on {
   color: #07110a;
+}
+
+.probe-lane.is-pin {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: rgba(8, 10, 9, 0.96);
+  box-shadow: -14px 0 16px rgba(8, 10, 9, 0.9);
+}
+
+.probe-lane.is-pin.is-on {
+  background: transparent;
+  box-shadow: none;
+}
+
+.probe-lauf-jump {
+  appearance: none;
+  width: 100%;
+  border: 1px solid rgba(30, 215, 96, 0.38);
+  background: rgba(30, 215, 96, 0.08);
+  color: var(--accent);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.probe-lauf-jump:hover {
+  border-color: rgba(30, 215, 96, 0.6);
+  background: rgba(30, 215, 96, 0.14);
 }
 
 .copy-btn.is-send {

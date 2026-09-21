@@ -25,6 +25,13 @@ export function useSlidingThumb(activeId: string | null): {
         thumb.style.opacity = '0'
         return
       }
+      const pad = 8
+      const left = item.offsetLeft
+      const right = left + item.offsetWidth
+      const viewLeft = host.scrollLeft
+      const viewRight = viewLeft + host.clientWidth
+      if (left < viewLeft + pad) host.scrollLeft = Math.max(0, left - pad)
+      else if (right > viewRight - pad) host.scrollLeft = right - host.clientWidth + pad
       const hr = host.getBoundingClientRect()
       const ir = item.getBoundingClientRect()
       const x = ir.left - hr.left + host.scrollLeft

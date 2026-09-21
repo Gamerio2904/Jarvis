@@ -5,6 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.8.1` Nachzieher — Automatischer Debug-Lauf wieder sichtbar — *CODE*
+
+Reiter **Tests** und Spur **Lauf** bleiben am rechten Rand kleben, statt
+hinter der unsichtbaren Scroll-Leiste zu verschwinden. Auf den anderen
+Spuren liegt der Knopf **Automatischer Debug-Lauf**. `Öffne Debug` und
+Dock **Tests** öffnen direkt den Lauf mit **Start**. Sideload bleibt
+**`18.8.1`**, bis eine neue APK liegt.
+
 ### `18.8.1` — Watchliste-Noten, Erinnerungen am Tag, Lage-Sicht — *CODE + APK*
 
 Nachzieher nach `18.8.0`. OMDb liefert kein RT-Publikum mehr — die Folie

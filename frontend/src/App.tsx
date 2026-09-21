@@ -2229,7 +2229,7 @@ function App() {
         messages={messages}
         streaming={streamingText}
         activeConversationId={activeId}
-        onOpen={() => openSettings('tests')}
+        onOpen={() => openSettings('debug')}
       />
       {!driveOpen && !chessOpen ? (
         <NavIsland

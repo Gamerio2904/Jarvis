@@ -85,8 +85,8 @@ export function DebugPanel({
   }
 
   return (
-    <section className="settings-card">
-      <h3>Debug</h3>
+    <section className="settings-card" id="sf-debug-run" data-testid="debug-panel">
+      <h3>Automatischer Debug-Lauf</h3>
       <p className="settings-lead">
         Kategorien wählen, Start öffnet ein neues Gespräch und schließt die Einstellungen. Der Lauf bleibt als
         Dock über Chat, CarPlay und Overlays sichtbar. Home: Meldung „Jarvis testet…“ hält den Lauf. App

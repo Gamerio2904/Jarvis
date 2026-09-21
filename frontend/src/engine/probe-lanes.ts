@@ -3,6 +3,20 @@ import { PROBE_COPY_GROUPS, STORYLINE_GROUPS, TEST_COPY_GROUPS, type TestCopyGro
 export const PROBE_LANE_IDS = ['heute', 'gespraech', 'alltag', 'geraet', 'lage', 'probe', 'story', 'lauf'] as const
 export type ProbeLaneId = (typeof PROBE_LANE_IDS)[number]
 
+/** Debug-Lauf bleibt am rechten Rand der Spur-Leiste — sonst verschwindet er hinter overflow. */
+export const PINNED_PROBE_LANE: ProbeLaneId = 'lauf'
+
+export function isProbeLaneId(id: string | null | undefined): id is ProbeLaneId {
+  return Boolean(id && (PROBE_LANE_IDS as readonly string[]).includes(id))
+}
+
+/** `prefer` gewinnt (Öffne Debug). Sonst gespeicherte Spur, sonst Heute. */
+export function initialProbeLane(prefer?: ProbeLaneId | null, stored?: string | null): ProbeLaneId {
+  if (isProbeLaneId(prefer)) return prefer
+  if (isProbeLaneId(stored)) return stored
+  return 'heute'
+}
+
 export type ProbeLane = {
   id: ProbeLaneId
   label: string

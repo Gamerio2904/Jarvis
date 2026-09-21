@@ -31,7 +31,13 @@ export const SETTINGS_FIELD_INDEX: SettingsSearchHit[] = [
   { tab: 'daten', field: 'Hausstand Export', keywords: ['export', 'hausstand', 'sichern', 'backup'], elementId: 'sf-export' },
   { tab: 'daten', field: 'Fachwissen', keywords: ['fachwissen', 'pack', 'lernen'], elementId: 'sf-fachwissen' },
   { tab: 'daten', field: 'Alles löschen', keywords: ['löschen', 'loeschen', 'gefahr', 'vergiss'], elementId: 'sf-danger' },
-  { tab: 'tests', field: 'Testprompts', keywords: ['debug', 'probe', 'test', 'v1', 'v9', 'spur', 'heute', 'senden'], elementId: 'sf-debug' },
+  {
+    tab: 'tests',
+    field: 'Automatischer Debug-Lauf',
+    keywords: ['debug', 'debug-lauf', 'automatisch', 'wirklich starten'],
+    elementId: 'sf-debug-run',
+  },
+  { tab: 'tests', field: 'Testprompts', keywords: ['probe', 'test', 'v1', 'v9', 'spur', 'heute', 'senden', 'lauf'], elementId: 'sf-debug' },
 ]
 
 const SYNONYMS: Array<{ re: RegExp; tab: SettingsTab; suggest?: string }> = [

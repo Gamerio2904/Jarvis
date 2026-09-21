@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { copyText } from '../copy-text.ts'
 import {
+  PINNED_PROBE_LANE,
   PROBE_LANES,
   displayGroupTitle,
   groupsForLane,
+  initialProbeLane,
   searchProbeGroups,
   type ProbeLaneId,
 } from '../engine/probe-lanes.ts'
@@ -13,13 +15,16 @@ import { useSlidingThumb } from './SlidingThumb.tsx'
 
 const LANE_KEY = 'jarvis_probe_lane'
 
-function loadLane(): ProbeLaneId {
+function storedLane(): string | null {
   try {
-    const raw = sessionStorage.getItem(LANE_KEY)
-    return PROBE_LANES.some((l) => l.id === raw) ? (raw as ProbeLaneId) : 'heute'
+    return sessionStorage.getItem(LANE_KEY)
   } catch {
-    return 'heute'
+    return null
   }
+}
+
+function loadLane(prefer?: ProbeLaneId | null): ProbeLaneId {
+  return initialProbeLane(prefer, storedLane())
 }
 
 function rememberLane(id: ProbeLaneId) {
@@ -109,18 +114,25 @@ export function ProbeShelf({
   onSend,
   busy,
   debug,
+  preferLane,
 }: {
   onSend?: (text: string) => void
   busy?: boolean
   debug?: ReactNode
+  preferLane?: ProbeLaneId | null
 }) {
-  const [lane, setLane] = useState<ProbeLaneId>(loadLane)
+  const [lane, setLane] = useState<ProbeLaneId>(() => loadLane(preferLane))
   const [groupId, setGroupId] = useState('all')
   const [query, setQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   const laneThumb = useSlidingThumb(lane)
   const groupThumb = useSlidingThumb(groupId)
   const searching = query.trim().length > 0
+
+  useEffect(() => {
+    if (!preferLane) return
+    setLane(preferLane)
+  }, [preferLane])
 
   useEffect(() => {
     rememberLane(lane)
@@ -186,7 +198,7 @@ export function ProbeShelf({
                 type="button"
                 data-nav={l.id}
                 aria-selected={lane === l.id}
-                className={`probe-lane${lane === l.id ? ' is-on' : ''}`}
+                className={`probe-lane${lane === l.id ? ' is-on' : ''}${l.id === PINNED_PROBE_LANE ? ' is-pin' : ''}`}
                 onClick={() => setLane(l.id)}
               >
                 {l.label}
@@ -235,6 +247,11 @@ export function ProbeShelf({
               ? `${count} Treffer in allen Spuren`
               : `${face?.hint || ''} · ${lane === 'lauf' ? 'Debug-Lauf' : `${count} Prompts`}`}
           </p>
+          {!searching && lane !== 'lauf' ? (
+            <button type="button" className="probe-lauf-jump" onClick={() => setLane('lauf')}>
+              Automatischer Debug-Lauf
+            </button>
+          ) : null}
         </div>
         {lane === 'lauf' && !searching ? null : (
           <div key={`${lane}-${groupId}-${query}`} className={`probe-stack${reduced ? '' : ' is-motion'}`}>
