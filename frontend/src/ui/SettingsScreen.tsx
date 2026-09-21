@@ -443,22 +443,38 @@ export function SettingsScreen(p: SettingsScreenProps) {
         </label>
         <nav ref={tabThumb.hostRef} className="settings-tabs pill-tabs" aria-label="Reiter">
           <span ref={tabThumb.thumbRef} className="pill-tabs-thumb" aria-hidden />
-          {tabList.map((id) => {
-            const t = TOPIC_FACE[id]
-            return (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                data-nav={id}
-                aria-selected={tab === id}
-                className={`settings-tab ${tab === id ? 'active' : ''}${id === 'daten' ? ' is-danger' : ''}${id === 'tests' ? ' is-pin' : ''}`}
-                onClick={() => p.onTopic(id)}
-              >
-                {t.label}
-              </button>
-            )
-          })}
+          <div className="settings-tabs-scroll">
+            {tabList
+              .filter((id) => id !== 'tests')
+              .map((id) => {
+                const t = TOPIC_FACE[id]
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    role="tab"
+                    data-nav={id}
+                    aria-selected={tab === id}
+                    className={`settings-tab ${tab === id ? 'active' : ''}${id === 'daten' ? ' is-danger' : ''}`}
+                    onClick={() => p.onTopic(id)}
+                  >
+                    {t.label}
+                  </button>
+                )
+              })}
+          </div>
+          {tabList.includes('tests') ? (
+            <button
+              type="button"
+              role="tab"
+              data-nav="tests"
+              aria-selected={tab === 'tests'}
+              className={`settings-tab is-pin${tab === 'tests' ? ' active' : ''}`}
+              onClick={() => p.onTopic('tests')}
+            >
+              {TOPIC_FACE.tests.label}
+            </button>
+          ) : null}
         </nav>
         {searchMiss ? (
           <p className="settings-hint">

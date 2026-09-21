@@ -310,19 +310,28 @@ textarea {
 .settings-tabs {
   position: relative;
   display: flex;
+  align-items: stretch;
   gap: 4px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
+  overflow: hidden;
   padding: 6px;
   margin: 10px 0 8px;
-  scrollbar-width: none;
   border-radius: 999px;
   background: rgba(8, 10, 9, 0.72);
   border: 1px solid var(--border);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-.settings-tabs::-webkit-scrollbar {
+.settings-tabs-scroll {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.settings-tabs-scroll::-webkit-scrollbar {
   display: none;
 }
 
@@ -381,16 +390,13 @@ textarea {
 }
 
 .settings-tab.is-pin {
-  position: sticky;
-  right: 0;
+  flex: 0 0 auto;
   z-index: 2;
-  background: rgba(8, 10, 9, 0.96);
-  box-shadow: -14px 0 16px rgba(8, 10, 9, 0.9);
+  box-shadow: -16px 0 14px rgba(8, 10, 9, 0.88);
 }
 
 .settings-tab.is-pin.active {
-  background: transparent;
-  box-shadow: none;
+  box-shadow: -16px 0 14px rgba(8, 10, 9, 0.88);
 }
 
 .settings-tab.is-danger.active {
@@ -883,6 +889,21 @@ textarea {
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+.probe-lanes {
+  overflow: hidden;
+}
+
+.probe-lanes-scroll {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 4px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.probe-lanes-scroll::-webkit-scrollbar,
 .probe-lanes::-webkit-scrollbar,
 .probe-groups::-webkit-scrollbar {
   display: none;
@@ -917,16 +938,13 @@ textarea {
 }
 
 .probe-lane.is-pin {
-  position: sticky;
-  right: 0;
+  flex: 0 0 auto;
   z-index: 2;
-  background: rgba(8, 10, 9, 0.96);
-  box-shadow: -14px 0 16px rgba(8, 10, 9, 0.9);
+  box-shadow: -16px 0 14px rgba(8, 10, 9, 0.88);
 }
 
 .probe-lane.is-pin.is-on {
-  background: transparent;
-  box-shadow: none;
+  box-shadow: -16px 0 14px rgba(8, 10, 9, 0.88);
 }
 
 .probe-lauf-jump {

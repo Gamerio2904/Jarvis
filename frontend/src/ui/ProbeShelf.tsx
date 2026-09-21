@@ -192,13 +192,27 @@ export function ProbeShelf({
         <div className="probe-shelf">
           <nav ref={laneThumb.hostRef} className="probe-lanes pill-tabs" aria-label="Test-Spuren">
             <span ref={laneThumb.thumbRef} className="pill-tabs-thumb" aria-hidden />
-            {PROBE_LANES.map((l) => (
+            <div className="probe-lanes-scroll">
+              {PROBE_LANES.filter((l) => l.id !== PINNED_PROBE_LANE).map((l) => (
+                <button
+                  key={l.id}
+                  type="button"
+                  data-nav={l.id}
+                  aria-selected={lane === l.id}
+                  className={`probe-lane${lane === l.id ? ' is-on' : ''}`}
+                  onClick={() => setLane(l.id)}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+            {PROBE_LANES.filter((l) => l.id === PINNED_PROBE_LANE).map((l) => (
               <button
                 key={l.id}
                 type="button"
                 data-nav={l.id}
                 aria-selected={lane === l.id}
-                className={`probe-lane${lane === l.id ? ' is-on' : ''}${l.id === PINNED_PROBE_LANE ? ' is-pin' : ''}`}
+                className={`probe-lane is-pin${lane === l.id ? ' is-on' : ''}`}
                 onClick={() => setLane(l.id)}
               >
                 {l.label}
