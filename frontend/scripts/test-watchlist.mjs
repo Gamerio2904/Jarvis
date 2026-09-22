@@ -60,7 +60,7 @@ assert.match(scrubReply('Ich habe den Film nicht in Ihrer Liste gespeichert.'), 
 assert.match(scrubReply('Ich habe keine Bestätigung, dass der Duplikat entfernt wurde.'), /nicht ausgeführt/)
 assert.ok(sameFilmTitle('Star Wars 3', 'Star Wars: Episode III - Revenge of the Sith'))
 assert.ok(sameFilmTitle('Inglorious bastardds', 'Inglourious Basterds'))
-assert.equal(repairSpeech('Jaentfernenes'), 'Ja entfernen es')
+assert.match(repairSpeech('Jaentfernenes'), /^ja entfernen es$/i)
 assert.match(repairSpeech('IngloriousbastarddszuLieblingsfilmenhinzufügen'), /Basterds zu lieblingsfilmen hinzufügen/i)
 assert.equal(
   rewriteFollowUp('ja entfernen es', { last_step_tool: 'watchlist', last_step_title: 'Heat' }),

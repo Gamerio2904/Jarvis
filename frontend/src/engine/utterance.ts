@@ -90,20 +90,26 @@ const REPAIRS: Array<[RegExp, string]> = [
 
 /** STT klebt Watchliste-Sätze: Jaentfernenes, zuLieblingsfilmen, istdoppelt. */
 export function normalizeWatchlistSpeech(text: string): string {
-  return text
-    .replace(/jaentfernenes/gi, 'ja entfernen es')
-    .replace(/jaentfernen/gi, 'ja entfernen ')
-    .replace(/entfernenes/gi, 'entfernen es')
-    .replace(/zulieblingsfilmen/gi, 'zu lieblingsfilmen')
-    .replace(/lieblingsfilmenhinzufügen/gi, 'lieblingsfilmen hinzufügen')
-    .replace(/istdoppelt/gi, 'ist doppelt')
-    .replace(/aufderliste/gi, 'auf der liste')
-    .replace(/fixedas/gi, 'fixe das')
+  const raw = text
+  let t = text
+    .replace(/jaentfernenes/gi, ' ja entfernen es ')
+    .replace(/jaentfernen/gi, ' ja entfernen ')
+    .replace(/entfernenes/gi, ' entfernen es ')
+    .replace(/zulieblingsfilmen/gi, ' zu lieblingsfilmen ')
+    .replace(/lieblingsfilmenhinzufügen/gi, ' lieblingsfilmen hinzufügen ')
+    .replace(/istdoppelt/gi, ' ist doppelt ')
+    .replace(/aufderliste/gi, ' auf der liste ')
+    .replace(/fixedas/gi, ' fixe das ')
     .replace(/inglorious/gi, 'Inglourious')
     .replace(/bastard+s/gi, 'Basterds')
     .replace(/basterdszu/gi, 'Basterds zu ')
-    .replace(/\s+/g, ' ')
-    .trim()
+  if (
+    /istdoppelt|aufderliste|fixedas|zulieblings|jaentfernen|bastard/i.test(raw) ||
+    /\b(?:ist\s+doppelt|lieblingsfilmen|entfernen es|basterds|watchliste|filmliste)\b/i.test(t)
+  ) {
+    t = t.replace(/([A-Za-zÄÖÜäöüß])(\d)/g, '$1 $2').replace(/(\d)([A-Za-zÄÖÜäöüß])/g, '$1 $2')
+  }
+  return t.replace(/\s+/g, ' ').trim()
 }
 
 export function repairSpeech(text: string): string {

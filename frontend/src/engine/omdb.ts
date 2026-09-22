@@ -72,31 +72,40 @@ const FILM_ALIAS: Array<[RegExp, string]> = [
   [/star\s*wars\s*(?:episode\s*)?(?:1|i|eins)\b/i, 'Star Wars: Episode I'],
   [/star\s*wars\s*(?:episode\s*)?(?:5|v|fünf|fuenf)\b/i, 'Star Wars: Episode V'],
   [/star\s*wars\s*(?:episode\s*)?(?:6|vi|sechs)\b/i, 'Star Wars: Episode VI'],
-  [/inglou?rious\s*bast[ae]rds?\b/i, 'Inglourious Basterds'],
+  [/ingl(?:orious|ourious)\s*bast[ae]rd+s?\b/i, 'Inglourious Basterds'],
 ]
+
+function filmKeyOf(title: string): string {
+  return splitFilmTitle(title)
+    .toLowerCase()
+    .replace(/[^a-z0-9äöüß]+/g, ' ')
+    .trim()
+}
 
 export function expandFilmTitle(title: string): string[] {
   const raw = (title || '').trim()
   const spaced = splitFilmTitle(raw)
   const out = [raw, spaced].filter(Boolean)
   const key = spaced.toLowerCase()
+  const stripped = filmKeyOf(raw)
   for (const [re, alias] of FILM_ALIAS) {
-    if (re.test(key)) out.push(alias)
+    if (re.test(key) || re.test(stripped)) out.push(alias)
   }
   return [...new Set(out)]
 }
 
 export function filmTitleKeys(title: string): string[] {
-  return [
-    ...new Set(
-      expandFilmTitle(title).map((t) =>
-        splitFilmTitle(t)
-          .toLowerCase()
-          .replace(/[^a-z0-9äöüß]+/g, ' ')
-          .trim(),
-      ),
-    ),
-  ].filter(Boolean)
+  const out = new Set<string>()
+  for (const t of expandFilmTitle(title)) {
+    const k = filmKeyOf(t)
+    if (k) out.add(k)
+  }
+  for (const key of [...out]) {
+    for (const [re, alias] of FILM_ALIAS) {
+      if (re.test(key)) out.add(filmKeyOf(alias))
+    }
+  }
+  return [...out].filter(Boolean)
 }
 
 /** Gleicher Film, nicht Franchise-Teilmenge (Star Wars ≠ Episode III). */
