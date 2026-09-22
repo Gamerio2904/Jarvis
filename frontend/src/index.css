@@ -4306,9 +4306,9 @@ button.linkish {
 
 .cal-empty {
   display: grid;
-  gap: 10px;
+  gap: 4px;
   justify-items: start;
-  padding: 4px 0 8px;
+  padding: 0 0 4px;
 }
 
 .cal-empty-cta {
