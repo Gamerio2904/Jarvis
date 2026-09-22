@@ -41,6 +41,9 @@ const TABLE = [
   ['Zeig mir mal', 'incomplete', {}],
 
   // Die Erkennung darf selbst abschließen — aber nicht gegen ein hängendes Ende.
+  ['Zeig Satelliten', 'unsure', {}],
+  ['Zeig Satelliten', 'complete', { isFinal: true }],
+  ['Watchliste Star Wars', 'complete', { isFinal: true }],
   ['milch auf die einkaufsliste', 'complete', { isFinal: true }],
   ['milch auf die einkaufsliste', 'unsure', {}],
   ['ich brauche noch', 'incomplete', { isFinal: true }],

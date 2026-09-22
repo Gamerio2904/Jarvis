@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.9.3` — Mikrofon: weniger Lag, ganze Äußerung — *CODE*
+
+Native Erkennung bricht nicht mehr nach 200 ms Stille ab. Kurze Sätze
+(„Zeig Satelliten“) warten nicht auf eine zweite Hörsession. Satzende
+wie im Chat: hängendes „und“ hält, `isFinal` schließt. Gerät-Erkennung
+wenn da, sonst Cloud. Die Kugel pulsiert mit dem Pegel.
+
 ### `18.9.2` — Halluzinationen: Parser statt Erfindung — *CODE + APK*
 
 Verpasste Listen-Korrektur („Nee auf die Lieblingsliste“) fällt nicht mehr

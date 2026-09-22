@@ -47,8 +47,8 @@ type NativeVoice = {
   bargeMute?(opts: { on: boolean; seq?: number }): Promise<{ ok: boolean }>
   playMp3?(opts: { audio: string }): Promise<{ ok: boolean; message?: string }>
   addListener(
-    event: 'partial' | 'sse' | 'wake' | 'barge' | 'debugStop',
-    cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string }) => void,
+    event: 'partial' | 'sse' | 'wake' | 'barge' | 'debugStop' | 'rms',
+    cb: (ev: { text?: string; data?: string; hit?: boolean; utterance?: string; rms?: number }) => void,
   ): Promise<{ remove: () => void }>
 }
 
@@ -126,6 +126,21 @@ export async function requestMicPermission(): Promise<boolean> {
     return true
   } catch {
     return false
+  }
+}
+
+/** Native-STT: Pegel vom Gerät, damit die Kugel mitgeht — WebView hat dort kein getUserMedia. */
+export function watchVoiceRms(onRms: (n: number) => void): () => void {
+  if (!native) return () => undefined
+  let handle: { remove: () => void } | undefined
+  void native.addListener('rms', (ev) => {
+    const n = Number(ev.rms)
+    if (Number.isFinite(n)) onRms(Math.max(0, Math.min(1, n)))
+  }).then((h) => {
+    handle = h
+  })
+  return () => {
+    handle?.remove()
   }
 }
 

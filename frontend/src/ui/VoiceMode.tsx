@@ -12,6 +12,7 @@ import {
   setKeepScreenOn,
   stopListen,
   stopSpeak,
+  watchVoiceRms,
 } from '../native/voice.ts'
 import { abortCurrentTurn } from '../engine/turn-abort.ts'
 import { ReplyOrb } from './ReplyOrb.tsx'
@@ -82,7 +83,16 @@ export function VoiceMode({
     let ctx: AudioContext | null = null
     let raf = 0
     let dead = false
-    if (isNativeVoice()) return
+    if (isNativeVoice()) {
+      const off = watchVoiceRms((n) => {
+        setLevel(n)
+        dispatchVoiceAmp(n)
+      })
+      return () => {
+        off()
+        dispatchVoiceAmp(0)
+      }
+    }
     void (async () => {
       try {
         stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })

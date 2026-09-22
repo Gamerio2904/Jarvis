@@ -85,6 +85,9 @@ public class JarvisVoicePlugin extends Plugin {
     private String lastPartial = "";
     private String listenHold = "";
     private int listenExtend = 0;
+    private int listenBusy = 0;
+    private long lastRmsAt = 0;
+    private boolean skipOnDevice = false;
     private volatile boolean bargeWatch = false;
     /**
      * Spricht die App gerade selbst? Deckt beide Spuren ab — die System-Stimme
@@ -232,82 +235,15 @@ public class JarvisVoicePlugin extends Plugin {
             lastPartial = "";
             listenHold = "";
             listenExtend = 0;
+            listenBusy = 0;
             if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
                 finishListen("", false, "Spracherkennung fehlt auf diesem Gerät.", null);
                 return;
             }
-            if (recognizer == null) {
-                recognizer = SpeechRecognizer.createSpeechRecognizer(getContext());
-                recognizer.setRecognitionListener(new RecognitionListener() {
-                    @Override public void onReadyForSpeech(Bundle params) {}
-                    @Override public void onBeginningOfSpeech() {}
-                    @Override public void onRmsChanged(float rmsdB) {}
-                    @Override public void onBufferReceived(byte[] buffer) {}
-                    @Override public void onEndOfSpeech() {}
-                    @Override
-                    public void onResults(Bundle results) {
-                        ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                        String text = list != null && !list.isEmpty() ? list.get(0) : "";
-                        String joined = joinHold(text);
-                        if (shouldExtend(joined)) {
-                            listenHold = joined;
-                            listenExtend += 1;
-                            lastPartial = joined;
-                            restartListen();
-                            return;
-                        }
-                        listenHold = "";
-                        listenExtend = 0;
-                        finishListen(joined, true, "", list);
-                    }
-                    @Override
-                    public void onError(int error) {
-                        if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY
-                                || error == SpeechRecognizer.ERROR_CLIENT) {
-                            try {
-                                if (recognizer != null) {
-                                    recognizer.destroy();
-                                    recognizer = null;
-                                }
-                            } catch (Exception ignored) {}
-                        }
-                        if (error == SpeechRecognizer.ERROR_NO_MATCH
-                                || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
-                            String keep = joinHold(lastPartial);
-                            if (shouldExtend(keep)) {
-                                listenHold = keep;
-                                listenExtend += 1;
-                                restartListen();
-                                return;
-                            }
-                            finishListen(keep, true, keep.isEmpty() ? "" : "", null);
-                            return;
-                        }
-                        finishListen(joinHold(lastPartial), false, "Zuhören unterbrochen.", null);
-                    }
-                    @Override
-                    public void onPartialResults(Bundle partialResults) {
-                        ArrayList<String> list = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-                        if (list == null || list.isEmpty()) return;
-                        lastPartial = list.get(0) == null ? "" : list.get(0);
-                        JSObject ev = new JSObject();
-                        ev.put("text", lastPartial);
-                        notifyListeners("partial", ev);
-                    }
-                    @Override public void onEvent(int eventType, Bundle params) {}
-                });
-            }
-            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "de-DE");
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "de-DE");
-            intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
-            intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-            intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 8);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 280L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 200L);
-            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 280L);
+            ensureRecognizer();
+            Intent intent = listenIntent();
             listenIntent = intent;
+            int delay = 80;
             try {
                 main.postDelayed(() -> {
                     if (listenGen != gen || listenCall != call) return;
@@ -316,7 +252,7 @@ public class JarvisVoicePlugin extends Plugin {
                     } catch (Exception e) {
                         finishListen("", false, "Zuhören fehlgeschlagen.", null);
                     }
-                }, 220);
+                }, delay);
             } catch (Exception e) {
                 finishListen("", false, "Zuhören fehlgeschlagen.", null);
                 return;
@@ -329,7 +265,134 @@ public class JarvisVoicePlugin extends Plugin {
                     } catch (Exception ignored) {}
                     finishListen(joinHold(lastPartial), true, "", null);
                 }
-            }, 10_000);
+            }, 15_000);
+        });
+    }
+
+    private Intent listenIntent() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "de-DE");
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "de-DE");
+        intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
+        intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 8);
+        /**
+         * 200–280 ms haben mittendrin abgeschnitten. Die JS-Seite wartet
+         * 600–1100 ms auf ein Satzende — das Gerät muss mindestens so lange
+         * offen bleiben, sonst kommt nur die erste Silbe.
+         */
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 750L);
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 520L);
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 480L);
+        intent.putExtra("android.speech.extra.DICTATION_MODE", true);
+        return intent;
+    }
+
+    private SpeechRecognizer makeRecognizer() {
+        if (!skipOnDevice && Build.VERSION.SDK_INT >= 33) {
+            try {
+                if (SpeechRecognizer.isOnDeviceRecognitionAvailable(getContext())) {
+                    return SpeechRecognizer.createOnDeviceSpeechRecognizer(getContext());
+                }
+            } catch (Exception ignored) {
+                skipOnDevice = true;
+            }
+        }
+        if (!skipOnDevice && Build.VERSION.SDK_INT >= 31 && Build.VERSION.SDK_INT < 33) {
+            try {
+                return SpeechRecognizer.createOnDeviceSpeechRecognizer(getContext());
+            } catch (Exception ignored) {
+                skipOnDevice = true;
+            }
+        }
+        return SpeechRecognizer.createSpeechRecognizer(getContext());
+    }
+
+    private void ensureRecognizer() {
+        if (recognizer != null) return;
+        recognizer = makeRecognizer();
+        recognizer.setRecognitionListener(new RecognitionListener() {
+            @Override public void onReadyForSpeech(Bundle params) {}
+            @Override public void onBeginningOfSpeech() {}
+            @Override public void onRmsChanged(float rmsdB) {
+                long now = System.currentTimeMillis();
+                if (now - lastRmsAt < 50) return;
+                lastRmsAt = now;
+                float n = Math.max(0f, Math.min(1f, (rmsdB + 2f) / 12f));
+                JSObject ev = new JSObject();
+                ev.put("rms", n);
+                notifyListeners("rms", ev);
+            }
+            @Override public void onBufferReceived(byte[] buffer) {}
+            @Override public void onEndOfSpeech() {}
+            @Override
+            public void onResults(Bundle results) {
+                ArrayList<String> list = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                String text = list != null && !list.isEmpty() ? list.get(0) : "";
+                String joined = joinHold(text);
+                if (shouldExtend(joined, true)) {
+                    listenHold = joined;
+                    listenExtend += 1;
+                    lastPartial = joined;
+                    restartListen();
+                    return;
+                }
+                listenHold = "";
+                listenExtend = 0;
+                finishListen(joined, true, "", list);
+            }
+            @Override
+            public void onError(int error) {
+                if (error == SpeechRecognizer.ERROR_RECOGNIZER_BUSY
+                        || error == SpeechRecognizer.ERROR_CLIENT) {
+                    skipOnDevice = true;
+                    try {
+                        if (recognizer != null) {
+                            recognizer.destroy();
+                            recognizer = null;
+                        }
+                    } catch (Exception ignored) {}
+                    if (listenBusy < 2 && listenCall != null) {
+                        listenBusy += 1;
+                        main.postDelayed(() -> {
+                            if (listenCall == null) return;
+                            try {
+                                ensureRecognizer();
+                                if (recognizer != null && listenIntent != null) {
+                                    recognizer.startListening(listenIntent);
+                                }
+                            } catch (Exception e) {
+                                finishListen(joinHold(lastPartial), false, "Zuhören unterbrochen.", null);
+                            }
+                        }, 180);
+                        return;
+                    }
+                }
+                if (error == SpeechRecognizer.ERROR_NO_MATCH
+                        || error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT) {
+                    String keep = joinHold(lastPartial);
+                    if (shouldExtend(keep, false)) {
+                        listenHold = keep;
+                        listenExtend += 1;
+                        restartListen();
+                        return;
+                    }
+                    finishListen(keep, true, keep.isEmpty() ? "" : "", null);
+                    return;
+                }
+                finishListen(joinHold(lastPartial), false, "Zuhören unterbrochen.", null);
+            }
+            @Override
+            public void onPartialResults(Bundle partialResults) {
+                ArrayList<String> list = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                if (list == null || list.isEmpty()) return;
+                lastPartial = list.get(0) == null ? "" : list.get(0);
+                JSObject ev = new JSObject();
+                ev.put("text", lastPartial);
+                notifyListeners("partial", ev);
+            }
+            @Override public void onEvent(int eventType, Bundle params) {}
         });
     }
 
@@ -341,23 +404,32 @@ public class JarvisVoicePlugin extends Plugin {
         return a + " " + b;
     }
 
-    private boolean looksComplete(String text) {
+    /**
+     * Gleicher Maßstab wie `turn-detect.ts`. Länge ist kein Beleg —
+     * „Zeig Satelliten" darf nicht auf eine zweite Session warten.
+     */
+    private boolean looksComplete(String text, boolean isFinal) {
         if (text == null) return false;
-        String t = text.trim();
+        String t = text.trim().replaceAll("\\s+", " ");
         if (t.isEmpty()) return false;
         String low = t.toLowerCase(Locale.GERMAN);
-        if (low.matches("(?s).*\\b(und|oder|aber|weil|dass|daß|also|dann|wenn|ob|mit|von|zu|für|nach)\\s*$")) {
+        if (low.matches("(?s).*\\b(und|oder|aber|weil|dass|daß|also|dann|wenn|ob|mit|von|zu|für|nach|als|wie|der|die|das|ein|eine|einen|einem|ich|wir|man|noch|um|bis|seit|ohne|gegen|durch|vor|über|unter|neben|beim|zur|zum|vom|im|am|dem|des|einer|eines|mein|meine|meinen|meiner|sehr|ganz|mal|auch|nur|schon|damit|obwohl|während|bevor|nachdem|falls|sodass|weder|entweder)\\s*$")) {
             return false;
         }
         if (t.matches(".*[.!?…]$") && t.length() >= 4) return true;
-        int words = t.split("\\s+").length;
-        return words >= 6 || t.length() >= 24;
+        if (low.matches("^(?:stopp|stop|halt|weiter|pause|abbrechen|lauter|leiser|zurück|hilfe)[.!?]*$")) {
+            return true;
+        }
+        if (low.matches("^(?:(?:das|der|die|den|mein|meine)\\s+)?(?:licht|lampe|lampen|fernseher|tv|ventilator|steckdose|steckdosen|taschenlampe|kugel|weltkugel|körper|koerper|erde|lage|hirn|auge|musik|radio|spotify|netflix|carplay|fahrmodus|overlay)\\s+(?:an|aus|ein|einschalten|ausschalten|anmachen|ausmachen|hoch|runter|lauter|leiser|stopp|stop)[.!?]*$")) {
+            return true;
+        }
+        return isFinal;
     }
 
-    private boolean shouldExtend(String text) {
+    private boolean shouldExtend(String text, boolean isFinal) {
         if (listenExtend >= 2) return false;
         if (text == null || text.trim().isEmpty()) return false;
-        return !looksComplete(text);
+        return !looksComplete(text, isFinal);
     }
 
     private void restartListen() {
@@ -368,6 +440,7 @@ public class JarvisVoicePlugin extends Plugin {
         main.postDelayed(() -> {
             if (listenGen != gen || listenCall != call) return;
             try {
+                if (recognizer == null) ensureRecognizer();
                 if (recognizer == null) {
                     finishListen(joinHold(lastPartial), true, "", null);
                     return;
@@ -376,7 +449,7 @@ public class JarvisVoicePlugin extends Plugin {
             } catch (Exception e) {
                 finishListen(joinHold(lastPartial), true, "", null);
             }
-        }, 160);
+        }, 80);
     }
 
     private void finishListen(String text, boolean ok, String message, ArrayList<String> alts) {

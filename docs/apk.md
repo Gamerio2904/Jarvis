@@ -1,6 +1,8 @@
 # Android-APK — Sideload `18.9.2`
 
-App-Code **`18.9.2`**. Sideload **`18.9.2`** (versionCode `180902`):
+App-Code **`18.9.3`**. Sideload-APK folgt nach Execute. versionCode `180903`.
+
+**18.9.2:** Halluzinationen: Parser statt Erfindung. Sideload **`18.9.2`** (versionCode `180902`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.9.1:** Lage-Satelliten, Waldbrände weltweit, Watchliste-Umzug. Sideload **`18.9.1`** (versionCode `180901`):
