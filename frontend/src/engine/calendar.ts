@@ -65,30 +65,34 @@ export async function handleCalendar(
   const pending = await getPending(conversationId)
   if (pending?.tool === 'calendar' && pending.action === 'remind_offsets') {
     const hit = parseRemindOffsets(text)
-    if (!hit) return { handled: false }
-    const eventId = String(pending.args?.event_id || '')
-    const row = (await listEvents()).find((e) => e.id === eventId)
-    await clearPending(conversationId)
-    if (!row) {
+    if (!hit) {
+      if (parseCalendarIntent(text)) await clearPending(conversationId)
+      else return { handled: false }
+    } else {
+      const eventId = String(pending.args?.event_id || '')
+      const row = (await listEvents()).find((e) => e.id === eventId)
+      await clearPending(conversationId)
+      if (!row) {
+        return {
+          handled: true,
+          reply: 'Der Termin ist weg. Legen Sie ihn nochmal an.',
+          tool: { tool_status: 'error', tool: 'calendar', action: 'remind', label: 'Termin weg' },
+        }
+      }
+      await cancelEventNotifies(row)
+      const next: CalendarEvent = {
+        ...row,
+        remind_offsets_min: hit.kind === 'none' ? [] : hit.kind === 'at_start' ? [0] : hit.minutes,
+      }
+      await putEvent(next)
+      const skipped = await scheduleEventNotifies(next)
+      const label = hit.kind === 'none' ? 'keine extra Erinnerung' : formatRemindOffsets(next.remind_offsets_min || [0])
+      const skipLine = skipped.length ? ` ${skipped.join(', ')} ist schon vorbei.` : ''
       return {
         handled: true,
-        reply: 'Der Termin ist weg. Legen Sie ihn nochmal an.',
-        tool: { tool_status: 'error', tool: 'calendar', action: 'remind', label: 'Termin weg' },
+        reply: `Erinnerung: ${label}.${skipLine}`,
+        tool: { tool_status: 'executed', tool: 'calendar', action: 'remind', label: 'Erinnerung' },
       }
-    }
-    await cancelEventNotifies(row)
-    const next: CalendarEvent = {
-      ...row,
-      remind_offsets_min: hit.kind === 'none' ? [] : hit.kind === 'at_start' ? [0] : hit.minutes,
-    }
-    await putEvent(next)
-    const skipped = await scheduleEventNotifies(next)
-    const label = hit.kind === 'none' ? 'keine extra Erinnerung' : formatRemindOffsets(next.remind_offsets_min || [0])
-    const skipLine = skipped.length ? ` ${skipped.join(', ')} ist schon vorbei.` : ''
-    return {
-      handled: true,
-      reply: `Erinnerung: ${label}.${skipLine}`,
-      tool: { tool_status: 'executed', tool: 'calendar', action: 'remind', label: 'Erinnerung' },
     }
   }
 
@@ -184,9 +188,26 @@ export async function handleCalendar(
   }
 
   const rows = await listEvents()
-  const q = intent.query.toLowerCase()
-  const hit = rows.find((e) => e.title.toLowerCase().includes(q) || q.includes(e.title.toLowerCase()))
+  const hit = findEventByQuery(rows, intent.query)
   if (!hit) return { handled: true, reply: `Kein Termin zu „${intent.query}“.` }
+
+  if (intent.kind === 'rename') {
+    const next = await renameEvent(hit.id, intent.title)
+    if (!next) return { handled: true, reply: 'Wie soll der Termin heißen?' }
+    persistLastList('calendar', [next.title])
+    return {
+      handled: true,
+      reply: `Termin umbenannt: ${hit.title} → ${next.title}. Steht im Kalender.`,
+      tool: {
+        tool_status: 'executed',
+        tool: 'calendar',
+        action: 'rename',
+        label: 'Termin umbenannt',
+        preview: next.title,
+      },
+    }
+  }
+
   await cancelEventNotifies(hit)
   await deleteEvent(hit.id)
   return {
@@ -194,6 +215,15 @@ export async function handleCalendar(
     reply: `Termin weg: ${hit.title}.`,
     tool: { tool_status: 'executed', tool: 'calendar', action: 'delete', label: 'Termin weg' },
   }
+}
+
+function findEventByQuery(rows: CalendarEvent[], query: string): CalendarEvent | undefined {
+  const q = query.toLowerCase().replace(/[.!?]+$/g, '').trim()
+  if (!q) return undefined
+  return (
+    rows.find((e) => e.title.toLowerCase() === q) ||
+    rows.find((e) => e.title.toLowerCase().includes(q) || q.includes(e.title.toLowerCase()))
+  )
 }
 
 async function eventsInWindow(day?: Date, until?: Date): Promise<CalendarEvent[]> {
@@ -226,6 +256,48 @@ export async function applyEventOffsets(id: string, minutes: number[]): Promise<
   const next: CalendarEvent = { ...row, remind_offsets_min: minutes }
   await putEvent(next)
   await scheduleEventNotifies(next)
+  return next
+}
+
+export async function renameEvent(id: string, title: string): Promise<CalendarEvent | null> {
+  const row = (await listEvents()).find((e) => e.id === id)
+  if (!row) return null
+  const nextTitle = title.replace(/\s+/g, ' ').trim()
+  if (!nextTitle) return null
+  const theme = classifyEventTheme(nextTitle, row.place)
+  const next: CalendarEvent = { ...row, title: nextTitle, theme }
+  await cancelEventNotifies(row)
+  await putEvent(next)
+  await scheduleEventNotifies(next)
+  if (theme === 'sonstiges') void refineThemeLater(next)
+  return next
+}
+
+export async function updateEventFromGui(
+  id: string,
+  opts: {
+    title: string
+    start: Date
+    remind_offsets_min?: number[]
+    theme?: CalThemeId
+  },
+): Promise<CalendarEvent | null> {
+  const row = (await listEvents()).find((e) => e.id === id)
+  if (!row) return null
+  const title = opts.title.replace(/\s+/g, ' ').trim()
+  if (!title) return null
+  const theme = opts.theme && isCalThemeId(opts.theme) ? opts.theme : classifyEventTheme(title, row.place)
+  await cancelEventNotifies(row)
+  const next: CalendarEvent = {
+    ...row,
+    title,
+    start_at: opts.start.toISOString(),
+    theme,
+  }
+  if (opts.remind_offsets_min !== undefined) next.remind_offsets_min = opts.remind_offsets_min
+  await putEvent(next)
+  await scheduleEventNotifies(next)
+  if (!opts.theme) void refineThemeLater(next)
   return next
 }
 

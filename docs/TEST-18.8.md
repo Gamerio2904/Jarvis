@@ -87,6 +87,9 @@ Teammeeting → **Arbeit**. Reiter Monat / Liste / Jahr.
 Reiter gleitet. Monat wischen wechselt mit Richtung. Karten tragen die
 Themenfarbe. Sheet hat einen Griff; nach unten wischen schließt.
 
+Karte **Ändern** oder Chat `Änder Maxi Geburtstag in Jakob Geburtstag` —
+Titel steht danach wirklich auf Jakob, nicht nur im Chat.
+
 ## 10. Debug-Lauf
 
 Einstellungen → Tests: Spur **Lauf** bleibt rechts. `Öffne Debug` zeigt **Start**.

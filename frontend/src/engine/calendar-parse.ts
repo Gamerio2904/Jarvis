@@ -5,6 +5,7 @@ export type CalendarIntent =
   | { kind: 'list'; day?: Date; until?: Date; label?: string }
   | { kind: 'delete'; query: string }
   | { kind: 'delete_last' }
+  | { kind: 'rename'; query: string; title: string }
   | { kind: 'open' }
 
 const WEEKDAYS = 'montag|dienstag|mittwoch|donnerstag|freitag|friday|samstag|sonnabend|sonntag'
@@ -34,6 +35,11 @@ const DELETE_LAST =
   /^\s*(?:lösch(?:e)?|streich(?:e)?)\s+(?:den\s+)?letzten\s+termin\s*$/i
 const CANCEL_LAST =
   /^\s*(?:(?:den\s+)?(?:letzten\s+)?termin(?:e)?\s+absagen|sag(?:e)?\s+(?:den\s+)?(?:letzten\s+)?termin\s+ab)\s*[.!]?\s*$/i
+const RENAME_IN =
+  /^\s*(?:änder(?:e)?|benenn(?:e)?)\s+(?:den\s+)?(?:termin\s+)?(.+?)\s+(?:um\s+)?(?:in|auf)\s+(.+?)\s*[.!]?\s*$/i
+const RENAME_HEISST =
+  /^\s*(?:(?:der\s+)?termin\s+)?(.+?)\s+heißt\s+jetzt\s+(.+?)\s*[.!]?\s*$/i
+const RENAME_SKIP = /^(?:das|es|der|die|er|sie|dies(?:er|e|es)?|mein|meine)$/i
 
 const DAY_SHIFT: Record<string, number> = {
   heute: 0,
@@ -149,6 +155,8 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
   if (DELETE_LAST.test(t) || CANCEL_LAST.test(t)) return { kind: 'delete_last' }
   const del = DELETE.exec(t)
   if (del) return { kind: 'delete', query: del[1].replace(/[.!?]+$/, '').trim() }
+  const renamed = parseRename(t)
+  if (renamed) return renamed
 
   const nl = CREATE_NL.exec(t)
   if (nl) {
@@ -176,6 +184,17 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
     return createFromInner(inner, now)
   }
   return null
+}
+
+function parseRename(text: string): CalendarIntent | null {
+  const hit = RENAME_IN.exec(text) || RENAME_HEISST.exec(text)
+  if (!hit) return null
+  const query = hit[1].replace(/\s+/g, ' ').replace(/[.!?]+$/g, '').trim()
+  const title = hit[2].replace(/\s+/g, ' ').replace(/[.!?]+$/g, '').trim()
+  if (!query || !title || query.length < 2 || title.length < 2) return null
+  if (RENAME_SKIP.test(query) || RENAME_SKIP.test(title)) return null
+  if (query.toLowerCase() === title.toLowerCase()) return null
+  return { kind: 'rename', query, title }
 }
 
 export function splitTitlePlace(raw: string): { title: string; place?: string } {

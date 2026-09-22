@@ -3916,6 +3916,14 @@ button.linkish {
   color: var(--text-muted);
 }
 
+.cal-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cal-card-edit,
 .cal-card-del {
   appearance: none;
   border: 0;
@@ -3928,6 +3936,11 @@ button.linkish {
   border-radius: 999px;
   padding: 6px 10px;
   transition: background var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) var(--ease-spring);
+}
+
+.cal-card-edit:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--text);
 }
 
 .cal-card-del:hover:not(:disabled) {
