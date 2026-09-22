@@ -71,10 +71,14 @@ ist. Termine am selben Tag erwähnt er, löscht sie nicht still.
 
 ## 8. Lage / Osiris
 
-Lage → Kugel. Keine leere **Sicht**-Karte. Hinweis: Schicht per Satz.
+Lage → Kugel. Auf der Kugel oben: Leiste **Satelliten**, **Flugzeuge**,
+Erdbeben, Waldbrände, See, … Tippen schaltet an, nochmal aus.
+Keine leere **Sicht**-Karte. Satz bleibt:
 
 ```
 Zeig Erdbeben
+Zeig Flugzeuge
+Zeig Satelliten
 ```
 
 Pins und Intel-Leiste. Chat und wieder Lage: Schicht bleibt.

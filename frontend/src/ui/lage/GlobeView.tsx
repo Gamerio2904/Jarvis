@@ -48,6 +48,7 @@ export function GlobeView({
   reduced,
   focus,
   onLook,
+  overlay,
 }: {
   pins: GeoFix[]
   issTrail?: { lat: number; lon: number }[]
@@ -57,6 +58,7 @@ export function GlobeView({
   reduced: boolean
   focus?: GlobeFocus | null
   onLook?: (look: { lat: number; lon: number; zoom: number; date: string }) => void
+  overlay?: ReactNode
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const home = yawPitchFor(HOME.lat, HOME.lon)
@@ -636,6 +638,7 @@ export function GlobeView({
   return (
     <div className="globe-wrap">
       <canvas ref={canvasRef} className="globe-view" aria-label="Weltkugel" />
+      {overlay}
     </div>
   )
 }

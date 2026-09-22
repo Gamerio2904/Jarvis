@@ -94,7 +94,7 @@ export function intelLine(): string {
 export function globeIdleHint(): string {
   const layer = loadSettings().globe_layer
   if (isGlobeLayer(layer)) return ''
-  return 'Keine Schicht. Sag „Zeig Erdbeben“, „Waldbrände“ oder „Was fährt auf See“.'
+  return 'Keine Schicht. Tippen: Satelliten, Flugzeuge, Erdbeben — oder Satz.'
 }
 
 export function parseGlobeLayerPhrase(text: string): LayerPhrase | null {
@@ -120,6 +120,9 @@ export function parseGlobeLayerPhrase(text: string): LayerPhrase | null {
     /^\s*wo\s+brennt(?:\s+es)?\b/i.test(t)
   ) {
     return { kind: 'layer', layer: 'fires' }
+  }
+  if (/^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?)\s+(?:die\s+|das\s+|den\s+)?flugzeuge?\b/i.test(t)) {
+    return { kind: 'layer', layer: 'overhead' }
   }
   if (/^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?)\s+(?:die\s+|das\s+|den\s+)?unwetter\b/i.test(t) || /^\s*wo\s+tobt\s+(?:ein\s+)?sturm\b/i.test(t)) {
     return { kind: 'layer', layer: 'weather' }
@@ -159,7 +162,7 @@ export function parseGlobeLayerPhrase(text: string): LayerPhrase | null {
 }
 
 export const LAYER_SKIP =
-  /\b(erdbeben|beben|waldbrand|waldbrände|waldbraende|brände|braende|feuer|unwetter|luftqualität|luftqualitaet|satellit|satelliten|orbit|schiffe|häfen|haefen|meeresengen|kernkraft|anlagen|konflikte|frontlinien|gdelt|ereignisse|malware|cyber|schicht)\b/i
+  /\b(erdbeben|beben|waldbrand|waldbrände|waldbraende|brände|braende|feuer|flugzeug|flugzeuge|opensky|überflug|unwetter|luftqualität|luftqualitaet|satellit|satelliten|orbit|schiffe|häfen|haefen|meeresengen|kernkraft|anlagen|konflikte|frontlinien|gdelt|ereignisse|malware|cyber|schicht)\b/i
 
 function magOf(props: Record<string, unknown> | undefined): number {
   const mag = Number(props?.mag)
