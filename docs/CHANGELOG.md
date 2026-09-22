@@ -5,13 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.9.1` — Watchliste-Umzug, Satelliten, Waldbrände — *CODE*
+### `18.9.1` — Watchliste-Umzug, Satelliten, Waldbrände — *CODE + APK*
 
 „Nee auf die Lieblingsliste“ verschiebt wirklich und öffnet Lieblinge.
 OMDb sucht Star Wars 3 als Episode III. Satelliten: CelesTrak-Katalog
 plus ISS, nicht nur ein Punkt. Waldbrände: EONET in vier Weltregionen,
 nicht die ersten 200 nur aus den USA. Pin-Karten nutzen Schicht-Text
 (Tschernobyl, Sicht). Fake „wurde verschoben“ wird gestrichen.
+Sideload **`18.9.1`** (versionCode `180901`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.9.0` — Recover + Hirn — *CODE + APK*
 
