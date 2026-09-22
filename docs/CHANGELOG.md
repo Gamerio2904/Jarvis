@@ -22,6 +22,9 @@ nach, wenn Chat schreibt. Plaudern „Ist erledigt“ wird gestrichen.
 Schiene **`18.9` PLAN** (331–337): Quelle tot → Ansage → andere erlaubte
 Methode. Siehe [`80-next.md`](./80-next.md). `18.5` bleibt PLAN daneben.
 
+Testprompts für Umbenennen, Osiris-Schichten und Watchliste-Dune stehen
+in `TEST_PROMPTS` / Gold und in **18.8 Debug & Termin** (Auto-Debug).
+
 ### `18.8.3` — Kalender weicher — *CODE + APK*
 
 Gleitender Reiter, Monatswechsel nach links/rechts, Glas-Karten in
