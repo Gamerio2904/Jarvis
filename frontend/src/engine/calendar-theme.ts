@@ -86,7 +86,7 @@ export function classifyEventTheme(title: string, place?: string): CalThemeId {
 }
 
 export function eventTheme(row: { title: string; place?: string; theme?: string | null }): CalThemeId {
-  if (isCalThemeId(row.theme)) return row.theme
+  if (isCalThemeId(row.theme) && row.theme !== 'sonstiges') return row.theme
   return classifyEventTheme(row.title, row.place)
 }
 

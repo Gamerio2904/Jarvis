@@ -5,6 +5,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+Kalender: „Änder Maxi Geburtstag in Jakob Geburtstag“ schreibt den Titel
+wirklich um. Karte hat **Ändern**. Gespeichertes Thema Sonstiges weicht
+einem Treffer im Titel (Geburtstag).
+
 ### `18.8.3` — Kalender weicher — *CODE + APK*
 
 Gleitender Reiter, Monatswechsel nach links/rechts, Glas-Karten in

@@ -93,12 +93,36 @@ assert.equal(pickRoute('in 10 Minuten Milch'), 'reminder')
 assert.equal(parseCalendarIntent('Termin absagen')?.kind, 'delete_last')
 assert.equal(parseCalendarIntent('sag den Termin ab')?.kind, 'delete_last')
 assert.equal(pickRoute('Termin absagen'), 'calendar')
+{
+  const ren = parseCalendarIntent('Änder Maxi Geburtstag in Jakob Geburtstag')
+  assert.equal(ren?.kind, 'rename')
+  if (ren?.kind === 'rename') {
+    assert.equal(ren.query, 'Maxi Geburtstag')
+    assert.equal(ren.title, 'Jakob Geburtstag')
+  }
+  assert.equal(parseCalendarIntent('Maxi Geburtstag heißt jetzt Jakob Geburtstag')?.kind, 'rename')
+  assert.equal(pickRoute('Änder Maxi Geburtstag in Jakob Geburtstag'), 'calendar')
+}
 
 await clearPending(conv)
 const cancelled = await handleCalendar(conv, 'Termin absagen')
 assert.match(cancelled.reply || '', /Termin weg|Kein Termin/)
 assert.doesNotMatch(cancelled.reply || '', /Wann soll ich/)
 assert.equal(await getPending(conv), undefined)
+
+const maxi = await addEvent({
+  title: 'Maxi Geburtstag',
+  start_at: new Date(Date.now() + 86400_000).toISOString(),
+  theme: 'sonstiges',
+})
+const renamed = await handleCalendar(conv, 'Änder Maxi Geburtstag in Jakob Geburtstag')
+assert.equal(renamed.handled, true)
+assert.match(renamed.reply || '', /Jakob Geburtstag/)
+assert.doesNotMatch(renamed.reply || '', /Ist erledigt/)
+const afterRename = (await listEvents()).find((e) => e.id === maxi.id)
+assert.equal(afterRename?.title, 'Jakob Geburtstag')
+assert.equal(afterRename?.theme, 'geburtstag')
+assert.ok(!(await listEvents()).some((e) => e.title === 'Maxi Geburtstag'))
 
 const noneRow = await addEvent({
   title: 'ohne Erinnerung',

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay } from '../engine/calendar.ts'
+import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay, updateEventFromGui } from '../engine/calendar.ts'
 import {
   CAL_THEMES,
   calThemeOf,
@@ -82,6 +82,7 @@ function EventCard({
   when,
   theme,
   kind,
+  onEdit,
   onDelete,
   busy,
 }: {
@@ -89,6 +90,7 @@ function EventCard({
   when: string
   theme?: CalThemeId
   kind?: string
+  onEdit?: () => void
   onDelete?: () => void
   busy?: boolean
 }) {
@@ -98,7 +100,22 @@ function EventCard({
     : undefined
   return (
     <li className="cal-card" data-theme={theme || 'erinnerung'} style={tint}>
-      <div className="cal-card-main">
+      <div
+        className="cal-card-main"
+        role={onEdit ? 'button' : undefined}
+        tabIndex={onEdit ? 0 : undefined}
+        onClick={onEdit}
+        onKeyDown={
+          onEdit
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onEdit()
+                }
+              }
+            : undefined
+        }
+      >
         <div className="cal-card-top">
           {face ? (
             <span className="cal-theme-pill" style={{ background: face.color }}>
@@ -111,10 +128,19 @@ function EventCard({
         </div>
         <div className="cal-card-title">{title}</div>
       </div>
-      {onDelete ? (
-        <button type="button" className="cal-card-del" disabled={busy} onClick={onDelete} aria-label={`${title} löschen`}>
-          Löschen
-        </button>
+      {onEdit || onDelete ? (
+        <div className="cal-card-actions">
+          {onEdit ? (
+            <button type="button" className="cal-card-edit" disabled={busy} onClick={onEdit} aria-label={`${title} ändern`}>
+              Ändern
+            </button>
+          ) : null}
+          {onDelete ? (
+            <button type="button" className="cal-card-del" disabled={busy} onClick={onDelete} aria-label={`${title} löschen`}>
+              Löschen
+            </button>
+          ) : null}
+        </div>
       ) : null}
     </li>
   )
@@ -129,6 +155,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [marks, setMarks] = useState<Set<string>>(new Set())
   const [title, setTitle] = useState('')
   const [time, setTime] = useState('15:00')
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [mode, setMode] = useState<CalMode>('month')
@@ -164,7 +191,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   useEffect(() => {
     if (!sheetOpen) return
     titleRef.current?.focus()
-  }, [sheetOpen])
+    if (editingId) titleRef.current?.select()
+  }, [sheetOpen, editingId])
 
   useEffect(() => {
     if (mode !== 'year') return
@@ -235,7 +263,33 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setThemePick(null)
     setChipMins([0])
     setTitle('')
+    setEditingId(null)
     setErr(null)
+  }
+
+  function openCreate() {
+    setEditingId(null)
+    setTitle('')
+    setTime('15:00')
+    setThemePick(null)
+    setChipMins([0])
+    setErr(null)
+    setSheetOpen(true)
+  }
+
+  function openEdit(e: CalendarEvent) {
+    const d = new Date(e.start_at)
+    setSelected(startOfDay(d))
+    setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
+    setEditingId(e.id)
+    setTitle(e.title)
+    setTime(
+      `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
+    )
+    setThemePick(eventTheme(e))
+    setChipMins(e.remind_offsets_min === undefined ? [0] : [...e.remind_offsets_min])
+    setErr(null)
+    setSheetOpen(true)
   }
 
   function onSheetHandleDown(e: PointerEvent<HTMLDivElement>) {
@@ -263,14 +317,15 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
 
   async function onAdd() {
     const name = title.trim()
-    if (!name || busy) return
+    if (!sheetOpen || !name || busy) return
     setBusy(true)
     setErr(null)
     try {
       const [h, m] = time.split(':').map((n) => Number(n))
       const start = new Date(selected)
       start.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0)
-      await createEventFromGui({ title: name, start, theme, remind_offsets_min: chipMins })
+      if (editingId) await updateEventFromGui(editingId, { title: name, start, theme, remind_offsets_min: chipMins })
+      else await createEventFromGui({ title: name, start, theme, remind_offsets_min: chipMins })
       closeSheet()
       await reload()
     } catch (e) {
@@ -487,6 +542,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                       when={timeLabel(e.start_at)}
                       theme={eventTheme(e)}
                       busy={busy}
+                      onEdit={() => openEdit(e)}
                       onDelete={() => void onDelete(e.id)}
                     />
                   ))}
@@ -516,6 +572,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                   when={timeLabel(e.start_at)}
                   theme={eventTheme(e)}
                   busy={busy}
+                  onEdit={() => openEdit(e)}
                   onDelete={() => void onDelete(e.id)}
                 />
               ))}
@@ -524,11 +581,11 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
               ))}
             </ul>
           )}
-          <p className="settings-hint">Oder im Chat: „Termin morgen 15 Uhr Zahnarzt“.</p>
+          <p className="settings-hint">Oder im Chat: „Änder Maxi Geburtstag in Jakob Geburtstag“.</p>
         </section>
       ) : null}
 
-      <button type="button" className="cal-fab" aria-label="Termin anlegen" onClick={() => setSheetOpen(true)}>
+      <button type="button" className="cal-fab" aria-label="Termin anlegen" onClick={openCreate}>
         ＋ Termin
       </button>
 
@@ -540,7 +597,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       <div
         className={`cal-sheet${sheetOpen ? ' is-open' : ''}`}
         role="dialog"
-        aria-label="Termin anlegen"
+        aria-label={editingId ? 'Termin ändern' : 'Termin anlegen'}
         aria-hidden={!sheetOpen}
         inert={!sheetOpen}
         style={sheetDrag ? { transform: `translateY(${sheetDrag}px)`, transition: 'none' } : undefined}
@@ -555,7 +612,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         >
           <i />
         </div>
-        <h3>Termin anlegen</h3>
+        <h3>{editingId ? 'Termin ändern' : 'Termin anlegen'}</h3>
         <p className="settings-hint">Thema kommt aus dem Titel — Sie können es ändern.</p>
         <form
           className="cal-form"
@@ -614,7 +671,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             <button type="button" className="ghost-btn" disabled={busy} onClick={closeSheet}>
               Abbrechen
             </button>
-            <button type="submit" className="cal-add-btn" disabled={busy || !title.trim()}>
+            <button type="submit" className="cal-add-btn" disabled={busy || !sheetOpen || !title.trim()}>
               Speichern
             </button>
           </div>
