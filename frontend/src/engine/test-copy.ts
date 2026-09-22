@@ -359,6 +359,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "FIFA", text: "FIFA starten", expect: {"tool":"pc","skipIf":"no_pc"} },
       { label: "Bildschirm", text: "Was siehst du auf dem PC", expect: {"tool":"pc","skipIf":"no_pc"} },
       { label: "Klick", text: "Züge anklicken", expect: {"tool":"pc","skipIf":"no_pc"} },
+      { label: "Traceroute", text: "Was ist traceroute", expect: {"tool":"trace"} },
     ],
   },
   {
@@ -467,6 +468,9 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Lebensmittel", text: "Zutaten von Nutella", expect: {"tool":"food"} },
       { label: "Buch", text: "Wer schrieb Der Prozess?", expect: {"tool":"library"} },
       { label: "Waschsymbol", text: "Was bedeutet Waschschüssel 40?", expect: {"tool":"haushalt"} },
+      { label: "Pflanze", text: "welche Pflanze ist das: Gänseblümchen", expect: {"tool":"nature"} },
+      { label: "Schritte", text: "Wie viele Schritte", expect: {"tool":"sensors"} },
+      { label: "Gespräch fassen", text: "Fass das Gespräch zusammen", expect: {"tool":"digest"} },
       { label: "Schritte", text: "Wie viele Schritte heute?", expect: {"tool":"sensors"} },
       { label: "Norden", text: "Wo ist Norden?", expect: {"tool":"sensors"} },
       { label: "Recht", text: "Darf ich im Park grillen?", expect: {"tool":"law"} },

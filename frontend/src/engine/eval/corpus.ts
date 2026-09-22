@@ -324,6 +324,20 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Verschieb Jakob auf Sonntag 19 Uhr': 'calendar',
   'Inglorious Basterds zu Lieblingsfilmen hinzufügen': 'watchlist',
   'Star Wars 3 ist doppelt auf der Liste fixe das': 'watchlist',
+  'Lern das als Fachwissen FritzBox-Doku: Das WLAN-Passwort steht unter dem Router, nicht im Chat.': 'teach',
+  'Fachwissen FritzBox': 'pack',
+  'Idee: Körper und Chat gleichzeitig': 'idea',
+  'Schreibtisch an': 'desk',
+  'Lies das PDF': 'doc',
+  'Wann sind die Schulferien in Baden-Württemberg?': 'ferien',
+  'Zutaten von Nutella': 'food',
+  'Wer schrieb Der Prozess?': 'library',
+  'welche Pflanze ist das: Gänseblümchen': 'nature',
+  'Was bedeutet Waschschüssel 40?': 'haushalt',
+  'Wie viele Schritte': 'sensors',
+  'Was ist traceroute': 'trace',
+  'Fass das Gespräch zusammen': 'digest',
+  'Hausstand exportieren': 'backup',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

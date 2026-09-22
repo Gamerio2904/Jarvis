@@ -35,6 +35,11 @@ zeigt den Termin am nächsten Samstag 18:00, nicht „Nichts an diesem Tag“.
 `Verschieb Jakob auf Sonntag 19 Uhr` rückt ihn. Woche-Reiter und
 Wochenstreifen zeigen denselben Eintrag.
 
+## 8. Agenten-Sweep 18.9.6
+
+`npm run test:agents-sweep` — 63 Katalog-Agenten, je ein Satz, Route trifft.
+Gold enthält jeden Agenten (Todo als `tools`). Probe bleibt 13 Packs.
+
 ## 7. Watchliste 18.9.5
 
 `Inglorious Basterds zu Lieblingsfilmen hinzufügen` — Chat nennt den

@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.9.6` — Alle 63 Agenten im Sweep — *CODE + APK*
+
+Jeder Katalog-Agent hat einen festen Satz (`AGENT_SWEEP`). 14 fehlende
+Gold-Chips (Teach, Pack, Idee, Schreibtisch, PDF, Ferien, Lebensmittel,
+Buch, Pflanze, Wäschezeichen, Schritte, Traceroute, Digest, Hausstand).
+Reminder versteht „zehn Minuten“ direkt. Prompt-Slices sind nicht mehr leer.
+Sideload **`18.9.6`** (versionCode `180906`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.9.5` — Watchliste: Entfernen, Lieblinge, Duplikat — *CODE + APK*
 
 „Ja entfernen es“ nimmt den letzten Film von der Liste. „Inglorious

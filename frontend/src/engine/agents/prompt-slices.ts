@@ -1,11 +1,15 @@
 export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?: string[] }> = {
   "wont": {
     "promptSlice": "Domäne wont: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Schreib mir eine E-Mail"
+    ]
   },
   "identity": {
     "promptSlice": "Domäne identity: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Bist du ChatGPT?"
+    ]
   },
   "tv": {
     "promptSlice": "Fernseher: WoL/Tizen wirklich. Kein Fake-an.",
@@ -22,23 +26,33 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   },
   "plug": {
     "promptSlice": "Domäne plug: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Steckdose an"
+    ]
   },
   "device": {
     "promptSlice": "Domäne device: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Taschenlampe an"
+    ]
   },
   "amazon": {
     "promptSlice": "Domäne amazon: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Spiel Amazon Music"
+    ]
   },
   "app": {
     "promptSlice": "Domäne app: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Zeig Chat"
+    ]
   },
   "film": {
     "promptSlice": "Domäne film: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wie gut ist Dune"
+    ]
   },
   "drive": {
     "promptSlice": "Fahrmodus: Spotify/Overlay ehrlich.",
@@ -48,91 +62,136 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   },
   "maps": {
     "promptSlice": "Domäne maps: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Freundin wohnt in Heilbronn"
+    ]
   },
   "here": {
     "promptSlice": "Domäne here: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wo bin ich gerade?"
+    ]
   },
   "fuel": {
     "promptSlice": "Domäne fuel: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "nächste Tankstelle"
+    ]
   },
   "poi": {
     "promptSlice": "Domäne poi: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "nächster Lidl"
+    ]
   },
   "transit": {
     "promptSlice": "Domäne transit: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Mit der Bahn nach Stuttgart"
+    ]
   },
   "taxi": {
     "promptSlice": "Domäne taxi: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "bestell ein Taxi"
+    ]
   },
   "leave": {
     "promptSlice": "Domäne leave: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wann muss ich zum Zahnarzt los?"
+    ]
   },
   "blitzer": {
     "promptSlice": "Domäne blitzer: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Gibt es Blitzer?"
+    ]
   },
   "hud": {
     "promptSlice": "Domäne hud: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Kugel an"
+    ]
   },
   "trace": {
     "promptSlice": "Domäne trace: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Was ist traceroute"
+    ]
   },
   "calendar": {
     "promptSlice": "Domäne calendar: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Termin morgen 15 Uhr Zahnarzt"
+    ]
   },
   "alarm": {
     "promptSlice": "Domäne alarm: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wecker 7 Uhr"
+    ]
   },
   "timer": {
     "promptSlice": "Domäne timer: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Timer 8 Minuten Nudeln"
+    ]
   },
   "reminder": {
     "promptSlice": "Domäne reminder: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "in 20 Minuten Milch"
+    ]
   },
   "todo": {
     "promptSlice": "Domäne todo: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Todo: Testdebug Milch"
+    ]
   },
   "idea": {
     "promptSlice": "Idee festhalten, Überblick, Sprintplan auf Zuruf.",
-    "goldPrompts": ["Idee: Körper und Chat gleichzeitig"]
+    "goldPrompts": [
+      "Idee: Körper und Chat gleichzeitig"
+    ]
   },
   "watchlist": {
     "promptSlice": "Watchliste und Lieblinge. Keine erfundenen Titel.",
-    "goldPrompts": ["Watchliste: Dune", "Nenn mir Horrorfilme für Filmabend"]
+    "goldPrompts": [
+      "Watchliste: Dune",
+      "Nenn mir Horrorfilme für Filmabend"
+    ]
   },
   "osint": {
     "promptSlice": "Passive Lookups. Kein Scan, keine Leaks.",
-    "goldPrompts": ["WHOIS example.com"]
+    "goldPrompts": [
+      "WHOIS example.com"
+    ]
   },
   "brief": {
     "promptSlice": "Domäne brief: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Was steht an?"
+    ]
   },
   "birthday": {
     "promptSlice": "Domäne birthday: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Mama hat am 3. März Geburtstag"
+    ]
   },
   "holiday": {
     "promptSlice": "Domäne holiday: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Ist heute Feiertag?"
+    ]
   },
   "ferien": {
     "promptSlice": "Domäne ferien: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wann sind die Schulferien in Baden-Württemberg?"
+    ]
   },
   "shopping": {
     "promptSlice": "Einkauf: Liste, kein Shop-Fake.",
@@ -142,77 +201,112 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   },
   "home": {
     "promptSlice": "Domäne home: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wenn ich zuhause bin Müll raus"
+    ]
   },
   "watch-price": {
     "promptSlice": "Domäne watch-price: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Sag Bescheid wenn Instanudeln im Angebot sind"
+    ]
   },
   "chat-folder": {
     "promptSlice": "Domäne chat-folder: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Leg den Chat in Arbeit"
+    ]
   },
   "weather": {
     "promptSlice": "Wetter: nur Open-Meteo-Fakten.",
     "goldPrompts": [
+      "Wetter heute",
       "Wie wird das Wetter?"
     ]
   },
   "news": {
     "promptSlice": "Domäne news: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Nachrichten"
+    ]
   },
   "outlook": {
     "promptSlice": "Domäne outlook: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Was ist die Weltlage?"
+    ]
   },
   "search": {
     "promptSlice": "Domäne search: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wann hatte ich das mit der Steuer?"
+    ]
   },
   "warn": {
     "promptSlice": "Domäne warn: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Gibt es Unwetter?"
+    ]
   },
   "fx": {
     "promptSlice": "Domäne fx: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Was ist der Dollar?"
+    ]
   },
   "sport": {
     "promptSlice": "Domäne sport: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wie steht die Bundesliga?"
+    ]
   },
   "sky": {
     "promptSlice": "Domäne sky: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wo ist die ISS?"
+    ]
   },
   "nature": {
     "promptSlice": "Domäne nature: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "welche Pflanze ist das: Gänseblümchen"
+    ]
   },
   "flights": {
     "promptSlice": "Domäne flights: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Was fliegt da"
+    ]
   },
   "food": {
     "promptSlice": "Domäne food: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Zutaten von Nutella"
+    ]
   },
   "library": {
     "promptSlice": "Domäne library: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wer schrieb Der Prozess?"
+    ]
   },
   "law": {
     "promptSlice": "Domäne law: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Darf ich im Park grillen?"
+    ]
   },
   "haushalt": {
     "promptSlice": "Domäne haushalt: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Was bedeutet Waschschüssel 40?"
+    ]
   },
   "sensors": {
     "promptSlice": "Domäne sensors: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Wie viele Schritte"
+    ]
   },
   "chess": {
     "promptSlice": "Domäne chess: Parser-Fakten only.",
@@ -224,48 +318,69 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   },
   "digest": {
     "promptSlice": "Domäne digest: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Fass das Gespräch zusammen"
+    ]
   },
   "memory": {
     "promptSlice": "Gedächtnis: merken/vergessen ehrlich.",
     "goldPrompts": [
+      "Ich heiße Max und trinke gerne Kaffee.",
       "Ich heiße Max"
     ]
   },
   "recall": {
     "promptSlice": "Domäne recall: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Was weißt du über den Zahnarzt"
+    ]
   },
   "teach": {
     "promptSlice": "Domäne teach: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Lern das als Fachwissen FritzBox-Doku: Das WLAN-Passwort steht unter dem Router, nicht im Chat."
+    ]
   },
   "pack": {
     "promptSlice": "Domäne pack: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Fachwissen FritzBox"
+    ]
   },
   "pc": {
     "promptSlice": "Domäne pc: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "FIFA starten"
+    ]
   },
   "eye": {
     "promptSlice": "Domäne eye: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Lies das Foto"
+    ]
   },
   "doc": {
     "promptSlice": "Domäne doc: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Lies das PDF"
+    ]
   },
   "desk": {
     "promptSlice": "Domäne desk: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Schreibtisch an"
+    ]
   },
   "backup": {
     "promptSlice": "Domäne backup: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Hausstand exportieren"
+    ]
   },
   "face": {
     "promptSlice": "Domäne face: Parser-Fakten only.",
-    "goldPrompts": []
+    "goldPrompts": [
+      "Friday"
+    ]
   }
 }

@@ -4,7 +4,7 @@
 cd "$(dirname "$0")/.."
 FAIL=0
 for t in eval eval:migrate test:014 test:alltag test:sprint test:pc test:prompts \
-         test:agents test:brain-orchestrator test:650 test:matrix test:memory-10 \
+         test:agents test:agents-sweep test:brain-orchestrator test:650 test:matrix test:memory-10 \
          test:memory-10-intens test:knowledge-11 test:presence-12 test:body-13 \
          test:film-taste test:idea test:idea-plan test:watchlist \
          test:rest-final test:qa-16 test:turn-detect test:gemini-fallback test:agents-robust test:turn-e2e \

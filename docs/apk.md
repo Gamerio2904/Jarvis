@@ -1,6 +1,9 @@
-# Android-APK — Sideload `18.9.5`
+# Android-APK — Sideload `18.9.6`
 
-App-Code **`18.9.5`**. Sideload **`18.9.5`** (versionCode `180905`):
+App-Code **`18.9.6`**. Sideload **`18.9.6`** (versionCode `180906`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+**18.9.5:** Watchliste entfernen, Lieblinge, Duplikat. Sideload **`18.9.5`** (versionCode `180905`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.9.4:** Kalender-Agent, nacktes „Samstag Geburtstag Jakob 18 Uhr“. Sideload **`18.9.4`** (versionCode `180904`):
@@ -63,10 +66,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.9.5`:**  
+**Fertige APK `18.9.6`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.9.5` · versionCode `180905`
+- versionName `18.9.6` · versionCode `180906`
 
 ## Build lokal
 

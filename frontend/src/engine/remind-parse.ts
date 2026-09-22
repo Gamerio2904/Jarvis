@@ -1,3 +1,5 @@
+import { expandZahlenworte } from './zahlenworte.ts'
+
 export type ReminderIntent =
   | {
       kind: 'create'
@@ -295,7 +297,7 @@ function parseRecur(t: string, now: Date): ReminderIntent | null {
 }
 
 export function parseReminderIntent(text: string, now = new Date()): ReminderIntent | null {
-  const t = text.trim()
+  const t = expandZahlenworte(text.trim())
   if (!t || t.length > 200) return null
   if (LIST.test(t)) return { kind: 'list' }
   if (WEEK_OUT.test(t)) return { kind: 'week' }
