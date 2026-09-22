@@ -16,10 +16,10 @@ https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 **18.8.0:** Debug-Rollback, Termin-Erinnerungen, Debug-Download, Prompt-Pakete neu — [`79-next.md`](./79-next.md).
 
 **18.7.0:** 6. Dock-Icon Filme, Selbststeuerung, Propose-Unknown, Antwort-Orb.
-In Sideload `18.9.0`.
+In Sideload `18.9.1`.
 
 **18.6.0:** Lage-Kugel OSINT (Schichten, Intel-Leiste, Dossier, passive
-Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.0`.
+Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 **18.4.4:** Lage und Overlay ohne Überlappung. Tastatur öffnet über der Leiste. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
