@@ -1,7 +1,7 @@
 # TEST 18.9 — Recover + Hirn
 
-Nach Execute von [`80-next.md`](./80-next.md). Sideload **`18.9.0`**,
-versionCode `180900`. `18.5` nicht parallel.
+Nach Execute von [`80-next.md`](./80-next.md). Sideload **`18.9.8`**,
+versionCode `180908`. `18.5` nicht parallel.
 
 ## 1. Ansage
 

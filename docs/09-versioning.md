@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.9.8`**. Sideload folgt **`18.9.7`**, versionCode `180907`, bis die nächste APK liegt. Offene Schiene **`18.5` PLAN** (301–306) — **nicht parallel** zu 18.9. Test [`TEST-18.9.md`](./TEST-18.9.md).
+> **Jetzt:** App-Code **`18.9.8`**. Sideload **`18.9.8`**, versionCode `180908`. Offene Schiene **`18.5` PLAN** (301–306) — **nicht parallel** zu 18.9. Test [`TEST-18.9.md`](./TEST-18.9.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -758,9 +758,10 @@ Nachzieher **`18.9.7`** (APK, versionCode `180907`): Telefonbuch-Scan nach Ja,
 E-Mail IMAP lesen / Entwurf nach Ja, WhatsApp-Antwort über die Meldung.
 Kein stilles WhatsApp. 18.5 bleibt PLAN.
 
-Nachzieher **`18.9.8`**: Mail aus `ContactsContract.Email` im Scan,
-IMAP-Testen unter Keys, „Mama, Mail …“, „Zeig meine Kontakte“.
-18.5 bleibt PLAN. Sideload bleibt `18.9.7` bis die APK gebaut ist.
+Nachzieher **`18.9.8`** (APK, versionCode `180908`): Mail aus
+`ContactsContract.Email` im Scan, IMAP-Testen unter Keys, „Mama, Mail …“,
+„Zeig meine Kontakte“, gemeinsamer Gedächtnis-Kern (Aspekte, zitierte
+Recherche pro Quelle). 18.5 bleibt PLAN.
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
