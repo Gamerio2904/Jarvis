@@ -30,7 +30,16 @@ import { BodyTree } from './BodyTree.tsx'
 import { loadGlobePins, loadIssTrail } from '../../engine/globe-pins.ts'
 import type { GeoFix } from '../../engine/globe-geo.ts'
 import { isGlobeLayerPin, pinLineFor } from '../../engine/globe-geo.ts'
-import { chipOffLabel, frontsForActiveLayer, globeIdleHint, intelLine, viewDossier } from '../../engine/globe-layers.ts'
+import {
+  GLOBE_LAYER_IDS,
+  LAYER_TITLE,
+  chipOffLabel,
+  frontsForActiveLayer,
+  globeIdleHint,
+  intelLine,
+  viewDossier,
+} from '../../engine/globe-layers.ts'
+import type { GlobeLayer } from '../../engine/globe-layer-ids.ts'
 import { CITY_FLY_ZOOM } from '../../engine/globe-gibs.ts'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../../engine/motion.ts'
 import { loadSettings, saveSettings, type Message } from '../../engine/store.ts'
@@ -199,6 +208,14 @@ export function Lage({
     onHudChange?.()
   }
 
+  function pickLayer(id: GlobeLayer) {
+    const next = globeLayer === id ? '' : id
+    saveSettings({ globe_layer: next })
+    setPinCard(null)
+    setGlobeTick((n) => n + 1)
+    onHudChange?.()
+  }
+
   function globeFocus(): GlobeFocus | null {
     try {
       const raw = s.last_globe_focus
@@ -339,7 +356,7 @@ export function Lage({
         ) : null}
         <p className="lage-hint">
           {view === 'globe'
-            ? 'Erde drehen und zoomen. Schicht per Satz — Erdbeben, Waldbrände, See. Tipp auf einen Pin öffnet das Dossier.'
+            ? 'Erde drehen und zoomen. Schicht über die Leiste auf der Kugel oder per Satz. Tipp auf einen Pin öffnet das Dossier.'
             : view === 'body'
               ? bodyView === 'agents'
                 ? withChat && compact
@@ -413,6 +430,24 @@ export function Lage({
           <GlobeView
             pins={pins}
             issTrail={issTrail}
+            overlay={
+              <div className="lage-layers" role="toolbar" aria-label="Osiris-Schichten">
+                {GLOBE_LAYER_IDS.map((id) => {
+                  const on = globeLayer === id
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      className={`lage-layer${on ? ' is-on' : ''}`}
+                      aria-pressed={on}
+                      onClick={() => pickLayer(id)}
+                    >
+                      {LAYER_TITLE[id]}
+                    </button>
+                  )
+                })}
+              </div>
+            }
             onPin={(next) => {
               if (next.kind === 'iss' || next.kind === 'here' || next.kind === 'warn') {
                 closePin()

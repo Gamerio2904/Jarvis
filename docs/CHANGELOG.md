@@ -5,6 +5,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+Lage-Kugel: Osiris-Schichten (**Satelliten**, **Flugzeuge**, Erdbeben,
+Waldbrände, See, …) wieder als Leiste auf der Kugel. Tippen schaltet an
+oder aus. „Zeig Flugzeuge“ ist wieder ein Satz. Leere Sicht bleibt zu.
+
 ### `18.8.3` — Kalender weicher — *CODE + APK*
 
 Gleitender Reiter, Monatswechsel nach links/rechts, Glas-Karten in
