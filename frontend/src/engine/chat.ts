@@ -3,14 +3,14 @@ import { completeGemini, geminiReady, streamGemini, testGemini } from './gemini.
 import { groqReady, testGroq } from './groq.ts'
 import { brainKind, brainLabel, completeBrain, noBrainLine } from './brain.ts'
 import { userFacingCloudError } from './cloud-errors.ts'
-import { HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards.ts'
+import { groundMicroMerge, HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_TEXT, scrubReply } from './guards.ts'
 import { greetingReply, parseGreeting } from './greeting.ts'
 import { memoryBlock } from './memory.ts'
 import { retrieve } from './retrieve.ts'
 import { harvestFromResearch, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
 import { contradictionSearchAsk, rewriteFollowUp } from './last-step.ts'
-import { skipMicroMerge, type ChatBlock } from './chat-blocks.ts'
+import { skipMicroMerge, SKIP_MICRO_MERGE_TOOLS, type ChatBlock } from './chat-blocks.ts'
 import {
   acceptResearchPending,
   declineResearchPending,
@@ -353,9 +353,10 @@ function deterministicRoute(ask: string): string | null {
 function lastStepHint(): string {
   const s = loadSettings()
   const tool = (s.last_step_tool || '').trim()
-  if (!tool) return ''
   const title = (s.last_step_title || '').trim()
-  return `Letzter Tool-Schritt: ${tool}${title ? ` (${title})` : ''}. Wenn der Nutzer „das“, „lauter“, „stopp“ oder „nochmal“ sagt, bezieht sich das darauf. Keine Ausführung erfinden.`
+  const lock = 'Dieser Zug hat kein Werkzeug. Behaupte keinen neuen Schreib- oder Geräte-Erfolg.'
+  if (!tool) return lock
+  return `Letzter Tool-Schritt: ${tool}${title ? ` (${title})` : ''}. Wenn der Nutzer „das“, „lauter“, „stopp“ oder „nochmal“ sagt, bezieht sich das darauf. ${lock}`
 }
 
 function persistResearchOffer(utterance: string, query: string): void {
@@ -521,7 +522,7 @@ async function maybeMicroMergeReply(reply: string, settings: Settings, blocks?: 
       messages: [],
       turn: turnBrainCtx({ needsLlm: false, userFacts: getLastUserFacts() || reply }),
     })
-    return out.text.trim() || reply
+    return groundMicroMerge(reply, out.text.trim() || reply)
   } catch {
     return reply
   }
@@ -621,7 +622,9 @@ export async function streamChat(
       let research = last.research
       if (research) research = await attachResearchAudit(research, content)
       let joined = replies.join('\n\n')
-      if (found.length === 1) joined = await maybeMicroMergeReply(joined, loadSettings(), last.blocks)
+      if (found.length === 1 && !SKIP_MICRO_MERGE_TOOLS.test(last.lastTool || '')) {
+        joined = await maybeMicroMergeReply(joined, loadSettings(), last.blocks)
+      }
       setLatencyPath('parser')
       emitToken(handlers, joined)
       const assistant = await sayAssistant(conversationId, joined, {

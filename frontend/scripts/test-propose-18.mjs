@@ -30,6 +30,8 @@ assert.equal(looksCommandish('Stell irgendwas mit der Watchliste an'), true)
 assert.equal(looksCommandish('Was ist eine Watchliste'), false)
 assert.equal(looksCommandish('Wie geht es dir'), false)
 assert.equal(looksCommandish('Klick auf Speichern'), false)
+assert.equal(looksCommandish('Nee auf die lieblingsliste'), true)
+assert.equal(looksCommandish('verschieb das zu den Lieblingen'), true)
 
 assert.equal(utteranceFor({ tool: 'open_watchlist', args: bag() }), 'Öffne Watchliste')
 assert.equal(confirmedUtterance({ tool: 'open_watchlist', args: bag() }, routeForEval), 'Öffne Watchliste')

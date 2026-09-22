@@ -321,8 +321,11 @@ const QUESTION = /^\s*(was|wie|wer|wen|wem|wann|wo|wohin|woher|warum|wieso|wesha
 
 /** Befehlsformen und die höfliche Umschreibung davon. */
 const COMMAND =
-  /^\s*(?:und\s+)?(?:bitte\s+)?(?:öffne|zeig|schließ|wechsel|blende|stell|setz|mach|schalt|erinner|weck|trag|leg|schreib|füg|lösch|entferne|starte?|plan|notier|richte|nimm|pack|kauf|hol|denk)\w*\b/i
+  /^\s*(?:und\s+)?(?:bitte\s+)?(?:öffne|zeig|schließ|wechsel|blende|stell|setz|mach|schalt|erinner|weck|trag|leg|schreib|füg|lösch|entferne|starte?|plan|notier|richte|nimm|pack|kauf|hol|denk|verschieb)\w*\b/i
 const POLITE = /^\s*(?:und\s+)?(?:bitte\s+)?(?:kannst|kannste|könntest|würdest|magst|willst)\s+du\b|^\s*ich\s+(?:will|möchte|muss|brauche)\b/i
+/** Korrektur ohne Imperativ: sonst fällt „Nee auf die Lieblingsliste“ ins Modell. */
+const CORRECTION = /^\s*(?:nee+|nein|nicht|lieber|doch)\b/i
+const LIST_MOVE = /\b(?:auf|zu)\s+(?:die|den|der)\s+(?:liebling\w*|watchliste|liste)\b/i
 
 /**
  * Darf dieser Zug einen Modellvorschlag kosten?
@@ -339,5 +342,5 @@ export function looksCommandish(text: string): boolean {
   if (!DOMAIN.test(t)) return false
   const polite = POLITE.test(t)
   if (QUESTION.test(t) && !polite) return false
-  return polite || COMMAND.test(t)
+  return polite || COMMAND.test(t) || CORRECTION.test(t) || LIST_MOVE.test(t)
 }

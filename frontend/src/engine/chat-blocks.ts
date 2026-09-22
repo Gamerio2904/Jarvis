@@ -47,7 +47,7 @@ export function skipMicroMerge(reply: string, blocks?: ChatBlock[] | null): bool
   if (/\n/.test(t) && t.split('\n').length >= 3) return true
   if (/^platz\s+verein/i.test(t)) return true
   if (
-    /\b(?:wann soll ich sie erinnern|steht im kalender|termin umbenannt|termin weg:|auf die liste|timer läuft|nichts geändert|ich rate nicht|geht nicht\.|ich versuche|ich lade neu|liegt auf der watchliste|liegt bei den lieblingen|weg von der watchliste|weg von den lieblingen|zu den lieblingen)\b/i.test(
+    /\b(?:wann soll ich sie erinnern|steht im kalender|termin umbenannt|termin weg:|auf die liste|timer läuft|nichts geändert|ich rate nicht|geht nicht\.|ich versuche|ich lade neu|liegt auf der watchliste|liegt bei den lieblingen|weg von der watchliste|weg von den lieblingen|zu den lieblingen|war schon auf|war schon bei|welchen film\?|nicht ausgeführt)\b/i.test(
       t,
     )
   ) {
@@ -55,3 +55,7 @@ export function skipMicroMerge(reply: string, blocks?: ChatBlock[] | null): bool
   }
   return false
 }
+
+/** Write/Gerät: Canned-Satz bleibt. Micro-Merge hat hier schon Watchliste-Erfolge erfunden. */
+export const SKIP_MICRO_MERGE_TOOLS =
+  /^(?:watchlist|calendar|reminder|tools|memory|shopping|unknown|tv|device|pc|alarm|timer|home|idea|app|fan|plug|birthday)$/

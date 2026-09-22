@@ -6,7 +6,13 @@ const INJECT =
 const HELPDESK =
   /wie kann ich helfen|was kann ich für sie tun|womit kann ich (?:ihnen )?(?:nun )?(?:tatsächlich )?behilflich|womit kann ich dienen|gerne!|als ki\b|stehe (?:ihnen )?zu (?:ihren )?diensten|wie kann ich (?:sie |ihnen )?unterstützen|ich bin (?:eine |ein )?(?:ki|sprachmodell|digitaler assistent)|ich helfe ihnen gerne|was möchten sie (?:heute |jetzt )?(?:wissen|tun)/i
 const FAKE_CLAIM =
-  /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz|den\s+termin)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt)|ist\s+erledigt|lautet\s+jetzt|eintrag\s+lautet|wurde(?:\s+\S+){0,8}\s+verschoben|befindet\s+sich\s+aktuell\s+auf)\b/i
+  /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz|den\s+termin)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt)|ist\s+erledigt|lautet\s+jetzt|eintrag\s+lautet|wurde(?:\s+\S+){0,12}\s+(?:verschoben|kopiert|angelegt|eingetragen|umbenannt|aufgenommen)|befindet\s+sich\s+aktuell\s+auf|steht\s+jetzt\s+auf|ist\s+jetzt\s+auf\s+der|habe\s+(?:es\s+|den\s+film\s+)?(?:auf\s+die|zur)\s+(?:watchliste|lieblingsliste)|habe\s+(?:ich\s+)?(?:\S+\s+){0,6}(?:hinzugefügt|verschoben|gelegt)|erinnerung\s+ist\s+(?:gesetzt|angelegt)|termin\s+ist\s+(?:angelegt|gespeichert))\b/i
+
+const ACTION_VERB =
+  /\b(?:verschoben|hinzugefügt|gespeichert|erledigt|angelegt|gelöscht|gestartet|geöffnet|verbunden|bestellt|geschickt|gesendet|kopiert|umbenannt|eingetragen|ausgeführt|gekoppelt|aufgenommen)\b/i
+
+const HONESTY_REPLACEMENT =
+  /^(?:Das habe ich nicht ausgeführt|Fahrmodus ist intern|Den Fernseher steuere ich|Startbefehl ist angekommen|Befehl angekommen|Live-Bild nur|Jarvis\. Zur Sache)/i
 const FAKE_CARPLAY =
   /(?:apple\s+)?car\s*play\s+ist\s+verbunden|musik\s+läuft(?:,|\s+und)\s+navigation|navigation\s+nach\s+\S.+\s+steht|im internen fahrmodus aktiv|navigation zum\b.+\bist\b|sie erreichen das ziel|rund\s+(?:zehn|\d+)\s+minuten|die route berechne ich(?: sofort)? neu|route (?:wird |ist )?(?:sofort )?neu berechnet|ich berechne die route/i
 const FAKE_NO_DEVICE =
@@ -147,6 +153,27 @@ function stripVocativeNames(text: string, names?: string[]): string {
 }
 
 /** Abgeschnittenes Markdown und hängende Satzenden schließen — kein halbes „Entweder Sie“. */
+export function inventedAction(original: string, rewritten: string): boolean {
+  return ACTION_VERB.test(rewritten) && !ACTION_VERB.test(original)
+}
+
+/** Micro-Merge darf Stimme polieren, keine neuen Taten erfinden. */
+export function groundMicroMerge(original: string, merged: string): string {
+  const src = String(original || '').trim()
+  const out = String(merged || '').trim()
+  if (!out) return src
+  if (!src || out === src) return src || out
+  if (inventedAction(src, out)) return src
+  const keys = src.match(/\b(?:\d+(?:[.,]\d+)?|[A-ZÄÖÜ][A-Za-zÄÖÜäöüß'-]{2,})\b/g) || []
+  if (keys.length) {
+    const lost = keys.filter((k) => !out.toLowerCase().includes(k.toLowerCase()))
+    if (lost.length >= Math.ceil(keys.length / 2)) return src
+  }
+  const scrubbed = scrubReply(out)
+  if (HONESTY_REPLACEMENT.test(scrubbed)) return src
+  return scrubbed
+}
+
 export function finishReply(text: string): string {
   let out = (text || '').replace(/\r/g, '').trim()
   out = out.replace(/\*\*/g, '').replace(/__/g, '').replace(/(^|\s)\*+\s*/g, '$1').replace(/\s+\*+$/g, '')
