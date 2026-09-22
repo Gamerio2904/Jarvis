@@ -26,7 +26,7 @@ const {
   themesForDay,
 } = await import('../src/engine/calendar-theme.ts')
 const { handleCalendar, createEventFromGui, sameDay } = await import('../src/engine/calendar.ts')
-const { addEvent, listEvents, clearPending } = await import('../src/engine/store.ts')
+const { addEvent, listEvents, clearPending, getPending } = await import('../src/engine/store.ts')
 
 assert.equal(CAL_THEMES.length, 8)
 assert.equal(classifyEventTheme('Teammeeting'), 'arbeit')
@@ -40,6 +40,7 @@ assert.equal(classifyEventTheme('Einkaufen'), 'sonstiges')
 assert.equal(classifyEventTheme('Klausur Mathe', 'Campus'), 'uni')
 assert.equal(eventTheme({ title: 'Zahnarzt' }), 'arzt')
 assert.equal(eventTheme({ title: 'Irgendwas', theme: 'uni' }), 'uni')
+assert.equal(eventTheme({ title: 'Maxi Geburtstag', theme: 'sonstiges' }), 'geburtstag')
 assert.equal(parseThemeId('arbeit'), 'arbeit')
 assert.equal(parseThemeId('Thema: Uni'), 'uni')
 assert.equal(parseThemeId('xyz'), null)
@@ -73,6 +74,35 @@ assert.equal(gui.theme, 'uni')
 const old = await addEvent({ title: 'Mamas Geburtstag', start_at: new Date(Date.now() + 2 * 86400_000).toISOString() })
 assert.equal(old.theme, undefined)
 assert.equal(eventTheme(old), 'geburtstag')
+
+const maxi = await addEvent({
+  title: 'Maxi Geburtstag',
+  start_at: new Date(Date.now() + 3 * 86400_000).toISOString(),
+  theme: 'sonstiges',
+})
+const renamed = await handleCalendar('cal-theme', 'Änder Maxi Geburtstag in Jakob Geburtstag')
+assert.equal(renamed.handled, true)
+assert.match(renamed.reply || '', /Jakob Geburtstag/)
+assert.equal((await listEvents()).find((e) => e.id === maxi.id)?.title, 'Jakob Geburtstag')
+
+await clearPending('cal-ren')
+const made = await handleCalendar('cal-ren', 'Termin morgen 18 Uhr Maxi Test')
+assert.equal(made.handled, true)
+assert.equal((await getPending('cal-ren'))?.action, 'remind_offsets')
+const go = await handleCalendar('cal-ren', 'Änder Maxi Test in Jakob Test')
+assert.equal(go.handled, true)
+assert.match(go.reply || '', /Jakob Test/)
+assert.equal(await getPending('cal-ren'), undefined)
+assert.ok((await listEvents()).some((e) => e.title === 'Jakob Test'))
+assert.ok(!(await listEvents()).some((e) => e.title === 'Maxi Test'))
+
+const { readFileSync } = await import('node:fs')
+const { dirname, join } = await import('node:path')
+const { fileURLToPath } = await import('node:url')
+const here = dirname(fileURLToPath(import.meta.url))
+const calUi = readFileSync(join(here, '../src/ui/Calendar.tsx'), 'utf8')
+assert.match(calUi, /cal-card-edit/)
+assert.match(calUi, /updateEventFromGui/)
 
 const { cancelEventNotifies } = await import('../src/engine/calendar.ts')
 for (const e of await listEvents()) await cancelEventNotifies(e)

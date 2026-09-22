@@ -5,6 +5,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+<<<<<<< HEAD
 Watchliste: Folie zeigt **Kritiker** und **Publikum** immer. Fehlt die
 Publikumsnote bei OMDb, steht **Publikum —**; IMDb kommt extra, nicht
 als Publikum beschriftet.
@@ -12,6 +13,11 @@ als Publikum beschriftet.
 Lage-Kugel: Osiris-Schichten (**Satelliten**, **Flugzeuge**, Erdbeben,
 Waldbrände, See, …) wieder als Leiste auf der Kugel. Tippen schaltet an
 oder aus. „Zeig Flugzeuge“ ist wieder ein Satz. Leere Sicht bleibt zu.
+=======
+Kalender: „Änder Maxi Geburtstag in Jakob Geburtstag“ schreibt den Titel
+wirklich um. Karte hat **Ändern**. Gespeichertes Thema Sonstiges weicht
+einem Treffer im Titel (Geburtstag).
+>>>>>>> a16c3f2 (fix: Kalender-Umbenennung schreibt den Titel wirklich)
 
 ### `18.8.3` — Kalender weicher — *CODE + APK*
 
