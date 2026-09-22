@@ -100,7 +100,22 @@ function EventCard({
     : undefined
   return (
     <li className="cal-card" data-theme={theme || 'erinnerung'} style={tint}>
-      <div className="cal-card-main">
+      <div
+        className="cal-card-main"
+        role={onEdit ? 'button' : undefined}
+        tabIndex={onEdit ? 0 : undefined}
+        onClick={onEdit}
+        onKeyDown={
+          onEdit
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onEdit()
+                }
+              }
+            : undefined
+        }
+      >
         <div className="cal-card-top">
           {face ? (
             <span className="cal-theme-pill" style={{ background: face.color }}>
@@ -176,7 +191,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   useEffect(() => {
     if (!sheetOpen) return
     titleRef.current?.focus()
-  }, [sheetOpen])
+    if (editingId) titleRef.current?.select()
+  }, [sheetOpen, editingId])
 
   useEffect(() => {
     if (mode !== 'year') return
@@ -301,7 +317,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
 
   async function onAdd() {
     const name = title.trim()
-    if (!name || busy) return
+    if (!sheetOpen || !name || busy) return
     setBusy(true)
     setErr(null)
     try {
@@ -655,7 +671,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             <button type="button" className="ghost-btn" disabled={busy} onClick={closeSheet}>
               Abbrechen
             </button>
-            <button type="submit" className="cal-add-btn" disabled={busy || !title.trim()}>
+            <button type="submit" className="cal-add-btn" disabled={busy || !sheetOpen || !title.trim()}>
               Speichern
             </button>
           </div>
