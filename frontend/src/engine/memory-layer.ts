@@ -46,21 +46,86 @@ export type MemoryRow = {
   not_useful?: number
 }
 
+export type MemoryAspect =
+  | 'name'
+  | 'place'
+  | 'people'
+  | 'pref'
+  | 'boundary'
+  | 'research'
+  | 'work'
+  | 'life'
+  | 'goal'
+  | 'know'
+  | 'fact'
+
 export function kindFromCategory(category = ''): MemoryKind {
   if (category === 'pref') return 'pref'
   if (category === 'boundary') return 'boundary'
   if (category === 'open_loop') return 'open_loop'
+  if (category === 'goal') return 'goal'
   return 'fact'
 }
 
-export function memoryAspect(category = '', key = ''): string {
-  if (key === 'name') return 'name'
-  if (key === 'zuhause' || category === 'place') return 'place'
+const ASK_STOP = new Set(
+  'der die das den dem des ein eine einer einem einen und oder aber mit von zu im in am auf aus für fürs als wie was wer wo wann warum dass ist sind war hat habe ich wir sie du mir mich uns ihr eure mein meine dein keine kein noch nur auch schon mal bitte doch über uber weißt weisst weiß weiss stand hatte gerade ohne kennst kennt davon dazu darüber darueber sagst gesagt liegt geben welche wollte machen viel viele'.split(
+    ' ',
+  ),
+)
+
+/** Inhaltstokens einer Frage. Kurze Füllwörter fliegen, „bip“ bleibt. */
+export function askTokens(q: string): string[] {
+  return (q || '')
+    .toLowerCase()
+    .split(/[^a-zäöüß0-9]+/i)
+    .filter((w) => w.length > 2 && !ASK_STOP.has(w))
+}
+
+/** Lookup-Frage: zitierte Recherche und Fachwissen dürfen oben liegen. */
+export function isLookupAsk(q: string): boolean {
+  return /recherch|warum|weshalb|wie\s+viele|was\s+ist|wer\s+ist|wo\s+liegt|erklär|wissen|quelle|\bbip\b|\bgdp\b/i.test(
+    q || '',
+  )
+}
+
+export function isAboutMeAsk(q: string): boolean {
+  return /was\s+weißt\s+du\s+über\s+mich|was\s+hast\s+du\s+dir\s+gemerkt|was\s+liegt\s+über\s+mich|basierend\s+auf\s+(?:dem\s+)?was\s+du/i.test(
+    q || '',
+  )
+}
+
+export function memoryAspect(category = '', key = '', kind?: string): MemoryAspect {
+  const k = (key || '').toLowerCase()
+  if (k === 'name') return 'name'
+  if (k === 'zuhause' || category === 'place') return 'place'
   if (category === 'contact' || category === 'email') return 'people'
   if (category === 'pref') return 'pref'
   if (category === 'boundary') return 'boundary'
-  if (category === 'research') return 'research'
+  if (category === 'research' || k.startsWith('research:')) return 'research'
+  if (category === 'knowledge' || k.startsWith('know:')) return 'know'
+  if (kind === 'goal' || category === 'goal' || k === 'reise') return 'goal'
+  if (category === 'work' || /^(job|arbeit|beruf|firma|arbeitgeber)$/.test(k)) return 'work'
+  if (category === 'birthday' || category === 'life' || /^(geburtstag|gesundheit|familie)$/.test(k)) return 'life'
   return 'fact'
+}
+
+export function aspectLabel(aspect: MemoryAspect | string, key: string): string {
+  if (aspect === 'research') return `Recherche/${key}`
+  if (aspect === 'people') return `Leute/${key}`
+  if (aspect === 'place') return key === 'zuhause' ? 'zuhause' : `Ort/${key}`
+  if (aspect === 'boundary') return `Grenze/${key}`
+  if (aspect === 'work') return `Arbeit/${key}`
+  if (aspect === 'life') return `Leben/${key}`
+  if (aspect === 'goal') return `Ziel/${key}`
+  if (aspect === 'know') return `Wissen/${key}`
+  return key
+}
+
+export function rowsByAspect<T extends { key: string; category?: string; kind?: string }>(
+  items: T[],
+  aspect: MemoryAspect,
+): T[] {
+  return items.filter((m) => memoryAspect(m.category || '', m.key, m.kind) === aspect)
 }
 
 export function inferTense(text: string): MemoryTense {
@@ -78,6 +143,7 @@ export function inferKind(key: string, value: string, category = '', spoken = ''
   if (category === 'pref' || key === 'essen' || key === 'getränk') return 'pref'
   if (category === 'boundary') return 'boundary'
   if (category === 'open_loop') return 'open_loop'
+  if (category === 'goal' || key === 'reise') return 'goal'
   if (/\b(?:will|möchte|plane|ziel|reise)\b/.test(blob) && inferTense(blob) === 'future') return 'goal'
   if (inferTense(blob) === 'past' && /\b(?:war|termin|event)\b/.test(blob)) return 'event'
   return kindFromCategory(category)

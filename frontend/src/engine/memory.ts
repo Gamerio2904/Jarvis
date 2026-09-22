@@ -3,6 +3,7 @@ import { packVerified } from './action-fsm.ts'
 import {
   confidenceFor,
   contradictionTargets,
+  memoryAspect,
   memoryForgetVerified,
   memoryWriteVerified,
 } from './memory-layer.ts'
@@ -13,6 +14,7 @@ import {
   RECALL_FOOD,
   RECALL_NAME,
   RECALL_VAGUE,
+  RECALL_WORK,
   VERGISS,
   VERGISS_ALL,
   CONTRADICTION,
@@ -28,7 +30,7 @@ import { isPresenceWindow } from './presence.ts'
 
 export { isMemoryRecall, isMemoryWrite, parseMemoryFacts, formatPinnedMemory } from './memory-parse.ts'
 export type { MemoryFact } from './memory-parse.ts'
-export { memoryBlock } from './memory-block.ts'
+export { memoryBlock, pinsForAsk } from './memory-block.ts'
 
 type MemHit = { handled: boolean; reply?: string; items?: MemoryItem[]; tool?: ToolMeta; lastTool?: string }
 
@@ -189,6 +191,22 @@ export async function handleMemory(conversationId: string, text: string): Promis
         reply: d ? `Sie heißen ${d.value}.` : 'Kein Name gespeichert.',
         lastTool: 'memory',
       }
+    }
+    if (RECALL_WORK.test(text)) {
+      const work = items.find((m) => memoryAspect(m.category || '', m.key, m.kind) === 'work')
+      const placeJob = items.find(
+        (m) => m.key === 'arbeit' && memoryAspect(m.category || '', m.key, m.kind) === 'place',
+      )
+      const wv = work?.value.trim()
+      const pv = placeJob?.value.trim()
+      const job = wv
+        ? /^(?:bei|als)\b/i.test(wv)
+          ? `Sie arbeiten ${wv}.`
+          : `Arbeit: ${wv}.`
+        : ''
+      const loc = pv ? `Arbeit ist ${pv}.` : ''
+      const reply = [job, loc].filter(Boolean).join(' ') || 'Kein Arbeitsplatz gespeichert.'
+      return { handled: true, reply, lastTool: 'memory' }
     }
     if (RECALL_VAGUE.test(text)) {
       const drink = items.find((m) => m.key === 'getränk')

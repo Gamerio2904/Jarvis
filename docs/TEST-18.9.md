@@ -1,7 +1,7 @@
 # TEST 18.9 — Recover + Hirn
 
-Nach Execute von [`80-next.md`](./80-next.md). Sideload **`18.9.0`**,
-versionCode `180900`. `18.5` nicht parallel.
+Nach Execute von [`80-next.md`](./80-next.md). Sideload **`18.9.8`**,
+versionCode `180908`. `18.5` nicht parallel.
 
 ## 1. Ansage
 
@@ -47,6 +47,22 @@ Gold enthält jeden Agenten (Todo als `tools`). Probe bleibt 13 Packs.
 `Schreib mir eine E-Mail` — An wen, nicht Won’t. Entwurf nach Ja.  
 `Was steht auf WhatsApp` ohne Meldungsrecht — ehrlich + Einstellungen.  
 Antwort nach Ja über die Meldung oder Chat-Link. Nie „ist gesendet“.
+
+## 10. Plan-81 Lücken 18.9.8
+
+`Zeig meine Kontakte` listet lokal merkte Nummern und Adressen.  
+`Mama, Mail name@gmx.de` legt die Adresse. Scan übernimmt Mail, wenn
+die Telefonbuchzeile eine hat. IMAP-Karte: Testen erreicht das Postfach
+oder sagt ehrlich aus. `Schreib mir eine E-Mail` dann `name@…` fragt
+nach dem Text, verliert die Adresse nicht. Nie „ist gesendet“.
+
+## 11. Gedächtnis-Kern 18.9.8
+
+Zwei zitierte Quellen zur selben Frage bleiben beide (verschiedene Keys).
+„Ich arbeite bei …“ liegt unter Arbeit, „Ich arbeite in Stuttgart“ bleibt
+Ort. „Was weißt du über mich“ nennt Sie, nicht jede Netzrecherche.
+Lookup „Was ist 2 plus 2“ zieht nicht die BIP-Pin. „Was trinke ich“
+sieht Mate im Block. e5 ändert die Route nicht.
 
 ## 7. Watchliste 18.9.5
 

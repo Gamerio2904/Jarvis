@@ -2,6 +2,7 @@ import { parseLeaveIntent } from './leave-parse.ts'
 import { geocodePlace, routeMinutes } from './geo-lookup.ts'
 import { looksLikeBareStreet, mapsDirUrl, normalizePlaceName } from './places-parse.ts'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo.ts'
+import { memoryAspect } from './memory-layer.ts'
 import { listEvents, listMemory, loadSettings, saveSettings } from './store.ts'
 import type { ToolMeta } from './tools.ts'
 
@@ -31,13 +32,16 @@ async function resolvePlace(query: string): Promise<string | null> {
     )
   if (ev?.place) return ev.place
   const mem = await listMemory()
-  const person = mem.find(
-    (m) =>
-      (m.category === 'place' || m.category === 'contact') &&
-      (m.key === q || m.key.includes(q) || q.includes(m.key)),
+  const person = mem.find((m) => {
+    const a = memoryAspect(m.category || '', m.key, m.kind)
+    return (a === 'place' || a === 'people') && (m.key === q || m.key.includes(q) || q.includes(m.key))
+  })
+  if (person && memoryAspect(person.category || '', person.key, person.kind) === 'place' && person.value) {
+    return person.value
+  }
+  const place = mem.find(
+    (m) => memoryAspect(m.category || '', m.key, m.kind) === 'place' && (m.key === q || q.includes(m.key)),
   )
-  if (person?.category === 'place' && person.value) return person.value
-  const place = mem.find((m) => m.category === 'place' && (m.key === q || q.includes(m.key)))
   if (place?.value) return place.value
   if (ev && !ev.place) return null
   return null

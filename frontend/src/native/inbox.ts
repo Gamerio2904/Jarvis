@@ -58,9 +58,11 @@ export async function scanPhoneContacts(): Promise<{
             .map((c) => ({
               name: String(c?.name || '').trim(),
               number: String(c?.number || '').trim(),
-              email: String(c?.email || '').trim() || undefined,
+              email: String(c?.email || '')
+                .replace(/.*<([^>]+)>/, '$1')
+                .trim() || undefined,
             }))
-            .filter((c) => c.name && c.number)
+            .filter((c) => c.name && (c.number.length >= 6 || Boolean(c.email)))
         : []
       return { ...hit, contacts }
     } catch {

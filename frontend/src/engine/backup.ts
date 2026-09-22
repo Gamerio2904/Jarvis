@@ -189,7 +189,7 @@ export function previewBackup(raw: unknown): BackupPreview {
     }
   }
   const keys = countSetKeys(data.settings || {})
-  const contacts = (data.memory || []).filter((m) => m.category === 'contact').length
+  const contacts = (data.memory || []).filter((m) => m.category === 'contact' || m.category === 'email').length
   return {
     ok: true,
     message: `${keys} Keys, ${contacts} Nummern, ${(data.reminders || []).length} Erinnerungen, ${(data.ideas || []).length} Ideen, Watchliste ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length}, Lieblinge ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length}, Gesehen ${(data.watched_movies || []).length}. Datei enthält Geheimnisse — nicht in den Chat, nicht nach Git.`,

@@ -1,3 +1,5 @@
+import { memoryAspect } from './memory-layer.ts'
+
 export type MemoryFact = { key: string; value: string; category: string }
 
 export const MERK =
@@ -14,6 +16,8 @@ export const RECALL_DRINK =
 export const RECALL_FOOD =
   /^\s*(?:was\s+esse\s+ich(?:\s+gerne)?|was\s+mag\s+ich\s+(?:zu\s+)?essen|mein\s+essen\??)\s*[?]?\s*$/is
 export const RECALL_VAGUE = /^\s*(?:was\s+mag\s+ich)\s*[?]?\s*$/is
+export const RECALL_WORK =
+  /^\s*(?:wo\s+arbeite\s+ich(?:\s+nochmal)?|was\s+ist\s+mein\s+(?:job|beruf)|mein\s+beruf\??)\s*[?]?\s*$/is
 export const RECALL_PREF_ITEM = /^\s*mag\s+ich(?:\s+noch)?\s+(.+?)\s*[?]?\s*$/is
 
 const PREF_SKIP =
@@ -71,6 +75,13 @@ export function parseMemoryFacts(text: string): MemoryFact[] {
     )
   if (food && isPrefValue(food[1])) push('essen', food[1], 'pref')
 
+  const work = /ich\s+arbeite\s+((?:bei|als)\s+.+?)(?=\s+\bund\b|[,.!?]|$)/i.exec(text)
+  if (work) push('arbeit', work[1].replace(/[.!?,;:]+$/g, '').trim(), 'work')
+  const job = /mein\s+(?:job|beruf)\s+ist\s+(.+?)(?=\s+\bund\b|[,.!?]|$)/i.exec(text)
+  if (job && !out.some((x) => x.key === 'arbeit')) {
+    push('arbeit', job[1].replace(/[.!?,;:]+$/g, '').trim(), 'work')
+  }
+
   const rest = MERK.exec(text)
   if (rest && !out.length) {
     const value = rest[1].trim()
@@ -110,10 +121,15 @@ export function isMemoryWrite(text: string): boolean {
   if (/\b(?:trinke?\s+(?:gerne)?|lieblingsgetränk|esse\s+(?:gerne)?|lieblingsessen)\b/i.test(text)) {
     return parseMemoryFacts(text).length > 0
   }
+  if (/\b(?:ich\s+arbeite\s+(?:bei|als)|mein\s+(?:job|beruf)\s+ist)\b/i.test(text)) {
+    return parseMemoryFacts(text).length > 0
+  }
   return false
 }
 
-export function formatPinnedMemory(items: Array<{ key: string; value: string }>): string {
+export function formatPinnedMemory(
+  items: Array<{ key: string; value: string; category?: string; kind?: string }>,
+): string {
   if (!items.length) return 'Noch nichts gespeichert über Sie.'
   const order = ['name', 'zuhause', 'getränk', 'essen']
   const say: Record<string, (v: string) => string> = {
@@ -131,13 +147,41 @@ export function formatPinnedMemory(items: Array<{ key: string; value: string }>)
     used.add(k)
     bits.push(say[k](v))
   }
-  for (const m of items) {
-    if (used.has(m.key)) continue
-    const v = m.value.trim()
-    if (!v) continue
-    bits.push(`${m.value.replace(/[.!?]+$/g, '')}.`)
+  const workPin = items.find((i) => memoryAspect(i.category || '', i.key, i.kind) === 'work' && i.value.trim())
+  const placeJob = items.find(
+    (i) => i.key === 'arbeit' && memoryAspect(i.category || '', i.key, i.kind) === 'place' && i.value.trim(),
+  )
+  if (workPin) {
+    used.add(workPin.key)
+    const v = workPin.value.trim()
+    bits.push(/^(?:bei|als)\b/i.test(v) ? `Sie arbeiten ${v}.` : `Arbeit: ${v}.`)
   }
-  return bits.slice(0, 8).join(' ')
+  if (placeJob) {
+    used.add(placeJob.key)
+    bits.push(`Arbeit ist ${placeJob.value.trim()}.`)
+  }
+  const rest = items.filter((m) => !used.has(m.key) && m.value.trim())
+  const aspectRank = (m: (typeof rest)[number]) => {
+    const a = memoryAspect(m.category || '', m.key, m.kind)
+    if (a === 'goal') return 0
+    if (a === 'people') return 1
+    if (a === 'life') return 2
+    if (a === 'research') return 3
+    if (a === 'know') return 4
+    return 5
+  }
+  rest.sort((a, b) => aspectRank(a) - aspectRank(b))
+  for (const m of rest) {
+    const v = m.value.trim()
+    const a = memoryAspect(m.category || '', m.key, m.kind)
+    if (a === 'research') bits.push(`Gelernt: ${v.replace(/[.!?]+$/g, '')}.`)
+    else if (a === 'goal') bits.push(`Ziel: ${v.replace(/[.!?]+$/g, '')}.`)
+    else if (a === 'people') bits.push(`${m.key}: ${v.replace(/[.!?]+$/g, '')}.`)
+    else if (a === 'life') bits.push(`${m.key}: ${v.replace(/[.!?]+$/g, '')}.`)
+    else if (a === 'know') bits.push(`Wissen: ${v.replace(/[.!?]+$/g, '')}.`)
+    else bits.push(`${v.replace(/[.!?]+$/g, '')}.`)
+  }
+  return bits.slice(0, 10).join(' ')
 }
 
 export function isMemoryRecall(text: string): boolean {
@@ -146,6 +190,7 @@ export function isMemoryRecall(text: string): boolean {
     RECALL_NAME.test(text) ||
     RECALL_DRINK.test(text) ||
     RECALL_FOOD.test(text) ||
+    RECALL_WORK.test(text) ||
     RECALL_VAGUE.test(text) ||
     Boolean(parsePrefItemAsk(text))
   )

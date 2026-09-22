@@ -5,6 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.9.8` — Telefonbuch-Mail, Kontaktliste, IMAP-Test, Gedächtnis-Kern — *CODE + APK*
+
+Scan holt Mail aus dem Telefonbuch. Alltag und Chat merken Adresse mit.
+IMAP-Karte hat Testen. „Mama, Mail …“ liegt wie Tel. „Zeig meine Kontakte“
+listet Nummer und Mail, nicht Orte. „Schreib mir eine E-Mail“ behält die
+Nachfrage, auch ohne Namen. Ein neuer Comm-Satz bricht die offene Frage.
+Gemeinsamer Gedächtnis-Kern: Aspekte Arbeit/Leben/Ziel/Wissen, zitierte
+Recherche pro Quelle (nicht überschreiben), Lookup hebt nur passende Pins.
+Kein stilles Senden, 18.5 unberührt.
+Sideload **`18.9.8`** (versionCode `180908`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.9.7` — E-Mail, Telefonbuch, WhatsApp-Antwort — *CODE + APK*
 
 Telefonbuch nach Ja lokal merken (`READ_CONTACTS`). E-Mails lesen über
