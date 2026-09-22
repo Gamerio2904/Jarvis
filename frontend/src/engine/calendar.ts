@@ -19,6 +19,9 @@ import type { ToolMeta } from './tools.ts'
 
 export { parseCalendarIntent, parseRemindOffsets, formatRemindOffsets } from './calendar-parse.ts'
 
+export const ASK_REMIND =
+  'Wann soll ich Sie erinnern? Zum Beispiel 24 Stunden davor und 2 Stunden davor — oder „am Termin“ / „keine extra Erinnerung“.'
+
 export function eventNotifyId(eventId: string, minutes = 0): number {
   return notifyIdFromKey(minutes > 0 ? `evt-${eventId}-m${minutes}` : `evt-${eventId}`)
 }
@@ -55,9 +58,6 @@ export async function scheduleEventNotifies(row: CalendarEvent, now = Date.now()
   return skipped
 }
 
-const ASK_REMIND =
-  'Wann soll ich Sie erinnern? Zum Beispiel 24 Stunden davor und 2 Stunden davor — oder „am Termin“ / „keine extra Erinnerung“.'
-
 export async function handleCalendar(
   conversationId: string,
   text: string,
@@ -66,8 +66,15 @@ export async function handleCalendar(
   if (pending?.tool === 'calendar' && pending.action === 'remind_offsets') {
     const hit = parseRemindOffsets(text)
     if (!hit) {
-      if (parseCalendarIntent(text)) await clearPending(conversationId)
-      else return { handled: false }
+      const nextIntent = parseCalendarIntent(text)
+      if (nextIntent) await settlePendingRemind(pending, conversationId)
+      else {
+        return {
+          handled: true,
+          reply: ASK_REMIND,
+          tool: { tool_status: 'executed', tool: 'calendar', action: 'remind', label: 'Erinnerung' },
+        }
+      }
     } else {
       const eventId = String(pending.args?.event_id || '')
       const row = (await listEvents()).find((e) => e.id === eventId)
@@ -215,6 +222,20 @@ export async function handleCalendar(
     reply: `Termin weg: ${hit.title}.`,
     tool: { tool_status: 'executed', tool: 'calendar', action: 'delete', label: 'Termin weg' },
   }
+}
+
+async function settlePendingRemind(
+  pending: { args?: { event_id?: unknown } },
+  conversationId: string,
+): Promise<void> {
+  const eventId = String(pending.args?.event_id || '')
+  const row = (await listEvents()).find((e) => e.id === eventId)
+  await clearPending(conversationId)
+  if (!row || row.remind_offsets_min !== undefined) return
+  const next: CalendarEvent = { ...row, remind_offsets_min: [0] }
+  await cancelEventNotifies(row)
+  await putEvent(next)
+  await scheduleEventNotifies(next)
 }
 
 function findEventByQuery(rows: CalendarEvent[], query: string): CalendarEvent | undefined {

@@ -189,6 +189,12 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   }, [reload])
 
   useEffect(() => {
+    const on = () => void reload()
+    window.addEventListener('jarvis-events', on)
+    return () => window.removeEventListener('jarvis-events', on)
+  }, [reload])
+
+  useEffect(() => {
     if (!sheetOpen) return
     titleRef.current?.focus()
     if (editingId) titleRef.current?.select()

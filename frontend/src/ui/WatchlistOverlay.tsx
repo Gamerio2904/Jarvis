@@ -23,11 +23,16 @@ export function WatchlistOverlay({
 
   useEffect(() => {
     let live = true
-    void enrichWatchlist(focus).then((next) => {
-      if (live) setRows(next)
-    })
+    const load = () => {
+      void enrichWatchlist(focus).then((next) => {
+        if (live) setRows(next)
+      })
+    }
+    load()
+    window.addEventListener('jarvis-watchlist', load)
     return () => {
       live = false
+      window.removeEventListener('jarvis-watchlist', load)
     }
   }, [focus])
 

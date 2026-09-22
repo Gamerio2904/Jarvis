@@ -85,6 +85,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 77 | [Lage-Kugel OSINT 18.6](./77-next.md) | **CODE** `18.6.0` — Sprints 307–314; OSIRIS-Fähigkeiten in der Kugel, kein iframe |
 | 78 | [Listen-Leiste, Selbststeuerung, flexibler Befehl 18.7](./78-next.md) | **CODE** `18.7.0` — Sprints 315–322; 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb |
 | 79 | [Debug-Rollback, Termin-Erinnerungen, Debug-Download 18.8](./79-next.md) | **CODE** `18.8.0` — Sprints 323–330; Lauf räumt Writes, Termin fragt nach 1–n Fristen, Download am Dock, Prompt-Pakete neu |
+| 80 | [Hirn und Agenten härten](./80-next.md) | **PLAN** — Sprints 331–334; Rules-first Verify, Fail-Memory, Abstention; nicht parallel zu 18.5 |
 | — | [APK](./apk.md) | Sideload `18.8.3`; Test: [`TEST-18.8.md`](./TEST-18.8.md) |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |

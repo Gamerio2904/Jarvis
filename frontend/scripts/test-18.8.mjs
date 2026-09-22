@@ -124,6 +124,28 @@ assert.equal(afterRename?.title, 'Jakob Geburtstag')
 assert.equal(afterRename?.theme, 'geburtstag')
 assert.ok(!(await listEvents()).some((e) => e.title === 'Maxi Geburtstag'))
 
+{
+  const { runDirectorTurn } = await import('../src/engine/director.ts')
+  const { scrubReply } = await import('../src/engine/guards.ts')
+  const { skipMicroMerge } = await import('../src/engine/chat-blocks.ts')
+  const holdConv = 'cal-18-8-hold'
+  await clearPending(holdConv)
+  const made = await handleCalendar(holdConv, 'Termin morgen 18 Uhr PendingHold')
+  assert.equal(made.handled, true)
+  assert.equal((await getPending(holdConv))?.action, 'remind_offsets')
+  const weather = await runDirectorTurn(holdConv, 'Wetter heute')
+  assert.match(weather.hit?.reply || '', /Wann soll ich Sie erinnern/)
+  assert.equal((await getPending(holdConv))?.action, 'remind_offsets')
+  const second = await handleCalendar(holdConv, 'Termin morgen 19 Uhr ZweiterHold')
+  assert.equal(second.handled, true)
+  assert.match(second.reply || '', /ZweiterHold/)
+  assert.equal((await getPending(holdConv))?.preview, 'ZweiterHold')
+  assert.ok((await listEvents()).some((e) => e.title.includes('PendingHold')))
+  assert.ok((await listEvents()).some((e) => e.title.includes('ZweiterHold')))
+  assert.match(scrubReply('Ist erledigt. Der Eintrag lautet jetzt Jakob Geburtstag.'), /nicht ausgeführt/)
+  assert.equal(skipMicroMerge('Termin: Zahnarzt. Steht im Kalender. Wann soll ich Sie erinnern?'), true)
+}
+
 const noneRow = await addEvent({
   title: 'ohne Erinnerung',
   start_at: new Date(Date.now() + 86400_000).toISOString(),

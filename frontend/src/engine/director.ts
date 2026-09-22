@@ -16,6 +16,7 @@ import { confirmedUtterance, contractOf, looksCommandish } from './tool-contract
 import { proposeReady, proposeTool } from './tool-propose.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
+import { noteFail } from './working-memory.ts'
 import { unknownReplyForCtx } from './command-neighbors.ts'
 import type { AgentResult, RouteHit } from './agents/types.ts'
 import type { RouteCtx } from './route-types.ts'
@@ -221,7 +222,6 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
         return { hit, userFacts: hit.reply }
       }
     }
-    await clearPending(conversationId)
   } else if (pending) {
     const pendingHit = await handleTools(conversationId, text)
     if (pendingHit.handled && pendingHit.reply) {
@@ -282,6 +282,7 @@ async function runPicked(
   if (!result.handled) {
     const honest = failureReply(id, result)
     if (!honest) return { hit: null }
+    noteFail(id, result.failReason || 'error')
     setLastUserFacts(honest)
     return { hit: { reply: honest, lastTool: id }, userFacts: honest }
   }
