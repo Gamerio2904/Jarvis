@@ -16,7 +16,7 @@ import {
 import { formatDue } from './remind-parse.ts'
 import { qualityPack } from './quality-pack.ts'
 import { aliasQueries, expandBlob, utteranceHints } from './memory-alias.ts'
-import { rowKind } from './memory-layer.ts'
+import { isLookupAsk, memoryAspect, rowKind } from './memory-layer.ts'
 import { rememberRecallHits } from './memory-experience.ts'
 import { listKnowledgePacks, type KnowledgePack } from './knowledge-store.ts'
 
@@ -67,6 +67,7 @@ export function subQueries(text: string): string[] {
   if (/\b(?:kontakt|telefonbuch|whatsapp|e-?mails?|emails?|nummer)\b/i.test(t) && !out.includes('kontakt')) {
     out.push('kontakt')
   }
+  if (/\b(?:job|arbeite|beruf|firma)\b/i.test(t) && !out.includes('arbeit')) out.push('arbeit')
   for (const a of aliasQueries(t)) out.push(a)
   return [...new Set(out.filter(Boolean))].slice(0, 5)
 }
@@ -107,9 +108,22 @@ export function boostMemoryRank(text: string, m: MemoryItem, rank: number): numb
   let r = rank
   const ents = (m.entities || []).map((e) => e.toLowerCase())
   const blob = `${m.key} ${m.value}`.toLowerCase()
+  const aspect = memoryAspect(m.category || '', m.key, m.kind)
   if (hints.entities.length && hints.entities.some((e) => ents.includes(e) || blob.includes(e))) r += 0.4
   if (hints.kind && rowKind(m) === hints.kind) r += 0.3
   if (hints.tense && hints.tense !== 'unknown' && m.tense === hints.tense) r += 0.3
+  if (isLookupAsk(text) && (aspect === 'research' || aspect === 'know')) {
+    const qTokens = text
+      .toLowerCase()
+      .split(/[^a-zäöüß0-9]+/i)
+      .filter((w) => w.length > 3)
+    if (qTokens.some((w) => blob.includes(w) || ents.includes(w) || (m.key || '').toLowerCase().includes(w))) {
+      r += 0.55
+    }
+  }
+  if (/\b(?:job|arbeit(?:e|en)?|firma|beruf)\b/i.test(text) && aspect === 'work') r += 0.45
+  if (/\b(?:ziel|reise|plane)\b/i.test(text) && aspect === 'goal') r += 0.45
+  if (/\b(?:geburtstag|familie)\b/i.test(text) && aspect === 'life') r += 0.45
   return r
 }
 
@@ -346,6 +360,10 @@ function formatOneHit(h: RetrieveHit): string {
     if (h.title === 'zuhause') return `Pin: Zuhause ist ${h.body}.`
     if (h.title === 'getränk') return `Pin: Sie trinken ${h.body}.`
     if (h.title === 'essen') return `Pin: Sie essen ${h.body}.`
+    if (h.title === 'arbeit') return `Arbeit: ${h.body}.`
+    if (memoryAspect('', h.title) === 'research' || /^research:/.test(h.title)) {
+      return `Gelernt: ${h.body}`
+    }
     return `Pin: ${h.body}.`
   }
   if (h.store === 'shopping') return `Einkauf: ${h.title}.`

@@ -5,12 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.9.8` — Telefonbuch-Mail, Kontaktliste, IMAP-Test — *CODE*
+### `18.9.8` — Telefonbuch-Mail, Kontaktliste, IMAP-Test, Gedächtnis-Kern — *CODE*
 
 Scan holt Mail aus dem Telefonbuch. Alltag und Chat merken Adresse mit.
 IMAP-Karte hat Testen. „Mama, Mail …“ liegt wie Tel. „Zeig meine Kontakte“
 listet Nummer und Mail, nicht Orte. „Schreib mir eine E-Mail“ behält die
 Nachfrage, auch ohne Namen. Ein neuer Comm-Satz bricht die offene Frage.
+Gemeinsamer Gedächtnis-Kern: Aspekte Arbeit/Leben/Ziel/Wissen, zitierte
+Recherche pro Quelle (nicht überschreiben), Lookup hebt nur passende Pins.
 Kein stilles Senden, 18.5 unberührt.
 
 ### `18.9.7` — E-Mail, Telefonbuch, WhatsApp-Antwort — *CODE + APK*

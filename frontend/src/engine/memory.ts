@@ -13,6 +13,7 @@ import {
   RECALL_FOOD,
   RECALL_NAME,
   RECALL_VAGUE,
+  RECALL_WORK,
   VERGISS,
   VERGISS_ALL,
   CONTRADICTION,
@@ -28,7 +29,7 @@ import { isPresenceWindow } from './presence.ts'
 
 export { isMemoryRecall, isMemoryWrite, parseMemoryFacts, formatPinnedMemory } from './memory-parse.ts'
 export type { MemoryFact } from './memory-parse.ts'
-export { memoryBlock } from './memory-block.ts'
+export { memoryBlock, pinsForAsk } from './memory-block.ts'
 
 type MemHit = { handled: boolean; reply?: string; items?: MemoryItem[]; tool?: ToolMeta; lastTool?: string }
 
@@ -187,6 +188,19 @@ export async function handleMemory(conversationId: string, text: string): Promis
       return {
         handled: true,
         reply: d ? `Sie heißen ${d.value}.` : 'Kein Name gespeichert.',
+        lastTool: 'memory',
+      }
+    }
+    if (RECALL_WORK.test(text)) {
+      const d = items.find((m) => m.key === 'arbeit' || m.category === 'work')
+      const v = d?.value.trim()
+      return {
+        handled: true,
+        reply: v
+          ? /^(?:bei|als)\b/i.test(v)
+            ? `Sie arbeiten ${v}.`
+            : `Arbeit: ${v}.`
+          : 'Kein Arbeitsplatz gespeichert.',
         lastTool: 'memory',
       }
     }

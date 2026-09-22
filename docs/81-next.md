@@ -77,10 +77,19 @@ E-Mail-Anhänge. WhatsApp-Medien. iOS. Cloud-Kalender-Sync.
 
 ## 4b. Gedächtnis-Kern (gleicher Zug)
 
-Alle Agenten lesen denselben `memoryBlock`. Aspekte: Name, Ort, Leute
-(Kontakt/Mail), Pref, Recherche. Erfolgreiche Suche mit URL landet als
-`research` (Quelle im Wert, 14 Tage, origin tool). Ohne URL nichts merken.
-e5 bleibt aus `pickRoute`.
+Alle Agenten lesen denselben Core (`memory-core.ts`: `memoryBlock`,
+`retrieve`, `memoryAspect`, `rememberCitedResearch`). Kein 5. Hirn,
+kein e5 in `pickRoute`.
+
+Aspekte: Name, Ort, Leute (Kontakt/Mail), Pref, Grenze, Recherche,
+Arbeit, Leben, Ziel, Wissen. Drive/Leave lösen Ort und Leute über
+`memoryAspect`, nicht über eine zweite Liste.
+
+Erfolgreiche Suche mit URL landet als `research` — **eine Quelle,
+ein Key** (`research:<frage>:<host>`), Entities aus der Frage,
+14 Tage, origin tool, bis zu drei Quellen. Ohne URL nichts merken.
+Lookup hebt nur passende Recherche-Pins, nicht den ganzen Bestand.
+„Was weißt du über mich“ nennt Gelerntes mit Quelle.
 
 ## 5. Gerät-PO
 

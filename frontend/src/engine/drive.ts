@@ -7,6 +7,7 @@ import { geocodePlace, haversineM, routeDrive, type DriveStep } from './geo-look
 import { compactCoords, isRoadTrack, simplifyTrack, snapToTrack } from './drive-map.ts'
 import { displayPlaceName, isHomeName, isRelationName, normalizePlaceName, parsePlaceNav } from './places-parse.ts'
 import { readDeviceLocation, requestLocationPermission } from '../native/geo.ts'
+import { memoryAspect } from './memory-layer.ts'
 import { listMemory, loadSettings, saveSettings } from './store.ts'
 import type { ToolMeta } from './tools.ts'
 import {
@@ -313,12 +314,13 @@ function driveTool(action: string, label: string, route?: DriveRoute, status = '
 async function resolveDest(query: string): Promise<{ place: string } | { ask: string }> {
   const q = normalizePlaceName(query)
   const mem = await listMemory()
-  const hit = mem.find(
-    (m) =>
-      (m.category === 'place' || m.category === 'contact') &&
-      (m.key === q || m.key.includes(q) || q.includes(m.key)),
-  )
-  if (hit?.category === 'place' && hit.value) return { place: hit.value }
+  const hit = mem.find((m) => {
+    const a = memoryAspect(m.category || '', m.key, m.kind)
+    return (a === 'place' || a === 'people') && (m.key === q || m.key.includes(q) || q.includes(m.key))
+  })
+  if (hit && memoryAspect(hit.category || '', hit.key, hit.kind) === 'place' && hit.value) {
+    return { place: hit.value }
+  }
   if (isHomeName(q) || isRelationName(q)) {
     const who = displayPlaceName(q)
     return {

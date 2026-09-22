@@ -56,6 +56,13 @@ die Telefonbuchzeile eine hat. IMAP-Karte: Testen erreicht das Postfach
 oder sagt ehrlich aus. `Schreib mir eine E-Mail` dann `name@…` fragt
 nach dem Text, verliert die Adresse nicht. Nie „ist gesendet“.
 
+## 11. Gedächtnis-Kern 18.9.8
+
+Zwei zitierte Quellen zur selben Frage bleiben beide (verschiedene Keys).
+„Ich arbeite bei …“ liegt unter Arbeit. „Was weißt du über mich“ nennt
+Gelerntes mit Quelle. Lookup „Was ist der BIP“ trifft die Pin, nicht
+irgendeine andere Recherche. e5 ändert die Route nicht.
+
 ## 7. Watchliste 18.9.5
 
 `Inglorious Basterds zu Lieblingsfilmen hinzufügen` — Chat nennt den

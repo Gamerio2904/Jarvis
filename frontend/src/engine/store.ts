@@ -39,7 +39,19 @@ export type Message = {
   meta?: Record<string, unknown> | null
 }
 
-export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke' | 'place' | 'contact' | 'email' | 'birthday'
+export type MemoryCategory =
+  | 'pref'
+  | 'fact'
+  | 'open_loop'
+  | 'boundary'
+  | 'joke'
+  | 'place'
+  | 'contact'
+  | 'email'
+  | 'birthday'
+  | 'research'
+  | 'work'
+  | 'life'
 
 export type MemoryItem = {
   id: string

@@ -247,8 +247,13 @@ assert.equal(qualityPack('e5', DEFAULT_SETTINGS).wanted, false)
 
 assert.equal(memoryAspect('contact', 'mama'), 'people')
 assert.equal(memoryAspect('research', 'research:bip'), 'research')
+assert.equal(memoryAspect('work', 'arbeit'), 'work')
+assert.equal(memoryAspect('birthday', 'max'), 'life')
+assert.equal(memoryAspect('fact', 'reise', 'goal'), 'goal')
+assert.equal(memoryAspect('knowledge', 'know:bip'), 'know')
 assert.ok(subQueries('Lies meine E-Mails').includes('kontakt'))
 assert.ok(subQueries('Was steht auf WhatsApp').includes('kontakt'))
+assert.ok(subQueries('Wo arbeite ich').includes('arbeit'))
 {
   const people = memoryBlock(
     [pin({ key: 'mama', value: '0171123', category: 'contact' })],
@@ -269,10 +274,25 @@ assert.ok(subQueries('Was steht auf WhatsApp').includes('kontakt'))
   )
   assert.match(cited, /destatis/)
   assert.match(cited, /Recherche/)
+  const workBlock = memoryBlock(
+    [pin({ key: 'arbeit', value: 'bei Siemens', category: 'work' })],
+    'Wo arbeite ich',
+  )
+  assert.match(workBlock, /Siemens/)
+  assert.match(workBlock, /Arbeit/)
+  const knowBlock = memoryBlock(
+    [pin({ key: 'name', value: 'Tim' })],
+    'Was ist der BIP',
+    [{ store: 'knowledge', title: 'BIP', body: 'Destatis-Zahl mit Quelle', rank: 3 }],
+  )
+  assert.match(knowBlock, /Wissen\/BIP/)
+  assert.match(knowBlock, /Destatis/)
 }
 {
-  const { rememberCitedResearch } = await import('../src/engine/remember-research.ts')
+  const { rememberCitedResearch, researchKey, researchEntities } = await import('../src/engine/remember-research.ts')
   const { listMemory } = await import('../src/engine/store.ts')
+  const { formatPinnedMemory, parseMemoryFacts, isMemoryRecall } = await import('../src/engine/memory-parse.ts')
+  const { isLookupAsk } = await import('../src/engine/memory-layer.ts')
   const n = await rememberCitedResearch('Was ist der BIP in Deutschland', [
     {
       title: 'Destatis',
@@ -281,10 +301,49 @@ assert.ok(subQueries('Was steht auf WhatsApp').includes('kontakt'))
       provider: 'test',
       retrieved_at: '2026-09-22',
     },
+    {
+      title: 'Wikipedia BIP',
+      url: 'https://de.wikipedia.org/wiki/Bruttoinlandsprodukt',
+      snippet: 'Das BIP misst den Wert der erzeugten Waren und Dienste.',
+      provider: 'test',
+      retrieved_at: '2026-09-22',
+    },
   ])
-  assert.ok(n >= 1)
+  assert.ok(n >= 2, 'zwei Quellen, zwei Keys')
   const rows = await listMemory('research')
   assert.ok(rows.some((r) => /destatis/i.test(r.value) && r.origin === 'tool'))
+  assert.ok(rows.some((r) => /wikipedia/i.test(r.value)))
+  assert.ok(rows.some((r) => r.key === researchKey('Was ist der BIP in Deutschland', 'destatis.de')))
+  assert.ok(rows.some((r) => r.key === researchKey('Was ist der BIP in Deutschland', 'de.wikipedia.org')))
+  assert.ok(researchEntities('Was ist der BIP in Deutschland', 'Destatis Tabelle').includes('bip'))
+  const destatis = rows.find((r) => /destatis/i.test(r.value))
+  const wiki = rows.find((r) => /wikipedia/i.test(r.value))
+  assert.ok(destatis?.entities?.includes('bip'))
+  assert.ok(destatis?.related_ids?.includes(wiki.id) || wiki?.related_ids?.includes(destatis.id))
+  const lookupHits = retrieveFromCorpus('Was ist der BIP in Deutschland', { memory: rows })
+  assert.ok(lookupHits.some((h) => /destatis|wikipedia/i.test(h.body)), 'Lookup hebt Recherche')
+  const mixed = retrieveFromCorpus('Was ist mein WLAN-Passwort?', {
+    memory: [
+      pin({
+        key: 'notiz',
+        value: 'FritzBox-Passwort ist Blau12',
+        kind: 'fact',
+        entities: ['fritzbox', 'wlan'],
+      }),
+      ...rows,
+    ],
+  })
+  assert.ok(mixed.some((h) => /Blau12/.test(h.body)))
+  assert.ok(!mixed.some((h) => /destatis|wikipedia/i.test(h.body)), 'WLAN-Lookup zieht nicht BIP-Recherche')
+  const recall = formatRecallReply('Was ist der BIP in Deutschland', lookupHits)
+  assert.match(recall, /Gelernt:/)
+  const pinned = formatPinnedMemory(rows)
+  assert.match(pinned, /Gelernt:/)
+  const facts = parseMemoryFacts('Ich arbeite bei Siemens')
+  assert.equal(facts[0]?.key, 'arbeit')
+  assert.equal(facts[0]?.category, 'work')
+  assert.equal(isMemoryRecall('Wo arbeite ich'), true)
+  assert.equal(isLookupAsk('Was ist der BIP'), true)
 }
 
 console.log('test-memory-10 ok')

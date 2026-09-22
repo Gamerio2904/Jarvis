@@ -8,6 +8,7 @@
 
 Was in 338 geplant und im Gerät noch fehlte: Mail aus dem
 Telefonbuch, IMAP-Testen, „Mama, Mail …“, „Zeig meine Kontakte“.
+Gleicher Zug: Gedächtnis-Kern in 340 / [`82-next.md`](../82-next.md).
 Kein stilles WhatsApp, kein 64. Katalog-Agent, nicht parallel zu `18.5`.
 
 ## Lieferumfang

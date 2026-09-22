@@ -75,6 +75,8 @@ const MEM_FILTERS = [
   'joke',
   'boundary',
   'open_loop',
+  'research',
+  'work',
 ] as const
 
 function memLabel(f: (typeof MEM_FILTERS)[number]): string {
@@ -88,6 +90,8 @@ function memLabel(f: (typeof MEM_FILTERS)[number]): string {
   if (f === 'joke') return 'Witze'
   if (f === 'boundary') return 'Grenzen'
   if (f === 'open_loop') return 'Offen'
+  if (f === 'research') return 'Recherche'
+  if (f === 'work') return 'Arbeit'
   return f
 }
 
