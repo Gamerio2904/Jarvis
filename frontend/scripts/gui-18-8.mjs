@@ -141,6 +141,24 @@ try {
   rec(!(await page.$('.cal-sheet.is-open')), 'Sheet nach Speichern zu')
   rec(Boolean(await page.$('.cal-card')), 'Termin-Karte')
   rec(/Arbeit/.test((await page.$eval('.cal-theme-pill', (el) => el.textContent || '')).trim()), 'Karte trägt Arbeit')
+  rec(Boolean(await page.$('.cal-card-edit')), 'Karte Ändern')
+  await page.click('.cal-card-edit')
+  await sleep(400)
+  rec(
+    /ändern/i.test((await page.$eval('.cal-sheet h3', (el) => el.textContent || '').catch(() => ''))),
+    'Sheet Termin ändern',
+  )
+  await page.click('.cal-form input[placeholder="Titel"]', { clickCount: 3 })
+  await page.keyboard.press('Backspace')
+  await page.type('.cal-form input[placeholder="Titel"]', 'Jakob Geburtstag', { delay: 0 })
+  await page.click('.cal-add-btn')
+  await sleep(500)
+  rec(
+    await page.evaluate(() =>
+      [...document.querySelectorAll('.cal-card-title')].some((n) => /Jakob Geburtstag/.test(n.textContent || '')),
+    ),
+    'Karte nach Ändern Jakob',
+  )
   await page.screenshot({ path: `${SHOTS}/18-8-kalender-chips.png` })
   await page.evaluate(() => {
     document.querySelector('.cal-mode[data-nav="list"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
