@@ -5,13 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.9.2` — Halluzinationen: Parser statt Erfindung — *CODE*
+### `18.9.2` — Halluzinationen: Parser statt Erfindung — *CODE + APK*
 
 Verpasste Listen-Korrektur („Nee auf die Lieblingsliste“) fällt nicht mehr
 ins Modell. Micro-Merge schreibt Watchliste/Kalender nicht um. Umgeschriebenes
 ohne die alten Fakten oder mit neuer Tat bleibt der Parser-Satz. LLM-Zug
 ohne Werkzeug: kein Schreib-Erfolg behaupten. Fake „Termin ist angelegt“
 wird gestrichen.
+Sideload **`18.9.2`** (versionCode `180902`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.9.1` — Watchliste-Umzug, Satelliten, Waldbrände — *CODE + APK*
 
