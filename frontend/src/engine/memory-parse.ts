@@ -17,7 +17,7 @@ export const RECALL_FOOD =
   /^\s*(?:was\s+esse\s+ich(?:\s+gerne)?|was\s+mag\s+ich\s+(?:zu\s+)?essen|mein\s+essen\??)\s*[?]?\s*$/is
 export const RECALL_VAGUE = /^\s*(?:was\s+mag\s+ich)\s*[?]?\s*$/is
 export const RECALL_WORK =
-  /^\s*(?:wo\s+arbeite\s+ich|was\s+ist\s+mein\s+job|mein\s+beruf\??)\s*[?]?\s*$/is
+  /^\s*(?:wo\s+arbeite\s+ich(?:\s+nochmal)?|was\s+ist\s+mein\s+(?:job|beruf)|mein\s+beruf\??)\s*[?]?\s*$/is
 export const RECALL_PREF_ITEM = /^\s*mag\s+ich(?:\s+noch)?\s+(.+?)\s*[?]?\s*$/is
 
 const PREF_SKIP =
@@ -131,13 +131,12 @@ export function formatPinnedMemory(
   items: Array<{ key: string; value: string; category?: string; kind?: string }>,
 ): string {
   if (!items.length) return 'Noch nichts gespeichert über Sie.'
-  const order = ['name', 'zuhause', 'getränk', 'essen', 'arbeit']
+  const order = ['name', 'zuhause', 'getränk', 'essen']
   const say: Record<string, (v: string) => string> = {
     name: (v) => `Sie heißen ${v}.`,
     zuhause: (v) => `Zuhause ist ${v}.`,
     getränk: (v) => `Sie trinken ${v}.`,
     essen: (v) => `Sie essen ${v}.`,
-    arbeit: (v) => ( /^(?:bei|als)\b/i.test(v) ? `Sie arbeiten ${v}.` : `Arbeit: ${v}.`),
   }
   const used = new Set<string>()
   const bits: string[] = []
@@ -147,6 +146,19 @@ export function formatPinnedMemory(
     if (!v) continue
     used.add(k)
     bits.push(say[k](v))
+  }
+  const workPin = items.find((i) => memoryAspect(i.category || '', i.key, i.kind) === 'work' && i.value.trim())
+  const placeJob = items.find(
+    (i) => i.key === 'arbeit' && memoryAspect(i.category || '', i.key, i.kind) === 'place' && i.value.trim(),
+  )
+  if (workPin) {
+    used.add(workPin.key)
+    const v = workPin.value.trim()
+    bits.push(/^(?:bei|als)\b/i.test(v) ? `Sie arbeiten ${v}.` : `Arbeit: ${v}.`)
+  }
+  if (placeJob) {
+    used.add(placeJob.key)
+    bits.push(`Arbeit ist ${placeJob.value.trim()}.`)
   }
   const rest = items.filter((m) => !used.has(m.key) && m.value.trim())
   const aspectRank = (m: (typeof rest)[number]) => {

@@ -16,7 +16,7 @@ import {
 import { formatDue } from './remind-parse.ts'
 import { qualityPack } from './quality-pack.ts'
 import { aliasQueries, expandBlob, utteranceHints } from './memory-alias.ts'
-import { isLookupAsk, memoryAspect, rowKind } from './memory-layer.ts'
+import { askTokens, isLookupAsk, memoryAspect, rowKind } from './memory-layer.ts'
 import { rememberRecallHits } from './memory-experience.ts'
 import { listKnowledgePacks, type KnowledgePack } from './knowledge-store.ts'
 
@@ -113,10 +113,7 @@ export function boostMemoryRank(text: string, m: MemoryItem, rank: number): numb
   if (hints.kind && rowKind(m) === hints.kind) r += 0.3
   if (hints.tense && hints.tense !== 'unknown' && m.tense === hints.tense) r += 0.3
   if (isLookupAsk(text) && (aspect === 'research' || aspect === 'know')) {
-    const qTokens = text
-      .toLowerCase()
-      .split(/[^a-zäöüß0-9]+/i)
-      .filter((w) => w.length > 3)
+    const qTokens = askTokens(text)
     if (qTokens.some((w) => blob.includes(w) || ents.includes(w) || (m.key || '').toLowerCase().includes(w))) {
       r += 0.55
     }

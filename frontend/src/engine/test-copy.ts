@@ -787,7 +787,7 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: '5 – Research einfach', text: 'Wie hoch ist der aktuelle Benzinpreis in Deutschland?', expect: { tool: 'research', skipIf: 'no_gemini' } },
       { label: '6 – ↳ Nachfrage', text: 'Und in Frankreich?' },
       { label: '7 – Research Tabelle', text: 'Kannst du die Benzinpreise der letzten 5 Jahre in einer Tabelle zeigen?', expect: { tool: 'research', skipIf: 'no_gemini' } },
-      { label: '8 – Arbeit recall', text: 'Wo arbeite ich nochmal?', expect: { tool: 'recall' } },
+      { label: '8 – Arbeit recall', text: 'Wo arbeite ich nochmal?', expect: { tool: 'memory' } },
       { label: '9 – Losgehen', text: 'Wann muss ich zum Teammeeting los?' },
       { label: '10 – Route', text: 'Navigiere mich zur Arbeit', expect: { tool: 'drive' } },
     ],

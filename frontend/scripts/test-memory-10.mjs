@@ -287,6 +287,39 @@ assert.ok(subQueries('Wo arbeite ich').includes('arbeit'))
   )
   assert.match(knowBlock, /Wissen\/BIP/)
   assert.match(knowBlock, /Destatis/)
+  const drinkBlock = memoryBlock(
+    [pin({ key: 'getränk', value: 'Mate', category: 'pref', kind: 'pref' })],
+    'Was trinke ich?',
+  )
+  assert.match(drinkBlock, /Mate/)
+  const leak = memoryBlock(
+    [
+      pin({
+        key: 'research:bip',
+        value: 'Destatis nennt die Zahl nur mit Quelle (Quelle: destatis.de)',
+        category: 'research',
+        origin: 'tool',
+        confidence: 0.8,
+      }),
+    ],
+    'Was ist 2 plus 2?',
+  )
+  assert.doesNotMatch(leak, /destatis/i)
+  const aboutLeak = memoryBlock(
+    [
+      pin({ key: 'name', value: 'Tim' }),
+      pin({
+        key: 'research:bip',
+        value: 'Destatis nennt die Zahl nur mit Quelle (Quelle: destatis.de)',
+        category: 'research',
+        origin: 'tool',
+        confidence: 0.8,
+      }),
+    ],
+    'Was weißt du über mich',
+  )
+  assert.match(aboutLeak, /Tim/)
+  assert.doesNotMatch(aboutLeak, /destatis/i)
 }
 {
   const { rememberCitedResearch, researchKey, researchEntities } = await import('../src/engine/remember-research.ts')
@@ -343,7 +376,27 @@ assert.ok(subQueries('Wo arbeite ich').includes('arbeit'))
   assert.equal(facts[0]?.key, 'arbeit')
   assert.equal(facts[0]?.category, 'work')
   assert.equal(isMemoryRecall('Wo arbeite ich'), true)
+  assert.equal(isMemoryRecall('Was ist mein Beruf?'), true)
+  assert.equal(isMemoryRecall('Wo arbeite ich nochmal?'), true)
   assert.equal(isLookupAsk('Was ist der BIP'), true)
+  const { pickRoute } = await import('../src/engine/route-pick.ts')
+  assert.equal(pickRoute('Ich arbeite bei Siemens'), 'memory')
+  assert.equal(pickRoute('Ich arbeite in Stuttgart'), 'maps')
+  assert.equal(pickRoute('Wo arbeite ich?'), 'memory')
+  const mixedPins = formatPinnedMemory([
+    pin({ key: 'arbeit', value: 'Stuttgart', category: 'place' }),
+    pin({ key: 'arbeit', value: 'bei Siemens', category: 'work' }),
+  ])
+  assert.match(mixedPins, /Siemens/)
+  assert.match(mixedPins, /Stuttgart/)
+  const { handleMemory } = await import('../src/engine/memory.ts')
+  const wrote = await handleMemory('c-work', 'Ich arbeite bei Siemens')
+  assert.equal(wrote.handled, true)
+  assert.match(wrote.reply || '', /Siemens/)
+  const asked = await handleMemory('c-work', 'Wo arbeite ich?')
+  assert.match(asked.reply || '', /Siemens/)
+  const beruf = await handleMemory('c-work', 'Was ist mein Beruf?')
+  assert.match(beruf.reply || '', /Siemens/)
 }
 
 console.log('test-memory-10 ok')

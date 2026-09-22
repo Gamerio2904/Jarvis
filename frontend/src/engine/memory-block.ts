@@ -1,8 +1,8 @@
 import type { RetrieveHit } from './retrieve.ts'
 import {
   aspectLabel,
+  askTokens,
   isAboutMeAsk,
-  isLookupAsk,
   memoryAspect,
   semanticPins,
   type MemoryAspect,
@@ -17,6 +17,7 @@ const PEOPLE_ASK =
 const WORK_ASK = /\b(job|arbeit(?:e|en|splatz)?|firma|beruf|arbeitgeber|kolleg)\b/i
 const LIFE_ASK = /\b(geburtstag|familie|gesundheit)\b/i
 const GOAL_ASK = /\b(ziel|reise|plane|urlaub|japan|tokyo)\b/i
+const PREF_ASK = /\b(trinke?|getränk|esse|essen|mag\s+ich)\b/i
 
 export type MemoryPin = {
   key: string
@@ -33,20 +34,21 @@ export type RankedPin = { m: MemoryPin; hit: boolean; aspect: MemoryAspect }
 export function pinsForAsk(items: MemoryPin[], question = ''): RankedPin[] {
   const trusted = semanticPins(items)
   const q = question.toLowerCase()
-  const tokens = q.split(/[^a-zäöüß0-9]+/i).filter((w) => w.length > 3)
+  const tokens = askTokens(question)
   const people = PEOPLE_ASK.test(question)
-  const lookup = isLookupAsk(question)
   const about = isAboutMeAsk(question) || !q
   const work = WORK_ASK.test(question)
   const life = LIFE_ASK.test(question)
   const goal = GOAL_ASK.test(question)
+  const pref = PREF_ASK.test(question)
   return trusted.map((m) => {
     const blob = `${m.key} ${m.value}`.toLowerCase()
     const aspect = memoryAspect(m.category || '', m.key, m.kind)
-    const hit = tokens.some((w) => blob.includes(w)) || (q && blob.includes(q.slice(0, 24)))
+    const hit = tokens.some((w) => blob.includes(w)) || (q.length > 8 && blob.includes(q.slice(0, 24)))
     const wantPeople = people && aspect === 'people'
-    const wantResearch = aspect === 'research' && (hit || lookup)
-    const wantKnow = aspect === 'know' && (hit || lookup)
+    const wantResearch = aspect === 'research' && hit
+    const wantKnow = aspect === 'know' && hit
+    const wantPref = aspect === 'pref' && (hit || pref)
     const wantWork = aspect === 'work' && (hit || work || about)
     const wantLife = aspect === 'life' && (hit || life || about)
     const wantGoal = aspect === 'goal' && (hit || goal || about)
@@ -58,11 +60,12 @@ export function pinsForAsk(items: MemoryPin[], question = ''): RankedPin[] {
         aspect === 'people' ||
         aspect === 'work' ||
         aspect === 'life' ||
-        aspect === 'goal' ||
-        aspect === 'research')
+        aspect === 'goal')
     return {
       m,
-      hit: Boolean(hit || wantPeople || wantResearch || wantKnow || wantWork || wantLife || wantGoal || wantAbout),
+      hit: Boolean(
+        hit || wantPeople || wantResearch || wantKnow || wantPref || wantWork || wantLife || wantGoal || wantAbout,
+      ),
       aspect,
     }
   })
@@ -100,9 +103,9 @@ export function memoryBlock(
     lines.push(line)
   }
   for (const h of hits.filter((x) => x.store === 'memory').slice(0, 4)) {
-    const aspect = memoryAspect('', h.title)
-    const tag = aspectLabel(aspect, h.title)
-    push(`- ${tag}: ${h.body}`)
+    const row = items.find((m) => m.key === h.title)
+    const aspect = memoryAspect(row?.category || '', h.title, row?.kind)
+    push(`- ${aspectLabel(aspect, h.title)}: ${h.body}`)
   }
   for (const h of hits.filter((x) => x.store === 'knowledge').slice(0, 3)) {
     push(`- Wissen/${h.title}: ${h.body}`)

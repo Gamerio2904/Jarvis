@@ -67,6 +67,20 @@ export function kindFromCategory(category = ''): MemoryKind {
   return 'fact'
 }
 
+const ASK_STOP = new Set(
+  'der die das den dem des ein eine einer einem einen und oder aber mit von zu im in am auf aus für fürs als wie was wer wo wann warum dass ist sind war hat habe ich wir sie du mir mich uns ihr eure mein meine dein keine kein noch nur auch schon mal bitte doch über uber weißt weisst weiß weiss stand hatte gerade ohne kennst kennt davon dazu darüber darueber sagst gesagt liegt geben welche wollte machen viel viele'.split(
+    ' ',
+  ),
+)
+
+/** Inhaltstokens einer Frage. Kurze Füllwörter fliegen, „bip“ bleibt. */
+export function askTokens(q: string): string[] {
+  return (q || '')
+    .toLowerCase()
+    .split(/[^a-zäöüß0-9]+/i)
+    .filter((w) => w.length > 2 && !ASK_STOP.has(w))
+}
+
 /** Lookup-Frage: zitierte Recherche und Fachwissen dürfen oben liegen. */
 export function isLookupAsk(q: string): boolean {
   return /recherch|warum|weshalb|wie\s+viele|was\s+ist|wer\s+ist|wo\s+liegt|erklär|wissen|quelle|\bbip\b|\bgdp\b/i.test(

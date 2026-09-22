@@ -4,6 +4,7 @@
  * e5 nie in pickRoute, kein zweites IndexedDB.
  */
 export {
+  askTokens,
   aspectLabel,
   isAboutMeAsk,
   isLookupAsk,

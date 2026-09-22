@@ -59,9 +59,10 @@ nach dem Text, verliert die Adresse nicht. Nie „ist gesendet“.
 ## 11. Gedächtnis-Kern 18.9.8
 
 Zwei zitierte Quellen zur selben Frage bleiben beide (verschiedene Keys).
-„Ich arbeite bei …“ liegt unter Arbeit. „Was weißt du über mich“ nennt
-Gelerntes mit Quelle. Lookup „Was ist der BIP“ trifft die Pin, nicht
-irgendeine andere Recherche. e5 ändert die Route nicht.
+„Ich arbeite bei …“ liegt unter Arbeit, „Ich arbeite in Stuttgart“ bleibt
+Ort. „Was weißt du über mich“ nennt Sie, nicht jede Netzrecherche.
+Lookup „Was ist 2 plus 2“ zieht nicht die BIP-Pin. „Was trinke ich“
+sieht Mate im Block. e5 ändert die Route nicht.
 
 ## 7. Watchliste 18.9.5
 
