@@ -4242,8 +4242,8 @@ button.linkish {
 .cal-strip {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-  margin: 4px 0 8px;
+  gap: 4px;
+  margin: 2px 0 6px;
 }
 
 .cal-strip-day {
@@ -4251,8 +4251,8 @@ button.linkish {
   border: 1px solid var(--border);
   background: rgba(8, 10, 9, 0.45);
   color: var(--text-muted);
-  border-radius: 14px;
-  padding: 8px 2px 6px;
+  border-radius: 12px;
+  padding: 4px 2px 3px;
   display: grid;
   justify-items: center;
   gap: 2px;
@@ -4318,8 +4318,10 @@ button.linkish {
   color: #04140a;
   font-weight: 700;
   border-radius: 999px;
-  padding: 8px 14px;
+  padding: 6px 12px;
+  font-size: 0.78rem;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .cal-week {

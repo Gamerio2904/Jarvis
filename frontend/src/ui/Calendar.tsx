@@ -736,18 +736,19 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             <h3 key={isoDay(selected)} className="cal-day-title">
               {dayHeading(selected, today)}
             </h3>
-            <span className="cal-day-meta">
-              {dayEvents.length + dayRems.length
-                ? `${dayEvents.length + dayRems.length} ${dayEvents.length + dayRems.length === 1 ? 'Eintrag' : 'Einträge'}`
-                : 'frei'}
-            </span>
+            {dayEvents.length + dayRems.length ? (
+              <span className="cal-day-meta">
+                {`${dayEvents.length + dayRems.length} ${dayEvents.length + dayRems.length === 1 ? 'Eintrag' : 'Einträge'}`}
+              </span>
+            ) : (
+              <button type="button" className="cal-empty-cta" onClick={openCreate}>
+                ＋ Termin
+              </button>
+            )}
           </div>
           {dayEvents.length === 0 && dayRems.length === 0 ? (
             <div className="cal-empty">
               <p className="memory-empty">Nichts an diesem Tag.</p>
-              <button type="button" className="cal-empty-cta" onClick={openCreate}>
-                ＋ Termin für {selected.toLocaleDateString('de-DE', { weekday: 'long' })}
-              </button>
               <p className="settings-hint">Oder im Chat: „Samstag Geburtstag Jakob 18 Uhr“.</p>
             </div>
           ) : (
@@ -820,6 +821,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           />
           <input
             type="time"
+            lang="de"
             value={time}
             onChange={(e) => setTime(e.currentTarget.value)}
             disabled={busy || !sheetOpen}
@@ -827,6 +829,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           />
           <input
             type="date"
+            lang="de"
             className="cal-date"
             value={isoDay(selected)}
             onChange={(e) => {
