@@ -4,6 +4,7 @@ import { jsonUA } from './ua.ts'
 import { haversineKm, cityLine, isGlobeLayerPin, nearestPlace, type GeoFix, type GeoPinKind } from './globe-geo.ts'
 import { INFRA_FIXES, SEA_FIXES } from './globe-static.ts'
 import { LAYER_TITLE, isGlobeLayer, type GlobeLayer } from './globe-layer-ids.ts'
+import { propagateGp, spreadFixes, type GpRow } from './orbit.ts'
 
 export type { GlobeLayer } from './globe-layer-ids.ts'
 export { GLOBE_LAYER_IDS, LAYER_TITLE, chipOffLabel, isGlobeLayer } from './globe-layer-ids.ts'
@@ -223,7 +224,7 @@ async function fetchQuakes(): Promise<LayerCache> {
 
 async function fetchEonet(layer: 'fires' | 'weather', category: string, kind: GeoPinKind): Promise<LayerCache> {
   const source = 'NASA EONET'
-  const url = `https://eonet.gsfc.nasa.gov/api/v3/events?status=open&category=${category}&limit=40`
+  const url = `https://eonet.gsfc.nasa.gov/api/v3/events?status=open&category=${category}&limit=200`
   try {
     const { status, json } = await getJson(url, UA)
     if (status < 200 || status >= 300) return fail(layer, source, 'EONET antwortet nicht')
@@ -235,10 +236,9 @@ async function fetchEonet(layer: 'fires' | 'weather', category: string, kind: Ge
       const at = eonetCoord(ev)
       if (!at) continue
       const title = String(ev.title || LAYER_TITLE[layer]).slice(0, 48)
-      pins.push({ name: title, lat: at.lat, lon: at.lon, kind, line: source })
-      if (pins.length >= MAX_FULL) break
+      pins.push({ name: title, lat: at.lat, lon: at.lon, kind, line: `${source} · ${title}` })
     }
-    return remember({ layer, at: Date.now(), source, pins: take(pins, MAX_FULL) })
+    return remember({ layer, at: Date.now(), source, pins: spreadFixes(pins, MAX_FULL) })
   } catch {
     return fail(layer, source, 'EONET ist nicht erreichbar')
   }
@@ -301,23 +301,65 @@ async function fetchRadar(): Promise<LayerCache> {
   })
 }
 
-async function fetchSats(): Promise<LayerCache> {
+async function fetchIssPin(): Promise<GeoFix | null> {
   try {
     const { status, json } = await getJson('https://api.wheretheiss.at/v1/satellites/25544', UA)
-    if (status < 200 || status >= 300) return fail('sats', 'Where The ISS At', 'ISS-Position fehlt')
+    if (status < 200 || status >= 300) return null
     const lat = Number(json.latitude)
     const lon = Number(json.longitude)
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return fail('sats', 'Where The ISS At', 'ISS-Position fehlt')
-    return remember({
-      layer: 'sats',
-      at: Date.now(),
-      source: 'Where The ISS At',
-      pins: [{ name: 'ISS', lat, lon, kind: 'sat', line: 'Nur die ISS mit Position. Kein Katalog.' }],
-      extra: 'Kein voller Satellitenkatalog.',
-    })
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
+    return { name: 'ISS', lat, lon, kind: 'sat', line: 'Where The ISS At · Station' }
   } catch {
-    return fail('sats', 'Where The ISS At', 'ISS ist nicht erreichbar')
+    return null
   }
+}
+
+async function fetchCelestrakPins(): Promise<GeoFix[]> {
+  const groups = ['stations', 'visual']
+  const pins: GeoFix[] = []
+  const seen = new Set<string>()
+  for (const group of groups) {
+    try {
+      const { status, json } = await getJson(
+        `https://celestrak.org/NORAD/elements/gp.php?GROUP=${group}&FORMAT=json`,
+        UA,
+      )
+      if (status < 200 || status >= 300 || !Array.isArray(json)) continue
+      for (const raw of json) {
+        if (!raw || typeof raw !== 'object') continue
+        const row = raw as GpRow
+        if (String(row.NORAD_CAT_ID || '') === '25544') continue
+        const hit = propagateGp(row)
+        if (!hit) continue
+        if (seen.has(hit.norad)) continue
+        seen.add(hit.norad)
+        pins.push({
+          name: hit.name,
+          lat: hit.lat,
+          lon: hit.lon,
+          kind: 'sat',
+          line: `CelesTrak · ${hit.name}`,
+        })
+      }
+    } catch {
+      /* nächste Gruppe */
+    }
+  }
+  return pins
+}
+
+async function fetchSats(): Promise<LayerCache> {
+  const [iss, catalog] = await Promise.all([fetchIssPin(), fetchCelestrakPins()])
+  const rest = spreadFixes(catalog, Math.max(0, MAX_FULL - (iss ? 1 : 0)))
+  const pins = iss ? [iss, ...rest] : rest
+  if (!pins.length) return fail('sats', 'CelesTrak', 'Keine Satellitenposition')
+  return remember({
+    layer: 'sats',
+    at: Date.now(),
+    source: iss && rest.length ? 'CelesTrak + ISS' : iss ? 'Where The ISS At' : 'CelesTrak',
+    pins,
+    extra: rest.length ? '' : 'Nur die ISS — CelesTrak ohne Lage.',
+  })
 }
 
 async function fetchShips(): Promise<LayerCache> {

@@ -211,8 +211,21 @@ export function GlobeView({
       sphereGradients = { fill, rim, sheen }
     }
 
+    function drawHalo(cx: number, cy: number, R: number) {
+      if (!(R > 8) || lite) return
+      const halo = pen.createRadialGradient(cx, cy, R * 0.94, cx, cy, R * 1.12)
+      halo.addColorStop(0, 'rgba(70, 190, 150, 0)')
+      halo.addColorStop(0.55, 'rgba(50, 160, 140, 0.07)')
+      halo.addColorStop(1, 'rgba(20, 40, 50, 0)')
+      pen.beginPath()
+      pen.fillStyle = halo
+      pen.arc(cx, cy, R * 1.12, 0, Math.PI * 2)
+      pen.fill()
+    }
+
     function drawSphere(cx: number, cy: number, R: number) {
       if (!(R > 2)) return
+      drawHalo(cx, cy, R)
       if (!sphereGradients) cacheSphereGradients(cx, cy, R)
       const g = sphereGradients
       if (!g) {
@@ -400,10 +413,23 @@ export function GlobeView({
           pen.stroke()
         }
         if (pin.kind === 'fire' || pin.kind === 'quake' || pin.kind === 'conflict') {
+          if (pin.kind === 'fire') {
+            pen.beginPath()
+            pen.fillStyle = 'rgba(224, 96, 64, 0.18)'
+            pen.arc(q.x, q.y, 14, 0, Math.PI * 2)
+            pen.fill()
+          }
           pen.beginPath()
-          pen.strokeStyle = pin.kind === 'fire' ? 'rgba(224, 112, 80, 0.55)' : 'rgba(240, 160, 96, 0.5)'
+          pen.strokeStyle = pin.kind === 'fire' ? 'rgba(224, 112, 80, 0.7)' : 'rgba(240, 160, 96, 0.5)'
           pen.lineWidth = 1.6
           pen.arc(q.x, q.y, 10, 0, Math.PI * 2)
+          pen.stroke()
+        }
+        if (pin.kind === 'sat' || pin.kind === 'iss') {
+          pen.beginPath()
+          pen.strokeStyle = 'rgba(210, 230, 255, 0.7)'
+          pen.lineWidth = 1.2
+          pen.arc(q.x, q.y, 7, 0, Math.PI * 2)
           pen.stroke()
         }
         pen.beginPath()
@@ -438,8 +464,8 @@ export function GlobeView({
         pen.arc(
           q.x,
           q.y,
-          pin.kind === 'iss'
-            ? 3.5
+          pin.kind === 'iss' || pin.kind === 'sat'
+            ? 3.8
             : pin.kind === 'here'
               ? 5
               : pin.kind === 'fire' || pin.kind === 'quake'
@@ -458,7 +484,7 @@ export function GlobeView({
           pen.fill()
         }
         pen.fillStyle = 'rgba(230, 240, 236, 0.82)'
-        if (!lite || pin.kind === 'here' || pin.kind === 'fire' || pin.kind === 'quake') {
+        if (!lite || pin.kind === 'here' || pin.kind === 'fire' || pin.kind === 'quake' || pin.kind === 'sat' || pin.kind === 'iss') {
           pen.font = '10px Inter, system-ui, sans-serif'
           pen.textAlign = 'left'
           pen.fillText(pin.name.slice(0, 22), q.x + 8, q.y + 3)

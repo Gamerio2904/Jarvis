@@ -59,6 +59,8 @@ export const PLACES: PlaceFix[] = [
   { re: /\blondon\b/i, name: 'London', lat: 51.51, lon: -0.13, blurb: 'an der Themse, Hauptstadt des Vereinigten Königreichs.' },
   { re: /\bbrüssel\b|\bbruessel\b/i, name: 'Brüssel', lat: 50.85, lon: 4.35, blurb: 'Hauptstadt Belgiens, Sitz der EU.' },
   { re: /\bkiew\b|\bkyjiw\b|\bkyiv\b/i, name: 'Kiew', lat: 50.45, lon: 30.52, blurb: 'Hauptstadt der Ukraine.' },
+  { re: /\btschernobyl\b|\bchernobyl\b|\bchornobyl\b/i, name: 'Tschernobyl', lat: 51.39, lon: 30.1, blurb: 'in der Ukraine, Sperrzone um den havarierten Reaktor.' },
+  { re: /\bprypjat\b|\bpripyat\b/i, name: 'Prypjat', lat: 51.4, lon: 30.06, blurb: 'Geisterstadt neben Tschernobyl.' },
   { re: /\bhormus\b|\bhormuz\b/i, name: 'Straße von Hormus', lat: 26.57, lon: 56.25, blurb: 'Meeresenge am Persischen Golf.' },
   { re: /\bwien\b/i, name: 'Wien', lat: 48.21, lon: 16.37, blurb: 'Hauptstadt von Österreich.' },
   { re: /\brom\b/i, name: 'Rom', lat: 41.9, lon: 12.5, blurb: 'Hauptstadt von Italien, die ewige Stadt.' },
@@ -239,7 +241,10 @@ export function pinLineFor(name: string, brief: string, fallback?: string): stri
   const hit = gazetteerHit(name)
   if (hit?.blurb) return cityLine(hit)
   const source = (brief || fallback || '').trim()
-  if (/EONET|USGS|OpenSky/i.test(source)) return `${name}. ${source}. Kein Live-Bild.`
+  if (/EONET|USGS|OpenSky|CelesTrak|GDELT|ISS|Where The ISS|Tabelle|Feodo|NOAA/i.test(source)) {
+    return source.includes(name) ? `${source}. Kein Live-Bild.` : `${name}. ${source}. Kein Live-Bild.`
+  }
+  if (/^sicht$/i.test(name) && source) return `${source}`
   const fb = (fallback || '').trim()
   if (fb && briefFitsPlace(name, fb)) return fb
   return 'Keine Kurzlage zu diesem Ort.'

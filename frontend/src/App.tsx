@@ -1294,9 +1294,10 @@ function App() {
               openSheet('calendar')
             }
           }
-          if (payload.tool?.tool === 'watchlist' && payload.tool.action === 'open') {
-            const focus = String(payload.tool.result?.focus || '') === 'favorite' ? 'favorite' : 'watch'
-            openWatchlistSheet(focus)
+          if (payload.tool?.tool === 'watchlist') {
+            const focusRaw = String(payload.tool.result?.focus || '')
+            const focus = focusRaw === 'favorite' || focusRaw === 'watch' ? focusRaw : payload.tool.action === 'open' ? 'watch' : ''
+            if (focus) openWatchlistSheet(focus)
           }
           applyAppTool(payload.tool)
           applyHudTool(payload.tool)
@@ -1495,9 +1496,10 @@ function App() {
               }
             }
             maybeOpenSettingsFromReply(contentOut)
-            if (payload.tool?.tool === 'watchlist' && payload.tool.action === 'open') {
-              const focus = String(payload.tool.result?.focus || '') === 'favorite' ? 'favorite' : 'watch'
-              openWatchlistSheet(focus)
+            if (payload.tool?.tool === 'watchlist') {
+              const focusRaw = String(payload.tool.result?.focus || '')
+              const focus = focusRaw === 'favorite' || focusRaw === 'watch' ? focusRaw : payload.tool.action === 'open' ? 'watch' : ''
+              if (focus) openWatchlistSheet(focus)
             }
             applyAppTool(payload.tool)
             applyHudTool(payload.tool)

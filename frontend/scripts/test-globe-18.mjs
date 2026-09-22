@@ -13,6 +13,7 @@ import {
   placeLookupFailedLine,
 } from '../src/engine/globe-geo.ts'
 import { ageLine, parseGlobeLayerPhrase, briefingFromCache, dossierNear, isGlobeLayer } from '../src/engine/globe-layers.ts'
+import { propagateGp, spreadFixes } from '../src/engine/orbit.ts'
 import { screenPanToMap } from '../src/engine/drive-map.ts'
 import { parseHereIntent } from '../src/engine/here-parse.ts'
 
@@ -112,8 +113,42 @@ assert.equal(pinTapRadius('news'), 20)
   assert.equal(pickTappedPin([{ pin: city, x: 0, y: 0, z: 1 }], 25, 0), null)
 }
 assert.match(pinLineFor('Brand Nord', 'NASA EONET'), /EONET/)
+assert.match(pinLineFor('ISS', 'CelesTrak · Hubble'), /CelesTrak|ISS/)
+assert.match(pinLineFor('Sicht', 'Wildfire A (12 km) · Wildfire B (40 km). Kein Live.'), /Wildfire/)
+assert.match(pinLineFor('Tschernobyl', ''), /Ukraine|Tschernobyl/)
 assert.match(pinLineFor('M4.8', 'USGS · 10 km S of Ridgecrest'), /USGS/)
 assert.match(pinLineFor('DLH4A', 'OpenSky'), /OpenSky/)
 assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzlage zu diesem Ort.')
+{
+  const now = new Date('2026-09-22T12:00:00Z')
+  const iss = propagateGp(
+    {
+      OBJECT_NAME: 'ISS (ZARYA)',
+      NORAD_CAT_ID: '25544',
+      EPOCH: '2026-09-22T11:00:00',
+      MEAN_MOTION: 15.5,
+      ECCENTRICITY: 0.0003,
+      INCLINATION: 51.6,
+      RA_OF_ASC_NODE: 80,
+      ARG_OF_PERICENTER: 10,
+      MEAN_ANOMALY: 20,
+    },
+    now,
+  )
+  assert.ok(iss && Number.isFinite(iss.lat) && Number.isFinite(iss.lon))
+  const spread = spreadFixes(
+    [
+      { lat: 40, lon: -120, name: 'us' },
+      { lat: 39, lon: -119, name: 'us2' },
+      { lat: -15, lon: 140, name: 'au' },
+      { lat: 50, lon: 10, name: 'eu' },
+      { lat: -20, lon: 25, name: 'af' },
+    ],
+    3,
+  )
+  assert.equal(spread.length, 3)
+  const lons = spread.map((p) => p.lon)
+  assert.ok(lons.some((lon) => lon < 0) && lons.some((lon) => lon > 0), 'Waldbrände nicht nur eine Halbkugel')
+}
 
 console.log('test:globe-18 ok')

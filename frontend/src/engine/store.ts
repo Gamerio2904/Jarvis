@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.9.0'
+export const APP_VERSION = '18.9.1'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
@@ -1054,6 +1054,18 @@ export async function addWatchMovie(
   await put('watch_movies', row)
   emitHouse('jarvis-watchlist')
   return row
+}
+
+/** Von einer Liste auf die andere — nicht kopieren. */
+export async function moveWatchMovie(id: string, to: WatchListKind): Promise<WatchMovie | null> {
+  const row = await get<WatchMovie>('watch_movies', id)
+  if (!row) return null
+  const from: WatchListKind = to === 'favorite' ? 'watch' : 'favorite'
+  const lists = Array.from(new Set([...(row.lists || []).filter((x) => x !== from), to])) as WatchListKind[]
+  const next: WatchMovie = { ...row, lists, updated_at: nowIso() }
+  await put('watch_movies', next)
+  emitHouse('jarvis-watchlist')
+  return next
 }
 
 export async function removeWatchMovie(id: string, list: WatchListKind): Promise<void> {

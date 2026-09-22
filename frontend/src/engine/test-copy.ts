@@ -693,6 +693,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Zeig Flugzeuge", text: "Zeig Flugzeuge", expect: {"tool":"hud"} },
       { label: "Zeig Satelliten", text: "Zeig Satelliten", expect: {"tool":"hud"} },
       { label: "Film auf die Liste", text: "Watchliste: Dune", expect: {"tool":"watchlist"} },
+      { label: "Zu den Lieblingen", text: "Nee auf die lieblingsliste", expect: {"tool":"watchlist"} },
     ],
   },
 ]
@@ -899,6 +900,7 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: '8 – Flugzeuge auf der Kugel', text: 'Zeig Flugzeuge', expect: { tool: 'hud' } },
       { label: '9 – Satelliten', text: 'Zeig Satelliten', expect: { tool: 'hud' } },
       { label: '10 – Film auf die Liste', text: 'Watchliste: Dune', expect: { tool: 'watchlist' } },
+      { label: '11 – ↳ zu den Lieblingen', text: 'Nee auf die lieblingsliste', expect: { tool: 'watchlist' } },
     ],
   },
 ]

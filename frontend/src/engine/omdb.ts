@@ -27,7 +27,9 @@ export function watchScoreParts(m: {
   const sources: string[] = []
   if (critic !== '—' || audience !== '—') sources.push('Rotten Tomatoes')
   if (imdb) sources.push('IMDb')
-  if (!sources.length) sources.push('Rotten Tomatoes')
+  if (!sources.length) {
+    return { critic, audience, imdb, source: 'Keine Note bei OMDb' }
+  }
   return {
     critic,
     audience,
@@ -55,6 +57,42 @@ export function omdbKeyHint(): string {
   return KEY_HINT
 }
 
+export function splitFilmTitle(title: string): string {
+  return (title || '')
+    .replace(/([a-zäöüß])([A-ZÄÖÜ])/g, '$1 $2')
+    .replace(/([A-Za-zÄÖÜäöüß])(\d)/g, '$1 $2')
+    .replace(/(\d)([A-Za-zÄÖÜäöüß])/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+const FILM_ALIAS: Array<[RegExp, string]> = [
+  [/star\s*wars\s*(?:episode\s*)?(?:3|iii|drei)\b/i, 'Star Wars: Episode III'],
+  [/star\s*wars\s*(?:episode\s*)?(?:2|ii|zwei)\b/i, 'Star Wars: Episode II'],
+  [/star\s*wars\s*(?:episode\s*)?(?:1|i|eins)\b/i, 'Star Wars: Episode I'],
+  [/star\s*wars\s*(?:episode\s*)?(?:5|v|fünf|fuenf)\b/i, 'Star Wars: Episode V'],
+  [/star\s*wars\s*(?:episode\s*)?(?:6|vi|sechs)\b/i, 'Star Wars: Episode VI'],
+]
+
+export function expandFilmTitle(title: string): string[] {
+  const raw = (title || '').trim()
+  const spaced = splitFilmTitle(raw)
+  const out = [raw, spaced].filter(Boolean)
+  const key = spaced.toLowerCase()
+  for (const [re, alias] of FILM_ALIAS) {
+    if (re.test(key)) out.push(alias)
+  }
+  return [...new Set(out)]
+}
+
+async function omdbBy(params: URLSearchParams): Promise<Record<string, unknown> | null> {
+  params.set('_', String(Date.now()))
+  const { status, json } = await getJson(`https://www.omdbapi.com/?${params}`, jsonUA)
+  if (status === 401 || status === 403) return { __needKey: true }
+  if (status < 200 || status >= 300) return null
+  return json
+}
+
 export async function lookupOmdb(
   title: string,
   year?: number,
@@ -63,33 +101,52 @@ export async function lookupOmdb(
   if (!key) {
     return { ok: false, needKey: true, message: KEY_HINT }
   }
-  const q = new URLSearchParams({
-    apikey: key,
-    t: title.slice(0, 80),
-    tomatoes: 'true',
-    plot: 'short',
-    type: 'movie',
-  })
-  if (year && year > 1900 && year < 2100) q.set('y', String(year))
-  q.set('_', String(Date.now()))
+  const names = expandFilmTitle(title)
   try {
-    const { status, json } = await getJson(`https://www.omdbapi.com/?${q}`, jsonUA)
-    if (status === 401 || status === 403) {
-      return { ok: false, needKey: true, message: 'OMDb-Schlüssel ungültig. In den Einstellungen prüfen.' }
-    }
-    if (status < 200 || status >= 300) {
-      return { ok: false, message: 'OMDb nicht erreichbar. Keine erfundenen Noten.' }
-    }
-    if (String(json.Response) === 'False') {
-      const err = String(json.Error || '')
-      if (/invalid\s+api\s+key/i.test(err)) {
+    for (const name of names) {
+      const q = new URLSearchParams({
+        apikey: key,
+        t: name.slice(0, 80),
+        tomatoes: 'true',
+        plot: 'short',
+        type: 'movie',
+      })
+      if (year && year > 1900 && year < 2100) q.set('y', String(year))
+      const json = await omdbBy(q)
+      if (json && json.__needKey) {
         return { ok: false, needKey: true, message: 'OMDb-Schlüssel ungültig. In den Einstellungen prüfen.' }
       }
-      return { ok: false, message: 'Titel bei IMDb/OMDb nicht gefunden. Ich rate keine Bewertung.' }
+      if (json && String(json.Response) === 'False') {
+        const err = String(json.Error || '')
+        if (/invalid\s+api\s+key/i.test(err)) {
+          return { ok: false, needKey: true, message: 'OMDb-Schlüssel ungültig. In den Einstellungen prüfen.' }
+        }
+        continue
+      }
+      const hit = json ? fromOmdb(json) : null
+      if (hit) return { ok: true, hit }
     }
-    const hit = fromOmdb(json)
-    if (!hit) return { ok: false, message: 'OMDb ohne verwertbare Felder. Ich rate keine Bewertung.' }
-    return { ok: true, hit }
+    const search = new URLSearchParams({
+      apikey: key,
+      s: names[0].slice(0, 80),
+      type: 'movie',
+    })
+    const found = await omdbBy(search)
+    const rows = found && Array.isArray(found.Search) ? found.Search : []
+    const first = rows.find((r) => r && typeof r === 'object' && String((r as { imdbID?: string }).imdbID || '').startsWith('tt'))
+    const imdbId = first ? String((first as { imdbID?: string }).imdbID) : ''
+    if (imdbId) {
+      const byId = new URLSearchParams({
+        apikey: key,
+        i: imdbId,
+        tomatoes: 'true',
+        plot: 'short',
+      })
+      const json = await omdbBy(byId)
+      const hit = json ? fromOmdb(json) : null
+      if (hit) return { ok: true, hit }
+    }
+    return { ok: false, message: 'Titel bei IMDb/OMDb nicht gefunden. Ich rate keine Bewertung.' }
   } catch {
     return { ok: false, message: 'OMDb nicht erreichbar. Keine erfundenen Noten.' }
   }

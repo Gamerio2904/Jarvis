@@ -3,6 +3,8 @@ import {
   addWatchedMovie,
   listWatchMovies,
   listWatchedMovies,
+  loadSettings,
+  moveWatchMovie,
   persistLastList,
   readLastList,
   removeWatchMovie,
@@ -21,7 +23,7 @@ import {
   type MovieSeed,
 } from './film-taste.ts'
 import { genresFromOmdb } from './film-taste-parse.ts'
-import { lookupOmdb } from './omdb.ts'
+import { lookupOmdb, splitFilmTitle } from './omdb.ts'
 import { knowledgeBlock } from './knowledge-block.ts'
 import { getByTopic, listKnowledgePacks, putKnowledgePack } from './knowledge-store.ts'
 import { WATCHED_PACK_TOPIC } from './film-taste.ts'
@@ -56,6 +58,23 @@ function seedOf(m: WatchMovie | WatchedMovie, pool: MovieSeed['pool']): MovieSee
 
 function titles(rows: WatchMovie[]): string[] {
   return rows.map((r) => r.title)
+}
+
+function lastFilmTitle(): string {
+  const s = loadSettings()
+  if ((s.last_step_tool || '') === 'watchlist' && s.last_step_title.trim()) return s.last_step_title.trim()
+  return (
+    readLastList('watch-watch')[0] ||
+    readLastList('watch-favorite')[0] ||
+    readLastList()[0] ||
+    ''
+  )
+}
+
+function titleMatch(a: string, b: string): boolean {
+  const x = splitFilmTitle(a).toLowerCase()
+  const y = splitFilmTitle(b).toLowerCase()
+  return Boolean(x && y && (x === y || x.includes(y) || y.includes(x)))
 }
 
 function pickFromList(rows: WatchMovie[], list: WatchListKind, title?: string, index?: number): WatchMovie | undefined {
@@ -200,14 +219,55 @@ export async function handleWatchlist(
   const intent = parseWatchlistIntent(text)
   if (!intent) return { handled: false }
 
+  if (intent.kind === 'move') {
+    const title = (intent.title || lastFilmTitle()).trim()
+    const rows = await listWatchMovies()
+    const hit =
+      (title && rows.find((m) => titleMatch(m.title, title))) ||
+      rows.find((m) => m.lists.includes(intent.list === 'favorite' ? 'watch' : 'favorite'))
+    if (!hit) {
+      return pack('Welchen Film? Sag den Titel — ich rate nicht.', 'move_miss', undefined, {
+        result: { focus: intent.list },
+      })
+    }
+    const moved = await moveWatchMovie(hit.id, intent.list)
+    const row = moved || hit
+    const enriched = await enrich({ ...row, lists: [intent.list] })
+    const listKey = intent.list === 'watch' ? 'watch-watch' : 'watch-favorite'
+    persistLastList(listKey, titles(await listWatchMovies(intent.list)))
+    const line =
+      intent.list === 'favorite'
+        ? `Zu den Lieblingen, weg von der Watchliste: ${enriched.title}.`
+        : `Auf die Watchliste, weg von den Lieblingen: ${enriched.title}.`
+    return pack(line, 'move', enriched.title, { result: { focus: intent.list } })
+  }
+
   if (intent.kind === 'add') {
     const before = await listWatchMovies()
     const existed = before.find(
       (m) =>
         m.lists.includes(intent.list) &&
-        (m.title.toLowerCase() === intent.title.toLowerCase() || (m.imdbId && false)),
+        (m.title.toLowerCase() === intent.title.toLowerCase() || titleMatch(m.title, intent.title)),
     )
-    const row = await addWatchMovie(intent.title, intent.list, { source_conversation_id: conversationId })
+    const other = before.find(
+      (m) =>
+        titleMatch(m.title, intent.title) &&
+        m.lists.includes(intent.list === 'favorite' ? 'watch' : 'favorite') &&
+        !m.lists.includes(intent.list),
+    )
+    if (other && !existed) {
+      const moved = await moveWatchMovie(other.id, intent.list)
+      const enriched = await enrich(moved || other)
+      const listKey = intent.list === 'watch' ? 'watch-watch' : 'watch-favorite'
+      persistLastList(listKey, titles(await listWatchMovies(intent.list)))
+      const line =
+        intent.list === 'favorite'
+          ? `Zu den Lieblingen, weg von der Watchliste: ${enriched.title}.`
+          : `Auf die Watchliste, weg von den Lieblingen: ${enriched.title}.`
+      return pack(line, 'move', enriched.title, { result: { focus: intent.list } })
+    }
+    const clean = splitFilmTitle(intent.title) || intent.title
+    const row = await addWatchMovie(clean, intent.list, { source_conversation_id: conversationId })
     const enriched = await enrich(row)
     const listKey = intent.list === 'watch' ? 'watch-watch' : 'watch-favorite'
     persistLastList(listKey, titles(await listWatchMovies(intent.list)))
@@ -216,12 +276,12 @@ export async function handleWatchlist(
         intent.list === 'watch' ? 'War schon auf der Watchliste.' : 'War schon bei den Lieblingen.',
         'add_dup',
         enriched.title,
+        { result: { focus: intent.list } },
       )
     }
-    const alreadyOther = before.find((m) => movieKey(m) === movieKey(enriched) && !m.lists.includes(intent.list))
     const line =
       intent.list === 'watch' ? `Liegt auf der Watchliste: ${enriched.title}.` : `Liegt bei den Lieblingen: ${enriched.title}.`
-    return pack(alreadyOther ? line : line, 'add', enriched.title)
+    return pack(line, 'add', enriched.title, { result: { focus: intent.list } })
   }
 
   if (intent.kind === 'list' || intent.kind === 'show') {

@@ -319,6 +319,7 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Zeig Flugzeuge': 'hud',
   'Zeig Satelliten': 'hud',
   'Watchliste: Dune': 'watchlist',
+  'Nee auf die lieblingsliste': 'watchlist',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

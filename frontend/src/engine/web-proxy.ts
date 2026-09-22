@@ -17,6 +17,7 @@ export const WEB_PROXY_HOSTS = new Set([
   'www.tagesschau.de',
   'rss.dw.com',
   'api.wheretheiss.at',
+  'celestrak.org',
   'v6.db.transport.rest',
   'api.transitous.org',
   'apis.justwatch.com',

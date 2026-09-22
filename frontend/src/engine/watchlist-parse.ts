@@ -11,6 +11,7 @@ export type WatchListKind = 'watch' | 'favorite'
 
 export type WatchlistIntent =
   | { kind: 'add'; list: WatchListKind; title: string }
+  | { kind: 'move'; list: WatchListKind; title?: string }
   | { kind: 'list'; list: WatchListKind }
   | { kind: 'show'; list: WatchListKind }
   | { kind: 'remove'; list: WatchListKind; title?: string; index?: number }
@@ -44,7 +45,7 @@ export function parseWatchlistIntent(text: string): WatchlistIntent | null {
   const idea = parseIdeaIntent(t)
   if (idea && idea.kind === 'create') return null
   if (parseTasteIntent(t)) return null
-  if (!LIST_WORDS.test(t) && !/\b(?:watchliste|lieblings)\b/i.test(t)) return null
+  if (!LIST_WORDS.test(t) && !/\b(?:watchliste|liebling)/i.test(t)) return null
 
   const showOpen =
     /^\s*(?:öffne[n]?|zeig(?:e)?(?:\s+mir)?|mach(?:e)?(?:\s+(?:mal\s+)?auf)?)\s+(?:das\s+|die\s+|den\s+|meine\s+)?(?:watchliste|lieblings(?:filme|liste)|lieblinge)(?:\s+(?:overlay|folie|panel|liste))?\s*$/i
@@ -79,13 +80,47 @@ export function parseWatchlistIntent(text: string): WatchlistIntent | null {
     if (title) return { kind: 'remove', list: 'watch', title }
   }
 
+  /**
+   * Korrektur ohne Titel: „Nee auf die Lieblingsliste“ nach einem Add.
+   * Ein bloßes „Nee“ als Filmtitel wäre falsch.
+   */
+  if (
+    /^\s*(?:(?:nee+|nein|nicht|lieber|doch|stattdessen),?\s+)?(?:auf\s+(?:die\s+)?)?(?:die\s+)?lieblings(?:liste|filme)?\s*$/i.test(
+      t,
+    ) ||
+    /^\s*(?:verschieb(?:e)?|pack(?:e)?|leg(?:e)?)\s+(?:das|den|ihn|sie|es)\s+(?:auf\s+(?:die\s+)?|zu\s+(?:den\s+)?)liebling/i.test(
+      t,
+    )
+  ) {
+    return { kind: 'move', list: 'favorite' }
+  }
+  if (
+    /^\s*(?:(?:nee+|nein|nicht|lieber|doch|stattdessen),?\s+)?(?:auf\s+(?:die\s+)?)?(?:die\s+)?watchliste\s*$/i.test(
+      t,
+    )
+  ) {
+    return { kind: 'move', list: 'watch' }
+  }
+  const moveNamed =
+    /^\s*(?:verschieb(?:e)?|pack(?:e)?|leg(?:e)?)\s+(.+?)\s+(?:auf\s+(?:die\s+)?|zu\s+(?:den\s+)?)liebling/i.exec(t)
+  if (moveNamed) {
+    const title = cleanTitle(moveNamed[1])
+    if (title && !/^(?:das|den|ihn|sie|es|nee+|nein)$/i.test(title)) {
+      return { kind: 'move', list: 'favorite', title }
+    }
+    return { kind: 'move', list: 'favorite' }
+  }
+
   const addFav =
     /^\s*(?:lieblingsfilm(?:e)?|lieblingsliste)\s*[:\s]\s*(.+)$/i.exec(t) ||
     /^\s*(.+)\s+zu\s+meinen\s+lieblingsfilmen\s*$/i.exec(t) ||
-    /^\s*auf\s+(?:die\s+)?lieblingsliste\s+(.+)$/i.exec(t)
+    /^\s*auf\s+(?:die\s+)?lieblingsliste\s+(.+)$/i.exec(t) ||
+    /^\s*(.+)\s+auf\s+(?:die\s+)?lieblingsliste\s*$/i.exec(t)
   if (addFav) {
     const title = cleanTitle(addFav[1])
-    if (title) return { kind: 'add', list: 'favorite', title }
+    if (title && !/^(?:nee+|nein|nicht|lieber|doch|stattdessen)$/i.test(title)) {
+      return { kind: 'add', list: 'favorite', title }
+    }
   }
 
   const addWatch =

@@ -310,4 +310,5 @@ export const TEST_PROMPTS = [
   'Zeig Flugzeuge',
   'Zeig Satelliten',
   'Watchliste: Dune',
+  'Nee auf die lieblingsliste',
 ] as const
