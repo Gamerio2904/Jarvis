@@ -16,7 +16,8 @@ import { confirmedUtterance, contractOf, looksCommandish } from './tool-contract
 import { proposeReady, proposeTool } from './tool-propose.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
-import { noteFail } from './working-memory.ts'
+import { lastFailedTool, noteFail } from './working-memory.ts'
+import { needsRecover, runRecover, writeHasNoRecover } from './recover.ts'
 import { unknownReplyForCtx } from './command-neighbors.ts'
 import type { AgentResult, RouteHit } from './agents/types.ts'
 import type { RouteCtx } from './route-types.ts'
@@ -38,6 +39,7 @@ export function makeDirectorCtx(conversationId: string, text: string): RouteCtx 
     weatherLast: weatherLast(),
     plugNames: loadPlugs().map((p) => p.name),
     lastPlace: s.last_place || '',
+    last_failed_tool: lastFailedTool(),
   }
 }
 
@@ -54,17 +56,16 @@ async function applyRetry(hit: RouteHit, conversationId: string, text: string): 
 /**
  * Ein gescheiterter Schreib- oder Geräte-Agent darf nicht ans Modell
  * durchfallen — das könnte einen Erfolg behaupten, den es nie gab. Lesende
- * Agenten ohne `factual` dürfen weiterfallen. Faktenagenten (Tanke, Wetter,
- * POI, Sport) sagen ab: sonst erfindet das Modell Preise und Tabellen.
+ * Agenten und Faktenagenten (Tanke, Wetter, POI, Sport) sagen ab: sonst
+ * erfindet das Modell Preise und Tabellen. Write/Device ohne `factual`
+ * (TV, Kalender) sagen „nichts geändert“.
  */
 export function failureReply(id: string, result: AgentResult): string {
-  if (!result.failed) return ''
+  if (!result.failed && result.tool?.tool_status !== 'error') return ''
   const agent = agentById(id)
   if (!agent) return ''
-  const factual = Boolean(agent.factual)
-  if (agent.sideEffect === 'read' && !factual) return ''
   const label = TOOL_LABEL[id] || agent.label || id
-  if (factual) {
+  if (agent.factual || agent.sideEffect === 'read') {
     if (result.failReason === 'breaker') {
       return `${label} ist gerade nicht erreichbar. Ich rate nicht.`
     }
@@ -279,8 +280,16 @@ async function runPicked(
   const result = await runAgent(id, ctx)
   /** Abgebrochen heißt: der Nutzer wollte etwas anderes. Kein Fehlertext. */
   if (result.aborted) return { hit: null }
-  if (!result.handled) {
-    const honest = failureReply(id, result)
+  if (needsRecover(id, result)) {
+    const recovered = await runRecover(id, ctx)
+    if (recovered?.reply) {
+      noteFail(id, result.failReason || 'recover')
+      setLastUserFacts(recovered.reply)
+      return { hit: { reply: recovered.reply, lastTool: id }, userFacts: recovered.reply }
+    }
+  }
+  if (!result.handled || result.failed || result.tool?.tool_status === 'error') {
+    const honest = failureReply(id, result) || (writeHasNoRecover(id) ? '' : 'Geht nicht. Kein Raten.')
     if (!honest) return { hit: null }
     noteFail(id, result.failReason || 'error')
     setLastUserFacts(honest)

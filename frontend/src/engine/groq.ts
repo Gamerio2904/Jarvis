@@ -10,7 +10,7 @@ import {
 import { postJson } from './http-json.ts'
 import { streamSseLines } from '../native/voice.ts'
 import { loadSettings, saveSettings } from './store.ts'
-import { noteQuotaExhausted, noteQuotaHeaders } from './quota.ts'
+import { noteQuotaExhausted, noteQuotaHeaders, retryAfterMs } from './quota.ts'
 
 /**
  * Gemini merkt sich über `markSkip`, welches Modell gerade nicht geht. Groq
@@ -113,6 +113,12 @@ export async function completeGroq(
       }
       if (status === 429) {
         noteQuotaExhausted('groq', headers)
+        const wait = retryAfterMs(headers)
+        if (wait > 0) {
+          await new Promise((r) => setTimeout(r, wait))
+          last = 'Groq-Tageslimit erreicht.'
+          continue
+        }
         last = 'Groq-Tageslimit erreicht.'
         continue
       }
@@ -183,6 +189,11 @@ export async function completeGroqJson(opts: {
       noteQuotaHeaders('groq', headers)
       if (status === 429) {
         noteQuotaExhausted('groq', headers)
+        const wait = retryAfterMs(headers)
+        if (wait > 0) {
+          await new Promise((r) => setTimeout(r, wait))
+          continue
+        }
         return null
       }
       const parsed = json as GroqResponse

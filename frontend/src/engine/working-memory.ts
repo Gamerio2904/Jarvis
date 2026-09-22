@@ -44,6 +44,11 @@ export function noteFail(id: string, reason: string): void {
   upsertWorking(`fail:${id}`, `${id} fehlgeschlagen${why ? `: ${why}` : ''}`)
 }
 
+export function lastFailedTool(): string {
+  const hit = loadWorkingMemory().find((r) => r.key.startsWith('fail:'))
+  return hit ? hit.key.slice(5) : ''
+}
+
 export function noteTurn(role: string, text: string, tool?: string): void {
   const t = text.replace(/\s+/g, ' ').trim()
   if (!t || t.length < 4) return

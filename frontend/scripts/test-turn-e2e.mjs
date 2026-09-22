@@ -151,18 +151,21 @@ try {
   calendar.execute = realExecute
 }
 
-// Ein lesender Agent darf weiter ans Modell fallen — dort gibt es nichts zu
-// behaupten, und das Modell kann die Frage noch beantworten.
+// Ein lesender Agent fällt nicht mehr ans Modell — Recover oder Absage.
 const news = agentById('news')
 const realNews = news.execute
+const realFetch = globalThis.fetch
+globalThis.fetch = async () => new Response('{}', { status: 503 })
 try {
   news.execute = async () => {
     throw new Error('Netz weg')
   }
   const read = await turn('Zeig mir die Nachrichten')
-  assert.equal(read.hit, null, 'Lesen fällt weiter durch')
+  assert.ok(read.hit?.reply, 'Read-Fail antwortet ehrlich')
+  assert.match(read.hit.reply, /geht nicht|rate nicht|Kein Raten/)
 } finally {
   news.execute = realNews
+  globalThis.fetch = realFetch
 }
 
 // --- Kaputte Einstellungen werden nicht still überschrieben --------------
@@ -239,10 +242,10 @@ assert.equal(knowledgeBlock([legacy], 'Was steht bei uns zu Tokio?'), '', 'altes
     /rate nicht/,
     'Faktenagenten sagen ab statt ans Modell zu fallen',
   )
-  assert.equal(
+  assert.match(
     failureReply('news', open),
-    '',
-    'lesende Agenten ohne factual dürfen weiterfallen',
+    /rate nicht/,
+    'Read-Fail ohne factual fällt nicht ans Modell',
   )
   assert.equal(failureReply('tv', { handled: false, internal: [] }), '', 'kein Fehlschlag, kein Text')
 }

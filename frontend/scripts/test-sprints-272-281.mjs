@@ -46,11 +46,7 @@ function pick(text, lastTool = '') {
   assert.match(failureReply('weather', open), /rate nicht/)
   assert.match(failureReply('fuel', { handled: false, failed: true, failReason: 'timeout', internal: [] }), /rate nicht/)
   assert.match(failureReply('sport', { handled: false, failed: true, failReason: 'error', internal: [] }), /rate nicht/)
-  assert.equal(
-    failureReply('news', open),
-    '',
-    'Nachrichten ohne factual dürfen weiterfallen',
-  )
+  assert.match(failureReply('news', open), /rate nicht/, 'Read-Fail fällt nicht ins Modell')
   assert.match(failureReply('tv', open), /nichts geändert/)
 }
 

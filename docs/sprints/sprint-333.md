@@ -1,6 +1,6 @@
 # Sprint 333 — Rules-first Verify
 
-**Version:** `18.9.2` — **PLAN** Must
+**Version:** `18.9.2` — **CODE** Must
 **Plan:** [`80-next.md`](../80-next.md)
 **Voraussetzung:** 331. EdgeCat: Richter nur bei Ambivalenz.
 

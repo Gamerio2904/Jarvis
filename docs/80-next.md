@@ -1,4 +1,4 @@
-# 80 — Recover + Hirn härten **PLAN** (`18.9`)
+# 80 — Recover + Hirn härten **CODE** (`18.9`)
 
 Wenn eine Quelle oder Methode ausfällt, soll Jarvis **selbst** die nächste
 erlaubte Option prüfen — API nochmal, Cache neu, zweite Allowlist-Seite —
@@ -15,14 +15,15 @@ Quellen (MIT/Apache, kein Copy der Apps):
 - [slm-orchestrator](https://pypi.org/project/slm-orchestrator/) — Fallback-Parser
 - [nrl-ai/edgevox](https://github.com/nrl-ai/edgevox) — `world_predicate` vor LLM-Verdikt
 
-**Ist:** App-Code **`18.8.4`**. Director: ein Agent, `applyRetry` nur
-fuel/weather/poi/transit *nach* Erfolg, Lesen 2 Versuche still im Bus.
-Kein Satz „ich versuche eine andere Methode“. News ist nur Tagesschau.
-Write/Device einmal. `noteFail` merkt den Bruch, steuert aber nicht um.
+**Ist:** App-Code **`18.9.0`**. Sideload **`18.9.0`**, versionCode `180900`.
+Director Recover nach Read-Fail: Ansage, Allowlist-Schritt, Cap 2.
+News: Tagesschau neu, dann DW-RSS. Lage: Cache weg, `fetchLayer` neu.
+OMDb: Cache-Bust, ohne Key kein Fake-%. Write/Device einmal. Read-Fail
+sagt ab statt ins Modell zu fallen. `GOLD_EXPECT`-Keys = `TEST_PROMPTS`.
+`PROBE_COPY_GROUPS`.length 13.
 
-**Dieses Dokument ist PLAN.** Execute: Sprints **331–337**. Sideload
-unverändert, bis ein eigenes APK-Execute kommt. `GOLD_EXPECT`-Keys =
-`TEST_PROMPTS`. `PROBE_COPY_GROUPS`.length 13.
+**Dieses Dokument ist CODE.** Execute: Sprints **331–337**. `18.5`
+bleibt PLAN.
 
 ---
 
@@ -92,7 +93,7 @@ Harte Kette: **331 → alles**. 332 braucht 331. 336 braucht 331+332.
 | `18.9.5` | [336](./sprints/sprint-336.md) | API/Cache: Retry-After, Quota, fehlender Key → Quelle ohne Key |
 | `18.9.6` | [337](./sprints/sprint-337.md) | Härten, Gold, [`TEST-18.9.md`](./TEST-18.9.md) |
 
-Kein Sideload-Bump in diesem PLAN. Nicht parallel zu `18.5`.
+Sideload **`18.9.0`**. Nicht parallel zu `18.5`.
 
 ---
 

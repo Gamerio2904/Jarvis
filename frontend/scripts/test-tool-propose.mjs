@@ -40,7 +40,7 @@ const {
 } = await import('../src/engine/tool-contract.ts')
 const { routeForEval } = await import('../src/engine/eval/route-eval.ts')
 const { agentById } = await import('../src/engine/agents/catalog.ts')
-const { proposeReady, proposeTool } = await import('../src/engine/tool-propose.ts')
+const { proposeReady, proposeTool, repairProposalJson } = await import('../src/engine/tool-propose.ts')
 const store = await import('../src/engine/store.ts')
 
 const bag = (over = {}) => ({ minutes: null, time: null, date: null, title: null, state: null, ...over })
@@ -330,5 +330,10 @@ globalThis.fetch = async () => {
 }
 assert.equal((await runDirectorTurn(CONV, 'Was ist ein Timer eigentlich')).hit, null)
 assert.equal(gerufen, 0, 'Smalltalk und Wissensfragen gehen direkt ans Modell')
+
+const fixed = repairProposalJson('{tool: "open_watchlist", args: {minutes: null, time: null, date: null, title: null, state: null,},}')
+assert.ok(fixed)
+assert.equal(JSON.parse(fixed).tool, 'open_watchlist')
+assert.equal(repairProposalJson('kein json'), null)
 
 console.log(`OK test-tool-propose — ${TOOL_CONTRACTS.length} Werkzeuge, alle vom Parser bestätigt`)

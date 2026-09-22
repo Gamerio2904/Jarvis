@@ -1,13 +1,13 @@
 # Sprint 337 — 18.9 härten
 
-**Version:** `18.9.6` — **PLAN** Must
+**Version:** `18.9.6` — **CODE** Must
 **Plan:** [`80-next.md`](../80-next.md)
 **Voraussetzung:** 331–336 soweit Must.
 
 ## Ziel
 
 Eine Probe über Recover-Ansage, Caps, Write-Schutz und Gold. Kein neues
-Feature. Sideload bleibt `18.8.4`, bis ein 18.9-APK-Execute kommt.
+Feature. Sideload **`18.9.0`**, versionCode `180900`.
 
 ## Lieferumfang
 

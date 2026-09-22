@@ -1,6 +1,6 @@
 # Sprint 335 — Propose Action-then-ground
 
-**Version:** `18.9.4` — **PLAN** Must
+**Version:** `18.9.4` — **CODE** Must
 **Plan:** [`80-next.md`](../80-next.md)
 **Voraussetzung:** 331. AgentGate: erst Aktion, dann Satz.
 

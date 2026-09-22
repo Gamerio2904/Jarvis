@@ -1,6 +1,6 @@
 # Sprint 332 — Read-Quellen umschalten
 
-**Version:** `18.9.1` — **PLAN** Must
+**Version:** `18.9.1` — **CODE** Must
 **Plan:** [`80-next.md`](../80-next.md)
 **Voraussetzung:** 331.
 

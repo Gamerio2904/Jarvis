@@ -2,7 +2,7 @@
 
 Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
-> **Jetzt:** Code **`18.8.4`**. Sideload **`18.8.4`**, versionCode `180804`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. Nächste Schiene **`18.5` PLAN** (nicht parallel zu 18.8 / 18.9). Index: [`42-planned.md`](./42-planned.md). Test: [`TEST-18.8.md`](./TEST-18.8.md).
+> **Jetzt:** Code **`18.9.0`**. Sideload **`18.9.0`**, versionCode `180900`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. Nächste Schiene **`18.5` PLAN** (nicht parallel zu 18.9). Index: [`42-planned.md`](./42-planned.md). Test: [`TEST-18.9.md`](./TEST-18.9.md).
 
 **Status-Legende:** `idea` · `ready` · `in_sprint` · `done` · `parked`
 
@@ -634,32 +634,32 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S62.4 | Als Nutzer will ich, dass der Debug-Lauf nicht in der Erinnerungsfrage hängen bleibt. | Must | done | Sprint 327; Skip + Rollback der Notifies |
 | S62.5 | Als Nutzer will ich Testprompts in klaren Kategorien, nicht in Versions-Archiven. | Must | done | Sprint 329–330; 13 Probe-Packs, Gold = TEST_PROMPTS |
 
-### E63 — Recover + Hirn `18.9` [`80-next.md`](./80-next.md) **PLAN**
+### E63 — Recover + Hirn `18.9` [`80-next.md`](./80-next.md) **CODE**
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S63.1 | Als Nutzer will ich hören, dass eine Quelle tot ist, bevor Jarvis eine andere erlaubte Methode versucht. | Must | planned | Sprint 331; Ansage „geht nicht / versuche“; Cap 2 |
-| S63.2 | Als Nutzer will ich, dass News, Research, Lage und Filme die nächste eingetragene Quelle nehmen, nicht irgendeine Website. | Must | planned | Sprint 332, 336; Allowlist; kein RT-Scrape |
-| S63.3 | Als Nutzer will ich nach einem Write nur echte Bestätigung, nie „Ist erledigt“ ohne Store-Zeile. | Must | planned | Sprint 333–334; Verify ok/empty/error |
-| S63.4 | Als Nutzer will ich, dass ein fehlgeschlagener Lesezug nicht doppelt Termine oder Tasten ausführt. | Must | planned | Write/Device 1 Lauf; Recover nur Read + Hirn-Slot |
-| S63.5 | Als Nutzer will ich Recover-Sätze im Auto-Debug, ohne ein 14. Probe-Pack. | Must | planned | Sprint 337; bestehende 13 Spuren; Mock-Pfad in `test-recover.mjs` |
+| S63.1 | Als Nutzer will ich hören, dass eine Quelle tot ist, bevor Jarvis eine andere erlaubte Methode versucht. | Must | done | Sprint 331; Ansage „geht nicht / versuche“; Cap 2 |
+| S63.2 | Als Nutzer will ich, dass News, Research, Lage und Filme die nächste eingetragene Quelle nehmen, nicht irgendeine Website. | Must | done | Sprint 332, 336; Allowlist; kein RT-Scrape |
+| S63.3 | Als Nutzer will ich nach einem Write nur echte Bestätigung, nie „Ist erledigt“ ohne Store-Zeile. | Must | done | Sprint 333–334; Verify ok/empty/error |
+| S63.4 | Als Nutzer will ich, dass ein fehlgeschlagener Lesezug nicht doppelt Termine oder Tasten ausführt. | Must | done | Write/Device 1 Lauf; Recover nur Read + Hirn-Slot |
+| S63.5 | Als Nutzer will ich Recover-Sätze im Auto-Debug, ohne ein 14. Probe-Pack. | Must | done | Sprint 337; bestehende 13 Spuren; Mock-Pfad in `test-recover.mjs` |
 
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
-1. **`18.8` Debug-Rollback / Termin-Fristen / Download / Prompts** 323–330 CODE [`79-next.md`](./79-next.md) — nicht parallel zu 18.5 / 18.9
-2. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md) — nicht parallel zu 18.8 / 18.9
-2b. **`18.9` Recover + Hirn** 331–337 PLAN [`80-next.md`](./80-next.md) — Quelle tot → Ansage → Allowlist; nicht parallel zu 18.5
-3. **`18.7` Listen-Leiste / Selbststeuerung** 315–322 CODE [`78-next.md`](./78-next.md)
-4. **`18.6` Lage-Kugel OSINT** 307–314 CODE [`77-next.md`](./77-next.md)
-5. PO Handy Sprint 178 — Katalog 168 + Home-FGS 30 s [`55-next.md`](./55-next.md)
-6. OEM-Akku 183, nur wenn 178 den FGS tot zeigt
-7. `9.9.3` / Sprint 186 nur wenn 168 rot
-8. Could-ONNX 181 Freeze bis Messung; Smalltalk-Cache 184 Could
-9. Memory-10 Intensiv 196–198 Must — Alias, G5-Echo, memoryBlock [`57-next.md`](./57-next.md)
-10. Gerät Memory-Tor 193 PO; Handy-PO 178 bleibt Must
-11. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
+1. **`18.9` Recover + Hirn** 331–337 CODE [`80-next.md`](./80-next.md) — Quelle tot → Ansage → Allowlist; nicht parallel zu 18.5
+2. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md) — nicht parallel zu 18.9
+3. **`18.8` Debug-Rollback / Termin-Fristen / Download / Prompts** 323–330 CODE [`79-next.md`](./79-next.md)
+4. **`18.7` Listen-Leiste / Selbststeuerung** 315–322 CODE [`78-next.md`](./78-next.md)
+5. **`18.6` Lage-Kugel OSINT** 307–314 CODE [`77-next.md`](./77-next.md)
+6. PO Handy Sprint 178 — Katalog 168 + Home-FGS 30 s [`55-next.md`](./55-next.md)
+7. OEM-Akku 183, nur wenn 178 den FGS tot zeigt
+8. `9.9.3` / Sprint 186 nur wenn 168 rot
+9. Could-ONNX 181 Freeze bis Messung; Smalltalk-Cache 184 Could
+10. Memory-10 Intensiv 196–198 Must — Alias, G5-Echo, memoryBlock [`57-next.md`](./57-next.md)
+11. Gerät Memory-Tor 193 PO; Handy-PO 178 bleibt Must
+12. Mail / Cloud-Kalender / Alexa / Play Store / iOS — **Parking**
 
 Sideload **`9.10.0`**, Code **`10.60.0`**. Hausstand-Export, Körper, Globus, Bühne, Gemini-Hirn, Parser, Split/Overlay, Globus-Briefing, Debug-FGS, Memory-10 sind **CODE**. Alte 1.x/2.x-PRs nicht mergen. 195 e5 Freeze.
 

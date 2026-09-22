@@ -13,6 +13,8 @@ export type RouteCtx = {
   lastPlace?: string
   /** Abbruch des laufenden Zuges. Wird vom Bus gesetzt, nicht vom Router. */
   signal?: AbortSignal
+  /** Letzter gescheiterter Agent — senkt denselben nicht ins Plaudern. */
+  last_failed_tool?: string
 }
 
 export type Candidate = {
