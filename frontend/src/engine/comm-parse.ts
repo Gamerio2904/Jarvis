@@ -17,7 +17,7 @@ const SCAN =
   /^\s*(?:(?:scann?e?|lies|lese|einlesen|importier(?:e)?)(?:\s+(?:bitte|mal|jetzt))?\s+(?:mein(?:e[nrs]?)?\s+|das\s+|die\s+)?(?:telefon[- ]?kontakte|kontakte|telefonbuch|adressbuch)|(?:telefon[- ]?kontakte|kontakte|telefonbuch|adressbuch)\s+(?:scannen|einlesen|importieren|vom\s+handy)|kontakte\s+vom\s+(?:handy|telefon))\s*[.!?]*\s*$/i
 
 const LIST_CONTACTS =
-  /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+(?:die|meine[nrs]?))?\s+(?:telefon[- ]?kontakte|kontakte|telefonbuch|adressbuch|nummern)|welche(?:n)?\s+(?:kontakte|nummern|adressen)\s+(?:kennst\s+du|hast\s+du|liegen)|(?:meine[nrs]?\s+)?(?:kontakte|telefonbuch|nummern)(?:\s+(?:anzeigen|zeigen|auflisten))?)\s*[.!?]*\s*$/i
+  /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+(?:die|meine[nrs]?))?\s+(?:telefon[- ]?kontakte|kontakte|telefonbuch|adressbuch|nummern)|welche(?:n)?\s+(?:kontakte|nummern|adressen)\s+(?:kennst\s+du|hast\s+du|liegen)|meine[nrs]?\s+(?:kontakte|telefonbuch|adressbuch|nummern)(?:\s+(?:anzeigen|zeigen|auflisten))?|(?:telefon[- ]?kontakte|kontakte|telefonbuch|adressbuch)(?:\s+(?:anzeigen|zeigen|auflisten))?)\s*[.!?]*\s*$/i
 
 const EMAIL_STORE =
   /^\s*(?:(?:e-?mail|mail)\s+von\s+(.+?)\s*[:-]\s*(.+)|(.+?)\s*[,:]\s*(?:e-?mail|mail)\s+(.+))\s*$/i
@@ -96,6 +96,17 @@ export function parseMailIntent(text: string): MailIntent | null {
   const to = MAIL_TO.exec(t)
   if (to) return { kind: 'mail_write', to: cleanWho(to[1] || ''), subject: '', body: '' }
   return null
+}
+
+/** Neuer Comm-Satz — eine offene Nachfrage darf ihn nicht als Text schlucken. */
+export function isCommSwitch(text: string): boolean {
+  return Boolean(
+    parseContactsScan(text) ||
+      parseContactsList(text) ||
+      parseEmailStore(text) ||
+      parseMailIntent(text) ||
+      parseWaInbox(text),
+  )
 }
 
 export function parseWaInbox(text: string): WaInboxIntent | null {

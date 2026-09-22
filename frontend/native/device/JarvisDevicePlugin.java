@@ -631,6 +631,15 @@ public class JarvisDevicePlugin extends Plugin {
         return t;
     }
 
+    private String cleanEmail(String raw) {
+        if (raw == null) return "";
+        String t = raw.trim();
+        int lt = t.indexOf('<');
+        int gt = t.lastIndexOf('>');
+        if (lt >= 0 && gt > lt) t = t.substring(lt + 1, gt).trim();
+        return t;
+    }
+
     @PluginMethod
     public void scanContacts(PluginCall call) {
         if (getPermissionState("contacts") != PermissionState.GRANTED) {
@@ -661,28 +670,37 @@ public class JarvisDevicePlugin extends Plugin {
         Cursor e = null;
         try {
             java.util.LinkedHashMap<String, String[]> emailsByName = new java.util.LinkedHashMap<>();
-            String[] ecols = {
-                ContactsContract.CommonDataKinds.Email.DISPLAY_NAME,
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-            };
-            e = getContext()
-                    .getContentResolver()
-                    .query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, ecols, null, null, null);
-            if (e != null) {
-                int nameAt = e.getColumnIndex(ContactsContract.CommonDataKinds.Email.DISPLAY_NAME);
-                int addrAt = e.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS);
-                while (e.moveToNext()) {
-                    String name = nameAt >= 0 ? e.getString(nameAt) : "";
-                    String addr = addrAt >= 0 ? e.getString(addrAt) : "";
-                    if (name == null) name = "";
-                    if (addr == null) addr = "";
-                    name = name.trim();
-                    addr = addr.trim();
-                    if (name.isEmpty() || !addr.contains("@") || !addr.contains(".")) continue;
-                    String nkey = name.toLowerCase(java.util.Locale.ROOT);
-                    if (!emailsByName.containsKey(nkey)) {
-                        emailsByName.put(nkey, new String[] {name, addr});
+            try {
+                String[] ecols = {
+                    ContactsContract.CommonDataKinds.Email.DISPLAY_NAME,
+                    ContactsContract.CommonDataKinds.Email.ADDRESS,
+                };
+                e = getContext()
+                        .getContentResolver()
+                        .query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, ecols, null, null, null);
+                if (e != null) {
+                    int nameAt = e.getColumnIndex(ContactsContract.CommonDataKinds.Email.DISPLAY_NAME);
+                    int addrAt = e.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS);
+                    while (e.moveToNext()) {
+                        String name = nameAt >= 0 ? e.getString(nameAt) : "";
+                        String addr = addrAt >= 0 ? e.getString(addrAt) : "";
+                        if (name == null) name = "";
+                        if (addr == null) addr = "";
+                        name = name.trim();
+                        addr = cleanEmail(addr);
+                        if (name.isEmpty() || !addr.contains("@") || !addr.contains(".")) continue;
+                        String nkey = name.toLowerCase(java.util.Locale.ROOT);
+                        if (!emailsByName.containsKey(nkey)) {
+                            emailsByName.put(nkey, new String[] {name, addr});
+                        }
                     }
+                }
+            } catch (Exception ignored) {
+                /* Phone-Scan bleibt, Mail ist extra */
+            } finally {
+                if (e != null) {
+                    e.close();
+                    e = null;
                 }
             }
             String[] cols = {

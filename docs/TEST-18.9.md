@@ -53,7 +53,8 @@ Antwort nach Ja über die Meldung oder Chat-Link. Nie „ist gesendet“.
 `Zeig meine Kontakte` listet lokal merkte Nummern und Adressen.  
 `Mama, Mail name@gmx.de` legt die Adresse. Scan übernimmt Mail, wenn
 die Telefonbuchzeile eine hat. IMAP-Karte: Testen erreicht das Postfach
-oder sagt ehrlich aus. Nie „ist gesendet“.
+oder sagt ehrlich aus. `Schreib mir eine E-Mail` dann `name@…` fragt
+nach dem Text, verliert die Adresse nicht. Nie „ist gesendet“.
 
 ## 7. Watchliste 18.9.5
 

@@ -9,7 +9,9 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Scan holt Mail aus dem Telefonbuch. Alltag und Chat merken Adresse mit.
 IMAP-Karte hat Testen. „Mama, Mail …“ liegt wie Tel. „Zeig meine Kontakte“
-listet Nummer und Mail, nicht Orte. Kein stilles Senden, 18.5 unberührt.
+listet Nummer und Mail, nicht Orte. „Schreib mir eine E-Mail“ behält die
+Nachfrage, auch ohne Namen. Ein neuer Comm-Satz bricht die offene Frage.
+Kein stilles Senden, 18.5 unberührt.
 
 ### `18.9.7` — E-Mail, Telefonbuch, WhatsApp-Antwort — *CODE + APK*
 

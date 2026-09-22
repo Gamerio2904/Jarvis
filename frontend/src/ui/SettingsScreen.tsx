@@ -892,21 +892,25 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     className="retry-btn"
                     disabled={busy || mailBusy}
                     onClick={() => {
-                      const user = (s?.mail_user || '').trim()
-                      const pass = (s?.mail_pass || '').trim()
-                      const host = mailHostFor(user, s?.mail_host || '')
+                      const card = document.getElementById('sf-mail')
+                      const fields = card ? [...card.querySelectorAll('input')] : []
+                      const user = (fields[0]?.value || s?.mail_user || '').trim()
+                      const pass = (fields[1]?.value || s?.mail_pass || '').trim()
+                      const hostRaw = (fields[2]?.value || s?.mail_host || '').trim()
+                      void p.patchSetting({ mail_user: user, mail_pass: pass, mail_host: hostRaw })
+                      const host = mailHostFor(user, hostRaw)
                       if (!user || !pass || !host) {
                         setMailMsg('Adresse und App-Passwort fehlen. Nicht das normale Passwort.')
                         return
                       }
                       setMailBusy(true)
                       setMailMsg(null)
-                      void listImapMails({ host, user, pass, limit: 1 })
+                      void listImapMails({ host, user, pass, limit: 8 })
                         .then((res) => {
                           if (res.ok) {
                             setMailMsg(
                               res.mails.length
-                                ? `Postfach erreicht. ${res.mails.length} ungelesen.`
+                                ? 'Postfach erreicht. Eingang lesbar.'
                                 : 'Postfach erreicht. Keine ungelesene Zeile.',
                             )
                             return

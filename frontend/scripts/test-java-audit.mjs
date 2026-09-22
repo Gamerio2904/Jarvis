@@ -50,6 +50,8 @@ assert.match(device, /parts\.size\(\) - 1/, 'Multipart: sentIntent nur am letzte
 assert.match(device, /scanContacts/, 'Telefonbuch-Scan')
 assert.match(device, /READ_CONTACTS/, 'Kontakte-Recht')
 assert.match(device, /Email\.CONTENT_URI/, 'Mail aus dem Telefonbuch')
+assert.match(device, /cleanEmail|indexOf\('<'\)/, 'Mail in Klammern')
+assert.match(device, /Phone-Scan bleibt/, 'Mail-Fehler kippt den Nummern-Scan nicht')
 assert.match(device, /imapList/, 'IMAP-Lesen')
 assert.match(device, /mailto/, 'E-Mail-Entwurf')
 

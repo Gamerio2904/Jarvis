@@ -11,6 +11,7 @@ import {
 import {
   looksLikeEmail,
   mailHostFor,
+  isCommSwitch,
   parseContactsList,
   parseContactsScan,
   parseEmailStore,
@@ -119,7 +120,8 @@ function readComm(): PendingComm | null {
     const raw = loadSettings().last_comm_json
     if (!raw) return null
     const p = JSON.parse(raw) as PendingComm
-    if (!p?.kind || !p.name) return null
+    if (!p?.kind) return null
+    if (!p.name && p.kind !== 'mail_to_ask') return null
     return p
   } catch {
     return null
@@ -410,7 +412,7 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
   const num = extractPhone(text)
   const nav = parsePlaceNav(text)
   const written = parsePlaceWrite(text)
-  const other = OTHER_CMD.test(text) || Boolean(nav) || Boolean(written)
+  const other = OTHER_CMD.test(text) || Boolean(nav) || Boolean(written) || isCommSwitch(text)
 
   if (pending.kind === 'phone_ask') {
     if (num) {
@@ -561,9 +563,10 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
   }
 
   if (pending.kind === 'mail_to_ask') {
-    const addr = extractEmail(text) || (looksLikeEmail(text.trim()) ? text.trim() : '')
+    const stored = parseEmailStore(text)
+    const addr = stored?.email || extractEmail(text) || (looksLikeEmail(text.trim()) ? text.trim().toLowerCase() : '')
     if (addr) {
-      await upsertMemory(pending.name || addr, addr, 'email', conversationId)
+      await upsertMemory(stored?.name || pending.name || addr, addr, 'email', conversationId)
       if (pending.body?.trim()) return askMail(addr, pending.subject || '', pending.body)
       writeComm({ kind: 'mail_body_ask', name: addr, subject: pending.subject }, 'mail_body_ask')
       return {
@@ -586,6 +589,14 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
   }
 
   if (pending.kind === 'mail_body_ask') {
+    if (isCommYes(text)) {
+      return {
+        handled: true,
+        reply: `Was soll in der E-Mail an ${pending.name} stehen?`,
+        tool: commTool('ask', 'E-Mail', pending.name),
+        lastTool: 'mail_body_ask',
+      }
+    }
     if (other) {
       writeComm(null, 'maps')
       return null
@@ -820,10 +831,14 @@ export async function applyScannedContacts(
 
 export function scanReply(tally: { numbers: number; mails: number; kept: number }): string {
   const bits: string[] = []
-  if (tally.numbers) bits.push(`${tally.numbers} Nummern`)
-  if (tally.mails) bits.push(`${tally.mails} Adressen`)
+  if (tally.numbers) bits.push(`${tally.numbers} ${tally.numbers === 1 ? 'Nummer' : 'Nummern'}`)
+  if (tally.mails) bits.push(`${tally.mails} ${tally.mails === 1 ? 'Adresse' : 'Adressen'}`)
   const extra = tally.kept ? ` ${tally.kept} lagen schon.` : ''
-  if (bits.length) return `${bits.join(' und ')} aus dem Telefonbuch liegen lokal.${extra}`
+  const added = tally.numbers + tally.mails
+  if (bits.length) {
+    const verb = added === 1 ? 'liegt' : 'liegen'
+    return `${bits.join(' und ')} aus dem Telefonbuch ${verb} lokal.${extra}`
+  }
   if (tally.kept) return `Keine neue Nummer. ${tally.kept} lagen schon.`
   return 'Telefonbuch war leer oder ohne Nummern und Mail.'
 }
@@ -852,8 +867,9 @@ async function listPhoneBook(): Promise<PlaceHit> {
     cur.mail = r.value
     names.set(r.key, cur)
   }
-  persistLastList('maps', [...names.keys()].map((k) => displayPlaceName(k)))
-  const lines = [...names.entries()].slice(0, 24).map(([key, v], i) => {
+  const ordered = [...names.entries()].sort((a, b) => a[0].localeCompare(b[0], 'de'))
+  persistLastList('maps', ordered.map(([k]) => displayPlaceName(k)))
+  const lines = ordered.slice(0, 24).map(([key, v], i) => {
     const bits = [v.phone, v.mail].filter(Boolean).join(' · ')
     return `${i + 1}. ${displayPlaceName(key)} — ${bits}`
   })
