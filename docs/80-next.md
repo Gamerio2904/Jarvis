@@ -15,7 +15,7 @@ Quellen (MIT/Apache, kein Copy der Apps):
 - [slm-orchestrator](https://pypi.org/project/slm-orchestrator/) — Fallback-Parser
 - [nrl-ai/edgevox](https://github.com/nrl-ai/edgevox) — `world_predicate` vor LLM-Verdikt
 
-**Ist:** App-Code **`18.8.3`**. Director: ein Agent, `applyRetry` nur
+**Ist:** App-Code **`18.8.4`**. Director: ein Agent, `applyRetry` nur
 fuel/weather/poi/transit *nach* Erfolg, Lesen 2 Versuche still im Bus.
 Kein Satz „ich versuche eine andere Methode“. News ist nur Tagesschau.
 Write/Device einmal. `noteFail` merkt den Bruch, steuert aber nicht um.

@@ -7,7 +7,7 @@
 ## Ziel
 
 Eine Probe über Recover-Ansage, Caps, Write-Schutz und Gold. Kein neues
-Feature. Sideload bleibt `18.8.3`, bis ein APK-Execute kommt.
+Feature. Sideload bleibt `18.8.4`, bis ein 18.9-APK-Execute kommt.
 
 ## Lieferumfang
 

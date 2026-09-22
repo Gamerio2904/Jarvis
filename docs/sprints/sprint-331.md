@@ -2,7 +2,7 @@
 
 **Version:** `18.9.0` — **PLAN** Must
 **Plan:** [`80-next.md`](../80-next.md)
-**Voraussetzung:** `18.8.3` auf main. Kein 18.5.
+**Voraussetzung:** `18.8.4` auf main. Kein 18.5.
 
 ## Ziel
 

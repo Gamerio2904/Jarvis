@@ -5,6 +5,8 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.8.4` — Umbenennen, Osiris-Leiste, Publikum — *CODE + APK*
+
 Watchliste: Folie zeigt **Kritiker** und **Publikum** immer. Fehlt die
 Publikumsnote bei OMDb, steht **Publikum —**; IMDb kommt extra, nicht
 als Publikum beschriftet.
@@ -19,11 +21,13 @@ einem Treffer im Titel (Geburtstag). Offene Erinnerungsfrage bleibt,
 wenn der nächste Satz kein Kalender ist. Karte und Watchliste laden
 nach, wenn Chat schreibt. Plaudern „Ist erledigt“ wird gestrichen.
 
-Schiene **`18.9` PLAN** (331–337): Quelle tot → Ansage → andere erlaubte
-Methode. Siehe [`80-next.md`](./80-next.md). `18.5` bleibt PLAN daneben.
-
 Testprompts für Umbenennen, Osiris-Schichten und Watchliste-Dune stehen
 in `TEST_PROMPTS` / Gold und in **18.8 Debug & Termin** (Auto-Debug).
+
+Schiene **`18.9` PLAN** (331–337): Quelle tot → Ansage → andere erlaubte
+Methode. Siehe [`80-next.md`](./80-next.md). `18.5` bleibt PLAN. Sideload
+**`18.8.4`** (versionCode `180804`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.8.3` — Kalender weicher — *CODE + APK*
 

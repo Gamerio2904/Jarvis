@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.8.3`** auf `main`. Sideload-APK **`18.8.3`**, versionCode `180803`. Offene Schienen **`18.5` PLAN** (301–306) und **`18.9` PLAN** (331–337) — **nicht parallel**. Test [`TEST-18.8.md`](./TEST-18.8.md); Recover-Probe nach Execute [`TEST-18.9.md`](./TEST-18.9.md).
+> **Jetzt:** App-Code **`18.8.4`** auf `main`. Sideload-APK **`18.8.4`**, versionCode `180804`. Offene Schienen **`18.5` PLAN** (301–306) und **`18.9` PLAN** (331–337) — **nicht parallel**. Test [`TEST-18.8.md`](./TEST-18.8.md); Recover-Probe nach Execute [`TEST-18.9.md`](./TEST-18.9.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -691,10 +691,11 @@ Nach dem automatischen Debug-Lauf räumt Jarvis Timer, Termine und Listen
 weg. Ein Termin fragt nach einer oder mehreren Erinnerungsfristen
 (z. B. 24 h und 2 h davor). Debug-Chat-Download am Dock, native
 Downloads. Prompt-Pakete neu geschnitten. Kein Cloud-Kalender. Nicht
-parallel zu `18.5`. Sideload **`18.8.3`**, versionCode `180803`.
+parallel zu `18.5`. Sideload **`18.8.4`**, versionCode `180804`.
 Nachzieher nach Execute: IMDb-Note auf der Folie, Erinnerungen am Tag
 löschen, leere Sicht-Karte bleibt zu. Kalender-Themen und sichtbarer
 Debug-Lauf in **`18.8.2`**. Kalender weicher in **`18.8.3`**.
+Umbenennen, Osiris-Leiste, Publikum in **`18.8.4`**.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
@@ -720,13 +721,18 @@ Nachzieher **`18.8.3`** (APK, versionCode `180803`): Kalender weicher
 (gleitender Reiter, Glas-Karten, Sheet-Griff). Die Planungszeile
 `18.8.3` oben bleibt Sprint 326 (Offsets, schon in `18.8.0`).
 
+Nachzieher **`18.8.4`** (APK, versionCode `180804`): Kalender-Umbenennen,
+Osiris-Schichtleiste, Watchliste-Publikum, Testprompts im Auto-Debug.
+Die Planungszeile `18.8.4` oben bleibt Sprint 327 (Debug-Skip, schon in
+`18.8.0`).
+
 ### `18.9` — Recover + Hirn [`80-next.md`](./80-next.md) **PLAN**
 
 Quelle oder Methode tot → **Ansage** → nächste **Allowlist**-Option
 (API neu, Cache-Bust, eingetragene zweite Seite, Hirn-Slot). Dann
 Ergebnis oder ehrliche Absage. Kein freies Web, kein Key-Tausch, kein
 zweiter Write/Device-Lauf. `PROBE_COPY_GROUPS`.length bleibt 13.
-Nicht parallel zu `18.5`. Sideload bleibt **`18.8.3`**, bis ein
+Nicht parallel zu `18.5`. Sideload bleibt **`18.8.4`**, bis ein
 eigenes APK-Execute kommt.
 
 | Version | Bedeutung | Sprint |

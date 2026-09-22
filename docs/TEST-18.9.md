@@ -1,7 +1,7 @@
 # TEST 18.9 — Recover + Hirn
 
 Nach Execute von [`80-next.md`](./80-next.md). Sideload bleibt
-`18.8.3`, bis ein APK-Bund kommt. `18.5` nicht parallel.
+`18.8.4`, bis ein 18.9-APK-Bund kommt. `18.5` nicht parallel.
 
 ## 1. Ansage
 

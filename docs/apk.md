@@ -1,6 +1,8 @@
-# Android-APK — Sideload `18.8.3`
+# Android-APK — Sideload `18.8.4`
 
-App-Code **`18.8.3`**. Sideload-APK **`18.8.3`**, versionCode `180803`.
+App-Code **`18.8.4`**. Sideload-APK **`18.8.4`**, versionCode `180804`.
+
+**18.8.4:** Kalender-Umbenennen, Osiris-Schichtleiste, Watchliste-Publikum, Testprompts im Auto-Debug. Test: [`TEST-18.8.md`](./TEST-18.8.md).
 
 **18.8.3:** Kalender weicher — gleitender Reiter, Glas-Karten, Sheet-Griff. Layout unverändert. Test: [`TEST-18.8.md`](./TEST-18.8.md).
 
@@ -11,10 +13,10 @@ App-Code **`18.8.3`**. Sideload-APK **`18.8.3`**, versionCode `180803`.
 **18.8.0:** Debug-Rollback, Termin-Erinnerungen, Debug-Download, Prompt-Pakete neu — [`79-next.md`](./79-next.md).
 
 **18.7.0:** 6. Dock-Icon Filme, Selbststeuerung, Propose-Unknown, Antwort-Orb.
-In Sideload `18.8.3`.
+In Sideload `18.8.4`.
 
 **18.6.0:** Lage-Kugel OSINT (Schichten, Intel-Leiste, Dossier, passive
-Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.8.3`.
+Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.8.4`.
 
 **18.4.4:** Lage und Overlay ohne Überlappung. Tastatur öffnet über der Leiste. Test: [`TEST-18.4.4.md`](./TEST-18.4.4.md).
 
@@ -46,10 +48,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.8.3`.
 
 ## Download
 
-**Fertige APK `18.8.3`:**  
+**Fertige APK `18.8.4`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.8.3` · versionCode `180803`
+- versionName `18.8.4` · versionCode `180804`
 
 ## Build lokal
 
