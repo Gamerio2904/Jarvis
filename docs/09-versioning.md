@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.9.0`** auf `main`. Sideload-APK **`18.9.0`**, versionCode `180900`. Offene Schiene **`18.5` PLAN** (301–306) — **nicht parallel** zu 18.9. Test [`TEST-18.9.md`](./TEST-18.9.md).
+> **Jetzt:** App-Code **`18.9.4`**. Sideload folgt **`18.9.4`**, versionCode `180904`. Offene Schiene **`18.5` PLAN** (301–306) — **nicht parallel** zu 18.9. Test [`TEST-18.9.md`](./TEST-18.9.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 

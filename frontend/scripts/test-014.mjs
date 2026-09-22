@@ -908,6 +908,19 @@ assert.equal(parseCalendarIntent('was steht diese Woche an?', frozen)?.kind, 'li
 }
 assert.equal(parseCalendarIntent('lösche Termin Zahnarzt')?.kind, 'delete')
 assert.equal(parseCalendarIntent('lösche den letzten Termin')?.kind, 'delete_last')
+{
+  const jakob = parseCalendarIntent('Samstag Geburtstag Jakob 18 Uhr', frozen)
+  assert.equal(jakob?.kind, 'create')
+  if (jakob?.kind === 'create') {
+    assert.equal(jakob.title, 'Geburtstag Jakob')
+    assert.equal(jakob.start.getDay(), 6)
+    assert.equal(jakob.start.getHours(), 18)
+  }
+  const gluedCal = parseCalendarIntent(normalizeUtterance('SamestagGeburtstagJakob18Uhrher'), frozen)
+  assert.equal(gluedCal?.kind, 'create')
+  if (gluedCal?.kind === 'create') assert.equal(gluedCal.title, 'Geburtstag Jakob')
+  assert.equal(parseCalendarIntent('Verschieb Jakob auf Sonntag 19 Uhr', frozen)?.kind, 'move')
+}
 assert.equal(parseToolIntent('lösche Todo Milch')?.kind, 'todo_delete')
 assert.equal(parseReminderIntent('Erinnerung aus')?.kind, 'delete_last')
 

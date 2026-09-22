@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.9.4` — Kalender-Agent + GUI — *CODE*
+
+„Samstag Geburtstag Jakob 18 Uhr“ legt den Termin wirklich auf den
+nächsten Samstag, auch wenn STT die Wörter klebt
+(`SamestagGeburtstagJakob18Uhrher`). Titel bleibt „Geburtstag Jakob“,
+nicht nur „Samstags 18 Uhr“. Kalender springt auf den Tag. Woche-Ansicht,
+Wochenstreifen, Ort, Datum im Blatt. Verschieben per Chat.
+LLM-Satz „Der Termin für … steht“ ohne Werkzeug wird gestrichen.
+
 ### `18.9.3` — Mikrofon: weniger Lag, ganze Äußerung — *CODE + APK*
 
 Native Erkennung bricht nicht mehr nach 200 ms Stille ab. Kurze Sätze

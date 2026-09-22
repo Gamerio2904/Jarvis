@@ -4219,11 +4219,202 @@ button.linkish {
   padding-bottom: 128px;
 }
 
+.cal-day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .cal-day h3,
 .cal-day-title {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 0.95rem;
   animation: calLabelIn 280ms var(--ease-out);
+}
+
+.cal-day-meta {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.cal-strip {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+
+.cal-strip-day {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: rgba(8, 10, 9, 0.45);
+  color: var(--text-muted);
+  border-radius: 14px;
+  padding: 8px 2px 6px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  cursor: pointer;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.cal-strip-day strong {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.cal-strip-day.is-today {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.cal-strip-day.is-on {
+  background: linear-gradient(180deg, #3be07a, var(--accent));
+  color: #04140a;
+  border-color: transparent;
+}
+
+.cal-strip-day.is-on strong {
+  color: #04140a;
+}
+
+.cal-count {
+  min-width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 70%, #fff);
+  color: #04140a;
+  font-size: 0.62rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+}
+
+.cal-count.is-empty {
+  background: transparent;
+  color: transparent;
+}
+
+.cal-count-cell {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+.cal-empty {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: 4px 0 8px;
+}
+
+.cal-empty-cta {
+  appearance: none;
+  border: 0;
+  background: linear-gradient(180deg, #24d866, var(--accent));
+  color: #04140a;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  padding-bottom: 120px;
+}
+
+.cal-week-col {
+  min-height: 160px;
+  border: 1px solid var(--border);
+  background: rgba(8, 10, 9, 0.4);
+  border-radius: 14px;
+  padding: 6px;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+}
+
+.cal-week-col.is-today {
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.cal-week-col.is-on {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
+
+.cal-week-head {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  display: grid;
+  justify-items: center;
+  cursor: pointer;
+  font-size: 0.68rem;
+}
+
+.cal-week-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.cal-week-item {
+  appearance: none;
+  width: 100%;
+  border: 0;
+  border-left: 3px solid color-mix(in srgb, var(--cal-theme, var(--accent)) 80%, transparent);
+  background: color-mix(in srgb, var(--bg-elevated) 80%, transparent);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 6px;
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.72rem;
+}
+
+.cal-week-item.is-rem {
+  cursor: default;
+  border-left-color: #94a3b8;
+}
+
+.cal-week-item strong {
+  font-size: 0.78rem;
+}
+
+.cal-week-empty {
+  appearance: none;
+  border: 1px dashed var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 8px;
+  padding: 10px 4px;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.cal-card-place,
+.cal-card-remind {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 2px;
+}
+
+.cal-sheet-when {
+  margin: 0 0 4px;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.88rem;
 }
 
 @keyframes calMonthIn {
@@ -4339,6 +4530,11 @@ button.linkish {
   margin-top: 12px;
 }
 
+.cal-form .cal-date,
+.cal-form .cal-place {
+  grid-column: 1 / -1;
+}
+
 .cal-add-btn {
   appearance: none;
   border: 0;
@@ -4366,6 +4562,13 @@ button.linkish {
 
 .cal-add-btn:not(:disabled):active {
   transform: scale(0.98);
+}
+
+@media (max-width: 720px) {
+  .cal-week {
+    overflow-x: auto;
+    grid-template-columns: repeat(7, minmax(76px, 1fr));
+  }
 }
 
 @media (max-width: 520px) {

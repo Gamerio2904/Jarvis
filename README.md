@@ -1,4 +1,4 @@
-Privater Assistant. Läuft **auf dem Handy**. App-Code **`18.9.3`**. Sideload-APK **`18.9.3`**. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen.
+Privater Assistant. Läuft **auf dem Handy**. App-Code **`18.9.4`**. Sideload-APK folgt **`18.9.4`**. PC-Steuerung: `desktop/JarvisPC.bat` → **QR-Code öffnen**, auf dem Handy scannen.
 
 **Hirn:** **Groq primär** (API-Key). **Gemini Spezialist** (Vision, Deep Research). Lokales 0,5B **Fallback**. Agenten-Netzwerk: Director + 60 Domänen-Agenten, Agenten-Karte in Lage. Parser wählen Geräte; Groq/Gemini formuliert Smalltalk.
 

@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { createEventFromGui, isoDay, marksForMonth, removeEvent, sameDay, updateEventFromGui } from '../engine/calendar.ts'
+import {
+  createEventFromGui,
+  formatRemindOffsets,
+  isoDay,
+  marksForMonth,
+  removeEvent,
+  sameDay,
+  takeCalendarFocus,
+  updateEventFromGui,
+} from '../engine/calendar.ts'
 import {
   CAL_THEMES,
   calThemeOf,
@@ -23,7 +32,30 @@ const REMIND_CHIPS: Array<{ min: number | null; label: string }> = [
   { min: null, label: 'keine' },
 ]
 
-type CalMode = 'month' | 'list' | 'year'
+type CalMode = 'month' | 'week' | 'list' | 'year'
+
+function mondayOf(day: Date): Date {
+  const d = startOfDay(day)
+  const pad = (d.getDay() + 6) % 7
+  d.setDate(d.getDate() - pad)
+  return d
+}
+
+function weekDays(anchor: Date): Date[] {
+  const start = mondayOf(anchor)
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(start)
+    d.setDate(start.getDate() + i)
+    return d
+  })
+}
+
+function parseIsoDay(iso: string): Date | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso)
+  if (!m) return null
+  const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]))
+  return Number.isNaN(d.getTime()) ? null : startOfDay(d)
+}
 
 function monthCells(year: number, month: number): Array<Date | null> {
   const first = new Date(year, month, 1)
@@ -47,6 +79,19 @@ function dayHeading(day: Date, today: Date): string {
 function timeLabel(iso: string): string {
   const d = new Date(iso)
   return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+}
+
+function remindLabel(e: CalendarEvent): string | undefined {
+  if (e.remind_offsets_min === undefined) return 'Erinnerung am Termin'
+  if (!e.remind_offsets_min.length) return undefined
+  return `Erinnerung: ${formatRemindOffsets(e.remind_offsets_min)}`
+}
+
+function countOnDay(events: CalendarEvent[], reminders: Reminder[], day: Date): number {
+  return (
+    events.filter((e) => sameDay(new Date(e.start_at), day)).length +
+    reminders.filter((r) => sameDay(new Date(r.due_at), day)).length
+  )
 }
 
 function upcomingGroups(
@@ -80,6 +125,8 @@ function upcomingGroups(
 function EventCard({
   title,
   when,
+  place,
+  remind,
   theme,
   kind,
   onEdit,
@@ -88,6 +135,8 @@ function EventCard({
 }: {
   title: string
   when: string
+  place?: string
+  remind?: string
   theme?: CalThemeId
   kind?: string
   onEdit?: () => void
@@ -127,6 +176,8 @@ function EventCard({
           <span className="cal-card-time">{when}</span>
         </div>
         <div className="cal-card-title">{title}</div>
+        {place ? <div className="cal-card-place">{place}</div> : null}
+        {remind ? <div className="cal-card-remind">{remind}</div> : null}
       </div>
       {onEdit || onDelete ? (
         <div className="cal-card-actions">
@@ -154,7 +205,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [marks, setMarks] = useState<Set<string>>(new Set())
   const [title, setTitle] = useState('')
-  const [time, setTime] = useState('15:00')
+  const [place, setPlace] = useState('')
+  const [time, setTime] = useState('18:00')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -188,11 +240,30 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     void reload()
   }, [reload])
 
+  const jumpTo = useCallback((iso: string) => {
+    const d = parseIsoDay(iso)
+    if (!d) return
+    setSelected(d)
+    setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
+    setMode((cur) => (cur === 'year' ? 'month' : cur))
+  }, [])
+
   useEffect(() => {
     const on = () => void reload()
     window.addEventListener('jarvis-events', on)
     return () => window.removeEventListener('jarvis-events', on)
   }, [reload])
+
+  useEffect(() => {
+    const pending = takeCalendarFocus()
+    if (pending) jumpTo(pending)
+    const onFocus = (e: Event) => {
+      const day = String((e as CustomEvent<{ day?: string }>).detail?.day || '')
+      if (day) jumpTo(day)
+    }
+    window.addEventListener('jarvis-cal-focus', onFocus)
+    return () => window.removeEventListener('jarvis-cal-focus', onFocus)
+  }, [jumpTo])
 
   useEffect(() => {
     if (!sheetOpen) return
@@ -217,6 +288,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
 
   const dayEvents = events.filter((e) => sameDay(new Date(e.start_at), selected)).sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
   const dayRems = reminders.filter((r) => sameDay(new Date(r.due_at), selected))
+  const week = useMemo(() => weekDays(selected), [selected])
   const groups = useMemo(() => upcomingGroups(events, reminders, today), [events, reminders, today])
   const nextUp = useMemo(() => {
     const now = Date.now()
@@ -269,6 +341,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setThemePick(null)
     setChipMins([0])
     setTitle('')
+    setPlace('')
     setEditingId(null)
     setErr(null)
   }
@@ -276,7 +349,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   function openCreate() {
     setEditingId(null)
     setTitle('')
-    setTime('15:00')
+    setPlace('')
+    setTime('18:00')
     setThemePick(null)
     setChipMins([0])
     setErr(null)
@@ -289,6 +363,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
     setEditingId(e.id)
     setTitle(e.title)
+    setPlace(e.place || '')
     setTime(
       `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
     )
@@ -330,8 +405,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       const [h, m] = time.split(':').map((n) => Number(n))
       const start = new Date(selected)
       start.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0)
-      if (editingId) await updateEventFromGui(editingId, { title: name, start, theme, remind_offsets_min: chipMins })
-      else await createEventFromGui({ title: name, start, theme, remind_offsets_min: chipMins })
+      if (editingId) await updateEventFromGui(editingId, { title: name, start, place: place.trim(), theme, remind_offsets_min: chipMins })
+      else await createEventFromGui({ title: name, start, place: place.trim(), theme, remind_offsets_min: chipMins })
       closeSheet()
       await reload()
     } catch (e) {
@@ -387,6 +462,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         {(
           [
             ['month', 'Monat'],
+            ['week', 'Woche'],
             ['list', 'Liste'],
             ['year', 'Jahr'],
           ] as const
@@ -409,22 +485,68 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           <button
             type="button"
             className="cal-nav-btn"
-            aria-label={mode === 'year' ? 'Vorheriges Jahr' : 'Vorheriger Monat'}
-            onClick={() => (mode === 'year' ? shiftYear(-1) : shiftMonth(-1))}
+            aria-label={mode === 'year' ? 'Vorheriges Jahr' : mode === 'week' ? 'Vorherige Woche' : 'Vorheriger Monat'}
+            onClick={() => {
+              if (mode === 'year') shiftYear(-1)
+              else if (mode === 'week') {
+                const next = new Date(selected)
+                next.setDate(next.getDate() - 7)
+                setSelected(startOfDay(next))
+                setCursor(new Date(next.getFullYear(), next.getMonth(), 1))
+              } else shiftMonth(-1)
+            }}
           >
             ←
           </button>
-          <strong key={`${mode}-${year}-${month}`} className="cal-nav-label">
-            {mode === 'year' ? String(year) : label}
+          <strong key={`${mode}-${year}-${month}-${isoDay(selected)}`} className="cal-nav-label">
+            {mode === 'year'
+              ? String(year)
+              : mode === 'week'
+                ? `${week[0].toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })} – ${week[6].toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })}`
+                : label}
           </strong>
           <button
             type="button"
             className="cal-nav-btn"
-            aria-label={mode === 'year' ? 'Nächstes Jahr' : 'Nächster Monat'}
-            onClick={() => (mode === 'year' ? shiftYear(1) : shiftMonth(1))}
+            aria-label={mode === 'year' ? 'Nächstes Jahr' : mode === 'week' ? 'Nächste Woche' : 'Nächster Monat'}
+            onClick={() => {
+              if (mode === 'year') shiftYear(1)
+              else if (mode === 'week') {
+                const next = new Date(selected)
+                next.setDate(next.getDate() + 7)
+                setSelected(startOfDay(next))
+                setCursor(new Date(next.getFullYear(), next.getMonth(), 1))
+              } else shiftMonth(1)
+            }}
           >
             →
           </button>
+        </div>
+      ) : null}
+
+      {mode === 'month' || mode === 'week' ? (
+        <div className="cal-strip" role="tablist" aria-label="Woche">
+          {week.map((d) => {
+            const n = countOnDay(events, reminders, d)
+            const on = sameDay(d, selected)
+            return (
+              <button
+                key={isoDay(d)}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                className={`cal-strip-day${on ? ' is-on' : ''}${sameDay(d, today) ? ' is-today' : ''}`}
+                onClick={() => {
+                  setSelected(d)
+                  setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
+                }}
+              >
+                <span>{WEEK[(d.getDay() + 6) % 7]}</span>
+                <strong>{d.getDate()}</strong>
+                {n ? <i className="cal-count">{n}</i> : <i className="cal-count is-empty" />}
+              </button>
+            )
+          })}
         </div>
       ) : null}
 
@@ -518,6 +640,9 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 onClick={() => setSelected(d)}
               >
                 <span className="cal-day-num">{d.getDate()}</span>
+                {countOnDay(events, reminders, d) > 1 ? (
+                  <i className="cal-count cal-count-cell">{countOnDay(events, reminders, d)}</i>
+                ) : null}
                 {dots.length || hasRem ? (
                   <span className="cal-dots">
                     {dots.map((id) => (
@@ -546,6 +671,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                       key={e.id}
                       title={e.title}
                       when={timeLabel(e.start_at)}
+                      place={e.place}
+                      remind={remindLabel(e)}
                       theme={eventTheme(e)}
                       busy={busy}
                       onEdit={() => openEdit(e)}
@@ -562,13 +689,67 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         </section>
       ) : null}
 
+      {mode === 'week' ? (
+        <section className="cal-week cal-pane-in" aria-label="Wochenübersicht">
+          {week.map((d) => {
+            const evs = events.filter((e) => sameDay(new Date(e.start_at), d)).sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
+            const rems = reminders.filter((r) => sameDay(new Date(r.due_at), d))
+            return (
+              <div key={isoDay(d)} className={`cal-week-col${sameDay(d, selected) ? ' is-on' : ''}${sameDay(d, today) ? ' is-today' : ''}`}>
+                <button type="button" className="cal-week-head" onClick={() => setSelected(d)}>
+                  <span>{WEEK[(d.getDay() + 6) % 7]}</span>
+                  <strong>{d.getDate()}</strong>
+                </button>
+                {evs.length || rems.length ? (
+                  <ul className="cal-week-list">
+                    {evs.map((e) => (
+                      <li key={e.id}>
+                        <button type="button" className="cal-week-item" data-theme={eventTheme(e)} onClick={() => openEdit(e)}>
+                          <span>{timeLabel(e.start_at)}</span>
+                          <strong>{e.title}</strong>
+                        </button>
+                      </li>
+                    ))}
+                    {rems.map((r) => (
+                      <li key={r.id}>
+                        <span className="cal-week-item is-rem">
+                          <span>{timeLabel(r.due_at)}</span>
+                          <strong>{r.title}</strong>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <button type="button" className="cal-week-empty" onClick={() => { setSelected(d); openCreate() }}>
+                    frei
+                  </button>
+                )}
+              </div>
+            )
+          })}
+        </section>
+      ) : null}
+
       {mode === 'month' ? (
         <section className="cal-day">
-          <h3 key={isoDay(selected)} className="cal-day-title">
-            {dayHeading(selected, today)}
-          </h3>
+          <div className="cal-day-head">
+            <h3 key={isoDay(selected)} className="cal-day-title">
+              {dayHeading(selected, today)}
+            </h3>
+            <span className="cal-day-meta">
+              {dayEvents.length + dayRems.length
+                ? `${dayEvents.length + dayRems.length} ${dayEvents.length + dayRems.length === 1 ? 'Eintrag' : 'Einträge'}`
+                : 'frei'}
+            </span>
+          </div>
           {dayEvents.length === 0 && dayRems.length === 0 ? (
-            <p className="memory-empty">Nichts an diesem Tag.</p>
+            <div className="cal-empty">
+              <p className="memory-empty">Nichts an diesem Tag.</p>
+              <button type="button" className="cal-empty-cta" onClick={openCreate}>
+                ＋ Termin für {selected.toLocaleDateString('de-DE', { weekday: 'long' })}
+              </button>
+              <p className="settings-hint">Oder im Chat: „Samstag Geburtstag Jakob 18 Uhr“.</p>
+            </div>
           ) : (
             <ul key={isoDay(selected)} className="cal-cards">
               {dayEvents.map((e) => (
@@ -576,6 +757,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                   key={e.id}
                   title={e.title}
                   when={timeLabel(e.start_at)}
+                  place={e.place}
+                  remind={remindLabel(e)}
                   theme={eventTheme(e)}
                   busy={busy}
                   onEdit={() => openEdit(e)}
@@ -587,7 +770,6 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
               ))}
             </ul>
           )}
-          <p className="settings-hint">Oder im Chat: „Änder Maxi Geburtstag in Jakob Geburtstag“.</p>
         </section>
       ) : null}
 
@@ -619,6 +801,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
           <i />
         </div>
         <h3>{editingId ? 'Termin ändern' : 'Termin anlegen'}</h3>
+        <p className="cal-sheet-when">{dayHeading(selected, today)}</p>
         <p className="settings-hint">Thema kommt aus dem Titel — Sie können es ändern.</p>
         <form
           className="cal-form"
@@ -631,7 +814,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             ref={titleRef}
             value={title}
             onChange={(e) => setTitle(e.currentTarget.value)}
-            placeholder="Titel"
+            placeholder="Titel, z. B. Geburtstag Jakob"
             disabled={busy || !sheetOpen}
             tabIndex={sheetOpen ? 0 : -1}
           />
@@ -639,6 +822,27 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             type="time"
             value={time}
             onChange={(e) => setTime(e.currentTarget.value)}
+            disabled={busy || !sheetOpen}
+            tabIndex={sheetOpen ? 0 : -1}
+          />
+          <input
+            type="date"
+            className="cal-date"
+            value={isoDay(selected)}
+            onChange={(e) => {
+              const d = parseIsoDay(e.currentTarget.value)
+              if (!d) return
+              setSelected(d)
+              setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
+            }}
+            disabled={busy || !sheetOpen}
+            tabIndex={sheetOpen ? 0 : -1}
+          />
+          <input
+            className="cal-place"
+            value={place}
+            onChange={(e) => setPlace(e.currentTarget.value)}
+            placeholder="Ort (optional)"
             disabled={busy || !sheetOpen}
             tabIndex={sheetOpen ? 0 : -1}
           />

@@ -1,3 +1,4 @@
+import { normalizeCalendarSpeech } from './calendar-parse.ts'
 import { expandZahlenworte } from './zahlenworte.ts'
 import { setFace } from './face.ts'
 
@@ -72,6 +73,8 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\b(\d+)\s*inuten\b/gi, '$1 Minuten'],
   [/\binuten\b/gi, 'Minuten'],
   [/\bminute\b/gi, 'Minute'],
+  [/samestags?/gi, 'Samstag'],
+  [/\buhrher\b/gi, 'Uhr'],
 ]
 
 export function repairSpeech(text: string): string {
@@ -79,6 +82,7 @@ export function repairSpeech(text: string): string {
   t = t.replace(/([A-Za-zÄÖÜäöüß]{2,})\.\s+([A-Za-zÄÖÜäöüß])/g, '$1 $2')
   for (const [re, to] of REPAIRS) t = t.replace(re, to)
   t = repairBarnBahn(t)
+  t = normalizeCalendarSpeech(t)
   return t.replace(/\s+/g, ' ').trim()
 }
 

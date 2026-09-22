@@ -311,4 +311,6 @@ export const TEST_PROMPTS = [
   'Zeig Satelliten',
   'Watchliste: Dune',
   'Nee auf die lieblingsliste',
+  'Samstag Geburtstag Jakob 18 Uhr',
+  'Verschieb Jakob auf Sonntag 19 Uhr',
 ] as const

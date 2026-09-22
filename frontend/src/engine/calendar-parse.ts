@@ -6,9 +6,11 @@ export type CalendarIntent =
   | { kind: 'delete'; query: string }
   | { kind: 'delete_last' }
   | { kind: 'rename'; query: string; title: string }
+  | { kind: 'move'; query: string; start: Date; whenLabel: string }
   | { kind: 'open' }
 
-const WEEKDAYS = 'montag|dienstag|mittwoch|donnerstag|freitag|friday|samstag|sonnabend|sonntag'
+const WEEKDAYS =
+  'montag|dienstag|mittwoch|donnerstag|freitag|friday|samestag|samstag|sonnabend|sonntag'
 const CREATE = /^\s*termin(?:e)?\s*[:-]?\s*(.+)$/is
 const CREATE_NL =
   /^\s*(?:erstell(?:e)?|leg(?:e)?\s+an|mach(?:e)?)\s+(?:einen?\s+)?termin(?:\s+für)?(?:\s+den)?\s+(\d{1,2})\.(\d{1,2})\.?\s*(\d{2,4})?\s*[, ]+(?:um\s+)?(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?\s*[,:]?\s+(.+)$/is
@@ -49,14 +51,52 @@ const DAY_SHIFT: Record<string, number> = {
 
 const WEEKDAY_JS: Record<string, number> = {
   sonntag: 0,
+  sonntags: 0,
   montag: 1,
+  montags: 1,
   dienstag: 2,
+  dienstags: 2,
   mittwoch: 3,
+  mittwochs: 3,
   donnerstag: 4,
+  donnerstags: 4,
   freitag: 5,
+  freitags: 5,
   friday: 5,
   samstag: 6,
+  samstags: 6,
+  samestag: 6,
+  samestags: 6,
   sonnabend: 6,
+  sonnabends: 6,
+}
+
+const WEEKDAY_TOKEN =
+  'heute|morgen|übermorgen|montags?|dienstags?|mittwochs?|donnerstags?|freitags?|friday|samestags?|samstags?|sonnabends?|sonntags?'
+const CLOCK_TOKEN = /(?:um\s+)?(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)\b/i
+const CLOCK_HM = /\b(\d{1,2})[:.](\d{2})\b/
+const EVENT_HINT =
+  /\b(?:geburtstag\w*|birthday|termin|zahnarzt|arzt|meeting|feier|party|treffen|vorlesung|klausur|training|flug|urlaub)\b/i
+const STEAL_BARE =
+  /^\s*(?:was|wie|wer|wo|wann|wetter|nachrichten|news|zeig(?:e)?|öffne|kalender|erinner(?:e)?\s+mich|lösch|streich|änder|benenn)\b/i
+const FOREIGN_TITLE =
+  /^(?:wetter|nachrichten|news|lage|flugzeuge|satelliten|taschenlampe|timer|wecker|kalender)$/i
+const GLUE_WEEKDAY =
+  /(?<=^|[^A-Za-zÄÖÜäöüß])(montags?|dienstags?|mittwochs?|donnerstags?|freitags?|friday|samestags?|samstags?|sonnabends?|sonntags?)(?=[A-Za-zÄÖÜäöüß])/gi
+const GLUE_EVENT =
+  /(?<=^|[^A-Za-zÄÖÜäöüß])(geburtstag|birthday|termin|zahnarzt)(?=[A-Za-zÄÖÜäöüß])/gi
+
+/** STT klebt „SamestagGeburtstagJakob18Uhrher“. Idempotent bei schon getrennten Wörtern. */
+export function normalizeCalendarSpeech(text: string): string {
+  let t = String(text || '')
+  t = t.replace(/samestags?/gi, 'Samstag')
+  t = t.replace(/(\d{1,2})(?:[:.](\d{2}))?uhr(?:her|hör|h[eä]r)?/gi, (_, h, m) => (m ? `${h}:${m} Uhr` : `${h} Uhr`))
+  t = t.replace(/\buhr(?:her|hör|h[eä]r)\b/gi, 'Uhr')
+  t = t.replace(GLUE_WEEKDAY, '$1 ')
+  t = t.replace(GLUE_EVENT, '$1 ')
+  t = t.replace(/([A-Za-zÄÖÜäöüß])(\d{1,2}(?:[:.]\d{2})?\s*Uhr)\b/g, '$1 $2')
+  t = t.replace(/\s+/g, ' ').trim()
+  return t
 }
 
 export function dayFromWord(word: string, now = new Date()): Date {
@@ -115,6 +155,8 @@ function createFromInner(raw: string, now: Date): CalendarIntent | null {
       whenLabel: inner.whenLabel,
     }
   }
+  const bare = parseBareCreate(raw, now)
+  if (bare) return bare
   const title = raw.trim()
   if (!title) return null
   const split = splitTitlePlace(title)
@@ -125,7 +167,7 @@ function createFromInner(raw: string, now: Date): CalendarIntent | null {
 }
 
 export function parseCalendarIntent(text: string, now = new Date()): CalendarIntent | null {
-  const t = text.trim()
+  const t = normalizeCalendarSpeech(text)
   if (!t || t.length > 220) return null
   if (OPEN.test(t)) return { kind: 'open' }
   if (LIST_ALL.test(t)) return { kind: 'list' }
@@ -183,7 +225,9 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
     const inner = merk[1].replace(/^ich\s+/i, '').replace(/\s+habe\.?$/i, '').trim()
     return createFromInner(inner, now)
   }
-  return null
+  const moved = parseMove(t, now)
+  if (moved) return moved
+  return parseBareCreate(t, now)
 }
 
 function parseRename(text: string): CalendarIntent | null {
@@ -200,15 +244,118 @@ function parseRename(text: string): CalendarIntent | null {
 export function splitTitlePlace(raw: string): { title: string; place?: string } {
   const t = raw.replace(/\s+/g, ' ').trim()
   if (!t) return { title: 'Termin' }
+  if (/\b(?:geburtstag\w*|birthday)\b/i.test(t)) return { title: t }
   const inPlace = t.match(/^(.+?)\s+(?:in|an der|am|auf der)\s+(.+)$/i)
   if (inPlace && inPlace[1].trim().length >= 2) {
     return { title: inPlace[1].trim(), place: inPlace[2].trim() }
   }
-  const m = t.match(/^(.+?)\s+((?:[A-ZÄÖÜ][\wÄÖÜäöüß.-]{2,})(?:\s+\d+[a-z]?)?)$/)
-  if (m && m[1].trim().length >= 2) {
-    return { title: m[1].trim(), place: m[2].trim() }
+  const street = t.match(/^(.+?)\s+(\S*(?:straße|strasse|weg|platz|gasse|ring|allee)(?:\s+\d+[a-z]?)?)$/i)
+  if (street && street[1].trim().length >= 2) {
+    return { title: street[1].trim(), place: street[2].trim() }
+  }
+  const numbered = t.match(/^(.+?)\s+((?:[A-ZÄÖÜ][\wÄÖÜäöüß.-]{2,})\s+\d+[a-z]?)$/)
+  if (numbered && numbered[1].trim().length >= 2) {
+    return { title: numbered[1].trim(), place: numbered[2].trim() }
   }
   return { title: t }
+}
+
+function takeClock(raw: string): { h: number; m: number; span: string } | null {
+  const a = CLOCK_TOKEN.exec(raw)
+  if (a) {
+    const h = Number(a[1])
+    const m = a[2] ? Number(a[2]) : 0
+    if (Number.isFinite(h) && h >= 0 && h <= 23 && Number.isFinite(m) && m >= 0 && m <= 59) {
+      return { h, m, span: a[0] }
+    }
+  }
+  const b = CLOCK_HM.exec(raw)
+  if (b) {
+    const h = Number(b[1])
+    const m = Number(b[2])
+    if (Number.isFinite(h) && h >= 0 && h <= 23 && Number.isFinite(m) && m >= 0 && m <= 59) {
+      return { h, m, span: b[0] }
+    }
+  }
+  return null
+}
+
+function takeWeekday(raw: string): { word: string; span: string } | null {
+  const re = new RegExp(`\\b(${WEEKDAY_TOKEN})\\b`, 'i')
+  const m = re.exec(raw)
+  if (!m) return null
+  return { word: m[1].toLowerCase(), span: m[0] }
+}
+
+function leftoverTitle(raw: string, ...spans: string[]): string {
+  let t = raw
+  for (const s of spans) {
+    if (!s) continue
+    t = t.replace(s, ' ')
+  }
+  t = t
+    .replace(/\b(?:am|um|den|der|die|das|ein|einen|für|termin(?:e)?)\b/gi, ' ')
+    .replace(/[.,;:]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return t
+}
+
+function parseWhenBlob(raw: string, now: Date): { start: Date; whenLabel: string; rest: string } | null {
+  const blob = raw.replace(/\s+/g, ' ').trim()
+  if (!blob) return null
+  const clock = takeClock(blob)
+  const day = takeWeekday(blob)
+  const dated = /^(\d{1,2})\.(\d{1,2})\.?(\d{2,4})?/.exec(blob)
+  let start: Date | null = null
+  const used: string[] = []
+  if (dated) {
+    start = dateFromParts(now, dated[1], dated[2], dated[3] || undefined)
+    if (start) used.push(dated[0])
+  }
+  if (!start && day) {
+    start = dayFromWord(day.word, now)
+    used.push(day.span)
+  }
+  if (!start) return null
+  if (clock) {
+    start.setHours(clock.h, clock.m, 0, 0)
+    used.push(clock.span)
+    if (day && WEEKDAY_JS[day.word] !== undefined && start.getTime() <= now.getTime()) {
+      start.setDate(start.getDate() + 7)
+    }
+  } else {
+    start.setHours(18, 0, 0, 0)
+  }
+  const rest = leftoverTitle(blob, ...used)
+  return { start, whenLabel: formatDue(start, now), rest }
+}
+
+/** „Samstag Geburtstag Jakob 18 Uhr“ — ohne Pflicht-Präfix „Termin“. */
+export function parseBareCreate(text: string, now = new Date()): CalendarIntent | null {
+  const t = normalizeCalendarSpeech(text)
+  if (!t || t.length > 180) return null
+  if (STEAL_BARE.test(t)) return null
+  const when = parseWhenBlob(t, now)
+  if (!when) return null
+  if (!EVENT_HINT.test(t)) return null
+  const split = splitTitlePlace(when.rest)
+  const title = split.title
+  if (!title || title.length < 2 || FOREIGN_TITLE.test(title)) return null
+  if (/^\d+$/.test(title)) return null
+  return { kind: 'create', title, place: split.place, start: when.start, whenLabel: when.whenLabel }
+}
+
+const MOVE =
+  /^\s*(?:verschieb(?:e)?|verleg(?:e)?)\s+(?:den\s+)?(?:termin\s+)?(.+?)\s+auf\s+(.+)$/is
+
+function parseMove(text: string, now: Date): CalendarIntent | null {
+  const hit = MOVE.exec(text)
+  if (!hit) return null
+  const query = hit[1].replace(/\s+/g, ' ').replace(/[.!?]+$/g, '').trim()
+  const when = parseWhenBlob(hit[2], now)
+  if (!query || query.length < 2 || !when) return null
+  return { kind: 'move', query, start: when.start, whenLabel: when.whenLabel }
 }
 
 const WORD_NUM: Record<string, number> = {

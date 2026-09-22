@@ -150,6 +150,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Kalender zu", text: "Kalender zu", expect: {"tool":"app"} },
       { label: "Titel ändern", text: "Änder Maxi Geburtstag in Jakob Geburtstag", expect: {"tool":"calendar"} },
       { label: "Heißt jetzt", text: "Maxi Geburtstag heißt jetzt Jakob Geburtstag", expect: {"tool":"calendar"} },
+      { label: "Samstag Jakob", text: "Samstag Geburtstag Jakob 18 Uhr", expect: {"tool":"calendar"} },
+      { label: "Verschieben", text: "Verschieb Jakob auf Sonntag 19 Uhr", expect: {"tool":"calendar"} },
     ],
   },
   {
@@ -694,6 +696,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Zeig Satelliten", text: "Zeig Satelliten", expect: {"tool":"hud"} },
       { label: "Film auf die Liste", text: "Watchliste: Dune", expect: {"tool":"watchlist"} },
       { label: "Zu den Lieblingen", text: "Nee auf die lieblingsliste", expect: {"tool":"watchlist"} },
+      { label: "Samstag Jakob", text: "Samstag Geburtstag Jakob 18 Uhr", expect: {"tool":"calendar"} },
+      { label: "Verschieben", text: "Verschieb Jakob auf Sonntag 19 Uhr", expect: {"tool":"calendar"} },
     ],
   },
 ]
@@ -901,6 +905,8 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: '9 – Satelliten', text: 'Zeig Satelliten', expect: { tool: 'hud' } },
       { label: '10 – Film auf die Liste', text: 'Watchliste: Dune', expect: { tool: 'watchlist' } },
       { label: '11 – ↳ zu den Lieblingen', text: 'Nee auf die lieblingsliste', expect: { tool: 'watchlist' } },
+      { label: '12 – Samstag Jakob', text: 'Samstag Geburtstag Jakob 18 Uhr', expect: { tool: 'calendar' } },
+      { label: '13 – ↳ verschieben', text: 'Verschieb Jakob auf Sonntag 19 Uhr', expect: { tool: 'calendar' } },
     ],
   },
 ]

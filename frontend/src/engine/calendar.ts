@@ -17,7 +17,25 @@ import {
 } from './store.ts'
 import type { ToolMeta } from './tools.ts'
 
-export { parseCalendarIntent, parseRemindOffsets, formatRemindOffsets } from './calendar-parse.ts'
+export { parseCalendarIntent, parseRemindOffsets, formatRemindOffsets, normalizeCalendarSpeech } from './calendar-parse.ts'
+
+let focusDayIso: string | null = null
+
+export function peekCalendarFocus(): string | null {
+  return focusDayIso
+}
+
+export function takeCalendarFocus(): string | null {
+  const v = focusDayIso
+  focusDayIso = null
+  return v
+}
+
+export function noteCalendarFocus(day: Date): void {
+  focusDayIso = isoDay(day)
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new CustomEvent('jarvis-cal-focus', { detail: { day: focusDayIso } }))
+}
 
 export const ASK_REMIND =
   'Wann soll ich Sie erinnern? Zum Beispiel 24 Stunden davor und 2 Stunden davor — oder „am Termin“ / „keine extra Erinnerung“.'
@@ -114,11 +132,19 @@ export async function handleCalendar(
       ? upcoming.map((e, i) => `${i + 1}. ${e.title}${e.place ? ` · ${e.place}` : ''} — ${formatDue(new Date(e.start_at))}`).join('\n')
       : 'Keine kommenden Termine. In der Kalender-Ansicht oder per „Termin morgen 15 Uhr …“ anlegen.'
     persistLastList('calendar', upcoming.map((e) => e.title))
+    const first = upcoming[0]
+    if (first) noteCalendarFocus(new Date(first.start_at))
     return {
       handled: true,
       open: true,
       reply: `Kalender:\n${lines}`,
-      tool: { tool_status: 'executed', tool: 'calendar', action: 'open', label: 'Kalender' },
+      tool: {
+        tool_status: 'executed',
+        tool: 'calendar',
+        action: 'open',
+        label: 'Kalender',
+        result: { focus: first ? isoDay(new Date(first.start_at)) : '' },
+      },
     }
   }
 
@@ -134,6 +160,7 @@ export async function handleCalendar(
     await scheduleEventNotifies(row)
     void refineThemeLater(row)
     persistLastList('calendar', [row.title])
+    noteCalendarFocus(new Date(row.start_at))
     const where = row.place ? ` · ${row.place}` : ''
     const running = isDebugRunActive()
     if (!running) {
@@ -157,6 +184,7 @@ export async function handleCalendar(
         action: 'create',
         label: 'Termin liegt',
         preview: `${row.title}${where} · ${intent.whenLabel}`,
+        result: { focus: isoDay(new Date(row.start_at)) },
       },
     }
   }
@@ -178,7 +206,12 @@ export async function handleCalendar(
     }
     const lines = rows.map((e, i) => `${i + 1}. ${e.title}${e.place ? ` · ${e.place}` : ''} — ${formatDue(new Date(e.start_at))}`)
     persistLastList('calendar', rows.map((e) => e.title))
-    return { handled: true, reply: `Termine ${span}:\n${lines.join('\n')}`, tool: calTool }
+    if (rows[0]) noteCalendarFocus(new Date(rows[0].start_at))
+    return {
+      handled: true,
+      reply: `Termine ${span}:\n${lines.join('\n')}`,
+      tool: { ...calTool, result: { focus: rows[0] ? isoDay(new Date(rows[0].start_at)) : '' } },
+    }
   }
 
   if (intent.kind === 'delete_last') {
@@ -198,10 +231,35 @@ export async function handleCalendar(
   const hit = findEventByQuery(rows, intent.query)
   if (!hit) return { handled: true, reply: `Kein Termin zu „${intent.query}“.` }
 
+  if (intent.kind === 'move') {
+    const next = await updateEventFromGui(hit.id, {
+      title: hit.title,
+      start: intent.start,
+      theme: eventTheme(hit),
+      remind_offsets_min: hit.remind_offsets_min,
+    })
+    if (!next) return { handled: true, reply: 'Wohin soll der Termin?' }
+    persistLastList('calendar', [next.title])
+    noteCalendarFocus(new Date(next.start_at))
+    return {
+      handled: true,
+      reply: `Termin verschoben: ${next.title}, ${intent.whenLabel}. Steht im Kalender.`,
+      tool: {
+        tool_status: 'executed',
+        tool: 'calendar',
+        action: 'move',
+        label: 'Termin verschoben',
+        preview: `${next.title} · ${intent.whenLabel}`,
+        result: { focus: isoDay(new Date(next.start_at)) },
+      },
+    }
+  }
+
   if (intent.kind === 'rename') {
     const next = await renameEvent(hit.id, intent.title)
     if (!next) return { handled: true, reply: 'Wie soll der Termin heißen?' }
     persistLastList('calendar', [next.title])
+    noteCalendarFocus(new Date(next.start_at))
     return {
       handled: true,
       reply: `Termin umbenannt: ${hit.title} → ${next.title}. Steht im Kalender.`,
@@ -211,6 +269,7 @@ export async function handleCalendar(
         action: 'rename',
         label: 'Termin umbenannt',
         preview: next.title,
+        result: { focus: isoDay(new Date(next.start_at)) },
       },
     }
   }
@@ -299,6 +358,7 @@ export async function updateEventFromGui(
   opts: {
     title: string
     start: Date
+    place?: string
     remind_offsets_min?: number[]
     theme?: CalThemeId
   },
@@ -307,17 +367,20 @@ export async function updateEventFromGui(
   if (!row) return null
   const title = opts.title.replace(/\s+/g, ' ').trim()
   if (!title) return null
-  const theme = opts.theme && isCalThemeId(opts.theme) ? opts.theme : classifyEventTheme(title, row.place)
+  const place = opts.place !== undefined ? opts.place.replace(/\s+/g, ' ').trim() : row.place
+  const theme = opts.theme && isCalThemeId(opts.theme) ? opts.theme : classifyEventTheme(title, place)
   await cancelEventNotifies(row)
   const next: CalendarEvent = {
     ...row,
     title,
     start_at: opts.start.toISOString(),
+    place: place || '',
     theme,
   }
   if (opts.remind_offsets_min !== undefined) next.remind_offsets_min = opts.remind_offsets_min
   await putEvent(next)
   await scheduleEventNotifies(next)
+  noteCalendarFocus(opts.start)
   if (!opts.theme) void refineThemeLater(next)
   return next
 }
@@ -325,17 +388,20 @@ export async function updateEventFromGui(
 export async function createEventFromGui(opts: {
   title: string
   start: Date
+  place?: string
   remind_offsets_min?: number[]
   theme?: CalThemeId
 }): Promise<CalendarEvent> {
-  const theme = opts.theme && isCalThemeId(opts.theme) ? opts.theme : classifyEventTheme(opts.title)
+  const theme = opts.theme && isCalThemeId(opts.theme) ? opts.theme : classifyEventTheme(opts.title, opts.place)
   const row = await addEvent({
     title: opts.title,
     start_at: opts.start.toISOString(),
+    place: opts.place,
     remind_offsets_min: opts.remind_offsets_min,
     theme,
   })
   await scheduleEventNotifies(row)
+  noteCalendarFocus(opts.start)
   if (!opts.theme) void refineThemeLater(row)
   return row
 }

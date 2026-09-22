@@ -27,6 +27,7 @@ assert.match(scrubReply('Star Wars 3 wurde von der Watchliste in die Lieblingsli
 assert.match(scrubReply('Der Film befindet sich aktuell auf der Watchliste.'), /nicht ausgeführt/)
 assert.match(scrubReply('Ich habe den Film auf die Watchliste gelegt.'), /nicht ausgeführt/)
 assert.match(scrubReply('Der Termin ist angelegt.'), /nicht ausgeführt/)
+assert.match(scrubReply('Der Termin für Samstags 18 Uhr steht.'), /nicht ausgeführt/)
 assert.match(scrubReply('Die Erinnerung ist gesetzt.'), /nicht ausgeführt/)
 assert.doesNotMatch(scrubReply('Ich habe nichts geändert. Bitte nochmal.'), /nicht ausgeführt/)
 

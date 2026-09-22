@@ -320,6 +320,8 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Zeig Satelliten': 'hud',
   'Watchliste: Dune': 'watchlist',
   'Nee auf die lieblingsliste': 'watchlist',
+  'Samstag Geburtstag Jakob 18 Uhr': 'calendar',
+  'Verschieb Jakob auf Sonntag 19 Uhr': 'calendar',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

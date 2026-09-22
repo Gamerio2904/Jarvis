@@ -28,4 +28,11 @@ Key leer. Film auf die Liste. **Publikum —** / keine erfundene Prozentzahl.
 Happy-Path (`Nachrichten`, `Zeig Erdbeben`, Termin) läuft in Spur **Lauf**.
 Wechsel 503→200 nur im Skript `test-recover.mjs`, nicht im Auto-Debug.
 
+## 6. Kalender 18.9.4
+
+`Samstag Geburtstag Jakob 18 Uhr` — Chat nennt Titel und Tag, Kalender
+zeigt den Termin am nächsten Samstag 18:00, nicht „Nichts an diesem Tag“.
+`Verschieb Jakob auf Sonntag 19 Uhr` rückt ihn. Woche-Reiter und
+Wochenstreifen zeigen denselben Eintrag.
+
 Vorher: [`TEST-18.8.md`](./TEST-18.8.md).

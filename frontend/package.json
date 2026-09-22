@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "18.9.3",
+  "version": "18.9.4",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -51,6 +51,7 @@
     "test:recover": "node --experimental-strip-types scripts/test-recover.mjs",
     "test:honest": "node --experimental-strip-types scripts/test-honest.mjs",
     "test:calendar-theme": "node --experimental-strip-types scripts/test-calendar-theme.mjs",
+    "test:calendar-agent": "node --experimental-strip-types scripts/test-calendar-agent.mjs",
     "test:propose-18": "node --experimental-strip-types scripts/test-propose-18.mjs",
     "test:history": "node --experimental-strip-types scripts/test-history.mjs",
     "test:globe-18": "node --experimental-strip-types scripts/test-globe-18.mjs",
