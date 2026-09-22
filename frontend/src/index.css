@@ -3918,9 +3918,14 @@ button.linkish {
 
 .cal-card-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   gap: 6px;
   flex-shrink: 0;
+}
+
+.cal-card-main[role='button'] {
+  cursor: pointer;
 }
 
 .cal-card-edit,
