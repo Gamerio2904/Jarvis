@@ -233,6 +233,23 @@ export function extractPhone(text: string): string | null {
   return looksLikePhone(compact) ? compact : null
 }
 
+export function findEmailRow(
+  rows: Array<{ key: string; value: string; category: string }>,
+  query: string,
+): { key: string; value: string } | undefined {
+  const q = normalizePlaceName(query)
+  if (!q) return undefined
+  const mails = rows.filter((r) => r.category === 'email' && /@/.test(r.value))
+  const direct = mails.find((r) => r.key === q || r.key.includes(q) || q.includes(r.key) || r.value.includes(q))
+  if (direct) return { key: direct.key, value: direct.value }
+  const phone = findContactRow(rows, query)
+  if (phone) {
+    const same = mails.find((r) => r.key === phone.key)
+    if (same) return same
+  }
+  return undefined
+}
+
 export function findContactRow(
   rows: Array<{ key: string; value: string; category: string }>,
   query: string,

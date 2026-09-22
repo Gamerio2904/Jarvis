@@ -48,6 +48,13 @@ Gold enthält jeden Agenten (Todo als `tools`). Probe bleibt 13 Packs.
 `Was steht auf WhatsApp` ohne Meldungsrecht — ehrlich + Einstellungen.  
 Antwort nach Ja über die Meldung oder Chat-Link. Nie „ist gesendet“.
 
+## 10. Plan-81 Lücken 18.9.8
+
+`Zeig meine Kontakte` listet lokal merkte Nummern und Adressen.  
+`Mama, Mail name@gmx.de` legt die Adresse. Scan übernimmt Mail, wenn
+die Telefonbuchzeile eine hat. IMAP-Karte: Testen erreicht das Postfach
+oder sagt ehrlich aus. Nie „ist gesendet“.
+
 ## 7. Watchliste 18.9.5
 
 `Inglorious Basterds zu Lieblingsfilmen hinzufügen` — Chat nennt den

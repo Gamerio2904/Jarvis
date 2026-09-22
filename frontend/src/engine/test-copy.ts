@@ -194,6 +194,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "E-Mails lesen", text: "Lies meine E-Mails", expect: {"tool":"maps"} },
       { label: "WhatsApp Eingang", text: "Was steht auf WhatsApp", expect: {"tool":"maps"} },
       { label: "WhatsApp antworten", text: "Antworte Mama auf WhatsApp ich bin unterwegs", expect: {"tool":"maps"} },
+      { label: "Kontakte zeigen", text: "Zeig meine Kontakte", expect: {"tool":"maps"} },
+      { label: "Mail merken", text: "Mama, Mail name@gmx.de", expect: {"tool":"maps"} },
     ],
   },
   {

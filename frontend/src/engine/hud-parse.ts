@@ -234,7 +234,7 @@ export function parseHudIntent(text: string): HudIntent | null {
     const hadArt = /^(?:der|die|das|dem|den|mein|meine|meiner|meinen)\s+/i.test(rawRest)
     const skip =
       LAYER_SKIP.test(rest) ||
-      /\b(körper|koerper|kugel|erde|weltkugel|hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|wetter|spotify|lage|kachel|modul|mond|iss|sonne|himmel|foto|beleg|bild|speichern|fenster|nachrichten|news|street|notizen|notiz|instagram|pizza|email|e-mail|schachbrett|schach|chat|filme|watchliste|lieblinge|einstellungen|overlay|folie|settings)\b/i.test(
+      /\b(körper|koerper|kugel|erde|weltkugel|hirn|gehirn|auge|hand|ohr|mund|stimme|gedächtnis|wetter|spotify|lage|kachel|modul|mond|iss|sonne|himmel|foto|beleg|bild|speichern|fenster|nachrichten|news|street|notizen|notiz|instagram|pizza|email|e-mail|schachbrett|schach|chat|filme|watchliste|lieblinge|einstellungen|overlay|folie|settings|kontakte|telefonbuch|adressbuch|nummern|whatsapp)\b/i.test(
         rest,
       )
     if (

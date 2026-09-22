@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.9.7'
+export const APP_VERSION = '18.9.8'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
@@ -39,7 +39,7 @@ export type Message = {
   meta?: Record<string, unknown> | null
 }
 
-export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke' | 'place' | 'contact' | 'birthday'
+export type MemoryCategory = 'pref' | 'fact' | 'open_loop' | 'boundary' | 'joke' | 'place' | 'contact' | 'email' | 'birthday'
 
 export type MemoryItem = {
   id: string

@@ -60,7 +60,7 @@ export async function scanPhoneContacts(): Promise<{
               number: String(c?.number || '').trim(),
               email: String(c?.email || '').trim() || undefined,
             }))
-            .filter((c) => c.name && c.number)
+            .filter((c) => c.name && (c.number.length >= 6 || Boolean(c.email)))
         : []
       return { ...hit, contacts }
     } catch {

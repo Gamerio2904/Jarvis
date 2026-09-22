@@ -8,12 +8,21 @@ import {
   replyNotifyInbox,
   scanPhoneContacts,
 } from '../native/inbox.ts'
-import { looksLikeEmail, mailHostFor, parseContactsScan, parseMailIntent, parseWaInbox } from './comm-parse.ts'
+import {
+  looksLikeEmail,
+  mailHostFor,
+  parseContactsList,
+  parseContactsScan,
+  parseEmailStore,
+  parseMailIntent,
+  parseWaInbox,
+} from './comm-parse.ts'
 import { hasChain, popChain } from './chain.ts'
 import {
   displayPlaceName,
   extractPhone,
   findContactRow,
+  findEmailRow,
   isBarePlaceAnswer,
   isCommNo,
   isCommYes,
@@ -168,6 +177,20 @@ export async function handlePlaces(
 
   const scan = parseContactsScan(text)
   if (scan) return askContactsScan()
+
+  const book = parseContactsList(text)
+  if (book) return listPhoneBook()
+
+  const storedMail = parseEmailStore(text)
+  if (storedMail) {
+    await upsertMemory(storedMail.name, storedMail.email, 'email', conversationId)
+    return {
+      handled: true,
+      reply: `${displayPlaceName(storedMail.name)}: ${storedMail.email} — liegt.`,
+      tool: commTool('mail', 'Adresse', storedMail.name),
+      lastTool: 'maps',
+    }
+  }
 
   const mail = parseMailIntent(text)
   if (mail) return handleMailIntent(conversationId, mail)
@@ -531,7 +554,7 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
     }
     return {
       handled: true,
-      reply: 'Telefonbuch lesen und Name plus Nummer lokal merken. Ja oder nein.',
+      reply: 'Telefonbuch lesen und Name, Nummer und Mail lokal merken. Ja oder nein.',
       tool: commTool('ask', 'Telefonbuch', 'kontakte'),
       lastTool: 'contacts_confirm',
     }
@@ -728,7 +751,7 @@ function askContactsScan(): PlaceHit {
   writeComm({ kind: 'contacts_confirm', name: 'telefonbuch' }, 'contacts_confirm')
   return {
     handled: true,
-    reply: 'Ich lese Name und Nummer aus dem Telefonbuch ins lokale Gedächtnis. Ja?',
+    reply: 'Ich lese Name, Nummer und Mail aus dem Telefonbuch ins lokale Gedächtnis. Ja?',
     tool: commTool('ask', 'Telefonbuch', 'kontakte'),
     lastTool: 'contacts_confirm',
   }
@@ -755,33 +778,89 @@ async function doContactsScan(conversationId: string): Promise<PlaceHit> {
       lastTool: 'maps',
     }
   }
-  const existing = await listMemory()
-  let added = 0
-  let kept = 0
-  for (const row of res.contacts) {
-    const key = normalizePlaceName(row.name)
-    if (!key) continue
-    const hit = findContactRow(existing, key)
-    if (hit) {
-      kept += 1
-      continue
-    }
-    await upsertMemory(key, row.number, 'contact', conversationId)
-    if (row.email && looksLikeEmail(row.email)) {
-      await upsertMemory(key, row.email, 'email', conversationId)
-    }
-    existing.push({ key, value: row.number, category: 'contact' } as (typeof existing)[number])
-    added += 1
-  }
-  const extra = kept ? ` ${kept} lagen schon.` : ''
+  const tally = await applyScannedContacts(res.contacts, conversationId)
   return {
     handled: true,
-    reply: added
-      ? `${added} Nummern aus dem Telefonbuch liegen lokal.${extra}`
-      : kept
-        ? `Keine neue Nummer. ${kept} lagen schon.`
-        : 'Telefonbuch war leer oder ohne Nummern.',
-    tool: commTool('scan', 'Telefonbuch', `${added}`),
+    reply: scanReply(tally),
+    tool: commTool('scan', 'Telefonbuch', `${tally.numbers}`),
+    lastTool: 'maps',
+  }
+}
+
+export async function applyScannedContacts(
+  rows: Array<{ name: string; number?: string; email?: string }>,
+  conversationId?: string,
+): Promise<{ numbers: number; mails: number; kept: number }> {
+  const existing = await listMemory()
+  let numbers = 0
+  let mails = 0
+  let kept = 0
+  for (const row of rows) {
+    const key = normalizePlaceName(row.name)
+    if (!key) continue
+    const phone = (row.number || '').trim()
+    const mail = (row.email || '').trim()
+    const hit = findContactRow(existing, key)
+    if (phone && looksLikePhone(phone)) {
+      if (hit) kept += 1
+      else {
+        await upsertMemory(key, phone, 'contact', conversationId)
+        existing.push({ key, value: phone, category: 'contact' } as (typeof existing)[number])
+        numbers += 1
+      }
+    }
+    if (mail && looksLikeEmail(mail) && !findEmailRow(existing, key)) {
+      await upsertMemory(key, mail, 'email', conversationId)
+      existing.push({ key, value: mail, category: 'email' } as (typeof existing)[number])
+      mails += 1
+    }
+  }
+  return { numbers, mails, kept }
+}
+
+export function scanReply(tally: { numbers: number; mails: number; kept: number }): string {
+  const bits: string[] = []
+  if (tally.numbers) bits.push(`${tally.numbers} Nummern`)
+  if (tally.mails) bits.push(`${tally.mails} Adressen`)
+  const extra = tally.kept ? ` ${tally.kept} lagen schon.` : ''
+  if (bits.length) return `${bits.join(' und ')} aus dem Telefonbuch liegen lokal.${extra}`
+  if (tally.kept) return `Keine neue Nummer. ${tally.kept} lagen schon.`
+  return 'Telefonbuch war leer oder ohne Nummern und Mail.'
+}
+
+async function listPhoneBook(): Promise<PlaceHit> {
+  const rows = await listMemory()
+  const phones = rows.filter((r) => r.category === 'contact' && looksLikePhone(r.value))
+  const mails = rows.filter((r) => r.category === 'email' && looksLikeEmail(r.value))
+  if (!phones.length && !mails.length) {
+    return {
+      handled: true,
+      reply:
+        'Noch keine Nummern. Sage „Kontakte scannen“ oder z. B. „Mama, Tel …“ / „Mama, Mail …“.',
+      tool: commTool('list', 'Kontakte', 'leer'),
+      lastTool: 'maps',
+    }
+  }
+  const names = new Map<string, { phone?: string; mail?: string }>()
+  for (const r of phones) {
+    const cur = names.get(r.key) || {}
+    cur.phone = r.value
+    names.set(r.key, cur)
+  }
+  for (const r of mails) {
+    const cur = names.get(r.key) || {}
+    cur.mail = r.value
+    names.set(r.key, cur)
+  }
+  persistLastList('maps', [...names.keys()].map((k) => displayPlaceName(k)))
+  const lines = [...names.entries()].slice(0, 24).map(([key, v], i) => {
+    const bits = [v.phone, v.mail].filter(Boolean).join(' · ')
+    return `${i + 1}. ${displayPlaceName(key)} — ${bits}`
+  })
+  return {
+    handled: true,
+    reply: `Kontakte:\n${lines.join('\n')}`,
+    tool: commTool('list', 'Kontakte', `${names.size}`),
     lastTool: 'maps',
   }
 }
@@ -837,22 +916,6 @@ async function handleMailIntent(
     tool: commTool('ask', 'E-Mail', to),
     lastTool: 'mail_to_ask',
   }
-}
-
-function findEmailRow(
-  rows: Array<{ key: string; value: string; category: string }>,
-  query: string,
-): { key: string; value: string } | undefined {
-  const q = normalizePlaceName(query)
-  const mails = rows.filter((r) => r.category === 'email' && looksLikeEmail(r.value))
-  const direct = mails.find((r) => r.key === q || r.key.includes(q) || q.includes(r.key) || r.value.includes(q))
-  if (direct) return { key: direct.key, value: direct.value }
-  const phone = findContactRow(rows, query)
-  if (phone) {
-    const same = mails.find((r) => r.key === phone.key)
-    if (same) return same
-  }
-  return undefined
 }
 
 function askMail(to: string, subject: string, body: string): PlaceHit {

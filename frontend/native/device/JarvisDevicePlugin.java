@@ -658,7 +658,33 @@ public class JarvisDevicePlugin extends Plugin {
         JSObject r = new JSObject();
         JSArray rows = new JSArray();
         Cursor c = null;
+        Cursor e = null;
         try {
+            java.util.LinkedHashMap<String, String[]> emailsByName = new java.util.LinkedHashMap<>();
+            String[] ecols = {
+                ContactsContract.CommonDataKinds.Email.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Email.ADDRESS,
+            };
+            e = getContext()
+                    .getContentResolver()
+                    .query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, ecols, null, null, null);
+            if (e != null) {
+                int nameAt = e.getColumnIndex(ContactsContract.CommonDataKinds.Email.DISPLAY_NAME);
+                int addrAt = e.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS);
+                while (e.moveToNext()) {
+                    String name = nameAt >= 0 ? e.getString(nameAt) : "";
+                    String addr = addrAt >= 0 ? e.getString(addrAt) : "";
+                    if (name == null) name = "";
+                    if (addr == null) addr = "";
+                    name = name.trim();
+                    addr = addr.trim();
+                    if (name.isEmpty() || !addr.contains("@") || !addr.contains(".")) continue;
+                    String nkey = name.toLowerCase(java.util.Locale.ROOT);
+                    if (!emailsByName.containsKey(nkey)) {
+                        emailsByName.put(nkey, new String[] {name, addr});
+                    }
+                }
+            }
             String[] cols = {
                 ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
                 ContactsContract.CommonDataKinds.Phone.NUMBER,
@@ -672,6 +698,7 @@ public class JarvisDevicePlugin extends Plugin {
                             null,
                             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
             java.util.LinkedHashMap<String, JSObject> uniq = new java.util.LinkedHashMap<>();
+            java.util.HashSet<String> usedNames = new java.util.HashSet<>();
             if (c != null) {
                 int nameAt = c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
                 int numAt = c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
@@ -687,22 +714,35 @@ public class JarvisDevicePlugin extends Plugin {
                     JSObject row = new JSObject();
                     row.put("name", name);
                     row.put("number", number);
+                    String[] mail = emailsByName.get(name.toLowerCase(java.util.Locale.ROOT));
+                    if (mail != null) row.put("email", mail[1]);
                     uniq.put(key, row);
+                    usedNames.add(name.toLowerCase(java.util.Locale.ROOT));
                     if (uniq.size() >= 400) break;
                 }
+            }
+            for (java.util.Map.Entry<String, String[]> en : emailsByName.entrySet()) {
+                if (uniq.size() >= 400) break;
+                if (usedNames.contains(en.getKey())) continue;
+                JSObject row = new JSObject();
+                row.put("name", en.getValue()[0]);
+                row.put("number", "");
+                row.put("email", en.getValue()[1]);
+                uniq.put("mail|" + en.getKey(), row);
             }
             for (JSObject row : uniq.values()) rows.put(row);
             r.put("ok", true);
             r.put("contacts", rows);
-        } catch (SecurityException e) {
+        } catch (SecurityException ex) {
             r.put("ok", false);
             r.put("needPerm", true);
             r.put("message", "Kontakte-Recht fehlt. Unter Einstellungen erlauben, dann nochmal.");
-        } catch (Exception e) {
+        } catch (Exception ex) {
             r.put("ok", false);
             r.put("message", "Telefonbuch nicht lesbar.");
         } finally {
             if (c != null) c.close();
+            if (e != null) e.close();
         }
         call.resolve(r);
     }

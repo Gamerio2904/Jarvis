@@ -58,10 +58,9 @@ import {
 } from '../engine/knowledge.ts'
 import { qualityPack } from '../engine/quality-pack.ts'
 import { ProbeShelf } from './ProbeShelf.tsx'
-import { notifyInboxStatus, openInboxSettings, scanPhoneContacts } from '../native/inbox.ts'
-import { upsertMemory } from '../engine/store.ts'
-import { normalizePlaceName } from '../engine/places-parse.ts'
-import { findContactRow } from '../engine/places-parse.ts'
+import { listImapMails, notifyInboxStatus, openInboxSettings, scanPhoneContacts } from '../native/inbox.ts'
+import { mailHostFor } from '../engine/comm-parse.ts'
+import { applyScannedContacts, scanReply } from '../engine/places.ts'
 
 export type { SettingsTopic }
 
@@ -69,6 +68,7 @@ const MEM_FILTERS = [
   'all',
   'place',
   'contact',
+  'email',
   'birthday',
   'pref',
   'fact',
@@ -81,6 +81,7 @@ function memLabel(f: (typeof MEM_FILTERS)[number]): string {
   if (f === 'all') return 'Alle'
   if (f === 'place') return 'Orte'
   if (f === 'contact') return 'Nummern'
+  if (f === 'email') return 'Mail'
   if (f === 'birthday') return 'Geburtstage'
   if (f === 'pref') return 'Vorlieben'
   if (f === 'fact') return 'Fakten'
@@ -323,6 +324,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [contactMsg, setContactMsg] = useState<string | null>(null)
   const [inboxBusy, setInboxBusy] = useState(false)
   const [inboxMsg, setInboxMsg] = useState<string | null>(null)
+  const [mailBusy, setMailBusy] = useState(false)
+  const [mailMsg, setMailMsg] = useState<string | null>(null)
   const [backupChats, setBackupChats] = useState(false)
   const [backupBusy, setBackupBusy] = useState(false)
   const [backupMsg, setBackupMsg] = useState<string | null>(null)
@@ -883,6 +886,40 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     onBlur={(e) => void p.patchSetting({ mail_host: e.target.value.trim() })}
                   />
                 </label>
+                <div className="settings-actions">
+                  <button
+                    type="button"
+                    className="retry-btn"
+                    disabled={busy || mailBusy}
+                    onClick={() => {
+                      const user = (s?.mail_user || '').trim()
+                      const pass = (s?.mail_pass || '').trim()
+                      const host = mailHostFor(user, s?.mail_host || '')
+                      if (!user || !pass || !host) {
+                        setMailMsg('Adresse und App-Passwort fehlen. Nicht das normale Passwort.')
+                        return
+                      }
+                      setMailBusy(true)
+                      setMailMsg(null)
+                      void listImapMails({ host, user, pass, limit: 1 })
+                        .then((res) => {
+                          if (res.ok) {
+                            setMailMsg(
+                              res.mails.length
+                                ? `Postfach erreicht. ${res.mails.length} ungelesen.`
+                                : 'Postfach erreicht. Keine ungelesene Zeile.',
+                            )
+                            return
+                          }
+                          setMailMsg(res.message || 'Postfach nicht erreichbar.')
+                        })
+                        .finally(() => setMailBusy(false))
+                    }}
+                  >
+                    {mailBusy ? 'Prüfe…' : 'Testen'}
+                  </button>
+                </div>
+                {mailMsg ? <p className="settings-hint">{mailMsg}</p> : null}
               </section>
             </>
           ) : null}
@@ -1231,8 +1268,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card" id="sf-contacts">
               <h3>Telefonbuch & WhatsApp</h3>
               <p className="settings-hint">
-                Scan merkt Name und Nummer lokal. WhatsApp-Antwort nur über die sichtbare Meldung — kein stilles
-                Senden.
+                Scan merkt Name, Nummer und Mail lokal. WhatsApp-Antwort nur über die sichtbare Meldung — kein
+                stilles Senden.
               </p>
               <div className="settings-actions">
                 <button
@@ -1252,17 +1289,8 @@ export function SettingsScreen(p: SettingsScreenProps) {
                           setContactMsg(res.message || 'Telefonbuch nicht gelesen.')
                           return
                         }
-                        const { listMemory } = await import('../engine/store.ts')
-                        const existing = await listMemory()
-                        let added = 0
-                        for (const row of res.contacts) {
-                          const key = normalizePlaceName(row.name)
-                          if (!key || findContactRow(existing, key)) continue
-                          await upsertMemory(key, row.number, 'contact')
-                          existing.push({ key, value: row.number, category: 'contact' } as (typeof existing)[number])
-                          added += 1
-                        }
-                        setContactMsg(added ? `${added} Nummern übernommen.` : 'Keine neue Nummer.')
+                        const tally = await applyScannedContacts(res.contacts)
+                        setContactMsg(scanReply(tally))
                       })
                       .finally(() => setContactBusy(false))
                   }}

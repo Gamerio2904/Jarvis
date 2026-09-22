@@ -144,6 +144,7 @@ Begründung: [`76-next.md`](./76-next.md).
 | `18.9.5` | [336](./sprints/sprint-336.md) | API/Cache neu, kein Key-Tausch |
 | `18.9.6` | [337](./sprints/sprint-337.md) | Härten, Gold, TEST-18.9 |
 | `18.9.7` | [338](./sprints/sprint-338.md) | E-Mail, Telefonbuch, WhatsApp-Antwort |
+| `18.9.8` | [339](./sprints/sprint-339.md) | Mail im Scan, Kontaktliste, IMAP-Test |
 
 Harte Kette: 331 → alles. 332 braucht 331. 336 braucht 331+332. 337 zuletzt.
 Kein freies Web. Kein Write-Zweitlauf. Nicht parallel zu `18.5`.

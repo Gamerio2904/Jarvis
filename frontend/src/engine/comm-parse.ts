@@ -2,6 +2,8 @@ import { normalizePlaceName } from './places-parse.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export type ContactsScanIntent = { kind: 'contacts_scan' }
+export type ContactsListIntent = { kind: 'contacts_list' }
+export type EmailStoreIntent = { kind: 'email_store'; name: string; email: string }
 
 export type MailIntent =
   | { kind: 'mail_read'; query: string }
@@ -13,6 +15,15 @@ export type WaInboxIntent =
 
 const SCAN =
   /^\s*(?:(?:scann?e?|lies|lese|einlesen|importier(?:e)?)(?:\s+(?:bitte|mal|jetzt))?\s+(?:mein(?:e[nrs]?)?\s+|das\s+|die\s+)?(?:telefon[- ]?kontakte|kontakte|telefonbuch|adressbuch)|(?:telefon[- ]?kontakte|kontakte|telefonbuch|adressbuch)\s+(?:scannen|einlesen|importieren|vom\s+handy)|kontakte\s+vom\s+(?:handy|telefon))\s*[.!?]*\s*$/i
+
+const LIST_CONTACTS =
+  /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+(?:die|meine[nrs]?))?\s+(?:telefon[- ]?kontakte|kontakte|telefonbuch|adressbuch|nummern)|welche(?:n)?\s+(?:kontakte|nummern|adressen)\s+(?:kennst\s+du|hast\s+du|liegen)|(?:meine[nrs]?\s+)?(?:kontakte|telefonbuch|nummern)(?:\s+(?:anzeigen|zeigen|auflisten))?)\s*[.!?]*\s*$/i
+
+const EMAIL_STORE =
+  /^\s*(?:(?:e-?mail|mail)\s+von\s+(.+?)\s*[:-]\s*(.+)|(.+?)\s*[,:]\s*(?:e-?mail|mail)\s+(.+))\s*$/i
+
+const EMAIL_SPACE =
+  /^\s*([A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß.-]{1,28})\s+(?:e-?mail|mail)\s+([^\s@]+@[^\s@]+\.[^\s@]+)\s*$/i
 
 const MAIL_READ =
   /^\s*(?:lies|lese|zeig(?:e)?(?:\s+mir)?|was\s+steht(?:\s+denn)?(?:\s+in)?)\s+(?:meine[nrs]?\s+|die\s+|neue[n]?\s+)?(?:e-?mails?|mails?)(?:\s+(?:von|an)\s+(.+?))?\s*[.!?]*\s*$/i
@@ -39,6 +50,31 @@ export function parseContactsScan(text: string): ContactsScanIntent | null {
   const t = normalizeUtterance(text.trim())
   if (!t || t.length > 120) return null
   return SCAN.test(t) ? { kind: 'contacts_scan' } : null
+}
+
+export function parseContactsList(text: string): ContactsListIntent | null {
+  const t = normalizeUtterance(text.trim())
+  if (!t || t.length > 120) return null
+  if (SCAN.test(t)) return null
+  return LIST_CONTACTS.test(t) ? { kind: 'contacts_list' } : null
+}
+
+export function parseEmailStore(text: string): EmailStoreIntent | null {
+  const t = normalizeUtterance(text.trim())
+  if (!t || t.length > 160) return null
+  const m = EMAIL_STORE.exec(t)
+  if (m) {
+    const name = normalizePlaceName(m[1] || m[3] || '')
+    const email = (m[2] || m[4] || '').trim().toLowerCase()
+    if (name && looksLikeEmail(email) && name !== email) return { kind: 'email_store', name, email }
+  }
+  const space = EMAIL_SPACE.exec(t)
+  if (space) {
+    const name = normalizePlaceName(space[1])
+    const email = space[2].trim().toLowerCase()
+    if (name && looksLikeEmail(email)) return { kind: 'email_store', name, email }
+  }
+  return null
 }
 
 export function parseMailIntent(text: string): MailIntent | null {
