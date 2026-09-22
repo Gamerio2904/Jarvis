@@ -101,6 +101,20 @@ export function propagateGp(row: GpRow, at = new Date()): SatFix | null {
   return { name: name.slice(0, 28), norad, lat, lon }
 }
 
+export type LonLatBox = { minLon: number; minLat: number; maxLon: number; maxLat: number }
+
+export function inLonLatBox(p: { lat: number; lon: number }, box: LonLatBox): boolean {
+  return p.lon >= box.minLon && p.lon <= box.maxLon && p.lat >= box.minLat && p.lat <= box.maxLat
+}
+
+/** EONET ohne bbox liefert zuerst USA. Vier Kästen, dann lokal gefiltert. */
+export const FIRE_BANDS: LonLatBox[] = [
+  { minLon: -170, minLat: 15, maxLon: -50, maxLat: 72 },
+  { minLon: -90, minLat: -56, maxLon: -30, maxLat: 15 },
+  { minLon: -20, minLat: -36, maxLon: 50, maxLat: 72 },
+  { minLon: 50, minLat: -48, maxLon: 180, maxLat: 72 },
+]
+
 export function spreadFixes<T extends { lat: number; lon: number }>(pins: T[], cap: number): T[] {
   if (pins.length <= cap) return pins
   const buckets = new Map<number, T[]>()

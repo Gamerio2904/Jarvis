@@ -4,7 +4,7 @@ import { jsonUA } from './ua.ts'
 import { haversineKm, cityLine, isGlobeLayerPin, nearestPlace, type GeoFix, type GeoPinKind } from './globe-geo.ts'
 import { INFRA_FIXES, SEA_FIXES } from './globe-static.ts'
 import { LAYER_TITLE, isGlobeLayer, type GlobeLayer } from './globe-layer-ids.ts'
-import { propagateGp, spreadFixes, type GpRow } from './orbit.ts'
+import { FIRE_BANDS, inLonLatBox, propagateGp, spreadFixes, type GpRow, type LonLatBox } from './orbit.ts'
 
 export type { GlobeLayer } from './globe-layer-ids.ts'
 export { GLOBE_LAYER_IDS, LAYER_TITLE, chipOffLabel, isGlobeLayer } from './globe-layer-ids.ts'
@@ -176,17 +176,30 @@ function magOf(props: Record<string, unknown> | undefined): number {
   return Number.isFinite(mag) ? mag : NaN
 }
 
-function eonetCoord(geo: unknown): { lat: number; lon: number } | null {
-  if (!geo || typeof geo !== 'object') return null
+function eonetCoords(geo: unknown): { lat: number; lon: number }[] {
+  if (!geo || typeof geo !== 'object') return []
   const g = geo as { geometry?: unknown }
-  const geom = Array.isArray(g.geometry) ? g.geometry[g.geometry.length - 1] : g.geometry
-  if (!geom || typeof geom !== 'object') return null
-  const coords = (geom as { coordinates?: unknown }).coordinates
-  if (!Array.isArray(coords) || coords.length < 2) return null
-  const lon = Number(coords[0])
-  const lat = Number(coords[1])
-  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
-  return { lat, lon }
+  const items = Array.isArray(g.geometry) ? g.geometry : g.geometry ? [g.geometry] : []
+  const out: { lat: number; lon: number }[] = []
+  for (const geom of items) {
+    if (!geom || typeof geom !== 'object') continue
+    const coords = (geom as { coordinates?: unknown }).coordinates
+    if (!Array.isArray(coords) || coords.length < 2) continue
+    const lon = Number(coords[0])
+    const lat = Number(coords[1])
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
+    out.push({ lat, lon })
+  }
+  return out
+}
+
+function eonetCoord(geo: unknown): { lat: number; lon: number } | null {
+  const all = eonetCoords(geo)
+  return all.length ? all[all.length - 1] : null
+}
+
+function eonetCoordInBox(geo: unknown, box: LonLatBox): { lat: number; lon: number } | null {
+  return eonetCoords(geo).find((p) => inLonLatBox(p, box)) || null
 }
 
 export function overheadOrigin(): { lat: number; lon: number; label: string } {
@@ -222,25 +235,67 @@ async function fetchQuakes(): Promise<LayerCache> {
   }
 }
 
-async function fetchEonet(layer: 'fires' | 'weather', category: string, kind: GeoPinKind): Promise<LayerCache> {
+function eonetPinsFrom(
+  events: unknown[],
+  layer: 'fires' | 'weather',
+  kind: GeoPinKind,
+  box?: LonLatBox,
+  cap = MAX_FULL,
+): GeoFix[] {
+  const source = 'NASA EONET'
+  const pins: GeoFix[] = []
+  const seen = new Set<string>()
+  for (const raw of events) {
+    if (!raw || typeof raw !== 'object') continue
+    const ev = raw as { title?: unknown; geometry?: unknown }
+    const at = box ? eonetCoordInBox(ev, box) : eonetCoord(ev)
+    if (!at) continue
+    const title = String(ev.title || LAYER_TITLE[layer]).slice(0, 48)
+    const key = `${title}|${at.lat.toFixed(2)}|${at.lon.toFixed(2)}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    pins.push({ name: title, lat: at.lat, lon: at.lon, kind, line: `${source} · ${title}` })
+    if (pins.length >= cap) break
+  }
+  return pins
+}
+
+async function fetchEonet(layer: 'weather', category: string, kind: GeoPinKind): Promise<LayerCache> {
   const source = 'NASA EONET'
   const url = `https://eonet.gsfc.nasa.gov/api/v3/events?status=open&category=${category}&limit=200`
   try {
     const { status, json } = await getJson(url, UA)
     if (status < 200 || status >= 300) return fail(layer, source, 'EONET antwortet nicht')
     const events = Array.isArray(json.events) ? json.events : []
-    const pins: GeoFix[] = []
-    for (const raw of events) {
-      if (!raw || typeof raw !== 'object') continue
-      const ev = raw as { title?: unknown; geometry?: unknown }
-      const at = eonetCoord(ev)
-      if (!at) continue
-      const title = String(ev.title || LAYER_TITLE[layer]).slice(0, 48)
-      pins.push({ name: title, lat: at.lat, lon: at.lon, kind, line: `${source} · ${title}` })
-    }
-    return remember({ layer, at: Date.now(), source, pins: spreadFixes(pins, MAX_FULL) })
+    return remember({ layer, at: Date.now(), source, pins: spreadFixes(eonetPinsFrom(events, layer, kind), MAX_FULL) })
   } catch {
     return fail(layer, source, 'EONET ist nicht erreichbar')
+  }
+}
+
+async function fetchFires(): Promise<LayerCache> {
+  const source = 'NASA EONET'
+  const per = Math.ceil(MAX_FULL / FIRE_BANDS.length) + 4
+  try {
+    const chunks = await Promise.all(
+      FIRE_BANDS.map(async (box) => {
+        const bbox = `${box.minLon},${box.minLat},${box.maxLon},${box.maxLat}`
+        const url = `https://eonet.gsfc.nasa.gov/api/v3/events?status=open&category=wildfires&limit=80&bbox=${bbox}`
+        try {
+          const { status, json } = await getJson(url, UA)
+          if (status < 200 || status >= 300) return []
+          const events = Array.isArray(json.events) ? json.events : []
+          return eonetPinsFrom(events, 'fires', 'fire', box, per)
+        } catch {
+          return []
+        }
+      }),
+    )
+    const pins = spreadFixes(chunks.flat(), MAX_FULL)
+    if (!pins.length) return fail('fires', source, 'EONET nennt gerade keinen offenen Waldbrand')
+    return remember({ layer: 'fires', at: Date.now(), source, pins })
+  } catch {
+    return fail('fires', source, 'EONET ist nicht erreichbar')
   }
 }
 
@@ -474,7 +529,7 @@ export async function fetchLayer(layer: GlobeLayer): Promise<LayerCache> {
   const fresh = cachedLayer(layer)
   if (fresh) return fresh
   if (layer === 'quakes') return fetchQuakes()
-  if (layer === 'fires') return fetchEonet('fires', 'wildfires', 'fire')
+  if (layer === 'fires') return fetchFires()
   if (layer === 'weather') return fetchEonet('weather', 'severeStorms', 'weather')
   if (layer === 'overhead') return fetchOverhead()
   if (layer === 'air') return fetchAir()

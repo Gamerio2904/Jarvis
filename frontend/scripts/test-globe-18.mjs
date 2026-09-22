@@ -13,7 +13,7 @@ import {
   placeLookupFailedLine,
 } from '../src/engine/globe-geo.ts'
 import { ageLine, parseGlobeLayerPhrase, briefingFromCache, dossierNear, isGlobeLayer } from '../src/engine/globe-layers.ts'
-import { propagateGp, spreadFixes } from '../src/engine/orbit.ts'
+import { FIRE_BANDS, inLonLatBox, propagateGp, spreadFixes } from '../src/engine/orbit.ts'
 import { screenPanToMap } from '../src/engine/drive-map.ts'
 import { parseHereIntent } from '../src/engine/here-parse.ts'
 
@@ -149,6 +149,11 @@ assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzl
   assert.equal(spread.length, 3)
   const lons = spread.map((p) => p.lon)
   assert.ok(lons.some((lon) => lon < 0) && lons.some((lon) => lon > 0), 'Waldbrände nicht nur eine Halbkugel')
+  assert.equal(FIRE_BANDS.length, 4)
+  assert.equal(inLonLatBox({ lat: 46.6, lon: -120.5 }, FIRE_BANDS[2]), false)
+  assert.equal(inLonLatBox({ lat: 12.1, lon: 18.4 }, FIRE_BANDS[2]), true)
+  assert.equal(inLonLatBox({ lat: -15.2, lon: -60.1 }, FIRE_BANDS[1]), true)
+  assert.equal(inLonLatBox({ lat: -23.0, lon: 140.0 }, FIRE_BANDS[3]), true)
 }
 
 console.log('test:globe-18 ok')

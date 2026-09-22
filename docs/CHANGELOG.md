@@ -9,9 +9,9 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 „Nee auf die Lieblingsliste“ verschiebt wirklich und öffnet Lieblinge.
 OMDb sucht Star Wars 3 als Episode III. Satelliten: CelesTrak-Katalog
-plus ISS, nicht nur ein Punkt. Waldbrände geografisch gestreut, nicht
-nur USA. Pin-Karten nutzen Schicht-Text (Tschernobyl, Sicht). Fake
-„wurde verschoben“ wird gestrichen.
+plus ISS, nicht nur ein Punkt. Waldbrände: EONET in vier Weltregionen,
+nicht die ersten 200 nur aus den USA. Pin-Karten nutzen Schicht-Text
+(Tschernobyl, Sicht). Fake „wurde verschoben“ wird gestrichen.
 
 ### `18.9.0` — Recover + Hirn — *CODE + APK*
 
