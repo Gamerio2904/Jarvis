@@ -305,4 +305,9 @@ export const TEST_PROMPTS = [
   'Zeig Filme',
   'Kalender zu',
   'Entferne alle Erinnerungen am 22. September',
+  'Änder Maxi Geburtstag in Jakob Geburtstag',
+  'Maxi Geburtstag heißt jetzt Jakob Geburtstag',
+  'Zeig Flugzeuge',
+  'Zeig Satelliten',
+  'Watchliste: Dune',
 ] as const

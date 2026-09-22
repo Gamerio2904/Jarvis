@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.8.3`** auf `main`. Sideload-APK **`18.8.3`**, versionCode `180803`. Nächste offene Schiene **`18.5` PLAN** (nicht parallel). Test [`TEST-18.8.md`](./TEST-18.8.md).
+> **Jetzt:** App-Code **`18.8.3`** auf `main`. Sideload-APK **`18.8.3`**, versionCode `180803`. Offene Schienen **`18.5` PLAN** (301–306) und **`18.9` PLAN** (331–337) — **nicht parallel**. Test [`TEST-18.8.md`](./TEST-18.8.md); Recover-Probe nach Execute [`TEST-18.9.md`](./TEST-18.9.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -719,6 +719,25 @@ oben bleibt Sprint 325 (Termin-Frage, schon in `18.8.0`).
 Nachzieher **`18.8.3`** (APK, versionCode `180803`): Kalender weicher
 (gleitender Reiter, Glas-Karten, Sheet-Griff). Die Planungszeile
 `18.8.3` oben bleibt Sprint 326 (Offsets, schon in `18.8.0`).
+
+### `18.9` — Recover + Hirn [`80-next.md`](./80-next.md) **PLAN**
+
+Quelle oder Methode tot → **Ansage** → nächste **Allowlist**-Option
+(API neu, Cache-Bust, eingetragene zweite Seite, Hirn-Slot). Dann
+Ergebnis oder ehrliche Absage. Kein freies Web, kein Key-Tausch, kein
+zweiter Write/Device-Lauf. `PROBE_COPY_GROUPS`.length bleibt 13.
+Nicht parallel zu `18.5`. Sideload bleibt **`18.8.3`**, bis ein
+eigenes APK-Execute kommt.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.9.0` | Recover-Kern: Ansage, Cap 2, Fail in Ctx | 331 PLAN |
+| `18.9.1` | Read-Quellen: News, Research, Lage, OMDb | 332 PLAN |
+| `18.9.2` | Rules-first Verify nach Write | 333 PLAN |
+| `18.9.3` | Abstention; Micro-Merge-Allowlist | 334 PLAN |
+| `18.9.4` | Propose Action-then-ground + Repair | 335 PLAN |
+| `18.9.5` | API/Cache neu, kein Key-Tausch | 336 PLAN |
+| `18.9.6` | Härten, Gold, Auto-Debug, TEST-18.9 | 337 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

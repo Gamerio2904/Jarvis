@@ -314,6 +314,11 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Zeig Filme': 'app',
   'Kalender zu': 'app',
   'Entferne alle Erinnerungen am 22. September': 'reminder',
+  'Änder Maxi Geburtstag in Jakob Geburtstag': 'calendar',
+  'Maxi Geburtstag heißt jetzt Jakob Geburtstag': 'calendar',
+  'Zeig Flugzeuge': 'hud',
+  'Zeig Satelliten': 'hud',
+  'Watchliste: Dune': 'watchlist',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

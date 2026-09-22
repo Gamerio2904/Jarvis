@@ -31,6 +31,9 @@ assert.match(css, /\.app\.is-kb \.main\.is-lage\.is-lage-chat \.lage\.is-compact
 assert.doesNotMatch(css, /\.main\.is-lage\.is-lage-chat \{[\s\S]{0,220}minmax\(0,\s*0\.92fr\)/)
 
 assert.match(lage, /chipOffLabel\(globeLayer\)/)
+assert.match(lage, /lage-layers/)
+assert.match(lage, /LAYER_TITLE\[id\]/)
+assert.match(lage, /Osiris-Schichten/)
 assert.match(lage, /viewDossier\(/)
 assert.doesNotMatch(lage, /In der Sicht kein Schicht-Pin/)
 assert.match(layerIds, /Waldbrände aus/)

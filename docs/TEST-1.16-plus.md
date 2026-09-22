@@ -777,6 +777,42 @@ OSINT-Text, kein Scanner, kein CCTV.
 
 ---
 
+## K2 — `18.8.4` Umbenennen, Osiris, Publikum · Spur Heute / Probe / Lauf
+
+In der App: **18.8 Debug & Termin** (Auto-Debug schickt mit). Gold = `TEST_PROMPTS`.
+
+```
+Änder Maxi Geburtstag in Jakob Geburtstag
+```
+
+Kalender-Rename. Titel steht danach wirklich auf Jakob, nicht nur im Chat.
+
+```
+Maxi Geburtstag heißt jetzt Jakob Geburtstag
+```
+
+Gleicher Parser, andere Formulierung.
+
+```
+Zeig Flugzeuge
+```
+
+Lage-Kugel-Schicht Overhead. **Nicht** `Was fliegt da` (OpenSky-Liste).
+
+```
+Zeig Satelliten
+```
+
+Schicht Sats. Auf der Kugel sitzt die Leiste Satelliten / Flugzeuge / …
+
+```
+Watchliste: Dune
+```
+
+Film auf die Liste. Folie: **Kritiker** und **Publikum** (— wenn OMDb nichts hat).
+
+---
+
 ## L — Won’t und Naive · Spur Gespräch / Lage
 
 Absage ist grün. Ausführung ist rot.

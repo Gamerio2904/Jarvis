@@ -9,6 +9,12 @@ import type { GlobeLayer } from './globe-layer-ids.ts'
 
 export const APP_VERSION = '18.8.3'
 
+/** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
+export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new Event(name))
+}
+
 export const DEFAULT_MODEL = {
   repo: 'Qwen/Qwen2.5-0.5B-Instruct-GGUF',
   file: 'qwen2.5-0.5b-instruct-q4_k_m.gguf',
@@ -1026,6 +1032,7 @@ export async function addWatchMovie(
       updated_at: nowIso(),
     }
     await put('watch_movies', next)
+    emitHouse('jarvis-watchlist')
     return next
   }
   const row: WatchMovie = {
@@ -1045,6 +1052,7 @@ export async function addWatchMovie(
     updated_at: nowIso(),
   }
   await put('watch_movies', row)
+  emitHouse('jarvis-watchlist')
   return row
 }
 
@@ -1054,9 +1062,11 @@ export async function removeWatchMovie(id: string, list: WatchListKind): Promise
   const lists = (row.lists || []).filter((x) => x !== list)
   if (!lists.length) {
     await del('watch_movies', id)
+    emitHouse('jarvis-watchlist')
     return
   }
   await put('watch_movies', { ...row, lists, updated_at: nowIso() })
+  emitHouse('jarvis-watchlist')
 }
 
 export async function listWatchedMovies(): Promise<WatchedMovie[]> {
@@ -1189,11 +1199,13 @@ export async function addEvent(opts: {
   }
   if (opts.theme) row.theme = opts.theme
   await put('events', row)
+  emitHouse('jarvis-events')
   return row
 }
 
 export async function putEvent(row: CalendarEvent): Promise<void> {
   await put('events', { ...row, updated_at: nowIso() })
+  emitHouse('jarvis-events')
 }
 
 export async function listShopping(): Promise<ShoppingItem[]> {
@@ -1236,6 +1248,7 @@ export async function clearGotShopping(): Promise<number> {
 
 export async function deleteEvent(id: string): Promise<void> {
   await del('events', id)
+  emitHouse('jarvis-events')
 }
 
 /** Ohne Deckel wächst der Speicher endlos, und jedes Lesen holt alles herauf. */

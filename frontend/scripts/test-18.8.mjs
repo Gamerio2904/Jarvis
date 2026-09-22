@@ -90,15 +90,71 @@ assert.equal(pickRoute('Käse auf die Liste'), 'shopping')
 assert.equal(pickRoute('Zeig Filme'), 'app')
 assert.equal(pickRoute('Kalender zu'), 'app')
 assert.equal(pickRoute('in 10 Minuten Milch'), 'reminder')
+assert.equal(pickRoute('Änder Maxi Geburtstag in Jakob Geburtstag'), 'calendar')
+assert.equal(pickRoute('Maxi Geburtstag heißt jetzt Jakob Geburtstag'), 'calendar')
+assert.equal(pickRoute('Zeig Flugzeuge'), 'hud')
+assert.equal(pickRoute('Zeig Satelliten'), 'hud')
+assert.equal(pickRoute('Watchliste: Dune'), 'watchlist')
+assert.notEqual(pickRoute('Zeig Flugzeuge'), 'flights')
+const debug18 = TEST_COPY_GROUPS.find((g) => g.title === '18.8 Debug & Termin')
+assert.ok(debug18?.items.some((i) => i.text === 'Änder Maxi Geburtstag in Jakob Geburtstag'))
+assert.ok(debug18?.items.some((i) => i.text === 'Zeig Flugzeuge'))
+assert.ok(debug18?.items.some((i) => i.text === 'Watchliste: Dune'))
 assert.equal(parseCalendarIntent('Termin absagen')?.kind, 'delete_last')
 assert.equal(parseCalendarIntent('sag den Termin ab')?.kind, 'delete_last')
 assert.equal(pickRoute('Termin absagen'), 'calendar')
+{
+  const ren = parseCalendarIntent('Änder Maxi Geburtstag in Jakob Geburtstag')
+  assert.equal(ren?.kind, 'rename')
+  if (ren?.kind === 'rename') {
+    assert.equal(ren.query, 'Maxi Geburtstag')
+    assert.equal(ren.title, 'Jakob Geburtstag')
+  }
+  assert.equal(parseCalendarIntent('Maxi Geburtstag heißt jetzt Jakob Geburtstag')?.kind, 'rename')
+  assert.equal(pickRoute('Änder Maxi Geburtstag in Jakob Geburtstag'), 'calendar')
+}
 
 await clearPending(conv)
 const cancelled = await handleCalendar(conv, 'Termin absagen')
 assert.match(cancelled.reply || '', /Termin weg|Kein Termin/)
 assert.doesNotMatch(cancelled.reply || '', /Wann soll ich/)
 assert.equal(await getPending(conv), undefined)
+
+const maxi = await addEvent({
+  title: 'Maxi Geburtstag',
+  start_at: new Date(Date.now() + 86400_000).toISOString(),
+  theme: 'sonstiges',
+})
+const renamed = await handleCalendar(conv, 'Änder Maxi Geburtstag in Jakob Geburtstag')
+assert.equal(renamed.handled, true)
+assert.match(renamed.reply || '', /Jakob Geburtstag/)
+assert.doesNotMatch(renamed.reply || '', /Ist erledigt/)
+const afterRename = (await listEvents()).find((e) => e.id === maxi.id)
+assert.equal(afterRename?.title, 'Jakob Geburtstag')
+assert.equal(afterRename?.theme, 'geburtstag')
+assert.ok(!(await listEvents()).some((e) => e.title === 'Maxi Geburtstag'))
+
+{
+  const { runDirectorTurn } = await import('../src/engine/director.ts')
+  const { scrubReply } = await import('../src/engine/guards.ts')
+  const { skipMicroMerge } = await import('../src/engine/chat-blocks.ts')
+  const holdConv = 'cal-18-8-hold'
+  await clearPending(holdConv)
+  const made = await handleCalendar(holdConv, 'Termin morgen 18 Uhr PendingHold')
+  assert.equal(made.handled, true)
+  assert.equal((await getPending(holdConv))?.action, 'remind_offsets')
+  const weather = await runDirectorTurn(holdConv, 'Wetter heute')
+  assert.match(weather.hit?.reply || '', /Wann soll ich Sie erinnern/)
+  assert.equal((await getPending(holdConv))?.action, 'remind_offsets')
+  const second = await handleCalendar(holdConv, 'Termin morgen 19 Uhr ZweiterHold')
+  assert.equal(second.handled, true)
+  assert.match(second.reply || '', /ZweiterHold/)
+  assert.equal((await getPending(holdConv))?.preview, 'ZweiterHold')
+  assert.ok((await listEvents()).some((e) => e.title.includes('PendingHold')))
+  assert.ok((await listEvents()).some((e) => e.title.includes('ZweiterHold')))
+  assert.match(scrubReply('Ist erledigt. Der Eintrag lautet jetzt Jakob Geburtstag.'), /nicht ausgeführt/)
+  assert.equal(skipMicroMerge('Termin: Zahnarzt. Steht im Kalender. Wann soll ich Sie erinnern?'), true)
+}
 
 const noneRow = await addEvent({
   title: 'ohne Erinnerung',

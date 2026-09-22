@@ -39,6 +39,11 @@ export function workingBlock(): string {
   return `Arbeitsgedächtnis (überschreiben, max ${MAX}):\n${rows.map((r) => `- ${r.line}`).join('\n')}`
 }
 
+export function noteFail(id: string, reason: string): void {
+  const why = reason.replace(/\s+/g, ' ').trim().slice(0, 80)
+  upsertWorking(`fail:${id}`, `${id} fehlgeschlagen${why ? `: ${why}` : ''}`)
+}
+
 export function noteTurn(role: string, text: string, tool?: string): void {
   const t = text.replace(/\s+/g, ' ').trim()
   if (!t || t.length < 4) return

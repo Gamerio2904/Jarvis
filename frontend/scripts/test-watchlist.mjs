@@ -9,7 +9,7 @@ import { parseIdeaIntent } from '../src/engine/idea-parse.ts'
 import { parseTasteIntent } from '../src/engine/film-taste-parse.ts'
 import { isMemoryWrite } from '../src/engine/memory-parse.ts'
 import { pickRoute } from '../src/engine/route-pick.ts'
-import { fromOmdb, watchScoreLine } from '../src/engine/omdb.ts'
+import { fromOmdb, watchScoreLine, watchScoreParts } from '../src/engine/omdb.ts'
 import { overlayHidesDrive } from '../src/engine/overlay-fsm.ts'
 import { applyWatched, WATCHED_PACK_TOPIC } from '../src/engine/film-taste.ts'
 import { rewriteOrdinal } from '../src/engine/ordinal.ts'
@@ -120,12 +120,27 @@ assert.equal(pickRoute('Was steht an'), 'brief')
   assert.equal(live?.imdb, '6.3')
   const line = watchScoreLine({ critic: live?.tomatoes, audience: live?.audience, imdbScore: live?.imdb })
   assert.match(line.scores, /Kritiker 36%/)
+  assert.match(line.scores, /Publikum —/)
   assert.match(line.scores, /IMDb 6,3/)
-  assert.doesNotMatch(line.scores, /Publikum/)
+  assert.doesNotMatch(line.scores, /Publikum 6/)
   assert.match(line.source, /IMDb/)
   const both = watchScoreLine({ critic: '83%', audience: '90%', imdbScore: '8.0' })
   assert.match(both.scores, /Publikum 90%/)
-  assert.doesNotMatch(both.scores, /IMDb/)
+  assert.match(both.scores, /IMDb 8,0/)
+  const parts = watchScoreParts({ critic: '36%', audience: null, imdbScore: '6.3' })
+  assert.equal(parts.critic, '36%')
+  assert.equal(parts.audience, '—')
+  assert.equal(parts.imdb, '6,3')
+  const fromRatings = fromOmdb({
+    Title: 'Heat',
+    Response: 'True',
+    Ratings: [
+      { Source: 'Rotten Tomatoes', Value: '83%' },
+      { Source: 'Rotten Tomatoes Audience', Value: '94%' },
+    ],
+  })
+  assert.equal(fromRatings?.tomatoes, '83%')
+  assert.equal(fromRatings?.audience, '94%')
 }
 
 {

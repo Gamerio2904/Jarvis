@@ -14,28 +14,38 @@ export type OmdbHit = {
   plot?: string
 }
 
-/** Karte und Chat: RT-Publikum nur wenn OMDb es liefert, sonst IMDb — nie IMDb als „Publikum“. */
+/** Folie: Kritiker und Publikum immer, IMDb extra. IMDb nie als „Publikum“. */
+export function watchScoreParts(m: {
+  critic?: string | null
+  audience?: string | null
+  imdbScore?: string | null
+}): { critic: string; audience: string; imdb: string; source: string } {
+  const critic = (m.critic || '').trim() || '—'
+  const audience = (m.audience || '').trim() || '—'
+  const imdbRaw = (m.imdbScore || '').trim()
+  const imdb = imdbRaw ? imdbRaw.replace('.', ',') : ''
+  const sources: string[] = []
+  if (critic !== '—' || audience !== '—') sources.push('Rotten Tomatoes')
+  if (imdb) sources.push('IMDb')
+  if (!sources.length) sources.push('Rotten Tomatoes')
+  return {
+    critic,
+    audience,
+    imdb,
+    source: `${[...new Set(sources)].join(', ')} über OMDb`,
+  }
+}
+
+/** Chat und Tests: dieselben Felder in einer Zeile. */
 export function watchScoreLine(m: {
   critic?: string | null
   audience?: string | null
   imdbScore?: string | null
 }): { scores: string; source: string } {
-  const critic = (m.critic || '').trim()
-  const audience = (m.audience || '').trim()
-  const imdb = (m.imdbScore || '').trim()
-  const imdbLabel = imdb ? imdb.replace('.', ',') : ''
-  const criticBit = `Kritiker ${critic || '—'}`
-  let second = 'Publikum —'
-  if (audience) second = `Publikum ${audience}`
-  else if (imdbLabel) second = `IMDb ${imdbLabel}`
-  const sources: string[] = []
-  if (critic || audience) sources.push('Rotten Tomatoes')
-  if (imdbLabel && !audience) sources.push('IMDb')
-  if (!sources.length) sources.push('Rotten Tomatoes')
-  return {
-    scores: `${criticBit} · ${second}`,
-    source: `${[...new Set(sources)].join(', ')} über OMDb`,
-  }
+  const p = watchScoreParts(m)
+  const bits = [`Kritiker ${p.critic}`, `Publikum ${p.audience}`]
+  if (p.imdb) bits.push(`IMDb ${p.imdb}`)
+  return { scores: bits.join(' · '), source: p.source }
 }
 
 const KEY_HINT =
@@ -89,6 +99,7 @@ function fromOmdb(json: Record<string, unknown>): OmdbHit | null {
   if (!title) return null
   const ratings = Array.isArray(json.Ratings) ? json.Ratings : []
   let tomatoes = tomatoOf(json.tomatoMeter) || tomatoOf(json.tomatoRating)
+  let audience = tomatoOf(json.tomatoUserMeter)
   let imdb = String(json.imdbRating || '').trim()
   if (!imdb || imdb === 'N/A') imdb = ''
   for (const row of ratings) {
@@ -96,7 +107,11 @@ function fromOmdb(json: Record<string, unknown>): OmdbHit | null {
     const src = String((row as Record<string, unknown>).Source || '')
     const val = String((row as Record<string, unknown>).Value || '').trim()
     if (!val || val === 'N/A') continue
-    if (/rotten\s*tomatoes/i.test(src) && !/audience|popcorn/i.test(src)) tomatoes = val
+    if (/rotten\s*tomatoes/i.test(src) && /audience|popcorn/i.test(src)) {
+      audience = tomatoOf(val) || audience
+      continue
+    }
+    if (/rotten\s*tomatoes/i.test(src)) tomatoes = val
     if (!imdb && /imdb|internet movie database/i.test(src)) {
       imdb = val.replace(/\s*\/\s*10\s*$/i, '').trim()
     }
@@ -107,7 +122,7 @@ function fromOmdb(json: Record<string, unknown>): OmdbHit | null {
     imdb: imdb && imdb !== 'N/A' ? imdb : undefined,
     imdbId: String(json.imdbID || '').trim() || undefined,
     tomatoes: tomatoes && tomatoes !== 'N/A' ? tomatoes : undefined,
-    audience: tomatoOf(json.tomatoUserMeter),
+    audience,
     poster: posterOf(json.Poster),
     genre: String(json.Genre || '').trim() && String(json.Genre) !== 'N/A' ? String(json.Genre).trim() : undefined,
     plot: String(json.Plot || '').trim() && String(json.Plot) !== 'N/A' ? String(json.Plot).trim() : undefined,

@@ -3190,7 +3190,24 @@ button.linkish {
 
 .watch-scores {
   margin: 0;
-  font-size: 0.95rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.86rem;
+}
+
+.watch-score {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-elevated));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+.watch-score.is-imdb {
+  background: color-mix(in srgb, var(--gold) 12%, var(--bg-elevated));
+  border-color: color-mix(in srgb, var(--gold) 32%, var(--border));
 }
 
 @keyframes watchKen {
@@ -3916,6 +3933,19 @@ button.linkish {
   color: var(--text-muted);
 }
 
+.cal-card-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cal-card-main[role='button'] {
+  cursor: pointer;
+}
+
+.cal-card-edit,
 .cal-card-del {
   appearance: none;
   border: 0;
@@ -3928,6 +3958,11 @@ button.linkish {
   border-radius: 999px;
   padding: 6px 10px;
   transition: background var(--motion-fast) ease, color var(--motion-fast) ease, transform var(--motion-fast) var(--ease-spring);
+}
+
+.cal-card-edit:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  color: var(--text);
 }
 
 .cal-card-del:hover:not(:disabled) {
@@ -5012,6 +5047,46 @@ button.linkish {
   text-transform: uppercase;
   font-weight: 650;
   flex-shrink: 0;
+}
+
+.lage-layers {
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  right: 6px;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lage-layers::-webkit-scrollbar {
+  display: none;
+}
+
+.lage-layer {
+  flex-shrink: 0;
+  padding: 6px 11px;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 650;
+  border-radius: 999px;
+  border: 1px solid rgba(246, 243, 234, 0.18);
+  background: rgba(8, 12, 10, 0.72);
+  color: rgba(246, 243, 234, 0.92);
+  backdrop-filter: blur(12px) saturate(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+}
+
+.lage-layer.is-on {
+  background: var(--accent);
+  color: #07110c;
+  border-color: transparent;
 }
 
 .lage-hint {

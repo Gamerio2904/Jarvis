@@ -46,5 +46,6 @@ export function skipMicroMerge(reply: string, blocks?: ChatBlock[] | null): bool
   if (!t) return false
   if (/\n/.test(t) && t.split('\n').length >= 3) return true
   if (/^platz\s+verein/i.test(t)) return true
+  if (/\b(?:wann soll ich sie erinnern|steht im kalender|termin umbenannt|termin weg:)\b/i.test(t)) return true
   return false
 }

@@ -5,6 +5,26 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+Watchliste: Folie zeigt **Kritiker** und **Publikum** immer. Fehlt die
+Publikumsnote bei OMDb, steht **Publikum —**; IMDb kommt extra, nicht
+als Publikum beschriftet.
+
+Lage-Kugel: Osiris-Schichten (**Satelliten**, **Flugzeuge**, Erdbeben,
+Waldbrände, See, …) wieder als Leiste auf der Kugel. Tippen schaltet an
+oder aus. „Zeig Flugzeuge“ ist wieder ein Satz. Leere Sicht bleibt zu.
+
+Kalender: „Änder Maxi Geburtstag in Jakob Geburtstag“ schreibt den Titel
+wirklich um. Karte hat **Ändern**. Gespeichertes Thema Sonstiges weicht
+einem Treffer im Titel (Geburtstag). Offene Erinnerungsfrage bleibt,
+wenn der nächste Satz kein Kalender ist. Karte und Watchliste laden
+nach, wenn Chat schreibt. Plaudern „Ist erledigt“ wird gestrichen.
+
+Schiene **`18.9` PLAN** (331–337): Quelle tot → Ansage → andere erlaubte
+Methode. Siehe [`80-next.md`](./80-next.md). `18.5` bleibt PLAN daneben.
+
+Testprompts für Umbenennen, Osiris-Schichten und Watchliste-Dune stehen
+in `TEST_PROMPTS` / Gold und in **18.8 Debug & Termin** (Auto-Debug).
+
 ### `18.8.3` — Kalender weicher — *CODE + APK*
 
 Gleitender Reiter, Monatswechsel nach links/rechts, Glas-Karten in

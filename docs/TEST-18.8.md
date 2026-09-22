@@ -54,9 +54,9 @@ Memory-10, 13 Packs. Suche findet Zahnarzt und Watchliste.
 
 ## 6. Watchliste-Noten
 
-Filme → Dune. **Kritiker** aus Rotten Tomatoes, zweite Zahl **IMDb**
-wenn OMDb kein Publikum liefert. Kein Strich hinter Publikum, solange
-IMDb da ist. Keine IMDb-Zahl als „Publikum“ beschriftet.
+Filme → Dune. Folie zeigt **Kritiker** und **Publikum**. Fehlt die
+Publikumsnote bei OMDb: **Publikum —**, IMDb zusätzlich wenn vorhanden.
+IMDb wird nicht als Publikum beschriftet.
 
 ## 7. Erinnerungen am Tag
 
@@ -71,10 +71,14 @@ ist. Termine am selben Tag erwähnt er, löscht sie nicht still.
 
 ## 8. Lage / Osiris
 
-Lage → Kugel. Keine leere **Sicht**-Karte. Hinweis: Schicht per Satz.
+Lage → Kugel. Auf der Kugel oben: Leiste **Satelliten**, **Flugzeuge**,
+Erdbeben, Waldbrände, See, … Tippen schaltet an, nochmal aus.
+Keine leere **Sicht**-Karte. Satz bleibt:
 
 ```
 Zeig Erdbeben
+Zeig Flugzeuge
+Zeig Satelliten
 ```
 
 Pins und Intel-Leiste. Chat und wieder Lage: Schicht bleibt.
@@ -87,9 +91,29 @@ Teammeeting → **Arbeit**. Reiter Monat / Liste / Jahr.
 Reiter gleitet. Monat wischen wechselt mit Richtung. Karten tragen die
 Themenfarbe. Sheet hat einen Griff; nach unten wischen schließt.
 
+Karte **Ändern** oder Chat `Änder Maxi Geburtstag in Jakob Geburtstag` —
+Titel steht danach wirklich auf Jakob, nicht nur im Chat.
+Nach Anlegen: „Wetter heute“ lässt die Erinnerungsfrage stehen.
+
 ## 10. Debug-Lauf
 
 Einstellungen → Tests: Spur **Lauf** bleibt rechts. `Öffne Debug` zeigt **Start**.
+Die neuen Sätze stehen in **18.8 Debug & Termin**, **Kalender**, **Lage**
+und Spur **Probe** (13 Packs). Auto-Debug (Start) schickt sie mit, außer
+Fernseher/PC.
+
+## 11. Neue Testprompts (1:1)
+
+```
+Änder Maxi Geburtstag in Jakob Geburtstag
+Maxi Geburtstag heißt jetzt Jakob Geburtstag
+Zeig Flugzeuge
+Zeig Satelliten
+Watchliste: Dune
+```
+
+`Zeig Flugzeuge` ist die Kugel-Schicht, nicht `Was fliegt da` (OpenSky).
+`Watchliste: Dune` legt den Film an; Folie zeigt Kritiker **und** Publikum.
 
 ---
 
