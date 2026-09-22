@@ -19,6 +19,9 @@ einem Treffer im Titel (Geburtstag). Offene Erinnerungsfrage bleibt,
 wenn der nächste Satz kein Kalender ist. Karte und Watchliste laden
 nach, wenn Chat schreibt. Plaudern „Ist erledigt“ wird gestrichen.
 
+Schiene **`18.9` PLAN** (331–337): Quelle tot → Ansage → andere erlaubte
+Methode. Siehe [`80-next.md`](./80-next.md). `18.5` bleibt PLAN daneben.
+
 ### `18.8.3` — Kalender weicher — *CODE + APK*
 
 Gleitender Reiter, Monatswechsel nach links/rechts, Glas-Karten in
