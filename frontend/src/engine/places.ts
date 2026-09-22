@@ -949,7 +949,7 @@ async function mailFromNotifications(query: string): Promise<PlaceHit | null> {
 }
 
 async function handleWaInbox(
-  conversationId: string,
+  _conversationId: string,
   intent: { kind: 'wa_inbox' | 'wa_reply'; query: string; body?: string },
 ): Promise<PlaceHit> {
   const status = await notifyInboxStatus()
