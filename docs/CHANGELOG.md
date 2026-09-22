@@ -13,6 +13,8 @@ nächsten Samstag, auch wenn STT die Wörter klebt
 nicht nur „Samstags 18 Uhr“. Kalender springt auf den Tag. Woche-Ansicht,
 Wochenstreifen, Ort, Datum im Blatt. Verschieben per Chat.
 LLM-Satz „Der Termin für … steht“ ohne Werkzeug wird gestrichen.
+Sideload **`18.9.4`** (versionCode `180904`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.9.3` — Mikrofon: weniger Lag, ganze Äußerung — *CODE + APK*
 
