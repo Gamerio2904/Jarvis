@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { isDocumentHidden, onVisibility, prefersReducedMotion } from '../engine/motion.ts'
 import { type WatchListKind, type WatchMovie } from '../engine/store.ts'
 import { enrichWatchlist } from '../engine/watchlist.ts'
-import { watchScoreLine } from '../engine/omdb.ts'
+import { watchScoreParts } from '../engine/omdb.ts'
 import { useSlidingThumb } from './SlidingThumb.tsx'
 
 export function WatchlistOverlay({
@@ -94,10 +94,14 @@ export function WatchlistOverlay({
                 {m.year ? ` (${m.year})` : ''}
               </h3>
               {(() => {
-                const { scores, source } = watchScoreLine(m)
+                const { critic, audience, imdb, source } = watchScoreParts(m)
                 return (
                   <>
-                    <p className="watch-scores">{scores}</p>
+                    <p className="watch-scores">
+                      <span className="watch-score">Kritiker {critic}</span>
+                      <span className="watch-score">Publikum {audience}</span>
+                      {imdb ? <span className="watch-score is-imdb">IMDb {imdb}</span> : null}
+                    </p>
                     <p className="watch-source">{source}</p>
                   </>
                 )

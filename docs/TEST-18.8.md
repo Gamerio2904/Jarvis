@@ -54,9 +54,9 @@ Memory-10, 13 Packs. Suche findet Zahnarzt und Watchliste.
 
 ## 6. Watchliste-Noten
 
-Filme → Dune. **Kritiker** aus Rotten Tomatoes, zweite Zahl **IMDb**
-wenn OMDb kein Publikum liefert. Kein Strich hinter Publikum, solange
-IMDb da ist. Keine IMDb-Zahl als „Publikum“ beschriftet.
+Filme → Dune. Folie zeigt **Kritiker** und **Publikum**. Fehlt die
+Publikumsnote bei OMDb: **Publikum —**, IMDb zusätzlich wenn vorhanden.
+IMDb wird nicht als Publikum beschriftet.
 
 ## 7. Erinnerungen am Tag
 

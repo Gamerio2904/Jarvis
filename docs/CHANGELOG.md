@@ -5,6 +5,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+Watchliste: Folie zeigt **Kritiker** und **Publikum** immer. Fehlt die
+Publikumsnote bei OMDb, steht **Publikum —**; IMDb kommt extra, nicht
+als Publikum beschriftet.
+
 ### `18.8.3` — Kalender weicher — *CODE + APK*
 
 Gleitender Reiter, Monatswechsel nach links/rechts, Glas-Karten in
