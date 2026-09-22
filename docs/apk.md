@@ -51,10 +51,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.9.0`:**  
+**Fertige APK `18.9.1`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.9.0` · versionCode `180900`
+- versionName `18.9.1` · versionCode `180901`
 
 ## Build lokal
 
