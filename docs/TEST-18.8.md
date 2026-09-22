@@ -98,6 +98,22 @@ Nach Anlegen: „Wetter heute“ lässt die Erinnerungsfrage stehen.
 ## 10. Debug-Lauf
 
 Einstellungen → Tests: Spur **Lauf** bleibt rechts. `Öffne Debug` zeigt **Start**.
+Die neuen Sätze stehen in **18.8 Debug & Termin**, **Kalender**, **Lage**
+und Spur **Probe** (13 Packs). Auto-Debug (Start) schickt sie mit, außer
+Fernseher/PC.
+
+## 11. Neue Testprompts (1:1)
+
+```
+Änder Maxi Geburtstag in Jakob Geburtstag
+Maxi Geburtstag heißt jetzt Jakob Geburtstag
+Zeig Flugzeuge
+Zeig Satelliten
+Watchliste: Dune
+```
+
+`Zeig Flugzeuge` ist die Kugel-Schicht, nicht `Was fliegt da` (OpenSky).
+`Watchliste: Dune` legt den Film an; Folie zeigt Kritiker **und** Publikum.
 
 ---
 
