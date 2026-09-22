@@ -64,6 +64,9 @@ export function subQueries(text: string): string[] {
   if (uniq.length > 1) out.push(uniq.slice(1, 3).join(' '))
   if (/\b(?:termin|zahnarzt|arzt|kalender)\b/i.test(t) && !out.includes('termin')) out.push('termin')
   if (/\b(?:milch|einkauf|liste)\b/i.test(t) && !out.includes('milch')) out.push('einkauf')
+  if (/\b(?:kontakt|telefonbuch|whatsapp|e-?mails?|emails?|nummer)\b/i.test(t) && !out.includes('kontakt')) {
+    out.push('kontakt')
+  }
   for (const a of aliasQueries(t)) out.push(a)
   return [...new Set(out.filter(Boolean))].slice(0, 5)
 }

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import 'fake-indexeddb/auto'
 import { decideGate } from '../src/engine/memory-gate.ts'
 import { dumpLikeValue, inferKind, pruneMemoryItems } from '../src/engine/memory-layer.ts'
 import { extractEntities, inferParentKey, utteranceHints } from '../src/engine/memory-alias.ts'
@@ -6,9 +7,29 @@ import { retrieveFromCorpus, isDumpLine, applyE5Rerank, formatRecallReply } from
 import { parseRecallIntent } from '../src/engine/recall-parse.ts'
 import { CONTRADICTION, isMemoryRecall, isUtilityCorrection, parseMemoryFacts, parsePrefItemAsk } from '../src/engine/memory-parse.ts'
 import { memoryBlock } from '../src/engine/memory-block.ts'
+import { memoryAspect } from '../src/engine/memory-layer.ts'
+import { subQueries } from '../src/engine/retrieve.ts'
 import { TEST_COPY_GROUPS, PROBE_COPY_GROUPS } from '../src/engine/test-copy.ts'
 import { qualityPack, resetPackExistsProbe } from '../src/engine/quality-pack.ts'
 import { DEFAULT_SETTINGS } from '../src/engine/store.ts'
+
+if (!globalThis.localStorage) {
+  const mem = new Map()
+  globalThis.localStorage = {
+    getItem: (k) => (mem.has(k) ? mem.get(k) : null),
+    setItem: (k, v) => {
+      mem.set(String(k), String(v))
+    },
+    removeItem: (k) => {
+      mem.delete(String(k))
+    },
+    clear: () => mem.clear(),
+    key: (i) => [...mem.keys()][i] ?? null,
+    get length() {
+      return mem.size
+    },
+  }
+}
 
 resetPackExistsProbe()
 
@@ -223,5 +244,47 @@ assert.equal(PROBE_COPY_GROUPS[0].title, 'Memory-10')
 const e5 = applyE5Rerank([{ store: 'memory', title: 'x', body: 'y', rank: 1 }])
 assert.equal(e5[0].rank, 1)
 assert.equal(qualityPack('e5', DEFAULT_SETTINGS).wanted, false)
+
+assert.equal(memoryAspect('contact', 'mama'), 'people')
+assert.equal(memoryAspect('research', 'research:bip'), 'research')
+assert.ok(subQueries('Lies meine E-Mails').includes('kontakt'))
+assert.ok(subQueries('Was steht auf WhatsApp').includes('kontakt'))
+{
+  const people = memoryBlock(
+    [pin({ key: 'mama', value: '0171123', category: 'contact' })],
+    'Antworte Mama auf WhatsApp ich bin unterwegs',
+  )
+  assert.match(people, /0171123/)
+  const cited = memoryBlock(
+    [
+      pin({
+        key: 'research:bip',
+        value: 'Destatis nennt die Zahl nur mit Quelle (Quelle: destatis.de)',
+        category: 'research',
+        origin: 'tool',
+        confidence: 0.8,
+      }),
+    ],
+    'Was ist der BIP in Deutschland',
+  )
+  assert.match(cited, /destatis/)
+  assert.match(cited, /Recherche/)
+}
+{
+  const { rememberCitedResearch } = await import('../src/engine/remember-research.ts')
+  const { listMemory } = await import('../src/engine/store.ts')
+  const n = await rememberCitedResearch('Was ist der BIP in Deutschland', [
+    {
+      title: 'Destatis',
+      url: 'https://www.destatis.de/bip',
+      snippet: 'Das Bruttoinlandsprodukt steht in der Tabelle.',
+      provider: 'test',
+      retrieved_at: '2026-09-22',
+    },
+  ])
+  assert.ok(n >= 1)
+  const rows = await listMemory('research')
+  assert.ok(rows.some((r) => /destatis/i.test(r.value) && r.origin === 'tool'))
+}
 
 console.log('test-memory-10 ok')

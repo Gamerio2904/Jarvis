@@ -46,6 +46,7 @@ import {
 } from './research-parse.ts'
 import { looksTruncated } from './polish-guard.ts'
 import { fillResearchLinks } from './web-search.ts'
+import { rememberCitedResearch } from './remember-research.ts'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
@@ -698,6 +699,7 @@ export async function streamChat(
       const n = (research.sources || []).filter((x) => x.url).length
       persistLastStep('research', researchQuery(ask), '', ask)
       persistResearchDone(n > 0 ? 'success' : 'failed')
+      if (n > 0) await rememberCitedResearch(researchQuery(ask), research.sources || [], conversationId)
       if (researchHasSources(research)) {
         let reply = isDeepResearch(ask)
           ? formatDeepResearchReply(ask, research.sources || [])
@@ -876,6 +878,7 @@ export async function streamChat(
         persistLastStep('research', researchQuery(ask), '', ask)
         const n = (research.sources || []).filter((x) => x.url).length
         persistResearchDone(n > 0 ? 'success' : 'failed')
+        if (n > 0) await rememberCitedResearch(researchQuery(ask), research.sources || [], conversationId)
         const product = isProductLookup(ask, discount)
         const sources = research.sources || []
         const weak = !text || isKnowledgeGap(text)

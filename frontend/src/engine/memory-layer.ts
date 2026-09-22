@@ -22,6 +22,7 @@ export function confidenceFor(origin: MemoryOrigin, category = ''): number {
 export function expiresFor(origin: MemoryOrigin, category: string, now = Date.now()): string | null {
   if (origin === 'sleep') return new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString()
   if (category === 'open_loop') return new Date(now + 7 * 24 * 60 * 60 * 1000).toISOString()
+  if (category === 'research') return new Date(now + 14 * 24 * 60 * 60 * 1000).toISOString()
   return null
 }
 
@@ -49,6 +50,16 @@ export function kindFromCategory(category = ''): MemoryKind {
   if (category === 'pref') return 'pref'
   if (category === 'boundary') return 'boundary'
   if (category === 'open_loop') return 'open_loop'
+  return 'fact'
+}
+
+export function memoryAspect(category = '', key = ''): string {
+  if (key === 'name') return 'name'
+  if (key === 'zuhause' || category === 'place') return 'place'
+  if (category === 'contact' || category === 'email') return 'people'
+  if (category === 'pref') return 'pref'
+  if (category === 'boundary') return 'boundary'
+  if (category === 'research') return 'research'
   return 'fact'
 }
 

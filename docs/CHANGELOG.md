@@ -9,8 +9,10 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 Telefonbuch nach Ja lokal merken (`READ_CONTACTS`). E-Mails lesen über
 IMAP mit App-Passwort; schreiben öffnet nur den Entwurf. WhatsApp-Antwort
-über die sichtbare Meldung nach Ja, sonst Chat-Link. Kein stilles Senden,
-kein Accessibility, kein 64. Agent. „Schreib mir eine E-Mail“ fragt An wen.
+über die sichtbare Meldung nach Ja, sonst Chat-Link. Geteilter Gedächtnis-Kern:
+Leute- und Recherche-Aspekte, zitierte Netztreffer mit Quelle (14 Tage),
+kein e5 im Router. Kein stilles Senden, kein Accessibility, kein 64. Agent.
+„Schreib mir eine E-Mail“ fragt An wen.
 Sideload **`18.9.7`** (versionCode `180907`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 

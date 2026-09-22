@@ -71,6 +71,13 @@ Pending-JSON wie SMS: `contacts_confirm`, `mail_confirm`, `mail_to_ask`,
 Stilles WhatsApp. SMTP-Senden. Gmail-OAuth. Accessibility.
 E-Mail-Anhänge. WhatsApp-Medien. iOS. Cloud-Kalender-Sync.
 
+## 4b. Gedächtnis-Kern (gleicher Zug)
+
+Alle Agenten lesen denselben `memoryBlock`. Aspekte: Name, Ort, Leute
+(Kontakt/Mail), Pref, Recherche. Erfolgreiche Suche mit URL landet als
+`research` (Quelle im Wert, 14 Tage, origin tool). Ohne URL nichts merken.
+e5 bleibt aus `pickRoute`.
+
 ## 5. Gerät-PO
 
 1. „Kontakte scannen“ → Nachfrage → Ja → Recht → Anzahl übernommen.
