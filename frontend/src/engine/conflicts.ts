@@ -98,7 +98,11 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'osint', 0.2)
   }
 
-  if (/\b(watchliste|lieblingsfilm|lieblingsfilme|lieblingsliste|lieblinge|zum\s+schauen|filmtipp|nenn\s+mir)\b/.test(t)) {
+  if (
+    /\b(watchliste|lieblingsfilm(?:en?)?|lieblingsliste|lieblinge|zum\s+schauen|filmtipp|nenn\s+mir|doppelt\s+auf\s+der\s+liste)\b/.test(
+      t,
+    )
+  ) {
     out = drop(out, 'todo')
     out = drop(out, 'idea')
     out = drop(out, 'film')

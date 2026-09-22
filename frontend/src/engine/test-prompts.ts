@@ -313,4 +313,6 @@ export const TEST_PROMPTS = [
   'Nee auf die lieblingsliste',
   'Samstag Geburtstag Jakob 18 Uhr',
   'Verschieb Jakob auf Sonntag 19 Uhr',
+  'Inglorious Basterds zu Lieblingsfilmen hinzufügen',
+  'Star Wars 3 ist doppelt auf der Liste fixe das',
 ] as const

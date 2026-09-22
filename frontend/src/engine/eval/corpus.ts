@@ -322,6 +322,8 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Nee auf die lieblingsliste': 'watchlist',
   'Samstag Geburtstag Jakob 18 Uhr': 'calendar',
   'Verschieb Jakob auf Sonntag 19 Uhr': 'calendar',
+  'Inglorious Basterds zu Lieblingsfilmen hinzufügen': 'watchlist',
+  'Star Wars 3 ist doppelt auf der Liste fixe das': 'watchlist',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

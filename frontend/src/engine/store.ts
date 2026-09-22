@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.9.4'
+export const APP_VERSION = '18.9.5'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
@@ -1019,7 +1019,13 @@ export async function addWatchMovie(
 ): Promise<WatchMovie> {
   const rows = await getAll<WatchMovie>('watch_movies')
   const probe = { title, year: extra.year, imdbId: extra.imdbId }
-  const existing = rows.find((r) => movieKeyOf(r) === movieKeyOf(probe) || r.title.toLowerCase() === title.trim().toLowerCase())
+  const extraId = (extra.imdbId || '').trim().toLowerCase()
+  const existing = rows.find((r) => {
+    if (movieKeyOf(r) === movieKeyOf(probe)) return true
+    if (r.title.toLowerCase() === title.trim().toLowerCase()) return true
+    const haveId = (r.imdbId || '').trim().toLowerCase()
+    return Boolean(extraId && haveId && extraId === haveId)
+  })
   if (existing) {
     const lists = Array.from(new Set([...(existing.lists || []), list])) as WatchListKind[]
     const next: WatchMovie = {
@@ -1066,6 +1072,11 @@ export async function moveWatchMovie(id: string, to: WatchListKind): Promise<Wat
   await put('watch_movies', next)
   emitHouse('jarvis-watchlist')
   return next
+}
+
+export async function deleteWatchMovie(id: string): Promise<void> {
+  await del('watch_movies', id)
+  emitHouse('jarvis-watchlist')
 }
 
 export async function removeWatchMovie(id: string, list: WatchListKind): Promise<void> {

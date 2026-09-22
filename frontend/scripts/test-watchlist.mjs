@@ -9,11 +9,13 @@ import { parseIdeaIntent } from '../src/engine/idea-parse.ts'
 import { parseTasteIntent } from '../src/engine/film-taste-parse.ts'
 import { isMemoryWrite } from '../src/engine/memory-parse.ts'
 import { pickRoute } from '../src/engine/route-pick.ts'
-import { expandFilmTitle, fromOmdb, splitFilmTitle, watchScoreLine, watchScoreParts } from '../src/engine/omdb.ts'
+import { expandFilmTitle, fromOmdb, sameFilmTitle, splitFilmTitle, watchScoreLine, watchScoreParts } from '../src/engine/omdb.ts'
 import { overlayHidesDrive } from '../src/engine/overlay-fsm.ts'
 import { applyWatched, WATCHED_PACK_TOPIC } from '../src/engine/film-taste.ts'
 import { rewriteOrdinal } from '../src/engine/ordinal.ts'
 import { scrubReply } from '../src/engine/guards.ts'
+import { rewriteFollowUp } from '../src/engine/last-step.ts'
+import { repairSpeech } from '../src/engine/utterance.ts'
 
 if (!globalThis.localStorage) {
   const mem = new Map()
@@ -34,6 +36,17 @@ assert.equal(parseWatchlistIntent('Nee auf die lieblingsliste')?.list, 'favorite
 assert.equal(parseWatchlistIntent('verschieb das zu den Lieblingen')?.kind, 'move')
 assert.equal(parseWatchlistIntent('Star Wars 3 auf die Lieblingsliste')?.kind, 'add')
 assert.equal(parseWatchlistIntent('Star Wars 3 auf die Lieblingsliste')?.list, 'favorite')
+assert.equal(parseWatchlistIntent('Inglorious Basterds zu Lieblingsfilmen hinzufügen')?.kind, 'add')
+assert.equal(parseWatchlistIntent('Inglorious Basterds zu Lieblingsfilmen hinzufügen')?.list, 'favorite')
+assert.equal(parseWatchlistIntent('IngloriousbastarddszuLieblingsfilmenhinzufügen')?.kind, 'add')
+assert.equal(parseWatchlistIntent('Ja entfernen es')?.kind, 'remove')
+assert.equal(parseWatchlistIntent('Jaentfernenes')?.kind, 'remove')
+assert.equal(parseWatchlistIntent('Star Wars 3 ist doppelt auf der Liste fixe das')?.kind, 'dedupe')
+assert.equal(parseWatchlistIntent('Starwars3istdoppeltaufderlistefixedas')?.kind, 'dedupe')
+assert.equal(pickRoute('Inglorious Basterds zu Lieblingsfilmen hinzufügen'), 'watchlist')
+assert.equal(pickRoute('Ja entfernen es'), 'watchlist')
+assert.equal(pickRoute('Star Wars 3 ist doppelt auf der Liste fixe das'), 'watchlist')
+assert.ok(expandFilmTitle('Inglorious Basterds').some((t) => /Inglourious Basterds/i.test(t)))
 assert.equal(pickRoute('Nee auf die lieblingsliste'), 'watchlist')
 assert.equal(splitFilmTitle('StarWars3'), 'Star Wars 3')
 assert.ok(expandFilmTitle('Star Wars 3').some((t) => /Episode III/i.test(t)))
@@ -42,6 +55,17 @@ assert.match(
   /nicht ausgeführt/,
 )
 assert.match(scrubReply('Der Film befindet sich aktuell auf der Watchliste.'), /nicht ausgeführt/)
+assert.match(scrubReply('Ich habe keinen Zugriff auf Ihre Filmliste, um Einträge zu entfernen.'), /nicht ausgeführt/)
+assert.match(scrubReply('Ich habe den Film nicht in Ihrer Liste gespeichert.'), /nicht ausgeführt/)
+assert.match(scrubReply('Ich habe keine Bestätigung, dass der Duplikat entfernt wurde.'), /nicht ausgeführt/)
+assert.ok(sameFilmTitle('Star Wars 3', 'Star Wars: Episode III - Revenge of the Sith'))
+assert.ok(sameFilmTitle('Inglorious bastardds', 'Inglourious Basterds'))
+assert.equal(repairSpeech('Jaentfernenes'), 'Ja entfernen es')
+assert.match(repairSpeech('IngloriousbastarddszuLieblingsfilmenhinzufügen'), /Basterds zu lieblingsfilmen hinzufügen/i)
+assert.equal(
+  rewriteFollowUp('ja entfernen es', { last_step_tool: 'watchlist', last_step_title: 'Heat' }),
+  'von der watchliste Heat',
+)
 assert.equal(parseWatchlistIntent('Lieblingsliste: Arrival')?.kind, 'add')
 assert.equal(parseWatchlistIntent('Lieblingsliste: Arrival')?.list, 'favorite')
 assert.equal(parseWatchlistIntent('Öffne Lieblingsfilme')?.kind, 'show')
@@ -215,5 +239,27 @@ const after = await listWatchMovies('watch')
 assert.ok(!after.some((m) => /alien/i.test(m.title)))
 const watched = await listWatchedMovies()
 assert.ok(watched.some((m) => /alien/i.test(m.title)))
+
+{
+  const fav = await handleWatchlist('c-ing', 'Inglorious Basterds zu Lieblingsfilmen hinzufügen')
+  assert.match(fav.reply || '', /Lieblingen|Inglourious|Basterds/)
+  assert.equal(fav.tool?.action, 'add')
+  persistLastList('watch-favorite', ['Inglourious Basterds'])
+  const rm = await handleWatchlist('c-ing', 'Ja entfernen es')
+  assert.match(rm.reply || '', /Weg von/)
+  assert.equal(rm.tool?.action, 'remove')
+}
+
+{
+  await addWatchMovie('Star Wars 3', 'watch')
+  await addWatchMovie('Star Wars: Episode III - Revenge of the Sith', 'watch', { imdbId: 'tt0121766' })
+  const before = (await listWatchMovies('watch')).filter((m) => /star wars/i.test(m.title))
+  assert.ok(before.length >= 2)
+  const fix = await handleWatchlist('c-dup', 'Star Wars 3 ist doppelt auf der Liste fixe das')
+  assert.equal(fix.tool?.action, 'dedupe')
+  assert.match(fix.reply || '', /zusammengelegt/)
+  const left = (await listWatchMovies('watch')).filter((m) => /star wars/i.test(m.title) && /3|iii|episode/i.test(m.title))
+  assert.equal(left.length, 1)
+}
 
 console.log('test-watchlist ok')

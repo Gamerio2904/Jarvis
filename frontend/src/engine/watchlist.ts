@@ -1,11 +1,13 @@
 import {
   addWatchMovie,
   addWatchedMovie,
+  deleteWatchMovie,
   listWatchMovies,
   listWatchedMovies,
   loadSettings,
   moveWatchMovie,
   persistLastList,
+  put,
   readLastList,
   removeWatchMovie,
   type WatchListKind,
@@ -23,7 +25,7 @@ import {
   type MovieSeed,
 } from './film-taste.ts'
 import { genresFromOmdb } from './film-taste-parse.ts'
-import { lookupOmdb, splitFilmTitle } from './omdb.ts'
+import { lookupOmdb, sameFilmTitle, splitFilmTitle } from './omdb.ts'
 import { knowledgeBlock } from './knowledge-block.ts'
 import { getByTopic, listKnowledgePacks, putKnowledgePack } from './knowledge-store.ts'
 import { WATCHED_PACK_TOPIC } from './film-taste.ts'
@@ -72,9 +74,17 @@ function lastFilmTitle(): string {
 }
 
 function titleMatch(a: string, b: string): boolean {
+  if (sameFilmTitle(a, b)) return true
   const x = splitFilmTitle(a).toLowerCase()
   const y = splitFilmTitle(b).toLowerCase()
   return Boolean(x && y && (x === y || x.includes(y) || y.includes(x)))
+}
+
+function sameFilm(a: WatchMovie, b: WatchMovie): boolean {
+  const idA = (a.imdbId || '').trim().toLowerCase()
+  const idB = (b.imdbId || '').trim().toLowerCase()
+  if (idA && idB && idA === idB) return true
+  return sameFilmTitle(a.title, b.title)
 }
 
 function pickFromList(rows: WatchMovie[], list: WatchListKind, title?: string, index?: number): WatchMovie | undefined {
@@ -87,9 +97,9 @@ function pickFromList(rows: WatchMovie[], list: WatchListKind, title?: string, i
     }
     return rows.filter((r) => r.lists.includes(list))[index - 1]
   }
-  const q = (title || '').trim().toLowerCase()
+  const q = (title || '').trim()
   if (!q) return undefined
-  return rows.find((r) => r.lists.includes(list) && (r.title.toLowerCase() === q || r.title.toLowerCase().includes(q)))
+  return rows.find((r) => r.lists.includes(list) && titleMatch(r.title, q))
 }
 
 async function enrich(row: WatchMovie): Promise<WatchMovie> {
@@ -120,8 +130,48 @@ async function enrich(row: WatchMovie): Promise<WatchMovie> {
     genres: hit.genre ? genresFromOmdb(hit.genre) : row.genres,
     scoresAt: new Date().toISOString(),
   }
-  await addWatchMovie(next.title, next.lists[0] || 'watch', next)
-  return (await listWatchMovies()).find((m) => movieKey(m) === movieKey(next)) || next
+  await addWatchMovie(row.title, next.lists[0] || 'watch', next)
+  const after = await listWatchMovies()
+  return after.find((m) => movieKey(m) === movieKey(next) || titleMatch(m.title, next.title) || m.id === row.id) || next
+}
+
+async function mergeGroup(group: WatchMovie[]): Promise<WatchMovie> {
+  const keep = [...group].sort((a, b) => {
+    const score = (m: WatchMovie) =>
+      (m.imdbId ? 8 : 0) + (m.imdbScore ? 2 : 0) + (m.poster ? 1 : 0) + (m.title.length > 12 ? 1 : 0)
+    return score(b) - score(a)
+  })[0]
+  const lists = Array.from(new Set(group.flatMap((m) => m.lists || []))) as WatchListKind[]
+  const richest = group.find((m) => m.imdbId && m.title.length >= keep.title.length) || keep
+  const next: WatchMovie = {
+    ...keep,
+    ...richest,
+    id: keep.id,
+    lists,
+    created_at: keep.created_at,
+    updated_at: new Date().toISOString(),
+  }
+  await put('watch_movies', next)
+  for (const row of group) {
+    if (row.id !== keep.id) await deleteWatchMovie(row.id)
+  }
+  return next
+}
+
+async function dedupeRows(title?: string): Promise<WatchMovie[]> {
+  const rows = await listWatchMovies()
+  const used = new Set<string>()
+  const merged: WatchMovie[] = []
+  for (const row of rows) {
+    if (used.has(row.id)) continue
+    if (title && !titleMatch(row.title, title) && !sameFilmTitle(row.title, title)) continue
+    const group = rows.filter((other) => !used.has(other.id) && (other.id === row.id || sameFilm(row, other)))
+    if (title && !group.some((m) => titleMatch(m.title, title) || sameFilmTitle(m.title, title))) continue
+    if (group.length < 2) continue
+    for (const m of group) used.add(m.id)
+    merged.push(await mergeGroup(group))
+  }
+  return merged
 }
 
 export async function enrichWatchlist(list?: WatchListKind): Promise<WatchMovie[]> {
@@ -247,11 +297,13 @@ export async function handleWatchlist(
     const existed = before.find(
       (m) =>
         m.lists.includes(intent.list) &&
-        (m.title.toLowerCase() === intent.title.toLowerCase() || titleMatch(m.title, intent.title)),
+        (m.title.toLowerCase() === intent.title.toLowerCase() ||
+          titleMatch(m.title, intent.title) ||
+          sameFilmTitle(m.title, intent.title)),
     )
     const other = before.find(
       (m) =>
-        titleMatch(m.title, intent.title) &&
+        (titleMatch(m.title, intent.title) || sameFilmTitle(m.title, intent.title)) &&
         m.lists.includes(intent.list === 'favorite' ? 'watch' : 'favorite') &&
         !m.lists.includes(intent.list),
     )
@@ -269,6 +321,7 @@ export async function handleWatchlist(
     const clean = splitFilmTitle(intent.title) || intent.title
     const row = await addWatchMovie(clean, intent.list, { source_conversation_id: conversationId })
     const enriched = await enrich(row)
+    await dedupeRows(enriched.title)
     const listKey = intent.list === 'watch' ? 'watch-watch' : 'watch-favorite'
     persistLastList(listKey, titles(await listWatchMovies(intent.list)))
     if (existed) {
@@ -301,17 +354,42 @@ export async function handleWatchlist(
     return pack(body, 'open', undefined, extra)
   }
 
+  if (intent.kind === 'dedupe') {
+    const merged = await dedupeRows(intent.title)
+    const rows = await listWatchMovies()
+    persistLastList('watch-watch', titles(await listWatchMovies('watch')))
+    persistLastList('watch-favorite', titles(await listWatchMovies('favorite')))
+    if (!merged.length) {
+      return pack('Kein doppelter Eintrag auf der Liste.', 'dedupe_miss')
+    }
+    const names = merged.map((m) => m.title).join(', ')
+    return pack(`Doppelte Einträge zusammengelegt: ${names}.`, 'dedupe', merged[0]?.title, {
+      result: { focus: rows.some((m) => m.lists.includes('favorite')) ? 'favorite' : 'watch' },
+    })
+  }
+
   if (intent.kind === 'remove') {
     const rows = await listWatchMovies()
-    const hit = pickFromList(rows, intent.list, intent.title, intent.index)
-    if (!hit) {
-      return pack(intent.list === 'watch' ? 'Der steht nicht auf der Watchliste.' : 'Der steht nicht bei den Lieblingen.', 'miss')
+    const title = (intent.title || lastFilmTitle()).trim()
+    let hit = pickFromList(rows, intent.list, title, intent.index)
+    let list = intent.list
+    if (!hit && title) {
+      const other: WatchListKind = intent.list === 'watch' ? 'favorite' : 'watch'
+      hit = pickFromList(rows, other, title)
+      if (hit) list = other
     }
-    await removeWatchMovie(hit.id, intent.list)
-    const listKey = intent.list === 'watch' ? 'watch-watch' : 'watch-favorite'
-    persistLastList(listKey, titles(await listWatchMovies(intent.list)))
+    if (!hit && !intent.index && !intent.title) {
+      hit = rows.find((r) => r.lists.includes(intent.list)) || rows[0]
+      if (hit) list = hit.lists.includes(intent.list) ? intent.list : hit.lists[0] || 'watch'
+    }
+    if (!hit) {
+      return pack(list === 'watch' ? 'Der steht nicht auf der Watchliste.' : 'Der steht nicht bei den Lieblingen.', 'miss')
+    }
+    await removeWatchMovie(hit.id, list)
+    const listKey = list === 'watch' ? 'watch-watch' : 'watch-favorite'
+    persistLastList(listKey, titles(await listWatchMovies(list)))
     return pack(
-      intent.list === 'watch' ? `Weg von der Watchliste: ${hit.title}.` : `Weg von den Lieblingen: ${hit.title}.`,
+      list === 'watch' ? `Weg von der Watchliste: ${hit.title}.` : `Weg von den Lieblingen: ${hit.title}.`,
       'remove',
       hit.title,
     )

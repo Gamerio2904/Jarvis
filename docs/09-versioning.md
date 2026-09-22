@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.9.4`**. Sideload folgt **`18.9.4`**, versionCode `180904`. Offene Schiene **`18.5` PLAN** (301–306) — **nicht parallel** zu 18.9. Test [`TEST-18.9.md`](./TEST-18.9.md).
+> **Jetzt:** App-Code **`18.9.5`**. Sideload folgt **`18.9.5`**, versionCode `180905`. Offene Schiene **`18.5` PLAN** (301–306) — **nicht parallel** zu 18.9. Test [`TEST-18.9.md`](./TEST-18.9.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -743,6 +743,10 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.9.4` | Propose Action-then-ground + Repair | 335 CODE |
 | `18.9.5` | API/Cache neu, kein Key-Tausch | 336 CODE |
 | `18.9.6` | Härten, Gold, Auto-Debug, TEST-18.9 | 337 CODE |
+
+Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
+Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
+Die Planungszeile `18.9.5` oben bleibt Sprint 336 (API/Cache).
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

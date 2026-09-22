@@ -75,7 +75,36 @@ const REPAIRS: Array<[RegExp, string]> = [
   [/\bminute\b/gi, 'Minute'],
   [/samestags?/gi, 'Samstag'],
   [/\buhrher\b/gi, 'Uhr'],
+  [/\bjaentfernenes\b/gi, 'ja entfernen es'],
+  [/\bjaentfernen\b/gi, 'ja entfernen '],
+  [/\bentfernenes\b/gi, 'entfernen es'],
+  [/\bzulieblingsfilmen\b/gi, 'zu lieblingsfilmen'],
+  [/\blieblingsfilmenhinzufügen\b/gi, 'lieblingsfilmen hinzufügen'],
+  [/\bistdoppelt\b/gi, 'ist doppelt'],
+  [/\baufderliste\b/gi, 'auf der liste'],
+  [/\bfixedas\b/gi, 'fixe das'],
+  [/\binglorious\b/gi, 'Inglourious'],
+  [/\bbastard+s\b/gi, 'Basterds'],
+  [/basterdszu/gi, 'Basterds zu '],
 ]
+
+/** STT klebt Watchliste-Sätze: Jaentfernenes, zuLieblingsfilmen, istdoppelt. */
+export function normalizeWatchlistSpeech(text: string): string {
+  return text
+    .replace(/jaentfernenes/gi, 'ja entfernen es')
+    .replace(/jaentfernen/gi, 'ja entfernen ')
+    .replace(/entfernenes/gi, 'entfernen es')
+    .replace(/zulieblingsfilmen/gi, 'zu lieblingsfilmen')
+    .replace(/lieblingsfilmenhinzufügen/gi, 'lieblingsfilmen hinzufügen')
+    .replace(/istdoppelt/gi, 'ist doppelt')
+    .replace(/aufderliste/gi, 'auf der liste')
+    .replace(/fixedas/gi, 'fixe das')
+    .replace(/inglorious/gi, 'Inglourious')
+    .replace(/bastard+s/gi, 'Basterds')
+    .replace(/basterdszu/gi, 'Basterds zu ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
 
 export function repairSpeech(text: string): string {
   let t = text.replace(/\s+/g, ' ').trim()
@@ -83,6 +112,7 @@ export function repairSpeech(text: string): string {
   for (const [re, to] of REPAIRS) t = t.replace(re, to)
   t = repairBarnBahn(t)
   t = normalizeCalendarSpeech(t)
+  t = normalizeWatchlistSpeech(t)
   return t.replace(/\s+/g, ' ').trim()
 }
 

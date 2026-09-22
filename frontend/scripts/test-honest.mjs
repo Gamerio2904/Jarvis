@@ -6,6 +6,8 @@ import { looksCommandish } from '../src/engine/tool-contract.ts'
 assert.equal(looksCommandish('Nee auf die lieblingsliste'), true)
 assert.equal(looksCommandish('verschieb das zu den Lieblingen'), true)
 assert.equal(looksCommandish('doch auf die Watchliste'), true)
+assert.equal(looksCommandish('Inglorious Basterds zu Lieblingsfilmen hinzufügen'), true)
+assert.equal(looksCommandish('Star Wars 3 ist doppelt auf der Liste fixe das'), true)
 assert.equal(looksCommandish('Was ist eine Watchliste'), false)
 assert.equal(looksCommandish('Wie geht es dir'), false)
 assert.equal(looksCommandish('Hallo Jarvis'), false)
@@ -29,6 +31,9 @@ assert.match(scrubReply('Ich habe den Film auf die Watchliste gelegt.'), /nicht 
 assert.match(scrubReply('Der Termin ist angelegt.'), /nicht ausgeführt/)
 assert.match(scrubReply('Der Termin für Samstags 18 Uhr steht.'), /nicht ausgeführt/)
 assert.match(scrubReply('Die Erinnerung ist gesetzt.'), /nicht ausgeführt/)
+assert.match(scrubReply('Ich habe keinen Zugriff auf Ihre Filmliste, um Einträge zu entfernen.'), /nicht ausgeführt/)
+assert.match(scrubReply('Ich habe den Film nicht in Ihrer Liste gespeichert.'), /nicht ausgeführt/)
+assert.match(scrubReply('Ich habe keine Bestätigung, dass der Duplikat entfernt wurde.'), /nicht ausgeführt/)
 assert.doesNotMatch(scrubReply('Ich habe nichts geändert. Bitte nochmal.'), /nicht ausgeführt/)
 
 assert.equal(skipMicroMerge('Zu den Lieblingen, weg von der Watchliste: Heat.'), true)

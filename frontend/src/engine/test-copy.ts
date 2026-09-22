@@ -698,6 +698,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Zu den Lieblingen", text: "Nee auf die lieblingsliste", expect: {"tool":"watchlist"} },
       { label: "Samstag Jakob", text: "Samstag Geburtstag Jakob 18 Uhr", expect: {"tool":"calendar"} },
       { label: "Verschieben", text: "Verschieb Jakob auf Sonntag 19 Uhr", expect: {"tool":"calendar"} },
+      { label: "Zu Lieblingsfilmen", text: "Inglorious Basterds zu Lieblingsfilmen hinzufügen", expect: {"tool":"watchlist"} },
+      { label: "Duplikat fixen", text: "Star Wars 3 ist doppelt auf der Liste fixe das", expect: {"tool":"watchlist"} },
     ],
   },
 ]
@@ -907,6 +909,8 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: '11 – ↳ zu den Lieblingen', text: 'Nee auf die lieblingsliste', expect: { tool: 'watchlist' } },
       { label: '12 – Samstag Jakob', text: 'Samstag Geburtstag Jakob 18 Uhr', expect: { tool: 'calendar' } },
       { label: '13 – ↳ verschieben', text: 'Verschieb Jakob auf Sonntag 19 Uhr', expect: { tool: 'calendar' } },
+      { label: '14 – Zu Lieblingsfilmen', text: 'Inglorious Basterds zu Lieblingsfilmen hinzufügen', expect: { tool: 'watchlist' } },
+      { label: '15 – Duplikat fixen', text: 'Star Wars 3 ist doppelt auf der Liste fixe das', expect: { tool: 'watchlist' } },
     ],
   },
 ]

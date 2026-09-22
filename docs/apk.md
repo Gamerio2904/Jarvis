@@ -1,6 +1,9 @@
-# Android-APK — Sideload `18.9.4`
+# Android-APK — Sideload `18.9.5`
 
-App-Code **`18.9.4`**. Sideload **`18.9.4`** (versionCode `180904`):
+App-Code **`18.9.5`**. Sideload **`18.9.5`** (versionCode `180905`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+**18.9.4:** Kalender-Agent, nacktes „Samstag Geburtstag Jakob 18 Uhr“. Sideload **`18.9.4`** (versionCode `180904`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.9.3:** Mikrofon weniger Lag. Sideload **`18.9.3`** (versionCode `180903`):
@@ -60,10 +63,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.9.4`:**  
+**Fertige APK `18.9.5`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.9.4` · versionCode `180904`
+- versionName `18.9.5` · versionCode `180905`
 
 ## Build lokal
 

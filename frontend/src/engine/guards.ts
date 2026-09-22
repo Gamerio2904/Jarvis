@@ -8,6 +8,9 @@ const HELPDESK =
 const FAKE_CLAIM =
   /\b(?:ich\s+habe\s+(?:gerade\s+)?(?:den\s+fernseher|das\s+todo|die\s+notiz|den\s+termin)|habe\s+ich\s+(?:gemacht|erledigt|gespeichert|notiert|angeschaltet|ausgeschaltet|gekoppelt)|ist\s+erledigt|lautet\s+jetzt|eintrag\s+lautet|wurde(?:\s+\S+){0,12}\s+(?:verschoben|kopiert|angelegt|eingetragen|umbenannt|aufgenommen)|befindet\s+sich\s+aktuell\s+auf|steht\s+jetzt\s+auf|ist\s+jetzt\s+auf\s+der|habe\s+(?:es\s+|den\s+film\s+)?(?:auf\s+die|zur)\s+(?:watchliste|lieblingsliste)|habe\s+(?:ich\s+)?(?:\S+\s+){0,6}(?:hinzugefügt|verschoben|gelegt)|erinnerung\s+ist\s+(?:gesetzt|angelegt)|termin\s+ist\s+(?:angelegt|gespeichert)|(?:der\s+)?termin\s+für\s+\S.+\ssteht)\b/i
 
+const FAKE_WATCH_ACCESS =
+  /kein(?:en)?\s+(?:direkten?\s+)?zugriff\s+auf\s+(?:ihre\s+)?(?:film|watch)?liste|den\s+film\s+nicht\s+in\s+ihrer\s+liste\s+gespeichert|nicht\s+in\s+ihrer\s+liste\s+gespeichert|keine\s+bestätigung.{0,80}(?:entfernt|gelöscht|duplikat)/i
+
 const ACTION_VERB =
   /\b(?:verschoben|hinzugefügt|gespeichert|erledigt|angelegt|gelöscht|gestartet|geöffnet|verbunden|bestellt|geschickt|gesendet|kopiert|umbenannt|eingetragen|ausgeführt|gekoppelt|aufgenommen)\b/i
 
@@ -81,7 +84,7 @@ export function scrubReply(text: string, opts?: { searched?: boolean; names?: st
   if (INJECT.test(out)) {
     return 'Netter Versuch. Weiter im Chat?'
   }
-  if (FAKE_CLAIM.test(out)) {
+  if (FAKE_CLAIM.test(out) || FAKE_WATCH_ACCESS.test(out)) {
     return 'Das habe ich nicht ausgeführt. Den Befehl bitte klar sagen.'
   }
   if (FAKE_CARPLAY.test(out)) {

@@ -72,6 +72,7 @@ const FILM_ALIAS: Array<[RegExp, string]> = [
   [/star\s*wars\s*(?:episode\s*)?(?:1|i|eins)\b/i, 'Star Wars: Episode I'],
   [/star\s*wars\s*(?:episode\s*)?(?:5|v|fünf|fuenf)\b/i, 'Star Wars: Episode V'],
   [/star\s*wars\s*(?:episode\s*)?(?:6|vi|sechs)\b/i, 'Star Wars: Episode VI'],
+  [/inglou?rious\s*bast[ae]rds?\b/i, 'Inglourious Basterds'],
 ]
 
 export function expandFilmTitle(title: string): string[] {
@@ -83,6 +84,25 @@ export function expandFilmTitle(title: string): string[] {
     if (re.test(key)) out.push(alias)
   }
   return [...new Set(out)]
+}
+
+export function filmTitleKeys(title: string): string[] {
+  return [
+    ...new Set(
+      expandFilmTitle(title).map((t) =>
+        splitFilmTitle(t)
+          .toLowerCase()
+          .replace(/[^a-z0-9äöüß]+/g, ' ')
+          .trim(),
+      ),
+    ),
+  ].filter(Boolean)
+}
+
+/** Gleicher Film, nicht Franchise-Teilmenge (Star Wars ≠ Episode III). */
+export function sameFilmTitle(a: string, b: string): boolean {
+  const have = new Set(filmTitleKeys(a))
+  return filmTitleKeys(b).some((k) => have.has(k))
 }
 
 async function omdbBy(params: URLSearchParams): Promise<Record<string, unknown> | null> {

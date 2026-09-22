@@ -5,6 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.9.5` — Watchliste: Entfernen, Lieblinge, Duplikat — *CODE + APK*
+
+„Ja entfernen es“ nimmt den letzten Film von der Liste. „Inglorious
+Basterds zu Lieblingsfilmen hinzufügen“ speichert wirklich, auch wenn
+STT die Wörter klebt. „Star Wars 3 ist doppelt … fixe das“ legt die
+zwei Zeilen zusammen (Star Wars 3 und Episode III). LLM-Sätze
+„keinen Zugriff auf Ihre Filmliste“, „nicht in Ihrer Liste gespeichert“,
+„keine Bestätigung, dass der Duplikat entfernt wurde“ ohne Werkzeug
+werden gestrichen.
+Sideload **`18.9.5`** (versionCode `180905`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.9.4` — Kalender-Agent + GUI — *CODE + APK*
 
 „Samstag Geburtstag Jakob 18 Uhr“ legt den Termin wirklich auf den

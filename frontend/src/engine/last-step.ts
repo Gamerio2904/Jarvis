@@ -41,7 +41,10 @@ export function contradictionSearchAsk(text: string, step?: LastStep | null): st
 }
 
 const FOLLOW_UP =
-  /^(und\s+)?(lösch(e|en)?(\s+das)?|das\s+löschen|vergiss?\s+das|und\s+um\s+\d{1,2}([:.]\d{2})?(\s+uhr)?|und\s+morgen\??|morgen\s+auch|stattdessen\s+um\s+\d{1,2}|in\s+\d+\s+(?:minuten?|stunden?)|morgen\s+\d{1,2}(?:[:.]\d{2})?)\s*[.?!]?$/i
+  /^(und\s+)?(lösch(e|en)?(\s+das)?|das\s+löschen|entferne(?:n)?(\s+(?:das|es|den))?|ja\s+entfernen\s+(?:es|das)|vergiss?\s+das|und\s+um\s+\d{1,2}([:.]\d{2})?(\s+uhr)?|und\s+morgen\??|morgen\s+auch|stattdessen\s+um\s+\d{1,2}|in\s+\d+\s+(?:minuten?|stunden?)|morgen\s+\d{1,2}(?:[:.]\d{2})?)\s*[.?!]?$/i
+
+const REMOVE_THAT =
+  /^(?:ja\s+)?(?:entferne(?:n)?|lösch(?:e|en)?)\s+(?:das|es|den|ihn|sie)(?:\s+(?:bitte|mal))?\s*[.!?]?$/i
 
 const CONFIRM = /^(ja(?:\s+bitte)?|jo|yes|ok|okay|mach(?:\s+es|\s+mal)?|bitte|passt|mach(?:st)?\s+(?:du\s+)?(?:das|es)\s+an)\s*[.!?]?$/i
 const RESEARCH_YES = /^(?:ja\s+bitte(?:\s+(?:suchen|recherchieren))?|bitte\s+suchen|such(?:e)?(?:\s+bitte)?)\s*[.!?]?$/i
@@ -125,6 +128,16 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     return null
   }
 
+  if (REMOVE_THAT.test(raw)) {
+    if (tool === 'watchlist') return title ? `von der watchliste ${title}` : 'von der watchliste'
+    if (tool === 'calendar') return title ? `lösche Termin ${title}` : 'lösche den letzten Termin'
+    if (tool === 'alarm') return 'Wecker aus'
+    if (tool === 'timer') return 'Timer aus'
+    if (tool === 'reminder') return title ? `lösche Erinnerung ${title}` : 'Erinnerung aus'
+    if (tool === 'todo') return title ? `lösche Todo ${title}` : 'lösche das letzte Todo'
+    if (tool === 'shopping') return title ? `${title} hab ich` : null
+  }
+
   if (CONFIRM.test(raw) || RESEARCH_YES.test(raw)) {
     const pending = expireResearchPending(parseResearchPending(step?.last_research_json))
     const accepted = acceptResearchPending(raw, pending)
@@ -197,7 +210,8 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
     }
   }
 
-  if (/lösch|vergiss/i.test(raw)) {
+  if (/lösch|vergiss|entfernen/i.test(raw)) {
+    if (tool === 'watchlist') return title ? `von der watchliste ${title}` : 'von der watchliste'
     if (tool === 'calendar') return title ? `lösche Termin ${title}` : 'lösche den letzten Termin'
     if (tool === 'alarm') return 'Wecker aus'
     if (tool === 'timer') return 'Timer aus'

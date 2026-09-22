@@ -35,4 +35,11 @@ zeigt den Termin am nächsten Samstag 18:00, nicht „Nichts an diesem Tag“.
 `Verschieb Jakob auf Sonntag 19 Uhr` rückt ihn. Woche-Reiter und
 Wochenstreifen zeigen denselben Eintrag.
 
+## 7. Watchliste 18.9.5
+
+`Inglorious Basterds zu Lieblingsfilmen hinzufügen` — Chat nennt den
+Titel bei den Lieblingen, Folie Filme zeigt ihn. `Ja entfernen es`
+nimmt denselben Eintrag weg. Zwei Zeilen Star Wars 3 / Episode III:
+`Star Wars 3 ist doppelt auf der Liste fixe das` lässt eine übrig.
+
 Vorher: [`TEST-18.8.md`](./TEST-18.8.md).

@@ -948,6 +948,16 @@ assert.equal(
   'lösche Termin Zahnarzt',
 )
 assert.equal(rewriteFollowUp('lösch das', { last_step_tool: 'alarm', last_step_title: 'Wecker' }), 'Wecker aus')
+assert.ok(isFollowUpPhrase('ja entfernen es'))
+assert.ok(isFollowUpPhrase('entferne das'))
+assert.equal(
+  rewriteFollowUp('ja entfernen es', { last_step_tool: 'watchlist', last_step_title: 'Inglourious Basterds' }),
+  'von der watchliste Inglourious Basterds',
+)
+assert.equal(
+  rewriteFollowUp('entferne das', { last_step_tool: 'watchlist', last_step_title: 'Heat' }),
+  'von der watchliste Heat',
+)
 assert.equal(rewriteFollowUp('lösch das', { last_step_tool: 'timer' }), 'Timer aus')
 assert.equal(
   rewriteFollowUp('und um 16?', { last_step_tool: 'calendar', last_step_title: 'Jane' }),

@@ -326,6 +326,8 @@ const POLITE = /^\s*(?:und\s+)?(?:bitte\s+)?(?:kannst|kannste|könntest|würdest
 /** Korrektur ohne Imperativ: sonst fällt „Nee auf die Lieblingsliste“ ins Modell. */
 const CORRECTION = /^\s*(?:nee+|nein|nicht|lieber|doch)\b/i
 const LIST_MOVE = /\b(?:auf|zu)\s+(?:die|den|der)\s+(?:liebling\w*|watchliste|liste)\b/i
+const LIST_ADD = /\bzu\s+(?:meinen\s+)?lieblingsfilmen\b|\bhinzufügen\b.*\b(?:liste|liebling)/i
+const LIST_FIX = /\b(?:doppelt|duplikat)\b.*\b(?:liste|watchliste|liebling)/i
 
 /**
  * Darf dieser Zug einen Modellvorschlag kosten?
@@ -342,5 +344,5 @@ export function looksCommandish(text: string): boolean {
   if (!DOMAIN.test(t)) return false
   const polite = POLITE.test(t)
   if (QUESTION.test(t) && !polite) return false
-  return polite || COMMAND.test(t) || CORRECTION.test(t) || LIST_MOVE.test(t)
+  return polite || COMMAND.test(t) || CORRECTION.test(t) || LIST_MOVE.test(t) || LIST_ADD.test(t) || LIST_FIX.test(t)
 }
