@@ -744,7 +744,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.9.5` | API/Cache neu, kein Key-Tausch | 336 CODE |
 | `18.9.6` | Härten, Gold, Auto-Debug, TEST-18.9 | 337 CODE |
 | `18.9.7` | E-Mail, Telefonbuch, WhatsApp-Antwort | 338 CODE |
-| `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test | 339 CODE |
+| `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern | 339–340 CODE + APK |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
