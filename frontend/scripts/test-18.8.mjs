@@ -153,6 +153,10 @@ assert.ok(!(await listEvents()).some((e) => e.title === 'Maxi Geburtstag'))
   assert.ok((await listEvents()).some((e) => e.title.includes('PendingHold')))
   assert.ok((await listEvents()).some((e) => e.title.includes('ZweiterHold')))
   assert.match(scrubReply('Ist erledigt. Der Eintrag lautet jetzt Jakob Geburtstag.'), /nicht ausgeführt/)
+  assert.match(
+    scrubReply('Star Wars 3 wurde von der Watchliste in die Lieblingsliste verschoben.'),
+    /nicht ausgeführt/,
+  )
   assert.equal(skipMicroMerge('Termin: Zahnarzt. Steht im Kalender. Wann soll ich Sie erinnern?'), true)
 }
 

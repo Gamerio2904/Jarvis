@@ -13,6 +13,7 @@ import { expandFilmTitle, fromOmdb, splitFilmTitle, watchScoreLine, watchScorePa
 import { overlayHidesDrive } from '../src/engine/overlay-fsm.ts'
 import { applyWatched, WATCHED_PACK_TOPIC } from '../src/engine/film-taste.ts'
 import { rewriteOrdinal } from '../src/engine/ordinal.ts'
+import { scrubReply } from '../src/engine/guards.ts'
 
 if (!globalThis.localStorage) {
   const mem = new Map()
@@ -36,6 +37,11 @@ assert.equal(parseWatchlistIntent('Star Wars 3 auf die Lieblingsliste')?.list, '
 assert.equal(pickRoute('Nee auf die lieblingsliste'), 'watchlist')
 assert.equal(splitFilmTitle('StarWars3'), 'Star Wars 3')
 assert.ok(expandFilmTitle('Star Wars 3').some((t) => /Episode III/i.test(t)))
+assert.match(
+  scrubReply('Star Wars 3 wurde von der Watchliste in die Lieblingsliste verschoben.'),
+  /nicht ausgeführt/,
+)
+assert.match(scrubReply('Der Film befindet sich aktuell auf der Watchliste.'), /nicht ausgeführt/)
 assert.equal(parseWatchlistIntent('Lieblingsliste: Arrival')?.kind, 'add')
 assert.equal(parseWatchlistIntent('Lieblingsliste: Arrival')?.list, 'favorite')
 assert.equal(parseWatchlistIntent('Öffne Lieblingsfilme')?.kind, 'show')

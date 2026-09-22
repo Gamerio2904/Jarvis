@@ -315,34 +315,38 @@ async function fetchIssPin(): Promise<GeoFix | null> {
 }
 
 async function fetchCelestrakPins(): Promise<GeoFix[]> {
+  const hosts = ['celestrak.org', 'celestrak.com']
   const groups = ['stations', 'visual']
   const pins: GeoFix[] = []
   const seen = new Set<string>()
   for (const group of groups) {
-    try {
-      const { status, json } = await getJson(
-        `https://celestrak.org/NORAD/elements/gp.php?GROUP=${group}&FORMAT=json`,
-        UA,
-      )
-      if (status < 200 || status >= 300 || !Array.isArray(json)) continue
-      for (const raw of json) {
-        if (!raw || typeof raw !== 'object') continue
-        const row = raw as GpRow
-        if (String(row.NORAD_CAT_ID || '') === '25544') continue
-        const hit = propagateGp(row)
-        if (!hit) continue
-        if (seen.has(hit.norad)) continue
-        seen.add(hit.norad)
-        pins.push({
-          name: hit.name,
-          lat: hit.lat,
-          lon: hit.lon,
-          kind: 'sat',
-          line: `CelesTrak · ${hit.name}`,
-        })
+    for (const host of hosts) {
+      try {
+        const { status, json } = await getJson(
+          `https://${host}/NORAD/elements/gp.php?GROUP=${group}&FORMAT=json`,
+          UA,
+        )
+        if (status < 200 || status >= 300 || !Array.isArray(json)) continue
+        for (const raw of json) {
+          if (!raw || typeof raw !== 'object') continue
+          const row = raw as GpRow
+          if (String(row.NORAD_CAT_ID || '') === '25544') continue
+          const hit = propagateGp(row)
+          if (!hit) continue
+          if (seen.has(hit.norad)) continue
+          seen.add(hit.norad)
+          pins.push({
+            name: hit.name,
+            lat: hit.lat,
+            lon: hit.lon,
+            kind: 'sat',
+            line: `CelesTrak · ${hit.name}`,
+          })
+        }
+        break
+      } catch {
+        /* nächster Host */
       }
-    } catch {
-      /* nächste Gruppe */
     }
   }
   return pins
