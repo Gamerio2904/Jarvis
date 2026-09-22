@@ -5,12 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.9.3` — Mikrofon: weniger Lag, ganze Äußerung — *CODE*
+### `18.9.3` — Mikrofon: weniger Lag, ganze Äußerung — *CODE + APK*
 
 Native Erkennung bricht nicht mehr nach 200 ms Stille ab. Kurze Sätze
 („Zeig Satelliten“) warten nicht auf eine zweite Hörsession. Satzende
 wie im Chat: hängendes „und“ hält, `isFinal` schließt. Gerät-Erkennung
 wenn da, sonst Cloud. Die Kugel pulsiert mit dem Pegel.
+Sideload **`18.9.3`** (versionCode `180903`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.9.2` — Halluzinationen: Parser statt Erfindung — *CODE + APK*
 

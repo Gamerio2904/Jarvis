@@ -1,6 +1,7 @@
-# Android-APK — Sideload `18.9.2`
+# Android-APK — Sideload `18.9.3`
 
-App-Code **`18.9.3`**. Sideload-APK folgt nach Execute. versionCode `180903`.
+App-Code **`18.9.3`**. Sideload **`18.9.3`** (versionCode `180903`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.9.2:** Halluzinationen: Parser statt Erfindung. Sideload **`18.9.2`** (versionCode `180902`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
@@ -56,10 +57,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.9.2`:**  
+**Fertige APK `18.9.3`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.9.2` · versionCode `180902`
+- versionName `18.9.3` · versionCode `180903`
 
 ## Build lokal
 
