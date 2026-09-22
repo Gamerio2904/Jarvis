@@ -22,8 +22,10 @@ import android.os.Handler;
 import android.os.Looper;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.database.Cursor;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -50,6 +52,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         permissions = {
                 @Permission(alias = "phone", strings = {Manifest.permission.CALL_PHONE}),
                 @Permission(alias = "sms", strings = {Manifest.permission.SEND_SMS}),
+                @Permission(alias = "contacts", strings = {Manifest.permission.READ_CONTACTS}),
                 @Permission(alias = "bluetooth", strings = {Manifest.permission.BLUETOOTH_CONNECT})
         }
 )
@@ -217,6 +220,8 @@ public class JarvisDevicePlugin extends Plugin {
                 if (i.resolveActivity(getContext().getPackageManager()) == null) {
                     i = new Intent(Settings.ACTION_BATTERY_SAVER_SETTINGS);
                 }
+            } else if ("notifications".equals(page)) {
+                i = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             } else {
                 i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                 i.setData(Uri.fromParts("package", getContext().getPackageName(), null));
@@ -624,5 +629,118 @@ public class JarvisDevicePlugin extends Plugin {
         String t = raw.trim().replaceAll("[^\\d+]", "");
         if (t.startsWith("00")) t = "+" + t.substring(2);
         return t;
+    }
+
+    @PluginMethod
+    public void scanContacts(PluginCall call) {
+        if (getPermissionState("contacts") != PermissionState.GRANTED) {
+            call.setKeepAlive(true);
+            requestPermissionForAlias("contacts", call, "onContactsPerm");
+            return;
+        }
+        emitContacts(call);
+    }
+
+    @PermissionCallback
+    private void onContactsPerm(PluginCall call) {
+        if (getPermissionState("contacts") != PermissionState.GRANTED) {
+            JSObject r = new JSObject();
+            r.put("ok", false);
+            r.put("needPerm", true);
+            r.put("message", "Kontakte-Recht fehlt. Unter Einstellungen erlauben, dann nochmal.");
+            call.resolve(r);
+            return;
+        }
+        emitContacts(call);
+    }
+
+    private void emitContacts(PluginCall call) {
+        JSObject r = new JSObject();
+        JSArray rows = new JSArray();
+        Cursor c = null;
+        try {
+            String[] cols = {
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER,
+            };
+            c = getContext()
+                    .getContentResolver()
+                    .query(
+                            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                            cols,
+                            null,
+                            null,
+                            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
+            java.util.LinkedHashMap<String, JSObject> uniq = new java.util.LinkedHashMap<>();
+            if (c != null) {
+                int nameAt = c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+                int numAt = c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                while (c.moveToNext()) {
+                    String name = nameAt >= 0 ? c.getString(nameAt) : "";
+                    String number = numAt >= 0 ? c.getString(numAt) : "";
+                    if (name == null) name = "";
+                    name = name.trim();
+                    number = digits(number);
+                    if (name.isEmpty() || number.length() < 6) continue;
+                    String key = name.toLowerCase(java.util.Locale.ROOT) + "|" + number;
+                    if (uniq.containsKey(key)) continue;
+                    JSObject row = new JSObject();
+                    row.put("name", name);
+                    row.put("number", number);
+                    uniq.put(key, row);
+                    if (uniq.size() >= 400) break;
+                }
+            }
+            for (JSObject row : uniq.values()) rows.put(row);
+            r.put("ok", true);
+            r.put("contacts", rows);
+        } catch (SecurityException e) {
+            r.put("ok", false);
+            r.put("needPerm", true);
+            r.put("message", "Kontakte-Recht fehlt. Unter Einstellungen erlauben, dann nochmal.");
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Telefonbuch nicht lesbar.");
+        } finally {
+            if (c != null) c.close();
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void imapList(PluginCall call) {
+        String host = call.getString("host", "");
+        String user = call.getString("user", "");
+        String pass = call.getString("pass", "");
+        Integer limit = call.getInt("limit", 8);
+        String query = call.getString("query", "");
+        call.resolve(JarvisMail.list(host, user, pass, limit == null ? 8 : limit, query));
+    }
+
+    @PluginMethod
+    public void mailto(PluginCall call) {
+        String to = call.getString("to", "");
+        String subject = call.getString("subject", "");
+        String body = call.getString("body", "");
+        JSObject r = new JSObject();
+        String addr = to == null ? "" : to.trim();
+        if (addr.isEmpty() || !addr.contains("@")) {
+            r.put("ok", false);
+            r.put("message", "Keine E-Mail-Adresse.");
+            call.resolve(r);
+            return;
+        }
+        try {
+            Intent i = new Intent(Intent.ACTION_SENDTO);
+            i.setData(Uri.parse("mailto:" + addr));
+            if (subject != null && !subject.isEmpty()) i.putExtra(Intent.EXTRA_SUBJECT, subject);
+            if (body != null && !body.isEmpty()) i.putExtra(Intent.EXTRA_TEXT, body);
+            startExt(i);
+            r.put("ok", true);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Mail-App nicht geöffnet.");
+        }
+        call.resolve(r);
     }
 }

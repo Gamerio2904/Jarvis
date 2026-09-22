@@ -40,6 +40,14 @@ Wochenstreifen zeigen denselben Eintrag.
 `npm run test:agents-sweep` — 63 Katalog-Agenten, je ein Satz, Route trifft.
 Gold enthält jeden Agenten (Todo als `tools`). Probe bleibt 13 Packs.
 
+## 9. Post / Telefonbuch / WhatsApp 18.9.7
+
+`Kontakte scannen` — Nachfrage, dann Ja, Recht, Anzahl.  
+`Lies meine E-Mails` ohne Key — Zugang fehlt, nichts erfinden.  
+`Schreib mir eine E-Mail` — An wen, nicht Won’t. Entwurf nach Ja.  
+`Was steht auf WhatsApp` ohne Meldungsrecht — ehrlich + Einstellungen.  
+Antwort nach Ja über die Meldung oder Chat-Link. Nie „ist gesendet“.
+
 ## 7. Watchliste 18.9.5
 
 `Inglorious Basterds zu Lieblingsfilmen hinzufügen` — Chat nennt den

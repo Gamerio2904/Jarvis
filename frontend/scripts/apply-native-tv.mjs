@@ -35,6 +35,7 @@ for (const name of [
   'JarvisAlarmPlayer.java',
   'JarvisTimerVoice.java',
   'JarvisGlanceWidget.java',
+  'JarvisInboxService.java',
 ]) {
   copyFileSync(join(notifySrc, name), join(notifyDest, name))
 }
@@ -61,6 +62,7 @@ const deviceSrc = join(root, 'native', 'device')
 const deviceDest = join(android, 'app/src/main/java/app/jarvis/device')
 mkdirSync(deviceDest, { recursive: true })
 copyFileSync(join(deviceSrc, 'JarvisDevicePlugin.java'), join(deviceDest, 'JarvisDevicePlugin.java'))
+copyFileSync(join(deviceSrc, 'JarvisMail.java'), join(deviceDest, 'JarvisMail.java'))
 
 const voiceSrc = join(root, 'native', 'voice')
 const voiceDest = join(android, 'app/src/main/java/app/jarvis/voice')
@@ -136,6 +138,7 @@ const perms = [
   'android.permission.FLASHLIGHT',
   'android.permission.CALL_PHONE',
   'android.permission.SEND_SMS',
+  'android.permission.READ_CONTACTS',
   'android.permission.BLUETOOTH',
   'android.permission.BLUETOOTH_CONNECT',
 ]
@@ -259,6 +262,21 @@ if (
         </service>`,
   )
 }
+if (!manifest.includes('app.jarvis.notify.JarvisInboxService')) {
+  manifest = manifest.replace(
+    '</application>',
+    `        <service
+            android:name="app.jarvis.notify.JarvisInboxService"
+            android:exported="true"
+            android:label="Jarvis Meldungen"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+</application>`,
+  )
+}
 if (!manifest.includes('app.jarvis.voice.JarvisDebugService')) {
   manifest = manifest.replace(
     '</application>',
@@ -308,6 +326,10 @@ if (!manifest.includes('<queries>')) {
         <intent>
             <action android:name="android.intent.action.SENDTO" />
             <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
         </intent>
         <!--
           Ohne diese Anfrage gibt getLaunchIntentForPackage seit Android 11

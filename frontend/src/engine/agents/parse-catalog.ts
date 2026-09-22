@@ -13,6 +13,7 @@ import { parsePcIntent } from '../pc-parse.ts'
 import { parsePcPairPayload } from '../pc-pair.ts'
 import { isEyeGround, isPcGround, parseGroundIntent } from '../ground-parse.ts'
 import { parsePlaceNav, parsePlaceRecall, parsePlaceWrite } from '../places-parse.ts'
+import { parseContactsScan, parseMailIntent, parseWaInbox } from '../comm-parse.ts'
 import { isIdentityAsk, isMemoryRecall, isMemoryWrite, isUtilityCorrection, VERGISS, VERGISS_ALL } from '../memory-parse.ts'
 import { isSearchableLastTool } from '../last-step.ts'
 import { parseShopIntent } from '../shopping-parse.ts'
@@ -161,7 +162,14 @@ function buildParseCatalog(): AgentSpec[] {
       id: 'maps',
       sideEffect: 'read',
       parse: (ctx) =>
-        parsePlaceWrite(ctx.text) || parsePlaceRecall(ctx.text) || parsePlaceNav(ctx.text) ? score(ctx.text) : null,
+        parsePlaceWrite(ctx.text) ||
+        parsePlaceRecall(ctx.text) ||
+        parsePlaceNav(ctx.text) ||
+        parseContactsScan(ctx.text) ||
+        parseMailIntent(ctx.text) ||
+        parseWaInbox(ctx.text)
+          ? score(ctx.text)
+          : null,
     },
     { id: 'teach', sideEffect: 'write', parse: (ctx) => (parseTeachIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.2) : null) },
     {

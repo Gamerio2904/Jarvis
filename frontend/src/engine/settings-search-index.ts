@@ -18,6 +18,18 @@ export const SETTINGS_FIELD_INDEX: SettingsSearchHit[] = [
   { tab: 'alltag', field: 'Wecker', keywords: ['wecker', 'alarm', 'aufstehen'], elementId: 'sf-wecker' },
   { tab: 'alltag', field: 'Kalender', keywords: ['kalender', 'termin', 'event'], elementId: 'sf-kalender' },
   { tab: 'alltag', field: 'Wetter Ort', keywords: ['wetter', 'ort', 'gps', 'standort'], elementId: 'sf-ort' },
+  {
+    tab: 'alltag',
+    field: 'Telefonbuch',
+    keywords: ['kontakte', 'telefonbuch', 'adressbuch', 'whatsapp', 'meldungen'],
+    elementId: 'sf-contacts',
+  },
+  {
+    tab: 'keys',
+    field: 'E-Mail IMAP',
+    keywords: ['email', 'e-mail', 'mail', 'imap', 'gmail', 'postfach'],
+    elementId: 'sf-mail',
+  },
   { tab: 'alltag', field: 'Weltlage', keywords: ['weltlage', 'nachrichten', 'ausblick'], elementId: 'sf-weltlage' },
   { tab: 'geraete', field: 'Fernseher', keywords: ['fernseher', 'fernseh', 'tv', 'samsung', 'tizen', 'fire'], elementId: 'sf-tv' },
   { tab: 'geraete', field: 'PC Werkzeug', keywords: ['pc', 'rechner', 'qr', '18790'], elementId: 'sf-pc' },

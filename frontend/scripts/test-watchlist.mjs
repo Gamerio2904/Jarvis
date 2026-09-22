@@ -17,6 +17,10 @@ import { scrubReply } from '../src/engine/guards.ts'
 import { rewriteFollowUp } from '../src/engine/last-step.ts'
 import { repairSpeech } from '../src/engine/utterance.ts'
 
+function listOf(intent) {
+  return intent && 'list' in intent ? intent.list : null
+}
+
 if (!globalThis.localStorage) {
   const mem = new Map()
   globalThis.localStorage = {
@@ -30,14 +34,14 @@ if (!globalThis.localStorage) {
 }
 
 assert.equal(parseWatchlistIntent('Watchliste: Dune')?.kind, 'add')
-assert.equal(parseWatchlistIntent('Watchliste: Dune')?.list, 'watch')
+assert.equal(listOf(parseWatchlistIntent('Watchliste: Dune')), 'watch')
 assert.equal(parseWatchlistIntent('Nee auf die lieblingsliste')?.kind, 'move')
-assert.equal(parseWatchlistIntent('Nee auf die lieblingsliste')?.list, 'favorite')
+assert.equal(listOf(parseWatchlistIntent('Nee auf die lieblingsliste')), 'favorite')
 assert.equal(parseWatchlistIntent('verschieb das zu den Lieblingen')?.kind, 'move')
 assert.equal(parseWatchlistIntent('Star Wars 3 auf die Lieblingsliste')?.kind, 'add')
-assert.equal(parseWatchlistIntent('Star Wars 3 auf die Lieblingsliste')?.list, 'favorite')
+assert.equal(listOf(parseWatchlistIntent('Star Wars 3 auf die Lieblingsliste')), 'favorite')
 assert.equal(parseWatchlistIntent('Inglorious Basterds zu Lieblingsfilmen hinzufügen')?.kind, 'add')
-assert.equal(parseWatchlistIntent('Inglorious Basterds zu Lieblingsfilmen hinzufügen')?.list, 'favorite')
+assert.equal(listOf(parseWatchlistIntent('Inglorious Basterds zu Lieblingsfilmen hinzufügen')), 'favorite')
 assert.equal(parseWatchlistIntent('IngloriousbastarddszuLieblingsfilmenhinzufügen')?.kind, 'add')
 assert.equal(parseWatchlistIntent('Ja entfernen es')?.kind, 'remove')
 assert.equal(parseWatchlistIntent('Jaentfernenes')?.kind, 'remove')
@@ -67,12 +71,12 @@ assert.equal(
   'von der watchliste Heat',
 )
 assert.equal(parseWatchlistIntent('Lieblingsliste: Arrival')?.kind, 'add')
-assert.equal(parseWatchlistIntent('Lieblingsliste: Arrival')?.list, 'favorite')
+assert.equal(listOf(parseWatchlistIntent('Lieblingsliste: Arrival')), 'favorite')
 assert.equal(parseWatchlistIntent('Öffne Lieblingsfilme')?.kind, 'show')
-assert.equal(parseWatchlistIntent('Öffne Lieblingsfilme')?.list, 'favorite')
+assert.equal(listOf(parseWatchlistIntent('Öffne Lieblingsfilme')), 'favorite')
 assert.equal(parseWatchlistIntent('Öffne Watchliste')?.kind, 'show')
 assert.equal(parseWatchlistIntent('Öffne das watchlist overlay')?.kind, 'show')
-assert.equal(parseWatchlistIntent('Öffne das watchlist overlay')?.list, 'watch')
+assert.equal(listOf(parseWatchlistIntent('Öffne das watchlist overlay')), 'watch')
 assert.equal(parseWatchlistIntent('Öffne das Watchliste overlay')?.kind, 'show')
 assert.equal(parseWatchlistIntent('Mach das Overlay für die Filme auf'), null)
 assert.equal(parseWatchlistIntent('Öffne das overlay'), null)

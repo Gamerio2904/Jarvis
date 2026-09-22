@@ -114,7 +114,7 @@ export async function openAmazonMusic(): Promise<{ ok: boolean; message?: string
 }
 
 export async function openDevicePage(
-  page: 'wifi' | 'bluetooth' | 'dnd' | 'app' | 'location' | 'sound' | 'display' | 'battery',
+  page: 'wifi' | 'bluetooth' | 'dnd' | 'app' | 'location' | 'sound' | 'display' | 'battery' | 'notifications',
 ): Promise<{ ok: boolean; message?: string }> {
   if (native) {
     try {

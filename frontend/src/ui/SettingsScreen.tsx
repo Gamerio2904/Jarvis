@@ -58,6 +58,10 @@ import {
 } from '../engine/knowledge.ts'
 import { qualityPack } from '../engine/quality-pack.ts'
 import { ProbeShelf } from './ProbeShelf.tsx'
+import { notifyInboxStatus, openInboxSettings, scanPhoneContacts } from '../native/inbox.ts'
+import { upsertMemory } from '../engine/store.ts'
+import { normalizePlaceName } from '../engine/places-parse.ts'
+import { findContactRow } from '../engine/places-parse.ts'
 
 export type { SettingsTopic }
 
@@ -315,6 +319,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [plugDraft, setPlugDraft] = useState<Plug>(() => emptyPlug())
   const [locBusy, setLocBusy] = useState(false)
   const [locMsg, setLocMsg] = useState<string | null>(null)
+  const [contactBusy, setContactBusy] = useState(false)
+  const [contactMsg, setContactMsg] = useState<string | null>(null)
+  const [inboxBusy, setInboxBusy] = useState(false)
+  const [inboxMsg, setInboxMsg] = useState<string | null>(null)
   const [backupChats, setBackupChats] = useState(false)
   const [backupBusy, setBackupBusy] = useState(false)
   const [backupMsg, setBackupMsg] = useState<string | null>(null)
@@ -686,6 +694,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   <li>
                     Carto <KeyMark on={Boolean(s?.carto_api_key?.trim())} />
                   </li>
+                  <li>
+                    E-Mail <KeyMark on={Boolean(s?.mail_user?.trim() && s?.mail_pass?.trim())} />
+                  </li>
                 </ul>
               </section>
               <section className="settings-card">
@@ -830,6 +841,46 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     disabled={busy}
                     placeholder="Carto Basemap-Key"
                     onBlur={(e) => void p.patchSetting({ carto_api_key: e.target.value.trim() })}
+                  />
+                </label>
+              </section>
+              <section className="settings-card" id="sf-mail">
+                <h3>
+                  E-Mail (IMAP) <KeyMark on={Boolean(s?.mail_user?.trim() && s?.mail_pass?.trim())} />
+                </h3>
+                <p className="settings-hint">
+                  Lesen über IMAP. Gmail und Outlook brauchen ein App-Passwort, nicht das normale Passwort.
+                  Schreiben öffnet nur den Entwurf. Nichts still senden.
+                </p>
+                <label className="settings-field">
+                  <span>Adresse</span>
+                  <input
+                    type="email"
+                    key={`mail-user-${s?.mail_user ? 'set' : 'empty'}`}
+                    defaultValue={s?.mail_user || ''}
+                    disabled={busy}
+                    placeholder="name@anbieter.de"
+                    onBlur={(e) => void p.patchSetting({ mail_user: e.target.value.trim() })}
+                  />
+                </label>
+                <label className="settings-field">
+                  <span>App-Passwort</span>
+                  <SecretField
+                    key={`mail-pass-${s?.mail_pass ? 'set' : 'empty'}`}
+                    defaultValue={s?.mail_pass || ''}
+                    disabled={busy}
+                    placeholder="App-Passwort, nicht das Login"
+                    onBlur={(e) => void p.patchSetting({ mail_pass: e.target.value.trim() })}
+                  />
+                </label>
+                <label className="settings-field">
+                  <span>IMAP-Host (leer = automatisch)</span>
+                  <input
+                    key={`mail-host-${s?.mail_host || 'auto'}`}
+                    defaultValue={s?.mail_host || ''}
+                    disabled={busy}
+                    placeholder="imap.gmail.com"
+                    onBlur={(e) => void p.patchSetting({ mail_host: e.target.value.trim() })}
                   />
                 </label>
               </section>
@@ -1173,6 +1224,75 @@ export function SettingsScreen(p: SettingsScreenProps) {
               <p className="settings-hint">
                 Jarvis öffnet die Android-Abfrage oder die App-Einstellungen. Den Schalter legt er nicht selbst um.
               </p>
+            </section>
+          ) : null}
+
+          {tab === 'alltag' ? (
+            <section className="settings-card" id="sf-contacts">
+              <h3>Telefonbuch & WhatsApp</h3>
+              <p className="settings-hint">
+                Scan merkt Name und Nummer lokal. WhatsApp-Antwort nur über die sichtbare Meldung — kein stilles
+                Senden.
+              </p>
+              <div className="settings-actions">
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || contactBusy}
+                  onClick={() => {
+                    setContactBusy(true)
+                    setContactMsg(null)
+                    void scanPhoneContacts()
+                      .then(async (res) => {
+                        if (res.needPerm) {
+                          setContactMsg(res.message || 'Kontakte-Recht fehlt.')
+                          return
+                        }
+                        if (!res.ok) {
+                          setContactMsg(res.message || 'Telefonbuch nicht gelesen.')
+                          return
+                        }
+                        const { listMemory } = await import('../engine/store.ts')
+                        const existing = await listMemory()
+                        let added = 0
+                        for (const row of res.contacts) {
+                          const key = normalizePlaceName(row.name)
+                          if (!key || findContactRow(existing, key)) continue
+                          await upsertMemory(key, row.number, 'contact')
+                          existing.push({ key, value: row.number, category: 'contact' } as (typeof existing)[number])
+                          added += 1
+                        }
+                        setContactMsg(added ? `${added} Nummern übernommen.` : 'Keine neue Nummer.')
+                      })
+                      .finally(() => setContactBusy(false))
+                  }}
+                >
+                  Telefonbuch scannen
+                </button>
+                <button
+                  type="button"
+                  className="retry-btn"
+                  disabled={busy || inboxBusy}
+                  onClick={() => {
+                    setInboxBusy(true)
+                    setInboxMsg(null)
+                    void notifyInboxStatus()
+                      .then((st) => {
+                        if (st.enabled) {
+                          setInboxMsg('Meldungszugriff liegt. WhatsApp-Eingang und Mail-Banner lesbar.')
+                          return
+                        }
+                        setInboxMsg(st.message || 'Meldungszugriff aus.')
+                        return openInboxSettings()
+                      })
+                      .finally(() => setInboxBusy(false))
+                  }}
+                >
+                  Meldungen erlauben
+                </button>
+              </div>
+              {contactMsg ? <p className="settings-hint">{contactMsg}</p> : null}
+              {inboxMsg ? <p className="settings-hint">{inboxMsg}</p> : null}
             </section>
           ) : null}
 

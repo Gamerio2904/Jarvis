@@ -47,6 +47,15 @@ assert.doesNotMatch(device, /Manifest\.permission\.CAMERA/, 'Taschenlampe ohne K
 assert.match(device, /SMS_SENT/, 'sentIntent für SMS')
 assert.match(device, /getResultCode\(\)/, 'Funk-Ergebnis, nicht nur Übergabe an das System')
 assert.match(device, /parts\.size\(\) - 1/, 'Multipart: sentIntent nur am letzten Teil')
+assert.match(device, /scanContacts/, 'Telefonbuch-Scan')
+assert.match(device, /READ_CONTACTS/, 'Kontakte-Recht')
+assert.match(device, /imapList/, 'IMAP-Lesen')
+assert.match(device, /mailto/, 'E-Mail-Entwurf')
+
+const inbox = read('notify/JarvisInboxService.java')
+assert.match(inbox, /NotificationListenerService/, 'Meldungen, kein Accessibility')
+assert.match(inbox, /RemoteInput/, 'WhatsApp-Antwort über die Meldung')
+assert.doesNotMatch(inbox, /AccessibilityService/, 'kein stilles WhatsApp')
 
 const widget = read('notify/JarvisGlanceWidget.java')
 assert.match(widget, /PendingIntent\.getBroadcast\(ctx, 44, toggle/, 'Widget-Toggle an die eigene Klasse')
@@ -61,6 +70,10 @@ const applyNative = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '
 assert.match(applyNative, /<queries>/, 'openApp sieht installierte Apps')
 assert.match(applyNative, /LAUNCHER/)
 assert.match(applyNative, /windowSoftInputMode="adjustNothing"/, 'Tastatur überdeckt die Leiste')
+assert.match(applyNative, /READ_CONTACTS/)
+assert.match(applyNative, /JarvisInboxService/)
+assert.match(applyNative, /JarvisMail\.java/)
+assert.match(applyNative, /mailto/)
 
 const mainActivity = read('tv/MainActivity.java')
 assert.match(mainActivity, /SOFT_INPUT_ADJUST_NOTHING/, 'WebView schrumpft nicht mit der IME')

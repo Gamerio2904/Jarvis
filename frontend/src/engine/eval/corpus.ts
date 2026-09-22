@@ -167,7 +167,7 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Bist du ChatGPT?': 'identity',
   'Kannst du Bilder malen?': 'wont',
   'Spiele Musik': 'drive',
-  'Schreib mir eine E-Mail': 'wont',
+  'Schreib mir eine E-Mail': 'maps',
   'Zeig mir die Nachrichten': 'news',
   'Überweise 200 Euro': 'wont',
   'Zeig Street View von London': 'wont',
@@ -338,6 +338,10 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Was ist traceroute': 'trace',
   'Fass das Gespräch zusammen': 'digest',
   'Hausstand exportieren': 'backup',
+  'Kontakte scannen': 'maps',
+  'Lies meine E-Mails': 'maps',
+  'Was steht auf WhatsApp': 'maps',
+  'Antworte Mama auf WhatsApp ich bin unterwegs': 'maps',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */
@@ -350,7 +354,7 @@ export const LOCK_EXPECT: Record<string, string> = {
   'Was kannst du?': 'help',
   'Was kannst du denn so?': 'help',
   'Womit kannst du helfen?': 'help',
-  'Schreib mir eine E-Mail': 'wont',
+  'Schreib mir eine E-Mail': 'maps',
   'Zeig mir die Nachrichten': 'news',
   'Überweise 200 Euro': 'wont',
   'Zeig Street View von London': 'wont',
@@ -578,7 +582,7 @@ export const REGRESS_EXPECT: Record<string, string> = {
   'Was kannst du?': 'help',
   'Bist du ChatGPT?': 'identity',
   'Kannst du Bilder malen?': 'wont',
-  'Schreib mir eine E-Mail': 'wont',
+  'Schreib mir eine E-Mail': 'maps',
   'Zeig mir die Nachrichten': 'news',
   'Überweise 200 Euro': 'wont',
   'Zeig Street View von London': 'wont',

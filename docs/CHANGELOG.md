@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.9.7` — E-Mail, Telefonbuch, WhatsApp-Antwort — *CODE + APK*
+
+Telefonbuch nach Ja lokal merken (`READ_CONTACTS`). E-Mails lesen über
+IMAP mit App-Passwort; schreiben öffnet nur den Entwurf. WhatsApp-Antwort
+über die sichtbare Meldung nach Ja, sonst Chat-Link. Kein stilles Senden,
+kein Accessibility, kein 64. Agent. „Schreib mir eine E-Mail“ fragt An wen.
+Sideload **`18.9.7`** (versionCode `180907`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.9.6` — Alle 63 Agenten im Sweep — *CODE + APK*
 
 Jeder Katalog-Agent hat einen festen Satz (`AGENT_SWEEP`). 14 fehlende

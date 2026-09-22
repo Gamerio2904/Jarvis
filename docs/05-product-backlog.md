@@ -419,7 +419,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S29.2 | Sprachnachricht als SMS v1 | Must | done | Nachfrage, kein stilles WhatsApp |
 | S29.3 | Taxi öffnen oder anrufen | Must | done | `taxi.ts` — nie „ist bestellt“ |
 | S29.4 | Drei Aufträge, Confirm-Schlange | Must | done | ein Ja = ein Schritt |
-| S29.5 | WhatsApp still senden | Won’t | parked | Business-API / Accessibility |
+| S29.5 | WhatsApp still senden | Won’t | parked | Business-API / Accessibility. Antwort über Meldung in `18.9.7` |
 
 ### E30 — Gespräch / Stimme / Steuer `4.33`
 

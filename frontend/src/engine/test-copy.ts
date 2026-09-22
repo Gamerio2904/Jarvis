@@ -74,7 +74,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Wetter New York", text: "Wetter nächste Woche in New York", expect: {"tool":"weather"} },
       { label: "Code", text: "Kannst du Code schreiben?", expect: {"tool":"smalltalk"} },
       { label: "Übersetzen", text: "Übersetze das ins Englische", expect: {"tool":"smalltalk"} },
-      { label: "E-Mail", text: "Schreib mir eine E-Mail", expect: {"tool":"wont"} },
+      { label: "E-Mail", text: "Schreib mir eine E-Mail", expect: {"tool":"maps"} },
     ],
   },
   {
@@ -190,6 +190,10 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Bro anrufen", text: "Bro anrufen" },
       { label: "Nachricht Bro", text: "Nachricht an Bro ich bin da" },
       { label: "Geburtstag", text: "Mama hat am 3. März Geburtstag" },
+      { label: "Kontakte scannen", text: "Kontakte scannen", expect: {"tool":"maps","confirm":true} },
+      { label: "E-Mails lesen", text: "Lies meine E-Mails", expect: {"tool":"maps"} },
+      { label: "WhatsApp Eingang", text: "Was steht auf WhatsApp", expect: {"tool":"maps"} },
+      { label: "WhatsApp antworten", text: "Antworte Mama auf WhatsApp ich bin unterwegs", expect: {"tool":"maps"} },
     ],
   },
   {

@@ -100,7 +100,7 @@ export function rewriteFollowUp(text: string, step?: LastStep | null): string | 
 
   if (tool === 'smalltalk' || tool === 'identity') return null
 
-  if (/^(?:call_confirm|sms_confirm|sms_body_ask|sms_ask|phone_ask|pc_confirm|taxi|chain_ask|interrupt)$/.test(tool)) return null
+  if (/^(?:call_confirm|sms_confirm|sms_body_ask|sms_ask|phone_ask|contacts_confirm|mail_confirm|mail_to_ask|mail_body_ask|wa_inbox_reply|pc_confirm|taxi|chain_ask|interrupt)$/.test(tool)) return null
 
   const vol = VOL.exec(raw)
   if (vol) {

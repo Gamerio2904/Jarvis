@@ -134,7 +134,7 @@ export function filterTopics(q: string): SettingsTab[] {
       hits.push(t.id)
     }
   }
-  if (/key|gemini|groq|fred|omdb|tanke|spotify|aiza|gsk|carto|karte|carplay/.test(n) && !hits.includes('keys')) {
+  if (/key|gemini|groq|fred|omdb|tanke|spotify|aiza|gsk|carto|karte|carplay|imap|e-?mail|gmail/.test(n) && !hits.includes('keys')) {
     hits.unshift('keys')
   }
   if (/steck|dose|tv|fernseh|samsung|tizen|hollywood|pc|ventilator|presence|fenster|hirn-gerät|qr/.test(n) && !hits.includes('geraete')) {
@@ -145,7 +145,7 @@ export function filterTopics(q: string): SettingsTab[] {
   if (/lösch|gefahr|hausstand|export|fachwissen|pack/.test(n) && !hits.includes('daten')) hits.push('daten')
   if (/wake|hören|stimme|piper|vad|onnx|kokoro/.test(n) && !hits.includes('stimme')) hits.push('stimme')
   if (/preis|research|netz|suche|e5|rerank/.test(n) && !hits.includes('hirn')) hits.push('hirn')
-  if (/wecker|wetter|ort|weltlage|blitzer|baustelle|radar|ordner|preiswache|instanudeln/.test(n) && !hits.includes('alltag')) {
+  if (/wecker|wetter|ort|weltlage|blitzer|baustelle|radar|ordner|preiswache|instanudeln|kontakt|telefonbuch|whatsapp|e-?mail|imap/.test(n) && !hits.includes('alltag')) {
     hits.push('alltag')
   }
   if (/\bamazon\b/.test(n) && !hits.includes('geraete')) hits.push('geraete')

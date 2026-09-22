@@ -1,4 +1,14 @@
 import { openDevicePage, openExternal, placeCall, sendSmsNow } from '../native/device.ts'
+import {
+  listImapMails,
+  listNotifyInbox,
+  notifyInboxStatus,
+  openInboxSettings,
+  openMailto,
+  replyNotifyInbox,
+  scanPhoneContacts,
+} from '../native/inbox.ts'
+import { looksLikeEmail, mailHostFor, parseContactsScan, parseMailIntent, parseWaInbox } from './comm-parse.ts'
 import { hasChain, popChain } from './chain.ts'
 import {
   displayPlaceName,
@@ -12,6 +22,7 @@ import {
   looksLikeAddress,
   looksLikePhone,
   mapsDirUrl,
+  normalizePlaceName,
   parsePlaceNav,
   parsePlaceRecall,
   parsePlaceWrite,
@@ -71,11 +82,24 @@ function routeReply(name: string, place: string): string {
 }
 
 type PendingComm = {
-  kind: 'call_confirm' | 'sms_confirm' | 'sms_body_ask' | 'phone_ask' | 'sms_ask' | 'wa_confirm'
+  kind:
+    | 'call_confirm'
+    | 'sms_confirm'
+    | 'sms_body_ask'
+    | 'phone_ask'
+    | 'sms_ask'
+    | 'wa_confirm'
+    | 'contacts_confirm'
+    | 'mail_confirm'
+    | 'mail_to_ask'
+    | 'mail_body_ask'
+    | 'wa_inbox_reply'
   name: string
   number?: string
   body?: string
   voiceNote?: boolean
+  subject?: string
+  inboxKey?: string
 }
 
 const OTHER_CMD =
@@ -141,6 +165,15 @@ export async function handlePlaces(
       lastTool: 'maps',
     }
   }
+
+  const scan = parseContactsScan(text)
+  if (scan) return askContactsScan()
+
+  const mail = parseMailIntent(text)
+  if (mail) return handleMailIntent(conversationId, mail)
+
+  const waBox = parseWaInbox(text)
+  if (waBox) return handleWaInbox(conversationId, waBox)
 
   const written = parsePlaceWrite(text)
   if (written) {
@@ -490,6 +523,105 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
     }
   }
 
+  if (pending.kind === 'contacts_confirm') {
+    if (isCommYes(text)) return doContactsScan(conversationId)
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    return {
+      handled: true,
+      reply: 'Telefonbuch lesen und Name plus Nummer lokal merken. Ja oder nein.',
+      tool: commTool('ask', 'Telefonbuch', 'kontakte'),
+      lastTool: 'contacts_confirm',
+    }
+  }
+
+  if (pending.kind === 'mail_to_ask') {
+    const addr = extractEmail(text) || (looksLikeEmail(text.trim()) ? text.trim() : '')
+    if (addr) {
+      await upsertMemory(pending.name || addr, addr, 'email', conversationId)
+      if (pending.body?.trim()) return askMail(addr, pending.subject || '', pending.body)
+      writeComm({ kind: 'mail_body_ask', name: addr, subject: pending.subject }, 'mail_body_ask')
+      return {
+        handled: true,
+        reply: `Was soll in der E-Mail an ${addr} stehen?`,
+        tool: commTool('ask', 'E-Mail', addr),
+        lastTool: 'mail_body_ask',
+      }
+    }
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    return {
+      handled: true,
+      reply: 'An welche Adresse? Sage z. B. „name@anbieter.de“.',
+      tool: commTool('ask', 'E-Mail', pending.name),
+      lastTool: 'mail_to_ask',
+    }
+  }
+
+  if (pending.kind === 'mail_body_ask') {
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    const body = text.trim().replace(/^[\"„]|[\"”]$/g, '')
+    if (body.length >= 2 && pending.name) return askMail(pending.name, pending.subject || '', body)
+    return {
+      handled: true,
+      reply: `Was soll in der E-Mail an ${pending.name} stehen?`,
+      tool: commTool('ask', 'E-Mail', pending.name),
+      lastTool: 'mail_body_ask',
+    }
+  }
+
+  if (pending.kind === 'mail_confirm') {
+    if (isCommYes(text, 'sms') && pending.name) return doMailDraft(pending.name, pending.subject || '', pending.body || '')
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    return {
+      handled: true,
+      reply: `E-Mail-Entwurf an ${pending.name}: „${pending.body || pending.subject || '…'}“. Öffnen? Senden tun Sie.`,
+      tool: commTool('ask', 'E-Mail', pending.name),
+      lastTool: 'mail_confirm',
+    }
+  }
+
+  if (pending.kind === 'wa_inbox_reply') {
+    if (isCommYes(text, 'sms') && pending.inboxKey && pending.body?.trim()) {
+      return doWaInboxReply(conversationId, pending.name, pending.inboxKey, pending.body)
+    }
+    if (other) {
+      writeComm(null, 'maps')
+      return null
+    }
+    const spoken = text.trim().replace(/^[\"„]|[\"”]$/g, '')
+    if (!pending.body?.trim() && spoken.length >= 2 && !isCommYes(text) && pending.inboxKey) {
+      writeComm(
+        { kind: 'wa_inbox_reply', name: pending.name, inboxKey: pending.inboxKey, body: spoken },
+        'wa_inbox_reply',
+      )
+      return {
+        handled: true,
+        reply: `WhatsApp an ${displayPlaceName(pending.name)}: „${spoken}“. Über die sichtbare Meldung. Ja?`,
+        tool: commTool('ask', 'WhatsApp', pending.name),
+        lastTool: 'wa_inbox_reply',
+      }
+    }
+    return {
+      handled: true,
+      reply: pending.body
+        ? `WhatsApp an ${displayPlaceName(pending.name)}: „${pending.body}“. Über die Meldung senden? Ja.`
+        : `Was soll ich ${displayPlaceName(pending.name)} auf WhatsApp antworten?`,
+      tool: commTool('ask', 'WhatsApp', pending.name),
+      lastTool: 'wa_inbox_reply',
+    }
+  }
+
   return null
 }
 
@@ -585,6 +717,338 @@ function waMeUrl(number: string, body: string): string {
   if (d.startsWith('0')) d = `49${d.slice(1)}`
   const q = new URLSearchParams({ text: body })
   return `https://wa.me/${d}?${q}`
+}
+
+function extractEmail(text: string): string | null {
+  const m = text.match(/[^\s@]+@[^\s@]+\.[^\s@]+/)
+  return m && looksLikeEmail(m[0]) ? m[0].toLowerCase() : null
+}
+
+function askContactsScan(): PlaceHit {
+  writeComm({ kind: 'contacts_confirm', name: 'telefonbuch' }, 'contacts_confirm')
+  return {
+    handled: true,
+    reply: 'Ich lese Name und Nummer aus dem Telefonbuch ins lokale Gedächtnis. Ja?',
+    tool: commTool('ask', 'Telefonbuch', 'kontakte'),
+    lastTool: 'contacts_confirm',
+  }
+}
+
+async function doContactsScan(conversationId: string): Promise<PlaceHit> {
+  writeComm(null, 'maps')
+  const res = await scanPhoneContacts()
+  if (res.needPerm) {
+    await openDevicePage('app')
+    writeComm({ kind: 'contacts_confirm', name: 'telefonbuch' }, 'contacts_confirm')
+    return {
+      handled: true,
+      reply: `${res.message || 'Kontakte-Recht fehlt.'} Danach „ja“.`,
+      tool: commTool('ask', 'Telefonbuch', 'kontakte'),
+      lastTool: 'contacts_confirm',
+    }
+  }
+  if (!res.ok) {
+    return {
+      handled: true,
+      reply: res.message || 'Telefonbuch nicht gelesen.',
+      tool: commTool('ask', 'Telefonbuch', 'kontakte'),
+      lastTool: 'maps',
+    }
+  }
+  const existing = await listMemory()
+  let added = 0
+  let kept = 0
+  for (const row of res.contacts) {
+    const key = normalizePlaceName(row.name)
+    if (!key) continue
+    const hit = findContactRow(existing, key)
+    if (hit) {
+      kept += 1
+      continue
+    }
+    await upsertMemory(key, row.number, 'contact', conversationId)
+    if (row.email && looksLikeEmail(row.email)) {
+      await upsertMemory(key, row.email, 'email', conversationId)
+    }
+    existing.push({ key, value: row.number, category: 'contact' } as (typeof existing)[number])
+    added += 1
+  }
+  const extra = kept ? ` ${kept} lagen schon.` : ''
+  return {
+    handled: true,
+    reply: added
+      ? `${added} Nummern aus dem Telefonbuch liegen lokal.${extra}`
+      : kept
+        ? `Keine neue Nummer. ${kept} lagen schon.`
+        : 'Telefonbuch war leer oder ohne Nummern.',
+    tool: commTool('scan', 'Telefonbuch', `${added}`),
+    lastTool: 'maps',
+  }
+}
+
+async function handleMailIntent(
+  conversationId: string,
+  mail: { kind: 'mail_read' | 'mail_write'; query?: string; to?: string; subject?: string; body?: string },
+): Promise<PlaceHit> {
+  if (mail.kind === 'mail_read') return readMails(mail.query || '')
+  const to = (mail.to || '').trim()
+  const subject = mail.subject || ''
+  const body = mail.body || ''
+  if (!to) {
+    writeComm({ kind: 'mail_to_ask', name: '', subject, body }, 'mail_to_ask')
+    return {
+      handled: true,
+      reply: 'An wen? Name oder Adresse, dann der Text.',
+      tool: commTool('ask', 'E-Mail', ''),
+      lastTool: 'mail_to_ask',
+    }
+  }
+  if (looksLikeEmail(to)) {
+    await upsertMemory(to, to, 'email', conversationId)
+    if (!body.trim()) {
+      writeComm({ kind: 'mail_body_ask', name: to, subject }, 'mail_body_ask')
+      return {
+        handled: true,
+        reply: `Was soll in der E-Mail an ${to} stehen?`,
+        tool: commTool('ask', 'E-Mail', to),
+        lastTool: 'mail_body_ask',
+      }
+    }
+    return askMail(to, subject, body)
+  }
+  const rows = await listMemory()
+  const hit = findEmailRow(rows, to)
+  if (hit) {
+    if (!body.trim()) {
+      writeComm({ kind: 'mail_body_ask', name: hit.value, subject }, 'mail_body_ask')
+      return {
+        handled: true,
+        reply: `Was soll in der E-Mail an ${displayPlaceName(to)} stehen?`,
+        tool: commTool('ask', 'E-Mail', to),
+        lastTool: 'mail_body_ask',
+      }
+    }
+    return askMail(hit.value, subject, body)
+  }
+  writeComm({ kind: 'mail_to_ask', name: to, subject, body }, 'mail_to_ask')
+  return {
+    handled: true,
+    reply: `Keine Adresse für ${displayPlaceName(to)}. Sage z. B. „${displayPlaceName(to)}@…“ oder die volle Adresse.`,
+    tool: commTool('ask', 'E-Mail', to),
+    lastTool: 'mail_to_ask',
+  }
+}
+
+function findEmailRow(
+  rows: Array<{ key: string; value: string; category: string }>,
+  query: string,
+): { key: string; value: string } | undefined {
+  const q = normalizePlaceName(query)
+  const mails = rows.filter((r) => r.category === 'email' && looksLikeEmail(r.value))
+  const direct = mails.find((r) => r.key === q || r.key.includes(q) || q.includes(r.key) || r.value.includes(q))
+  if (direct) return { key: direct.key, value: direct.value }
+  const phone = findContactRow(rows, query)
+  if (phone) {
+    const same = mails.find((r) => r.key === phone.key)
+    if (same) return same
+  }
+  return undefined
+}
+
+function askMail(to: string, subject: string, body: string): PlaceHit {
+  writeComm({ kind: 'mail_confirm', name: to, subject, body }, 'mail_confirm')
+  return {
+    handled: true,
+    reply: `E-Mail-Entwurf an ${to}${subject ? ` (${subject})` : ''}: „${body}“. Ich öffne die Mail-App, senden tun Sie. Ja?`,
+    tool: commTool('ask', 'E-Mail', to, { mailto: `mailto:${to}`, body }),
+    lastTool: 'mail_confirm',
+  }
+}
+
+async function doMailDraft(to: string, subject: string, body: string): Promise<PlaceHit> {
+  writeComm(null, 'maps')
+  const res = await openMailto(to, subject, body)
+  return {
+    handled: true,
+    reply: res.ok
+      ? `E-Mail-Entwurf an ${to} ist auf. Senden tun Sie. Still verschicken mache ich nicht.`
+      : res.message || 'Mail-App nicht geöffnet.',
+    tool: commTool('mail', 'E-Mail', to, { mailto: `mailto:${to}`, body }),
+    lastTool: 'maps',
+  }
+}
+
+async function readMails(query: string): Promise<PlaceHit> {
+  const s = loadSettings()
+  const user = s.mail_user.trim()
+  const pass = s.mail_pass.trim()
+  const host = mailHostFor(user, s.mail_host)
+  if (user && pass && host) {
+    const res = await listImapMails({ host, user, pass, limit: 8, query })
+    if (res.ok) {
+      const rows = query
+        ? res.mails.filter((m) => {
+            const blob = `${m.from} ${m.subject}`.toLowerCase()
+            return blob.includes(query.toLowerCase())
+          })
+        : res.mails
+      if (!rows.length) {
+        return {
+          handled: true,
+          reply: query
+            ? `Keine IMAP-Zeile von ${query}. Postfach erreicht, Eingang leer oder kein Treffer.`
+            : 'Postfach erreicht. Keine ungelesene Zeile.',
+          tool: commTool('mail', 'E-Mail', 'leer'),
+          lastTool: 'maps',
+        }
+      }
+      const lines = rows.slice(0, 8).map((m, i) => `${i + 1}. ${m.from || 'unbekannt'} — ${m.subject || 'ohne Betreff'}`)
+      return {
+        handled: true,
+        reply: `Ungelesen über IMAP:\n${lines.join('\n')}`,
+        tool: commTool('mail', 'E-Mail', `${rows.length}`),
+        lastTool: 'maps',
+      }
+    }
+    const fallback = await mailFromNotifications(query)
+    if (fallback) return fallback
+    return {
+      handled: true,
+      reply: res.message || 'Postfach nicht erreichbar.',
+      tool: commTool('ask', 'E-Mail', 'imap'),
+      lastTool: 'maps',
+    }
+  }
+  const fromNotify = await mailFromNotifications(query)
+  if (fromNotify) return fromNotify
+  return {
+    handled: true,
+    reply:
+      'Kein E-Mail-Zugang. Unter API-Keys Adresse und App-Passwort eintragen — nicht das normale Passwort. Ohne das lese ich den Posteingang nicht.',
+    tool: commTool('ask', 'E-Mail', 'zugang'),
+    lastTool: 'maps',
+  }
+}
+
+async function mailFromNotifications(query: string): Promise<PlaceHit | null> {
+  const box = await listNotifyInbox()
+  if (!box.enabled) return null
+  const mails = box.items.filter((n) => /mail|gmail|outlook/i.test(n.pkg))
+  const q = query.trim().toLowerCase()
+  const rows = q
+    ? mails.filter((n) => `${n.title} ${n.text}`.toLowerCase().includes(q))
+    : mails
+  if (!rows.length) return null
+  const lines = rows.slice(0, 6).map((n, i) => `${i + 1}. ${n.title || 'Mail'} — ${n.text || 'ohne Text'}`)
+  return {
+    handled: true,
+    reply: `Letzte Mail-Meldungen, kein volles Postfach:\n${lines.join('\n')}`,
+    tool: commTool('mail', 'E-Mail', `${rows.length}`),
+    lastTool: 'maps',
+  }
+}
+
+async function handleWaInbox(
+  conversationId: string,
+  intent: { kind: 'wa_inbox' | 'wa_reply'; query: string; body?: string },
+): Promise<PlaceHit> {
+  const status = await notifyInboxStatus()
+  if (!status.enabled) {
+    await openInboxSettings()
+    return {
+      handled: true,
+      reply:
+        'WhatsApp-Eingang braucht den Meldungszugriff. Jarvis in der Liste erlauben, dann nochmal. Stilles Senden mache ich nicht.',
+      tool: commTool('ask', 'WhatsApp', 'meldungen'),
+      lastTool: 'maps',
+    }
+  }
+  const box = await listNotifyInbox()
+  const wa = box.items.filter((n) => /whatsapp/i.test(n.pkg))
+  const q = intent.query.trim().toLowerCase()
+  const match = q ? wa.filter((n) => `${n.title} ${n.text}`.toLowerCase().includes(q)) : wa
+  if (intent.kind === 'wa_inbox') {
+    if (!match.length) {
+      return {
+        handled: true,
+        reply: q
+          ? `Keine offene WhatsApp-Meldung von ${displayPlaceName(intent.query)}.`
+          : 'Keine offene WhatsApp-Meldung. Nur was gerade angezeigt wird, keinen Chat-Verlauf.',
+        tool: commTool('ask', 'WhatsApp', 'leer'),
+        lastTool: 'maps',
+      }
+    }
+    const lines = match.slice(0, 6).map((n, i) => `${i + 1}. ${n.title || 'WhatsApp'} — ${n.text || 'ohne Text'}`)
+    return {
+      handled: true,
+      reply: `Offene WhatsApp-Meldungen:\n${lines.join('\n')}\nAntwort: „Antworte ${match[0]?.title || 'Name'} …“.`,
+      tool: commTool('inbox', 'WhatsApp', `${match.length}`),
+      lastTool: 'maps',
+    }
+  }
+  const body = (intent.body || '').trim()
+  const row = match.find((n) => n.canReply) || match[0]
+  if (!row) {
+    if (intent.query && body) {
+      const rows = await listMemory()
+      const hit = findContactRow(rows, intent.query)
+      if (hit) {
+        writeComm({ kind: 'wa_confirm', name: hit.key, number: hit.value, body }, 'sms_confirm')
+        return {
+          handled: true,
+          reply: `Keine offene Meldung von ${displayPlaceName(intent.query)}. Chat-Link nach Ja, senden tun Sie.`,
+          tool: commTool('ask', 'WhatsApp', hit.key),
+          lastTool: 'sms_confirm',
+        }
+      }
+    }
+    return {
+      handled: true,
+      reply: 'Keine offene WhatsApp-Meldung zum Antworten. Neue Nachricht: „Schreib … auf WhatsApp …“.',
+      tool: commTool('ask', 'WhatsApp', intent.query),
+      lastTool: 'maps',
+    }
+  }
+  if (!body) {
+    writeComm({ kind: 'wa_inbox_reply', name: row.title || intent.query, inboxKey: row.key, body: '' }, 'wa_inbox_reply')
+    return {
+      handled: true,
+      reply: `Was soll ich ${row.title || 'auf WhatsApp'} antworten?`,
+      tool: commTool('ask', 'WhatsApp', row.title),
+      lastTool: 'wa_inbox_reply',
+    }
+  }
+  writeComm(
+    { kind: 'wa_inbox_reply', name: row.title || intent.query, inboxKey: row.key, body },
+    'wa_inbox_reply',
+  )
+  return {
+    handled: true,
+    reply: `WhatsApp an ${row.title || displayPlaceName(intent.query)}: „${body}“. Über die sichtbare Meldung. Ja?`,
+    tool: commTool('ask', 'WhatsApp', row.title),
+    lastTool: 'wa_inbox_reply',
+  }
+}
+
+async function doWaInboxReply(
+  conversationId: string,
+  name: string,
+  key: string,
+  body: string,
+): Promise<PlaceHit> {
+  writeComm(null, 'maps')
+  const res = await replyNotifyInbox(key, body)
+  let reply = res.ok
+    ? `Antwort an ${displayPlaceName(name)} ist über die Meldung gegangen. Ob sie ankommt, prüfe ich nicht.`
+    : res.message || 'Antwort nicht übergeben. Chat öffnen, senden tun Sie.'
+  const extra = await runNextInChain(conversationId)
+  if (extra) reply = `${reply}\n\n${extra}`
+  return {
+    handled: true,
+    reply,
+    tool: commTool('sms', 'WhatsApp', name, { body }),
+    lastTool: 'maps',
+  }
 }
 
 async function runNextInChain(conversationId: string): Promise<string | null> {

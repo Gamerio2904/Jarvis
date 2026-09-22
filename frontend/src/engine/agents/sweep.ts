@@ -3,7 +3,7 @@
  * PRE_ROUTER (llm/help/research/…) gehört nicht hierher.
  */
 export const AGENT_SWEEP: Record<string, string> = {
-  wont: 'Schreib mir eine E-Mail',
+  wont: 'Mach ein Foto',
   identity: 'Bist du ChatGPT?',
   tv: 'Fernseher an',
   film: 'Wie gut ist Dune',

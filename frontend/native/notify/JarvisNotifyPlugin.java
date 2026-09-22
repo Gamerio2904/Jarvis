@@ -555,4 +555,70 @@ public class JarvisNotifyPlugin extends Plugin {
     private static SharedPreferences prefs(Context ctx) {
         return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
+
+    @PluginMethod
+    public void inboxStatus(PluginCall call) {
+        JSObject r = new JSObject();
+        boolean on = JarvisInboxService.enabled(getContext());
+        r.put("ok", true);
+        r.put("enabled", on);
+        if (!on) r.put("message", "Meldungszugriff aus. Unter Einstellungen Jarvis erlauben.");
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void inboxList(PluginCall call) {
+        JSObject r = new JSObject();
+        boolean on = JarvisInboxService.enabled(getContext());
+        r.put("ok", on);
+        r.put("enabled", on);
+        r.put("items", JarvisInboxService.snapshot(null));
+        if (!on) r.put("message", "Meldungszugriff aus. Unter Einstellungen Jarvis erlauben.");
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void inboxReply(PluginCall call) {
+        String key = call.getString("key", "");
+        String text = call.getString("text", "");
+        JSObject r = new JSObject();
+        if (!JarvisInboxService.enabled(getContext())) {
+            r.put("ok", false);
+            r.put("message", "Meldungszugriff aus. Unter Einstellungen Jarvis erlauben.");
+            call.resolve(r);
+            return;
+        }
+        boolean sent = JarvisInboxService.reply(getContext(), key, text);
+        r.put("ok", sent);
+        if (sent) {
+            JarvisInboxService.forget(key);
+        } else {
+            r.put("message", "Antwort nicht über die Meldung übergeben. Chat öffnen, senden tun Sie.");
+        }
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void inboxOpenSettings(PluginCall call) {
+        JSObject r = new JSObject();
+        try {
+            Intent i = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            startExtNotify(i);
+            r.put("ok", true);
+        } catch (Exception e) {
+            r.put("ok", false);
+            r.put("message", "Meldungs-Einstellungen nicht geöffnet.");
+        }
+        call.resolve(r);
+    }
+
+    private void startExtNotify(Intent i) {
+        Activity a = getActivity();
+        if (a != null) {
+            a.startActivity(i);
+        } else {
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getContext().startActivity(i);
+        }
+    }
 }

@@ -23,7 +23,7 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 12. **OEM-Akku** [`183`](./sprints/sprint-183.md) — nur wenn 178 rot ⚠︎
 13. **`9.9.3`** [`186`](./sprints/sprint-186.md) — nur wenn 168 rot ⚠︎
 14. **Could-ONNX** Freeze [`181`](./sprints/sprint-181.md) bis Messung; Smalltalk [`184`](./sprints/sprint-184.md) Could ⚠︎
-15. Parking: Mail, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn
+15. Parking: SMTP-Senden, Cloud-Kalender, Alexa, Play Store, iOS, NAS-Hirn. Mail-Lesen + Entwurf in `18.9.7`.
 16. **`10.0` CODE** [`56-next.md`](./56-next.md) — Schema/Gate/Retrieve-2/Graph/Gold in `10.60.0`; Gerät 193 PO; 195 Freeze
 17. **Memory-10 Intensiv** [`57-next.md`](./57-next.md) — 196–201 **CODE** in `10.66.0`
 18. **`11.0` CODE** [`58-next.md`](./58-next.md) — Fachwissen-Packs + Deep Research in `11.60.0`; 202–208 Execute; kein Diebstahl von `10.61`
@@ -143,6 +143,7 @@ Begründung: [`76-next.md`](./76-next.md).
 | `18.9.4` | [335](./sprints/sprint-335.md) | Propose Action-then-ground + Repair |
 | `18.9.5` | [336](./sprints/sprint-336.md) | API/Cache neu, kein Key-Tausch |
 | `18.9.6` | [337](./sprints/sprint-337.md) | Härten, Gold, TEST-18.9 |
+| `18.9.7` | [338](./sprints/sprint-338.md) | E-Mail, Telefonbuch, WhatsApp-Antwort |
 
 Harte Kette: 331 → alles. 332 braucht 331. 336 braucht 331+332. 337 zuletzt.
 Kein freies Web. Kein Write-Zweitlauf. Nicht parallel zu `18.5`.

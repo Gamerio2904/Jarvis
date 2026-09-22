@@ -2,7 +2,7 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   "wont": {
     "promptSlice": "Domäne wont: Parser-Fakten only.",
     "goldPrompts": [
-      "Schreib mir eine E-Mail"
+      "Mach ein Foto"
     ]
   },
   "identity": {

@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.9.6'
+export const APP_VERSION = '18.9.7'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
@@ -206,6 +206,9 @@ export type Settings = {
   last_fuel_json: string
   last_poi_json: string
   last_comm_json: string
+  mail_user: string
+  mail_pass: string
+  mail_host: string
   last_pc_json: string
   last_rtc_json: string
   last_drive_json: string
@@ -377,6 +380,9 @@ export const DEFAULT_SETTINGS: Settings = {
   last_fuel_json: '',
   last_poi_json: '',
   last_comm_json: '',
+  mail_user: '',
+  mail_pass: '',
+  mail_host: '',
   last_pc_json: '',
   last_rtc_json: '',
   last_drive_json: '',

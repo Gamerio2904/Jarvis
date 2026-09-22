@@ -37,7 +37,7 @@ const REPLY: Record<WontReason, string> = {
   cctv: 'Öffentliche Kameras und Live-Streams habe ich nicht. Die Kugel zeigt keine Überwachung.',
   live_sat: 'Live-Satellitenvideo gibt es nicht. Die Kugel zeigt Standbilder, oft Stunden alt.',
   watch: 'Leute beobachte ich nicht. Keine Überwachung.',
-  mail: 'E-Mail schreibe ich nicht. SMS nach Nachfrage, wenn ein Kontakt da ist.',
+  mail: 'E-Mail ohne Zugang schreibe ich nicht still. Entwurf nach Ja, Lesen nur mit App-Passwort.',
   emergency: 'Notruf und 112 starte ich nicht. Bei Not: selbst wählen.',
   paint: 'Bilder male ich nicht. Kein Generator, kein Clipart.',
   app: 'Fremde Apps wie Instagram öffne ich nicht.',
@@ -84,7 +84,7 @@ export function parseWontIntent(text: string): WontIntent | null {
   if (/\bbeobacht(?:e|en)?\b/i.test(t) && /\b(leute|menschen|personen|straße|strasse)\b/i.test(t)) {
     return { reason: 'watch' }
   }
-  if (/\b(e-?mails?|emails?)\b/i.test(t) && /\b(schreib|sende|verfass|öffne)\b/i.test(t)) {
+  if (/\b(e-?mails?|emails?)\b/i.test(t) && /\b(smtp|oauth|gmail-api)\b/i.test(t) && /\b(bypass|umgeh)\b/i.test(t)) {
     return { reason: 'mail' }
   }
   if (/^\s*(?:notruf|ruf(?:e)?\s*(?:den\s+)?(?:notruf|112)|112\s+anrufen)\s*[.!?]*$/i.test(t)) {

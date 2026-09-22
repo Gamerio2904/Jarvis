@@ -329,4 +329,8 @@ export const TEST_PROMPTS = [
   'Was ist traceroute',
   'Fass das Gespräch zusammen',
   'Hausstand exportieren',
+  'Kontakte scannen',
+  'Lies meine E-Mails',
+  'Was steht auf WhatsApp',
+  'Antworte Mama auf WhatsApp ich bin unterwegs',
 ] as const

@@ -109,6 +109,8 @@ const KEY_FIELDS: Array<keyof Settings> = [
   'spotify_client_id',
   'outlook_fred_key',
   'tv_token',
+  'mail_user',
+  'mail_pass',
 ]
 
 export type HausBackup = {
