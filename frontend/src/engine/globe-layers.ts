@@ -56,6 +56,12 @@ function fail(layer: GlobeLayer, source: string, error: string): LayerCache {
   return remember({ layer, at: Date.now(), source, pins: [], error })
 }
 
+/** Fail oder Recover: Slot weg, nächster fetchLayer geht ins Netz. */
+export function dropLayerCache(layer?: GlobeLayer): void {
+  if (layer) caches.delete(layer)
+  else caches.clear()
+}
+
 export function cachedLayer(layer?: GlobeLayer): LayerCache | null {
   const id = layer || (isGlobeLayer(loadSettings().globe_layer) ? loadSettings().globe_layer : null)
   if (!id) return null

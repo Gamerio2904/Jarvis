@@ -71,6 +71,7 @@ export async function lookupOmdb(
     type: 'movie',
   })
   if (year && year > 1900 && year < 2100) q.set('y', String(year))
+  q.set('_', String(Date.now()))
   try {
     const { status, json } = await getJson(`https://www.omdbapi.com/?${q}`, jsonUA)
     if (status === 401 || status === 403) {

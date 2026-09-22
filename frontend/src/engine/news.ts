@@ -1,4 +1,4 @@
-import { getJson } from './http-json.ts'
+import { getJson, getText } from './http-json.ts'
 import { jsonUA } from './ua.ts'
 import { fillResearchLinks } from './web-search.ts'
 import { formatResearchReply, researchHasSources, type ResearchMeta, type ResearchSource } from './research-parse.ts'
@@ -10,6 +10,8 @@ export { parseNewsIntent, placeInHeadline } from './news-parse.ts'
 
 const UA = jsonUA
 const TS = 'https://www.tagesschau.de/api2u'
+/** Fest eingetragen — keine freie Website. Vite-Proxy kennt rss.dw.com. */
+const DW_RSS = 'https://rss.dw.com/xml/rss-de-top'
 
 export async function handleNews(
   text: string,
@@ -46,7 +48,7 @@ export async function handleNews(
     }
   }
 
-  const national = await tagesschauHome()
+  const national = await fetchTagesschauHome(false)
   if (!national.hits.length) {
     return {
       handled: true,
@@ -80,12 +82,47 @@ function pack(
   }
 }
 
-async function tagesschauHome(): Promise<{ hits: string[]; sources: ResearchSource[] }> {
+export async function fetchTagesschauHome(
+  bust = false,
+): Promise<{ hits: string[]; sources: ResearchSource[] }> {
   try {
-    const { status, json } = await getJson(`${TS}/news`, UA)
+    const url = bust ? `${TS}/news?_=${Date.now()}` : `${TS}/news`
+    const { status, json } = await getJson(url, UA)
     if (status < 200 || status >= 300) return { hits: [], sources: [] }
     const news = (json.news as Array<Record<string, unknown>> | undefined) || []
     return take(news, 3)
+  } catch {
+    return { hits: [], sources: [] }
+  }
+}
+
+export function parseDwRss(xml: string): { hits: string[]; sources: ResearchSource[] } {
+  const now = new Date().toISOString()
+  const hits: string[] = []
+  const sources: ResearchSource[] = []
+  const items = xml.split(/<item[\s>]/i).slice(1)
+  for (const raw of items) {
+    if (hits.length >= 3) break
+    const title = String(raw.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i)?.[1] || '')
+      .replace(/<[^>]+>/g, '')
+      .trim()
+    if (!title) continue
+    const link = String(raw.match(/<link>([\s\S]*?)<\/link>/i)?.[1] || '')
+      .replace(/<[^>]+>/g, '')
+      .trim()
+    hits.push(`${title}.`)
+    if (link.startsWith('http')) {
+      sources.push({ title, url: link, snippet: title, provider: 'dw', retrieved_at: now })
+    }
+  }
+  return { hits, sources }
+}
+
+export async function fetchDwHome(): Promise<{ hits: string[]; sources: ResearchSource[] }> {
+  try {
+    const { status, text } = await getText(DW_RSS, UA)
+    if (status < 200 || status >= 300 || !text) return { hits: [], sources: [] }
+    return parseDwRss(text)
   } catch {
     return { hits: [], sources: [] }
   }

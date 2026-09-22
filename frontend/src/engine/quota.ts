@@ -132,6 +132,13 @@ export function quotaHint(provider: string, now = Date.now()): string {
   return 'Ich antworte gerade offline, das Tageslimit ist fast leer.'
 }
 
+/** Einmal warten, gedeckelt — Recover, kein Key-Tausch. */
+export function retryAfterMs(headers: Record<string, string> = {}, cap = 2_500): number {
+  const wait = parseDuration(headers['retry-after']) ?? 0
+  if (wait <= 0) return 0
+  return Math.min(wait, cap)
+}
+
 export function resetQuota(): void {
   states.clear()
 }

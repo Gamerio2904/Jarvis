@@ -1,6 +1,6 @@
 # Testanleitung seit `1.16` — Prompts 1:1
 
-App-Code **`18.8.4`**. Sideload-APK **`18.8.4`**.  
+App-Code **`18.9.0`**. Sideload-APK **`18.9.0`**.  
 Einrichten: [`TEST-PC.md`](./TEST-PC.md). In der App: Einstellungen → **Tests** → Spur wählen → **Senden**.
 
 **PC** = Browser reicht. **Handy** = nur auf dem Gerät sinnvoll. **BAT** = `JarvisPC.bat` muss laufen.  
@@ -19,7 +19,7 @@ In der App: Spur **Story** → **Seit 1.16 der Reihe nach** (Kern). Rest nach Si
 Was kannst du?
 ```
 
-Antwort nennt **`18.8.4`**.
+Antwort nennt **`18.9.0`**.
 
 ```
 Hallo Jarvis.
@@ -898,7 +898,7 @@ Taste **1–8** wechselt die Spur, **/** sucht.
 
 | Rot | Grün |
 |-----|------|
-| Hilfe nennt nicht 18.8.4 | Version stimmt zur Fläche |
+| Hilfe nennt nicht 18.9.0 | Version stimmt zur Fläche |
 | Milch braucht Ja | Liste ohne Confirm |
 | `Öffne das overlay` öffnet Filme | Fahrmodus |
 | `Öffne das watchlist overlay` öffnet Fahrt | Watchliste |
@@ -909,6 +909,6 @@ Taste **1–8** wechselt die Spur, **/** sucht.
 | `Mach WLAN aus` danach `ja` schaltet Research | Pending tot |
 | Kameras / Street View / 112 / Captcha gehen | Won’t |
 | Smalltalk duzt nach Inject | Siezen |
-| Sideload als 18.4.4 verkauft | APK ist 18.8.4 |
+| Sideload als 18.4.4 verkauft | APK ist 18.9.0 |
 
 Vollständiger Katalog: Einstellungen → Tests. Automatisch: `cd frontend && bash scripts/run-all-tests.sh`.

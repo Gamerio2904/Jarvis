@@ -5,6 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.9.0` — Recover + Hirn — *CODE + APK*
+
+Quelle tot: Jarvis sagt an und versucht die nächste **erlaubte** Methode
+(Tagesschau neu → DW, Lage-Cache weg, OMDb neu, Groq → Gemini). Höchstens
+zwei Alternativen. Write und Gerät laufen einmal. Gescheiterte Fakten
+und Reads: „Ich rate nicht.“ Kein freies Web, kein Key-Tausch.
+
+Sprints **331–337** CODE. Probe bleibt 13 Spuren. Mock 503→200 nur in
+`test-recover.mjs`. `18.5` bleibt PLAN. Sideload **`18.9.0`**
+(versionCode `180900`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
 ### `18.8.4` — Umbenennen, Osiris-Leiste, Publikum — *CODE + APK*
 
 Watchliste: Folie zeigt **Kritiker** und **Publikum** immer. Fehlt die

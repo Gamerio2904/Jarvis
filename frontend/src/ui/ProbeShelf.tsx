@@ -51,7 +51,18 @@ function PromptRow({
     <label className="settings-field copy-field">
       <span>{label}</span>
       <div className="copy-field-row">
-        <input readOnly value={value} onFocus={(e) => e.currentTarget.select()} />
+        <input
+          readOnly
+          value={value}
+          onFocus={(e) => e.currentTarget.select()}
+          onClick={() => {
+            void copyText(value).then((ok) => {
+              if (!ok) return
+              setDone('copy')
+              window.setTimeout(() => setDone(null), 1400)
+            })
+          }}
+        />
         <button
           type="button"
           className="copy-btn"

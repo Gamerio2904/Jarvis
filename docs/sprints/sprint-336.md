@@ -1,6 +1,6 @@
 # Sprint 336 — API und Cache neu
 
-**Version:** `18.9.5` — **PLAN** Must
+**Version:** `18.9.5` — **CODE** Must
 **Plan:** [`80-next.md`](../80-next.md)
 **Voraussetzung:** 331, 332.
 

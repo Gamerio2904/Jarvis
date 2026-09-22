@@ -13,6 +13,7 @@ import {
   type BrainSlotResult,
   type TurnBrainCtx,
 } from './brain-tasks.ts'
+import { announceSwitch } from './recover.ts'
 
 export type BrainOrchestratorInput = {
   messages: Array<{ role: string; content: string }>
@@ -188,7 +189,30 @@ export async function runBrainOrchestrator(input: BrainOrchestratorInput): Promi
     }
   }
 
-  const result = await runSlot(primary, input, input.turn.policyAsk)
+  let result: BrainSlotResult
+  try {
+    result = await runSlot(primary, input, input.turn.policyAsk)
+  } catch {
+    result = { slot: primary, model: 'none', text: '' }
+  }
+  if (!result.text.trim() && geminiReady() && primary !== 'research-deep') {
+    try {
+      const g = await completeGemini(input.messages, input.onToken, {
+        search: Boolean(input.wantSearch),
+        maxOutputTokens: input.voice ? 240 : 420,
+      })
+      if (g.text.trim()) {
+        return {
+          text: `${announceSwitch('Groq', 'Gemini')} ${g.text}`,
+          research: g.research,
+          via: 'gemini',
+          slots: [...slots, 'research-deep'],
+        }
+      }
+    } catch {
+      /* nächster Slot tot — ehrliche Leere, kein Raten */
+    }
+  }
   return {
     text: result.text,
     research: result.research,

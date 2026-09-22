@@ -19,6 +19,20 @@ export function proposeReady(): boolean {
   return !quotaBlocked('groq')
 }
 
+/** Nur am Vorschlag — Trailing-Comma / fehlende Quotes. Nie Chat-Antworten. */
+export function repairProposalJson(raw: string): string | null {
+  let t = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '')
+  if (!t) return null
+  t = t.replace(/,\s*([}\]])/g, '$1')
+  t = t.replace(/([{,]\s*)([A-Za-z_][A-Za-z0-9_]*)\s*:/g, '$1"$2":')
+  try {
+    JSON.parse(t)
+    return t
+  } catch {
+    return null
+  }
+}
+
 export async function proposeTool(text: string): Promise<ParsedProposal | null> {
   if (!proposeReady()) return null
   const raw = await completeGroqJson({
@@ -27,5 +41,17 @@ export async function proposeTool(text: string): Promise<ParsedProposal | null> 
     name: 'tool_call',
     schema: toolJsonSchema(),
   })
-  return readProposal(raw)
+  const parsed = readProposal(raw)
+  if (parsed) return parsed
+  if (typeof raw === 'string') {
+    const fixed = repairProposalJson(raw)
+    if (fixed) {
+      try {
+        return readProposal(JSON.parse(fixed))
+      } catch {
+        return null
+      }
+    }
+  }
+  return null
 }

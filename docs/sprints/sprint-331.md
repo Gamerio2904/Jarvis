@@ -1,6 +1,6 @@
 # Sprint 331 — Recover-Kern
 
-**Version:** `18.9.0` — **PLAN** Must
+**Version:** `18.9.0` — **CODE** Must
 **Plan:** [`80-next.md`](../80-next.md)
 **Voraussetzung:** `18.8.4` auf main. Kein 18.5.
 
