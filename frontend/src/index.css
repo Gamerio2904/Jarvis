@@ -3190,7 +3190,24 @@ button.linkish {
 
 .watch-scores {
   margin: 0;
-  font-size: 0.95rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.86rem;
+}
+
+.watch-score {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-elevated));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+.watch-score.is-imdb {
+  background: color-mix(in srgb, var(--gold) 12%, var(--bg-elevated));
+  border-color: color-mix(in srgb, var(--gold) 32%, var(--border));
 }
 
 @keyframes watchKen {
