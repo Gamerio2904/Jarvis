@@ -5,7 +5,7 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.9.4` — Kalender-Agent + GUI — *CODE*
+### `18.9.4` — Kalender-Agent + GUI — *CODE + APK*
 
 „Samstag Geburtstag Jakob 18 Uhr“ legt den Termin wirklich auf den
 nächsten Samstag, auch wenn STT die Wörter klebt

@@ -1,7 +1,9 @@
-# Android-APK — Sideload `18.9.3`
+# Android-APK — Sideload `18.9.4`
 
-App-Code **`18.9.4`**. Sideload folgt nach dem Build **`18.9.4`** (versionCode `180904`).
-Aktuell noch Sideload **`18.9.3`** (versionCode `180903`) bis die neue APK liegt:
+App-Code **`18.9.4`**. Sideload **`18.9.4`** (versionCode `180904`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+**18.9.3:** Mikrofon weniger Lag. Sideload **`18.9.3`** (versionCode `180903`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.9.2:** Halluzinationen: Parser statt Erfindung. Sideload **`18.9.2`** (versionCode `180902`):
