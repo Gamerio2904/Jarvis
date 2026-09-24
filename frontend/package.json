@@ -63,6 +63,7 @@
     "test:lage-body-globe": "node --experimental-strip-types scripts/test-lage-body-globe.mjs",
     "test:rm-graph": "node --experimental-strip-types scripts/test-rm-graph.mjs",
     "fetch:rm": "node scripts/fetch-rm-snapshot.mjs",
+    "gui:rm-serie": "node --experimental-strip-types scripts/gui-rm-serie.mjs",
     "test:comm": "node --experimental-strip-types scripts/test-comm.mjs",
     "gui:lage-body-globe": "node --experimental-strip-types scripts/gui-lage-body-globe.mjs",
     "gui:watchlist-osint-18": "node --experimental-strip-types scripts/gui-watchlist-osint-18.mjs",

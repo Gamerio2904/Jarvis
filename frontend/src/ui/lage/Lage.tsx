@@ -48,7 +48,7 @@ import { ensureDeviceLocation } from '../../native/geo.ts'
 import { setLageSession } from '../../engine/lage-session.ts'
 import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour.ts'
 import { decodeHtml } from '../../engine/html-text.ts'
-import { dossierFor, rmCoverageLine } from '../../engine/rm-graph.ts'
+import { dossierFor, rmCoverageLine, searchCharacters } from '../../engine/rm-graph.ts'
 import { SerieMapCanvas } from './SerieMapCanvas.tsx'
 import { SerieDossier } from './SerieDossier.tsx'
 
@@ -568,6 +568,21 @@ export function Lage({
                 Mit Fähigkeit
               </button>
             </div>
+            {serieQuery.trim() ? (
+              <div className="serie-hits" role="listbox" aria-label="Suchtreffer">
+                {searchCharacters(serieQuery).slice(0, 8).map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="option"
+                    className={`lage-chip${serieId === c.id ? ' is-on' : ''}`}
+                    onClick={() => setSerieId(c.id)}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+            ) : null}
             <SerieMapCanvas
               selectedId={serieId}
               query={serieQuery}

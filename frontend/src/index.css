@@ -5659,6 +5659,13 @@ button.linkish {
   font-size: 0.86rem;
 }
 
+.serie-hits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+
 .serie-map-canvas {
   flex: 1 1 auto;
   min-height: 220px;
