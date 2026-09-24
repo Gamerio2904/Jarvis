@@ -15,17 +15,13 @@ import type {
 
 const snap = snapJson as RmSnapshot
 
-const SPECIES_RING: Record<string, number> = {
-  Human: 0,
-  Humanoid: 1,
-  Alien: 2,
-  Animal: 3,
-  Robot: 4,
-  'Mythological Creature': 5,
-  Poopybutthole: 6,
-  Cronenberg: 7,
-  Disease: 8,
-  unknown: 9,
+/** Familie innen, dann Regulars, Einmal-Auftritte ganz außen. */
+export function appearanceBand(eps: number): number {
+  if (eps >= 8) return 0
+  if (eps >= 5) return 1
+  if (eps >= 3) return 2
+  if (eps === 2) return 3
+  return 4
 }
 
 const STATUS_DE: Record<string, string> = {
@@ -99,30 +95,38 @@ export function searchHitLabel(c: RmCharacter, hits: RmCharacter[]): string {
   return `${c.name} · ${extra}`
 }
 
+const FAMILY_R = 0.11
+const RING_INNER = 0.205
+const RING_OUTER = 0.96
+const RING_CHUNK = 96
+
 export function layoutRmDots(chars: RmCharacter[] = snap.characters): RmDot[] {
   const dots: RmDot[] = []
   const coreSet = new Set<number>(RM_CORE_IDS)
   const core = RM_CORE_IDS.filter((id) => chars.some((c) => c.id === id))
   core.forEach((id, i) => {
     const ang = -Math.PI / 2 + (i * 2 * Math.PI) / Math.max(1, core.length)
-    dots.push({ id, x: Math.cos(ang) * 0.11, y: Math.sin(ang) * 0.11, r: 0.056 })
+    dots.push({ id, x: Math.cos(ang) * FAMILY_R, y: Math.sin(ang) * FAMILY_R, r: 0.056 })
   })
   const rest = chars.filter((c) => !coreSet.has(c.id))
-  const buckets = new Map<number, RmCharacter[]>()
+  const bands = new Map<number, RmCharacter[]>()
   for (const c of rest) {
-    const ring = SPECIES_RING[c.species] ?? 9
-    const list = buckets.get(ring) || []
+    const band = appearanceBand(c.eps.length)
+    const list = bands.get(band) || []
     list.push(c)
-    buckets.set(ring, list)
+    bands.set(band, list)
   }
-  const rings = [...buckets.keys()].sort((a, b) => a - b)
-  for (const ring of rings) {
-    const list = (buckets.get(ring) || []).sort((a, b) => b.eps.length - a.eps.length || a.id - b.id)
-    const radius = 0.22 + ring * 0.085
-    const n = list.length
+  const rings: RmCharacter[][] = []
+  for (const band of [...bands.keys()].sort((a, b) => a - b)) {
+    const list = (bands.get(band) || []).sort((a, b) => b.eps.length - a.eps.length || a.id - b.id)
+    for (let i = 0; i < list.length; i += RING_CHUNK) rings.push(list.slice(i, i + RING_CHUNK))
+  }
+  const span = Math.max(1, rings.length - 1)
+  rings.forEach((list, ring) => {
+    const radius = rings.length === 1 ? RING_INNER : RING_INNER + ((RING_OUTER - RING_INNER) * ring) / span
     list.forEach((c, i) => {
-      const wobble = ((c.id * 17) % 100) / 1000
-      const ang = (i / Math.max(1, n)) * Math.PI * 2 + ring * 0.11
+      const wobble = ((c.id * 17) % 100) / 1800
+      const ang = (i / Math.max(1, list.length)) * Math.PI * 2 + ring * 0.07
       const rr = radius + wobble
       dots.push({
         id: c.id,
@@ -131,7 +135,7 @@ export function layoutRmDots(chars: RmCharacter[] = snap.characters): RmDot[] {
         r: 0.018 + Math.min(0.028, Math.log2(1 + c.eps.length) * 0.006),
       })
     })
-  }
+  })
   return dots
 }
 
