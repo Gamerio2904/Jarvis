@@ -85,7 +85,6 @@ export function SerieMapCanvas({
     let lastPtr = { x: 0, y: 0 }
     let moved = 0
     let pinchSpan = 0
-    const retryTimers = new Set<number>()
 
     const faces = new Map<number, HTMLImageElement>()
     const dotsById = new Map(graph.dots.map((d) => [d.id, d]))
@@ -107,98 +106,21 @@ export function SerieMapCanvas({
       img.height = 24
       img.decoding = 'async'
       img.draggable = false
-      img.referrerPolicy = 'no-referrer'
       img.style.background = SPECIES_COLOR[c.species] || '#9aa8a0'
       img.dataset.id = String(c.id)
+      img.addEventListener(
+        'load',
+        () => {
+          img.classList.add('is-ready')
+          bumpFaces()
+        },
+        { once: true },
+      )
+      img.src = rmAvatar(c.id)
       layer.appendChild(img)
       faces.set(c.id, img)
     }
     surface.dataset.nodes = String(faces.size)
-
-    const high: HTMLImageElement[] = []
-    const low: HTMLImageElement[] = []
-    const queued = new Set<HTMLImageElement>()
-    const loading = new Set<HTMLImageElement>()
-    const tries = new Map<HTMLImageElement, number>()
-    const aborts = new Set<AbortController>()
-    let inflight = 0
-    const MAX_INFLIGHT = 6
-    const MAX_TRIES = 5
-
-    function bumpHigh(img: HTMLImageElement) {
-      const i = low.indexOf(img)
-      if (i >= 0) {
-        low.splice(i, 1)
-        high.push(img)
-      }
-    }
-
-    function enqueueFace(img: HTMLImageElement, urgent = false, extra = 0) {
-      if (!live || img.classList.contains('is-ready') || loading.has(img)) return
-      if (queued.has(img)) {
-        if (urgent) bumpHigh(img)
-        pumpFaces(extra)
-        return
-      }
-      queued.add(img)
-      if (urgent) high.push(img)
-      else low.push(img)
-      pumpFaces(extra)
-    }
-
-    function pumpFaces(extra = 0) {
-      if (!live) return
-      const cap = MAX_INFLIGHT + Math.max(0, extra)
-      while (inflight < cap) {
-        const img = high.shift() || low.shift()
-        if (!img) return
-        queued.delete(img)
-        if (img.classList.contains('is-ready') || loading.has(img)) continue
-        inflight += 1
-        loading.add(img)
-        const id = Number(img.dataset.id)
-        const url = rmAvatar(id)
-        const ctrl = new AbortController()
-        aborts.add(ctrl)
-        const watch = window.setTimeout(() => ctrl.abort(), 2500)
-        retryTimers.add(watch)
-        void fetch(url, { signal: ctrl.signal, mode: 'cors', referrerPolicy: 'no-referrer' })
-          .then(async (res) => {
-            if (!res.ok) throw new Error(String(res.status))
-            const blob = await res.blob()
-            if (blob.size < 32) throw new Error('empty')
-            if (!live) return
-            img.src = url
-            img.classList.add('is-ready')
-            bumpFaces()
-          })
-          .catch(() => {
-            if (!live) return
-            const n = (tries.get(img) || 0) + 1
-            tries.set(img, n)
-            if (n < MAX_TRIES) {
-              const t = window.setTimeout(() => {
-                retryTimers.delete(t)
-                enqueueFace(img, true, extra)
-              }, 200 * n)
-              retryTimers.add(t)
-            }
-          })
-          .finally(() => {
-            window.clearTimeout(watch)
-            retryTimers.delete(watch)
-            aborts.delete(ctrl)
-            loading.delete(img)
-            inflight -= 1
-            if (live) pumpFaces(extra)
-          })
-      }
-    }
-
-    for (const c of order) {
-      const img = faces.get(c.id)
-      if (img) enqueueFace(img, CORE.has(c.id))
-    }
     bumpFaces()
 
     function resize() {
@@ -332,7 +254,6 @@ export function SerieMapCanvas({
         img.style.height = `${(r * 2).toFixed(1)}px`
         img.style.opacity = sel && !isSel ? '0.48' : '1'
         img.style.zIndex = isSel ? '3' : q && characterById(id)?.name.toLowerCase().includes(q) ? '2' : '1'
-        if (isSel || (q && shown.has(id) && few)) enqueueFace(img, true, 4)
       }
 
       const labelIds = new Set<number>()
@@ -466,10 +387,6 @@ export function SerieMapCanvas({
     return () => {
       live = false
       cancelAnimationFrame(raf)
-      for (const t of retryTimers) window.clearTimeout(t)
-      retryTimers.clear()
-      for (const c of aborts) c.abort()
-      aborts.clear()
       ro.disconnect()
       offVis()
       surface.removeEventListener('pointerdown', onPtrDown)

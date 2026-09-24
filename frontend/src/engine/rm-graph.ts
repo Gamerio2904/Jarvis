@@ -69,7 +69,7 @@ export function characterById(id: number): RmCharacter | undefined {
 }
 
 export function rmAvatar(id: number): string {
-  return `https://rickandmortyapi.com/api/character/avatar/${id}.jpeg`
+  return `/rm-avatars/${id}.jpeg`
 }
 
 export function evidence(code: string, note: string): RmEvidence | null {

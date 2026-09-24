@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { RM_NAMED_EDGES, RM_SKILLS } from '../src/engine/rm-dossier.ts'
@@ -123,14 +123,19 @@ assert.match(canvas, /serie-faces/)
 assert.match(canvas, /rmAvatar/)
 assert.match(canvas, /dataset.faces/)
 assert.match(canvas, /dataset.nodes/)
-assert.match(canvas, /enqueueFace/)
-assert.match(canvas, /MAX_INFLIGHT/)
-assert.doesNotMatch(canvas, /if \(!img.getAttribute\('src'\)\) img.src/)
+assert.match(canvas, /img.src = rmAvatar/)
+assert.doesNotMatch(canvas, /enqueueFace/)
+assert.doesNotMatch(canvas, /rickandmortyapi.com\/api\/character\/avatar/)
 assert.match(css, /\.serie-face \{[\s\S]*border-radius: 50%/)
 assert.match(css, /\.serie-dossier-photo img/)
 assert.match(dossierUi, /serie-dossier-photo/)
 assert.match(dossierUi, /width=\{300\}/)
-assert.match(rick.image, /\/character\/avatar\/1\.jpeg$/)
+assert.equal(rick.image, '/rm-avatars/1.jpeg')
+const avaDir = join(here, '../public/rm-avatars')
+const avas = readdirSync(avaDir).filter((n) => /^\d+\.jpeg$/.test(n))
+assert.equal(avas.length, 826, 'alle Avatare liegen lokal')
+assert.ok(existsSync(join(avaDir, '1.jpeg')))
+assert.ok(existsSync(join(avaDir, '826.jpeg')))
 
 assert.match(snap.meta.source, /rickandmortyapi/)
 assert.equal(snap.meta.coverage, 'S01–S05')

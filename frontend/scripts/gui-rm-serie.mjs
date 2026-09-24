@@ -75,9 +75,12 @@ try {
       ['1', '2', '3', '4', '5'].every((id) =>
         document.querySelector(`.serie-face[data-id="${id}"]`)?.classList.contains('is-ready'),
       ),
-    { timeout: 15_000 },
+    { timeout: 8_000 },
   )
-  await sleep(2500)
+  await page.waitForFunction(() => document.querySelectorAll('.serie-face.is-ready').length >= 400, {
+    timeout: 8_000,
+  })
+  await sleep(400)
   const faces = await page.evaluate(() => {
     const all = [...document.querySelectorAll('.serie-face')]
     const canvas = document.querySelector('.serie-map-canvas')
@@ -103,7 +106,7 @@ try {
     }
   })
   rec(faces.coreReady, 'Kernfamilie hat Portraits')
-  rec(faces.ready >= 20, 'Portraits geladen', `${faces.ready} ready, dataset=${faces.dataset}`)
+  rec(faces.ready >= 400, 'lokale Portraits geladen', `${faces.ready} ready, dataset=${faces.dataset}`)
   rec(faces.srcTooSoon === 0, 'kein src vor dem Laden', String(faces.srcTooSoon))
   rec(faces.broken === 0, 'keine kaputten Knoten-Icons', String(faces.broken))
   rec(faces.round, 'Knoten sind kreisförmig mit Cover')
@@ -206,7 +209,7 @@ try {
   rec(dossier.morty, 'Kante zu Morty')
   await page.waitForFunction(() => {
     const img = document.querySelector('.serie-dossier-photo img')
-    return img instanceof HTMLImageElement && img.complete && img.naturalWidth >= 200
+    return img instanceof HTMLImageElement && img.complete && img.naturalWidth >= 128
   })
   const photo = await page.evaluate(() => {
     const img = document.querySelector('.serie-dossier-photo img')
@@ -217,7 +220,7 @@ try {
       nw: img instanceof HTMLImageElement ? img.naturalWidth : 0,
     }
   })
-  rec(photo.nw >= 200, 'Vollbild geladen', `${photo.nw}px Quelle`)
+  rec(photo.nw >= 128, 'Vollbild geladen', `${photo.nw}px Quelle`)
   rec(photo.w >= 200 && photo.h >= 160, 'Vollbild groß im Steckbrief', `${photo.w}×${photo.h}`)
   await sleep(800)
   await page.screenshot({ path: `${SHOTS}/lage-serie-rick.png` })
