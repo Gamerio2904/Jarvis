@@ -15,8 +15,8 @@ e5 nie in `pickRoute`, kein Qdrant, kein LLM-Organizer, kein Graphiti /
 cognee / Mem0, kein cytoscape. Filme: OMDb, nicht RT-API.** HDMI-CEC
 kann das Handy nicht — An/Aus bleibt Netzwerk.
 
-**Dieses Dokument ist CODE in `18.10.0`.** Sideload bleibt **`18.9.8`**,
-bis eine APK `18.10.0` gebaut wird. Execute: Sprints **301–306**.
+**Dieses Dokument ist CODE + APK in `18.10.0`.** Sideload **`18.10.0`**,
+versionCode `181000`. Execute: Sprints **301–306**.
 18.6 / 18.8 / 18.9 sind CODE+APK — die alte Parallel-Sperre gilt nicht mehr.
 
 ---
