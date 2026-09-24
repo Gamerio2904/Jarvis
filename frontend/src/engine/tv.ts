@@ -160,7 +160,7 @@ export function tvObserveIo(): TvObserveIo {
 }
 
 function tvPackObs(
-  ok: boolean,
+  _ok: boolean,
   reply: string,
   action: string,
   observation: Record<string, unknown>,
