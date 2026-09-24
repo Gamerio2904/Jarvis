@@ -107,6 +107,24 @@ try {
   rec(faces.srcTooSoon === 0, 'kein src vor dem Laden', String(faces.srcTooSoon))
   rec(faces.broken === 0, 'keine kaputten Knoten-Icons', String(faces.broken))
   rec(faces.round, 'Knoten sind kreisförmig mit Cover')
+  const layout = await page.evaluate(() => {
+    function dist(id) {
+      const n = document.querySelector(`.serie-face[data-id="${id}"]`)
+      const box = document.querySelector('.serie-map-shell')?.getBoundingClientRect()
+      if (!n || n.hidden || !box) return null
+      const r = n.getBoundingClientRect()
+      return Math.hypot(r.x + r.width / 2 - (box.x + box.width / 2), r.y + r.height / 2 - (box.y + box.height / 2))
+    }
+    const family = ['1', '2', '3', '4', '5'].map(dist)
+    const outer = dist('826')
+    return {
+      family: family.every((v) => v != null),
+      outer: outer != null,
+      inner: Math.max(...family.map((v) => v || 0)),
+      far: outer || 0,
+    }
+  })
+  rec(layout.family && layout.outer && layout.inner < layout.far, 'Familie näher am Zentrum als Einmal-Auftritt', `${Math.round(layout.inner)} < ${Math.round(layout.far)}`)
   await page.screenshot({ path: `${SHOTS}/lage-serie-nodes.png` })
 
   const rickFace = await page.evaluate(() => {
