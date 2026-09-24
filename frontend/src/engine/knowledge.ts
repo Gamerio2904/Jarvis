@@ -17,7 +17,7 @@ import {
 
 export { parseTeachIntent } from './teach-parse.ts'
 export { parsePackAsk, parsePackForget, parsePackRevise } from './pack-parse.ts'
-export { knowledgeBlock } from './knowledge-block.ts'
+export { knowledgeBlock, knowledgeAllowedForRoute, KNOWLEDGE_PARSER_ALLOW } from './knowledge-block.ts'
 export { retrievePacks } from './knowledge-retrieve.ts'
 export { persistKnowledgeHarvest, harvestFromResearch, readKnowledgeHarvest } from './knowledge-harvest.ts'
 export {

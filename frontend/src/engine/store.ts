@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.9.8'
+export const APP_VERSION = '18.10.0'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
@@ -201,6 +201,8 @@ export type Settings = {
   tv_name: string
   tv_host: string
   tv_mac: string
+  /** Ethernet-MAC, oft ≠ WLAN-MAC. WoL braucht oft diese. */
+  tv_mac_eth: string
   tv_port: number
   tv_token: string
   tv_paired: boolean
@@ -375,6 +377,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_name: 'Wohnzimmer',
   tv_host: '',
   tv_mac: '',
+  tv_mac_eth: '',
   tv_port: 8002,
   tv_token: '',
   tv_paired: false,

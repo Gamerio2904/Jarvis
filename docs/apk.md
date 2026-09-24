@@ -1,6 +1,7 @@
 # Android-APK — Sideload `18.9.8`
 
-App-Code **`18.9.8`**. Sideload **`18.9.8`** (versionCode `180908`):
+App-Code **`18.10.0`** (versionCode `181000`, noch ohne neue APK).
+Sideload **`18.9.8`** (versionCode `180908`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.9.7:** E-Mail, Telefonbuch, WhatsApp. Sideload **`18.9.7`** (versionCode `180907`):

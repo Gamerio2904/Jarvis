@@ -57,8 +57,31 @@ export function personaPack(face = 'jarvis'): { local: string; gemini: string } 
   return { local: PERSONA, gemini: GEMINI_PERSONA }
 }
 
-export const VOICE_HINT =
-  'Sprachmodus: 1–2 ganze Sätze mit Verb, ruhig und fertig wie ein Haus-AI, Punkt am Ende. Tool-Ergebnis zuerst, kein Essay. Kein Telegramm, kein Stichwortstaccato. Understatement, kein Hetzen, kein Helpdesk, keine Listen. Sir höchstens einmal. Kein Markdown, keine Sternchen, keine Unterstriche, kein Vorlauf.'
+const DEVICE_VOICE_ROUTES = new Set([
+  'tv',
+  'device',
+  'plug',
+  'fan',
+  'gpio',
+  'timer',
+  'alarm',
+  'reminder',
+  'pc',
+])
+
+export const VOICE_HINT_DEVICE =
+  'Sprachmodus: ein fertiger Satz mit Verb, Punkt. Tool-Ergebnis zuerst. Kein Essay, kein Telegramm, keine Listen. Sir höchstens einmal.'
+
+export const VOICE_HINT_EXPLAIN =
+  'Sprachmodus: 2–3 ganze Sätze mit Verb, ruhig und fertig. Kein Essay, kein Telegramm, keine Listen. Sir höchstens einmal. Kein Markdown, keine Sternchen.'
+
+/** Default: Erklärung. Gerät/Parser nutzt voiceHintFor(route). */
+export const VOICE_HINT = VOICE_HINT_EXPLAIN
+
+export function voiceHintFor(route: string | null | undefined): string {
+  if (route && DEVICE_VOICE_ROUTES.has(route)) return VOICE_HINT_DEVICE
+  return VOICE_HINT_EXPLAIN
+}
 
 export const SEARCH_ON_HINT = `Suche ist AN (Google plus Links). Antworten nur aus Treffern und dem Digest darunter.
 Verboten: „Leider kann ich keine Live-Suche“, „keine verifizierten Zahlen“ trotz Treffer, Browser-Verweis, Zahlen oder Stückzahlen, die nicht wörtlich in den Treffern stehen. Keine Umrechnung (Jahr→Tag, „umgerechnet entspricht das“), außer die Quelle nennt genau diese Einheit.

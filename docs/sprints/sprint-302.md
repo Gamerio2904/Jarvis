@@ -1,6 +1,6 @@
 # Sprint 302 — Hören
 
-**Version:** `18.5.1` — **PLAN** Must
+**Version:** landet in `18.10.0` (historisch `18.5.1`) — **CODE** Must
 **Plan:** [`76-next.md`](../76-next.md)
 **Voraussetzung:** 301 darf parallel starten; Parser-TV-Gold bleibt.
 

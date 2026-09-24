@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "18.9.8",
+  "version": "18.10.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -62,6 +62,7 @@
     "test:keyboard-inset": "node --experimental-strip-types scripts/test-keyboard-inset.mjs",
     "test:lage-body-globe": "node --experimental-strip-types scripts/test-lage-body-globe.mjs",
     "test:comm": "node --experimental-strip-types scripts/test-comm.mjs",
+    "test:18.10": "node --experimental-strip-types scripts/test-18.10.mjs",
     "gui:lage-body-globe": "node --experimental-strip-types scripts/gui-lage-body-globe.mjs",
     "gui:watchlist-osint-18": "node --experimental-strip-types scripts/gui-watchlist-osint-18.mjs",
     "gui:18-7-dock": "node --experimental-strip-types scripts/gui-18-7-dock.mjs",

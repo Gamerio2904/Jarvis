@@ -1,6 +1,6 @@
 # 08 — Offene Fragen
 
-> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. **Hirn:** Gemini (Key) Hauptweg → Groq Backup → 0,5B letzter Fallback. Sprint-1-Blocker geschlossen. Rest-Serie [`54-next.md`](./54-next.md) **CODE**. At-rest-Encryption Parking.
+> **Historisch.** **Jetzt:** Code **`18.10.0`**, Sideload **`18.9.8`**. Hirn **Groq primär** → Gemini Spezialist → 0,5B. Sideload-`9.10.0` und Gemini-Hauptweg **nicht ziehen**. Rest-Serie [`54-next.md`](./54-next.md) **CODE**. At-rest-Encryption Parking. Siehe [`HISTORISCH.md`](./HISTORISCH.md).
 
 Alles, was die Planung noch **lückig** macht.  
 Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
