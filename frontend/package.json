@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "18.9.8",
+  "version": "18.10.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -61,6 +61,8 @@
     "test:chess-engine": "node --experimental-strip-types scripts/test-chess-engine.mjs",
     "test:keyboard-inset": "node --experimental-strip-types scripts/test-keyboard-inset.mjs",
     "test:lage-body-globe": "node --experimental-strip-types scripts/test-lage-body-globe.mjs",
+    "test:rm-graph": "node --experimental-strip-types scripts/test-rm-graph.mjs",
+    "fetch:rm": "node scripts/fetch-rm-snapshot.mjs",
     "test:comm": "node --experimental-strip-types scripts/test-comm.mjs",
     "gui:lage-body-globe": "node --experimental-strip-types scripts/gui-lage-body-globe.mjs",
     "gui:watchlist-osint-18": "node --experimental-strip-types scripts/gui-watchlist-osint-18.mjs",

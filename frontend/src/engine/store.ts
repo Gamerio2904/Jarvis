@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.9.8'
+export const APP_VERSION = '18.10.0'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
@@ -253,7 +253,7 @@ export type Settings = {
   hud_accent: 'green' | 'amber'
   ui_theme: 'dark' | 'light' | 'system'
   hud_modules_json: string
-  hud_view: 'tiles' | 'body' | 'globe'
+  hud_view: 'tiles' | 'body' | 'globe' | 'serie'
   /** Körper teilt sich den Schirm mit dem Chat. Aus = Vollbild wie die Kugel. */
   body_with_chat: boolean
   last_body_organ: string

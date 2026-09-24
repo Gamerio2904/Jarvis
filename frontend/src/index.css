@@ -5254,6 +5254,11 @@ button.linkish {
   flex-shrink: 0;
 }
 
+.lage-chip.is-on {
+  background: var(--accent);
+  color: #04110a;
+}
+
 .lage-layers {
   position: absolute;
   top: 8px;
@@ -5625,6 +5630,103 @@ button.linkish {
 .agent-map-shell .agent-map-canvas {
   flex: 1 1 auto;
   min-height: 0;
+}
+
+.serie-shell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+  min-width: 0;
+  height: 100%;
+}
+
+.serie-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.serie-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(8, 12, 10, 0.72);
+  color: var(--text);
+  padding: 8px 12px;
+  font-size: 0.86rem;
+}
+
+.serie-map-canvas {
+  flex: 1 1 auto;
+  min-height: 220px;
+}
+
+.serie-dossier {
+  max-height: min(68vh, 560px);
+  overflow: auto;
+  max-width: 420px;
+}
+
+.serie-dossier-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.serie-dossier-ava {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #111;
+}
+
+.serie-dossier-traits,
+.serie-dossier-skills {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.serie-dossier-traits li,
+.serie-dossier-skills li {
+  margin: 0 0 6px;
+  font-size: 0.86rem;
+}
+
+.serie-dossier-traits span {
+  color: var(--text-muted);
+  margin-right: 6px;
+}
+
+.serie-dossier h4 {
+  margin: 12px 0 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.serie-dossier-skills strong {
+  display: block;
+}
+
+.serie-dossier-skills span,
+.serie-dossier-skills em,
+.serie-dossier-eps {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-style: normal;
+}
+
+.serie-dossier-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .agent-map-zoom {
@@ -6238,7 +6340,9 @@ button.linkish {
   .lage.is-compact .body-schema,
   .lage.is-compact .globe-wrap,
   .lage.is-compact .agent-map-shell,
-  .lage.is-compact .agent-map-canvas {
+  .lage.is-compact .agent-map-canvas,
+  .lage.is-compact .serie-shell,
+  .lage.is-compact .serie-map-canvas {
     max-height: none;
     width: 100%;
     height: auto;
