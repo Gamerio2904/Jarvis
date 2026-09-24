@@ -151,6 +151,10 @@ const geflickt = loadSettings()
 assert.equal(geflickt.tv_port, DEFAULT_SETTINGS.tv_port, 'kaputtes Feld faellt auf Default')
 assert.equal(geflickt.gemini_enabled, DEFAULT_SETTINGS.gemini_enabled)
 assert.equal(geflickt.hud_view, DEFAULT_SETTINGS.hud_view, 'unbekannter Wert wuerde die Oberflaeche leer lassen')
+{
+  const serie = coerceSettings({ ...DEFAULT_SETTINGS, hud_view: 'serie' }, DEFAULT_SETTINGS)
+  assert.equal(serie.value.hud_view, 'serie', 'Serie-Netz bleibt im Vorrat')
+}
 assert.equal(geflickt.ui_theme, DEFAULT_SETTINGS.ui_theme)
 assert.equal(geflickt.presence_port, DEFAULT_SETTINGS.presence_port)
 assert.equal(geflickt.last_place, DEFAULT_SETTINGS.last_place)

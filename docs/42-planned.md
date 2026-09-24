@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.9.8`**, versionCode `180908`. App-Code **`18.10.0`** (versionCode `181000`, noch ohne neue APK). Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.10.md`](./TEST-18.10.md).
+**Live-APK:** **`18.10.0`**, versionCode `181000`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.10.md`](./TEST-18.10.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -145,6 +145,7 @@ Begründung: [`76-next.md`](./76-next.md).
 | `18.9.6` | [337](./sprints/sprint-337.md) | Härten, Gold, TEST-18.9 |
 | `18.9.7` | [338](./sprints/sprint-338.md) | E-Mail, Telefonbuch, WhatsApp-Antwort |
 | `18.9.8` | [339](./sprints/sprint-339.md) [340](./sprints/sprint-340.md) | Mail im Scan, Kontaktliste, IMAP-Test; Gedächtnis-Kern |
+| `18.10.0` | [341](./sprints/sprint-341.md) | Lage Serie-Netz (Rick and Morty) |
 
 Harte Kette: 331 → alles. 332 braucht 331. 336 braucht 331+332. 337 zuletzt.
 Kein freies Web. Kein Write-Zweitlauf.

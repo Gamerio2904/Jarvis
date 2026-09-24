@@ -1,10 +1,8 @@
 # TEST 18.10 — TV-Wahrheit, Hören, Mund, Observe
 
 Nach Execute von [`76-next.md`](./76-next.md). App-Code **`18.10.0`**,
-versionCode `181000`. Sideload bleibt **`18.9.8`**, bis die APK `18.10.0`
-gebaut ist. Planname war `18.5` — nicht als `18.5.0` installieren.
-
-Gerät-PO der neuen APK erst nach Sideload `18.10.0`.
+versionCode `181000`. Sideload **`18.10.0`**. Planname war `18.5` — nicht
+als `18.5.0` installieren.
 
 ## 1. Version
 

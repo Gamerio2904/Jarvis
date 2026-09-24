@@ -1635,7 +1635,7 @@ function App() {
       dropOverlayHistory()
       setLageSession(true)
       const cur = loadSettings().hud_view
-      const hud_view = cur === 'body' || cur === 'globe' ? cur : 'globe'
+      const hud_view = cur === 'body' || cur === 'globe' || cur === 'serie' ? cur : 'globe'
       void patchSettings({ hud_force: true, hud_hidden: false, hud_view }).then((s) => setSettings(s))
       return
     }

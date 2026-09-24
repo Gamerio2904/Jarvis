@@ -86,7 +86,10 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 78 | [Listen-Leiste, Selbststeuerung, flexibler Befehl 18.7](./78-next.md) | **CODE** `18.7.0` — Sprints 315–322; 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb |
 | 79 | [Debug-Rollback, Termin-Erinnerungen, Debug-Download 18.8](./79-next.md) | **CODE** `18.8.0` — Sprints 323–330; Lauf räumt Writes, Termin fragt nach 1–n Fristen, Download am Dock, Prompt-Pakete neu |
 | 80 | [Recover + Hirn härten 18.9](./80-next.md) | **CODE + APK** `18.9.8` — Sprints 331–340 |
-| — | [APK](./apk.md) | Sideload `18.9.8`; App-Code `18.10.0`; Test: [`TEST-18.10.md`](./TEST-18.10.md) |
+| 81 | [Post, Telefonbuch, WhatsApp](./81-next.md) | **CODE** `18.9.7` / `18.9.8` |
+| 82 | [Gedächtnis-Kern](./82-next.md) | **CODE** `18.9.8` |
+| 83 | [Lage Serie-Netz](./83-next.md) | **CODE** `18.10.0` — Rick-and-Morty-Knoten, Steckbrief mit Staffel/Folge |
+| — | [APK](./apk.md) | Sideload `18.10.0`; Test: [`TEST-18.10.md`](./TEST-18.10.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -310,5 +313,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 307–314 | `18.6.0`–`18.6.7` | **CODE + APK** in `18.8.0` (Lage-Kugel OSINT, [`77-next.md`](./77-next.md)) |
 | 315–322 | `18.7.0`–`18.7.7` | **CODE + APK** in `18.8.0` (6. Icon Filme, Selbststeuerung, Propose, Antwort-Orb, [`78-next.md`](./78-next.md)) |
 | 323–330 | `18.8.0`–`18.8.7` | **CODE + APK** in `18.8.0` (Debug-Rollback, Termin-Fristen, Debug-Download, Prompt-Pakete, [`79-next.md`](./79-next.md)) |
+| 331–340 | `18.9.0`–`18.9.8` | **CODE + APK** (Recover, Mail, Gedächtnis-Kern) |
+| 341 | `18.10.0` | **CODE** (Lage Serie-Netz, [`83-next.md`](./83-next.md)) |
 
 **Aktuell:** App-Code **`18.10.0`**. Sideload-APK **`18.9.8`**, versionCode `180908`. Sprints 301–306 **CODE** in `18.10.0` (historisch 18.5). 331–340 **CODE + APK** in `18.9.8`. Test: [`TEST-18.10.md`](./TEST-18.10.md). Index: [`42-planned.md`](./42-planned.md).

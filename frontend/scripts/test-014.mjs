@@ -2121,6 +2121,7 @@ assert.equal(parseHudIntent('mach die Kugel aus')?.view, 'tiles')
 assert.deepEqual(patchForHudView('globe'), { hud_view: 'globe', hud_force: true, hud_hidden: false })
 assert.deepEqual(patchForHudView('tiles'), { hud_view: 'tiles', hud_force: false, hud_hidden: true })
 assert.deepEqual(patchForHudView('body'), { hud_view: 'body', hud_force: true, hud_hidden: false })
+assert.deepEqual(patchForHudView('serie'), { hud_view: 'serie', hud_force: true, hud_hidden: false })
 assert.equal(hideToolChip(undefined, { tool: 'hud', action: 'layout', label: 'Lage' }), true)
 assert.equal(hideToolChip(undefined, { tool: 'timer', action: 'set', label: 'Timer' }), false)
 assert.equal(

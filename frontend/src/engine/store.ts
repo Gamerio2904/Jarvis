@@ -255,7 +255,7 @@ export type Settings = {
   hud_accent: 'green' | 'amber'
   ui_theme: 'dark' | 'light' | 'system'
   hud_modules_json: string
-  hud_view: 'tiles' | 'body' | 'globe'
+  hud_view: 'tiles' | 'body' | 'globe' | 'serie'
   /** Körper teilt sich den Schirm mit dem Chat. Aus = Vollbild wie die Kugel. */
   body_with_chat: boolean
   last_body_organ: string

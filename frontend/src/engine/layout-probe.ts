@@ -8,7 +8,7 @@ export type LayoutProbe = {
   lageWide: boolean
   messagesHidden: boolean
   composerVisible: boolean
-  hudView?: 'tiles' | 'body' | 'globe'
+  hudView?: 'tiles' | 'body' | 'globe' | 'serie'
   bodyWithChat?: boolean
 }
 

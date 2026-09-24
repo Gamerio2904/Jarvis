@@ -48,6 +48,9 @@ import { ensureDeviceLocation } from '../../native/geo.ts'
 import { setLageSession } from '../../engine/lage-session.ts'
 import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour.ts'
 import { decodeHtml } from '../../engine/html-text.ts'
+import { dossierFor, rmAvatar, rmCoverageLine, searchCharacters, searchHitLabel } from '../../engine/rm-graph.ts'
+import { SerieMapCanvas } from './SerieMapCanvas.tsx'
+import { SerieDossier } from './SerieDossier.tsx'
 
 export function Lage({
   onSend,
@@ -84,6 +87,9 @@ export function Lage({
   const [pins, setPins] = useState<GeoFix[]>([])
   const [issTrail, setIssTrail] = useState<{ lat: number; lon: number }[]>([])
   const [pinCard, setPinCard] = useState<GeoFix | null>(null)
+  const [serieId, setSerieId] = useState<number | null>(null)
+  const [serieQuery, setSerieQuery] = useState('')
+  const [serieSkills, setSerieSkills] = useState(false)
   const pinClosedAt = useRef(0)
   const [globeTick, setGlobeTick] = useState(0)
   /**
@@ -96,7 +102,8 @@ export function Lage({
     setSnap((prev) => ({ ...prev, ...partial }))
   }, [])
   const s = loadSettings()
-  const view: HudView = s.hud_view === 'body' || s.hud_view === 'globe' ? s.hud_view : 'tiles'
+  const view: HudView =
+    s.hud_view === 'body' || s.hud_view === 'globe' || s.hud_view === 'serie' ? s.hud_view : 'tiles'
   const organ = (BODY_ORGANS as readonly string[]).includes(s.last_body_organ)
     ? (s.last_body_organ as BodyOrgan)
     : 'brain'
@@ -204,6 +211,7 @@ export function Lage({
     if (next === 'globe') {
       setPinCard(null)
     }
+    if (next !== 'serie') setSerieId(null)
     saveSettings({ hud_view: next, hud_force: true, hud_hidden: false })
     onHudChange?.()
   }
@@ -335,6 +343,7 @@ export function Lage({
               ['tiles', 'Kacheln'],
               ['body', 'Körper'],
               ['globe', 'Kugel'],
+              ['serie', 'Serie'],
             ] as const
           ).map(([id, label]) => (
             <button
@@ -357,13 +366,15 @@ export function Lage({
         <p className="lage-hint">
           {view === 'globe'
             ? 'Erde drehen und zoomen. Schicht über die Leiste auf der Kugel oder per Satz. Tipp auf einen Pin öffnet das Dossier.'
-            : view === 'body'
-              ? bodyView === 'agents'
-                ? withChat && compact
-                  ? 'Körper oben, Chat darunter. Vollbild nimmt den ganzen Schirm.'
-                  : 'Ziehen dreht, zwei Finger zoomen, Doppeltipp holt einen Agenten heran.'
-                : 'Organ antippen — Baum rechts, kein Gerät.'
-              : 'Kacheln laden sichtbar — Wetter, Musik, Gerät.'}
+            : view === 'serie'
+              ? rmCoverageLine()
+              : view === 'body'
+                ? bodyView === 'agents'
+                  ? withChat && compact
+                    ? 'Körper oben, Chat darunter. Vollbild nimmt den ganzen Schirm.'
+                    : 'Ziehen dreht, zwei Finger zoomen, Doppeltipp holt einen Agenten heran.'
+                  : 'Organ antippen — Baum rechts, kein Gerät.'
+                : 'Kacheln laden sichtbar — Wetter, Musik, Gerät.'}
         </p>
       </header>
       {view === 'body' ? (
@@ -534,6 +545,83 @@ export function Lage({
                 </button>
               </div>
             </div>
+          ) : null}
+        </div>
+      ) : view === 'serie' ? (
+        <div className="lage-split">
+          <div className="serie-shell">
+            <div className="serie-toolbar">
+              <input
+                className="serie-search"
+                type="search"
+                value={serieQuery}
+                onChange={(e) => setSerieQuery(e.target.value)}
+                placeholder="Charakter suchen"
+                aria-label="Charakter suchen"
+              />
+              <button
+                type="button"
+                className={`lage-chip${serieSkills ? ' is-on' : ''}`}
+                aria-pressed={serieSkills}
+                onClick={() => setSerieSkills((v) => !v)}
+              >
+                Mit Fähigkeit
+              </button>
+            </div>
+            {serieQuery.trim() ? (
+              <div className="serie-hits" role="listbox" aria-label="Suchtreffer">
+                {searchCharacters(serieQuery).slice(0, 8).map((c, _, hits) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    role="option"
+                    className={`lage-chip${serieId === c.id ? ' is-on' : ''}`}
+                    onClick={() => setSerieId(c.id)}
+                  >
+                    <img
+                      className="serie-hit-ava"
+                      src={rmAvatar(c.id)}
+                      alt=""
+                      width={18}
+                      height={18}
+                      referrerPolicy="no-referrer"
+                      data-id={c.id}
+                      onError={(e) => {
+                        const img = e.currentTarget
+                        const n = Number(img.dataset.try || 0)
+                        if (n >= 2) {
+                          img.hidden = true
+                          return
+                        }
+                        img.dataset.try = String(n + 1)
+                        window.setTimeout(() => {
+                          img.src = rmAvatar(Number(img.dataset.id))
+                        }, 350 * (n + 1))
+                      }}
+                    />
+                    {searchHitLabel(c, hits)}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+            <SerieMapCanvas
+              selectedId={serieId}
+              query={serieQuery}
+              onlySkills={serieSkills}
+              onSelect={setSerieId}
+            />
+          </div>
+          {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
+          {serieId && dossierFor(serieId) ? (
+            <SerieDossier
+              card={dossierFor(serieId)!}
+              onClose={() => setSerieId(null)}
+              onNeighbor={setSerieId}
+              onChat={(name) => {
+                onSend(`Erzähl mir von ${name}`)
+                setSerieId(null)
+              }}
+            />
           ) : null}
         </div>
       ) : (

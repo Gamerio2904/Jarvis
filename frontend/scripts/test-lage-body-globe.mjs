@@ -49,7 +49,7 @@ assert.match(globe, /pen\.arc\(q\.x, q\.y, 10/)
 assert.match(globe, /Math\.hypot\(p\.x - start\.x, p\.y - start\.y\) > 36/)
 
 assert.doesNotMatch(app, /id === 'lage'[\s\S]{0,800}globe_layer: ''/)
-assert.match(app, /cur === 'body' \|\| cur === 'globe'/)
+assert.match(app, /cur === 'body' \|\| cur === 'globe' \|\| cur === 'serie'/)
 assert.match(hud, /intent\.kind === 'lage'[\s\S]{0,220}globe_layer: ''/)
 assert.match(hud, /intent\.kind === 'view'[\s\S]{0,280}globe_layer: ''/)
 assert.match(layers, /USGS · \$\{place\}/)

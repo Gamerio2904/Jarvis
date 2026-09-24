@@ -93,6 +93,9 @@ export async function handleHud(
     if (intent.view === 'tiles') clearTour()
     if (intent.view === 'body') return pack('Körper an. Netz oben, Chat darunter. Vollbild auf Zuruf.')
     if (intent.view === 'globe') return pack('Kugel an. Tag und Nacht, ISS als Bahn. Kein Live-Satellitenvideo.')
+    if (intent.view === 'serie') {
+      return pack('Serie-Netz an. Jeder Charakter ist ein Knoten. Antippen öffnet den Steckbrief mit Staffel und Folge.')
+    }
     return pack('Kugel aus. Lage zu, Chat wieder voll.')
   }
   if (intent.kind === 'layer') {

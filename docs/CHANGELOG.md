@@ -5,15 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.10.0` — TV-Wahrheit, Hören, Edge-Mund, Observe — *CODE* (historisch 18.5)
+### `18.10.0` — TV-Wahrheit, Hören, Serie-Netz — *CODE + APK* (historisch 18.5)
 
 Schiene 301–306. „Fernseher an“ endet mit Poll auf `:8001/api/v2/`, nicht mit
 „Packet gesendet“. WLAN- und Ethernet-MAC. Groq-Whisper zweite Bahn
 (`whisper-large-v3-turbo`, `language=de`, 1500 ms). Stehend spricht Edge
 zuerst, Gemini-TTS-Budget blockiert Deutsch nicht. Working Memory nach
 TV/Kalender/Watchliste/Timer. Knowledge-Packs nur Film/Watchliste/Kalender,
-nicht TV. App-Code **`18.10.0`**, versionCode **`181000`**. Sideload bleibt
-**`18.9.8`**, bis die APK gebaut ist. Kein `18.5.0` — das wäre ein Downgrade.
+nicht TV. Lage-Tab **Serie**: 826 Rick-and-Morty-Knoten als runde Fotos,
+Steckbrief mit Vollbild und Staffel/Folge (Schild = S03E05). Kein `18.5.0` —
+das wäre ein Downgrade.
+Sideload **`18.10.0`** (versionCode `181000`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.9.8` — Telefonbuch-Mail, Kontaktliste, IMAP-Test, Gedächtnis-Kern — *CODE + APK*
 

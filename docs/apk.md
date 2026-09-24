@@ -1,7 +1,9 @@
-# Android-APK — Sideload `18.9.8`
+# Android-APK — Sideload `18.10.0`
 
-App-Code **`18.10.0`** (versionCode `181000`, noch ohne neue APK).
-Sideload **`18.9.8`** (versionCode `180908`):
+App-Code **`18.10.0`**. Sideload **`18.10.0`** (versionCode `181000`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+**18.9.8:** Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern. Sideload **`18.9.8`** (versionCode `180908`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.9.7:** E-Mail, Telefonbuch, WhatsApp. Sideload **`18.9.7`** (versionCode `180907`):
@@ -73,10 +75,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.9.8`:**  
+**Fertige APK `18.10.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.9.8` · versionCode `180908`
+- versionName `18.10.0` · versionCode `181000`
 
 ## Build lokal
 

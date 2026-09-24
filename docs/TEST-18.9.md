@@ -1,7 +1,8 @@
 # TEST 18.9 — Recover + Hirn
 
 Nach Execute von [`80-next.md`](./80-next.md). Sideload **`18.9.8`**,
-versionCode `180908`. `18.5` nicht parallel.
+versionCode `180908`. App-Code **`18.10.0`** hat Tab **Serie** (Rick and Morty).
+`18.5` nicht parallel.
 
 ## 1. Ansage
 
@@ -63,6 +64,12 @@ Zwei zitierte Quellen zur selben Frage bleiben beide (verschiedene Keys).
 Ort. „Was weißt du über mich“ nennt Sie, nicht jede Netzrecherche.
 Lookup „Was ist 2 plus 2“ zieht nicht die BIP-Pin. „Was trinke ich“
 sieht Mate im Block. e5 ändert die Route nicht.
+
+## 12. Serie-Netz 18.10.0
+
+Lage → Tab **Serie**. 826 Knoten. Rick antippen: Rasse Mensch, Schild
+**Staffel 3 Folge 5**, nicht Staffel 5 Folge 5. Kante zu Morty. Suche
+„Evil Morty“. `Rick and Morty` im Chat öffnet denselben Tab.
 
 ## 7. Watchliste 18.9.5
 

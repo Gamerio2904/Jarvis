@@ -24,7 +24,7 @@ export type HudId = (typeof HUD_CATALOG)[number]['id']
 
 export const HUD_DEFAULT_ON: HudId[] = ['weather', 'device', 'brief', 'chat']
 
-export type HudView = 'tiles' | 'body' | 'globe'
+export type HudView = 'tiles' | 'body' | 'globe' | 'serie'
 
 /** Kugel/Körper an: Lage auf. „aus“ gibt die Fläche frei — sonst bleibt die Kugel. */
 export function patchForHudView(view: HudView): {
@@ -182,6 +182,13 @@ export function parseHudIntent(text: string): HudIntent | null {
     /^\s*(?:mach(?:e)?\s+)?(?:die\s+)?(?:kugel|weltkugel|erde)\s+(aus|weg|zu)\s*$/i.test(t)
   ) {
     return { kind: 'view', view: 'tiles' }
+  }
+  if (
+    /^\s*(?:zeig(?:e)?(?:\s+mir)?\s+)?(?:das\s+|die\s+|den\s+)?(?:rick\s*(?:and|&|und)\s*morty(?:[- ](?:netz|graph|karte))?|charakter[- ]?netz|serien?[- ]?netz)\s*(?:an|ein|auf)?\s*$/i.test(
+      t,
+    )
+  ) {
+    return { kind: 'view', view: 'serie' }
   }
 
   if (
