@@ -89,7 +89,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 81 | [Post, Telefonbuch, WhatsApp](./81-next.md) | **CODE** `18.9.7` / `18.9.8` |
 | 82 | [Gedächtnis-Kern](./82-next.md) | **CODE** `18.9.8` |
 | 83 | [Lage Serie-Netz](./83-next.md) | **CODE** `18.10.0` — Rick-and-Morty-Knoten, Steckbrief mit Staffel/Folge |
-| — | [APK](./apk.md) | Sideload `18.9.8`; App-Code `18.10.0`; Test: [`TEST-18.10.md`](./TEST-18.10.md) |
+| — | [APK](./apk.md) | Sideload `18.10.0`; Test: [`TEST-18.10.md`](./TEST-18.10.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |

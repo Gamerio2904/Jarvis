@@ -1,6 +1,6 @@
 # Sprint 341 — Lage Serie-Netz (Rick and Morty)
 
-**Version:** `18.10.0` — **CODE** Must
+**Version:** `18.10.0` — **CODE + APK** Must
 **Plan:** [`83-next.md`](../83-next.md)
 **Voraussetzung:** 340 / Lage-Tabs.
 

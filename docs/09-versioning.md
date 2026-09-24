@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.10.0`**. Sideload **`18.9.8`**, versionCode `180908`, bis APK `18.10.0` (versionCode `181000`). Schiene 301–306 (Planname **`18.5`**) landet als **`18.10.0`**, nicht als `18.5.0` (Downgrade). Serie-Netz [`83-next.md`](./83-next.md). Test [`TEST-18.10.md`](./TEST-18.10.md).
+> **Jetzt:** App-Code **`18.10.0`**. Sideload **`18.10.0`**, versionCode `181000`. Schiene 301–306 (Planname **`18.5`**) landet als **`18.10.0`**, nicht als `18.5.0` (Downgrade). Serie-Netz [`83-next.md`](./83-next.md). Test [`TEST-18.10.md`](./TEST-18.10.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -745,7 +745,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.9.6` | Härten, Gold, Auto-Debug, TEST-18.9 | 337 CODE |
 | `18.9.7` | E-Mail, Telefonbuch, WhatsApp-Antwort | 338 CODE |
 | `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern | 339–340 CODE + APK |
-| `18.10.0` | TV-Wahrheit, Groq-STT, Edge-first, Observe; Lage Serie-Netz | 301–306 + 341 CODE |
+| `18.10.0` | TV-Wahrheit, Groq-STT, Edge-first, Observe; Lage Serie-Netz | 301–306 + 341 CODE + APK |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.

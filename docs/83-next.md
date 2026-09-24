@@ -1,4 +1,4 @@
-# 83 — Lage Serie-Netz (Rick and Morty) **CODE** (`18.10.0`)
+# 83 — Lage Serie-Netz (Rick and Morty) **CODE + APK** (`18.10.0`)
 
 PO: Jeder Charakter der Serie als Knoten in der Lage. Klick öffnet
 Steckbrief (Eigenschaften, Fähigkeiten) mit Staffel/Folge. Kanten sind
