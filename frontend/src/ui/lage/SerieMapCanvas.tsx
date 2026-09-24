@@ -118,6 +118,7 @@ export function SerieMapCanvas({
     const high: HTMLImageElement[] = []
     const low: HTMLImageElement[] = []
     const queued = new Set<HTMLImageElement>()
+    const loading = new Set<HTMLImageElement>()
     const tries = new Map<HTMLImageElement, number>()
     let inflight = 0
     const MAX_INFLIGHT = 6
@@ -131,38 +132,47 @@ export function SerieMapCanvas({
       }
     }
 
-    function enqueueFace(img: HTMLImageElement, urgent = false) {
-      if (!live || img.classList.contains('is-ready')) return
+    function enqueueFace(img: HTMLImageElement, urgent = false, extra = 0) {
+      if (!live || img.classList.contains('is-ready') || loading.has(img)) return
       if (queued.has(img)) {
         if (urgent) bumpHigh(img)
+        pumpFaces(extra)
         return
       }
       queued.add(img)
       if (urgent) high.push(img)
       else low.push(img)
-      pumpFaces()
+      pumpFaces(extra)
     }
 
-    function pumpFaces() {
+    function pumpFaces(extra = 0) {
       if (!live) return
-      while (inflight < MAX_INFLIGHT) {
+      const cap = MAX_INFLIGHT + Math.max(0, extra)
+      while (inflight < cap) {
         const img = high.shift() || low.shift()
         if (!img) return
         queued.delete(img)
-        if (img.classList.contains('is-ready')) continue
+        if (img.classList.contains('is-ready') || loading.has(img)) continue
         inflight += 1
+        loading.add(img)
         const id = Number(img.dataset.id)
         const probe = new Image()
         probe.referrerPolicy = 'no-referrer'
         probe.decoding = 'async'
+        let settled = false
         const finish = (ok: boolean) => {
+          if (settled) return
+          settled = true
+          window.clearTimeout(watch)
+          retryTimers.delete(watch)
+          loading.delete(img)
           inflight -= 1
           if (!live) return
-          if (ok) {
-            img.src = probe.src
+          if (ok && probe.naturalWidth > 0) {
+            img.src = rmAvatar(id)
             img.classList.add('is-ready')
             bumpFaces()
-            pumpFaces()
+            pumpFaces(extra)
             return
           }
           const n = (tries.get(img) || 0) + 1
@@ -170,12 +180,19 @@ export function SerieMapCanvas({
           if (n < MAX_TRIES) {
             const t = window.setTimeout(() => {
               retryTimers.delete(t)
-              enqueueFace(img, true)
+              enqueueFace(img, true, extra)
             }, 280 * n + Math.random() * 120)
             retryTimers.add(t)
           }
-          pumpFaces()
+          pumpFaces(extra)
         }
+        const watch = window.setTimeout(() => {
+          probe.onload = null
+          probe.onerror = null
+          probe.src = ''
+          finish(false)
+        }, 4000)
+        retryTimers.add(watch)
         probe.onload = () => finish(true)
         probe.onerror = () => finish(false)
         probe.src = rmAvatar(id)
@@ -319,7 +336,7 @@ export function SerieMapCanvas({
         img.style.height = `${(r * 2).toFixed(1)}px`
         img.style.opacity = sel && !isSel ? '0.48' : '1'
         img.style.zIndex = isSel ? '3' : q && characterById(id)?.name.toLowerCase().includes(q) ? '2' : '1'
-        if (isSel || (q && shown.has(id) && few)) enqueueFace(img, true)
+        if (isSel || (q && shown.has(id) && few)) enqueueFace(img, true, 4)
       }
 
       const labelIds = new Set<number>()
