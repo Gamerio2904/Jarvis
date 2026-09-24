@@ -8,10 +8,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 ### `18.10.0` — Lage Serie-Netz (Rick and Morty) — *CODE*
 
 Jeder Charakter der offenen API (S01–S05, 826 Knoten) steht in der Lage
-unter **Serie**. Antippen öffnet den Steckbrief: Rasse, Status, Fähigkeiten
-mit Staffel/Folge, Verbindungen. Kanten: Familie/Verbündet/Gegner plus
-gemeinsame Auftritte. Quelle Rick-and-Morty-API; kuratierte Skills nur mit
-Beleg. Schild = S03E05, nicht S05E05. Staffel 6+ fehlt in der API.
+unter **Serie**. Knoten sind runde Charakterfotos. Antippen öffnet den
+Steckbrief mit vollem Bild, Rasse, Status, Fähigkeiten mit Staffel/Folge,
+Verbindungen. Kanten: Familie/Verbündet/Gegner plus gemeinsame Auftritte.
+Quelle Rick-and-Morty-API; kuratierte Skills nur mit Beleg. Schild = S03E05,
+nicht S05E05. Staffel 6+ fehlt in der API.
 Sideload bleibt **`18.9.8`**, bis eine neue APK gebaut wird.
 
 ### `18.9.8` — Telefonbuch-Mail, Kontaktliste, IMAP-Test, Gedächtnis-Kern — *CODE + APK*

@@ -5680,9 +5680,44 @@ button.linkish {
   background: #111;
 }
 
-.serie-map-canvas {
+.serie-map-shell {
+  position: relative;
+  display: flex;
   flex: 1 1 auto;
+  width: 100%;
   min-height: 220px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.serie-map-shell .serie-map-canvas {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 220px;
+}
+
+.serie-faces {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.serie-face {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  pointer-events: none;
+  flex-shrink: 0;
+  background: #1a221c;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.serie-face.is-sel {
+  box-shadow: 0 0 0 2.5px #1ed760, 0 0 12px rgba(30, 215, 96, 0.5);
 }
 
 .serie-dossier {
@@ -6290,7 +6325,9 @@ button.linkish {
     display: none;
   }
   .main.is-lage.is-lage-chat .agent-map-shell,
-  .main.is-lage.is-lage-chat .agent-map-canvas {
+  .main.is-lage.is-lage-chat .agent-map-canvas,
+  .main.is-lage.is-lage-chat .serie-map-shell,
+  .main.is-lage.is-lage-chat .serie-map-canvas {
     min-height: 160px;
   }
   .main.is-lage.is-lage-chat .lage-tile {
@@ -6366,6 +6403,7 @@ button.linkish {
   .lage.is-compact .agent-map-shell,
   .lage.is-compact .agent-map-canvas,
   .lage.is-compact .serie-shell,
+  .lage.is-compact .serie-map-shell,
   .lage.is-compact .serie-map-canvas {
     max-height: none;
     width: 100%;
@@ -6376,7 +6414,9 @@ button.linkish {
     align-self: stretch;
   }
   .main.is-lage.is-lage-chat .lage.is-compact .agent-map-shell,
-  .main.is-lage.is-lage-chat .lage.is-compact .agent-map-canvas {
+  .main.is-lage.is-lage-chat .lage.is-compact .agent-map-canvas,
+  .main.is-lage.is-lage-chat .lage.is-compact .serie-map-shell,
+  .main.is-lage.is-lage-chat .lage.is-compact .serie-map-canvas {
     min-height: 160px;
   }
   .app.is-kb .main.is-lage.is-lage-chat .agent-map-shell,

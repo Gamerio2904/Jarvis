@@ -62,16 +62,31 @@ try {
   })
   await sleep(700)
   rec(Boolean(await page.$('.serie-map-canvas')), 'Canvas da')
+  rec(Boolean(await page.$('.serie-faces')), 'Avatar-Schicht da')
   rec(
     await page.evaluate(() => /826 Charaktere/.test(document.querySelector('.lage-hint')?.textContent || '')),
     'Hinweis nennt 826 Charaktere',
   )
-  await sleep(4500)
+  const nodeCount = await page.evaluate(() => document.querySelectorAll('.serie-face').length)
+  rec(nodeCount === 826, '826 runde Knoten-Bilder', String(nodeCount))
+  await page.waitForFunction(() => document.querySelectorAll('.serie-face.is-ready').length >= 24, {
+    timeout: 12_000,
+  })
   const faces = await page.evaluate(() => {
     const canvas = document.querySelector('.serie-map-canvas')
-    return canvas instanceof HTMLCanvasElement ? canvas.dataset.faces || '' : ''
+    const ready = document.querySelectorAll('.serie-face.is-ready').length
+    const round = [...document.querySelectorAll('.serie-face')].slice(0, 8).every((n) => {
+      const s = getComputedStyle(n)
+      return s.borderRadius.includes('50%') && s.objectFit === 'cover'
+    })
+    return {
+      dataset: canvas instanceof HTMLCanvasElement ? canvas.dataset.faces || '' : '',
+      ready,
+      round,
+    }
   })
-  rec(true, 'Avatar-Stand', faces)
+  rec(faces.ready >= 24, 'Portraits geladen', `${faces.ready} ready, dataset=${faces.dataset}`)
+  rec(faces.round, 'Knoten sind kreisförmig mit Cover')
   await page.screenshot({ path: `${SHOTS}/lage-serie-nodes.png` })
 
   await page.waitForSelector('.serie-search')

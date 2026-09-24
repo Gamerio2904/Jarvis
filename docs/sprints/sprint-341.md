@@ -18,6 +18,6 @@ Auftritte. Nichts erfinden, das nicht in API oder kuratierter Liste steht.
 | S341-1 | Snapshot | `rm-snapshot.json` | 826 / 51, Refresh-Skript |
 | S341-2 | Skills/Kanten | `rm-dossier.ts` | nur mit Episode-Code |
 | S341-3 | Graph | `rm-graph.ts` | Layout, Nachbarn, Steckbrief |
-| S341-4 | Lage | Tab Serie, Canvas, Dossier | Klick + Suche |
+| S341-4 | Lage | Tab Serie, runde Fotos, Dossier | Klick + Suche + Vollbild |
 | S341-5 | Stimme | `hud-parse` | Rick and Morty / Charakter-Netz |
 | S341-6 | Test | `test-rm-graph.mjs` | 826 Knoten, Schild ≠ S05E05 |

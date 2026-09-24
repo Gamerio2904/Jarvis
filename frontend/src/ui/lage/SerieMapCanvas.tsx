@@ -1,12 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { nearestHit, type HitCandidate } from '../../engine/agent-zoom.ts'
 import { isDocumentHidden, onVisibility } from '../../engine/motion.ts'
-import { avatarImage, avatarStats, onAvatarReady, requestAvatar } from '../../engine/rm-avatars.ts'
 import { RM_CORE_IDS, RM_SKILLS } from '../../engine/rm-dossier.ts'
 import {
   buildRmGraph,
   characterById,
   coappearEdges,
+  rmAvatar,
   RM_COAPPEAR_MIN,
 } from '../../engine/rm-graph.ts'
 import type { RmDot, RmEdge } from '../../engine/rm-types.ts'
@@ -36,6 +36,10 @@ function clampZoom(z: number): number {
   return Math.max(RM_ZOOM_MIN, Math.min(RM_ZOOM_MAX, z))
 }
 
+function nodeRadius(dot: RmDot, scale: number, selected: boolean, few: boolean): number {
+  return Math.max(selected ? 28 : few ? 20 : 12, dot.r * scale * (few ? 1.35 : 1))
+}
+
 export function SerieMapCanvas({
   selectedId,
   query,
@@ -48,6 +52,7 @@ export function SerieMapCanvas({
   onSelect: (id: number | null) => void
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const facesRef = useRef<HTMLDivElement>(null)
   const selectedRef = useRef(selectedId)
   const queryRef = useRef(query)
   const skillsRef = useRef(onlySkills)
@@ -64,7 +69,8 @@ export function SerieMapCanvas({
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    const layer = facesRef.current
+    if (!canvas || !layer) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     const g: CanvasRenderingContext2D = ctx
@@ -79,6 +85,57 @@ export function SerieMapCanvas({
     let lastPtr = { x: 0, y: 0 }
     let moved = 0
     let pinchSpan = 0
+    let feedTimer = 0
+
+    const faces = new Map<number, HTMLImageElement>()
+    const dotsById = new Map(graph.dots.map((d) => [d.id, d]))
+    const order = [...graph.characters].sort((a, b) => {
+      const ac = CORE.has(a.id) ? 1000 : 0
+      const bc = CORE.has(b.id) ? 1000 : 0
+      return bc + b.eps.length - (ac + a.eps.length) || a.id - b.id
+    })
+    function bumpFaces() {
+      surface.dataset.faces = String(
+        [...faces.values()].filter((img) => img.complete && img.naturalWidth > 0).length,
+      )
+    }
+    for (const c of order) {
+      const img = document.createElement('img')
+      img.className = 'serie-face'
+      img.alt = ''
+      img.width = 24
+      img.height = 24
+      img.decoding = 'async'
+      img.draggable = false
+      img.style.background = SPECIES_COLOR[c.species] || '#9aa8a0'
+      img.dataset.id = String(c.id)
+      img.addEventListener(
+        'load',
+        () => {
+          img.classList.add('is-ready')
+          bumpFaces()
+        },
+        { once: true },
+      )
+      layer.appendChild(img)
+      faces.set(c.id, img)
+    }
+    surface.dataset.nodes = String(faces.size)
+    let feedAt = 0
+    function feedSrc() {
+      if (!live) return
+      let n = 0
+      while (n < 24 && feedAt < order.length) {
+        const c = order[feedAt]
+        feedAt += 1
+        const img = faces.get(c.id)
+        if (img && !img.getAttribute('src')) img.src = rmAvatar(c.id)
+        n += 1
+      }
+      bumpFaces()
+      if (feedAt < order.length) feedTimer = window.setTimeout(feedSrc, 40)
+    }
+    feedSrc()
 
     function resize() {
       const dpr = Math.min(1.5, window.devicePixelRatio || 1)
@@ -90,7 +147,7 @@ export function SerieMapCanvas({
     }
 
     function worldScale() {
-      return (Math.min(surface.clientWidth, surface.clientHeight) * 0.46) * cam.zoom
+      return Math.min(surface.clientWidth, surface.clientHeight) * 0.46 * cam.zoom
     }
 
     function project(dot: RmDot): Screen {
@@ -128,6 +185,7 @@ export function SerieMapCanvas({
       const at = new Map<number, Screen>()
       for (const d of dots) at.set(d.id, project(d))
       const scale = worldScale()
+      const few = dots.length <= 48
 
       function strokeEdge(e: RmEdge, color: string, width: number) {
         if (!shown.has(e.from) || !shown.has(e.to)) return
@@ -193,47 +251,25 @@ export function SerieMapCanvas({
         }
       }
 
-      if (sel) {
-        requestAvatar(sel, true)
-        for (const e of graph.curated) {
-          if (e.from === sel) requestAvatar(e.to, true)
-          if (e.to === sel) requestAvatar(e.from, true)
-        }
-      }
       const q = queryRef.current.trim().toLowerCase()
-      for (const d of dots) {
-        const p = at.get(d.id)
-        const c = characterById(d.id)
-        if (!p || !c) continue
-        const isSel = sel === d.id
-        const few = dots.length <= 48
-        const r = Math.max(isSel ? 26 : few ? 18 : 11, d.r * scale * (few ? 1.35 : 1))
-        const match = q && c.name.toLowerCase().includes(q)
-        const urgent = isSel || Boolean(match) || CORE.has(d.id)
-        if (r >= 7 || urgent) requestAvatar(d.id, urgent)
-        const face = avatarImage(d.id)
-        g.globalAlpha = sel && !isSel ? 0.48 : 1
-        g.beginPath()
-        g.fillStyle = match ? '#fff3b0' : SPECIES_COLOR[c.species] || '#9aa8a0'
-        g.arc(p.x, p.y, r, 0, Math.PI * 2)
-        g.fill()
-        if (face) {
-          g.save()
-          g.beginPath()
-          g.arc(p.x, p.y, r, 0, Math.PI * 2)
-          g.clip()
-          g.drawImage(face, p.x - r, p.y - r, r * 2, r * 2)
-          g.restore()
+      for (const [id, img] of faces) {
+        const d = dotsById.get(id)
+        const p = d ? at.get(id) : undefined
+        if (!d || !p || !shown.has(id)) {
+          img.hidden = true
+          continue
         }
-        g.beginPath()
-        g.strokeStyle = isSel ? '#1ed760' : 'rgba(8, 12, 10, 0.55)'
-        g.lineWidth = isSel ? 2.4 : 1
-        g.arc(p.x, p.y, r, 0, Math.PI * 2)
-        g.stroke()
-        g.globalAlpha = 1
+        const isSel = sel === id
+        const r = nodeRadius(d, scale, isSel, few)
+        img.hidden = false
+        img.classList.toggle('is-sel', isSel)
+        img.style.transform = `translate(${(p.x - r).toFixed(1)}px, ${(p.y - r).toFixed(1)}px)`
+        img.style.width = `${(r * 2).toFixed(1)}px`
+        img.style.height = `${(r * 2).toFixed(1)}px`
+        img.style.opacity = sel && !isSel ? '0.48' : '1'
+        img.style.zIndex = isSel ? '3' : q && characterById(id)?.name.toLowerCase().includes(q) ? '2' : '1'
+        if (!img.getAttribute('src')) img.src = rmAvatar(id)
       }
-      const st = avatarStats()
-      surface.dataset.faces = `${st.ready}/${st.waiting}/${st.queued}/${st.failed}`
 
       const labelIds = new Set<number>()
       if (sel) labelIds.add(sel)
@@ -258,10 +294,11 @@ export function SerieMapCanvas({
         const p = d ? at.get(id) : null
         const c = characterById(id)
         if (!d || !p || !c) continue
+        const r = nodeRadius(d, scale, sel === id, few)
         const text = c.name
         const tw = g.measureText(text).width + 6
         const x = Math.max(tw / 2, Math.min(w - tw / 2, p.x))
-        const y = Math.max(12, Math.min(h - 4, p.y + Math.max(6, d.r * scale) + 2))
+        const y = Math.max(12, Math.min(h - 4, p.y + r + 3))
         const box = { x: x - tw / 2, y, w: tw, h: 13 }
         if (taken.some((t) => box.x < t.x + t.w && t.x < box.x + box.w && box.y < t.y + t.h && t.y < box.y + box.h)) {
           continue
@@ -278,17 +315,14 @@ export function SerieMapCanvas({
       raf = requestAnimationFrame(draw)
     }
     kickRef.current = kick
-    const offAvatars = onAvatarReady(kick)
-    for (const id of RM_CORE_IDS) requestAvatar(id, true)
-    for (const c of [...graph.characters].sort((a, b) => b.eps.length - a.eps.length).slice(0, 36)) {
-      requestAvatar(c.id, c.eps.length >= 20)
-    }
 
     function hits(): HitCandidate[] {
       const scale = worldScale()
+      const few = visibleDots().length <= 48
       return visibleDots().map((d) => {
         const p = project(d)
-        return { id: String(d.id), x: p.x, y: p.y, r: Math.max(16, d.r * scale + 6) }
+        const r = nodeRadius(d, scale, selectedRef.current === d.id, few)
+        return { id: String(d.id), x: p.x, y: p.y, r: Math.max(16, r + 4) }
       })
     }
 
@@ -332,9 +366,7 @@ export function SerieMapCanvas({
     function onPtrUp(ev: PointerEvent) {
       const start = touches.get(ev.pointerId)
       touches.delete(ev.pointerId)
-      if (touches.size < 2) {
-        pinchSpan = 0
-      }
+      if (touches.size < 2) pinchSpan = 0
       if (!dragging) return
       dragging = false
       if (moved > 8 || !start) return
@@ -370,16 +402,22 @@ export function SerieMapCanvas({
     return () => {
       live = false
       cancelAnimationFrame(raf)
+      window.clearTimeout(feedTimer)
       ro.disconnect()
       offVis()
-      offAvatars()
       surface.removeEventListener('pointerdown', onPtrDown)
       surface.removeEventListener('pointermove', onPtrMove)
       surface.removeEventListener('pointerup', onPtrUp)
       surface.removeEventListener('pointercancel', onPtrUp)
       surface.removeEventListener('wheel', onWheel)
+      layer.replaceChildren()
     }
   }, [])
 
-  return <canvas ref={canvasRef} className="serie-map-canvas agent-map-canvas" aria-label="Rick-and-Morty-Charakter-Netz" />
+  return (
+    <div className="serie-map-shell">
+      <canvas ref={canvasRef} className="serie-map-canvas agent-map-canvas" aria-label="Rick-and-Morty-Charakter-Netz" />
+      <div ref={facesRef} className="serie-faces" aria-hidden />
+    </div>
+  )
 }
