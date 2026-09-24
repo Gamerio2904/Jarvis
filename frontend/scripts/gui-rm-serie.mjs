@@ -153,7 +153,13 @@ try {
     hits.some((h) => /C-137/.test(h.text) && h.ready),
     'Such-Avatar von C-137 geladen',
   )
-  await sleep(600)
+  await page.waitForFunction(
+    () =>
+      [...document.querySelectorAll('.serie-face')].filter((n) => !n.hidden && n.classList.contains('is-ready'))
+        .length >= 2,
+    { timeout: 8_000 },
+  )
+  await sleep(400)
   await page.screenshot({ path: `${SHOTS}/lage-serie-search.png` })
   await page.evaluate(() => {
     const b = [...document.querySelectorAll('.serie-hits button')].find((n) =>
@@ -212,19 +218,27 @@ try {
   await page.screenshot({ path: `${SHOTS}/lage-serie-morty.png` })
 
   await page.evaluate(() => document.querySelector('.serie-dossier .pin-bubble-x')?.click())
-  await page.click('.serie-search', { clickCount: 3 })
-  await page.keyboard.press('Backspace')
-  await sleep(200)
   await page.evaluate(() => {
-    const b = [...document.querySelectorAll('.lage-chip')].find((n) => /Mit Fähigkeit/.test(n.textContent || ''))
-    b?.click()
+    const input = document.querySelector('.serie-search')
+    if (input instanceof HTMLInputElement) {
+      const desc = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')
+      desc?.set?.call(input, '')
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    }
   })
+  await sleep(300)
+  rec(
+    await page.evaluate(() => !document.querySelector('.serie-hits')),
+    'Suche geleert',
+  )
+  await page.click('.serie-toolbar .lage-chip')
   await sleep(400)
   const skillFilter = await page.evaluate(() => {
     const vis = [...document.querySelectorAll('.serie-face')].filter((n) => !n.hidden)
     return vis.length
   })
   rec(skillFilter === 30, 'Filter Mit Fähigkeit grenzt ein', String(skillFilter))
+  await page.screenshot({ path: `${SHOTS}/lage-serie-skills.png` })
 
   rec(!pageErrors.length, 'keine Page-Errors', pageErrors.slice(0, 2).join(' | '))
 } finally {

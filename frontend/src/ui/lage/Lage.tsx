@@ -585,8 +585,18 @@ export function Lage({
                       width={18}
                       height={18}
                       referrerPolicy="no-referrer"
+                      data-id={c.id}
                       onError={(e) => {
-                        e.currentTarget.hidden = true
+                        const img = e.currentTarget
+                        const n = Number(img.dataset.try || 0)
+                        if (n >= 2) {
+                          img.hidden = true
+                          return
+                        }
+                        img.dataset.try = String(n + 1)
+                        window.setTimeout(() => {
+                          img.src = rmAvatar(Number(img.dataset.id))
+                        }, 350 * (n + 1))
                       }}
                     />
                     {searchHitLabel(c, hits)}
