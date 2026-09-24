@@ -14,7 +14,9 @@ zuerst, Gemini-TTS-Budget blockiert Deutsch nicht. Working Memory nach
 TV/Kalender/Watchliste/Timer. Knowledge-Packs nur Film/Watchliste/Kalender,
 nicht TV. Lage-Tab **Serie**: 826 Rick-and-Morty-Knoten als runde Fotos,
 Steckbrief mit Vollbild und Staffel/Folge (Schild = S03E05). Kein `18.5.0` —
-das wäre ein Downgrade.
+das wäre ein Downgrade. Nachzieher: Serie-Ringe nach Auftritten — Familie
+innen, Regulars danach, Einmal-Auftritte außen. Avatare liegen lokal unter
+`/rm-avatars/` (nicht mehr live von der API).
 Sideload **`18.10.0`** (versionCode `181000`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
