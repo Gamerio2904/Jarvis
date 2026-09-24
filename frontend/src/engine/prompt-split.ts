@@ -1,4 +1,4 @@
-import { DEEP_SEARCH_HINT, SEARCH_ON_HINT, VOICE_HINT } from './persona.ts'
+import { DEEP_SEARCH_HINT, SEARCH_ON_HINT, VOICE_HINT, voiceHintFor } from './persona.ts'
 
 /** Static prefix for Gemini/Groq prompt cache. Variable memory goes on the last user turn. */
 
@@ -7,6 +7,8 @@ export type ChatTurn = { role: string; content: string }
 export function splitCloudPrompt(opts: {
   persona: string
   voice?: boolean
+  voiceHint?: string
+  route?: string | null
   search?: boolean
   deep?: boolean
   memory?: string
@@ -14,7 +16,8 @@ export function splitCloudPrompt(opts: {
   lastStep?: string
 }): { system: string; variable: string } {
   const searchHint = opts.deep ? DEEP_SEARCH_HINT : opts.search ? SEARCH_ON_HINT : ''
-  const system = [opts.persona.trim(), opts.voice ? VOICE_HINT : ''].filter(Boolean).join('\n\n')
+  const hint = opts.voiceHint || (opts.route !== undefined ? voiceHintFor(opts.route) : VOICE_HINT)
+  const system = [opts.persona.trim(), opts.voice ? hint : ''].filter(Boolean).join('\n\n')
   const variable = [
     searchHint,
     (opts.memory || '').trim(),

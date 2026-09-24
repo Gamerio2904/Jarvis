@@ -295,12 +295,12 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 298 | [`sprint-298.md`](./sprint-298.md) | `18.4.1` | Kanten Agent ↔ Wissenszentrum | **CODE** Must |
 | 299 | [`sprint-299.md`](./sprint-299.md) | `18.4.2` | Pack-Links und 1-Hop | **CODE** Must |
 | 300 | [`sprint-300.md`](./sprint-300.md) | `18.4.3` | Körper-Wissen härten | **CODE** Must |
-| 301 | [`sprint-301.md`](./sprint-301.md) | `18.5.0` | TV-Wahrheit (Poll, MAC, kein Fake-An) | **PLAN** Must |
-| 302 | [`sprint-302.md`](./sprint-302.md) | `18.5.1` | Hören (Java-Satzende, Groq-Whisper) | **PLAN** Must |
-| 303 | [`sprint-303.md`](./sprint-303.md) | `18.5.2` | Sprechen (Edge zuerst) | **PLAN** Must |
-| 304 | [`sprint-304.md`](./sprint-304.md) | `18.5.3` | Intelligenz-Gefühl | **PLAN** Must |
-| 305 | [`sprint-305.md`](./sprint-305.md) | `18.5.4` | Docs + Code aufräumen | **PLAN** Should |
-| 306 | [`sprint-306.md`](./sprint-306.md) | `18.5.5` | 18.5 härten | **PLAN** Must |
+| 301 | [`sprint-301.md`](./sprint-301.md) | `18.10.0` (hist. 18.5.0) | TV-Wahrheit (Poll, MAC, kein Fake-An) | **CODE** Must |
+| 302 | [`sprint-302.md`](./sprint-302.md) | `18.10.0` (hist. 18.5.1) | Hören (Java-Satzende, Groq-Whisper) | **CODE** Must |
+| 303 | [`sprint-303.md`](./sprint-303.md) | `18.10.0` (hist. 18.5.2) | Sprechen (Edge zuerst) | **CODE** Must |
+| 304 | [`sprint-304.md`](./sprint-304.md) | `18.10.0` (hist. 18.5.3) | Intelligenz-Gefühl | **CODE** Must |
+| 305 | [`sprint-305.md`](./sprint-305.md) | `18.10.0` (hist. 18.5.4) | Docs + Code aufräumen | **CODE** Should |
+| 306 | [`sprint-306.md`](./sprint-306.md) | `18.10.0` (hist. 18.5.5) | 18.10 härten | **CODE** Must |
 | 307 | [`sprint-307.md`](./sprint-307.md) | `18.6.0` | Kugel Layer-Registry | **CODE** Must |
 | 308 | [`sprint-308.md`](./sprint-308.md) | `18.6.1` | Kugel Erde + Orbit | **CODE** Must |
 | 309 | [`sprint-309.md`](./sprint-309.md) | `18.6.2` | Kugel See + Infra | **CODE** Must |
@@ -337,7 +337,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 340 | [`sprint-340.md`](./sprint-340.md) | `18.9.8` | Gedächtnis-Kern: Aspekte, Wissen, Recherche | **CODE** Must |
 | 341 | [`sprint-341.md`](./sprint-341.md) | `18.10.0` | Lage Serie-Netz: Rick-and-Morty-Knoten | **CODE** Must |
 
-**Aktuell:** App-Code **`18.9.0`**. Sideload-APK **`18.9.0`**, versionCode `180900`. Execute 227–259 **CODE**. Kugel 268–269 **CODE** in `18.0.0`. Screenshot-Fixes 260–262 **CODE** in `18.0.3`. Schach-Overlay **CODE** in `18.0.4`. Schach-Gegner und Kugel-Pin **CODE** in `18.0.5`. Figurenfarbe und Körper-Zoom **CODE** in `18.0.6`. Körper mit Chat **CODE** in `18.0.7`. Karte öffnet / Pin-Text / CarPlay heading-up **CODE** in `18.0.8`. Audit-Reste 272–281 **CODE** in `18.1.0`. Sprachmodus ganze Antwort **CODE** in `18.1.2`. 270 nicht gezogen. 282 Freeze (Schema). Ideen halten 283–287, Karten-Reste 288–290, Watchliste 291–296, Körper/Wissen 297–300 **CODE + APK** in `18.4.3`. Lage/Overlay/Tastatur **CODE + APK** in `18.4.4`. Schiene **18.6 CODE** 307–314 in `18.6.0`, **18.7 CODE** 315–322 in `18.7.0`, **18.8 CODE + APK** 323–330 in `18.8.0`, Nachzieher **18.8.1** / **18.8.2** / **18.8.3** / **18.8.4**: [`../79-next.md`](../79-next.md). Schiene **18.5 PLAN** 301–306: [`../76-next.md`](../76-next.md). Schiene **18.9 CODE + APK** 331–337: [`../80-next.md`](../80-next.md). Nicht parallel 18.5 ↔ 18.8 ↔ 18.9.
+**Aktuell:** App-Code **`18.10.0`**. Sideload-APK **`18.9.8`**, versionCode `180908`. Schiene **18.10 CODE** 301–306 (historisch PLAN 18.5) in `18.10.0` — nicht als `18.5.0` versionieren. 18.6 / 18.7 / 18.8 / 18.9 sind CODE+APK. 282 Freeze (Schema).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

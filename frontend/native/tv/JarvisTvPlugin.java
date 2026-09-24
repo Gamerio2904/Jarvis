@@ -66,6 +66,23 @@ public class JarvisTvPlugin extends Plugin {
     }
 
     @PluginMethod
+    public void info(PluginCall call) {
+        runBg(call, () -> {
+            String host = call.getString("host", "");
+            JSObject ret = new JSObject();
+            JSONObject body = fetchInfo(host);
+            if (body != null) {
+                ret.put("ok", true);
+                ret.put("status", 200);
+            } else {
+                ret.put("ok", false);
+                ret.put("status", 0);
+            }
+            resolve(call, ret);
+        });
+    }
+
+    @PluginMethod
     public void pair(PluginCall call) {
         runBg(call, () -> {
             String host = call.getString("host", "");
@@ -204,6 +221,14 @@ public class JarvisTvPlugin extends Plugin {
         return m == null || m.isEmpty() ? e.getClass().getSimpleName() : m;
     }
 
+    private static String firstNonEmpty(String... xs) {
+        if (xs == null) return "";
+        for (String x : xs) {
+            if (x != null && !x.trim().isEmpty()) return x.trim();
+        }
+        return "";
+    }
+
     private JSObject doDiscover() {
         JSObject ret = new JSObject();
         Map<String, JSObject> found = new LinkedHashMap<>();
@@ -335,10 +360,21 @@ public class JarvisTvPlugin extends Plugin {
             JSONObject device = info.optJSONObject("device");
             if (device != null) {
                 String name = device.optString("name", "");
-                String mac = device.optString("wifiMac", device.optString("wifiMac", ""));
+                String wifiMac = firstNonEmpty(
+                    device.optString("wifiMac", ""),
+                    device.optString("wifi_mac", "")
+                );
+                String wiredMac = firstNonEmpty(
+                    device.optString("wiredMac", ""),
+                    device.optString("mac", ""),
+                    device.optString("deviceMac", "")
+                );
+                String mac = firstNonEmpty(wifiMac, wiredMac);
                 if (name.isEmpty()) name = device.optString("modelName", "");
                 if (!name.isEmpty()) row.put("name", name);
                 if (!mac.isEmpty()) row.put("mac", mac);
+                if (!wifiMac.isEmpty()) row.put("wifiMac", wifiMac);
+                if (!wiredMac.isEmpty()) row.put("wiredMac", wiredMac);
             }
         }
         if (!row.has("name")) row.put("name", "Samsung TV");

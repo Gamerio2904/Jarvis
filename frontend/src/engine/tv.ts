@@ -4,6 +4,7 @@ import {
   tvDiscoverNative,
   tvFireKeyNative,
   tvFireTestNative,
+  tvInfoNative,
   tvLaunchAppNative,
   tvPairNative,
   tvSendKeyNative,
@@ -12,6 +13,8 @@ import {
   type TvDevice,
   type TvResult,
 } from '../native/tv.ts'
+import { wakeAndObserve, type TvObserveIo } from './tv-observe.ts'
+import { upsertWorking } from './working-memory.ts'
 import { TV_APP_IDS, TV_APP_LABEL, type TvAppId } from './tv-apps.ts'
 import {
   deviceCanLaunch,
@@ -84,7 +87,7 @@ const FIRE_CODE: Partial<Record<TvAction, number>> = {
 }
 
 const REPLIES: Record<TvAction, string> = {
-  on: 'Fernseher an — Magic-Packet ist raus.',
+  on: 'Fernseher ist an.',
   off: 'Fernseher aus.',
   volume_up: 'Lauter.',
   volume_down: 'Leiser.',
@@ -128,10 +131,53 @@ export function tvStatusFromSettings() {
     name: s.tv_name,
     host: s.tv_host,
     mac: s.tv_mac,
+    macEth: s.tv_mac_eth,
     port: s.tv_port,
     paired: s.tv_paired,
     reachable: Boolean(s.tv_paired && s.tv_host),
   }
+}
+
+function noteTvObserve(line: string) {
+  upsertWorking('tv', line)
+}
+
+export function tvObserveIo(): TvObserveIo {
+  const s = loadSettings()
+  return {
+    wake: (mac) => tvWakeNative(mac),
+    info: (host, timeoutMs) => tvInfoNative(host, timeoutMs),
+    sendKey: (key) =>
+      tvSendKeyNative({
+        host: s.tv_host,
+        port: s.tv_port || 8002,
+        token: s.tv_token || undefined,
+        key,
+        count: 1,
+      }),
+    sleep,
+  }
+}
+
+function tvPackObs(
+  ok: boolean,
+  reply: string,
+  action: string,
+  observation: Record<string, unknown>,
+  label = 'Fernseher',
+) {
+  const packed = packVerified({
+    domain: 'tv',
+    intent: action,
+    plan: action,
+    label,
+    preOk: true,
+    observation,
+    verify: (obs) => Boolean((obs as { nativeOk?: boolean }).nativeOk),
+    successReply: reply,
+    failReply: reply,
+  })
+  return { handled: true as const, reply: packed.reply, tool: packed.tool, lastTool: 'tv' as const }
 }
 
 export async function discoverTvs(): Promise<{ items: TvDevice[]; message?: string }> {
@@ -170,6 +216,7 @@ export async function pairTv(body: {
       tv_host: host,
       tv_name: name,
       tv_mac: body.mac || s.tv_mac,
+      tv_mac_eth: s.tv_mac_eth,
       tv_port: port,
       tv_paired: false,
     })
@@ -185,6 +232,7 @@ export async function pairTv(body: {
     tv_host: host,
     tv_name: name,
     tv_mac: body.mac || s.tv_mac,
+    tv_mac_eth: s.tv_mac_eth,
     tv_port: res.port || port,
     tv_token: res.token || s.tv_token,
     tv_paired: true,
@@ -257,6 +305,7 @@ export async function testTv(): Promise<{ ok: boolean; reply: string }> {
 }
 
 function tvPack(ok: boolean, reply: string, action: string, label = 'Fernseher') {
+  if (action !== 'on') noteTvObserve(ok ? `tv: ${action}` : `tv: ${action} fehlgeschlagen`)
   const packed = packVerified({
     domain: 'tv',
     intent: action,
@@ -463,27 +512,18 @@ export async function handleTv(text: string): Promise<{ handled: boolean; reply?
   }
 
   if (intent.action === 'on') {
-    if (!s.tv_mac) {
+    const mac = (s.tv_mac || s.tv_mac_eth || '').trim()
+    if (!mac) {
+      noteTvObserve('tv: keine MAC')
       return {
         handled: true,
         reply: 'Keine MAC für Wake-on-LAN. Unter Einstellungen eintragen oder neu suchen.',
       }
     }
-    const wol = await tvWakeNative(s.tv_mac)
+    const seen = await wakeAndObserve({ host: s.tv_host, mac, macEth: s.tv_mac_eth }, tvObserveIo())
     markTvTurn(intent.via || 'tv')
-    if (!wol.ok) {
-      return tvPack(
-        false,
-        wol.message ||
-          'WOL fehlgeschlagen. Magic-Packet braucht die Android-App, MAC und oft WOL am TV.',
-        'on',
-      )
-    }
-    return tvPack(
-      true,
-      'Magic-Packet gesendet. Wacht er nicht auf: WOL am TV prüfen, gleiches WLAN, kein Gastnetz.',
-      'on',
-    )
+    noteTvObserve(seen.ok ? 'tv: an, beobachtet 200' : 'tv: wol ohne Antwort')
+    return tvPackObs(seen.ok, seen.reply, 'on', { nativeOk: seen.ok, ...seen.observation })
   }
 
   if (!s.tv_paired || !s.tv_token) {

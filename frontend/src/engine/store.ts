@@ -201,6 +201,8 @@ export type Settings = {
   tv_name: string
   tv_host: string
   tv_mac: string
+  /** Ethernet-MAC, oft ≠ WLAN-MAC. WoL braucht oft diese. */
+  tv_mac_eth: string
   tv_port: number
   tv_token: string
   tv_paired: boolean
@@ -375,6 +377,7 @@ export const DEFAULT_SETTINGS: Settings = {
   tv_name: 'Wohnzimmer',
   tv_host: '',
   tv_mac: '',
+  tv_mac_eth: '',
   tv_port: 8002,
   tv_token: '',
   tv_paired: false,

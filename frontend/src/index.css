@@ -5841,17 +5841,6 @@ button.linkish {
   overflow: hidden;
 }
 
-.pin-bubble-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 48;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: rgba(0, 0, 0, 0.42);
-  cursor: pointer;
-}
-
 .pin-bubble {
   position: fixed;
   left: 12px;

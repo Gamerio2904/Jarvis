@@ -1,5 +1,7 @@
 # 62 — Jarvis 14.0 Agenten-Netzwerk — **Planungsprotokoll**
 
+> **Kanonisch für den Ist-Stand:** [`62-agent-catalog.md`](./62-agent-catalog.md) und [`66-agents-ist.md`](./66-agents-ist.md). Diese Datei ist das Zielbild, nicht der Code.
+
 > **Dies ist das Zielbild von 14.0, nicht der Code.** Die Namen und die
 > Pipeline in Abschnitt 4 sind Skizzen und weichen von der Umsetzung ab
 > (`agentBus.dispatch` heißt `agentDispatch`, `director.runTurn` heißt

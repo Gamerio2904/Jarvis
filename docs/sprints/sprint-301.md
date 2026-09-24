@@ -1,6 +1,6 @@
 # Sprint 301 — TV-Wahrheit
 
-**Version:** `18.5.0` — **PLAN** Must
+**Version:** landet in `18.10.0` (historisch `18.5.0`) — **CODE** Must
 **Plan:** [`76-next.md`](../76-next.md)
 **Voraussetzung:** Sideload `18.4.4`. Kein CEC.
 

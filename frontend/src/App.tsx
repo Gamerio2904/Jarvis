@@ -847,6 +847,8 @@ function App() {
     host?: string
     name?: string
     mac?: string
+    wifiMac?: string
+    wiredMac?: string
     port?: number
     kind?: string
   }) {
@@ -864,7 +866,8 @@ function App() {
     await patchSetting({
       tv_host: item.host,
       tv_name: item.name || settings?.tv_name || 'Wohnzimmer',
-      tv_mac: item.mac || settings?.tv_mac || '',
+      tv_mac: item.wifiMac || item.mac || settings?.tv_mac || '',
+      tv_mac_eth: item.wiredMac || settings?.tv_mac_eth || '',
       tv_port: item.port || settings?.tv_port || 8002,
     })
     setTvMsg(`Gewählt: ${item.name || item.host}`)

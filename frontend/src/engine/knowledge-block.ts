@@ -2,6 +2,14 @@ import { KNOWLEDGE_BLOCK_CLAIMS } from './knowledge-types.ts'
 import type { KnowledgePack } from './knowledge-types.ts'
 import { retrievePacks } from './knowledge-retrieve.ts'
 
+/** Parser-Züge, die Packs sehen dürfen. TV/GPIO nicht — kein Broadcast-Diebstahl. */
+export const KNOWLEDGE_PARSER_ALLOW = new Set(['film', 'watchlist', 'calendar'])
+
+export function knowledgeAllowedForRoute(route: string | null | undefined): boolean {
+  if (!route) return true
+  return KNOWLEDGE_PARSER_ALLOW.has(route)
+}
+
 export function knowledgeBlock(packs: KnowledgePack[], ask: string): string {
   const hits = retrievePacks(ask, packs).filter((p) => p.user_ok)
   if (!hits.length) return ''

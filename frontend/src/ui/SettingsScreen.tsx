@@ -1350,6 +1350,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 {s?.tv_paired
                   ? `Gekoppelt: ${s.tv_name || s.tv_host || 'TV'}`
                   : 'Suchen, am TV erlauben, dann testen. Gleiches WLAN, kein Gastnetz.'}{' '}
+                Am TV: Power On with Mobile / IP-Remote an. Ethernet-WoL oft nötig, WLAN-MAC ≠ LAN-MAC.
                 Apps: „Öffne Netflix“, „Spiel YouTube“, „Spiel Dune Film“ (kostenlos zuerst).
               </p>
               <label className="settings-field">
@@ -1372,13 +1373,23 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 />
               </label>
               <label className="settings-field">
-                <span>MAC</span>
+                <span>MAC WLAN</span>
                 <input
                   key={`tv-mac-${s?.tv_mac || ''}`}
                   defaultValue={s?.tv_mac || ''}
                   disabled={busy}
                   placeholder="aa:bb:cc:dd:ee:ff"
                   onBlur={(e) => void p.patchSetting({ tv_mac: e.target.value })}
+                />
+              </label>
+              <label className="settings-field">
+                <span>MAC Ethernet</span>
+                <input
+                  key={`tv-mac-eth-${s?.tv_mac_eth || ''}`}
+                  defaultValue={s?.tv_mac_eth || ''}
+                  disabled={busy}
+                  placeholder="oft die MAC für WoL"
+                  onBlur={(e) => void p.patchSetting({ tv_mac_eth: e.target.value })}
                 />
               </label>
               <label className="settings-field">

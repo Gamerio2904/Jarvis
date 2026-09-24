@@ -7,7 +7,7 @@ import { groundMicroMerge, HELP_TEXT, isHelpCommand, isPersonaAsk, PERSONA_ASK_T
 import { greetingReply, parseGreeting } from './greeting.ts'
 import { memoryBlock } from './memory.ts'
 import { retrieve } from './retrieve.ts'
-import { harvestFromResearch, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
+import { harvestFromResearch, knowledgeAllowedForRoute, knowledgeBlock, listKnowledgePacks, persistKnowledgeHarvest } from './knowledge.ts'
 import { noteTurn, workingBlock } from './working-memory.ts'
 import { contradictionSearchAsk, rewriteFollowUp } from './last-step.ts'
 import { skipMicroMerge, SKIP_MICRO_MERGE_TOOLS, type ChatBlock } from './chat-blocks.ts'
@@ -22,7 +22,7 @@ import {
 } from './research-pending.ts'
 import { promoteSplitPart, splitIntents } from './split-intents.ts'
 import { normalizeUtterance } from './utterance.ts'
-import { VOICE_HINT, personaPack } from './persona.ts'
+import { VOICE_HINT, personaPack, voiceHintFor } from './persona.ts'
 import { loadFace } from './face.ts'
 import {
   formatDeepResearchReply,
@@ -750,7 +750,9 @@ export async function streamChat(
     // hat der Agent abgelehnt — dann ist Fachwissen erst recht die falsche
     // Antwort. Vorher stand hier eine Liste einzelner Muster; die musste bei
     // jedem neuen Agenten nachgezogen werden.
-    const know = deterministicRoute(ask) ? '' : knowledgeBlock(packs, ask)
+    const routeNow = deterministicRoute(ask)
+    const know = knowledgeAllowedForRoute(routeNow) ? knowledgeBlock(packs, ask) : ''
+    const spokenHint = opts?.voice ? voiceHintFor(routeNow) : ''
     let wantSearch = Boolean((geminiReady() && live) || accepted || contradictionAsk)
     let research: ResearchMeta | undefined
     let acc = ''
@@ -768,6 +770,8 @@ export async function streamChat(
         ? splitCloudPrompt({
             persona: pack.gemini,
             voice: opts?.voice,
+            voiceHint: spokenHint,
+            route: routeNow,
             search: wantSearch,
             deep,
             memory: [memoryBlock(mem, ask, hits), know].filter(Boolean).join('\n\n'),
@@ -775,7 +779,7 @@ export async function streamChat(
             lastStep: lastStepHint(),
           })
         : {
-            system: [pack.local, opts?.voice ? VOICE_HINT : '', memoryBlock(mem, ask, hits), know, workingBlock(), lastStepHint()]
+            system: [pack.local, spokenHint || (opts?.voice ? VOICE_HINT : ''), memoryBlock(mem, ask, hits), know, workingBlock(), lastStepHint()]
               .filter(Boolean)
               .join('\n\n'),
             variable: '',

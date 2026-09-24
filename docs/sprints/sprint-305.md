@@ -1,6 +1,6 @@
 # Sprint 305 — Docs und Code aufräumen
 
-**Version:** `18.5.4` — **PLAN** Should
+**Version:** landet in `18.10.0` (historisch `18.5.4`) — **CODE** Should
 **Plan:** [`76-next.md`](../76-next.md) §3–4
 **Voraussetzung:** keine. Parallel zu 301–304.
 
@@ -13,7 +13,7 @@ nicht. Code ohne doppelte Fallbacks und ohne tote CSS-Inseln.
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S305-1 | Index | `docs/README.md`, `42-planned.md` | Live `18.4.4`, Schiene 18.5 PLAN. Kopf 42 nicht `17.0.0` |
+| S305-1 | Index | `docs/README.md`, `42-planned.md` | Live App-Code `18.10.0`, Sideload `18.9.8`. Kopf 42 nicht `17.0.0` |
 | S305-2 | Banner | `07`, `08`, `14`, `16` | Eine Zeile oben: Status, was falsch wäre zu ziehen. Persona-07 an `persona.ts` (Groq, Sir selten) |
 | S305-3 | Dualdateien | `46-*`, `62-*` | Eine kanonisch, die andere Verweis |
 | S305-4 | `HISTORISCH.md` | neu, eine Seite | NAS 12, Sprints 34–39, „nicht ziehen“. Keine Datei löschen |

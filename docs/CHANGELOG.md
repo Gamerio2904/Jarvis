@@ -5,15 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.10.0` — Lage Serie-Netz (Rick and Morty) — *CODE*
+### `18.10.0` — TV-Wahrheit, Hören, Serie-Netz — *CODE* (historisch 18.5)
 
-Jeder Charakter der offenen API (S01–S05, 826 Knoten) steht in der Lage
-unter **Serie**. Knoten sind runde Charakterfotos. Antippen öffnet den
-Steckbrief mit vollem Bild, Rasse, Status, Fähigkeiten mit Staffel/Folge,
-Verbindungen. Kanten: Familie/Verbündet/Gegner plus gemeinsame Auftritte.
-Quelle Rick-and-Morty-API; kuratierte Skills nur mit Beleg. Schild = S03E05,
-nicht S05E05. Staffel 6+ fehlt in der API.
-Sideload bleibt **`18.9.8`**, bis eine neue APK gebaut wird.
+Schiene 301–306. „Fernseher an“ endet mit Poll auf `:8001/api/v2/`, nicht mit
+„Packet gesendet“. WLAN- und Ethernet-MAC. Groq-Whisper zweite Bahn
+(`whisper-large-v3-turbo`, `language=de`, 1500 ms). Stehend spricht Edge
+zuerst, Gemini-TTS-Budget blockiert Deutsch nicht. Working Memory nach
+TV/Kalender/Watchliste/Timer. Knowledge-Packs nur Film/Watchliste/Kalender,
+nicht TV. Lage-Tab **Serie**: 826 Rick-and-Morty-Knoten als runde Fotos,
+Steckbrief mit Vollbild und Staffel/Folge (Schild = S03E05). App-Code
+**`18.10.0`**, versionCode **`181000`**. Sideload bleibt **`18.9.8`**, bis
+die APK gebaut ist. Kein `18.5.0` — das wäre ein Downgrade.
 
 ### `18.9.8` — Telefonbuch-Mail, Kontaktliste, IMAP-Test, Gedächtnis-Kern — *CODE + APK*
 

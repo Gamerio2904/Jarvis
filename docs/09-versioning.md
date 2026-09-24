@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.10.0`**. Sideload **`18.9.8`**, versionCode `180908`. Offene Schiene **`18.5` PLAN** (301–306) — **nicht parallel**. Test [`TEST-18.9.md`](./TEST-18.9.md). Serie-Netz [`83-next.md`](./83-next.md).
+> **Jetzt:** App-Code **`18.10.0`**. Sideload **`18.9.8`**, versionCode `180908`, bis APK `18.10.0` (versionCode `181000`). Schiene 301–306 (Planname **`18.5`**) landet als **`18.10.0`**, nicht als `18.5.0` (Downgrade). Serie-Netz [`83-next.md`](./83-next.md). Test [`TEST-18.10.md`](./TEST-18.10.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -745,7 +745,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.9.6` | Härten, Gold, Auto-Debug, TEST-18.9 | 337 CODE |
 | `18.9.7` | E-Mail, Telefonbuch, WhatsApp-Antwort | 338 CODE |
 | `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern | 339–340 CODE + APK |
-| `18.10.0` | Lage Serie-Netz: Rick-and-Morty-Knoten, Steckbrief mit Staffel/Folge | 341 CODE |
+| `18.10.0` | TV-Wahrheit, Groq-STT, Edge-first, Observe; Lage Serie-Netz | 301–306 + 341 CODE |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -762,7 +762,13 @@ Kein stilles WhatsApp. 18.5 bleibt PLAN.
 Nachzieher **`18.9.8`** (APK, versionCode `180908`): Mail aus
 `ContactsContract.Email` im Scan, IMAP-Testen unter Keys, „Mama, Mail …“,
 „Zeig meine Kontakte“, gemeinsamer Gedächtnis-Kern (Aspekte, zitierte
-Recherche pro Quelle). 18.5 bleibt PLAN.
+Recherche pro Quelle).
+
+**`18.10.0`** (App-Code, versionCode `181000`): Schiene 301–306
+(historisch PLAN `18.5`). TV beobachtet nach WoL, Groq-Whisper zweite Bahn,
+Edge-TTS zuerst, Working Memory nach Tool. Nicht als `18.5.0` shippen —
+das wäre ein Downgrade unter `18.9.8`. Sideload bleibt `18.9.8`, bis die
+APK `18.10.0` gebaut ist.
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

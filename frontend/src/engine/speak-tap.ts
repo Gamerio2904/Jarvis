@@ -91,8 +91,23 @@ export function unspokenTail(full: string, spoken: string): string {
   return f
 }
 
-/** Two-or-more sentences: Edge speaks the whole SSML; Gemini TTS often stops at the first period. */
+const GERMAN_WORD =
+  /\b(der|die|das|und|ist|nicht|ein|eine|ich|sie|wir|mit|auf|den|dem|für|von|zu|im|am|sich|auch|noch|nur|wie|was|alles|klar|heute|wetter|fernseher|bitte|danke|guten|morgen|abend)\b/i
+
+export function looksGerman(text: string): boolean {
+  const t = (text || '').trim()
+  if (!t) return false
+  if (/[äöüÄÖÜß]/.test(t)) return true
+  const englishOnly =
+    /\b(the|and|you|your|this|that|with|from|have|will|just|okay|ok)\b/i.test(t) &&
+    !GERMAN_WORD.test(t)
+  if (englishOnly) return false
+  return GERMAN_WORD.test(t)
+}
+
+/** Deutsch oder mindestens zwei Sätze: Edge sofort, nicht Gemini-Warten. */
 export function preferEdgeForReply(text: string): boolean {
+  if (looksGerman(text)) return true
   const parts = (text || '')
     .split(/[.!?…]+/)
     .map((x) => x.trim())
