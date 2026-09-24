@@ -70,10 +70,10 @@ const DEVICE_VOICE_ROUTES = new Set([
 ])
 
 export const VOICE_HINT_DEVICE =
-  'Sprachmodus: ein fertiger Satz mit Verb, Punkt. Tool-Ergebnis zuerst. Kein Essay, kein Telegramm, keine Listen. Sir höchstens einmal.'
+  'Sprachmodus: ein fertiger Satz mit Verb, Punkt. Tool-Ergebnis zuerst. Understatement, kein Essay, kein Telegramm, keine Listen. Sir höchstens einmal.'
 
 export const VOICE_HINT_EXPLAIN =
-  'Sprachmodus: 2–3 ganze Sätze mit Verb, ruhig und fertig. Kein Essay, kein Telegramm, keine Listen. Sir höchstens einmal. Kein Markdown, keine Sternchen.'
+  'Sprachmodus: 2–3 ganze Sätze mit Verb, ruhig und fertig. Understatement, kein Essay, kein Telegramm, keine Listen. Sir höchstens einmal. Kein Markdown, keine Sternchen.'
 
 /** Default: Erklärung. Gerät/Parser nutzt voiceHintFor(route). */
 export const VOICE_HINT = VOICE_HINT_EXPLAIN

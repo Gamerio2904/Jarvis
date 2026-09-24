@@ -90,7 +90,7 @@ function mockIo(opts) {
 }
 
 {
-  const { io, log } = mockIo({ infoOkAfter: 2, info: { ok: false } })
+  const { io, log } = mockIo({ info: { ok: true, status: 200 } })
   const out = await wakeAndObserve({ host: '192.168.1.40', mac: 'aa:bb:cc:dd:ee:ff' }, io)
   assert.equal(out.ok, true)
   assert.equal(out.reply, TV_ON_OK)
@@ -98,6 +98,14 @@ function mockIo(opts) {
   assert.ok(log.wake >= 2, 'zweite Salve')
   assert.deepEqual(log.keys, [KEY_POWERON])
   assert.ok(!log.keys.includes('KEY_POWER'))
+}
+
+{
+  const { io, log } = mockIo({ infoOkAfter: 3 })
+  const out = await wakeAndObserve({ host: '192.168.1.40', mac: 'aa:bb:cc:dd:ee:ff' }, io)
+  assert.equal(out.ok, true)
+  assert.equal(out.reply, TV_ON_OK)
+  assert.deepEqual(log.keys, [], 'KEY_POWERON nur wenn Info schon 200 war')
 }
 
 {
