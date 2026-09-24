@@ -24,8 +24,8 @@ Schild = **S03E05** *The Whirly Dirly Conspiracy*, Phoenix = **S02E07** / **S04E
 rm-snapshot.json   API-Stand, Refresh: node scripts/fetch-rm-snapshot.mjs
 rm-dossier.ts      kuratierte Skills + benannte Kanten, nur mit Code
 rm-graph.ts        Layout, Co-Appearance, Steckbrief
-SerieMapCanvas     826 Knoten, kuratierte Kanten, Ego-Netz beim Klick
-SerieDossier       Rasse, Skills mit Staffel n Folge m, Verbindungen
+SerieMapCanvas     826 Knoten als runde API-Avatare, kuratierte Kanten
+SerieDossier       Vollbild 300×300, Rasse, Skills mit Staffel/Folge
 Lage-Tab Serie     plus Satz „Rick and Morty“ / „Charakter-Netz“
 ```
 

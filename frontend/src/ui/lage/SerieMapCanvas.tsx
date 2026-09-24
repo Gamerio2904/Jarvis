@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { nearestHit, type HitCandidate } from '../../engine/agent-zoom.ts'
 import { isDocumentHidden, onVisibility } from '../../engine/motion.ts'
-import { RM_SKILLS } from '../../engine/rm-dossier.ts'
+import { avatarImage, avatarStats, onAvatarReady, requestAvatar } from '../../engine/rm-avatars.ts'
+import { RM_CORE_IDS, RM_SKILLS } from '../../engine/rm-dossier.ts'
 import {
   buildRmGraph,
   characterById,
@@ -12,6 +13,8 @@ import type { RmDot, RmEdge } from '../../engine/rm-types.ts'
 
 export const RM_ZOOM_MIN = 0.65
 export const RM_ZOOM_MAX = 7
+
+const CORE = new Set<number>(RM_CORE_IDS)
 
 const SPECIES_COLOR: Record<string, string> = {
   Human: '#7dffb0',
@@ -190,30 +193,47 @@ export function SerieMapCanvas({
         }
       }
 
+      if (sel) {
+        requestAvatar(sel, true)
+        for (const e of graph.curated) {
+          if (e.from === sel) requestAvatar(e.to, true)
+          if (e.to === sel) requestAvatar(e.from, true)
+        }
+      }
       const q = queryRef.current.trim().toLowerCase()
       for (const d of dots) {
         const p = at.get(d.id)
         const c = characterById(d.id)
         if (!p || !c) continue
-        const r = Math.max(2.4, d.r * scale)
         const isSel = sel === d.id
+        const few = dots.length <= 48
+        const r = Math.max(isSel ? 26 : few ? 18 : 11, d.r * scale * (few ? 1.35 : 1))
         const match = q && c.name.toLowerCase().includes(q)
+        const urgent = isSel || Boolean(match) || CORE.has(d.id)
+        if (r >= 7 || urgent) requestAvatar(d.id, urgent)
+        const face = avatarImage(d.id)
+        g.globalAlpha = sel && !isSel ? 0.48 : 1
         g.beginPath()
-        g.fillStyle = isSel
-          ? '#f4fff8'
-          : match
-            ? '#fff3b0'
-            : SPECIES_COLOR[c.species] || '#9aa8a0'
-        g.globalAlpha = sel && !isSel ? 0.42 : 1
-        g.arc(p.x, p.y, isSel ? r + 2.2 : r, 0, Math.PI * 2)
+        g.fillStyle = match ? '#fff3b0' : SPECIES_COLOR[c.species] || '#9aa8a0'
+        g.arc(p.x, p.y, r, 0, Math.PI * 2)
         g.fill()
-        if (isSel) {
-          g.strokeStyle = '#1ed760'
-          g.lineWidth = 2
-          g.stroke()
+        if (face) {
+          g.save()
+          g.beginPath()
+          g.arc(p.x, p.y, r, 0, Math.PI * 2)
+          g.clip()
+          g.drawImage(face, p.x - r, p.y - r, r * 2, r * 2)
+          g.restore()
         }
+        g.beginPath()
+        g.strokeStyle = isSel ? '#1ed760' : 'rgba(8, 12, 10, 0.55)'
+        g.lineWidth = isSel ? 2.4 : 1
+        g.arc(p.x, p.y, r, 0, Math.PI * 2)
+        g.stroke()
         g.globalAlpha = 1
       }
+      const st = avatarStats()
+      surface.dataset.faces = `${st.ready}/${st.waiting}/${st.queued}/${st.failed}`
 
       const labelIds = new Set<number>()
       if (sel) labelIds.add(sel)
@@ -258,12 +278,17 @@ export function SerieMapCanvas({
       raf = requestAnimationFrame(draw)
     }
     kickRef.current = kick
+    const offAvatars = onAvatarReady(kick)
+    for (const id of RM_CORE_IDS) requestAvatar(id, true)
+    for (const c of [...graph.characters].sort((a, b) => b.eps.length - a.eps.length).slice(0, 36)) {
+      requestAvatar(c.id, c.eps.length >= 20)
+    }
 
     function hits(): HitCandidate[] {
       const scale = worldScale()
       return visibleDots().map((d) => {
         const p = project(d)
-        return { id: String(d.id), x: p.x, y: p.y, r: Math.max(14, d.r * scale + 8) }
+        return { id: String(d.id), x: p.x, y: p.y, r: Math.max(16, d.r * scale + 6) }
       })
     }
 
@@ -347,6 +372,7 @@ export function SerieMapCanvas({
       cancelAnimationFrame(raf)
       ro.disconnect()
       offVis()
+      offAvatars()
       surface.removeEventListener('pointerdown', onPtrDown)
       surface.removeEventListener('pointermove', onPtrMove)
       surface.removeEventListener('pointerup', onPtrUp)

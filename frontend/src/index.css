@@ -5666,6 +5666,20 @@ button.linkish {
   margin: 0 0 8px;
 }
 
+.serie-hits .lage-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.serie-hit-ava {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #111;
+}
+
 .serie-map-canvas {
   flex: 1 1 auto;
   min-height: 220px;
@@ -5677,18 +5691,21 @@ button.linkish {
   max-width: 420px;
 }
 
-.serie-dossier-row {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
+.serie-dossier-photo {
+  margin: 0 0 10px;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0b0f0c;
 }
 
-.serie-dossier-ava {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
-  object-fit: cover;
-  background: #111;
+.serie-dossier-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+  background: #0b0f0c;
 }
 
 .serie-dossier-traits,

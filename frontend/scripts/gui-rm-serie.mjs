@@ -66,6 +66,13 @@ try {
     await page.evaluate(() => /826 Charaktere/.test(document.querySelector('.lage-hint')?.textContent || '')),
     'Hinweis nennt 826 Charaktere',
   )
+  await sleep(4500)
+  const faces = await page.evaluate(() => {
+    const canvas = document.querySelector('.serie-map-canvas')
+    return canvas instanceof HTMLCanvasElement ? canvas.dataset.faces || '' : ''
+  })
+  rec(true, 'Avatar-Stand', faces)
+  await page.screenshot({ path: `${SHOTS}/lage-serie-nodes.png` })
 
   await page.waitForSelector('.serie-search')
   await page.click('.serie-search')
@@ -77,6 +84,8 @@ try {
     ),
     'Suche listet Rick Sanchez',
   )
+  await sleep(900)
+  await page.screenshot({ path: `${SHOTS}/lage-serie-search.png` })
   await page.evaluate(() => {
     const b = [...document.querySelectorAll('.serie-hits button')].find((n) =>
       /^Rick Sanchez$/.test((n.textContent || '').trim()),
@@ -102,6 +111,22 @@ try {
   rec(dossier.shield, 'Schild Staffel 3 Folge 5')
   rec(!dossier.wrong, 'kein falscher S05E05-Schild')
   rec(dossier.morty, 'Kante zu Morty')
+  await page.waitForFunction(() => {
+    const img = document.querySelector('.serie-dossier-photo img')
+    return img instanceof HTMLImageElement && img.complete && img.naturalWidth >= 200
+  })
+  const photo = await page.evaluate(() => {
+    const img = document.querySelector('.serie-dossier-photo img')
+    const r = img?.getBoundingClientRect()
+    return {
+      w: r ? Math.round(r.width) : 0,
+      h: r ? Math.round(r.height) : 0,
+      nw: img instanceof HTMLImageElement ? img.naturalWidth : 0,
+    }
+  })
+  rec(photo.nw >= 200, 'Vollbild geladen', `${photo.nw}px Quelle`)
+  rec(photo.w >= 200 && photo.h >= 160, 'Vollbild groß im Steckbrief', `${photo.w}×${photo.h}`)
+  await sleep(800)
   await page.screenshot({ path: `${SHOTS}/lage-serie-rick.png` })
 
   await page.evaluate(() => {

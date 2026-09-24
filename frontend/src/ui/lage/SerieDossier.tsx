@@ -30,16 +30,16 @@ export function SerieDossier({
           ×
         </button>
       </div>
-      <div className="serie-dossier-row">
-        <img className="serie-dossier-ava" src={card.image} alt="" width={56} height={56} />
-        <ul className="serie-dossier-traits">
-          {card.traits.map((t) => (
-            <li key={t.label}>
-              <span>{t.label}</span> {t.value}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <figure className="serie-dossier-photo">
+        <img src={card.image} alt={card.name} width={300} height={300} />
+      </figure>
+      <ul className="serie-dossier-traits">
+        {card.traits.map((t) => (
+          <li key={t.label}>
+            <span>{t.label}</span> {t.value}
+          </li>
+        ))}
+      </ul>
       <h4>Fähigkeiten</h4>
       {card.skills.length ? (
         <ul className="serie-dossier-skills">

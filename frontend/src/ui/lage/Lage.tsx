@@ -48,7 +48,7 @@ import { ensureDeviceLocation } from '../../native/geo.ts'
 import { setLageSession } from '../../engine/lage-session.ts'
 import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour.ts'
 import { decodeHtml } from '../../engine/html-text.ts'
-import { dossierFor, rmCoverageLine, searchCharacters } from '../../engine/rm-graph.ts'
+import { dossierFor, rmAvatar, rmCoverageLine, searchCharacters } from '../../engine/rm-graph.ts'
 import { SerieMapCanvas } from './SerieMapCanvas.tsx'
 import { SerieDossier } from './SerieDossier.tsx'
 
@@ -578,6 +578,7 @@ export function Lage({
                     className={`lage-chip${serieId === c.id ? ' is-on' : ''}`}
                     onClick={() => setSerieId(c.id)}
                   >
+                    <img className="serie-hit-ava" src={rmAvatar(c.id)} alt="" width={18} height={18} />
                     {c.name}
                   </button>
                 ))}

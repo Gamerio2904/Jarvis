@@ -98,7 +98,7 @@ export function layoutRmDots(chars: RmCharacter[] = snap.characters): RmDot[] {
   const core = RM_CORE_IDS.filter((id) => chars.some((c) => c.id === id))
   core.forEach((id, i) => {
     const ang = -Math.PI / 2 + (i * 2 * Math.PI) / Math.max(1, core.length)
-    dots.push({ id, x: Math.cos(ang) * 0.09, y: Math.sin(ang) * 0.09, r: 0.028 })
+    dots.push({ id, x: Math.cos(ang) * 0.11, y: Math.sin(ang) * 0.11, r: 0.056 })
   })
   const rest = chars.filter((c) => !coreSet.has(c.id))
   const buckets = new Map<number, RmCharacter[]>()
@@ -121,7 +121,7 @@ export function layoutRmDots(chars: RmCharacter[] = snap.characters): RmDot[] {
         id: c.id,
         x: Math.cos(ang) * rr,
         y: Math.sin(ang) * rr,
-        r: 0.01 + Math.min(0.018, Math.log2(1 + c.eps.length) * 0.004),
+        r: 0.018 + Math.min(0.028, Math.log2(1 + c.eps.length) * 0.006),
       })
     })
   }
