@@ -1,16 +1,16 @@
-# 42 — Alles geplant (Stand Code `18.9.0`, PLAN `18.5`)
+# 42 — Alles geplant (Stand Code `18.10.0`, Sideload `18.9.8`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.9.0`**, versionCode `180900`. App-Code **`18.9.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.9.md`](./TEST-18.9.md).
+**Live-APK:** **`18.9.8`**, versionCode `180908`. App-Code **`18.10.0`** (versionCode `181000`, noch ohne neue APK). Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.10.md`](./TEST-18.10.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-1. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE + APK** in `18.8.0`. Lauf räumt Writes. Termin fragt nach 1–n Fristen. Download am Dock. Prompt-Pakete neu. Nicht parallel zu `18.5`. Sideload **`18.8.0`**.
-2. **`18.5` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 PLAN**. Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht parallel zu `18.8` / `18.9`.
-2b. **`18.9` Recover + Hirn** [`80-next.md`](./80-next.md) — Sprints **331–337 CODE + APK** in `18.9.0`. Quelle tot → Ansage → nächste Allowlist-Methode. Nicht parallel zu `18.5`.
+1. **`18.10` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 CODE** in `18.10.0` (historisch PLAN `18.5`). Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht als `18.5.0` versionieren.
+2. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE + APK** in `18.8.0`.
+2b. **`18.9` Recover + Hirn** [`80-next.md`](./80-next.md) — Sprints **331–340 CODE + APK** in `18.9.8`.
 3. **`18.7` Listen-Leiste / Selbststeuerung / flexibler Befehl** [`78-next.md`](./78-next.md) — Sprints **315–322 CODE** in `18.7.0`, Sideload in `18.8.0`. 6. Dock-Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Thinking-Orbs. Kein Computer-Use.
 4. **`18.6` Lage-Kugel OSINT** [`77-next.md`](./77-next.md) — Sprints **307–314 CODE** in `18.6.0`. OSIRIS-Fähigkeiten in der Canvas-Kugel. Kein iframe, kein CCTV, kein Scanner.
 5. **`18.0.0` zeigen und spielen** [`70-next.md`](./70-next.md) — Sprints **260–271**. Live in `18.0.8`. Kein LLM-Organizer (§0b)
@@ -116,19 +116,19 @@ Kein Sideload `18.4.x` als eigene Datei — liegt in APK `18.4.3`.
 
 Begründung: [`75-next.md`](./75-next.md).
 
-## PLAN — Schiene `18.5` (Sprints 301–306)
+## CODE — Schiene `18.10.0` (Sprints 301–306, historisch `18.5`)
 
-| Version | Sprint | Thema |
-|---------|--------|-------|
-| `18.5.0` | [301](./sprints/sprint-301.md) | TV-Wahrheit: Poll nach WoL, MAC, kein Fake-An |
-| `18.5.1` | [302](./sprints/sprint-302.md) | Hören: Java-Satzende = TS; Groq-Whisper zweite Bahn |
-| `18.5.2` | [303](./sprints/sprint-303.md) | Sprechen: Edge zuerst, kein 3,5 s Gemini-Warten |
-| `18.5.3` | [304](./sprints/sprint-304.md) | Intelligenz-Gefühl: Observe, Working Memory, Voice-Hint |
-| `18.5.4` | [305](./sprints/sprint-305.md) | Docs + Code aufräumen |
-| `18.5.5` | [306](./sprints/sprint-306.md) | Härten, Gold, Meilenstein |
+| Plan-Name | Sprint | Landet in | Thema |
+|-----------|--------|-----------|-------|
+| `18.5.0` | [301](./sprints/sprint-301.md) | **`18.10.0`** | TV-Wahrheit: Poll nach WoL, MAC, kein Fake-An |
+| `18.5.1` | [302](./sprints/sprint-302.md) | **`18.10.0`** | Hören: Java-Satzende = TS; Groq-Whisper zweite Bahn |
+| `18.5.2` | [303](./sprints/sprint-303.md) | **`18.10.0`** | Sprechen: Edge zuerst, kein 3,5 s Gemini-Warten |
+| `18.5.3` | [304](./sprints/sprint-304.md) | **`18.10.0`** | Intelligenz-Gefühl: Observe, Working Memory, Voice-Hint |
+| `18.5.4` | [305](./sprints/sprint-305.md) | **`18.10.0`** | Docs + Code aufräumen |
+| `18.5.5` | [306](./sprints/sprint-306.md) | **`18.10.0`** | Härten, Gold, Meilenstein |
 
 Harte Kette: 301 → 302. 304 braucht 301. 303 frei neben 302. 305 parallel.
-Kein CEC. Kein Mem0/Qdrant/e5-Router. Kein Sideload in diesem PLAN.
+Kein CEC. Kein Mem0/Qdrant/e5-Router. Nicht als `18.5.0` / versionCode `180500` shippen.
 
 Begründung: [`76-next.md`](./76-next.md).
 
@@ -147,8 +147,8 @@ Begründung: [`76-next.md`](./76-next.md).
 | `18.9.8` | [339](./sprints/sprint-339.md) [340](./sprints/sprint-340.md) | Mail im Scan, Kontaktliste, IMAP-Test; Gedächtnis-Kern |
 
 Harte Kette: 331 → alles. 332 braucht 331. 336 braucht 331+332. 337 zuletzt.
-Kein freies Web. Kein Write-Zweitlauf. Nicht parallel zu `18.5`.
-Sideload **`18.9.0`**, versionCode `180900`.
+Kein freies Web. Kein Write-Zweitlauf.
+Sideload **`18.9.8`**, versionCode `180908`. 18.5-Inhalt in `18.10.0`.
 
 Begründung: [`80-next.md`](./80-next.md).
 

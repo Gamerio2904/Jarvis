@@ -5,6 +5,8 @@ export type TvDevice = {
   host: string
   name?: string
   mac?: string
+  wifiMac?: string
+  wiredMac?: string
   port?: number
   kind?: string
 }
@@ -20,6 +22,7 @@ export type TvResult = {
 type NativeTv = {
   discover(): Promise<TvResult>
   wake(opts: { mac: string }): Promise<TvResult>
+  info(opts: { host: string }): Promise<{ ok: boolean; status?: number; message?: string }>
   pair(opts: { host: string; port?: number; name?: string; token?: string }): Promise<TvResult>
   sendKey(opts: { host: string; port?: number; token?: string; key: string; count?: number }): Promise<TvResult>
   launchApp(opts: { host: string; port?: number; token?: string; appId: string; meta?: string }): Promise<TvResult>
@@ -161,6 +164,28 @@ export async function tvWakeNative(mac: string): Promise<TvResult> {
     return await withTimeout(native.wake({ mac }), 8_000, nativeFail('WOL'))
   } catch (err) {
     return { ok: false, message: err instanceof Error ? err.message : 'WOL fehlgeschlagen' }
+  }
+}
+
+export async function tvInfoNative(host: string, timeoutMs = 800): Promise<{ ok: boolean; status?: number; message?: string }> {
+  const h = (host || '').trim()
+  if (!h) return { ok: false, status: 0, message: 'Kein Host.' }
+  if (native) {
+    try {
+      const res = await withTimeout(native.info({ host: h }), timeoutMs, { ok: false, status: 0 })
+      return { ok: Boolean(res.ok), status: res.status, message: res.message }
+    } catch (err) {
+      return { ok: false, status: 0, message: err instanceof Error ? err.message : 'Info fehlgeschlagen' }
+    }
+  }
+  try {
+    const ctrl = new AbortController()
+    const t = setTimeout(() => ctrl.abort(), timeoutMs)
+    const res = await fetch(`http://${h}:8001/api/v2/`, { signal: ctrl.signal })
+    clearTimeout(t)
+    return { ok: res.ok, status: res.status }
+  } catch {
+    return { ok: false, status: 0 }
   }
 }
 

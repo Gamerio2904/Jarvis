@@ -1,6 +1,11 @@
-# 76 — Stimme, TV-Wahrheit, Intelligenz, Docs **PLAN** (`18.5`)
+# 76 — Stimme, TV-Wahrheit, Intelligenz, Docs **CODE** (`18.10.0`, historisch `18.5`)
 
-Ausgangspunkt: Code **`18.4.4`**. Anlass: „Fernseher an“ geht nicht;
+> **Versionierung:** Live war schon **`18.9.8`** (versionCode `180908`).
+> Als `18.5.0` / `180500` zu shippen wäre ein Downgrade — Android lehnt das ab.
+> Inhalt der Schiene 301–306 landet in **`18.10.0`** (versionCode `181000`).
+> `18.5` bleibt der Planname, nicht `APP_VERSION`.
+
+Ausgangspunkt historisch: Code **`18.4.4`**. Anlass: „Fernseher an“ geht nicht;
 Spracheingabe und -ausgabe sollen treffsicherer und besser klingen;
 Jarvis soll sich intelligenter anfühlen; Docs und Code sind über Jahre
 gewachsen.
@@ -10,10 +15,9 @@ e5 nie in `pickRoute`, kein Qdrant, kein LLM-Organizer, kein Graphiti /
 cognee / Mem0, kein cytoscape. Filme: OMDb, nicht RT-API.** HDMI-CEC
 kann das Handy nicht — An/Aus bleibt Netzwerk.
 
-**Dieses Dokument ist PLAN, kein Sideload.** Execute: Sprints **301–306**.
-Neben [`77-next.md`](./77-next.md) (`18.6` Kugel) und
-[`79-next.md`](./79-next.md) (`18.8` Debug/Termine): nicht parallel
-ausführen — 18.5 und 18.8 treffen `App.tsx`, Parser, Notify.
+**Dieses Dokument ist CODE in `18.10.0`.** Sideload bleibt **`18.9.8`**,
+bis eine APK `18.10.0` gebaut wird. Execute: Sprints **301–306**.
+18.6 / 18.8 / 18.9 sind CODE+APK — die alte Parallel-Sperre gilt nicht mehr.
 
 ---
 
@@ -116,22 +120,23 @@ abgehackte Sätze, (4) Working Memory max 8×160 ohne Tool-Beobachtung,
 
 ---
 
-## 2. Schiene `18.5` (Sprints 301–306)
+## 2. Schiene `18.10.0` (Sprints 301–306, historisch `18.5.x`)
 
 Harte Kette: **301 → 302**. 303 frei neben 302. **304 braucht 301**
 (Observe-Muster). 305 Docs parallel. 306 Probe.
 
-| Version | Sprint | Thema |
-|---------|--------|-------|
-| `18.5.0` | [301](./sprints/sprint-301.md) | TV-Wahrheit: Poll, MAC, zweites Packet, keine Fake-An |
-| `18.5.1` | [302](./sprints/sprint-302.md) | Hören: Java-Satzende = TS; Groq-Whisper zweite Bahn |
-| `18.5.2` | [303](./sprints/sprint-303.md) | Sprechen: Edge zuerst, Gemini-Budget nicht vor Deutsch |
-| `18.5.3` | [304](./sprints/sprint-304.md) | Intelligenz-Gefühl: Observe, Working Memory, Voice-Hint |
-| `18.5.4` | [305](./sprints/sprint-305.md) | Docs + Code aufräumen |
-| `18.5.5` | [306](./sprints/sprint-306.md) | Härten, Gold, Meilenstein |
+| Plan-Name | Sprint | Landet in | Thema |
+|-----------|--------|-----------|-------|
+| `18.5.0` | [301](./sprints/sprint-301.md) | **`18.10.0`** | TV-Wahrheit: Poll, MAC, zweites Packet, keine Fake-An |
+| `18.5.1` | [302](./sprints/sprint-302.md) | **`18.10.0`** | Hören: Java-Satzende = TS; Groq-Whisper zweite Bahn |
+| `18.5.2` | [303](./sprints/sprint-303.md) | **`18.10.0`** | Sprechen: Edge zuerst, Gemini-Budget nicht vor Deutsch |
+| `18.5.3` | [304](./sprints/sprint-304.md) | **`18.10.0`** | Intelligenz-Gefühl: Observe, Working Memory, Voice-Hint |
+| `18.5.4` | [305](./sprints/sprint-305.md) | **`18.10.0`** | Docs + Code aufräumen |
+| `18.5.5` | [306](./sprints/sprint-306.md) | **`18.10.0`** | Härten, Gold, Meilenstein |
 
-Kein Versionsbump der Sideload-APK in diesem PLAN. 282 bleibt
-versionCode-*Schema*-Freeze, kein APK-Verbot.
+Kein Sideload-Downgrade auf `18.5.0`. 282 bleibt
+versionCode-*Schema*-Freeze, kein APK-Verbot. Combined delivery:
+eine Version **`18.10.0`**, nicht `18.10.5`.
 
 ---
 

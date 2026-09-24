@@ -48,6 +48,7 @@ export function makeCtx(conversationId: string, text: string): RouteCtx {
 
 export { pickRoute, pickRouteFromCtx, propose } from './route-pick.ts'
 
+/** Rollback only — lebt hinter `agent_network_v2: false`. Kein zweites Hirn. */
 export async function routeRegistry(conversationId: string, text: string) {
   const pending = await getPending(conversationId)
   if (pending) {

@@ -2,9 +2,7 @@
 
 Dieses Dokument steuert den **Charakter**. Es ist Eingang zu Phase 0 und Abnahme-Referenz für Smalltalk.
 
-> Status: **Kern + Stil-Beispiele gesetzt**  
-> Beispiele = **grobe Vorgaben**, keine Copy-Paste-Antworten.  
-> **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. Ton Siezen, Understatement (`persona.ts`). Stimme: Edge Conrad/Katja im Rennen mit Gemini **Algieba** (stehend), Native am Steuer ([`37-next.md`](./37-next.md)). Friday auf Zuruf, Jarvis Default ([`39-next.md`](./39-next.md)). Smalltalk-Hirn: Gemini zuerst. Identität `Bist du ChatGPT?` canned ohne Modell ([`47-next.md`](./47-next.md)). Keine Filmzitate im Prompt, keine Marvel-Rolle.
+> **Jetzt (`18.10.0`):** Code folgt [`persona.ts`](../frontend/src/engine/persona.ts). **Groq primär**, Gemini Spezialist. Sir/Master **selten** (höchstens einmal). Stimme stehend: **Edge zuerst** (Conrad/Katja); Algieba nur wenn Edge tot oder der Nutzer es will. Gerät = 1 Satz, Erklärung = 2–3. Sideload-Anker `9.10.0` / Gemini-Hauptweg unten **nicht ziehen**.
 
 ## Kern (fest aus Produktentscheidung)
 

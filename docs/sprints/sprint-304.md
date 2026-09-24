@@ -1,6 +1,6 @@
 # Sprint 304 — Intelligenz-Gefühl
 
-**Version:** `18.5.3` — **PLAN** Must
+**Version:** landet in `18.10.0` (historisch `18.5.3`) — **CODE** Must
 **Plan:** [`76-next.md`](../76-next.md)
 **Voraussetzung:** 301 (Observe). 75 Allowlist darf schon CODE sein.
 

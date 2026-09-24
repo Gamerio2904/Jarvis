@@ -1,6 +1,6 @@
 # Sprint 303 — Sprechen
 
-**Version:** `18.5.2` — **PLAN** Must
+**Version:** landet in `18.10.0` (historisch `18.5.2`) — **CODE** Must
 **Plan:** [`76-next.md`](../76-next.md)
 **Voraussetzung:** keine harte auf 301.
 

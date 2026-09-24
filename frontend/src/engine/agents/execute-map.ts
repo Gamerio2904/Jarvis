@@ -66,6 +66,9 @@ import { handleTeach, handlePack } from '../knowledge.ts'
 import { handleDesk } from '../desk.ts'
 import type { ChatBlock } from '../chat-blocks.ts'
 import type { RouteHit } from './types.ts'
+import { upsertWorking } from '../working-memory.ts'
+
+const OBSERVE_TOOLS = new Set(['calendar', 'watchlist', 'timer'])
 
 function weatherLast(): WeatherLast | null {
   const s = loadSettings()
@@ -107,6 +110,10 @@ export async function fromHandler(
     }
   }
   if (!res.handled || !res.reply) return null
+  if (OBSERVE_TOOLS.has(id)) {
+    const act = res.tool?.action || id
+    upsertWorking(id, `${id}: ${String(act).slice(0, 80)}`)
+  }
   return {
     reply: res.reply,
     tool: res.tool,

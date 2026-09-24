@@ -5,6 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.10.0` — TV-Wahrheit, Hören, Edge-Mund, Observe — *CODE* (historisch 18.5)
+
+Schiene 301–306. „Fernseher an“ endet mit Poll auf `:8001/api/v2/`, nicht mit
+„Packet gesendet“. WLAN- und Ethernet-MAC. Groq-Whisper zweite Bahn
+(`whisper-large-v3-turbo`, `language=de`, 1500 ms). Stehend spricht Edge
+zuerst, Gemini-TTS-Budget blockiert Deutsch nicht. Working Memory nach
+TV/Kalender/Watchliste/Timer. Knowledge-Packs nur Film/Watchliste/Kalender,
+nicht TV. App-Code **`18.10.0`**, versionCode **`181000`**. Sideload bleibt
+**`18.9.8`**, bis die APK gebaut ist. Kein `18.5.0` — das wäre ein Downgrade.
+
 ### `18.9.8` — Telefonbuch-Mail, Kontaktliste, IMAP-Test, Gedächtnis-Kern — *CODE + APK*
 
 Scan holt Mail aus dem Telefonbuch. Alltag und Chat merken Adresse mit.

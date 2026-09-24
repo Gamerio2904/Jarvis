@@ -1,6 +1,6 @@
 # 14 — Update `0.14`: Bestehendes härten + TV live
 
-> Historisch Sprint 47–48. **Jetzt:** Code **`10.60.0`**. Sideload **`9.10.0`**. Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)). TV bleibt nativ in der APK.
+> **Historisch** Sprint 47–48. **Jetzt:** Code **`18.10.0`**. Fire TV und Samsung-Apps sind **CODE**, kein Won’t. Hirn Groq primär, nicht Gemini zuerst. TV-Wahrheit (Poll nach WoL) in `18.10.0`. Sideload-`9.10.0` **nicht ziehen**. Siehe [`HISTORISCH.md`](./HISTORISCH.md).
 
 PO 2026-08-15: **Nichts Neues** (für *diese* Etappe). Kein größeres Modell, kein Research, kein TTS, keine neuen Tool-Typen.  
 Ziel damals: was schon da ist, **schneller, klüger, zuverlässiger** — und die **geparkte Fernseher-Steuerung** wirklich verbinden und bedienen.

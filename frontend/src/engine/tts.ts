@@ -13,7 +13,7 @@ export const TTS_VOICE = 'Algieba'
 export const TTS_VOICE_FRIDAY = 'Kore'
 export const TTS_VOICES = ['Algieba', 'Kore', 'Charon', 'Puck', 'Fenrir', 'Orus', 'Aoede', 'Zephyr'] as const
 
-/** Standing: wait for Gemini. Driving: short cap so Edge can win the race. */
+/** Standing: Edge first. Gemini-TTS-Budget darf Deutsch nicht blockieren. */
 export const TTS_BUDGET_STANDING_MS = 3500
 export const TTS_BUDGET_DRIVE_MS = 700
 export const TTS_NATIVE_RACE_DRIVE_MS = 400
@@ -78,9 +78,10 @@ export function ttsModelsToTry(cached?: string, skipRaw?: string): string[] {
   return [...ready, ...later].slice(0, 3)
 }
 
-/** Standing: Gemini first, no Native-Race. Drive: kurzes Race bleibt. */
+/** Stehend: Edge zuerst (Deutsch). Gemini nur wenn der Nutzer Algieba erzwingt. */
 export function ttsGeminiPrimary(inDrive = loadSettings().drive_mode): boolean {
-  return ttsNativeRaceMs(inDrive) === 0
+  if (inDrive) return false
+  return loadSettings().voice_tts === 'gemini'
 }
 
 export async function synthesizeGemini(text: string): Promise<Blob | null> {

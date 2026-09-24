@@ -2,6 +2,9 @@ import { Capacitor, registerPlugin } from '@capacitor/core'
 import { edgeFirstTimeoutMs, firstBlobWins, synthesizeEdge, synthesizeGtts } from '../engine/edge-tts.ts'
 import { synthesizeGemini, wantGeminiVoice, wantNeuralMouth } from '../engine/tts.ts'
 import { pickHeard } from '../engine/heard.ts'
+import { repairSpeech } from '../engine/utterance.ts'
+import { upsertWorking } from '../engine/working-memory.ts'
+import { refineHeard } from '../engine/stt-groq.ts'
 import { loadFace } from '../engine/face.ts'
 import { markFirstAudio } from '../engine/latency.ts'
 import { loadSettings } from '../engine/store.ts'
@@ -153,7 +156,14 @@ export async function listenOnce(onPartial?: (text: string) => void): Promise<{ 
     try {
       const res = await native.listen()
       const alts = Array.isArray(res.alts) ? res.alts.map(String) : []
-      const text = pickHeard(res.text || '', alts)
+      const picked = pickHeard(res.text || '', alts)
+      const repaired = repairSpeech(picked)
+      if (repaired && repaired !== picked) upsertWorking('stt-repair', `gehört als: ${repaired}`)
+      const text = await refineHeard({
+        googleText: picked,
+        repairedText: repaired,
+        io: typeof fetch === 'function' ? { fetch } : undefined,
+      })
       return { ok: Boolean(res.ok), text, message: res.message }
     } finally {
       handle?.remove()
