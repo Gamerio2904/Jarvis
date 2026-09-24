@@ -120,6 +120,7 @@ export function SerieMapCanvas({
     const queued = new Set<HTMLImageElement>()
     const loading = new Set<HTMLImageElement>()
     const tries = new Map<HTMLImageElement, number>()
+    const aborts = new Set<AbortController>()
     let inflight = 0
     const MAX_INFLIGHT = 6
     const MAX_TRIES = 5
@@ -156,46 +157,41 @@ export function SerieMapCanvas({
         inflight += 1
         loading.add(img)
         const id = Number(img.dataset.id)
-        const probe = new Image()
-        probe.referrerPolicy = 'no-referrer'
-        probe.decoding = 'async'
-        let settled = false
-        const finish = (ok: boolean) => {
-          if (settled) return
-          settled = true
-          window.clearTimeout(watch)
-          retryTimers.delete(watch)
-          loading.delete(img)
-          inflight -= 1
-          if (!live) return
-          if (ok && probe.naturalWidth > 0) {
-            img.src = rmAvatar(id)
+        const url = rmAvatar(id)
+        const ctrl = new AbortController()
+        aborts.add(ctrl)
+        const watch = window.setTimeout(() => ctrl.abort(), 2500)
+        retryTimers.add(watch)
+        void fetch(url, { signal: ctrl.signal, mode: 'cors', referrerPolicy: 'no-referrer' })
+          .then(async (res) => {
+            if (!res.ok) throw new Error(String(res.status))
+            const blob = await res.blob()
+            if (blob.size < 32) throw new Error('empty')
+            if (!live) return
+            img.src = url
             img.classList.add('is-ready')
             bumpFaces()
-            pumpFaces(extra)
-            return
-          }
-          const n = (tries.get(img) || 0) + 1
-          tries.set(img, n)
-          if (n < MAX_TRIES) {
-            const t = window.setTimeout(() => {
-              retryTimers.delete(t)
-              enqueueFace(img, true, extra)
-            }, 280 * n + Math.random() * 120)
-            retryTimers.add(t)
-          }
-          pumpFaces(extra)
-        }
-        const watch = window.setTimeout(() => {
-          probe.onload = null
-          probe.onerror = null
-          probe.src = ''
-          finish(false)
-        }, 4000)
-        retryTimers.add(watch)
-        probe.onload = () => finish(true)
-        probe.onerror = () => finish(false)
-        probe.src = rmAvatar(id)
+          })
+          .catch(() => {
+            if (!live) return
+            const n = (tries.get(img) || 0) + 1
+            tries.set(img, n)
+            if (n < MAX_TRIES) {
+              const t = window.setTimeout(() => {
+                retryTimers.delete(t)
+                enqueueFace(img, true, extra)
+              }, 200 * n)
+              retryTimers.add(t)
+            }
+          })
+          .finally(() => {
+            window.clearTimeout(watch)
+            retryTimers.delete(watch)
+            aborts.delete(ctrl)
+            loading.delete(img)
+            inflight -= 1
+            if (live) pumpFaces(extra)
+          })
       }
     }
 
@@ -472,6 +468,8 @@ export function SerieMapCanvas({
       cancelAnimationFrame(raf)
       for (const t of retryTimers) window.clearTimeout(t)
       retryTimers.clear()
+      for (const c of aborts) c.abort()
+      aborts.clear()
       ro.disconnect()
       offVis()
       surface.removeEventListener('pointerdown', onPtrDown)
