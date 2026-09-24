@@ -4,10 +4,12 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { RM_NAMED_EDGES, RM_SKILLS } from '../src/engine/rm-dossier.ts'
 import {
+  appearanceBand,
   buildRmGraph,
   characterById,
   dossierFor,
   episodeByCode,
+  layoutRmDots,
   parseEpisodeCode,
   searchCharacters,
   searchHitLabel,
@@ -27,6 +29,33 @@ assert.equal(graph.episodes.length, 51)
 assert.equal(graph.dots.length, 826)
 assert.equal(new Set(graph.dots.map((d) => d.id)).size, 826, 'keine doppelten Knoten')
 assert.equal(graph.empty, false)
+
+assert.equal(appearanceBand(12), 0)
+assert.equal(appearanceBand(8), 0)
+assert.equal(appearanceBand(5), 1)
+assert.equal(appearanceBand(3), 2)
+assert.equal(appearanceBand(2), 3)
+assert.equal(appearanceBand(1), 4)
+const dots = layoutRmDots()
+const dist = (id) => {
+  const p = dots.find((d) => d.id === id)
+  assert.ok(p, `Punkt fehlt: ${id}`)
+  return Math.hypot(p.x, p.y)
+}
+const familyR = [1, 2, 3, 4, 5].map(dist)
+assert.ok(Math.max(...familyR) < 0.16, 'Familie sitzt im inneren Kreis')
+const jessica = snap.characters.find((c) => c.name === 'Jessica' && c.eps.length >= 10)
+assert.ok(jessica)
+const oneShot = snap.characters.find((c) => c.eps.length === 1 && ![1, 2, 3, 4, 5].includes(c.id))
+assert.ok(oneShot)
+assert.ok(Math.max(...familyR) < dist(jessica.id), 'Familie innen vor Regulars')
+assert.ok(dist(jessica.id) < dist(oneShot.id), 'mehr Auftritte näher am Zentrum')
+const far = dots.filter((d) => ![1, 2, 3, 4, 5].includes(d.id) && (characterById(d.id)?.eps.length || 0) === 1)
+assert.ok(far.length > 100)
+assert.ok(
+  Math.max(...familyR) < Math.min(...far.map((d) => Math.hypot(d.x, d.y))),
+  'Einmal-Auftritte liegen außen',
+)
 
 for (const [id, skills] of Object.entries(RM_SKILLS)) {
   assert.ok(characterById(Number(id)), `Skill-ID fehlt in der API: ${id}`)
