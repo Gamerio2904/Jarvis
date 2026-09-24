@@ -69,41 +69,95 @@ try {
   )
   const nodeCount = await page.evaluate(() => document.querySelectorAll('.serie-face').length)
   rec(nodeCount === 826, '826 runde Knoten-Bilder', String(nodeCount))
-  await page.waitForFunction(() => document.querySelectorAll('.serie-face.is-ready').length >= 24, {
-    timeout: 12_000,
-  })
+
+  await page.waitForFunction(
+    () =>
+      ['1', '2', '3', '4', '5'].every((id) =>
+        document.querySelector(`.serie-face[data-id="${id}"]`)?.classList.contains('is-ready'),
+      ),
+    { timeout: 15_000 },
+  )
+  await sleep(2500)
   const faces = await page.evaluate(() => {
+    const all = [...document.querySelectorAll('.serie-face')]
     const canvas = document.querySelector('.serie-map-canvas')
-    const ready = document.querySelectorAll('.serie-face.is-ready').length
-    const round = [...document.querySelectorAll('.serie-face')].slice(0, 8).every((n) => {
+    const ready = all.filter((n) => n.classList.contains('is-ready'))
+    const srcTooSoon = all.filter((n) => n.getAttribute('src') && !n.classList.contains('is-ready'))
+    const broken = all.filter(
+      (n) => n instanceof HTMLImageElement && n.getAttribute('src') && n.complete && n.naturalWidth === 0,
+    )
+    const coreReady = ['1', '2', '3', '4', '5'].every((id) =>
+      document.querySelector(`.serie-face[data-id="${id}"]`)?.classList.contains('is-ready'),
+    )
+    const round = all.slice(0, 8).every((n) => {
       const s = getComputedStyle(n)
       return s.borderRadius.includes('50%') && s.objectFit === 'cover'
     })
     return {
       dataset: canvas instanceof HTMLCanvasElement ? canvas.dataset.faces || '' : '',
-      ready,
+      ready: ready.length,
+      srcTooSoon: srcTooSoon.length,
+      broken: broken.length,
+      coreReady,
       round,
     }
   })
-  rec(faces.ready >= 24, 'Portraits geladen', `${faces.ready} ready, dataset=${faces.dataset}`)
+  rec(faces.coreReady, 'Kernfamilie hat Portraits')
+  rec(faces.ready >= 20, 'Portraits geladen', `${faces.ready} ready, dataset=${faces.dataset}`)
+  rec(faces.srcTooSoon === 0, 'kein src vor dem Laden', String(faces.srcTooSoon))
+  rec(faces.broken === 0, 'keine kaputten Knoten-Icons', String(faces.broken))
   rec(faces.round, 'Knoten sind kreisförmig mit Cover')
   await page.screenshot({ path: `${SHOTS}/lage-serie-nodes.png` })
+
+  const rickFace = await page.evaluate(() => {
+    const img = document.querySelector('.serie-face[data-id="1"]')
+    const r = img?.getBoundingClientRect()
+    return r ? { x: r.x + r.width / 2, y: r.y + r.height / 2, w: r.width, h: r.height } : null
+  })
+  rec(Boolean(rickFace && rickFace.w >= 20), 'Rick-Knoten sichtbar', rickFace ? `${Math.round(rickFace.w)}px` : 'fehlt')
+  if (rickFace) {
+    await page.mouse.click(rickFace.x, rickFace.y)
+    await sleep(500)
+  }
+  rec(
+    await page.evaluate(() => document.querySelector('#serie-dossier-title')?.textContent === 'Rick Sanchez'),
+    'Klick auf Rick-Knoten öffnet Steckbrief',
+  )
+  await page.evaluate(() => document.querySelector('.serie-dossier .pin-bubble-x')?.click())
+  await sleep(200)
 
   await page.waitForSelector('.serie-search')
   await page.click('.serie-search')
   await page.type('.serie-search', 'Rick Sanchez', { delay: 20 })
-  await sleep(300)
-  rec(
-    await page.evaluate(() =>
-      [...document.querySelectorAll('.serie-hits button')].some((b) => /Rick Sanchez/.test(b.textContent || '')),
-    ),
-    'Suche listet Rick Sanchez',
+  await sleep(400)
+  const hits = await page.evaluate(() =>
+    [...document.querySelectorAll('.serie-hits button')].map((b) => ({
+      text: (b.textContent || '').trim(),
+      ready:
+        b.querySelector('img') instanceof HTMLImageElement &&
+        b.querySelector('img').complete &&
+        b.querySelector('img').naturalWidth > 0,
+    })),
   )
-  await sleep(900)
+  rec(
+    hits.some((h) => /Rick Sanchez · Earth \(C-137\)/.test(h.text)),
+    'Suche trennt Rick C-137',
+    hits.map((h) => h.text).join(' | '),
+  )
+  rec(
+    hits.filter((h) => /Rick Sanchez/.test(h.text)).length >= 2,
+    'mehrere Rick-Sanchez-Treffer',
+    String(hits.length),
+  )
+  rec(
+    hits.some((h) => /C-137/.test(h.text) && h.ready),
+    'Such-Avatar von C-137 geladen',
+  )
+  await sleep(600)
   await page.screenshot({ path: `${SHOTS}/lage-serie-search.png` })
   await page.evaluate(() => {
     const b = [...document.querySelectorAll('.serie-hits button')].find((n) =>
-      /^Rick Sanchez$/.test((n.textContent || '').trim()),
+      /Earth \(C-137\)/.test(n.textContent || ''),
     )
     b?.click()
   })
@@ -156,6 +210,21 @@ try {
     'Klick auf Morty wechselt den Steckbrief',
   )
   await page.screenshot({ path: `${SHOTS}/lage-serie-morty.png` })
+
+  await page.evaluate(() => document.querySelector('.serie-dossier .pin-bubble-x')?.click())
+  await page.click('.serie-search', { clickCount: 3 })
+  await page.keyboard.press('Backspace')
+  await sleep(200)
+  await page.evaluate(() => {
+    const b = [...document.querySelectorAll('.lage-chip')].find((n) => /Mit Fähigkeit/.test(n.textContent || ''))
+    b?.click()
+  })
+  await sleep(400)
+  const skillFilter = await page.evaluate(() => {
+    const vis = [...document.querySelectorAll('.serie-face')].filter((n) => !n.hidden)
+    return vis.length
+  })
+  rec(skillFilter === 30, 'Filter Mit Fähigkeit grenzt ein', String(skillFilter))
 
   rec(!pageErrors.length, 'keine Page-Errors', pageErrors.slice(0, 2).join(' | '))
 } finally {

@@ -10,6 +10,7 @@ import {
   episodeByCode,
   parseEpisodeCode,
   searchCharacters,
+  searchHitLabel,
   sharedCount,
   staffelFolge,
 } from '../src/engine/rm-graph.ts'
@@ -65,6 +66,12 @@ assert.ok(extra.appearanceCount >= 1)
 
 assert.ok(searchCharacters('evil morty').some((c) => c.id === 118))
 assert.deepEqual(searchCharacters(''), [])
+const rickHits = searchCharacters('Rick Sanchez')
+assert.ok(rickHits.length >= 4)
+assert.equal(rickHits[0].id, 1)
+assert.equal(searchHitLabel(rickHits[0], rickHits), 'Rick Sanchez · Earth (C-137)')
+assert.ok(searchHitLabel(rickHits[1], rickHits).startsWith('Rick Sanchez · '))
+assert.equal(searchHitLabel(characterById(2), searchCharacters('Morty Smith')).includes('·'), true)
 
 assert.match(readFileSync(join(here, '../src/engine/settings-schema.ts'), 'utf8'), /hud_view: \['tiles', 'body', 'globe', 'serie'\]/)
 assert.match(hudParse, /view: 'serie'/)
@@ -75,6 +82,7 @@ assert.match(lage, /\['serie', 'Serie'\]/)
 assert.match(lage, /SerieMapCanvas/)
 assert.match(lage, /SerieDossier/)
 assert.match(lage, /searchCharacters\(serieQuery\)/)
+assert.match(lage, /searchHitLabel/)
 assert.match(lage, /serie-hit-ava/)
 assert.match(app, /cur === 'body' \|\| cur === 'globe' \|\| cur === 'serie'/)
 
@@ -86,7 +94,9 @@ assert.match(canvas, /serie-faces/)
 assert.match(canvas, /rmAvatar/)
 assert.match(canvas, /dataset.faces/)
 assert.match(canvas, /dataset.nodes/)
-assert.doesNotMatch(canvas, /requestAvatar/)
+assert.match(canvas, /enqueueFace/)
+assert.match(canvas, /MAX_INFLIGHT/)
+assert.doesNotMatch(canvas, /if \(!img.getAttribute\('src'\)\) img.src/)
 assert.match(css, /\.serie-face \{[\s\S]*border-radius: 50%/)
 assert.match(css, /\.serie-dossier-photo img/)
 assert.match(dossierUi, /serie-dossier-photo/)

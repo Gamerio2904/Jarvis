@@ -92,6 +92,13 @@ export function searchCharacters(query: string): RmCharacter[] {
     .slice(0, 24)
 }
 
+export function searchHitLabel(c: RmCharacter, hits: RmCharacter[]): string {
+  const clash = hits.some((o) => o.id !== c.id && o.name === c.name)
+  if (!clash) return c.name
+  const extra = c.origin && c.origin !== 'unknown' ? c.origin : c.type || `#${c.id}`
+  return `${c.name} · ${extra}`
+}
+
 export function layoutRmDots(chars: RmCharacter[] = snap.characters): RmDot[] {
   const dots: RmDot[] = []
   const coreSet = new Set<number>(RM_CORE_IDS)

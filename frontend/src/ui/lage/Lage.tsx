@@ -48,7 +48,7 @@ import { ensureDeviceLocation } from '../../native/geo.ts'
 import { setLageSession } from '../../engine/lage-session.ts'
 import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour.ts'
 import { decodeHtml } from '../../engine/html-text.ts'
-import { dossierFor, rmAvatar, rmCoverageLine, searchCharacters } from '../../engine/rm-graph.ts'
+import { dossierFor, rmAvatar, rmCoverageLine, searchCharacters, searchHitLabel } from '../../engine/rm-graph.ts'
 import { SerieMapCanvas } from './SerieMapCanvas.tsx'
 import { SerieDossier } from './SerieDossier.tsx'
 
@@ -570,7 +570,7 @@ export function Lage({
             </div>
             {serieQuery.trim() ? (
               <div className="serie-hits" role="listbox" aria-label="Suchtreffer">
-                {searchCharacters(serieQuery).slice(0, 8).map((c) => (
+                {searchCharacters(serieQuery).slice(0, 8).map((c, _, hits) => (
                   <button
                     key={c.id}
                     type="button"
@@ -578,8 +578,18 @@ export function Lage({
                     className={`lage-chip${serieId === c.id ? ' is-on' : ''}`}
                     onClick={() => setSerieId(c.id)}
                   >
-                    <img className="serie-hit-ava" src={rmAvatar(c.id)} alt="" width={18} height={18} />
-                    {c.name}
+                    <img
+                      className="serie-hit-ava"
+                      src={rmAvatar(c.id)}
+                      alt=""
+                      width={18}
+                      height={18}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        e.currentTarget.hidden = true
+                      }}
+                    />
+                    {searchHitLabel(c, hits)}
                   </button>
                 ))}
               </div>
