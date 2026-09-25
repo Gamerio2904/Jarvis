@@ -57,6 +57,7 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_recall_json',
   'last_research_json',
   'last_knowledge_json',
+  'expert_topics_json',
   'last_doc_json',
   'last_taxi_json',
   'last_interrupt_json',

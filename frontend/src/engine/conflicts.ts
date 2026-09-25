@@ -2,6 +2,8 @@ import type { Candidate, RouteCtx } from './route-types.ts'
 import { SCORE_CEIL } from './policy.ts'
 import { gazetteerHit } from './globe-geo.ts'
 import { parseRmSceneIntent } from './rm-scene-parse.ts'
+import { parseRmAskIntent } from './rm-ask-parse.ts'
+import { parseExpertIntent } from './expert-parse.ts'
 import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
 
@@ -427,12 +429,23 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     }
   }
 
-  if (parseRmSceneIntent(text)) {
+  if (parseRmSceneIntent(text) || parseRmAskIntent(text)) {
     out = drop(out, 'tv')
     out = drop(out, 'calendar')
     out = drop(out, 'eye')
     out = drop(out, 'doc')
+    out = drop(out, 'film')
+    out = drop(out, 'food')
+    out = drop(out, 'expert')
     out = boost(out, 'hud', 0.3)
+  }
+
+  if (parseExpertIntent(text, ctx.lastTool, '')) {
+    out = drop(out, 'teach')
+    out = drop(out, 'film')
+    out = drop(out, 'food')
+    out = drop(out, 'identity')
+    out = boost(out, 'expert', 0.28)
   }
 
   if (parseWontIntent(text)) {

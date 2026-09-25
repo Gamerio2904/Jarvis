@@ -85,6 +85,12 @@ export function characterById(id: number): RmCharacter | undefined {
 }
 
 export function rmAvatar(id: number): string {
+  const base = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.BASE_URL) || '/'
+  const root = String(base).endsWith('/') ? String(base) : `${base}/`
+  return `${root}rm-avatars/${id}.jpeg`
+}
+
+export function rmAvatarRemote(id: number): string {
   return `https://rickandmortyapi.com/api/character/avatar/${id}.jpeg`
 }
 

@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Kamera-Fähigkeiten S6+ sind **CODE + APK** in 18.12.0. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.12.md`](./TEST-18.12.md).
+**Jetzt:** Code **`18.12.2`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Serie-Bilder lokal, Graph im Chat, Themen-Experte. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.12.md`](./TEST-18.12.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -48,7 +48,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Live-APK **`18.12.0`**, App-Code **`18.12.0`** |
+| 42 | [Alles geplant](./42-planned.md) | Index Live-APK **`18.12.0`**, App-Code **`18.12.2`** |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -88,7 +88,8 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 80 | [Recover + Hirn härten 18.9](./80-next.md) | **CODE + APK** `18.9.8` — Sprints 331–340 |
 | 81 | [Post, Telefonbuch, WhatsApp](./81-next.md) | **CODE** `18.9.7` / `18.9.8` |
 | 82 | [Gedächtnis-Kern](./82-next.md) | **CODE** `18.9.8` |
-| 83 | [Lage Serie-Netz](./83-next.md) | **CODE + APK** `18.12.0` — Knoten S01–S05, Kamera-Fähigkeiten ab Staffel 6 |
+| 83 | [Lage Serie-Netz](./83-next.md) | **CODE + APK** `18.12.0` / **CODE** `18.12.2` — Knoten, lokale Bilder, Graph im Chat |
+| 85 | [Themen-Experte](./85-next.md) | **CODE** `18.12.2` — ein Agent, Deep Research nach Ja |
 | — | [APK](./apk.md) | Sideload `18.12.0`; Test: [`TEST-18.12.md`](./TEST-18.12.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
@@ -316,5 +317,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 331–340 | `18.9.0`–`18.9.8` | **CODE + APK** (Recover, Mail, Gedächtnis-Kern) |
 | 341 | `18.10.0` | **CODE** (Lage Serie-Netz, [`83-next.md`](./83-next.md)) |
 | 347 | `18.12.0` | **CODE + APK** (Kamera-Fähigkeiten S6+, [`83-next.md`](./83-next.md) §3) |
+| 353–355 | `18.12.2` | **CODE** (Avatare, Graph-Chat, Experte) |
 
-**Aktuell:** App-Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Sprint 347 **CODE + APK** in `18.12.0`. Test: [`TEST-18.12.md`](./TEST-18.12.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.12.2`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Test: [`TEST-18.12.md`](./TEST-18.12.md). Index: [`42-planned.md`](./42-planned.md).

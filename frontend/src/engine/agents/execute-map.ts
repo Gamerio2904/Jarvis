@@ -48,6 +48,7 @@ import { handleHaushalt } from '../haushalt.ts'
 import { handleSensors } from '../sensors.ts'
 import { handleChess } from '../chess.ts'
 import { handleHud } from '../hud.ts'
+import { handleExpert } from '../expert.ts'
 import { handleTrace } from '../trace.ts'
 import { handleDigest } from '../digest.ts'
 import { handleOutlook } from '../outlook.ts'
@@ -188,6 +189,7 @@ export const AGENT_EXECUTORS: Record<string, AgentExecutor> = {
   sensors: async (ctx) => fromHandler('sensors', await handleSensors(ctx.text)),
   chess: async (ctx) => fromHandler('chess', await handleChess(ctx.text)),
   hud: async (ctx) => fromHandler('hud', await handleHud(ctx.text, ctx.conversationId)),
+  expert: async (ctx) => fromHandler('expert', await handleExpert(ctx.conversationId, ctx.text)),
   trace: async (ctx) => fromHandler('trace', await handleTrace(ctx.text)),
   digest: async (ctx) => fromHandler('digest', await handleDigest(ctx.conversationId, ctx.text)),
   outlook: async (ctx) => fromHandler('outlook', await handleOutlook(ctx.text)),

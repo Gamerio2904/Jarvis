@@ -20,6 +20,7 @@ export const AGENT_SWEEP: Record<string, string> = {
   pc: 'FIFA starten',
   maps: 'Freundin wohnt in Heilbronn',
   teach: 'Lern das als Fachwissen FritzBox-Doku: Das WLAN-Passwort steht unter dem Router, nicht im Chat.',
+  expert: 'Werde ein Experte in Star Wars',
   pack: 'Fachwissen FritzBox',
   memory: 'Ich heiße Max und trinke gerne Kaffee.',
   shopping: 'Milch auf die Einkaufsliste',

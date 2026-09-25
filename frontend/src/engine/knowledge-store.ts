@@ -86,14 +86,17 @@ export function normalizePack(partial: Partial<KnowledgePack> & { topic: string;
 }
 
 export function prunePackList(rows: KnowledgePack[]): KnowledgePack[] {
-  if (rows.length <= PACK_CAP) return rows
+  const keepExpert = (p: KnowledgePack) => p.origin === 'expert' || p.source_agent === 'expert'
+  const experts = rows.filter(keepExpert)
+  const rest = rows.filter((p) => !keepExpert(p))
+  if (rest.length <= PACK_CAP) return [...experts, ...rest]
   const rank = (p: KnowledgePack) => (p.user_ok ? 1 : 0)
-  const sorted = [...rows].sort((a, b) => {
+  const sorted = [...rest].sort((a, b) => {
     if (rank(a) !== rank(b)) return rank(a) - rank(b)
     return a.updated_at < b.updated_at ? -1 : 1
   })
-  const drop = new Set(sorted.slice(0, rows.length - PACK_CAP).map((p) => p.id))
-  return rows.filter((p) => !drop.has(p.id))
+  const drop = new Set(sorted.slice(0, rest.length - PACK_CAP).map((p) => p.id))
+  return [...experts, ...rest.filter((p) => !drop.has(p.id))]
 }
 
 export function claimsConflict(a: string, b: string): boolean {
