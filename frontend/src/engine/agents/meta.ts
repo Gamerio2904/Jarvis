@@ -68,6 +68,7 @@ export const AGENT_META: Record<string, AgentMeta> = {
   memory: { label: 'Gedächtnis', department: 'wissen', organs: ['memory', 'brain'], visibility: 'domain', autonomy: 'parser' },
   recall: { label: 'Recall', department: 'wissen', organs: ['memory'], visibility: 'domain', autonomy: 'parser' },
   teach: { label: 'Fachwissen anlegen', department: 'wissen', organs: ['brain'], visibility: 'domain', autonomy: 'parser', knowledge: true },
+  expert: { label: 'Experte', department: 'wissen', organs: ['brain'], visibility: 'domain', autonomy: 'parser', knowledge: true },
   pack: { label: 'Fachwissen abfragen', department: 'wissen', organs: ['brain'], visibility: 'domain', autonomy: 'parser', knowledge: true },
   pc: { label: 'PC steuern', department: 'werkstatt', organs: ['pc_hand', 'pc_eye'], visibility: 'domain', autonomy: 'parser' },
   eye: { label: 'Auge / Foto', department: 'werkstatt', organs: ['eye'], visibility: 'domain', autonomy: 'parser' },

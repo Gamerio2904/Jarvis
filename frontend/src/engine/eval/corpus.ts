@@ -346,6 +346,9 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Mama, Mail name@gmx.de': 'maps',
   'Staffel 6 Folge 3': 'hud',
   'Welche Kamera-Fähigkeiten habe ich?': 'hud',
+  'Wer ist Rick Sanchez': 'hud',
+  'Wann hatte Rick ein automatisches Schild': 'hud',
+  'Werde ein Experte in Star Wars': 'expert',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

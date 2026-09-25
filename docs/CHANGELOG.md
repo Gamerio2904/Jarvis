@@ -5,6 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.12.2` — Serie-Bilder, Graph-Chat, Themen-Experte — *CODE*
+
+826 Avatare lokal (`/rm-avatars/{id}.jpeg`). Chat zitiert den Graph
+(`Wer ist Rick Sanchez`, Schild = S03E05). Ein Agent `expert`:
+«Werde ein Experte in Star Wars» recherchiert nach Ja, antwortet nur
+mit Quelle. Sideload bleibt **`18.12.0`** bis APK. Test:
+[`TEST-18.12.md`](./TEST-18.12.md).
+
 ### `18.12.0` — Kamera-Fähigkeiten S6+ — *CODE + APK*
 
 Foto-Knopf speichert das Bild. `Staffel 6 Folge 3` (oder SxxEyy) schreibt

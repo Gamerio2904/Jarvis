@@ -57,6 +57,8 @@ import { parseSensorsIntent } from '../sensors.ts'
 import { parseChessIntent } from '../chess.ts'
 import { parseHudIntent } from '../hud-parse.ts'
 import { parseRmSceneIntent } from '../rm-scene-parse.ts'
+import { parseRmAskIntent } from '../rm-ask-parse.ts'
+import { parseExpertIntent } from '../expert-parse.ts'
 import { parseTraceIntent } from '../trace-parse.ts'
 import { parseDigestIntent } from '../digest-parse.ts'
 import { parseOutlookIntent } from '../outlook-parse.ts'
@@ -75,6 +77,7 @@ import { parsePackAsk, parsePackForget, parsePackRevise } from '../pack-parse.ts
 import { parseDeskIntent } from '../desk-parse.ts'
 import { isPersonaAsk } from '../guards.ts'
 import { parserScore } from '../policy.ts'
+import { loadSettings } from '../store.ts'
 import type { RouteCtx, SideEffect } from '../route-types.ts'
 import { metaFor } from './meta.ts'
 import { PROMPT_SLICES } from './prompt-slices.ts'
@@ -82,6 +85,14 @@ import type { AgentSpec } from './types.ts'
 
 function score(text: string, extra = 0): number {
   return parserScore(text, extra)
+}
+
+function extraExpertTopics(): string {
+  try {
+    return loadSettings().expert_topics_json || ''
+  } catch {
+    return ''
+  }
 }
 
 type RawParse = {
@@ -182,6 +193,12 @@ function buildParseCatalog(): AgentSpec[] {
     },
     { id: 'teach', sideEffect: 'write', parse: (ctx) => (parseTeachIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.2) : null) },
     {
+      id: 'expert',
+      sideEffect: 'write',
+      parse: (ctx) =>
+        parseExpertIntent(ctx.text, ctx.lastTool, extraExpertTopics()) ? score(ctx.text, 0.24) : null,
+    },
+    {
       id: 'pack',
       sideEffect: 'read',
       parse: (ctx) =>
@@ -256,7 +273,9 @@ function buildParseCatalog(): AgentSpec[] {
       id: 'hud',
       sideEffect: 'write',
       parse: (ctx) =>
-        parseHudIntent(ctx.text) || parseRmSceneIntent(ctx.text) ? score(ctx.text, 0.28) : null,
+        parseHudIntent(ctx.text) || parseRmSceneIntent(ctx.text) || parseRmAskIntent(ctx.text)
+          ? score(ctx.text, 0.28)
+          : null,
     },
     { id: 'trace', sideEffect: 'read', parse: (ctx) => (parseTraceIntent(ctx.text) ? score(ctx.text, 0.14) : null) },
     { id: 'digest', sideEffect: 'write', parse: (ctx) => (parseDigestIntent(ctx.text) ? score(ctx.text, 0.1) : null) },

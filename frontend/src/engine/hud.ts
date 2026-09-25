@@ -27,6 +27,7 @@ import { clearTour } from './globe-tour.ts'
 import { resolveShowPlace } from './hud-show.ts'
 import { polishToolLine } from './polish.ts'
 import { handleRmScene } from './rm-scene.ts'
+import { handleRmAsk } from './rm-ask.ts'
 
 export { HUD_CATALOG, parseHudIntent, organLabel }
 export type { HudId, HudIntent, HudView, BodyOrgan }
@@ -66,6 +67,8 @@ export async function handleHud(
     const scene = await handleRmScene(conversationId, text)
     if (scene.handled) return scene
   }
+  const ask = await handleRmAsk(text)
+  if (ask.handled) return ask
   const intent = parseHudIntent(text)
   if (!intent) return { handled: false }
   if (intent.kind === 'lage') {
