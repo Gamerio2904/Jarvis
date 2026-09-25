@@ -1,14 +1,14 @@
-# 42 — Alles geplant (Stand Code `18.10.0`, Sideload `18.10.0`, nächste Schiene `18.11` PLAN)
+# 42 — Alles geplant (Stand Code `18.11.4`, Sideload `18.10.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.10.0`**, versionCode `181000`. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.10.md`](./TEST-18.10.md).
+**Live-APK:** **`18.10.0`**, versionCode `181000`. App-Code **`18.11.4`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.11.md`](./TEST-18.11.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-0. **`18.11` Koch / Speisekammer / Quellen zu** [`84-next.md`](./84-next.md) — Sprints **342–346 PLAN**. Zutatenfoto, Gewürz-Pin im Hauptgehirn, Rezept mit Zeiten; Quellen unter jeder Nachricht zu. Kein erfundenes Gericht, kein 2. Hirn.
+0. **`18.11` Koch / Speisekammer / Quellen zu** [`84-next.md`](./84-next.md) — Sprints **342–346 CODE** in `18.11.4`. Zutatenfoto, Gewürz-Pin im Hauptgehirn, Rezept mit Zeiten; Quellen unter jeder Nachricht zu. Kein erfundenes Gericht, kein 2. Hirn. Sideload bleibt `18.10.0`.
 1. **`18.10` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 CODE** in `18.10.0` (historisch PLAN `18.5`). Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht als `18.5.0` versionieren.
 2. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE + APK** in `18.8.0`.
 2b. **`18.9` Recover + Hirn** [`80-next.md`](./80-next.md) — Sprints **331–340 CODE + APK** in `18.9.8`.
@@ -154,7 +154,7 @@ Sideload **`18.10.0`**, versionCode `181000`. 18.5-Inhalt in `18.10.0`.
 
 Begründung: [`80-next.md`](./80-next.md).
 
-## PLAN — Schiene `18.11` (Sprints 342–346)
+## CODE — Schiene `18.11` (Sprints 342–346)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|

@@ -1,6 +1,6 @@
 # Sprint 343 — Gewürze im Hauptgehirn
 
-**Version:** `18.11.1` — **PLAN** Must
+**Version:** `18.11.1` — **CODE** Must
 **Plan:** [`84-next.md`](../84-next.md)
 **Voraussetzung:** 342 frei daneben; Core aus 340.
 

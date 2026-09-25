@@ -1,7 +1,7 @@
 # TEST 18.11 — Koch, Gewürze, Quellen zu
 
-Nach Execute von [`84-next.md`](./84-next.md). Ziel-Code **`18.11.4`**.
-Bis dahin Abnahmeblatt, kein Ist-Stand.
+Nach Execute von [`84-next.md`](./84-next.md). App-Code **`18.11.4`**.
+Sideload bleibt **`18.10.0`** bis eine 18.11-APK gebaut wird.
 
 ## 1. Quellen unter jeder Nachricht
 

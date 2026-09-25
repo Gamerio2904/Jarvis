@@ -1,6 +1,6 @@
 # Sprint 346 — Koch härten, Copy, Tests
 
-**Version:** `18.11.4` — **PLAN** Must
+**Version:** `18.11.4` — **CODE** Must
 **Plan:** [`84-next.md`](../84-next.md)
 **Voraussetzung:** 342–345.
 

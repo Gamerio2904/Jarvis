@@ -1,6 +1,6 @@
 # Android-APK — Sideload `18.10.0`
 
-App-Code **`18.10.0`**. Sideload **`18.10.0`** (versionCode `181000`):
+App-Code **`18.11.4`** (Koch-Schiene, noch keine neue APK). Sideload **`18.10.0`** (versionCode `181000`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.9.8:** Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern. Sideload **`18.9.8`** (versionCode `180908`):

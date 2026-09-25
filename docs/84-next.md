@@ -1,4 +1,4 @@
-# 84 — Koch aus dem Vorrat (Bild, Gewürze, Rezept) **PLAN** (`18.11`)
+# 84 — Koch aus dem Vorrat (Bild, Gewürze, Rezept) **CODE** (`18.11.4`)
 
 PO: Ein Foto von den Zutaten, die da sind. Gewürze einmal fotografieren
 und „merke dir meine Gewürze“ — das liegt im **Hauptgehirn**. Der Koch
@@ -196,11 +196,11 @@ Bildgenerator. Einkauf ohne Ja. `food` umbiegen. Organizer als 65.
 
 | Sprint | Version | Thema |
 |--------|---------|-------|
-| [342](./sprints/sprint-342.md) | `18.11.0` | Quellen zu; Badge zählt |
-| [343](./sprints/sprint-343.md) | `18.11.1` | Gewürz-Pin + Synonyme |
-| [344](./sprints/sprint-344.md) | `18.11.2` | Koch-Agent, Vision, Bestätigung |
-| [345](./sprints/sprint-345.md) | `18.11.3` | JSON-LD / Wikibooks, Zeiten, Schritte, Einkauf-Ja |
-| [346](./sprints/sprint-346.md) | `18.11.4` | Tests, Copy, Sweep, Härten |
+| [342](./sprints/sprint-342.md) | `18.11.0` | Quellen zu; Badge zählt — **CODE** |
+| [343](./sprints/sprint-343.md) | `18.11.1` | Gewürz-Pin + Synonyme — **CODE** |
+| [344](./sprints/sprint-344.md) | `18.11.2` | Koch-Agent, Vision, Bestätigung — **CODE** |
+| [345](./sprints/sprint-345.md) | `18.11.3` | JSON-LD / Wikibooks, Zeiten, Schritte, Einkauf-Ja — **CODE** |
+| [346](./sprints/sprint-346.md) | `18.11.4` | Tests, Copy, Sweep, Härten — **CODE** |
 
 Harte Kette: 342 frei. 343 → 344 → 345. 346 zuletzt.
-Testblatt: [`TEST-18.11.md`](./TEST-18.11.md).
+Testblatt: [`TEST-18.11.md`](./TEST-18.11.md). App-Code **`18.11.4`**. Sideload bleibt `18.10.0` bis Execute-APK.

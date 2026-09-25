@@ -59,6 +59,7 @@ export const AGENT_META: Record<string, AgentMeta> = {
   nature: { label: 'Natur', department: 'information', organs: ['eye'], visibility: 'domain', autonomy: 'parser' },
   flights: { label: 'Flüge', department: 'information', organs: ['eye'], visibility: 'domain', autonomy: 'parser' },
   food: { label: 'Lebensmittel', department: 'information', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },
+  cook: { label: 'Koch', department: 'information', organs: ['eye', 'brain', 'memory'], visibility: 'domain', autonomy: 'parser' },
   library: { label: 'Buch', department: 'information', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },
   law: { label: 'Gesetz', department: 'information', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },
   haushalt: { label: 'Haushalt', department: 'information', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },

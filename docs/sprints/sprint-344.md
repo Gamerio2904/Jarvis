@@ -1,6 +1,6 @@
 # Sprint 344 — Koch-Agent, Bild, Bestätigung
 
-**Version:** `18.11.2` — **PLAN** Must
+**Version:** `18.11.2` — **CODE** Must
 **Plan:** [`84-next.md`](../84-next.md)
 **Voraussetzung:** 343 (Pin darf leer sein).
 

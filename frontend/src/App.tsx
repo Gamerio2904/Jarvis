@@ -161,13 +161,16 @@ function SourcesBlock({
   const sources = (research.sources || []).filter((s) => s.url)
   const status = researchStatusLabel(research)
   if (!sources.length && !status) return null
+  const badge = sources.length
+    ? sources.length === 1
+      ? '1 Quelle'
+      : `${sources.length} Quellen`
+    : status || 'Quellen'
   return (
-    <details className="sources-block" open>
+    <details className="sources-block">
       <summary>
-        <span className="sources-badge">{status || 'Quellen'}</span>
-        {sources.length > 1 ? (
-          <span className="sources-count">prüfbar</span>
-        ) : null}
+        <span className="sources-badge">{badge}</span>
+        {status && sources.length ? <span className="sources-count">{status}</span> : null}
       </summary>
       {sources.length ? (
         <ul className="sources-list">

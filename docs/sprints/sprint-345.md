@@ -1,6 +1,6 @@
 # Sprint 345 — JSON-LD / Wikibooks, Zeiten, Schritte
 
-**Version:** `18.11.3` — **PLAN** Must
+**Version:** `18.11.3` — **CODE** Must
 **Plan:** [`84-next.md`](../84-next.md)
 **Voraussetzung:** 344 (bestätigte Zutaten) + 343 (Gewürz-Pin).
 

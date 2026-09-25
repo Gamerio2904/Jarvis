@@ -1,6 +1,6 @@
 # Sprint 342 — Quellen unter der Nachricht zuklappen
 
-**Version:** `18.11.0` — **PLAN** Must
+**Version:** `18.11.0` — **CODE** Must
 **Plan:** [`84-next.md`](../84-next.md)
 **Voraussetzung:** 341 / Quellen-UI liegt.
 

@@ -49,6 +49,7 @@ export const AGENT_SWEEP: Record<string, string> = {
   ferien: 'Wann sind die Schulferien in Baden-Württemberg?',
   fx: 'Was ist der Dollar?',
   food: 'Zutaten von Nutella',
+  cook: 'Was kann ich aus dem Foto kochen',
   library: 'Wer schrieb Der Prozess?',
   sport: 'Wie steht die Bundesliga?',
   sky: 'Wo ist die ISS?',
