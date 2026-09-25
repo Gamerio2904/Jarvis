@@ -39,7 +39,7 @@ export function parseRmSceneIntent(text: string): RmSceneIntent | null {
   if (!t || t.length > 180) return null
   if (/\b(?:wäsche|waschschüssel|carbonara|nutella|barcode)\b/i.test(t)) return null
   const stamp = parseRmEpisodeStamp(t)
-  if (/^\s*(?:vergiss|lösch(?:e)?)\s+/.test(t) && (SCENE.test(t) || stamp)) {
+  if (/^\s*(?:vergiss|lösch(?:e)?)\s+/i.test(t) && (SCENE.test(t) || stamp)) {
     if (stamp && stamp.season < 6 && !SCENE.test(t)) return null
     return { kind: 'forget', code: stamp?.code }
   }

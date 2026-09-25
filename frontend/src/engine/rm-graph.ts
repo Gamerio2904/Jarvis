@@ -116,13 +116,13 @@ export function applySceneSkills(rows: RmSceneSkillRow[]): void {
 }
 
 export function sceneSkillsFor(id: number): RmSkill[] {
-  return sceneSkillCache
-    .filter((s) => s.characterId === id)
-    .map((s) => {
-      const ev = evidenceLoose(s.code, s.note)
-      return ev ? { name: s.name, evidence: ev, origin: 'camera' as const } : null
-    })
-    .filter((x): x is RmSkill => Boolean(x))
+  const out: RmSkill[] = []
+  for (const s of sceneSkillCache) {
+    if (s.characterId !== id) continue
+    const ev = evidenceLoose(s.code, s.note)
+    if (ev) out.push({ name: s.name, evidence: ev, origin: 'camera' })
+  }
+  return out
 }
 
 export function hasAnySkill(id: number): boolean {
@@ -295,15 +295,12 @@ function traitsFor(c: RmCharacter): RmTrait[] {
 export function dossierFor(id: number): RmDossier | null {
   const c = characterById(id)
   if (!c) return null
-  const skills = [
-    ...(RM_SKILLS[id] || [])
-      .map((s) => {
-        const ev = evidence(s.code, s.note)
-        return ev ? ({ name: s.name, evidence: ev, origin: 'curated' as const } satisfies RmSkill) : null
-      })
-      .filter((x): x is RmSkill => Boolean(x)),
-    ...sceneSkillsFor(id),
-  ]
+  const skills: RmSkill[] = []
+  for (const s of RM_SKILLS[id] || []) {
+    const ev = evidence(s.code, s.note)
+    if (ev) skills.push({ name: s.name, evidence: ev, origin: 'curated' })
+  }
+  skills.push(...sceneSkillsFor(id))
   const appearances = c.eps
     .map((epId) => {
       const ep = episodeById(epId)
