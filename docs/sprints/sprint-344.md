@@ -1,38 +1,39 @@
-# Sprint 344 — Koch-Agent und Zutaten vom Bild
+# Sprint 344 — Koch-Agent, Bild, Bestätigung
 
 **Version:** `18.11.2` — **PLAN** Must
 **Plan:** [`84-next.md`](../84-next.md)
-**Voraussetzung:** 343 (Pin darf noch leer sein).
+**Voraussetzung:** 343 (Pin darf leer sein).
 
 ## Ziel
 
-Der **64. Katalog-Agent** `cook` nimmt das letzte Zutaten-Foto und nennt
-nur, was zu sehen ist. `food` bleibt EAN/OFF. Foto weiter nur über den
-Kamera-Knopf.
+Der **64. Katalog-Agent** `cook` nennt nur, was auf dem Foto sicher
+zu sehen ist, und fragt **Stimmt das?** bevor ein Rezept läuft
+(FridgeChef-Schritt, ohne deren LLM-Rezept). `food` bleibt EAN/OFF.
 
 ## Lieferumfang
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S344-1 | Katalog | `executor-ids` `execute-map` `meta` `parse-catalog` | id `cook`, Label Koch, Organe eye+brain+memory |
-| S344-2 | Parse | `cook-parse.ts` | Rezept / „was kann ich kochen“ / Speisekammer / „aus dem Bild“ |
-| S344-3 | Konflikt | `conflicts.ts` | Küchenwort: haushalt drop, nacktes eye drop; food nur bei EAN/Marke |
-| S344-4 | Vision | `handleCook` | Prompt: nur Sichtbares, unsicher markieren, nichts erfinden |
-| S344-5 | Leer | derselbe Handler | Kein Foto → Foto-Knopf. Kein Gemini → ehrlich aus |
-| S344-6 | Sweep | `sweep.ts` `prompt-slices` | Satz „Was kann ich aus dem Foto kochen“ |
+| S344-1 | Katalog | `executor-ids` `execute-map` `meta` `parse-catalog` | id `cook`, Organe eye+brain+memory |
+| S344-2 | Parse | `cook-parse.ts` | Rezept / „was kann ich kochen“ / aus dem Bild; Ja / ohne X / dazu Y |
+| S344-3 | Konflikt | `conflicts.ts` | haushalt drop, nacktes eye drop; food nur EAN/Marke |
+| S344-4 | Vision | `handleCook` | `{ name, sure }[]`; unsicher extra, nicht in die Liste |
+| S344-5 | Confirm | pending `cook_confirm` | Ohne Ja keine Recherche. „ohne Tomate“ streicht, „dazu Sahne“ hängt an |
+| S344-6 | Leer | Handler | Kein Foto → Foto-Knopf. Kein Gemini → ehrlich aus |
+| S344-7 | Sweep | `sweep.ts` `prompt-slices` | „Was kann ich aus dem Foto kochen“ |
 
 ## Won’t
 
-65. Organizer. `food` umbiegen. Sprach-Foto. Rezept in diesem Sprint
-schon ausformulieren (das ist 345). TheMealDB-Testkey in der APK.
+Rezept in diesem Sprint ausformulieren (345). Staples still annehmen.
+YOLO. Sprach-Foto. `food` umbiegen.
 
 ## Abbruchkriterium
 
-„Zutaten von Nutella“ trifft cook. Oder „Was bedeutet kochen“ (Wäsche)
-trifft cook. Oder Vision ergänzt Zutaten, die nicht im Bild sind.
+Nutella trifft cook. Wäsche-kochen trifft cook. Vision ergänzt
+Unsichtbares. Rezept startet ohne Ja.
 
 ## Manuell
 
-Foto Theke + „was kann ich damit kochen“ → sichtbare Liste, noch ohne
-erfundenes Gericht. „Zutaten von Nutella“ bleibt Lebensmittel.
-„Mach ein Foto“ bleibt wont.
+Foto Theke + „was kann ich damit kochen“ → Liste + Nachfrage.
+„Nein, ohne Gurke“ ändert die Liste, noch kein Gericht.
+„Zutaten von Nutella“ bleibt Lebensmittel.

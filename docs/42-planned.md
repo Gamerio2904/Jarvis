@@ -158,14 +158,14 @@ Begründung: [`80-next.md`](./80-next.md).
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
-| `18.11.0` | [342](./sprints/sprint-342.md) | Quellen unter jeder Nachricht zu, aufklappbar |
-| `18.11.1` | [343](./sprints/sprint-343.md) | Gewürz-Pin im Hauptgehirn |
-| `18.11.2` | [344](./sprints/sprint-344.md) | Koch-Agent + Bild → Zutaten |
-| `18.11.3` | [345](./sprints/sprint-345.md) | Rezept: Zeiten, Liste, Schritte, Gewürz-Wahl |
+| `18.11.0` | [342](./sprints/sprint-342.md) | Quellen zu; Badge „N Quellen“ |
+| `18.11.1` | [343](./sprints/sprint-343.md) | Gewürz-Pin + Synonyme |
+| `18.11.2` | [344](./sprints/sprint-344.md) | Koch-Agent, Vision, Bestätigung |
+| `18.11.3` | [345](./sprints/sprint-345.md) | JSON-LD / Wikibooks, Zeiten, Einkauf-Ja |
 | `18.11.4` | [346](./sprints/sprint-346.md) | Härten, Gold, TEST-18.11 |
 
 Harte Kette: 342 frei. 343 → 344 → 345. 346 zuletzt.
-Kein erfundenes Rezept. Kein TheMealDB-Testkey in der APK. Kein zweites Gedächtnis.
+Kein LLM-Gericht. Kein DummyJSON. Kein TheMealDB-Testkey. Kein FlavorDB.
 `food` bleibt OFF. Der 64. Agent ist `cook` (Domäne), kein Organizer.
 
 Begründung: [`84-next.md`](./84-next.md). Test: [`TEST-18.11.md`](./TEST-18.11.md).

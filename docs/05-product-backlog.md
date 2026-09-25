@@ -650,11 +650,11 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|
-| S64.1 | Als Nutzer will ich Quellen unter jeder Nachricht zuklappen können, nicht dauerhaft offen. | Must | ready | Sprint 342; `SourcesBlock` ohne `open` |
-| S64.2 | Als Nutzer will ich ein Gewürzregal-Foto einmal merken und später dieselbe Liste hören. | Must | ready | Sprint 343; Pin `gewuerze` im Core |
-| S64.3 | Als Nutzer will ich vom Zutatenfoto nur sichtbare Dinge genannt bekommen. | Must | ready | Sprint 344; Agent `cook`; unsicher = unsicher |
-| S64.4 | Als Nutzer will ich ein Rezept mit Zubereitungs- und Gesamtzeit, Liste und Schritten aus einer Quelle. | Must | ready | Sprint 345; keine erfundenen Zeiten |
-| S64.5 | Als Nutzer will ich, dass der Koch nur Gewürze aus meinem Pin nimmt — notfalls Salz und Pfeffer. | Must | ready | Sprint 345; Schnittmenge, Extra ehrlich |
+| S64.1 | Als Nutzer will ich Quellen unter jeder Nachricht zuklappen können, nicht dauerhaft offen. | Must | ready | Sprint 342; `SourcesBlock` ohne `open`; Badge zählt |
+| S64.2 | Als Nutzer will ich ein Gewürzregal-Foto einmal merken und später dieselbe Liste hören. | Must | ready | Sprint 343; Pin `gewuerze`; Synonyme nicht doppelt |
+| S64.3 | Als Nutzer will ich vom Zutatenfoto nur Sichtbares sehen und erst nach Ja ein Rezept. | Must | ready | Sprint 344; Confirm; unsicher weggelassen |
+| S64.4 | Als Nutzer will ich ein Rezept mit Zeiten und Schritten aus JSON-LD oder Wikibooks, nicht aus dem Modell. | Must | ready | Sprint 345; ISO-Zeiten oder „Quelle nennt keine Zeit“ |
+| S64.5 | Als Nutzer will ich, dass der Koch nur Gewürze aus meinem Pin nimmt — notfalls Salz und Pfeffer. | Must | ready | Sprint 345; Alias-Schnittmenge, Extra ehrlich |
 
 ---
 

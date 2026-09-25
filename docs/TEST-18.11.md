@@ -1,49 +1,53 @@
 # TEST 18.11 — Koch, Gewürze, Quellen zu
 
 Nach Execute von [`84-next.md`](./84-next.md). Ziel-Code **`18.11.4`**.
-Bis dahin ist diese Datei das Abnahmeblatt, kein Ist-Stand.
+Bis dahin Abnahmeblatt, kein Ist-Stand.
 
 ## 1. Quellen unter jeder Nachricht
 
 `Suche im Internet nach einem guten Carbonara-Rezept` (Research, kein Koch).
 
-Erwartung: Antworttext ohne offene Linkliste. Badge „Quellen“ / Status.
-Antippen zeigt `[1]`-URLs. Zuklappen verbirgt sie. Dasselbe nach News.
+Erwartung: Badge **„N Quellen“**, Liste zu. Antippen zeigt URLs.
+Dasselbe nach News.
 
 ## 2. Gewürze merken
 
 Foto-Knopf: Gewürzregal. `Merke dir meine Gewürze.`
 
-Erwartung: nur sichtbare Namen. Unsichere Gläser nicht in der Liste.
-`Welche Gewürze habe ich?` dieselbe Liste.
-Zweites merke ersetzt. `Merke dir dazu noch Thymian` hängt an.
-`Vergiss meine Gewürze` → leer, kein Raten.
+Erwartung: nur sichere Namen. `Welche Gewürze habe ich?` dieselbe Liste.
+Pfeffer nicht doppelt als black pepper. Zweites merke ersetzt.
+`Merke dir dazu noch Thymian` hängt an. `Vergiss meine Gewürze` → leer.
 
-## 3. Rezept vom Vorrat
+## 3. Bestätigung vor dem Rezept
 
-Foto-Knopf: Eier, Nudeln, was sonst da ist. `Was kann ich damit kochen?`
+Foto: Eier, Nudeln. `Was kann ich damit kochen?`
 
-Erwartung:
+Erwartung: „Ich sehe: … Stimmt das?“ Noch **kein** Gericht.
+`Ohne Nudeln` streicht. `Ja` startet die Suche.
 
-- Zubereitungszeit und Gesamtzeit **oder** „Quelle nennt keine Zeit“
-- Zutaten: Bild / Gewürzregal / fehlt extra
-- Schritte 1…n ausführlich
-- Quellen unter der Nachricht zu, aufklappbar
-- Kein Gericht, wenn die Suche nichts zitiert
+## 4. Rezept vom Vorrat
 
-Pin nur Salz und Pfeffer: genau die, angesagt.
+Nach Ja:
 
-## 4. Abgrenzung
+- Zeiten nur aus JSON-LD oder Wiki-Zahl, sonst „Quelle nennt keine Zeit.“
+- [Wikibooks Carbonara](https://de.wikibooks.org/wiki/Kochbuch/_Spaghetti_alla_carbonara) darf **keine** 15/45-Minuten erfinden
+- Zutaten: Bild / Regal / fehlt extra
+- Schritte 1…n aus der Quelle
+- Quellen-Badge zu
+- Pin nur Salz/Pfeffer: genau die
+- Parmesan fehlt: „Auf die Liste?“ ohne Ja → Liste unverändert
+
+## 5. Abgrenzung
 
 | Satz | Agent |
 |------|-------|
 | `Zutaten von Nutella` | food |
 | `Suche im Internet nach Carbonara-Rezept` | research |
-| `Was bedeutet Waschschüssel 40?` / Wäsche kochen | haushalt |
+| `Was bedeutet Waschschüssel 40?` | haushalt |
 | `Mach ein Foto` | wont |
 | `Was kann ich aus dem Foto kochen` | cook |
 
-## 5. Ehrlichkeit
+## 6. Ehrlichkeit
 
-Flugmodus / kein Gemini: Foto geht nicht, kein Rezept aus dem Kopf.
-Ohne Foto: Foto-Knopf, kein Schrank raten.
+Kein Gemini → kein Rezept aus dem Kopf. Ohne Foto → Foto-Knopf.
+Kein Öl unterstellen, das weder Bild noch Pin zeigt.

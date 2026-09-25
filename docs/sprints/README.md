@@ -336,10 +336,10 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 339 | [`sprint-339.md`](./sprint-339.md) | `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test | **CODE** Must |
 | 340 | [`sprint-340.md`](./sprint-340.md) | `18.9.8` | Gedächtnis-Kern: Aspekte, Wissen, Recherche | **CODE** Must |
 | 341 | [`sprint-341.md`](./sprint-341.md) | `18.10.0` | Lage Serie-Netz: Rick-and-Morty-Knoten | **CODE** Must |
-| 342 | [`sprint-342.md`](./sprint-342.md) | `18.11.0` | Quellen unter jeder Nachricht zu, aufklappbar | **PLAN** Must |
-| 343 | [`sprint-343.md`](./sprint-343.md) | `18.11.1` | Gewürz-Pin im Hauptgehirn | **PLAN** Must |
-| 344 | [`sprint-344.md`](./sprint-344.md) | `18.11.2` | Koch-Agent + Bild → Zutaten | **PLAN** Must |
-| 345 | [`sprint-345.md`](./sprint-345.md) | `18.11.3` | Rezept: Zeiten, Liste, Schritte, Gewürz-Wahl | **PLAN** Must |
+| 342 | [`sprint-342.md`](./sprint-342.md) | `18.11.0` | Quellen zu; Badge zählt | **PLAN** Must |
+| 343 | [`sprint-343.md`](./sprint-343.md) | `18.11.1` | Gewürz-Pin + Synonyme | **PLAN** Must |
+| 344 | [`sprint-344.md`](./sprint-344.md) | `18.11.2` | Koch-Agent, Vision, Bestätigung | **PLAN** Must |
+| 345 | [`sprint-345.md`](./sprint-345.md) | `18.11.3` | JSON-LD / Wikibooks, Zeiten, Einkauf-Ja | **PLAN** Must |
 | 346 | [`sprint-346.md`](./sprint-346.md) | `18.11.4` | Koch härten, Copy, Tests | **PLAN** Must |
 
 **Aktuell:** App-Code **`18.10.0`**. Sideload-APK **`18.10.0`**, versionCode `181000`. Schiene **18.10 CODE** 301–306 (historisch PLAN 18.5) in `18.10.0` — nicht als `18.5.0` versionieren. 18.6 / 18.7 / 18.8 / 18.9 sind CODE+APK. **18.11 PLAN** 342–346 ([`84-next.md`](../84-next.md)). 282 Freeze (Schema).

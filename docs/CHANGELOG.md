@@ -7,12 +7,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ### `18.11` — Koch, Gewürzregal, Quellen zu — *PLAN*
 
-Sprints 342–346. Foto der Zutaten → Rezept mit Zubereitungs- und
-Gesamtzeit, Liste und Schritten, nur aus zitierter Quelle. Gewürze
-einmal merken im Hauptgehirn; der Koch nimmt die passenden (auch nur
-Salz/Pfeffer). Quellen unter **jeder** Nachricht zugeklappt, aufklappbar.
-Kein 2. Hirn, kein Lieferdienst, TheMealDB nur mit Nutzer-Key.
-Plan: [`84-next.md`](./84-next.md). Testblatt: [`TEST-18.11.md`](./TEST-18.11.md).
+Sprints 342–346. Nach Deep Research: kein LLM-Gericht (FridgeMate & Co.),
+sondern JSON-LD der zitierten Seite oder de.wikibooks Kochbuch
+(CC-BY-SA). Zeiten nur ISO-Felder / Quellzahl. Vision-Liste erst nach
+Ja. Gewürz-Pin mit Synonymen, nicht FlavorDB. Quellen-Badge zählt, Liste
+zu. TheMealDB nur mit Nutzer-Key, DummyJSON nie. Plan: [`84-next.md`](./84-next.md).
+Testblatt: [`TEST-18.11.md`](./TEST-18.11.md).
 
 ### `18.10.0` — TV-Wahrheit, Hören, Serie-Netz — *CODE + APK* (historisch 18.5)
 

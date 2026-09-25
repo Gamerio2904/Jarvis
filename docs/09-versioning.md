@@ -746,10 +746,10 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.9.7` | E-Mail, Telefonbuch, WhatsApp-Antwort | 338 CODE |
 | `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern | 339–340 CODE + APK |
 | `18.10.0` | TV-Wahrheit, Groq-STT, Edge-first, Observe; Lage Serie-Netz | 301–306 + 341 CODE + APK |
-| `18.11.0` | Quellen unter jeder Nachricht zu, aufklappbar | 342 PLAN |
-| `18.11.1` | Gewürz-Pin im Hauptgehirn | 343 PLAN |
-| `18.11.2` | Koch-Agent + Bild → Zutaten | 344 PLAN |
-| `18.11.3` | Rezept: Zeiten, Liste, Schritte, Gewürz-Wahl | 345 PLAN |
+| `18.11.0` | Quellen zu; Badge zählt | 342 PLAN |
+| `18.11.1` | Gewürz-Pin + Synonyme | 343 PLAN |
+| `18.11.2` | Koch-Agent, Vision, Bestätigung | 344 PLAN |
+| `18.11.3` | JSON-LD / Wikibooks, Zeiten, Einkauf-Ja | 345 PLAN |
 | `18.11.4` | Koch härten, Copy, Tests — Meilenstein 18.11 | 346 PLAN |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
@@ -774,10 +774,11 @@ Recherche pro Quelle).
 Edge-TTS zuerst, Working Memory nach Tool. Nicht als `18.5.0` shippen —
 das wäre ein Downgrade unter `18.9.8`. Sideload **`18.10.0`**.
 
-**`18.11` PLAN** (Sprints 342–346): Koch aus dem Vorrat-Foto, Gewürze
-im Hauptgehirn, Quellen unter jeder Nachricht zugeklappt. Kein
-erfundenes Rezept, kein TheMealDB-Testkey in der APK, kein zweites
-Gedächtnis. Execute erst nach PO-Zug.
+**`18.11` PLAN** (Sprints 342–346): Koch aus dem Vorrat-Foto. Zeiten
+aus JSON-LD oder Wikibooks, nicht aus dem Modell. Gewürze im
+Hauptgehirn mit Synonymen. Vision-Liste erst nach Ja. Quellen-Badge
+zählt, Liste zu. Kein DummyJSON, kein TheMealDB-Testkey, kein FlavorDB,
+kein zweites Gedächtnis. Execute erst nach PO-Zug.
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

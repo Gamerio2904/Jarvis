@@ -89,7 +89,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 81 | [Post, Telefonbuch, WhatsApp](./81-next.md) | **CODE** `18.9.7` / `18.9.8` |
 | 82 | [Gedächtnis-Kern](./82-next.md) | **CODE** `18.9.8` |
 | 83 | [Lage Serie-Netz](./83-next.md) | **CODE** `18.10.0` — Rick-and-Morty-Knoten, Steckbrief mit Staffel/Folge |
-| 84 | [Koch / Speisekammer](./84-next.md) | **PLAN** `18.11` — Zutatenfoto, Gewürz-Pin, Rezept; Quellen zu; Sprints 342–346 |
+| 84 | [Koch / Speisekammer](./84-next.md) | **PLAN** `18.11` — JSON-LD/Wikibooks, Gewürz-Pin, Confirm; Quellen zu; 342–346 |
 | — | [APK](./apk.md) | Sideload `18.10.0`; Test: [`TEST-18.10.md`](./TEST-18.10.md) · geplant [`TEST-18.11.md`](./TEST-18.11.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |

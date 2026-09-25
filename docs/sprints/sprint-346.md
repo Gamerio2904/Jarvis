@@ -16,7 +16,7 @@ Kein stilles Rezept, kein offenes Quellen-`details`. Meilenstein `18.11`.
 | S346-1 | Copy | `test-copy.ts` | Nutella → food; Carbonara suchen → research; Foto-Rezept → cook; merke Gewürze → cook/memory Pin |
 | S346-2 | Gold | corpus / TEST_PROMPTS | Keys = Copy-Gruppen; kein 14. Probe-Pack erfinden wenn 13 bleiben soll |
 | S346-3 | Sweep | `AGENT_SWEEP` | 64. Satz liegt, Prompt-Slice nicht leer |
-| S346-4 | GUI | `gui-cook` o. ä. | Quellen zu; Pin-Recall; Absage ohne Foto |
+| S346-4 | GUI | `gui-cook` o. ä. | Quellen zu; Confirm ohne Ja kein Rezept; Wiki-Carbonara ohne erfundene Minuten |
 | S346-5 | Docs | CHANGELOG `09` TEST-18.11 apk-Zeile | Version `18.11.4`, nicht 18.5 |
 
 ## Won’t
