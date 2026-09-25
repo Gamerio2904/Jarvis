@@ -5,6 +5,12 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.12.1` — Foto-Knopf: Kamera oder Datei — *CODE*
+
+Kamera-Knopf öffnet zuerst die Wahl: **Kamera** (Linse, `capture=environment`)
+oder **Datei** (Galerie, PDF, Text). Sideload bleibt **`18.12.0`**,
+versionCode `181200`. Test: [`TEST-18.12.md`](./TEST-18.12.md).
+
 ### `18.12.0` — Kamera-Fähigkeiten S6+ — *CODE + APK*
 
 Foto-Knopf speichert das Bild. `Staffel 6 Folge 3` (oder SxxEyy) schreibt

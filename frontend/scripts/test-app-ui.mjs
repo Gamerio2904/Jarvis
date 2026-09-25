@@ -159,4 +159,18 @@ assert.equal(displayGroupTitle('🟢 18.7 Fläche der Reihe nach'), '18.7 Fläch
 assert.equal(displayGroupTitle('Randfälle (kommen so kaum vor)'), 'Randfälle')
 assert.ok(searchProbeGroups('Öffne Watchliste').some((g) => g.items.some((i) => i.text === 'Öffne Watchliste')))
 
+{
+  const { readFileSync } = await import('node:fs')
+  const { dirname, join } = await import('node:path')
+  const { fileURLToPath } = await import('node:url')
+  const app = readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../src/App.tsx'), 'utf8')
+  assert.match(app, /capture="environment"/)
+  assert.match(app, /Foto oder Datei/)
+  assert.match(app, /className="eye-pick"/)
+  assert.match(app, /\n\s+Kamera\n/)
+  assert.match(app, /\n\s+Datei\n/)
+  assert.match(app, /onDocFile\(file, 'camera'\)/)
+  assert.match(app, /onDocFile\(file, 'file'\)/)
+}
+
 console.log('OK test-app-ui')

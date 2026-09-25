@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.12.0`**. Sideload **`18.12.0`**, versionCode `181200`. Kamera-Fähigkeiten S6+ [`83-next.md`](./83-next.md) §3. Test [`TEST-18.12.md`](./TEST-18.12.md).
+> **Jetzt:** App-Code **`18.12.1`**. Sideload **`18.12.0`**, versionCode `181200`. Foto-Knopf wählt Kamera oder Datei. Test [`TEST-18.12.md`](./TEST-18.12.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -747,6 +747,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern | 339–340 CODE + APK |
 | `18.10.0` | TV-Wahrheit, Groq-STT, Edge-first, Observe; Lage Serie-Netz | 301–306 + 341 CODE + APK |
 | `18.12.0` | Kamera-Fähigkeiten S6+ (Foto + Staffel/Folge, kein Wiki) | 347 CODE + APK |
+| `18.12.1` | Foto-Knopf: Kamera oder Datei | 347 Nachzieher CODE |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.

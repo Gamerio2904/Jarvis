@@ -2147,6 +2147,59 @@ button.linkish {
   background: linear-gradient(180deg, transparent, rgba(5, 7, 6, 0.72) 36%);
 }
 
+.eye-pick-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(5, 7, 6, 0.35);
+  appearance: none;
+  cursor: pointer;
+}
+
+.eye-pick {
+  position: relative;
+  z-index: 13;
+  width: min(820px, 100%);
+  margin: 0 auto 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.eye-pick-btn {
+  flex: 1 1 0;
+  appearance: none;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(18, 22, 20, 0.96), rgba(10, 12, 11, 0.98));
+  color: var(--text);
+  border-radius: 18px;
+  padding: 12px 14px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.eye-pick-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.eye-pick-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.composer .icon-btn.is-on {
+  border-color: rgba(30, 215, 96, 0.7);
+  color: var(--accent);
+  background: rgba(30, 215, 96, 0.1);
+}
+
 .main.is-drive .composer-wrap {
   visibility: hidden;
   pointer-events: none;
