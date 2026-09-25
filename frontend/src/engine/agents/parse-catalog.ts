@@ -46,6 +46,7 @@ import { parseWarnIntent } from '../warn.ts'
 import { parseFerienIntent } from '../ferien.ts'
 import { parseFxIntent } from '../fx.ts'
 import { parseFoodIntent } from '../food.ts'
+import { parseCookIntent } from '../cook-parse.ts'
 import { parseLibraryIntent } from '../library.ts'
 import { parseSportIntent } from '../sport.ts'
 import { parseSkyIntent } from '../sky.ts'
@@ -238,6 +239,7 @@ function buildParseCatalog(): AgentSpec[] {
     { id: 'ferien', sideEffect: 'read', parse: (ctx) => (parseFerienIntent(ctx.text, ctx.lastPlace) ? score(ctx.text, 0.08) : null) },
     { id: 'fx', sideEffect: 'read', parse: (ctx) => (parseFxIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
     { id: 'food', sideEffect: 'read', parse: (ctx) => (parseFoodIntent(ctx.text) ? score(ctx.text, 0.06) : null) },
+    { id: 'cook', sideEffect: 'read', parse: (ctx) => (parseCookIntent(ctx.text) ? score(ctx.text, 0.2) : null) },
     { id: 'library', sideEffect: 'read', parse: (ctx) => (parseLibraryIntent(ctx.text) ? score(ctx.text, 0.06) : null) },
     { id: 'sport', sideEffect: 'read', factual: true, parse: (ctx) => (parseSportIntent(ctx.text) ? score(ctx.text, 0.08) : null) },
     { id: 'sky', sideEffect: 'read', parse: (ctx) => (parseSkyIntent(ctx.text) ? score(ctx.text, 0.08) : null) },

@@ -335,4 +335,8 @@ export const TEST_PROMPTS = [
   'Antworte Mama auf WhatsApp ich bin unterwegs',
   'Zeig meine Kontakte',
   'Mama, Mail name@gmx.de',
+  'Was kann ich aus dem Foto kochen',
+  'Merke dir meine Gewürze',
+  'Welche Gewürze habe ich?',
+  'Suche im Internet nach Carbonara-Rezept',
 ] as const

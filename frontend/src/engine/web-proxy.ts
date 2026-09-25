@@ -4,6 +4,8 @@ export const WEB_PROXY_HOSTS = new Set([
   'api.duckduckgo.com',
   'de.wikipedia.org',
   'en.wikipedia.org',
+  'de.wikibooks.org',
+  'www.themealdb.com',
   'api.frankfurter.app',
   'api.frankfurter.dev',
   'www.dwd.de',

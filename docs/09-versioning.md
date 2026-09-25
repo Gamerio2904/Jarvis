@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.10.0`**. Sideload **`18.10.0`**, versionCode `181000`. Schiene 301–306 (Planname **`18.5`**) landet als **`18.10.0`**, nicht als `18.5.0` (Downgrade). Serie-Netz [`83-next.md`](./83-next.md). Test [`TEST-18.10.md`](./TEST-18.10.md).
+> **Jetzt:** App-Code **`18.11.4`**. Sideload **`18.10.0`**, versionCode `181000`. Koch-Schiene 342–346 [`84-next.md`](./84-next.md) **CODE**. Test [`TEST-18.11.md`](./TEST-18.11.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -746,6 +746,11 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.9.7` | E-Mail, Telefonbuch, WhatsApp-Antwort | 338 CODE |
 | `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern | 339–340 CODE + APK |
 | `18.10.0` | TV-Wahrheit, Groq-STT, Edge-first, Observe; Lage Serie-Netz | 301–306 + 341 CODE + APK |
+| `18.11.0` | Quellen zu; Badge zählt | 342 CODE |
+| `18.11.1` | Gewürz-Pin + Synonyme | 343 CODE |
+| `18.11.2` | Koch-Agent, Vision, Bestätigung | 344 CODE |
+| `18.11.3` | JSON-LD / Wikibooks, Zeiten, Einkauf-Ja | 345 CODE |
+| `18.11.4` | Koch härten, Copy, Tests — Meilenstein 18.11 | 346 CODE |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -767,8 +772,13 @@ Recherche pro Quelle).
 **`18.10.0`** (App-Code, versionCode `181000`): Schiene 301–306
 (historisch PLAN `18.5`). TV beobachtet nach WoL, Groq-Whisper zweite Bahn,
 Edge-TTS zuerst, Working Memory nach Tool. Nicht als `18.5.0` shippen —
-das wäre ein Downgrade unter `18.9.8`. Sideload bleibt `18.9.8`, bis die
-APK `18.10.0` gebaut ist.
+das wäre ein Downgrade unter `18.9.8`. Sideload **`18.10.0`**.
+
+**`18.11.4` CODE** (Sprints 342–346): Koch aus dem Vorrat-Foto. Zeiten
+aus JSON-LD oder Wikibooks, nicht aus dem Modell. Gewürze im
+Hauptgehirn mit Synonymen. Vision-Liste erst nach Ja. Quellen-Badge
+zählt, Liste zu. Kein DummyJSON, kein TheMealDB-Testkey, kein FlavorDB,
+kein zweites Gedächtnis. Sideload bleibt `18.10.0` bis zur 18.11-APK.
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

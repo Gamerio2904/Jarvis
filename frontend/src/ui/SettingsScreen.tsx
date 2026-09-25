@@ -694,6 +694,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     OMDb <KeyMark on={Boolean(s?.omdb_api_key?.trim())} />
                   </li>
                   <li>
+                    TheMealDB <KeyMark on={Boolean(s?.themealdb_api_key?.trim() && s.themealdb_api_key.trim() !== '1')} />
+                  </li>
+                  <li>
                     FRED <KeyMark on={Boolean(s?.outlook_fred_key?.trim())} />
                   </li>
                   <li>
@@ -794,6 +797,27 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     disabled={busy}
                     placeholder="Key von omdbapi.com"
                     onBlur={(e) => void p.patchSetting({ omdb_api_key: e.target.value.trim() })}
+                  />
+                </label>
+              </section>
+              <section className="settings-card">
+                <h3>
+                  TheMealDB (Koch) <KeyMark on={Boolean(s?.themealdb_api_key?.trim() && s.themealdb_api_key.trim() !== '1')} />
+                </h3>
+                <p className="settings-hint">
+                  Optional Schritt 3 nach Wikibooks und JSON-LD. Nur ein eigener Supporter-Key. Die 1 aus der Doku zählt nicht.
+                </p>
+                <label className="settings-field">
+                  <span>API-Key</span>
+                  <SecretField
+                    key={`themealdb-key-${s?.themealdb_api_key ? 'set' : 'empty'}`}
+                    defaultValue={s?.themealdb_api_key || ''}
+                    disabled={busy}
+                    placeholder="Key von themealdb.com — nicht 1"
+                    onBlur={(e) => {
+                      const key = e.target.value.trim()
+                      void p.patchSetting({ themealdb_api_key: key === '1' ? '' : key })
+                    }}
                   />
                 </label>
               </section>

@@ -284,6 +284,12 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
       "Zutaten von Nutella"
     ]
   },
+  "cook": {
+    "promptSlice": "Domäne cook: nur sichtbare Zutaten, Rezept nur aus Quelle.",
+    "goldPrompts": [
+      "Was kann ich aus dem Foto kochen"
+    ]
+  },
   "library": {
     "promptSlice": "Domäne library: Parser-Fakten only.",
     "goldPrompts": [

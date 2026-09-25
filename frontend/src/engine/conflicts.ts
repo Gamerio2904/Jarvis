@@ -3,6 +3,8 @@ import { SCORE_CEIL } from './policy.ts'
 import { gazetteerHit } from './globe-geo.ts'
 import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
+import { parseCookIntent, parseSpiceIntent } from './cook-parse.ts'
+import { parseFoodIntent } from './food.ts'
 
 function drop(cands: Candidate[], id: string): Candidate[] {
   return cands.filter((c) => c.id !== id)
@@ -432,6 +434,15 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = drop(out, 'eye')
     out = drop(out, 'maps')
     out = boost(out, 'wont', 0.35)
+  }
+
+  if (parseCookIntent(text) || parseSpiceIntent(text)) {
+    out = drop(out, 'haushalt')
+    out = drop(out, 'outlook')
+    if (!parseFoodIntent(text)) out = drop(out, 'food')
+    if (parseSpiceIntent(text)) out = drop(out, 'memory')
+    if (!/^\s*lies\s+das\s+foto\b/i.test(t)) out = drop(out, 'eye')
+    out = boost(out, 'cook', 0.28)
   }
 
   return out

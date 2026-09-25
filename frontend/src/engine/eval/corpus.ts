@@ -344,6 +344,10 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Antworte Mama auf WhatsApp ich bin unterwegs': 'maps',
   'Zeig meine Kontakte': 'maps',
   'Mama, Mail name@gmx.de': 'maps',
+  'Was kann ich aus dem Foto kochen': 'cook',
+  'Merke dir meine Gewürze': 'cook',
+  'Welche Gewürze habe ich?': 'cook',
+  'Suche im Internet nach Carbonara-Rezept': 'research',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

@@ -1,3 +1,4 @@
+import { parseSpiceIntent } from './cook-parse.ts'
 import { memoryAspect } from './memory-layer.ts'
 
 export type MemoryFact = { key: string; value: string; category: string }
@@ -85,6 +86,9 @@ export function parseMemoryFacts(text: string): MemoryFact[] {
   const rest = MERK.exec(text)
   if (rest && !out.length) {
     const value = rest[1].trim()
+    if (/\bgewürze(?:n)?\b/i.test(value) || /^\s*meine\s+gewürze/i.test(value)) {
+      return out
+    }
     if (value.length >= 2) push('notiz', value, 'fact')
   }
   return out
@@ -100,6 +104,7 @@ export function isPrefValue(raw: string): boolean {
 }
 
 export function isMemoryWrite(text: string): boolean {
+  if (parseSpiceIntent(text)) return false
   if (isMemoryRecall(text)) return false
   if (/^\s*was\b/i.test(text) && /[?]/.test(text)) return false
   if (/\bbasierend\s+auf\s+(?:dem\s+)?was\s+du\b/i.test(text)) return false
@@ -131,12 +136,13 @@ export function formatPinnedMemory(
   items: Array<{ key: string; value: string; category?: string; kind?: string }>,
 ): string {
   if (!items.length) return 'Noch nichts gespeichert über Sie.'
-  const order = ['name', 'zuhause', 'getränk', 'essen']
+  const order = ['name', 'zuhause', 'getränk', 'essen', 'gewuerze']
   const say: Record<string, (v: string) => string> = {
     name: (v) => `Sie heißen ${v}.`,
     zuhause: (v) => `Zuhause ist ${v}.`,
     getränk: (v) => `Sie trinken ${v}.`,
     essen: (v) => `Sie essen ${v}.`,
+    gewuerze: (v) => `Gewürze: ${v}.`,
   }
   const used = new Set<string>()
   const bits: string[] = []

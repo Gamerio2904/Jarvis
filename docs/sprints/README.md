@@ -336,12 +336,17 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 339 | [`sprint-339.md`](./sprint-339.md) | `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test | **CODE** Must |
 | 340 | [`sprint-340.md`](./sprint-340.md) | `18.9.8` | Gedächtnis-Kern: Aspekte, Wissen, Recherche | **CODE** Must |
 | 341 | [`sprint-341.md`](./sprint-341.md) | `18.10.0` | Lage Serie-Netz: Rick-and-Morty-Knoten | **CODE** Must |
+| 342 | [`sprint-342.md`](./sprint-342.md) | `18.11.0` | Quellen zu; Badge zählt | **CODE** Must |
+| 343 | [`sprint-343.md`](./sprint-343.md) | `18.11.1` | Gewürz-Pin + Synonyme | **CODE** Must |
+| 344 | [`sprint-344.md`](./sprint-344.md) | `18.11.2` | Koch-Agent, Vision, Bestätigung | **CODE** Must |
+| 345 | [`sprint-345.md`](./sprint-345.md) | `18.11.3` | JSON-LD / Wikibooks, Zeiten, Einkauf-Ja | **CODE** Must |
+| 346 | [`sprint-346.md`](./sprint-346.md) | `18.11.4` | Koch härten, Copy, Tests | **CODE** Must |
 
-**Aktuell:** App-Code **`18.10.0`**. Sideload-APK **`18.9.8`**, versionCode `180908`. Schiene **18.10 CODE** 301–306 (historisch PLAN 18.5) in `18.10.0` — nicht als `18.5.0` versionieren. 18.6 / 18.7 / 18.8 / 18.9 sind CODE+APK. 282 Freeze (Schema).
+**Aktuell:** App-Code **`18.11.4`**. Sideload-APK **`18.10.0`**, versionCode `181000`. Schiene **18.11 CODE** 342–346 ([`84-next.md`](../84-next.md)). 18.10 CODE 301–306 in `18.10.0`. 282 Freeze (Schema).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
-**Schiene `17.0.0` liegt.** 249–259 → [`../68-next.md`](../68-next.md). Schiene `18.0.0` → [`../70-next.md`](../70-next.md). Audit-Reste → [`../71-audit.md`](../71-audit.md). **283–300 CODE + APK** in `18.4.3` (Ideen, Karten-Reste, Watchliste, Körper/Wissen). Schiene **18.6 CODE** → [`../77-next.md`](../77-next.md). Schiene **18.7 CODE** → [`../78-next.md`](../78-next.md). Schiene **18.8 CODE + APK** → [`../79-next.md`](../79-next.md). Schiene **18.5 PLAN** → [`../76-next.md`](../76-next.md). Schiene **18.9 CODE + APK** → [`../80-next.md`](../80-next.md). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
+**Schiene `17.0.0` liegt.** 249–259 → [`../68-next.md`](../68-next.md). Schiene `18.0.0` → [`../70-next.md`](../70-next.md). Audit-Reste → [`../71-audit.md`](../71-audit.md). **283–300 CODE + APK** in `18.4.3` (Ideen, Karten-Reste, Watchliste, Körper/Wissen). Schiene **18.6 CODE** → [`../77-next.md`](../77-next.md). Schiene **18.7 CODE** → [`../78-next.md`](../78-next.md). Schiene **18.8 CODE + APK** → [`../79-next.md`](../79-next.md). Schiene **18.5 PLAN** → [`../76-next.md`](../76-next.md). Schiene **18.9 CODE + APK** → [`../80-next.md`](../80-next.md). Schiene **18.11 CODE** → [`../84-next.md`](../84-next.md). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
 
 **Gegen die PO-Prioritäten geprüft** (Qualität, funktioniert, Latenz, kostenlos — nur ändern, wenn Nutzen ohne Verlust): 255 aufgelöst, 256 und 259 verkleinert, 257 und 258 mit Latenz-Schranke. Die Rechnung je Sprint steht in [`../68-next.md`](../68-next.md) §3b.
 

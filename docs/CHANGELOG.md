@@ -5,6 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.11.4` — Koch, Gewürzregal, Quellen zu — *CODE*
+
+Sprints 342–346. 64. Agent `cook`. Quellen-Badge „N Quellen“, Liste zu.
+Gewürz-Pin `gewuerze` im Hauptgehirn, Synonyme (Pfeffer = black pepper).
+Vision nennt nur Sicheres, Rezept erst nach Ja. Zeiten und Schritte aus
+JSON-LD der zitierten URL oder de.wikibooks Kochbuch (CC-BY-SA) — sonst
+„Quelle nennt keine Zeit.“ TheMealDB nur mit Nutzer-Key, nie `1`.
+Kein LLM-Gericht. Test: [`TEST-18.11.md`](./TEST-18.11.md).
+Sideload bleibt **`18.10.0`**.
+
 ### `18.10.0` — TV-Wahrheit, Hören, Serie-Netz — *CODE + APK* (historisch 18.5)
 
 Schiene 301–306. „Fernseher an“ endet mit Poll auf `:8001/api/v2/`, nicht mit

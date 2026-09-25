@@ -163,6 +163,7 @@ export const TOOL_LABEL: Record<string, string> = {
   ferien: 'Ferien',
   fx: 'Kurs',
   food: 'Lebensmittel',
+  cook: 'Koch',
   library: 'Buch',
   sport: 'Sport',
   sky: 'Himmel',

@@ -16,6 +16,7 @@ import { confirmedUtterance, contractOf, looksCommandish } from './tool-contract
 import { proposeReady, proposeTool } from './tool-propose.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
+import { handleCook } from './cook.ts'
 import { lastFailedTool, noteFail } from './working-memory.ts'
 import { needsRecover, runRecover, writeHasNoRecover } from './recover.ts'
 import { unknownReplyForCtx } from './command-neighbors.ts'
@@ -218,6 +219,15 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
     const answered = await handleCalendar(conversationId, text)
     if (answered.handled && answered.reply) {
       const hit = await fromHandler('calendar', answered)
+      if (hit) {
+        setLastUserFacts(hit.reply)
+        return { hit, userFacts: hit.reply }
+      }
+    }
+  } else if (pending?.tool === 'cook') {
+    const answered = await handleCook(conversationId, text)
+    if (answered.handled && answered.reply) {
+      const hit = await fromHandler('cook', answered)
       if (hit) {
         setLastUserFacts(hit.reply)
         return { hit, userFacts: hit.reply }

@@ -38,6 +38,7 @@ import { handleWarn } from '../warn.ts'
 import { handleFerien } from '../ferien.ts'
 import { handleFx } from '../fx.ts'
 import { handleFood } from '../food.ts'
+import { handleCook } from '../cook.ts'
 import { handleLibrary } from '../library.ts'
 import { handleSport } from '../sport.ts'
 import { handleSky } from '../sky.ts'
@@ -178,6 +179,7 @@ export const AGENT_EXECUTORS: Record<string, AgentExecutor> = {
   ferien: async (ctx) => fromHandler('ferien', await handleFerien(ctx.text)),
   fx: async (ctx) => fromHandler('fx', await handleFx(ctx.text)),
   food: async (ctx) => fromHandler('food', await handleFood(ctx.text)),
+  cook: async (ctx) => fromHandler('cook', await handleCook(ctx.conversationId, ctx.text)),
   library: async (ctx) => fromHandler('library', await handleLibrary(ctx.text)),
   sport: async (ctx) => fromHandler('sport', await handleSport(ctx.text)),
   sky: async (ctx) => fromHandler('sky', await handleSky(ctx.text)),
