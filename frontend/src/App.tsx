@@ -170,7 +170,9 @@ function SourcesBlock({
     <details className="sources-block">
       <summary>
         <span className="sources-badge">{badge}</span>
-        {status && sources.length ? <span className="sources-count">{status}</span> : null}
+        {status && sources.length && status !== 'Quelle' && status !== 'Quellen' ? (
+          <span className="sources-count">{status}</span>
+        ) : null}
       </summary>
       {sources.length ? (
         <ul className="sources-list">
