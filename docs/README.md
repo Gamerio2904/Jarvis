@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Kamera-Fähigkeiten S6+ sind **CODE + APK** in 18.12.0. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.12.md`](./TEST-18.12.md).
+**Jetzt:** Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Kamera-Fähigkeiten S6+ sind **CODE + APK** in 18.12.0. Lage-Icons **PLAN** `18.14.0` [`86-next.md`](./86-next.md). **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.12.md`](./TEST-18.12.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -89,6 +89,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 81 | [Post, Telefonbuch, WhatsApp](./81-next.md) | **CODE** `18.9.7` / `18.9.8` |
 | 82 | [Gedächtnis-Kern](./82-next.md) | **CODE** `18.9.8` |
 | 83 | [Lage Serie-Netz](./83-next.md) | **CODE + APK** `18.12.0` — Knoten S01–S05, Kamera-Fähigkeiten ab Staffel 6 |
+| 86 | [Lage-Kugel Icons](./86-next.md) | **PLAN** `18.14.0` — Stecknadel, Flugzeug, Satellit; Sprints 356–360 |
 | — | [APK](./apk.md) | Sideload `18.12.0`; Test: [`TEST-18.12.md`](./TEST-18.12.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
@@ -316,5 +317,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 331–340 | `18.9.0`–`18.9.8` | **CODE + APK** (Recover, Mail, Gedächtnis-Kern) |
 | 341 | `18.10.0` | **CODE** (Lage Serie-Netz, [`83-next.md`](./83-next.md)) |
 | 347 | `18.12.0` | **CODE + APK** (Kamera-Fähigkeiten S6+, [`83-next.md`](./83-next.md) §3) |
+| 356–360 | `18.14.0` | **PLAN** (Lage-Kugel Icons, [`86-next.md`](./86-next.md)) |
 
-**Aktuell:** App-Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Sprint 347 **CODE + APK** in `18.12.0`. Test: [`TEST-18.12.md`](./TEST-18.12.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Lage-Icons **PLAN** `18.14.0`. Test live: [`TEST-18.12.md`](./TEST-18.12.md). Index: [`42-planned.md`](./42-planned.md).

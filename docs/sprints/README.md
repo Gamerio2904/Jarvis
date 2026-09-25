@@ -337,8 +337,13 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 340 | [`sprint-340.md`](./sprint-340.md) | `18.9.8` | Gedächtnis-Kern: Aspekte, Wissen, Recherche | **CODE** Must |
 | 341 | [`sprint-341.md`](./sprint-341.md) | `18.10.0` | Lage Serie-Netz: Rick-and-Morty-Knoten | **CODE** Must |
 | 347 | [`sprint-347.md`](./sprint-347.md) | `18.12.0` | Kamera-Fähigkeiten S6+ ins Serie-Dossier | **CODE + APK** Must |
+| 356 | [`sprint-356.md`](./sprint-356.md) | `18.14.0` | OpenSky ehrlich: BBox, Heading, 429 | **PLAN** Must |
+| 357 | [`sprint-357.md`](./sprint-357.md) | `18.14.0` | Stecknadel Standort | **PLAN** Must |
+| 358 | [`sprint-358.md`](./sprint-358.md) | `18.14.0` | Flugzeug-Silhouette + Kurs | **PLAN** Must |
+| 359 | [`sprint-359.md`](./sprint-359.md) | `18.14.0` | Sat/ISS-Silhouette | **PLAN** Must |
+| 360 | [`sprint-360.md`](./sprint-360.md) | `18.14.0` | Poll ≥ 10 s, Tests, OAuth optional | **PLAN** Must |
 
-**Aktuell:** App-Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Sprint **347 CODE + APK** in `18.12.0`. 282 Freeze (Schema).
+**Aktuell:** App-Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. 356–360 **PLAN** `18.14.0`. 282 Freeze (Schema).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

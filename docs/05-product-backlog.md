@@ -57,6 +57,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E62 | Debug-Rollback / Termin-Fristen `18.8` | 5+ | Lauf räumt Writes, Termin fragt nach 1–n Erinnerungen, Debug-Download am Dock, Prompt-Pakete neu — [`79-next.md`](./79-next.md) **CODE** `18.8.0` |
 | E63 | Lage Serie-Netz `18.10` | 5+ | Rick-and-Morty-Knoten, Steckbrief mit Staffel/Folge — [`83-next.md`](./83-next.md) **CODE** `18.10.0` |
 | E64 | Kamera-Fähigkeiten S6+ `18.12` | 5+ | Foto + Staffel/Folge, nur Sichtbares im Dossier — [`83-next.md`](./83-next.md) §3 **CODE + APK** `18.12.0` |
+| E67 | Lage-Kugel Icons `18.14` | 5+ | Stecknadel, Flugzeug, Satellit, ehrliches OpenSky — [`86-next.md`](./86-next.md) **PLAN** |
 
 ---
 
@@ -645,6 +646,16 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S63.3 | Als Nutzer will ich nach einem Write nur echte Bestätigung, nie „Ist erledigt“ ohne Store-Zeile. | Must | done | Sprint 333–334; Verify ok/empty/error |
 | S63.4 | Als Nutzer will ich, dass ein fehlgeschlagener Lesezug nicht doppelt Termine oder Tasten ausführt. | Must | done | Write/Device 1 Lauf; Recover nur Read + Hirn-Slot |
 | S63.5 | Als Nutzer will ich Recover-Sätze im Auto-Debug, ohne ein 14. Probe-Pack. | Must | done | Sprint 337; bestehende 13 Spuren; Mock-Pfad in `test-recover.mjs` |
+
+### E67 — Lage-Kugel Icons `18.14` [`86-next.md`](./86-next.md) **PLAN**
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S67.1 | Als Nutzer will ich Flugzeuge als Silhouette mit Kurs sehen, nicht als Punkt. | Must | planned | Sprint 356+358; OpenSky BBox ±2°; nie „Live“ |
+| S67.2 | Als Nutzer will ich meinen Ort als Stecknadel, auch wenn der Fix älter ist („letzter Stand“). | Must | planned | Sprint 357; kein Fake-GPS |
+| S67.3 | Als Nutzer will ich Satelliten/ISS als Körper mit Paneelen. | Must | planned | Sprint 359; kein Starlink-Teppich |
+| S67.4 | Als Nutzer will ich hören, wenn OpenSky tot oder am Limit ist, statt einer stillen leeren Kugel. | Must | planned | Sprint 356; 429-Text |
+| S67.5 | Als Nutzer will ich, dass die Schicht nachzieht, solange sie an und die Lage offen ist. | Must | planned | Sprint 360; Poll ≥ 10 s; Lage-Start ohne Satz holt nichts |
 
 ---
 

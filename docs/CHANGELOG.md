@@ -5,6 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.14.0` — Lage-Kugel: Flugzeuge, Stecknadel, Satelliten — *PLAN*
+
+Diagnose: Flüge sind 4-px-Punkte, BBox ±0,35° oft leer, 429 wirkt
+wie Himmel ohne Maschinen, Standort verschwindet nach 10 min.
+Plan: OpenSky-Ausschnitt ±2°, Heading, Silhouette, Stecknadel
+(auch „letzter Stand“), Sat-Körper, Poll ≥ 10 s, nie „Live“.
+Kein weltweites ADS-B, kein Starlink, kein Cesium, kein neuer Agent.
+Sideload bleibt **`18.12.0`**. Plan: [`86-next.md`](./86-next.md).
+Test (nach Execute): [`TEST-18.14.md`](./TEST-18.14.md).
+
 ### `18.12.0` — Kamera-Fähigkeiten S6+ — *CODE + APK*
 
 Foto-Knopf speichert das Bild. `Staffel 6 Folge 3` (oder SxxEyy) schreibt

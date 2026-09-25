@@ -154,6 +154,21 @@ Sideload **`18.12.0`**, versionCode `181200`. Kamera-S6+ in `18.12.0`.
 
 Begründung: [`80-next.md`](./80-next.md).
 
+## PLAN — Schiene `18.14` (Sprints 356–360)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `18.14.0` | [356](./sprints/sprint-356.md) | OpenSky ehrlich: BBox ±2°, Heading, 429 |
+| `18.14.0` | [357](./sprints/sprint-357.md) | Stecknadel Standort, auch letzter Stand |
+| `18.14.0` | [358](./sprints/sprint-358.md) | Flugzeug-Silhouette + Kurs |
+| `18.14.0` | [359](./sprints/sprint-359.md) | Sat/ISS-Silhouette, kein Starlink |
+| `18.14.0` | [360](./sprints/sprint-360.md) | Poll ≥ 10 s, Tests, OAuth optional |
+
+Harte Kette: 356 → 357/358/359 → 360. Kein neuer Agent, kein „Live“,
+kein weltweites ADS-B. Sideload bleibt `18.12.0` bis Execute.
+
+Begründung: [`86-next.md`](./86-next.md).
+
 ## CODE — Schiene `18.6` (Sprints 307–314)
 
 | Version | Sprint | Thema |
@@ -345,4 +360,4 @@ Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein
 ### `13.40` Sprachmodus (CODE `13.44.0`)
 „Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**.
 
-Nächste Produktschiene: **`18.5`** [`76-next.md`](./76-next.md) 301–306 PLAN. **`18.9`** [`80-next.md`](./80-next.md) 331–337 **CODE + APK** in `18.9.0` — **nicht parallel**. **`18.7`** [`78-next.md`](./78-next.md) 315–322 **CODE** in `18.7.0`. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.
+Nächste Produktschiene: **`18.14`** Lage-Icons [`86-next.md`](./86-next.md) 356–360 PLAN. **`18.5`** [`76-next.md`](./76-next.md) 301–306 PLAN. **`18.9`** [`80-next.md`](./80-next.md) 331–337 **CODE + APK** in `18.9.0` — **nicht parallel**. **`18.7`** [`78-next.md`](./78-next.md) 315–322 **CODE** in `18.7.0`. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.

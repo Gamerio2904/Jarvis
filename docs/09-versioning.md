@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.12.0`**. Sideload **`18.12.0`**, versionCode `181200`. Kamera-Fähigkeiten S6+ [`83-next.md`](./83-next.md) §3. Test [`TEST-18.12.md`](./TEST-18.12.md).
+> **Jetzt:** App-Code **`18.12.0`**. Sideload **`18.12.0`**, versionCode `181200`. Kamera-Fähigkeiten S6+ [`83-next.md`](./83-next.md) §3. Lage-Icons **PLAN** [`86-next.md`](./86-next.md). Test live [`TEST-18.12.md`](./TEST-18.12.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -747,6 +747,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern | 339–340 CODE + APK |
 | `18.10.0` | TV-Wahrheit, Groq-STT, Edge-first, Observe; Lage Serie-Netz | 301–306 + 341 CODE + APK |
 | `18.12.0` | Kamera-Fähigkeiten S6+ (Foto + Staffel/Folge, kein Wiki) | 347 CODE + APK |
+| `18.14.0` | Lage-Kugel: Stecknadel, Flugzeug, Satellit (kein Live) | 356–360 PLAN |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -774,6 +775,10 @@ APK `18.10.0` gebaut ist.
 **`18.12.0`** (App-Code + Sideload, versionCode `181200`): Kamera-Szene ab
 Staffel 6. Foto, dann Staffel und Folge. Nur Sichtbares, Bestätigung,
 Dossier `· Kamera`.
+
+**`18.14.0`** (PLAN): Lage-Kugel-Icons. Stecknadel, Flugzeug mit Kurs,
+Sat-Körper, OpenSky ±2°, Poll ≥ 10 s, nie „Live“. Sideload bleibt
+`18.12.0` bis Execute. [`86-next.md`](./86-next.md).
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
