@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.12.0`**. Sideload **`18.12.0`**, versionCode `181200`. Kamera-Fähigkeiten S6+ [`83-next.md`](./83-next.md) §3. Test [`TEST-18.12.md`](./TEST-18.12.md).
+> **Jetzt:** App-Code **`18.12.0`**. Sideload **`18.12.0`**, versionCode `181200`. Clip-Rail [`84-next.md`](./84-next.md) ist **PLAN** `18.13.0`. Test live [`TEST-18.12.md`](./TEST-18.12.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -747,6 +747,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.9.8` | Mail im Scan, Kontaktliste, IMAP-Test, Gedächtnis-Kern | 339–340 CODE + APK |
 | `18.10.0` | TV-Wahrheit, Groq-STT, Edge-first, Observe; Lage Serie-Netz | 301–306 + 341 CODE + APK |
 | `18.12.0` | Kamera-Fähigkeiten S6+ (Foto + Staffel/Folge, kein Wiki) | 347 CODE + APK |
+| `18.13.0` | Mister-Beats-Clips: Vault, ein Agent, IG offiziell, 10/5-Notify | 348–352 PLAN |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -774,6 +775,11 @@ APK `18.10.0` gebaut ist.
 **`18.12.0`** (App-Code + Sideload, versionCode `181200`): Kamera-Szene ab
 Staffel 6. Foto, dann Staffel und Folge. Nur Sichtbares, Bestätigung,
 Dossier `· Kamera`.
+
+**`18.13.0` PLAN** (kein Sideload): Mister-Beats-Clips, ein Agent `clip`,
+offizielle Instagram-Reels, optional TikTok, Datei nach Publish weg,
+Notify bei 10 und 5 Verbleibenden. Execute erst nach Meta/TikTok-Review.
+
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
