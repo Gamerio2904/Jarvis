@@ -48,6 +48,7 @@ export function SerieDossier({
               <strong>{s.name}</strong>
               <span>
                 {staffelFolge(s.evidence.code)} · {s.evidence.code} {s.evidence.title}
+                {s.origin === 'camera' ? ' · Kamera' : ''}
               </span>
               <em>{s.evidence.note}</em>
             </li>
@@ -84,8 +85,8 @@ export function SerieDossier({
         </p>
       ) : null}
       <p className="pin-bubble-swipe">
-        Belegt über die Rick-and-Morty-API ({card.coverage}). TV-Kanon, nicht Comics. Staffel 6+ fehlt in der
-        offenen API.
+        Belegt über die Rick-and-Morty-API ({card.coverage}). TV-Kanon, nicht Comics. Staffel 6+ nur vom
+        Kamera-Foto plus Staffel und Folge, die Sie sagen.
       </p>
       <div className="pin-bubble-actions">
         <button type="button" className="lage-btn" onClick={onClose}>

@@ -56,6 +56,7 @@ import { parseHaushaltIntent } from '../haushalt.ts'
 import { parseSensorsIntent } from '../sensors.ts'
 import { parseChessIntent } from '../chess.ts'
 import { parseHudIntent } from '../hud-parse.ts'
+import { parseRmSceneIntent } from '../rm-scene-parse.ts'
 import { parseTraceIntent } from '../trace-parse.ts'
 import { parseDigestIntent } from '../digest-parse.ts'
 import { parseOutlookIntent } from '../outlook-parse.ts'
@@ -251,7 +252,12 @@ function buildParseCatalog(): AgentSpec[] {
       sideEffect: 'read',
       parse: (ctx) => (parseChessIntent(ctx.text, ctx.lastTool === 'chess') ? score(ctx.text, 0.08) : null),
     },
-    { id: 'hud', sideEffect: 'write', parse: (ctx) => (parseHudIntent(ctx.text) ? score(ctx.text, 0.28) : null) },
+    {
+      id: 'hud',
+      sideEffect: 'write',
+      parse: (ctx) =>
+        parseHudIntent(ctx.text) || parseRmSceneIntent(ctx.text) ? score(ctx.text, 0.28) : null,
+    },
     { id: 'trace', sideEffect: 'read', parse: (ctx) => (parseTraceIntent(ctx.text) ? score(ctx.text, 0.14) : null) },
     { id: 'digest', sideEffect: 'write', parse: (ctx) => (parseDigestIntent(ctx.text) ? score(ctx.text, 0.1) : null) },
     { id: 'outlook', sideEffect: 'read', parse: (ctx) => (parseOutlookIntent(ctx.text, ctx.lastTool) ? score(ctx.text, 0.1) : null) },

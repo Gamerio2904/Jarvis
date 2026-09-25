@@ -1,4 +1,4 @@
-# 83 — Lage Serie-Netz (Rick and Morty) **CODE + APK** (`18.10.0`)
+# 83 — Lage Serie-Netz (Rick and Morty) **CODE** (`18.12.0`)
 
 PO: Jeder Charakter der Serie als Knoten in der Lage. Klick öffnet
 Steckbrief (Eigenschaften, Fähigkeiten) mit Staffel/Folge. Kanten sind
@@ -33,3 +33,21 @@ Lage-Tab Serie     plus Satz „Rick and Morty“ / „Charakter-Netz“
 
 Must: Tab, alle API-Knoten, Steckbrief mit Beleg, benannte Kanten plus
 gemeinsame Folgen, Parser, Tests. Kein 18.5 parallel.
+
+## 3. Kamera-Fähigkeiten ab Staffel 6 (`18.12.0`, Sprint 347)
+
+Die offene API endet bei S05. Ab Staffel 6 gilt nur das, was auf dem Foto
+sichtbar ist, plus Staffel und Folge, die Sie sagen. Kein Wiki, kein
+Folgentitel, kein 65. Agent — Route bleibt `hud`.
+
+```text
+Foto-Knopf → saveLastEyeImage (auch vor OCR)
+„Staffel 6 Folge 3“ → parseRmSceneIntent → handleRmScene
+Gemini-Vision JSON {items:[{who,skill,sure}]}
+Ja → IndexedDB rm_scene_skills → Dossier · Kamera
+Unbekannte Gesichter → Chat-Notiz, kein neuer Knoten
+```
+
+**Won’t:** S06–S09 als API-Knoten. Erfundene Folgennamen. Wiki-Text.
+Neuer Domänen-Agent. Kamera-Write für S01–S05. Nutella/Carbonara/Wäsche
+als Szene.

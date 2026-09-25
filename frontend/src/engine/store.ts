@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.10.0'
+export const APP_VERSION = '18.12.0'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
@@ -696,7 +696,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 9)
+    const req = indexedDB.open('jarvis-ondevice', 10)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -716,6 +716,7 @@ function openDb(): Promise<IDBDatabase> {
         'price_watches',
         'docs',
         'knowledge_packs',
+        'rm_scene_skills',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'

@@ -472,6 +472,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Bauer e2 e4", text: "Bauer e2 e4", expect: {"tool":"chess"} },
       { label: "Lidl in der Nähe", text: "Lidl", expect: {"tool":"poi"} },
       { label: "Lebensmittel", text: "Zutaten von Nutella", expect: {"tool":"food"} },
+      { label: "Kamera-Szene S6", text: "Staffel 6 Folge 3", expect: {"tool":"hud"} },
+      { label: "Kamera-Fähigkeiten", text: "Welche Kamera-Fähigkeiten habe ich?", expect: {"tool":"hud"} },
       { label: "Buch", text: "Wer schrieb Der Prozess?", expect: {"tool":"library"} },
       { label: "Waschsymbol", text: "Was bedeutet Waschschüssel 40?", expect: {"tool":"haushalt"} },
       { label: "Pflanze", text: "welche Pflanze ist das: Gänseblümchen", expect: {"tool":"nature"} },

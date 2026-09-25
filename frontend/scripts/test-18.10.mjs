@@ -54,10 +54,9 @@ const settingsSrc = readFileSync(join(root, 'src/ui/SettingsScreen.tsx'), 'utf8'
 const tvSrc = readFileSync(join(root, 'src/engine/tv.ts'), 'utf8')
 const css = readFileSync(join(root, 'src/index.css'), 'utf8')
 
-assert.equal(APP_VERSION, '18.10.0')
-assert.equal(PKG_VERSION, '18.10.0')
 assert.equal(APP_VERSION, PKG_VERSION)
 assert.notEqual(APP_VERSION, '18.5.0')
+assert.ok(versionCodeOf(APP_VERSION) >= 181200)
 assert.equal(versionCodeOf('18.10.0'), 181000)
 assert.ok(versionCodeOf('18.10.0') > versionCodeOf('18.9.8'), '18.10 darf 18.9.8 nicht unterbieten')
 assert.ok(DEFAULT_SETTINGS.tv_mac_eth === '')
