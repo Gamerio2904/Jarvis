@@ -64,6 +64,7 @@
     "test:rm-graph": "node --experimental-strip-types scripts/test-rm-graph.mjs",
     "fetch:rm": "node scripts/fetch-rm-snapshot.mjs",
     "gui:rm-serie": "node --experimental-strip-types scripts/gui-rm-serie.mjs",
+    "gui:eye-pick": "node --experimental-strip-types scripts/gui-eye-pick.mjs",
     "test:comm": "node --experimental-strip-types scripts/test-comm.mjs",
     "test:18.10": "node --experimental-strip-types scripts/test-18.10.mjs",
     "test:rm-scene": "node --experimental-strip-types scripts/test-rm-scene.mjs",
