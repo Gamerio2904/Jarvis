@@ -5,6 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.12.0` — Kamera-Fähigkeiten S6+ — *CODE + APK*
+
+Foto-Knopf speichert das Bild. `Staffel 6 Folge 3` (oder SxxEyy) schreibt
+nur sichtbare Fähigkeiten ins Serie-Dossier (`· Kamera`). Folge-Titel
+„laut Nutzer“, keine offene API ab S06, kein Wiki, kein 65. Agent
+(Route `hud`). S01–S05 ohne Szene-Wort bleibt unberührt.
+Sideload **`18.12.0`** (versionCode `181200`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Test: [`TEST-18.12.md`](./TEST-18.12.md).
+
 ### `18.10.0` — TV-Wahrheit, Hören, Serie-Netz — *CODE + APK* (historisch 18.5)
 
 Schiene 301–306. „Fernseher an“ endet mit Poll auf `:8001/api/v2/`, nicht mit

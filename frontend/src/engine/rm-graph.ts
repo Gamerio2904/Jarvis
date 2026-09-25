@@ -1,5 +1,6 @@
 import snapJson from '../data/rm-snapshot.json' with { type: 'json' }
 import { RM_CORE_IDS, RM_NAMED_EDGES, RM_SKILLS, RM_SOURCES } from './rm-dossier.ts'
+import { formatRmCode } from './rm-scene-parse.ts'
 import type {
   RmCharacter,
   RmDot,
@@ -9,9 +10,20 @@ import type {
   RmEvidence,
   RmGraph,
   RmNeighbor,
+  RmSkill,
   RmSnapshot,
   RmTrait,
 } from './rm-types.ts'
+
+export type RmSceneSkillRow = {
+  characterId: number | null
+  characterName: string
+  name: string
+  code: string
+  note: string
+}
+
+const sceneSkillCache: RmSceneSkillRow[] = []
 
 const snap = snapJson as RmSnapshot
 
@@ -81,6 +93,40 @@ export function evidence(code: string, note: string): RmEvidence | null {
   const p = parseEpisodeCode(code)
   if (!ep || !p) return null
   return { season: p.season, episode: p.episode, code: ep.code, title: ep.name, note }
+}
+
+/** S06+ hat keine API-Folge. Titel nur wenn die offene API sie kennt, sonst „laut Nutzer“. */
+export function evidenceLoose(code: string, note: string): RmEvidence | null {
+  const p = parseEpisodeCode((code || '').trim())
+  if (!p) return null
+  const key = formatRmCode(p.season, p.episode)
+  const ep = episodeByCode(key)
+  return {
+    season: p.season,
+    episode: p.episode,
+    code: key,
+    title: ep?.name || (p.season >= 6 ? 'laut Nutzer' : ''),
+    note,
+  }
+}
+
+export function applySceneSkills(rows: RmSceneSkillRow[]): void {
+  sceneSkillCache.length = 0
+  sceneSkillCache.push(...rows)
+}
+
+export function sceneSkillsFor(id: number): RmSkill[] {
+  const out: RmSkill[] = []
+  for (const s of sceneSkillCache) {
+    if (s.characterId !== id) continue
+    const ev = evidenceLoose(s.code, s.note)
+    if (ev) out.push({ name: s.name, evidence: ev, origin: 'camera' })
+  }
+  return out
+}
+
+export function hasAnySkill(id: number): boolean {
+  return Boolean(RM_SKILLS[id]?.length) || sceneSkillCache.some((s) => s.characterId === id)
 }
 
 export function searchCharacters(query: string): RmCharacter[] {
@@ -249,12 +295,12 @@ function traitsFor(c: RmCharacter): RmTrait[] {
 export function dossierFor(id: number): RmDossier | null {
   const c = characterById(id)
   if (!c) return null
-  const skills = (RM_SKILLS[id] || [])
-    .map((s) => {
-      const ev = evidence(s.code, s.note)
-      return ev ? { name: s.name, evidence: ev } : null
-    })
-    .filter((x): x is NonNullable<typeof x> => Boolean(x))
+  const skills: RmSkill[] = []
+  for (const s of RM_SKILLS[id] || []) {
+    const ev = evidence(s.code, s.note)
+    if (ev) skills.push({ name: s.name, evidence: ev, origin: 'curated' })
+  }
+  skills.push(...sceneSkillsFor(id))
   const appearances = c.eps
     .map((epId) => {
       const ep = episodeById(epId)
@@ -292,5 +338,5 @@ export function buildRmGraph(): RmGraph {
 export function rmCoverageLine(): string {
   const n = snap.characters.length
   const e = snap.episodes.length
-  return `${n} Charaktere, ${e} Folgen ${snap.meta.coverage}. Quelle: Rick-and-Morty-API. Fähigkeiten nur mit Staffel/Folge. Staffel 6+ fehlt in der offenen API.`
+  return `${n} Charaktere, ${e} Folgen ${snap.meta.coverage}. Quelle: Rick-and-Morty-API. Fähigkeiten nur mit Staffel/Folge. Staffel 6+ aus der Kamera, Folge sagen Sie.`
 }

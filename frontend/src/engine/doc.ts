@@ -20,6 +20,7 @@ import {
 } from './doc-kind.ts'
 import { parseDocIntent } from './doc-parse.ts'
 import { fileToJpegDataUrl } from './eye.ts'
+import { saveLastEyeImage } from './agent-session.ts'
 import { scrubReply } from './guards.ts'
 import type { ToolMeta } from './tools.ts'
 
@@ -161,6 +162,7 @@ export async function ingestDocFile(
     const prepared = await fileToJpegDataUrl(file)
     if ('error' in prepared) fail = prepared.error
     else {
+      saveLastEyeImage(prepared.dataUrl)
       const ocr = await ocrJpeg(prepared.dataUrl)
       if ('error' in ocr) fail = ocr.error
       else {

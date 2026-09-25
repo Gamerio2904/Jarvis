@@ -1,6 +1,7 @@
 import type { Candidate, RouteCtx } from './route-types.ts'
 import { SCORE_CEIL } from './policy.ts'
 import { gazetteerHit } from './globe-geo.ts'
+import { parseRmSceneIntent } from './rm-scene-parse.ts'
 import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
 
@@ -424,6 +425,14 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
       out = drop(out, 'hud')
       out = boost(out, 'app', 0.15)
     }
+  }
+
+  if (parseRmSceneIntent(text)) {
+    out = drop(out, 'tv')
+    out = drop(out, 'calendar')
+    out = drop(out, 'eye')
+    out = drop(out, 'doc')
+    out = boost(out, 'hud', 0.3)
   }
 
   if (parseWontIntent(text)) {

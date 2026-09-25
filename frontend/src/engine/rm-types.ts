@@ -44,6 +44,7 @@ export type RmEvidence = {
 export type RmSkill = {
   name: string
   evidence: RmEvidence
+  origin?: 'curated' | 'camera'
 }
 
 export type RmTrait = {

@@ -49,6 +49,7 @@ import { setLageSession } from '../../engine/lage-session.ts'
 import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour.ts'
 import { decodeHtml } from '../../engine/html-text.ts'
 import { dossierFor, rmAvatar, rmCoverageLine, searchCharacters, searchHitLabel } from '../../engine/rm-graph.ts'
+import { onRmScene, refreshSceneSkillCache } from '../../engine/rm-scene-store.ts'
 import { SerieMapCanvas } from './SerieMapCanvas.tsx'
 import { SerieDossier } from './SerieDossier.tsx'
 
@@ -90,6 +91,7 @@ export function Lage({
   const [serieId, setSerieId] = useState<number | null>(null)
   const [serieQuery, setSerieQuery] = useState('')
   const [serieSkills, setSerieSkills] = useState(false)
+  const [serieTick, setSerieTick] = useState(0)
   const pinClosedAt = useRef(0)
   const [globeTick, setGlobeTick] = useState(0)
   /**
@@ -120,6 +122,30 @@ export function Lage({
   const withChat = s.body_with_chat !== false
   const tabThumb = useSlidingThumb(view)
   const moduleKey = modules.join(',')
+
+  useEffect(() => {
+    let live = true
+    void refreshSceneSkillCache().then(() => {
+      if (live) setSerieTick((n) => n + 1)
+    })
+    const off = onRmScene(() => {
+      void refreshSceneSkillCache().then(() => {
+        if (!live) return
+        try {
+          const raw = sessionStorage.getItem('jarvis_last_serie_id')
+          const id = raw ? Number(raw) : 0
+          if (id > 0) setSerieId(id)
+        } catch {
+          /* quota */
+        }
+        setSerieTick((n) => n + 1)
+      })
+    })
+    return () => {
+      live = false
+      off()
+    }
+  }, [])
 
   useEffect(() => {
     let live = true
@@ -614,6 +640,7 @@ export function Lage({
           {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
           {serieId && dossierFor(serieId) ? (
             <SerieDossier
+              key={`${serieId}-${serieTick}`}
               card={dossierFor(serieId)!}
               onClose={() => setSerieId(null)}
               onNeighbor={setSerieId}
