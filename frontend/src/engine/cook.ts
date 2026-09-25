@@ -1,17 +1,12 @@
 import { completeGeminiVision, geminiReady } from './gemini.ts'
 import { readLastEyeImage } from './agent-session.ts'
-import {
-  parseCookConfirm,
-  parseCookIntent,
-  parseSpiceIntent,
-  type CookIntent,
-} from './cook-parse.ts'
+import { parseCookConfirm, parseCookIntent, type CookIntent } from './cook-parse.ts'
 import { forgetSpicePin, readSpicePin, writeSpicePin } from './cook-memory.ts'
 import { looksLikeSpice, pickSpices } from './spice-alias.ts'
 import { extractRecipesFromHtml, formatCookReply, type CookRecipe } from './recipe-ld.ts'
 import { searchWikibooksCookbook } from './wikibooks.ts'
 import { getText } from './http-json.ts'
-import { jsonUA } from './ua.ts'
+import { htmlUA, jsonUA } from './ua.ts'
 import { addShopping, clearPending, getPending, loadSettings, setPending } from './store.ts'
 import { fillResearchLinks } from './web-search.ts'
 import { isCommNo, isCommYes } from './places-parse.ts'
@@ -101,7 +96,7 @@ function extraMissing(recipe: CookRecipe, photo: string[], spices: string[]): st
 async function fetchJsonLdRecipe(url: string): Promise<CookRecipe | null> {
   if (!/^https?:\/\//i.test(url)) return null
   try {
-    const { status, text } = await getText(url, { Accept: 'text/html', 'User-Agent': jsonUA })
+    const { status, text } = await getText(url, htmlUA)
     if (status < 200 || status >= 300 || !text) return null
     return extractRecipesFromHtml(text, url)[0] || null
   } catch {
@@ -121,13 +116,13 @@ async function fetchMealDb(ingredients: string[]): Promise<CookRecipe | null> {
   if (!q) return null
   try {
     const filter = `https://www.themealdb.com/api/json/v1/${encodeURIComponent(key)}/filter.php?i=${q}`
-    const { status, text } = await getText(filter, { Accept: 'application/json' })
+    const { status, text } = await getText(filter, jsonUA)
     if (status < 200 || status >= 300 || !text) return null
     const json = JSON.parse(text) as { meals?: Array<{ idMeal?: string; strMeal?: string }> }
     const id = String(json.meals?.[0]?.idMeal || '')
     if (!id) return null
     const look = `https://www.themealdb.com/api/json/v1/${encodeURIComponent(key)}/lookup.php?i=${encodeURIComponent(id)}`
-    const rec = await getText(look, { Accept: 'application/json' })
+    const rec = await getText(look, jsonUA)
     if (rec.status < 200 || rec.status >= 300 || !rec.text) return null
     const body = JSON.parse(rec.text) as { meals?: Array<Record<string, string | null>> }
     const meal = body.meals?.[0]

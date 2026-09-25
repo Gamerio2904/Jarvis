@@ -68,6 +68,7 @@
     "test:18.10": "node --experimental-strip-types scripts/test-18.10.mjs",
     "test:cook": "node --experimental-strip-types scripts/test-cook.mjs",
     "test:18.11": "node --experimental-strip-types scripts/test-cook.mjs",
+    "gui:cook": "node --experimental-strip-types scripts/gui-cook.mjs",
     "gui:lage-body-globe": "node --experimental-strip-types scripts/gui-lage-body-globe.mjs",
     "gui:watchlist-osint-18": "node --experimental-strip-types scripts/gui-watchlist-osint-18.mjs",
     "gui:18-7-dock": "node --experimental-strip-types scripts/gui-18-7-dock.mjs",
