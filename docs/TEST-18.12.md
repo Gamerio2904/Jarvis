@@ -1,7 +1,7 @@
 # TEST 18.12 — Kamera-Fähigkeiten S6+
 
 Nach Execute von [`83-next.md`](./83-next.md) §3. App-Code **`18.12.0`**,
-versionCode `181200`. Sideload bleibt **`18.10.0`**, bis die APK gebaut ist.
+versionCode `181200`. Sideload **`18.12.0`**.
 
 ## 1. Version
 

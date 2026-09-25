@@ -1,6 +1,6 @@
 # Sprint 347 — Kamera-Fähigkeiten S6+ (Rick and Morty)
 
-**Version:** `18.12.0` — **CODE** Must
+**Version:** `18.12.0` — **CODE + APK** Must
 **Plan:** [`83-next.md`](../83-next.md) §3
 **Voraussetzung:** 341 / Serie-Netz.
 

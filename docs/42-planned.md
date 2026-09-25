@@ -1,8 +1,8 @@
-# 42 — Alles geplant (Stand Code `18.12.0`, Sideload `18.10.0`)
+# 42 — Alles geplant (Stand Code `18.12.0`, Sideload `18.12.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.10.0`**, versionCode `181000`. App-Code **`18.12.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.12.md`](./TEST-18.12.md).
+**Live-APK:** **`18.12.0`**, versionCode `181200`. App-Code **`18.12.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.12.md`](./TEST-18.12.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -150,7 +150,7 @@ Begründung: [`76-next.md`](./76-next.md).
 
 Harte Kette: 331 → alles. 332 braucht 331. 336 braucht 331+332. 337 zuletzt.
 Kein freies Web. Kein Write-Zweitlauf.
-Sideload **`18.10.0`**, versionCode `181000`. Kamera-S6+ in `18.12.0`.
+Sideload **`18.12.0`**, versionCode `181200`. Kamera-S6+ in `18.12.0`.
 
 Begründung: [`80-next.md`](./80-next.md).
 

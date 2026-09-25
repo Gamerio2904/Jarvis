@@ -56,7 +56,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E61 | Listen-Leiste / Selbststeuerung `18.7` | 5+ | 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb — [`78-next.md`](./78-next.md) **CODE** `18.7.0` |
 | E62 | Debug-Rollback / Termin-Fristen `18.8` | 5+ | Lauf räumt Writes, Termin fragt nach 1–n Erinnerungen, Debug-Download am Dock, Prompt-Pakete neu — [`79-next.md`](./79-next.md) **CODE** `18.8.0` |
 | E63 | Lage Serie-Netz `18.10` | 5+ | Rick-and-Morty-Knoten, Steckbrief mit Staffel/Folge — [`83-next.md`](./83-next.md) **CODE** `18.10.0` |
-| E64 | Kamera-Fähigkeiten S6+ `18.12` | 5+ | Foto + Staffel/Folge, nur Sichtbares im Dossier — [`83-next.md`](./83-next.md) §3 **CODE** `18.12.0` |
+| E64 | Kamera-Fähigkeiten S6+ `18.12` | 5+ | Foto + Staffel/Folge, nur Sichtbares im Dossier — [`83-next.md`](./83-next.md) §3 **CODE + APK** `18.12.0` |
 
 ---
 
