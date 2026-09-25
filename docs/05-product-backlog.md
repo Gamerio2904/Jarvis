@@ -56,6 +56,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E61 | Listen-Leiste / Selbststeuerung `18.7` | 5+ | 6. Icon Filme, Jarvis steuert Jarvis, Propose-Unknown, Antwort-Orb — [`78-next.md`](./78-next.md) **CODE** `18.7.0` |
 | E62 | Debug-Rollback / Termin-Fristen `18.8` | 5+ | Lauf räumt Writes, Termin fragt nach 1–n Erinnerungen, Debug-Download am Dock, Prompt-Pakete neu — [`79-next.md`](./79-next.md) **CODE** `18.8.0` |
 | E63 | Lage Serie-Netz `18.10` | 5+ | Rick-and-Morty-Knoten, Steckbrief mit Staffel/Folge — [`83-next.md`](./83-next.md) **CODE** `18.10.0` |
+| E64 | Koch / Speisekammer `18.11` | 5+ | Zutatenfoto, Gewürz-Pin, Rezept mit Zeiten; Quellen zu — [`84-next.md`](./84-next.md) **PLAN** |
 
 ---
 
@@ -645,10 +646,21 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S63.4 | Als Nutzer will ich, dass ein fehlgeschlagener Lesezug nicht doppelt Termine oder Tasten ausführt. | Must | done | Write/Device 1 Lauf; Recover nur Read + Hirn-Slot |
 | S63.5 | Als Nutzer will ich Recover-Sätze im Auto-Debug, ohne ein 14. Probe-Pack. | Must | done | Sprint 337; bestehende 13 Spuren; Mock-Pfad in `test-recover.mjs` |
 
+### E64 — Koch / Speisekammer `18.11` [`84-next.md`](./84-next.md) **PLAN**
+
+| ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
+|----|-------|--------|--------|------------------|
+| S64.1 | Als Nutzer will ich Quellen unter jeder Nachricht zuklappen können, nicht dauerhaft offen. | Must | ready | Sprint 342; `SourcesBlock` ohne `open` |
+| S64.2 | Als Nutzer will ich ein Gewürzregal-Foto einmal merken und später dieselbe Liste hören. | Must | ready | Sprint 343; Pin `gewuerze` im Core |
+| S64.3 | Als Nutzer will ich vom Zutatenfoto nur sichtbare Dinge genannt bekommen. | Must | ready | Sprint 344; Agent `cook`; unsicher = unsicher |
+| S64.4 | Als Nutzer will ich ein Rezept mit Zubereitungs- und Gesamtzeit, Liste und Schritten aus einer Quelle. | Must | ready | Sprint 345; keine erfundenen Zeiten |
+| S64.5 | Als Nutzer will ich, dass der Koch nur Gewürze aus meinem Pin nimmt — notfalls Salz und Pfeffer. | Must | ready | Sprint 345; Schnittmenge, Extra ehrlich |
+
 ---
 
 ## Aktuelle Prioritätsreihenfolge (Pull-Reihenfolge)
 
+0. **`18.11` Koch / Speisekammer** 342–346 PLAN [`84-next.md`](./84-next.md) — Bild, Gewürz-Pin, Rezept; Quellen zu
 1. **`18.9` Recover + Hirn** 331–337 CODE [`80-next.md`](./80-next.md) — Quelle tot → Ansage → Allowlist; nicht parallel zu 18.5
 2. **`18.5` Stimme/TV** 301–306 PLAN [`76-next.md`](./76-next.md) — nicht parallel zu 18.9
 3. **`18.8` Debug-Rollback / Termin-Fristen / Download / Prompts** 323–330 CODE [`79-next.md`](./79-next.md)

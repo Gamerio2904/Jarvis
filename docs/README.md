@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.10.0`**. Sideload-APK **`18.9.8`**, versionCode `180908`. Schiene 301–306 (Planname 18.5) ist **CODE** in 18.10.0 — nicht als 18.5.0 versionieren. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.10.md`](./TEST-18.10.md).
+**Jetzt:** Code **`18.10.0`**. Sideload-APK **`18.10.0`**, versionCode `181000`. Schiene 301–306 (Planname 18.5) ist **CODE** in 18.10.0 — nicht als 18.5.0 versionieren. Nächste Schiene **`18.11` PLAN** [`84-next.md`](./84-next.md). **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.10.md`](./TEST-18.10.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -89,7 +89,8 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 81 | [Post, Telefonbuch, WhatsApp](./81-next.md) | **CODE** `18.9.7` / `18.9.8` |
 | 82 | [Gedächtnis-Kern](./82-next.md) | **CODE** `18.9.8` |
 | 83 | [Lage Serie-Netz](./83-next.md) | **CODE** `18.10.0` — Rick-and-Morty-Knoten, Steckbrief mit Staffel/Folge |
-| — | [APK](./apk.md) | Sideload `18.10.0`; Test: [`TEST-18.10.md`](./TEST-18.10.md) |
+| 84 | [Koch / Speisekammer](./84-next.md) | **PLAN** `18.11` — Zutatenfoto, Gewürz-Pin, Rezept; Quellen zu; Sprints 342–346 |
+| — | [APK](./apk.md) | Sideload `18.10.0`; Test: [`TEST-18.10.md`](./TEST-18.10.md) · geplant [`TEST-18.11.md`](./TEST-18.11.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -315,5 +316,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 323–330 | `18.8.0`–`18.8.7` | **CODE + APK** in `18.8.0` (Debug-Rollback, Termin-Fristen, Debug-Download, Prompt-Pakete, [`79-next.md`](./79-next.md)) |
 | 331–340 | `18.9.0`–`18.9.8` | **CODE + APK** (Recover, Mail, Gedächtnis-Kern) |
 | 341 | `18.10.0` | **CODE** (Lage Serie-Netz, [`83-next.md`](./83-next.md)) |
+| 342–346 | `18.11.0`–`18.11.4` | **PLAN** (Koch / Gewürze / Quellen zu, [`84-next.md`](./84-next.md)) |
 
-**Aktuell:** App-Code **`18.10.0`**. Sideload-APK **`18.9.8`**, versionCode `180908`. Sprints 301–306 **CODE** in `18.10.0` (historisch 18.5). 331–340 **CODE + APK** in `18.9.8`. Test: [`TEST-18.10.md`](./TEST-18.10.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.10.0`**. Sideload-APK **`18.10.0`**, versionCode `181000`. Sprints 301–306 **CODE** in `18.10.0` (historisch 18.5). 331–340 **CODE + APK** in `18.9.8`. Nächste Schiene **18.11 PLAN** 342–346. Test: [`TEST-18.10.md`](./TEST-18.10.md). Index: [`42-planned.md`](./42-planned.md).

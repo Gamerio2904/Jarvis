@@ -1,4 +1,4 @@
-# 42 — Alles geplant (Stand Code `18.10.0`, Sideload `18.9.8`)
+# 42 — Alles geplant (Stand Code `18.10.0`, Sideload `18.10.0`, nächste Schiene `18.11` PLAN)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
@@ -8,6 +8,7 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 
 ## Pull-Reihenfolge
 
+0. **`18.11` Koch / Speisekammer / Quellen zu** [`84-next.md`](./84-next.md) — Sprints **342–346 PLAN**. Zutatenfoto, Gewürz-Pin im Hauptgehirn, Rezept mit Zeiten; Quellen unter jeder Nachricht zu. Kein erfundenes Gericht, kein 2. Hirn.
 1. **`18.10` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 CODE** in `18.10.0` (historisch PLAN `18.5`). Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht als `18.5.0` versionieren.
 2. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE + APK** in `18.8.0`.
 2b. **`18.9` Recover + Hirn** [`80-next.md`](./80-next.md) — Sprints **331–340 CODE + APK** in `18.9.8`.
@@ -149,9 +150,25 @@ Begründung: [`76-next.md`](./76-next.md).
 
 Harte Kette: 331 → alles. 332 braucht 331. 336 braucht 331+332. 337 zuletzt.
 Kein freies Web. Kein Write-Zweitlauf.
-Sideload **`18.9.8`**, versionCode `180908`. 18.5-Inhalt in `18.10.0`.
+Sideload **`18.10.0`**, versionCode `181000`. 18.5-Inhalt in `18.10.0`.
 
 Begründung: [`80-next.md`](./80-next.md).
+
+## PLAN — Schiene `18.11` (Sprints 342–346)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `18.11.0` | [342](./sprints/sprint-342.md) | Quellen unter jeder Nachricht zu, aufklappbar |
+| `18.11.1` | [343](./sprints/sprint-343.md) | Gewürz-Pin im Hauptgehirn |
+| `18.11.2` | [344](./sprints/sprint-344.md) | Koch-Agent + Bild → Zutaten |
+| `18.11.3` | [345](./sprints/sprint-345.md) | Rezept: Zeiten, Liste, Schritte, Gewürz-Wahl |
+| `18.11.4` | [346](./sprints/sprint-346.md) | Härten, Gold, TEST-18.11 |
+
+Harte Kette: 342 frei. 343 → 344 → 345. 346 zuletzt.
+Kein erfundenes Rezept. Kein TheMealDB-Testkey in der APK. Kein zweites Gedächtnis.
+`food` bleibt OFF. Der 64. Agent ist `cook` (Domäne), kein Organizer.
+
+Begründung: [`84-next.md`](./84-next.md). Test: [`TEST-18.11.md`](./TEST-18.11.md).
 
 ## CODE — Schiene `18.6` (Sprints 307–314)
 

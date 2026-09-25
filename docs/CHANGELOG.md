@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.11` — Koch, Gewürzregal, Quellen zu — *PLAN*
+
+Sprints 342–346. Foto der Zutaten → Rezept mit Zubereitungs- und
+Gesamtzeit, Liste und Schritten, nur aus zitierter Quelle. Gewürze
+einmal merken im Hauptgehirn; der Koch nimmt die passenden (auch nur
+Salz/Pfeffer). Quellen unter **jeder** Nachricht zugeklappt, aufklappbar.
+Kein 2. Hirn, kein Lieferdienst, TheMealDB nur mit Nutzer-Key.
+Plan: [`84-next.md`](./84-next.md). Testblatt: [`TEST-18.11.md`](./TEST-18.11.md).
+
 ### `18.10.0` — TV-Wahrheit, Hören, Serie-Netz — *CODE + APK* (historisch 18.5)
 
 Schiene 301–306. „Fernseher an“ endet mit Poll auf `:8001/api/v2/`, nicht mit
