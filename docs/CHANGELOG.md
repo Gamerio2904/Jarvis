@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.13.0` — Mister-Beats-Clips (Timo Instagram, optional TikTok) — *PLAN*
+
+Clips an Jarvis, ein Agent `clip` (kein Schwarm, kein 5. Hirn),
+Caption nach Ja, offizielle Instagram-Reels (Handle vom Nutzer),
+optional TikTok. Datei nach bestätigtem Publish weg. Notify bei 10
+und 5 Verbleibenden. Kein inoffizieller Client, kein stilles Posten.
+Sideload bleibt **`18.12.0`**. Plan: [`84-next.md`](./84-next.md).
+Test (nach Execute): [`TEST-18.13.md`](./TEST-18.13.md).
+
 ### `18.12.0` — Kamera-Fähigkeiten S6+ — *CODE + APK*
 
 Foto-Knopf speichert das Bild. `Staffel 6 Folge 3` (oder SxxEyy) schreibt

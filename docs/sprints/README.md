@@ -337,8 +337,13 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 340 | [`sprint-340.md`](./sprint-340.md) | `18.9.8` | Gedächtnis-Kern: Aspekte, Wissen, Recherche | **CODE** Must |
 | 341 | [`sprint-341.md`](./sprint-341.md) | `18.10.0` | Lage Serie-Netz: Rick-and-Morty-Knoten | **CODE** Must |
 | 347 | [`sprint-347.md`](./sprint-347.md) | `18.12.0` | Kamera-Fähigkeiten S6+ ins Serie-Dossier | **CODE + APK** Must |
+| 348 | [`sprint-348.md`](./sprint-348.md) | `18.13.0` | Clip-Vault + Share/Datei-Ingest | **PLAN** Must |
+| 349 | [`sprint-349.md`](./sprint-349.md) | `18.13.0` | Ein Katalog-Agent `clip` | **PLAN** Must |
+| 350 | [`sprint-350.md`](./sprint-350.md) | `18.13.0` | Caption-Entwurf + Rechte-Ja | **PLAN** Must |
+| 351 | [`sprint-351.md`](./sprint-351.md) | `18.13.0` | Instagram Reels offiziell, Löschen nach Erfolg | **PLAN** Must |
+| 352 | [`sprint-352.md`](./sprint-352.md) | `18.13.0` | Notify 10/5; TikTok optional | **PLAN** Must / Should |
 
-**Aktuell:** App-Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Sprint **347 CODE + APK** in `18.12.0`. 282 Freeze (Schema).
+**Aktuell:** App-Code **`18.12.0`**. Sideload-APK **`18.12.0`**, versionCode `181200`. Clip-Rail **348–352 PLAN** in `18.13.0`. 282 Freeze (Schema).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

@@ -2,7 +2,7 @@
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.12.0`**, versionCode `181200`. App-Code **`18.12.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.12.md`](./TEST-18.12.md).
+**Live-APK:** **`18.12.0`**, versionCode `181200`. App-Code **`18.12.0`**. Clip-Rail **PLAN** `18.13.0` [`84-next.md`](./84-next.md). Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test live: [`TEST-18.12.md`](./TEST-18.12.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -153,6 +153,21 @@ Kein freies Web. Kein Write-Zweitlauf.
 Sideload **`18.12.0`**, versionCode `181200`. Kamera-S6+ in `18.12.0`.
 
 Begründung: [`80-next.md`](./80-next.md).
+
+## PLAN — Schiene `18.13` (Sprints 348–352)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `18.13.0` | [348](./sprints/sprint-348.md) | Vault + Share/Datei-Ingest |
+| `18.13.0` | [349](./sprints/sprint-349.md) | Ein Agent `clip` |
+| `18.13.0` | [350](./sprints/sprint-350.md) | Caption-Entwurf + Rechte-Ja |
+| `18.13.0` | [351](./sprints/sprint-351.md) | Instagram Reels offiziell, Löschen nach Erfolg |
+| `18.13.0` | [352](./sprints/sprint-352.md) | Notify 10/5; TikTok optional |
+
+Harte Kette: 348 → 349 → 350 → 351 → 352. Ein Agent, keine inoffizielle
+API, kein stilles Posten. Sideload bleibt `18.12.0` bis Execute.
+
+Begründung: [`84-next.md`](./84-next.md).
 
 ## CODE — Schiene `18.6` (Sprints 307–314)
 
