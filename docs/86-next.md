@@ -1,9 +1,9 @@
-# 86 — Lage-Kugel: Flugzeuge, Stecknadel, Satelliten **PLAN** (`18.14.0`)
+# 86 — Lage-Kugel: Flugzeuge, Stecknadel, Satelliten **CODE** (`18.14.0`)
 
 PO: In der Lage fehlen die Flugzeuge. Statt Punkte: Stecknadel für
 den Standort, Flugzeug-Silhouette, Satellit statt Punkt.
 
-Kein Code in dieser Etappe. Sideload bleibt `18.12.0`.
+Execute: Sprints **356–360 CODE**. Sideload bleibt `18.12.0` bis APK.
 Kein neuer Agent. Kein Cesium, kein weltweites ADS-B, kein Wort „Live“.
 
 Andere Drafts bleiben getrennt: Koch `#149`, Kamera-Wahl `#151`,
@@ -158,8 +158,8 @@ raten).
 | [359](./sprints/sprint-359.md) | Sat/ISS-Silhouette, kein Starlink |
 | [360](./sprints/sprint-360.md) | Poll ≥ 10 s, Tests, optional OAuth, Härten |
 
-Harte Kette: 356 → 357/358/359 (Zeichnung parallel nach Heading-Feld)
-→ 360. Sideload bleibt `18.12.0` bis Execute.
+Harte Kette: 356 → 357/358/359 → 360. **CODE** in `18.14.0`.
+Sideload bleibt `18.12.0` bis APK.
 
 ## 6. Abnahme (nach Execute)
 

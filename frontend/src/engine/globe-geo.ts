@@ -21,7 +21,16 @@ export type GeoPinKind =
   | 'event'
   | 'cyber'
 
-export type GeoFix = { name: string; lat: number; lon: number; kind: GeoPinKind; line?: string; hot?: boolean }
+export type GeoFix = {
+  name: string
+  lat: number
+  lon: number
+  kind: GeoPinKind
+  line?: string
+  hot?: boolean
+  heading?: number
+  stale?: boolean
+}
 
 export type PlaceFix = { re: RegExp; name: string; lat: number; lon: number; blurb: string }
 

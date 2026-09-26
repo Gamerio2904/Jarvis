@@ -1,8 +1,8 @@
-# 42 — Alles geplant (Stand Code `18.12.0`, Sideload `18.12.0`)
+# 42 — Alles geplant (Stand Code `18.14.0`, Sideload `18.12.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.12.0`**, versionCode `181200`. App-Code **`18.12.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.12.md`](./TEST-18.12.md).
+**Live-APK:** **`18.12.0`**, versionCode `181200`. App-Code **`18.14.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.14.md`](./TEST-18.14.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -154,7 +154,7 @@ Sideload **`18.12.0`**, versionCode `181200`. Kamera-S6+ in `18.12.0`.
 
 Begründung: [`80-next.md`](./80-next.md).
 
-## PLAN — Schiene `18.14` (Sprints 356–360)
+## CODE — Schiene `18.14` (Sprints 356–360)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -165,7 +165,7 @@ Begründung: [`80-next.md`](./80-next.md).
 | `18.14.0` | [360](./sprints/sprint-360.md) | Poll ≥ 10 s, Tests, OAuth optional |
 
 Harte Kette: 356 → 357/358/359 → 360. Kein neuer Agent, kein „Live“,
-kein weltweites ADS-B. Sideload bleibt `18.12.0` bis Execute.
+kein weltweites ADS-B. Sideload bleibt `18.12.0` bis APK.
 
 Begründung: [`86-next.md`](./86-next.md).
 

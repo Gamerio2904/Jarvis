@@ -1,7 +1,7 @@
-# TEST 18.14 — Lage-Kugel Icons (PLAN)
+# TEST 18.14 — Lage-Kugel Icons
 
-Nach Execute von [`86-next.md`](./86-next.md). App-Code Ziel **`18.14.0`**.
-Heute Sideload **`18.12.0`** — diese Datei ist die Abnahme, kein grüner Lauf.
+Nach Execute von [`86-next.md`](./86-next.md). App-Code **`18.14.0`**.
+Sideload bleibt **`18.12.0`** bis APK.
 
 Gerät, nicht die Cloud-VM (OpenSky dort oft SSL-tot).
 

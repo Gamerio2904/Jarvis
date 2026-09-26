@@ -1,6 +1,6 @@
 # Sprint 357 — Stecknadel Standort
 
-**Version:** `18.14.0` — **PLAN** Must
+**Version:** `18.14.0` — **CODE** Must
 **Plan:** [`86-next.md`](../86-next.md)
 **Voraussetzung:** 356 (kein Pflicht-Datenfeld). Zeichnung darf parallel zu 358/359.
 

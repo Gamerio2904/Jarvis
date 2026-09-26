@@ -1,6 +1,6 @@
 # Sprint 360 — Poll, OAuth optional, Härten
 
-**Version:** `18.14.0` — **PLAN** Must (OAuth Should)
+**Version:** `18.14.0` — **CODE** Must (OAuth Should)
 **Plan:** [`86-next.md`](../86-next.md)
 **Voraussetzung:** 356–359.
 

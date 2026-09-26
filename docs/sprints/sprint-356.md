@@ -1,6 +1,6 @@
 # Sprint 356 — OpenSky ehrlich: BBox, Heading, Alter
 
-**Version:** `18.14.0` — **PLAN** Must
+**Version:** `18.14.0` — **CODE** Must
 **Plan:** [`86-next.md`](../86-next.md)
 **Voraussetzung:** main `18.12.0`. Kein neuer Agent. Kein weltweites ADS-B.
 

@@ -1,6 +1,7 @@
 import { Component, useEffect, useRef, type ReactNode } from 'react'
 import type { GeoFix } from '../../engine/globe-geo.ts'
 import { globeFocusKey, lookLatLon, pickTappedPin, shouldApplyGlobeFocus, viewXYZ, yawPitchFor, alongCoast } from '../../engine/globe-geo.ts'
+import { drawAircraft, drawHerePin, drawSat, pinMarkerKind } from '../../engine/globe-icons.ts'
 import { WORLD_RINGS } from '../../engine/world-rings.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 import { loadSettings } from '../../engine/store.ts'
@@ -404,14 +405,6 @@ export function GlobeView({
           pen.arc(q.x, q.y, pin.hot ? 16 : 12, 0, Math.PI * 2)
           pen.fill()
         }
-        if (pin.kind === 'here') {
-          const wave = 10 + Math.sin(pulse.current) * 3
-          pen.beginPath()
-          pen.strokeStyle = 'rgba(30, 215, 96, 0.45)'
-          pen.lineWidth = 1.2
-          pen.arc(q.x, q.y, wave, 0, Math.PI * 2)
-          pen.stroke()
-        }
         if (pin.kind === 'fire' || pin.kind === 'quake' || pin.kind === 'conflict') {
           if (pin.kind === 'fire') {
             pen.beginPath()
@@ -425,62 +418,44 @@ export function GlobeView({
           pen.arc(q.x, q.y, 10, 0, Math.PI * 2)
           pen.stroke()
         }
-        if (pin.kind === 'sat' || pin.kind === 'iss') {
+        const mark = pinMarkerKind(pin.kind)
+        if (mark === 'here') {
+          drawHerePin(pen, q.x, q.y, { stale: pin.stale, pulse: pulse.current })
+        } else if (mark === 'flight') {
+          drawAircraft(pen, q.x, q.y, pin.heading)
+        } else if (mark === 'sat' || mark === 'iss') {
+          drawSat(pen, q.x, q.y, mark === 'iss')
+        } else {
           pen.beginPath()
-          pen.strokeStyle = 'rgba(210, 230, 255, 0.7)'
-          pen.lineWidth = 1.2
-          pen.arc(q.x, q.y, 7, 0, Math.PI * 2)
-          pen.stroke()
-        }
-        pen.beginPath()
-        pen.fillStyle =
-          pin.kind === 'iss' || pin.kind === 'sat'
-            ? '#f4f7fb'
-            : pin.kind === 'here'
-              ? '#1ed760'
-              : pin.kind === 'warn' || pin.kind === 'weather'
-                ? '#e8b84a'
-                : pin.kind === 'quake'
-                  ? '#f0a060'
-                  : pin.kind === 'fire'
-                    ? '#e07050'
-                    : pin.kind === 'flight'
-                      ? '#9ecbff'
-                      : pin.kind === 'ship'
-                        ? '#7ec8e3'
-                        : pin.kind === 'infra'
-                          ? '#d0c4a8'
-                          : pin.kind === 'conflict'
-                            ? '#e07860'
-                            : pin.kind === 'cyber'
-                              ? '#c4a0e8'
-                              : pin.kind === 'air'
-                                ? '#9ad4b8'
-                                : pin.kind === 'glow'
-                                  ? pin.hot
-                                    ? '#e8f8ee'
-                                    : '#9be0b5'
-                                  : '#7dd3a0'
-        pen.arc(
-          q.x,
-          q.y,
-          pin.kind === 'iss' || pin.kind === 'sat'
-            ? 3.8
-            : pin.kind === 'here'
-              ? 5
-              : pin.kind === 'fire' || pin.kind === 'quake'
-                ? 5.5
-                : pin.kind === 'glow' && pin.hot
-                  ? 5
-                  : 4,
-          0,
-          Math.PI * 2,
-        )
-        pen.fill()
-        if (pin.kind === 'here') {
-          pen.beginPath()
-          pen.fillStyle = '#04120a'
-          pen.arc(q.x, q.y, 2, 0, Math.PI * 2)
+          pen.fillStyle =
+            pin.kind === 'warn' || pin.kind === 'weather'
+              ? '#e8b84a'
+              : pin.kind === 'quake'
+                ? '#f0a060'
+                : pin.kind === 'fire'
+                  ? '#e07050'
+                  : pin.kind === 'ship'
+                    ? '#7ec8e3'
+                    : pin.kind === 'infra'
+                      ? '#d0c4a8'
+                      : pin.kind === 'conflict'
+                        ? '#e07860'
+                        : pin.kind === 'cyber'
+                          ? '#c4a0e8'
+                          : pin.kind === 'air'
+                            ? '#9ad4b8'
+                            : pin.kind === 'glow'
+                              ? pin.hot
+                                ? '#e8f8ee'
+                                : '#9be0b5'
+                              : '#7dd3a0'
+          pen.arc(
+            q.x,
+            q.y,
+            pin.kind === 'fire' || pin.kind === 'quake' ? 5.5 : pin.kind === 'glow' && pin.hot ? 5 : 4,
+            0,
+            Math.PI * 2,
+          )
           pen.fill()
         }
         pen.fillStyle = 'rgba(230, 240, 236, 0.82)'

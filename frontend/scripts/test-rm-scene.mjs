@@ -33,8 +33,9 @@ const here = dirname(fileURLToPath(import.meta.url))
 const docSrc = readFileSync(join(here, '../src/engine/doc.ts'), 'utf8')
 const dossierUi = readFileSync(join(here, '../src/ui/lage/SerieDossier.tsx'), 'utf8')
 
-assert.equal(APP_VERSION, '18.12.0')
-assert.equal(PKG_VERSION, '18.12.0')
+assert.equal(APP_VERSION, PKG_VERSION)
+assert.notEqual(APP_VERSION, '18.5.0')
+assert.ok(versionCodeOf(APP_VERSION) >= 181200)
 assert.equal(versionCodeOf('18.12.0'), 181200)
 assert.ok(versionCodeOf('18.12.0') > versionCodeOf('18.10.0'))
 

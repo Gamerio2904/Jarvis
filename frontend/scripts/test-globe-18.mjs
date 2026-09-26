@@ -1,5 +1,8 @@
 // @ts-nocheck — Sprint 279: Altbestand (Mocks). Neue Skripte ohne diese Zeile.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { commandClause, parseHudIntent } from '../src/engine/hud-parse.ts'
 import { parseFlightsIntent } from '../src/engine/flights.ts'
 import { dayOfYear, isNight, nightCover, subsolar, wrapLon } from '../src/engine/sun.ts'
@@ -12,7 +15,20 @@ import {
   pinTapRadius,
   placeLookupFailedLine,
 } from '../src/engine/globe-geo.ts'
-import { ageLine, parseGlobeLayerPhrase, briefingFromCache, dossierNear, isGlobeLayer } from '../src/engine/globe-layers.ts'
+import {
+  ageLine,
+  parseGlobeLayerPhrase,
+  briefingFromCache,
+  dossierNear,
+  isGlobeLayer,
+  OVERHEAD_BOX_DEG,
+  overheadBoxArea,
+  overheadHttpError,
+  overheadStatesUrl,
+  parseTrueTrack,
+} from '../src/engine/globe-layers.ts'
+import { headingRad, pinMarkerKind } from '../src/engine/globe-icons.ts'
+import { herePinState, isValidHereCoord } from '../src/engine/location-keep.ts'
 import { FIRE_BANDS, inLonLatBox, propagateGp, spreadFixes } from '../src/engine/orbit.ts'
 import { screenPanToMap } from '../src/engine/drive-map.ts'
 import { parseHereIntent } from '../src/engine/here-parse.ts'
@@ -94,6 +110,42 @@ assert.equal(parseFlightsIntent('Was ist über Deutschland'), true)
 assert.equal(parseFlightsIntent('Was fliegt da über uns?'), true)
 
 assert.match(ageLine(Date.now() - 12 * 60_000), /12 Minuten/)
+assert.match(ageLine(Date.now() - 12_000), /12 s/)
+assert.doesNotMatch(ageLine(Date.now() - 12_000), /Live/)
+assert.equal(OVERHEAD_BOX_DEG, 2)
+assert.equal(overheadBoxArea(), 16)
+{
+  const url = overheadStatesUrl({ lat: 51.16, lon: 10.45, label: 'Deutschland-Mitte' })
+  assert.match(url, /lamin=/)
+  assert.match(url, /lomin=/)
+  assert.match(url, /lamax=/)
+  assert.match(url, /lomax=/)
+  assert.equal(url.includes('/states/all?'), true)
+  assert.equal(/\/states\/all$/.test(url), false)
+}
+assert.equal(parseTrueTrack(90), 90)
+assert.equal(parseTrueTrack(null), undefined)
+assert.equal(parseTrueTrack('nope'), undefined)
+assert.match(overheadHttpError(429, 40), /Tageslimit/)
+assert.match(overheadHttpError(429, 40), /40 s/)
+assert.match(overheadHttpError(401), /Zugang/)
+assert.doesNotMatch(overheadHttpError(500), /Live/)
+assert.equal(headingRad(0), 0)
+assert.ok(Math.abs(headingRad(90) - Math.PI / 2) < 1e-9)
+assert.equal(pinMarkerKind('flight'), 'flight')
+assert.equal(pinMarkerKind('here'), 'here')
+assert.equal(pinMarkerKind('sat'), 'sat')
+assert.equal(pinMarkerKind('iss'), 'iss')
+assert.equal(pinMarkerKind('quake'), 'dot')
+assert.equal(isValidHereCoord('0', '0'), null)
+assert.equal(isValidHereCoord('48.1', '9.2')?.lat, 48.1)
+{
+  const stale = herePinState('48.1', '9.2', new Date(Date.now() - 15 * 60_000).toISOString())
+  assert.equal(stale?.stale, true)
+  const fresh = herePinState('48.1', '9.2', new Date().toISOString())
+  assert.equal(fresh?.stale, false)
+  assert.equal(herePinState('', '', ''), null)
+}
 
 assert.equal(isGlobeLayerPin('fire'), true)
 assert.equal(isGlobeLayerPin('quake'), true)
@@ -154,6 +206,18 @@ assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzl
   assert.equal(inLonLatBox({ lat: 12.1, lon: 18.4 }, FIRE_BANDS[2]), true)
   assert.equal(inLonLatBox({ lat: -15.2, lon: -60.1 }, FIRE_BANDS[1]), true)
   assert.equal(inLonLatBox({ lat: -23.0, lon: 140.0 }, FIRE_BANDS[3]), true)
+}
+
+{
+  const here = dirname(fileURLToPath(import.meta.url))
+  const view = readFileSync(join(here, '../src/ui/lage/GlobeView.tsx'), 'utf8')
+  const layers = readFileSync(join(here, '../src/engine/globe-layers.ts'), 'utf8')
+  const lage = readFileSync(join(here, '../src/ui/lage/Lage.tsx'), 'utf8')
+  assert.match(view, /drawAircraft/)
+  assert.match(view, /drawHerePin/)
+  assert.match(view, /drawSat/)
+  assert.doesNotMatch(layers, /starlink/i)
+  assert.match(lage, /globeLayer === 'overhead' \? 10_000/)
 }
 
 console.log('test:globe-18 ok')

@@ -688,6 +688,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     Groq <KeyMark on={Boolean(s?.groq_api_key?.trim())} />
                   </li>
                   <li>
+                    OpenSky <KeyMark on={Boolean(s?.opensky_client_id?.trim() && s?.opensky_client_secret?.trim())} />
+                  </li>
+                  <li>
                     Tankerkönig <KeyMark on={Boolean(s?.tankerkoenig_api_key?.trim())} />
                   </li>
                   <li>
@@ -762,6 +765,35 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   </button>
                 </div>
                 {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
+              </section>
+              <section className="settings-card" id="sf-opensky">
+                <h3>
+                  OpenSky <KeyMark on={Boolean(s?.opensky_client_id?.trim() && s?.opensky_client_secret?.trim())} />
+                </h3>
+                <p className="settings-hint">
+                  Optional. Ohne Key bleibt die Flugzeug-Schicht anonym (400 Credits/Tag). Client unter
+                  opensky-network.org — OAuth2, kein Basic-Login. Leer = anonym.
+                </p>
+                <label className="settings-field">
+                  <span>Client-ID</span>
+                  <SecretField
+                    key={`os-id-${s?.opensky_client_id ? 'set' : 'empty'}`}
+                    defaultValue={s?.opensky_client_id || ''}
+                    disabled={busy}
+                    placeholder="…-api-client"
+                    onBlur={(e) => void p.patchSetting({ opensky_client_id: e.target.value.trim() })}
+                  />
+                </label>
+                <label className="settings-field">
+                  <span>Client-Secret</span>
+                  <SecretField
+                    key={`os-sec-${s?.opensky_client_secret ? 'set' : 'empty'}`}
+                    defaultValue={s?.opensky_client_secret || ''}
+                    disabled={busy}
+                    placeholder="Secret, nicht teilen"
+                    onBlur={(e) => void p.patchSetting({ opensky_client_secret: e.target.value.trim() })}
+                  />
+                </label>
               </section>
               <section className="settings-card">
                 <h3>

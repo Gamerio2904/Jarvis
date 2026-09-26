@@ -1,6 +1,6 @@
 # Sprint 359 — Satellit und ISS statt Punkt
 
-**Version:** `18.14.0` — **PLAN** Must
+**Version:** `18.14.0` — **CODE** Must
 **Plan:** [`86-next.md`](../86-next.md)
 **Voraussetzung:** Zeichnung parallel zu 357/358. Datenweg `fetchSats` bleibt.
 

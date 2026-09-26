@@ -86,6 +86,44 @@ function lowerKeys(raw: unknown): Record<string, string> {
   return out
 }
 
+export async function postForm(
+  url: string,
+  fields: Record<string, string>,
+  timeoutMs = 12_000,
+): Promise<{ status: number; json: Record<string, unknown> }> {
+  const body = new URLSearchParams(fields).toString()
+  const headers = { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' }
+  const read = Math.max(400, timeoutMs)
+  const connect = Math.min(8_000, Math.max(400, Math.floor(read * 0.5)))
+  if (Capacitor.isNativePlatform()) {
+    const res = await CapacitorHttp.post({
+      url,
+      headers,
+      data: body,
+      connectTimeout: connect,
+      readTimeout: read,
+    })
+    let json: Record<string, unknown> = {}
+    try {
+      json = (typeof res.data === 'string' ? JSON.parse(res.data || '{}') : res.data || {}) as Record<
+        string,
+        unknown
+      >
+    } catch {
+      json = { error: { message: String(res.data || 'Ungültige Antwort') } }
+    }
+    return { status: res.status, json }
+  }
+  const res = await fetch(browserFetchUrl(url), {
+    method: 'POST',
+    headers: browserSafeHeaders(headers),
+    body,
+    signal: withTurnSignal(abortAfter(read)),
+  })
+  const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
+  return { status: res.status, json }
+}
+
 export async function getJson(
   url: string,
   headers: Record<string, string> = {},
@@ -123,7 +161,7 @@ export async function getJson(
 export async function getText(
   url: string,
   headers: Record<string, string> = {},
-): Promise<{ status: number; text: string }> {
+): Promise<{ status: number; text: string; headers: Record<string, string> }> {
   if (Capacitor.isNativePlatform()) {
     const res = await CapacitorHttp.get({
       url,
@@ -133,13 +171,17 @@ export async function getText(
       responseType: 'text',
     })
     const text = typeof res.data === 'string' ? res.data : res.data == null ? '' : JSON.stringify(res.data)
-    return { status: res.status, text }
+    return { status: res.status, text, headers: lowerKeys(res.headers) }
   }
   const res = await fetch(browserFetchUrl(url), {
     headers: browserSafeHeaders(headers),
     signal: withTurnSignal(abortAfter(WEB_GET_MS)),
   })
-  return { status: res.status, text: await res.text() }
+  const out: Record<string, string> = {}
+  res.headers.forEach((v, k) => {
+    out[k.toLowerCase()] = v
+  })
+  return { status: res.status, text: await res.text(), headers: out }
 }
 
 function bytesFromBase64(b64: string): Uint8Array {

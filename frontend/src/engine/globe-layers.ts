@@ -1,4 +1,5 @@
 import { getJson, getText } from './http-json.ts'
+import { openskyAuthHeader } from './opensky-auth.ts'
 import { loadSettings } from './store.ts'
 import { jsonUA } from './ua.ts'
 import { haversineKm, cityLine, isGlobeLayerPin, nearestPlace, type GeoFix, type GeoPinKind } from './globe-geo.ts'
@@ -28,18 +29,56 @@ export type LayerPhrase =
   | { kind: 'space' }
 
 const TTL_MS = 10 * 60_000
+const OVERHEAD_TTL_MS = 10_000
+export const OVERHEAD_BOX_DEG = 2
 const MAX_FULL = 40
 const MAX_LITE = 16
 const DE = { lat: 51.16, lon: 10.45 }
 
 const caches = new Map<GlobeLayer, LayerCache>()
+let overheadRetryAt = 0
+
+export function overheadBoxArea(box = OVERHEAD_BOX_DEG): number {
+  const span = box * 2
+  return span * span
+}
+
+export function parseTrueTrack(raw: unknown): number | undefined {
+  if (raw == null || raw === '') return undefined
+  const n = Number(raw)
+  if (!Number.isFinite(n) || n < 0 || n > 360) return undefined
+  return n
+}
+
+export function overheadHttpError(status: number, retryAfterSec?: number): string {
+  if (status === 429) {
+    const wait =
+      Number.isFinite(retryAfterSec) && (retryAfterSec as number) > 0
+        ? ` Wieder in ${Math.round(retryAfterSec as number)} s.`
+        : ''
+    return `OpenSky-Tageslimit, Schicht bleibt leer.${wait}`
+  }
+  if (status === 401 || status === 403) return 'OpenSky-Zugang abgelehnt. Key prüfen oder anonym.'
+  return 'OpenSky antwortet nicht'
+}
+
+export function resetOverheadRetryForTests(): void {
+  overheadRetryAt = 0
+  caches.delete('overhead')
+}
+
+function layerTtlMs(layer: GlobeLayer): number {
+  return layer === 'overhead' ? OVERHEAD_TTL_MS : TTL_MS
+}
 
 export function layerCap(): number {
   return loadSettings().globe_webgl ? MAX_LITE : MAX_FULL
 }
 
 export function ageLine(at: number, now = Date.now()): string {
-  const min = Math.max(0, Math.round((now - at) / 60_000))
+  const sec = Math.max(0, Math.round((now - at) / 1000))
+  if (sec < 60) return `Stand vor ${Math.max(1, sec)} s`
+  const min = Math.round(sec / 60)
   if (min <= 1) return 'Stand vor einer Minute'
   return `Stand vor ${min} Minuten`
 }
@@ -68,7 +107,7 @@ export function cachedLayer(layer?: GlobeLayer): LayerCache | null {
   if (!id) return null
   const hit = caches.get(id)
   if (!hit) return null
-  if (Date.now() - hit.at > TTL_MS) return null
+  if (Date.now() - hit.at > layerTtlMs(id)) return null
   return hit
 }
 
@@ -299,13 +338,33 @@ async function fetchFires(): Promise<LayerCache> {
   }
 }
 
+export function overheadStatesUrl(
+  origin = overheadOrigin(),
+  box = OVERHEAD_BOX_DEG,
+): string {
+  return `https://opensky-network.org/api/states/all?lamin=${origin.lat - box}&lomin=${origin.lon - box}&lamax=${origin.lat + box}&lomax=${origin.lon + box}`
+}
+
 export async function fetchOverhead(): Promise<LayerCache> {
+  if (Date.now() < overheadRetryAt) {
+    const hit = caches.get('overhead')
+    if (hit) return hit
+    return fail('overhead', 'OpenSky', 'OpenSky-Tageslimit, Schicht bleibt leer')
+  }
   const origin = overheadOrigin()
-  const box = 0.35
-  const url = `https://opensky-network.org/api/states/all?lamin=${origin.lat - box}&lomin=${origin.lon - box}&lamax=${origin.lat + box}&lomax=${origin.lon + box}`
+  const url = overheadStatesUrl(origin)
   try {
-    const { status, text } = await getText(url, UA)
-    if (status < 200 || status >= 300 || !text) return fail('overhead', 'OpenSky', 'OpenSky antwortet nicht')
+    const auth = await openskyAuthHeader()
+    const { status, text, headers } = await getText(url, { ...UA, ...auth })
+    if (status === 429) {
+      const retry = Number(headers['x-rate-limit-retry-after-seconds'])
+      const wait = Number.isFinite(retry) && retry > 0 ? retry : 60
+      overheadRetryAt = Date.now() + wait * 1000
+      return fail('overhead', 'OpenSky', overheadHttpError(status, wait))
+    }
+    if (status < 200 || status >= 300 || !text) {
+      return fail('overhead', 'OpenSky', overheadHttpError(status))
+    }
     const data = JSON.parse(text) as { states?: unknown[] }
     const states = Array.isArray(data.states) ? data.states : []
     const pins: GeoFix[] = []
@@ -315,10 +374,26 @@ export async function fetchOverhead(): Promise<LayerCache> {
       const lon = Number(row[5])
       const lat = Number(row[6])
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
-      pins.push({ name: call, lat, lon, kind: 'flight', line: 'OpenSky' })
+      const heading = parseTrueTrack(row[10])
+      pins.push({
+        name: call,
+        lat,
+        lon,
+        kind: 'flight',
+        line: 'OpenSky',
+        ...(heading != null ? { heading } : {}),
+      })
       if (pins.length >= MAX_FULL) break
     }
-    return remember({ layer: 'overhead', at: Date.now(), source: 'OpenSky', pins: take(pins, MAX_FULL) })
+    const remain = headers['x-rate-limit-remaining']
+    const extra = remain && /^\d+$/.test(remain) ? `Credits noch ${remain}.` : ''
+    return remember({
+      layer: 'overhead',
+      at: Date.now(),
+      source: 'OpenSky',
+      pins: take(pins, MAX_FULL),
+      extra,
+    })
   } catch {
     return fail('overhead', 'OpenSky', 'OpenSky ist nicht erreichbar')
   }
@@ -528,6 +603,11 @@ export async function fetchSpaceWeather(): Promise<string> {
 export async function fetchLayer(layer: GlobeLayer): Promise<LayerCache> {
   const fresh = cachedLayer(layer)
   if (fresh) return fresh
+  if (layer === 'overhead' && Date.now() < overheadRetryAt) {
+    const hit = caches.get('overhead')
+    if (hit) return hit
+    return fail('overhead', 'OpenSky', 'OpenSky-Tageslimit, Schicht bleibt leer')
+  }
   if (layer === 'quakes') return fetchQuakes()
   if (layer === 'fires') return fetchFires()
   if (layer === 'weather') return fetchEonet('weather', 'severeStorms', 'weather')

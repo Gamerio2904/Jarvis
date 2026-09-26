@@ -187,7 +187,7 @@ export function Lage({
     }
     void tick()
     const intervalMs =
-      view === 'globe' ? 30_000 : view === 'tiles' ? 0 : spotifyOn ? 8_000 : 20_000
+      view === 'globe' ? (globeLayer === 'overhead' ? 10_000 : 30_000) : view === 'tiles' ? 0 : spotifyOn ? 8_000 : 20_000
     const id = intervalMs > 0 ? window.setInterval(() => void tick(), intervalMs) : 0
     const off = onVisibility(() => {
       if (!isDocumentHidden()) void tick()

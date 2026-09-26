@@ -10,6 +10,7 @@ export type SettingsSearchHit = {
 export const SETTINGS_FIELD_INDEX: SettingsSearchHit[] = [
   { tab: 'keys', field: 'Gemini API-Key', keywords: ['gemini', 'key', 'google', 'aistudio'], elementId: 'sf-gemini-key' },
   { tab: 'keys', field: 'Groq API-Key', keywords: ['groq', 'backup', 'llama'], elementId: 'sf-groq-key' },
+  { tab: 'keys', field: 'OpenSky', keywords: ['opensky', 'flugzeug', 'adsb', 'lage'], elementId: 'sf-opensky' },
   { tab: 'keys', field: 'Tankerkönig', keywords: ['tank', 'tanke', 'sprit', 'benzin'], elementId: 'sf-tank-key' },
   { tab: 'hirn', field: 'Netz-Suche', keywords: ['research', 'netz', 'suche', 'internet'], elementId: 'sf-research' },
   { tab: 'hirn', field: 'e5 Rerank', keywords: ['e5', 'rerank', 'embed'], elementId: 'sf-e5' },
