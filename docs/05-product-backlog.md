@@ -57,7 +57,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | E62 | Debug-Rollback / Termin-Fristen `18.8` | 5+ | Lauf räumt Writes, Termin fragt nach 1–n Erinnerungen, Debug-Download am Dock, Prompt-Pakete neu — [`79-next.md`](./79-next.md) **CODE** `18.8.0` |
 | E63 | Lage Serie-Netz `18.10` | 5+ | Rick-and-Morty-Knoten, Steckbrief mit Staffel/Folge — [`83-next.md`](./83-next.md) **CODE** `18.10.0` |
 | E64 | Kamera-Fähigkeiten S6+ `18.12` | 5+ | Foto + Staffel/Folge, nur Sichtbares im Dossier — [`83-next.md`](./83-next.md) §3 **CODE + APK** `18.12.0` |
-| E67 | Lage-Kugel Icons `18.14` | 5+ | Stecknadel, Flugzeug, Satellit, ehrliches OpenSky — [`86-next.md`](./86-next.md) **CODE** |
+| E67 | Lage-Kugel Icons `18.14` | 5+ | Stecknadel, Flugzeug, Satellit, ehrliches OpenSky — [`86-next.md`](./86-next.md) **CODE + APK** `18.14.0` |
 
 ---
 
@@ -647,7 +647,7 @@ Priorisiertes Backlog. IDs stabil halten; Status aktualisieren.
 | S63.4 | Als Nutzer will ich, dass ein fehlgeschlagener Lesezug nicht doppelt Termine oder Tasten ausführt. | Must | done | Write/Device 1 Lauf; Recover nur Read + Hirn-Slot |
 | S63.5 | Als Nutzer will ich Recover-Sätze im Auto-Debug, ohne ein 14. Probe-Pack. | Must | done | Sprint 337; bestehende 13 Spuren; Mock-Pfad in `test-recover.mjs` |
 
-### E67 — Lage-Kugel Icons `18.14` [`86-next.md`](./86-next.md) **CODE**
+### E67 — Lage-Kugel Icons `18.14` [`86-next.md`](./86-next.md) **CODE + APK**
 
 | ID | Story | MoSCoW | Status | Akzeptanz (kurz) |
 |----|-------|--------|--------|------------------|

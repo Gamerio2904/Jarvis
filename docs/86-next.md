@@ -3,7 +3,7 @@
 PO: In der Lage fehlen die Flugzeuge. Statt Punkte: Stecknadel für
 den Standort, Flugzeug-Silhouette, Satellit statt Punkt.
 
-Execute: Sprints **356–360 CODE**. Sideload bleibt `18.12.0` bis APK.
+Execute: Sprints **356–360 CODE + APK**. Sideload **`18.14.0`**.
 Kein neuer Agent. Kein Cesium, kein weltweites ADS-B, kein Wort „Live“.
 
 Andere Drafts bleiben getrennt: Koch `#149`, Kamera-Wahl `#151`,
@@ -158,8 +158,8 @@ raten).
 | [359](./sprints/sprint-359.md) | Sat/ISS-Silhouette, kein Starlink |
 | [360](./sprints/sprint-360.md) | Poll ≥ 10 s, Tests, optional OAuth, Härten |
 
-Harte Kette: 356 → 357/358/359 → 360. **CODE** in `18.14.0`.
-Sideload bleibt `18.12.0` bis APK.
+Harte Kette: 356 → 357/358/359 → 360. **CODE + APK** in `18.14.0`.
+Sideload **`18.14.0`**, versionCode `181400`.
 
 ## 6. Abnahme (nach Execute)
 

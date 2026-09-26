@@ -5,14 +5,16 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.14.0` — Lage-Kugel: Flugzeuge, Stecknadel, Satelliten — *CODE*
+### `18.14.0` — Lage-Kugel: Flugzeuge, Stecknadel, Satelliten — *CODE + APK*
 
 OpenSky-Ausschnitt ±2°, Heading, 429-Text, Alter in Sekunden.
 Stecknadel (auch „letzter Stand“), Flugzeug-Silhouette, Sat/ISS-Körper.
 Poll ≥ 10 s solange die Schicht an und die Lage offen ist. Optional
 OpenSky-OAuth in den Settings. Nie „Live“. Kein weltweites ADS-B,
 kein Starlink, kein Cesium, kein neuer Agent.
-Sideload bleibt **`18.12.0`** bis APK. Plan: [`86-next.md`](./86-next.md).
+Sideload **`18.14.0`** (versionCode `181400`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Plan: [`86-next.md`](./86-next.md).
 Test: [`TEST-18.14.md`](./TEST-18.14.md).
 
 ### `18.12.0` — Kamera-Fähigkeiten S6+ — *CODE + APK*

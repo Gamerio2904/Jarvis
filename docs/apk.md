@@ -1,6 +1,9 @@
-# Android-APK — Sideload `18.12.0`
+# Android-APK — Sideload `18.14.0`
 
-App-Code **`18.12.0`**. Sideload **`18.12.0`** (versionCode `181200`):
+App-Code **`18.14.0`**. Sideload **`18.14.0`** (versionCode `181400`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+**18.12.0:** Kamera-Fähigkeiten S6+. Sideload **`18.12.0`** (versionCode `181200`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.10.0:** TV-Wahrheit, Hören, Serie-Netz. Sideload **`18.10.0`** (versionCode `181000`):
@@ -78,10 +81,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.12.0`:**  
+**Fertige APK `18.14.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.12.0` · versionCode `181200`
+- versionName `18.14.0` · versionCode `181400`
 
 ## Build lokal
 
