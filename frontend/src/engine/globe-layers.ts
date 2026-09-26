@@ -149,7 +149,7 @@ export function intelLine(): string {
   const layer = loadSettings().globe_layer
   if (!isGlobeLayer(layer)) return ''
   const hit = caches.get(layer)
-  if (!hit) return ''
+  if (!hit) return `${LAYER_TITLE[layer]}: warte auf Quelle. Kein Live.`
   const age = ageLine(hit.at)
   if (hit.error) return `${LAYER_TITLE[layer]}: ${hit.error}. ${age}.`
   const n = Math.min(hit.pins.length, layerCap())

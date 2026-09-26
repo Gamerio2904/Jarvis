@@ -239,6 +239,7 @@ assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzl
   assert.match(view, /LABEL_ZOOM/)
   assert.match(layers, /isAirborneState/)
   assert.match(layers, /layerFlyFocus/)
+  assert.match(layers, /warte auf Quelle/)
   assert.doesNotMatch(layers, /starlink/i)
   assert.match(lage, /globeLayer === 'overhead' \? 10_000/)
   assert.match(lage, /layerFlyFocus/)

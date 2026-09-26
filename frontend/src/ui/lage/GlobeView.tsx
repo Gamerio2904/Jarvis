@@ -474,7 +474,9 @@ export function GlobeView({
         if (nameOk) {
           pen.font = '10px Inter, system-ui, sans-serif'
           pen.textAlign = 'left'
-          pen.fillText(pin.name.slice(0, 22), q.x + 8, q.y + 3)
+          const labelX = pin.kind === 'here' ? q.x + 10 : q.x + 8
+          const labelY = pin.kind === 'here' ? q.y - 10 : q.y + 3
+          pen.fillText(pin.name.slice(0, 22), labelX, labelY)
         }
       }
     }
