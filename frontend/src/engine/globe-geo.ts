@@ -320,6 +320,14 @@ export function yawPitchFor(lat: number, lon: number): { yaw: number; pitch: num
   return { yaw: (lon * Math.PI) / 180, pitch: (lat * Math.PI) / 180 }
 }
 
+/** Pixelabstand für `deg` am Blickzentrum. R = minSide * 0.4 * zoom (wie GlobeView). */
+export function spherePixelSpread(deg: number, zoom: number, minSide = 360): number {
+  const z = Number.isFinite(zoom) && zoom > 0 ? zoom : 1
+  const side = Number.isFinite(minSide) && minSide > 0 ? minSide : 360
+  const r = side * 0.4 * z
+  return Math.abs(deg) * (Math.PI / 180) * r
+}
+
 /** +Y Nord, +Z Greenwich, +X 90° Ost. */
 export function xyz(lat: number, lon: number, r = 1): { x: number; y: number; z: number } {
   const la = (lat * Math.PI) / 180

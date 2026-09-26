@@ -14,6 +14,7 @@ import {
   pinLineFor,
   pinTapRadius,
   placeLookupFailedLine,
+  spherePixelSpread,
 } from '../src/engine/globe-geo.ts'
 import {
   ageLine,
@@ -25,9 +26,12 @@ import {
   overheadBoxArea,
   overheadHttpError,
   overheadStatesUrl,
+  isAirborneState,
+  layerFlyFocus,
   parseTrueTrack,
 } from '../src/engine/globe-layers.ts'
-import { headingRad, pinMarkerKind } from '../src/engine/globe-icons.ts'
+import { aircraftScale, headingRad, pinMarkerKind } from '../src/engine/globe-icons.ts'
+import { CITY_FLY_ZOOM, GLOBE_ZOOM_MAX, OVERHEAD_FLY_ZOOM, TOUR_OVERVIEW_ZOOM } from '../src/engine/globe-gibs.ts'
 import { herePinState, isValidHereCoord } from '../src/engine/location-keep.ts'
 import { FIRE_BANDS, inLonLatBox, propagateGp, spreadFixes } from '../src/engine/orbit.ts'
 import { screenPanToMap } from '../src/engine/drive-map.ts'
@@ -126,6 +130,22 @@ assert.equal(overheadBoxArea(), 16)
 assert.equal(parseTrueTrack(90), 90)
 assert.equal(parseTrueTrack(null), undefined)
 assert.equal(parseTrueTrack('nope'), undefined)
+assert.equal(isAirborneState([, 'DLH', , , , 10.4, 51.1, , false, 120, 90]), true)
+assert.equal(isAirborneState([, 'DLH', , , , 10.4, 51.1, , true, 0, 90]), false)
+assert.equal(isAirborneState([, 'DLH', , , , 'x', 51.1, , false]), false)
+assert.equal(CITY_FLY_ZOOM < 5.2, true)
+assert.ok(OVERHEAD_FLY_ZOOM > CITY_FLY_ZOOM)
+assert.ok(GLOBE_ZOOM_MAX >= OVERHEAD_FLY_ZOOM)
+assert.ok(spherePixelSpread(4, 1.42) < 20, 'Europa-Zoom klebt den Ausschnitt')
+assert.ok(spherePixelSpread(4, OVERHEAD_FLY_ZOOM) >= 90, 'Lokal-Zoom trennt Flugzeuge')
+assert.ok(aircraftScale(12) > aircraftScale(1.4))
+{
+  const fly = layerFlyFocus('overhead')
+  assert.ok(fly && fly.zoom === OVERHEAD_FLY_ZOOM)
+  assert.equal(layerFlyFocus('quakes')?.zoom, TOUR_OVERVIEW_ZOOM)
+  assert.equal(layerFlyFocus('sats')?.zoom, TOUR_OVERVIEW_ZOOM)
+  assert.equal(layerFlyFocus(''), null)
+}
 assert.match(overheadHttpError(429, 40), /Tageslimit/)
 assert.match(overheadHttpError(429, 40), /40 s/)
 assert.match(overheadHttpError(401), /Zugang/)
@@ -216,8 +236,12 @@ assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzl
   assert.match(view, /drawAircraft/)
   assert.match(view, /drawHerePin/)
   assert.match(view, /drawSat/)
+  assert.match(view, /LABEL_ZOOM/)
+  assert.match(layers, /isAirborneState/)
+  assert.match(layers, /layerFlyFocus/)
   assert.doesNotMatch(layers, /starlink/i)
   assert.match(lage, /globeLayer === 'overhead' \? 10_000/)
+  assert.match(lage, /layerFlyFocus/)
 }
 
 console.log('test:globe-18 ok')

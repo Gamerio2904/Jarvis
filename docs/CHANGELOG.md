@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.14.1` — Lage-Kugel: Flugzeuge nicht am Pin — *CODE*
+
+OpenSky nur noch in der Luft. Schicht Flugzeuge/Luft zoomt auf den
+±2°-Ausschnitt (`OVERHEAD_FLY_ZOOM` 12), sonst kleben 40 Silhouetten
+am Standort. Rufzeichen erst bei Zoom ≥ 6. Intel ohne Versalien.
+Sideload bleibt **`18.14.0`** bis APK. Test: [`TEST-18.14.md`](./TEST-18.14.md).
+
 ### `18.14.0` — Lage-Kugel: Flugzeuge, Stecknadel, Satelliten — *CODE + APK*
 
 OpenSky-Ausschnitt ±2°, Heading, 429-Text, Alter in Sekunden.

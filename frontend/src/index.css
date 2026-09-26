@@ -5312,6 +5312,8 @@ button.linkish {
   padding: 0 2px 4px;
   font-size: 0.7rem;
   line-height: 1.35;
+  letter-spacing: 0.02em;
+  text-transform: none;
   color: var(--text);
 }
 
@@ -6438,7 +6440,12 @@ button.linkish {
     width: 100%;
     align-self: stretch;
     flex: 1 1 auto;
-    min-height: 0;
+    min-height: 240px;
+  }
+  .lage.is-compact .globe-wrap .globe-view,
+  .lage.is-compact .serie-map-canvas,
+  .lage.is-compact .agent-map-canvas {
+    min-height: 240px;
   }
   .lage.is-compact .lage-split > .lage-tile {
     position: absolute;

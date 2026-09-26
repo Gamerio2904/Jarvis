@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.14.0`**. Sideload-APK **`18.14.0`**, versionCode `181400`. Lage-Icons **CODE + APK** `18.14.0` [`86-next.md`](./86-next.md). **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.14.md`](./TEST-18.14.md).
+**Jetzt:** Code **`18.14.1`**. Sideload-APK **`18.14.0`**, versionCode `181400`. Lage-Icons **CODE + APK** `18.14.0`, Pin-Fix `18.14.1` [`86-next.md`](./86-next.md). **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.14.md`](./TEST-18.14.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -319,4 +319,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 347 | `18.12.0` | **CODE + APK** (Kamera-Fähigkeiten S6+, [`83-next.md`](./83-next.md) §3) |
 | 356–360 | `18.14.0` | **CODE + APK** (Lage-Kugel Icons, [`86-next.md`](./86-next.md)) |
 
-**Aktuell:** App-Code **`18.14.0`**. Sideload-APK **`18.14.0`**, versionCode `181400`. Lage-Icons **CODE + APK** `18.14.0`. Test: [`TEST-18.14.md`](./TEST-18.14.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.14.1`**. Sideload-APK **`18.14.0`**, versionCode `181400`. Lage-Icons **CODE + APK** `18.14.0`, Pin-Fix `18.14.1`. Test: [`TEST-18.14.md`](./TEST-18.14.md). Index: [`42-planned.md`](./42-planned.md).

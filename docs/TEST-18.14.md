@@ -1,13 +1,13 @@
 # TEST 18.14 — Lage-Kugel Icons
 
-Nach Execute von [`86-next.md`](./86-next.md). App-Code **`18.14.0`**.
-Sideload **`18.14.0`**, versionCode `181400`.
+Nach Execute von [`86-next.md`](./86-next.md). App-Code **`18.14.1`**.
+Sideload **`18.14.0`**, versionCode `181400` bis zur nächsten APK.
 
 Gerät, nicht die Cloud-VM (OpenSky dort oft SSL-tot).
 
 ## 1. Version
 
-Einstellungen / Hilfe nennt **`18.14.0`**. Nicht `18.5.0`.
+Einstellungen / Hilfe nennt **`18.14.1`**. Nicht `18.5.0`.
 
 ## 2. Ohne Satz
 
@@ -18,7 +18,9 @@ im Log / in der Intel-Leiste.
 
 `Zeig Flugzeuge` oder `Was fliegt da`.
 
-Erwartung: Silhouetten (kein hellblauer Punkt), Kurs stimmt grob,
+Erwartung: Kugel **zoomt auf den Ausschnitt** (nicht Europa-weit).
+Silhouetten **getrennt** um den Pin, nicht ein Haufen darauf.
+Nur Maschinen in der Luft, keine am Boden. Kurs stimmt grob.
 Text mit OpenSky + **Stand vor N s** (oder Minuten) + **Kein Live**.
 Herkunft Standort oder ausdrücklich Deutschland-Mitte.
 

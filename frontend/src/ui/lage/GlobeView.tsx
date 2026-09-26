@@ -1,7 +1,8 @@
 import { Component, useEffect, useRef, type ReactNode } from 'react'
 import type { GeoFix } from '../../engine/globe-geo.ts'
 import { globeFocusKey, lookLatLon, pickTappedPin, shouldApplyGlobeFocus, viewXYZ, yawPitchFor, alongCoast } from '../../engine/globe-geo.ts'
-import { drawAircraft, drawHerePin, drawSat, pinMarkerKind } from '../../engine/globe-icons.ts'
+import { GLOBE_ZOOM_MAX } from '../../engine/globe-gibs.ts'
+import { aircraftScale, drawAircraft, drawHerePin, drawSat, pinMarkerKind } from '../../engine/globe-icons.ts'
 import { WORLD_RINGS } from '../../engine/world-rings.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 import { loadSettings } from '../../engine/store.ts'
@@ -23,8 +24,9 @@ export class GlobeGuard extends Component<{ children: ReactNode }, { failed: boo
 
 const HOME = { lat: 50.1, lon: 10.4 }
 const ZOOM_MIN = 1
-const ZOOM_MAX = 4.4
+const ZOOM_MAX = GLOBE_ZOOM_MAX
 const FRONT = 0.04
+const LABEL_ZOOM = 6
 
 function clampZoom(z: number): number {
   if (!Number.isFinite(z) || z <= 0) return 1.12
@@ -398,6 +400,8 @@ export function GlobeView({
         .map((pin) => ({ pin, q: project(pin.lat, pin.lon) }))
         .filter((x) => x.q.z > -0.02)
       shown.sort((a, b) => a.q.z - b.q.z)
+      const planeScale = aircraftScale(zoom.current)
+      const showFlightName = zoom.current >= LABEL_ZOOM
       for (const { pin, q } of shown) {
         if (pin.kind === 'glow') {
           pen.beginPath()
@@ -422,7 +426,7 @@ export function GlobeView({
         if (mark === 'here') {
           drawHerePin(pen, q.x, q.y, { stale: pin.stale, pulse: pulse.current })
         } else if (mark === 'flight') {
-          drawAircraft(pen, q.x, q.y, pin.heading)
+          drawAircraft(pen, q.x, q.y, pin.heading, planeScale)
         } else if (mark === 'sat' || mark === 'iss') {
           drawSat(pen, q.x, q.y, mark === 'iss')
         } else {
@@ -459,7 +463,15 @@ export function GlobeView({
           pen.fill()
         }
         pen.fillStyle = 'rgba(230, 240, 236, 0.82)'
-        if (!lite || pin.kind === 'here' || pin.kind === 'fire' || pin.kind === 'quake' || pin.kind === 'sat' || pin.kind === 'iss') {
+        const nameOk =
+          pin.kind === 'here' ||
+          pin.kind === 'fire' ||
+          pin.kind === 'quake' ||
+          pin.kind === 'sat' ||
+          pin.kind === 'iss' ||
+          (pin.kind === 'flight' && showFlightName) ||
+          (!lite && pin.kind !== 'flight')
+        if (nameOk) {
           pen.font = '10px Inter, system-ui, sans-serif'
           pen.textAlign = 'left'
           pen.fillText(pin.name.slice(0, 22), q.x + 8, q.y + 3)

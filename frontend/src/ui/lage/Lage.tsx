@@ -37,6 +37,7 @@ import {
   frontsForActiveLayer,
   globeIdleHint,
   intelLine,
+  layerFlyFocus,
   viewDossier,
 } from '../../engine/globe-layers.ts'
 import type { GlobeLayer } from '../../engine/globe-layer-ids.ts'
@@ -251,6 +252,8 @@ export function Lage({
   }
 
   function globeFocus(): GlobeFocus | null {
+    const layer = layerFlyFocus(globeLayer)
+    if (layer) return layer
     try {
       const raw = s.last_globe_focus
       if (!raw) return null
@@ -298,7 +301,7 @@ export function Lage({
       const lat = Number(f.lat)
       const lon = Number(f.lon)
       const at = Number(f.at) || 0
-      if (!name || /^iss$/i.test(name) || !Number.isFinite(lat) || at <= pinClosedAt.current) return
+      if (!name || /^iss$/i.test(name) || /^layer:/i.test(name) || !Number.isFinite(lat) || at <= pinClosedAt.current) return
       if (Date.now() - at > 12_000) return
       setPinCard({
         name,
