@@ -4,6 +4,7 @@ import { loadSettings } from './store.ts'
 import { jsonUA } from './ua.ts'
 import { haversineKm, cityLine, isGlobeLayerPin, nearestPlace, type GeoFix, type GeoPinKind } from './globe-geo.ts'
 import { INFRA_FIXES, SEA_FIXES } from './globe-static.ts'
+import { OVERHEAD_FLY_ZOOM, TOUR_OVERVIEW_ZOOM } from './globe-gibs.ts'
 import { LAYER_TITLE, isGlobeLayer, type GlobeLayer } from './globe-layer-ids.ts'
 import { FIRE_BANDS, inLonLatBox, propagateGp, spreadFixes, type GpRow, type LonLatBox } from './orbit.ts'
 
@@ -48,6 +49,25 @@ export function parseTrueTrack(raw: unknown): number | undefined {
   const n = Number(raw)
   if (!Number.isFinite(n) || n < 0 || n > 360) return undefined
   return n
+}
+
+/** OpenSky states[8] = on_ground. Am Boden klebt die Silhouette am Flughafen/Pin. */
+export function isAirborneState(row: unknown): boolean {
+  if (!Array.isArray(row)) return false
+  const ground = row[8]
+  if (ground === true || ground === 1 || ground === 'true') return false
+  const lon = Number(row[5])
+  const lat = Number(row[6])
+  return Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180
+}
+
+export function layerFlyFocus(layer?: string | null): { name: string; lat: number; lon: number; zoom: number } | null {
+  if (!layer || !isGlobeLayer(layer)) return null
+  const o = overheadOrigin()
+  if (layer === 'overhead' || layer === 'air') {
+    return { name: `layer:${layer}`, lat: o.lat, lon: o.lon, zoom: OVERHEAD_FLY_ZOOM }
+  }
+  return { name: `layer:${layer}`, lat: o.lat, lon: o.lon, zoom: TOUR_OVERVIEW_ZOOM }
 }
 
 export function overheadHttpError(status: number, retryAfterSec?: number): string {
@@ -134,7 +154,8 @@ export function intelLine(): string {
   if (hit.error) return `${LAYER_TITLE[layer]}: ${hit.error}. ${age}.`
   const n = Math.min(hit.pins.length, layerCap())
   const extra = hit.extra ? ` ${hit.extra}` : ''
-  return `${LAYER_TITLE[layer]}: ${n} Punkte, ${hit.source}. ${age}. Kein Live.${extra}`
+  const noun = layer === 'overhead' ? 'Flugzeuge' : 'Punkte'
+  return `${LAYER_TITLE[layer]}: ${n} ${noun}, ${hit.source}. ${age}. Kein Live.${extra}`
 }
 
 export function globeIdleHint(): string {
@@ -369,12 +390,11 @@ export async function fetchOverhead(): Promise<LayerCache> {
     const states = Array.isArray(data.states) ? data.states : []
     const pins: GeoFix[] = []
     for (const row of states) {
-      if (!Array.isArray(row)) continue
-      const call = String(row[1] || '').trim() || 'ohne Rufzeichen'
-      const lon = Number(row[5])
-      const lat = Number(row[6])
-      if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
-      const heading = parseTrueTrack(row[10])
+      if (!isAirborneState(row)) continue
+      const call = String((row as unknown[])[1] || '').trim() || 'ohne Rufzeichen'
+      const lon = Number((row as unknown[])[5])
+      const lat = Number((row as unknown[])[6])
+      const heading = parseTrueTrack((row as unknown[])[10])
       pins.push({
         name: call,
         lat,

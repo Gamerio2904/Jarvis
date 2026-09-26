@@ -44,10 +44,25 @@ export function drawHerePin(
   pen.fill()
 }
 
-export function drawAircraft(pen: CanvasRenderingContext2D, x: number, y: number, heading?: number): void {
+export function aircraftScale(zoom: number): number {
+  const z = Number.isFinite(zoom) ? zoom : 1
+  if (z >= 10) return 1.55
+  if (z >= 6) return 1.25
+  return 1
+}
+
+export function drawAircraft(
+  pen: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  heading?: number,
+  scale = 1,
+): void {
+  const s = Number.isFinite(scale) && scale > 0 ? scale : 1
   pen.save()
   pen.translate(x, y)
   pen.rotate(headingRad(heading))
+  pen.scale(s, s)
   pen.fillStyle = '#9ecbff'
   pen.beginPath()
   pen.moveTo(0, -7)

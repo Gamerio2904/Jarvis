@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.14.0`**. Sideload **`18.14.0`**, versionCode `181400`. Lage-Icons [`86-next.md`](./86-next.md). Test [`TEST-18.14.md`](./TEST-18.14.md).
+> **Jetzt:** App-Code **`18.14.1`**. Sideload **`18.14.0`**, versionCode `181400`. Lage-Icons [`86-next.md`](./86-next.md). Test [`TEST-18.14.md`](./TEST-18.14.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -748,6 +748,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.10.0` | TV-Wahrheit, Groq-STT, Edge-first, Observe; Lage Serie-Netz | 301–306 + 341 CODE + APK |
 | `18.12.0` | Kamera-Fähigkeiten S6+ (Foto + Staffel/Folge, kein Wiki) | 347 CODE + APK |
 | `18.14.0` | Lage-Kugel: Stecknadel, Flugzeug, Satellit (kein Live) | 356–360 CODE + APK |
+| `18.14.1` | Flugzeuge nicht am Pin: Luftfilter + Lokal-Zoom | Hotfix CODE |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
