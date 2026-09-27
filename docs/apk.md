@@ -1,6 +1,6 @@
-# Android-APK — Sideload `18.14.0`
+# Android-APK — Sideload `18.14.2`
 
-App-Code **`18.14.0`**. Sideload **`18.14.0`** (versionCode `181400`):
+App-Code **`18.14.2`**. Sideload **`18.14.2`** (versionCode `181402`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.12.0:** Kamera-Fähigkeiten S6+. Sideload **`18.12.0`** (versionCode `181200`):
@@ -81,10 +81,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.14.0`:**  
+**Fertige APK `18.14.2`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.14.0` · versionCode `181400`
+- versionName `18.14.2` · versionCode `181402`
 
 ## Build lokal
 

@@ -1,7 +1,7 @@
 # TEST 18.14 — Lage-Kugel Icons
 
 Nach Execute von [`86-next.md`](./86-next.md). App-Code **`18.14.2`**.
-Sideload **`18.14.0`**, versionCode `181400` bis zur nächsten APK.
+Sideload **`18.14.2`**, versionCode `181402`.
 
 Gerät, nicht die Cloud-VM (OpenSky dort oft SSL-tot).
 

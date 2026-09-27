@@ -159,7 +159,7 @@ raten).
 | [360](./sprints/sprint-360.md) | Poll ≥ 10 s, Tests, optional OAuth, Härten |
 
 Harte Kette: 356 → 357/358/359 → 360. **CODE + APK** in `18.14.0`.
-Sideload **`18.14.0`**, versionCode `181400`.
+Sideload **`18.14.2`**, versionCode `181402` (Zoom + Sätze).
 
 ## 6. Abnahme (nach Execute)
 

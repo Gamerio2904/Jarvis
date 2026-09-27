@@ -5,12 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.14.2` — Lage-Kugel: Texte, Grafik, Idle-Loop — *CODE*
+### `18.14.2` — Lage-Kugel: Texte, Grafik, Idle-Loop — *CODE + APK*
 
 Intel und Pin-Karten sprechen in Sätzen aus der Quelle
 (OpenSky/EONET/USGS/CelesTrak), nicht „Punkte“. Kugel bleibt bei 30 fps
 sichtbar, Stecknadel pulst. Feuer/Beben/Unwetter eigene Marker.
-Sideload bleibt **`18.14.0`** bis APK. Test: [`TEST-18.14.md`](./TEST-18.14.md).
+Nur Maschinen in der Luft, Zoom 12 um den Standort.
+Sideload **`18.14.2`** (versionCode `181402`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Test: [`TEST-18.14.md`](./TEST-18.14.md).
 
 ### `18.14.1` — Lage-Kugel: Flugzeuge nicht am Pin — *CODE*
 

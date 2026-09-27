@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.14.2`**. Sideload **`18.14.0`**, versionCode `181400`. Lage-Icons [`86-next.md`](./86-next.md). Test [`TEST-18.14.md`](./TEST-18.14.md).
+> **Jetzt:** App-Code **`18.14.2`**. Sideload **`18.14.2`**, versionCode `181402`. Lage-Icons [`86-next.md`](./86-next.md). Test [`TEST-18.14.md`](./TEST-18.14.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -749,7 +749,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.12.0` | Kamera-Fähigkeiten S6+ (Foto + Staffel/Folge, kein Wiki) | 347 CODE + APK |
 | `18.14.0` | Lage-Kugel: Stecknadel, Flugzeug, Satellit (kein Live) | 356–360 CODE + APK |
 | `18.14.1` | Flugzeuge nicht am Pin: Luftfilter + Lokal-Zoom | Hotfix CODE |
-| `18.14.2` | Lage-Texte, Idle-Loop, weichere Kugel | Hotfix CODE |
+| `18.14.2` | Lage-Texte, Idle-Loop, weichere Kugel | Hotfix CODE + APK |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -781,6 +781,9 @@ Dossier `· Kamera`.
 **`18.14.0`** (App-Code + Sideload, versionCode `181400`): Lage-Kugel-Icons.
 Stecknadel, Flugzeug mit Kurs, Sat-Körper, OpenSky ±2°, Poll ≥ 10 s,
 nie „Live“. [`86-next.md`](./86-next.md).
+
+**`18.14.2`** (App-Code + Sideload, versionCode `181402`): Flugzeuge
+nicht am Pin, Sätze statt „Punkte“, Idle-Loop. Over `18.14.0` installieren.
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
