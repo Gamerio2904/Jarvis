@@ -20,8 +20,7 @@ export function flightLine(opts: {
   lon: number
 }): string {
   const near = nearestPlace(opts.lat, opts.lon, 80)
-  const bits = [`Maschine ${opts.call}`]
-  bits.push(near ? `über ${near.name}` : 'im gewählten Ausschnitt')
+  const bits = [near ? `Maschine ${opts.call} über ${near.name}` : `Maschine ${opts.call} im gewählten Ausschnitt`]
   if (opts.country) bits.push(`Registrierung ${opts.country}`)
   if (Number.isFinite(opts.altM) && (opts.altM as number) > 0) {
     bits.push(`Höhe ca. ${Math.round(opts.altM as number)} m`)
