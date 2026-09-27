@@ -4,6 +4,20 @@ import { loadSettings } from './store.ts'
 import { jsonUA } from './ua.ts'
 import { haversineKm, cityLine, isGlobeLayerPin, nearestPlace, type GeoFix, type GeoPinKind } from './globe-geo.ts'
 import { INFRA_FIXES, SEA_FIXES } from './globe-static.ts'
+import {
+  airLine,
+  cyberLine,
+  exampleNames,
+  fireLine,
+  flightLine,
+  gdeltLine,
+  infraLine,
+  intelForLayer,
+  quakeLine,
+  satLine,
+  shipLine,
+  weatherLine,
+} from './globe-copy.ts'
 import { OVERHEAD_FLY_ZOOM, TOUR_OVERVIEW_ZOOM } from './globe-gibs.ts'
 import { LAYER_TITLE, isGlobeLayer, type GlobeLayer } from './globe-layer-ids.ts'
 import { FIRE_BANDS, inLonLatBox, propagateGp, spreadFixes, type GpRow, type LonLatBox } from './orbit.ts'
@@ -154,8 +168,7 @@ export function intelLine(): string {
   if (hit.error) return `${LAYER_TITLE[layer]}: ${hit.error}. ${age}.`
   const n = Math.min(hit.pins.length, layerCap())
   const extra = hit.extra ? ` ${hit.extra}` : ''
-  const noun = layer === 'overhead' ? 'Flugzeuge' : 'Punkte'
-  return `${LAYER_TITLE[layer]}: ${n} ${noun}, ${hit.source}. ${age}. Kein Live.${extra}`
+  return intelForLayer(layer, n, hit.source, age, exampleNames(hit.pins.map((p) => p.name)), extra)
 }
 
 export function globeIdleHint(): string {
@@ -286,7 +299,14 @@ async function fetchQuakes(): Promise<LayerCache> {
       const mag = magOf(f.properties)
       if (!(mag >= 4.5)) continue
       const place = String(f.properties?.place || '').trim() || `${mag.toFixed(1)}`
-      pins.push({ name: `M${mag.toFixed(1)}`, lat, lon, kind: 'quake', line: `USGS · ${place}` })
+      const short = place.length > 28 ? place.slice(0, 26) + '…' : place
+      pins.push({
+        name: `M${mag.toFixed(1)} ${short}`,
+        lat,
+        lon,
+        kind: 'quake',
+        line: quakeLine(mag, place),
+      })
       if (pins.length >= MAX_FULL) break
     }
     return remember({ layer: 'quakes', at: Date.now(), source: 'USGS', pins: take(pins, MAX_FULL) })
@@ -302,7 +322,6 @@ function eonetPinsFrom(
   box?: LonLatBox,
   cap = MAX_FULL,
 ): GeoFix[] {
-  const source = 'NASA EONET'
   const pins: GeoFix[] = []
   const seen = new Set<string>()
   for (const raw of events) {
@@ -314,7 +333,13 @@ function eonetPinsFrom(
     const key = `${title}|${at.lat.toFixed(2)}|${at.lon.toFixed(2)}`
     if (seen.has(key)) continue
     seen.add(key)
-    pins.push({ name: title, lat: at.lat, lon: at.lon, kind, line: `${source} · ${title}` })
+    pins.push({
+      name: title,
+      lat: at.lat,
+      lon: at.lon,
+      kind,
+      line: kind === 'fire' ? fireLine(title) : weatherLine(title),
+    })
     if (pins.length >= cap) break
   }
   return pins
@@ -391,16 +416,28 @@ export async function fetchOverhead(): Promise<LayerCache> {
     const pins: GeoFix[] = []
     for (const row of states) {
       if (!isAirborneState(row)) continue
-      const call = String((row as unknown[])[1] || '').trim() || 'ohne Rufzeichen'
-      const lon = Number((row as unknown[])[5])
-      const lat = Number((row as unknown[])[6])
-      const heading = parseTrueTrack((row as unknown[])[10])
+      const cells = row as unknown[]
+      const call = String(cells[1] || '').trim() || 'ohne Rufzeichen'
+      const lon = Number(cells[5])
+      const lat = Number(cells[6])
+      const altM = Number(cells[7])
+      const speedMs = Number(cells[9])
+      const heading = parseTrueTrack(cells[10])
+      const country = String(cells[2] || '').trim()
       pins.push({
         name: call,
         lat,
         lon,
         kind: 'flight',
-        line: 'OpenSky',
+        line: flightLine({
+          call,
+          lat,
+          lon,
+          ...(country ? { country } : {}),
+          ...(Number.isFinite(altM) ? { altM } : {}),
+          ...(Number.isFinite(speedMs) ? { speedMs } : {}),
+          ...(heading != null ? { heading } : {}),
+        }),
         ...(heading != null ? { heading } : {}),
       })
       if (pins.length >= MAX_FULL) break
@@ -429,7 +466,11 @@ async function fetchAir(): Promise<LayerCache> {
     const aqi = Number(cur.european_aqi)
     const pm = Number(cur.pm2_5)
     const label = Number.isFinite(aqi) ? `AQI ${Math.round(aqi)}` : 'Luft'
-    const line = Number.isFinite(pm) ? `Open-Meteo · PM2.5 ${pm.toFixed(1)}` : 'Open-Meteo'
+    const line = airLine(
+      Number.isFinite(aqi) ? aqi : undefined,
+      Number.isFinite(pm) ? pm : undefined,
+      origin.label,
+    )
     return remember({
       layer: 'air',
       at: Date.now(),
@@ -458,7 +499,7 @@ async function fetchIssPin(): Promise<GeoFix | null> {
     const lat = Number(json.latitude)
     const lon = Number(json.longitude)
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null
-    return { name: 'ISS', lat, lon, kind: 'sat', line: 'Where The ISS At · Station' }
+    return { name: 'ISS', lat, lon, kind: 'sat', line: satLine('ISS', true) }
   } catch {
     return null
   }
@@ -490,7 +531,7 @@ async function fetchCelestrakPins(): Promise<GeoFix[]> {
             lat: hit.lat,
             lon: hit.lon,
             kind: 'sat',
-            line: `CelesTrak · ${hit.name}`,
+            line: satLine(hit.name),
           })
         }
         break
@@ -521,7 +562,10 @@ async function fetchShips(): Promise<LayerCache> {
     layer: 'ships',
     at: Date.now(),
     source: 'Tabelle',
-    pins: take(SEA_FIXES, MAX_FULL),
+    pins: take(SEA_FIXES, MAX_FULL).map((p) => ({
+      ...p,
+      line: shipLine(p.name, /Hafen/i.test(p.line || '') ? 'Hafen' : /Kanal/i.test(p.line || '') ? 'Kanal' : 'Meerenge'),
+    })),
     extra: 'Kein öffentliches AIS ohne Key.',
   })
 }
@@ -531,7 +575,10 @@ async function fetchInfra(): Promise<LayerCache> {
     layer: 'infra',
     at: Date.now(),
     source: 'Tabelle',
-    pins: take(INFRA_FIXES, MAX_FULL),
+    pins: take(INFRA_FIXES, MAX_FULL).map((p) => ({
+      ...p,
+      line: infraLine(p.name, /Kernkraft/i.test(p.line || '') ? 'Kernkraft' : 'Anlage'),
+    })),
   })
 }
 
@@ -547,7 +594,13 @@ function gdeltPins(raw: unknown, kind: GeoPinKind, limit: number): GeoFix[] {
     const lat = Number(coords[1])
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue
     const name = String(f.properties?.name || f.properties?.title || f.properties?.count || kind).slice(0, 48)
-    pins.push({ name, lat, lon, kind, line: 'GDELT' })
+    pins.push({
+      name,
+      lat,
+      lon,
+      kind,
+      line: gdeltLine(name, kind === 'conflict' ? 'conflict' : 'event'),
+    })
     if (pins.length >= limit) break
   }
   return pins
@@ -591,7 +644,7 @@ async function fetchCyber(): Promise<LayerCache> {
     for (const ip of ips) {
       const at = await geoIp(ip)
       if (!at) continue
-      pins.push({ name: ip, lat: at.lat, lon: at.lon, kind: 'cyber', line: 'abuse.ch Feodo · Blocklist, kein beobachteter Angriff' })
+      pins.push({ name: ip, lat: at.lat, lon: at.lon, kind: 'cyber', line: cyberLine(ip) })
       if (pins.length >= layerCap()) break
     }
     return remember({
@@ -645,21 +698,15 @@ export async function fetchLayer(layer: GlobeLayer): Promise<LayerCache> {
 export function replyFor(got: LayerCache): string {
   const age = ageLine(got.at)
   if (got.error) return `${got.error}. Die Kugel bleibt. Kein Live.`
-  const n = got.pins.length
   const extra = got.extra ? ` ${got.extra}` : ''
-  if (n === 0) {
-    if (got.layer === 'quakes') return `USGS sieht in 24 Stunden kein Beben ab Magnitude 4,5. ${age}. Kein Live.`
-    if (got.layer === 'fires') return `NASA EONET nennt gerade keinen offenen Waldbrand. ${age}. Kein Live.`
-    if (got.layer === 'overhead') return `OpenSky sieht in dem Ausschnitt kein Flugzeug. ${age}. Kein Live.`
-    return `${got.source} liefert gerade keine Punkte für ${LAYER_TITLE[got.layer]}. ${age}. Kein Live.${extra}`
-  }
-  if (got.layer === 'quakes') return `USGS: ${n} Beben ab Magnitude 4,5 in 24 Stunden. ${age}. Kein Live.`
-  if (got.layer === 'fires') return `NASA EONET: ${n} offene Waldbrände. ${age}. Kein Live.`
-  if (got.layer === 'overhead') {
-    const origin = overheadOrigin()
-    return `OpenSky: ${n} Flugzeuge um ${origin.label}. ${age}. Keine Passagiere, kein Live.`
-  }
-  return `${got.source}: ${n} ${LAYER_TITLE[got.layer]}-Punkte. ${age}. Kein Live.${extra}`
+  return intelForLayer(
+    got.layer,
+    got.pins.length,
+    got.source,
+    age,
+    exampleNames(got.pins.map((p) => p.name)),
+    extra,
+  )
 }
 
 export function briefingFromCache(): string {
@@ -670,7 +717,7 @@ export function briefingFromCache(): string {
   if (hit.error) return `${LAYER_TITLE[layer]}: ${hit.error}. Keine Erfindung.`
   const names = hit.pins.slice(0, 12).map((p) => p.name)
   const age = ageLine(hit.at)
-  if (!names.length) return `${LAYER_TITLE[layer]} ist an, ${hit.source} nennt keine Punkte. ${age}.`
+  if (!names.length) return `${LAYER_TITLE[layer]} ist an, ${hit.source} nennt gerade nichts. ${age}.`
   return `${LAYER_TITLE[layer]}, ${hit.source}, ${age}: ${names.join(', ')}. Kein Live.`
 }
 

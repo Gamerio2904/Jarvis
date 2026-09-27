@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.14.2` — Lage-Kugel: Texte, Grafik, Idle-Loop — *CODE*
+
+Intel und Pin-Karten sprechen in Sätzen aus der Quelle
+(OpenSky/EONET/USGS/CelesTrak), nicht „Punkte“. Kugel bleibt bei 30 fps
+sichtbar, Stecknadel pulst. Feuer/Beben/Unwetter eigene Marker.
+Sideload bleibt **`18.14.0`** bis APK. Test: [`TEST-18.14.md`](./TEST-18.14.md).
+
 ### `18.14.1` — Lage-Kugel: Flugzeuge nicht am Pin — *CODE*
 
 OpenSky nur noch in der Luft. Schicht Flugzeuge/Luft zoomt auf den

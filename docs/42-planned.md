@@ -1,8 +1,8 @@
-# 42 — Alles geplant (Stand Code `18.14.1`, Sideload `18.14.0`)
+# 42 — Alles geplant (Stand Code `18.14.2`, Sideload `18.14.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.14.0`**, versionCode `181400`. App-Code **`18.14.1`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.14.md`](./TEST-18.14.md).
+**Live-APK:** **`18.14.0`**, versionCode `181400`. App-Code **`18.14.2`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.14.md`](./TEST-18.14.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
@@ -166,6 +166,8 @@ Begründung: [`80-next.md`](./80-next.md).
 
 Harte Kette: 356 → 357/358/359 → 360. Kein neuer Agent, kein „Live“,
 kein weltweites ADS-B. Sideload **`18.14.0`**.
+`18.14.1`: Flugzeuge nicht am Pin. `18.14.2`: Sätze statt „Punkte“,
+Idle-Loop, Feuer/Beben/Unwetter-Marker.
 
 Begründung: [`86-next.md`](./86-next.md).
 

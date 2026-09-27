@@ -2,7 +2,16 @@ import { Component, useEffect, useRef, type ReactNode } from 'react'
 import type { GeoFix } from '../../engine/globe-geo.ts'
 import { globeFocusKey, lookLatLon, pickTappedPin, shouldApplyGlobeFocus, viewXYZ, yawPitchFor, alongCoast } from '../../engine/globe-geo.ts'
 import { GLOBE_ZOOM_MAX } from '../../engine/globe-gibs.ts'
-import { aircraftScale, drawAircraft, drawHerePin, drawSat, pinMarkerKind } from '../../engine/globe-icons.ts'
+import {
+  aircraftScale,
+  drawAircraft,
+  drawFire,
+  drawHerePin,
+  drawQuake,
+  drawSat,
+  drawStorm,
+  pinMarkerKind,
+} from '../../engine/globe-icons.ts'
 import { WORLD_RINGS } from '../../engine/world-rings.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 import { loadSettings } from '../../engine/store.ts'
@@ -409,16 +418,10 @@ export function GlobeView({
           pen.arc(q.x, q.y, pin.hot ? 16 : 12, 0, Math.PI * 2)
           pen.fill()
         }
-        if (pin.kind === 'fire' || pin.kind === 'quake' || pin.kind === 'conflict') {
-          if (pin.kind === 'fire') {
-            pen.beginPath()
-            pen.fillStyle = 'rgba(224, 96, 64, 0.18)'
-            pen.arc(q.x, q.y, 14, 0, Math.PI * 2)
-            pen.fill()
-          }
+        if (pin.kind === 'conflict') {
           pen.beginPath()
-          pen.strokeStyle = pin.kind === 'fire' ? 'rgba(224, 112, 80, 0.7)' : 'rgba(240, 160, 96, 0.5)'
-          pen.lineWidth = 1.6
+          pen.strokeStyle = 'rgba(224, 120, 96, 0.5)'
+          pen.lineWidth = 1.5
           pen.arc(q.x, q.y, 10, 0, Math.PI * 2)
           pen.stroke()
         }
@@ -429,37 +432,31 @@ export function GlobeView({
           drawAircraft(pen, q.x, q.y, pin.heading, planeScale)
         } else if (mark === 'sat' || mark === 'iss') {
           drawSat(pen, q.x, q.y, mark === 'iss')
+        } else if (pin.kind === 'fire') {
+          drawFire(pen, q.x, q.y, pulse.current)
+        } else if (pin.kind === 'quake') {
+          drawQuake(pen, q.x, q.y)
+        } else if (pin.kind === 'weather' || pin.kind === 'warn') {
+          drawStorm(pen, q.x, q.y)
         } else {
           pen.beginPath()
           pen.fillStyle =
-            pin.kind === 'warn' || pin.kind === 'weather'
-              ? '#e8b84a'
-              : pin.kind === 'quake'
-                ? '#f0a060'
-                : pin.kind === 'fire'
-                  ? '#e07050'
-                  : pin.kind === 'ship'
-                    ? '#7ec8e3'
-                    : pin.kind === 'infra'
-                      ? '#d0c4a8'
-                      : pin.kind === 'conflict'
-                        ? '#e07860'
-                        : pin.kind === 'cyber'
-                          ? '#c4a0e8'
-                          : pin.kind === 'air'
-                            ? '#9ad4b8'
-                            : pin.kind === 'glow'
-                              ? pin.hot
-                                ? '#e8f8ee'
-                                : '#9be0b5'
-                              : '#7dd3a0'
-          pen.arc(
-            q.x,
-            q.y,
-            pin.kind === 'fire' || pin.kind === 'quake' ? 5.5 : pin.kind === 'glow' && pin.hot ? 5 : 4,
-            0,
-            Math.PI * 2,
-          )
+            pin.kind === 'ship'
+              ? '#7ec8e3'
+              : pin.kind === 'infra'
+                ? '#d0c4a8'
+                : pin.kind === 'conflict'
+                  ? '#e07860'
+                  : pin.kind === 'cyber'
+                    ? '#c4a0e8'
+                    : pin.kind === 'air'
+                      ? '#9ad4b8'
+                      : pin.kind === 'glow'
+                        ? pin.hot
+                          ? '#e8f8ee'
+                          : '#9be0b5'
+                        : '#7dd3a0'
+          pen.arc(q.x, q.y, pin.kind === 'glow' && pin.hot ? 5 : 4, 0, Math.PI * 2)
           pen.fill()
         }
         pen.fillStyle = 'rgba(230, 240, 236, 0.82)'
@@ -513,7 +510,9 @@ export function GlobeView({
       raf = 0
       if (isDocumentHidden()) return
       if (ts - last < MOTION_FRAME_MS) {
-        if (drag.current || pinch.current || fly.current || inertia.current.yaw || inertia.current.pitch) kick()
+        if (!reduced || drag.current || pinch.current || fly.current || inertia.current.yaw || inertia.current.pitch) {
+          kick()
+        }
         return
       }
       const dt = Math.min(0.05, (ts - last) / 1000 || 1 / 30)
@@ -523,7 +522,7 @@ export function GlobeView({
       if (!lite && frameTimes.length >= 8) {
         const sorted = [...frameTimes].sort((a, b) => a - b)
         const p95 = sorted[Math.floor(sorted.length * 0.95)] || 0
-        if (p95 > 16) {
+        if (p95 > 56) {
           lite = true
           sphereGradients = null
         }
@@ -558,7 +557,7 @@ export function GlobeView({
         if (frameTimes.length > 24) frameTimes.shift()
       }
       const spinning = Boolean(drag.current || pinch.current || fly.current || inertia.current.yaw || inertia.current.pitch)
-      if (spinning) kick()
+      if (!reduced || spinning) kick()
     }
     draw()
     kick()

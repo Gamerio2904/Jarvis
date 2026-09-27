@@ -1,13 +1,13 @@
 # TEST 18.14 — Lage-Kugel Icons
 
-Nach Execute von [`86-next.md`](./86-next.md). App-Code **`18.14.1`**.
+Nach Execute von [`86-next.md`](./86-next.md). App-Code **`18.14.2`**.
 Sideload **`18.14.0`**, versionCode `181400` bis zur nächsten APK.
 
 Gerät, nicht die Cloud-VM (OpenSky dort oft SSL-tot).
 
 ## 1. Version
 
-Einstellungen / Hilfe nennt **`18.14.1`**. Nicht `18.5.0`.
+Einstellungen / Hilfe nennt **`18.14.2`**. Nicht `18.5.0`.
 
 ## 2. Ohne Satz
 
@@ -22,6 +22,8 @@ Erwartung: Kugel **zoomt auf den Ausschnitt** (nicht Europa-weit).
 Silhouetten **getrennt** um den Pin, nicht ein Haufen darauf.
 Nur Maschinen in der Luft, keine am Boden. Kurs stimmt grob.
 Text mit OpenSky + **Stand vor N s** (oder Minuten) + **Kein Live**.
+Intel sagt **Flugzeuge**, nicht „Punkte“. Pin-Karte nennt Rufzeichen,
+Höhe/Kurs nur wenn OpenSky sie liefert. Kein Ziel, keine Passagiere.
 Herkunft Standort oder ausdrücklich Deutschland-Mitte.
 
 Leerer Ausschnitt: „kein Flugzeug“, keine erfundenen Maschinen.
@@ -40,7 +42,10 @@ Kein Fix / 0/0: keine Nadel „Sie“.
 
 `Zeig Satelliten`. Körper + Paneele. ISS größer / eigene Form.
 Kein Starlink-Teppich. Quelle CelesTrak und/oder Where The ISS At.
-Kein „Live-Satellitenvideo“.
+Intel/Pin: Bahn gerechnet oder ISS-Position, kein „Live-Satellitenvideo“.
+
+Waldbrände / Unwetter / Beben: Satz aus EONET-Titel bzw. USGS Magnitude
+und Ort, nicht nur „N Punkte“.
 
 ## 6. Schicht aus
 
@@ -51,7 +56,7 @@ Standort-Nadel darf bleiben.
 
 `Staffel 6 Folge 3` bleibt hud/Kamera. `Was fliegt da` bleibt
 `flights` + Schicht overhead, kein neuer Agent.
-`Zeig Erdbeben` bleibt Kreise/Ringe wie bisher.
+`Zeig Erdbeben` bleibt hud-Schicht, eigene Marker, kein neuer Agent.
 
 ## 8. Won’t auf dem Gerät
 

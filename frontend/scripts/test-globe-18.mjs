@@ -31,6 +31,7 @@ import {
   parseTrueTrack,
 } from '../src/engine/globe-layers.ts'
 import { aircraftScale, headingRad, pinMarkerKind } from '../src/engine/globe-icons.ts'
+import { fireLine, flightLine, intelForLayer, quakeLine, satLine, weatherLine } from '../src/engine/globe-copy.ts'
 import { CITY_FLY_ZOOM, GLOBE_ZOOM_MAX, OVERHEAD_FLY_ZOOM, TOUR_OVERVIEW_ZOOM } from '../src/engine/globe-gibs.ts'
 import { herePinState, isValidHereCoord } from '../src/engine/location-keep.ts'
 import { FIRE_BANDS, inLonLatBox, propagateGp, spreadFixes } from '../src/engine/orbit.ts'
@@ -192,6 +193,29 @@ assert.match(pinLineFor('M4.8', 'USGS · 10 km S of Ridgecrest'), /USGS/)
 assert.match(pinLineFor('DLH4A', 'OpenSky'), /OpenSky/)
 assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzlage zu diesem Ort.')
 {
+  const fly = flightLine({ call: 'DLH4A', country: 'Germany', altM: 9800, speedMs: 220, heading: 90, lat: 50.11, lon: 8.68 })
+  assert.match(fly, /Maschine DLH4A/)
+  assert.match(fly, /Frankfurt|Ausschnitt/)
+  assert.match(fly, /OpenSky/)
+  assert.doesNotMatch(fly, /Live/)
+  assert.match(pinLineFor('DLH4A', fly), /Maschine DLH4A/)
+  const fire = fireLine('Wildfire - Los Angeles, United States')
+  assert.match(fire, /Waldbrand/)
+  assert.match(fire, /EONET/)
+  assert.match(pinLineFor('Wildfire - Los Angeles, United States', fire), /Waldbrand/)
+  assert.match(weatherLine('Severe Storm - Florida'), /Unwetter/)
+  assert.match(quakeLine(5.2, '10 km S of Ridgecrest'), /Magnitude 5\.2/)
+  assert.match(satLine('ISS', true), /Internationale Raumstation/)
+  assert.match(satLine('HST'), /CelesTrak/)
+  assert.doesNotMatch(satLine('HST'), /Live-Video/)
+  const intel = intelForLayer('overhead', 40, 'OpenSky', 'Stand vor 8 s', 'z. B. DLH4A', ' Credits noch 3997.')
+  assert.match(intel, /40 Flugzeuge/)
+  assert.doesNotMatch(intel, /Punkte/)
+  assert.match(intelForLayer('fires', 3, 'NASA EONET', 'Stand vor einer Minute', 'z. B. Wildfire'), /Waldbrände/)
+  assert.match(intelForLayer('sats', 12, 'CelesTrak + ISS', 'Stand vor 20 s', 'z. B. ISS, HST'), /Satelliten/)
+  assert.match(intelForLayer('quakes', 0, 'USGS', 'Stand vor 4 s', ''), /kein Beben/)
+}
+{
   const now = new Date('2026-09-22T12:00:00Z')
   const iss = propagateGp(
     {
@@ -236,10 +260,16 @@ assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzl
   assert.match(view, /drawAircraft/)
   assert.match(view, /drawHerePin/)
   assert.match(view, /drawSat/)
+  assert.match(view, /drawFire/)
+  assert.match(view, /drawQuake/)
+  assert.match(view, /drawStorm/)
   assert.match(view, /LABEL_ZOOM/)
+  assert.match(view, /if \(!reduced \|\| spinning\) kick/)
   assert.match(layers, /isAirborneState/)
   assert.match(layers, /layerFlyFocus/)
   assert.match(layers, /warte auf Quelle/)
+  assert.match(layers, /intelForLayer/)
+  assert.doesNotMatch(layers, /Punkte/)
   assert.doesNotMatch(layers, /starlink/i)
   assert.match(lage, /globeLayer === 'overhead' \? 10_000/)
   assert.match(lage, /layerFlyFocus/)

@@ -246,14 +246,21 @@ export function pickTappedPin(
 }
 
 export function pinLineFor(name: string, brief: string, fallback?: string): string {
+  const source = (brief || '').trim()
+  if (
+    source.length > 24 &&
+    /Kein Live|laut |CelesTrak|OpenSky|USGS|EONET|Tabelle|Open-Meteo|Feodo|GDELT|Where The ISS/i.test(source)
+  ) {
+    return source
+  }
   if (briefFitsPlace(name, brief)) return brief.trim()
   const hit = gazetteerHit(name)
   if (hit?.blurb) return cityLine(hit)
-  const source = (brief || fallback || '').trim()
-  if (/EONET|USGS|OpenSky|CelesTrak|GDELT|ISS|Where The ISS|Tabelle|Feodo|NOAA/i.test(source)) {
-    return source.includes(name) ? `${source}. Kein Live-Bild.` : `${name}. ${source}. Kein Live-Bild.`
+  const raw = (brief || fallback || '').trim()
+  if (/EONET|USGS|OpenSky|CelesTrak|GDELT|ISS|Where The ISS|Tabelle|Feodo|NOAA/i.test(raw)) {
+    return raw.includes(name) ? `${raw}. Kein Live-Bild.` : `${name}. ${raw}. Kein Live-Bild.`
   }
-  if (/^sicht$/i.test(name) && source) return `${source}`
+  if (/^sicht$/i.test(name) && raw) return `${raw}`
   const fb = (fallback || '').trim()
   if (fb && briefFitsPlace(name, fb)) return fb
   return 'Keine Kurzlage zu diesem Ort.'
