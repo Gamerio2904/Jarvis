@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.14.2`**. Sideload-APK **`18.14.2`**, versionCode `181402`. Lage-Icons **CODE + APK** `18.14.2` [`86-next.md`](./86-next.md). **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.14.md`](./TEST-18.14.md).
+**Jetzt:** Code **`18.14.2`**. Sideload-APK **`18.14.2`**, versionCode `181402`. Lage-Icons **CODE + APK** `18.14.2` [`86-next.md`](./86-next.md). Nächste Schiene **PLAN** [`87-next.md`](./87-next.md) `18.15` (361–368). **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.14.md`](./TEST-18.14.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -90,6 +90,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 82 | [Gedächtnis-Kern](./82-next.md) | **CODE** `18.9.8` |
 | 83 | [Lage Serie-Netz](./83-next.md) | **CODE + APK** `18.12.0` — Knoten S01–S05, Kamera-Fähigkeiten ab Staffel 6 |
 | 86 | [Lage-Kugel Icons](./86-next.md) | **CODE + APK** `18.14.0` — Stecknadel, Flugzeug, Satellit; Sprints 356–360 |
+| 87 | [Hirn härten 18.15](./87-next.md) | **PLAN** `18.15.0` — Retrieve, Propose, Knowledge, Abort, Presence, Satz-TTS, Lage-Felder, Gold; Sprints 361–368. Kein Schwarm |
 | — | [APK](./apk.md) | Sideload `18.14.2`; Test: [`TEST-18.14.md`](./TEST-18.14.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
@@ -318,5 +319,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 341 | `18.10.0` | **CODE** (Lage Serie-Netz, [`83-next.md`](./83-next.md)) |
 | 347 | `18.12.0` | **CODE + APK** (Kamera-Fähigkeiten S6+, [`83-next.md`](./83-next.md) §3) |
 | 356–360 | `18.14.0` | **CODE + APK** (Lage-Kugel Icons, [`86-next.md`](./86-next.md)) |
+| 361–368 | `18.15.0` | **PLAN** (Hirn härten, [`87-next.md`](./87-next.md); Sideload bleibt `18.14.2`) |
 
-**Aktuell:** App-Code **`18.14.2`**. Sideload-APK **`18.14.2`**, versionCode `181402`. Lage-Icons **CODE + APK** `18.14.2`. Test: [`TEST-18.14.md`](./TEST-18.14.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.14.2`**. Sideload-APK **`18.14.2`**, versionCode `181402`. Lage-Icons **CODE + APK** `18.14.2`. Nächste Schiene **PLAN** `18.15` 361–368. Test: [`TEST-18.14.md`](./TEST-18.14.md). Index: [`42-planned.md`](./42-planned.md).

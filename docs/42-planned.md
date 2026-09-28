@@ -8,6 +8,7 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 
 ## Pull-Reihenfolge
 
+0. **`18.15` Hirn härten** [`87-next.md`](./87-next.md) — Sprints **361–368 PLAN**. Retrieve-Rerank, Propose, Knowledge-Zitat, Abort-Rest, Presence-Bind, Satz-TTS, Lage-Felder, Gold aus Korrekturen. Kein LLM-Schwarm, e5 nie in `pickRoute`. Sideload bleibt `18.14.2` bis Execute.
 1. **`18.10` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 CODE** in `18.10.0` (historisch PLAN `18.5`). Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht als `18.5.0` versionieren.
 2. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE + APK** in `18.8.0`.
 2b. **`18.9` Recover + Hirn** [`80-next.md`](./80-next.md) — Sprints **331–340 CODE + APK** in `18.9.8`.
@@ -170,6 +171,26 @@ kein weltweites ADS-B. Sideload **`18.14.2`**.
 Idle-Loop, Feuer/Beben/Unwetter-Marker.
 
 Begründung: [`86-next.md`](./86-next.md).
+
+## PLAN — Schiene `18.15` (Sprints 361–368)
+
+| Version | Sprint | Thema |
+|---------|--------|-------|
+| `18.15.0` | [361](./sprints/sprint-361.md) | Retrieve: Encoder nur Rerank, nie `pickRoute` |
+| `18.15.0` | [362](./sprints/sprint-362.md) | Propose: Paraphrase härten, Parser bestätigt |
+| `18.15.0` | [363](./sprints/sprint-363.md) | Knowledge zitierbar auf Lese-Agenten |
+| `18.15.0` | [364](./sprints/sprint-364.md) | AbortSignal Rest bis Groq/Native |
+| `18.15.0` | [365](./sprints/sprint-365.md) | Presence Native Bind `:18791` |
+| `18.15.0` | [366](./sprints/sprint-366.md) | Satz-TTS nach Parser-Satz, Edge zuerst |
+| `18.15.0` | [367](./sprints/sprint-367.md) | Lage Pin-Satz nur aus Feldern |
+| `18.15.0` | [368](./sprints/sprint-368.md) | Parser-Korrektur → Gold, Härten |
+
+Harte Kette: 361 rührt den Router nicht an. 362 vor 368. 363 nach 361.
+364 vor 366. 365 und 367 frei. 368 zuletzt. Kein 5. Organizer, kein e5-Router,
+kein Cesium/Live, 0,5B bleibt Fallback ohne Messung. Andere Drafts
+(`#149`/`#151`/`#152`/`#153`/`#156`) nicht mergen.
+
+Begründung: [`87-next.md`](./87-next.md).
 
 ## CODE — Schiene `18.6` (Sprints 307–314)
 
@@ -362,4 +383,4 @@ Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein
 ### `13.40` Sprachmodus (CODE `13.44.0`)
 „Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**.
 
-Nächste Produktschiene: **`18.14`** Lage-Icons [`86-next.md`](./86-next.md) 356–360 PLAN. **`18.5`** [`76-next.md`](./76-next.md) 301–306 PLAN. **`18.9`** [`80-next.md`](./80-next.md) 331–337 **CODE + APK** in `18.9.0` — **nicht parallel**. **`18.7`** [`78-next.md`](./78-next.md) 315–322 **CODE** in `18.7.0`. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.
+Nächste Produktschiene: **`18.15` Hirn härten** [`87-next.md`](./87-next.md) Sprints **361–368 PLAN**. Live bleibt **`18.14.2`**. **`18.14`** Lage-Icons [`86-next.md`](./86-next.md) 356–360 **CODE + APK**. **`18.5`** [`76-next.md`](./76-next.md) 301–306 **CODE** in `18.10.0`. **`18.9`** [`80-next.md`](./80-next.md) 331–337 **CODE + APK**. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.

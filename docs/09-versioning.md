@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.14.2`**. Sideload **`18.14.2`**, versionCode `181402`. Lage-Icons [`86-next.md`](./86-next.md). Test [`TEST-18.14.md`](./TEST-18.14.md).
+> **Jetzt:** App-Code **`18.14.2`**. Sideload **`18.14.2`**, versionCode `181402`. Lage-Icons [`86-next.md`](./86-next.md). Nächste Schiene **PLAN** `18.15` [`87-next.md`](./87-next.md) (361–368). Test [`TEST-18.14.md`](./TEST-18.14.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -750,6 +750,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.14.0` | Lage-Kugel: Stecknadel, Flugzeug, Satellit (kein Live) | 356–360 CODE + APK |
 | `18.14.1` | Flugzeuge nicht am Pin: Luftfilter + Lokal-Zoom | Hotfix CODE |
 | `18.14.2` | Lage-Texte, Idle-Loop, weichere Kugel | Hotfix CODE + APK |
+| `18.15.0` | Hirn härten: Retrieve, Propose, Knowledge, Abort, Presence, Satz-TTS, Lage-Felder, Gold | 361–368 **PLAN** |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -784,6 +785,22 @@ nie „Live“. [`86-next.md`](./86-next.md).
 
 **`18.14.2`** (App-Code + Sideload, versionCode `181402`): Flugzeuge
 nicht am Pin, Sätze statt „Punkte“, Idle-Loop. Over `18.14.0` installieren.
+
+### `18.15` — Hirn härten [`87-next.md`](./87-next.md) **PLAN**
+
+Live bleibt **`18.14.2`**. Execute 361–368 landet in **`18.15.0`**.
+Kein Schwarm, e5 nie in `pickRoute`, 0,5B bleibt Fallback ohne Messung.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.15.0` | Retrieve: Encoder nur Rerank | 361 PLAN |
+| `18.15.0` | Propose: Paraphrase härten | 362 PLAN |
+| `18.15.0` | Knowledge zitierbar (Lese-Agenten) | 363 PLAN |
+| `18.15.0` | AbortSignal Rest Groq/Native | 364 PLAN |
+| `18.15.0` | Presence Native Bind `:18791` | 365 PLAN |
+| `18.15.0` | Satz-TTS nach Parser-Satz | 366 PLAN |
+| `18.15.0` | Lage Pin-Satz nur Felder | 367 PLAN |
+| `18.15.0` | Parser-Korrektur → Gold, Härten | 368 PLAN |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
