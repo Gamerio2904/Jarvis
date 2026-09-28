@@ -4,7 +4,7 @@ PO 2026-08-16: Einkauf als Liste, Losgehen mit Nachfrage + Route, Erinnerung „
 
 Mitgeliefert in **`1.24.0`**. Jede Stufe bleibt sideloadbar dokumentiert.
 
-> Historisch `1.14`–`1.20`. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst.
+> Historisch `1.14`–`1.20` **CODE**. Gemini war Hauptweg. **Live:** Code **`18.14.2`**. Sideload **`18.14.2`**, versionCode `181402`. **Hirn:** Groq primär → Gemini Spezialist (Vision/Deep) → 0,5B. **63** Domänen-Agenten (`parseCatalog()`). Test: [`TEST-18.14.md`](./TEST-18.14.md). Siehe [`HISTORISCH.md`](./HISTORISCH.md).
 
 Reihe davor (fertig): [`18-next.md`](./18-next.md). Schiene gelandet in **`1.24.0`**.
 

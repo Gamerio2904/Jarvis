@@ -8,7 +8,7 @@ Caption dort: Jarvis aus **drei Teilen** — was er über mich weiß, was er fü
 
 Bei uns: **Handy ist das Hirn.** PC ist Werkzeug. Lage gibt es schon ([`33-next.md`](./33-next.md)). Auge, Stimme, Tools, PC-Bildschirm sind CODE — sie liegen nur nicht als **Körper** beieinander.
 
-> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.66`** (in `5.11`/`6.50` gehärtet). Overlay und Smalltalk: Gemini zuerst.
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.66`** (in `5.11`/`6.50` gehärtet). Overlay historisch Gemini zuerst; Live: Groq primär.
 
 Voraussetzung: Lage `3.18`+. Organe existieren schon (Auge `1.20`/`1.26`, PC `1.47`, Stimme `1.31`/`4.33`, Face `4.53`).
 
@@ -32,7 +32,7 @@ Kein PC nötig, um den Körper **zu sehen**. Kein zweites Hirn auf Windows.
 | Im Video / Caption | Bei uns | Votum |
 |--------------------|---------|-------|
 | Drei Teile: Wissen / Tun / Reden | Gedächtnis / Hand / Ohr+Mund+Face | **ja**, intern so nennen |
-| Gehirn am Laptop, Claude-Mitarbeiter | Hirn = Handy (**Gemini Hauptweg**, Groq/0,5B Backup) | **zuschneiden**, nicht übernehmen |
+| Gehirn am Laptop, Claude-Mitarbeiter | Hirn = Handy (**Groq primär**, Gemini Spezialist, 0,5B Backup) | **zuschneiden**, nicht übernehmen |
 | Hand steuert den Rechner | Handy-Hand = Register (Steckdose, SMS, Taxi, …). PC-Hand extra | **ja, getrennt** |
 | Auge / Bildschirm sehen | Handy-Auge = Foto (`Lies das Foto`, Gemini). PC-Auge = Screenshot | **ja, getrennt** |
 | Stimme | TTS Algieba/Kore, Native-Fallback | **ja** (Mund) |

@@ -1,6 +1,6 @@
 # 08 — Offene Fragen
 
-> **Historisch.** **Jetzt:** Code **`18.10.0`**, Sideload **`18.9.8`**. Hirn **Groq primär** → Gemini Spezialist → 0,5B. Sideload-`9.10.0` und Gemini-Hauptweg **nicht ziehen**. Rest-Serie [`54-next.md`](./54-next.md) **CODE**. At-rest-Encryption Parking. Siehe [`HISTORISCH.md`](./HISTORISCH.md).
+> **Historisch.** **Jetzt:** Code **`18.14.2`**, Sideload **`18.14.2`**. Hirn **Groq primär** → Gemini Spezialist → 0,5B. Sideload-`9.10.0` und Gemini-Hauptweg **nicht ziehen**. Siehe [`HISTORISCH.md`](./HISTORISCH.md).
 
 Alles, was die Planung noch **lückig** macht.  
 Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
@@ -24,7 +24,7 @@ Historisch: kritische Blocker vor Sprint 1 schließen; Rest bewusst terminieren.
 | Architektur / Stack / UI / Versionen | **entschieden** |
 | Phase 2+3 NAS/APK | **superseded** (`0.13` On-Device; [`13-on-device.md`](./13-on-device.md)) |
 | Sprint-1-Blocker | **keine offenen P0** |
-| Hirn-Kaskade | **entschieden** (`6.50`): Gemini Hauptweg, Groq Backup, 0,5B zuletzt |
+| Hirn-Kaskade | **entschieden** (`6.50` Gemini Hauptweg; seit `15.1` **Groq primär**, Gemini Spezialist) |
 | LocateAnything-Gewichte | **FREEZE** — Sprint 171 NO-GO, 172 Freeze [`54-next.md`](./54-next.md) |
 | Debug-Hintergrund | **CODE** `5.17` — Sprint 169–170 |
 | Qualität-Could | **CODE** Leit / **FREEZE** Gewichte — Sprint 173–177 |

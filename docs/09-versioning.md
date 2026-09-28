@@ -788,7 +788,7 @@ nicht am Pin, Sätze statt „Punkte“, Idle-Loop. Over `18.14.0` installieren.
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.
-Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md) (60 Parser, 60 Executoren).
+Ist-Stand: [`66-agents-ist.md`](./66-agents-ist.md) (63 Parser, 63 Executoren).
 Die Tabelle unten ist das damalige Schnittmuster; gelandet in `15.1.0`–`16.0.0`.
 
 | Version | Bedeutung | Sprint |

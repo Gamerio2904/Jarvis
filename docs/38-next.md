@@ -2,7 +2,7 @@
 
 PO 2026-08-27: Nach APK-Neuinstall (falsche Signatur / Deinstall) sind Keys, Erinnerungen, Nummern weg. Export → ein Tippen Import = gleicher Stand. Dazu: Tippfehler in **Schreiben** und **Sprache**, Jarvis merkt falsche Wörter.
 
-> **Jetzt:** Code **`10.60.0`**. Export/Import ist **CODE**. Vor Sideload/Deinstall: Einstellungen → Hausstand → Exportieren. Daten sitzen in **WebView**: `localStorage` Key `jarvis_settings_v13`, IndexedDB `jarvis-ondevice`. Memory-Schema-Felder optional (`10.0`).
+> **Jetzt:** Code **`18.14.2`**. Export/Import ist **CODE**. Vor Sideload/Deinstall: Einstellungen → Hausstand → Exportieren. Daten sitzen in **WebView**: `localStorage` Key `jarvis_settings_v13`, IndexedDB `jarvis-ondevice` (v10).
 
 Alltagskette: [`36-next.md`](./36-next.md). Schiene gelandet als **`4.46.0`**.
 

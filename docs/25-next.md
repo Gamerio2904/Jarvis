@@ -1,6 +1,6 @@
 # 25 — Stimme & Jarvis-Ton (`1.31`)
 
-> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+> Historisch diese Schiene (Gemini war Hauptweg). **Live:** Code **`18.14.2`**. Sideload **`18.14.2`**, versionCode `181402`. **Hirn:** Groq primär → Gemini Spezialist (Vision/Deep) → 0,5B. **63** Domänen-Agenten (`parseCatalog()`). Test: [`TEST-18.14.md`](./TEST-18.14.md). Siehe [`HISTORISCH.md`](./HISTORISCH.md).
 
 
 PO 2026-08-17: Stimmenqualität hoch, Latenz runter, Antworten besser — vor allem Smalltalk. Formulierung näher an Jarvis.

@@ -1,8 +1,8 @@
 # 62 — Agenten-Katalog (Route → Agent → Cluster)
 
-Stand: **CODE `17.0.0`**. Entstanden als Plan `14.0`; wo Zahlen oder Executor-Hinweise
+Stand: **CODE `18.14.2`**. Entstanden als Plan `14.0`; wo Zahlen oder Executor-Hinweise
 hier von der Umsetzung abweichen, gilt [`66-agents-ist.md`](./66-agents-ist.md).
-Route-ID bleibt stabil (Parser-Tests, Hausstand, Debug).
+Route-ID bleibt stabil (Parser-Tests, Hausstand, Debug). **63** Domänen.
 
 Legende: **Int** = interner Agent (kein User-Chat). **Front** = Jarvis/Friday only.
 
@@ -23,7 +23,8 @@ Legende: **Int** = interner Agent (kein User-Chat). **Front** = Jarvis/Friday on
 
 | Route | Label DE | Organ | sideEffect | Heute `handle` |
 |-------|----------|-------|------------|----------------|
-| `film` | Film / Streaming | mouth, eye | read | `film.ts` |
+| `watchlist` | Watchliste / Filme | mouth | write | `watchlist.ts` |
+| `osint` | OSINT / Lage-Quellen | brain | read | `osint.ts` |
 
 ## Cluster: Navigation (`navigation`)
 
@@ -56,6 +57,7 @@ Legende: **Int** = interner Agent (kein User-Chat). **Front** = Jarvis/Friday on
 | `ferien` | Schulferien | memory | read | `ferien.ts` |
 | `shopping` | Einkaufsliste | hand | write | `shopping.ts` |
 | `home` | Zuhause-Routine | memory | write | `home.ts` |
+| `idea` | Idee merken | memory | write | `idea.ts` |
 | `watch-price` | Preiswache | brain | write | `watch-price.ts` |
 | `chat-folder` | Chat-Ordner | brain | write | `folders.ts` |
 
@@ -132,9 +134,9 @@ Legende: **Int** = interner Agent (kein User-Chat). **Front** = Jarvis/Friday on
 | `body-snap` | Körper-Snap | `body-snap.ts` |
 | `research-guard` | Quellen-Gate | `research-parse.ts` |
 
-**Summe Domänen:** **60** Einträge in `agents/parse-catalog.ts`, **60** Executoren in
-`execute-map.ts` (inkl. `identity` / `PERSONA_ASK_TEXT` seit `17.0.0`). Der
+**Summe Domänen:** **63** Einträge in `agents/parse-catalog.ts`, **63** Executoren in
+`execute-map.ts` / `EXECUTOR_IDS` (inkl. `identity`). Der
 Chat-Kurzschluss in `chat.ts` beantwortet Identität **vor** dem Director;
-der Executor bleibt für den Registry-Pfad. Gegenprobe: `npm run test:agents-robust`
-vergleicht Katalog, `EXECUTOR_IDS` und die Namen im Konflikt-Tisch.
+der Executor bleibt für den Registry-Pfad. Gegenprobe: `npm run test:agents`
+vergleicht Katalog und `EXECUTOR_IDS`.
 **Summe intern:** 11 (plus `director` = 12) — Trace/Infra, keine `AgentSpec`.

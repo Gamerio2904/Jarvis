@@ -1,6 +1,6 @@
 # 14 — Update `0.14`: Bestehendes härten + TV live
 
-> **Historisch** Sprint 47–48. **Jetzt:** Code **`18.10.0`**. Fire TV und Samsung-Apps sind **CODE**, kein Won’t. Hirn Groq primär, nicht Gemini zuerst. TV-Wahrheit (Poll nach WoL) in `18.10.0`. Sideload-`9.10.0` **nicht ziehen**. Siehe [`HISTORISCH.md`](./HISTORISCH.md).
+> **Historisch** Sprint 47–48. **Jetzt:** Code **`18.14.2`**. Fire TV und Samsung-Apps sind **CODE**, kein Won’t. Hirn Groq primär, nicht Gemini zuerst. TV-Wahrheit (Poll nach WoL) in `18.10.0`. Sideload-`9.10.0` **nicht ziehen**. Siehe [`HISTORISCH.md`](./HISTORISCH.md).
 
 PO 2026-08-15: **Nichts Neues** (für *diese* Etappe). Kein größeres Modell, kein Research, kein TTS, keine neuen Tool-Typen.  
 Ziel damals: was schon da ist, **schneller, klüger, zuverlässiger** — und die **geparkte Fernseher-Steuerung** wirklich verbinden und bedienen.
@@ -14,7 +14,7 @@ Basis: On-Device `0.13.2` ([`13-on-device.md`](./13-on-device.md)).
 | Thema | Entscheidung |
 |-------|----------------|
 | Scope | Nur vorhandene Fähigkeiten verbessern |
-| Modell | Damals Qwen2.5 0.5B Instruct Q4. **Heute:** Gemini Hauptweg, 0,5B Backup. |
+| Modell | Damals Qwen2.5 0.5B Instruct Q4. **Heute:** Groq primär, Gemini Spezialist, 0,5B Backup. |
 | TV | Bestehendes `0.11`-Soll, jetzt **nativ in der APK** (kein Python, keine NAS) |
 | Geräte | Ein Samsung-Tizen im selben WLAN |
 | Confirm TV | Sofort ausführen (wie `0.11.0`) |
