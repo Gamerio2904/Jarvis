@@ -1,6 +1,6 @@
 # Sprint 183 — OEM-Akku / Hersteller-Killer **PLAN**
 
-> ⚠︎ **Anker veraltet.** Hängt an Sprint 178. Live-Code **`17.0.0`**, nicht `9.10.0`.
+> ⚠︎ **Anker veraltet.** Hängt an Sprint 178. Live-Code **`18.14.2`**, nicht `9.10.0`.
 
 | Feld | Wert |
 |------|------|

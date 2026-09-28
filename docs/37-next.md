@@ -6,7 +6,7 @@ https://www.instagram.com/reel/Dcgcg5rRdKT/
 
 Reihen daneben: Weltlage [`35-next.md`](./35-next.md), Alltagskette [`36-next.md`](./36-next.md). Diese Schiene **`4.33+`**.
 
-> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.33.0`**. Kalender + Sprach-Thread bleiben `3.19` — nicht neu gebaut. Hirn für Smalltalk: Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+> **Jetzt mitgeliefert in `6.60.0`.** Schiene gelandet als **`4.33.0`**. Kalender + Sprach-Thread bleiben `3.19` — nicht neu gebaut. Live-Smalltalk: Groq ([`16-gemini.md`](./16-gemini.md)).
 
 Research `4.34`–`4.36` ist in der Tabelle festgezogen. Execute: TTS-Budgets, Interrupt HUD/Notify, Watchdog Whitelist.
 

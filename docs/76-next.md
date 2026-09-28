@@ -1,8 +1,8 @@
 # 76 — Stimme, TV-Wahrheit, Intelligenz, Docs **CODE** (`18.10.0`, historisch `18.5`)
 
-> **Versionierung:** Live war schon **`18.9.8`** (versionCode `180908`).
+> **Live:** Code **`18.14.2`**, Sideload **`18.14.2`**. Diese Schiene landete in **`18.10.0`**.
+> **Versionierung:** Live war damals schon **`18.9.8`** (versionCode `180908`).
 > Als `18.5.0` / `180500` zu shippen wäre ein Downgrade — Android lehnt das ab.
-> Inhalt der Schiene 301–306 landet in **`18.10.0`** (versionCode `181000`).
 > `18.5` bleibt der Planname, nicht `APP_VERSION`.
 
 Ausgangspunkt historisch: Code **`18.4.4`**. Anlass: „Fernseher an“ geht nicht;

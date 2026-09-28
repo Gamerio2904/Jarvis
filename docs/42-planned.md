@@ -294,7 +294,7 @@ Bereits **CODE** in `9.10.0`: Debug-FGS (Tap/WakeLock/`resumeTimers`), Sehen-Fre
 | Wecker | `16.1.1` | Abgelaufene Frist wird geschlossen, Nachholen nur im Browser, wiederkehrende Alarme halten ihre Uhrzeit |
 | Agenten-Härtung | `16.1.0` | Budget je Nebenwirkung, Wiederholung nur beim Lesen, ehrlicher Fehler statt Modell-Fallback, Traces mit Zugnummer |
 | Reels & QA | `16.0.0` | Theme-Blende, Kalender-Umbau, Schalter statt Kästchen, Lage ohne Blackscreen, Einstellungs-Suche |
-| Agenten-Netzwerk | `15.1.0` | Catalog, Bus, Director, Curator, Agenten-Karte, 60 Agenten, Debug-Traces |
+| Agenten-Netzwerk | `15.1.0`–`18.14.2` | Catalog, Bus, Director, Curator, Agenten-Karte, **63** Agenten, Debug-Traces |
 | Dual Brain | `15.1.0` | Groq primär, `brain-orchestrator`, micro-clarify/merge/research-lite |
 | Sprachmodus | `13.44.0` | TV-Stimme, Hören, 1–2 Sätze, eine TTS-Lane; kein Whisper |
 | Weltlage | `4.0` | `outlook.ts` — Tagesschau/DW, Serie, Szenario, kein Orakel |

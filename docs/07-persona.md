@@ -2,7 +2,7 @@
 
 Dieses Dokument steuert den **Charakter**. Es ist Eingang zu Phase 0 und Abnahme-Referenz für Smalltalk.
 
-> **Jetzt (`18.10.0`):** Code folgt [`persona.ts`](../frontend/src/engine/persona.ts). **Groq primär**, Gemini Spezialist. Sir/Master **selten** (höchstens einmal). Stimme stehend: **Edge zuerst** (Conrad/Katja); Algieba nur wenn Edge tot oder der Nutzer es will. Gerät = 1 Satz, Erklärung = 2–3. Sideload-Anker `9.10.0` / Gemini-Hauptweg unten **nicht ziehen**.
+> **Jetzt (`18.14.2`):** Code folgt [`persona.ts`](../frontend/src/engine/persona.ts). **Groq primär**, Gemini Spezialist. Sir/Master **selten** (höchstens einmal). Stimme stehend: **Edge zuerst** (Conrad/Katja); Algieba nur wenn Edge tot oder der Nutzer es will. Gemini-Hauptweg **nicht ziehen**.
 
 ## Kern (fest aus Produktentscheidung)
 

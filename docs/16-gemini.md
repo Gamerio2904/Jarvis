@@ -1,6 +1,6 @@
 # 16 — Gemini (Spezialist ab `15.1`)
 
-> **Jetzt (`18.10.0`):** **Groq primär** für Chat/Formulierung. **Gemini Spezialist** (Vision, Deep Research/Grounding). TTS stehend: Edge zuerst, Algieba nicht vor Deutsch. Rollback `brain_v2: false` / Gemini-Hauptweg **nicht ziehen**. Siehe [`HISTORISCH.md`](./HISTORISCH.md).
+> **Jetzt (`18.14.2`):** **Groq primär** für Chat/Formulierung. **Gemini Spezialist** (Vision, Deep Research/Grounding). TTS stehend: Edge zuerst, Algieba nicht vor Deutsch. Rollback `brain_v2: false` / Gemini-Hauptweg **nicht ziehen**. Siehe [`HISTORISCH.md`](./HISTORISCH.md).
 
 PO 2026-08-15: **Gemini-API**, weil das lokale 0.5B kein ChatGPT-Niveau erreicht.  
 PO 2026-08-28: Reihenfolge umgedreht — Gemini **Hauptweg**, nicht Opt-in-Zusatz.  
@@ -8,7 +8,7 @@ PO 2026-09-08: Dual Brain — Gemini **entlasten**, nicht entfernen ([`63-next.m
 
 Key bleibt **dein** Key. Nichts in der APK. Ohne Key: Parser-Tools laufen trotzdem; Smalltalk ist klein oder ehrlich aus.
 
-## Heute (`17.0.0`, Dual Brain seit `15.1`)
+## Heute (`18.14.2`, Dual Brain seit `15.1`)
 
 Kaskade in `brain-orchestrator.ts` / Settings `brain_primary`:
 

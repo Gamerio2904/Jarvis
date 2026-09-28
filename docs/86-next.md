@@ -3,8 +3,9 @@
 PO: In der Lage fehlen die Flugzeuge. Statt Punkte: Stecknadel für
 den Standort, Flugzeug-Silhouette, Satellit statt Punkt.
 
-Execute: Sprints **356–360 CODE + APK**. Sideload **`18.14.0`**.
-Kein neuer Agent. Kein Cesium, kein weltweites ADS-B, kein Wort „Live“.
+Execute: Sprints **356–360 CODE + APK**. Schiene landete in Sideload **`18.14.0`**.
+Live-APK **`18.14.2`** (Zoom, Sätze, Idle-Loop). Kein neuer Agent. Kein Cesium,
+kein weltweites ADS-B, kein Wort „Live“.
 
 Andere Drafts bleiben getrennt: Koch `#149`, Kamera-Wahl `#151`,
 Clips `18.13` `#152`, Experte `#153`.

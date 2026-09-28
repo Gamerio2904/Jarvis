@@ -27,7 +27,7 @@ Dieselbe Klasse, öffentlich nachlesbar: AgentGrid (neun LLM-Rollen,
 Worktrees, Browser-Verifier), II-Agent (Cloud-Skills, Gmail/Slack/Notion),
 DeepAgents (Plan/Subagent/Filesystem), Composio (1000 Tools hinter OAuth).
 Das Muster ist immer: **viele Sprachmodelle organisieren einander**. Jarvis
-hat die ehrliche Form davon schon: ein Director, 60 Parser-Agenten, ein Hirn
+hat die ehrliche Form davon schon: ein Director, 63 Parser-Agenten, ein Hirn
 wenn die Parser fehlen. Ein zweites Netz aus LLM-Rollen wäre dasselbe Reel
 noch einmal, mit Kontingent und Halluzination.
 
@@ -76,7 +76,7 @@ Ist-Stand (Code `17.0.0`, [`66-agents-ist.md`](./66-agents-ist.md)):
 | **BrainOrchestrator** | `brain-orchestrator.ts` | Welcher LLM-Platz, **wenn** die Parser fehlen | ja, **nach** dem Director |
 | **Chat-Kurzschluss** | `chat.ts` `routeDeterministic` | Hilfe, Identität, Begrüßung, offene Rückfragen — **vor** dem Director | nein |
 
-`autonomy` aller 60 Domänen-Agenten ist `'parser'`. Es gibt **keinen**
+`autonomy` aller 63 Domänen-Agenten ist `'parser'`. Es gibt **keinen**
 Katalog-Agenten, der andere Agenten per Prompt ein- und ausschaltet.
 
 Warum die Arbeit **geteilt** ist und nicht in einem Super-Agenten liegt:
@@ -174,7 +174,7 @@ volles Schach.
 - Schach-FEN in `localStorage`, Lage-Kachel mit Unicode-Figuren
 - Research-Angebot, Quellen-Block, Tool-Chips
 - `quality-pack.ts` für nachgeladene Dateien (Silero-Muster)
-- Director + 60 Parser-Agenten + Werkzeug-Vertrag + Curator
+- Director + 63 Parser-Agenten + Werkzeug-Vertrag + Curator
 - Kugel Canvas 2D, GIBS, ISS-Punkt, 30 fps, Lite-Flag
 
 ---

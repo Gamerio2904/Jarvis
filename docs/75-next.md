@@ -68,7 +68,7 @@ keinen zweiten Graph-Server.
 
 ### 2.1 Knoten — Agenten am Körper
 
-Heute: Karte kennt 60 Agenten, Classic-Baum kennt 9 Skills. Organ-Tap startet
+Heute: Karte kennt 63 Agenten, Classic-Baum kennt 9 Skills. Organ-Tap startet
 kein Gerät (bleibt). Live-Puls am Classic-Körper kommt aus `body-snap`, nicht
 aus der Trace.
 
@@ -167,7 +167,7 @@ Kein Groq/Gemini für Link-Evolution. Teach bleibt der Write-Pfad.
 - Mem0, Letta als zweites Gedächtnis.
 - `knowledgeBlock` in TV, Tanke, Timer, SMS.
 - Organ-Tap startet Kamera oder Fernseher.
-- 60 Agenten als Organ-Knoten auf `BodySchema`.
+- 63 Agenten als Organ-Knoten auf `BodySchema`.
 - Unendlicher Graph, RDF/Turtle-Pflicht.
 - Sideload `18.4`, solange die APK `18.1.2` ist.
 

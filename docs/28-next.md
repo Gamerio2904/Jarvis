@@ -1,6 +1,6 @@
 # 28 — Qualität statt Breite (`1.33`–`1.40`)
 
-> Historisch. **Jetzt mitgeliefert in `6.60.0`.** Hirn Gemini zuerst ([`16-gemini.md`](./16-gemini.md)).
+> Historisch diese Schiene (Gemini war Hauptweg). **Live:** Code **`18.14.2`**. Sideload **`18.14.2`**, versionCode `181402`. **Hirn:** Groq primär → Gemini Spezialist (Vision/Deep) → 0,5B. **63** Domänen-Agenten (`parseCatalog()`). Test: [`TEST-18.14.md`](./TEST-18.14.md). Siehe [`HISTORISCH.md`](./HISTORISCH.md).
 
 
 PO 2026-08-17: **Nichts Neues.** Bisheriges verbessern, erweitern, flüssiger. Intelligenter und bessere Antworten. Besseres Verständnis. Besseres CarPlay. Besseres Erkennen von Befehlen — plus weitere Härte an dem, was schon da ist.
