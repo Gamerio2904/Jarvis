@@ -59,6 +59,7 @@ import {
 import { qualityPack } from '../engine/quality-pack.ts'
 import { ProbeShelf } from './ProbeShelf.tsx'
 import { listImapMails, notifyInboxStatus, openInboxSettings, scanPhoneContacts } from '../native/inbox.ts'
+import { presenceBindOk, subscribePresenceBind } from '../native/presence.ts'
 import { mailHostFor } from '../engine/comm-parse.ts'
 import { applyScannedContacts, scanReply } from '../engine/places.ts'
 
@@ -311,6 +312,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [presenceBusy, setPresenceBusy] = useState(false)
   const [presenceMsg, setPresenceMsg] = useState<string | null>(null)
   const [presenceMsgOk, setPresenceMsgOk] = useState<boolean | null>(null)
+  const [presenceBound, setPresenceBound] = useState(presenceBindOk())
   const [fanBusy, setFanBusy] = useState(false)
   const [fanMsg, setFanMsg] = useState<string | null>(null)
   const [fanMsgOk, setFanMsgOk] = useState<boolean | null>(null)
@@ -369,6 +371,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
   useEffect(() => {
     setPcToken(s?.pc_token || '')
   }, [s?.pc_token])
+
+  useEffect(() => {
+    setPresenceBound(presenceBindOk())
+    return subscribePresenceBind(() => setPresenceBound(presenceBindOk()))
+  }, [s?.presence_enabled, s?.presence_port])
 
   useEffect(() => {
     const openIfFlagged = () => {
@@ -1696,7 +1703,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Presence — Fenster koppeln</h3>
               <p className="settings-lead">
-                Schalter Default aus. Token ist nicht der PC-Token. Port 18791, nur LAN. Ohne Native-Bind
+                Schalter Default aus. Token ist nicht der PC-Token. Port 18791, nur LAN. Ohne Bind
                 bleibt der Server aus — kein Fake-Chat.
               </p>
               <label className="settings-toggle">
@@ -1708,7 +1715,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   onChange={(e) => void p.patchSetting({ presence_enabled: e.target.checked })}
                 />
               </label>
-              <p className="settings-hint">{bindStatusLine(Boolean(s?.presence_enabled))}</p>
+              <p className="settings-hint">{bindStatusLine(Boolean(s?.presence_enabled), presenceBound)}</p>
               <label className="settings-field">
                 <span>Fenster: Hirn-IP</span>
                 <input

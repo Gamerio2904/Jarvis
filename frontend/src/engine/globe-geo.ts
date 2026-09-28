@@ -245,23 +245,27 @@ export function pickTappedPin(
   return best
 }
 
-export function pinLineFor(name: string, brief: string, fallback?: string): string {
+const FIELD_SRC =
+  /Kein Live|laut |CelesTrak|OpenSky|USGS|EONET|Tabelle|Open-Meteo|Feodo|GDELT|Where The ISS|NOAA/i
+
+const GAZETTEER_KIND = new Set<GeoPinKind | undefined>(['outlook', 'glow', 'here', 'news', undefined])
+
+export function pinLineFor(name: string, brief: string, fallback?: string, kind?: GeoPinKind): string {
   const source = (brief || '').trim()
-  if (
-    source.length > 24 &&
-    /Kein Live|laut |CelesTrak|OpenSky|USGS|EONET|Tabelle|Open-Meteo|Feodo|GDELT|Where The ISS/i.test(source)
-  ) {
-    return source
+  if (source && FIELD_SRC.test(source)) {
+    if (source.length > 24) return source
+    return source.includes(name) ? `${source}. Kein Live-Bild.` : `${name}. ${source}. Kein Live-Bild.`
   }
   if (briefFitsPlace(name, brief)) return brief.trim()
-  const hit = gazetteerHit(name)
-  if (hit?.blurb) return cityLine(hit)
-  const raw = (brief || fallback || '').trim()
-  if (/EONET|USGS|OpenSky|CelesTrak|GDELT|ISS|Where The ISS|Tabelle|Feodo|NOAA/i.test(raw)) {
-    return raw.includes(name) ? `${raw}. Kein Live-Bild.` : `${name}. ${raw}. Kein Live-Bild.`
+  if (GAZETTEER_KIND.has(kind)) {
+    const hit = gazetteerHit(name)
+    if (hit?.blurb) return cityLine(hit)
   }
-  if (/^sicht$/i.test(name) && raw) return `${raw}`
+  if (/^sicht$/i.test(name) && source) return source
   const fb = (fallback || '').trim()
+  if (fb && FIELD_SRC.test(fb)) {
+    return fb.includes(name) ? `${fb}. Kein Live-Bild.` : `${name}. ${fb}. Kein Live-Bild.`
+  }
   if (fb && briefFitsPlace(name, fb)) return fb
   return 'Keine Kurzlage zu diesem Ort.'
 }

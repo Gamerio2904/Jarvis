@@ -1,4 +1,5 @@
 import { loadSettings, saveSettings } from './store.ts'
+import { isTurnAborted, withTurnSignal } from './turn-abort.ts'
 import type { SpotifyIntent, SpotifySource } from './spotify-parse.ts'
 
 export { parseSpotifyIntent, spotifySourceLabel } from './spotify-parse.ts'
@@ -174,10 +175,12 @@ export function spotifyLogout(): void {
 }
 
 async function tokenRequest(body: Record<string, string>): Promise<{ ok: boolean; message: string }> {
+  if (isTurnAborted()) return { ok: false, message: 'Abgebrochen.' }
   const res = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams(body).toString(),
+    signal: withTurnSignal(),
   })
   const json = (await res.json().catch(() => ({}))) as {
     access_token?: string
@@ -186,6 +189,7 @@ async function tokenRequest(body: Record<string, string>): Promise<{ ok: boolean
     error_description?: string
     error?: string
   }
+  if (isTurnAborted()) return { ok: false, message: 'Abgebrochen.' }
   if (!res.ok || !json.access_token) {
     return {
       ok: false,
@@ -244,6 +248,7 @@ async function api(
 ): Promise<{ status: number; json: Record<string, unknown> }> {
   const token = await accessToken()
   if (!token) return { status: 401, json: { error: { message: 'Nicht bei Spotify angemeldet.' } } }
+  if (isTurnAborted()) return { status: 499, json: { error: { message: 'Abgebrochen.' } } }
   const res = await fetch(`https://api.spotify.com/v1${path}`, {
     method,
     headers: {
@@ -251,6 +256,7 @@ async function api(
       ...(body ? { 'Content-Type': 'application/json' } : {}),
     },
     body: body ? JSON.stringify(body) : undefined,
+    signal: withTurnSignal(),
   })
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>
   return { status: res.status, json }

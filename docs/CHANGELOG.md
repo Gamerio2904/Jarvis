@@ -5,6 +5,18 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.15.0` — Hirn härten — *CODE + APK*
+
+Retrieve-Rerank nur wenn e5-Datei da (nie Router). Propose mit mehr Verträgen,
+Parser bestätigt. Knowledge-Zitat auf News/Suche/Sport/Recht/Teach/Pack/Osint.
+AbortSignal bis Groq-SSE, 0,5B-Inferenz, Spotify, TV-Poll. Presence Native
+Bind `:18791` nur LAN. Satz-TTS nach Parser/erstem Stream-Satz, Edge zuerst.
+Lage-Pin nur Felder, kein Gazetteer auf Flugzeugen. Parser-Miss lokal,
+`Nein, das war der Timer` → Gold. Nachrichten: Tagesschau+DW parallel, ein Satz.
+Sideload **`18.15.0`** (versionCode `181500`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Test: [`TEST-18.15.md`](./TEST-18.15.md).
+
 ### `18.14.2` — Lage-Kugel: Texte, Grafik, Idle-Loop — *CODE + APK*
 
 Intel und Pin-Karten sprechen in Sätzen aus der Quelle

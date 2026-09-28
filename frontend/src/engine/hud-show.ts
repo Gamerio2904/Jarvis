@@ -25,7 +25,7 @@ export function focusPlace(): PlaceBrief | null {
       name: hit?.name || name,
       lat,
       lon,
-      blurb: hit?.blurb || pinLineFor(name, s.last_globe_brief),
+      blurb: hit?.blurb || pinLineFor(name, s.last_globe_brief, undefined, 'outlook'),
     }
   } catch {
     return null

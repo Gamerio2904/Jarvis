@@ -7,10 +7,11 @@
 Die Leitentscheidung bleibt: **Parser wählen Geräte, das Modell formuliert.**
 Kein Vorschlag hier gibt einem Modell die Hand am Fernseher.
 
-Offene Reste nach Code `18.14.2` (Retrieve-Rerank, Propose, Knowledge-Zitat,
-Abort-Rest, Presence-Bind, Satz-TTS, Lage-Felder, Gold aus Korrekturen)
-sind als Schiene **`18.15` PLAN** geschnitten: [`87-next.md`](./87-next.md).
-Kein neuer Schwarm. Dieses Dokument bleibt Protokoll, kein Sprint-Log.
+Offene Reste nach Code `18.15.0` stehen nicht mehr auf dieser Schiene
+(Retrieve-Rerank, Propose, Knowledge-Zitat, Abort-Rest, Presence-Bind,
+Satz-TTS, Lage-Felder, Gold aus Korrekturen sind **CODE** in
+[`87-next.md`](./87-next.md)). Kein neuer Schwarm. Dieses Dokument bleibt
+Protokoll, kein Sprint-Log.
 
 ---
 

@@ -308,7 +308,7 @@ export function Lage({
         lat,
         lon,
         kind: 'outlook',
-        line: pinLineFor(name, s.last_globe_brief),
+        line: pinLineFor(name, s.last_globe_brief, undefined, 'outlook'),
       })
     } catch {
       /* ignore */
@@ -555,7 +555,7 @@ export function Lage({
                 </button>
               </div>
               <p className="lage-body">
-                {decodeHtml(pinLineFor(pinCard.name, pinCard.line || '', s.last_globe_brief))}
+                {decodeHtml(pinLineFor(pinCard.name, pinCard.line || '', s.last_globe_brief, pinCard.kind))}
               </p>
               <p className="pin-bubble-swipe">Keine Bilder — nur Lage-Text.</p>
               <div className="pin-bubble-actions">

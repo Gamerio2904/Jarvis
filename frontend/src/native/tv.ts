@@ -1,5 +1,6 @@
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { withTimeout } from './with-timeout.ts'
+import { withTurnSignal } from '../engine/turn-abort.ts'
 
 export type TvDevice = {
   host: string
@@ -181,7 +182,7 @@ export async function tvInfoNative(host: string, timeoutMs = 800): Promise<{ ok:
   try {
     const ctrl = new AbortController()
     const t = setTimeout(() => ctrl.abort(), timeoutMs)
-    const res = await fetch(`http://${h}:8001/api/v2/`, { signal: ctrl.signal })
+    const res = await fetch(`http://${h}:8001/api/v2/`, { signal: withTurnSignal(ctrl.signal) })
     clearTimeout(t)
     return { ok: res.ok, status: res.status }
   } catch {

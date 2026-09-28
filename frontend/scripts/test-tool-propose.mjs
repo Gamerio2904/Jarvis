@@ -64,6 +64,9 @@ const BEISPIELE = {
   open_settings: bag(),
   close_overlay: bag(),
   set_jarvis_flag: bag({ title: 'Research', state: 'on' }),
+  get_news: bag(),
+  get_weather: bag(),
+  get_sport: bag(),
 }
 for (const contract of TOOL_CONTRACTS) {
   const args = BEISPIELE[contract.name]

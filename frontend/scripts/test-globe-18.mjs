@@ -191,6 +191,8 @@ assert.match(pinLineFor('Sicht', 'Wildfire A (12 km) · Wildfire B (40 km). Kein
 assert.match(pinLineFor('Tschernobyl', ''), /Ukraine|Tschernobyl/)
 assert.match(pinLineFor('M4.8', 'USGS · 10 km S of Ridgecrest'), /USGS/)
 assert.match(pinLineFor('DLH4A', 'OpenSky'), /OpenSky/)
+assert.equal(pinLineFor('DLH4A', '', undefined, 'flight'), 'Keine Kurzlage zu diesem Ort.')
+assert.doesNotMatch(pinLineFor('DLH4A', '', undefined, 'flight'), /Airline|Lufthansa/)
 assert.equal(pinLineFor('Atlantis', 'Zur Lage in London: Themse.'), 'Keine Kurzlage zu diesem Ort.')
 {
   const fly = flightLine({ call: 'DLH4A', country: 'Germany', altM: 9800, speedMs: 220, heading: 90, lat: 50.11, lon: 8.68 })

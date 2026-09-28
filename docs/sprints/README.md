@@ -342,20 +342,20 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 358 | [`sprint-358.md`](./sprint-358.md) | `18.14.0` | Flugzeug-Silhouette + Kurs | **CODE + APK** Must |
 | 359 | [`sprint-359.md`](./sprint-359.md) | `18.14.0` | Sat/ISS-Silhouette | **CODE + APK** Must |
 | 360 | [`sprint-360.md`](./sprint-360.md) | `18.14.0` | Poll ≥ 10 s, Tests, OAuth optional | **CODE + APK** Must |
-| 361 | [`sprint-361.md`](./sprint-361.md) | `18.15.0` | Retrieve: Encoder nur Rerank, nie pickRoute | **PLAN** Must |
-| 362 | [`sprint-362.md`](./sprint-362.md) | `18.15.0` | Propose: Paraphrase härten, Parser bestätigt | **PLAN** Must |
-| 363 | [`sprint-363.md`](./sprint-363.md) | `18.15.0` | Knowledge zitierbar auf Lese-Agenten | **PLAN** Must |
-| 364 | [`sprint-364.md`](./sprint-364.md) | `18.15.0` | AbortSignal Rest bis Groq/Native | **PLAN** Must |
-| 365 | [`sprint-365.md`](./sprint-365.md) | `18.15.0` | Presence Native Bind :18791 | **PLAN** Must |
-| 366 | [`sprint-366.md`](./sprint-366.md) | `18.15.0` | Satz-TTS nach Parser-Satz, Edge zuerst | **PLAN** Must |
-| 367 | [`sprint-367.md`](./sprint-367.md) | `18.15.0` | Lage Pin-Satz nur aus Feldern | **PLAN** Must |
-| 368 | [`sprint-368.md`](./sprint-368.md) | `18.15.0` | Parser-Korrektur → Gold, Härten | **PLAN** Must |
+| 361 | [`sprint-361.md`](./sprint-361.md) | `18.15.0` | Retrieve: Encoder nur Rerank, nie pickRoute | **CODE + APK** Must |
+| 362 | [`sprint-362.md`](./sprint-362.md) | `18.15.0` | Propose: Paraphrase härten, Parser bestätigt | **CODE + APK** Must |
+| 363 | [`sprint-363.md`](./sprint-363.md) | `18.15.0` | Knowledge zitierbar auf Lese-Agenten | **CODE + APK** Must |
+| 364 | [`sprint-364.md`](./sprint-364.md) | `18.15.0` | AbortSignal Rest bis Groq/Native | **CODE + APK** Must |
+| 365 | [`sprint-365.md`](./sprint-365.md) | `18.15.0` | Presence Native Bind :18791 | **CODE + APK** Must |
+| 366 | [`sprint-366.md`](./sprint-366.md) | `18.15.0` | Satz-TTS nach Parser-Satz, Edge zuerst | **CODE + APK** Must |
+| 367 | [`sprint-367.md`](./sprint-367.md) | `18.15.0` | Lage Pin-Satz nur aus Feldern | **CODE + APK** Must |
+| 368 | [`sprint-368.md`](./sprint-368.md) | `18.15.0` | Parser-Korrektur → Gold, Härten | **CODE + APK** Must |
 
-**Aktuell:** App-Code **`18.14.2`**. Sideload-APK **`18.14.2`**, versionCode `181402`. 356–360 **CODE + APK**. **361–368 PLAN** [`87-next.md`](../87-next.md) (`18.15.0`). 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
+**Aktuell:** App-Code **`18.15.0`**. Sideload-APK **`18.15.0`**, versionCode `181500`. 361–368 **CODE + APK**. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 
-**Schiene `17.0.0` liegt.** 249–259 → [`../68-next.md`](../68-next.md). Schiene `18.0.0` → [`../70-next.md`](../70-next.md). Audit-Reste → [`../71-audit.md`](../71-audit.md). **283–300 CODE + APK** in `18.4.3` (Ideen, Karten-Reste, Watchliste, Körper/Wissen). Schiene **18.6 CODE** → [`../77-next.md`](../77-next.md). Schiene **18.7 CODE** → [`../78-next.md`](../78-next.md). Schiene **18.8 CODE + APK** → [`../79-next.md`](../79-next.md). Schiene **18.5 PLAN** → [`../76-next.md`](../76-next.md). Schiene **18.9 CODE + APK** → [`../80-next.md`](../80-next.md). Schiene **18.15 PLAN** → [`../87-next.md`](../87-next.md) (361–368). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
+**Schiene `17.0.0` liegt.** 249–259 → [`../68-next.md`](../68-next.md). Schiene `18.0.0` → [`../70-next.md`](../70-next.md). Audit-Reste → [`../71-audit.md`](../71-audit.md). **283–300 CODE + APK** in `18.4.3` (Ideen, Karten-Reste, Watchliste, Körper/Wissen). Schiene **18.6 CODE** → [`../77-next.md`](../77-next.md). Schiene **18.7 CODE** → [`../78-next.md`](../78-next.md). Schiene **18.8 CODE + APK** → [`../79-next.md`](../79-next.md). Schiene **18.5 PLAN** → [`../76-next.md`](../76-next.md). Schiene **18.9 CODE + APK** → [`../80-next.md`](../80-next.md). Schiene **18.15 CODE + APK** → [`../87-next.md`](../87-next.md) (361–368). Grundlage: [`../67-upgrades.md`](../67-upgrades.md), Grenzen: [`../69-modell-grundlagen.md`](../69-modell-grundlagen.md). Index: [`42-planned.md`](../42-planned.md).
 
 **Gegen die PO-Prioritäten geprüft** (Qualität, funktioniert, Latenz, kostenlos — nur ändern, wenn Nutzen ohne Verlust): 255 aufgelöst, 256 und 259 verkleinert, 257 und 258 mit Latenz-Schranke. Die Rechnung je Sprint steht in [`../68-next.md`](../68-next.md) §3b.
 

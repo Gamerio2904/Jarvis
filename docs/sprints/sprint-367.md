@@ -1,6 +1,6 @@
 # Sprint 367 — Lage: Pin-Satz nur aus Feldern
 
-**Version:** `18.15.0` — **PLAN** Must
+**Version:** `18.15.0` — **CODE + APK** Must
 **Plan:** [`87-next.md`](../87-next.md)
 **Voraussetzung:** `18.14.2` `globe-copy.ts` CODE. Kein neuer Agent.
 

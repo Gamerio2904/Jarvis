@@ -1,6 +1,6 @@
 # Sprint 365 — Presence: Native Bind `:18791`
 
-**Version:** `18.15.0` — **PLAN** Must
+**Version:** `18.15.0` — **CODE + APK** Must
 **Plan:** [`87-next.md`](../87-next.md)
 **Voraussetzung:** 212 Handler CODE (`presence-http.ts`). Default `presence_enabled: false`.
 

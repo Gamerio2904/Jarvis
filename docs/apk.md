@@ -1,6 +1,9 @@
-# Android-APK — Sideload `18.14.2`
+# Android-APK — Sideload `18.15.0`
 
-App-Code **`18.14.2`**. Sideload **`18.14.2`** (versionCode `181402`):
+App-Code **`18.15.0`**. Sideload **`18.15.0`** (versionCode `181500`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+**18.14.2:** Lage-Sätze, Flugzeug-Zoom, weichere Kugel. Sideload **`18.14.2`** (versionCode `181402`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.12.0:** Kamera-Fähigkeiten S6+. Sideload **`18.12.0`** (versionCode `181200`):

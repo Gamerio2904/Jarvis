@@ -1,13 +1,12 @@
-# 87 — Hirn härten **PLAN** (`18.15.0`)
+# 87 — Hirn härten **CODE + APK** (`18.15.0`)
 
 PO: Jarvis soll klüger wirken, ohne ein zweites Hirn und ohne Schwarm.
 Grundlage ist der Code in **`18.14.2`**, nicht [`67-upgrades.md`](./67-upgrades.md)
 als Wunschzettel. Parser wählen Geräte. Ein Domänen-Agent pro Zug.
 Groq primär → Gemini Spezialist → 0,5B Fallback.
 
-**Dieses Dokument ist PLAN.** Execute: Sprints **361–368**. Sideload bleibt
-**`18.14.2`**, versionCode `181402`, bis Execute. Kein `APP_VERSION`-Bump
-in dieser Schiene.
+**Dieses Dokument ist nach Execute CODE.** Sprints **361–368**. Sideload
+**`18.15.0`**, versionCode `181500`. Test: [`TEST-18.15.md`](./TEST-18.15.md).
 
 Andere Drafts bleiben getrennt: Koch `#149` (342–346), Kamera-Wahl `#151`,
 Clips `18.13` `#152` (348–352), Experte `#153` (353–355), Docs-Stand `#156`.
@@ -130,11 +129,11 @@ Harte Kette: 361 unabhängig (darf nicht Router anfassen). 362 vor 368
 getrennt von Packs). 364 vor 366 (Barge-in bricht den Mund **und** den
 Fetch). 365 frei. 367 frei neben 361–366. **368 zuletzt.**
 
-Landet in App-Code **`18.15.0`** bei Execute. Sideload **`18.14.2`** bis dahin.
+Landet in App-Code **`18.15.0`**. Sideload **`18.15.0`**.
 
 ## 6. Abnahme (nach Execute)
 
-Gerät, nicht nur diese VM. `TEST-18.15.md` entsteht in 368, nicht in diesem PLAN.
+Gerät, nicht nur diese VM. [`TEST-18.15.md`](./TEST-18.15.md).
 Kein Wort „Live“ auf der Kugel. Kein zweiter Agent im selben Zug.
 e5-Datei nicht in `releases/Jarvis.apk`, außer 195 ausdrücklich aufgetaut
 und gemessen.

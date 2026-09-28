@@ -1,6 +1,6 @@
 # Sprint 364 — AbortSignal: Rest bis Groq/Native
 
-**Version:** `18.15.0` — **PLAN** Must
+**Version:** `18.15.0` — **CODE + APK** Must
 **Plan:** [`87-next.md`](../87-next.md)
 **Voraussetzung:** 253 CODE (`turn-abort.ts`, `http-json`, `saveSettings`-Sperre).
 

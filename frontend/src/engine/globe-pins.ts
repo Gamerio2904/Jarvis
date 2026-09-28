@@ -34,7 +34,7 @@ export async function loadGlobePins(): Promise<GeoFix[]> {
       if (focus.name && lat != null && lon != null && !(lat === 0 && lon === 0)) {
         const name = String(focus.name)
         if (!/^iss$/i.test(name)) {
-          add({ name, lat, lon, kind: 'outlook', line: pinLineFor(name, s.last_globe_brief) })
+          add({ name, lat, lon, kind: 'outlook', line: pinLineFor(name, s.last_globe_brief, undefined, 'outlook') })
         }
       }
     }

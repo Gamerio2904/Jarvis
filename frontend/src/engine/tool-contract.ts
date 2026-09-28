@@ -214,6 +214,34 @@ export const TOOL_CONTRACTS: ToolContract[] = [
       return flagUtterance(flag, s === 'on')
     },
   },
+  {
+    name: 'get_news',
+    agent: 'news',
+    description: 'Read current national news headlines. No arguments.',
+    uses: [],
+    render: () => 'Zeig mir die Nachrichten',
+  },
+  {
+    name: 'get_weather',
+    agent: 'weather',
+    description: 'Read the weather forecast. Title is an optional German place name.',
+    uses: ['title'],
+    render: (a) => {
+      const place = cleanTitle(a.title)
+      return place ? `Wetter heute in ${place}` : 'Wetter heute'
+    },
+  },
+  {
+    name: 'get_sport',
+    agent: 'sport',
+    description: 'Read a German football league table. Title is empty for Bundesliga or names the 2. Liga.',
+    uses: ['title'],
+    render: (a) => {
+      const title = (a.title || '').toLowerCase()
+      if (/2|zweit/.test(title)) return 'Wie steht die 2. Bundesliga?'
+      return 'Wie steht die Bundesliga?'
+    },
+  },
 ]
 
 export const TOOL_NAMES = TOOL_CONTRACTS.map((t) => t.name)
@@ -314,7 +342,7 @@ export function confirmedUtterance(p: ParsedProposal, route: (text: string) => s
 }
 
 const DOMAIN =
-  /\b(timer|wecker|erinner\w*|termin|kalender|einkaufs?liste|einkaufen|liste|notiz|todo|aufgabe|fernseher|tv|glotze|watchliste|liebling\w*|overlay|folie|einstellungen|settings|lage|kugel|schicht|debug)\b/i
+  /\b(timer|wecker|erinner\w*|termin|kalender|einkaufs?liste|einkaufen|liste|notiz|todo|aufgabe|fernseher|tv|glotze|watchliste|liebling\w*|overlay|folie|einstellungen|settings|lage|kugel|schicht|debug|nachrichten|news|schlagzeile\w*|tagesschau|wetter|suche|sport|bundesliga|recht|gesetz|osint)\b/i
 
 /** Fragewörter am Anfang: „Was ist ein Timer" ist keine Anweisung. */
 const QUESTION = /^\s*(was|wie|wer|wen|wem|wann|wo|wohin|woher|warum|wieso|weshalb|welche[rnsm]?|gibt|ist|sind|hast|habe|kenn\w*)\b/i

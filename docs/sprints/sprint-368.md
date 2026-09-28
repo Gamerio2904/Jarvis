@@ -1,6 +1,6 @@
 # Sprint 368 — Parser-Korrektur → Gold, Härten
 
-**Version:** `18.15.0` — **PLAN** Must (paralleles Lesen Should)
+**Version:** `18.15.0` — **CODE + APK** Must (paralleles Lesen Should)
 **Plan:** [`87-next.md`](../87-next.md)
 **Voraussetzung:** 361–367. Korpus `GOLD_EXPECT` = `TEST_PROMPTS`.
 
@@ -41,4 +41,4 @@ Parser nicht hat. Oder fused Read startet `tv` parallel.
 1. Bekannter Miss → nach 368 in `test:prompts` grün, ohne Modell-Update.
 2. „Nein, Timer“ nach falschem Wecker: nächster gleicher Satz trifft Timer **oder** ehrliche Nachfrage — dokumentiert.
 3. Nachrichten: ein Satz, zwei Quellen, kein zweiter Agent in der Trace.
-4. APK erst nach Execute; bis dahin Sideload `18.14.2`.
+4. APK **`18.15.0`** nach Execute. Over `18.14.2` installieren.

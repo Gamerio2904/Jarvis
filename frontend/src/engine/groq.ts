@@ -11,6 +11,7 @@ import { postJson } from './http-json.ts'
 import { streamSseLines } from '../native/voice.ts'
 import { loadSettings, saveSettings } from './store.ts'
 import { noteQuotaExhausted, noteQuotaHeaders, retryAfterMs } from './quota.ts'
+import { isTurnAborted } from './turn-abort.ts'
 
 /**
  * Gemini merkt sich über `markSkip`, welches Modell gerade nicht geht. Groq
@@ -112,6 +113,7 @@ export async function completeGroq(
         continue
       }
       if (status === 429) {
+        if (isTurnAborted()) throw new DOMException('Neuer Zug', 'AbortError')
         noteQuotaExhausted('groq', headers)
         const wait = retryAfterMs(headers)
         if (wait > 0) {
@@ -135,6 +137,7 @@ export async function completeGroq(
       onToken?.(text, text)
       return text
     } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') throw err
       const msg = err instanceof Error ? err.message : String(err)
       if (msg.includes('ungültig')) throw err instanceof Error ? err : new Error(msg)
       last = msg
@@ -188,9 +191,11 @@ export async function completeGroqJson(opts: {
       )
       noteQuotaHeaders('groq', headers)
       if (status === 429) {
+        if (isTurnAborted()) return null
         noteQuotaExhausted('groq', headers)
         const wait = retryAfterMs(headers)
         if (wait > 0) {
+          if (isTurnAborted()) return null
           await new Promise((r) => setTimeout(r, wait))
           continue
         }

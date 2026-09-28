@@ -11,6 +11,7 @@ import { loadSettings } from '../engine/store.ts'
 import { BARGE_IGNORE_TTS_MS, BARGE_ONSET_MS, TALK_TAIL_MS, silenceMsFor, turnLooksComplete } from '../engine/turn-detect.ts'
 import { createEnergyVad, rmsFromByteTimeDomain } from '../engine/vad.ts'
 import { preferEdgeForReply } from '../engine/speak-tap.ts'
+import { isTurnAborted, withTurnSignal } from '../engine/turn-abort.ts'
 
 export { createSentenceTap } from '../engine/speak-tap.ts'
 
@@ -331,7 +332,7 @@ export async function streamSseLines(
   const bearer = opts.auth === 'bearer'
   if (native) {
     const handle = await native.addListener('sse', (ev) => {
-      if (!ev.data) return
+      if (!ev.data || isTurnAborted()) return
       try {
         onData(JSON.parse(ev.data) as Record<string, unknown>)
       } catch {
@@ -360,11 +361,12 @@ export async function streamSseLines(
       if (bearer) headers.Authorization = `Bearer ${opts.apiKey}`
       else headers['x-goog-api-key'] = opts.apiKey
     }
+    const timeout = AbortSignal.timeout(timeoutMs)
     const res = await fetch(opts.url, {
       method: 'POST',
       headers,
       body: JSON.stringify(opts.body),
-      signal: AbortSignal.timeout(timeoutMs),
+      signal: withTurnSignal(timeout) ?? timeout,
     })
     if (!res.ok || !res.body) {
       return { ok: false, message: `HTTP ${res.status}` }
@@ -383,6 +385,7 @@ export async function streamSseLines(
         const data = line.slice(5).trim()
         if (!data || data === '[DONE]') continue
         try {
+          if (isTurnAborted()) return { ok: false, message: 'Abgebrochen.' }
           onData(JSON.parse(data) as Record<string, unknown>)
         } catch {
           /* ignore */

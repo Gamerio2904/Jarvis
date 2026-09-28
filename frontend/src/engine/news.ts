@@ -48,22 +48,24 @@ export async function handleNews(
     }
   }
 
-  const national = await fetchTagesschauHome(false)
-  if (!national.hits.length) {
+  const [national, dw] = await Promise.all([fetchTagesschauHome(false), fetchDwHome()])
+  const fused = fuseNewsReply(national, dw)
+  if (!fused) {
     return {
       handled: true,
-      reply: 'Die Tagesschau ist gerade nicht da. Meldungen würde ich nicht erfinden.',
+      reply: 'Tagesschau und DW sind gerade nicht da. Meldungen würde ich nicht erfinden.',
       tool: { tool_status: 'error', tool: 'news', action: 'fetch', label: 'Nachrichten fehlen' },
       lastTool: 'news',
     }
   }
-  return pack(`Die Lage laut Tagesschau: ${national.hits.join(' ')}`, national.sources, 'Tagesschau')
+  return pack(fused.reply, fused.sources, fused.query, fused.label)
 }
 
 function pack(
   reply: string,
   sources: ResearchSource[],
   query: string,
+  label = 'Tagesschau',
 ): { handled: boolean; reply: string; tool: ToolMeta; research: ResearchMeta; lastTool: string } {
   saveSettings({ last_news_line: reply.slice(0, 220) })
   return {
@@ -72,14 +74,48 @@ function pack(
     research: {
       used: true,
       status: 'ok',
-      status_label: 'Tagesschau',
+      status_label: label,
       query,
       sources,
-      privacy_note: 'Meldungen von tagesschau.de, kein Raten.',
+      privacy_note: 'Meldungen von tagesschau.de und dw.com, kein Raten.',
     },
     tool: { tool_status: 'executed', tool: 'news', action: 'list', label: 'Nachrichten' },
     lastTool: 'news',
   }
+}
+
+export function fuseNewsReply(
+  ts: { hits: string[]; sources: ResearchSource[] },
+  dw: { hits: string[]; sources: ResearchSource[] },
+): { reply: string; sources: ResearchSource[]; query: string; label: string } | null {
+  const tsHits = (ts.hits || []).filter(Boolean)
+  const dwHits = (dw.hits || []).filter(Boolean)
+  const sources = [...(ts.sources || []).slice(0, 2), ...(dw.sources || []).slice(0, 2)]
+  if (tsHits.length && dwHits.length) {
+    return {
+      reply: `Die Lage laut Tagesschau und DW: ${tsHits[0]} ${dwHits[0]}`,
+      sources,
+      query: 'Tagesschau+DW',
+      label: 'Tagesschau · DW',
+    }
+  }
+  if (tsHits.length) {
+    return {
+      reply: `Die Lage laut Tagesschau: ${tsHits.join(' ')}`,
+      sources: ts.sources || [],
+      query: 'Tagesschau',
+      label: 'Tagesschau',
+    }
+  }
+  if (dwHits.length) {
+    return {
+      reply: `Laut DW: ${dwHits.join(' ')}`,
+      sources: dw.sources || [],
+      query: 'DW',
+      label: 'DW',
+    }
+  }
+  return null
 }
 
 export async function fetchTagesschauHome(

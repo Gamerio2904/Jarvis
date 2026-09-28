@@ -1,4 +1,4 @@
-# 66 — Agenten-Netzwerk: Ist-Stand (Code `17.0.0`)
+# 66 — Agenten-Netzwerk: Ist-Stand (Code `18.15.0`)
 
 > Dieses Dokument beschreibt, **was der Code tut** — nicht was geplant war.
 > [`62-next.md`](./62-next.md) ist das Planungsdokument zu 14.0; wo die Namen
@@ -26,6 +26,11 @@ chat.streamChat
 
 Der Director sieht **immer einen einzelnen Intent**. Das Aufteilen mehrteiliger
 Sätze passiert vorher in `chat.ts` (`splitIntents` + `partitionChain`).
+
+Neu seit `18.15.0`: `makeDirectorCtx` setzt `ctx.signal`. Groq-SSE, 0,5B-Inferenz,
+Spotify und TV-Poll mergen das Zug-Signal. Knowledge-Allowlist umfasst
+News/Suche/Sport/Recht/Teach/Pack/Osint — nicht TV/GPIO/SMS. Ein Agent pro Zug
+bleibt. 63 Parser, 63 Executoren. Groq primär.
 
 Neu seit `17.0.0` sind die Schritte **4** (`decideTurn` statt
 `decideRouteFromCtx`, siehe §2) und **7** (Werkzeug-Vorschlag, siehe §9), sowie
