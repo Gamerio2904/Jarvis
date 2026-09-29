@@ -190,6 +190,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Bro anrufen", text: "Bro anrufen" },
       { label: "Nachricht Bro", text: "Nachricht an Bro ich bin da" },
       { label: "Geburtstag", text: "Mama hat am 3. März Geburtstag" },
+      { label: "Mutter Geburtstag", text: "Wer ist meine Mutter und wann hat sie Geburtstag" },
+      { label: "Mama wann", text: "Wann hat Mama Geburtstag" },
       { label: "Kontakte scannen", text: "Kontakte scannen", expect: {"tool":"maps","confirm":true} },
       { label: "E-Mails lesen", text: "Lies meine E-Mails", expect: {"tool":"maps"} },
       { label: "WhatsApp Eingang", text: "Was steht auf WhatsApp", expect: {"tool":"maps"} },

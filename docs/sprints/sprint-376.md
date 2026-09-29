@@ -1,6 +1,6 @@
 # Sprint 376 — Last-Step als Absicht + Korrektur spielt nach
 
-**Version:** `18.16.0` — **PLAN** Should
+**Version:** `18.16.0` — **CODE** Should
 **Plan:** [`88-next.md`](../88-next.md)
 **Voraussetzung:** 368 Miss-Log. `last_step_*` in Settings.
 

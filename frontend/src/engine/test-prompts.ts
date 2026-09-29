@@ -65,6 +65,8 @@ export const TEST_PROMPTS = [
   'lauter um 10',
   'Fahrmodus aus',
   'Mama hat am 3. März Geburtstag',
+  'Wer ist meine Mutter und wann hat sie Geburtstag',
+  'Wann hat Mama Geburtstag',
   'Jeden Dienstag Müll',
   'was kommt diese Woche raus?',
   'das zweite',

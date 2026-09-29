@@ -1,6 +1,6 @@
 # Sprint 374 — Episode-Karte nach der Sitzung
 
-**Version:** `18.16.0` — **PLAN** Should
+**Version:** `18.16.0` — **CODE** Should
 **Plan:** [`88-next.md`](../88-next.md)
 **Voraussetzung:** Gate aus 370. Digest-Agent bleibt auf Zuruf.
 

@@ -1,6 +1,7 @@
 import { isFuelPlace } from './fuel-parse.ts'
 import { gazetteerHit } from './globe-geo.ts'
 import { isStoreBrandQuery } from './poi-parse.ts'
+import { aliasMembers } from './memory-alias.ts'
 import { normalizeUtterance } from './utterance.ts'
 
 export type PlaceWrite = { name: string; place: string }
@@ -256,8 +257,11 @@ export function findContactRow(
 ): { key: string; value: string } | undefined {
   const q = normalizePlaceName(query)
   if (!q) return undefined
+  const aliases = aliasMembers(q).map((x) => normalizePlaceName(x))
   const phones = rows.filter((r) => r.category === 'contact' && looksLikePhone(r.value))
-  const direct = phones.find((r) => r.key === q || r.key.includes(q) || q.includes(r.key))
+  const direct = phones.find(
+    (r) => r.key === q || r.key.includes(q) || q.includes(r.key) || aliases.includes(normalizePlaceName(r.key)),
+  )
   if (direct) return { key: direct.key, value: direct.value }
   const forward = rows.find((r) => r.key === `alias:${q}` && r.value.trim())
   if (forward) {

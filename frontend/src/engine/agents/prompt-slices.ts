@@ -332,7 +332,9 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   "recall": {
     "promptSlice": "Domäne recall: Parser-Fakten only.",
     "goldPrompts": [
-      "Was weißt du über den Zahnarzt"
+      "Was weißt du über den Zahnarzt",
+      "Wer ist meine Mutter und wann hat sie Geburtstag",
+      "Wann hat Mama Geburtstag"
     ]
   },
   "teach": {

@@ -1,5 +1,7 @@
 import { normalizeUtterance } from './utterance.ts'
 import { isBriefAsk } from './brief-parse.ts'
+import { listReminders } from './store.ts'
+import { loadWorkingMemory } from './working-memory.ts'
 
 export type DayPart = 'morning' | 'day' | 'evening' | 'night'
 
@@ -43,7 +45,7 @@ function partFromWord(w: string): DayPart {
   return 'day'
 }
 
-export function greetingReply(part: DayPart | 'echo', now = new Date(), asked = ''): string {
+export function greetingReply(part: DayPart | 'echo', now = new Date(), asked = '', stand = ''): string {
   const clock = dayPartAt(now)
   const want = part === 'echo' ? clock : part
   const line =
@@ -60,5 +62,27 @@ export function greetingReply(part: DayPart | 'echo', now = new Date(), asked = 
     }
   }
   if (/wie\s+geht/i.test(asked)) return `${line} Gut, danke. Und Ihnen?`
+  const fact = (stand || '').replace(/\s+/g, ' ').trim()
+  if (fact && !/geschlafen|laune|freut/i.test(fact)) return `${line} ${fact}`
   return `${line} Ich höre.`
+}
+
+export async function greetingStandFact(): Promise<string> {
+  const now = Date.now()
+  const rows = await listReminders()
+  const timers = rows
+    .filter((r) => r.kind === 'timer' && r.status === 'open' && new Date(r.due_at).getTime() > now - 2_000)
+    .sort((a, b) => a.due_at.localeCompare(b.due_at))
+  if (timers[0]?.title) {
+    const title = timers[0].title.replace(/^Timer\s+/i, '').trim()
+    return title ? `Timer ${title} läuft.` : 'Ein Timer läuft.'
+  }
+  const open = rows
+    .filter((r) => r.status === 'open' && r.kind !== 'timer' && r.due_at)
+    .sort((a, b) => a.due_at.localeCompare(b.due_at))
+  const next = open[0]
+  if (next?.title) return `Nächste Erinnerung: ${next.title.replace(/\s+/g, ' ').trim().slice(0, 80)}.`
+  const work = loadWorkingMemory().find((r) => r.line.trim().length >= 8 && !/gefunden:/i.test(r.line))
+  if (work) return work.line.replace(/\s+/g, ' ').trim().slice(0, 80)
+  return ''
 }

@@ -167,11 +167,14 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
   if (
     /^\s*was\s+weißt\s+du\s+über\s+(?!mich\b)/.test(t) ||
     /^\s*wo\s+stand\s+das\s+mit\b/.test(t) ||
-    (/^\s*erinnerst\s+du\s+dich\s+an\b/.test(t) && !/\ban\s+mich\b/.test(t))
+    (/^\s*erinnerst\s+du\s+dich\s+an\b/.test(t) && !/\ban\s+mich\b/.test(t)) ||
+    /^\s*wer\s+ist\s+(?:meine|mein)\s+[a-zäöüß]+/.test(t) ||
+    /^\s*wann\s+(?:hat|ist)\s+(?:die\s+|der\s+|das\s+|meine\s+|mein\s+)?.+?\s+geburtstag\b/.test(t)
   ) {
     out = drop(out, 'memory')
     out = drop(out, 'search')
     out = drop(out, 'maps')
+    out = drop(out, 'birthday')
     out = boost(out, 'recall', 0.22)
   }
 

@@ -2,6 +2,7 @@ import { parseRecallIntent } from './recall-parse.ts'
 import { formatRecallReply, pickRecallHits, retrieve } from './retrieve.ts'
 import { packVerified } from './action-fsm.ts'
 import { memoryRecallVerified } from './memory-layer.ts'
+import { backfillBirthdayEntities, isPersonClusterAsk, loadClusterStores, personClusterReply } from './person-cluster.ts'
 import type { ToolMeta } from './tools.ts'
 
 export { parseRecallIntent }
@@ -12,16 +13,20 @@ export async function handleRecall(
   const q = parseRecallIntent(text)
   if (!q) return { handled: false }
   const hits = await retrieve(q)
-  const reply = formatRecallReply(q, hits)
+  const { memory, reminders } = await loadClusterStores()
+  await backfillBirthdayEntities(memory)
+  const cluster = isPersonClusterAsk(text) ? personClusterReply(text, hits, memory, reminders) : null
+  const reply = cluster || formatRecallReply(q, hits)
   const used = pickRecallHits(q, hits)
-  const cited = used.length > 0 && !/^Nichts Belegtes/.test(reply)
+  const empty = /^Nichts Belegtes/.test(reply)
+  const cited = !empty
   const packed = packVerified({
     domain: 'memory',
     intent: `recall:${q}`,
     plan: 'recall',
     label: 'Gedächtnis',
     observation: {
-      hits: used.length,
+      hits: cluster && cited ? Math.max(used.length, 1) : used.length,
       cited,
       stores: [...new Set(used.map((h) => h.store))],
       key: q,

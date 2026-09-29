@@ -1,4 +1,4 @@
-# 88 — Personen-Knäuel + Gedächtnis **PLAN** (`18.16.0`)
+# 88 — Personen-Knäuel + Gedächtnis **CODE** (`18.16.0`)
 
 PO: Jarvis soll klüger und menschlicher wirken, **ohne** zweites Hirn und
 ohne Schwarm. Kern: alles, was zu **einer Person** gehört (Geburtstag,
@@ -6,8 +6,8 @@ Tel, Ort, Alias), hängt zusammen. Nach „Mama hat am 3. März Geburtstag“
 reicht „Wer ist meine Mutter und wann hat sie Geburtstag“ — ohne denselben
 Satz nochmal zu sagen.
 
-Grundlage: Sideload **`18.15.0`**. Sprints **369–376**. Parser wählen
-Geräte. Ein Domänen-Agent pro Zug. Groq primär → Gemini Spezialist → 0,5B.
+Grundlage: Sideload **`18.15.0`**. **Dieses Dokument ist nach Execute CODE.**
+Sprints **369–376**. App-Code **`18.16.0`**. Sideload bleibt **`18.15.0`** bis APK.
 
 Andere Drafts bleiben getrennt: Koch `#149`, Kamera-Wahl `#151`, Clips `#152`,
 Experte `#153`, Docs-Stand `#156`, Abbruch-Hotfix `#158` (`18.15.1`).
@@ -78,14 +78,14 @@ Harte Kette: **369 → 370 → 371** (Must, Personen-Knäuel).
 
 | Sprint | Thema | Rolle |
 |--------|--------|--------|
-| [369](./sprints/sprint-369.md) | Familien-Aliase Mama/Mutter, Papa/Vater, … | Must |
-| [370](./sprints/sprint-370.md) | Geburtstag schreibt durch `writeMemory` | Must |
-| [371](./sprints/sprint-371.md) | Recall: wer/wann Geburtstag, ein Cluster-Satz | Must |
-| [372](./sprints/sprint-372.md) | Kontakt/Ort/Mail durch dasselbe Gate | Should |
-| [373](./sprints/sprint-373.md) | Begrüßung aus Stand (Termin/Timer/letzter Zug) | Should |
-| [374](./sprints/sprint-374.md) | Episode-Karte nach Sitzung, mit Ablauf | Should |
-| [375](./sprints/sprint-375.md) | Sleep: Prefs/Ort durch Gate, auch mit Gemini-Key | Should |
-| [376](./sprints/sprint-376.md) | Last-Step als Absicht + Korrektur spielt Miss nach | Should |
+| [369](./sprints/sprint-369.md) | Familien-Aliase Mama/Mutter, Papa/Vater, … | Must CODE |
+| [370](./sprints/sprint-370.md) | Geburtstag schreibt durch `writeMemory` | Must CODE |
+| [371](./sprints/sprint-371.md) | Recall: wer/wann Geburtstag, ein Cluster-Satz | Must CODE |
+| [372](./sprints/sprint-372.md) | Kontakt/Ort/Mail durch dasselbe Gate | Should CODE |
+| [373](./sprints/sprint-373.md) | Begrüßung aus Stand (Termin/Timer/letzter Zug) | Should CODE |
+| [374](./sprints/sprint-374.md) | Episode-Karte nach Sitzung, mit Ablauf | Should CODE |
+| [375](./sprints/sprint-375.md) | Sleep: Prefs/Ort durch Gate, auch mit Gemini-Key | Should CODE |
+| [376](./sprints/sprint-376.md) | Last-Step als Absicht + Korrektur spielt Miss nach | Should CODE |
 
 ## 5. Gold / TEST (nach Execute)
 
@@ -113,5 +113,5 @@ Recall erfindet eine Verwandtschaft, die nicht in `ALIAS_GROUPS` und nicht
 im Speicher steht. Oder Geburtstag umgeht weiter das Gate. Oder Begrüßung
 behauptet eine Laune. Oder ein zweiter Domänen-Agent im selben Zug.
 
-Landet in App-Code **`18.16.0`** nach Execute. Sideload **`18.16.0`**.
+Landet in App-Code **`18.16.0`**. Sideload **`18.15.0`** bis APK.
 Test: [`TEST-18.16.md`](./TEST-18.16.md).

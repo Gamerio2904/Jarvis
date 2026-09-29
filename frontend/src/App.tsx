@@ -72,7 +72,7 @@ import { syncGlance } from './engine/glance.ts'
 import { tickOutlookWatch } from './engine/outlook-watch.ts'
 import { tickWatchdog } from './engine/watchdog.ts'
 import { tickPriceWatch } from './engine/watch-price.ts'
-import { tickSleepMemory } from './engine/sleep-memory.ts'
+import { tickEpisodeMemory, tickSleepMemory } from './engine/sleep-memory.ts'
 import { displayFolder } from './engine/folders.ts'
 import { FOLDER_IDS } from './engine/folder-parse.ts'
 import { setHeardNames } from './engine/heard.ts'
@@ -389,6 +389,7 @@ function App() {
     closeSheet('voice')
     wakeGateRef.current = closeWake(wakeGateRef.current)
     if (wasOpen && !fromPop) dropOverlayHistory()
+    if (wasOpen) void tickEpisodeMemory()
   }
 
   function openVoiceMode(seed = '') {
@@ -626,12 +627,14 @@ function App() {
       void tickSleepMemory({ drive: driveOpenRef.current, voice: voiceOpenRef.current })
     }, 60_000)
     const vis = () => {
-      if (!document.hidden) {
-        void tickOutlookWatch()
-        void tickWatchdog()
-        void tickPriceWatch()
-        void tickSleepMemory({ drive: driveOpenRef.current, voice: voiceOpenRef.current })
+      if (document.hidden) {
+        void tickEpisodeMemory()
+        return
       }
+      void tickOutlookWatch()
+      void tickWatchdog()
+      void tickPriceWatch()
+      void tickSleepMemory({ drive: driveOpenRef.current, voice: voiceOpenRef.current })
     }
     document.addEventListener('visibilitychange', vis)
     // Läuft ein Timer ab, während die App vorne steht, muss die Zeile aus

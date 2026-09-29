@@ -75,6 +75,8 @@ export const GOLD_EXPECT: Record<string, string> = {
   'lauter um 10': 'tv',
   'Fahrmodus aus': 'drive',
   'Mama hat am 3. März Geburtstag': 'birthday',
+  'Wer ist meine Mutter und wann hat sie Geburtstag': 'recall',
+  'Wann hat Mama Geburtstag': 'recall',
   'Jeden Dienstag Müll': 'reminder',
   'was kommt diese Woche raus?': 'reminder',
   'das zweite': 'ordinal',

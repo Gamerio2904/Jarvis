@@ -1,6 +1,6 @@
 # Sprint 370 — Geburtstag schreibt ins Personen-Knäuel
 
-**Version:** `18.16.0` — **PLAN** Must
+**Version:** `18.16.0` — **CODE** Must
 **Plan:** [`88-next.md`](../88-next.md)
 **Voraussetzung:** 369.
 

@@ -37,7 +37,10 @@ import {
   parsePlaceRecall,
   parsePlaceWrite,
 } from './places-parse.ts'
-import { addReminder, listMemory, loadSettings, persistLastList, saveSettings, upsertMemory } from './store.ts'
+import { addReminder, listMemory, loadSettings, persistLastList, saveSettings } from './store.ts'
+import { extractEntities } from './memory-alias.ts'
+import { writeMemory } from './memory-gate.ts'
+import { rememberPersonPin } from './person-cluster.ts'
 import type { ToolMeta } from './tools.ts'
 
 export {
@@ -167,7 +170,7 @@ export async function handlePlaces(
   if (s.last_step_tool === 'maps_ask' && s.last_step_title && isBarePlaceAnswer(text)) {
     const place = text.trim().replace(/^[iI]n\s+/, '').replace(/[.!?]+$/, '')
     const name = s.last_step_title
-    await upsertMemory(name, place, 'place', conversationId)
+    await rememberPersonPin(name, place, 'place', conversationId)
     const route = routeOf(name, place)
     return {
       handled: true,
@@ -185,7 +188,7 @@ export async function handlePlaces(
 
   const storedMail = parseEmailStore(text)
   if (storedMail) {
-    await upsertMemory(storedMail.name, storedMail.email, 'email', conversationId)
+    await rememberPersonPin(storedMail.name, storedMail.email, 'email', conversationId)
     return {
       handled: true,
       reply: `${displayPlaceName(storedMail.name)}: ${storedMail.email} — liegt.`,
@@ -202,7 +205,7 @@ export async function handlePlaces(
 
   const written = parsePlaceWrite(text)
   if (written) {
-    await upsertMemory(written.name, written.place, 'place', conversationId)
+    await rememberPersonPin(written.name, written.place, 'place', conversationId)
     const who = displayPlaceName(written.name)
     let extra = ''
     const pending = loadSettings()
@@ -248,8 +251,22 @@ export async function handlePlaces(
   if (!nav) return { handled: false }
 
   if (nav.kind === 'alias') {
-    await upsertMemory(`alias:${nav.name}`, nav.alias, 'fact', conversationId)
-    await upsertMemory(`alias:${nav.alias}`, nav.name, 'fact', conversationId)
+    await writeMemory({
+      key: `alias:${nav.name}`,
+      value: nav.alias,
+      category: 'fact',
+      conversationId,
+      entities: extractEntities(nav.name, nav.alias),
+      origin: 'user',
+    })
+    await writeMemory({
+      key: `alias:${nav.alias}`,
+      value: nav.name,
+      category: 'fact',
+      conversationId,
+      entities: extractEntities(nav.alias, nav.name),
+      origin: 'user',
+    })
     const rows = await listMemory()
     const hit = findContactRow(rows, nav.alias) || findContactRow(rows, nav.name)
     if (hit) {
@@ -265,7 +282,7 @@ export async function handlePlaces(
   }
 
   if (nav.kind === 'phone') {
-    await upsertMemory(nav.name, nav.number, 'contact', conversationId)
+    await rememberPersonPin(nav.name, nav.number, 'contact', conversationId)
     return {
       handled: true,
       reply: `${displayPlaceName(nav.name)}: ${nav.number} — liegt.`,
@@ -416,15 +433,29 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
 
   if (pending.kind === 'phone_ask') {
     if (num) {
-      await upsertMemory(pending.name, num, 'contact', conversationId)
+      await rememberPersonPin(pending.name, num, 'contact', conversationId)
       return askCall(pending.name, num)
     }
     const aliasName = text.trim().replace(/[.!?]+$/g, '')
     if (/^[A-ZÄÖÜa-zäöüß][\wÄÖÜäöüß-]{1,24}$/.test(aliasName) && !looksLikePhone(aliasName)) {
       const alias = aliasName.toLowerCase()
       if (alias !== pending.name) {
-        await upsertMemory(`alias:${pending.name}`, alias, 'fact', conversationId)
-        await upsertMemory(`alias:${alias}`, pending.name, 'fact', conversationId)
+        await writeMemory({
+          key: `alias:${pending.name}`,
+          value: alias,
+          category: 'fact',
+          conversationId,
+          entities: extractEntities(pending.name, alias),
+          origin: 'user',
+        })
+        await writeMemory({
+          key: `alias:${alias}`,
+          value: pending.name,
+          category: 'fact',
+          conversationId,
+          entities: extractEntities(alias, pending.name),
+          origin: 'user',
+        })
         writeComm({ kind: 'phone_ask', name: alias }, 'phone_ask')
         return {
           handled: true,
@@ -448,7 +479,7 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
 
   if (pending.kind === 'sms_ask') {
     if (num) {
-      await upsertMemory(pending.name, num, 'contact', conversationId)
+      await rememberPersonPin(pending.name, num, 'contact', conversationId)
       if (pending.body?.trim()) return askSms(pending.name, num, pending.body)
       writeComm({ kind: 'sms_body_ask', name: pending.name, number: num }, 'sms_body_ask')
       return {
@@ -566,7 +597,7 @@ async function handlePendingComm(conversationId: string, text: string, pending: 
     const stored = parseEmailStore(text)
     const addr = stored?.email || extractEmail(text) || (looksLikeEmail(text.trim()) ? text.trim().toLowerCase() : '')
     if (addr) {
-      await upsertMemory(stored?.name || pending.name || addr, addr, 'email', conversationId)
+      await rememberPersonPin(stored?.name || pending.name || addr, addr, 'email', conversationId)
       if (pending.body?.trim()) return askMail(addr, pending.subject || '', pending.body)
       writeComm({ kind: 'mail_body_ask', name: addr, subject: pending.subject }, 'mail_body_ask')
       return {
@@ -815,13 +846,13 @@ export async function applyScannedContacts(
     if (phone && looksLikePhone(phone)) {
       if (hit) kept += 1
       else {
-        await upsertMemory(key, phone, 'contact', conversationId)
+        await rememberPersonPin(key, phone, 'contact', conversationId)
         existing.push({ key, value: phone, category: 'contact' } as (typeof existing)[number])
         numbers += 1
       }
     }
     if (mail && looksLikeEmail(mail) && !findEmailRow(existing, key)) {
-      await upsertMemory(key, mail, 'email', conversationId)
+      await rememberPersonPin(key, mail, 'email', conversationId)
       existing.push({ key, value: mail, category: 'email' } as (typeof existing)[number])
       mails += 1
     }
@@ -899,7 +930,7 @@ async function handleMailIntent(
     }
   }
   if (looksLikeEmail(to)) {
-    await upsertMemory(to, to, 'email', conversationId)
+    await rememberPersonPin(to, to, 'email', conversationId)
     if (!body.trim()) {
       writeComm({ kind: 'mail_body_ask', name: to, subject }, 'mail_body_ask')
       return {

@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.15.0`**. Sideload-APK **`18.15.0`**, versionCode `181500`. Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Nächste Schiene **PLAN** [`88-next.md`](./88-next.md) (369–376, `18.16.0`). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.15.md`](./TEST-18.15.md).
+**Jetzt:** Code **`18.16.0`**. Sideload-APK **`18.15.0`**, versionCode `181500` bis APK. Personen-Knäuel **CODE** [`88-next.md`](./88-next.md) (369–376). Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.16.md`](./TEST-18.16.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -91,7 +91,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 83 | [Lage Serie-Netz](./83-next.md) | **CODE + APK** `18.12.0` — Knoten S01–S05, Kamera-Fähigkeiten ab Staffel 6 |
 | 86 | [Lage-Kugel Icons](./86-next.md) | **CODE + APK** `18.14.0` — Stecknadel, Flugzeug, Satellit; Sprints 356–360 |
 | 87 | [Hirn härten 18.15](./87-next.md) | **CODE + APK** `18.15.0` — Retrieve, Propose, Knowledge, Abort, Presence, Satz-TTS, Lage-Felder, Gold; Sprints 361–368. Kein Schwarm |
-| 88 | [Personen-Knäuel 18.16](./88-next.md) | **PLAN** `18.16.0` — Mama=Mutter, Geburtstag im Graph, Recall ein Satz; Begrüßung, Episode, Sleep, Korrektur; Sprints 369–376 |
+| 88 | [Personen-Knäuel 18.16](./88-next.md) | **CODE** `18.16.0` — Mama=Mutter, Geburtstag im Graph, Recall ein Satz; Begrüßung, Episode, Sleep, Korrektur; Sprints 369–376 |
 | — | [APK](./apk.md) | Sideload `18.15.0`; Test: [`TEST-18.15.md`](./TEST-18.15.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
@@ -321,6 +321,6 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 347 | `18.12.0` | **CODE + APK** (Kamera-Fähigkeiten S6+, [`83-next.md`](./83-next.md) §3) |
 | 356–360 | `18.14.0` | **CODE + APK** (Lage-Kugel Icons, [`86-next.md`](./86-next.md)) |
 | 361–368 | `18.15.0` | **CODE + APK** (Hirn härten, [`87-next.md`](./87-next.md)) |
-| 369–376 | `18.16.0` | **PLAN** (Personen-Knäuel, [`88-next.md`](./88-next.md)) |
+| 369–376 | `18.16.0` | **CODE** (Personen-Knäuel, [`88-next.md`](./88-next.md)) |
 
-**Aktuell:** App-Code **`18.15.0`**. Sideload-APK **`18.15.0`**, versionCode `181500`. 361–368 **CODE + APK**. 369–376 **PLAN**. Test: [`TEST-18.15.md`](./TEST-18.15.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.16.0`**. Sideload-APK **`18.15.0`**, versionCode `181500` bis APK. 369–376 **CODE**. Test: [`TEST-18.16.md`](./TEST-18.16.md). Index: [`42-planned.md`](./42-planned.md).

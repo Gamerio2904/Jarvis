@@ -1,7 +1,7 @@
 # TEST 18.16 — Personen-Knäuel + Gedächtnis
 
 Nach Execute von [`88-next.md`](./88-next.md). App-Code **`18.16.0`**.
-Sideload **`18.16.0`**. Over `18.15.0` installieren.
+Sideload bleibt **`18.15.0`** bis APK. Over `18.15.0` installieren, sobald die 18.16-APK da ist.
 
 Gerät, nicht nur die Cloud-VM.
 

@@ -21,7 +21,7 @@ import { lastFailedTool, noteFail } from './working-memory.ts'
 import { needsRecover, runRecover, writeHasNoRecover } from './recover.ts'
 import { unknownReplyForCtx } from './command-neighbors.ts'
 import { currentTurnSignal } from './turn-abort.ts'
-import { expectedAgentFromCorrection, noteParseCorrection, noteParseMiss } from './parse-miss.ts'
+import { expectedAgentFromCorrection, noteLastUtterance, noteParseCorrection, noteParseMiss, peekLastReplay, clearLastNone } from './parse-miss.ts'
 import type { AgentResult, RouteHit } from './agents/types.ts'
 import type { RouteCtx } from './route-types.ts'
 
@@ -208,6 +208,7 @@ async function rescueByProposal(conversationId: string, ctx: RouteCtx): Promise<
 export async function runDirectorTurn(conversationId: string, text: string): Promise<DirectorTurn> {
   beginAgentTurn()
   await curatorPreflight(conversationId, text)
+  noteLastUtterance(text)
 
   const pending = await getPending(conversationId)
   if (pending?.tool === PROPOSAL_TOOL) {
@@ -279,6 +280,27 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
     return { hit: { reply, lastTool: 'clarify' }, userFacts: reply }
   }
 
+  const named = expectedAgentFromCorrection(text)
+  const replay = named ? peekLastReplay() : ''
+  if (named && replay && replay.replace(/\s+/g, ' ').trim() !== text.replace(/\s+/g, ' ').trim()) {
+    const replayCtx = makeDirectorCtx(conversationId, replay)
+    const turn = await runPicked(named, { ...replayCtx, text: replay }, conversationId, replay)
+    clearLastNone()
+    if (turn.hit) return turn
+    const labels: Record<string, string> = {
+      timer: 'Timer',
+      alarm: 'Wecker',
+      reminder: 'Erinnerung',
+      calendar: 'Termin',
+      tv: 'Fernseher',
+      news: 'Nachrichten',
+      weather: 'Wetter',
+    }
+    const reply = `Welchen ${labels[named] || named}?`
+    setLastUserFacts(reply)
+    return { hit: { reply, lastTool: named }, userFacts: reply }
+  }
+  if (pick.kind === 'run' && !named) clearLastNone()
   return runPicked(pick.id, ctx, conversationId, text)
 }
 

@@ -258,7 +258,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
         store: 'reminders',
         title: r.title,
         body: r.due_at,
-        rank: scoreBlob(q, r.title),
+        rank: scoreBlob(q, expandBlob(r.title)),
       }))
       .filter((h) => h.rank > 0)
     const shopHits = shopping

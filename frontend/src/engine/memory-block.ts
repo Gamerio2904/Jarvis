@@ -1,4 +1,5 @@
 import type { RetrieveHit } from './retrieve.ts'
+import { aliasQueries, expandBlob } from './memory-alias.ts'
 import {
   aspectLabel,
   askTokens,
@@ -13,7 +14,7 @@ function normQ(s: string): string {
 }
 
 const PEOPLE_ASK =
-  /\b(anruf|ruf|sms|nachricht|whatsapp|e-?mail|email|kontakt|telefon|mama|papa|freundin|bro|nummer)\b/i
+  /\b(anruf|ruf|sms|nachricht|whatsapp|e-?mail|email|kontakt|telefon|mama|papa|mutter|mother|vater|father|oma|opa|freundin|bro|nummer)\b/i
 const WORK_ASK = /\b(job|arbeit(?:e|en|splatz)?|firma|beruf|arbeitgeber|kolleg)\b/i
 const LIFE_ASK = /\b(geburtstag|familie|gesundheit)\b/i
 const GOAL_ASK = /\b(ziel|reise|plane|urlaub|japan|tokyo)\b/i
@@ -44,13 +45,19 @@ export function pinsForAsk(items: MemoryPin[], question = ''): RankedPin[] {
   return trusted.map((m) => {
     const blob = `${m.key} ${m.value}`.toLowerCase()
     const aspect = memoryAspect(m.category || '', m.key, m.kind)
-    const hit = tokens.some((w) => blob.includes(w)) || (q.length > 8 && blob.includes(q.slice(0, 24)))
+    const expanded = expandBlob(blob)
+    const aliasQ = aliasQueries(question)
+    const hit =
+      tokens.some((w) => expanded.includes(w)) ||
+      aliasQ.some((w) => expanded.includes(w)) ||
+      (q.length > 8 && expanded.includes(q.slice(0, 24)))
     const wantPeople = people && aspect === 'people'
+    const wantLifePerson = people && aspect === 'life' && hit
     const wantResearch = aspect === 'research' && hit
     const wantKnow = aspect === 'know' && hit
     const wantPref = aspect === 'pref' && (hit || pref)
     const wantWork = aspect === 'work' && (hit || work || about)
-    const wantLife = aspect === 'life' && (hit || life || about)
+    const wantLife = aspect === 'life' && (hit || ((life || about) && !people))
     const wantGoal = aspect === 'goal' && (hit || goal || about)
     const wantAbout =
       about &&
@@ -64,7 +71,7 @@ export function pinsForAsk(items: MemoryPin[], question = ''): RankedPin[] {
     return {
       m,
       hit: Boolean(
-        hit || wantPeople || wantResearch || wantKnow || wantPref || wantWork || wantLife || wantGoal || wantAbout,
+        hit || wantPeople || wantLifePerson || wantResearch || wantKnow || wantPref || wantWork || wantLife || wantGoal || wantAbout,
       ),
       aspect,
     }

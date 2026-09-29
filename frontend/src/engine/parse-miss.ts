@@ -13,6 +13,22 @@ export type ParseMiss = {
 }
 
 let lastNone = ''
+let lastUser = ''
+
+export function noteLastUtterance(text: string): void {
+  const t = (text || '').replace(/\s+/g, ' ').trim()
+  if (!t || t.length < 3) return
+  if (expectedAgentFromCorrection(t)) return
+  lastUser = t.slice(0, 160)
+}
+
+export function peekLastReplay(): string {
+  return lastNone || lastUser
+}
+
+export function clearLastNone(): void {
+  lastNone = ''
+}
 
 function loadRows(): ParseMiss[] {
   try {
@@ -86,6 +102,7 @@ export function listParseMisses(): ParseMiss[] {
 
 export function resetParseMisses(): void {
   lastNone = ''
+  lastUser = ''
   try {
     localStorage.removeItem(KEY)
   } catch {

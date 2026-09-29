@@ -1,5 +1,6 @@
 import { nextBirthday, parseBirthdayIntent } from './birthday-parse.ts'
-import { addReminder, listReminders, persistLastList, upsertMemory } from './store.ts'
+import { addReminder, listReminders, persistLastList } from './store.ts'
+import { rememberPersonPin } from './person-cluster.ts'
 import { requestNotifyPermission, scheduleNotify, notifyIdFromKey } from '../native/notify.ts'
 import { formatDue } from './remind-parse.ts'
 import type { ToolMeta } from './tools.ts'
@@ -25,7 +26,7 @@ export async function handleBirthday(
   }
 
   const due = nextBirthday(intent.month, intent.day)
-  await upsertMemory(intent.name.toLowerCase(), `${intent.day}.${intent.month}.`, 'birthday', conversationId)
+  await rememberPersonPin(intent.name.toLowerCase(), `${intent.day}.${intent.month}.`, 'birthday', conversationId)
   const row = await addReminder({
     title: `Geburtstag ${intent.name}`,
     due_at: due.toISOString(),

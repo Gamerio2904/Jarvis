@@ -5,6 +5,13 @@ export function parseRecallIntent(text: string): string | null {
   if (!t || t.length > 160) return null
   if (/^\s*was\s+weißt\s+du\s+über\s+mich\b/i.test(t)) return null
   if (/^\s*was\s+weiß\s+ich\s+(?:noch\s+)?über\s+mich\b/i.test(t)) return null
+  const who = /^\s*wer\s+ist\s+(?:meine|mein)\s+([a-zäöüß]+)(?:\s+und\b.*)?\s*$/i.exec(t)
+  if (who) return who[1].replace(/[.!?]+$/g, '').trim()
+  const whenBday =
+    /^\s*wann\s+hat\s+(?:die\s+|der\s+|das\s+|meine\s+|mein\s+)?(.+?)\s+geburtstag\s*$/i.exec(t) ||
+    /^\s*wann\s+ist\s+(?:der\s+|die\s+)?(.+?)(?:'?s)?\s+geburtstag\s*$/i.exec(t)
+  if (whenBday) return whenBday[1].replace(/[.!?]+$/g, '').replace(/^der\s+|^die\s+/i, '').trim()
+  if (/^\s*was\s+war\s+(gestern|heute)\b/i.test(t)) return 'episode'
   const a = /^\s*was\s+weißt\s+du\s+über\s+(?:den\s+|die\s+|das\s+)?(.+?)\s*$/i.exec(t)
   if (a) return a[1].replace(/[.!?]+$/g, '').trim()
   /** Dieselbe Frage ans Gedächtnis, nur aus Nutzersicht gesprochen. */

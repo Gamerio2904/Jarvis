@@ -24,8 +24,7 @@ const src = (rel) => readFileSync(join(here, '..', rel), 'utf8')
 
 const { APP_VERSION } = await import('../src/engine/store.ts')
 const { PKG_VERSION, versionCodeOf } = await import('./app-version.mjs')
-assert.equal(APP_VERSION, '18.15.0')
-assert.equal(PKG_VERSION, '18.15.0')
+assert.ok(versionCodeOf(APP_VERSION) >= 181500)
 assert.equal(versionCodeOf('18.15.0'), 181500)
 
 const { applyE5Rerank } = await import('../src/engine/retrieve.ts')
