@@ -7,11 +7,11 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *PLAN*
 
-Glas-Werkbank statt Icons (Schalter in der Werte-Leiste). PSP und
-Sprints aus dem bestehenden Idee-Plan. Feature-Katalog auf Zuruf. Deep
-Research allgemein härter (Rollen, OSS/GitHub optional). Jobs statt
-LLM-Schwarm. Recherche darf nur **vorschlagen**, `writeMemory` erst nach
-Ja. Sprints 385–391. [`91-next.md`](./91-next.md). Kein Execute, keine APK.
+Glas-Werkbank: **ein** Jarvis-Theme. Interne App-Icons wirken wie aus dem
+Launcher-Wallpaper geschnitten. Tischplatte an **schaltet** den Hintergrund
+auf die Werkbank (Icons weg). PSP, Docs-Katalog, Deep Research, Jobs,
+Memory-Vorschläge. Sprints 385–391. [`91-next.md`](./91-next.md). Kein
+Execute, keine APK.
 
 ### `18.18.0` — Homescreen — *CODE*
 

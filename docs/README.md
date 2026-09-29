@@ -94,7 +94,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 88 | [Personen-Knäuel 18.16](./88-next.md) | **CODE + APK** `18.16.0` — Mama=Mutter, Geburtstag im Graph, Recall ein Satz; Begrüßung, Episode, Sleep, Korrektur; Sprints 369–376 |
 | 89 | [Kalender Alltag 18.17](./89-next.md) | **CODE + APK** `18.17.0` — Hausstand-Termine, ICS, Serie, Konflikt; Sprints 377–381 |
 | 90 | [Homescreen 18.18](./90-next.md) | **CODE** `18.18.0` — App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel; Sprints 382–384 |
-| 91 | [Tischplatte 18.19](./91-next.md) | **PLAN** `18.19.0` — Glas-Werkbank, PSP, Docs-Katalog, Deep Research, Jobs, Memory-Vorschläge; Sprints 385–391. Kein Execute |
+| 91 | [Tischplatte 18.19](./91-next.md) | **PLAN** `18.19.0` — Jarvis-Wallpaper + Icons aus dem Bild, Hintergrund schaltet bei Tischplatte; PSP, Katalog, Deep Research, Jobs, Memory-Vorschläge; Sprints 385–391. Kein Execute |
 | — | [APK](./apk.md) | Sideload `18.17.0`; Test: [`TEST-18.18.md`](./TEST-18.18.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |

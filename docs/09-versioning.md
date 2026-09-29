@@ -859,7 +859,7 @@ Research härten, Jobs statt Schwarm, Memory-Vorschläge. Sprints 385–391
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.19.0` | Tischplatte-Modus Glas + Schalter | 385 PLAN |
+| `18.19.0` | Tischplatte Theme A/B, Icons aus Wallpaper | 385 PLAN |
 | `18.19.0` | PSP + Sprintkarten auf dem Glas | 386 PLAN |
 | `18.19.0` | Feature-Katalog aus Docs | 387 PLAN |
 | `18.19.0` | Deep Research härten + OSS | 388 PLAN |

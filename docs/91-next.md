@@ -23,8 +23,10 @@ pro Zug. Kein 5. LLM-Organizer, kein AutoGen-Schwarm.
 
 ## 0. Produkt in einem Satz
 
-Homescreen hat zwei Lagen: **Launcher** (Icons, `18.18`) und **Tischplatte**
-(Glas + Projekt). Dieselbe Mini-Chat- und Sprach-Kugel steuert die Tafel.
+Homescreen hat zwei Lagen und **ein** Jarvis-Theme: **Launcher** (KI-Glas-
+Wallpaper plus Icons, die aus demselben Bild geschnitten wirken) und
+**Tischplatte** (derselbe Look, aber der Hintergrund **schaltet um** auf
+die Werkbank, Icons weg). Mini-Chat und Sprach-Kugel bleiben.
 Forschung und Sprintplan sind **Jobs in einem Handler**, nicht zwei Hirne.
 Was ins Haupthirn soll, liegt zuerst in einer **Vorschlags-Schlange** und
 geht nur nach Ja durch `writeMemory`.
@@ -38,9 +40,9 @@ getrennte Flächen**. Die Lücke ist die Projektion, nicht ein zweites OS.
 
 | Fläche | Datei | Ist (`18.18.0`) | Lücke |
 |--------|-------|-----------------|-------|
-| Homescreen | `HomeScreen.tsx` `GlanceRail.tsx` | Neun Icons, Werte-Leiste **ohne** Schalter Tischplatte | Kein Modus, der Icons ausblendet |
+| Homescreen | `HomeScreen.tsx` `GlanceRail.tsx` | Neun **Outline-SVGs** auf bunten Tints (`#1ed760` Chat, `#ff8a4c` Overlay, …). Kein Vollflächen-Wallpaper | Icons sehen nicht aus wie der Hintergrund. Kein Umschalten |
 | Schreibtisch | `desk.ts` `desk-parse.ts` | „Schreibtisch an“ = letztes Auge-/PC-Foto in den Prompt. Kein Overlay | **Anderer** Vertrag. Gold darf nicht stehlen |
-| Ambient | `App.css` `.ambient` | CSS-Orbs, kein WebGL | Kein Glas-Board, keine Karten |
+| Ambient | `App.css` `.ambient` | CSS-Orbs hinter Chat/Lage, nicht als Homescreen-Wallpaper | Kein Jarvis-Feld unter den Kacheln, kein Werkbank-Feld |
 | Idee / Scrum | `idea.ts` `idea-plan.ts` | Feste Vorlage Kern/Härten/Probe. Groq füllt Felder. Chat-Markdown, kein Overlay | Plan liegt unsichtbar, sobald der Chat scrollt |
 | Deep Research | `research-parse.ts` `web-search.ts` `brain-orchestrator.ts` | Modus der Suche: 3–5 DDG-Queries + Wikipedia + Gemini-Grounding. Teach-Offer danach | Query-Rollen hart verdrahtet (Anzug/Stalingrad). Kein GitHub. Kein Claim-Objekt. Allgemein, nicht „nur Tisch“ — aber dünn |
 | Research-Pending | `research-pending.ts` | Opt-in, TTL, Ja bitte | Keine Job-Karte auf einer Tafel |
@@ -57,8 +59,9 @@ Gold heute: `Schreibtisch an` → `desk`. `Idee:` → `idea`. `Recherchiere tief
 |-------|----------------|
 | Zwei Tische | **Tischplatte** = Homescreen-Modus (Glas, PSP). **Schreibtisch** = Foto-Blick (`desk`). Getrennte Parser, getrennte Gold-Zeilen |
 | Schalter | Rechte Werte-Leiste: `Tischplatte an/aus`. Zusätzlich Chat/Stimme: „Tischplatte an“ |
-| Icons | An → Raster `display:none` / `hidden`. Mini-Chat, Sprach-Kugel, Werte-Leiste, Dock-Start **bleiben** |
-| Hintergrund | **Prozedurales Glas** (CSS + Canvas-2D), Jarvis-Palette. Optional ein kurzer Groq-Hint `{accent, glow, density}` — das ist das ehrliche „KI-themed“. Kein Imagen/DALL-E/Midjourney in der APK |
+| Theme | **Ein** Jarvis-Feld (Navy, Cyan-Kante, Glas, Orbit/Grid). Wallpaper **und** interne App-Icons teilen Palette, Licht, Material. Kein Regenbogen-Tint aus `18.18` |
+| Icons | Glas-Kacheln, durch die **dasselbe** Wallpaper scheint (`backdrop-filter` / gleiche Canvas-Textur). Glyphen in Theme-Tinte, nicht Material-Bunt. Tischplatte an → Raster weg |
+| Hintergrund | Zwei Lagen derselben Familie. **Launcher** = Feld A (Icons sitzen darauf). **Tischplatte an** = Feld B (Werkbank-Glas). Crossfade, kein hartes Cut. Kein Imagen/DALL-E in der APK |
 | Projektmodell | PSP (Projektstrukturplan) = Baum Auftrag → Epics (Ideen) → Sprints (Kern/Härten/Probe + Custom) → Tasks. Kanban-lite: Jetzt / Als Nächstes / Park / Fertig. Kein Jira, kein RICE, kein Story-Point |
 | Scrum | **Kein** neuer LLM-Scrum-Master. Der bestehende `idea`-Agent füllt die Vorlage; die Tischplatte **projiziert** denselben `IdeaPlan` |
 | Docs | Gebauter **Feature-Katalog** (JSON, Freeze beim Bundle). Parser liest Zeilen. Jarvis erfindet keine Features, die nicht in der Tabelle stehen |
@@ -73,7 +76,9 @@ Gold heute: `Schreibtisch an` → `desk`. `Idee:` → `idea`. `Recherchiere tief
 - Execute in diesem Dokument (kein `HomeScreen.tsx` anfassen, solange PLAN).
 - Android-Launcher, fremde App-Icons, Live-Wallpaper-Service.
 - WebGL, Cesium, Lottie, Three.js, shader-Wallpaper.
-- Bildgenerator-API (Imagen, DALL-E, Midjourney, Stable Diffusion in der APK).
+- Bildgenerator-API zur **Laufzeit** (Imagen, DALL-E, Midjourney in der APK).
+- 18.18-Regenbogen-Tints auf den Kacheln stehen lassen, während das Wallpaper Jarvis-Glas ist (sonst „genau wie“ gebrochen).
+- Fremde Icon-Packs (Material, Lucide-Bunt) auf dem Jarvis-Feld.
 - Always-on Webcam, Desk-Foto mit Tischplatte vermischen.
 - AutoGen / CrewAI / 5. LLM-Organizer / zweites Hirn / 64. Agent als Router.
 - Groq wählt den Agenten (`proposeTool` bleibt Paraphrase, Parser bestätigt).
@@ -88,6 +93,62 @@ Gold heute: `Schreibtisch an` → `desk`. `Idee:` → `idea`. `Recherchiere tief
 ---
 
 ## 4. Tischplatte — Fläche
+
+### 4.0 Ein Theme, zwei Hintergründe, Icons aus dem Bild
+
+PO-Nachzug: Die **internen** App-Icons (Chat, Sprache, Kalender, Kugel,
+Lage, Overlay, Gehirn, Einstellungen, Filme) sollen **KI-generiert
+wirken und genau wie das Hintergrundbild aussehen**. Das Hintergrundbild
+**schaltet um**, sobald Tischplatte aktiv ist.
+
+Ist (`18.18`): Kacheln sind Strich-SVGs auf Candy-Tints. Dahinter liegt
+kein Jarvis-Wallpaper — nur der App-Grund. Deshalb wirken Icons und
+Fläche wie zwei Produkte.
+
+Soll: **eine** generative Jarvis-Oberfläche, zwei Zustände.
+
+```
+        Theme (Palette + Motif + Seed)
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+   Wallpaper A        Wallpaper B
+   Launcher           Tischplatte
+   (Icons darauf)     (Icons weg, PSP darauf)
+        │
+        ▼
+   Icon-Kachel = Glas-Ausschnitt von A
+   (nicht ein zweites Icon-Set)
+```
+
+**Warum die Icons wie das Wallpaper aussehen**
+
+Nicht neun Mini-Poster von einem anderen Generator. Die Kachel **ist**
+das Wallpaper: gerundetes Glas, `backdrop-filter` (oder dieselbe
+Canvas-Textur als `background-image` mit `background-attachment: fixed`),
+Hairline in Accent, Glyph als Aussparung in Theme-Tinte. Wer A sieht,
+sieht in jedem Icon dieselbe Orbit-/Grid-Struktur, denselben Glow,
+dieselbe Farbe. Tint-Spalte in `HOME_APPS` fällt für die Fläche weg
+(Label bleibt deutsch).
+
+**Umschalten**
+
+| Zustand | Hintergrund | Icons |
+|---------|-------------|-------|
+| Tischplatte aus | Lage **A** (Launcher-Feld, Jarvis HUD) | neun Glas-Kacheln auf A |
+| Tischplatte an | Lage **B** (Werkbank-Glas, gleiches Theme, Tisch/PSP-Gitter statt Icon-Docks) | hidden; Mini-Chat / Kugel / Leiste bleiben |
+
+Technik: zwei Ebenen `.home-wall--launcher` und `.home-wall--board` im
+Homescreen-Root. Flag `tischplatte_on` setzt `is-tischplatte`, Crossfade
+≤ 400 ms (`prefers-reduced-motion`: hart, ohne Fade). A und B teilen
+`tischplatte_hint` (accent/glow/density/motif). „Neuer Hintergrund“ ändert
+**beide**, damit nach dem Umschalten immer noch dieselbe Familie da ist.
+
+Optional Groq-Hint wie bisher — ein JSON für A **und** B, B nur andere
+Motiv-Variante (`orbit` → Launcher, `grid` → Werkbank) aus demselben
+Accent. Kein zweiter Marvel-Prompt.
+
+---
 
 ### 4.1 Schalter
 
@@ -116,32 +177,35 @@ HUD-Skip: `tischplatte|werkbank|projekttafel` in `LAYER_SKIP`, analog Homescreen
 
 | Element | Tischplatte an | aus |
 |---------|----------------|-----|
-| Neun App-Icons | weg | sichtbar |
-| Ambient-Orbs | werden zur Glas-Textur | wie `18.18` |
+| Hintergrund | **B** Werkbank (umgeschaltet) | **A** Launcher-Feld |
+| Neun App-Icons | weg (Glas-Kacheln von A) | sichtbar, aus A geschnitten |
+| Ambient-Orbs | in B aufgegangen | in A aufgegangen, nicht extra hinter den Kacheln |
 | Werte-Leiste | bleibt, Schalter sichtbar | bleibt |
 | Mini-Chat | bleibt (Befehle an die Tafel) | bleibt |
 | Sprach-Kugel | bleibt | bleibt |
-| Dock Start | bleibt, schaltet **aus** wenn man Start drückt während an? **Nein:** Start bei an = Tafel bleibt. Chat-Icon im Dock öffnet Chat, Tafel-Flag bleibt bis Aus |
+| Dock Start | Start bei an = Tafel bleibt. Chat im Dock öffnet Chat, Flag bleibt bis Aus | Start = Launcher A |
 
 ### 4.3 Glas-Hintergrund („KI-generiert“, ehrlich)
 
 Drei Schichten, alle lokal, 60 fps anstreben, bei `prefers-reduced-motion`
-statisch:
+statisch. **A und B** nutzen dieselben drei Schichten, B legt das
+Werkbank-Gitter statt der Icon-Docks:
 
 1. **Feld** — Canvas-2D: dunkles Navy, hex-/Kreis-Gitter, langsames Noise.
    Seed aus Datum + `tischplatte_seed` (Zahl). Kein Bild-Download.
-2. **Glas** — CSS `backdrop-filter`, Karten mit Hairline, Cyan/Amber-Kante
-   wie Homescreen-Kacheln. Klick = Karte groß (Inhalt, nicht Zoom-API).
+2. **Glas** — CSS `backdrop-filter`. Launcher: Icon-Kacheln. Tischplatte:
+   PSP-Karten mit Hairline, Cyan/Amber-Kante. Klick = Karte groß.
 3. **Hint (optional)** — Ein Groq-JSON ≤ 80 Tokens, **nur** wenn der Nutzer
    „neuer Hintergrund“ sagt und Groq-Key da: `{ "accent":"#7dd3c7", "glow":0.4, "density":0.3, "motif":"orbit" }`.
    Parser-Whitelist der Keys. Kein Prompt „male Iron Man“. Motiv-Enum:
-   `orbit` / `grid` / `pulse`. Fehlt Key → Default-Palette.
+   `orbit` / `grid` / `pulse`. Fehlt Key → Default-Palette. Ein Hint färbt
+   A **und** B.
 
 Das ist generativ im Sinne von **Parametertafel**, nicht im Sinne von
-Pixel-Synthese. Wer ein Foto-Wallpaper will: Won’t in `18.19`.
+Pixel-Synthese zur Laufzeit. Wer ein Foto-Wallpaper will: Won’t in `18.19`.
 
-Interaktiv: Pointer verschiebt Highlight (Parallax ≤ 12 px). Karten sind
-Buttons. Kein Physik-Engine.
+Interaktiv: Pointer verschiebt Highlight (Parallax ≤ 12 px). Karten und
+Icon-Kacheln sind Buttons. Kein Physik-Engine.
 
 ---
 
@@ -427,7 +491,7 @@ Hausstand: Flag + Proposals exportieren (wie Memory). Jobs nicht.
 
 | Sprint | Thema | Rolle |
 |--------|--------|--------|
-| [385](./sprints/sprint-385.md) | Tischplatte-Modus: Schalter, Icons weg, Glas, Parser ≠ Desk | Must PLAN |
+| [385](./sprints/sprint-385.md) | Theme A/B: Jarvis-Wallpaper, Icons aus A, Umschalten auf B, Parser ≠ Desk | Must PLAN |
 | [386](./sprints/sprint-386.md) | PSP + Sprintkarten auf dem Glas (Idee-Plan projizieren) | Must PLAN |
 | [387](./sprints/sprint-387.md) | Feature-Katalog aus Docs, auf Zuruf | Must PLAN |
 | [388](./sprints/sprint-388.md) | Deep Research härten (allgemein) + OSS/GitHub | Must PLAN |
@@ -451,19 +515,19 @@ Landet in App-Code **`18.19.0`** erst nach Execute. Sideload bleibt
 Tischplatte an
 ```
 
-Icons weg, Glas da, Werte-Leiste hat Schalter an.
+Hintergrund **schaltet** von A nach B. Icons weg. Werte-Leiste hat Schalter an.
+
+```
+Tischplatte aus
+```
+
+Hintergrund zurück auf A. Icons wieder, **derselbe** Jarvis-Look wie A (kein Candy-Tint).
 
 ```
 Schreibtisch an
 ```
 
 Weiter `desk`. Ohne Foto: „Kein Frame…“ — **nicht** die Werkbank.
-
-```
-Tischplatte aus
-```
-
-Icons zurück.
 
 ```
 Idee: ICS ohne Google-Kalender
@@ -510,6 +574,8 @@ Steckdosen aus` bleibt Plug.
 | Risiko | Gegenmaßnahme |
 |--------|----------------|
 | „Tisch an“ stiehlt Desk-Gold | Getrennte Regex, Gold in 391, `conflicts.ts` desk > board außer Token `platte` |
+| Icons ≠ Wallpaper | Eine Textur/Canvas, Kacheln nur Glas darauf; Tints aus `HOME_APPS` nicht als Kachelfarbe |
+| A und B wirken wie zwei Apps | Ein Hint, ein Seed, Crossfade; B ist A als Tisch, nicht ein neues Produkt |
 | Groq-Hint wird zur Marvel-Rolle | Enum-Whitelist, kein Freitext ins CSS |
 | Schwarm-Erwartung | UI-Copy „Jobs“, Persona sagt nicht „ich starte Agenten-Schwarm“ |
 | Katalog veraltet | Freeze-Datum in der Datei; Satz „Stand Bundle {version}“ |
