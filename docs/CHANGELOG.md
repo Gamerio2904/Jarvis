@@ -5,13 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.16.0` — Personen-Knäuel + Gedächtnis — *CODE*
+### `18.16.0` — Personen-Knäuel + Gedächtnis — *CODE + APK*
 
 Mama = Mutter. Geburtstag, Tel und Ort eine Person. Recall ein belegter
 Satz, ohne denselben Lehrsatz nochmal. Danach Begrüßung aus Stand, Episode,
 Sleep, Korrektur spielt den Miss nach. Kein Schwarm, kein erfundener Name.
 Sprints 369–376. [`88-next.md`](./88-next.md). Test: [`TEST-18.16.md`](./TEST-18.16.md).
-App-Code **`18.16.0`**. Sideload bleibt **`18.15.0`** bis APK.
+Sideload **`18.16.0`** (versionCode `181600`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 ### `18.15.0` — Hirn härten — *CODE + APK*
 

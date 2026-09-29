@@ -1,6 +1,6 @@
 # Sprint 375 — Sleep schreibt Prefs und Ort
 
-**Version:** `18.16.0` — **CODE** Should
+**Version:** `18.16.0` — **CODE + APK** Should
 **Plan:** [`88-next.md`](../88-next.md)
 **Voraussetzung:** `memory-gate.ts` (Mahlzeiten-IGNORE existiert).
 

@@ -1,6 +1,6 @@
 # Sprint 371 — Recall antwortet das Personen-Knäuel
 
-**Version:** `18.16.0` — **CODE** Must
+**Version:** `18.16.0` — **CODE + APK** Must
 **Plan:** [`88-next.md`](../88-next.md)
 **Voraussetzung:** 369, 370.
 

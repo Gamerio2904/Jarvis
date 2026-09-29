@@ -1,6 +1,6 @@
 # Sprint 369 — Familien-Aliase (Mama = Mutter)
 
-**Version:** `18.16.0` — **CODE** Must
+**Version:** `18.16.0` — **CODE + APK** Must
 **Plan:** [`88-next.md`](../88-next.md)
 **Voraussetzung:** main `18.15.0`. Kein neuer Agent.
 

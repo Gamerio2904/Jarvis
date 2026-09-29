@@ -1,4 +1,4 @@
-# 88 — Personen-Knäuel + Gedächtnis **CODE** (`18.16.0`)
+# 88 — Personen-Knäuel + Gedächtnis **CODE + APK** (`18.16.0`)
 
 PO: Jarvis soll klüger und menschlicher wirken, **ohne** zweites Hirn und
 ohne Schwarm. Kern: alles, was zu **einer Person** gehört (Geburtstag,
@@ -6,8 +6,8 @@ Tel, Ort, Alias), hängt zusammen. Nach „Mama hat am 3. März Geburtstag“
 reicht „Wer ist meine Mutter und wann hat sie Geburtstag“ — ohne denselben
 Satz nochmal zu sagen.
 
-Grundlage: Sideload **`18.15.0`**. **Dieses Dokument ist nach Execute CODE.**
-Sprints **369–376**. App-Code **`18.16.0`**. Sideload bleibt **`18.15.0`** bis APK.
+Grundlage: Sideload **`18.16.0`**, versionCode `181600`. **Dieses Dokument ist nach Execute CODE + APK.**
+Sprints **369–376**. App-Code **`18.16.0`**.
 
 Andere Drafts bleiben getrennt: Koch `#149`, Kamera-Wahl `#151`, Clips `#152`,
 Experte `#153`, Docs-Stand `#156`, Abbruch-Hotfix `#158` (`18.15.1`).
@@ -113,5 +113,5 @@ Recall erfindet eine Verwandtschaft, die nicht in `ALIAS_GROUPS` und nicht
 im Speicher steht. Oder Geburtstag umgeht weiter das Gate. Oder Begrüßung
 behauptet eine Laune. Oder ein zweiter Domänen-Agent im selben Zug.
 
-Landet in App-Code **`18.16.0`**. Sideload **`18.15.0`** bis APK.
+Landet in App-Code **`18.16.0`**. Sideload **`18.16.0`**, versionCode `181600`.
 Test: [`TEST-18.16.md`](./TEST-18.16.md).

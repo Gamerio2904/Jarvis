@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.16.0`**. Sideload **`18.15.0`**, versionCode `181500` bis APK. Schiene [`88-next.md`](./88-next.md) 369–376 **CODE** `18.16.0`. Hirn härten [`87-next.md`](./87-next.md) 361–368 **CODE + APK**.
+> **Jetzt:** App-Code **`18.16.0`**. Sideload **`18.16.0`**, versionCode `181600`. Schiene [`88-next.md`](./88-next.md) 369–376 **CODE + APK** `18.16.0`. Hirn härten [`87-next.md`](./87-next.md) 361–368 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -751,7 +751,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.14.1` | Flugzeuge nicht am Pin: Luftfilter + Lokal-Zoom | Hotfix CODE |
 | `18.14.2` | Lage-Texte, Idle-Loop, weichere Kugel | Hotfix CODE + APK |
 | `18.15.0` | Hirn härten: Retrieve, Propose, Knowledge, Abort, Presence, Satz-TTS, Lage-Felder, Gold | 361–368 **CODE + APK** |
-| `18.16.0` | Personen-Knäuel, Begrüßung, Episode, Sleep, Korrektur-Replay | 369–376 **CODE** |
+| `18.16.0` | Personen-Knäuel, Begrüßung, Episode, Sleep, Korrektur-Replay | 369–376 **CODE + APK** |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -806,20 +806,22 @@ Kein Schwarm, e5 nie in `pickRoute`, 0,5B bleibt Fallback ohne Messung.
 | `18.15.0` | Lage Pin-Satz nur Felder | 367 CODE |
 | `18.15.0` | Parser-Korrektur → Gold, Härten | 368 CODE |
 
-### `18.16` — Personen-Knäuel + Gedächtnis [`88-next.md`](./88-next.md) **CODE**
+### `18.16` — Personen-Knäuel + Gedächtnis [`88-next.md`](./88-next.md) **CODE + APK**
 
-App-Code **`18.16.0`**. Sideload bleibt **`18.15.0`** bis APK. Sprints 369–376.
+**`18.16.0`** (App-Code + Sideload, versionCode `181600`): Personen-Knäuel
+369–376. Mama=Mutter, Geburtstag durch `writeMemory`, Recall ein Cluster-Satz.
+Over `18.15.0` installieren. Sprints 369–376.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.16.0` | Familien-Aliase Mama/Mutter | 369 CODE |
-| `18.16.0` | Geburtstag durch `writeMemory` | 370 CODE |
-| `18.16.0` | Recall Cluster-Satz wer/wann Geburtstag | 371 CODE |
-| `18.16.0` | Kontakt/Ort ins Knäuel | 372 CODE |
-| `18.16.0` | Begrüßung aus Stand | 373 CODE |
-| `18.16.0` | Episode-Karte | 374 CODE |
-| `18.16.0` | Sleep Prefs/Ort | 375 CODE |
-| `18.16.0` | Last-Step + Korrektur-Replay | 376 CODE |
+| `18.16.0` | Familien-Aliase Mama/Mutter | 369 CODE + APK |
+| `18.16.0` | Geburtstag durch `writeMemory` | 370 CODE + APK |
+| `18.16.0` | Recall Cluster-Satz wer/wann Geburtstag | 371 CODE + APK |
+| `18.16.0` | Kontakt/Ort ins Knäuel | 372 CODE + APK |
+| `18.16.0` | Begrüßung aus Stand | 373 CODE + APK |
+| `18.16.0` | Episode-Karte | 374 CODE + APK |
+| `18.16.0` | Sleep Prefs/Ort | 375 CODE + APK |
+| `18.16.0` | Last-Step + Korrektur-Replay | 376 CODE + APK |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

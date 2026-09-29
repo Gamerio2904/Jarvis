@@ -1,14 +1,14 @@
-# 42 — Alles geplant (Stand Code `18.16.0`, Sideload `18.15.0`)
+# 42 — Alles geplant (Stand Code `18.16.0`, Sideload `18.16.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.15.0`**, versionCode `181500`. App-Code **`18.16.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.16.md`](./TEST-18.16.md).
+**Live-APK:** **`18.16.0`**, versionCode `181600`. App-Code **`18.16.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.16.md`](./TEST-18.16.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-0. **`18.16` Personen-Knäuel + Gedächtnis** [`88-next.md`](./88-next.md) — Sprints **369–376 CODE**. Mama=Mutter, Geburtstag im Graph, Recall ein Satz. Dann Begrüßung, Episode, Sleep, Korrektur-Replay. Kein Schwarm, kein erfundener Vorname.
+0. **`18.16` Personen-Knäuel + Gedächtnis** [`88-next.md`](./88-next.md) — Sprints **369–376 CODE + APK**. Mama=Mutter, Geburtstag im Graph, Recall ein Satz. Dann Begrüßung, Episode, Sleep, Korrektur-Replay. Kein Schwarm, kein erfundener Vorname. Sideload **`18.16.0`**.
 0b. **`18.15` Hirn härten** [`87-next.md`](./87-next.md) — Sprints **361–368 CODE + APK**. Retrieve-Rerank, Propose, Knowledge-Zitat, Abort-Rest, Presence-Bind, Satz-TTS, Lage-Felder, Gold aus Korrekturen. Kein LLM-Schwarm, e5 nie in `pickRoute`. Sideload **`18.15.0`**.
 1. **`18.10` Stimme / TV-Wahrheit / Intelligenz** [`76-next.md`](./76-next.md) — Sprints **301–306 CODE** in `18.10.0` (historisch PLAN `18.5`). Kein CEC, kein Mem0, e5 nicht in `pickRoute`. Nicht als `18.5.0` versionieren.
 2. **`18.8` Debug-Rollback / Termin-Erinnerungen / Debug-Download** [`79-next.md`](./79-next.md) — Sprints **323–330 CODE + APK** in `18.8.0`.
@@ -193,7 +193,7 @@ kein Cesium/Live, 0,5B bleibt Fallback ohne Messung. Andere Drafts
 
 Begründung: [`87-next.md`](./87-next.md).
 
-## CODE — Schiene `18.16` (Sprints 369–376)
+## CODE + APK — Schiene `18.16` (Sprints 369–376)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -401,4 +401,4 @@ Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein
 ### `13.40` Sprachmodus (CODE `13.44.0`)
 „Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**.
 
-Nächste Produktschiene: **`18.16` CODE** [`88-next.md`](./88-next.md) 369–376 (Personen-Knäuel, Begrüßung, Episode, Sleep, Korrektur). Andere Drafts bleiben getrennt. **`18.15`** Hirn härten [`87-next.md`](./87-next.md) 361–368 **CODE + APK**, Sideload **`18.15.0`**. **`18.14`** Lage-Icons [`86-next.md`](./86-next.md) 356–360 **CODE + APK**. **`18.5`** [`76-next.md`](./76-next.md) 301–306 **CODE** in `18.10.0`. **`18.9`** [`80-next.md`](./80-next.md) 331–337 **CODE + APK**. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.
+Nächste Produktschiene: **`18.16` CODE + APK** [`88-next.md`](./88-next.md) 369–376 (Personen-Knäuel, Begrüßung, Episode, Sleep, Korrektur), Sideload **`18.16.0`**. Andere Drafts bleiben getrennt. **`18.15`** Hirn härten [`87-next.md`](./87-next.md) 361–368 **CODE + APK**. **`18.14`** Lage-Icons [`86-next.md`](./86-next.md) 356–360 **CODE + APK**. **`18.5`** [`76-next.md`](./76-next.md) 301–306 **CODE** in `18.10.0`. **`18.9`** [`80-next.md`](./80-next.md) 331–337 **CODE + APK**. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.
