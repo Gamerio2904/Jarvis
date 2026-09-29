@@ -366,8 +366,8 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 382 | [`sprint-382.md`](./sprint-382.md) | `18.18.0` | Homescreen-Raster + Dock Start | **CODE** Must |
 | 383 | [`sprint-383.md`](./sprint-383.md) | `18.18.0` | Werte-Leiste, Mini-Chat, Sprach-Kugel | **CODE** Must |
 | 384 | [`sprint-384.md`](./sprint-384.md) | `18.18.0` | Tests Homescreen | **CODE** Must |
-| 385 | [`sprint-385.md`](./sprint-385.md) | `18.19.0` | Theme A/B, Icons aus Wallpaper, Umschalten | **PLAN** Must |
-| 386 | [`sprint-386.md`](./sprint-386.md) | `18.19.0` | PSP + Sprintkarten auf dem Glas | **PLAN** Must |
+| 385 | [`sprint-385.md`](./sprint-385.md) | `18.19.0` | Theme A/B, Icons aus, kein Gesicht | **PLAN** Must |
+| 386 | [`sprint-386.md`](./sprint-386.md) | `18.19.0` | Workspace Sprints/Module/GUI-Sim | **PLAN** Must |
 | 387 | [`sprint-387.md`](./sprint-387.md) | `18.19.0` | Feature-Katalog aus Docs | **PLAN** Must |
 | 388 | [`sprint-388.md`](./sprint-388.md) | `18.19.0` | Deep Research härten + OSS | **PLAN** Must |
 | 389 | [`sprint-389.md`](./sprint-389.md) | `18.19.0` | Jobs Recherche + Plan | **PLAN** Must |

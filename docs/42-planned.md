@@ -8,7 +8,7 @@ Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0
 
 ## Pull-Reihenfolge
 
-0. **`18.19` Tischplatte PLAN** [`91-next.md`](./91-next.md) — Sprints **385–391 PLAN**. Jarvis-Wallpaper + Icons aus demselben Bild; Tischplatte **schaltet** den Hintergrund. PSP, Docs-Katalog, Deep Research, Jobs, Memory-Vorschläge. Sideload bleibt **`18.17.0`**. Kein Execute.
+0. **`18.19` Tischplatte PLAN** [`91-next.md`](./91-next.md) — Sprints **385–391 PLAN**. Icons aus; HUD-Workspace ohne Gesicht (Sprints/Module/GUI-Sim); Deep Research/OSS; Memory-Vorschläge. Sideload bleibt **`18.17.0`**. Kein Execute.
 0a. **`18.18` Homescreen** [`90-next.md`](./90-next.md) — Sprints **382–384 CODE**. App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel. Sideload bleibt **`18.17.0`** bis APK.
 0a. **`18.17` Kalender Alltag** [`89-next.md`](./89-next.md) — Sprints **377–381 CODE + APK**. Hausstand-Termine + ICS, Serie, Konflikt. Sideload **`18.17.0`**.
 0a. **`18.16` Personen-Knäuel + Gedächtnis** [`88-next.md`](./88-next.md) — Sprints **369–376 CODE + APK**. Mama=Mutter, Geburtstag im Graph, Recall ein Satz. Dann Begrüßung, Episode, Sleep, Korrektur-Replay. Kein Schwarm, kein erfundener Vorname. Sideload **`18.16.0`**.
@@ -240,8 +240,8 @@ Kein Android-Launcher, kein WebGL, kein 64. Agent. Test: [`TEST-18.18.md`](./TES
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
-| `18.19.0` | [385](./sprints/sprint-385.md) | Theme A/B: Jarvis-Wallpaper, Icons aus A, Umschalten auf B |
-| `18.19.0` | [386](./sprints/sprint-386.md) | PSP + Sprintkarten auf dem Glas |
+| `18.19.0` | [385](./sprints/sprint-385.md) | Theme A/B, Icons aus, kein Gesicht |
+| `18.19.0` | [386](./sprints/sprint-386.md) | Workspace: Sprints, Module, GUI-Sim |
 | `18.19.0` | [387](./sprints/sprint-387.md) | Feature-Katalog aus Docs |
 | `18.19.0` | [388](./sprints/sprint-388.md) | Deep Research härten + OSS/GitHub |
 | `18.19.0` | [389](./sprints/sprint-389.md) | Jobs Recherche + Plan in einem Zug |

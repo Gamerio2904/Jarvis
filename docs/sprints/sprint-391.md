@@ -14,7 +14,7 @@ nicht, Deep bleibt Deep, Jobs sind kein Schwarm, Memory braucht Ja.
 
 | ID | Task | Datei | Anleitung |
 |----|------|-------|-----------|
-| S391-1 | Gold | `eval/corpus.ts` `test-prompts.ts` `test-copy.ts` | `Tischplatte an` → `board`. `Schreibtisch an` → `desk`. `Tisch an` → `desk`. `Was ist geplant` → `board` oder `help`, nie `desk` |
+| S391-1 | Gold | `eval/corpus.ts` `test-prompts.ts` `test-copy.ts` | `Tischplatte an` → `board`. `Zeig Sprints` / `Zeig Module` / `Simuliere Kalender` → `board`. `Schreibtisch an` → `desk`. `Tisch an` → `desk` |
 | S391-2 | Konflikte | `conflicts.ts` | Plug/Wetter/Kalender schlagen `board`. `platte`-Token schlägt `desk` |
 | S391-3 | Unit | `test-board*.mjs` `test-research-deep*.mjs` `test-memory-propose*.mjs` | Theme-JSON wirft unbekannte Keys weg. Deep-Queries ≥ 3 Rollen, Live-Lookup 1–2. `proposeMemory` Dump → keine Row. Accept ruft Gate |
 | S391-4 | GUI | Puppeteer analog Homescreen | Toggle an: Icons `hidden`, Wallpaper-Klasse `is-tischplatte` / Wand B. Toggle aus: Icons da, Wand A. Kachel-Hintergrund = Wallpaper, nicht `tint` |

@@ -75,7 +75,9 @@ Gold heute: `Schreibtisch an` → `desk`. `Idee:` → `idea`. `Recherchiere tief
 
 - Execute in diesem Dokument (kein `HomeScreen.tsx` anfassen, solange PLAN).
 - Android-Launcher, fremde App-Icons, Live-Wallpaper-Service.
-- WebGL, Cesium, Lottie, Three.js, shader-Wallpaper.
+- WebGL, Cesium, Lottie, Three.js, shader-Wallpaper, Face-Hologramm, Marvel-Stills.
+- tldraw in Production (Lizenz-Key). `@xyflow/react` als Abhängigkeit.
+- WorkBase-Code (AGPL). Fremde Dashboards als iframe.
 - Bildgenerator-API zur **Laufzeit** (Imagen, DALL-E, Midjourney in der APK).
 - 18.18-Regenbogen-Tints auf den Kacheln stehen lassen, während das Wallpaper Jarvis-Glas ist (sonst „genau wie“ gebrochen).
 - Fremde Icon-Packs (Material, Lucide-Bunt) auf dem Jarvis-Feld.
@@ -207,6 +209,81 @@ Pixel-Synthese zur Laufzeit. Wer ein Foto-Wallpaper will: Won’t in `18.19`.
 Interaktiv: Pointer verschiebt Highlight (Parallax ≤ 12 px). Karten und
 Icon-Kacheln sind Buttons. Kein Physik-Engine.
 
+### 4.4 Workspace ohne Gesicht (Inspiration + OSS)
+
+PO: Tischplatte an → **App-Icons ausblenden** (hart, nicht nur kleiner).
+Die Fläche ist ein **interaktives Hintergrundbild**, das Jarvis steuert:
+Sprints, PSP, GUI-Simulation, Module. **Kein Gesicht** in der Mitte
+(kein Tony, kein generiertes Jarvis-Portrait, keine zweite Mund-Kugel
+als Held). Die bestehende Sprach-Kugel bleibt der Shortcut unten, nicht
+das Zentrum der Tafel.
+
+#### Was der Film-HUD wirklich tut — und was wir klauen
+
+Quelle: Christopher Noessel, *Iron Man HUD: 1st person view*
+([scifiinterfaces.com, 2015-07-21](https://scifiinterfaces.com/2015/07/21/iron-man-hud-1-person-view/)).
+Kein Code, keine Marvel-Stills in der APK.
+
+| Film | Für uns |
+|------|---------|
+| Kleine Gauges am Rand, **groß und mittig** erst wenn es zählt | Ein Panel wächst, die anderen bleiben Haarlinie. Jarvis wählt das Panel per Befehl, nicht per Eye-Tracking (haben wir nicht) |
+| Cyan-Wireframe, dunkles Feld | Theme A/B, schon §4.0 |
+| Zweites Bild: Tonys Gesicht + schwebende Grafik | **Won’t.** Kein Face-Hologramm |
+| Wikipedia-Karte auf die Welt geklebt, unleserlich | Kein Textteppich. Eine Karte, ein Satz, Quelle oder nichts |
+| JARVIS wechselt Modus, Tony fragt selten nach dem Display | Parser: „Zeig Sprints“, „Simuliere Kalender“. Idle = Gitter + Ringe, leer in der Mitte |
+
+Typische Fan-Specs (Orb + drei Ringe + Face) sind **Deko**. Ringe dürfen
+am Rand langsam laufen (`prefers-reduced-motion`: aus). Die Mitte bleibt
+**Inhalt** (Sprintkarte oder Wireframe), nicht ein Kopf.
+
+#### Open Source — stehlen / lassen (Abruf 2026-09-29)
+
+| Projekt | Lizenz / Form | Stehlen | Lassen |
+|---------|----------------|---------|--------|
+| [xyflow / React Flow](https://github.com/xyflow/xyflow) | MIT, DOM-Knoten | Mental: Auftrag→Sprint→Task als **≤20 Karten** mit Kanten | **Kein npm** in der APK (d3-zoom, Extra-Store, ~500-Knoten-Story unnötig) |
+| [tldraw](https://github.com/tldraw/tldraw) | eigene Lizenz, Production braucht Key | — | **Won’t.** Sideload ist kein tldraw-Kunde |
+| Excalidraw | MIT | Idee: Pan auf einer Fläche | Hand-drawn, Collab-Bundle, Whiteboard-Look |
+| [PlanDesk](https://github.com/asyncdotengineering/plandesk) | MIT, local-first Canvas + Board + Agent | Ein Objekt, mehrere **Sichten**; Agent ändert den Plan, malt nicht Pixel | MCP-Server, SQLite, Docker, 27 Tools |
+| WorkBase | **AGPL** | Idee: Module nisten, Fortschritt rollt nach oben | **Kein Code.** AGPL nicht in die APK |
+| [glasscn](https://github.com/spideydotjs/glasscn) / Glin UI / AuraGlass | meist MIT, oft Tailwind/Radix | Copy-Paste: `backdrop-filter`, Hairline, Glas-Karte | Kein Tailwind/Next/Radix-Stack, kein Apple-Liquid-Glas als Produkt |
+| [wireframe-ui](https://github.com/aguiarsc/wireframe-ui) MIT, [Wireloom](https://github.com/StardockCorp/Wireloom) MIT | Text/SVG-Wireframe | **GUI-Simulation** = Low-Fi-SVG der Jarvis-Module, nicht Live-App im Iframe | shadcn/Tailwind, LangGraph-Wireframe-Generator, kein zweites Gemini-Schwarm |
+| ks-source/task-manager (Suche: WBS+SVG, LocalStorage) | angeblich MIT; GitHub-Fetch **404** | nur das Muster „Status färbt den Knoten“ | nicht vendorn, bis ein Fork mit LICENSE da ist |
+
+Deep Research (Sprint 388) bleibt der **allgemeine** Such-Slot. Auf der
+Tafel landen Funde als Chips (Titel + Domain). OSS-Treffer mit URL dürfen
+als Karte „Modul-Inspiration“ liegen — ohne den fremden Clone zu starten.
+
+#### Sichten, die Jarvis auf B legt
+
+Eine Sicht zur Zeit (wie Lage `hud_view`). Flag `tischplatte_view`.
+
+| Sicht | Befehl (Beispiele) | Bild |
+|-------|-------------------|------|
+| `sprints` Default | `Zeig Sprints` / Tischplatte an | Drei Kern-Karten + Custom als HUD-Platten auf dem Gitter. Mitte frei von Gesicht |
+| `psp` | `Zeig PSP` / `Zeig den Baum` | Links Baum, Mitte die fokussierte Karte |
+| `modules` | `Zeig Module` | Ghost-Wireframes der **internen** Flächen (Chat, Kalender, Kugel, Lage, Overlay, Gehirn, Einstellungen, Filme, Sprache) — **nicht** die Homescreen-Icons, sondern Rahmen der GUI |
+| `sim` | `Simuliere Kalender` / `Simuliere die Chat-GUI` | Ein Wireframe, Store-Zahlen nur wenn wahr (nächster Termin, Timer). Sonst beschriftete Leere, kein Fake-Event |
+| `research` | nach Deep / `Zeig Quellen` | Chips rechts/unten, wie §6 |
+
+Jarvis **steuert** die Tafel: Parser setzt `tischplatte_view` + Fokus-id.
+Kein LLM, das CSS schreibt. Groq sagt den einen Satz („Sprint Härten liegt
+vorn“), die Fläche liest Store.
+
+GUI-Simulation ist **kein** zweites `CalendarScreen`. Es ist ein SVG/DOM-
+Drahtgitter im Theme, optional mit echten Feldern aus Store. Zweck:
+planen und zeigen, nicht die App nochmal rendern.
+
+#### Icons ausblenden (hart)
+
+`tischplatte_on === true`:
+
+- `.home-grid` `hidden` + `inert` (kein Fokus, kein Klick)
+- `aria-hidden="true"` auf dem Raster
+- Wallpaper-Klasse `is-tischplatte`, Wand B sichtbar
+- Mini-Chat, Sprach-Kugel, Werte-Leiste, Dock **bleiben**
+
+Aus: Raster wieder da, Wand A.
+
 ---
 
 ## 5. Was ein gutes Jarvis-Projekt braucht
@@ -245,21 +322,21 @@ und merged keine PRs. Gleicher Vertrag wie [`72-next.md`](./72-next.md).
 
 ## 6. Projektion aufs Glas
 
-Eine React-Fläche `Workbench.tsx` (Execute), Daten nur aus Store:
+Eine React-Fläche `Workbench.tsx` (Execute), Daten nur aus Store. Die
+**Sicht** (`tischplatte_view`) wechselt, was in der Mitte wächst — Rest
+wird klein. Kein Gesicht.
 
-| Zone | Inhalt | Klick |
-|------|--------|-------|
-| Oben | Auftrag + Version aus Katalog | — |
-| Links | PSP-Baum, eingeklappt bis Epic | Epic = Idee fokussieren |
-| Mitte | Drei Kern-Karten + Custom | Karte groß: Ziel, Tasks, Won’t |
-| Rechts | Forschung-Chips (Titel + Domain) | Chip = Quelle öffnen **oder** ehrlich „ohne URL nicht“ |
-| Unten | Job-Leiste: `Recherche läuft` / `Plan liegt` / `Vorschlag 1` | Stopp bricht `AbortSignal` |
+| Zone | Inhalt | Klick / Befehl |
+|------|--------|----------------|
+| Feld | Wallpaper B, Ringe nur Rand, `prefers-reduced-motion` aus | — |
+| Oben | Auftrag + Version + Sicht-Name | — |
+| Links | PSP-Baum (Sicht `psp`) oder Modul-Liste (`modules`) | Fokus |
+| Mitte | Sprintkarten **oder** ein GUI-Wireframe (`sim`) | Karte groß / Wireframe bleibt Low-Fi |
+| Rechts | Forschung-Chips | Quelle oder ehrlich ohne URL |
+| Unten | Job-Leiste | Stopp = Abort |
 
-Kein zweites Chat-Log auf der Tafel. Antworten kommen über Mini-Chat /
-bestehenden Chat, die Tafel **aktualisiert** sich aus Store.
-
-Leer: Glas bleibt, Text „Kein Plan. Idee: … oder recherchiere tief …“.
-Nicht die Marvel-Werkstatt erfinden.
+Kein zweites Chat-Log auf der Tafel. Antworten über Mini-Chat. Leer: Glas
++ Satz, Mitte **ohne** Kopf.
 
 ---
 
@@ -459,11 +536,11 @@ Recall: ungeprüfte Proposals erscheinen **nicht** in `memoryBlock`.
 | `idea` | Idee + Plan-Fill | unverändert; Tafel **liest** `Idea.plan` |
 | `help` | Hilfe | Katalog-Fragen dürfen `board` oder `help` — ein Gewinner in `conflicts.ts` |
 | Chat-Loop Deep | `isDeepResearch` | härten, kein neuer Agent-id zwingend |
-| **`board` neu** | — | Toggle, Projektion, Jobs starten, Katalog-Lesen, Proposal-Chips |
+| **`board` neu** | — | Toggle, Sicht (`sprints`/`psp`/`modules`/`sim`/`research`), Jobs, Katalog, Proposal-Chips. Mitte ohne Gesicht |
 
 `proposeTool` darf `board` nur vorschlagen, wenn der Vertrag
-`Tischplatte an` / `Zeig PSP` / `Was ist geplant` matched. Geräte gewinnen
-weiter.
+`Tischplatte an` / `Zeig Sprints` / `Zeig PSP` / `Zeig Module` /
+`Simuliere {modul}` / `Was ist geplant` matched. Geräte gewinnen weiter.
 
 Kein Embedding in `pickRoute`. Groq formuliert den einen Reply-Satz.
 
@@ -475,7 +552,9 @@ Neue Settings-Flags (Execute):
 
 | Key | Default | Bedeutung |
 |-----|---------|-----------|
-| `tischplatte_on` | false | Modus |
+| `tischplatte_on` | false | Modus; Icons `hidden`+`inert` |
+| `tischplatte_view` | `sprints` | `sprints` \| `psp` \| `modules` \| `sim` \| `research` |
+| `tischplatte_focus` | `''` | Sprint-n, Idea-id oder Modul-id für die große Mitte |
 | `tischplatte_seed` | 0 | Canvas-Seed |
 | `tischplatte_hint` | `{}` | Palette JSON, validiert |
 
@@ -491,8 +570,8 @@ Hausstand: Flag + Proposals exportieren (wie Memory). Jobs nicht.
 
 | Sprint | Thema | Rolle |
 |--------|--------|--------|
-| [385](./sprints/sprint-385.md) | Theme A/B: Jarvis-Wallpaper, Icons aus A, Umschalten auf B, Parser ≠ Desk | Must PLAN |
-| [386](./sprints/sprint-386.md) | PSP + Sprintkarten auf dem Glas (Idee-Plan projizieren) | Must PLAN |
+| [385](./sprints/sprint-385.md) | Theme A/B, Icons **aus**, Parser ≠ Desk | Must PLAN |
+| [386](./sprints/sprint-386.md) | Workspace: Sprints/PSP/Module/GUI-Sim auf B, ohne Gesicht | Must PLAN |
 | [387](./sprints/sprint-387.md) | Feature-Katalog aus Docs, auf Zuruf | Must PLAN |
 | [388](./sprints/sprint-388.md) | Deep Research härten (allgemein) + OSS/GitHub | Must PLAN |
 | [389](./sprints/sprint-389.md) | Jobs: Recherche + Plan in einem Handler, Chips | Must PLAN |
@@ -533,9 +612,13 @@ Weiter `desk`. Ohne Foto: „Kein Frame…“ — **nicht** die Werkbank.
 Idee: ICS ohne Google-Kalender
 Zeig den Sprintplan für Idee 1
 Tischplatte an
+Zeig Sprints
+Zeig Module
+Simuliere Kalender
 ```
 
-Drei Kern-Karten auf dem Glas, Inhalt aus der Vorlage, kein RICE.
+Icons weg. Drei Kerne auf B, ohne Gesicht. Dann Modul-Wireframes, dann
+Kalender-Gitter ohne erfundenen Termin.
 
 ```
 Was ist geplant
@@ -575,7 +658,7 @@ Steckdosen aus` bleibt Plug.
 |--------|----------------|
 | „Tisch an“ stiehlt Desk-Gold | Getrennte Regex, Gold in 391, `conflicts.ts` desk > board außer Token `platte` |
 | Icons ≠ Wallpaper | Eine Textur/Canvas, Kacheln nur Glas darauf; Tints aus `HOME_APPS` nicht als Kachelfarbe |
-| A und B wirken wie zwei Apps | Ein Hint, ein Seed, Crossfade; B ist A als Tisch, nicht ein neues Produkt |
+| Face in der Mitte | Mitte = Inhalt (Sprint/Wireframe). Sprach-Kugel bleibt Shortcut, nicht Held |
 | Groq-Hint wird zur Marvel-Rolle | Enum-Whitelist, kein Freitext ins CSS |
 | Schwarm-Erwartung | UI-Copy „Jobs“, Persona sagt nicht „ich starte Agenten-Schwarm“ |
 | Katalog veraltet | Freeze-Datum in der Datei; Satz „Stand Bundle {version}“ |

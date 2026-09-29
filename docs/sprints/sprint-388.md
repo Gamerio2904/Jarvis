@@ -17,7 +17,7 @@ Loop, kein Researcher/Critic-Schwarm. Nutzbar im Chat ohne Tischplatte.
 | S388-1 | Rollen | `research-parse.ts` | Queries aus Rollen `core`, `constraint`, `compare`, `wiki`, `code` — max 5. Anzug/Stalingrad-Hardcodes → Theme-Detektor oder Default-Rollen. Bloßes „recherchier Benzinpreis“ bleibt normal (nicht Deep) |
 | S388-2 | Claims | `research-parse.ts` | `ResearchSource` bleibt. Deep-Bericht nur Sätze mit URL. `guardResearchReply` weiter Zahlen aus Snippets |
 | S388-3 | Pass | `web-search.ts` Should | Zweiter Pass nur wenn Pass 1 ≥ 2 URLs: eine Verfeinerung aus Top-3-Titel. Kein dritter. `AbortSignal` |
-| S388-4 | OSS | `github-search.ts` **neu** | „Open Source“ / `site:github` → Rolle `code`. REST `/search/repositories` **nur** mit User-Token (Settings, offizielle API). Ohne Token: DDG `site:github.com` + Satz unvollständig. Kein Login-Scraping |
+| S388-4 | OSS | `github-search.ts` **neu** | „Open Source“ / `site:github` → Rolle `code`. REST `/search/repositories` **nur** mit User-Token. Ohne Token: DDG + ehrlich unvollständig. Treffer dürfen als Chips auf der Tafel liegen (386 `research`). Kein Clone starten |
 | S388-5 | Slot | `brain-orchestrator.ts` | `research-deep` weiter Gemini Grounding wenn Key. Sonst Groq + Digest. Tischplatte ändert den Slot nicht |
 | S388-6 | Offer | `research-pending.ts` | Teach-Offer „Fachwissen merken?“ bleibt. Memory-Proposals kommen in 390, hier nur Hook: Deep legt Claims ab, write erst nach Ja |
 

@@ -853,14 +853,14 @@ Sprints 382–384.
 
 ### `18.19` — Tischplatte [`91-next.md`](./91-next.md) **PLAN**
 
-**`18.19.0`** (erst beim Execute): Glas-Werkbank, PSP, Docs-Katalog, Deep
-Research härten, Jobs statt Schwarm, Memory-Vorschläge. Sprints 385–391
-**PLAN**. Sideload bleibt **`18.17.0`** bis APK. Over `18.18.0` nach Execute.
+**`18.19.0`** (erst beim Execute): Icons aus, HUD-Workspace ohne Gesicht
+(Sprints/Module/GUI-Sim), Docs-Katalog, Deep Research + OSS-Chips,
+Memory-Vorschläge. Sprints 385–391 **PLAN**. Sideload bleibt **`18.17.0`**.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.19.0` | Tischplatte Theme A/B, Icons aus Wallpaper | 385 PLAN |
-| `18.19.0` | PSP + Sprintkarten auf dem Glas | 386 PLAN |
+| `18.19.0` | Tischplatte Theme A/B, Icons aus | 385 PLAN |
+| `18.19.0` | Workspace Sprints/Module/GUI-Sim ohne Gesicht | 386 PLAN |
 | `18.19.0` | Feature-Katalog aus Docs | 387 PLAN |
 | `18.19.0` | Deep Research härten + OSS | 388 PLAN |
 | `18.19.0` | Jobs Recherche + Plan | 389 PLAN |
