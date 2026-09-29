@@ -1133,7 +1133,6 @@ function App() {
   async function openConversation(id: string) {
     setError(null)
     setLastFailed(null)
-    setHomeOpen(false)
     setActiveId(id)
     setSidebarOpen(false)
     setThreadKey((k) => k + 1)
@@ -1908,7 +1907,10 @@ function App() {
                     type="button"
                     className={`chat-item ${c.id === activeId ? 'active' : ''}`}
                     style={{ ['--i' as string]: i }}
-                    onClick={() => void openConversation(c.id)}
+                    onClick={() => {
+                      setHomeOpen(false)
+                      void openConversation(c.id)
+                    }}
                   >
                     {c.title}
                   </button>

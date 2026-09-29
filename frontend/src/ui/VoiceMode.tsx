@@ -161,7 +161,7 @@ export function VoiceMode({
     if (!ok) {
       setErr('Mikrofon erlauben — sonst kein Sprachmodus.')
       setPhase('idle')
-      onMicDenied?.()
+      if (!compact) onMicDenied?.()
       return
     }
     const seed = initialUtterance.trim()
