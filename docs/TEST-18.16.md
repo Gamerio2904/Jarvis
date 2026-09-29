@@ -3,73 +3,154 @@
 Nach Execute von [`88-next.md`](./88-next.md). App-Code **`18.16.0`**.
 Sideload bleibt **`18.15.0`** bis APK. Over `18.15.0` installieren, sobald die 18.16-APK da ist.
 
-Gerät, nicht nur die Cloud-VM.
+Gerät, nicht nur die Cloud-VM. Jede Box ist ein Satz — **einmal tippen, kopieren, in den Chat**.
 
 ## 1. Version
 
-Einstellungen / Hilfe nennt **`18.16.0`**.
+Einstellungen / Hilfe nennt **`18.16.0`**. Nicht `18.15.0`.
 
-## 2. Personen-Knäuel (369–371) — Must
+## 2. Personen-Knäuel — Must
 
-Eintragen, **ohne** die Frage in denselben Atemzug zu kleben:
+Eintragen. **Nicht** sofort die Frage hinterherkleben. Warten, gern neuer Chat.
 
-    Mama hat am 3. März Geburtstag
+```
+Mama hat am 3. März Geburtstag
+```
 
-Später, gern neuer Chat:
+Später:
 
-    Wer ist meine Mutter und wann hat sie Geburtstag
+```
+Wer ist meine Mutter und wann hat sie Geburtstag
+```
 
-Erwartung: **ein** Satz, Agent **recall** (Trace). Nennt Mama und den
-3. März / 3.3. Kein erfundener Vorname. Kein zweites Eintragen.
+Erwartung: **ein** Satz. Trace **recall**. Nennt Mama und 3. März / 3.3. Kein Ingrid. Kein zweites Eintragen.
 
-    Wann hat Mama Geburtstag
+```
+Wann hat Mama Geburtstag
+```
 
-Dieselbe Belege, ein Agent (recall oder birthday-list — eine dokumentierte
-Wahl).
+Dieselbe Belege, Agent **recall**.
 
-Ohne jeden Eintrag:
+Ohne Pin (oder nach Vergessen):
 
-    Wer ist meine Mutter und wann hat sie Geburtstag
+```
+vergiss Mama
+```
+
+```
+Wer ist meine Mutter und wann hat sie Geburtstag
+```
 
 Ehrlich leer, kein Raten.
 
-Papa analog, wenn eingetragen.
+Papa analog:
 
-## 3. Kontakt im Knäuel (372)
+```
+Papa hat am 12. Juni Geburtstag
+```
+
+```
+Wer ist mein Vater und wann hat er Geburtstag
+```
+
+Oma/Opa dürfen **nicht** Mamas Datum liefern.
+
+## 3. Kontakt im Knäuel
 
 Nach Mama-Geburtstag:
 
-    Mama, Tel 01711234567
+```
+Mama, Tel 01711234567
+```
 
-dann Ja-Pfad wie heute. Danach `Rufe Mama an` → maps, Nummer da.
-Geburtstagsfrage bleibt Datum, erfindet keine Nummer in den Satz wenn
-nicht gefragt.
+Ja-Pfad wie heute. Danach:
 
-`Freundin wohnt in Heilbronn` bleibt maps.
+```
+Rufe Mama an
+```
 
-## 4. Begrüßung (373)
+maps, Nummer da, weiter auf Ja. Geburtstagsfrage bleibt Datum — **keine** Nummer im Satz, wenn nicht gefragt.
 
-Timer stellen, dann `Hallo` / `Guten Morgen`. Höchstens ein belegter
-Halbsatz oder „Ich höre.“ Siezen, kein Vorname, kein „gut geschlafen“
-ohne Beleg.
+```
+Freundin wohnt in Heilbronn
+```
 
-## 5. Episode (374)
+bleibt maps, nicht recall.
 
-Nach Timer + Geburtstag, App kurz in den Hintergrund, später nach dem
-Tag fragen. Nur was lief, oder leer.
+```
+Mama, Mail name@gmx.de
+```
 
-## 6. Sleep (375)
+liegt; Geburtstagsfrage erfindet die Mail nicht.
 
-Gemini-Key darf stehen. Sleep darf keinen „gestern Pizza“-Pin anlegen.
-User-Widerspruch (`kein Kaffee mehr`) bleibt.
+## 4. Begrüßung
 
-## 7. Korrektur (376)
+```
+Timer 8 Minuten Nudeln
+```
 
-Undeutlicher Satz, falscher Agent, dann `Nein, das war der Timer`.
-Timer-Handlung oder ehrliche Nachfrage. `Fernseher an` weiter mit Ja.
+dann:
 
-## 8. Won’t
+```
+Hallo
+```
 
-Kein Live. Kein Schwarm. Fernseher bleibt Fernseher. Kalender
-„Samstag Geburtstag Jakob 18 Uhr“ bleibt Termin, nicht still Mama.
-Andere Drafts (Koch, Clips, Experte) nicht in dieser Sideload.
+Höchstens ein belegter Halbsatz (Timer) oder „Ich höre.“ Siezen, kein Vorname, kein „gut geschlafen“.
+
+`Guten Morgen` bleibt Wetter-Brief, nicht Smalltalk-Begrüßung.
+
+## 5. Episode
+
+Nach Timer + Geburtstag App kurz in den Hintergrund. Später:
+
+```
+Was war heute
+```
+
+Nur was lief, oder leer. Kein Roman.
+
+## 6. Sleep
+
+Gemini-Key darf stehen. Danach **nicht** erwarten, dass das landet:
+
+```
+gestern Pizza gegessen
+```
+
+Widerspruch bleibt:
+
+```
+kein Kaffee mehr
+```
+
+## 7. Korrektur
+
+Undeutlich, dann:
+
+```
+Nein, das war der Timer
+```
+
+Timer-Handlung oder „Welchen Timer?“. Ja-Gate:
+
+```
+Fernseher an
+```
+
+wartet weiter auf Ja.
+
+## 8. Won’t / Regression
+
+```
+Samstag Geburtstag Jakob 18 Uhr
+```
+
+Kalender-Termin, nicht still Mama.
+
+```
+Fernseher an
+```
+
+bleibt Fernseher.
+
+Kein Live, kein Schwarm, kein zweiter Agent im Zug.
