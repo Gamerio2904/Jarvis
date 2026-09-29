@@ -3,7 +3,18 @@ import type { KnowledgePack } from './knowledge-types.ts'
 import { retrievePacks } from './knowledge-retrieve.ts'
 
 /** Parser-Züge, die Packs sehen dürfen. TV/GPIO nicht — kein Broadcast-Diebstahl. */
-export const KNOWLEDGE_PARSER_ALLOW = new Set(['film', 'watchlist', 'calendar'])
+export const KNOWLEDGE_PARSER_ALLOW = new Set([
+  'film',
+  'watchlist',
+  'calendar',
+  'news',
+  'search',
+  'sport',
+  'law',
+  'teach',
+  'pack',
+  'osint',
+])
 
 export function knowledgeAllowedForRoute(route: string | null | undefined): boolean {
   if (!route) return true

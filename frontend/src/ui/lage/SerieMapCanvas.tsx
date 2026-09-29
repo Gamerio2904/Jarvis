@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { nearestHit, type HitCandidate } from '../../engine/agent-zoom.ts'
 import { isDocumentHidden, onVisibility } from '../../engine/motion.ts'
-import { RM_CORE_IDS, RM_SKILLS } from '../../engine/rm-dossier.ts'
+import { RM_CORE_IDS } from '../../engine/rm-dossier.ts'
+import { hasAnySkill } from '../../engine/rm-graph.ts'
 import {
   buildRmGraph,
   characterById,
@@ -234,7 +235,7 @@ export function SerieMapCanvas({
     }
 
     function cHasSkill(id: number): boolean {
-      return Boolean(RM_SKILLS[id]?.length)
+      return hasAnySkill(id)
     }
 
     function draw() {

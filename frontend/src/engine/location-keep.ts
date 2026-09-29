@@ -38,6 +38,16 @@ export function parseCoord(raw: string): number | null {
   return Number.isFinite(n) ? n : null
 }
 
+/** Koordinaten ohne Zeit: nicht leer, nicht 0/0, im Gradnetz. */
+export function isValidHereCoord(latRaw: string, lonRaw: string): { lat: number; lon: number } | null {
+  const lat = parseCoord(latRaw)
+  const lon = parseCoord(lonRaw)
+  if (lat == null || lon == null) return null
+  if (lat === 0 && lon === 0) return null
+  if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null
+  return { lat, lon }
+}
+
 /** Fresh GPS for pins: not empty, not 0/0, not older than LOCATION_KEEP_MS. */
 export function isFreshHereFix(
   latRaw: string,
@@ -45,13 +55,23 @@ export function isFreshHereFix(
   fixAt: string,
   now = Date.now(),
 ): { lat: number; lon: number } | null {
-  const lat = parseCoord(latRaw)
-  const lon = parseCoord(lonRaw)
-  if (lat == null || lon == null) return null
-  if (lat === 0 && lon === 0) return null
-  if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null
+  const coords = isValidHereCoord(latRaw, lonRaw)
+  if (!coords) return null
   if (!storedFixAllowed(true, fixAt, now)) return null
-  return { lat, lon }
+  return coords
+}
+
+/** Nadel: frisch oder letzter Stand. 0/0 und leere Werte bleiben weg. */
+export function herePinState(
+  latRaw: string,
+  lonRaw: string,
+  fixAt: string,
+  now = Date.now(),
+): { lat: number; lon: number; stale: boolean } | null {
+  const coords = isValidHereCoord(latRaw, lonRaw)
+  if (!coords) return null
+  const fresh = isFreshHereFix(latRaw, lonRaw, fixAt, now)
+  return { ...coords, stale: !fresh }
 }
 
 export function readStoredFix(

@@ -1,6 +1,17 @@
 import { Component, useEffect, useRef, type ReactNode } from 'react'
 import type { GeoFix } from '../../engine/globe-geo.ts'
 import { globeFocusKey, lookLatLon, pickTappedPin, shouldApplyGlobeFocus, viewXYZ, yawPitchFor, alongCoast } from '../../engine/globe-geo.ts'
+import { GLOBE_ZOOM_MAX } from '../../engine/globe-gibs.ts'
+import {
+  aircraftScale,
+  drawAircraft,
+  drawFire,
+  drawHerePin,
+  drawQuake,
+  drawSat,
+  drawStorm,
+  pinMarkerKind,
+} from '../../engine/globe-icons.ts'
 import { WORLD_RINGS } from '../../engine/world-rings.ts'
 import { isDocumentHidden, MOTION_FRAME_MS, onVisibility } from '../../engine/motion.ts'
 import { loadSettings } from '../../engine/store.ts'
@@ -22,8 +33,9 @@ export class GlobeGuard extends Component<{ children: ReactNode }, { failed: boo
 
 const HOME = { lat: 50.1, lon: 10.4 }
 const ZOOM_MIN = 1
-const ZOOM_MAX = 4.4
+const ZOOM_MAX = GLOBE_ZOOM_MAX
 const FRONT = 0.04
+const LABEL_ZOOM = 6
 
 function clampZoom(z: number): number {
   if (!Number.isFinite(z) || z <= 0) return 1.12
@@ -397,6 +409,8 @@ export function GlobeView({
         .map((pin) => ({ pin, q: project(pin.lat, pin.lon) }))
         .filter((x) => x.q.z > -0.02)
       shown.sort((a, b) => a.q.z - b.q.z)
+      const planeScale = aircraftScale(zoom.current)
+      const showFlightName = zoom.current >= LABEL_ZOOM
       for (const { pin, q } of shown) {
         if (pin.kind === 'glow') {
           pen.beginPath()
@@ -404,90 +418,62 @@ export function GlobeView({
           pen.arc(q.x, q.y, pin.hot ? 16 : 12, 0, Math.PI * 2)
           pen.fill()
         }
-        if (pin.kind === 'here') {
-          const wave = 10 + Math.sin(pulse.current) * 3
+        if (pin.kind === 'conflict') {
           pen.beginPath()
-          pen.strokeStyle = 'rgba(30, 215, 96, 0.45)'
-          pen.lineWidth = 1.2
-          pen.arc(q.x, q.y, wave, 0, Math.PI * 2)
-          pen.stroke()
-        }
-        if (pin.kind === 'fire' || pin.kind === 'quake' || pin.kind === 'conflict') {
-          if (pin.kind === 'fire') {
-            pen.beginPath()
-            pen.fillStyle = 'rgba(224, 96, 64, 0.18)'
-            pen.arc(q.x, q.y, 14, 0, Math.PI * 2)
-            pen.fill()
-          }
-          pen.beginPath()
-          pen.strokeStyle = pin.kind === 'fire' ? 'rgba(224, 112, 80, 0.7)' : 'rgba(240, 160, 96, 0.5)'
-          pen.lineWidth = 1.6
+          pen.strokeStyle = 'rgba(224, 120, 96, 0.5)'
+          pen.lineWidth = 1.5
           pen.arc(q.x, q.y, 10, 0, Math.PI * 2)
           pen.stroke()
         }
-        if (pin.kind === 'sat' || pin.kind === 'iss') {
+        const mark = pinMarkerKind(pin.kind)
+        if (mark === 'here') {
+          drawHerePin(pen, q.x, q.y, { stale: pin.stale, pulse: pulse.current })
+        } else if (mark === 'flight') {
+          drawAircraft(pen, q.x, q.y, pin.heading, planeScale)
+        } else if (mark === 'sat' || mark === 'iss') {
+          drawSat(pen, q.x, q.y, mark === 'iss')
+        } else if (pin.kind === 'fire') {
+          drawFire(pen, q.x, q.y, pulse.current)
+        } else if (pin.kind === 'quake') {
+          drawQuake(pen, q.x, q.y)
+        } else if (pin.kind === 'weather' || pin.kind === 'warn') {
+          drawStorm(pen, q.x, q.y)
+        } else {
           pen.beginPath()
-          pen.strokeStyle = 'rgba(210, 230, 255, 0.7)'
-          pen.lineWidth = 1.2
-          pen.arc(q.x, q.y, 7, 0, Math.PI * 2)
-          pen.stroke()
-        }
-        pen.beginPath()
-        pen.fillStyle =
-          pin.kind === 'iss' || pin.kind === 'sat'
-            ? '#f4f7fb'
-            : pin.kind === 'here'
-              ? '#1ed760'
-              : pin.kind === 'warn' || pin.kind === 'weather'
-                ? '#e8b84a'
-                : pin.kind === 'quake'
-                  ? '#f0a060'
-                  : pin.kind === 'fire'
-                    ? '#e07050'
-                    : pin.kind === 'flight'
-                      ? '#9ecbff'
-                      : pin.kind === 'ship'
-                        ? '#7ec8e3'
-                        : pin.kind === 'infra'
-                          ? '#d0c4a8'
-                          : pin.kind === 'conflict'
-                            ? '#e07860'
-                            : pin.kind === 'cyber'
-                              ? '#c4a0e8'
-                              : pin.kind === 'air'
-                                ? '#9ad4b8'
-                                : pin.kind === 'glow'
-                                  ? pin.hot
-                                    ? '#e8f8ee'
-                                    : '#9be0b5'
-                                  : '#7dd3a0'
-        pen.arc(
-          q.x,
-          q.y,
-          pin.kind === 'iss' || pin.kind === 'sat'
-            ? 3.8
-            : pin.kind === 'here'
-              ? 5
-              : pin.kind === 'fire' || pin.kind === 'quake'
-                ? 5.5
-                : pin.kind === 'glow' && pin.hot
-                  ? 5
-                  : 4,
-          0,
-          Math.PI * 2,
-        )
-        pen.fill()
-        if (pin.kind === 'here') {
-          pen.beginPath()
-          pen.fillStyle = '#04120a'
-          pen.arc(q.x, q.y, 2, 0, Math.PI * 2)
+          pen.fillStyle =
+            pin.kind === 'ship'
+              ? '#7ec8e3'
+              : pin.kind === 'infra'
+                ? '#d0c4a8'
+                : pin.kind === 'conflict'
+                  ? '#e07860'
+                  : pin.kind === 'cyber'
+                    ? '#c4a0e8'
+                    : pin.kind === 'air'
+                      ? '#9ad4b8'
+                      : pin.kind === 'glow'
+                        ? pin.hot
+                          ? '#e8f8ee'
+                          : '#9be0b5'
+                        : '#7dd3a0'
+          pen.arc(q.x, q.y, pin.kind === 'glow' && pin.hot ? 5 : 4, 0, Math.PI * 2)
           pen.fill()
         }
         pen.fillStyle = 'rgba(230, 240, 236, 0.82)'
-        if (!lite || pin.kind === 'here' || pin.kind === 'fire' || pin.kind === 'quake' || pin.kind === 'sat' || pin.kind === 'iss') {
+        const nameOk =
+          pin.kind === 'here' ||
+          pin.kind === 'fire' ||
+          pin.kind === 'quake' ||
+          pin.kind === 'sat' ||
+          pin.kind === 'iss' ||
+          (pin.kind === 'flight' && showFlightName) ||
+          (!lite && pin.kind !== 'flight')
+        if (nameOk) {
           pen.font = '10px Inter, system-ui, sans-serif'
           pen.textAlign = 'left'
-          pen.fillText(pin.name.slice(0, 22), q.x + 8, q.y + 3)
+          const labelX = pin.kind === 'here' ? q.x + 10 : q.x + 8
+          const labelY = pin.kind === 'here' ? q.y - 10 : q.y + 3
+          pen.fillText(pin.name.slice(0, 22), labelX, labelY)
         }
       }
     }
@@ -524,7 +510,9 @@ export function GlobeView({
       raf = 0
       if (isDocumentHidden()) return
       if (ts - last < MOTION_FRAME_MS) {
-        if (drag.current || pinch.current || fly.current || inertia.current.yaw || inertia.current.pitch) kick()
+        if (!reduced || drag.current || pinch.current || fly.current || inertia.current.yaw || inertia.current.pitch) {
+          kick()
+        }
         return
       }
       const dt = Math.min(0.05, (ts - last) / 1000 || 1 / 30)
@@ -534,7 +522,7 @@ export function GlobeView({
       if (!lite && frameTimes.length >= 8) {
         const sorted = [...frameTimes].sort((a, b) => a - b)
         const p95 = sorted[Math.floor(sorted.length * 0.95)] || 0
-        if (p95 > 16) {
+        if (p95 > 56) {
           lite = true
           sphereGradients = null
         }
@@ -569,7 +557,7 @@ export function GlobeView({
         if (frameTimes.length > 24) frameTimes.shift()
       }
       const spinning = Boolean(drag.current || pinch.current || fly.current || inertia.current.yaw || inertia.current.pitch)
-      if (spinning) kick()
+      if (!reduced || spinning) kick()
     }
     draw()
     kick()

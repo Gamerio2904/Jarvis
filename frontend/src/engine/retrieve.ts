@@ -284,7 +284,7 @@ export function retrieveFromCorpus(text: string, corpus: RetrieveCorpus): Retrie
     lists.push([...memHits, ...evHits, ...noteHits, ...remHits, ...shopHits, ...knowHits, ...msgHits])
   }
   const fused = expandHops(rrf(lists), memory).sort((a, b) => b.rank - a.rank).slice(0, 6)
-  return applyE5Rerank(fused)
+  return applyE5Rerank(fused, text)
 }
 
 export async function retrieve(text: string): Promise<RetrieveHit[]> {
@@ -303,11 +303,41 @@ export async function retrieve(text: string): Promise<RetrieveHit[]> {
   return hits
 }
 
+function tokenBag(text: string): Map<string, number> {
+  const bag = new Map<string, number>()
+  for (const w of (text || '').toLowerCase().split(/[^a-zäöüß0-9]+/i)) {
+    if (w.length < 2 || STOP.has(w)) continue
+    bag.set(w, (bag.get(w) || 0) + 1)
+  }
+  return bag
+}
+
+function tokenCosine(a: string, b: string): number {
+  const left = tokenBag(a)
+  const right = tokenBag(b)
+  if (!left.size || !right.size) return 0
+  let dot = 0
+  let na = 0
+  let nb = 0
+  for (const [k, v] of left) {
+    na += v * v
+    dot += v * (right.get(k) || 0)
+  }
+  for (const v of right.values()) nb += v * v
+  const den = Math.sqrt(na) * Math.sqrt(nb)
+  return den > 0 ? dot / den : 0
+}
+
 /** e5 only reranks retrieve hits. Missing model = RRF unchanged. Never pickRoute. HNSW/Qdrant Won’t. */
-export function applyE5Rerank(hits: RetrieveHit[]): RetrieveHit[] {
+export function applyE5Rerank(hits: RetrieveHit[], query = ''): RetrieveHit[] {
   const st = qualityPack('e5')
   if (!st.wanted || !st.ready) return hits
-  return hits
+  const q = (query || '').trim()
+  if (!q || hits.length < 2) return hits
+  return [...hits]
+    .map((h) => ({ h, c: tokenCosine(q, `${h.title} ${h.body}`) }))
+    .sort((a, b) => b.c - a.c || b.h.rank - a.h.rank)
+    .map((row) => row.h)
 }
 
 const STORE_ORDER = ['knowledge', 'events', 'memory', 'reminders', 'notes', 'shopping', 'messages']

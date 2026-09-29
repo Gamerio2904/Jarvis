@@ -1,0 +1,64 @@
+# TEST 18.14 — Lage-Kugel Icons
+
+Nach Execute von [`86-next.md`](./86-next.md). App-Code **`18.14.2`**.
+Sideload **`18.14.2`**, versionCode `181402`.
+
+Gerät, nicht die Cloud-VM (OpenSky dort oft SSL-tot).
+
+## 1. Version
+
+Einstellungen / Hilfe nennt **`18.14.2`**. Nicht `18.5.0`.
+
+## 2. Ohne Satz
+
+Lage auf: Erde, ISS darf, **keine** Flugzeug-Wolke. Kein OpenSky-Fetch
+im Log / in der Intel-Leiste.
+
+## 3. Flugzeuge
+
+`Zeig Flugzeuge` oder `Was fliegt da`.
+
+Erwartung: Kugel **zoomt auf den Ausschnitt** (nicht Europa-weit).
+Silhouetten **getrennt** um den Pin, nicht ein Haufen darauf.
+Nur Maschinen in der Luft, keine am Boden. Kurs stimmt grob.
+Text mit OpenSky + **Stand vor N s** (oder Minuten) + **Kein Live**.
+Intel sagt **Flugzeuge**, nicht „Punkte“. Pin-Karte nennt Rufzeichen,
+Höhe/Kurs nur wenn OpenSky sie liefert. Kein Ziel, keine Passagiere.
+Herkunft Standort oder ausdrücklich Deutschland-Mitte.
+
+Leerer Ausschnitt: „kein Flugzeug“, keine erfundenen Maschinen.
+
+429: Tageslimit im Satz, Kugel bleibt.
+
+## 4. Standort
+
+GPS an: grüne **Stecknadel**, nicht nur ein Punkt.
+
+Fix 15 min alt, Koordinaten noch da: Nadel gedämpft, „letzter Stand“.
+
+Kein Fix / 0/0: keine Nadel „Sie“.
+
+## 5. Satelliten
+
+`Zeig Satelliten`. Körper + Paneele. ISS größer / eigene Form.
+Kein Starlink-Teppich. Quelle CelesTrak und/oder Where The ISS At.
+Intel/Pin: Bahn gerechnet oder ISS-Position, kein „Live-Satellitenvideo“.
+
+Waldbrände / Unwetter / Beben: Satz aus EONET-Titel bzw. USGS Magnitude
+und Ort, nicht nur „N Punkte“.
+
+## 6. Schicht aus
+
+`Schicht aus` / `Flugzeuge aus`: Overhead weg, Poll stoppt.
+Standort-Nadel darf bleiben.
+
+## 7. Kein Diebstahl
+
+`Staffel 6 Folge 3` bleibt hud/Kamera. `Was fliegt da` bleibt
+`flights` + Schicht overhead, kein neuer Agent.
+`Zeig Erdbeben` bleibt hud-Schicht, eigene Marker, kein neuer Agent.
+
+## 8. Won’t auf dem Gerät
+
+Keine Cesium-Credits. Kein `globe.gl`. Keine 9 000 Flieger.
+Kein Wort „Live“ auf der Intel-Leiste.

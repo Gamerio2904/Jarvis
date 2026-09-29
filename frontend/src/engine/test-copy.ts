@@ -472,6 +472,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Bauer e2 e4", text: "Bauer e2 e4", expect: {"tool":"chess"} },
       { label: "Lidl in der Nähe", text: "Lidl", expect: {"tool":"poi"} },
       { label: "Lebensmittel", text: "Zutaten von Nutella", expect: {"tool":"food"} },
+      { label: "Kamera-Szene S6", text: "Staffel 6 Folge 3", expect: {"tool":"hud"} },
+      { label: "Kamera-Fähigkeiten", text: "Welche Kamera-Fähigkeiten habe ich?", expect: {"tool":"hud"} },
       { label: "Buch", text: "Wer schrieb Der Prozess?", expect: {"tool":"library"} },
       { label: "Waschsymbol", text: "Was bedeutet Waschschüssel 40?", expect: {"tool":"haushalt"} },
       { label: "Pflanze", text: "welche Pflanze ist das: Gänseblümchen", expect: {"tool":"nature"} },
@@ -712,6 +714,13 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Duplikat fixen", text: "Star Wars 3 ist doppelt auf der Liste fixe das", expect: {"tool":"watchlist"} },
     ],
   },
+  {
+    title: "18.15 Hirn härten",
+    items: [
+      { label: "Korrektur Timer", text: "Nein, das war der Timer", expect: {"tool":"timer"} },
+      { label: "Nachrichten holen", text: "Hol die Nachrichten", expect: {"tool":"news"} },
+    ],
+  },
 ]
 
 /*
@@ -921,6 +930,15 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: '13 – ↳ verschieben', text: 'Verschieb Jakob auf Sonntag 19 Uhr', expect: { tool: 'calendar' } },
       { label: '14 – Zu Lieblingsfilmen', text: 'Inglorious Basterds zu Lieblingsfilmen hinzufügen', expect: { tool: 'watchlist' } },
       { label: '15 – Duplikat fixen', text: 'Star Wars 3 ist doppelt auf der Liste fixe das', expect: { tool: 'watchlist' } },
+    ],
+  },
+  {
+    title: '18.15 Hirn härten',
+    items: [
+      { label: 'Korrektur Timer', text: 'Nein, das war der Timer', expect: { tool: 'timer' } },
+      { label: 'Nachrichten holen', text: 'Hol die Nachrichten', expect: { tool: 'news' } },
+      { label: 'Fernseher bleibt Gerät', text: 'Fernseher an', expect: { tool: 'tv' } },
+      { label: 'Wetter', text: 'Wetter heute', expect: { tool: 'weather' } },
     ],
   },
 ]

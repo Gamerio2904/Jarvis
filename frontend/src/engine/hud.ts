@@ -26,6 +26,7 @@ import { briefingFromCache, fetchLayer, fetchSpaceWeather, replyFor, type GlobeL
 import { clearTour } from './globe-tour.ts'
 import { resolveShowPlace } from './hud-show.ts'
 import { polishToolLine } from './polish.ts'
+import { handleRmScene } from './rm-scene.ts'
 
 export { HUD_CATALOG, parseHudIntent, organLabel }
 export type { HudId, HudIntent, HudView, BodyOrgan }
@@ -61,6 +62,10 @@ export async function handleHud(
   text: string,
   conversationId?: string,
 ): Promise<{ handled: boolean; reply?: string; tool?: ToolMeta; lastTool?: string }> {
+  if (conversationId) {
+    const scene = await handleRmScene(conversationId, text)
+    if (scene.handled) return scene
+  }
   const intent = parseHudIntent(text)
   if (!intent) return { handled: false }
   if (intent.kind === 'lage') {

@@ -5,6 +5,57 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.15.0` — Hirn härten — *CODE + APK*
+
+Retrieve-Rerank nur wenn e5-Datei da (nie Router). Propose mit mehr Verträgen,
+Parser bestätigt. Knowledge-Zitat auf News/Suche/Sport/Recht/Teach/Pack/Osint.
+AbortSignal bis Groq-SSE, 0,5B-Inferenz, Spotify, TV-Poll. Presence Native
+Bind `:18791` nur LAN. Satz-TTS nach Parser/erstem Stream-Satz, Edge zuerst.
+Lage-Pin nur Felder, kein Gazetteer auf Flugzeugen. Parser-Miss lokal,
+`Nein, das war der Timer` → Gold. Nachrichten: Tagesschau+DW parallel, ein Satz.
+Sideload **`18.15.0`** (versionCode `181500`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Test: [`TEST-18.15.md`](./TEST-18.15.md).
+
+### `18.14.2` — Lage-Kugel: Texte, Grafik, Idle-Loop — *CODE + APK*
+
+Intel und Pin-Karten sprechen in Sätzen aus der Quelle
+(OpenSky/EONET/USGS/CelesTrak), nicht „Punkte“. Kugel bleibt bei 30 fps
+sichtbar, Stecknadel pulst. Feuer/Beben/Unwetter eigene Marker.
+Nur Maschinen in der Luft, Zoom 12 um den Standort.
+Sideload **`18.14.2`** (versionCode `181402`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Test: [`TEST-18.14.md`](./TEST-18.14.md).
+
+### `18.14.1` — Lage-Kugel: Flugzeuge nicht am Pin — *CODE*
+
+OpenSky nur noch in der Luft. Schicht Flugzeuge/Luft zoomt auf den
+±2°-Ausschnitt (`OVERHEAD_FLY_ZOOM` 12), sonst kleben 40 Silhouetten
+am Standort. Rufzeichen erst bei Zoom ≥ 6. Intel ohne Versalien.
+Sideload bleibt **`18.14.0`** bis APK. Test: [`TEST-18.14.md`](./TEST-18.14.md).
+
+### `18.14.0` — Lage-Kugel: Flugzeuge, Stecknadel, Satelliten — *CODE + APK*
+
+OpenSky-Ausschnitt ±2°, Heading, 429-Text, Alter in Sekunden.
+Stecknadel (auch „letzter Stand“), Flugzeug-Silhouette, Sat/ISS-Körper.
+Poll ≥ 10 s solange die Schicht an und die Lage offen ist. Optional
+OpenSky-OAuth in den Settings. Nie „Live“. Kein weltweites ADS-B,
+kein Starlink, kein Cesium, kein neuer Agent.
+Sideload **`18.14.0`** (versionCode `181400`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Plan: [`86-next.md`](./86-next.md).
+Test: [`TEST-18.14.md`](./TEST-18.14.md).
+
+### `18.12.0` — Kamera-Fähigkeiten S6+ — *CODE + APK*
+
+Foto-Knopf speichert das Bild. `Staffel 6 Folge 3` (oder SxxEyy) schreibt
+nur sichtbare Fähigkeiten ins Serie-Dossier (`· Kamera`). Folge-Titel
+„laut Nutzer“, keine offene API ab S06, kein Wiki, kein 65. Agent
+(Route `hud`). S01–S05 ohne Szene-Wort bleibt unberührt.
+Sideload **`18.12.0`** (versionCode `181200`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+Test: [`TEST-18.12.md`](./TEST-18.12.md).
+
 ### `18.10.0` — TV-Wahrheit, Hören, Serie-Netz — *CODE + APK* (historisch 18.5)
 
 Schiene 301–306. „Fernseher an“ endet mit Poll auf `:8001/api/v2/`, nicht mit

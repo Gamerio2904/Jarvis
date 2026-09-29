@@ -5,10 +5,13 @@ import { fileURLToPath } from 'node:url'
 import { RM_NAMED_EDGES, RM_SKILLS } from '../src/engine/rm-dossier.ts'
 import {
   appearanceBand,
+  applySceneSkills,
   buildRmGraph,
   characterById,
   dossierFor,
   episodeByCode,
+  evidence,
+  evidenceLoose,
   layoutRmDots,
   parseEpisodeCode,
   searchCharacters,
@@ -134,5 +137,8 @@ assert.match(rick.image, /\/character\/avatar\/1\.jpeg$/)
 
 assert.match(snap.meta.source, /rickandmortyapi/)
 assert.equal(snap.meta.coverage, 'S01–S05')
+assert.equal(evidence('S06E01'), null)
+assert.equal(evidenceLoose('S06E01', 'Foto')?.title, 'laut Nutzer')
+applySceneSkills([])
 
 console.log('test-rm-graph ok — 826 Knoten, belegte Skills, Parser Serie')

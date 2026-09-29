@@ -27,6 +27,7 @@ export const WEB_PROXY_HOSTS = new Set([
   'openlibrary.org',
   'api.inaturalist.org',
   'opensky-network.org',
+  'auth.opensky-network.org',
   'earthquake.usgs.gov',
   'eonet.gsfc.nasa.gov',
   'api.gdeltproject.org',

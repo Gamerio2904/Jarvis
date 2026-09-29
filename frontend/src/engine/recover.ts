@@ -75,21 +75,23 @@ export function stepsFor(id: string, ctx: RouteCtx): RecoverStep[] {
   if (id === 'news') {
     return [
       {
-        id: 'news-bust',
-        label: 'Tagesschau neu',
+        id: 'news-both',
+        label: 'Tagesschau und DW',
         run: async () => {
-          const got = await fetchTagesschauHome(true)
-          if (!got.hits.length) return null
-          return { reply: `Die Lage laut Tagesschau: ${got.hits.join(' ')}`, source: 'Tagesschau' }
-        },
-      },
-      {
-        id: 'news-dw',
-        label: 'DW',
-        run: async () => {
-          const got = await fetchDwHome()
-          if (!got.hits.length) return null
-          return { reply: `Laut DW: ${got.hits.join(' ')}`, source: 'DW' }
+          const [ts, dw] = await Promise.all([fetchTagesschauHome(true), fetchDwHome()])
+          if (ts.hits.length && dw.hits.length) {
+            return {
+              reply: `Die Lage laut Tagesschau und DW: ${ts.hits[0]} ${dw.hits[0]}`,
+              source: 'Tagesschau · DW',
+            }
+          }
+          if (ts.hits.length) {
+            return { reply: `Die Lage laut Tagesschau: ${ts.hits.join(' ')}`, source: 'Tagesschau' }
+          }
+          if (dw.hits.length) {
+            return { reply: `Laut DW: ${dw.hits.join(' ')}`, source: 'DW' }
+          }
+          return null
         },
       },
     ]

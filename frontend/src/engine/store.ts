@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.10.0'
+export const APP_VERSION = '18.15.0'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
@@ -235,6 +235,10 @@ export type Settings = {
   /** Welches Groq-Modell gerade nicht geht, bis wann. Wie bei Gemini. */
   groq_skip_until: string
   groq_api_key: string
+  opensky_client_id: string
+  opensky_client_secret: string
+  opensky_access: string
+  opensky_expires_at: string
   last_lat: string
   last_lon: string
   last_place: string
@@ -409,6 +413,10 @@ export const DEFAULT_SETTINGS: Settings = {
   gemini_skip_until: '',
   groq_skip_until: '',
   groq_api_key: '',
+  opensky_client_id: '',
+  opensky_client_secret: '',
+  opensky_access: '',
+  opensky_expires_at: '',
   last_lat: '',
   last_lon: '',
   last_place: '',
@@ -696,7 +704,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 9)
+    const req = indexedDB.open('jarvis-ondevice', 10)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -716,6 +724,7 @@ function openDb(): Promise<IDBDatabase> {
         'price_watches',
         'docs',
         'knowledge_packs',
+        'rm_scene_skills',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'

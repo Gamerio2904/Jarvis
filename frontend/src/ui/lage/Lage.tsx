@@ -37,6 +37,7 @@ import {
   frontsForActiveLayer,
   globeIdleHint,
   intelLine,
+  layerFlyFocus,
   viewDossier,
 } from '../../engine/globe-layers.ts'
 import type { GlobeLayer } from '../../engine/globe-layer-ids.ts'
@@ -49,6 +50,7 @@ import { setLageSession } from '../../engine/lage-session.ts'
 import { advanceTour, selectTourStop, stopTour } from '../../engine/globe-tour.ts'
 import { decodeHtml } from '../../engine/html-text.ts'
 import { dossierFor, rmAvatar, rmCoverageLine, searchCharacters, searchHitLabel } from '../../engine/rm-graph.ts'
+import { onRmScene, refreshSceneSkillCache } from '../../engine/rm-scene-store.ts'
 import { SerieMapCanvas } from './SerieMapCanvas.tsx'
 import { SerieDossier } from './SerieDossier.tsx'
 
@@ -90,6 +92,7 @@ export function Lage({
   const [serieId, setSerieId] = useState<number | null>(null)
   const [serieQuery, setSerieQuery] = useState('')
   const [serieSkills, setSerieSkills] = useState(false)
+  const [serieTick, setSerieTick] = useState(0)
   const pinClosedAt = useRef(0)
   const [globeTick, setGlobeTick] = useState(0)
   /**
@@ -120,6 +123,30 @@ export function Lage({
   const withChat = s.body_with_chat !== false
   const tabThumb = useSlidingThumb(view)
   const moduleKey = modules.join(',')
+
+  useEffect(() => {
+    let live = true
+    void refreshSceneSkillCache().then(() => {
+      if (live) setSerieTick((n) => n + 1)
+    })
+    const off = onRmScene(() => {
+      void refreshSceneSkillCache().then(() => {
+        if (!live) return
+        try {
+          const raw = sessionStorage.getItem('jarvis_last_serie_id')
+          const id = raw ? Number(raw) : 0
+          if (id > 0) setSerieId(id)
+        } catch {
+          /* quota */
+        }
+        setSerieTick((n) => n + 1)
+      })
+    })
+    return () => {
+      live = false
+      off()
+    }
+  }, [])
 
   useEffect(() => {
     let live = true
@@ -161,7 +188,7 @@ export function Lage({
     }
     void tick()
     const intervalMs =
-      view === 'globe' ? 30_000 : view === 'tiles' ? 0 : spotifyOn ? 8_000 : 20_000
+      view === 'globe' ? (globeLayer === 'overhead' ? 10_000 : 30_000) : view === 'tiles' ? 0 : spotifyOn ? 8_000 : 20_000
     const id = intervalMs > 0 ? window.setInterval(() => void tick(), intervalMs) : 0
     const off = onVisibility(() => {
       if (!isDocumentHidden()) void tick()
@@ -225,6 +252,8 @@ export function Lage({
   }
 
   function globeFocus(): GlobeFocus | null {
+    const layer = layerFlyFocus(globeLayer)
+    if (layer) return layer
     try {
       const raw = s.last_globe_focus
       if (!raw) return null
@@ -272,14 +301,14 @@ export function Lage({
       const lat = Number(f.lat)
       const lon = Number(f.lon)
       const at = Number(f.at) || 0
-      if (!name || /^iss$/i.test(name) || !Number.isFinite(lat) || at <= pinClosedAt.current) return
+      if (!name || /^iss$/i.test(name) || /^layer:/i.test(name) || !Number.isFinite(lat) || at <= pinClosedAt.current) return
       if (Date.now() - at > 12_000) return
       setPinCard({
         name,
         lat,
         lon,
         kind: 'outlook',
-        line: pinLineFor(name, s.last_globe_brief),
+        line: pinLineFor(name, s.last_globe_brief, undefined, 'outlook'),
       })
     } catch {
       /* ignore */
@@ -526,7 +555,7 @@ export function Lage({
                 </button>
               </div>
               <p className="lage-body">
-                {decodeHtml(pinLineFor(pinCard.name, pinCard.line || '', s.last_globe_brief))}
+                {decodeHtml(pinLineFor(pinCard.name, pinCard.line || '', s.last_globe_brief, pinCard.kind))}
               </p>
               <p className="pin-bubble-swipe">Keine Bilder — nur Lage-Text.</p>
               <div className="pin-bubble-actions">
@@ -614,6 +643,7 @@ export function Lage({
           {showChatTile ? <ChatTile {...{ onSend, draft, setDraft, busy, recent, streaming }} /> : null}
           {serieId && dossierFor(serieId) ? (
             <SerieDossier
+              key={`${serieId}-${serieTick}`}
               card={dossierFor(serieId)!}
               onClose={() => setSerieId(null)}
               onNeighbor={setSerieId}

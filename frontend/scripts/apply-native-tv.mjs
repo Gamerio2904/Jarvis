@@ -64,6 +64,11 @@ mkdirSync(deviceDest, { recursive: true })
 copyFileSync(join(deviceSrc, 'JarvisDevicePlugin.java'), join(deviceDest, 'JarvisDevicePlugin.java'))
 copyFileSync(join(deviceSrc, 'JarvisMail.java'), join(deviceDest, 'JarvisMail.java'))
 
+const presenceSrc = join(root, 'native', 'presence')
+const presenceDest = join(android, 'app/src/main/java/app/jarvis/presence')
+mkdirSync(presenceDest, { recursive: true })
+copyFileSync(join(presenceSrc, 'JarvisPresencePlugin.java'), join(presenceDest, 'JarvisPresencePlugin.java'))
+
 const voiceSrc = join(root, 'native', 'voice')
 const voiceDest = join(android, 'app/src/main/java/app/jarvis/voice')
 mkdirSync(voiceDest, { recursive: true })

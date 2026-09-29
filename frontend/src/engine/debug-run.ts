@@ -4,6 +4,7 @@ import { geminiReady } from './gemini.ts'
 import type { TestCopyGroup, TestCopyItem, TestExpect } from './test-copy.ts'
 import { judgeTurn, type DebugVerdict } from './debug-judge.ts'
 import { formatLatency, lastLatency, latencyP95, type LatencyTurn } from './latency.ts'
+import { listParseMisses } from './parse-miss.ts'
 
 export { judgeTurn }
 export type { DebugVerdict }
@@ -38,6 +39,7 @@ export type DebugReport = {
     p95_first_token: number | null
     p95_first_audio: number | null
   }
+  parse_misses?: ReturnType<typeof listParseMisses>
 }
 
 export function buildReport(opts: {
@@ -64,6 +66,7 @@ export function buildReport(opts: {
       p95_first_token: latencyP95('msFirstToken'),
       p95_first_audio: latencyP95('msFirstAudio'),
     },
+    parse_misses: listParseMisses(),
   }
 }
 
@@ -80,6 +83,12 @@ export function reportToText(rep: DebugReport): string {
     rep.latency
       ? `P95 gesamt ${rep.latency.p95_total ?? '—'} ms · Hirn ${rep.latency.p95_first_token ?? '—'} ms · Stimme ${rep.latency.p95_first_audio ?? '—'} ms`
       : '',
+    rep.parse_misses?.length
+      ? `Parser-Misses (lokal): ${rep.parse_misses
+          .slice(-8)
+          .map((m) => `${m.utterance}${m.expected ? ` → ${m.expected}` : ''}`)
+          .join(' · ')}`
+      : 'Parser-Misses: keine.',
     '',
   ]
   for (const t of rep.turns) {

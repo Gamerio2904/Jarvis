@@ -32,6 +32,9 @@ export function parseTimerIntent(text: string, now = new Date()): TimerIntent | 
   if (/^(?:timer\s+(?:aus|stopp|stop|abbrechen)|stopp(?:e)?\s+(?:den\s+)?timer|timer\s+löschen)$/i.test(t)) {
     return { kind: 'stop' }
   }
+  if (/^\s*(?:nein|nee+),?\s+das\s+war\s+(?:der\s+|die\s+|das\s+)?timer\s*[.!]?\s*$/i.test(t)) {
+    return { kind: 'list' }
+  }
   if (
     /^(?:zeig(?:e)?\s+(?:mir\s+)?(?:den\s+|die\s+)?)?timer(?:s)?\s*\??$/i.test(t) ||
     /^\s*wann\s+l[aä]uft\s+(?:der\s+)?timer(?:\s+ab)?\s*\??$/i.test(t) ||

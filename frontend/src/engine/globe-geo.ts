@@ -21,7 +21,16 @@ export type GeoPinKind =
   | 'event'
   | 'cyber'
 
-export type GeoFix = { name: string; lat: number; lon: number; kind: GeoPinKind; line?: string; hot?: boolean }
+export type GeoFix = {
+  name: string
+  lat: number
+  lon: number
+  kind: GeoPinKind
+  line?: string
+  hot?: boolean
+  heading?: number
+  stale?: boolean
+}
 
 export type PlaceFix = { re: RegExp; name: string; lat: number; lon: number; blurb: string }
 
@@ -236,16 +245,27 @@ export function pickTappedPin(
   return best
 }
 
-export function pinLineFor(name: string, brief: string, fallback?: string): string {
-  if (briefFitsPlace(name, brief)) return brief.trim()
-  const hit = gazetteerHit(name)
-  if (hit?.blurb) return cityLine(hit)
-  const source = (brief || fallback || '').trim()
-  if (/EONET|USGS|OpenSky|CelesTrak|GDELT|ISS|Where The ISS|Tabelle|Feodo|NOAA/i.test(source)) {
+const FIELD_SRC =
+  /Kein Live|laut |CelesTrak|OpenSky|USGS|EONET|Tabelle|Open-Meteo|Feodo|GDELT|Where The ISS|NOAA/i
+
+const GAZETTEER_KIND = new Set<GeoPinKind | undefined>(['outlook', 'glow', 'here', 'news', undefined])
+
+export function pinLineFor(name: string, brief: string, fallback?: string, kind?: GeoPinKind): string {
+  const source = (brief || '').trim()
+  if (source && FIELD_SRC.test(source)) {
+    if (source.length > 24) return source
     return source.includes(name) ? `${source}. Kein Live-Bild.` : `${name}. ${source}. Kein Live-Bild.`
   }
-  if (/^sicht$/i.test(name) && source) return `${source}`
+  if (briefFitsPlace(name, brief)) return brief.trim()
+  if (GAZETTEER_KIND.has(kind)) {
+    const hit = gazetteerHit(name)
+    if (hit?.blurb) return cityLine(hit)
+  }
+  if (/^sicht$/i.test(name) && source) return source
   const fb = (fallback || '').trim()
+  if (fb && FIELD_SRC.test(fb)) {
+    return fb.includes(name) ? `${fb}. Kein Live-Bild.` : `${name}. ${fb}. Kein Live-Bild.`
+  }
   if (fb && briefFitsPlace(name, fb)) return fb
   return 'Keine Kurzlage zu diesem Ort.'
 }
@@ -309,6 +329,14 @@ export function lookLatLon(yaw: number, pitch: number): { lat: number; lon: numb
 
 export function yawPitchFor(lat: number, lon: number): { yaw: number; pitch: number } {
   return { yaw: (lon * Math.PI) / 180, pitch: (lat * Math.PI) / 180 }
+}
+
+/** Pixelabstand für `deg` am Blickzentrum. R = minSide * 0.4 * zoom (wie GlobeView). */
+export function spherePixelSpread(deg: number, zoom: number, minSide = 360): number {
+  const z = Number.isFinite(zoom) && zoom > 0 ? zoom : 1
+  const side = Number.isFinite(minSide) && minSide > 0 ? minSide : 360
+  const r = side * 0.4 * z
+  return Math.abs(deg) * (Math.PI / 180) * r
 }
 
 /** +Y Nord, +Z Greenwich, +X 90° Ost. */

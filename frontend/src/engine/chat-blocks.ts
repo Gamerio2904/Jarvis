@@ -58,4 +58,4 @@ export function skipMicroMerge(reply: string, blocks?: ChatBlock[] | null): bool
 
 /** Write/Gerät: Canned-Satz bleibt. Micro-Merge hat hier schon Watchliste-Erfolge erfunden. */
 export const SKIP_MICRO_MERGE_TOOLS =
-  /^(?:watchlist|calendar|reminder|tools|memory|shopping|unknown|tv|device|pc|alarm|timer|home|idea|app|fan|plug|birthday)$/
+  /^(?:watchlist|calendar|reminder|tools|memory|shopping|unknown|tv|device|pc|alarm|timer|home|idea|app|fan|plug|birthday|hud)$/

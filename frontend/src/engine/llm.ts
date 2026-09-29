@@ -2,6 +2,7 @@ import type { Wllama } from '@wllama/wllama/esm/index.js'
 import { DEFAULT_MODEL, isGeminiConfigured, loadSettings } from './store.ts'
 import { hasCachedModel, isNativeApp, loadPersistedModel, persistModel, requestPersistentStorage, downloadNativeModel } from './model-cache.ts'
 import { formatQwenChat, QWEN_STOP, toChatRole } from './prompt.ts'
+import { currentTurnSignal, isTurnAborted } from './turn-abort.ts'
 
 export type DownloadProgress = {
   loaded: number
@@ -290,7 +291,11 @@ async function completeStreaming(
   onToken?: (piece: string, full: string) => void,
 ): Promise<string> {
   if (!instance) throw new Error('Modell nicht geladen. Erst Download starten.')
+  if (isTurnAborted()) throw new DOMException('Neuer Zug', 'AbortError')
   const ac = new AbortController()
+  const turn = currentTurnSignal()
+  const onAbort = () => ac.abort()
+  turn?.addEventListener('abort', onAbort, { once: true })
   let acc = ''
   let gotToken = false
   const firstTimer = setTimeout(() => {
@@ -302,6 +307,10 @@ async function completeStreaming(
       prompt,
       stream: true,
       onData: (chunk: { choices?: Array<{ text?: string }> }) => {
+        if (isTurnAborted()) {
+          ac.abort()
+          return
+        }
         const piece = chunk.choices?.[0]?.text || ''
         if (!piece) return
         gotToken = true
@@ -316,6 +325,7 @@ async function completeStreaming(
       abortSignal: ac.signal,
     } as never)
   } catch (err) {
+    if (isTurnAborted()) throw new DOMException('Neuer Zug', 'AbortError')
     if (cleanPiece(acc).trim()) return cleanPiece(acc).trim()
     if (ac.signal.aborted) {
       throw new Error(
@@ -326,6 +336,7 @@ async function completeStreaming(
     }
     throw err
   } finally {
+    turn?.removeEventListener('abort', onAbort)
     clearTimeout(firstTimer)
     clearTimeout(totalTimer)
   }

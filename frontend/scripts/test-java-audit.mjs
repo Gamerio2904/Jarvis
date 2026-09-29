@@ -77,9 +77,16 @@ assert.match(applyNative, /READ_CONTACTS/)
 assert.match(applyNative, /JarvisInboxService/)
 assert.match(applyNative, /JarvisMail\.java/)
 assert.match(applyNative, /mailto/)
+assert.match(applyNative, /JarvisPresencePlugin\.java/)
 
 const mainActivity = read('tv/MainActivity.java')
 assert.match(mainActivity, /SOFT_INPUT_ADJUST_NOTHING/, 'WebView schrumpft nicht mit der IME')
+assert.match(mainActivity, /JarvisPresencePlugin/, 'Presence-Plugin registriert')
+
+const presence = read('presence/JarvisPresencePlugin.java')
+assert.match(presence, /ServerSocket/, 'Native Bind')
+assert.match(presence, /192/, 'LAN 192.168')
+assert.doesNotMatch(presence, /0\.0\.0\.0/, 'kein Wildcard-Bind')
 
 const tv = read('tv/JarvisTvPlugin.java')
 assert.match(tv, /public void test\(/, 'Fernseher testen ruft eine echte Methode')

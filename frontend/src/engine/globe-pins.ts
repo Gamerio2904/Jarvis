@@ -1,5 +1,5 @@
 import { getJson, getText } from './http-json.ts'
-import { isFreshHereFix, parseCoord } from './location-keep.ts'
+import { herePinState, parseCoord } from './location-keep.ts'
 import { loadSettings } from './store.ts'
 import { pinForTag, pinForText, pinLineFor, type GeoFix } from './globe-geo.ts'
 import type { OutlookSnap } from './outlook.ts'
@@ -34,19 +34,28 @@ export async function loadGlobePins(): Promise<GeoFix[]> {
       if (focus.name && lat != null && lon != null && !(lat === 0 && lon === 0)) {
         const name = String(focus.name)
         if (!/^iss$/i.test(name)) {
-          add({ name, lat, lon, kind: 'outlook', line: pinLineFor(name, s.last_globe_brief) })
+          add({ name, lat, lon, kind: 'outlook', line: pinLineFor(name, s.last_globe_brief, undefined, 'outlook') })
         }
       }
     }
   } catch {
     /* ignore */
   }
-  const here = isFreshHereFix(s.last_lat, s.last_lon, s.last_fix_at)
-  if (here) add({ name: 'Sie', lat: here.lat, lon: here.lon, kind: 'here', line: s.last_place || 'GPS' })
+  const here = herePinState(s.last_lat, s.last_lon, s.last_fix_at)
+  if (here) {
+    add({
+      name: here.stale ? 'letzter Stand' : 'Sie',
+      lat: here.lat,
+      lon: here.lon,
+      kind: 'here',
+      line: here.stale ? 'letzter Stand' : s.last_place || 'GPS',
+      stale: here.stale,
+    })
+  }
   const iss = await loadIss()
   if (iss) add({ name: 'ISS', lat: iss.lat, lon: iss.lon, kind: 'iss', line: 'Where The ISS At' })
   for (const p of pinsForActiveLayer()) add(p)
-  if (s.last_warn_line && here) {
+  if (s.last_warn_line && here && !here.stale) {
     add({
       name: 'Unwetter',
       lat: here.lat,

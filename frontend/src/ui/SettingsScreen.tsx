@@ -59,6 +59,7 @@ import {
 import { qualityPack } from '../engine/quality-pack.ts'
 import { ProbeShelf } from './ProbeShelf.tsx'
 import { listImapMails, notifyInboxStatus, openInboxSettings, scanPhoneContacts } from '../native/inbox.ts'
+import { presenceBindOk, subscribePresenceBind } from '../native/presence.ts'
 import { mailHostFor } from '../engine/comm-parse.ts'
 import { applyScannedContacts, scanReply } from '../engine/places.ts'
 
@@ -311,6 +312,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [presenceBusy, setPresenceBusy] = useState(false)
   const [presenceMsg, setPresenceMsg] = useState<string | null>(null)
   const [presenceMsgOk, setPresenceMsgOk] = useState<boolean | null>(null)
+  const [presenceBound, setPresenceBound] = useState(presenceBindOk())
   const [fanBusy, setFanBusy] = useState(false)
   const [fanMsg, setFanMsg] = useState<string | null>(null)
   const [fanMsgOk, setFanMsgOk] = useState<boolean | null>(null)
@@ -369,6 +371,11 @@ export function SettingsScreen(p: SettingsScreenProps) {
   useEffect(() => {
     setPcToken(s?.pc_token || '')
   }, [s?.pc_token])
+
+  useEffect(() => {
+    setPresenceBound(presenceBindOk())
+    return subscribePresenceBind(() => setPresenceBound(presenceBindOk()))
+  }, [s?.presence_enabled, s?.presence_port])
 
   useEffect(() => {
     const openIfFlagged = () => {
@@ -688,6 +695,9 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     Groq <KeyMark on={Boolean(s?.groq_api_key?.trim())} />
                   </li>
                   <li>
+                    OpenSky <KeyMark on={Boolean(s?.opensky_client_id?.trim() && s?.opensky_client_secret?.trim())} />
+                  </li>
+                  <li>
                     Tankerkönig <KeyMark on={Boolean(s?.tankerkoenig_api_key?.trim())} />
                   </li>
                   <li>
@@ -762,6 +772,35 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   </button>
                 </div>
                 {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
+              </section>
+              <section className="settings-card" id="sf-opensky">
+                <h3>
+                  OpenSky <KeyMark on={Boolean(s?.opensky_client_id?.trim() && s?.opensky_client_secret?.trim())} />
+                </h3>
+                <p className="settings-hint">
+                  Optional. Ohne Key bleibt die Flugzeug-Schicht anonym (400 Credits/Tag). Client unter
+                  opensky-network.org — OAuth2, kein Basic-Login. Leer = anonym.
+                </p>
+                <label className="settings-field">
+                  <span>Client-ID</span>
+                  <SecretField
+                    key={`os-id-${s?.opensky_client_id ? 'set' : 'empty'}`}
+                    defaultValue={s?.opensky_client_id || ''}
+                    disabled={busy}
+                    placeholder="…-api-client"
+                    onBlur={(e) => void p.patchSetting({ opensky_client_id: e.target.value.trim() })}
+                  />
+                </label>
+                <label className="settings-field">
+                  <span>Client-Secret</span>
+                  <SecretField
+                    key={`os-sec-${s?.opensky_client_secret ? 'set' : 'empty'}`}
+                    defaultValue={s?.opensky_client_secret || ''}
+                    disabled={busy}
+                    placeholder="Secret, nicht teilen"
+                    onBlur={(e) => void p.patchSetting({ opensky_client_secret: e.target.value.trim() })}
+                  />
+                </label>
               </section>
               <section className="settings-card">
                 <h3>
@@ -1664,7 +1703,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Presence — Fenster koppeln</h3>
               <p className="settings-lead">
-                Schalter Default aus. Token ist nicht der PC-Token. Port 18791, nur LAN. Ohne Native-Bind
+                Schalter Default aus. Token ist nicht der PC-Token. Port 18791, nur LAN. Ohne Bind
                 bleibt der Server aus — kein Fake-Chat.
               </p>
               <label className="settings-toggle">
@@ -1676,7 +1715,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   onChange={(e) => void p.patchSetting({ presence_enabled: e.target.checked })}
                 />
               </label>
-              <p className="settings-hint">{bindStatusLine(Boolean(s?.presence_enabled))}</p>
+              <p className="settings-hint">{bindStatusLine(Boolean(s?.presence_enabled), presenceBound)}</p>
               <label className="settings-field">
                 <span>Fenster: Hirn-IP</span>
                 <input

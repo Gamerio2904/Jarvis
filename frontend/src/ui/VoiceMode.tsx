@@ -5,6 +5,7 @@ import { dispatchVoiceAmp, prefersReducedMotion } from '../engine/motion.ts'
 import {
   beginVoiceSession,
   createSpeakPipeline,
+  createSentenceTap,
   endVoiceSession,
   isNativeVoice,
   listenOnce,
@@ -223,10 +224,19 @@ export function VoiceMode({
     pipelineRef.current = pipe
     let started = false
     let answer = ''
+    const tap = createSentenceTap(true)
     const beginSpeaking = () => {
       started = true
       setPhase('speaking')
       setChatSpeaking(true)
+    }
+    const speakParts = (parts: string[]) => {
+      for (const p of parts) {
+        const chunk = p.replace(/\s+/g, ' ').trim()
+        if (!chunk) continue
+        if (!started) beginSpeaking()
+        pipe.push(chunk)
+      }
     }
     try {
       answer = await Promise.race([
@@ -235,6 +245,7 @@ export function VoiceMode({
           (_piece, full) => {
             if (!live.current || turnGen.current !== gen) return
             setReply(full)
+            speakParts(tap.feed(full))
           },
           { preempt },
         ),
@@ -266,8 +277,9 @@ export function VoiceMode({
     }
     const spoken = (answer || '').replace(/\s+/g, ' ').trim()
     setReply(spoken)
-    if (spoken) {
-      if (!started) beginSpeaking()
+    speakParts(tap.flush())
+    if (spoken && !started) {
+      beginSpeaking()
       pipe.push(spoken)
     }
     await pipe.flush()
@@ -313,7 +325,7 @@ export function VoiceMode({
             <h2>Jarvis hören</h2>
             <p>
               {neural
-                ? 'Unterbrechen per Antippen. Die ganze Antwort wird in einem Stück vorgelesen.'
+                ? 'Unterbrechen per Antippen. Der erste Satz kommt, sobald er steht — Edge zuerst.'
                 : 'Unterbrechen per Antippen. Stimme auf System = Geräte-TTS, sonst Edge Neural.'}
             </p>
           </div>

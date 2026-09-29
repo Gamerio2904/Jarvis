@@ -77,6 +77,7 @@ import { displayFolder } from './engine/folders.ts'
 import { FOLDER_IDS } from './engine/folder-parse.ts'
 import { setHeardNames } from './engine/heard.ts'
 import { pickAlarmTone } from './native/notify.ts'
+import { setPresenceChatHandler, syncPresenceBind } from './native/presence.ts'
 import { consumeVoiceLaunch, onWakeHit, pinVoiceShortcut, requestBatteryUnrestricted, startWakeWord, stopWakeWord, wakeWordRunning, wakeWordWanted } from './native/voice.ts'
 import { bindChromeFx, prefersReducedMotion } from './fx.ts'
 import { bindKeyboardInset } from './engine/keyboard-inset.ts'
@@ -475,6 +476,27 @@ function App() {
   useEffect(() => {
     warmCloud()
   }, [])
+
+  useEffect(() => {
+    setPresenceChatHandler(async (conversationId, text) => {
+      let reply = ''
+      let tool: unknown
+      await streamChat(conversationId, text, {
+        onDone: (payload) => {
+          reply = payload.assistant_message.content
+          tool = payload.tool || null
+        },
+      })
+      return { reply, tool }
+    })
+    return () => setPresenceChatHandler(undefined)
+  }, [])
+
+  useEffect(() => {
+    const s = settings || loadSettings()
+    const enabled = Boolean(s.presence_enabled) && s.presence_role !== 'window'
+    void syncPresenceBind({ enabled, port: s.presence_port || 18791 })
+  }, [settings?.presence_enabled, settings?.presence_port, settings?.presence_role])
 
   useEffect(() => {
     const s = settings || loadSettings()

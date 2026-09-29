@@ -16,9 +16,12 @@ import { confirmedUtterance, contractOf, looksCommandish } from './tool-contract
 import { proposeReady, proposeTool } from './tool-propose.ts'
 import { APP_FLAG_TOOL, parseAppIntent } from './app.ts'
 import { handleCalendar } from './calendar.ts'
+import { handleRmScene } from './rm-scene.ts'
 import { lastFailedTool, noteFail } from './working-memory.ts'
 import { needsRecover, runRecover, writeHasNoRecover } from './recover.ts'
 import { unknownReplyForCtx } from './command-neighbors.ts'
+import { currentTurnSignal } from './turn-abort.ts'
+import { expectedAgentFromCorrection, noteParseCorrection, noteParseMiss } from './parse-miss.ts'
 import type { AgentResult, RouteHit } from './agents/types.ts'
 import type { RouteCtx } from './route-types.ts'
 
@@ -40,6 +43,7 @@ export function makeDirectorCtx(conversationId: string, text: string): RouteCtx 
     plugNames: loadPlugs().map((p) => p.name),
     lastPlace: s.last_place || '',
     last_failed_tool: lastFailedTool(),
+    signal: currentTurnSignal(),
   }
 }
 
@@ -223,6 +227,15 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
         return { hit, userFacts: hit.reply }
       }
     }
+  } else if (pending?.tool === 'hud' && pending.action === 'rm_scene') {
+    const answered = await handleRmScene(conversationId, text)
+    if (answered.handled && answered.reply) {
+      const hit = await fromHandler('hud', answered)
+      if (hit) {
+        setLastUserFacts(hit.reply)
+        return { hit, userFacts: hit.reply }
+      }
+    }
   } else if (pending) {
     const pendingHit = await handleTools(conversationId, text)
     if (pendingHit.handled && pendingHit.reply) {
@@ -247,6 +260,7 @@ export async function runDirectorTurn(conversationId: string, text: string): Pro
   if (pick.kind === 'none') {
     const rescued = await rescueByProposal(conversationId, ctx)
     if (rescued) return rescued
+    noteParseMiss(ctx.text)
     if (looksCommandish(ctx.text)) {
       const reply = unknownReplyForCtx(ctx)
       setLastUserFacts(reply)
@@ -277,6 +291,7 @@ async function runPicked(
 ): Promise<DirectorTurn> {
   saveSettings({ last_agent_id: id })
   markUsedAgent(id)
+  if (expectedAgentFromCorrection(text)) noteParseCorrection(text, id)
   const result = await runAgent(id, ctx)
   /** Abgebrochen heißt: der Nutzer wollte etwas anderes. Kein Fehlertext. */
   if (result.aborted) return { hit: null }
