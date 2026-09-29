@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.15.0`**. Sideload **`18.15.0`**, versionCode `181500`. Hirn härten [`87-next.md`](./87-next.md) 361–368 **CODE + APK**. Test [`TEST-18.15.md`](./TEST-18.15.md).
+> **Jetzt:** App-Code **`18.15.1`**. Sideload **`18.15.0`**, versionCode `181500` bis neue APK. Hirn-Abbruch-Fix nach [`87-next.md`](./87-next.md) 361–368. Test [`TEST-18.15.md`](./TEST-18.15.md).
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -751,6 +751,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.14.1` | Flugzeuge nicht am Pin: Luftfilter + Lokal-Zoom | Hotfix CODE |
 | `18.14.2` | Lage-Texte, Idle-Loop, weichere Kugel | Hotfix CODE + APK |
 | `18.15.0` | Hirn härten: Retrieve, Propose, Knowledge, Abort, Presence, Satz-TTS, Lage-Felder, Gold | 361–368 **CODE + APK** |
+| `18.15.1` | Barge-in: Abbruch nicht ins Hirn, kein Fehlertext; Native-HTTP hörbar | Hotfix CODE |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.

@@ -29,6 +29,8 @@ export type DirectorTurn = {
   hit: RouteHit | null
   userFacts?: string
   policyAsk?: PolicyPick | null
+  /** Barge-in: kein LLM-Nachlauf, keine Fehlermeldung. */
+  aborted?: boolean
 }
 
 export function makeDirectorCtx(conversationId: string, text: string): RouteCtx {
@@ -293,8 +295,8 @@ async function runPicked(
   markUsedAgent(id)
   if (expectedAgentFromCorrection(text)) noteParseCorrection(text, id)
   const result = await runAgent(id, ctx)
-  /** Abgebrochen heißt: der Nutzer wollte etwas anderes. Kein Fehlertext. */
-  if (result.aborted) return { hit: null }
+  /** Abgebrochen heißt: der Nutzer wollte etwas anderes. Kein Fehlertext, kein Hirn. */
+  if (result.aborted) return { hit: null, aborted: true }
   if (needsRecover(id, result)) {
     const recovered = await runRecover(id, ctx)
     if (recovered?.reply) {

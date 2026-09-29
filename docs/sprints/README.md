@@ -351,7 +351,7 @@ Sprints sind **numerisch = Lieferreihenfolge**. Jeder Sprint hat genau eine Ziel
 | 367 | [`sprint-367.md`](./sprint-367.md) | `18.15.0` | Lage Pin-Satz nur aus Feldern | **CODE + APK** Must |
 | 368 | [`sprint-368.md`](./sprint-368.md) | `18.15.0` | Parser-Korrektur → Gold, Härten | **CODE + APK** Must |
 
-**Aktuell:** App-Code **`18.15.0`**. Sideload-APK **`18.15.0`**, versionCode `181500`. 361–368 **CODE + APK**. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
+**Aktuell:** App-Code **`18.15.1`**. Sideload-APK **`18.15.0`**, versionCode `181500`. 361–368 **CODE + APK**. 342–346 / 348–355 liegen auf anderen Drafts, hier nicht mergen. 282 Freeze (Schema).
 
 **⚠︎ Anker veraltet (178, 183, 184, 185, 186):** Diese fünf sind sachlich offen, aber ihre Ziel-Versionen nennen `8.0` bis `9.10.0` — der Code steht bei `17.0.0`. Es sind Geräte- und PO-Sprints („was der Parser nicht belegen kann") plus zwei Bedingte (183 nur wenn der FGS stirbt, 186 nur wenn 168/178 rot). Vor dem Ziehen müssen sie **neu verankert** werden: Sideload-Version, Vorbedingungen und Screenshot-Stand aus `17.x` statt `9.x`. Sonst prüft der PO eine App, die es nicht mehr gibt.
 

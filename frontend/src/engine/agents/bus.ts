@@ -1,6 +1,7 @@
 import { agentById } from './catalog.ts'
 import { breakerAllows, breakerFailure, breakerSuccess } from './breaker.ts'
 import { AgentAborted, AgentTimeout, withBudget } from './budget.ts'
+import { waitTurn } from '../turn-abort.ts'
 import { currentAgentTurn, pushAgentTrace } from './trace-store.ts'
 import { withTurnSignal } from '../turn-abort.ts'
 import type { RouteCtx, SideEffect } from '../route-types.ts'
@@ -103,7 +104,11 @@ export async function agentDispatch(id: string, ctx: RouteCtx): Promise<AgentRes
       lastReason = err instanceof AgentTimeout ? 'timeout' : messageOf(err)
       lastTrace = trace(false, messageOf(err), attempt)
       if (attempt >= attempts || !mayRetry(agent.sideEffect, err)) break
-      await new Promise((r) => setTimeout(r, RETRY_DELAY_MS))
+      try {
+        await waitTurn(RETRY_DELAY_MS)
+      } catch {
+        return { handled: false, aborted: true, internal: [lastTrace] }
+      }
     }
   }
 

@@ -1350,6 +1350,7 @@ function App() {
           if (showUi()) setError(detail)
         },
       })
+      if (showUi() && !lastReply && !lastError) setStreamingText(null)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Senden fehlgeschlagen'
       lastError = msg

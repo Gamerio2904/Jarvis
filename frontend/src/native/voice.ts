@@ -347,6 +347,7 @@ export async function streamSseLines(
         timeoutMs,
         auth: bearer ? 'bearer' : 'google',
       })
+      if (isTurnAborted()) return { ok: false, message: 'Abgebrochen.' }
       return { ok: Boolean(res.ok), message: res.message }
     } finally {
       handle.remove()
@@ -394,6 +395,7 @@ export async function streamSseLines(
     }
     return { ok: true }
   } catch (err) {
+    if (isTurnAborted()) return { ok: false, message: 'Abgebrochen.' }
     return { ok: false, message: err instanceof Error ? err.message : 'Stream fehlgeschlagen' }
   }
 }
