@@ -1,6 +1,6 @@
 # Sprint 380 — Dauer, ganztägig, Konflikt
 
-**Version:** `18.17.0` — **CODE** Should
+**Version:** `18.17.0` — **CODE + APK** Should
 **Plan:** [`89-next.md`](../89-next.md)
 **Voraussetzung:** 377.
 

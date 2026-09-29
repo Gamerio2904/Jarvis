@@ -1,6 +1,6 @@
 # Sprint 377 — Hausstand nimmt Termine ernst
 
-**Version:** `18.17.0` — **CODE** Must
+**Version:** `18.17.0` — **CODE + APK** Must
 **Plan:** [`89-next.md`](../89-next.md)
 **Voraussetzung:** main `18.16.0`. `events` sind schon im JSON.
 

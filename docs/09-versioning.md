@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.17.0`**. Sideload **`18.16.0`**, versionCode `181600` bis APK. Schiene [`89-next.md`](./89-next.md) 377–381 **CODE** `18.17.0`. Personen-Knäuel [`88-next.md`](./88-next.md) 369–376 **CODE + APK**.
+> **Jetzt:** App-Code **`18.17.0`**. Sideload **`18.17.0`**, versionCode `181700`. Schiene [`89-next.md`](./89-next.md) 377–381 **CODE + APK** `18.17.0`. Personen-Knäuel [`88-next.md`](./88-next.md) 369–376 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -752,7 +752,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.14.2` | Lage-Texte, Idle-Loop, weichere Kugel | Hotfix CODE + APK |
 | `18.15.0` | Hirn härten: Retrieve, Propose, Knowledge, Abort, Presence, Satz-TTS, Lage-Felder, Gold | 361–368 **CODE + APK** |
 | `18.16.0` | Personen-Knäuel, Begrüßung, Episode, Sleep, Korrektur-Replay | 369–376 **CODE + APK** |
-| `18.17.0` | Kalender Alltag: Hausstand-Termine, ICS, Serie, Konflikt | 377–381 **CODE** |
+| `18.17.0` | Kalender Alltag: Hausstand-Termine, ICS, Serie, Konflikt | 377–381 **CODE + APK** |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -824,17 +824,19 @@ Over `18.15.0` installieren. Sprints 369–376.
 | `18.16.0` | Sleep Prefs/Ort | 375 CODE + APK |
 | `18.16.0` | Last-Step + Korrektur-Replay | 376 CODE + APK |
 
-### `18.17` — Kalender Alltag [`89-next.md`](./89-next.md) **CODE**
+### `18.17` — Kalender Alltag [`89-next.md`](./89-next.md) **CODE + APK**
 
-App-Code **`18.17.0`**. Sideload bleibt **`18.16.0`** bis APK. Sprints 377–381.
+**`18.17.0`** (App-Code + Sideload, versionCode `181700`): Kalender Alltag
+377–381. Hausstand-Termine, ICS, Serie, Konflikt. Over `18.16.0` installieren.
+Sprints 377–381.
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.17.0` | Hausstand Termine + Fristen + ICS im JSON | 377 CODE |
-| `18.17.0` | ICS Datei Chat/Folie/Settings | 378 CODE |
-| `18.17.0` | Serie weekly/monthly | 379 CODE |
-| `18.17.0` | Dauer, ganztägig, Konflikt | 380 CODE |
-| `18.17.0` | Tests Kalender-Alltag | 381 CODE |
+| `18.17.0` | Hausstand Termine + Fristen + ICS im JSON | 377 CODE + APK |
+| `18.17.0` | ICS Datei Chat/Folie/Settings | 378 CODE + APK |
+| `18.17.0` | Serie weekly/monthly | 379 CODE + APK |
+| `18.17.0` | Dauer, ganztägig, Konflikt | 380 CODE + APK |
+| `18.17.0` | Tests Kalender-Alltag | 381 CODE + APK |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

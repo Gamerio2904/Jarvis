@@ -1,7 +1,7 @@
 # TEST 18.17 — Kalender Alltag
 
 Nach Execute von [`89-next.md`](./89-next.md). App-Code **`18.17.0`**.
-Sideload bleibt **`18.16.0`** bis APK.
+Sideload **`18.17.0`**, versionCode `181700`. Over `18.16.0` installieren.
 
 Gerät, nicht nur die Cloud-VM. Jede Box ist ein Satz — **einmal tippen, kopieren, in den Chat**.
 

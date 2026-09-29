@@ -1,4 +1,4 @@
-# 89 — Kalender Alltag **CODE** (`18.17.0`)
+# 89 — Kalender Alltag **CODE + APK** (`18.17.0`)
 
 PO: Kalender muss den Alltag überleben — Sideload, Deinstall, Handywechsel —
 und sich wie ein richtiger Kalender anfühlen. Recherche: Mozilla
@@ -7,8 +7,8 @@ und sich wie ein richtiger Kalender anfühlen. Recherche: Mozilla
 [DayOtter](https://github.com/Dayotter/dayotter) (Confirm-first, alle
 Kalender). **Kein** Google-OAuth, kein CalDAV, kein Buchungslink.
 
-Grundlage: Sideload **`18.16.0`**. **Dieses Dokument ist nach Execute CODE.**
-Sprints **377–381**. App-Code **`18.17.0`**. Sideload bleibt **`18.16.0`** bis APK.
+Grundlage: Sideload **`18.17.0`**, versionCode `181700`. **Dieses Dokument ist nach Execute CODE + APK.**
+Sprints **377–381**. App-Code **`18.17.0`**.
 
 Andere Drafts bleiben getrennt: Koch `#149`, Kamera-Wahl `#151`, Clips `#152`,
 Experte `#153`, Docs-Stand `#156`, Abbruch-Hotfix `#158`, PLAN `#159`.
@@ -57,5 +57,5 @@ Harte Kette: **377 → 378**. 379 nach 378. 380 parallel zu 379. 381 zuletzt.
 | 380 | Dauer, ganztägig, Konflikt | Should |
 | 381 | Tests bestehend + neu | Must |
 
-Landet in App-Code **`18.17.0`**. Sideload **`18.16.0`** bis APK.
+Landet in App-Code **`18.17.0`**. Sideload **`18.17.0`**, versionCode `181700`.
 Test: [`TEST-18.17.md`](./TEST-18.17.md).

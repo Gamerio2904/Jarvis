@@ -1,6 +1,6 @@
 # Sprint 378 — ICS (RFC 5545 Teilmenge)
 
-**Version:** `18.17.0` — **CODE** Must
+**Version:** `18.17.0` — **CODE + APK** Must
 **Plan:** [`89-next.md`](../89-next.md)
 **Voraussetzung:** 377.
 

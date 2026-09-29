@@ -1,6 +1,6 @@
 # Sprint 381 — Kalender-Alltag testen
 
-**Version:** `18.17.0` — **CODE** Must
+**Version:** `18.17.0` — **CODE + APK** Must
 **Plan:** [`89-next.md`](../89-next.md)
 **Voraussetzung:** 377–380.
 
@@ -18,7 +18,7 @@ Bestehende Kalender-Wege bleiben grün. Neue Wege haben ein Tor.
 
 ## Won’t
 
-APK in diesem Sprint (Sideload bleibt 18.16.0 bis der PO sie will).
+Google-Kalender, CalDAV, 64. Agent, npm `ical.js`.
 
 ## PO-Prüfung
 
