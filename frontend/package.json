@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "18.17.0",
+  "version": "18.18.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -72,6 +72,7 @@
     "test:18.15": "node --experimental-strip-types scripts/test-18.15.mjs",
     "test:18.16": "node --experimental-strip-types scripts/test-18.16.mjs",
     "test:18.17": "node --experimental-strip-types scripts/test-18.17.mjs",
+    "test:18.18": "node --experimental-strip-types scripts/test-18.18.mjs",
     "gui:lage-body-globe": "node --experimental-strip-types scripts/gui-lage-body-globe.mjs",
     "gui:watchlist-osint-18": "node --experimental-strip-types scripts/gui-watchlist-osint-18.mjs",
     "gui:18-7-dock": "node --experimental-strip-types scripts/gui-18-7-dock.mjs",

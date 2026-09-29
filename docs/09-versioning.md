@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.17.0`**. Sideload **`18.17.0`**, versionCode `181700`. Schiene [`89-next.md`](./89-next.md) 377–381 **CODE + APK** `18.17.0`. Personen-Knäuel [`88-next.md`](./88-next.md) 369–376 **CODE + APK**.
+> **Jetzt:** App-Code **`18.18.0`**. Sideload **`18.17.0`**, versionCode `181700` bis APK. Schiene [`90-next.md`](./90-next.md) 382–384 **CODE** `18.18.0`. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -753,6 +753,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.15.0` | Hirn härten: Retrieve, Propose, Knowledge, Abort, Presence, Satz-TTS, Lage-Felder, Gold | 361–368 **CODE + APK** |
 | `18.16.0` | Personen-Knäuel, Begrüßung, Episode, Sleep, Korrektur-Replay | 369–376 **CODE + APK** |
 | `18.17.0` | Kalender Alltag: Hausstand-Termine, ICS, Serie, Konflikt | 377–381 **CODE + APK** |
+| `18.18.0` | Homescreen: App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel | 382–384 **CODE** |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -837,6 +838,18 @@ Sprints 377–381.
 | `18.17.0` | Serie weekly/monthly | 379 CODE + APK |
 | `18.17.0` | Dauer, ganztägig, Konflikt | 380 CODE + APK |
 | `18.17.0` | Tests Kalender-Alltag | 381 CODE + APK |
+
+### `18.18` — Homescreen [`90-next.md`](./90-next.md) **CODE**
+
+**`18.18.0`** (App-Code, Sideload bleibt `18.17.0`): Zweiter Homescreen.
+App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel. Over `18.17.0` nach APK.
+Sprints 382–384.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.18.0` | Homescreen-Raster + Dock Start | 382 CODE |
+| `18.18.0` | Werte-Leiste, Mini-Chat, Sprach-Kugel | 383 CODE |
+| `18.18.0` | Tests Homescreen | 384 CODE |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

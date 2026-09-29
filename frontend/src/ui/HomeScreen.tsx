@@ -1,0 +1,141 @@
+import { HOME_APPS, type HomeAppId } from '../engine/home-apps.ts'
+import { clockLabel, weekdayLabel } from '../engine/glance-snap.ts'
+import { useEffect, useState } from 'react'
+
+function AppGlyph({ id }: { id: HomeAppId }) {
+  if (id === 'chat') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+          d="M5 6.2h14v9.2H9.2L5 19.2V6.2Z"
+        />
+      </svg>
+    )
+  }
+  if (id === 'voice') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <rect x="9" y="3.5" width="6" height="10" rx="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          d="M6.8 11.5a5.2 5.2 0 0 0 10.4 0M12 16.7V20.5"
+        />
+      </svg>
+    )
+  }
+  if (id === 'calendar') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <rect x="3.5" y="5" width="17" height="15.5" rx="2.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" d="M8 3.5v4M16 3.5v4M3.5 10h17" />
+      </svg>
+    )
+  }
+  if (id === 'globe' || id === 'lage') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          d="M3.8 12h16.4M12 3.8c2.4 2.6 3.6 5.4 3.6 8.2S14.4 17.6 12 20.2C9.6 17.6 8.4 14.8 8.4 12S9.6 6.4 12 3.8Z"
+        />
+      </svg>
+    )
+  }
+  if (id === 'overlay') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <rect x="4" y="5.5" width="16" height="13" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" d="M8 12h8M12 8.5v7" />
+      </svg>
+    )
+  }
+  if (id === 'hirn') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+          d="M12 4.5c2.2 0 4 1.4 4.6 3.4A4.2 4.2 0 0 1 20 12c0 2.4-1.6 3.8-3.4 4.2v3.3h-9.2v-3.3C5.6 15.8 4 14.4 4 12a4.2 4.2 0 0 1 3.4-4.1C8 5.9 9.8 4.5 12 4.5Z"
+        />
+        <path fill="none" stroke="currentColor" strokeWidth="1.8" d="M12 4.5v15" />
+      </svg>
+    )
+  }
+  if (id === 'watchlist') {
+    return (
+      <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+        <rect x="3.5" y="5.2" width="17" height="13.6" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          d="M7 5.2v13.6M17 5.2v13.6M3.5 9.2h3.5M3.5 14.8h3.5M17 9.2h3.5M17 14.8h3.5"
+        />
+      </svg>
+    )
+  }
+  return (
+    <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden>
+      <circle cx="12" cy="12" r="3.1" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+        d="M12 3.4 13.4 6l2.8-.4 1.4 2.5 2.4 1.5L18.6 12l1.4 2.4-2.4 1.5-1.4 2.5-2.8-.4L12 20.6 10.6 18l-2.8.4-1.4-2.5-2.4-1.5L5.4 12 4 9.6l2.4-1.5L7.8 5.6l2.8.4L12 3.4Z"
+      />
+    </svg>
+  )
+}
+
+export function HomeScreen({
+  face,
+  onOpen,
+}: {
+  face: 'jarvis' | 'friday'
+  onOpen: (id: HomeAppId) => void
+}) {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), 15_000)
+    return () => window.clearInterval(id)
+  }, [])
+  return (
+    <section className="home-screen" aria-label="Homescreen">
+      <header className="home-clock">
+        <p className="home-clock-time">{clockLabel(now)}</p>
+        <p className="home-clock-day">{weekdayLabel(now)}</p>
+        <p className="home-clock-face">{face === 'friday' ? 'Friday' : 'Jarvis'}</p>
+      </header>
+      <div className="home-grid">
+        {HOME_APPS.map((app) => (
+          <button
+            key={app.id}
+            type="button"
+            className="home-app"
+            data-home-app={app.id}
+            onClick={() => onOpen(app.id)}
+          >
+            <span className="home-app-ico" style={{ ['--app-tint' as string]: app.tint }}>
+              <AppGlyph id={app.id} />
+            </span>
+            <span className="home-app-label">{app.label}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}

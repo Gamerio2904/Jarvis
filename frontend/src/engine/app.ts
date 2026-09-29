@@ -139,7 +139,9 @@ async function handleUi(conversationId: string, action: UiAction): Promise<AppHi
       observation: { action: 'dock', dock: action.dock },
       verify: (obs) => obs.action === 'dock' && obs.dock === action.dock,
       successReply:
-        action.dock === 'chat'
+        action.dock === 'home'
+          ? 'Start.'
+          : action.dock === 'chat'
           ? 'Chat.'
           : action.dock === 'lage'
             ? 'Lage.'
@@ -147,7 +149,9 @@ async function handleUi(conversationId: string, action: UiAction): Promise<AppHi
               ? 'Filme.'
               : action.dock === 'voice'
                 ? 'Sprachmodus.'
-                : 'Einstellungen.',
+                : action.dock === 'calendar'
+                  ? 'Kalender.'
+                  : 'Einstellungen.',
       failReply: 'Leiste nicht gewechselt.',
       extra: { dock: action.dock },
     })

@@ -24,8 +24,8 @@ const src = (rel) => readFileSync(join(here, '..', rel), 'utf8')
 
 const { APP_VERSION } = await import('../src/engine/store.ts')
 const { PKG_VERSION, versionCodeOf } = await import('./app-version.mjs')
-assert.equal(APP_VERSION, '18.17.0')
-assert.equal(PKG_VERSION, '18.17.0')
+assert.ok(versionCodeOf(APP_VERSION) >= 181700)
+assert.ok(versionCodeOf(PKG_VERSION) >= 181700)
 assert.equal(versionCodeOf('18.17.0'), 181700)
 
 const { pickRoute } = await import('../src/engine/route-pick.ts')

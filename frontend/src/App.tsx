@@ -49,6 +49,11 @@ import { decodeHtml } from './engine/html-text.ts'
 import './index.css'
 import { playUiSound, unlockUiAudio } from './sounds.ts'
 import { CalendarView } from './ui/Calendar.tsx'
+import { HomeScreen } from './ui/HomeScreen.tsx'
+import { GlanceRail } from './ui/GlanceRail.tsx'
+import { MiniChat } from './ui/MiniChat.tsx'
+import { VoiceSphere } from './ui/VoiceSphere.tsx'
+import { type HomeAppId } from './engine/home-apps.ts'
 import { WatchlistOverlay } from './ui/WatchlistOverlay.tsx'
 import { TimerChip } from './ui/TimerChip.tsx'
 import { PcDashboard } from './ui/PcDashboard.tsx'
@@ -88,6 +93,7 @@ import { resolveUiTheme } from './fx/theme-transition.ts'
 import { DebugChatDock } from './ui/DebugChatDock.tsx'
 import {
   IconCal,
+  IconChat,
   IconFilm,
   IconGearMini,
   IconGlobe,
@@ -288,6 +294,10 @@ function App() {
   const [reminders, setReminders] = useState<Reminder[]>([])
   const [remindBusy, setRemindBusy] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
+  const [homeOpen, setHomeOpen] = useState(true)
+  const [railOpen, setRailOpen] = useState(false)
+  const [miniChatOpen, setMiniChatOpen] = useState(false)
+  const [voiceCompact, setVoiceCompact] = useState(false)
   const [watchlistOpen, setWatchlistOpen] = useState(false)
   const [watchlistFocus, setWatchlistFocus] = useState<'watch' | 'favorite'>('watch')
   const overlayHistRef = useRef(false)
@@ -385,6 +395,7 @@ function App() {
   function closeVoice(clearSeed = false, fromPop = false) {
     const wasOpen = voiceOpenRef.current
     setVoiceOpen(false)
+    setVoiceCompact(false)
     if (clearSeed) setVoiceSeed('')
     closeSheet('voice')
     wakeGateRef.current = closeWake(wakeGateRef.current)
@@ -392,18 +403,29 @@ function App() {
     if (wasOpen) void tickEpisodeMemory()
   }
 
-  function openVoiceMode(seed = '') {
+  function openVoiceMode(seed = '', compact = false) {
     const next = acceptWake(wakeGateRef.current, seed, Date.now())
     if (!next) return
     wakeGateRef.current = next
     voiceHoldUntilRef.current = Date.now() + 2500
     if (seed) setVoiceSeed(seed)
+    setVoiceCompact(compact)
     setSettingsPanelOpen(false)
     setCalendarOpen(false)
     setWatchlistOpen(false)
     micDeniedRef.current = false
     setVoiceOpen(true)
-    openSheet('voice')
+    if (!compact) openSheet('voice')
+  }
+
+  function openDrive() {
+    setDriveOpen(true)
+    setCalendarOpen(false)
+    setWatchlistOpen(false)
+    setSidebarOpen(false)
+    setChessOpen(false)
+    closeVoice()
+    patchOverlay({ type: 'drop', id: 'calendar' }, { type: 'drop', id: 'watchlist' }, { type: 'ensure', id: 'drive' })
   }
 
   function applyAppTool(tool?: ToolMeta | null) {
@@ -452,6 +474,7 @@ function App() {
     if (!tool || tool.tool !== 'hud') return
     const s = loadSettings()
     if (s.hud_force && !s.hud_hidden) {
+      setHomeOpen(false)
       setLageSession(true)
       setCalendarOpen(false)
       setWatchlistOpen(false)
@@ -1110,6 +1133,7 @@ function App() {
   async function openConversation(id: string) {
     setError(null)
     setLastFailed(null)
+    setHomeOpen(false)
     setActiveId(id)
     setSidebarOpen(false)
     setThreadKey((k) => k + 1)
@@ -1125,6 +1149,7 @@ function App() {
     const created = await createConversation()
     activeIdRef.current = created.id
     setConversations((prev) => [created, ...prev])
+    setHomeOpen(false)
     setActiveId(created.id)
     setMessages([])
     setEnterIds({})
@@ -1601,9 +1626,9 @@ function App() {
   const watchlistLayer = useOverlay(watchlistOpen)
   const voiceLayer = useOverlay(voiceOpen)
   const liveHud = settings || loadSettings()
-  const lageOn = lageWide
+  const lageOn = !homeOpen && (lageWide
     ? !liveHud.hud_hidden
-    : Boolean(liveHud.hud_force) && lageSessionActive()
+    : Boolean(liveHud.hud_force) && lageSessionActive())
   const lageChat = lageOn && liveHud.hud_view === 'body' && liveHud.body_with_chat !== false
   const lageAmber = liveHud.hud_accent === 'amber'
   const dockId = settingsPanelOpen
@@ -1612,13 +1637,16 @@ function App() {
       ? 'watchlist'
       : calendarOpen
         ? 'calendar'
-        : voiceOpen
+        : voiceOpen && !voiceCompact
           ? 'voice'
-          : lageOn
-            ? 'lage'
-            : 'chat'
+          : homeOpen
+            ? 'home'
+            : lageOn
+              ? 'lage'
+              : 'chat'
   const dockItems = [
-    { id: 'chat', label: 'Chat', icon: <IconHome /> },
+    { id: 'home', label: 'Start', icon: <IconHome /> },
+    { id: 'chat', label: 'Chat', icon: <IconChat /> },
     { id: 'lage', label: 'Lage', icon: <IconGlobe /> },
     { id: 'voice', label: 'Hören', icon: <IconMic /> },
     { id: 'calendar', label: 'Kalender', icon: <IconCal /> },
@@ -1636,7 +1664,27 @@ function App() {
   }
   function goDock(id: string) {
     setSidebarOpen(false)
+    if (id === 'home') {
+      setHomeOpen(true)
+      setMiniChatOpen(false)
+      setSettingsPanelOpen(false)
+      setCalendarOpen(false)
+      setWatchlistOpen(false)
+      closeSheet('settings')
+      closeSheet('calendar')
+      closeSheet('watchlist')
+      closeVoice()
+      dropOverlayHistory()
+      setLageSession(false)
+      setDriveOpen(false)
+      setChessOpen(false)
+      closeSheet('drive')
+      void patchSettings({ hud_force: false, hud_hidden: true }).then((s) => setSettings(s))
+      return
+    }
     if (id === 'chat') {
+      setHomeOpen(false)
+      setMiniChatOpen(false)
       setSettingsPanelOpen(false)
       setCalendarOpen(false)
       setWatchlistOpen(false)
@@ -1650,6 +1698,7 @@ function App() {
       return
     }
     if (id === 'lage') {
+      setHomeOpen(false)
       setSettingsPanelOpen(false)
       setCalendarOpen(false)
       setWatchlistOpen(false)
@@ -1687,8 +1736,54 @@ function App() {
     openSettings('keys')
   }
 
+  function launchHomeApp(id: HomeAppId) {
+    if (id === 'chat') {
+      goDock('chat')
+      return
+    }
+    if (id === 'voice') {
+      openVoiceMode()
+      return
+    }
+    if (id === 'calendar') {
+      goDock('calendar')
+      return
+    }
+    if (id === 'globe') {
+      setHomeOpen(false)
+      setSettingsPanelOpen(false)
+      setCalendarOpen(false)
+      setWatchlistOpen(false)
+      closeSheet('settings')
+      closeSheet('calendar')
+      closeSheet('watchlist')
+      closeVoice()
+      dropOverlayHistory()
+      setLageSession(true)
+      void patchSettings({ hud_force: true, hud_hidden: false, hud_view: 'globe' }).then((s) => setSettings(s))
+      return
+    }
+    if (id === 'lage') {
+      goDock('lage')
+      return
+    }
+    if (id === 'overlay') {
+      openDrive()
+      return
+    }
+    if (id === 'hirn') {
+      openSettings('hirn')
+      return
+    }
+    if (id === 'watchlist') {
+      openWatchlistSheet()
+      return
+    }
+    openSettings('keys')
+  }
+
   return (
-    <div className={`app${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}`} ref={appRef}>
+    <div className={`app${homeOpen ? ' is-home' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${lageAmber ? ' hud-amber' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}${debugRunning ? ' is-debug-run' : ''}${driveOpen || chessOpen ? '' : ' has-nav-dock'}`} ref={appRef}>
       <div className="ambient" aria-hidden>
         <i className="orb orb-a" />
         <i className="orb orb-b" />
@@ -1842,10 +1937,11 @@ function App() {
         </div>
       </aside>
 
-      <main className={`main${driveOpen || chessOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
+      <main className={`main${homeOpen ? ' is-home' : ''}${driveOpen || chessOpen ? ' is-drive' : ''}${lageOn ? ' is-lage' : ''}${lageChat ? ' is-lage-chat' : ''}${overlayHidesDrive(overlay) && driveOpen ? ' is-sheet-on-drive' : ''}`}>
         {voiceLayer.shown ? (
           <VoiceMode
             leaving={voiceLayer.leaving}
+            compact={voiceCompact}
             onClose={() => closeVoice(true)}
             onTurn={(text, onTok, opts) => sendVoiceTurn(text, onTok, opts)}
             onTruncate={(spoken) => {
@@ -1868,6 +1964,12 @@ function App() {
               })()
             }}
             initialUtterance={voiceSeed}
+          />
+        ) : null}
+        {homeOpen && !driveOpen && !chessOpen ? (
+          <HomeScreen
+            face={liveHud.face === 'friday' ? 'friday' : 'jarvis'}
+            onOpen={launchHomeApp}
           />
         ) : null}
         {calendarLayer.shown ? (
@@ -1909,6 +2011,8 @@ function App() {
             onCommand={(text) => sendVoiceTurn(text)}
           />
         ) : null}
+        {homeOpen ? null : (
+        <>
         <div className="topbar">
           <button
             className="menu-btn"
@@ -2145,6 +2249,8 @@ function App() {
           ) : null}
         </div>
         ) : null}
+        </>
+        )}
       </main>
 
       {settingsLayer.shown ? (
@@ -2261,6 +2367,38 @@ function App() {
         activeConversationId={activeId}
         onOpen={() => openSettings('debug')}
       />
+      {!driveOpen && !chessOpen ? (
+        <>
+          <GlanceRail open={railOpen} onToggle={() => setRailOpen((v) => !v)} />
+          {homeOpen ? (
+            <MiniChat
+              open={miniChatOpen}
+              onToggle={() => setMiniChatOpen((v) => !v)}
+              onExpand={() => {
+                setMiniChatOpen(false)
+                goDock('chat')
+              }}
+              messages={messages}
+              streaming={streamingText}
+              busy={busy}
+              draft={draft}
+              setDraft={setDraft}
+              onSend={() => void onSend()}
+              face={liveHud.face === 'friday' ? 'friday' : 'jarvis'}
+            />
+          ) : null}
+          {homeOpen && !voiceOpen ? (
+            <div className="voice-shortcut">
+              <VoiceSphere
+                phase="idle"
+                size={72}
+                label="Sprache"
+                onClick={() => openVoiceMode('', true)}
+              />
+            </div>
+          ) : null}
+        </>
+      ) : null}
       {!driveOpen && !chessOpen ? (
         <NavIsland
           className="nav-dock"

@@ -83,6 +83,15 @@ export function parseAppIntent(text: string): AppIntent | null {
   ) {
     return { kind: 'ui', action: { id: 'dock.go', dock: 'chat' } }
   }
+  if (
+    /^\s*(?:zeig(?:e)?|öffne[n]?)\s+(?:den\s+|das\s+)?(?:home(?:screen)?|start(?:bildschirm)?|launcher)\s*[.!?]*$/i.test(
+      t,
+    ) ||
+    /^\s*(?:zur[uü]ck\s+zum\s+start|zum\s+start(?:bildschirm)?)\s*[.!?]*$/i.test(t) ||
+    /^\s*startbildschirm\s*[.!?]*$/i.test(t)
+  ) {
+    return { kind: 'ui', action: { id: 'dock.go', dock: 'home' } }
+  }
   if (/^\s*(?:zeig(?:e)?|öffne[n]?)\s+(?:die\s+)?lage\s*[.!?]*$/i.test(t)) {
     return { kind: 'ui', action: { id: 'dock.go', dock: 'lage' } }
   }

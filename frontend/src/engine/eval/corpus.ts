@@ -305,6 +305,7 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Öffne Watchliste': 'watchlist',
   'Öffne Lieblinge': 'watchlist',
   'Zeig Chat': 'app',
+  'Zeig Homescreen': 'app',
   'Zeig Lage': 'app',
   'Öffne Einstellungen Musik': 'app',
   'Einstellungen zu': 'app',

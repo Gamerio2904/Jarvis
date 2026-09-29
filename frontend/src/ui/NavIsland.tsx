@@ -45,6 +45,20 @@ export function NavIsland(p: Props) {
   )
 }
 
+export function IconChat() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
+      <path
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+        d="M5 6.2h14v9.2H9.2L5 19.2V6.2Z"
+      />
+    </svg>
+  )
+}
+
 export function IconHome() {
   return (
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>

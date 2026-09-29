@@ -343,4 +343,5 @@ export const TEST_PROMPTS = [
   'Hol die Nachrichten',
   'jeden Montag 18 Uhr Training',
   'Kalender als ICS',
+  'Zeig Homescreen',
 ] as const

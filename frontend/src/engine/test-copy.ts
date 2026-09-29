@@ -681,6 +681,7 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Lieblinge auf", text: "Öffne Lieblinge", expect: {"tool":"watchlist"} },
       { label: "Watchlist-Overlay", text: "Öffne das watchlist overlay", expect: {"tool":"watchlist"} },
       { label: "Zeig Chat", text: "Zeig Chat", expect: {"tool":"app"} },
+      { label: "Zeig Homescreen", text: "Zeig Homescreen", expect: {"tool":"app"} },
       { label: "Zeig Lage", text: "Zeig Lage", expect: {"tool":"app"} },
       { label: "Einstellungen Musik", text: "Öffne Einstellungen Musik", expect: {"tool":"app"} },
       { label: "Einstellungen zu", text: "Einstellungen zu", expect: {"tool":"app"} },

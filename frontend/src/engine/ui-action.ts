@@ -14,7 +14,7 @@ export type UiActionId = (typeof UI_ACTION_IDS)[number]
 export const UI_OVERLAY_IDS = ['settings', 'voice', 'calendar', 'debug', 'watchlist'] as const
 export type UiOverlayId = (typeof UI_OVERLAY_IDS)[number]
 
-export const UI_DOCK_IDS = ['chat', 'lage', 'voice', 'calendar', 'watchlist', 'settings'] as const
+export const UI_DOCK_IDS = ['home', 'chat', 'lage', 'voice', 'calendar', 'watchlist', 'settings'] as const
 export type UiDockId = (typeof UI_DOCK_IDS)[number]
 
 export type JarvisFlag =

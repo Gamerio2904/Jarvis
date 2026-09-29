@@ -45,7 +45,8 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   "app": {
     "promptSlice": "Domäne app: Parser-Fakten only.",
     "goldPrompts": [
-      "Zeig Chat"
+      "Zeig Chat",
+      "Zeig Homescreen"
     ]
   },
   "film": {

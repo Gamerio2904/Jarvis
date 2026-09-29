@@ -31,6 +31,10 @@ const { unassignedCopyTitles, groupsForLane, searchProbeGroups, displayGroupTitl
 
 assert.deepEqual([...UI_ACTION_IDS], ['overlay.open', 'overlay.close', 'settings.tab', 'settings.set', 'dock.go'])
 assert.ok(UI_DOCK_IDS.includes('watchlist'))
+assert.ok(UI_DOCK_IDS.includes('home'))
+assert.equal(parseAppIntent('Zeig Homescreen')?.action?.dock, 'home')
+assert.equal(parseAppIntent('Startbildschirm')?.action?.dock, 'home')
+assert.equal(parseAppIntent('Zurück zum Start')?.action?.dock, 'home')
 assert.ok(UI_OVERLAY_IDS.includes('watchlist'))
 assert.equal(UI_OVERLAY_IDS.includes('drive'), false)
 assert.equal(flagFromTitle('Research'), 'research_opt_in')

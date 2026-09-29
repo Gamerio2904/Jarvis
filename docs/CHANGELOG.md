@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.18.0` — Homescreen — *CODE*
+
+Zweiter Homescreen: App-Icons statt Chat beim Öffnen. Rechte Werte-Leiste
+(Termine, Timer, Wetter-Satz, Einkauf, Key). Mini-Chat und Sprach-Kugel
+als Shortcuts. CSS-3D, kein WebGL. Sprints 382–384. [`90-next.md`](./90-next.md).
+Test: [`TEST-18.18.md`](./TEST-18.18.md). Sideload bleibt **`18.17.0`** bis APK.
+
 ### `18.17.0` — Kalender Alltag — *CODE + APK*
 
 Termine waren schon im Hausstand-JSON; Import stellt Fristen wieder,

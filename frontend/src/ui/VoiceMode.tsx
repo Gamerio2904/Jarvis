@@ -17,6 +17,7 @@ import {
 } from '../native/voice.ts'
 import { abortCurrentTurn } from '../engine/turn-abort.ts'
 import { ReplyOrb } from './ReplyOrb.tsx'
+import { VoiceSphere } from './VoiceSphere.tsx'
 
 type Phase = 'idle' | 'listening' | 'thinking' | 'speaking'
 
@@ -27,6 +28,7 @@ export function VoiceMode({
   onMicDenied,
   initialUtterance = '',
   leaving = false,
+  compact = false,
 }: {
   onClose: () => void
   onTurn: (
@@ -38,6 +40,7 @@ export function VoiceMode({
   onMicDenied?: () => void
   initialUtterance?: string
   leaving?: boolean
+  compact?: boolean
 }) {
   const [phase, setPhase] = useState<Phase>('idle')
   const [heard, setHeard] = useState('')
@@ -313,6 +316,31 @@ export function VoiceMode({
           ? 'Jarvis spricht — zum Unterbrechen antippen.'
           : 'Bereit.'
 
+  const sphere = (
+    <VoiceSphere
+      phase={phase === 'thinking' ? 'thinking' : phase}
+      level={level}
+      size={compact ? 88 : 148}
+      reduced={reduced}
+      label={label}
+      onClick={() => void onOrb()}
+    />
+  )
+
+  if (compact) {
+    return (
+      <div className={`voice-compact${leaving ? ' is-leaving' : ''}`} role="dialog" aria-label="Sprachmodus">
+        {phase === 'thinking' ? <ReplyOrb state="composing" size={64} /> : sphere}
+        <p className="voice-compact-status">{label}</p>
+        {heard ? <p className="voice-compact-line">{heard}</p> : null}
+        {err ? <p className="voice-compact-err">{err}</p> : null}
+        <button type="button" className="ghost-btn voice-compact-close" onClick={onClose}>
+          Zu
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div
       className={`voice-mode${leaving ? ' is-leaving' : ''}`}
@@ -333,24 +361,13 @@ export function VoiceMode({
             Beenden
           </button>
         </header>
-        <button
-          type="button"
-          className={`voice-orb ${phase}${phase === 'thinking' ? ' is-reply-orb' : ''}`}
-          style={{ transform: reduced || phase === 'thinking' ? undefined : `scale(${(1 + level * 0.55).toFixed(3)})` }}
-          onClick={() => void onOrb()}
-          aria-label={label}
-        >
-          {phase === 'thinking' ? (
+        {phase === 'thinking' ? (
+          <button type="button" className="voice-orb thinking is-reply-orb" onClick={() => void onOrb()} aria-label={label}>
             <ReplyOrb state="composing" size={64} />
-          ) : (
-            <>
-              <i className="orb-ring r1" />
-              <i className="orb-ring r2" />
-              <i className="orb-ring r3" />
-              <span />
-            </>
-          )}
-        </button>
+          </button>
+        ) : (
+          sphere
+        )}
         <p className="voice-status">{label}</p>
         {heard ? <p className="voice-line you">{heard}</p> : null}
         {reply && phase !== 'listening' ? <p className="voice-line jarvis">{reply}</p> : null}
