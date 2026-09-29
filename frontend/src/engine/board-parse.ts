@@ -14,27 +14,41 @@ export type BoardIntent =
   | { kind: 'theme' }
   | { kind: 'stop' }
 
-const ON =
-  /^\s*(?:tischplatte|werkbank|projekttafel)\s+an\s*[.!]?\s*$/i
-const OFF =
-  /^\s*(?:(?:tischplatte|werkbank|projekttafel)\s+aus|icons?\s+wieder|homescreen[\s-]?icons?)\s*[.!]?\s*$/i
+const END = String.raw`[.!?]?\s*$`
 
-const VIEW_SPRINTS = /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?\s+)?sprints?\s*[.!]?\s*$/i
-const VIEW_PSP = /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+den?|das)?\s+)?(?:psp|projektstruktur|baum)\s*[.!]?\s*$/i
-const VIEW_MOD = /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?\s+)?module\s*[.!]?\s*$/i
-const VIEW_RES = /^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?\s+)?(?:quellen|forschung|recherche)\s*[.!]?\s*$/i
-const SIM =
-  /^\s*simulier(?:e|en)?(?:\s+die)?\s+(?:die\s+)?(.+?)(?:-?gui)?\s*[.!]?\s*$/i
-const THEME = /^\s*(?:neuer\s+hintergrund|hintergrund\s+neu)\s*[.!]?\s*$/i
-const STOP = /^\s*(?:stopp(?:e)?\s+(?:die\s+)?jobs?|jobs?\s+stopp)\s*[.!]?\s*$/i
-const PLANNED =
-  /^\s*(?:was\s+ist\s+geplant|was\s+steht\s+in\s+den\s+docs|zeig(?:e)?(?:\s+mir)?(?:\s+den)?\s+jarvis-?plan)\s*[.!]?\s*$/i
-const CAN = /^\s*was\s+kann\s+jarvis\s*[.!]?\s*$/i
-const FEATURES = /^\s*welche\s+features?\s+hat\s+(?:der|die|das)?\s*(.+?)\s*[.!]?\s*$/i
-const DOCS = /^\s*lies(?:e)?(?:\s+die)?\s+docs\s+zu\s+(.+?)\s*[.!]?\s*$/i
+const ON = new RegExp(String.raw`^\s*(?:tischplatte|werkbank|projekttafel)\s+an\s*` + END, 'i')
+const OFF = new RegExp(
+  String.raw`^\s*(?:(?:tischplatte|werkbank|projekttafel)\s+aus|icons?\s+wieder|homescreen[\s-]?icons?)\s*` + END,
+  'i',
+)
 
-const JOBS =
-  /^\s*(?:such(?:e)?|recherchier(?:e)?)\s+(?:open[\s-]?source|opensource|github)\s+(?:zu|nach|für)\s+(.+?)(?:\s+und\s+plan(?:e)?\s+sprints?(?:\s+für)?(?:\s+idee)?\s+(.+))?\s*[.!]?\s*$/i
+const VIEW_SPRINTS = new RegExp(String.raw`^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?\s+)?sprints?\s*` + END, 'i')
+const VIEW_PSP = new RegExp(
+  String.raw`^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+den?|das)?\s+)?(?:psp|projektstruktur|baum)\s*` + END,
+  'i',
+)
+const VIEW_MOD = new RegExp(String.raw`^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?\s+)?module\s*` + END, 'i')
+const VIEW_RES = new RegExp(
+  String.raw`^\s*(?:zeig(?:e)?(?:\s+mir)?(?:\s+die)?\s+)?(?:quellen|forschung|recherche)\s*` + END,
+  'i',
+)
+const SIM = new RegExp(String.raw`^\s*simulier(?:e|en)?(?:\s+die)?\s+(?:die\s+)?(.+?)(?:-?gui)?\s*` + END, 'i')
+const THEME = new RegExp(String.raw`^\s*(?:neuer\s+hintergrund|hintergrund\s+neu)\s*` + END, 'i')
+const STOP = new RegExp(String.raw`^\s*(?:stopp(?:e)?\s+(?:die\s+)?jobs?|jobs?\s+stopp)\s*` + END, 'i')
+const PLANNED = new RegExp(
+  String.raw`^\s*(?:was\s+ist\s+geplant|was\s+steht\s+in\s+den\s+docs|zeig(?:e)?(?:\s+mir)?(?:\s+den)?\s+jarvis-?plan)\s*` +
+    END,
+  'i',
+)
+const CAN = new RegExp(String.raw`^\s*was\s+kann\s+jarvis\s*` + END, 'i')
+const FEATURES = new RegExp(String.raw`^\s*welche\s+features?\s+hat\s+(?:der|die|das)?\s*(.+?)\s*` + END, 'i')
+const DOCS = new RegExp(String.raw`^\s*lies(?:e)?(?:\s+die)?\s+docs\s+zu\s+(.+?)\s*` + END, 'i')
+
+const JOBS = new RegExp(
+  String.raw`^\s*(?:such(?:e)?|recherchier(?:e)?)\s+(?:open[\s-]?source|opensource|github)\s+(?:zu|nach|für)\s+(.+?)(?:\s+und\s+plan(?:e)?\s+sprints?(?:\s+für)?(?:\s+idee)?\s+(.+))?\s*` +
+    END,
+  'i',
+)
 
 const AREA_MAP: Record<string, string> = {
   kalender: 'calendar',

@@ -7133,6 +7133,10 @@ html.theme-wipe-dark::before {
   z-index: 1;
 }
 
+.workbench {
+  z-index: 2;
+}
+
 .home-clock {
   padding: 8px 6px 22px;
 }
@@ -7164,6 +7168,12 @@ html.theme-wipe-dark::before {
   grid-template-columns: repeat(3, 1fr);
   gap: 18px 10px;
   padding: 4px 2px 28px;
+}
+
+/* display:grid würde sonst das HTML-hidden überdecken — Icons lägen auf der Werkbank. */
+.home-grid[hidden],
+.home-screen.is-tischplatte .home-grid {
+  display: none !important;
 }
 
 .home-app {

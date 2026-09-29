@@ -3,7 +3,7 @@ import { HOME_APPS, type HomeAppId } from '../engine/home-apps.ts'
 import { isTischplatteView, type TischplatteView } from '../engine/board-types.ts'
 import { parseBoardJobs, serializeBoardJobs, stopJobs, type BoardJob } from '../engine/board-jobs.ts'
 import { wireFor, type WireFrame } from '../engine/board-wire.ts'
-import { CATALOG_STAND, FEATURE_CATALOG } from '../engine/feature-catalog.ts'
+import { CATALOG_STAND, FEATURE_CATALOG, versionAtLeast } from '../engine/feature-catalog.ts'
 import { CORE_TITLES } from '../engine/idea-plan.ts'
 import {
   acceptProposal,
@@ -193,7 +193,7 @@ export function Workbench({
 
       {vis === 'sprints' ? (
         <p className="workbench-catalog-head">
-          Jarvis-Plan: {FEATURE_CATALOG.filter((r) => r.version >= '18.18.0').map((r) => r.title).slice(0, 4).join(', ')}
+          Jarvis-Plan: {FEATURE_CATALOG.filter((r) => versionAtLeast(r.version, '18.18.0')).map((r) => r.title).slice(0, 4).join(', ')}
         </p>
       ) : null}
 

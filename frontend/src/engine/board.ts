@@ -2,10 +2,9 @@ import type { ToolMeta } from './tools.ts'
 import { parseBoardIntent } from './board-parse.ts'
 import { parseThemeHint, serializeTheme, cycleMotif, DEFAULT_THEME } from './board-theme.ts'
 import { parseBoardJobs, serializeBoardJobs, upsertJob, stopJobs, type BoardJob } from './board-jobs.ts'
-import { catalogByArea, FEATURE_CATALOG, formatCatalog } from './feature-catalog.ts'
+import { catalogByArea, catalogPlanned, FEATURE_CATALOG, formatCatalog } from './feature-catalog.ts'
 import { fillDeepResearchLinks } from './web-search.ts'
-import { searchGithubRepos } from './github-search.ts'
-import { isOpenSourceAsk, mergeResearchSources } from './research-parse.ts'
+import { githubToken } from './github-search.ts'
 import { listIdeas, loadSettings, newId, putIdea, saveSettings } from './store.ts'
 import { emptyPlan, formatPlan } from './idea-plan.ts'
 import { fillPlanWithModel, pickIdea } from './idea.ts'
@@ -91,7 +90,7 @@ export async function handleBoard(_conversationId: string, text: string): Promis
   }
   if (intent.kind === 'catalog') {
     if (intent.mode === 'planned') {
-      const rows = FEATURE_CATALOG.filter((r) => r.version >= '18.16.0').slice(0, 8)
+      const rows = catalogPlanned('18.16.0').slice(0, 8)
       return pack(formatCatalog(rows), 'catalog')
     }
     if (intent.mode === 'can') {
@@ -123,13 +122,8 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     saveJobs(jobs)
     const topic = (intent.research || '').trim()
     const q = `Recherchiere tief: Open-Source ${topic}`
-    const [web, gh] = await Promise.all([
-      fillDeepResearchLinks(q, '', undefined),
-      isOpenSourceAsk(`${q} ${topic}`)
-        ? searchGithubRepos(topic)
-        : Promise.resolve({ sources: [], note: '' }),
-    ])
-    const merged = mergeResearchSources(web, [...(web.sources || []), ...gh.sources], topic)
+    const web = await fillDeepResearchLinks(q, '', undefined)
+    const merged = web
     try {
       saveSettings({ last_research_json: JSON.stringify(merged) })
     } catch {
@@ -185,10 +179,11 @@ export async function handleBoard(_conversationId: string, text: string): Promis
     }
     saveJobs(jobs)
     const n = (merged.sources || []).filter((s) => s.url).length
-    const ghNote = gh.note ? ` ${gh.note}` : ''
+    const ghNote = githubToken() ? '' : ' Ohne GitHub-Key nur öffentliche HTML-Suche, unvollständig.'
     const pending = await pendingProposals()
     const offer = pending[0] ? ` ${proposalLine(pending[0])}` : ''
-    const reply = `Ich suche und fülle den Plan. ${n} Quellen.${ghNote}${planLine ? `\n${planLine}` : ''}${offer}`
+    const seeking = intent.planIndex || intent.planQuery ? 'Ich suche und fülle den Plan.' : 'Ich suche.'
+    const reply = `${seeking} ${n} Quellen.${ghNote}${planLine ? `\n${planLine}` : ''}${offer}`
     return pack(reply, 'jobs', { sources: n })
   }
   return { handled: false }

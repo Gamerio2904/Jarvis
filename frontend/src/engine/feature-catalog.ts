@@ -55,6 +55,19 @@ export function formatCatalog(rows: FeatureRow[], emptyArea?: string): string {
   return [head, ...lines].join('\n')
 }
 
+export function catalogVersionNum(v: string): number {
+  const p = v.split('.').map((n) => Number.parseInt(n, 10) || 0)
+  return (p[0] || 0) * 10000 + (p[1] || 0) * 100 + (p[2] || 0)
+}
+
+export function versionAtLeast(v: string, min: string): boolean {
+  return catalogVersionNum(v) >= catalogVersionNum(min)
+}
+
+export function catalogPlanned(min = '18.16.0'): FeatureRow[] {
+  return FEATURE_CATALOG.filter((r) => versionAtLeast(r.version, min))
+}
+
 export function catalogHasRice(): boolean {
   return FEATURE_CATALOG.some((r) => Object.keys(r).some((k) => /rice/i.test(k)))
 }

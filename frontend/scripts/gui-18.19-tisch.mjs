@@ -74,12 +74,17 @@ try {
 
   const on = await page.evaluate(() => {
     const grid = document.querySelector('.home-grid')
+    const cs = grid ? getComputedStyle(grid) : null
+    const ico = document.querySelector('.home-app-ico')
+    const icoCs = ico ? getComputedStyle(ico) : null
     return {
       wall: document.querySelector('.home-screen')?.getAttribute('data-home-wall') || '',
       tisch: document.querySelector('.home-screen')?.classList.contains('is-tischplatte'),
       hidden: grid?.hasAttribute('hidden'),
       inert: grid?.hasAttribute('inert'),
       aria: grid?.getAttribute('aria-hidden'),
+      display: cs?.display || '',
+      icoDisplay: icoCs?.display || '',
       bench: Boolean(document.querySelector('.workbench')),
       face: Boolean(document.querySelector('.workbench img, .workbench .face')),
       mini: Boolean(document.querySelector('.mini-chat')),
@@ -88,6 +93,7 @@ try {
   })
   rec(on.wall === 'board' && on.tisch, 'Wand B Tischplatte', JSON.stringify(on))
   rec(on.hidden && on.inert && on.aria === 'true', 'Icons hart aus', JSON.stringify(on))
+  rec(on.display === 'none', 'Grid display none', on.display)
   rec(on.bench && !on.face, 'Werkbank ohne Gesicht', JSON.stringify(on))
   rec(on.mini && on.sphere, 'Mini-Chat und Kugel bleiben', JSON.stringify(on))
   await page.screenshot({ path: `${SHOTS}/18-19-tischplatte.png` })
@@ -96,12 +102,20 @@ try {
     document.querySelector('[data-tischplatte="off"]')?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
   })
   await sleep(500)
-  const back = await page.evaluate(() => ({
-    wall: document.querySelector('.home-screen')?.getAttribute('data-home-wall') || '',
-    hidden: document.querySelector('.home-grid')?.hasAttribute('hidden'),
-    apps: document.querySelectorAll('[data-home-app]').length,
-  }))
-  rec(back.wall === 'launcher' && !back.hidden && back.apps === 9, 'Zurück auf A mit Icons', JSON.stringify(back))
+  const back = await page.evaluate(() => {
+    const grid = document.querySelector('.home-grid')
+    return {
+      wall: document.querySelector('.home-screen')?.getAttribute('data-home-wall') || '',
+      hidden: grid?.hasAttribute('hidden'),
+      display: grid ? getComputedStyle(grid).display : '',
+      apps: document.querySelectorAll('[data-home-app]').length,
+    }
+  })
+  rec(
+    back.wall === 'launcher' && !back.hidden && back.apps === 9 && back.display === 'grid',
+    'Zurück auf A mit Icons',
+    JSON.stringify(back),
+  )
   await page.screenshot({ path: `${SHOTS}/18-19-launcher-back.png` })
 } catch (err) {
   rec(false, 'crash', String(err))
