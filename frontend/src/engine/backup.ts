@@ -33,6 +33,7 @@ import { isPrefValue } from './memory-parse.ts'
 import type { ToolMeta } from './tools.ts'
 import { Capacitor } from '@capacitor/core'
 import { listKnowledgePacks, type KnowledgePack } from './knowledge-store.ts'
+import { eventsToIcs, icsToEvents, looksLikeIcs } from './calendar-ics.ts'
 
 export const BACKUP_VERSION = 1
 
@@ -133,6 +134,7 @@ export type HausBackup = {
   knowledge_packs?: KnowledgePack[]
   conversations?: Conversation[]
   messages?: Message[]
+  calendar_ics?: string
 }
 
 export type BackupPreview = {
@@ -195,7 +197,7 @@ export function previewBackup(raw: unknown): BackupPreview {
   const contacts = (data.memory || []).filter((m) => m.category === 'contact' || m.category === 'email').length
   return {
     ok: true,
-    message: `${keys} Keys, ${contacts} Nummern, ${(data.reminders || []).length} Erinnerungen, ${(data.ideas || []).length} Ideen, Watchliste ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length}, Lieblinge ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length}, Gesehen ${(data.watched_movies || []).length}. Datei enthält Geheimnisse — nicht in den Chat, nicht nach Git.`,
+    message: `${keys} Keys, ${contacts} Nummern, ${(data.reminders || []).length} Erinnerungen, ${(data.events || []).length} Termine, ${(data.ideas || []).length} Ideen, Watchliste ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('watch')).length}, Lieblinge ${(data.watch_movies || []).filter((m) => (m.lists || []).includes('favorite')).length}, Gesehen ${(data.watched_movies || []).length}. Datei enthält Geheimnisse — nicht in den Chat, nicht nach Git.`,
     keys,
     contacts,
     reminders: (data.reminders || []).length,
@@ -216,13 +218,16 @@ export function asBackup(raw: unknown): HausBackup | null {
   const ver = Number(o.backup_version ?? 1)
   if (ver !== 1) return null
   if (!o.settings || typeof o.settings !== 'object') return null
+  const calendar_ics = typeof o.calendar_ics === 'string' ? o.calendar_ics : undefined
+  let events = arr<CalendarEvent>(o.events)
+  if (!events.length && calendar_ics) events = icsToEvents(calendar_ics)
   return {
     backup_version: 1,
     exported_at: String(o.exported_at || ''),
     settings: o.settings as Partial<Settings>,
     memory: arr(o.memory),
     reminders: arr(o.reminders),
-    events: arr(o.events),
+    events,
     notes: arr(o.notes),
     todos: arr(o.todos),
     ideas: arr(o.ideas),
@@ -233,6 +238,7 @@ export function asBackup(raw: unknown): HausBackup | null {
     knowledge_packs: o.knowledge_packs ? arr(o.knowledge_packs) : undefined,
     conversations: o.conversations ? arr(o.conversations) : undefined,
     messages: o.messages ? arr(o.messages) : undefined,
+    calendar_ics,
   }
 }
 
@@ -251,13 +257,14 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     }
     messages = all
   }
+  const events = await listEvents()
   return {
     backup_version: BACKUP_VERSION,
     exported_at: new Date().toISOString(),
     settings,
     memory: await listMemory(),
     reminders: await listReminders(),
-    events: await listEvents(),
+    events,
     notes: await listNotes(),
     todos: await listTodos(),
     ideas: await listIdeas(),
@@ -268,6 +275,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     knowledge_packs: await listKnowledgePacks(),
     conversations,
     messages,
+    calendar_ics: eventsToIcs(events),
   }
 }
 
@@ -302,25 +310,33 @@ export async function applyBackup(data: HausBackup): Promise<string> {
     /* */
   }
   try {
-    const { notifyIdFromKey, scheduleNotify, requestNotifyPermission } = await import('../native/notify.ts')
-    await requestNotifyPermission()
+    const { cancelEventNotifies, scheduleEventNotifies } = await import('./calendar.ts')
     for (const ev of data.events || []) {
-      const at = new Date(ev.start_at)
-      if (Number.isNaN(at.getTime()) || at.getTime() < Date.now()) continue
-      await scheduleNotify({
-        id: notifyIdFromKey(`evt-${ev.id}`),
-        title: 'Jarvis · Termin',
-        body: ev.title,
-        at,
-      })
+      await cancelEventNotifies(ev)
+      await scheduleEventNotifies(ev)
     }
   } catch {
     /* */
   }
   saveSettings({ last_backup_at: new Date().toISOString() })
   return geminiWasOff
-    ? 'Hausstand liegt. Gemini-Key war aus — jetzt an. Erinnerungen neu gesetzt. Keys sind in der Datei — nicht teilen.'
-    : 'Hausstand liegt. Erinnerungen neu gesetzt. Keys sind in der Datei — nicht teilen.'
+    ? 'Hausstand liegt. Gemini-Key war aus — jetzt an. Erinnerungen und Termine neu gesetzt. Keys sind in der Datei — nicht teilen.'
+    : 'Hausstand liegt. Erinnerungen und Termine neu gesetzt. Keys sind in der Datei — nicht teilen.'
+}
+
+export type ImportChoice = { kind: 'haus'; data: HausBackup } | { kind: 'ics'; events: CalendarEvent[] }
+
+export function parseImportPayload(raw: string, filename = ''): ImportChoice | null {
+  const text = String(raw || '')
+  if (looksLikeIcs(text) || /\.ics$/i.test(filename)) {
+    return { kind: 'ics', events: icsToEvents(text) }
+  }
+  try {
+    const data = asBackup(JSON.parse(text) as unknown)
+    return data ? { kind: 'haus', data } : null
+  } catch {
+    return null
+  }
 }
 
 export async function shareOrDownloadBackup(includeChats: boolean): Promise<string> {

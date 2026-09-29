@@ -19,11 +19,13 @@ import {
 } from '../engine/spotify.ts'
 import {
   applyBackup,
-  asBackup,
+  parseImportPayload,
   previewBackup,
   shareOrDownloadBackup,
   type BackupPreview,
+  type ImportChoice,
 } from '../engine/backup.ts'
+import { applyIcsEvents } from '../engine/calendar.ts'
 import {
   filterTopics,
   resolveTopic,
@@ -336,7 +338,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
   const [backupBusy, setBackupBusy] = useState(false)
   const [backupMsg, setBackupMsg] = useState<string | null>(null)
   const [backupPreview, setBackupPreview] = useState<BackupPreview | null>(null)
-  const [backupPending, setBackupPending] = useState<ReturnType<typeof asBackup>>(null)
+  const [backupPending, setBackupPending] = useState<ImportChoice | null>(null)
 
   let hudOn: HudId[] = [...HUD_DEFAULT_ON]
   try {
@@ -2416,12 +2418,12 @@ export function SettingsScreen(p: SettingsScreenProps) {
             <section className="settings-card">
               <h3>Hausstand</h3>
               <p className="settings-lead">
-                Vor dem nächsten Sideload exportieren. Deinstall löscht Keys, Nummern und Erinnerungen. Die Datei
+                Vor dem nächsten Sideload exportieren. Deinstall löscht Keys, Nummern, Erinnerungen und Termine. Die Datei
                 enthält alle Einstellungen und API-Keys — nicht in den Chat, nicht nach Git, nicht per Mail.
               </p>
               <p className="settings-hint">
-                Export schreibt nach <strong>Downloads</strong> als <code>jarvis-haus-JJJJMMTT.json</code>. Nicht nur
-                teilen — die Datei muss dort liegen, sonst ist nach Neuinstall nichts da.
+                Export schreibt nach <strong>Downloads</strong> als <code>jarvis-haus-JJJJMMTT.json</code> inklusive
+                Kalender (JSON + ICS darin). Zusätzlich: Kalender-Folie → ICS, oder Chat „Kalender als ICS“.
               </p>
               <p className="settings-hint">
                 {s?.last_backup_at
@@ -2459,7 +2461,7 @@ export function SettingsScreen(p: SettingsScreenProps) {
                   Datei wählen
                   <input
                     type="file"
-                    accept="application/json,.json"
+                    accept="application/json,.json,text/calendar,.ics"
                     hidden
                     disabled={busy || backupBusy}
                     onChange={(e) => {
@@ -2473,17 +2475,33 @@ export function SettingsScreen(p: SettingsScreenProps) {
                       void file
                         .text()
                         .then((text) => {
-                          let parsed: unknown
-                          try {
-                            parsed = JSON.parse(text)
-                          } catch {
-                            setBackupMsg('Keine JSON-Datei.')
+                          const choice = parseImportPayload(text, file.name)
+                          if (!choice) {
+                            setBackupMsg('Keine Jarvis-Hausstand- oder ICS-Datei.')
                             return
                           }
-                          const data = asBackup(parsed)
-                          const prev = previewBackup(parsed)
+                          setBackupPending(choice)
+                          if (choice.kind === 'ics') {
+                            setBackupPreview({
+                              ok: true,
+                              message: `${choice.events.length} Termine aus ICS. Keys bleiben.`,
+                              keys: 0,
+                              contacts: 0,
+                              reminders: 0,
+                              events: choice.events.length,
+                              notes: 0,
+                              ideas: 0,
+                              watch: 0,
+                              favorite: 0,
+                              watched: 0,
+                              chats: 0,
+                              hasKeys: false,
+                            })
+                            setBackupMsg(`${choice.events.length} Termine aus ICS. Keys bleiben unangetastet.`)
+                            return
+                          }
+                          const prev = previewBackup(choice.data)
                           setBackupPreview(prev)
-                          setBackupPending(data)
                           setBackupMsg(prev.message)
                         })
                         .finally(() => setBackupBusy(false))
@@ -2505,7 +2523,10 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 onClick={() => {
                   if (!backupPending) return
                   setBackupBusy(true)
-                  void applyBackup(backupPending)
+                  void (backupPending.kind === 'ics'
+                    ? applyIcsEvents(backupPending.events)
+                    : applyBackup(backupPending.data)
+                  )
                     .then((msg) => {
                       setBackupMsg(msg)
                       setBackupPending(null)
@@ -2515,9 +2536,13 @@ export function SettingsScreen(p: SettingsScreenProps) {
                     .finally(() => setBackupBusy(false))
                 }}
               >
-                Überschreiben ja
+                {backupPending?.kind === 'ics' ? 'Termine übernehmen' : 'Überschreiben ja'}
               </button>
-              <p className="settings-hint">Ohne diesen Knopf ändert Import nichts.</p>
+              <p className="settings-hint">
+                {backupPending?.kind === 'ics'
+                  ? 'ICS legt oder aktualisiert nur Termine. Keys bleiben.'
+                  : 'Ohne diesen Knopf ändert Import nichts.'}
+              </p>
               {backupMsg ? <p className="settings-hint">{backupMsg}</p> : null}
             </section>
           ) : null}

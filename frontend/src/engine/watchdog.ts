@@ -1,6 +1,8 @@
 import { listEvents, loadSettings, saveSettings, type CalendarEvent } from './store.ts'
 import { raiseInterrupt, readInterrupt } from './interrupt.ts'
 
+import { eventEndAt, expandEvents } from './calendar-occur.ts'
+
 const PLUG_GAP_MS = 5 * 60_000
 let lastPlugAt = 0
 
@@ -11,29 +13,38 @@ export type OverlapHit = {
   question: string
 }
 
-/** Two events that start within `spanMs` of each other in the next `horizonMs`. No end_at in v1. */
+/** Überlappende Intervalle im Horizont. Serie wird expandiert. */
 export function overlappingEvents(
   events: CalendarEvent[],
   now = Date.now(),
   horizonMs = 24 * 3_600_000,
-  spanMs = 45 * 60_000,
 ): OverlapHit | null {
-  const soon = events
-    .map((e) => ({ title: (e.title || '').trim(), t: new Date(e.start_at).getTime() }))
-    .filter((e) => e.title && Number.isFinite(e.t) && e.t >= now - 60_000 && e.t <= now + horizonMs)
-    .sort((a, b) => a.t - b.t)
-  for (let i = 0; i < soon.length - 1; i += 1) {
-    const a = soon[i]
-    const b = soon[i + 1]
-    if (Math.abs(b.t - a.t) <= spanMs) {
-      const fingerprint = `cal:${a.title}|${a.t}|${b.title}|${b.t}`
-      const when = (ms: number) =>
-        new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
-      return {
-        a: a.title,
-        b: b.title,
-        fingerprint,
-        question: `${a.title} ${when(a.t)} und ${b.title} ${when(b.t)} überlappen. Einen verschieben?`,
+  const occ = expandEvents(events, new Date(now - 60_000), new Date(now + horizonMs))
+  const soon = occ
+    .map((e) => ({
+      id: e.id,
+      title: (e.title || '').trim(),
+      t0: new Date(e.start_at).getTime(),
+      t1: eventEndAt(e).getTime(),
+    }))
+    .filter((e) => e.title && Number.isFinite(e.t0) && Number.isFinite(e.t1) && e.t1 > e.t0)
+    .sort((a, b) => a.t0 - b.t0)
+  for (let i = 0; i < soon.length; i += 1) {
+    for (let j = i + 1; j < soon.length; j += 1) {
+      const a = soon[i]
+      const b = soon[j]
+      if (a.id === b.id) continue
+      if (b.t0 >= a.t1) break
+      if (a.t0 < b.t1 && b.t0 < a.t1) {
+        const fingerprint = `cal:${a.title}|${a.t0}|${b.title}|${b.t0}`
+        const when = (ms: number) =>
+          new Date(ms).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+        return {
+          a: a.title,
+          b: b.title,
+          fingerprint,
+          question: `${a.title} ${when(a.t0)} und ${b.title} ${when(b.t0)} überlappen. Einen verschieben?`,
+        }
       }
     }
   }

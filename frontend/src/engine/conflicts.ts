@@ -340,6 +340,20 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'backup', 0.3)
   }
 
+  if (/\b(kalender|termine?)\b/.test(t) && /\bics\b/.test(t)) {
+    out = drop(out, 'backup')
+    out = drop(out, 'search')
+    out = boost(out, 'calendar', 0.35)
+  }
+
+  if (
+    /\bjeden\s+(montag|dienstag|mittwoch|donnerstag|freitag|samstag|sonntag)\b/.test(t) &&
+    /\b(?:uhr|training|termin|zahnarzt|arzt|meeting|geburtstag|vorlesung|klausur|flug|urlaub)\b/.test(t)
+  ) {
+    out = drop(out, 'reminder')
+    out = boost(out, 'calendar', 0.3)
+  }
+
   if (/\bfreitag\b/.test(t) && !/\bfriday\b/.test(t)) {
     out = drop(out, 'face')
     out = boost(out, 'calendar', 0.2)

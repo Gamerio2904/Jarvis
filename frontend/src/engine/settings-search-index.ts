@@ -41,7 +41,7 @@ export const SETTINGS_FIELD_INDEX: SettingsSearchHit[] = [
   { tab: 'lage', field: 'Lage immer', keywords: ['lage immer', 'hud', 'tablet'], elementId: 'sf-hud-force' },
   { tab: 'lage', field: 'Design Hell/Dunkel', keywords: ['hell', 'dunkel', 'dark', 'light', 'theme', 'modus'], elementId: 'sf-ui-theme' },
   { tab: 'lage', field: 'HUD Akzent', keywords: ['orange', 'grün', 'gruen', 'amber', 'akzent'], elementId: 'sf-hud-accent' },
-  { tab: 'daten', field: 'Hausstand Export', keywords: ['export', 'hausstand', 'sichern', 'backup'], elementId: 'sf-export' },
+  { tab: 'daten', field: 'Hausstand Export', keywords: ['export', 'hausstand', 'sichern', 'backup', 'kalender', 'ics', 'termine'], elementId: 'sf-export' },
   { tab: 'daten', field: 'Fachwissen', keywords: ['fachwissen', 'pack', 'lernen'], elementId: 'sf-fachwissen' },
   { tab: 'daten', field: 'Alles löschen', keywords: ['löschen', 'loeschen', 'gefahr', 'vergiss'], elementId: 'sf-danger' },
   {

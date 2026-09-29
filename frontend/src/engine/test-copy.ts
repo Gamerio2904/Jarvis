@@ -152,6 +152,8 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       { label: "Heißt jetzt", text: "Maxi Geburtstag heißt jetzt Jakob Geburtstag", expect: {"tool":"calendar"} },
       { label: "Samstag Jakob", text: "Samstag Geburtstag Jakob 18 Uhr", expect: {"tool":"calendar"} },
       { label: "Verschieben", text: "Verschieb Jakob auf Sonntag 19 Uhr", expect: {"tool":"calendar"} },
+      { label: "Serie Training", text: "jeden Montag 18 Uhr Training", expect: {"tool":"calendar"} },
+      { label: "ICS", text: "Kalender als ICS", expect: {"tool":"calendar"} },
     ],
   },
   {

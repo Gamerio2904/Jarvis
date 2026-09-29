@@ -7,7 +7,7 @@ import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.16.0'
+export const APP_VERSION = '18.17.0'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
 export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
@@ -139,6 +139,11 @@ export type CalendarEvent = {
   id: string
   title: string
   start_at: string
+  /** Ende. Fehlt = 60 Minuten, ganztags = +1 Tag. */
+  end_at?: string
+  all_day?: boolean
+  /** Serie. Eine Zeile im Store, Vorkommen beim Lesen. */
+  recur?: 'weekly' | 'monthly' | null
   place?: string
   /**
    * Minuten vor `start_at`. `undefined` = eine Notify zum Start (18.7).
@@ -1237,9 +1242,13 @@ export async function addEvent(opts: {
   conversationId?: string
   remind_offsets_min?: number[]
   theme?: string
+  end_at?: string
+  all_day?: boolean
+  recur?: CalendarEvent['recur']
+  id?: string
 }): Promise<CalendarEvent> {
   const row: CalendarEvent = {
-    id: newId(),
+    id: opts.id || newId(),
     title: opts.title,
     start_at: opts.start_at,
     place: opts.place || '',
@@ -1247,6 +1256,9 @@ export async function addEvent(opts: {
     created_at: nowIso(),
     updated_at: nowIso(),
   }
+  if (opts.end_at) row.end_at = opts.end_at
+  if (opts.all_day) row.all_day = true
+  if (opts.recur) row.recur = opts.recur
   if (opts.remind_offsets_min !== undefined) {
     row.remind_offsets_min = [...new Set(opts.remind_offsets_min)].slice(0, 5)
   }

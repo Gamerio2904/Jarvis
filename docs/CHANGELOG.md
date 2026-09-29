@@ -5,6 +5,15 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.17.0` — Kalender Alltag — *CODE*
+
+Termine waren schon im Hausstand-JSON; Import stellt Fristen wieder,
+Vorschau nennt die Zahl, plus `calendar_ics`. ICS raus/rein (RFC 5545
+Teilmenge, ical.js als Vorbild, ohne npm). `jeden Montag 18 Uhr Training`
+ist eine Serie. Dauer, ganztägig, Überlappung ehrlich. Kein Google-Kalender.
+Sprints 377–381. [`89-next.md`](./89-next.md). Test: [`TEST-18.17.md`](./TEST-18.17.md).
+App-Code **`18.17.0`**. Sideload bleibt **`18.16.0`** bis APK.
+
 ### `18.16.0` — Personen-Knäuel + Gedächtnis — *CODE + APK*
 
 Mama = Mutter. Geburtstag, Tel und Ort eine Person. Recall ein belegter

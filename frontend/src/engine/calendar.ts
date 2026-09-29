@@ -16,6 +16,8 @@ import {
   type CalendarEvent,
 } from './store.ts'
 import type { ToolMeta } from './tools.ts'
+import { defaultEndIso, expandEvents, firstOverlap, recurLabel } from './calendar-occur.ts'
+import { shareOrDownloadIcs } from './calendar-ics.ts'
 
 export { parseCalendarIntent, parseRemindOffsets, formatRemindOffsets, normalizeCalendarSpeech } from './calendar-parse.ts'
 
@@ -124,10 +126,20 @@ export async function handleCalendar(
   const intent = parseCalendarIntent(text)
   if (!intent) return { handled: false }
 
+  if (intent.kind === 'export_ics') {
+    const reply = await shareOrDownloadIcs()
+    return {
+      handled: true,
+      reply,
+      tool: { tool_status: 'executed', tool: 'calendar', action: 'export', label: 'Kalender-ICS' },
+    }
+  }
+
   if (intent.kind === 'open') {
-    const upcoming = (await listEvents())
-      .filter((e) => new Date(e.start_at).getTime() >= startOfDay(new Date()).getTime())
-      .slice(0, 8)
+    const from = startOfDay(new Date())
+    const until = new Date(from)
+    until.setDate(until.getDate() + 60)
+    const upcoming = expandEvents(await listEvents(), from, until).slice(0, 8)
     const lines = upcoming.length
       ? upcoming.map((e, i) => `${i + 1}. ${e.title}${e.place ? ` · ${e.place}` : ''} — ${formatDue(new Date(e.start_at))}`).join('\n')
       : 'Keine kommenden Termine. In der Kalender-Ansicht oder per „Termin morgen 15 Uhr …“ anlegen.'
@@ -150,18 +162,27 @@ export async function handleCalendar(
 
   if (intent.kind === 'create') {
     const theme = classifyEventTheme(intent.title, intent.place)
+    const endAt = intent.end
+      ? intent.end.toISOString()
+      : defaultEndIso(intent.start, Boolean(intent.allDay))
     const row = await addEvent({
       title: intent.title,
       start_at: intent.start.toISOString(),
       place: intent.place,
       conversationId,
       theme,
+      end_at: endAt,
+      all_day: intent.allDay,
+      recur: intent.recur,
     })
     await scheduleEventNotifies(row)
     void refineThemeLater(row)
     persistLastList('calendar', [row.title])
     noteCalendarFocus(new Date(row.start_at))
     const where = row.place ? ` · ${row.place}` : ''
+    const series = recurLabel(row) ? ` ${recurLabel(row)}.` : ''
+    const clash = firstOverlap(row, await listEvents())
+    const warn = clash ? ` Achtung: überlappt mit ${clash.label}.` : ''
     const running = isDebugRunActive()
     if (!running) {
       await setPending({
@@ -176,8 +197,8 @@ export async function handleCalendar(
     return {
       handled: true,
       reply: running
-        ? `Termin: ${row.title}${where}, ${intent.whenLabel}. Steht im Kalender.`
-        : `Termin: ${row.title}${where}, ${intent.whenLabel}. Steht im Kalender. ${ASK_REMIND}`,
+        ? `Termin: ${row.title}${where}, ${intent.whenLabel}. Steht im Kalender.${series}${warn}`
+        : `Termin: ${row.title}${where}, ${intent.whenLabel}. Steht im Kalender.${series}${warn} ${ASK_REMIND}`,
       tool: {
         tool_status: 'executed',
         tool: 'calendar',
@@ -309,17 +330,14 @@ function findEventByQuery(rows: CalendarEvent[], query: string): CalendarEvent |
 async function eventsInWindow(day?: Date, until?: Date): Promise<CalendarEvent[]> {
   const rows = await listEvents()
   if (!day) {
-    const start = startOfDay(new Date()).getTime()
-    return rows.filter((e) => new Date(e.start_at).getTime() >= start).slice(0, 20)
+    const start = startOfDay(new Date())
+    const horizon = new Date(start)
+    horizon.setDate(horizon.getDate() + 60)
+    return expandEvents(rows, start, horizon).slice(0, 20)
   }
-  const from = startOfDay(day).getTime()
-  const to = until ? startOfDay(until).getTime() : from + 86_400_000
-  return rows
-    .filter((e) => {
-      const t = new Date(e.start_at).getTime()
-      return t >= from && t < to
-    })
-    .sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
+  const from = startOfDay(day)
+  const to = until ? startOfDay(until) : new Date(from.getTime() + 86_400_000)
+  return expandEvents(rows, from, to)
 }
 
 export async function removeEvent(id: string): Promise<void> {
@@ -361,6 +379,9 @@ export async function updateEventFromGui(
     place?: string
     remind_offsets_min?: number[]
     theme?: CalThemeId
+    end?: Date
+    all_day?: boolean
+    recur?: CalendarEvent['recur']
   },
 ): Promise<CalendarEvent | null> {
   const row = (await listEvents()).find((e) => e.id === id)
@@ -370,13 +391,17 @@ export async function updateEventFromGui(
   const place = opts.place !== undefined ? opts.place.replace(/\s+/g, ' ').trim() : row.place
   const theme = opts.theme && isCalThemeId(opts.theme) ? opts.theme : classifyEventTheme(title, place)
   await cancelEventNotifies(row)
+  const allDay = opts.all_day ?? row.all_day
   const next: CalendarEvent = {
     ...row,
     title,
     start_at: opts.start.toISOString(),
     place: place || '',
     theme,
+    end_at: opts.end ? opts.end.toISOString() : defaultEndIso(opts.start, Boolean(allDay)),
+    all_day: allDay,
   }
+  if (opts.recur !== undefined) next.recur = opts.recur
   if (opts.remind_offsets_min !== undefined) next.remind_offsets_min = opts.remind_offsets_min
   await putEvent(next)
   await scheduleEventNotifies(next)
@@ -391,6 +416,9 @@ export async function createEventFromGui(opts: {
   place?: string
   remind_offsets_min?: number[]
   theme?: CalThemeId
+  end?: Date
+  all_day?: boolean
+  recur?: CalendarEvent['recur']
 }): Promise<CalendarEvent> {
   const theme = opts.theme && isCalThemeId(opts.theme) ? opts.theme : classifyEventTheme(opts.title, opts.place)
   const row = await addEvent({
@@ -399,6 +427,9 @@ export async function createEventFromGui(opts: {
     place: opts.place,
     remind_offsets_min: opts.remind_offsets_min,
     theme,
+    end_at: opts.end ? opts.end.toISOString() : defaultEndIso(opts.start, Boolean(opts.all_day)),
+    all_day: opts.all_day,
+    recur: opts.recur,
   })
   await scheduleEventNotifies(row)
   noteCalendarFocus(opts.start)
@@ -426,8 +457,37 @@ export function sameDay(a: Date, b: Date): boolean {
   return startOfDay(a).getTime() === startOfDay(b).getTime()
 }
 
+export async function applyIcsEvents(incoming: CalendarEvent[]): Promise<string> {
+  if (!incoming.length) return 'Keine VEVENT in der Datei.'
+  for (const row of incoming) {
+    const have = (await listEvents()).find((e) => e.id === row.id)
+    if (have) {
+      await cancelEventNotifies(have)
+      const next: CalendarEvent = { ...have, ...row, id: have.id, created_at: have.created_at }
+      await putEvent(next)
+      await scheduleEventNotifies(next)
+    } else {
+      const created = await addEvent({
+        title: row.title,
+        start_at: row.start_at,
+        place: row.place,
+        remind_offsets_min: row.remind_offsets_min,
+        theme: row.theme,
+        end_at: row.end_at || defaultEndIso(new Date(row.start_at), Boolean(row.all_day)),
+        all_day: row.all_day,
+        recur: row.recur,
+        id: row.id,
+      })
+      await scheduleEventNotifies(created)
+    }
+  }
+  return `${incoming.length} Termine aus ICS. Keys und der Rest vom Hausstand bleiben.`
+}
+
 export async function marksForMonth(year: number, month: number): Promise<Set<string>> {
-  const events = await listEvents()
+  const from = new Date(year, month, 1)
+  const until = new Date(year, month + 1, 1)
+  const events = expandEvents(await listEvents(), from, until)
   const reminders = (await listReminders()).filter((r) => r.status === 'open')
   const keys = new Set<string>()
   for (const e of events) {

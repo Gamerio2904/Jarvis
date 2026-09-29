@@ -1,13 +1,23 @@
 import { formatDue, parseReminderIntent, startOfDay } from './remind-parse.ts'
 
 export type CalendarIntent =
-  | { kind: 'create'; title: string; start: Date; whenLabel: string; place?: string }
+  | {
+      kind: 'create'
+      title: string
+      start: Date
+      whenLabel: string
+      place?: string
+      end?: Date
+      allDay?: boolean
+      recur?: 'weekly' | 'monthly'
+    }
   | { kind: 'list'; day?: Date; until?: Date; label?: string }
   | { kind: 'delete'; query: string }
   | { kind: 'delete_last' }
   | { kind: 'rename'; query: string; title: string }
   | { kind: 'move'; query: string; start: Date; whenLabel: string }
   | { kind: 'open' }
+  | { kind: 'export_ics' }
 
 const WEEKDAYS =
   'montag|dienstag|mittwoch|donnerstag|freitag|friday|samestag|samstag|sonnabend|sonntag'
@@ -15,6 +25,17 @@ const CREATE = /^\s*termin(?:e)?\s*[:-]?\s*(.+)$/is
 const CREATE_NL =
   /^\s*(?:erstell(?:e)?|leg(?:e)?\s+an|mach(?:e)?)\s+(?:einen?\s+)?termin(?:\s+für)?(?:\s+den)?\s+(\d{1,2})\.(\d{1,2})\.?\s*(\d{2,4})?\s*[, ]+(?:um\s+)?(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?\s*[,:]?\s+(.+)$/is
 const OPEN = /^\s*(?:zeig(?:e)?\s+(?:mir\s+)?(?:den\s+)?)?kalender\s*$/i
+const EXPORT_ICS =
+  /^\s*(?:(?:exportiere?|sichere?)\s+)?(?:den\s+)?(?:kalender|termine?)\s+(?:als\s+)?ics(?:\s+export(?:ieren)?)?\s*$/i
+const WEEKLY_CAL = new RegExp(
+  `^\\s*jeden\\s+(${WEEKDAYS})\\s+(?:um\\s+)?(\\d{1,2})(?:[:.](\\d{2}))?(?:\\s*uhr)?\\s+(.+)$`,
+  'is',
+)
+const MONTHLY_CAL =
+  /^\s*jeden\s+monat\s+(?:am\s+)?(\d{1,2})\.(?:\s*(?:um\s+)?(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?)?\s+(.+)$/is
+const ALL_DAY_MARK = /\b(?:ganztägig(?:er|es|en)?|ganzen\s+tag)\b/i
+const SPAN_CLOCK =
+  /(?:von\s+)?(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?\s+bis\s+(\d{1,2})(?:[:.](\d{2}))?(?:\s*uhr)?/i
 const LIST_ALL = /^\s*(?:zeig(?:e)?\s+(?:mir\s+)?(?:meine\s+)?)?termine\s*$/i
 const LIST_DAY = new RegExp(
   `^\\s*(?:was\\s+habe\\s+ich|termine?|kalender|was\\s+steht)\\s+(?:so\\s+)?(?:am\\s+)?(heute|morgen|übermorgen|${WEEKDAYS})(?:\\s+so)?(?:\\s+an)?\\s*\\??\\s*$`,
@@ -147,13 +168,16 @@ function createFromInner(raw: string, now: Date): CalendarIntent | null {
   const inner = parseReminderIntent(raw.trim(), now)
   if (inner?.kind === 'create') {
     const split = splitTitlePlace(inner.title)
-    return {
-      kind: 'create',
-      title: split.title,
-      place: split.place,
-      start: inner.due,
-      whenLabel: inner.whenLabel,
-    }
+    return withAllDayAndSpan(
+      {
+        kind: 'create',
+        title: split.title,
+        place: split.place,
+        start: inner.due,
+        whenLabel: inner.whenLabel,
+      },
+      raw,
+    )
   }
   const bare = parseBareCreate(raw, now)
   if (bare) return bare
@@ -163,12 +187,61 @@ function createFromInner(raw: string, now: Date): CalendarIntent | null {
   const start = new Date(now)
   start.setMinutes(0, 0, 0)
   start.setHours(start.getHours() + 1)
-  return { kind: 'create', title: split.title, place: split.place, start, whenLabel: formatDue(start, now) }
+  return withAllDayAndSpan(
+    { kind: 'create', title: split.title, place: split.place, start, whenLabel: formatDue(start, now) },
+    raw,
+  )
+}
+
+function takeSpan(raw: string): { startH: number; startM: number; endH: number; endM: number; span: string } | null {
+  const m = SPAN_CLOCK.exec(raw)
+  if (!m) return null
+  const startH = Number(m[1])
+  const startM = m[2] ? Number(m[2]) : 0
+  const endH = Number(m[3])
+  const endM = m[4] ? Number(m[4]) : 0
+  if (![startH, startM, endH, endM].every((n) => Number.isFinite(n))) return null
+  if (startH > 23 || endH > 23 || startM > 59 || endM > 59) return null
+  return { startH, startM, endH, endM, span: m[0] }
+}
+
+function withAllDayAndSpan(
+  hit: Extract<CalendarIntent, { kind: 'create' }>,
+  raw: string,
+): Extract<CalendarIntent, { kind: 'create' }> {
+  const allDay = ALL_DAY_MARK.test(raw)
+  const span = takeSpan(raw)
+  const next = { ...hit }
+  if (allDay) {
+    next.allDay = true
+    next.start = new Date(hit.start)
+    next.start.setHours(0, 0, 0, 0)
+    next.end = new Date(next.start)
+    next.end.setDate(next.end.getDate() + 1)
+    next.whenLabel = `${hit.whenLabel} · ganztägig`
+    next.title = hit.title.replace(ALL_DAY_MARK, ' ').replace(/\s+/g, ' ').trim() || hit.title
+  } else if (span) {
+    next.start = new Date(hit.start)
+    next.start.setHours(span.startH, span.startM, 0, 0)
+    next.end = new Date(hit.start)
+    next.end.setHours(span.endH, span.endM, 0, 0)
+    if (next.end.getTime() <= next.start.getTime()) next.end.setDate(next.end.getDate() + 1)
+    next.whenLabel = `${hit.whenLabel} bis ${String(span.endH).padStart(2, '0')}:${String(span.endM).padStart(2, '0')}`
+    next.title =
+      leftoverTitle(next.title, span.span)
+        .replace(SPAN_CLOCK, ' ')
+        .replace(/\b(?:von|bis)\s+\d{1,2}(?:[:.]\d{2})?\b/gi, ' ')
+        .replace(/\b(?:von|bis)\b/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim() || hit.title
+  }
+  return next
 }
 
 export function parseCalendarIntent(text: string, now = new Date()): CalendarIntent | null {
   const t = normalizeCalendarSpeech(text)
   if (!t || t.length > 220) return null
+  if (EXPORT_ICS.test(t)) return { kind: 'export_ics' }
   if (OPEN.test(t)) return { kind: 'open' }
   if (LIST_ALL.test(t)) return { kind: 'list' }
   if (LIST_WEEK.test(t)) {
@@ -200,6 +273,52 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
   const renamed = parseRename(t)
   if (renamed) return renamed
 
+  const weekly = WEEKLY_CAL.exec(t)
+  if (weekly) {
+    const startDay = dayFromWord(weekly[1], now)
+    const h = Number(weekly[2])
+    const m = weekly[3] ? Number(weekly[3]) : 0
+    const split = splitTitlePlace(weekly[4].replace(/[.!?]+$/, '').trim())
+    if (split.title && Number.isFinite(h)) {
+      startDay.setHours(h, Number.isFinite(m) ? m : 0, 0, 0)
+      if (startDay.getTime() <= now.getTime()) startDay.setDate(startDay.getDate() + 7)
+      return withAllDayAndSpan(
+        {
+          kind: 'create',
+          title: split.title,
+          place: split.place,
+          start: startDay,
+          whenLabel: `jeden ${weekly[1]} ${formatDue(startDay, now)}`,
+          recur: 'weekly',
+        },
+        t,
+      )
+    }
+  }
+  const monthly = MONTHLY_CAL.exec(t)
+  if (monthly) {
+    const dom = Number(monthly[1])
+    const h = monthly[2] ? Number(monthly[2]) : 18
+    const mi = monthly[3] ? Number(monthly[3]) : 0
+    const split = splitTitlePlace(monthly[4].replace(/[.!?]+$/, '').trim())
+    if (split.title && dom >= 1 && dom <= 31) {
+      const start = new Date(now.getFullYear(), now.getMonth(), dom, h, mi, 0, 0)
+      if (start.getDate() !== dom) start.setDate(0)
+      if (start.getTime() <= now.getTime()) start.setMonth(start.getMonth() + 1)
+      return withAllDayAndSpan(
+        {
+          kind: 'create',
+          title: split.title,
+          place: split.place,
+          start,
+          whenLabel: `jeden Monat am ${dom}.`,
+          recur: 'monthly',
+        },
+        t,
+      )
+    }
+  }
+
   const nl = CREATE_NL.exec(t)
   if (nl) {
     const startDay = dateFromParts(now, nl[1], nl[2], nl[3] || undefined)
@@ -208,13 +327,16 @@ export function parseCalendarIntent(text: string, now = new Date()): CalendarInt
     const split = splitTitlePlace(nl[6].replace(/[.!?]+$/, '').trim())
     if (startDay && Number.isFinite(h) && split.title) {
       startDay.setHours(h, Number.isFinite(m) ? m : 0, 0, 0)
-      return {
-        kind: 'create',
-        title: split.title,
-        place: split.place,
-        start: startDay,
-        whenLabel: formatDue(startDay, now),
-      }
+      return withAllDayAndSpan(
+        {
+          kind: 'create',
+          title: split.title,
+          place: split.place,
+          start: startDay,
+          whenLabel: formatDue(startDay, now),
+        },
+        t,
+      )
     }
   }
 
@@ -343,7 +465,10 @@ export function parseBareCreate(text: string, now = new Date()): CalendarIntent 
   const title = split.title
   if (!title || title.length < 2 || FOREIGN_TITLE.test(title)) return null
   if (/^\d+$/.test(title)) return null
-  return { kind: 'create', title, place: split.place, start: when.start, whenLabel: when.whenLabel }
+  return withAllDayAndSpan(
+    { kind: 'create', title, place: split.place, start: when.start, whenLabel: when.whenLabel },
+    t,
+  )
 }
 
 const MOVE =

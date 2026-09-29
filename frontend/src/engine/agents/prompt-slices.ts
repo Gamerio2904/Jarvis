@@ -123,7 +123,9 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
   "calendar": {
     "promptSlice": "Domäne calendar: Parser-Fakten only.",
     "goldPrompts": [
-      "Termin morgen 15 Uhr Zahnarzt"
+      "Termin morgen 15 Uhr Zahnarzt",
+      "jeden Montag 18 Uhr Training",
+      "Kalender als ICS"
     ]
   },
   "alarm": {

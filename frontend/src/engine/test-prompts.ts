@@ -341,4 +341,6 @@ export const TEST_PROMPTS = [
   'Welche Kamera-Fähigkeiten habe ich?',
   'Nein, das war der Timer',
   'Hol die Nachrichten',
+  'jeden Montag 18 Uhr Training',
+  'Kalender als ICS',
 ] as const

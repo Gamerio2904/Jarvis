@@ -350,6 +350,8 @@ export const GOLD_EXPECT: Record<string, string> = {
   'Welche Kamera-Fähigkeiten habe ich?': 'hud',
   'Nein, das war der Timer': 'timer',
   'Hol die Nachrichten': 'news',
+  'jeden Montag 18 Uhr Training': 'calendar',
+  'Kalender als ICS': 'calendar',
 }
 
 /** Prompt-Matrix 6.60: darf nie in eine Rückfrage kippen. */

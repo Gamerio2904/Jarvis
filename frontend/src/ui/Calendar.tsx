@@ -20,6 +20,8 @@ import {
 import { formatDue, startOfDay } from '../engine/remind-parse.ts'
 import { listEvents, listReminders, type CalendarEvent, type Reminder } from '../engine/store.ts'
 import { useSlidingThumb } from './SlidingThumb.tsx'
+import { expandEvents, recurLabel } from '../engine/calendar-occur.ts'
+import { shareOrDownloadIcs } from '../engine/calendar-ics.ts'
 
 const WEEK = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 const MONTHS = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez']
@@ -76,15 +78,19 @@ function dayHeading(day: Date, today: Date): string {
   return day.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
-function timeLabel(iso: string): string {
+function timeLabel(iso: string, allDay?: boolean): string {
+  if (allDay) return 'ganztägig'
   const d = new Date(iso)
   return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
 }
 
 function remindLabel(e: CalendarEvent): string | undefined {
-  if (e.remind_offsets_min === undefined) return 'Erinnerung am Termin'
-  if (!e.remind_offsets_min.length) return undefined
-  return `Erinnerung: ${formatRemindOffsets(e.remind_offsets_min)}`
+  const series = recurLabel(e)
+  let remind: string | undefined
+  if (e.remind_offsets_min === undefined) remind = 'Erinnerung am Termin'
+  else if (e.remind_offsets_min.length) remind = `Erinnerung: ${formatRemindOffsets(e.remind_offsets_min)}`
+  if (series && remind) return `${series} · ${remind}`
+  return series || remind
 }
 
 function countOnDay(events: CalendarEvent[], reminders: Reminder[], day: Date): number {
@@ -215,6 +221,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
   const [sheetOpen, setSheetOpen] = useState(false)
   const [chipMins, setChipMins] = useState<number[]>([0])
   const [themePick, setThemePick] = useState<CalThemeId | null>(null)
+  const [allDay, setAllDay] = useState(false)
+  const [recur, setRecur] = useState<CalendarEvent['recur']>(null)
   const [monthDir, setMonthDir] = useState<'left' | 'right' | 'none'>('none')
   const [sheetDrag, setSheetDrag] = useState(0)
   const swipeRef = useRef<{ x: number; y: number } | null>(null)
@@ -286,15 +294,24 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     }
   }, [mode, year])
 
-  const dayEvents = events.filter((e) => sameDay(new Date(e.start_at), selected)).sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
+  const shown = useMemo(() => {
+    const from = new Date(year, 0, 1)
+    from.setDate(from.getDate() - 8)
+    const until = new Date(year + 1, 0, 8)
+    const listUntil = new Date(today)
+    listUntil.setDate(listUntil.getDate() + 22)
+    const end = listUntil.getTime() > until.getTime() ? listUntil : until
+    return expandEvents(events, from, end)
+  }, [events, year, today])
+  const dayEvents = shown.filter((e) => sameDay(new Date(e.start_at), selected)).sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
   const dayRems = reminders.filter((r) => sameDay(new Date(r.due_at), selected))
   const week = useMemo(() => weekDays(selected), [selected])
-  const groups = useMemo(() => upcomingGroups(events, reminders, today), [events, reminders, today])
+  const groups = useMemo(() => upcomingGroups(shown, reminders, today), [shown, reminders, today])
   const nextUp = useMemo(() => {
     const now = Date.now()
-    return events.find((e) => new Date(e.start_at).getTime() >= now) || null
-  }, [events])
-  const todayCount = events.filter((e) => sameDay(new Date(e.start_at), today)).length
+    return shown.find((e) => new Date(e.start_at).getTime() >= now) || null
+  }, [shown])
+  const todayCount = shown.filter((e) => sameDay(new Date(e.start_at), today)).length
   const headLine = nextUp
     ? `Als Nächstes: ${nextUp.title}`
     : todayCount
@@ -340,6 +357,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     sheetStartY.current = null
     setThemePick(null)
     setChipMins([0])
+    setAllDay(false)
+    setRecur(null)
     setTitle('')
     setPlace('')
     setEditingId(null)
@@ -353,22 +372,27 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     setTime('18:00')
     setThemePick(null)
     setChipMins([0])
+    setAllDay(false)
+    setRecur(null)
     setErr(null)
     setSheetOpen(true)
   }
 
   function openEdit(e: CalendarEvent) {
-    const d = new Date(e.start_at)
+    const master = events.find((row) => row.id === e.id) || e
+    const d = new Date(master.start_at)
     setSelected(startOfDay(d))
     setCursor(new Date(d.getFullYear(), d.getMonth(), 1))
-    setEditingId(e.id)
-    setTitle(e.title)
-    setPlace(e.place || '')
+    setEditingId(master.id)
+    setTitle(master.title)
+    setPlace(master.place || '')
+    setAllDay(Boolean(master.all_day))
+    setRecur(master.recur || null)
     setTime(
       `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`,
     )
-    setThemePick(eventTheme(e))
-    setChipMins(e.remind_offsets_min === undefined ? [0] : [...e.remind_offsets_min])
+    setThemePick(eventTheme(master))
+    setChipMins(master.remind_offsets_min === undefined ? [0] : [...master.remind_offsets_min])
     setErr(null)
     setSheetOpen(true)
   }
@@ -404,9 +428,19 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
     try {
       const [h, m] = time.split(':').map((n) => Number(n))
       const start = new Date(selected)
-      start.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0)
-      if (editingId) await updateEventFromGui(editingId, { title: name, start, place: place.trim(), theme, remind_offsets_min: chipMins })
-      else await createEventFromGui({ title: name, start, place: place.trim(), theme, remind_offsets_min: chipMins })
+      if (allDay) start.setHours(0, 0, 0, 0)
+      else start.setHours(Number.isFinite(h) ? h : 15, Number.isFinite(m) ? m : 0, 0, 0)
+      const payload = {
+        title: name,
+        start,
+        place: place.trim(),
+        theme,
+        remind_offsets_min: chipMins,
+        all_day: allDay,
+        recur: recur || null,
+      }
+      if (editingId) await updateEventFromGui(editingId, payload)
+      else await createEventFromGui(payload)
       closeSheet()
       await reload()
     } catch (e) {
@@ -450,6 +484,19 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
         <div className="cal-head-actions">
           <button type="button" className="ghost-btn cal-toolbar-btn" onClick={goToday}>
             Heute
+          </button>
+          <button
+            type="button"
+            className="ghost-btn cal-toolbar-btn"
+            disabled={busy}
+            onClick={() => {
+              setBusy(true)
+              void shareOrDownloadIcs()
+                .catch((e) => setErr(e instanceof Error ? e.message : 'ICS fehlgeschlagen'))
+                .finally(() => setBusy(false))
+            }}
+          >
+            ICS
           </button>
           <button type="button" className="ghost-btn cal-toolbar-btn" onClick={onClose}>
             Zurück
@@ -527,7 +574,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       {mode === 'month' || mode === 'week' ? (
         <div className="cal-strip" role="tablist" aria-label="Woche">
           {week.map((d) => {
-            const n = countOnDay(events, reminders, d)
+            const n = countOnDay(shown, reminders, d)
             const on = sameDay(d, selected)
             return (
               <button
@@ -593,7 +640,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 {monthCells(year, mi).map((d, i) => {
                   if (!d) return <i key={`${name}-e-${i}`} />
                   const key = isoDay(d)
-                  const ids = themesForDay(events, d, sameDay)
+                  const ids = themesForDay(shown, d, sameDay)
                   return (
                     <span
                       key={key}
@@ -630,7 +677,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             const key = isoDay(d)
             const isSel = sameDay(d, selected)
             const isToday = sameDay(d, today)
-            const dots = themesForDay(events, d, sameDay)
+            const dots = themesForDay(shown, d, sameDay)
             const hasRem = reminders.some((r) => sameDay(new Date(r.due_at), d))
             return (
               <button
@@ -640,8 +687,8 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 onClick={() => setSelected(d)}
               >
                 <span className="cal-day-num">{d.getDate()}</span>
-                {countOnDay(events, reminders, d) > 1 ? (
-                  <i className="cal-count cal-count-cell">{countOnDay(events, reminders, d)}</i>
+                {countOnDay(shown, reminders, d) > 1 ? (
+                  <i className="cal-count cal-count-cell">{countOnDay(shown, reminders, d)}</i>
                 ) : null}
                 {dots.length || hasRem ? (
                   <span className="cal-dots">
@@ -668,9 +715,9 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 <ul className="cal-cards">
                   {g.events.map((e) => (
                     <EventCard
-                      key={e.id}
+                      key={`${e.id}-${e.start_at}`}
                       title={e.title}
-                      when={timeLabel(e.start_at)}
+                      when={timeLabel(e.start_at, e.all_day)}
                       place={e.place}
                       remind={remindLabel(e)}
                       theme={eventTheme(e)}
@@ -692,7 +739,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
       {mode === 'week' ? (
         <section className="cal-week cal-pane-in" aria-label="Wochenübersicht">
           {week.map((d) => {
-            const evs = events.filter((e) => sameDay(new Date(e.start_at), d)).sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
+            const evs = shown.filter((e) => sameDay(new Date(e.start_at), d)).sort((a, b) => (a.start_at < b.start_at ? -1 : 1))
             const rems = reminders.filter((r) => sameDay(new Date(r.due_at), d))
             return (
               <div key={isoDay(d)} className={`cal-week-col${sameDay(d, selected) ? ' is-on' : ''}${sameDay(d, today) ? ' is-today' : ''}`}>
@@ -703,9 +750,9 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
                 {evs.length || rems.length ? (
                   <ul className="cal-week-list">
                     {evs.map((e) => (
-                      <li key={e.id}>
+                      <li key={`${e.id}-${e.start_at}`}>
                         <button type="button" className="cal-week-item" data-theme={eventTheme(e)} onClick={() => openEdit(e)}>
-                          <span>{timeLabel(e.start_at)}</span>
+                          <span>{timeLabel(e.start_at, e.all_day)}</span>
                           <strong>{e.title}</strong>
                         </button>
                       </li>
@@ -755,9 +802,9 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             <ul key={isoDay(selected)} className="cal-cards">
               {dayEvents.map((e) => (
                 <EventCard
-                  key={e.id}
+                  key={`${e.id}-${e.start_at}`}
                   title={e.title}
-                  when={timeLabel(e.start_at)}
+                  when={timeLabel(e.start_at, e.all_day)}
                   place={e.place}
                   remind={remindLabel(e)}
                   theme={eventTheme(e)}
@@ -824,7 +871,7 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             lang="de"
             value={time}
             onChange={(e) => setTime(e.currentTarget.value)}
-            disabled={busy || !sheetOpen}
+            disabled={busy || !sheetOpen || allDay}
             tabIndex={sheetOpen ? 0 : -1}
           />
           <input
@@ -841,6 +888,28 @@ export function CalendarView({ onClose, leaving }: { onClose: () => void; leavin
             disabled={busy || !sheetOpen}
             tabIndex={sheetOpen ? 0 : -1}
           />
+          <label className="settings-toggle">
+            <input
+              type="checkbox"
+              checked={allDay}
+              disabled={busy || !sheetOpen}
+              onChange={(e) => setAllDay(e.target.checked)}
+              tabIndex={sheetOpen ? 0 : -1}
+            />
+            <span>Ganztägig</span>
+          </label>
+          <select
+            className="cal-place"
+            value={recur || ''}
+            disabled={busy || !sheetOpen}
+            onChange={(e) => setRecur((e.target.value || null) as CalendarEvent['recur'])}
+            tabIndex={sheetOpen ? 0 : -1}
+            aria-label="Wiederholung"
+          >
+            <option value="">Einmal</option>
+            <option value="weekly">Jede Woche</option>
+            <option value="monthly">Jeden Monat</option>
+          </select>
           <input
             className="cal-place"
             value={place}

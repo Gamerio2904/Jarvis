@@ -96,6 +96,14 @@ assert.ok(after)
 assert.equal(new Date(after.start_at).getDay(), 0)
 assert.equal(new Date(after.start_at).getHours(), 19)
 
+const listed = await handleCalendar('cal-agent', 'was steht diese Woche an?')
+assert.equal(listed.handled, true)
+assert.match(listed.reply || '', /Geburtstag Jakob|Termine/)
+
+const icsAsk = await handleCalendar('cal-agent', 'Kalender als ICS')
+assert.equal(icsAsk.handled, true)
+assert.equal(icsAsk.tool?.action, 'export')
+
 const { cancelEventNotifies } = await import('../src/engine/calendar.ts')
 for (const e of await listEvents()) await cancelEventNotifies(e)
 console.log('test-calendar-agent ok')
