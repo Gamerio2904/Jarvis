@@ -73,6 +73,7 @@ import { parseAppIntent } from '../app-parse.ts'
 import { parseTeachIntent } from '../knowledge.ts'
 import { parsePackAsk, parsePackForget, parsePackRevise } from '../pack-parse.ts'
 import { parseDeskIntent } from '../desk-parse.ts'
+import { parseBoardIntent } from '../board-parse.ts'
 import { isPersonaAsk } from '../guards.ts'
 import { parserScore } from '../policy.ts'
 import type { RouteCtx, SideEffect } from '../route-types.ts'
@@ -213,6 +214,7 @@ function buildParseCatalog(): AgentSpec[] {
     { id: 'todo', sideEffect: 'write', parse: (ctx) => (parseToolIntent(ctx.text) ? score(ctx.text) : null) },
     { id: 'idea', label: 'Idee', sideEffect: 'write', parse: (ctx) => (parseIdeaIntent(ctx.text) ? score(ctx.text, 0.16) : null) },
     { id: 'desk', sideEffect: 'read', parse: (ctx) => (parseDeskIntent(ctx.text) ? score(ctx.text, 0.22) : null) },
+    { id: 'board', label: 'Tischplatte', sideEffect: 'write', parse: (ctx) => (parseBoardIntent(ctx.text) ? score(ctx.text, 0.2) : null) },
     {
       id: 'eye',
       sideEffect: 'read',

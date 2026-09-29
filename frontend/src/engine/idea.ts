@@ -39,7 +39,7 @@ function titlesOf(rows: Idea[]): string[] {
   return rows.map((r) => r.title)
 }
 
-function pickIdea(rows: Idea[], query?: string, index?: number): Idea | undefined {
+export function pickIdea(rows: Idea[], query?: string, index?: number): Idea | undefined {
   if (index && index >= 1) {
     const listed = readLastList('idea')
     const title = listed[index - 1]
@@ -70,7 +70,7 @@ function extractJson(text: string): unknown {
   }
 }
 
-async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
+export async function fillPlanWithModel(idea: Idea): Promise<IdeaPlan | null> {
   if (!groqReady()) return null
   const skeleton = emptyPlan(idea.id)
   try {

@@ -1,7 +1,7 @@
 {
   "name": "jarvis-frontend",
   "private": true,
-  "version": "18.18.0",
+  "version": "18.19.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -73,6 +73,12 @@
     "test:18.16": "node --experimental-strip-types scripts/test-18.16.mjs",
     "test:18.17": "node --experimental-strip-types scripts/test-18.17.mjs",
     "test:18.18": "node --experimental-strip-types scripts/test-18.18.mjs",
+    "test:18.19": "node --experimental-strip-types scripts/test-18.19.mjs",
+    "test:board": "node --experimental-strip-types scripts/test-board.mjs",
+    "test:research-deep": "node --experimental-strip-types scripts/test-research-deep.mjs",
+    "test:memory-propose": "node --experimental-strip-types scripts/test-memory-propose.mjs",
+    "gui:18.18": "node --experimental-strip-types scripts/gui-18.18-home.mjs",
+    "gui:18.19": "node --experimental-strip-types scripts/gui-18.19-tisch.mjs",
     "gui:lage-body-globe": "node --experimental-strip-types scripts/gui-lage-body-globe.mjs",
     "gui:watchlist-osint-18": "node --experimental-strip-types scripts/gui-watchlist-osint-18.mjs",
     "gui:18-7-dock": "node --experimental-strip-types scripts/gui-18-7-dock.mjs",

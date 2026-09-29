@@ -36,6 +36,7 @@ export function isDeepResearch(text: string): boolean {
   if (/\bsystematisch\b/i.test(t) && /\b(?:paper|papers|recherch)/i.test(t)) return true
   if (/\bentwirf\b/i.test(t) && t.length >= 24) return true
   if (/\bpapers?\b/i.test(t) && /\b(?:recherch|suche|systemat)/i.test(t)) return true
+  if (isOpenSourceAsk(t) && /\b(?:such|recherch)/i.test(t) && t.length > 18) return true
   return false
 }
 
@@ -51,29 +52,38 @@ export function deepResearchTopic(text: string): string {
   return (t || researchQuery(text)).slice(0, 160)
 }
 
+export function isOpenSourceAsk(text: string): boolean {
+  return /\b(?:open[\s-]?source|opensource|github|\boss\b)\b/i.test(text)
+}
+
+export const DEEP_ROLES = ['core', 'constraint', 'compare', 'wiki', 'code'] as const
+export type DeepRole = (typeof DEEP_ROLES)[number]
+
 export function deepResearchQueries(text: string): string[] {
+  return deepRoleQueries(text).map((r) => r.q).slice(0, 5)
+}
+
+/** Rollen fest im Code. Default core + constraint + wiki. Code nur bei OSS/Software. */
+export function deepRoleQueries(text: string): { role: DeepRole; q: string }[] {
   const thema = deepResearchTopic(text)
+  const wantCode = isOpenSourceAsk(text) || /software|parser|ics|kalender|library|framework|tic[- ]?tac|tictactoe/i.test(thema)
+  const rows: { role: DeepRole; q: string }[] = [
+    { role: 'core', q: thema },
+    { role: 'constraint', q: `${thema} Grenzen Stand der Technik Kritik` },
+    { role: 'wiki', q: `${thema} site:wikipedia.org` },
+  ]
+  if (thema.length >= 8) rows.splice(2, 0, { role: 'compare', q: `${thema} Vergleich Alternativen vs` })
+  if (wantCode) rows.push({ role: 'code', q: `${thema} site:github.com` })
   const seen = new Set<string>()
-  const out: string[] = []
-  const add = (q: string) => {
-    const s = q.replace(/\s+/g, ' ').trim()
-    if (!s || seen.has(s.toLowerCase())) return
-    seen.add(s.toLowerCase())
-    out.push(s.slice(0, 120))
+  const out: { role: DeepRole; q: string }[] = []
+  for (const row of rows) {
+    const q = row.q.replace(/\s+/g, ' ').trim().slice(0, 120)
+    if (!q || seen.has(q.toLowerCase())) continue
+    seen.add(q.toLowerCase())
+    out.push({ role: row.role, q })
+    if (out.length >= 5) break
   }
-  add(thema)
-  add(`${thema} Wikipedia`)
-  add(`${thema} Stand der Technik`)
-  if (/energie|energy|antrieb|exoskelett|anzug/i.test(thema)) {
-    add('Energiequelle Exoskelett Batterie Brennstoffzelle Constraints')
-    add('powered exoskeleton energy source battery fuel cell limits')
-  }
-  if (/stalingrad|weltkrieg|schlacht/i.test(thema)) {
-    add('Schlacht von Stalingrad')
-    add('Battle of Stalingrad 1942 1943')
-  }
-  add(`${thema} site:wikipedia.org`)
-  return out.slice(0, 5)
+  return out
 }
 
 export function isLiveLookup(text: string, discount = false): boolean {

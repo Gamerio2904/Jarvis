@@ -29,6 +29,7 @@ export const EXECUTOR_IDS = [
   "reminder",
   "todo",
   "desk",
+  "board",
   "eye",
   "doc",
   "weather",

@@ -1,5 +1,6 @@
 import {
   DEFAULT_SETTINGS,
+  getAll,
   listConversations,
   listEvents,
   listMemory,
@@ -26,6 +27,7 @@ import {
   type ShoppingItem,
   type Todo,
   type Idea,
+  type MemoryProposal,
   type WatchMovie,
   type WatchedMovie,
 } from './store.ts'
@@ -78,6 +80,7 @@ const EPHEMERAL: Array<keyof Settings> = [
   'last_blitzer_json',
   'last_price_watch_at',
   'working_memory_json',
+  'board_jobs_json',
   'last_step_tool',
   'last_step_title',
   'last_step_when',
@@ -101,6 +104,7 @@ const EPHEMERAL: Array<keyof Settings> = [
 const KEY_FIELDS: Array<keyof Settings> = [
   'gemini_api_key',
   'groq_api_key',
+  'github_token',
   'tankerkoenig_api_key',
   'omdb_api_key',
   'carto_api_key',
@@ -132,6 +136,7 @@ export type HausBackup = {
   shopping: ShoppingItem[]
   price_watches?: PriceWatch[]
   knowledge_packs?: KnowledgePack[]
+  memory_proposals?: MemoryProposal[]
   conversations?: Conversation[]
   messages?: Message[]
   calendar_ics?: string
@@ -273,6 +278,7 @@ export async function buildBackup(includeChats: boolean): Promise<HausBackup> {
     shopping: await listShopping(),
     price_watches: await listPriceWatches(),
     knowledge_packs: await listKnowledgePacks(),
+    memory_proposals: await getAll<MemoryProposal>('memory_proposals').catch(() => []),
     conversations,
     messages,
     calendar_ics: eventsToIcs(events),
@@ -299,6 +305,7 @@ export async function applyBackup(data: HausBackup): Promise<string> {
   await replaceStore('shopping', data.shopping || [])
   if (data.price_watches) await replaceStore('price_watches', data.price_watches)
   if (data.knowledge_packs) await replaceStore('knowledge_packs', data.knowledge_packs)
+  await replaceStore('memory_proposals', data.memory_proposals || [])
   if (data.conversations) {
     await replaceStore('conversations', data.conversations)
     await replaceStore('messages', data.messages || [])

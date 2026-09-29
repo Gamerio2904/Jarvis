@@ -1,6 +1,6 @@
 # Sprint 390 — Memory-Vorschläge ins Haupthirn
 
-**Version:** `18.19.0` — **PLAN** Must
+**Version:** `18.19.0` — **CODE** Must
 **Plan:** [`91-next.md`](../91-next.md)
 **Voraussetzung:** `writeMemory` / Gate (`memory-gate.ts`). Deep-Claims 388. Tafel-Chips 385 optional.
 

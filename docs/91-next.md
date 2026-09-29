@@ -1,4 +1,4 @@
-# 91 — Tischplatte + Deep Research + Hirn-Vorschläge **PLAN** (`18.19`)
+# 91 — Tischplatte + Deep Research + Hirn-Vorschläge **CODE** (`18.19`)
 
 PO: Wenn die rechte Leiste **Tischplatte an** schaltet, verschwinden die
 App-Icons. Der Homescreen wird eine **glasartige, interaktive Werkbank**
@@ -6,9 +6,8 @@ für Projektplanung (PSP, Sprints, Forschung). Jarvis liest Funktionen aus
 einem Docs-Katalog, startet Recherche- und Plan-Jobs nebeneinander und
 reicht Vorschläge ans Haupthirn — die erst nach Prüfung Memory werden.
 
-**Dieses Dokument ist PLAN. Kein Execute, kein App-Code, keine APK.**
-Sprints **385–391**. Ziel-Version **`18.19.0`** erst beim Execute.
-Grundlage: App-Code **`18.18.0`** [`90-next.md`](./90-next.md). Sideload
+**Dieses Dokument ist CODE nach Execute 385–391.** App-Code **`18.19.0`**.
+Sprints **385–391**. Grundlage: Homescreen **`18.18.0`** [`90-next.md`](./90-next.md). Sideload
 bleibt **`18.17.0`** bis eine spätere APK.
 
 Andere Drafts bleiben getrennt: Koch `#149`, Kamera-Wahl `#151`, Clips
@@ -73,7 +72,6 @@ Gold heute: `Schreibtisch an` → `desk`. `Idee:` → `idea`. `Recherchiere tief
 
 ## 3. Won’t
 
-- Execute in diesem Dokument (kein `HomeScreen.tsx` anfassen, solange PLAN).
 - Android-Launcher, fremde App-Icons, Live-Wallpaper-Service.
 - WebGL, Cesium, Lottie, Three.js, shader-Wallpaper, Face-Hologramm, Marvel-Stills.
 - tldraw in Production (Lizenz-Key). `@xyflow/react` als Abhängigkeit.

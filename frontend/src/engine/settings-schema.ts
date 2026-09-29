@@ -19,6 +19,7 @@ export const ENUM_FIELDS = {
   hud_accent: ['green', 'amber'],
   ui_theme: ['dark', 'light', 'system'],
   hud_view: ['tiles', 'body', 'globe', 'serie'],
+  tischplatte_view: ['sprints', 'psp', 'modules', 'sim', 'research'],
   drive_speak: ['after', 'only'],
   presence_role: ['brain', 'window'],
   body_view: ['classic', 'agents'],

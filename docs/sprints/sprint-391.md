@@ -1,6 +1,6 @@
 # Sprint 391 — Gold, Konflikte, Tests Tischplatte
 
-**Version:** `18.19.0` — **PLAN** Must
+**Version:** `18.19.0` — **CODE** Must
 **Plan:** [`91-next.md`](../91-next.md)
 **Voraussetzung:** 385–390.
 
@@ -22,7 +22,7 @@ nicht, Deep bleibt Deep, Jobs sind kein Schwarm, Memory braucht Ja.
 
 ## Won’t
 
-Execute. APK. Fremde Drafts mergen. Schwarm-Gold.
+APK. Fremde Drafts mergen. Schwarm-Gold.
 
 ## Abbruchkriterium
 

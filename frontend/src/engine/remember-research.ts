@@ -1,7 +1,6 @@
-import { dumpLikeValue, expiresFor } from './memory-layer.ts'
+import { dumpLikeValue } from './memory-layer.ts'
+import { proposeMemory } from './memory-propose.ts'
 import type { ResearchSource } from './research-parse.ts'
-import { upsertMemory, type MemoryItem } from './store.ts'
-import { upsertWorking } from './working-memory.ts'
 
 const RESEARCH_STOP = new Set(
   'der die das den dem des ein eine einer einem einen und oder aber mit von zu im in am auf aus für als wie was wer wo wann warum dass ist sind war hat habe ich wir sie du mir mich uns ihr eure mein meine dein keine kein noch nur auch schon mal bitte doch über uber weißt weiss stand hatte gerade ohne kennst kennt davon dazu darüber darueber sagst gesagt liegt geben welche wollte machen viele viel eine einem'.split(
@@ -42,50 +41,32 @@ export function researchEntities(query: string, claim = ''): string[] {
   ].slice(0, 8)
 }
 
-/** Nur zitierte Treffer. Jede Quelle eigener Key. Kein Satz ohne URL. e5 bleibt aus dem Router. */
+/**
+ * Nur zitierte Treffer. Vorschlagen, nicht speichern.
+ * Cap-80 bleibt leer, bis der Nutzer Ja sagt.
+ */
 export async function rememberCitedResearch(
   query: string,
   sources: ResearchSource[],
-  conversationId?: string,
+  _conversationId?: string,
 ): Promise<number> {
   const q = query.replace(/\s+/g, ' ').trim()
   if (!q || q.length < 4) return 0
   const cited = sources.filter((s) => s.url && (s.snippet || s.title).trim())
   if (!cited.length) return 0
-  const written: MemoryItem[] = []
-  const hosts: string[] = []
+  let n = 0
   for (const s of cited.slice(0, 3)) {
     const host = hostOf(s.url)
     const claim = (s.snippet || s.title).replace(/\s+/g, ' ').trim().slice(0, 180)
     if (!claim || dumpLikeValue(claim) || !host) continue
-    const key = researchKey(q, host)
-    const ents = researchEntities(q, claim)
-    const row = await upsertMemory(key, `${claim} (Quelle: ${host})`, 'research', conversationId, {
-      origin: 'tool',
-      confidence: 0.8,
-      kind: 'fact',
-      entities: ents,
-      parent_key: `research:${slug(q)}`,
-      expires_at: expiresFor('tool', 'research'),
+    const row = await proposeMemory({
+      key: researchKey(q, host),
+      value: `${claim} (Quelle: ${host})`,
+      category: 'research',
+      url: s.url,
+      origin: 'research',
     })
-    written.push(row)
-    hosts.push(host)
+    if (row) n += 1
   }
-  if (written.length > 1) {
-    for (const row of written) {
-      const others = written.filter((w) => w.id !== row.id)
-      await upsertMemory(row.key, row.value, 'research', conversationId, {
-        origin: 'tool',
-        confidence: 0.8,
-        kind: 'fact',
-        entities: row.entities,
-        parent_key: row.parent_key,
-        expires_at: row.expires_at,
-        related_ids: others.map((w) => w.id),
-        related_edge: others.map(() => 'same_entity'),
-      })
-    }
-  }
-  if (written.length) upsertWorking('research', `${q.slice(0, 48)} — ${hosts.join(', ')}`)
-  return written.length
+  return n
 }

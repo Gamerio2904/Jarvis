@@ -64,6 +64,7 @@ import { handleRecall } from '../recall.ts'
 import { handleApp } from '../app.ts'
 import { handleTeach, handlePack } from '../knowledge.ts'
 import { handleDesk } from '../desk.ts'
+import { handleBoard } from '../board.ts'
 import type { ChatBlock } from '../chat-blocks.ts'
 import type { RouteHit } from './types.ts'
 import { upsertWorking } from '../working-memory.ts'
@@ -169,6 +170,7 @@ export const AGENT_EXECUTORS: Record<string, AgentExecutor> = {
   watchlist: async (ctx) => fromHandler('watchlist', await handleWatchlist(ctx.conversationId, ctx.text)),
   osint: async (ctx) => fromHandler('osint', await handleOsint(ctx.text)),
   desk: async (ctx) => fromHandler('desk', await handleDesk(ctx.conversationId, ctx.text)),
+  board: async (ctx) => fromHandler('board', await handleBoard(ctx.conversationId, ctx.text)),
   eye: async (ctx) => fromHandler('eye', await handleEyeAsk(ctx.text)),
   doc: async (ctx) => fromHandler('doc', await handleDoc(ctx.conversationId, ctx.text)),
   weather: async (ctx) => fromHandler('weather', await handleWeather(ctx.text)),

@@ -30,6 +30,7 @@ const TIE_ORDER = [
   'trace',
   'doc',
   'desk',
+  'board',
   'pack',
   'teach',
   'blitzer',

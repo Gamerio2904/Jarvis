@@ -807,6 +807,12 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  useEffect(() => {
+    const on = () => void refreshSettings()
+    window.addEventListener('jarvis-settings', on)
+    return () => window.removeEventListener('jarvis-settings', on)
+  }, [])
+
   async function refreshReminders() {
     try {
       const rows = await listReminders()
@@ -1972,6 +1978,11 @@ function App() {
           <HomeScreen
             face={liveHud.face === 'friday' ? 'friday' : 'jarvis'}
             onOpen={launchHomeApp}
+            tischplatteOn={Boolean(liveHud.tischplatte_on)}
+            view={liveHud.tischplatte_view || 'sprints'}
+            focus={liveHud.tischplatte_focus || ''}
+            hint={liveHud.tischplatte_hint || ''}
+            seed={liveHud.tischplatte_seed || 0}
           />
         ) : null}
         {calendarLayer.shown ? (
@@ -2371,7 +2382,14 @@ function App() {
       />
       {!driveOpen && !chessOpen ? (
         <>
-          <GlanceRail open={railOpen} onToggle={() => setRailOpen((v) => !v)} />
+          <GlanceRail
+            open={railOpen}
+            onToggle={() => setRailOpen((v) => !v)}
+            tischplatteOn={Boolean(liveHud.tischplatte_on)}
+            onTischplatte={(on) => {
+              void patchSettings({ tischplatte_on: on }).then((s) => setSettings(s))
+            }}
+          />
           {homeOpen ? (
             <MiniChat
               open={miniChatOpen}

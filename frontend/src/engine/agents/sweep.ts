@@ -35,6 +35,7 @@ export const AGENT_SWEEP: Record<string, string> = {
   todo: 'Todo: Testdebug Milch',
   idea: 'Idee: Körper und Chat gleichzeitig',
   desk: 'Schreibtisch an',
+  board: 'Tischplatte an',
   eye: 'Lies das Foto',
   doc: 'Lies das PDF',
   weather: 'Wetter heute',

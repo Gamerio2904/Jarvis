@@ -47,6 +47,7 @@ import {
 import { looksTruncated } from './polish-guard.ts'
 import { fillResearchLinks } from './web-search.ts'
 import { rememberCitedResearch } from './remember-research.ts'
+import { offerPendingLine } from './memory-propose.ts'
 import {
   APP_VERSION,
   DEFAULT_MODEL,
@@ -713,6 +714,7 @@ export async function streamChat(
         if (isDeepResearch(ask)) {
           persistTeachOffer(ask, reply, research.sources || [])
           reply += teachOfferLine(ask)
+          reply += await offerPendingLine()
         }
         emitToken(handlers, reply)
         handlers.onReplace?.(reply)
@@ -947,8 +949,10 @@ export async function streamChat(
       persistTeachOffer(ask, final, research?.sources || [])
       if (!/Soll ich das als Fachwissen/.test(final)) {
         final = `${final.replace(/\s+$/, '')}${teachOfferLine(ask)}`
-        handlers.onReplace?.(final)
       }
+      const offer = await offerPendingLine()
+      if (offer && !/Vorschlag:/.test(final)) final = `${final.replace(/\s+$/, '')}${offer}`
+      handlers.onReplace?.(final)
     }
     const assistant = await sayAssistant(conversationId, final, research ? { research } : undefined)
     const updated = (await touchConversation(conversationId)) || convAfterUser

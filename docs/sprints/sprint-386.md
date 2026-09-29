@@ -1,6 +1,6 @@
 # Sprint 386 — Workspace: Sprints, Module, GUI-Sim
 
-**Version:** `18.19.0` — **PLAN** Must
+**Version:** `18.19.0` — **CODE** Must
 **Plan:** [`91-next.md`](../91-next.md) §4.4 §6
 **Voraussetzung:** 385 (Wand B, Icons aus). Idee-Plan `18.2`.
 

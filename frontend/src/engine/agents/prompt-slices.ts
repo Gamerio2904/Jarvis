@@ -376,6 +376,12 @@ export const PROMPT_SLICES: Record<string, { promptSlice?: string; goldPrompts?:
       "Schreibtisch an"
     ]
   },
+  "board": {
+    "promptSlice": "Tischplatte: Glas-Werkbank, Icons aus, kein Gesicht, kein Schreibtisch-Foto.",
+    "goldPrompts": [
+      "Tischplatte an"
+    ]
+  },
   "backup": {
     "promptSlice": "Domäne backup: Parser-Fakten only.",
     "goldPrompts": [

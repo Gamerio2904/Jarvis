@@ -15,9 +15,11 @@ import {
   sourcesFromHtml,
   sourcesFromText,
   wikiCompanyHint,
+  isOpenSourceAsk,
   type ResearchMeta,
   type ResearchSource,
 } from './research-parse.ts'
+import { searchGithubRepos } from './github-search.ts'
 import { loadSettings } from './store.ts'
 
 const UA = USER_AGENT
@@ -35,10 +37,27 @@ export async function fillDeepResearchLinks(
   const found = await Promise.all(queries.map((q) => duckDuckGo(q)))
   extra.push(...found.flat())
   extra.push(...(await wikipedia(topic)))
-  if (/stalingrad/i.test(topic)) extra.push(...(await wikipedia('Schlacht von Stalingrad')))
+  const pass1 = extra.filter((s) => s.url)
+  if (pass1.length >= 2) {
+    const top = rankDeepSources(topic, extra)
+      .slice(0, 3)
+      .map((s) => s.title.replace(/\s+/g, ' ').trim())
+      .find((t) => t.length >= 4)
+    if (top) extra.push(...(await duckDuckGo(`${topic} ${top}`.slice(0, 120))))
+  }
+  let note = ''
+  if (isOpenSourceAsk(queryText)) {
+    const gh = await searchGithubRepos(topic)
+    extra.push(...gh.sources)
+    note = gh.note || ''
+  }
   const ranked = rankDeepSources(topic, extra)
   const keep = ranked.length ? ranked : extra.filter((s) => s.url)
-  return mergeResearchSources(research, keep, queries[0] || researchQuery(queryText))
+  const merged = mergeResearchSources(research, keep, queries[0] || researchQuery(queryText))
+  if (note) {
+    merged.privacy_note = [merged.privacy_note, note].filter(Boolean).join(' ')
+  }
+  return merged
 }
 
 export async function fillResearchLinks(

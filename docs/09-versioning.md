@@ -1,6 +1,6 @@
 # 09 — Versionierung
 
-> **Jetzt:** App-Code **`18.18.0`**. Sideload **`18.17.0`**, versionCode `181700` bis APK. Schiene [`90-next.md`](./90-next.md) 382–384 **CODE** `18.18.0`. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
+> **Jetzt:** App-Code **`18.19.0`**. Sideload **`18.17.0`**, versionCode `181700` bis APK. Schiene [`91-next.md`](./91-next.md) 385–391 **CODE** `18.19.0`. Homescreen [`90-next.md`](./90-next.md) 382–384 **CODE** `18.18.0`. Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**.
 
 Projektübergreifende Versionslogik für Code, Docs, Sprints und Releases.
 
@@ -754,6 +754,7 @@ Nicht parallel zu `18.5`. Sideload **`18.9.0`**, versionCode `180900`.
 | `18.16.0` | Personen-Knäuel, Begrüßung, Episode, Sleep, Korrektur-Replay | 369–376 **CODE + APK** |
 | `18.17.0` | Kalender Alltag: Hausstand-Termine, ICS, Serie, Konflikt | 377–381 **CODE + APK** |
 | `18.18.0` | Homescreen: App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel | 382–384 **CODE** |
+| `18.19.0` | Tischplatte, Deep Research, Hirn-Vorschläge | 385–391 **CODE** |
 
 Nachzieher **`18.9.5`** (APK, versionCode `180905`): Watchliste Entfernen,
 Lieblingsfilme-Add, Duplikat zusammenlegen, STT-Leim, keine Fake-Zugriffe.
@@ -851,21 +852,21 @@ Sprints 382–384.
 | `18.18.0` | Werte-Leiste, Mini-Chat, Sprach-Kugel | 383 CODE |
 | `18.18.0` | Tests Homescreen | 384 CODE |
 
-### `18.19` — Tischplatte [`91-next.md`](./91-next.md) **PLAN**
+### `18.19` — Tischplatte [`91-next.md`](./91-next.md) **CODE**
 
-**`18.19.0`** (erst beim Execute): Icons aus, HUD-Workspace ohne Gesicht
+**`18.19.0`** (App-Code, Sideload bleibt `18.17.0`): Icons aus, HUD-Workspace ohne Gesicht
 (Sprints/Module/GUI-Sim), Docs-Katalog, Deep Research + OSS-Chips,
-Memory-Vorschläge. Sprints 385–391 **PLAN**. Sideload bleibt **`18.17.0`**.
+Memory-Vorschläge. Sprints 385–391 **CODE**. Test: [`TEST-18.19.md`](./TEST-18.19.md).
 
 | Version | Bedeutung | Sprint |
 |---------|-----------|--------|
-| `18.19.0` | Tischplatte Theme A/B, Icons aus | 385 PLAN |
-| `18.19.0` | Workspace Sprints/Module/GUI-Sim ohne Gesicht | 386 PLAN |
-| `18.19.0` | Feature-Katalog aus Docs | 387 PLAN |
-| `18.19.0` | Deep Research härten + OSS | 388 PLAN |
-| `18.19.0` | Jobs Recherche + Plan | 389 PLAN |
-| `18.19.0` | MemoryProposal → writeMemory | 390 PLAN |
-| `18.19.0` | Gold, Konflikte, Tests | 391 PLAN |
+| `18.19.0` | Tischplatte Theme A/B, Icons aus | 385 CODE |
+| `18.19.0` | Workspace Sprints/Module/GUI-Sim ohne Gesicht | 386 CODE |
+| `18.19.0` | Feature-Katalog aus Docs | 387 CODE |
+| `18.19.0` | Deep Research härten + OSS | 388 CODE |
+| `18.19.0` | Jobs Recherche + Plan | 389 CODE |
+| `18.19.0` | MemoryProposal → writeMemory | 390 CODE |
+| `18.19.0` | Gold, Konflikte, Tests | 391 CODE |
 
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 

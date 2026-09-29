@@ -1,8 +1,8 @@
 # Sprint 385 — Tischplatte-Modus (Theme A/B, Icons aus)
 
-**Version:** `18.19.0` — **PLAN** Must
+**Version:** `18.19.0` — **CODE** Must
 **Plan:** [`91-next.md`](../91-next.md) §4.0–4.4
-**Voraussetzung:** Homescreen `18.18.0` (382–384). **Kein Execute in diesem Sprint-Dokument.**
+**Voraussetzung:** Homescreen `18.18.0` (382–384).
 
 ## Ziel
 
@@ -25,7 +25,7 @@ ohne Gesicht. Parser `board`, nicht `desk`.
 
 ## Won’t
 
-Execute. WebGL. Face-Hologramm. tldraw/xyflow-npm. Bildgenerator-API.
+WebGL. Face-Hologramm. tldraw/xyflow-npm. Bildgenerator-API.
 Marvel-Stills. Desk-Foto.
 
 ## Abbruchkriterium

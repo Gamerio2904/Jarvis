@@ -56,7 +56,7 @@ assert.equal(matchSceneCharacter('Morty')?.id, 2)
 assert.equal(matchSceneCharacter('Evil Morty')?.id, 118)
 assert.equal(matchSceneCharacter('Glas ohne Etikett'), null)
 
-assert.equal(evidence('S06E01'), null)
+assert.equal(evidence('S06E01', ''), null)
 const loose = evidenceLoose('S06E03', 'Sichtbar auf dem Foto.')
 assert.ok(loose)
 assert.equal(loose.code, 'S06E03')
@@ -68,6 +68,7 @@ applySceneSkills([
   { characterId: 1, characterName: 'Rick Sanchez', name: 'Neue Portal-Variante', code: 'S06E01', note: 'Sichtbar auf dem Foto.' },
 ])
 const rick = dossierFor(1)
+assert.ok(rick)
 assert.ok(rick.skills.some((s) => s.name === 'Neue Portal-Variante' && s.origin === 'camera' && s.evidence.code === 'S06E01'))
 assert.ok(hasAnySkill(1))
 applySceneSkills([])

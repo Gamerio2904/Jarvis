@@ -7,6 +7,7 @@ import {
   memoryAspect,
   semanticPins,
   type MemoryAspect,
+  type MemoryOrigin,
 } from './memory-layer.ts'
 
 function normQ(s: string): string {
@@ -25,7 +26,7 @@ export type MemoryPin = {
   value: string
   category?: string
   confidence?: number
-  origin?: 'user' | 'sleep' | 'tool'
+  origin?: MemoryOrigin
   kind?: string
 }
 
@@ -84,7 +85,7 @@ export function memoryBlock(
     value: string
     category?: string
     confidence?: number
-    origin?: 'user' | 'sleep' | 'tool'
+    origin?: MemoryOrigin
     kind?: string
   }>,
   question = '',

@@ -4,6 +4,7 @@ import { gazetteerHit } from './globe-geo.ts'
 import { parseRmSceneIntent } from './rm-scene-parse.ts'
 import { parseWontIntent } from './wont-parse.ts'
 import { parseDocIntent } from './doc-parse.ts'
+import { parseBoardIntent } from './board-parse.ts'
 
 function drop(cands: Candidate[], id: string): Candidate[] {
   return cands.filter((c) => c.id !== id)
@@ -418,10 +419,38 @@ export function applyConflicts(cands: Candidate[], text: string, ctx: RouteCtx):
     out = boost(out, 'eye', 0.25)
   }
 
-  if (/\b(?:tisch|schreibtisch|desk\s+view)\b/.test(t) && !/\b(?:wetter|hotel)\b/.test(t)) {
+  if (/\b(?:tischplatte|werkbank|projekttafel)\b/.test(t)) {
+    out = drop(out, 'desk')
+    out = drop(out, 'hud')
+    out = boost(out, 'board', 0.28)
+  }
+
+  const board = parseBoardIntent(text)
+  if (board && (board.kind === 'view' || board.kind === 'on' || board.kind === 'off' || board.kind === 'catalog' || board.kind === 'jobs')) {
+    out = drop(out, 'hud')
+    out = drop(out, 'desk')
+    out = boost(out, 'board', 0.22)
+  }
+
+  if (
+    /\b(?:tisch|schreibtisch|desk\s+view)\b/.test(t) &&
+    !/\b(?:wetter|hotel|tischplatte)\b/.test(t)
+  ) {
     out = drop(out, 'weather')
     out = drop(out, 'here')
     out = boost(out, 'desk', 0.24)
+  }
+
+  if (has(out, 'board') && (has(out, 'plug') || has(out, 'weather'))) {
+    out = drop(out, 'board')
+  }
+
+  if (
+    has(out, 'board') &&
+    has(out, 'calendar') &&
+    !/\b(?:simulier|tischplatte|werkbank|projekttafel|features?|docs|geplant)\b/.test(t)
+  ) {
+    out = drop(out, 'board')
   }
 
   if (parseDocIntent(text)) {

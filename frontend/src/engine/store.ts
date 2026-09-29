@@ -1,16 +1,16 @@
 import { shouldRefreshTitle, titleFromUser } from './chat-title.ts'
 import type { MemoryEdge, MemoryKind, MemoryOrigin, MemoryTense } from './memory-layer.ts'
-import { kindFromCategory, pruneMemoryItems } from './memory-layer.ts'
+import { kindFromCategory, pruneMemoryItems, confidenceFor } from './memory-layer.ts'
 import { migrateSettings, SETTINGS_REV } from './settings-migrate.ts'
 import { coerceSettings } from './settings-schema.ts'
 import { isTurnAborted } from './turn-abort.ts'
 import type { IdeaPlan } from './idea-plan.ts'
 import type { GlobeLayer } from './globe-layer-ids.ts'
 
-export const APP_VERSION = '18.18.0'
+export const APP_VERSION = '18.19.0'
 
 /** Offene Folien (Kalender, Filme) hören mit, ohne den Store zu pollen. */
-export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist'): void {
+export function emitHouse(name: 'jarvis-events' | 'jarvis-watchlist' | 'jarvis-settings'): void {
   if (typeof window === 'undefined') return
   window.dispatchEvent(new Event(name))
 }
@@ -102,6 +102,17 @@ export type Idea = {
   source_conversation_id?: string | null
   created_at: string
   updated_at: string
+}
+
+export type MemoryProposal = {
+  id: string
+  text: string
+  key?: string
+  category: string
+  origin: 'research' | 'board' | 'catalog'
+  url?: string
+  status: 'pending' | 'accepted' | 'rejected'
+  created_at: string
 }
 
 export type WatchListKind = 'watch' | 'favorite'
@@ -354,6 +365,14 @@ export type Settings = {
   last_eye_frame: boolean
   last_pc_frame: boolean
   last_desk_on: boolean
+  tischplatte_on: boolean
+  tischplatte_view: string
+  tischplatte_focus: string
+  tischplatte_seed: number
+  tischplatte_hint: string
+  board_jobs_json: string
+  proposal_pending: boolean
+  github_token: string
   agent_network_v2: boolean
   body_view: 'classic' | 'agents'
   show_agent_network: boolean
@@ -529,6 +548,14 @@ export const DEFAULT_SETTINGS: Settings = {
   last_eye_frame: false,
   last_pc_frame: false,
   last_desk_on: false,
+  tischplatte_on: false,
+  tischplatte_view: 'sprints',
+  tischplatte_focus: '',
+  tischplatte_seed: 0,
+  tischplatte_hint: '',
+  board_jobs_json: '',
+  proposal_pending: false,
+  github_token: '',
   agent_network_v2: true,
   body_view: 'agents',
   show_agent_network: false,
@@ -638,6 +665,7 @@ export function saveSettings(patch: Partial<Settings>): Settings {
   } catch {
     /* node tests */
   }
+  emitHouse('jarvis-settings')
   return next
 }
 
@@ -709,7 +737,7 @@ export type DocRecord = {
 
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('jarvis-ondevice', 10)
+    const req = indexedDB.open('jarvis-ondevice', 11)
     req.onupgradeneeded = () => {
       const db = req.result
       for (const name of [
@@ -730,6 +758,7 @@ function openDb(): Promise<IDBDatabase> {
         'docs',
         'knowledge_packs',
         'rm_scene_skills',
+        'memory_proposals',
       ]) {
         if (!db.objectStoreNames.contains(name)) {
           const key = name === 'pending' ? 'conversation_id' : 'id'
@@ -915,7 +944,7 @@ export async function upsertMemory(
     key,
     value,
     category,
-    confidence: opts?.confidence ?? existing?.confidence ?? (origin === 'sleep' ? 0.4 : origin === 'tool' ? 0.8 : category === 'pref' ? 0.9 : 0.95),
+    confidence: opts?.confidence ?? existing?.confidence ?? confidenceFor(origin, category),
     source_conversation_id: conversationId || existing?.source_conversation_id || null,
     updated_at: nowIso(),
     expires_at: opts?.expires_at === undefined ? existing?.expires_at || null : opts.expires_at,

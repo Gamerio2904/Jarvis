@@ -1,7 +1,7 @@
 /** Hierarchical Memory: Quelle, Confidence, Bereinigung. Kein Lance, kein Embedding-Router. Kein HNSW/Qdrant. */
 
 export type MemoryLayer = 'sensory' | 'working' | 'episodic' | 'semantic'
-export type MemoryOrigin = 'user' | 'sleep' | 'tool'
+export type MemoryOrigin = 'user' | 'sleep' | 'tool' | 'research'
 export type MemoryKind = 'pref' | 'fact' | 'goal' | 'event' | 'open_loop' | 'boundary'
 export type MemoryTense = 'past' | 'present' | 'future' | 'unknown'
 export type MemoryGateAction = 'STORE' | 'MERGE' | 'IGNORE' | 'REVISE'
@@ -14,6 +14,7 @@ export const MEMORY_STALE_MS = 14 * 24 * 60 * 60 * 1000
 
 export function confidenceFor(origin: MemoryOrigin, category = ''): number {
   if (origin === 'sleep') return 0.4
+  if (origin === 'research') return 0.55
   if (origin === 'tool') return 0.8
   if (category === 'pref') return 0.9
   return 0.95

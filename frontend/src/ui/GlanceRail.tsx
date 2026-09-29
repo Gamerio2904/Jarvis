@@ -16,9 +16,13 @@ const EMPTY: GlanceSnap = {
 export function GlanceRail({
   open,
   onToggle,
+  tischplatteOn,
+  onTischplatte,
 }: {
   open: boolean
   onToggle: () => void
+  tischplatteOn: boolean
+  onTischplatte: (on: boolean) => void
 }) {
   const [snap, setSnap] = useState<GlanceSnap>(EMPTY)
   useEffect(() => {
@@ -83,6 +87,29 @@ export function GlanceRail({
             <dd>{snap.version}</dd>
           </div>
         </dl>
+        <div className="glance-tisch">
+          <span>Tischplatte</span>
+          <div className="glance-tisch-btns" role="group" aria-label="Tischplatte">
+            <button
+              type="button"
+              className={tischplatteOn ? 'is-on' : ''}
+              data-tischplatte="on"
+              aria-pressed={tischplatteOn}
+              onClick={() => onTischplatte(true)}
+            >
+              an
+            </button>
+            <button
+              type="button"
+              className={!tischplatteOn ? 'is-on' : ''}
+              data-tischplatte="off"
+              aria-pressed={!tischplatteOn}
+              onClick={() => onTischplatte(false)}
+            >
+              aus
+            </button>
+          </div>
+        </div>
       </div>
     </aside>
   )

@@ -1,6 +1,6 @@
 # Sprint 387 — Feature-Katalog aus den Docs
 
-**Version:** `18.19.0` — **PLAN** Must
+**Version:** `18.19.0` — **CODE** Must
 **Plan:** [`91-next.md`](../91-next.md)
 **Voraussetzung:** 385 (Tafel oder Chat darf antworten). Docs-Stand `#156` nicht mergen.
 

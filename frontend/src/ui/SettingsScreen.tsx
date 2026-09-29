@@ -775,6 +775,24 @@ export function SettingsScreen(p: SettingsScreenProps) {
                 </div>
                 {p.groqMsg ? <p className="settings-hint">{p.groqMsg}</p> : null}
               </section>
+              <section className="settings-card">
+                <h3>
+                  GitHub <KeyMark on={Boolean(s?.github_token?.trim())} />
+                </h3>
+                <p className="settings-hint">
+                  Optional. Nur für Open-Source-Suche (REST /search/repositories). Ohne Token bleibt die öffentliche HTML-Suche, ehrlich unvollständig.
+                </p>
+                <label className="settings-field">
+                  <span>Token</span>
+                  <SecretField
+                    key={`gh-key-${s?.github_token ? 'set' : 'empty'}`}
+                    defaultValue={s?.github_token || ''}
+                    disabled={busy}
+                    placeholder="ghp_… hier einfügen"
+                    onBlur={(e) => void p.patchSetting({ github_token: e.target.value.trim() })}
+                  />
+                </label>
+              </section>
               <section className="settings-card" id="sf-opensky">
                 <h3>
                   OpenSky <KeyMark on={Boolean(s?.opensky_client_id?.trim() && s?.opensky_client_secret?.trim())} />

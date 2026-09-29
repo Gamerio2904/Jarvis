@@ -1,14 +1,14 @@
-# 42 — Alles geplant (Stand Code `18.18.0`, Sideload `18.17.0`, nächste Schiene `18.19` PLAN)
+# 42 — Alles geplant (Stand Code `18.19.0`, Sideload `18.17.0`)
 
 Eine Liste, die **zum Code und zu den offenen Resten passt**.
 
-**Live-APK:** **`18.17.0`**, versionCode `181700`. App-Code **`18.18.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.18.md`](./TEST-18.18.md).
+**Live-APK:** **`18.17.0`**, versionCode `181700`. App-Code **`18.19.0`**. Vor Neuinstall Hausstand exportieren (Export ist CODE, Keys sonst weg). Test: [`TEST-18.19.md`](./TEST-18.19.md).
 
 Hirn = Handy. PC = Werkzeug. **Heute:** Groq primär → Gemini Spezialist → 0,5B. Parser wählen Tools; Director koordiniert Agenten. Ist-Stand des Netzwerks: [`66-agents-ist.md`](./66-agents-ist.md).
 
 ## Pull-Reihenfolge
 
-0. **`18.19` Tischplatte PLAN** [`91-next.md`](./91-next.md) — Sprints **385–391 PLAN**. Icons aus; HUD-Workspace ohne Gesicht (Sprints/Module/GUI-Sim); Deep Research/OSS; Memory-Vorschläge. Sideload bleibt **`18.17.0`**. Kein Execute.
+0. **`18.19` Tischplatte** [`91-next.md`](./91-next.md) — Sprints **385–391 CODE**. Icons aus; HUD-Workspace ohne Gesicht (Sprints/Module/GUI-Sim); Deep Research/OSS; Memory-Vorschläge. Sideload bleibt **`18.17.0`**.
 0a. **`18.18` Homescreen** [`90-next.md`](./90-next.md) — Sprints **382–384 CODE**. App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel. Sideload bleibt **`18.17.0`** bis APK.
 0a. **`18.17` Kalender Alltag** [`89-next.md`](./89-next.md) — Sprints **377–381 CODE + APK**. Hausstand-Termine + ICS, Serie, Konflikt. Sideload **`18.17.0`**.
 0a. **`18.16` Personen-Knäuel + Gedächtnis** [`88-next.md`](./88-next.md) — Sprints **369–376 CODE + APK**. Mama=Mutter, Geburtstag im Graph, Recall ein Satz. Dann Begrüßung, Episode, Sleep, Korrektur-Replay. Kein Schwarm, kein erfundener Vorname. Sideload **`18.16.0`**.
@@ -236,7 +236,7 @@ Kein Google-Kalender, kein neuer Agent. Test: [`TEST-18.17.md`](./TEST-18.17.md)
 
 Kein Android-Launcher, kein WebGL, kein 64. Agent. Test: [`TEST-18.18.md`](./TEST-18.18.md). Begründung: [`90-next.md`](./90-next.md).
 
-## PLAN — Schiene `18.19` (Sprints 385–391)
+## CODE — Schiene `18.19` (Sprints 385–391)
 
 | Version | Sprint | Thema |
 |---------|--------|-------|
@@ -248,8 +248,8 @@ Kein Android-Launcher, kein WebGL, kein 64. Agent. Test: [`TEST-18.18.md`](./TES
 | `18.19.0` | [390](./sprints/sprint-390.md) | MemoryProposal → Prüfung → writeMemory |
 | `18.19.0` | [391](./sprints/sprint-391.md) | Gold, Konflikte, Tests |
 
-Kein Execute. Kein LLM-Schwarm. Kein Bildgenerator. Tischplatte ≠ Schreibtisch.
-Begründung: [`91-next.md`](./91-next.md).
+Kein LLM-Schwarm. Kein Bildgenerator. Tischplatte ≠ Schreibtisch.
+Test: [`TEST-18.19.md`](./TEST-18.19.md). Begründung: [`91-next.md`](./91-next.md).
 
 ## CODE — Schiene `18.6` (Sprints 307–314)
 
@@ -442,4 +442,4 @@ Organ = Eingang. Baum = Skill + Wissen (Packs/Pins/Termine). Token-Cluster, kein
 ### `13.40` Sprachmodus (CODE `13.44.0`)
 „Fernseher an“ aus dem Mic, Autokorrektur, 1–2-Satz-Antworten, flüssiger Mund. [`61-next.md`](./61-next.md) Sprints 221–225 **CODE**.
 
-Nächste Produktschiene: **`18.19` PLAN** [`91-next.md`](./91-next.md) 385–391 (Tischplatte, Deep Research, Hirn-Vorschläge), kein Execute. **`18.18` CODE** [`90-next.md`](./90-next.md) 382–384 (Homescreen), Sideload bleibt **`18.17.0`**. **`18.17`** Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**. **`18.16`** Personen-Knäuel [`88-next.md`](./88-next.md) 369–376 **CODE + APK**. Andere Drafts bleiben getrennt. **`18.15`** Hirn härten [`87-next.md`](./87-next.md) 361–368 **CODE + APK**. **`18.14`** Lage-Icons [`86-next.md`](./86-next.md) 356–360 **CODE + APK**. **`18.5`** [`76-next.md`](./76-next.md) 301–306 **CODE** in `18.10.0`. **`18.9`** [`80-next.md`](./80-next.md) 331–337 **CODE + APK**. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.
+Nächste Produktschiene nach `18.19` CODE: andere Drafts bleiben getrennt (Koch `#149`, Kamera `#151`, Clips `#152`, Experte `#153`, Docs-Stand `#156`). **`18.19` CODE** [`91-next.md`](./91-next.md) 385–391 (Tischplatte, Deep Research, Hirn-Vorschläge). **`18.18` CODE** [`90-next.md`](./90-next.md) 382–384 (Homescreen), Sideload bleibt **`18.17.0`**. **`18.17`** Kalender Alltag [`89-next.md`](./89-next.md) 377–381 **CODE + APK**. **`18.16`** Personen-Knäuel [`88-next.md`](./88-next.md) 369–376 **CODE + APK**. **`18.15`** Hirn härten [`87-next.md`](./87-next.md) 361–368 **CODE + APK**. **`18.14`** Lage-Icons [`86-next.md`](./86-next.md) 356–360 **CODE + APK**. **`18.5`** [`76-next.md`](./76-next.md) 301–306 **CODE** in `18.10.0`. **`18.9`** [`80-next.md`](./80-next.md) 331–337 **CODE + APK**. Audit-Reste 272–282 in [`71-audit.md`](./71-audit.md). Gerät-PO [`55-next.md`](./55-next.md) (178) ⚠︎ Anker veraltet.

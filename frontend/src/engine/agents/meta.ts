@@ -73,6 +73,7 @@ export const AGENT_META: Record<string, AgentMeta> = {
   eye: { label: 'Auge / Foto', department: 'werkstatt', organs: ['eye'], visibility: 'domain', autonomy: 'parser' },
   doc: { label: 'Datei', department: 'werkstatt', organs: ['eye', 'hand'], visibility: 'domain', autonomy: 'parser' },
   desk: { label: 'Tisch / Ground', department: 'werkstatt', organs: ['eye', 'pc_eye'], visibility: 'domain', autonomy: 'parser' },
+  board: { label: 'Tischplatte', department: 'werkstatt', organs: ['brain', 'hand'], visibility: 'domain', autonomy: 'parser' },
   backup: { label: 'Hausstand', department: 'system', organs: ['brain'], visibility: 'domain', autonomy: 'parser' },
   face: { label: 'Jarvis / Friday', department: 'system', organs: ['mouth'], visibility: 'domain', autonomy: 'parser' },
 }

@@ -62,6 +62,7 @@ assert.ok(versionCodeOf('18.10.0') > versionCodeOf('18.9.8'), '18.10 darf 18.9.8
 assert.ok(DEFAULT_SETTINGS.tv_mac_eth === '')
 
 function mockIo(opts) {
+  /** @type {{ wake: number, info: number, keys: string[] }} */
   const log = { wake: 0, info: 0, keys: [] }
   let infos = 0
   return {

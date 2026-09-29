@@ -1,5 +1,7 @@
 import { HOME_APPS, type HomeAppId } from '../engine/home-apps.ts'
 import { clockLabel, weekdayLabel } from '../engine/glance-snap.ts'
+import { parseThemeHint, DEFAULT_THEME, type BoardTheme } from '../engine/board-theme.ts'
+import { Workbench } from './Workbench.tsx'
 import { useEffect, useState } from 'react'
 
 function AppGlyph({ id }: { id: HomeAppId }) {
@@ -104,23 +106,51 @@ function AppGlyph({ id }: { id: HomeAppId }) {
 export function HomeScreen({
   face,
   onOpen,
+  tischplatteOn,
+  view,
+  focus,
+  hint,
+  seed,
 }: {
   face: 'jarvis' | 'friday'
   onOpen: (id: HomeAppId) => void
+  tischplatteOn: boolean
+  view: string
+  focus: string
+  hint: string
+  seed: number
 }) {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     const id = window.setInterval(() => setNow(new Date()), 15_000)
     return () => window.clearInterval(id)
   }, [])
+  const theme: BoardTheme = parseThemeHint(hint) || DEFAULT_THEME
   return (
-    <section className="home-screen" aria-label="Homescreen">
+    <section
+      className={`home-screen${tischplatteOn ? ' is-tischplatte' : ''}`}
+      aria-label="Homescreen"
+      data-home-wall={tischplatteOn ? 'board' : 'launcher'}
+      data-motif={theme.motif}
+      style={{
+        ['--board-accent' as string]: theme.accent,
+        ['--board-glow' as string]: String(theme.glow),
+        ['--board-density' as string]: String(theme.density),
+        ['--board-seed' as string]: String(seed || 0),
+      }}
+    >
+      <div className="home-wall home-wall--launcher" aria-hidden />
+      <div className="home-wall home-wall--board" aria-hidden>
+        <span className="home-wall-ring" />
+        <span className="home-wall-ring is-2" />
+      </div>
       <header className="home-clock">
         <p className="home-clock-time">{clockLabel(now)}</p>
         <p className="home-clock-day">{weekdayLabel(now)}</p>
         <p className="home-clock-face">{face === 'friday' ? 'Friday' : 'Jarvis'}</p>
       </header>
-      <div className="home-grid">
+      {tischplatteOn ? <Workbench view={view} focus={focus} /> : null}
+      <div className="home-grid" hidden={tischplatteOn} inert={tischplatteOn} aria-hidden={tischplatteOn}>
         {HOME_APPS.map((app) => (
           <button
             key={app.id}
@@ -129,7 +159,7 @@ export function HomeScreen({
             data-home-app={app.id}
             onClick={() => onOpen(app.id)}
           >
-            <span className="home-app-ico" style={{ ['--app-tint' as string]: app.tint }}>
+            <span className="home-app-ico">
               <AppGlyph id={app.id} />
             </span>
             <span className="home-app-label">{app.label}</span>
