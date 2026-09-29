@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.16.0` — Personen-Knäuel + Gedächtnis — *PLAN*
+
+Mama = Mutter. Geburtstag, Tel und Ort eine Person. Recall ein belegter
+Satz, ohne denselben Lehrsatz nochmal. Danach Begrüßung aus Stand, Episode,
+Sleep, Korrektur spielt den Miss nach. Kein Schwarm, kein erfundener Name.
+Sprints 369–376. [`88-next.md`](./88-next.md). Test: [`TEST-18.16.md`](./TEST-18.16.md).
+
 ### `18.15.0` — Hirn härten — *CODE + APK*
 
 Retrieve-Rerank nur wenn e5-Datei da (nie Router). Propose mit mehr Verträgen,
