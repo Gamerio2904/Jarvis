@@ -1,4 +1,4 @@
-# 91 — Tischplatte + Deep Research + Hirn-Vorschläge **CODE** (`18.19`)
+# 91 — Tischplatte + Deep Research + Hirn-Vorschläge **CODE + APK** (`18.19`)
 
 PO: Wenn die rechte Leiste **Tischplatte an** schaltet, verschwinden die
 App-Icons. Der Homescreen wird eine **glasartige, interaktive Werkbank**
@@ -6,9 +6,9 @@ für Projektplanung (PSP, Sprints, Forschung). Jarvis liest Funktionen aus
 einem Docs-Katalog, startet Recherche- und Plan-Jobs nebeneinander und
 reicht Vorschläge ans Haupthirn — die erst nach Prüfung Memory werden.
 
-**Dieses Dokument ist CODE nach Execute 385–391.** App-Code **`18.19.0`**.
+**Dieses Dokument ist CODE + APK nach Execute 385–391.** App-Code **`18.19.0`**.
 Sprints **385–391**. Grundlage: Homescreen **`18.18.0`** [`90-next.md`](./90-next.md). Sideload
-bleibt **`18.17.0`** bis eine spätere APK.
+**`18.19.0`**, versionCode `181900`.
 
 Andere Drafts bleiben getrennt: Koch `#149`, Kamera-Wahl `#151`, Clips
 `#152`, Experte `#153`, Docs-Stand `#156`, Abbruch-Hotfix `#158`, PLAN
@@ -581,8 +581,8 @@ Harte Kette: 385 → 386 (ohne Glas keine Karten). 387 unabhängig nach 385.
 386/389 sichtbar. 389 braucht 385 + 388. 390 braucht Gate (liegt) und
  ideally 388 Claims. 391 zuletzt.
 
-Landet in App-Code **`18.19.0`** erst nach Execute. Sideload bleibt
-**`18.17.0`** bis APK (Homescreen `18.18` ebenfalls noch ohne Sideload).
+Landet in App-Code **`18.19.0`**. Sideload **`18.19.0`**, versionCode `181900`
+(Homescreen `18.18` liegt in derselben APK).
 
 ---
 

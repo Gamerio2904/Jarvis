@@ -1,6 +1,6 @@
 # Sprint 385 — Tischplatte-Modus (Theme A/B, Icons aus)
 
-**Version:** `18.19.0` — **CODE** Must
+**Version:** `18.19.0` — **CODE + APK** Must
 **Plan:** [`91-next.md`](../91-next.md) §4.0–4.4
 **Voraussetzung:** Homescreen `18.18.0` (382–384).
 

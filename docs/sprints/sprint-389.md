@@ -1,6 +1,6 @@
 # Sprint 389 — Jobs: Recherche und Plan in einem Zug
 
-**Version:** `18.19.0` — **CODE** Must
+**Version:** `18.19.0` — **CODE + APK** Must
 **Plan:** [`91-next.md`](../91-next.md)
 **Voraussetzung:** 385 (Chips auf Glas), 386 (Plan-Karten), 388 (Deep/OSS). Idea-Fill existiert.
 

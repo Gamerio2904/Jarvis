@@ -1,6 +1,6 @@
 # Sprint 388 — Deep Research härten (allgemein) + OSS
 
-**Version:** `18.19.0` — **CODE** Must
+**Version:** `18.19.0` — **CODE + APK** Must
 **Plan:** [`91-next.md`](../91-next.md)
 **Voraussetzung:** Deep-Ist `11.60` / Chat-Loop (`research-parse.ts`, `web-search.ts`, Slot `research-deep`). **Nicht** tisch-exklusiv.
 

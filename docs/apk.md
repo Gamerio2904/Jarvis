@@ -1,6 +1,11 @@
-# Android-APK — Sideload `18.17.0`
+# Android-APK — Sideload `18.19.0`
 
-App-Code **`18.17.0`**. Sideload **`18.17.0`** (versionCode `181700`):
+App-Code **`18.19.0`**. Sideload **`18.19.0`** (versionCode `181900`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
+
+**18.18.0:** Homescreen. In Sideload **`18.19.0`**.
+
+**18.17.0:** Kalender Alltag. Sideload **`18.17.0`** (versionCode `181700`):
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
 **18.16.0:** Personen-Knäuel. Sideload **`18.16.0`** (versionCode `181600`):
@@ -90,10 +95,10 @@ Lookups). Schicht per Satz, z. B. „Zeig Erdbeben“. In Sideload `18.9.1`.
 
 ## Download
 
-**Fertige APK `18.14.2`:**  
+**Fertige APK `18.19.0`:**  
 https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-- versionName `18.14.2` · versionCode `181402`
+- versionName `18.19.0` · versionCode `181900`
 
 ## Build lokal
 

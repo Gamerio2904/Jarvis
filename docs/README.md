@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.19.0`**. Sideload-APK **`18.17.0`**, versionCode `181700` bis APK. Schiene **Tischplatte `18.19` CODE** [`91-next.md`](./91-next.md) (385–391). Homescreen **CODE** [`90-next.md`](./90-next.md) (382–384). Kalender Alltag **CODE + APK** [`89-next.md`](./89-next.md) (377–381). Personen-Knäuel **CODE + APK** [`88-next.md`](./88-next.md) (369–376). Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.19.md`](./TEST-18.19.md).
+**Jetzt:** Code **`18.19.0`**. Sideload-APK **`18.19.0`**, versionCode `181900`. Schiene **Tischplatte `18.19` CODE + APK** [`91-next.md`](./91-next.md) (385–391). Homescreen **CODE + APK** [`90-next.md`](./90-next.md) (382–384) in derselben Sideload. Kalender Alltag **CODE + APK** [`89-next.md`](./89-next.md) (377–381). Personen-Knäuel **CODE + APK** [`88-next.md`](./88-next.md) (369–376). Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.19.md`](./TEST-18.19.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -48,7 +48,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 39 | [Zwei Gesichter + Tablet](./39-next.md) | **`4.53` CODE** — Jarvis/Friday Stimme, Lage neben Chat |
 | 40 | [Körper intern](./40-next.md) | **`4.66` CODE** — 3D-Schema in der Lage; PC nur PC-Organe (in `5.11`) |
 | 41 | [Lokales Sehen / LocateAnything](./41-next.md) | **`4.76` CODE** Parser, Vision ehrlich aus; Gewichte nach 3060-GO |
-| 42 | [Alles geplant](./42-planned.md) | Index Live-APK **`18.17.0`**, App-Code **`18.18.0`** |
+| 42 | [Alles geplant](./42-planned.md) | Index Live-APK **`18.19.0`**, App-Code **`18.19.0`** |
 | 44 | [Debug-Lauf](./44-next.md) | **`5.11` CODE** — Kategorien, Sequenz, Export mit Verdict |
 | 45 | [Bühne & Hirn](./45-next.md) | **`6.50` CODE** in Sideload `6.60` — Gemini Hauptweg, Globus Zoom/GIBS, Motion, Stimme |
 | 46 | [Prompt-Test + Parser](./46-test-650.md) | **`6.50` Test** · Execute [`46-next.md`](./46-next.md) **`6.51` CODE** |
@@ -93,9 +93,9 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 87 | [Hirn härten 18.15](./87-next.md) | **CODE + APK** `18.15.0` — Retrieve, Propose, Knowledge, Abort, Presence, Satz-TTS, Lage-Felder, Gold; Sprints 361–368. Kein Schwarm |
 | 88 | [Personen-Knäuel 18.16](./88-next.md) | **CODE + APK** `18.16.0` — Mama=Mutter, Geburtstag im Graph, Recall ein Satz; Begrüßung, Episode, Sleep, Korrektur; Sprints 369–376 |
 | 89 | [Kalender Alltag 18.17](./89-next.md) | **CODE + APK** `18.17.0` — Hausstand-Termine, ICS, Serie, Konflikt; Sprints 377–381 |
-| 90 | [Homescreen 18.18](./90-next.md) | **CODE** `18.18.0` — App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel; Sprints 382–384 |
-| 91 | [Tischplatte 18.19](./91-next.md) | **CODE** `18.19.0` — Icons aus; HUD-Workspace ohne Gesicht (Sprints/Module/GUI-Sim); Deep Research/OSS; Memory-Vorschläge; Sprints 385–391 |
-| — | [APK](./apk.md) | Sideload `18.17.0`; Test: [`TEST-18.19.md`](./TEST-18.19.md) |
+| 90 | [Homescreen 18.18](./90-next.md) | **CODE + APK** `18.18.0` — App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel; Sprints 382–384; in Sideload `18.19.0` |
+| 91 | [Tischplatte 18.19](./91-next.md) | **CODE + APK** `18.19.0` — Icons aus; HUD-Workspace ohne Gesicht (Sprints/Module/GUI-Sim); Deep Research/OSS; Memory-Vorschläge; Sprints 385–391 |
+| — | [APK](./apk.md) | Sideload `18.19.0`; Test: [`TEST-18.19.md`](./TEST-18.19.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |
 | — | [Test seit 1.16](./TEST-1.16-plus.md) | Konkrete Prompts und Sitzungen ab Einkauf `1.16` bis 18.7 |
@@ -326,7 +326,7 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 361–368 | `18.15.0` | **CODE + APK** (Hirn härten, [`87-next.md`](./87-next.md)) |
 | 369–376 | `18.16.0` | **CODE + APK** (Personen-Knäuel, [`88-next.md`](./88-next.md)) |
 | 377–381 | `18.17.0` | **CODE + APK** (Kalender Alltag, [`89-next.md`](./89-next.md)) |
-| 382–384 | `18.18.0` | **CODE** (Homescreen, [`90-next.md`](./90-next.md)) |
-| 385–391 | `18.19.0` | **CODE** (Tischplatte, [`91-next.md`](./91-next.md)) |
+| 382–384 | `18.18.0` | **CODE + APK** (Homescreen, [`90-next.md`](./90-next.md)) |
+| 385–391 | `18.19.0` | **CODE + APK** (Tischplatte, [`91-next.md`](./91-next.md)) |
 
-**Aktuell:** App-Code **`18.19.0`**. Sideload-APK **`18.17.0`**, versionCode `181700` bis APK. 385–391 **CODE**. Test: [`TEST-18.19.md`](./TEST-18.19.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.19.0`**. Sideload-APK **`18.19.0`**, versionCode `181900`. 385–391 **CODE + APK**. Test: [`TEST-18.19.md`](./TEST-18.19.md). Index: [`42-planned.md`](./42-planned.md).

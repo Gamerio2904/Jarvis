@@ -1,6 +1,6 @@
 # Sprint 384 — Homescreen testen
 
-**Version:** `18.18.0` — **CODE** Must
+**Version:** `18.18.0` — **CODE + APK** Must
 **Plan:** [`90-next.md`](../90-next.md)
 **Voraussetzung:** 382–383.
 
@@ -18,7 +18,7 @@ Gold und Gerät wissen, dass Start eine Fläche ist.
 
 ## Won’t
 
-APK in diesem Sprint (Sideload bleibt 18.17.0 bis der PO sie will).
+APK liegt in Sideload `18.19.0`.
 
 ## PO-Prüfung
 

@@ -1,7 +1,7 @@
 # TEST 18.18 — Homescreen
 
 Nach Execute von [`90-next.md`](./90-next.md). App-Code **`18.18.0`**.
-Sideload bleibt **`18.17.0`** bis APK. Over `18.17.0` erst nach Sideload.
+In Sideload **`18.19.0`**. Over `18.17.0` nach Sideload.
 
 Gerät, nicht nur die Cloud-VM. Jede Box ist ein Satz — **einmal tippen, kopieren, in den Chat**.
 

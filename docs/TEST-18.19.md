@@ -1,13 +1,13 @@
 # TEST 18.19 — Tischplatte
 
 Nach Execute von [`91-next.md`](./91-next.md). App-Code **`18.19.0`**.
-Sideload bleibt **`18.17.0`** bis APK.
+Sideload **`18.19.0`**, versionCode `181900`. Over `18.17.0` installieren.
 
 Gerät, nicht nur die Cloud-VM. Jede Box ist ein Satz — **einmal tippen, kopieren, in den Chat**.
 
 ## 1. Version
 
-Einstellungen / Hilfe nennt **`18.19.0`**. Nicht `18.18.0`. Sideload-Datei darf weiter `18.17.0` heißen.
+Einstellungen / Hilfe nennt **`18.19.0`**. Nicht `18.18.0`. Sideload-Datei heißt `18.19.0`.
 
 ## 2. Tischplatte an — Icons weg, Wand B, kein Gesicht
 

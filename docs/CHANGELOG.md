@@ -5,21 +5,23 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
-### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *CODE*
+### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *CODE + APK*
 
 Glas-Werkbank: **ein** Jarvis-Theme. Tischplatte an blendet App-Icons aus
 und schaltet den Hintergrund auf ein steuerbares HUD **ohne Gesicht**
 (Sprints, PSP, Modul-Wireframes, GUI-Sim). Deep Research + OSS nur als
 Chips/Quellen, kein tldraw. Memory erst nach Ja. Sprints 385–391.
-[`91-next.md`](./91-next.md). Test: [`TEST-18.19.md`](./TEST-18.19.md).
-Sideload bleibt **`18.17.0`** bis APK.
+Homescreen `18.18` liegt in derselben APK. [`91-next.md`](./91-next.md).
+Test: [`TEST-18.19.md`](./TEST-18.19.md).
+Sideload **`18.19.0`** (versionCode `181900`):
+https://github.com/Gamerio2904/Jarvis/raw/main/releases/Jarvis.apk
 
-### `18.18.0` — Homescreen — *CODE*
+### `18.18.0` — Homescreen — *CODE + APK*
 
 Zweiter Homescreen: App-Icons statt Chat beim Öffnen. Rechte Werte-Leiste
 (Termine, Timer, Wetter-Satz, Einkauf, Key). Mini-Chat und Sprach-Kugel
 als Shortcuts. CSS-3D, kein WebGL. Sprints 382–384. [`90-next.md`](./90-next.md).
-Test: [`TEST-18.18.md`](./TEST-18.18.md). Sideload bleibt **`18.17.0`** bis APK.
+Test: [`TEST-18.18.md`](./TEST-18.18.md). In Sideload **`18.19.0`**.
 
 ### `18.17.0` — Kalender Alltag — *CODE + APK*
 

@@ -1,11 +1,11 @@
-# 90 — Homescreen **CODE** (`18.18.0`)
+# 90 — Homescreen **CODE + APK** (`18.18.0`)
 
 PO: Jarvis soll sich wie ein **zweiter Homescreen** anfühlen. APK auf,
 dann App-Icons — nicht sofort der Chat. Rechts eine kleine Leiste mit
 echten Werten. Mini-Chat und Sprach-Kugel als Shortcuts auf dem Schirm.
 
-Grundlage: Sideload **`18.17.0`**, versionCode `181700`. **Dieses Dokument ist nach Execute CODE.**
-Sprints **382–384**. App-Code **`18.18.0`**. Sideload bleibt **`18.17.0`** bis APK.
+Grundlage: Sideload **`18.19.0`**, versionCode `181900`. **Dieses Dokument ist nach Execute CODE + APK.**
+Sprints **382–384**. App-Code **`18.18.0`**. In Sideload **`18.19.0`**.
 
 Andere Drafts bleiben getrennt: Koch `#149`, Kamera-Wahl `#151`, Clips `#152`,
 Experte `#153`, Docs-Stand `#156`, Abbruch-Hotfix `#158`, PLAN `#159`.
@@ -35,5 +35,5 @@ erfundene Wetter/Live-Werte.
 | 383 | Werte-Leiste, Mini-Chat, Sprach-Kugel | Must |
 | 384 | Tests und Gold | Must |
 
-Landet in App-Code **`18.18.0`**. Sideload bleibt **`18.17.0`** bis APK.
+Landet in App-Code **`18.18.0`**. In Sideload **`18.19.0`**.
 Test: [`TEST-18.18.md`](./TEST-18.18.md).

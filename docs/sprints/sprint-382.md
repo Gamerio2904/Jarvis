@@ -1,6 +1,6 @@
 # Sprint 382 — Homescreen-Raster
 
-**Version:** `18.18.0` — **CODE** Must
+**Version:** `18.18.0` — **CODE + APK** Must
 **Plan:** [`90-next.md`](../90-next.md)
 **Voraussetzung:** main `18.17.0`.
 

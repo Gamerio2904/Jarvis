@@ -1,6 +1,6 @@
 # Sprint 383 — Werte-Leiste und Shortcuts
 
-**Version:** `18.18.0` — **CODE** Must
+**Version:** `18.18.0` — **CODE + APK** Must
 **Plan:** [`90-next.md`](../90-next.md)
 **Voraussetzung:** 382.
 

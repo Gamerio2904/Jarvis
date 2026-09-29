@@ -1,6 +1,6 @@
 # Sprint 391 — Gold, Konflikte, Tests Tischplatte
 
-**Version:** `18.19.0` — **CODE** Must
+**Version:** `18.19.0` — **CODE + APK** Must
 **Plan:** [`91-next.md`](../91-next.md)
 **Voraussetzung:** 385–390.
 
@@ -18,7 +18,7 @@ nicht, Deep bleibt Deep, Jobs sind kein Schwarm, Memory braucht Ja.
 | S391-2 | Konflikte | `conflicts.ts` | Plug/Wetter/Kalender schlagen `board`. `platte`-Token schlägt `desk` |
 | S391-3 | Unit | `test-board*.mjs` `test-research-deep*.mjs` `test-memory-propose*.mjs` | Theme-JSON wirft unbekannte Keys weg. Deep-Queries ≥ 3 Rollen, Live-Lookup 1–2. `proposeMemory` Dump → keine Row. Accept ruft Gate |
 | S391-4 | GUI | Puppeteer analog Homescreen | Toggle an: Icons `hidden`, Wallpaper-Klasse `is-tischplatte` / Wand B. Toggle aus: Icons da, Wand A. Kachel-Hintergrund = Wallpaper, nicht `tint` |
-| S391-5 | Version | `store.ts` Docs | App-Code `18.19.0` erst beim Execute. Sideload bleibt `18.17.0` bis APK. `TEST-18.19.md` dann, nicht in PLAN |
+| S391-5 | Version | `store.ts` Docs | App-Code `18.19.0`. Sideload `18.19.0`, versionCode `181900`. `TEST-18.19.md` |
 
 ## Won’t
 
