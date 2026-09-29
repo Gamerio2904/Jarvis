@@ -1,13 +1,18 @@
 import { Capacitor, CapacitorHttp } from '@capacitor/core'
 import { shouldProxyWebHost, WEB_PROXY_PATH } from './web-proxy.ts'
-import { withTurnSignal } from './turn-abort.ts'
+import { abortError, isTurnAborted, raceTurn, withTurnSignal } from './turn-abort.ts'
 
 const WEB_GET_MS = 12_000
 
 function abortAfter(ms: number): AbortSignal {
   const ac = new AbortController()
-  globalThis.setTimeout(() => ac.abort(), ms)
+  const t = globalThis.setTimeout(() => ac.abort(), ms)
+  t.unref?.()
   return ac.signal
+}
+
+function throwIfAborted(): void {
+  if (isTurnAborted()) throw abortError()
 }
 
 /** Browser darf User-Agent nicht setzen — das löst Preflight aus und killt Wikipedia/Frankfurter. */
@@ -46,13 +51,17 @@ export async function postJson(
   const read = timeoutMs && timeoutMs > 0 ? timeoutMs : 60_000
   const connect = Math.min(8_000, Math.max(400, Math.min(read, Math.floor(read * 0.5))))
   if (Capacitor.isNativePlatform()) {
-    const res = await CapacitorHttp.post({
-      url,
-      headers,
-      data: body,
-      connectTimeout: connect,
-      readTimeout: read,
-    })
+    throwIfAborted()
+    const res = await raceTurn(
+      CapacitorHttp.post({
+        url,
+        headers,
+        data: body,
+        connectTimeout: connect,
+        readTimeout: read,
+      }),
+    )
+    throwIfAborted()
     let json: Record<string, unknown> = {}
     try {
       json = (typeof res.data === 'string' ? JSON.parse(res.data || '{}') : res.data || {}) as Record<
@@ -96,13 +105,17 @@ export async function postForm(
   const read = Math.max(400, timeoutMs)
   const connect = Math.min(8_000, Math.max(400, Math.floor(read * 0.5)))
   if (Capacitor.isNativePlatform()) {
-    const res = await CapacitorHttp.post({
-      url,
-      headers,
-      data: body,
-      connectTimeout: connect,
-      readTimeout: read,
-    })
+    throwIfAborted()
+    const res = await raceTurn(
+      CapacitorHttp.post({
+        url,
+        headers,
+        data: body,
+        connectTimeout: connect,
+        readTimeout: read,
+      }),
+    )
+    throwIfAborted()
     let json: Record<string, unknown> = {}
     try {
       json = (typeof res.data === 'string' ? JSON.parse(res.data || '{}') : res.data || {}) as Record<
@@ -129,12 +142,16 @@ export async function getJson(
   headers: Record<string, string> = {},
 ): Promise<{ status: number; json: Record<string, unknown> }> {
   if (Capacitor.isNativePlatform()) {
-    const res = await CapacitorHttp.get({
-      url,
-      headers,
-      connectTimeout: 12_000,
-      readTimeout: 20_000,
-    })
+    throwIfAborted()
+    const res = await raceTurn(
+      CapacitorHttp.get({
+        url,
+        headers,
+        connectTimeout: 12_000,
+        readTimeout: 20_000,
+      }),
+    )
+    throwIfAborted()
     let json: Record<string, unknown> = {}
     try {
       const parsed: unknown = typeof res.data === 'string' ? JSON.parse(res.data || '{}') : res.data
@@ -163,13 +180,17 @@ export async function getText(
   headers: Record<string, string> = {},
 ): Promise<{ status: number; text: string; headers: Record<string, string> }> {
   if (Capacitor.isNativePlatform()) {
-    const res = await CapacitorHttp.get({
-      url,
-      headers,
-      connectTimeout: 12_000,
-      readTimeout: 20_000,
-      responseType: 'text',
-    })
+    throwIfAborted()
+    const res = await raceTurn(
+      CapacitorHttp.get({
+        url,
+        headers,
+        connectTimeout: 12_000,
+        readTimeout: 20_000,
+        responseType: 'text',
+      }),
+    )
+    throwIfAborted()
     const text = typeof res.data === 'string' ? res.data : res.data == null ? '' : JSON.stringify(res.data)
     return { status: res.status, text, headers: lowerKeys(res.headers) }
   }
@@ -200,13 +221,17 @@ export async function getBinary(
   const read = Math.max(400, timeoutMs)
   const connect = Math.min(8_000, Math.max(400, Math.floor(read * 0.5)))
   if (Capacitor.isNativePlatform()) {
-    const res = await CapacitorHttp.get({
-      url,
-      headers,
-      connectTimeout: connect,
-      readTimeout: read,
-      responseType: 'arraybuffer',
-    })
+    throwIfAborted()
+    const res = await raceTurn(
+      CapacitorHttp.get({
+        url,
+        headers,
+        connectTimeout: connect,
+        readTimeout: read,
+        responseType: 'arraybuffer',
+      }),
+    )
+    throwIfAborted()
     const data = res.data
     const bytes: Uint8Array = typeof data === 'string' && data ? bytesFromBase64(data) : new Uint8Array(0)
     return { status: res.status, bytes }

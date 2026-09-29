@@ -1,6 +1,6 @@
 # Jarvis — Planungsdokumente
 
-**Jetzt:** Code **`18.15.0`**. Sideload-APK **`18.15.0`**, versionCode `181500`. Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368). Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.15.md`](./TEST-18.15.md).
+**Jetzt:** Code **`18.15.1`**. Sideload-APK **`18.15.0`**, versionCode `181500`. Hirn härten **CODE + APK** [`87-next.md`](./87-next.md) (361–368), Abbruch-Fix in `18.15.1`. Lage-Icons in `18.14.2`. **Hirn:** Groq primär → Gemini Spezialist → 0,5B. **Agenten-Netzwerk:** Ist-Stand in [`66-agents-ist.md`](./66-agents-ist.md). Schach: Jarvis zieht Schwarz. Test: [`TEST-18.15.md`](./TEST-18.15.md).
 
 Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Docs bleiben als Protokoll.
 
@@ -321,4 +321,4 @@ Sprints (numerisch = Lieferreihenfolge): [`sprints/README.md`](./sprints/README.
 | 356–360 | `18.14.0` | **CODE + APK** (Lage-Kugel Icons, [`86-next.md`](./86-next.md)) |
 | 361–368 | `18.15.0` | **CODE + APK** (Hirn härten, [`87-next.md`](./87-next.md)) |
 
-**Aktuell:** App-Code **`18.15.0`**. Sideload-APK **`18.15.0`**, versionCode `181500`. 361–368 **CODE + APK**. Test: [`TEST-18.15.md`](./TEST-18.15.md). Index: [`42-planned.md`](./42-planned.md).
+**Aktuell:** App-Code **`18.15.1`**. Sideload-APK **`18.15.0`**, versionCode `181500`. 361–368 **CODE + APK**. Test: [`TEST-18.15.md`](./TEST-18.15.md). Index: [`42-planned.md`](./42-planned.md).

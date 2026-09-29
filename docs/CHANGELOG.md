@@ -5,6 +5,13 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.15.1` — Hirn/Agenten: Abbruch bleibt tot — *CODE*
+
+Barge-in und neuer Zug beenden den alten Agenten **ohne** Groq-Nachlauf
+und ohne „Chat fehlgeschlagen“. Native HTTP und Groq-429-Warten hören
+auf das Zug-Signal. 63 Parser = 63 Executoren (Docs-Zahl nachgezogen).
+Sideload bleibt **`18.15.0`** bis APK. Test: [`TEST-18.15.md`](./TEST-18.15.md).
+
 ### `18.15.0` — Hirn härten — *CODE + APK*
 
 Retrieve-Rerank nur wenn e5-Datei da (nie Router). Propose mit mehr Verträgen,
