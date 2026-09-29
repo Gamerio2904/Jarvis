@@ -851,6 +851,22 @@ Sprints 382–384.
 | `18.18.0` | Werte-Leiste, Mini-Chat, Sprach-Kugel | 383 CODE |
 | `18.18.0` | Tests Homescreen | 384 CODE |
 
+### `18.19` — Tischplatte [`91-next.md`](./91-next.md) **PLAN**
+
+**`18.19.0`** (erst beim Execute): Glas-Werkbank, PSP, Docs-Katalog, Deep
+Research härten, Jobs statt Schwarm, Memory-Vorschläge. Sprints 385–391
+**PLAN**. Sideload bleibt **`18.17.0`** bis APK. Over `18.18.0` nach Execute.
+
+| Version | Bedeutung | Sprint |
+|---------|-----------|--------|
+| `18.19.0` | Tischplatte-Modus Glas + Schalter | 385 PLAN |
+| `18.19.0` | PSP + Sprintkarten auf dem Glas | 386 PLAN |
+| `18.19.0` | Feature-Katalog aus Docs | 387 PLAN |
+| `18.19.0` | Deep Research härten + OSS | 388 PLAN |
+| `18.19.0` | Jobs Recherche + Plan | 389 PLAN |
+| `18.19.0` | MemoryProposal → writeMemory | 390 PLAN |
+| `18.19.0` | Gold, Konflikte, Tests | 391 PLAN |
+
 ### `14.0` — Agenten-Netzwerk [`62-next.md`](./62-next.md) **CODE** (Protokoll)
 
 Spezial-Agenten, Director, Curator, Agenten-Karte. Kein 137× LLM.

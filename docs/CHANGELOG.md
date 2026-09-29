@@ -5,6 +5,14 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *PLAN*
+
+Glas-Werkbank statt Icons (Schalter in der Werte-Leiste). PSP und
+Sprints aus dem bestehenden Idee-Plan. Feature-Katalog auf Zuruf. Deep
+Research allgemein härter (Rollen, OSS/GitHub optional). Jobs statt
+LLM-Schwarm. Recherche darf nur **vorschlagen**, `writeMemory` erst nach
+Ja. Sprints 385–391. [`91-next.md`](./91-next.md). Kein Execute, keine APK.
+
 ### `18.18.0` — Homescreen — *CODE*
 
 Zweiter Homescreen: App-Icons statt Chat beim Öffnen. Rechte Werte-Leiste
