@@ -758,6 +758,24 @@ export const TEST_COPY_GROUPS: TestCopyGroup[] = [
       },
     ],
   },
+  {
+    title: '18.20 Tafel & Lage',
+    items: [
+      { label: 'Lage an', text: 'Lage an', expect: { tool: 'hud' } },
+      { label: 'Tafel an', text: 'Tischplatte an', expect: { tool: 'board' } },
+      { label: 'Testprojekt', text: 'Idee: Tik-Tak-To auf der Tischplatte', expect: { tool: 'idea' } },
+      { label: 'Sprints', text: 'Zeig Sprints', expect: { tool: 'board' } },
+      { label: 'Neuer Hintergrund', text: 'Neuer Hintergrund', expect: { tool: 'board' } },
+      { label: 'Quellen', text: 'Zeig Quellen', expect: { tool: 'board' } },
+      {
+        label: 'OSS + Plan',
+        text: 'Such Open Source zu Tic-Tac-Toe und plane Sprints für Idee 1',
+        expect: { tool: 'board' },
+      },
+      { label: 'Tafel aus', text: 'Tischplatte aus', expect: { tool: 'board' } },
+      { label: 'Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
+    ],
+  },
 ]
 
 /*
@@ -976,6 +994,29 @@ export const STORYLINE_GROUPS: TestCopyGroup[] = [
       { label: 'Nachrichten holen', text: 'Hol die Nachrichten', expect: { tool: 'news' } },
       { label: 'Fernseher bleibt Gerät', text: 'Fernseher an', expect: { tool: 'tv' } },
       { label: 'Wetter', text: 'Wetter heute', expect: { tool: 'weather' } },
+    ],
+  },
+  {
+    title: '🟢 18.20 Tafel der Reihe nach',
+    items: [
+      { label: '1 – Lage an', text: 'Lage an', expect: { tool: 'hud' } },
+      { label: '2 – Tafel an', text: 'Tischplatte an', expect: { tool: 'board' } },
+      { label: '3 – Testprojekt', text: 'Idee: Tik-Tak-To auf der Tischplatte', expect: { tool: 'idea' } },
+      { label: '4 – Sprints', text: 'Zeig Sprints', expect: { tool: 'board' } },
+      { label: '5 – Hintergrund', text: 'Neuer Hintergrund', expect: { tool: 'board' } },
+      { label: '6 – Quellen', text: 'Zeig Quellen', expect: { tool: 'board' } },
+      {
+        label: '7 – OSS + Plan',
+        text: 'Such Open Source zu Tic-Tac-Toe und plane Sprints für Idee 1',
+        expect: { tool: 'board' },
+      },
+      { label: '8 – Tafel aus', text: 'Tischplatte aus', expect: { tool: 'board' } },
+      { label: '9 – Lage aus', text: 'Lage aus', expect: { tool: 'hud' } },
+      {
+        label: '10 – Highlights',
+        text: 'Schneide Highlights aus https://www.youtube.com/watch?v=aNvsF1jToJQ',
+        expect: { tool: 'clip' },
+      },
     ],
   },
   {

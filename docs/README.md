@@ -96,6 +96,7 @@ Dieses Verzeichnis ist die **agile Projektplanung**. Historische `0.x`/`1.x`-Doc
 | 90 | [Homescreen 18.18](./90-next.md) | **CODE + APK** `18.18.0` — App-Icons, Werte-Leiste, Mini-Chat, Sprach-Kugel; Sprints 382–384; in Sideload `18.19.0` |
 | 91 | [Tischplatte 18.19](./91-next.md) | **CODE + APK** `18.19.0` — Icons aus; HUD-Workspace ohne Gesicht (Sprints/Module/GUI-Sim); Deep Research/OSS; Memory-Vorschläge; Sprints 385–391 |
 | 92 | [YouTube-Highlights 18.20](./92-next.md) | **CODE** — Top-Liste aus 1–3 YouTube-Links, Schnitt auf dem PC; Sprints 392–397. Nicht in der APK |
+| — | [Test 18.20](./TEST-18.20.md) | Tafel, Lage-Layout, Highlights — Kopierboxen, dieselben Sätze in Spur Heute |
 | — | [APK](./apk.md) | Sideload `18.19.0`; Test: [`TEST-18.19.md`](./TEST-18.19.md) |
 | — | [Historisch](./HISTORISCH.md) | Was man nicht mehr zieht |
 | — | [PC-Test](./TEST-PC.md) | Browser + JarvisPC + Testprompts-Spuren |

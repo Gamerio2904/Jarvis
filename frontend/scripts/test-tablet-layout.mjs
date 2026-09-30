@@ -22,4 +22,25 @@ assert.match(lage, /data-lage-chat/)
 assert.match(lage, /lage-stage/)
 assert.match(blocks, /hud\|board/)
 
+const { groupsForLane, unassignedCopyTitles } = await import('../src/engine/probe-lanes.ts')
+const tafel = groupsForLane('heute').find((g) => g.title === '18.20 Tafel & Lage')
+assert.ok(tafel, '18.20 Tafel & Lage fehlt in Spur Heute')
+const texts = tafel.items.map((i) => i.text)
+for (const sentence of [
+  'Lage an',
+  'Tischplatte an',
+  'Idee: Tik-Tak-To auf der Tischplatte',
+  'Zeig Sprints',
+  'Neuer Hintergrund',
+  'Zeig Quellen',
+  'Such Open Source zu Tic-Tac-Toe und plane Sprints für Idee 1',
+  'Tischplatte aus',
+  'Lage aus',
+]) {
+  assert.ok(texts.includes(sentence), sentence)
+}
+assert.ok(groupsForLane('heute').some((g) => g.title === '18.20 YouTube-Highlights'))
+assert.ok(groupsForLane('story').some((g) => g.title === '🟢 18.20 Tafel der Reihe nach'))
+assert.deepEqual(unassignedCopyTitles(), [])
+
 console.log('ok test-tablet-layout')

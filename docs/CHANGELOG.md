@@ -12,6 +12,10 @@ schneidet, die Datei bleibt unter `Videos\Jarvis`, kein Upload. Sprints
 392–397. Sideload bleibt `18.19.0`, bis ein Windows-PC eine Datei
 geschrieben hat. [`92-next.md`](./92-next.md).
 
+Tablet-Layout auf demselben Code: Lage ohne rechten Chat, Schalter
+**Chat**, Leiste links unten, Werte-Leiste **Tischplatte an** öffnet die
+Werkbank. Testprompts in Spur Heute und [`TEST-18.20.md`](./TEST-18.20.md).
+
 ### `18.19.0` — Tischplatte + Deep Research + Hirn-Vorschläge — *CODE + APK*
 
 Glas-Werkbank: **ein** Jarvis-Theme. Tischplatte an blendet App-Icons aus

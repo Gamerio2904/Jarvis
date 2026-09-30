@@ -25,7 +25,7 @@ export type ProbeLane = {
 
 /** Kurze Sprünge statt einer endlosen Liste. Reihenfolge = Alltag des Testers. */
 export const PROBE_LANES: ProbeLane[] = [
-  { id: 'heute', label: 'Heute', hint: '18.8, 18.7 und die kurze Fläche' },
+  { id: 'heute', label: 'Heute', hint: '18.20 Tafel, YouTube, 18.8' },
   { id: 'gespraech', label: 'Gespräch', hint: 'Smalltalk, Memory, Recall' },
   { id: 'alltag', label: 'Alltag', hint: 'Einkauf, Timer, Kalender, Fahrt' },
   { id: 'geraet', label: 'Gerät', hint: 'PC, TV, Haus, Foto' },
@@ -36,7 +36,7 @@ export const PROBE_LANES: ProbeLane[] = [
 ]
 
 const LANE_TITLES: Record<Exclude<ProbeLaneId, 'lauf' | 'story' | 'probe'>, string[]> = {
-  heute: ['18.8 Debug & Termin', '18.7 Fläche', 'Körper-13', 'Flächen-12'],
+  heute: ['18.20 Tafel & Lage', '18.20 YouTube-Highlights', '18.8 Debug & Termin', '18.7 Fläche', 'Körper-13', 'Flächen-12'],
   gespraech: ['Smalltalk', 'Gedächtnis', 'Memory-10', 'Naive Fragen', 'Gesicht & Hausstand'],
   alltag: [
     'Einkauf',
