@@ -126,6 +126,15 @@ export function IconFilm() {
   )
 }
 
+export function IconTisch() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
+      <rect x="3.5" y="4" width="17" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path fill="none" stroke="currentColor" strokeWidth="1.6" d="M3.5 9.5h17M9.2 4v16M14.8 4v16" />
+    </svg>
+  )
+}
+
 export function IconGearMini() {
   return (
     <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>

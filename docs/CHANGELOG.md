@@ -5,6 +5,17 @@ Sprints folgen numerischer Lieferreihenfolge ([`sprints/README.md`](./sprints/RE
 
 ## Unreleased
 
+### `18.23.4` — Tischplatte plant, JSON zum Laden — *CODE*
+
+Die Tischplatte ist die Planungsfläche: Sprints und PSP als JSON. Das
+Agentenfenster ist weg. `Plane das` schreibt das Projekt auf die Tafel.
+`Lade den PSP runter` und `Lade alles zu Projekt …` speichern die Datei.
+Tisch sitzt in der Leiste unten links. Karten bleiben im Bild, Quellen
+laufen nicht mehr über den Rand.
+
+App-Code und Sideload **`18.23.4`** (versionCode `182304`):
+https://github.com/Gamerio2904/Jarvis/raw/cursor/tisch-planung-ccff/releases/Jarvis.apk
+
 ### `18.23.3` — Großes Planfenster — *CODE*
 
 Das Fenster ist größer. Zwei Drittel schreiben den Plan live. Ein Drittel
